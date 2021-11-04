@@ -243,7 +243,7 @@ void SpawnLittleExp(DSWActor*);
 DSWActor* SpawnLargeExp(DSWActor*);
 int SpawnNuclearExp(int16_t Weapon);
 int SpawnBoltExp(int16_t Weapon);
-int SpawnTracerExp(int16_t Weapon);
+void SpawnTracerExp(DSWActor* Weapon);
 int SpawnGoroFireballExp(int16_t Weapon);
 bool MissileHitMatch(short Weapon,short WeaponNum,short hit_sprite);
 int DoItemFly(DSWActor*);

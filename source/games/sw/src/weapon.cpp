@@ -115,7 +115,7 @@ int QueueStar(DSWActor*);
 int DoBlurExtend(int16_t Weapon,int16_t interval,int16_t blur_num);
 int SpawnDemonFist(DSWActor*);
 int SpawnTankShellExp(int16_t Weapon);
-int SpawnMicroExp(int16_t Weapon);
+void SpawnMicroExp(DSWActor*);
 void SpawnExpZadjust(short Weapon, SPRITEp exp, int upper_zsize, int lower_zsize);
 int BulletHitSprite(DSWActor* actor, DSWActor* hitActor, int hit_x, int hit_y, int hit_z, short ID);
 int SpawnSplashXY(int hit_x,int hit_y,int hit_z,int);
@@ -6612,7 +6612,7 @@ DoDamage(short SpriteNum, short Weapon)
         }
 
         wu->ID = 0; // No more damage
-        SpawnTracerExp(Weapon);
+        SpawnTracerExp(weapActor);
         SetSuicide(weapActor);
         break;
 
@@ -9971,7 +9971,7 @@ DoRail(DSWActor* actor)
                     }
                     else
                     {
-                        SpawnTracerExp(Weapon);
+                        SpawnTracerExp(actor);
                         SpawnShrapX(actor);
                         KillActor(actor);
                         return true;
@@ -9979,7 +9979,7 @@ DoRail(DSWActor* actor)
                 }
                 else
                 {
-                    SpawnTracerExp(Weapon);
+                    SpawnTracerExp(actor);
                     SpawnShrapX(actor);
                     KillActor(actor);
                     return true;
@@ -10039,7 +10039,7 @@ DoRailStart(DSWActor* actor)
     {
         if (WeaponMoveHit(Weapon))
         {
-            SpawnTracerExp(Weapon);
+            SpawnTracerExp(actor);
             SpawnShrapX(actor);
             KillActor(actor);
             return true;
@@ -10155,7 +10155,7 @@ DoMicroMini(DSWActor* actor)
         {
             if (WeaponMoveHit(Weapon))
             {
-                SpawnMicroExp(Weapon);
+                SpawnMicroExp(actor);
                 KillActor(actor);
                 return true;
             }
@@ -10271,7 +10271,7 @@ DoMicro(DSWActor* actor)
     {
         if (WeaponMoveHit(Weapon))
         {
-            SpawnMicroExp(Weapon);
+            SpawnMicroExp(actor);
             KillActor(actor);
             return true;
         }
@@ -11120,12 +11120,6 @@ SpawnNuclearExp(int16_t Weapon)
     // Nuclear effects
     SetNuclearQuake(explosion);
 
-//  if (pp->NightVision)
-//      {
-//      SetFadeAmt(pp, -300, 1); // Idiot had night vision on in nuke flash
-//      PlayerUpdateHealth(pp,-25);  // Just burned your eyes out of their sockets!
-//      }
-//    else
     SetFadeAmt(pp, -80, 1); // Nuclear flash
 
     // Secondary blasts
@@ -11141,32 +11135,30 @@ SpawnNuclearExp(int16_t Weapon)
     return explosion;
 }
 
-int
-SpawnTracerExp(int16_t Weapon)
+void SpawnTracerExp(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon].Data();
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
     SPRITEp exp;
     USERp eu;
-    short explosion;
+    DSWActor* expActor;
 
     ASSERT(u);
     if (u && TEST(u->Flags, SPR_SUICIDE))
-        return -1;
+        return ;
 
     if (u->ID == BOLT_THINMAN_R1)
-        explosion = SpawnSprite(STAT_MISSILE, BOLT_THINMAN_R1, s_TracerExp, sp->sectnum,
+        expActor = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R1, s_TracerExp, sp->sectnum,
                                 sp->x, sp->y, sp->z, sp->ang, 0);
     else
-        explosion = SpawnSprite(STAT_MISSILE, TRACER_EXP, s_TracerExp, sp->sectnum,
+        expActor = SpawnActor(STAT_MISSILE, TRACER_EXP, s_TracerExp, sp->sectnum,
                                 sp->x, sp->y, sp->z, sp->ang, 0);
 
-    auto expActor = &swActors[explosion];
-    exp = &sprite[explosion];
-    eu = User[explosion].Data();
+    exp = &expActor->s();
+    eu = expActor->u();
 
     exp->hitag = LUMINOUS; //Always full brightness
-    SetOwner(sp->owner, explosion);
+    SetOwner(GetOwner(actor), expActor);
     exp->shade = -40;
     exp->xrepeat = 4;
     exp->yrepeat = 4;
@@ -11183,33 +11175,26 @@ SpawnTracerExp(int16_t Weapon)
     }
     else
         eu->Radius = DamageData[DMG_BOLT_EXP].radius;
-
-
-    return explosion;
 }
 
-int
-SpawnMicroExp(int16_t Weapon)
+void SpawnMicroExp(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon].Data();
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
     SPRITEp exp;
     USERp eu;
-    short explosion;
 
     ASSERT(u);
     if (u && TEST(u->Flags, SPR_SUICIDE))
-        return -1;
+        return ;
 
-//    PlaySound(DIGI_MISSLEXP, sp, v3df_none);
-
-    explosion = SpawnSprite(STAT_MISSILE, MICRO_EXP, s_MicroExp, sp->sectnum,
+    auto expActor = SpawnActor(STAT_MISSILE, MICRO_EXP, s_MicroExp, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 0);
-    exp = &sprite[explosion];
-    eu = User[explosion].Data();
+    exp = &expActor->s();
+    eu = expActor->u();
 
     exp->hitag = LUMINOUS; //Always full brightness
-    SetOwner(sp->owner, explosion);
+    SetOwner(GetOwner(actor), expActor);
     exp->shade = -40;
     exp->xrepeat = 32;
     exp->yrepeat = 32;
@@ -11226,10 +11211,8 @@ SpawnMicroExp(int16_t Weapon)
     // ceilings
     //
 
-    SpawnExpZadjust(Weapon, exp, Z(20), Z(20));
+    SpawnExpZadjust(actor->GetSpriteIndex(), exp, Z(20), Z(20));
     SpawnVis(nullptr, exp->sectnum, exp->x, exp->y, exp->z, 16);
-
-    return explosion;
 }
 
 void AddSpriteToSectorObject(DSWActor* actor, SECTOR_OBJECTp sop)
