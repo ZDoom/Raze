@@ -12939,9 +12939,9 @@ InitSerpRing(DSWActor* actor)
     return 0;
 }
 
-void
-InitSpellNapalm(PLAYERp pp)
+void InitSpellNapalm(PLAYERp pp)
 {
+    auto psp = &pp->Actor()->s();
     SPRITEp sp;
     USERp u;
     unsigned i;
@@ -12953,7 +12953,7 @@ InitSpellNapalm(PLAYERp pp)
         short ang;
     } MISSILE_PLACEMENT;
 
-    static MISSILE_PLACEMENT mp[] =
+    static const MISSILE_PLACEMENT mp[] =
     {
         {600 * 6, 400, 512},
         {0, 1100, 0},
@@ -12984,7 +12984,7 @@ InitSpellNapalm(PLAYERp pp)
 
         if (i==0) // Only attach sound to first projectile
         {
-            PlaySound(DIGI_NAPWIZ, sp, v3df_follow);
+            PlaySound(DIGI_NAPWIZ, actor, v3df_follow);
         }
 
         SetOwner(pp->Actor(), actor);
@@ -13001,8 +13001,8 @@ InitSpellNapalm(PLAYERp pp)
         u->ceiling_dist = Z(1);
         u->Dist = 200;
 
-        auto oclipdist = pp->SpriteP->clipdist;
-        pp->SpriteP->clipdist = 1;
+        auto oclipdist = psp->clipdist;
+        psp->clipdist = 1;
 
         if (mp[i].dist_over != 0)
         {
@@ -13017,7 +13017,7 @@ InitSpellNapalm(PLAYERp pp)
 
         if (MissileSetPos(u->SpriteNum, DoNapalm, mp[i].dist_out))
         {
-            pp->SpriteP->clipdist = oclipdist;
+            psp->clipdist = oclipdist;
             KillActor(actor);
             continue;
         }
@@ -13025,20 +13025,17 @@ InitSpellNapalm(PLAYERp pp)
         if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(sp))
             SET(u->Flags, SPR_UNDERWATER);
 
-        pp->SpriteP->clipdist = oclipdist;
+        psp->clipdist = oclipdist;
 
         u->Counter = 0;
 
     }
 }
 
-int
-InitEnemyNapalm(DSWActor* actor)
+int InitEnemyNapalm(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    short w;
-    SPRITEp sp = &sprite[SpriteNum], wp;
+    SPRITEp sp = &actor->s(), wp;
     USERp wu;
     short dist;
     unsigned i;
@@ -13049,23 +13046,22 @@ InitEnemyNapalm(DSWActor* actor)
         short ang;
     } MISSILE_PLACEMENT;
 
-    static MISSILE_PLACEMENT mp[] =
+    static const MISSILE_PLACEMENT mp[] =
     {
         {600 * 6, 400, 512},
         {0, 1100, 0},
         {600 * 6, 400, -512},
     };
 
-    PlaySound(DIGI_NAPFIRE, sp, v3df_none);
+    PlaySound(DIGI_NAPFIRE, actor, v3df_none);
 
     for (i = 0; i < SIZ(mp); i++)
     {
-        w = SpawnSprite(STAT_MISSILE, FIREBALL1, s_Napalm, sp->sectnum,
+        auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL1, s_Napalm, sp->sectnum,
                         sp->x, sp->y, SPRITEp_TOS(sp) + DIV4(SPRITEp_SIZE_Z(sp)), sp->ang, NAPALM_VELOCITY);
 
-        auto actorNew = &swActors[w];
-        wp = &sprite[w];
-        wu = User[w].Data();
+        wp = &actorNew->s();
+        wu = actorNew->u();
 
         wp->hitag = LUMINOUS; //Always full brightness
         if (i==0) // Only attach sound to first projectile
@@ -13074,9 +13070,9 @@ InitEnemyNapalm(DSWActor* actor)
         }
 
         if (u->ID == ZOMBIE_RUN_R0)
-            SetOwner(sp->owner, w);
+            SetOwner(GetOwner(actor), actorNew);
         else
-            SetOwner(SpriteNum, w);
+            SetOwner(actor, actorNew);
 
         wp->shade = -40;
         wp->xrepeat = 32;
@@ -13110,7 +13106,7 @@ InitEnemyNapalm(DSWActor* actor)
         wu->ychange = MOVEy(wp->xvel, wp->ang);
         wu->zchange = wp->zvel;
 
-        MissileSetPos(w, DoNapalm, mp[i].dist_out);
+        MissileSetPos(actorNew->GetSpriteIndex(), DoNapalm, mp[i].dist_out);
 
         sp->clipdist = oclipdist;
 
