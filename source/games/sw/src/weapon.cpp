@@ -14902,26 +14902,12 @@ int InitZillaRail(DSWActor* actor)
 
 int InitRocket(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite].Data();
+    USERp u = pp->Actor()->u();
+    auto sp = &pp->Actor()->s();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
-    short w;
     int zvel;
-
-#if 0
-    static short lat_dist[3] =
-    {
-        //800,1000,600
-        600,900,300
-    };
-
-    static short z_off[3] =
-    {
-        //Z(8), Z(14), Z(14)
-        Z(6), Z(12), Z(12)
-    };
-#endif
 
     DoPlayerBeginRecoil(pp, ROCKET_RECOIL_AMT);
 
@@ -14951,15 +14937,14 @@ int InitRocket(PLAYERp pp)
     // Spawn a shot
     // Inserting and setting up variables
 
-    //nz = pp->posz + pp->bob_z + Z(12);
     nz = pp->posz + pp->bob_z + Z(8);
-    w = SpawnSprite(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], pp->cursectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], pp->cursectnum,
                     nx, ny, nz, pp->angle.ang.asbuild(), ROCKET_VELOCITY);
 
-    wp = &sprite[w];
-    wu = User[w].Data();
+    wp = &actorNew->s();
+    wu = actorNew->u();
 
-    SetOwner(pp->PlayerSprite, w);
+    SetOwner(pp->Actor(), actorNew);
     wp->yrepeat = 90;
     wp->xrepeat = 90;
     wp->shade = -15;
@@ -14968,7 +14953,7 @@ int InitRocket(PLAYERp pp)
     wp->clipdist = 64L>>2;
 
     wu->RotNum = 5;
-    NewStateGroup(&swActors[w], &sg_Rocket[0]);
+    NewStateGroup(actorNew, &sg_Rocket[0]);
 
     wu->WeaponNum = u->WeaponNum;
     wu->Radius = 2000;
@@ -14993,11 +14978,11 @@ int InitRocket(PLAYERp pp)
 
     // at certain angles the clipping box was big enough to block the
     // initial positioning of the fireball.
-    auto oclipdist = pp->SpriteP->clipdist;
-    pp->SpriteP->clipdist = 0;
+    auto oclipdist = sp->clipdist;
+    sp->clipdist = 0;
 
     wp->ang = NORM_ANGLE(wp->ang + 512);
-    HelpMissileLateral(w, 900);
+    HelpMissileLateral(actorNew->GetSpriteIndex(), 900);
     wp->ang = NORM_ANGLE(wp->ang - 512);
 
     if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(wp))
@@ -15005,19 +14990,19 @@ int InitRocket(PLAYERp pp)
 
     // cancel smoke trail
     wu->Counter = 1;
-    if (TestMissileSetPos(w, DoRocket, 1200, zvel))
+    if (TestMissileSetPos(actorNew->GetSpriteIndex(), DoRocket, 1200, zvel))
     {
-        pp->SpriteP->clipdist = oclipdist;
-        KillSprite(w);
+        sp->clipdist = oclipdist;
+        KillActor(actorNew);
         return 0;
     }
     // inable smoke trail
     wu->Counter = 0;
 
-    pp->SpriteP->clipdist = oclipdist;
+    sp->clipdist = oclipdist;
 
     wp->zvel = zvel >> 1;
-    if (WeaponAutoAim(pp->SpriteP, w, 32, false) == -1)
+    if (WeaponAutoAim(sp, actorNew->GetSpriteIndex(), 32, false) == -1)
     {
         wp->ang = NORM_ANGLE(wp->ang - 5);
     }
@@ -15031,29 +15016,14 @@ int InitRocket(PLAYERp pp)
     return 0;
 }
 
-int
-InitBunnyRocket(PLAYERp pp)
+int InitBunnyRocket(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite].Data();
+    USERp u = pp->Actor()->u();
+    auto sp = &pp->Actor()->s();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
-    short w;
     int zvel;
-
-#if 0
-    static short lat_dist[3] =
-    {
-        //800,1000,600
-        600,900,300
-    };
-
-    static short z_off[3] =
-    {
-        //Z(8), Z(14), Z(14)
-        Z(6), Z(12), Z(12)
-    };
-#endif
 
     DoPlayerBeginRecoil(pp, ROCKET_RECOIL_AMT);
 
@@ -15082,13 +15052,13 @@ InitBunnyRocket(PLAYERp pp)
 
     //nz = pp->posz + pp->bob_z + Z(12);
     nz = pp->posz + pp->bob_z + Z(8);
-    w = SpawnSprite(STAT_MISSILE, BOLT_THINMAN_R4, &s_BunnyRocket[0][0], pp->cursectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R4, &s_BunnyRocket[0][0], pp->cursectnum,
                     nx, ny, nz, pp->angle.ang.asbuild(), ROCKET_VELOCITY);
 
-    wp = &sprite[w];
-    wu = User[w].Data();
+    wp = &actorNew->s();
+    wu = actorNew->u();
 
-    SetOwner(pp->PlayerSprite, w);
+    SetOwner(pp->Actor(), actorNew);
     wp->yrepeat = 64;
     wp->xrepeat = 64;
     wp->shade = -15;
@@ -15097,7 +15067,7 @@ InitBunnyRocket(PLAYERp pp)
     wp->clipdist = 64L>>2;
 
     wu->RotNum = 5;
-    NewStateGroup(&swActors[w], &sg_BunnyRocket[0]);
+    NewStateGroup(actorNew, &sg_BunnyRocket[0]);
 
     wu->WeaponNum = u->WeaponNum;
     wu->Radius = 2000;
@@ -15119,11 +15089,11 @@ InitBunnyRocket(PLAYERp pp)
 
     // at certain angles the clipping box was big enough to block the
     // initial positioning of the fireball.
-    auto oclipdist = pp->SpriteP->clipdist;
-    pp->SpriteP->clipdist = 0;
+    auto oclipdist = sp->clipdist;
+    sp->clipdist = 0;
 
     wp->ang = NORM_ANGLE(wp->ang + 512);
-    HelpMissileLateral(w, 900);
+    HelpMissileLateral(actorNew->GetSpriteIndex(), 900);
     wp->ang = NORM_ANGLE(wp->ang - 512);
 
     if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(wp))
@@ -15131,19 +15101,19 @@ InitBunnyRocket(PLAYERp pp)
 
     // cancel smoke trail
     wu->Counter = 1;
-    if (TestMissileSetPos(w, DoRocket, 1200, zvel))
+    if (TestMissileSetPos(actorNew->GetSpriteIndex(), DoRocket, 1200, zvel))
     {
-        pp->SpriteP->clipdist = oclipdist;
-        KillSprite(w);
+        sp->clipdist = oclipdist;
+        KillActor(actorNew);
         return 0;
     }
     // inable smoke trail
     wu->Counter = 0;
 
-    pp->SpriteP->clipdist = oclipdist;
+    sp->clipdist = oclipdist;
 
     wp->zvel = zvel >> 1;
-    if (WeaponAutoAim(pp->SpriteP, w, 32, false) == -1)
+    if (WeaponAutoAim(sp, actorNew->GetSpriteIndex(), 32, false) == -1)
     {
         wp->ang = NORM_ANGLE(wp->ang - 5);
     }
