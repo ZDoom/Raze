@@ -13949,11 +13949,10 @@ WeaponAutoAimZvel(SPRITEp sp, short Missile, int *zvel, short ang, bool test)
 }
 
 
-int
-AimHitscanToTarget(SPRITEp sp, int *z, short *ang, int z_ratio)
+DSWActor* AimHitscanToTarget(DSWActor* actor, int *z, short *ang, int z_ratio)
 {
-    USERp u = User[sp - sprite].Data();
-    short hit_sprite = -1;
+    USERp u = actor->u();
+    auto sp = &actor->s();
     int dist;
     int zh;
     int xvect;
@@ -13961,12 +13960,12 @@ AimHitscanToTarget(SPRITEp sp, int *z, short *ang, int z_ratio)
     SPRITEp hp;
     USERp hu;
 
-    if (!u->targetActor)
-        return -1;
+    auto hitActor = u->targetActor;
+    if (hitActor == nullptr)
+        return nullptr;
 
-    hit_sprite = u->targetActor->GetSpriteIndex();
-    hp = &sprite[hit_sprite];
-    hu = User[hit_sprite].Data();
+    hp = &hitActor->s();
+    hu = hitActor->u();
 
     SET(hu->Flags, SPR_TARGETED);
     SET(hu->Flags, SPR_ATTACKED);
@@ -13984,10 +13983,8 @@ AimHitscanToTarget(SPRITEp sp, int *z, short *ang, int z_ratio)
         yvect = bsin(*ang);
 
         if (hp->x - sp->x != 0)
-            //*z = xvect * ((zh - *z)/(hp->x - sp->x));
             *z = Scale(xvect,zh - *z,hp->x - sp->x);
         else if (hp->y - sp->y != 0)
-            //*z = yvect * ((zh - *z)/(hp->y - sp->y));
             *z = Scale(yvect,zh - *z,hp->y - sp->y);
         else
             *z = 0;
@@ -13997,12 +13994,12 @@ AimHitscanToTarget(SPRITEp sp, int *z, short *ang, int z_ratio)
         // before they have a valid shot
         if (labs(*z / dist) > z_ratio)
         {
-            return -1;
+            return nullptr;
         }
     }
 
 
-    return hit_sprite;
+    return hitActor;
 }
 
 DSWActor* WeaponAutoAimHitscan(DSWActor* actor, int *z, short *ang, bool test)
@@ -14044,10 +14041,8 @@ DSWActor* WeaponAutoAimHitscan(DSWActor* actor, int *z, short *ang, bool test)
             yvect = bsin(*ang);
 
             if (hp->x - sp->x != 0)
-                //*z = xvect * ((zh - *z)/(hp->x - sp->x));
                 *z = Scale(xvect,zh - *z,hp->x - sp->x);
             else if (hp->y - sp->y != 0)
-                //*z = yvect * ((zh - *z)/(hp->y - sp->y));
                 *z = Scale(yvect,zh - *z,hp->y - sp->y);
             else
                 *z = 0;
@@ -14057,9 +14052,10 @@ DSWActor* WeaponAutoAimHitscan(DSWActor* actor, int *z, short *ang, bool test)
     return hitActor;
 }
 
-void
-WeaponHitscanShootFeet(SPRITEp sp, SPRITEp hp, int *zvect)
+void WeaponHitscanShootFeet(DSWActor* actor, DSWActor* hitActor, int *zvect)
 {
+    auto sp = &actor->s();
+    auto hp = &hitActor->s();
     int dist;
     int zh;
     int xvect;
@@ -14091,21 +14087,19 @@ WeaponHitscanShootFeet(SPRITEp sp, SPRITEp hp, int *zvect)
     }
 }
 
-int
-InitStar(PLAYERp pp)
+int InitStar(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite].Data();
+    auto psp = &pp->Actor()->s();
+    USERp u = pp->Actor()->u();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
-    short w;
     int zvel;
 
     static short dang[] = {-12, 12};
     uint8_t i;
     SPRITEp np;
     USERp nu;
-    short nw;
     const int STAR_REPEAT = 26;
     const int STAR_HORIZ_ADJ = 100;
 
@@ -14124,16 +14118,14 @@ InitStar(PLAYERp pp)
     // Spawn a shot
     // Inserting and setting up variables
 
-    w = SpawnSprite(STAT_MISSILE, STAR1, s_Star, pp->cursectnum, nx, ny, nz, pp->angle.ang.asbuild(), STAR_VELOCITY);
-    auto actorNew = &swActors[w];
-    wp = &sprite[w];
-    wu = User[w].Data();
+    auto actorNew = SpawnActor(STAT_MISSILE, STAR1, s_Star, pp->cursectnum, nx, ny, nz, pp->angle.ang.asbuild(), STAR_VELOCITY);
+    wp = &actorNew->s();
+    wu = actorNew->u();
 
-    //SET(wp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
-    SetOwner(pp->PlayerSprite, w);
+    SetOwner(pp->Actor(), actorNew);
     wp->yrepeat = wp->xrepeat = STAR_REPEAT;
     wp->shade = -25;
-    wp->clipdist = 32L >> 2;
+    wp->clipdist = 32 >> 2;
     // wp->zvel was overflowing with this calculation - had to move to a local
     // long var
     zvel = -MulScale(pp->horizon.horiz.asq16(), HORIZ_MULT+STAR_HORIZ_ADJ, 16);
@@ -14149,9 +14141,9 @@ InitStar(PLAYERp pp)
     // MissileSetPos seemed to be pushing the sprite too far up or down when
     // the horizon was tilted.  Never figured out why.
     wp->zvel = zvel >> 1;
-    if (MissileSetPos(w, DoStar, 1000))
+    if (MissileSetPos(actorNew->GetSpriteIndex(), DoStar, 1000))
     {
-        KillSprite(w);
+        KillActor(actorNew);
         return 0;
     }
 
@@ -14171,11 +14163,11 @@ InitStar(PLAYERp pp)
 
     for (i = 0; i < (int)SIZ(dang); i++)
     {
-        nw = SpawnSprite(STAT_MISSILE, STAR1, s_Star, pp->cursectnum, nx, ny, nz, NORM_ANGLE(wp->ang + dang[i]), wp->xvel);
-        np = &sprite[nw];
-        nu = User[nw].Data();
+        auto actorNew2 = SpawnActor(STAT_MISSILE, STAR1, s_Star, pp->cursectnum, nx, ny, nz, NORM_ANGLE(wp->ang + dang[i]), wp->xvel);
+        np = &actorNew2->s();
+        nu = actorNew2->u();
 
-        SetOwner(wp->owner, nw);
+        SetOwner(GetOwner(actorNew), actorNew2);
         np->yrepeat = np->xrepeat = STAR_REPEAT;
         np->shade = wp->shade;
 
@@ -14193,9 +14185,9 @@ InitStar(PLAYERp pp)
         zvel = -MulScale(pp->horizon.horiz.asq16(), HORIZ_MULT+STAR_HORIZ_ADJ, 16);
         np->zvel = zvel >> 1;
 
-        if (MissileSetPos(nw, DoStar, 1000))
+        if (MissileSetPos(actorNew2->GetSpriteIndex(), DoStar, 1000))
         {
-            KillSprite(nw);
+            KillActor(actorNew2);
             return 0;
         }
 
@@ -17898,7 +17890,7 @@ int InitTurretMgun(SECTOR_OBJECTp sop)
                     {
                         // always shoot the ground when tracking
                         // and not close
-                        WeaponHitscanShootFeet(sp, &hit->s(), &daz);
+                        WeaponHitscanShootFeet(actor, hit, &daz);
 
                         daang = sp->ang;
                         daang = NORM_ANGLE(daang + RANDOM_P2(32) - 16);
@@ -18049,7 +18041,7 @@ int InitEnemyUzi(DSWActor* actor)
     }
     daz = sp->z - zh;
 
-    if (AimHitscanToTarget(sp, &daz, &daang, 200) != -1)
+    if (AimHitscanToTarget(actor, &daz, &daang, 200) != nullptr)
     {
         // set angle to player and also face player when attacking
         sp->ang = daang;
