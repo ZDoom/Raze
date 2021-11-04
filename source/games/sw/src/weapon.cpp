@@ -11850,19 +11850,14 @@ int DoFindGroundPoint(DSWActor* actor)
     return false;
 }
 
-int
-DoNapalm(DSWActor* actor)
+int DoNapalm(DSWActor* actor)
 {
     USER* u = actor->u();
-    int Weapon = u->SpriteNum;
-    SPRITEp sp = &sprite[Weapon], exp;
+    SPRITEp sp = &actor->s(), exp;
 
-    short explosion;
     int ox, oy, oz;
 
-    DoBlurExtend(Weapon, 1, 7);
-
-    u = User[Weapon].Data();
+    DoBlurExtend(actor->GetSpriteIndex(), 1, 7);
 
     if (TEST(u->Flags, SPR_UNDERWATER))
     {
@@ -11879,20 +11874,19 @@ DoNapalm(DSWActor* actor)
     oy = sp->y;
     oz = sp->z;
 
-    SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
+    SetCollision(u, move_missile(actor->GetSpriteIndex(), u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     MissileHitDiveArea(actor);
 
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
 
-    if (u->ret)
     {
         // this sprite is suPlayerosed to go through players/enemys
         // if hit a player/enemy back up and do it again with blocking reset
-        if (TEST(u->ret, HIT_MASK) == HIT_SPRITE)
+        if (u->coll.type == kHitSprite)
         {
-            SPRITEp hsp = &sprite[NORM_SPRITE(u->ret)];
+            SPRITEp hsp = &u->coll.actor->s();
 
             if (TEST(hsp->cstat, CSTAT_SPRITE_BLOCK) && !TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
@@ -11903,7 +11897,7 @@ DoNapalm(DSWActor* actor)
                 sp->z = oz;
 
                 RESET(hsp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-                SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
+                SetCollision(u, move_missile(actor->GetSpriteIndex(), u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
                 hsp->cstat = hcstat;
             }
         }
@@ -11919,14 +11913,13 @@ DoNapalm(DSWActor* actor)
 
         PlaySound(DIGI_NAPPUFF, sp, v3df_none);
 
-        explosion = SpawnSprite(STAT_MISSILE, NAP_EXP, s_NapExp, sp->sectnum,
+        auto expActor = SpawnActor(STAT_MISSILE, NAP_EXP, s_NapExp, sp->sectnum,
                                 sp->x, sp->y, sp->z, sp->ang, 0);
-        auto expActor = &swActors[explosion];
-        exp = &sprite[explosion];
-        eu = User[explosion].Data();
+        exp = &expActor->s();
+        eu = expActor->u();
 
         exp->hitag = LUMINOUS; //Always full brightness
-        SetOwner(sp->owner, explosion);
+        SetOwner(actor, expActor);
         exp->shade = -40;
         exp->cstat = sp->cstat;
         exp->xrepeat = 48;
@@ -11949,18 +11942,14 @@ DoNapalm(DSWActor* actor)
         ASSERT(eu->Tics == 0);
     }
 
-    // DoDamageTest(Weapon);
-
     if (u->ret)
     {
-        if (WeaponMoveHit(Weapon))
+        if (WeaponMoveHit(actor->GetSpriteIndex()))
         {
             KillActor(actor);
-
             return true;
         }
     }
-
     return false;
 }
 
@@ -11968,17 +11957,14 @@ DoNapalm(DSWActor* actor)
 int DoBloodWorm(DSWActor* actor)
 {
     USER* u = actor->u();
-    int Weapon = u->SpriteNum;
-    SPRITEp sp = &sprite[Weapon];
+    SPRITEp sp = &actor->s();
     short ang;
     int xvect,yvect;
     int bx,by;
     int amt;
     int sectnum;
 
-    u = User[Weapon].Data();
-
-    SetCollision(u, move_ground_missile(Weapon, u->xchange, u->ychange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
+    SetCollision(u, move_ground_missile(actor->GetSpriteIndex(), u->xchange, u->ychange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     if (u->ret)
     {
@@ -12005,14 +11991,12 @@ int DoBloodWorm(DSWActor* actor)
             InitBloodSpray(actor, false, 1);
 
             // Kill any old zombies you own
-            StatIterator it(STAT_ENEMY);
-            while ((i = it.NextIndex()) >= 0)
+            SWStatIterator it(STAT_ENEMY);
+            while (auto itActor = it.Next())
             {
-                auto itActor = &swActors[i];
-                tsp = &sprite[i];
-                tu = User[i].Data();
-
-                ASSERT(tu);
+                if (!itActor->hasU()) continue;
+                tsp = &itActor->s();
+                tu = itActor->u();
 
                 if (tu->ID == ZOMBIE_RUN_R0 && tsp->owner == sp->owner)
                 {

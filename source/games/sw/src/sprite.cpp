@@ -5049,7 +5049,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
 
     SET(u->Flags, SPR_MOVED);
 
-    if (!u->ret)
+    if (u->coll.type == kHitNone)
     {
         // Keep track of how far sprite has moved
         dist = Distance(x, y, sp->x, sp->y);
