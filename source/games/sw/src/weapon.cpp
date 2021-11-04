@@ -16633,8 +16633,7 @@ InitCoolgFire(DSWActor* actor)
 int DoCoolgDrip(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
 
     u->Counter += 220;
     sp->z += u->Counter;
@@ -16650,8 +16649,7 @@ int DoCoolgDrip(DSWActor* actor)
     return 0;
 }
 
-int
-InitCoolgDrip(DSWActor* actor)
+int InitCoolgDrip(DSWActor* actor)
 {
     SPRITEp sp = &actor->s(), wp;
     USERp wu;
@@ -16662,14 +16660,13 @@ InitCoolgDrip(DSWActor* actor)
     ny = sp->y;
     nz = sp->z;
 
-    w = SpawnSprite(STAT_MISSILE, COOLG_DRIP, s_CoolgDrip, sp->sectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, COOLG_DRIP, s_CoolgDrip, sp->sectnum,
                     nx, ny, nz, sp->ang, 0);
 
-    wp = &sprite[w];
-    wu = User[w].Data();
+    wp = &actorNew->s();
+    wu = actorNew->u();
 
-    
-    SetOwner(actor, &swActors[w]);
+    SetOwner(actor, actorNew);
     wp->yrepeat = wp->xrepeat = 20;
     wp->shade = -5;
     wp->zvel = 0;
@@ -16680,15 +16677,13 @@ InitCoolgDrip(DSWActor* actor)
 
     DoFindGroundPoint(actor);
 
-    return w;
+    return 0;
 }
 
-int
-GenerateDrips(DSWActor* actor)
+int GenerateDrips(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum], wp;
+    SPRITEp sp = &actor->s(), wp;
     USERp wu;
     int nx, ny, nz;
     short w = 0;
@@ -16710,14 +16705,13 @@ GenerateDrips(DSWActor* actor)
         ny = sp->y;
         nz = sp->z;
 
-        w = SpawnSprite(STAT_SHRAP, COOLG_DRIP, s_CoolgDrip, sp->sectnum,
+        auto actorNew = SpawnActor(STAT_SHRAP, COOLG_DRIP, s_CoolgDrip, sp->sectnum,
                         nx, ny, nz, sp->ang, 0);
 
-        wp = &sprite[w];
-        wu = User[w].Data();
+        wp = &actorNew->s();
+        wu = actorNew->u();
 
-        
-        SetOwner(SpriteNum, w);
+        SetOwner(actor, actorNew);
         wp->yrepeat = wp->xrepeat = 20;
         wp->shade = -10;
         wp->zvel = 0;
@@ -16733,28 +16727,24 @@ GenerateDrips(DSWActor* actor)
     return 1;
 }
 
-int
-InitEelFire(DSWActor* actor)
+int InitEelFire(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-	USERp hu;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    SPRITEp sp = &actor->s();
+    USERp hu;
     SPRITEp hp;
-    int i;
     unsigned stat;
     int dist, a, b, c;
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
-        StatIterator it(StatDamageList[stat]);
-        while ((i = it.NextIndex()) >= 0)
+        SWStatIterator it(StatDamageList[stat]);
+        while (auto itActor = it.Next())
         {
-            auto itActor = &swActors[i];
-            hp = &sprite[i];
-            hu = User[i].Data();
+            hp = &itActor->s();
+            hu = itActor->u();
 
-            if (i == SpriteNum)
+            if (itActor == actor)
                 continue;
 
             if (itActor != u->targetActor)
@@ -16767,8 +16757,8 @@ InitEelFire(DSWActor* actor)
 
             if (dist < CLOSE_RANGE_DIST_FUDGE(sp, hp, 600) && FACING_RANGE(hp, sp, 150))
             {
-                PlaySound(DIGI_GIBS1, sp, v3df_none);
-                DoDamage(i, SpriteNum);
+                PlaySound(DIGI_GIBS1, actor, v3df_none);
+                DoDamage(itActor->GetSpriteIndex(), actor->GetSpriteIndex());
             }
             else
                 InitActorReposition(actor);
