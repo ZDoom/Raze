@@ -16138,16 +16138,13 @@ InitEnemyRocket(DSWActor* actor)
     return w;
 }
 
-int
-InitEnemyRail(DSWActor* actor)
+int InitEnemyRail(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = u->SpriteP;
+    SPRITEp sp = &actor->s();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz, dist, nang;
-    short w;
     short pnum=0;
 
     if (SW_SHAREWARE) return false; // JBF: verify
@@ -16156,20 +16153,17 @@ InitEnemyRail(DSWActor* actor)
     if (gNet.MultiGameType == MULTI_GAME_COOPERATIVE && u->ID == ZOMBIE_RUN_R0)
     {
         PLAYERp pp;
-        SPRITEp psp;
 
         // Check all players
         TRAVERSE_CONNECT(pnum)
         {
             pp = &Player[pnum];
-            psp = &sprite[pp->PlayerSprite];
-
             if (u->targetActor == pp->Actor())
                 return 0;
         }
     }
 
-    PlaySound(DIGI_RAILFIRE, sp, v3df_dontpan|v3df_doppler);
+    PlaySound(DIGI_RAILFIRE, actor, v3df_dontpan|v3df_doppler);
 
     // get angle to player and also face player when attacking
     sp->ang = nang = getangle(u->targetActor->s().x - sp->x, u->targetActor->s().y - sp->y);
@@ -16185,16 +16179,17 @@ InitEnemyRail(DSWActor* actor)
     // Spawn a shot
     // Inserting and setting up variables
 
-    w = SpawnSprite(STAT_MISSILE, BOLT_THINMAN_R1, &s_Rail[0][0], sp->sectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R1, &s_Rail[0][0], sp->sectnum,
                     nx, ny, nz, sp->ang, 1200);
 
-    wp = &sprite[w];
-    wu = User[w].Data();
+    wp = &actorNew->s();
+    wu = actorNew->u();
+
 
     if (u->ID == ZOMBIE_RUN_R0)
-        SetOwner(sp->owner, w);
+        SetOwner(GetOwner(actor), actorNew);
     else
-        SetOwner(SpriteNum, w);
+        SetOwner(actor, actorNew);
 
     wp->yrepeat = 52;
     wp->xrepeat = 52;
@@ -16202,7 +16197,7 @@ InitEnemyRail(DSWActor* actor)
     wp->zvel = 0;
 
     wu->RotNum = 5;
-    NewStateGroup(&swActors[w], &sg_Rail[0]);
+    NewStateGroup(actorNew, &sg_Rail[0]);
 
     wu->Radius = 200;
     wu->ceiling_dist = Z(1);
@@ -16211,16 +16206,15 @@ InitEnemyRail(DSWActor* actor)
     SET(wp->cstat, CSTAT_SPRITE_YCENTER|CSTAT_SPRITE_INVISIBLE);
     SET(wp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
-    wp->clipdist = 64L>>2;
+    wp->clipdist = 64 >> 2;
 
     wu->xchange = MOVEx(wp->xvel, wp->ang);
     wu->ychange = MOVEy(wp->xvel, wp->ang);
     wu->zchange = wp->zvel;
 
-    if (TestMissileSetPos(w, DoRailStart, 600, wp->zvel))
+    if (TestMissileSetPos(actorNew->GetSpriteIndex(), DoRailStart, 600, wp->zvel))
     {
-        //sprite->clipdist = oclipdist;
-        KillSprite(w);
+        KillActor(actorNew);
         return 0;
     }
 
@@ -16230,16 +16224,14 @@ InitEnemyRail(DSWActor* actor)
     if (dist != 0)
         wu->zchange = wp->zvel = (wp->xvel * (ActorUpper(u->targetActor) - wp->z)) / dist;
 
-    return w;
+    return 0;
 }
 
 
-int
-InitZillaRocket(DSWActor* actor)
+int InitZillaRocket(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum], wp;
+    SPRITEp sp = &actor->s(), wp;
     USERp wu;
     int nx, ny, nz, dist, nang;
     short w, i;
@@ -16250,7 +16242,7 @@ InitZillaRocket(DSWActor* actor)
         short ang;
     } MISSILE_PLACEMENT;
 
-    static MISSILE_PLACEMENT mp[] =
+    static const MISSILE_PLACEMENT mp[] =
     {
         {600 * 6, 400, 512},
         {900 * 6, 400, 512},
@@ -16260,7 +16252,7 @@ InitZillaRocket(DSWActor* actor)
         {1100 * 6, 400, -512},
     };
 
-    PlaySound(DIGI_NINJARIOTATTACK, sp, v3df_none);
+    PlaySound(DIGI_NINJARIOTATTACK, actor, v3df_none);
 
     // get angle to player and also face player when attacking
     sp->ang = nang = getangle(u->targetActor->s().x - sp->x, u->targetActor->s().y - sp->y);
@@ -16272,14 +16264,12 @@ InitZillaRocket(DSWActor* actor)
         nz = sp->z - DIV2(SPRITEp_SIZE_Z(sp))-Z(8);
 
         // Spawn a shot
-        // wp = &sprite[w = SpawnSprite(STAT_MISSILE, STAR1, s_Star, sp->sectnum,
-        // nx, ny, nz, u->targetActor->s().ang, 250)];
-        w = SpawnSprite(STAT_MISSILE, BOLT_THINMAN_R2, &s_Rocket[0][0], sp->sectnum,
+        auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R2, &s_Rocket[0][0], sp->sectnum,
                         nx, ny, nz-Z(8), u->targetActor->s().ang, NINJA_BOLT_VELOCITY);
-        wp = &sprite[w];
-        wu = User[w].Data();
+        wp = &actorNew->s();
+        wu = actorNew->u();
 
-        SetOwner(SpriteNum, w);
+        SetOwner(actor, actorNew);
         wp->yrepeat = 28;
         wp->xrepeat = 28;
         wp->shade = -15;
@@ -16288,7 +16278,7 @@ InitZillaRocket(DSWActor* actor)
         wp->clipdist = 64L>>2;
 
         wu->RotNum = 5;
-        NewStateGroup(&swActors[w], &sg_Rocket[0]);
+        NewStateGroup(actorNew, &sg_Rocket[0]);
         wu->Radius = 200;
         SET(wp->cstat, CSTAT_SPRITE_YCENTER);
 
@@ -16308,11 +16298,11 @@ InitZillaRocket(DSWActor* actor)
         if (mp[i].dist_over != 0)
         {
             wp->ang = NORM_ANGLE(wp->ang + mp[i].ang);
-            HelpMissileLateral(w, mp[i].dist_over);
+            HelpMissileLateral(actorNew->GetSpriteIndex(), mp[i].dist_over);
             wp->ang = NORM_ANGLE(wp->ang - mp[i].ang);
         }
 
-        MissileSetPos(w, DoBoltThinMan, mp[i].dist_out);
+        MissileSetPos(actorNew->GetSpriteIndex(), DoBoltThinMan, mp[i].dist_out);
 
         // find the distance to the target (player)
         dist = Distance(wp->x, wp->y, u->targetActor->s().x, u->targetActor->s().y);
@@ -16321,18 +16311,15 @@ InitZillaRocket(DSWActor* actor)
             wu->zchange = wp->zvel = (wp->xvel * (ActorUpper(u->targetActor) - wp->z)) / dist;
     }
 
-    return w;
+    return 0;
 }
 
-int
-InitEnemyStar(DSWActor* actor)
+int InitEnemyStar(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum], wp;
+    SPRITEp sp = &actor->s(), wp;
     USERp wu;
     int nx, ny, nz, dist, nang;
-    short w;
 
     // get angle to player and also face player when attacking
     sp->ang = nang = NORM_ANGLE(getangle(u->targetActor->s().x - sp->x, u->targetActor->s().y - sp->y));
@@ -16342,13 +16329,13 @@ InitEnemyStar(DSWActor* actor)
     nz = SPRITEp_MID(sp);
 
     // Spawn a shot
-    wp = &sprite[w = SpawnSprite(STAT_MISSILE, STAR1, s_Star, sp->sectnum,
-                                 nx, ny, nz, u->targetActor->s().ang, NINJA_STAR_VELOCITY)];
+    auto actorNew = SpawnActor(STAT_MISSILE, STAR1, s_Star, sp->sectnum,
+                                 nx, ny, nz, u->targetActor->s().ang, NINJA_STAR_VELOCITY);
 
-    wu = User[w].Data();
+    wp = &actorNew->s();
+    wu = actorNew->u();
 
-    
-    SetOwner(SpriteNum, w);
+    SetOwner(actor, actorNew);
     wp->yrepeat = 16;
     wp->xrepeat = 16;
     wp->shade = -25;
@@ -16360,7 +16347,7 @@ InitEnemyStar(DSWActor* actor)
     wu->ychange = MOVEy(wp->xvel, wp->ang);
     wu->zchange = wp->zvel;
 
-    MissileSetPos(w, DoStar, 400);
+    MissileSetPos(actorNew->GetSpriteIndex(), DoStar, 400);
 
     // find the distance to the target (player)
     dist = Distance(wp->x, wp->y, u->targetActor->s().x, u->targetActor->s().y);
@@ -16368,51 +16355,8 @@ InitEnemyStar(DSWActor* actor)
     if (dist != 0)
         wu->zchange = wp->zvel = (wp->xvel * (ActorUpper(u->targetActor) - wp->z)) / dist;
 
-    //
-    // Star Power Up Code
-    //
-
-#if 0
-    if (sp->pal == PALETTE_PLAYER0)
-    {
-        static short dang[] = {-28, 28};
-        char i;
-        SPRITEp np;
-        USERp nu;
-        short sn;
-
-        PlaySound(DIGI_STAR, sp, v3df_none);
-        for (i = 0; i < SIZ(dang); i++)
-        {
-            sn = SpawnSprite(STAT_MISSILE, STAR1, s_Star, sp->sectnum, wp->x, wp->y, wp->z, NORM_ANGLE(wp->ang + dang[i]), wp->xvel);
-            np = &sprite[sn];
-            nu = User[sn];
-
-            SetOwner(wp->owner, sn);
-            np->yrepeat = wp->yrepeat;
-            np->xrepeat = wp->xrepeat;
-            np->shade = wp->shade;
-            nu->WeaponNum = wu->WeaponNum;
-            nu->Radius = wu->Radius;
-            nu->xchange = wu->xchange;
-            nu->ychange = wu->ychange;
-            nu->zchange = 0;
-            np->zvel = 0;
-
-            MissileSetPos(sn, DoStar, 400);
-
-            nu->zchange = wu->zchange;
-            np->zvel = wp->zvel;
-        }
-    }
-    else
-#endif
-
-    PlaySound(DIGI_STAR, sp, v3df_none);
-
-
-
-    return w;
+    PlaySound(DIGI_STAR, actor, v3df_none);
+    return 0;
 }
 
 int InitEnemyCrossbow(DSWActor* actor)
