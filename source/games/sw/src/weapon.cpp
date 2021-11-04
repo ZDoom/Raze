@@ -11666,34 +11666,32 @@ SpawnLargeExp(int16_t Weapon)
     return explosion;
 }
 
-int
-SpawnMeteorExp(int16_t Weapon)
+void SpawnMeteorExp(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon].Data();
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
     SPRITEp exp;
     USERp eu;
-    short explosion;
+    DSWActor* expActor;
 
     ASSERT(u);
     if (TEST(u->Flags, SPR_SUICIDE))
-        return -1;
+        return;
 
     if (u->spal == 25)    // Serp ball
     {
-        explosion = SpawnSprite(STAT_MISSILE, METEOR_EXP, s_TeleportEffect2, sp->sectnum,
+        expActor = SpawnActor(STAT_MISSILE, METEOR_EXP, s_TeleportEffect2, sp->sectnum,
                                 sp->x, sp->y, sp->z, sp->ang, 0);
     }
     else
     {
-        PlaySound(DIGI_MEDIUMEXP, sp, v3df_none);
-        explosion = SpawnSprite(STAT_MISSILE, METEOR_EXP, s_MeteorExp, sp->sectnum,
+        PlaySound(DIGI_MEDIUMEXP, actor, v3df_none);
+        expActor = SpawnActor(STAT_MISSILE, METEOR_EXP, s_MeteorExp, sp->sectnum,
                                 sp->x, sp->y, sp->z, sp->ang, 0);
     }
 
-    auto expActor = &swActors[explosion];
-    exp = &sprite[explosion];
-    eu = User[explosion].Data();
+    exp = &expActor->s();
+    eu = expActor->u();
 
     exp->hitag = LUMINOUS; //Always full brightness
     exp->shade = -40;
@@ -11713,8 +11711,6 @@ SpawnMeteorExp(int16_t Weapon)
     SET(exp->cstat, CSTAT_SPRITE_YCENTER);
     RESET(exp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     eu->Radius = DamageData[DMG_BASIC_EXP].radius;
-
-    return explosion;
 }
 
 void SpawnLittleExp(DSWActor* actor)
@@ -12171,7 +12167,7 @@ int DoSerpMeteor(DSWActor* actor)
 
         if (WeaponMoveHit(actor->GetSpriteIndex()))
         {
-            SpawnMeteorExp(actor->GetSpriteIndex());
+            SpawnMeteorExp(actor);
             KillActor(actor);
             return true;
         }
@@ -12198,7 +12194,7 @@ int DoMirvMissile(DSWActor* actor)
     {
         if (WeaponMoveHit(actor->GetSpriteIndex()))
         {
-            SpawnMeteorExp(actor->GetSpriteIndex());
+            SpawnMeteorExp(actor);
             KillActor(actor);
             return true;
         }
@@ -12269,7 +12265,7 @@ int DoMirv(DSWActor* actor)
 
     if (u->ret)
     {
-        SpawnMeteorExp(actor->GetSpriteIndex());
+        SpawnMeteorExp(actor);
         KillActor(actor);
         return true;
     }
