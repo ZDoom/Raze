@@ -16929,39 +16929,35 @@ DoDefaultStat(DSWActor* actor)
 }
 
 
-int
-InitTracerUzi(PLAYERp pp)
+int InitTracerUzi(PLAYERp pp)
 {
     if (pp->cursectnum < 0)
         return 0;
 
-    USERp u = User[pp->PlayerSprite].Data();
+    USERp u = pp->Actor()->u();
     SPRITEp wp;
     USERp wu;
 
     int nx, ny, nz;
-    short w;
     int oclipdist;
 
     short lat_dist[] = {800,-800};
 
     nx = pp->posx;
     ny = pp->posy;
-    //nz = pp->posz + pp->bob_z + Z(8);
-    //nz = pp->posz + pp->bob_z + Z(8) + -MulScale(pp->horizon.horiz.asq16(), 72, 16);
     nz = pp->posz + Z(8) + -MulScale(pp->horizon.horiz.asq16(), 72, 16);
 
     // Spawn a shot
     // Inserting and setting up variables
 
-    w = SpawnSprite(STAT_MISSILE, 0, s_Tracer, pp->cursectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, 0, s_Tracer, pp->cursectnum,
                     nx, ny, nz, pp->angle.ang.asbuild(), TRACER_VELOCITY);
 
-    wp = &sprite[w];
-    wu = User[w].Data();
+    wp = &actorNew->s();
+    wu = actorNew->u();
 
     wp->hitag = LUMINOUS; //Always full brightness
-    SetOwner(pp->PlayerSprite, w);
+    SetOwner(pp->Actor(), actorNew);
     wp->yrepeat = 10;
     wp->xrepeat = 10;
     wp->shade = -40;
@@ -16976,20 +16972,21 @@ InitTracerUzi(PLAYERp pp)
     SET(wp->cstat, CSTAT_SPRITE_YCENTER);
     SET(wp->cstat, CSTAT_SPRITE_INVISIBLE);
 
-    oclipdist = pp->SpriteP->clipdist;
-    pp->SpriteP->clipdist = 0;
+    auto psp = &pp->Actor()->s();
+    oclipdist = psp->clipdist;
+    psp->clipdist = 0;
 
     wp->ang = NORM_ANGLE(wp->ang + 512);
     if (TEST(pp->Flags, PF_TWO_UZI) && pp->WpnUziType == 0)
-        HelpMissileLateral(w, lat_dist[RANDOM_P2(2<<8)>>8]);
+        HelpMissileLateral(actorNew->GetSpriteIndex(), lat_dist[RANDOM_P2(2<<8)>>8]);
     else
-        HelpMissileLateral(w, lat_dist[0]);
+        HelpMissileLateral(actorNew->GetSpriteIndex(), lat_dist[0]);
     wp->ang = NORM_ANGLE(wp->ang - 512);
 
-    if (MissileSetPos(w, DoTracerStart, 800))
+    if (MissileSetPos(actorNew->GetSpriteIndex(), DoTracerStart, 800))
     {
-        pp->SpriteP->clipdist = oclipdist;
-        KillSprite(w);
+        psp->clipdist = oclipdist;
+        KillActor(actorNew);
         return 0;
     }
 
@@ -16997,7 +16994,7 @@ InitTracerUzi(PLAYERp pp)
 
     pp->SpriteP->clipdist = oclipdist;
 
-    WeaponAutoAim(pp->SpriteP, w, 32, false);
+    WeaponAutoAim(psp, actorNew->GetSpriteIndex(), 32, false);
 
     // a bit of randomness
     wp->ang = NORM_ANGLE(wp->ang + RandomRange(30) - 15);
