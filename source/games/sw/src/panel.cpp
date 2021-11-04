@@ -3305,7 +3305,6 @@ pRailOkTest(PANEL_SPRITEp psp)
 void
 pRailRest(PANEL_SPRITEp psp)
 {
-    int InitLaserSight(PLAYERp pp);
     bool force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
 
     if (SW_SHAREWARE) return;

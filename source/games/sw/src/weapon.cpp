@@ -14375,7 +14375,7 @@ int ContinueHitscan(PLAYERp pp, short sectnum, int x, int y, int z, short ang, i
 {
     short j;
     hitdata_t hitinfo;
-    USERp u = User[pp->PlayerSprite].Data();
+    USERp u = pp->Actor()->u();
 
     FAFhitscan(x, y, z, sectnum,
                xvect, yvect, zvect,
@@ -14455,15 +14455,15 @@ int ContinueHitscan(PLAYERp pp, short sectnum, int x, int y, int z, short ang, i
 int
 InitShotgun(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite].Data();
+    USERp u = pp->Actor()->u();
+    auto sp = &pp->Actor()->s();
     short daang,ndaang, i, j;
-    hitdata_t hitinfo;
+    HITINFO hitinfo;
     short nsect;
     int daz, ndaz;
     int nx,ny,nz;
     int xvect,yvect,zvect;
     short cstat = 0;
-    SPRITEp sp;
 
     PlayerUpdateAmmo(pp, u->WeaponNum, -1);
 
@@ -14485,7 +14485,6 @@ InitShotgun(PLAYERp pp)
     ny = pp->posy;
     daz = nz = pp->posz + pp->bob_z;
     nsect = pp->cursectnum;
-    sp = pp->SpriteP;
 
     daang = 64;
     if (WeaponAutoAimHitscan(pp->Actor(), &daz, &daang, false) != nullptr)
@@ -14522,7 +14521,7 @@ InitShotgun(PLAYERp pp)
             continue;
         }
 
-        if (hitinfo.sprite < 0 && hitinfo.wall < 0)
+        if (hitinfo.hitactor == nullptr && hitinfo.wall < 0)
         {
             if (labs(hitinfo.pos.z - sector[hitinfo.sect].ceilingz) <= Z(1))
             {
@@ -14579,9 +14578,9 @@ InitShotgun(PLAYERp pp)
         }
 
         // hit a sprite?
-        if (hitinfo.sprite >= 0)
+        if (hitinfo.hitactor != nullptr)
         {
-            auto hitActor = &swActors[hitinfo.sprite];
+            auto hitActor = hitinfo.hitactor;
             SPRITEp hsp = &hitActor->s();
             auto hu = hitActor->u();
 
@@ -14589,7 +14588,7 @@ InitShotgun(PLAYERp pp)
             {
                 extern STATE s_TrashCanPain[];
 
-                PlaySound(DIGI_TRASHLID, sp, v3df_none);
+                PlaySound(DIGI_TRASHLID, hsp, v3df_none);
                 if (hu->WaitTics <= 0)
                 {
                     hu->WaitTics = SEC(2);
@@ -14599,47 +14598,44 @@ InitShotgun(PLAYERp pp)
 
             if (hsp->lotag == TAG_SPRITE_HIT_MATCH)
             {
-                if (MissileHitMatch(-1, WPN_SHOTGUN, hitinfo.sprite))
+                if (MissileHitMatch(-1, WPN_SHOTGUN, hitActor->GetSpriteIndex()))
                     continue;
             }
 
             if (TEST(hsp->extra, SPRX_BREAKABLE))
             {
-                HitBreakSprite(&swActors[hitinfo.sprite],0);
+                HitBreakSprite(hitActor,0);
                 continue;
             }
 
-            if (BulletHitSprite(pp->Actor(), &swActors[hitinfo.sprite], hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, SHOTGUN_SMOKE))
+            if (BulletHitSprite(pp->Actor(), hitActor, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, SHOTGUN_SMOKE))
                 continue;
 
             // hit a switch?
             if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hsp->lotag || hsp->hitag))
             {
-                ShootableSwitch(&swActors[hitinfo.sprite]);
+                ShootableSwitch(hitActor);
             }
         }
 
         j = SpawnShotgunSparks(pp, hitinfo.sect, hitinfo.wall, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ndaang);
-        DoHitscanDamage(j, hitinfo.sprite);
+        DoHitscanDamage(j, hitinfo.hitactor->GetSpriteIndex());
     }
 
     DoPlayerBeginRecoil(pp, SHOTGUN_RECOIL_AMT);
     return 0;
 }
 
-int
-InitLaser(PLAYERp pp)
+int InitLaser(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite].Data();
+    USERp u = pp->Actor()->u();
+    auto sp = &pp->Actor()->s();
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
-    short w;
 
     DoPlayerBeginRecoil(pp, RAIL_RECOIL_AMT);
-
     PlayerUpdateAmmo(pp, u->WeaponNum, -1);
-
     PlaySound(DIGI_RIOTFIRE, pp, v3df_dontpan|v3df_doppler);
 
     if (pp->cursectnum < 0)
@@ -14653,14 +14649,14 @@ InitLaser(PLAYERp pp)
     // Spawn a shot
     // Inserting and setting up variables
 
-    w = SpawnSprite(STAT_MISSILE, BOLT_THINMAN_R0, s_Laser, pp->cursectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, s_Laser, pp->cursectnum,
                     nx, ny, nz, pp->angle.ang.asbuild(), 300);
 
-    wp = &sprite[w];
-    wu = User[w].Data();
+    wp = &actorNew->s();
+    wu = actorNew->u();
 
     wp->hitag = LUMINOUS; //Always full brightness
-    SetOwner(pp->PlayerSprite, w);
+    SetOwner(pp->Actor(), actorNew);
     wp->yrepeat = 52;
     wp->xrepeat = 52;
     wp->shade = -15;
@@ -14678,11 +14674,11 @@ InitLaser(PLAYERp pp)
 
     // at certain angles the clipping box was big enough to block the
     // initial positioning of the fireball.
-    auto oclipdist = pp->SpriteP->clipdist;
-    pp->SpriteP->clipdist = 0;
+    auto oclipdist = sp->clipdist;
+    sp->clipdist = 0;
 
     wp->ang = NORM_ANGLE(wp->ang + 512);
-    HelpMissileLateral(w, 900);
+    HelpMissileLateral(actorNew->GetSpriteIndex(), 900);
     wp->ang = NORM_ANGLE(wp->ang - 512);
 
     if (TEST(pp->Flags, PF_DIVING) || SpriteInUnderwaterArea(wp))
@@ -14690,34 +14686,34 @@ InitLaser(PLAYERp pp)
 
     // the slower the missile travels the less of a zvel it needs
     // move it 1200 dist in increments - works better
-    if (MissileSetPos(w, DoLaserStart, 300))
+    if (MissileSetPos(actorNew->GetSpriteIndex(), DoLaserStart, 300))
     {
-        pp->SpriteP->clipdist = oclipdist;
-        KillSprite(w);
+        sp->clipdist = oclipdist;
+        KillActor(actorNew);
         return 0;
     }
-    if (MissileSetPos(w, DoLaserStart, 300))
+    if (MissileSetPos(actorNew->GetSpriteIndex(), DoLaserStart, 300))
     {
-        pp->SpriteP->clipdist = oclipdist;
-        KillSprite(w);
+        sp->clipdist = oclipdist;
+        KillActor(actorNew);
         return 0;
     }
-    if (MissileSetPos(w, DoLaserStart, 300))
+    if (MissileSetPos(actorNew->GetSpriteIndex(), DoLaserStart, 300))
     {
-        pp->SpriteP->clipdist = oclipdist;
-        KillSprite(w);
+        sp->clipdist = oclipdist;
+        KillActor(actorNew);
         return 0;
     }
-    if (MissileSetPos(w, DoLaserStart, 300))
+    if (MissileSetPos(actorNew->GetSpriteIndex(), DoLaserStart, 300))
     {
-        pp->SpriteP->clipdist = oclipdist;
-        KillSprite(w);
+        sp->clipdist = oclipdist;
+        KillActor(actorNew);
         return 0;
     }
 
-    pp->SpriteP->clipdist = oclipdist;
+    sp->clipdist = oclipdist;
 
-    if (WeaponAutoAim(pp->SpriteP, w, 32, false) == -1)
+    if (WeaponAutoAim(sp, actorNew->GetSpriteIndex(), 32, false) == -1)
     {
         wp->ang = NORM_ANGLE(wp->ang - 5);
     }
