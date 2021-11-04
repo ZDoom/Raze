@@ -1337,7 +1337,7 @@ void WeaponExplodeSectorInRange(DSWActor* wActor)
 
 
         // pass in explosion type
-        MissileHitMatch(wActor->GetSpriteIndex(), WPN_ROCKET, actor->GetSpriteIndex());
+        MissileHitMatch(wActor, WPN_ROCKET, actor);
     }
 }
 

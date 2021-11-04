@@ -2638,15 +2638,14 @@ STATE s_PaperShrapC[] =
     {PAPER_SHRAP_C + 3, PaperShrapC_RATE, DoShrapJumpFall, &s_PaperShrapC[0]},
 };
 
-#if 1
-bool MissileHitMatch(short Weapon, short WeaponNum, short hit_sprite)
+bool MissileHitMatch(DSWActor* weapActor, int WeaponNum, DSWActor* hitActor)
 {
-    SPRITEp hsp = &sprite[hit_sprite];
+    SPRITEp hsp = &hitActor->s();
 
     if (WeaponNum <= -1)
     {
-        ASSERT(Weapon >= 0);
-        USERp wu = User[Weapon].Data();
+        ASSERT(weapActor != nullptr);
+        USERp wu = weapActor->u();
         WeaponNum = wu->WeaponNum;
 
         // can be hit by SO only
@@ -2742,7 +2741,6 @@ bool MissileHitMatch(short Weapon, short WeaponNum, short hit_sprite)
         WPN_FIST
 #endif
 }
-#endif
 
 int SpawnShrapX(DSWActor* actor)
 {
@@ -4423,7 +4421,7 @@ WeaponMoveHit(short SpriteNum)
 
                 if (u->lowActor->s().lotag == TAG_SPRITE_HIT_MATCH)
                 {
-                    if (MissileHitMatch(SpriteNum, -1, u->lowActor->GetSpriteIndex()))
+                    if (MissileHitMatch(actor, -1, u->lowActor))
                         return true;
                 }
 
@@ -4446,7 +4444,7 @@ WeaponMoveHit(short SpriteNum)
             {
                 if (u->highActor->s().lotag == TAG_SPRITE_HIT_MATCH)
                 {
-                    if (MissileHitMatch(SpriteNum, -1, u->highActor->GetSpriteIndex()))
+                    if (MissileHitMatch(actor, -1, u->highActor))
                         return true;
                 }
             }
@@ -4540,10 +4538,8 @@ WeaponMoveHit(short SpriteNum)
 
         if (hsp->lotag == TAG_SPRITE_HIT_MATCH)
         {
-            if (MissileHitMatch(SpriteNum, -1, hit_sprite))
+            if (MissileHitMatch(actor, -1, &swActors[hit_sprite]))
                 return true;
-            //DoMatchEverything(nullptr, hsp->hitag, -1);
-            //return(true);
         }
 
         if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
@@ -4603,7 +4599,7 @@ WeaponMoveHit(short SpriteNum)
 
             if (hsp->lotag == TAG_SPRITE_HIT_MATCH)
             {
-                if (MissileHitMatch(SpriteNum, -1, hitinfo.sprite))
+                if (MissileHitMatch(actor, -1, &swActors[hitinfo.sprite]))
                     return true;
             }
 
@@ -13128,7 +13124,7 @@ int InitSwordAttack(PLAYERp pp)
 
                 if (hsp->lotag == TAG_SPRITE_HIT_MATCH)
                 {
-                    if (MissileHitMatch(-1, WPN_STAR, hitActor->GetSpriteIndex()))
+                    if (MissileHitMatch(nullptr, WPN_STAR, hitActor))
                         return 0;
                 }
 
@@ -13318,7 +13314,7 @@ int InitFistAttack(PLAYERp pp)
 
                 if (hsp->lotag == TAG_SPRITE_HIT_MATCH)
                 {
-                    if (MissileHitMatch(-1, WPN_STAR, hitActor->GetSpriteIndex()))
+                    if (MissileHitMatch(nullptr, WPN_STAR, hitActor))
                         return 0;
                 }
 
@@ -14089,7 +14085,7 @@ int ContinueHitscan(PLAYERp pp, short sectnum, int x, int y, int z, short ang, i
 
         if (hsp->lotag == TAG_SPRITE_HIT_MATCH)
         {
-            if (MissileHitMatch(-1, WPN_SHOTGUN, hitinfo.hitactor->GetSpriteIndex()))
+            if (MissileHitMatch(nullptr, WPN_SHOTGUN, hitinfo.hitactor))
                 return 0;
         }
 
@@ -14260,7 +14256,7 @@ int InitShotgun(PLAYERp pp)
 
             if (hsp->lotag == TAG_SPRITE_HIT_MATCH)
             {
-                if (MissileHitMatch(-1, WPN_SHOTGUN, hitActor->GetSpriteIndex()))
+                if (MissileHitMatch(nullptr, WPN_SHOTGUN, hitActor))
                     continue;
             }
 
@@ -16829,7 +16825,7 @@ int InitUzi(PLAYERp pp)
 
         if (hsp->lotag == TAG_SPRITE_HIT_MATCH)
         {
-            if (MissileHitMatch(-1, WPN_UZI, hitActor->GetSpriteIndex()))
+            if (MissileHitMatch(nullptr, WPN_UZI, hitActor))
                 return 0;
         }
 
@@ -17325,7 +17321,7 @@ int InitSobjMachineGun(DSWActor* actor, PLAYERp pp)
             // spawn sparks here and pass the sprite as SO_MISSILE
             spark = SpawnBoatSparks(pp, hitinfo.sect, hitinfo.wall, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
             SET(spark->u()->Flags2, SPR2_SO_MISSILE);
-            if (MissileHitMatch(spark->GetSpriteIndex(), -1, hitinfo.hitactor->GetSpriteIndex()))
+            if (MissileHitMatch(spark, -1, hitinfo.hitactor))
                 return 0;
             return 0;
         }
@@ -17751,7 +17747,7 @@ int InitTurretMgun(SECTOR_OBJECTp sop)
 
                 if (hsp->lotag == TAG_SPRITE_HIT_MATCH)
                 {
-                    if (MissileHitMatch(-1, WPN_UZI, hitinfo.hitactor->GetSpriteIndex()))
+                    if (MissileHitMatch(nullptr, WPN_UZI, hitinfo.hitactor))
                         continue;
                 }
 

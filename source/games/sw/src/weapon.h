@@ -245,7 +245,7 @@ void SpawnNuclearExp(DSWActor* actor);
 void SpawnBoltExp(DSWActor* actor);
 void SpawnTracerExp(DSWActor* Weapon);
 int SpawnGoroFireballExp(int16_t Weapon);
-bool MissileHitMatch(short Weapon,short WeaponNum,short hit_sprite);
+bool MissileHitMatch(DSWActor* weapActor, int WeaponNum, DSWActor* hitActor);
 int DoItemFly(DSWActor*);
 int SpawnVehicleSmoke(DSWActor* actor);
 short PrevWall(short wall_num);
