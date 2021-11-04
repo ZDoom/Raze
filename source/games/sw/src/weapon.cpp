@@ -3798,23 +3798,17 @@ AutoShrap:
 }
 
 
-int
-DoShrapMove(int16_t SpriteNum)
+void DoShrapMove(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
+    USERp u = actor->u();
 
-    SetCollision(u, move_missile(SpriteNum, u->xchange, u->ychange, 0, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS*2));
-
-    return 0;
+    SetCollision(u, move_missile(actor->GetSpriteIndex(), u->xchange, u->ychange, 0, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS*2));
 }
 
-#if 1
-int
-DoVomit(DSWActor* actor)
+int DoVomit(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
 
     u->Counter = NORM_ANGLE(u->Counter + (30*MISSILEMOVETICS));
     sp->xrepeat = u->sx + MulScale(12, bcos(u->Counter), 14);
@@ -3823,13 +3817,13 @@ DoVomit(DSWActor* actor)
     {
         DoJump(actor);
         DoJump(actor);
-        DoShrapMove(SpriteNum);
+        DoShrapMove(actor);
     }
     else if (TEST(u->Flags, SPR_FALLING))
     {
         DoFall(actor);
         DoFall(actor);
-        DoShrapMove(SpriteNum);
+        DoShrapMove(actor);
     }
     else
     {
@@ -3843,46 +3837,33 @@ DoVomit(DSWActor* actor)
         return 0;
     }
 
-    if (TEST(u->ret, HIT_MASK) == HIT_SPRITE)
+    if (u->coll.type == kHitSprite)
     {
-        short hit_sprite = NORM_SPRITE(u->ret);
-        if (TEST(sprite[hit_sprite].extra, SPRX_PLAYER_OR_ENEMY))
+        if (TEST(u->coll.actor->s().extra, SPRX_PLAYER_OR_ENEMY))
         {
-            DoDamage(hit_sprite, SpriteNum);
-            //KillActor(actor);
-            return 0;
+            DoDamage(u->coll.actor->GetSpriteIndex(), actor->GetSpriteIndex());
         }
     }
-
-    //if (u->ID)
-    //    DoDamageTest(SpriteNum);
-
     return 0;
 }
-#endif
 
 
-int
-DoVomitSplash(DSWActor* actor)
+int DoVomitSplash(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     if ((u->WaitTics-=MISSILEMOVETICS) < 0)
     {
         KillActor(actor);
         return 0;
     }
-
     return 0;
 }
 
-int
-DoFastShrapJumpFall(DSWActor* actor)
+int DoFastShrapJumpFall(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
 
 	sp->x += u->xchange*2;
     sp->y += u->ychange*2;
@@ -3895,12 +3876,10 @@ DoFastShrapJumpFall(DSWActor* actor)
     return 0;
 }
 
-int
-DoTracerShrap(DSWActor* actor)
+int DoTracerShrap(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
 
     sp->x += u->xchange;
     sp->y += u->ychange;
@@ -3913,11 +3892,9 @@ DoTracerShrap(DSWActor* actor)
     return 0;
 }
 
-int
-DoShrapJumpFall(DSWActor* actor)
+int DoShrapJumpFall(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags, SPR_JUMPING))
     {
@@ -3940,27 +3917,23 @@ DoShrapJumpFall(DSWActor* actor)
         else
             ShrapKillSprite(actor);
     }
-
-
     return 0;
 }
 
-int
-DoShrapDamage(DSWActor* actor)
+int DoShrapDamage(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
 
     if (TEST(u->Flags, SPR_JUMPING))
     {
         DoJump(actor);
-        DoShrapMove(SpriteNum);
+        DoShrapMove(actor);
     }
     else if (TEST(u->Flags, SPR_FALLING))
     {
         DoFall(actor);
-        DoShrapMove(SpriteNum);
+        DoShrapMove(actor);
     }
     else
     {
@@ -3977,17 +3950,10 @@ DoShrapDamage(DSWActor* actor)
         return 0;
     }
 
-    if (u->ret)
+    if (u->coll.type == kHitSprite)
     {
-        switch (TEST(u->ret, HIT_MASK))
-        {
-        case HIT_SPRITE:
-        {
-            WeaponMoveHit(SpriteNum);
-            KillActor(actor);
-            return 0;
-        }
-        }
+        WeaponMoveHit(actor->GetSpriteIndex());
+        KillActor(actor);
     }
 
     return 0;
@@ -3999,7 +3965,7 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, i
     SPRITEp sp = &actor->s();
     SPRITEp np;
     USERp nu;
-    short i,New;
+    int i;
 
 
     // state, id, num, zlevel, min_jspeed, max_jspeed, min_vel, max_vel,
@@ -4165,9 +4131,8 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, i
 
         for (i = 0; i < p->num; i++)
         {
-            New = SpawnSprite(STAT_SKIP4, p->id, p->state, sp->sectnum,
+            auto actorNew = SpawnActor(STAT_SKIP4, p->id, p->state, sp->sectnum,
                               hit_x, hit_y, hit_z, hit_ang, 0);
-            auto actorNew = &swActors[New];
             np = &actorNew->s();
             nu = actorNew->u();
 
@@ -4238,7 +4203,6 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, i
             DoBeginJump(actorNew);
         }
     }
-
     return retval;
 }
 
@@ -5585,8 +5549,8 @@ RadiusGetDamage(short SpriteNum, short Weapon, int max_damage)
 int
 PlayerCheckDeath(PLAYERp pp, short Weapon)
 {
-    SPRITEp sp = pp->SpriteP;
-    USERp u = User[pp->PlayerSprite].Data();
+    SPRITEp sp = &pp->Actor()->s();
+    USERp u = pp->Actor()->u();
 
 
     // Store off what player was struck by
@@ -12895,15 +12859,16 @@ int InitSpellMirv(PLAYERp pp)
     u->ceiling_dist = Z(16);
     u->Dist = 200;
 
-    auto oclipdist = pp->SpriteP->clipdist;
-    pp->SpriteP->clipdist = 0;
+    auto psp = &pp->Actor()->s();
+    auto oclipdist = psp->clipdist;
+    psp->clipdist = 0;
 
     u->xchange = MOVEx(sp->xvel, sp->ang);
     u->ychange = MOVEy(sp->xvel, sp->ang);
     u->zchange = sp->zvel;
 
     MissileSetPos(actorNew, DoMirv, 600);
-    pp->SpriteP->clipdist = oclipdist;
+    psp->clipdist = oclipdist;
 
     u->Counter = 0;
     return 0;
@@ -14811,8 +14776,8 @@ int InitNuke(PLAYERp pp)
 
     // at certain angles the clipping box was big enough to block the
     // initial positioning of the fireball.
-    auto oclipdist = pp->SpriteP->clipdist;
-    pp->SpriteP->clipdist = 0;
+    auto oclipdist = sp->clipdist;
+    sp->clipdist = 0;
 
     wp->ang = NORM_ANGLE(wp->ang + 512);
     HelpMissileLateral(actorNew, 900);
@@ -16368,7 +16333,7 @@ int InitTracerUzi(PLAYERp pp)
 
     wp->zvel = xs_CRoundToInt(-MulScaleF(pp->horizon.horiz.asq16(), wp->xvel / 8., 16));
 
-    pp->SpriteP->clipdist = oclipdist;
+    psp->clipdist = oclipdist;
 
     WeaponAutoAim(pp->Actor(), actorNew, 32, false);
 
@@ -17964,8 +17929,8 @@ int InitGrenade(PLAYERp pp)
 
     wp->zvel = -pp->horizon.horiz.asq16() >> 9;
 
-    auto oclipdist = pp->SpriteP->clipdist;
-    pp->SpriteP->clipdist = 0;
+    auto oclipdist = sp->clipdist;
+    sp->clipdist = 0;
 
     wp->ang = NORM_ANGLE(wp->ang + 512);
     HelpMissileLateral(actorNew, 800);

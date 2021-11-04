@@ -2386,7 +2386,7 @@ void PlayerOperateEnv(PLAYERp pp)
 {
     bool found;
 
-    if (Prediction || !pp->SpriteP)
+    if (Prediction || !pp->Actor())
         return;
 
     //
@@ -2527,14 +2527,14 @@ void PlayerOperateEnv(PLAYERp pp)
         {
             PlayerTakeSectorDamage(pp);
         }
-        else if ((SPRITEp_BOS(pp->SpriteP) >= sectp->floorz) && !TEST(pp->Flags, PF_DIVING))
+        else if ((SPRITEp_BOS(&pp->Actor()->s()) >= sectp->floorz) && !TEST(pp->Flags, PF_DIVING))
         {
             PlayerTakeSectorDamage(pp);
         }
     }
     else
     {
-        USERp u = User[pp->PlayerSprite].Data();
+        USERp u = pp->Actor()->u();
         u->DamageTics = 0;
     }
 

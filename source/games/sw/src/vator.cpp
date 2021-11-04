@@ -576,8 +576,7 @@ int DoVator(DSWActor* actor)
 int DoVatorAuto(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = u->SpriteP;
+    SPRITEp sp = &actor->s();
     SECTORp sectp = &sector[sp->sectnum];
     int *lptr;
     int amt;

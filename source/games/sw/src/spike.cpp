@@ -421,8 +421,7 @@ int DoSpike(DSWActor* actor)
 int DoSpikeAuto(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = u->SpriteP;
+    SPRITEp sp = &actor->s();
     int *lptr;
 
     lptr = &u->zclip;

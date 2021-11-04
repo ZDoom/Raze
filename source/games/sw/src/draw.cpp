@@ -1107,7 +1107,7 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, int *tsectnum, binangle *
 
             FAFcansee_test =
                 (FAFcansee(sp->x, sp->y, sp->z, sp->sectnum, *tx, *ty, *tz, pp->cursectnum) ||
-                 FAFcansee(sp->x, sp->y, sp->z, sp->sectnum, *tx, *ty, *tz + SPRITEp_SIZE_Z(pp->SpriteP), pp->cursectnum));
+                 FAFcansee(sp->x, sp->y, sp->z, sp->sectnum, *tx, *ty, *tz + SPRITEp_SIZE_Z(&pp->Actor()->s()), pp->cursectnum));
 
             player_in_camera = ang_test && FAFcansee_test;
 
@@ -1593,7 +1593,7 @@ drawscreen(PLAYERp pp, double smoothratio)
     else
     {
         UpdateWallPortalState();
-        render_drawrooms(pp->SpriteP, { tx, ty, tz }, tsectnum, tang, thoriz, trotscrnang, smoothratio);
+        render_drawrooms(&pp->Actor()->s(), { tx, ty, tz }, tsectnum, tang, thoriz, trotscrnang, smoothratio);
         RestorePortalState();
     }
 
