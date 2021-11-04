@@ -2752,8 +2752,7 @@ int SpawnShrapX(DSWActor* actor)
 int DoLavaErupt(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
     short i,pnum;
     PLAYERp pp;
     SPRITEp tsp;
@@ -2766,10 +2765,10 @@ int DoLavaErupt(DSWActor* actor)
             pp = Player + pnum;
             if (pp->cursectnum >= 0 && TEST(sector[pp->cursectnum].extra, SECTFX_TRIGGER))
             {
-                SectIterator it(pp->cursectnum);
-                while ((i = it.NextIndex()) >= 0)
+                SWSectIterator it(pp->cursectnum);
+                while (auto itActor = it.Next())
                 {
-                    tsp = &sprite[i];
+                    tsp = &itActor->s();
 
                     if (tsp->statnum == STAT_TRIGGER && SP_TAG7(tsp) == 0 && SP_TAG5(tsp) == 1)
                     {
@@ -2831,43 +2830,11 @@ int DoLavaErupt(DSWActor* actor)
 }
 
 
-#if 0
-STATEp UserStateSetup(short base_tile, short num_tiles)
+int SpawnShrap(DSWActor* parentActor, DSWActor* secondaryActor, int means, BREAK_INFOp breakinfo)
 {
-    STATEp base_state, stp;
-    short tile;
-
-#define USER_PIC 0
-#define USER_RATE 12
-
-    base_state = CallocMem(sizeof(STATE) * num_tiles, 1);
-
-    for (stp = base_state, tile = 0; stp->state || tile < num_tiles; stp++, tile++)
-    {
-        stp->Pic = base_tile + tile;
-        stp->Tics = USER_RATE;
-        stp->Animator = DoShrapJumpFall;
-
-        // if last tile
-        if (tile == num_tiles - 1)
-            stp->NextState = base_state;
-        else
-            stp->NextState = stp + 1;
-    }
-
-    return base_state;
-}
-#endif
-
-int
-SpawnShrap(DSWActor* parentActor, DSWActor* secondaryActor, int means, BREAK_INFOp breakinfo)
-{
-    int Secondary = secondaryActor ? secondaryActor->GetSpriteIndex() : means;
-    int ParentNum = parentActor->GetSpriteIndex();
     SPRITEp parent = &parentActor->s();
     SPRITEp sp;
     USERp u, pu = parentActor->u();
-    short SpriteNum;
     short i;
 
     /////////////////////////////////////////
@@ -3196,7 +3163,7 @@ SpawnShrap(DSWActor* parentActor, DSWActor* secondaryActor, int means, BREAK_INF
     int nx,ny;
     short jump_grav = ACTOR_GRAVITY;
     short start_ang = 0;
-    short shrap_owner = -1;
+    DSWActor* ShrapOwner = nullptr;
     int shrap_bounce = false;
     short WaitTics = 64; // for FastShrap
     short shrap_type;
@@ -3272,9 +3239,8 @@ AutoShrap:
                 return false;
 
             case SHRAP_GLASS:
-                PlaySound(DIGI_BREAKGLASS,parent,v3df_dontpan|v3df_doppler);
+                PlaySound(DIGI_BREAKGLASS, parentActor, v3df_dontpan | v3df_doppler);
                 p = GlassShrap;
-                //BreakShrapSetup(GlassShrap, sizeof(GlassShrap), CustomShrap, shrap_amt);
                 if (shrap_amt)
                 {
                     memcpy(CustomShrap, GlassShrap, sizeof(GlassShrap));
@@ -3288,7 +3254,7 @@ AutoShrap:
 
             case SHRAP_GENERIC:
             case SHRAP_STONE:
-                PlaySound(DIGI_BREAKSTONES,parent,v3df_dontpan|v3df_doppler);
+                PlaySound(DIGI_BREAKSTONES,parentActor,v3df_dontpan|v3df_doppler);
                 p = StoneShrap;
                 if (shrap_amt)
                 {
@@ -3302,7 +3268,7 @@ AutoShrap:
                 break;
 
             case SHRAP_WOOD:
-                PlaySound(DIGI_BREAKINGWOOD,parent,v3df_dontpan|v3df_doppler);
+                PlaySound(DIGI_BREAKINGWOOD,parentActor,v3df_dontpan|v3df_doppler);
                 p = WoodShrap;
                 if (shrap_amt)
                 {
@@ -3320,14 +3286,14 @@ AutoShrap:
                 break;
 
             case SHRAP_GIBS:
-                PlaySound(DIGI_GIBS1,parent,v3df_dontpan|v3df_doppler);
+                PlaySound(DIGI_GIBS1,parentActor,v3df_dontpan|v3df_doppler);
                 p = SmallGore;
                 shrap_xsize = shrap_ysize = 34;
                 shrap_bounce = false;
                 break;
 
             case SHRAP_TREE_BARK:
-                PlaySound(DIGI_BREAKINGWOOD,parent,v3df_dontpan|v3df_doppler);
+                PlaySound(DIGI_BREAKINGWOOD,parentActor,v3df_dontpan|v3df_doppler);
                 p = WoodShrap;
                 if (shrap_amt)
                 {
@@ -3353,7 +3319,7 @@ AutoShrap:
                 break;
 
             case SHRAP_METAL:
-                PlaySound(DIGI_BREAKMETAL,parent,v3df_dontpan|v3df_doppler);
+                PlaySound(DIGI_BREAKMETAL,parentActor,v3df_dontpan|v3df_doppler);
                 p = MetalShrap;
                 if (shrap_amt)
                 {
@@ -3368,7 +3334,7 @@ AutoShrap:
 
 
             case SHRAP_COIN:
-                PlaySound(DIGI_COINS,parent,v3df_dontpan|v3df_doppler);
+                PlaySound(DIGI_COINS,parentActor,v3df_dontpan|v3df_doppler);
                 p = CoinShrap;
                 if (shrap_amt)
                 {
@@ -3382,7 +3348,7 @@ AutoShrap:
                 break;
 
             case SHRAP_METALMIX:
-                PlaySound(DIGI_BREAKMETAL,parent,v3df_dontpan|v3df_doppler);
+                PlaySound(DIGI_BREAKMETAL,parentActor,v3df_dontpan|v3df_doppler);
                 p = MetalMix;
                 if (shrap_amt)
                 {
@@ -3411,7 +3377,7 @@ AutoShrap:
             break;
 
             case SHRAP_WOODMIX:
-                PlaySound(DIGI_BREAKINGWOOD,parent,v3df_dontpan|v3df_doppler);
+                PlaySound(DIGI_BREAKINGWOOD,parentActor,v3df_dontpan|v3df_doppler);
                 p = WoodMix;
                 if (shrap_amt)
                 {
@@ -3425,7 +3391,7 @@ AutoShrap:
                 break;
 
             case SHRAP_PAPERMIX:
-                PlaySound(DIGI_BREAKINGWOOD,parent,v3df_dontpan|v3df_doppler);
+                PlaySound(DIGI_BREAKINGWOOD,parentActor,v3df_dontpan|v3df_doppler);
                 p = PaperMix;
                 if (shrap_amt)
                 {
@@ -3485,42 +3451,42 @@ AutoShrap:
         break;
 
     case BREAK_BARREL:
-        PlaySound(DIGI_BREAKDEBRIS,parent,v3df_dontpan|v3df_doppler);
+        PlaySound(DIGI_BREAKDEBRIS,parentActor,v3df_dontpan|v3df_doppler);
         p = WoodShrap;
         shrap_xsize = shrap_ysize = 24;
         shrap_bounce = true;
         ChangeState(parentActor, s_BreakBarrel);
         break;
     case BREAK_LIGHT:
-        PlaySound(DIGI_BREAKGLASS,parent,v3df_dontpan|v3df_doppler);
+        PlaySound(DIGI_BREAKGLASS,parentActor,v3df_dontpan|v3df_doppler);
         p = GlassShrap;
         shrap_xsize = shrap_ysize = 24;
         shrap_bounce = true;
         ChangeState(parentActor, s_BreakLight);
         break;
     case BREAK_PEDISTAL:
-        PlaySound(DIGI_BREAKSTONES,parent,v3df_dontpan|v3df_doppler);
+        PlaySound(DIGI_BREAKSTONES,parentActor,v3df_dontpan|v3df_doppler);
         p = StoneShrap;
         shrap_xsize = shrap_ysize = 24;
         shrap_bounce = true;
         ChangeState(parentActor, s_BreakPedistal);
         break;
     case BREAK_BOTTLE1:
-        PlaySound(DIGI_BREAKGLASS,parent,v3df_dontpan|v3df_doppler);
+        PlaySound(DIGI_BREAKGLASS,parentActor,v3df_dontpan|v3df_doppler);
         p = GlassShrap;
         shrap_xsize = shrap_ysize = 8;
         shrap_bounce = true;
         ChangeState(parentActor, s_BreakBottle1);
         break;
     case BREAK_BOTTLE2:
-        PlaySound(DIGI_BREAKGLASS,parent,v3df_dontpan|v3df_doppler);
+        PlaySound(DIGI_BREAKGLASS,parentActor,v3df_dontpan|v3df_doppler);
         p = GlassShrap;
         shrap_xsize = shrap_ysize = 8;
         shrap_bounce = true;
         ChangeState(parentActor, s_BreakBottle2);
         break;
     case BREAK_MUSHROOM:
-        PlaySound(DIGI_BREAKDEBRIS,parent,v3df_dontpan|v3df_doppler);
+        PlaySound(DIGI_BREAKDEBRIS,parentActor,v3df_dontpan|v3df_doppler);
         p = StoneShrap;
         shrap_xsize = shrap_ysize = 4;
         shrap_bounce = true;
@@ -3552,9 +3518,9 @@ AutoShrap:
         shrap_xsize = shrap_ysize = 10;
         break;
     case LAVA_BOULDER:
-        PlaySound(DIGI_BREAKSTONES,parent,v3df_dontpan|v3df_doppler);
+        PlaySound(DIGI_BREAKSTONES,parentActor,v3df_dontpan|v3df_doppler);
         p = LavaBoulderShrap;
-        shrap_owner = parent->owner;
+        ShrapOwner = GetOwner(parentActor);
         shrap_xsize = shrap_ysize = 24;
         shrap_bounce = true;
         break;
@@ -3573,12 +3539,12 @@ AutoShrap:
         break;
     case ELECTRO_PLAYER:
     case ELECTRO_ENEMY:
-        shrap_owner = parent->owner;
+        ShrapOwner = GetOwner(parentActor);
         p = ElectroShrap;
         shrap_xsize = shrap_ysize = 20;
         break;
     case COOLIE_RUN_R0:
-        if (Secondary == WPN_NM_SECTOR_SQUISH)
+        if (means == WPN_NM_SECTOR_SQUISH)
             break;
 //        return (false);
         break;
@@ -3667,7 +3633,7 @@ AutoShrap:
     case PACHINKO3:
     case PACHINKO4:
     case 623:
-        PlaySound(DIGI_BREAKGLASS,parent,v3df_dontpan|v3df_doppler);
+        PlaySound(DIGI_BREAKGLASS,parentActor,v3df_dontpan|v3df_doppler);
         p = MetalShrap;
         shrap_xsize = shrap_ysize = 10;
         break;
@@ -3684,9 +3650,9 @@ AutoShrap:
 
     // second sprite involved
     // most of the time is is the weapon
-    if (Secondary >= 0)
+    if (secondaryActor != nullptr)
     {
-        USERp wu = User[Secondary].Data();
+        USERp wu = secondaryActor->u();
 
         if (wu->PlayerP && wu->PlayerP->sop_control)
         {
@@ -3716,10 +3682,9 @@ AutoShrap:
 
         for (i = 0; i < p->num; i++)
         {
-            SpriteNum = SpawnSprite(STAT_SKIP4, p->id, p->state, parent->sectnum,
+            auto actor = SpawnActor(STAT_SKIP4, p->id, p->state, parent->sectnum,
                                     parent->x, parent->y, hz[p->zlevel], shrap_ang, 512);
 
-            auto actor = &swActors[SpriteNum];
             sp = &actor->s();
             u = actor->u();
 
@@ -3777,7 +3742,7 @@ AutoShrap:
 
                 nx = bcos(sp->ang, -6);
                 ny = bsin(sp->ang, -6);
-                move_missile(SpriteNum, nx, ny, 0, Z(8), Z(8), CLIPMASK_MISSILE, MISSILEMOVETICS);
+                move_missile(actor->GetSpriteIndex(), nx, ny, 0, Z(8), Z(8), CLIPMASK_MISSILE, MISSILEMOVETICS);
 
                 if (RANDOM_P2(1024)<700)
                     u->ID = 0;
@@ -3797,9 +3762,9 @@ AutoShrap:
             sp->yrepeat = uint8_t(shrap_ysize);
             sp->clipdist = 16 >> 2;
 
-            if (shrap_owner >= 0)
+            if (ShrapOwner != nullptr)
             {
-                SetOwner(shrap_owner, SpriteNum);
+                SetOwner(ShrapOwner, actor);
             }
 
             if (shrap_rand_zamt)
