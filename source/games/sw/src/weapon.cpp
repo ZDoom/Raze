@@ -15935,8 +15935,7 @@ InitSerpSpell(DSWActor* actor)
     return 0;
 }
 
-int
-SpawnDemonFist(int16_t Weapon)
+int SpawnDemonFist(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon].Data();
@@ -15948,7 +15947,6 @@ SpawnDemonFist(int16_t Weapon)
     if (TEST(u->Flags, SPR_SUICIDE))
         return -1;
 
-    //PlaySound(DIGI_ITEM_SPAWN, sp, v3df_none);
     explosion = SpawnSprite(STAT_MISSILE, 0, s_TeleportEffect, sp->sectnum,
                             sp->x, sp->y, SPRITEp_MID(sp), sp->ang, 0);
 
@@ -15974,48 +15972,44 @@ SpawnDemonFist(int16_t Weapon)
     return explosion;
 }
 
-int
-InitSerpMonstSpell(DSWActor* actor)
+int InitSerpMonstSpell(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum], np;
+    SPRITEp sp = &actor->s(), np;
     USERp nu;
     int dist;
-    short New, i;
+    short i;
 
-    static short lat_ang[] =
+    static const short lat_ang[] =
     {
         512, -512
     };
 
-    static short delta_ang[] =
+    static const short delta_ang[] =
     {
         -10, 10
     };
 
-    PlaySound(DIGI_MISSLFIRE, sp, v3df_none);
+    PlaySound(DIGI_MISSLFIRE, actor, v3df_none);
 
     for (i = 0; i < 1; i++)
     {
         sp->ang = getangle(u->targetActor->s().x - sp->x, u->targetActor->s().y - sp->y);
 
-        New = SpawnSprite(STAT_MISSILE, SERP_METEOR, &sg_SerpMeteor[0][0], sp->sectnum,
+        auto actorNew = SpawnActor(STAT_MISSILE, SERP_METEOR, &sg_SerpMeteor[0][0], sp->sectnum,
                           sp->x, sp->y, sp->z, sp->ang, 500);
 
-        auto actorNew = &swActors[New];
-        np = &sprite[New];
-        nu = User[New].Data();
+        np = &actorNew->s();
+        nu = actorNew->u();
 
         nu->spal = np->pal = 25; // Bright Red
         np->z = SPRITEp_TOS(sp);
 
         nu->RotNum = 5;
         NewStateGroup(actorNew, &sg_SerpMeteor[0]);
-        //nu->StateEnd = s_MirvMeteorExp;
         nu->StateEnd = s_TeleportEffect2;
 
-        SetOwner(SpriteNum, New);
+        SetOwner(actor, actorNew);
         np->shade = -40;
         np->xrepeat = 122;
         np->yrepeat = 116;
@@ -16046,7 +16040,7 @@ InitSerpMonstSpell(DSWActor* actor)
         nu->ychange = MOVEy(np->xvel, np->ang);
         nu->zchange = np->zvel;
 
-        MissileSetPos(New, DoMirvMissile, 400);
+        MissileSetPos(actorNew->GetSpriteIndex(), DoMirvMissile, 400);
         sp->clipdist = oclipdist;
 
         if (TEST(u->Flags, SPR_UNDERWATER))
@@ -16056,32 +16050,23 @@ InitSerpMonstSpell(DSWActor* actor)
     return 0;
 }
 
-int
-DoTeleRipper(DSWActor* actor)
+int DoTeleRipper(DSWActor* actor)
 {
-    USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
-
-    PlaySound(DIGI_ITEM_SPAWN, sp, v3df_none);
+    PlaySound(DIGI_ITEM_SPAWN, actor, v3df_none);
     Ripper2Hatch(actor);
 
     return 0;
 }
 
 
-int
-InitEnemyRocket(DSWActor* actor)
+int InitEnemyRocket(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum], wp;
+    SPRITEp sp = &actor->s(), wp;
     USERp wu;
     int nx, ny, nz, dist, nang;
-    short w;
 
-
-    PlaySound(DIGI_NINJARIOTATTACK, sp, v3df_none);
+    PlaySound(DIGI_NINJARIOTATTACK, actor, v3df_none);
 
     // get angle to player and also face player when attacking
     sp->ang = nang = getangle(u->targetActor->s().x - sp->x, u->targetActor->s().y - sp->y);
@@ -16091,20 +16076,20 @@ InitEnemyRocket(DSWActor* actor)
     nz = sp->z - DIV2(SPRITEp_SIZE_Z(sp))-Z(8);
 
     // Spawn a shot
-    // wp = &sprite[w = SpawnSprite(STAT_MISSILE, STAR1, s_Star, sp->sectnum,
-    // nx, ny, nz, u->targetActor->s().ang, 250)];
-    w = SpawnSprite(STAT_MISSILE, BOLT_THINMAN_R2, &s_Rocket[0][0], sp->sectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R2, &s_Rocket[0][0], sp->sectnum,
                     nx, ny, nz-Z(8), u->targetActor->s().ang, NINJA_BOLT_VELOCITY);
-    wp = &sprite[w];
-    wu = User[w].Data();
+
+    wp = &actorNew->s();
+    wu = actorNew->u();
 
     // Set default palette
     wp->pal = wu->spal = 17; // White
 
     if (u->ID == ZOMBIE_RUN_R0)
-        SetOwner(sp->owner, w);
+        SetOwner(GetOwner(actor), actorNew);
     else
-        SetOwner(SpriteNum, w);
+        SetOwner(actor, actorNew);
+    
     wp->yrepeat = 28;
     wp->xrepeat = 28;
     wp->shade = -15;
@@ -16113,7 +16098,7 @@ InitEnemyRocket(DSWActor* actor)
     wp->clipdist = 64L>>2;
 
     wu->RotNum = 5;
-    NewStateGroup(&swActors[w], &sg_Rocket[0]);
+    NewStateGroup(actorNew, &sg_Rocket[0]);
     wu->Radius = 200;
     SET(wp->cstat, CSTAT_SPRITE_YCENTER);
 
@@ -16127,7 +16112,7 @@ InitEnemyRocket(DSWActor* actor)
         wp->pal = wu->spal = 20; // Yellow
     }
 
-    MissileSetPos(w, DoBoltThinMan, 400);
+    MissileSetPos(actorNew->GetSpriteIndex(), DoBoltThinMan, 400);
 
     // find the distance to the target (player)
     dist = Distance(wp->x, wp->y, u->targetActor->s().x, u->targetActor->s().y);
@@ -16135,7 +16120,7 @@ InitEnemyRocket(DSWActor* actor)
     if (dist != 0)
         wu->zchange = wp->zvel = (wp->xvel * (ActorUpper(u->targetActor) - wp->z)) / dist;
 
-    return w;
+    return 0;
 }
 
 int InitEnemyRail(DSWActor* actor)
