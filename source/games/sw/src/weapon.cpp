@@ -14233,9 +14233,7 @@ InitStar(PLAYERp pp)
     return 0;
 }
 
-#if WORM == 1
-void
-InitHeartAttack(PLAYERp pp)
+void InitHeartAttack(PLAYERp pp)
 {
     short SpriteNum;
     SPRITEp sp;
@@ -14287,15 +14285,6 @@ InitHeartAttack(PLAYERp pp)
     u->ychange = MOVEy(sp->xvel, sp->ang);
     u->zchange = sp->zvel;
 
-#if 0
-    if (MissileSetPos(SpriteNum, DoBloodWorm, mp[i].dist_out))
-    {
-        pp->SpriteP->clipdist = oclipdist;
-        KillActor(actor);
-        continue;
-    }
-#endif
-
     MissileSetPos(SpriteNum, DoBloodWorm, mp[i].dist_out);
 
     pp->SpriteP->clipdist = oclipdist;
@@ -14304,77 +14293,10 @@ InitHeartAttack(PLAYERp pp)
     u->Counter3 = 0;
     u->WaitTics = 0;
 }
-#endif
-
-#if WORM == 2
-void
-InitHeartAttack(PLAYERp pp)
-{
-    short SpriteNum;
-    SPRITEp sp;
-    USERp u;
-    short i = 0;
-    USERp pu = User[pp->PlayerSprite].Data();
-
-    typedef struct
-    {
-        int dist_over, dist_out;
-        short ang;
-    } MISSILE_PLACEMENT;
-
-    static MISSILE_PLACEMENT mp[] =
-    {
-        {0, 1100, 0},
-    };
-
-    PlayerUpdateAmmo(pp, WPN_HEART, -1);
-
-    if (pp->cursectnum < 0)
-        return;
-
-    SpriteNum = SpawnSprite(STAT_MISSILE_SKIP4, BLOOD_WORM, s_BloodWorm, pp->cursectnum,
-                            pp->posx, pp->posy, pp->posz + Z(12), pp->angle.ang.asbuild(), BLOOD_WORM_VELOCITY*2);
-
-    sp = &sprite[SpriteNum];
-    u = User[SpriteNum].Data();
-
-    sp->hitag = LUMINOUS; //Always full brightness
-
-    SetOwner(pp->SpriteP - sprite, SpriteNum);
-    sp->shade = -10;
-    sp->xrepeat = 52;
-    sp->yrepeat = 52;
-    sp->clipdist = (256) >> 2; // same size a zombie
-    sp->zvel = 0;
-    RESET(sp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-    SET(u->Flags2, SPR2_DONT_TARGET_OWNER);
-    SET(sp->cstat, CSTAT_SPRITE_INVISIBLE);
-
-    u->floor_dist = Z(1);
-    u->ceiling_dist = Z(1);
-    u->Dist = 200;
-
-    auto oclipdist = pp->SpriteP->clipdist;
-    pp->SpriteP->clipdist = 1;
-
-    u->xchange = MOVEx(sp->xvel, sp->ang);
-    u->ychange = MOVEy(sp->xvel, sp->ang);
-    u->zchange = sp->zvel;
-
-    MissileSetPos(SpriteNum, DoBloodWorm, 1100);
-
-    pp->SpriteP->clipdist = oclipdist;
-    u->Counter = 0;
-    u->Counter2 = 0;
-    u->Counter3 = 0;
-    u->WaitTics = 0;
-}
-#endif
 
 int ContinueHitscan(PLAYERp pp, short sectnum, int x, int y, int z, short ang, int xvect, int yvect, int zvect)
 {
-    short j;
-    hitdata_t hitinfo;
+    HITINFO hitinfo;
     USERp u = pp->Actor()->u();
 
     FAFhitscan(x, y, z, sectnum,
@@ -14384,7 +14306,7 @@ int ContinueHitscan(PLAYERp pp, short sectnum, int x, int y, int z, short ang, i
     if (hitinfo.sect < 0)
         return 0;
 
-    if (hitinfo.sprite < 0 && hitinfo.wall < 0)
+    if (hitinfo.hitactor == nullptr && hitinfo.wall < 0)
     {
         if (labs(hitinfo.pos.z - sector[hitinfo.sect].ceilingz) <= Z(1))
         {
@@ -14420,44 +14342,43 @@ int ContinueHitscan(PLAYERp pp, short sectnum, int x, int y, int z, short ang, i
     }
 
     // hit a sprite?
-    if (hitinfo.sprite >= 0)
+    if (hitinfo.hitactor != nullptr)
     {
-        SPRITEp hsp = &sprite[hitinfo.sprite];
+        SPRITEp hsp = &hitinfo.hitactor->s();
 
         if (hsp->lotag == TAG_SPRITE_HIT_MATCH)
         {
-            if (MissileHitMatch(-1, WPN_SHOTGUN, hitinfo.sprite))
+            if (MissileHitMatch(-1, WPN_SHOTGUN, hitinfo.hitactor->GetSpriteIndex()))
                 return 0;
         }
 
         if (TEST(hsp->extra, SPRX_BREAKABLE))
         {
-            HitBreakSprite(&swActors[hitinfo.sprite],0);
+            HitBreakSprite(hitinfo.hitactor,0);
             return 0;
         }
 
-        if (BulletHitSprite(pp->Actor(), &swActors[hitinfo.sprite], hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, 0))
+        if (BulletHitSprite(pp->Actor(), hitinfo.hitactor, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, 0))
             return 0;
 
         // hit a switch?
         if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hsp->lotag || hsp->hitag))
         {
-            ShootableSwitch(&swActors[hitinfo.sprite]);
+            ShootableSwitch(hitinfo.hitactor);
         }
     }
 
-    j = SpawnShotgunSparks(pp, hitinfo.sect, hitinfo.wall, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ang);
-    DoHitscanDamage(j, hitinfo.sprite);
+    auto j = SpawnShotgunSparks(pp, hitinfo.sect, hitinfo.wall, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ang);
+    DoHitscanDamage(j->GetSpriteIndex(), hitinfo.hitactor->GetSpriteIndex());
 
     return 0;
 }
 
-int
-InitShotgun(PLAYERp pp)
+int InitShotgun(PLAYERp pp)
 {
     USERp u = pp->Actor()->u();
     auto sp = &pp->Actor()->s();
-    short daang,ndaang, i, j;
+    short daang,ndaang, i;
     HITINFO hitinfo;
     short nsect;
     int daz, ndaz;
@@ -14618,8 +14539,8 @@ InitShotgun(PLAYERp pp)
             }
         }
 
-        j = SpawnShotgunSparks(pp, hitinfo.sect, hitinfo.wall, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ndaang);
-        DoHitscanDamage(j, hitinfo.hitactor->GetSpriteIndex());
+        auto j = SpawnShotgunSparks(pp, hitinfo.sect, hitinfo.wall, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ndaang);
+        DoHitscanDamage(j->GetSpriteIndex(), hitinfo.hitactor->GetSpriteIndex());
     }
 
     DoPlayerBeginRecoil(pp, SHOTGUN_RECOIL_AMT);
@@ -17917,7 +17838,7 @@ int SpawnTurretSparks(/*SPRITEp sp, */short hit_sect, short hit_wall, int hit_x,
     return actorNew->GetSpriteIndex();
 }
 
-int SpawnShotgunSparks(PLAYERp pp, short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang)
+DSWActor* SpawnShotgunSparks(PLAYERp pp, short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang)
 {
     SPRITEp wp;
     USERp wu;
@@ -17951,7 +17872,7 @@ int SpawnShotgunSparks(PLAYERp pp, short hit_sect, short hit_wall, int hit_x, in
 
     HitscanSpriteAdjust(actorNew, hit_wall);
 
-    return actorNew->GetSpriteIndex();
+    return actorNew;
 }
 
 int InitTurretMgun(SECTOR_OBJECTp sop)
