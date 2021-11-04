@@ -16415,15 +16415,12 @@ InitEnemyStar(DSWActor* actor)
     return w;
 }
 
-int
-InitEnemyCrossbow(DSWActor* actor)
+int InitEnemyCrossbow(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum], wp;
+    SPRITEp sp = &actor->s(), wp;
     USERp wu;
     int nx, ny, nz, dist, nang;
-    short w;
 
     // get angle to player and also face player when attacking
     sp->ang = nang = NORM_ANGLE(getangle(u->targetActor->s().x - sp->x, u->targetActor->s().y - sp->y));
@@ -16433,13 +16430,13 @@ InitEnemyCrossbow(DSWActor* actor)
     nz = SPRITEp_MID(sp)-Z(14);
 
     // Spawn a shot
-    wp = &sprite[w = SpawnSprite(STAT_MISSILE, CROSSBOLT, &s_CrossBolt[0][0], sp->sectnum,
-                                 nx, ny, nz, u->targetActor->s().ang, 800)];
+    auto actorNew = SpawnActor(STAT_MISSILE, CROSSBOLT, &s_CrossBolt[0][0], sp->sectnum,
+                                 nx, ny, nz, u->targetActor->s().ang, 800);
 
-    wu = User[w].Data();
+    wp = &actorNew->s();
+    wu = actorNew->u();
 
-    
-    SetOwner(SpriteNum, w);
+    SetOwner(actor, actorNew);
     wp->xrepeat = 16;
     wp->yrepeat = 26;
     wp->shade = -25;
@@ -16448,7 +16445,7 @@ InitEnemyCrossbow(DSWActor* actor)
     wp->clipdist = 64L>>2;
 
     wu->RotNum = 5;
-    NewStateGroup(&swActors[w], &sg_CrossBolt[0]);
+    NewStateGroup(actorNew, &sg_CrossBolt[0]);
 
     wu->xchange = MOVEx(wp->xvel, wp->ang);
     wu->ychange = MOVEy(wp->xvel, wp->ang);
@@ -16456,7 +16453,7 @@ InitEnemyCrossbow(DSWActor* actor)
 
     SET(wu->Flags, SPR_XFLIP_TOGGLE);
 
-    MissileSetPos(w, DoStar, 400);
+    MissileSetPos(actorNew->GetSpriteIndex(), DoStar, 400);
 
     // find the distance to the target (player)
     dist = Distance(wp->x, wp->y, u->targetActor->s().x, u->targetActor->s().y);
@@ -16464,65 +16461,20 @@ InitEnemyCrossbow(DSWActor* actor)
     if (dist != 0)
         wu->zchange = wp->zvel = (wp->xvel * (ActorUpper(u->targetActor) - wp->z)) / dist;
 
-    //
-    // Star Power Up Code
-    //
+    PlaySound(DIGI_STAR, actor, v3df_none);
 
-#if 0
-    if (sp->pal == PALETTE_PLAYER0)
-    {
-        static short dang[] = {-28, 28};
-        char i;
-        SPRITEp np;
-        USERp nu;
-        short sn;
-
-        PlaySound(DIGI_STAR, sp, v3df_none);
-        for (i = 0; i < SIZ(dang); i++)
-        {
-            sn = SpawnSprite(STAT_MISSILE, CROSSBOLT, s_CrossBolt, sp->sectnum, wp->x, wp->y, wp->z, NORM_ANGLE(wp->ang + dang[i]), wp->xvel);
-            np = &sprite[sn];
-            nu = User[sn];
-
-            SetOwner(wp->owner, sn);
-            np->yrepeat = wp->yrepeat;
-            np->xrepeat = wp->xrepeat;
-            np->shade = wp->shade;
-            nu->WeaponNum = wu->WeaponNum;
-            nu->Radius = wu->Radius;
-            nu->xchange = wu->xchange;
-            nu->ychange = wu->ychange;
-            nu->zchange = 0;
-            np->zvel = 0;
-
-            MissileSetPos(sn, DoStar, 400);
-
-            nu->zchange = wu->zchange;
-            np->zvel = wp->zvel;
-        }
-    }
-    else
-#endif
-
-    PlaySound(DIGI_STAR, sp, v3df_none);
-
-
-
-    return w;
+    return 0;
 }
 
 
-int
-InitSkelSpell(DSWActor* actor)
+int InitSkelSpell(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum], wp;
+    SPRITEp sp = &actor->s(), wp;
     USERp wu;
     int nx, ny, nz, dist, nang;
-    short w;
 
-    PlaySound(DIGI_SPELEC, sp, v3df_none);
+    PlaySound(DIGI_SPELEC, actor, v3df_none);
 
     // get angle to player and also face player when attacking
     sp->ang = nang = NORM_ANGLE(getangle(u->targetActor->s().x - sp->x, u->targetActor->s().y - sp->y));
@@ -16532,13 +16484,13 @@ InitSkelSpell(DSWActor* actor)
     nz = sp->z - DIV2(SPRITEp_SIZE_Z(sp));
 
     // Spawn a shot
-    w = SpawnSprite(STAT_MISSILE, ELECTRO_ENEMY, s_Electro, sp->sectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, ELECTRO_ENEMY, s_Electro, sp->sectnum,
                     nx, ny, nz, u->targetActor->s().ang, SKEL_ELECTRO_VELOCITY);
-    wp = &sprite[w];
-    wu = User[w].Data();
 
-    
-    SetOwner(SpriteNum, w);
+    wp = &actorNew->s();
+    wu = actorNew->u();
+
+    SetOwner(actor, actorNew);
     wp->xrepeat -= 20;
     wp->yrepeat -= 20;
     wp->shade = -40;
@@ -16557,21 +16509,18 @@ InitSkelSpell(DSWActor* actor)
     wu->ychange = MOVEy(wp->xvel, wp->ang);
     wu->zchange = wp->zvel;
 
-    MissileSetPos(w, DoElectro, 400);
+    MissileSetPos(actorNew->GetSpriteIndex(), DoElectro, 400);
 
-    return w;
+    return 0;
 }
 
 
-int
-InitCoolgFire(DSWActor* actor)
+int InitCoolgFire(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum], wp;
+    SPRITEp sp = &actor->s(), wp;
     USERp wu;
     int nx, ny, nz, dist, nang;
-    short w;
 
     // get angle to player and also face player when attacking
     sp->ang = nang = NORM_ANGLE(getangle(u->targetActor->s().x - sp->x, u->targetActor->s().y - sp->y));
@@ -16586,14 +16535,13 @@ InitCoolgFire(DSWActor* actor)
 
     PlaySound(DIGI_CGMAGIC, sp, v3df_follow);
 
-    w = SpawnSprite(STAT_MISSILE, COOLG_FIRE, s_CoolgFire, sp->sectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, COOLG_FIRE, s_CoolgFire, sp->sectnum,
                     nx, ny, nz, u->targetActor->s().ang, COOLG_FIRE_VELOCITY);
 
-    wp = &sprite[w];
-    wu = User[w].Data();
+    wp = &actorNew->s();
+    wu = actorNew->u();
 
-    
-    SetOwner(SpriteNum, w);
+    SetOwner(actor, actorNew);
     wp->hitag = LUMINOUS;
     wp->yrepeat = 18;
     wp->xrepeat = 18;
@@ -16608,7 +16556,7 @@ InitCoolgFire(DSWActor* actor)
     else
         wu->spal = wp->pal = 25; // Bright Red
 
-    PlaySound(DIGI_MAGIC1, wp, v3df_follow|v3df_doppler);
+    PlaySound(DIGI_MAGIC1, actorNew, v3df_follow|v3df_doppler);
 
     // find the distance to the target (player)
     dist = Distance(nx, ny, u->targetActor->s().x, u->targetActor->s().y);
@@ -16625,9 +16573,9 @@ InitCoolgFire(DSWActor* actor)
     nx = MulScale(728, bcos(nang), 14);
     ny = MulScale(728, bsin(nang), 14);
 
-    move_missile(w, nx, ny, 0L, wu->ceiling_dist, wu->floor_dist, 0, 3L);
+    move_missile(actorNew->GetSpriteIndex(), nx, ny, 0, wu->ceiling_dist, wu->floor_dist, 0, 3L);
 
-    return w;
+    return 0;
 }
 
 int DoCoolgDrip(DSWActor* actor)
