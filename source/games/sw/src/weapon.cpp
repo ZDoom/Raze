@@ -12706,33 +12706,18 @@ DoSerpRing(DSWActor* actor)
         }
     }
 
-    // Done last - check for damage
-    //DoDamageTest(Weapon);
-
-    // if its exploded
-#if 0
-    if (u->RotNum == 0)
-    {
-        // tell owner that one is gone
-        User[sp->owner]->Counter--;
-    }
-#endif
-
     return 0;
 }
 
-int
-InitLavaFlame(DSWActor* actor)
+int InitLavaFlame(DSWActor* actor)
 {
     return 0;
 }
 
-int
-InitLavaThrow(DSWActor* actor)
+int InitLavaThrow(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum], wp;
+    SPRITEp sp = &actor->s(), wp;
     USERp wu;
     int nx, ny, nz, dist, nang;
     short w;
@@ -12747,13 +12732,13 @@ InitLavaThrow(DSWActor* actor)
     nz = SPRITEp_TOS(sp) + DIV4(SPRITEp_SIZE_Z(sp));
 
     // Spawn a shot
-    w = SpawnSprite(STAT_MISSILE, LAVA_BOULDER, s_LavaBoulder, sp->sectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, LAVA_BOULDER, s_LavaBoulder, sp->sectnum,
                     nx, ny, nz, nang, NINJA_BOLT_VELOCITY);
 
-    wp = &sprite[w];
-    wu = User[w].Data();
+    wp = &actorNew->s();
+    wu = actorNew->u();
 
-    SetOwner(SpriteNum, w);
+    SetOwner(actor, actorNew);
     wp->hitag = LUMINOUS; //Always full brightness
     wp->yrepeat = 72;
     wp->xrepeat = 72;
@@ -12776,7 +12761,7 @@ InitLavaThrow(DSWActor* actor)
     wu->ychange = MOVEy(wp->xvel, wp->ang);
     wu->zchange = wp->zvel;
 
-    MissileSetPos(w, DoLavaBoulder, 1200);
+    MissileSetPos(actorNew->GetSpriteIndex(), DoLavaBoulder, 1200);
 
     // find the distance to the target (player)
     dist = Distance(wp->x, wp->y, u->targetActor->s().x, u->targetActor->s().y);
@@ -12784,18 +12769,15 @@ InitLavaThrow(DSWActor* actor)
     if (dist != 0)
         wu->zchange = wp->zvel = (wp->xvel * (ActorUpper(u->targetActor) - wp->z)) / dist;
 
-    return w;
+    return 0;
 }
 
-int
-InitVulcanBoulder(DSWActor* actor)
+void InitVulcanBoulder(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum], wp;
+    SPRITEp sp = &actor->s(), wp;
     USERp wu;
     int nx, ny, nz, nang;
-    short w;
     int zsize;
     int zvel, zvel_rand;
     short delta;
@@ -12822,13 +12804,13 @@ InitVulcanBoulder(DSWActor* actor)
         vel = 800;
 
     // Spawn a shot
-    w = SpawnSprite(STAT_MISSILE, LAVA_BOULDER, s_VulcanBoulder, sp->sectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, LAVA_BOULDER, s_VulcanBoulder, sp->sectnum,
                     nx, ny, nz, nang, (vel/2 + vel/4) + RandomRange(vel/4));
 
-    wp = &sprite[w];
-    wu = User[w].Data();
+    wp = &actorNew->s();
+    wu = actorNew->u();
 
-    SetOwner(SpriteNum, w);
+    SetOwner(actor, actorNew);
     wp->xrepeat = wp->yrepeat = 8 + RandomRange(72);
     wp->shade = -40;
     wp->ang = nang;
@@ -12860,21 +12842,17 @@ InitVulcanBoulder(DSWActor* actor)
     wu->xchange = MOVEx(wp->xvel, wp->ang);
     wu->ychange = MOVEy(wp->xvel, wp->ang);
     wu->zchange = -Z(zvel) + -Z(RandomRange(zvel_rand));
-
-    return w;
 }
 
-int
-InitSerpRing(DSWActor* actor)
+int InitSerpRing(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP, np;
+    SPRITEp sp = &actor->s(), np;
     USERp nu;
     short ang, ang_diff, ang_start, missiles, New;
     short max_missiles;
 
-#define SERP_RING_DIST 2800 // Was 3500
+    const int SERP_RING_DIST = 2800; // Was 3500
 
     extern STATE s_SkullExplode[];
     extern STATE s_SkullRing[5][1];
@@ -12888,17 +12866,16 @@ InitSerpRing(DSWActor* actor)
 
     ang_start = NORM_ANGLE(sp->ang - DIV2(2048));
 
-    PlaySound(DIGI_SERPSUMMONHEADS, sp, v3df_none);
+    PlaySound(DIGI_SERPSUMMONHEADS, actor, v3df_none);
 
     for (missiles = 0, ang = ang_start; missiles < max_missiles; ang += ang_diff, missiles++)
     {
-        New = SpawnSprite(STAT_SKIP4, SKULL_SERP, &s_SkullRing[0][0], sp->sectnum, sp->x, sp->y, sp->z, ang, 0);
-        auto actorNew = &swActors[New];
-        np = &sprite[New];
-        nu = User[New].Data();
+        auto actorNew = SpawnActor(STAT_SKIP4, SKULL_SERP, &s_SkullRing[0][0], sp->sectnum, sp->x, sp->y, sp->z, ang, 0);
+        np = &actorNew->s();
+        nu = actorNew->u();
 
         np->xvel = 500;
-        SetOwner(SpriteNum, New);
+        SetOwner(actor, actorNew);
         np->shade = -20;
         np->xrepeat = 64;
         np->yrepeat = 64;
