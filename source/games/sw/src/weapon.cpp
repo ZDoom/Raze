@@ -13395,10 +13395,10 @@ InitSwordAttack(PLAYERp pp)
     return 0;
 }
 
-int
-InitFistAttack(PLAYERp pp)
+int InitFistAttack(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite].Data(),tu;
+    USERp u = pp->Actor()->u(),tu;
+    auto psp = &pp->Actor()->s();
     SPRITEp sp = nullptr;
     int i;
     unsigned stat;
@@ -13441,15 +13441,12 @@ InitFistAttack(PLAYERp pp)
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
-        StatIterator it(StatDamageList[stat]);
-        while ((i = it.NextIndex()) >= 0)
+        SWStatIterator it(StatDamageList[stat]);
+        while (auto itActor = it.Next())
         {
-            auto itActor = &swActors[i];
-            sp = &sprite[i];
+            sp = &itActor->s();
 
-            //if (pp->SpriteP == sp) // UnderSprite was getting hit
-            //    break;
-            if (User[i]->PlayerP == pp)
+            if (itActor->u()->PlayerP == pp)
                 break;
 
             if (!TEST(sp->extra, SPRX_PLAYER_OR_ENEMY))
@@ -13468,12 +13465,12 @@ InitFistAttack(PLAYERp pp)
                 face = 200;
             }
 
-            if (dist < CLOSE_RANGE_DIST_FUDGE(sp, pp->SpriteP, reach) && PLAYER_FACING_RANGE(pp, sp, face))
+            if (dist < CLOSE_RANGE_DIST_FUDGE(sp, psp, reach) && PLAYER_FACING_RANGE(pp, sp, face))
             {
-                if (SpriteOverlapZ(pp->PlayerSprite, i, Z(20)) || face == 190)
+                if (SpriteOverlapZ(pp->PlayerSprite, itActor->GetSpriteIndex(), Z(20)) || face == 190)
                 {
-                    if (FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,pp->SpriteP->x,pp->SpriteP->y,SPRITEp_MID(pp->SpriteP),pp->SpriteP->sectnum))
-                        DoDamage(i, pp->PlayerSprite);
+                    if (FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,psp->x,psp->y,SPRITEp_MID(psp),psp->sectnum))
+                        DoDamage(itActor->GetSpriteIndex(), pp->Actor()->GetSpriteIndex());
                     if (face == 190)
                     {
                         SpawnDemonFist(itActor);
@@ -13486,7 +13483,7 @@ InitFistAttack(PLAYERp pp)
 
     // all this is to break glass
     {
-        hitdata_t hitinfo;
+        HITINFO hitinfo;
         short daang;
         int daz;
 
@@ -13505,14 +13502,15 @@ InitFistAttack(PLAYERp pp)
         if (FindDistance3D(pp->posx - hitinfo.pos.x, pp->posy - hitinfo.pos.y, pp->posz - hitinfo.pos.z) < 700)
         {
 
-            if (hitinfo.sprite >= 0)
+            if (hitinfo.hitactor != nullptr)
             {
                 extern STATE s_TrashCanPain[];
-                auto hitActor = &swActors[hitinfo.sprite];
+                auto hitActor = hitinfo.hitactor;
                 SPRITEp hsp = &hitActor->s();
-                tu = hitActor->u();
 
-                if (tu)     // JBF: added null check
+                if (hitActor->hasU())     // JBF: added null check
+                {
+                    tu = hitActor->u();
                     switch (tu->ID)
                     {
                     case ZILLA_RUN_R0:
@@ -13523,7 +13521,7 @@ InitFistAttack(PLAYERp pp)
                         if (tu->WaitTics <= 0)
                         {
                             tu->WaitTics = SEC(2);
-                            ChangeState(hitActor,s_TrashCanPain);
+                            ChangeState(hitActor, s_TrashCanPain);
                         }
                         SpawnSwordSparks(pp, hitinfo.sect, -1, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
                         PlaySound(DIGI_ARMORHIT, &hitinfo.pos, v3df_none);
@@ -13538,22 +13536,23 @@ InitFistAttack(PLAYERp pp)
                         PlaySound(DIGI_ARMORHIT, &hitinfo.pos, v3df_none);
                         break;
                     }
+                }
 
-                if (sprite[hitinfo.sprite].lotag == TAG_SPRITE_HIT_MATCH)
+                if (hsp->lotag == TAG_SPRITE_HIT_MATCH)
                 {
-                    if (MissileHitMatch(-1, WPN_STAR, hitinfo.sprite))
+                    if (MissileHitMatch(-1, WPN_STAR, hitActor->GetSpriteIndex()))
                         return 0;
                 }
 
                 if (TEST(hsp->extra, SPRX_BREAKABLE))
                 {
-                    HitBreakSprite(&swActors[hitinfo.sprite],0);
+                    HitBreakSprite(hitActor,0);
                 }
 
                 // hit a switch?
                 if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hsp->lotag || hsp->hitag))
                 {
-                    ShootableSwitch(&swActors[hitinfo.sprite]);
+                    ShootableSwitch(hitActor);
                 }
 
                 switch (hsp->picnum)

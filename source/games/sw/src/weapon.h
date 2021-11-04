@@ -152,10 +152,15 @@ extern int WeaponIsAmmo;
 
 #define MISSILEMOVETICS 6
 
-#define CLOSE_RANGE_DIST_FUDGE(sp1, sp2, fudge) \
-    (((int)(sp1)->clipdist<<2) + ((int)(sp2)->clipdist<<2) + (fudge))
+inline int CLOSE_RANGE_DIST_FUDGE(SPRITEp sp1, SPRITEp sp2, int fudge)
+{
+    return (((int)sp1->clipdist << 2) + ((int)sp2->clipdist << 2) + fudge);
+}
 
-#define CLOSE_RANGE_DIST(sp1, sp2) CLOSE_RANGE_DIST_FUDGE(sp1, sp2, 400)
+inline int CLOSE_RANGE_DIST(SPRITEp sp1, SPRITEp sp2)
+{
+    return CLOSE_RANGE_DIST_FUDGE(sp1, sp2, 400);
+}
 
 
 extern short target_ang;
