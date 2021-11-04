@@ -502,6 +502,14 @@ void WaterAdjust(short florhit, int32_t* loz)
     }
 }
 
+void FAFgetzrange(vec3_t pos, int16_t sectnum, int32_t* hiz, Collision* ceilhit, int32_t* loz, Collision* florhit, int32_t clipdist, int32_t clipmask)
+{
+    int f, c;
+    FAFgetzrange(pos, sectnum, hiz, &c, loz, &f, clipdist, clipmask);
+    ceilhit->setFromEngine(c);
+    florhit->setFromEngine(f);
+}
+
 void FAFgetzrange(vec3_t pos, int16_t sectnum,
                   int32_t* hiz, int32_t* ceilhit,
                   int32_t* loz, int32_t* florhit,
@@ -575,6 +583,14 @@ void FAFgetzrange(vec3_t pos, int16_t sectnum,
         SectorZadjust(-1, nullptr, *florhit, loz);
         WaterAdjust(*florhit, loz);
     }
+}
+
+void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, int16_t sectnum, int32_t* hiz, Collision* ceilhit, int32_t* loz, Collision* florhit)
+{
+    int f, c;
+    FAFgetzrangepoint(x, y, z, sectnum, hiz, &c, loz, &f);
+    ceilhit->setFromEngine(c);
+    florhit->setFromEngine(f);
 }
 
 void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, int16_t sectnum,
