@@ -8688,12 +8688,10 @@ bool SlopeBounce(DSWActor* actor, bool *hit_wall)
 
 extern STATE s_Phosphorus[];
 
-int
-DoGrenade(DSWActor* actor)
+int DoGrenade(DSWActor* actor)
 {
     USER* u = actor->u();
-    int Weapon = u->SpriteNum;
-    SPRITEp sp = &sprite[Weapon];
+    SPRITEp sp = &actor->s();
     short i;
 
     if (TEST(u->Flags, SPR_UNDERWATER))
@@ -8709,7 +8707,7 @@ DoGrenade(DSWActor* actor)
         u->zchange += u->Counter;
     }
 
-    SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange,
+    SetCollision(u, move_missile(actor->GetSpriteIndex(), u->xchange, u->ychange, u->zchange,
                           u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     MissileHitDiveArea(actor);
@@ -8717,23 +8715,22 @@ DoGrenade(DSWActor* actor)
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
 
-    if (u->ret)
+    if (u->coll.type != kHitNone)
     {
-        switch (TEST(u->ret, HIT_MASK))
+        switch (u->coll.type)
         {
-        case HIT_PLAX_WALL:
+        case kHitSky:
             KillActor(actor);
             return true;
-        case HIT_SPRITE:
+        case kHitSprite:
         {
             short wall_ang;
-            short hit_sprite = -2;
             SPRITEp hsp;
 
-            PlaySound(DIGI_40MMBNCE, sp, v3df_dontpan);
+            PlaySound(DIGI_40MMBNCE, actor, v3df_dontpan);
 
-            hit_sprite = NORM_SPRITE(u->ret);
-            hsp = &sprite[hit_sprite];
+            auto hitActor = u->coll.actor;
+            hsp = &hitActor->s();
 
             // special case so grenade can ring gong
             if (hsp->lotag == TAG_SPRITE_HIT_MATCH)
@@ -8767,12 +8764,12 @@ DoGrenade(DSWActor* actor)
             break;
         }
 
-        case HIT_WALL:
+        case kHitWall:
         {
             short hit_wall,nw,wall_ang;
             WALLp wph;
 
-            hit_wall = NORM_WALL(u->ret);
+            hit_wall = u->coll.index;
             wph = &wall[hit_wall];
 
             if (wph->lotag == TAG_WALL_BREAK)
@@ -8782,7 +8779,7 @@ DoGrenade(DSWActor* actor)
                 break;
             }
 
-            PlaySound(DIGI_40MMBNCE, sp, v3df_dontpan);
+            PlaySound(DIGI_40MMBNCE, actor, v3df_dontpan);
 
             nw = wall[hit_wall].point2;
             wall_ang = NORM_ANGLE(getangle(wall[nw].x - wph->x, wall[nw].y - wph->y)+512);
@@ -8794,7 +8791,7 @@ DoGrenade(DSWActor* actor)
             break;
         }
 
-        case HIT_SECTOR:
+        case kHitSector:
         {
             bool did_hit_wall;
             if (SlopeBounce(actor, &did_hit_wall))
@@ -8861,7 +8858,7 @@ DoGrenade(DSWActor* actor)
                         u->zchange = -u->zchange;
                         ScaleSpriteVector(actor, 40000); // 18000
                         u->zchange /= 4;
-                        PlaySound(DIGI_40MMBNCE, sp, v3df_dontpan);
+                        PlaySound(DIGI_40MMBNCE, actor, v3df_dontpan);
                     }
                     else
                     {
@@ -8883,7 +8880,7 @@ DoGrenade(DSWActor* actor)
                 {
                     u->zchange = -u->zchange;
                     ScaleSpriteVector(actor, 22000);
-                    PlaySound(DIGI_40MMBNCE, sp, v3df_dontpan);
+                    PlaySound(DIGI_40MMBNCE, actor, v3df_dontpan);
                 }
             }
             break;
