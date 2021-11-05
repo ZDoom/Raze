@@ -5242,7 +5242,7 @@ int ActorPain(DSWActor* actor)
     {
         if (u->ActorActionSet && u->ActorActionSet->Pain)
         {
-            ActorLeaveTrack(actor->GetSpriteIndex());
+            ActorLeaveTrack(actor);
             u->WaitTics = 60;
             NewStateGroup(actor, u->ActorActionSet->Pain);
             return true;
