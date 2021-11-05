@@ -1576,7 +1576,7 @@ int PlayerInitFlashBomb(PLAYERp pp)
             }
             else
             {
-                ActorPain(itActor->GetSpriteIndex());
+                ActorPain(itActor);
                 SpawnFlashBombOnActor(itActor);
             }
         }
@@ -1639,7 +1639,7 @@ InitFlashBomb(DSWActor* actor)
             {
                 if (itActor != actor)
                 {
-                    ActorPain(itActor->GetSpriteIndex());
+                    ActorPain(itActor);
                     SpawnFlashBombOnActor(itActor);
                 }
             }
