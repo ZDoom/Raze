@@ -46,7 +46,7 @@ void  SpriteFindNewDirection(short SpriteNum, short range);
 int DoWalk(short SpriteNum);
 int DoBody(short SpriteNum);
 bool CanMoveHere(int16_t spritenum);
-bool SpriteOverlap(int16_t spritenum_a, int16_t spritenum_b);
+bool SpriteOverlap(DSWActor*, DSWActor*);
 int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath);
 void SpriteControl(void);
 void DoActorZrange(DSWActor*);

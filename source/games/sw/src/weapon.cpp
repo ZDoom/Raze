@@ -7346,7 +7346,7 @@ int DoDamageTest(DSWActor* actor)
                     continue;
             }
 
-            if (GetOwner(actor) != itActor && SpriteOverlap(actor->GetSpriteIndex(), itActor->GetSpriteIndex()))
+            if (GetOwner(actor) != itActor && SpriteOverlap(actor, itActor))
             {
                 DoDamage(itActor->GetSpriteIndex(), actor->GetSpriteIndex());
             }
@@ -7428,7 +7428,7 @@ int DoFlamesDamageTest(DSWActor* actor)
                     DoDamage(itActor->GetSpriteIndex(), actor->GetSpriteIndex());
                 }
             }
-            else if (SpriteOverlap(actor->GetSpriteIndex(), itActor->GetSpriteIndex()))
+            else if (SpriteOverlap(actor, itActor))
             {
                 DoDamage(itActor->GetSpriteIndex(), actor->GetSpriteIndex());
             }
@@ -7708,7 +7708,7 @@ int DoMineExpMine(DSWActor* actor)
 
         // Explosions are spherical, not planes, so let's check that way, well cylindrical at least.
         zdist = abs(sp->z - wp->z)>>4;
-        if (SpriteOverlap(actor->GetSpriteIndex(), itActor->GetSpriteIndex()) || (unsigned)zdist < wu->Radius + u->Radius)
+        if (SpriteOverlap(actor, itActor) || (unsigned)zdist < wu->Radius + u->Radius)
         {
             DoDamage(itActor->GetSpriteIndex(), actor->GetSpriteIndex());
             // only explode one mine at a time
@@ -14964,7 +14964,7 @@ int DoStaticFlamesDamage(DSWActor* actor)
             if (dist > 2000)
                 continue;
 
-            if (SpriteOverlap(actor->GetSpriteIndex(), itActor->GetSpriteIndex()))  // If sprites are overlapping, cansee will fail!
+            if (SpriteOverlap(actor, itActor))  // If sprites are overlapping, cansee will fail!
                 DoDamage(itActor->GetSpriteIndex(), actor->GetSpriteIndex());
             else if (u->Radius > 200)
             {

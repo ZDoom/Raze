@@ -571,7 +571,7 @@ int DoEelMove(DSWActor* actor)
 
     ASSERT(u->Rot != nullptr);
 
-    if (SpriteOverlap(actor->GetSpriteIndex(), u->targetActor->GetSpriteIndex()))
+    if (SpriteOverlap(actor, u->targetActor))
         NewStateGroup(actor, u->ActorActionSet->CloseAttack[0]);
 
     if (TEST(u->Flags,SPR_SLIDING))

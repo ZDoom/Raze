@@ -4596,12 +4596,12 @@ int NewStateGroup(DSWActor* actor, STATEp StateGroup[])
 }
 
 
-bool SpriteOverlap(int16_t spritenum_a, int16_t spritenum_b)
+bool SpriteOverlap(DSWActor* actor_a, DSWActor* actor_b)
 {
-    SPRITEp spa = &sprite[spritenum_a], spb = &sprite[spritenum_b];
+    SPRITEp spa = &actor_a->s(), spb = &actor_b->s();
 
-    USERp ua = User[spritenum_a].Data();
-    USERp ub = User[spritenum_b].Data();
+    USERp ua = actor_a->u();
+    USERp ub = actor_b->u();
 
     int spa_tos, spa_bos, spb_tos, spb_bos, overlap_z;
 
@@ -5507,7 +5507,7 @@ DoGet(DSWActor* actor)
             continue;
         }
 
-        if (!SpriteOverlap(actor->GetSpriteIndex(), pp->Actor()->GetSpriteIndex()))
+        if (!SpriteOverlap(actor, pp->Actor()))
         {
             continue;
         }
