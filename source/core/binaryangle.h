@@ -207,7 +207,7 @@ public:
 inline constexpr binangle bamang(uint32_t v) { return binangle(v); }
 inline constexpr binangle q16ang(uint32_t v) { return binangle(v << 5); }
 inline constexpr binangle buildang(uint32_t v) { return binangle(v << BAMBITS); }
-inline binangle buildfang(double v) { return binangle(xs_CRoundToUInt(v * BAMUNIT)); }
+inline binangle buildfang(double v) { return binangle(xs_ToFixed(BAMBITS, v)); }
 inline binangle radang(double v) { return binangle(xs_CRoundToUInt(v * (0x80000000u / pi::pi()))); }
 inline binangle degang(double v) { return binangle(FloatToAngle(v)); }
 
