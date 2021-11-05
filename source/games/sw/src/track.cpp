@@ -3778,7 +3778,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
             nz = sp->zvel * locktics;
     }
 
-    SetCollision(u, move_sprite(actor->GetSpriteIndex(), nx, ny, nz, u->ceiling_dist, u->floor_dist, 0, locktics));
+    u->coll = move_sprite(actor, nx, ny, nz, u->ceiling_dist, u->floor_dist, 0, locktics);
 
 
     if (u->coll.type != kHitNone)

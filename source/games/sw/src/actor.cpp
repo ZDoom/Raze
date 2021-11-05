@@ -302,7 +302,7 @@ void DoDebrisCurrent(DSWActor* actor)
     nx = MulScale(DIV4(sectu->speed), bcos(sectu->ang), 14);
     ny = MulScale(DIV4(sectu->speed), bsin(sectu->ang), 14);
 
-    Collision ret(move_sprite(actor->GetSpriteIndex(), nx, ny, 0, u->ceiling_dist, u->floor_dist, 0, ACTORMOVETICS));
+    Collision ret = move_sprite(actor, nx, ny, 0, u->ceiling_dist, u->floor_dist, 0, ACTORMOVETICS);
 
     // attempt to move away from wall
     if (ret.type != kHitNone)
@@ -312,7 +312,7 @@ void DoDebrisCurrent(DSWActor* actor)
         nx = MulScale(DIV4(sectu->speed), bcos(sectu->ang + rang), 14);
         nx = MulScale(DIV4(sectu->speed), bsin(sectu->ang + rang), 14);
 
-        move_sprite(actor->GetSpriteIndex(), nx, ny, 0, u->ceiling_dist, u->floor_dist, 0, ACTORMOVETICS);
+        move_sprite(actor, nx, ny, 0, u->ceiling_dist, u->floor_dist, 0, ACTORMOVETICS);
     }
 
     sp->z = u->loz;
@@ -389,8 +389,8 @@ bool move_debris(DSWActor* actor, int xchange, int ychange, int zchange)
 {
     USERp u = actor->u();
 
-    SetCollision(u, move_sprite(actor->GetSpriteIndex(), xchange, ychange, zchange,
-                         u->ceiling_dist, u->floor_dist, 0, ACTORMOVETICS));
+    u->coll = move_sprite(actor, xchange, ychange, zchange,
+                         u->ceiling_dist, u->floor_dist, 0, ACTORMOVETICS);
 
     return u->coll.type == kHitNone;
 }

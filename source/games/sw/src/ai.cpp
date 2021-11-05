@@ -1543,7 +1543,7 @@ Collision move_scan(DSWActor* actor, short ang, int dist, int *stopx, int *stopy
     nx = MulScale(dist, bcos(sp->ang), 14);
     ny = MulScale(dist, bsin(sp->ang), 14);
 
-    Collision ret(move_sprite(u->SpriteNum, nx, ny, 0, u->ceiling_dist, u->floor_dist, cliptype, 1));
+    Collision ret = move_sprite(actor, nx, ny, 0, u->ceiling_dist, u->floor_dist, cliptype, 1);
     // move_sprite DOES do a getzrange point?
 
     // should I look down with a FAFgetzrange to see where I am?

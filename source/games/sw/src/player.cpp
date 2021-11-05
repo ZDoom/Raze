@@ -4621,7 +4621,7 @@ void DoPlayerDive(PLAYERp pp)
             nx = MOVEx((128+64), NORM_ANGLE(bp->ang + 1024));
             ny = MOVEy((128+64), NORM_ANGLE(bp->ang + 1024));
 
-            move_sprite(bubble->GetSpriteIndex(), nx, ny, 0L, u->ceiling_dist, u->floor_dist, 0, synctics);
+            move_sprite(bubble, nx, ny, 0L, u->ceiling_dist, u->floor_dist, 0, synctics);
         }
     }
 }
@@ -6013,7 +6013,7 @@ void DoPlayerDeathMoveHead(PLAYERp pp)
     dax = MOVEx(u->slide_vel, u->slide_ang);
     day = MOVEy(u->slide_vel, u->slide_ang);
 
-    SetCollision(u, move_sprite(pp->PlayerSprite, dax, day, 0, Z(16), Z(16), 1, synctics));
+    u->coll = move_sprite(pp->Actor(), dax, day, 0, Z(16), Z(16), 1, synctics);
     {
         switch (u->coll.type)
         {

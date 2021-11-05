@@ -269,7 +269,7 @@ int DoSkullMove(DSWActor* actor)
     day = MOVEy(sp->xvel, sp->ang);
     daz = sp->zvel;
 
-    SetCollision(u, move_missile(actor->GetSpriteIndex(), dax, day, daz, Z(16), Z(16), CLIPMASK_MISSILE, ACTORMOVETICS));
+    u->coll = move_missile(actor, dax, day, daz, Z(16), Z(16), CLIPMASK_MISSILE, ACTORMOVETICS);
 
     DoFindGroundPoint(actor);
     return 0;
@@ -674,7 +674,7 @@ int DoBettyMove(DSWActor* actor)
     day = MOVEy(sp->xvel, sp->ang);
     daz = sp->zvel;
 
-    SetCollision(u, move_missile(actor->GetSpriteIndex(), dax, day, daz, Z(16), Z(16), CLIPMASK_MISSILE, ACTORMOVETICS));
+    u->coll = move_missile(actor, dax, day, daz, Z(16), Z(16), CLIPMASK_MISSILE, ACTORMOVETICS);
 
     DoFindGroundPoint(actor);
     return 0;

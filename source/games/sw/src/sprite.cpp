@@ -5001,8 +5001,8 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
     hi_sectp = u->hi_sectp;
     sectnum = sp->sectnum;
 
-    SetCollision(u, move_sprite(SpriteNum, xchange, ychange, zchange,
-                         u->ceiling_dist, u->floor_dist, cliptype, ACTORMOVETICS));
+    u->coll = move_sprite(actor, xchange, ychange, zchange,
+                         u->ceiling_dist, u->floor_dist, cliptype, ACTORMOVETICS);
 
     ASSERT(sp->sectnum >= 0);
 
@@ -6729,10 +6729,8 @@ SpriteControl(void)
 
 */
 
-int
-move_sprite(int spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics)
+Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics)
 {
-    auto actor = &swActors[spritenum];
     int retval=0, zh;
 	int dasectnum;
 	short tempshort;
@@ -6781,7 +6779,7 @@ move_sprite(int spritenum, int xchange, int ychange, int zchange, int ceildist, 
     }
 
     if ((dasectnum != spr->sectnum) && (dasectnum >= 0))
-        changespritesect(spritenum, dasectnum);
+        ChangeActorSect(actor, dasectnum);
 
     // took this out - may not be to relevant anymore
     //ASSERT(inside(spr->x,spr->y,dasectnum));
@@ -6805,7 +6803,7 @@ move_sprite(int spritenum, int xchange, int ychange, int zchange, int ceildist, 
 
     // !AIC - puts getzrange results into USER varaible u->loz, u->hiz, u->lo_sectp, u->hi_sectp, etc.
     // Takes info from global variables
-    DoActorGlobZ(spritenum);
+    DoActorGlobZ(actor->GetSpriteIndex());
 
     clippos.z = spr->z + ((zchange * numtics) >> 3);
 
@@ -6830,14 +6828,14 @@ move_sprite(int spritenum, int xchange, int ychange, int zchange, int ceildist, 
 
     // extra processing for Stacks and warping
     if (FAF_ConnectArea(spr->sectnum))
-        setspritez(spritenum, &spr->pos);
+        SetActorZ(actor, &spr->pos);
 
     if (TEST(sector[spr->sectnum].extra, SECTFX_WARP_SECTOR))
     {
         DSWActor* sp_warp;
         if ((sp_warp = WarpPlane(&spr->x, &spr->y, &spr->z, &dasectnum)))
         {
-            ActorWarpUpdatePos(spritenum, dasectnum);
+            ActorWarpUpdatePos(actor->GetSpriteIndex(), dasectnum);
             ActorWarpType(actor, sp_warp);
         }
 
@@ -6845,40 +6843,13 @@ move_sprite(int spritenum, int xchange, int ychange, int zchange, int ceildist, 
         {
             if ((sp_warp = Warp(&spr->x, &spr->y, &spr->z, &dasectnum)))
             {
-                ActorWarpUpdatePos(spritenum, dasectnum);
+                ActorWarpUpdatePos(actor->GetSpriteIndex(), dasectnum);
                 ActorWarpType(actor, sp_warp);
             }
         }
     }
 
-    return retval;
-}
-
-// not used - SLOW!
-
-int pushmove_sprite(short SpriteNum)
-{
-    auto actor = &swActors[SpriteNum];
-    SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
-    int sectnum, ret;
-
-    sp->z -= u->zclip;
-    sectnum = sp->sectnum;
-    ret = pushmove(&sp->pos, &sectnum,
-                   (((int)sp->clipdist)<<2)-GETZRANGE_CLIP_ADJ, u->ceiling_dist, u->floor_dist, CLIPMASK_ACTOR);
-
-    if (sectnum != sp->sectnum && sectnum >= 0)
-        ChangeActorSect(actor, sectnum);
-
-    if (ret < 0)
-    {
-        //DSPRINTF(ds,"Pushed out!!!!! sp->sectnum %d", sp->sectnum);
-        MONO_PRINT(ds);
-    }
-
-    sp->z += u->zclip;
-    return 0;
+    return Collision(retval);
 }
 
 void MissileWarpUpdatePos(short SpriteNum, short sectnum)
@@ -6977,10 +6948,8 @@ MissileZrange(short SpriteNum)
 }
 
 
-int
-move_missile(int spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics)
+Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics)
 {
-    DSWActor* actor = &swActors[spritenum];
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
     int retval, zh;
@@ -7024,7 +6993,7 @@ move_missile(int spritenum, int xchange, int ychange, int zchange, int ceildist,
     //ASSERT(inside(sp->x,sp->y,dasectnum));
 
     if ((dasectnum != sp->sectnum) && (dasectnum >= 0))
-        changespritesect(spritenum, dasectnum);
+        ChangeActorSect(actor, dasectnum);
 
     // Set the blocking bit to 0 temporarly so FAFgetzrange doesn't pick
     // up its own sprite
@@ -7036,7 +7005,7 @@ move_missile(int spritenum, int xchange, int ychange, int zchange, int ceildist,
 
     sp->cstat = tempshort;
 
-    DoActorGlobZ(spritenum);
+    DoActorGlobZ(actor->GetSpriteIndex());
 
     // getzrangepoint moves water down
     // missiles don't need the water to be down
@@ -7067,7 +7036,7 @@ move_missile(int spritenum, int xchange, int ychange, int zchange, int ceildist,
     }
 
     if (FAF_ConnectArea(sp->sectnum))
-        setspritez(spritenum, &sp->pos);
+        SetActorZ(actor, &sp->pos);
 
     if (TEST(sector[sp->sectnum].extra, SECTFX_WARP_SECTOR))
     {
@@ -7075,7 +7044,7 @@ move_missile(int spritenum, int xchange, int ychange, int zchange, int ceildist,
 
         if ((sp_warp = WarpPlane(&sp->x, &sp->y, &sp->z, &dasectnum)))
         {
-            MissileWarpUpdatePos(spritenum, dasectnum);
+            MissileWarpUpdatePos(actor->GetSpriteIndex(), dasectnum);
             MissileWarpType(actor, sp_warp);
         }
 
@@ -7083,7 +7052,7 @@ move_missile(int spritenum, int xchange, int ychange, int zchange, int ceildist,
         {
             if ((sp_warp = Warp(&sp->x, &sp->y, &sp->z, &dasectnum)))
             {
-                MissileWarpUpdatePos(spritenum, dasectnum);
+                MissileWarpUpdatePos(actor->GetSpriteIndex(), dasectnum);
                 MissileWarpType(actor, sp_warp);
             }
         }
@@ -7107,14 +7076,12 @@ move_missile(int spritenum, int xchange, int ychange, int zchange, int ceildist,
         }
     }
 
-    return retval;
+    return Collision(retval);
 }
 
 
-int
-move_ground_missile(short spritenum, int xchange, int ychange, int ceildist, int flordist, uint32_t cliptype, int numtics)
+Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int ceildist, int flordist, uint32_t cliptype, int numtics)
 {
-    DSWActor* actor = &swActors[spritenum];
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
     int daz;
@@ -7242,7 +7209,7 @@ move_ground_missile(short spritenum, int xchange, int ychange, int ceildist, int
         }
 #endif
 
-        changespritesect(spritenum, dasectnum);
+        ChangeActorSect(actor, dasectnum);
     }
 
     getzsofslope(sp->sectnum, sp->x, sp->y, &u->hiz, &u->loz);
@@ -7265,7 +7232,7 @@ move_ground_missile(short spritenum, int xchange, int ychange, int ceildist, int
 
         if ((sp_warp = WarpPlane(&sp->x, &sp->y, &sp->z, &dasectnum)))
         {
-            MissileWarpUpdatePos(spritenum, dasectnum);
+            MissileWarpUpdatePos(actor->GetSpriteIndex(), dasectnum);
             MissileWarpType(actor, sp_warp);
         }
 
@@ -7273,13 +7240,13 @@ move_ground_missile(short spritenum, int xchange, int ychange, int ceildist, int
         {
             if ((sp_warp = Warp(&sp->x, &sp->y, &sp->z, &dasectnum)))
             {
-                MissileWarpUpdatePos(spritenum, dasectnum);
+                MissileWarpUpdatePos(actor->GetSpriteIndex(), dasectnum);
                 MissileWarpType(actor, sp_warp);
             }
         }
     }
 
-    return retval;
+    return Collision(retval);
 }
 
 #include "saveable.h"

@@ -394,8 +394,8 @@ int DoBloodSpray(DSWActor* actor)
     }
     else
     {
-        SetCollision(u, move_missile(actor->GetSpriteIndex(), u->xchange, u->ychange, u->zchange,
-                              u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
+        u->coll = move_missile(actor, u->xchange, u->ychange, u->zchange,
+                              u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
     }
 
 
@@ -597,8 +597,8 @@ int DoPhosphorus(DSWActor* actor)
         u->zchange += u->Counter;
     }
 
-    SetCollision(u, move_missile(actor->GetSpriteIndex(), u->xchange, u->ychange, u->zchange,
-                          u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS*2));
+    u->coll = move_missile(actor, u->xchange, u->ychange, u->zchange,
+                          u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS*2);
 
     MissileHitDiveArea(actor);
 
@@ -815,8 +815,8 @@ int DoChemBomb(DSWActor* actor)
         u->zchange += u->Counter;
     }
 
-    SetCollision(u, move_missile(actor->GetSpriteIndex(), u->xchange, u->ychange, u->zchange,
-                          u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
+    u->coll = move_missile(actor, u->xchange, u->ychange, u->zchange,
+                          u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
     MissileHitDiveArea(actor);
 
@@ -1058,8 +1058,8 @@ int DoCaltrops(DSWActor* actor)
         u->zchange += u->Counter;
     }
 
-    SetCollision(u, move_missile(actor->GetSpriteIndex(), u->xchange, u->ychange, u->zchange,
-                          u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
+    u->coll = move_missile(actor, u->xchange, u->ychange, u->zchange,
+                          u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
     MissileHitDiveArea(actor);
 
