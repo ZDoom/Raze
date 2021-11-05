@@ -8039,10 +8039,8 @@ DSWActor* PickEnemyTarget(DSWActor* actor, short aware_range)
     return nullptr;
 }
 
-int
-MissileSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range/*, int16_t dang_shift, int16_t turn_limit, int16_t z_limit*/)
+int MissileSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range/*, int16_t dang_shift, int16_t turn_limit, int16_t z_limit*/)
 {
-    auto actor = &swActors[Weapon];
     SPRITEp sp = &actor->s();
     USERp u = actor->u();
 
@@ -8465,8 +8463,6 @@ DoPlasma(DSWActor* actor)
     oy = sp->y;
     oz = sp->z;
 
-//MissileSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range/*, int16_t dang_shift, int16_t turn_limit, int16_t z_limit*/)
-    //MissileSeek(Weapon, 20, 1024/*, 6, 80, 6*/);
     DoBlurExtend(Weapon, 0, 4);
 
     dax = MOVEx(sp->xvel, sp->ang);
@@ -9957,7 +9953,6 @@ DoRocket(DSWActor* actor)
 
     if (TEST(u->Flags, SPR_FIND_PLAYER))
     {
-        //MissileSeek(Weapon, 10, 768/*, 3, 48, 6*/);
         VectorMissileSeek(Weapon, 30, 16, 128, 768);
     }
 
@@ -10026,22 +10021,20 @@ DoRocket(DSWActor* actor)
     return false;
 }
 
-int
-DoMicroMini(DSWActor* actor)
+int DoMicroMini(DSWActor* actor)
 {
     USER* u = actor->u();
-    int Weapon = u->SpriteNum;
     short i;
 
     for (i = 0; i < 3; i++)
     {
-        SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
+        SetCollision(u, move_missile(actor->GetSpriteIndex(), u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
         MissileHitDiveArea(actor);
 
-        if (u->ret)
+        if (u->coll.type != kHitNone)
         {
-            if (WeaponMoveHit(Weapon))
+            if (WeaponMoveHit(actor->GetSpriteIndex()))
             {
                 SpawnMicroExp(actor);
                 KillActor(actor);
@@ -10053,30 +10046,27 @@ DoMicroMini(DSWActor* actor)
     return false;
 }
 
-int
-SpawnExtraMicroMini(DSWActor* actor)
+int SpawnExtraMicroMini(DSWActor* actor)
 {
     USER* u = actor->u();
     int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon];
     SPRITEp wp;
     USERp wu;
-    short w;
 
-    w = SpawnSprite(STAT_MISSILE, BOLT_THINMAN_R0, &s_Micro[0][0], sp->sectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Micro[0][0], sp->sectnum,
                     sp->x, sp->y, sp->z, sp->ang, sp->xvel);
 
-    wp = &sprite[w];
-    wu = User[w].Data();
+    wp = &actorNew->s();
+    wu = actorNew->u();
 
-    SetOwner(sp->owner, w);
+    SetOwner(GetOwner(actor), actorNew);
     wp->yrepeat = wp->xrepeat = sp->xrepeat;
-    //wp->xrepeat = 64;
     wp->shade = sp->shade;
     wp->clipdist = sp->clipdist;
 
     wu->RotNum = 5;
-    NewStateGroup(&swActors[w], &sg_MicroMini[0]);
+    NewStateGroup(actorNew, &sg_MicroMini[0]);
     wu->WeaponNum = u->WeaponNum;
     wu->Radius = u->Radius;
     wu->ceiling_dist = u->ceiling_dist;
@@ -10093,24 +10083,20 @@ SpawnExtraMicroMini(DSWActor* actor)
     return 0;
 }
 
-int
-DoMicro(DSWActor* actor)
+int DoMicro(DSWActor* actor)
 {
     USER* u = actor->u();
-    int Weapon = u->SpriteNum;
-    SPRITEp sp = &sprite[Weapon];
+    SPRITEp sp = &actor->s();
 
     if (SW_SHAREWARE) return false; // JBF: verify
 
-    SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange,
+    SetCollision(u, move_missile(actor->GetSpriteIndex(), u->xchange, u->ychange, u->zchange,
                           u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     MissileHitDiveArea(actor);
 
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
-
-    //DoDamageTest(Weapon);
 
     if (!u->Counter)
     {
@@ -10155,9 +10141,9 @@ DoMicro(DSWActor* actor)
 
 
     // hit something
-    if (u->ret)
+    if (u->coll.type != kHitNone)
     {
-        if (WeaponMoveHit(Weapon))
+        if (WeaponMoveHit(actor->GetSpriteIndex()))
         {
             SpawnMicroExp(actor);
             KillActor(actor);
@@ -10168,12 +10154,10 @@ DoMicro(DSWActor* actor)
     return false;
 }
 
-int
-DoUziBullet(DSWActor* actor)
+int DoUziBullet(DSWActor* actor)
 {
     USER* u = actor->u();
-    int Weapon = u->SpriteNum;
-    SPRITEp sp = &sprite[Weapon];
+    SPRITEp sp = &actor->s();
     int32_t dax, day, daz;
     int sx,sy;
     short i;
@@ -10188,7 +10172,7 @@ DoUziBullet(DSWActor* actor)
 
         sx = sp->x;
         sy = sp->y;
-        SetCollision(u, move_missile(Weapon, dax, day, daz, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
+        SetCollision(u, move_missile(actor->GetSpriteIndex(), dax, day, daz, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
         u->Dist += Distance(sx, sy, sp->x, sp->y);
 
         MissileHitDiveArea(actor);
@@ -10196,37 +10180,35 @@ DoUziBullet(DSWActor* actor)
         if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 128)
             SpawnBubble(actor);
 
-        if (u->ret)
+        if (u->coll.type != kHitNone)
         {
             SPRITEp wp;
-            short j;
 
-            WeaponMoveHit(Weapon);
+            WeaponMoveHit(actor->GetSpriteIndex());
 
-            j = SpawnSprite(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, sp->sectnum, sp->x, sp->y, sp->z, sp->ang, 0);
-            wp = &sprite[j];
+            auto actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, sp->sectnum, sp->x, sp->y, sp->z, sp->ang, 0);
+            wp = &actorNew->s();
             wp->shade = -40;
             wp->xrepeat = UZI_SMOKE_REPEAT;
             wp->yrepeat = UZI_SMOKE_REPEAT;
-            SetOwner(sp->owner, j);
+            SetOwner(GetOwner(actor), actorNew);
             wp->ang = sp->ang;
             wp->clipdist = 128 >> 2;
             SET(wp->cstat, CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_YCENTER);
 
             if (!TEST(u->Flags, SPR_UNDERWATER))
             {
-                j = SpawnSprite(STAT_MISSILE, UZI_SPARK, s_UziSpark, wp->sectnum, wp->x, wp->y, wp->z, 0, 0);
-                wp = &sprite[j];
+                actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, wp->sectnum, wp->x, wp->y, wp->z, 0, 0);
+                wp = &actorNew->s();
                 wp->shade = -40;
                 wp->xrepeat = UZI_SPARK_REPEAT;
                 wp->yrepeat = UZI_SPARK_REPEAT;
-                SetOwner(sp->owner, j);
+                SetOwner(GetOwner(actor), actorNew);
                 wp->ang = sp->ang;
                 SET(wp->cstat, CSTAT_SPRITE_YCENTER);
             }
 
             KillActor(actor);
-
             return true;
         }
         else if (u->Dist > 8000)
@@ -10235,43 +10217,38 @@ DoUziBullet(DSWActor* actor)
             return 0;
         }
     }
-
     return false;
 }
 
 
-int
-DoBoltSeeker(DSWActor* actor)
+int DoBoltSeeker(DSWActor* actor)
 {
     USER* u = actor->u();
-    int Weapon = u->SpriteNum;
-    SPRITEp sp = &sprite[Weapon];
+    SPRITEp sp = &actor->s();
     int32_t dax, day, daz;
 
-    MissileSeek(Weapon, 30, 768/*, 4, 48, 6*/);
-    DoBlurExtend(Weapon, 0, 4);
+    MissileSeek(actor, 30, 768/*, 4, 48, 6*/);
+    DoBlurExtend(actor->GetSpriteIndex(), 0, 4);
 
     dax = MOVEx(sp->xvel, sp->ang);
     day = MOVEy(sp->xvel, sp->ang);
     daz = sp->zvel;
 
-    SetCollision(u, move_missile(Weapon, dax, day, daz, CEILING_DIST, FLOOR_DIST, CLIPMASK_MISSILE, MISSILEMOVETICS));
+    SetCollision(u, move_missile(actor->GetSpriteIndex(), dax, day, daz, CEILING_DIST, FLOOR_DIST, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     MissileHitDiveArea(actor);
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
 
-    if (u->ret)
+    if (u->coll.type != kHitNone)
     {
-        if (WeaponMoveHit(Weapon))
+        if (WeaponMoveHit(actor->GetSpriteIndex()))
         {
             SpawnBoltExp(actor);
             KillActor(actor);
             return true;
         }
     }
-
-
     return false;
 }
 
@@ -10295,7 +10272,7 @@ int DoElectro(DSWActor* actor)
 
     // only seek on Electro's after a hit on an actor
     if (u->Counter > 0)
-        MissileSeek(actor->GetSpriteIndex(), 30, 512/*, 3, 52, 2*/);
+        MissileSeek(actor, 30, 512/*, 3, 52, 2*/);
 
     dax = MOVEx(sp->xvel, sp->ang);
     day = MOVEy(sp->xvel, sp->ang);
@@ -10433,7 +10410,7 @@ int SpawnCoolieExp(DSWActor* actor)
 
 void SpawnFireballFlames(DSWActor* actor, DSWActor* enemyActor)
 {
-    SPRITEp sp = &actor->s(), ep;
+    SPRITEp sp = &actor->s(), ep = nullptr;
     USERp u = actor->u(), eu = nullptr;
 
     if (TEST(u->Flags, SPR_UNDERWATER))
