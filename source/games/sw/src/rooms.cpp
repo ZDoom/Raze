@@ -1049,13 +1049,12 @@ void CollectPortals()
         // pick one sprite out of the sectors, repeat until we get a valid connection
         for (auto sec : fp.sectors)
         {
-            SectIterator it(sec);
-            int spr;
-            while ((spr = it.NextIndex()) >= 0)
+            SWSectIterator it(sec);
+            while (auto actor = it.Next())
             {
-                int tx = sprite[spr].x;
-                int ty = sprite[spr].y;
-                int tz = sprite[spr].z;
+                int tx = actor->s().x;
+                int ty = actor->s().y;
+                int tz = actor->s().z;
                 int16_t tsectnum = sec;
 
                 int match = FindViewSectorInScene(tsectnum, VIEW_LEVEL1);
@@ -1067,7 +1066,7 @@ void CollectPortals()
                         // got something!
                         fp.othersector = tsectnum;
                         fp.offset = { tx, ty, tz };
-                        fp.offset -= sprite[spr].pos;
+                        fp.offset -= actor->s().pos;
                         goto nextfg;
                     }
                 }
@@ -1080,13 +1079,12 @@ void CollectPortals()
     {
         for (auto sec : fp.sectors)
         {
-            SectIterator it(sec);
-            int spr;
-            while ((spr = it.NextIndex()) >= 0)
+            SWSectIterator it(sec);
+            while (auto actor = it.Next())
             {
-                int tx = sprite[spr].x;
-                int ty = sprite[spr].y;
-                int tz = sprite[spr].z;
+                int tx = actor->s().x;
+                int ty = actor->s().y;
+                int tz = actor->s().z;
                 int16_t tsectnum = sec;
 
                 int match = FindViewSectorInScene(tsectnum, VIEW_LEVEL2);
@@ -1098,7 +1096,7 @@ void CollectPortals()
                         // got something!
                         fp.othersector = tsectnum;
                         fp.offset = { tx, ty, tz };
-                        fp.offset -= sprite[spr].pos;
+                        fp.offset -= actor->s().pos;
                         goto nextcg;
                     }
                 }
