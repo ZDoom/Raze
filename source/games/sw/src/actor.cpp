@@ -146,8 +146,8 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
             {
                 if (sw_ninjahack)
                     SpawnBlood(actor, actor, -1, -1, -1, -1);
-                InitPlasmaFountain(wp, sp);
-                InitPlasmaFountain(wp, sp);
+                InitPlasmaFountain(weapActor, actor);
+                InitPlasmaFountain(weapActor, actor);
                 PlaySound(DIGI_NINJAINHALF, actor, v3df_none);
                 if (sw_ninjahack)
                     ChangeState(actor, &s_NinjaDieSlicedHack[5]);
@@ -158,7 +158,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
             {
                 if (RandomRange(1000) > 500)
                 {
-                    InitPlasmaFountain(wp, sp);
+                    InitPlasmaFountain(weapActor, actor);
                 }
 
                 ChangeState(actor, u->StateEnd);
@@ -257,7 +257,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
         default:
             if (RandomRange(1000) > 700)
             {
-                InitPlasmaFountain(wp, sp);
+                InitPlasmaFountain(weapActor, actor);
             }
 
             if (RandomRange(1000) > 500)

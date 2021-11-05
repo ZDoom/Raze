@@ -5182,7 +5182,7 @@ ActorHealth(short SpriteNum, short amt)
                     u->WaitTics = SEC(1) + SEC(RandomRange(2));
                     u->Health = 60;
                     PlaySound(DIGI_NINJACHOKE, sp, v3df_follow);
-                    InitPlasmaFountain(nullptr, sp);
+                    InitPlasmaFountain(nullptr, actor);
                     InitBloodSpray(actor,false,105);
                     sp->ang = NORM_ANGLE(getangle(u->targetActor->s().x - sp->x, u->targetActor->s().y - sp->y) + 1024);
                     RESET(sp->cstat, CSTAT_SPRITE_YFLIP);
@@ -7119,7 +7119,7 @@ DoDamage(short SpriteNum, short Weapon)
             ActorPainPlasma(SpriteNum);
         }
 
-        InitPlasmaFountain(wp, sp);
+        InitPlasmaFountain(weapActor, actor);
 
         SetSuicide(weapActor);
 
@@ -8370,41 +8370,34 @@ DoBlurExtend(int16_t Weapon, int16_t interval, int16_t blur_num)
     return 0;
 }
 
-int
-InitPlasmaFountain(SPRITEp wp, SPRITEp sp)
+int InitPlasmaFountain(DSWActor* wActor, DSWActor* sActor)
 {
+    auto sp = &sActor->s();
     SPRITEp np;
     USERp nu;
-    short SpriteNum;
-    auto sActor = &swActors[sp - sprite];
 
-    SpriteNum = SpawnSprite(STAT_MISSILE, PLASMA_FOUNTAIN, s_PlasmaFountain, sp->sectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, PLASMA_FOUNTAIN, s_PlasmaFountain, sp->sectnum,
                             sp->x, sp->y, SPRITEp_BOS(sp), sp->ang, 0);
 
-    auto actorNew = &swActors[SpriteNum];
-    np = &sprite[SpriteNum];
-    nu = User[SpriteNum].Data();
+    np = &actorNew->s();
+    nu = actorNew->u();
 
     np->shade = -40;
-    if (wp)
-        SetOwner(wp->owner, SpriteNum);
+    if (wActor)
+        SetOwner(GetOwner(wActor), actorNew);
     SetAttach(sActor, actorNew);
     np->yrepeat = 0;
     np->clipdist = 8>>2;
 
-    // start off on a random frame
-    //nu->WaitTics = PLASMA_FOUNTAIN_TIME;
     nu->WaitTics = 120+60;
     nu->Radius = 50;
     return 0;
 }
 
-int
-DoPlasmaFountain(DSWActor* actor)
+int DoPlasmaFountain(DSWActor* actor)
 {
     USER* u = actor->u();
-    int Weapon = u->SpriteNum;
-    SPRITEp sp = &sprite[Weapon];
+    SPRITEp sp = &actor->s();
     SPRITEp ap;
     short bak_cstat;
 
@@ -8420,7 +8413,7 @@ DoPlasmaFountain(DSWActor* actor)
         ap = &attachActor->s();
 
         // move with sprite
-        setspritez(Weapon, &ap->pos);
+        SetActorZ(actor, &ap->pos);
         sp->ang = ap->ang;
 
         u->Counter++;
@@ -8442,12 +8435,11 @@ DoPlasmaFountain(DSWActor* actor)
 
         bak_cstat = sp->cstat;
         RESET(sp->cstat, CSTAT_SPRITE_BLOCK);
-        //DoDamageTest(Weapon); // fountain not doing the damage an more
         sp->cstat = bak_cstat;
 
         KillActor(actor);
     }
-    return 0;
+    return 0; 
 }
 
 int DoPlasma(DSWActor* actor)
