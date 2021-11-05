@@ -106,7 +106,7 @@ short ElectroFindClosestEnemy(short SpriteNum);
 int InitElectroJump(SPRITEp wp, SPRITEp sp);
 bool TestDontStickSector(short hit_sect);
 ANIMATOR SpawnShrapX;
-bool WeaponMoveHit(short SpriteNum);
+bool WeaponMoveHit(DSWActor* actor);
 void SpawnMidSplash(DSWActor* actor);
 
 int SopDamage(SECTOR_OBJECTp sop,short amt);
@@ -3952,7 +3952,7 @@ int DoShrapDamage(DSWActor* actor)
 
     if (u->coll.type == kHitSprite)
     {
-        WeaponMoveHit(actor->GetSpriteIndex());
+        WeaponMoveHit(actor);
         KillActor(actor);
     }
 
@@ -4296,9 +4296,8 @@ bool VehicleMoveHit(DSWActor* actor)
 }
 
 
-bool WeaponMoveHit(short SpriteNum)
+bool WeaponMoveHit(DSWActor* actor)
 {
-    auto actor = &swActors[SpriteNum];
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
 
@@ -4365,7 +4364,7 @@ bool WeaponMoveHit(short SpriteNum)
         {
             if ((sop = DetectSectorObject(sectp)))
             {
-                DoDamage(sop->sp_child->GetSpriteIndex(), SpriteNum);
+                DoDamage(sop->sp_child->GetSpriteIndex(), actor->GetSpriteIndex());
                 return true;
             }
         }
@@ -7734,8 +7733,7 @@ int DoMineExpMine(DSWActor* actor)
     return 0;
 }
 
-int
-DoStar(DSWActor* actor)
+int DoStar(DSWActor* actor)
 {
     USER* u = actor->u();
     SPRITEp sp = &actor->s();
@@ -7944,7 +7942,7 @@ DoStar(DSWActor* actor)
         if (u->coll.type != kHitSprite) // Don't clank on sprites
             PlaySound(DIGI_STARCLINK, actor, v3df_none);
 
-        if (WeaponMoveHit(actor->GetSpriteIndex()))
+        if (WeaponMoveHit(actor))
         {
             KillActor(actor);
             return true;
@@ -7968,7 +7966,7 @@ int DoCrossBolt(DSWActor* actor)
 
     if (u->ret)
     {
-        if (WeaponMoveHit(actor->GetSpriteIndex()))
+        if (WeaponMoveHit(actor))
         {
             switch (TEST(u->ret, HIT_MASK))
             {
@@ -8476,7 +8474,7 @@ int DoPlasma(DSWActor* actor)
 
     if (u->coll.type != kHitNone)
     {
-        if (WeaponMoveHit(actor->GetSpriteIndex()))
+        if (WeaponMoveHit(actor))
         {
             if (TEST(u->Flags, SPR_SUICIDE))
             {
@@ -8513,7 +8511,7 @@ int DoCoolgFire(DSWActor* actor)
 
     if (u->ret)
     {
-        if (WeaponMoveHit(actor->GetSpriteIndex()))
+        if (WeaponMoveHit(actor))
         {
             PlaySound(DIGI_CGMAGICHIT, actor, v3df_follow);
             ChangeState(actor, s_CoolgFireDone);
@@ -9479,7 +9477,7 @@ int DoBoltThinMan(DSWActor* actor)
 
     if (u->coll.type != kHitNone)
     {
-        if (WeaponMoveHit(actor->GetSpriteIndex()))
+        if (WeaponMoveHit(actor))
         {
             SpawnBoltExp(actor);
             KillActor(actor);
@@ -9504,7 +9502,7 @@ int DoTracer(DSWActor* actor)
 
         if (u->coll.type != kHitNone)
         {
-            if (WeaponMoveHit(actor->GetSpriteIndex()))
+            if (WeaponMoveHit(actor))
             {
                 KillActor(actor);
                 return true;
@@ -9542,7 +9540,7 @@ int DoEMP(DSWActor* actor)
 
         if (u->coll.type != kHitNone)
         {
-            if (WeaponMoveHit(actor->GetSpriteIndex()))
+            if (WeaponMoveHit(actor))
             {
                 KillActor(actor);
                 return true;
@@ -9618,7 +9616,7 @@ int DoTankShell(DSWActor* actor)
 
         if (u->coll.type != kHitNone)
         {
-            if (WeaponMoveHit(actor->GetSpriteIndex()))
+            if (WeaponMoveHit(actor))
             {
                 SpawnTankShellExp(actor);
                 KillActor(actor);
@@ -9640,7 +9638,7 @@ int DoTracerStart(DSWActor* actor)
 
     if (u->coll.type != kHitNone)
     {
-        if (WeaponMoveHit(actor->GetSpriteIndex()))
+        if (WeaponMoveHit(actor))
         {
             KillActor(actor);
             return true;
@@ -9669,7 +9667,7 @@ int DoLaser(DSWActor* actor)
 
         if (u->coll.type != kHitNone)
         {
-            if (WeaponMoveHit(actor->GetSpriteIndex()))
+            if (WeaponMoveHit(actor))
             {
                 SpawnBoltExp(actor);
                 KillActor(actor);
@@ -9710,7 +9708,7 @@ int DoLaserStart(DSWActor* actor)
 
     if (u->coll.type != kHitNone)
     {
-        if (WeaponMoveHit(actor->GetSpriteIndex()))
+        if (WeaponMoveHit(actor))
         {
             SpawnBoltExp(actor);
             KillActor(actor);
@@ -9739,7 +9737,7 @@ int DoRail(DSWActor* actor)
 
         if (u->coll.type != kHitNone)
         {
-            if (WeaponMoveHit(actor->GetSpriteIndex())&& u->coll.type != kHitNone) // beware of side effects of WeaponMoveHit!
+            if (WeaponMoveHit(actor) && u->coll.type != kHitNone) // beware of side effects of WeaponMoveHit!
             {
                 if (u->coll.type == kHitSprite)
                 {
@@ -9820,7 +9818,7 @@ int DoRailStart(DSWActor* actor)
 
     if (u->coll.type != kHitNone)
     {
-        if (WeaponMoveHit(actor->GetSpriteIndex()))
+        if (WeaponMoveHit(actor))
         {
             SpawnTracerExp(actor);
             SpawnShrapX(actor);
@@ -9864,7 +9862,7 @@ int DoRocket(DSWActor* actor)
 
     if (u->coll.type != kHitNone)
     {
-        if (WeaponMoveHit(actor->GetSpriteIndex()) && u->coll.type != kHitNone)
+        if (WeaponMoveHit(actor) && u->coll.type != kHitNone)
         {
             if (u->ID == BOLT_THINMAN_R4)
             {
@@ -9925,7 +9923,7 @@ int DoMicroMini(DSWActor* actor)
 
         if (u->coll.type != kHitNone)
         {
-            if (WeaponMoveHit(actor->GetSpriteIndex()))
+            if (WeaponMoveHit(actor))
             {
                 SpawnMicroExp(actor);
                 KillActor(actor);
@@ -10034,7 +10032,7 @@ int DoMicro(DSWActor* actor)
     // hit something
     if (u->coll.type != kHitNone)
     {
-        if (WeaponMoveHit(actor->GetSpriteIndex()))
+        if (WeaponMoveHit(actor))
         {
             SpawnMicroExp(actor);
             KillActor(actor);
@@ -10075,7 +10073,7 @@ int DoUziBullet(DSWActor* actor)
         {
             SPRITEp wp;
 
-            WeaponMoveHit(actor->GetSpriteIndex());
+            WeaponMoveHit(actor);
 
             auto actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, sp->sectnum, sp->x, sp->y, sp->z, sp->ang, 0);
             wp = &actorNew->s();
@@ -10133,7 +10131,7 @@ int DoBoltSeeker(DSWActor* actor)
 
     if (u->coll.type != kHitNone)
     {
-        if (WeaponMoveHit(actor->GetSpriteIndex()))
+        if (WeaponMoveHit(actor))
         {
             SpawnBoltExp(actor);
             KillActor(actor);
@@ -10180,7 +10178,7 @@ int DoElectro(DSWActor* actor)
 
     if (u->coll.type != kHitNone)
     {
-        if (WeaponMoveHit(actor->GetSpriteIndex()))
+        if (WeaponMoveHit(actor))
         {
             switch (u->coll.type)
             {
@@ -10223,7 +10221,7 @@ int DoLavaBoulder(DSWActor* actor)
 
     if (u->coll.type != kHitNone)
     {
-        if (WeaponMoveHit(actor->GetSpriteIndex()))
+        if (WeaponMoveHit(actor))
         {
             SpawnShrap(actor, nullptr);
             KillActor(actor);
@@ -10251,7 +10249,7 @@ int DoSpear(DSWActor* actor)
 
     if (u->coll.type != kHitNone)
     {
-        if (WeaponMoveHit(actor->GetSpriteIndex()))
+        if (WeaponMoveHit(actor))
         {
             KillActor(actor);
             return true;
@@ -11351,7 +11349,7 @@ int DoFireball(DSWActor* actor)
     {
         bool hit_burn = false;
 
-        if (WeaponMoveHit(actor->GetSpriteIndex()))
+        if (WeaponMoveHit(actor))
         {
             switch (u->coll.type)
             {
@@ -11598,7 +11596,7 @@ int DoNapalm(DSWActor* actor)
 
     if (u->coll.type != kHitNone)
     {
-        if (WeaponMoveHit(actor->GetSpriteIndex()))
+        if (WeaponMoveHit(actor))
         {
             KillActor(actor);
             return true;
@@ -11739,7 +11737,7 @@ int DoSerpMeteor(DSWActor* actor)
             }
         }
 
-        if (WeaponMoveHit(actor->GetSpriteIndex()))
+        if (WeaponMoveHit(actor))
         {
             SpawnMeteorExp(actor);
             KillActor(actor);
@@ -11766,7 +11764,7 @@ int DoMirvMissile(DSWActor* actor)
 
     if (u->coll.type == kHitNone)
     {
-        if (WeaponMoveHit(actor->GetSpriteIndex()))
+        if (WeaponMoveHit(actor))
         {
             SpawnMeteorExp(actor);
             KillActor(actor);
