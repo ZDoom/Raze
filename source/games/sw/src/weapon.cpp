@@ -112,7 +112,7 @@ void SpawnMidSplash(DSWActor* actor);
 int SopDamage(SECTOR_OBJECTp sop,short amt);
 int SopCheckKill(SECTOR_OBJECTp sop);
 int QueueStar(DSWActor*);
-int DoBlurExtend(int16_t Weapon,int16_t interval,int16_t blur_num);
+int DoBlurExtend(DSWActor* actor, int16_t interval, int16_t blur_num);
 int SpawnDemonFist(DSWActor*);
 void SpawnTankShellExp(DSWActor*);
 void SpawnMicroExp(DSWActor*);
@@ -7743,9 +7743,6 @@ DoStar(DSWActor* actor)
     USERp su;
     int vel;
 
-//    if (!TEST(u->Flags, SPR_BOUNCE))
-//        DoBlurExtend(Weapon, 0, 2);
-
     if (TEST(u->Flags, SPR_UNDERWATER))
     {
         u->motion_blur_num = 0;
@@ -7970,7 +7967,7 @@ DoCrossBolt(DSWActor* actor)
 
     ASSERT(Weapon >= 0);
 
-    DoBlurExtend(Weapon, 0, 2);
+    DoBlurExtend(actor, 0, 2);
 
     SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, Z(16), Z(16), CLIPMASK_MISSILE, MISSILEMOVETICS));
 
@@ -8121,10 +8118,8 @@ int MissileSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range/*, int1
 }
 
 // combination of vector manipulation
-int
-ComboMissileSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range/*, int16_t dang_shift, int16_t turn_limit, int16_t z_limit*/)
+int ComboMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range/*, int16_t dang_shift, int16_t turn_limit, int16_t z_limit*/)
 {
-    auto actor = &swActors[Weapon];
     SPRITEp sp = &actor->s();
     USERp u = actor->u();
 
@@ -8190,10 +8185,8 @@ ComboMissileSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range/*, int1
 }
 
 // completely vector manipulation
-int
-VectorMissileSeek(int16_t Weapon, int16_t delay_tics, int16_t turn_speed, int16_t aware_range1, int16_t aware_range2)
+int VectorMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t turn_speed, int16_t aware_range1, int16_t aware_range2)
 {
-    auto actor = &swActors[Weapon];
     SPRITEp sp = &actor->s();
     USERp u = actor->u();
 
@@ -8284,10 +8277,8 @@ VectorMissileSeek(int16_t Weapon, int16_t delay_tics, int16_t turn_speed, int16_
 }
 
 // completely vector manipulation
-int
-VectorWormSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range1, int16_t aware_range2)
+int VectorWormSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range1, int16_t aware_range2)
 {
-    auto actor = &swActors[Weapon];
     SPRITEp sp = &actor->s();
     USERp u = actor->u();
 
@@ -8348,10 +8339,9 @@ VectorWormSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range1, int16_t
     return 0;
 }
 
-int
-DoBlurExtend(int16_t Weapon, int16_t interval, int16_t blur_num)
+int DoBlurExtend(DSWActor* actor, int16_t interval, int16_t blur_num)
 {
-    USERp u = User[Weapon].Data();
+    USERp u = actor->u();
 
     if (u->motion_blur_num >= blur_num)
         return 0;
@@ -8453,7 +8443,7 @@ int DoPlasma(DSWActor* actor)
     oy = sp->y;
     oz = sp->z;
 
-    DoBlurExtend(actor->GetSpriteIndex(), 0, 4);
+    DoBlurExtend(actor, 0, 4);
 
     dax = MOVEx(sp->xvel, sp->ang);
     day = MOVEy(sp->xvel, sp->ang);
@@ -9480,7 +9470,7 @@ int DoBoltThinMan(DSWActor* actor)
     SPRITEp sp = &actor->s();
     int32_t dax, day, daz;
 
-    DoBlurExtend(actor->GetSpriteIndex(), 0, 4);
+    DoBlurExtend(actor, 0, 4);
 
     dax = MOVEx(sp->xvel, sp->ang);
     day = MOVEy(sp->xvel, sp->ang);
@@ -9868,7 +9858,7 @@ int DoRocket(DSWActor* actor)
 
     if (TEST(u->Flags, SPR_FIND_PLAYER))
     {
-        VectorMissileSeek(actor->GetSpriteIndex(), 30, 16, 128, 768);
+        VectorMissileSeek(actor, 30, 16, 128, 768);
     }
 
     SetCollision(u, move_missile(actor->GetSpriteIndex(), u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
@@ -10138,7 +10128,7 @@ int DoBoltSeeker(DSWActor* actor)
     int32_t dax, day, daz;
 
     MissileSeek(actor, 30, 768/*, 4, 48, 6*/);
-    DoBlurExtend(actor->GetSpriteIndex(), 0, 4);
+    DoBlurExtend(actor, 0, 4);
 
     dax = MOVEx(sp->xvel, sp->ang);
     day = MOVEy(sp->xvel, sp->ang);
@@ -10178,7 +10168,7 @@ int DoElectro(DSWActor* actor)
     SPRITEp sp = &actor->s();
     int32_t dax, day, daz;
 
-    DoBlurExtend(actor->GetSpriteIndex(), 0, 4);
+    DoBlurExtend(actor, 0, 4);
 
     // only seek on Electro's after a hit on an actor
     if (u->Counter > 0)
@@ -11530,7 +11520,7 @@ int DoNapalm(DSWActor* actor)
 
     int ox, oy, oz;
 
-    DoBlurExtend(actor->GetSpriteIndex(), 1, 7);
+    DoBlurExtend(actor, 1, 7);
 
     if (TEST(u->Flags, SPR_UNDERWATER))
     {
