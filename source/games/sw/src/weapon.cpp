@@ -8450,12 +8450,10 @@ DoPlasmaFountain(DSWActor* actor)
     return 0;
 }
 
-int
-DoPlasma(DSWActor* actor)
+int DoPlasma(DSWActor* actor)
 {
     USER* u = actor->u();
-    int Weapon = u->SpriteNum;
-    SPRITEp sp = &sprite[Weapon];
+    SPRITEp sp = &actor->s();
     int32_t dax, day, daz;
     int ox,oy,oz;
 
@@ -8463,36 +8461,35 @@ DoPlasma(DSWActor* actor)
     oy = sp->y;
     oz = sp->z;
 
-    DoBlurExtend(Weapon, 0, 4);
+    DoBlurExtend(actor->GetSpriteIndex(), 0, 4);
 
     dax = MOVEx(sp->xvel, sp->ang);
     day = MOVEy(sp->xvel, sp->ang);
     daz = sp->zvel;
 
-    SetCollision(u, move_missile(Weapon, dax, day, daz, Z(16), Z(16), CLIPMASK_MISSILE, MISSILEMOVETICS));
+    SetCollision(u, move_missile(actor->GetSpriteIndex(), dax, day, daz, Z(16), Z(16), CLIPMASK_MISSILE, MISSILEMOVETICS));
 
-    if (u->ret)
     {
         // this sprite is supposed to go through players/enemys
         // if hit a player/enemy back up and do it again with blocking reset
-        if (TEST(u->ret, HIT_MASK) == HIT_SPRITE)
+        if (u->coll.type == kHitSprite)
         {
-            short hit_sprite = NORM_SPRITE(u->ret);
-            SPRITEp hsp = &sprite[hit_sprite];
-            USERp hu = User[hit_sprite].Data();
+            auto hitActor = u->coll.actor;
+            SPRITEp hsp = &hitActor->s();
+            USERp hu = hitActor->u();
 
             if (TEST(hsp->cstat, CSTAT_SPRITE_BLOCK) && !TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
                 short hcstat = hsp->cstat;
 
-                if (hu && hit_sprite != u->WpnGoalActor->GetSpriteIndex())
+                if (hu && hitActor != u->WpnGoalActor)
                 {
                     sp->x = ox;
                     sp->y = oy;
                     sp->z = oz;
 
                     RESET(hsp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-                    SetCollision(u, move_missile(Weapon, dax, day, daz, Z(16), Z(16), CLIPMASK_MISSILE, MISSILEMOVETICS));
+                    SetCollision(u, move_missile(actor->GetSpriteIndex(), dax, day, daz, Z(16), Z(16), CLIPMASK_MISSILE, MISSILEMOVETICS));
                     hsp->cstat = hcstat;
                 }
             }
@@ -8503,11 +8500,10 @@ DoPlasma(DSWActor* actor)
     MissileHitDiveArea(actor);
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
-    //DoDamageTest(Weapon);
 
-    if (u->ret)
+    if (u->coll.type != kHitNone)
     {
-        if (WeaponMoveHit(Weapon))
+        if (WeaponMoveHit(actor->GetSpriteIndex()))
         {
             if (TEST(u->Flags, SPR_SUICIDE))
             {
@@ -8528,14 +8524,12 @@ DoPlasma(DSWActor* actor)
 }
 
 
-int
-DoCoolgFire(DSWActor* actor)
+int DoCoolgFire(DSWActor* actor)
 {
     USER* u = actor->u();
-    int Weapon = u->SpriteNum;
-    SPRITEp sp = &sprite[Weapon];
+    SPRITEp sp = &actor->s();
 
-    SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
+    SetCollision(u, move_missile(actor->GetSpriteIndex(), u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     MissileHitDiveArea(actor);
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
@@ -8546,11 +8540,12 @@ DoCoolgFire(DSWActor* actor)
 
     if (u->ret)
     {
-        if (WeaponMoveHit(Weapon))
+        if (WeaponMoveHit(actor->GetSpriteIndex()))
         {
-            PlaySound(DIGI_CGMAGICHIT, sp, v3df_follow);
+            PlaySound(DIGI_CGMAGICHIT, actor, v3df_follow);
             ChangeState(actor, s_CoolgFireDone);
-            if (sp->owner >= 0 && User[sp->owner].Data() && User[sp->owner]->ID != RIPPER_RUN_R0)  // JBF: added range check
+            auto own = GetOwner(actor);
+            if (own && own->hasU() && own->u()->ID != RIPPER_RUN_R0)  // JBF: added range check
                 SpawnDemonFist(actor); // Just a red magic circle flash
             return true;
         }
@@ -8559,16 +8554,12 @@ DoCoolgFire(DSWActor* actor)
     return false;
 }
 
-int
-DoEelFire(DSWActor* actor)
+int DoEelFire(DSWActor* actor)
 {
     USER* u = actor->u();
-    int Weapon = u->SpriteNum;
 
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
-
-    //DoDamageTest(Weapon);
 
     return false;
 }
