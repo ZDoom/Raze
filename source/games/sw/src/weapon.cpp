@@ -9504,12 +9504,10 @@ DoMine(DSWActor* actor)
     return false;
 }
 
-int
-DoPuff(DSWActor* actor)
+int DoPuff(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
  
     sp->x += u->xchange;
     sp->y += u->ychange;
@@ -9518,12 +9516,9 @@ DoPuff(DSWActor* actor)
     return 0;
 }
 
-int
-DoRailPuff(DSWActor* actor)
+int DoRailPuff(DSWActor* actor)
 {
-    USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
 
     sp->xrepeat += 4;
     sp->yrepeat += 4;
@@ -9531,35 +9526,31 @@ DoRailPuff(DSWActor* actor)
     return 0;
 }
 
-int
-DoBoltThinMan(DSWActor* actor)
+int DoBoltThinMan(DSWActor* actor)
 {
     USER* u = actor->u();
-    int Weapon = u->SpriteNum;
-    SPRITEp sp = &sprite[Weapon];
+    SPRITEp sp = &actor->s();
     int32_t dax, day, daz;
 
-    DoBlurExtend(Weapon, 0, 4);
+    DoBlurExtend(actor->GetSpriteIndex(), 0, 4);
 
     dax = MOVEx(sp->xvel, sp->ang);
     day = MOVEy(sp->xvel, sp->ang);
     daz = sp->zvel;
 
-    SetCollision(u, move_missile(Weapon, dax, day, daz, CEILING_DIST, FLOOR_DIST, CLIPMASK_MISSILE, MISSILEMOVETICS));
+    SetCollision(u, move_missile(actor->GetSpriteIndex(), dax, day, daz, CEILING_DIST, FLOOR_DIST, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     MissileHitDiveArea(actor);
 
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
 
-    //DoDamageTest(Weapon);
-
     if (TEST(u->Flags, SPR_SUICIDE))
         return true;
 
     if (u->ret)
     {
-        if (WeaponMoveHit(Weapon))
+        if (WeaponMoveHit(actor->GetSpriteIndex()))
         {
             SpawnBoltExp(actor);
             KillActor(actor);
@@ -9571,23 +9562,20 @@ DoBoltThinMan(DSWActor* actor)
     return false;
 }
 
-int
-DoTracer(DSWActor* actor)
+int DoTracer(DSWActor* actor)
 {
     USER* u = actor->u();
-    int Weapon = u->SpriteNum;
-    SPRITEp sp = &sprite[Weapon];
-    short i;
+    SPRITEp sp = &actor->s();
 
-    for (i = 0; i < 4; i++)
+    for (int i = 0; i < 4; i++)
     {
-        SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
+        SetCollision(u, move_missile(actor->GetSpriteIndex(), u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
         MissileHitDiveArea(actor);
 
         if (u->ret)
         {
-            if (WeaponMoveHit(Weapon))
+            if (WeaponMoveHit(actor->GetSpriteIndex()))
             {
                 KillActor(actor);
                 return true;
@@ -9600,17 +9588,15 @@ DoTracer(DSWActor* actor)
     return false;
 }
 
-int
-DoEMP(DSWActor* actor)
+int DoEMP(DSWActor* actor)
 {
     USER* u = actor->u();
-    int Weapon = u->SpriteNum;
-    SPRITEp sp = &sprite[Weapon];
+    SPRITEp sp = &actor->s();
     short i;
 
     for (i = 0; i < 4; i++)
     {
-        SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
+        SetCollision(u, move_missile(actor->GetSpriteIndex(), u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
         MissileHitDiveArea(actor);
 
@@ -9627,7 +9613,7 @@ DoEMP(DSWActor* actor)
 
         if (u->ret)
         {
-            if (WeaponMoveHit(Weapon))
+            if (WeaponMoveHit(actor->GetSpriteIndex()))
             {
                 KillActor(actor);
                 return true;
@@ -9640,19 +9626,17 @@ DoEMP(DSWActor* actor)
     return false;
 }
 
-int
-DoEMPBurst(DSWActor* actor)
+int DoEMPBurst(DSWActor* actor)
 {
     USER* u = actor->u();
-    int Weapon = u->SpriteNum;
     SPRITEp sp = &actor->s();
 
     auto attachActor = u->attachActor;
     if (attachActor != nullptr)
     {
         SPRITEp ap = &attachActor->s();
-
-        setspritez_old(Weapon, ap->x, ap->y, ap->z - u->sz);
+        vec3_t pos = { ap->x, ap->y, ap->z - u->sz };
+        SetActorZ(actor, &pos);
         sp->ang = NORM_ANGLE(ap->ang+1024);
     }
 
@@ -9692,22 +9676,20 @@ DoEMPBurst(DSWActor* actor)
     return false;
 }
 
-int
-DoTankShell(DSWActor* actor)
+int DoTankShell(DSWActor* actor)
 {
     USER* u = actor->u();
-    int Weapon = u->SpriteNum;
     short i;
 
     for (i = 0; i < 4; i++)
     {
-        SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
+        SetCollision(u, move_missile(actor->GetSpriteIndex(), u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
         MissileHitDiveArea(actor);
 
         if (u->ret)
         {
-            if (WeaponMoveHit(Weapon))
+            if (WeaponMoveHit(actor->GetSpriteIndex()))
             {
                 SpawnTankShellExp(actor);
                 KillActor(actor);
@@ -9719,19 +9701,17 @@ DoTankShell(DSWActor* actor)
     return false;
 }
 
-int
-DoTracerStart(DSWActor* actor)
+int DoTracerStart(DSWActor* actor)
 {
     USER* u = actor->u();
-    int Weapon = u->SpriteNum;
-    SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange,
+    SetCollision(u, move_missile(actor->GetSpriteIndex(), u->xchange, u->ychange, u->zchange,
                           u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     MissileHitDiveArea(actor);
 
     if (u->ret)
     {
-        if (WeaponMoveHit(Weapon))
+        if (WeaponMoveHit(actor->GetSpriteIndex()))
         {
             KillActor(actor);
             return true;
@@ -9741,12 +9721,10 @@ DoTracerStart(DSWActor* actor)
     return false;
 }
 
-int
-DoLaser(DSWActor* actor)
+int DoLaser(DSWActor* actor)
 {
     USER* u = actor->u();
-    int Weapon = u->SpriteNum;
-    SPRITEp sp = &sprite[Weapon];
+    SPRITEp sp = &actor->s();
     SPRITEp np;
     USERp nu;
     short New;
@@ -9756,13 +9734,13 @@ DoLaser(DSWActor* actor)
 
     while (true)
     {
-        SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
+        SetCollision(u, move_missile(actor->GetSpriteIndex(), u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
         MissileHitDiveArea(actor);
 
         if (u->ret)
         {
-            if (WeaponMoveHit(Weapon))
+            if (WeaponMoveHit(actor->GetSpriteIndex()))
             {
                 SpawnBoltExp(actor);
                 KillActor(actor);
@@ -9773,10 +9751,10 @@ DoLaser(DSWActor* actor)
         spawn_count++;
         if (spawn_count < 256)
         {
-            New = SpawnSprite(STAT_MISSILE, PUFF, s_LaserPuff, sp->sectnum,
+            auto actorNew = SpawnActor(STAT_MISSILE, PUFF, s_LaserPuff, sp->sectnum,
                               sp->x, sp->y, sp->z, sp->ang, 0);
-            np = &sprite[New];
-            nu = User[New].Data();
+            np = &actorNew->s();
+            nu = actorNew->u();
 
             np->shade = -40;
             np->xrepeat = 16;
