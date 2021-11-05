@@ -446,7 +446,7 @@ int DoBloodSpray(DSWActor* actor)
             if (wph->lotag == TAG_WALL_BREAK)
             {
                 HitBreakWall(wph, sp->x, sp->y, sp->z, sp->ang, u->ID);
-                SetCollision(u, 0);
+                u->coll.setNone();
                 break;
             }
 
@@ -514,7 +514,7 @@ int DoBloodSpray(DSWActor* actor)
                 {
                     SpawnFloorSplash(actor);
                     SET(u->Flags, SPR_BOUNCE);
-                    SetCollision(u, 0);
+                    u->coll.setNone();
                     u->Counter = 0;
                     u->zchange = -u->zchange;
                     ScaleSpriteVector(actor, 32000);   // Was 18000
@@ -659,7 +659,7 @@ int DoPhosphorus(DSWActor* actor)
             if (wph->lotag == TAG_WALL_BREAK)
             {
                 HitBreakWall(wph, sp->x, sp->y, sp->z, sp->ang, u->ID);
-                SetCollision(u, 0);
+                u->coll.setNone();
                 break;
             }
 
@@ -682,7 +682,7 @@ int DoPhosphorus(DSWActor* actor)
                 {
                     // hit a wall
                     ScaleSpriteVector(actor, 28000);
-                    SetCollision(u, 0);
+                    u->coll.setNone();
                     u->Counter = 0;
                 }
                 else
@@ -696,7 +696,7 @@ int DoPhosphorus(DSWActor* actor)
                             SET(u->Flags, SPR_BOUNCE);
                             ScaleSpriteVector(actor, 32000);       // was 18000
                             u->zchange /= 6;
-                            SetCollision(u, 0);
+                            u->coll.setNone();
                             u->Counter = 0;
                         }
                         else
@@ -730,7 +730,7 @@ int DoPhosphorus(DSWActor* actor)
                     if (!TEST(u->Flags, SPR_BOUNCE))
                     {
                         SET(u->Flags, SPR_BOUNCE);
-                        SetCollision(u, 0);
+                        u->coll.setNone();
                         u->Counter = 0;
                         u->zchange = -u->zchange;
                         ScaleSpriteVector(actor, 32000);   // Was 18000
@@ -875,7 +875,7 @@ int DoChemBomb(DSWActor* actor)
             if (wph->lotag == TAG_WALL_BREAK)
             {
                 HitBreakWall(wph, sp->x, sp->y, sp->z, sp->ang, u->ID);
-                SetCollision(u, 0);
+                u->coll.setNone();
                 break;
             }
 
@@ -900,7 +900,7 @@ int DoChemBomb(DSWActor* actor)
                 {
                     // hit a wall
                     ScaleSpriteVector(actor, 28000);
-                    SetCollision(u, 0);
+                    u->coll.setNone();
                     u->Counter = 0;
                 }
                 else
@@ -916,7 +916,7 @@ int DoChemBomb(DSWActor* actor)
                             SET(u->Flags, SPR_BOUNCE);
                             ScaleSpriteVector(actor, 32000);       // was 18000
                             u->zchange /= 6;
-                            SetCollision(u, 0);
+                            u->coll.setNone();
                             u->Counter = 0;
                         }
                         else
@@ -960,7 +960,7 @@ int DoChemBomb(DSWActor* actor)
                         if (!TEST(sp->cstat, CSTAT_SPRITE_INVISIBLE))
                             PlaySound(DIGI_CHEMBOUNCE, actor, v3df_dontpan);
                         SET(u->Flags, SPR_BOUNCE);
-                        SetCollision(u, 0);
+                        u->coll.setNone();
                         u->Counter = 0;
                         u->zchange = -u->zchange;
                         ScaleSpriteVector(actor, 32000);   // Was 18000
@@ -1102,7 +1102,7 @@ int DoCaltrops(DSWActor* actor)
             if (wph->lotag == TAG_WALL_BREAK)
             {
                 HitBreakWall(wph, sp->x, sp->y, sp->z, sp->ang, u->ID);
-                SetCollision(u, 0);
+                u->coll.setNone();
                 break;
             }
 
@@ -1126,7 +1126,7 @@ int DoCaltrops(DSWActor* actor)
                 {
                     // hit a wall
                     ScaleSpriteVector(actor, 1000);
-                    SetCollision(u, 0);
+                    u->coll.setNone();
                     u->Counter = 0;
                 }
                 else
@@ -1140,7 +1140,7 @@ int DoCaltrops(DSWActor* actor)
                             PlaySound(DIGI_CALTROPS, actor, v3df_dontpan);
                             SET(u->Flags, SPR_BOUNCE);
                             ScaleSpriteVector(actor, 1000);        // was 18000
-                            SetCollision(u, 0);
+                            u->coll.setNone();
                             u->Counter = 0;
                         }
                         else
@@ -1176,7 +1176,7 @@ int DoCaltrops(DSWActor* actor)
                     {
                         PlaySound(DIGI_CALTROPS, actor, v3df_dontpan);
                         SET(u->Flags, SPR_BOUNCE);
-                        SetCollision(u, 0);
+                        u->coll.setNone();
                         u->Counter = 0;
                         u->zchange = -u->zchange;
                         ScaleSpriteVector(actor, 1000);    // Was 18000

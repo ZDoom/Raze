@@ -81,7 +81,7 @@ bool ActorMoveHitReact(DSWActor* actor)
     // Should only return true if there is a reaction to what was hit that
     // would cause the calling function to abort
 
-    auto coll = u->hitCode();
+    auto coll = u->coll;
     if (coll.type == kHitSprite)
     {
         auto hitActor = coll.actor;

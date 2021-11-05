@@ -69,6 +69,7 @@ struct Collision
     Collision() = default;
     Collision(int legacyval) { setFromEngine(legacyval); }
 
+    void invalidate() { type = -1; } // something invalid that's not a valid hit type.
     int setNone();
     int setSector(int num);
     int setWall(int num);
@@ -1073,8 +1074,6 @@ struct USER
         memset(&WallP, 0, sizeof(USER) - myoffsetof(USER, WallP));
     }
 
-    Collision hitCode() const;
-
     //
     // Variables that can be used by actors and Player
     //
@@ -1208,7 +1207,6 @@ struct USER
     short sang;
     uint8_t spal;  // save off default palette number
 
-    int ret; //holder for move_sprite return value
     Collision coll; // same thing broken up into useful components.
 
     // Need to get rid of these flags
@@ -2243,11 +2241,6 @@ DSWActor* PLAYERstruct::Actor()
     return &swActors[PlayerSprite];
 }
 
-Collision USER::hitCode() const
-{
-    return Collision(ret);
-}
-
 inline int ActorUpper(DSWActor* actor)
 {
     return SPRITEp_UPPER(&actor->s());
@@ -2273,7 +2266,6 @@ inline int Facing(DSWActor* actor1, DSWActor* actor2)
 // temporary helper.
 inline void SetCollision(USER* u, int coll)
 {
-    u->ret = coll;
     u->coll.setFromEngine(coll);
 }
 

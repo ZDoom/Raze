@@ -2692,7 +2692,7 @@ void DoPlayerMoveVehicle(PLAYERp pp)
                     else if (hitinfo.sprite >= 0)
                         SetCollision(u, hitinfo.sprite|HIT_SPRITE);
                     else
-                        SetCollision(u, 0);
+                        u->coll.setNone();
 
                     VehicleMoveHit(actor);
                 }

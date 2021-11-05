@@ -4481,7 +4481,7 @@ bool WeaponMoveHit(DSWActor* actor)
         if (wph->lotag == TAG_WALL_BREAK)
         {
             HitBreakWall(&wall[wal], sp->x, sp->y, sp->z, sp->ang, u->ID);
-            SetCollision(u, 0);
+            u->coll.setNone();
             return true;
         }
 
@@ -7803,7 +7803,7 @@ int DoStar(DSWActor* actor)
             if (wph->lotag == TAG_WALL_BREAK)
             {
                 HitBreakWall(&wall[hit_wall], sp->x, sp->y, sp->z, sp->ang, u->ID);
-                SetCollision(u, 0);
+                u->coll.setNone();
                 break;
             }
 
@@ -7839,7 +7839,7 @@ int DoStar(DSWActor* actor)
             ScaleSpriteVector(actor, 36000);
             SET(u->Flags, SPR_BOUNCE);
             u->motion_blur_num = 0;
-            SetCollision(u, 0);
+            u->coll.setNone();
             break;
         }
 
@@ -7897,7 +7897,7 @@ int DoStar(DSWActor* actor)
 
                     SET(u->Flags, SPR_BOUNCE);
                     u->motion_blur_num = 0;
-                    SetCollision(u, 0);
+                    u->coll.setNone();
 
                 }
                 else
@@ -7905,7 +7905,7 @@ int DoStar(DSWActor* actor)
                     // hit a sloped sector < 45 degrees
                     SET(u->Flags, SPR_BOUNCE);
                     u->motion_blur_num = 0;
-                    SetCollision(u, 0);
+                    u->coll.setNone();
                 }
 
                 // BREAK HERE - LOOOK !!!!!!!!!!!!!!!!!!!!!!!!
@@ -7914,7 +7914,7 @@ int DoStar(DSWActor* actor)
 
             SET(u->Flags, SPR_BOUNCE);
             u->motion_blur_num = 0;
-            SetCollision(u, 0);
+            u->coll.setNone();
             u->zchange = -u->zchange;
 
             // 32000 to 96000
@@ -7964,20 +7964,11 @@ int DoCrossBolt(DSWActor* actor)
 
     MissileHitDiveArea(actor);
 
-    if (u->ret)
+    if (u->coll.type != kHitNone)
     {
         if (WeaponMoveHit(actor))
         {
-            switch (TEST(u->ret, HIT_MASK))
-            {
-            case HIT_SPRITE:
-            {
-                break;
-            }
-            }
-
             KillActor(actor);
-
             return true;
         }
     }
@@ -8506,10 +8497,7 @@ int DoCoolgFire(DSWActor* actor)
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
 
-    // !JIM! //!FRANK WHY???
-    //DoDamageTest(Weapon);
-
-    if (u->ret)
+    if (u->coll.type != kHitNone)
     {
         if (WeaponMoveHit(actor))
         {
@@ -8589,7 +8577,7 @@ bool SlopeBounce(DSWActor* actor, bool *hit_wall)
     short hit_sector;
     short daang;
 
-    hit_sector = NORM_SECTOR(u->ret);
+    hit_sector = u->coll.index;
 
     getzsofslope(hit_sector, sp->x, sp->y, &hiz, &loz);
 
@@ -8737,7 +8725,7 @@ int DoGrenade(DSWActor* actor)
             if (wph->lotag == TAG_WALL_BREAK)
             {
                 HitBreakWall(wph, sp->x, sp->y, sp->z, sp->ang, u->ID);
-                SetCollision(u, 0);
+                u->coll.setNone();
                 break;
             }
 
@@ -8762,7 +8750,7 @@ int DoGrenade(DSWActor* actor)
                 {
                     // hit a wall
                     ScaleSpriteVector(actor, 22000); // 28000
-                    SetCollision(u, 0);
+                    u->coll.setNone();
                     u->Counter = 0;
                 }
                 else
@@ -8775,7 +8763,7 @@ int DoGrenade(DSWActor* actor)
                         {
                             SET(u->Flags, SPR_BOUNCE);
                             ScaleSpriteVector(actor, 40000); // 18000
-                            SetCollision(u, 0);
+                            u->coll.setNone();
                             u->zchange /= 4;
                             u->Counter = 0;
                         }
@@ -8815,7 +8803,7 @@ int DoGrenade(DSWActor* actor)
                     if (!TEST(u->Flags, SPR_BOUNCE))
                     {
                         SET(u->Flags, SPR_BOUNCE);
-                        SetCollision(u, 0);
+                        u->coll.setNone();
                         u->Counter = 0;
                         u->zchange = -u->zchange;
                         ScaleSpriteVector(actor, 40000); // 18000
@@ -8952,7 +8940,7 @@ int DoVulcanBoulder(DSWActor* actor)
             if (wph->lotag == TAG_WALL_BREAK)
             {
                 HitBreakWall(wph, sp->x, sp->y, sp->z, sp->ang, u->ID);
-                SetCollision(u, 0);
+                u->coll.setNone();
                 break;
             }
 
@@ -8974,7 +8962,7 @@ int DoVulcanBoulder(DSWActor* actor)
                 {
                     // hit a sloped sector - treated as a wall because of large slope
                     ScaleSpriteVector(actor, 30000);
-                    SetCollision(u, 0);
+                    u->coll.setNone();
                     u->Counter = 0;
                 }
                 else
@@ -8986,7 +8974,7 @@ int DoVulcanBoulder(DSWActor* actor)
                         u->xchange = MulScale(u->xchange, 30000, 16);
                         u->ychange = MulScale(u->ychange, 30000, 16);
                         u->zchange = MulScale(u->zchange, 12000, 16);
-                        SetCollision(u, 0);
+                        u->coll.setNone();
                         u->Counter = 0;
 
                         // limit to a reasonable bounce value
@@ -8996,7 +8984,7 @@ int DoVulcanBoulder(DSWActor* actor)
                     else
                     {
                         // hit a sloped ceiling
-                        SetCollision(u, 0);
+                        u->coll.setNone();
                         u->Counter = 0;
                         ScaleSpriteVector(actor, 30000);
                     }
@@ -9007,7 +8995,7 @@ int DoVulcanBoulder(DSWActor* actor)
                 // hit unsloped floor
                 if (sp->z > DIV2(u->hiz + u->loz))
                 {
-                    SetCollision(u, 0);
+                    u->coll.setNone();
                     u->Counter = 0;
 
                     u->xchange = MulScale(u->xchange, 20000, 16);
@@ -9379,7 +9367,7 @@ int DoMine(DSWActor* actor)
             if (wall[hit_wall].lotag == TAG_WALL_BREAK)
             {
                 HitBreakWall(&wall[hit_wall], sp->x, sp->y, sp->z, sp->ang, u->ID);
-                SetCollision(u, 0);
+                u->coll.setNone();
                 break;
             }
 
@@ -9425,7 +9413,7 @@ int DoMine(DSWActor* actor)
         }
         }
 
-        SetCollision(u, 0);
+        u->coll.setNone();
     }
 
     return false;
@@ -9654,7 +9642,6 @@ int DoLaser(DSWActor* actor)
     SPRITEp sp = &actor->s();
     SPRITEp np;
     USERp nu;
-    short New;
     short spawn_count = 0;
 
     if (SW_SHAREWARE) return false; // JBF: verify
@@ -11622,7 +11609,7 @@ int DoBloodWorm(DSWActor* actor)
     {
         u->xchange = -u->xchange;
         u->ychange = -u->ychange;
-        SetCollision(u, 0);
+        u->coll.setNone();
         sp->ang = NORM_ANGLE(sp->ang + 1024);
         return true;
     }
@@ -18493,7 +18480,7 @@ bool MissileHitDiveArea(DSWActor* actor)
             SET(u->Flags, SPR_UNDERWATER);
             SpawnSplash(actor);
             SpriteWarpToUnderwater(actor);
-            SetCollision(u, 0);
+            u->coll.setNone();
             PlaySound(DIGI_PROJECTILEWATERHIT, actor, v3df_none);
             return true;
         }
@@ -18509,7 +18496,7 @@ bool MissileHitDiveArea(DSWActor* actor)
                 return false;
             }
             SpawnSplash(actor);
-            SetCollision(u, 0);
+            u->coll.setNone();
             return true;
         }
     }
@@ -19483,7 +19470,7 @@ int DoShrapVelocity(DSWActor* actor)
                 {
                     // hit a wall
                     ScaleSpriteVector(actor, 28000);
-                    SetCollision(u, 0);
+                    u->coll.setNone();
                     u->Counter = 0;
                 }
                 else
@@ -19496,7 +19483,7 @@ int DoShrapVelocity(DSWActor* actor)
                         {
                             SET(u->Flags, SPR_BOUNCE);
                             ScaleSpriteVector(actor, 18000);
-                            SetCollision(u, 0);
+                            u->coll.setNone();
                             u->Counter = 0;
                         }
                         else
@@ -19530,7 +19517,7 @@ int DoShrapVelocity(DSWActor* actor)
                     if (!TEST(u->Flags, SPR_BOUNCE))
                     {
                         SET(u->Flags, SPR_BOUNCE);
-                        SetCollision(u, 0);
+                        u->coll.setNone();
                         u->Counter = 0;
                         u->zchange = -u->zchange;
                         ScaleSpriteVector(actor, 18000);

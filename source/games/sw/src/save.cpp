@@ -912,7 +912,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, USER& w, USER* def
 			("sz", w.sz, def->sz)
 			("sang", w.sang, def->sang)
 			("spal", w.spal, def->spal)
-			("ret", w.ret, def->ret)
+			("ret", w.coll.legacyVal, def->coll.legacyVal) // is this needed?
 			("Flag1", w.Flag1, def->Flag1)
 			("LastWeaponNum", w.LastWeaponNum, def->LastWeaponNum)
 			("WeaponNum", w.WeaponNum, def->WeaponNum)
@@ -933,7 +933,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, USER& w, USER* def
 		if (arc.isReading())
 		{
 			w.oangdiff = 0;
-			SetCollision(&w, w.ret);
+			SetCollision(&w, w.coll.legacyVal);
 		}
 	}
 	return arc;
