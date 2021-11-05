@@ -194,7 +194,7 @@ int SpawnBunnyExp(DSWActor* actor);
 int InitBunnyRocket(PLAYERp pp);
 
 int GetDamage(short SpriteNum, short Weapon, short DamageNdx);
-int DoFlamesDamageTest(short Weapon);
+int DoFlamesDamageTest(DSWActor*);
 
 typedef struct
 {

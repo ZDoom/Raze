@@ -637,7 +637,7 @@ int DoPhosphorus(DSWActor* actor)
                     SpawnFireballExp(actor);
                     if (hu)
                         SpawnFireballFlames(actor, hitActor);
-                    DoFlamesDamageTest(actor->GetSpriteIndex());
+                    DoFlamesDamageTest(actor);
                 }
                 u->xchange = u->ychange = 0;
                 KillActor(actor);
@@ -1035,7 +1035,7 @@ int DoCaltropsStick(DSWActor* actor)
     u->Counter = !u->Counter;
 
     if (u->Counter)
-        DoFlamesDamageTest(actor->GetSpriteIndex());
+        DoFlamesDamageTest(actor);
 
     return 0;
 }
@@ -1299,7 +1299,7 @@ int DoRadiationCloud(DSWActor* actor)
 
     if (u->ID)
     {
-        DoFlamesDamageTest(actor->GetSpriteIndex());
+        DoFlamesDamageTest(actor);
     }
 
     return false;

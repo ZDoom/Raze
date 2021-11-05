@@ -5507,7 +5507,7 @@ DoGet(DSWActor* actor)
             continue;
         }
 
-        if (!SpriteOverlap(SpriteNum, short(pp->SpriteP - sprite)))
+        if (!SpriteOverlap(actor->GetSpriteIndex(), pp->Actor()->GetSpriteIndex()))
         {
             continue;
         }

@@ -4646,7 +4646,7 @@ DoFireballFlames(DSWActor* actor)
     if (u->Counter2 > 9)
     {
         u->Counter2 = 0;
-        DoFlamesDamageTest(SpriteNum);
+        DoFlamesDamageTest(actor);
     }
 
     return 0;
@@ -4727,7 +4727,7 @@ DoBreakFlames(DSWActor* actor)
     if (u->Counter2 > 9)
     {
         u->Counter2 = 0;
-        DoFlamesDamageTest(SpriteNum);
+        DoFlamesDamageTest(actor);
     }
 
     return 0;
@@ -7205,7 +7205,6 @@ DoDamage(short SpriteNum, short Weapon)
     return 0;
 }
 
-#if 1
 // Select death text based on ID
 const char *DeathString(short SpriteNum)
 {
@@ -7307,13 +7306,10 @@ const char *DeathString(short SpriteNum)
     }
     return "";
 }
-#endif
 
-int
-DoDamageTest(DSWActor* actor)
+int DoDamageTest(DSWActor* actor)
 {
     auto wu = actor->u();
-	int Weapon = wu->SpriteNum;
     SPRITEp wp = &actor->s();
 
     USERp u;
@@ -7325,18 +7321,18 @@ DoDamageTest(DSWActor* actor)
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
-        StatIterator it(StatDamageList[stat]);
-        while ((i = it.NextIndex()) >= 0)
+        SWStatIterator it(StatDamageList[stat]);
+        while (auto itActor = it.Next())
         {
-            sp = &sprite[i];
-            u = User[i].Data();
+            sp = &itActor->s();
+            u = itActor->u();
 
 
             DISTANCE(sp->x, sp->y, wp->x, wp->y, dist, tx, ty, tmin);
             if ((unsigned)dist > wu->Radius + u->Radius)
                 continue;
 
-            if (sp == wp)
+            if (actor == itActor)
                 continue;
 
             if (!TEST(sp->cstat, CSTAT_SPRITE_BLOCK))
@@ -7350,9 +7346,9 @@ DoDamageTest(DSWActor* actor)
                     continue;
             }
 
-            if (wp->owner != i && SpriteOverlap(Weapon, i))
+            if (GetOwner(actor) != itActor && SpriteOverlap(actor->GetSpriteIndex(), itActor->GetSpriteIndex()))
             {
-                DoDamage(i, Weapon);
+                DoDamage(itActor->GetSpriteIndex(), actor->GetSpriteIndex());
             }
         }
     }
@@ -7380,11 +7376,10 @@ static void DoHitscanDamage(DSWActor* weaponActor, DSWActor* hitActor)
     }
 }
 
-int
-DoFlamesDamageTest(short Weapon)
+int DoFlamesDamageTest(DSWActor* actor)
 {
-    SPRITEp wp = &sprite[Weapon];
-    USERp wu = User[Weapon].Data();
+    SPRITEp wp = &actor->s();
+    USERp wu = actor->u();
 
     USERp u;
     SPRITEp sp;
@@ -7395,11 +7390,11 @@ DoFlamesDamageTest(short Weapon)
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
-        StatIterator it(StatDamageList[stat]);
-        while ((i = it.NextIndex()) >= 0)
+        SWStatIterator it(StatDamageList[stat]);
+        while (auto itActor = it.Next())
         {
-            sp = &sprite[i];
-            u = User[i].Data();
+            sp = &itActor->s();
+            u = itActor->u();
 
             switch (u->ID)
             {
@@ -7414,13 +7409,10 @@ DoFlamesDamageTest(short Weapon)
 
             DISTANCE(sp->x, sp->y, wp->x, wp->y, dist, tx, ty, tmin);
 
-//          //DSPRINTF(ds,"radius = %ld, distance = %ld",wu->Radius+u->Radius,dist);
-//          MONO_PRINT(ds);
-
             if ((unsigned)dist > wu->Radius + u->Radius)
                 continue;
 
-            if (sp == wp)
+            if (actor == itActor)
                 continue;
 
             if (!TEST(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN))
@@ -7433,12 +7425,12 @@ DoFlamesDamageTest(short Weapon)
             {
                 if (FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,wp->x,wp->y,SPRITEp_MID(wp),wp->sectnum))
                 {
-                    DoDamage(i, Weapon);
+                    DoDamage(itActor->GetSpriteIndex(), actor->GetSpriteIndex());
                 }
             }
-            else if (SpriteOverlap(Weapon, i))
+            else if (SpriteOverlap(actor->GetSpriteIndex(), itActor->GetSpriteIndex()))
             {
-                DoDamage(i, Weapon);
+                DoDamage(itActor->GetSpriteIndex(), actor->GetSpriteIndex());
             }
 
         }
