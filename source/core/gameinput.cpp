@@ -450,6 +450,18 @@ void PlayerAngle::applyinput(float const avel, ESyncBits* actions, double const 
 //
 //---------------------------------------------------------------------------
 
+enum
+{
+	// Values used by Duke/SW, where this function originated from.
+	DEFSINSHIFT = 5,
+	DEFVIEWPITCH = 160,
+
+	// Values used by Blood since it calculates differently to Duke/SW.
+	BLOODSINSHIFT = 8,
+	SINSHIFTDELTA = BLOODSINSHIFT - DEFSINSHIFT,
+	BLOODVIEWPITCH = (0x4000 >> SINSHIFTDELTA) - (DEFVIEWPITCH << (SINSHIFTDELTA - 1)), // 1408.
+};
+
 void PlayerHorizon::calcviewpitch(vec2_t const pos, binangle const ang, bool const aimmode, bool const canslopetilt, int const cursectnum, double const scaleAdjust, bool const climbing)
 {
 	if (cl_slopetilting)
@@ -457,7 +469,7 @@ void PlayerHorizon::calcviewpitch(vec2_t const pos, binangle const ang, bool con
 		if (aimmode && canslopetilt) // If the floor is sloped
 		{
 			// Get a point, 512 (64 for Blood) units ahead of player's position
-			int const shift = -(isBlood() ? 8 : 5);
+			int const shift = -(isBlood() ? BLOODSINSHIFT : DEFSINSHIFT);
 			int const x = pos.x + ang.bcos(shift);
 			int const y = pos.y + ang.bsin(shift);
 			int16_t tempsect = cursectnum;
@@ -477,7 +489,7 @@ void PlayerHorizon::calcviewpitch(vec2_t const pos, binangle const ang, bool con
 				// accordingly
 				if (cursectnum == tempsect || (!isBlood() && abs(getflorzofslope(tempsect, x, y) - k) <= (4 << 8)))
 				{
-					horizoff += q16horiz(xs_CRoundToInt(scaleAdjust * ((j - k) * (!isBlood() ? 160 : 1408))));
+					horizoff += q16horiz(xs_CRoundToInt(scaleAdjust * ((j - k) * (!isBlood() ? DEFVIEWPITCH : BLOODVIEWPITCH))));
 				}
 			}
 		}
