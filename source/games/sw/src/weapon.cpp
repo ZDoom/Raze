@@ -7738,10 +7738,13 @@ int
 DoStar(DSWActor* actor)
 {
     USER* u = actor->u();
-    int Weapon = u->SpriteNum;
-    SPRITEp sp = &sprite[Weapon];
+    SPRITEp sp = &actor->s();
     USERp su;
     int vel;
+
+    const int STAR_STICK_RNUM = 400;
+    const int STAR_BOUNCE_RNUM = 600;
+
 
     if (TEST(u->Flags, SPR_UNDERWATER))
     {
@@ -7779,28 +7782,25 @@ DoStar(DSWActor* actor)
         }
     }
 
-    SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
+    SetCollision(u, move_missile(actor->GetSpriteIndex(), u->xchange, u->ychange, u->zchange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     MissileHitDiveArea(actor);
-    //DoDamageTest(Weapon);
 
-    if (u->ret && !TEST(u->Flags, SPR_UNDERWATER))
+    if (u->coll.type != kHitNone && !TEST(u->Flags, SPR_UNDERWATER))
     {
-        switch (TEST(u->ret, HIT_MASK))
+        switch (u->coll.type)
         {
-        case HIT_PLAX_WALL:
+        default:
             break;
 
-        case HIT_WALL:
+        case kHitWall:
         {
             short hit_wall,nw,wall_ang;
             WALLp wph;
 
-            hit_wall = NORM_WALL(u->ret);
+            hit_wall = u->coll.index;
             wph = &wall[hit_wall];
 
-#define STAR_STICK_RNUM 400
-#define STAR_BOUNCE_RNUM 600
 
             if (wph->lotag == TAG_WALL_BREAK)
             {
@@ -7822,8 +7822,6 @@ DoStar(DSWActor* actor)
                 sp->xrepeat -= 16;
                 sp->yrepeat -= 16;
                 RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-                //RESET(sp->cstat, CSTAT_SPRITE_BLOCK_HITSCAN);
-                //SET(sp->cstat, CSTAT_SPRITE_BLOCK);
                 sp->clipdist = 16L >> 2;
                 u->ceiling_dist = Z(2);
                 u->floor_dist = Z(2);
@@ -7847,10 +7845,10 @@ DoStar(DSWActor* actor)
             break;
         }
 
-        case HIT_SECTOR:
+        case kHitSector:
         {
             bool did_hit_wall;
-            short hit_sect = NORM_SECTOR(u->ret);
+            short hit_sect = u->coll.index;
 
             if (sp->z > DIV2(u->hiz + u->loz))
             {
@@ -7934,20 +7932,19 @@ DoStar(DSWActor* actor)
         }
     }
 
-    if (u->ret)
+    if (u->coll.type != kHitNone)
     {
-        short hit_sprite = NORM_SPRITE(u->ret);
-        if (hit_sprite != -1)
+        if (u->coll.type == kHitSprite && u->coll.actor->hasU())
         {
-            su = User[hit_sprite].Data();
-            if (su && (su->ID == TRASHCAN || su->ID == ZILLA_RUN_R0))   // JBF: added null test
-                PlaySound(DIGI_STARCLINK, sp, v3df_none);
+            su = u->coll.actor->u();
+            if (su->ID == TRASHCAN || su->ID == ZILLA_RUN_R0)
+                PlaySound(DIGI_STARCLINK, actor, v3df_none);
         }
 
-        if (TEST(u->ret, HIT_MASK) != HIT_SPRITE) // Don't clank on sprites
-            PlaySound(DIGI_STARCLINK, sp, v3df_none);
+        if (u->coll.type != kHitSprite) // Don't clank on sprites
+            PlaySound(DIGI_STARCLINK, actor, v3df_none);
 
-        if (WeaponMoveHit(Weapon))
+        if (WeaponMoveHit(actor->GetSpriteIndex()))
         {
             KillActor(actor);
             return true;
@@ -7959,23 +7956,19 @@ DoStar(DSWActor* actor)
 
 }
 
-int
-DoCrossBolt(DSWActor* actor)
+int DoCrossBolt(DSWActor* actor)
 {
     USER* u = actor->u();
-    int Weapon = u->SpriteNum;
-
-    ASSERT(Weapon >= 0);
-
+    
     DoBlurExtend(actor, 0, 2);
 
-    SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange, Z(16), Z(16), CLIPMASK_MISSILE, MISSILEMOVETICS));
+    SetCollision(u, move_missile(actor->GetSpriteIndex(), u->xchange, u->ychange, u->zchange, Z(16), Z(16), CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     MissileHitDiveArea(actor);
 
     if (u->ret)
     {
-        if (WeaponMoveHit(Weapon))
+        if (WeaponMoveHit(actor->GetSpriteIndex()))
         {
             switch (TEST(u->ret, HIT_MASK))
             {
@@ -7996,12 +7989,10 @@ DoCrossBolt(DSWActor* actor)
 }
 
 
-int
-DoPlasmaDone(DSWActor* actor)
+int DoPlasmaDone(DSWActor* actor)
 {
     USER* u = actor->u();
-    int Weapon = u->SpriteNum;
-    SPRITEp sp = &sprite[Weapon];
+    SPRITEp sp = &actor->s();
 
     sp->xrepeat += u->Counter;
     sp->yrepeat -= 4;
