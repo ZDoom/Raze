@@ -67,7 +67,7 @@ bool TestVatorMatchActive(short match);
 bool TestSpikeMatchActive(short match);
 bool TestRotatorMatchActive(short match);
 bool TestSlidorMatchActive(short match);
-int PlayerCheckDeath(PLAYERp, short);
+int PlayerCheckDeath(PLAYERp, DSWActor*);
 void DoVatorOperate(PLAYERp, short);
 void DoVatorMatch(PLAYERp pp, short match);
 void DoRotatorOperate(PLAYERp, short);
@@ -2131,7 +2131,7 @@ short PlayerTakeSectorDamage(PLAYERp pp)
         u->DamageTics = DAMAGE_TIME;
 
         PlayerUpdateHealth(pp, -sectu->damage);
-        PlayerCheckDeath(pp, -1);
+        PlayerCheckDeath(pp, nullptr);
     }
     return 0;
 }

@@ -1417,7 +1417,7 @@ void DoPlayerWarpTeleporter(PLAYERp pp)
                 {
                     PlayerUpdateHealth(npp, -npp->Actor()->u()->Health);  // Make sure he dies!
                     // telefraged by teleporting player
-                    PlayerCheckDeath(npp, pp->PlayerSprite);
+                    PlayerCheckDeath(npp, pp->Actor());
                 }
             }
         }
@@ -1940,7 +1940,7 @@ void DoPlayerSlide(PLAYERp pp)
         if (!TEST(pp->Flags, PF_DEAD))
         {
             PlayerUpdateHealth(pp, -u->Health);  // Make sure he dies!
-            PlayerCheckDeath(pp, -1);
+            PlayerCheckDeath(pp, nullptr);
 
             if (TEST(pp->Flags, PF_DEAD))
                 return;
@@ -1955,7 +1955,7 @@ void DoPlayerSlide(PLAYERp pp)
         if (!TEST(pp->Flags, PF_DEAD))
         {
             PlayerUpdateHealth(pp, -u->Health);  // Make sure he dies!
-            PlayerCheckDeath(pp, -1);
+            PlayerCheckDeath(pp, nullptr);
 
             if (TEST(pp->Flags, PF_DEAD))
                 return;
@@ -2104,7 +2104,7 @@ void DoPlayerMove(PLAYERp pp)
             if (!TEST(pp->Flags, PF_DEAD))
             {
                 PlayerUpdateHealth(pp, -u->Health);  // Make sure he dies!
-                PlayerCheckDeath(pp, -1);
+                PlayerCheckDeath(pp, nullptr);
 
                 if (TEST(pp->Flags, PF_DEAD))
                     return;
@@ -2131,7 +2131,7 @@ void DoPlayerMove(PLAYERp pp)
             if (!TEST(pp->Flags, PF_DEAD))
             {
                 PlayerUpdateHealth(pp, -u->Health);  // Make sure he dies!
-                PlayerCheckDeath(pp, -1);
+                PlayerCheckDeath(pp, nullptr);
 
                 if (TEST(pp->Flags, PF_DEAD))
                     return;
@@ -2520,8 +2520,7 @@ void DriveCrush(PLAYERp pp, int *x, int *y)
             damage = -(u->Health + 100);
             PlayerDamageSlide(u->PlayerP, damage, pp->angle.ang.asbuild());
             PlayerUpdateHealth(u->PlayerP, damage);
-            //PlayerCheckDeath(u->PlayerP, -1);
-            PlayerCheckDeath(u->PlayerP, pp->PlayerSprite);
+            PlayerCheckDeath(u->PlayerP, pp->Actor());
         }
     }
 
@@ -3130,7 +3129,7 @@ void DoPlayerFall(PLAYERp pp)
                     u->Health = 0;
                 }
 
-                PlayerCheckDeath(pp, -1);
+                PlayerCheckDeath(pp, nullptr);
 
                 if (TEST(pp->Flags, PF_DEAD))
                     return;
@@ -4466,7 +4465,7 @@ void DoPlayerDive(PLAYERp pp)
             //PlayerUpdateHealth(pp, PLAYER_DIVE_DAMAGE_AMOUNT);
             PlayerSound(DIGI_WANGDROWNING, v3df_dontpan|v3df_follow, pp);
             PlayerUpdateHealth(pp, -3 -(RandomRange(7<<8)>>8));
-            PlayerCheckDeath(pp, -1);
+            PlayerCheckDeath(pp, nullptr);
             if (TEST(pp->Flags, PF_DEAD))
                 return;
         }
@@ -4634,7 +4633,7 @@ int DoPlayerTestPlaxDeath(PLAYERp pp)
     if (pp->lo_sectp && TEST(pp->lo_sectp->floorstat, FLOOR_STAT_PLAX))
     {
         PlayerUpdateHealth(pp, -u->Health);
-        PlayerCheckDeath(pp, -1);
+        PlayerCheckDeath(pp, nullptr);
         return true;
     }
 
@@ -4661,7 +4660,7 @@ void DoPlayerCurrent(PLAYERp pp)
             USERp u = pp->Actor()->u();
 
             PlayerUpdateHealth(pp, -u->Health);  // Make sure he dies!
-            PlayerCheckDeath(pp, -1);
+            PlayerCheckDeath(pp, nullptr);
 
             if (TEST(pp->Flags, PF_DEAD))
                 return;
@@ -4678,7 +4677,7 @@ void DoPlayerCurrent(PLAYERp pp)
             USERp u = pp->Actor()->u();
 
             PlayerUpdateHealth(pp, -u->Health);  // Make sure he dies!
-            PlayerCheckDeath(pp, -1);
+            PlayerCheckDeath(pp, nullptr);
 
             if (TEST(pp->Flags, PF_DEAD))
                 return;
@@ -5428,7 +5427,7 @@ char *KilledPlayerMessage(PLAYERp pp, PLAYERp killer)
     const char *p1 = pp->PlayerName;
     const char *p2 = killer->PlayerName;
 
-    if (pp->HitBy == killer->PlayerSprite)
+    if (pp->HitBy == killer->Actor())
     {
         sprintf(ds,"%s was killed by %s.",p1,p2);
         return ds;
@@ -6670,7 +6669,7 @@ void PlayerGlobal(PLAYERp pp)
                     ////DSPRINTF(ds,"Squish diff %d, min %d, cz %d, fz %d, lo %d, hi %d",labs(pp->loz - pp->hiz)>>8,min_height>>8, pp->ceiling_dist>>8, pp->floor_dist>>8,pp->lo_sectp-sector,pp->hi_sectp-sector);
                     //MONO_PRINT(ds);
                     PlayerUpdateHealth(pp, -pp->Actor()->u()->Health);  // Make sure he dies!
-                    PlayerCheckDeath(pp, -1);
+                    PlayerCheckDeath(pp, nullptr);
 
                     if (TEST(pp->Flags, PF_DEAD))
                         return;

@@ -745,6 +745,7 @@ struct PLAYERstruct
     DSWActor* remoteActor;
     DSWActor* PlayerUnderActor;
     DSWActor* KillerActor;  //who killed me
+    DSWActor* HitBy;                    // SpriteNum of whatever player was last hit by
 
     // interpolation
     int oposx, oposy, oposz;
@@ -910,7 +911,6 @@ struct PLAYERstruct
     bool NukeInitialized;           // Nuke already has counted down
     short FistAng;                  // KungFu attack angle
     uint8_t WpnKungFuMove;             // KungFu special moves
-    short HitBy;                    // SpriteNum of whatever player was last hit by
     short Reverb;                   // Player's current reverb setting
     short Heads;                    // Number of Accursed Heads orbiting player
     int PlayerVersion;

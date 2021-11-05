@@ -92,7 +92,7 @@ bool MissileSetPos(DSWActor*,ANIMATORp DoWeapon,int dist);
 int ActorPain(short SpriteNum);
 int SpawnBreakFlames(DSWActor*);
 bool PlayerTakeDamage(PLAYERp pp, DSWActor* weapActor);
-const char *DeathString(short SpriteNum);
+const char *DeathString(DSWActor*);
 
 //
 // Damage Amounts defined in damage.h
@@ -233,7 +233,7 @@ void SpriteQueueDelete(DSWActor* actor);
 int HelpMissileLateral(DSWActor*, int dist);
 void AddSpriteToSectorObject(DSWActor*,SECTOR_OBJECTp sop);
 void QueueReset(void);
-int PlayerCheckDeath(PLAYERp pp,short Weapon);
+int PlayerCheckDeath(PLAYERp pp,DSWActor*);
 bool SpriteWarpToUnderwater(DSWActor* actor);
 int PlayerDamageSlide(PLAYERp pp,int damage,short ang);
 bool VehicleMoveHit(DSWActor*);

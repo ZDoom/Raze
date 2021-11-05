@@ -5507,15 +5507,14 @@ RadiusGetDamage(short SpriteNum, short Weapon, int max_damage)
 }
 
 
-int
-PlayerCheckDeath(PLAYERp pp, short Weapon)
+int PlayerCheckDeath(PLAYERp pp, DSWActor* weapActor)
 {
     SPRITEp sp = &pp->Actor()->s();
     USERp u = pp->Actor()->u();
 
 
     // Store off what player was struck by
-    pp->HitBy = Weapon;
+    pp->HitBy = weapActor;
 
     if (u->Health <= 0 && !TEST(pp->Flags, PF_DEAD))
     {
@@ -5528,24 +5527,23 @@ PlayerCheckDeath(PLAYERp pp, short Weapon)
         else
             pp->DeathType = PLAYER_DEATH_FLIP;
 
-        if (Weapon < 0)
+        if (weapActor == nullptr)
         {
-            pp->KillerActor = nullptr;;
+            pp->KillerActor = nullptr;
             DoPlayerBeginDie(pp);
             return true;
         }
 
-        auto weapActor = &swActors[Weapon];
         SPRITEp wp = &weapActor->s();
         USERp   wu = weapActor->u();
 
-        if (Weapon > -1 && (wu->ID == RIPPER_RUN_R0 || wu->ID == RIPPER2_RUN_R0))
+        if (weapActor != nullptr && (wu->ID == RIPPER_RUN_R0 || wu->ID == RIPPER2_RUN_R0))
             pp->DeathType = PLAYER_DEATH_RIPPER;
 
-        if (Weapon > -1 && wu->ID == CALTROPS)
+        if (weapActor != nullptr && wu->ID == CALTROPS)
             pp->DeathType = PLAYER_DEATH_FLIP;
 
-        if (Weapon > -1 && wu->ID == NINJA_RUN_R0 && wu->PlayerP)
+        if (weapActor != nullptr && wu->ID == NINJA_RUN_R0 && wu->PlayerP)
         {
             pp->DeathType = PLAYER_DEATH_FLIP;
             wu->PlayerP->Bloody = true;
@@ -5753,7 +5751,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
                 if (PlayerTakeDamage(u->PlayerP, weapActor))
                 {
                     PlayerUpdateHealth(u->PlayerP, damage);
-                    PlayerCheckDeath(u->PlayerP, weapActor->GetSpriteIndex());
+                    PlayerCheckDeath(u->PlayerP, weapActor);
                 }
             }
             else
@@ -5823,7 +5821,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
-                PlayerCheckDeath(u->PlayerP, Weapon);
+                PlayerCheckDeath(u->PlayerP, weapActor);
             }
             if (u->PlayerP->Armor)
                 PlaySound(DIGI_ARMORHIT,u->PlayerP,v3df_dontpan|v3df_follow|v3df_doppler);
@@ -5857,7 +5855,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
-                PlayerCheckDeath(u->PlayerP, Weapon);
+                PlayerCheckDeath(u->PlayerP, weapActor);
             }
         }
         else
@@ -5887,7 +5885,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
-                PlayerCheckDeath(u->PlayerP, Weapon);
+                PlayerCheckDeath(u->PlayerP, weapActor);
             }
         }
         else
@@ -5917,7 +5915,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
-                PlayerCheckDeath(u->PlayerP, Weapon);
+                PlayerCheckDeath(u->PlayerP, weapActor);
             }
         }
         else
@@ -5947,7 +5945,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
-                if (PlayerCheckDeath(u->PlayerP, Weapon))
+                if (PlayerCheckDeath(u->PlayerP, weapActor))
                 {
                     PlaySound(DIGI_RIPPERHEARTOUT,u->PlayerP,v3df_dontpan|v3df_doppler);
 
@@ -5981,7 +5979,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
-                if (PlayerCheckDeath(u->PlayerP, Weapon))
+                if (PlayerCheckDeath(u->PlayerP, weapActor))
                 {
                     PlaySound(DIGI_RIPPERHEARTOUT,u->PlayerP,v3df_dontpan|v3df_doppler);
 
@@ -6016,7 +6014,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
-                if (PlayerCheckDeath(u->PlayerP, Weapon))
+                if (PlayerCheckDeath(u->PlayerP, weapActor))
                 {
                     DoBunnyRipHeart(weapActor);
                 }
@@ -6047,7 +6045,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
-                PlayerCheckDeath(u->PlayerP, Weapon);
+                PlayerCheckDeath(u->PlayerP, weapActor);
             }
         }
         else
@@ -6087,7 +6085,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
                 if (PlayerTakeDamage(u->PlayerP, weapActor))
                 {
                     PlayerUpdateHealth(u->PlayerP, damage);
-                    PlayerCheckDeath(u->PlayerP, Weapon);
+                    PlayerCheckDeath(u->PlayerP, weapActor);
                 }
             }
         }
@@ -6124,7 +6122,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
-                PlayerCheckDeath(u->PlayerP, Weapon);
+                PlayerCheckDeath(u->PlayerP, weapActor);
             }
             if (u->PlayerP->Armor)
                 PlaySound(DIGI_ARMORHIT,u->PlayerP,v3df_dontpan|v3df_follow|v3df_doppler);
@@ -6158,7 +6156,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
-                PlayerCheckDeath(u->PlayerP, Weapon);
+                PlayerCheckDeath(u->PlayerP, weapActor);
             }
             if (u->PlayerP->Armor)
                 PlaySound(DIGI_ARMORHIT,u->PlayerP,v3df_dontpan|v3df_follow|v3df_doppler);
@@ -6191,7 +6189,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
-                PlayerCheckDeath(u->PlayerP, Weapon);
+                PlayerCheckDeath(u->PlayerP, weapActor);
             }
         }
         else
@@ -6222,7 +6220,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
-                PlayerCheckDeath(u->PlayerP, Weapon);
+                PlayerCheckDeath(u->PlayerP, weapActor);
             }
         }
         else
@@ -6258,7 +6256,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
-                PlayerCheckDeath(u->PlayerP, Weapon);
+                PlayerCheckDeath(u->PlayerP, weapActor);
             }
             if (u->PlayerP->Armor)
                 PlaySound(DIGI_ARMORHIT,u->PlayerP,v3df_dontpan|v3df_follow|v3df_doppler);
@@ -6307,7 +6305,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
-                PlayerCheckDeath(u->PlayerP, Weapon);
+                PlayerCheckDeath(u->PlayerP, weapActor);
             }
             if (u->PlayerP->Armor)
                 PlaySound(DIGI_ARMORHIT,u->PlayerP,v3df_dontpan|v3df_follow|v3df_doppler);
@@ -6356,7 +6354,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
-                PlayerCheckDeath(u->PlayerP, Weapon);
+                PlayerCheckDeath(u->PlayerP, weapActor);
             }
         }
         else
@@ -6383,7 +6381,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
-                PlayerCheckDeath(u->PlayerP, Weapon);
+                PlayerCheckDeath(u->PlayerP, weapActor);
             }
         }
         else
@@ -6408,7 +6406,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
-                PlayerCheckDeath(u->PlayerP, Weapon);
+                PlayerCheckDeath(u->PlayerP, weapActor);
             }
         }
         else
@@ -6442,7 +6440,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
-                PlayerCheckDeath(u->PlayerP, Weapon);
+                PlayerCheckDeath(u->PlayerP, weapActor);
             }
             if (u->PlayerP->Armor)
                 PlaySound(DIGI_ARMORHIT,u->PlayerP,v3df_dontpan|v3df_follow|v3df_doppler);
@@ -6482,7 +6480,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
-                PlayerCheckDeath(u->PlayerP, Weapon);
+                PlayerCheckDeath(u->PlayerP, weapActor);
             }
         }
         else
@@ -6512,7 +6510,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
-                PlayerCheckDeath(u->PlayerP, Weapon);
+                PlayerCheckDeath(u->PlayerP, weapActor);
             }
         }
         else
@@ -6545,7 +6543,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
-                PlayerCheckDeath(u->PlayerP, Weapon);
+                PlayerCheckDeath(u->PlayerP, weapActor);
             }
         }
         else
@@ -6576,7 +6574,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
-                PlayerCheckDeath(u->PlayerP, Weapon);
+                PlayerCheckDeath(u->PlayerP, weapActor);
             }
         }
         else
@@ -6607,7 +6605,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
-                if (PlayerCheckDeath(u->PlayerP, Weapon))
+                if (PlayerCheckDeath(u->PlayerP, weapActor))
                 {
                     // degrade blood worm life
                     wu->Counter3 += (4*120)/MISSILEMOVETICS;
@@ -6644,7 +6642,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
-                PlayerCheckDeath(u->PlayerP, Weapon);
+                PlayerCheckDeath(u->PlayerP, weapActor);
             }
         }
         else
@@ -6681,7 +6679,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
-                PlayerCheckDeath(u->PlayerP, Weapon);
+                PlayerCheckDeath(u->PlayerP, weapActor);
             }
         }
         else
@@ -6717,7 +6715,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
-                PlayerCheckDeath(u->PlayerP, Weapon);
+                PlayerCheckDeath(u->PlayerP, weapActor);
             }
         }
         else
@@ -6750,7 +6748,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
-                PlayerCheckDeath(u->PlayerP, Weapon);
+                PlayerCheckDeath(u->PlayerP, weapActor);
             }
         }
         else
@@ -6789,7 +6787,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
-                PlayerCheckDeath(u->PlayerP, Weapon);
+                PlayerCheckDeath(u->PlayerP, weapActor);
             }
         }
         else
@@ -6828,7 +6826,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
-                PlayerCheckDeath(u->PlayerP, Weapon);
+                PlayerCheckDeath(u->PlayerP, weapActor);
             }
         }
         else
@@ -6856,7 +6854,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
-                PlayerCheckDeath(u->PlayerP, Weapon);
+                PlayerCheckDeath(u->PlayerP, weapActor);
             }
         }
         else
@@ -6881,7 +6879,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
-                PlayerCheckDeath(u->PlayerP, Weapon);
+                PlayerCheckDeath(u->PlayerP, weapActor);
             }
         }
         else
@@ -6915,7 +6913,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
-                PlayerCheckDeath(u->PlayerP, Weapon);
+                PlayerCheckDeath(u->PlayerP, weapActor);
             }
         }
         else
@@ -6946,7 +6944,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
-                PlayerCheckDeath(u->PlayerP, Weapon);
+                PlayerCheckDeath(u->PlayerP, weapActor);
             }
         }
         else
@@ -6979,7 +6977,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
-                PlayerCheckDeath(u->PlayerP, Weapon);
+                PlayerCheckDeath(u->PlayerP, weapActor);
             }
             if (u->PlayerP->Armor)
                 PlaySound(DIGI_ARMORHIT,u->PlayerP,v3df_dontpan|v3df_follow|v3df_doppler);
@@ -7010,7 +7008,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             if (PlayerTakeDamage(u->PlayerP, weapActor))
             {
                 PlayerUpdateHealth(u->PlayerP, damage);
-                PlayerCheckDeath(u->PlayerP, Weapon);
+                PlayerCheckDeath(u->PlayerP, weapActor);
             }
         }
         else
@@ -7037,7 +7035,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
 
                 PlayerSound(DIGI_GASHURT, v3df_dontpan|v3df_follow|v3df_doppler,pp);
                 PlayerUpdateHealth(u->PlayerP, damage-1000);
-                PlayerCheckDeath(u->PlayerP, Weapon);
+                PlayerCheckDeath(u->PlayerP, weapActor);
             }
         }
         else
@@ -7063,7 +7061,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         else if (u->PlayerP)
         {
             //PlayerUpdateHealth(u->PlayerP, damage);
-            //PlayerCheckDeath(u->PlayerP, Weapon);
+            //PlayerCheckDeath(u->PlayerP, weapActor);
         }
         else
         {
@@ -7105,7 +7103,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
                 if (RANDOM_P2(1024<<4)>>4 < 800)
                     PlayerSound(DIGI_STEPONCALTROPS, v3df_follow|v3df_dontpan, u->PlayerP);
                 PlayerUpdateHealth(u->PlayerP, damage);
-                PlayerCheckDeath(u->PlayerP, Weapon);
+                PlayerCheckDeath(u->PlayerP, weapActor);
             }
         }
         else
@@ -7172,9 +7170,10 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
 }
 
 // Select death text based on ID
-const char *DeathString(short SpriteNum)
+const char *DeathString(DSWActor* actor)
 {
-    USERp ku = User[SpriteNum].Data();
+    if (!actor->hasU()) return " ";
+    USERp ku = actor->u();
 
     switch (ku->ID)
     {
@@ -12985,7 +12984,7 @@ int InitFistAttack(PLAYERp pp)
                     if (PlayerTakeDamage(pp, nullptr))
                     {
                         PlayerUpdateHealth(pp, -(RandomRange(2<<8)>>8));
-                        PlayerCheckDeath(pp, -1);
+                        PlayerCheckDeath(pp, nullptr);
                     }
                 }
             }
