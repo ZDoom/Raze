@@ -5300,23 +5300,22 @@ ActorPainPlasma(short SpriteNum)
     return false;
 }
 
-int
-ActorStdMissile(short SpriteNum, short Weapon)
+int ActorStdMissile(DSWActor* actor, DSWActor* weapActor)
 {
-    SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
-    SPRITEp wp = &sprite[Weapon];
-    USERp wu = User[Weapon].Data();
-
-    ASSERT(Weapon >= 0);
-
+    assert(weapActor != nullptr);
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
+    SPRITEp wp = &weapActor->s();
+    USERp wu = weapActor->u();
+       
     // Attack the player that is attacking you
     // Only if hes still alive
-    if (wp->owner >= 0)
+    auto own = GetOwner(weapActor);
+    if (own && own->hasU())
     {
-        if (User[wp->owner]->PlayerP && sp->owner != wp->owner)
+        if (own->u()->PlayerP && GetOwner(actor) != own)
         {
-            u->targetActor = &swActors[wp->owner];
+            u->targetActor = own;
         }
     }
 
@@ -5332,10 +5331,9 @@ ActorStdMissile(short SpriteNum, short Weapon)
 
     return 0;
 }
-int
-ActorDamageSlide(int SpriteNum, int damage, int ang)
+
+int ActorDamageSlide(DSWActor* actor, int damage, int ang)
 {
-    auto actor = &swActors[SpriteNum];
     USERp u = actor->u();
     int slide_vel,slide_dec;
 
@@ -6120,8 +6118,8 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             MONO_PRINT("Star Hit Actor");
             ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
-            ActorStdMissile(SpriteNum, Weapon);
-            ActorDamageSlide(SpriteNum, damage, wp->ang);
+            ActorStdMissile(actor, weapActor);
+            ActorDamageSlide(actor, damage, wp->ang);
             ActorChooseDeath(actor, weapActor);
         }
 
@@ -6153,8 +6151,8 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         {
             ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
-            ActorStdMissile(SpriteNum, Weapon);
-            ActorDamageSlide(SpriteNum, damage, wp->ang);
+            ActorStdMissile(actor, weapActor);
+            ActorDamageSlide(actor, damage, wp->ang);
             ActorChooseDeath(actor, weapActor);
         }
 
@@ -6184,8 +6182,8 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         {
             ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
-            ActorStdMissile(SpriteNum, Weapon);
-            ActorDamageSlide(SpriteNum, damage, wp->ang);
+            ActorStdMissile(actor, weapActor);
+            ActorDamageSlide(actor, damage, wp->ang);
             ActorChooseDeath(actor, weapActor);
         }
 
@@ -6215,8 +6213,8 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         {
             ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
-            ActorStdMissile(SpriteNum, Weapon);
-            ActorDamageSlide(SpriteNum, damage, wp->ang);
+            ActorStdMissile(actor, weapActor);
+            ActorDamageSlide(actor, damage, wp->ang);
             ActorChooseDeath(actor, weapActor);
         }
 
@@ -6253,8 +6251,8 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         {
             ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
-            ActorStdMissile(SpriteNum, Weapon);
-            ActorDamageSlide(SpriteNum, damage, wp->ang);
+            ActorStdMissile(actor, weapActor);
+            ActorDamageSlide(actor, damage, wp->ang);
             ActorChooseDeath(actor, weapActor);
             switch (u->ID)
             {
@@ -6302,8 +6300,8 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         {
             ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
-            ActorStdMissile(SpriteNum, Weapon);
-            ActorDamageSlide(SpriteNum, damage, wp->ang);
+            ActorStdMissile(actor, weapActor);
+            ActorDamageSlide(actor, damage, wp->ang);
             ActorChooseDeath(actor, weapActor);
         }
 
@@ -6349,7 +6347,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         {
             ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
-            ActorStdMissile(SpriteNum, Weapon);
+            ActorStdMissile(actor, weapActor);
         }
 
         SetSuicide(weapActor);
@@ -6376,7 +6374,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         {
             ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
-            ActorStdMissile(SpriteNum, Weapon);
+            ActorStdMissile(actor, weapActor);
         }
 
         SetSuicide(weapActor);
@@ -6401,7 +6399,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         {
             ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
-            ActorStdMissile(SpriteNum, Weapon);
+            ActorStdMissile(actor, weapActor);
         }
 
         if (wu->Radius == NUKE_RADIUS)
@@ -6446,8 +6444,8 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
 
             ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
-            ActorStdMissile(SpriteNum, Weapon);
-            ActorDamageSlide(SpriteNum, damage>>1, wp->ang);
+            ActorStdMissile(actor, weapActor);
+            ActorDamageSlide(actor, damage>>1, wp->ang);
             ActorChooseDeath(actor, weapActor);
         }
 
@@ -6475,7 +6473,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         {
             ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
-            ActorStdMissile(SpriteNum, Weapon);
+            ActorStdMissile(actor, weapActor);
         }
 
         if (wu->Radius == NUKE_RADIUS)
@@ -6505,7 +6503,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         {
             ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
-            ActorDamageSlide(SpriteNum, damage, ANG2SPRITE(sp, wp));
+            ActorDamageSlide(actor, damage, ANG2SPRITE(sp, wp));
             ActorChooseDeath(actor, weapActor);
         }
 
@@ -6538,7 +6536,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         {
             ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
-            ActorDamageSlide(SpriteNum, damage, ANG2SPRITE(sp, wp));
+            ActorDamageSlide(actor, damage, ANG2SPRITE(sp, wp));
             ActorChooseDeath(actor, weapActor);
         }
 
@@ -6569,7 +6567,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         {
             ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
-            ActorDamageSlide(SpriteNum, damage, ANG2SPRITE(sp, wp));
+            ActorDamageSlide(actor, damage, ANG2SPRITE(sp, wp));
             ActorChooseDeath(actor, weapActor);
         }
 
@@ -6604,7 +6602,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         {
             ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
-            ActorDamageSlide(SpriteNum, damage, ANG2SPRITE(sp, wp));
+            ActorDamageSlide(actor, damage, ANG2SPRITE(sp, wp));
             ActorChooseDeath(actor, weapActor);
         }
 
@@ -6637,7 +6635,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         {
             ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
-            ActorDamageSlide(SpriteNum, damage, ANG2SPRITE(sp, wp));
+            ActorDamageSlide(actor, damage, ANG2SPRITE(sp, wp));
             ActorChooseDeath(actor, weapActor);
         }
 
@@ -6676,7 +6674,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             if (OwnerIs(weapActor, SUMO_RUN_R0)) break;
             ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
-            ActorDamageSlide(SpriteNum, damage, ANG2SPRITE(sp, wp));
+            ActorDamageSlide(actor, damage, ANG2SPRITE(sp, wp));
             ActorChooseDeath(actor, weapActor);
         }
 
@@ -6710,7 +6708,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         {
             ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
-            ActorDamageSlide(SpriteNum, damage, ANG2SPRITE(sp, wp));
+            ActorDamageSlide(actor, damage, ANG2SPRITE(sp, wp));
             ActorChooseDeath(actor, weapActor);
         }
         break;
@@ -6753,7 +6751,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             else
                 ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
-            ActorDamageSlide(SpriteNum, damage, ANG2SPRITE(sp, wp));
+            ActorDamageSlide(actor, damage, ANG2SPRITE(sp, wp));
             ActorChooseDeath(actor, weapActor);
         }
 
@@ -6782,8 +6780,8 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         {
             ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
-            ActorStdMissile(SpriteNum, Weapon);
-            ActorDamageSlide(SpriteNum, damage, wp->ang);
+            ActorStdMissile(actor, weapActor);
+            ActorDamageSlide(actor, damage, wp->ang);
             ActorChooseDeath(actor, weapActor);
         }
 
@@ -6908,7 +6906,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         {
             ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
-            ActorDamageSlide(SpriteNum, damage, ANG2SPRITE(sp, wp));
+            ActorDamageSlide(actor, damage, ANG2SPRITE(sp, wp));
             ActorChooseDeath(actor, weapActor);
         }
 
@@ -6939,8 +6937,8 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         {
             ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
-            ActorStdMissile(SpriteNum, Weapon);
-            ActorDamageSlide(SpriteNum, damage, wp->ang);
+            ActorStdMissile(actor, weapActor);
+            ActorDamageSlide(actor, damage, wp->ang);
             ActorChooseDeath(actor, weapActor);
         }
 
@@ -6974,8 +6972,8 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         {
             ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
-            ActorStdMissile(SpriteNum, Weapon);
-            ActorDamageSlide(SpriteNum, damage, wp->ang);
+            ActorStdMissile(actor, weapActor);
+            ActorDamageSlide(actor, damage, wp->ang);
             ActorChooseDeath(actor, weapActor);
         }
 
@@ -7056,7 +7054,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             if (u->ID == SKULL_R0 || u->ID == BETTY_R0)
             {
                 ActorHealth(SpriteNum, damage);
-                ActorStdMissile(SpriteNum, Weapon);
+                ActorStdMissile(actor, weapActor);
                 ActorChooseDeath(actor, weapActor);
                 SetSuicide(weapActor);
                 break;
@@ -7098,7 +7096,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         {
             ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
-            ActorStdMissile(SpriteNum, Weapon);
+            ActorStdMissile(actor, weapActor);
             ActorChooseDeath(actor, weapActor);
         }
 
@@ -7129,7 +7127,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         else
         {
             ActorHealth(SpriteNum, damage);
-            ActorStdMissile(SpriteNum, Weapon);
+            ActorStdMissile(actor, weapActor);
 #if 0
             if (ActorChooseDeath(SpriteNum, Weapon))
             {
