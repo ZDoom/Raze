@@ -9087,47 +9087,38 @@ DoVulcanBoulder(DSWActor* actor)
     return false;
 }
 
-bool
-OwnerIsPlayer(short Weapon)
+bool OwnerIsPlayer(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon].Data(),uo;
-
-    if (!u || !sp || (unsigned)sp->owner >= (unsigned)MAXSPRITES) return false;
-    uo = User[sp->owner].Data();
-    if (uo && uo->PlayerP) return true;
-
-    return false;
+    auto own = GetOwner(actor);
+    return (own && own->hasU() && own->u()->PlayerP != nullptr);
 }
 
-int
-DoMineRangeTest(short Weapon, short range)
+int DoMineRangeTest(DSWActor* actor, int range)
 {
-    SPRITEp wp = &sprite[Weapon];
+    SPRITEp wp = &actor->s();
 
     USERp u;
     SPRITEp sp;
-    int i;
     unsigned stat;
     int dist, tx, ty;
     int tmin;
     bool ownerisplayer = false;
 
-    ownerisplayer = OwnerIsPlayer(Weapon);
+    ownerisplayer = OwnerIsPlayer(actor);
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
-        StatIterator it(StatDamageList[stat]);
-        while ((i = it.NextIndex()) >= 0)
+        SWStatIterator it(StatDamageList[stat]);
+        while (auto itActor = it.Next())
         {
-            sp = &sprite[i];
-            u = User[i].Data();
+            sp = &itActor->s();
+            u = itActor->u();
 
             DISTANCE(sp->x, sp->y, wp->x, wp->y, dist, tx, ty, tmin);
             if (dist > range)
                 continue;
 
-            if (sp == wp)
+            if (actor == itActor)
                 continue;
 
             if (!TEST(sp->cstat, CSTAT_SPRITE_BLOCK))
@@ -9154,13 +9145,11 @@ DoMineRangeTest(short Weapon, short range)
 }
 
 
-int
-DoMineStuck(DSWActor* actor)
+int DoMineStuck(DSWActor* actor)
 {
     USER* u = actor->u();
-    int Weapon = u->SpriteNum;
     SPRITEp sp = &actor->s();
-#define MINE_DETONATE_STATE 99
+    constexpr int MINE_DETONATE_STATE = 99;
 
     // if no Owner then die
     auto attachActor = u->attachActor;
@@ -9178,7 +9167,8 @@ DoMineStuck(DSWActor* actor)
             u->WaitTics = SEC(1)/2;
         }
 
-        setspritez_old(Weapon, ap->x, ap->y, ap->z - u->sz);
+        vec3_t pos = { ap->x, ap->y, ap->z - u->sz };
+        SetActorZ(actor, &pos);
         sp->z = ap->z - DIV2(SPRITEp_SIZE_Z(ap));
     }
 
@@ -9204,7 +9194,7 @@ DoMineStuck(DSWActor* actor)
     {
         if ((u->Counter2++) > 30)
         {
-            PlaySound(DIGI_MINEBEEP, sp, v3df_dontpan);
+            PlaySound(DIGI_MINEBEEP, actor, v3df_dontpan);
             u->WaitTics = 32767;  // Keep reseting tics to make it stay forever
             u->Counter2 = 0;
         }
@@ -9216,7 +9206,7 @@ DoMineStuck(DSWActor* actor)
         if (u->Counter2 < MINE_DETONATE_STATE)
         {
             // if something came into range - detonate
-            if (DoMineRangeTest(Weapon, 3000))
+            if (DoMineRangeTest(actor, 3000))
             {
                 // move directly to detonate state
                 u->Counter2 = MINE_DETONATE_STATE;
@@ -9236,56 +9226,56 @@ DoMineStuck(DSWActor* actor)
     case 0:
         if (u->WaitTics < SEC(45))
         {
-            PlaySound(DIGI_MINEBEEP, sp, v3df_dontpan);
+            PlaySound(DIGI_MINEBEEP, actor, v3df_dontpan);
             u->Counter2++;
         }
         break;
     case 1:
         if (u->WaitTics < SEC(38))
         {
-            PlaySound(DIGI_MINEBEEP, sp, v3df_dontpan);
+            PlaySound(DIGI_MINEBEEP, actor, v3df_dontpan);
             u->Counter2++;
         }
         break;
     case 2:
         if (u->WaitTics < SEC(30))
         {
-            PlaySound(DIGI_MINEBEEP, sp, v3df_dontpan);
+            PlaySound(DIGI_MINEBEEP, actor, v3df_dontpan);
             u->Counter2++;
         }
         break;
     case 3:
         if (u->WaitTics < SEC(20))
         {
-            PlaySound(DIGI_MINEBEEP, sp, v3df_dontpan);
+            PlaySound(DIGI_MINEBEEP, actor, v3df_dontpan);
             u->Counter2++;
         }
         break;
     case 4:
         if (u->WaitTics < SEC(15))
         {
-            PlaySound(DIGI_MINEBEEP, sp, v3df_dontpan);
+            PlaySound(DIGI_MINEBEEP, actor, v3df_dontpan);
             u->Counter2++;
         }
         break;
     case 5:
         if (u->WaitTics < SEC(12))
         {
-            PlaySound(DIGI_MINEBEEP, sp, v3df_dontpan);
+            PlaySound(DIGI_MINEBEEP, actor, v3df_dontpan);
             u->Counter2++;
         }
         break;
     case 6:
         if (u->WaitTics < SEC(10))
         {
-            PlaySound(DIGI_MINEBEEP, sp, v3df_dontpan);
+            PlaySound(DIGI_MINEBEEP, actor, v3df_dontpan);
             u->Counter2++;
         }
         break;
     case 7:
         if (u->WaitTics < SEC(8))
         {
-            PlaySound(DIGI_MINEBEEP, sp, v3df_dontpan);
+            PlaySound(DIGI_MINEBEEP, actor, v3df_dontpan);
             u->Counter2++;
         }
         break;
@@ -9293,14 +9283,14 @@ DoMineStuck(DSWActor* actor)
     case 30:
         if (u->WaitTics < SEC(6))
         {
-            PlaySound(DIGI_MINEBEEP, sp, v3df_dontpan);
+            PlaySound(DIGI_MINEBEEP, actor, v3df_dontpan);
             u->Counter2 = MINE_DETONATE_STATE;
         }
         break;
     case MINE_DETONATE_STATE:
         if (u->WaitTics < 0)
         {
-            PlaySound(DIGI_MINEBEEP, sp, v3df_dontpan);
+            PlaySound(DIGI_MINEBEEP, actor, v3df_dontpan);
             SpawnMineExp(actor);
             KillActor(actor);
             return false;
