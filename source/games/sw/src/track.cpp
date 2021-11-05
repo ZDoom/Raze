@@ -300,16 +300,11 @@ NextActorTrackPoint(short SpriteNum)
         u->point = Track[u->track].NumPoints - 1;
 }
 
-void
-TrackAddPoint(TRACKp t, TRACK_POINTp tp, short SpriteNum)
+void TrackAddPoint(TRACKp t, TRACK_POINTp tp, DSWActor* actor)
 {
-    auto actor = &swActors[SpriteNum];
     SPRITEp sp = &actor->s();
 
     TRACK_POINTp tpoint = (tp + t->NumPoints);
-
-    //    //DSPRINTF(ds,"3 ndx = %d, numpoints = %d", t - Track, t->NumPoints);
-    //    MONO_PRINT(ds);
 
     tpoint->x = sp->x;
     tpoint->y = sp->y;
@@ -323,10 +318,9 @@ TrackAddPoint(TRACKp t, TRACK_POINTp tp, short SpriteNum)
     KillActor(actor);
 }
 
-int
-TrackClonePoint(short SpriteNum)
+DSWActor* TrackClonePoint(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[SpriteNum], np;
+    SPRITEp sp = &actor->s(), np;
 
     auto actorNew = InsertActor(sp->sectnum, sp->statnum);
 
@@ -340,22 +334,21 @@ TrackClonePoint(short SpriteNum)
     np->lotag = sp->lotag;
     np->hitag = sp->hitag;
 
-    return actorNew->GetSpriteIndex();
+    return actorNew;
 }
 
 void QuickJumpSetup(short stat, short lotag, short type)
 {
-    int SpriteNum = 0, ndx;
+    int ndx;
     TRACK_POINTp tp;
     TRACKp t;
     SPRITEp nsp;
-    short start_sprite, end_sprite;
+    DSWActor* start_sprite,* end_sprite;
 
     // make short quick jump tracks
-    StatIterator it(stat);
-    while ((SpriteNum = it.NextIndex()) >= 0)
+    SWStatIterator it(stat);
+    while (auto actor = it.Next())
     {
-
         // find an open track
         for (ndx = 0; ndx < MAX_TRACKS; ndx++)
         {
@@ -364,9 +357,6 @@ void QuickJumpSetup(short stat, short lotag, short type)
         }
 
         ASSERT(ndx < MAX_TRACKS);
-
-        ////DSPRINTF(ds,"1 ndx = %d, numpoints = %d\n", ndx, Track[ndx].NumPoints);
-        //MONO_PRINT(ds);
 
         Track[ndx].SetTrackSize(4);
 
@@ -378,27 +368,24 @@ void QuickJumpSetup(short stat, short lotag, short type)
         t->flags = 0;
 
         // clone point
-        end_sprite = TrackClonePoint(SpriteNum);
-        start_sprite = TrackClonePoint(SpriteNum);
+        end_sprite = TrackClonePoint(actor);
+        start_sprite = TrackClonePoint(actor);
 
         // add start point
-        nsp = &sprite[start_sprite];
+        nsp = &start_sprite->s();
         nsp->lotag = TRACK_START;
         nsp->hitag = 0;
         TrackAddPoint(t, tp, start_sprite);
 
-        ////DSPRINTF(ds,"2 ndx = %d, numpoints = %d\n", ndx, Track[ndx].NumPoints);
-        //MONO_PRINT(ds);
-
         // add jump point
-        nsp = &sprite[SpriteNum];
+        nsp = &actor->s();
         nsp->x += MulScale(64, bcos(nsp->ang), 14);
         nsp->y += MulScale(64, bsin(nsp->ang), 14);
         nsp->lotag = lotag;
-        TrackAddPoint(t, tp, SpriteNum);
+        TrackAddPoint(t, tp, actor);
 
         // add end point
-        nsp = &sprite[end_sprite];
+        nsp = &end_sprite->s();
         nsp->x += MulScale(2048, bcos(nsp->ang), 14);
         nsp->y += MulScale(2048, bsin(nsp->ang), 14);
         nsp->lotag = TRACK_END;
@@ -410,15 +397,15 @@ void QuickJumpSetup(short stat, short lotag, short type)
 
 void QuickScanSetup(short stat, short lotag, short type)
 {
-    int SpriteNum = 0, ndx;
+    int ndx;
     TRACK_POINTp tp;
     TRACKp t;
     SPRITEp nsp;
-    short start_sprite, end_sprite;
+    DSWActor* start_sprite,* end_sprite;
 
     // make short quick jump tracks
-    StatIterator it(stat);
-    while ((SpriteNum = it.NextIndex()) >= 0)
+    SWStatIterator it(stat);
+    while (auto actor = it.Next())
     {
 
         // find an open track
@@ -443,11 +430,11 @@ void QuickScanSetup(short stat, short lotag, short type)
         t->flags = 0;
 
         // clone point
-        end_sprite = TrackClonePoint(SpriteNum);
-        start_sprite = TrackClonePoint(SpriteNum);
+        end_sprite = TrackClonePoint(actor);
+        start_sprite = TrackClonePoint(actor);
 
         // add start point
-        nsp = &sprite[start_sprite];
+        nsp = &start_sprite->s();
         nsp->lotag = TRACK_START;
         nsp->hitag = 0;
         nsp->x += MulScale(64, -bcos(nsp->ang), 14);
@@ -455,12 +442,12 @@ void QuickScanSetup(short stat, short lotag, short type)
         TrackAddPoint(t, tp, start_sprite);
 
         // add jump point
-        nsp = &sprite[SpriteNum];
+        nsp = &actor->s();
         nsp->lotag = lotag;
-        TrackAddPoint(t, tp, SpriteNum);
+        TrackAddPoint(t, tp, actor);
 
         // add end point
-        nsp = &sprite[end_sprite];
+        nsp = &end_sprite->s();
         nsp->x += MulScale(64, bcos(nsp->ang), 14);
         nsp->y += MulScale(64, bsin(nsp->ang), 14);
         nsp->lotag = TRACK_END;
@@ -471,17 +458,15 @@ void QuickScanSetup(short stat, short lotag, short type)
 
 void QuickExitSetup(short stat, short type)
 {
-    int SpriteNum = 0, ndx;
+    int ndx;
     TRACK_POINTp tp;
     TRACKp t;
     SPRITEp nsp;
-    short start_sprite, end_sprite;
+    DSWActor* start_sprite,* end_sprite;
 
-    StatIterator it(stat);
-    while ((SpriteNum = it.NextIndex()) >= 0)
+    SWStatIterator it(stat);
+    while (auto actor = it.Next())
     {
-        auto actor = &swActors[SpriteNum];
-
         // find an open track
         for (ndx = 0; ndx < MAX_TRACKS; ndx++)
         {
@@ -504,11 +489,11 @@ void QuickExitSetup(short stat, short type)
         t->flags = 0;
 
         // clone point
-        end_sprite = TrackClonePoint(SpriteNum);
-        start_sprite = TrackClonePoint(SpriteNum);
+        end_sprite = TrackClonePoint(actor);
+        start_sprite = TrackClonePoint(actor);
 
         // add start point
-        nsp = &sprite[start_sprite];
+        nsp = &start_sprite->s();
         nsp->lotag = TRACK_START;
         nsp->hitag = 0;
         TrackAddPoint(t, tp, start_sprite);
@@ -516,7 +501,7 @@ void QuickExitSetup(short stat, short type)
         KillActor(actor);
 
         // add end point
-        nsp = &sprite[end_sprite];
+        nsp = &end_sprite->s();
         nsp->x += MulScale(1024, bcos(nsp->ang), 14);
         nsp->y += MulScale(1024, bsin(nsp->ang), 14);
         nsp->lotag = TRACK_END;
@@ -527,16 +512,15 @@ void QuickExitSetup(short stat, short type)
 
 void QuickLadderSetup(short stat, short lotag, short type)
 {
-    int SpriteNum = 0, ndx;
+    int ndx;
     TRACK_POINTp tp;
     TRACKp t;
     SPRITEp nsp;
-    short start_sprite, end_sprite;
+    DSWActor* start_sprite,* end_sprite;
 
-    StatIterator it(stat);
-    while ((SpriteNum = it.NextIndex()) >= 0)
+    SWStatIterator it(stat);
+    while (auto actor = it.Next())
     {
-
         // find an open track
         for (ndx = 0; ndx < MAX_TRACKS; ndx++)
         {
@@ -559,11 +543,11 @@ void QuickLadderSetup(short stat, short lotag, short type)
         t->flags = 0;
 
         // clone point
-        end_sprite = TrackClonePoint(SpriteNum);
-        start_sprite = TrackClonePoint(SpriteNum);
+        end_sprite = TrackClonePoint(actor);
+        start_sprite = TrackClonePoint(actor);
 
         // add start point
-        nsp = &sprite[start_sprite];
+        nsp = &start_sprite->s();
         nsp->lotag = TRACK_START;
         nsp->hitag = 0;
         nsp->x += MOVEx(256,nsp->ang + 1024);
@@ -571,12 +555,12 @@ void QuickLadderSetup(short stat, short lotag, short type)
         TrackAddPoint(t, tp, start_sprite);
 
         // add climb point
-        nsp = &sprite[SpriteNum];
+        nsp = &actor->s();
         nsp->lotag = lotag;
-        TrackAddPoint(t, tp, SpriteNum);
+        TrackAddPoint(t, tp, actor);
 
         // add end point
-        nsp = &sprite[end_sprite];
+        nsp = &end_sprite->s();
         nsp->x += MOVEx(512,nsp->ang);
         nsp->y += MOVEy(512,nsp->ang);
         nsp->lotag = TRACK_END;
@@ -626,7 +610,7 @@ void TrackSetup(void)
             {
                 ASSERT(t->NumPoints == 0);
 
-                TrackAddPoint(t, tp, actor->GetSpriteIndex());
+                TrackAddPoint(t, tp, actor);
                 break;
             }
         }
@@ -643,7 +627,7 @@ void TrackSetup(void)
             while (auto actor = it.Next())
             {
                 // neuter the track's sprite list
-                deletesprite(actor->GetSpriteIndex());
+                KillActor(actor);
             }
             continue;
         }
@@ -676,7 +660,7 @@ void TrackSetup(void)
             // save the closest one off and kill it
             if (next_actor != nullptr)
             {
-                TrackAddPoint(t, tp, next_actor->GetSpriteIndex());
+                TrackAddPoint(t, tp, next_actor);
             }
 
         }
