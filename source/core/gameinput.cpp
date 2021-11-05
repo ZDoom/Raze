@@ -345,34 +345,64 @@ void PlayerHorizon::applyinput(float const horz, ESyncBits* actions, double cons
 //
 //---------------------------------------------------------------------------
 
+/*
+// Rotate return speed.
+Duke: (1 / 2) * 30 = 15;
+
+// Look return speed.
+Duke: (1 / 4) * 30 = 7.5;
+
+// Rotating speed.
+Duke:      24 * 30 = 720;
+
+// Looking speed.
+Duke:     152 * 30 = 4560;
+
+// Spin standing speed.
+Duke:     128 * 30 = 3840;
+Blood:    128 * 30 = 3840;
+
+// Looking speed.
+Blood:     64 * 30 = 1920;
+*/
+
+enum
+{
+	LOOKROTRETBASE = 15,
+	ROTATESPEED = 720,
+	LOOKINGSPEED = 4560,
+	SPINSTAND = 3840,
+	SPINCROUCH = 1920,
+};
+
 void PlayerAngle::applyinput(float const avel, ESyncBits* actions, double const scaleAdjust)
 {
 	if (rotscrnang.asbam())
 	{
 		// return rotscrnang to 0
-		rotscrnang -= buildfang(scaleAdjust * rotscrnang.signedbuildf() * (15. / GameTicRate));
+		rotscrnang -= buildfang(scaleAdjust * rotscrnang.signedbuildf() * (double(LOOKROTRETBASE) / GameTicRate));
 		if (abs(rotscrnang.signedbam()) < (BAMUNIT >> 2)) rotscrnang = bamang(0);
 	}
 
 	if (look_ang.asbam())
 	{
 		// return look_ang to 0
-		look_ang -= buildfang(scaleAdjust * look_ang.signedbuildf() * (7.5 / GameTicRate));
+		look_ang -= buildfang(scaleAdjust * look_ang.signedbuildf() * ((+LOOKROTRETBASE * 0.5) / GameTicRate));
 		if (abs(look_ang.signedbam()) < (BAMUNIT >> 2)) look_ang = bamang(0);
 	}
 
 	if (*actions & SB_LOOK_LEFT)
 	{
 		// start looking left
-		look_ang -= buildfang(scaleAdjust * (4560. / GameTicRate));
-		rotscrnang += buildfang(scaleAdjust * (720. / GameTicRate));
+		look_ang -= buildfang(scaleAdjust * (double(LOOKINGSPEED) / GameTicRate));
+		rotscrnang += buildfang(scaleAdjust * (double(ROTATESPEED) / GameTicRate));
 	}
 
 	if (*actions & SB_LOOK_RIGHT)
 	{
 		// start looking right
-		look_ang += buildfang(scaleAdjust * (4560. / GameTicRate));
-		rotscrnang -= buildfang(scaleAdjust * (720. / GameTicRate));
+		look_ang += buildfang(scaleAdjust * (double(LOOKINGSPEED) / GameTicRate));
+		rotscrnang -= buildfang(scaleAdjust * (double(ROTATESPEED) / GameTicRate));
 	}
 
 	if (!movementlocked())
@@ -397,7 +427,7 @@ void PlayerAngle::applyinput(float const avel, ESyncBits* actions, double const 
 		if (spin < 0)
 		{
 			// return spin to 0
-			double add = scaleAdjust * ((!(*actions & SB_CROUCH) ? 3840. : 1920.) / GameTicRate);
+			double add = scaleAdjust * (double(!(*actions & SB_CROUCH) ? SPINSTAND : SPINCROUCH) / GameTicRate);
 			spin += add;
 			if (spin > 0)
 			{
