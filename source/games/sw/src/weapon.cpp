@@ -5271,11 +5271,9 @@ int ActorPain(DSWActor* actor)
     return false;
 }
 
-int
-ActorPainPlasma(short SpriteNum)
+int ActorPainPlasma(DSWActor* actor)
 {
-    auto actor = &swActors[SpriteNum];
-    USERp u = User[SpriteNum].Data();
+    USERp u = actor->u();
 
     if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING | SPR_ELECTRO_TOLERANT))
     {
@@ -5637,12 +5635,9 @@ bool PlayerTakeDamage(PLAYERp pp, DSWActor* weapActor)
 }
 
 
-int
-StarBlood(short SpriteNum, short Weapon)
+int StarBlood(DSWActor* actor, DSWActor* weapActor)
 {
-    auto actor = &swActors[SpriteNum];
-    auto weapActor = Weapon >= 0 ? &swActors[Weapon] : nullptr;
-    USERp u = User[SpriteNum].Data();
+    USERp u = actor->u();
     short blood_num = 1;
     short i;
 
@@ -5762,8 +5757,6 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
                 }
 
     // weapon is the actor - no missile used - example swords, axes, etc
-    auto SpriteNum = actor->GetSpriteIndex();
-    auto Weapon = weapActor? weapActor->GetSpriteIndex() : -1;
     switch (wu->ID)
     {
     case NINJA_RUN_R0:
@@ -5785,11 +5778,8 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
                 damage -= 5 - RandomRange(10);
                 break;
             }
-            PlaySound(DIGI_CGTHIGHBONE,wp,v3df_follow|v3df_dontpan);
+            PlaySound(DIGI_CGTHIGHBONE,weapActor,v3df_follow|v3df_dontpan);
         }
-
-        ////DSPRINTF(ds,"got here 3, %d",damage);
-        //MONO_PRINT(ds);
 
         if (u->sop_parent)
         {
@@ -6118,7 +6108,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorChooseDeath(actor, weapActor);
         }
 
-        StarBlood(SpriteNum, Weapon);
+        StarBlood(actor, weapActor);
 
         wu->ID = 0;
         SetSuicide(weapActor);
@@ -6913,7 +6903,6 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         break;
 
     case FIREBALL1:
-        ASSERT(SpriteNum >= 0 && Weapon >= 0);
         damage = GetDamage(actor, weapActor, WPN_HOTHEAD);
         if (u->sop_parent)
         {
@@ -6946,7 +6935,6 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
     case FIREBALL:
     case GORO_FIREBALL:
 
-        ASSERT(SpriteNum >= 0 && Weapon >= 0);
         damage = GetDamage(actor, weapActor, DMG_GORO_FIREBALL);
         if (u->sop_parent)
         {
@@ -7060,7 +7048,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
                 break;
             }
 
-            ActorPainPlasma(SpriteNum);
+            ActorPainPlasma(actor);
         }
 
         InitPlasmaFountain(weapActor, actor);
@@ -7071,7 +7059,6 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
 
     case CALTROPS:
 
-        ASSERT(SpriteNum >= 0 && Weapon >= 0);
         damage = GetDamage(actor, weapActor, DMG_MINE_SHRAP);
         if (u->sop_parent)
         {

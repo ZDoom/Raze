@@ -89,7 +89,7 @@ DSWActor* SpawnSectorExp(DSWActor*);
 int DoShrapVelocity(DSWActor*);
 int ShrapKillSprite(DSWActor*);
 bool MissileSetPos(DSWActor*,ANIMATORp DoWeapon,int dist);
-int ActorPain(DSWActor* SpriteNum);
+int ActorPain(DSWActor*);
 int SpawnBreakFlames(DSWActor*);
 bool PlayerTakeDamage(PLAYERp pp, DSWActor* weapActor);
 const char *DeathString(DSWActor*);
