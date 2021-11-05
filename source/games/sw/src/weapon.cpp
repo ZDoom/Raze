@@ -12522,7 +12522,7 @@ int InitSwordAttack(PLAYERp pp)
                 nx = MOVEx((1024 + 256) * 3, NORM_ANGLE(bp->ang + dangs[i] + random_amt));
                 ny = MOVEy((1024 + 256) * 3, NORM_ANGLE(bp->ang + dangs[i] + random_amt));
 
-                move_missile(bubble, nx, ny, 0L, u->ceiling_dist, u->floor_dist, CLIPMASK_PLAYER, 1);
+                move_missile(bubble, nx, ny, 0, u->ceiling_dist, u->floor_dist, CLIPMASK_PLAYER, 1);
             }
         }
     }
@@ -12550,7 +12550,7 @@ int InitSwordAttack(PLAYERp pp)
 
             if (dist < CLOSE_RANGE_DIST_FUDGE(sp, psp, reach) && PLAYER_FACING_RANGE(pp, sp, face))
             {
-                if (SpriteOverlapZ(pp->PlayerSprite, itActor->GetSpriteIndex(), Z(20)))
+                if (SpriteOverlapZ(pp->Actor()->GetSpriteIndex(), itActor->GetSpriteIndex(), Z(20)))
                 {
                     if (FAFcansee(sp->x, sp->y, SPRITEp_MID(sp), sp->sectnum, psp->x, psp->y, SPRITEp_MID(psp), psp->sectnum))
                         DoDamage(itActor, pp->Actor());
@@ -12735,7 +12735,7 @@ int InitFistAttack(PLAYERp pp)
 
             if (dist < CLOSE_RANGE_DIST_FUDGE(sp, psp, reach) && PLAYER_FACING_RANGE(pp, sp, face))
             {
-                if (SpriteOverlapZ(pp->PlayerSprite, itActor->GetSpriteIndex(), Z(20)) || face == 190)
+                if (SpriteOverlapZ(pp->Actor()->GetSpriteIndex(), itActor->GetSpriteIndex(), Z(20)) || face == 190)
                 {
                     if (FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,psp->x,psp->y,SPRITEp_MID(psp),psp->sectnum))
                         DoDamage(itActor, pp->Actor());
@@ -18645,7 +18645,7 @@ int QueueStar(DSWActor* actor)
 
     StarQueueHead = (StarQueueHead+1) & (MAX_STAR_QUEUE-1);
 
-    return actor->GetSpriteIndex();
+    return 0;
 }
 
 void QueueHole(short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z)
@@ -18770,7 +18770,7 @@ int QueueFloorBlood(DSWActor* actor)
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
     RESET(u->Flags, SPR_SHADOW);
 
-    return spawnedActor->GetSpriteIndex();
+    return 0;
 }
 
 enum
