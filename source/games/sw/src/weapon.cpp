@@ -4553,12 +4553,10 @@ int DoMineSpark(DSWActor* actor)
     return 0;
 }
 
-int
-DoFireballFlames(DSWActor* actor)
+int DoFireballFlames(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum],ap;
+    SPRITEp sp = &actor->s(),ap;
     bool jumping = false;
 
     // if no Owner then stay where you are
@@ -4652,12 +4650,10 @@ DoFireballFlames(DSWActor* actor)
     return 0;
 }
 
-int
-DoBreakFlames(DSWActor* actor)
+int DoBreakFlames(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
     bool jumping = false;
 
     if (TEST(u->Flags, SPR_JUMPING))
@@ -4746,12 +4742,10 @@ int SetSuicide(DSWActor* actor)
     return 0;
 }
 
-int
-DoActorScale(DSWActor* actor)
+int DoActorScale(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
 
     u->scale_speed = 70;
     u->scale_value = sp->xrepeat << 8;
@@ -4766,12 +4760,10 @@ DoActorScale(DSWActor* actor)
     return 0;
 }
 
-int
-DoRipperGrow(DSWActor* actor)
+int DoRipperGrow(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
 
     u->scale_speed = 70;
     u->scale_value = sp->xrepeat << 8;
@@ -5192,8 +5184,7 @@ int ActorHealth(DSWActor* actor, short amt)
     return true;
 }
 
-int
-SopDamage(SECTOR_OBJECTp sop, short amt)
+int SopDamage(SECTOR_OBJECTp sop, short amt)
 {
     SPRITEp sp = &sop->sp_child->s();
     USERp u = sop->sp_child->u();
@@ -5211,8 +5202,7 @@ SopDamage(SECTOR_OBJECTp sop, short amt)
     return true;
 }
 
-int
-SopCheckKill(SECTOR_OBJECTp sop)
+int SopCheckKill(SECTOR_OBJECTp sop)
 {
     bool killed = false;
 
@@ -5364,8 +5354,7 @@ int ActorDamageSlide(DSWActor* actor, int damage, int ang)
     }
 }
 
-int
-PlayerDamageSlide(PLAYERp pp, int damage, short ang)
+int PlayerDamageSlide(PLAYERp pp, int damage, short ang)
 {
     int slide_vel;
 
@@ -5448,44 +5437,6 @@ int GetDamage(DSWActor* actor, DSWActor* weapActor, int DamageNdx)
     }
 
     return -(d->damage_lo + RandomRange(d->damage_hi - d->damage_lo));
-}
-
-int
-RadiusGetDamage(short SpriteNum, short Weapon, int max_damage)
-{
-    SPRITEp sp = &sprite[SpriteNum];
-    SPRITEp wp = &sprite[Weapon];
-    USERp wu = User[Weapon].Data();
-    int dist,a,b,c;
-    int damage_per_pixel, damage_force, damage_amt;
-
-    max_damage = labs(max_damage);
-
-    DISTANCE(wp->x,wp->y,sp->x,sp->y,dist,a,b,c);
-
-    // take off the box around the player or else you'll never get
-    // the max_damage;
-    dist -= ((int)sp->clipdist)<<(2);
-    if (dist < 0) dist = 0;
-
-    if ((unsigned)dist < wu->Radius)
-    {
-        damage_per_pixel = IntToFixed(max_damage)/wu->Radius;
-
-        //the closer your distance is to 0 the more damage
-        damage_force = (wu->Radius - dist);
-        // fudge factor
-        //damage_force += 400;
-
-        damage_amt = -FixedToInt(damage_force * damage_per_pixel);
-    }
-    else
-    {
-        damage_amt = 0;
-    }
-
-
-    return damage_amt;
 }
 
 
