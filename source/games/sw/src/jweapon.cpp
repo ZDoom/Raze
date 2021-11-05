@@ -1551,7 +1551,7 @@ int PlayerInitFlashBomb(PLAYERp pp)
             if (!FAFcansee(hp->x, hp->y, hp->z, hp->sectnum, sp->x, sp->y, sp->z - SPRITEp_SIZE_Z(sp), sp->sectnum))
                 continue;
 
-            damage = GetDamage(itActor->GetSpriteIndex(), pp->PlayerSprite, DMG_FLASHBOMB);
+            damage = GetDamage(itActor, pp->Actor(), DMG_FLASHBOMB);
 
             if (hu->sop_parent)
             {
@@ -1617,7 +1617,7 @@ InitFlashBomb(DSWActor* actor)
             if (!FAFcansee(hp->x, hp->y, hp->z, hp->sectnum, sp->x, sp->y, sp->z - SPRITEp_SIZE_Z(sp), sp->sectnum))
                 continue;
 
-            damage = GetDamage(itActor->GetSpriteIndex(), actor->GetSpriteIndex(), DMG_FLASHBOMB);
+            damage = GetDamage(itActor, actor, DMG_FLASHBOMB);
 
             if (hu->sop_parent)
             {

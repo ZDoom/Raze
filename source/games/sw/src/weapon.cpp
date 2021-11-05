@@ -5423,18 +5423,15 @@ PlayerDamageSlide(PLAYERp pp, int damage, short ang)
 }
 
 
-int
-GetDamage(short SpriteNum, short Weapon, short DamageNdx)
+int GetDamage(DSWActor* actor, DSWActor* weapActor, int DamageNdx)
 {
     DAMAGE_DATAp d = &DamageData[DamageNdx];
 
-    ASSERT(SpriteNum >= 0 && Weapon >= 0);
-
     // if ndx does radius
-    if (d->radius > 0)
+    if (d->radius > 0 && weapActor)
     {
-        SPRITEp sp = &sprite[SpriteNum];
-        SPRITEp wp = &sprite[Weapon];
+        SPRITEp sp = &actor->s();
+        SPRITEp wp = &weapActor->s();
         int dist,a,b,c;
         int damage_per_pixel, damage_force, damage_amt;
 
@@ -5788,10 +5785,10 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         ASSERT(wu->PlayerP);
 
         if (wu->WeaponNum == WPN_SWORD)
-            damage = GetDamage(SpriteNum, Weapon, WPN_SWORD);
+            damage = GetDamage(actor, weapActor, WPN_SWORD);
         else
         {
-            damage = GetDamage(SpriteNum, Weapon, WPN_FIST);
+            damage = GetDamage(actor, weapActor, WPN_FIST);
             // Add damage for stronger attacks!
             switch (wu->PlayerP->WpnKungFuMove)
             {
@@ -5841,7 +5838,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
     case COOLG_RUN_R0:
     case GORO_RUN_R0:
 
-        damage = GetDamage(SpriteNum, Weapon, DMG_SKEL_SLASH);
+        damage = GetDamage(actor, weapActor, DMG_SKEL_SLASH);
         if (u->sop_parent)
         {
             break;
@@ -5871,7 +5868,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
 
     case HORNET_RUN_R0:
         PlaySound(DIGI_HORNETSTING, sp, v3df_follow|v3df_dontpan);
-        damage = GetDamage(SpriteNum, Weapon, DMG_HORNET_STING);
+        damage = GetDamage(actor, weapActor, DMG_HORNET_STING);
         if (u->sop_parent)
         {
             break;
@@ -5900,7 +5897,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         break;
 
     case EEL_RUN_R0:
-        damage = GetDamage(SpriteNum, Weapon, DMG_RIPPER_SLASH);
+        damage = GetDamage(actor, weapActor, DMG_RIPPER_SLASH);
         damage /= 3;
         if (u->sop_parent)
         {
@@ -5930,7 +5927,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         break;
 
     case RIPPER_RUN_R0:
-        damage = GetDamage(SpriteNum, Weapon, DMG_RIPPER_SLASH);
+        damage = GetDamage(actor, weapActor, DMG_RIPPER_SLASH);
         damage /= 3; // Little rippers aren't as tough.
         if (u->sop_parent)
         {
@@ -5965,7 +5962,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         break;
 
     case RIPPER2_RUN_R0:
-        damage = GetDamage(SpriteNum, Weapon, DMG_RIPPER_SLASH);
+        damage = GetDamage(actor, weapActor, DMG_RIPPER_SLASH);
         if (u->sop_parent)
         {
             break;
@@ -5999,7 +5996,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         break;
 
     case BUNNY_RUN_R0:
-        damage = GetDamage(SpriteNum, Weapon, DMG_RIPPER_SLASH);
+        damage = GetDamage(actor, weapActor, DMG_RIPPER_SLASH);
         damage /= 3;
         if (u->sop_parent)
         {
@@ -6032,7 +6029,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         break;
 
     case SERP_RUN_R0:
-        damage = GetDamage(SpriteNum, Weapon, DMG_SERP_SLASH);
+        damage = GetDamage(actor, weapActor, DMG_SERP_SLASH);
         if (u->sop_parent)
         {
             break;
@@ -6069,7 +6066,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         if (wu->ID == 5011)
             damage = -(3 + (RandomRange(4<<8)>>8));
         else
-            damage = GetDamage(SpriteNum, Weapon, DMG_BLADE);
+            damage = GetDamage(actor, weapActor, DMG_BLADE);
         if (u->sop_parent)
         {
             break;
@@ -6106,7 +6103,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
 
     case STAR1:
     case CROSSBOLT:
-        damage = GetDamage(SpriteNum, Weapon, WPN_STAR);
+        damage = GetDamage(actor, weapActor, WPN_STAR);
 
         if (u->sop_parent)
         {
@@ -6144,7 +6141,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         break;
 
     case SPEAR_R0:
-        damage = GetDamage(SpriteNum, Weapon, DMG_SPEAR_TRAP);
+        damage = GetDamage(actor, weapActor, DMG_SPEAR_TRAP);
 
         if (u->sop_parent)
         {
@@ -6177,7 +6174,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         break;
 
     case LAVA_BOULDER:
-        damage = GetDamage(SpriteNum, Weapon, DMG_LAVA_BOULDER);
+        damage = GetDamage(actor, weapActor, DMG_LAVA_BOULDER);
 
         if (u->sop_parent)
         {
@@ -6208,7 +6205,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         break;
 
     case LAVA_SHARD:
-        damage = GetDamage(SpriteNum, Weapon, DMG_LAVA_SHARD);
+        damage = GetDamage(actor, weapActor, DMG_LAVA_SHARD);
 
         if (u->sop_parent)
         {
@@ -6241,9 +6238,9 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
     case UZI_SMOKE:
     case UZI_SMOKE+2:
         if (wu->ID == UZI_SMOKE)
-            damage = GetDamage(SpriteNum, Weapon, WPN_UZI);
+            damage = GetDamage(actor, weapActor, WPN_UZI);
         else
-            damage = GetDamage(SpriteNum, Weapon, WPN_UZI)/3; // Enemy Uzi, 1/3 damage
+            damage = GetDamage(actor, weapActor, WPN_UZI)/3; // Enemy Uzi, 1/3 damage
 
         if (u->sop_parent)
         {
@@ -6293,7 +6290,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         break;
 
     case SHOTGUN_SMOKE:
-        damage = GetDamage(SpriteNum, Weapon, WPN_SHOTGUN);
+        damage = GetDamage(actor, weapActor, WPN_SHOTGUN);
 
         if (u->sop_parent)
         {
@@ -6343,7 +6340,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
     case MIRV_METEOR:
 
         //damage = -DAMAGE_MIRV_METEOR;
-        damage = GetDamage(SpriteNum, Weapon, DMG_MIRV_METEOR);
+        damage = GetDamage(actor, weapActor, DMG_MIRV_METEOR);
         if (u->sop_parent)
         {
             break;
@@ -6370,7 +6367,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
     case SERP_METEOR:
 
         //damage = -DAMAGE_SERP_METEOR;
-        damage = GetDamage(SpriteNum, Weapon, DMG_SERP_METEOR);
+        damage = GetDamage(actor, weapActor, DMG_SERP_METEOR);
         if (u->sop_parent)
         {
             break;
@@ -6395,7 +6392,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         break;
 
     case BOLT_THINMAN_R0:
-        damage = GetDamage(SpriteNum, Weapon, WPN_ROCKET);
+        damage = GetDamage(actor, weapActor, WPN_ROCKET);
 
         if (u->sop_parent)
         {
@@ -6469,7 +6466,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         break;
 
     case BOLT_THINMAN_R2:
-        damage = (GetDamage(SpriteNum, Weapon, WPN_ROCKET)/2);
+        damage = (GetDamage(actor, weapActor, WPN_ROCKET)/2);
 
         if (u->sop_parent)
         {
@@ -6498,7 +6495,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         break;
 
     case BOLT_THINMAN_R4:
-        damage = GetDamage(SpriteNum, Weapon, DMG_GRENADE_EXP);
+        damage = GetDamage(actor, weapActor, DMG_GRENADE_EXP);
 
         if (u->sop_parent)
         {
@@ -6526,7 +6523,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         break;
 
     case SUMO_RUN_R0:
-        damage = GetDamage(SpriteNum, Weapon, DMG_FLASHBOMB);
+        damage = GetDamage(actor, weapActor, DMG_FLASHBOMB);
 
         damage /= 3;
         if (u->sop_parent)
@@ -6557,7 +6554,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         break;
 
     case BOLT_EXP:
-        damage = GetDamage(SpriteNum, Weapon, DMG_BOLT_EXP);
+        damage = GetDamage(actor, weapActor, DMG_BOLT_EXP);
 //      //DSPRINTF(ds,"Damage Bolt: %d\n",damage);
 //      MONO_PRINT(ds);
         if (u->sop_parent)
@@ -6593,7 +6590,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         if (u->ID == ZOMBIE_RUN_R0)
             break;
 
-        damage = GetDamage(SpriteNum, Weapon, WPN_HEART);
+        damage = GetDamage(actor, weapActor, WPN_HEART);
 
         if (u->sop_parent)
         {
@@ -6627,7 +6624,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
 
 
     case TANK_SHELL_EXP:
-        damage = GetDamage(SpriteNum, Weapon, DMG_TANK_SHELL_EXP);
+        damage = GetDamage(actor, weapActor, DMG_TANK_SHELL_EXP);
         if (u->sop_parent)
         {
             if (TEST(u->sop_parent->flags, SOBJ_DIE_HARD))
@@ -6658,9 +6655,9 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
     case MUSHROOM_CLOUD:
     case GRENADE_EXP:
         if (wu->Radius == NUKE_RADIUS) // Special Nuke stuff
-            damage = (GetDamage(SpriteNum, Weapon, DMG_NUCLEAR_EXP));
+            damage = (GetDamage(actor, weapActor, DMG_NUCLEAR_EXP));
         else
-            damage = GetDamage(SpriteNum, Weapon, DMG_GRENADE_EXP);
+            damage = GetDamage(actor, weapActor, DMG_GRENADE_EXP);
 
         //DSPRINTF(ds,"MUSHROOM: damage = %d, wu->radius = %d\n",damage,wu->Radius);
         MONO_PRINT(ds);
@@ -6696,7 +6693,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
 
     case MICRO_EXP:
 
-        damage = GetDamage(SpriteNum, Weapon, DMG_MINE_EXP);
+        damage = GetDamage(actor, weapActor, DMG_MINE_EXP);
 
 //      //DSPRINTF(ds,"Damage Micro: %d\n",damage);
 //      MONO_PRINT(ds);
@@ -6728,7 +6725,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         break;
 
     case MINE_EXP:
-        damage = GetDamage(SpriteNum, Weapon, DMG_MINE_EXP);
+        damage = GetDamage(actor, weapActor, DMG_MINE_EXP);
         if (OwnerIs(weapActor, SERP_RUN_R0))
         {
             damage /= 6;
@@ -6776,7 +6773,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
 #if 0
     case MINE_SHRAP:
 
-        damage = GetDamage(SpriteNum, Weapon, DMG_MINE_SHRAP);
+        damage = GetDamage(actor, weapActor, DMG_MINE_SHRAP);
         if (u->sop_parent)
         {
             break;
@@ -6806,7 +6803,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
 
     case NAP_EXP:
 
-        damage = GetDamage(SpriteNum, Weapon, DMG_NAPALM_EXP);
+        damage = GetDamage(actor, weapActor, DMG_NAPALM_EXP);
 
         // Sumo Nap does less
         if (OwnerIs(weapActor, SUMO_RUN_R0))
@@ -6843,7 +6840,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
     case Vomit1:
     case Vomit2:
 
-        damage = GetDamage(SpriteNum, Weapon, DMG_VOMIT);
+        damage = GetDamage(actor, weapActor, DMG_VOMIT);
         if (u->sop_parent)
         {
             break;
@@ -6868,7 +6865,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         break;
 
     case COOLG_FIRE:
-        damage = GetDamage(SpriteNum, Weapon, DMG_COOLG_FIRE);
+        damage = GetDamage(actor, weapActor, DMG_COOLG_FIRE);
         if (u->sop_parent)
         {
             break;
@@ -6897,7 +6894,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
     case SKULL_R0:
     case BETTY_R0:
 
-        damage = GetDamage(SpriteNum, Weapon, DMG_SKULL_EXP);
+        damage = GetDamage(actor, weapActor, DMG_SKULL_EXP);
 
         if (u->sop_parent)
         {
@@ -6933,7 +6930,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
 
     case FIREBALL1:
         ASSERT(SpriteNum >= 0 && Weapon >= 0);
-        damage = GetDamage(SpriteNum, Weapon, WPN_HOTHEAD);
+        damage = GetDamage(actor, weapActor, WPN_HOTHEAD);
         if (u->sop_parent)
         {
             break;
@@ -6966,7 +6963,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
     case GORO_FIREBALL:
 
         ASSERT(SpriteNum >= 0 && Weapon >= 0);
-        damage = GetDamage(SpriteNum, Weapon, DMG_GORO_FIREBALL);
+        damage = GetDamage(actor, weapActor, DMG_GORO_FIREBALL);
         if (u->sop_parent)
         {
             break;
@@ -7021,7 +7018,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
 
     case RADIATION_CLOUD:
 
-        damage = GetDamage(SpriteNum, Weapon, DMG_RADIATION_CLOUD);
+        damage = GetDamage(actor, weapActor, DMG_RADIATION_CLOUD);
 
         if (u->sop_parent)
         {
@@ -7053,7 +7050,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
 
     case PLASMA:
 
-        //damage = GetDamage(SpriteNum, Weapon, WPN_HEART);
+        //damage = GetDamage(actor, weapActor, WPN_HEART);
         if (u->sop_parent)
         {
             break;
@@ -7091,7 +7088,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
     case CALTROPS:
 
         ASSERT(SpriteNum >= 0 && Weapon >= 0);
-        damage = GetDamage(SpriteNum, Weapon, DMG_MINE_SHRAP);
+        damage = GetDamage(actor, weapActor, DMG_MINE_SHRAP);
         if (u->sop_parent)
         {
             break;
@@ -7120,7 +7117,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
 #if 0
     case PLASMA_FOUNTAIN:
 
-        //damage = GetDamage(SpriteNum, Weapon, WPN_HEART);
+        //damage = GetDamage(actor, weapActor, WPN_HEART);
         damage = -300;
 
         if (u->sop_parent)

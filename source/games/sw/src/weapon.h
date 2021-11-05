@@ -193,7 +193,7 @@ int InitBloodSpray(DSWActor* actor, bool dogib, short velocity);
 int SpawnBunnyExp(DSWActor* actor);
 int InitBunnyRocket(PLAYERp pp);
 
-int GetDamage(short SpriteNum, short Weapon, short DamageNdx);
+int GetDamage(DSWActor*, DSWActor*, int DamageNdx);
 int DoFlamesDamageTest(DSWActor*);
 
 typedef struct
