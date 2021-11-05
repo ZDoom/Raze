@@ -9504,7 +9504,7 @@ int DoBoltThinMan(DSWActor* actor)
     if (TEST(u->Flags, SPR_SUICIDE))
         return true;
 
-    if (u->ret)
+    if (u->coll.type != kHitNone)
     {
         if (WeaponMoveHit(actor->GetSpriteIndex()))
         {
@@ -9529,7 +9529,7 @@ int DoTracer(DSWActor* actor)
 
         MissileHitDiveArea(actor);
 
-        if (u->ret)
+        if (u->coll.type != kHitNone)
         {
             if (WeaponMoveHit(actor->GetSpriteIndex()))
             {
@@ -9567,7 +9567,7 @@ int DoEMP(DSWActor* actor)
             sp->yrepeat = 38;
         }
 
-        if (u->ret)
+        if (u->coll.type != kHitNone)
         {
             if (WeaponMoveHit(actor->GetSpriteIndex()))
             {
@@ -9643,7 +9643,7 @@ int DoTankShell(DSWActor* actor)
 
         MissileHitDiveArea(actor);
 
-        if (u->ret)
+        if (u->coll.type != kHitNone)
         {
             if (WeaponMoveHit(actor->GetSpriteIndex()))
             {
@@ -9665,7 +9665,7 @@ int DoTracerStart(DSWActor* actor)
 
     MissileHitDiveArea(actor);
 
-    if (u->ret)
+    if (u->coll.type != kHitNone)
     {
         if (WeaponMoveHit(actor->GetSpriteIndex()))
         {
@@ -9694,7 +9694,7 @@ int DoLaser(DSWActor* actor)
 
         MissileHitDiveArea(actor);
 
-        if (u->ret)
+        if (u->coll.type != kHitNone)
         {
             if (WeaponMoveHit(actor->GetSpriteIndex()))
             {
@@ -9845,7 +9845,7 @@ int DoRailStart(DSWActor* actor)
 
     MissileHitDiveArea(actor);
 
-    if (u->ret)
+    if (u->coll.type != kHitNone)
     {
         if (WeaponMoveHit(actor->GetSpriteIndex()))
         {
@@ -9889,9 +9889,9 @@ int DoRocket(DSWActor* actor)
     if (TEST(u->Flags, SPR_SUICIDE))
         return true;
 
-    if (u->ret)
+    if (u->coll.type != kHitNone)
     {
-        if (WeaponMoveHit(actor->GetSpriteIndex()) && u->ret)
+        if (WeaponMoveHit(actor->GetSpriteIndex()) && u->coll.type != kHitNone)
         {
             if (u->ID == BOLT_THINMAN_R4)
             {
