@@ -70,16 +70,31 @@ binangle getincanglebam(binangle a, binangle na)
 //
 //---------------------------------------------------------------------------
 
+/*
+// Turbo turn time.
+Blood:     24 * 30 = 720;
+Duke: 120 / 8 * 30 = 450;
+SW:   120 / 8 * 40 = 600;
+Exhumed: N/A;
+Average: 590.;
+*/
+
+enum
+{
+	BUILDTICRATE = 120,
+	TURBOTURNBASE = 590,
+};
+
 static double turnheldtime;
 
 void updateTurnHeldAmt(double const scaleAdjust)
 {
-	turnheldtime += scaleAdjust * (120. / GameTicRate);
+	turnheldtime += scaleAdjust * (double(BUILDTICRATE) / GameTicRate);
 }
 
 bool isTurboTurnTime()
 {
-	return turnheldtime >= 590. / GameTicRate;
+	return turnheldtime >= double(TURBOTURNBASE) / GameTicRate;
 }
 
 void resetTurnHeldAmt()
@@ -98,36 +113,39 @@ void resetTurnHeldAmt()
 Blood: 92 / 4 * 2 * 30 = 1380;
 Duke:  15 * 2 * 2 * 30 = 1800;
 SW:  28 * 1.40625 * 40 = 1575;   // Precisely, ((((28 * 12) + ((28 * 12) / 4)) * 3) / 32) * 40
-Average: 1585.;
+Exhumed:   12 * 4 * 30 = 1440;
+Average: 1548.75;
 
 // Normal speed.
 Blood:     92 / 4 * 30 = 690;
 Duke:      15 * 2 * 30 = 900;
 SW:  18 * 1.40625 * 40 = 1012.5; // Precisely, (((((12 + 6) * 12) + (((12 + 6) * 12) / 4)) * 3) / 32) * 40
-Average: 867.5;
+Exhumed:    8 * 4 * 30 = 960;
+Average: 890.625;
 
 // Preamble.
-Blood: N/A;
+Blood:   N/A;
+Exhumed: N/A;
 Duke:       5 * 2 * 30 = 300;
 SW:   3 * 1.40625 * 40 = 168.75; // Precisely, ((((3 * 12) + ((3 * 12) / 4)) * 3) / 32) * 40
 Average: 234.375;
-Ratio: 867.5 / 234.375 = (2776. / 750.);
-
-// Turbo turn time.
-Blood:         24 * 30 = 720;
-Duke:     128 / 8 * 30 = 450;
-SW:       128 / 8 * 40 = 600;
-Average: 590.;
 */
 
-void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlInfo* const hidInput, double const scaleAdjust, int const drink_amt, bool const allowstrafe, double const turnscale)
+enum
+{
+	RUNNINGTURNBASE = 1549,
+	NORMALTURNBASE = 891,
+	PREAMBLEBASE = 234,
+};
+
+void processMovement(InputPacket* const currInput, InputPacket* const inputBuffer, ControlInfo* const hidInput, double const scaleAdjust, int const drink_amt, bool const allowstrafe, double const turnscale)
 {
 	// set up variables
 	int const running = !!(inputBuffer->actions & SB_RUN);
 	int const keymove = gi->playerKeyMove() << running;
-	int const cntrlvelscale = g_gameType & GAMEFLAG_PSEXHUMED ? 8 : 1;
-	float const mousevelscale = keymove / 160.f;
-	double const hidspeed = ((running ? 1585. : 867.5) / GameTicRate) * BAngToDegree;
+	float const mousevelscale = keymove * (1.f / 160.f);
+	double const cntrlvelscale = g_gameType & GAMEFLAG_PSEXHUMED ? 8. : 1.;
+	double const hidspeed = (double(running ? RUNNINGTURNBASE : NORMALTURNBASE) / GameTicRate) * BAngToDegree;
 
 	// process mouse and initial controller input.
 	if (buttonMap.ButtonDown(gamefunc_Strafe) && allowstrafe)
@@ -165,24 +183,21 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 	}
 	else
 	{
-		double turnamount = hidspeed * turnscale;
-		double preambleturn = turnamount * (750. / 2776.);
+		bool const turnleft = buttonMap.ButtonDown(gamefunc_Turn_Left) || (buttonMap.ButtonDown(gamefunc_Strafe_Left) && !allowstrafe);
+		bool const turnright = buttonMap.ButtonDown(gamefunc_Turn_Right) || (buttonMap.ButtonDown(gamefunc_Strafe_Right) && !allowstrafe);
 
-		// allow Exhumed to use its legacy values given the drastic difference from the other games.
-		if ((g_gameType & GAMEFLAG_PSEXHUMED) && cl_exhumedoldturn)
+		if (turnleft || turnright)
 		{
-			preambleturn = turnamount = (running ? 12 : 8) * BAngToDegree;
-		}
+			double const turnamount = hidspeed * turnscale;
+			double const preambleturn = turnamount * (double(PREAMBLEBASE) / double(NORMALTURNBASE));
 
-		if (buttonMap.ButtonDown(gamefunc_Turn_Left) || (buttonMap.ButtonDown(gamefunc_Strafe_Left) && !allowstrafe))
-		{
 			updateTurnHeldAmt(scaleAdjust);
-			currInput->avel -= float(scaleAdjust * (isTurboTurnTime() ? turnamount : preambleturn));
-		}
-		else if (buttonMap.ButtonDown(gamefunc_Turn_Right) || (buttonMap.ButtonDown(gamefunc_Strafe_Right) && !allowstrafe))
-		{
-			updateTurnHeldAmt(scaleAdjust);
-			currInput->avel += float(scaleAdjust * (isTurboTurnTime() ? turnamount : preambleturn));
+
+			if (turnleft)
+				currInput->avel -= float(scaleAdjust * (isTurboTurnTime() ? turnamount : preambleturn));
+
+			if (turnright)
+				currInput->avel += float(scaleAdjust * (isTurboTurnTime() ? turnamount : preambleturn));
 		}
 		else
 		{
@@ -206,19 +221,13 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 			if (buttonMap.ButtonDown(gamefunc_Move_Forward))
 			{
 				currInput->fvel += keymove;
-				if (drink_amt & 1)
-					currInput->svel += keymove;
-				else
-					currInput->svel -= keymove;
+				currInput->svel += drink_amt & 1 ? keymove : -keymove;
 			}
 
 			if (buttonMap.ButtonDown(gamefunc_Move_Backward))
 			{
 				currInput->fvel -= keymove;
-				if (drink_amt & 1)
-					currInput->svel -= keymove;
-				else
-					currInput->svel += keymove;
+				currInput->svel -= drink_amt & 1 ? keymove : -keymove;
 			}
 		}
 		else

@@ -80,7 +80,6 @@ CVARD(Bool, cl_syncinput, false, CVAR_ARCHIVE, "enable/disable synchronized inpu
 CVARD(Bool, cl_swsmoothsway, true, CVAR_ARCHIVE, "move SW weapon left and right smoothly while bobbing")
 CVARD(Bool, cl_showmagamt, false, CVAR_ARCHIVE, "show the amount of rounds left in the magazine of your weapon on the modern HUD")
 CVARD(Bool, cl_nomeleeblur, false, CVAR_ARCHIVE, "enable/disable blur effect with melee weapons in SW")
-CVARD(Bool, cl_exhumedoldturn, false, CVAR_ARCHIVE, "enable/disable legacy turning speed for Powerslave/Exhumed")
 CVARD(Bool, cl_hudinterpolation, true, CVAR_ARCHIVE, "enable/disable HUD (weapon drawer) interpolation")
 CVARD(Bool, cl_bloodvanillarun, true, CVAR_ARCHIVE, "enable/disable Blood's vanilla run mode")
 CVARD(Bool, cl_bloodvanillabobbing, true, CVAR_ARCHIVE, "enable/disable Blood's vanilla bobbing while not using vanilla run mode")
