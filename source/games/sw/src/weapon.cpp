@@ -85,7 +85,7 @@ short GenericQueueHead=0;
 DSWActor* GenericQueue[MAX_GENERIC_QUEUE];
 short LoWangsQueueHead=0;
 DSWActor* LoWangsQueue[MAX_LOWANGS_QUEUE];
-int SpawnBreakStaticFlames(short);
+void SpawnBreakStaticFlames(DSWActor* actor);
 
 bool GlobalSkipZrange = false;
 
@@ -4719,7 +4719,7 @@ DoBreakFlames(DSWActor* actor)
 
             if (u->WaitTics + MISSILEMOVETICS > 4 * 120)
             {
-                SpawnBreakStaticFlames(SpriteNum);
+                SpawnBreakStaticFlames(actor);
             }
         }
     }
@@ -10618,10 +10618,8 @@ int SpawnBreakFlames(DSWActor* actor)
     USERp u = actor->u();
     SPRITEp np;
     USERp nu;
-    short New;
 
-    New = SpawnSprite(STAT_MISSILE, FIREBALL_FLAMES+1, s_BreakFlames, sp->sectnum, sp->x, sp->y, sp->z, sp->ang, 0);
-    auto actorNew = &swActors[New];
+    auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL_FLAMES+1, s_BreakFlames, sp->sectnum, sp->x, sp->y, sp->z, sp->ang, 0);
     np = &actorNew->s();
     nu = actorNew->u();
 
@@ -10646,25 +10644,23 @@ int SpawnBreakFlames(DSWActor* actor)
     nu->jump_speed = 0;
     DoBeginJump(actorNew);
 
-    PlaySound(DIGI_FIRE1,np,v3df_dontpan|v3df_doppler);
+    PlaySound(DIGI_FIRE1,actorNew,v3df_dontpan|v3df_doppler);
 
-    return New;
+    return 0;
 }
 
 
-int
-SpawnBreakStaticFlames(int16_t SpriteNum)
+void SpawnBreakStaticFlames(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
     SPRITEp np;
     USERp nu;
-    short New;
 
-    New = SpawnSprite(STAT_STATIC_FIRE, FIREBALL_FLAMES, nullptr, sp->sectnum,
+    auto actorNew = SpawnActor(STAT_STATIC_FIRE, FIREBALL_FLAMES, nullptr, sp->sectnum,
                       sp->x, sp->y, sp->z, sp->ang, 0);
-    np = &sprite[New];
-    nu = User[New].Data();
+    np = &actorNew->s();
+    nu = actorNew->u();
 
     if (RandomRange(1000) > 500)
         np->picnum = 3143;
@@ -10673,27 +10669,18 @@ SpawnBreakStaticFlames(int16_t SpriteNum)
 
     np->hitag = LUMINOUS; //Always full brightness
 
-    //np->xrepeat = 64;
-    //np->yrepeat = 64;
     np->xrepeat = 32;
     np->yrepeat = 32;
-    //nu->Counter = 48; // max flame size
-
     
     np->shade = -40;
     np->pal = nu->spal = u->spal;
-    //SET(np->cstat, CSTAT_SPRITE_YCENTER);
     RESET(np->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
     nu->Radius = 200;
-
     nu->floor_dist = nu->ceiling_dist = 0;
-
     np->z = getflorzofslope(np->sectnum,np->x,np->y);
 
-    PlaySound(DIGI_FIRE1,np,v3df_dontpan|v3df_doppler);
-
-    return New;
+    PlaySound(DIGI_FIRE1,actorNew,v3df_dontpan|v3df_doppler);
 }
 
 
