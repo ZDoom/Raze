@@ -586,8 +586,7 @@ void QuickLadderSetup(short stat, short lotag, short type)
 }
 
 
-void
-TrackSetup(void)
+void TrackSetup(void)
 {
     int SpriteNum = 0, ndx;
     TRACK_POINTp tp;
@@ -598,7 +597,9 @@ TrackSetup(void)
     // put points on track
     for (ndx = 0; ndx < MAX_TRACKS; ndx++)
     {
-        if (StatIterator::First(STAT_TRACK + ndx) == -1)
+        SWStatIterator it(STAT_TRACK + ndx);
+
+        if (!it.Next())
         {
             // for some reason I need at least one record allocated
             // can't remember why at this point
@@ -618,14 +619,14 @@ TrackSetup(void)
         t = &Track[ndx];
 
         // find the first point and save it
-        StatIterator it(STAT_TRACK + ndx);
-        while ((SpriteNum = it.NextIndex()) >= 0)
+        it.Reset(STAT_TRACK + ndx);
+        while (auto actor = it.Next())
         {
-            if (sprite[SpriteNum].lotag == TRACK_START)
+            if (actor->s().lotag == TRACK_START)
             {
                 ASSERT(t->NumPoints == 0);
 
-                TrackAddPoint(t, tp, SpriteNum);
+                TrackAddPoint(t, tp, actor->GetSpriteIndex());
                 break;
             }
         }
@@ -634,13 +635,15 @@ TrackSetup(void)
         if (t->NumPoints == 0)
         {
             int i;
-            auto const sp = (spritetype const *)&sprite[StatIterator::First(STAT_TRACK+ndx)];
+            it.Reset(STAT_TRACK + ndx);
+            auto itActor = it.Next();
+            auto const sp = &itActor->s();
             Printf("WARNING: Did not find first point of Track Number %d, x %d, y %d\n", ndx, sp->x, sp->y);
-            StatIterator it(STAT_TRACK + ndx);
-            while ((i = it.NextIndex()) >= 0)
+            it.Reset(STAT_TRACK + ndx);
+            while (auto actor = it.Next())
             {
                 // neuter the track's sprite list
-                deletesprite(i);
+                deletesprite(actor->GetSpriteIndex());
             }
             continue;
         }
@@ -650,29 +653,30 @@ TrackSetup(void)
             SET(t->ttflags, BIT(tp->tag_high));
 
         // while there are still sprites on this status list
-        while (StatIterator::First(STAT_TRACK + ndx) != -1)
+
+        while (it.Reset(STAT_TRACK + ndx), it.Next())
         {
-            short next_sprite = -1;
+            DSWActor* next_actor = nullptr;
             int dist, low_dist = 999999;
 
             // find the closest point to the last point
-            StatIterator it(STAT_TRACK + ndx);
-            while ((SpriteNum = it.NextIndex()) >= 0)
+            it.Reset(STAT_TRACK + ndx);
+            while (auto actor = it.Next())
             {
-                dist = Distance((tp + t->NumPoints - 1)->x, (tp + t->NumPoints - 1)->y, sprite[SpriteNum].x, sprite[SpriteNum].y);
+                dist = Distance((tp + t->NumPoints - 1)->x, (tp + t->NumPoints - 1)->y, actor->s().x, actor->s().y);
 
                 if (dist < low_dist)
                 {
-                    next_sprite = SpriteNum;
+                    next_actor = actor;
                     low_dist = dist;
                 }
 
             }
 
             // save the closest one off and kill it
-            if (next_sprite != -1)
+            if (next_actor != nullptr)
             {
-                TrackAddPoint(t, tp, next_sprite);
+                TrackAddPoint(t, tp, next_actor->GetSpriteIndex());
             }
 
         }
