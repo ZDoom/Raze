@@ -3841,7 +3841,7 @@ int DoVomit(DSWActor* actor)
     {
         if (TEST(u->coll.actor->s().extra, SPRX_PLAYER_OR_ENEMY))
         {
-            DoDamage(u->coll.actor->GetSpriteIndex(), actor->GetSpriteIndex());
+            DoDamage(u->coll.actor, actor);
         }
     }
     return 0;
@@ -4254,7 +4254,7 @@ bool VehicleMoveHit(DSWActor* actor)
         {
             if (hitActor != GetOwner(ctrlr))
             {
-                DoDamage(hitActor->GetSpriteIndex(), ctrlr->GetSpriteIndex());
+                DoDamage(hitActor, ctrlr);
                 return true;
             }
         }
@@ -4262,7 +4262,7 @@ bool VehicleMoveHit(DSWActor* actor)
         {
             if (hsp->statnum == STAT_MINE_STUCK)
             {
-                DoDamage(hitActor->GetSpriteIndex(), actor->GetSpriteIndex());
+                DoDamage(hitActor, actor);
                 return true;
             }
         }
@@ -4364,7 +4364,7 @@ bool WeaponMoveHit(DSWActor* actor)
         {
             if ((sop = DetectSectorObject(sectp)))
             {
-                DoDamage(sop->sp_child->GetSpriteIndex(), actor->GetSpriteIndex());
+                DoDamage(sop->sp_child, actor);
                 return true;
             }
         }
@@ -4429,7 +4429,7 @@ bool WeaponMoveHit(DSWActor* actor)
                     break;
                     }
                 }
-                DoDamage(hitActor->GetSpriteIndex(), actor->GetSpriteIndex());
+                DoDamage(hitActor, actor);
                 return true;
             }
         }
@@ -4437,7 +4437,7 @@ bool WeaponMoveHit(DSWActor* actor)
         {
             if (hsp->statnum == STAT_MINE_STUCK)
             {
-                DoDamage(hitActor->GetSpriteIndex(), actor->GetSpriteIndex());
+                DoDamage(hitActor, actor);
                 return true;
             }
         }
@@ -4473,7 +4473,7 @@ bool WeaponMoveHit(DSWActor* actor)
             if ((sop = DetectSectorObjectByWall(wph)))
             {
                 if (sop->max_damage != -999)
-                    DoDamage(sop->sp_child->GetSpriteIndex(), actor->GetSpriteIndex());
+                    DoDamage(sop->sp_child, actor);
                 return true;
             }
         }
@@ -5690,13 +5690,11 @@ bool OwnerIs(DSWActor* actor, int pic)
 }
 
 
-int
-DoDamage(short SpriteNum, short Weapon)
+
+int DoDamage(DSWActor* actor, DSWActor* weapActor)
 {
-    auto actor = &swActors[SpriteNum];
-    auto weapActor = Weapon >= 0 ? &swActors[Weapon] : nullptr;
-    SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
     SPRITEp wp;
     USERp wu;
     int damage=0;
@@ -5755,14 +5753,14 @@ DoDamage(short SpriteNum, short Weapon)
                 if (PlayerTakeDamage(u->PlayerP, weapActor))
                 {
                     PlayerUpdateHealth(u->PlayerP, damage);
-                    PlayerCheckDeath(u->PlayerP, Weapon);
+                    PlayerCheckDeath(u->PlayerP, weapActor->GetSpriteIndex());
                 }
             }
             else
             {
                 PLAYERp pp = Player + screenpeek;
 
-                ActorHealth(SpriteNum, damage);
+                ActorHealth(actor->GetSpriteIndex(), damage);
                 if (u->Health <= 0)
                 {
                     int choosesnd=0;
@@ -5779,44 +5777,12 @@ DoDamage(short SpriteNum, short Weapon)
             }
             break;
 
-#if 0
-        case SO_SPEED_BOAT:
-            damage = -100;
-
-            if (u->sop_parent)
-            {
-                break;
             }
-            else if (u->PlayerP)
-            {
-                PlayerDamageSlide(u->PlayerP, damage, wp->ang);
-                if (PlayerTakeDamage(u->PlayerP, weapActor))
-                {
-                    PlayerUpdateHealth(u->PlayerP, damage);
-                    PlayerCheckDeath(u->PlayerP, Weapon);
                 }
-            }
-            else
-            {
-                ActorHealth(SpriteNum, damage);
-                ActorPain(SpriteNum);
-                ActorChooseDeath(SpriteNum, Weapon);
-            }
-
-            SpawnBlood(actor, weapActor, 0, 0, 0, 0);
-            break;
-#endif
-        }
-    }
-
-    if (Player[0].PlayerSprite == Weapon)
-    {
-        //DSPRINTF(ds,"got here 4, %d", User[Player[0].PlayerSprite]->ID);
-        MONO_PRINT(ds);
-    }
-
 
     // weapon is the actor - no missile used - example swords, axes, etc
+    auto SpriteNum = actor->GetSpriteIndex();
+    auto Weapon = weapActor? weapActor->GetSpriteIndex() : -1;
     switch (wu->ID)
     {
     case NINJA_RUN_R0:
@@ -7348,7 +7314,7 @@ int DoDamageTest(DSWActor* actor)
 
             if (GetOwner(actor) != itActor && SpriteOverlap(actor, itActor))
             {
-                DoDamage(itActor->GetSpriteIndex(), actor->GetSpriteIndex());
+                DoDamage(itActor, actor);
             }
         }
     }
@@ -7370,7 +7336,7 @@ static void DoHitscanDamage(DSWActor* weaponActor, DSWActor* hitActor)
     {
         if (hitActor->s().statnum == StatDamageList[stat])
         {
-            DoDamage(hitActor->GetSpriteIndex(), weaponActor->GetSpriteIndex());
+            DoDamage(hitActor, weaponActor);
             break;
         }
     }
@@ -7425,12 +7391,12 @@ int DoFlamesDamageTest(DSWActor* actor)
             {
                 if (FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,wp->x,wp->y,SPRITEp_MID(wp),wp->sectnum))
                 {
-                    DoDamage(itActor->GetSpriteIndex(), actor->GetSpriteIndex());
+                    DoDamage(itActor, actor);
                 }
             }
             else if (SpriteOverlap(actor, itActor))
             {
-                DoDamage(itActor->GetSpriteIndex(), actor->GetSpriteIndex());
+                DoDamage(itActor, actor);
             }
 
         }
@@ -7573,7 +7539,7 @@ int DoExpDamageTest(DSWActor* actor)
 
             if (StatDamageList[stat] == STAT_SO_SP_CHILD)
             {
-                DoDamage(itActor->GetSpriteIndex(), actor->GetSpriteIndex());
+                DoDamage(itActor, actor);
             }
             else
             {
@@ -7590,7 +7556,7 @@ int DoExpDamageTest(DSWActor* actor)
                     !FAFcansee(wp->x, wp->y, wp->z, wp->sectnum, sp->x, sp->y, SPRITEp_LOWER(sp), sp->sectnum))
                     continue;
 
-                DoDamage(itActor->GetSpriteIndex(), actor->GetSpriteIndex());
+                DoDamage(itActor, actor);
             }
         }
     }
@@ -7710,7 +7676,7 @@ int DoMineExpMine(DSWActor* actor)
         zdist = abs(sp->z - wp->z)>>4;
         if (SpriteOverlap(actor, itActor) || (unsigned)zdist < wu->Radius + u->Radius)
         {
-            DoDamage(itActor->GetSpriteIndex(), actor->GetSpriteIndex());
+            DoDamage(itActor, actor);
             // only explode one mine at a time
             break;
         }
@@ -12709,7 +12675,7 @@ int InitSwordAttack(PLAYERp pp)
                 if (SpriteOverlapZ(pp->PlayerSprite, itActor->GetSpriteIndex(), Z(20)))
                 {
                     if (FAFcansee(sp->x, sp->y, SPRITEp_MID(sp), sp->sectnum, psp->x, psp->y, SPRITEp_MID(psp), psp->sectnum))
-                        DoDamage(itActor->GetSpriteIndex(), pp->Actor()->GetSpriteIndex());
+                        DoDamage(itActor, pp->Actor());
                 }
             }
         }
@@ -12894,7 +12860,7 @@ int InitFistAttack(PLAYERp pp)
                 if (SpriteOverlapZ(pp->PlayerSprite, itActor->GetSpriteIndex(), Z(20)) || face == 190)
                 {
                     if (FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,psp->x,psp->y,SPRITEp_MID(psp),psp->sectnum))
-                        DoDamage(itActor->GetSpriteIndex(), pp->Actor()->GetSpriteIndex());
+                        DoDamage(itActor, pp->Actor());
                     if (face == 190)
                     {
                         SpawnDemonFist(itActor);
@@ -13195,7 +13161,7 @@ int InitSumoStompAttack(DSWActor* actor)
             if (dist < CLOSE_RANGE_DIST_FUDGE(tsp, sp, reach))
             {
                 if (FAFcansee(tsp->x,tsp->y,SPRITEp_MID(tsp),tsp->sectnum,sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum))
-                    DoDamage(itActor->GetSpriteIndex(), actor->GetSpriteIndex());
+                    DoDamage(itActor, actor);
             }
         }
     }
@@ -13226,7 +13192,7 @@ int InitMiniSumoClap(DSWActor* actor)
             if (FAFcansee(tsp->x, tsp->y, ActorMid(u->targetActor), tsp->sectnum, sp->x, sp->y, SPRITEp_MID(sp), sp->sectnum))
             {
                 PlaySound(DIGI_CGTHIGHBONE, actor, v3df_follow | v3df_dontpan);
-                DoDamage(u->targetActor->GetSpriteIndex(), actor->GetSpriteIndex());
+                DoDamage(u->targetActor, actor);
             }
         }
     }
@@ -14780,7 +14746,7 @@ int InitRipperSlash(DSWActor* actor)
 
             if (dist < CLOSE_RANGE_DIST_FUDGE(sp, hp, 600) && FACING_RANGE(hp, sp, 150))
             {
-                DoDamage(itActor->GetSpriteIndex(), actor->GetSpriteIndex());
+                DoDamage(itActor, actor);
             }
         }
     }
@@ -14813,7 +14779,7 @@ int InitBunnySlash(DSWActor* actor)
 
             if (dist < CLOSE_RANGE_DIST_FUDGE(sp, hp, 600) && FACING_RANGE(hp, sp, 150))
             {
-                DoDamage(itActor->GetSpriteIndex(), actor->GetSpriteIndex());
+                DoDamage(itActor, actor);
             }
         }
     }
@@ -14847,7 +14813,7 @@ int InitSerpSlash(DSWActor* actor)
 
             if (dist < CLOSE_RANGE_DIST_FUDGE(sp, hp, 800) && FACING_RANGE(hp, sp, 150))
             {
-                DoDamage(itActor->GetSpriteIndex(), actor->GetSpriteIndex());
+                DoDamage(itActor, actor);
             }
         }
     }
@@ -14924,7 +14890,7 @@ int DoBladeDamage(DSWActor* actor)
 
             if (WallSpriteInsideSprite(sp, hp))
             {
-                DoDamage(itActor->GetSpriteIndex(), actor->GetSpriteIndex());
+                DoDamage(itActor, actor);
             }
         }
     }
@@ -14965,11 +14931,11 @@ int DoStaticFlamesDamage(DSWActor* actor)
                 continue;
 
             if (SpriteOverlap(actor, itActor))  // If sprites are overlapping, cansee will fail!
-                DoDamage(itActor->GetSpriteIndex(), actor->GetSpriteIndex());
+                DoDamage(itActor, actor);
             else if (u->Radius > 200)
             {
                 if (FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,hp->x,hp->y,SPRITEp_MID(hp),hp->sectnum))
-                    DoDamage(itActor->GetSpriteIndex(), actor->GetSpriteIndex());
+                    DoDamage(itActor, actor);
             }
         }
     }
@@ -15006,7 +14972,7 @@ int InitCoolgBash(DSWActor* actor)
 
             if (dist < CLOSE_RANGE_DIST_FUDGE(sp, hp, 600) && FACING_RANGE(hp, sp, 150))
             {
-                DoDamage(itActor->GetSpriteIndex(), actor->GetSpriteIndex());
+                DoDamage(itActor, actor);
             }
         }
     }
@@ -15039,7 +15005,7 @@ int InitSkelSlash(DSWActor* actor)
 
             if (dist < CLOSE_RANGE_DIST_FUDGE(sp, hp, 600) && FACING_RANGE(hp, sp, 150))
             {
-                DoDamage(itActor->GetSpriteIndex(), actor->GetSpriteIndex());
+                DoDamage(itActor, actor);
             }
         }
     }
@@ -15073,7 +15039,7 @@ int InitGoroChop(DSWActor* actor)
             if (dist < CLOSE_RANGE_DIST_FUDGE(sp, hp, 700) && FACING_RANGE(hp, sp, 150))
             {
                 PlaySound(DIGI_GRDAXEHIT, actor, v3df_none);
-                DoDamage(itActor->GetSpriteIndex(), actor->GetSpriteIndex());
+                DoDamage(itActor, actor);
             }
         }
     }
@@ -15083,7 +15049,7 @@ int InitGoroChop(DSWActor* actor)
 
 int InitHornetSting(DSWActor* actor)
 {
-    DoDamage(actor->u()->coll.actor->GetSpriteIndex(), actor->GetSpriteIndex());
+    DoDamage(actor->u()->coll.actor, actor);
     InitActorReposition(actor);
     return 0;
 }
@@ -15861,7 +15827,7 @@ int InitEelFire(DSWActor* actor)
             if (dist < CLOSE_RANGE_DIST_FUDGE(sp, hp, 600) && FACING_RANGE(hp, sp, 150))
             {
                 PlaySound(DIGI_GIBS1, actor, v3df_none);
-                DoDamage(itActor->GetSpriteIndex(), actor->GetSpriteIndex());
+                DoDamage(itActor, actor);
             }
             else
                 InitActorReposition(actor);
