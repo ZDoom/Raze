@@ -253,6 +253,30 @@ void processMovement(InputPacket* const currInput, InputPacket* const inputBuffe
 //
 //---------------------------------------------------------------------------
 
+/*
+// Aim speed.
+Duke:      6 * 30 = 180;
+SW: (16 / 2) * 40 = 320;
+Average: 250.;
+
+// Look speed.
+Duke:     12 * 30 = 360;
+SW:       16 * 40 = 640;
+Average: 500.;
+
+// Return to centre speed.
+Duke: (1 / 3) * 30 = 10;
+SW:   (1 / 4) * 40 = 10;
+Average: 10.;
+*/
+
+enum
+{
+	AIMSPEED = 250,
+	LOOKSPEED = 500,
+	CNTRSPEED = 10,
+};
+
 void PlayerHorizon::applyinput(float const horz, ESyncBits* actions, double const scaleAdjust)
 {
 	// Process only if movewment isn't locked.
@@ -271,7 +295,7 @@ void PlayerHorizon::applyinput(float const horz, ESyncBits* actions, double cons
 		if (*actions & (SB_AIM_UP|SB_AIM_DOWN))
 		{
 			*actions &= ~SB_CENTERVIEW;
-			double const amount = HorizToPitch(250. / GameTicRate);
+			double const amount = HorizToPitch(double(AIMSPEED) / GameTicRate);
 
 			if (*actions & SB_AIM_DOWN)
 				pitch -= scaleAdjust * amount;
@@ -284,7 +308,7 @@ void PlayerHorizon::applyinput(float const horz, ESyncBits* actions, double cons
 		if (*actions & (SB_LOOK_UP|SB_LOOK_DOWN))
 		{
 			*actions |= SB_CENTERVIEW;
-			double const amount = HorizToPitch(500. / GameTicRate);
+			double const amount = HorizToPitch(double(LOOKSPEED) / GameTicRate);
 
 			if (*actions & SB_LOOK_DOWN)
 				pitch -= scaleAdjust * amount;
@@ -300,7 +324,7 @@ void PlayerHorizon::applyinput(float const horz, ESyncBits* actions, double cons
 		if ((*actions & SB_CENTERVIEW) && !(*actions & (SB_LOOK_UP|SB_LOOK_DOWN)) && horiz.asq16())
 		{
 			// move horiz back to 0
-			horiz -= buildfhoriz(scaleAdjust * horiz.asbuildf() * (10. / GameTicRate));
+			horiz -= buildfhoriz(scaleAdjust * horiz.asbuildf() * (double(CNTRSPEED) / GameTicRate));
 			if (abs(horiz.asq16()) < (FRACUNIT >> 2))
 			{
 				// not looking anymore because horiz is back at 0
