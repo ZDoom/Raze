@@ -7028,7 +7028,7 @@ DoDamage(short SpriteNum, short Weapon)
             ActorChooseDeath(SpriteNum, Weapon);
         }
 
-        SpawnGoroFireballExp(Weapon);
+        SpawnGoroFireballExp(weapActor);
         SetSuicide(weapActor);
         break;
 
@@ -10697,30 +10697,29 @@ SpawnBreakStaticFlames(int16_t SpriteNum)
 }
 
 
-int SpawnFireballExp(DSWActor* actor)
+void SpawnFireballExp(DSWActor* actor)
 {
     SPRITEp sp = &actor->s();
     USERp u = actor->u();
     SPRITEp exp;
     USERp eu;
-    short explosion;
 
     ASSERT(u);
 
     if (TEST(u->Flags, SPR_SUICIDE))
-        return -1;
+        return;
 
-    PlaySound(DIGI_SMALLEXP, sp, v3df_none);
+    PlaySound(DIGI_SMALLEXP, actor, v3df_none);
 
-    explosion = SpawnSprite(STAT_MISSILE, FIREBALL_EXP, s_FireballExp, sp->sectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL_EXP, s_FireballExp, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 0);
-    exp = &sprite[explosion];
-    eu = User[explosion].Data();
+    exp = &actorNew->s();
+    eu = actorNew->u();
 
     exp->hitag = LUMINOUS; //Always full brightness
     exp->xrepeat = 52;
     exp->yrepeat = 52;
-    SetOwner(sp->owner, explosion);
+    SetOwner(GetOwner(actor), actorNew);
     exp->shade = -40;
     exp->pal = eu->spal = u->spal;
     SET(exp->cstat, CSTAT_SPRITE_YCENTER);
@@ -10735,35 +10734,32 @@ int SpawnFireballExp(DSWActor* actor)
     SpawnExpZadjust(actor->GetSpriteIndex(), exp, Z(15), Z(15));
 
     if (RANDOM_P2(1024) < 150)
-        SpawnFireballFlames(explosion,-1);
-    return explosion;
+        SpawnFireballFlames(actorNew->GetSpriteIndex(),-1);
 }
 
-int
-SpawnGoroFireballExp(int16_t Weapon)
+void SpawnGoroFireballExp(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon].Data();
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
     SPRITEp exp;
     USERp eu;
-    short explosion;
 
     ASSERT(u);
 
     if (TEST(u->Flags, SPR_SUICIDE))
-        return -1;
+        return;
 
-    PlaySound(DIGI_MEDIUMEXP, sp, v3df_none);
+    PlaySound(DIGI_MEDIUMEXP, actor, v3df_none);
 
-    explosion = SpawnSprite(STAT_MISSILE, 0, s_FireballExp, sp->sectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, 0, s_FireballExp, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 0);
-    exp = &sprite[explosion];
-    eu = User[explosion].Data();
+    exp = &actorNew->s();
+    eu = actorNew->u();
 
     exp->hitag = LUMINOUS; //Always full brightness
     exp->xrepeat = 16;
     exp->yrepeat = 16;
-    SetOwner(sp->owner, explosion);
+    SetOwner(GetOwner(actor), actorNew);
     exp->shade = -40;
     exp->pal = eu->spal = u->spal;
     SET(exp->cstat, CSTAT_SPRITE_YCENTER);
@@ -10774,8 +10770,7 @@ SpawnGoroFireballExp(int16_t Weapon)
     // ceilings
     //
 
-    SpawnExpZadjust(Weapon, exp, Z(15), Z(15));
-    return explosion;
+    SpawnExpZadjust(actor->GetSpriteIndex(), exp, Z(15), Z(15));
 }
 
 void SpawnBoltExp(DSWActor* actor)
@@ -11591,7 +11586,7 @@ int DoFireball(DSWActor* actor)
             if (!hit_burn)
             {
                 if (u->ID == GORO_FIREBALL)
-                    SpawnGoroFireballExp(actor->GetSpriteIndex());
+                    SpawnGoroFireballExp(actor);
                 else
                     SpawnFireballExp(actor);
             }
