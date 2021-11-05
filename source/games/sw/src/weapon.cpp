@@ -5033,7 +5033,7 @@ ActorChooseDeath(short SpriteNum, short Weapon)
 
                 // For the Nuke, do residual radiation if he gibs
                 if (wu->Radius == NUKE_RADIUS)
-                    SpawnFireballFlames(actor->GetSpriteIndex(), -1);
+                    SpawnFireballFlames(actor, nullptr);
 
                 // Random chance of taunting the AI's here
                 if (RandomRange(1000) > 400)
@@ -6995,7 +6995,7 @@ DoDamage(short SpriteNum, short Weapon)
 
         if (wp->owner >= 0) // For SerpGod Ring
             User[wp->owner]->Counter--;
-        SpawnFireballFlames(weapActor->GetSpriteIndex(), actor->GetSpriteIndex());
+        SpawnFireballFlames(weapActor, actor);
         SetSuicide(weapActor);
         break;
 
@@ -10493,18 +10493,18 @@ SpawnBasicExp(int16_t Weapon)
     return explosion;
 }
 
-void SpawnFireballFlames(int16_t SpriteNum, int16_t enemy)
+void SpawnFireballFlames(DSWActor* actor, DSWActor* enemyActor)
 {
-    SPRITEp sp = &sprite[SpriteNum], ep = nullptr;
-    USERp u = User[SpriteNum].Data(), eu = nullptr;
+    SPRITEp sp = &actor->s(), ep;
+    USERp u = actor->u(), eu = nullptr;
 
     if (TEST(u->Flags, SPR_UNDERWATER))
         return;
 
-    if (enemy >= 0)
+    if (enemyActor != nullptr)
     {
-        ep = &sprite[enemy];
-        eu = User[enemy].Data();
+        ep = &enemyActor->s();
+        eu = enemyActor->u();
 
         // test for already burned
         if (TEST(ep->extra, SPRX_BURNABLE) && ep->shade > 40)
@@ -10557,12 +10557,12 @@ void SpawnFireballFlames(int16_t SpriteNum, int16_t enemy)
 
     np->hitag = LUMINOUS; //Always full brightness
 
-    if (enemy >= 0)
+    if (enemyActor != nullptr)
         eu->flameActor = actorNew;
 
     np->xrepeat = 16;
     np->yrepeat = 16;
-    if (enemy >= 0)
+    if (enemyActor != nullptr)
     {
         // large flame for trees and such
         if (TEST(ep->extra, SPRX_BURNABLE))
@@ -10580,7 +10580,7 @@ void SpawnFireballFlames(int16_t SpriteNum, int16_t enemy)
         nu->Counter = 48; // max flame size
     }
 
-    SetOwner(sp->owner, actorNew->GetSpriteIndex());
+    SetOwner(GetOwner(actor), actorNew);
     np->shade = -40;
     np->pal = nu->spal = u->spal;
     SET(np->cstat, CSTAT_SPRITE_YCENTER);
@@ -10589,9 +10589,9 @@ void SpawnFireballFlames(int16_t SpriteNum, int16_t enemy)
     //nu->Radius = DamageData[DMG_FIREBALL_FLAMES].radius;
     nu->Radius = 200;
 
-    if (enemy >= 0)
+    if (enemyActor != nullptr)
     {
-        SetAttach(&swActors[enemy], actorNew);
+        SetAttach(enemyActor, actorNew);
     }
     else
     {
@@ -10608,7 +10608,7 @@ void SpawnFireballFlames(int16_t SpriteNum, int16_t enemy)
         DoBeginJump(actorNew);
     }
 
-    PlaySound(DIGI_FIRE1,np,v3df_dontpan|v3df_doppler);
+    PlaySound(DIGI_FIRE1,actorNew,v3df_dontpan|v3df_doppler);
 }
 
 
@@ -10721,7 +10721,7 @@ void SpawnFireballExp(DSWActor* actor)
     SpawnExpZadjust(actor->GetSpriteIndex(), exp, Z(15), Z(15));
 
     if (RANDOM_P2(1024) < 150)
-        SpawnFireballFlames(actorNew->GetSpriteIndex(),-1);
+        SpawnFireballFlames(actorNew, nullptr);
 }
 
 void SpawnGoroFireballExp(DSWActor* actor)
@@ -11562,7 +11562,7 @@ int DoFireball(DSWActor* actor)
                 {
                     if (!hu)
                         hu = SpawnUser(actor, hsp->picnum, nullptr);
-                    SpawnFireballFlames(actor->GetSpriteIndex(), u->coll.actor->GetSpriteIndex());
+                    SpawnFireballFlames(actor, u->coll.actor);
                     hit_burn = true;
                 }
 
@@ -13459,7 +13459,7 @@ int InitMiniSumoClap(DSWActor* actor)
         if (FAFcansee(tsp->x, tsp->y, ActorMid(u->targetActor), tsp->sectnum, sp->x, sp->y, SPRITEp_MID(sp), sp->sectnum))
         {
             PlaySound(DIGI_30MMEXPLODE, actor, v3df_none);
-            SpawnFireballFlames(actor->GetSpriteIndex(), u->targetActor->GetSpriteIndex());
+            SpawnFireballFlames(actor, u->targetActor);
         }
     }
 

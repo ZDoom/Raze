@@ -82,7 +82,7 @@ bool SlopeBounce(DSWActor*, bool *hit_wall);
 int SpawnSwordSparks(PLAYERp pp, short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang);
 DSWActor* SpawnBubble(DSWActor*);
 void SpawnFireballExp(DSWActor*);
-void SpawnFireballFlames(int16_t SpriteNum,int16_t enemy);
+void SpawnFireballFlames(DSWActor* actor, DSWActor* enemyActor);
 int SpawnRadiationCloud(DSWActor* actor);
 void SpawnGrenadeExp(DSWActor*);
 DSWActor* SpawnSectorExp(DSWActor*);

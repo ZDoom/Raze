@@ -636,7 +636,7 @@ int DoPhosphorus(DSWActor* actor)
                         hu = SpawnUser(hitActor, hsp->picnum, nullptr);
                     SpawnFireballExp(actor);
                     if (hu)
-                        SpawnFireballFlames(actor->GetSpriteIndex(), hitActor->GetSpriteIndex());
+                        SpawnFireballFlames(actor, hitActor);
                     DoFlamesDamageTest(actor->GetSpriteIndex());
                 }
                 u->xchange = u->ychange = 0;
