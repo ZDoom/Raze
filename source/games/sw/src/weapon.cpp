@@ -10275,37 +10275,33 @@ DoBoltSeeker(DSWActor* actor)
     return false;
 }
 
-int
-DoBoltShrapnel(DSWActor* actor)
+int DoBoltShrapnel(DSWActor* actor)
 {
     return 0;
 }
 
-int
-DoBoltFatMan(DSWActor* actor)
+int DoBoltFatMan(DSWActor* actor)
 {
     return 0;
 }
 
-int
-DoElectro(DSWActor* actor)
+int DoElectro(DSWActor* actor)
 {
     USER* u = actor->u();
-    int Weapon = u->SpriteNum;
-    SPRITEp sp = &sprite[Weapon];
+    SPRITEp sp = &actor->s();
     int32_t dax, day, daz;
 
-    DoBlurExtend(Weapon, 0, 4);
+    DoBlurExtend(actor->GetSpriteIndex(), 0, 4);
 
     // only seek on Electro's after a hit on an actor
     if (u->Counter > 0)
-        MissileSeek(Weapon, 30, 512/*, 3, 52, 2*/);
+        MissileSeek(actor->GetSpriteIndex(), 30, 512/*, 3, 52, 2*/);
 
     dax = MOVEx(sp->xvel, sp->ang);
     day = MOVEy(sp->xvel, sp->ang);
     daz = sp->zvel;
 
-    SetCollision(u, move_missile(Weapon, dax, day, daz, CEILING_DIST, FLOOR_DIST, CLIPMASK_MISSILE, MISSILEMOVETICS));
+    SetCollision(u, move_missile(actor->GetSpriteIndex(), dax, day, daz, CEILING_DIST, FLOOR_DIST, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     MissileHitDiveArea(actor);
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
@@ -10317,14 +10313,15 @@ DoElectro(DSWActor* actor)
 
     if (u->ret)
     {
-        if (WeaponMoveHit(Weapon))
+        if (WeaponMoveHit(actor->GetSpriteIndex()))
         {
-            switch (TEST(u->ret, HIT_MASK))
+            switch (u->coll.type)
             {
-            case HIT_SPRITE:
+            case kHitSprite:
             {
-                SPRITEp hsp = &sprite[NORM_SPRITE(u->ret)];
-                USERp hu = User[NORM_SPRITE(u->ret)].Data();
+                auto hitActor = u->coll.actor;
+                SPRITEp hsp = &hitActor->s();
+                USERp hu = hitActor->u();
 
                 if (!TEST(hsp->extra, SPRX_PLAYER_OR_ENEMY) || hu->ID == SKULL_R0 || hu->ID == BETTY_R0)
                     SpawnShrap(actor, nullptr);
@@ -10336,35 +10333,30 @@ DoElectro(DSWActor* actor)
                 break;
             }
 
-            //SpawnShrap(Weapon, -1);
             KillActor(actor);
             return true;
         }
     }
-
     return false;
 }
 
-int
-DoLavaBoulder(DSWActor* actor)
+int DoLavaBoulder(DSWActor* actor)
 {
     USER* u = actor->u();
-    int Weapon = u->SpriteNum;
-
-    SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange,
+    
+    SetCollision(u, move_missile(actor->GetSpriteIndex(), u->xchange, u->ychange, u->zchange,
                           u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     MissileHitDiveArea(actor);
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
-    //DoDamageTest(Weapon);
 
     if (TEST(u->Flags, SPR_SUICIDE))
         return true;
 
     if (u->ret)
     {
-        if (WeaponMoveHit(Weapon))
+        if (WeaponMoveHit(actor->GetSpriteIndex()))
         {
             SpawnShrap(actor, nullptr);
             KillActor(actor);
@@ -10375,13 +10367,11 @@ DoLavaBoulder(DSWActor* actor)
     return false;
 }
 
-int
-DoSpear(DSWActor* actor)
+int DoSpear(DSWActor* actor)
 {
     USER* u = actor->u();
-    int Weapon = u->SpriteNum;
 
-    SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange,
+    SetCollision(u, move_missile(actor->GetSpriteIndex(), u->xchange, u->ychange, u->zchange,
                           u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     MissileHitDiveArea(actor);
@@ -10389,16 +10379,13 @@ DoSpear(DSWActor* actor)
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
 
-    //DoDamageTest(Weapon);
-
     if (TEST(u->Flags, SPR_SUICIDE))
         return true;
 
     if (u->ret)
     {
-        if (WeaponMoveHit(Weapon))
+        if (WeaponMoveHit(actor->GetSpriteIndex()))
         {
-            //SpawnShrap(Weapon, -1);
             KillActor(actor);
             return true;
         }
@@ -10410,11 +10397,9 @@ DoSpear(DSWActor* actor)
 int SpawnCoolieExp(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 	USERp eu;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
 
-    short explosion;
     SPRITEp exp;
     int zh,nx,ny;
 
@@ -10426,71 +10411,24 @@ int SpawnCoolieExp(DSWActor* actor)
     nx = sp->x + MOVEx(64, sp->ang+1024);
     ny = sp->y + MOVEy(64, sp->ang+1024);
 
-    PlaySound(DIGI_COOLIEEXPLODE, sp, v3df_none);
+    PlaySound(DIGI_COOLIEEXPLODE, actor, v3df_none);
 
-    explosion = SpawnSprite(STAT_MISSILE, BOLT_EXP, s_BoltExp, sp->sectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_EXP, s_BoltExp, sp->sectnum,
                             nx, ny, zh, sp->ang, 0);
-    auto expActor = &swActors[explosion];
-    exp = &sprite[explosion];
-    eu = User[explosion].Data();
+
+    exp = &actorNew->s();
+    eu = actorNew->u();
 
     exp->hitag = LUMINOUS; //Always full brightness
-    SetOwner(SpriteNum, explosion);
+    SetOwner(actor, actorNew);
     exp->shade = -40;
     exp->pal = eu->spal = u->spal;
     SET(exp->cstat, CSTAT_SPRITE_YCENTER);
     RESET(exp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
     eu->Radius = DamageData[DMG_BOLT_EXP].radius;
-
-    DoExpDamageTest(expActor);
-
-    return explosion;
-}
-
-
-int
-SpawnBasicExp(int16_t Weapon)
-{
-    SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon].Data();
-    SPRITEp exp;
-    USERp eu;
-    short explosion;
-
-    ASSERT(u);
-
-    if (TEST(u->Flags, SPR_SUICIDE))
-        return -1;
-
-    PlaySound(DIGI_MEDIUMEXP, sp, v3df_none);
-
-    explosion = SpawnSprite(STAT_MISSILE, BASIC_EXP, s_BasicExp, sp->sectnum,
-                            sp->x, sp->y, sp->z, sp->ang, 0);
-    auto expActor = &swActors[explosion];
-    exp = &sprite[explosion];
-    eu = User[explosion].Data();
-
-    exp->hitag = LUMINOUS; //Always full brightness
-    exp->xrepeat = 24;
-    exp->yrepeat = 24;
-    SetOwner(sp->owner, explosion);
-    exp->shade = -40;
-    exp->pal = eu->spal = u->spal;
-    SET(exp->cstat, CSTAT_SPRITE_YCENTER);
-    RESET(exp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-    eu->Radius = DamageData[DMG_BASIC_EXP].radius;
-
-    //
-    // All this stuff assures that explosions do not go into floors &
-    // ceilings
-    //
-
-    SpawnExpZadjust(Weapon, exp, Z(15), Z(15));
-    DoExpDamageTest(expActor);
-    SpawnVis(nullptr, exp->sectnum, exp->x, exp->y, exp->z, 16);
-
-    return explosion;
+    DoExpDamageTest(actorNew);
+    return 0;
 }
 
 void SpawnFireballFlames(DSWActor* actor, DSWActor* enemyActor)
