@@ -7538,8 +7538,7 @@ void TraverseBreakableWalls(short start_sect, int x, int y, int z, short ang, in
 int DoExpDamageTest(DSWActor* actor)
 {
     auto wu = actor->u();
-    int Weapon = wu->SpriteNum;
-    SPRITEp wp = &sprite[Weapon];
+    SPRITEp wp = &actor->s();
 
     USERp u;
     SPRITEp sp;
@@ -7549,7 +7548,7 @@ int DoExpDamageTest(DSWActor* actor)
     int max_stat;
     short break_count;
 
-    SPRITEp found_sp = nullptr;
+    DSWActor* found_act = nullptr;
     int found_dist = 999999;
     int DoWallMoveMatch(short match);
 
@@ -7566,11 +7565,11 @@ int DoExpDamageTest(DSWActor* actor)
 
     for (stat = 0; stat < max_stat; stat++)
     {
-        StatIterator it(StatDamageList[stat]);
-        while ((i = it.NextIndex()) >= 0)
+        SWStatIterator it(StatDamageList[stat]);
+        while (auto itActor = it.Next())
         {
-            sp = &sprite[i];
-            u = User[i].Data();
+            sp = &itActor->s();
+            u = itActor->u();
 
             DISTANCE(sp->x, sp->y, wp->x, wp->y, dist, tx, ty, tmin);
 
@@ -7582,7 +7581,7 @@ int DoExpDamageTest(DSWActor* actor)
 
             if (StatDamageList[stat] == STAT_SO_SP_CHILD)
             {
-                DoDamage(i, Weapon);
+                DoDamage(itActor->GetSpriteIndex(), actor->GetSpriteIndex());
             }
             else
             {
@@ -7599,7 +7598,7 @@ int DoExpDamageTest(DSWActor* actor)
                     !FAFcansee(wp->x, wp->y, wp->z, wp->sectnum, sp->x, sp->y, SPRITEp_LOWER(sp), sp->sectnum))
                     continue;
 
-                DoDamage(i, Weapon);
+                DoDamage(itActor->GetSpriteIndex(), actor->GetSpriteIndex());
             }
         }
     }
@@ -7645,10 +7644,10 @@ int DoExpDamageTest(DSWActor* actor)
         return 0;
 
     // wall damaging
-    StatIterator it(STAT_WALL_MOVE);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_WALL_MOVE);
+    while (auto itActor = it.Next())
     {
-        sp = &sprite[i];
+        sp = &itActor->s();
 
         DISTANCE(sp->x, sp->y, wp->x, wp->y, dist, tx, ty, tmin);
         if ((unsigned)dist > wu->Radius/4)
@@ -7663,18 +7662,17 @@ int DoExpDamageTest(DSWActor* actor)
         if (dist < found_dist)
         {
             found_dist = dist;
-            found_sp = sp;
+            found_act = itActor;
         }
     }
 
-
-
-    if (found_sp)
+    if (found_act)
     {
+        auto found_sp = &found_act->s();
         if (SP_TAG2(found_sp) == 0)
         {
             // just do one
-            DoWallMove(&swActors[found_sp - sprite]);
+            DoWallMove(found_act);
         }
         else
         {
@@ -7684,7 +7682,6 @@ int DoExpDamageTest(DSWActor* actor)
             }
         }
     }
-
     return 0;
 }
 
@@ -7692,8 +7689,7 @@ int DoExpDamageTest(DSWActor* actor)
 int DoMineExpMine(DSWActor* actor)
 {
     auto wu = actor->u();
-    int Weapon = wu->SpriteNum;
-    SPRITEp wp = &sprite[Weapon];
+    SPRITEp wp = &actor->s();
 
     USERp u;
     SPRITEp sp;
@@ -7702,29 +7698,27 @@ int DoMineExpMine(DSWActor* actor)
     int tmin;
     int zdist;
 
-    StatIterator it(STAT_MINE_STUCK);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_MINE_STUCK);
+    while (auto itActor = it.Next())
     {
-        sp = &sprite[i];
-        u = User[i].Data();
+        sp = &itActor->s();
+        u = itActor->u();
 
         DISTANCE(sp->x, sp->y, wp->x, wp->y, dist, tx, ty, tmin);
         if ((unsigned)dist > wu->Radius + u->Radius)
             continue;
 
-        if (sp == wp)
+        if (itActor == actor)
             continue;
 
-        //if (!TEST(sp->cstat, CSTAT_SPRITE_BLOCK))
-        //    continue;
         if (!TEST(sp->cstat, CSTAT_SPRITE_BLOCK_HITSCAN))
             continue;
 
         // Explosions are spherical, not planes, so let's check that way, well cylindrical at least.
         zdist = abs(sp->z - wp->z)>>4;
-        if (SpriteOverlap(Weapon, i) || (unsigned)zdist < wu->Radius + u->Radius)
+        if (SpriteOverlap(actor->GetSpriteIndex(), itActor->GetSpriteIndex()) || (unsigned)zdist < wu->Radius + u->Radius)
         {
-            DoDamage(i, Weapon);
+            DoDamage(itActor->GetSpriteIndex(), actor->GetSpriteIndex());
             // only explode one mine at a time
             break;
         }
