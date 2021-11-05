@@ -5495,8 +5495,7 @@ DoGet(DSWActor* actor)
     TRAVERSE_CONNECT(pnum)
     {
         pp = &Player[pnum];
-        //pu = User[pp->PlayerSprite].Data();
-        pu = User[pp->SpriteP - sprite].Data();
+        pu = pp->Actor()->u();
 
         if (TEST(pp->Flags, PF_DEAD))
             continue;

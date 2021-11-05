@@ -698,17 +698,14 @@ TrackSetup(void)
 
 }
 
-SPRITEp
-FindBoundSprite(int tag)
+DSWActor* FindBoundSprite(int tag)
 {
-    int sn;
-
-    StatIterator it(STAT_ST1);
-    while ((sn = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_ST1);
+    while (auto actor = it.Next())
     {
-        if (sprite[sn].hitag == tag)
+        if (actor->s().hitag == tag)
         {
-            return &sprite[sn];
+            return actor;
         }
     }
 
@@ -722,7 +719,7 @@ SectorObjectSetupBounds(SECTOR_OBJECTp sop)
     int xlow, ylow, xhigh, yhigh;
     int startwall, endwall;
     int i, k, j;
-    SPRITEp BoundSprite;
+    DSWActor* BoundActor = nullptr;
     bool FoundOutsideLoop = false;
     bool SectorInBounds;
     SECTORp *sectp;
@@ -742,23 +739,29 @@ SectorObjectSetupBounds(SECTOR_OBJECTp sop)
 
     // search for 2 sprite bounding tags
 
-    BoundSprite = FindBoundSprite(500 + (int(sop - SectorObject) * 5));
+    BoundActor = FindBoundSprite(500 + (int(sop - SectorObject) * 5));
+    if (BoundActor == nullptr)
+    {
+        I_Error("SOP bound sprite with hitag %d not found", 500 + (int(sop - SectorObject) * 5));
+    }
+    auto BoundSprite = &BoundActor->s();
 
-    //DSPRINTF(ds,"tagnum %d, so num %d",500 + ((sop - SectorObject) * 5), sop - SectorObject);
-    MONO_PRINT(ds);
-
-    ASSERT(BoundSprite != nullptr);
     xlow = BoundSprite->x;
     ylow = BoundSprite->y;
 
-    KillSprite(short(BoundSprite - sprite));
+    KillActor(BoundActor);
 
-    BoundSprite = FindBoundSprite(501 + (int(sop - SectorObject) * 5));
-    ASSERT(BoundSprite != nullptr);
+    BoundActor = FindBoundSprite(501 + (int(sop - SectorObject) * 5));
+    if (BoundActor == nullptr)
+    {
+        I_Error("SOP bound sprite with hitag %d not found", 501 + (int(sop - SectorObject) * 5));
+    }
+    BoundSprite = &BoundActor->s();
+
     xhigh = BoundSprite->x;
     yhigh = BoundSprite->y;
 
-    KillSprite(short(BoundSprite - sprite));
+    KillActor(BoundActor);
 
     // set radius for explosion checking - based on bounding box
     u->Radius = DIV4((xhigh - xlow) + (yhigh - ylow));
@@ -766,13 +769,14 @@ SectorObjectSetupBounds(SECTOR_OBJECTp sop)
 
     // search for center sprite if it exists
 
-    BoundSprite = FindBoundSprite(SECT_SO_CENTER);
-    if (BoundSprite)
+    BoundActor = FindBoundSprite(SECT_SO_CENTER);
+    if (BoundActor)
     {
+        auto BoundSprite = &BoundActor->s();
         sop->xmid = BoundSprite->x;
         sop->ymid = BoundSprite->y;
         sop->zmid = BoundSprite->z;
-        KillSprite(short(BoundSprite - sprite));
+        KillActor(BoundActor);
     }
 
 #if 0
@@ -3628,8 +3632,6 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
     PLAYERp pp;
-
-    int move_actor(short SpriteNum, int xchange, int ychange, int zchange);
 
     TRACK_POINTp tpoint;
     short pnum;
