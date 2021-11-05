@@ -6764,12 +6764,6 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
                       (((int) spr->clipdist) << 2), ceildist, flordist, cliptype, 1);
     spr->pos.vec2 = clippos.vec2;
 
-    //if (TEST(retval, HIT_MASK) == HIT_WALL)
-    //    {
-    //    CON_Message("retval = %ld",NORM_WALL(retval));
-    //    CON_Message("clipdist = %d",spr->clipdist);
-    //    }
-
     if (dasectnum < 0)
     {
         retval = HIT_WALL;

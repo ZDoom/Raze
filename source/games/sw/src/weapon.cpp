@@ -102,7 +102,6 @@ ANIMATOR DoFastShrapJumpFall;
 int SpawnSmokePuff(DSWActor* actor);
 bool WarpToUnderwater(short *sectnum, int *x, int *y, int *z);
 bool WarpToSurface(short *sectnum, int *x, int *y, int *z);
-short ElectroFindClosestEnemy(short SpriteNum);
 int InitElectroJump(SPRITEp wp, SPRITEp sp);
 bool TestDontStickSector(short hit_sect);
 ANIMATOR SpawnShrapX;
@@ -4985,14 +4984,6 @@ int ActorChooseDeath(DSWActor* actor, DSWActor* weapActor)
 
             }
             break;
-#if 0
-        case PLASMA_FOUNTAIN:
-            if (SpawnShrap(SpriteNum, Weapon))
-                SetSuicide(actor);
-            else
-                DoActorDie(actor, weapActor, 0);
-            break;
-#endif
         case BOLT_THINMAN_R0:
         case BOLT_THINMAN_R1:
         case BOLT_THINMAN_R2:
@@ -5485,8 +5476,9 @@ int PlayerCheckDeath(PLAYERp pp, DSWActor* weapActor)
         // need to check all Killer variables when an enemy dies
         if (pp->KillerActor == nullptr)
         {
-            if (wp->owner >= 0)
-                pp->KillerActor = GetOwner(weapActor);
+            auto own = GetOwner(weapActor);
+            if (own)
+                pp->KillerActor = own;
             else if (TEST(wp->extra, SPRX_PLAYER_OR_ENEMY))
                 pp->KillerActor = weapActor;
         }
@@ -6371,7 +6363,8 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         {
             // this is special code to prevent the Zombie from taking out the Bosses to quick
             // if rail gun weapon Owner is not player
-            if (wp->owner >= 0 && User[wp->owner].Data() && !User[wp->owner]->PlayerP)
+            auto own = GetOwner(weapActor);
+            if (own && own->hasU() && !own->u()->PlayerP)
             {
                 // if actor is a boss
                 if (u->ID == ZILLA_RUN_R0 || u->ID == SERP_RUN_R0 || u->ID == SUMO_RUN_R0)
@@ -6650,6 +6643,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         break;
 
     case MINE_EXP:
+    {
         damage = GetDamage(actor, weapActor, DMG_MINE_EXP);
         if (OwnerIs(weapActor, SERP_RUN_R0))
         {
@@ -6675,7 +6669,8 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         }
         else
         {
-            if (wp->owner >= 0)
+            auto own = GetOwner(weapActor);
+            if (own && own->hasU())
             {
                 // Don't let serp skulls hurt the Serpent God
                 if (OwnerIs(weapActor, SERP_RUN_R0)) break;
@@ -6694,7 +6689,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         // reset id so no more damage is taken
         wu->ID = 0;
         break;
-
+    }
 #if 0
     case MINE_SHRAP:
 
@@ -6727,7 +6722,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
 #endif
 
     case NAP_EXP:
-
+    {
         damage = GetDamage(actor, weapActor, DMG_NAPALM_EXP);
 
         // Sumo Nap does less
@@ -6761,7 +6756,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
 
         SetSuicide(weapActor);
         break;
-
+    }
     case Vomit1:
     case Vomit2:
 
@@ -6854,6 +6849,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         break;
 
     case FIREBALL1:
+    {
         damage = GetDamage(actor, weapActor, WPN_HOTHEAD);
         if (u->sop_parent)
         {
@@ -6877,12 +6873,13 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorChooseDeath(actor, weapActor);
         }
 
-        if (wp->owner >= 0) // For SerpGod Ring
-            User[wp->owner]->Counter--;
+        auto own = GetOwner(weapActor);
+        if (own && own->hasU()) // For SerpGod Ring
+            own->u()->Counter--;
         SpawnFireballFlames(weapActor, actor);
         SetSuicide(weapActor);
         break;
-
+    }
     case FIREBALL:
     case GORO_FIREBALL:
 
@@ -7009,7 +7006,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         break;
 
     case CALTROPS:
-
+    {
         damage = GetDamage(actor, weapActor, DMG_MINE_SHRAP);
         if (u->sop_parent)
         {
@@ -7035,44 +7032,8 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
 
         SetSuicide(weapActor);
         break;
-
-#if 0
-    case PLASMA_FOUNTAIN:
-
-        //damage = GetDamage(actor, weapActor, WPN_HEART);
-        damage = -300;
-
-        if (u->sop_parent)
-        {
-            break;
         }
-        else if (u->PlayerP)
-        {
-            PlayerUpdateHealth(u->PlayerP, damage);
-#if 0
-            if (PlayerCheckDeath(u->PlayerP, Weapon))
-            {
-                // Spawn a couple of rippers
-                RipperHatch(Weapon);
             }
-#endif
-        }
-        else
-        {
-            ActorHealth(actor, damage);
-            ActorStdMissile(actor, weapActor);
-#if 0
-            if (ActorChooseDeath(SpriteNum, Weapon))
-            {
-                RipperHatch(Weapon);
-            }
-#endif
-        }
-
-        break;
-#endif
-
-    }
 
     // If player take alot of damage, make him yell
     if (u && u->PlayerP)
@@ -9795,8 +9756,7 @@ int DoMicroMini(DSWActor* actor)
 int SpawnExtraMicroMini(DSWActor* actor)
 {
     USER* u = actor->u();
-    int Weapon = u->SpriteNum;
-    SPRITEp sp = &sprite[Weapon];
+    SPRITEp sp = &actor->s();
     SPRITEp wp;
     USERp wu;
 
@@ -11287,7 +11247,7 @@ int DoFindGround(DSWActor* actor)
 
         return false;
     }
-    case HIT_SECTOR:
+    case kHitSector:
     {
         u->lo_sectp = &sector[florhit.index];
         u->lowActor = nullptr;
@@ -11884,7 +11844,7 @@ int DoRing(DSWActor* actor)
 void InitSpellRing(PLAYERp pp)
 {
     auto psp = &pp->Actor()->s();
-    short ang, ang_diff, ang_start, SpriteNum, missiles;
+    short ang, ang_diff, ang_start, missiles;
     SPRITEp sp;
     USERp u;
     short max_missiles = 16;

@@ -877,7 +877,7 @@ int DoZombieMove(DSWActor* actor)
     if (u->targetActor && u->targetActor->hasU())
     {
         auto tu = u->targetActor->u();
-        if (TEST(tu->Flags, PF_DEAD))    // JBF: added User[] null check
+        if (TEST(tu->Flags, PF_DEAD))
             DoActorPickClosePlayer(actor);
     }
 
@@ -930,7 +930,7 @@ int NullZombie(DSWActor* actor)
     if (u->targetActor && u->targetActor->hasU())
     {
         auto tu = u->targetActor->u();
-        if (TEST(tu->Flags, PF_DEAD))    // JBF: added User[] null check
+        if (TEST(tu->Flags, PF_DEAD))
             DoActorPickClosePlayer(actor);
     }
 
