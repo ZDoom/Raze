@@ -269,9 +269,9 @@ SetQuake(PLAYERp pp, short tics, short amt)
 }
 
 int
-SetExpQuake(int16_t Weapon)
+SetExpQuake(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[Weapon];
+    SPRITEp sp = &actor->s();
 
     SpawnQuake(sp->sectnum, sp->x, sp->y, sp->z,  40, 4, 20000); // !JIM! was 8, 40000
     return 0;
@@ -296,9 +296,9 @@ SetPlayerQuake(PLAYERp pp)
 }
 
 int
-SetNuclearQuake(int16_t Weapon)
+SetNuclearQuake(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[Weapon];
+    SPRITEp sp = &actor->s();
 
     SpawnQuake(sp->sectnum, sp->x, sp->y, sp->z, 400, 8, 64000);
     return 0;

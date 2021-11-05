@@ -6322,7 +6322,7 @@ KeyMain:
             nu->sz = SPRITEp_MID(&sprite[pp->PlayerSprite]);  // Set mid way up who it hit
             nu->spal = np->pal = sp->pal;   // Set the palette of the flag
 
-            SetOwner(pp->PlayerSprite,New);  // Player now owns the flag
+            SetOwner(pp->Actor(), actorNew);  // Player now owns the flag
             nu->flagOwnerActor = actor;       // Tell carried flag who owns it
             KillGet(SpriteNum);  // Set up for flag respawning
             break;

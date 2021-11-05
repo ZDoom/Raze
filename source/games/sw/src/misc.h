@@ -100,10 +100,10 @@ void ProcessQuakeSpot(void);
 void QuakeViewChange(PLAYERp pp, int* z_diff, int* x_diff, int* y_diff, short* ang_diff);
 void DoQuake(PLAYERp pp);
 bool SetQuake(PLAYERp pp, short tics, short amt);
-int SetExpQuake(int16_t Weapon);
+int SetExpQuake(DSWActor*);
 int SetGunQuake(int16_t SpriteNum);
 int SetPlayerQuake(PLAYERp mpp);
-int SetNuclearQuake(int16_t Weapon);
+int SetNuclearQuake(DSWActor*);
 int SetSumoQuake(DSWActor*);
 int SetSumoFartQuake(DSWActor*);
 

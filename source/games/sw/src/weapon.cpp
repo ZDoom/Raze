@@ -116,7 +116,7 @@ int DoBlurExtend(int16_t Weapon,int16_t interval,int16_t blur_num);
 int SpawnDemonFist(DSWActor*);
 void SpawnTankShellExp(DSWActor*);
 void SpawnMicroExp(DSWActor*);
-void SpawnExpZadjust(short Weapon, SPRITEp exp, int upper_zsize, int lower_zsize);
+void SpawnExpZadjust(DSWActor* actor, DSWActor* expActor, int upper_zsize, int lower_zsize);
 int BulletHitSprite(DSWActor* actor, DSWActor* hitActor, int hit_x, int hit_y, int hit_z, short ID);
 int SpawnSplashXY(int hit_x,int hit_y,int hit_z,int);
 DSWActor* SpawnBoatSparks(PLAYERp pp,short hit_sect,short hit_wall,int hit_x,int hit_y,int hit_z,short hit_ang);
@@ -10288,7 +10288,7 @@ int DoElectro(DSWActor* actor)
     if (TEST(u->Flags, SPR_SUICIDE))
         return true;
 
-    if (u->ret)
+    if (u->coll.type != kHitNone)
     {
         if (WeaponMoveHit(actor->GetSpriteIndex()))
         {
@@ -10331,7 +10331,7 @@ int DoLavaBoulder(DSWActor* actor)
     if (TEST(u->Flags, SPR_SUICIDE))
         return true;
 
-    if (u->ret)
+    if (u->coll.type != kHitNone)
     {
         if (WeaponMoveHit(actor->GetSpriteIndex()))
         {
@@ -10359,7 +10359,7 @@ int DoSpear(DSWActor* actor)
     if (TEST(u->Flags, SPR_SUICIDE))
         return true;
 
-    if (u->ret)
+    if (u->coll.type != kHitNone)
     {
         if (WeaponMoveHit(actor->GetSpriteIndex()))
         {
@@ -10633,7 +10633,7 @@ void SpawnFireballExp(DSWActor* actor)
     // ceilings
     //
 
-    SpawnExpZadjust(actor->GetSpriteIndex(), exp, Z(15), Z(15));
+    SpawnExpZadjust(actor, actorNew, Z(15), Z(15));
 
     if (RANDOM_P2(1024) < 150)
         SpawnFireballFlames(actorNew, nullptr);
@@ -10672,7 +10672,7 @@ void SpawnGoroFireballExp(DSWActor* actor)
     // ceilings
     //
 
-    SpawnExpZadjust(actor->GetSpriteIndex(), exp, Z(15), Z(15));
+    SpawnExpZadjust(actor, actorNew, Z(15), Z(15));
 }
 
 void SpawnBoltExp(DSWActor* actor)
@@ -10705,11 +10705,11 @@ void SpawnBoltExp(DSWActor* actor)
         SET(exp->cstat, CSTAT_SPRITE_XFLIP);
     eu->Radius = DamageData[DMG_BOLT_EXP].radius;
 
-    SpawnExpZadjust(actor->GetSpriteIndex(), exp, Z(40), Z(40));
+    SpawnExpZadjust(actor, expActor, Z(40), Z(40));
 
     DoExpDamageTest(expActor);
 
-    SetExpQuake(actor->GetSpriteIndex()); // !JIM! made rocket launcher shake things
+    SetExpQuake(actor); // !JIM! made rocket launcher shake things
     SpawnVis(nullptr, exp->sectnum, exp->x, exp->y, exp->z, 16);
 }
 
@@ -10764,7 +10764,7 @@ void SpawnTankShellExp(DSWActor* actor)
         SET(exp->cstat, CSTAT_SPRITE_XFLIP);
     eu->Radius = DamageData[DMG_TANK_SHELL_EXP].radius;
 
-    SpawnExpZadjust(actor->GetSpriteIndex(), exp, Z(40), Z(40));
+    SpawnExpZadjust(actor, expActor, Z(40), Z(40));
     DoExpDamageTest(expActor);
     SpawnVis(nullptr, exp->sectnum, exp->x, exp->y, exp->z, 16);
 }
@@ -10809,7 +10809,7 @@ void SpawnNuclearSecondaryExp(DSWActor* actor, short ang)
         return;
     }
 
-    SpawnExpZadjust(actor->GetSpriteIndex(), exp, Z(50), Z(10));
+    SpawnExpZadjust(actor, expActor, Z(50), Z(10));
     InitChemBomb(expActor);
 }
 
@@ -10879,12 +10879,12 @@ void SpawnNuclearExp(DSWActor* actor)
 
     eu->Radius = NUKE_RADIUS;
 
-    SpawnExpZadjust(actor->GetSpriteIndex(), exp, Z(30), Z(30));
+    SpawnExpZadjust(actor, expActor, Z(30), Z(30));
 
     DoExpDamageTest(expActor);
 
     // Nuclear effects
-    SetNuclearQuake(actor->GetSpriteIndex());
+    SetNuclearQuake(actor);
 
     SetFadeAmt(pp, -80, 1); // Nuclear flash
 
@@ -10975,7 +10975,7 @@ void SpawnMicroExp(DSWActor* actor)
     // ceilings
     //
 
-    SpawnExpZadjust(actor->GetSpriteIndex(), exp, Z(20), Z(20));
+    SpawnExpZadjust(actor, expActor, Z(20), Z(20));
     SpawnVis(nullptr, exp->sectnum, exp->x, exp->y, exp->z, 16);
 }
 
@@ -11119,7 +11119,7 @@ void SpawnGrenadeSecondaryExp(DSWActor* actor, int ang)
         return;
     }
 
-    SpawnExpZadjust(actor->GetSpriteIndex(), exp, Z(50), Z(10));
+    SpawnExpZadjust(actor, expActor, Z(50), Z(10));
     exp->backuppos();
 }
 
@@ -11185,20 +11185,20 @@ void SpawnGrenadeExp(DSWActor* actor)
     // ceilings
     //
 
-    SpawnExpZadjust(actor->GetSpriteIndex(), exp, Z(100), Z(30));
+    SpawnExpZadjust(actor, expActor, Z(100), Z(30));
 
     DoExpDamageTest(expActor);
 
-    SetExpQuake(expActor->GetSpriteIndex());
+    SetExpQuake(expActor);
     SpawnVis(nullptr, exp->sectnum, exp->x, exp->y, exp->z, 0);
 }
 
-void SpawnExpZadjust(short Weapon, SPRITEp exp, int upper_zsize, int lower_zsize)
+void SpawnExpZadjust(DSWActor* actor, DSWActor* expActor, int upper_zsize, int lower_zsize)
 {
-    auto actor = &swActors[Weapon];
     USERp u = actor->u();
-    USERp eu = User[exp - sprite].Data();
+    USERp eu = expActor->u();
     int tos_z, bos_z;
+    auto exp = &expActor->s();
 
     ASSERT(eu);
 
@@ -11274,10 +11274,10 @@ void SpawnMineExp(DSWActor* actor)
     // ceilings
     //
 
-    SpawnExpZadjust(actor->GetSpriteIndex(), exp, Z(100), Z(20));
+    SpawnExpZadjust(actor, expActor, Z(100), Z(20));
     SpawnVis(nullptr, exp->sectnum, exp->x, exp->y, exp->z, 16);
 
-    SetExpQuake(expActor->GetSpriteIndex());
+    SetExpQuake(expActor);
 }
 
 
@@ -11327,7 +11327,7 @@ DSWActor* SpawnSectorExp(DSWActor* actor)
     eu->Radius = DamageData[DMG_SECTOR_EXP].radius;
 
     DoExpDamageTest(expActor);
-    SetExpQuake(expActor->GetSpriteIndex());
+    SetExpQuake(expActor);
     SpawnVis(nullptr, exp->sectnum, exp->x, exp->y, exp->z, 16);
 
     return expActor;
@@ -11356,11 +11356,11 @@ DSWActor* SpawnLargeExp(DSWActor* actor)
     RESET(exp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     eu->Radius = DamageData[DMG_SECTOR_EXP].radius;
 
-    SpawnExpZadjust(actor->GetSpriteIndex(), exp, Z(50), Z(50));
+    SpawnExpZadjust(actor, expActor, Z(50), Z(50));
 
     // Should not cause other sectors to explode
     DoExpDamageTest(expActor);
-    SetExpQuake(expActor->GetSpriteIndex());
+    SetExpQuake(expActor);
     SpawnVis(nullptr, exp->sectnum, exp->x, exp->y, exp->z, 16);
 
     return expActor;
@@ -11457,7 +11457,7 @@ int DoFireball(DSWActor* actor)
 
     MissileHitDiveArea(actor);
 
-    if (u->ret)
+    if (u->coll.type != kHitNone)
     {
         bool hit_burn = false;
 
@@ -11706,7 +11706,7 @@ int DoNapalm(DSWActor* actor)
         ASSERT(eu->Tics == 0);
     }
 
-    if (u->ret)
+    if (u->coll.type != kHitNone)
     {
         if (WeaponMoveHit(actor->GetSpriteIndex()))
         {
@@ -11730,7 +11730,7 @@ int DoBloodWorm(DSWActor* actor)
 
     SetCollision(u, move_ground_missile(actor->GetSpriteIndex(), u->xchange, u->ychange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
-    if (u->ret)
+    if (u->coll.type != kHitNone)
     {
         u->xchange = -u->xchange;
         u->ychange = -u->ychange;
@@ -11947,7 +11947,7 @@ int DoMirv(DSWActor* actor)
 
     }
 
-    if (u->ret)
+    if (u->coll.type != kHitNone)
     {
         SpawnMeteorExp(actor);
         KillActor(actor);

@@ -1032,7 +1032,6 @@ SetupSectorObject(short sectnum, short tag)
     SECTOR_OBJECTp sop;
     int object_num;
     short j;
-    short New;
     USERp u;
 
     tag -= (TAG_OBJECT_CENTER - 1);
