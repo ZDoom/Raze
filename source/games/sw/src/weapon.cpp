@@ -4829,17 +4829,16 @@ void UpdateSinglePlayKills(DSWActor* actor)
 }
 
 
-int
-ActorChooseDeath(short SpriteNum, short Weapon)
+int ActorChooseDeath(DSWActor* actor, DSWActor* weapActor)
 {
-    auto actor = &swActors[SpriteNum];
+    if (!actor->hasU()) return false;
+
     SPRITEp sp = &actor->s();
     USERp u = actor->u();
-    auto weapActor = &swActors[Weapon];
-    SPRITEp wp = &weapActor->s();
-    USERp wu = weapActor->u();
+    SPRITEp wp = weapActor? &weapActor->s() : nullptr;
+    USERp wu = weapActor? weapActor->u() : nullptr;
 
-    if (u == nullptr || u->Health > 0)
+    if (u->Health > 0)
         return false;
 
     UpdateSinglePlayKills(actor);
@@ -4872,7 +4871,6 @@ ActorChooseDeath(short SpriteNum, short Weapon)
     break;
     default:
         ActorCoughItem(actor);
-        //UpdateSinglePlayKills(actor);
         break;
     }
 
@@ -4908,7 +4906,7 @@ ActorChooseDeath(short SpriteNum, short Weapon)
             PLAYERp pp = wu->PlayerP;
             if (pp && !TEST(pp->Flags, PF_DIVING))  // JBF: added null test
                 pp->Bloody = true;
-            PlaySound(DIGI_TOILETGIRLSCREAM, sp, v3df_none);
+            PlaySound(DIGI_TOILETGIRLSCREAM, actor, v3df_none);
         }
         if (SpawnShrap(actor, weapActor))
             SetSuicide(actor);
@@ -5039,18 +5037,15 @@ ActorChooseDeath(short SpriteNum, short Weapon)
                 {
                     PLAYERp pp;
 
-                    if (wp && wp->owner >= 0)
+                    auto own = GetOwner(weapActor);
+                    if (own && own->hasU())
                     {
-                        if (User[wp->owner]->PlayerP)
+                        pp = own->u()->PlayerP;
+                        if (pp)
                         {
-
-                            pp = User[wp->owner]->PlayerP;
-
-
-                            ASSERT(pp >= Player && pp <= Player+MAX_SW_PLAYERS);
                             choosesnd=STD_RANDOM_RANGE(MAX_TAUNTAI<<8)>>8;
 
-                            if (pp && pp == Player+myconnectindex)
+                            if (pp == Player+myconnectindex)
                                 PlayerSound(TauntAIVocs[choosesnd],v3df_dontpan|v3df_follow,pp);
                         }
                     }
@@ -5087,7 +5082,6 @@ ActorChooseDeath(short SpriteNum, short Weapon)
 
         break;
     }
-
     return true;
 
 }
@@ -5515,7 +5509,6 @@ int PlayerCheckDeath(PLAYERp pp, DSWActor* weapActor)
 
     if (u->Health <= 0 && !TEST(pp->Flags, PF_DEAD))
     {
-
         // pick a death type
         if (u->LastDamage >= PLAYER_DEATH_EXPLODE_DAMMAGE_AMT)
             pp->DeathType = PLAYER_DEATH_EXPLODE;
@@ -5827,7 +5820,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         {
             ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
-            ActorChooseDeath(SpriteNum, Weapon);
+            ActorChooseDeath(actor, weapActor);
         }
 
         SpawnBlood(actor, weapActor, 0, 0, 0, 0);
@@ -5859,7 +5852,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         {
             ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
-            ActorChooseDeath(SpriteNum, Weapon);
+            ActorChooseDeath(actor, weapActor);
         }
 
         SpawnBlood(actor, weapActor, 0, 0, 0, 0);
@@ -5889,10 +5882,8 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         {
             ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
-            ActorChooseDeath(SpriteNum, Weapon);
+            ActorChooseDeath(actor, weapActor);
         }
-
-        //SpawnBlood(actor, weapActor, 0, 0, 0, 0);
 
         break;
 
@@ -5919,7 +5910,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         {
             ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
-            ActorChooseDeath(SpriteNum, Weapon);
+            ActorChooseDeath(actor, weapActor);
         }
 
         SpawnBlood(actor, weapActor, 0, 0, 0, 0);
@@ -5954,7 +5945,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         {
             ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
-            ActorChooseDeath(SpriteNum, Weapon);
+            ActorChooseDeath(actor, weapActor);
         }
 
         SpawnBlood(actor, weapActor, 0, 0, 0, 0);
@@ -5988,7 +5979,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         {
             ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
-            ActorChooseDeath(SpriteNum, Weapon);
+            ActorChooseDeath(actor, weapActor);
         }
 
         SpawnBlood(actor, weapActor, 0, 0, 0, 0);
@@ -6021,7 +6012,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         {
             ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
-            ActorChooseDeath(SpriteNum, Weapon);
+            ActorChooseDeath(actor, weapActor);
         }
 
         SpawnBlood(actor, weapActor, 0, 0, 0, 0);
@@ -6049,7 +6040,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         {
             ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
-            ActorChooseDeath(SpriteNum, Weapon);
+            ActorChooseDeath(actor, weapActor);
         }
 
         SpawnBlood(actor, weapActor, 0, 0, 0, 0);
@@ -6094,7 +6085,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
                 ActorHealth(SpriteNum, damage);
             }
 
-            ActorChooseDeath(SpriteNum, Weapon);
+            ActorChooseDeath(actor, weapActor);
         }
 
         SpawnBlood(actor, weapActor, 0, 0, 0, 0);
@@ -6131,7 +6122,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorPain(SpriteNum);
             ActorStdMissile(SpriteNum, Weapon);
             ActorDamageSlide(SpriteNum, damage, wp->ang);
-            ActorChooseDeath(SpriteNum, Weapon);
+            ActorChooseDeath(actor, weapActor);
         }
 
         StarBlood(SpriteNum, Weapon);
@@ -6164,7 +6155,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorPain(SpriteNum);
             ActorStdMissile(SpriteNum, Weapon);
             ActorDamageSlide(SpriteNum, damage, wp->ang);
-            ActorChooseDeath(SpriteNum, Weapon);
+            ActorChooseDeath(actor, weapActor);
         }
 
         SpawnBlood(actor, weapActor, 0, 0, 0, 0);
@@ -6195,7 +6186,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorPain(SpriteNum);
             ActorStdMissile(SpriteNum, Weapon);
             ActorDamageSlide(SpriteNum, damage, wp->ang);
-            ActorChooseDeath(SpriteNum, Weapon);
+            ActorChooseDeath(actor, weapActor);
         }
 
         SpawnBlood(actor, weapActor, 0, 0, 0, 0);
@@ -6226,7 +6217,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorPain(SpriteNum);
             ActorStdMissile(SpriteNum, Weapon);
             ActorDamageSlide(SpriteNum, damage, wp->ang);
-            ActorChooseDeath(SpriteNum, Weapon);
+            ActorChooseDeath(actor, weapActor);
         }
 
         SpawnBlood(actor, weapActor, 0, 0, 0, 0);
@@ -6264,7 +6255,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorPain(SpriteNum);
             ActorStdMissile(SpriteNum, Weapon);
             ActorDamageSlide(SpriteNum, damage, wp->ang);
-            ActorChooseDeath(SpriteNum, Weapon);
+            ActorChooseDeath(actor, weapActor);
             switch (u->ID)
             {
             case TRASHCAN:
@@ -6313,7 +6304,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorPain(SpriteNum);
             ActorStdMissile(SpriteNum, Weapon);
             ActorDamageSlide(SpriteNum, damage, wp->ang);
-            ActorChooseDeath(SpriteNum, Weapon);
+            ActorChooseDeath(actor, weapActor);
         }
 
         //SpawnBlood(actor, weapActor, 0, 0, 0, 0);
@@ -6457,7 +6448,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorPain(SpriteNum);
             ActorStdMissile(SpriteNum, Weapon);
             ActorDamageSlide(SpriteNum, damage>>1, wp->ang);
-            ActorChooseDeath(SpriteNum, Weapon);
+            ActorChooseDeath(actor, weapActor);
         }
 
         wu->ID = 0; // No more damage
@@ -6515,7 +6506,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
             ActorDamageSlide(SpriteNum, damage, ANG2SPRITE(sp, wp));
-            ActorChooseDeath(SpriteNum, Weapon);
+            ActorChooseDeath(actor, weapActor);
         }
 
         SpawnBunnyExp(weapActor);
@@ -6548,7 +6539,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
             ActorDamageSlide(SpriteNum, damage, ANG2SPRITE(sp, wp));
-            ActorChooseDeath(SpriteNum, Weapon);
+            ActorChooseDeath(actor, weapActor);
         }
 
         break;
@@ -6579,7 +6570,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
             ActorDamageSlide(SpriteNum, damage, ANG2SPRITE(sp, wp));
-            ActorChooseDeath(SpriteNum, Weapon);
+            ActorChooseDeath(actor, weapActor);
         }
 
         break;
@@ -6614,7 +6605,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
             ActorDamageSlide(SpriteNum, damage, ANG2SPRITE(sp, wp));
-            ActorChooseDeath(SpriteNum, Weapon);
+            ActorChooseDeath(actor, weapActor);
         }
 
         // degrade blood worm life
@@ -6647,7 +6638,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
             ActorDamageSlide(SpriteNum, damage, ANG2SPRITE(sp, wp));
-            ActorChooseDeath(SpriteNum, Weapon);
+            ActorChooseDeath(actor, weapActor);
         }
 
         break;
@@ -6686,7 +6677,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
             ActorDamageSlide(SpriteNum, damage, ANG2SPRITE(sp, wp));
-            ActorChooseDeath(SpriteNum, Weapon);
+            ActorChooseDeath(actor, weapActor);
         }
 
         break;
@@ -6720,7 +6711,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
             ActorDamageSlide(SpriteNum, damage, ANG2SPRITE(sp, wp));
-            ActorChooseDeath(SpriteNum, Weapon);
+            ActorChooseDeath(actor, weapActor);
         }
         break;
 
@@ -6763,7 +6754,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
                 ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
             ActorDamageSlide(SpriteNum, damage, ANG2SPRITE(sp, wp));
-            ActorChooseDeath(SpriteNum, Weapon);
+            ActorChooseDeath(actor, weapActor);
         }
 
         // reset id so no more damage is taken
@@ -6793,7 +6784,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorPain(SpriteNum);
             ActorStdMissile(SpriteNum, Weapon);
             ActorDamageSlide(SpriteNum, damage, wp->ang);
-            ActorChooseDeath(SpriteNum, Weapon);
+            ActorChooseDeath(actor, weapActor);
         }
 
         // reset id so no more damage is taken
@@ -6831,7 +6822,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             // Don't let it hurt the SUMO
             if (OwnerIs(weapActor, SUMO_RUN_R0)) break;
             ActorHealth(SpriteNum, damage);
-            ActorChooseDeath(SpriteNum, Weapon);
+            ActorChooseDeath(actor, weapActor);
         }
 
         SetSuicide(weapActor);
@@ -6858,7 +6849,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         {
             ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
-            ActorChooseDeath(SpriteNum, Weapon);
+            ActorChooseDeath(actor, weapActor);
         }
 
         SetSuicide(weapActor);
@@ -6883,7 +6874,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         {
             ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
-            ActorChooseDeath(SpriteNum, Weapon);
+            ActorChooseDeath(actor, weapActor);
         }
 
 //        u->ID = 0;
@@ -6918,7 +6909,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
             ActorDamageSlide(SpriteNum, damage, ANG2SPRITE(sp, wp));
-            ActorChooseDeath(SpriteNum, Weapon);
+            ActorChooseDeath(actor, weapActor);
         }
 
         break;
@@ -6950,7 +6941,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorPain(SpriteNum);
             ActorStdMissile(SpriteNum, Weapon);
             ActorDamageSlide(SpriteNum, damage, wp->ang);
-            ActorChooseDeath(SpriteNum, Weapon);
+            ActorChooseDeath(actor, weapActor);
         }
 
         if (wp->owner >= 0) // For SerpGod Ring
@@ -6985,7 +6976,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorPain(SpriteNum);
             ActorStdMissile(SpriteNum, Weapon);
             ActorDamageSlide(SpriteNum, damage, wp->ang);
-            ActorChooseDeath(SpriteNum, Weapon);
+            ActorChooseDeath(actor, weapActor);
         }
 
         SpawnGoroFireballExp(weapActor);
@@ -7011,7 +7002,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         else
         {
             ActorHealth(SpriteNum, damage);
-            ActorChooseDeath(SpriteNum, Weapon);
+            ActorChooseDeath(actor, weapActor);
         }
 
         break;
@@ -7041,7 +7032,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             if (OwnerIs(weapActor, SUMO_RUN_R0)) break;
             ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
-            ActorChooseDeath(SpriteNum, Weapon);
+            ActorChooseDeath(actor, weapActor);
         }
 
 //        u->ID = 0;
@@ -7066,7 +7057,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             {
                 ActorHealth(SpriteNum, damage);
                 ActorStdMissile(SpriteNum, Weapon);
-                ActorChooseDeath(SpriteNum, Weapon);
+                ActorChooseDeath(actor, weapActor);
                 SetSuicide(weapActor);
                 break;
             }
@@ -7108,7 +7099,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
             ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
             ActorStdMissile(SpriteNum, Weapon);
-            ActorChooseDeath(SpriteNum, Weapon);
+            ActorChooseDeath(actor, weapActor);
         }
 
         SetSuicide(weapActor);
