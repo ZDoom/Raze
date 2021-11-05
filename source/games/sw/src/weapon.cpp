@@ -9297,14 +9297,6 @@ DoMineStuck(DSWActor* actor)
             u->Counter2 = MINE_DETONATE_STATE;
         }
         break;
-//        case MINE_DETONATE_STATE:
-//            if (u->WaitTics < SEC(5))
-//                {
-    // start frantic beeping
-//                PlaySound(DIGI_MINEBEEP, sp, v3df_dontpan);
-//                u->Counter2++;
-//                }
-//            break;
     case MINE_DETONATE_STATE:
         if (u->WaitTics < 0)
         {
@@ -9319,10 +9311,8 @@ DoMineStuck(DSWActor* actor)
     return false;
 }
 
-int
-SetMineStuck(int16_t Weapon)
+void SetMineStuck(DSWActor* actor)
 {
-    auto actor = &swActors[Weapon];
     USER* u = actor->u();
     SPRITEp sp = &actor->s();
 
@@ -9336,15 +9326,12 @@ SetMineStuck(int16_t Weapon)
     u->Counter = 0;
     change_actor_stat(actor, STAT_MINE_STUCK);
     ChangeState(actor, s_MineStuck);
-    return 0;
 }
 
-int
-DoMine(DSWActor* actor)
+int DoMine(DSWActor* actor)
 {
     USER* u = actor->u();
-    int Weapon = u->SpriteNum;
-    SPRITEp sp = &sprite[Weapon];
+    SPRITEp sp = &actor->s();
 
     if (TEST(u->Flags, SPR_UNDERWATER))
     {
@@ -9361,7 +9348,7 @@ DoMine(DSWActor* actor)
         u->zchange += u->Counter;
     }
 
-    SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange,
+    SetCollision(u, move_missile(actor->GetSpriteIndex(), u->xchange, u->ychange, u->zchange,
                           u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     MissileHitDiveArea(actor);
@@ -9369,22 +9356,21 @@ DoMine(DSWActor* actor)
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
 
-    if (u->ret)
+    if (u->coll.type != kHitNone)
     {
         // check to see if you hit a sprite
-        switch (TEST(u->ret, HIT_MASK))
+        switch (u->coll.type)
         {
-        case HIT_PLAX_WALL:
+        case kHitSky:
             KillActor(actor);
             return 0;
-        case HIT_SPRITE:
+        case kHitSprite:
         {
-            short hit_sprite = NORM_SPRITE(u->ret);
-            auto hitActor = &swActors[hit_sprite];
-            SPRITEp hsp = &sprite[hit_sprite];
-            USERp hu = User[hit_sprite].Data();
+            auto hitActor = u->coll.actor;
+            SPRITEp hsp = &hitActor->s();
+            USERp hu = hitActor->u();
 
-            SetMineStuck(Weapon);
+            SetMineStuck(actor);
             // Set the Z position
             sp->z = hsp->z - DIV2(SPRITEp_SIZE_Z(hsp));
 
@@ -9399,13 +9385,14 @@ DoMine(DSWActor* actor)
 
                 // attach weapon to sprite
                 SetAttach(hitActor, actor);
-                u->sz = sprite[hit_sprite].z - sp->z;
+                u->sz = hsp->z - sp->z;
 
-                if (sp->owner >= 0)
+                auto own = GetOwner(actor);
+                if (own && own->hasU())
                 {
-                    uo = User[sp->owner].Data();
+                    uo = own->u();
 
-                    if (uo && uo->PlayerP)
+                    if (uo->PlayerP)
                     {
                         pp = uo->PlayerP;
 
@@ -9445,9 +9432,9 @@ DoMine(DSWActor* actor)
             break;
         }
 
-        case HIT_WALL:
+        case kHitWall:
         {
-            short hit_wall = NORM_WALL(u->ret);
+            short hit_wall = u->coll.index;
 
             if (wall[hit_wall].lotag == TAG_WALL_BREAK)
             {
@@ -9456,7 +9443,7 @@ DoMine(DSWActor* actor)
                 break;
             }
 
-            SetMineStuck(Weapon);
+            SetMineStuck(actor);
 
             SET(u->Flags2, SPR2_ATTACH_WALL);
 
@@ -9474,11 +9461,11 @@ DoMine(DSWActor* actor)
             break;
         }
 
-        case HIT_SECTOR:
+        case kHitSector:
         {
-            short hit_sect = NORM_SECTOR(u->ret);
+            short hit_sect = u->coll.index;
 
-            SetMineStuck(Weapon);
+            SetMineStuck(actor);
 
             // hit floor
             if (sp->z > DIV2(u->hiz + u->loz))
