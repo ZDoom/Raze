@@ -8931,17 +8931,15 @@ DoGrenade(DSWActor* actor)
     return false;
 }
 
-int
-DoVulcanBoulder(DSWActor* actor)
+int DoVulcanBoulder(DSWActor* actor)
 {
     USER* u = actor->u();
-    int Weapon = u->SpriteNum;
-    SPRITEp sp = &sprite[Weapon];
+    SPRITEp sp = &actor->s();
 
     u->Counter += 40;
     u->zchange += u->Counter;
 
-    SetCollision(u, move_missile(Weapon, u->xchange, u->ychange, u->zchange,
+    SetCollision(u, move_missile(actor->GetSpriteIndex(), u->xchange, u->ychange, u->zchange,
                           u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS));
 
     int32_t const vel = ksqrt(SQ(u->xchange) + SQ(u->ychange));
@@ -8953,23 +8951,20 @@ DoVulcanBoulder(DSWActor* actor)
         return true;
     }
 
-    if (u->ret)
+    if (u->coll.type != kHitNone)
     {
-        switch (TEST(u->ret, HIT_MASK))
+        switch (u->coll.type)
         {
-        case HIT_PLAX_WALL:
+        case kHitSky:
             KillActor(actor);
             return true;
-        case HIT_SPRITE:
+        case kHitSprite:
         {
             short wall_ang;
-            short hit_sprite = -2;
             SPRITEp hsp;
 
-//                PlaySound(DIGI_DHCLUNK, sp, v3df_dontpan);
-
-            hit_sprite = NORM_SPRITE(u->ret);
-            hsp = &sprite[hit_sprite];
+            auto hitActor = u->coll.actor;
+            hsp = &hitActor->s();
 
             if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
@@ -8984,17 +8979,15 @@ DoVulcanBoulder(DSWActor* actor)
                 KillActor(actor);
                 return true;
             }
-
-
             break;
         }
 
-        case HIT_WALL:
+        case kHitWall:
         {
             short hit_wall,nw,wall_ang;
             WALLp wph;
 
-            hit_wall = NORM_WALL(u->ret);
+            hit_wall = u->coll.index;
             wph = &wall[hit_wall];
 
             if (wph->lotag == TAG_WALL_BREAK)
@@ -9004,8 +8997,6 @@ DoVulcanBoulder(DSWActor* actor)
                 break;
             }
 
-//                PlaySound(DIGI_DHCLUNK, sp, v3df_dontpan);
-
             nw = wall[hit_wall].point2;
             wall_ang = NORM_ANGLE(getangle(wall[nw].x - wph->x, wall[nw].y - wph->y)+512);
 
@@ -9014,7 +9005,7 @@ DoVulcanBoulder(DSWActor* actor)
             break;
         }
 
-        case HIT_SECTOR:
+        case kHitSector:
         {
             bool did_hit_wall;
 
