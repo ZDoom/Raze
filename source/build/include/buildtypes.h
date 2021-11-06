@@ -362,6 +362,8 @@ struct spritetype
     {
         return interpolatedangle(oang, ang, smoothratio, 16);
     }
+
+    sectortype* sector() const;
 };
 
 using tspritetype = spritetype;

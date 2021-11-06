@@ -153,6 +153,12 @@ extern walltype wall[MAXWALLS];
 extern spritetype sprite[MAXSPRITES];
 EXTERN int leveltimer;
 
+inline sectortype* spritetype::sector() const
+{
+    return &::sector[sectnum];
+}
+
+
 extern sectortype sectorbackup[MAXSECTORS];
 extern walltype wallbackup[MAXWALLS];
 
