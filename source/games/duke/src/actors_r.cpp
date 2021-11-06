@@ -218,6 +218,7 @@ void addweapon_r(struct player_struct* p, int weapon)
 void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  hp4)
 {
 	walltype* wal;
+	sectortype* dasectp;
 	int d, q, x1, y1;
 	int sectcnt, sectend, dasect, startwall, endwall, nextsect;
 	short p, x;
@@ -234,27 +235,28 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 
 	tempshort[0] = spri->sectnum;
 	dasect = spri->sectnum;
+	dasectp = spri->sector();
 	sectcnt = 0; sectend = 1;
 
 	do
 	{
 		dasect = tempshort[sectcnt++];
-		if (((sector[dasect].ceilingz - spri->z) >> 8) < r)
+		if (((dasectp->ceilingz - spri->z) >> 8) < r)
 		{
-			d = abs(wall[sector[dasect].wallptr].x - spri->x) + abs(wall[sector[dasect].wallptr].y - spri->y);
+			d = abs(wall[dasectp->wallptr].x - spri->x) + abs(wall[dasectp->wallptr].y - spri->y);
 			if (d < r)
 				fi.checkhitceiling(dasect);
 			else
 			{
 				// ouch...
-				d = abs(wall[wall[wall[sector[dasect].wallptr].point2].point2].x - spri->x) + abs(wall[wall[wall[sector[dasect].wallptr].point2].point2].y - spri->y);
+				d = abs(wall[wall[wall[dasectp->wallptr].point2].point2].x - spri->x) + abs(wall[wall[wall[dasectp->wallptr].point2].point2].y - spri->y);
 				if (d < r)
 					fi.checkhitceiling(dasect);
 			}
 		}
 
-		startwall = sector[dasect].wallptr;
-		endwall = startwall + sector[dasect].wallnum;
+		startwall = dasectp->wallptr;
+		endwall = startwall + dasectp->wallnum;
 		for (x = startwall, wal = &wall[startwall]; x < endwall; x++, wal++)
 			if ((abs(wal->x - spri->x) + abs(wal->y - spri->y)) < r)
 			{
@@ -400,6 +402,7 @@ int movesprite_ex_r(DDukeActor* actor, int xchange, int ychange, int zchange, un
 	}
 
 	dasectnum = spri->sectnum;
+	auto dasectp = spri->sector();
 
 	daz = spri->z;
 	h = ((tileHeight(spri->picnum) * spri->yrepeat) << 1);
@@ -422,7 +425,7 @@ int movesprite_ex_r(DDukeActor* actor, int xchange, int ychange, int zchange, un
 		{
 			spri->x = oldx;
 			spri->y = oldy;
-			if (sector[dasectnum].lotag == ST_1_ABOVE_WATER)
+			if (dasectp->lotag == ST_1_ABOVE_WATER)
 				spri->ang = (krand() & 2047);
 			else if ((actor->temp_data[0] & 3) == 1)
 				spri->ang = (krand() & 2047);
@@ -604,7 +607,7 @@ void movefta_r(void)
 					default:
 #if 0
 						// TRANSITIONAL: RedNukem has this here. Needed?
-						if (actorflag(act, SFLAG_USEACTIVATOR) && sector[act->s.lotag & 16384) break;
+						if (actorflag(act, SFLAG_USEACTIVATOR) && sector [act->s.lotag & 16384) break;
 #endif
 						act->timetosleep = 0;
 						check_fta_sounds_r(act);
@@ -803,7 +806,7 @@ void movefallers_r(void)
 	while (auto act = it.Next())
 	{
 		auto s = act->s;
-		int sect = s->sectnum;
+		auto sectp = s->sector();
 
 		if (act->temp_data[0] == 0)
 		{
@@ -866,14 +869,14 @@ void movefallers_r(void)
 						x = gs.gravity;
 				}
 
-				if (s->z < (sector[sect].floorz - FOURSLEIGHT))
+				if (s->z < (sectp->floorz - FOURSLEIGHT))
 				{
 					s->zvel += x;
 					if (s->zvel > 6144)
 						s->zvel = 6144;
 					s->z += s->zvel;
 				}
-				if ((sector[sect].floorz - s->z) < (16 << 8))
+				if ((sectp->floorz - s->z) < (16 << 8))
 				{
 					int j = 1 + (krand() & 7);
 					for (x = 0; x < j; x++) RANDOMSCRAP(act);
@@ -936,20 +939,20 @@ static void movebolt(DDukeActor* actor)
 	auto s = actor->s;
 	int* t = &actor->temp_data[0];
 	int x;
-	int sect = s->sectnum;
+	auto sectp = s->sector();
 
 	auto p = findplayer(actor, &x);
 	if (x > 20480) return;
 
 	if (t[3] == 0)
-		t[3] = sector[sect].floorshade;
+		t[3] = sectp->floorshade;
 
 CLEAR_THE_BOLT:
 	if (t[2])
 	{
 		t[2]--;
-		sector[sect].floorshade = 20;
-		sector[sect].ceilingshade = 20;
+		sectp->floorshade = 20;
+		sectp->ceilingshade = 20;
 		return;
 	}
 	if ((s->xrepeat | s->yrepeat) == 0)
@@ -972,20 +975,20 @@ CLEAR_THE_BOLT:
 
 	if (l & 1) s->cstat ^= 2;
 
-	if (s->picnum == (BOLT1 + 1) && (krand() & 1) && sector[sect].floorpicnum == HURTRAIL)
+	if (s->picnum == (BOLT1 + 1) && (krand() & 1) && sectp->floorpicnum == HURTRAIL)
 		S_PlayActorSound(SHORT_CIRCUIT, actor);
 
 	if (s->picnum == BOLT1 + 4) s->picnum = BOLT1;
 
 	if (s->picnum & 1)
 	{
-		sector[sect].floorshade = 0;
-		sector[sect].ceilingshade = 0;
+		sectp->floorshade = 0;
+		sectp->ceilingshade = 0;
 	}
 	else
 	{
-		sector[sect].floorshade = 20;
-		sector[sect].ceilingshade = 20;
+		sectp->floorshade = 20;
+		sectp->ceilingshade = 20;
 	}
 }
 
@@ -1570,7 +1573,7 @@ void moveweapons_r(void)
 void movetransports_r(void)
 {
 	char warpdir, warpspriteto;
-	short k, p, sect, sectlotag;
+	short k, p, sectlotag;
 	int ll2, ll, onfloorz;
 	Collision coll;
 
@@ -1580,8 +1583,8 @@ void movetransports_r(void)
 	while (auto act = iti.Next())
 	{
 		auto spr = act->s;
-		sect = spr->sectnum;
-		sectlotag = sector[sect].lotag;
+		auto sectp = spr->sector();
+		sectlotag = sectp->lotag;
 
 		auto Owner = act->GetOwner();
 		if (Owner == act || Owner == nullptr)
@@ -1593,7 +1596,7 @@ void movetransports_r(void)
 
 		if (act->temp_data[0] > 0) act->temp_data[0]--;
 
-		DukeSectIterator itj(sect);
+		DukeSectIterator itj(spr->sectnum);
 		while (auto act2 = itj.Next())
 		{
 			auto spr2 = act2->s;
@@ -1667,14 +1670,14 @@ void movetransports_r(void)
 
 					if (isRRRA())
 					{
-						if (onfloorz && sectlotag == 160 && ps[p].pos.z > (sector[sect].floorz - (48 << 8)))
+						if (onfloorz && sectlotag == 160 && ps[p].pos.z > (sectp->floorz - (48 << 8)))
 						{
 							k = 2;
 							ps[p].oposz = ps[p].pos.z =
 								Owner->getSector()->ceilingz + (7 << 8);
 						}
 
-						if (onfloorz && sectlotag == 161 && ps[p].pos.z < (sector[sect].ceilingz + (6 << 8)))
+						if (onfloorz && sectlotag == 161 && ps[p].pos.z < (sectp->ceilingz + (6 << 8)))
 						{
 							k = 2;
 							if (ps[p].GetActor()->s->extra <= 0) break;
@@ -1683,7 +1686,7 @@ void movetransports_r(void)
 						}
 					}
 
-					if ((onfloorz && sectlotag == ST_1_ABOVE_WATER && ps[p].pos.z > (sector[sect].floorz - (6 << 8))) ||
+					if ((onfloorz && sectlotag == ST_1_ABOVE_WATER && ps[p].pos.z > (sectp->floorz - (6 << 8))) ||
 						(onfloorz && sectlotag == ST_1_ABOVE_WATER && ps[p].OnMotorcycle))
 					{
 						if (ps[p].OnBoat) break;
@@ -1699,7 +1702,7 @@ void movetransports_r(void)
 							ps[p].moto_underwater = 1;
 					}
 
-					if (onfloorz && sectlotag == ST_2_UNDERWATER && ps[p].pos.z < (sector[sect].ceilingz + (6 << 8)))
+					if (onfloorz && sectlotag == ST_2_UNDERWATER && ps[p].pos.z < (sectp->ceilingz + (6 << 8)))
 					{
 						k = 1;
 						if (ps[p].GetActor()->s->extra <= 0) break;
@@ -1760,31 +1763,31 @@ void movetransports_r(void)
 
 				{
 					warpspriteto = 0;
-					if (ll && sectlotag == ST_2_UNDERWATER && spr2->z < (sector[sect].ceilingz + ll))
+					if (ll && sectlotag == ST_2_UNDERWATER && spr2->z < (sectp->ceilingz + ll))
 						warpspriteto = 1;
 
-					if (ll && sectlotag == ST_1_ABOVE_WATER && spr2->z > (sector[sect].floorz - ll))
+					if (ll && sectlotag == ST_1_ABOVE_WATER && spr2->z > (sectp->floorz - ll))
 						if (!isRRRA() || (spr2->picnum != CHEERBOAT && spr2->picnum != HULKBOAT && spr2->picnum != MINIONBOAT))
 							warpspriteto = 1;
 
 					if (isRRRA())
 					{
-						if (ll && sectlotag == 161 && spr2->z < (sector[sect].ceilingz + ll) && warpdir == 1)
+						if (ll && sectlotag == 161 && spr2->z < (sectp->ceilingz + ll) && warpdir == 1)
 						{
 							warpspriteto = 1;
-							ll2 = ll - abs(spr2->z - sector[sect].ceilingz);
+							ll2 = ll - abs(spr2->z - sectp->ceilingz);
 						}
-						else if (sectlotag == 161 && spr2->z < (sector[sect].ceilingz + 1000) && warpdir == 1)
+						else if (sectlotag == 161 && spr2->z < (sectp->ceilingz + 1000) && warpdir == 1)
 						{
 							warpspriteto = 1;
 							ll2 = 1;
 						}
-						if (ll && sectlotag == 160 && spr2->z > (sector[sect].floorz - ll) && warpdir == 2)
+						if (ll && sectlotag == 160 && spr2->z > (sectp->floorz - ll) && warpdir == 2)
 						{
 							warpspriteto = 1;
-							ll2 = ll - abs(sector[sect].floorz - spr2->z);
+							ll2 = ll - abs(sectp->floorz - spr2->z);
 						}
-						else if (sectlotag == 160 && spr2->z > (sector[sect].floorz - 1000) && warpdir == 2)
+						else if (sectlotag == 160 && spr2->z > (sectp->floorz - 1000) && warpdir == 2)
 						{
 							warpspriteto = 1;
 							ll2 = 1;
@@ -1841,7 +1844,7 @@ void movetransports_r(void)
 						case ST_0_NO_EFFECT:
 							if (onfloorz)
 							{
-								if (checkcursectnums(sect) == -1 && checkcursectnums(Owner->s->sectnum) == -1)
+								if (checkcursectnums(spr->sectnum) == -1 && checkcursectnums(Owner->s->sectnum) == -1)
 								{
 									spr2->x += (Owner->s->x - spr->x);
 									spr2->y += (Owner->s->y - spr->y);
@@ -2509,7 +2512,7 @@ static void heavyhbomb(DDukeActor *actor)
 {
 	auto s = actor->s;
 	auto t = &actor->temp_data[0];
-	int sect = s->sectnum;
+	auto sectp = s->sector();
 	int x, l;
 	auto Owner = actor->GetOwner();
 
@@ -2545,9 +2548,9 @@ static void heavyhbomb(DDukeActor *actor)
 
 	makeitfall(actor);
 
-	if (sector[sect].lotag != 1 && (!isRRRA() || sector[sect].lotag != 160) && s->z >= actor->floorz - (FOURSLEIGHT) && s->yvel < 3)
+	if (sectp->lotag != 1 && (!isRRRA() || sectp->lotag != 160) && s->z >= actor->floorz - (FOURSLEIGHT) && s->yvel < 3)
 	{
-		if (s->yvel > 0 || (s->yvel == 0 && actor->floorz == sector[sect].floorz))
+		if (s->yvel > 0 || (s->yvel == 0 && actor->floorz == sectp->floorz))
 		{
 			if (s->picnum != CHEERBOMB)
 				S_PlayActorSound(PIPEBOMB_BOUNCE, actor);
@@ -2564,7 +2567,7 @@ static void heavyhbomb(DDukeActor *actor)
 			s->zvel >>= 2;
 		s->yvel++;
 	}
-	if (s->picnum != CHEERBOMB && s->z < actor->ceilingz + (16 << 8) && sector[sect].lotag != 2)
+	if (s->picnum != CHEERBOMB && s->z < actor->ceilingz + (16 << 8) && sectp->lotag != 2)
 	{
 		s->z = actor->ceilingz + (16 << 8);
 		s->zvel = 0;
@@ -2614,7 +2617,7 @@ static void heavyhbomb(DDukeActor *actor)
 	if (s->xvel > 0)
 	{
 		s->xvel -= 5;
-		if (sector[sect].lotag == 2)
+		if (sectp->lotag == 2)
 			s->xvel -= 10;
 
 		if (s->xvel < 0)
@@ -2747,7 +2750,6 @@ static int henstand(DDukeActor *actor)
 {
 	auto s = actor->s;
 	auto t = &actor->temp_data[0];
-	int sect = s->sectnum;
 
 	if (s->picnum == HENSTAND || s->picnum == HENSTAND + 1)
 	{
@@ -2853,14 +2855,14 @@ void moveactors_r(void)
 	{
 		auto s = act->s;
 		bool deleteafterexecute = false;	// taking a cue here from RedNukem to not run scripts on deleted sprites.
-		auto sect = s->sectnum;
 
-		if( s->xrepeat == 0 || sect < 0 || sect >= MAXSECTORS)
+		if( s->xrepeat == 0 || s->sectnum < 0 || s->sectnum >= MAXSECTORS)
 		{
 			deletesprite(act);
 			continue;
 		}
 
+		auto sectp = s->sector();
 		auto t = &act->temp_data[0];
 
 		switch(s->picnum)
@@ -2881,13 +2883,13 @@ void moveactors_r(void)
 					deletesprite(act);
 					continue;
 				}
-				if (sector[sect].lotag == 903)
+				if (sectp->lotag == 903)
 					makeitfall(act);
 				movesprite_ex(act,
 					MulScale(s->xvel, bcos(s->ang), 14),
 					MulScale(s->xvel, bsin(s->ang), 14),
 					s->zvel,CLIPMASK0, coll);
-				switch (sector[sect].lotag)
+				switch (sectp->lotag)
 				{
 					case 901:
 						s->picnum = RRTILE3191;
@@ -2896,7 +2898,7 @@ void moveactors_r(void)
 						s->picnum = RRTILE3192;
 						break;
 					case 903:
-						if (s->z >= sector[sect].floorz - (8<<8))
+						if (s->z >= sectp->floorz - (8<<8))
 						{
 							deletesprite(act);
 							continue;
@@ -2933,15 +2935,15 @@ void moveactors_r(void)
 					deletesprite(act);
 					continue;
 				}
-				if (sector[sect].lotag == 903)
+				if (sectp->lotag == 903)
 				{
-					if (s->z >= sector[sect].floorz - (4<<8))
+					if (s->z >= sectp->floorz - (4<<8))
 					{
 						deletesprite(act);
 						continue;
 					}
 				}
-				else if (sector[sect].lotag == 904)
+				else if (sectp->lotag == 904)
 				{
 					deletesprite(act);
 					continue;
@@ -2959,12 +2961,12 @@ void moveactors_r(void)
 					MulScale(s->xvel, bcos(s->ang), 14),
 					MulScale(s->xvel, bsin(s->ang), 14),
 					s->zvel,CLIPMASK0, coll);
-				if (s->z >= sector[sect].floorz - (8<<8))
+				if (s->z >= sectp->floorz - (8<<8))
 				{
-					if (sector[sect].lotag == 1)
+					if (sectp->lotag == 1)
 					{
 						auto j = spawn(act, WATERSPLASH2);
-						j->s->z = sector[j->s->sectnum].floorz;
+						j->s->z = j->getSector()->floorz;
 					}
 					deletesprite(act);
 					continue;
@@ -3038,7 +3040,7 @@ void moveactors_r(void)
 				if (!isRRRA()) break;
 				makeitfall(act);
 				getglobalz(act);
-				if (sector[sect].lotag == 1)
+				if (sectp->lotag == 1)
 				{
 					setsprite(act,s->x,s->y,act->floorz+(16<<8));
 				}
@@ -3051,7 +3053,7 @@ void moveactors_r(void)
 				break;
 
 			case TRIPBOMBSPRITE:
-				if (!isRRRA() || (sector[sect].lotag != 1 && sector[sect].lotag != 160))
+				if (!isRRRA() || (sectp->lotag != 1 && sectp->lotag != 160))
 					if (s->xvel)
 					{
 						movesprite_ex(act,
@@ -3112,7 +3114,7 @@ void moveactors_r(void)
 
 void moveexplosions_r(void)  // STATNUM 5
 {
-	int sect, p;
+	int p;
 	int x, * t;
 
 	
@@ -3121,9 +3123,9 @@ void moveexplosions_r(void)  // STATNUM 5
 	{
 		auto s = act->s;
 		t = &act->temp_data[0];
-		sect = s->sectnum;
+		auto sectp = s->sector();
 
-		if (sect < 0 || s->xrepeat == 0) 
+		if (s->sectnum < 0 || s->xrepeat == 0) 
 		{
 			deletesprite(act);
 			continue;
@@ -3171,7 +3173,7 @@ void moveexplosions_r(void)  // STATNUM 5
 			t[0]++;
 			if (t[0] == 1)
 			{
-				if (sector[sect].floorpicnum != 3073)
+				if (sectp->floorpicnum != 3073)
 				{
 					deletesprite(act);
 					continue;
@@ -3371,7 +3373,7 @@ void handle_se06_r(DDukeActor *actor)
 			{
 				hulkspawn--;
 				auto ns = spawn(actor, HULK);
-				ns->s->z = sector[ns->s->sectnum].ceilingz;
+				ns->s->z = ns->getSector()->ceilingz;
 				ns->s->pal = 33;
 				if (!hulkspawn)
 				{
@@ -3422,7 +3424,7 @@ void handle_se06_r(DDukeActor *actor)
 				}
 				else pn = UFO1_RRRA;
 				auto ns = spawn(actor, pn);
-				ns->s->z = sector[ns->s->sectnum].ceilingz;
+				ns->s->z = ns->getSector()->ceilingz;
 			}
 		}
 	}
@@ -4136,7 +4138,7 @@ void destroyit(DDukeActor *actor)
 			{
 				sectnum = spr->s->sectnum;
 
-				auto destsect = &sector[sectnum];
+				auto destsect = spr->getSector();
 				auto srcsect = &sector[it_sect];
 
 				wallstart = destsect->wallptr;
