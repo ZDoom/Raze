@@ -450,6 +450,13 @@ void PlayerAngle::applyinput(float const avel, ESyncBits* actions, double const 
 //
 //---------------------------------------------------------------------------
 
+/*
+// Horizoff centre speed.
+Duke: (1 / 8) * 30 = 3.75;
+SW:   (1 / 8) * 40 = 5;
+Average: 4.375;
+*/
+
 enum
 {
 	// Values used by Duke/SW, where this function originated from.
@@ -498,21 +505,14 @@ void PlayerHorizon::calcviewpitch(vec2_t const pos, binangle const ang, bool con
 		{
 			// tilt when climbing but you can't even really tell it.
 			if (horizoff.asq16() < IntToFixed(100))
-				horizoff += q16horiz(xs_CRoundToInt(scaleAdjust * (((IntToFixed(100) - horizoff.asq16()) >> 3) + FRACUNIT)));
+				horizoff += buildfhoriz(scaleAdjust * (((100 - horizoff.asbuildf()) * (4.375 / GameTicRate)) + 1.));
 		}
-		else
+		else if (horizoff.asq16())
 		{
 			// Make horizoff grow towards 0 since horizoff is not modified when you're not on a slope.
-			if (horizoff.asq16() > 0)
-			{
-				horizoff += q16horiz(xs_CRoundToInt(-scaleAdjust * ((horizoff.asq16() >> 3) + FRACUNIT)));
-				if (horizoff.asq16() < 0) horizoff = q16horiz(0);
-			}
-			if (horizoff.asq16() < 0)
-			{
-				horizoff += q16horiz(xs_CRoundToInt(-scaleAdjust * ((horizoff.asq16() >> 3) - FRACUNIT)));
-				if (horizoff.asq16() > 0) horizoff = q16horiz(0);
-			}
+			auto sgn = Sgn(horizoff.asq16());
+			horizoff -= buildfhoriz(scaleAdjust * ((horizoff.asbuildf() * (4.375 / GameTicRate)) + sgn));
+			if (sgn != Sgn(horizoff.asq16())) horizoff = q16horiz(0);
 		}
 	}
 }
