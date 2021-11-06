@@ -1113,8 +1113,6 @@ bool ActorSpawn(DSWActor* actor)
     {
     case COOLIE_RUN_R0:
     {
-        //PreCacheCoolie();
-
         if (!ActorTestSpawn(actor))
         {
             KillActor(actor);
@@ -1130,9 +1128,6 @@ bool ActorSpawn(DSWActor* actor)
     case NINJA_RUN_R0:
     case NINJA_CRAWL_R0:
     {
-
-        //PreCacheNinja();
-
         if (!ActorTestSpawn(actor))
         {
             KillActor(actor);
@@ -1147,9 +1142,6 @@ bool ActorSpawn(DSWActor* actor)
 
     case GORO_RUN_R0:
     {
-
-        //PreCacheGuardian();
-
         if (!ActorTestSpawn(actor))
         {
             KillActor(actor);
@@ -1177,9 +1169,6 @@ bool ActorSpawn(DSWActor* actor)
 
     case EEL_RUN_R0:
     {
-
-        //PreCacheEel();
-
         if (!ActorTestSpawn(actor))
         {
             KillActor(actor);
@@ -1193,9 +1182,6 @@ bool ActorSpawn(DSWActor* actor)
 
     case SUMO_RUN_R0:
     {
-
-        //PreCacheSumo();
-
         if (!ActorTestSpawn(actor))
         {
             KillActor(actor);
@@ -1210,9 +1196,6 @@ bool ActorSpawn(DSWActor* actor)
 
     case ZILLA_RUN_R0:
     {
-
-        //PreCacheSumo();
-
         if (!ActorTestSpawn(actor))
         {
             KillActor(actor);
@@ -1227,9 +1210,6 @@ bool ActorSpawn(DSWActor* actor)
 
     case TOILETGIRL_R0:
     {
-
-        //PreCacheToiletGirl();
-
         if (!ActorTestSpawn(actor))
         {
             KillActor(actor);
@@ -1244,9 +1224,6 @@ bool ActorSpawn(DSWActor* actor)
 
     case WASHGIRL_R0:
     {
-
-        //PreCacheWashGirl();
-
         if (!ActorTestSpawn(actor))
         {
             KillActor(actor);
@@ -1261,9 +1238,6 @@ bool ActorSpawn(DSWActor* actor)
 
     case CARGIRL_R0:
     {
-
-        //PreCacheCarGirl();
-
         if (!ActorTestSpawn(actor))
         {
             KillActor(actor);
@@ -1278,9 +1252,6 @@ bool ActorSpawn(DSWActor* actor)
 
     case MECHANICGIRL_R0:
     {
-
-        //PreCacheMechanicGirl();
-
         if (!ActorTestSpawn(actor))
         {
             KillActor(actor);
@@ -1295,9 +1266,6 @@ bool ActorSpawn(DSWActor* actor)
 
     case SAILORGIRL_R0:
     {
-
-        //PreCacheSailorGirl();
-
         if (!ActorTestSpawn(actor))
         {
             KillActor(actor);
@@ -1312,9 +1280,6 @@ bool ActorSpawn(DSWActor* actor)
 
     case PRUNEGIRL_R0:
     {
-
-        //PreCachePruneGirl();
-
         if (!ActorTestSpawn(actor))
         {
             KillActor(actor);
@@ -1329,19 +1294,13 @@ bool ActorSpawn(DSWActor* actor)
 
     case TRASHCAN:
     {
-
-        //PreCacheTrash();
         PicAnimOff(picnum);
         SetupTrashCan(actor);
-
         break;
     }
 
     case BUNNY_RUN_R0:
     {
-
-        //PreCacheBunny();
-
         if (!ActorTestSpawn(actor))
         {
             KillActor(actor);
@@ -1355,9 +1314,6 @@ bool ActorSpawn(DSWActor* actor)
 
     case RIPPER_RUN_R0:
     {
-
-        //PreCacheRipper();
-
         if (!ActorTestSpawn(actor))
         {
             KillActor(actor);
@@ -1371,9 +1327,6 @@ bool ActorSpawn(DSWActor* actor)
 
     case RIPPER2_RUN_R0:
     {
-
-        //PreCacheRipper2();
-
         if (!ActorTestSpawn(actor))
         {
             KillActor(actor);
@@ -1387,9 +1340,6 @@ bool ActorSpawn(DSWActor* actor)
 
     case SERP_RUN_R0:
     {
-
-        //PreCacheSerpent();
-
         if (!ActorTestSpawn(actor))
         {
             KillActor(actor);
@@ -1417,9 +1367,6 @@ bool ActorSpawn(DSWActor* actor)
 
     case SKEL_RUN_R0:
     {
-
-        //PreCacheSkel();
-
         if (!ActorTestSpawn(actor))
         {
             KillActor(actor);
@@ -1433,9 +1380,6 @@ bool ActorSpawn(DSWActor* actor)
 
     case HORNET_RUN_R0:
     {
-
-        //PreCacheHornet();
-
         if (!ActorTestSpawn(actor))
         {
             KillActor(actor);
@@ -1449,9 +1393,6 @@ bool ActorSpawn(DSWActor* actor)
 
     case SKULL_R0:
     {
-
-        //PreCacheSkull();
-
         if (!ActorTestSpawn(actor))
         {
             KillActor(actor);
@@ -1465,9 +1406,6 @@ bool ActorSpawn(DSWActor* actor)
 
     case BETTY_R0:
     {
-
-        //PreCacheBetty();
-
         if (!ActorTestSpawn(actor))
         {
             KillActor(actor);
@@ -1481,8 +1419,6 @@ bool ActorSpawn(DSWActor* actor)
 
     case 623:   // Pachinko win light
     {
-
-        //PreCachePachinko();
         PicAnimOff(picnum);
         SetupPachinkoLight(actor);
         break;
@@ -1490,8 +1426,6 @@ bool ActorSpawn(DSWActor* actor)
 
     case PACHINKO1:
     {
-
-        //PreCachePachinko();
         PicAnimOff(picnum);
         SetupPachinko1(actor);
         break;
@@ -1499,8 +1433,6 @@ bool ActorSpawn(DSWActor* actor)
 
     case PACHINKO2:
     {
-
-        //PreCachePachinko();
         PicAnimOff(picnum);
         SetupPachinko2(actor);
         break;
@@ -1508,8 +1440,6 @@ bool ActorSpawn(DSWActor* actor)
 
     case PACHINKO3:
     {
-
-        //PreCachePachinko();
         PicAnimOff(picnum);
         SetupPachinko3(actor);
         break;
@@ -1517,8 +1447,6 @@ bool ActorSpawn(DSWActor* actor)
 
     case PACHINKO4:
     {
-
-        //PreCachePachinko();
         PicAnimOff(picnum);
         SetupPachinko4(actor);
         break;
@@ -1526,7 +1454,6 @@ bool ActorSpawn(DSWActor* actor)
 
     case GIRLNINJA_RUN_R0:
     {
-
         if (!ActorTestSpawn(actor))
         {
             KillActor(actor);
