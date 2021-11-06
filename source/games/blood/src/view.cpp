@@ -359,43 +359,22 @@ void viewUpdateDelirium(void)
 
 void viewUpdateShake(int& cX, int& cY, int& cZ, binangle& cA, fixedhoriz& cH, double& pshakeX, double& pshakeY)
 {
-    int shakeHoriz = 0;
-    int shakeAngle = 0;
-    int shakeX = 0;
-    int shakeY = 0;
-    int shakeZ = 0;
-    int shakeBobX = 0;
-    int shakeBobY = 0;
-    if (gView->flickerEffect)
+    auto doEffect = [&](const int& effectType)
     {
-        int nValue = ClipHigh(gView->flickerEffect * 8, 2000);
-        shakeHoriz += QRandom2(nValue >> 8);
-        shakeAngle += QRandom2(nValue >> 8);
-        shakeX += QRandom2(nValue >> 4);
-        shakeY += QRandom2(nValue >> 4);
-        shakeZ += QRandom2(nValue);
-        shakeBobX += QRandom2(nValue);
-        shakeBobY += QRandom2(nValue);
-    }
-    if (gView->quakeEffect)
-    {
-        int nValue = ClipHigh(gView->quakeEffect * 8, 2000);
-        shakeHoriz += QRandom2(nValue >> 8);
-        shakeAngle += QRandom2(nValue >> 8);
-        shakeX += QRandom2(nValue >> 4);
-        shakeY += QRandom2(nValue >> 4);
-        shakeZ += QRandom2(nValue);
-        shakeBobX += QRandom2(nValue);
-        shakeBobY += QRandom2(nValue);
-    }
-    cH += buildhoriz(shakeHoriz);
-    cA += buildang(shakeAngle);
-    cX += shakeX;
-    cY += shakeY;
-    cZ += shakeZ;
-    pshakeX += shakeBobX;
-    pshakeY += shakeBobY;
-
+        if (effectType)
+        {
+            int nValue = ClipHigh(effectType * 8, 2000);
+            cH += buildhoriz(QRandom2(nValue >> 8));
+            cA += buildang(QRandom2(nValue >> 8));
+            cX += QRandom2(nValue >> 4);
+            cY += QRandom2(nValue >> 4);
+            cZ += QRandom2(nValue);
+            pshakeX += QRandom2(nValue);
+            pshakeY += QRandom2(nValue);
+        }
+    };
+    doEffect(gView->flickerEffect);
+    doEffect(gView->quakeEffect);
 }
 
 
