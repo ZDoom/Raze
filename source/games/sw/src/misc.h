@@ -101,7 +101,7 @@ void QuakeViewChange(PLAYERp pp, int* z_diff, int* x_diff, int* y_diff, short* a
 void DoQuake(PLAYERp pp);
 bool SetQuake(PLAYERp pp, short tics, short amt);
 int SetExpQuake(DSWActor*);
-int SetGunQuake(int16_t SpriteNum);
+int SetGunQuake(DSWActor*);
 int SetPlayerQuake(PLAYERp mpp);
 int SetNuclearQuake(DSWActor*);
 int SetSumoQuake(DSWActor*);

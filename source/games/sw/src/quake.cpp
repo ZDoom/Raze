@@ -278,9 +278,9 @@ SetExpQuake(DSWActor* actor)
 }
 
 int
-SetGunQuake(int16_t SpriteNum)
+SetGunQuake(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
 
     SpawnQuake(sp->sectnum, sp->x, sp->y, sp->z,  40, 8, 40000);
 

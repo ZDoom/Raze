@@ -16881,7 +16881,7 @@ int InitSobjGun(PLAYERp pp)
             case 0:
                 SpawnVis(actor, -1, -1, -1, -1, 8);
                 SpawnBigGunFlames(actor, pp->Actor(), pp->sop, false);
-                SetGunQuake(actor->GetSpriteIndex());
+                SetGunQuake(actor);
                 InitTankShell(actor, pp);
                 if (!SP_TAG5(sp))
                     pp->FirePause = 80;
