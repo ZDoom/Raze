@@ -104,11 +104,11 @@ void SerializeActorGlobals(FSerializer& arc)
 //
 //---------------------------------------------------------------------------
 
-bool ceilingspace_d(int sectnum)
+bool ceilingspace_d(sectortype* sectp)
 {
-	if( (sector[sectnum].ceilingstat&1) && sector[sectnum].ceilingpal == 0 )
+	if( (sectp->ceilingstat&1) && sectp->ceilingpal == 0 )
 	{
-		switch(sector[sectnum].ceilingpicnum)
+		switch(sectp->ceilingpicnum)
 		{
 			case MOONSKY1:
 			case BIGORBIT1:
@@ -124,11 +124,11 @@ bool ceilingspace_d(int sectnum)
 //
 //---------------------------------------------------------------------------
 
-bool floorspace_d(int sectnum)
+bool floorspace_d(sectortype* sectp)
 {
-	if( (sector[sectnum].floorstat&1) && sector[sectnum].ceilingpal == 0 )
+	if( (sectp->floorstat&1) && sectp->ceilingpal == 0 )
 	{
-		switch(sector[sectnum].floorpicnum)
+		switch(sectp->floorpicnum)
 		{
 			case MOONSKY1:
 			case BIGORBIT1:
@@ -1002,10 +1002,10 @@ void movefallers_d(void)
 					ssp(act, CLIPMASK0);
 				}
 
-				if (fi.floorspace(s->sectnum)) x = 0;
+				if (fi.floorspace(s->sector())) x = 0;
 				else
 				{
-					if (fi.ceilingspace(s->sectnum))
+					if (fi.ceilingspace(s->sector()))
 						x = gs.gravity / 6;
 					else
 						x = gs.gravity;

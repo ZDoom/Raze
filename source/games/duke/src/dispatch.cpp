@@ -56,10 +56,10 @@ void checkhitsprite_r(DDukeActor* i, DDukeActor* sn);
 void checksectors_d(int snum);
 void checksectors_r(int snum);
 
-bool ceilingspace_d(int sectnum);
-bool ceilingspace_r(int sectnum);
-bool floorspace_d(int sectnum);
-bool floorspace_r(int sectnum);
+bool ceilingspace_d(sectortype*);
+bool ceilingspace_r(sectortype*);
+bool floorspace_d(sectortype*);
+bool floorspace_r(sectortype*);
 void addweapon_d(struct player_struct* p, int weapon);
 void addweapon_r(struct player_struct* p, int weapon);
 void hitradius_d(DDukeActor* i, int  r, int  hp1, int  hp2, int  hp3, int  hp4);

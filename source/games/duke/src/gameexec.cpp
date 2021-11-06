@@ -2511,7 +2511,7 @@ int ParseState::parse(void)
 		}
 		break;
 	case concmd_ifinspace:
-		parseifelse(fi.ceilingspace(g_sp->sectnum));
+		parseifelse(fi.ceilingspace(g_sp->sector()));
 		break;
 
 	case concmd_spritepal:
@@ -2811,7 +2811,7 @@ int ParseState::parse(void)
 		insptr++;
 		break;
 	case concmd_ifinouterspace:
-		parseifelse( fi.floorspace(g_sp->sectnum));
+		parseifelse( fi.floorspace(g_sp->sector()));
 		break;
 	case concmd_ifnotmoving:
 		parseifelse( (g_ac->movflag&kHitTypeMask) > kHitSector );

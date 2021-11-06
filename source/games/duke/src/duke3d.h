@@ -88,8 +88,8 @@ struct Dispatcher
 	void (*checkhitsprite)(DDukeActor* i, DDukeActor* sn);
 	void (*checksectors)(int low);
 
-	bool (*ceilingspace)(int sectnum);
-	bool (*floorspace)(int sectnum);
+	bool (*ceilingspace)(sectortype* sectp);
+	bool (*floorspace)(sectortype* sectp);
 	void (*addweapon)(struct player_struct *p, int weapon);
 	void (*hitradius)(DDukeActor* i, int  r, int  hp1, int  hp2, int  hp3, int  hp4);
 	void (*lotsofmoney)(DDukeActor *s, short n);
