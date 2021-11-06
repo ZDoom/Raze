@@ -147,14 +147,11 @@ void DrawFrame(double x, double y, double z, double a, double alpha, int picnum,
 }
 
 
-static QAVInterpProps forcedinterpdata{qavGetInterpType("picnum")};
-
 void QAV::Draw(double x, double y, int ticks, int stat, int shade, int palnum, bool to3dview, double const smoothratio)
 {
     assert(ticksPerFrame > 0);
 
-    QAVInterpProps* interpdata = qavInterpProps.CheckKey(res_id);
-    if (!interpdata && cl_bloodqavforcedinterp) interpdata = &forcedinterpdata;
+    auto const interpdata = qavInterpProps.CheckKey(res_id);
 
     auto const nFrame = clamp(ticks / ticksPerFrame, 0, nFrames - 1);
     FRAMEINFO* const thisFrame = &frames[nFrame];
