@@ -504,7 +504,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYERstruct& w, P
 			arc
 #endif
 			("PlayerUnderSprite", w.PlayerUnderActor)
-			("SpriteP", w.SpriteP)
 			("pnum", w.pnum)
 			("LadderSector", w.LadderSector)
 			("lx", w.lx)
@@ -580,6 +579,10 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYERstruct& w, P
 			("WpnReloadState", w.WpnReloadState)
 			("keypressbits", w.KeyPressBits)
 			("chops", w.Chops);
+
+			if (arc.isWriting())	// we need this for loading saves in older builds for debugging.
+			arc("SpriteP", w.PlayerSprite);
+
 
 		SerializeCodePtr(arc, "DoPlayerAction", (void**)&w.DoPlayerAction);
 		arc.EndObject();
@@ -869,7 +872,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, USER& w, USER* def
 			("active_range", w.active_range, def->active_range)
 			("SpriteNum", w.SpriteNum, def->SpriteNum)
 			("Attach", w.attachActor, def->attachActor)
-			("SpriteP", w.SpriteP, def->SpriteP)
 			("PlayerP", w.PlayerP, def->PlayerP)
 			("Sibling", w.Sibling, def->Sibling)
 			("xchange", w.xchange, def->xchange)
@@ -926,6 +928,10 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, USER& w, USER* def
 			("wallshade", w.WallShade)
 			("rotator", w.rotator)
 			("oz", w.oz, def->oz);
+
+		if (arc.isWriting())	// we need this for loading saves in older builds for debugging.
+			arc("SpriteP", w.SpriteNum, def->SpriteNum);
+
 
 		SerializeCodePtr(arc, "ActorActionFunc", (void**)&w.ActorActionFunc);
 		arc.EndObject();

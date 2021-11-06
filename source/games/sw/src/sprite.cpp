@@ -888,7 +888,6 @@ USERp SpawnUser(DSWActor* actor, short id, STATEp state)
     u->targetActor = Player[0].Actor();
     u->Radius = 220;
     u->Sibling = -1;
-    u->SpriteP = &actor->s();
     u->SpriteNum = actor->GetSpriteIndex();
     u->WaitTics = 0;
     u->OverlapZ = Z(4);
@@ -5306,7 +5305,7 @@ DoGet(DSWActor* actor)
     USER* u = actor->u();
     int SpriteNum = u->SpriteNum;
 	USERp pu;
-    SPRITEp sp = u->SpriteP;
+    SPRITEp sp = &actor->s();
     PLAYERp pp;
     short pnum, key_num;
     int dist, a,b,c;
@@ -5684,7 +5683,7 @@ KeyMain:
 
             if (!cl_weaponswitch)
                 break;
-            if (User[pp->PlayerSprite]->WeaponNum <= WPN_STAR && User[pp->PlayerSprite]->WeaponNum != WPN_SWORD)
+            if (pu->WeaponNum <= WPN_STAR && pu->WeaponNum != WPN_SWORD)
                 break;
             InitWeaponStar(pp);
             break;
@@ -5712,7 +5711,7 @@ KeyMain:
 
             if (!cl_weaponswitch)
                 break;
-            if (User[pp->PlayerSprite]->WeaponNum > WPN_MINE && User[pp->PlayerSprite]->WeaponNum != WPN_SWORD)
+            if (pu->WeaponNum > WPN_MINE && pu->WeaponNum != WPN_SWORD)
                 break;
             InitWeaponMine(pp);
             break;
@@ -5756,7 +5755,7 @@ KeyMain:
             if (!cl_weaponswitch)
                 break;
 
-            if (User[pp->PlayerSprite]->WeaponNum > WPN_UZI && User[pp->PlayerSprite]->WeaponNum != WPN_SWORD)
+            if (pu->WeaponNum > WPN_UZI && pu->WeaponNum != WPN_SWORD)
                 break;
 
             InitWeaponUzi(pp);
@@ -5798,7 +5797,7 @@ KeyMain:
 
             if (!cl_weaponswitch)
                 break;
-            if (User[pp->PlayerSprite]->WeaponNum > WPN_MICRO && User[pp->PlayerSprite]->WeaponNum != WPN_SWORD)
+            if (pu->WeaponNum > WPN_MICRO && pu->WeaponNum != WPN_SWORD)
                 break;
             InitWeaponMicro(pp);
             break;
@@ -5867,7 +5866,7 @@ KeyMain:
 
             if (!cl_weaponswitch)
                 break;
-            if (User[pp->PlayerSprite]->WeaponNum > WPN_GRENADE && User[pp->PlayerSprite]->WeaponNum != WPN_SWORD)
+            if (pu->WeaponNum > WPN_GRENADE && pu->WeaponNum != WPN_SWORD)
                 break;
             InitWeaponGrenade(pp);
             break;
@@ -5941,7 +5940,7 @@ KeyMain:
 
             if (!cl_weaponswitch)
                 break;
-            if (User[pp->PlayerSprite]->WeaponNum > WPN_RAIL && User[pp->PlayerSprite]->WeaponNum != WPN_SWORD)
+            if (pu->WeaponNum > WPN_RAIL && pu->WeaponNum != WPN_SWORD)
                 break;
             InitWeaponRail(pp);
             break;
@@ -5983,7 +5982,7 @@ KeyMain:
 
             if (!cl_weaponswitch)
                 break;
-            if (User[pp->PlayerSprite]->WeaponNum > WPN_SHOTGUN && User[pp->PlayerSprite]->WeaponNum != WPN_SWORD)
+            if (pu->WeaponNum > WPN_SHOTGUN && pu->WeaponNum != WPN_SWORD)
                 break;
             InitWeaponShotgun(pp);
             break;
@@ -6051,7 +6050,7 @@ KeyMain:
 
             if (!cl_weaponswitch)
                 break;
-            if (User[pp->PlayerSprite]->WeaponNum > WPN_HOTHEAD && User[pp->PlayerSprite]->WeaponNum != WPN_SWORD)
+            if (pu->WeaponNum > WPN_HOTHEAD && pu->WeaponNum != WPN_SWORD)
                 break;
             InitWeaponHothead(pp);
             break;
@@ -6097,7 +6096,7 @@ KeyMain:
             if (!cl_weaponswitch)
                 break;
 
-            if (User[pp->PlayerSprite]->WeaponNum > WPN_HEART && User[pp->PlayerSprite]->WeaponNum != WPN_SWORD)
+            if (pu->WeaponNum > WPN_HEART && pu->WeaponNum != WPN_SWORD)
                 break;
 
             InitWeaponHeart(pp);
@@ -6334,7 +6333,6 @@ int  StateControl(DSWActor* actor)
         }
         else
         {
-            //u->SpriteP->picnum = u->State->Pic;
             if (u->RotNum > 1)
                 sp->picnum = u->Rot[0]->Pic;
             else

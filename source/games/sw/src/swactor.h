@@ -27,7 +27,6 @@ public:
 	{ 
 		User[index].Alloc(); 
 		User[index]->SpriteNum = GetSpriteIndex();
-		User[index]->SpriteP = &sprite[index];
 		return User[index].Data(); 
 	}
 

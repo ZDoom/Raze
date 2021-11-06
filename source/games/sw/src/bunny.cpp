@@ -885,7 +885,7 @@ int DoBunnyBeginJumpAttack(DSWActor* actor)
 int DoBunnyMoveJump(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = u->s();
+    SPRITEp sp = &actor->s();
 
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {

@@ -869,7 +869,7 @@ int PachinkoCheckWin(DSWActor* actor)
 int Pachinko1Operate(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = u->s();
+    SPRITEp sp = &actor->s();
     short rnd;
 
     rnd = RandomRange(1000);

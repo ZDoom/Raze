@@ -802,8 +802,6 @@ struct PLAYERstruct
 
     // under vars are for wading and swimming
     short PlayerSprite;
-    SPRITEp SpriteP;
-
 
     short pnum; // carry along the player number
 
@@ -1135,8 +1133,6 @@ struct USER
     int active_range;
 
     short   SpriteNum;
-    SPRITEp SpriteP;
-	SPRITEp s() { return SpriteP;}
 
     // if a player's sprite points to player structure
     PLAYERp PlayerP;
