@@ -380,8 +380,9 @@ void PlayerAngle::applyinput(float const avel, ESyncBits* actions, double const 
 	if (rotscrnang.asbam())
 	{
 		// return rotscrnang to 0
-		rotscrnang -= buildfang(scaleAdjust * rotscrnang.signedbuildf() * (double(LOOKROTRETBASE) / GameTicRate));
-		if (abs(rotscrnang.signedbam()) < (BAMUNIT >> 2)) rotscrnang = bamang(0);
+		auto sgn = Sgn(rotscrnang.signedbam());
+		rotscrnang -= buildfang(scaleAdjust * ((rotscrnang.signedbuildf() * (double(LOOKROTRETBASE) / GameTicRate)) + sgn));
+		if (sgn != Sgn(rotscrnang.signedbam())) rotscrnang = bamang(0);
 	}
 
 	if (look_ang.asbam())
