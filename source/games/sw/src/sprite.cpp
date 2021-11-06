@@ -619,12 +619,6 @@ void SetAttach(DSWActor* ownr, DSWActor* child)
 
 void KillActor(DSWActor* actor)
 {
-    KillSprite(actor->GetSpriteIndex());
-}
-
-void KillSprite(int16_t SpriteNum)
-{
-    auto actor = &swActors[SpriteNum];
     SPRITEp sp = &actor->s();
     USERp u = actor->u();
     int i;
@@ -639,7 +633,7 @@ void KillSprite(int16_t SpriteNum)
     //////////////////////////////////////////////
     //    Check sounds list to kill attached sounds
     DeleteNoSoundOwner(actor);
-    DeleteNoFollowSoundOwner(SpriteNum);
+    DeleteNoFollowSoundOwner(actor);
     //////////////////////////////////////////////
 
     if (u)
@@ -655,7 +649,7 @@ void KillSprite(int16_t SpriteNum)
         // any Anims attached
         AnimDelete(ANIM_Userz, 0, actor);
         AnimDelete(ANIM_Spritez, 0, actor);
-        StopInterpolation(SpriteNum, Interp_Sprite_Z);
+        StopInterpolation(actor->GetSpriteIndex(), Interp_Sprite_Z);
 
         //if (TEST(u->Flags2, SPR2_DONT_TARGET_OWNER))
         //    Zombies--;
@@ -783,7 +777,7 @@ void KillSprite(int16_t SpriteNum)
         {
             SetSuicide(u->flameActor);
         }
-        User[SpriteNum].Clear();
+        User[actor->GetSpriteIndex()].Clear();
     }
 
     FVector3 pos = GetSoundPos(&actor->s().pos);
@@ -4579,7 +4573,6 @@ int NewStateGroup(DSWActor* actor, STATEp StateGroup[])
 
     u->Rot = StateGroup;
     u->State = u->StateStart = StateGroup[0];
-    //sprite[SpriteNum].picnum = u->State->Pic;
 
     u->Tics = 0;
 

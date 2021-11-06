@@ -733,9 +733,9 @@ void DeleteNoSoundOwner(DSWActor* actor)
 //
 //==========================================================================
 
-void DeleteNoFollowSoundOwner(short spritenum)
+void DeleteNoFollowSoundOwner(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[spritenum];
+    SPRITEp sp = &actor->s();
     soundEngine->StopSound(SOURCE_Actor, sp, -1); // all non-follow sounds are SOURCE_Unattached
 }
 
