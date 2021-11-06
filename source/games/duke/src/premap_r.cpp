@@ -547,7 +547,7 @@ void prelevel_r(int g)
 			break;
 
 		case GPSPEED:
-			sector[si->sectnum].extra = si->lotag;
+			si->sector()->extra = si->lotag;
 			deletesprite(ac);
 			break;
 
@@ -557,7 +557,7 @@ void prelevel_r(int g)
 			cyclers[numcyclers][0] = si->sectnum;
 			cyclers[numcyclers][1] = si->lotag;
 			cyclers[numcyclers][2] = si->shade;
-			cyclers[numcyclers][3] = sector[si->sectnum].floorshade;
+			cyclers[numcyclers][3] = si->sector()->floorshade;
 			cyclers[numcyclers][4] = si->hitag;
 			cyclers[numcyclers][5] = (si->ang == 1536);
 			numcyclers++;

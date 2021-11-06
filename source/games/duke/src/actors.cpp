@@ -293,8 +293,8 @@ void ms(DDukeActor* const actor)
 	int j = actor->temp_data[1];
 	int k = actor->temp_data[2];
 
-	startwall = sector[s->sectnum].wallptr;
-	endwall = startwall + sector[s->sectnum].wallnum;
+	startwall = s->sector()->wallptr;
+	endwall = startwall + s->sector()->wallnum;
 	for (x = startwall; x < endwall; x++)
 	{
 		rotatepoint(
@@ -374,7 +374,7 @@ void movedummyplayers(void)
 			if (ps[p].on_ground && ps[p].on_warping_sector == 1 && sector[ps[p].cursectnum].lotag == 1)
 			{
 				spri->cstat = CSTAT_SPRITE_BLOCK_ALL;
-				spri->z = sector[spri->sectnum].ceilingz + (27 << 8);
+				spri->z = spri->sector()->ceilingz + (27 << 8);
 				spri->ang = ps[p].angle.ang.asbuild();
 				if (act->temp_data[0] == 8)
 					act->temp_data[0] = 0;
@@ -382,7 +382,7 @@ void movedummyplayers(void)
 			}
 			else
 			{
-				if (sector[spri->sectnum].lotag != 2) spri->z = sector[spri->sectnum].floorz;
+				if (spri->sector()->lotag != 2) spri->z = spri->sector()->floorz;
 				spri->cstat = (short)32768;
 			}
 		}
@@ -509,9 +509,9 @@ void moveplayers(void)
 			else
 			{
 				spri->yrepeat = 36;
-				if (sector[spri->sectnum].lotag != ST_2_UNDERWATER)
+				if (spri->sector()->lotag != ST_2_UNDERWATER)
 					makeitfall(act);
-				if (spri->zvel == 0 && sector[spri->sectnum].lotag == ST_1_ABOVE_WATER)
+				if (spri->zvel == 0 && spri->sector()->lotag == ST_1_ABOVE_WATER)
 					spri->z += (32 << 8);
 			}
 
@@ -529,10 +529,10 @@ void moveplayers(void)
 			}
 		}
 
-		if (sector[spri->sectnum].ceilingstat & 1)
-			spri->shade += (sector[spri->sectnum].ceilingshade - spri->shade) >> 1;
+		if (spri->sector()->ceilingstat & 1)
+			spri->shade += (spri->sector()->ceilingshade - spri->shade) >> 1;
 		else
-			spri->shade += (sector[spri->sectnum].floorshade - spri->shade) >> 1;
+			spri->shade += (spri->sector()->floorshade - spri->shade) >> 1;
 	}
 }
 
@@ -595,7 +595,7 @@ void movefx(void)
 					act->temp_data[0] = 0;
 				}
 			}
-			else if (spri->lotag < 999 && (unsigned)sector[spri->sectnum].lotag < ST_9_SLIDING_ST_DOOR && snd_ambience && sector[spri->sectnum].floorz != sector[spri->sectnum].ceilingz)
+			else if (spri->lotag < 999 && (unsigned)spri->sector()->lotag < ST_9_SLIDING_ST_DOOR && snd_ambience && spri->sector()->floorz != spri->sector()->ceilingz)
 			{
 				int flags = S_GetUserFlags(spri->lotag);
 				if (flags & SF_MSFX)
@@ -904,7 +904,7 @@ void moveflammable(DDukeActor* actor, int tire, int box, int pool)
 	if (box >= 0 && spri->picnum == box)
 	{
 		makeitfall(actor);
-		actor->ceilingz = sector[spri->sectnum].ceilingz;
+		actor->ceilingz = spri->sector()->ceilingz;
 	}
 }
 
@@ -1648,9 +1648,9 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 
 	getglobalz(actor);
 
-	if (sector[s->sectnum].ceilingstat & 1)
-		s->shade += (sector[s->sectnum].ceilingshade - s->shade) >> 1;
-	else s->shade += (sector[s->sectnum].floorshade - s->shade) >> 1;
+	if (s->sector()->ceilingstat & 1)
+		s->shade += (s->sector()->ceilingshade - s->shade) >> 1;
+	else s->shade += (s->sector()->floorshade - s->shade) >> 1;
 
 	if (s->z < sector[sect].ceilingz + (32 << 8))
 		s->z = sector[sect].ceilingz + (32 << 8);
@@ -2292,7 +2292,7 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 		s->y += MulScale(s->xvel, bsin(s->ang), 14);
 		s->z += s->zvel;
 
-		if (floorcheck && s->z >= sector[s->sectnum].floorz)
+		if (floorcheck && s->z >= s->sector()->floorz)
 		{
 			deletesprite(actor);
 			return false;
@@ -2312,7 +2312,7 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 				deletesprite(actor);
 				return false;
 			}
-			if ((sector[s->sectnum].floorstat & 2))
+			if ((s->sector()->floorstat & 2))
 			{
 				deletesprite(actor);
 				return false;
@@ -2952,7 +2952,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 		while (auto a2 = it.Next())
 		{
 			auto sj = a2->s;
-			if (sj->statnum != 10 && sector[sj->sectnum].lotag != 2 && sj->picnum != SECTOREFFECTOR && sj->picnum != LOCATORS)
+			if (sj->statnum != 10 && sj->sector()->lotag != 2 && sj->picnum != SECTOREFFECTOR && sj->picnum != LOCATORS)
 			{
 				rotatepoint(s->x, s->y, sj->x, sj->y, q, &sj->x, &sj->y);
 
@@ -3604,7 +3604,7 @@ void handle_se10(DDukeActor* actor, const int* specialtags)
 			{
 				if (specialtags) for (int i = 0; specialtags[i]; i++)
 				{
-					if (sector[s->sectnum].lotag == specialtags[i] && getanimationgoal(anim_ceilingz, s->sectnum) >= 0)
+					if (s->sector()->lotag == specialtags[i] && getanimationgoal(anim_ceilingz, s->sectnum) >= 0)
 					{
 						return;
 					}
@@ -3998,7 +3998,7 @@ void handle_se17(DDukeActor* actor)
 		while ((act2 = it.Next()))
 		{
 			if (actor != act2 && (act2->s->lotag) == 17)
-				if ((sc->hitag - t[0]) == (sector[act2->s->sectnum].hitag) && sh == (act2->s->hitag))
+				if ((sc->hitag - t[0]) == (act2->getSector()->hitag) && sh == (act2->s->hitag))
 					break;
 		}
 
@@ -4015,10 +4015,10 @@ void handle_se17(DDukeActor* actor)
 
 				ps[p].pos.x += spr2->x - s->x;
 				ps[p].pos.y += spr2->y - s->y;
-				ps[p].pos.z = sector[spr2->sectnum].floorz - (sc->floorz - ps[p].pos.z);
+				ps[p].pos.z = spr2->sector()->floorz - (sc->floorz - ps[p].pos.z);
 
-				act3->floorz = sector[spr2->sectnum].floorz;
-				act3->ceilingz = sector[spr2->sectnum].ceilingz;
+				act3->floorz = spr2->sector()->floorz;
+				act3->ceilingz = spr2->sector()->ceilingz;
 
 				ps[p].bobposx = ps[p].oposx = ps[p].pos.x;
 				ps[p].bobposy = ps[p].oposy = ps[p].pos.y;
@@ -4035,15 +4035,15 @@ void handle_se17(DDukeActor* actor)
 			{
 				spr3->x += spr2->x - s->x;
 				spr3->y += spr2->y - s->y;
-				spr3->z = sector[spr2->sectnum].floorz - (sc->floorz - spr3->z);
+				spr3->z = spr2->sector()->floorz - (sc->floorz - spr3->z);
 
 				spr3->backupz();
 
 				changeactorsect(act3, spr2->sectnum);
 				setsprite(act3, spr3->pos);
 
-				act3->floorz = sector[spr2->sectnum].floorz;
-				act3->ceilingz = sector[spr2->sectnum].ceilingz;
+				act3->floorz = spr2->sector()->floorz;
+				act3->ceilingz = spr2->sector()->ceilingz;
 
 			}
 		}
@@ -4196,8 +4196,8 @@ void handle_se19(DDukeActor *actor, int BIGFORCE)
 				if (a2->s->lotag == 0 && a2->s->hitag == sh && a2Owner)
 				{
 					q = a2Owner->s->sectnum; 
-					sector[a2->s->sectnum].floorpal = sector[a2->s->sectnum].ceilingpal =	sector[q].floorpal;
-					sector[a2->s->sectnum].floorshade = sector[a2->s->sectnum].ceilingshade = sector[q].floorshade;
+					a2->getSector()->floorpal = a2->getSector()->ceilingpal =	sector[q].floorpal;
+					a2->getSector()->floorshade = a2->getSector()->ceilingshade = sector[q].floorshade;
 					a2Owner->temp_data[0] = 2;
 				}
 			}
@@ -4291,7 +4291,7 @@ void handle_se20(DDukeActor* actor)
 				a2->s->x += x;
 				a2->s->y += l;
 				setsprite(a2, a2->s->pos);
-				if (sector[a2->s->sectnum].floorstat & 2)
+				if (a2->getSector()->floorstat & 2)
 					if (a2->s->statnum == 2)
 						makeitfall(a2);
 			}
@@ -4550,7 +4550,7 @@ void handle_se24(DDukeActor *actor, int16_t *list1, int16_t *list2, bool scroll,
 
 						setsprite(a2, s2->pos);
 
-						if (sector[s2->sectnum].floorstat & 2)
+						if (s2->sector()->floorstat & 2)
 							if (s2->statnum == 2)
 								makeitfall(a2);
 					}
@@ -4982,15 +4982,15 @@ void getglobalz(DDukeActor* actor)
 			}
 			else if(s->statnum == STAT_PROJECTILE && lz.actor->s->picnum == TILE_APLAYER && actor->GetOwner() == actor)
 			{
-				actor->ceilingz = sector[s->sectnum].ceilingz;
-				actor->floorz	= sector[s->sectnum].floorz;
+				actor->ceilingz = s->sector()->ceilingz;
+				actor->floorz	= s->sector()->floorz;
 			}
 		}
 	}
 	else
 	{
-		actor->ceilingz = sector[s->sectnum].ceilingz;
-		actor->floorz	= sector[s->sectnum].floorz;
+		actor->ceilingz = s->sector()->ceilingz;
+		actor->floorz	= s->sector()->floorz;
 	}
 }
 
@@ -5009,7 +5009,7 @@ void makeitfall(DDukeActor* actor)
 		c = 0;
 	else
 	{
-		if( fi.ceilingspace(s->sectnum) || sector[s->sectnum].lotag == ST_2_UNDERWATER)
+		if( fi.ceilingspace(s->sectnum) || s->sector()->lotag == ST_2_UNDERWATER)
 			c = gs.gravity/6;
 		else c = gs.gravity;
 	}
@@ -5026,13 +5026,13 @@ void makeitfall(DDukeActor* actor)
 	}
 	else
 	{
-		actor->ceilingz = sector[s->sectnum].ceilingz;
-		actor->floorz	= sector[s->sectnum].floorz;
+		actor->ceilingz = s->sector()->ceilingz;
+		actor->floorz	= s->sector()->floorz;
 	}
 
 	if( s->z < actor->floorz-(FOURSLEIGHT) )
 	{
-		if( sector[s->sectnum].lotag == 2 && s->zvel > 3122 )
+		if( s->sector()->lotag == 2 && s->zvel > 3122 )
 			s->zvel = 3144;
 		if(s->zvel < 6144)
 			s->zvel += c;
@@ -5260,12 +5260,12 @@ void fall_common(DDukeActor *actor, int playernum, int JIBS6, int DRONE, int BLO
 			c = 0;
 		else
 		{
-			if (fi.ceilingspace(s->sectnum) || sector[s->sectnum].lotag == 2)
+			if (fi.ceilingspace(s->sectnum) || s->sector()->lotag == 2)
 				c = gs.gravity / 6;
 			else c = gs.gravity;
 		}
 
-		if (actor->cgg <= 0 || (sector[s->sectnum].floorstat & 2))
+		if (actor->cgg <= 0 || (s->sector()->floorstat & 2))
 		{
 			getglobalz(actor);
 			actor->cgg = 6;
@@ -5311,7 +5311,7 @@ void fall_common(DDukeActor *actor, int playernum, int JIBS6, int DRONE, int BLO
 					actor->extra = 1;
 					s->zvel = 0;
 				}
-				else if (s->zvel > 2048 && sector[s->sectnum].lotag != 1)
+				else if (s->zvel > 2048 && s->sector()->lotag != 1)
 				{
 
 					short j = s->sectnum;
@@ -5324,7 +5324,7 @@ void fall_common(DDukeActor *actor, int playernum, int JIBS6, int DRONE, int BLO
 					S_PlayActorSound(thud, actor);
 				}
 			}
-			if (sector[s->sectnum].lotag == 1)
+			if (s->sector()->lotag == 1)
 				s->z += gs.actorinfo[s->picnum].falladjustz;
 			else s->zvel = 0;
 		}

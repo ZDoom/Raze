@@ -126,11 +126,11 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 				ny = hity + (effector->GetOwner()->s->y - effector->s->y);
 				if (sector[hitsect].lotag == 161)
 				{
-					nz = sector[effector->GetOwner()->s->sectnum].floorz;
+					nz = effector->GetOwner()->getSector()->floorz;
 				}
 				else
 				{
-					nz = sector[effector->GetOwner()->s->sectnum].ceilingz;
+					nz = effector->GetOwner()->getSector()->ceilingz;
 				}
 				hitscan(nx, ny, nz, effector->GetOwner()->s->sectnum, bcos(sa), bsin(sa), zvel << 6,
 					&hitsect, &hitwall, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
@@ -283,11 +283,11 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 				ny = hity + (effector->GetOwner()->s->y - effector->s->y);
 				if (sector[hitsect].lotag == 161)
 				{
-					nz = sector[effector->GetOwner()->s->sectnum].floorz;
+					nz = effector->GetOwner()->getSector()->floorz;
 				}
 				else
 				{
-					nz = sector[effector->GetOwner()->s->sectnum].ceilingz;
+					nz = effector->GetOwner()->getSector()->ceilingz;
 				}
 				hitscan(nx, ny, nz, effector->GetOwner()->s->sectnum, bcos(sa), bsin(sa), zvel << 6,
 					&hitsect, &hitwall, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
@@ -3620,7 +3620,7 @@ void processinput_r(int snum)
 
 	if (p->spritebridge == 0)
 	{
-		int j = sector[s->sectnum].floorpicnum;
+		int j = s->sector()->floorpicnum;
 		k = 0;
 
 		if (p->on_ground && truefdist <= gs.playerheight + (16 << 8))
@@ -3927,8 +3927,8 @@ HORIZONLY:
 	{
 		if (abs(pact->floorz - pact->ceilingz) < (48 << 8) || j)
 		{
-			if (!(sector[s->sectnum].lotag & 0x8000) && (isanunderoperator(sector[s->sectnum].lotag) ||
-				isanearoperator(sector[s->sectnum].lotag)))
+			if (!(s->sector()->lotag & 0x8000) && (isanunderoperator(s->sector()->lotag) ||
+				isanearoperator(s->sector()->lotag)))
 				fi.activatebysector(s->sectnum, pact);
 			if (j)
 			{

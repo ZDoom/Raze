@@ -168,8 +168,8 @@ int initspriteforspawn(DDukeActor* actj, int pn, const std::initializer_list<int
 		act->movflag = 0;
 		act->tempang = 0;
 		act->dispicnum = 0;
-		act->floorz = sector[sp->sectnum].floorz;
-		act->ceilingz = sector[sp->sectnum].ceilingz;
+		act->floorz = sp->sector()->floorz;
+		act->ceilingz = sp->sector()->ceilingz;
 
 		act->lastvx = 0;
 		act->lastvy = 0;
@@ -306,7 +306,7 @@ void spawntransporter(DDukeActor *actj, DDukeActor* acti, bool beam)
 	{
 		sp->xrepeat = 31;
 		sp->yrepeat = 1;
-		sp->z = sector[spj->sectnum].floorz - (isRR() ? PHEIGHT_RR : PHEIGHT_DUKE);
+		sp->z = spj->sector()->floorz - (isRR() ? PHEIGHT_RR : PHEIGHT_DUKE);
 	}
 	else
 	{
@@ -346,16 +346,16 @@ int spawnbloodpoolpart1(DDukeActor *actj, DDukeActor* acti)
 	short s1 = sp->sectnum;
 
 	updatesector(sp->x + 108, sp->y + 108, &s1);
-	if (s1 >= 0 && sector[s1].floorz == sector[sp->sectnum].floorz)
+	if (s1 >= 0 && sector[s1].floorz == sp->sector()->floorz)
 	{
 		updatesector(sp->x - 108, sp->y - 108, &s1);
-		if (s1 >= 0 && sector[s1].floorz == sector[sp->sectnum].floorz)
+		if (s1 >= 0 && sector[s1].floorz == sp->sector()->floorz)
 		{
 			updatesector(sp->x + 108, sp->y - 108, &s1);
-			if (s1 >= 0 && sector[s1].floorz == sector[sp->sectnum].floorz)
+			if (s1 >= 0 && sector[s1].floorz == sp->sector()->floorz)
 			{
 				updatesector(sp->x - 108, sp->y + 108, &s1);
-				if (s1 >= 0 && sector[s1].floorz != sector[sp->sectnum].floorz)
+				if (s1 >= 0 && sector[s1].floorz != sp->sector()->floorz)
 				{
 					sp->xrepeat = sp->yrepeat = 0; changeactorstat(acti, STAT_MISC); return true;
 				}
@@ -366,7 +366,7 @@ int spawnbloodpoolpart1(DDukeActor *actj, DDukeActor* acti)
 	}
 	else { sp->xrepeat = sp->yrepeat = 0; changeactorstat(acti, STAT_MISC); return true; }
 
-	if (sector[sp->sectnum].lotag == 1)
+	if (sp->sector()->lotag == 1)
 	{
 		changeactorstat(acti, STAT_MISC);
 		return true;
@@ -388,18 +388,19 @@ void initfootprint(DDukeActor* actj, DDukeActor* acti)
 	{
 		short s1;
 		s1 = sp->sectnum;
+		auto sect1 = &sector[s1];
 
 		updatesector(sp->x + 84, sp->y + 84, &s1);
-		if (s1 >= 0 && sector[s1].floorz == sector[sp->sectnum].floorz)
+		if (s1 >= 0 && sect1->floorz == sp->sector()->floorz)
 		{
 			updatesector(sp->x - 84, sp->y - 84, &s1);
-			if (s1 >= 0 && sector[s1].floorz == sector[sp->sectnum].floorz)
+			if (s1 >= 0 && sect1->floorz == sp->sector()->floorz)
 			{
 				updatesector(sp->x + 84, sp->y - 84, &s1);
-				if (s1 >= 0 && sector[s1].floorz == sector[sp->sectnum].floorz)
+				if (s1 >= 0 && sect1->floorz == sp->sector()->floorz)
 				{
 					updatesector(sp->x - 84, sp->y + 84, &s1);
-					if (s1 >= 0 && sector[s1].floorz != sector[sp->sectnum].floorz)
+					if (s1 >= 0 && sect1->floorz != sp->sector()->floorz)
 					{
 						sp->xrepeat = sp->yrepeat = 0; changeactorstat(acti, STAT_MISC); return;
 					}
@@ -1071,8 +1072,8 @@ void spawneffector(DDukeActor* actor)
 			}
 			else if (sp->lotag == SE_2_EARTHQUAKE)
 			{
-				t[5] = sector[sp->sectnum].floorheinum;
-				sector[sp->sectnum].floorheinum = 0;
+				t[5] = sp->sector()->floorheinum;
+				sp->sector()->floorheinum = 0;
 			}
 	}
 
@@ -1085,7 +1086,7 @@ void spawneffector(DDukeActor* actor)
 			if (j == -1)
 			{
 				if (!isRR()) j = SUBWAY;	// Duke
-				else if (sector[sp->sectnum].floorpal == 7) j = 456;
+				else if (sp->sector()->floorpal == 7) j = 456;
 				else j = 75;
 			}
 			actor->lastvx = j;

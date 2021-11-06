@@ -221,12 +221,12 @@ int spawn_r(int j, int pn)
 				sp->cstat |= 128;
 				if (j >= 0)
 				{
-					if (sector[spj->sectnum].lotag == 2)
+					if (spj->sector()->lotag == 2)
 					{
 						sp->z = getceilzofslope(sp->sectnum, sp->x, sp->y) + (16 << 8);
 						sp->cstat |= 8;
 					}
-					else if (sector[spj->sectnum].lotag == 1)
+					else if (spj->sector()->lotag == 1)
 						sp->z = getflorzofslope(sp->sectnum, sp->x, sp->y);
 				}
 
@@ -668,7 +668,7 @@ int spawn_r(int j, int pn)
 					sp->xrepeat = spj->xrepeat;
 					sp->yrepeat = spj->yrepeat;
 					sp->zvel = 128;
-					if(sector[sp->sectnum].lotag != 2)
+					if(sp->sector()->lotag != 2)
 						sp->cstat |= 32768;
 				}
 				changespritestat(i,13);
@@ -1314,7 +1314,7 @@ int spawn_r(int j, int pn)
 					sp->yrepeat = 16;
 					break;
 				}
-				sp->shade = sector[sp->sectnum].floorshade;
+				sp->shade = sp->sector()->floorshade;
 				break;
 			case WATERFOUNTAIN:
 				sp->lotag = 1;

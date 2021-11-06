@@ -1129,8 +1129,8 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 	case FANSPRITE:
 		s->picnum = FANSPRITEBROKE;
 		s->cstat &= (65535 - 257);
-		if (sector[s->sectnum].floorpicnum == FANSHADOW)
-			sector[s->sectnum].floorpicnum = FANSHADOWBROKE;
+		if (s->sector()->floorpicnum == FANSHADOW)
+			s->sector()->floorpicnum = FANSHADOWBROKE;
 
 		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		for (j = 0; j < 16; j++) RANDOMSCRAP(targ);
@@ -1150,7 +1150,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		if (gs.actorinfo[SHOTSPARK1].scriptaddress && pspr->extra != ScriptCode[gs.actorinfo[SHOTSPARK1].scriptaddress])
 		{
 			for (j = 0; j < 15; j++)
-				EGS(s->sectnum, s->x, s->y, sector[s->sectnum].floorz - (12 << 8) - (j << 9), SCRAP1 + (krand() & 15), -8, 64, 64,
+				EGS(s->sectnum, s->x, s->y, s->sector()->floorz - (12 << 8) - (j << 9), SCRAP1 + (krand() & 15), -8, 64, 64,
 					krand() & 2047, (krand() & 127) + 64, -(krand() & 511) - 256, targ, 5);
 			spawn(targ, EXPLOSION2);
 			deletesprite(targ);
@@ -1305,7 +1305,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		}
 		{
 			auto j = spawn(targ, STEAM);
-			j->s->z = sector[s->sectnum].floorz - (32 << 8);
+			j->s->z = s->sector()->floorz - (32 << 8);
 		}
 		break;
 
@@ -1619,7 +1619,7 @@ void checksectors_d(int snum)
 		}
 
 		if (p->newOwner == nullptr && neartagsprite == nullptr && neartagsector == -1 && neartagwall == -1)
-			if (isanunderoperator(sector[p->GetActor()->s->sectnum].lotag))
+			if (isanunderoperator(p->GetActor()->getSector()->lotag))
 				neartagsector = p->GetActor()->s->sectnum;
 
 		if (neartagsector >= 0 && (sector[neartagsector].lotag & 16384))
@@ -1788,9 +1788,9 @@ void checksectors_d(int snum)
 			}
 			operatesectors(neartagsector, p->GetActor());
 		}
-		else if ((sector[p->GetActor()->s->sectnum].lotag & 16384) == 0)
+		else if ((p->GetActor()->getSector()->lotag & 16384) == 0)
 		{
-			if (isanunderoperator(sector[p->GetActor()->s->sectnum].lotag))
+			if (isanunderoperator(p->GetActor()->getSector()->lotag))
 			{
 				DukeSectIterator it(p->GetActor()->s->sectnum);
 				while (auto act = it.Next())

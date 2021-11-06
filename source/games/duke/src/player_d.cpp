@@ -176,7 +176,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, int sx, int sy, int
 		if (badguy(actor) && (s->hitag & face_player_smart) != 0)
 			sa = (short)(s->ang + (krand() & 31) - 16);
 
-		if (sector[s->sectnum].lotag == 2 && (krand() % 5) == 0)
+		if (s->sector()->lotag == 2 && (krand() % 5) == 0)
 			spawned = spawn(actor, WATERBUBBLE);
 	}
 	else
@@ -186,7 +186,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, int sx, int sy, int
 			vel = (int)((((512 - (1024
 				- abs(abs(getangle(sx - ps[p].oposx, sy - ps[p].oposy) - sa) - 1024)))
 				* 0.001953125f) * ps[p].GetActor()->s->xvel) + 400);
-		if (sector[s->sectnum].lotag == 2 && (krand() % 5) == 0)
+		if (s->sector()->lotag == 2 && (krand() % 5) == 0)
 			spawned = spawn(actor, WATERBUBBLE);
 	}
 
@@ -2885,9 +2885,9 @@ void processinput_d(int snum)
 
 	if (p->spritebridge == 0)
 	{
-		j = sector[s->sectnum].floorpicnum;
+		j = s->sector()->floorpicnum;
 
-		if (j == PURPLELAVA || sector[s->sectnum].ceilingpicnum == PURPLELAVA)
+		if (j == PURPLELAVA || s->sector()->ceilingpicnum == PURPLELAVA)
 		{
 			if (p->boot_amount > 0)
 			{
@@ -3076,8 +3076,8 @@ HORIZONLY:
 	{
 		if (abs(pact->floorz - pact->ceilingz) < (48 << 8) || j)
 		{
-			if (!(sector[s->sectnum].lotag & 0x8000) && (isanunderoperator(sector[s->sectnum].lotag) ||
-				isanearoperator(sector[s->sectnum].lotag)))
+			if (!(s->sector()->lotag & 0x8000) && (isanunderoperator(s->sector()->lotag) ||
+				isanearoperator(s->sector()->lotag)))
 				fi.activatebysector(s->sectnum, pact);
 			if (j)
 			{

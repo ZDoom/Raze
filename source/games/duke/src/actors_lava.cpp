@@ -128,7 +128,7 @@ void addtorch(spritetype* s)
 		I_Error("Too many torch effects");
 
 	torchsector[torchcnt] = s->sectnum;
-	torchsectorshade[torchcnt] = sector[s->sectnum].floorshade;
+	torchsectorshade[torchcnt] = s->sector()->floorshade;
 	torchtype[torchcnt] = s->lotag;
 	torchcnt++;
 }
@@ -139,7 +139,7 @@ void addlightning(spritetype* s)
 		I_Error("Too many lightnin effects");
 
 	lightninsector[lightnincnt] = s->sectnum;
-	lightninsectorshade[lightnincnt] = sector[s->sectnum].floorshade;
+	lightninsectorshade[lightnincnt] = s->sector()->floorshade;
 	lightnincnt++;
 }
 

@@ -770,9 +770,9 @@ void movefta_d(void)
 						case NUKEBARRELDENTED:
 						case NUKEBARRELLEAKED:
 						case TRIPBOMB:
-							if (sector[s->sectnum].ceilingstat&1)
-								s->shade = sector[s->sectnum].ceilingshade;
-							else s->shade = sector[s->sectnum].floorshade;
+							if (s->sector()->ceilingstat&1)
+								s->shade = s->sector()->ceilingshade;
+							else s->shade = s->sector()->floorshade;
 
 							act->timetosleep = 0;
 							changeactorstat(act, STAT_STANDABLE);
@@ -789,9 +789,9 @@ void movefta_d(void)
 			}
 			if (badguy(act))
 			{
-				if (sector[s->sectnum].ceilingstat & 1)
-					s->shade = sector[s->sectnum].ceilingshade;
-				else s->shade = sector[s->sectnum].floorshade;
+				if (s->sector()->ceilingstat & 1)
+					s->shade = s->sector()->ceilingshade;
+				else s->shade = s->sector()->floorshade;
 			}
 		}
 	}
@@ -1546,7 +1546,7 @@ static bool movefireball(DDukeActor* actor)
 	auto s = actor->s;
 	auto Owner = actor->GetOwner();
 
-	if (sector[s->sectnum].lotag == 2)
+	if (s->sector()->lotag == 2)
 	{
 		deletesprite(actor);
 		return true;
@@ -1712,8 +1712,8 @@ static bool weaponhitsector(DDukeActor* proj, const vec3_t& oldpos, bool firebal
 
 	if (s->zvel < 0)
 	{
-		if (sector[s->sectnum].ceilingstat & 1)
-			if (sector[s->sectnum].ceilingpal == 0)
+		if (s->sector()->ceilingstat & 1)
+			if (s->sector()->ceilingpal == 0)
 			{
 				deletesprite(proj);
 				return true;
@@ -1763,7 +1763,7 @@ static void weaponcommon_d(DDukeActor* proj)
 	int k, ll;
 	vec3_t oldpos = s->pos;
 
-	if (s->picnum == RPG && sector[s->sectnum].lotag == 2)
+	if (s->picnum == RPG && s->sector()->lotag == 2)
 	{
 		k = s->xvel >> 1;
 		ll = s->zvel >> 1;
@@ -1779,7 +1779,7 @@ static void weaponcommon_d(DDukeActor* proj)
 	switch (s->picnum)
 	{
 	case RPG:
-		if (proj->picnum != BOSS2 && s->xrepeat >= 10 && sector[s->sectnum].lotag != 2)
+		if (proj->picnum != BOSS2 && s->xrepeat >= 10 && s->sector()->lotag != 2)
 		{
 			auto spawned = spawn(proj, SMALLSMOKE);
 			spawned->s->z += (1 << 8);
@@ -1814,11 +1814,11 @@ static void weaponcommon_d(DDukeActor* proj)
 			s->zvel = -1;
 		}
 		else
-			if ((s->z > proj->floorz && sector[s->sectnum].lotag != 1) ||
-				(s->z > proj->floorz + (16 << 8) && sector[s->sectnum].lotag == 1))
+			if ((s->z > proj->floorz && s->sector()->lotag != 1) ||
+				(s->z > proj->floorz + (16 << 8) && s->sector()->lotag == 1))
 			{
 				coll.setSector(s->sectnum);
-				if (sector[s->sectnum].lotag != 1)
+				if (s->sector()->lotag != 1)
 					s->zvel = 1;
 			}
 	}
@@ -1913,7 +1913,7 @@ static void weaponcommon_d(DDukeActor* proj)
 			return;
 		}
 	}
-	else if (s->picnum == RPG && sector[s->sectnum].lotag == 2 && s->xrepeat >= 10 && rnd(140))
+	else if (s->picnum == RPG && s->sector()->lotag == 2 && s->xrepeat >= 10 && rnd(140))
 		spawn(proj, WATERBUBBLE);
 
 }
@@ -2097,7 +2097,7 @@ void movetransports_d(void)
 						if (ps[p].GetActor()->s->extra > 0)
 							S_PlayActorSound(DUKE_UNDERWATER, act2);
 						ps[p].oposz = ps[p].pos.z =
-						sector[Owner->s->sectnum].ceilingz + (7 << 8);
+						Owner->getSector()->ceilingz + (7 << 8);
 						
 						ps[p].posxv = 4096 - (krand() & 8192);
 						ps[p].posyv = 4096 - (krand() & 8192);
@@ -2115,7 +2115,7 @@ void movetransports_d(void)
 						S_PlayActorSound(DUKE_GASP, act2);
 						
 						ps[p].oposz = ps[p].pos.z =
-						sector[Owner->s->sectnum].floorz - (7 << 8);
+						Owner->getSector()->floorz - (7 << 8);
 						
 						ps[p].jumping_toggle = 1;
 						ps[p].jumping_counter = 0;
@@ -2236,7 +2236,7 @@ void movetransports_d(void)
 								{
 									spr2->x += (Owner->s->x - spr->x);
 									spr2->y += (Owner->s->y - spr->y);
-									spr2->z -= spr->z - sector[Owner->s->sectnum].floorz;
+									spr2->z -= spr->z - Owner->getSector()->floorz;
 									spr2->ang = Owner->s->ang;
 									
 									spr2->backupang();
@@ -2273,7 +2273,7 @@ void movetransports_d(void)
 						case 1:
 							spr2->x += (Owner->s->x - spr->x);
 							spr2->y += (Owner->s->y - spr->y);
-							spr2->z = sector[Owner->s->sectnum].ceilingz + ll;
+							spr2->z = Owner->getSector()->ceilingz + ll;
 							
 							spr2->backupz();
 							
@@ -2283,7 +2283,7 @@ void movetransports_d(void)
 						case 2:
 							spr2->x += (Owner->s->x - spr->x);
 							spr2->y += (Owner->s->y - spr->y);
-							spr2->z = sector[Owner->s->sectnum].floorz - ll;
+							spr2->z = Owner->getSector()->floorz - ll;
 							
 							spr2->backupz();
 							
@@ -2764,11 +2764,11 @@ static void flamethrowerflame(DDukeActor *actor)
 			coll.setSector(s->sectnum);
 			s->zvel = -1;
 		}
-		else if ((s->z > actor->floorz && sector[s->sectnum].lotag != 1)
-			|| (s->z > actor->floorz + (16 << 8) && sector[s->sectnum].lotag == 1))
+		else if ((s->z > actor->floorz && s->sector()->lotag != 1)
+			|| (s->z > actor->floorz + (16 << 8) && s->sector()->lotag == 1))
 		{
 			coll.setSector(s->sectnum);
-			if (sector[s->sectnum].lotag != 1)
+			if (s->sector()->lotag != 1)
 				s->zvel = 1;
 		}
 	}
@@ -2859,7 +2859,7 @@ static void heavyhbomb(DDukeActor *actor)
 			if (s->yvel > 0 || (s->yvel == 0 && actor->floorz == sector[sect].floorz))
 				S_PlayActorSound(PIPEBOMB_BOUNCE, actor);
 			s->zvel = -((4 - s->yvel) << 8);
-			if (sector[s->sectnum].lotag == 2)
+			if (s->sector()->lotag == 2)
 				s->zvel >>= 2;
 			s->yvel++;
 		}
@@ -2876,7 +2876,7 @@ static void heavyhbomb(DDukeActor *actor)
 		MulScale(s->xvel, bsin(s->ang), 14),
 		s->zvel, CLIPMASK0, coll);
 
-	if (sector[s->sectnum].lotag == 1 && s->zvel == 0)
+	if (s->sector()->lotag == 1 && s->zvel == 0)
 	{
 		s->z += (32 << 8);
 		if (t[5] == 0)
@@ -3971,11 +3971,11 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 
 	if (a)
 	{
-		if (sector[spr->sectnum].ceilingstat & 1)
-			spr->shade += (sector[spr->sectnum].ceilingshade - spr->shade) >> 1;
-		else spr->shade += (sector[spr->sectnum].floorshade - spr->shade) >> 1;
+		if (spr->sector()->ceilingstat & 1)
+			spr->shade += (spr->sector()->ceilingshade - spr->shade) >> 1;
+		else spr->shade += (spr->sector()->floorshade - spr->shade) >> 1;
 
-		if (sector[spr->sectnum].floorpicnum == MIRROR)
+		if (spr->sector()->floorpicnum == MIRROR)
 			deletesprite(actor);
 	}
 }

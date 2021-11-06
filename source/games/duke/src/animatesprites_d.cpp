@@ -134,10 +134,10 @@ void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 				continue;
 		}
 
-		if (sector[t->sectnum].ceilingstat & 1)
-			l = sector[t->sectnum].ceilingshade;
+		if (t->sector()->ceilingstat & 1)
+			l = t->sector()->ceilingshade;
 		else
-			l = sector[t->sectnum].floorshade;
+			l = t->sector()->floorshade;
 
 		if (l < -127) l = -127;
 		if (l > 128) l = 127;
@@ -403,7 +403,7 @@ void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 					else t->cstat &= ~4;
 				}
 
-				if (sector[t->sectnum].lotag == 2) k += 1795 - 1405;
+				if (t->sector()->lotag == 2) k += 1795 - 1405;
 				else if ((h->floorz - s->z) > (64 << 8)) k += 60;
 
 				t->picnum += k;
@@ -412,7 +412,7 @@ void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 				goto PALONLY;
 			}
 
-			if (ps[p].on_crane == nullptr && (sector[s->sectnum].lotag & 0x7ff) != 1)
+			if (ps[p].on_crane == nullptr && (s->sector()->lotag & 0x7ff) != 1)
 			{
 				l = s->z - ps[p].GetActor()->floorz + (3 << 8);
 				if (l > 1024 && s->yrepeat > 32 && s->extra > 0)
@@ -489,7 +489,7 @@ void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 			break;
 
 		case WATERBUBBLE:
-			if (sector[t->sectnum].floorpicnum == FLOORSLIME)
+			if (t->sector()->floorpicnum == FLOORSLIME)
 			{
 				t->pal = 7;
 				break;
@@ -636,7 +636,7 @@ void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 		{
 		case LASERLINE:
 			if (!Owner) break;
-			if (sector[t->sectnum].lotag == 2) t->pal = 8;
+			if (t->sector()->lotag == 2) t->pal = 8;
 			t->z = Owner->z - (3 << 8);
 			if (gs.lasermode == 2 && ps[screenpeek].heat_on == 0)
 				t->yrepeat = 0;
@@ -665,7 +665,7 @@ void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 		case BURNING2:
 			if (!Owner) break;
 			if (Owner->picnum != TREE1 && Owner->picnum != TREE2)
-				t->z = sector[t->sectnum].floorz;
+				t->z = t->sector()->floorz;
 			t->shade = -127;
 			break;
 		case COOLEXPLOSION1:
@@ -748,7 +748,7 @@ void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 		}
 
 		h->dispicnum = t->picnum;
-		if (sector[t->sectnum].floorpicnum == MIRROR)
+		if (t->sector()->floorpicnum == MIRROR)
 			t->xrepeat = t->yrepeat = 0;
 	}
 }

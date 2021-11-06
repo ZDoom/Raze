@@ -75,17 +75,17 @@ void SE40_Draw(int tag, spritetype *spr, int x, int y, int z, binangle a, fixedh
 		{
 			if (k == tag + 0)
 			{
-				tempsectorz[spr->sectnum] = sector[spr->sectnum].floorz;
-				sector[spr->sectnum].floorz += (((z - sector[spr->sectnum].floorz) / 32768) + 1) * 32768;
-				tempsectorpicnum[spr->sectnum] = sector[spr->sectnum].floorpicnum;
-				sector[spr->sectnum].floorpicnum = 13;
+				tempsectorz[spr->sectnum] = spr->sector()->floorz;
+				spr->sector()->floorz += (((z - spr->sector()->floorz) / 32768) + 1) * 32768;
+				tempsectorpicnum[spr->sectnum] = spr->sector()->floorpicnum;
+				spr->sector()->floorpicnum = 13;
 			}
 			if (k == tag + 1)
 			{
-				tempsectorz[spr->sectnum] = sector[spr->sectnum].ceilingz;
-				sector[spr->sectnum].ceilingz += (((z - sector[spr->sectnum].ceilingz) / 32768) - 1) * 32768;
-				tempsectorpicnum[spr->sectnum] = sector[spr->sectnum].ceilingpicnum;
-				sector[spr->sectnum].ceilingpicnum = 13;
+				tempsectorz[spr->sectnum] = spr->sector()->ceilingz;
+				spr->sector()->ceilingz += (((z - spr->sector()->ceilingz) / 32768) - 1) * 32768;
+				tempsectorpicnum[spr->sectnum] = spr->sector()->ceilingpicnum;
+				spr->sector()->ceilingpicnum = 13;
 			}
 		}
 	}
@@ -108,13 +108,13 @@ void SE40_Draw(int tag, spritetype *spr, int x, int y, int z, binangle a, fixedh
 		{
 			if (k == tag + 0)
 			{
-				sector[spr->sectnum].floorz = tempsectorz[spr->sectnum];
-				sector[spr->sectnum].floorpicnum = tempsectorpicnum[spr->sectnum];
+				spr->sector()->floorz = tempsectorz[spr->sectnum];
+				spr->sector()->floorpicnum = tempsectorpicnum[spr->sectnum];
 			}
 			if (k == tag + 1)
 			{
-				sector[spr->sectnum].ceilingz = tempsectorz[spr->sectnum];
-				sector[spr->sectnum].ceilingpicnum = tempsectorpicnum[spr->sectnum];
+				spr->sector()->ceilingz = tempsectorz[spr->sectnum];
+				spr->sector()->ceilingpicnum = tempsectorpicnum[spr->sectnum];
 			}
 		}// end if
 	}// end for

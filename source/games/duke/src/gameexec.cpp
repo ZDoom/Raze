@@ -2282,10 +2282,10 @@ int ParseState::parse(void)
 		parseifelse(ud.coop || numplayers > 2);
 		break;
 	case concmd_ifonmud:
-		parseifelse(abs(g_sp->z - sector[g_sp->sectnum].floorz) < (32 << 8) && sector[g_sp->sectnum].floorpicnum == 3073); // eew, hard coded tile numbers.. :?
+		parseifelse(abs(g_sp->z - g_sp->sector()->floorz) < (32 << 8) && g_sp->sector()->floorpicnum == 3073); // eew, hard coded tile numbers.. :?
 		break;
 	case concmd_ifonwater:
-		parseifelse( abs(g_sp->z-sector[g_sp->sectnum].floorz) < (32<<8) && sector[g_sp->sectnum].lotag == ST_1_ABOVE_WATER);
+		parseifelse( abs(g_sp->z-g_sp->sector()->floorz) < (32<<8) && g_sp->sector()->lotag == ST_1_ABOVE_WATER);
 		break;
 	case concmd_ifmotofast:
 		parseifelse(ps[g_p].MotoSpeed > 60);
@@ -2306,7 +2306,7 @@ int ParseState::parse(void)
 		break;
 
 	case concmd_ifinwater:
-		parseifelse( sector[g_sp->sectnum].lotag == 2);
+		parseifelse( g_sp->sector()->lotag == 2);
 		break;
 	case concmd_ifcount:
 		insptr++;
@@ -2479,14 +2479,14 @@ int ParseState::parse(void)
 		parseifelse(PlayerInput(g_p, SB_OPEN));
 		break;
 	case concmd_ifoutside:
-		parseifelse(sector[g_sp->sectnum].ceilingstat & 1);
+		parseifelse(g_sp->sector()->ceilingstat & 1);
 		break;
 	case concmd_ifmultiplayer:
 		parseifelse(ud.multimode > 1);
 		break;
 	case concmd_operate:
 		insptr++;
-		if( sector[g_sp->sectnum].lotag == 0 )
+		if( g_sp->sector()->lotag == 0 )
 		{
 			int16_t neartagsector, neartagwall;
 			DDukeActor* neartagsprite;
@@ -3422,19 +3422,19 @@ int ParseState::parse(void)
 	case concmd_sectgetlotag:
 	{
 		insptr++;
-		SetGameVarID(g_iLoTagID, sector[g_sp->sectnum].lotag, g_ac, g_p);
+		SetGameVarID(g_iLoTagID, g_sp->sector()->lotag, g_ac, g_p);
 		break;
 	}
 	case concmd_sectgethitag:
 	{
 		insptr++;
-		SetGameVarID(g_iHiTagID, sector[g_sp->sectnum].hitag, g_ac, g_p);
+		SetGameVarID(g_iHiTagID, g_sp->sector()->hitag, g_ac, g_p);
 		break;
 	}
 	case concmd_gettexturefloor:
 	{
 		insptr++;
-		SetGameVarID(g_iTextureID, sector[g_sp->sectnum].floorpicnum, g_ac, g_p);
+		SetGameVarID(g_iTextureID, g_sp->sector()->floorpicnum, g_ac, g_p);
 		break;
 	}
 
@@ -3571,7 +3571,7 @@ int ParseState::parse(void)
 	case concmd_gettextureceiling:
 	{
 		insptr++;
-		SetGameVarID(g_iTextureID, sector[g_sp->sectnum].ceilingpicnum, g_ac, g_p);
+		SetGameVarID(g_iTextureID, g_sp->sector()->ceilingpicnum, g_ac, g_p);
 		break;
 	}
 	case concmd_ifvarvarand:

@@ -592,9 +592,9 @@ void movefta_r(void)
 					case NUKEBARREL:
 					case NUKEBARRELDENTED:
 					case NUKEBARRELLEAKED:
-						if (sector[s->sectnum].ceilingstat & 1)
-							s->shade = sector[s->sectnum].ceilingshade;
-						else s->shade = sector[s->sectnum].floorshade;
+						if (s->sector()->ceilingstat & 1)
+							s->shade = s->sector()->ceilingshade;
+						else s->shade = s->sector()->floorshade;
 
 						act->timetosleep = 0;
 						changeactorstat(act, STAT_STANDABLE);
@@ -614,9 +614,9 @@ void movefta_r(void)
 			}
 			if (/*!j &&*/ badguy(act)) // this is like RedneckGDX. j is uninitialized here, i.e. most likely not 0.
 			{
-				if (sector[s->sectnum].ceilingstat & 1)
-					s->shade = sector[s->sectnum].ceilingshade;
-				else s->shade = sector[s->sectnum].floorshade;
+				if (s->sector()->ceilingstat & 1)
+					s->shade = s->sector()->ceilingshade;
+				else s->shade = s->sector()->floorshade;
 
 				if (s->picnum == HEN || s->picnum == COW || s->picnum == PIG || s->picnum == DOGRUN || ((isRRRA()) && s->picnum == RABBIT))
 				{
@@ -1098,7 +1098,7 @@ static void chickenarrow(DDukeActor* actor)
 {
 	auto s = actor->s;
 	s->hitag++;
-	if (actor->picnum != BOSS2 && s->xrepeat >= 10 && sector[s->sectnum].lotag != 2)
+	if (actor->picnum != BOSS2 && s->xrepeat >= 10 && s->sector()->lotag != 2)
 	{
 		auto spawned = spawn(actor, SMALLSMOKE);
 		spawned->s->z += (1 << 8);
@@ -1320,8 +1320,8 @@ bool weaponhitsector(DDukeActor *proj, const vec3_t& oldpos)
 
 	if (s->zvel < 0)
 	{
-		if (sector[s->sectnum].ceilingstat & 1)
-			if (sector[s->sectnum].ceilingpal == 0)
+		if (s->sector()->ceilingstat & 1)
+			if (s->sector()->ceilingpal == 0)
 			{
 				deletesprite(proj);
 				return true;
@@ -1359,12 +1359,12 @@ static void weaponcommon_r(DDukeActor *proj)
 
 	p = -1;
 
-	if (s->picnum == RPG && sector[s->sectnum].lotag == 2)
+	if (s->picnum == RPG && s->sector()->lotag == 2)
 	{
 		k = s->xvel >> 1;
 		ll = s->zvel >> 1;
 	}
-	else if (isRRRA() && s->picnum == RPG2 && sector[s->sectnum].lotag == 2)
+	else if (isRRRA() && s->picnum == RPG2 && s->sector()->lotag == 2)
 	{
 		k = s->xvel >> 1;
 		ll = s->zvel >> 1;
@@ -1382,7 +1382,7 @@ static void weaponcommon_r(DDukeActor *proj)
 	switch (s->picnum)
 	{
 	case RPG:
-		if (proj->picnum != BOSS2 && s->xrepeat >= 10 && sector[s->sectnum].lotag != 2)
+		if (proj->picnum != BOSS2 && s->xrepeat >= 10 && s->sector()->lotag != 2)
 		{
 			spawn(proj, SMALLSMOKE)->s->z += (1 << 8);
 		}
@@ -1401,7 +1401,7 @@ static void weaponcommon_r(DDukeActor *proj)
 		}
 		else
 			makeitfall(proj);
-		if (s->xrepeat >= 10 && sector[s->sectnum].lotag != 2)
+		if (s->xrepeat >= 10 && s->sector()->lotag != 2)
 		{
 			spawn(proj, SMALLSMOKE)->s->z += (1 << 8);
 		}
@@ -1417,7 +1417,7 @@ static void weaponcommon_r(DDukeActor *proj)
 		if (FindDistance2D(s->x - proj->temp_actor->s->x, s->y - proj->temp_actor->s->y) < 256)
 			coll.setSprite(proj->temp_actor);
 
-	if (s->sectnum < 0) // || (isRR() && sector[s->sectnum].filler == 800))
+	if (s->sectnum < 0) // || (isRR() && s->sector()->filler == 800))
 	{
 		deletesprite(proj);
 		return;
@@ -1434,7 +1434,7 @@ static void weaponcommon_r(DDukeActor *proj)
 			if (s->z > proj->floorz)
 			{
 				coll.setSector(s->sectnum);
-				if (sector[s->sectnum].lotag != 1)
+				if (s->sector()->lotag != 1)
 					s->zvel = 1;
 			}
 	}
@@ -1493,7 +1493,7 @@ static void weaponcommon_r(DDukeActor *proj)
 		deletesprite(proj);
 		return;
 	}
-	if ((s->picnum == RPG || (isRRRA() && s->picnum == RPG2)) && sector[s->sectnum].lotag == 2 && s->xrepeat >= 10 && rnd(184))
+	if ((s->picnum == RPG || (isRRRA() && s->picnum == RPG2)) && s->sector()->lotag == 2 && s->xrepeat >= 10 && rnd(184))
 		spawn(proj, WATERBUBBLE);
 
 }
@@ -2089,7 +2089,7 @@ static void rrra_specialstats()
 				s->extra = 1;
 			}
 			movesprite_ex(act, 0, 0, -300, CLIPMASK0, coll);
-			if (sector[s->sectnum].ceilingz + (4 << 8) > s->z)
+			if (s->sector()->ceilingz + (4 << 8) > s->z)
 			{
 				s->picnum = 0;
 				s->extra = 100;
@@ -2097,7 +2097,7 @@ static void rrra_specialstats()
 		}
 		else if (s->extra == 200)
 		{
-			setsprite(act, s->x, s->y, sector[s->sectnum].floorz - 10);
+			setsprite(act, s->x, s->y, s->sector()->floorz - 10);
 			s->extra = 1;
 			s->picnum = PIG + 11;
 			spawn(act, TRANSPORTERSTAR);
@@ -2326,8 +2326,8 @@ void rr_specialstats()
 		if (s->hitag == 100)
 		{
 			s->z += (4 << 8);
-			if (s->z >= sector[s->sectnum].floorz + 15168)
-				s->z = sector[s->sectnum].floorz + 15168;
+			if (s->z >= s->sector()->floorz + 15168)
+				s->z = s->sector()->floorz + 15168;
 		}
 
 		if (s->picnum == LUMBERBLADE)
@@ -2336,7 +2336,7 @@ void rr_specialstats()
 			if (s->extra == 192)
 			{
 				s->hitag = 0;
-				s->z = sector[s->sectnum].floorz - 15168;
+				s->z = s->sector()->floorz - 15168;
 				s->extra = 0;
 				s->picnum = RRTILE3410;
 				DukeStatIterator it2(STAT_DEFAULT);
@@ -2558,7 +2558,7 @@ static void heavyhbomb(DDukeActor *actor)
 			}
 		}
 		s->zvel = -((4 - s->yvel) << 8);
-		if (sector[s->sectnum].lotag == 2)
+		if (s->sector()->lotag == 2)
 			s->zvel >>= 2;
 		s->yvel++;
 	}
@@ -2574,7 +2574,7 @@ static void heavyhbomb(DDukeActor *actor)
 		MulScale(s->xvel, bsin(s->ang), 14),
 		s->zvel, CLIPMASK0, coll);
 
-	if (sector[s->sectnum].lotag == 1 && s->zvel == 0)
+	if (s->sector()->lotag == 1 && s->zvel == 0)
 	{
 		s->z += (32 << 8);
 		if (t[5] == 0)
@@ -2660,7 +2660,7 @@ DETONATEB:
 			case CHEERBOMB: m = gs.morterblastradius; break;
 			}
 
-			if (sector[s->sectnum].lotag != 800)
+			if (s->sector()->lotag != 800)
 			{
 				fi.hitradius(actor, m, x >> 2, x >> 1, x - (x >> 2), x);
 				spawn(actor, EXPLOSION2);
@@ -2757,7 +2757,7 @@ static int henstand(DDukeActor *actor)
 			return 1;
 		}
 	}
-	if (sector[s->sectnum].lotag == 900)
+	if (s->sector()->lotag == 900)
 		s->xvel = 0;
 	if (s->xvel)
 	{
@@ -2815,7 +2815,7 @@ static int henstand(DDukeActor *actor)
 			return 2;//deletesprite(actor); still needs to run a script but should not do on a deleted object
 		}
 	}
-	else if (sector[s->sectnum].lotag == 900)
+	else if (s->sector()->lotag == 900)
 	{
 		if (s->picnum == BOWLINGBALL)
 			ballreturn(actor);
@@ -2980,7 +2980,7 @@ void moveactors_r(void)
 					deletesprite(act);
 					continue;
 				}
-				if (sector[s->sectnum].lotag == 900)
+				if (s->sector()->lotag == 900)
 				{
 					S_StopSound(356, nullptr);
 				}
@@ -3130,8 +3130,8 @@ void moveexplosions_r(void)  // STATNUM 5
 		switch (s->picnum)
 		{
 		case SHOTGUNSPRITE:
-			if (sector[s->sectnum].lotag == 800)
-				if (s->z >= sector[s->sectnum].floorz - (8 << 8))
+			if (s->sector()->lotag == 800)
+				if (s->z >= s->sector()->floorz - (8 << 8))
 				{
 					deletesprite(act);
 					continue;
@@ -3220,7 +3220,7 @@ void moveexplosions_r(void)  // STATNUM 5
 			continue;
 		case FEATHER + 1: // feather
 			act->floorz = s->z = getflorzofslope(s->sectnum, s->x, s->y);
-			if (sector[s->sectnum].lotag == 800)
+			if (s->sector()->lotag == 800)
 			{
 				deletesprite(act);
 				continue;
@@ -3229,8 +3229,8 @@ void moveexplosions_r(void)  // STATNUM 5
 		case FEATHER:
 			if (!money(act, BLOODPOOL)) continue;
 
-			if (sector[s->sectnum].lotag == 800)
-				if (s->z >= sector[s->sectnum].floorz - (8 << 8))
+			if (s->sector()->lotag == 800)
+				if (s->z >= s->sector()->floorz - (8 << 8))
 				{
 					deletesprite(act);
 					continue;
@@ -3283,8 +3283,8 @@ void moveexplosions_r(void)  // STATNUM 5
 			if (!jibs(act, JIBS6, false, true, true, s->picnum == DUKELEG || s->picnum == DUKETORSO || s->picnum == DUKEGUN,
 				isRRRA() && (s->picnum == RRTILE2465 || s->picnum == RRTILE2560))) continue;
 			
-			if (sector[s->sectnum].lotag == 800)
-				if (s->z >= sector[s->sectnum].floorz - (8 << 8))
+			if (s->sector()->lotag == 800)
+				if (s->z >= s->sector()->floorz - (8 << 8))
 				{
 					deletesprite(act);
 					continue;
@@ -3295,8 +3295,8 @@ void moveexplosions_r(void)  // STATNUM 5
 		case BLOODPOOL:
 			if (!bloodpool(act, false, TIRE)) continue;
 
-			if (sector[s->sectnum].lotag == 800)
-				if (s->z >= sector[s->sectnum].floorz - (8 << 8))
+			if (s->sector()->lotag == 800)
+				if (s->z >= s->sector()->floorz - (8 << 8))
 				{
 					deletesprite(act);
 				}
@@ -3373,7 +3373,7 @@ void handle_se06_r(DDukeActor *actor)
 				ns->s->pal = 33;
 				if (!hulkspawn)
 				{
-					ns = EGS(s->sectnum, s->x, s->y, sector[s->sectnum].ceilingz + 119428, 3677, -8, 16, 16, 0, 0, 0, actor, 5);
+					ns = EGS(s->sectnum, s->x, s->y, s->sector()->ceilingz + 119428, 3677, -8, 16, 16, 0, 0, 0, actor, 5);
 					ns->s->cstat = 514;
 					ns->s->pal = 7;
 					ns->s->xrepeat = 80;
@@ -3381,7 +3381,7 @@ void handle_se06_r(DDukeActor *actor)
 					ns = spawn(actor, 296);
 					ns->s->cstat = 0;
 					ns->s->cstat |= 32768;
-					ns->s->z = sector[s->sectnum].floorz - 6144;
+					ns->s->z = s->sector()->floorz - 6144;
 					deletesprite(actor);
 					return;
 				}
@@ -3805,7 +3805,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 		}
 		if (badguy(actor) && spr->extra <= 0)
 		{
-			if (sector[spr->sectnum].ceilingstat & 1)
+			if (spr->sector()->ceilingstat & 1)
 			{
 				if (shadedsector[spr->sectnum] == 1)
 				{
@@ -3813,12 +3813,12 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 				}
 				else
 				{
-					spr->shade += (sector[spr->sectnum].ceilingshade - spr->shade) >> 1;
+					spr->shade += (spr->sector()->ceilingshade - spr->shade) >> 1;
 				}
 			}
 			else
 			{
-				spr->shade += (sector[spr->sectnum].floorshade - spr->shade) >> 1;
+				spr->shade += (spr->sector()->floorshade - spr->shade) >> 1;
 			}
 		}
 		return;
@@ -3925,7 +3925,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 		}
 		if (isRRRA())
 		{
-			if (sector[spr->sectnum].lotag != 1)
+			if (spr->sector()->lotag != 1)
 			{
 				switch (spr->picnum)
 				{
@@ -3936,7 +3936,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 					break;
 				}
 			}
-			else if (sector[spr->sectnum].lotag == 1)
+			else if (spr->sector()->lotag == 1)
 			{
 				switch (spr->picnum)
 				{
@@ -3957,7 +3957,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 
 	if (a)
 	{
-		if (sector[spr->sectnum].ceilingstat & 1)
+		if (spr->sector()->ceilingstat & 1)
 		{
 			if (shadedsector[spr->sectnum] == 1)
 			{
@@ -3965,12 +3965,12 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 			}
 			else
 			{
-				spr->shade += (sector[spr->sectnum].ceilingshade - spr->shade) >> 1;
+				spr->shade += (spr->sector()->ceilingshade - spr->shade) >> 1;
 			}
 		}
-		else spr->shade += (sector[spr->sectnum].floorshade - spr->shade) >> 1;
+		else spr->shade += (spr->sector()->floorshade - spr->shade) >> 1;
 
-		if (sector[spr->sectnum].floorpicnum == MIRROR)
+		if (spr->sector()->floorpicnum == MIRROR)
 			deletesprite(actor);
 	}
 }
@@ -4010,7 +4010,7 @@ static int fallspecial(DDukeActor *actor, int playernum)
 	int sphit = 0;
 	if (isRRRA())
 	{
-		if (sector[s->sectnum].lotag == 801)
+		if (s->sector()->lotag == 801)
 		{
 			if (s->picnum == ROCK)
 			{
@@ -4020,7 +4020,7 @@ static int fallspecial(DDukeActor *actor, int playernum)
 			}
 			return 0;
 		}
-		else if (sector[s->sectnum].lotag == 802)
+		else if (s->sector()->lotag == 802)
 		{
 			if (s->picnum != APLAYER && badguy(actor) && s->z == actor->floorz - FOURSLEIGHT)
 			{
@@ -4030,14 +4030,14 @@ static int fallspecial(DDukeActor *actor, int playernum)
 			}
 			return 0;
 		}
-		else if (sector[s->sectnum].lotag == 803)
+		else if (s->sector()->lotag == 803)
 		{
 			if (s->picnum == ROCK2)
 				addspritetodelete();
 			return 0;
 		}
 	}
-	if (sector[s->sectnum].lotag == 800)
+	if (s->sector()->lotag == 800)
 	{
 		if (s->picnum == 40)
 		{
@@ -4061,7 +4061,7 @@ static int fallspecial(DDukeActor *actor, int playernum)
 		actor->picnum = SHOTSPARK1;
 		actor->extra = 1;
 	}
-	else if (isRRRA() && (sector[s->sectnum].floorpicnum == RRTILE7820 || sector[s->sectnum].floorpicnum == RRTILE7768))
+	else if (isRRRA() && (s->sector()->floorpicnum == RRTILE7820 || s->sector()->floorpicnum == RRTILE7768))
 	{
 		if (s->picnum != MINION && s->pal != 19)
 		{

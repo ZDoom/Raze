@@ -1090,11 +1090,11 @@ void checkhitwall_r(DDukeActor* spr, int dawallnum, int x, int y, int z, int atw
 				act->spriteextra++;
 				if (act->spriteextra == 25)
 				{
-					startwall = sector[s->sectnum].wallptr;
-					endwall = startwall + sector[s->sectnum].wallnum;
+					startwall = s->sector()->wallptr;
+					endwall = startwall + s->sector()->wallnum;
 					for (i = startwall; i < endwall; i++)
 						sector[wall[i].nextsector].lotag = 0;
-					sector[s->sectnum].lotag = 0;
+					s->sector()->lotag = 0;
 					S_StopSound(act->s->lotag);
 					S_PlayActorSound(400, act);
 					deletesprite(act);
@@ -2193,7 +2193,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		if (gs.actorinfo[SHOTSPARK1].scriptaddress && pspr->extra != ScriptCode[gs.actorinfo[SHOTSPARK1].scriptaddress])
 		{
 			for (j = 0; j < 15; j++)
-				EGS(s->sectnum, s->x, s->y, sector[s->sectnum].floorz - (12 << 8) - (j << 9), SCRAP1 + (krand() & 15), -8, 64, 64,
+				EGS(s->sectnum, s->x, s->y, s->sector()->floorz - (12 << 8) - (j << 9), SCRAP1 + (krand() & 15), -8, 64, 64,
 					krand() & 2047, (krand() & 127) + 64, -(krand() & 511) - 256, targ, 5);
 			spawn(targ, EXPLOSION2);
 			deletesprite(targ);
@@ -2317,7 +2317,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		}
 		{
 			auto j = spawn(targ, STEAM);
-			j->s->z = sector[s->sectnum].floorz - (32 << 8);
+			j->s->z = s->sector()->floorz - (32 << 8);
 		}
 		break;
 
@@ -2590,7 +2590,7 @@ void checksectors_r(int snum)
 		}
 
 		if (p->newOwner == nullptr && neartagsprite == nullptr && neartagsector == -1 && neartagwall == -1)
-			if (isanunderoperator(sector[p->GetActor()->s->sectnum].lotag))
+			if (isanunderoperator(p->GetActor()->getSector()->lotag))
 				neartagsector = p->GetActor()->s->sectnum;
 
 		if (neartagsector >= 0 && (sector[neartagsector].lotag & 16384))
@@ -2750,9 +2750,9 @@ void checksectors_r(int snum)
 				FTA(41, p);
 			}
 		}
-		else if ((sector[p->GetActor()->s->sectnum].lotag & 16384) == 0)
+		else if ((p->GetActor()->getSector()->lotag & 16384) == 0)
 		{
-			if (isanunderoperator(sector[p->GetActor()->s->sectnum].lotag))
+			if (isanunderoperator(p->GetActor()->getSector()->lotag))
 			{
 				DukeSectIterator it(p->GetActor()->s->sectnum);
 				while (auto act = it.Next())
