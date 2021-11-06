@@ -66,11 +66,11 @@
 template<typename T> class TIterator
 {
 public:
-	typedef typename T value_type;
-	typedef typename ptrdiff_t difference_type;
-	typedef typename T* pointer;
-	typedef typename T& reference;
-	typedef typename std::random_access_iterator_tag iterator_category;
+    using iterator_category = std::random_access_iterator_tag;
+    using value_type        = T;
+    using difference_type   = ptrdiff_t;
+    using pointer           = value_type*;
+    using reference         = value_type&;
 
 	TIterator(T* ptr = nullptr) { m_ptr = ptr; }
 
