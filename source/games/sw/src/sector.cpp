@@ -729,7 +729,7 @@ short DoSpawnActorTrigger(short match)
             if (ActorSpawn(actor))
             {
                 DoSpawnTeleporterEffectPlace(actor);
-                PlaySound(DIGI_PLAYER_TELEPORT, sp, v3df_none);
+                PlaySound(DIGI_PLAYER_TELEPORT, actor, v3df_none);
                 spawn_count++;
             }
         }

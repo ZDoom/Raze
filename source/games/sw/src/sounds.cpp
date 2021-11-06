@@ -768,7 +768,7 @@ void Terminate3DSounds(void)
 void PlaySpriteSound(DSWActor* actor, int attrib_ndx, Voc3D_Flags flags)
 {
     if (actor->hasU())
-        PlaySound(actor->u()->Attrib->Sounds[attrib_ndx], &actor->s(), flags);
+        PlaySound(actor->u()->Attrib->Sounds[attrib_ndx], actor, flags);
 }
 
 //==========================================================================

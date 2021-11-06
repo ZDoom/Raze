@@ -1857,10 +1857,7 @@ short SoundAngle(int x, int  y);
 //void PlaySound(int num, short angle, short vol);
 int _PlaySound(int num, SPRITEp sprite, PLAYERp player, vec3_t *pos, Voc3D_Flags flags, int channel, EChanFlags sndflags);
 void InitAmbient(int num, DSWActor* actor);
-inline void PlaySound(int num, SPRITEp sprite, Voc3D_Flags flags, int channel = 8, EChanFlags sndflags = CHANF_NONE)
-{
-    _PlaySound(num, sprite, nullptr, nullptr, flags, channel, sndflags);
-}
+
 inline void PlaySound(int num, PLAYERp player, Voc3D_Flags flags, int channel = 8, EChanFlags sndflags = CHANF_NONE)
 {
     _PlaySound(num, nullptr, player, nullptr, flags, channel, sndflags);

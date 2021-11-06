@@ -5155,7 +5155,7 @@ int ActorHealth(DSWActor* actor, short amt)
                     SET(u->Flags2, SPR2_DYING); // Only let it check this once!
                     u->WaitTics = SEC(1) + SEC(RandomRange(2));
                     u->Health = 60;
-                    PlaySound(DIGI_NINJACHOKE, sp, v3df_follow);
+                    PlaySound(DIGI_NINJACHOKE, actor, v3df_follow);
                     InitPlasmaFountain(nullptr, actor);
                     InitBloodSpray(actor,false,105);
                     sp->ang = NORM_ANGLE(getangle(u->targetActor->s().x - sp->x, u->targetActor->s().y - sp->y) + 1024);
@@ -5786,7 +5786,7 @@ int DoDamage(DSWActor* actor, DSWActor* weapActor)
         break;
 
     case HORNET_RUN_R0:
-        PlaySound(DIGI_HORNETSTING, sp, v3df_follow|v3df_dontpan);
+        PlaySound(DIGI_HORNETSTING, actor, v3df_follow|v3df_dontpan);
         damage = GetDamage(actor, weapActor, DMG_HORNET_STING);
         if (u->sop_parent)
         {
@@ -11045,7 +11045,7 @@ DSWActor* SpawnLargeExp(DSWActor* actor)
     SPRITEp exp;
     USERp eu;
     
-    PlaySound(DIGI_30MMEXPLODE, sp, v3df_none);
+    PlaySound(DIGI_30MMEXPLODE, actor, v3df_none);
 
     auto expActor = SpawnActor(STAT_MISSILE, GRENADE_EXP, s_SectorExp, sp->sectnum,
                             sp->x, sp->y, sp->z, sp->ang, 0);
@@ -11380,7 +11380,7 @@ int DoNapalm(DSWActor* actor)
     {
         USERp eu;
 
-        PlaySound(DIGI_NAPPUFF, sp, v3df_none);
+        PlaySound(DIGI_NAPPUFF, actor, v3df_none);
 
         auto expActor = SpawnActor(STAT_MISSILE, NAP_EXP, s_NapExp, sp->sectnum,
                                 sp->x, sp->y, sp->z, sp->ang, 0);
@@ -12342,7 +12342,7 @@ int InitEnemyNapalm(DSWActor* actor)
         wp->hitag = LUMINOUS; //Always full brightness
         if (i==0) // Only attach sound to first projectile
         {
-            PlaySound(DIGI_NAPWIZ, wp, v3df_follow);
+            PlaySound(DIGI_NAPWIZ, actorNew, v3df_follow);
         }
 
         if (u->ID == ZOMBIE_RUN_R0)
@@ -12603,7 +12603,7 @@ int InitSwordAttack(PLAYERp pp)
                         }
                         SpawnSwordSparks(pp, hitinfo.sect, -1, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
                         PlaySound(DIGI_SWORDCLANK, &hitinfo.pos, v3df_none);
-                        PlaySound(DIGI_TRASHLID, sp, v3df_none);
+                        PlaySound(DIGI_TRASHLID, hitActor, v3df_none);
                         break;
                     case PACHINKO1:
                     case PACHINKO2:
@@ -12793,7 +12793,7 @@ int InitFistAttack(PLAYERp pp)
                         }
                         SpawnSwordSparks(pp, hitinfo.sect, -1, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
                         PlaySound(DIGI_ARMORHIT, &hitinfo.pos, v3df_none);
-                        PlaySound(DIGI_TRASHLID, sp, v3df_none);
+                        PlaySound(DIGI_TRASHLID, hitActor, v3df_none);
                         break;
                     case PACHINKO1:
                     case PACHINKO2:
@@ -13740,7 +13740,7 @@ int InitShotgun(PLAYERp pp)
             {
                 extern STATE s_TrashCanPain[];
 
-                PlaySound(DIGI_TRASHLID, hsp, v3df_none);
+                PlaySound(DIGI_TRASHLID, hitActor, v3df_none);
                 if (hu->WaitTics <= 0)
                 {
                     hu->WaitTics = SEC(2);
@@ -14604,7 +14604,7 @@ int InitRipperSlash(DSWActor* actor)
     unsigned stat;
     int dist, a, b, c;
 
-    PlaySound(DIGI_RIPPER2ATTACK, sp, v3df_none);
+    PlaySound(DIGI_RIPPER2ATTACK, actor, v3df_none);
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
@@ -14641,7 +14641,7 @@ int InitBunnySlash(DSWActor* actor)
     unsigned stat;
     int dist, a, b, c;
 
-    PlaySound(DIGI_BUNNYATTACK, sp, v3df_none);
+    PlaySound(DIGI_BUNNYATTACK, actor, v3df_none);
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
@@ -14830,7 +14830,7 @@ int InitCoolgBash(DSWActor* actor)
     unsigned stat;
     int dist, a, b, c;
 
-    PlaySound(DIGI_CGTHIGHBONE, sp, v3df_none);
+    PlaySound(DIGI_CGTHIGHBONE, actor, v3df_none);
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
@@ -14867,7 +14867,7 @@ int InitSkelSlash(DSWActor* actor)
     unsigned stat;
     int dist, a, b, c;
 
-    PlaySound(DIGI_SPBLADE, sp, v3df_none);
+    PlaySound(DIGI_SPBLADE, actor, v3df_none);
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
@@ -14900,7 +14900,7 @@ int InitGoroChop(DSWActor* actor)
     unsigned stat;
     int dist, a, b, c;
 
-    PlaySound(DIGI_GRDSWINGAXE, sp, v3df_none);
+    PlaySound(DIGI_GRDSWINGAXE, actor, v3df_none);
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
@@ -15532,7 +15532,7 @@ int InitCoolgFire(DSWActor* actor)
     // Spawn a shot
     // Inserting and setting up variables
 
-    PlaySound(DIGI_CGMAGIC, sp, v3df_follow);
+    PlaySound(DIGI_CGMAGIC, actor, v3df_follow);
 
     auto actorNew = SpawnActor(STAT_MISSILE, COOLG_FIRE, s_CoolgFire, sp->sectnum,
                     nx, ny, nz, u->targetActor->s().ang, COOLG_FIRE_VELOCITY);
@@ -15591,7 +15591,7 @@ int DoCoolgDrip(DSWActor* actor)
         sp->yrepeat = sp->xrepeat = 32;
         ChangeState(actor, s_GoreFloorSplash);
         if (u->spal == PALETTE_BLUE_LIGHTING)
-            PlaySound(DIGI_DRIP, sp, v3df_none);
+            PlaySound(DIGI_DRIP, actor, v3df_none);
     }
     return 0;
 }
@@ -16985,7 +16985,7 @@ DSWActor* SpawnBoatSparks(PLAYERp pp, short hit_sect, short hit_wall, int hit_x,
     HitscanSpriteAdjust(actorNew, hit_wall);
 
     if (RANDOM_P2(1024) < 100)
-        PlaySound(DIGI_RICHOCHET1,wp, v3df_none);
+        PlaySound(DIGI_RICHOCHET1, actorNew, v3df_none);
 
     return actorNew;
 }
@@ -19354,10 +19354,10 @@ int DoShrapVelocity(DSWActor* actor)
                         switch (u->ID)
                         {
                         case UZI_SHELL:
-                            PlaySound(DIGI_SHELL, sp, v3df_none);
+                            PlaySound(DIGI_SHELL, actor, v3df_none);
                             break;
                         case SHOT_SHELL:
-                            PlaySound(DIGI_SHOTSHELLSPENT, sp, v3df_none);
+                            PlaySound(DIGI_SHOTSHELLSPENT, actor, v3df_none);
                             break;
                         }
                     }
