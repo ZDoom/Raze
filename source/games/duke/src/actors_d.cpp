@@ -540,7 +540,8 @@ SKIPWALLCHECK:
 int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, unsigned int cliptype, Collision &result)
 {
 	int daz, h, oldx, oldy;
-	short retval, dasectnum, cd;
+	short cd;
+	int dasectnum;
 
 	auto spri = actor->s;
 	int bg = badguy(actor);
@@ -567,7 +568,7 @@ int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, un
 		oldy = spri->y;
 
 		if (spri->xrepeat > 60)
-			retval = clipmove(&spri->x, &spri->y, &daz, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 1024L, (4 << 8), (4 << 8), cliptype);
+			clipmove_ex(&spri->x, &spri->y, &daz, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 1024L, (4 << 8), (4 << 8), cliptype, result);
 		else 
 		{
 			if (spri->picnum == LIZMAN)
@@ -577,7 +578,7 @@ int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, un
 			else
 				cd = 192;
 
-			retval = clipmove(&spri->x, &spri->y, &daz, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), cd, (4 << 8), (4 << 8), cliptype);
+			clipmove_ex(&spri->x, &spri->y, &daz, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), cd, (4 << 8), (4 << 8), cliptype, result);
 		}
 
 		// conditional code from hell...
@@ -599,15 +600,13 @@ int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, un
 			if (dasectnum < 0) dasectnum = 0;
 			return result.setSector(dasectnum);
 		}
-		if ((retval & kHitTypeMask) > kHitSector && (actor->cgg == 0)) spri->ang += 768;
+		if ((result.type == kHitWall || result.type == kHitSprite) && (actor->cgg == 0)) spri->ang += 768;
 	}
 	else
 	{
 		if (spri->statnum == STAT_PROJECTILE)
-			retval =
 			clipmove_ex(&spri->x, &spri->y, &daz, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 8L, (4 << 8), (4 << 8), cliptype, result);
 		else
-			retval =
 			clipmove_ex(&spri->x, &spri->y, &daz, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), (int)(spri->clipdist << 2), (4 << 8), (4 << 8), cliptype, result);
 	}
 
@@ -617,10 +616,10 @@ int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, un
 	daz = spri->z + ((zchange * TICSPERFRAME) >> 3);
 	if ((daz > actor->ceilingz) && (daz <= actor->floorz))
 		spri->z = daz;
-	else if (retval == kHitNone)
+	else if (result.type == kHitNone)
 		return result.setSector(dasectnum);
 
-	return retval;
+	return result.type;
 }
 //---------------------------------------------------------------------------
 //

@@ -1503,10 +1503,13 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 		}
 
 		Collision coll;
-		int j = clipmove_ex(&s->x, &s->y, &s->z, &s->sectnum,
+		static_assert(sizeof(s->sectnum) != sizeof(int)); // this will error out when sectnum gets expanded.
+		int sect = s->sectnum;
+		int j = clipmove_ex(&s->x, &s->y, &s->z, &sect,
 			(MulScale(s->xvel, bcos(s->ang), 14) * TICSPERFRAME) << 11,
 			(MulScale(s->xvel, bsin(s->ang), 14) * TICSPERFRAME) << 11,
 			24L, (4 << 8), (4 << 8), CLIPMASK1, coll);
+		s->sectnum = sect;
 
 		if (j == kHitWall)
 		{
@@ -5314,7 +5317,7 @@ void fall_common(DDukeActor *actor, int playernum, int JIBS6, int DRONE, int BLO
 				else if (s->zvel > 2048 && s->sector()->lotag != 1)
 				{
 
-					short j = s->sectnum;
+					int j = s->sectnum;
 					int x = s->x, y = s->y, z = s->z;
 					pushmove(&x, &y, &z, &j, 128, (4 << 8), (4 << 8), CLIPMASK0);
 					s->x = x; s->y = y; s->z = z;

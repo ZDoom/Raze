@@ -158,9 +158,9 @@ struct DukePlayer
 	native int bobcounter;
 	native int randomflamex, crack_time;
 
-	native int aim_mode, ftt;
+	native int cursectnum, aim_mode, ftt;
 
-	native int16 cursectnum, last_extra, subweapon;
+	native int16 last_extra, subweapon;
 	native int16 ammo_amount[DukeWpn.MAX_WEAPONS], frag, fraggedself;
 
 	native int16 curr_weapon, last_weapon, tipincs, wantweaponfire;

@@ -945,7 +945,9 @@ static int LoadTheMap(MapRecord *mi, struct player_struct *p, int gamemode)
     }
 
     currentLevel = mi;
-    engineLoadBoard(mi->fileName, isShareware(), &p->pos, &lbang, &p->cursectnum);
+    short sect;
+    engineLoadBoard(mi->fileName, isShareware(), &p->pos, &lbang, &sect);// &p->cursectnum);
+    p->cursectnum = sect;
 
     SECRET_SetMapName(mi->DisplayName(), mi->name);
     STAT_NewLevel(mi->fileName);

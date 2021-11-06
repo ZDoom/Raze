@@ -878,7 +878,7 @@ int32_t spriteheightofsptr(uspriteptr_t spr, int32_t *height, int32_t alsotileyo
 //
 int32_t setsprite(int16_t spritenum, const vec3_t *newpos)
 {
-    int16_t tempsectnum = sprite[spritenum].sectnum;
+    int tempsectnum = sprite[spritenum].sectnum;
 
     if (newpos != &sprite[spritenum].pos)
         sprite[spritenum].pos = *newpos;

@@ -198,7 +198,8 @@ struct player_struct
 
 	int aim_mode, ftt;
 
-	short cursectnum, last_extra, subweapon;
+	int cursectnum;
+	short last_extra, subweapon;
 	short ammo_amount[MAX_WEAPONS], frag, fraggedself;
 
 	short curr_weapon, last_weapon, tipincs, wantweaponfire;
@@ -302,6 +303,11 @@ struct Collision
 	int legacyVal;	// should be removed later, but needed for converting back for unadjusted code.
 	DDukeActor* actor;
 
+	Collision() = default;
+	explicit Collision(int v)
+	{
+		setFromEngine(v);
+	}
 	int setNone()
 	{
 		type = kHitNone;

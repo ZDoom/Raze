@@ -618,8 +618,8 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 			s->zvel = -348;
 		}
 
-		clipmove(&p->pos.x, &p->pos.y, &p->pos.z, &p->cursectnum, 0, 0, 164, (4 << 8), (4 << 8), CLIPMASK0);
-		//			  p->bobcounter += 32;
+		Collision coll;
+		clipmove_ex(&p->pos.x, &p->pos.y, &p->pos.z, &p->cursectnum, 0, 0, 164, (4 << 8), (4 << 8), CLIPMASK0, coll);
 	}
 
 	backupplayer(p);
