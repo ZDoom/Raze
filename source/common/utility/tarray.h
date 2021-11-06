@@ -63,14 +63,14 @@
 
 #include "m_alloc.h"
 
-template<typename T> class TIterator : public std::iterator<std::random_access_iterator_tag, T>
+template<typename T> class TIterator
 {
 public:
-	typedef typename TIterator::value_type value_type;
-	typedef typename TIterator::difference_type difference_type;
-	typedef typename TIterator::pointer pointer;
-	typedef typename TIterator::reference reference;
-	typedef typename TIterator::iterator_category iterator_category;
+	typedef typename T value_type;
+	typedef typename ptrdiff_t difference_type;
+	typedef typename T* pointer;
+	typedef typename T& reference;
+	typedef typename std::random_access_iterator_tag iterator_category;
 
 	TIterator(T* ptr = nullptr) { m_ptr = ptr; }
 

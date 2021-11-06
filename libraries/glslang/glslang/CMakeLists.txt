@@ -21,6 +21,10 @@ elseif(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
     add_compile_options(-Wno-reorder)  # disable this from -Wall, since it happens all over.
 endif()
 
+if (MSVC)
+	set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /wd4146" )
+endif()
+
 # Request C++11
 if(${CMAKE_VERSION} VERSION_LESS 3.1)
     # CMake versions before 3.1 do not understand CMAKE_CXX_STANDARD
