@@ -389,19 +389,17 @@ void PlayerAngle::applyinput(float const avel, ESyncBits* actions, double const 
 		if (abs(look_ang.signedbam()) < (BAMUNIT >> 2)) look_ang = bamang(0);
 	}
 
-	if (*actions & SB_LOOK_LEFT)
+	// Process keyboard input.
+	auto doLookKeys = [&](ESyncBits_ const key, double const direction)
 	{
-		// start looking left
-		look_ang -= getscaledangle(LOOKINGSPEED, scaleAdjust);
-		rotscrnang += getscaledangle(ROTATESPEED, scaleAdjust);
-	}
-
-	if (*actions & SB_LOOK_RIGHT)
-	{
-		// start looking right
-		look_ang += getscaledangle(LOOKINGSPEED, scaleAdjust);
-		rotscrnang -= getscaledangle(ROTATESPEED, scaleAdjust);
-	}
+		if (*actions & key)
+		{
+			look_ang += getscaledangle(LOOKINGSPEED, scaleAdjust * direction);
+			rotscrnang -= getscaledangle(ROTATESPEED, scaleAdjust * direction);
+		}
+	};
+	doLookKeys(SB_LOOK_LEFT, -1);
+	doLookKeys(SB_LOOK_RIGHT, 1);
 
 	if (!movementlocked())
 	{
