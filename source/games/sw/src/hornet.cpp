@@ -550,7 +550,6 @@ DoHornetDeath(DSWActor* actor)
 int DoCheckSwarm(DSWActor* actor)
 {
     USER* u = actor->u();
-    int i;
     SPRITEp sp = &actor->s(), tsp;
     USERp tu;
     int dist, pdist, a,b,c;
@@ -572,10 +571,9 @@ int DoCheckSwarm(DSWActor* actor)
         return 0;
 
     // all enemys
-    StatIterator it(STAT_ENEMY);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_ENEMY);
+    while (auto itActor = it.Next())
     {
-        auto itActor = &swActors[i];
         tsp = &itActor->s();
         tu = itActor->u();
 

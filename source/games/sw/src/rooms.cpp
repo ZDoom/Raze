@@ -351,16 +351,15 @@ bool FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects,
 
 int GetZadjustment(short sectnum, short hitag)
 {
-    int i;
     SPRITEp sp;
 
     if (sectnum < 0 || !TEST(sector[sectnum].extra, SECTFX_Z_ADJUST))
         return 0L;
 
-    StatIterator it(STAT_ST1);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_ST1);
+    while (auto itActor = it.Next())
     {
-        sp = &sprite[i];
+        sp = &itActor->s();
 
         if (sp->hitag == hitag && sp->sectnum == sectnum)
         {

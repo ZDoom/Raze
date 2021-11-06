@@ -286,7 +286,6 @@ int DoRotator(DSWActor* actor)
     ROTATORp r;
     short ndx,w,startwall,endwall;
     SPRITEp pivot = nullptr;
-    int i;
     vec2_t nxy;
     int dist,closest;
     bool kill = false;
@@ -364,16 +363,17 @@ int DoRotator(DSWActor* actor)
     }
 
     closest = 99999;
-    StatIterator it(STAT_ROTATOR_PIVOT);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_ROTATOR_PIVOT);
+    while (auto itActor = it.Next())
     {
-        if (sprite[i].lotag == sp->lotag)
+        auto itsp = &itActor->s();
+        if (itsp->lotag == sp->lotag)
         {
-            dist = Distance(sp->x, sp->y, sprite[i].x, sprite[i].y);
+            dist = Distance(sp->x, sp->y, itsp->x, itsp->y);
             if (dist < closest)
             {
                 closest = dist;
-                pivot = &sprite[i];
+                pivot = itsp;
             }
         }
     }
