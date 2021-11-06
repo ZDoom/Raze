@@ -285,37 +285,30 @@ void PlayerHorizon::applyinput(float const horz, ESyncBits* actions, double cons
 		// Store current horizon as true pitch.
 		double pitch = horiz.aspitch();
 
+		// Process mouse input.
 		if (horz)
 		{
 			*actions &= ~SB_CENTERVIEW;
 			pitch += horz;
 		}
 
-		// this is the locked type
-		if (*actions & (SB_AIM_UP|SB_AIM_DOWN))
+		// Process keyboard input.
+		auto doKbdInput = [&](ESyncBits_ const up, ESyncBits_ const down, double const rate, bool const lock)
 		{
-			*actions &= ~SB_CENTERVIEW;
-			double const amount = scaleAdjust * HorizToPitch(getTicrateScale(AIMSPEED));
+			if (*actions & (up | down))
+			{
+				if (lock) *actions &= ~SB_CENTERVIEW; else *actions |= SB_CENTERVIEW;
+				double const amount = scaleAdjust * HorizToPitch(getTicrateScale(rate));
 
-			if (*actions & SB_AIM_DOWN)
-				pitch -= amount;
+				if (*actions & down)
+					pitch -= amount;
 
-			if (*actions & SB_AIM_UP)
-				pitch += amount;
-		}
-
-		// this is the unlocked type
-		if (*actions & (SB_LOOK_UP|SB_LOOK_DOWN))
-		{
-			*actions |= SB_CENTERVIEW;
-			double const amount = scaleAdjust * HorizToPitch(getTicrateScale(LOOKSPEED));
-
-			if (*actions & SB_LOOK_DOWN)
-				pitch -= amount;
-
-			if (*actions & SB_LOOK_UP)
-				pitch += amount;
-		}
+				if (*actions & up)
+					pitch += amount;
+			}
+		};
+		doKbdInput(SB_AIM_UP, SB_AIM_DOWN, AIMSPEED, true);
+		doKbdInput(SB_LOOK_UP, SB_LOOK_DOWN, LOOKSPEED, false);
 
 		// clamp before converting back to horizon
 		horiz = q16horiz(clamp(PitchToHoriz(pitch), gi->playerHorizMin(), gi->playerHorizMax()));
