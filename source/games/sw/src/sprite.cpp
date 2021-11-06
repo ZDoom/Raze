@@ -4685,10 +4685,10 @@ getzrangepoint(int x, int y, int z, short sectnum,
     *florhit = sectnum + 16384;
 
     // Go through sprites of only the current sector
-    SectIterator it(sectnum);
-    while ((j = it.NextIndex()) >= 0)
+    SWSectIterator it(sectnum);
+    while (auto itActor = it.Next())
     {
-        spr = &sprite[j];
+        spr = &itActor->s();
         cstat = spr->cstat;
         if ((cstat & 49) != 33)
             continue;                   // Only check blocking floor sprites
@@ -4771,7 +4771,7 @@ getzrangepoint(int x, int y, int z, short sectnum,
             if (daz > *ceilz)
             {
                 *ceilz = daz;
-                *ceilhit = j + 49152;
+                *ceilhit = itActor->GetSpriteIndex() + HIT_SPRITE;
             }
         }
         else
@@ -4779,7 +4779,7 @@ getzrangepoint(int x, int y, int z, short sectnum,
             if (daz < *florz)
             {
                 *florz = daz;
-                *florhit = j + 49152;
+                *florhit = itActor->GetSpriteIndex() + HIT_SPRITE;
             }
         }
     }

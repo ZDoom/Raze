@@ -592,16 +592,15 @@ int DoSlidor(DSWActor* actor)
         // if heading for the OFF (original) position and should NOT CRUSH
         if (TEST_BOOL3(sp) && r->tgt == 0)
         {
-            int i;
             SPRITEp bsp;
             USERp bu;
             bool found = false;
 
-            SectIterator it(sp->sectnum);
-            while ((i = it.NextIndex()) >= 0)
+            SWSectIterator it(sp->sectnum);
+            while (auto itActor = it.Next())
             {
-                bsp = &sprite[i];
-                bu = User[i].Data();
+                bsp = &itActor->s();
+                bu = itActor->u();
 
                 if (bu && TEST(bsp->cstat, CSTAT_SPRITE_BLOCK) && TEST(bsp->extra, SPRX_PLAYER_OR_ENEMY))
                 {
