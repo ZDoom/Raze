@@ -4780,11 +4780,11 @@ int DoActorGlobZ(DSWActor* actor)
 }
 
 
-bool
-ActorDrop(short SpriteNum, int x, int y, int z, short new_sector, short min_height)
+bool ActorDrop(DSWActor* actor, int x, int y, int z, short new_sector, short min_height)
 {
-    SPRITEp sp = &sprite[SpriteNum];
-    int ceilhit, florhit, hiz, loz;
+    SPRITEp sp = &actor->s();
+    int hiz, loz;
+    Collision ceilhit, florhit;
     short save_cstat;
 
     // look only at the center point for a floor sprite
@@ -4793,21 +4793,16 @@ ActorDrop(short SpriteNum, int x, int y, int z, short new_sector, short min_heig
     FAFgetzrangepoint(x, y, z - DIV2(SPRITEp_SIZE_Z(sp)), new_sector, &hiz, &ceilhit, &loz, &florhit);
     SET(sp->cstat, save_cstat);
 
-    if (florhit < 0 || ceilhit < 0)
+    if (florhit.type < 0 || ceilhit.type < 0)
     {
-        //SetSuicide(actor);
         return true;
     }
 
-
-    // ASSERT(florhit >= 0);
-    // ASSERT(ceilhit >= 0);
-
-    switch (TEST(florhit, HIT_MASK))
+    switch (florhit.type)
     {
-    case HIT_SPRITE:
+    case kHitSprite:
     {
-        SPRITEp hsp = &sprite[florhit & 4095];
+        SPRITEp hsp = &florhit.actor->s();
 
         // if its a floor sprite and not too far down
         if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR) &&
@@ -4819,7 +4814,7 @@ ActorDrop(short SpriteNum, int x, int y, int z, short new_sector, short min_heig
         break;
     }
 
-    case HIT_SECTOR:
+    case kHitSector:
     {
         if (labs(loz - z) <= min_height)
         {
@@ -4840,7 +4835,6 @@ ActorDrop(short SpriteNum, int x, int y, int z, short new_sector, short min_heig
 bool
 DropAhead(DSWActor* actor, short min_height)
 {
-    int SpriteNum = actor->GetSpriteIndex();
     SPRITEp sp = &actor->s();
     int dax, day;
     int newsector;
@@ -4855,7 +4849,7 @@ DropAhead(DSWActor* actor, short min_height)
     updatesector(dax, day, &newsector);
 
     // look straight down for a drop
-    if (ActorDrop(SpriteNum, dax, day, sp->z, newsector, min_height))
+    if (ActorDrop(actor, dax, day, sp->z, newsector, min_height))
         return true;
 
     return false;
@@ -4931,9 +4925,8 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
             return false;
         }
 
-        if (ActorDrop(SpriteNum, sp->x, sp->y, sp->z, sp->sectnum, u->lo_step))
+        if (ActorDrop(actor, sp->x, sp->y, sp->z, sp->sectnum, u->lo_step))
         {
-            //printf("cancel move 2\n", sp->z, u->loz);
             // cancel move
             sp->x = x;
             sp->y = y;
