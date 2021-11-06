@@ -4133,10 +4133,14 @@ void destroyit(DDukeActor *actor)
 			if (lotag == a2->s->lotag)
 			{
 				sectnum = spr->s->sectnum;
-				wallstart = sector[sectnum].wallptr;
-				wallend = wallstart + sector[sectnum].wallnum;
-				wallstart2 = sector[it_sect].wallptr;
-				wallend2 = wallstart2 + sector[it_sect].wallnum;
+
+				auto destsect = &sector[sectnum];
+				auto srcsect = &sector[it_sect];
+
+				wallstart = destsect->wallptr;
+				wallend = wallstart + destsect->wallnum;
+				wallstart2 = srcsect->wallptr;
+				wallend2 = wallstart2 + srcsect->wallnum;
 				for (wi = wallstart, wj = wallstart2; wi < wallend; wi++, wj++)
 				{
 					wall[wi].picnum = wall[wj].picnum;
@@ -4152,27 +4156,27 @@ void destroyit(DDukeActor *actor)
 						wall[wall[wi].nextwall].cstat = 0;
 					}
 				}
-				sector[sectnum].floorz = sector[it_sect].floorz;
-				sector[sectnum].ceilingz = sector[it_sect].ceilingz;
-				sector[sectnum].ceilingstat = sector[it_sect].ceilingstat;
-				sector[sectnum].floorstat = sector[it_sect].floorstat;
-				sector[sectnum].ceilingpicnum = sector[it_sect].ceilingpicnum;
-				sector[sectnum].ceilingheinum = sector[it_sect].ceilingheinum;
-				sector[sectnum].ceilingshade = sector[it_sect].ceilingshade;
-				sector[sectnum].ceilingpal = sector[it_sect].ceilingpal;
-				sector[sectnum].ceilingxpan_ = sector[it_sect].ceilingxpan_;
-				sector[sectnum].ceilingypan_ = sector[it_sect].ceilingypan_;
-				sector[sectnum].floorpicnum = sector[it_sect].floorpicnum;
-				sector[sectnum].floorheinum = sector[it_sect].floorheinum;
-				sector[sectnum].floorshade = sector[it_sect].floorshade;
-				sector[sectnum].floorpal = sector[it_sect].floorpal;
-				sector[sectnum].floorxpan_ = sector[it_sect].floorxpan_;
-				sector[sectnum].floorypan_ = sector[it_sect].floorypan_;
-				sector[sectnum].visibility = sector[it_sect].visibility;
+				destsect->floorz = srcsect->floorz;
+				destsect->ceilingz = srcsect->ceilingz;
+				destsect->ceilingstat = srcsect->ceilingstat;
+				destsect->floorstat = srcsect->floorstat;
+				destsect->ceilingpicnum = srcsect->ceilingpicnum;
+				destsect->ceilingheinum = srcsect->ceilingheinum;
+				destsect->ceilingshade = srcsect->ceilingshade;
+				destsect->ceilingpal = srcsect->ceilingpal;
+				destsect->ceilingxpan_ = srcsect->ceilingxpan_;
+				destsect->ceilingypan_ = srcsect->ceilingypan_;
+				destsect->floorpicnum = srcsect->floorpicnum;
+				destsect->floorheinum = srcsect->floorheinum;
+				destsect->floorshade = srcsect->floorshade;
+				destsect->floorpal = srcsect->floorpal;
+				destsect->floorxpan_ = srcsect->floorxpan_;
+				destsect->floorypan_ = srcsect->floorypan_;
+				destsect->visibility = srcsect->visibility;
 				sectorextra[sectnum] = sectorextra[it_sect]; // TRANSITIONAL: at least rename this.
-				sector[sectnum].lotag = sector[it_sect].lotag;
-				sector[sectnum].hitag = sector[it_sect].hitag;
-				sector[sectnum].extra = sector[it_sect].extra;
+				destsect->lotag = srcsect->lotag;
+				destsect->hitag = srcsect->hitag;
+				destsect->extra = srcsect->extra;
 			}
 	}
 	it1.Reset(actor->s->sectnum);
