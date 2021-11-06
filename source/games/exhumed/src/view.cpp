@@ -203,7 +203,7 @@ void DrawView(double smoothRatio, bool sceneonly)
     int playerX;
     int playerY;
     int playerZ;
-    short nSector;
+    int nSector;
     binangle nAngle, rotscrnang;
     fixedhoriz pan;
 

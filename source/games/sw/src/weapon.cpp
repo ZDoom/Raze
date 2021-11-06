@@ -12210,7 +12210,7 @@ DoBloodWorm(DSWActor* actor)
     int xvect,yvect;
     int bx,by;
     int amt;
-    short sectnum;
+    int sectnum;
 
     u = User[Weapon].Data();
 

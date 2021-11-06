@@ -914,7 +914,7 @@ post_analyzesprites(spritetype* tsprite, int& spritesortcnt)
 #endif
 
 void
-CircleCamera(int *nx, int *ny, int *nz, short *vsect, binangle *nang, fixed_t q16horiz)
+CircleCamera(int *nx, int *ny, int *nz, int *vsect, binangle *nang, fixed_t q16horiz)
 {
     vec3_t n = { *nx, *ny, *nz };
     SPRITEp sp;
@@ -1091,7 +1091,7 @@ void DrawCrosshair(PLAYERp pp)
     }
 }
 
-void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, short *tsectnum, binangle *tang, fixedhoriz *thoriz)
+void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, int *tsectnum, binangle *tang, fixedhoriz *thoriz)
 {
     int i;
     binangle ang;
@@ -1268,7 +1268,7 @@ int CopySprite(spritetype const * tsp, short newsector)
 
 int ConnectCopySprite(spritetype const * tsp)
 {
-    short newsector;
+    int newsector;
     int testz;
 
     if (FAF_ConnectCeiling(tsp->sectnum))
@@ -1460,7 +1460,7 @@ drawscreen(PLAYERp pp, double smoothratio)
     int tx, ty, tz;
     binangle tang, trotscrnang;
     fixedhoriz thoriz;
-    short tsectnum;
+    int tsectnum;
     short i,j;
     int bob_amt = 0;
     int quake_z, quake_x, quake_y;
@@ -1515,7 +1515,7 @@ drawscreen(PLAYERp pp, double smoothratio)
     }
     tsectnum = camerapp->cursectnum;
 
-    COVERupdatesector(tx, ty, &tsectnum);
+    updatesector(tx, ty, &tsectnum);
 
     if (tsectnum >= 0)
     {

@@ -2263,7 +2263,7 @@ DoPlayerMove(PLAYERp pp)
 void
 DoPlayerSectorUpdatePreMove(PLAYERp pp)
 {
-    short sectnum = pp->cursectnum;
+    int sectnum = pp->cursectnum;
 
     if (sectnum < 0)
         return;
@@ -2274,7 +2274,7 @@ DoPlayerSectorUpdatePreMove(PLAYERp pp)
         if (sectnum < 0)
         {
             sectnum = pp->cursectnum;
-            COVERupdatesector(pp->posx, pp->posy, &sectnum);
+            updatesector(pp->posx, pp->posy, &sectnum);
         }
         ASSERT(sectnum >= 0);
     }
@@ -2284,7 +2284,7 @@ DoPlayerSectorUpdatePreMove(PLAYERp pp)
         if (sectnum < 0)
         {
             sectnum = pp->cursectnum;
-            COVERupdatesector(pp->posx, pp->posy, &sectnum);
+            updatesector(pp->posx, pp->posy, &sectnum);
         }
         ASSERT(sectnum >= 0);
     }
@@ -3189,7 +3189,7 @@ void StackedWaterSplash(PLAYERp pp)
 {
     if (FAF_ConnectArea(pp->cursectnum))
     {
-        short sectnum = pp->cursectnum;
+        int sectnum = pp->cursectnum;
 
         updatesectorz(pp->posx, pp->posy, SPRITEp_BOS(pp->SpriteP), &sectnum);
 
@@ -4097,7 +4097,7 @@ PlayerCanDiveNoWarp(PLAYERp pp)
     {
         if (FAF_ConnectArea(pp->cursectnum))
         {
-            short sectnum = pp->cursectnum;
+            int sectnum = pp->cursectnum;
 
             updatesectorz(pp->posx, pp->posy, SPRITEp_BOS(pp->SpriteP), &sectnum);
 
@@ -4730,7 +4730,7 @@ DoPlayerDive(PLAYERp pp)
     {
         if (pp->posz < sector[pp->cursectnum].ceilingz + Z(10))
         {
-            short sectnum = pp->cursectnum;
+            int sectnum = pp->cursectnum;
 
             // check for sector above to see if it is an underwater sector also
             updatesectorz(pp->posx, pp->posy, sector[pp->cursectnum].ceilingz - Z(8), &sectnum);

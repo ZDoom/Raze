@@ -154,7 +154,7 @@ FAFhitscan(int32_t x, int32_t y, int32_t z, int16_t sectnum,
 {
     vec3_t firstpos = { x, y, z };
     int loz, hiz;
-    short newsectnum = sectnum;
+    int newsectnum = sectnum;
     int startclipmask = 0;
     bool plax_found = false;
 
@@ -532,7 +532,7 @@ void FAFgetzrange(vec3_t pos, int16_t sectnum,
 
     if (FAF_ConnectCeiling(sectnum))
     {
-        short uppersect = sectnum;
+        int uppersect = sectnum;
         int newz = *hiz - Z(2);
 
         switch (TEST(*ceilhit, HIT_MASK))
@@ -552,7 +552,7 @@ void FAFgetzrange(vec3_t pos, int16_t sectnum,
     else if (FAF_ConnectFloor(sectnum) && !TEST(sector[sectnum].floorstat, FLOOR_STAT_FAF_BLOCK_HITSCAN))
     //if (FAF_ConnectFloor(sectnum))
     {
-        short lowersect = sectnum;
+        int lowersect = sectnum;
         int newz = *loz + Z(2);
 
         switch (TEST(*florhit, HIT_MASK))
@@ -606,7 +606,7 @@ void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, int16_t sectnum,
 
     if (FAF_ConnectCeiling(sectnum))
     {
-        short uppersect = sectnum;
+        int uppersect = sectnum;
         int newz = *hiz - Z(2);
         switch (TEST(*ceilhit, HIT_MASK))
         {
@@ -622,7 +622,7 @@ void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, int16_t sectnum,
     else if (FAF_ConnectFloor(sectnum) && !TEST(sector[sectnum].floorstat, FLOOR_STAT_FAF_BLOCK_HITSCAN))
     //if (FAF_ConnectFloor(sectnum))
     {
-        short lowersect = sectnum;
+        int lowersect = sectnum;
         int newz = *loz + Z(2);
         switch (TEST(*florhit, HIT_MASK))
         {

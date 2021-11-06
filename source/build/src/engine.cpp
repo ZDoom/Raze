@@ -895,7 +895,7 @@ int32_t setsprite(int16_t spritenum, const vec3_t *newpos)
 
 int32_t setspritez(int16_t spritenum, const vec3_t *newpos)
 {
-    int16_t tempsectnum = sprite[spritenum].sectnum;
+    int tempsectnum = sprite[spritenum].sectnum;
 
     if ((void const *)newpos != (void *)&sprite[spritenum])
         sprite[spritenum].pos = *newpos;
@@ -1377,7 +1377,7 @@ void updatesector(int32_t const x, int32_t const y, int * const sectnum)
 //      as starting sector and the 'initial' z check is skipped
 //      (not initial anymore because it follows the sector updating due to TROR)
 
-void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int16_t * const sectnum)
+void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int* const sectnum)
 {
     if (enginecompatibility_mode != ENGINECOMPATIBILITY_NONE)
     {

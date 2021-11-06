@@ -256,7 +256,7 @@ static int getdrugmode(player_struct *p, int oyrepeat)
 void displayrooms(int snum, double smoothratio)
 {
 	int cposx, cposy, cposz, fz, cz;
-	short sect;
+	int sect;
 	binangle cang, rotscrnang;
 	fixedhoriz choriz;
 	struct player_struct* p;

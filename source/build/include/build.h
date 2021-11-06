@@ -411,7 +411,15 @@ inline void updatesector(int32_t const x, int32_t const y, int16_t * const sectn
 	updatesector(x, y, &snum);
 	*sectnum = snum;
 }
-void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int16_t * const sectnum) ATTRIBUTE((nonnull(4)));
+void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int * const sectnum) ATTRIBUTE((nonnull(4)));
+[[deprecated]]
+inline void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int16_t* const sectnum)
+{
+    int snum = *sectnum;
+    updatesectorz(x, y, z, &snum);
+    *sectnum = snum;
+}
+
 void updatesectorneighbor(int32_t const x, int32_t const y, int16_t * const sectnum, int32_t initialMaxDistance = INITIALUPDATESECTORDIST, int32_t maxDistance = MAXUPDATESECTORDIST) ATTRIBUTE((nonnull(3)));
 void updatesectorneighborz(int32_t const x, int32_t const y, int32_t const z, int16_t * const sectnum, int32_t initialMaxDistance = INITIALUPDATESECTORDIST, int32_t maxDistance = MAXUPDATESECTORDIST) ATTRIBUTE((nonnull(4)));
 
