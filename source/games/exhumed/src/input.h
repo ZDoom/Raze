@@ -54,8 +54,6 @@ struct PlayerInput
 
 };
 
-void InitInput();
-
 void ClearSpaceBar(short nPlayer);
 
 int GetLocalInput();

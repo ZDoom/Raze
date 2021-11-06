@@ -104,7 +104,6 @@ uint8_t LoadLevel(MapRecord* map)
         InitPushBlocks();
 		InitPlayer();
         InitItems();
-        InitInput();
 
         if (map->gameflags & LEVEL_EX_COUNTDOWN) {
             InitEnergyTile();

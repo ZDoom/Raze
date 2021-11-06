@@ -79,7 +79,6 @@ void StatusMessage(int messageTime, const char *fmt, ...);
 
 void DoSpiritHead();
 
-void CheckKeys2();
 void GameTicker();
 void InitLevel(MapRecord*);
 void InitNewGame();
