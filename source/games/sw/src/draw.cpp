@@ -552,7 +552,6 @@ void DoStarView(tspriteptr_t tsp, USERp tu, int viewz)
 void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, int camang)
 {
     int tSpriteNum;
-    short SpriteNum;
     int smr4, smr2;
     USERp tu;
     static int ang = 0;
@@ -569,7 +568,7 @@ void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int view
 
     for (tSpriteNum = spritesortcnt - 1; tSpriteNum >= 0; tSpriteNum--)
     {
-        SpriteNum = tsprite[tSpriteNum].owner;
+        int SpriteNum = tsprite[tSpriteNum].owner;
         auto tActor = &swActors[SpriteNum];
         tspriteptr_t tsp = &tsprite[tSpriteNum];
         tu = tActor->u();
@@ -705,7 +704,7 @@ void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int view
             {
                 tsp->pal = PALETTE_RED_LIGHTING;
                 // Turn it off, it gets reset by PrintSpriteInfo
-                sprite[tu->SpriteNum].hitag = 0;
+                tActor->s().hitag = 0;
             }
         }
 
@@ -870,12 +869,11 @@ void
 post_analyzesprites(spritetype* tsprite, int& spritesortcnt)
 {
     int tSpriteNum;
-    short SpriteNum;
     USERp tu;
 
     for (tSpriteNum = spritesortcnt - 1; tSpriteNum >= 0; tSpriteNum--)
     {
-        SpriteNum = tsprite[tSpriteNum].owner;
+        int SpriteNum = tsprite[tSpriteNum].owner;
         if (SpriteNum < 0) continue;    // JBF: verify this is safe
         tspriteptr_t tsp = &tsprite[tSpriteNum];
         tu = swActors[SpriteNum].u();

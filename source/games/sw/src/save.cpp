@@ -870,7 +870,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, USER& w, USER* def
 			("hi_sp", w.highActor, def->highActor)
 			("lo_sp", w.lowActor, def->lowActor)
 			("active_range", w.active_range, def->active_range)
-			("SpriteNum", w.SpriteNum, def->SpriteNum)
 			("Attach", w.attachActor, def->attachActor)
 			("PlayerP", w.PlayerP, def->PlayerP)
 			("Sibling", w.Sibling, def->Sibling)
@@ -930,7 +929,11 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, USER& w, USER* def
 			("oz", w.oz, def->oz);
 
 		if (arc.isWriting())	// we need this for loading saves in older builds for debugging.
-			arc("SpriteP", w.SpriteNum, def->SpriteNum);
+		{
+			arc("SpriteP", w.SpriteNum, def->SpriteNum)
+				("SpriteNum", w.SpriteNum, def->SpriteNum);
+		}
+
 
 
 		SerializeCodePtr(arc, "ActorActionFunc", (void**)&w.ActorActionFunc);

@@ -1704,7 +1704,6 @@ void UpdatePlayerUnderSprite(PLAYERp pp)
 
     SPRITEp sp;
     USERp u;
-    short SpriteNum;
 
     int water_level_z, zdiff;
     bool above_water, in_dive_area;

@@ -739,7 +739,7 @@ struct PLAYERstruct
     DSWActor* remoteActor;
     DSWActor* PlayerUnderActor;
     DSWActor* KillerActor;  //who killed me
-    DSWActor* HitBy;                    // SpriteNum of whatever player was last hit by
+    DSWActor* HitBy;                    // Sprite num of whatever player was last hit by
 
     DSWActor* Actor() const
     {
@@ -1097,6 +1097,7 @@ struct USER
     DSWActor* attachActor;  // attach to sprite if needed - electro snake
     DSWActor* flagOwnerActor;
     DSWActor* WpnGoalActor;
+    short   SpriteNum; // only needed for writing out to savegames that can be loaded by older builds.
 
     int Flags;
     int Flags2;
@@ -1127,8 +1128,6 @@ struct USER
     SECTORp hi_sectp, lo_sectp;
 
     int active_range;
-
-    short   SpriteNum;
 
     // if a player's sprite points to player structure
     PLAYERp PlayerP;
@@ -1820,7 +1819,6 @@ int Distance(int x1, int y1, int x2, int y2);
 
 int NewStateGroup(DSWActor* actor, STATEp SpriteGroup[]);
 void SectorMidPoint(short sectnum, int *xmid, int *ymid, int *zmid);
-//USERp SpawnUser(short SpriteNum, short id, STATEp state);
 USERp SpawnUser(DSWActor* actor, short id, STATEp state);
 
 short ActorFindTrack(DSWActor* actor, int8_t player_dir, int track_type, short *track_point_num, short *track_dir);

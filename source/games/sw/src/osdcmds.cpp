@@ -83,7 +83,7 @@ static int osdcmd_mirror(CCmdFuncPtr parm)
     }
 
     Printf("camera is the ST1 sprite used as the view spot");
-    Printf("camspite is the SpriteNum of the drawtotile tile in editart");
+    Printf("camspite is the sprite number of the drawtotile tile in editart");
     Printf("camspic is the tile number of the drawtotile in editart");
     Printf("iscamera is whether or not this mirror is a camera type");
     Printf(" ");

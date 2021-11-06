@@ -190,9 +190,6 @@ int DoToiletGirl(DSWActor* actor)
         u->FlagOwner = 0;
     }
 
-    //(*u->ActorActionFunc) (SpriteNum);
-
-
     // stay on floor unless doing certain things
     if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING | SPR_CLIMBING))
     {

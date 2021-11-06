@@ -38,7 +38,6 @@ int InitSpriteGrenade(DSWActor* actor);
 int InitSpriteChemBomb(DSWActor*);
 int InitFlashBomb(DSWActor* actor);
 int InitCaltrops(DSWActor* actor);
-int InitPhosphorus(int16_t SpriteNum);
 
 //////////////////////
 //
@@ -442,7 +441,6 @@ int DoSkullSpawnShrap(DSWActor* actor)
 int DoSkullWait(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &actor->s();
     int a,b,c,dist;
 

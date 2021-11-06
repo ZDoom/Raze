@@ -604,12 +604,6 @@ void ClearOwner(DSWActor* child)
     if (child) child->s().owner = -1;
 }
 
-void SetOwner(int a, int b)
-{
-    if (a >= 0 && b >= 0) SetOwner(&swActors[a], &swActors[b]);
-    else if (b >= 0) ClearOwner(&swActors[b]);
-}
-
 void SetAttach(DSWActor* ownr, DSWActor* child)
 {
     if (child && child->hasU() && ownr->hasU())
@@ -4871,7 +4865,6 @@ DropAhead(DSWActor* actor, short min_height)
 int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &actor->s();
 
     int x, y, z, loz, hiz;

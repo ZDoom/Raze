@@ -58,7 +58,8 @@ DSWActor* InsertActor(int sectnum, int stat)
 {
     short spnum;
     spnum = insertsprite(sectnum, stat);
-    auto pSprite = &sprite[spnum];
+    auto pActor = &swActors[spnum];
+    auto pSprite = &pActor->s();
 
     PRODUCTION_ASSERT(spnum >= 0);
 
@@ -77,7 +78,7 @@ DSWActor* InsertActor(int sectnum, int stat)
     pSprite->hitag = 0;
     pSprite->extra = 0;
 
-    return &swActors[spnum];
+    return pActor;
 }
 
 bool FAF_Sector(short sectnum)
