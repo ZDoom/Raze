@@ -943,72 +943,73 @@ void DoWall(char bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, s
 		if (!bSet) SetGameVarID(lVar2, 0, sActor, sPlayer);
 		return;
 	}
+	auto wallp = &wall[iWall];
 
 	// All fields affecting map geometry have been made read-only!
 	switch (lLabelID)
 	{
 	case WALL_X:
-		if (!bSet) SetGameVarID(lVar2, wall[iWall].x, sActor, sPlayer);
+		if (!bSet) SetGameVarID(lVar2, wallp->x, sActor, sPlayer);
 		break;
 	case WALL_Y:
-		if (bSet) SetGameVarID(lVar2, wall[iWall].y, sActor, sPlayer);
+		if (bSet) SetGameVarID(lVar2, wallp->y, sActor, sPlayer);
 		break;
 	case WALL_POINT2:
-		if (!bSet) SetGameVarID(lVar2, wall[iWall].point2, sActor, sPlayer);
+		if (!bSet) SetGameVarID(lVar2, wallp->point2, sActor, sPlayer);
 		break;
 	case WALL_NEXTWALL:
-		if (!bSet) SetGameVarID(lVar2, wall[iWall].nextwall, sActor, sPlayer);
+		if (!bSet) SetGameVarID(lVar2, wallp->nextwall, sActor, sPlayer);
 		break;
 	case WALL_NEXTSECTOR:
-		if (!bSet) SetGameVarID(lVar2, wall[iWall].nextsector, sActor, sPlayer);
+		if (!bSet) SetGameVarID(lVar2, wallp->nextsector, sActor, sPlayer);
 		break;
 	case WALL_CSTAT:
-		if (bSet) wall[iWall].cstat = lValue;
-		else SetGameVarID(lVar2, wall[iWall].cstat, sActor, sPlayer);
+		if (bSet) wallp->cstat = lValue;
+		else SetGameVarID(lVar2, wallp->cstat, sActor, sPlayer);
 		break;
 	case WALL_PICNUM:
-		if (bSet) wall[iWall].picnum = lValue;
-		else SetGameVarID(lVar2, wall[iWall].picnum, sActor, sPlayer);
+		if (bSet) wallp->picnum = lValue;
+		else SetGameVarID(lVar2, wallp->picnum, sActor, sPlayer);
 		break;
 	case WALL_OVERPICNUM:
-		if (bSet) wall[iWall].overpicnum = lValue;
-		else SetGameVarID(lVar2, wall[iWall].overpicnum, sActor, sPlayer);
+		if (bSet) wallp->overpicnum = lValue;
+		else SetGameVarID(lVar2, wallp->overpicnum, sActor, sPlayer);
 		break;
 	case WALL_SHADE:
-		if (bSet) wall[iWall].shade = lValue;
-		else SetGameVarID(lVar2, wall[iWall].shade, sActor, sPlayer);
+		if (bSet) wallp->shade = lValue;
+		else SetGameVarID(lVar2, wallp->shade, sActor, sPlayer);
 		break;
 	case WALL_PAL:
-		if (bSet) wall[iWall].pal = lValue;
-		else SetGameVarID(lVar2, wall[iWall].pal, sActor, sPlayer);
+		if (bSet) wallp->pal = lValue;
+		else SetGameVarID(lVar2, wallp->pal, sActor, sPlayer);
 		break;
 	case WALL_XREPEAT:
-		if (bSet) wall[iWall].xrepeat = lValue;
-		else SetGameVarID(lVar2, wall[iWall].xrepeat, sActor, sPlayer);
+		if (bSet) wallp->xrepeat = lValue;
+		else SetGameVarID(lVar2, wallp->xrepeat, sActor, sPlayer);
 		break;
 	case WALL_YREPEAT:
-		if (bSet) wall[iWall].yrepeat = lValue;
-		else SetGameVarID(lVar2, wall[iWall].yrepeat, sActor, sPlayer);
+		if (bSet) wallp->yrepeat = lValue;
+		else SetGameVarID(lVar2, wallp->yrepeat, sActor, sPlayer);
 		break;
 	case WALL_XPANNING:
-		if (bSet) wall[iWall].xpan_ = (float)(lValue & 255);
-		else SetGameVarID(lVar2, wall[iWall].xpan(), sActor, sPlayer);
+		if (bSet) wallp->xpan_ = (float)(lValue & 255);
+		else SetGameVarID(lVar2, wallp->xpan(), sActor, sPlayer);
 		break;
 	case WALL_YPANNING:
-		if (bSet) wall[iWall].ypan_ = (float)(lValue & 255);
-		else SetGameVarID(lVar2, wall[iWall].ypan(), sActor, sPlayer);
+		if (bSet) wallp->ypan_ = (float)(lValue & 255);
+		else SetGameVarID(lVar2, wallp->ypan(), sActor, sPlayer);
 		break;
 	case WALL_LOTAG:
-		if (bSet) wall[iWall].lotag = lValue;
-		else SetGameVarID(lVar2, wall[iWall].lotag, sActor, sPlayer);
+		if (bSet) wallp->lotag = lValue;
+		else SetGameVarID(lVar2, wallp->lotag, sActor, sPlayer);
 		break;
 	case WALL_HITAG:
-		if (bSet) wall[iWall].hitag = lValue;
-		else SetGameVarID(lVar2, wall[iWall].hitag, sActor, sPlayer);
+		if (bSet) wallp->hitag = lValue;
+		else SetGameVarID(lVar2, wallp->hitag, sActor, sPlayer);
 		break;
 	case WALL_EXTRA:
-		if (bSet) wall[iWall].extra = lValue;
-		else SetGameVarID(lVar2, wall[iWall].extra, sActor, sPlayer);
+		if (bSet) wallp->extra = lValue;
+		else SetGameVarID(lVar2, wallp->extra, sActor, sPlayer);
 		break;
 	default:
 		break;
