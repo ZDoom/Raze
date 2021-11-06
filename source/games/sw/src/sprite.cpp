@@ -99,7 +99,10 @@ int MinEnemySkill;
 extern STATE s_CarryFlag[];
 extern STATE s_CarryFlagNoDet[];
 
-static int globhiz, globloz, globhihit, globlohit;
+// beware of mess... :(
+static int globhiz, globloz;
+static Collision globhihit, globlohit;
+
 short wait_active_check_offset;
 int PlaxCeilGlobZadjust, PlaxFloorGlobZadjust;
 void SetSectorWallBits(short sectnum, int bit_mask, bool set_sectwall, bool set_nextwall);
@@ -2381,7 +2384,8 @@ void SpriteSetup(void)
                 case SECT_SPIKE:
                 {
                     short speed,vel,time,type,start_on,floor_vator;
-                    int floorz,ceilingz,trash;
+                    int floorz,ceilingz;
+                    Collision trash;
                     u = SpawnUser(actor, 0, nullptr);
 
                     SetSectorWallBits(sp->sectnum, WALLFX_DONT_STICK, false, true);
@@ -4571,9 +4575,8 @@ bool SpriteOverlapZ(DSWActor* actor_a, DSWActor* actor_b, int z_overlap)
 
 }
 
-void
-getzrangepoint(int x, int y, int z, short sectnum,
-               int32_t* ceilz, int32_t* ceilhit, int32_t* florz, int32_t* florhit)
+void getzrangepoint(int x, int y, int z, short sectnum,
+               int32_t* ceilz, Collision* ceilhit, int32_t* florz, Collision* florhit)
 {
     spritetype *spr;
     int j, k, l, dax, day, daz, xspan, yspan, xoff, yoff;
@@ -4584,16 +4587,16 @@ getzrangepoint(int x, int y, int z, short sectnum,
     if (sectnum < 0)
     {
         *ceilz = 0x80000000;
-        *ceilhit = -1;
+        
         *florz = 0x7fffffff;
-        *florhit = -1;
+        florhit->invalidate();
         return;
     }
 
     // Initialize z's and hits to the current sector's top&bottom
     getzsofslope(sectnum, x, y, ceilz, florz);
-    *ceilhit = sectnum + 16384;
-    *florhit = sectnum + 16384;
+    ceilhit->setSector(sectnum);
+    florhit->setSector(sectnum);
 
     // Go through sprites of only the current sector
     SWSectIterator it(sectnum);
@@ -4682,7 +4685,7 @@ getzrangepoint(int x, int y, int z, short sectnum,
             if (daz > *ceilz)
             {
                 *ceilz = daz;
-                *ceilhit = itActor->GetSpriteIndex() + HIT_SPRITE;
+                ceilhit->setSprite(itActor);
             }
         }
         else
@@ -4690,7 +4693,7 @@ getzrangepoint(int x, int y, int z, short sectnum,
             if (daz < *florz)
             {
                 *florz = daz;
-                *florhit = itActor->GetSpriteIndex() + HIT_SPRITE;
+                florhit->setSprite(itActor);
             }
         }
     }
@@ -4701,7 +4704,7 @@ void DoActorZrange(DSWActor* actor)
 {
     USERp u = actor->u(), wu;
     SPRITEp sp = &actor->s(), wp;
-    int ceilhit, florhit;
+    Collision ceilhit, florhit;
     short save_cstat;
 
     save_cstat = TEST(sp->cstat, CSTAT_SPRITE_BLOCK);
@@ -4715,26 +4718,26 @@ void DoActorZrange(DSWActor* actor)
     u->highActor = nullptr;
     u->lowActor = nullptr;
 
-    switch (TEST(ceilhit, HIT_MASK))
+    switch (ceilhit.type)
     {
-    case HIT_SPRITE:
-        u->highActor = &swActors[NORM_SPRITE(ceilhit)];
+    case kHitSprite:
+        u->highActor = ceilhit.actor;
         break;
-    case HIT_SECTOR:
-        u->hi_sectp = &sector[NORM_SECTOR(ceilhit)];
+    case kHitSector:
+        u->hi_sectp = &sector[ceilhit.index];
         break;
     default:
         ASSERT(true==false);
         break;
     }
 
-    switch (TEST(florhit, HIT_MASK))
+    switch (florhit.type)
     {
-    case HIT_SPRITE:
-        u->lowActor = &swActors[NORM_SPRITE(florhit)];
+    case kHitSprite:
+        u->lowActor = florhit.actor;
         break;
-    case HIT_SECTOR:
-        u->lo_sectp = &sector[NORM_SECTOR(florhit)];
+    case kHitSector:
+        u->lo_sectp = &sector[florhit.index];
         break;
     default:
         ASSERT(true==false);
@@ -4756,23 +4759,23 @@ int DoActorGlobZ(DSWActor* actor)
     u->highActor = nullptr;
     u->lowActor = nullptr;
 
-    switch (TEST(globhihit, HIT_MASK))
+    switch (globhihit.type)
     {
-    case HIT_SPRITE:
-        u->highActor = &swActors[globhihit & 4095];
+    case kHitSprite:
+        u->highActor = globhihit.actor;
         break;
     default:
-        u->hi_sectp = &sector[globhihit & 4095];
+        u->hi_sectp = &sector[globhihit.index];
         break;
     }
 
-    switch (TEST(globlohit, HIT_MASK))
+    switch (globlohit.type)
     {
-    case HIT_SPRITE:
-        u->lowActor = &swActors[globlohit & 4095];
+    case kHitSprite:
+        u->lowActor = globlohit.actor;
         break;
     default:
-        u->lo_sectp = &sector[globlohit & 4095];
+        u->lo_sectp = &sector[globlohit.index];
         break;
     }
 
@@ -6557,7 +6560,8 @@ void SpriteControl(void)
 
 Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics)
 {
-    int retval=0, zh;
+    Collision retval(0);
+    int zh;
 	int dasectnum;
 	short tempshort;
     SPRITEp spr = &actor->s();
@@ -6586,29 +6590,26 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
 
 //    ASSERT(inside(spr->x,spr->y,dasectnum));
 
-    retval = clipmove(&clippos, &dasectnum,
+    int cmret = clipmove(&clippos, &dasectnum,
                       ((xchange * numtics) << 11), ((ychange * numtics) << 11),
                       (((int) spr->clipdist) << 2), ceildist, flordist, cliptype, 1);
+
     spr->pos.vec2 = clippos.vec2;
 
     if (dasectnum < 0)
     {
-        retval = HIT_WALL;
-        //ASSERT(true == false);
+        retval.setWall(0); // this is wrong but what the original code did.
         return retval;
     }
+    retval.setFromEngine(cmret);
 
     if ((dasectnum != spr->sectnum) && (dasectnum >= 0))
         ChangeActorSect(actor, dasectnum);
-
-    // took this out - may not be to relevant anymore
-    //ASSERT(inside(spr->x,spr->y,dasectnum));
 
     // Set the blocking bit to 0 temporarly so FAFgetzrange doesn't pick
     // up its own sprite
     tempshort = spr->cstat;
     spr->cstat = 0;
-    //RESET(spr->cstat, CSTAT_SPRITE_BLOCK);
 
     // I subtracted 8 from the clipdist because actors kept going up on
     // ledges they were not supposed to go up on.  Did the same for the
@@ -6630,15 +6631,15 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
     // test for hitting ceiling or floor
     if ((clippos.z - zh <= globhiz) || (clippos.z - zh > globloz))
     {
-        if (retval == 0)
+        if (retval.type == kHitNone)
         {
             if (TEST(u->Flags, SPR_CLIMBING))
             {
                 spr->z = clippos.z;
-                return 0;
+                return retval;
             }
 
-            retval = HIT_SECTOR|dasectnum;
+            retval.setSector(dasectnum);
         }
     }
     else
@@ -6669,7 +6670,7 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
         }
     }
 
-    return Collision(retval);
+    return retval;
 }
 
 void MissileWarpUpdatePos(DSWActor* actor, short sectnum)
@@ -6770,7 +6771,8 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
 {
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
-    int retval, zh;
+    Collision retval(0);
+    int zh;
     int dasectnum, tempshort;
     short lastsectnum;
 
@@ -6793,8 +6795,7 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
     }
 
 
-//    ASSERT(inside(sp->x,sp->y,dasectnum));
-    retval = clipmove(&clippos, &dasectnum,
+    int cmret = clipmove(&clippos, &dasectnum,
                       ((xchange * numtics) << 11), ((ychange * numtics) << 11),
                       (((int) sp->clipdist) << 2), ceildist, flordist, cliptype, 1);
     sp->pos.vec2 = clippos.vec2;
@@ -6802,13 +6803,10 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
     if (dasectnum < 0)
     {
         // we've gone beyond a white wall - kill it
-        retval = 0;
-        SET(retval, HIT_PLAX_WALL);
+        retval.setSky();
         return retval;
     }
-
-    // took this out - may not be to relevant anymore
-    //ASSERT(inside(sp->x,sp->y,dasectnum));
+    retval.setFromEngine(cmret);
 
     if ((dasectnum != sp->sectnum) && (dasectnum >= 0))
         ChangeActorSect(actor, dasectnum);
@@ -6839,14 +6837,14 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
     {
         // normal code
         sp->z = u->hiz + zh + ceildist;
-        if (retval == 0)
-            retval = dasectnum|HIT_SECTOR;
+        if (retval.type == kHitNone)
+            retval.setSector(dasectnum);
     }
     else if (clippos.z - zh > u->loz - flordist)
     {
         sp->z = u->loz + zh - flordist;
-        if (retval == 0)
-            retval = dasectnum|HIT_SECTOR;
+        if (retval.type == kHitNone)
+            retval.setSector(dasectnum);
     }
     else
     {
@@ -6876,25 +6874,23 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
         }
     }
 
-    if (retval && TEST(sector[sp->sectnum].ceilingstat, CEILING_STAT_PLAX))
+    if (retval.type != kHitNone && TEST(sector[sp->sectnum].ceilingstat, CEILING_STAT_PLAX))
     {
         if (sp->z < sector[sp->sectnum].ceilingz)
         {
-            RESET(retval, HIT_WALL|HIT_SECTOR);
-            SET(retval, HIT_PLAX_WALL);
+            retval.setSky();
         }
     }
 
-    if (retval && TEST(sector[sp->sectnum].floorstat, FLOOR_STAT_PLAX))
+    if (retval.type != kHitNone && TEST(sector[sp->sectnum].floorstat, FLOOR_STAT_PLAX))
     {
         if (sp->z > sector[sp->sectnum].floorz)
         {
-            RESET(retval, HIT_WALL|HIT_SECTOR);
-            SET(retval, HIT_PLAX_WALL);
+            retval.setSky();
         }
     }
 
-    return Collision(retval);
+    return retval;
 }
 
 
@@ -6903,7 +6899,7 @@ Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int cei
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
     int daz;
-    int retval=0;
+    Collision retval(0);
     int dasectnum;
     short lastsectnum;
     int ox,oy;
@@ -6948,43 +6944,25 @@ Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int cei
         dasectnum = lastsectnum = sp->sectnum;
         opos = sp->pos;
         opos.z = daz;
-        retval = clipmove(&opos, &dasectnum,
+        auto cmret = clipmove(&opos, &dasectnum,
                           ((xchange * numtics) << 11), ((ychange * numtics) << 11),
                           (((int) sp->clipdist) << 2), ceildist, flordist, cliptype, 1);
         sp->pos.vec2 = opos.vec2;
+        retval.setFromEngine(cmret);
     }
 
     if (dasectnum < 0)
     {
         // we've gone beyond a white wall - kill it
-        retval = 0;
-        SET(retval, HIT_PLAX_WALL);
+        retval.setSky();
         return retval;
     }
 
 
-    if (retval)  // ran into a white wall
+    if (retval.type != kHitNone)  // ran into a white wall
     {
-        //int new_loz,new_hiz;
-
-        // back up and try to clip UP
-        //dasectnum = lastsectnum = sp->sectnum;
-        //sp->x = ox;
-        //sp->y = oy;
-
-#if 0
-        getzsofslope(dasectnum, sp->x, sp->y, &new_hiz, &new_loz);
-
-        if (labs(sp->z - new_hiz) > Z(40))
-        {
-            u->z_tgt = new_hiz;
-            retval = 0;
             return retval;
         }
-        else
-#endif
-        return retval;
-    }
 
 
     u->z_tgt = 0;
@@ -6994,39 +6972,6 @@ Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int cei
         getzsofslope(dasectnum, sp->x, sp->y, &new_hiz, &new_loz);
 
         sp->z = new_loz;
-
-#if 0
-        if (labs(sp->z - new_loz) > Z(40))
-        {
-            if (new_loz > sp->z)
-            {
-                // travelling DOWN
-                u->z_tgt = new_loz;
-                changespritesect(spritenum, dasectnum);
-
-                getzsofslope(sp->sectnum, sp->x, sp->y, &u->hiz, &u->loz);
-                u->hi_sectp = u->lo_sectp = &sector[sp->sectnum];
-                u->highActor = u->lowActor = nullptr;
-                return retval;
-            }
-            else
-            {
-                // travelling UP
-                u->z_tgt = new_loz;
-
-                // back up and climb wall
-                dasectnum = lastsectnum = sp->sectnum;
-                sp->x = ox;
-                sp->y = oy;
-                return retval;
-            }
-        }
-        else
-        {
-            u->z_tgt = 0;
-        }
-#endif
-
         ChangeActorSect(actor, dasectnum);
     }
 
@@ -7039,8 +6984,7 @@ Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int cei
     if (labs(u->hiz - u->loz) < Z(12))
     {
         // we've gone into a very small place - kill it
-        retval = 0;
-        SET(retval, HIT_PLAX_WALL);
+        retval.setSky();
         return retval;
     }
 
@@ -7064,7 +7008,7 @@ Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int cei
         }
     }
 
-    return Collision(retval);
+    return retval;
 }
 
 #include "saveable.h"

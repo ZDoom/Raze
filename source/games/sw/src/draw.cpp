@@ -211,7 +211,7 @@ DoShadowFindGroundPoint(tspriteptr_t sp)
     // USES TSPRITE !!!!!
     USERp u = swActors[sp->owner].u();
     SPRITEp hsp;
-    int ceilhit, florhit;
+    Collision ceilhit, florhit;
     int hiz, loz = u->loz;
     short save_cstat, bak_cstat;
 
@@ -227,13 +227,11 @@ DoShadowFindGroundPoint(tspriteptr_t sp)
     FAFgetzrangepoint(sp->x, sp->y, sp->z, sp->sectnum, &hiz, &ceilhit, &loz, &florhit);
     sp->cstat = save_cstat;
 
-    ASSERT(TEST(florhit, HIT_SPRITE | HIT_SECTOR));
-
-    switch (TEST(florhit, HIT_MASK))
+    switch (florhit.type)
     {
-    case HIT_SPRITE:
+    case kHitSprite:
     {
-        hsp = &sprite[NORM_SPRITE(florhit)];
+        hsp = &florhit.actor->s();
 
         if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR))
         {
@@ -252,7 +250,7 @@ DoShadowFindGroundPoint(tspriteptr_t sp)
         break;
     }
 
-    case HIT_SECTOR:
+    case kHitSector:
         break;
 
     default:

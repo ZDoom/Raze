@@ -179,6 +179,8 @@ inline int Collision::setSprite(DSWActor* num)
 	return kHitSprite;
 }
 
+int Collision::setSky() { setNone(); type = kHitSky; return kHitSky; }
+
 inline int Collision::setFromEngine(int value)
 {
 	legacyVal = value;

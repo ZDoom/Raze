@@ -67,13 +67,14 @@ struct Collision
     DSWActor* actor;
 
     Collision() = default;
-    Collision(int legacyval) { setFromEngine(legacyval); }
+    explicit Collision(int legacyval) { setFromEngine(legacyval); }
 
     void invalidate() { type = -1; } // something invalid that's not a valid hit type.
     int setNone();
     int setSector(int num);
     int setWall(int num);
     int setSprite(DSWActor* num);
+    int setSky();
     int setFromEngine(int value);
 };
 
@@ -322,13 +323,6 @@ inline int SPRITEp_SIZE_BOS(const spritetype* sp)
 
 #define CEILING_DIST (Z(4))
 #define FLOOR_DIST (Z(4))
-
-// defines for move_sprite return value
-#define HIT_MASK (BIT(14)|BIT(15)|BIT(16))
-#define HIT_SPRITE (BIT(14)|BIT(15))
-#define HIT_WALL   BIT(15)
-#define HIT_SECTOR BIT(14)
-#define HIT_PLAX_WALL BIT(16)
 
 #define NORM_SPRITE(val) ((val) & (kHitIndexMask))
 
@@ -1895,7 +1889,7 @@ short AnimSetVelAdj(short anim_ndx, short vel_adj);
 
 void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SETp action, PERSONALITYp person);
 
-void getzrangepoint(int x, int y, int z, short sectnum, int32_t* ceilz, int32_t* ceilhit, int32_t* florz, int32_t* florhit);
+void getzrangepoint(int x, int y, int z, short sectnum, int32_t* ceilz, Collision* ceilhit, int32_t* florz, Collision* florhit);
 Collision move_sprite(DSWActor* , int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics);
 Collision move_missile(DSWActor*, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics);
 DSWActor* DoPickTarget(DSWActor*, uint32_t max_delta_ang, int skip_targets);
@@ -1913,9 +1907,21 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, i
 
 #define FAF_PLACE_MIRROR_PIC 341
 #define FAF_MIRROR_PIC 2356
-#define FAF_ConnectCeiling(sectnum) (sector[(sectnum)].ceilingpicnum == FAF_MIRROR_PIC)
-#define FAF_ConnectFloor(sectnum) (sector[(sectnum)].floorpicnum == FAF_MIRROR_PIC)
-#define FAF_ConnectArea(sectnum) (FAF_ConnectCeiling(sectnum) || FAF_ConnectFloor(sectnum))
+
+inline bool FAF_ConnectCeiling(int sectnum)
+{
+    return (sector[(sectnum)].ceilingpicnum == FAF_MIRROR_PIC);
+}
+
+inline bool FAF_ConnectFloor(int sectnum)
+{
+    return (sector[(sectnum)].floorpicnum == FAF_MIRROR_PIC);
+}
+
+inline bool FAF_ConnectArea(int sectnum)
+{
+    return (FAF_ConnectCeiling(sectnum) || FAF_ConnectFloor(sectnum));
+}
 
 bool PlayerCeilingHit(PLAYERp pp, int zlimit);
 bool PlayerFloorHit(PLAYERp pp, int zlimit);
@@ -1933,18 +1939,9 @@ void FAFhitscan(int32_t x, int32_t y, int32_t z, int16_t sectnum,
 bool FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects, int32_t xe, int32_t ye, int32_t ze, int16_t secte);
 
 void FAFgetzrange(vec3_t pos, int16_t sectnum,
-                  int32_t* hiz, int32_t* ceilhit,
-                  int32_t* loz, int32_t* florhit,
-                  int32_t clipdist, int32_t clipmask);
-
-void FAFgetzrange(vec3_t pos, int16_t sectnum,
                   int32_t* hiz, Collision* ceilhit,
                   int32_t* loz, Collision* florhit,
                   int32_t clipdist, int32_t clipmask);
-
-void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, int16_t sectnum,
-                       int32_t* hiz, int32_t* ceilhit,
-                       int32_t* loz, int32_t* florhit);
 
 void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, int16_t sectnum,
                        int32_t* hiz, Collision* ceilhit,

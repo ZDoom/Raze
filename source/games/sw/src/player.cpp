@@ -1863,7 +1863,7 @@ void UpdatePlayerSprite(PLAYERp pp)
  
 void DoPlayerZrange(PLAYERp pp)
 {
-    int ceilhit, florhit;
+    Collision ceilhit, florhit;
     short bakcstat;
 
     if (!pp->Actor()) return;
@@ -2687,9 +2687,9 @@ void DoPlayerMoveVehicle(PLAYERp pp)
                 if (FindDistance2D(hitinfo.pos.x - hit_pos.x, hitinfo.pos.y - hit_pos.y) < 800)
                 {
                     if (hitinfo.wall >= 0)
-                        SetCollision(u, hitinfo.wall|HIT_WALL);
+                        u->coll.setWall(hitinfo.wall);
                     else if (hitinfo.sprite >= 0)
-                        SetCollision(u, hitinfo.sprite|HIT_SPRITE);
+                        u->coll.setSprite(&swActors[hitinfo.sprite]);
                     else
                         u->coll.setNone();
 
