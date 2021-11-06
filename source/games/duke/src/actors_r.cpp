@@ -219,7 +219,8 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 	walltype* wal;
 	int d, q, x1, y1;
 	int sectcnt, sectend, dasect, startwall, endwall, nextsect;
-	short p, x, sect;
+	short p, x;
+	int sect;
 	static const uint8_t statlist[] = { STAT_DEFAULT, STAT_ACTOR, STAT_STANDABLE, STAT_PLAYER, STAT_FALLER, STAT_ZOMBIEACTOR, STAT_MISC };
 	short tempshort[MAXSECTORS];	// originally hijacked a global buffer which is bad. Q: How many do we really need? RedNukem says 64.
 
@@ -526,7 +527,8 @@ void guts_r(DDukeActor* actor, short gtype, short n, short p)
 void movefta_r(void)
 {
 	int x, px, py, sx, sy;
-	short j, p, psect, ssect;
+	short j, p;
+	int psect, ssect;
 
 	DukeStatIterator it(STAT_ZOMBIEACTOR);
 	while(auto act = it.Next())

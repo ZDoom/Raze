@@ -2770,7 +2770,7 @@ static void actNapalmMove(DBloodActor* actor)
 static DBloodActor* actSpawnFloor(DBloodActor* actor)
 {
 	auto pSprite = &actor->s();
-	short sector = pSprite->sectnum;
+	int sector = pSprite->sectnum;
 	int x = pSprite->x;
 	int y = pSprite->y;
 	updatesector(x, y, &sector);
@@ -5392,7 +5392,7 @@ int MoveMissile(DBloodActor* actor)
 		enginecompatibility_mode = bakCompat; // restore
 		pSprite->cstat = bakSpriteCstat;
 		clipmoveboxtracenum = 3;
-		short nSector = nSector2;
+		int nSector = nSector2;
 		if (nSector2 < 0)
 		{
 			cliptype = -1;

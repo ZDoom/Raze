@@ -314,9 +314,7 @@ void render_drawrooms(spritetype* playersprite, const vec3_t& position, int sect
 
 	if (gl_fogmode == 1) gl_fogmode = 2;	// still needed?
 
-	int16_t sect = sectnum;
-	updatesector(position.x, position.y, &sect);
-	if (sect >= 0) sectnum = sect;
+	updatesector(position.x, position.y, &sectnum);
 	if (sectnum < 0) return;
 
 	iter_dlightf = iter_dlight = draw_dlight = draw_dlightf = 0;
@@ -369,9 +367,7 @@ void render_drawrooms(spritetype* playersprite, const vec3_t& position, int sect
 
 void render_camtex(spritetype* playersprite, const vec3_t& position, int sectnum, binangle angle, fixedhoriz horizon, binangle rollang, FGameTexture* camtex, IntRect& rect, double smoothratio)
 {
-	int16_t sect = sectnum;
-	updatesector(position.x, position.y, &sect);
-	if (sect >= 0) sectnum = sect;
+	updatesector(position.x, position.y, &sectnum);
 	if (sectnum < 0) return;
 
 	screen->RenderState()->SetVertexBuffer(screen->mVertexData);

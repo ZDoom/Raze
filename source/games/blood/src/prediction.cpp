@@ -243,7 +243,7 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
         int z1 = getflorzofslope(nSector, predict.x, predict.y);
         int x2 = predict.x+MulScale(64, Cos(predict.angle.asbuild()), 30);
         int y2 = predict.y+MulScale(64, Sin(predict.angle.asbuild()), 30);
-        short nSector2 = nSector;
+        int nSector2 = nSector;
         updatesector(x2, y2, &nSector2);
         if (nSector2 == nSector)
         {

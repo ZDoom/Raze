@@ -134,7 +134,7 @@ void forceplayerangle(int snum)
 void tracers(int x1, int y1, int z1, int x2, int y2, int z2, int n)
 {
 	int i, xv, yv, zv;
-	short sect = -1;
+	int sect = -1;
 
 	i = n + 1;
 	xv = (x2 - x1) / i;

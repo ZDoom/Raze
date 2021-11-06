@@ -919,10 +919,10 @@ void activatebysector_r(int sect, DDukeActor* activator)
 //
 //---------------------------------------------------------------------------
 
-static void lotsofpopcorn(DDukeActor *actor, short wallnum, short n)
+static void lotsofpopcorn(DDukeActor *actor, int wallnum, int n)
 {
 	int j, xv, yv, z, x1, y1;
-	short sect, a;
+	int sect, a;
 
 	sect = -1;
 	auto sp = actor->s;
@@ -976,7 +976,8 @@ static void lotsofpopcorn(DDukeActor *actor, short wallnum, short n)
 
 void checkhitwall_r(DDukeActor* spr, int dawallnum, int x, int y, int z, int atwith)
 {
-	short j, i, sn = -1, darkestwall;
+	short j, i;
+	int sn = -1, darkestwall;
 	walltype* wal;
 	spritetype* s;
 

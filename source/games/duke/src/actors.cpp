@@ -2894,7 +2894,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 					auto psp = ps[p].GetActor();
 					if (psp->s->extra > 0)
 					{
-						short k = ps[p].cursectnum;
+						int k = ps[p].cursectnum;
 						updatesector(ps[p].pos.x, ps[p].pos.y, &k);
 						if ((k == -1 && ud.clipping == 0) || (k == s->sectnum && ps[p].cursectnum != s->sectnum))
 						{
@@ -2978,7 +2978,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 				{
 					if (ps[p].GetActor()->s->extra > 0)
 					{
-						short k = ps[p].cursectnum;
+						int k = ps[p].cursectnum;
 						updatesector(ps[p].pos.x, ps[p].pos.y, &k);
 						if ((k == -1 && ud.clipping == 0) || (k == s->sectnum && ps[p].cursectnum != s->sectnum))
 						{
@@ -3000,7 +3000,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 				{
 					if (a2->s->statnum == 1 && badguy(a2) && a2->s->picnum != SECTOREFFECTOR && a2->s->picnum != LOCATORS)
 					{
-						short k = a2->s->sectnum;
+						int k = a2->s->sectnum;
 						updatesector(a2->s->x, a2->s->y, &k);
 						if (a2->s->extra >= 0 && k == s->sectnum)
 						{
@@ -3083,7 +3083,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 					auto psp = ps[p].GetActor();
 					if (psp->s->extra > 0)
 					{
-						short k = ps[p].cursectnum;
+						int k = ps[p].cursectnum;
 						updatesector(ps[p].pos.x, ps[p].pos.y, &k);
 						if ((k == -1 && ud.clipping == 0) || (k == s->sectnum && ps[p].cursectnum != s->sectnum))
 						{
@@ -3146,7 +3146,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 				for (int p = connecthead; p >= 0; p = connectpoint2[p])
 					if (ps[p].GetActor()->s->extra > 0)
 					{
-						short k = ps[p].cursectnum;
+						int k = ps[p].cursectnum;
 						updatesector(ps[p].pos.x, ps[p].pos.y, &k);
 						if ((k == -1 && ud.clipping == 0) || (k == s->sectnum && ps[p].cursectnum != s->sectnum))
 						{
@@ -3172,7 +3172,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 					{
 						//					if(a2->s.sectnum != s->sectnum)
 						{
-							short k = a2->s->sectnum;
+							int k = a2->s->sectnum;
 							updatesector(a2->s->x, a2->s->y, &k);
 							if (a2->s->extra >= 0 && k == s->sectnum)
 							{

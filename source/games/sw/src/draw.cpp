@@ -274,7 +274,7 @@ DoShadows(spritetype* tsprite, int& spritesortcnt, tspriteptr_t tsp, int viewz, 
     int loz;
     short xrepeat;
     short yrepeat;
-    short sectnum;
+    int sectnum;
 
     sectnum = tsp->sectnum;
     // make sure its the correct sector

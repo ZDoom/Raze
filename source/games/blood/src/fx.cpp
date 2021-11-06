@@ -196,7 +196,7 @@ void CFX::fxProcess(void)
     {
         spritetype *pSprite = &actor->s();
         viewBackupSpriteLoc(actor);
-        short nSector = pSprite->sectnum;
+        int nSector = pSprite->sectnum;
         assert(nSector >= 0 && nSector < kMaxSectors);
         assert(pSprite->type < kFXMax);
         FXDATA *pFXData = &gFXData[pSprite->type];

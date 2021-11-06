@@ -343,7 +343,7 @@ void spawntransporter(DDukeActor *actj, DDukeActor* acti, bool beam)
 int spawnbloodpoolpart1(DDukeActor *actj, DDukeActor* acti)
 {
 	auto sp = acti->s;
-	short s1 = sp->sectnum;
+	int s1 = sp->sectnum;
 
 	updatesector(sp->x + 108, sp->y + 108, &s1);
 	if (s1 >= 0 && sector[s1].floorz == sp->sector()->floorz)
@@ -386,21 +386,19 @@ void initfootprint(DDukeActor* actj, DDukeActor* acti)
 	int sect = sp->sectnum;
 	if (actj)
 	{
-		short s1;
-		s1 = sp->sectnum;
-		auto sect1 = &sector[s1];
+		int s1 = sp->sectnum;
 
 		updatesector(sp->x + 84, sp->y + 84, &s1);
-		if (s1 >= 0 && sect1->floorz == sp->sector()->floorz)
+		if (s1 >= 0 && sector[s1].floorz == sp->sector()->floorz)
 		{
 			updatesector(sp->x - 84, sp->y - 84, &s1);
-			if (s1 >= 0 && sect1->floorz == sp->sector()->floorz)
+			if (s1 >= 0 && sector[s1].floorz == sp->sector()->floorz)
 			{
 				updatesector(sp->x + 84, sp->y - 84, &s1);
-				if (s1 >= 0 && sect1->floorz == sp->sector()->floorz)
+				if (s1 >= 0 && sector[s1].floorz == sp->sector()->floorz)
 				{
 					updatesector(sp->x - 84, sp->y + 84, &s1);
-					if (s1 >= 0 && sect1->floorz != sp->sector()->floorz)
+					if (s1 >= 0 && sector[s1].floorz != sp->sector()->floorz)
 					{
 						sp->xrepeat = sp->yrepeat = 0; changeactorstat(acti, STAT_MISC); return;
 					}
@@ -1126,7 +1124,7 @@ void spawneffector(DDukeActor* actor)
 void lotsofglass(DDukeActor *actor, int wallnum, int n)
 {
 	int j, xv, yv, z, x1, y1, a;
-	short sect;
+	int sect;
 	auto sp = actor->s;
 
 	sect = -1;
@@ -1234,7 +1232,7 @@ void ceilingglass(DDukeActor* actor, int sectnum, int n)
 void lotsofcolourglass(DDukeActor* actor, int wallnum, int n)
 {
 	int j, xv, yv, z, x1, y1;
-	short sect = -1;
+	int sect = -1;
 	int a;;
 	auto sp = actor->s;
 

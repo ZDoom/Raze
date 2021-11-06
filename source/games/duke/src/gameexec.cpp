@@ -2780,7 +2780,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_ifawayfromwall:
 	{
-		short s1;
+		int s1;
 
 		s1 = g_sp->sectnum;
 

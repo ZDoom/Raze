@@ -475,7 +475,7 @@ void PlayerHorizon::calcviewpitch(vec2_t const pos, binangle const ang, bool con
 			int const shift = -(isBlood() ? BLOODSINSHIFT : DEFSINSHIFT);
 			int const x = pos.x + ang.bcos(shift);
 			int const y = pos.y + ang.bsin(shift);
-			int16_t tempsect = cursectnum;
+			int tempsect = cursectnum;
 			updatesector(x, y, &tempsect);
 
 			if (tempsect >= 0) // If the new point is inside a valid sector...

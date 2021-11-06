@@ -3307,7 +3307,7 @@ void renderCompleteMirror(void)
 EXTERN_CVAR(Int, gl_fogmode)
 
 int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
-    fixed_t daang, fixed_t dahoriz, int16_t dacursectnum)
+    fixed_t daang, fixed_t dahoriz, int dacursectnum)
 {
     pm_spritesortcnt = 0;
     checkRotatedWalls();

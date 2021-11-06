@@ -641,7 +641,7 @@ void activatebysector_d(int sect, DDukeActor* activator)
 
 void checkhitwall_d(DDukeActor* spr, int dawallnum, int x, int y, int z, int atwith)
 {
-	short j, sn = -1, darkestwall;
+	int j, sn = -1, darkestwall;
 	walltype* wal;
 
 	wal = &wall[dawallnum];
