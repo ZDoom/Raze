@@ -777,7 +777,7 @@ void KillActor(DSWActor* actor)
         {
             SetSuicide(u->flameActor);
         }
-        User[actor->GetSpriteIndex()].Clear();
+        actor->clearUser();
     }
 
     FVector3 pos = GetSoundPos(&actor->s().pos);
@@ -869,8 +869,8 @@ USERp SpawnUser(DSWActor* actor, short id, STATEp state)
 
     ASSERT(!Prediction);
 
-    User[actor->GetSpriteIndex()].Clear();    // make sure to delete old, stale content first!
-    User[actor->GetSpriteIndex()].Alloc();
+    actor->clearUser();    // make sure to delete old, stale content first!
+    actor->allocUser();
     u = actor->u();
 
     PRODUCTION_ASSERT(u != nullptr);
@@ -4970,13 +4970,9 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
 
 }
 
-int
-DoStayOnFloor(DSWActor* actor)
+int DoStayOnFloor(DSWActor* actor)
 {
-    USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    sprite[SpriteNum].z = sector[sprite[SpriteNum].sectnum].floorz;
-    //sprite[SpriteNum].z = getflorzofslope(sprite[SpriteNum].sectnum, sprite[SpriteNum].x, sprite[SpriteNum].y);
+    actor->s().z = sector[actor->s().sectnum].floorz;
     return 0;
 }
 
@@ -4984,10 +4980,9 @@ int
 DoGrating(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    SPRITEp sp = &actor->s();
     int dir;
-#define GRATE_FACTOR 3
+    const int GRATE_FACTOR = 3;
 
     // reduce to 0 to 3 value
     dir = sp->ang >> 9;
@@ -5012,66 +5007,30 @@ DoGrating(DSWActor* actor)
     if (sp->hitag <= 0)
     {
         change_actor_stat(actor, STAT_DEFAULT);
-        User[SpriteNum].Clear();
+        actor->clearUser();
     }
 
-    setspritez(SpriteNum, &sp->pos);
+    SetActorZ(actor, &sp->pos);
 
     return 0;
 }
 
-#if 0
-int
-DoSpriteFade(short SpriteNum)
-{
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = User[SpriteNum]->SpriteP;
-    short i;
-
-    // adjust Shade based on clock
-
-    for (i = 0; i < ACTORMOVETICS; i++)
-    {
-        if (TEST(u->Flags, SPR_SHADE_DIR))
-        {
-            sp->shade++;
-
-            if (sp->shade >= 10)
-                RESET(u->Flags, SPR_SHADE_DIR);
-        }
-        else
-        {
-            sp->shade--;
-
-            if (sp->shade <= -40)
-                SET(u->Flags, SPR_SHADE_DIR);
-        }
-    }
-    return 0;
-}
-#endif
 
 
-int
-DoKey(DSWActor* actor)
+int DoKey(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    SPRITEp sp = &actor->s();
 
     sp->ang = NORM_ANGLE(sp->ang + (14 * ACTORMOVETICS));
-
-    //DoSpriteFade(SpriteNum);
 
     DoGet(actor);
     return 0;
 }
 
-int
-DoCoin(DSWActor* actor)
+int DoCoin(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
     int offset;
 
     u->WaitTics -= ACTORMOVETICS * 2;
