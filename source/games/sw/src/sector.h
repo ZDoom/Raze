@@ -60,7 +60,8 @@ enum SO_SCALE_TYPE
 typedef struct
 {
     int dist;
-    short sectnum, wallnum, spritenum;
+    short sectnum, wallnum;
+    DSWActor* actor;
 } NEAR_TAG_INFO, *NEAR_TAG_INFOp;
 extern short nti_cnt;
 

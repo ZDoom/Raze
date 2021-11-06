@@ -2181,7 +2181,7 @@ void NearTagList(NEAR_TAG_INFOp ntip, PLAYERp pp, int z, int dist, int type, int
         ntip->dist = neartaghitdist;
         ntip->sectnum = neartagsector;
         ntip->wallnum = -1;
-        ntip->spritenum = -1;
+        ntip->actor = nullptr;
         nti_cnt++;
         ntip++;
 
@@ -2207,10 +2207,10 @@ void NearTagList(NEAR_TAG_INFOp ntip, PLAYERp pp, int z, int dist, int type, int
         ntip->dist = neartaghitdist;
         ntip->sectnum = -1;
         ntip->wallnum = neartagwall;
-        ntip->spritenum = -1;
+        ntip->actor = nullptr;
         nti_cnt++;
         ntip++;
-
+        
         if (nti_cnt >= count)
             return;
 
@@ -2226,7 +2226,8 @@ void NearTagList(NEAR_TAG_INFOp ntip, PLAYERp pp, int z, int dist, int type, int
     }
     else if (neartagsprite >= 0)
     {
-        auto sp = &sprite[neartagsprite];
+        auto actor = &swActors[neartagsprite];
+        auto sp = &actor->s();
         // save off values
         save_lotag = sp->lotag;
         save_hitag = sp->hitag;
@@ -2234,7 +2235,7 @@ void NearTagList(NEAR_TAG_INFOp ntip, PLAYERp pp, int z, int dist, int type, int
         ntip->dist = neartaghitdist;
         ntip->sectnum = -1;
         ntip->wallnum = -1;
-        ntip->spritenum = neartagsprite;
+        ntip->actor = actor;
         nti_cnt++;
         ntip++;
 
@@ -2256,7 +2257,7 @@ void NearTagList(NEAR_TAG_INFOp ntip, PLAYERp pp, int z, int dist, int type, int
         ntip->dist = -1;
         ntip->sectnum = -1;
         ntip->wallnum = -1;
-        ntip->spritenum = -1;
+        ntip->actor = nullptr;
         nti_cnt++;
         ntip++;
 
@@ -2345,9 +2346,9 @@ void PlayerOperateEnv(PLAYERp pp)
             // try and find a sprite
             for (nt_ndx = 0; nti[nt_ndx].dist >= 0; nt_ndx++)
             {
-                if (nti[nt_ndx].spritenum >= 0 && nti[nt_ndx].dist < 1024 + 768)
+                if (nti[nt_ndx].actor != nullptr && nti[nt_ndx].dist < 1024 + 768)
                 {
-                    if (OperateSprite(&swActors[nti[nt_ndx].spritenum], true))
+                    if (OperateSprite(nti[nt_ndx].actor, true))
                     {
                         pp->KeyPressBits &= ~SB_OPEN;
                         found = true;
@@ -2374,9 +2375,9 @@ void PlayerOperateEnv(PLAYERp pp)
 
                     for (nt_ndx = 0; nti[nt_ndx].dist >= 0; nt_ndx++)
                     {
-                        if (nti[nt_ndx].spritenum >= 0 && nti[nt_ndx].dist < 1024 + 768)
+                        if (nti[nt_ndx].actor != nullptr && nti[nt_ndx].dist < 1024 + 768)
                         {
-                            if (OperateSprite(&swActors[nti[nt_ndx].spritenum], true))
+                            if (OperateSprite(nti[nt_ndx].actor, true))
                             {
                                 pp->KeyPressBits &= ~SB_OPEN;
                                 break;
