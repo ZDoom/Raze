@@ -692,38 +692,39 @@ void prelevel_common(int g)
 
     for (i = 0; i < numsectors; i++)
     {
-        sector[i].extra = 256;
+        auto sectp = &sector[i];
+        sectp->extra = 256;
 
-        switch (sector[i].lotag)
+        switch (sectp->lotag)
         {
         case 20:
         case 22:
-            if (sector[i].floorz > sector[i].ceilingz)
-                sector[i].lotag |= 32768;
+            if (sectp->floorz > sectp->ceilingz)
+                sectp->lotag |= 32768;
             continue;
         }
 
-        if (sector[i].ceilingstat & 1)
+        if (sectp->ceilingstat & 1)
         {
-            //setupbackdrop(sector[i].ceilingpicnum);
+            //setupbackdrop(sectp->ceilingpicnum);
 
-            if (sector[i].ceilingpicnum == TILE_CLOUDYSKIES && numclouds < 127)
+            if (sectp->ceilingpicnum == TILE_CLOUDYSKIES && numclouds < 127)
                 clouds[numclouds++] = i;
 
             if (ps[0].one_parallax_sectnum == -1)
                 ps[0].one_parallax_sectnum = i;
         }
 
-        if (sector[i].lotag == 32767) //Found a secret room
+        if (sectp->lotag == 32767) //Found a secret room
         {
             ps[0].max_secret_rooms++;
             continue;
         }
 
-        if (sector[i].lotag == -1)
+        if (sectp->lotag == -1)
         {
-            ps[0].exitx = wall[sector[i].wallptr].x;
-            ps[0].exity = wall[sector[i].wallptr].y;
+            ps[0].exitx = wall[sectp->wallptr].x;
+            ps[0].exity = wall[sectp->wallptr].y;
             continue;
         }
     }
@@ -886,7 +887,8 @@ static void SpawnPortals()
     // There is one map where a sector neighboring a portal is not marked as part of the portal itself.
     for (int i = 0; i < numsectors; i++)
     {
-        if (sector[i].floorpicnum == FOF && sector[i].portalflags != PORTAL_SECTOR_FLOOR)
+        auto sectp = &sector[i];
+        if (sectp->floorpicnum == FOF && sectp->portalflags != PORTAL_SECTOR_FLOOR)
         {
             for (auto& pt : allPortals)
             {
@@ -896,8 +898,8 @@ static void SpawnPortals()
                     {
                         if (findwallbetweensectors(i, t) >= 0)
                         {
-                            sector[i].portalflags = PORTAL_SECTOR_FLOOR;
-                            sector[i].portalnum = uint8_t(1 ^ (&pt - allPortals.Data()));
+                            sectp->portalflags = PORTAL_SECTOR_FLOOR;
+                            sectp->portalnum = uint8_t(1 ^ (&pt - allPortals.Data()));
                             pt.targets.Push(i);
                             goto nexti;
                         }
@@ -905,7 +907,7 @@ static void SpawnPortals()
                 }
             }
         }
-        else if (sector[i].ceilingpicnum == FOF && sector[i].portalflags != PORTAL_SECTOR_CEILING)
+        else if (sectp->ceilingpicnum == FOF && sectp->portalflags != PORTAL_SECTOR_CEILING)
         {
             for (auto& pt : allPortals)
             {
@@ -915,8 +917,8 @@ static void SpawnPortals()
                     {
                         if (findwallbetweensectors(i, t) >= 0)
                         {
-                            sector[i].portalflags = PORTAL_SECTOR_CEILING;
-                            sector[i].portalnum = uint8_t(1 ^ (&pt - allPortals.Data()));
+                            sectp->portalflags = PORTAL_SECTOR_CEILING;
+                            sectp->portalnum = uint8_t(1 ^ (&pt - allPortals.Data()));
                             pt.targets.Push(i);
                             goto nexti;
                         }

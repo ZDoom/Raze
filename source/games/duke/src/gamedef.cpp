@@ -2007,7 +2007,7 @@ int ConCompiler::parsecommand()
 	{
 		int lLabelID;
 		// syntax getsector[<var>].x <VAR>
-		// gets the value of sector[<var>].xxx into <VAR>
+		// gets the value of sector [<var>].xxx into <VAR>
 
 		// now get name of .xxx
 		while ((*textptr != '['))
@@ -2592,7 +2592,7 @@ int ConCompiler::parsecommand()
 	{
 		int lLabelID;
 		// syntax getsector[<var>].x <VAR>
-		// gets the value of sector[<var>].xxx into <VAR>
+		// gets the value of sector [<var>].xxx into <VAR>
 
 		// now get name of .xxx
 		while ((*textptr != '['))
