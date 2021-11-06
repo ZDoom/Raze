@@ -405,7 +405,7 @@ int32_t try_facespr_intersect(uspriteptr_t const spr, vec3_t const in,
 #define INITIALUPDATESECTORDIST 256
 void updatesector(int const x, int const y, int * const sectnum) ATTRIBUTE((nonnull(3)));
 [[deprecated]] 
-inline void updatesector(int32_t const x, int32_t const y, int16_t * const sectnum) ATTRIBUTE((nonnull(3)))
+inline void updatesector(int32_t const x, int32_t const y, int16_t * const sectnum)
 {
 	int snum = *sectnum;
 	updatesector(x, y, &snum);
