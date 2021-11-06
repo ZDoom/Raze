@@ -30,7 +30,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-void KillSprite(int16_t SpriteNum);
 void KillActor(DSWActor* actor);
 DSWActor* SpawnActor(short stat, short id, STATEp state, short sectnum, int x, int y, int z, int ang, int vel);
 void SpriteSetup(void);

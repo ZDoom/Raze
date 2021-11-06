@@ -1184,7 +1184,6 @@ int DoRipperPain(DSWActor* actor)
 
 
 // CTW MODIFICATION
-//int DoRipperRipHeart(SpriteNum)
 int DoRipperRipHeart(DSWActor* actor)
 // CTW MODIFICATION END
 {
@@ -1202,7 +1201,6 @@ int DoRipperRipHeart(DSWActor* actor)
 }
 
 
-//int DoRipperStandHeart(SpriteNum)
 int DoRipperStandHeart(DSWActor* actor)
 {
     USER* u = actor->u();

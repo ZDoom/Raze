@@ -599,8 +599,6 @@ int DoTrashCan(DSWActor* actor)
     USER* u = actor->u();
     SPRITEp sp = &actor->s();
 
-    //(*u->ActorActionFunc) (SpriteNum);
-
     // stay on floor unless doing certain things
     if (TEST(u->Flags,SPR_SLIDING))
         DoActorSlide(actor);
@@ -1290,9 +1288,6 @@ int DoCarGirl(DSWActor* actor)
         }
     }
 
-    //(*u->ActorActionFunc) (SpriteNum);
-
-
     // stay on floor unless doing certain things
     if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING | SPR_CLIMBING))
     {
@@ -1507,9 +1502,6 @@ int DoMechanicGirl(DSWActor* actor)
             u->FlagOwner = 0;
         }
     }
-
-    //(*u->ActorActionFunc) (SpriteNum);
-
 
     // stay on floor unless doing certain things
     if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING | SPR_CLIMBING))
@@ -1731,9 +1723,6 @@ int DoSailorGirl(DSWActor* actor)
         }
     }
 
-    //(*u->ActorActionFunc) (SpriteNum);
-
-
     // stay on floor unless doing certain things
     if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING | SPR_CLIMBING))
     {
@@ -1953,9 +1942,6 @@ int DoPruneGirl(DSWActor* actor)
                 PlaySound(DIGI_LANI091, actor, v3df_dontpan, CHAN_CoyHandle);
         }
     }
-
-    //(*u->ActorActionFunc) (SpriteNum);
-
 
     // stay on floor unless doing certain things
     if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING | SPR_CLIMBING))

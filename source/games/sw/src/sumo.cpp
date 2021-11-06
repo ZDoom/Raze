@@ -740,7 +740,6 @@ int InitSumoFart(DSWActor* actor)
 int InitSumoStomp(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &actor->s();
 
     PlaySound(DIGI_SUMOSTOMP, actor, v3df_none);
