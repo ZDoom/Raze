@@ -4630,10 +4630,9 @@ bool SpriteOverlap(DSWActor* actor_a, DSWActor* actor_b)
 
 }
 
-bool
-SpriteOverlapZ(int16_t spritenum_a, int16_t spritenum_b, int z_overlap)
+bool SpriteOverlapZ(DSWActor* actor_a, DSWActor* actor_b, int z_overlap)
 {
-    SPRITEp spa = &sprite[spritenum_a], spb = &sprite[spritenum_b];
+    SPRITEp spa = &actor_a->s(), spb = &actor_b->s();
 
     int spa_tos, spa_bos, spb_tos, spb_bos;
 

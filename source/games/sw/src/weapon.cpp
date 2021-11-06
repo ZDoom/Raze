@@ -12550,7 +12550,7 @@ int InitSwordAttack(PLAYERp pp)
 
             if (dist < CLOSE_RANGE_DIST_FUDGE(sp, psp, reach) && PLAYER_FACING_RANGE(pp, sp, face))
             {
-                if (SpriteOverlapZ(pp->Actor()->GetSpriteIndex(), itActor->GetSpriteIndex(), Z(20)))
+                if (SpriteOverlapZ(pp->Actor(), itActor, Z(20)))
                 {
                     if (FAFcansee(sp->x, sp->y, SPRITEp_MID(sp), sp->sectnum, psp->x, psp->y, SPRITEp_MID(psp), psp->sectnum))
                         DoDamage(itActor, pp->Actor());
@@ -12735,7 +12735,7 @@ int InitFistAttack(PLAYERp pp)
 
             if (dist < CLOSE_RANGE_DIST_FUDGE(sp, psp, reach) && PLAYER_FACING_RANGE(pp, sp, face))
             {
-                if (SpriteOverlapZ(pp->Actor()->GetSpriteIndex(), itActor->GetSpriteIndex(), Z(20)) || face == 190)
+                if (SpriteOverlapZ(pp->Actor(), itActor, Z(20)) || face == 190)
                 {
                     if (FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,psp->x,psp->y,SPRITEp_MID(psp),psp->sectnum))
                         DoDamage(itActor, pp->Actor());
@@ -13065,7 +13065,7 @@ int InitMiniSumoClap(DSWActor* actor)
 
     if (dist < CLOSE_RANGE_DIST_FUDGE(tsp, sp, 1000))
     {
-        if (SpriteOverlapZ(actor->GetSpriteIndex(), u->targetActor->GetSpriteIndex(), Z(20)))
+        if (SpriteOverlapZ(actor, u->targetActor, Z(20)))
         {
             if (FAFcansee(tsp->x, tsp->y, ActorMid(u->targetActor), tsp->sectnum, sp->x, sp->y, SPRITEp_MID(sp), sp->sectnum))
             {
