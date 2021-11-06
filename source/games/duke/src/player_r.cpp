@@ -1423,7 +1423,7 @@ int doincrements_r(struct player_struct* p)
 		}
 	}
 
-	if (p->scuba_on == 0 && sector[p->cursectnum].lotag == 2)
+	if (p->scuba_on == 0 && p->cursector()->lotag == 2)
 	{
 		if (p->scuba_amount > 0)
 		{
@@ -2079,12 +2079,12 @@ static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int
 					p->dummyplayersprite = spawn(pact, PLAYERONWATER);
 
 				p->footprintcount = 6;
-				if (sector[p->cursectnum].floorpicnum == FLOORSLIME)
+				if (p->cursector()->floorpicnum == FLOORSLIME)
 				{
 					p->footprintpal = 8;
 					p->footprintshade = 0;
 				}
-				else if (isRRRA() && (sector[p->cursectnum].floorpicnum == RRTILE7756 || sector[p->cursectnum].floorpicnum == RRTILE7888))
+				else if (isRRRA() && (p->cursector()->floorpicnum == RRTILE7756 || p->cursector()->floorpicnum == RRTILE7888))
 				{
 					p->footprintpal = 0;
 					p->footprintshade = 40;
@@ -2143,10 +2143,10 @@ static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int
 			if ((p->pos.z + p->poszv) >= (fz - (i << 8))) // hit the ground
 			{
 				S_StopSound(DUKE_SCREAM, pact);
-				if (sector[p->cursectnum].lotag != 1)
+				if (p->cursector()->lotag != 1)
 				{
 					if (isRRRA()) p->MotoOnGround = 1;
-					if (p->falling_counter > 62 || (isRRRA() && p->falling_counter > 2 && sector[p->cursectnum].lotag == 802))
+					if (p->falling_counter > 62 || (isRRRA() && p->falling_counter > 2 && p->cursector()->lotag == 802))
 						quickkill(p);
 
 					else if (p->falling_counter > 9)
@@ -3564,7 +3564,7 @@ void processinput_r(int snum)
 	s->xvel = clamp(ksqrt((p->pos.x - p->bobposx) * (p->pos.x - p->bobposx) + (p->pos.y - p->bobposy) * (p->pos.y - p->bobposy)), 0, 512);
 	if (p->on_ground) p->bobcounter += p->GetActor()->s->xvel >> 1;
 
-	p->backuppos(ud.clipping == 0 && (sector[p->cursectnum].floorpicnum == MIRROR || p->cursectnum < 0 || p->cursectnum >= MAXSECTORS));
+	p->backuppos(ud.clipping == 0 && (p->cursector()->floorpicnum == MIRROR || p->cursectnum < 0 || p->cursectnum >= MAXSECTORS));
 
 	// Shrinking code
 
@@ -3675,7 +3675,7 @@ void processinput_r(int snum)
 					break;
 				case 1:
 					if ((krand() & 1) == 0)
-						if  (!isRRRA() || (!p->OnBoat && !p->OnMotorcycle && sector[p->cursectnum].hitag != 321))
+						if  (!isRRRA() || (!p->OnBoat && !p->OnMotorcycle && p->cursector()->hitag != 321))
 							S_PlayActorSound(DUKE_ONWATER, pact);
 					p->walking_snd_toggle = 1;
 					break;
@@ -3770,7 +3770,7 @@ HORIZONLY:
 	if (psectlotag == 1 || p->spritebridge == 1) i = (4L << 8);
 	else i = (20L << 8);
 
-	if (sector[p->cursectnum].lotag == 2) k = 0;
+	if (p->cursector()->lotag == 2) k = 0;
 	else k = 1;
 
 	Collision clip{};
@@ -3905,9 +3905,9 @@ HORIZONLY:
 		}
 	}
 
-	if (truefdist < gs.playerheight && p->on_ground && psectlotag != 1 && shrunk == 0 && sector[p->cursectnum].lotag == 1)
+	if (truefdist < gs.playerheight && p->on_ground && psectlotag != 1 && shrunk == 0 && p->cursector()->lotag == 1)
 		if (!S_CheckActorSoundPlaying(pact, DUKE_ONWATER))
-			if (!isRRRA() || (!p->OnBoat && !p->OnMotorcycle && sector[p->cursectnum].hitag != 321))
+			if (!isRRRA() || (!p->OnBoat && !p->OnMotorcycle && p->cursector()->hitag != 321))
 				S_PlayActorSound(DUKE_ONWATER, pact);
 
 	if (p->cursectnum != s->sectnum)
@@ -3940,7 +3940,7 @@ HORIZONLY:
 			fi.activatebysector(psect, pact);
 	}
 
-	if (ud.clipping == 0 && sector[p->cursectnum].ceilingz > (sector[p->cursectnum].floorz - (12 << 8)))
+	if (ud.clipping == 0 && p->cursector()->ceilingz > (p->cursector()->floorz - (12 << 8)))
 	{
 		quickkill(p);
 		return;
@@ -4044,7 +4044,7 @@ void processmove_r(int snum, ESyncBits actions, int psect, int fz, int cz, int s
 
 void OnMotorcycle(struct player_struct *p, DDukeActor* motosprite)
 {
-	if (!p->OnMotorcycle && !(sector[p->cursectnum].lotag == 2))
+	if (!p->OnMotorcycle && !(p->cursector()->lotag == 2))
 	{
 		if (motosprite)
 		{

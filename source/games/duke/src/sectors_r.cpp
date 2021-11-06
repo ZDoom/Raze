@@ -2445,17 +2445,17 @@ void checksectors_r(int snum)
 	p = &ps[snum];
 	auto pact = p->GetActor();
 
-	switch (sector[p->cursectnum].lotag)
+	switch (p->cursector()->lotag)
 	{
 
 	case 32767:
-		sector[p->cursectnum].lotag = 0;
+		p->cursector()->lotag = 0;
 		FTA(9, p);
 		p->secret_rooms++;
 		SECRET_Trigger(p->cursectnum);
 		return;
 	case -1:
-		sector[p->cursectnum].lotag = 0;
+		p->cursector()->lotag = 0;
 		if (!isRRRA() || !RRRA_ExitedLevel)
 		{
 			setnextmap(false);
@@ -2463,16 +2463,16 @@ void checksectors_r(int snum)
 		}
 		return;
 	case -2:
-		sector[p->cursectnum].lotag = 0;
+		p->cursector()->lotag = 0;
 		p->timebeforeexit = 26 * 8;
-		p->customexitsound = sector[p->cursectnum].hitag;
+		p->customexitsound = p->cursector()->hitag;
 		return;
 	default:
-		if (sector[p->cursectnum].lotag >= 10000)
+		if (p->cursector()->lotag >= 10000)
 		{
 			if (snum == screenpeek || ud.coop == 1)
-				S_PlayActorSound(sector[p->cursectnum].lotag - 10000, pact);
-			sector[p->cursectnum].lotag = 0;
+				S_PlayActorSound(p->cursector()->lotag - 10000, pact);
+			p->cursector()->lotag = 0;
 		}
 		break;
 
@@ -2598,7 +2598,7 @@ void checksectors_r(int snum)
 			return;
 
 		if (neartagsprite == nullptr && neartagwall == -1)
-			if (sector[p->cursectnum].lotag == 2)
+			if (p->cursector()->lotag == 2)
 			{
 				DDukeActor* hit;
 				oldz = hitasprite(p->GetActor(), &hit);

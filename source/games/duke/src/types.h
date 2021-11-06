@@ -292,6 +292,11 @@ struct player_struct
 		return (psectlotag == ST_2_UNDERWATER)? avel * 0.875f : avel;
 	}
 
+	sectortype* cursector() const
+	{
+		return &::sector[cursectnum];
+	}
+
 
 };
 

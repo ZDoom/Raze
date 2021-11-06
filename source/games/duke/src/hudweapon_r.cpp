@@ -150,7 +150,7 @@ void displayweapon_r(int snum, double smoothratio)
 		shade = p->GetActor()->s->shade;
 	if(shade > 24) shade = 24;
 
-	pal = p->GetActor()->s->pal == 1 ? 1 : pal = sector[p->cursectnum].floorpal;
+	pal = p->GetActor()->s->pal == 1 ? 1 : pal = p->cursector()->floorpal;
 
 	if(p->newOwner != nullptr || ud.cameraactor != nullptr || p->over_shoulder_on > 0 || (p->GetActor()->s->pal != 1 && p->GetActor()->s->extra <= 0))
 		return;

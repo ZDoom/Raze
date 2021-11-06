@@ -1561,7 +1561,7 @@ int doincrements_d(struct player_struct* p)
 		}
 	}
 
-	if (p->scuba_on == 0 && sector[p->cursectnum].lotag == 2)
+	if (p->scuba_on == 0 && p->cursector()->lotag == 2)
 	{
 		if (p->scuba_amount > 0)
 		{
@@ -1765,7 +1765,7 @@ static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int
 					p->dummyplayersprite = spawn(pact, PLAYERONWATER);
 
 				p->footprintcount = 6;
-				if (sector[p->cursectnum].floorpicnum == FLOORSLIME)
+				if (p->cursector()->floorpicnum == FLOORSLIME)
 					p->footprintpal = 8;
 				else p->footprintpal = 0;
 				p->footprintshade = 0;
@@ -1798,7 +1798,7 @@ static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int
 			if ((p->pos.z + p->poszv) >= (fz - (i << 8))) // hit the ground
 			{
 				S_StopSound(DUKE_SCREAM, pact);
-				if (sector[p->cursectnum].lotag != 1)
+				if (p->cursector()->lotag != 1)
 				{
 					if (p->falling_counter > 62) quickkill(p);
 
@@ -2146,7 +2146,7 @@ static void fireweapon(int snum)
 		if (isWorldTour() && p->ammo_amount[FLAMETHROWER_WEAPON] > 0) 
 		{
 			p->kickback_pic = 1;
-			if (sector[p->cursectnum].lotag != 2)
+			if (p->cursector()->lotag != 2)
 				S_PlayActorSound(FLAMETHROWER_INTRO, pact);
 		}
 		break;
@@ -2545,7 +2545,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 		p->kickback_pic++;
 		if (p->kickback_pic == 2) 
 		{
-			if (sector[p->cursectnum].lotag != 2) 
+			if (p->cursector()->lotag != 2) 
 			{
 				p->ammo_amount[FLAMETHROWER_WEAPON]--;
 				if (snum == screenpeek)
@@ -2845,7 +2845,7 @@ void processinput_d(int snum)
 	s->xvel = clamp(ksqrt((p->pos.x - p->bobposx) * (p->pos.x - p->bobposx) + (p->pos.y - p->bobposy) * (p->pos.y - p->bobposy)), 0, 512);
 	if (p->on_ground) p->bobcounter += p->GetActor()->s->xvel >> 1;
 
-	p->backuppos(ud.clipping == 0 && (sector[p->cursectnum].floorpicnum == MIRROR || p->cursectnum < 0 || p->cursectnum >= MAXSECTORS));
+	p->backuppos(ud.clipping == 0 && (p->cursector()->floorpicnum == MIRROR || p->cursectnum < 0 || p->cursectnum >= MAXSECTORS));
 
 	// Shrinking code
 
@@ -3007,7 +3007,7 @@ HORIZONLY:
 	if (psectlotag == 1 || p->spritebridge == 1) ii = (4L << 8);
 	else ii = (20L << 8);
 
-	if (sector[p->cursectnum].lotag == 2) k = 0;
+	if (p->cursector()->lotag == 2) k = 0;
 	else k = 1;
 
 	Collision clip{};
@@ -3061,7 +3061,7 @@ HORIZONLY:
 		}
 	}
 
-	if (truefdist < gs.playerheight && p->on_ground && psectlotag != 1 && shrunk == 0 && sector[p->cursectnum].lotag == 1)
+	if (truefdist < gs.playerheight && p->on_ground && psectlotag != 1 && shrunk == 0 && p->cursector()->lotag == 1)
 		if (!S_CheckActorSoundPlaying(pact, DUKE_ONWATER))
 			S_PlayActorSound(DUKE_ONWATER, pact);
 

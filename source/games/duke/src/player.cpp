@@ -84,8 +84,8 @@ int setpal(struct player_struct* p)
 	if (p->DrugMode) palette = DRUGPAL;
 	else if (p->heat_on) palette = SLIMEPAL;
 	else if (p->cursectnum < 0) palette = BASEPAL; // don't crash if out of range.
-	else if (sector[p->cursectnum].ceilingpicnum >= TILE_FLOORSLIME && sector[p->cursectnum].ceilingpicnum <= TILE_FLOORSLIME + 2) palette = SLIMEPAL;
-	else if (sector[p->cursectnum].lotag == ST_2_UNDERWATER) palette = WATERPAL;
+	else if (p->cursector()->ceilingpicnum >= TILE_FLOORSLIME && p->cursector()->ceilingpicnum <= TILE_FLOORSLIME + 2) palette = SLIMEPAL;
+	else if (p->cursector()->lotag == ST_2_UNDERWATER) palette = WATERPAL;
 	else palette = BASEPAL;
 	return palette;
 }
@@ -494,7 +494,7 @@ void footprints(int snum)
 	auto psect = s->sectnum;
 
 	if (p->footprintcount > 0 && p->on_ground)
-		if ((sector[p->cursectnum].floorstat & 2) != 2)
+		if ((p->cursector()->floorstat & 2) != 2)
 		{
 			int j = -1;
 			DukeSectIterator it(psect);
@@ -511,7 +511,7 @@ void footprints(int snum)
 			if (j < 0)
 			{
 				p->footprintcount--;
-				if (sector[p->cursectnum].lotag == 0 && sector[p->cursectnum].hitag == 0)
+				if (p->cursector()->lotag == 0 && p->cursector()->hitag == 0)
 				{
 					DDukeActor* fprint;
 					switch (krand() & 3)

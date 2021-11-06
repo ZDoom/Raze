@@ -363,7 +363,7 @@ void movedummyplayers(void)
 		p = act->GetOwner()->PlayerIndex();
 		auto spri = act->s;
 
-		if ((!isRR() && ps[p].on_crane != nullptr) || sector[ps[p].cursectnum].lotag != 1 || ps->GetActor()->s->extra <= 0)
+		if ((!isRR() && ps[p].on_crane != nullptr) || ps[p].cursector()->lotag != 1 || ps->GetActor()->s->extra <= 0)
 		{
 			ps[p].dummyplayersprite = nullptr;
 			deletesprite(act);
@@ -371,7 +371,7 @@ void movedummyplayers(void)
 		}
 		else
 		{
-			if (ps[p].on_ground && ps[p].on_warping_sector == 1 && sector[ps[p].cursectnum].lotag == 1)
+			if (ps[p].on_ground && ps[p].on_warping_sector == 1 && ps[p].cursector()->lotag == 1)
 			{
 				spri->cstat = CSTAT_SPRITE_BLOCK_ALL;
 				spri->z = spri->sector()->ceilingz + (27 << 8);
@@ -2918,7 +2918,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 		{
 			auto psp = ps[p].GetActor();
-			if (sector[ps[p].cursectnum].lotag != 2)
+			if (ps[p].cursector()->lotag != 2)
 			{
 				if (po[p].os == s->sectnum)
 				{
