@@ -692,7 +692,11 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_ROTSCRNANG:
-		if (bSet) ps[iPlayer].angle.rotscrnang = buildang(lValue);
+		if (bSet)
+		{
+			ps[iPlayer].angle.orotscrnang = ps[iPlayer].angle.rotscrnang;
+			ps[iPlayer].angle.rotscrnang = buildang(lValue);
+		}
 		else SetGameVarID(lVar2, ps[iPlayer].angle.rotscrnang.asbuild(), sActor, sPlayer);
 		break;
 
