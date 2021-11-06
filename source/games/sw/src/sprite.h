@@ -41,8 +41,6 @@ short PlayerVisible(short sn);
 short SpriteLookSector(short SpriteNum, short range);
 short SpriteCanGoForward(short SpriteNum, short range);
 void  SpriteFindNewDirection(short SpriteNum, short range);
-int DoWalk(short SpriteNum);
-int DoBody(short SpriteNum);
 bool CanMoveHere(int16_t spritenum);
 bool SpriteOverlap(DSWActor*, DSWActor*);
 int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath);

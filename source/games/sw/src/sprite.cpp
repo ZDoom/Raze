@@ -5248,9 +5248,9 @@ void ChoosePlayerGetSound(PLAYERp pp)
     PlayerSound(PlayerGetItemVocs[choose_snd], v3df_follow|v3df_dontpan,pp);
 }
 
-bool CanGetWeapon(PLAYERp pp, short SpriteNum, int WPN)
+bool CanGetWeapon(PLAYERp pp, DSWActor* actor, int WPN)
 {
-    USERp u = User[SpriteNum].Data();
+    USERp u = actor->u();
 
     switch (gNet.MultiGameType)
     {
@@ -5297,13 +5297,14 @@ struct InventoryDecl_t InventoryDecls[InvDecl_TOTAL] =
     {100 },
 };
 
-#define ITEMFLASHAMT  -8
-#define ITEMFLASHCLR  144
-int
-DoGet(DSWActor* actor)
+enum
+{
+    ITEMFLASHAMT = -8,
+    ITEMFLASHCLR = 144
+};
+int DoGet(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 	USERp pu;
     SPRITEp sp = &actor->s();
     PLAYERp pp;
@@ -5663,7 +5664,7 @@ KeyMain:
         //
         case ICON_STAR:
 
-            if (!CanGetWeapon(pp, SpriteNum, WPN_STAR))
+            if (!CanGetWeapon(pp, actor, WPN_STAR))
                 break;
 
             SET(pp->WpnGotOnceFlags, BIT(WPN_STAR));
@@ -5690,7 +5691,7 @@ KeyMain:
 
         case ICON_LG_MINE:
 
-            if (!CanGetWeapon(pp, SpriteNum, WPN_MINE))
+            if (!CanGetWeapon(pp, actor, WPN_MINE))
                 break;
 
             SET(pp->WpnGotOnceFlags, BIT(WPN_MINE));
@@ -5719,7 +5720,7 @@ KeyMain:
         case ICON_UZI:
         case ICON_UZIFLOOR:
 
-            if (!CanGetWeapon(pp, SpriteNum, WPN_UZI))
+            if (!CanGetWeapon(pp, actor, WPN_UZI))
                 break;
 
             SET(pp->WpnGotOnceFlags, BIT(WPN_UZI));
@@ -5775,7 +5776,7 @@ KeyMain:
 
         case ICON_MICRO_GUN:
 
-            if (!CanGetWeapon(pp, SpriteNum, WPN_MICRO))
+            if (!CanGetWeapon(pp, actor, WPN_MICRO))
                 break;
 
             SET(pp->WpnGotOnceFlags, BIT(WPN_MICRO));
@@ -5842,7 +5843,7 @@ KeyMain:
             break;
 
         case ICON_GRENADE_LAUNCHER:
-            if (!CanGetWeapon(pp, SpriteNum, WPN_GRENADE))
+            if (!CanGetWeapon(pp, actor, WPN_GRENADE))
                 break;
 
             SET(pp->WpnGotOnceFlags, BIT(WPN_GRENADE));
@@ -5912,7 +5913,7 @@ KeyMain:
         case ICON_RAIL_GUN:
             if (SW_SHAREWARE) { KillActor(actor); break; }
 
-            if (!CanGetWeapon(pp, SpriteNum, WPN_RAIL))
+            if (!CanGetWeapon(pp, actor, WPN_RAIL))
                 break;
 
             SET(pp->WpnGotOnceFlags, BIT(WPN_RAIL));
@@ -5960,7 +5961,7 @@ KeyMain:
             break;
 
         case ICON_SHOTGUN:
-            if (!CanGetWeapon(pp, SpriteNum, WPN_SHOTGUN))
+            if (!CanGetWeapon(pp, actor, WPN_SHOTGUN))
                 break;
 
             SET(pp->WpnGotOnceFlags, BIT(WPN_SHOTGUN));
@@ -6027,7 +6028,7 @@ KeyMain:
         case ICON_GUARD_HEAD:
             if (SW_SHAREWARE) { KillActor(actor); break; }
 
-            if (!CanGetWeapon(pp, SpriteNum, WPN_HOTHEAD))
+            if (!CanGetWeapon(pp, actor, WPN_HOTHEAD))
                 break;
 
             SET(pp->WpnGotOnceFlags, BIT(WPN_HOTHEAD));
@@ -6072,7 +6073,7 @@ KeyMain:
         case ICON_HEART:
             if (SW_SHAREWARE) { KillActor(actor); break; }
 
-            if (!CanGetWeapon(pp, SpriteNum, WPN_HEART))
+            if (!CanGetWeapon(pp, actor, WPN_HEART))
                 break;
 
             SET(pp->WpnGotOnceFlags, BIT(WPN_HEART));
