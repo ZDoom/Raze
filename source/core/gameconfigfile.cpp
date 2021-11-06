@@ -224,6 +224,7 @@ void FGameConfigFile::DoAutoloadSetup (/*FIWadManager *iwad_man*/)
 	CreateSectionAtStart("Duke.Duke.15.Autoload");
 	CreateSectionAtStart("Duke.Duke.13.Autoload");
 	CreateSectionAtStart("Duke.Duke.Autoload");
+	CreateSectionAtStart("Duke.PParadise.Autoload");
 	CreateSectionAtStart("Duke.Autoload");
 
 	CreateSectionAtStart("Global.Autoload");
@@ -239,17 +240,7 @@ void FGameConfigFile::DoAutoloadSetup (/*FIWadManager *iwad_man*/)
 	CreateStandardAutoExec("DukeNukem3D.DukeDC.AutoLoad", true);
 	CreateStandardAutoExec("DukeNukem3D.NWinter.AutoLoad", true);
 	CreateStandardAutoExec("DukeNukem3D.Vacation.AutoLoad", true);
-
-	CreateStandardAutoExec("ShadowWarrior.AutoLoad", true);
-	CreateStandardAutoExec("Redneck.RidesAgain.AutoLoad", true);
-	CreateStandardAutoExec("Redneck.Redneck.AutoLoad", true);
-	CreateStandardAutoExec("WW2GI.AutoLoad", true);
-	CreateStandardAutoExec("Nam.AutoLoad", true);
-	CreateStandardAutoExec("DukeNukem3D.AutoLoad", true);
-	CreateStandardAutoExec("DukeNukem3D.DN3D.AutoLoad", true);
-	CreateStandardAutoExec("DukeNukem3D.DukeDC.AutoLoad", true);
-	CreateStandardAutoExec("DukeNukem3D.NWinter.AutoLoad", true);
-	CreateStandardAutoExec("DukeNukem3D.Vacation.AutoLoad", true);
+	CreateStandardAutoExec("DukeNukem3D.PParadise.AutoLoad", true);
 
 	// Move search paths back to the top.
 	MoveSectionToStart("SoundfontSearch.Directories");

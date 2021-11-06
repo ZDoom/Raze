@@ -415,6 +415,32 @@ grpinfo
 	gamefilter "Duke.Zone.13"
 }
 
+// original .zip release
+grpinfo
+{
+	name "Duke Nukem's Penthouse Paradise"
+	scriptname "PPAKGAME.CON"
+	size 2112419
+	crc 0x7CD82A3B
+	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON
+	dependency DUKE15_CRC
+	gamefilter "Duke.PParadise"
+	exclepisodes "LUNAR APOCALYPSE", "SHRAPNEL CITY", "THE BIRTH"
+}
+
+// ZOOM Platform repacked .grp
+grpinfo
+{
+	name "Duke Nukem's Penthouse Paradise"
+	scriptname "PPAKGAME.CON"
+	size 4247491
+	crc 0xCF928A58
+	flags GAMEFLAG_DUKE|GAMEFLAG_ADDON
+	dependency DUKE15_CRC
+	gamefilter "Duke.PParadise"
+	exclepisodes "LUNAR APOCALYPSE", "SHRAPNEL CITY", "THE BIRTH"
+}
+
 grpinfo
 {
 	name "BLOOD: 1.0"
