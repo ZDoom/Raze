@@ -84,7 +84,7 @@ enum animtype_t
 	anim_vertexx,
 	anim_vertexy,
 };
-extern int16_t animatesect[MAXANIMATES];
+extern int animatesect[MAXANIMATES];
 extern int16_t animatetarget[MAXANIMATES];
 extern int8_t animatetype[MAXANIMATES];
 extern int animategoal[MAXANIMATES];
@@ -97,8 +97,8 @@ extern int cloudclock;
 
 extern DDukeActor *spriteq[1024];
 extern int16_t cyclers[MAXCYCLERS][6];
-extern int16_t mirrorsector[64];
-extern int16_t mirrorwall[64];
+extern int mirrorsector[64];
+extern int mirrorwall[64];
 
 extern int wupass;
 extern int chickenplant;

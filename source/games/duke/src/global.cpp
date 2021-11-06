@@ -99,7 +99,7 @@ uint8_t shadedsector[MAXSECTORS];			// display hackiness
 animwalltype animwall[MAXANIMWALLS];		// animated walls
 int numanimwalls;
 int animatecnt;								// sector plane movement
-int16_t animatesect[MAXANIMATES];
+int animatesect[MAXANIMATES];
 int8_t animatetype[MAXANIMATES];
 int16_t animatetarget[MAXANIMATES];
 int animategoal[MAXANIMATES];
@@ -112,8 +112,8 @@ int cloudclock;
 int numcyclers;								// sector lighting effects
 int16_t cyclers[MAXCYCLERS][6];
 int mirrorcnt;
-int16_t mirrorsector[64];					// mirrors
-int16_t mirrorwall[64];
+int mirrorsector[64];					// mirrors
+int mirrorwall[64];
 int numplayersprites;						// player management for some SEs.
 player_orig po[MAXPLAYERS];
 unsigned ambientfx;							// used by soundtag and soundtagonce script commands. If exported, export the commands, not the data!
