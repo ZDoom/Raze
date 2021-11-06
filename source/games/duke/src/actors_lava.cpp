@@ -341,23 +341,24 @@ void dojaildoor(void)
 				endwall = startwall + sector[jaildoorsect[i]].wallnum;
 				for (j = startwall; j < endwall; j++)
 				{
+					auto wal = &wall[j];
 					switch (jaildoordir[i])
 					{
 						case 10:
-							x = wall[j].x;
-							y = wall[j].y + speed;
+							x = wal->x;
+							y = wal->y + speed;
 							break;
 						case 20:
-							x = wall[j].x - speed;
-							y = wall[j].y;
+							x = wal->x - speed;
+							y = wal->y;
 							break;
 						case 30:
-							x = wall[j].x;
-							y = wall[j].y - speed;
+							x = wal->x;
+							y = wal->y - speed;
 							break;
 						case 40:
-							x = wall[j].x + speed;
-							y = wall[j].y;
+							x = wal->x + speed;
+							y = wal->y;
 							break;
 					}
 					dragpoint(j,x,y);
@@ -476,23 +477,24 @@ void moveminecart(void)
 				endwall = startwall + sector[minecartsect[i]].wallnum;
 				for (j = startwall; j < endwall; j++)
 				{
+					auto wal = &wall[j];
 					switch (minecartdir[i])
 					{
 						case 10:
-							x = wall[j].x;
-							y = wall[j].y + speed;
+							x = wal->x;
+							y = wal->y + speed;
 							break;
 						case 20:
-							x = wall[j].x - speed;
-							y = wall[j].y;
+							x = wal->x - speed;
+							y = wal->y;
 							break;
 						case 30:
-							x = wall[j].x;
-							y = wall[j].y - speed;
+							x = wal->x;
+							y = wal->y - speed;
 							break;
 						case 40:
-							x = wall[j].x + speed;
-							y = wall[j].y;
+							x = wal->x + speed;
+							y = wal->y;
 							break;
 					}
 					dragpoint(j,x,y);

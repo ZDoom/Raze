@@ -366,38 +366,39 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 		else if (hitwall >= 0)
 		{
 			spawn(spark, SMALLSMOKE);
+			auto wal = &wall[hitwall];
 
-			if (fi.isadoorwall(wall[hitwall].picnum) == 1)
+			if (fi.isadoorwall(wal->picnum) == 1)
 				goto SKIPBULLETHOLE;
-			if (isablockdoor(wall[hitwall].picnum) == 1)
+			if (isablockdoor(wal->picnum) == 1)
 				goto SKIPBULLETHOLE;
 			if (p >= 0 && (
-				wall[hitwall].picnum == DIPSWITCH ||
-				wall[hitwall].picnum == DIPSWITCH + 1 ||
-				wall[hitwall].picnum == DIPSWITCH2 ||
-				wall[hitwall].picnum == DIPSWITCH2 + 1 ||
-				wall[hitwall].picnum == DIPSWITCH3 ||
-				wall[hitwall].picnum == DIPSWITCH3 + 1 ||
-				(isRRRA() && wall[hitwall].picnum == RRTILE8660) ||
-				wall[hitwall].picnum == HANDSWITCH ||
-				wall[hitwall].picnum == HANDSWITCH + 1))
+				wal->picnum == DIPSWITCH ||
+				wal->picnum == DIPSWITCH + 1 ||
+				wal->picnum == DIPSWITCH2 ||
+				wal->picnum == DIPSWITCH2 + 1 ||
+				wal->picnum == DIPSWITCH3 ||
+				wal->picnum == DIPSWITCH3 + 1 ||
+				(isRRRA() && wal->picnum == RRTILE8660) ||
+				wal->picnum == HANDSWITCH ||
+				wal->picnum == HANDSWITCH + 1))
 			{
 				fi.checkhitswitch(p, hitwall, nullptr);
 				return;
 			}
 
-			if (wall[hitwall].hitag != 0 || (wall[hitwall].nextwall >= 0 && wall[wall[hitwall].nextwall].hitag != 0))
+			if (wal->hitag != 0 || (wal->nextwall >= 0 && wall[wal->nextwall].hitag != 0))
 				goto SKIPBULLETHOLE;
 
 			if (hitsect >= 0 && sector[hitsect].lotag == 0)
-				if (wall[hitwall].overpicnum != BIGFORCE)
-					if ((wall[hitwall].nextsector >= 0 && sector[wall[hitwall].nextsector].lotag == 0) ||
-						(wall[hitwall].nextsector == -1 && sector[hitsect].lotag == 0))
-						if ((wall[hitwall].cstat & 16) == 0)
+				if (wal->overpicnum != BIGFORCE)
+					if ((wal->nextsector >= 0 && sector[wal->nextsector].lotag == 0) ||
+						(wal->nextsector == -1 && sector[hitsect].lotag == 0))
+						if ((wal->cstat & 16) == 0)
 						{
-							if (wall[hitwall].nextsector >= 0)
+							if (wal->nextsector >= 0)
 							{
-								DukeSectIterator it(wall[hitwall].nextsector);
+								DukeSectIterator it(wal->nextsector);
 								while (auto l = it.Next())
 								{
 									if (l->s->statnum == 3 && l->s->lotag == 13)
@@ -414,17 +415,17 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 							}
 							auto l = spawn(spark, BULLETHOLE);
 							l->s->xvel = -1;
-							l->s->ang = getangle(wall[hitwall].x - wall[wall[hitwall].point2].x,
-								wall[hitwall].y - wall[wall[hitwall].point2].y) + 512;
+							l->s->ang = getangle(wal->x - wall[wal->point2].x,
+								wal->y - wall[wal->point2].y) + 512;
 							ssp(l, CLIPMASK0);
 						}
 
 		SKIPBULLETHOLE:
 
-			if (wall[hitwall].cstat & 2)
-				if (wall[hitwall].nextsector >= 0)
-					if (hitz >= (sector[wall[hitwall].nextsector].floorz))
-						hitwall = wall[hitwall].nextwall;
+			if (wal->cstat & 2)
+				if (wal->nextsector >= 0)
+					if (hitz >= (sector[wal->nextsector].floorz))
+						hitwall = wal->nextwall;
 
 			fi.checkhitwall(spark, hitwall, hitx, hity, hitz, SHOTSPARK1);
 		}
