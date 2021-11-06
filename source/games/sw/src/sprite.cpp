@@ -5063,9 +5063,8 @@ int DoCoin(DSWActor* actor)
     return 0;
 }
 
-int KillGet(short SpriteNum)
+int KillGet(DSWActor* actor)
 {
-    auto actor = &swActors[SpriteNum];
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
 
@@ -5108,9 +5107,8 @@ int KillGet(short SpriteNum)
     return 0;
 }
 
-int KillGetAmmo(short SpriteNum)
+int KillGetAmmo(DSWActor* actor)
 {
-    auto actor = &swActors[SpriteNum];
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
 
@@ -5161,9 +5159,8 @@ int KillGetAmmo(short SpriteNum)
     return 0;
 }
 
-int KillGetWeapon(short SpriteNum)
+int KillGetWeapon(DSWActor* actor)
 {
-    auto actor = &swActors[SpriteNum];
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
 
@@ -5456,7 +5453,7 @@ KeyMain:
                     break;
                 }
 
-                KillGet(SpriteNum);
+                KillGet(actor);
             }
             break;
 
@@ -5491,7 +5488,7 @@ KeyMain:
                     break;
                 }
 
-                KillGet(SpriteNum);
+                KillGet(actor);
             }
             break;
 
@@ -5528,7 +5525,7 @@ KeyMain:
                     break;
                 }
 
-                KillGet(SpriteNum);
+                KillGet(actor);
             }
             break;
 
@@ -5554,7 +5551,7 @@ KeyMain:
                     break;
                 }
 
-                KillGet(SpriteNum);
+                KillGet(actor);
             }
             break;
 
@@ -5569,7 +5566,7 @@ KeyMain:
                 SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
                 if (pp == Player+myconnectindex)
                     PlaySound(DIGI_ITEM, sp, v3df_dontpan);
-                KillGet(SpriteNum);
+                KillGet(actor);
             }
             break;
 
@@ -5584,7 +5581,7 @@ KeyMain:
                 SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
                 if (pp == Player+myconnectindex)
                     PlaySound(DIGI_ITEM, sp, v3df_dontpan);
-                KillGet(SpriteNum);
+                KillGet(actor);
             }
             break;
 
@@ -5601,7 +5598,7 @@ KeyMain:
                 SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
                 if (pp == Player+myconnectindex)
                     PlaySound(DIGI_ITEM, sp, v3df_dontpan);
-                KillGet(SpriteNum);
+                KillGet(actor);
             }
             break;
 
@@ -5615,7 +5612,7 @@ KeyMain:
                 SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
                 if (pp == Player+myconnectindex)
                     PlaySound(DIGI_ITEM, sp, v3df_dontpan);
-                KillGet(SpriteNum);
+                KillGet(actor);
             }
             break;
         case ICON_REPAIR_KIT:
@@ -5633,7 +5630,7 @@ KeyMain:
                 if (gNet.MultiGameType == MULTI_GAME_COOPERATIVE)
                     break;
 
-                KillGet(SpriteNum);
+                KillGet(actor);
             }
             break;
 #if 0
@@ -5645,7 +5642,7 @@ KeyMain:
                 PlayerUpdateInventory(pp, INVENTORY_ENVIRON_SUIT);
                 if (pp == Player+myconnectindex)
                     PlaySound(DIGI_ITEM, sp, v3df_dontpan);
-                KillGet(SpriteNum);
+                KillGet(actor);
             }
             break;
 #endif
@@ -5659,7 +5656,7 @@ KeyMain:
                 SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
                 if (pp == Player+myconnectindex)
                     PlaySound(DIGI_ITEM, sp, v3df_dontpan);
-                KillGet(SpriteNum);
+                KillGet(actor);
             }
             break;
         //
@@ -5680,7 +5677,7 @@ KeyMain:
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
             if (pp == Player+myconnectindex)
                 PlaySound(DIGI_ITEM, sp, v3df_dontpan);
-            KillGetWeapon(SpriteNum);
+            KillGetWeapon(actor);
             if (TEST(pp->WpnFlags, BIT(WPN_STAR)))
                 break;
             SET(pp->WpnFlags, BIT(WPN_STAR));
@@ -5708,7 +5705,7 @@ KeyMain:
             if (pp == Player+myconnectindex)
                 PlaySound(DIGI_ITEM, sp, v3df_dontpan);
             ChoosePlayerGetSound(pp);
-            KillGetWeapon(SpriteNum);
+            KillGetWeapon(actor);
             if (TEST(pp->WpnFlags, BIT(WPN_MINE)))
                 break;
             SET(pp->WpnFlags, BIT(WPN_MINE));
@@ -5737,7 +5734,7 @@ KeyMain:
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
             if (pp == Player+myconnectindex)
                 PlaySound(DIGI_ITEM, sp, v3df_dontpan);
-            KillGetWeapon(SpriteNum);
+            KillGetWeapon(actor);
 
             if (TEST(pp->WpnFlags, BIT(WPN_UZI)) && TEST(pp->Flags, PF_TWO_UZI))
                 break;
@@ -5774,7 +5771,7 @@ KeyMain:
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
             if (pp == Player+myconnectindex)
                 PlaySound(DIGI_ITEM, sp, v3df_dontpan);
-            KillGetAmmo(SpriteNum);
+            KillGetAmmo(actor);
             break;
 
         case ICON_MICRO_GUN:
@@ -5794,7 +5791,7 @@ KeyMain:
             if (pp == Player+myconnectindex)
                 PlaySound(DIGI_ITEM, sp, v3df_dontpan);
             ChoosePlayerGetSound(pp);
-            KillGetWeapon(SpriteNum);
+            KillGetWeapon(actor);
             if (TEST(pp->WpnFlags, BIT(WPN_MICRO)))
                 break;
             SET(pp->WpnFlags, BIT(WPN_MICRO));
@@ -5815,7 +5812,7 @@ KeyMain:
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
             if (pp == Player+myconnectindex)
                 PlaySound(DIGI_ITEM, sp, v3df_dontpan);
-            KillGetAmmo(SpriteNum);
+            KillGetAmmo(actor);
             break;
 
         case ICON_NUKE:
@@ -5841,7 +5838,7 @@ KeyMain:
 
                 }
 
-                KillGetAmmo(SpriteNum);
+                KillGetAmmo(actor);
             }
             break;
 
@@ -5863,7 +5860,7 @@ KeyMain:
             //ChoosePlayerGetSound(pp);
             if (STD_RANDOM_RANGE(1000) > 800 && pp == Player+myconnectindex)
                 PlayerSound(DIGI_LIKEBIGWEAPONS, v3df_dontpan|v3df_doppler|v3df_follow,pp);
-            KillGetWeapon(SpriteNum);
+            KillGetWeapon(actor);
             if (TEST(pp->WpnFlags, BIT(WPN_GRENADE)))
                 break;
             SET(pp->WpnFlags, BIT(WPN_GRENADE));
@@ -5884,7 +5881,7 @@ KeyMain:
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
             if (pp == Player+myconnectindex)
                 PlaySound(DIGI_ITEM, sp, v3df_dontpan);
-            KillGetAmmo(SpriteNum);
+            KillGetAmmo(actor);
             break;
 
 #if 0
@@ -5892,7 +5889,7 @@ KeyMain:
             pp->WpnAmmo[WPN_ROCKET] += 15;
             if (pp == Player+myconnectindex)
                 PlaySound(DIGI_ITEM, sp, v3df_dontpan);
-            KillGet(SpriteNum);
+            KillGet(actor);
             if (TEST(pp->WpnFlags, BIT(WPN_ROCKET)))
                 break;
             SET(pp->WpnFlags, BIT(WPN_ROCKET));
@@ -5909,7 +5906,7 @@ KeyMain:
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
             if (pp == Player+myconnectindex)
                 PlaySound(DIGI_ITEM, sp, v3df_dontpan);
-            KillGet(SpriteNum);
+            KillGet(actor);
             break;
 #endif
 
@@ -5937,7 +5934,7 @@ KeyMain:
                     PlayerSound(DIGI_GOTRAILGUN, v3df_dontpan|v3df_doppler|v3df_follow,pp);
             }
             //ChoosePlayerGetSound(pp);
-            KillGetWeapon(SpriteNum);
+            KillGetWeapon(actor);
             if (TEST(pp->WpnFlags, BIT(WPN_RAIL)))
                 break;
             SET(pp->WpnFlags, BIT(WPN_RAIL));
@@ -5960,7 +5957,7 @@ KeyMain:
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
             if (pp == Player+myconnectindex)
                 PlaySound(DIGI_ITEM, sp, v3df_dontpan);
-            KillGetAmmo(SpriteNum);
+            KillGetAmmo(actor);
             break;
 
         case ICON_SHOTGUN:
@@ -5979,7 +5976,7 @@ KeyMain:
             if (pp == Player+myconnectindex)
                 PlaySound(DIGI_ITEM, sp, v3df_dontpan);
             ChoosePlayerGetSound(pp);
-            KillGetWeapon(SpriteNum);
+            KillGetWeapon(actor);
             if (TEST(pp->WpnFlags, BIT(WPN_SHOTGUN)))
                 break;
             SET(pp->WpnFlags, BIT(WPN_SHOTGUN));
@@ -6000,7 +5997,7 @@ KeyMain:
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash on item pickup
             if (pp == Player+myconnectindex)
                 PlaySound(DIGI_ITEM, sp, v3df_dontpan);
-            KillGetAmmo(SpriteNum);
+            KillGetAmmo(actor);
             break;
 
 #if 0
@@ -6013,7 +6010,7 @@ KeyMain:
                 SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
                 if (pp == Player+myconnectindex)
                     PlaySound(DIGI_ITEM, sp, v3df_dontpan);
-                KillGet(SpriteNum);
+                KillGet(actor);
                 if (pp->CurWpn == pp->Wpn[WPN_SHOTGUN])
                 {
                     if (pp->WpnShotgunType != 1)
@@ -6047,7 +6044,7 @@ KeyMain:
             //ChoosePlayerGetSound(pp);
             if (STD_RANDOM_RANGE(1000) > 800 && pp == Player+myconnectindex)
                 PlayerSound(DIGI_LIKEBIGWEAPONS, v3df_dontpan|v3df_doppler|v3df_follow,pp);
-            KillGetWeapon(SpriteNum);
+            KillGetWeapon(actor);
             if (TEST(pp->WpnFlags, BIT(WPN_HOTHEAD)))
                 break;
             SET(pp->WpnFlags, BIT(WPN_NAPALM) | BIT(WPN_RING) | BIT(WPN_HOTHEAD));
@@ -6070,7 +6067,7 @@ KeyMain:
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
             if (pp == Player+myconnectindex)
                 PlaySound(DIGI_ITEM, sp, v3df_dontpan);
-            KillGetAmmo(SpriteNum);
+            KillGetAmmo(actor);
             break;
 
         case ICON_HEART:
@@ -6092,7 +6089,7 @@ KeyMain:
             //ChoosePlayerGetSound(pp);
             if (STD_RANDOM_RANGE(1000) > 800 && pp == Player+myconnectindex)
                 PlayerSound(DIGI_LIKEBIGWEAPONS, v3df_dontpan|v3df_doppler|v3df_follow,pp);
-            KillGetWeapon(SpriteNum);
+            KillGetWeapon(actor);
             if (TEST(pp->WpnFlags, BIT(WPN_HEART)))
                 break;
             SET(pp->WpnFlags, BIT(WPN_HEART));
@@ -6117,7 +6114,7 @@ KeyMain:
             SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
             if (pp == Player+myconnectindex)
                 PlaySound(DIGI_ITEM, sp, v3df_dontpan);
-            KillGetAmmo(SpriteNum);
+            KillGetAmmo(actor);
             break;
 
         case ICON_HEAT_CARD:
@@ -6129,7 +6126,7 @@ KeyMain:
                 SetFadeAmt(pp,ITEMFLASHAMT,ITEMFLASHCLR);  // Flash blue on item pickup
                 if (pp == Player+myconnectindex)
                     PlaySound(DIGI_ITEM, sp, v3df_dontpan);
-                KillGet(SpriteNum);
+                KillGet(actor);
 
                 if (pp->CurWpn == pp->Wpn[WPN_MICRO])
                 {
@@ -6176,7 +6173,7 @@ KeyMain:
 
             SetOwner(pp->Actor(), actorNew);  // Player now owns the flag
             nu->flagOwnerActor = actor;       // Tell carried flag who owns it
-            KillGet(SpriteNum);  // Set up for flag respawning
+            KillGet(actor);  // Set up for flag respawning
             break;
         }
         default:
