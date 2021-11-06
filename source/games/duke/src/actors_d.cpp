@@ -3596,7 +3596,7 @@ void moveeffectors_d(void)   //STATNUM 3
 	DukeStatIterator it(STAT_EFFECTOR);
 	while (auto act = it.Next())
 	{
-		auto sc = &sector[act->s->sectnum];
+		auto sc = act->getSector();
 		switch (act->s->lotag)
 		{
 		case SE_0_ROTATING_SECTOR:
@@ -3768,7 +3768,7 @@ void moveeffectors_d(void)   //STATNUM 3
 	while (auto act = it.Next())
 	{
 		if (act->s->lotag != SE_29_WAVES) continue;
-		auto sc = &sector[act->s->sectnum];
+		auto sc = act->getSector();
 		if (sc->wallnum != 4) continue;
 		auto wal = &wall[sc->wallptr + 2];
 		alignflorslope(act->s->sectnum, wal->x, wal->y, sector[wal->nextsector].floorz);

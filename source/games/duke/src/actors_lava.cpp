@@ -38,7 +38,7 @@ static int jaildoorcnt;
 static int minecartcnt;
 static int lightnincnt;
 
-static short torchsector[64];
+static int torchsector[64];
 static short torchsectorshade[64];
 static short torchtype[64];
 
@@ -195,28 +195,29 @@ void dotorch(void)
 	ds = krand()&8;
 	for (int i = 0; i < torchcnt; i++)
 	{
+		auto sect = &sector[torchsector[i]];
 		shade = torchsectorshade[i] - ds;
 		switch (torchtype[i])
 		{
 			case 0:
-				sector[torchsector[i]].floorshade = shade;
-				sector[torchsector[i]].ceilingshade = shade;
+				sect->floorshade = shade;
+				sect->ceilingshade = shade;
 				break;
 			case 1:
-				sector[torchsector[i]].ceilingshade = shade;
+				sect->ceilingshade = shade;
 				break;
 			case 2:
-				sector[torchsector[i]].floorshade = shade;
+				sect->floorshade = shade;
 				break;
 			case 4:
-				sector[torchsector[i]].ceilingshade = shade;
+				sect->ceilingshade = shade;
 				break;
 			case 5:
-				sector[torchsector[i]].floorshade = shade;
+				sect->floorshade = shade;
 				break;
 		}
-		startwall = sector[torchsector[i]].wallptr;
-		endwall = startwall + sector[torchsector[i]].wallnum;
+		startwall = sect->wallptr;
+		endwall = startwall + sect->wallnum;
 		for (j = startwall; j < endwall; j++)
 		{
 			if (wall[j].lotag != 1)

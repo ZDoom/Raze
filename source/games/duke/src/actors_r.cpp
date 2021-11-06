@@ -1669,7 +1669,7 @@ void movetransports_r(void)
 						{
 							k = 2;
 							ps[p].oposz = ps[p].pos.z =
-								sector[Owner->s->sectnum].ceilingz + (7 << 8);
+								Owner->getSector()->ceilingz + (7 << 8);
 						}
 
 						if (onfloorz && sectlotag == 161 && ps[p].pos.z < (sector[sect].ceilingz + (6 << 8)))
@@ -1677,7 +1677,7 @@ void movetransports_r(void)
 							k = 2;
 							if (ps[p].GetActor()->s->extra <= 0) break;
 							ps[p].oposz = ps[p].pos.z =
-								sector[Owner->s->sectnum].floorz - (49 << 8);
+								Owner->getSector()->floorz - (49 << 8);
 						}
 					}
 
@@ -1692,7 +1692,7 @@ void movetransports_r(void)
 						}
 						S_PlayActorSound(DUKE_UNDERWATER, ps[p].GetActor());
 						ps[p].oposz = ps[p].pos.z =
-							sector[Owner->s->sectnum].ceilingz + (7 << 8);
+							Owner->getSector()->ceilingz + (7 << 8);
 						if (ps[p].OnMotorcycle)
 							ps[p].moto_underwater = 1;
 					}
@@ -1708,7 +1708,7 @@ void movetransports_r(void)
 						S_PlayActorSound(DUKE_GASP, ps[p].GetActor());
 
 						ps[p].oposz = ps[p].pos.z =
-							sector[Owner->s->sectnum].floorz - (7 << 8);
+							Owner->getSector()->floorz - (7 << 8);
 					}
 
 					if (k == 1)
@@ -1843,7 +1843,7 @@ void movetransports_r(void)
 								{
 									spr2->x += (Owner->s->x - spr->x);
 									spr2->y += (Owner->s->y - spr->y);
-									spr2->z -= spr->z - sector[Owner->s->sectnum].floorz;
+									spr2->z -= spr->z - Owner->getSector()->floorz;
 									spr2->ang = Owner->s->ang;
 
 									spr2->backupang();
@@ -1877,7 +1877,7 @@ void movetransports_r(void)
 						case ST_1_ABOVE_WATER:
 							spr2->x += (Owner->s->x - spr->x);
 							spr2->y += (Owner->s->y - spr->y);
-							spr2->z = sector[Owner->s->sectnum].ceilingz + ll;
+							spr2->z = Owner->getSector()->ceilingz + ll;
 
 							spr2->backupz();
 
@@ -1887,7 +1887,7 @@ void movetransports_r(void)
 						case ST_2_UNDERWATER:
 							spr2->x += (Owner->s->x - spr->x);
 							spr2->y += (Owner->s->y - spr->y);
-							spr2->z = sector[Owner->s->sectnum].floorz - ll;
+							spr2->z = Owner->getSector()->floorz - ll;
 
 							spr2->backupz();
 
@@ -1899,7 +1899,7 @@ void movetransports_r(void)
 							if (!isRRRA()) break;
 							spr2->x += (Owner->s->x - spr->x);
 							spr2->y += (Owner->s->y - spr->y);
-							spr2->z = sector[Owner->s->sectnum].ceilingz + ll2;
+							spr2->z = Owner->getSector()->ceilingz + ll2;
 
 							spr2->backupz();
 
@@ -1913,7 +1913,7 @@ void movetransports_r(void)
 							if (!isRRRA()) break;
 							spr2->x += (Owner->s->x - spr->x);
 							spr2->y += (Owner->s->y - spr->y);
-							spr2->z = sector[Owner->s->sectnum].floorz - ll2;
+							spr2->z = Owner->getSector()->floorz - ll2;
 
 							spr2->backupz();
 
@@ -3460,7 +3460,7 @@ void moveeffectors_r(void)   //STATNUM 3
 	DukeStatIterator it(STAT_EFFECTOR);
 	while (auto act = it.Next())
 	{
-		auto sc = &sector[act->s->sectnum];
+		auto sc = act->getSector();
 		int st = act->s->lotag;
 		int sh = act->s->hitag;
 
@@ -3646,7 +3646,7 @@ void moveeffectors_r(void)   //STATNUM 3
 	{
 		auto s = act->s;
 		if (act->s->lotag != SE_29_WAVES) continue;
-		auto sc = &sector[act->s->sectnum];
+		auto sc = act->getSector();
 		if (sc->wallnum != 4) continue;
 		auto wal = &wall[sc->wallptr + 2];
 		alignflorslope(act->s->sectnum, wal->x, wal->y, sector[wal->nextsector].floorz);

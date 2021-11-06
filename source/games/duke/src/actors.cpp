@@ -4059,7 +4059,7 @@ void handle_se17(DDukeActor* actor)
 void handle_se18(DDukeActor *actor, bool morecheck)
 {
 	int* t = &actor->temp_data[0];
-	auto sc = &sector[actor->s->sectnum];
+	auto sc = actor->getSector();
 	int st = actor->s->lotag;
 	int sh = actor->s->hitag;
 
@@ -4158,7 +4158,7 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 void handle_se19(DDukeActor *actor, int BIGFORCE)
 {
 	int* t = &actor->temp_data[0];
-	auto sc = &sector[actor->s->sectnum];
+	auto sc = actor->getSector();
 	int st = actor->s->lotag;
 	int sh = actor->s->hitag;
 	int j, x, q;
@@ -4370,7 +4370,7 @@ void handle_se21(DDukeActor* actor)
 void handle_se22(DDukeActor* actor)
 {
 	int* t = &actor->temp_data[0];
-	auto sc = &sector[actor->s->sectnum];
+	auto sc = actor->getSector();
 	if (t[1])
 	{
 		if (getanimationgoal(anim_ceilingz, t[0]) >= 0)
@@ -4583,7 +4583,7 @@ void handle_se24(DDukeActor *actor, int16_t *list1, int16_t *list2, bool scroll,
 void handle_se25(DDukeActor* actor, int t_index, int snd1, int snd2)
 {
 	int* t = &actor->temp_data[0];
-	auto sec = &sector[actor->s->sectnum];
+	auto sec = actor->getSector();
 
 	if (sec->floorz <= sec->ceilingz)
 		actor->s->shade = 0;
@@ -4733,7 +4733,7 @@ void handle_se35(DDukeActor *actor, int SMALLSMOKE, int EXPLOSION2)
 void handle_se128(DDukeActor *actor)
 {
 	int* t = &actor->temp_data[0];
-	auto sc = &sector[actor->s->sectnum];
+	auto sc = actor->getSector();
 
 	auto wal = &wall[t[2]];
 
@@ -4772,7 +4772,7 @@ void handle_se128(DDukeActor *actor)
 void handle_se130(DDukeActor *actor, int countmax, int EXPLOSION2)
 {
 	int* t = &actor->temp_data[0];
-	auto sc = &sector[actor->s->sectnum];
+	auto sc = actor->getSector();
 
 	if (t[0] > countmax)
 	{
