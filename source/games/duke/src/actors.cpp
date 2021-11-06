@@ -318,21 +318,21 @@ void movecyclers(void)
 {
 	for (int q = numcyclers - 1; q >= 0; q--)
 	{
-		short* c = &cyclers[q][0];
-		int s = c[0];
+		Cycler* c = &cyclers[q];
+		auto sect = c->sector();
 
-		int t = c[3];
-		int j = t + bsin(c[1], -10);
-		int cshade = c[2];
+		int t = c->shade2;
+		int j = t + bsin(c->lotag, -10);
+		int cshade = c->shade1;
 
 		if (j < cshade) j = cshade;
 		else if (j > t)  j = t;
 
-		c[1] += sector[s].extra;
-		if (c[5])
+		c->lotag += sect->extra;
+		if (c->state)
 		{
-			auto wal = &wall[sector[s].wallptr];
-			for (int x = sector[s].wallnum; x > 0; x--, wal++)
+			auto wal = &wall[sect->wallptr];
+			for (int x = sect->wallnum; x > 0; x--, wal++)
 				if (wal->hitag != 1)
 				{
 					wal->shade = j;
@@ -341,7 +341,7 @@ void movecyclers(void)
 						wall[wal->nextwall].shade = j;
 
 				}
-			sector[s].floorshade = sector[s].ceilingshade = j;
+			sect->floorshade = sect->ceilingshade = j;
 		}
 	}
 }

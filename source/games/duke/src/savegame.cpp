@@ -298,6 +298,23 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, DDukeActor& w, DDu
 	return arc;
 }
 
+FSerializer& Serialize(FSerializer& arc, const char* keyname, Cycler& w, Cycler* def)
+{
+	static Cycler nul;
+	if (!def) def = &nul;
+	if (arc.BeginObject(keyname))
+	{
+		arc("sector", w.sectnum, def->sectnum)
+			("lotag", w.lotag, def->lotag)
+			("hitag", w.hitag, def->hitag)
+			("shade1", w.shade1, def->shade1)
+			("shade2", w.shade2, def->shade2)
+			("state", w.state, def->state)
+			.EndObject();
+	}
+	return arc;
+}
+
 
 void GameInterface::SerializeGameState(FSerializer& arc)
 {
@@ -366,7 +383,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 
 			.Array("spriteq", spriteq, 1024)
 			("numcyclers", numcyclers)
-			.Array("cyclers", &cyclers[0][0], 6 * numcyclers)
+			.Array("cycler", cyclers, numcyclers)
 			("mirrorcnt", mirrorcnt)
 			.Array("mirrorsector", mirrorsector, mirrorcnt)
 			.Array("mirrorwall", mirrorwall, mirrorcnt)

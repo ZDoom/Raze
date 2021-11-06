@@ -554,12 +554,12 @@ void prelevel_r(int g)
 		case CYCLER:
 			if (numcyclers >= MAXCYCLERS)
 				I_Error("Too many cycling sectors.");
-			cyclers[numcyclers][0] = si->sectnum;
-			cyclers[numcyclers][1] = si->lotag;
-			cyclers[numcyclers][2] = si->shade;
-			cyclers[numcyclers][3] = si->sector()->floorshade;
-			cyclers[numcyclers][4] = si->hitag;
-			cyclers[numcyclers][5] = (si->ang == 1536);
+			cyclers[numcyclers].sectnum = si->sectnum;
+			cyclers[numcyclers].lotag = si->lotag;
+			cyclers[numcyclers].shade1 = si->shade;
+			cyclers[numcyclers].shade2 = si->sector()->floorshade;
+			cyclers[numcyclers].hitag = si->hitag;
+			cyclers[numcyclers].state = (si->ang == 1536);
 			numcyclers++;
 			deletesprite(ac);
 			break;

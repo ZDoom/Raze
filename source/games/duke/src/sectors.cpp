@@ -1077,21 +1077,23 @@ void operatesectors(int sn, DDukeActor *actor)
 void operateactivators(int low, int plnum)
 {
 	int i, j, k;
-	short * p;
+	Cycler * p;
 	walltype* wal;
 
 	for (i = numcyclers - 1; i >= 0; i--)
 	{
-		p = &cyclers[i][0];
+		p = &cyclers[i];
 
-		if (p[4] == low)
+
+		if (p->hitag == low)
 		{
-			p[5] = !p[5];
+			auto sect = p->sector();
+			p->state = !p->state;
 
-			sector[p[0]].floorshade = sector[p[0]].ceilingshade = (int8_t)p[3];
-			wal = &wall[sector[p[0]].wallptr];
-			for (j = sector[p[0]].wallnum; j > 0; j--, wal++)
-				wal->shade = (int8_t)p[3];
+			sect->floorshade = sect->ceilingshade = (int8_t)p->shade2;
+			wal = &wall[sect->wallptr];
+			for (j = sect->wallnum; j > 0; j--, wal++)
+				wal->shade = (int8_t)p->shade2;
 		}
 	}
 

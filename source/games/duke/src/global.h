@@ -96,7 +96,7 @@ extern float cloudy;
 extern int cloudclock;
 
 extern DDukeActor *spriteq[1024];
-extern int16_t cyclers[MAXCYCLERS][6];
+extern Cycler cyclers[MAXCYCLERS];
 extern int mirrorsector[64];
 extern int mirrorwall[64];
 

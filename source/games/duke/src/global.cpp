@@ -110,7 +110,7 @@ float cloudx;
 float cloudy;
 int cloudclock;
 int numcyclers;								// sector lighting effects
-int16_t cyclers[MAXCYCLERS][6];
+Cycler cyclers[MAXCYCLERS];
 int mirrorcnt;
 int mirrorsector[64];					// mirrors
 int mirrorwall[64];
