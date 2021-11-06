@@ -641,7 +641,7 @@ void movecrane(DDukeActor *actor, int crane)
 {
 	int* t = &actor->temp_data[0];
 	auto spri = actor->s;
-	int sect = spri->sectnum;
+	auto sectp = spri->sector();
 	int x;
 
 	//t[0] = state
@@ -677,7 +677,7 @@ void movecrane(DDukeActor *actor, int crane)
 		}
 		//IFMOVING;	// JBF 20040825: see my rant above about this
 		ssp(actor, CLIPMASK0);
-		if (sect == t[1])
+		if (spri->sectnum == t[1])
 			t[0]++;
 	}
 	else if (t[0] == 2 || t[0] == 7)
@@ -686,15 +686,15 @@ void movecrane(DDukeActor *actor, int crane)
 
 		if (t[0] == 2)
 		{
-			if ((sector[sect].floorz - spri->z) < (64 << 8))
+			if ((sectp->floorz - spri->z) < (64 << 8))
 				if (spri->picnum > crane) spri->picnum--;
 
-			if ((sector[sect].floorz - spri->z) < (4096 + 1024))
+			if ((sectp->floorz - spri->z) < (4096 + 1024))
 				t[0]++;
 		}
 		if (t[0] == 7)
 		{
-			if ((sector[sect].floorz - spri->z) < (64 << 8))
+			if ((sectp->floorz - spri->z) < (64 << 8))
 			{
 				if (spri->picnum > crane) spri->picnum--;
 				else
@@ -754,7 +754,7 @@ void movecrane(DDukeActor *actor, int crane)
 	else if (t[0] == 5 || t[0] == 8)
 	{
 		if (t[0] == 8 && spri->picnum < (crane + 2))
-			if ((sector[sect].floorz - spri->z) > 8192)
+			if ((sectp->floorz - spri->z) > 8192)
 				spri->picnum++;
 
 		if (spri->z < msx[t[4] + 2])
@@ -1091,11 +1091,11 @@ void movewaterdrip(DDukeActor *actor, int drip)
 void movedoorshock(DDukeActor* actor)
 {
 	auto s = actor->s;
-	int sect = s->sectnum;
-	int j = abs(sector[sect].ceilingz - sector[sect].floorz) >> 9;
+	auto sectp = s->sector();
+	int j = abs(sectp->ceilingz - sectp->floorz) >> 9;
 	s->yrepeat = j + 4;
 	s->xrepeat = 16;
-	s->z = sector[sect].floorz;
+	s->z = sectp->floorz;
 }
 
 //---------------------------------------------------------------------------
@@ -1108,41 +1108,41 @@ void movetouchplate(DDukeActor* actor, int plate)
 {
 	auto s = actor->s;
 	int* t = &actor->temp_data[0];
-	int sect = s->sectnum;
+	auto sectp = s->sector();
 	int x;
 	int p;
 
 	if (t[1] == 1 && s->hitag >= 0) //Move the sector floor
 	{
-		x = sector[sect].floorz;
+		x = sectp->floorz;
 
 		if (t[3] == 1)
 		{
 			if (x >= t[2])
 			{
-				sector[sect].floorz = x;
+				sectp->floorz = x;
 				t[1] = 0;
 			}
 			else
 			{
-				sector[sect].floorz += sector[sect].extra;
-				p = checkcursectnums(sect);
-				if (p >= 0) ps[p].pos.z += sector[sect].extra;
+				sectp->floorz += sectp->extra;
+				p = checkcursectnums(s->sectnum);
+				if (p >= 0) ps[p].pos.z += sectp->extra;
 			}
 		}
 		else
 		{
 			if (x <= s->z)
 			{
-				sector[sect].floorz = s->z;
+				sectp->floorz = s->z;
 				t[1] = 0;
 			}
 			else
 			{
-				sector[sect].floorz -= sector[sect].extra;
-				p = checkcursectnums(sect);
+				sectp->floorz -= sectp->extra;
+				p = checkcursectnums(s->sectnum);
 				if (p >= 0)
-					ps[p].pos.z -= sector[sect].extra;
+					ps[p].pos.z -= sectp->extra;
 			}
 		}
 		return;
@@ -1150,7 +1150,7 @@ void movetouchplate(DDukeActor* actor, int plate)
 
 	if (t[5] == 1) return;
 
-	p = checkcursectnums(sect);
+	p = checkcursectnums(s->sectnum);
 	if (p >= 0 && (ps[p].on_ground || s->ang == 512))
 	{
 		if (t[0] == 0 && !check_activator_motion(s->lotag))
@@ -1297,16 +1297,16 @@ void bounce(DDukeActor* actor)
 	int yvect = MulScale(s->xvel, bsin(s->ang), 10);
 	int zvect = s->zvel;
 
-	int hitsect = s->sectnum;
+	auto sectp = s->sector();
 
-	int k = sector[hitsect].wallptr; 
+	int k = sectp->wallptr; 
 	int l = wall[k].point2;
 	int daang = getangle(wall[l].x - wall[k].x, wall[l].y - wall[k].y);
 
 	if (s->z < (actor->floorz + actor->ceilingz) >> 1)
-		k = sector[hitsect].ceilingheinum;
+		k = sectp->ceilingheinum;
 	else
-		k = sector[hitsect].floorheinum;
+		k = sectp->floorheinum;
 
 	int dax = MulScale(k, bsin(daang), 14);
 	int day = MulScale(k, -bcos(daang), 14);
@@ -1592,7 +1592,7 @@ void forcesphere(DDukeActor* actor, int forcesphere)
 {
 	auto s = actor->s;
 	int* t = &actor->temp_data[0];
-	int sect = s->sectnum;
+	auto sectp = s->sector();
 	if (s->yvel == 0)
 	{
 		s->yvel = 1;
@@ -1615,8 +1615,8 @@ void forcesphere(DDukeActor* actor, int forcesphere)
 		if (s->zvel < 6144)
 			s->zvel += 192;
 		s->z += s->zvel;
-		if (s->z > sector[sect].floorz)
-			s->z = sector[sect].floorz;
+		if (s->z > sectp->floorz)
+			s->z = sectp->floorz;
 		t[3]--;
 		if (t[3] == 0)
 		{
@@ -1646,17 +1646,17 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 {
 	auto s = actor->s;
 	int* t = &actor->temp_data[0];
-	int sect = s->sectnum;
+	auto sectp = s->sector();
 	int a;
 
 	getglobalz(actor);
 
-	if (s->sector()->ceilingstat & 1)
-		s->shade += (s->sector()->ceilingshade - s->shade) >> 1;
-	else s->shade += (s->sector()->floorshade - s->shade) >> 1;
+	if (sectp->ceilingstat & 1)
+		s->shade += (sectp->ceilingshade - s->shade) >> 1;
+	else s->shade += (sectp->floorshade - s->shade) >> 1;
 
-	if (s->z < sector[sect].ceilingz + (32 << 8))
-		s->z = sector[sect].ceilingz + (32 << 8);
+	if (s->z < sectp->ceilingz + (32 << 8))
+		s->z = sectp->ceilingz + (32 << 8);
 
 	if (ud.multimode < 2)
 	{
@@ -1861,11 +1861,11 @@ void reactor(DDukeActor* actor, int REACTOR, int REACTOR2, int REACTORBURNT, int
 {
 	spritetype* s = actor->s;
 	int* t = &actor->temp_data[0];
-	int sect = actor->s->sectnum;
+	auto sectp = s->sector();
 
 	if (t[4] == 1)
 	{
-		DukeSectIterator it(sect);
+		DukeSectIterator it(s->sectnum);
 		while (auto act2 = it.Next())
 		{
 			auto sprj = act2->s;
@@ -1928,7 +1928,7 @@ void reactor(DDukeActor* actor, int REACTOR, int REACTOR2, int REACTORBURNT, int
 		t[1]++;
 
 		t[4] = s->z;
-		s->z = sector[sect].floorz - (krand() % (sector[sect].floorz - sector[sect].ceilingz));
+		s->z = sectp->floorz - (krand() % (sectp->floorz - sectp->ceilingz));
 
 		switch (t[1])
 		{
@@ -1956,7 +1956,7 @@ void reactor(DDukeActor* actor, int REACTOR, int REACTOR2, int REACTORBURNT, int
 		case 10:
 		case 15:
 		{
-			DukeSectIterator it(sect);
+			DukeSectIterator it(s->sectnum);
 			while (auto a2 = it.Next())
 			{
 				if (a2 != actor)
@@ -2112,12 +2112,12 @@ void forcesphereexplode(DDukeActor *actor)
 
 void watersplash2(DDukeActor* actor)
 {
-	int sect = actor->s->sectnum;
+	auto sectp = actor->getSector();
 	int* t = &actor->temp_data[0];
 	t[0]++;
 	if (t[0] == 1)
 	{
-		if (sector[sect].lotag != 1 && sector[sect].lotag != 2)
+		if (sectp->lotag != 1 && sectp->lotag != 2)
 		{
 			deletesprite(actor);
 			return;
@@ -2169,14 +2169,14 @@ void frameeffect1(DDukeActor *actor)
 bool money(DDukeActor* actor, int BLOODPOOL)
 {
 	auto s = actor->s;
-	int sect = s->sectnum;
+	auto sectp = s->sector();
 	int* t = &actor->temp_data[0];
 
 	s->xvel = (krand() & 7) + bsin(actor->temp_data[0], -9);
 	actor->temp_data[0] += (krand() & 63);
 	if ((actor->temp_data[0] & 2047) > 512 && (actor->temp_data[0] & 2047) < 1596)
 	{
-		if (sector[sect].lotag == 2)
+		if (sectp->lotag == 2)
 		{
 			if (s->zvel < 64)
 				s->zvel += (gs.gravity >> 5) + (krand() & 7);
@@ -2228,7 +2228,7 @@ bool money(DDukeActor* actor, int BLOODPOOL)
 bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool floorcheck, bool zcheck1, bool zcheck2)
 {
 	spritetype* s = actor->s;
-	int sect = s->sectnum;
+	auto sectp = s->sector();
 	int* t = &actor->temp_data[0];
 
 	if (s->xvel > 0) s->xvel--;
@@ -2248,14 +2248,21 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 	if (s->zvel > 1024 && s->zvel < 1280)
 	{
 		setsprite(actor, s->pos);
-		sect = s->sectnum;
+		sectp = s->sector();
 	}
 
 	if (callsetsprite) setsprite(actor, s->pos);
 
-	int l = getflorzofslope(sect, s->x, s->y);
-	int x = getceilzofslope(sect, s->x, s->y);
-	if (x == l || sect < 0 || sect >= MAXSECTORS)
+	// this was after the slope calls, but we should avoid calling that for invalid sectors.
+	if (s->sectnum < 0 || s->sectnum >= MAXSECTORS)
+	{
+		deletesprite(actor);
+		return false;
+	}
+
+	int l = getflorzofslopeptr(sectp, s->x, s->y);
+	int x = getceilzofslopeptr(sectp, s->x, s->y);
+	if (x == l)
 	{
 		deletesprite(actor);
 		return false;
@@ -2264,7 +2271,7 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 	if (s->z < l - (2 << 8))
 	{
 		if (t[1] < 2) t[1]++;
-		else if (sector[sect].lotag != 2)
+		else if (sectp->lotag != 2)
 		{
 			t[1] = 0;
 			if (zcheck1)
@@ -2282,7 +2289,7 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 
 		if (s->zvel < 6144)
 		{
-			if (sector[sect].lotag == 2)
+			if (sectp->lotag == 2)
 			{
 				if (s->zvel < 1024)
 					s->zvel += 48;
@@ -2352,13 +2359,13 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 bool bloodpool(DDukeActor* actor, bool puke, int TIRE)
 {
 	spritetype* s = actor->s;
-	int sect = s->sectnum;
+	auto sectp = s->sector();
 	int* t = &actor->temp_data[0];
 
 	if (t[0] == 0)
 	{
 		t[0] = 1;
-		if (sector[sect].floorstat & 2)
+		if (sectp->floorstat & 2)
 		{
 			deletesprite(actor);
 			return false;
@@ -2438,18 +2445,18 @@ bool bloodpool(DDukeActor* actor, bool puke, int TIRE)
 void shell(DDukeActor* actor, bool morecheck)
 {
 	spritetype* s = actor->s;
-	int sect = s->sectnum;
+	auto sectp = s->sector();
 	int* t = &actor->temp_data[0];
 
 	ssp(actor, CLIPMASK0);
 
-	if (sect < 0 || morecheck)
+	if (s->sectnum < 0 || morecheck)
 	{
 		deletesprite(actor);
 		return;
 	}
 
-	if (sector[sect].lotag == 2)
+	if (sectp->lotag == 2)
 	{
 		t[1]++;
 		if (t[1] > 8)
@@ -2492,13 +2499,13 @@ void shell(DDukeActor* actor, bool morecheck)
 void glasspieces(DDukeActor* actor)
 {
 	spritetype* s = actor->s;
-	int sect = s->sectnum;
+	auto sectp = s->sector();
 	int* t = &actor->temp_data[0];
 
 	makeitfall(actor);
 
 	if (s->zvel > 4096) s->zvel = 4096;
-	if (sect < 0)
+	if (s->sectnum < 0)
 	{
 		deletesprite(actor);
 		return;
@@ -2507,7 +2514,7 @@ void glasspieces(DDukeActor* actor)
 	if (s->z == actor->floorz - (FOURSLEIGHT) && t[0] < 3)
 	{
 		s->zvel = -((3 - t[0]) << 8) - (krand() & 511);
-		if (sector[sect].lotag == 2)
+		if (sectp->lotag == 2)
 			s->zvel >>= 1;
 		s->xrepeat >>= 1;
 		s->yrepeat >>= 1;
@@ -2540,7 +2547,7 @@ void glasspieces(DDukeActor* actor)
 void scrap(DDukeActor* actor, int SCRAP1, int SCRAP6)
 {
 	spritetype* s = actor->s;
-	int sect = s->sectnum;
+	auto sectp = s->sector();
 	int* t = &actor->temp_data[0];
 
 	if (s->xvel > 0)
@@ -2550,10 +2557,10 @@ void scrap(DDukeActor* actor, int SCRAP1, int SCRAP6)
 	if (s->zvel > 1024 && s->zvel < 1280)
 	{
 		setsprite(actor, s->pos);
-		sect = s->sectnum;
+		sectp = s->sector();
 	}
 
-	if (s->z < sector[sect].floorz - (2 << 8))
+	if (s->z < sectp->floorz - (2 << 8))
 	{
 		if (t[1] < 1) t[1]++;
 		else
@@ -3534,7 +3541,7 @@ void handle_se08(DDukeActor *actor, bool checkhitag1)
 			if (((ac->s->lotag) == st) && (ac->s->hitag) == sh)
 			{
 				sn = ac->s->sectnum;
-				auto sect = &sector[sn];
+				auto sect = ac->getSector();
 				int m = ac->s->shade;
 
 				auto wal = &wall[sect->wallptr];
@@ -3834,8 +3841,8 @@ void handle_se13(DDukeActor* actor)
 
 				if (ps[0].one_parallax_sectnum >= 0)
 				{
-					sc->ceilingpicnum = sector[ps[0].one_parallax_sectnum].ceilingpicnum;
-					sc->ceilingshade = sector[ps[0].one_parallax_sectnum].ceilingshade;
+					sc->ceilingpicnum = ps[0].one_parallax_sector()->ceilingpicnum;
+					sc->ceilingshade = ps[0].one_parallax_sector()->ceilingshade;
 				}
 			}
 		}
@@ -4198,9 +4205,9 @@ void handle_se19(DDukeActor *actor, int BIGFORCE)
 				auto a2Owner = a2->GetOwner();
 				if (a2->s->lotag == 0 && a2->s->hitag == sh && a2Owner)
 				{
-					q = a2Owner->s->sectnum; 
-					a2->getSector()->floorpal = a2->getSector()->ceilingpal =	sector[q].floorpal;
-					a2->getSector()->floorshade = a2->getSector()->ceilingshade = sector[q].floorshade;
+					auto sectp = a2Owner->getSector(); 
+					a2->getSector()->floorpal = a2->getSector()->ceilingpal =	sectp->floorpal;
+					a2->getSector()->floorshade = a2->getSector()->ceilingshade = sectp->floorshade;
 					a2Owner->temp_data[0] = 2;
 				}
 			}
@@ -4224,9 +4231,9 @@ void handle_se19(DDukeActor *actor, int BIGFORCE)
 				case 0:
 					if (ac->s->hitag == sh && ac->GetOwner())
 					{
-						q = ac->s->sectnum;
-						sector[q].floorshade = sector[q].ceilingshade =	ac->GetOwner()->s->shade;
-						sector[q].floorpal = sector[q].ceilingpal =	ac->GetOwner()->s->pal;
+						auto sectp = ac->getSector();
+						sectp->floorshade = sectp->ceilingshade =	ac->GetOwner()->s->shade;
+						sectp->floorpal = sectp->ceilingpal =	ac->GetOwner()->s->pal;
 					}
 					break;
 
@@ -4574,7 +4581,7 @@ void handle_se24(DDukeActor *actor, const int16_t *list1, const int16_t *list2, 
 			}
 		}
 	}
-	if (scroll) sector[actor->s->sectnum].addfloorxpan(actor->s->yvel / 128.f);
+	if (scroll) actor->getSector()->addfloorxpan(actor->s->yvel / 128.f);
 }
 
 //---------------------------------------------------------------------------

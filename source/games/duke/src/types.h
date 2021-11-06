@@ -198,7 +198,8 @@ struct player_struct
 
 	int aim_mode, ftt;
 
-	int cursectnum;
+	int cursectnum, one_parallax_sectnum; // sector references. Make them pointers later?
+
 	short last_extra, subweapon;
 	short ammo_amount[MAX_WEAPONS], frag, fraggedself;
 
@@ -207,7 +208,7 @@ struct player_struct
 	short jumping_counter, airleft, knee_incs, access_incs;
 	short ftq, access_wallnum;
 	short got_access, weapon_ang, firstaid_amount;
-	short i, one_parallax_sectnum;
+	short i;
 	short over_shoulder_on, fist_incs;
 	short cheat_phase;
 	short extra_extra8, quick_kick, last_quick_kick;
@@ -295,6 +296,10 @@ struct player_struct
 	sectortype* cursector() const
 	{
 		return &::sector[cursectnum];
+	}
+	sectortype* one_parallax_sector() const
+	{
+		return &::sector[one_parallax_sectnum];
 	}
 
 
