@@ -1433,9 +1433,10 @@ void checkplayerhurt_r(struct player_struct* p, const Collision &coll)
 
 bool checkhitceiling_r(int sn)
 {
+	auto sectp = &sector[sn];
 	short j;
 
-	switch (sector[sn].ceilingpicnum)
+	switch (sectp->ceilingpicnum)
 	{
 	case WALLLIGHT1:
 	case WALLLIGHT3:
@@ -1454,44 +1455,44 @@ bool checkhitceiling_r(int sn)
 		ceilingglass(ps[myconnectindex].GetActor(), sn, 10);
 		S_PlayActorSound(GLASS_BREAKING, ps[screenpeek].GetActor());
 
-		if (sector[sn].ceilingpicnum == WALLLIGHT1)
-			sector[sn].ceilingpicnum = WALLLIGHTBUST1;
+		if (sectp->ceilingpicnum == WALLLIGHT1)
+			sectp->ceilingpicnum = WALLLIGHTBUST1;
 
-		if (sector[sn].ceilingpicnum == WALLLIGHT3)
-			sector[sn].ceilingpicnum = WALLLIGHTBUST3;
+		if (sectp->ceilingpicnum == WALLLIGHT3)
+			sectp->ceilingpicnum = WALLLIGHTBUST3;
 
-		if (sector[sn].ceilingpicnum == WALLLIGHT4)
-			sector[sn].ceilingpicnum = WALLLIGHTBUST4;
+		if (sectp->ceilingpicnum == WALLLIGHT4)
+			sectp->ceilingpicnum = WALLLIGHTBUST4;
 
-		if (sector[sn].ceilingpicnum == TECHLIGHT2)
-			sector[sn].ceilingpicnum = TECHLIGHTBUST2;
+		if (sectp->ceilingpicnum == TECHLIGHT2)
+			sectp->ceilingpicnum = TECHLIGHTBUST2;
 
-		if (sector[sn].ceilingpicnum == TECHLIGHT4)
-			sector[sn].ceilingpicnum = TECHLIGHTBUST4;
+		if (sectp->ceilingpicnum == TECHLIGHT4)
+			sectp->ceilingpicnum = TECHLIGHTBUST4;
 
-		if (sector[sn].ceilingpicnum == RRTILE1986)
-			sector[sn].ceilingpicnum = RRTILE1987;
+		if (sectp->ceilingpicnum == RRTILE1986)
+			sectp->ceilingpicnum = RRTILE1987;
 
-		if (sector[sn].ceilingpicnum == RRTILE1939)
-			sector[sn].ceilingpicnum = RRTILE2004;
+		if (sectp->ceilingpicnum == RRTILE1939)
+			sectp->ceilingpicnum = RRTILE2004;
 
-		if (sector[sn].ceilingpicnum == RRTILE1988)
-			sector[sn].ceilingpicnum = RRTILE2005;
+		if (sectp->ceilingpicnum == RRTILE1988)
+			sectp->ceilingpicnum = RRTILE2005;
 
-		if (sector[sn].ceilingpicnum == RRTILE2898)
-			sector[sn].ceilingpicnum = RRTILE2899;
+		if (sectp->ceilingpicnum == RRTILE2898)
+			sectp->ceilingpicnum = RRTILE2899;
 
-		if (sector[sn].ceilingpicnum == RRTILE2878)
-			sector[sn].ceilingpicnum = RRTILE2879;
+		if (sectp->ceilingpicnum == RRTILE2878)
+			sectp->ceilingpicnum = RRTILE2879;
 
-		if (sector[sn].ceilingpicnum == RRTILE2123)
-			sector[sn].ceilingpicnum = RRTILE2124;
+		if (sectp->ceilingpicnum == RRTILE2123)
+			sectp->ceilingpicnum = RRTILE2124;
 
-		if (sector[sn].ceilingpicnum == RRTILE2125)
-			sector[sn].ceilingpicnum = RRTILE2126;
+		if (sectp->ceilingpicnum == RRTILE2125)
+			sectp->ceilingpicnum = RRTILE2126;
 
 
-		if (!sector[sn].hitag)
+		if (!sectp->hitag)
 		{
 			DukeSectIterator it(sn);
 			while (auto act1 = it.Next())
@@ -1515,7 +1516,7 @@ bool checkhitceiling_r(int sn)
 		while (auto act1 = it.Next())
 		{
 			auto spr1 = act1->s;
-			if (spr1->hitag == (sector[sn].hitag) && spr1->lotag == 3)
+			if (spr1->hitag == (sectp->hitag) && spr1->lotag == 3)
 			{
 				act1->temp_data[2] = j;
 				act1->temp_data[4] = 1;

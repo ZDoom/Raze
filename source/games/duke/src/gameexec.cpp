@@ -1038,95 +1038,96 @@ void DoSector(char bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 	}
 
 	lValue = GetGameVarID(lVar2, sActor, sPlayer);
+	auto sectp = &sector[iSector];
 
 	// All fields affecting map geometry have been made read-only!
 	switch (lLabelID)
 	{
 	case SECTOR_WALLPTR:
-		if (!bSet) SetGameVarID(lVar2, sector[iSector].wallptr, sActor, sPlayer);
+		if (!bSet) SetGameVarID(lVar2, sectp->wallptr, sActor, sPlayer);
 		break;
 	case SECTOR_WALLNUM:
-		if (!bSet) SetGameVarID(lVar2, sector[iSector].wallnum, sActor, sPlayer);
+		if (!bSet) SetGameVarID(lVar2, sectp->wallnum, sActor, sPlayer);
 		break;
 	case SECTOR_CEILINGZ:
-		if (bSet) sector[iSector].ceilingz = lValue;
-		else SetGameVarID(lVar2, sector[iSector].ceilingz, sActor, sPlayer);
+		if (bSet) sectp->ceilingz = lValue;
+		else SetGameVarID(lVar2, sectp->ceilingz, sActor, sPlayer);
 		break;
 	case SECTOR_FLOORZ:
-		if (bSet) sector[iSector].floorz = lValue;
-		else SetGameVarID(lVar2, sector[iSector].floorz, sActor, sPlayer);
+		if (bSet) sectp->floorz = lValue;
+		else SetGameVarID(lVar2, sectp->floorz, sActor, sPlayer);
 		break;
 	case SECTOR_CEILINGSTAT:
-		if (bSet) sector[iSector].ceilingstat = lValue;
-		else SetGameVarID(lVar2, sector[iSector].ceilingstat, sActor, sPlayer);
+		if (bSet) sectp->ceilingstat = lValue;
+		else SetGameVarID(lVar2, sectp->ceilingstat, sActor, sPlayer);
 		break;
 	case SECTOR_FLOORSTAT:
-		if (bSet) sector[iSector].floorstat = lValue;
-		else SetGameVarID(lVar2, sector[iSector].floorstat, sActor, sPlayer);
+		if (bSet) sectp->floorstat = lValue;
+		else SetGameVarID(lVar2, sectp->floorstat, sActor, sPlayer);
 		break;
 	case SECTOR_CEILINGPICNUM:
-		if (bSet) sector[iSector].ceilingpicnum = lValue;
-		else SetGameVarID(lVar2, sector[iSector].ceilingpicnum, sActor, sPlayer);
+		if (bSet) sectp->ceilingpicnum = lValue;
+		else SetGameVarID(lVar2, sectp->ceilingpicnum, sActor, sPlayer);
 		break;
 	case SECTOR_CEILINGSLOPE:
-		if (bSet) sector[iSector].ceilingheinum = lValue;
-		else SetGameVarID(lVar2, sector[iSector].ceilingheinum, sActor, sPlayer);
+		if (bSet) sectp->ceilingheinum = lValue;
+		else SetGameVarID(lVar2, sectp->ceilingheinum, sActor, sPlayer);
 		break;
 	case SECTOR_CEILINGSHADE:
-		if (bSet) sector[iSector].ceilingshade = lValue;
-		else SetGameVarID(lVar2, sector[iSector].ceilingshade, sActor, sPlayer);
+		if (bSet) sectp->ceilingshade = lValue;
+		else SetGameVarID(lVar2, sectp->ceilingshade, sActor, sPlayer);
 		break;
 	case SECTOR_CEILINGPAL:
-		if (bSet) sector[iSector].ceilingpal = lValue;
-		else SetGameVarID(lVar2, sector[iSector].ceilingpal, sActor, sPlayer);
+		if (bSet) sectp->ceilingpal = lValue;
+		else SetGameVarID(lVar2, sectp->ceilingpal, sActor, sPlayer);
 		break;
 	case SECTOR_CEILINGXPANNING:
-		if (bSet) sector[iSector].ceilingxpan_ = (float)(lValue & 255);
-		else SetGameVarID(lVar2, sector[iSector].ceilingxpan(), sActor, sPlayer);
+		if (bSet) sectp->ceilingxpan_ = (float)(lValue & 255);
+		else SetGameVarID(lVar2, sectp->ceilingxpan(), sActor, sPlayer);
 		break;
 	case SECTOR_CEILINGYPANNING:
-		if (bSet) sector[iSector].ceilingypan_ = (float)(lValue & 255);
-		else SetGameVarID(lVar2, sector[iSector].ceilingypan(), sActor, sPlayer);
+		if (bSet) sectp->ceilingypan_ = (float)(lValue & 255);
+		else SetGameVarID(lVar2, sectp->ceilingypan(), sActor, sPlayer);
 		break;
 	case SECTOR_FLOORPICNUM:
-		if (bSet) sector[iSector].floorpicnum = lValue;
-		else SetGameVarID(lVar2, sector[iSector].floorpicnum, sActor, sPlayer);
+		if (bSet) sectp->floorpicnum = lValue;
+		else SetGameVarID(lVar2, sectp->floorpicnum, sActor, sPlayer);
 		break;
 	case SECTOR_FLOORSLOPE:
-		if (bSet) sector[iSector].floorheinum = lValue;
-		else SetGameVarID(lVar2, sector[iSector].floorheinum, sActor, sPlayer);
+		if (bSet) sectp->floorheinum = lValue;
+		else SetGameVarID(lVar2, sectp->floorheinum, sActor, sPlayer);
 		break;
 	case SECTOR_FLOORSHADE:
-		if (bSet) sector[iSector].floorshade = lValue;
-		else SetGameVarID(lVar2, sector[iSector].floorshade, sActor, sPlayer);
+		if (bSet) sectp->floorshade = lValue;
+		else SetGameVarID(lVar2, sectp->floorshade, sActor, sPlayer);
 		break;
 	case SECTOR_FLOORPAL:
-		if (bSet) sector[iSector].floorpal = lValue;
-		else SetGameVarID(lVar2, sector[iSector].floorpal, sActor, sPlayer);
+		if (bSet) sectp->floorpal = lValue;
+		else SetGameVarID(lVar2, sectp->floorpal, sActor, sPlayer);
 		break;
 	case SECTOR_FLOORXPANNING:
-		if (bSet) sector[iSector].floorxpan_ = (float)(lValue & 255);
-		else SetGameVarID(lVar2, sector[iSector].floorxpan(), sActor, sPlayer);
+		if (bSet) sectp->floorxpan_ = (float)(lValue & 255);
+		else SetGameVarID(lVar2, sectp->floorxpan(), sActor, sPlayer);
 		break;
 	case SECTOR_FLOORYPANNING:
-		if (bSet) sector[iSector].floorypan_ = (float)(lValue & 255);
-		else SetGameVarID(lVar2, sector[iSector].floorypan(), sActor, sPlayer);
+		if (bSet) sectp->floorypan_ = (float)(lValue & 255);
+		else SetGameVarID(lVar2, sectp->floorypan(), sActor, sPlayer);
 		break;
 	case SECTOR_VISIBILITY:
-		if (bSet) sector[iSector].visibility = lValue;
-		else SetGameVarID(lVar2, sector[iSector].visibility, sActor, sPlayer);
+		if (bSet) sectp->visibility = lValue;
+		else SetGameVarID(lVar2, sectp->visibility, sActor, sPlayer);
 		break;
 	case SECTOR_LOTAG:
-		if (bSet) sector[iSector].lotag = lValue;
-		else SetGameVarID(lVar2, sector[iSector].lotag, sActor, sPlayer);
+		if (bSet) sectp->lotag = lValue;
+		else SetGameVarID(lVar2, sectp->lotag, sActor, sPlayer);
 		break;
 	case SECTOR_HITAG:
-		if (bSet) sector[iSector].hitag = lValue;
-		else SetGameVarID(lVar2, sector[iSector].hitag, sActor, sPlayer);
+		if (bSet) sectp->hitag = lValue;
+		else SetGameVarID(lVar2, sectp->hitag, sActor, sPlayer);
 		break;
 	case SECTOR_EXTRA:
-		if (bSet) sector[iSector].extra = lValue;
-		else SetGameVarID(lVar2, sector[iSector].extra, sActor, sPlayer);
+		if (bSet) sectp->extra = lValue;
+		else SetGameVarID(lVar2, sectp->extra, sActor, sPlayer);
 		break;
 	default:
 		break;

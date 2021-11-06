@@ -950,9 +950,10 @@ void checkplayerhurt_d(struct player_struct* p, const Collision& coll)
 
 bool checkhitceiling_d(int sn)
 {
+	auto sectp = &sector[sn];
 	int j;
 
-	switch (sector[sn].ceilingpicnum)
+	switch (sectp->ceilingpicnum)
 	{
 	case WALLLIGHT1:
 	case WALLLIGHT2:
@@ -964,26 +965,26 @@ bool checkhitceiling_d(int sn)
 		ceilingglass(ps[myconnectindex].GetActor(), sn, 10);
 		S_PlayActorSound(GLASS_BREAKING, ps[screenpeek].GetActor());
 
-		if (sector[sn].ceilingpicnum == WALLLIGHT1)
-			sector[sn].ceilingpicnum = WALLLIGHTBUST1;
+		if (sectp->ceilingpicnum == WALLLIGHT1)
+			sectp->ceilingpicnum = WALLLIGHTBUST1;
 
-		if (sector[sn].ceilingpicnum == WALLLIGHT2)
-			sector[sn].ceilingpicnum = WALLLIGHTBUST2;
+		if (sectp->ceilingpicnum == WALLLIGHT2)
+			sectp->ceilingpicnum = WALLLIGHTBUST2;
 
-		if (sector[sn].ceilingpicnum == WALLLIGHT3)
-			sector[sn].ceilingpicnum = WALLLIGHTBUST3;
+		if (sectp->ceilingpicnum == WALLLIGHT3)
+			sectp->ceilingpicnum = WALLLIGHTBUST3;
 
-		if (sector[sn].ceilingpicnum == WALLLIGHT4)
-			sector[sn].ceilingpicnum = WALLLIGHTBUST4;
+		if (sectp->ceilingpicnum == WALLLIGHT4)
+			sectp->ceilingpicnum = WALLLIGHTBUST4;
 
-		if (sector[sn].ceilingpicnum == TECHLIGHT2)
-			sector[sn].ceilingpicnum = TECHLIGHTBUST2;
+		if (sectp->ceilingpicnum == TECHLIGHT2)
+			sectp->ceilingpicnum = TECHLIGHTBUST2;
 
-		if (sector[sn].ceilingpicnum == TECHLIGHT4)
-			sector[sn].ceilingpicnum = TECHLIGHTBUST4;
+		if (sectp->ceilingpicnum == TECHLIGHT4)
+			sectp->ceilingpicnum = TECHLIGHTBUST4;
 
 
-		if (!sector[sn].hitag)
+		if (!sectp->hitag)
 		{
 			DukeSectIterator it(sn);
 			while (auto act = it.Next())
@@ -1005,7 +1006,7 @@ bool checkhitceiling_d(int sn)
 		DukeStatIterator it(STAT_EFFECTOR);
 		while (auto act = it.Next())
 		{
-			if (act->s->hitag == (sector[sn].hitag) && act->s->lotag == 3)
+			if (act->s->hitag == (sectp->hitag) && act->s->lotag == 3)
 			{
 				act->temp_data[2] = j;
 				act->temp_data[4] = 1;
