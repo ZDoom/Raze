@@ -3443,7 +3443,7 @@ void handle_se06_d(DDukeActor* actor)
 	auto s = actor->s;
 	auto t = &actor->temp_data[0];
 
-	auto sc = &sector[s->sectnum];
+	auto sc = actor->getSector();
 	int st = s->lotag;
 	int sh = s->hitag;
 
@@ -3497,7 +3497,7 @@ void handle_se06_d(DDukeActor* actor)
 static void handle_se28(DDukeActor* actor)
 {
 	auto s = actor->s;
-	auto sc = &sector[s->sectnum];
+	auto sc = actor->getSector();
 	int st = s->lotag;
 	int sh = s->hitag;
 	int* t = &actor->temp_data[0];

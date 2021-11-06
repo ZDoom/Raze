@@ -90,6 +90,10 @@ struct DDukeActor
 		return s->yvel;
 	}
 
+	sectortype* getSector() const
+	{
+		return &sector[s->sectnum];
+	}
 
 
 };
