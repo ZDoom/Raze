@@ -621,11 +621,12 @@ int initreactor(DDukeActor* actj, DDukeActor* actor, bool isrecon)
 void spawneffector(DDukeActor* actor)
 {
 	auto sp = actor->s;
+	auto sectp = sp->sector();
 	int sect = sp->sectnum;
 	auto t = actor->temp_data;
 	int startwall, endwall, x, y, d, s, clostest;
 
-	sp->yvel = sector[sect].extra;
+	sp->yvel = sectp->extra;
 	sp->cstat |= 32768;
 	sp->xrepeat = sp->yrepeat = 0;
 
@@ -651,7 +652,7 @@ void spawneffector(DDukeActor* actor)
 			}
 			else actor->SetOwner(actor);
 
-			t[4] = sector[sect].floorz == sp->z;
+			t[4] = sectp->floorz == sp->z;
 			sp->cstat = 0;
 			changeactorstat(actor, STAT_TRANSPORT);
 			return;
@@ -663,15 +664,15 @@ void spawneffector(DDukeActor* actor)
 
 			if (sp->ang == 512)
 			{
-				t[1] = sector[sect].ceilingz;
+				t[1] = sectp->ceilingz;
 				if (sp->pal)
-					sector[sect].ceilingz = sp->z;
+					sectp->ceilingz = sp->z;
 			}
 			else
 			{
-				t[1] = sector[sect].floorz;
+				t[1] = sectp->floorz;
 				if (sp->pal)
-					sector[sect].floorz = sp->z;
+					sectp->floorz = sp->z;
 			}
 
 			sp->hitag <<= 2;
@@ -683,17 +684,17 @@ void spawneffector(DDukeActor* actor)
 		case SE_25_PISTON: // Pistons
 			if (!isRR())
 			{
-				t[3] = sector[sect].ceilingz;
+				t[3] = sectp->ceilingz;
 				t[4] = 1;
 			}
 			else
-				t[4] = sector[sect].ceilingz;
+				t[4] = sectp->ceilingz;
 
-			sector[sect].ceilingz = sp->z;
+			sectp->ceilingz = sp->z;
 			StartInterpolation(sect, Interp_Sect_Ceilingz);
 			break;
 		case SE_35:
-			sector[sect].ceilingz = sp->z;
+			sectp->ceilingz = sp->z;
 			break;
 		case SE_27_DEMO_CAM:
 			if (ud.recstat == 1)
@@ -707,14 +708,14 @@ void spawneffector(DDukeActor* actor)
 			if (!isRRRA()) break;
 		case SE_12_LIGHT_SWITCH:
 
-			t[1] = sector[sect].floorshade;
-			t[2] = sector[sect].ceilingshade;
+			t[1] = sectp->floorshade;
+			t[2] = sectp->ceilingshade;
 			break;
 
 		case SE_13_EXPLOSIVE:
 		{
-			t[0] = sector[sect].ceilingz;
-			t[1] = sector[sect].floorz;
+			t[0] = sectp->ceilingz;
+			t[1] = sectp->floorz;
 
 			bool ceiling = (abs(t[0] - sp->z) < abs(t[1] - sp->z));
 			actor->spriteextra = ceiling;
@@ -722,40 +723,40 @@ void spawneffector(DDukeActor* actor)
 			if (sp->ang == 512)
 			{
 				if (ceiling)
-					sector[sect].ceilingz = sp->z;
+					sectp->ceilingz = sp->z;
 				else
-					sector[sect].floorz = sp->z;
+					sectp->floorz = sp->z;
 			}
 			else
-				sector[sect].ceilingz = sector[sect].floorz = sp->z;
+				sectp->ceilingz = sectp->floorz = sp->z;
 
-			if (sector[sect].ceilingstat & 1)
+			if (sectp->ceilingstat & 1)
 			{
-				sector[sect].ceilingstat ^= 1;
+				sectp->ceilingstat ^= 1;
 				t[3] = 1;
 
 				if (!ceiling && sp->ang == 512)
 				{
-					sector[sect].ceilingstat ^= 1;
+					sectp->ceilingstat ^= 1;
 					t[3] = 0;
 				}
 
-				sector[sect].ceilingshade =
-					sector[sect].floorshade;
+				sectp->ceilingshade =
+					sectp->floorshade;
 
 				if (sp->ang == 512)
 				{
-					startwall = sector[sect].wallptr;
-					endwall = startwall + sector[sect].wallnum;
+					startwall = sectp->wallptr;
+					endwall = startwall + sectp->wallnum;
 					for (int j = startwall; j < endwall; j++)
 					{
 						int x = wall[j].nextsector;
 						if (x >= 0)
 							if (!(sector[x].ceilingstat & 1))
 							{
-								sector[sect].ceilingpicnum =
+								sectp->ceilingpicnum =
 									sector[x].ceilingpicnum;
-								sector[sect].ceilingshade =
+								sectp->ceilingshade =
 									sector[x].ceilingshade;
 								break; //Leave earily
 							}
@@ -767,12 +768,12 @@ void spawneffector(DDukeActor* actor)
 		}
 		case SE_17_WARP_ELEVATOR:
 		{
-			t[2] = sector[sect].floorz; //Stopping loc
+			t[2] = sectp->floorz; //Stopping loc
 
-			int j = nextsectorneighborz(sect, sector[sect].floorz, -1, -1);
+			int j = nextsectorneighborz(sect, sectp->floorz, -1, -1);
 			t[3] = sector[j].ceilingz;
 
-			j = nextsectorneighborz(sect, sector[sect].ceilingz, 1, 1);
+			j = nextsectorneighborz(sect, sectp->ceilingz, 1, 1);
 			t[4] = sector[j].floorz;
 
 			if (numplayers < 2)
@@ -800,8 +801,8 @@ void spawneffector(DDukeActor* actor)
 		{
 			int q;
 
-			startwall = sector[sect].wallptr;
-			endwall = startwall + sector[sect].wallnum;
+			startwall = sectp->wallptr;
+			endwall = startwall + sectp->wallnum;
 
 			//find the two most clostest wall x's and y's
 			q = 0x7fffffff;
@@ -845,17 +846,17 @@ void spawneffector(DDukeActor* actor)
 
 		case SE_3_RANDOM_LIGHTS_AFTER_SHOT_OUT:
 
-			t[3] = sector[sect].floorshade;
+			t[3] = sectp->floorshade;
 
-			sector[sect].floorshade = sp->shade;
-			sector[sect].ceilingshade = sp->shade;
+			sectp->floorshade = sp->shade;
+			sectp->ceilingshade = sp->shade;
 
-			actor->palvals = (sector[sect].ceilingpal << 8) | sector[sect].floorpal;
+			actor->palvals = (sectp->ceilingpal << 8) | sectp->floorpal;
 
 			//fix all the walls;
 
-			startwall = sector[sect].wallptr;
-			endwall = startwall + sector[sect].wallnum;
+			startwall = sectp->wallptr;
+			endwall = startwall + sectp->wallnum;
 
 			for (s = startwall; s < endwall; s++)
 			{
@@ -867,12 +868,12 @@ void spawneffector(DDukeActor* actor)
 			break;
 
 		case SE_31_FLOOR_RISE_FALL:
-			t[1] = sector[sect].floorz;
+			t[1] = sectp->floorz;
 			//	t[2] = sp->hitag;
-			if (sp->ang != 1536) sector[sect].floorz = sp->z;
+			if (sp->ang != 1536) sectp->floorz = sp->z;
 
-			startwall = sector[sect].wallptr;
-			endwall = startwall + sector[sect].wallnum;
+			startwall = sectp->wallptr;
+			endwall = startwall + sectp->wallnum;
 
 			for (s = startwall; s < endwall; s++)
 				if (wall[s].hitag == 0) wall[s].hitag = 9999;
@@ -881,12 +882,12 @@ void spawneffector(DDukeActor* actor)
 
 			break;
 		case SE_32_CEILING_RISE_FALL:
-			t[1] = sector[sect].ceilingz;
+			t[1] = sectp->ceilingz;
 			t[2] = sp->hitag;
-			if (sp->ang != 1536) sector[sect].ceilingz = sp->z;
+			if (sp->ang != 1536) sectp->ceilingz = sp->z;
 
-			startwall = sector[sect].wallptr;
-			endwall = startwall + sector[sect].wallnum;
+			startwall = sectp->wallptr;
+			endwall = startwall + sectp->wallnum;
 
 			for (s = startwall; s < endwall; s++)
 				if (wall[s].hitag == 0) wall[s].hitag = 9999;
@@ -897,12 +898,12 @@ void spawneffector(DDukeActor* actor)
 
 		case SE_4_RANDOM_LIGHTS: //Flashing lights
 
-			t[2] = sector[sect].floorshade;
+			t[2] = sectp->floorshade;
 
-			startwall = sector[sect].wallptr;
-			endwall = startwall + sector[sect].wallnum;
+			startwall = sectp->wallptr;
+			endwall = startwall + sectp->wallnum;
 
-			actor->palvals = (sector[sect].ceilingpal << 8) | sector[sect].floorpal;
+			actor->palvals = (sectp->ceilingpal << 8) | sectp->floorpal;
 
 			for (s = startwall; s < endwall; s++)
 				if (wall[s].shade > t[3])
@@ -911,17 +912,17 @@ void spawneffector(DDukeActor* actor)
 			break;
 
 		case SE_9_DOWN_OPEN_DOOR_LIGHTS:
-			if (sector[sect].lotag &&
-				labs(sector[sect].ceilingz - sp->z) > 1024)
-				sector[sect].lotag |= 32768; //If its open
+			if (sectp->lotag &&
+				labs(sectp->ceilingz - sp->z) > 1024)
+				sectp->lotag |= 32768; //If its open
 		case SE_8_UP_OPEN_DOOR_LIGHTS:
 			//First, get the ceiling-floor shade
 
-			t[0] = sector[sect].floorshade;
-			t[1] = sector[sect].ceilingshade;
+			t[0] = sectp->floorshade;
+			t[1] = sectp->ceilingshade;
 
-			startwall = sector[sect].wallptr;
-			endwall = startwall + sector[sect].wallnum;
+			startwall = sectp->wallptr;
+			endwall = startwall + sectp->wallnum;
 
 			for (s = startwall; s < endwall; s++)
 				if (wall[s].shade > t[2])
@@ -935,11 +936,11 @@ void spawneffector(DDukeActor* actor)
 			//First, get the ceiling-floor shade
 			if (!isRR()) break;
 
-			t[0] = sector[sect].floorshade;
-			t[1] = sector[sect].ceilingshade;
+			t[0] = sectp->floorshade;
+			t[1] = sectp->ceilingshade;
 
-			startwall = sector[sect].wallptr;
-			endwall = startwall + sector[sect].wallnum;
+			startwall = sectp->wallptr;
+			endwall = startwall + sectp->wallnum;
 
 			for (s = startwall; s < endwall; s++)
 				if (wall[s].shade > t[2])
@@ -963,12 +964,12 @@ void spawneffector(DDukeActor* actor)
 
 			if (sp->lotag == 0)
 			{
-				if (sector[sect].lotag == 30)
+				if (sectp->lotag == 30)
 				{
 					if (sp->pal) sp->clipdist = 1;
 					else sp->clipdist = 0;
-					t[3] = sector[sect].floorz;
-					sector[sect].hitag = ActorToScriptIndex(actor);
+					t[3] = sectp->floorz;
+					sectp->hitag = ActorToScriptIndex(actor);
 				}
 
 				DukeLinearSpriteIterator it;
@@ -1002,8 +1003,8 @@ void spawneffector(DDukeActor* actor)
 				}
 			}
 
-			startwall = sector[sect].wallptr;
-			endwall = startwall + sector[sect].wallnum;
+			startwall = sectp->wallptr;
+			endwall = startwall + sectp->wallnum;
 
 			t[1] = tempwallptr;
 			for (s = startwall; s < endwall; s++)
@@ -1019,14 +1020,14 @@ void spawneffector(DDukeActor* actor)
 			if (sp->lotag == SE_30_TWO_WAY_TRAIN || sp->lotag == SE_6_SUBWAY || sp->lotag == SE_14_SUBWAY_CAR || sp->lotag == SE_5_BOSS)
 			{
 
-				startwall = sector[sect].wallptr;
-				endwall = startwall + sector[sect].wallnum;
+				startwall = sectp->wallptr;
+				endwall = startwall + sectp->wallnum;
 
-				if (sector[sect].hitag == -1)
+				if (sectp->hitag == -1)
 					sp->extra = 0;
 				else sp->extra = 1;
 
-				sector[sect].hitag = ActorToScriptIndex(actor);
+				sectp->hitag = ActorToScriptIndex(actor);
 
 				int j = 0;
 
@@ -1055,13 +1056,13 @@ void spawneffector(DDukeActor* actor)
 			}
 
 			else if (sp->lotag == SE_16_REACTOR)
-				t[3] = sector[sect].ceilingz;
+				t[3] = sectp->ceilingz;
 
 			else if (sp->lotag == SE_26)
 			{
 				t[3] = sp->x;
 				t[4] = sp->y;
-				if (sp->shade == sector[sect].floorshade) //UP
+				if (sp->shade == sectp->floorshade) //UP
 					sp->zvel = -256;
 				else
 					sp->zvel = 256;
