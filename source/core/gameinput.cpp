@@ -282,36 +282,40 @@ void PlayerHorizon::applyinput(float const horz, ESyncBits* actions, double cons
 	// Process only if movewment isn't locked.
 	if (!movementlocked())
 	{
-		// Store current horizon as true pitch.
-		double pitch = horiz.aspitch();
-
-		// Process mouse input.
-		if (horz)
+		// Test if we have input to process.
+		if (horz || *actions & (SB_AIM_UP | SB_AIM_DOWN | SB_LOOK_UP | SB_LOOK_DOWN))
 		{
-			*actions &= ~SB_CENTERVIEW;
-			pitch += horz;
-		}
+			// Store current horizon as true pitch.
+			double pitch = horiz.aspitch();
 
-		// Process keyboard input.
-		auto doKbdInput = [&](ESyncBits_ const up, ESyncBits_ const down, double const rate, bool const lock)
-		{
-			if (*actions & (up | down))
+			// Process mouse input.
+			if (horz)
 			{
-				if (lock) *actions &= ~SB_CENTERVIEW; else *actions |= SB_CENTERVIEW;
-				double const amount = scaleAdjust * HorizToPitch(getTicrateScale(rate));
-
-				if (*actions & down)
-					pitch -= amount;
-
-				if (*actions & up)
-					pitch += amount;
+				*actions &= ~SB_CENTERVIEW;
+				pitch += horz;
 			}
-		};
-		doKbdInput(SB_AIM_UP, SB_AIM_DOWN, AIMSPEED, true);
-		doKbdInput(SB_LOOK_UP, SB_LOOK_DOWN, LOOKSPEED, false);
 
-		// clamp before converting back to horizon
-		horiz = q16horiz(clamp(PitchToHoriz(pitch), gi->playerHorizMin(), gi->playerHorizMax()));
+			// Process keyboard input.
+			auto doKbdInput = [&](ESyncBits_ const up, ESyncBits_ const down, double const rate, bool const lock)
+			{
+				if (*actions & (up | down))
+				{
+					if (lock) *actions &= ~SB_CENTERVIEW; else *actions |= SB_CENTERVIEW;
+					double const amount = scaleAdjust * HorizToPitch(getTicrateScale(rate));
+
+					if (*actions & down)
+						pitch -= amount;
+
+					if (*actions & up)
+						pitch += amount;
+				}
+			};
+			doKbdInput(SB_AIM_UP, SB_AIM_DOWN, AIMSPEED, true);
+			doKbdInput(SB_LOOK_UP, SB_LOOK_DOWN, LOOKSPEED, false);
+
+			// clamp before converting back to horizon
+			horiz = q16horiz(clamp(PitchToHoriz(pitch), gi->playerHorizMin(), gi->playerHorizMax()));
+		}
 
 		// return to center if conditions met.
 		if ((*actions & SB_CENTERVIEW) && !(*actions & (SB_LOOK_UP|SB_LOOK_DOWN)) && horiz.asq16())
