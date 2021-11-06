@@ -9,6 +9,24 @@
 int getincangle(int a, int na);
 binangle getincanglebam(binangle a, binangle na);
 
+
+//---------------------------------------------------------------------------
+//
+// Functions for dividing an input value by current ticrate for angle/horiz scaling.
+//
+//---------------------------------------------------------------------------
+
+inline double getTicrateScale(double const value)
+{
+	return value / GameTicRate;
+}
+
+inline double getTicrateScale(double const value, double const scaleAdjust)
+{
+	return scaleAdjust * getTicrateScale(value);
+}
+
+
 struct PlayerHorizon
 {
 	fixedhoriz horiz, ohoriz, horizoff, ohorizoff;
@@ -51,6 +69,12 @@ struct PlayerHorizon
 
 	// Draw code helpers.
 	double horizsumfrac(double const smoothratio) { return (!SyncInput() ? sum() : interpolatedsum(smoothratio)).asbuildf() * (1. / 16.); }
+
+	// Ticrate scale helper.
+	fixedhoriz getscaledhoriz(double const value, double const scaleAdjust = 1., fixedhoriz* const object = nullptr, double const push = 0.)
+	{
+		return buildfhoriz(scaleAdjust * (((object ? object->asbuildf() : 1.) * getTicrateScale(value)) + push));
+	}
 
 	// Ticrate playsim adjustment processor.
 	void processhelpers(double const scaleAdjust)
@@ -156,6 +180,12 @@ struct PlayerAngle
 	// Draw code helpers.
 	double look_anghalf(double const smoothratio) { return (!SyncInput() ? look_ang : interpolatedlookang(smoothratio)).signedbuildf() * 0.5; }
 	double looking_arc(double const smoothratio) { return fabs((!SyncInput() ? look_ang : interpolatedlookang(smoothratio)).signedbuildf()) * (1. / 9.); }
+
+	// Ticrate scale helper.
+	binangle getscaledangle(double const value, double const scaleAdjust = 1., binangle* const object = nullptr, double const push = 0.)
+	{
+		return buildfang(scaleAdjust * (((object ? object->signedbuildf() : 1.) * getTicrateScale(value)) + push));
+	}
 
 	// Ticrate playsim adjustment processor.
 	void processhelpers(double const scaleAdjust)

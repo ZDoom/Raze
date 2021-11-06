@@ -89,12 +89,12 @@ static double turnheldtime;
 
 void updateTurnHeldAmt(double const scaleAdjust)
 {
-	turnheldtime += scaleAdjust * (double(BUILDTICRATE) / GameTicRate);
+	turnheldtime += getTicrateScale(BUILDTICRATE, scaleAdjust);
 }
 
 bool isTurboTurnTime()
 {
-	return turnheldtime >= double(TURBOTURNBASE) / GameTicRate;
+	return turnheldtime >= getTicrateScale(TURBOTURNBASE);
 }
 
 void resetTurnHeldAmt()
@@ -145,7 +145,7 @@ void processMovement(InputPacket* const currInput, InputPacket* const inputBuffe
 	int const keymove = gi->playerKeyMove() << running;
 	float const mousevelscale = keymove * (1.f / 160.f);
 	double const cntrlvelscale = g_gameType & GAMEFLAG_PSEXHUMED ? 8. : 1.;
-	double const hidspeed = (double(running ? RUNNINGTURNBASE : NORMALTURNBASE) / GameTicRate) * BAngToDegree;
+	double const hidspeed = getTicrateScale(running ? RUNNINGTURNBASE : NORMALTURNBASE) * BAngToDegree;
 
 	// process mouse and initial controller input.
 	if (buttonMap.ButtonDown(gamefunc_Strafe) && allowstrafe)
@@ -295,26 +295,26 @@ void PlayerHorizon::applyinput(float const horz, ESyncBits* actions, double cons
 		if (*actions & (SB_AIM_UP|SB_AIM_DOWN))
 		{
 			*actions &= ~SB_CENTERVIEW;
-			double const amount = HorizToPitch(double(AIMSPEED) / GameTicRate);
+			double const amount = scaleAdjust * HorizToPitch(getTicrateScale(AIMSPEED));
 
 			if (*actions & SB_AIM_DOWN)
-				pitch -= scaleAdjust * amount;
+				pitch -= amount;
 
 			if (*actions & SB_AIM_UP)
-				pitch += scaleAdjust * amount;
+				pitch += amount;
 		}
 
 		// this is the unlocked type
 		if (*actions & (SB_LOOK_UP|SB_LOOK_DOWN))
 		{
 			*actions |= SB_CENTERVIEW;
-			double const amount = HorizToPitch(double(LOOKSPEED) / GameTicRate);
+			double const amount = scaleAdjust * HorizToPitch(getTicrateScale(LOOKSPEED));
 
 			if (*actions & SB_LOOK_DOWN)
-				pitch -= scaleAdjust * amount;
+				pitch -= amount;
 
 			if (*actions & SB_LOOK_UP)
-				pitch += scaleAdjust * amount;
+				pitch += amount;
 		}
 
 		// clamp before converting back to horizon
@@ -324,7 +324,7 @@ void PlayerHorizon::applyinput(float const horz, ESyncBits* actions, double cons
 		if ((*actions & SB_CENTERVIEW) && !(*actions & (SB_LOOK_UP|SB_LOOK_DOWN)) && horiz.asq16())
 		{
 			// move horiz back to 0
-			horiz -= buildfhoriz(scaleAdjust * horiz.asbuildf() * (double(CNTRSPEED) / GameTicRate));
+			horiz -= getscaledhoriz(CNTRSPEED, scaleAdjust, &horiz);
 			if (abs(horiz.asq16()) < (FRACUNIT >> 2))
 			{
 				// not looking anymore because horiz is back at 0
@@ -381,29 +381,29 @@ void PlayerAngle::applyinput(float const avel, ESyncBits* actions, double const 
 	{
 		// return rotscrnang to 0
 		auto sgn = Sgn(rotscrnang.signedbam());
-		rotscrnang -= buildfang(scaleAdjust * ((rotscrnang.signedbuildf() * (double(LOOKROTRETBASE) / GameTicRate)) + sgn));
+		rotscrnang -= getscaledangle(LOOKROTRETBASE, scaleAdjust, &rotscrnang, sgn);
 		if (sgn != Sgn(rotscrnang.signedbam())) rotscrnang = bamang(0);
 	}
 
 	if (look_ang.asbam())
 	{
 		// return look_ang to 0
-		look_ang -= buildfang(scaleAdjust * look_ang.signedbuildf() * ((+LOOKROTRETBASE * 0.5) / GameTicRate));
+		look_ang -= getscaledangle(+LOOKROTRETBASE * 0.5, scaleAdjust, &look_ang);
 		if (abs(look_ang.signedbam()) < (BAMUNIT >> 2)) look_ang = bamang(0);
 	}
 
 	if (*actions & SB_LOOK_LEFT)
 	{
 		// start looking left
-		look_ang -= buildfang(scaleAdjust * (double(LOOKINGSPEED) / GameTicRate));
-		rotscrnang += buildfang(scaleAdjust * (double(ROTATESPEED) / GameTicRate));
+		look_ang -= getscaledangle(LOOKINGSPEED, scaleAdjust);
+		rotscrnang += getscaledangle(ROTATESPEED, scaleAdjust);
 	}
 
 	if (*actions & SB_LOOK_RIGHT)
 	{
 		// start looking right
-		look_ang += buildfang(scaleAdjust * (double(LOOKINGSPEED) / GameTicRate));
-		rotscrnang -= buildfang(scaleAdjust * (double(ROTATESPEED) / GameTicRate));
+		look_ang += getscaledangle(LOOKINGSPEED, scaleAdjust);
+		rotscrnang -= getscaledangle(ROTATESPEED, scaleAdjust);
 	}
 
 	if (!movementlocked())
@@ -428,7 +428,7 @@ void PlayerAngle::applyinput(float const avel, ESyncBits* actions, double const 
 		if (spin < 0)
 		{
 			// return spin to 0
-			double add = scaleAdjust * (double(!(*actions & SB_CROUCH) ? SPINSTAND : SPINCROUCH) / GameTicRate);
+			double add = getTicrateScale(!(*actions & SB_CROUCH) ? SPINSTAND : SPINCROUCH, scaleAdjust);
 			spin += add;
 			if (spin > 0)
 			{
@@ -506,13 +506,15 @@ void PlayerHorizon::calcviewpitch(vec2_t const pos, binangle const ang, bool con
 		{
 			// tilt when climbing but you can't even really tell it.
 			if (horizoff.asq16() < IntToFixed(100))
-				horizoff += buildfhoriz(scaleAdjust * (((100 - horizoff.asbuildf()) * (4.375 / GameTicRate)) + 1.));
+			{	auto temphorizoff = buildhoriz(100) - horizoff;
+				horizoff += getscaledhoriz(4.375, scaleAdjust, &temphorizoff, 1.);
+			}
 		}
 		else if (horizoff.asq16())
 		{
 			// Make horizoff grow towards 0 since horizoff is not modified when you're not on a slope.
 			auto sgn = Sgn(horizoff.asq16());
-			horizoff -= buildfhoriz(scaleAdjust * ((horizoff.asbuildf() * (4.375 / GameTicRate)) + sgn));
+			horizoff -= getscaledhoriz(4.375, scaleAdjust, &horizoff, sgn);
 			if (sgn != Sgn(horizoff.asq16())) horizoff = q16horiz(0);
 		}
 	}
