@@ -4501,11 +4501,11 @@ void handle_se27(DDukeActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void handle_se24(DDukeActor *actor, int16_t *list1, int16_t *list2, bool scroll, int TRIPBOMB, int LASERLINE, int CRANE, int shift)
+void handle_se24(DDukeActor *actor, const int16_t *list1, const int16_t *list2, bool scroll, int TRIPBOMB, int LASERLINE, int CRANE, int shift)
 {
 	int* t = &actor->temp_data[0];
 
-	auto testlist = [](int16_t* list, int val) { for (int i = 0; list[i] > 0; i++) if (list[i] == val) return true; return false; };
+	auto testlist = [](const int16_t* list, int val) { for (int i = 0; list[i] > 0; i++) if (list[i] == val) return true; return false; };
 
 	if (t[4]) return;
 
