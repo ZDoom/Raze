@@ -937,13 +937,13 @@ SECT_USERp GetSectUser(short sectnum)
 }
 
 
-int16_t SpawnSprite(short stat, short id, STATEp state, short sectnum, int x, int y, int z, int init_ang, int vel)
+DSWActor* SpawnActor(short stat, short id, STATEp state, short sectnum, int x, int y, int z, int init_ang, int vel)
 {
     SPRITEp sp;
     USERp u;
 
     if (sectnum < 0)
-        return -1;
+        return nullptr;
 
     ASSERT(!Prediction);
 
@@ -980,15 +980,8 @@ int16_t SpawnSprite(short stat, short id, STATEp state, short sectnum, int x, in
     sp->yoffset = 0;
     sp->clipdist = 0;
 
-    return spawnedActor->GetSpriteIndex();
+    return spawnedActor;
 }
-
-DSWActor* SpawnActor(short stat, short id, STATEp state, short sectnum, int x, int y, int z, int ang, int vel)
-{
-    int s = SpawnSprite(stat, id, state, sectnum, x, y, z, ang, vel);
-    return s >= 0 ? &swActors[s] : nullptr;
-}
-
 
 void PicAnimOff(short picnum)
 {
@@ -5184,8 +5177,7 @@ DoCoin(DSWActor* actor)
     return 0;
 }
 
-int
-KillGet(short SpriteNum)
+int KillGet(short SpriteNum)
 {
     auto actor = &swActors[SpriteNum];
     USERp u = actor->u();
@@ -5193,8 +5185,6 @@ KillGet(short SpriteNum)
 
     USERp nu;
     SPRITEp np;
-
-    short New;
 
     switch (gNet.MultiGameType)
     {
@@ -5218,11 +5208,11 @@ KillGet(short SpriteNum)
         if (!gNet.SpawnMarkers || sp->hitag == TAG_NORESPAWN_FLAG)  // No coin if it's a special flag
             break;
 
-        New = SpawnSprite(STAT_ITEM, Red_COIN, s_RedCoin, sp->sectnum,
+        auto actorNew = SpawnActor(STAT_ITEM, Red_COIN, s_RedCoin, sp->sectnum,
                           sp->x, sp->y, sp->z, 0, 0);
 
-        np = &sprite[New];
-        nu = User[New].Data();
+        np = &actorNew->s();
+        nu = actorNew->u();
 
         np->shade = -20;
         nu->WaitTics = u->WaitTics - 12;
@@ -5232,8 +5222,7 @@ KillGet(short SpriteNum)
     return 0;
 }
 
-int
-KillGetAmmo(short SpriteNum)
+int KillGetAmmo(short SpriteNum)
 {
     auto actor = &swActors[SpriteNum];
     USERp u = actor->u();
@@ -5241,8 +5230,6 @@ KillGetAmmo(short SpriteNum)
 
     USERp nu;
     SPRITEp np;
-
-    short New;
 
     switch (gNet.MultiGameType)
     {
@@ -5274,11 +5261,11 @@ KillGetAmmo(short SpriteNum)
         if (!gNet.SpawnMarkers)
             break;
 
-        New = SpawnSprite(STAT_ITEM, Red_COIN, s_RedCoin, sp->sectnum,
+        auto actorNew = SpawnActor(STAT_ITEM, Red_COIN, s_RedCoin, sp->sectnum,
                           sp->x, sp->y, sp->z, 0, 0);
 
-        np = &sprite[New];
-        nu = User[New].Data();
+        np = &actorNew->s();
+        nu = actorNew->u();
 
         np->shade = -20;
         nu->WaitTics = u->WaitTics - 12;
@@ -5288,8 +5275,7 @@ KillGetAmmo(short SpriteNum)
     return 0;
 }
 
-int
-KillGetWeapon(short SpriteNum)
+int KillGetWeapon(short SpriteNum)
 {
     auto actor = &swActors[SpriteNum];
     USERp u = actor->u();
@@ -5297,8 +5283,6 @@ KillGetWeapon(short SpriteNum)
 
     USERp nu;
     SPRITEp np;
-
-    short New;
 
     switch (gNet.MultiGameType)
     {
@@ -5338,11 +5322,11 @@ KillGetWeapon(short SpriteNum)
         if (!gNet.SpawnMarkers)
             break;
 
-        New = SpawnSprite(STAT_ITEM, Red_COIN, s_RedCoin, sp->sectnum,
+        auto actorNew = SpawnActor(STAT_ITEM, Red_COIN, s_RedCoin, sp->sectnum,
                           sp->x, sp->y, sp->z, 0, 0);
 
-        np = &sprite[New];
-        nu = User[New].Data();
+        np = &actorNew->s();
+        nu = actorNew->u();
 
         np->shade = -20;
         nu->WaitTics = u->WaitTics - 12;
@@ -5356,14 +5340,13 @@ int
 DoSpawnItemTeleporterEffect(SPRITEp sp)
 {
     extern STATE s_TeleportEffect[];
-    short effect;
     SPRITEp ep;
 
-    effect = SpawnSprite(STAT_MISSILE, 0, s_TeleportEffect, sp->sectnum,
+    auto effect = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, sp->sectnum,
                          sp->x, sp->y, sp->z - Z(12),
                          sp->ang, 0);
 
-    ep = &sprite[effect];
+    ep = &effect->s();
 
     ep->shade = -40;
     ep->xrepeat = ep->yrepeat = 36;
@@ -5450,7 +5433,6 @@ DoGet(DSWActor* actor)
     // For flag stuff
     USERp nu;
     SPRITEp np;
-    short New;
 
 
     // Invisiblility is only used for DeathMatch type games
@@ -6286,16 +6268,16 @@ KeyMain:
 
             PlaySound(DIGI_ITEM, sp, v3df_dontpan);
 
+            DSWActor* actorNew;
             if (sp->hitag == TAG_NORESPAWN_FLAG)
-                New = SpawnSprite(STAT_ITEM, ICON_FLAG, s_CarryFlagNoDet, sp->sectnum,
+                actorNew = SpawnActor(STAT_ITEM, ICON_FLAG, s_CarryFlagNoDet, sp->sectnum,
                                   sp->x, sp->y, sp->z, 0, 0);
             else
-                New = SpawnSprite(STAT_ITEM, ICON_FLAG, s_CarryFlag, sp->sectnum,
+                actorNew = SpawnActor(STAT_ITEM, ICON_FLAG, s_CarryFlag, sp->sectnum,
                                   sp->x, sp->y, sp->z, 0, 0);
 
-            auto actorNew = &swActors[New];
-            np = &sprite[New];
-            nu = User[New].Data();
+            np = &actorNew->s();
+            nu = actorNew->u();
             np->shade = -20;
 
             // Attach flag to player

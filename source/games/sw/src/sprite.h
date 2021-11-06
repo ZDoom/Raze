@@ -32,7 +32,6 @@ BEGIN_SW_NS
 
 void KillSprite(int16_t SpriteNum);
 void KillActor(DSWActor* actor);
-int16_t SpawnSprite(short stat, short id, STATEp state, short sectnum, int x, int y, int z, int ang, int vel);
 DSWActor* SpawnActor(short stat, short id, STATEp state, short sectnum, int x, int y, int z, int ang, int vel);
 void SpriteSetup(void);
 int move_actor(DSWActor* actor, int xchange, int ychange, int zchange);
