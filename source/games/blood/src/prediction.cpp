@@ -248,12 +248,12 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
         if (nSector2 == nSector)
         {
             int z2 = getflorzofslope(nSector2, x2, y2);
-            predict.horizoff = q16horiz(interpolatedvalue(predict.horizoff.asq16(), IntToFixed(z1 - z2) >> 3, 0x4000));
+            predict.horizoff = interpolatedhorizon(predict.horizoff, q16horiz((z1 - z2) << 13), 0x4000);
         }
     }
     else
     {
-        predict.horizoff = q16horiz(interpolatedvalue(predict.horizoff.asq16(), 0, 0x4000));
+        predict.horizoff = interpolatedhorizon(predict.horizoff, q16horiz(0), 0x4000);
         if (abs(predict.horizoff.asq16()) < 4)
             predict.horizoff = q16horiz(0);
     }

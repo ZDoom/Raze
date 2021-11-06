@@ -52,7 +52,7 @@ struct PlayerHorizon
 	// Commonly used getters.
 	fixedhoriz osum() { return ohoriz + ohorizoff; }
 	fixedhoriz sum() { return horiz + horizoff; }
-	fixedhoriz interpolatedsum(double const smoothratio) { return q16horiz(interpolatedvalue(osum().asq16(), sum().asq16(), smoothratio)); }
+	fixedhoriz interpolatedsum(double const smoothratio) { return interpolatedhorizon(osum(), sum(), smoothratio); }
 
 	// Ticrate playsim adjustment helpers.
 	void addadjustment(double value) { __addadjustment(buildfhoriz(value));	}

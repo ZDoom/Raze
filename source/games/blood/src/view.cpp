@@ -445,14 +445,8 @@ void SetupView(int &cX, int& cY, int& cZ, binangle& cA, fixedhoriz& cH, int& nSe
         }
         else
         {
-            auto oang = predictOld.angle + predictOld.look_ang;
-            auto ang = predict.angle + predict.look_ang;
-            cA = interpolatedangle(oang, ang, gInterpolate);
-
-            fixed_t ohoriz = (predictOld.horiz + predictOld.horizoff).asq16();
-            fixed_t horiz = (predict.horiz + predict.horizoff).asq16();
-            cH = q16horiz(interpolatedvalue(ohoriz, horiz, gInterpolate));
-
+            cA = interpolatedangle(predictOld.angle + predictOld.look_ang, predict.angle + predict.look_ang, gInterpolate);
+            cH = interpolatedhorizon(predictOld.horiz + predictOld.horizoff, predict.horiz + predict.horizoff, gInterpolate);
             rotscrnang = interpolatedangle(predictOld.rotscrnang, predict.rotscrnang, gInterpolate);
         }
     }

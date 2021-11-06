@@ -322,7 +322,7 @@ void displayrooms(int snum, double smoothratio)
 			cposz = interpolatedvalue(omyz, myz, smoothratio);
 			if (SyncInput())
 			{
-				choriz = q16horiz(interpolatedvalue((omyhoriz + omyhorizoff).asq16(), (myhoriz + myhorizoff).asq16(), smoothratio));
+				choriz = interpolatedhorizon(omyhoriz + omyhorizoff, myhoriz + myhorizoff, smoothratio);
 				cang = interpolatedangle(omyang, myang, smoothratio);
 			}
 			else

@@ -405,3 +405,13 @@ inline constexpr binangle interpolatedangle(binangle oang, binangle ang, int con
 {
 	return bamang(oang.asbam() + MulScale(((ang.asbam() + 0x80000000 - oang.asbam()) & 0xFFFFFFFF) - 0x80000000, smoothratio, scale));
 }
+
+inline constexpr fixedhoriz interpolatedhorizon(fixedhoriz oval, fixedhoriz val, double const smoothratio, int const scale = 16)
+{
+	return q16horiz(oval.asq16() + MulScale((val - oval).asq16(), int(smoothratio), scale));
+}
+
+inline constexpr fixedhoriz interpolatedhorizon(fixedhoriz oval, fixedhoriz val, int const smoothratio, int const scale = 16)
+{
+	return q16horiz(oval.asq16() + MulScale((val - oval).asq16(), smoothratio, scale));
+}
