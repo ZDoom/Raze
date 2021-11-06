@@ -959,14 +959,14 @@ void SerializeUser(FSerializer& arc)
 	{
 		for (int i = 0; i < MAXSPRITES; i++)
 		{
-			hitlist.Set(i, !!User[i].Data());
+			hitlist.Set(i, swActors[i].hasU());
 		}
 	}
 	else
 	{
 		for (int i = 0; i < MAXSPRITES; i++)
 		{
-			User[i].Clear();
+			swActors[i].clearUser();
 		}
 	}
 	arc("usermap", hitlist);

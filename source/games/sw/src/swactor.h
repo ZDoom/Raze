@@ -9,6 +9,7 @@ class DSWActor
 {
 	int index;
 	DSWActor* base();
+	auto& up() { return User[index]; }
 
 public:
 
@@ -19,20 +20,21 @@ public:
 	{
 		clearUser();
 	}
-	bool hasU() { return User[index].Data() != nullptr; }
+	bool hasU() { return u() != nullptr; }
+
 
 	spritetype& s() { return sprite[index]; }
-	USER* u() { return User[index].Data(); }
+	USER* u() { return up().Data(); }
 	USER* allocUser() 
 	{ 
-		User[index].Alloc(); 
-		User[index]->SpriteNum = GetSpriteIndex();
-		return User[index].Data(); 
+		up().Alloc(); 
+		u()->SpriteNum = GetSpriteIndex();
+		return u(); 
 	}
 
 	void clearUser()
 	{
-		if (hasU()) User[index].Clear();
+		up().Clear();
 	}
 
 	int GetIndex() 
