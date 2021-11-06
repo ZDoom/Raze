@@ -69,7 +69,11 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
         {
             pPlayer->angle.applyinput(input.avel, &sPlayerInput[nLocalPlayer].actions, scaleAdjust);
             pPlayer->horizon.applyinput(input.horz, &sPlayerInput[nLocalPlayer].actions, scaleAdjust);
-            pPlayer->bPlayerPan = pPlayer->bLockPan = input.horz != 0;
+
+            if (input.horz)
+            {
+                pPlayer->bPlayerPan = pPlayer->bLockPan = true;
+            }
         }
 
         pPlayer->angle.processhelpers(scaleAdjust);
