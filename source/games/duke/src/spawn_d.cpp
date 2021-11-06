@@ -54,6 +54,7 @@ int spawn_d(int j, int pn)
     auto spj = j < 0 ? nullptr : actj->s;
     auto t = act->temp_data;
     int sect = sp->sectnum;
+    auto sectp = sp->sector();
 
 
 	if (isWorldTour()) 
@@ -175,8 +176,8 @@ int spawn_d(int j, int pn)
                         sp->z = getflorzofslope(sp->sectnum,sp->x,sp->y);
                 }
 
-                if(sector[sect].floorpicnum == FLOORSLIME ||
-                    sector[sect].ceilingpicnum == FLOORSLIME)
+                if(sectp->floorpicnum == FLOORSLIME ||
+                    sectp->ceilingpicnum == FLOORSLIME)
                         sp->pal = 7;
             case NEON1:
             case NEON2:
@@ -711,9 +712,9 @@ int spawn_d(int j, int pn)
                 changespritestat(i,6);
                 break;
             case TOUCHPLATE:
-                t[2] = sector[sect].floorz;
-                if(sector[sect].lotag != 1 && sector[sect].lotag != 2)
-                    sector[sect].floorz = sp->z;
+                t[2] = sectp->floorz;
+                if(sectp->lotag != 1 && sectp->lotag != 2)
+                    sectp->floorz = sp->z;
                 if (!isWorldTour())
                 {
                     if (sp->pal && ud.multimode > 1)

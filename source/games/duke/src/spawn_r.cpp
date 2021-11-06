@@ -49,6 +49,7 @@ int spawn_r(int j, int pn)
 	auto spj = j < 0? nullptr : actj->s;
 	auto t = act->temp_data;
 	int sect = sp->sectnum;
+	auto sectp = sp->sector();
 
 	switch(sp->picnum)
 	{
@@ -230,8 +231,8 @@ int spawn_r(int j, int pn)
 						sp->z = getflorzofslope(sp->sectnum, sp->x, sp->y);
 				}
 
-				if(sector[sect].floorpicnum == FLOORSLIME ||
-					sector[sect].ceilingpicnum == FLOORSLIME)
+				if(sectp->floorpicnum == FLOORSLIME ||
+					sectp->ceilingpicnum == FLOORSLIME)
 						sp->pal = 7;
 			case NEON1:
 			case NEON2:
@@ -718,9 +719,9 @@ int spawn_r(int j, int pn)
 				changespritestat(i,6);
 				break;
 			case TOUCHPLATE:
-				t[2] = sector[sect].floorz;
-				if(sector[sect].lotag != 1 && sector[sect].lotag != 2)
-					sector[sect].floorz = sp->z;
+				t[2] = sectp->floorz;
+				if(sectp->lotag != 1 && sectp->lotag != 2)
+					sectp->floorz = sp->z;
 				if(sp->pal && ud.multimode > 1)
 				{
 					sp->xrepeat=sp->yrepeat=0;
@@ -1071,7 +1072,7 @@ int spawn_r(int j, int pn)
 //                sp->xrepeat=sp->yrepeat=0;
 				sp->cstat |= 32768;
 				if (sp->picnum == ACTIVATORLOCKED)
-					sector[sect].lotag ^= 16384;
+					sectp->lotag ^= 16384;
 				changeactorstat(act, STAT_ACTIVATOR);
 				break;
 			case DOORSHOCK:
