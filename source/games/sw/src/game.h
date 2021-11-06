@@ -1990,13 +1990,15 @@ extern bool ReloadPrompt;
 
 extern int lockspeed;
 
-#define synctics 3
-#define ACTORMOVETICS (synctics<<1)
-#define TICSPERMOVEMENT synctics
+enum
+{
+    synctics = 3,
+    ACTORMOVETICS = (synctics << 1),
+    TICSPERMOVEMENT = synctics,
+};
 
 // subtract value from clipdist on getzrange calls
 #define GETZRANGE_CLIP_ADJ 8
-//#define GETZRANGE_CLIP_ADJ 0
 
 // MULTIPLAYER
 // VARIABLES:  (You should extern these in your game.c)

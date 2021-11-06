@@ -110,12 +110,6 @@ int MissileZrange(DSWActor*);
 
 #define ACTIVE_CHECK_TIME (3*120)
 
-/*
-short GetRotation(short sn);
-int StateControl(int16_t SpriteNum);
-void PreCacheRange(short, short);
-*/
-
 TRACK Track[MAX_TRACKS];
 SECTOR_OBJECT SectorObject[MAX_SECTOR_OBJECTS];
 
@@ -6335,11 +6329,10 @@ KeyMain:
 
 // This function mostly only adjust the active_range field
 
-void
-ProcessActiveVars(short SpriteNum)
+void ProcessActiveVars(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
-#define TIME_TILL_INACTIVE (4*120)
+    USERp u = actor->u();
+    const int TIME_TILL_INACTIVE = (4 * 120);
 
     if (!TEST(u->Flags, SPR_ACTIVE))
     {
@@ -6358,11 +6351,11 @@ ProcessActiveVars(short SpriteNum)
 }
 
 void
-AdjustActiveRange(PLAYERp pp, short SpriteNum, int dist)
+AdjustActiveRange(PLAYERp pp, DSWActor* actor, int dist)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = u->SpriteP;
-    SPRITEp psp = pp->SpriteP;
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
+    SPRITEp psp = &pp->Actor()->s();
     int look_height;
 
 
@@ -6409,12 +6402,10 @@ AdjustActiveRange(PLAYERp pp, short SpriteNum, int dist)
 
 */
 
-int
-StateControl(int16_t SpriteNum)
+int  StateControl(DSWActor* actor)
 {
-    auto actor = &swActors[SpriteNum];
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = &sprite[SpriteNum];
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
     short StateTics;
 
     if (!u->State)
@@ -6503,10 +6494,9 @@ StateControl(int16_t SpriteNum)
 
 
 
-void
-SpriteControl(void)
+void SpriteControl(void)
 {
-    int32_t i, stat;
+    int32_t stat;
     SPRITEp sp;
     USERp u;
     short pnum, CloseToPlayer;
@@ -6515,9 +6505,9 @@ SpriteControl(void)
     short StateTics;
 
     SWStatIterator it(STAT_MISC);
-    while ((i = it.NextIndex()) >= 0)
+    while (auto actor = it.Next())
     {
-        StateControl(i);
+        StateControl(actor);
     }
 
     // Items and skip2 things
@@ -6525,10 +6515,10 @@ SpriteControl(void)
     {
         for (stat = STAT_SKIP2_START + 1; stat <= STAT_SKIP2_END; stat++)
         {
-            StatIterator it(stat);
-            while ((i = it.NextIndex()) >= 0)
+            it.Reset(stat);
+            while (auto actor = it.Next())
             {
-                StateControl(i);
+                StateControl(actor);
             }
         }
     }
@@ -6536,17 +6526,17 @@ SpriteControl(void)
     if (MoveSkip2 == 0)                 // limit to 20 times a second
     {
         // move bad guys around
-        StatIterator it(STAT_ENEMY);
-        while ((i = it.NextIndex()) >= 0)
+        it.Reset(STAT_ENEMY);
+        while (auto actor = it.Next())
         {
-            ASSERT(User[i].Data());
+            if (!actor->hasU()) continue;
 
-            u = User[i].Data();
-            sp = u->SpriteP;
+            u = actor->u();
+            sp = &actor->s();
 
             CloseToPlayer = false;
 
-            ProcessActiveVars(i);
+            ProcessActiveVars(actor);
 
             TRAVERSE_CONNECT(pnum)
             {
@@ -6555,7 +6545,7 @@ SpriteControl(void)
                 // Only update the ones closest
                 DISTANCE(pp->posx, pp->posy, sp->x, sp->y, dist, tx, ty, tmin);
 
-                AdjustActiveRange(pp, i, dist);
+                AdjustActiveRange(pp, actor, dist);
 
                 if (dist < u->active_range)
                 {
@@ -6568,8 +6558,7 @@ SpriteControl(void)
             // Only update the ones close to ANY player
             if (CloseToPlayer)
             {
-                StateControl(i);
-                ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()].Data() != nullptr : true);
+                StateControl(actor);
             }
             else
             {
@@ -6584,21 +6573,20 @@ SpriteControl(void)
     {
         for (stat = STAT_SKIP4_START; stat <= STAT_SKIP4_END; stat++)
         {
-            StatIterator it(stat);
-            while ((i = it.NextIndex()) >= 0)
+            it.Reset(stat);
+            while (auto actor = it.Next())
             {
-				StateControl(i);
+				StateControl(actor);
             }
         }
     }
 
     it.Reset(STAT_NO_STATE);
-    while ((i = it.NextIndex()) >= 0)
+    while (auto actor = it.Next())
     {
-        auto actor = &swActors[i];
         auto u = actor->u();
         if (u && u->ActorActionFunc)
-            (*u->ActorActionFunc)(actor);
+            u->ActorActionFunc(actor);
     }
 
     if (MoveSkip8 == 0)
@@ -6613,21 +6601,18 @@ SpriteControl(void)
     if (MoveSkip4 == 0)                 // limit to 10 times a second
     {
         it.Reset(STAT_WALLBLOOD_QUEUE);
-        while ((i = it.NextIndex()) >= 0)
+        while (auto actor = it.Next())
         {
-			StateControl(i);
-            ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()].Data() != nullptr : true);
-
+			StateControl(actor);
         }
     }
 
     // vator/rotator/spike/slidor all have some code to
     // prevent calling of the action func()
     it.Reset(STAT_VATOR);
-    while ((i = it.NextIndex()) >= 0)
+    while (auto actor = it.Next())
     {
-        auto actor = &swActors[i];
-        u = User[i].Data();
+        u = actor->u();
 
         if (u == 0)
             continue;
@@ -6642,14 +6627,13 @@ SpriteControl(void)
         if (!TEST(u->Flags, SPR_ACTIVE))
             continue;
 
-        (*User[i]->ActorActionFunc)(actor);
+        u->ActorActionFunc(actor);
     }
 
     it.Reset(STAT_SPIKE);
-    while ((i = it.NextIndex()) >= 0)
+    while (auto actor = it.Next())
     {
-        auto actor = &swActors[i];
-        u = User[i].Data();
+        u = actor->u();
 
         if (u->Tics)
         {
@@ -6662,17 +6646,13 @@ SpriteControl(void)
         if (!TEST(u->Flags, SPR_ACTIVE))
             continue;
 
-        if (i == 69 && it.PeekIndex() == -1)
-            continue;
-
-        (*User[i]->ActorActionFunc)(actor);
+        u->ActorActionFunc(actor);
     }
 
     it.Reset(STAT_ROTATOR);
-    while ((i = it.NextIndex()) >= 0)
+    while (auto actor = it.Next())
     {
-        auto actor = &swActors[i];
-        u = User[i].Data();
+        u = actor->u();
 
         if (u->Tics)
         {
@@ -6685,14 +6665,13 @@ SpriteControl(void)
         if (!TEST(u->Flags, SPR_ACTIVE))
             continue;
 
-        (*User[i]->ActorActionFunc)(actor);
+        u->ActorActionFunc(actor);
     }
 
     it.Reset(STAT_SLIDOR);
-    while ((i = it.NextIndex()) >= 0)
+    while (auto actor = it.Next())
     {
-        auto actor = &swActors[i];
-        u = User[i].Data();
+        u = actor->u();
 
         if (u->Tics)
         {
@@ -6705,7 +6684,7 @@ SpriteControl(void)
         if (!TEST(u->Flags, SPR_ACTIVE))
             continue;
 
-        (*User[i]->ActorActionFunc)(actor);
+        u->ActorActionFunc(actor);
     }
 
     it.Reset(STAT_SUICIDE);
