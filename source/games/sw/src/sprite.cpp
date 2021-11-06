@@ -4008,7 +4008,6 @@ int SpawnItemsMatch(short match)
     SWStatIterator it(STAT_SPAWN_ITEMS);
     while (auto itActor = it.Next())
     {
-        int si = itActor->GetSpriteIndex();
         sip = &itActor->s();
 
         if (SP_TAG2(sip) != match)

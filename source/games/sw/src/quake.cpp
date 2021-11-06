@@ -52,7 +52,7 @@ BEGIN_SW_NS
 // only for timed quakes
 #define QUAKE_WaitForTrigger(sp) (TEST_BOOL3(sp))
 
-short CopyQuakeSpotToOn(SPRITEp sp)
+void CopyQuakeSpotToOn(SPRITEp sp)
 {
     auto actorNew = InsertActor(sp->sectnum, STAT_QUAKE_SPOT);
     auto np = &actorNew->s();
@@ -68,8 +68,6 @@ short CopyQuakeSpotToOn(SPRITEp sp)
     change_actor_stat(actorNew, STAT_QUAKE_ON);
 
     QUAKE_Duration(np) *= 120;
-
-    return actorNew->GetSpriteIndex();
 }
 
 
@@ -236,7 +234,7 @@ void QuakeViewChange(PLAYERp pp, int *z_diff, int *x_diff, int *y_diff, short *a
     }
 }
 
-int SpawnQuake(short sectnum, int x, int y, int z,
+void SpawnQuake(short sectnum, int x, int y, int z,
                short tics, short amt, int radius)
 {
 
@@ -257,8 +255,6 @@ int SpawnQuake(short sectnum, int x, int y, int z,
     QUAKE_PosAmt(sp) = 0;
 
     PlaySound(DIGI_ERUPTION, actorNew, v3df_follow|v3df_dontpan);
-
-    return actorNew->GetSpriteIndex();
 }
 
 bool
