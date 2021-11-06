@@ -246,9 +246,10 @@ void cacheit_d(void)
 
 	for (i = 0; i < numsectors; i++)
 	{
-		tloadtile(sector[i].floorpicnum, sector[i].floorpal);
-		tloadtile(sector[i].ceilingpicnum, sector[i].ceilingpal);
-		if (sector[i].ceilingpicnum == LA)
+		auto sectp = &sector[i];
+		tloadtile(sectp->floorpicnum, sectp->floorpal);
+		tloadtile(sectp->ceilingpicnum, sectp->ceilingpal);
+		if (sectp->ceilingpicnum == LA)
 		{
 			tloadtile(LA + 1);
 			tloadtile(LA + 2);
@@ -385,13 +386,14 @@ void prelevel_d(int g)
 		if (wal->overpicnum == MIRROR && (wal->cstat & 32) != 0)
 		{
 			j = wal->nextsector;
+			auto sectp = &sector[j];
 
 			if (mirrorcnt > 63)
 				I_Error("Too many mirrors (64 max.)");
-			if ((j >= 0) && sector[j].ceilingpicnum != MIRROR)
+			if ((j >= 0) && sectp->ceilingpicnum != MIRROR)
 			{
-				sector[j].ceilingpicnum = MIRROR;
-				sector[j].floorpicnum = MIRROR;
+				sectp->ceilingpicnum = MIRROR;
+				sectp->floorpicnum = MIRROR;
 				mirrorwall[mirrorcnt] = i;
 				mirrorsector[mirrorcnt] = j;
 				mirrorcnt++;

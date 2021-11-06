@@ -390,9 +390,10 @@ void cacheit_r(void)
 
 	for (i = 0; i < numsectors; i++)
 	{
-		tloadtile(sector[i].floorpicnum, sector[i].floorpal);
-		tloadtile(sector[i].ceilingpicnum, sector[i].ceilingpal);
-		if (sector[i].ceilingpicnum == LA)
+		auto sectp = &sector[i];
+		tloadtile(sectp->floorpicnum, sectp->floorpal);
+		tloadtile(sectp->ceilingpicnum, sectp->ceilingpal);
+		if (sectp->ceilingpicnum == LA)
 		{
 			tloadtile(LA + 1);
 			tloadtile(LA + 2);
@@ -459,10 +460,11 @@ void prelevel_r(int g)
 
 	for (i = 0; i < numsectors; i++)
 	{
-		if (sector[i].ceilingpicnum == RRTILE2577)
+		auto sectp = &sector[i];
+		if (sectp->ceilingpicnum == RRTILE2577)
 			thunderon = 1;
 
-		switch (sector[i].lotag)
+		switch (sectp->lotag)
 		{
 		case 41:
 		{
@@ -484,11 +486,11 @@ void prelevel_r(int g)
 			}
 			for (j = 0; j < numsectors; j++)
 			{
-				if (sector[i].hitag == sector[j].hitag && j != i)
+				if (sectp->hitag == sector[j].hitag && j != i)
 				{
 					// & 32767 to avoid some ordering issues here. 
 					// Other code assumes that the lotag is always a sector effector type and can mask the high bit in.
-					addjaildoor(dist, speed, sector[i].hitag, sector[j].lotag & 32767, sound, j);
+					addjaildoor(dist, speed, sectp->hitag, sector[j].lotag & 32767, sound, j);
 				}
 			}
 			break;
@@ -523,7 +525,7 @@ void prelevel_r(int g)
 					deletesprite(act);
 				}
 			}
-			addminecart(dist, speed, i, sector[i].hitag, sound, childsectnum);
+			addminecart(dist, speed, i, sectp->hitag, sound, childsectnum);
 			break;
 		}
 		}
