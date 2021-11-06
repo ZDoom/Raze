@@ -733,8 +733,7 @@ void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int view
                 ShadeSprite(tsp);
 
             // sw if its your playersprite
-            //if ((Player + screenpeek)->PlayerSprite == SpriteNum)
-            if ((Player + screenpeek)->PlayerSprite == tu->SpriteNum)
+            if (Player[screenpeek].Actor() == tActor)
             {
                 PLAYERp pp = Player + screenpeek;
                 if (display_mirror || TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE|PF_VIEW_FROM_CAMERA))
@@ -837,7 +836,7 @@ void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int view
         {
             if (TEST(tu->Flags2, SPR2_VIS_SHADING))
             {
-                if ((Player + screenpeek)->PlayerSprite != tu->SpriteNum)
+                if (Player[screenpeek].Actor() != tActor)
                 {
                     if (!TEST(tu->PlayerP->Flags, PF_VIEW_FROM_OUTSIDE))
                     {

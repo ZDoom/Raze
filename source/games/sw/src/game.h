@@ -733,7 +733,6 @@ typedef struct
 
 struct PLAYERstruct
 {
-    DSWActor* Actor();
     // variable that fit in the sprite or user structure
     union
     {
@@ -741,11 +740,17 @@ struct PLAYERstruct
         vec3_t pos;
     };
     
+    DSWActor* actor;
     DSWActor* lowActor, * highActor;
     DSWActor* remoteActor;
     DSWActor* PlayerUnderActor;
     DSWActor* KillerActor;  //who killed me
     DSWActor* HitBy;                    // SpriteNum of whatever player was last hit by
+
+    DSWActor* Actor() const
+    {
+        return actor;
+    }
 
     // interpolation
     int oposx, oposy, oposz;
@@ -799,9 +804,6 @@ struct PLAYERstruct
     int RevolveX, RevolveY;
     short RevolveDeltaAng;
     binangle RevolveAng;
-
-    // under vars are for wading and swimming
-    short PlayerSprite;
 
     short pnum; // carry along the player number
 
@@ -2231,10 +2233,6 @@ END_SW_NS
 #include "swactor.h"
 
 BEGIN_SW_NS
-DSWActor* PLAYERstruct::Actor()
-{
-    return &swActors[PlayerSprite];
-}
 
 inline int ActorUpper(DSWActor* actor)
 {

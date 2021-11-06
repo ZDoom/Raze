@@ -6146,7 +6146,7 @@ KeyMain:
 
         case ICON_FLAG:
         {
-            if (sp->pal == sprite[pp->PlayerSprite].pal) break; // Can't pick up your own flag!
+            if (sp->pal == pp->Actor()->s().pal) break; // Can't pick up your own flag!
 
             PlaySound(DIGI_ITEM, actor, v3df_dontpan);
 
@@ -6167,7 +6167,7 @@ KeyMain:
             RESET(np->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
             SET(np->cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
             SetAttach(pp->Actor(), actorNew);
-            nu->sz = SPRITEp_MID(&sprite[pp->PlayerSprite]);  // Set mid way up who it hit
+            nu->sz = SPRITEp_MID(&pp->Actor()->s());  // Set mid way up who it hit
             nu->spal = np->pal = sp->pal;   // Set the palette of the flag
 
             SetOwner(pp->Actor(), actorNew);  // Player now owns the flag

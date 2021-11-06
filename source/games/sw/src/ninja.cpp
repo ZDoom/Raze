@@ -2283,12 +2283,9 @@ void PlayerPanelSetup(void)
     {
         pp = Player + pnum;
 
-        u = User[pp->PlayerSprite].Data();
+        u = pp->Actor()->u();
 
         ASSERT(u != nullptr);
-
-        //u->WeaponNum = WPN_STAR;
-        //pp->WpnFirstType = WPN_SWORD;
 
         PlayerUpdateWeapon(pp, u->WeaponNum);
     }
@@ -2366,7 +2363,7 @@ void InitPlayerSprite(PLAYERp pp)
     auto actor = SpawnActor(STAT_PLAYER0 + pnum, NINJA_RUN_R0, nullptr, pp->cursectnum, pp->posx,
                                             pp->posy, pp->posz, pp->angle.ang.asbuild(), 0);
 
-    pp->PlayerSprite = actor->GetSpriteIndex();
+    pp->actor = actor;
     sp = &actor->s();
     pp->pnum = pnum;
 

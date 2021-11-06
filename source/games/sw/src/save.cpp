@@ -497,7 +497,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYERstruct& w, P
 			("revolvey", w.RevolveY)
 			("RevolveDeltaAng", w.RevolveDeltaAng)
 			("RevolveAng", w.RevolveAng)
-			("PlayerSprite", w.PlayerSprite)
+			("PlayerSprite", w.actor)
 #ifdef OLD_SAVEGAME
 			; // need to write out UnderSpriteP so that older revisions still load it.
 			if (arc.isWriting()) arc("UnderSpriteP", w.PlayerUnderActor);
@@ -581,7 +581,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYERstruct& w, P
 			("chops", w.Chops);
 
 			if (arc.isWriting())	// we need this for loading saves in older builds for debugging.
-			arc("SpriteP", w.PlayerSprite);
+			arc("SpriteP", w.actor);
 
 
 		SerializeCodePtr(arc, "DoPlayerAction", (void**)&w.DoPlayerAction);

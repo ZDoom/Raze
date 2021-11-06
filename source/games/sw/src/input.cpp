@@ -162,7 +162,7 @@ void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdju
 {
     PLAYERp pp = &Player[myconnectindex];
 
-    if (paused || M_Active() || pp->PlayerSprite <= -1)
+    if (paused || M_Active() || pp->Actor() == nullptr)
     {
         loc = {};
         return;

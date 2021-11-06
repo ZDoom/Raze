@@ -469,7 +469,7 @@ void TerminateLevel(void)
         memset(pp->cookieQuote, 0, sizeof(pp->cookieQuote));
         pp->DoPlayerAction = nullptr;
 
-        pp->PlayerSprite = -1;
+        pp->actor = nullptr;
 
         pp->PlayerUnderActor = nullptr;
 
