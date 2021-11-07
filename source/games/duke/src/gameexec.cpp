@@ -2163,7 +2163,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_debris:
 	{
-			short dnum;
+			int dnum;
 
 			insptr++;
 			dnum = *insptr;
@@ -3111,7 +3111,7 @@ int ParseState::parse(void)
 	case concmd_getangletotarget:
 	{
 		int i;
-		short ang;
+		int ang;
 
 		insptr++;
 		i = *(insptr++);	// ID of def

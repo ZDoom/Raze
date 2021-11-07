@@ -564,7 +564,7 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 	spritetype* const s = actor->s;
 	int sect = s->sectnum;
 	int vel, zvel;
-	short l, scount;
+	int l, scount;
 
 	if (s->extra >= 0) s->shade = -96;
 
@@ -675,7 +675,7 @@ static void shootrpg(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, i
 	auto s = actor->s;
 	int sect = s->sectnum;
 	int vel, zvel;
-	short l, scount;
+	int l, scount;
 
 	if (s->extra >= 0) s->shade = -96;
 
@@ -996,7 +996,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 {
 	spritetype* const s = actor->s;
 
-	short sect, l, j;
+	int sect, l, j;
 	int sx, sy, sz, sa, p, vel, zvel, x, dal;
 	if (s->picnum == TILE_APLAYER)
 	{
@@ -1622,7 +1622,7 @@ int doincrements_d(struct player_struct* p)
 
 void checkweapons_d(struct player_struct* p)
 {
-	static const short weapon_sprites[MAX_WEAPONS] = { KNEE, FIRSTGUNSPRITE, SHOTGUNSPRITE,
+	static const uint16_t weapon_sprites[MAX_WEAPONS] = { KNEE, FIRSTGUNSPRITE, SHOTGUNSPRITE,
 			CHAINGUNSPRITE, RPGSPRITE, HEAVYHBOMB, SHRINKERSPRITE, DEVISTATORSPRITE,
 			TRIPBOMBSPRITE, FREEZESPRITE, HEAVYHBOMB, SHRINKERSPRITE };
 

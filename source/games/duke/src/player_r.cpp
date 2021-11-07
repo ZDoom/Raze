@@ -44,7 +44,7 @@ BEGIN_DUKE_NS
 void incur_damage_r(struct player_struct* p)
 {
 	int  damage = 0, unk = 0, shield_damage = 0;
-	short gut = 0;
+	int gut = 0;
 
 	p->GetActor()->s->extra -= p->extra_extra8 >> 8;
 
@@ -604,7 +604,7 @@ static void shootrpg(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 	auto s = actor->s;
 	int sect = s->sectnum;
 	int vel, zvel;
-	short l, scount;
+	int l, scount;
 
 	DDukeActor* act90 = nullptr;
 	if (s->extra >= 0) s->shade = -96;
@@ -756,7 +756,7 @@ static void shootwhip(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, 
 	auto s = actor->s;
 	int sect = s->sectnum;
 	int vel, zvel;
-	short scount;
+	int scount;
 
 	if (s->extra >= 0) s->shade = -96;
 
@@ -830,7 +830,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 {
 	spritetype* const s = actor->s;
 
-	short sect, sa, p;
+	int sect, sa, p;
 	int sx, sy, sz, vel, zvel, x;
 
 
@@ -1578,7 +1578,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
 
-	short rng;
+	int rng;
 
 	if (p->MotoSpeed < 0)
 		p->MotoSpeed = 0;
@@ -1747,7 +1747,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 	}
 
 	int currSpeed = int(p->MotoSpeed);
-	short velAdjustment;
+	int velAdjustment;
 	if (p->MotoSpeed >= 20 && p->on_ground == 1 && (p->vehTurnLeft || p->vehTurnRight))
 	{
 		velAdjustment = p->vehTurnLeft ? -10 : 10;
@@ -1816,7 +1816,7 @@ static void onBoat(int snum, ESyncBits &actions)
 	auto pact = p->GetActor();
 
 	bool heeltoe;
-	short rng;
+	int rng;
 
 	if (p->NotOnWater)
 	{
@@ -2017,7 +2017,7 @@ static void onBoat(int snum, ESyncBits &actions)
 	if (p->MotoSpeed > 0 && p->on_ground == 1 && (p->vehTurnLeft || p->vehTurnRight))
 	{
 		int currSpeed = int(p->MotoSpeed * 4.);
-		short velAdjustment = p->vehTurnLeft ? -10 : 10;
+		int velAdjustment = p->vehTurnLeft ? -10 : 10;
 		auto angAdjustment = (velAdjustment < 0 ? 350 : -350) << BAMBITS;
 
 		if (p->moto_do_bump)
@@ -2357,8 +2357,8 @@ void onMotorcycleMove(int snum, int psect, int j)
 	auto pact = p->GetActor();
 	auto s = pact->s;
 	int psectlotag = sector[psect].lotag;
-	short angleDelta = abs(p->angle.ang.asbuild() - getangle(wall[wall[j].point2].x - wall[j].x, wall[wall[j].point2].y - wall[j].y));
-	short damageAmount;
+	int angleDelta = abs(p->angle.ang.asbuild() - getangle(wall[wall[j].point2].x - wall[j].x, wall[wall[j].point2].y - wall[j].y));
+	int damageAmount;
 
 	p->angle.addadjustment(p->MotoSpeed / (krand() & 1 ? -2 : 2));
 
@@ -2412,7 +2412,7 @@ void onBoatMove(int snum, int psect, int j)
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
 	int psectlotag = sector[psect].lotag;
-	short angleDelta = abs(p->angle.ang.asbuild() - getangle(wall[wall[j].point2].x - wall[j].x, wall[wall[j].point2].y - wall[j].y));
+	int angleDelta = abs(p->angle.ang.asbuild() - getangle(wall[wall[j].point2].x - wall[j].x, wall[wall[j].point2].y - wall[j].y));
 
 	p->angle.addadjustment(p->MotoSpeed / (krand() & 1 ? -4 : 4));
 
@@ -3968,7 +3968,7 @@ HORIZONLY:
 	}
 	if (p->recoil && p->kickback_pic == 0)
 	{
-		short d = p->recoil >> 1;
+		int d = p->recoil >> 1;
 		if (!d)
 			d = 1;
 		p->recoil -= d;

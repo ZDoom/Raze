@@ -88,7 +88,7 @@ void displayloogie(player_struct* p)
 
 int animatefist(int gs, player_struct* p, double look_anghalf, double looking_arc, double plravel, int fistpal)
 {
-	short fisti;
+	int fisti;
 	double fistzoom;
 	double fistz;
 

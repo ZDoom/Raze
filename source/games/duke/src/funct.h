@@ -169,7 +169,7 @@ int furthestangle(DDukeActor* snum, int angDiv);
 void getglobalz(DDukeActor* s);
 void OnEvent(int id, int pnum = -1, DDukeActor* snum = nullptr, int dist = -1);
 
-DDukeActor* EGS(short whatsect, int s_x, int s_y, int s_z, short s_pn, int8_t s_s, int8_t s_xr, int8_t s_yr, short s_a, short s_ve, int s_zv, DDukeActor* s_ow, int8_t s_ss);
+DDukeActor* EGS(int whatsect, int s_x, int s_y, int s_z, int s_pn, int8_t s_s, int8_t s_xr, int8_t s_yr, int s_a, int s_ve, int s_zv, DDukeActor* s_ow, int8_t s_ss);
 void ceilingglass(DDukeActor* snum, int sectnum, int cnt);
 void spriteglass(DDukeActor* snum, int cnt);
 void lotsofcolourglass(DDukeActor* snum, int wallNum, int cnt);
