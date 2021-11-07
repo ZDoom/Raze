@@ -274,7 +274,7 @@ void cacheit_d(void)
 
 void prelevel_d(int g)
 {
-	short i, j, startwall, endwall, lotaglist;
+	int i, j, startwall, endwall, lotaglist;
 	short lotags[65];
 
 	prelevel_common(g);

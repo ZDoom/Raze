@@ -2704,7 +2704,7 @@ void processinput_d(int snum)
 	int j, k, doubvel, fz, cz, truefdist;
 	Collision chz, clz;
 	bool shrunk;
-	short psect, psectlotag;
+	int psect, psectlotag;
 	struct player_struct* p;
 	spritetype* s;
 

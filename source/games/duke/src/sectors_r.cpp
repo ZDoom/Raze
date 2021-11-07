@@ -976,7 +976,7 @@ static void lotsofpopcorn(DDukeActor *actor, int wallnum, int n)
 
 void checkhitwall_r(DDukeActor* spr, int dawallnum, int x, int y, int z, int atwith)
 {
-	short j, i;
+	int j, i;
 	int sn = -1, darkestwall;
 	walltype* wal;
 	spritetype* s;
