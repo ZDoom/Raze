@@ -1358,7 +1358,7 @@ int findwallbetweensectors(int sect1, int sect2)
 //
 void updatesector(int32_t const x, int32_t const y, int * const sectnum)
 {
-    int16_t sect = *sectnum;
+    int sect = *sectnum;
     updatesectorneighbor(x, y, &sect, INITIALUPDATESECTORDIST, MAXUPDATESECTORDIST);
     if (sect != -1)
         SET_AND_RETURN(*sectnum, sect);

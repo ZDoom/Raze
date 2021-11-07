@@ -1117,8 +1117,8 @@ static void movetripbomb(DDukeActor *actor)
 		s->z -= (3 << 8);
 
 		// Laser fix from EDuke32.
-		int16_t const oldSectNum = s->sectnum;
-		int16_t       curSectNum = s->sectnum;
+		int const oldSectNum = s->sectnum;
+		int       curSectNum = s->sectnum;
 
 		updatesectorneighbor(s->x, s->y, &curSectNum, 1024, 2048);
 		changeactorsect(actor, curSectNum);

@@ -187,7 +187,7 @@ inline int clipmove_ex(int* x, int* y, int* z, int* sect, int xv, int yv, int wa
 	return result.setFromEngine(res);
 }
 
-inline void getzrange_ex(int x, int y, int z, int16_t sectnum, int32_t* ceilz, Collision& ceilhit, int32_t* florz, Collision& florhit, int32_t walldist, uint32_t cliptype)
+inline void getzrange_ex(int x, int y, int z, int sectnum, int32_t* ceilz, Collision& ceilhit, int32_t* florz, Collision& florhit, int32_t walldist, uint32_t cliptype)
 {
 	int ch, fh;
 	getzrange(x, y, z, sectnum, ceilz, &ch, florz, &fh, walldist, cliptype);
@@ -195,7 +195,7 @@ inline void getzrange_ex(int x, int y, int z, int16_t sectnum, int32_t* ceilz, C
 	florhit.setFromEngine(fh);
 }
 
-inline int hitscan(int x, int y, int z, int16_t sectnum, int32_t vx, int32_t vy, int32_t vz,
+inline int hitscan(int x, int y, int z, int sectnum, int32_t vx, int32_t vy, int32_t vz,
 	int* hitsect, int* hitwall, DDukeActor** hitspr, int* hitx, int* hity, int* hitz, uint32_t cliptype)
 {
 	short hitsprt, hitsct, hitwal;

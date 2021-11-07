@@ -90,7 +90,7 @@ extern int8_t animatetype[MAXANIMATES];
 extern int animategoal[MAXANIMATES];
 extern int animatevel[MAXANIMATES];
 
-extern int16_t clouds[256];
+extern int clouds[256];
 extern float cloudx;
 extern float cloudy;
 extern int cloudclock;

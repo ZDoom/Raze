@@ -105,7 +105,7 @@ int animatetarget[MAXANIMATES];
 int animategoal[MAXANIMATES];
 int animatevel[MAXANIMATES];
 int numclouds;								// cloudy skies
-int16_t clouds[256];
+int clouds[256];
 float cloudx;
 float cloudy;
 int cloudclock;
