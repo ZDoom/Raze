@@ -272,22 +272,6 @@ static int cliptestsector(int const dasect, int const nextsect, int32_t const fl
             dacz2 > dacz+CLIPCURBHEIGHT));  // ceilings check the same conditions ^^^^^
 }
 
-int32_t clipmovex(vec3_t *pos, int16_t *sectnum,
-                  int32_t xvect, int32_t yvect,
-                  int32_t const walldist, int32_t const ceildist, int32_t const flordist, uint32_t const cliptype,
-                  uint8_t const noslidep)
-{
-    const int32_t oboxtracenum = clipmoveboxtracenum;
-
-    if (noslidep)
-        clipmoveboxtracenum = 1;
-    int32_t ret = clipmove(pos, sectnum, xvect, yvect,
-        walldist, ceildist, flordist, cliptype);
-    clipmoveboxtracenum = oboxtracenum;
-
-    return ret;
-}
-
 //
 // raytrace (internal)
 //
@@ -469,7 +453,7 @@ static void clipupdatesector(vec2_t const pos, int16_t * const sectnum, int wall
 //
 // clipmove
 //
-int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int32_t yvect,
+int32_t clipmove(vec3_t * const pos, int * const sectnum, int32_t xvect, int32_t yvect,
                  int32_t const walldist, int32_t const ceildist, int32_t const flordist, uint32_t const cliptype)
 {
     if ((xvect|yvect) == 0 || *sectnum < 0)
@@ -789,7 +773,12 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
         }
 
         if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE)
-            clipupdatesector(vec, sectnum, rad);
+		{
+			// the pervasiveness of 16 bit in the engine is staggering... :(
+			int16_t sect16 = *sectnum;
+			clipupdatesector(vec, &sect16, rad);
+			*sectnum = sect16;
+		}
 
         pos->x = vec.x;
         pos->y = vec.y;
