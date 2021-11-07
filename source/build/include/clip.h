@@ -34,39 +34,6 @@ extern int32_t clipmoveboxtracenum;
 int32_t clipmove(vec3_t *const pos, int *const sectnum, int32_t xvect, int32_t yvect, int32_t const walldist, int32_t const ceildist,
                  int32_t const flordist, uint32_t const cliptype) ATTRIBUTE((nonnull(1, 2)));
 
-[[deprecated]]
-inline int32_t clipmove(vec3_t *const pos, int16_t *const sectnum, int32_t xvect, int32_t yvect, int32_t const walldist, int32_t const ceildist,
-				 int32_t const flordist, uint32_t const cliptype)
-{
-	int sect32 = *sectnum;
-	int retval = clipmove(pos, &sect32, xvect, yvect, walldist, ceildist, flordist, cliptype);
-	*sectnum = sect32;
-	return retval;
-}
-[[deprecated]]
-inline int clipmove(int* x, int* y, int* z, short* sect, int xv, int yv, int wal, int ceil, int flor, int ct)
-{
-    vec3_t xyz = { *x,*y,*z };
-	int sect32 = *sect;
-    int retval = clipmove(&xyz, sect, xv, yv, wal, ceil, flor, ct);
-	*sect = sect32;
-    *x = xyz.x;
-    *y = xyz.y;
-    *z = xyz.z;
-    return retval;
-}
-
-[[deprecated]]
-inline int clipmove(int* x, int* y, int* z, int* sect, int xv, int yv, int wal, int ceil, int flor, int ct)
-{
-	vec3_t xyz = { *x,*y,*z };
-	int retval = clipmove(&xyz, sect, xv, yv, wal, ceil, flor, ct);
-	*x = xyz.x;
-	*y = xyz.y;
-	*z = xyz.z;
-	return retval;
-}
-
 int pushmove(vec3_t *const vect, int16_t *const sectnum, int32_t const walldist, int32_t const ceildist, int32_t const flordist,
                  uint32_t const cliptype, bool clear = true) ATTRIBUTE((nonnull(1, 2)));
 
