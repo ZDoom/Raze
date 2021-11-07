@@ -150,6 +150,7 @@ void NewGame(MapRecord* map, int skill, bool ns = false)
 	ShowIntermission(nullptr, map, nullptr, [=](bool) { 
 		gi->NewGame(map, skill, ns); 
 		ResetStatusBar();
+		Net_ClearFifo();
 		});
 }
 
@@ -200,6 +201,7 @@ static void GameTicker()
 				gameaction = ga_level;
 				gi->NextLevel(g_nextmap, g_nextskill);
 				ResetStatusBar();
+				Net_ClearFifo();
 			}
 			else
 			{
@@ -213,6 +215,7 @@ static void GameTicker()
 			gameaction = ga_level;
 			gi->NextLevel(g_nextmap, g_nextskill);
 			ResetStatusBar();
+			Net_ClearFifo();
 			break;
 
 		case ga_newgame:
