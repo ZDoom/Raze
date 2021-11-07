@@ -30,13 +30,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-short NearSector[kMaxSectors] = { 0 };
+int NearSector[kMaxSectors] = { 0 };
 
 short nPushBlocks;
 
 // TODO - moveme?
 short overridesect;
-short NearCount = -1;
+int NearCount = -1;
 
 DExhumedActor* nBodySprite[50];
 
@@ -851,11 +851,12 @@ int GrabPushBlock()
 
 void CreatePushBlock(int nSector)
 {
+    auto sectp = &sector[nSector];
     int nBlock = GrabPushBlock();
     int i;
 
-    int startwall = sector[nSector].wallptr;
-    int nWalls = sector[nSector].wallnum;
+    int startwall = sectp->wallptr;
+    int nWalls = sectp->wallnum;
 
     int xSum = 0;
     int ySum = 0;
@@ -879,7 +880,7 @@ void CreatePushBlock(int nSector)
 
     pSprite->x = xAvg;
     pSprite->y = yAvg;
-    pSprite->z = sector[nSector].floorz - 256;
+    pSprite->z = sectp->floorz - 256;
     pSprite->cstat = 0x8000;
 
     int var_28 = 0;
@@ -906,7 +907,7 @@ void CreatePushBlock(int nSector)
     sBlockInfo[nBlock].field_8 = var_28;
 
     pSprite->clipdist = (var_28 & 0xFF) << 2;
-    sector[nSector].extra = nBlock;
+    sectp->extra = nBlock;
 }
 
 void MoveSector(short nSector, int nAngle, int *nXVel, int *nYVel)
@@ -928,14 +929,15 @@ void MoveSector(short nSector, int nAngle, int *nXVel, int *nYVel)
         nXVect = bcos(nAngle, 6);
         nYVect = bsin(nAngle, 6);
     }
+    sectortype *pSector = &sector[nSector];
+ 
 
-    short nBlock = sector[nSector].extra;
+    short nBlock = pSector->extra;
     short nSectFlag = SectFlag[nSector];
 
-    sectortype *pSector = &sector[nSector];
-    int nFloorZ = sector[nSector].floorz;
-    int startwall = sector[nSector].wallptr;
-    int nWalls = sector[nSector].wallnum;
+    int nFloorZ = pSector->floorz;
+    int startwall = pSector->wallptr;
+    int nWalls = pSector->wallnum;
 
     walltype *pStartWall = &wall[startwall];
     short nNextSector = wall[startwall].nextsector;
@@ -958,17 +960,17 @@ void MoveSector(short nSector, int nAngle, int *nXVel, int *nYVel)
 
     if (nSectFlag & kSectUnderwater)
     {
-        nZVal = sector[nSector].ceilingz;
+        nZVal = pSector->ceilingz;
         pos.z = sector[nNextSector].ceilingz + 256;
 
-        sector[nSector].ceilingz = sector[nNextSector].ceilingz;
+        pSector->ceilingz = sector[nNextSector].ceilingz;
     }
     else
     {
-        nZVal = sector[nSector].floorz;
+        nZVal = pSector->floorz;
         pos.z = sector[nNextSector].floorz - 256;
 
-        sector[nSector].floorz = sector[nNextSector].floorz;
+        pSector->floorz = sector[nNextSector].floorz;
     }
 
     clipmove(&pos, &nSectorB, nXVect, nYVect, pBlockInfo->field_8, 0, 0, CLIPMASK1);

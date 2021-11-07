@@ -215,6 +215,7 @@ void InitLights()
 void AddFlash(short nSector, int x, int y, int z, int val)
 {
     assert(nSector >= 0 && nSector < kMaxSectors);
+    auto sectp = &sector[nSector];
 
     int var_28 = 0;
     int var_1C = val >> 8;
@@ -230,8 +231,8 @@ void AddFlash(short nSector, int x, int y, int z, int val)
 
     int var_14 = 0;
 
-    short startwall = sector[nSector].wallptr;
-    short endwall = sector[nSector].wallptr + sector[nSector].wallnum;
+    int startwall = sectp->wallptr;
+    int endwall = sectp->wallptr + sectp->wallnum;
 
     for (int i = startwall; i < endwall; i++)
     {
@@ -271,7 +272,7 @@ void AddFlash(short nSector, int x, int y, int z, int val)
 
             if (wall[i].pal < 5)
             {
-                if (!pNextSector || pNextSector->floorz < sector[nSector].floorz)
+                if (!pNextSector || pNextSector->floorz < sectp->floorz)
                 {
                     short nFlash = GrabFlash();
                     if (nFlash < 0) {
@@ -302,7 +303,7 @@ void AddFlash(short nSector, int x, int y, int z, int val)
         }
     }
 
-    if (var_14 && sector[nSector].floorpal < 4)
+    if (var_14 && sectp->floorpal < 4)
     {
         short nFlash = GrabFlash();
         if (nFlash < 0) {
@@ -311,40 +312,40 @@ void AddFlash(short nSector, int x, int y, int z, int val)
 
         sFlash[nFlash].nType = var_20 | 1;
         sFlash[nFlash].nIndex = nSector;
-        sFlash[nFlash].shade = sector[nSector].floorshade;
+        sFlash[nFlash].shade = sectp->floorshade;
 
-        sector[nSector].floorpal += 7;
+        sectp->floorpal += 7;
 
-        int edx = sector[nSector].floorshade + var_28;
+        int edx = sectp->floorshade + var_28;
         int eax = edx;
 
         if (edx < -127) {
             eax = -127;
         }
 
-        sector[nSector].floorshade = eax;
+        sectp->floorshade = eax;
 
-        if (!(sector[nSector].ceilingstat & 1))
+        if (!(sectp->ceilingstat & 1))
         {
-            if (sector[nSector].ceilingpal < 4)
+            if (sectp->ceilingpal < 4)
             {
                 short nFlash2 = GrabFlash();
                 if (nFlash2 >= 0)
                 {
                     sFlash[nFlash2].nType = var_20 | 3;
                     sFlash[nFlash2].nIndex = nSector;
-                    sFlash[nFlash2].shade = sector[nSector].ceilingshade;
+                    sFlash[nFlash2].shade = sectp->ceilingshade;
 
-                    sector[nSector].ceilingpal += 7;
+                    sectp->ceilingpal += 7;
 
-                    int edx = sector[nSector].ceilingshade + var_28;
+                    int edx = sectp->ceilingshade + var_28;
                     int eax = edx;
 
                     if (edx < -127) {
                         eax = -127;
                     }
 
-                    sector[nSector].ceilingshade = eax;
+                    sectp->ceilingshade = eax;
                 }
             }
         }
@@ -588,6 +589,7 @@ void DoGlows()
         sGlow[i].field_2++;
 
         short nSector = sGlow[i].nSector;
+        auto sectp = &sector[nSector];
         short nShade = sGlow[i].field_0;
 
         if (sGlow[i].field_2 >= sGlow[i].field_6)
@@ -596,11 +598,11 @@ void DoGlows()
             sGlow[i].field_0 = -sGlow[i].field_0;
         }
 
-        sector[nSector].ceilingshade += nShade;
-        sector[nSector].floorshade   += nShade;
+        sectp->ceilingshade += nShade;
+        sectp->floorshade   += nShade;
 
-        int startwall = sector[nSector].wallptr;
-        int endwall = startwall + sector[nSector].wallnum - 1;
+        int startwall = sectp->wallptr;
+        int endwall = startwall + sectp->wallnum - 1;
 
         for (int nWall = startwall; nWall <= endwall; nWall++)
         {
@@ -621,7 +623,8 @@ void DoFlickers()
     for (int i = 0; i < nFlickerCount; i++)
     {
         short nSector = sFlicker[i].nSector;
-
+        auto sectp = &sector[nSector];
+ 
         unsigned int eax = (sFlicker[i].field_4 & 1);
         unsigned int edx = (sFlicker[i].field_4 & 1) << 31;
         unsigned int ebp = sFlicker[i].field_4 >> 1;
@@ -644,11 +647,11 @@ void DoFlickers()
                 shade = -sFlicker[i].field_0;
             }
 
-            sector[nSector].ceilingshade += shade;
-            sector[nSector].floorshade += shade;
+            sectp->ceilingshade += shade;
+            sectp->floorshade += shade;
 
-            int startwall = sector[nSector].wallptr;
-            int endwall = startwall + sector[nSector].wallnum - 1;
+            int startwall = sectp->wallptr;
+            int endwall = startwall + sectp->wallnum - 1;
 
             for (int nWall = endwall; nWall >= startwall; nWall--)
             {

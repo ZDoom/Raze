@@ -848,17 +848,18 @@ void LoadObjects()
 
     for (int nSector = 0; nSector < numsectors; nSector++)
     {
-        short hitag = sector[nSector].hitag;
-        short lotag = sector[nSector].lotag;
+        auto sectp = &sector[nSector];
+        short hitag = sectp->hitag;
+        short lotag = sectp->lotag;
 
-        sector[nSector].hitag = 0;
-        sector[nSector].lotag = 0;
-        sector[nSector].extra = -1;
+        sectp->hitag = 0;
+        sectp->lotag = 0;
+        sectp->extra = -1;
 
         if (hitag || lotag)
         {
-            sector[nSector].lotag = runlist_HeadRun() + 1;
-            sector[nSector].hitag = lotag;
+            sectp->lotag = runlist_HeadRun() + 1;
+            sectp->hitag = lotag;
 
             runlist_ProcessSectorTag(nSector, lotag, hitag);
         }
