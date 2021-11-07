@@ -215,13 +215,11 @@ void animatesprites_r(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 		case FORCESPHERE:
 			if (t->statnum == STAT_MISC && Owner)
 			{
-				short sqa, sqb;
-
-				sqa =
+				int sqa =
 					getangle(
 						Owner->x - ps[screenpeek].pos.x,
 						Owner->y - ps[screenpeek].pos.y);
-				sqb =
+				int sqb =
 					getangle(
 						Owner->x - t->x,
 						Owner->y - t->y);
