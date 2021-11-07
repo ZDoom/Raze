@@ -179,11 +179,9 @@ inline int movesprite_ex(DDukeActor* actor, int xchange, int ychange, int zchang
 	return f(actor, xchange, ychange, zchange, cliptype, result);
 }
 
-inline int clipmove_ex(int* x, int* y, int* z, int* sect, int xv, int yv, int wal, int ceil, int flor, int ct, Collision& result)
+inline int clipmove_ex(vec3_t* pos, int* sect, int xv, int yv, int wal, int ceil, int flor, int ct, Collision& result)
 {
-	short sect16 = *sect;
-	int res = clipmove(x, y, z, &sect16, xv, yv, wal, ceil, flor, ct);
-	*sect = sect16;
+	int res = clipmove(pos, sect, xv, yv, wal, ceil, flor, ct);
 	return result.setFromEngine(res);
 }
 

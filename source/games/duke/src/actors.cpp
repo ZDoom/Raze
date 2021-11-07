@@ -1506,7 +1506,7 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 		Collision coll;
 		static_assert(sizeof(s->sectnum) != sizeof(int)); // this will error out when sectnum gets expanded.
 		int sect = s->sectnum;
-		int j = clipmove_ex(&s->x, &s->y, &s->z, &sect,
+		int j = clipmove_ex(&s->pos, &sect,
 			(MulScale(s->xvel, bcos(s->ang), 14) * TICSPERFRAME) << 11,
 			(MulScale(s->xvel, bsin(s->ang), 14) * TICSPERFRAME) << 11,
 			24L, (4 << 8), (4 << 8), CLIPMASK1, coll);

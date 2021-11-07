@@ -35,7 +35,7 @@ int32_t clipmove(vec3_t *const pos, int *const sectnum, int32_t xvect, int32_t y
                  int32_t const flordist, uint32_t const cliptype) ATTRIBUTE((nonnull(1, 2)));
 
 [[deprecated]]
-int32_t clipmove(vec3_t *const pos, int16_t *const sectnum, int32_t xvect, int32_t yvect, int32_t const walldist, int32_t const ceildist,
+inline int32_t clipmove(vec3_t *const pos, int16_t *const sectnum, int32_t xvect, int32_t yvect, int32_t const walldist, int32_t const ceildist,
 				 int32_t const flordist, uint32_t const cliptype)
 {
 	int sect32 = *sectnum;

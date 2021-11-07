@@ -3782,9 +3782,7 @@ HORIZONLY:
 		changeactorsect(pact, p->cursectnum);
 	}
 	else
-		clipmove_ex(&p->pos.x, &p->pos.y,
-			&p->pos.z, &p->cursectnum,
-			p->posxv, p->posyv, 164L, (4L << 8), i, CLIPMASK0, clip);
+		clipmove_ex(&p->pos, &p->cursectnum, p->posxv, p->posyv, 164, (4 << 8), i, CLIPMASK0, clip);
 
 	if (p->jetpack_on == 0 && psectlotag != 2 && psectlotag != 1 && shrunk)
 		p->pos.z += 32 << 8;
