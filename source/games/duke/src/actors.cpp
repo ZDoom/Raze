@@ -331,16 +331,17 @@ void movecyclers(void)
 		c->lotag += sect->extra;
 		if (c->state)
 		{
-			auto wal = sect->firstWall();
-			for (int x = sect->wallnum; x > 0; x--, wal++)
-				if (wal->hitag != 1)
+			for (auto& wal : wallsofsector(sect))
+			{
+				if (wal.hitag != 1)
 				{
-					wal->shade = j;
+					wal.shade = j;
 
-					if ((wal->cstat & CSTAT_WALL_BOTTOM_SWAP) && wal->nextwall >= 0)
-						wal->nextWall()->shade = j;
+					if ((wal.cstat & CSTAT_WALL_BOTTOM_SWAP) && wal.nextwall >= 0)
+						wal.nextWall()->shade = j;
 
 				}
+			}
 			sect->floorshade = sect->ceilingshade = j;
 		}
 	}

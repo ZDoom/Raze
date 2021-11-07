@@ -160,3 +160,12 @@ inline int32_t getangle(walltype* wal)
         wall[wal->point2].y - wal->y);
 }
 
+inline TArrayView<walltype> wallsofsector(sectortype* sec)
+{
+    return TArrayView<walltype>(sec->firstWall(), sec->wallnum);
+}
+
+inline TArrayView<walltype> wallsofsector(int sec)
+{
+    return wallsofsector(&sector[sec]);
+}
