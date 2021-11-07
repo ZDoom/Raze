@@ -418,15 +418,15 @@ void cacheit_r(void)
 void prelevel_r(int g)
 {
 	struct player_struct* p;
-	short i;
-	short j;
-	short startwall;
-	short endwall;
-	short lotaglist;
+	int i;
+	int j;
+	int startwall;
+	int endwall;
+	int lotaglist;
 	short lotags[65];
 	int speed;
 	int dist;
-	short sound;
+	int sound;
 	sound = 0;
 
 	prelevel_common(g);

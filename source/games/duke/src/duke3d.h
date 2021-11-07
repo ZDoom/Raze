@@ -19,6 +19,7 @@
 #include "soundefs.h"
 #include "gamestruct.h"
 #include "v_draw.h"
+#include "gamefuncs.h"
 
 BEGIN_DUKE_NS
 

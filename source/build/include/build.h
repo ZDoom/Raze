@@ -168,6 +168,11 @@ inline walltype* walltype::nextWall() const
     return &::wall[nextwall];
 }
 
+inline walltype* walltype::point2Wall() const
+{
+    return &::wall[point2];
+}
+
 inline walltype* sectortype::firstWall() const
 {
     return &wall[wallptr];

@@ -3330,8 +3330,8 @@ void processinput_r(int snum)
 {
 	int i, k, doubvel, fz, cz, truefdist;
 	Collision chz, clz;
-	char shrunk;
-	short psect, psectlotag;
+	bool shrunk;
+	int psect, psectlotag;
 
 	auto p = &ps[snum];
 	auto pact = p->GetActor();

@@ -278,6 +278,19 @@ struct Collision
 		else { index = -1; actor = &bloodActors[value & kHitIndexMask]; }
 		return type;
 	}
+
+	walltype* wall()
+	{
+		assert(type == kHitWall);
+		return &::wall[index];
+	}
+
+	sectortype* sector()
+	{
+		assert(type == kHitSector);
+		return &::sector[index];
+	}
+
 };
 
 inline DBloodActor* getUpperLink(int sect)

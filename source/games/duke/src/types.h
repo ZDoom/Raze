@@ -199,7 +199,7 @@ struct player_struct
 
 	int aim_mode, ftt;
 
-	int cursectnum, one_parallax_sectnum; // sector references. Make them pointers later?
+	int cursectnum, one_parallax_sectnum, access_wallnum; // wall + sector references. Make them pointers later?
 
 	short last_extra, subweapon;
 	short ammo_amount[MAX_WEAPONS], frag, fraggedself;
@@ -207,7 +207,7 @@ struct player_struct
 	short curr_weapon, last_weapon, tipincs, wantweaponfire;
 	short holoduke_amount, hurt_delay, hbomb_hold_delay;
 	short jumping_counter, airleft, knee_incs, access_incs;
-	short ftq, access_wallnum;
+	short ftq;
 	short got_access, weapon_ang, firstaid_amount;
 	short i;
 	short over_shoulder_on, fist_incs;
@@ -374,6 +374,19 @@ struct Collision
 		else { index = -1; actor = &hittype[value & kHitIndexMask]; }
 		return type;
 	}
+
+	walltype* wall() const
+	{
+		assert(type == kHitWall);
+		return &::wall[index];
+	}
+
+	sectortype* sector() const
+	{
+		assert(type == kHitSector);
+		return &::sector[index];
+	}
+
 };
 
 

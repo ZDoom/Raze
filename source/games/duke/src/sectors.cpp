@@ -981,7 +981,7 @@ void operatesectors(int sn, DDukeActor *actor)
 
 	case ST_30_ROTATE_RISE_BRIDGE:
 	{
-		auto act = ScriptIndexToActor(sector[sn].hitag);
+		auto act = ScriptIndexToActor(sptr->hitag);
 		if (!act) break;
 		if (act->tempang == 0 || act->tempang == 256) callsound(sn, actor);
 		if (act->s->extra == 1) act->s->extra = 3;
@@ -991,7 +991,7 @@ void operatesectors(int sn, DDukeActor *actor)
 
 	case ST_31_TWO_WAY_TRAIN:
 	{
-		auto act = ScriptIndexToActor(sector[sn].hitag);
+		auto act = ScriptIndexToActor(sptr->hitag);
 		if (!act) break;
 		if (act->temp_data[4] == 0)
 			act->temp_data[4] = 1;
@@ -1218,7 +1218,7 @@ void operateforcefields_common(DDukeActor *effector, int low, const std::initial
 //
 //---------------------------------------------------------------------------
 
-void breakwall(short newpn, DDukeActor* spr, short dawallnum)
+void breakwall(int newpn, DDukeActor* spr, int dawallnum)
 {
 	wall[dawallnum].picnum = newpn;
 	S_PlayActorSound(VENT_BUST, spr);

@@ -159,7 +159,7 @@ struct DukePlayer
 	native int randomflamex, crack_time;
 	native int aim_mode, ftt;
 
-	native int cursectnum, one_parallax_sectnum;
+	native int cursectnum, one_parallax_sectnum, access_wallnum;
 
 	native int16 last_extra, subweapon;
 	native int16 ammo_amount[DukeWpn.MAX_WEAPONS], frag, fraggedself;
@@ -167,7 +167,7 @@ struct DukePlayer
 	native int16 curr_weapon, last_weapon, tipincs, wantweaponfire;
 	native int16 holoduke_amount, hurt_delay, hbomb_hold_delay;
 	native int16 jumping_counter, airleft, knee_incs, access_incs;
-	native int16 ftq, access_wallnum;
+	native int16 ftq;
 	native int16 got_access, weapon_ang, firstaid_amount;
 	native int16 i;
 	native int16 over_shoulder_on, fist_incs;

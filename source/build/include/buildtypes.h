@@ -138,6 +138,7 @@ struct walltype
     void addypan(float add) { ypan_ = fmodf(ypan_ + add + 512, 256); } // +512 is for handling negative offsets
     sectortype* nextSector() const;
     walltype* nextWall() const;
+    walltype* point2Wall() const;
     bool twoSided() const { return nextsector >= 0; }
 
 #if 0

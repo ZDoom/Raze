@@ -152,3 +152,11 @@ inline int I_GetBuildTime()
 {
     return I_GetTime(120);
 }
+
+inline int32_t getangle(walltype* wal)
+{
+    return getangle(
+        wall[wal->point2].x - wal->x,
+        wall[wal->point2].y - wal->y);
+}
+
