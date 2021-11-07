@@ -318,9 +318,9 @@ void displayweapon_r(int snum, double smoothratio)
 
 		auto displaycrowbar = [&]
 		{
-			static const short kb_frames[] = { 0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7 };
-			static const short kb_ox[] = { 310,342,364,418,350,316,282,288,0,0 };
-			static const short kb_oy[] = { 300,362,320,268,248,248,277,420,0,0 };
+			static const uint8_t kb_frames[] = { 0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7 };
+			static const uint16_t kb_ox[] = { 310,342,364,418,350,316,282,288,0,0 };
+			static const uint16_t kb_oy[] = { 300,362,320,268,248,248,277,420,0,0 };
 			double x;
 			short y;
 			x = weapon_xoffset + ((kb_ox[kb_frames[*kb]] >> 1) - 12);
@@ -337,9 +337,9 @@ void displayweapon_r(int snum, double smoothratio)
 
 		auto displayslingblade = [&]
 		{
-			static const short kb_frames[] = { 0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7 };
-			static const short kb_ox[] = { 580,676,310,491,356,210,310,614 };
-			static const short kb_oy[] = { 369,363,300,323,371,400,300,440 };
+			static const uint8_t kb_frames[] = { 0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7 };
+			static const uint16_t kb_ox[] = { 580,676,310,491,356,210,310,614 };
+			static const uint16_t kb_oy[] = { 369,363,300,323,371,400,300,440 };
 			double x;
 			short y;
 			x = weapon_xoffset + ((kb_ox[kb_frames[*kb]] >> 1) - 12);
@@ -492,11 +492,11 @@ void displayweapon_r(int snum, double smoothratio)
 			{
 				double x;
 				short y;
-				static const short kb_frames3[] = { 0,0,1,1,2,2,5,5,6,6,7,7,8,8,0,0,0,0,0,0,0 };
-				static const short kb_frames2[] = { 0,0,3,3,4,4,5,5,6,6,7,7,8,8,0,0,20,20,21,21,21,21,20,20,20,20,0,0 };
-				static const short kb_frames[] = { 0,0,1,1,2,2,3,3,4,4,5,5,5,5,6,6,6,6,7,7,7,7,8,8,0,0,20,20,21,21,21,21,20,20,20,20,0,0 };
-				static const short kb_ox[] = { 300,300,300,300,300,330,320,310,305,306,302 };
-				static const short kb_oy[] = { 315,300,302,305,302,302,303,306,302,404,384 };
+				static const uint8_t kb_frames3[] = { 0,0,1,1,2,2,5,5,6,6,7,7,8,8,0,0,0,0,0,0,0 };
+				static const uint8_t kb_frames2[] = { 0,0,3,3,4,4,5,5,6,6,7,7,8,8,0,0,20,20,21,21,21,21,20,20,20,20,0,0 };
+				static const uint8_t kb_frames[] = { 0,0,1,1,2,2,3,3,4,4,5,5,5,5,6,6,6,6,7,7,7,7,8,8,0,0,20,20,21,21,21,21,20,20,20,20,0,0 };
+				static const uint16_t kb_ox[] = { 300,300,300,300,300,330,320,310,305,306,302 };
+				static const uint16_t kb_oy[] = { 315,300,302,305,302,302,303,306,302,404,384 };
 				short tm;
 				tm = 180;
 				if (p->shotgun_state[1])
@@ -632,8 +632,8 @@ void displayweapon_r(int snum, double smoothratio)
 			if ((*kb) < 22)
 			{
 				static const uint8_t kb_frames[] = { 0,0,1,1,2,2,3,3,4,4,6,6,6,6,5,5,4,4,3,3,0,0 };
-				static const short kb_ox[] = { 194,190,185,208,215,215,216,216,201,170 };
-				static const short kb_oy[] = { 256,249,248,238,228,218,208,256,245,258 };
+				static const uint16_t kb_ox[] = { 194,190,185,208,215,215,216,216,201,170 };
+				static const uint16_t kb_oy[] = { 256,249,248,238,228,218,208,256,245,258 };
 				double x;
 				short y;
 
@@ -648,9 +648,9 @@ void displayweapon_r(int snum, double smoothratio)
 			}
 			else
 			{
-				static const short kb_frames[] = { 0,0,1,1,2,2,2,2,2,2,2,2,2,2,2,1,1,0,0 };
-				static const short kb_ox[] = { 244,244,244 };
-				static const short kb_oy[] = { 256,249,248 };
+				static const uint8_t kb_frames[] = { 0,0,1,1,2,2,2,2,2,2,2,2,2,2,2,1,1,0,0 };
+				static const uint16_t kb_ox[] = { 244,244,244 };
+				static const uint16_t kb_oy[] = { 256,249,248 };
 				double x;
 				short dx;
 				short y;

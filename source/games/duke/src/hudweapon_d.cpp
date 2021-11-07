@@ -121,7 +121,7 @@ int animateknee(int gs, player_struct* p, double look_anghalf, double looking_ar
 {
 	if (p->knee_incs > 11 || p->knee_incs == 0 || p->GetActor()->s->extra <= 0) return 0;
 
-	static const short knee_y[] = { 0,-8,-16,-32,-64,-84,-108,-108,-108,-72,-32,-8 };
+	static const int8_t knee_y[] = { 0,-8,-16,-32,-64,-84,-108,-108,-108,-72,-32,-8 };
 
 	looking_arc += knee_y[p->knee_incs];
 
@@ -140,7 +140,7 @@ int animateknuckles(int gs, player_struct* p, double look_anghalf, double lookin
 {
 	if (isWW2GI() || p->over_shoulder_on != 0 || p->knuckle_incs == 0 || p->GetActor()->s->extra <= 0) return 0;
 
-	static const short knuckle_frames[] = { 0,1,2,2,3,3,3,2,2,1,0 };
+	static const uint8_t knuckle_frames[] = { 0,1,2,2,3,3,3,2,2,1,0 };
 
 	hud_drawpal(160 + plravel - look_anghalf, looking_arc + 180 - horiz16th, CRACKKNUCKLES + knuckle_frames[p->knuckle_incs >> 1], gs, 4, pal);
 
@@ -174,7 +174,7 @@ static int animatetip(int gs, player_struct* p, double look_anghalf, double look
 {
 	if (p->tipincs == 0) return 0;
 
-	static const short tip_y[] = { 0,-8,-16,-32,-64,-84,-108,-108,-108,-108,-108,-108,-108,-108,-108,-108,-96,-72,-64,-32,-16 };
+	static const int8_t tip_y[] = { 0,-8,-16,-32,-64,-84,-108,-108,-108,-108,-108,-108,-108,-108,-108,-108,-96,-72,-64,-32,-16 };
 
 	hud_drawpal(170 + plravel - look_anghalf,
 		(tip_y[p->tipincs] >> 1) + looking_arc + 240 - horiz16th, TIP + ((26 - p->tipincs) >> 4), gs, 0, pal);
@@ -192,7 +192,7 @@ int animateaccess(int gs, player_struct* p, double look_anghalf, double looking_
 {
 	if(p->access_incs == 0 || p->GetActor()->s->extra <= 0) return 0;
 
-	static const short access_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-108,-108,-108,-108,-108,-108,-108,-96,-72,-64,-32,-16};
+	static const int8_t access_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-108,-108,-108,-108,-108,-108,-108,-96,-72,-64,-32,-16};
 
 	looking_arc += access_y[p->access_incs];
 
@@ -703,7 +703,7 @@ void displayweapon_d(int snum, double smoothratio)
 		{
 			if (*kb < 5)
 			{
-				short kb_frames[] = { 0,1,2,0,0 };
+				static const uint8_t kb_frames[] = { 0,1,2,0,0 };
 
 				double l = 195 - 12 + weapon_xoffset;
 
