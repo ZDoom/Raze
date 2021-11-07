@@ -170,8 +170,8 @@ int hits(DDukeActor* actor)
 {
 	auto sp = actor->s;
 	int sx, sy, sz;
-	short sect;
-	short hw;
+	int sect;
+	int hw;
 	int zoff;
 	DDukeActor* d;
 
@@ -193,7 +193,7 @@ int hitasprite(DDukeActor* actor, DDukeActor** hitsp)
 {
 	auto sp = actor->s;
 	int sx, sy, sz, zoff;
-	short sect, hw;
+	int sect, hw;
 
 	if (badguy(actor))
 		zoff = (42 << 8);
@@ -217,7 +217,7 @@ int hitasprite(DDukeActor* actor, DDukeActor** hitsp)
 int hitawall(struct player_struct* p, int* hitw)
 {
 	int sx, sy, sz;
-	short sect, hitw1;
+	int sect, hitw1;
 	DDukeActor* d;
 
 	hitscan(p->pos.x, p->pos.y, p->pos.z, p->cursectnum,
@@ -1006,7 +1006,7 @@ void shootbloodsplat(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 	spritetype* const s = actor->s;
 	int sect = s->sectnum;
 	int zvel;
-	short hitsect, hitwall;
+	int hitsect, hitwall;
 	int hitx, hity, hitz;
 	DDukeActor* d;
 

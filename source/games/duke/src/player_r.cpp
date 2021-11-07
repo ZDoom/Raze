@@ -88,7 +88,7 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 	spritetype* const s = actor->s;
 	int sect = s->sectnum;
 	int zvel;
-	short hitsect, hitwall;
+	int hitsect, hitwall;
 	int hitx, hity, hitz;
 	DDukeActor* hitsprt;
 
@@ -210,7 +210,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 	auto s = actor->s;
 	int sect = s->sectnum;
 	int zvel;
-	short hitsect, hitwall;
+	int hitsect, hitwall;
 	int hitx, hity, hitz;
 	DDukeActor* hitsprt;
 

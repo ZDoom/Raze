@@ -232,7 +232,7 @@ static void shootknee(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 	auto s = actor->s;
 	int sect = s->sectnum;
 	int zvel;
-	short hitsect, hitwall;
+	int hitsect, hitwall;
 	int hitx, hity, hitz;
 	DDukeActor* hitsprt;
 
@@ -319,7 +319,7 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 	auto s = actor->s;
 	int sect = s->sectnum;
 	int zvel;
-	short hitsect, hitwall;
+	int hitsect, hitwall;
 	int hitx, hity, hitz;
 	DDukeActor* hitact;
 
@@ -841,7 +841,7 @@ static void shootlaser(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 	spritetype* const s = actor->s;
 	int sect = s->sectnum;
 	int zvel;
-	short hitsect, hitwall, j;
+	int hitsect, hitwall, j;
 	int hitx, hity, hitz;
 	DDukeActor* hitsprt;
 
@@ -912,7 +912,7 @@ static void shootgrowspark(DDukeActor* actor, int p, int sx, int sy, int sz, int
 	auto s = actor->s;
 	int sect = s->sectnum;
 	int zvel;
-	short hitsect, hitwall, k;
+	int hitsect, hitwall, k;
 	int hitx, hity, hitz;
 	DDukeActor* hitsprt;
 
@@ -2002,7 +2002,7 @@ int operateTripbomb(int snum)
 	auto p = &ps[snum];
 
 	int sx, sy, sz;
-	short sect, hw;
+	int sect, hw;
 	DDukeActor* hitsprt;
 
 	hitscan(p->pos.x, p->pos.y, p->pos.z,

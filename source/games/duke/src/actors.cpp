@@ -5105,7 +5105,7 @@ int dodge(DDukeActor* actor)
 int furthestangle(DDukeActor *actor, int angs)
 {
 	auto s = actor->s;
-	short j, hitsect, hitwall, furthest_angle, angincs;
+	int j, hitsect, hitwall, furthest_angle, angincs;
 	int hx, hy, hz, d, greatestd;
 	DDukeActor* dd;
 
@@ -5139,7 +5139,7 @@ int furthestangle(DDukeActor *actor, int angs)
 int furthestcanseepoint(DDukeActor *actor, DDukeActor* tosee, int* dax, int* day)
 {
 	auto s = actor->s;
-	short j, hitsect, hitwall, angincs;
+	int j, hitsect, hitwall, angincs;
 	int hx, hy, hz, d, da;//, d, cd, ca,tempx,tempy,cx,cy;
 	DDukeActor* dd;
 
