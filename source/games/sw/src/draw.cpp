@@ -943,7 +943,7 @@ CircleCamera(int *nx, int *ny, int *nz, int *vsect, binangle *nang, fixed_t q16h
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
     // Make sure sector passed to hitscan is correct
-    //COVERupdatesector(*nx, *ny, vsect);
+    //updatesector(*nx, *ny, vsect);
 
     hitscan(&n, *vsect, vx, vy, vz,
             &hitinfo, CLIPMASK_MISSILE);

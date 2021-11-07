@@ -572,7 +572,7 @@ int DoSkelTeleport(DSWActor* actor)
             sp->y -= 512 + RANDOM_P2(1024);
 
         setspritez(SpriteNum, &sp->pos);
-        //COVERupdatesector(sp->x, sp->y, &sp->sectnum);
+        //updatesector(sp->x, sp->y, &sp->sectnum);
 
         if (sp->sectnum != -1)
             break;

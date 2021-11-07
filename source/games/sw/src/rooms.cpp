@@ -54,12 +54,6 @@ SAVE save;
 
 bool FAF_DebugView = false;
 
-void COVERupdatesector(int32_t x, int32_t y, int16_t* newsector)
-{
-    // ASSERT(*newsector>=0 && *newsector<MAXSECTORS);
-    updatesector(x,y,newsector);
-}
-
 int COVERinsertsprite(short sectnum, short stat)
 {
     short spnum;

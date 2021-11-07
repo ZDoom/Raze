@@ -12831,7 +12831,7 @@ DoSerpRing(DSWActor* actor)
             if ((dist < 18000 && (RANDOM_P2(2048<<5)>>5) < 16) || User[sp->owner]->Counter < 4)
             {
                 short sectnum = sp->sectnum;
-                COVERupdatesector(sp->x,sp->y,&sectnum);
+                updatesector(sp->x,sp->y,&sectnum);
 
                 // if (valid sector and can see target)
                 if (sectnum != -1 && CanSeePlayer(Weapon))

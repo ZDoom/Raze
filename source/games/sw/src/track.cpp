@@ -253,7 +253,7 @@ ActorFindTrack(short SpriteNum, int8_t player_dir, int track_type, short *track_
     if (near_dist < 15000)
     {
         // get the sector number of the point
-        COVERupdatesector(near_tp->x, near_tp->y, &track_sect);
+        updatesector(near_tp->x, near_tp->y, &track_sect);
 
         // if can see the point, return the track number
         if (FAFcansee(sp->x, sp->y, sp->z - Z(16), sp->sectnum, near_tp->x, near_tp->y, sector[track_sect].floorz - Z(32), track_sect))
@@ -1672,7 +1672,7 @@ MovePlayer(PLAYERp pp, SECTOR_OBJECTp sop, int nx, int ny)
 
     // THIS WAS CAUSING PROLEMS!!!!
     // Sectors are still being manipulated so you can end up in a void (-1) sector
-    //COVERupdatesector(pp->posx, pp->posy, &pp->cursectnum);
+    //updatesector(pp->posx, pp->posy, &pp->cursectnum);
 
     // New angle is formed by taking last known angle and
     // adjusting by the delta angle
@@ -1709,7 +1709,7 @@ MovePoints(SECTOR_OBJECTp sop, short delta_ang, int nx, int ny)
     sop->sp_child->x = sop->xmid;
     sop->sp_child->y = sop->ymid;
 
-    //COVERupdatesector(sop->xmid, sop->ymid, &sop->sectnum);
+    //updatesector(sop->xmid, sop->ymid, &sop->sectnum);
 
     // setting floorz if need be
     //if (!TEST(sop->flags, SOBJ_SPRITE_OBJ))
@@ -1895,7 +1895,7 @@ PlayerPart:
             // prevents you from falling into map HOLEs created by moving
             // Sectors and sprites around.
             //if (sop->xmid < MAXSO)
-            COVERupdatesector(pp->posx, pp->posy, &pp->cursectnum);
+            updatesector(pp->posx, pp->posy, &pp->cursectnum);
 
             // in case you are in a whirlpool
             // move perfectly with the ride in the z direction

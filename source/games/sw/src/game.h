@@ -1964,8 +1964,6 @@ void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, int16_t sectnum,
                        int32_t* hiz, int32_t* ceilhit,
                        int32_t* loz, int32_t* florhit);
 
-void COVERupdatesector(int32_t x, int32_t y, int16_t* newsector);
-
 
 void short_setinterpolation(short *posptr);
 void short_stopinterpolation(short *posptr);

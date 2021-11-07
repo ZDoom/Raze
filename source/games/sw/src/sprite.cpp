@@ -5030,7 +5030,7 @@ DropAhead(short SpriteNum, short min_height)
     day = sp->y + MOVEy(256, sp->ang);
 
     newsector = sp->sectnum;
-    COVERupdatesector(dax, day, &newsector);
+    updatesector(dax, day, &newsector);
 
     // look straight down for a drop
     if (ActorDrop(SpriteNum, dax, day, sp->z, newsector, min_height))
