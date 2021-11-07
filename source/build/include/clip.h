@@ -76,7 +76,7 @@ inline int pushmove(vec3_t *const vect, int *const sectnum, int32_t const walldi
 	short sect16 = *sectnum;
 	auto r = pushmove(vect, &sect16, walldist, ceildist, flordist, cliptype, clear);
 	*sectnum = sect16;
-    return r;
+	return r;
 }
 
 [[deprecated]]

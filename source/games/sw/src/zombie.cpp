@@ -843,7 +843,7 @@ SpawnZombie2(short Weapon)
 
     if (FAF_ConnectArea(sp->sectnum))
     {
-        short sectnum = sp->sectnum;
+        int sectnum = sp->sectnum;
         updatesectorz(sp->x, sp->y, sp->z + Z(10), &sectnum);
         if (sectnum >= 0 && SectorIsUnderwaterArea(sectnum))
             return -1;

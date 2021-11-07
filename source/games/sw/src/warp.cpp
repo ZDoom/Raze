@@ -81,7 +81,7 @@ WarpPlaneSectorInfo(short sectnum, SPRITEp *sp_ceiling, SPRITEp *sp_floor)
 }
 
 SPRITEp
-WarpPlane(int32_t* x, int32_t* y, int32_t* z, int16_t* sectnum)
+WarpPlane(int32_t* x, int32_t* y, int32_t* z, int* sectnum)
 {
     SPRITEp sp_floor, sp_ceiling;
 
@@ -111,7 +111,7 @@ WarpPlane(int32_t* x, int32_t* y, int32_t* z, int16_t* sectnum)
 }
 
 SPRITEp
-WarpToArea(SPRITEp sp_from, int32_t* x, int32_t* y, int32_t* z, int16_t* sectnum)
+WarpToArea(SPRITEp sp_from, int32_t* x, int32_t* y, int32_t* z, int* sectnum)
 {
     int xoff;
     int yoff;
@@ -245,7 +245,7 @@ WarpSectorInfo(short sectnum, SPRITEp *sp_warp)
 }
 
 SPRITEp
-Warp(int32_t* x, int32_t* y, int32_t* z, int16_t* sectnum)
+Warp(int32_t* x, int32_t* y, int32_t* z, int* sectnum)
 {
     SPRITEp sp_warp;
 

@@ -736,7 +736,7 @@ typedef void (*PLAYER_ACTION_FUNCp)(PLAYERp);
 
 typedef struct
 {
-    short cursectnum,lastcursectnum,pang,filler;
+    int cursectnum,lastcursectnum,pang;
     int xvect,yvect,oxvect,oyvect,slide_xvect,slide_yvect;
     int posx,posy,posz;
     SECTOR_OBJECTp sop_control;
@@ -789,7 +789,7 @@ struct PLAYERstruct
     short circle_camera_ang;
     short camera_check_time_delay;
 
-    short cursectnum,lastcursectnum;
+    int cursectnum,lastcursectnum;
     fixed_t turn180_target; // 180 degree turn
 
     // variables that do not fit into sprite structure

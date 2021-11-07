@@ -5021,7 +5021,7 @@ DropAhead(short SpriteNum, short min_height)
 
     SPRITEp sp = &sprite[SpriteNum];
     int dax, day;
-    short newsector;
+    int newsector;
 
     // dax = sp->x + MOVEx(128, sp->ang);
     // day = sp->y + MOVEy(128, sp->ang);
@@ -6831,7 +6831,8 @@ int
 move_sprite(int spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics)
 {
     int retval=0, zh;
-    short dasectnum, tempshort;
+	int dasectnum;
+	short tempshort;
     SPRITEp spr;
     USERp u = User[spritenum].Data();
     short lastsectnum;
@@ -7078,7 +7079,7 @@ int
 move_missile(int spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics)
 {
     int retval, zh;
-    short dasectnum, tempshort;
+    int dasectnum, tempshort;
     SPRITEp sp;
     USERp u = User[spritenum].Data();
     short lastsectnum;
@@ -7216,7 +7217,7 @@ move_ground_missile(short spritenum, int xchange, int ychange, int ceildist, int
 {
     int daz;
     int retval=0;
-    short dasectnum;
+    int dasectnum;
     SPRITEp sp;
     USERp u = User[spritenum].Data();
     short lastsectnum;

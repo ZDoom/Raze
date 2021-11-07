@@ -211,7 +211,7 @@ struct SWPlayer native
     native int16 circle_camera_ang;
     native int16 camera_check_time_delay;
 
-    native int16 cursectnum,lastcursectnum;
+    native int cursectnum,lastcursectnum;
     native int turn180_target; // 180 degree turn
 
     // variables that do not fit into sprite structure

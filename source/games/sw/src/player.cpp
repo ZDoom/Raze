@@ -2142,7 +2142,7 @@ DoPlayerMove(PLAYERp pp)
 
     if (TEST(pp->Flags, PF_CLIP_CHEAT))
     {
-        short sectnum=pp->cursectnum;
+        int sectnum = pp->cursectnum;
         if (interpolate_ride)
         {
             pp->oposx = pp->posx;
@@ -6311,7 +6311,7 @@ void DoPlayerDeathMoveHead(PLAYERp pp)
     SPRITEp sp = pp->SpriteP;
     USERp u = User[pp->PlayerSprite].Data();
     int dax,day;
-    short sectnum;
+    int sectnum;
 
     dax = MOVEx(u->slide_vel, u->slide_ang);
     day = MOVEy(u->slide_vel, u->slide_ang);

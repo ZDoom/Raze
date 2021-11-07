@@ -124,7 +124,7 @@ ActorFindTrack(short SpriteNum, int8_t player_dir, int track_type, short *track_
     SPRITEp sp = User[SpriteNum]->SpriteP;
 
     int dist, near_dist = 999999, zdiff;
-    short track_sect=0;
+    int track_sect=0;
 
     short i;
     short end_point[2] = {0,0};
@@ -2886,7 +2886,7 @@ void
 DoTornadoObject(SECTOR_OBJECTp sop)
 {
     int xvect,yvect;
-    short cursect;
+    int cursect;
     // this made them move together more or less - cool!
     //static short ang = 1024;
     int floor_dist;

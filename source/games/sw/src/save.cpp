@@ -413,7 +413,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, REMOTE_CONTROL& w,
 		arc("cursectnum", w.cursectnum)
 			("lastcursectnum", w.lastcursectnum)
 			("pang", w.pang)
-			("filler", w.filler)
 			("xvect", w.xvect)
 			("yvect", w.yvect)
 			("slide_xvect", w.slide_xvect)

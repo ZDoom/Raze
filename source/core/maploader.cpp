@@ -222,13 +222,12 @@ static void ValidateSprite(spritetype& spr)
 	}
 	else if ((unsigned)spr.sectnum >= (unsigned)numsectors)
 	{
-		const int32_t osectnum = spr.sectnum;
+		int sectnum = -1;
+		updatesector(spr.x, spr.y, &sectnum);
+		spr.sectnum = sectnum;
 
-		spr.sectnum = -1;
-		updatesector(spr.x, spr.y, &spr.sectnum);
-
-		bugged = spr.sectnum < 0;
-		if (bugged) Printf("Sprite #%d (%d,%d) with invalid sector %d\n", index, spr.x, spr.y, spr.sectnum);
+		bugged = sectnum < 0;
+		if (bugged) Printf("Sprite #%d (%d,%d) with invalid sector %d\n", index, spr.x, spr.y, sectnum);
 	}
 	if (bugged)
 	{

@@ -12830,7 +12830,7 @@ DoSerpRing(DSWActor* actor)
             // if ((dist ok and random ok) OR very few skulls left)
             if ((dist < 18000 && (RANDOM_P2(2048<<5)>>5) < 16) || User[sp->owner]->Counter < 4)
             {
-                short sectnum = sp->sectnum;
+                int sectnum = sp->sectnum;
                 updatesector(sp->x,sp->y,&sectnum);
 
                 // if (valid sector and can see target)
@@ -17420,7 +17420,7 @@ HitscanSpriteAdjust(short SpriteNum, short hit_wall)
     SPRITEp sp = &sprite[SpriteNum];
     int16_t ang;
     int xvect,yvect;
-    short sectnum;
+    int sectnum;
 
 #if 1
     if (hit_wall >= 0)
@@ -20265,7 +20265,7 @@ int QueueHole(short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z)
     short SpriteNum;
     int nx,ny;
     SPRITEp sp;
-    short sectnum;
+    int sectnum;
 
 
     if (TestDontStick(-1,hit_wall))
@@ -20544,7 +20544,7 @@ int QueueWallBlood(short hit_sprite, short ang)
     short SpriteNum;
     int nx,ny;
     SPRITEp sp;
-    short sectnum;
+    int sectnum;
     short rndnum;
     int daz;
     hitdata_t hitinfo;

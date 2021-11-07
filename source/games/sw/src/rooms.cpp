@@ -264,7 +264,7 @@ FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects,
           int32_t xe, int32_t ye, int32_t ze, int16_t secte)
 {
     int loz, hiz;
-    short newsectnum = sects;
+    int newsectnum = sects;
     int xvect, yvect, zvect;
     short ang;
     hitdata_t hitinfo;

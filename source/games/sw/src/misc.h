@@ -19,10 +19,29 @@ void MapColors(short num,COLOR_MAP cm,short create);
 int32_t CONFIG_ReadSetup(void);
 
 bool WarpPlaneSectorInfo(short sectnum, SPRITEp* sp_ceiling, SPRITEp* sp_floor);
-SPRITEp WarpPlane(int32_t* x, int32_t* y, int32_t* z, int16_t* sectnum);
-SPRITEp WarpToArea(SPRITEp sp_from, int32_t* x, int32_t* y, int32_t* z, int16_t* sectnum);
+SPRITEp WarpPlane(int32_t* x, int32_t* y, int32_t* z, int* sectnum);
+SPRITEp WarpToArea(SPRITEp sp_from, int32_t* x, int32_t* y, int32_t* z, int* sectnum);
 bool WarpSectorInfo(short sectnum, SPRITEp* sp_warp);
-SPRITEp Warp(int32_t* x, int32_t* y, int32_t* z, int16_t* sectnum);
+SPRITEp Warp(int32_t* x, int32_t* y, int32_t* z, int* sectnum);
+
+[[deprecated]]
+SPRITEp Warp(int32_t* x, int32_t* y, int32_t* z, int16_t* sectnum)
+{
+	int sect16 = *sectnum;
+	auto p= Warp(x, y, z, &sect16);
+	*sectnum = sect16;
+	return p;
+}
+
+[[deprecated]]
+SPRITEp WarpPlane(int32_t* x, int32_t* y, int32_t* z, int16_t* sectnum)
+{
+	int sect16 = *sectnum;
+	auto p= WarpPlane(x, y, z, &sect16);
+	*sectnum = sect16;
+	return p;
+}
+
 
 void ProcessVisOn(void);
 void VisViewChange(PLAYERp pp, int* vis);

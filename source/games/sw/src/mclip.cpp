@@ -132,7 +132,7 @@ short MultiClipTurn(PLAYERp pp, short new_ang, int z, int floor_dist)
     int x,y;
     short ang;
     int xvect, yvect;
-    short cursectnum = pp->cursectnum;
+    int cursectnum = pp->cursectnum;
 
     for (i = 0; i < sop->clipbox_num; i++)
     {
