@@ -105,6 +105,16 @@ protected:
 	T* m_ptr;
 };
 
+// magic little helper. :)
+template <class T>
+class backwards
+{
+	T& _obj;
+public:
+	backwards(T &obj) : _obj(obj) {}
+	auto begin() {return _obj.rbegin();}
+	auto end() {return _obj.rend();}
+};
 
 
 // TArray -------------------------------------------------------------------
@@ -126,6 +136,8 @@ public:
 
     typedef TIterator<T>                       iterator;
     typedef TIterator<const T>                 const_iterator;
+    using reverse_iterator       =             std::reverse_iterator<iterator>;
+    using const_reverse_iterator =             std::reverse_iterator<const_iterator>;
 	typedef T							value_type;
 
     iterator begin()
@@ -154,7 +166,32 @@ public:
 		return &Array[Count];
 	}
 	
-	
+	reverse_iterator rbegin()
+	{
+		return reverse_iterator(end());
+	}
+	const_reverse_iterator rbegin() const
+	{
+		return const_reverse_iterator(end());
+	}
+	const_reverse_iterator crbegin() const
+	{
+		return const_reverse_iterator(cend());
+	}
+
+	reverse_iterator rend()
+	{
+		return reverse_iterator(begin());
+	}
+	const_reverse_iterator rend() const
+	{
+		return const_reverse_iterator(begin());
+	}
+	const_reverse_iterator crend() const
+	{
+		return const_reverse_iterator(cbegin());
+	}
+
 
 	////////
 	// This is a dummy constructor that does nothing. The purpose of this
@@ -637,6 +674,8 @@ public:
 
 	typedef TIterator<T>                       iterator;
 	typedef TIterator<const T>                 const_iterator;
+    using reverse_iterator       =             std::reverse_iterator<iterator>;
+    using const_reverse_iterator =             std::reverse_iterator<const_iterator>;
 	typedef T                                  value_type;
 
 	iterator begin()
@@ -663,6 +702,32 @@ public:
 	const_iterator cend() const
 	{
 		return &Array[Count];
+	}
+
+	reverse_iterator rbegin()
+	{
+		return reverse_iterator(end());
+	}
+	const_reverse_iterator rbegin() const
+	{
+		return const_reverse_iterator(end());
+	}
+	const_reverse_iterator crbegin() const
+	{
+		return const_reverse_iterator(cend());
+	}
+
+	reverse_iterator rend()
+	{
+		return reverse_iterator(begin());
+	}
+	const_reverse_iterator rend() const
+	{
+		return const_reverse_iterator(begin());
+	}
+	const_reverse_iterator crend() const
+	{
+		return const_reverse_iterator(cbegin());
 	}
 
 	void Init(T *ptr, unsigned cnt)
@@ -1705,6 +1770,8 @@ public:
 
 	typedef TIterator<T>                       iterator;
 	typedef TIterator<const T>                 const_iterator;
+    using reverse_iterator       =             std::reverse_iterator<iterator>;
+    using const_reverse_iterator =             std::reverse_iterator<const_iterator>;
 	typedef T                                  value_type;
 
 	iterator begin()
@@ -1731,6 +1798,32 @@ public:
 	const_iterator cend() const
 	{
 		return &Array[Count];
+	}
+
+	reverse_iterator rbegin()
+	{
+		return reverse_iterator(end());
+	}
+	const_reverse_iterator rbegin() const
+	{
+		return const_reverse_iterator(end());
+	}
+	const_reverse_iterator crbegin() const
+	{
+		return const_reverse_iterator(cend());
+	}
+
+	reverse_iterator rend()
+	{
+		return reverse_iterator(begin());
+	}
+	const_reverse_iterator rend() const
+	{
+		return const_reverse_iterator(begin());
+	}
+	const_reverse_iterator crend() const
+	{
+		return const_reverse_iterator(cbegin());
 	}
 
 
@@ -1862,6 +1955,8 @@ public:
 
 	typedef TSparseIterator<T>                       iterator;
 	typedef TSparseIterator<const T>                 const_iterator;
+    using reverse_iterator       =             std::reverse_iterator<iterator>;
+    using const_reverse_iterator =             std::reverse_iterator<const_iterator>;
 	typedef T                                  value_type;
 
 	iterator begin()
@@ -1890,6 +1985,31 @@ public:
 		return const_iterator(Array + Count * Stride, Stride);
 	}
 
+	reverse_iterator rbegin()
+	{
+		return reverse_iterator(end());
+	}
+	const_reverse_iterator rbegin() const
+	{
+		return const_reverse_iterator(end());
+	}
+	const_reverse_iterator crbegin() const
+	{
+		return const_reverse_iterator(cend());
+	}
+
+	reverse_iterator rend()
+	{
+		return reverse_iterator(begin());
+	}
+	const_reverse_iterator rend() const
+	{
+		return const_reverse_iterator(begin());
+	}
+	const_reverse_iterator crend() const
+	{
+		return const_reverse_iterator(cbegin());
+	}
 
 	////////
 	TSparseArrayView() = default;	// intended to keep this type trivial.
