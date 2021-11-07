@@ -415,7 +415,7 @@ void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 			{
 				l = s->z - ps[p].GetActor()->floorz + (3 << 8);
 				if (l > 1024 && s->yrepeat > 32 && s->extra > 0)
-					s->yoffset = (signed char)(l / (s->yrepeat << 2));
+					s->yoffset = (int8_t)(l / (s->yrepeat << 2));
 				else s->yoffset = 0;
 			}
 

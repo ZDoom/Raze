@@ -2971,7 +2971,7 @@ int ConCompiler::parsecommand()
 		}
 #endif
 		// syntax:
-		// int x, int y, short tilenum, signed char shade, char orientation
+		// int x, int y, short tilenum, int8_t shade, char orientation
 		// myospal adds char pal
 
 		// Parse: x

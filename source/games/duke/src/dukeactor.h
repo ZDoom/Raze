@@ -206,7 +206,7 @@ inline int hitscan(int x, int y, int z, int sectnum, int32_t vx, int32_t vy, int
 	return res;
 }
 
-inline void   neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange,
+inline void   neartag(int32_t xs, int32_t ys, int32_t zs, int sectnum, int ange,
 	int* neartagsector, int* neartagwall, DDukeActor** neartagsprite,
 	int32_t* neartaghitdist, int32_t neartagrange, uint8_t tagsearch)
 {

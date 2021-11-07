@@ -1429,7 +1429,7 @@ void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int* const
     *sectnum = -1;
 }
 
-void updatesectorneighbor(int32_t const x, int32_t const y, int16_t * const sectnum, int32_t initialMaxDistance /*= INITIALUPDATESECTORDIST*/, int32_t maxDistance /*= MAXUPDATESECTORDIST*/)
+void updatesectorneighbor(int32_t const x, int32_t const y, int * const sectnum, int32_t initialMaxDistance /*= INITIALUPDATESECTORDIST*/, int32_t maxDistance /*= MAXUPDATESECTORDIST*/)
 {
     int const initialsectnum = *sectnum;
 

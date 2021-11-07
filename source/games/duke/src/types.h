@@ -13,7 +13,7 @@ struct STATUSBARTYPE
 {
 	short frag[MAXPLAYERS], got_access, last_extra, shield_amount, curr_weapon;
 	short ammo_amount[MAX_WEAPONS];
-	unsigned char inven_icon, jetpack_on, heat_on;
+	uint8_t inven_icon, jetpack_on, heat_on;
 	short firstaid_amount, steroids_amount, holoduke_amount, jetpack_amount;
 	short heat_amount, scuba_amount, boot_amount;
 	short last_weapon, weapon_pos, kickback_pic;
@@ -124,9 +124,9 @@ struct TileInfo
 
 struct user_defs
 {
-	unsigned char god, cashman, eog;
-	unsigned char clipping;
-	unsigned char user_pals[MAXPLAYERS];
+	uint8_t god, cashman, eog;
+	uint8_t clipping;
+	uint8_t user_pals[MAXPLAYERS];
 
 	short from_bonus;
 	short last_level, secretlevel;
@@ -181,8 +181,8 @@ struct player_struct
 	int oweapon_sway;
 	short weapon_pos, kickback_pic, random_club_frame;
 	short oweapon_pos, okickback_pic, orandom_club_frame;
-	unsigned char hard_landing;
-	unsigned char ohard_landing;
+	uint8_t hard_landing;
+	uint8_t ohard_landing;
 
 	// Store current psectlotag as determined in processinput() for use with scaling angle aiming.
 	short psectlotag;
@@ -223,20 +223,20 @@ struct player_struct
 	short pycount, frag_ps;
 	short transporter_hold, last_full_weapon, footprintshade, boot_amount;
 
-	unsigned char on_warping_sector, footprintcount;
-	unsigned char hbomb_on, jumping_toggle, rapid_fire_hold, on_ground;
+	uint8_t on_warping_sector, footprintcount;
+	uint8_t hbomb_on, jumping_toggle, rapid_fire_hold, on_ground;
 	char name[32];
-	unsigned char inven_icon, buttonpalette;
+	uint8_t inven_icon, buttonpalette;
 
-	unsigned char jetpack_on, spritebridge, lastrandomspot;
-	unsigned char scuba_on, footprintpal, heat_on;
+	uint8_t jetpack_on, spritebridge, lastrandomspot;
+	uint8_t scuba_on, footprintpal, heat_on;
 
-	unsigned char  holster_weapon;
-	unsigned char falling_counter;
-	unsigned char refresh_inventory;
+	uint8_t  holster_weapon;
+	uint8_t falling_counter;
+	uint8_t refresh_inventory;
 
-	unsigned char toggle_key_flag, knuckle_incs; // ,select_dir;
-	unsigned char walking_snd_toggle, palookup;
+	uint8_t toggle_key_flag, knuckle_incs; // ,select_dir;
+	uint8_t walking_snd_toggle, palookup;
 	bool quick_kick_msg;
 
 	int max_secret_rooms, secret_rooms, max_actors_killed, actors_killed;

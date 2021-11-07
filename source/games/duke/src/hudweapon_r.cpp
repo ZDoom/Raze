@@ -111,7 +111,7 @@ void displayweapon_r(int snum, double smoothratio)
 	int i, j;
 	double weapon_sway, weapon_xoffset, gun_pos, looking_arc, look_anghalf, hard_landing, TiltStatus;
 	char o,pal;
-	signed char shade;
+	int8_t shade;
 
 	auto p = &ps[snum];
 	auto kb = &p->kickback_pic;
@@ -825,7 +825,7 @@ void displayweapon_r(int snum, double smoothratio)
 				}
 				else
 				{
-					signed char kb_frames[] = { 1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0 };
+					int8_t kb_frames[] = { 1,1,1,1,1,2,2,2,2,2,3,3,3,3,3,0,0,0,0,0,0,0,0,0,0 };
 					short frm = kb_frames[*kb];
 					rd2myospal(weapon_xoffset + 184 - look_anghalf,
 						looking_arc + 240 - gun_pos, SHRINKER + frm, shade, o, 0);

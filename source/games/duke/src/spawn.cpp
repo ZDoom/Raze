@@ -49,7 +49,7 @@ BEGIN_DUKE_NS
 //
 //---------------------------------------------------------------------------
 
-DDukeActor* EGS(short whatsect, int s_x, int s_y, int s_z, short s_pn, signed char s_s, signed char s_xr, signed char s_yr, short s_a, short s_ve, int s_zv, DDukeActor* s_ow, signed char s_ss) 
+DDukeActor* EGS(short whatsect, int s_x, int s_y, int s_z, short s_pn, int8_t s_s, int8_t s_xr, int8_t s_yr, short s_a, short s_ve, int s_zv, DDukeActor* s_ow, int8_t s_ss) 
 {
 	int const i = insertsprite(whatsect, s_ss);
 

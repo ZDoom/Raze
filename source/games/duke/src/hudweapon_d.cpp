@@ -221,7 +221,7 @@ void displayweapon_d(int snum, double smoothratio)
 	int i, j;
 	int o, pal;
 	double weapon_sway, weapon_xoffset, gun_pos, looking_arc, kickback_pic, random_club_frame, hard_landing, look_anghalf, horiz16th, plravel;
-	signed char shade;
+	int8_t shade;
 	struct player_struct *p;
 
 	p = &ps[snum];
@@ -813,7 +813,7 @@ void displayweapon_d(int snum, double smoothratio)
 
 		auto displayhandremote = [&]()
 		{
-			signed char remote_frames[] = { 0,1,1,2,1,1,0,0,0,0,0 };
+			int8_t remote_frames[] = { 0,1,1,2,1,1,0,0,0,0,0 };
 
 			weapon_xoffset = -48;
 

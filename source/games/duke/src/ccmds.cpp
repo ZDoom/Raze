@@ -66,7 +66,7 @@ static int ccmd_spawn(CCmdFuncPtr parm)
 	case 3: // cstat
 		cstat = (unsigned short)atol(parm->parms[2]); set |= 2;
 	case 2: // pal
-		pal = (unsigned char)atol(parm->parms[1]); set |= 1;
+		pal = (uint8_t)atol(parm->parms[1]); set |= 1;
 	case 1: // tile number
 		if (isdigit(parm->parms[0][0])) {
 			picnum = (unsigned short)atol(parm->parms[0]);

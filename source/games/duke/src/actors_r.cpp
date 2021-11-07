@@ -1572,8 +1572,8 @@ void moveweapons_r(void)
 
 void movetransports_r(void)
 {
-	char warpdir, warpspriteto;
-	short k, p, sectlotag;
+	uint8_t warpdir, warpspriteto;
+	int k, p, sectlotag;
 	int ll2, ll, onfloorz;
 	Collision coll;
 
