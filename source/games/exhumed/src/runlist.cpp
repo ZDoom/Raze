@@ -638,6 +638,7 @@ void runlist_ExecObjects()
 
 void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 {
+    auto sectp = &sector[nSector];
     int zListA[8];
     int zListB[8];
 
@@ -663,10 +664,10 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
                 This function searches z-coordinates of neighboring sectors to find the
                 closest (next) ceiling starting at the given z-coordinate (thez).
             */
-            short nextSector = nextsectorneighborz(nSector, sector[nSector].ceilingz, -1, -1);
+            short nextSector = nextsectorneighborz(nSector, sectp->ceilingz, -1, -1);
             assert(nextSector > -1);
 
-            int nElev = BuildElevC(0, nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sector[nSector].floorz, sector[nextSector].ceilingz);
+            int nElev = BuildElevC(0, nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sectp->floorz, sector[nextSector].ceilingz);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
 
@@ -682,10 +683,10 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 2: // Floor Doom door
         {
-            short nextSector = nextsectorneighborz(nSector, sector[nSector].floorz, 1, 1);
+            short nextSector = nextsectorneighborz(nSector, sectp->floorz, 1, 1);
             assert(nextSector > -1);
 
-            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sector[nSector].ceilingz, sector[nextSector].floorz);
+            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sectp->ceilingz, sector[nextSector].floorz);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
 
@@ -731,10 +732,10 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 5: // Permanent floor raise
         {
-            short nextSector = nextsectorneighborz(nSector, sector[nSector].floorz + 1, -1, -1);
+            short nextSector = nextsectorneighborz(nSector, sectp->floorz + 1, -1, -1);
             assert(nextSector > -1);
 
-            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sector[nSector].floorz, sector[nextSector].ceilingz);
+            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sectp->floorz, sector[nextSector].ceilingz);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
             return;
@@ -742,10 +743,10 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 6: // Touchplate floor lower, single
         {
-            short nextSector = nextsectorneighborz(nSector, sector[nSector].floorz, 1, -1);
+            short nextSector = nextsectorneighborz(nSector, sectp->floorz, 1, -1);
             assert(nextSector > -1);
 
-            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), 400, 400, 2, sector[nextSector].floorz, sector[nSector].floorz);
+            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), 400, 400, 2, sector[nextSector].floorz, sectp->floorz);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
 
@@ -753,16 +754,16 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
             runlist_AddRunRec(sRunChannels[nChannel].a,nSwitch.first, nSwitch.second);
 
-            sector[nSector].floorz = sector[nextSector].floorz;
+            sectp->floorz = sector[nextSector].floorz;
             return;
         }
 
         case 7: // Touchplate floor lower, multiple
         {
-            short nextSector = nextsectorneighborz(nSector, sector[nSector].floorz, 1, 1);
+            short nextSector = nextsectorneighborz(nSector, sectp->floorz, 1, 1);
             assert(nextSector > -1);
 
-            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sector[nSector].floorz, sector[nextSector].floorz);
+            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sectp->floorz, sector[nextSector].floorz);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
 
@@ -778,10 +779,10 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 8: // Permanent floor lower
         {
-            short nextSector = nextsectorneighborz(nSector, sector[nSector].floorz, 1, 1);
+            short nextSector = nextsectorneighborz(nSector, sectp->floorz, 1, 1);
             assert(nextSector > -1);
 
-            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sector[nSector].floorz, sector[nextSector].floorz);
+            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sectp->floorz, sector[nextSector].floorz);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
             return;
@@ -789,10 +790,10 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 9: // Switch activated lift down
         {
-            short nextSector = nextsectorneighborz(nSector, sector[nSector].floorz, 1, 1);
+            short nextSector = nextsectorneighborz(nSector, sectp->floorz, 1, 1);
             assert(nextSector > -1);
 
-            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sector[nSector].floorz, sector[nextSector].floorz);
+            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sectp->floorz, sector[nextSector].floorz);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
 
@@ -804,10 +805,10 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 10: // Touchplate Floor Raise
         {
-            short nextSector = nextsectorneighborz(nSector, sector[nSector].floorz, 1, -1);
+            short nextSector = nextsectorneighborz(nSector, sectp->floorz, 1, -1);
             assert(nextSector > -1);
 
-            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sector[nSector].floorz, sector[nextSector].floorz);
+            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sectp->floorz, sector[nextSector].floorz);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
 
@@ -832,12 +833,12 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
             */
             int zVal = 0;
 
-            short nextSector = nextsectorneighborz(nSector, sector[nSector].floorz, 1, -1);
+            short nextSector = nextsectorneighborz(nSector, sectp->floorz, 1, -1);
             if (nextSector >= 0) {
                 zVal = sector[nextSector].floorz;
             }
 
-            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sector[nSector].floorz, zVal);
+            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sectp->floorz, zVal);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
             return;
@@ -852,12 +853,12 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
             */
             int zVal = 0;
 
-            short nextSector = nextsectorneighborz(nSector, sector[nSector].floorz, 1, -1);
+            short nextSector = nextsectorneighborz(nSector, sectp->floorz, 1, -1);
             if (nextSector >= 0) {
                 zVal = sector[nextSector].floorz;
             }
 
-            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sector[nSector].floorz, zVal);
+            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sectp->floorz, zVal);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
 
@@ -876,12 +877,12 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
             */
             int zVal = 0;
 
-            short nextSector = nextsectorneighborz(nSector, sector[nSector].floorz, 1, 1);
+            short nextSector = nextsectorneighborz(nSector, sectp->floorz, 1, 1);
             if (nextSector >= 0) {
                 zVal = sector[nextSector].floorz;
             }
 
-            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sector[nSector].floorz, zVal);
+            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sectp->floorz, zVal);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
 
@@ -893,10 +894,10 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 15: // Sector raise/lower
         {
-            short nextSector = nextsectorneighborz(nSector, sector[nSector].floorz, 1, -1);
+            short nextSector = nextsectorneighborz(nSector, sectp->floorz, 1, -1);
             assert(nextSector > -1);
 
-            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sector[nSector].floorz, sector[nextSector].floorz);
+            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sectp->floorz, sector[nextSector].floorz);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
             return;
@@ -904,7 +905,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 16: // Stuttering noise (floor makes noise)
         {
-            int nElev = BuildElevC(0, nChannel, nSector, FindWallSprites(nSector), 200, nSpeed * 100, 2, sector[nSector].ceilingz, sector[nSector].floorz - 8);
+            int nElev = BuildElevC(0, nChannel, nSector, FindWallSprites(nSector), 200, nSpeed * 100, 2, sectp->ceilingz, sectp->floorz - 8);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
 
@@ -920,7 +921,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 17: // Reserved?
         {
-            int nElev = BuildElevC(0, nChannel, nSector, FindWallSprites(nSector), 200, nSpeed * 100, 2, sector[nSector].ceilingz, sector[nSector].floorz - 8);
+            int nElev = BuildElevC(0, nChannel, nSector, FindWallSprites(nSector), 200, nSpeed * 100, 2, sectp->ceilingz, sectp->floorz - 8);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
 
@@ -932,15 +933,15 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 18: // Raises floor AND lowers ceiling
         {
-            int ebx = ((sector[nSector].floorz - sector[nSector].ceilingz) / 2) + sector[nSector].ceilingz;
+            int ebx = ((sectp->floorz - sectp->ceilingz) / 2) + sectp->ceilingz;
 
-            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), 200, nSpeed * 100, 2, sector[nSector].floorz, ebx);
+            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), 200, nSpeed * 100, 2, sectp->floorz, ebx);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
 
-            int ebx2 = (((sector[nSector].floorz - sector[nSector].ceilingz) / 2) + sector[nSector].ceilingz) - 8;
+            int ebx2 = (((sectp->floorz - sectp->ceilingz) / 2) + sectp->ceilingz) - 8;
 
-            int nElev2 = BuildElevC(0, nChannel, nSector, FindWallSprites(nSector), 200, nSpeed * 100, 2, sector[nSector].ceilingz, ebx2);
+            int nElev2 = BuildElevC(0, nChannel, nSector, FindWallSprites(nSector), 200, nSpeed * 100, 2, sectp->ceilingz, ebx2);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev2, 0);
 
@@ -967,12 +968,12 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
             */
             int zVal = 0;
 
-            short nextSector = nextsectorneighborz(nSector, sector[nSector].floorz, 1, 1);
+            short nextSector = nextsectorneighborz(nSector, sectp->floorz, 1, 1);
             if (nextSector >= 0) {
                 zVal = sector[nextSector].floorz;
             }
 
-            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), 32767, 200, 2, sector[nSector].floorz, zVal);
+            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), 32767, 200, 2, sectp->floorz, zVal);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
 
@@ -984,10 +985,10 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 24: // Ceiling door, channel trigger only
         {
-            short nextSector = nextsectorneighborz(nSector, sector[nSector].ceilingz, -1, -1);
+            short nextSector = nextsectorneighborz(nSector, sectp->ceilingz, -1, -1);
             assert(nextSector > -1);
 
-            int nElev = BuildElevC(0, nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sector[nSector].floorz, sector[nextSector].ceilingz);
+            int nElev = BuildElevC(0, nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sectp->floorz, sector[nextSector].ceilingz);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
 
@@ -999,10 +1000,10 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 25:
         {
-            short nextSector = nextsectorneighborz(nSector, sector[nSector].floorz, 1, 1);
+            short nextSector = nextsectorneighborz(nSector, sectp->floorz, 1, 1);
             assert(nextSector > -1);
 
-            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sector[nSector].floorz, sector[nextSector].floorz);
+            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sectp->floorz, sector[nextSector].floorz);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
 
@@ -1014,10 +1015,10 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 26:
         {
-            short nextSector = nextsectorneighborz(nSector, sector[nSector].floorz, 1, 1);
+            short nextSector = nextsectorneighborz(nSector, sectp->floorz, 1, 1);
             assert(nextSector > -1);
 
-            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sector[nSector].floorz, sector[nextSector].floorz);
+            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sectp->floorz, sector[nextSector].floorz);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
 
@@ -1029,10 +1030,10 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 27:
         {
-            short nextSector = nextsectorneighborz(nSector, sector[nSector].floorz, 1, 1);
+            short nextSector = nextsectorneighborz(nSector, sectp->floorz, 1, 1);
             assert(nextSector > -1);
 
-            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sector[nSector].floorz, sector[nextSector].floorz);
+            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sectp->floorz, sector[nextSector].floorz);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
 
@@ -1044,10 +1045,10 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 28:
         {
-            short nextSector = nextsectorneighborz(nSector, sector[nSector].floorz, 1, 1);
+            short nextSector = nextsectorneighborz(nSector, sectp->floorz, 1, 1);
             assert(nextSector > -1);
 
-            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sector[nSector].floorz, sector[nextSector].floorz);
+            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sectp->floorz, sector[nextSector].floorz);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
 
@@ -1059,10 +1060,10 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 31: // Touchplate
         {
-            short nextSector = nextsectorneighborz(nSector, sector[nSector].floorz, 1, 1);
+            short nextSector = nextsectorneighborz(nSector, sectp->floorz, 1, 1);
             assert(nextSector > -1);
 
-            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), 0x7FFF, 0x7FFF, 2, sector[nSector].floorz, sector[nextSector].floorz);
+            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), 0x7FFF, 0x7FFF, 2, sectp->floorz, sector[nextSector].floorz);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
 
@@ -1074,10 +1075,10 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 32:
         {
-            short nextSector = nextsectorneighborz(nSector, sector[nSector].floorz, 1, 1);
+            short nextSector = nextsectorneighborz(nSector, sectp->floorz, 1, 1);
             assert(nextSector > -1);
 
-            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), 0x7FFF, 0x7FFF, 2, sector[nSector].floorz, sector[nextSector].floorz);
+            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), 0x7FFF, 0x7FFF, 2, sectp->floorz, sector[nextSector].floorz);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
             return;
@@ -1085,10 +1086,10 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 33: // Ceiling Crusher
         {
-            short nextSector = nextsectorneighborz(nSector, sector[nSector].ceilingz, -1, -1);
+            short nextSector = nextsectorneighborz(nSector, sectp->ceilingz, -1, -1);
             assert(nextSector > -1);
 
-            int nElev = BuildElevC(20, nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sector[nextSector].ceilingz, sector[nSector].floorz);
+            int nElev = BuildElevC(20, nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sector[nextSector].ceilingz, sectp->floorz);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
             return;
@@ -1096,10 +1097,10 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 34: // Triggerable Ceiling Crusher(Inactive)
         {
-            short nextSector = nextsectorneighborz(nSector, sector[nSector].ceilingz, -1, -1);
+            short nextSector = nextsectorneighborz(nSector, sectp->ceilingz, -1, -1);
             assert(nextSector > -1);
 
-            int nElev = BuildElevC(28, nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sector[nextSector].ceilingz, sector[nSector].floorz);
+            int nElev = BuildElevC(28, nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sector[nextSector].ceilingz, sectp->floorz);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
             return;
@@ -1121,10 +1122,10 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 37:
         {
-            short nextSector = nextsectorneighborz(nSector, sector[nSector].floorz, 1, 1);
+            short nextSector = nextsectorneighborz(nSector, sectp->floorz, 1, 1);
             assert(nextSector > -1);
 
-            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sector[nSector].floorz, sector[nextSector].floorz);
+            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sectp->floorz, sector[nextSector].floorz);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
             return;
@@ -1132,10 +1133,10 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 39: // Touchplate
         {
-            short nextSector = nextsectorneighborz(nSector, sector[nSector].floorz, 1, 1);
+            short nextSector = nextsectorneighborz(nSector, sectp->floorz, 1, 1);
             assert(nextSector > -1);
 
-            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), 0x7FFF, 0x7FFF, 2, sector[nSector].floorz, sector[nextSector].floorz);
+            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), 0x7FFF, 0x7FFF, 2, sectp->floorz, sector[nextSector].floorz);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
 
@@ -1194,12 +1195,12 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
             */
             int zVal = 0;
 
-            short nextSector = nextsectorneighborz(nSector, sector[nSector].ceilingz, -1, 1);
+            short nextSector = nextsectorneighborz(nSector, sectp->ceilingz, -1, 1);
             if (nextSector >= 0) {
                 zVal = sector[nextSector].ceilingz;
             }
 
-            int nElev = BuildElevC(0, nChannel, nSector, FindWallSprites(nSector), 200, nSpeed * 100, 2, sector[nSector].ceilingz, zVal);
+            int nElev = BuildElevC(0, nChannel, nSector, FindWallSprites(nSector), 200, nSpeed * 100, 2, sectp->ceilingz, zVal);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
             return;
@@ -1207,10 +1208,10 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 49:
         {
-            short nextSector = nextsectorneighborz(nSector, sector[nSector].ceilingz, -1, -1);
+            short nextSector = nextsectorneighborz(nSector, sectp->ceilingz, -1, -1);
             assert(nextSector > -1);
 
-            int nElev = BuildElevC(0, nChannel, nSector, FindWallSprites(nSector), 200, nSpeed * 100, 2, sector[nSector].ceilingz, sector[nextSector].ceilingz);
+            int nElev = BuildElevC(0, nChannel, nSector, FindWallSprites(nSector), 200, nSpeed * 100, 2, sectp->ceilingz, sector[nextSector].ceilingz);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
             return;
@@ -1218,10 +1219,10 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 50: // Floor lower / raise
         {
-            short nextSector = nextsectorneighborz(nSector, sector[nSector].ceilingz, 1, 1);
+            short nextSector = nextsectorneighborz(nSector, sectp->ceilingz, 1, 1);
             assert(nextSector > -1);
 
-            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), 0x7FFF, 200, 2, sector[nextSector].floorz, sector[nSector].floorz);
+            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), 0x7FFF, 200, 2, sector[nextSector].floorz, sectp->floorz);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
             return;
@@ -1229,15 +1230,15 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 51:
         {
-            int edx = ((sector[nSector].floorz - sector[nSector].ceilingz) / 2) + sector[nSector].ceilingz;
+            int edx = ((sectp->floorz - sectp->ceilingz) / 2) + sectp->ceilingz;
 
-            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), 200, nSpeed * 100, 2, sector[nSector].floorz, edx);
+            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), 200, nSpeed * 100, 2, sectp->floorz, edx);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
 
-            int eax = (((sector[nSector].floorz - sector[nSector].ceilingz) / 2) + sector[nSector].ceilingz) - 8;
+            int eax = (((sectp->floorz - sectp->ceilingz) / 2) + sectp->ceilingz) - 8;
 
-            nElev = BuildElevC(0, nChannel, nSector, FindWallSprites(nSector), 200, nSpeed * 100, 2, sector[nSector].ceilingz, eax);
+            nElev = BuildElevC(0, nChannel, nSector, FindWallSprites(nSector), 200, nSpeed * 100, 2, sectp->ceilingz, eax);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
 
@@ -1249,15 +1250,15 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 52:
         {
-            int eax = ((sector[nSector].floorz - sector[nSector].ceilingz) / 2) + sector[nSector].ceilingz;
+            int eax = ((sectp->floorz - sectp->ceilingz) / 2) + sectp->ceilingz;
 
-            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, eax, sector[nSector].floorz);
+            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, eax, sectp->floorz);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
 
-            eax = ((sector[nSector].floorz - sector[nSector].ceilingz) / 2) + sector[nSector].ceilingz;
+            eax = ((sectp->floorz - sectp->ceilingz) / 2) + sectp->ceilingz;
 
-            nElev = BuildElevC(0, nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, eax, sector[nSector].ceilingz);
+            nElev = BuildElevC(0, nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, eax, sectp->ceilingz);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
 
@@ -1273,15 +1274,15 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 53:
         {
-            int eax = ((sector[nSector].floorz - sector[nSector].ceilingz) / 2) + sector[nSector].ceilingz;
+            int eax = ((sectp->floorz - sectp->ceilingz) / 2) + sectp->ceilingz;
 
-            int nElev = BuildElevC(0, nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, eax, sector[nSector].floorz);
+            int nElev = BuildElevC(0, nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, eax, sectp->floorz);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
 
-            eax = ((sector[nSector].floorz - sector[nSector].ceilingz) / 2) + sector[nSector].ceilingz;
+            eax = ((sectp->floorz - sectp->ceilingz) / 2) + sectp->ceilingz;
 
-            nElev = BuildElevC(0, nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, eax, sector[nSector].ceilingz);
+            nElev = BuildElevC(0, nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, eax, sectp->ceilingz);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
 
@@ -1293,10 +1294,10 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 54:
         {
-            short nextSector = nextsectorneighborz(nSector, sector[nSector].ceilingz, -1, -1);
+            short nextSector = nextsectorneighborz(nSector, sectp->ceilingz, -1, -1);
             assert(nextSector > -1);
 
-            int nElev = BuildElevC(0, nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sector[nSector].floorz, sector[nextSector].ceilingz);
+            int nElev = BuildElevC(0, nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sectp->floorz, sector[nextSector].ceilingz);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
 
@@ -1308,10 +1309,10 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 55:
         {
-            short nextSector = nextsectorneighborz(nSector, sector[nSector].ceilingz, -1, -1);
+            short nextSector = nextsectorneighborz(nSector, sectp->ceilingz, -1, -1);
             assert(nextSector > -1);
 
-            int nElev = BuildElevC(0, nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sector[nSector].floorz, sector[nextSector].ceilingz);
+            int nElev = BuildElevC(0, nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sectp->floorz, sector[nextSector].ceilingz);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
 
@@ -1323,10 +1324,10 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 56:
         {
-            short nextSector = nextsectorneighborz(nSector, sector[nSector].ceilingz, -1, -1);
+            short nextSector = nextsectorneighborz(nSector, sectp->ceilingz, -1, -1);
             assert(nextSector > -1);
 
-            int nElev = BuildElevC(0, nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sector[nSector].floorz, sector[nextSector].ceilingz);
+            int nElev = BuildElevC(0, nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sectp->floorz, sector[nextSector].ceilingz);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
             return;
@@ -1334,10 +1335,10 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 57:
         {
-            short nextSector = nextsectorneighborz(nSector, sector[nSector].floorz, 1, 1);
+            short nextSector = nextsectorneighborz(nSector, sectp->floorz, 1, 1);
             assert(nextSector > -1);
 
-            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sector[nSector].ceilingz, sector[nextSector].floorz);
+            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sectp->ceilingz, sector[nextSector].floorz);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
             return;
@@ -1358,10 +1359,10 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
                 nEnergyChan = nChannel;
             }
 
-            short nextSector = nextsectorneighborz(nSector, sector[nSector].ceilingz, -1, -1);
+            short nextSector = nextsectorneighborz(nSector, sectp->ceilingz, -1, -1);
             assert(nextSector > -1);
 
-            int nElev = BuildElevC(0, nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sector[nSector].floorz, sector[nextSector].ceilingz);
+            int nElev = BuildElevC(0, nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sectp->floorz, sector[nextSector].ceilingz);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
             return;
@@ -1369,10 +1370,10 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 59:
         {
-            short nextSector = nextsectorneighborz(nSector, sector[nSector].floorz, 1, 1);
+            short nextSector = nextsectorneighborz(nSector, sectp->floorz, 1, 1);
             assert(nextSector > -1);
 
-            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sector[nSector].floorz, sector[nextSector].floorz);
+            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sectp->floorz, sector[nextSector].floorz);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
 
@@ -1388,12 +1389,12 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 61:
         {
-            zListB[0] = sector[nSector].floorz;
+            zListB[0] = sectp->floorz;
             int var_1C = 1;
 
             while (1)
             {
-                short nextSector = nextsectorneighborz(nSector, sector[nSector].floorz, 1, -1);
+                short nextSector = nextsectorneighborz(nSector, sectp->floorz, 1, -1);
                 if (nextSector < 0 || var_1C >= 8) {
                     break;
                 }
@@ -1412,12 +1413,12 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 62:
         {
-            zListA[0] = sector[nSector].floorz;
+            zListA[0] = sectp->floorz;
             int var_20 = 1;
 
             while (1)
             {
-                short nextSector = nextsectorneighborz(nSector, sector[nSector].floorz, 1, 1);
+                short nextSector = nextsectorneighborz(nSector, sectp->floorz, 1, 1);
                 if (nextSector < 0 || var_20 >= 8) {
                     break;
                 }
@@ -1443,10 +1444,10 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 68:
         {
-            short nextSector = nextsectorneighborz(nSector, sector[nSector].floorz, 1, 1);
+            short nextSector = nextsectorneighborz(nSector, sectp->floorz, 1, 1);
             assert(nextSector > -1);
 
-            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sector[nSector].floorz, sector[nextSector].floorz);
+            int nElev = BuildElevF(nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, sectp->floorz, sector[nextSector].floorz);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
             return;
@@ -1455,10 +1456,10 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
         case 70:
         case 71:
         {
-            short nextSector = nextsectorneighborz(nSector, sector[nSector].ceilingz, -1, -1);
+            short nextSector = nextsectorneighborz(nSector, sectp->ceilingz, -1, -1);
             assert(nextSector > -1);
 
-            int nElev = BuildElevC(0, nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, (int)sector[nSector].floorz, (int)sector[nextSector].ceilingz);
+            int nElev = BuildElevC(0, nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, (int)sectp->floorz, (int)sector[nextSector].ceilingz);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
 
@@ -1474,7 +1475,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 75:
         {
-            int nElev = BuildElevC(0, nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, (int)sector[nSector].ceilingz, (int)sector[nSector].floorz);
+            int nElev = BuildElevC(0, nChannel, nSector, FindWallSprites(nSector), nSpeed * 100, nSpeed * 100, 2, (int)sectp->ceilingz, (int)sectp->floorz);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
             return;
