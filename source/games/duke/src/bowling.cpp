@@ -57,7 +57,7 @@ void ballreturn(DDukeActor *ball)
 	}
 }
 
-short pinsectorresetdown(short sect)
+void pinsectorresetdown(int sect)
 {
 	int j = getanimationgoal(anim_ceilingz, sect);
 
@@ -65,12 +65,10 @@ short pinsectorresetdown(short sect)
 	{
 		j = sector[sect].floorz;
 		setanimation(sect, anim_ceilingz, sect, j, 64);
-		return 1;
 	}
-	return 0;
 }
 
-short pinsectorresetup(short sect)
+int pinsectorresetup(int sect)
 {
 	int j = getanimationgoal(anim_ceilingz, sect);
 
@@ -83,15 +81,12 @@ short pinsectorresetup(short sect)
 	return 0;
 }
 
-short checkpins(short sect)
+int checkpins(int sect)
 {
-	short i, pin;
 	int  x, y;
-	short pins[10];
-	short tag;
-
-	pin = 0;
-	for (i = 0; i < 10; i++) pins[i] = 0;
+	bool pins[10] = {};
+	int tag = 0;
+	int pin = 0;
 
 	DukeSectIterator it(sect);
 	while (auto a2 = it.Next())
@@ -99,7 +94,7 @@ short checkpins(short sect)
 		if (a2->s->picnum == BOWLINGPIN)
 		{
 			pin++;
-			pins[a2->s->lotag] = 1;
+			pins[a2->s->lotag] = true;
 		}
 		if (a2->s->picnum == BOWLINGPINSPOT)
 		{
@@ -112,9 +107,9 @@ short checkpins(short sect)
 		tag += LANEPICS + 1;
 		TileFiles.tileMakeWritable(tag);
 		tileCopySection(LANEPICS + 1, 0, 0, 128, 64, tag, 0, 0);
-		for (i = 0; i < 10; i++)
+		for (int i = 0; i < 10; i++)
 		{
-			if (pins[i] == 1)
+			if (pins[i])
 			{
 				switch (i)
 				{
@@ -167,7 +162,7 @@ short checkpins(short sect)
 	return pin;
 }
 
-void resetpins(short sect)
+void resetpins(int sect)
 {
 	int i, tag;
 	int x, y;
@@ -256,16 +251,14 @@ void resetlanepics(void)
 {
 	if (!isRR()) return;
 	int x, y;
-	short i;
-	short tag, pic;
-	for (tag = 0; tag < 4; tag++)
+	for (int tag = 0; tag < 4; tag++)
 	{
-		pic = tag + 1;
+		int pic = tag + 1;
 		if (pic == 0) continue;
 		pic += LANEPICS + 1;
 		TileFiles.tileMakeWritable(pic);
 		tileCopySection(LANEPICS + 1, 0, 0, 128, 64, pic, 0, 0);
-		for (i = 0; i < 10; i++)
+		for (int i = 0; i < 10; i++)
 		{
 			switch (i)
 			{

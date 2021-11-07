@@ -38,10 +38,10 @@ void dojaildoor();
 void moveminecart();
 
 void ballreturn(DDukeActor* spr);
-short pinsectorresetdown(short sect);
-short pinsectorresetup(short sect);
-short checkpins(short sect);
-void resetpins(short sect);
+void pinsectorresetdown(int sect);
+int pinsectorresetup(int sect);
+int checkpins(int sect);
+void resetpins(int sect);
 void resetlanepics(void);
 
 
