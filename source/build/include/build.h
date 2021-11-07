@@ -377,7 +377,7 @@ int32_t    engineInit(void);
 void   engineUnInit(void);
 void   initspritelists(void);
 
-void engineLoadBoard(const char *filename, int flags, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum);
+void engineLoadBoard(const char *filename, int flags, vec3_t *dapos, int16_t *daang, int *dacursectnum);
 void loadMapBackup(const char* filename);
 void G_LoadMapHack(const char* filename, const unsigned char*);
 

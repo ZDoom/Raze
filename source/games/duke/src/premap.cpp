@@ -947,7 +947,7 @@ static int LoadTheMap(MapRecord *mi, struct player_struct *p, int gamemode)
     }
 
     currentLevel = mi;
-    int16_t sect; // engine still needs 16 bit here.
+    int sect;
     engineLoadBoard(mi->fileName, isShareware(), &p->pos, &lbang, &sect);// &p->cursectnum);
     p->cursectnum = sect;
 

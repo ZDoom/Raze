@@ -41,7 +41,8 @@ enum
 };
 
 int initx, inity, initz;
-short inita, initsect;
+short inita;
+int initsect;
 
 short nCurChunkNum = 0;
 

@@ -69,12 +69,6 @@ static int osdcmd_doors(CCmdFuncPtr parm)
     return CCMD_OK;
 }
 
-extern int initx;
-extern int inity;
-extern int initz;
-extern short inita;
-extern short initsect;
-
 static int osdcmd_spawn(CCmdFuncPtr parm)
 {
     if (parm->numparms != 1) return CCMD_SHOWHELP;

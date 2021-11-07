@@ -331,7 +331,7 @@ static void ReadSpriteV5(FileReader& fr, spritetype& spr)
 }
 
 
-static void insertAllSprites(const char* filename, const vec3_t* pos, int16_t* cursectnum, int16_t numsprites)
+static void insertAllSprites(const char* filename, const vec3_t* pos, int* cursectnum, int16_t numsprites)
 {
 	// This function is stupid because it exploits side effects of insertsprite and should be redone by only inserting the valid sprites.
 	int i, realnumsprites = numsprites;
@@ -372,7 +372,7 @@ static void insertAllSprites(const char* filename, const vec3_t* pos, int16_t* c
 
 void addBlockingPairs();
 
-void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang, int16_t* cursectnum)
+void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang, int* cursectnum)
 {
 	inputState.ClearAllInput();
 	memset(sector, 0, sizeof(*sector) * MAXSECTORS);
@@ -468,6 +468,7 @@ void loadMapBackup(const char* filename)
 {
 	vec3_t pos;
 	int16_t scratch;
+	int scratch2;
 
 	if (isBlood())
 	{
@@ -475,7 +476,7 @@ void loadMapBackup(const char* filename)
 	}
 	else
 	{
-		engineLoadBoard(filename, 0, &pos, &scratch, &scratch);
+		engineLoadBoard(filename, 0, &pos, &scratch, &scratch2);
 		initspritelists();
 	}
 }

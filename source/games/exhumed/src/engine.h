@@ -60,7 +60,7 @@ extern int initx;
 extern int inity;
 extern int initz;
 extern short inita;
-extern short initsect;
+extern int initsect;
 
 extern short nCurChunkNum;
 extern DExhumedActor* nBodyGunSprite[50];

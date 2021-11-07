@@ -322,9 +322,7 @@ void InitLevel(MapRecord *maprec)
 
     int16_t ang;
     currentLevel = maprec;
-	short sect16 = -1;
-    engineLoadBoard(maprec->fileName, SW_SHAREWARE ? 1 : 0, &Player[0].pos, &ang, &sect16);
-	Player[0].cursectnum = sect16;
+    engineLoadBoard(maprec->fileName, SW_SHAREWARE ? 1 : 0, &Player[0].pos, &ang, &Player[0].cursectnum);
 
     SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
     STAT_NewLevel(currentLevel->fileName);
