@@ -1006,8 +1006,8 @@ void checkhitwall_r(DDukeActor* spr, int dawallnum, int x, int y, int z, int atw
 	}
 
 	if (((wal->cstat & 16) || wal->overpicnum == BIGFORCE) && wal->nextsector >= 0)
-		if (sector[wal->nextsector].floorz > z)
-			if (sector[wal->nextsector].floorz - sector[wal->nextsector].ceilingz)
+		if (wal->nextSector()->floorz > z)
+			if (wal->nextSector()->floorz - wal->nextSector()->ceilingz)
 				switch (wal->overpicnum)
 				{
 				case FANSPRITE:

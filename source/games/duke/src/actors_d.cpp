@@ -3773,7 +3773,7 @@ void moveeffectors_d(void)   //STATNUM 3
 		auto sc = act->getSector();
 		if (sc->wallnum != 4) continue;
 		auto wal = &wall[sc->wallptr + 2];
-		alignflorslope(act->s->sectnum, wal->x, wal->y, sector[wal->nextsector].floorz);
+		alignflorslope(act->s->sectnum, wal->x, wal->y, wal->nextSector()->floorz);
 	}
 }
 

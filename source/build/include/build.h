@@ -158,6 +158,21 @@ inline sectortype* spritetype::sector() const
     return &::sector[sectnum];
 }
 
+inline sectortype* walltype::nextSector() const
+{
+    return &::sector[nextsector];
+}
+
+inline walltype* walltype::nextWall() const
+{
+    return &::wall[nextwall];
+}
+
+inline walltype* sectortype::firstWall() const
+{
+    return &wall[wallptr];
+}
+
 
 extern sectortype sectorbackup[MAXSECTORS];
 extern walltype wallbackup[MAXWALLS];

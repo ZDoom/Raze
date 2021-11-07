@@ -492,7 +492,7 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 
 			if (hitsect >= 0 && sector[hitsect].lotag == 0)
 				if (wal->overpicnum != BIGFORCE)
-					if ((wal->nextsector >= 0 && sector[wal->nextsector].lotag == 0) ||
+					if ((wal->nextsector >= 0 && wal->nextSector()->lotag == 0) ||
 						(wal->nextsector == -1 && sector[hitsect].lotag == 0))
 						if ((wal->cstat & 16) == 0)
 						{
@@ -524,7 +524,7 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 
 			if (wal->cstat & 2)
 				if (wal->nextsector >= 0)
-					if (hitz >= (sector[wal->nextsector].floorz))
+					if (hitz >= (wal->nextSector()->floorz))
 						hitwall = wal->nextwall;
 
 			fi.checkhitwall(spark, hitwall, hitx, hity, hitz, SHOTSPARK1);
