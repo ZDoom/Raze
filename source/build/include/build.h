@@ -434,21 +434,7 @@ int32_t try_facespr_intersect(uspriteptr_t const spr, vec3_t const in,
 #define MAXUPDATESECTORDIST 1536
 #define INITIALUPDATESECTORDIST 256
 void updatesector(int const x, int const y, int * const sectnum) ATTRIBUTE((nonnull(3)));
-[[deprecated]] 
-inline void updatesector(int32_t const x, int32_t const y, int16_t * const sectnum)
-{
-	int snum = *sectnum;
-	updatesector(x, y, &snum);
-	*sectnum = snum;
-}
 void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int * const sectnum) ATTRIBUTE((nonnull(4)));
-[[deprecated]]
-inline void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int16_t* const sectnum)
-{
-    int snum = *sectnum;
-    updatesectorz(x, y, z, &snum);
-    *sectnum = snum;
-}
 
 void updatesectorneighbor(int32_t const x, int32_t const y, int * const sectnum, int32_t initialMaxDistance = INITIALUPDATESECTORDIST, int32_t maxDistance = MAXUPDATESECTORDIST) ATTRIBUTE((nonnull(3)));
 void updatesectorneighborz(int32_t const x, int32_t const y, int32_t const z, int * const sectnum, int32_t initialMaxDistance = INITIALUPDATESECTORDIST, int32_t maxDistance = MAXUPDATESECTORDIST) ATTRIBUTE((nonnull(4)));

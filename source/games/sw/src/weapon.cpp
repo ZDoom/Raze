@@ -7652,7 +7652,6 @@ short StatBreakList[] =
 
 void TraverseBreakableWalls(short start_sect, int x, int y, int z, short ang, int radius)
 {
-    int WallBreakPosition(short hit_wall, short *sectnum, int *x, int *y, int *z, short *ang);
     int j, k;
     short sectlist[MAXSECTORS]; // !JIM! Frank, 512 was not big enough for $dozer, was asserting out!
     short sectlistplc, sectlistend, sect, startwall, endwall, nextsector;
@@ -7660,7 +7659,8 @@ void TraverseBreakableWalls(short start_sect, int x, int y, int z, short ang, in
     int dist;
     short break_count;
 
-    short sectnum,wall_ang;
+	int sectnum;
+	short wall_ang;
     int hit_x,hit_y,hit_z;
 
     sectlist[0] = start_sect;

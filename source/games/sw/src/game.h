@@ -1692,6 +1692,7 @@ struct SECTOR_OBJECTstruct
            drive_speed,
            drive_slide,
            crush_z,
+           op_main_sector, // main sector operational SO moves in - for speed purposes
            flags;
 
     short   sector[MAX_SO_SECTOR],     // hold the sector numbers of the sector object
@@ -1727,7 +1728,6 @@ struct SECTOR_OBJECTstruct
             turn_speed,     // shift value determines how fast SO turns to match new angle
             bob_sine_ndx,   // index into sine table
             bob_speed,      // shift value for speed
-            op_main_sector, // main sector operational SO moves in - for speed purposes
             save_vel,       // save velocity
             save_spin_speed, // save spin speed
             match_event,    // match number

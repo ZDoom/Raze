@@ -745,7 +745,7 @@ bool UserBreakWall(WALLp wp, short)
     return false;
 }
 
-int WallBreakPosition(short hit_wall, short *sectnum, int *x, int *y, int *z, short *ang)
+int WallBreakPosition(short hit_wall, int *sectnum, int *x, int *y, int *z, short *ang)
 {
     short w,nw;
     WALLp wp;
@@ -823,7 +823,7 @@ bool HitBreakWall(WALLp wp, int hit_x, int hit_y, int hit_z, short ang, short ty
 
     //if (hit_x == INT32_MAX)
     {
-        short sectnum;
+        int sectnum;
         WallBreakPosition(short(wp - wall), &sectnum, &hit_x, &hit_y, &hit_z, &ang);
     }
 
@@ -1091,7 +1091,7 @@ static int SectorOfWall(short theline)
 
 void DoWallBreakMatch(short match)
 {
-    short i,sectnum;
+    int i,sectnum;
     int x,y,z;
     WALLp wp;
     short wall_ang;
