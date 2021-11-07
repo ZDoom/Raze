@@ -476,12 +476,6 @@ inline constexpr uint32_t uhypsq(int32_t const dx, int32_t const dy)
     return (uint32_t)dx*dx + (uint32_t)dy*dy;
 }
 
-inline int32_t logapproach(int32_t const val, int32_t const targetval)
-{
-    int32_t const dif = targetval - val;
-    return (dif>>1) ? val + (dif>>1) : targetval;
-}
-
 void rotatepoint(vec2_t const pivot, vec2_t p, int16_t const daang, vec2_t * const p2) ATTRIBUTE((nonnull(4)));
 inline void rotatepoint(int px, int py, int ptx, int pty, int daang, int* resx, int* resy)
 {
