@@ -1434,7 +1434,7 @@ void checkplayerhurt_r(struct player_struct* p, const Collision &coll)
 bool checkhitceiling_r(int sn)
 {
 	auto sectp = &sector[sn];
-	short j;
+	int j;
 
 	switch (sectp->ceilingpicnum)
 	{
@@ -2506,7 +2506,7 @@ void checksectors_r(int snum)
 					if (S_CheckActorSoundPlaying(pact, 27) == 0 && S_CheckActorSoundPlaying(pact, 28) == 0 && S_CheckActorSoundPlaying(pact, 29) == 0
 						&& S_CheckActorSoundPlaying(pact, 257) == 0 && S_CheckActorSoundPlaying(pact, 258) == 0)
 					{
-						short snd = krand() % 5;
+						int snd = krand() % 5;
 						if (snd == 0)
 							S_PlayActorSound(27, pact);
 						else if (snd == 1)
@@ -2734,7 +2734,6 @@ void checksectors_r(int snum)
 
 		if (neartagsector >= 0 && (sector[neartagsector].lotag & 16384) == 0 && isanearoperator(sector[neartagsector].lotag))
 		{
-			short unk = 0;
 			DukeSectIterator it(neartagsector);
 			while (auto act = it.Next())
 			{

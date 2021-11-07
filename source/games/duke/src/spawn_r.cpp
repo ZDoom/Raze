@@ -609,11 +609,8 @@ int spawn_r(int j, int pn)
 				break;
 			case SOUNDFX:
 				{
-					short tg;
 					sp->cstat |= 32768;
 					changespritestat(i,2);
-					tg = sp->hitag;
-					tg = sp->lotag;
 				}
 				break;
 			case EXPLOSION2:

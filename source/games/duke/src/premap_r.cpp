@@ -55,7 +55,7 @@ static inline void tloadtile(int tilenum, int palnum = 0)
 static void cachespritenum(spritetype *spr)
 {
 	int maxc;
-	short j;
+	int j;
 	int pal = spr->pal;
 
 	if (ud.monsters_off && badguy(spr)) return;
@@ -328,7 +328,7 @@ static void cachespritenum(spritetype *spr)
 
 static void cachegoodsprites(void)
 {
-	short i;
+	int i;
 
 	tloadtile(BOTTOMSTATUSBAR);
 	if (ud.multimode > 1)
@@ -497,7 +497,7 @@ void prelevel_r(int g)
 		}
 		case 42:
 		{
-			short ii;
+			int ii;
 			int childsectnum = -1;
 			DukeSectIterator it(i);
 			while (auto act = it.Next())

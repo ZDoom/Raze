@@ -614,9 +614,7 @@ bool checkhitswitch_d(int snum, int ww, DDukeActor *act)
 
 void activatebysector_d(int sect, DDukeActor* activator)
 {
-	short didit;
-
-	didit = 0;
+	int didit = 0;
 
 	DukeSectIterator it(sect);
 	while (auto act = it.Next())

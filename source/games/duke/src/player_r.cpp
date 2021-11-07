@@ -464,7 +464,7 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 	auto s = actor->s;
 	int sect = s->sectnum;
 	int vel, zvel;
-	short scount;
+	int scount;
 
 	if (isRRRA())
 	{

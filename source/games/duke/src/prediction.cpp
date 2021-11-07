@@ -37,10 +37,10 @@ BEGIN_DUKE_NS
 
 
 int myx, omyx, myxvel, myy, omyy, myyvel, myz, omyz, myzvel;
-short globalskillsound;
+int globalskillsound;
 binangle myang, omyang;
 fixedhoriz myhoriz, omyhoriz, myhorizoff, omyhorizoff;
-short mycursectnum, myjumpingcounter;
+int mycursectnum, myjumpingcounter;
 uint8_t myjumpingtoggle, myonground, myhardlanding,myreturntocenter;
 int fakemovefifoplc;
 int myxbak[MOVEFIFOSIZ], myybak[MOVEFIFOSIZ], myzbak[MOVEFIFOSIZ];
@@ -103,7 +103,7 @@ void fakedomovethings(void)
 		struct player_struct *p;
 		int i, j, k, doubvel, fz, cz, x, y;
 		Collision clz, chz;
-		short psect, psectlotag, tempsect, backcstat;
+		int psect, psectlotag, tempsect, backcstat;
 		uint8_t shrunk, spritebridge;
 		ESyncBits actions;
 

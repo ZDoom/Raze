@@ -66,7 +66,6 @@ BEGIN_DUKE_NS
 
 /*static*/ int tempsectorz[MAXSECTORS];
 /*static*/ int tempsectorpicnum[MAXSECTORS];
-//short tempcursectnum;
 
 void renderView(spritetype* playersprite, int sectnum, int x, int y, int z, binangle a, fixedhoriz h, binangle rotscrnang, int smoothratio)
 {

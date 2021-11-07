@@ -1396,7 +1396,7 @@ static int ifcanshoottarget(DDukeActor *actor, int g_p, int g_x)
 	int j;
 	if (g_x > 1024)
 	{
-		short sclip, angdif;
+		int sclip, angdif;
 
 		if (badguy(actor) && actor->s->xrepeat > 56)
 		{
@@ -1644,7 +1644,7 @@ int ParseState::parse(void)
 	case concmd_garybanjo:
 		if (banjosound == 0)
 		{
-			short rnum = (krand() & 3) + 1;
+			int rnum = (krand() & 3) + 1;
 			if (rnum == 4)
 			{
 				banjosound = 262;

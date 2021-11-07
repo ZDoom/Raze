@@ -214,7 +214,7 @@ bool isanearoperator(int lotag)
 
 int findplayer(const DDukeActor* actor, int* d)
 {
-	short j, closest_player;
+	int j, closest_player;
 	int x, closest;
 	auto s = &actor->s->pos;
 
@@ -249,7 +249,7 @@ int findplayer(const DDukeActor* actor, int* d)
 
 int findotherplayer(int p, int* d)
 {
-	short j, closest_player;
+	int j, closest_player;
 	int x, closest;
 
 	closest = 0x7fffffff;

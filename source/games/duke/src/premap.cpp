@@ -52,7 +52,7 @@ int which_palookup = 9;
 void pickrandomspot(int snum)
 {
     struct player_struct *p;
-    short i;
+    int i;
 
     p = &ps[snum];
 
@@ -262,7 +262,7 @@ void resetplayerstats(int snum)
 
 void resetweapons(int snum)
 {
-    short  weapon;
+    int weapon;
     struct player_struct *p;
 
     p = &ps[snum];
@@ -385,7 +385,7 @@ void resetinventory(int snum)
 void resetprestat(int snum,int g)
 {
     struct player_struct *p;
-    short i;
+    int i;
 
     p = &ps[snum];
 
@@ -501,7 +501,7 @@ void resetprestat(int snum,int g)
 void resetpspritevars(int g)
 {
     int i, j;
-    short circ;
+    int circ;
     int firstx, firsty;
     spritetype* s;
     int aimmode[MAXPLAYERS];
@@ -947,7 +947,7 @@ static int LoadTheMap(MapRecord *mi, struct player_struct *p, int gamemode)
     }
 
     currentLevel = mi;
-    short sect;
+    int16_t sect; // engine still needs 16 bit here.
     engineLoadBoard(mi->fileName, isShareware(), &p->pos, &lbang, &sect);// &p->cursectnum);
     p->cursectnum = sect;
 

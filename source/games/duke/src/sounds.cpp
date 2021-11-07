@@ -642,7 +642,7 @@ int S_CheckSoundPlaying(int soundNum)
 void S_MenuSound(void)
 {
 	static int menunum;
-	static const short menusnds[] =
+	static const uint16_t menusnds[] =
 	{
 		LASERTRIP_EXPLODE,
 		DUKE_GRUNT,

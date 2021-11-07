@@ -24,7 +24,8 @@ struct DDukeActor
 {
 	uint8_t cgg;
 	uint8_t spriteextra;	// moved here for easier maintenance. This was originally a hacked in field in the sprite structure called 'filler'.
-	short picnum, ang, extra, owner, movflag;
+	short owner; // todo: make a pointer.
+	short picnum, ang, extra, movflag;
 	short tempang, actorstayput, dispicnum;
 	short timetosleep;
 	int floorz, ceilingz, lastvx, lastvy, aflags;
@@ -102,7 +103,7 @@ inline DDukeActor* DDukeActor::array() { return hittype; }
 
 struct animwalltype
 {
-	short wallnum, tag;
+	int wallnum, tag;
 };
 
 // Todo - put more state in here

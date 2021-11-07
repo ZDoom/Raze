@@ -435,7 +435,7 @@ void initshell(DDukeActor* actj, DDukeActor* acti, bool isshell)
 	if (actj)
 	{
 		auto spj = actj->s;
-		short snum, a;
+		int snum, a;
 
 		if (spj->picnum == TILE_APLAYER)
 		{
