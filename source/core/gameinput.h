@@ -70,10 +70,16 @@ struct PlayerHorizon
 	// Draw code helpers.
 	double horizsumfrac(double const smoothratio) { return (!SyncInput() ? sum() : interpolatedsum(smoothratio)).asbuildf() * (1. / 16.); }
 
-	// Ticrate scale helper.
+	// Ticrate scale helpers.
 	fixedhoriz getscaledhoriz(double const value, double const scaleAdjust = 1., fixedhoriz* const object = nullptr, double const push = 0.)
 	{
 		return buildfhoriz(scaleAdjust * (((object ? object->asbuildf() : 1.) * getTicrateScale(value)) + push));
+	}
+	void scaletozero(fixedhoriz& object, double const value, double const scaleAdjust, double const push = 0.)
+	{
+		auto sgn = Sgn(object.asq16());
+		object  -= getscaledhoriz(value, scaleAdjust, &object, push == 0 ? sgn * (1. / 3.) : push);
+		if (sgn != Sgn(object.asq16())) object = q16horiz(0);
 	}
 
 	// Ticrate playsim adjustment processor.
@@ -181,10 +187,16 @@ struct PlayerAngle
 	double look_anghalf(double const smoothratio) { return (!SyncInput() ? look_ang : interpolatedlookang(smoothratio)).signedbuildf() * 0.5; }
 	double looking_arc(double const smoothratio) { return fabs((!SyncInput() ? look_ang : interpolatedlookang(smoothratio)).signedbuildf()) * (1. / 9.); }
 
-	// Ticrate scale helper.
+	// Ticrate scale helpers.
 	binangle getscaledangle(double const value, double const scaleAdjust = 1., binangle* const object = nullptr, double const push = 0.)
 	{
 		return buildfang(scaleAdjust * (((object ? object->signedbuildf() : 1.) * getTicrateScale(value)) + push));
+	}
+	void scaletozero(binangle& object, double const value, double const scaleAdjust, double const push = 0.)
+	{
+		auto sgn = Sgn(object.signedbam());
+		object  -= getscaledangle(value, scaleAdjust, &object, push == 0 ? sgn * (1. / 3.) : push);
+		if (sgn != Sgn(object.signedbam())) object = bamang(0);
 	}
 
 	// Ticrate playsim adjustment processor.

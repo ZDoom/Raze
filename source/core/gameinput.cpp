@@ -320,14 +320,8 @@ void PlayerHorizon::applyinput(float const horz, ESyncBits* actions, double cons
 		// return to center if conditions met.
 		if ((*actions & SB_CENTERVIEW) && !(*actions & (SB_LOOK_UP|SB_LOOK_DOWN)) && horiz.asq16())
 		{
-			// move horiz back to 0
-			horiz -= getscaledhoriz(CNTRSPEED, scaleAdjust, &horiz);
-			if (abs(horiz.asq16()) < (FRACUNIT >> 2))
-			{
-				// not looking anymore because horiz is back at 0
-				horiz = q16horiz(0);
-				*actions &= ~SB_CENTERVIEW;
-			}
+			scaletozero(horiz, CNTRSPEED, scaleAdjust);
+			if (!horiz.asq16()) *actions &= ~SB_CENTERVIEW;
 		}
 	}
 	else
@@ -374,20 +368,9 @@ enum
 
 void PlayerAngle::applyinput(float const avel, ESyncBits* actions, double const scaleAdjust)
 {
-	if (rotscrnang.asbam())
-	{
-		// return rotscrnang to 0
-		auto sgn = Sgn(rotscrnang.signedbam());
-		rotscrnang -= getscaledangle(LOOKROTRETBASE, scaleAdjust, &rotscrnang, sgn);
-		if (sgn != Sgn(rotscrnang.signedbam())) rotscrnang = bamang(0);
-	}
-
-	if (look_ang.asbam())
-	{
-		// return look_ang to 0
-		look_ang -= getscaledangle(+LOOKROTRETBASE * 0.5, scaleAdjust, &look_ang);
-		if (abs(look_ang.signedbam()) < (BAMUNIT >> 2)) look_ang = bamang(0);
-	}
+	// Process angle return to zeros.
+	if (rotscrnang.asbam()) scaletozero(rotscrnang, LOOKROTRETBASE, scaleAdjust);
+	if (look_ang.asbam()) scaletozero(look_ang, +LOOKROTRETBASE * 0.5, scaleAdjust);
 
 	// Process keyboard input.
 	auto doLookKeys = [&](ESyncBits_ const key, double const direction)
@@ -501,16 +484,15 @@ void PlayerHorizon::calcviewpitch(vec2_t const pos, binangle const ang, bool con
 		{
 			// tilt when climbing but you can't even really tell it.
 			if (horizoff.asq16() < IntToFixed(100))
-			{	auto temphorizoff = buildhoriz(100) - horizoff;
+			{
+				auto temphorizoff = buildhoriz(100) - horizoff;
 				horizoff += getscaledhoriz(4.375, scaleAdjust, &temphorizoff, 1.);
 			}
 		}
 		else if (horizoff.asq16())
 		{
 			// Make horizoff grow towards 0 since horizoff is not modified when you're not on a slope.
-			auto sgn = Sgn(horizoff.asq16());
-			horizoff -= getscaledhoriz(4.375, scaleAdjust, &horizoff, sgn);
-			if (sgn != Sgn(horizoff.asq16())) horizoff = q16horiz(0);
+			scaletozero(horizoff, 4.375, scaleAdjust, Sgn(horizoff.asq16()));
 		}
 	}
 }
