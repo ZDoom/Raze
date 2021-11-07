@@ -217,7 +217,7 @@ inline void clipmove_tweak_pos(const vec3_t *pos, int32_t gx, int32_t gy, int32_
 // Returns: should clip?
 static int cliptestsector(int const dasect, int const nextsect, int32_t const flordist, int32_t const ceildist, vec2_t const pos, int32_t const posz)
 {
-    assert((unsigned)dasect < (unsigned)numsectors && (unsigned)nextsect < (unsigned)numsectors);
+	assert(validSectorIndex(dasect) && validSectorIndex(nextsect));
 
     auto const sec2 = (usectorptr_t)&sector[nextsect];
 

@@ -211,6 +211,16 @@ EXTERN int32_t Numsprites;
 EXTERN int16_t numsectors, numwalls;
 EXTERN int32_t display_mirror;
 
+inline bool validSectorIndex(int sectnum)
+{
+	return sectnum >= 0 && sectnum < numsectors;
+}
+
+inline bool validWallIndex(int wallnum)
+{
+	return wallnum >= 0 && wallnum < numwalls;
+}
+
 EXTERN int32_t randomseed;
 
 EXTERN uint8_t paletteloaded;

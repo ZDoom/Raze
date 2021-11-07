@@ -704,7 +704,7 @@ void initspritelists(void)
 // "Inside details" for the idea behind the algorithm.
 int32_t inside_ps(int32_t x, int32_t y, int16_t sectnum)
 {
-    if (sectnum >= 0 && sectnum < numsectors)
+    if (validSectorIndex(sectnum))
     {
         int32_t cnt = 0;
         auto wal       = (uwallptr_t)&wall[sector[sectnum].wallptr];
@@ -730,7 +730,7 @@ int32_t inside_ps(int32_t x, int32_t y, int16_t sectnum)
 }
 int32_t inside_old(int32_t x, int32_t y, int16_t sectnum)
 {
-    if (sectnum >= 0 && sectnum < numsectors)
+	if (validSectorIndex(sectnum))
     {
         uint32_t cnt = 0;
         auto wal       = (uwallptr_t)&wall[sector[sectnum].wallptr];
@@ -774,7 +774,7 @@ int32_t inside(int32_t x, int32_t y, int sectnum)
     default:
         return inside_old(x, y, sectnum);
     }
-    if ((unsigned)sectnum < (unsigned)numsectors)
+	if (validSectorIndex(sectnum))
     {
         uint32_t cnt1 = 0, cnt2 = 0;
 
@@ -1433,7 +1433,7 @@ void updatesectorneighbor(int32_t const x, int32_t const y, int * const sectnum,
 {
     int const initialsectnum = *sectnum;
 
-    if ((unsigned)initialsectnum < (unsigned)numsectors && getsectordist({x, y}, initialsectnum) <= initialMaxDistance)
+    if (validSectorIndex(initialsectnum) && getsectordist({x, y}, initialsectnum) <= initialMaxDistance)
     {
         if (inside_p(x, y, initialsectnum))
             return;
@@ -1477,7 +1477,7 @@ void updatesectorneighborz(int32_t const x, int32_t const y, int32_t const z, in
 
     uint32_t const correctedsectnum = (unsigned)*sectnum;
 
-    if (correctedsectnum < (unsigned)numsectors && getsectordist({x, y}, correctedsectnum) <= initialMaxDistance)
+    if (validSectorIndex(correctedsectnum) && getsectordist({x, y}, correctedsectnum) <= initialMaxDistance)
     {
         int32_t cz, fz;
         getzsofslope(correctedsectnum, x, y, &cz, &fz);
