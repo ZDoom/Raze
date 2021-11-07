@@ -701,8 +701,8 @@ void checkhitwall_d(DDukeActor* spr, int dawallnum, int x, int y, int z, int atw
 					wal->cstat &= 65535 - 65;
 					if (wal->nextwall >= 0)
 					{
-						wall[wal->nextwall].overpicnum = FANSPRITEBROKE;
-						wall[wal->nextwall].cstat &= 65535 - 65;
+						wal->nextWall()->overpicnum = FANSPRITEBROKE;
+						wal->nextWall()->cstat &= 65535 - 65;
 					}
 					S_PlayActorSound(VENT_BUST, spr);
 					S_PlayActorSound(GLASS_BREAKING, spr);
@@ -716,7 +716,7 @@ void checkhitwall_d(DDukeActor* spr, int dawallnum, int x, int y, int z, int atw
 					wal->cstat = 0;
 
 					if (wal->nextwall >= 0)
-						wall[wal->nextwall].cstat = 0;
+						wal->nextWall()->cstat = 0;
 
 					auto spawned = EGS(sn, x, y, z, SECTOREFFECTOR, 0, 0, 0, ps[0].angle.ang.asbuild(), 0, 0, spr, 3);
 					spawned->s->lotag = 128; 
@@ -730,7 +730,7 @@ void checkhitwall_d(DDukeActor* spr, int dawallnum, int x, int y, int z, int atw
 					lotsofcolourglass(spr, dawallnum, 80);
 					wal->cstat = 0;
 					if (wal->nextwall >= 0)
-						wall[wal->nextwall].cstat = 0;
+						wal->nextWall()->cstat = 0;
 					S_PlayActorSound(VENT_BUST, spr);
 					S_PlayActorSound(GLASS_BREAKING, spr);
 					return;

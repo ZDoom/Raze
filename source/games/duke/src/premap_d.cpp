@@ -426,7 +426,7 @@ void prelevel_d(int g)
 			else wal->cstat |= 85 + 256;
 
 			if (wal->lotag && wal->nextwall >= 0)
-				wall[wal->nextwall].lotag = wal->lotag;
+				wal->nextWall()->lotag = wal->lotag;
 
 		case BIGFORCE:
 

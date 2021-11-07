@@ -387,7 +387,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 				return;
 			}
 
-			if (wal->hitag != 0 || (wal->nextwall >= 0 && wall[wal->nextwall].hitag != 0))
+			if (wal->hitag != 0 || (wal->nextwall >= 0 && wal->nextWall()->hitag != 0))
 				goto SKIPBULLETHOLE;
 
 			if (hitsect >= 0 && sector[hitsect].lotag == 0)

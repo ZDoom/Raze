@@ -1091,7 +1091,7 @@ void operateactivators(int low, int plnum)
 			p->state = !p->state;
 
 			sect->floorshade = sect->ceilingshade = (int8_t)p->shade2;
-			wal = &wall[sect->wallptr];
+			wal = sect->firstWall();
 			for (j = sect->wallnum; j > 0; j--, wal++)
 				wal->shade = (int8_t)p->shade2;
 		}
