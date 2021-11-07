@@ -3812,10 +3812,10 @@ HORIZONLY:
 				if (wall[clip.index].lotag < 44)
 				{
 					dofurniture(clip.index, p->cursectnum, snum);
-					pushmove(&p->pos.x, &p->pos.y, &p->pos.z, &p->cursectnum, 172L, (4L << 8), (4L << 8), CLIPMASK0);
+					pushmove(&p->pos, &p->cursectnum, 172L, (4L << 8), (4L << 8), CLIPMASK0);
 				}
 				else
-					pushmove(&p->pos.x, &p->pos.y, &p->pos.z, &p->cursectnum, 172L, (4L << 8), (4L << 8), CLIPMASK0);
+					pushmove(&p->pos, &p->cursectnum, 172L, (4L << 8), (4L << 8), CLIPMASK0);
 			}
 		}
 	}
@@ -3915,9 +3915,9 @@ HORIZONLY:
 	if (ud.clipping == 0)
 	{
 		if (s->clipdist == 64)
-			j = (pushmove(&p->pos.x, &p->pos.y, &p->pos.z, &p->cursectnum, 128L, (4L << 8), (4L << 8), CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < 512);
+			j = (pushmove(&p->pos, &p->cursectnum, 128L, (4L << 8), (4L << 8), CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < 512);
 		else
-			j = (pushmove(&p->pos.x, &p->pos.y, &p->pos.z, &p->cursectnum, 16L, (4L << 8), (4L << 8), CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < 512);
+			j = (pushmove(&p->pos, &p->cursectnum, 16L, (4L << 8), (4L << 8), CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < 512);
 	}
 	else j = 0;
 

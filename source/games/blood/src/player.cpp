@@ -1667,7 +1667,7 @@ void playerProcess(PLAYER *pPlayer)
     int dw = pSprite->clipdist<<2;
     if (!gNoClip)
     {
-        short nSector = pSprite->sectnum;
+        int nSector = pSprite->sectnum;
         if (pushmove(&pSprite->pos, &nSector, dw, dzt, dzb, CLIPMASK0) == -1)
             actDamageSprite(actor, actor, kDamageFall, 500<<4);
         if (pSprite->sectnum != nSector)

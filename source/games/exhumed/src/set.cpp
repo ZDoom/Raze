@@ -283,7 +283,10 @@ void AISet::Tick(RunListEvent* ev)
 
     auto nMov = MoveCreature(pActor);
 
-    pushmove(&pSprite->pos, &pSprite->sectnum, pSprite->clipdist << 2, 5120, -5120, CLIPMASK0);
+	static_assert(sizeof(pSprite->sectnum) != 4);
+	int sectnum = pSprite->sectnum;
+    pushmove(&pSprite->pos, &sectnum, pSprite->clipdist << 2, 5120, -5120, CLIPMASK0);
+	pSprite->sectnum = sectnum;
 
     if (pSprite->zvel > 4000)
     {

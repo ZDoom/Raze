@@ -628,7 +628,7 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 
 	updatesector(p->pos.x, p->pos.y, &p->cursectnum);
 
-	pushmove(&p->pos.x, &p->pos.y, &p->pos.z, &p->cursectnum, 128L, (4 << 8), (20 << 8), CLIPMASK0);
+	pushmove(&p->pos, &p->cursectnum, 128L, (4 << 8), (20 << 8), CLIPMASK0);
 
 	if (fz > cz + (16 << 8) && s->pal != 1)
 		p->angle.rotscrnang = buildang(p->dead_flag + ((fz + p->pos.z) >> 7));

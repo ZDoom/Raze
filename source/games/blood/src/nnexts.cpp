@@ -1667,7 +1667,7 @@ void debrisMove(int listIndex)
         }
 
         if (sector[nSector].type >= kSectorPath && sector[nSector].type <= kSectorRotate) {
-            short nSector2 = nSector;
+            int nSector2 = nSector;
             if (pushmove(&pSprite->pos, &nSector2, clipDist, ceilDist, floorDist, CLIPMASK0) != -1)
                 nSector = nSector2;
         }

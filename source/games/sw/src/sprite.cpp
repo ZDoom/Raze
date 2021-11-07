@@ -6961,7 +6961,7 @@ int pushmove_sprite(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum].Data();
-    short sectnum, ret;
+    int sectnum, ret;
 
     sp->z -= u->zclip;
     sectnum = sp->sectnum;

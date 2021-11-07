@@ -5319,9 +5319,7 @@ void fall_common(DDukeActor *actor, int playernum, int JIBS6, int DRONE, int BLO
 				{
 
 					int j = s->sectnum;
-					int x = s->x, y = s->y, z = s->z;
-					pushmove(&x, &y, &z, &j, 128, (4 << 8), (4 << 8), CLIPMASK0);
-					s->x = x; s->y = y; s->z = z;
+					pushmove(&s->pos, &j, 128, (4 << 8), (4 << 8), CLIPMASK0);
 					if (j != s->sectnum && j >= 0 && j < MAXSECTORS)
 						changeactorsect(actor, j);
 

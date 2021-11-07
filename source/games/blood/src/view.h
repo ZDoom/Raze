@@ -61,7 +61,7 @@ struct VIEW {
     int xvel; //xvel
     int yvel; //yvel
     int zvel; //zvel
-    short sectnum; // sectnum
+    int sectnum; // sectnum
     unsigned int floordist; // floordist
     char at6e; // look center
     char at6f;

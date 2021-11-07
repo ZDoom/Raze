@@ -389,7 +389,7 @@ static void fakeMoveDude(spritetype *pSprite)
                     
             if (sector[nSector].type >= kSectorPath && sector[nSector].type <= kSectorRotate)
             {
-                short nSector2 = nSector;
+                int nSector2 = nSector;
                 pushmove(&predict.pos, &nSector2, wd, tz, bz, CLIPMASK0);
                 if (nSector2 != -1)
                     nSector = nSector2;
