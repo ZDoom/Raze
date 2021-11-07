@@ -3315,16 +3315,14 @@ void handle_se03(DDukeActor *actor)
 	sc->ceilingshade = t[0];
 	sc->floorshade = t[0];
 
-	auto wal = sc->firstWall();
-
-	for (x = sc->wallnum; x > 0; x--, wal++)
+	for(auto& wal : wallsofsector(sc))
 	{
-		if (wal->hitag != 1)
+		if (wal.hitag != 1)
 		{
-			wal->shade = t[0];
-			if ((wal->cstat & 2) && wal->nextwall >= 0)
+			wal.shade = t[0];
+			if ((wal.cstat & 2) && wal.nextwall >= 0)
 			{
-				wal->nextWall()->shade = wal->shade;
+				wal.nextWall()->shade = wal.shade;
 			}
 		}
 	}
@@ -3369,18 +3367,16 @@ void handle_se04(DDukeActor *actor)
 	sc->floorshade = t[1];
 	sc->ceilingshade = t[1];
 
-	auto wal = sc->firstWall();
-
-	for (int x = sc->wallnum; x > 0; x--, wal++)
+	for (auto& wal : wallsofsector(sc))
 	{
-		if (j) wal->pal = (palvals & 0xff);
-		else wal->pal = s->pal;
+		if (j) wal.pal = (palvals & 0xff);
+		else wal.pal = s->pal;
 
-		if (wal->hitag != 1)
+		if (wal.hitag != 1)
 		{
-			wal->shade = t[0];
-			if ((wal->cstat & 2) && wal->nextwall >= 0)
-				wal->nextWall()->shade = wal->shade;
+			wal.shade = t[0];
+			if ((wal.cstat & 2) && wal.nextwall >= 0)
+				wal.nextWall()->shade = wal.shade;
 		}
 	}
 
@@ -3544,22 +3540,20 @@ void handle_se08(DDukeActor *actor, bool checkhitag1)
 				auto sect = ac->getSector();
 				int m = ac->s->shade;
 
-				auto wal = sect->firstWall();
-
-				for (int l = sect->wallnum; l > 0; l--, wal++)
+				for (auto& wal : wallsofsector(sect))
 				{
-					if (wal->hitag != 1)
+					if (wal.hitag != 1)
 					{
-						wal->shade += x;
+						wal.shade += x;
 
-						if (wal->shade < m)
-							wal->shade = m;
-						else if (wal->shade > ac->temp_data[2])
-							wal->shade = ac->temp_data[2];
+						if (wal.shade < m)
+							wal.shade = m;
+						else if (wal.shade > ac->temp_data[2])
+							wal.shade = ac->temp_data[2];
 
-						if (wal->nextwall >= 0)
-							if (wal->nextWall()->hitag != 1)
-								wal->nextWall()->shade = wal->shade;
+						if (wal.nextwall >= 0)
+							if (wal.nextWall()->hitag != 1)
+								wal.nextWall()->shade = wal.shade;
 					}
 				}
 
@@ -3654,10 +3648,10 @@ void handle_se11(DDukeActor *actor)
 		startwall = sc->wallptr;
 		endwall = startwall + sc->wallnum;
 
-		DukeStatIterator it(STAT_ACTOR);
 
 		for (int j = startwall; j < endwall; j++)
 		{
+			DukeStatIterator it(STAT_ACTOR);
 			while (auto ac = it.Next())
 			{
 				auto sk = ac->s;
@@ -3674,7 +3668,7 @@ void handle_se11(DDukeActor *actor)
 
 		for (int j = startwall; j < endwall; j++)
 		{
-			it.Reset(STAT_PLAYER);
+			DukeStatIterator it(STAT_PLAYER);
 			while (auto ac = it.Next())
 			{
 				auto sk = ac->s;
