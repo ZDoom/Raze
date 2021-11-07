@@ -322,7 +322,7 @@ int spawn_r(int j, int pn)
 			case FORCESPHERE:
 				if (j == -1)
 				{
-					sp->cstat = (short)32768;
+					sp->cstat = 32768;
 					changespritestat(i,2);
 				}
 				else
@@ -604,7 +604,7 @@ int spawn_r(int j, int pn)
 					changespritestat(i, STAT_MISC);
 					break;
 				}
-				sp->cstat = (short)32768;
+				sp->cstat = 32768;
 				changespritestat(i,11);
 				break;
 			case SOUNDFX:
@@ -1371,7 +1371,7 @@ int spawn_r(int j, int pn)
 				sp->shade = -16;
 				if(sp->xrepeat <= 8)
 				{
-					sp->cstat = (short)32768;
+					sp->cstat = 32768;
 					sp->xrepeat=sp->yrepeat=0;
 				}
 				else sp->cstat = 1+256;

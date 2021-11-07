@@ -259,7 +259,7 @@ int spawn_d(int j, int pn)
             case FORCESPHERE:
                 if(j == -1 )
                 {
-                    sp->cstat = (short) 32768;
+                    sp->cstat =  32768;
                     changespritestat(i,2);
                 }
                 else
@@ -583,7 +583,7 @@ int spawn_d(int j, int pn)
                     changespritestat(i, STAT_MISC);
                     break;
                 }
-                sp->cstat = (short)32768;
+                sp->cstat = 32768;
                 changespritestat(i,11);
                 break;
 
@@ -901,7 +901,7 @@ int spawn_d(int j, int pn)
 
             case ACTIVATORLOCKED:
             case ACTIVATOR:
-                sp->cstat = (short) 32768;
+                sp->cstat =  32768;
                 if(sp->picnum == ACTIVATORLOCKED)
                     sp->sector()->lotag |= 16384;
                 changespritestat(i,8);
@@ -1111,7 +1111,7 @@ int spawn_d(int j, int pn)
                 sp->shade = -16;
                 if(sp->xrepeat <= 8)
                 {
-                    sp->cstat = (short)32768;
+                    sp->cstat = 32768;
                     sp->xrepeat=sp->yrepeat=0;
                 }
                 else sp->cstat = 1+256;

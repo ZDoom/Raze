@@ -2206,7 +2206,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_cstat:
 		insptr++;
-		g_sp->cstat = (short) *insptr;
+		g_sp->cstat =  (uint16_t)*insptr;
 		insptr++;
 		break;
 	case concmd_newpic:
