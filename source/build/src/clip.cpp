@@ -101,8 +101,6 @@ static inline void get_floorspr_points(T const * const spr, int32_t px, int32_t 
     *y3 = *y2 + ofs.y, *y4 = *y1 + ofs.y;
 }
 
-int32_t clipmoveboxtracenum = 3;
-
 //
 // clipinsidebox
 //
@@ -454,7 +452,7 @@ static void clipupdatesector(vec2_t const pos, int * const sectnum, int walldist
 // clipmove
 //
 int32_t clipmove(vec3_t * const pos, int * const sectnum, int32_t xvect, int32_t yvect,
-                 int32_t const walldist, int32_t const ceildist, int32_t const flordist, uint32_t const cliptype)
+                 int32_t const walldist, int32_t const ceildist, int32_t const flordist, uint32_t const cliptype, int clipmoveboxtracenum)
 {
     if ((xvect|yvect) == 0 || *sectnum < 0)
         return 0;

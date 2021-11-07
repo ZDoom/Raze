@@ -29,10 +29,9 @@ inline int clipinsidebox(int x, int y, int wall, int dist)
 }
 int clipinsideboxline(int x, int y, int x1, int y1, int x2, int y2, int walldist);
 
-extern int32_t clipmoveboxtracenum;
 
 int32_t clipmove(vec3_t *const pos, int *const sectnum, int32_t xvect, int32_t yvect, int32_t const walldist, int32_t const ceildist,
-                 int32_t const flordist, uint32_t const cliptype) ATTRIBUTE((nonnull(1, 2)));
+                 int32_t const flordist, uint32_t const cliptype, int clipmoveboxtracenum = 3) ATTRIBUTE((nonnull(1, 2)));
 
 int pushmove(vec3_t *const vect, int *const sectnum, int32_t const walldist, int32_t const ceildist, int32_t const flordist,
                  uint32_t const cliptype, bool clear = true) ATTRIBUTE((nonnull(1, 2)));

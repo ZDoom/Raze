@@ -64,9 +64,7 @@ int MultiClipMove(PLAYERp pp, int z, int floor_dist)
 
         xvect = sop->clipbox_vdist[i] * bcos(ang);
         yvect = sop->clipbox_vdist[i] * bsin(ang);
-        clipmoveboxtracenum = 1;
-        ret_start = clipmove(&spos, &pp->cursectnum, xvect, yvect, (int)sop->clipbox_dist[i], Z(4), floor_dist, CLIPMASK_PLAYER);
-        clipmoveboxtracenum = 3;
+        ret_start = clipmove(&spos, &pp->cursectnum, xvect, yvect, (int)sop->clipbox_dist[i], Z(4), floor_dist, CLIPMASK_PLAYER, 1);
 
         if (ret_start)
         {

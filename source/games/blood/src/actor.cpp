@@ -5381,17 +5381,15 @@ int MoveMissile(DBloodActor* actor)
 	{
 		vec3_t pos = pSprite->pos;
 		int nSector2 = pSprite->sectnum;
-		clipmoveboxtracenum = 1;
 		const short bakSpriteCstat = pSprite->cstat;
 		if (pOwner && !isFlameSprite && !cl_bloodvanillaexplosions && !VanillaMode())
 		{
 			enginecompatibility_mode = ENGINECOMPATIBILITY_NONE; // improved clipmove accuracy
 			pSprite->cstat &= ~257; // remove self collisions for accurate clipmove
 		}
-		Collision clipmoveresult = ClipMove(&pos, &nSector2, vx, vy, pSprite->clipdist << 2, (pos.z - top) / 4, (bottom - pos.z) / 4, CLIPMASK0);
+		Collision clipmoveresult = ClipMove(&pos, &nSector2, vx, vy, pSprite->clipdist << 2, (pos.z - top) / 4, (bottom - pos.z) / 4, CLIPMASK0, 1);
 		enginecompatibility_mode = bakCompat; // restore
 		pSprite->cstat = bakSpriteCstat;
-		clipmoveboxtracenum = 3;
 		int nSector = nSector2;
 		if (nSector2 < 0)
 		{

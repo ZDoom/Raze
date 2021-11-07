@@ -5082,10 +5082,8 @@ move_actor(short SpriteNum, int xchange, int ychange, int zchange)
     hi_sectp = u->hi_sectp;
     sectnum = sp->sectnum;
 
-    clipmoveboxtracenum = 1;
     u->ret = move_sprite(SpriteNum, xchange, ychange, zchange,
                          u->ceiling_dist, u->floor_dist, cliptype, ACTORMOVETICS);
-    clipmoveboxtracenum = 3;
 
     ASSERT(sp->sectnum >= 0);
 
@@ -6861,12 +6859,10 @@ move_sprite(int spritenum, int xchange, int ychange, int zchange, int ceildist, 
 
 //    ASSERT(inside(spr->x,spr->y,dasectnum));
 
-    clipmoveboxtracenum = 1;
     retval = clipmove(&clippos, &dasectnum,
                       ((xchange * numtics) << 11), ((ychange * numtics) << 11),
-                      (((int) spr->clipdist) << 2), ceildist, flordist, cliptype);
+                      (((int) spr->clipdist) << 2), ceildist, flordist, cliptype, 1);
     spr->pos.vec2 = clippos.vec2;
-    clipmoveboxtracenum = 3;
 
     //if (TEST(retval, HIT_MASK) == HIT_WALL)
     //    {
@@ -7106,12 +7102,10 @@ move_missile(int spritenum, int xchange, int ychange, int zchange, int ceildist,
 
 
 //    ASSERT(inside(sp->x,sp->y,dasectnum));
-    clipmoveboxtracenum = 1;
     retval = clipmove(&clippos, &dasectnum,
                       ((xchange * numtics) << 11), ((ychange * numtics) << 11),
-                      (((int) sp->clipdist) << 2), ceildist, flordist, cliptype);
+                      (((int) sp->clipdist) << 2), ceildist, flordist, cliptype, 1);
     sp->pos.vec2 = clippos.vec2;
-    clipmoveboxtracenum = 3;
 
     if (dasectnum < 0)
     {
@@ -7265,12 +7259,10 @@ move_ground_missile(short spritenum, int xchange, int ychange, int ceildist, int
         dasectnum = lastsectnum = sp->sectnum;
         opos = sp->pos;
         opos.z = daz;
-        clipmoveboxtracenum = 1;
         retval = clipmove(&opos, &dasectnum,
                           ((xchange * numtics) << 11), ((ychange * numtics) << 11),
-                          (((int) sp->clipdist) << 2), ceildist, flordist, cliptype);
+                          (((int) sp->clipdist) << 2), ceildist, flordist, cliptype, 1);
         sp->pos.vec2 = opos.vec2;
-        clipmoveboxtracenum = 3;
     }
 
     if (dasectnum < 0)

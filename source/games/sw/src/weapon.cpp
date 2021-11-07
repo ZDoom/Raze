@@ -17442,12 +17442,9 @@ HitscanSpriteAdjust(short SpriteNum, short hit_wall)
     xvect = bcos(ang, 4);
     yvect = bsin(ang, 4);
 
-    clipmoveboxtracenum = 1;
-
     // must have this
     sectnum = sp->sectnum;
-    clipmove(&sp->pos, &sectnum, xvect, yvect, 4L, 4L<<8, 4L<<8, CLIPMASK_MISSILE);
-    clipmoveboxtracenum = 3;
+    clipmove(&sp->pos, &sectnum, xvect, yvect, 4L, 4L<<8, 4L<<8, CLIPMASK_MISSILE, 1);
 
     if (sp->sectnum != sectnum)
         changespritesect(SpriteNum, sectnum);
@@ -20310,9 +20307,7 @@ int QueueHole(short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z)
 
     sectnum = sp->sectnum;
 
-    clipmoveboxtracenum = 1;
-    clipmove(&sp->pos, &sectnum, nx, ny, 0L, 0L, 0L, CLIPMASK_MISSILE);
-    clipmoveboxtracenum = 3;
+    clipmove(&sp->pos, &sectnum, nx, ny, 0L, 0L, 0L, CLIPMASK_MISSILE, 1);
 
     if (sp->sectnum != sectnum)
         changespritesect(SpriteNum, sectnum);
@@ -20644,9 +20639,7 @@ int QueueWallBlood(short hit_sprite, short ang)
 
     sectnum = sp->sectnum;
 
-    clipmoveboxtracenum = 1;
-    clipmove(&sp->pos, &sectnum, nx, ny, 0L, 0L, 0L, CLIPMASK_MISSILE);
-    clipmoveboxtracenum = 3;
+    clipmove(&sp->pos, &sectnum, nx, ny, 0L, 0L, 0L, CLIPMASK_MISSILE, 1);
 
     if (sp->sectnum != sectnum)
         changespritesect(SpriteNum, sectnum);
