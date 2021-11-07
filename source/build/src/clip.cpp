@@ -378,7 +378,7 @@ static int get_floorspr_clipyou(vec2_t const v1, vec2_t const v2, vec2_t const v
     return clipyou;
 }
 
-static void clipupdatesector(vec2_t const pos, int16_t * const sectnum, int walldist)
+static void clipupdatesector(vec2_t const pos, int * const sectnum, int walldist)
 {
 #if 0
     if (enginecompatibility_mode != ENGINECOMPATIBILITY_NONE)
@@ -774,10 +774,7 @@ int32_t clipmove(vec3_t * const pos, int * const sectnum, int32_t xvect, int32_t
 
         if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE)
 		{
-			// the pervasiveness of 16 bit in the engine is staggering... :(
-			int16_t sect16 = *sectnum;
-			clipupdatesector(vec, &sect16, rad);
-			*sectnum = sect16;
+			clipupdatesector(vec, sectnum, rad);
 		}
 
         pos->x = vec.x;
@@ -840,7 +837,7 @@ int32_t clipmove(vec3_t * const pos, int * const sectnum, int32_t xvect, int32_t
 //
 // pushmove
 //
-int pushmove(vec3_t *const vect, int16_t *const sectnum,
+int pushmove(vec3_t *const vect, int *const sectnum,
     int32_t const walldist, int32_t const ceildist, int32_t const flordist, uint32_t const cliptype, bool clear /*= true*/)
 {
     int bad;

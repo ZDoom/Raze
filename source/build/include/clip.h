@@ -34,13 +34,13 @@ extern int32_t clipmoveboxtracenum;
 int32_t clipmove(vec3_t *const pos, int *const sectnum, int32_t xvect, int32_t yvect, int32_t const walldist, int32_t const ceildist,
                  int32_t const flordist, uint32_t const cliptype) ATTRIBUTE((nonnull(1, 2)));
 
-int pushmove(vec3_t *const vect, int16_t *const sectnum, int32_t const walldist, int32_t const ceildist, int32_t const flordist,
+int pushmove(vec3_t *const vect, int *const sectnum, int32_t const walldist, int32_t const ceildist, int32_t const flordist,
                  uint32_t const cliptype, bool clear = true) ATTRIBUTE((nonnull(1, 2)));
 
-inline int pushmove(vec3_t *const vect, int *const sectnum, int32_t const walldist, int32_t const ceildist, int32_t const flordist,
+inline int pushmove(vec3_t *const vect, int16_t *const sectnum, int32_t const walldist, int32_t const ceildist, int32_t const flordist,
 				 uint32_t const cliptype, bool clear = true)
 {
-	short sect16 = *sectnum;
+	int sect16 = *sectnum;
 	auto r = pushmove(vect, &sect16, walldist, ceildist, flordist, cliptype, clear);
 	*sectnum = sect16;
 	return r;
