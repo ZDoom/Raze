@@ -916,7 +916,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		}
 		else
 		{
-			auto center = ps[iPlayer].sync.actions & SB_CENTERVIEW ? xs_CRoundToInt(ps[iPlayer].horizon.horiz.asq16() * (9. / gi->playerHorizMax())) : 0;
+			auto center = ps[iPlayer].sync.actions & SB_CENTERVIEW ? abs(xs_CRoundToInt(ps[iPlayer].horizon.horiz.asq16() * (9. / gi->playerHorizMax()))) : 0;
 			SetGameVarID(lVar2, center, sActor, sPlayer);
 		}
 		break;
