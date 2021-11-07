@@ -540,7 +540,7 @@ Collision movesprite(DExhumedActor* pActor, int dx, int dy, int dz, int ceildist
 
     int nClipDist = (int8_t)pSprite->clipdist << 2;
 
-    short nSector = pSprite->sectnum;
+    int nSector = pSprite->sectnum;
     assert(nSector >= 0 && nSector < kMaxSectors);
 
     int floorZ = sector[nSector].floorz;
@@ -950,7 +950,7 @@ void MoveSector(short nSector, int nAngle, int *nXVel, int *nYVel)
     pos.y = sBlockInfo[nBlock].y;
     int y_b = sBlockInfo[nBlock].y;
 
-    short nSectorB = nSector;
+    int nSectorB = nSector;
 
     int nZVal;
 
@@ -1306,7 +1306,7 @@ int GetWallNormal(short nWall)
     return (nAngle + 512) & kAngleMask;
 }
 
-void WheresMyMouth(int nPlayer, vec3_t* pos, short *sectnum)
+void WheresMyMouth(int nPlayer, vec3_t* pos, int *sectnum)
 {
     auto pActor = PlayerList[nPlayer].Actor();
 	auto pSprite = &pActor->s();

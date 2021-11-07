@@ -735,7 +735,7 @@ int GetDistToLine(int x1, int y1, int x2, int y2, int x3, int y3)
 unsigned int ClipMove(vec3_t *pos, int *nSector, int xv, int yv, int wd, int cd, int fd, unsigned int nMask)
 {
     auto opos = *pos;
-    short bakSect = *nSector;
+    int bakSect = *nSector;
     unsigned int nRes = clipmove(pos, &bakSect, xv<<14, yv<<14, wd, cd, fd, nMask);
     if (bakSect == -1)
     {

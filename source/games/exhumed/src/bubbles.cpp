@@ -147,7 +147,7 @@ void BuildBubbleMachine(DExhumedActor* pActor)
 void DoBubbles(int nPlayer)
 {
     vec3_t pos;
-    short nSector;
+    int nSector;
 
     WheresMyMouth(nPlayer, &pos, &nSector);
 

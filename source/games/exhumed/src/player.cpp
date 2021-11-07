@@ -2542,7 +2542,7 @@ sectdone:
             if (!RandomSize(5))
             {
                 vec3_t pos;
-                short mouthSect;
+                int mouthSect;
                 WheresMyMouth(nPlayer, &pos, &mouthSect);
 
                 BuildAnim(nullptr, 71, 0, pos.x, pos.y, pPlayerSprite->z + 3840, mouthSect, 75, 128);
