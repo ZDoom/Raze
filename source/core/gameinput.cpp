@@ -144,19 +144,19 @@ void processMovement(InputPacket* const currInput, InputPacket* const inputBuffe
 	int const running = !!(inputBuffer->actions & SB_RUN);
 	int const keymove = gi->playerKeyMove() << running;
 	float const mousevelscale = keymove * (1.f / 160.f);
-	double const cntrlvelscale = g_gameType & GAMEFLAG_PSEXHUMED ? 8. : 1.;
+	double const hidprescale = g_gameType & GAMEFLAG_PSEXHUMED ? 5. : 1.;
 	double const hidspeed = getTicrateScale(running ? RUNNINGTURNBASE : NORMALTURNBASE) * BAngToDegree;
 
 	// process mouse and initial controller input.
 	if (buttonMap.ButtonDown(gamefunc_Strafe) && allowstrafe)
-		currInput->svel -= xs_CRoundToInt((hidInput->mousemovex * mousevelscale) + (scaleAdjust * hidInput->dyaw * keymove * cntrlvelscale));
+		currInput->svel -= xs_CRoundToInt(((hidInput->mousemovex * mousevelscale) + (scaleAdjust * hidInput->dyaw * keymove)) * hidprescale);
 	else
 		currInput->avel += float(hidInput->mouseturnx + (scaleAdjust * hidInput->dyaw * hidspeed * turnscale));
 
 	if (!(inputBuffer->actions & SB_AIMMODE))
 		currInput->horz -= hidInput->mouseturny;
 	else
-		currInput->fvel -= xs_CRoundToInt(hidInput->mousemovey * mousevelscale);
+		currInput->fvel -= xs_CRoundToInt(hidInput->mousemovey * mousevelscale * hidprescale);
 
 	if (invertmouse)
 		currInput->horz = -currInput->horz;
@@ -166,8 +166,8 @@ void processMovement(InputPacket* const currInput, InputPacket* const inputBuffe
 
 	// process remaining controller input.
 	currInput->horz -= float(scaleAdjust * hidInput->dpitch * hidspeed);
-	currInput->svel += xs_CRoundToInt(scaleAdjust * hidInput->dx * keymove * cntrlvelscale);
-	currInput->fvel += xs_CRoundToInt(scaleAdjust * hidInput->dz * keymove * cntrlvelscale);
+	currInput->svel += xs_CRoundToInt(scaleAdjust * hidInput->dx * keymove * hidprescale);
+	currInput->fvel += xs_CRoundToInt(scaleAdjust * hidInput->dz * keymove * hidprescale);
 
 	// process keyboard turning keys.
 	if (buttonMap.ButtonDown(gamefunc_Strafe) && allowstrafe)
