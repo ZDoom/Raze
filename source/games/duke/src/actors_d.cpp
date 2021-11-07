@@ -393,7 +393,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 					if (sect >= 0 && cansee(x1, y1, spri->z, sect, spri->x, spri->y, spri->z, spri->sectnum))
 						fi.checkhitwall(actor, x, wal->x, wal->y, spri->z, spri->picnum);
 				}
-		} while (sectcnt < sectend && sectcnt < countof(tempsect));
+		} while (sectcnt < sectend && sectcnt < (int)countof(tempsect));
 	}
 	
 SKIPWALLCHECK:
