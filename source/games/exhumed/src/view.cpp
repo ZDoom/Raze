@@ -485,20 +485,23 @@ void Clip()
 
 void SerializeView(FSerializer& arc)
 {
-    arc("camerax", nCamerax)
-        ("cameray", nCameray)
-        ("cameraz", nCameraz)
-        ("touchfloor", bTouchFloor)
-        ("chunktotal", nChunkTotal)
-        ("cameraa", nCameraa)
-        ("camerapan", nCamerapan)
-        ("camera", bCamera)
-        ("viewz", viewz)
-        ("enemy", pEnemy)
-        ("enemypal", nEnemyPal)
-        .Array("vertpan", dVertPan, countof(dVertPan))
-        .Array("quake", nQuake, countof(nQuake))
-        .EndObject();
+    if (arc.BeginObject("view"))
+    {
+        arc("camerax", nCamerax)
+            ("cameray", nCameray)
+            ("cameraz", nCameraz)
+            ("touchfloor", bTouchFloor)
+            ("chunktotal", nChunkTotal)
+            ("cameraa", nCameraa)
+            ("camerapan", nCamerapan)
+            ("camera", bCamera)
+            ("viewz", viewz)
+            ("enemy", pEnemy)
+            ("enemypal", nEnemyPal)
+            .Array("vertpan", dVertPan, countof(dVertPan))
+            .Array("quake", nQuake, countof(nQuake))
+            .EndObject();
+    }
 }
 
 END_PS_NS

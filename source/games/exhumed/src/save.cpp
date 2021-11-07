@@ -73,6 +73,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 
 		SerializeQueen(arc);
 		SerializeRat(arc);
+		arc.EndObject();
 	}
 	if (arc.isReading())
 	{

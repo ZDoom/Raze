@@ -642,6 +642,7 @@ void SerializeState(FSerializer& arc)
             ("slipmode", bSlipMode)
             ("PlayClock", PlayClock)
             ("spiritsprite", pSpiritSprite)
+            .SparseArray("actors", exhumedActors, kMaxSprites, activeSprites)
             .EndObject();
     }
 }
