@@ -153,7 +153,7 @@ void hud_input(int playerNum);
 int getanimationgoal(int animtype, int animindex);
 bool isanearoperator(int lotag);
 bool isanunderoperator(int lotag);
-int setanimation(short animsect, int animtype, int animindex, int thegoal, int thevel);
+int setanimation(int animsect, int animtype, int animindex, int thegoal, int thevel);
 void dofurniture(int wallNum, int sectnum, int playerNum);
 void dotorch();
 int hitawall(struct player_struct* pl, int* hitWall);

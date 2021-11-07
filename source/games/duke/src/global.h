@@ -85,7 +85,7 @@ enum animtype_t
 	anim_vertexy,
 };
 extern int animatesect[MAXANIMATES];
-extern int16_t animatetarget[MAXANIMATES];
+extern int animatetarget[MAXANIMATES];
 extern int8_t animatetype[MAXANIMATES];
 extern int animategoal[MAXANIMATES];
 extern int animatevel[MAXANIMATES];

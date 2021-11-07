@@ -393,7 +393,7 @@ int getanimationgoal(int animtype, int animtarget)
 //
 //---------------------------------------------------------------------------
 
-int setanimation(short animsect, int animtype, int animtarget, int thegoal, int thevel)
+int setanimation(int animsect, int animtype, int animtarget, int thegoal, int thevel)
 {
 	int i, j;
 

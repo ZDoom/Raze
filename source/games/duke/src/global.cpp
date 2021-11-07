@@ -101,7 +101,7 @@ int numanimwalls;
 int animatecnt;								// sector plane movement
 int animatesect[MAXANIMATES];
 int8_t animatetype[MAXANIMATES];
-int16_t animatetarget[MAXANIMATES];
+int animatetarget[MAXANIMATES];
 int animategoal[MAXANIMATES];
 int animatevel[MAXANIMATES];
 int numclouds;								// cloudy skies
