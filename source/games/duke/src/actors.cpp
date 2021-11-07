@@ -129,7 +129,7 @@ void checkavailinven(struct player_struct* player)
 
 void checkavailweapon(struct player_struct* player)
 {
-	short i, snum;
+	int i, snum;
 	int weap;
 
 	if (player->wantweaponfire >= 0)
@@ -283,7 +283,7 @@ void ms(DDukeActor* const actor)
 {
 	//T1,T2 and T3 are used for all the sector moving stuff!!!
 
-	short startwall, endwall, x;
+	int startwall, endwall, x;
 	int tx, ty;
 	auto s = actor->s;
 
@@ -383,7 +383,7 @@ void movedummyplayers(void)
 			else
 			{
 				if (spri->sector()->lotag != 2) spri->z = spri->sector()->floorz;
-				spri->cstat = (short)32768;
+				spri->cstat = 32768;
 			}
 		}
 
@@ -1662,7 +1662,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 	{
 		if (actor_tog == 1)
 		{
-			s->cstat = (short)32768;
+			s->cstat = 32768;
 			return;
 		}
 		else if (actor_tog == 2) s->cstat = 257;
@@ -1873,8 +1873,8 @@ void reactor(DDukeActor* actor, int REACTOR, int REACTOR2, int REACTORBURNT, int
 			{
 				if (sprj->lotag == 1)
 				{
-					sprj->lotag = (short)65535;
-					sprj->hitag = (short)65535;
+					sprj->lotag = -1;
+					sprj->hitag = -1;
 				}
 			}
 			else if (sprj->picnum == REACTOR)
@@ -1887,7 +1887,7 @@ void reactor(DDukeActor* actor, int REACTOR, int REACTOR2, int REACTORBURNT, int
 			}
 			else if (sprj->picnum == REACTORSPARK || sprj->picnum == REACTOR2SPARK)
 			{
-				sprj->cstat = (short)32768;
+				sprj->cstat = 32768;
 			}
 		}		
 		return;
@@ -2006,7 +2006,7 @@ void camera(DDukeActor *actor)
 			if (j >= 0)
 			{
 				t[0] = 1; // static
-				s->cstat = (short)32768;
+				s->cstat = 32768;
 				for (int x = 0; x < 5; x++)
 					RANDOMSCRAP(actor);
 				return;
@@ -2604,7 +2604,7 @@ void scrap(DDukeActor* actor, int SCRAP1, int SCRAP6)
 //
 //---------------------------------------------------------------------------
 
-void gutsdir(DDukeActor* actor, short gtype, short n, short p)
+void gutsdir(DDukeActor* actor, int gtype, int n, int p)
 {
 	int sx, sy;
 
@@ -3452,8 +3452,7 @@ void handle_se05(DDukeActor* actor, int FIRELASER)
 
 	if (ldist(Owner, actor) < 1024)
 	{
-		short ta;
-		ta = s->ang;
+		auto ta = s->ang;
 		s->ang = getangle(ps[p].pos.x - s->x, ps[p].pos.y - s->y);
 		s->ang = ta;
 		actor->SetOwner(nullptr);
@@ -3526,7 +3525,7 @@ void handle_se08(DDukeActor *actor, bool checkhitag1)
 
 	if (j >= 0)
 	{
-		short sn;
+		int sn;
 
 		if ((sc->lotag & 0x8000) || actor->temp_data[4])
 			x = -t[3];
@@ -4307,8 +4306,8 @@ void handle_se20(DDukeActor* actor)
 			}
 		}
 
-		dragpoint((short)t[1], wall[t[1]].x + x, wall[t[1]].y + l);
-		dragpoint((short)t[2], wall[t[2]].x + x, wall[t[2]].y + l);
+		dragpoint(t[1], wall[t[1]].x + x, wall[t[1]].y + l);
+		dragpoint(t[2], wall[t[2]].x + x, wall[t[2]].y + l);
 
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 			if (ps[p].cursectnum == s->sectnum && ps[p].on_ground)
@@ -5178,7 +5177,7 @@ int furthestcanseepoint(DDukeActor *actor, DDukeActor* tosee, int* dax, int* day
 void alterang(int ang, DDukeActor* actor, int playernum)
 {
 	auto s = actor->s;
-	short aang, angdif, goalang, j;
+	int aang, angdif, goalang, j;
 	int ticselapsed;
 	int* t = actor->temp_data;
 

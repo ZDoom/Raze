@@ -411,7 +411,7 @@ void   neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange
 int32_t   cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1,
                  int32_t x2, int32_t y2, int32_t z2, int16_t sect2);
 int32_t   inside(int32_t x, int32_t y, int sectnum);
-void   dragpoint(int16_t pointhighlight, int32_t dax, int32_t day, uint8_t flags = 0);
+void   dragpoint(int pointhighlight, int32_t dax, int32_t day, uint8_t flags = 0);
 int32_t try_facespr_intersect(uspriteptr_t const spr, vec3_t const in,
                                      int32_t vx, int32_t vy, int32_t vz,
                                      vec3_t * const intp, int32_t strictly_smaller_than_p);

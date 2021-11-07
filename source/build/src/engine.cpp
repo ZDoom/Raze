@@ -1177,7 +1177,7 @@ void neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange,
 // flags:
 //  1: don't reset walbitmap[] (the bitmap of already dragged vertices)
 //  2: In the editor, do wall[].cstat |= (1<<14) also for the lastwall().
-void dragpoint(int16_t pointhighlight, int32_t dax, int32_t day, uint8_t flags)
+void dragpoint(int pointhighlight, int32_t dax, int32_t day, uint8_t flags)
 {
     int32_t i, numyaxwalls=0;
     static int16_t yaxwalls[MAXWALLS];

@@ -116,7 +116,7 @@ void check_fta_sounds_r(DDukeActor* actor)
 
 void addweapon_r(struct player_struct* p, int weapon)
 {
-	short cw = p->curr_weapon;
+	int cw = p->curr_weapon;
 	if (p->OnMotorcycle || p->OnBoat)
 	{
 		p->gotweapon[weapon] = true;;
@@ -221,10 +221,10 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 	sectortype* dasectp;
 	int d, q, x1, y1;
 	int sectcnt, sectend, dasect, startwall, endwall, nextsect;
-	short p, x;
+	int p, x;
 	int sect;
 	static const uint8_t statlist[] = { STAT_DEFAULT, STAT_ACTOR, STAT_STANDABLE, STAT_PLAYER, STAT_FALLER, STAT_ZOMBIEACTOR, STAT_MISC };
-	short tempshort[MAXSECTORS];	// originally hijacked a global buffer which is bad. Q: How many do we really need? RedNukem says 64.
+	int tempsect[128];	// originally hijacked a global buffer which is bad. Q: How many do we really need? RedNukem says 64.
 
 	auto spri = actor->s;
 
@@ -233,14 +233,14 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 		if (spri->picnum == RPG || ((isRRRA()) && spri->picnum == RPG2)) goto SKIPWALLCHECK;
 	}
 
-	tempshort[0] = spri->sectnum;
+	tempsect[0] = spri->sectnum;
 	dasect = spri->sectnum;
 	dasectp = spri->sector();
 	sectcnt = 0; sectend = 1;
 
 	do
 	{
-		dasect = tempshort[sectcnt++];
+		dasect = tempsect[sectcnt++];
 		if (((dasectp->ceilingz - spri->z) >> 8) < r)
 		{
 			d = abs(wall[dasectp->wallptr].x - spri->x) + abs(wall[dasectp->wallptr].y - spri->y);
@@ -264,8 +264,8 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 				if (nextsect >= 0)
 				{
 					for (dasect = sectend - 1; dasect >= 0; dasect--)
-						if (tempshort[dasect] == nextsect) break;
-					if (dasect < 0) tempshort[sectend++] = nextsect;
+						if (tempsect[dasect] == nextsect) break;
+					if (dasect < 0) tempsect[sectend++] = nextsect;
 				}
 				x1 = (((wal->x + wall[wal->point2].x) >> 1) + spri->x) >> 1;
 				y1 = (((wal->y + wall[wal->point2].y) >> 1) + spri->y) >> 1;
@@ -273,7 +273,7 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 				if (sect >= 0 && cansee(x1, y1, spri->z, sect, spri->x, spri->y, spri->z, spri->sectnum))
 					fi.checkhitwall(actor, x, wal->x, wal->y, spri->z, spri->picnum);
 			}
-	} while (sectcnt < sectend);
+	} while (sectcnt < sectend && sectcnt < countof(tempsect));
 
 SKIPWALLCHECK:
 
@@ -387,7 +387,7 @@ int movesprite_ex_r(DDukeActor* actor, int xchange, int ychange, int zchange, un
 {
 	int daz, h, oldx, oldy;
 	int dasectnum;
-	short cd;
+	int clipdist;
 	auto spri = actor->s;
 	int bg = badguy(actor);
 
@@ -417,8 +417,8 @@ int movesprite_ex_r(DDukeActor* actor, int xchange, int ychange, int zchange, un
 			clipmove_ex(&spri->x, &spri->y, &daz, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 1024L, (4 << 8), (4 << 8), cliptype, result);
 		else
 		{
-			cd = 192;
-			clipmove_ex(&spri->x, &spri->y, &daz, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), cd, (4 << 8), (4 << 8), cliptype, result);
+			clipdist = 192;
+			clipmove_ex(&spri->x, &spri->y, &daz, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), clipdist, (4 << 8), (4 << 8), cliptype, result);
 		}
 
 		if (dasectnum < 0 || (dasectnum >= 0 && actor->actorstayput >= 0 && actor->actorstayput != dasectnum))
@@ -461,7 +461,7 @@ int movesprite_ex_r(DDukeActor* actor, int xchange, int ychange, int zchange, un
 //
 //---------------------------------------------------------------------------
 
-void lotsoffeathers_r(DDukeActor *actor, short n)
+void lotsoffeathers_r(DDukeActor *actor, int n)
 {
 	lotsofstuff(actor, n, MONEY);
 }
@@ -473,7 +473,7 @@ void lotsoffeathers_r(DDukeActor *actor, short n)
 //
 //---------------------------------------------------------------------------
 
-void guts_r(DDukeActor* actor, short gtype, short n, short p)
+void guts_r(DDukeActor* actor, int gtype, int n, int p)
 {
 	auto s = actor->s;
 	int gutz, floorz;
@@ -530,7 +530,7 @@ void guts_r(DDukeActor* actor, short gtype, short n, short p)
 void movefta_r(void)
 {
 	int x, px, py, sx, sy;
-	short j, p;
+	int j, p;
 	int psect, ssect;
 
 	DukeStatIterator it(STAT_ZOMBIEACTOR);
@@ -2733,7 +2733,7 @@ DETONATEB:
 					{
 						t[2] = gs.respawnitemtime;
 						spawn(actor, RESPAWNMARKERRED);
-						s->cstat = (short)32768;
+						s->cstat = 32768;
 					}
 				}
 
@@ -3091,7 +3091,7 @@ void moveactors_r(void)
 		{
 			if( actor_tog == 1)
 			{
-				s->cstat = (short)32768;
+				s->cstat = 32768;
 				continue;
 			}
 			else if(actor_tog == 2) s->cstat = 257;
@@ -3684,7 +3684,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 	auto spr = actor->s;
 	auto t = actor->temp_data;
 	int l;
-	short goalang, angdif;
+	int goalang, angdif;
 	int daxvel;
 
 	int a = spr->hitag;

@@ -342,10 +342,10 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 	walltype* wal;
 	int d, q, x1, y1;
 	int sectcnt, sectend, dasect, startwall, endwall, nextsect;
-	short p, x;
+	int p, x;
 	int sect;
 	static const uint8_t statlist[] = { STAT_DEFAULT, STAT_ACTOR, STAT_STANDABLE, STAT_PLAYER, STAT_FALLER, STAT_ZOMBIEACTOR, STAT_MISC };
-	short tempshort[MAXSECTORS];	// originally hijacked a global buffer which is bad. Q: How many do we really need? RedNukem says 64.
+	int tempsect[128];	// originally hijacked a global buffer which is bad. Q: How many do we really need? RedNukem says 64.
 	
 	auto spri = actor->s;
 	
@@ -353,14 +353,14 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 	
 	if(spri->picnum != SHRINKSPARK)
 	{
-		tempshort[0] = spri->sectnum;
+		tempsect[0] = spri->sectnum;
 		dasect = spri->sectnum;
 		auto dasectp = spri->sector();
 		sectcnt = 0; sectend = 1;
 		
 		do
 		{
-			dasect = tempshort[sectcnt++];
+			dasect = tempsect[sectcnt++];
 			if (((dasectp->ceilingz - spri->z) >> 8) < r)
 			{
 				d = abs(wall[dasectp->wallptr].x - spri->x) + abs(wall[dasectp->wallptr].y - spri->y);
@@ -384,8 +384,8 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 					if (nextsect >= 0)
 					{
 						for (dasect = sectend - 1; dasect >= 0; dasect--)
-							if (tempshort[dasect] == nextsect) break;
-						if (dasect < 0) tempshort[sectend++] = nextsect;
+							if (tempsect[dasect] == nextsect) break;
+						if (dasect < 0) tempsect[sectend++] = nextsect;
 					}
 					x1 = (((wal->x + wall[wal->point2].x) >> 1) + spri->x) >> 1;
 					y1 = (((wal->y + wall[wal->point2].y) >> 1) + spri->y) >> 1;
@@ -393,7 +393,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 					if (sect >= 0 && cansee(x1, y1, spri->z, sect, spri->x, spri->y, spri->z, spri->sectnum))
 						fi.checkhitwall(actor, x, wal->x, wal->y, spri->z, spri->picnum);
 				}
-		} while (sectcnt < sectend);
+		} while (sectcnt < sectend && sectcnt < countof(tempsect));
 	}
 	
 SKIPWALLCHECK:
@@ -541,7 +541,7 @@ SKIPWALLCHECK:
 int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, unsigned int cliptype, Collision &result)
 {
 	int daz, h, oldx, oldy;
-	short cd;
+	int clipdist;
 	int dasectnum;
 
 	auto spri = actor->s;
@@ -574,13 +574,13 @@ int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, un
 		else 
 		{
 			if (spri->picnum == LIZMAN)
-				cd = 292;
+				clipdist = 292;
 			else if (actorflag(actor, SFLAG_BADGUY))
-				cd = spri->clipdist << 2;
+				clipdist = spri->clipdist << 2;
 			else
-				cd = 192;
+				clipdist = 192;
 
-			clipmove_ex(&spri->x, &spri->y, &daz, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), cd, (4 << 8), (4 << 8), cliptype, result);
+			clipmove_ex(&spri->x, &spri->y, &daz, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), clipdist, (4 << 8), (4 << 8), cliptype, result);
 		}
 
 		// conditional code from hell...
@@ -629,17 +629,17 @@ int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, un
 //
 //---------------------------------------------------------------------------
 
-void lotsofmoney_d(DDukeActor *actor, short n)
+void lotsofmoney_d(DDukeActor *actor, int n)
 {
 	lotsofstuff(actor, n, MONEY);
 }
 
-void lotsofmail_d(DDukeActor *actor, short n)
+void lotsofmail_d(DDukeActor *actor, int n)
 {
 	lotsofstuff(actor, n, MAIL);
 }
 
-void lotsofpaper_d(DDukeActor *actor, short n)
+void lotsofpaper_d(DDukeActor *actor, int n)
 {
 	lotsofstuff(actor, n, PAPER);
 }
@@ -650,7 +650,7 @@ void lotsofpaper_d(DDukeActor *actor, short n)
 //
 //---------------------------------------------------------------------------
 
-void guts_d(DDukeActor* actor, short gtype, short n, short p)
+void guts_d(DDukeActor* actor, int gtype, int n, int p)
 {
 	auto s = actor->s;
 	int gutz, floorz;
@@ -707,7 +707,7 @@ void guts_d(DDukeActor* actor, short gtype, short n, short p)
 void movefta_d(void)
 {
 	int x, px, py, sx, sy;
-	short p;
+	int p;
 	int psect, ssect;
 	int j;
 
@@ -825,7 +825,7 @@ DDukeActor* ifhitsectors_d(int sectnum)
 
 int ifhitbyweapon_d(DDukeActor *actor)
 {
-	short p;
+	int p;
 	auto spri = actor->s;
 	auto hitowner = actor->GetHitOwner();
 
@@ -2323,7 +2323,7 @@ static void greenslime(DDukeActor *actor)
 	{
 		if (actor_tog == 1)
 		{
-			s->cstat = (short)32768;
+			s->cstat = 32768;
 			return;
 		}
 		else if (actor_tog == 2) s->cstat = 257;
@@ -2459,7 +2459,7 @@ static void greenslime(DDukeActor *actor)
 
 		if (t[3] > 0)
 		{
-			short frames[] = { 5,5,6,6,7,7,6,5 };
+			static const uint8_t frames[] = { 5,5,6,6,7,7,6,5 };
 
 			s->picnum = GREENSLIME + frames[t[3]];
 
@@ -2977,7 +2977,7 @@ DETONATEB:
 			{
 				t[2] = gs.respawnitemtime;
 				spawn(actor, RESPAWNMARKERRED);
-				s->cstat = (short)32768;
+				s->cstat = 32768;
 				s->yrepeat = 9;
 				return;
 			}
@@ -3020,7 +3020,7 @@ DETONATEB:
 				{
 					t[2] = gs.respawnitemtime;
 					spawn(actor, RESPAWNMARKERRED);
-					s->cstat = (short)32768;
+					s->cstat = 32768;
 				}
 			}
 
@@ -3192,7 +3192,7 @@ void moveactors_d(void)
 		{
 			if (actor_tog == 1)
 			{
-				s->cstat = (short)32768;
+				s->cstat = 32768;
 				continue;
 			}
 			else if (actor_tog == 2) s->cstat = 257;
@@ -3788,7 +3788,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 	auto spr = actor->s;
 	auto t = actor->temp_data;
 	int l;
-	short goalang, angdif;
+	int goalang, angdif;
 	int daxvel;
 
 	int a = spr->hitag;
