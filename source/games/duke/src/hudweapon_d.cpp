@@ -889,7 +889,7 @@ void displayweapon_d(int snum, double smoothratio)
 		{
 			if (*kb)
 			{
-				char cycloidy[] = { 0,4,12,24,12,4,0 };
+				static const uint8_t cycloidy[] = { 0,4,12,24,12,4,0 };
 
 				i = Sgn(*kb >> 2);
 
@@ -924,7 +924,7 @@ void displayweapon_d(int snum, double smoothratio)
 
 			if (*kb)
 			{
-				char cat_frames[] = { 0,0,1,1,2,2 };
+				static const uint8_t cat_frames[] = { 0,0,1,1,2,2 };
 
 				if (p->GetActor()->s->pal != 1)
 				{

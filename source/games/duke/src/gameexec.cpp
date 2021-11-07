@@ -929,7 +929,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 }
 
 ////////////////////
-void DoWall(char bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, short sPlayer, int lParm2)
+void DoWall(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, int sPlayer, int lParm2)
 {
 	int iWall;
 	int lValue;
@@ -1017,7 +1017,7 @@ void DoWall(char bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, s
 	return;
 }
 
-void DoSector(char bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, short sPlayer, int lParm2)
+void DoSector(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, int sPlayer, int lParm2)
 {
 	int iSector;
 	int lValue;
@@ -3513,7 +3513,7 @@ int ParseState::parse(void)
 		int lCases;
 		int lEnd;
 		int lCheckCase;
-		char bMatched;
+		bool bMatched;
 		int* lTempInsPtr;
 
 		// command format:
@@ -3530,7 +3530,7 @@ int ParseState::parse(void)
 		lpDefault = insptr++;
 		lpCases = insptr;
 		insptr += lCases * 2;
-		bMatched = 0;
+		bMatched = false;
 		lTempInsPtr = insptr;
 		for (lCheckCase = 0; lCheckCase < lCases && !bMatched; lCheckCase++)
 		{
@@ -3542,7 +3542,7 @@ int ParseState::parse(void)
 					if (parse())
 						break;
 				}
-				bMatched = 1;
+				bMatched = true;
 			}
 		}
 		if (!bMatched)
@@ -3649,7 +3649,7 @@ int ParseState::parse(void)
 
 void LoadActor(DDukeActor *actor, int p, int x)
 {
-	char done;
+	int done;
 
 	ParseState s;
 	s.g_p = p;	// Player ID
@@ -3827,7 +3827,7 @@ quit:
 
 void OnEvent(int iEventID, int p, DDukeActor *actor, int x)
 {
-	char done;
+	int done;
 
 	if (iEventID >= MAXGAMEEVENTS)
 	{

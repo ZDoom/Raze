@@ -41,7 +41,7 @@ short globalskillsound;
 binangle myang, omyang;
 fixedhoriz myhoriz, omyhoriz, myhorizoff, omyhorizoff;
 short mycursectnum, myjumpingcounter;
-char myjumpingtoggle, myonground, myhardlanding,myreturntocenter;
+uint8_t myjumpingtoggle, myonground, myhardlanding,myreturntocenter;
 int fakemovefifoplc;
 int myxbak[MOVEFIFOSIZ], myybak[MOVEFIFOSIZ], myzbak[MOVEFIFOSIZ];
 int myhorizbak[MOVEFIFOSIZ];

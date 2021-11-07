@@ -54,7 +54,7 @@ static inline void tloadtile(int tilenum, int palnum = 0)
 
 static void cachespritenum(spritetype *spr)
 {
-	char maxc;
+	int maxc;
 	short j;
 	int pal = spr->pal;
 

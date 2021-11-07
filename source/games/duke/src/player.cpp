@@ -236,7 +236,7 @@ int hitawall(struct player_struct* p, int* hitw)
 
 DDukeActor* aim(DDukeActor* actor, int aang)
 {
-	char gotshrinker, gotfreezer;
+	bool gotshrinker, gotfreezer;
 	int a, k, cans;
 	int aimstats[] = { STAT_PLAYER, STAT_DUMMYPLAYER, STAT_ACTOR, STAT_ZOMBIEACTOR };
 	int dx1, dy1, dx2, dy2, dx3, dy3, smax, sdist;
@@ -278,8 +278,8 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 
 	if (isRR())
 	{
-		gotshrinker = 0;
-		gotfreezer = 0;
+		gotshrinker = false;
+		gotfreezer = false;
 	}
 	else if (isWW2GI())
 	{

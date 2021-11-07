@@ -110,13 +110,13 @@ void displayweapon_r(int snum, double smoothratio)
 	int cw;
 	int i, j;
 	double weapon_sway, weapon_xoffset, gun_pos, looking_arc, look_anghalf, hard_landing, TiltStatus;
-	char o,pal;
+	int pal;
 	int8_t shade;
 
 	auto p = &ps[snum];
 	auto kb = &p->kickback_pic;
 
-	o = 0;
+	int o = 0;
 
 	if (cl_hudinterpolation)
 	{
@@ -789,7 +789,7 @@ void displayweapon_r(int snum, double smoothratio)
 			if (!(gs.displayflags & DUKE3D_NO_WIDESCREEN_PINNING)) pin = RS_ALIGN_R;
 			if ((*kb))
 			{
-				char cat_frames[] = { 0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
+				static const uint8_t cat_frames[] = { 0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
 				rdmyospal(weapon_xoffset + 260 - look_anghalf, looking_arc + 215 - gun_pos, FREEZE + cat_frames[*kb], -32, o |  pin, pal);
 			}
 			else rdmyospal(weapon_xoffset + 260 - look_anghalf, looking_arc + 215 - gun_pos, FREEZE, shade, o |  pin, pal);

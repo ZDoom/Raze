@@ -7,7 +7,7 @@ extern short globalskillsound;
 extern short mycursectnum, myjumpingcounter;
 extern binangle myang, omyang;
 extern fixedhoriz myhoriz, omyhoriz, myhorizoff, omyhorizoff;
-extern char myjumpingtoggle, myonground, myhardlanding,myreturntocenter;
+extern uint8_t myjumpingtoggle, myonground, myhardlanding,myreturntocenter;
 extern int fakemovefifoplc;
 extern int myxbak[MOVEFIFOSIZ], myybak[MOVEFIFOSIZ], myzbak[MOVEFIFOSIZ];
 extern int myhorizbak[MOVEFIFOSIZ];
