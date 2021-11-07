@@ -451,7 +451,7 @@ inline void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int
 }
 
 void updatesectorneighbor(int32_t const x, int32_t const y, int * const sectnum, int32_t initialMaxDistance = INITIALUPDATESECTORDIST, int32_t maxDistance = MAXUPDATESECTORDIST) ATTRIBUTE((nonnull(3)));
-void updatesectorneighborz(int32_t const x, int32_t const y, int32_t const z, int16_t * const sectnum, int32_t initialMaxDistance = INITIALUPDATESECTORDIST, int32_t maxDistance = MAXUPDATESECTORDIST) ATTRIBUTE((nonnull(4)));
+void updatesectorneighborz(int32_t const x, int32_t const y, int32_t const z, int * const sectnum, int32_t initialMaxDistance = INITIALUPDATESECTORDIST, int32_t maxDistance = MAXUPDATESECTORDIST) ATTRIBUTE((nonnull(4)));
 
 int findwallbetweensectors(int sect1, int sect2);
 inline int sectoradjacent(int sect1, int sect2) { return findwallbetweensectors(sect1, sect2) != -1; }
