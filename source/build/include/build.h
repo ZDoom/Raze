@@ -485,6 +485,11 @@ inline void rotatepoint(int px, int py, int ptx, int pty, int daang, int* resx, 
 
 int32_t   lastwall(int16_t point);
 int32_t   nextsectorneighborz(int16_t sectnum, int32_t refz, int16_t topbottom, int16_t direction);
+inline sectortype* nextsectorneighborzptr(int16_t sectnum, int32_t refz, int16_t topbottom, int16_t direction)
+{
+	auto sect = nextsectorneighborz(sectnum, refz, topbottom, direction);
+	return sect == -1? nullptr : &sector[sectnum];
+}
 
 int32_t   getceilzofslopeptr(usectorptr_t sec, int32_t dax, int32_t day) ATTRIBUTE((nonnull(1)));
 int32_t   getflorzofslopeptr(usectorptr_t sec, int32_t dax, int32_t day) ATTRIBUTE((nonnull(1)));
