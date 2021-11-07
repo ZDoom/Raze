@@ -2439,7 +2439,7 @@ void checksectors_r(int snum)
 	int i = -1, oldz;
 	struct player_struct* p;
 	int hitscanwall;
-	short neartagsector, neartagwall;
+	int neartagsector, neartagwall;
 	DDukeActor* neartagsprite;
 	int neartaghitdist;
 

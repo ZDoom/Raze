@@ -2490,14 +2490,16 @@ int ParseState::parse(void)
 		insptr++;
 		if( g_sp->sector()->lotag == 0 )
 		{
-			int16_t neartagsector, neartagwall;
+			int neartagsector, neartagwall;
 			DDukeActor* neartagsprite;
 			int32_t neartaghitdist;
 			neartag(g_sp->x, g_sp->y, g_sp->z - (32 << 8), g_sp->sectnum, g_sp->ang, &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 768L, 1);
-			if( neartagsector >= 0 && isanearoperator(sector[neartagsector].lotag) )
-				if( (sector[neartagsector].lotag&0xff) == ST_23_SWINGING_DOOR || sector[neartagsector].floorz == sector[neartagsector].ceilingz )
-					if( (sector[neartagsector].lotag&16384) == 0 )
-						if ((sector[neartagsector].lotag & 32768) == 0)
+			if (neartagsector >= 0)
+			{
+				auto sectp = &sector[neartagsector];
+				if (isanearoperator(sectp->lotag))
+					if ((sectp->lotag & 0xff) == ST_23_SWINGING_DOOR || sectp->floorz == sectp->ceilingz)
+						if ((sectp->lotag & 16384) == 0 && (sectp->lotag & 32768) == 0)
 						{
 							DukeSectIterator it(neartagsector);
 							DDukeActor* a2;
@@ -2510,6 +2512,7 @@ int ParseState::parse(void)
 							if (a2 == nullptr)
 								operatesectors(neartagsector, g_ac);
 						}
+			}
 		}
 		break;
 	case concmd_ifinspace:
