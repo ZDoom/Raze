@@ -318,7 +318,7 @@ void PlayerHorizon::applyinput(float const horz, ESyncBits* actions, double cons
 		}
 
 		// return to center if conditions met.
-		if ((*actions & SB_CENTERVIEW) && !(*actions & (SB_LOOK_UP|SB_LOOK_DOWN)) && horiz.asq16())
+		if ((*actions & SB_CENTERVIEW) && !(*actions & (SB_LOOK_UP|SB_LOOK_DOWN)))
 		{
 			scaletozero(horiz, CNTRSPEED, scaleAdjust);
 			if (!horiz.asq16()) *actions &= ~SB_CENTERVIEW;
@@ -369,8 +369,8 @@ enum
 void PlayerAngle::applyinput(float const avel, ESyncBits* actions, double const scaleAdjust)
 {
 	// Process angle return to zeros.
-	if (rotscrnang.asbam()) scaletozero(rotscrnang, LOOKROTRETBASE, scaleAdjust);
-	if (look_ang.asbam()) scaletozero(look_ang, +LOOKROTRETBASE * 0.5, scaleAdjust);
+	scaletozero(rotscrnang, LOOKROTRETBASE, scaleAdjust);
+	scaletozero(look_ang, +LOOKROTRETBASE * 0.5, scaleAdjust);
 
 	// Process keyboard input.
 	auto doLookKeys = [&](ESyncBits_ const key, double const direction)
@@ -489,7 +489,7 @@ void PlayerHorizon::calcviewpitch(vec2_t const pos, binangle const ang, bool con
 				horizoff += getscaledhoriz(4.375, scaleAdjust, &temphorizoff, 1.);
 			}
 		}
-		else if (horizoff.asq16())
+		else
 		{
 			// Make horizoff grow towards 0 since horizoff is not modified when you're not on a slope.
 			scaletozero(horizoff, 4.375, scaleAdjust, Sgn(horizoff.asq16()));
