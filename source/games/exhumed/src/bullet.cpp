@@ -707,7 +707,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int n
     pBulletSprite->z += nZOffset;
     pBulletSprite->backuppos();
 
-    int var_18;
+    int var_18 = 0;
 
     nSector = pBulletSprite->sectnum;
 
