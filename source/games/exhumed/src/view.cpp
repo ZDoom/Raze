@@ -366,7 +366,7 @@ void DrawView(double smoothRatio, bool sceneonly)
         if (!testnewrenderer)
         {
             renderSetRollAngle((float)rotscrnang.asbuildf());
-            renderDrawRoomsQ16(nCamerax, nCameray, viewz, nCameraa.asq16(), nCamerapan.asq16(), nSector);
+            renderDrawRoomsQ16(nCamerax, nCameray, viewz, nCameraa.asq16(), nCamerapan.asq16(), nSector, false);
             analyzesprites(pm_tsprite, pm_spritesortcnt, nCamerax, nCameray, viewz, smoothRatio);
             renderDrawMasks();
         }

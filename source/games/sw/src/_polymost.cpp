@@ -57,7 +57,7 @@ DrawOverlapRoom(int tx, int ty, int tz, fixed_t tq16ang, fixed_t tq16horiz, shor
         if (tsectnum < 0)
             return;
 
-        renderDrawRoomsQ16(tx, ty, tz, tq16ang, tq16horiz, tsectnum);
+        renderDrawRoomsQ16(tx, ty, tz, tq16ang, tq16horiz, tsectnum, false);
 
         // reset Z's
         for (i = 0; i < save.zcount; i++)
@@ -82,7 +82,7 @@ DrawOverlapRoom(int tx, int ty, int tz, fixed_t tq16ang, fixed_t tq16horiz, shor
             if (tsectnum < 0)
                 return;
 
-            renderDrawRoomsQ16(tx, ty, tz, tq16ang, tq16horiz, tsectnum);
+            renderDrawRoomsQ16(tx, ty, tz, tq16ang, tq16horiz, tsectnum, false);
 
             // reset Z's
             for (i = 0; i < save.zcount; i++)
@@ -127,7 +127,7 @@ void FAF_DrawRooms(int x, int y, int z, fixed_t q16ang, fixed_t q16horiz, short 
         }
     }
 
-    renderDrawRoomsQ16(x,y,z,q16ang,q16horiz,sectnum);
+    renderDrawRoomsQ16(x,y,z,q16ang,q16horiz,sectnum, false);
 
     it.Reset(STAT_CEILING_FLOOR_PIC_OVERRIDE);
     while (auto actor = it.Next())
@@ -296,7 +296,7 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fixed_t tpq16ang, fixed
 
                         if (mirror[cnt].campic != -1)
 							tileDelete(mirror[cnt].campic);
-                        renderDrawRoomsQ16(dx, dy, dz, tpq16ang, tpq16horiz, sp->sectnum + MAXSECTORS);
+                        renderDrawRoomsQ16(dx, dy, dz, tpq16ang, tpq16horiz, sp->sectnum, true);
                         analyzesprites(pm_tsprite, pm_spritesortcnt, dx, dy, dz, false);
                         renderDrawMasks();
                     }
@@ -313,7 +313,7 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fixed_t tpq16ang, fixed
                     renderPrepareMirror(tx, ty, tz, tpq16ang, tpq16horiz,
                                   mirror[cnt].mirrorwall, /*mirror[cnt].mirrorsector,*/ &tposx, &tposy, &tang);
 
-                    renderDrawRoomsQ16(tposx, tposy, tz, (tang), tpq16horiz, mirror[cnt].mirrorsector + MAXSECTORS);
+                    renderDrawRoomsQ16(tposx, tposy, tz, (tang), tpq16horiz, mirror[cnt].mirrorsector, true);
 
                     analyzesprites(pm_tsprite, pm_spritesortcnt, tposx, tposy, tz, tang >> 16);
                     renderDrawMasks();

@@ -474,7 +474,7 @@ void drawroomstotile(int daposx, int daposy, int daposz,
         {
             if (!testnewrenderer)
             {
-                renderDrawRoomsQ16(daposx, daposy, daposz, ang.asq16(), horiz.asq16(), dacursectnum);
+                renderDrawRoomsQ16(daposx, daposy, daposz, ang.asq16(), horiz.asq16(), dacursectnum, false);
                 analyzesprites(pm_tsprite, pm_spritesortcnt, daposx, daposy, daposz, ang.asbuild());
                 renderDrawMasks();
             }

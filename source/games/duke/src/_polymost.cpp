@@ -93,7 +93,7 @@ void SE40_Draw(int tag, spritetype *spr, int x, int y, int z, binangle a, fixedh
 	offx = x - floor1->x;
 	offy = y - floor1->y;
 
-	renderDrawRoomsQ16(floor2->x + offx, floor2->y + offy, z, a.asq16(), h.asq16(), floor2->sectnum);
+	renderDrawRoomsQ16(floor2->x + offx, floor2->y + offy, z, a.asq16(), h.asq16(), floor2->sectnum, false);
 	fi.animatesprites(pm_tsprite, pm_spritesortcnt, offx + floor2->x, offy + floor2->y, a.asbuild(), smoothratio);
 	renderDrawMasks();
 
@@ -183,7 +183,7 @@ void renderMirror(int cposx, int cposy, int cposz, binangle cang, fixedhoriz cho
 			int j = g_visibility;
 			g_visibility = (j >> 1) + (j >> 2);
 
-			renderDrawRoomsQ16(tposx, tposy, cposz, tang, choriz.asq16(), mirrorsector[i] + MAXSECTORS);
+			renderDrawRoomsQ16(tposx, tposy, cposz, tang, choriz.asq16(), mirrorsector[i], true);
 
 			display_mirror = 1;
 			fi.animatesprites(pm_tsprite, pm_spritesortcnt, tposx, tposy, tang, smoothratio);
@@ -205,7 +205,7 @@ void renderMirror(int cposx, int cposy, int cposz, binangle cang, fixedhoriz cho
 static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixedhoriz choriz, int sect, int smoothratio)
 {
 	int gs, tgsect, geosect, geoid = 0;
-	renderDrawRoomsQ16(cposx, cposy, cposz, cang.asq16(), choriz.asq16(), sect);
+	renderDrawRoomsQ16(cposx, cposy, cposz, cang.asq16(), choriz.asq16(), sect, false);
 	fi.animatesprites(pm_tsprite, pm_spritesortcnt, cposx, cposy, cang.asbuild(), smoothratio);
 	renderDrawMasks();
 	for (gs = 0; gs < geocnt; gs++)
@@ -226,7 +226,7 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 	}
 	cposx -= geox[geoid];
 	cposy -= geoy[geoid];
-	renderDrawRoomsQ16(cposx, cposy, cposz, cang.asq16(), choriz.asq16(), sect);
+	renderDrawRoomsQ16(cposx, cposy, cposz, cang.asq16(), choriz.asq16(), sect, false);
 	cposx += geox[geoid];
 	cposy += geoy[geoid];
 	for (gs = 0; gs < geocnt; gs++)
@@ -258,7 +258,7 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 	}
 	cposx -= geox2[geoid];
 	cposy -= geoy2[geoid];
-	renderDrawRoomsQ16(cposx, cposy, cposz, cang.asq16(), choriz.asq16(), sect);
+	renderDrawRoomsQ16(cposx, cposy, cposz, cang.asq16(), choriz.asq16(), sect, false);
 	cposx += geox2[geoid];
 	cposy += geoy2[geoid];
 	for (gs = 0; gs < geocnt; gs++)
