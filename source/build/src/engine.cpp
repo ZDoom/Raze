@@ -702,33 +702,8 @@ void initspritelists(void)
 //
 // See http://fabiensanglard.net/duke3d/build_engine_internals.php,
 // "Inside details" for the idea behind the algorithm.
-int32_t inside_ps(int32_t x, int32_t y, int16_t sectnum)
-{
-    if (validSectorIndex(sectnum))
-    {
-        int32_t cnt = 0;
-        auto wal       = (uwallptr_t)&wall[sector[sectnum].wallptr];
-        int  wallsleft = sector[sectnum].wallnum;
 
-        do
-        {
-            vec2_t v1 = { wal->x - x, wal->y - y };
-            auto const &wal2 = *(uwallptr_t)&wall[wal->point2];
-            vec2_t v2 = { wal2.x - x, wal2.y - y };
-
-            if ((v1.y^v2.y) < 0)
-                cnt ^= (((v1.x^v2.x) < 0) ? (v1.x*v2.y<v2.x*v1.y)^(v1.y<v2.y) : (v1.x >= 0));
-
-            wal++;
-        }
-        while (--wallsleft);
-
-        return cnt;
-    }
-
-    return -1;
-}
-int32_t inside_old(int32_t x, int32_t y, int16_t sectnum)
+int32_t inside(int32_t x, int32_t y, int16_t sectnum)
 {
 	if (validSectorIndex(sectnum))
     {
@@ -763,71 +738,6 @@ int32_t inside_old(int32_t x, int32_t y, int16_t sectnum)
     return -1;
 }
 
-int32_t inside(int32_t x, int32_t y, int sectnum)
-{
-    switch (enginecompatibility_mode)
-    {
-    case ENGINECOMPATIBILITY_NONE:
-        break;
-    case ENGINECOMPATIBILITY_19950829:
-        return inside_ps(x, y, sectnum);
-    default:
-        return inside_old(x, y, sectnum);
-    }
-	if (validSectorIndex(sectnum))
-    {
-        uint32_t cnt1 = 0, cnt2 = 0;
-
-        auto wal       = (uwallptr_t)&wall[sector[sectnum].wallptr];
-        int  wallsleft = sector[sectnum].wallnum;
-
-        do
-        {
-            // Get the x and y components of the [tested point]-->[wall
-            // point{1,2}] vectors.
-            vec2_t v1 = { wal->x - x, wal->y - y };
-            auto const &wal2 = *(uwallptr_t)&wall[wal->point2];
-            vec2_t v2 = { wal2.x - x, wal2.y - y };
-
-            // First, test if the point is EXACTLY_ON_WALL_POINT.
-            if ((v1.x|v1.y) == 0 || (v2.x|v2.y)==0)
-                return 1;
-
-            // If their signs differ[*], ...
-            //
-            // [*] where '-' corresponds to <0 and '+' corresponds to >=0.
-            // Equivalently, the branch is taken iff
-            //   y1 != y2 AND y_m <= y < y_M,
-            // where y_m := min(y1, y2) and y_M := max(y1, y2).
-            if ((v1.y^v2.y) < 0)
-                cnt1 ^= (((v1.x^v2.x) >= 0) ? v1.x : (v1.x*v2.y-v2.x*v1.y)^v2.y);
-
-            v1.y--;
-            v2.y--;
-
-            // Now, do the same comparisons, but with the interval half-open on
-            // the other side! That is, take the branch iff
-            //   y1 != y2 AND y_m < y <= y_M,
-            // For a rectangular sector, without EXACTLY_ON_WALL_POINT, this
-            // would still leave the lower left and upper right points
-            // "outside" the sector.
-            if ((v1.y^v2.y) < 0)
-            {
-                v1.x--;
-                v2.x--;
-
-                cnt2 ^= (((v1.x^v2.x) >= 0) ? v1.x : (v1.x*v2.y-v2.x*v1.y)^v2.y);
-            }
-
-            wal++;
-        }
-        while (--wallsleft);
-
-        return (cnt1|cnt2)>>31;
-    }
-
-    return -1;
-}
 
 int32_t getangle(int32_t xvect, int32_t yvect)
 {
