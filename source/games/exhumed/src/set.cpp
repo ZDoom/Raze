@@ -53,7 +53,7 @@ void BuildSet(DExhumedActor* pActor, int x, int y, int z, short nSector, short n
 		pSprite = &pActor->s();
         x = pSprite->x;
         y = pSprite->y;
-        z = sector[pSprite->sectnum].floorz;
+        z = pSprite->sector()->floorz;
         nAngle = pSprite->ang;
     }
 
@@ -68,7 +68,7 @@ void BuildSet(DExhumedActor* pActor, int x, int y, int z, short nSector, short n
     pSprite->zvel = 0;
     pSprite->xrepeat = 87;
     pSprite->yrepeat = 96;
-    pSprite->pal = sector[pSprite->sectnum].ceilingpal;
+    pSprite->pal = pSprite->sector()->ceilingpal;
     pSprite->xoffset = 0;
     pSprite->yoffset = 0;
     pSprite->ang = nAngle;

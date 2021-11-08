@@ -370,7 +370,7 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
     }
 
     // loc_151E7:
-    while (ebp > sector[pSprite->sectnum].floorz && SectBelow[pSprite->sectnum] >= 0)
+    while (ebp > pSprite->sector()->floorz && SectBelow[pSprite->sectnum] >= 0)
     {
         edi = SectBelow[pSprite->sectnum];
 
@@ -394,7 +394,7 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
     }
     else
     {
-        while ((ebp < sector[pSprite->sectnum].ceilingz) && (SectAbove[pSprite->sectnum] >= 0))
+        while ((ebp < pSprite->sector()->ceilingz) && (SectAbove[pSprite->sectnum] >= 0))
         {
             edi = SectAbove[pSprite->sectnum];
 
@@ -603,7 +603,7 @@ Collision movesprite(DExhumedActor* pActor, int dx, int dy, int dz, int ceildist
 
             if (pSprite->pal < 5 && !pSprite->hitag)
             {
-                pSprite->pal = sector[pSprite->sectnum].ceilingpal;
+                pSprite->pal = pSprite->sector()->ceilingpal;
             }
         }
     }

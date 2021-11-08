@@ -67,7 +67,7 @@ void BuildMummy(DExhumedActor* pActor, int x, int y, int z, int nSector, int nAn
     pSprite->zvel = 0;
     pSprite->xrepeat = 42;
     pSprite->yrepeat = 42;
-    pSprite->pal = sector[pSprite->sectnum].ceilingpal;
+    pSprite->pal = pSprite->sector()->ceilingpal;
     pSprite->xoffset = 0;
     pSprite->yoffset = 0;
     pSprite->ang = nAngle;
@@ -458,7 +458,7 @@ void AIMummy::Damage(RunListEvent* ev)
         pSprite->xvel = 0;
         pSprite->yvel = 0;
         pSprite->zvel = 0;
-        pSprite->z = sector[pSprite->sectnum].floorz;
+        pSprite->z = pSprite->sector()->floorz;
     }
     else
     {

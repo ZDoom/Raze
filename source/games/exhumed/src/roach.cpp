@@ -61,7 +61,7 @@ void BuildRoach(int nType, DExhumedActor* pActor, int x, int y, int z, short nSe
         pSprite = &pActor->s();
         x = pSprite->x;
         y = pSprite->y;
-        z = sector[pSprite->sectnum].floorz;
+        z = pSprite->sector()->floorz;
         angle = pSprite->ang;
     }
 
@@ -73,7 +73,7 @@ void BuildRoach(int nType, DExhumedActor* pActor, int x, int y, int z, short nSe
     pSprite->xoffset = 0;
     pSprite->yoffset = 0;
     pSprite->picnum = 1;
-    pSprite->pal = sector[pSprite->sectnum].ceilingpal;
+    pSprite->pal = pSprite->sector()->ceilingpal;
     pSprite->clipdist = 60;
     pSprite->ang = angle;
     pSprite->xrepeat = 40;

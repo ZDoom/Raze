@@ -97,7 +97,7 @@ void BuildRat(DExhumedActor* pActor, int x, int y, int z, short nSector, int nAn
     pSprite->xoffset = 0;
     pSprite->yoffset = 0;
     pSprite->picnum = 1;
-    pSprite->pal = sector[pSprite->sectnum].ceilingpal;
+    pSprite->pal = pSprite->sector()->ceilingpal;
     pSprite->clipdist = 30;
     pSprite->ang = nAngle;
     pSprite->xrepeat = 50;

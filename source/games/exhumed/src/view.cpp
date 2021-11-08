@@ -291,7 +291,7 @@ void DrawView(double smoothRatio, bool sceneonly)
     else
     {
         viewz = playerZ + nQuake[nLocalPlayer];
-        int floorZ = sector[pPlayerSprite->sectnum].floorz;
+        int floorZ = pPlayerSprite->sector()->floorz;
 
         if (viewz > floorZ)
             viewz = floorZ;

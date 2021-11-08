@@ -51,7 +51,7 @@ DExhumedActor* BuildSpider(DExhumedActor* spp, int x, int y, int z, short nSecto
 
         x = sp->x;
         y = sp->y;
-        z = sector[sp->sectnum].floorz;
+        z = sp->sector()->floorz;
         nAngle = sp->ang;
     }
 
@@ -66,7 +66,7 @@ DExhumedActor* BuildSpider(DExhumedActor* spp, int x, int y, int z, short nSecto
     sp->zvel = 0;
     sp->xrepeat = 40;
     sp->yrepeat = 40;
-    sp->pal = sector[sp->sectnum].ceilingpal;
+    sp->pal = sp->sector()->ceilingpal;
     sp->xoffset = 0;
     sp->yoffset = 0;
     sp->ang = nAngle;
@@ -106,7 +106,7 @@ void AISpider::Tick(RunListEvent* ev)
     {
         if (sp->cstat & 8)
         {
-            sp->z = sector[sp->sectnum].ceilingz + GetActorHeight(spp);
+            sp->z = sp->sector()->ceilingz + GetActorHeight(spp);
         }
         else
         {
@@ -291,10 +291,10 @@ void AISpider::Tick(RunListEvent* ev)
     if (nMov.exbits & kHitAux1
         && sp->zvel < 0
         && hiHit.type != kHitSprite
-        && !((sector[sp->sectnum].ceilingstat) & 1))
+        && !((sp->sector()->ceilingstat) & 1))
     {
         sp->cstat |= 8;
-        sp->z = GetActorHeight(spp) + sector[sp->sectnum].ceilingz;
+        sp->z = GetActorHeight(spp) + sp->sector()->ceilingz;
         sp->zvel = 0;
 
         spp->nAction = 1;

@@ -440,7 +440,7 @@ void StartDeathSeq(int nPlayer, int nVal)
 	auto pSprite = &pActor->s();
     PlayerList[nPlayer].nHealth = 0;
 
-    short nLotag = sector[pSprite->sectnum].lotag;
+    short nLotag = pSprite->sector()->lotag;
 
     if (nLotag > 0) {
         runlist_SignalRun(nLotag - 1, nPlayer, &ExhumedAI::EnterSector);
@@ -902,7 +902,7 @@ void AIPlayer::Tick(RunListEvent* ev)
         vec3_t pos = { pPlayerSprite->x, pPlayerSprite->y, pPlayerSprite->z };
         setActorPos(pPlayerActor, &pos);
 
-        pPlayerSprite->z = sector[pPlayerSprite->sectnum].floorz;
+        pPlayerSprite->z = pPlayerSprite->sector()->floorz;
     }
     else
     {
@@ -1298,7 +1298,7 @@ sectdone:
                 ChangeActorSect(pFloorActor, pPlayerSprite->sectnum);
             }
 
-            pFloorSprite->z = sector[pPlayerSprite->sectnum].floorz;
+            pFloorSprite->z = pPlayerSprite->sector()->floorz;
         }
 
         int var_30 = 0;
@@ -2240,9 +2240,9 @@ sectdone:
         // CORRECT ? // loc_1BAF9:
         if (bTouchFloor)
         {
-            if (sector[pPlayerSprite->sectnum].lotag > 0)
+            if (pPlayerSprite->sector()->lotag > 0)
             {
-                runlist_SignalRun(sector[pPlayerSprite->sectnum].lotag - 1, nPlayer, &ExhumedAI::TouchFloor);
+                runlist_SignalRun(pPlayerSprite->sector()->lotag - 1, nPlayer, &ExhumedAI::TouchFloor);
             }
         }
 
@@ -2253,9 +2253,9 @@ sectdone:
                 runlist_SignalRun(sector[nSector].lotag - 1, nPlayer, &ExhumedAI::EnterSector);
             }
 
-            if (sector[pPlayerSprite->sectnum].lotag > 0)
+            if (pPlayerSprite->sector()->lotag > 0)
             {
-                runlist_SignalRun(sector[pPlayerSprite->sectnum].lotag - 1, nPlayer, &ExhumedAI::LeaveSector);
+                runlist_SignalRun(pPlayerSprite->sector()->lotag - 1, nPlayer, &ExhumedAI::LeaveSector);
             }
         }
 
@@ -2289,7 +2289,7 @@ sectdone:
             // loc_1BC57:
 
             // CHECKME - are we finished with 'nSector' variable at this point? if so, maybe set it to pPlayerSprite->sectnum so we can make this code a bit neater. Don't assume pPlayerSprite->sectnum == nSector here!!
-            if (nStandHeight > (sector[pPlayerSprite->sectnum].floorz - sector[pPlayerSprite->sectnum].ceilingz)) {
+            if (nStandHeight > (pPlayerSprite->sector()->floorz - pPlayerSprite->sector()->ceilingz)) {
                 var_48 = 1;
             }
 
@@ -2487,7 +2487,7 @@ sectdone:
                     {
                         pPlayerSprite->picnum = seq_GetSeqPicnum(kSeqJoe, 120, 0);
                         pPlayerSprite->cstat = 0;
-                        pPlayerSprite->z = sector[pPlayerSprite->sectnum].floorz;
+                        pPlayerSprite->z = pPlayerSprite->sector()->floorz;
                     }
 
                     // will invalidate nPlayerSprite
@@ -2535,7 +2535,7 @@ sectdone:
         case 16:
             PlayerList[nPlayer].field_2 = SeqSize[var_AC] - 1;
 
-            if (pPlayerSprite->z < sector[pPlayerSprite->sectnum].floorz) {
+            if (pPlayerSprite->z < pPlayerSprite->sector()->floorz) {
                 pPlayerSprite->z += 256;
             }
 

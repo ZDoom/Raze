@@ -1123,7 +1123,7 @@ void BuildQueen(DExhumedActor* pActor, int x, int y, int z, int nSector, int nAn
         pSprite = &pActor->s();
         x = pSprite->x;
         y = pSprite->y;
-        z = sector[pSprite->sectnum].floorz;
+        z = pSprite->sector()->floorz;
         nAngle = pSprite->ang;
     }
 

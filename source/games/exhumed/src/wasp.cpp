@@ -61,7 +61,7 @@ DExhumedActor* BuildWasp(DExhumedActor* pActor, int x, int y, int z, short nSect
 
     pSprite->shade = -12;
     pSprite->cstat = 0x101;
-    pSprite->pal = sector[pSprite->sectnum].ceilingpal;
+    pSprite->pal = pSprite->sector()->ceilingpal;
     pSprite->clipdist = 70;
 
     if (bEggWasp)

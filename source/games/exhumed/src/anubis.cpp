@@ -58,7 +58,7 @@ void BuildAnubis(DExhumedActor* ap, int x, int y, int z, int nSector, int nAngle
 
         x = sp->x;
         y = sp->y;
-        z = sector[sp->sectnum].floorz;
+        z = sp->sector()->floorz;
         nAngle = sp->ang;
     }
 
@@ -70,7 +70,7 @@ void BuildAnubis(DExhumedActor* ap, int x, int y, int z, int nSector, int nAngle
     sp->shade = -12;
     sp->yoffset = 0;
     sp->picnum = 1;
-    sp->pal = sector[sp->sectnum].ceilingpal;
+    sp->pal = sp->sector()->ceilingpal;
     sp->clipdist = 60;
     sp->ang = nAngle;
     sp->xrepeat = 40;
@@ -430,7 +430,7 @@ void AIAnubis::Damage(RunListEvent* ev)
             sp->xvel = 0;
             sp->yvel = 0;
             sp->zvel = 0;
-            sp->z = sector[sp->sectnum].floorz;
+            sp->z = sp->sector()->floorz;
             sp->cstat &= 0xFEFE;
 
             ap->nHealth = 0;

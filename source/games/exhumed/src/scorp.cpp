@@ -54,7 +54,7 @@ void BuildScorp(DExhumedActor* pActor, int x, int y, int z, short nSector, short
 		pSprite = &pActor->s();
         x = pSprite->x;
         y = pSprite->y;
-        z = sector[pSprite->sectnum].floorz;
+        z = pSprite->sector()->floorz;
         nAngle = pSprite->ang;
     }
 
@@ -67,7 +67,7 @@ void BuildScorp(DExhumedActor* pActor, int x, int y, int z, short nSector, short
     pSprite->xrepeat = 80;
     pSprite->yrepeat = 80;
     pSprite->picnum = 1;
-    pSprite->pal = sector[pSprite->sectnum].ceilingpal;
+    pSprite->pal = pSprite->sector()->ceilingpal;
     pSprite->xoffset = 0;
     pSprite->yoffset = 0;
     pSprite->ang = nAngle;
