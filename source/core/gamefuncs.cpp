@@ -148,48 +148,6 @@ bool calcChaseCamPos(int* px, int* py, int* pz, spritetype* pspr, int *psectnum,
 	return true;
 }
 
-
-//==========================================================================
-//
-// checks if a point is within a given sector
-//
-// Completely redone based on outside information.
-// The math in here is based on this article: https://wrf.ecse.rpi.edu/Research/Short_Notes/pnpoly.html
-// Copyright (c) 1970-2003, Wm. Randolph Franklin , licensed under BSD 3-clause
-// but was transformed to avoid the division it contained and to properly pick the vertices of Build walls.
-//
-//==========================================================================
-
-int inside(int x, int y, int sectnum)
-{
-	if (validSectorIndex(sectnum))
-	{
-		bool c = false;
-		for (auto& wal : wallsofsector(sectnum))
-		{
-			auto& pt1 = wal.pos;
-			auto& pt2 = wal.point2Wall()->pos;
-
-			if ((pt1.y > y) != (pt2.y > y)) // skip if both are on the same side.
-			{
-				// use 64 bit values to avoid overflows in the multiplications below.
-				int64_t deltatx = int64_t(x) - pt1.x;
-				int64_t deltaty = int64_t(y) - pt1.y;
-				int64_t deltax = int64_t(pt2.x) - pt1.x;
-				int64_t deltay = int64_t(pt2.y) - pt1.y;
-				// reformatted to avoid the division - for negative deltay the sign needs to be flipped to give the correct result.
-				//if (x < deltax * (deltaty) / deltay + pt1.x) // this was the original code.
-				if (((deltay * deltatx - deltax * deltaty) ^ deltay) < 0)
-				{
-					c = !c;
-				}
-			}
-		}
-		return int(c);
-	}
-	return -1;
-}
-
 //==========================================================================
 //
 // note that this returns values in renderer coordinate space with inverted sign!
