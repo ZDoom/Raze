@@ -39,6 +39,8 @@ BEGIN_PS_NS
 
 enum { kTimerTicks = 120 };
 
+const int ITEM_MAGIC = 0x4711;
+
 enum basepal_t {
     BASEPAL = 0,
     ANIMPAL,

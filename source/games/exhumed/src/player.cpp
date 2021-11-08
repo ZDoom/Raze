@@ -1349,8 +1349,11 @@ sectdone:
                     // CHECKME - is order of evaluation correct?
                     if (!mplevel || (var_70 >= 25 && (var_70 <= 25 || var_70 == 50)))
                     {
-                        DestroyItemAnim(pActorB);
-                        DeleteActor(pActorB);
+                        // If this is an anim we need to properly destroy it so we need to do some proper detection and not wild guesses.
+                        if (pActorB->nRun == pActorB->nDamage && pActorB->nRun != 0 && pActorB->nPhase == ITEM_MAGIC)
+                            DestroyAnim(pActorB);
+                        else
+                            DeleteActor(pActorB);
                     }
                     else
                     {

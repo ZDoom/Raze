@@ -146,7 +146,7 @@ void BuildItemAnim(DExhumedActor* pActor)
 
 void DestroyItemAnim(DExhumedActor* actor)
 {
-    if (actor && actor->s().owner == 0) 
+    if (actor && actor->s().owner >= 0) 
         DestroyAnim(actor);
 }
 
