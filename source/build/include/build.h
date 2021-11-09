@@ -478,7 +478,13 @@ int32_t   nextsectorneighborz(int16_t sectnum, int32_t refz, int16_t topbottom, 
 inline sectortype* nextsectorneighborzptr(int16_t sectnum, int32_t refz, int16_t topbottom, int16_t direction)
 {
 	auto sect = nextsectorneighborz(sectnum, refz, topbottom, direction);
-	return sect == -1? nullptr : &sector[sectnum];
+	return sect == -1? nullptr : &sector[sect];
+}
+
+inline sectortype* nextsectorneighborzptr(sectortype* sectp, int32_t refz, int16_t topbottom, int16_t direction)
+{
+	auto sect = nextsectorneighborz(int(sectp - sector), refz, topbottom, direction);
+	return sect == -1? nullptr : &sector[sect];
 }
 
 int32_t   getceilzofslopeptr(usectorptr_t sec, int32_t dax, int32_t day) ATTRIBUTE((nonnull(1)));
