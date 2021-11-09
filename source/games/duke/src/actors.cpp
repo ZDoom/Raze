@@ -2255,7 +2255,7 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 	if (callsetsprite) setsprite(actor, s->pos);
 
 	// this was after the slope calls, but we should avoid calling that for invalid sectors.
-	if (!validSectorIndex(s->sectnum));
+	if (!validSectorIndex(s->sectnum))
 	{
 		deletesprite(actor);
 		return false;

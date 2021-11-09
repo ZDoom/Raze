@@ -6402,7 +6402,7 @@ DBloodActor* actSpawnSprite(DBloodActor* source, int nStat)
 		BloodStatIterator it(kStatPurge);
 		actor = it.Next();
 		assert(actor);
-		assert(pSource->sectnum >= 0 && pSource->sectnum < kMaxSectors);
+		assert(validSectorIndex(pSource->sectnum));
 		ChangeActorSect(actor, pSource->sectnum);
 		actPostSprite(actor, nStat);
 	}

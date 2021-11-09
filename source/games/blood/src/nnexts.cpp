@@ -1692,17 +1692,11 @@ void debrisMove(int listIndex)
     spritetype* pSprite = &actor->s();   
     int nSector = pSprite->sectnum;
 
-    if (!actor->hasX())
+    if (!actor->hasX() || !validSectorIndex(pSprite->sectnum))
     {
         gPhysSpritesList[listIndex] = nullptr;
         return;
     }
-    else if (validSectorIndex(pSprite->sectnum))
-    {
-        gPhysSpritesList[listIndex] = nullptr;
-        return;
-    }
-
 
     int top, bottom, i;
     GetActorExtents(actor, &top, &bottom);

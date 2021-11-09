@@ -149,7 +149,7 @@ void AIAnim::Tick(RunListEvent* ev)
 
             if (pSpriteB->sectnum != pSprite->sectnum)
             {
-                if (!validSectorIndex(pSpriteB))
+                if (!validSectorIndex(pSpriteB->sectnum))
                 {
                     DestroyAnim(pActor);
                     return;
