@@ -1,4 +1,4 @@
-//                             original index for reference. Raze never uses literal indices anywhere and should not care about the actual numbers
+//      original index for reference. Raze never uses literal indices anywhere and should not care about the actual numbers
 cmd(definelevelname)		// 0
 cmd(actor)					// 1
 cmd(addammo)				// 2

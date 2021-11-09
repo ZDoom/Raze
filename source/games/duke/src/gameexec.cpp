@@ -45,23 +45,23 @@ BEGIN_DUKE_NS
 
 // Player Actions - used by ifp instruction.
 enum playeraction_t {
-	pstanding                   = 0x00000001,
-	pwalking                    = 0x00000002,
-	prunning                    = 0x00000004,
-	pducking                    = 0x00000008,
-	pfalling                    = 0x00000010,
-	pjumping                    = 0x00000020,
-	phigher                     = 0x00000040,
-	pwalkingback                = 0x00000080,
-	prunningback                = 0x00000100,
-	pkicking                    = 0x00000200,
-	pshrunk                     = 0x00000400,
-	pjetpack                    = 0x00000800,
-	ponsteroids                 = 0x00001000,
-	ponground                   = 0x00002000,
-	palive                      = 0x00004000,
-	pdead                       = 0x00008000,
-	pfacing                     = 0x00010000
+	pstanding    = 0x00000001,
+	pwalking     = 0x00000002,
+	prunning     = 0x00000004,
+	pducking     = 0x00000008,
+	pfalling     = 0x00000010,
+	pjumping     = 0x00000020,
+	phigher      = 0x00000040,
+	pwalkingback = 0x00000080,
+	prunningback = 0x00000100,
+	pkicking     = 0x00000200,
+	pshrunk      = 0x00000400,
+	pjetpack     = 0x00000800,
+	ponsteroids  = 0x00001000,
+	ponground    = 0x00002000,
+	palive       = 0x00004000,
+	pdead        = 0x00008000,
+	pfacing      = 0x00010000
 };
 
 

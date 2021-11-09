@@ -188,7 +188,7 @@ void fireweapon_ww(int snum)
 			case PISTOL_WEAPON:
 				if (p->ammo_amount[p->curr_weapon] > 0)
 				{
-					//                    p->ammo_amount[p->curr_weapon]--;
+					//p->ammo_amount[p->curr_weapon]--;
 					p->kickback_pic = 1;
 					if (aplWeaponInitialSound[p->curr_weapon][snum])
 					{

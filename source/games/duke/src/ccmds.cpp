@@ -111,15 +111,15 @@ void GameInterface::WarpToCoords(int x, int y, int z, int ang, int horz)
 	p->oposy = p->pos.y = y;
 	p->oposz = p->pos.z = z;
 
-    if (ang != INT_MIN)
-    {
-        p->angle.oang = p->angle.ang = buildang(ang);
-    }
+	if (ang != INT_MIN)
+	{
+		p->angle.oang = p->angle.ang = buildang(ang);
+	}
 
-    if (horz != INT_MIN)
-    {
-        p->horizon.ohoriz = p->horizon.horiz = buildhoriz(horz);
-    }
+	if (horz != INT_MIN)
+	{
+		p->horizon.ohoriz = p->horizon.horiz = buildhoriz(horz);
+	}
 }
 
 void GameInterface::ToggleThirdPerson()

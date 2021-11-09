@@ -769,7 +769,7 @@ void displayweapon_d(int snum, double smoothratio)
 					if (*kb <= aplWeaponFireDelay[HANDBOMB_WEAPON][snum])
 					{
 						// it holds here
-						gun_pos -= 5 * kickback_pic;        //D
+						gun_pos -= 5 * kickback_pic; //D
 					}
 					else if (*kb <
 						(

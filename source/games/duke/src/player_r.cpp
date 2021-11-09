@@ -524,7 +524,7 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 	{
 		int x;
 		int j = findplayer(actor, &x);
-		//                sa = getangle(ps[j].oposx-sx,ps[j].oposy-sy);
+		// sa = getangle(ps[j].oposx-sx,ps[j].oposy-sy);
 		if (s->picnum == HULK)
 			sa -= (krand() & 31);
 		else if (s->picnum == VIXEN)
@@ -4002,7 +4002,7 @@ HORIZONLY:
 			if (p->last_weapon >= 0)
 			{
 				p->oweapon_pos = p->weapon_pos = 10;
-				//                if(p->curr_weapon == KNEE_WEAPON) p->kickback_pic = 1;
+				// if(p->curr_weapon == KNEE_WEAPON) p->kickback_pic = 1;
 				p->last_weapon = -1;
 			}
 			else if (p->holster_weapon == 0)

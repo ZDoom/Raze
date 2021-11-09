@@ -134,8 +134,9 @@ void animatesprites_r(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 	}
 
 
-	for (j = 0; j < spritesortcnt; j++)  //Between drawrooms() and drawmasks()
-	{                             //is the perfect time to animate sprites
+	//Between drawrooms() and drawmasks() is the perfect time to animate sprites
+	for (j = 0; j < spritesortcnt; j++)
+	{
 		t = &tsprite[j];
 		i = t->owner;
 		h = &hittype[i];

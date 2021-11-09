@@ -9,7 +9,7 @@ void SE40_Draw(int tag, spritetype *spr, int x, int y, int z, binangle a, fixedh
 
 	if (spr->ang != 512) return;
 
-	i = FOF;    //Effect TILE
+	i = FOF; //Effect TILE
 	tileDelete(FOF);
 	if (!testgotpic(FOF, true)) return;
 
@@ -139,10 +139,10 @@ void se40code(int x, int y, int z, binangle a, fixedhoriz h, int smoothratio)
 	{
 		switch (act->s->lotag - tag + 40)
 		{
-			//            case 40:
-			//            case 41:
-			//                SE40_Draw(i,x,y,a,smoothratio);
-			//                break;
+			//case 40:
+			//case 41:
+			//	SE40_Draw(i,x,y,a,smoothratio);
+			//	break;
 		case 42:
 		case 43:
 		case 44:

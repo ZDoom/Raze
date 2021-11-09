@@ -2009,7 +2009,7 @@ void movetransports_d(void)
 			auto spr2 = act2->s;
 			switch (spr2->statnum)
 			{
-			case STAT_PLAYER:    // Player
+			case STAT_PLAYER:
 				
 				if (act2->GetOwner())
 				{
@@ -2085,7 +2085,7 @@ void movetransports_d(void)
 					int k = 0;
 					
 					if (onfloorz && sectlotag == ST_1_ABOVE_WATER && ps[p].on_ground && ps[p].pos.z > (sectp->floorz - (16 << 8)) && (PlayerInput(p, SB_CROUCH) || ps[p].poszv > 2048))
-						//                        if( onfloorz && sectlotag == 1 && ps[p].pos.z > (sectp->floorz-(6<<8)) )
+						// if( onfloorz && sectlotag == 1 && ps[p].pos.z > (sectp->floorz-(6<<8)) )
 					{
 						k = 1;
 						if (screenpeek == p)
@@ -2105,7 +2105,7 @@ void movetransports_d(void)
 					if (onfloorz && sectlotag == ST_2_UNDERWATER && ps[p].pos.z < (sectp->ceilingz + (6 << 8)))
 					{
 						k = 1;
-						//                            if( spr2->extra <= 0) break;
+						//     if( spr2->extra <= 0) break;
 						if (screenpeek == p)
 						{
 							FX_StopAllSounds();

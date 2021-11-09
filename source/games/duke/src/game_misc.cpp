@@ -421,7 +421,7 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
 			if ((spr->cstat & 257) != 0) switch (spr->cstat & 48)
 			{
 			case 0:
-				//                    break;
+				//break;
 
 				ox = sprx - cposx;
 				oy = spry - cposy;

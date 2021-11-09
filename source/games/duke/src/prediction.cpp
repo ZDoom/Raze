@@ -398,8 +398,8 @@ void fakedomovethings(void)
 				 myxvel = 0;
 				 myyvel = 0;
 		}
-		else if ( syn->avel )          //p->ang += syncangvel * constant
-		{                         //ENGINE calculates angvel for you
+		else if ( syn->avel )//p->ang += syncangvel * constant
+		{                    //ENGINE calculates angvel for you
 			int tempang;
 
 			tempang = syn->avel<<1;

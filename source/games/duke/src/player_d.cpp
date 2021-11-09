@@ -602,7 +602,7 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 	{
 		int x;
 		int j = findplayer(actor, &x);
-		//                sa = getangle(ps[j].oposx-sx,ps[j].oposy-sy);
+		// sa = getangle(ps[j].oposx-sx,ps[j].oposy-sy);
 		sa += 16 - (krand() & 31);
 		zvel = (((ps[j].oposz - sz + (3 << 8))) * vel) / ldist(ps[j].GetActor(), actor);
 	}
@@ -960,7 +960,7 @@ static void shootgrowspark(DDukeActor* actor, int p, int sx, int sy, int sz, int
 
 	k = 0;
 
-	//            RESHOOTGROW:
+	//RESHOOTGROW:
 
 	s->cstat &= ~257;
 	hitscan(sx, sy, sz, sect, bcos(sa), bsin(sa),
@@ -2294,7 +2294,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 					S_PlayActorSound(EJECT_CLIP, pact);
 					break;
 					//#ifdef NAM								
-					//                            case WEAPON2_RELOAD_TIME - 15:
+					//     case WEAPON2_RELOAD_TIME - 15:
 					//#else
 				case 8:
 					//#endif
@@ -3143,7 +3143,7 @@ HORIZONLY:
 			if (p->last_weapon >= 0)
 			{
 				p->oweapon_pos = p->weapon_pos = 10;
-				//                if(p->curr_weapon == KNEE_WEAPON) p->kickback_pic = 1;
+				// if(p->curr_weapon == KNEE_WEAPON) p->kickback_pic = 1;
 				p->last_weapon = -1;
 			}
 			else if (p->holster_weapon == 0)
