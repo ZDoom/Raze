@@ -409,8 +409,8 @@ void AISnake::Tick(RunListEvent* ev)
 
 void AISnake::Draw(RunListEvent* ev)
 {
-    short nSnake = RunData[ev->nRun].nObjIndex;
-    short nSprite = ev->nParam;
+    int nSnake = RunData[ev->nRun].nObjIndex;
+    int nSprite = ev->nParam;
 
     if ((nSnake & 0xFF) == 0) {
         seq_PlotSequence(nSprite, SeqOffsets[kSeqSnakehed], 0, 0);

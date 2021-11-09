@@ -155,7 +155,7 @@ struct Trap
     short field_0;
     short nType;
     short field_6;
-    short field_8;
+    int field_8; // wallnum
     short field_A;
     short field_C;
     short field_E;

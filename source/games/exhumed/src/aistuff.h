@@ -54,8 +54,8 @@ void FuncBubble(int, int, int, int);
 // 32 bytes
 struct bulletInfo
 {
-    short nDamage; // 0
-    short field_2; // 2
+    int16_t nDamage; // 0
+    int16_t field_2; // 2
     int field_4;   // 4
     short field_8; // 8
     short nSeq; // 10
