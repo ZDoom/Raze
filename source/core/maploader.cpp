@@ -206,7 +206,7 @@ static void SetWallPalV5()
 	}
 }
 
-static void ValidateSprite(spritetype& spr)
+void ValidateSprite(spritetype& spr)
 {
 	int index = int(&spr - sprite);
 	bool bugged = false;
@@ -224,10 +224,13 @@ static void ValidateSprite(spritetype& spr)
 	{
 		int sectnum = -1;
 		updatesector(spr.x, spr.y, &sectnum);
-		spr.sectnum = sectnum;
 
-		bugged = sectnum < 0;
-		if (bugged) Printf("Sprite #%d (%d,%d) with invalid sector %d\n", index, spr.x, spr.y, sectnum);
+		if (!DPrintf(DMSG_WARNING, "Sprite #%d (%d,%d) with invalid sector %d was corrected to sector %d\n", index, spr.x, spr.y, spr.sectnum, sectnum))
+		{
+			bugged = sectnum < 0;
+			if (bugged) Printf("Sprite #%d (%d,%d) with invalid sector %d\n", index, spr.x, spr.y, spr.sectnum);
+		}
+		spr.sectnum = sectnum;
 	}
 	if (bugged)
 	{
