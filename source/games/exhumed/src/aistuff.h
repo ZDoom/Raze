@@ -171,7 +171,7 @@ void DoRegenerates();
 
 // lavadude
 
-void BuildLava(DExhumedActor* nSprite, int x, int y, int z, short nSector, short nAngle, int nChannel);
+void BuildLava(DExhumedActor* nSprite, int x, int y, int z, int nSector, short nAngle, int nChannel);
 DExhumedActor* BuildLavaLimb(DExhumedActor* nSprite, int edx, int ebx);
 void FuncLavaLimb(int, int, int, int);
 void FuncLava(int, int, int, int);
@@ -181,20 +181,20 @@ void FuncLava(int, int, int, int);
 extern short nFlashDepth;
 
 void InitLights();
-void AddFlash(short nSector, int x, int y, int z, int val);
+void AddFlash(int nSector, int x, int y, int z, int val);
 void SetTorch(int nPlayer, int bTorchOnOff);
 void UndoFlashes();
 void DoLights();
 void AddFlow(int nSprite, int nSpeed, int b, int ang = -1);
-void BuildFlash(short nPlayer, short nSector, int nVal);
-void AddGlow(short nSector, int nVal);
-void AddFlicker(short nSector, int nVal);
+void BuildFlash(int nPlayer, int nVal);
+void AddGlow(int nSector, int nVal);
+void AddFlicker(int nSector, int nVal);
 
 extern short bTorch;
 
 // lion
 
-void BuildLion(DExhumedActor* nSprite, int x, int y, int z, short nSector, short nAngle);
+void BuildLion(DExhumedActor* nSprite, int x, int y, int z, int nSector, short nAngle);
 void FuncLion(int, int, int, int);
 
 // move
@@ -234,11 +234,11 @@ DExhumedActor* FindPlayer(DExhumedActor* nSprite, int nDistance, bool dontengage
 DExhumedActor* BuildCreatureChunk(DExhumedActor* pSrc, int nPic, bool bSpecial = false);
 void BuildNear(int x, int y, int walldist, int nSector);
 int PlotCourseToSprite(DExhumedActor* nSprite1, DExhumedActor* nSprite2);
-void CheckSectorFloor(short nSector, int z, int *x, int *y);
+void CheckSectorFloor(int nSector, int z, int *x, int *y);
 int GetAngleToSprite(DExhumedActor* nSprite1, DExhumedActor* nSprite2);
 int GetWallNormal(short nWall);
 int GetUpAngle(DExhumedActor* nSprite1, int nVal, DExhumedActor* nSprite2, int ecx);
-void MoveSector(short nSector, int nAngle, int *nXVel, int *nYVel);
+void MoveSector(int nSector, int nAngle, int *nXVel, int *nYVel);
 Collision AngleChase(DExhumedActor* nSprite, DExhumedActor* nSprite2, int ebx, int ecx, int push1);
 void SetQuake(DExhumedActor* nSprite, int nVal);
 
@@ -283,8 +283,8 @@ void FuncObject(int, int, int, int);
 void FuncTrap(int, int, int, int);
 void FuncEnergyBlock(int, int, int, int);
 void FuncSpark(int, int, int, int);
-void SnapBobs(short nSectorA, short nSectorB);
-DExhumedActor* FindWallSprites(short nSector);
+void SnapBobs(int nSectorA, int nSectorB);
+DExhumedActor* FindWallSprites(int nSector);
 void AddMovingSector(int nSector, int edx, int ebx, int ecx);
 void ProcessTrailSprite(DExhumedActor* nSprite, int nLotag, int nHitag);
 void AddSectorBob(int nSector, int nHitag, int bx);
@@ -292,7 +292,7 @@ DExhumedActor* BuildObject(DExhumedActor* nSprite, int nOjectType, int nHitag);
 int BuildArrow(DExhumedActor* nSprite, int nVal);
 int BuildFireBall(DExhumedActor*, int a, int b);
 void BuildDrip(DExhumedActor* nSprite);
-DExhumedActor* BuildEnergyBlock(short nSector);
+DExhumedActor* BuildEnergyBlock(int nSector);
 int BuildElevC(int arg1, int nChannel, int nSector, DExhumedActor* nWallSprite, int arg5, int arg6, int nCount, ...);
 int BuildElevF(int nChannel, int nSector, DExhumedActor* nWallSprite, int arg_4, int arg_5, int nCount, ...);
 int BuildWallFace(short nChannel, short nWall, int nCount, ...);
@@ -334,18 +334,18 @@ void FuncRa(int, int, int, int);
 
 void InitRats();
 void SetRatVel(short nSprite);
-void BuildRat(DExhumedActor* nSprite, int x, int y, int z, short nSector, int nAngle);
+void BuildRat(DExhumedActor* nSprite, int x, int y, int z, int nSector, int nAngle);
 int FindFood(short nSprite);
 void FuncRat(int a, int, int b, int nRun);
 
 // rex
 
-void BuildRex(DExhumedActor* nSprite, int x, int y, int z, short nSector, short nAngle, int nChannel);
+void BuildRex(DExhumedActor* nSprite, int x, int y, int z, int nSector, short nAngle, int nChannel);
 void FuncRex(int, int, int, int);
 
 // roach
 
-void BuildRoach(int nType, DExhumedActor* nSprite, int x, int y, int z, short nSector, int angle);
+void BuildRoach(int nType, DExhumedActor* nSprite, int x, int y, int z, int nSector, int angle);
 void FuncRoach(int a, int, int nDamage, int nRun);
 
 // runlist
@@ -707,12 +707,12 @@ void runlist_ExecObjects();
 
 // scorp
 
-void BuildScorp(DExhumedActor* nSprite, int x, int y, int z, short nSector, short nAngle, int nChannel);
+void BuildScorp(DExhumedActor* nSprite, int x, int y, int z, int nSector, short nAngle, int nChannel);
 void FuncScorp(int, int, int, int);
 
 // set
 
-void BuildSet(DExhumedActor* nSprite, int x, int y, int z, short nSector, short nAngle, int nChannel);
+void BuildSet(DExhumedActor* nSprite, int x, int y, int z, int nSector, short nAngle, int nChannel);
 void FuncSoul(int, int, int, int);
 void FuncSet(int, int, int, int);
 
@@ -746,7 +746,7 @@ void FuncSnake(int, int, int, int);
 
 // spider
 
-DExhumedActor* BuildSpider(DExhumedActor* nSprite, int x, int y, int z, short nSector, int nAngle);
+DExhumedActor* BuildSpider(DExhumedActor* nSprite, int x, int y, int z, int nSector, int nAngle);
 void FuncSpider(int a, int, int b, int nRun);
 
 // switch
@@ -772,7 +772,7 @@ std::pair<int, int> BuildSwPressWall(short nChannel, short nLink, short nWall);
 
 // wasp
 
-DExhumedActor* BuildWasp(DExhumedActor* nSprite, int x, int y, int z, short nSector, short nAngle, bool bEggWasp);
+DExhumedActor* BuildWasp(DExhumedActor* nSprite, int x, int y, int z, int nSector, short nAngle, bool bEggWasp);
 void FuncWasp(int eax, int, int edx, int nRun);
 
 

@@ -673,7 +673,7 @@ void PlayFXAtXYZ(unsigned short ax, int x, int y, int z, int nSector, EChanFlags
 //
 //==========================================================================
 
-void CheckAmbience(short nSector)
+void CheckAmbience(int nSector)
 {
     if (!SoundEnabled()) return;
     if (SectSound[nSector] != -1)

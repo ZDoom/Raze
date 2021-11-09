@@ -47,7 +47,7 @@ struct Roach
 };
 
 // TODO - make nType a bool?
-void BuildRoach(int nType, DExhumedActor* pActor, int x, int y, int z, short nSector, int angle)
+void BuildRoach(int nType, DExhumedActor* pActor, int x, int y, int z, int nSector, int angle)
 {
     spritetype* pSprite;
     if (pActor == nullptr)

@@ -35,7 +35,7 @@ void DestroyBubble(DExhumedActor* pActor)
     DeleteActor(pActor);
 }
 
-DExhumedActor* BuildBubble(vec3_t pos, short nSector)
+DExhumedActor* BuildBubble(vec3_t pos, int nSector)
 {
     int nSize = RandomSize(3);
     if (nSize > 4) {
@@ -93,11 +93,11 @@ void AIBubble::Tick(RunListEvent* ev)
 
     pSprite->z += pSprite->zvel;
 
-    short nSector = pSprite->sectnum;
+    int nSector = pSprite->sectnum;
 
     if (pSprite->z <= sector[nSector].ceilingz)
     {
-        short nSectAbove = SectAbove[nSector];
+        int nSectAbove = SectAbove[nSector];
 
         if (pSprite->hitag > -1 && nSectAbove != -1) {
             BuildAnim(nullptr, 70, 0, pSprite->x, pSprite->y, sector[nSectAbove].floorz, nSectAbove, 64, 0);

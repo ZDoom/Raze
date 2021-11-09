@@ -98,7 +98,7 @@ void RestoreSavePoint(int nPlayer, int *x, int *y, int *z, short *nSector, short
     *nAngle  = PlayerList[nPlayer].sPlayerSave.nAngle;
 }
 
-void SetSavePoint(int nPlayer, int x, int y, int z, short nSector, short nAngle)
+void SetSavePoint(int nPlayer, int x, int y, int z, int nSector, short nAngle)
 {
     PlayerList[nPlayer].sPlayerSave.x = x;
     PlayerList[nPlayer].sPlayerSave.y = y;
@@ -458,7 +458,7 @@ void StartDeathSeq(int nPlayer, int nVal)
 
             if (nWeapon > kWeaponSword && nWeapon <= kWeaponRing)
             {
-                short nSector = pSprite->sectnum;
+                int nSector =pSprite->sectnum;
                 if (SectBelow[nSector] > -1) {
                     nSector = SectBelow[nSector];
                 }
@@ -864,7 +864,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     }
 
     // loc_1A4E6
-    short nSector = pPlayerSprite->sectnum;
+    int nSector =pPlayerSprite->sectnum;
     short nSectFlag = SectFlag[PlayerList[nPlayer].nPlayerViewSect];
 
     int playerX = pPlayerSprite->x;

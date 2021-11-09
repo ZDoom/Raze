@@ -42,7 +42,7 @@ struct Switch
     short nChannel;
     short nLink;
     short nRunPtr;
-    short nSector;
+    int nSector;
     short nRun2;
     short nWall;
     short nRun3;
@@ -255,7 +255,7 @@ void AISWStepOn::ProcessChannel(RunListEvent* ev)
 
     short nLink = SwitchData[nSwitch].nLink;
     short nChannel = SwitchData[nSwitch].nChannel;
-    short nSector = SwitchData[nSwitch].nSector;
+    int nSector =SwitchData[nSwitch].nSector;
 
     assert(sRunChannels[nChannel].c < 8);
 
@@ -280,7 +280,7 @@ void AISWStepOn::TouchFloor(RunListEvent* ev)
 
     short nLink = SwitchData[nSwitch].nLink;
     short nChannel = SwitchData[nSwitch].nChannel;
-    short nSector = SwitchData[nSwitch].nSector;
+    int nSector =SwitchData[nSwitch].nSector;
 
     assert(sRunChannels[nChannel].c < 8);
 
@@ -367,7 +367,7 @@ void AISWNotOnPause::Process(RunListEvent* ev)
         {
             SwitchData[nSwitch].nRunPtr = runlist_AddRunRec(NewRun, &RunData[ev->nRun]);
 
-            short nSector = SwitchData[nSwitch].nSector;
+            int nSector =SwitchData[nSwitch].nSector;
 
             SwitchData[nSwitch].nWaitTimer = SwitchData[nSwitch].nWait;
             SwitchData[nSwitch].nRun2 = runlist_AddRunRec(sector[nSector].lotag - 1, &RunData[ev->nRun]);
@@ -419,7 +419,7 @@ void AISWPressSector::ProcessChannel(RunListEvent* ev)
         return;
     }
 
-    short nSector = SwitchData[nSwitch].nSector;
+    int nSector =SwitchData[nSwitch].nSector;
 
     SwitchData[nSwitch].nRun2 = runlist_AddRunRec(sector[nSector].lotag - 1, &RunData[ev->nRun]);
 }
@@ -506,7 +506,7 @@ void AISWPressWall::Use(RunListEvent* ev)
     }
 
     short nWall = SwitchData[nSwitch].nWall;
-    short nSector = SwitchData[nSwitch].nSector; // CHECKME - where is this set??
+    int nSector =SwitchData[nSwitch].nSector; // CHECKME - where is this set??
 
     PlayFXAtXYZ(StaticSound[nSwitchSound], wall[nWall].x, wall[nWall].y, 0, nSector, CHANF_LISTENERZ);
 }

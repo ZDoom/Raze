@@ -274,7 +274,7 @@ DExhumedActor* FindSnakeEnemy(short nSnake)
     auto pSprite = &pActor->s();
 
     short nAngle = pSprite->ang;
-    short nSector = pSprite->sectnum;
+    int nSector =pSprite->sectnum;
 
     int esi = 2048;
 
@@ -380,7 +380,7 @@ void AISnake::Tick(RunListEvent* ev)
         SnakeList[nSnake].sE = (SnakeList[nSnake].sE + 64) & 0x7FF;
 
         int var_28 = (nAngle + 512) & kAngleMask;
-        short nSector = pSprite->sectnum;
+        int nSector =pSprite->sectnum;
 
         int x = pSprite->x;
         int y = pSprite->y;

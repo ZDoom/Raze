@@ -37,7 +37,7 @@ static actionSeq RexSeq[] = {
     {28, 1}
 };
 
-void BuildRex(DExhumedActor* pActor, int x, int y, int z, short nSector, short nAngle, int nChannel)
+void BuildRex(DExhumedActor* pActor, int x, int y, int z, int nSector, short nAngle, int nChannel)
 {
     spritetype* pSprite;
     if (pActor == nullptr)

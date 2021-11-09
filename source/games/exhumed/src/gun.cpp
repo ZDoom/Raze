@@ -231,7 +231,7 @@ void SetWeaponStatus(short nPlayer)
 uint8_t WeaponCanFire(short nPlayer)
 {
     short nWeapon = PlayerList[nPlayer].nCurrentWeapon;
-    short nSector = PlayerList[nPlayer].nPlayerViewSect;
+    int nSector =PlayerList[nPlayer].nPlayerViewSect;
 
     if (!(SectFlag[nSector] & kSectUnderwater) || WeaponInfo[nWeapon].bFireUnderwater)
     {
@@ -632,7 +632,7 @@ loc_flag:
 
         if (((!(nSectFlag & kSectUnderwater)) || nWeapon == kWeaponRing) && (nFrameFlag & 4))
         {
-            BuildFlash(nPlayer, pPlayerSprite->sectnum, 512);
+            BuildFlash(nPlayer, 512);
             AddFlash(
                 pPlayerSprite->sectnum,
                 pPlayerSprite->x,

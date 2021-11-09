@@ -384,7 +384,7 @@ void BuildTail()
     int x = pSprite->x;
     int y = pSprite->x;
     int z = pSprite->x;
-    short nSector = pSprite->sectnum;
+    int nSector =pSprite->sectnum;
 
     int i;
 
@@ -437,7 +437,7 @@ void BuildQueenEgg(short nQueen, int nVal)
 
     int x = pSprite->x;
     int y = pSprite->y;
-    short nSector = pSprite->sectnum;
+    int nSector =pSprite->sectnum;
     int nFloorZ = sector[nSector].floorz;
     short nAngle = pSprite->ang;
 
@@ -698,7 +698,7 @@ void BuildQueenHead(short nQueen)
     int x = pSprite->x;
     int y = pSprite->y;
     short nAngle = pSprite->ang;
-    short nSector = pSprite->sectnum;
+    int nSector =pSprite->sectnum;
     int z = sector[nSector].floorz;
 
     auto pActor2 = insertActor(nSector, 121);
@@ -973,7 +973,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
                     int x = pSprite->x;
                     int y = pSprite->y;
                     int z = pSprite->z;
-                    short nSector = pSprite->sectnum;
+                    int nSector =pSprite->sectnum;
                     int nAngle = RandomSize(11) & kAngleMask;
 
                     pSprite->xrepeat = 127 - QueenHead.nIndex2;

@@ -148,8 +148,8 @@ void ExplodeGrenade(DExhumedActor* pActor)
     int var_28, var_20;
 
     auto pGrenadeSprite = &pActor->s();
-    short nPlayer = pGrenadeSprite->owner;
-    short nGrenadeSect = pGrenadeSprite->sectnum;
+    int nPlayer = pGrenadeSprite->owner;
+    int nGrenadeSect = pGrenadeSprite->sectnum;
 
     pActor->nFrame = 1;
 

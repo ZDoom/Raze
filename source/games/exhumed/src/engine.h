@@ -88,7 +88,7 @@ enum ECounter
 };
 extern int Counters[kNumCounters];
 
-void SnapSectors(short nSectorA, short nSectorB, short b);
+void SnapSectors(int nSectorA, int nSectorB, int b);
 
 extern short SectSound[];
 extern short SectDamage[];

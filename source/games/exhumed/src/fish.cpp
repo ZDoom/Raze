@@ -77,7 +77,7 @@ void BuildFishLimb(DExhumedActor* pActor, short anim)
     pSprite2->hitag = runlist_AddRunRec(NewRun, pChunkActor, 0x200000);
 }
 
-void BuildBlood(int x, int y, int z, short nSector)
+void BuildBlood(int x, int y, int z, int nSector)
 {
     BuildAnim(nullptr, kSeqFish, 36, x, y, z, nSector, 75, 128);
 }
@@ -438,7 +438,7 @@ void AIFish::Tick(RunListEvent* ev)
     int x = pSprite->x;
     int y = pSprite->y;
     int z = pSprite->z;
-    short nSector = pSprite->sectnum;
+    int nSector =pSprite->sectnum;
 
     // loc_2EF54
     Collision coll = movesprite(pActor, pSprite->xvel << 13, pSprite->yvel << 13, pSprite->zvel << 2, 0, 0, CLIPMASK0);

@@ -240,7 +240,7 @@ void BuildExplosion(DExhumedActor* pActor)
 {
     auto pSprite = &pActor->s();
  
-    short nSector = pSprite->sectnum;
+    int nSector = pSprite->sectnum;
 
     int edx = 36;
 
@@ -248,7 +248,7 @@ void BuildExplosion(DExhumedActor* pActor)
     {
         edx = 75;
     }
-    else if (pSprite->z == sector[nSector].floorz)
+    else if (pSprite->z == pSprite->sector()->floorz)
     {
         edx = 34;
     }

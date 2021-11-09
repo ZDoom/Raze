@@ -36,7 +36,7 @@ static actionSeq SpiderSeq[] = {
 };
 
 
-DExhumedActor* BuildSpider(DExhumedActor* spp, int x, int y, int z, short nSector, int nAngle)
+DExhumedActor* BuildSpider(DExhumedActor* spp, int x, int y, int z, int nSector, int nAngle)
 {
     spritetype* sp;
     if (spp == nullptr)
@@ -178,7 +178,7 @@ void AISpider::Tick(RunListEvent* ev)
         case 3:
         {
         case_3:
-            short nSector = sp->sectnum;
+            int nSector =sp->sectnum;
 
             if (sp->cstat & 8)
             {

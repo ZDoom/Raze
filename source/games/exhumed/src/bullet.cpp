@@ -487,7 +487,7 @@ HITSPRITE:
 HITWALL:
             if (wall[hitwall].picnum == kEnergy1)
             {
-                short nSector = wall[hitwall].nextsector;
+                int nSector =wall[hitwall].nextsector;
                 if (nSector > -1)
                 {
                     short nDamage = BulletInfo[pBullet->nType].nDamage;
@@ -612,7 +612,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int n
         return nullptr;
     }
 
-    short nSector;
+    int nSector;
 
     if (pSprite->statnum == 100)
     {

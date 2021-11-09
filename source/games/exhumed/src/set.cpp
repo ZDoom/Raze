@@ -39,7 +39,7 @@ static actionSeq SetSeq[] = {
     {74, 1}
 };
 
-void BuildSet(DExhumedActor* pActor, int x, int y, int z, short nSector, short nAngle, int nChannel)
+void BuildSet(DExhumedActor* pActor, int x, int y, int z, int nSector, short nAngle, int nChannel)
 {
 	spritetype* pSprite;
     if (pActor == nullptr)
@@ -120,7 +120,7 @@ void BuildSoul(DExhumedActor* pSet)
     pSprite->x = pSetSprite->x;
     pSprite->y = pSetSprite->y;
 
-    short nSector = pSprite->sectnum;
+    int nSector =pSprite->sectnum;
     pSprite->z = (RandomSize(8) << 8) + 8192 + sector[nSector].ceilingz - GetActorHeight(pActor);
 
     //pSprite->hitag = nSet;

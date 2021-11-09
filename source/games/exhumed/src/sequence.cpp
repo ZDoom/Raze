@@ -608,7 +608,7 @@ int seq_PlotSequence(short nSprite, short edx, short nFrame, short ecx)
     }
     else
     {
-        short nSector = pTSprite->sectnum;
+        int nSector =pTSprite->sectnum;
         int nFloorZ = sector[nSector].floorz;
 
         if (nFloorZ <= PlayerList[nLocalPlayer].eyelevel + initz) {

@@ -49,14 +49,14 @@ struct Glow
 {
     short field_0;
     short field_2;
-    short nSector;
+    int nSector;
     short field_6;
 };
 
 struct Flicker
 {
     short field_0;
-    short nSector;
+    int nSector;
     unsigned int field_4;
 };
 
@@ -212,7 +212,7 @@ void InitLights()
     nLastFlash  = -1;
 }
 
-void AddFlash(short nSector, int x, int y, int z, int val)
+void AddFlash(int nSector, int x, int y, int z, int val)
 {
     assert(nSector >= 0 && nSector < kMaxSectors);
     auto sectp = &sector[nSector];
@@ -541,7 +541,7 @@ loc_1868A:
     }
 }
 
-void AddGlow(short nSector, int nVal)
+void AddGlow(int nSector, int nVal)
 {
     if (nGlowCount >= kMaxGlows) {
         return;
@@ -556,7 +556,7 @@ void AddGlow(short nSector, int nVal)
 }
 
 // ok
-void AddFlicker(short nSector, int nVal)
+void AddFlicker(int nSector, int nVal)
 {
     if (nFlickerCount >= kMaxFlickers) {
         return;
@@ -588,7 +588,7 @@ void DoGlows()
     {
         sGlow[i].field_2++;
 
-        short nSector = sGlow[i].nSector;
+        int nSector =sGlow[i].nSector;
         auto sectp = &sector[nSector];
         short nShade = sGlow[i].field_0;
 
@@ -622,7 +622,7 @@ void DoFlickers()
 
     for (int i = 0; i < nFlickerCount; i++)
     {
-        short nSector = sFlicker[i].nSector;
+        int nSector =sFlicker[i].nSector;
         auto sectp = &sector[nSector];
  
         unsigned int eax = (sFlicker[i].field_4 & 1);
@@ -728,7 +728,7 @@ void DoFlows()
                 sFlowInfo[i].xdelta &= sFlowInfo[i].xacc;
                 sFlowInfo[i].ydelta &= sFlowInfo[i].yacc;
 
-                short nSector = sFlowInfo[i].objindex;
+                int nSector =sFlowInfo[i].objindex;
                 sector[nSector].setfloorxpan(sFlowInfo[i].xdelta / 16384.f);
                 sector[nSector].setfloorypan(sFlowInfo[i].ydelta / 16384.f);
                 break;
@@ -736,7 +736,7 @@ void DoFlows()
 
             case 1:
             {
-                short nSector = sFlowInfo[i].objindex;
+                int nSector =sFlowInfo[i].objindex;
 
                 sector[nSector].setceilingxpan(sFlowInfo[i].xdelta / 16384.f);
                 sector[nSector].setceilingypan(sFlowInfo[i].ydelta / 16384.f);
@@ -821,7 +821,7 @@ void SetTorch(int nPlayer, int bTorchOnOff)
     StatusMessage(150, GStrings(buf));
 }
 
-void BuildFlash(short nPlayer, short, int nVal)
+void BuildFlash(int nPlayer, int nVal)
 {
     if (nPlayer == nLocalPlayer)
     {

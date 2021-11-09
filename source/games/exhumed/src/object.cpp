@@ -58,7 +58,7 @@ struct TrailPoint
 
 struct Bob
 {
-    short nSector;
+    int nSector;
     char field_2;
     char field_3;
     int z;
@@ -78,7 +78,7 @@ struct Elev
     DExhumedActor* pActor;
     short field_0;
     short nChannel;
-    short nSector;
+    int nSector;
     int field_6;
     int field_A;
     short nCountZOffsets; // count of items in zOffsets
@@ -91,7 +91,7 @@ struct Elev
 // 16 bytes
 struct MoveSect
 {
-    short nSector;
+    int nSector;
     short nTrail;
     short nTrailPoint;
     short field_6;
@@ -138,7 +138,7 @@ struct slideData
 
 struct Point
 {
-    short nSector;
+    int nSector;
     short field_2;
     short field_4;
     short field_6;
@@ -415,7 +415,7 @@ DExhumedActor* BuildWallSprite(int nSector)
  }
 
 // done
-DExhumedActor* FindWallSprites(short nSector)
+DExhumedActor* FindWallSprites(int nSector)
 {
     int var_24 = 0x7FFFFFFF;
     int ecx = 0x7FFFFFFF;
@@ -610,7 +610,7 @@ int LongSeek(int* pZVal, int a2, int a3, int a4)
 }
 
 // done
-int CheckSectorSprites(short nSector, int nVal)
+int CheckSectorSprites(int nSector, int nVal)
 {
     int b = 0;
 
@@ -784,7 +784,7 @@ void AIElev::Tick(RunListEvent* ev)
 
     assert(nChannel >= 0 && nChannel < kMaxChannels);
 
-    short nSector = Elevator[nElev].nSector;
+    int nSector =Elevator[nElev].nSector;
     auto pElevSpr = Elevator[nElev].pActor;
 
     int ebp = 0; // initialise to *something*
@@ -993,7 +993,7 @@ int BuildSlide(int nChannel, int nStartWall, int nWall1, int ecx, int nWall2, in
 {
     auto nSlide = SlideData.Reserve(1);
 
-    short nSector = IdentifySector(nStartWall);
+    int nSector =IdentifySector(nStartWall);
 
     SlideData[nSlide].field_4a = -1;
     SlideData[nSlide].nChannel = nChannel;
@@ -1295,7 +1295,7 @@ int BuildTrap(DExhumedActor* pActor, int edx, int ebx, int ecx)
     sTrap[nTrap].field_6 = -1;
     sTrap[nTrap].field_8 = -1;
 
-    short nSector = pSprite->sectnum;
+    int nSector =pSprite->sectnum;
     short nWall = sector[nSector].wallptr;
 
     int i = 0;
@@ -1636,7 +1636,7 @@ void DoFinale()
     }
 }
 
-DExhumedActor* BuildEnergyBlock(short nSector)
+DExhumedActor* BuildEnergyBlock(int nSector)
 {
     short startwall = sector[nSector].wallptr;
     short nWalls = sector[nSector].wallnum;
@@ -1724,7 +1724,7 @@ void ExplodeEnergyBlock(DExhumedActor* pActor)
 {
     auto pSprite = &pActor->s();
 
-    short nSector = pSprite->sectnum;
+    int nSector =pSprite->sectnum;
 
     short startwall = sector[nSector].wallptr;
     short nWalls = sector[nSector].wallnum;
@@ -1861,7 +1861,7 @@ void AIEnergyBlock::RadialDamage(RunListEvent* ev)
     if (!pActor) return;
     auto spr = &pActor->s();
 
-    short nSector = spr->sectnum;
+    int nSector =spr->sectnum;
 
     if (sector[nSector].extra == -1) {
         return;
@@ -2229,7 +2229,7 @@ void DoDrips()
         sBob[i].field_2 += 4;
 
         int edx = bsin(sBob[i].field_2 << 3, -4);
-        short nSector = sBob[i].nSector;
+        int nSector =sBob[i].nSector;
 
         if (sBob[i].field_3)
         {
@@ -2246,7 +2246,7 @@ void DoDrips()
     }
 }
 
-void SnapBobs(short nSectorA, short nSectorB)
+void SnapBobs(int nSectorA, int nSectorB)
 {
     int ecx = -1;
     int ebx = ecx;
@@ -2430,7 +2430,7 @@ void DoMovingSects()
             continue;
         }
 
-        short nSector = sMoveSect[i].nSector;
+        int nSector =sMoveSect[i].nSector;
         short nBlock = sector[nSector].extra;
 
         BlockInfo* pBlockInfo = &sBlockInfo[nBlock];
@@ -2568,7 +2568,7 @@ void PostProcess()
             runlist_ChangeChannel(sMoveSect[i].field_14, 1);
         }
 
-        short nSector = sMoveSect[i].nSector;
+        int nSector =sMoveSect[i].nSector;
 
         if (SectFlag[nSector] & kSectUnderwater)
         {

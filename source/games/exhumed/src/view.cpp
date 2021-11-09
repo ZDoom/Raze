@@ -96,7 +96,7 @@ static void analyzesprites(spritetype* tsprite, int& spritesortcnt, int x, int y
 
     bestTarget = nullptr;
 
-    short nSector = pPlayerSprite->sectnum;
+    int nSector =pPlayerSprite->sectnum;
 
     int nAngle = (2048 - pPlayerSprite->ang) & kAngleMask;
 

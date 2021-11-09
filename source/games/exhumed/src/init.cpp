@@ -215,16 +215,16 @@ void SetAbove(short nCurSector, short nAboveSector)
     SectAbove[nCurSector] = nAboveSector;
 }
 
-void SnapSectors(short nSectorA, short nSectorB, short b)
+void SnapSectors(int nSectorA, int nSectorB, int b)
 {
     // edx - nSectorA
     // eax - nSectorB
 
-    short nWallA = sector[nSectorA].wallptr;
-    short nWallB = sector[nSectorB].wallptr;
+    int nWallA = sector[nSectorA].wallptr;
+    int nWallB = sector[nSectorB].wallptr;
 
-    short num1 = sector[nSectorA].wallnum;
-    short num2 = sector[nSectorB].wallnum;
+    int num1 = sector[nSectorA].wallnum;
+    int num2 = sector[nSectorB].wallnum;
 
     int nCount = 0;
 
@@ -631,7 +631,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, short nLotag, short nHitag)
             }
             case 99: // underwater type 2
             {
-                short nSector = pSprite->sectnum;
+                int nSector =pSprite->sectnum;
                 SetAbove(nSector, nHitag);
                 SectFlag[nSector] |= kSectUnderwater;
 
@@ -640,7 +640,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, short nLotag, short nHitag)
             }
             case 98:
             {
-                short nSector = pSprite->sectnum;
+                int nSector =pSprite->sectnum;
                 SetBelow(nSector, nHitag);
                 SnapSectors(nSector, nHitag, 1);
 
@@ -661,7 +661,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, short nLotag, short nHitag)
                     nDamage = 1;
                 }
 
-                short nSector = pSprite->sectnum;
+                int nSector =pSprite->sectnum;
 
                 SectDamage[nSector] = nDamage;
                 SectFlag[nSector] |= kSectLava;
@@ -678,7 +678,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, short nLotag, short nHitag)
             }
             case 94: // water
             {
-                short nSector = pSprite->sectnum;
+                int nSector =pSprite->sectnum;
                 SectDepth[nSector] = nHitag << 8;
 
                 DeleteActor(pActor);
@@ -697,7 +697,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, short nLotag, short nHitag)
             case 79:
             case 89:
             {
-                short nSector = pSprite->sectnum;
+                int nSector =pSprite->sectnum;
 
                 SectSpeed[nSector] = nSpeed;
                 SectFlag[nSector] |= pSprite->ang;
@@ -714,7 +714,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, short nLotag, short nHitag)
             }
             case 80: // underwater
             {
-                short nSector = pSprite->sectnum;
+                int nSector =pSprite->sectnum;
                 SectFlag[nSector] |= kSectUnderwater;
 
                 DeleteActor(pActor);
@@ -724,7 +724,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, short nLotag, short nHitag)
             {
                 AddFlow(pSprite->sectnum, nSpeed, 1, pSprite->ang);
 
-                short nSector = pSprite->sectnum;
+                int nSector =pSprite->sectnum;
                 SectFlag[nSector] |= 0x8000;
 
                 DeleteActor(pActor);

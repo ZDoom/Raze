@@ -237,7 +237,7 @@ void BuildNear(int x, int y, int walldist, int nSector)
 
     while (i < NearCount)
     {
-        short nSector = NearSector[i];
+        int nSector =NearSector[i];
 
         short nWall = sector[nSector].wallptr;
         short nWallCount = sector[nSector].wallnum;
@@ -282,7 +282,7 @@ void BuildNear(int x, int y, int walldist, int nSector)
 int BelowNear(DExhumedActor* pActor)
 {
 	auto pSprite = &pActor->s();
-    short nSector = pSprite->sectnum;
+    int nSector =pSprite->sectnum;
     int z = pSprite->z;
 
     int z2;
@@ -340,7 +340,7 @@ int BelowNear(DExhumedActor* pActor)
 Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdist)
 {
     spritetype* pSprite = &pActor->s();
-    short nSector = pSprite->sectnum;
+    int nSector =pSprite->sectnum;
     assert(nSector >= 0 && nSector < kMaxSectors);
 
     overridesect = nSector;
@@ -614,7 +614,7 @@ Collision movesprite(DExhumedActor* pActor, int dx, int dy, int dz, int ceildist
 void Gravity(DExhumedActor* actor)
 {
     auto pSprite = &actor->s();
-    short nSector = pSprite->sectnum;
+    int nSector =pSprite->sectnum;
 
     if (SectFlag[nSector] & kSectUnderwater)
     {
@@ -674,7 +674,7 @@ Collision MoveCreatureWithCaution(DExhumedActor* pActor)
 
     auto ecx = MoveCreature(pActor);
 
-    short nSector = pSprite->sectnum;
+    int nSector =pSprite->sectnum;
 
     if (nSector != nSectorPre)
     {
@@ -748,7 +748,7 @@ DExhumedActor* FindPlayer(DExhumedActor* pActor, int nDistance, bool dontengage)
 
     int x = pSprite->x;
     int y = pSprite->y;
-    short nSector = pSprite->sectnum;
+    int nSector =pSprite->sectnum;
 
     int z = pSprite->z - GetActorHeight(pActor);
 
@@ -790,7 +790,7 @@ DExhumedActor* FindPlayer(DExhumedActor* pActor, int nDistance, bool dontengage)
     return pPlayerActor;
 }
 
-void CheckSectorFloor(short nSector, int z, int *x, int *y)
+void CheckSectorFloor(int nSector, int z, int *x, int *y)
 {
     short nSpeed = SectSpeed[nSector];
 
@@ -910,7 +910,7 @@ void CreatePushBlock(int nSector)
     sectp->extra = nBlock;
 }
 
-void MoveSector(short nSector, int nAngle, int *nXVel, int *nYVel)
+void MoveSector(int nSector, int nAngle, int *nXVel, int *nYVel)
 {
     if (nSector == -1) {
         return;

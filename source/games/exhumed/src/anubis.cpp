@@ -406,7 +406,7 @@ void AIAnubis::Damage(RunListEvent* ev)
 
                     pDrumSprite->x = sp->x;
                     pDrumSprite->y = sp->y;
-                    pDrumSprite->z = sector[pDrumSprite->sectnum].floorz;
+                    pDrumSprite->z = pDrumSprite->sector()->floorz;
                     pDrumSprite->xrepeat = 40;
                     pDrumSprite->yrepeat = 40;
                     pDrumSprite->shade = -64;

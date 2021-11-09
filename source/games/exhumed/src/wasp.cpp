@@ -40,7 +40,7 @@ void SetWaspVel(spritetype* pSprite)
     pSprite->yvel = bsin(pSprite->ang);
 }
 
-DExhumedActor* BuildWasp(DExhumedActor* pActor, int x, int y, int z, short nSector, short nAngle, bool bEggWasp)
+DExhumedActor* BuildWasp(DExhumedActor* pActor, int x, int y, int z, int nSector, short nAngle, bool bEggWasp)
 {
     spritetype* pSprite;
     if (pActor == nullptr)
@@ -339,7 +339,7 @@ void AIWasp::Tick(RunListEvent* ev)
     }
     case 5:
     {
-        short nSector = pSprite->sectnum;
+        int nSector =pSprite->sectnum;
 
         pSprite->z += pSprite->zvel;
 
