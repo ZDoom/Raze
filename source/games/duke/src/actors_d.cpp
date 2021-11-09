@@ -3048,7 +3048,7 @@ void moveactors_d(void)
 		auto s = act->s;
 		sect = s->sectnum;
 
-		if (s->xrepeat == 0 || sect < 0 || sect >= MAXSECTORS)
+		if (s->xrepeat == 0 || !validSectorIndex(sect))
 		{ 
 			deletesprite(act);
 			continue;

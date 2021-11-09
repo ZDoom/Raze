@@ -3285,9 +3285,9 @@ void DoPlayerClimb(PLAYERp pp)
 
     DoPlayerZrange(pp);
 
-    if (pp->LadderSector < 0 || pp->LadderSector > MAXSECTORS) 
+    if (!validSectorIndex(pp->LadderSector))
 	{
-		Printf("Bad ladder sector!\n");
+		Printf("Bad ladder sector %d!\n", pp->LadderSector);
 		return;
 	}
 

@@ -273,7 +273,6 @@ void displayrooms(int snum, double smoothratio)
 	videoSetCorrectedAspect();
 
 	auto sect = p->cursector();
-	if (sect == nullptr) return;
 
 	GlobalMapFog = fogactive ? 0x999999 : 0;
 	GlobalFogDensity = fogactive ? 350.f : 0.f;

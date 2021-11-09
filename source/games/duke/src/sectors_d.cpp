@@ -1426,7 +1426,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 					s->xvel = -(pspr->extra << 2);
 					j = s->sectnum;
 					pushmove(&s->pos, &j, 128L, (4 << 8), (4 << 8), CLIPMASK0);
-					if (j != s->sectnum && j >= 0 && j < MAXSECTORS)
+					if (j != s->sectnum && validSectorIndex(j))
 						changeactorsect(targ, j);
 				}
 

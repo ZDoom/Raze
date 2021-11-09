@@ -1431,7 +1431,7 @@ void OperateTeleport(unsigned int nSector, XSECTOR *pXSector)
     spritetype *pDest = &nDest->s();
     assert(pDest->statnum == kStatMarker);
     assert(pDest->type == kMarkerWarpDest);
-    assert(pDest->sectnum >= 0 && pDest->sectnum < kMaxSectors);
+    assert(validSectorIndex(pDest->sectnum));
     BloodSectIterator it(nSector);
     while (auto actor = it.Next())
     {
@@ -2022,7 +2022,7 @@ void trInit(void)
                 pXWall->busy = 65536;
         }
     }
-    assert((numsectors >= 0) && (numsectors < kMaxSectors));
+
     for (int i = 0; i < numsectors; i++)
     {
         sectortype *pSector = &sector[i];

@@ -830,7 +830,7 @@ loc_flag:
                         auto t = sPlayerInput[nPlayer].pTarget;
                         // only autoaim if target is in front of the player.
                         auto pTargetSprite = &t->s();
-                        assert(pTargetSprite->sectnum < kMaxSectors);
+						assert(validSectorIndex(pTargetSprite->sectnum));
                         int angletotarget = bvectangbam(pTargetSprite->x - pPlayerSprite->x, pTargetSprite->y - pPlayerSprite->y).asbuild();
                         int anglediff = (pPlayerSprite->ang - angletotarget) & 2047;
                         if (anglediff < 512 || anglediff > 1536)

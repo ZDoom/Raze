@@ -170,7 +170,7 @@ void CalcOtherPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsec
     int vZ = FixedToInt(MulScale(zm, 1280, 3))-(16<<8);
     int bakCstat = pSprite->cstat;
     pSprite->cstat &= ~256;
-    assert(*vsectnum >= 0 && *vsectnum < kMaxSectors);
+    assert(validSectorIndex(*vsectnum));
     FindSector(*pX, *pY, *pZ, vsectnum);
     int nHSector;
     int hX, hY;
@@ -204,7 +204,7 @@ void CalcOtherPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsec
 	int myclock = PlayClock + MulScale(4, smoothratio, 16);
     othercameradist = ClipHigh(othercameradist+((myclock-othercameraclock)<<10), 65536);
     othercameraclock = myclock;
-    assert(*vsectnum >= 0 && *vsectnum < kMaxSectors);
+	assert(validSectorIndex(*vsectnum));
     FindSector(*pX, *pY, *pZ, vsectnum);
     pSprite->cstat = bakCstat;
 }

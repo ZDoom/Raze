@@ -261,7 +261,7 @@ void DoSectorPanning(void)
         int nXSector = panList[i];
         XSECTOR *pXSector = &xsector[nXSector];
         int nSector = pXSector->reference;
-        assert(nSector >= 0 && nSector < kMaxSectors);
+        assert(validSectorIndex(nSector));
         sectortype *pSector = &sector[nSector];
         assert(pSector->extra == nXSector);
         if (pXSector->panAlways || pXSector->busy)

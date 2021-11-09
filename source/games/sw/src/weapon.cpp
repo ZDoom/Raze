@@ -3175,10 +3175,8 @@ int SpawnShrap(DSWActor* parentActor, DSWActor* secondaryActor, int means, BREAK
         return 0;
 
     // Don't spawn shrapnel in invalid sectors gosh dern it!
-    if (parent->sectnum < 0 || parent->sectnum >= MAXSECTORS)
+    if (!validSectorIndex(parent->sectnum))
     {
-        //DSPRINTF(ds,"SpawnShrap: Invalid sector %d, picnum=%d\n",parent->sectnum,parent->picnum);
-        MONO_PRINT(ds);
         return 0;
     }
 

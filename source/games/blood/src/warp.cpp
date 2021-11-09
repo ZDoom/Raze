@@ -163,7 +163,7 @@ void warpInit(void)
     }
     #endif
 
-    for (int i = 0; i < kMaxSectors; i++)
+    for (int i = 0; i < numsectors; i++)
     {
         auto actor = getUpperLink(i);
         if (actor && actor->hasX())
@@ -171,7 +171,7 @@ void warpInit(void)
             spritetype *pSprite = &actor->s();
             XSPRITE *pXSprite = &actor->x();
             int nLink = pXSprite->data1;
-            for (int j = 0; j < kMaxSectors; j++)
+            for (int j = 0; j < numsectors; j++)
             {
                 auto actor2 = getLowerLink(j);
                 if (actor2 && actor2->hasX())
@@ -209,7 +209,7 @@ int CheckLink(DBloodActor *actor)
             aLower = aUpper->GetOwner();
             assert(aLower);
             spritetype *pLower = &aLower->s();
-            assert(pLower->sectnum >= 0 && pLower->sectnum < kMaxSectors);
+            assert(validSectorIndex(pLower->sectnum));
             ChangeActorSect(actor, pLower->sectnum);
             pSprite->x += pLower->x-pUpper->x;
             pSprite->y += pLower->y-pUpper->y;
@@ -236,7 +236,7 @@ int CheckLink(DBloodActor *actor)
             aUpper = aLower->GetOwner();
             assert(aUpper);
             spritetype *pUpper = &aUpper->s();
-            assert(pUpper->sectnum >= 0 && pUpper->sectnum < kMaxSectors);
+			assert(validSectorIndex(pUpper->sectnum));
             ChangeActorSect(actor, pUpper->sectnum);
             pSprite->x += pUpper->x-pLower->x;
             pSprite->y += pUpper->y-pLower->y;
@@ -270,7 +270,7 @@ int CheckLink(int *x, int *y, int *z, int *nSector)
             lower = upper->GetOwner();
             assert(lower);
             spritetype *pLower = &lower->s();
-            assert(pLower->sectnum >= 0 && pLower->sectnum < kMaxSectors);
+			assert(validSectorIndex(pLower->sectnum));
             *nSector = pLower->sectnum;
             *x += pLower->x-pUpper->x;
             *y += pLower->y-pUpper->y;
@@ -296,7 +296,7 @@ int CheckLink(int *x, int *y, int *z, int *nSector)
             upper = lower->GetOwner();
             assert(upper);
             spritetype *pUpper = &upper->s();
-            assert(pUpper->sectnum >= 0 && pUpper->sectnum < kMaxSectors);
+			assert(validSectorIndex(pUpper->sectnum));
             *nSector = pUpper->sectnum;
             *x += pUpper->x-pLower->x;
             *y += pUpper->y-pLower->y;

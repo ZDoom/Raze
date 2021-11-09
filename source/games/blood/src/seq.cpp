@@ -130,7 +130,7 @@ void UpdateCeiling(int nXSector, SEQFRAME* pFrame)
 {
 	assert(nXSector > 0 && nXSector < kMaxXSectors);
 	int nSector = xsector[nXSector].reference;
-	assert(nSector >= 0 && nSector < kMaxSectors);
+	assert(validSectorIndex(nSector));
 	sectortype* pSector = &sector[nSector];
 	assert(pSector->extra == nXSector);
 	pSector->ceilingpicnum = seqGetTile(pFrame);
@@ -149,7 +149,7 @@ void UpdateFloor(int nXSector, SEQFRAME* pFrame)
 {
 	assert(nXSector > 0 && nXSector < kMaxXSectors);
 	int nSector = xsector[nXSector].reference;
-	assert(nSector >= 0 && nSector < kMaxSectors);
+	assert(validSectorIndex(nSector));
 	sectortype* pSector = &sector[nSector];
 	assert(pSector->extra == nXSector);
 	pSector->floorpicnum = seqGetTile(pFrame);

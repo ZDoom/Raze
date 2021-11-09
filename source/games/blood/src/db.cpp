@@ -69,7 +69,7 @@ void dbCrypt(char *pPtr, int nLength, int nKey)
 void InsertSpriteSect(int nSprite, int nSector)
 {
     assert(nSprite >= 0 && nSprite < kMaxSprites);
-    assert(nSector >= 0 && nSector < kMaxSectors);
+    assert(validSectorIndex(nSector));
     int nOther = headspritesect[nSector];
     if (nOther >= 0)
     {
@@ -91,7 +91,7 @@ void RemoveSpriteSect(int nSprite)
 {
     assert(nSprite >= 0 && nSprite < kMaxSprites);
     int nSector = sprite[nSprite].sectnum;
-    assert(nSector >= 0 && nSector < kMaxSectors);
+    assert(validSectorIndex(nSector));
     int nOther = nextspritesect[nSprite];
     if (nOther < 0)
     {
@@ -213,7 +213,7 @@ int DeleteSprite(int nSprite)
     }
     assert(sprite[nSprite].statnum >= 0 && sprite[nSprite].statnum < kMaxStatus);
     RemoveSpriteStat(nSprite);
-    assert(sprite[nSprite].sectnum >= 0 && sprite[nSprite].sectnum < kMaxSectors);
+    assert(validSectorIndex(sprite[nSprite].sectnum));
     RemoveSpriteSect(nSprite);
     InsertSpriteStat(nSprite, kMaxStatus);
 #ifdef NOONE_EXTENSIONS
@@ -227,8 +227,8 @@ int DeleteSprite(int nSprite)
 int ChangeSpriteSect(int nSprite, int nSector)
 {
     assert(nSprite >= 0 && nSprite < kMaxSprites);
-    assert(nSector >= 0 && nSector < kMaxSectors);
-    assert(sprite[nSprite].sectnum >= 0 && sprite[nSprite].sectnum < kMaxSectors);
+    assert(validSectorIndex(nSector));
+	assert(validSectorIndex(sprite[nSprite].sectnum));
     RemoveSpriteSect(nSprite);
     InsertSpriteSect(nSprite, nSector);
     return 0;
@@ -244,7 +244,7 @@ int ChangeSpriteStat(int nSprite, int nStatus)
     assert(nSprite >= 0 && nSprite < kMaxSprites);
     assert(nStatus >= 0 && nStatus < kMaxStatus);
     assert(sprite[nSprite].statnum >= 0 && sprite[nSprite].statnum < kMaxStatus);
-    assert(sprite[nSprite].sectnum >= 0 && sprite[nSprite].sectnum < kMaxSectors);
+    assert(validSectorIndex(sprite[nSprite].sectnum));
     RemoveSpriteStat(nSprite);
     InsertSpriteStat(nSprite, nStatus);
     return 0;

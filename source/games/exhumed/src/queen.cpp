@@ -417,7 +417,7 @@ void BuildTail()
         MoveQX[i] = x;
         MoveQZ[i] = z;
         MoveQY[i] = y;
-        assert(nSector >= 0 && nSector < kMaxSectors);
+        assert(validSectorIndex(nSector));
         MoveQS[i] = nSector;
     }
 
@@ -748,7 +748,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
     auto pSprite = &pActor->s();
 
     int nSector = pSprite->sectnum;
-    assert(nSector >= 0 && nSector < kMaxSectors);
+    assert(validSectorIndex(nSector));
 
     short nAction = QueenHead.nAction;
     short nHd;
@@ -941,7 +941,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
                 auto pTSprite = &pTActor->s();
                 if (var_20 != pTSprite->sectnum)
                 {
-                    assert(var_20 >= 0 && var_20 < kMaxSectors);
+                    assert(validSectorIndex(var_20));
                     ChangeActorSect(pTActor, var_20);
                 }
 

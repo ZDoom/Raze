@@ -2117,7 +2117,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_spawn:
 		insptr++;
-		if(g_sp->sectnum >= 0 && g_sp->sectnum < MAXSECTORS)
+		if(validSectorIndex(g_sp->sectnum))
 			spawn(g_ac,*insptr);
 		insptr++;
 		break;
@@ -2151,7 +2151,7 @@ int ParseState::parse(void)
 			insptr++;
 			bool weap = fi.spawnweapondebris(g_sp->picnum, dnum);
 
-			if(g_sp->sectnum >= 0 && g_sp->sectnum < MAXSECTORS)
+			if(validSectorIndex(g_sp->sectnum))
 				for(j=(*insptr)-1;j>=0;j--)
 			{
 				if(weap)
@@ -2862,7 +2862,7 @@ int ParseState::parse(void)
 
 		lIn = *insptr++;
 		lIn = GetGameVarID(lIn, g_ac, g_p);
-		if (g_sp->sectnum >= 0 && g_sp->sectnum < MAXSECTORS)
+		if(validSectorIndex(g_sp->sectnum))
 			lReturn = spawn(g_ac, lIn);
 
 		SetGameVarID(g_iReturnVarID, ActorToScriptIndex(lReturn), g_ac, g_p);
@@ -2872,7 +2872,7 @@ int ParseState::parse(void)
 	{
 		DDukeActor* lReturn = nullptr;
 		insptr++;
-		if (g_sp->sectnum >= 0 && g_sp->sectnum < MAXSECTORS)
+		if(validSectorIndex(g_sp->sectnum))
 			lReturn = spawn(g_ac, *insptr);
 		insptr++;
 		SetGameVarID(g_iReturnVarID, ActorToScriptIndex(lReturn), g_ac, g_p);
@@ -3672,7 +3672,7 @@ void LoadActor(DDukeActor *actor, int p, int x)
 
 	s.killit_flag = 0;
 
-	if (actor->s->sectnum < 0 || actor->s->sectnum >= MAXSECTORS)
+	if(!validSectorIndex(actor->s->sectnum))
 	{
 		deletesprite(actor);
 		return;
@@ -3761,7 +3761,7 @@ void execute(DDukeActor *actor,int p,int x)
 
 	s.killit_flag = 0;
 
-	if(actor->s->sectnum < 0 || actor->s->sectnum >= MAXSECTORS)
+	if(!validSectorIndex(actor->s->sectnum))
 	{
 		if(badguy(actor))
 			ps[p].actors_killed++;

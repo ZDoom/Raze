@@ -44,8 +44,8 @@ HITINFO gHitInfo;
 
 bool AreSectorsNeighbors(int sect1, int sect2)
 {
-    assert(sect1 >= 0 && sect1 < kMaxSectors);
-    assert(sect2 >= 0 && sect2 < kMaxSectors);
+    assert(validSectorIndex(sect1));
+	assert(validSectorIndex(sect2));
     if (sector[sect1].wallnum < sector[sect2].wallnum)
     {
         for (int i = 0; i < sector[sect1].wallnum; i++)
@@ -72,7 +72,7 @@ bool AreSectorsNeighbors(int sect1, int sect2)
 bool FindSector(int nX, int nY, int nZ, int *nSector)
 {
     int32_t nZFloor, nZCeil;
-    assert(*nSector >= 0 && *nSector < kMaxSectors);
+	assert(validSectorIndex(*nSector));
     if (inside(nX, nY, *nSector))
     {
         getzsofslope(*nSector, nX, nY, &nZCeil, &nZFloor);
@@ -112,7 +112,7 @@ bool FindSector(int nX, int nY, int nZ, int *nSector)
 
 bool FindSector(int nX, int nY, int *nSector)
 {
-    assert(*nSector >= 0 && *nSector < kMaxSectors);
+	assert(validSectorIndex(*nSector));
     if (inside(nX, nY, *nSector))
     {
         return 1;
@@ -405,7 +405,7 @@ int HitScan(DBloodActor *actor, int z, int dx, int dy, int dz, unsigned int nMas
     gHitInfo.set(&hitData);
     hitscangoal.x = hitscangoal.y = 0x1ffffff;
     pSprite->cstat = bakCstat;
-    if (gHitInfo.hitwall >= kMaxWalls || gHitInfo.hitsect >= kMaxSectors)
+    if (gHitInfo.hitwall >= numwalls || gHitInfo.hitsect >= numsectors)
         return -1;
     if (gHitInfo.hitactor != nullptr)
         return 3;
@@ -456,7 +456,7 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
     pSprite->cstat = bakCstat;
     while (nNum--)
     {
-        if (gHitInfo.hitwall >= kMaxWalls || gHitInfo.hitsect >= kMaxSectors)
+        if (gHitInfo.hitwall >= numwalls || gHitInfo.hitsect >= numsectors)
             return -1;
         if (nRange && approxDist(gHitInfo.hitx - pSprite->x, gHitInfo.hity - pSprite->y) > nRange)
             return -1;

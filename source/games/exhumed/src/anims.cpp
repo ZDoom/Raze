@@ -149,7 +149,7 @@ void AIAnim::Tick(RunListEvent* ev)
 
             if (pSpriteB->sectnum != pSprite->sectnum)
             {
-                if (pSpriteB->sectnum < 0 || pSpriteB->sectnum >= kMaxSectors)
+                if (!validSectorIndex(pSpriteB))
                 {
                     DestroyAnim(pActor);
                     return;

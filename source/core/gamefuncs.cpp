@@ -39,7 +39,7 @@ bool calcChaseCamPos(int* px, int* py, int* pz, spritetype* pspr, int *psectnum,
 	short bakcstat;
 	int newdist;
 
-	assert(*psectnum >= 0 && *psectnum < MAXSECTORS);
+	assert(validSectorIndex(*psectnum));
 
 	// Calculate new pos to shoot backwards, using averaged values from the big three.
 	int nx = gi->chaseCamX(ang);
@@ -61,7 +61,7 @@ bool calcChaseCamPos(int* px, int* py, int* pz, spritetype* pspr, int *psectnum,
 		return false;
 	}
 
-	assert(*psectnum >= 0 && *psectnum < MAXSECTORS);
+	assert(validSectorIndex(*psectnum));
 
 	// If something is in the way, make pp->camera_dist lower if necessary
 	if (abs(nx) + abs(ny) > abs(hx) + abs(hy))

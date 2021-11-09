@@ -366,7 +366,7 @@ static void fakeMoveDude(spritetype *pSprite)
     int tz = (predict.z-top)/4;
     int wd = pSprite->clipdist*4;
     int nSector = predict.sectnum;
-    assert(nSector >= 0 && nSector < kMaxSectors);
+    assert(validSectorIndex(nSector));
     if (predict.xvel || predict.yvel)
     {
         if (pPlayer && gNoClip)
@@ -417,7 +417,7 @@ static void fakeMoveDude(spritetype *pSprite)
     }
     if (predict.sectnum != nSector)
     {
-        assert(nSector >= 0 && nSector < kMaxSectors);
+        assert(validSectorIndex(nSector));
         predict.sectnum = nSector;
     }
     bool bUnderwater = 0;
@@ -571,7 +571,7 @@ static void fakeActAirDrag(spritetype *, int num)
     int xvec = 0;
     int yvec = 0;
     int nSector = predict.sectnum;
-    assert(nSector >= 0 && nSector < kMaxSectors);
+    assert(validSectorIndex(nSector));
     sectortype *pSector = &sector[nSector];
     int nXSector = pSector->extra;
     if (nXSector > 0)

@@ -4173,7 +4173,7 @@ static void actKickObject(DBloodActor* kicker, DBloodActor* kicked)
 static void actTouchFloor(DBloodActor* actor, int nSector)
 {
 	assert(actor != nullptr);
-	assert(nSector >= 0 && nSector < kMaxSectors);
+	assert(validSectorIndex(nSector));
 	sectortype* pSector = &sector[nSector];
 	XSECTOR* pXSector = nullptr;
 	if (pSector->extra > 0) pXSector = &xsector[pSector->extra];
@@ -4583,7 +4583,7 @@ void actAirDrag(DBloodActor* actor, int a2)
 	int wind_x = 0;
 	int wind_y = 0;
 	int nSector = pSprite->sectnum;
-	assert(nSector >= 0 && nSector < kMaxSectors);
+	assert(validSectorIndex(nSector));
 	sectortype* pSector = &sector[nSector];
 	int nXSector = pSector->extra;
 	if (nXSector > 0)
@@ -4616,7 +4616,7 @@ static Collision MoveThing(DBloodActor* actor)
 	assert(pSprite->type >= kThingBase && pSprite->type < kThingMax);
 	const THINGINFO* pThingInfo = &thingInfo[pSprite->type - kThingBase];
 	int nSector = pSprite->sectnum;
-	assert(nSector >= 0 && nSector < kMaxSectors);
+	assert(validSectorIndex(nSector));
 	int top, bottom;
 	Collision lhit;
 
@@ -4635,7 +4635,7 @@ static Collision MoveThing(DBloodActor* actor)
 		assert(nSector >= 0);
 		if (pSprite->sectnum != nSector)
 		{
-			assert(nSector >= 0 && nSector < kMaxSectors);
+			assert(validSectorIndex(nSector));
 			ChangeActorSect(actor, nSector);
 		}
 
@@ -4659,7 +4659,7 @@ static Collision MoveThing(DBloodActor* actor)
 	}
 	else
 	{
-		assert(nSector >= 0 && nSector < kMaxSectors);
+		assert(validSectorIndex(nSector));
 		FindSector(pSprite->x, pSprite->y, pSprite->z, &nSector);
 	}
 
@@ -4838,7 +4838,7 @@ void MoveDude(DBloodActor* actor)
 	int nSector = pSprite->sectnum;
 	int nAiStateType = (pXSprite->aiState) ? pXSprite->aiState->stateType : -1;
 
-	assert(nSector >= 0 && nSector < kMaxSectors);
+	assert(validSectorIndex(nSector));
 
 	if (actor->xvel || actor->yvel)
 	{
@@ -4934,12 +4934,12 @@ void MoveDude(DBloodActor* actor)
 	}
 	else
 	{
-		assert(nSector >= 0 && nSector < kMaxSectors);
+		assert(validSectorIndex(nSector));
 		FindSector(pSprite->x, pSprite->y, pSprite->z, &nSector);
 	}
 	if (pSprite->sectnum != nSector)
 	{
-		assert(nSector >= 0 && nSector < kMaxSectors);
+		assert(validSectorIndex(nSector));
 		XSECTOR* pXSector;
 		int nXSector = sector[pSprite->sectnum].extra;
 		if (nXSector > 0)
@@ -5447,7 +5447,7 @@ int MoveMissile(DBloodActor* actor)
 		updatesector(pos.x, pos.y, &nSector);
 		if (nSector >= 0 && nSector != pSprite->sectnum)
 		{
-			assert(nSector >= 0 && nSector < kMaxSectors);
+			assert(validSectorIndex(nSector));
 			ChangeActorSect(actor, nSector);
 		}
 		CheckLink(actor);

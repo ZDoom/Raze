@@ -300,7 +300,7 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
 {
     spritetype* pSprite = &pActor->s();
     int nSector =pSprite->sectnum;
-    assert(nSector >= 0 && nSector < kMaxSectors);
+    assert(validSectorIndex(nSector));
 
     overridesect = nSector;
     short edi = nSector;
@@ -457,7 +457,7 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
     {
         if ((SectDepth[nSector] != 0) || (edi != nSector && (SectFlag[edi] & kSectUnderwater)))
         {
-            assert(nSector >= 0 && nSector < kMaxSectors);
+            assert(validSectorIndex(nSector));
             BuildSplash(pActor, nSector);
         }
     }
@@ -499,7 +499,7 @@ Collision movesprite(DExhumedActor* pActor, int dx, int dy, int dz, int ceildist
     int nClipDist = (int8_t)pSprite->clipdist << 2;
 
     int nSector = pSprite->sectnum;
-    assert(nSector >= 0 && nSector < kMaxSectors);
+    assert(validSectorIndex(nSector));
 
     int floorZ = sector[nSector].floorz;
 
@@ -1015,7 +1015,7 @@ void MoveSector(int nSector, int nAngle, int *nXVel, int *nYVel)
 
                     clipmove(&pos, &nSectorB, -xvect, -yvect, 4 * sp->clipdist, 0, 0, CLIPMASK0);
 
-                    if (nSectorB >= 0 && nSectorB < kMaxSectors && nSectorB != nSector) {
+                    if (validSectorIndex(nSectorB)) {
                         ChangeActorSect(pActor, nSectorB);
                     }
                 }
@@ -1041,7 +1041,7 @@ void MoveSector(int nSector, int nAngle, int *nXVel, int *nYVel)
                 {
                     if (nSectorB != nSector || nFloorZ >= pSprite->z)
                     {
-                        if (nSectorB >= 0 && nSectorB < kMaxSectors) {
+                        if (validSectorIndex(nSectorB)) {
                             ChangeActorSect(pActor, nSectorB);
                         }
                     }

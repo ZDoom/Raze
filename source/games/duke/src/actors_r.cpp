@@ -2854,7 +2854,7 @@ void moveactors_r(void)
 		auto s = act->s;
 		bool deleteafterexecute = false;	// taking a cue here from RedNukem to not run scripts on deleted sprites.
 
-		if( s->xrepeat == 0 || s->sectnum < 0 || s->sectnum >= MAXSECTORS)
+		if( s->xrepeat == 0 || !validSectorIndex(s->sectnum))
 		{
 			deletesprite(act);
 			continue;

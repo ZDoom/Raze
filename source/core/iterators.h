@@ -48,7 +48,7 @@ class SectIterator
 public:
     SectIterator(int stat)
     {
-        assert(stat >= 0 && stat < MAXSECTORS);
+		assert(validSectorIndex(stat));
         next = headspritesect[stat];
     }
 	
@@ -60,7 +60,7 @@ public:
     
     void Reset(int stat)
     {
-        assert(stat >= 0 && stat < MAXSECTORS);
+		assert(validSectorIndex(stat));
         next = headspritesect[stat];
     }
     

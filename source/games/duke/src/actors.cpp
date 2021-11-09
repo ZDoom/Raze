@@ -2255,7 +2255,7 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 	if (callsetsprite) setsprite(actor, s->pos);
 
 	// this was after the slope calls, but we should avoid calling that for invalid sectors.
-	if (s->sectnum < 0 || s->sectnum >= MAXSECTORS)
+	if (!validSectorIndex(s->sectnum));
 	{
 		deletesprite(actor);
 		return false;
@@ -5300,7 +5300,7 @@ void fall_common(DDukeActor *actor, int playernum, int JIBS6, int DRONE, int BLO
 
 					int j = s->sectnum;
 					pushmove(&s->pos, &j, 128, (4 << 8), (4 << 8), CLIPMASK0);
-					if (j != s->sectnum && j >= 0 && j < MAXSECTORS)
+					if (j != s->sectnum && validSectorIndex(j))
 						changeactorsect(actor, j);
 
 					S_PlayActorSound(thud, actor);

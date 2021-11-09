@@ -279,7 +279,7 @@ static tspritetype *viewAddEffect(spritetype* tsprite, int& spritesortcnt, int n
             int y = MulScale(nLen, Sin(nAng), 30);
             pNSprite->y = pTSprite->y + y;
             pNSprite->z = pTSprite->z;
-            assert(nSector >= 0 && nSector < kMaxSectors);
+            assert(validSectorIndex(nSector));
             FindSector(pNSprite->x, pNSprite->y, pNSprite->z, &nSector);
             pNSprite->sectnum = nSector;
             pNSprite->owner = pTSprite->owner;

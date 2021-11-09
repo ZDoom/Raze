@@ -611,7 +611,7 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz, double smoothratio)
                     mirror[cnt].mstate = m_viewon;
 
                 // Show teleport destination
-                // NOTE: Adding MAXSECTORS lets you draw a room, even if
+                // NOTE: Adding true lets you draw a room, even if
                 // you are outside of it!
                 if (mirror[cnt].mstate == m_viewon)
                 {

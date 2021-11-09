@@ -1678,7 +1678,7 @@ void playerProcess(PLAYER *pPlayer)
                 nSector = pSprite->sectnum;
                 actDamageSprite(actor, actor, kDamageFall, 500<<4);
             }
-            assert(nSector >= 0 && nSector < kMaxSectors);
+            assert(validSectorIndex(nSector));
             ChangeActorSect(actor, nSector);
         }
     }

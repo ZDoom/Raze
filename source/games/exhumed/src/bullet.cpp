@@ -174,7 +174,7 @@ void IgniteSprite(DExhumedActor* pActor)
 
 void BulletHitsSprite(Bullet *pBullet, DExhumedActor* pBulletActor, DExhumedActor* pHitActor, int x, int y, int z, int nSector)
 {
-    assert(nSector >= 0 && nSector < kMaxSectors);
+    assert(validSectorIndex(nSector));
 
     bulletInfo *pBulletInfo = &BulletInfo[pBullet->nType];
 
@@ -582,8 +582,6 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int n
         {
             spritetype *pTargetSprite = &pTarget->s();
 
-//			assert(pTargetSprite->sectnum <= kMaxSectors);
-
             if (pTargetSprite->cstat & 0x101)
             {
                 sBullet.nType = nType;
@@ -594,7 +592,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int n
 
                 int nHeight = GetActorHeight(pTarget);
 
-                assert(pTargetSprite->sectnum >= 0 && pTargetSprite->sectnum < kMaxSectors);
+				assert(validSectorIndex(pTargetSprite->sectnum));
 
                 BulletHitsSprite(&sBullet, pActor, pTarget, pTargetSprite->x, pTargetSprite->y, pTargetSprite->z - (nHeight >> 1), pTargetSprite->sectnum);
                 DeleteActor(sBullet.pActor);

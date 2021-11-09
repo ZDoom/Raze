@@ -149,7 +149,7 @@ bool CanMove(DBloodActor* actor, DBloodActor* target, int nAngle, int nRange)
 	x += MulScale(nRange, Cos(nAngle), 30);
 	y += MulScale(nRange, Sin(nAngle), 30);
 	int nSector = pSprite->sectnum;
-	assert(nSector >= 0 && nSector < kMaxSectors);
+	assert(validSectorIndex(nSector));
 	if (!FindSector(x, y, z, &nSector))
 		return false;
 	int floorZ = getflorzofslope(nSector, x, y);

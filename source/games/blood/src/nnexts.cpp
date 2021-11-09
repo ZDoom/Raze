@@ -1697,7 +1697,7 @@ void debrisMove(int listIndex)
         gPhysSpritesList[listIndex] = nullptr;
         return;
     }
-    else if (pSprite->sectnum < 0 || pSprite->sectnum >= kMaxSectors)
+    else if (validSectorIndex(pSprite->sectnum))
     {
         gPhysSpritesList[listIndex] = nullptr;
         return;
@@ -1760,7 +1760,7 @@ void debrisMove(int listIndex)
 
     if (pSprite->sectnum != nSector)
     {
-            assert(nSector >= 0 && nSector < kMaxSectors);
+            assert(validSectorIndex(nSector));
         ChangeActorSect(actor, nSector);
         nSector = pSprite->sectnum;
         }
@@ -2883,7 +2883,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, int objIndex, D
                     pXLower = &aLower->x();
 
                     // must be sure we found exact same upper link
-                    for (int i = 0; i < kMaxSectors; i++) 
+                    for (int i = 0; i < numsectors; i++) 
                     {
                         auto aUpper = getUpperLink(i);
                         if (aUpper == nullptr || aUpper->x().data1 != pXLower->data1) continue;
@@ -3055,7 +3055,7 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
             if (aLink) 
             {
                 // must be sure we found exact same upper link
-                for (int i = 0; i < kMaxSectors; i++) 
+                for (int i = 0; i < numsectors; i++) 
                 {
                     auto aUpper = getUpperLink(i);
                     if (aUpper == nullptr || aUpper->x().data1 != aLink->x().data1) continue;
@@ -9187,7 +9187,7 @@ void clampSprite(DBloodActor* actor, int which)
 {
     auto pSprite = &actor->s();
     int zTop, zBot;
-    if (pSprite->sectnum >= 0 && pSprite->sectnum < kMaxSectors) 
+    if (validSectorIndex(pSprite->sectnum))
     {
         GetSpriteExtents(pSprite, &zTop, &zBot);
         if (which & 0x01)

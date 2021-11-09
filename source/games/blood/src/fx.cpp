@@ -197,7 +197,7 @@ void CFX::fxProcess(void)
         spritetype *pSprite = &actor->s();
         viewBackupSpriteLoc(actor);
         int nSector = pSprite->sectnum;
-        assert(nSector >= 0 && nSector < kMaxSectors);
+        assert(validSectorIndex(nSector));
         assert(pSprite->type < kFXMax);
         FXDATA *pFXData = &gFXData[pSprite->type];
         actAirDrag(actor, pFXData->drag);
@@ -226,7 +226,7 @@ void CFX::fxProcess(void)
             }
             if (nSector != pSprite->sectnum)
             {
-                assert(nSector >= 0 && nSector < kMaxSectors);
+                assert(validSectorIndex(nSector));
                 ChangeActorSect(actor, nSector);
             }
         }

@@ -350,7 +350,7 @@ void EnemyBubble(DBloodActor* actor, int) // 11
 
 void CounterCheck(DBloodActor*, int nSector) // 12
 {
-    if (nSector < 0 || nSector >= kMaxSectors) return;
+    if (!validSectorIndex(nSector)) return;
     if (sector[nSector].type != kSectorCounter) return;
     if (sector[nSector].extra <= 0) return;
     

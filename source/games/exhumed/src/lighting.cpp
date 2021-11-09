@@ -214,7 +214,7 @@ void InitLights()
 
 void AddFlash(int nSector, int x, int y, int z, int val)
 {
-    assert(nSector >= 0 && nSector < kMaxSectors);
+    assert(validSectorIndex(nSector));
     auto sectp = &sector[nSector];
 
     int var_28 = 0;
@@ -415,7 +415,7 @@ void UndoFlashes()
             {
                 case 0:
                 {
-                    assert(nIndex >= 0 && nIndex < kMaxSectors);
+					assert(validSectorIndex(nIndex));
 
                     pShade = &sector[nIndex].floorshade;
                     break;
@@ -431,7 +431,7 @@ void UndoFlashes()
 
                 case 2:
                 {
-                    assert(nIndex >= 0 && nIndex < kMaxSectors);
+					assert(validSectorIndex(nIndex));
 
                     pShade = &sector[nIndex].ceilingshade;
                     break;

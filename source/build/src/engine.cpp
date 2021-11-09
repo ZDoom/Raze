@@ -318,7 +318,7 @@ int32_t insertsprite(int16_t sectnum, int16_t statnum)
 
     if (newspritenum >= 0)
     {
-        assert((unsigned)sectnum < MAXSECTORS);
+        assert(validSectorIndex(sectnum));
 
         do_insertsprite_at_headofsect(newspritenum, sectnum);
         Numsprites++;

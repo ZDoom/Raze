@@ -2900,7 +2900,7 @@ void processinput_d(int snum)
 	s->xvel = clamp(ksqrt((p->pos.x - p->bobposx) * (p->pos.x - p->bobposx) + (p->pos.y - p->bobposy) * (p->pos.y - p->bobposy)), 0, 512);
 	if (p->on_ground) p->bobcounter += p->GetActor()->s->xvel >> 1;
 
-	p->backuppos(ud.clipping == 0 && (p->cursector()->floorpicnum == MIRROR || p->cursectnum < 0 || p->cursectnum >= MAXSECTORS));
+	p->backuppos(ud.clipping == 0 && (p->cursector()->floorpicnum == MIRROR || !validSectorIndex(p->cursectnum)));
 
 	// Shrinking code
 
