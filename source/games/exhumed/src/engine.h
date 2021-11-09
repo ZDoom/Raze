@@ -96,7 +96,7 @@ extern short SectSpeed[];
 extern int SectBelow[];
 extern short SectFlag[];
 extern int SectDepth[];
-extern short SectSoundSect[];
+extern int SectSoundSect[];
 extern int SectAbove[];
 
 void LoadObjects();

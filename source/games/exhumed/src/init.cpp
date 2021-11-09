@@ -52,7 +52,7 @@ int movefifopos;
 
 short nCurBodyGunNum;
 
-short SectSoundSect[kMaxSectors] = { 0 };
+int SectSoundSect[kMaxSectors] = { 0 };
 short SectSound[kMaxSectors]     = { 0 };
 short SectFlag[kMaxSectors]      = { 0 };
 int   SectDepth[kMaxSectors]     = { 0 };

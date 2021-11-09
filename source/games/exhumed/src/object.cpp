@@ -105,7 +105,7 @@ struct MoveSect
 struct wallFace
 {
     short nChannel;
-    short nWall;
+    int nWall;
     short field_4;
     short field_6[8];
 };
@@ -908,7 +908,7 @@ void InitWallFace()
     WallFace.Clear();
 }
 
-int BuildWallFace(short nChannel, short nWall, int nCount, ...)
+int BuildWallFace(short nChannel, int nWall, int nCount, ...)
 {
     auto WallFaceCount = WallFace.Reserve(1);
 
@@ -1006,8 +1006,8 @@ int BuildSlide(int nChannel, int nStartWall, int nWall1, int ecx, int nWall2, in
     PointList[nPoint].nNext = -1;
     PointList[nPoint].nSector = nSector;
 
-    short startwall = sector[nSector].wallptr;
-    short endwall = startwall + sector[nSector].wallnum;
+    int startwall = sector[nSector].wallptr;
+    int endwall = startwall + sector[nSector].wallnum;
 
     for (int nWall = startwall; nWall < endwall; nWall++)
     {
@@ -1131,7 +1131,7 @@ void AISlide::Tick(RunListEvent* ev)
 
     if (cx == 1)
     {
-        short nWall = SlideData[nSlide].field_4;
+        int nWall = SlideData[nSlide].field_4;
         int x = wall[nWall].x;
         int y = wall[nWall].y;
 
@@ -1189,7 +1189,7 @@ void AISlide::Tick(RunListEvent* ev)
     }
     else if (cx == 0) // right branch
     {
-        short nWall = SlideData[nSlide].field_0;
+        int nWall = SlideData[nSlide].field_0;
         int x = wall[nWall].x;
         int y = wall[nWall].y;
 
@@ -1296,7 +1296,7 @@ int BuildTrap(DExhumedActor* pActor, int edx, int ebx, int ecx)
     sTrap[nTrap].field_8 = -1;
 
     int nSector =pSprite->sectnum;
-    short nWall = sector[nSector].wallptr;
+    int nWall = sector[nSector].wallptr;
 
     int i = 0;
 
@@ -1364,7 +1364,7 @@ void AITrap::Tick(RunListEvent* ev)
 
             if (nType == 14)
             {
-                short nWall = sTrap[nTrap].field_6;
+                int nWall = sTrap[nTrap].field_6;
                 if (nWall > -1)
                 {
                     wall[nWall].picnum = sTrap[nTrap].field_A;
@@ -1396,7 +1396,7 @@ void AITrap::Tick(RunListEvent* ev)
                 {
                     pBullet->s().clipdist = 50;
 
-                    short nWall = sTrap[nTrap].field_6;
+                    int nWall = sTrap[nTrap].field_6;
                     if (nWall > -1)
                     {
                         wall[nWall].picnum = sTrap[nTrap].field_A + 1;
@@ -1558,8 +1558,8 @@ void DimLights()
         if (sector[i].floorshade < 100)
             sector[i].floorshade++;
 
-        short startwall = sector[i].wallptr;
-        short endwall = startwall + sector[i].wallnum;
+        int startwall = sector[i].wallptr;
+        int endwall = startwall + sector[i].wallnum;
 
         for (int nWall = startwall; nWall < endwall; nWall++)
         {
@@ -1638,8 +1638,8 @@ void DoFinale()
 
 DExhumedActor* BuildEnergyBlock(int nSector)
 {
-    short startwall = sector[nSector].wallptr;
-    short nWalls = sector[nSector].wallnum;
+    int startwall = sector[nSector].wallptr;
+    int nWalls = sector[nSector].wallnum;
 
     int x = 0;
     int y = 0;
@@ -1726,8 +1726,8 @@ void ExplodeEnergyBlock(DExhumedActor* pActor)
 
     int nSector =pSprite->sectnum;
 
-    short startwall = sector[nSector].wallptr;
-    short nWalls = sector[nSector].wallnum;
+    int startwall = sector[nSector].wallptr;
+    int nWalls = sector[nSector].wallnum;
 
     int i;
 
@@ -1805,8 +1805,8 @@ void ExplodeEnergyBlock(DExhumedActor* pActor)
                 sector[i].floorpal = 0;
             }
 
-            short startwall = sector[i].wallptr;
-            short endwall = startwall + sector[i].wallnum;
+            int startwall = sector[i].wallptr;
+            int endwall = startwall + sector[i].wallnum;
 
             for (int nWall = startwall; nWall < endwall; nWall++)
             {

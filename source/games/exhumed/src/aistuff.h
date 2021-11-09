@@ -236,7 +236,7 @@ void BuildNear(int x, int y, int walldist, int nSector);
 int PlotCourseToSprite(DExhumedActor* nSprite1, DExhumedActor* nSprite2);
 void CheckSectorFloor(int nSector, int z, int *x, int *y);
 int GetAngleToSprite(DExhumedActor* nSprite1, DExhumedActor* nSprite2);
-int GetWallNormal(short nWall);
+int GetWallNormal(int nWall);
 int GetUpAngle(DExhumedActor* nSprite1, int nVal, DExhumedActor* nSprite2, int ecx);
 void MoveSector(int nSector, int nAngle, int *nXVel, int *nYVel);
 Collision AngleChase(DExhumedActor* nSprite, DExhumedActor* nSprite2, int ebx, int ecx, int push1);
@@ -295,7 +295,7 @@ void BuildDrip(DExhumedActor* nSprite);
 DExhumedActor* BuildEnergyBlock(int nSector);
 int BuildElevC(int arg1, int nChannel, int nSector, DExhumedActor* nWallSprite, int arg5, int arg6, int nCount, ...);
 int BuildElevF(int nChannel, int nSector, DExhumedActor* nWallSprite, int arg_4, int arg_5, int nCount, ...);
-int BuildWallFace(short nChannel, short nWall, int nCount, ...);
+int BuildWallFace(short nChannel, int nWall, int nCount, ...);
 int BuildSlide(int nChannel, int edx, int ebx, int ecx, int arg1, int arg2, int arg3);
 
 // queen
@@ -768,7 +768,7 @@ std::pair<int, int> BuildSwPressSector(int nChannel, int nLink, int nSector, int
 std::pair<int, int> BuildSwStepOn(int nChannel, int nLink, int nSector);
 std::pair<int, int> BuildSwReady(int nChannel, short nLink);
 
-std::pair<int, int> BuildSwPressWall(short nChannel, short nLink, short nWall);
+std::pair<int, int> BuildSwPressWall(short nChannel, short nLink, int nWall);
 
 // wasp
 

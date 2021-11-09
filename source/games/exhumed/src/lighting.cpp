@@ -62,8 +62,8 @@ struct Flicker
 
 struct Flow
 {
-    short objindex;
-    short type;
+    int objindex;
+    int type;
     int xdelta;
     int ydelta;
     int angcos;
@@ -404,12 +404,12 @@ void UndoFlashes()
 
     int edi = -1;
 
-    for (short nFlash = nFirstFlash; nFlash >= 0; nFlash = sFlash[nFlash].next)
+    for (int nFlash = nFirstFlash; nFlash >= 0; nFlash = sFlash[nFlash].next)
     {
         assert(nFlash < 2000 && nFlash >= 0);
 
         uint8_t type = sFlash[nFlash].nType & 0x3F;
-        short nIndex = sFlash[nFlash].nIndex;
+        int nIndex = sFlash[nFlash].nIndex;
 
         if (sFlash[nFlash].nType & 0x80)
         {
@@ -748,7 +748,7 @@ void DoFlows()
 
             case 2:
             {
-                short nWall = sFlowInfo[i].objindex;
+                int nWall = sFlowInfo[i].objindex;
 
                 wall[nWall].setxpan(sFlowInfo[i].xdelta / 16384.f);
                 wall[nWall].setypan(sFlowInfo[i].ydelta / 16384.f);
@@ -768,7 +768,7 @@ void DoFlows()
 
             case 3:
             {
-                short nWall = sFlowInfo[i].objindex;
+                int nWall = sFlowInfo[i].objindex;
 
                 wall[nWall].setxpan(sFlowInfo[i].xdelta / 16384.f);
                 wall[nWall].setypan(sFlowInfo[i].ydelta / 16384.f);

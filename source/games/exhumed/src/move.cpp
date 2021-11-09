@@ -239,8 +239,8 @@ void BuildNear(int x, int y, int walldist, int nSector)
     {
         int nSector =NearSector[i];
 
-        short nWall = sector[nSector].wallptr;
-        short nWallCount = sector[nSector].wallnum;
+        int nWall = sector[nSector].wallptr;
+        int nWallCount = sector[nSector].wallnum;
 
         while (1)
         {
@@ -1298,7 +1298,7 @@ Collision AngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int ebx, int
     return movesprite(pActor, x >> 2, y >> 2, (z >> 13) + bsin(ecx, -5), 0, 0, nClipType);
 }
 
-int GetWallNormal(short nWall)
+int GetWallNormal(int nWall)
 {
     nWall &= kMaxWalls-1;
 
