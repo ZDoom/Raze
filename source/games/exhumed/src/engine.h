@@ -110,7 +110,6 @@ void FixPalette();
 int HavePLURemap();
 uint8_t RemapPLU(uint8_t pal);
 
-//extern unsigned char kenpal[];
 extern short overscanindex;
 
 extern char *origpalookup[];
@@ -129,7 +128,7 @@ void DrawMap(double const smoothratio);
 
 void InitRandom();
 int RandomBit();
-char RandomByte();
+uint8_t RandomByte();
 uint16_t RandomWord();
 int RandomLong();
 int RandomSize(int nSize);

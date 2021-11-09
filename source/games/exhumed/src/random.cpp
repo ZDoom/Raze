@@ -52,9 +52,9 @@ int RandomBit()
     return (((randA == 0) & randC) | (randB & randA)) & 1;
 }
 
-char RandomByte()
+uint8_t RandomByte()
 {
-    char randByte = RandomBit() << 7;
+    uint8_t randByte = RandomBit() << 7;
     randByte |= RandomBit() << 6;
     randByte |= RandomBit() << 5;
     randByte |= RandomBit() << 4;
@@ -67,7 +67,7 @@ char RandomByte()
 
 uint16_t RandomWord()
 {
-    short randWord = RandomByte() << 8;
+    uint16_t randWord = RandomByte() << 8;
     randWord |= RandomByte();
     return randWord;
 }

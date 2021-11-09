@@ -50,7 +50,7 @@ struct TrailPoint
 {
     int x;
     int y;
-    char nTrailPointVal;
+    uint8_t nTrailPointVal;
     short nTrailPointPrev;
     short nTrailPointNext;
 
@@ -59,8 +59,8 @@ struct TrailPoint
 struct Bob
 {
     int nSector;
-    char field_2;
-    char field_3;
+    uint8_t field_2;
+    uint8_t field_3;
     int z;
     short sBobID;
 

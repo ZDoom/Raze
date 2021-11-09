@@ -730,7 +730,7 @@ struct Snake
     short sC;
     short nRun;
 
-    char c[8];
+    uint8_t c[8];
     short sE;
     short nSnakePlayer;
 };
