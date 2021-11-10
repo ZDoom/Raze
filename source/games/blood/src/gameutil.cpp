@@ -589,10 +589,7 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
                 if (!actor) return 2;
                 auto link = actor->GetOwner();
                 gHitInfo.clearObj();
-                x1 = gHitInfo.hitx + link->s().x - actor->s().x;
-                y1 = gHitInfo.hity + link->s().y - actor->s().y;
-                z1 = gHitInfo.hitz + link->s().z - actor->s().z;
-                pos = { x1, y1, z1 };
+                vec3_t pos = link->s().pos - actor->s().pos + vec3_t(gHitInfo.hitx, gHitInfo.hity, gHitInfo.hitz);
                 hitData.pos.z = gHitInfo.hitz;
                 hitscan(&pos, link->s().sectnum, dx, dy, dz<<4, &hitData, CLIPMASK1);
                 gHitInfo.set(&hitData);
@@ -604,10 +601,7 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
                 if (!actor) return 1;
                 auto link = actor->GetOwner();
                 gHitInfo.clearObj();
-                x1 = gHitInfo.hitx + link->s().x - actor->s().x;
-                y1 = gHitInfo.hity + link->s().y - actor->s().y;
-                z1 = gHitInfo.hitz + link->s().z - actor->s().z;
-                pos = { x1, y1, z1 };
+                vec3_t pos = link->s().pos - actor->s().pos + vec3_t(gHitInfo.hitx, gHitInfo.hity, gHitInfo.hitz);
                 hitData.pos.z = gHitInfo.hitz;
                 hitscan(&pos, link->s().sectnum, dx, dy, dz<<4, &hitData, CLIPMASK1);
                 gHitInfo.set(&hitData);
@@ -646,7 +640,7 @@ void GetZRange(DBloodActor *actor, int *ceilZ, Collision *ceilColl, int *floorZ,
         {
             int nSprite = gUpperLink[nSector];
             auto link = actor->GetOwner();
-            vec3_t lpos = { pSprite->x + link->s().x - actor->s().x, pSprite->y + link->s().y - actor->s().y, pSprite->z + link->s().z - actor->s().z };
+            vec3_t lpos = pSprite->pos + link->s().pos - actor->s().pos;
             getzrange(&lpos, link->s().sectnum, &nTemp1, &nTemp2, (int32_t*)floorZ, &floorHit, nDist, nMask);
             *floorZ -= link->s().z - actor->s().z;
             floorColl->setFromEngine(floorHit);
@@ -661,7 +655,7 @@ void GetZRange(DBloodActor *actor, int *ceilZ, Collision *ceilColl, int *floorZ,
         if (actor)
         {
             auto link = actor->GetOwner();
-            vec3_t lpos = { pSprite->x + link->s().x - actor->s().x, pSprite->y + link->s().y - actor->s().y, pSprite->z + link->s().z - actor->s().z };
+            vec3_t lpos = pSprite->pos + link->s().pos - actor->s().pos;
             getzrange(&lpos, link->s().sectnum, (int32_t*)ceilZ, &ceilHit, &nTemp1, &nTemp2, nDist, nMask);
             *ceilZ -= link->s().z - actor->s().z;
             ceilColl->setFromEngine(ceilHit);
@@ -692,8 +686,8 @@ void GetZRangeAtXYZ(int x, int y, int z, int nSector, int *ceilZ, Collision* cei
         if (actor)
         {
             auto link = actor->GetOwner();
-            lpos = { x+link->s().x-actor->s().x, y+link->s().y-actor->s().y, z+link->s().z-actor->s().z };
-            getzrange(&lpos, link->s().sectnum, &nTemp1, &nTemp2, (int32_t*)floorZ, &floorHit, nDist, nMask);
+            vec3_t newpos = lpos + link->s().pos - actor->s().pos;
+            getzrange(&newpos, link->s().sectnum, &nTemp1, &nTemp2, (int32_t*)floorZ, &floorHit, nDist, nMask);
             floorColl->setFromEngine(floorHit);
             *floorZ -= link->s().z - actor->s().z;
         }
@@ -707,8 +701,8 @@ void GetZRangeAtXYZ(int x, int y, int z, int nSector, int *ceilZ, Collision* cei
         if (actor)
         {
             auto link = actor->GetOwner();
-            lpos = { x+link->s().x-actor->s().x, y+link->s().y-actor->s().y, z+link->s().z-actor->s().z };
-            getzrange(&lpos, link->s().sectnum, (int32_t*)ceilZ, &ceilHit, &nTemp1, &nTemp2, nDist, nMask);
+            vec3_t newpos = lpos + link->s().pos - actor->s().pos;
+            getzrange(&newpos, link->s().sectnum, (int32_t*)ceilZ, &ceilHit, &nTemp1, &nTemp2, nDist, nMask);
             ceilColl->setFromEngine(ceilHit);
             *ceilZ -= link->s().z - actor->s().z;
         }
