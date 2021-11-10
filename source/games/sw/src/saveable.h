@@ -68,7 +68,6 @@ typedef struct
 } saveddatasym;
 
 void Saveable_Init(void);
-void Saveable_Init_Dynamic(void);
 
 int Saveable_FindCodeSym(void *ptr, savedcodesym *sym);
 int Saveable_FindDataSym(void *ptr, saveddatasym *sym);

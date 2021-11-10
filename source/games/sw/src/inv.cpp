@@ -337,7 +337,8 @@ void StopInventoryCloak(PLAYERp pp, short InventoryNum)
 //
 //////////////////////////////////////////////////////////////////////
 
-static char sectorfloorpals[MAXSECTORS], sectorceilingpals[MAXSECTORS], wallpals[MAXWALLS];
+static char sectorfloorpals[MAXSECTORS], sectorceilingpals[MAXSECTORS];
+static char wallpals[MAXWALLS];
 
 
 void

@@ -36,8 +36,6 @@ void Saveable_Init(void)
 {
     if (saveablemodules.Size() > 0) return;
 
-    Saveable_Init_Dynamic();
-
 #define MODULE(x) { \
         extern saveable_module saveable_ ## x; \
         saveablemodules.Push(&saveable_ ## x); \
@@ -45,7 +43,7 @@ void Saveable_Init(void)
 
     MODULE(actor)
     MODULE(ai)
-    MODULE(build)
+    MODULE(ai) // was 'build' but that is not used anywhere anymore.
     MODULE(bunny)
     MODULE(coolg)
     MODULE(coolie)

@@ -1026,7 +1026,7 @@ void CollectPortals()
     testnewrenderer = true;
     TArray<PortalGroup> floorportals;
     TArray<PortalGroup> ceilingportals;
-    FixedBitArray<MAXSECTORS> floordone, ceilingdone;
+    BitArray floordone(numsectors), ceilingdone(numsectors);
 
     for (int i = 0; i < numsectors; i++)
     {
