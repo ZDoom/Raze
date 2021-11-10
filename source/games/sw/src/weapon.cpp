@@ -7653,8 +7653,8 @@ short StatBreakList[] =
 void TraverseBreakableWalls(short start_sect, int x, int y, int z, short ang, int radius)
 {
     int j, k;
-    short sectlist[MAXSECTORS]; // !JIM! Frank, 512 was not big enough for $dozer, was asserting out!
-    short sectlistplc, sectlistend, sect, startwall, endwall, nextsector;
+    int sect, startwall, endwall, nextsector;
+    unsigned sectlistplc, sectliststart;
     int xmid,ymid;
     int dist;
     short break_count;
@@ -7662,20 +7662,19 @@ void TraverseBreakableWalls(short start_sect, int x, int y, int z, short ang, in
 	int sectnum;
 	short wall_ang;
     int hit_x,hit_y,hit_z;
+    
 
-    sectlist[0] = start_sect;
-    sectlistplc = 0; sectlistend = 1;
+    sectliststart = sectlistplc = GlobalSectorList.Size();
+    GlobalSectorList.Push(start_sect);
 
     // limit radius
     if (radius > 2000)
         radius = 2000;
 
     break_count = 0;
-    while (sectlistplc < sectlistend)
+    while (sectlistplc < GlobalSectorList.Size())
     {
-        sect = sectlist[sectlistplc++];
-
-        ASSERT((uint16_t)sectlistplc < SIZ(sectlist));
+        sect = GlobalSectorList[sectlistplc++];
 
         startwall = sector[sect].wallptr;
         endwall = startwall + sector[sect].wallnum;
@@ -7686,8 +7685,8 @@ void TraverseBreakableWalls(short start_sect, int x, int y, int z, short ang, in
             if (wall[j].lotag == TAG_WALL_BREAK)
             {
                 // find midpoint
-                xmid = DIV2(wall[j].x + wall[j+1].x);
-                ymid = DIV2(wall[j].y + wall[j+1].y);
+                xmid = (wall[j].x + wall[j+1].x) >> 1;
+                ymid = (wall[j].y + wall[j+1].y) >> 1;
 
                 // don't need to go further if wall is too far out
 
@@ -7704,7 +7703,10 @@ void TraverseBreakableWalls(short start_sect, int x, int y, int z, short ang, in
 
                         break_count++;
                         if (break_count > 4)
+                        {
+                            GlobalSectorList.Resize(sectliststart);
                             return;
+                        }
                     }
                 }
             }
@@ -7715,21 +7717,21 @@ void TraverseBreakableWalls(short start_sect, int x, int y, int z, short ang, in
                 continue;
 
             // make sure its not on the list
-            for (k = sectlistend - 1; k >= 0; k--)
+            for (k = GlobalSectorList.Size() - 1; k >= (int)sectliststart; k--)
             {
-                if (sectlist[k] == nextsector)
+                if (GlobalSectorList[k] == nextsector)
                     break;
             }
 
             // if its not on the list add it to the end
             if (k < 0)
             {
-                sectlist[sectlistend++] = nextsector;
-                ASSERT((uint16_t)sectlistend < SIZ(sectlist));
+                GlobalSectorList.Push(nextsector);
             }
         }
 
     }
+    GlobalSectorList.Resize(sectliststart);
 }
 
 

@@ -4,6 +4,8 @@
 #include "binaryangle.h"
 #include "build.h"
 
+extern TArray<int> GlobalSectorList;
+
 extern int cameradist, cameraclock;
 
 void loaddefinitionsfile(const char* fn, bool cumulative = false, bool maingrp = false);
