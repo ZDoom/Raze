@@ -1703,6 +1703,11 @@ public:
 	{
 		memset(&bytes[0], 0, bytes.Size());
 	}
+
+	TArray<uint8_t> &Storage()
+	{
+		return bytes;
+	}
 };
 
 

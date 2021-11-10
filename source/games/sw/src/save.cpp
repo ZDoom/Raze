@@ -819,24 +819,24 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, SECT_USER& w, SECT
 
 void SerializeSectUser(FSerializer& arc)
 {
-	FixedBitArray<MAXSECTORS> hitlist;
+	BitArray hitlist(numsectors);
 
 	if (arc.isWriting())
 	{
-		for (int i = 0; i < MAXSECTORS; i++)
+		for (int i = 0; i < numsectors; i++)
 		{
 			hitlist.Set(i, !!SectUser[i].Data());
 		}
 	}
 	else
 	{
-		for (int i = 0; i < MAXSECTORS; i++)
+		for (int i = 0; i < numsectors; i++)
 		{
 			SectUser[i].Clear();
 		}
 	}
-	arc("sectusermap", hitlist);
-	arc.SparseArray("sectuser", SectUser, MAXSECTORS, hitlist);
+	arc.SerializeMemory("sectusermap", hitlist.Storage().Data(), hitlist.Storage().Size());
+	arc.SparseArray("sectuser", SectUser, numsectors, hitlist);
 }
 
 //---------------------------------------------------------------------------
