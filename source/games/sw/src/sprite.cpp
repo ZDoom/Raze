@@ -48,6 +48,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "quotemgr.h"
 #include "v_text.h"
 #include "gamecontrol.h"
+#include "gamefuncs.h"
 
 BEGIN_SW_NS
 
@@ -1603,8 +1604,8 @@ void PreMapCombineFloors(void)
     int SpriteNum;
     int base_offset;
     int dx,dy;
-    short sectlist[MAXSECTORS];
-    short sectlistplc, sectlistend, dasect, startwall, endwall, nextsector;
+    int dasect, startwall, endwall, nextsector;
+    unsigned sectliststart, sectlistplc;
     short pnum;
 
     typedef struct
@@ -1632,6 +1633,7 @@ void PreMapCombineFloors(void)
         }
     }
 
+    sectliststart = GlobalSectorList.Size();
     for (i = base_offset = 0; i < MAX_FLOORS; i++)
     {
         // blank so continue
@@ -1647,11 +1649,12 @@ void PreMapCombineFloors(void)
         dx = BoundList[base_offset].offset->x - BoundList[i].offset->x;
         dy = BoundList[base_offset].offset->y - BoundList[i].offset->y;
 
-        sectlist[0] = BoundList[i].offset->sectnum;
-        sectlistplc = 0; sectlistend = 1;
-        while (sectlistplc < sectlistend)
+        GlobalSectorList.Resize(sectliststart);
+        GlobalSectorList.Push(BoundList[i].offset->sectnum);
+        sectlistplc = sectliststart;
+        while (sectlistplc < GlobalSectorList.Size())
         {
-            dasect = sectlist[sectlistplc++];
+            dasect = GlobalSectorList[sectlistplc++];
 
             SectIterator it(dasect);
             while ((j = it.NextIndex()) >= 0)
@@ -1670,11 +1673,18 @@ void PreMapCombineFloors(void)
                 nextsector = wall[j].nextsector;
                 if (nextsector < 0) continue;
 
-                for (k=sectlistend-1; k>=0; k--)
-                    if (sectlist[k] == nextsector)
+                // make sure its not on the list
+                for (k = GlobalSectorList.Size() - 1; k >= (int)sectliststart; k--)
+                {
+                    if (GlobalSectorList[k] == nextsector)
                         break;
+                }
+
+                // if its not on the list add it to the end
                 if (k < 0)
-                    sectlist[sectlistend++] = nextsector;
+                {
+                    GlobalSectorList.Push(nextsector);
+                }
             }
 
         }
@@ -1683,9 +1693,9 @@ void PreMapCombineFloors(void)
         {
             PLAYERp pp = &Player[pnum];
             dasect = pp->cursectnum;
-            for (j=0; j<sectlistend; j++)
+            for (unsigned j = sectliststart; j < GlobalSectorList.Size(); j++)
             {
-                if (sectlist[j] == dasect)
+                if (GlobalSectorList[j] == dasect)
                 {
                     pp->posx += dx;
                     pp->posy += dy;
@@ -1704,6 +1714,7 @@ void PreMapCombineFloors(void)
     {
         KillSprite(SpriteNum);
     }
+    GlobalSectorList.Resize(sectliststart);
 }
 
 #if 0
@@ -1711,7 +1722,7 @@ void PreMapCombineFloors(void)
 void TraverseSectors(short start_sect)
 {
     int i, j, k;
-    short sectlist[MAXSECTORS];
+    short sectlist[M AXSECTORS];
     short sectlistplc, sectlistend, sect, startwall, endwall, nextsector;
 
     sectlist[0] = start_sect;

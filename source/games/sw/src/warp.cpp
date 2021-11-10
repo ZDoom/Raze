@@ -183,7 +183,7 @@ WarpToArea(SPRITEp sp_from, int32_t* x, int32_t* y, int32_t* z, int* sectnum)
             // exp: WARP_CEILING or WARP_CEILING_PLANE
             if (sp->hitag == to_tag)
             {
-                if ((unsigned)sp->sectnum >= MAXSECTORS)
+                if (!validSectorIndex(sp->sectnum))
                     return nullptr;
 
                 // determine new x,y,z position
