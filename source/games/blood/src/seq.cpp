@@ -759,14 +759,20 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, SEQINST& w, SEQINS
 {
 	if (arc.BeginObject(keyname))
 	{
-		arc("index", w.seqindex)
-			("actor", w.actor)
-			("type", w.type)
+		arc	("type", w.type)
 			("callback", w.callback)
 			("seqid", w.nSeqID)
 			("timecounter", w.timeCounter)
-			("frameindex", w.frameIndex)
-			.EndObject();
+			("frameindex", w.frameIndex);
+#ifdef OLD_SAVEGAME
+		if (w.type == SS_SPRITE) arc("index", w.actor);
+		else arc("index", w.seqindex);
+#else
+		arc("index", w.seqindex)
+			("actor", w.actor);
+#endif
+			
+			arc.EndObject();
 	}
 	return arc;
 }
