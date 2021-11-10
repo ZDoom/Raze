@@ -477,10 +477,19 @@ double InputScale()
 {
 	if (!SyncInput())
 	{
-		double now = I_msTimeF();
-		double elapsedInputTicks = lastCheck > 0 ? min(now - lastCheck, 1000.0 / GameTicRate) : 1;
+		const double max = 1000. / GameTicRate;
+		const double now = I_msTimeF();
+		const double elapsedInputTicks = lastCheck > 0 ? min(now - lastCheck, max) : 1.;
 		lastCheck = now;
-		return elapsedInputTicks * GameTicRate / 1000.0;
+		if (elapsedInputTicks == max) return 1;
+
+		// Calculate a scale increase of upto 14% at 30Hz or 7% at 40Hz to correct an
+		// inherent drift in this function that progressively causes the actions that depend
+		// on this fractional scale to increase by over 100 ms as the framerate increases.
+		// This isn't pretty, but it's accurate to within 1-2 ms from 60 fps to at least 1000 fps.
+		const double result = elapsedInputTicks * GameTicRate / 1000.;
+		const double scaler = cl_preciseinputscaling ? 1. + 80. / (GameTicRate - 11.2) / GameTicRate * (1. + result - result * 2.) : 1.;
+		return result * scaler;
 	}
 	else
 	{
