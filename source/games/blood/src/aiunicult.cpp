@@ -2522,7 +2522,7 @@ bool genDudePrepare(DBloodActor* actor, int propId)
                     case kGenDudeSeqReserved7:
                     case kGenDudeSeqReserved8:
                         /*if (getSequence(i)) {
-                            viewSetSystemMessage("Found reserved SEQ animation (%d) for custom dude #%d!", i, pSprite->index);
+                            viewSetSystemMessage("Found reserved SEQ animation (%d) for custom dude #%d!", i, actor->GetIndex());
                             viewSetSystemMessage("Using reserved animation is not recommended.");
                             viewSetSystemMessage("SEQ base id: %d", seqStartId);
                         }*/
