@@ -6265,7 +6265,6 @@ int useCondition(DBloodActor* sourceactor, const EVENT& event)
     int objIndex = event.index_;
     bool srcIsCondition = false;
     if (objType == OBJ_SPRITE && event.actor == nullptr) return -1;
-    if (objType == OBJ_SPRITE) objIndex = event.actor->s().index;    // need this below for calling nnExtTriggerObject
     if (objType == OBJ_SPRITE && event.actor != sourceactor)
         srcIsCondition = (event.actor->s().type == kModernCondition || event.actor->s().type == kModernConditionFalse);
 
