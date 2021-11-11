@@ -357,8 +357,8 @@ MorphTornado(SECTOR_OBJECTp sop)
 
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
     {
-        if (SectUser[*sectp - sector].Data() &&
-            TEST(SectUser[*sectp - sector]->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT))
+        if (SectUser[sectnum(*sectp)].Data() &&
+            TEST(SectUser[sectnum(*sectp)]->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT))
         {
 #define TOR_LOW (floorz)
             if (sop->morph_z > TOR_LOW)
@@ -372,7 +372,7 @@ MorphTornado(SECTOR_OBJECTp sop)
                 sop->morph_z = ceilingz;
             }
 
-            alignceilslope(int16_t(*sectp - sector), mx, my, sop->morph_z);
+            alignceilslope(sectnum(*sectp), mx, my, sop->morph_z);
         }
     }
 }
@@ -450,10 +450,10 @@ MorphFloor(SECTOR_OBJECTp sop)
 
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
     {
-        if (SectUser[*sectp - sector].Data() &&
-            TEST(SectUser[*sectp - sector]->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT))
+        if (SectUser[sectnum(*sectp)].Data() &&
+            TEST(SectUser[sectnum(*sectp)]->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT))
         {
-            alignflorslope(int16_t(*sectp - sector), mx, my, floorz + sop->morph_z);
+            alignflorslope(sectnum(*sectp), mx, my, floorz + sop->morph_z);
         }
     }
 }
@@ -466,10 +466,10 @@ SOBJ_AlignFloorToPoint(SECTOR_OBJECTp sop, int x, int y, int z)
 
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
     {
-        if (SectUser[*sectp - sector].Data() &&
-            TEST(SectUser[*sectp - sector]->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT))
+        if (SectUser[sectnum(*sectp)].Data() &&
+            TEST(SectUser[sectnum(*sectp)]->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT))
         {
-            alignflorslope(int16_t(*sectp - sector), x, y, z);
+            alignflorslope(int16_t(sectnum(*sectp)), x, y, z);
         }
     }
 }
@@ -482,10 +482,10 @@ SOBJ_AlignCeilingToPoint(SECTOR_OBJECTp sop, int x, int y, int z)
 
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
     {
-        if (SectUser[*sectp - sector].Data() &&
-            TEST(SectUser[*sectp - sector]->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT))
+        if (SectUser[sectnum(*sectp)].Data() &&
+            TEST(SectUser[sectnum(*sectp)]->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT))
         {
-            alignceilslope(int16_t(*sectp - sector), x, y, z);
+            alignceilslope(int16_t(sectnum(*sectp)), x, y, z);
         }
     }
 }
@@ -498,11 +498,11 @@ SOBJ_AlignFloorCeilingToPoint(SECTOR_OBJECTp sop, int x, int y, int z)
 
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
     {
-        if (SectUser[*sectp - sector].Data() &&
-            TEST(SectUser[*sectp - sector]->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT))
+        if (SectUser[sectnum(*sectp)].Data() &&
+            TEST(SectUser[sectnum(*sectp)]->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT))
         {
-            alignflorslope(int16_t(*sectp - sector), x, y, z);
-            alignceilslope(int16_t(*sectp - sector), x, y, z);
+            alignflorslope(sectnum(*sectp), x, y, z);
+            alignceilslope(sectnum(*sectp), x, y, z);
         }
     }
 }

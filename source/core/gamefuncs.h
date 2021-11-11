@@ -237,12 +237,12 @@ inline int32_t getangle(walltype* wal)
 
 inline TArrayView<sectortype> sectors()
 {
-    return TArrayView<sectortype>(sector, numsectors);
+    return TArrayView<sectortype>(&sector[0], numsectors);
 }
 
 inline TArrayView<walltype> walls()
 {
-    return TArrayView<walltype>(wall, numwalls);
+    return TArrayView<walltype>(&wall[0], numwalls);
 }
 
 inline TArrayView<walltype> wallsofsector(sectortype* sec)
@@ -256,12 +256,12 @@ inline TArrayView<walltype> wallsofsector(int sec)
 }
 
 // these are mainly meant as refactoring aids to mark function calls to work on.
-inline int wallnum(walltype* wal)
+inline int wallnum(const walltype* wal)
 {
 	return int(wal - wall);
 }
 
-inline int sectnum(sectortype* sect)
+inline int sectnum(const sectortype* sect)
 {
 	return int(sect - sector);
 }

@@ -18479,7 +18479,7 @@ int DoBubble(DSWActor* actor)
 
     if (sp->z < sector[sp->sectnum].ceilingz)
     {
-        if (SectorIsUnderwaterArea(int(u->hi_sectp - sector)))
+        if (SectorIsUnderwaterArea(sectnum(u->hi_sectp)))
         {
             if (!SpriteWarpToSurface(actor))
             {

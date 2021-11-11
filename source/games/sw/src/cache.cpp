@@ -77,7 +77,7 @@ void precacheMap(void)
 	WALLp wp;
 	SPRITEp sp;
 
-	for (sectp = sector; sectp < &sector[numsectors]; sectp++)
+	for (sectp = &sector[0]; sectp < &sector[numsectors]; sectp++)
 	{
 		j = sectp->ceilingpicnum;
 		markTileForPrecache(j, sectp->ceilingpal);
@@ -104,7 +104,7 @@ void precacheMap(void)
 
 	}
 
-	for (wp = wall; wp < &wall[numwalls]; wp++)
+	for (wp = &wall[0]; wp < &wall[numwalls]; wp++)
 	{
 		j = wp->picnum;
 

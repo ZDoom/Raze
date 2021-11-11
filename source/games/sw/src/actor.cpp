@@ -38,6 +38,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "tags.h"
 #include "weapon.h"
 #include "sprite.h"
+#include "gamefuncs.h"
 
 BEGIN_SW_NS
 
@@ -525,8 +526,8 @@ void KeepActorOnFloor(DSWActor* actor)
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
         return;
 
-    if (u->lo_sectp && SectUser[u->lo_sectp - sector].Data())
-        depth = FixedToInt(SectUser[u->lo_sectp - sector]->depth_fixed);
+    if (u->lo_sectp && SectUser[sectnum(u->lo_sectp)].Data())
+        depth = FixedToInt(SectUser[sectnum(u->lo_sectp)]->depth_fixed);
     else
         depth = 0;
 
@@ -690,9 +691,6 @@ int DoActorJump(DSWActor* actor)
     // have started falling
     if ((u->jump_speed += jump_adj) > 0)
     {
-        //DSPRINTF(ds,"Actor Jump Height %d", labs(sp->z - sector[sp->sectnum].floorz)>>8 );
-        MONO_PRINT(ds);
-
         // Start falling
         DoActorBeginFall(actor);
         return 0;

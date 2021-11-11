@@ -14,11 +14,11 @@
 
 enum { MAXCLIPDIST = 1024 };
 
-static int16_t clipnum;
+static int clipnum;
 static linetype clipit[MAXCLIPNUM];
 static int32_t clipsectnum, origclipsectnum, clipspritenum;
-int16_t clipsectorlist[MAXCLIPSECTORS];
-static int16_t origclipsectorlist[MAXCLIPSECTORS];
+int clipsectorlist[MAXCLIPSECTORS];
+static int origclipsectorlist[MAXCLIPSECTORS];
 static uint8_t clipsectormap[(MAXSECTORS+7)>>3];
 static uint8_t origclipsectormap[(MAXSECTORS+7)>>3];
 static int16_t clipobjectval[MAXCLIPNUM];
@@ -1047,7 +1047,7 @@ void getzrange(const vec3_t *pos, int16_t sectnum,
     for (bssize_t i=0; i<clipsectnum; i++)
     {
         int j;
-        if (clipsectorlist[i] == MAXSECTORS) continue;    // we got a deleted sprite in here somewhere. Skip this entry.
+        if (!validSectorIndex(clipsectorlist[i])) continue;    // we got a deleted sprite in here somewhere. Skip this entry.
         SectIterator it(clipsectorlist[i]);
         while ((j = it.NextIndex()) >= 0)
         {
@@ -1233,9 +1233,9 @@ static int32_t hitscan_trysector(const vec3_t *sv, usectorptr_t sec, hitdata_t *
     {
         if (tmp==NULL)
         {
-            if (inside(x1,y1,int(sec-sector)) == 1)
+            if (inside(x1,y1,sectnum(sec)) == 1)
             {
-                hit_set(hit, int(sec-sector), -1, -1, x1, y1, z1);
+                hit_set(hit, sectnum(sec), -1, -1, x1, y1, z1);
                 hitscan_hitsectcf = (how+1)>>1;
             }
         }
@@ -1247,7 +1247,7 @@ static int32_t hitscan_trysector(const vec3_t *sv, usectorptr_t sec, hitdata_t *
 
             if (!thislastsec)
             {
-                if (inside(x1,y1,int(sec-sector)) == 1)
+                if (inside(x1,y1,sectnum(sec)) == 1)
                     hit_set(hit, int(curspr->sectnum), -1, int(curspr-sprite), x1, y1, z1);
             }
         }

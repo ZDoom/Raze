@@ -80,6 +80,10 @@ public:
 	{
 	}
 
+	SWSectIterator(sectortype* stat) : SectIterator(stat)
+	{
+	}
+
 	DSWActor* Next()
 	{
 		int n = NextIndex();

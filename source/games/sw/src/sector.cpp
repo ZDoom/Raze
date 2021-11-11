@@ -131,7 +131,7 @@ void WallSetupDontMove(void)
 
             if (spu->lotag == spl->lotag)
             {
-                for (wallp = wall; wallp < &wall[numwalls]; wallp++)
+                for (wallp = &wall[0]; wallp < &wall[numwalls]; wallp++)
                 {
                     if (wallp->x < spl->x && wallp->x > spu->x && wallp->y < spl->y && wallp->y > spu->y)
                     {
@@ -177,7 +177,7 @@ void WallSetup(void)
 
     extern int x_min_bound, y_min_bound, x_max_bound, y_max_bound;
 
-    for (wp = wall, i = 0; i < numwalls; i++, wp++)
+    for (wp = &wall[0]; wp < &wall[numwalls]; wp++)
     {
         if (wp->picnum == FAF_PLACE_MIRROR_PIC)
             wp->picnum = FAF_MIRROR_PIC;

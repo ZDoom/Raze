@@ -1850,7 +1850,7 @@ void ProcessMotion(void)
 {
     sectortype *pSector;
     int nSector;
-    for (pSector = sector, nSector = 0; nSector < numsectors; nSector++, pSector++)
+    for (pSector = &sector[0], nSector = 0; nSector < numsectors; nSector++, pSector++)
     {
         int nXSector = pSector->extra;
         if (nXSector <= 0)
@@ -1927,7 +1927,7 @@ void AlignSlopes(void)
 {
     sectortype *pSector;
     int nSector;
-    for (pSector = sector, nSector = 0; nSector < numsectors; nSector++, pSector++)
+    for (pSector = &sector[0], nSector = 0; nSector < numsectors; nSector++, pSector++)
     {
         if (qsector_filler[nSector])
         {

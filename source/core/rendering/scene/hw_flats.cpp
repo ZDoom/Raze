@@ -150,7 +150,7 @@ void HWFlat::DrawFlat(HWDrawInfo *di, FRenderState &state, bool translucent)
 	}
 
 #ifdef _DEBUG
-	if (sec - sector == gl_breaksec)
+	if (sectnum(sec) == gl_breaksec)
 	{
 		int a = 0;
 	}
@@ -241,7 +241,7 @@ void HWFlat::PutFlat(HWDrawInfo *di, int whichplane)
 void HWFlat::ProcessSector(HWDrawInfo *di, sectortype * frontsector, int section_, int which)
 {
 #ifdef _DEBUG
-	if (frontsector - sector == gl_breaksec)
+	if (sectnum(sec) == gl_breaksec)
 	{
 		int a = 0;
 	}

@@ -474,15 +474,15 @@ void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SETp action, PERSONALITYp perso
     if (u->lo_sectp) // && SectUser[u->lo_sectp - sector])
     {
         int i;
-        short sectnum = short(u->lo_sectp - sector);
+        int sectno = sectnum(u->lo_sectp);
 
-        if (SectUser[sectnum].Data() && TEST(u->lo_sectp->extra, SECTFX_SINK))
+        if (SectUser[sectno].Data() && TEST(u->lo_sectp->extra, SECTFX_SINK))
         {
-            depth = FixedToInt(SectUser[sectnum]->depth_fixed);
+            depth = FixedToInt(SectUser[sectno]->depth_fixed);
         }
         else
         {
-            SWSectIterator it(sectnum);
+            SWSectIterator it(sectno);
             while (auto itActor = it.Next())
             {
                 SPRITEp np = &itActor->s();

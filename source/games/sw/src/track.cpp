@@ -1753,13 +1753,13 @@ PlayerPart:
             if (!pp->lo_sectp)
                 continue;
 
-            if (TEST(sector[pp->lo_sectp - sector].extra, SECTFX_NO_RIDE))
+            if (TEST(sector[sectnum(pp->lo_sectp)].extra, SECTFX_NO_RIDE))
             {
                 continue;
             }
 
             // move the player
-            if (pp->lo_sectp - sector == sop->sector[j])
+            if (sectnum(pp->lo_sectp) == sop->sector[j])
             {
                 if (PlayerMove)
                     MovePlayer(pp, sop, nx, ny);
@@ -2169,7 +2169,7 @@ void MoveZ(SECTOR_OBJECTp sop)
     {
         for (i = 0, sectp = &sop->sectp[0]; *sectp; sectp++, i++)
         {
-            AnimSet(ANIM_Floorz, int(*sectp - sector), nullptr, sop->zorig_floor[i] + sop->z_tgt, sop->z_rate);
+            AnimSet(ANIM_Floorz, sectnum(*sectp), nullptr, sop->zorig_floor[i] + sop->z_tgt, sop->z_rate);
         }
 
         RESET(sop->flags, SOBJ_ZDOWN);
@@ -2178,7 +2178,7 @@ void MoveZ(SECTOR_OBJECTp sop)
     {
         for (i = 0, sectp = &sop->sectp[0]; *sectp; sectp++, i++)
         {
-            AnimSet(ANIM_Floorz, int(*sectp - sector), nullptr, sop->zorig_floor[i] + sop->z_tgt, sop->z_rate);
+            AnimSet(ANIM_Floorz, sectnum(*sectp), nullptr, sop->zorig_floor[i] + sop->z_tgt, sop->z_rate);
         }
 
         RESET(sop->flags, SOBJ_ZUP);
@@ -2514,7 +2514,7 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
                 if (SectUser[sop->sector[i]].Data() && TEST(SectUser[sop->sector[i]]->flags, SECTFU_SO_DONT_SINK))
                     continue;
 
-                ndx = AnimSet(ANIM_Floorz, int(*sectp-sector), nullptr, sector[dest_sector].floorz, tpoint->tag_high);
+                ndx = AnimSet(ANIM_Floorz, sectnum(*sectp), nullptr, sector[dest_sector].floorz, tpoint->tag_high);
                 AnimSetCallback(ndx, CallbackSOsink, sop);
                 AnimSetVelAdj(ndx, 6);
             }
@@ -2531,11 +2531,11 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
 
             for (i = 0, sectp = &sop->sectp[0]; *sectp; sectp++, i++)
             {
-                sectu = SectUser[*sectp - sector].Data();
+                sectu = SectUser[sectnum(*sectp)].Data();
 
                 if (sectu && sectu->stag == SECT_SO_FORM_WHIRLPOOL)
                 {
-                    AnimSet(ANIM_Floorz, int(*sectp - sector), nullptr, (*sectp)->floorz + Z(sectu->height), 128);
+                    AnimSet(ANIM_Floorz, sectnum(*sectp), nullptr, (*sectp)->floorz + Z(sectu->height), 128);
                     (*sectp)->floorshade += sectu->height/6;
 
                     RESET((*sectp)->extra, SECTFX_NO_RIDE);
@@ -2760,7 +2760,7 @@ void VehicleSetSmoke(SECTOR_OBJECTp sop, ANIMATORp animator)
 
     for (sectp = sop->sectp; *sectp; sectp++)
     {
-        SWSectIterator it(int(*sectp - sector));
+        SWSectIterator it(*sectp);
         while (auto actor = it.Next())
         {
             USERp u = actor->u();

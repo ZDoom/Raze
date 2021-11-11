@@ -206,8 +206,8 @@ void so_addinterpolation(SECTOR_OBJECTp sop)
     if (!interp->hasvator)
         for (sectp = sop->sectp; *sectp; sectp++)
         {
-            so_setpointinterpolation(interp, int(*sectp - sector) | soi_floor);
-            so_setpointinterpolation(interp, int(*sectp - sector) | soi_ceil);
+            so_setpointinterpolation(interp, sectnum(*sectp) | soi_floor);
+            so_setpointinterpolation(interp, sectnum(*sectp) | soi_ceil);
         }
 
     // interpolate midpoint, for aiming at a remote controlled SO

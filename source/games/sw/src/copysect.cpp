@@ -98,7 +98,7 @@ void CopySectorWalls(short dest_sectnum, short src_sectnum)
             continue;
 
         for (sectp = sop->sectp; *sectp; sectp++)
-            if (*sectp - sector == dest_sectnum)
+            if (sectnum(*sectp) == dest_sectnum)
             {
                 so_setinterpolationtics(sop, 0);
                 break;

@@ -106,7 +106,7 @@ int DoWallMove(DSWActor* actor)
     nx = MulScale(dist, bcos(ang), 14);
     ny = MulScale(dist, bsin(ang), 14);
 
-    for (wallp = wall; wallp < &wall[numwalls]; wallp++)
+    for (wallp = &wall[0]; wallp < &wall[numwalls]; wallp++)
     {
         if (wallp->x == sp->x && wallp->y == sp->y)
         {
@@ -134,7 +134,7 @@ int DoWallMove(DSWActor* actor)
                 wallp->picnum = picnum1;
 
             // find the previous wall
-            prev_wall = PrevWall(short(wallp - wall));
+            prev_wall = PrevWall(wallnum(wallp));
             if (shade2)
                 wall[prev_wall].shade = int8_t(shade2);
             if (picnum2)

@@ -6730,7 +6730,7 @@ int MissileWaterAdjust(DSWActor* actor)
 
     if (u->lo_sectp)
     {
-        SECT_USERp sectu = SectUser[u->lo_sectp - sector].Data();
+        SECT_USERp sectu = SectUser[sectnum(u->lo_sectp)].Data();
         if (sectu && FixedToInt(sectu->depth_fixed))
             u->loz -= Z(FixedToInt(sectu->depth_fixed));
     }

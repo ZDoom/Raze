@@ -19,7 +19,7 @@ typedef struct
     int32_t x1, y1, x2, y2;
 } linetype;
 
-extern int16_t clipsectorlist[MAXCLIPSECTORS];
+extern int clipsectorlist[MAXCLIPSECTORS];
 
 int clipinsidebox(vec2_t *vect, int wallnum, int walldist);
 inline int clipinsidebox(int x, int y, int wall, int dist)
