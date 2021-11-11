@@ -751,73 +751,27 @@ unsigned int ClipMove(vec3_t *pos, int *nSector, int xv, int yv, int wd, int cd,
     return nRes;
 }
 
-int GetClosestSectors(int nSector, int x, int y, int nDist, short *pSectors, char *pSectBit)
-{
-    char sectbits[(kMaxSectors+7)>>3];
-    assert(pSectors != NULL);
-    memset(sectbits, 0, sizeof(sectbits));
-    pSectors[0] = nSector;
-    SetBitString(sectbits, nSector);
-    int n = 1;
-    int i = 0;
-    if (pSectBit)
-    {
-        memset(pSectBit, 0, (kMaxSectors+7)>>3);
-        SetBitString(pSectBit, nSector);
-    }
-    while (i < n)
-    {
-        int nCurSector = pSectors[i];
-        int nStartWall = sector[nCurSector].wallptr;
-        int nEndWall = nStartWall + sector[nCurSector].wallnum;
-        walltype *pWall = &wall[nStartWall];
-        for (int j = nStartWall; j < nEndWall; j++, pWall++)
-        {
-            int nNextSector = pWall->nextsector;
-            if (nNextSector < 0)
-                continue;
-            if (TestBitString(sectbits, nNextSector))
-                continue;
-            SetBitString(sectbits, nNextSector);
-            int dx = abs(wall[pWall->point2].x - x)>>4;
-            int dy = abs(wall[pWall->point2].y - y)>>4;
-            if (dx < nDist && dy < nDist)
-            {
-                if (approxDist(dx, dy) < nDist)
-                {
-                    if (pSectBit)
-                        SetBitString(pSectBit, nNextSector);
-                    pSectors[n++] = nNextSector;
-                }
-            }
-        }
-        i++;
-    }
-    pSectors[n] = -1;
-    return n;
-}
-
-int GetClosestSpriteSectors(int nSector, int x, int y, int nDist, uint8_t *pSectBit, short *pWalls, bool newSectCheckMethod)
+BitArray GetClosestSpriteSectors(int nSector, int x, int y, int nDist, short *pWalls, bool newSectCheckMethod)
 {
     // by default this function fails with sectors that linked with wide spans, or there was more than one link to the same sector. for example...
     // E6M1: throwing TNT on the stone footpath while standing on the brown road will fail due to the start/end points of the span being too far away. it'll only do damage at one end of the road
     // E1M2: throwing TNT at the double doors while standing on the train platform
     // by setting newSectCheckMethod to true these issues will be resolved
-    static short pSectors[kMaxSectors];
-    uint8_t sectbits[(kMaxSectors+7)>>3];
-    memset(sectbits, 0, sizeof(sectbits));
-    pSectors[0] = nSector;
-    SetBitString(sectbits, nSector);
-    int n = 1, m = 0;
-    int i = 0;
-    if (pSectBit)
+
+    BitArray sectorMap(numsectors * 2); // first half gets returned to caller, second half is internal work space.
+    sectorMap.Zero();
+
+    unsigned sectorstart = GlobalSectorList.Size();
+    unsigned i = sectorstart;
+
+    GlobalSectorList.Push(nSector);
+    sectorMap.Set(numsectors + nSector);
+    sectorMap.Set(nSector);
+    int m = 0;
+
+    while (i < GlobalSectorList.Size()) // scan through sectors
     {
-        memset(pSectBit, 0, (kMaxSectors+7)>>3);
-        SetBitString(pSectBit, nSector);
-    }
-    while (i < n) // scan through sectors
-    {
-        const int nCurSector = pSectors[i];
+        const int nCurSector = GlobalSectorList[i];
         const int nStartWall = sector[nCurSector].wallptr;
         const int nEndWall = nStartWall + sector[nCurSector].wallnum;
         for (int j = nStartWall; j < nEndWall; j++) // scan each wall of current sector for new sectors
@@ -826,7 +780,7 @@ int GetClosestSpriteSectors(int nSector, int x, int y, int nDist, uint8_t *pSect
             const int nNextSector = pWall->nextsector;
             if (nNextSector < 0) // if next wall isn't linked to a sector, skip
                 continue;
-            if (TestBitString(sectbits, nNextSector)) // if we've already checked this sector, skip
+            if (sectorMap[numsectors + nNextSector]) // if we've already checked this sector, skip
                 continue;
             bool setSectBit = true;
             bool withinRange = false;
@@ -876,9 +830,8 @@ int GetClosestSpriteSectors(int nSector, int x, int y, int nDist, uint8_t *pSect
             if (withinRange) // if new sector is within range, set to current sector and test walls
             {
                 setSectBit = true; // sector is within range, set the sector as checked
-                if (pSectBit)
-                    SetBitString(pSectBit, nNextSector);
-                pSectors[n++] = nNextSector;
+                sectorMap.Set(nNextSector);
+                GlobalSectorList.Push(nNextSector);
                 if (pWalls && pWall->extra > 0)
                 {
                     XWALL *pXWall = &xwall[pWall->extra];
@@ -887,13 +840,14 @@ int GetClosestSpriteSectors(int nSector, int x, int y, int nDist, uint8_t *pSect
                 }
             }
             if (setSectBit)
-                SetBitString(sectbits, nNextSector);
+                sectorMap.Set(numsectors + nNextSector);
         }
         i++;
     }
-    pSectors[n] = -1;
+    GlobalSectorList.Resize(sectorstart);
     if (pWalls) pWalls[m] = -1;
-    return n;
+    sectorMap.Resize(numsectors);
+    return sectorMap;
 }
 
 int picWidth(int nPic, int repeat) {

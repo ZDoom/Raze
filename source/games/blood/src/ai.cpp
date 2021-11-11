@@ -1612,9 +1612,8 @@ void aiLookForTarget(DBloodActor* actor)
 		}
 		if (pXSprite->state)
 		{
-			uint8_t sectmap[(kMaxSectors + 7) >> 3];
 			const bool newSectCheckMethod = !cl_bloodvanillaenemies && !VanillaMode(); // use new sector checking logic
-			GetClosestSpriteSectors(pSprite->sectnum, pSprite->x, pSprite->y, 400, sectmap, nullptr, newSectCheckMethod);
+			GetClosestSpriteSectors(pSprite->sectnum, pSprite->x, pSprite->y, 400, nullptr, newSectCheckMethod);
 
 			BloodStatIterator it(kStatDude);
 			while (DBloodActor* actor2 = it.Next())

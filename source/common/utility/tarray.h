@@ -1683,6 +1683,12 @@ public:
 		return !!(bytes[index >> 3] & (1 << (index & 7)));
 	}
 
+	// for when array syntax cannot be used.
+	bool Check(size_t index) const
+	{
+		return !!(bytes[index >> 3] & (1 << (index & 7)));
+	}
+
 	void Set(size_t index, bool set = true)
 	{
 		if (!set) Clear(index);

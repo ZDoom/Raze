@@ -2650,10 +2650,9 @@ int actFloorBounceVector(int* x, int* y, int* z, int nSector, int a5)
 
 void actRadiusDamage(DBloodActor* source, int x, int y, int z, int nSector, int nDist, int baseDmg, int distDmg, DAMAGE_TYPE dmgType, int flags, int burn)
 {
-	uint8_t sectmap[(kMaxSectors + 7) >> 3];
 	auto pOwner = source->GetOwner();
 	const bool newSectCheckMethod = !cl_bloodvanillaexplosions && pOwner && pOwner->IsDudeActor() && !VanillaMode(); // use new sector checking logic
-	GetClosestSpriteSectors(nSector, x, y, nDist, sectmap, nullptr, newSectCheckMethod);
+	auto sectorMap = GetClosestSpriteSectors(nSector, x, y, nDist, nullptr, newSectCheckMethod);
 	nDist <<= 4;
 	if (flags & 2)
 	{
@@ -2666,7 +2665,7 @@ void actRadiusDamage(DBloodActor* source, int x, int y, int z, int nSector, int 
 				if (act2->hasX())
 				{
 					if (pSprite2->flags & 0x20) continue;
-					if (!TestBitString(sectmap, pSprite2->sectnum)) continue;
+					if (!sectorMap[pSprite2->sectnum]) continue;
 					if (!CheckProximity(act2, x, y, z, nSector, nDist)) continue;
 
 					int dx = abs(x - pSprite2->x);
@@ -2693,7 +2692,7 @@ void actRadiusDamage(DBloodActor* source, int x, int y, int z, int nSector, int 
 			auto pSprite2 = &act2->s();
 
 			if (pSprite2->flags & 0x20) continue;
-			if (!TestBitString(sectmap, pSprite2->sectnum)) continue;
+			if (!sectorMap[pSprite2->sectnum]) continue;
 			if (!CheckProximity(act2, x, y, z, nSector, nDist)) continue;
 
 			XSPRITE* pXSprite2 = &act2->x();
@@ -5930,14 +5929,12 @@ static void actCheckExplosion()
 			radius = pXSprite->data4;
 #endif
 
-		uint8_t sectormap[(kMaxSectors + 7) >> 3];
-
 		// GetClosestSpriteSectors() has issues checking some sectors due to optimizations
 		// the new flag newSectCheckMethod for GetClosestSpriteSectors() does rectify these issues, but this may cause unintended side effects for level scripted explosions
 		// so only allow this new checking method for dude spawned explosions
 		short gAffectedXWalls[kMaxXWalls];
 		const bool newSectCheckMethod = !cl_bloodvanillaexplosions && Owner && Owner->IsDudeActor() && !VanillaMode(); // use new sector checking logic
-		GetClosestSpriteSectors(nSector, x, y, radius, sectormap, gAffectedXWalls, newSectCheckMethod);
+		auto sectorMap = GetClosestSpriteSectors(nSector, x, y, radius, gAffectedXWalls, newSectCheckMethod);
 
 		for (int i = 0; i < kMaxXWalls; i++)
 		{
@@ -5955,7 +5952,7 @@ static void actCheckExplosion()
 
 			if (pDude->flags & 32) continue;
 
-			if (TestBitString(sectormap, pDude->sectnum))
+			if (sectorMap[pDude->sectnum])
 			{
 				if (pXSprite->data1 && CheckProximity(dudeactor, x, y, z, nSector, radius))
 				{
@@ -5984,7 +5981,7 @@ static void actCheckExplosion()
 
 			if (pThing->flags & 32) continue;
 
-			if (TestBitString(sectormap, pThing->sectnum))
+			if (sectorMap[pThing->sectnum])
 			{
 				if (pXSprite->data1 && CheckProximity(thingactor, x, y, z, nSector, radius) && thingactor->hasX())
 				{
@@ -6028,7 +6025,7 @@ static void actCheckExplosion()
 					spritetype* pDebris = &physactor->s();
 					if (pDebris->sectnum < 0 || (pDebris->flags & kHitagFree) != 0) continue;
 
-					if (!TestBitString(sectormap, pDebris->sectnum) || !CheckProximity(physactor, x, y, z, nSector, radius)) continue;
+					if (!sectorMap[pDebris->sectnum] || !CheckProximity(physactor, x, y, z, nSector, radius)) continue;
 					else debrisConcuss(Owner, i, x, y, z, pExplodeInfo->dmgType);
 				}
 			}
@@ -6042,7 +6039,7 @@ static void actCheckExplosion()
 					auto impactactor = gImpactSpritesList[i];
 					if (!impactactor->hasX() || impactactor->s().sectnum < 0 || (impactactor->s().flags & kHitagFree) != 0)	continue;
 
-					if (/*pXImpact->state == pXImpact->restState ||*/ !TestBitString(sectormap, impactactor->s().sectnum) || !CheckProximity(impactactor, x, y, z, nSector, radius))
+					if (/*pXImpact->state == pXImpact->restState ||*/ !sectorMap[impactactor->s().sectnum] || !CheckProximity(impactactor, x, y, z, nSector, radius))
 						continue;
 
 					trTriggerSprite(impactactor, kCmdSpriteImpact);
