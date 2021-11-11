@@ -681,8 +681,6 @@ DoCoolieWaitBirth(DSWActor* actor)
 
 static saveable_code saveable_coolie_code[] =
 {
-    SAVE_CODE(EnemyDefaults),
-    SAVE_CODE(SetupCoolie),
     SAVE_CODE(SpawnCoolg),
     SAVE_CODE(CooliePain),
     SAVE_CODE(NullCoolie),

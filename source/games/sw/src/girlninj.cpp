@@ -868,7 +868,6 @@ int DoGirlNinjaSpecial(DSWActor* actor)
 
 static saveable_code saveable_girlninj_code[] =
 {
-    SAVE_CODE(SetupGirlNinja),
     SAVE_CODE(DoGirlNinjaMove),
     SAVE_CODE(GirlNinjaJumpActionFunc),
     SAVE_CODE(NullGirlNinja),

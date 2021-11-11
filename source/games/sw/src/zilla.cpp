@@ -800,7 +800,6 @@ int DoZillaDeathMelt(DSWActor* actor)
 
 static saveable_code saveable_zilla_code[] =
 {
-    SAVE_CODE(SetupZilla),
     SAVE_CODE(NullZilla),
     SAVE_CODE(DoZillaMove),
     SAVE_CODE(DoZillaStomp),

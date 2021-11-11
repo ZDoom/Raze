@@ -930,7 +930,6 @@ int DoBettyWait(DSWActor* actor)
 
 static saveable_code saveable_skull_code[] =
 {
-    SAVE_CODE(SetupSkull),
     SAVE_CODE(DoSkullMove),
     SAVE_CODE(DoSkullBeginDeath),
     SAVE_CODE(DoSkullJump),
@@ -938,7 +937,6 @@ static saveable_code saveable_skull_code[] =
     SAVE_CODE(DoSkullSpawnShrap),
     SAVE_CODE(DoSkullWait),
 
-    SAVE_CODE(SetupBetty),
     SAVE_CODE(DoBettyMove),
     SAVE_CODE(DoBettyBeginDeath),
     SAVE_CODE(DoBettyJump),

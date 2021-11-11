@@ -564,7 +564,6 @@ int DoGoroMove(DSWActor* actor)
 
 static saveable_code saveable_goro_code[] =
 {
-    SAVE_CODE(SetupGoro),
     SAVE_CODE(NullGoro),
     SAVE_CODE(DoGoroPain),
     SAVE_CODE(DoGoroMove),

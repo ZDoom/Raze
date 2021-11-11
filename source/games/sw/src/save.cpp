@@ -96,19 +96,8 @@ extern STATE s_NotRestored[];
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, savedcodesym& w, savedcodesym* def)
 {
-    static savedcodesym nul;
-    if (!def)
-    {
-        def = &nul;
-        if (arc.isReading()) w = {};
-    }
-
-    if (arc.BeginObject(keyname))
-    {
-        arc("module", w.module, def->module)
-            ("index", w.index, def->index)
-            .EndObject();
-    }
+	if (arc.isWriting() && w.name.IsEmpty()) return arc;
+	arc(keyname, w.name);
     return arc;
 }
 
@@ -120,18 +109,11 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, savedcodesym& w, s
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, saveddatasym& w, saveddatasym* def)
 {
-    static saveddatasym nul;
-    if (!def)
+	if (arc.isWriting() && w.name.IsEmpty()) return arc;
+	if (arc.BeginObject(keyname))
     {
-        def = &nul;
-        if (arc.isReading()) w = {};
-    }
-
-    if (arc.BeginObject(keyname))
-    {
-        arc("module", w.module, def->module)
-            ("index", w.index, def->index)
-            ("offset", w.offset, def->offset)
+        arc("name", w.name)
+            ("offset", w.offset)
             .EndObject();
     }
     return arc;

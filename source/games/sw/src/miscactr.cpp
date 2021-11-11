@@ -2073,51 +2073,39 @@ int PruneGirlPain(DSWActor* actor)
 
 static saveable_code saveable_miscactr_code[] =
 {
-    SAVE_CODE(SetupToiletGirl),
     SAVE_CODE(DoToiletGirl),
     SAVE_CODE(NullToiletGirl),
     SAVE_CODE(ToiletGirlUzi),
     SAVE_CODE(ToiletGirlPain),
 
-    SAVE_CODE(SetupWashGirl),
     SAVE_CODE(DoWashGirl),
     SAVE_CODE(NullWashGirl),
     SAVE_CODE(WashGirlUzi),
     SAVE_CODE(WashGirlPain),
 
-    SAVE_CODE(SetupTrashCan),
     SAVE_CODE(DoTrashCan),
     SAVE_CODE(TrashCanPain),
 
-    SAVE_CODE(SetupPachinkoLight),
     SAVE_CODE(PachinkoLightOperate),
 
-    SAVE_CODE(SetupPachinko1),
-    SAVE_CODE(SetupPachinko2),
-    SAVE_CODE(SetupPachinko3),
-    SAVE_CODE(SetupPachinko4),
     SAVE_CODE(PachinkoCheckWin),
     SAVE_CODE(Pachinko1Operate),
 
-    SAVE_CODE(SetupCarGirl),
     SAVE_CODE(DoCarGirl),
     SAVE_CODE(NullCarGirl),
     SAVE_CODE(CarGirlUzi),
     SAVE_CODE(CarGirlPain),
 
-    SAVE_CODE(SetupMechanicGirl),
     SAVE_CODE(DoMechanicGirl),
     SAVE_CODE(NullMechanicGirl),
     SAVE_CODE(MechanicGirlDrill),
     SAVE_CODE(MechanicGirlPain),
 
-    SAVE_CODE(SetupSailorGirl),
     SAVE_CODE(DoSailorGirl),
     SAVE_CODE(NullSailorGirl),
     SAVE_CODE(SailorGirlThrow),
     SAVE_CODE(SailorGirlPain),
 
-    SAVE_CODE(SetupPruneGirl),
     SAVE_CODE(DoPruneGirl),
     SAVE_CODE(NullPruneGirl),
     SAVE_CODE(PruneGirlUzi),

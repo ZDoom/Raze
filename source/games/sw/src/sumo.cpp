@@ -972,10 +972,8 @@ BossHealthMeter(void)
 
 static saveable_code saveable_sumo_code[] =
 {
-    SAVE_CODE(SetupSumo),
     SAVE_CODE(NullSumo),
     SAVE_CODE(DoSumoMove),
-    //SAVE_CODE(InitSumoCharge),
     SAVE_CODE(DoSumoRumble),
     SAVE_CODE(InitSumoFart),
     SAVE_CODE(InitSumoStomp),

@@ -981,9 +981,6 @@ int DoZombiePain(DSWActor* actor)
 
 static saveable_code saveable_zombie_code[] =
 {
-    SAVE_CODE(SetupZombie),
-    SAVE_CODE(SpawnZombie),
-    SAVE_CODE(SpawnZombie2),
     SAVE_CODE(DoZombieMove),
     SAVE_CODE(NullZombie),
     SAVE_CODE(DoZombiePain),

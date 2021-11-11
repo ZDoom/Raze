@@ -935,12 +935,8 @@ int DoCoolgPain(DSWActor* actor)
 
 static saveable_code saveable_coolg_code[] =
 {
-    SAVE_CODE(CoolgCommon),
-    SAVE_CODE(SetupCoolg),
-    SAVE_CODE(NewCoolg),
     SAVE_CODE(DoCoolgBirth),
     SAVE_CODE(NullCoolg),
-    SAVE_CODE(DoCoolgMatchPlayerZ),
     SAVE_CODE(InitCoolgCircle),
     SAVE_CODE(DoCoolgCircle),
     SAVE_CODE(DoCoolgDeath),

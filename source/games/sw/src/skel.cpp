@@ -643,7 +643,6 @@ int DoSkelMove(DSWActor* actor)
 
 static saveable_code saveable_skel_code[] =
 {
-    SAVE_CODE(SetupSkel),
     SAVE_CODE(DoSkelInitTeleport),
     SAVE_CODE(DoSkelTeleport),
     SAVE_CODE(DoSkelTermTeleport),

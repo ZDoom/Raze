@@ -7400,24 +7400,10 @@ move_ground_missile(short spritenum, int xchange, int ychange, int ceildist, int
 
 static saveable_code saveable_sprite_code[] =
 {
-    SAVE_CODE(DoActorZrange),
-    SAVE_CODE(DoActorGlobZ),
-    SAVE_CODE(DoStayOnFloor),
     SAVE_CODE(DoGrating),
-    SAVE_CODE(move_ground_missile), // dead entries, kept for savegame compatibility.
-    SAVE_CODE(move_ground_missile),
     SAVE_CODE(DoKey),
     SAVE_CODE(DoCoin),
-    SAVE_CODE(KillGet),
-    SAVE_CODE(KillGetAmmo),
-    SAVE_CODE(KillGetWeapon),
-    SAVE_CODE(DoSpawnItemTeleporterEffect),
     SAVE_CODE(DoGet),
-    SAVE_CODE(SetEnemyActive),
-    SAVE_CODE(SetEnemyInactive),
-    SAVE_CODE(ProcessActiveVars),
-    SAVE_CODE(StateControl),
-    SAVE_CODE(SpriteControl),
 };
 
 static saveable_data saveable_sprite_data[] =

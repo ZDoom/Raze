@@ -3799,11 +3799,8 @@ ActorFollowTrack(short SpriteNum, short locktics)
 
 static saveable_code saveable_track_code[] =
 {
-    SAVE_CODE(DoTrack),
     SAVE_CODE(DoTornadoObject),
     SAVE_CODE(DoAutoTurretObject),
-    SAVE_CODE(DoActorHitTrackEndPoint),
-    SAVE_CODE(CallbackSOsink),
 };
 
 saveable_module saveable_track =

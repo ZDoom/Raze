@@ -1377,8 +1377,6 @@ int ChestRipper2(DSWActor* actor)
 
 static saveable_code saveable_ripper2_code[] =
 {
-    SAVE_CODE(SetupRipper2),
-
     SAVE_CODE(InitRipper2Hang),
     SAVE_CODE(DoRipper2Hang),
     SAVE_CODE(DoRipper2MoveHang),

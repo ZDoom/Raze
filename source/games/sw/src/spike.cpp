@@ -493,16 +493,6 @@ int DoSpikeAuto(DSWActor* actor)
 
 static saveable_code saveable_spike_code[] =
 {
-    SAVE_CODE(ReverseSpike),
-    SAVE_CODE(SpikeSwitch),
-    SAVE_CODE(SetSpikeActive),
-    SAVE_CODE(SetSpikeInactive),
-    SAVE_CODE(DoSpikeOperate),
-    SAVE_CODE(DoSpikeMatch),
-    SAVE_CODE(TestSpikeMatchActive),
-    SAVE_CODE(DoSpikeMove),
-    SAVE_CODE(SpikeAlign),
-    SAVE_CODE(MoveSpritesWithSpike),
     SAVE_CODE(DoSpike),
     SAVE_CODE(DoSpikeAuto),
 };

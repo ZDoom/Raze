@@ -1003,26 +1003,10 @@ DoFall(short SpriteNum)
 
 static saveable_code saveable_actor_code[] =
 {
-    SAVE_CODE(DoScaleSprite),
-    SAVE_CODE(DoActorDie),
-    SAVE_CODE(DoDebrisCurrent),
-    SAVE_CODE(DoActorSectorDamage),
     SAVE_CODE(DoActorDebris),
     SAVE_CODE(DoFireFly),
     SAVE_CODE(DoGenerateSewerDebris),
-    SAVE_CODE(KeepActorOnFloor),
-    SAVE_CODE(DoActorBeginSlide),
-    SAVE_CODE(DoActorSlide),
-    SAVE_CODE(DoActorBeginJump),
-    SAVE_CODE(DoActorJump),
-    SAVE_CODE(DoActorBeginFall),
-    SAVE_CODE(DoActorFall),
-    SAVE_CODE(DoActorStopFall),
     SAVE_CODE(DoActorDeathMove),
-    SAVE_CODE(DoBeginJump),
-    SAVE_CODE(DoJump),
-    SAVE_CODE(DoBeginFall),
-    SAVE_CODE(DoFall)
 };
 
 saveable_module saveable_actor =

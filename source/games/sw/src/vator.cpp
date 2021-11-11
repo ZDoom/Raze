@@ -682,16 +682,6 @@ int DoVatorAuto(DSWActor* actor)
 
 static saveable_code saveable_vator_code[] =
 {
-    SAVE_CODE(ReverseVator),
-    SAVE_CODE(VatorSwitch),
-    SAVE_CODE(SetVatorActive),
-    SAVE_CODE(SetVatorInactive),
-    SAVE_CODE(DoVatorOperate),
-    SAVE_CODE(DoVatorMatch),
-    SAVE_CODE(TestVatorMatchActive),
-    SAVE_CODE(InterpSectorSprites),
-    SAVE_CODE(MoveSpritesWithSector),
-    SAVE_CODE(DoVatorMove),
     SAVE_CODE(DoVator),
     SAVE_CODE(DoVatorAuto),
 };

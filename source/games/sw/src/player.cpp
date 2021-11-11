@@ -7532,8 +7532,6 @@ void CheckFootPrints(PLAYERp pp)
 static saveable_code saveable_player_code[] =
 {
     SAVE_CODE(DoPlayerSlide),
-    //SAVE_CODE(DoPlayerBeginSwim),
-    //SAVE_CODE(DoPlayerSwim),
     SAVE_CODE(DoPlayerWade),
     SAVE_CODE(DoPlayerBeginWade),
     SAVE_CODE(DoPlayerBeginCrawl),
@@ -7550,11 +7548,8 @@ static saveable_code saveable_player_code[] =
     SAVE_CODE(DoPlayerBeginClimb),
     SAVE_CODE(DoPlayerClimb),
     SAVE_CODE(DoPlayerBeginDie),
-    //SAVE_CODE(DoPlayerDie),
-    //SAVE_CODE(DoPlayerBeginOperateBoat),
     SAVE_CODE(DoPlayerBeginOperateVehicle),
     SAVE_CODE(DoPlayerBeginOperate),
-    //SAVE_CODE(DoPlayerOperateBoat),
     SAVE_CODE(DoPlayerOperateVehicle),
     SAVE_CODE(DoPlayerOperateTurret),
     SAVE_CODE(DoPlayerBeginDive),

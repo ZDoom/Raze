@@ -634,7 +634,6 @@ int DoHornetMove(DSWActor* actor)
 
 static saveable_code saveable_hornet_code[] =
 {
-    SAVE_CODE(SetupHornet),
     SAVE_CODE(NullHornet),
     SAVE_CODE(DoHornetMatchPlayerZ),
     SAVE_CODE(InitHornetCircle),

@@ -523,7 +523,6 @@ int DoLavaMove(DSWActor* actor)
 
 static saveable_code saveable_lava_code[] =
 {
-    SAVE_CODE(SetupLava),
     SAVE_CODE(NullLava),
     SAVE_CODE(DoLavaMove),
 };

@@ -696,17 +696,6 @@ int DoSlidor(DSWActor* actor)
 
 static saveable_code saveable_slidor_code[] =
 {
-    SAVE_CODE(ReverseSlidor),
-    SAVE_CODE(SlidorSwitch),
-    SAVE_CODE(SetSlidorActive),
-    SAVE_CODE(SetSlidorInactive),
-    SAVE_CODE(DoSlidorOperate),
-    SAVE_CODE(DoSlidorMatch),
-    SAVE_CODE(TestSlidorMatchActive),
-    SAVE_CODE(DoSlidorInterp),
-    SAVE_CODE(DoSlidorMoveWalls),
-    SAVE_CODE(DoSlidorInstantClose),
-    SAVE_CODE(DoSlidorMove),
     SAVE_CODE(DoSlidor),
 };
 

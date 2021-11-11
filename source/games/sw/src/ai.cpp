@@ -2129,20 +2129,6 @@ DoActorPause(DSWActor* actor)
 
 static saveable_code saveable_ai_code[] =
 {
-    SAVE_CODE(DebugMoveHit),
-    SAVE_CODE(ActorMoveHitReact),
-    SAVE_CODE(ActorFlaming),
-    SAVE_CODE(DoActorSetSpeed),
-    SAVE_CODE(ChooseAction),
-    SAVE_CODE(ChooseActionNumber),
-    SAVE_CODE(DoActorNoise),
-    SAVE_CODE(CanSeePlayer),
-    SAVE_CODE(CanHitPlayer),
-    SAVE_CODE(DoActorPickClosePlayer),
-    SAVE_CODE(GetPlayerSpriteNum),
-    SAVE_CODE(CloseRangeDist),
-    SAVE_CODE(DoActorOperate),
-    SAVE_CODE(DoActorActionDecide),
     SAVE_CODE(InitActorDecide),
     SAVE_CODE(DoActorDecide),
     SAVE_CODE(InitActorAlertNoise),
@@ -2157,7 +2143,6 @@ static saveable_code saveable_ai_code[] =
     SAVE_CODE(InitActorExtra5Noise),
     SAVE_CODE(InitActorExtra6Noise),
     SAVE_CODE(InitActorMoveCloser),
-    SAVE_CODE(DoActorCantMoveCloser),
     SAVE_CODE(DoActorMoveCloser),
     SAVE_CODE(FindTrackToPlayer),
     SAVE_CODE(FindTrackAwayFromPlayer),
@@ -2172,10 +2157,8 @@ static saveable_code saveable_ai_code[] =
     SAVE_CODE(InitActorDuck),
     SAVE_CODE(DoActorDuck),
     SAVE_CODE(DoActorMoveJump),
-    SAVE_CODE(FindNewAngle),
     SAVE_CODE(InitActorReposition),
     SAVE_CODE(DoActorReposition),
-    SAVE_CODE(InitActorPause),
     SAVE_CODE(DoActorPause)
 };
 

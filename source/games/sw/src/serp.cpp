@@ -833,7 +833,6 @@ int DoDeathSpecial(DSWActor* actor)
 
 static saveable_code saveable_serp_code[] =
 {
-    SAVE_CODE(SetupSerp),
     SAVE_CODE(NullSerp),
     SAVE_CODE(DoSerpMove),
     SAVE_CODE(DoDeathSpecial),

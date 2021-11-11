@@ -1333,10 +1333,6 @@ DoRipperMove(DSWActor* actor)
 
 static saveable_code saveable_ripper_code[] =
 {
-    SAVE_CODE(SetupRipper),
-    SAVE_CODE(GetJumpHeight),
-    SAVE_CODE(PickJumpSpeed),
-    SAVE_CODE(PickJumpMaxSpeed),
 
     SAVE_CODE(InitRipperHang),
     SAVE_CODE(DoRipperHang),
@@ -1351,7 +1347,6 @@ static saveable_code saveable_ripper_code[] =
     SAVE_CODE(DoRipperPain),
     SAVE_CODE(DoRipperRipHeart),
     SAVE_CODE(DoRipperStandHeart),
-    SAVE_CODE(RipperHatch),
     SAVE_CODE(DoRipperMove),
 };
 

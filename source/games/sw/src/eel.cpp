@@ -602,9 +602,6 @@ int DoEelMove(DSWActor* actor)
 
 static saveable_code saveable_eel_code[] =
 {
-    SAVE_CODE(EelCommon),
-    SAVE_CODE(SetupEel),
-    //SAVE_CODE(NewEel),
     SAVE_CODE(DoEelMatchPlayerZ),
     SAVE_CODE(DoEelDeath),
     SAVE_CODE(DoEelMove)

@@ -1549,9 +1549,6 @@ DoBunnyGrowUp(DSWActor* actor)
 
 static saveable_code saveable_bunny_code[] =
 {
-    SAVE_CODE(SetupBunny),
-    SAVE_CODE(GetBunnyJumpHeight),
-    SAVE_CODE(PickBunnyJumpSpeed),
     SAVE_CODE(DoBunnyBeginJumpAttack),
     SAVE_CODE(DoBunnyMoveJump),
     SAVE_CODE(DoPickCloseBunny),
@@ -1560,8 +1557,6 @@ static saveable_code saveable_bunny_code[] =
     SAVE_CODE(DoBunnyPain),
     SAVE_CODE(DoBunnyRipHeart),
     SAVE_CODE(DoBunnyStandKill),
-    SAVE_CODE(BunnyHatch),
-    SAVE_CODE(BunnyHatch2),
     SAVE_CODE(DoBunnyMove),
     SAVE_CODE(BunnySpew),
     SAVE_CODE(DoBunnyEat),
