@@ -55,6 +55,7 @@ extern int screenpeek;
 
 // Variables that must be saved
 extern uint8_t sectorextra[MAXSECTORS]; // these hold fields that were formerly in sprite and sector. Move these back into the base structs!
+extern uint8_t shadedsector[MAXSECTORS];
 
 extern int rtsplaying;
 extern int tempwallptr;
@@ -62,7 +63,6 @@ extern int tempwallptr;
 extern bool sound445done;
 extern player_struct ps[MAXPLAYERS];
 extern int spriteqamount;
-extern uint8_t shadedsector[MAXSECTORS];
 extern int lastvisinc;
 extern animwalltype animwall[MAXANIMWALLS];
 extern int numanimwalls;

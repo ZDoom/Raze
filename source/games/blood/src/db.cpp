@@ -518,9 +518,9 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
     gModernMap = false;
     #endif
 
-    memset(sector, 0, sizeof(*sector) * MAXSECTORS);
-    memset(wall, 0, sizeof(*wall) * MAXWALLS);
-    memset(sprite, 0, sizeof(*sector) * MAXSPRITES);
+    memset(sector, 0, sizeof(sector));
+    memset(wall, 0, sizeof(wall));
+    memset(sprite, 0, sizeof(sprite));
 
 #ifdef NOONE_EXTENSIONS
     for (auto& ctrl : gPlayerCtrl) ctrl.qavScene.initiator = nullptr;

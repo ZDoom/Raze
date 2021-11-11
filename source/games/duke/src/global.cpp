@@ -91,11 +91,12 @@ bool sound445done;							// used in checksectors_r. This was local state inside 
 
 // serialized
 uint8_t sectorextra[MAXSECTORS];			// something about keys, all access through the haskey function.
+uint8_t shadedsector[MAXSECTORS];			// display hackiness
+
 DDukeActor hittype[MAXSPRITES + 1];			// +1 to have a blank entry for serialization, all access in game code through the iterators.
 int spriteqamount = 64;						// internal sprite queue
 int spriteqloc;
 DDukeActor* spriteq[1024];
-uint8_t shadedsector[MAXSECTORS];			// display hackiness
 animwalltype animwall[MAXANIMWALLS];		// animated walls
 int numanimwalls;
 int animatecnt;								// sector plane movement
