@@ -121,7 +121,7 @@ void MoveRaToEnemy(short nPlayer)
     if (pTarget)
     {
 		auto pTargSprite = &pTarget->s();
-        if (!(pTargSprite->cstat & 0x101) || pTargSprite->sectnum == MAXSECTORS)
+        if (!(pTargSprite->cstat & 0x101) || pTargSprite->statnum == MAXSTATUS)
         {
             Ra[nPlayer].pTarget = nullptr;
             if (nAction == 0 || nAction == 3) {

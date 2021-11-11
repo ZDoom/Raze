@@ -920,7 +920,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
         MoveQX[nQHead] = pSprite->x;
         MoveQY[nQHead] = pSprite->y;
         MoveQZ[nQHead] = pSprite->z;
-        assert(pSprite->sectnum >= 0 && pSprite->sectnum < kMaxSectors);
+        assert(validSectorIndex(pSprite->sectnum));
         MoveQS[nQHead] = pSprite->sectnum;
         MoveQA[nQHead] = pSprite->ang;
 
