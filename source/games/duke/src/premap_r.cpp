@@ -746,7 +746,7 @@ void prelevel_r(int g)
 		switch (wal->overpicnum)
 		{
 		case FANSPRITE:
-			wall->cstat |= 65;
+			wal->cstat |= 65;
 			animwall[numanimwalls].wallnum = i;
 			numanimwalls++;
 			break;

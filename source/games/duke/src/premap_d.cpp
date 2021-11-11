@@ -411,7 +411,7 @@ void prelevel_d(int g)
 		{
 		case FANSHADOW:
 		case FANSPRITE:
-			wall->cstat |= 65;
+			wal->cstat |= 65;
 			animwall[numanimwalls].wallnum = i;
 			numanimwalls++;
 			break;
