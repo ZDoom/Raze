@@ -277,7 +277,7 @@ void DoRotatorSetInterp(short SpriteNum)
         StartInterpolation(w, Interp_Wall_Y);
 
         uint16_t const nextwall = wall[w].nextwall;
-        if (nextwall < MAXWALLS)
+        if (validWallIndex(nextwall))
         {
             StartInterpolation(wall[nextwall].point2, Interp_Wall_X);
             StartInterpolation(wall[nextwall].point2, Interp_Wall_Y);
@@ -300,7 +300,7 @@ void DoRotatorStopInterp(short SpriteNum)
         StopInterpolation(w, Interp_Wall_Y);
 
         uint16_t const nextwall = wall[w].nextwall;
-        if (nextwall < MAXWALLS)
+        if (validWallIndex(nextwall))
         {
             StopInterpolation(wall[nextwall].point2, Interp_Wall_X);
             StopInterpolation(wall[nextwall].point2, Interp_Wall_Y);

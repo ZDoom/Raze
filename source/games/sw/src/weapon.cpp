@@ -20207,7 +20207,7 @@ bool TestDontStick(short SpriteNum, short hit_wall)
         return true;
 
     // if blocking red wallo
-    if (TEST(wp->cstat, CSTAT_WALL_BLOCK) && (uint16_t)wp->nextwall < MAXWALLS)
+    if (TEST(wp->cstat, CSTAT_WALL_BLOCK) && validWallIndex(wp->nextwall))
         return true;
 
     return false;

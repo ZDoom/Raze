@@ -106,7 +106,7 @@ void SetSectorWallBits(short sectnum, int bit_mask, bool set_sectwall, bool set_
         if (set_nextwall)
         {
             uint16_t const nextwall = wall[wall_num].nextwall;
-            if (nextwall < MAXWALLS)
+            if (validWallIndex(nextwall))
                 SET(wall[nextwall].extra, bit_mask);
         }
 
@@ -151,7 +151,7 @@ static void WallSetupLoop(WALLp wp, int16_t lotag, int16_t extra)
     {
         SET(wp->extra, extra);
         uint16_t const nextwall = wp->nextwall;
-        if (nextwall < MAXWALLS)
+        if (validWallIndex(nextwall))
             SET(wall[nextwall].extra, extra);
     }
 
@@ -162,7 +162,7 @@ static void WallSetupLoop(WALLp wp, int16_t lotag, int16_t extra)
     {
         SET(wall[wall_num].extra, extra);
         uint16_t const nextwall = wall[wall_num].nextwall;
-        if (nextwall < MAXWALLS)
+        if (validWallIndex(nextwall))
             SET(wall[nextwall].extra, extra);
     }
 }
@@ -180,7 +180,7 @@ WallSetup(void)
 
     extern int x_min_bound, y_min_bound, x_max_bound, y_max_bound;
 
-    for (wp = wall, i = 0; wp < &wall[numwalls]; i++, wp++)
+    for (wp = wall, i = 0; i < numwalls; i++, wp++)
     {
         if (wp->picnum == FAF_PLACE_MIRROR_PIC)
             wp->picnum = FAF_MIRROR_PIC;
@@ -209,18 +209,28 @@ WallSetup(void)
         case TAG_WALL_LOOP_OUTER_SECONDARY:
         {
             // make sure it's a red wall
-            ASSERT((uint16_t)wp->nextwall < MAXWALLS);
-
-            WallSetupLoop(wp, TAG_WALL_LOOP_OUTER_SECONDARY, WALLFX_LOOP_OUTER|WALLFX_LOOP_OUTER_SECONDARY);
+            if (validWallIndex(wp->nextwall))
+            {
+                WallSetupLoop(wp, TAG_WALL_LOOP_OUTER_SECONDARY, WALLFX_LOOP_OUTER | WALLFX_LOOP_OUTER_SECONDARY);
+            }
+            else
+            {
+                Printf(PRINT_HIGH, "one-sided wall %d in loop setup\n", i);
+            }
             break;
         }
 
         case TAG_WALL_LOOP_OUTER:
         {
             // make sure it's a red wall
-            ASSERT((uint16_t)wp->nextwall < MAXWALLS);
-
-            WallSetupLoop(wp, TAG_WALL_LOOP_OUTER, WALLFX_LOOP_OUTER);
+            if (validWallIndex(wp->nextwall))
+            {
+                WallSetupLoop(wp, TAG_WALL_LOOP_OUTER, WALLFX_LOOP_OUTER);
+            }
+            else
+            {
+                Printf(PRINT_HIGH, "one-sided wall %d in loop setup\n", i);
+            }
             wp->lotag = 0;
             break;
         }

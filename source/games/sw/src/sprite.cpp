@@ -2644,7 +2644,7 @@ SpriteSetup(void)
                         if (TEST_BOOL5(sp))
                         {
                             uint16_t const nextwall = wall[w].nextwall;
-                            if (nextwall < MAXWALLS)
+                            if (validWallIndex(nextwall))
                             {
                                 wall_shade[wallcount] = wall[wall[w].nextwall].shade;
                                 wallcount++;
@@ -2700,7 +2700,7 @@ SpriteSetup(void)
                         if (TEST_BOOL5(sp))
                         {
                             uint16_t const nextwall = wall[w].nextwall;
-                            if (nextwall < MAXWALLS)
+                            if (validWallIndex(nextwall))
                             {
                                 wall_shade[wallcount] = wall[wall[w].nextwall].shade;
                                 wallcount++;
@@ -2980,7 +2980,7 @@ SpriteSetup(void)
                     do
                     {
                         // DO NOT TAG WHITE WALLS!
-                        if ((uint16_t)wall[wall_num].nextwall < MAXWALLS)
+                        if (validWallIndex(wall[wall_num].nextwall))
                         {
                             SET(wall[wall_num].cstat, CSTAT_WALL_WARP_HITSCAN);
                         }
@@ -3096,7 +3096,7 @@ SpriteSetup(void)
                     {
                         SET(wall[wall_num].cstat, CSTAT_WALL_BLOCK_ACTOR);
                         uint16_t const nextwall = wall[wall_num].nextwall;
-                        if (nextwall < MAXWALLS)
+                        if (validWallIndex(nextwall))
                             SET(wall[nextwall].cstat, CSTAT_WALL_BLOCK_ACTOR);
                         wall_num = wall[wall_num].point2;
                     }
