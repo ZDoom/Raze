@@ -1645,7 +1645,7 @@ public:
 	}
 
 	BitArray(unsigned elem)
-		: bytes((elem + 7) / 8, true)
+		: bytes((elem + 7) / 8, true), size(elem)
 	{
 
 	}
