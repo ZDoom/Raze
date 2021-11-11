@@ -789,6 +789,8 @@ SwordBlur(PANEL_SPRITEp psp)
 void
 SpawnSwordBlur(PANEL_SPRITEp psp)
 {
+    if (cl_nomeleeblur) return;
+
     PANEL_SPRITEp nsp;
     //PICITEMp pip;
 
@@ -1030,10 +1032,7 @@ pSwordPresent(PANEL_SPRITEp psp)
 void
 pSwordSlide(PANEL_SPRITEp psp)
 {
-    if (!cl_nomeleeblur)
-    {
-        SpawnSwordBlur(psp);
-    }
+    SpawnSwordBlur(psp);
 
     psp->backupcoords();
 
@@ -1046,10 +1045,7 @@ pSwordSlide(PANEL_SPRITEp psp)
 void
 pSwordSlideDown(PANEL_SPRITEp psp)
 {
-    if (!cl_nomeleeblur)
-    {
-        SpawnSwordBlur(psp);
-    }
+    SpawnSwordBlur(psp);
 
     auto ang = SwordAng + psp->ang + psp->PlayerP->SwordAng;
 
@@ -1096,10 +1092,7 @@ pSwordSlideDown(PANEL_SPRITEp psp)
 void
 pSwordSlideR(PANEL_SPRITEp psp)
 {
-    if (!cl_nomeleeblur)
-    {
-        SpawnSwordBlur(psp);
-    }
+    SpawnSwordBlur(psp);
 
     psp->backupcoords();
 
@@ -1112,10 +1105,7 @@ pSwordSlideR(PANEL_SPRITEp psp)
 void
 pSwordSlideDownR(PANEL_SPRITEp psp)
 {
-    if (!cl_nomeleeblur)
-    {
-        SpawnSwordBlur(psp);
-    }
+    SpawnSwordBlur(psp);
 
     auto ang = SwordAng + psp->ang - psp->PlayerP->SwordAng;
 
@@ -5730,6 +5720,8 @@ FistBlur(PANEL_SPRITEp psp)
 void
 SpawnFistBlur(PANEL_SPRITEp psp)
 {
+    if (cl_nomeleeblur) return;
+
     PANEL_SPRITEp nsp;
     //PICITEMp pip;
 
@@ -5991,10 +5983,7 @@ pFistPresent(PANEL_SPRITEp psp)
 void
 pFistSlide(PANEL_SPRITEp psp)
 {
-    if (!cl_nomeleeblur)
-    {
-        SpawnFistBlur(psp);
-    }
+    SpawnFistBlur(psp);
 
     //psp->backupx();
     psp->backupy();
@@ -6008,10 +5997,7 @@ pFistSlide(PANEL_SPRITEp psp)
 void
 pFistSlideDown(PANEL_SPRITEp psp)
 {
-    if (!cl_nomeleeblur)
-    {
-        SpawnFistBlur(psp);
-    }
+    SpawnFistBlur(psp);
 
     short vel = 3500;
     auto ang = FistAng + psp->ang + psp->PlayerP->FistAng;
@@ -6094,10 +6080,7 @@ pFistSlideDown(PANEL_SPRITEp psp)
 void
 pFistSlideR(PANEL_SPRITEp psp)
 {
-    if (!cl_nomeleeblur)
-    {
-        SpawnFistBlur(psp);
-    }
+    SpawnFistBlur(psp);
 
     //psp->backupx();
     psp->backupy();
@@ -6111,10 +6094,7 @@ pFistSlideR(PANEL_SPRITEp psp)
 void
 pFistSlideDownR(PANEL_SPRITEp psp)
 {
-    if (!cl_nomeleeblur)
-    {
-        SpawnFistBlur(psp);
-    }
+    SpawnFistBlur(psp);
 
     short vel = 3500;
     auto ang = FistAng + psp->ang + psp->PlayerP->FistAng;
