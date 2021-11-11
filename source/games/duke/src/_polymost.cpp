@@ -1,9 +1,5 @@
 BEGIN_DUKE_NS
 
-extern int tempsectorz[MAXSECTORS];
-extern int tempsectorpicnum[MAXSECTORS];
-
-
 void SE40_Draw(int tag, spritetype *spr, int x, int y, int z, binangle a, fixedhoriz h, int smoothratio)
 {
 	int i, j = 0, k = 0;
@@ -16,6 +12,9 @@ void SE40_Draw(int tag, spritetype *spr, int x, int y, int z, binangle a, fixedh
 	i = FOF;    //Effect TILE
 	tileDelete(FOF);
 	if (!testgotpic(FOF, true)) return;
+
+	TArray<int> tempsectorz(numsectors, true);
+	TArray<int> tempsectorpicnum(numsectors, true);
 
 	floor1 = spr;
 
