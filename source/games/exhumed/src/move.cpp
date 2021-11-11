@@ -30,13 +30,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-int NearSector[kMaxSectors] = { 0 };
-
 short nPushBlocks;
 
 // TODO - moveme?
 short overridesect;
-int NearCount = -1;
 
 DExhumedActor* nBodySprite[50];
 
@@ -71,9 +68,7 @@ void SerializeMove(FSerializer& arc)
 {
     if (arc.BeginObject("move"))
     {
-        arc("nearcount", NearCount)
-            .Array("nearsector", NearSector, NearCount)
-            ("pushcount", nPushBlocks)
+        arc ("pushcount", nPushBlocks)
             .Array("blocks", sBlockInfo, nPushBlocks)
             ("chunkcount", nCurChunkNum)
             .Array("chunks", nChunkSprite, kMaxMoveChunks)
@@ -228,16 +223,16 @@ void clipwall()
 
 }
 
-void BuildNear(int x, int y, int walldist, int nSector)
+int BelowNear(DExhumedActor* pActor, int x, int y, int walldist, int nSector)
 {
-    NearSector[0] = nSector;
-    NearCount = 1;
+    unsigned nearstart = GlobalSectorList.Size();
+    GlobalSectorList.Push(nSector);
 
-    int i = 0;
+    unsigned i = nearstart;
 
-    while (i < NearCount)
+    while (i < GlobalSectorList.Size())
     {
-        int nSector =NearSector[i];
+        int nSector = GlobalSectorList[i];
 
         int nWall = sector[nSector].wallptr;
         int nWallCount = sector[nSector].wallnum;
@@ -255,21 +250,20 @@ void BuildNear(int x, int y, int walldist, int nSector)
 
             if (nNextSector >= 0)
             {
-                int j = 0;
-                for (; j < NearCount; j++)
+                unsigned j = nearstart;
+                for (; j < GlobalSectorList.Size(); j++)
                 {
                     // loc_14F4D:
-                    if (nNextSector == NearSector[j])
+                    if (nNextSector == GlobalSectorList[j])
                         break;
                 }
 
-                if (j >= NearCount)
+                if (j >= GlobalSectorList.Size())
                 {
                     vec2_t pos = { x, y };
                     if (clipinsidebox(&pos, nWall, walldist))
                     {
-                        NearSector[NearCount] = wall[nWall].nextsector;
-                        NearCount++;
+                        GlobalSectorList.Push(wall[nWall].nextsector);
                     }
                 }
             }
@@ -277,12 +271,9 @@ void BuildNear(int x, int y, int walldist, int nSector)
             nWall++;
         }
     }
-}
 
-int BelowNear(DExhumedActor* pActor)
-{
-	auto pSprite = &pActor->s();
-    int nSector =pSprite->sectnum;
+    auto pSprite = &pActor->s();
+    nSector = pSprite->sectnum;
     int z = pSprite->z;
 
     int z2;
@@ -295,13 +286,13 @@ int BelowNear(DExhumedActor* pActor)
     {
         z2 = sector[nSector].floorz + SectDepth[nSector];
 
-        if (NearCount > 0)
+        if (GlobalSectorList.Size() > nearstart)
         {
             short edx;
 
-            for (int i = 0; i < NearCount; i++)
+            for (unsigned i = nearstart; i < GlobalSectorList.Size(); i++)
             {
-                int nSect2 = NearSector[i];
+                int nSect2 = GlobalSectorList[i];
 
                 while (nSect2 >= 0)
                 {
@@ -320,6 +311,7 @@ int BelowNear(DExhumedActor* pActor)
             }
         }
     }
+    GlobalSectorList.Resize(nearstart);
 
     if (z2 < pSprite->z)
     {
@@ -508,8 +500,7 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
 
     if (pSprite->statnum == 100)
     {
-        BuildNear(pSprite->x, pSprite->y, clipdist + (clipdist / 2), pSprite->sectnum);
-        nRet.exbits |= BelowNear(pActor);
+        nRet.exbits |= BelowNear(pActor, pSprite->x, pSprite->y, clipdist + (clipdist / 2), pSprite->sectnum);
     }
 
     return nRet;
