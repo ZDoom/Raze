@@ -353,7 +353,7 @@ extern short revolvesector[4], revolveang[4], revolvecnt;
 extern int revolvex[4][32], revolvey[4][32];
 extern int revolvepivotx[4], revolvepivoty[4];
 extern int warpx, warpy, warpz, warpang;
-extern short warpsect;
+extern int warpsect;
 extern int scarytime;
 extern int scarysize;
 extern int thunderflash;

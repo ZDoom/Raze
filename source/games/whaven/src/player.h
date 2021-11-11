@@ -9,13 +9,19 @@ struct PLAYER {
 	
 	InputPacket plInput;
 	int spellnum;
-	int x,y,z;
+	union {
+		struct
+		{
+			int32_t x, y, z;
+		};
+		vec3_t pos;
+	};
 	PlayerAngle angle;
     PlayerHorizon horizon;
     int height;
     int hvel;               
-    short sector;
-	short oldsector;
+    int sector;
+	int oldsector;
 	short spritenum;
 	boolean keytoggle;
 	int flags;

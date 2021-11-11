@@ -435,18 +435,18 @@ void processinput(int num) {
 		if (plr.noclip) {
 			plr.x += xvect >> 14;
 			plr.y += yvect >> 14;
-			short sect = plr.sector;
+			int sect = plr.sector;
 			updatesector(plr.x, plr.y, &sect);
 			if (sect != -1)
 				plr.sector = sect;
 		}
 		else {
-			short sect = plr.sector;
-			clipmove(&plr.x, &plr.y, &plr.z, &sect, xvect, yvect, 128, 4 << 8, 4 << 8, CLIPMASK0);
+			int sect = plr.sector;
+			clipmove(&plr.pos, &sect, xvect, yvect, 128, 4 << 8, 4 << 8, CLIPMASK0);
 			if (sect != -1) plr.sector = sect;
 
 			sect = plr.sector;
-			pushmove(&plr.x, &plr.y, &plr.z, &sect, 128, 4 << 8, 4 << 8, CLIPMASK0);
+			pushmove(&plr.pos, &sect, 128, 4 << 8, 4 << 8, CLIPMASK0);
 			if (sect != -1) plr.sector = sect;
 		}
 

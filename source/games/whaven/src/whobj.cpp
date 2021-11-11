@@ -1712,9 +1712,9 @@ boolean damageactor(PLAYER& plr, int hitobject, short i) {
 
 int movesprite(short spritenum, int dx, int dy, int dz, int ceildist, int flordist, int cliptype) {
 
-	int daz, zoffs;
+	int zoffs;
 	int retval;
-	short tempshort, dasectnum;
+	int tempshort, dasectnum;
 
 	SPRITE& spr = sprite[spritenum];
 	if (spr.statnum == MAXSTATUS)
@@ -1739,12 +1739,14 @@ int movesprite(short spritenum, int dx, int dy, int dz, int ceildist, int flordi
 		zoffs = 0;
 
 	dasectnum = spr.sectnum; // Can't modify sprite sectors directly becuase of linked lists
-	daz = spr.z + zoffs; // Must do this if not using the new centered centering (of course)
 
+	auto pos = spr.pos;
+	pos.z += zoffs; // Must do this if not using the new centered centering (of course)
+	retval = clipmove(&pos, &dasectnum, dx, dy, (spr.clipdist) << 2, ceildist, flordist, dcliptype);
 
-	retval = clipmove(&spr.x, &spr.y, &daz, &dasectnum, dx, dy, (spr.clipdist) << 2, ceildist, flordist, dcliptype);
-
-	pushmove(&spr.x, &spr.y, &daz, &dasectnum, spr.clipdist << 2, ceildist, flordist, CLIPMASK0);
+	pushmove(&pos, &dasectnum, spr.clipdist << 2, ceildist, flordist, CLIPMASK0);
+	spr.x = pos.x;
+	spr.y = pos.y;
 	
 	if ((dasectnum != spr.sectnum) && (dasectnum >= 0))
 		changespritesect(spritenum, dasectnum);
@@ -1756,7 +1758,7 @@ int movesprite(short spritenum, int dx, int dy, int dz, int ceildist, int flordi
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, dcliptype);
 	spr.cstat = tempshort;
 
-	daz = spr.z + zoffs + dz;
+	int daz = spr.z + zoffs + dz;
 	if ((daz <= zr_ceilz) || (daz > zr_florz)) {
 		if (retval != 0)
 			return (retval);

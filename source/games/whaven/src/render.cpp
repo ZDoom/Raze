@@ -73,7 +73,7 @@ void drawscreen(int num, double dasmoothratio, bool sceneonly)
 			// Todo: render this with 30% light only.
 			inpreparemirror = true;
 			renderSetRollAngle(1024);
-			renderDrawRoomsQ16(cposx, cposy, cposz, cang.asq16(), choriz.asq16(), floormirrorsector[i]);
+			renderDrawRoomsQ16(cposx, cposy, cposz, cang.asq16(), choriz.asq16(), floormirrorsector[i], false);
 			analyzesprites(plr, (int)dasmoothratio, pm_tsprite, pm_spritesortcnt);
 			renderDrawMasks();
 			renderSetRollAngle(0);
@@ -93,7 +93,7 @@ void drawscreen(int num, double dasmoothratio, bool sceneonly)
 	if (!testnewrenderer)
 	{
 		renderSetRollAngle((float)crotscrnang.asbuildf());
-		renderDrawRoomsQ16(cposx, cposy, cposz, cang.asq16(), choriz.asq16(), plr.sector);
+		renderDrawRoomsQ16(cposx, cposy, cposz, cang.asq16(), choriz.asq16(), plr.sector, false);
 		analyzesprites(plr, (int)dasmoothratio, pm_tsprite, pm_spritesortcnt);
 		renderDrawMasks();
 	}

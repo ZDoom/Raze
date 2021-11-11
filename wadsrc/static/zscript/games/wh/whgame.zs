@@ -230,8 +230,8 @@ struct WhPlayer native {
      //PlayerHorizon horizon;
     native int height;
     native int hvel;               
-    native int16 sector;
-	native int16 oldsector;
+    native int sector;
+	native int oldsector;
 	native int16 spritenum;
 	native bool keytoggle;
 	native int flags;

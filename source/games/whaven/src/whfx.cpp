@@ -32,7 +32,7 @@ static short revolvesyncang, revolvesyncrotang;
 static int revolvesyncx, revolvesyncy;
 
 int warpx, warpy, warpz, warpang;
-short warpsect;
+int warpsect;
 
 int scarytime = -1;
 int scarysize = 0;
