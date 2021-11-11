@@ -337,9 +337,10 @@ void DrawView(double smoothRatio, bool sceneonly)
 
     if (nFreeze != 3)
     {
-        static uint8_t sectorFloorPal[MAXSECTORS];
-        static uint8_t sectorCeilingPal[MAXSECTORS];
-        static uint8_t wallPal[MAXWALLS];
+        TArray<uint8_t> paldata(numsectors * 2 + numwalls, true);
+        uint8_t* sectorFloorPal = &paldata[0];
+        uint8_t* sectorCeilingPal = &paldata[numsectors];
+        uint8_t* wallPal = &paldata[2*numsectors];
         int const viewingRange = viewingrange;
         int const vr = xs_CRoundToInt(65536. * tan(r_fov * (pi::pi() / 360.)));
 
