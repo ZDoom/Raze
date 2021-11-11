@@ -586,15 +586,6 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 			}
 			else p->fraggedself++;
 
-#if 0
-			if (myconnectindex == connecthead)
-			{
-				sprintf(tempbuf, "frag %d killed %d\n", p->frag_ps + 1, snum + 1);
-				sendscore(tempbuf);
-				//					  printf(tempbuf);
-			}
-#endif
-
 			p->frag_ps = snum;
 		}
 	}

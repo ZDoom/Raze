@@ -2898,14 +2898,6 @@ int ConCompiler::parsecommand()
 	case concmd_startlevel:
 		// start at specified level
 		// startlevel <episode> <level>
-#if 0
-		if (!g_bEnhanced)
-		{
-			errorcount++;
-			printf("  * ERROR!(L%ld) Command  '%s' is enhanced only.  Define enhance with the version number your code needs before using this commands.\n", line_number, tempbuf);
-			return 0;
-		}
-#endif
 		// get the ID of the DEF
 		getlabel();	
 		checkforkeyword();
@@ -2935,14 +2927,6 @@ int ConCompiler::parsecommand()
 	case concmd_mapvoxel:
 		// map a tilenum to a voxel.
 		// syntax: mapvoxel <tilenum> <filename (8.3)>
-#if 0
-		if (!g_bEnhanced)
-		{
-			errorcount++;
-			printf("  * ERROR!(L%ld) Command  '%s' is enhanced only.  Define enhance with the version number your code needs before using this commands.\n", line_number, tempbuf);
-			return 0;
-		}
-#endif
 		popscriptvalue(); // don't save in compiled code
 
 		transnum(LABEL_DEFINE);
@@ -2965,14 +2949,6 @@ int ConCompiler::parsecommand()
 	case concmd_myospal:
 	case concmd_myosx:
 	case concmd_myospalx:
-#if 0
-		if (!g_bEnhanced)
-		{
-			errorcount++;
-			printf("  * ERROR!(L%ld) Command  '%s' is enhanced only.  Define enhance with the version number your code needs before using this commands.\n", line_number, tempbuf);
-			return 0;
-		}
-#endif
 		// syntax:
 		// int x, int y, int tilenum, int shade, int orientation
 		// myospal adds char pal
