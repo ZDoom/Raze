@@ -43,7 +43,7 @@ struct GameInterface : public ::GameInterface
 	void ExitFromMenu() override;
 	ReservedSpace GetReservedScreenSpace(int viewsize) override;
 	void DrawPlayerSprite(const DVector2& origin, bool onteam) override;
-	void GetInput(InputPacket* packet, ControlInfo* const hidInput) override;
+	void GetInput(ControlInfo* const hidInput, double const scaleAdjust, InputPacket* packet = nullptr) override;
 	void UpdateSounds() override;
 	void Startup() override;
 	void DrawBackground() override;

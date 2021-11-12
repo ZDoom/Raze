@@ -34,7 +34,7 @@ void ClearSpaceBar(short nPlayer)
 }
 
 
-void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
+void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdjust, InputPacket* packet)
 {
     if (paused || M_Active())
     {
@@ -50,17 +50,16 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
     }
 
     Player* pPlayer = &PlayerList[nLocalPlayer];
-    double const scaleAdjust = InputScale();
     InputPacket input {};
 
-    if (PlayerList[nLocalPlayer].nHealth == 0)
+    if (PlayerList[nLocalPlayer].nHealth != 0)
     {
-        lPlayerYVel = 0;
-        lPlayerXVel = 0;
+        processMovement(&input, &localInput, hidInput, scaleAdjust);
     }
     else
     {
-        processMovement(&input, &localInput, hidInput, scaleAdjust);
+        lPlayerYVel = 0;
+        lPlayerXVel = 0;
     }
 
     if (!SyncInput())

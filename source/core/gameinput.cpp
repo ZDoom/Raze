@@ -188,16 +188,14 @@ void processMovement(InputPacket* const currInput, InputPacket* const inputBuffe
 
 		if (turnleft || turnright)
 		{
-			double const turnamount = hidspeed * turnscale;
-			double const preambleturn = turnamount * (double(PREAMBLEBASE) / double(NORMALTURNBASE));
-
 			updateTurnHeldAmt(scaleAdjust);
+			float const turnamount = float(scaleAdjust * hidspeed * turnscale * (isTurboTurnTime() ? 1. : double(PREAMBLEBASE) / double(NORMALTURNBASE)));
 
 			if (turnleft)
-				currInput->avel -= float(scaleAdjust * (isTurboTurnTime() ? turnamount : preambleturn));
+				currInput->avel -= turnamount;
 
 			if (turnright)
-				currInput->avel += float(scaleAdjust * (isTurboTurnTime() ? turnamount : preambleturn));
+				currInput->avel += turnamount;
 		}
 		else
 		{

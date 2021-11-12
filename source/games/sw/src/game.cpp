@@ -179,7 +179,6 @@ void GameInterface::LoadGameTextures()
 void GameInterface::app_init()
 {
     GameTicRate = 40;
-    InputScalePercentage = 0.070625;
     InitCheats();
     automapping = 1;
 

@@ -160,7 +160,7 @@ static void processWeapon(PLAYERp const pp)
     }
 }
 
-void GameInterface::GetInput(InputPacket *packet, ControlInfo* const hidInput)
+void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdjust, InputPacket *packet)
 {
     PLAYERp pp = &Player[myconnectindex];
 
@@ -170,7 +170,6 @@ void GameInterface::GetInput(InputPacket *packet, ControlInfo* const hidInput)
         return;
     }
 
-    double const scaleAdjust = InputScale();
     InputPacket input {};
 
     ApplyGlobalInput(loc, hidInput);

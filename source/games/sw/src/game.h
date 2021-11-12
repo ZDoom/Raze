@@ -2191,7 +2191,7 @@ struct GameInterface : public ::GameInterface
     ReservedSpace GetReservedScreenSpace(int viewsize) override;
     void UpdateSounds() override;
     void ErrorCleanup() override;
-    void GetInput(InputPacket* input, ControlInfo* const hidInput) override;
+    void GetInput(ControlInfo* const hidInput, double const scaleAdjust, InputPacket* input = nullptr) override;
     void DrawBackground(void) override;
     void Ticker(void) override;
     void Render() override;

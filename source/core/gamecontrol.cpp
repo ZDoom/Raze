@@ -1024,7 +1024,6 @@ int RunGame()
 		playername = userConfig.CommandName;
 	}
 	GameTicRate = 30;
-	InputScalePercentage = 0.14125;
 	CheckUserMap();
 
 	palindexmap[0] = 255;

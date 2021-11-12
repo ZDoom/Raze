@@ -124,7 +124,7 @@ struct GameInterface : public ::GameInterface
 	FString GetCoordString() override;
 	ReservedSpace GetReservedScreenSpace(int viewsize) override;
 	void UpdateSounds() override;
-	void GetInput(InputPacket* packet, ControlInfo* const hidInput) override;
+	void GetInput(ControlInfo* const hidInput, double const scaleAdjust, InputPacket* packet = nullptr) override;
 	void Ticker() override;
 	void DrawBackground() override;
 	void Startup() override;

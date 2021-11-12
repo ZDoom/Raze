@@ -48,10 +48,8 @@
 static int WeaponToSend = 0;
 ESyncBits ActionsToSend = 0;
 static int dpad_lock = 0;
-double InputScalePercentage = 0;
 bool sendPause;
 bool crouch_toggle;
-static double lastCheck;
 
 CVAR(Float, m_pitch, 1.f, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)		// Mouse speeds
 CVAR(Float, m_yaw, 1.f, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
@@ -122,7 +120,6 @@ void InputState::ClearAllInput()
 	AnyKeyStatus = false;
 	WeaponToSend = 0;
 	dpad_lock = 0;
-	lastCheck = 0;
 
 	if (gamestate != GS_LEVEL)
 	{
@@ -471,30 +468,5 @@ void ApplyGlobalInput(InputPacket& input, ControlInfo* hidInput, bool const crou
 
 	if (buttonMap.ButtonDown(gamefunc_Look_Right)) 
 		input.actions |= SB_LOOK_RIGHT;
-
-}
-
-double InputScale()
-{
-	if (!SyncInput())
-	{
-		const double max = 1000. / GameTicRate;
-		const double now = I_msTimeF();
-		const double elapsedInputTicks = lastCheck > 0 ? min(now - lastCheck, max) : 1.;
-		lastCheck = now;
-		if (elapsedInputTicks == max) return 1;
-
-		// Calculate a scale increase of the percentage InputScalePercentage is set as to correct an
-		// inherent drift in this function that progressively causes the actions that depend
-		// on this fractional scale to increase by over 100 ms as the framerate increases.
-		// This isn't pretty, but it's accurate to within 1-2 ms from 60 fps to at least 1000 fps.
-		const double result = elapsedInputTicks * GameTicRate / 1000.;
-		const double scaler = cl_preciseinputscaling ? 1. + InputScalePercentage * (1. - result) : 1.;
-		return result * scaler;
-	}
-	else
-	{
-		return 1;
-	}
 }
 

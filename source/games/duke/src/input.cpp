@@ -800,7 +800,7 @@ static void FinalizeInput(player_struct *p, InputPacket& input)
 //
 //---------------------------------------------------------------------------
 
-void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
+void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdjust, InputPacket* packet)
 {
 	if (paused || gamestate != GS_LEVEL)
 	{
@@ -809,13 +809,11 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 	}
 
 	auto const p = &ps[myconnectindex];
-	bool const rrraVehicle = isRRRA() && (p->OnMotorcycle || p->OnBoat);
-	double const scaleAdjust = InputScale();
 	InputPacket input{};
 
 	processInputBits(p, hidInput);
 
-	if (rrraVehicle)
+	if (isRRRA() && (p->OnMotorcycle || p->OnBoat))
 	{
 		processVehicleInput(p, hidInput, input, scaleAdjust);
 	}
