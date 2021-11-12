@@ -74,8 +74,8 @@ void sub_71BD4(int, DBloodActor* actor)
 	int z = height;
 	TARGETTRACK tt = { 0x10000, 0x10000, 0x100, 0x55, 0x100000 };
 	Aim aim;
-	aim.dx = CosScale16(pSprite->ang);
-	aim.dy = SinScale16(pSprite->ang);
+	aim.dx = bcos(pSprite->ang);
+	aim.dy = bsin(pSprite->ang);
 	aim.dz = actor->dudeSlope;
 	int nClosest = 0x7fffffff;
 	BloodStatIterator it(kStatDude);
@@ -119,8 +119,8 @@ void sub_71BD4(int, DBloodActor* actor)
 				if (cansee(x, y, z, pSprite->sectnum, x2, y2, z2, pSprite2->sectnum))
 				{
 					nClosest = nDist2;
-					aim.dx = CosScale16(nAngle);
-					aim.dy = SinScale16(nAngle);
+					aim.dx = bcos(nAngle);
+					aim.dy = bsin(nAngle);
 					aim.dz = DivScale(tz, nDist, 10);
 				}
 				else
@@ -141,8 +141,8 @@ void sub_720AC(int, DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
 	int height = pSprite->yrepeat * pDudeInfo->eyeHeight;
 	int ax, ay, az;
-	ax = CosScale16(pSprite->ang);
-	ay = SinScale16(pSprite->ang);
+	ax = bcos(pSprite->ang);
+	ay = bsin(pSprite->ang);
 	int x = pSprite->x;
 	int y = pSprite->y;
 	int z = height;
@@ -194,8 +194,8 @@ void sub_720AC(int, DBloodActor* actor)
 				if (cansee(x, y, z, pSprite->sectnum, x2, y2, z2, pSprite2->sectnum))
 				{
 					nClosest = nDist2;
-					aim.dx = CosScale16(nAngle);
-					aim.dy = SinScale16(nAngle);
+					aim.dx = bcos(nAngle);
+					aim.dy = bsin(nAngle);
 					aim.dz = DivScale(tz, nDist, 10);
 				}
 				else

@@ -38,7 +38,7 @@ static actionSeq ScorpSeq[] = {
     {53, 1}
 };
 
-void BuildScorp(DExhumedActor* pActor, int x, int y, int z, short nSector, short nAngle, int nChannel)
+void BuildScorp(DExhumedActor* pActor, int x, int y, int z, int nSector, short nAngle, int nChannel)
 {
     spritetype* pSprite;
 
@@ -54,7 +54,7 @@ void BuildScorp(DExhumedActor* pActor, int x, int y, int z, short nSector, short
 		pSprite = &pActor->s();
         x = pSprite->x;
         y = pSprite->y;
-        z = sector[pSprite->sectnum].floorz;
+        z = pSprite->sector()->floorz;
         nAngle = pSprite->ang;
     }
 
@@ -67,7 +67,7 @@ void BuildScorp(DExhumedActor* pActor, int x, int y, int z, short nSector, short
     pSprite->xrepeat = 80;
     pSprite->yrepeat = 80;
     pSprite->picnum = 1;
-    pSprite->pal = sector[pSprite->sectnum].ceilingpal;
+    pSprite->pal = pSprite->sector()->ceilingpal;
     pSprite->xoffset = 0;
     pSprite->yoffset = 0;
     pSprite->ang = nAngle;
@@ -482,9 +482,4 @@ void AIScorp::Effect(RunListEvent* ev, DExhumedActor* pTarget, int mode)
 }
 
 
-void FuncScorp(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AIScorp ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
-}
 END_PS_NS

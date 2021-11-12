@@ -27,8 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-int costable[2048];
-
 int OctantTable[8] = { 5, 6, 2, 1, 4, 7, 3, 0 };
 
 int GetOctant(int x, int y)
@@ -51,29 +49,6 @@ void RotatePoint(int *x, int *y, int nAngle, int ox, int oy)
     int dy = *y-oy;
     *x = ox+dmulscale30r(dx, Cos(nAngle), -dy, Sin(nAngle));
     *y = oy+dmulscale30r(dx, Sin(nAngle), dy, Cos(nAngle));
-}
-
-void trigInit()
-{
-    auto fr = fileSystem.OpenFileReader("cosine.dat");
-    auto len = fr.Read(costable, 2048);
-    if (len != 2048)
-        I_Error("Cosine table incorrect size");
-#if B_BIG_ENDIAN == 1
-    for (int i = 0; i < 512; i++)
-    {
-        costable[i] = LittleLong(costable[i]);
-    }
-#endif
-    costable[512] = 0;
-    for (int i = 513; i <= 1024; i++)
-    {
-        costable[i] = -costable[1024-i];
-    }
-    for (int i = 1025; i < 2048; i++)
-    {
-        costable[i] = costable[2048 - i];
-    }
 }
 
 END_BLD_NS

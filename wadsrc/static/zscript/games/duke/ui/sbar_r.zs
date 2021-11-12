@@ -94,7 +94,7 @@ class RedneckStatusBar : DukeCommonStatusBar
 		{
 			int s = -8;
 			if (hud_flashing && p.last_extra > Duke.MaxPlayerHealth())
-				s += Raze.bsin(Raze.GetBuildTime() << 5) / 768;
+				s += Raze.bsin(Raze.GetBuildTime() << 5, -10);
 			int intens = clamp(255 - 6 * s, 0, 255);
 			format = String.Format("%d", p.last_extra);
 			DrawString(numberFont, format, (26.5, -numberFont.mFont.GetHeight() * scale + 4), DI_TEXT_ALIGN_LEFT, Font.CR_UNTRANSLATED, intens / 255., 0, 0, (scale, scale));

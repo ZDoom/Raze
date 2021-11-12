@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_PS_NS
 
 void RestoreSavePoint(int nPlayer, int *x, int *y, int *z, short *nSector, short *nAngle);
-void SetSavePoint(int nPlayer, int x, int y, int z, short nSector, short nAngle);
+void SetSavePoint(int nPlayer, int x, int y, int z, int nSector, short nAngle);
 void InitPlayer();
 void InitPlayerKeys(short nPlayer);
 int GrabPlayer();
@@ -52,13 +52,14 @@ struct PlayerSave
     int x;
     int y;
     int z;
-    short nSector;
+    int nSector;
     short nAngle;
 };
 
 struct Player
 {
-	DExhumedActor* Actor() { return nSprite == -1? nullptr : &exhumedActors[nSprite]; }
+	DExhumedActor* Actor() { return pActor; }
+    DExhumedActor* pActor;
     short nHealth;
     short nLives;
     short nDouble;
@@ -66,7 +67,6 @@ struct Player
     short nTorch;
     short field_2;
     short nAction;
-    short nSprite;
     short bIsMummified;
     short invincibility;
     short nAir;
@@ -102,19 +102,19 @@ struct Player
     short nPistolClip;
     int nXDamage;
     int nYDamage;
-    short nDoppleSprite;
     short nPlayerOldWeapon;
     short nPlayerClip;
     short nPlayerPushSound;
     short nTauntTimer;
     uint16_t nPlayerWeapons; // each set bit represents a weapon the player has
     short nPlayerViewSect;
-    short nPlayerFloorSprite;
     PlayerSave sPlayerSave;
     int ototalvel;
     int totalvel;
     int16_t eyelevel, oeyelevel;
-    DExhumedActor* nPlayerGrenade;
+    DExhumedActor* pPlayerGrenade;
+    DExhumedActor* pPlayerFloorSprite;
+    DExhumedActor* pDoppleSprite;
 
 };
 
@@ -128,11 +128,7 @@ extern DExhumedActor* nNetStartSprite[kMaxPlayers];
 extern short nNetStartSprites;
 extern short nCurStartSprite;
 
-short GetPlayerFromSprite(short nSprite);
-short GetPlayerFromActor(DExhumedActor* actor)
-{
-    return GetPlayerFromSprite(actor->GetSpriteIndex());
-}
+short GetPlayerFromActor(DExhumedActor* actor);
 void SetPlayerMummified(int nPlayer, int bIsMummified);
 int AddAmmo(int nPlayer, int nWeapon, int nAmmoAmount);
 void ShootStaff(int nPlayer);

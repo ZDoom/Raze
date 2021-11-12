@@ -51,6 +51,7 @@ enum
 
 
 //40 bytes
+struct walltype;
 struct sectortype
 {
     int16_t wallptr, wallnum;
@@ -87,6 +88,7 @@ struct sectortype
     void addfloorypan(float add) { floorypan_ = fmodf(floorypan_ + add + 512, 256); } // +512 is for handling negative offsets
     void addceilingxpan(float add) { ceilingxpan_ = fmodf(ceilingxpan_ + add + 512, 256); } // +512 is for handling negative offsets
     void addceilingypan(float add) { ceilingypan_ = fmodf(ceilingypan_ + add + 512, 256); } // +512 is for handling negative offsets
+    walltype *firstWall() const;
 };
 
 //cstat:
@@ -134,6 +136,10 @@ struct walltype
     void setypan(float add) { ypan_ = fmodf(add + 512, 256); } // +512 is for handling negative offsets
     void addxpan(float add) { xpan_ = fmodf(xpan_ + add + 512, 256); } // +512 is for handling negative offsets
     void addypan(float add) { ypan_ = fmodf(ypan_ + add + 512, 256); } // +512 is for handling negative offsets
+    sectortype* nextSector() const;
+    walltype* nextWall() const;
+    walltype* point2Wall() const;
+    bool twoSided() const { return nextsector >= 0; }
 
 #if 0
     // make sure we do not accidentally copy this
@@ -362,6 +368,8 @@ struct spritetype
     {
         return interpolatedangle(oang, ang, smoothratio, 16);
     }
+
+    sectortype* sector() const;
 };
 
 using tspritetype = spritetype;

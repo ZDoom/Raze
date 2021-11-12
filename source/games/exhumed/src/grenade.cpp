@@ -49,13 +49,13 @@ void BounceGrenade(DExhumedActor* pActor, short nAngle)
 
 void ThrowGrenade(short nPlayer, int, int, int ecx, int push1)
 {
-    if (PlayerList[nPlayer].nPlayerGrenade == nullptr)
+    if (PlayerList[nPlayer].pPlayerGrenade == nullptr)
         return;
 
-    auto pActor = PlayerList[nPlayer].nPlayerGrenade;
-    short nPlayerSprite = PlayerList[nPlayer].nSprite;
-	auto pGrenadeSprite = &pActor->s();
-	auto pPlayerSprite = &PlayerList[nPlayer].Actor()->s();
+    auto pActor = PlayerList[nPlayer].pPlayerGrenade;
+    auto pGrenadeSprite = &pActor->s();
+    auto pPlayerActor = PlayerList[nPlayer].Actor();
+    auto pPlayerSprite = &pPlayerActor->s();
 
     short nAngle = pPlayerSprite->ang;
 
@@ -95,7 +95,7 @@ void ThrowGrenade(short nPlayer, int, int, int ecx, int push1)
     pActor->x = bcos(nAngle, -4) * pActor->nTurn;
     pActor->y = bsin(nAngle, -4) * pActor->nTurn;
 
-    PlayerList[nPlayer].nPlayerGrenade = nullptr;
+    PlayerList[nPlayer].pPlayerGrenade = nullptr;
 
     return;
 }
@@ -140,7 +140,7 @@ void BuildGrenade(int nPlayer)
     pActor->nPhase = runlist_AddRunRec(pSprite->lotag - 1, pActor, 0x0F0000);
     pActor->nRun = runlist_AddRunRec(NewRun, pActor, 0x0F0000);
 
-    PlayerList[nPlayer].nPlayerGrenade = pActor;
+    PlayerList[nPlayer].pPlayerGrenade = pActor;
 }
 
 void ExplodeGrenade(DExhumedActor* pActor)
@@ -148,8 +148,8 @@ void ExplodeGrenade(DExhumedActor* pActor)
     int var_28, var_20;
 
     auto pGrenadeSprite = &pActor->s();
-    short nPlayer = pGrenadeSprite->owner;
-    short nGrenadeSect = pGrenadeSprite->sectnum;
+    int nPlayer = pGrenadeSprite->owner;
+    int nGrenadeSect = pGrenadeSprite->sectnum;
 
     pActor->nFrame = 1;
 
@@ -357,10 +357,5 @@ void AIGrenade::RadialDamage(RunListEvent* ev)
     }
 }
 
-void FuncGrenade(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AIGrenade ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
-}
 
 END_PS_NS

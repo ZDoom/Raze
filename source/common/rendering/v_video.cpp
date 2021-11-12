@@ -61,7 +61,7 @@
 #include "texturemanager.h"
 #include "i_interface.h"
 #include "v_draw.h"
-#include "templates.h"
+
 
 EXTERN_CVAR(Int, menu_resolution_custom_width)
 EXTERN_CVAR(Int, menu_resolution_custom_height)
@@ -71,6 +71,8 @@ CVAR(Int, win_y, -1, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR(Int, win_w, -1, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR(Int, win_h, -1, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR(Bool, win_maximized, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_NOINITCALL)
+
+CVAR(Bool, r_skipmats, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_NOINITCALL)
 
 // 0 means 'no pipelining' for non GLES2 and 4 elements for GLES2
 CUSTOM_CVAR(Int, gl_pipeline_depth, 0, CVAR_ARCHIVE | CVAR_GLOBALCONFIG | CVAR_NOINITCALL)
@@ -250,7 +252,7 @@ void DCanvas::Resize(int width, int height, bool optimizepitch)
 		}
 		else
 		{
-			Pitch = width + MAX(0, CPU.DataL1LineSize - 8);
+			Pitch = width + max(0, CPU.DataL1LineSize - 8);
 		}
 	}
 	int bytes_per_pixel = Bgra ? 4 : 1;
@@ -273,7 +275,7 @@ void V_UpdateModeSize (int width, int height)
 
 	// This reference size is being used so that on 800x450 (small 16:9) a scale of 2 gets used.
 
-	CleanXfac = std::max(std::min(screen->GetWidth() / 400, screen->GetHeight() / 240), 1);
+	CleanXfac = max(min(screen->GetWidth() / 400, screen->GetHeight() / 240), 1);
 	if (CleanXfac >= 4) CleanXfac--;	// Otherwise we do not have enough space for the episode/skill menus in some languages.
 	CleanYfac = CleanXfac;
 	CleanWidth = screen->GetWidth() / CleanXfac;
@@ -290,7 +292,7 @@ void V_UpdateModeSize (int width, int height)
 	else if (w < 1920) factor = 2;
 	else factor = int(factor * 0.7);
 
-	CleanYfac_1 = CleanXfac_1 = factor;// MAX(1, int(factor * 0.7));
+	CleanYfac_1 = CleanXfac_1 = factor;// max(1, int(factor * 0.7));
 	CleanWidth_1 = width / CleanXfac_1;
 	CleanHeight_1 = height / CleanYfac_1;
 

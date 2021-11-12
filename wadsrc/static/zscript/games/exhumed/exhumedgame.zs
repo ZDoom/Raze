@@ -41,7 +41,7 @@ struct ExhumedPlayer native
 	native int16 nTorch;
 	native int16 field_2;
 	native int16 nAction;
-	native int16 nSprite;
+	//native int16 nSprite;
 	native int16 bIsMummified;
 	native int16 invincibility;
 	native int16 nAir;

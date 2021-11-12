@@ -678,13 +678,14 @@ SetupZilla(short SpriteNum)
     return 0;
 }
 
-int NullZilla(short SpriteNum)
+int NullZilla(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
 
     //if (TEST(u->Flags,SPR_SLIDING))
-    //DoActorSlide(SpriteNum);
+    //DoActorSlide(actor);
 
 #if 0
     if (u->State == s_ZillaDie)
@@ -705,19 +706,20 @@ int NullZilla(short SpriteNum)
     u->hi_sp = nullptr;
     sp->z = u->loz;
 
-    DoActorSectorDamage(SpriteNum);
+    DoActorSectorDamage(actor);
 
     return 0;
 }
 
-int DoZillaMove(short SpriteNum)
+int DoZillaMove(DSWActor* actor)
 {
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
     short choose;
 
     //if (TEST(u->Flags,SPR_SLIDING))
-    //DoActorSlide(SpriteNum);
+    //DoActorSlide(actor);
 
     // Random Zilla taunts
     if (!SoundValidAndActive(sp, CHAN_AnimeMad))
@@ -737,11 +739,11 @@ int DoZillaMove(short SpriteNum)
     if (u->track >= 0)
         ActorFollowTrack(SpriteNum, ACTORMOVETICS);
     else
-        (*u->ActorActionFunc)(SpriteNum);
+        (*u->ActorActionFunc)(actor);
 
     KeepActorOnFloor(SpriteNum);
 
-    if (DoActorSectorDamage(SpriteNum))
+    if (DoActorSectorDamage(actor))
     {
         return 0;
     }
@@ -749,8 +751,10 @@ int DoZillaMove(short SpriteNum)
     return 0;
 }
 
-int DoZillaStomp(short SpriteNum)
+int DoZillaStomp(DSWActor* actor)
 {
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
     PlaySound(DIGI_ZILLASTOMP, sp, v3df_follow);
@@ -760,10 +764,11 @@ int DoZillaStomp(short SpriteNum)
 
 extern int SpawnGrenadeExp(int16_t Weapon);
 
-int DoZillaDeathMelt(short SpriteNum)
+int DoZillaDeathMelt(DSWActor* actor)
 {
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
 
     if (RandomRange(1000) > 800)
         SpawnGrenadeExp(SpriteNum);
@@ -795,7 +800,6 @@ int DoZillaDeathMelt(short SpriteNum)
 
 static saveable_code saveable_zilla_code[] =
 {
-    SAVE_CODE(SetupZilla),
     SAVE_CODE(NullZilla),
     SAVE_CODE(DoZillaMove),
     SAVE_CODE(DoZillaStomp),

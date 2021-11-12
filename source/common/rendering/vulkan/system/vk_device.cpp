@@ -220,6 +220,7 @@ void VulkanDevice::CreateAllocator()
 		allocinfo.flags = VMA_ALLOCATOR_CREATE_KHR_DEDICATED_ALLOCATION_BIT;
 	allocinfo.physicalDevice = PhysicalDevice.Device;
 	allocinfo.device = device;
+	allocinfo.instance = instance;
 	allocinfo.preferredLargeHeapBlockSize = 64 * 1024 * 1024;
 	if (vmaCreateAllocator(&allocinfo, &allocator) != VK_SUCCESS)
 		VulkanError("Unable to create allocator");
@@ -376,9 +377,11 @@ VkBool32 VulkanDevice::DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT mess
 			seenMessages.insert(msg);
 
 			const char *typestr;
+			bool showcallstack = false;
 			if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
 			{
 				typestr = "vulkan error";
+				showcallstack = true;
 			}
 			else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
 			{
@@ -397,11 +400,12 @@ VkBool32 VulkanDevice::DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT mess
 				typestr = "vulkan";
 			}
 
-			Printf("\n");
+			if (showcallstack)
+				Printf("\n");
 			Printf(TEXTCOLOR_RED "[%s] ", typestr);
 			Printf(TEXTCOLOR_WHITE "%s\n", msg.GetChars());
 
-			if (vk_debug_callstack)
+			if (vk_debug_callstack && showcallstack)
 			{
 				FString callstack = JitCaptureStackTrace(0, true);
 				if (!callstack.IsEmpty())

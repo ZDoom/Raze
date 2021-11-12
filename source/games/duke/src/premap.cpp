@@ -52,7 +52,7 @@ int which_palookup = 9;
 void pickrandomspot(int snum)
 {
     struct player_struct *p;
-    short i;
+    int i;
 
     p = &ps[snum];
 
@@ -60,9 +60,9 @@ void pickrandomspot(int snum)
         i = krand()%numplayersprites;
     else i = snum;
 
-    p->bobposx = p->oposx = p->posx = po[i].ox;
-    p->bobposy = p->oposy = p->posy = po[i].oy;
-    p->oposz = p->posz = po[i].oz;
+    p->bobposx = p->oposx = p->pos.x = po[i].ox;
+    p->bobposy = p->oposy = p->pos.y = po[i].oy;
+    p->oposz = p->pos.z = po[i].oz;
     p->angle.oang = p->angle.ang = buildang(po[i].oa);
     p->cursectnum = po[i].os;
 }
@@ -242,7 +242,7 @@ void resetplayerstats(int snum)
 
     if (numplayers < 2)
     {
-        ufospawn = isRRRA()? 3 : std::min(ud.player_skill*4+1, 32);
+        ufospawn = isRRRA()? 3 : min(ud.player_skill*4+1, 32);
         ufocnt = 0;
         hulkspawn = ud.player_skill + 1;
     }
@@ -262,7 +262,7 @@ void resetplayerstats(int snum)
 
 void resetweapons(int snum)
 {
-    short  weapon;
+    int weapon;
     struct player_struct *p;
 
     p = &ps[snum];
@@ -278,7 +278,7 @@ void resetweapons(int snum)
     p->curr_weapon = PISTOL_WEAPON;
     p->gotweapon[PISTOL_WEAPON] = true;
     p->gotweapon[KNEE_WEAPON] = true;
-    p->ammo_amount[PISTOL_WEAPON] = std::min<int16_t>(gs.max_ammo_amount[PISTOL_WEAPON], 48);
+    p->ammo_amount[PISTOL_WEAPON] = min<int16_t>(gs.max_ammo_amount[PISTOL_WEAPON], 48);
     p->gotweapon[HANDREMOTE_WEAPON] = true;
     p->last_weapon = -1;
 
@@ -362,7 +362,7 @@ void resetinventory(int snum)
 
     if (numplayers < 2)
     {
-        ufospawn = std::min(ud.player_skill*4+1, 32);
+        ufospawn = min(ud.player_skill*4+1, 32);
         ufocnt = 0;
         hulkspawn = ud.player_skill + 1;
     }
@@ -385,7 +385,7 @@ void resetinventory(int snum)
 void resetprestat(int snum,int g)
 {
     struct player_struct *p;
-    short i;
+    int i;
 
     p = &ps[snum];
 
@@ -479,7 +479,7 @@ void resetprestat(int snum,int g)
 
     if (numplayers < 2)
     {
-        ufospawn = std::min(ud.player_skill*4+1, 32);
+        ufospawn = min(ud.player_skill*4+1, 32);
         ufocnt = 0;
         hulkspawn = ud.player_skill + 1;
     }
@@ -501,13 +501,13 @@ void resetprestat(int snum,int g)
 void resetpspritevars(int g)
 {
     int i, j;
-    short circ;
+    int circ;
     int firstx, firsty;
     spritetype* s;
     int aimmode[MAXPLAYERS];
     STATUSBARTYPE tsbar[MAXPLAYERS];
 
-    EGS(ps[0].cursectnum, ps[0].posx, ps[0].posy, ps[0].posz,
+    EGS(ps[0].cursectnum, ps[0].pos.x, ps[0].pos.y, ps[0].pos.z,
         TILE_APLAYER, 0, 0, 0, ps[0].angle.ang.asbuild(), 0, 0, nullptr, 10);
 
     if (ud.recstat != 2) for (i = 0; i < MAXPLAYERS; i++)
@@ -579,8 +579,8 @@ void resetpspritevars(int g)
 
         if (numplayersprites == 0)
         {
-            firstx = ps[0].posx;
-            firsty = ps[0].posy;
+            firstx = ps[0].pos.x;
+            firsty = ps[0].pos.y;
         }
 
         po[numplayersprites].ox = s->x;
@@ -627,9 +627,9 @@ void resetpspritevars(int g)
             ps[j].frag_ps = j;
             act->SetOwner(act);
 
-            ps[j].bobposx = ps[j].oposx = ps[j].posx = s->x;
-            ps[j].bobposy = ps[j].oposy = ps[j].posy = s->y;
-            ps[j].oposz = ps[j].posz = s->z;
+            ps[j].bobposx = ps[j].oposx = ps[j].pos.x = s->x;
+            ps[j].bobposy = ps[j].oposy = ps[j].pos.y = s->y;
+            ps[j].oposz = ps[j].pos.z = s->z;
             s->backuppos();
             ps[j].angle.oang = ps[j].angle.ang = buildang(s->ang);
 
@@ -692,38 +692,39 @@ void prelevel_common(int g)
 
     for (i = 0; i < numsectors; i++)
     {
-        sector[i].extra = 256;
+        auto sectp = &sector[i];
+        sectp->extra = 256;
 
-        switch (sector[i].lotag)
+        switch (sectp->lotag)
         {
         case 20:
         case 22:
-            if (sector[i].floorz > sector[i].ceilingz)
-                sector[i].lotag |= 32768;
+            if (sectp->floorz > sectp->ceilingz)
+                sectp->lotag |= 32768;
             continue;
         }
 
-        if (sector[i].ceilingstat & 1)
+        if (sectp->ceilingstat & 1)
         {
-            //setupbackdrop(sector[i].ceilingpicnum);
+            //setupbackdrop(sectp->ceilingpicnum);
 
-            if (sector[i].ceilingpicnum == TILE_CLOUDYSKIES && numclouds < 127)
+            if (sectp->ceilingpicnum == TILE_CLOUDYSKIES && numclouds < 127)
                 clouds[numclouds++] = i;
 
             if (ps[0].one_parallax_sectnum == -1)
                 ps[0].one_parallax_sectnum = i;
         }
 
-        if (sector[i].lotag == 32767) //Found a secret room
+        if (sectp->lotag == 32767) //Found a secret room
         {
             ps[0].max_secret_rooms++;
             continue;
         }
 
-        if (sector[i].lotag == -1)
+        if (sectp->lotag == -1)
         {
-            ps[0].exitx = wall[sector[i].wallptr].x;
-            ps[0].exity = wall[sector[i].wallptr].y;
+            ps[0].exitx = wall[sectp->wallptr].x;
+            ps[0].exity = wall[sectp->wallptr].y;
             continue;
         }
     }
@@ -886,7 +887,8 @@ static void SpawnPortals()
     // There is one map where a sector neighboring a portal is not marked as part of the portal itself.
     for (int i = 0; i < numsectors; i++)
     {
-        if (sector[i].floorpicnum == FOF && sector[i].portalflags != PORTAL_SECTOR_FLOOR)
+        auto sectp = &sector[i];
+        if (sectp->floorpicnum == FOF && sectp->portalflags != PORTAL_SECTOR_FLOOR)
         {
             for (auto& pt : allPortals)
             {
@@ -896,8 +898,8 @@ static void SpawnPortals()
                     {
                         if (findwallbetweensectors(i, t) >= 0)
                         {
-                            sector[i].portalflags = PORTAL_SECTOR_FLOOR;
-                            sector[i].portalnum = uint8_t(1 ^ (&pt - allPortals.Data()));
+                            sectp->portalflags = PORTAL_SECTOR_FLOOR;
+                            sectp->portalnum = uint8_t(1 ^ (&pt - allPortals.Data()));
                             pt.targets.Push(i);
                             goto nexti;
                         }
@@ -905,7 +907,7 @@ static void SpawnPortals()
                 }
             }
         }
-        else if (sector[i].ceilingpicnum == FOF && sector[i].portalflags != PORTAL_SECTOR_CEILING)
+        else if (sectp->ceilingpicnum == FOF && sectp->portalflags != PORTAL_SECTOR_CEILING)
         {
             for (auto& pt : allPortals)
             {
@@ -915,8 +917,8 @@ static void SpawnPortals()
                     {
                         if (findwallbetweensectors(i, t) >= 0)
                         {
-                            sector[i].portalflags = PORTAL_SECTOR_CEILING;
-                            sector[i].portalnum = uint8_t(1 ^ (&pt - allPortals.Data()));
+                            sectp->portalflags = PORTAL_SECTOR_CEILING;
+                            sectp->portalnum = uint8_t(1 ^ (&pt - allPortals.Data()));
                             pt.targets.Push(i);
                             goto nexti;
                         }
@@ -945,7 +947,9 @@ static int LoadTheMap(MapRecord *mi, struct player_struct *p, int gamemode)
     }
 
     currentLevel = mi;
-    engineLoadBoard(mi->fileName, isShareware(), &p->pos, &lbang, &p->cursectnum);
+    int sect;
+    engineLoadBoard(mi->fileName, isShareware(), &p->pos, &lbang, &sect);// &p->cursectnum);
+    p->cursectnum = sect;
 
     SECRET_SetMapName(mi->DisplayName(), mi->name);
     STAT_NewLevel(mi->fileName);

@@ -101,8 +101,6 @@ static inline void get_floorspr_points(T const * const spr, int32_t px, int32_t 
     *y3 = *y2 + ofs.y, *y4 = *y1 + ofs.y;
 }
 
-int32_t clipmoveboxtracenum = 3;
-
 //
 // clipinsidebox
 //
@@ -217,7 +215,7 @@ inline void clipmove_tweak_pos(const vec3_t *pos, int32_t gx, int32_t gy, int32_
 // Returns: should clip?
 static int cliptestsector(int const dasect, int const nextsect, int32_t const flordist, int32_t const ceildist, vec2_t const pos, int32_t const posz)
 {
-    assert((unsigned)dasect < (unsigned)numsectors && (unsigned)nextsect < (unsigned)numsectors);
+	assert(validSectorIndex(dasect) && validSectorIndex(nextsect));
 
     auto const sec2 = (usectorptr_t)&sector[nextsect];
 
@@ -270,22 +268,6 @@ static int cliptestsector(int const dasect, int const nextsect, int32_t const fl
             ((sec2->ceilingstat&1) == 0 && 
             posz <= dacz2+(ceildist-1) &&
             dacz2 > dacz+CLIPCURBHEIGHT));  // ceilings check the same conditions ^^^^^
-}
-
-int32_t clipmovex(vec3_t *pos, int16_t *sectnum,
-                  int32_t xvect, int32_t yvect,
-                  int32_t const walldist, int32_t const ceildist, int32_t const flordist, uint32_t const cliptype,
-                  uint8_t const noslidep)
-{
-    const int32_t oboxtracenum = clipmoveboxtracenum;
-
-    if (noslidep)
-        clipmoveboxtracenum = 1;
-    int32_t ret = clipmove(pos, sectnum, xvect, yvect,
-        walldist, ceildist, flordist, cliptype);
-    clipmoveboxtracenum = oboxtracenum;
-
-    return ret;
 }
 
 //
@@ -394,7 +376,7 @@ static int get_floorspr_clipyou(vec2_t const v1, vec2_t const v2, vec2_t const v
     return clipyou;
 }
 
-static void clipupdatesector(vec2_t const pos, int16_t * const sectnum, int walldist)
+static void clipupdatesector(vec2_t const pos, int * const sectnum, int walldist)
 {
 #if 0
     if (enginecompatibility_mode != ENGINECOMPATIBILITY_NONE)
@@ -469,8 +451,8 @@ static void clipupdatesector(vec2_t const pos, int16_t * const sectnum, int wall
 //
 // clipmove
 //
-int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int32_t yvect,
-                 int32_t const walldist, int32_t const ceildist, int32_t const flordist, uint32_t const cliptype)
+int32_t clipmove(vec3_t * const pos, int * const sectnum, int32_t xvect, int32_t yvect,
+                 int32_t const walldist, int32_t const ceildist, int32_t const flordist, uint32_t const cliptype, int clipmoveboxtracenum)
 {
     if ((xvect|yvect) == 0 || *sectnum < 0)
         return 0;
@@ -742,13 +724,13 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
             vec2_t const  clipr  = { clipit[hitwall].x2 - clipit[hitwall].x1, clipit[hitwall].y2 - clipit[hitwall].y1 };
             // clamp to the max value we can utilize without reworking the scaling below
             // this works around the overflow issue that affects dukedc2.map
-            int32_t const templl = (int32_t)clamp(compat_maybe_truncate_to_int32((int64_t)clipr.x * clipr.x + (int64_t)clipr.y * clipr.y), INT32_MIN, INT32_MAX);
+            int32_t const templl = (int32_t)clamp<int64_t>(compat_maybe_truncate_to_int32((int64_t)clipr.x * clipr.x + (int64_t)clipr.y * clipr.y), INT32_MIN, INT32_MAX);
 
             if (templl > 0)
             {
                 // I don't know if this one actually overflows or not, but I highly doubt it hurts to check
                 int32_t const templl2
-                = (int32_t)clamp(compat_maybe_truncate_to_int32((int64_t)(goal.x - vec.x) * clipr.x + (int64_t)(goal.y - vec.y) * clipr.y), INT32_MIN, INT32_MAX);
+                = (int32_t)clamp<int64_t>(compat_maybe_truncate_to_int32((int64_t)(goal.x - vec.x) * clipr.x + (int64_t)(goal.y - vec.y) * clipr.y), INT32_MIN, INT32_MAX);
                 int32_t const i = (enginecompatibility_mode == ENGINECOMPATIBILITY_19950829 || (abs(templl2)>>11) < templl) ?
                     (int)DivScaleL(templl2, templl, 20) : 0;
 
@@ -789,7 +771,9 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
         }
 
         if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE)
-            clipupdatesector(vec, sectnum, rad);
+		{
+			clipupdatesector(vec, sectnum, rad);
+		}
 
         pos->x = vec.x;
         pos->y = vec.y;
@@ -851,7 +835,7 @@ int32_t clipmove(vec3_t * const pos, int16_t * const sectnum, int32_t xvect, int
 //
 // pushmove
 //
-int pushmove(vec3_t *const vect, int16_t *const sectnum,
+int pushmove(vec3_t *const vect, int *const sectnum,
     int32_t const walldist, int32_t const ceildist, int32_t const flordist, uint32_t const cliptype, bool clear /*= true*/)
 {
     int bad;

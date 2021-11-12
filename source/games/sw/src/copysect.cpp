@@ -67,10 +67,10 @@ void CopySectorWalls(short dest_sectnum, short src_sectnum)
         wall[dest_wall_num].lotag =         wall[src_wall_num].lotag;
         wall[dest_wall_num].extra =         wall[src_wall_num].extra;
 
-        uint16_t const dest_nextwall = wall[dest_wall_num].nextwall;
-        uint16_t const src_nextwall = wall[src_wall_num].nextwall;
+        uint32_t const dest_nextwall = wall[dest_wall_num].nextwall;
+        uint32_t const src_nextwall = wall[src_wall_num].nextwall;
 
-        if (dest_nextwall < MAXWALLS && src_nextwall < MAXWALLS)
+        if (validWallIndex(dest_nextwall) && validWallIndex(src_nextwall))
         {
             wall[dest_nextwall].picnum = wall[src_nextwall].picnum;
             wall[dest_nextwall].xrepeat = wall[src_nextwall].xrepeat;

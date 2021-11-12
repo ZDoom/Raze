@@ -51,7 +51,7 @@ BEGIN_SW_NS
 #define LAVAMAXDROPS 32
 #define DEFAULT_DOOR_SPEED 800
 
-int InitFireballTrap(short SpriteNum);
+int InitFireballTrap(DSWActor* actor);
 ANIMATOR DoGrating;
 void DoPlayerBeginForceJump(PLAYERp);
 
@@ -106,7 +106,7 @@ void SetSectorWallBits(short sectnum, int bit_mask, bool set_sectwall, bool set_
         if (set_nextwall)
         {
             uint16_t const nextwall = wall[wall_num].nextwall;
-            if (nextwall < MAXWALLS)
+            if (validWallIndex(nextwall))
                 SET(wall[nextwall].extra, bit_mask);
         }
 
@@ -151,7 +151,7 @@ static void WallSetupLoop(WALLp wp, int16_t lotag, int16_t extra)
     {
         SET(wp->extra, extra);
         uint16_t const nextwall = wp->nextwall;
-        if (nextwall < MAXWALLS)
+        if (validWallIndex(nextwall))
             SET(wall[nextwall].extra, extra);
     }
 
@@ -162,7 +162,7 @@ static void WallSetupLoop(WALLp wp, int16_t lotag, int16_t extra)
     {
         SET(wall[wall_num].extra, extra);
         uint16_t const nextwall = wall[wall_num].nextwall;
-        if (nextwall < MAXWALLS)
+        if (validWallIndex(nextwall))
             SET(wall[nextwall].extra, extra);
     }
 }
@@ -180,7 +180,7 @@ WallSetup(void)
 
     extern int x_min_bound, y_min_bound, x_max_bound, y_max_bound;
 
-    for (wp = wall, i = 0; wp < &wall[numwalls]; i++, wp++)
+    for (wp = wall, i = 0; i < numwalls; i++, wp++)
     {
         if (wp->picnum == FAF_PLACE_MIRROR_PIC)
             wp->picnum = FAF_MIRROR_PIC;
@@ -209,18 +209,28 @@ WallSetup(void)
         case TAG_WALL_LOOP_OUTER_SECONDARY:
         {
             // make sure it's a red wall
-            ASSERT((uint16_t)wp->nextwall < MAXWALLS);
-
-            WallSetupLoop(wp, TAG_WALL_LOOP_OUTER_SECONDARY, WALLFX_LOOP_OUTER|WALLFX_LOOP_OUTER_SECONDARY);
+            if (validWallIndex(wp->nextwall))
+            {
+                WallSetupLoop(wp, TAG_WALL_LOOP_OUTER_SECONDARY, WALLFX_LOOP_OUTER | WALLFX_LOOP_OUTER_SECONDARY);
+            }
+            else
+            {
+                Printf(PRINT_HIGH, "one-sided wall %d in loop setup\n", i);
+            }
             break;
         }
 
         case TAG_WALL_LOOP_OUTER:
         {
             // make sure it's a red wall
-            ASSERT((uint16_t)wp->nextwall < MAXWALLS);
-
-            WallSetupLoop(wp, TAG_WALL_LOOP_OUTER, WALLFX_LOOP_OUTER);
+            if (validWallIndex(wp->nextwall))
+            {
+                WallSetupLoop(wp, TAG_WALL_LOOP_OUTER, WALLFX_LOOP_OUTER);
+            }
+            else
+            {
+                Printf(PRINT_HIGH, "one-sided wall %d in loop setup\n", i);
+            }
             wp->lotag = 0;
             break;
         }
@@ -1112,9 +1122,10 @@ DoExplodeSector(short match)
 }
 
 
-int DoSpawnSpot(short SpriteNum)
+int DoSpawnSpot(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     if ((u->WaitTics -= synctics) < 0)
     {
@@ -2029,6 +2040,7 @@ int DoTrapMatch(short match)
     StatIterator it(STAT_TRAP);
     while ((i = it.NextIndex()) >= 0)
     {
+        auto actor = &swActors[i];
         sp = &sprite[i];
         u = User[i].Data();
 
@@ -2043,7 +2055,7 @@ int DoTrapMatch(short match)
             if (u->WaitTics <= 0)
             {
                 u->WaitTics = 1 * 120;
-                InitFireballTrap(i);
+                InitFireballTrap(actor);
             }
         }
 
@@ -2055,7 +2067,7 @@ int DoTrapMatch(short match)
             if (u->WaitTics <= 0)
             {
                 u->WaitTics = 1 * 120;
-                InitBoltTrap(i);
+                InitBoltTrap(actor);
             }
         }
 
@@ -2225,56 +2237,7 @@ OperateContinuousTrigger(PLAYERp pp)
     {
     case TAG_TRIGGER_MISSILE_TRAP:
     {
-#if 1
         DoTrapMatch(sector[pp->cursectnum].hitag);
-#else
-        int i;
-        SPRITEp sp;
-        USERp u;
-
-        StatIterator it(STAT_TRAP);
-        while ((i = it.NextIndex()) >= 0)
-        {
-            sp = &sprite[i];
-            u = User[i].Data();
-
-            // if correct type and matches
-            if (sp->hitag == FIREBALL_TRAP && sp->lotag == sector[pp->cursectnum].hitag)
-            {
-                u->WaitTics -= synctics;
-
-                if (u->WaitTics <= 0)
-                {
-                    u->WaitTics = 1 * 120;
-                    InitFireballTrap(i);
-                }
-            }
-
-            // if correct type and matches
-            if (sp->hitag == BOLT_TRAP && sp->lotag == sector[pp->cursectnum].hitag)
-            {
-                u->WaitTics -= synctics;
-
-                if (u->WaitTics <= 0)
-                {
-                    u->WaitTics = 1 * 120;
-                    InitBoltTrap(i);
-                }
-            }
-
-            // if correct type and matches
-            if (sp->hitag == SPEAR_TRAP && sp->lotag == sector[pp->cursectnum].hitag)
-            {
-                u->WaitTics -= synctics;
-
-                if (u->WaitTics <= 0)
-                {
-                    u->WaitTics = 1 * 120;
-                    InitSpearTrap(i);
-                }
-            }
-        }
-#endif
 
         break;
     }
@@ -3371,49 +3334,7 @@ int inside(int x, int y, short sectnum)
 
 static saveable_code saveable_sector_code[] =
 {
-    SAVE_CODE(WallSetupDontMove),
-    SAVE_CODE(WallSetup),
-    SAVE_CODE(SectorLiquidSet),
-    SAVE_CODE(SectorSetup),
-    SAVE_CODE(DoSpringBoard),
-    SAVE_CODE(DoSpringBoardDown),
-    SAVE_CODE(DoSpawnActorTrigger),
-    SAVE_CODE(OperateSector),
-    SAVE_CODE(OperateWall),
-    SAVE_CODE(AnimateSwitch),
-    SAVE_CODE(SectorExp),
-    SAVE_CODE(DoExplodeSector),
     SAVE_CODE(DoSpawnSpot),
-    SAVE_CODE(DoSpawnSpotsForKill),
-    SAVE_CODE(DoSpawnSpotsForDamage),
-    SAVE_CODE(DoSoundSpotMatch),
-    SAVE_CODE(DoSoundSpotStopSound),
-    SAVE_CODE(DoStopSoundSpotMatch),
-    SAVE_CODE(DoSectorObjectKillMatch),
-    SAVE_CODE(DoDeleteSpriteMatch),
-    SAVE_CODE(DoChangorMatch),
-    SAVE_CODE(DoMatchEverything),
-    SAVE_CODE(DoTrapReset),
-    SAVE_CODE(DoTrapMatch),
-    SAVE_CODE(OperateTripTrigger),
-    SAVE_CODE(OperateContinuousTrigger),
-    SAVE_CODE(PlayerTakeSectorDamage),
-    SAVE_CODE(NearThings),
-    SAVE_CODE(NearTagList),
-    SAVE_CODE(BuildNearTagList),
-    SAVE_CODE(DoPlayerGrabStar),
-    SAVE_CODE(PlayerOperateEnv),
-    SAVE_CODE(DoSineWaveFloor),
-    SAVE_CODE(DoSineWaveWall),
-    SAVE_CODE(DoAnim),
-    SAVE_CODE(AnimClear),
-    SAVE_CODE(AnimGetGoal),
-    SAVE_CODE(AnimDelete),
-    SAVE_CODE(AnimSet),
-    SAVE_CODE(AnimSetCallback),
-    SAVE_CODE(AnimSetVelAdj),
-    SAVE_CODE(DoPanning),
-    SAVE_CODE(DoSector),
 };
 
 saveable_module saveable_sector =

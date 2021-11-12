@@ -132,7 +132,7 @@ public:
 
 		RenderCommand()
 		{
-			memset(this, 0, sizeof(*this));
+			memset((void*)this, 0,  sizeof(*this));
 		}
 
 		// If these fields match, two draw commands can be batched.
@@ -306,8 +306,8 @@ public:
 
 	void UploadData(F2DDrawer::TwoDVertex *vertices, int vertcount, int *indices, int indexcount)
 	{
-		mVertexBuffer->SetData(vertcount * sizeof(*vertices), vertices, false);
-		mIndexBuffer->SetData(indexcount * sizeof(unsigned int), indices, false);
+		mVertexBuffer->SetData(vertcount * sizeof(*vertices), vertices, BufferUsageType::Stream);
+		mIndexBuffer->SetData(indexcount * sizeof(unsigned int), indices, BufferUsageType::Stream);
 	}
 
 	std::pair<IVertexBuffer *, IIndexBuffer *> GetBufferObjects() const

@@ -118,7 +118,7 @@ ATTRIBUTE EelAttrib =
 
 #define EEL_RUN_RATE 20
 
-ANIMATOR DoEelMove,NullAnimator,DoStayOnFloor, DoActorDebris, NullEel;
+ANIMATOR DoEelMove,DoStayOnFloor, DoActorDebris, NullEel;
 
 STATE s_EelRun[5][4] =
 {
@@ -354,7 +354,7 @@ ACTOR_ACTION_SET EelActionSet =
     nullptr
 };
 
-int DoEelMatchPlayerZ(short SpriteNum);
+int DoEelMatchPlayerZ(DSWActor* actor);
 
 
 void
@@ -411,56 +411,27 @@ SetupEel(short SpriteNum)
     return 0;
 }
 
-#if 0
-int
-NewEel(short SpriteNum)
+
+int NullEel(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = User[SpriteNum]->SpriteP;
-    USERp nu;
-    SPRITEp np;
-    ANIMATOR DoActorDecide;
-    short New;
-
-
-    New = SpawnSprite(STAT_ENEMY, EEL_RUN_R0, &s_EelBirth, sp->sectnum, sp->x, sp->y, sp->z, sp->ang, 50);
-
-    nu = User[New].Data();
-    np = &sprite[New];
-
-    ChangeState(New, &s_EelBirth);
-    nu->StateEnd = s_EelDie;
-    nu->Rot = sg_EelRun;
-    np->pal = nu->spal = u->spal;
-
-    nu->ActorActionSet = &EelActionSet;
-
-    np->shade = sp->shade;
-
-    EelCommon(New);
-
-    return 0;
-}
-#endif
-
-int NullEel(short SpriteNum)
-{
-    USERp u = User[SpriteNum].Data();
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags,SPR_SLIDING))
-        DoActorSlide(SpriteNum);
+        DoActorSlide(actor);
 
-    DoEelMatchPlayerZ(SpriteNum);
+    DoEelMatchPlayerZ(actor);
 
-    DoActorSectorDamage(SpriteNum);
+    DoActorSectorDamage(actor);
 
     return 0;
 }
 
-int DoEelMatchPlayerZ(short SpriteNum)
+int DoEelMatchPlayerZ(DSWActor* actor)
 {
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
     SPRITEp tsp = User[SpriteNum]->tgt_sp;
     int zdiff,zdist;
     int loz,hiz;
@@ -558,10 +529,11 @@ int DoEelMatchPlayerZ(short SpriteNum)
 }
 
 int
-DoEelDeath(short SpriteNum)
+DoEelDeath(DSWActor* actor)
 {
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
     int nx, ny;
     if (TEST(u->Flags, SPR_FALLING))
     {
@@ -575,7 +547,7 @@ DoEelDeath(short SpriteNum)
     }
 
     if (TEST(u->Flags, SPR_SLIDING))
-        DoActorSlide(SpriteNum);
+        DoActorSlide(actor);
 
     // slide while falling
     nx = MulScale(sp->xvel, bcos(sp->ang), 14);
@@ -599,9 +571,10 @@ DoEelDeath(short SpriteNum)
     return 0;
 }
 
-int DoEelMove(short SpriteNum)
+int DoEelMove(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     ASSERT(u->Rot != nullptr);
 
@@ -609,16 +582,16 @@ int DoEelMove(short SpriteNum)
         NewStateGroup(SpriteNum, u->ActorActionSet->CloseAttack[0]);
 
     if (TEST(u->Flags,SPR_SLIDING))
-        DoActorSlide(SpriteNum);
+        DoActorSlide(actor);
 
     if (u->track >= 0)
         ActorFollowTrack(SpriteNum, ACTORMOVETICS);
     else
-        (*u->ActorActionFunc)(SpriteNum);
+        (*u->ActorActionFunc)(actor);
 
-    DoEelMatchPlayerZ(SpriteNum);
+    DoEelMatchPlayerZ(actor);
 
-    DoActorSectorDamage(SpriteNum);
+    DoActorSectorDamage(actor);
 
     return 0;
 
@@ -629,9 +602,6 @@ int DoEelMove(short SpriteNum)
 
 static saveable_code saveable_eel_code[] =
 {
-    SAVE_CODE(EelCommon),
-    SAVE_CODE(SetupEel),
-    //SAVE_CODE(NewEel),
     SAVE_CODE(DoEelMatchPlayerZ),
     SAVE_CODE(DoEelDeath),
     SAVE_CODE(DoEelMove)

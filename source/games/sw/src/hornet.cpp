@@ -332,16 +332,17 @@ SetupHornet(short SpriteNum)
     return 0;
 }
 
-int NullHornet(short SpriteNum)
+int NullHornet(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags,SPR_SLIDING))
-        DoActorSlide(SpriteNum);
+        DoActorSlide(actor);
 
     DoHornetMatchPlayerZ(SpriteNum);
 
-    DoActorSectorDamage(SpriteNum);
+    DoActorSectorDamage(actor);
 
     return 0;
 }
@@ -421,10 +422,11 @@ int DoHornetMatchPlayerZ(short SpriteNum)
     return 0;
 }
 
-int InitHornetCircle(short SpriteNum)
+int InitHornetCircle(DSWActor* actor)
 {
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
 
     u->ActorActionFunc = DoHornetCircle;
 
@@ -448,15 +450,16 @@ int InitHornetCircle(short SpriteNum)
 
     u->WaitTics = (RandomRange(3)+1) * 60;
 
-    (*u->ActorActionFunc)(SpriteNum);
+    (*u->ActorActionFunc)(actor);
 
     return 0;
 }
 
-int DoHornetCircle(short SpriteNum)
+int DoHornetCircle(DSWActor* actor)
 {
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
     int nx,ny,bound;
 
     sp->ang = NORM_ANGLE(sp->ang + u->Counter2);
@@ -476,7 +479,7 @@ int DoHornetCircle(short SpriteNum)
 
         if (!move_actor(SpriteNum, nx, ny, 0L))
         {
-            InitActorReposition(SpriteNum);
+            InitActorReposition(actor);
             return 0;
         }
     }
@@ -489,14 +492,14 @@ int DoHornetCircle(short SpriteNum)
     {
         // bumped something
         u->sz = bound;
-        InitActorReposition(SpriteNum);
+        InitActorReposition(actor);
         return 0;
     }
 
     // time out
     if ((u->WaitTics -= ACTORMOVETICS) < 0)
     {
-        InitActorReposition(SpriteNum);
+        InitActorReposition(actor);
         u->WaitTics = 0;
         return 0;
     }
@@ -506,10 +509,11 @@ int DoHornetCircle(short SpriteNum)
 
 
 int
-DoHornetDeath(short SpriteNum)
+DoHornetDeath(DSWActor* actor)
 {
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
     int nx, ny;
 
     if (TEST(u->Flags, SPR_FALLING))
@@ -528,7 +532,7 @@ DoHornetDeath(short SpriteNum)
     }
 
     if (TEST(u->Flags, SPR_SLIDING))
-        DoActorSlide(SpriteNum);
+        DoActorSlide(actor);
 
     // slide while falling
     nx = MulScale(sp->xvel, bcos(sp->ang), 14);
@@ -550,11 +554,13 @@ DoHornetDeath(short SpriteNum)
 }
 
 // Hornets can swarm around other hornets or whatever is tagged as swarm target
-int DoCheckSwarm(short SpriteNum)
+int DoCheckSwarm(DSWActor* actor)
 {
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     int i;
     SPRITEp sp = &sprite[SpriteNum], tsp;
-    USERp u = User[SpriteNum].Data(), tu;
+    USERp tu;
     int dist, pdist, a,b,c;
     PLAYERp pp;
 
@@ -596,28 +602,29 @@ int DoCheckSwarm(short SpriteNum)
 
 }
 
-int DoHornetMove(short SpriteNum)
+int DoHornetMove(DSWActor* actor)
 {
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
 
     // Check for swarming
     // lotag of 1 = Swarm around lotags of 2
     // lotag of 0 is normal
     if (sp->hitag == TAG_SWARMSPOT && sp->lotag == 1)
-        DoCheckSwarm(SpriteNum);
+        DoCheckSwarm(actor);
 
     if (TEST(u->Flags,SPR_SLIDING))
-        DoActorSlide(SpriteNum);
+        DoActorSlide(actor);
 
     if (u->track >= 0)
         ActorFollowTrack(SpriteNum, ACTORMOVETICS);
     else
-        (*u->ActorActionFunc)(SpriteNum);
+        (*u->ActorActionFunc)(actor);
 
     DoHornetMatchPlayerZ(SpriteNum);
 
-    DoActorSectorDamage(SpriteNum);
+    DoActorSectorDamage(actor);
 
     return 0;
 }
@@ -627,7 +634,6 @@ int DoHornetMove(short SpriteNum)
 
 static saveable_code saveable_hornet_code[] =
 {
-    SAVE_CODE(SetupHornet),
     SAVE_CODE(NullHornet),
     SAVE_CODE(DoHornetMatchPlayerZ),
     SAVE_CODE(InitHornetCircle),

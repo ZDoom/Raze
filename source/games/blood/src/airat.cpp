@@ -46,8 +46,8 @@ void ratBiteSeqCallback(int, DBloodActor* actor)
 {
 	XSPRITE* pXSprite = &actor->x();
 	spritetype* pSprite = &actor->s();
-	int dx = CosScale16(pSprite->ang);
-	int dy = SinScale16(pSprite->ang);
+	int dx = bcos(pSprite->ang);
+	int dy = bsin(pSprite->ang);
 	assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	spritetype* pTarget = &actor->GetTarget()->s();

@@ -107,9 +107,9 @@ void menu_DoPlasma()
 
     int ptile = nPlasmaTile;
     int pclock = I_GetBuildTime();
-    if (pclock >= nextPlasmaTic || !PlasmaBuffer)
+    while (pclock >= nextPlasmaTic || !PlasmaBuffer)
     {
-        nextPlasmaTic = pclock + 4;
+        nextPlasmaTic += 4;
 
         if (!PlasmaBuffer)
         {

@@ -199,8 +199,8 @@ struct SPRITEMASS { // sprite mass info for getSpriteMassBySize();
 };
 
 struct QAVSCENE { // this one stores qavs anims that can be played by trigger
-    short index = -1;  // index of sprite which triggered qav scene
-    QAV* qavResrc = NULL;
+    DBloodActor* initiator = nullptr;  // index of sprite which triggered qav scene
+    QAV* qavResrc = nullptr;
     short dummy = -1;
 };
 
@@ -237,12 +237,13 @@ struct TRPLAYERCTRL { // this one for controlling the player using triggers (mov
 struct OBJECTS_TO_TRACK {
     int8_t type;
     uint8_t cmd;
-    int index;
+    unsigned int index_;
+    DBloodActor* actor;
 };
 
 struct TRCONDITION {
-    signed   int xindex;
-    unsigned int length;
+    DBloodActor* actor;
+    uint8_t length;
     OBJECTS_TO_TRACK obj[kMaxTracedObjects];
 };
 
@@ -291,28 +292,23 @@ inline bool xsprIsFine(spritetype* pSpr) {
     return (pSpr && xspriRangeIsFine(pSpr->extra) && !(pSpr->flags & kHitagFree) && !(pSpr->flags & kHitagRespawn));
 }
 // - FUNCTIONS ------------------------------------------------------------------
-bool nnExtEraseModernStuff(spritetype* pSprite, XSPRITE* pXSprite);
+bool nnExtEraseModernStuff(DBloodActor* actor);
 void nnExtInitModernStuff(bool bSaveLoad);
 void nnExtProcessSuperSprites(void);
-bool nnExtIsImmune(spritetype* pSprite, int dmgType, int minScale = 16);
+bool nnExtIsImmune(DBloodActor* pSprite, int dmgType, int minScale = 16);
 int nnExtRandom(int a, int b);
 void nnExtResetGlobals();
 void nnExtTriggerObject(int objType, int objIndex, int command);
 //  -------------------------------------------------------------------------   //
-spritetype* randomDropPickupObject(spritetype* pSprite, short prevItem);
-spritetype* randomSpawnDude(XSPRITE* pXSource, spritetype* pSprite, int a3, int a4);
-int GetDataVal(spritetype* pSprite, int data);
-int randomGetDataValue(XSPRITE* pXSprite, int randType);
-void sfxPlayMissileSound(spritetype* pSprite, int missileId);
-void sfxPlayVectorSound(spritetype* pSprite, int vectorId);
+void sfxPlayMissileSound(DBloodActor* pSprite, int missileId);
+void sfxPlayVectorSound(DBloodActor* pSprite, int vectorId);
 //  -------------------------------------------------------------------------   //
-int debrisGetIndex(int nSprite);
 int debrisGetFreeIndex(void);
-void debrisBubble(int nSprite);
+void debrisBubble(DBloodActor* nSprite);
 void debrisMove(int listIndex);
-void debrisConcuss(int nOwner, int listIndex, int x, int y, int z, int dmg);
+void debrisConcuss(DBloodActor* nOwner, int listIndex, int x, int y, int z, int dmg);
 //  -------------------------------------------------------------------------   //
-void aiSetGenIdleState(spritetype* pSprite, XSPRITE* pXSprite);
+void aiSetGenIdleState(DBloodActor*);
 
 // triggers related
 //  -------------------------------------------------------------------------   //
@@ -358,7 +354,6 @@ void seqTxSendCmdAll(XSPRITE* pXSource, int nIndex, COMMAND_ID cmd, bool modernS
 //  -------------------------------------------------------------------------   //
 void trPlayerCtrlLink(XSPRITE* pXSource, PLAYER* pPlayer, bool checkCondition);
 void trPlayerCtrlSetRace(XSPRITE* pXSource, PLAYER* pPlayer);
-void trPlayerCtrlStartScene(XSPRITE* pXSource, PLAYER* pPlayer, bool force);
 void trPlayerCtrlStopScene(PLAYER* pPlayer);
 void trPlayerCtrlSetMoveSpeed(XSPRITE* pXSource, PLAYER* pPlayer);
 void trPlayerCtrlSetJumpHeight(XSPRITE* pXSource, PLAYER* pPlayer);
@@ -400,9 +395,8 @@ bool isActive(int nSprite);
 int getDataFieldOfObject(int objType, int objIndex, DBloodActor* objActor, int dataIndex);
 bool setDataValueOfObject(int objType, int objIndex, int dataIndex, int value);
 bool incDecGoalValueIsReached(XSPRITE* pXSprite);
-void windGenStopWindOnSectors(XSPRITE* pXSource);
-int getSpriteMassBySize(spritetype* pSprite);
-bool ceilIsTooLow(spritetype* pSprite);
+int getSpriteMassBySize(DBloodActor* pSprite);
+bool ceilIsTooLow(DBloodActor* pSprite);
 void levelEndLevelCustom(int nLevel);
 int useCondition(spritetype* pSource, XSPRITE* pXSource, EVENT event);
 bool condPush(XSPRITE* pXSprite, int objType, int objIndex);

@@ -353,8 +353,8 @@ void UpdateAimVector(PLAYER * pPlayer)
     int y = pPSprite->y;
     int z = pPlayer->zWeapon;
     Aim aim;
-    aim.dx = CosScale16(pPSprite->ang);
-    aim.dy = SinScale16(pPSprite->ang);
+    aim.dx = bcos(pPSprite->ang);
+    aim.dy = bsin(pPSprite->ang);
     aim.dz = pPlayer->slope;
     WEAPONTRACK *pWeaponTrack = &gWeaponTrack[pPlayer->curWeapon];
     int nTarget = -1;
@@ -415,8 +415,8 @@ void UpdateAimVector(PLAYER * pPlayer)
             if (cansee(x, y, z, pPSprite->sectnum, x2, y2, z2, pSprite->sectnum))
             {
                 nClosest = nDist2;
-                aim.dx = CosScale16(angle);
-                aim.dy = SinScale16(angle);
+                aim.dx = bcos(angle);
+                aim.dy = bsin(angle);
                 aim.dz = DivScale(dzCenter, nDist, 10);
                 nTarget = nSprite;
             }
@@ -464,8 +464,8 @@ void UpdateAimVector(PLAYER * pPlayer)
                 if (cansee(x, y, z, pPSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum))
                 {
                     nClosest = nDist2;
-                    aim.dx = CosScale16(angle);
-                    aim.dy = SinScale16(angle);
+                    aim.dx = bcos(angle);
+                    aim.dy = bsin(angle);
                     aim.dz = DivScale(dz, nDist, 10);
                     nTarget = nSprite;
                 }
@@ -740,7 +740,7 @@ void WeaponLower(PLAYER *pPlayer)
             if (VanillaMode() || (pPlayer->newWeapon != 0))
                 break;
             pPlayer->weaponState = 1;
-            StartQAV(pPlayer, 11, -1, 0);
+            StartQAV(pPlayer, kQAVCANDOWN);
             break;
         }
         break;
@@ -1295,8 +1295,8 @@ void FireSpread(int nTrigger, PLAYER *pPlayer)
     assert(nTrigger > 0 && nTrigger <= kMaxSpread);
     Aim *aim = &pPlayer->aim;
     int angle = (getangle(aim->dx, aim->dy)+((112*(nTrigger-1))/14-56))&2047;
-    int dx = CosScale16(angle);
-    int dy = SinScale16(angle);
+    int dx = bcos(angle);
+    int dy = bsin(angle);
     sfxPlay3DSound(pPlayer->pSprite, 431, -1, 0);
     int r1, r2, r3;
     r1 = Random3(300);
@@ -1317,8 +1317,8 @@ void AltFireSpread(int nTrigger, PLAYER *pPlayer)
     assert(nTrigger > 0 && nTrigger <= kMaxSpread);
     Aim *aim = &pPlayer->aim;
     int angle = (getangle(aim->dx, aim->dy)+((112*(nTrigger-1))/14-56))&2047;
-    int dx = CosScale16(angle);
-    int dy = SinScale16(angle);
+    int dx = bcos(angle);
+    int dy = bsin(angle);
     sfxPlay3DSound(pPlayer->pSprite, 431, -1, 0);
     int r1, r2, r3;
     r1 = Random3(300);
@@ -1347,8 +1347,8 @@ void AltFireSpread2(int nTrigger, PLAYER *pPlayer)
     assert(nTrigger > 0 && nTrigger <= kMaxSpread);
     Aim *aim = &pPlayer->aim;
     int angle = (getangle(aim->dx, aim->dy)+((112*(nTrigger-1))/14-56))&2047;
-    int dx = CosScale16(angle);
-    int dy = SinScale16(angle);
+    int dx = bcos(angle);
+    int dy = bsin(angle);
     sfxPlay3DSound(pPlayer->pSprite, 431, -1, 0);
     if (powerupCheck(pPlayer, kPwUpTwoGuns) && checkAmmo2(pPlayer, 3, 2))
     {
@@ -2031,7 +2031,7 @@ void WeaponProcess(PLAYER *pPlayer) {
     pPlayer->flashEffect = ClipLow(pPlayer->flashEffect - 1, 0);
     
     #ifdef NOONE_EXTENSIONS
-    if (gPlayerCtrl[pPlayer->nPlayer].qavScene.index >= 0 && pPlayer->pXSprite->health > 0) {
+    if (gPlayerCtrl[pPlayer->nPlayer].qavScene.initiator != nullptr && pPlayer->pXSprite->health > 0) {
         playerQavSceneProcess(pPlayer, &gPlayerCtrl[pPlayer->nPlayer].qavScene);
         UpdateAimVector(pPlayer);
         return;

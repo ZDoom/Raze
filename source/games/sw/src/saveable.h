@@ -26,13 +26,18 @@
 
 #include "compat.h"
 
-typedef void *saveable_code;
+struct saveable_code
+{
+    void* base;
+    const char* name;
+};
 
-typedef struct
+struct saveable_data
 {
     void *base;
+    const char* name;
     unsigned int size;
-} saveable_data;
+};
 
 typedef struct
 {
@@ -49,26 +54,23 @@ constexpr std::enable_if_t<!std::is_pointer<T>::value, size_t> SAVE_SIZEOF(T con
     return sizeof(obj);
 }
 
-#define SAVE_CODE(s) (void*)(s)
-#define SAVE_DATA(s) { (void*)&(s), (int)SAVE_SIZEOF(s) }
+#define SAVE_CODE(s) { (void*)(s), #s }
+#define SAVE_DATA(s) { (void*)&(s), #s, (int)SAVE_SIZEOF(s) }
 
 #define NUM_SAVEABLE_ITEMS(x) countof(x)
 
 typedef struct
 {
-    unsigned int module;
-    unsigned int index;
+    FString name;
 } savedcodesym;
 
 typedef struct
 {
-    unsigned int module;
-    unsigned int index;
+    FString name;
     unsigned int offset;
 } saveddatasym;
 
 void Saveable_Init(void);
-void Saveable_Init_Dynamic(void);
 
 int Saveable_FindCodeSym(void *ptr, savedcodesym *sym);
 int Saveable_FindDataSym(void *ptr, saveddatasym *sym);

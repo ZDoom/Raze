@@ -189,8 +189,9 @@ int InsertSprite(int nSector, int nStat)
         return nSprite;
     }
     RemoveSpriteStat(nSprite);
-    spritetype *pSprite = &sprite[nSprite];
-    memset(&sprite[nSprite], 0, sizeof(spritetype));
+    DBloodActor* actor = &bloodActors[nSprite];
+    spritetype *pSprite = &actor->s();
+    memset(pSprite, 0, sizeof(spritetype));
     InsertSpriteStat(nSprite, nStat);
     InsertSpriteSect(nSprite, nSector);
     pSprite->cstat = 128;
@@ -199,7 +200,7 @@ int InsertSprite(int nSector, int nStat)
     pSprite->owner = -1;
     pSprite->extra = -1;
     pSprite->index = nSprite;
-    xvel[nSprite] = yvel[nSprite] = zvel[nSprite] = 0;
+    actor->xvel() = actor->yvel() = actor->zvel() = 0;
 
     Numsprites++;
 
@@ -226,7 +227,9 @@ int DeleteSprite(int nSprite)
     assert(sprite[nSprite].sectnum >= 0 && sprite[nSprite].sectnum < kMaxSectors);
     RemoveSpriteSect(nSprite);
     InsertSpriteStat(nSprite, kMaxStatus);
-
+#ifdef NOONE_EXTENSIONS
+    for (auto& ctrl : gPlayerCtrl) if (ctrl.qavScene.initiator == &bloodActors[nSprite]) ctrl.qavScene.initiator = nullptr;
+#endif
     Numsprites--;
 
     return nSprite;
@@ -515,9 +518,14 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
     gModernMap = false;
     #endif
 
-    memset(sector, 0, sizeof(*sector) * MAXSECTORS);
-    memset(wall, 0, sizeof(*wall) * MAXWALLS);
-    memset(sprite, 0, sizeof(*sector) * MAXSPRITES);
+    memset(sector, 0, sizeof(sector));
+    memset(wall, 0, sizeof(wall));
+    memset(sprite, 0, sizeof(sprite));
+
+#ifdef NOONE_EXTENSIONS
+    for (auto& ctrl : gPlayerCtrl) ctrl.qavScene.initiator = nullptr;
+#endif
+
 
 #ifdef USE_OPENGL
     Polymost::Polymost_prepare_loadboard();
@@ -885,6 +893,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
         pSprite->shade = load.shade;
         pSprite->blend = 0;
         pSprite->time = i;
+        ValidateSprite(*pSprite);
 
         InsertSpriteSect(i, sprite[i].sectnum);
         InsertSpriteStat(i, sprite[i].statnum);

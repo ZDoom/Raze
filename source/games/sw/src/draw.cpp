@@ -274,7 +274,7 @@ DoShadows(spritetype* tsprite, int& spritesortcnt, tspriteptr_t tsp, int viewz, 
     int loz;
     short xrepeat;
     short yrepeat;
-    short sectnum;
+    int sectnum;
 
     sectnum = tsp->sectnum;
     // make sure its the correct sector
@@ -914,7 +914,7 @@ post_analyzesprites(spritetype* tsprite, int& spritesortcnt)
 #endif
 
 void
-CircleCamera(int *nx, int *ny, int *nz, short *vsect, binangle *nang, fixed_t q16horiz)
+CircleCamera(int *nx, int *ny, int *nz, int *vsect, binangle *nang, fixed_t q16horiz)
 {
     vec3_t n = { *nx, *ny, *nz };
     SPRITEp sp;
@@ -943,7 +943,7 @@ CircleCamera(int *nx, int *ny, int *nz, short *vsect, binangle *nang, fixed_t q1
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
     // Make sure sector passed to hitscan is correct
-    //COVERupdatesector(*nx, *ny, vsect);
+    //updatesector(*nx, *ny, vsect);
 
     hitscan(&n, *vsect, vx, vy, vz,
             &hitinfo, CLIPMASK_MISSILE);
@@ -1091,7 +1091,7 @@ void DrawCrosshair(PLAYERp pp)
     }
 }
 
-void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, short *tsectnum, binangle *tang, fixedhoriz *thoriz)
+void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, int *tsectnum, binangle *tang, fixedhoriz *thoriz)
 {
     int i;
     binangle ang;
@@ -1268,7 +1268,7 @@ int CopySprite(spritetype const * tsp, short newsector)
 
 int ConnectCopySprite(spritetype const * tsp)
 {
-    short newsector;
+    int newsector;
     int testz;
 
     if (FAF_ConnectCeiling(tsp->sectnum))
@@ -1460,7 +1460,7 @@ drawscreen(PLAYERp pp, double smoothratio)
     int tx, ty, tz;
     binangle tang, trotscrnang;
     fixedhoriz thoriz;
-    short tsectnum;
+    int tsectnum;
     short i,j;
     int bob_amt = 0;
     int quake_z, quake_x, quake_y;
@@ -1515,7 +1515,7 @@ drawscreen(PLAYERp pp, double smoothratio)
     }
     tsectnum = camerapp->cursectnum;
 
-    COVERupdatesector(tx, ty, &tsectnum);
+    updatesector(tx, ty, &tsectnum);
 
     if (tsectnum >= 0)
     {
@@ -1590,7 +1590,7 @@ drawscreen(PLAYERp pp, double smoothratio)
         }
 
         // recoil only when not in camera
-        thoriz = q16horiz(clamp(thoriz.asq16() + pp->recoil_horizoff, gi->playerHorizMin(), gi->playerHorizMax()));
+        thoriz = q16horiz(clamp(thoriz.asq16() + interpolatedvalue(pp->recoil_ohorizoff, pp->recoil_horizoff, smoothratio), gi->playerHorizMin(), gi->playerHorizMax()));
     }
 
     if (automapMode != am_full)// && !ScreenSavePic)

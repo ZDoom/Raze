@@ -40,7 +40,7 @@ void SetWaspVel(spritetype* pSprite)
     pSprite->yvel = bsin(pSprite->ang);
 }
 
-DExhumedActor* BuildWasp(DExhumedActor* pActor, int x, int y, int z, short nSector, short nAngle, bool bEggWasp)
+DExhumedActor* BuildWasp(DExhumedActor* pActor, int x, int y, int z, int nSector, short nAngle, bool bEggWasp)
 {
     spritetype* pSprite;
     if (pActor == nullptr)
@@ -61,7 +61,7 @@ DExhumedActor* BuildWasp(DExhumedActor* pActor, int x, int y, int z, short nSect
 
     pSprite->shade = -12;
     pSprite->cstat = 0x101;
-    pSprite->pal = sector[pSprite->sectnum].ceilingpal;
+    pSprite->pal = pSprite->sector()->ceilingpal;
     pSprite->clipdist = 70;
 
     if (bEggWasp)
@@ -339,7 +339,7 @@ void AIWasp::Tick(RunListEvent* ev)
     }
     case 5:
     {
-        short nSector = pSprite->sectnum;
+        int nSector =pSprite->sectnum;
 
         pSprite->z += pSprite->zvel;
 
@@ -362,12 +362,6 @@ void AIWasp::Tick(RunListEvent* ev)
         return;
     }
     }
-}
-
-void FuncWasp(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AIWasp ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
 }
 
 END_PS_NS

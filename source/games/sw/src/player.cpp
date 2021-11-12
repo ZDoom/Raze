@@ -197,7 +197,7 @@ extern short target_ang;
 #if 1
 #define PLAYER_NINJA_RATE 14
 
-int DoFootPrints(short SpriteNum);
+int DoFootPrints(DSWActor* actor);
 
 STATE s_PlayerNinjaRun[5][6] =
 {
@@ -360,7 +360,7 @@ STATEp sg_PlayerNinjaStand[] =
 #define PLAYER_NINJA_STAR_RATE 12
 
 extern STATEp sg_NinjaRun[];
-int DoPlayerSpriteReset(short SpriteNum);
+int DoPlayerSpriteReset(DSWActor* actor);
 
 #if 0
 STATE s_PlayerNinjaThrow[5][4] =
@@ -1077,9 +1077,10 @@ DoPlayerSpriteThrow(PLAYERp pp)
 }
 
 int
-DoPlayerSpriteReset(short SpriteNum)
+DoPlayerSpriteReset(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     PLAYERp pp;
 
     if (!u->PlayerP)
@@ -1309,7 +1310,7 @@ DoPlayerTeleportToSprite(PLAYERp pp, SPRITEp sp)
 
     pp->posz = pp->oposz = sp->z - PLAYER_HEIGHT;
 
-    COVERupdatesector(pp->posx, pp->posy, &pp->cursectnum);
+    updatesector(pp->posx, pp->posy, &pp->cursectnum);
     //pp->lastcursectnum = pp->cursectnum;
     SET(pp->Flags2, PF2_TELEPORTED);
 }
@@ -1320,7 +1321,7 @@ DoPlayerTeleportToOffset(PLAYERp pp)
     pp->oposx = pp->oldposx = pp->posx;
     pp->oposy = pp->oldposy = pp->posy;
 
-    COVERupdatesector(pp->posx, pp->posy, &pp->cursectnum);
+    updatesector(pp->posx, pp->posy, &pp->cursectnum);
     //pp->lastcursectnum = pp->cursectnum;
     SET(pp->Flags2, PF2_TELEPORTED);
 }
@@ -1719,7 +1720,7 @@ DoPlayerBeginRecoil(PLAYERp pp, short pix_amt)
     pp->recoil_amt = pix_amt;
     pp->recoil_speed = 80;
     pp->recoil_ndx = 0;
-    pp->recoil_horizoff = 0;
+    pp->recoil_ohorizoff = pp->recoil_horizoff = 0;
 }
 
 void
@@ -1731,11 +1732,12 @@ DoPlayerRecoil(PLAYERp pp)
     if (bsin(pp->recoil_ndx) < 0)
     {
         RESET(pp->Flags, PF_RECOIL);
-        pp->recoil_horizoff = 0;
+        pp->recoil_ohorizoff = pp->recoil_horizoff = 0;
         return;
     }
 
     // move pp->q16horiz up and down
+    pp->recoil_ohorizoff = pp->recoil_horizoff;
     pp->recoil_horizoff = pp->recoil_amt * bsin(pp->recoil_ndx, 2);
 }
 
@@ -1935,7 +1937,9 @@ DoPlayerZrange(PLAYERp pp)
     // for an entire box, NOT just a point.  -Useful for clipping
     bakcstat = pp->SpriteP->cstat;
     RESET(pp->SpriteP->cstat, CSTAT_SPRITE_BLOCK);
-    FAFgetzrange(pp->posx, pp->posy, pp->posz + Z(8), pp->cursectnum, &pp->hiz, &ceilhit, &pp->loz, &florhit, ((int)pp->SpriteP->clipdist<<2) - GETZRANGE_CLIP_ADJ, CLIPMASK_PLAYER);
+    vec3_t pos = pp->pos;
+    pos.z += Z(8);
+    FAFgetzrange(pos, pp->cursectnum, &pp->hiz, &ceilhit, &pp->loz, &florhit, ((int)pp->SpriteP->clipdist<<2) - GETZRANGE_CLIP_ADJ, CLIPMASK_PLAYER);
     pp->SpriteP->cstat = bakcstat;
 
 //  16384+sector (sector first touched) or
@@ -2138,7 +2142,7 @@ DoPlayerMove(PLAYERp pp)
 
     if (TEST(pp->Flags, PF_CLIP_CHEAT))
     {
-        short sectnum=pp->cursectnum;
+        int sectnum = pp->cursectnum;
         if (interpolate_ride)
         {
             pp->oposx = pp->posx;
@@ -2146,7 +2150,7 @@ DoPlayerMove(PLAYERp pp)
         }
         pp->posx += pp->xvect >> 14;
         pp->posy += pp->yvect >> 14;
-        COVERupdatesector(pp->posx, pp->posy, &sectnum);
+        updatesector(pp->posx, pp->posy, &sectnum);
         if (sectnum != -1)
             pp->cursectnum = sectnum;
     }
@@ -2174,7 +2178,7 @@ DoPlayerMove(PLAYERp pp)
 
         save_cstat = pp->SpriteP->cstat;
         RESET(pp->SpriteP->cstat, CSTAT_SPRITE_BLOCK);
-        COVERupdatesector(pp->posx, pp->posy, &pp->cursectnum);
+        updatesector(pp->posx, pp->posy, &pp->cursectnum);
         clipmove(&pp->pos, &pp->cursectnum, pp->xvect, pp->yvect, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
         pp->SpriteP->cstat = save_cstat;
         PlayerCheckValidMove(pp);
@@ -2259,7 +2263,7 @@ DoPlayerMove(PLAYERp pp)
 void
 DoPlayerSectorUpdatePreMove(PLAYERp pp)
 {
-    short sectnum = pp->cursectnum;
+    int sectnum = pp->cursectnum;
 
     if (sectnum < 0)
         return;
@@ -2270,7 +2274,7 @@ DoPlayerSectorUpdatePreMove(PLAYERp pp)
         if (sectnum < 0)
         {
             sectnum = pp->cursectnum;
-            COVERupdatesector(pp->posx, pp->posy, &sectnum);
+            updatesector(pp->posx, pp->posy, &sectnum);
         }
         ASSERT(sectnum >= 0);
     }
@@ -2280,7 +2284,7 @@ DoPlayerSectorUpdatePreMove(PLAYERp pp)
         if (sectnum < 0)
         {
             sectnum = pp->cursectnum;
-            COVERupdatesector(pp->posx, pp->posy, &sectnum);
+            updatesector(pp->posx, pp->posy, &sectnum);
         }
         ASSERT(sectnum >= 0);
     }
@@ -2423,7 +2427,9 @@ DoPlayerMoveBoat(PLAYERp pp)
     pp->cursectnum = pp->sop->op_main_sector; // for speed
 
     floor_dist = labs(z - pp->sop->floor_loz);
-    clipmove_old(&pp->posx, &pp->posy, &z, &pp->cursectnum, pp->xvect, pp->yvect, (int)pp->sop->clipdist, Z(4), floor_dist, CLIPMASK_PLAYER);
+    vec3_t clippos = { pp->posx, pp->posy, z };
+    clipmove_old(&clippos, &pp->cursectnum, pp->xvect, pp->yvect, (int)pp->sop->clipdist, Z(4), floor_dist, CLIPMASK_PLAYER);
+    pp->pos.vec2 = clippos.vec2;
 
     OperateSectorObject(pp->sop, pp->angle.ang.asbuild(), pp->posx, pp->posy);
     pp->cursectnum = save_sectnum; // for speed
@@ -2620,7 +2626,9 @@ DriveCrush(PLAYERp pp, int *x, int *y)
     StatIterator it2(STAT_ENEMY);
     while ((i = it2.NextIndex()) >= 0)
     {
+        auto actor = &swActors[i];
         sp = &sprite[i];
+		auto u = User[i].Data();
 
         if (testpointinquad(sp->x, sp->y, x, y))
         {
@@ -2632,7 +2640,7 @@ DriveCrush(PLAYERp pp, int *x, int *y)
             if (vel < 9000)
             {
                 DoActorBeginSlide(i, getangle(pp->xvect, pp->yvect), vel/8, 5);
-                if (DoActorSlide(i))
+                if (DoActorSlide(actor))
                     continue;
             }
 
@@ -2891,9 +2899,15 @@ DoPlayerMoveVehicle(PLAYERp pp)
         save_cstat = pp->SpriteP->cstat;
         RESET(pp->SpriteP->cstat, CSTAT_SPRITE_BLOCK);
         if (pp->sop->clipdist)
-            u->ret = clipmove_old(&pp->posx, &pp->posy, &z, &pp->cursectnum, pp->xvect, pp->yvect, (int)pp->sop->clipdist, Z(4), floor_dist, CLIPMASK_PLAYER);
+        {
+            vec3_t clippos = { pp->posx, pp->posy, z };
+            u->ret = clipmove(&clippos, &pp->cursectnum, pp->xvect, pp->yvect, (int)pp->sop->clipdist, Z(4), floor_dist, CLIPMASK_PLAYER);
+            pp->pos.vec2 = clippos.vec2;
+        }
         else
+        {
             u->ret = MultiClipMove(pp, z, floor_dist);
+        }
         pp->SpriteP->cstat = save_cstat;
 
         //SetupDriveCrush(pp, x, y);
@@ -3175,7 +3189,7 @@ void StackedWaterSplash(PLAYERp pp)
 {
     if (FAF_ConnectArea(pp->cursectnum))
     {
-        short sectnum = pp->cursectnum;
+        int sectnum = pp->cursectnum;
 
         updatesectorz(pp->posx, pp->posy, SPRITEp_BOS(pp->SpriteP), &sectnum);
 
@@ -4083,7 +4097,7 @@ PlayerCanDiveNoWarp(PLAYERp pp)
     {
         if (FAF_ConnectArea(pp->cursectnum))
         {
-            short sectnum = pp->cursectnum;
+            int sectnum = pp->cursectnum;
 
             updatesectorz(pp->posx, pp->posy, SPRITEp_BOS(pp->SpriteP), &sectnum);
 
@@ -4716,7 +4730,7 @@ DoPlayerDive(PLAYERp pp)
     {
         if (pp->posz < sector[pp->cursectnum].ceilingz + Z(10))
         {
-            short sectnum = pp->cursectnum;
+            int sectnum = pp->cursectnum;
 
             // check for sector above to see if it is an underwater sector also
             updatesectorz(pp->posx, pp->posy, sector[pp->cursectnum].ceilingz - Z(8), &sectnum);
@@ -5167,12 +5181,12 @@ void FindMainSector(SECTOR_OBJECTp sop)
         // set it to something valid
         sop->op_main_sector = 0;
 
-        //COVERupdatesector(sx, sy, &sop->op_main_sector);
+        //updatesector(sx, sy, &sop->op_main_sector);
         //updatesectorz(sx, sy, sop->zmid - Z(8), &sop->op_main_sector);
 
         updatesectorz(sx, sy, sop->zmid, &sop->op_main_sector);
 
-        //COVERupdatesector(sx, sy, &sop->op_main_sector);
+        //updatesector(sx, sy, &sop->op_main_sector);
 
         ////DSPRINTF(ds,"main sector %d, zmid %d",sop->op_main_sector, sop->zmid);
         //MONO_PRINT(ds);
@@ -5256,7 +5270,7 @@ DoPlayerBeginOperate(PLAYERp pp)
     pp->angle.oang = pp->angle.ang = buildang(sop->ang);
     pp->posx = sop->xmid;
     pp->posy = sop->ymid;
-    COVERupdatesector(pp->posx, pp->posy, &pp->cursectnum);
+    updatesector(pp->posx, pp->posy, &pp->cursectnum);
     getzsofslope(pp->cursectnum, pp->posx, pp->posy, &cz, &fz);
     pp->posz = fz - PLAYER_HEIGHT;
 
@@ -5343,7 +5357,7 @@ DoPlayerBeginRemoteOperate(PLAYERp pp, SECTOR_OBJECTp sop)
     pp->angle.oang = pp->angle.ang = buildang(sop->ang);
     pp->posx = sop->xmid;
     pp->posy = sop->ymid;
-    COVERupdatesector(pp->posx, pp->posy, &pp->cursectnum);
+    updatesector(pp->posx, pp->posy, &pp->cursectnum);
     getzsofslope(pp->cursectnum, pp->posx, pp->posy, &cz, &fz);
     pp->posz = fz - PLAYER_HEIGHT;
 
@@ -6024,12 +6038,12 @@ DoPlayerBeginDie(PLAYERp pp)
 void
 DoPlayerDeathHoriz(PLAYERp pp, short target, short speed)
 {
-    if ((pp->horizon.horiz.asq16() - IntToFixed(target)) > FRACUNIT)
+    if ((pp->horizon.horiz.asbuild() - target) > 1)
     {   
         pp->horizon.addadjustment(-speed);
     }
 
-    if ((IntToFixed(target) - pp->horizon.horiz.asq16()) > FRACUNIT)
+    if ((target - pp->horizon.horiz.asbuild()) > 1)
     {
         pp->horizon.addadjustment(speed);
     }
@@ -6128,7 +6142,7 @@ void DoPlayerDeathFollowKiller(PLAYERp pp)
 
         if (FAFcansee(kp->x, kp->y, SPRITEp_TOS(kp), kp->sectnum, pp->posx, pp->posy, pp->posz, pp->cursectnum))
         {
-            pp->angle.addadjustment(getincanglebam(pp->angle.ang, bvectangbam(kp->x - pp->posx, kp->y - pp->posy)).signedbuild() >> 4);
+            pp->angle.addadjustment(getincanglebam(pp->angle.ang, bvectangbam(kp->x - pp->posx, kp->y - pp->posy)) >> 4);
         }
     }
 }
@@ -6297,7 +6311,7 @@ void DoPlayerDeathMoveHead(PLAYERp pp)
     SPRITEp sp = pp->SpriteP;
     USERp u = User[pp->PlayerSprite].Data();
     int dax,day;
-    short sectnum;
+    int sectnum;
 
     dax = MOVEx(u->slide_vel, u->slide_ang);
     day = MOVEy(u->slide_vel, u->slide_ang);
@@ -6354,7 +6368,7 @@ void DoPlayerDeathMoveHead(PLAYERp pp)
 
     // try to stay in valid area - death sometimes throws you out of the map
     sectnum = pp->cursectnum;
-    COVERupdatesector(pp->posx, pp->posy, &sectnum);
+    updatesector(pp->posx, pp->posy, &sectnum);
     if (sectnum < 0)
     {
         pp->cursectnum = pp->lv_sectnum;
@@ -6570,7 +6584,7 @@ void DoPlayerDeathExplode(PLAYERp pp)
     else
     {
         // special line for amoeba
-        //COVERupdatesector(pp->posx, pp->posy, &pp->cursectnum);
+        //updatesector(pp->posx, pp->posy, &pp->cursectnum);
 
         DoPlayerDeathCheckKick(pp);
         DoPlayerDeathHurl(pp);
@@ -6770,6 +6784,7 @@ PlayerStateControl(int16_t SpriteNum)
         return;
 
     // Convienience var
+    auto actor = &swActors[SpriteNum];
     u = User[SpriteNum].Data();
 
     if (u == nullptr)
@@ -6792,7 +6807,7 @@ PlayerStateControl(int16_t SpriteNum)
         while (TEST(u->State->Tics, SF_QUICK_CALL))
         {
             // Call it once and go to the next state
-            (*u->State->Animator)(SpriteNum);
+            (*u->State->Animator)(actor);
 
             // if still on the same QUICK_CALL should you
             // go to the next state.
@@ -6816,7 +6831,7 @@ PlayerStateControl(int16_t SpriteNum)
     // Call the correct animator
     if (TEST(u->State->Tics, SF_PLAYER_FUNC))
         if (u->State->Animator)
-            (*u->State->Animator)(SpriteNum);
+            (*u->State->Animator)(actor);
 
     return;
 }
@@ -7473,9 +7488,10 @@ InitMultiPlayerInfo(void)
 
 // If player stepped in something gooey, track it all over the place.
 int
-DoFootPrints(short SpriteNum)
+DoFootPrints(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     if (u->PlayerP)
     {
@@ -7516,8 +7532,6 @@ void CheckFootPrints(PLAYERp pp)
 static saveable_code saveable_player_code[] =
 {
     SAVE_CODE(DoPlayerSlide),
-    //SAVE_CODE(DoPlayerBeginSwim),
-    //SAVE_CODE(DoPlayerSwim),
     SAVE_CODE(DoPlayerWade),
     SAVE_CODE(DoPlayerBeginWade),
     SAVE_CODE(DoPlayerBeginCrawl),
@@ -7534,11 +7548,8 @@ static saveable_code saveable_player_code[] =
     SAVE_CODE(DoPlayerBeginClimb),
     SAVE_CODE(DoPlayerClimb),
     SAVE_CODE(DoPlayerBeginDie),
-    //SAVE_CODE(DoPlayerDie),
-    //SAVE_CODE(DoPlayerBeginOperateBoat),
     SAVE_CODE(DoPlayerBeginOperateVehicle),
     SAVE_CODE(DoPlayerBeginOperate),
-    //SAVE_CODE(DoPlayerOperateBoat),
     SAVE_CODE(DoPlayerOperateVehicle),
     SAVE_CODE(DoPlayerOperateTurret),
     SAVE_CODE(DoPlayerBeginDive),
@@ -7639,6 +7650,7 @@ DEFINE_FIELD_X(SWPlayer, PLAYERstruct, recoil_amt)
 DEFINE_FIELD_X(SWPlayer, PLAYERstruct, recoil_speed)
 DEFINE_FIELD_X(SWPlayer, PLAYERstruct, recoil_ndx)
 DEFINE_FIELD_X(SWPlayer, PLAYERstruct, recoil_horizoff)
+DEFINE_FIELD_X(SWPlayer, PLAYERstruct, recoil_ohorizoff)
 DEFINE_FIELD_X(SWPlayer, PLAYERstruct, oldposx)
 DEFINE_FIELD_X(SWPlayer, PLAYERstruct, oldposy)
 DEFINE_FIELD_X(SWPlayer, PLAYERstruct, oldposz)

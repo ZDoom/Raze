@@ -55,6 +55,7 @@ extern int screenpeek;
 
 // Variables that must be saved
 extern uint8_t sectorextra[MAXSECTORS]; // these hold fields that were formerly in sprite and sector. Move these back into the base structs!
+extern uint8_t shadedsector[MAXSECTORS];
 
 extern int rtsplaying;
 extern int tempwallptr;
@@ -62,7 +63,6 @@ extern int tempwallptr;
 extern bool sound445done;
 extern player_struct ps[MAXPLAYERS];
 extern int spriteqamount;
-extern uint8_t shadedsector[MAXSECTORS];
 extern int lastvisinc;
 extern animwalltype animwall[MAXANIMWALLS];
 extern int numanimwalls;
@@ -84,21 +84,21 @@ enum animtype_t
 	anim_vertexx,
 	anim_vertexy,
 };
-extern int16_t animatesect[MAXANIMATES];
-extern int16_t animatetarget[MAXANIMATES];
+extern int animatesect[MAXANIMATES];
+extern int animatetarget[MAXANIMATES];
 extern int8_t animatetype[MAXANIMATES];
 extern int animategoal[MAXANIMATES];
 extern int animatevel[MAXANIMATES];
 
-extern int16_t clouds[256];
+extern int clouds[256];
 extern float cloudx;
 extern float cloudy;
 extern int cloudclock;
 
 extern DDukeActor *spriteq[1024];
-extern int16_t cyclers[MAXCYCLERS][6];
-extern int16_t mirrorsector[64];
-extern int16_t mirrorwall[64];
+extern Cycler cyclers[MAXCYCLERS];
+extern int mirrorsector[64];
+extern int mirrorwall[64];
 
 extern int wupass;
 extern int chickenplant;

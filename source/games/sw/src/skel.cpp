@@ -533,8 +533,10 @@ SetupSkel(short SpriteNum)
     return 0;
 }
 
-int DoSkelInitTeleport(short SpriteNum)
+int DoSkelInitTeleport(DSWActor* actor)
 {
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -544,8 +546,10 @@ int DoSkelInitTeleport(short SpriteNum)
     return 0;
 }
 
-int DoSkelTeleport(short SpriteNum)
+int DoSkelTeleport(DSWActor* actor)
 {
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
     int x,y;
 
@@ -568,7 +572,7 @@ int DoSkelTeleport(short SpriteNum)
             sp->y -= 512 + RANDOM_P2(1024);
 
         setspritez(SpriteNum, &sp->pos);
-        //COVERupdatesector(sp->x, sp->y, &sp->sectnum);
+        //updatesector(sp->x, sp->y, &sp->sectnum);
 
         if (sp->sectnum != -1)
             break;
@@ -577,8 +581,10 @@ int DoSkelTeleport(short SpriteNum)
     return 0;
 }
 
-int DoSkelTermTeleport(short SpriteNum)
+int DoSkelTermTeleport(DSWActor* actor)
 {
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
     SET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -586,46 +592,48 @@ int DoSkelTermTeleport(short SpriteNum)
     return 0;
 }
 
-int NullSkel(short SpriteNum)
+int NullSkel(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
-
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     if (TEST(u->Flags,SPR_SLIDING))
-        DoActorSlide(SpriteNum);
+        DoActorSlide(actor);
 
     KeepActorOnFloor(SpriteNum);
-    DoActorSectorDamage(SpriteNum);
+    DoActorSectorDamage(actor);
 
     return 0;
 }
 
-int DoSkelPain(short SpriteNum)
+int DoSkelPain(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
-    NullSkel(SpriteNum);
+    NullSkel(actor);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
-        InitActorDecide(SpriteNum);
+        InitActorDecide(actor);
 
     return 0;
 }
 
-int DoSkelMove(short SpriteNum)
+int DoSkelMove(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags,SPR_SLIDING))
-        DoActorSlide(SpriteNum);
+        DoActorSlide(actor);
 
     if (u->track >= 0)
         ActorFollowTrack(SpriteNum, ACTORMOVETICS);
     else
-        (*u->ActorActionFunc)(SpriteNum);
+        (*u->ActorActionFunc)(actor);
 
     KeepActorOnFloor(SpriteNum);
 
-    DoActorSectorDamage(SpriteNum);
+    DoActorSectorDamage(actor);
 
     return 0;
 }
@@ -635,7 +643,6 @@ int DoSkelMove(short SpriteNum)
 
 static saveable_code saveable_skel_code[] =
 {
-    SAVE_CODE(SetupSkel),
     SAVE_CODE(DoSkelInitTeleport),
     SAVE_CODE(DoSkelTeleport),
     SAVE_CODE(DoSkelTermTeleport),

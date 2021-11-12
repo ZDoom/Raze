@@ -51,7 +51,7 @@ short FindBreakSpriteMatch(short match);
 bool HitBreakWall(WALLp wp, int, int, int, short ang, short type);
 int HitBreakSprite(short BreakSprite, short type);
 bool CheckBreakToughness(BREAK_INFOp break_info, short ID);
-int WallBreakPosition(short hit_wall, short *sectnum, int *x, int *y, int *z, short *ang);
+int WallBreakPosition(short hit_wall, int *sectnum, int *x, int *y, int *z, short *ang);
 void SortBreakInfo(void);
 
 END_SW_NS

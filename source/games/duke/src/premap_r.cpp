@@ -54,8 +54,8 @@ static inline void tloadtile(int tilenum, int palnum = 0)
 
 static void cachespritenum(spritetype *spr)
 {
-	char maxc;
-	short j;
+	int maxc;
+	int j;
 	int pal = spr->pal;
 
 	if (ud.monsters_off && badguy(spr)) return;
@@ -328,7 +328,7 @@ static void cachespritenum(spritetype *spr)
 
 static void cachegoodsprites(void)
 {
-	short i;
+	int i;
 
 	tloadtile(BOTTOMSTATUSBAR);
 	if (ud.multimode > 1)
@@ -390,9 +390,10 @@ void cacheit_r(void)
 
 	for (i = 0; i < numsectors; i++)
 	{
-		tloadtile(sector[i].floorpicnum, sector[i].floorpal);
-		tloadtile(sector[i].ceilingpicnum, sector[i].ceilingpal);
-		if (sector[i].ceilingpicnum == LA)
+		auto sectp = &sector[i];
+		tloadtile(sectp->floorpicnum, sectp->floorpal);
+		tloadtile(sectp->ceilingpicnum, sectp->ceilingpal);
+		if (sectp->ceilingpicnum == LA)
 		{
 			tloadtile(LA + 1);
 			tloadtile(LA + 2);
@@ -417,15 +418,15 @@ void cacheit_r(void)
 void prelevel_r(int g)
 {
 	struct player_struct* p;
-	short i;
-	short j;
-	short startwall;
-	short endwall;
-	short lotaglist;
+	int i;
+	int j;
+	int startwall;
+	int endwall;
+	int lotaglist;
 	short lotags[65];
 	int speed;
 	int dist;
-	short sound;
+	int sound;
 	sound = 0;
 
 	prelevel_common(g);
@@ -459,10 +460,11 @@ void prelevel_r(int g)
 
 	for (i = 0; i < numsectors; i++)
 	{
-		if (sector[i].ceilingpicnum == RRTILE2577)
+		auto sectp = &sector[i];
+		if (sectp->ceilingpicnum == RRTILE2577)
 			thunderon = 1;
 
-		switch (sector[i].lotag)
+		switch (sectp->lotag)
 		{
 		case 41:
 		{
@@ -484,18 +486,18 @@ void prelevel_r(int g)
 			}
 			for (j = 0; j < numsectors; j++)
 			{
-				if (sector[i].hitag == sector[j].hitag && j != i)
+				if (sectp->hitag == sector[j].hitag && j != i)
 				{
 					// & 32767 to avoid some ordering issues here. 
 					// Other code assumes that the lotag is always a sector effector type and can mask the high bit in.
-					addjaildoor(dist, speed, sector[i].hitag, sector[j].lotag & 32767, sound, j);
+					addjaildoor(dist, speed, sectp->hitag, sector[j].lotag & 32767, sound, j);
 				}
 			}
 			break;
 		}
 		case 42:
 		{
-			short ii;
+			int ii;
 			int childsectnum = -1;
 			DukeSectIterator it(i);
 			while (auto act = it.Next())
@@ -523,7 +525,7 @@ void prelevel_r(int g)
 					deletesprite(act);
 				}
 			}
-			addminecart(dist, speed, i, sector[i].hitag, sound, childsectnum);
+			addminecart(dist, speed, i, sectp->hitag, sound, childsectnum);
 			break;
 		}
 		}
@@ -547,19 +549,19 @@ void prelevel_r(int g)
 			break;
 
 		case GPSPEED:
-			sector[si->sectnum].extra = si->lotag;
+			si->sector()->extra = si->lotag;
 			deletesprite(ac);
 			break;
 
 		case CYCLER:
 			if (numcyclers >= MAXCYCLERS)
 				I_Error("Too many cycling sectors.");
-			cyclers[numcyclers][0] = si->sectnum;
-			cyclers[numcyclers][1] = si->lotag;
-			cyclers[numcyclers][2] = si->shade;
-			cyclers[numcyclers][3] = sector[si->sectnum].floorshade;
-			cyclers[numcyclers][4] = si->hitag;
-			cyclers[numcyclers][5] = (si->ang == 1536);
+			cyclers[numcyclers].sectnum = si->sectnum;
+			cyclers[numcyclers].lotag = si->lotag;
+			cyclers[numcyclers].shade1 = si->shade;
+			cyclers[numcyclers].shade2 = si->sector()->floorshade;
+			cyclers[numcyclers].hitag = si->hitag;
+			cyclers[numcyclers].state = (si->ang == 1536);
 			numcyclers++;
 			deletesprite(ac);
 			break;
@@ -744,7 +746,7 @@ void prelevel_r(int g)
 		switch (wal->overpicnum)
 		{
 		case FANSPRITE:
-			wall->cstat |= 65;
+			wal->cstat |= 65;
 			animwall[numanimwalls].wallnum = i;
 			numanimwalls++;
 			break;

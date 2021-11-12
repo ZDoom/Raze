@@ -58,7 +58,7 @@ void zombfHackSeqCallback(int, DBloodActor* actor)
 	int height = (pDudeInfo->eyeHeight * pSprite->yrepeat);
 	DUDEINFO* pDudeInfoT = getDudeInfo(pTarget->type);
 	int height2 = (pDudeInfoT->eyeHeight * pTarget->yrepeat);
-	actFireVector(actor, 0, 0, CosScale16(pSprite->ang), SinScale16(pSprite->ang), height - height2, kVectorCleaver);
+	actFireVector(actor, 0, 0, bcos(pSprite->ang), bsin(pSprite->ang), height - height2, kVectorCleaver);
 }
 
 void PukeSeqCallback(int, DBloodActor* actor)
@@ -74,8 +74,8 @@ void PukeSeqCallback(int, DBloodActor* actor)
 	int tx = pXSprite->targetX - pSprite->x;
 	int ty = pXSprite->targetY - pSprite->y;
 	int nAngle = getangle(tx, ty);
-	int dx = CosScale16(nAngle);
-	int dy = SinScale16(nAngle);
+	int dx = bcos(nAngle);
+	int dy = bsin(nAngle);
 	sfxPlay3DSound(pSprite, 1203, 1, 0);
 	actFireMissile(actor, 0, -(height - height2), dx, dy, 0, kMissilePukeGreen);
 }
@@ -83,7 +83,7 @@ void PukeSeqCallback(int, DBloodActor* actor)
 void ThrowSeqCallback(int, DBloodActor* actor)
 {
 	spritetype* pSprite = &actor->s();
-    actFireMissile(actor, 0, -getDudeInfo(pSprite->type)->eyeHeight, CosScale16(pSprite->ang), SinScale16(pSprite->ang), 0, kMissileButcherKnife);
+    actFireMissile(actor, 0, -getDudeInfo(pSprite->type)->eyeHeight, bcos(pSprite->ang), bsin(pSprite->ang), 0, kMissileButcherKnife);
 }
 
 static void zombfThinkSearch(DBloodActor* actor)

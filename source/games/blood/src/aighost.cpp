@@ -72,8 +72,8 @@ void ghostSlashSeqCallback(int, DBloodActor* actor)
 	int height = (pSprite->yrepeat * pDudeInfo->eyeHeight) << 2;
 	int height2 = (pTarget->yrepeat * pDudeInfoT->eyeHeight) << 2;
 	int dz = height - height2;
-	int dx = CosScale16(pSprite->ang);
-	int dy = SinScale16(pSprite->ang);
+	int dx = bcos(pSprite->ang);
+	int dy = bsin(pSprite->ang);
 	sfxPlay3DSound(actor, 1406, 0, 0);
 	actFireVector(actor, 0, 0, dx, dy, dz, kVectorGhost);
 	int r1 = Random(50);
@@ -104,8 +104,8 @@ void ghostBlastSeqCallback(int, DBloodActor* actor)
 	int z = height;
 	TARGETTRACK tt = { 0x10000, 0x10000, 0x100, 0x55, 0x1aaaaa };
 	Aim aim;
-	aim.dx = CosScale16(pSprite->ang);
-	aim.dy = SinScale16(pSprite->ang);
+	aim.dx = bcos(pSprite->ang);
+	aim.dy = bsin(pSprite->ang);
 	aim.dz = actor->dudeSlope;
 	int nClosest = 0x7fffffff;
 	BloodStatIterator it(kStatDude);
@@ -149,8 +149,8 @@ void ghostBlastSeqCallback(int, DBloodActor* actor)
 				if (cansee(x, y, z, pSprite->sectnum, x2, y2, z2, pSprite2->sectnum))
 				{
 					nClosest = nDist2;
-					aim.dx = CosScale16(nAngle);
-					aim.dy = SinScale16(nAngle);
+					aim.dx = bcos(nAngle);
+					aim.dy = bsin(nAngle);
 					aim.dz = DivScale(tz, nDist, 10);
 					if (tz > -0x333)
 						aim.dz = DivScale(tz, nDist, 10);

@@ -65,8 +65,8 @@ void SpidBiteSeqCallback(int, DBloodActor* actor)
 {
 	XSPRITE* pXSprite = &actor->x();
 	spritetype* pSprite = &actor->s();
-	int dx = CosScale16(pSprite->ang);
-	int dy = SinScale16(pSprite->ang);
+	int dx = bcos(pSprite->ang);
+	int dy = bsin(pSprite->ang);
 	dx += Random2(2000);
 	dy += Random2(2000);
 	int dz = Random2(2000);
@@ -117,8 +117,8 @@ void SpidJumpSeqCallback(int, DBloodActor* actor)
 {
 	XSPRITE* pXSprite = &actor->x();
 	spritetype* pSprite = &actor->s();
-	int dx = CosScale16(pSprite->ang);
-	int dy = SinScale16(pSprite->ang);
+	int dx = bcos(pSprite->ang);
+	int dy = bsin(pSprite->ang);
 	dx += Random2(200);
 	dy += Random2(200);
 	int dz = Random2(200);

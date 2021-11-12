@@ -71,21 +71,24 @@ void GameInterface::LoadGameTextures()
     }
 }
 
-char tileGetSurfType(int hit)
+int tileGetSurfType(int hit)
 {
-    int n = hit & 0x3fff;
-    switch (hit&0xc000)
+    return surfType[hit];
+}
+
+int tileGetSurfType(Collision& hit)
+{
+    switch (hit.type)
     {
-    case 0x4000:
-        return surfType[sector[n].floorpicnum];
-    case 0x6000:
-        return surfType[sector[n].ceilingpicnum];
-    case 0x8000:
-        return surfType[wall[n].picnum];
-    case 0xc000:
-        return surfType[sprite[n].picnum];
+    default:
+        return 0;
+    case kHitSector:
+        return surfType[sector[hit.index].floorpicnum];
+    case kHitWall:
+        return surfType[wall[hit.index].picnum];
+    case kHitSprite:
+        return surfType[hit.actor->s().picnum];
     }
-    return 0;
 }
 
 void GameInterface::SetTileProps(int tile, int surf, int vox, int shade)

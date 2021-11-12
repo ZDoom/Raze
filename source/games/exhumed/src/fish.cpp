@@ -77,7 +77,7 @@ void BuildFishLimb(DExhumedActor* pActor, short anim)
     pSprite2->hitag = runlist_AddRunRec(NewRun, pChunkActor, 0x200000);
 }
 
-void BuildBlood(int x, int y, int z, short nSector)
+void BuildBlood(int x, int y, int z, int nSector)
 {
     BuildAnim(nullptr, kSeqFish, 36, x, y, z, nSector, 75, 128);
 }
@@ -105,7 +105,7 @@ void AIFishLimb::Tick(RunListEvent* ev)
         }
     }
 
-    int FloorZ = sector[pSprite->sectnum].floorz;
+    int FloorZ = pSprite->sector()->floorz;
 
     if (FloorZ <= pSprite->z)
     {
@@ -145,12 +145,6 @@ void AIFishLimb::Draw(RunListEvent* ev)
 }
 
 
-void  FuncFishLimb(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AIFishLimb ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
-}
-
 void BuildFish(DExhumedActor* pActor, int x, int y, int z, int nSector, int nAngle)
 {
 	spritetype* pSprite;
@@ -178,7 +172,7 @@ void BuildFish(DExhumedActor* pActor, int x, int y, int z, int nSector, int nAng
     pSprite->clipdist = 80;
     pSprite->xrepeat = 40;
     pSprite->yrepeat = 40;
-    pSprite->pal = sector[pSprite->sectnum].ceilingpal;
+    pSprite->pal = pSprite->sector()->ceilingpal;
     pSprite->xoffset = 0;
     pSprite->yoffset = 0;
     pSprite->picnum = seq_GetSeqPicnum(kSeqFish, FishSeq[0].a, 0);
@@ -293,7 +287,7 @@ void AIFish::Damage(RunListEvent* ev)
 
         pSprite->cstat &= 0xFEFE;
 
-        if (ev->nMessage == EMessageType::Damage)
+        if (!ev->isRadialEvent())
         {
             for (int i = 0; i < 3; i++)
             {
@@ -444,7 +438,7 @@ void AIFish::Tick(RunListEvent* ev)
     int x = pSprite->x;
     int y = pSprite->y;
     int z = pSprite->z;
-    short nSector = pSprite->sectnum;
+    int nSector =pSprite->sectnum;
 
     // loc_2EF54
     Collision coll = movesprite(pActor, pSprite->xvel << 13, pSprite->yvel << 13, pSprite->zvel << 2, 0, 0, CLIPMASK0);
@@ -512,13 +506,6 @@ void AIFish::Tick(RunListEvent* ev)
             IdleFish(pActor, 1);
         }
     }
-}
-
-
-void  FuncFish(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AIFish ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
 }
 
 END_PS_NS

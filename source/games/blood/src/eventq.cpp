@@ -417,19 +417,17 @@ void evSend(DBloodActor* actor, int nIndex, int nType, int rxId, COMMAND_ID comm
 	case kChannelRemoteBomb6:
 	case kChannelRemoteBomb7:
 	{
-		int nSprite;
-		StatIterator it(kStatThing);
-		while ((nSprite = it.NextIndex()) >= 0)
+		BloodStatIterator it(kStatThing);
+		while (auto actor = it.Next())
 		{
-			spritetype* pSprite = &sprite[nSprite];
+			spritetype* pSprite = &actor->s();
 			if (pSprite->flags & 32)
 				continue;
-			int nXSprite = pSprite->extra;
-			if (nXSprite > 0)
+			if (actor->hasX())
 			{
-				XSPRITE* pXSprite = &xsprite[nXSprite];
+				XSPRITE* pXSprite = &actor->x();
 				if (pXSprite->rxID == rxId)
-					trMessageSprite(nSprite, event);
+					trMessageSprite(actor->s().index, event);
 			}
 		}
 		return;
@@ -437,19 +435,17 @@ void evSend(DBloodActor* actor, int nIndex, int nType, int rxId, COMMAND_ID comm
 	case kChannelTeamAFlagCaptured:
 	case kChannelTeamBFlagCaptured:
 	{
-		int nSprite;
-		StatIterator it(kStatItem);
-		while ((nSprite = it.NextIndex()) >= 0)
+		BloodStatIterator it(kStatItem);
+		while (auto actor = it.Next())
 		{
-			spritetype* pSprite = &sprite[nSprite];
+			spritetype* pSprite = &actor->s();
 			if (pSprite->flags & 32)
 				continue;
-			int nXSprite = pSprite->extra;
-			if (nXSprite > 0)
+			if (actor->hasX())
 			{
-				XSPRITE* pXSprite = &xsprite[nXSprite];
+				XSPRITE* pXSprite = &actor->x();
 				if (pXSprite->rxID == rxId)
-					trMessageSprite(nSprite, event);
+					trMessageSprite(actor->s().index, event);
 			}
 		}
 		return;

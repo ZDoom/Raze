@@ -60,8 +60,8 @@ FString GameInterface::GetCoordString()
 	FString out;
 
 	out.Format("pos= %d, %d, %d - angle = %2.3f - sector = %d, lotag = %d, hitag = %d",
-		ps[snum].posx, ps[snum].posy, ps[snum].posz, ps[snum].angle.ang.asdeg(), ps[snum].cursectnum,
-		sector[ps[snum].cursectnum].lotag, sector[ps[snum].cursectnum].hitag);
+		ps[snum].pos.x, ps[snum].pos.y, ps[snum].pos.z, ps[snum].angle.ang.asdeg(), ps[snum].cursectnum,
+		ps[snum].cursector()->lotag, ps[snum].cursector()->hitag);
 
 	return out;
 }
@@ -215,7 +215,7 @@ void V_AddBlend (float r, float g, float b, float a, float v_blend[4])
 
 void drawoverlays(double smoothratio)
 {
-	unsigned char fader = 0, fadeg = 0, fadeb = 0, fadef = 0, tintr = 0, tintg = 0, tintb = 0, tintf = 0, dotint = 0;
+	uint8_t fader = 0, fadeg = 0, fadeb = 0, fadef = 0, tintr = 0, tintg = 0, tintb = 0, tintf = 0, dotint = 0;
 
 	struct player_struct* pp;
 	int cposx, cposy, cang;
@@ -252,7 +252,7 @@ void drawoverlays(double smoothratio)
 			{
 				fi.displayweapon(screenpeek, smoothratio);
 				if (pp->over_shoulder_on == 0)
-					fi.displaymasks(screenpeek, pp->GetActor()->s->pal == 1 ? 1 : sector[pp->cursectnum].floorpal, smoothratio);
+					fi.displaymasks(screenpeek, pp->GetActor()->s->pal == 1 ? 1 : pp->cursector()->floorpal, smoothratio);
 			}
 			if (!isRR())
 				moveclouds(smoothratio);
@@ -272,8 +272,8 @@ void drawoverlays(double smoothratio)
 				}
 				else
 				{
-					cposx = interpolatedvalue(pp->oposx, pp->posx, smoothratio);
-					cposy = interpolatedvalue(pp->oposy, pp->posy, smoothratio);
+					cposx = interpolatedvalue(pp->oposx, pp->pos.x, smoothratio);
+					cposy = interpolatedvalue(pp->oposy, pp->pos.y, smoothratio);
 					cang = (!SyncInput() ? pp->angle.ang : interpolatedangle(pp->angle.oang, pp->angle.ang, smoothratio)).asbuild();
 				}
 			}
@@ -561,7 +561,7 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
 			else
 				i = TILE_APLAYERTOP;
 
-			j = abs(pp.truefz - pp.posz) >> 8;
+			j = abs(pp.truefz - pp.pos.z) >> 8;
 			j = czoom * (pspr->yrepeat + j);
 
 			if (j < 22000) j = 22000;

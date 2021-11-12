@@ -28,7 +28,7 @@ static_assert('\xff' == 255, "Char must be unsigned!");
 #  define EXTERN extern
 #endif
 
-EXTERN int16_t sintable[2048];
+EXTERN int sintable[2048];
 
 #include "buildtiles.h"
 #include "c_cvars.h"
@@ -154,6 +154,32 @@ extern walltype wall[MAXWALLS];
 extern spritetype sprite[MAXSPRITES];
 EXTERN int leveltimer;
 
+inline sectortype* spritetype::sector() const
+{
+    return &::sector[sectnum];
+}
+
+inline sectortype* walltype::nextSector() const
+{
+    return &::sector[nextsector];
+}
+
+inline walltype* walltype::nextWall() const
+{
+    return &::wall[nextwall];
+}
+
+inline walltype* walltype::point2Wall() const
+{
+    return &::wall[point2];
+}
+
+inline walltype* sectortype::firstWall() const
+{
+    return &wall[wallptr];
+}
+
+
 extern sectortype sectorbackup[MAXSECTORS];
 extern walltype wallbackup[MAXWALLS];
 
@@ -186,6 +212,16 @@ EXTERN int32_t yxaspect, viewingrange;
 EXTERN int32_t Numsprites;
 EXTERN int16_t numsectors, numwalls;
 EXTERN int32_t display_mirror;
+
+inline bool validSectorIndex(int sectnum)
+{
+	return sectnum >= 0 && sectnum < numsectors;
+}
+
+inline bool validWallIndex(int wallnum)
+{
+	return wallnum >= 0 && wallnum < numwalls;
+}
 
 EXTERN int32_t randomseed;
 
@@ -343,7 +379,8 @@ int32_t    engineInit(void);
 void   engineUnInit(void);
 void   initspritelists(void);
 
-void engineLoadBoard(const char *filename, int flags, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum);
+void ValidateSprite(spritetype& spr);
+void engineLoadBoard(const char *filename, int flags, vec3_t *dapos, int16_t *daang, int *dacursectnum);
 void loadMapBackup(const char* filename);
 void G_LoadMapHack(const char* filename, const unsigned char*);
 
@@ -392,17 +429,18 @@ void   neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange
 int32_t   cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1,
                  int32_t x2, int32_t y2, int32_t z2, int16_t sect2);
 int32_t   inside(int32_t x, int32_t y, int sectnum);
-void   dragpoint(int16_t pointhighlight, int32_t dax, int32_t day, uint8_t flags = 0);
+void   dragpoint(int pointhighlight, int32_t dax, int32_t day, uint8_t flags = 0);
 int32_t try_facespr_intersect(uspriteptr_t const spr, vec3_t const in,
                                      int32_t vx, int32_t vy, int32_t vz,
                                      vec3_t * const intp, int32_t strictly_smaller_than_p);
 
 #define MAXUPDATESECTORDIST 1536
 #define INITIALUPDATESECTORDIST 256
-void updatesector(int32_t const x, int32_t const y, int16_t * const sectnum) ATTRIBUTE((nonnull(3)));
-void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int16_t * const sectnum) ATTRIBUTE((nonnull(4)));
-void updatesectorneighbor(int32_t const x, int32_t const y, int16_t * const sectnum, int32_t initialMaxDistance = INITIALUPDATESECTORDIST, int32_t maxDistance = MAXUPDATESECTORDIST) ATTRIBUTE((nonnull(3)));
-void updatesectorneighborz(int32_t const x, int32_t const y, int32_t const z, int16_t * const sectnum, int32_t initialMaxDistance = INITIALUPDATESECTORDIST, int32_t maxDistance = MAXUPDATESECTORDIST) ATTRIBUTE((nonnull(4)));
+void updatesector(int const x, int const y, int * const sectnum) ATTRIBUTE((nonnull(3)));
+void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int * const sectnum) ATTRIBUTE((nonnull(4)));
+
+void updatesectorneighbor(int32_t const x, int32_t const y, int * const sectnum, int32_t initialMaxDistance = INITIALUPDATESECTORDIST, int32_t maxDistance = MAXUPDATESECTORDIST) ATTRIBUTE((nonnull(3)));
+void updatesectorneighborz(int32_t const x, int32_t const y, int32_t const z, int * const sectnum, int32_t initialMaxDistance = INITIALUPDATESECTORDIST, int32_t maxDistance = MAXUPDATESECTORDIST) ATTRIBUTE((nonnull(4)));
 
 int findwallbetweensectors(int sect1, int sect2);
 inline int sectoradjacent(int sect1, int sect2) { return findwallbetweensectors(sect1, sect2) != -1; }
@@ -427,12 +465,6 @@ inline constexpr uint32_t uhypsq(int32_t const dx, int32_t const dy)
     return (uint32_t)dx*dx + (uint32_t)dy*dy;
 }
 
-inline int32_t logapproach(int32_t const val, int32_t const targetval)
-{
-    int32_t const dif = targetval - val;
-    return (dif>>1) ? val + (dif>>1) : targetval;
-}
-
 void rotatepoint(vec2_t const pivot, vec2_t p, int16_t const daang, vec2_t * const p2) ATTRIBUTE((nonnull(4)));
 inline void rotatepoint(int px, int py, int ptx, int pty, int daang, int* resx, int* resy)
 {
@@ -446,6 +478,17 @@ inline void rotatepoint(int px, int py, int ptx, int pty, int daang, int* resx, 
 
 int32_t   lastwall(int16_t point);
 int32_t   nextsectorneighborz(int16_t sectnum, int32_t refz, int16_t topbottom, int16_t direction);
+inline sectortype* nextsectorneighborzptr(int16_t sectnum, int32_t refz, int16_t topbottom, int16_t direction)
+{
+	auto sect = nextsectorneighborz(sectnum, refz, topbottom, direction);
+	return sect == -1? nullptr : &sector[sect];
+}
+
+inline sectortype* nextsectorneighborzptr(sectortype* sectp, int32_t refz, int16_t topbottom, int16_t direction)
+{
+	auto sect = nextsectorneighborz(int(sectp - sector), refz, topbottom, direction);
+	return sect == -1? nullptr : &sector[sect];
+}
 
 int32_t   getceilzofslopeptr(usectorptr_t sec, int32_t dax, int32_t day) ATTRIBUTE((nonnull(1)));
 int32_t   getflorzofslopeptr(usectorptr_t sec, int32_t dax, int32_t day) ATTRIBUTE((nonnull(1)));
@@ -627,50 +670,6 @@ inline int inside_p(int32_t const x, int32_t const y, int const sectnum) { retur
 static inline int64_t compat_maybe_truncate_to_int32(int64_t val)
 {
     return enginecompatibility_mode != ENGINECOMPATIBILITY_NONE ? (int32_t)val : val;
-}
-
-static inline int32_t clipmove_old(int32_t *x, int32_t *y, int32_t *z, int16_t *sectnum, int32_t xvect, int32_t yvect, int32_t walldist,
-                   int32_t ceildist, int32_t flordist, uint32_t cliptype) ATTRIBUTE((nonnull(1,2,3,4)));
-
-static inline int32_t clipmove_old(int32_t *x, int32_t *y, int32_t *z, int16_t *sectnum, int32_t xvect, int32_t yvect, int32_t walldist,
-                   int32_t ceildist, int32_t flordist, uint32_t cliptype)
-{
-    vec3_t vector = { *x, *y, *z };
-
-    int32_t result = clipmove(&vector, sectnum, xvect, yvect, walldist, ceildist, flordist, cliptype);
-
-    *x = vector.x;
-    *y = vector.y;
-    *z = vector.z;
-
-    return result;
-}
-
-static inline int32_t pushmove_old(int32_t *x, int32_t *y, int32_t *z, int16_t *sectnum, int32_t walldist,
-                   int32_t ceildist, int32_t flordist, uint32_t cliptype) ATTRIBUTE((nonnull(1,2,3,4)));
-
-static inline int32_t pushmove_old(int32_t *x, int32_t *y, int32_t *z, int16_t *sectnum, int32_t walldist,
-                   int32_t ceildist, int32_t flordist, uint32_t cliptype)
-{
-    vec3_t vector = { *x, *y, *z };
-
-    int32_t result = pushmove(&vector, sectnum, walldist, ceildist, flordist, cliptype);
-
-    *x = vector.x;
-    *y = vector.y;
-    *z = vector.z;
-
-    return result;
-}
-
-static inline void getzrange_old(int32_t x, int32_t y, int32_t z, int16_t sectnum, int32_t *ceilz, int32_t *ceilhit, int32_t *florz,
-                 int32_t *florhit, int32_t walldist, uint32_t cliptype) ATTRIBUTE((nonnull(5,6,7,8)));
-
-static inline void getzrange_old(int32_t x, int32_t y, int32_t z, int16_t sectnum, int32_t *ceilz, int32_t *ceilhit, int32_t *florz,
-                 int32_t *florhit, int32_t walldist, uint32_t cliptype)
-{
-    const vec3_t vector = { x, y, z };
-    getzrange(&vector, sectnum, ceilz, ceilhit, florz, florhit, walldist, cliptype);
 }
 
 static inline int32_t setspritez_old(int16_t spritenum, int32_t x, int32_t y, int32_t z)

@@ -277,7 +277,7 @@ void DoRotatorSetInterp(short SpriteNum)
         StartInterpolation(w, Interp_Wall_Y);
 
         uint16_t const nextwall = wall[w].nextwall;
-        if (nextwall < MAXWALLS)
+        if (validWallIndex(nextwall))
         {
             StartInterpolation(wall[nextwall].point2, Interp_Wall_X);
             StartInterpolation(wall[nextwall].point2, Interp_Wall_Y);
@@ -300,7 +300,7 @@ void DoRotatorStopInterp(short SpriteNum)
         StopInterpolation(w, Interp_Wall_Y);
 
         uint16_t const nextwall = wall[w].nextwall;
-        if (nextwall < MAXWALLS)
+        if (validWallIndex(nextwall))
         {
             StopInterpolation(wall[nextwall].point2, Interp_Wall_X);
             StopInterpolation(wall[nextwall].point2, Interp_Wall_Y);
@@ -433,10 +433,10 @@ int DoRotatorMove(short SpriteNum)
     return 0;
 }
 
-int DoRotator(short SpriteNum)
+int DoRotator(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = u->SpriteP;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     // could move this inside sprite control
     DoRotatorMove(SpriteNum);
@@ -448,16 +448,6 @@ int DoRotator(short SpriteNum)
 
 static saveable_code saveable_rotator_code[] =
 {
-    SAVE_CODE(ReverseRotator),
-    SAVE_CODE(RotatorSwitch),
-    SAVE_CODE(SetRotatorActive),
-    SAVE_CODE(SetRotatorInactive),
-    SAVE_CODE(DoRotatorOperate),
-    SAVE_CODE(DoRotatorMatch),
-    SAVE_CODE(TestRotatorMatchActive),
-    SAVE_CODE(DoRotatorSetInterp),
-    SAVE_CODE(DoRotatorStopInterp),
-    SAVE_CODE(DoRotatorMove),
     SAVE_CODE(DoRotator)
 };
 

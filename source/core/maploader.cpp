@@ -206,7 +206,7 @@ static void SetWallPalV5()
 	}
 }
 
-static void ValidateSprite(spritetype& spr)
+void ValidateSprite(spritetype& spr)
 {
 	int index = int(&spr - sprite);
 	bool bugged = false;
@@ -222,13 +222,15 @@ static void ValidateSprite(spritetype& spr)
 	}
 	else if ((unsigned)spr.sectnum >= (unsigned)numsectors)
 	{
-		const int32_t osectnum = spr.sectnum;
+		int sectnum = -1;
+		updatesector(spr.x, spr.y, &sectnum);
 
-		spr.sectnum = -1;
-		updatesector(spr.x, spr.y, &spr.sectnum);
-
-		bugged = spr.sectnum < 0;
-		if (bugged) Printf("Sprite #%d (%d,%d) with invalid sector %d\n", index, spr.x, spr.y, spr.sectnum);
+		if (!DPrintf(DMSG_WARNING, "Sprite #%d (%d,%d) with invalid sector %d was corrected to sector %d\n", index, spr.x, spr.y, spr.sectnum, sectnum))
+		{
+			bugged = sectnum < 0;
+			if (bugged) Printf("Sprite #%d (%d,%d) with invalid sector %d\n", index, spr.x, spr.y, spr.sectnum);
+		}
+		spr.sectnum = sectnum;
 	}
 	if (bugged)
 	{
@@ -332,7 +334,7 @@ static void ReadSpriteV5(FileReader& fr, spritetype& spr)
 }
 
 
-static void insertAllSprites(const char* filename, const vec3_t* pos, int16_t* cursectnum, int16_t numsprites)
+static void insertAllSprites(const char* filename, const vec3_t* pos, int* cursectnum, int16_t numsprites)
 {
 	// This function is stupid because it exploits side effects of insertsprite and should be redone by only inserting the valid sprites.
 	int i, realnumsprites = numsprites;
@@ -373,7 +375,7 @@ static void insertAllSprites(const char* filename, const vec3_t* pos, int16_t* c
 
 void addBlockingPairs();
 
-void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang, int16_t* cursectnum)
+void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang, int* cursectnum)
 {
 	inputState.ClearAllInput();
 	memset(sector, 0, sizeof(*sector) * MAXSECTORS);
@@ -469,6 +471,7 @@ void loadMapBackup(const char* filename)
 {
 	vec3_t pos;
 	int16_t scratch;
+	int scratch2;
 
 	if (isBlood())
 	{
@@ -476,7 +479,7 @@ void loadMapBackup(const char* filename)
 	}
 	else
 	{
-		engineLoadBoard(filename, 0, &pos, &scratch, &scratch);
+		engineLoadBoard(filename, 0, &pos, &scratch, &scratch2);
 		initspritelists();
 	}
 }

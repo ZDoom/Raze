@@ -36,7 +36,7 @@
 #include <assert.h>
 #include "mapinfo.h"
 #include "g_mapinfo.h"
-#include "templates.h"
+
 #include "filesystem.h"
 #include "cmdlib.h"
 #include "v_video.h"

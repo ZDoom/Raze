@@ -99,8 +99,8 @@ bool GameInterface::StartGame(FNewGameStartup& gs)
 {
 	int32_t skillsound = PISTOL_BODYHIT;
 
-	static const short sounds_d[] = { JIBBED_ACTOR6, BONUS_SPEECH1, DUKE_GETWEAPON2, JIBBED_ACTOR5, JIBBED_ACTOR5 };
-	static const short sounds_r[] = { 427, 428, 196, 195, 197 };
+	static const uint16_t sounds_d[] = { JIBBED_ACTOR6, BONUS_SPEECH1, DUKE_GETWEAPON2, JIBBED_ACTOR5, JIBBED_ACTOR5 };
+	static const uint16_t sounds_r[] = { 427, 428, 196, 195, 197 };
 	if (gs.Skill >=0 && gs.Skill <= 5) skillsound = isRR()? sounds_r[gs.Skill] : sounds_d[gs.Skill];
 
 	if (menu_sounds && skillsound >= 0 && SoundEnabled() && !netgame)

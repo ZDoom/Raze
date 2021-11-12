@@ -73,8 +73,8 @@ void HackSeqCallback(int, DBloodActor* actor)
 	int height = (pSprite->yrepeat * pDudeInfo->eyeHeight) << 2;
 	int height2 = (pTarget->yrepeat * pDudeInfoT->eyeHeight) << 2;
 	int dz = height - height2;
-	int dx = CosScale16(nAngle);
-	int dy = SinScale16(nAngle);
+	int dx = bcos(nAngle);
+	int dy = bsin(nAngle);
 	sfxPlay3DSound(pSprite, 1101, 1, 0);
 	actFireVector(actor, 0, 0, dx, dy, dz, kVectorAxe);
 }

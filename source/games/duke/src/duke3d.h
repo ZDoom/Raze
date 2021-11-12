@@ -19,6 +19,7 @@
 #include "soundefs.h"
 #include "gamestruct.h"
 #include "v_draw.h"
+#include "gamefuncs.h"
 
 BEGIN_DUKE_NS
 
@@ -88,14 +89,14 @@ struct Dispatcher
 	void (*checkhitsprite)(DDukeActor* i, DDukeActor* sn);
 	void (*checksectors)(int low);
 
-	bool (*ceilingspace)(int sectnum);
-	bool (*floorspace)(int sectnum);
+	bool (*ceilingspace)(sectortype* sectp);
+	bool (*floorspace)(sectortype* sectp);
 	void (*addweapon)(struct player_struct *p, int weapon);
 	void (*hitradius)(DDukeActor* i, int  r, int  hp1, int  hp2, int  hp3, int  hp4);
-	void (*lotsofmoney)(DDukeActor *s, short n);
-	void (*lotsofmail)(DDukeActor *s, short n);
-	void (*lotsofpaper)(DDukeActor *s, short n);
-	void (*guts)(DDukeActor* s, short gtype, short n, short p);
+	void (*lotsofmoney)(DDukeActor *s, int n);
+	void (*lotsofmail)(DDukeActor *s, int n);
+	void (*lotsofpaper)(DDukeActor *s, int n);
+	void (*guts)(DDukeActor* s, int gtype, int n, int p);
 	DDukeActor* (*ifhitsectors)(int sectnum);
 	int  (*ifhitbyweapon)(DDukeActor* sectnum);
 	void (*fall)(DDukeActor* actor, int g_p);

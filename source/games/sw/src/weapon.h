@@ -160,7 +160,7 @@ int DoActorBeginSlide(int SpriteNum, short ang, short vel, short dec);
 int GetOverlapSector(int x, int y, short *over, short *under);
 bool MissileHitDiveArea(short SpriteNum);
 
-int DoDamageTest(short);
+int DoDamageTest(DSWActor*);
 
 extern short StatDamageList[STAT_DAMAGE_LIST_SIZE];
 
@@ -208,10 +208,10 @@ void InitSpellRing(PLAYERp pp);
 void InitSpellNapalm(PLAYERp pp);
 int InitUzi(PLAYERp pp);
 int InitSobjGun(PLAYERp pp);
-int InitBoltTrap(short SpriteNum);
+int InitBoltTrap(DSWActor* actor);
 int InitSpearTrap(short SpriteNum);
 int InitTurretMgun(SECTOR_OBJECTp sop);
-int InitVulcanBoulder(short SpriteNum);
+int InitVulcanBoulder(DSWActor* actor);
 int DoBladeDamage(short SpriteNum);
 int DoFindGround(int16_t SpriteNum);
 int DoFindGroundPoint(int16_t SpriteNum);
@@ -233,7 +233,7 @@ int SpawnTracerExp(int16_t Weapon);
 int SpawnGoroFireballExp(int16_t Weapon);
 bool MissileHitMatch(short Weapon,short WeaponNum,short hit_sprite);
 int DoItemFly(int16_t SpriteNum);
-int SpawnVehicleSmoke(short SpriteNum);
+int SpawnVehicleSmoke(DSWActor* actor);
 short PrevWall(short wall_num);
 int DoDamage(short SpriteNum,short Weapon);
 

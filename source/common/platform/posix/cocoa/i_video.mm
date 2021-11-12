@@ -121,8 +121,8 @@ namespace
 	const NSInteger LEVEL_FULLSCREEN = NSMainMenuWindowLevel + 1;
 	const NSInteger LEVEL_WINDOWED   = NSNormalWindowLevel;
 
-	const NSUInteger STYLE_MASK_FULLSCREEN = NSBorderlessWindowMask;
-	const NSUInteger STYLE_MASK_WINDOWED   = NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask | NSResizableWindowMask;
+	const NSUInteger STYLE_MASK_FULLSCREEN = NSWindowStyleMaskBorderless;
+	const NSUInteger STYLE_MASK_WINDOWED   = NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable;
 }
 
 
@@ -969,7 +969,7 @@ bool I_GetVulkanPlatformExtensions(unsigned int *count, const char **names)
 	else
 	{
 		const bool result = *count >= extensionCount;
-		*count = std::min(*count, extensionCount);
+		*count = min(*count, extensionCount);
 
 		for (unsigned int i = 0; i < *count; ++i)
 		{

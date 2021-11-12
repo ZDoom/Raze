@@ -217,10 +217,7 @@ void S_PauseSound(bool notmusic, bool notsfx);
 void S_ResumeSound(bool notsfx);
 void S_SetSoundPaused(int state);
 
-enum
-{
-	MaxSmoothRatio = FRACUNIT
-};
+const int MaxSmoothRatio = FRACUNIT;
 
 FString G_GetDemoPath();
 

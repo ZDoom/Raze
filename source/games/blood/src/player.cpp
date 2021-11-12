@@ -267,7 +267,7 @@ char powerupActivate(PLAYER *pPlayer, int nPowerUp)
                     pPlayer->pwUpTime[kPwUpShadowCloak] = 0;
                 }
 
-                if (ceilIsTooLow(pPlayer->pSprite))
+                if (ceilIsTooLow(pPlayer->actor()))
                     actDamageSprite(pPlayer->actor(), pPlayer->actor(), kDamageExplode, 65535);
             }
             break;
@@ -315,7 +315,7 @@ void powerupDeactivate(PLAYER *pPlayer, int nPowerUp)
         case kItemShroomShrink:
             if (gModernMap) {
                 playerSizeReset(pPlayer);
-                if (ceilIsTooLow(pPlayer->pSprite))
+                if (ceilIsTooLow(pPlayer->actor()))
                     actDamageSprite(pPlayer->actor(), pPlayer->actor(), kDamageExplode, 65535);
             }
             break;
@@ -724,7 +724,7 @@ void playerStart(int nPlayer, int bNewLevel)
     pPlayer->throwPower = 0;
     pPlayer->deathTime = 0;
     pPlayer->nextWeapon = kWeapNone;
-    xvel[pSprite->index] = yvel[pSprite->index] = zvel[pSprite->index] = 0;
+    actor->xvel() = actor->yvel() = actor->zvel() = 0;
     pInput->avel = 0;
     pInput->actions = 0;
     pInput->fvel = 0;
@@ -1245,8 +1245,8 @@ int ActionScan(PLAYER *pPlayer, int *a2, int *a3)
     *a2 = 0;
     *a3 = 0;
     spritetype *pSprite = pPlayer->pSprite;
-    int x = CosScale16(pSprite->ang);
-    int y = SinScale16(pSprite->ang);
+    int x = bcos(pSprite->ang);
+    int y = bsin(pSprite->ang);
     int z = pPlayer->slope;
     int hit = HitScan(pSprite, pPlayer->zView, x, y, z, 0x10000040, 128);
     int hitDist = approxDist(pSprite->x-gHitInfo.hitx, pSprite->y-gHitInfo.hity)>>4;
@@ -1338,8 +1338,8 @@ void doslopetilting(PLAYER* pPlayer, double const scaleAdjust = 1)
 {
     auto* const pSprite = pPlayer->pSprite;
     auto* const pXSprite = pPlayer->pXSprite;
-    int const florhit = gSpriteHit[pSprite->extra].florhit & 0xc000;
-    char const va = pXSprite->height < 16 && (florhit == 0x4000 || florhit == 0) ? 1 : 0;
+    int const florhit = gSpriteHit[pSprite->extra].florhit.type;
+    char const va = pXSprite->height < 16 && (florhit == kHitSector || florhit == 0) ? 1 : 0;
     pPlayer->horizon.calcviewpitch(pSprite->pos.vec2, buildang(pSprite->ang), va, sector[pSprite->sectnum].floorstat & 2, pSprite->sectnum, scaleAdjust);
 }
 
@@ -1380,7 +1380,7 @@ void ProcessInput(PLAYER *pPlayer)
         }
         pPlayer->deathTime += 4;
         if (!bSeqStat)
-            pPlayer->horizon.addadjustment(FixedToFloat(MulScale(0x8000-(Cos(ClipHigh(pPlayer->deathTime<<3, 1024))>>15), gi->playerHorizMax(), 16) - pPlayer->horizon.horiz.asq16()));
+            pPlayer->horizon.addadjustment(q16horiz(MulScale(0x8000-(Cos(ClipHigh(pPlayer->deathTime<<3, 1024))>>15), gi->playerHorizMax(), 16) - pPlayer->horizon.horiz.asq16()));
         if (pPlayer->curWeapon)
             pInput->setNewWeapon(pPlayer->curWeapon);
         if (pInput->actions & SB_OPEN)
@@ -1579,8 +1579,8 @@ void ProcessInput(PLAYER *pPlayer)
             spritetype* pSprite2 = &spawned->s();
             pSprite2->ang = (pPlayer->pSprite->ang+1024)&2047;
             int nSprite = pPlayer->pSprite->index;
-            int x = CosScale16(pPlayer->pSprite->ang);
-            int y = SinScale16(pPlayer->pSprite->ang);
+            int x = bcos(pPlayer->pSprite->ang);
+            int y = bsin(pPlayer->pSprite->ang);
             xvel[pSprite2->index] = xvel[nSprite] + MulScale(0x155555, x, 14);
             yvel[pSprite2->index] = yvel[nSprite] + MulScale(0x155555, y, 14);
             zvel[pSprite2->index] = zvel[nSprite];
@@ -1667,8 +1667,8 @@ void playerProcess(PLAYER *pPlayer)
     int dw = pSprite->clipdist<<2;
     if (!gNoClip)
     {
-        short nSector = pSprite->sectnum;
-        if (pushmove_old(&pSprite->x, &pSprite->y, &pSprite->z, &nSector, dw, dzt, dzb, CLIPMASK0) == -1)
+        int nSector = pSprite->sectnum;
+        if (pushmove(&pSprite->pos, &nSector, dw, dzt, dzb, CLIPMASK0) == -1)
             actDamageSprite(actor, actor, kDamageFall, 500<<4);
         if (pSprite->sectnum != nSector)
         {
@@ -2123,9 +2123,9 @@ void voodooTarget(PLAYER *pPlayer)
     for (int i = 0; i < 4; i++)
     {
         int ang1 = (pPlayer->voodooVar1+pPlayer->vodooVar2)&2047;
-        actFireVector(actor, 0, dz, CosScale16(ang1), SinScale16(ang1), v4, kVectorVoodoo10);
+        actFireVector(actor, 0, dz, bcos(ang1), bsin(ang1), v4, kVectorVoodoo10);
         int ang2 = (pPlayer->voodooVar1+2048-pPlayer->vodooVar2)&2047;
-        actFireVector(actor, 0, dz, CosScale16(ang2), SinScale16(ang2), v4, kVectorVoodoo10);
+        actFireVector(actor, 0, dz, bcos(ang2), bsin(ang2), v4, kVectorVoodoo10);
     }
     pPlayer->voodooTargets = ClipLow(pPlayer->voodooTargets-1, 0);
 }
@@ -2151,11 +2151,11 @@ void playerLandingSound(PLAYER *pPlayer)
     };
     spritetype *pSprite = pPlayer->pSprite;
     SPRITEHIT *pHit = &gSpriteHit[pSprite->extra];
-    if (pHit->florhit)
+    if (pHit->florhit.type != kHitNone)
     {
-        if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pPlayer, &sprite[pHit->florhit & 0x3fff]))
+        if (!gGameOptions.bFriendlyFire && pHit->florhit.type == kHitSprite && IsTargetTeammate(pPlayer, &pHit->florhit.actor->s()))
             return;
-        char nSurf = tileGetSurfType(pHit->florhit);
+        int nSurf = tileGetSurfType(pHit->florhit);
         if (nSurf)
             sfxPlay3DSound(pSprite, surfaceSound[nSurf], -1, 0);
     }
@@ -2355,7 +2355,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, TRPLAYERCTRL& w, T
 {
     if (arc.BeginObject(keyname))
     {
-        arc("index", w.qavScene.index)
+        arc("index", w.qavScene.initiator)
             ("dummy", w.qavScene.dummy)
             .EndObject();
     }

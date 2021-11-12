@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamestruct.h"
 #include "intvec.h"
 
+TArray<int> GlobalSectorList; //This is a shared list. Every client must leave it in the same state as it was when it started.
 
 //---------------------------------------------------------------------------
 //
@@ -33,7 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 int cameradist, cameraclock;
 
-bool calcChaseCamPos(int* px, int* py, int* pz, spritetype* pspr, short *psectnum, binangle ang, fixedhoriz horiz, double const smoothratio)
+bool calcChaseCamPos(int* px, int* py, int* pz, spritetype* pspr, int *psectnum, binangle ang, fixedhoriz horiz, double const smoothratio)
 {
 	hitdata_t hitinfo;
 	binangle daang;

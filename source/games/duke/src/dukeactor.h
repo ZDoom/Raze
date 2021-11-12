@@ -179,13 +179,13 @@ inline int movesprite_ex(DDukeActor* actor, int xchange, int ychange, int zchang
 	return f(actor, xchange, ychange, zchange, cliptype, result);
 }
 
-inline int clipmove_ex(int* x, int* y, int* z, short* sect, int xv, int yv, int wal, int ceil, int flor, int ct, Collision& result)
+inline int clipmove_ex(vec3_t* pos, int* sect, int xv, int yv, int wal, int ceil, int flor, int ct, Collision& result)
 {
-	int res = clipmove(x, y, z, sect, xv, yv, wal, ceil, flor, ct);
+	int res = clipmove(pos, sect, xv, yv, wal, ceil, flor, ct);
 	return result.setFromEngine(res);
 }
 
-inline void getzrange_ex(int x, int y, int z, int16_t sectnum, int32_t* ceilz, Collision& ceilhit, int32_t* florz, Collision& florhit, int32_t walldist, uint32_t cliptype)
+inline void getzrange_ex(int x, int y, int z, int sectnum, int32_t* ceilz, Collision& ceilhit, int32_t* florz, Collision& florhit, int32_t walldist, uint32_t cliptype)
 {
 	int ch, fh;
 	getzrange(x, y, z, sectnum, ceilz, &ch, florz, &fh, walldist, cliptype);
@@ -193,22 +193,27 @@ inline void getzrange_ex(int x, int y, int z, int16_t sectnum, int32_t* ceilz, C
 	florhit.setFromEngine(fh);
 }
 
-inline int hitscan(int x, int y, int z, int16_t sectnum, int32_t vx, int32_t vy, int32_t vz,
-	short* hitsect, short* hitwall, DDukeActor** hitspr, int* hitx, int* hity, int* hitz, uint32_t cliptype)
+inline int hitscan(int x, int y, int z, int sectnum, int32_t vx, int32_t vy, int32_t vz,
+	int* hitsect, int* hitwall, DDukeActor** hitspr, int* hitx, int* hity, int* hitz, uint32_t cliptype)
 {
-	short hitsprt;
-	int res = ::hitscan(x, y, z, sectnum, vx, vy, vz, hitsect, hitwall, &hitsprt, hitx, hity, hitz, cliptype);
+	short hitsprt, hitsct, hitwal;
+	int res = ::hitscan(x, y, z, sectnum, vx, vy, vz, &hitsct, &hitwal, &hitsprt, hitx, hity, hitz, cliptype);
 	if (hitspr) *hitspr = hitsprt == -1 ? nullptr : &hittype[hitsprt];
+	if (hitsect) *hitsect = hitsct;
+	if (hitwall) *hitwall = hitwal;
 	return res;
 }
 
-inline void   neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange,
-	int16_t* neartagsector, int16_t* neartagwall, DDukeActor** neartagsprite,
+inline void   neartag(int32_t xs, int32_t ys, int32_t zs, int sectnum, int ange,
+	int* neartagsector, int* neartagwall, DDukeActor** neartagsprite,
 	int32_t* neartaghitdist, int32_t neartagrange, uint8_t tagsearch)
 {
 	int16_t nts;
-	::neartag(xs, ys, zs, sectnum, ange, neartagsector, neartagwall, &nts, neartaghitdist, neartagrange, tagsearch);
+	int16_t ntsec, ntwal;
+	::neartag(xs, ys, zs, sectnum, ange, &ntsec, &ntwal, &nts, neartaghitdist, neartagrange, tagsearch);
 	*neartagsprite = nts == -1 ? nullptr : &hittype[nts];
+	*neartagsector = ntsec;
+	*neartagwall = ntwal;
 }
 
 

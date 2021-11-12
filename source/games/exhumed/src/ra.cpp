@@ -75,9 +75,10 @@ void FreeRa(short nPlayer)
 
 void BuildRa(short nPlayer)
 {
-    short nPlayerSprite = PlayerList[nPlayer].nSprite;
+    auto pPlayerActor = PlayerList[nPlayer].Actor();
+    auto pPlayerSprite = &pPlayerActor->s();
 
-    auto pActor = insertActor(sprite[nPlayerSprite].sectnum, 203);
+    auto pActor = insertActor(pPlayerSprite->sectnum, 203);
 	auto pSprite = &pActor->s();
 
     pSprite->cstat = 0x8000;
@@ -91,9 +92,7 @@ void BuildRa(short nPlayer)
     pSprite->pal = 1;
     pSprite->xrepeat = 64;
     pSprite->yrepeat = 64;
-    pSprite->x = sprite[nPlayerSprite].x;
-    pSprite->y = sprite[nPlayerSprite].y;
-    pSprite->z = sprite[nPlayerSprite].z;
+    pSprite->pos = pPlayerSprite->pos;
 
 //	GrabTimeSlot(3);
 
@@ -122,7 +121,7 @@ void MoveRaToEnemy(short nPlayer)
     if (pTarget)
     {
 		auto pTargSprite = &pTarget->s();
-        if (!(pTargSprite->cstat & 0x101) || pTargSprite->sectnum == MAXSECTORS)
+        if (!(pTargSprite->cstat & 0x101) || pTargSprite->statnum == MAXSTATUS)
         {
             Ra[nPlayer].pTarget = nullptr;
             if (nAction == 0 || nAction == 3) {
@@ -178,7 +177,7 @@ void AIRa::Tick(RunListEvent* ev)
 
     bool bVal = false;
 
-    Ra[nPlayer].pTarget =  sPlayerInput[nPlayer].nTarget <= -1? nullptr : &exhumedActors[sPlayerInput[nPlayer].nTarget] ;
+    Ra[nPlayer].pTarget = sPlayerInput[nPlayer].pTarget;
     pSprite->picnum = seq_GetSeqPicnum2(nSeq, Ra[nPlayer].nFrame);
 
     if (Ra[nPlayer].nAction)
@@ -299,11 +298,5 @@ void AIRa::Draw(RunListEvent* ev)
     ev->pTSprite->owner = -1;
 }
 
-void FuncRa(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AIRa ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
-
-}
 
 END_PS_NS

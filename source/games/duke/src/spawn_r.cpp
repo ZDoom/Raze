@@ -49,6 +49,7 @@ int spawn_r(int j, int pn)
 	auto spj = j < 0? nullptr : actj->s;
 	auto t = act->temp_data;
 	int sect = sp->sectnum;
+	auto sectp = sp->sector();
 
 	switch(sp->picnum)
 	{
@@ -221,17 +222,17 @@ int spawn_r(int j, int pn)
 				sp->cstat |= 128;
 				if (j >= 0)
 				{
-					if (sector[spj->sectnum].lotag == 2)
+					if (spj->sector()->lotag == 2)
 					{
 						sp->z = getceilzofslope(sp->sectnum, sp->x, sp->y) + (16 << 8);
 						sp->cstat |= 8;
 					}
-					else if (sector[spj->sectnum].lotag == 1)
+					else if (spj->sector()->lotag == 1)
 						sp->z = getflorzofslope(sp->sectnum, sp->x, sp->y);
 				}
 
-				if(sector[sect].floorpicnum == FLOORSLIME ||
-					sector[sect].ceilingpicnum == FLOORSLIME)
+				if(sectp->floorpicnum == FLOORSLIME ||
+					sectp->ceilingpicnum == FLOORSLIME)
 						sp->pal = 7;
 			case NEON1:
 			case NEON2:
@@ -321,7 +322,7 @@ int spawn_r(int j, int pn)
 			case FORCESPHERE:
 				if (j == -1)
 				{
-					sp->cstat = (short)32768;
+					sp->cstat = 32768;
 					changespritestat(i,2);
 				}
 				else
@@ -603,16 +604,13 @@ int spawn_r(int j, int pn)
 					changespritestat(i, STAT_MISC);
 					break;
 				}
-				sp->cstat = (short)32768;
+				sp->cstat = 32768;
 				changespritestat(i,11);
 				break;
 			case SOUNDFX:
 				{
-					short tg;
 					sp->cstat |= 32768;
 					changespritestat(i,2);
-					tg = sp->hitag;
-					tg = sp->lotag;
 				}
 				break;
 			case EXPLOSION2:
@@ -668,7 +666,7 @@ int spawn_r(int j, int pn)
 					sp->xrepeat = spj->xrepeat;
 					sp->yrepeat = spj->yrepeat;
 					sp->zvel = 128;
-					if(sector[sp->sectnum].lotag != 2)
+					if(sp->sector()->lotag != 2)
 						sp->cstat |= 32768;
 				}
 				changespritestat(i,13);
@@ -718,9 +716,9 @@ int spawn_r(int j, int pn)
 				changespritestat(i,6);
 				break;
 			case TOUCHPLATE:
-				t[2] = sector[sect].floorz;
-				if(sector[sect].lotag != 1 && sector[sect].lotag != 2)
-					sector[sect].floorz = sp->z;
+				t[2] = sectp->floorz;
+				if(sectp->lotag != 1 && sectp->lotag != 2)
+					sectp->floorz = sp->z;
 				if(sp->pal && ud.multimode > 1)
 				{
 					sp->xrepeat=sp->yrepeat=0;
@@ -1071,7 +1069,7 @@ int spawn_r(int j, int pn)
 //                sp->xrepeat=sp->yrepeat=0;
 				sp->cstat |= 32768;
 				if (sp->picnum == ACTIVATORLOCKED)
-					sector[sect].lotag ^= 16384;
+					sectp->lotag ^= 16384;
 				changeactorstat(act, STAT_ACTIVATOR);
 				break;
 			case DOORSHOCK:
@@ -1314,7 +1312,7 @@ int spawn_r(int j, int pn)
 					sp->yrepeat = 16;
 					break;
 				}
-				sp->shade = sector[sp->sectnum].floorshade;
+				sp->shade = sp->sector()->floorshade;
 				break;
 			case WATERFOUNTAIN:
 				sp->lotag = 1;
@@ -1370,7 +1368,7 @@ int spawn_r(int j, int pn)
 				sp->shade = -16;
 				if(sp->xrepeat <= 8)
 				{
-					sp->cstat = (short)32768;
+					sp->cstat = 32768;
 					sp->xrepeat=sp->yrepeat=0;
 				}
 				else sp->cstat = 1+256;

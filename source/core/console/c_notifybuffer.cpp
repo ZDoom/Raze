@@ -65,7 +65,7 @@ CVAR(Bool, con_centernotify, false, CVAR_ARCHIVE)
 CVAR(Bool, con_pulsetext, false, CVAR_ARCHIVE)
 CVAR(Bool, con_notify_advanced, false, CVAR_ARCHIVE)
 
-enum { NOTIFYFADETIME = 6 };
+const int NOTIFYFADETIME = 6;
 
 CUSTOM_CVAR(Int, con_notifylines, 4, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
 {

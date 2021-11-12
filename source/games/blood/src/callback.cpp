@@ -394,8 +394,9 @@ void fxBloodBits(DBloodActor* actor, int) // 14
 {
     if (!actor) return;
     spritetype *pSprite = &actor->s();
-    int ceilZ, ceilHit, floorZ, floorHit;
-    GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, pSprite->clipdist, CLIPMASK0);
+    int ceilZ, floorZ;
+    Collision floorColl, ceilColl;
+    GetZRange(pSprite, &ceilZ, &ceilColl, &floorZ, &floorColl, pSprite->clipdist, CLIPMASK0);
     int top, bottom;
     GetSpriteExtents(pSprite, &top, &bottom);
     pSprite->z += floorZ-bottom;
@@ -441,19 +442,22 @@ int sawedOffSleeveSnd[] = { 610, 612 };
 void fxBouncingSleeve(DBloodActor* actor, int) // 16
 {
     if (!actor) return;
-    spritetype* pSprite = &actor->s(); int ceilZ, ceilHit, floorZ, floorHit;
-    GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, pSprite->clipdist, CLIPMASK0);
+    spritetype* pSprite = &actor->s(); 
+    int ceilZ, floorZ;
+    Collision floorColl, ceilColl;
+
+    GetZRange(pSprite, &ceilZ, &ceilColl, &floorZ, &floorColl, pSprite->clipdist, CLIPMASK0);
     int top, bottom; GetSpriteExtents(pSprite, &top, &bottom);
     pSprite->z += floorZ - bottom;
     
     int zv = actor->zvel() - velFloor[pSprite->sectnum];
     
-    if (actor->zvel() == 0) sleeveStopBouncing(pSprite);
+    if (actor->zvel() == 0) sleeveStopBouncing(actor);
     else if (zv > 0) {
         actFloorBounceVector((int*)& actor->xvel(), (int*)& actor->yvel(), &zv, pSprite->sectnum, 0x9000);
         actor->zvel() = zv;
         if (velFloor[pSprite->sectnum] == 0 && abs(actor->zvel()) < 0x20000)  {
-            sleeveStopBouncing(pSprite);
+            sleeveStopBouncing(actor);
             return;
         }
 
@@ -474,8 +478,10 @@ void fxBouncingSleeve(DBloodActor* actor, int) // 16
 }
 
 
-void sleeveStopBouncing(spritetype* pSprite) {
-    xvel[pSprite->index] = yvel[pSprite->index] = zvel[pSprite->index] = 0;
+void sleeveStopBouncing(DBloodActor* actor) 
+{
+    auto pSprite = &actor->s();
+    actor->xvel() = actor->yvel() = actor->zvel() = 0;
     if (pSprite->extra > 0) seqKill(3, pSprite->extra);
     sfxKill3DSound(pSprite, -1, -1);
 
@@ -501,11 +507,13 @@ void returnFlagToBase(DBloodActor* actor, int) // 17
 {
     if (!actor) return;
     spritetype* pSprite = &actor->s();
-    if (pSprite->owner >= 0 && pSprite->owner < kMaxSprites)
+    auto owner = actor->GetOwner();
+    if (owner)
     {
-        spritetype* pOwner = &sprite[pSprite->owner];
-        XSPRITE* pXOwner = &xsprite[pOwner->extra];
-        switch (pSprite->type) {
+        spritetype* pOwner = &owner->s();
+        XSPRITE* pXOwner = &owner->x();
+        switch (pSprite->type) 
+        {
             case kItemFlagA:
                 trTriggerSprite(pOwner->index, pXOwner, kCmdOn);
                 sndStartSample(8003, 255, 2, 0);
@@ -546,8 +554,10 @@ void fxPodBloodSplat(DBloodActor* actor, int) // 19
 {
     if (!actor) return;
     spritetype *pSprite = &actor->s();
-    int ceilZ, ceilHit, floorZ, floorHit;
-    GetZRange(pSprite, &ceilZ, &ceilHit, &floorZ, &floorHit, pSprite->clipdist, CLIPMASK0);
+    int ceilZ, floorZ;
+    Collision floorColl, ceilColl;
+
+    GetZRange(pSprite, &ceilZ, &ceilColl, &floorZ, &floorColl, pSprite->clipdist, CLIPMASK0);
     int top, bottom;
     GetSpriteExtents(pSprite, &top, &bottom);
     pSprite->z += floorZ-bottom;
@@ -605,7 +615,7 @@ void sub_76A08(DBloodActor *actor, spritetype *pSprite2, PLAYER *pPlayer) // ???
     pSprite->y = pSprite2->y;
     pSprite->z = sector[pSprite2->sectnum].floorz-(bottom-pSprite->z);
     pSprite->ang = pSprite2->ang;
-    ChangeSpriteSect(pSprite->index, pSprite2->sectnum);
+    ChangeActorSect(actor, pSprite2->sectnum);
     sfxPlay3DSound(pSprite2, 201, -1, 0);
     actor->xvel() = actor->yvel() = actor->zvel() = 0;
     viewBackupSpriteLoc(pSprite->index, pSprite);
@@ -743,16 +753,8 @@ void callbackCondition(DBloodActor* actor, int)
     for (unsigned i = 0; i < pCond->length; i++) {
         EVENT evn;  
         evn.type = pCond->obj[i].type;
-        if (evn.type == SS_SPRITE)
-        {
-            evn.index_ = 0;
-            evn.actor = &bloodActors[pCond->obj[i].index];
-        }
-        else
-        {
-            evn.actor = nullptr;
-            evn.index_ = pCond->obj[i].index;
-        }
+        evn.actor = pCond->obj[i].actor;
+        evn.index_ = pCond->obj[i].index_;
         evn.cmd = pCond->obj[i].cmd; 
         evn.funcID = kCallbackCondition;
         useCondition(&sprite[pXSprite->reference], pXSprite, evn);

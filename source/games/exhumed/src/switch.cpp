@@ -42,9 +42,9 @@ struct Switch
     short nChannel;
     short nLink;
     short nRunPtr;
-    short nSector;
+    int nSector;
     short nRun2;
-    short nWall;
+    int nWall;
     short nRun3;
     uint16_t nKeyMask;
 };
@@ -150,12 +150,6 @@ void AISWReady::Process(RunListEvent* ev)
     }
 }
 
-void FuncSwReady(int nObject, int nMessage, int, int nRun)
-{
-    AISWReady ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, 0, nRun);
-}
-
 std::pair<int, int> BuildSwPause(int nChannel, int nLink, int ebx)
 {
     for (int i = kMaxSwitches - 1; i >= SwitchCount; i--)
@@ -239,12 +233,6 @@ void AISWPause::Process(RunListEvent* ev)
     SwitchData[nSwitch].nWaitTimer = eax;
 }
 
-void FuncSwPause(int nObject, int nMessage, int, int nRun)
-{
-    AISWPause ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, 0, nRun);
-}
-
 std::pair<int, int> BuildSwStepOn(int nChannel, int nLink, int nSector)
 {
     if (SwitchCount <= 0 || nLink < 0 || nSector < 0)
@@ -267,7 +255,7 @@ void AISWStepOn::ProcessChannel(RunListEvent* ev)
 
     short nLink = SwitchData[nSwitch].nLink;
     short nChannel = SwitchData[nSwitch].nChannel;
-    short nSector = SwitchData[nSwitch].nSector;
+    int nSector =SwitchData[nSwitch].nSector;
 
     assert(sRunChannels[nChannel].c < 8);
 
@@ -292,7 +280,7 @@ void AISWStepOn::TouchFloor(RunListEvent* ev)
 
     short nLink = SwitchData[nSwitch].nLink;
     short nChannel = SwitchData[nSwitch].nChannel;
-    short nSector = SwitchData[nSwitch].nSector;
+    int nSector =SwitchData[nSwitch].nSector;
 
     assert(sRunChannels[nChannel].c < 8);
 
@@ -300,19 +288,13 @@ void AISWStepOn::TouchFloor(RunListEvent* ev)
 
     if (var_14 != sRunChannels[nChannel].c)
     {
-        short nWall = sector[nSector].wallptr;
+        int nWall = sector[nSector].wallptr;
         PlayFXAtXYZ(StaticSound[nSwitchSound], wall[nWall].x, wall[nWall].y, sector[nSector].floorz, nSector);
 
         assert(sRunChannels[nChannel].c < 8);
 
         runlist_ChangeChannel(nChannel, LinkMap[nLink].v[sRunChannels[nChannel].c]);
     }
-}
-
-void FuncSwStepOn(int nObject, int nMessage, int, int nRun)
-{
-    AISWStepOn ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, 0, nRun);
 }
 
 std::pair<int, int> BuildSwNotOnPause(int nChannel, int nLink, int nSector, int ecx)
@@ -385,7 +367,7 @@ void AISWNotOnPause::Process(RunListEvent* ev)
         {
             SwitchData[nSwitch].nRunPtr = runlist_AddRunRec(NewRun, &RunData[ev->nRun]);
 
-            short nSector = SwitchData[nSwitch].nSector;
+            int nSector =SwitchData[nSwitch].nSector;
 
             SwitchData[nSwitch].nWaitTimer = SwitchData[nSwitch].nWait;
             SwitchData[nSwitch].nRun2 = runlist_AddRunRec(sector[nSector].lotag - 1, &RunData[ev->nRun]);
@@ -399,12 +381,6 @@ void AISWNotOnPause::TouchFloor(RunListEvent* ev)
 
     SwitchData[nSwitch].nWaitTimer = SwitchData[nSwitch].nWait;
     return;
-}
-
-void FuncSwNotOnPause(int nObject, int nMessage, int, int nRun)
-{
-    AISWNotOnPause ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, 0, nRun);
 }
 
 std::pair<int, int> BuildSwPressSector(int nChannel, int nLink, int nSector, int keyMask)
@@ -443,7 +419,7 @@ void AISWPressSector::ProcessChannel(RunListEvent* ev)
         return;
     }
 
-    short nSector = SwitchData[nSwitch].nSector;
+    int nSector =SwitchData[nSwitch].nSector;
 
     SwitchData[nSwitch].nRun2 = runlist_AddRunRec(sector[nSector].lotag - 1, &RunData[ev->nRun]);
 }
@@ -465,8 +441,8 @@ void AISWPressSector::Use(RunListEvent* ev)
     {
         if (SwitchData[nSwitch].nKeyMask)
         {
-            short nSprite = PlayerList[nPlayer].nSprite;
-            PlayFXAtXYZ(StaticSound[nSwitchSound], sprite[nSprite].x, sprite[nSprite].y, 0, sprite[nSprite].sectnum, CHANF_LISTENERZ);
+            auto pSprite = &PlayerList[nPlayer].Actor()->s();
+            PlayFXAtXYZ(StaticSound[nSwitchSound], pSprite->x, pSprite->y, 0, pSprite->sectnum, CHANF_LISTENERZ);
 
             StatusMessage(300, "YOU NEED THE KEY FOR THIS DOOR");
         }
@@ -474,13 +450,7 @@ void AISWPressSector::Use(RunListEvent* ev)
 
 }
 
-void FuncSwPressSector(int nObject, int nMessage, int, int nRun)
-{
-    AISWPressSector ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, 0, nRun);
-}
-
-std::pair<int, int> BuildSwPressWall(short nChannel, short nLink, short nWall)
+std::pair<int, int> BuildSwPressWall(short nChannel, short nLink, int nWall)
 {
     if (SwitchCount <= 0 || nLink < 0 || nWall < 0) {
         I_Error("Too many switches!\n");
@@ -512,7 +482,7 @@ void AISWPressWall::Process(RunListEvent* ev)
 
     if (LinkMap[nLink].v[sRunChannels[nChannel].c] >= 0)
     {
-        short nWall = SwitchData[nSwitch].nWall;
+        int nWall = SwitchData[nSwitch].nWall;
         SwitchData[nSwitch].nRun3 = runlist_AddRunRec(wall[nWall].lotag - 1, &RunData[ev->nRun]);
     }
 }
@@ -535,15 +505,10 @@ void AISWPressWall::Use(RunListEvent* ev)
         SwitchData[nSwitch].nRun3 = -1;
     }
 
-    short nWall = SwitchData[nSwitch].nWall;
-    short nSector = SwitchData[nSwitch].nSector; // CHECKME - where is this set??
+    int nWall = SwitchData[nSwitch].nWall;
+    int nSector =SwitchData[nSwitch].nSector; // CHECKME - where is this set??
 
     PlayFXAtXYZ(StaticSound[nSwitchSound], wall[nWall].x, wall[nWall].y, 0, nSector, CHANF_LISTENERZ);
 }
 
-void FuncSwPressWall(int nObject, int nMessage, int, int nRun)
-{
-    AISWPressWall ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, 0, nRun);
-}
 END_PS_NS

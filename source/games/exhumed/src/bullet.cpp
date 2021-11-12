@@ -487,7 +487,7 @@ HITSPRITE:
 HITWALL:
             if (wall[hitwall].picnum == kEnergy1)
             {
-                short nSector = wall[hitwall].nextsector;
+                int nSector =wall[hitwall].nextsector;
                 if (nSector > -1)
                 {
                     short nDamage = BulletInfo[pBullet->nType].nDamage;
@@ -612,7 +612,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int n
         return nullptr;
     }
 
-    short nSector;
+    int nSector;
 
     if (pSprite->statnum == 100)
     {
@@ -707,7 +707,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int n
     pBulletSprite->z += nZOffset;
     pBulletSprite->backuppos();
 
-    int var_18;
+    int var_18 = 0;
 
     nSector = pBulletSprite->sectnum;
 
@@ -879,9 +879,4 @@ void AIBullet::Draw(RunListEvent* ev)
     }
 }
 
-void FuncBullet(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AIBullet ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
-}
 END_PS_NS

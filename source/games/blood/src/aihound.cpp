@@ -47,8 +47,8 @@ void houndBiteSeqCallback(int, DBloodActor* actor)
 {
 	XSPRITE* pXSprite = &actor->x();
 	spritetype* pSprite = &actor->s();
-	int dx = CosScale16(pSprite->ang);
-	int dy = SinScale16(pSprite->ang);
+	int dx = bcos(pSprite->ang);
+	int dy = bsin(pSprite->ang);
 	///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
 	if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
 		Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
@@ -69,7 +69,7 @@ void houndBiteSeqCallback(int, DBloodActor* actor)
 void houndBurnSeqCallback(int, DBloodActor* actor)
 {
 	spritetype* pSprite = &actor->s();
-    actFireMissile(actor, 0, 0, CosScale16(pSprite->ang), SinScale16(pSprite->ang), 0, kMissileFlameHound);
+    actFireMissile(actor, 0, 0, bcos(pSprite->ang), bsin(pSprite->ang), 0, kMissileFlameHound);
 }
 
 static void houndThinkSearch(DBloodActor* actor)

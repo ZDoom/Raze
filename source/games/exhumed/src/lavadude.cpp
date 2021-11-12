@@ -40,7 +40,7 @@ static actionSeq LavadudeSeq[] = {
 DExhumedActor* BuildLavaLimb(DExhumedActor* pActor, int move, int ebx)
 {
     auto pSprite = &pActor->s();
-    short nSector = pSprite->sectnum;
+    int nSector =pSprite->sectnum;
 
     auto pLimbActor = insertActor(nSector, 118);
 	auto pLimbSprite = &pLimbActor->s();
@@ -103,13 +103,8 @@ void AILavaDudeLimb::Draw(RunListEvent* ev)
     seq_PlotSequence(ev->nParam, (SeqOffsets[kSeqLavag] + 30) + pActor->s().picnum, 0, 1);
 }
 
-void  FuncLavaLimb(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AILavaDudeLimb ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
-}
 
-void BuildLava(DExhumedActor* pActor, int x, int y, int, short nSector, short nAngle, int nChannel)
+void BuildLava(DExhumedActor* pActor, int x, int y, int, int nSector, short nAngle, int nChannel)
 {
     spritetype* pSprite;
     if (pActor == nullptr)
@@ -301,7 +296,7 @@ void AILavaDude::Tick(RunListEvent* ev)
         int x = pSprite->x;
         int y = pSprite->y;
         int z = pSprite->z;
-        short nSector = pSprite->sectnum;
+        int nSector =pSprite->sectnum;
 
         auto coll = movesprite(pActor, pSprite->xvel << 8, pSprite->yvel << 8, 0, 0, 0, CLIPMASK0);
 
@@ -464,10 +459,4 @@ void AILavaDude::Tick(RunListEvent* ev)
     pSprite->pal = 1;
 }
 
-
-void  FuncLava(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AILavaDude ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
-}
 END_PS_NS

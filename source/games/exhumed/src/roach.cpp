@@ -47,7 +47,7 @@ struct Roach
 };
 
 // TODO - make nType a bool?
-void BuildRoach(int nType, DExhumedActor* pActor, int x, int y, int z, short nSector, int angle)
+void BuildRoach(int nType, DExhumedActor* pActor, int x, int y, int z, int nSector, int angle)
 {
     spritetype* pSprite;
     if (pActor == nullptr)
@@ -61,7 +61,7 @@ void BuildRoach(int nType, DExhumedActor* pActor, int x, int y, int z, short nSe
         pSprite = &pActor->s();
         x = pSprite->x;
         y = pSprite->y;
-        z = sector[pSprite->sectnum].floorz;
+        z = pSprite->sector()->floorz;
         angle = pSprite->ang;
     }
 
@@ -73,7 +73,7 @@ void BuildRoach(int nType, DExhumedActor* pActor, int x, int y, int z, short nSe
     pSprite->xoffset = 0;
     pSprite->yoffset = 0;
     pSprite->picnum = 1;
-    pSprite->pal = sector[pSprite->sectnum].ceilingpal;
+    pSprite->pal = pSprite->sector()->ceilingpal;
     pSprite->clipdist = 60;
     pSprite->ang = angle;
     pSprite->xrepeat = 40;
@@ -389,12 +389,6 @@ void AIRoach::Tick(RunListEvent* ev)
         return;
     }
     }
-}
-
-void FuncRoach(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AIRoach ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
 }
 
 END_PS_NS

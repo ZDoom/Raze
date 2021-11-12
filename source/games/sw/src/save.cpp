@@ -96,19 +96,8 @@ extern STATE s_NotRestored[];
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, savedcodesym& w, savedcodesym* def)
 {
-    static savedcodesym nul;
-    if (!def)
-    {
-        def = &nul;
-        if (arc.isReading()) w = {};
-    }
-
-    if (arc.BeginObject(keyname))
-    {
-        arc("module", w.module, def->module)
-            ("index", w.index, def->index)
-            .EndObject();
-    }
+	if (arc.isWriting() && w.name.IsEmpty()) return arc;
+	arc(keyname, w.name);
     return arc;
 }
 
@@ -120,18 +109,11 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, savedcodesym& w, s
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, saveddatasym& w, saveddatasym* def)
 {
-    static saveddatasym nul;
-    if (!def)
+	if (arc.isWriting() && w.name.IsEmpty()) return arc;
+	if (arc.BeginObject(keyname))
     {
-        def = &nul;
-        if (arc.isReading()) w = {};
-    }
-
-    if (arc.BeginObject(keyname))
-    {
-        arc("module", w.module, def->module)
-            ("index", w.index, def->index)
-            ("offset", w.offset, def->offset)
+        arc("name", w.name)
+            ("offset", w.offset)
             .EndObject();
     }
     return arc;
@@ -413,7 +395,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, REMOTE_CONTROL& w,
 		arc("cursectnum", w.cursectnum)
 			("lastcursectnum", w.lastcursectnum)
 			("pang", w.pang)
-			("filler", w.filler)
 			("xvect", w.xvect)
 			("yvect", w.yvect)
 			("slide_xvect", w.slide_xvect)
@@ -510,6 +491,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYERstruct& w, P
 			("recoil_speed", w.recoil_speed)
 			("recoil_ndx", w.recoil_ndx)
 			("recoil_horizoff", w.recoil_horizoff)
+			("recoil_ohorizoff", w.recoil_ohorizoff)
 			("oldposx", w.oldposx)
 			("oldposy", w.oldposy)
 			("oldposz", w.oldposz)
@@ -819,24 +801,24 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, SECT_USER& w, SECT
 
 void SerializeSectUser(FSerializer& arc)
 {
-	FixedBitArray<MAXSECTORS> hitlist;
+	BitArray hitlist(numsectors);
 
 	if (arc.isWriting())
 	{
-		for (int i = 0; i < MAXSECTORS; i++)
+		for (int i = 0; i < numsectors; i++)
 		{
 			hitlist.Set(i, !!SectUser[i].Data());
 		}
 	}
 	else
 	{
-		for (int i = 0; i < MAXSECTORS; i++)
+		for (int i = 0; i < numsectors; i++)
 		{
 			SectUser[i].Clear();
 		}
 	}
-	arc("sectusermap", hitlist);
-	arc.SparseArray("sectuser", SectUser, MAXSECTORS, hitlist);
+	arc.SerializeMemory("sectusermap", hitlist.Storage().Data(), hitlist.Storage().Size());
+	arc.SparseArray("sectuser", SectUser, numsectors, hitlist);
 }
 
 //---------------------------------------------------------------------------

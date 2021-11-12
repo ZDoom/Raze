@@ -1405,7 +1405,6 @@ STATEp sg_NinjaUzi[] =
 
 #define NINJA_HARI_KARI_WAIT_RATE 200
 #define NINJA_HARI_KARI_FALL_RATE 16
-ANIMATOR DoHariKariBlood;
 ANIMATOR DoNinjaSpecial;
 
 STATE s_NinjaHariKari[] =
@@ -1810,13 +1809,6 @@ ACTOR_ACTION_SET PlayerNinjaActionSet =
     sg_PlayerNinjaSwim
 };
 
-int
-DoHariKariBlood(short SpriteNum)
-{
-    SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
-    return 0;
-}
 
 /*
 
@@ -1947,9 +1939,10 @@ SetupNinja(short SpriteNum)
 }
 
 int
-DoNinjaHariKari(short SpriteNum)
+DoNinjaHariKari(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
     short cnt,i;
 
@@ -1977,9 +1970,10 @@ DoNinjaHariKari(short SpriteNum)
 }
 
 int
-DoNinjaGrabThroat(short SpriteNum)
+DoNinjaGrabThroat(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
@@ -2003,7 +1997,7 @@ DoNinjaGrabThroat(short SpriteNum)
         ChangeState(SpriteNum, u->StateEnd);
         sp->xvel = 0;
         //u->jump_speed = -300;
-        //DoActorBeginJump(SpriteNum);
+        //DoActorBeginJump(actor);
         PlaySound(DIGI_NINJASCREAM, sp, v3df_follow);
     }
 
@@ -2017,9 +2011,10 @@ DoNinjaGrabThroat(short SpriteNum)
 */
 
 int
-DoNinjaMove(short SpriteNum)
+DoNinjaMove(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags2, SPR2_DYING))
     {
@@ -2034,21 +2029,21 @@ DoNinjaMove(short SpriteNum)
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING) && !TEST(u->Flags, SPR_CLIMBING))
     {
         if (TEST(u->Flags, SPR_JUMPING))
-            DoActorJump(SpriteNum);
+            DoActorJump(actor);
         else if (TEST(u->Flags, SPR_FALLING))
-            DoActorFall(SpriteNum);
+            DoActorFall(actor);
     }
 
     // sliding
     if (TEST(u->Flags, SPR_SLIDING) && !TEST(u->Flags, SPR_CLIMBING))
-        DoActorSlide(SpriteNum);
+        DoActorSlide(actor);
 
     // !AIC - do track or call current action function - such as DoActorMoveCloser()
     if (u->track >= 0)
         ActorFollowTrack(SpriteNum, ACTORMOVETICS);
     else
     {
-        (*u->ActorActionFunc)(SpriteNum);
+        (*u->ActorActionFunc)(actor);
     }
 
     // stay on floor unless doing certain things
@@ -2058,15 +2053,16 @@ DoNinjaMove(short SpriteNum)
     }
 
     // take damage from environment
-    DoActorSectorDamage(SpriteNum);
+    DoActorSectorDamage(actor);
 
     return 0;
 }
 
 int
-NinjaJumpActionFunc(short SpriteNum)
+NinjaJumpActionFunc(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
     int nx, ny;
 
@@ -2082,7 +2078,7 @@ NinjaJumpActionFunc(short SpriteNum)
 
     if (!TEST(u->Flags, SPR_JUMPING|SPR_FALLING))
     {
-        InitActorDecide(SpriteNum);
+        InitActorDecide(actor);
     }
 
     return 0;
@@ -2096,29 +2092,31 @@ NinjaJumpActionFunc(short SpriteNum)
 */
 
 int
-NullNinja(short SpriteNum)
+NullNinja(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     if (u->WaitTics > 0) u->WaitTics -= ACTORMOVETICS;
 
     if (TEST(u->Flags, SPR_SLIDING) && !TEST(u->Flags, SPR_CLIMBING) && !TEST(u->Flags, SPR_JUMPING|SPR_FALLING))
-        DoActorSlide(SpriteNum);
+        DoActorSlide(actor);
 
     if (!TEST(u->Flags, SPR_CLIMBING) && !TEST(u->Flags, SPR_JUMPING|SPR_FALLING))
         KeepActorOnFloor(SpriteNum);
 
-    DoActorSectorDamage(SpriteNum);
+    DoActorSectorDamage(actor);
 
     return 0;
 }
 
 
-int DoNinjaPain(short SpriteNum)
+int DoNinjaPain(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
-    NullNinja(SpriteNum);
+    NullNinja(actor);
 
     if (TEST(u->Flags2, SPR2_DYING))
     {
@@ -2130,16 +2128,17 @@ int DoNinjaPain(short SpriteNum)
     }
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
-        InitActorDecide(SpriteNum);
+        InitActorDecide(actor);
 
     return 0;
 }
 
-int DoNinjaSpecial(short SpriteNum)
+int DoNinjaSpecial(DSWActor* actor)
 {
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
-
+ 
     if (u->spal == PALETTE_PLAYER5)
     {
         RESET(sp->cstat,CSTAT_SPRITE_TRANSLUCENT);
@@ -2150,20 +2149,23 @@ int DoNinjaSpecial(short SpriteNum)
     return 0;
 }
 
-int CheckFire(short SpriteNum)
+int CheckFire(DSWActor* actor)
 {
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     if (!CanSeePlayer(SpriteNum))
-        InitActorDuck(SpriteNum);
+        InitActorDuck(actor);
     return 0;
 }
 
 int
-DoNinjaCeiling(short SpriteNum)
+DoNinjaCeiling(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
 
-    DoActorSectorDamage(SpriteNum);
+    DoActorSectorDamage(actor);
 
     return 0;
 }
@@ -2509,8 +2511,6 @@ SpawnPlayerUnderSprite(PLAYERp pp)
 
 static saveable_code saveable_ninja_code[] =
 {
-    SAVE_CODE(DoHariKariBlood),
-    SAVE_CODE(SetupNinja),
     SAVE_CODE(DoNinjaHariKari),
     SAVE_CODE(DoNinjaGrabThroat),
     SAVE_CODE(DoNinjaMove),

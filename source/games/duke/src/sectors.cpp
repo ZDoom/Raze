@@ -39,8 +39,6 @@ source as it is released.
 #include "dukeactor.h"
 #include "interpolate.h"
 
-using std::min;
-using std::max;
 // PRIMITIVE
 BEGIN_DUKE_NS
 
@@ -92,7 +90,7 @@ int callsound(int sn, DDukeActor* whatsprite)
 						act->temp_actor = whatsprite;
 					}
 
-					if ((sector[si->sectnum].lotag & 0xff) != ST_22_SPLITTING_DOOR)
+					if ((si->sector()->lotag & 0xff) != ST_22_SPLITTING_DOOR)
 						act->temp_data[0] = 1;
 				}
 			}
@@ -216,7 +214,7 @@ bool isanearoperator(int lotag)
 
 int findplayer(const DDukeActor* actor, int* d)
 {
-	short j, closest_player;
+	int j, closest_player;
 	int x, closest;
 	auto s = &actor->s->pos;
 
@@ -251,7 +249,7 @@ int findplayer(const DDukeActor* actor, int* d)
 
 int findotherplayer(int p, int* d)
 {
-	short j, closest_player;
+	int j, closest_player;
 	int x, closest;
 
 	closest = 0x7fffffff;
@@ -260,7 +258,7 @@ int findotherplayer(int p, int* d)
 	for (j = connecthead; j >= 0; j = connectpoint2[j])
 		if (p != j && ps[j].GetActor()->s->extra > 0)
 		{
-			x = abs(ps[j].oposx - ps[p].posx) + abs(ps[j].oposy - ps[p].posy) + (abs(ps[j].oposz - ps[p].posz) >> 4);
+			x = abs(ps[j].oposx - ps[p].pos.x) + abs(ps[j].oposy - ps[p].pos.y) + (abs(ps[j].oposz - ps[p].pos.z) >> 4);
 
 			if (x < closest)
 			{
@@ -346,10 +344,10 @@ void doanimations(void)
 		{
 			for (p = connecthead; p >= 0; p = connectpoint2[p])
 				if (ps[p].cursectnum == dasect)
-					if ((sector[dasect].floorz - ps[p].posz) < (64 << 8))
+					if ((sector[dasect].floorz - ps[p].pos.z) < (64 << 8))
 						if (ps[p].GetActor()->GetOwner() != nullptr)
 						{
-							ps[p].posz += v;
+							ps[p].pos.z += v;
 							ps[p].poszv = 0;
 						}
 
@@ -395,7 +393,7 @@ int getanimationgoal(int animtype, int animtarget)
 //
 //---------------------------------------------------------------------------
 
-int setanimation(short animsect, int animtype, int animtarget, int thegoal, int thevel)
+int setanimation(int animsect, int animtype, int animtarget, int thegoal, int thevel)
 {
 	int i, j;
 
@@ -446,7 +444,7 @@ bool activatewarpelevators(DDukeActor* actor, int d) //Parm = sectoreffectornum
 		if (act2->s->lotag == SE_17_WARP_ELEVATOR || (isRRRA() && act2->s->lotag == SE_18_INCREMENTAL_SECTOR_RISE_FALL))
 			if (act2->s->hitag == actor->s->hitag)
 				if ((abs(sector[sn].floorz - actor->temp_data[2]) > act2->s->yvel) ||
-					(sector[act2->s->sectnum].hitag == (sector[sn].hitag - d)))
+					(act2->getSector()->hitag == (sector[sn].hitag - d)))
 					break;
 	}
 
@@ -681,7 +679,7 @@ static void handle_st29(int sn, DDukeActor* actor)
 		if ((act2->s->lotag == 22) &&
 			(act2->s->hitag == sptr->hitag))
 		{
-			sector[act2->s->sectnum].extra = -sector[act2->s->sectnum].extra;
+			act2->getSector()->extra = -act2->getSector()->extra;
 
 			act2->temp_data[0] = sn;
 			act2->temp_data[1] = 1;
@@ -822,7 +820,7 @@ static void handle_st23(int sn, DDukeActor* actor)
 	}
 	if (!act2) return;
 
-	int l = sector[act2->s->sectnum].lotag & 0x8000;
+	int l = act2->getSector()->lotag & 0x8000;
 
 	if (act2)
 	{
@@ -830,7 +828,7 @@ static void handle_st23(int sn, DDukeActor* actor)
 
 		while (auto act3 = it.Next())
 		{
-			if (l == (sector[act3->s->sectnum].lotag & 0x8000) && act3->s->lotag == SE_11_SWINGING_DOOR && act2->s->hitag == act3->s->hitag && act3->temp_data[4])
+			if (l == (act3->getSector()->lotag & 0x8000) && act3->s->lotag == SE_11_SWINGING_DOOR && act2->s->hitag == act3->s->hitag && act3->temp_data[4])
 			{
 				return;
 			}
@@ -839,10 +837,10 @@ static void handle_st23(int sn, DDukeActor* actor)
 		it.Reset(STAT_EFFECTOR);
 		while (auto act3 = it.Next())
 		{
-			if (l == (sector[act3->s->sectnum].lotag & 0x8000) && act3->s->lotag == SE_11_SWINGING_DOOR && act2->s->hitag == act3->s->hitag)
+			if (l == (act3->getSector()->lotag & 0x8000) && act3->s->lotag == SE_11_SWINGING_DOOR && act2->s->hitag == act3->s->hitag)
 			{
-				if (sector[act3->s->sectnum].lotag & 0x8000) sector[act3->s->sectnum].lotag &= 0x7fff;
-				else sector[act3->s->sectnum].lotag |= 0x8000;
+				if (act3->getSector()->lotag & 0x8000) act3->getSector()->lotag &= 0x7fff;
+				else act3->getSector()->lotag |= 0x8000;
 				act3->temp_data[4] = 1;
 				act3->temp_data[3] = -act3->temp_data[3];
 				if (q == 0)
@@ -883,11 +881,11 @@ static void handle_st25(int sn, DDukeActor* actor)
 		{
 			if (act3->s->lotag == 15)
 			{
-				sector[act3->s->sectnum].lotag ^= 0x8000; // Toggle the open or close
+				act3->getSector()->lotag ^= 0x8000; // Toggle the open or close
 				act3->s->ang += 1024;
 				if (act3->temp_data[4]) callsound(act3->s->sectnum, act3);
 				callsound(act3->s->sectnum, act3);
-				if (sector[act3->s->sectnum].lotag & 0x8000) act3->temp_data[4] = 1;
+				if (act3->getSector()->lotag & 0x8000) act3->temp_data[4] = 1;
 				else act3->temp_data[4] = 2;
 			}
 		}
@@ -983,7 +981,7 @@ void operatesectors(int sn, DDukeActor *actor)
 
 	case ST_30_ROTATE_RISE_BRIDGE:
 	{
-		auto act = ScriptIndexToActor(sector[sn].hitag);
+		auto act = ScriptIndexToActor(sptr->hitag);
 		if (!act) break;
 		if (act->tempang == 0 || act->tempang == 256) callsound(sn, actor);
 		if (act->s->extra == 1) act->s->extra = 3;
@@ -993,7 +991,7 @@ void operatesectors(int sn, DDukeActor *actor)
 
 	case ST_31_TWO_WAY_TRAIN:
 	{
-		auto act = ScriptIndexToActor(sector[sn].hitag);
+		auto act = ScriptIndexToActor(sptr->hitag);
 		if (!act) break;
 		if (act->temp_data[4] == 0)
 			act->temp_data[4] = 1;
@@ -1079,21 +1077,23 @@ void operatesectors(int sn, DDukeActor *actor)
 void operateactivators(int low, int plnum)
 {
 	int i, j, k;
-	short * p;
+	Cycler * p;
 	walltype* wal;
 
 	for (i = numcyclers - 1; i >= 0; i--)
 	{
-		p = &cyclers[i][0];
+		p = &cyclers[i];
 
-		if (p[4] == low)
+
+		if (p->hitag == low)
 		{
-			p[5] = !p[5];
+			auto sect = p->sector();
+			p->state = !p->state;
 
-			sector[p[0]].floorshade = sector[p[0]].ceilingshade = (int8_t)p[3];
-			wal = &wall[sector[p[0]].wallptr];
-			for (j = sector[p[0]].wallnum; j > 0; j--, wal++)
-				wal->shade = (int8_t)p[3];
+			sect->floorshade = sect->ceilingshade = (int8_t)p->shade2;
+			wal = sect->firstWall();
+			for (j = sect->wallnum; j > 0; j--, wal++)
+				wal->shade = (int8_t)p->shade2;
 		}
 	}
 
@@ -1105,11 +1105,11 @@ void operateactivators(int low, int plnum)
 		{
 			if (act->s->picnum == ACTIVATORLOCKED)
 			{
-				sector[act->s->sectnum].lotag ^= 16384;
+				act->getSector()->lotag ^= 16384;
 
 				if (plnum >= 0)
 				{
-					if (sector[act->s->sectnum].lotag & 16384)
+					if (act->getSector()->lotag & 16384)
 						FTA(4, &ps[plnum]);
 					else FTA(8, &ps[plnum]);
 				}
@@ -1121,20 +1121,20 @@ void operateactivators(int low, int plnum)
 				case 0:
 					break;
 				case 1:
-					if (sector[act->s->sectnum].floorz != sector[act->s->sectnum].ceilingz)
+					if (act->getSector()->floorz != act->getSector()->ceilingz)
 					{
 						continue;
 					}
 					break;
 				case 2:
-					if (sector[act->s->sectnum].floorz == sector[act->s->sectnum].ceilingz)
+					if (act->getSector()->floorz == act->getSector()->ceilingz)
 					{
 						continue;
 					}
 					break;
 				}
 
-				if (sector[act->s->sectnum].lotag < 3)
+				if (act->getSector()->lotag < 3)
 				{
 					DukeSectIterator it(act->s->sectnum);
 					while (auto a2 = it.Next())
@@ -1153,7 +1153,7 @@ void operateactivators(int low, int plnum)
 					}
 				}
 
-				if (k == -1 && (sector[act->s->sectnum].lotag & 0xff) == 22)
+				if (k == -1 && (act->getSector()->lotag & 0xff) == 22)
 					k = callsound(act->s->sectnum, act);
 
 				operatesectors(act->s->sectnum, act);
@@ -1218,7 +1218,7 @@ void operateforcefields_common(DDukeActor *effector, int low, const std::initial
 //
 //---------------------------------------------------------------------------
 
-void breakwall(short newpn, DDukeActor* spr, short dawallnum)
+void breakwall(int newpn, DDukeActor* spr, int dawallnum)
 {
 	wall[dawallnum].picnum = newpn;
 	S_PlayActorSound(VENT_BUST, spr);
@@ -1244,8 +1244,8 @@ void allignwarpelevators(void)
 			{
 				if ((act2->s->lotag) == SE_17_WARP_ELEVATOR && act != act2 && act->s->hitag == act2->s->hitag)
 				{
-					sector[act2->s->sectnum].floorz = sector[act->s->sectnum].floorz;
-					sector[act2->s->sectnum].ceilingz = sector[act->s->sectnum].ceilingz;
+					act2->getSector()->floorz = act->getSector()->floorz;
+					act2->getSector()->ceilingz = act->getSector()->ceilingz;
 				}
 			}
 		}

@@ -70,16 +70,31 @@ binangle getincanglebam(binangle a, binangle na)
 //
 //---------------------------------------------------------------------------
 
+/*
+// Turbo turn time.
+Blood:     24 * 30 = 720;
+Duke: 120 / 8 * 30 = 450;
+SW:   120 / 8 * 40 = 600;
+Exhumed: N/A;
+Average: 590.;
+*/
+
+enum
+{
+	BUILDTICRATE = 120,
+	TURBOTURNBASE = 590,
+};
+
 static double turnheldtime;
 
 void updateTurnHeldAmt(double const scaleAdjust)
 {
-	turnheldtime += scaleAdjust * (120. / GameTicRate);
+	turnheldtime += getTicrateScale(BUILDTICRATE, scaleAdjust);
 }
 
 bool isTurboTurnTime()
 {
-	return turnheldtime >= 590. / GameTicRate;
+	return turnheldtime >= getTicrateScale(TURBOTURNBASE);
 }
 
 void resetTurnHeldAmt()
@@ -98,47 +113,50 @@ void resetTurnHeldAmt()
 Blood: 92 / 4 * 2 * 30 = 1380;
 Duke:  15 * 2 * 2 * 30 = 1800;
 SW:  28 * 1.40625 * 40 = 1575;   // Precisely, ((((28 * 12) + ((28 * 12) / 4)) * 3) / 32) * 40
-Average: 1585.;
+Exhumed:   12 * 4 * 30 = 1440;
+Average: 1548.75;
 
 // Normal speed.
 Blood:     92 / 4 * 30 = 690;
 Duke:      15 * 2 * 30 = 900;
 SW:  18 * 1.40625 * 40 = 1012.5; // Precisely, (((((12 + 6) * 12) + (((12 + 6) * 12) / 4)) * 3) / 32) * 40
-Average: 867.5;
+Exhumed:    8 * 4 * 30 = 960;
+Average: 890.625;
 
 // Preamble.
-Blood: N/A;
+Blood:   N/A;
+Exhumed: N/A;
 Duke:       5 * 2 * 30 = 300;
 SW:   3 * 1.40625 * 40 = 168.75; // Precisely, ((((3 * 12) + ((3 * 12) / 4)) * 3) / 32) * 40
 Average: 234.375;
-Ratio: 867.5 / 234.375 = (2776. / 750.);
-
-// Turbo turn time.
-Blood:         24 * 30 = 720;
-Duke:     128 / 8 * 30 = 450;
-SW:       128 / 8 * 40 = 600;
-Average: 590.;
 */
 
-void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlInfo* const hidInput, double const scaleAdjust, int const drink_amt, bool const allowstrafe, double const turnscale)
+enum
+{
+	RUNNINGTURNBASE = 1549,
+	NORMALTURNBASE = 891,
+	PREAMBLEBASE = 234,
+};
+
+void processMovement(InputPacket* const currInput, InputPacket* const inputBuffer, ControlInfo* const hidInput, double const scaleAdjust, int const drink_amt, bool const allowstrafe, double const turnscale)
 {
 	// set up variables
 	int const running = !!(inputBuffer->actions & SB_RUN);
 	int const keymove = gi->playerKeyMove() << running;
-	int const cntrlvelscale = g_gameType & GAMEFLAG_PSEXHUMED ? 8 : 1;
-	float const mousevelscale = keymove / 160.f;
-	double const hidspeed = ((running ? 1585. : 867.5) / GameTicRate) * BAngToDegree;
+	float const mousevelscale = keymove * (1.f / 160.f);
+	double const hidprescale = g_gameType & GAMEFLAG_PSEXHUMED ? 5. : 1.;
+	double const hidspeed = getTicrateScale(running ? RUNNINGTURNBASE : NORMALTURNBASE) * BAngToDegree;
 
 	// process mouse and initial controller input.
 	if (buttonMap.ButtonDown(gamefunc_Strafe) && allowstrafe)
-		currInput->svel -= xs_CRoundToInt((hidInput->mousemovex * mousevelscale) + (scaleAdjust * hidInput->dyaw * keymove * cntrlvelscale));
+		currInput->svel -= xs_CRoundToInt(((hidInput->mousemovex * mousevelscale) + (scaleAdjust * hidInput->dyaw * keymove)) * hidprescale);
 	else
 		currInput->avel += float(hidInput->mouseturnx + (scaleAdjust * hidInput->dyaw * hidspeed * turnscale));
 
 	if (!(inputBuffer->actions & SB_AIMMODE))
 		currInput->horz -= hidInput->mouseturny;
 	else
-		currInput->fvel -= xs_CRoundToInt(hidInput->mousemovey * mousevelscale);
+		currInput->fvel -= xs_CRoundToInt(hidInput->mousemovey * mousevelscale * hidprescale);
 
 	if (invertmouse)
 		currInput->horz = -currInput->horz;
@@ -148,8 +166,8 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 
 	// process remaining controller input.
 	currInput->horz -= float(scaleAdjust * hidInput->dpitch * hidspeed);
-	currInput->svel += xs_CRoundToInt(scaleAdjust * hidInput->dx * keymove * cntrlvelscale);
-	currInput->fvel += xs_CRoundToInt(scaleAdjust * hidInput->dz * keymove * cntrlvelscale);
+	currInput->svel += xs_CRoundToInt(scaleAdjust * hidInput->dx * keymove * hidprescale);
+	currInput->fvel += xs_CRoundToInt(scaleAdjust * hidInput->dz * keymove * hidprescale);
 
 	// process keyboard turning keys.
 	if (buttonMap.ButtonDown(gamefunc_Strafe) && allowstrafe)
@@ -165,24 +183,21 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 	}
 	else
 	{
-		double turnamount = hidspeed * turnscale;
-		double preambleturn = turnamount * (750. / 2776.);
+		bool const turnleft = buttonMap.ButtonDown(gamefunc_Turn_Left) || (buttonMap.ButtonDown(gamefunc_Strafe_Left) && !allowstrafe);
+		bool const turnright = buttonMap.ButtonDown(gamefunc_Turn_Right) || (buttonMap.ButtonDown(gamefunc_Strafe_Right) && !allowstrafe);
 
-		// allow Exhumed to use its legacy values given the drastic difference from the other games.
-		if ((g_gameType & GAMEFLAG_PSEXHUMED) && cl_exhumedoldturn)
+		if (turnleft || turnright)
 		{
-			preambleturn = turnamount = (running ? 12 : 8) * BAngToDegree;
-		}
+			double const turnamount = hidspeed * turnscale;
+			double const preambleturn = turnamount * (double(PREAMBLEBASE) / double(NORMALTURNBASE));
 
-		if (buttonMap.ButtonDown(gamefunc_Turn_Left) || (buttonMap.ButtonDown(gamefunc_Strafe_Left) && !allowstrafe))
-		{
 			updateTurnHeldAmt(scaleAdjust);
-			currInput->avel -= float(scaleAdjust * (isTurboTurnTime() ? turnamount : preambleturn));
-		}
-		else if (buttonMap.ButtonDown(gamefunc_Turn_Right) || (buttonMap.ButtonDown(gamefunc_Strafe_Right) && !allowstrafe))
-		{
-			updateTurnHeldAmt(scaleAdjust);
-			currInput->avel += float(scaleAdjust * (isTurboTurnTime() ? turnamount : preambleturn));
+
+			if (turnleft)
+				currInput->avel -= float(scaleAdjust * (isTurboTurnTime() ? turnamount : preambleturn));
+
+			if (turnright)
+				currInput->avel += float(scaleAdjust * (isTurboTurnTime() ? turnamount : preambleturn));
 		}
 		else
 		{
@@ -206,19 +221,13 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 			if (buttonMap.ButtonDown(gamefunc_Move_Forward))
 			{
 				currInput->fvel += keymove;
-				if (drink_amt & 1)
-					currInput->svel += keymove;
-				else
-					currInput->svel -= keymove;
+				currInput->svel += drink_amt & 1 ? keymove : -keymove;
 			}
 
 			if (buttonMap.ButtonDown(gamefunc_Move_Backward))
 			{
 				currInput->fvel -= keymove;
-				if (drink_amt & 1)
-					currInput->svel -= keymove;
-				else
-					currInput->svel += keymove;
+				currInput->svel -= drink_amt & 1 ? keymove : -keymove;
 			}
 		}
 		else
@@ -244,60 +253,75 @@ void processMovement(InputPacket* currInput, InputPacket* inputBuffer, ControlIn
 //
 //---------------------------------------------------------------------------
 
+/*
+// Aim speed.
+Duke:      6 * 30 = 180;
+SW: (16 / 2) * 40 = 320;
+Average: 250.;
+
+// Look speed.
+Duke:     12 * 30 = 360;
+SW:       16 * 40 = 640;
+Average: 500.;
+
+// Return to centre speed.
+Duke: (1 / 3) * 30 = 10;
+SW:   (1 / 4) * 40 = 10;
+Average: 10.;
+*/
+
+enum
+{
+	AIMSPEED = 250,
+	LOOKSPEED = 500,
+	CNTRSPEED = 10,
+};
+
 void PlayerHorizon::applyinput(float const horz, ESyncBits* actions, double const scaleAdjust)
 {
 	// Process only if movewment isn't locked.
 	if (!movementlocked())
 	{
-		// Store current horizon as true pitch.
-		double pitch = horiz.aspitch();
-
-		if (horz)
+		// Test if we have input to process.
+		if (horz || *actions & (SB_AIM_UP | SB_AIM_DOWN | SB_LOOK_UP | SB_LOOK_DOWN))
 		{
-			*actions &= ~SB_CENTERVIEW;
-			pitch += horz;
+			// Store current horizon as true pitch.
+			double pitch = horiz.aspitch();
+
+			// Process mouse input.
+			if (horz)
+			{
+				*actions &= ~SB_CENTERVIEW;
+				pitch += horz;
+			}
+
+			// Process keyboard input.
+			auto doKbdInput = [&](ESyncBits_ const up, ESyncBits_ const down, double const rate, bool const lock)
+			{
+				if (*actions & (up | down))
+				{
+					if (lock) *actions &= ~SB_CENTERVIEW; else *actions |= SB_CENTERVIEW;
+					double const amount = scaleAdjust * HorizToPitch(getTicrateScale(rate));
+
+					if (*actions & down)
+						pitch -= amount;
+
+					if (*actions & up)
+						pitch += amount;
+				}
+			};
+			doKbdInput(SB_AIM_UP, SB_AIM_DOWN, AIMSPEED, true);
+			doKbdInput(SB_LOOK_UP, SB_LOOK_DOWN, LOOKSPEED, false);
+
+			// clamp before converting back to horizon
+			horiz = q16horiz(clamp(PitchToHoriz(pitch), gi->playerHorizMin(), gi->playerHorizMax()));
 		}
-
-		// this is the locked type
-		if (*actions & (SB_AIM_UP|SB_AIM_DOWN))
-		{
-			*actions &= ~SB_CENTERVIEW;
-			double const amount = HorizToPitch(250. / GameTicRate);
-
-			if (*actions & SB_AIM_DOWN)
-				pitch -= scaleAdjust * amount;
-
-			if (*actions & SB_AIM_UP)
-				pitch += scaleAdjust * amount;
-		}
-
-		// this is the unlocked type
-		if (*actions & (SB_LOOK_UP|SB_LOOK_DOWN))
-		{
-			*actions |= SB_CENTERVIEW;
-			double const amount = HorizToPitch(500. / GameTicRate);
-
-			if (*actions & SB_LOOK_DOWN)
-				pitch -= scaleAdjust * amount;
-
-			if (*actions & SB_LOOK_UP)
-				pitch += scaleAdjust * amount;
-		}
-
-		// clamp before converting back to horizon
-		horiz = q16horiz(clamp(PitchToHoriz(pitch), gi->playerHorizMin(), gi->playerHorizMax()));
 
 		// return to center if conditions met.
-		if ((*actions & SB_CENTERVIEW) && !(*actions & (SB_LOOK_UP|SB_LOOK_DOWN)) && horiz.asq16())
+		if ((*actions & SB_CENTERVIEW) && !(*actions & (SB_LOOK_UP|SB_LOOK_DOWN)))
 		{
-			// move horiz back to 0
-			horiz -= buildfhoriz(scaleAdjust * horiz.asbuildf() * (10. / GameTicRate));
-			if (abs(horiz.asq16()) < (FRACUNIT >> 2))
-			{
-				// not looking anymore because horiz is back at 0
-				horiz = q16horiz(0);
-				*actions &= ~SB_CENTERVIEW;
-			}
+			scaletozero(horiz, CNTRSPEED, scaleAdjust);
+			if (!horiz.asq16()) *actions &= ~SB_CENTERVIEW;
 		}
 	}
 	else
@@ -312,35 +336,53 @@ void PlayerHorizon::applyinput(float const horz, ESyncBits* actions, double cons
 //
 //---------------------------------------------------------------------------
 
+/*
+// Rotate return speed.
+Duke: (1 / 2) * 30 = 15;
+
+// Look return speed.
+Duke: (1 / 4) * 30 = 7.5;
+
+// Rotating speed.
+Duke:      24 * 30 = 720;
+
+// Looking speed.
+Duke:     152 * 30 = 4560;
+
+// Spin standing speed.
+Duke:     128 * 30 = 3840;
+Blood:    128 * 30 = 3840;
+
+// Looking speed.
+Blood:     64 * 30 = 1920;
+*/
+
+enum
+{
+	LOOKROTRETBASE = 15,
+	ROTATESPEED = 720,
+	LOOKINGSPEED = 4560,
+	SPINSTAND = 3840,
+	SPINCROUCH = 1920,
+};
+
 void PlayerAngle::applyinput(float const avel, ESyncBits* actions, double const scaleAdjust)
 {
-	if (rotscrnang.asbam())
-	{
-		// return rotscrnang to 0
-		rotscrnang -= buildfang(scaleAdjust * rotscrnang.signedbuildf() * (15. / GameTicRate));
-		if (abs(rotscrnang.signedbam()) < (BAMUNIT >> 2)) rotscrnang = bamang(0);
-	}
+	// Process angle return to zeros.
+	scaletozero(rotscrnang, LOOKROTRETBASE, scaleAdjust);
+	scaletozero(look_ang, +LOOKROTRETBASE * 0.5, scaleAdjust);
 
-	if (look_ang.asbam())
+	// Process keyboard input.
+	auto doLookKeys = [&](ESyncBits_ const key, double const direction)
 	{
-		// return look_ang to 0
-		look_ang -= buildfang(scaleAdjust * look_ang.signedbuildf() * (7.5 / GameTicRate));
-		if (abs(look_ang.signedbam()) < (BAMUNIT >> 2)) look_ang = bamang(0);
-	}
-
-	if (*actions & SB_LOOK_LEFT)
-	{
-		// start looking left
-		look_ang += buildfang(scaleAdjust * -(4560. / GameTicRate));
-		rotscrnang += buildfang(scaleAdjust * (720. / GameTicRate));
-	}
-
-	if (*actions & SB_LOOK_RIGHT)
-	{
-		// start looking right
-		look_ang += buildfang(scaleAdjust * (4560. / GameTicRate));
-		rotscrnang += buildfang(scaleAdjust * -(720. / GameTicRate));
-	}
+		if (*actions & key)
+		{
+			look_ang += getscaledangle(LOOKINGSPEED, scaleAdjust * direction);
+			rotscrnang -= getscaledangle(ROTATESPEED, scaleAdjust * direction);
+		}
+	};
+	doLookKeys(SB_LOOK_LEFT, -1);
+	doLookKeys(SB_LOOK_RIGHT, 1);
 
 	if (!movementlocked())
 	{
@@ -364,7 +406,7 @@ void PlayerAngle::applyinput(float const avel, ESyncBits* actions, double const 
 		if (spin < 0)
 		{
 			// return spin to 0
-			double add = scaleAdjust * ((!(*actions & SB_CROUCH) ? 3840. : 1920.) / GameTicRate);
+			double add = getTicrateScale(!(*actions & SB_CROUCH) ? SPINSTAND : SPINCROUCH, scaleAdjust);
 			spin += add;
 			if (spin > 0)
 			{
@@ -387,6 +429,25 @@ void PlayerAngle::applyinput(float const avel, ESyncBits* actions, double const 
 //
 //---------------------------------------------------------------------------
 
+/*
+// Horizoff centre speed.
+Duke: (1 / 8) * 30 = 3.75;
+SW:   (1 / 8) * 40 = 5;
+Average: 4.375;
+*/
+
+enum
+{
+	// Values used by Duke/SW, where this function originated from.
+	DEFSINSHIFT = 5,
+	DEFVIEWPITCH = 160,
+
+	// Values used by Blood since it calculates differently to Duke/SW.
+	BLOODSINSHIFT = 8,
+	SINSHIFTDELTA = BLOODSINSHIFT - DEFSINSHIFT,
+	BLOODVIEWPITCH = (0x4000 >> SINSHIFTDELTA) - (DEFVIEWPITCH << (SINSHIFTDELTA - 1)), // 1408.
+};
+
 void PlayerHorizon::calcviewpitch(vec2_t const pos, binangle const ang, bool const aimmode, bool const canslopetilt, int const cursectnum, double const scaleAdjust, bool const climbing)
 {
 	if (cl_slopetilting)
@@ -394,10 +455,10 @@ void PlayerHorizon::calcviewpitch(vec2_t const pos, binangle const ang, bool con
 		if (aimmode && canslopetilt) // If the floor is sloped
 		{
 			// Get a point, 512 (64 for Blood) units ahead of player's position
-			int const shift = -(isBlood() ? 8 : 5);
+			int const shift = -(isBlood() ? BLOODSINSHIFT : DEFSINSHIFT);
 			int const x = pos.x + ang.bcos(shift);
 			int const y = pos.y + ang.bsin(shift);
-			int16_t tempsect = cursectnum;
+			int tempsect = cursectnum;
 			updatesector(x, y, &tempsect);
 
 			if (tempsect >= 0) // If the new point is inside a valid sector...
@@ -414,7 +475,7 @@ void PlayerHorizon::calcviewpitch(vec2_t const pos, binangle const ang, bool con
 				// accordingly
 				if (cursectnum == tempsect || (!isBlood() && abs(getflorzofslope(tempsect, x, y) - k) <= (4 << 8)))
 				{
-					horizoff += q16horiz(xs_CRoundToInt(scaleAdjust * ((j - k) * (!isBlood() ? 160 : 1408))));
+					horizoff += q16horiz(xs_CRoundToInt(scaleAdjust * ((j - k) * (!isBlood() ? DEFVIEWPITCH : BLOODVIEWPITCH))));
 				}
 			}
 		}
@@ -423,21 +484,15 @@ void PlayerHorizon::calcviewpitch(vec2_t const pos, binangle const ang, bool con
 		{
 			// tilt when climbing but you can't even really tell it.
 			if (horizoff.asq16() < IntToFixed(100))
-				horizoff += q16horiz(xs_CRoundToInt(scaleAdjust * (((IntToFixed(100) - horizoff.asq16()) >> 3) + FRACUNIT)));
+			{
+				auto temphorizoff = buildhoriz(100) - horizoff;
+				horizoff += getscaledhoriz(4.375, scaleAdjust, &temphorizoff, 1.);
+			}
 		}
 		else
 		{
 			// Make horizoff grow towards 0 since horizoff is not modified when you're not on a slope.
-			if (horizoff.asq16() > 0)
-			{
-				horizoff += q16horiz(xs_CRoundToInt(-scaleAdjust * ((horizoff.asq16() >> 3) + FRACUNIT)));
-				if (horizoff.asq16() < 0) horizoff = q16horiz(0);
-			}
-			if (horizoff.asq16() < 0)
-			{
-				horizoff += q16horiz(xs_CRoundToInt(-scaleAdjust * ((horizoff.asq16() >> 3) - FRACUNIT)));
-				if (horizoff.asq16() > 0) horizoff = q16horiz(0);
-			}
+			scaletozero(horizoff, 4.375, scaleAdjust, Sgn(horizoff.asq16()));
 		}
 	}
 }
@@ -480,6 +535,20 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerHorizon& w, 
 			w.ohorizoff = w.horizoff;
 			w.inputdisabled = w.inputdisabled;
 			w.resetadjustment();
+		}
+	}
+	return arc;
+}
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerPosition& w, PlayerPosition* def)
+{
+	if (arc.BeginObject(keyname))
+	{
+		arc("pos", w.pos).EndObject();
+
+		if (arc.isReading())
+		{
+			w.opos = w.pos;
 		}
 	}
 	return arc;

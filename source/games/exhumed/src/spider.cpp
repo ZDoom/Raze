@@ -36,7 +36,7 @@ static actionSeq SpiderSeq[] = {
 };
 
 
-DExhumedActor* BuildSpider(DExhumedActor* spp, int x, int y, int z, short nSector, int nAngle)
+DExhumedActor* BuildSpider(DExhumedActor* spp, int x, int y, int z, int nSector, int nAngle)
 {
     spritetype* sp;
     if (spp == nullptr)
@@ -51,7 +51,7 @@ DExhumedActor* BuildSpider(DExhumedActor* spp, int x, int y, int z, short nSecto
 
         x = sp->x;
         y = sp->y;
-        z = sector[sp->sectnum].floorz;
+        z = sp->sector()->floorz;
         nAngle = sp->ang;
     }
 
@@ -66,7 +66,7 @@ DExhumedActor* BuildSpider(DExhumedActor* spp, int x, int y, int z, short nSecto
     sp->zvel = 0;
     sp->xrepeat = 40;
     sp->yrepeat = 40;
-    sp->pal = sector[sp->sectnum].ceilingpal;
+    sp->pal = sp->sector()->ceilingpal;
     sp->xoffset = 0;
     sp->yoffset = 0;
     sp->ang = nAngle;
@@ -106,7 +106,7 @@ void AISpider::Tick(RunListEvent* ev)
     {
         if (sp->cstat & 8)
         {
-            sp->z = sector[sp->sectnum].ceilingz + GetActorHeight(spp);
+            sp->z = sp->sector()->ceilingz + GetActorHeight(spp);
         }
         else
         {
@@ -178,7 +178,7 @@ void AISpider::Tick(RunListEvent* ev)
         case 3:
         {
         case_3:
-            short nSector = sp->sectnum;
+            int nSector =sp->sectnum;
 
             if (sp->cstat & 8)
             {
@@ -288,14 +288,13 @@ void AISpider::Tick(RunListEvent* ev)
     if (nMov.type == kHitNone && nMov.exbits == 0)
         return;
 
-    Collision HiHit(hihit);    // fixme
     if (nMov.exbits & kHitAux1
         && sp->zvel < 0
-        && HiHit.type != kHitSprite
-        && !((sector[sp->sectnum].ceilingstat) & 1))
+        && hiHit.type != kHitSprite
+        && !((sp->sector()->ceilingstat) & 1))
     {
         sp->cstat |= 8;
-        sp->z = GetActorHeight(spp) + sector[sp->sectnum].ceilingz;
+        sp->z = GetActorHeight(spp) + sp->sector()->ceilingz;
         sp->zvel = 0;
 
         spp->nAction = 1;
@@ -409,9 +408,4 @@ void AISpider::Damage(RunListEvent* ev)
     }
 }
 
-void FuncSpider(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AISpider ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
-}
 END_PS_NS

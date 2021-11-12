@@ -13,7 +13,7 @@ struct STATUSBARTYPE
 {
 	short frag[MAXPLAYERS], got_access, last_extra, shield_amount, curr_weapon;
 	short ammo_amount[MAX_WEAPONS];
-	unsigned char inven_icon, jetpack_on, heat_on;
+	uint8_t inven_icon, jetpack_on, heat_on;
 	short firstaid_amount, steroids_amount, holoduke_amount, jetpack_amount;
 	short heat_amount, scuba_amount, boot_amount;
 	short last_weapon, weapon_pos, kickback_pic;
@@ -24,7 +24,8 @@ struct DDukeActor
 {
 	uint8_t cgg;
 	uint8_t spriteextra;	// moved here for easier maintenance. This was originally a hacked in field in the sprite structure called 'filler'.
-	short picnum, ang, extra, owner, movflag;
+	short owner; // todo: make a pointer.
+	short picnum, ang, extra, movflag;
 	short tempang, actorstayput, dispicnum;
 	short timetosleep;
 	int floorz, ceilingz, lastvx, lastvy, aflags;
@@ -90,6 +91,10 @@ struct DDukeActor
 		return s->yvel;
 	}
 
+	sectortype* getSector() const
+	{
+		return &sector[s->sectnum];
+	}
 
 
 };
@@ -98,7 +103,7 @@ inline DDukeActor* DDukeActor::array() { return hittype; }
 
 struct animwalltype
 {
-	short wallnum, tag;
+	int wallnum, tag;
 };
 
 // Todo - put more state in here
@@ -120,9 +125,9 @@ struct TileInfo
 
 struct user_defs
 {
-	unsigned char god, cashman, eog;
-	unsigned char clipping;
-	unsigned char user_pals[MAXPLAYERS];
+	uint8_t god, cashman, eog;
+	uint8_t clipping;
+	uint8_t user_pals[MAXPLAYERS];
 
 	short from_bonus;
 	short last_level, secretlevel;
@@ -156,11 +161,7 @@ struct player_struct
 	// This is basically the version from JFDuke but this first block contains a few changes to make it work with other parts of Raze.
 	
 	// The sound code wants to read a vector out of this so we need to define one for the main coordinate.
-	union
-	{
-		vec3_t pos;
-		struct { int32_t posx, posy, posz; };
-	};
+	vec3_t pos;
 
 	// player's horizon and angle structs.
 	PlayerHorizon horizon;
@@ -181,8 +182,8 @@ struct player_struct
 	int oweapon_sway;
 	short weapon_pos, kickback_pic, random_club_frame;
 	short oweapon_pos, okickback_pic, orandom_club_frame;
-	unsigned char hard_landing;
-	unsigned char ohard_landing;
+	uint8_t hard_landing;
+	uint8_t ohard_landing;
 
 	// Store current psectlotag as determined in processinput() for use with scaling angle aiming.
 	short psectlotag;
@@ -198,15 +199,17 @@ struct player_struct
 
 	int aim_mode, ftt;
 
-	short cursectnum, last_extra, subweapon;
+	int cursectnum, one_parallax_sectnum, access_wallnum; // wall + sector references. Make them pointers later?
+
+	short last_extra, subweapon;
 	short ammo_amount[MAX_WEAPONS], frag, fraggedself;
 
 	short curr_weapon, last_weapon, tipincs, wantweaponfire;
 	short holoduke_amount, hurt_delay, hbomb_hold_delay;
 	short jumping_counter, airleft, knee_incs, access_incs;
-	short ftq, access_wallnum;
+	short ftq;
 	short got_access, weapon_ang, firstaid_amount;
-	short i, one_parallax_sectnum;
+	short i;
 	short over_shoulder_on, fist_incs;
 	short cheat_phase;
 	short extra_extra8, quick_kick, last_quick_kick;
@@ -221,20 +224,20 @@ struct player_struct
 	short pycount, frag_ps;
 	short transporter_hold, last_full_weapon, footprintshade, boot_amount;
 
-	unsigned char on_warping_sector, footprintcount;
-	unsigned char hbomb_on, jumping_toggle, rapid_fire_hold, on_ground;
+	uint8_t on_warping_sector, footprintcount;
+	uint8_t hbomb_on, jumping_toggle, rapid_fire_hold, on_ground;
 	char name[32];
-	unsigned char inven_icon, buttonpalette;
+	uint8_t inven_icon, buttonpalette;
 
-	unsigned char jetpack_on, spritebridge, lastrandomspot;
-	unsigned char scuba_on, footprintpal, heat_on;
+	uint8_t jetpack_on, spritebridge, lastrandomspot;
+	uint8_t scuba_on, footprintpal, heat_on;
 
-	unsigned char  holster_weapon;
-	unsigned char falling_counter;
-	unsigned char refresh_inventory;
+	uint8_t  holster_weapon;
+	uint8_t falling_counter;
+	uint8_t refresh_inventory;
 
-	unsigned char toggle_key_flag, knuckle_incs; // ,select_dir;
-	unsigned char walking_snd_toggle, palookup;
+	uint8_t toggle_key_flag, knuckle_incs; // ,select_dir;
+	uint8_t walking_snd_toggle, palookup;
 	bool quick_kick_msg;
 
 	int max_secret_rooms, secret_rooms, max_actors_killed, actors_killed;
@@ -291,7 +294,28 @@ struct player_struct
 		return (psectlotag == ST_2_UNDERWATER)? avel * 0.875f : avel;
 	}
 
+	sectortype* cursector() const
+	{
+		return &::sector[cursectnum];
+	}
+	sectortype* one_parallax_sector() const
+	{
+		return &::sector[one_parallax_sectnum];
+	}
 
+
+};
+
+struct Cycler
+{
+	int sectnum;
+	int16_t lotag;
+	int16_t hitag;
+	int16_t shade1;
+	int16_t shade2;
+	bool state;
+
+	sectortype* sector() const { return &::sector[sectnum]; }
 };
 
 // Wrapper around the insane collision info mess from Build.
@@ -302,6 +326,11 @@ struct Collision
 	int legacyVal;	// should be removed later, but needed for converting back for unadjusted code.
 	DDukeActor* actor;
 
+	Collision() = default;
+	explicit Collision(int v)
+	{
+		setFromEngine(v);
+	}
 	int setNone()
 	{
 		type = kHitNone;
@@ -345,6 +374,19 @@ struct Collision
 		else { index = -1; actor = &hittype[value & kHitIndexMask]; }
 		return type;
 	}
+
+	walltype* wall() const
+	{
+		assert(type == kHitWall);
+		return &::wall[index];
+	}
+
+	sectortype* sector() const
+	{
+		assert(type == kHitSector);
+		return &::sector[index];
+	}
+
 };
 
 

@@ -77,8 +77,8 @@ void TommySeqCallback(int, DBloodActor* actor)
 {
 	XSPRITE* pXSprite = &actor->x();
 	spritetype* pSprite = &actor->s();
-	int dx = CosScale16(pSprite->ang);
-	int dy = SinScale16(pSprite->ang);
+	int dx = bcos(pSprite->ang);
+	int dy = bsin(pSprite->ang);
 	int dz = actor->dudeSlope;
 	dx += Random3((5 - gGameOptions.nDifficulty) * 1000);
 	dy += Random3((5 - gGameOptions.nDifficulty) * 1000);
@@ -93,8 +93,8 @@ void TeslaSeqCallback(int, DBloodActor* actor)
 	spritetype* pSprite = &actor->s();
 	if (Chance(dword_138BB0[gGameOptions.nDifficulty]))
 	{
-		int dx = CosScale16(pSprite->ang);
-		int dy = SinScale16(pSprite->ang);
+		int dx = bcos(pSprite->ang);
+		int dy = bsin(pSprite->ang);
 		int dz = actor->dudeSlope;
 		dx += Random3((5 - gGameOptions.nDifficulty) * 1000);
 		dy += Random3((5 - gGameOptions.nDifficulty) * 1000);
@@ -108,8 +108,8 @@ void ShotSeqCallback(int, DBloodActor* actor)
 {
 	XSPRITE* pXSprite = &actor->x();
 	spritetype* pSprite = &actor->s();
-	int dx = CosScale16(pSprite->ang);
-	int dy = SinScale16(pSprite->ang);
+	int dx = bcos(pSprite->ang);
+	int dy = bsin(pSprite->ang);
 	int dz = actor->dudeSlope;
 	dx += Random2((5 - gGameOptions.nDifficulty) * 1000 - 500);
 	dy += Random2((5 - gGameOptions.nDifficulty) * 1000 - 500);

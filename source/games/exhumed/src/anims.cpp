@@ -111,6 +111,8 @@ DExhumedActor* BuildAnim(DExhumedActor* pActor, int val, int val2, int x, int y,
     pActor->nIndex = 0;
     pActor->nIndex2 = SeqOffsets[val] + val2;
     pActor->pTarget = nullptr;
+    pActor->nDamage = pActor->nRun;
+    pActor->nPhase = ITEM_MAGIC;
 
     if (nFlag & 0x80) {
         pSprite->cstat |= 0x2; // set transluscence
@@ -234,17 +236,11 @@ void AIAnim::Draw(RunListEvent* ev)
     ev->pTSprite->owner = -1;
 }
 
-void  FuncAnim(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AIAnim ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
-}
-
 void BuildExplosion(DExhumedActor* pActor)
 {
     auto pSprite = &pActor->s();
  
-    short nSector = pSprite->sectnum;
+    int nSector = pSprite->sectnum;
 
     int edx = 36;
 
@@ -252,7 +248,7 @@ void BuildExplosion(DExhumedActor* pActor)
     {
         edx = 75;
     }
-    else if (pSprite->z == sector[nSector].floorz)
+    else if (pSprite->z == pSprite->sector()->floorz)
     {
         edx = 34;
     }

@@ -106,6 +106,7 @@ void ApplyGlobalInput(InputPacket& input, ControlInfo* const hidInput, bool cons
 extern ESyncBits ActionsToSend;
 double InputScale();
 extern bool gamesetinput;
+extern double InputScalePercentage;
 
 inline bool SyncInput()
 {

@@ -162,7 +162,7 @@ RORHACK:
         gView->pSprite->cstat |= 514;
     }
 
-    renderDrawRoomsQ16(cX, cY, cZ, cA.asq16(), cH.asq16() + deliriumPitchI, nSectnum);
+    renderDrawRoomsQ16(cX, cY, cZ, cA.asq16(), cH.asq16() + deliriumPitchI, nSectnum, false);
     viewProcessSprites(pm_tsprite, pm_spritesortcnt, cX, cY, cZ, cA.asbuild(), int(gInterpolate));
     bool do_ror_hack = false;
     for (int i = 0; i < 16; i++)
@@ -254,7 +254,7 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
                 {
                     renderPrepareMirror(x, y, z, a, horiz, nWall, &cx, &cy, &ca);
                 }
-                int32_t didmirror = renderDrawRoomsQ16(cx, cy, z, ca, horiz, mirrorsector | MAXSECTORS);
+                int32_t didmirror = renderDrawRoomsQ16(cx, cy, z, ca, horiz, mirrorsector, true);
                 viewProcessSprites(pm_tsprite, pm_spritesortcnt, cx, cy, z, FixedToInt(ca), smooth);
                 renderDrawMasks();
                 if (GetWallType(nWall) != kWallStack)
@@ -282,7 +282,7 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
                         gPlayer[viewPlayer].pSprite->cstat |= 514;
                     }
                 }
-                renderDrawRoomsQ16(x + mirror[i].dx, y + mirror[i].dy, z + mirror[i].dz, a, horiz, nSector | MAXSECTORS);
+                renderDrawRoomsQ16(x + mirror[i].dx, y + mirror[i].dy, z + mirror[i].dz, a, horiz, nSector, true);
                 viewProcessSprites(pm_tsprite, pm_spritesortcnt, x + mirror[i].dx, y + mirror[i].dy, z + mirror[i].dz, FixedToInt(a), smooth);
                 short fstat = sector[nSector].floorstat;
                 sector[nSector].floorstat |= 1;
@@ -314,7 +314,7 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
                         gPlayer[viewPlayer].pSprite->cstat |= 514;
                     }
                 }
-                renderDrawRoomsQ16(x + mirror[i].dx, y + mirror[i].dy, z + mirror[i].dz, a, horiz, nSector | MAXSECTORS);
+                renderDrawRoomsQ16(x + mirror[i].dx, y + mirror[i].dy, z + mirror[i].dz, a, horiz, nSector, true);
                 viewProcessSprites(pm_tsprite, pm_spritesortcnt, x + mirror[i].dx, y + mirror[i].dy, z + mirror[i].dz, FixedToInt(a), smooth);
                 short cstat = sector[nSector].ceilingstat;
                 sector[nSector].ceilingstat |= 1;

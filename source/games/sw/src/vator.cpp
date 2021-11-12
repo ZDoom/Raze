@@ -453,9 +453,10 @@ int DoVatorMove(short SpriteNum, int *lptr)
 }
 
 
-int DoVator(short SpriteNum)
+int DoVator(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = u->SpriteP;
     SECTORp sectp = &sector[sp->sectnum];
     int *lptr;
@@ -622,9 +623,10 @@ int DoVator(short SpriteNum)
     return 0;
 }
 
-int DoVatorAuto(short SpriteNum)
+int DoVatorAuto(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = u->SpriteP;
     SECTORp sectp = &sector[sp->sectnum];
     int *lptr;
@@ -680,16 +682,6 @@ int DoVatorAuto(short SpriteNum)
 
 static saveable_code saveable_vator_code[] =
 {
-    SAVE_CODE(ReverseVator),
-    SAVE_CODE(VatorSwitch),
-    SAVE_CODE(SetVatorActive),
-    SAVE_CODE(SetVatorInactive),
-    SAVE_CODE(DoVatorOperate),
-    SAVE_CODE(DoVatorMatch),
-    SAVE_CODE(TestVatorMatchActive),
-    SAVE_CODE(InterpSectorSprites),
-    SAVE_CODE(MoveSpritesWithSector),
-    SAVE_CODE(DoVatorMove),
     SAVE_CODE(DoVator),
     SAVE_CODE(DoVatorAuto),
 };

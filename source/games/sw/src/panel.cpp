@@ -97,7 +97,6 @@ char UziRecoilYadj = 0;
 
 extern short screenpeek;
 
-ANIMATOR NullAnimator;
 pANIMATOR pNullAnimator;
 int InitStar(PLAYERp);
 int ChangeWeapon(PLAYERp);
@@ -105,7 +104,7 @@ int ChangeWeapon(PLAYERp);
 ANIMATOR InitFire;
 
 int
-NullAnimator(short)
+NullAnimator(DSWActor*)
 {
     return 0;
 }
@@ -433,7 +432,6 @@ void PlayerUpdateArmor(PLAYERp pp, short value)
 int WeaponOperate(PLAYERp pp)
 {
     short weapon;
-    int DoPlayerSpriteReset(short SpriteNum);
     USERp u = User[pp->PlayerSprite].Data();
 
 

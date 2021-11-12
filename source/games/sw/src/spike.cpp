@@ -324,9 +324,10 @@ void MoveSpritesWithSpike(short sectnum)
     }
 }
 
-int DoSpike(short SpriteNum)
+int DoSpike(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = u->SpriteP;
     int *lptr;
 
@@ -442,9 +443,10 @@ int DoSpike(short SpriteNum)
     return 0;
 }
 
-int DoSpikeAuto(short SpriteNum)
+int DoSpikeAuto(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = u->SpriteP;
     int *lptr;
 
@@ -491,16 +493,6 @@ int DoSpikeAuto(short SpriteNum)
 
 static saveable_code saveable_spike_code[] =
 {
-    SAVE_CODE(ReverseSpike),
-    SAVE_CODE(SpikeSwitch),
-    SAVE_CODE(SetSpikeActive),
-    SAVE_CODE(SetSpikeInactive),
-    SAVE_CODE(DoSpikeOperate),
-    SAVE_CODE(DoSpikeMatch),
-    SAVE_CODE(TestSpikeMatchActive),
-    SAVE_CODE(DoSpikeMove),
-    SAVE_CODE(SpikeAlign),
-    SAVE_CODE(MoveSpritesWithSpike),
     SAVE_CODE(DoSpike),
     SAVE_CODE(DoSpikeAuto),
 };

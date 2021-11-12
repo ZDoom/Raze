@@ -58,9 +58,7 @@ void hud_input(int plnum)
 	int i, k;
 	uint8_t dainv;
 	struct player_struct* p;
-	short unk;
 
-	unk = 0;
 	p = &ps[plnum];
 	auto pact = p->GetActor();
 
@@ -284,9 +282,9 @@ void hud_input(int plnum)
 
 							auto pactor =
 								EGS(p->cursectnum,
-									p->posx,
-									p->posy,
-									p->posz + (30 << 8), TILE_APLAYER, -64, 0, 0, p->angle.ang.asbuild(), 0, 0, nullptr, 10);
+									p->pos.x,
+									p->pos.y,
+									p->pos.z + (30 << 8), TILE_APLAYER, -64, 0, 0, p->angle.ang.asbuild(), 0, 0, nullptr, 10);
 							pactor->temp_data[3] = pactor->temp_data[4] = 0;
 							p->holoduke_on = pactor;
 							pactor->s->yvel = plnum;
@@ -337,7 +335,7 @@ void hud_input(int plnum)
 					S_PlayActorSound(390, pact);
 					p->noise_radius = 16384;
 					madenoise(plnum);
-					if (sector[p->cursectnum].lotag == 857)
+					if (p->cursector()->lotag == 857)
 					{
 						if (p->GetActor()->s->extra <= gs.max_player_health)
 						{
@@ -528,7 +526,7 @@ enum
 static void processInputBits(player_struct *p, ControlInfo* const hidInput)
 {
 	// Set-up crouch bools.
-	int const sectorLotag = p->cursectnum != -1 ? sector[p->cursectnum].lotag : 0;
+	int const sectorLotag = p->cursectnum != -1 ? p->cursector()->lotag : 0;
 	bool const crouchable = sectorLotag != ST_2_UNDERWATER && (sectorLotag != ST_1_ABOVE_WATER || p->spritebridge);
 	bool const disableToggle = p->jetpack_on || (!crouchable && p->on_ground) || (isRRRA() && (p->OnMotorcycle || p->OnBoat));
 
@@ -652,7 +650,7 @@ static double boatApplyTurn(player_struct *p, ControlInfo* const hidInput, bool 
 		if (kbdLeft || kbdRight || p->moto_drink || hidInput->mouseturnx || hidInput->dyaw)
 		{
 			double const velScale = 6. / 19.;
-			auto const baseVel = !p->NotOnWater ? VEHICLETURN : VEHICLETURN * velScale;
+			auto const baseVel = !p->NotOnWater ? VEHICLETURN : +VEHICLETURN * velScale;
 
 			if (kbdLeft || p->moto_drink < 0 || hidInput->mouseturnx < 0 || hidInput->dyaw < 0)
 			{
@@ -737,8 +735,8 @@ static void processVehicleInput(player_struct *p, ControlInfo* const hidInput, I
 
 	if (p->OnBoat || !p->moto_underwater)
 	{
-		p->vehForwardScale = std::min((buttonMap.ButtonDown(gamefunc_Move_Forward) || buttonMap.ButtonDown(gamefunc_Strafe)) + hidInput->dz, 1.f); 
-		p->vehReverseScale = std::min(buttonMap.ButtonDown(gamefunc_Move_Backward) + -hidInput->dz, 1.f);
+		p->vehForwardScale = min((buttonMap.ButtonDown(gamefunc_Move_Forward) || buttonMap.ButtonDown(gamefunc_Strafe)) + hidInput->dz, 1.f); 
+		p->vehReverseScale = min(buttonMap.ButtonDown(gamefunc_Move_Backward) + -hidInput->dz, 1.f);
 		p->vehBraking = buttonMap.ButtonDown(gamefunc_Run);
 	}
 
@@ -752,7 +750,7 @@ static void processVehicleInput(player_struct *p, ControlInfo* const hidInput, I
 		input.avel = (float)boatApplyTurn(p, hidInput, kbdLeft, kbdRight, scaleAdjust);
 	}
 
-	loc.fvel = clamp(xs_CRoundToInt(p->MotoSpeed), -(MAXVELMOTO >> 3), MAXVELMOTO);
+	loc.fvel = (int16_t)clamp<int>(xs_CRoundToInt(p->MotoSpeed), -(MAXVELMOTO >> 3), MAXVELMOTO);
 	input.avel *= BAngToDegree;
 	loc.avel += input.avel;
 }

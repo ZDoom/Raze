@@ -38,7 +38,7 @@ static int jaildoorcnt;
 static int minecartcnt;
 static int lightnincnt;
 
-static short torchsector[64];
+static int torchsector[64];
 static short torchsectorshade[64];
 static short torchtype[64];
 
@@ -49,18 +49,18 @@ static short jaildoorsecthtag[32];
 static int jaildoordist[32];
 static short jaildoordir[32];
 static short jaildooropen[32];
-static short jaildoorsect[32];
+static int jaildoorsect[32];
 
 static short minecartdir[16];
 static int minecartspeed[16];
-static short minecartchildsect[16];
+static int minecartchildsect[16];
 static short minecartsound[16];
 static int minecartdist[16];
 static int minecartdrag[16];
 static short minecartopen[16];
-static short minecartsect[16];
+static int minecartsect[16];
 
-static short lightninsector[64];
+static int lightninsector[64];
 static short lightninsectorshade[64];
 
 static uint8_t brightness;
@@ -128,7 +128,7 @@ void addtorch(spritetype* s)
 		I_Error("Too many torch effects");
 
 	torchsector[torchcnt] = s->sectnum;
-	torchsectorshade[torchcnt] = sector[s->sectnum].floorshade;
+	torchsectorshade[torchcnt] = s->sector()->floorshade;
 	torchtype[torchcnt] = s->lotag;
 	torchcnt++;
 }
@@ -139,7 +139,7 @@ void addlightning(spritetype* s)
 		I_Error("Too many lightnin effects");
 
 	lightninsector[lightnincnt] = s->sectnum;
-	lightninsectorshade[lightnincnt] = sector[s->sectnum].floorshade;
+	lightninsectorshade[lightnincnt] = s->sector()->floorshade;
 	lightnincnt++;
 }
 
@@ -189,34 +189,35 @@ void addminecart(int p1, int p2, int i, int iht, int p3, int childsectnum)
 void dotorch(void)
 {
 	int ds;
-	short j;
-	short startwall, endwall;
-	char shade;
+	int j;
+	int startwall, endwall;
+	uint8_t shade;
 	ds = krand()&8;
 	for (int i = 0; i < torchcnt; i++)
 	{
+		auto sect = &sector[torchsector[i]];
 		shade = torchsectorshade[i] - ds;
 		switch (torchtype[i])
 		{
 			case 0:
-				sector[torchsector[i]].floorshade = shade;
-				sector[torchsector[i]].ceilingshade = shade;
+				sect->floorshade = shade;
+				sect->ceilingshade = shade;
 				break;
 			case 1:
-				sector[torchsector[i]].ceilingshade = shade;
+				sect->ceilingshade = shade;
 				break;
 			case 2:
-				sector[torchsector[i]].floorshade = shade;
+				sect->floorshade = shade;
 				break;
 			case 4:
-				sector[torchsector[i]].ceilingshade = shade;
+				sect->ceilingshade = shade;
 				break;
 			case 5:
-				sector[torchsector[i]].floorshade = shade;
+				sect->floorshade = shade;
 				break;
 		}
-		startwall = sector[torchsector[i]].wallptr;
-		endwall = startwall + sector[torchsector[i]].wallnum;
+		startwall = sect->wallptr;
+		endwall = startwall + sect->wallnum;
 		for (j = startwall; j < endwall; j++)
 		{
 			if (wall[j].lotag != 1)
@@ -255,6 +256,7 @@ void dojaildoor(void)
 	int speed;
 	for (int i = 0; i < jaildoorcnt; i++)
 	{
+		auto sectp = &sector[jaildoorsect[i]];
 		if (numplayers > 2)
 			speed = jaildoorspeed[i];
 		else
@@ -286,8 +288,8 @@ void dojaildoor(void)
 			}
 			else
 			{
-				startwall = sector[jaildoorsect[i]].wallptr;
-				endwall = startwall + sector[jaildoorsect[i]].wallnum;
+				startwall = sectp->wallptr;
+				endwall = startwall + sectp->wallnum;
 				for (j = startwall; j < endwall; j++)
 				{
 					x = wall[j].x;
@@ -336,27 +338,28 @@ void dojaildoor(void)
 			}
 			else
 			{
-				startwall = sector[jaildoorsect[i]].wallptr;
-				endwall = startwall + sector[jaildoorsect[i]].wallnum;
+				startwall = sectp->wallptr;
+				endwall = startwall + sectp->wallnum;
 				for (j = startwall; j < endwall; j++)
 				{
+					auto wal = &wall[j];
 					switch (jaildoordir[i])
 					{
 						case 10:
-							x = wall[j].x;
-							y = wall[j].y + speed;
+							x = wal->x;
+							y = wal->y + speed;
 							break;
 						case 20:
-							x = wall[j].x - speed;
-							y = wall[j].y;
+							x = wal->x - speed;
+							y = wal->y;
 							break;
 						case 30:
-							x = wall[j].x;
-							y = wall[j].y - speed;
+							x = wal->x;
+							y = wal->y - speed;
 							break;
 						case 40:
-							x = wall[j].x + speed;
-							y = wall[j].y;
+							x = wal->x + speed;
+							y = wal->y;
 							break;
 					}
 					dragpoint(j,x,y);
@@ -374,11 +377,11 @@ void dojaildoor(void)
 
 void moveminecart(void)
 {
-	short i;
-	short j;
-	short csect;
-	short startwall;
-	short endwall;
+	int i;
+	int j;
+	int csect;
+	int startwall;
+	int endwall;
 	int speed;
 	int y;
 	int x;
@@ -390,6 +393,7 @@ void moveminecart(void)
 	int min_x;
 	for (i = 0; i < minecartcnt; i++)
 	{
+		auto sectp = &sector[minecartsect[i]];
 		speed = minecartspeed[i];
 		if (speed < 2)
 			speed = 2;
@@ -419,8 +423,8 @@ void moveminecart(void)
 			}
 			else
 			{
-				startwall = sector[minecartsect[i]].wallptr;
-				endwall = startwall + sector[minecartsect[i]].wallnum;
+				startwall = sectp->wallptr;
+				endwall = startwall + sectp->wallnum;
 				for (j = startwall; j < endwall; j++)
 				{
 					switch (minecartdir[i])
@@ -471,27 +475,28 @@ void moveminecart(void)
 			}
 			else
 			{
-				startwall = sector[minecartsect[i]].wallptr;
-				endwall = startwall + sector[minecartsect[i]].wallnum;
+				startwall = sectp->wallptr;
+				endwall = startwall + sectp->wallnum;
 				for (j = startwall; j < endwall; j++)
 				{
+					auto wal = &wall[j];
 					switch (minecartdir[i])
 					{
 						case 10:
-							x = wall[j].x;
-							y = wall[j].y + speed;
+							x = wal->x;
+							y = wal->y + speed;
 							break;
 						case 20:
-							x = wall[j].x - speed;
-							y = wall[j].y;
+							x = wal->x - speed;
+							y = wal->y;
 							break;
 						case 30:
-							x = wall[j].x;
-							y = wall[j].y - speed;
+							x = wal->x;
+							y = wal->y - speed;
 							break;
 						case 40:
-							x = wall[j].x + speed;
-							y = wall[j].y;
+							x = wal->x + speed;
+							y = wal->y;
 							break;
 					}
 					dragpoint(j,x,y);
@@ -556,7 +561,7 @@ void thunder(void)
 {
 	struct player_struct* p;
 	int r1, r2;
-	short startwall, endwall, i, j;
+	int startwall, endwall, i, j;
 	uint8_t shade;
 
 	p = &ps[screenpeek];
@@ -610,10 +615,11 @@ void thunder(void)
 			winderflash = 0;
 			for (i = 0; i < lightnincnt; i++)
 			{
-				startwall = sector[lightninsector[i]].wallptr;
-				endwall = startwall + sector[lightninsector[i]].wallnum;
-				sector[lightninsector[i]].floorshade = (int8_t)lightninsectorshade[i];
-				sector[lightninsector[i]].ceilingshade = (int8_t)lightninsectorshade[i];
+				auto sectp = &sector[lightninsector[i]];
+				startwall = sectp->wallptr;
+				endwall = startwall + sectp->wallnum;
+				sectp->floorshade = (int8_t)lightninsectorshade[i];
+				sectp->ceilingshade = (int8_t)lightninsectorshade[i];
 				for (j = startwall; j < endwall; j++)
 					wall[j].shade = (int8_t)lightninsectorshade[i];
 			}
@@ -651,10 +657,11 @@ void thunder(void)
 		shade = torchsectorshade[i] + r2;
 		for (i = 0; i < lightnincnt; i++)
 		{
-			startwall = sector[lightninsector[i]].wallptr;
-			endwall = startwall + sector[lightninsector[i]].wallnum;
-			sector[lightninsector[i]].floorshade = lightninsectorshade[i] - shade;
-			sector[lightninsector[i]].ceilingshade = lightninsectorshade[i] - shade;
+			auto sectp = &sector[lightninsector[i]];
+			startwall = sectp->wallptr;
+			endwall = startwall + sectp->wallnum;
+			sectp->floorshade = lightninsectorshade[i] - shade;
+			sectp->ceilingshade = lightninsectorshade[i] - shade;
 			for (j = startwall; j < endwall; j++)
 				wall[j].shade = lightninsectorshade[i] - shade;
 		}

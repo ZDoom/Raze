@@ -84,9 +84,9 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 {
 	if (arc.BeginObject(keyname))
 	{
-		arc("posx", w.posx)
-			("posy", w.posy)
-			("posz", w.posz)
+		arc("posx", w.pos.x)
+			("posy", w.pos.y)
+			("posz", w.pos.z)
 			("angle", w.angle)
 			("horizon", w.horizon)
 			.Array("gotweapon", w.gotweapon, MAX_WEAPONS)
@@ -253,9 +253,9 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 			.EndObject();
 
 		w.invdisptime = 0;
-		w.oposx = w.posx;
-		w.oposy = w.posy;
-		w.oposz = w.posz;
+		w.oposx = w.pos.x;
+		w.oposy = w.pos.y;
+		w.oposz = w.pos.z;
 		w.opyoff = w.pyoff;
 		w.oweapon_sway = w.weapon_sway;
 		w.oweapon_pos = w.weapon_pos;
@@ -293,6 +293,23 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, DDukeActor& w, DDu
 			("temp_actor", w.temp_actor, def->temp_actor)
 			("seek_actor", w.seek_actor, def->seek_actor)
 			.Array("temp_data", w.temp_data, def->temp_data, 6)
+			.EndObject();
+	}
+	return arc;
+}
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, Cycler& w, Cycler* def)
+{
+	static Cycler nul;
+	if (!def) def = &nul;
+	if (arc.BeginObject(keyname))
+	{
+		arc("sector", w.sectnum, def->sectnum)
+			("lotag", w.lotag, def->lotag)
+			("hitag", w.hitag, def->hitag)
+			("shade1", w.shade1, def->shade1)
+			("shade2", w.shade2, def->shade2)
+			("state", w.state, def->state)
 			.EndObject();
 	}
 	return arc;
@@ -366,7 +383,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 
 			.Array("spriteq", spriteq, 1024)
 			("numcyclers", numcyclers)
-			.Array("cyclers", &cyclers[0][0], 6 * numcyclers)
+			.Array("cycler", cyclers, numcyclers)
 			("mirrorcnt", mirrorcnt)
 			.Array("mirrorsector", mirrorsector, mirrorcnt)
 			.Array("mirrorwall", mirrorwall, mirrorcnt)

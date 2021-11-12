@@ -41,7 +41,8 @@ enum
 };
 
 int initx, inity, initz;
-short inita, initsect;
+short inita;
+int initsect;
 
 short nCurChunkNum = 0;
 
@@ -51,7 +52,7 @@ int movefifopos;
 
 short nCurBodyGunNum;
 
-short SectSoundSect[kMaxSectors] = { 0 };
+int SectSoundSect[kMaxSectors] = { 0 };
 short SectSound[kMaxSectors]     = { 0 };
 short SectFlag[kMaxSectors]      = { 0 };
 int   SectDepth[kMaxSectors]     = { 0 };
@@ -88,7 +89,7 @@ uint8_t LoadLevel(MapRecord* map)
         nCreaturesKilled = 0;
         nCreaturesTotal = 0;
         nFreeze = 0;
-        nSpiritSprite = -1;
+        pSpiritSprite = nullptr;
         PlayClock = 0;
         memset(Counters, 0, sizeof(Counters));
 
@@ -104,7 +105,6 @@ uint8_t LoadLevel(MapRecord* map)
         InitPushBlocks();
 		InitPlayer();
         InitItems();
-        InitInput();
 
         if (map->gameflags & LEVEL_EX_COUNTDOWN) {
             InitEnergyTile();
@@ -136,7 +136,7 @@ uint8_t LoadLevel(MapRecord* map)
 
     for (i = 0; i < kMaxPlayers; i++)
     {
-        PlayerList[i].nSprite = -1;
+        PlayerList[i].pActor = nullptr;
     }
 
     psky_t* pSky = tileSetupSky(DEFAULTPSKY);
@@ -215,16 +215,16 @@ void SetAbove(short nCurSector, short nAboveSector)
     SectAbove[nCurSector] = nAboveSector;
 }
 
-void SnapSectors(short nSectorA, short nSectorB, short b)
+void SnapSectors(int nSectorA, int nSectorB, int b)
 {
     // edx - nSectorA
     // eax - nSectorB
 
-    short nWallA = sector[nSectorA].wallptr;
-    short nWallB = sector[nSectorB].wallptr;
+    int nWallA = sector[nSectorA].wallptr;
+    int nWallB = sector[nSectorB].wallptr;
 
-    short num1 = sector[nSectorA].wallnum;
-    short num2 = sector[nSectorB].wallnum;
+    int num1 = sector[nSectorA].wallnum;
+    int num2 = sector[nSectorB].wallnum;
 
     int nCount = 0;
 
@@ -319,9 +319,8 @@ void InitSectFlag()
     }
 }
 
-void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
+void ProcessSpriteTag(DExhumedActor* pActor, short nLotag, short nHitag)
 {
-    auto pActor = &exhumedActors[nSprite];
 	auto pSprite = &pActor->s();
     int nChannel = runlist_AllocChannel(nHitag % 1000);
 
@@ -334,7 +333,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
 
     if (nLotag >= 900 && nLotag <= 949)
     {
-        ProcessTrailSprite(nSprite, nLotag, nHitag);
+        ProcessTrailSprite(pActor, nLotag, nHitag);
         return;
     }
 
@@ -632,7 +631,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 99: // underwater type 2
             {
-                short nSector = pSprite->sectnum;
+                int nSector =pSprite->sectnum;
                 SetAbove(nSector, nHitag);
                 SectFlag[nSector] |= kSectUnderwater;
 
@@ -641,7 +640,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 98:
             {
-                short nSector = pSprite->sectnum;
+                int nSector =pSprite->sectnum;
                 SetBelow(nSector, nHitag);
                 SnapSectors(nSector, nHitag, 1);
 
@@ -662,7 +661,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
                     nDamage = 1;
                 }
 
-                short nSector = pSprite->sectnum;
+                int nSector =pSprite->sectnum;
 
                 SectDamage[nSector] = nDamage;
                 SectFlag[nSector] |= kSectLava;
@@ -679,7 +678,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 94: // water
             {
-                short nSector = pSprite->sectnum;
+                int nSector =pSprite->sectnum;
                 SectDepth[nSector] = nHitag << 8;
 
                 DeleteActor(pActor);
@@ -692,13 +691,13 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 90:
             {
-                BuildObject(nSprite, 3, nHitag);
+                BuildObject(pActor, 3, nHitag);
                 return;
             }
             case 79:
             case 89:
             {
-                short nSector = pSprite->sectnum;
+                int nSector =pSprite->sectnum;
 
                 SectSpeed[nSector] = nSpeed;
                 SectFlag[nSector] |= pSprite->ang;
@@ -715,7 +714,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 80: // underwater
             {
-                short nSector = pSprite->sectnum;
+                int nSector =pSprite->sectnum;
                 SectFlag[nSector] |= kSectUnderwater;
 
                 DeleteActor(pActor);
@@ -725,7 +724,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             {
                 AddFlow(pSprite->sectnum, nSpeed, 1, pSprite->ang);
 
-                short nSector = pSprite->sectnum;
+                int nSector =pSprite->sectnum;
                 SectFlag[nSector] |= 0x8000;
 
                 DeleteActor(pActor);
@@ -740,12 +739,12 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 76: // Explosion Trigger (Exploding Fire Cauldron)
             {
-                BuildObject(nSprite, 0, nHitag);
+                BuildObject(pActor, 0, nHitag);
                 return;
             }
             case 75: // Explosion Target (Cauldrons, fireballs and grenades will destroy nearby 75 sprites)
             {
-                BuildObject(nSprite, 1, nHitag);
+                BuildObject(pActor, 1, nHitag);
                 return;
             }
             case 71:
@@ -757,7 +756,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case 70:
             {
-                BuildDrip(nSprite);
+                BuildDrip(pActor);
                 return;
             }
             case 63:
@@ -776,7 +775,7 @@ void ProcessSpriteTag(short nSprite, short nLotag, short nHitag)
             }
             case kTagRamses: // Ramses head
             {
-                nSpiritSprite = nSprite;
+                pSpiritSprite = pActor;
                 pSprite->cstat |= 0x8000;
                 return;
             }
@@ -812,7 +811,7 @@ void ExamineSprites()
                 pSprite->lotag = 0;
                 pSprite->hitag = 0;
 
-                ProcessSpriteTag(ac->GetSpriteIndex(), lotag, hitag);
+                ProcessSpriteTag(ac, lotag, hitag);
             }
             else
             {
@@ -849,17 +848,18 @@ void LoadObjects()
 
     for (int nSector = 0; nSector < numsectors; nSector++)
     {
-        short hitag = sector[nSector].hitag;
-        short lotag = sector[nSector].lotag;
+        auto sectp = &sector[nSector];
+        short hitag = sectp->hitag;
+        short lotag = sectp->lotag;
 
-        sector[nSector].hitag = 0;
-        sector[nSector].lotag = 0;
-        sector[nSector].extra = -1;
+        sectp->hitag = 0;
+        sectp->lotag = 0;
+        sectp->extra = -1;
 
         if (hitag || lotag)
         {
-            sector[nSector].lotag = runlist_HeadRun() + 1;
-            sector[nSector].hitag = lotag;
+            sectp->lotag = runlist_HeadRun() + 1;
+            sectp->hitag = lotag;
 
             runlist_ProcessSectorTag(nSector, lotag, hitag);
         }

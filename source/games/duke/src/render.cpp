@@ -64,10 +64,6 @@ BEGIN_DUKE_NS
 //
 //---------------------------------------------------------------------------
 
-/*static*/ int tempsectorz[MAXSECTORS];
-/*static*/ int tempsectorpicnum[MAXSECTORS];
-//short tempcursectnum;
-
 void renderView(spritetype* playersprite, int sectnum, int x, int y, int z, binangle a, fixedhoriz h, binangle rotscrnang, int smoothratio)
 {
 	if (!testnewrenderer)
@@ -77,7 +73,7 @@ void renderView(spritetype* playersprite, int sectnum, int x, int y, int z, bina
 
 		se40code(x, y, z, a, h, smoothratio);
 		renderMirror(x, y, z, a, h, smoothratio);
-		renderDrawRoomsQ16(x, y, z, a.asq16(), h.asq16(), sectnum);
+		renderDrawRoomsQ16(x, y, z, a.asq16(), h.asq16(), sectnum, false);
 		fi.animatesprites(pm_tsprite, pm_spritesortcnt, x, y, a.asbuild(), smoothratio);
 		renderDrawMasks();
 	}
@@ -121,7 +117,7 @@ void GameInterface::UpdateCameras(double smoothratio)
 				if (!testnewrenderer)
 				{
 					// Note: no ROR or camera here - Polymost has no means to detect these things before rendering the scene itself.
-					renderDrawRoomsQ16(camera->x, camera->y, camera->z, ang.asq16(), IntToFixed(camera->shade), camera->sectnum); // why 'shade'...?
+					renderDrawRoomsQ16(camera->x, camera->y, camera->z, ang.asq16(), IntToFixed(camera->shade), camera->sectnum, false); // why 'shade'...?
 					fi.animatesprites(pm_tsprite, pm_spritesortcnt, camera->x, camera->y, ang.asbuild(), (int)smoothratio);
 					renderDrawMasks();
 				}
@@ -256,7 +252,7 @@ static int getdrugmode(player_struct *p, int oyrepeat)
 void displayrooms(int snum, double smoothratio)
 {
 	int cposx, cposy, cposz, fz, cz;
-	short sect;
+	int sect;
 	binangle cang, rotscrnang;
 	fixedhoriz choriz;
 	struct player_struct* p;
@@ -322,7 +318,7 @@ void displayrooms(int snum, double smoothratio)
 			cposz = interpolatedvalue(omyz, myz, smoothratio);
 			if (SyncInput())
 			{
-				choriz = q16horiz(interpolatedvalue((omyhoriz + omyhorizoff).asq16(), (myhoriz + myhorizoff).asq16(), smoothratio));
+				choriz = interpolatedhorizon(omyhoriz + omyhorizoff, myhoriz + myhorizoff, smoothratio);
 				cang = interpolatedangle(omyang, myang, smoothratio);
 			}
 			else
@@ -334,9 +330,9 @@ void displayrooms(int snum, double smoothratio)
 		}
 		else
 		{
-			cposx = interpolatedvalue(p->oposx, p->posx, smoothratio);
-			cposy = interpolatedvalue(p->oposy, p->posy, smoothratio);
-			cposz = interpolatedvalue(p->oposz, p->posz, smoothratio);;
+			cposx = interpolatedvalue(p->oposx, p->pos.x, smoothratio);
+			cposy = interpolatedvalue(p->oposy, p->pos.y, smoothratio);
+			cposz = interpolatedvalue(p->oposz, p->pos.z, smoothratio);;
 			if (SyncInput())
 			{
 				// Original code for when the values are passed through the sync struct

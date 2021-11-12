@@ -342,33 +342,4 @@ SetSumoFartQuake(int16_t SpriteNum)
 }
 
 
-#include "saveable.h"
-
-static saveable_code saveable_quake_code[] =
-{
-    SAVE_CODE(CopyQuakeSpotToOn),
-    SAVE_CODE(DoQuakeMatch),
-    SAVE_CODE(ProcessQuakeOn),
-    SAVE_CODE(ProcessQuakeSpot),
-    SAVE_CODE(QuakeViewChange),
-    SAVE_CODE(SpawnQuake),
-    SAVE_CODE(SetQuake),
-    SAVE_CODE(SetExpQuake),
-    SAVE_CODE(SetGunQuake),
-    SAVE_CODE(SetPlayerQuake),
-    SAVE_CODE(SetNuclearQuake),
-    SAVE_CODE(SetSumoQuake),
-    SAVE_CODE(SetSumoFartQuake),
-};
-
-saveable_module saveable_quake =
-{
-    // code
-    saveable_quake_code,
-    SIZ(saveable_quake_code),
-
-    // data
-    nullptr,0
-};
-
 END_SW_NS

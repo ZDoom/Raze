@@ -1,4 +1,5 @@
 #pragma once
+#include <limits.h>
 #include <stdlib.h>
 #include <algorithm>
 #include <vector>
@@ -12,7 +13,7 @@
 #include "hw_material.h"
 #include "hw_renderstate.h"
 #include "pm_renderstate.h"
-#include "templates.h"
+
 
 class FShader;
 class FGameTexture;

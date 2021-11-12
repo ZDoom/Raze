@@ -39,7 +39,7 @@ static actionSeq SetSeq[] = {
     {74, 1}
 };
 
-void BuildSet(DExhumedActor* pActor, int x, int y, int z, short nSector, short nAngle, int nChannel)
+void BuildSet(DExhumedActor* pActor, int x, int y, int z, int nSector, short nAngle, int nChannel)
 {
 	spritetype* pSprite;
     if (pActor == nullptr)
@@ -53,7 +53,7 @@ void BuildSet(DExhumedActor* pActor, int x, int y, int z, short nSector, short n
 		pSprite = &pActor->s();
         x = pSprite->x;
         y = pSprite->y;
-        z = sector[pSprite->sectnum].floorz;
+        z = pSprite->sector()->floorz;
         nAngle = pSprite->ang;
     }
 
@@ -68,7 +68,7 @@ void BuildSet(DExhumedActor* pActor, int x, int y, int z, short nSector, short n
     pSprite->zvel = 0;
     pSprite->xrepeat = 87;
     pSprite->yrepeat = 96;
-    pSprite->pal = sector[pSprite->sectnum].ceilingpal;
+    pSprite->pal = pSprite->sector()->ceilingpal;
     pSprite->xoffset = 0;
     pSprite->yoffset = 0;
     pSprite->ang = nAngle;
@@ -120,7 +120,7 @@ void BuildSoul(DExhumedActor* pSet)
     pSprite->x = pSetSprite->x;
     pSprite->y = pSetSprite->y;
 
-    short nSector = pSprite->sectnum;
+    int nSector =pSprite->sectnum;
     pSprite->z = (RandomSize(8) << 8) + 8192 + sector[nSector].ceilingz - GetActorHeight(pActor);
 
     //pSprite->hitag = nSet;
@@ -172,13 +172,6 @@ void AISoul::Tick(RunListEvent* ev)
     }
 }
 
-
-
-void FuncSoul(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AISoul ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
-}
 
 void AISet::RadialDamage(RunListEvent* ev)
 {
@@ -290,7 +283,10 @@ void AISet::Tick(RunListEvent* ev)
 
     auto nMov = MoveCreature(pActor);
 
-    pushmove_old(&pSprite->x, &pSprite->y, &pSprite->z, &pSprite->sectnum, pSprite->clipdist << 2, 5120, -5120, CLIPMASK0);
+	static_assert(sizeof(pSprite->sectnum) != 4);
+	int sectnum = pSprite->sectnum;
+    pushmove(&pSprite->pos, &sectnum, pSprite->clipdist << 2, 5120, -5120, CLIPMASK0);
+	pSprite->sectnum = sectnum;
 
     if (pSprite->zvel > 4000)
     {
@@ -643,9 +639,4 @@ void AISet::Tick(RunListEvent* ev)
     return;
 }
 
-void FuncSet(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AISet ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
-}
 END_PS_NS

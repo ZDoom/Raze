@@ -48,38 +48,40 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "quotemgr.h"
 #include "v_text.h"
 #include "gamecontrol.h"
+#include "gamefuncs.h"
 
 BEGIN_SW_NS
 
-ANIMATOR SetupCoolie;
-ANIMATOR SetupNinja;
-ANIMATOR SetupGoro;
-ANIMATOR SetupCoolg;
-ANIMATOR SetupEel;
-ANIMATOR SetupSumo;
-ANIMATOR SetupZilla;
-ANIMATOR SetupToiletGirl;
-ANIMATOR SetupWashGirl;
-ANIMATOR SetupCarGirl;
-ANIMATOR SetupMechanicGirl;
-ANIMATOR SetupSailorGirl;
-ANIMATOR SetupPruneGirl;
-ANIMATOR SetupTrashCan;
-ANIMATOR SetupBunny;
-ANIMATOR SetupRipper;
-ANIMATOR SetupRipper2;
-ANIMATOR SetupSerp;
-ANIMATOR SetupLava;
-ANIMATOR SetupSkel;
-ANIMATOR SetupHornet;
-ANIMATOR SetupSkull;
-ANIMATOR SetupBetty;
-ANIMATOR SetupPachinkoLight;
-ANIMATOR SetupPachinko1;
-ANIMATOR SetupPachinko2;
-ANIMATOR SetupPachinko3;
-ANIMATOR SetupPachinko4;
-ANIMATOR SetupGirlNinja;
+
+int SetupCoolie(short);
+int SetupNinja(short);
+int SetupGoro(short);
+int SetupCoolg(short);
+int SetupEel(short);
+int SetupSumo(short);
+int SetupZilla(short);
+int SetupToiletGirl(short);
+int SetupWashGirl(short);
+int SetupCarGirl(short);
+int SetupMechanicGirl(short);
+int SetupSailorGirl(short);
+int SetupPruneGirl(short);
+int SetupTrashCan(short);
+int SetupBunny(short);
+int SetupRipper(short);
+int SetupRipper2(short);
+int SetupSerp(short);
+int SetupLava(short);
+int SetupSkel(short);
+int SetupHornet(short);
+int SetupSkull(short);
+int SetupBetty(short);
+int SetupPachinkoLight(short);
+int SetupPachinko1(short);
+int SetupPachinko2(short);
+int SetupPachinko3(short);
+int SetupPachinko4(short);
+int SetupGirlNinja(short);
 ANIMATOR DoVator, DoVatorAuto;
 ANIMATOR DoRotator;
 ANIMATOR DoSlidor;
@@ -101,7 +103,7 @@ static int globhiz, globloz, globhihit, globlohit;
 short wait_active_check_offset;
 int PlaxCeilGlobZadjust, PlaxFloorGlobZadjust;
 void SetSectorWallBits(short sectnum, int bit_mask, bool set_sectwall, bool set_nextwall);
-int DoActorDebris(short SpriteNum);
+int DoActorDebris(DSWActor* actor);
 void ActorWarpUpdatePos(short SpriteNum,short sectnum);
 void ActorWarpType(SPRITEp sp, SPRITEp sp_warp);
 int MissileZrange(short SpriteNum);
@@ -1602,8 +1604,8 @@ void PreMapCombineFloors(void)
     int SpriteNum;
     int base_offset;
     int dx,dy;
-    short sectlist[MAXSECTORS];
-    short sectlistplc, sectlistend, dasect, startwall, endwall, nextsector;
+    int dasect, startwall, endwall, nextsector;
+    unsigned sectliststart, sectlistplc;
     short pnum;
 
     typedef struct
@@ -1631,6 +1633,7 @@ void PreMapCombineFloors(void)
         }
     }
 
+    sectliststart = GlobalSectorList.Size();
     for (i = base_offset = 0; i < MAX_FLOORS; i++)
     {
         // blank so continue
@@ -1646,11 +1649,12 @@ void PreMapCombineFloors(void)
         dx = BoundList[base_offset].offset->x - BoundList[i].offset->x;
         dy = BoundList[base_offset].offset->y - BoundList[i].offset->y;
 
-        sectlist[0] = BoundList[i].offset->sectnum;
-        sectlistplc = 0; sectlistend = 1;
-        while (sectlistplc < sectlistend)
+        GlobalSectorList.Resize(sectliststart);
+        GlobalSectorList.Push(BoundList[i].offset->sectnum);
+        sectlistplc = sectliststart;
+        while (sectlistplc < GlobalSectorList.Size())
         {
-            dasect = sectlist[sectlistplc++];
+            dasect = GlobalSectorList[sectlistplc++];
 
             SectIterator it(dasect);
             while ((j = it.NextIndex()) >= 0)
@@ -1669,11 +1673,18 @@ void PreMapCombineFloors(void)
                 nextsector = wall[j].nextsector;
                 if (nextsector < 0) continue;
 
-                for (k=sectlistend-1; k>=0; k--)
-                    if (sectlist[k] == nextsector)
+                // make sure its not on the list
+                for (k = GlobalSectorList.Size() - 1; k >= (int)sectliststart; k--)
+                {
+                    if (GlobalSectorList[k] == nextsector)
                         break;
+                }
+
+                // if its not on the list add it to the end
                 if (k < 0)
-                    sectlist[sectlistend++] = nextsector;
+                {
+                    GlobalSectorList.Push(nextsector);
+                }
             }
 
         }
@@ -1682,9 +1693,9 @@ void PreMapCombineFloors(void)
         {
             PLAYERp pp = &Player[pnum];
             dasect = pp->cursectnum;
-            for (j=0; j<sectlistend; j++)
+            for (unsigned j = sectliststart; j < GlobalSectorList.Size(); j++)
             {
-                if (sectlist[j] == dasect)
+                if (GlobalSectorList[j] == dasect)
                 {
                     pp->posx += dx;
                     pp->posy += dy;
@@ -1703,6 +1714,7 @@ void PreMapCombineFloors(void)
     {
         KillSprite(SpriteNum);
     }
+    GlobalSectorList.Resize(sectliststart);
 }
 
 #if 0
@@ -1710,7 +1722,7 @@ void PreMapCombineFloors(void)
 void TraverseSectors(short start_sect)
 {
     int i, j, k;
-    short sectlist[MAXSECTORS];
+    short sectlist[M AXSECTORS];
     short sectlistplc, sectlistend, sect, startwall, endwall, nextsector;
 
     sectlist[0] = start_sect;
@@ -2632,7 +2644,7 @@ SpriteSetup(void)
                         if (TEST_BOOL5(sp))
                         {
                             uint16_t const nextwall = wall[w].nextwall;
-                            if (nextwall < MAXWALLS)
+                            if (validWallIndex(nextwall))
                             {
                                 wall_shade[wallcount] = wall[wall[w].nextwall].shade;
                                 wallcount++;
@@ -2688,7 +2700,7 @@ SpriteSetup(void)
                         if (TEST_BOOL5(sp))
                         {
                             uint16_t const nextwall = wall[w].nextwall;
-                            if (nextwall < MAXWALLS)
+                            if (validWallIndex(nextwall))
                             {
                                 wall_shade[wallcount] = wall[wall[w].nextwall].shade;
                                 wallcount++;
@@ -2968,7 +2980,7 @@ SpriteSetup(void)
                     do
                     {
                         // DO NOT TAG WHITE WALLS!
-                        if ((uint16_t)wall[wall_num].nextwall < MAXWALLS)
+                        if (validWallIndex(wall[wall_num].nextwall))
                         {
                             SET(wall[wall_num].cstat, CSTAT_WALL_WARP_HITSCAN);
                         }
@@ -3084,7 +3096,7 @@ SpriteSetup(void)
                     {
                         SET(wall[wall_num].cstat, CSTAT_WALL_BLOCK_ACTOR);
                         uint16_t const nextwall = wall[wall_num].nextwall;
-                        if (nextwall < MAXWALLS)
+                        if (validWallIndex(nextwall))
                             SET(wall[nextwall].cstat, CSTAT_WALL_BLOCK_ACTOR);
                         wall_num = wall[wall_num].point2;
                     }
@@ -4671,6 +4683,11 @@ NewStateGroup(short SpriteNum, STATEp StateGroup[])
     return 0;
 }
 
+int NewStateGroup(USERp user, STATEp StateGroup[])
+{
+	return NewStateGroup(user->SpriteNum, StateGroup);
+}
+
 
 bool
 SpriteOverlap(int16_t spritenum_a, int16_t spritenum_b)
@@ -4879,7 +4896,9 @@ DoActorZrange(short SpriteNum)
 
     save_cstat = TEST(sp->cstat, CSTAT_SPRITE_BLOCK);
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK);
-    FAFgetzrange(sp->x, sp->y, sp->z - DIV2(SPRITEp_SIZE_Z(sp)), sp->sectnum, &u->hiz, &ceilhit, &u->loz, &florhit, (((int) sp->clipdist) << 2) - GETZRANGE_CLIP_ADJ, CLIPMASK_ACTOR);
+    vec3_t pos = sp->pos;
+    pos.z -= DIV2(SPRITEp_SIZE_Z(sp));
+    FAFgetzrange(pos, sp->sectnum, &u->hiz, &ceilhit, &u->loz, &florhit, (((int) sp->clipdist) << 2) - GETZRANGE_CLIP_ADJ, CLIPMASK_ACTOR);
     SET(sp->cstat, save_cstat);
 
     u->lo_sectp = u->hi_sectp = nullptr;
@@ -5013,7 +5032,7 @@ DropAhead(short SpriteNum, short min_height)
 
     SPRITEp sp = &sprite[SpriteNum];
     int dax, day;
-    short newsector;
+    int newsector;
 
     // dax = sp->x + MOVEx(128, sp->ang);
     // day = sp->y + MOVEy(128, sp->ang);
@@ -5022,7 +5041,7 @@ DropAhead(short SpriteNum, short min_height)
     day = sp->y + MOVEy(256, sp->ang);
 
     newsector = sp->sectnum;
-    COVERupdatesector(dax, day, &newsector);
+    updatesector(dax, day, &newsector);
 
     // look straight down for a drop
     if (ActorDrop(SpriteNum, dax, day, sp->z, newsector, min_height))
@@ -5074,10 +5093,8 @@ move_actor(short SpriteNum, int xchange, int ychange, int zchange)
     hi_sectp = u->hi_sectp;
     sectnum = sp->sectnum;
 
-    clipmoveboxtracenum = 1;
     u->ret = move_sprite(SpriteNum, xchange, ychange, zchange,
                          u->ceiling_dist, u->floor_dist, cliptype, ACTORMOVETICS);
-    clipmoveboxtracenum = 3;
 
     ASSERT(sp->sectnum >= 0);
 
@@ -5141,16 +5158,20 @@ move_actor(short SpriteNum, int xchange, int ychange, int zchange)
 }
 
 int
-DoStayOnFloor(short SpriteNum)
+DoStayOnFloor(DSWActor* actor)
 {
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     sprite[SpriteNum].z = sector[sprite[SpriteNum].sectnum].floorz;
     //sprite[SpriteNum].z = getflorzofslope(sprite[SpriteNum].sectnum, sprite[SpriteNum].x, sprite[SpriteNum].y);
     return 0;
 }
 
 int
-DoGrating(short SpriteNum)
+DoGrating(DSWActor* actor)
 {
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
     int dir;
 #define GRATE_FACTOR 3
@@ -5217,59 +5238,27 @@ DoSpriteFade(short SpriteNum)
 }
 #endif
 
-int
-SpearOnFloor(short SpriteNum)
-{
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = User[SpriteNum]->SpriteP;
-
-    if (!TEST(u->Flags, SPR_SO_ATTACHED))
-    {
-        // if on a sprite bridge, stay with the sprite otherwize stay with
-        // the floor
-        if (u->lo_sp)
-            sp->z = u->loz;
-        else
-            sp->z = sector[sp->sectnum].floorz + u->sz;
-    }
-    return 0;
-}
 
 int
-SpearOnCeiling(short SpriteNum)
+DoKey(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = User[SpriteNum]->SpriteP;
-
-    if (!TEST(u->Flags, SPR_SO_ATTACHED))
-    {
-        // if on a sprite bridge, stay with the sprite otherwize stay with
-        // the floor
-        if (u->hi_sp)
-            sp->z = u->hiz;
-        else
-            sp->z = sector[sp->sectnum].ceilingz + u->sz;
-    }
-    return 0;
-}
-
-int
-DoKey(short SpriteNum)
-{
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
 
     sp->ang = NORM_ANGLE(sp->ang + (14 * ACTORMOVETICS));
 
     //DoSpriteFade(SpriteNum);
 
-    DoGet(SpriteNum);
+    DoGet(actor);
     return 0;
 }
 
 int
-DoCoin(short SpriteNum)
+DoCoin(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     int offset;
 
     u->WaitTics -= ACTORMOVETICS * 2;
@@ -5541,9 +5530,11 @@ struct InventoryDecl_t InventoryDecls[InvDecl_TOTAL] =
 #define ITEMFLASHAMT  -8
 #define ITEMFLASHCLR  144
 int
-DoGet(short SpriteNum)
+DoGet(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data(), pu;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
+	USERp pu;
     SPRITEp sp = u->SpriteP;
     PLAYERp pp;
     short pnum, key_num;
@@ -6515,92 +6506,6 @@ AdjustActiveRange(PLAYERp pp, short SpriteNum, int dist)
     }
 }
 
-/*
-
-  !AIC KEY - Main processing loop for sprites.  Sprites are separated and
-  traversed by STAT lists.  Note the STAT_MISC, STAT_ENEMY, STAT_VATOR below.
-  Most everything here calls StateControl().
-
-*/
-
-
-#if DEBUG
-#define INLINE_STATE 0
-#else
-#define INLINE_STATE 1
-#endif
-
-#define STATE_CONTROL(SpriteNum, sp, u, StateTics)                                  \
-    if (!(u)->State)                                                                \
-    {                                                                           \
-        ASSERT((u)->ActorActionFunc);                                               \
-        ((u)->ActorActionFunc)((SpriteNum));                                        \
-    }                                                                           \
-    else                                                                            \
-    {                                                                           \
-        if ((sp)->statnum >= STAT_SKIP4_START && (sp)->statnum <= STAT_SKIP4_END)   \
-            (u)->Tics += ACTORMOVETICS * 2;                                         \
-        else                                                                        \
-            (u)->Tics += ACTORMOVETICS;                                             \
-                                                                                    \
-        while ((u)->Tics >= TEST((u)->State->Tics, SF_TICS_MASK))                   \
-        {                                                                       \
-            (StateTics) = TEST((u)->State->Tics, SF_TICS_MASK);                     \
-                                                                                    \
-            if (TEST((u)->State->Tics, SF_TIC_ADJUST))                              \
-            {                                                                   \
-                ASSERT((u)->Attrib);                                                \
-                ASSERT((u)->speed < MAX_SPEED);                                     \
-                ASSERT((StateTics) > -(u)->Attrib->TicAdjust[(u)->speed]);          \
-                                                                                    \
-                (StateTics) += (u)->Attrib->TicAdjust[(u)->speed];                  \
-            }                                                                   \
-                                                                                    \
-            (u)->Tics -= (StateTics);                                               \
-                                                                                    \
-            (u)->State = (u)->State->NextState;                                     \
-                                                                                    \
-            while (TEST((u)->State->Tics, SF_QUICK_CALL))                           \
-            {                                                                   \
-                (*(u)->State->Animator)((SpriteNum));                              \
-                ASSERT(u);                                                          \
-                                                                                    \
-                if (!(u))                                                           \
-                    break;                                                          \
-                                                                                    \
-                if (TEST((u)->State->Tics, SF_QUICK_CALL))                          \
-                    (u)->State = (u)->State->NextState;                             \
-            }                                                                   \
-                                                                                    \
-            if (!(u))                                                               \
-                break;                                                              \
-                                                                                    \
-            if (!(u)->State->Pic)                                                   \
-            {                                                                   \
-                NewStateGroup((SpriteNum), (STATEp *) (u)->State->NextState);       \
-            }                                                                   \
-        }                                                                       \
-                                                                                    \
-        if (u)                                                                      \
-        {                                                                       \
-            if (TEST((u)->State->Tics, SF_WALL_STATE))                              \
-            {                                                                   \
-                ASSERT((u)->WallP);                                                 \
-                (u)->WallP->picnum = (u)->State->Pic;                               \
-            }                                                                   \
-            else                                                                    \
-            {                                                                   \
-                if ((u)->RotNum > 1)                                                \
-                    (sp)->picnum = (u)->Rot[0]->Pic;                                \
-                else                                                                \
-                    (sp)->picnum = (u)->State->Pic;                                 \
-            }                                                                   \
-                                                                                    \
-            if ((u)->State->Animator && (u)->State->Animator != NullAnimator)       \
-                (*(u)->State->Animator)((SpriteNum));                              \
-        }                                                                       \
-    }
-
 
 /*
 
@@ -6613,6 +6518,7 @@ AdjustActiveRange(PLAYERp pp, short SpriteNum, int dist)
 int
 StateControl(int16_t SpriteNum)
 {
+    auto actor = &swActors[SpriteNum];
     USERp u = User[SpriteNum].Data();
     SPRITEp sp = &sprite[SpriteNum];
     short StateTics;
@@ -6620,7 +6526,7 @@ StateControl(int16_t SpriteNum)
     if (!u->State)
     {
         ASSERT(u->ActorActionFunc);
-        (u->ActorActionFunc)(SpriteNum);
+        (u->ActorActionFunc)(actor);
         return 0;
     }
 
@@ -6653,7 +6559,7 @@ StateControl(int16_t SpriteNum)
         while (TEST(u->State->Tics, SF_QUICK_CALL))
         {
             // Call it once and go to the next state
-            (*u->State->Animator)(SpriteNum);
+            (*u->State->Animator)(actor);
 
             ASSERT(u); //put this in to see if actor was getting killed with in his QUICK_CALL state
 
@@ -6695,7 +6601,7 @@ StateControl(int16_t SpriteNum)
 
         // Call the correct animator
         if (u->State->Animator && u->State->Animator != NullAnimator)
-            (*u->State->Animator)(SpriteNum);
+            (*u->State->Animator)(actor);
     }
 
     return 0;
@@ -6717,17 +6623,8 @@ SpriteControl(void)
     StatIterator it(STAT_MISC);
     while ((i = it.NextIndex()) >= 0)
     {
-#if INLINE_STATE
-        ASSERT(User[i].Data());
-        u = User[i].Data();
-        sp = User[i]->SpriteP;
-        STATE_CONTROL(i, sp, u, StateTics)
-        // ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()] != nullptr : true);
-#else
-        ASSERT(User[i]);
         StateControl(i);
         // ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()] != nullptr : true);
-#endif
     }
 
     // Items and skip2 things
@@ -6738,17 +6635,7 @@ SpriteControl(void)
             StatIterator it(stat);
             while ((i = it.NextIndex()) >= 0)
             {
-#if INLINE_STATE
-                ASSERT(User[i].Data());
-                u = User[i].Data();
-                sp = User[i]->SpriteP;
-                STATE_CONTROL(i, sp, u, StateTics)
-                ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()].Data() != nullptr : true);
-#else
-                ASSERT(User[i]);
                 StateControl(i);
-                ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()] != nullptr : true);
-#endif
             }
         }
     }
@@ -6788,13 +6675,7 @@ SpriteControl(void)
             // Only update the ones close to ANY player
             if (CloseToPlayer)
             {
-#if INLINE_STATE
-                u = User[i].Data();
-                sp = User[i]->SpriteP;
-                STATE_CONTROL(i, sp, u, StateTics)
-#else
                 StateControl(i);
-#endif
                 ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()].Data() != nullptr : true);
             }
             else
@@ -6813,17 +6694,7 @@ SpriteControl(void)
             StatIterator it(stat);
             while ((i = it.NextIndex()) >= 0)
             {
-#if INLINE_STATE
-                ASSERT(User[i].Data());
-                u = User[i].Data();
-                sp = User[i]->SpriteP;
-                STATE_CONTROL(i, sp, u, StateTics)
-                ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()].Data() != nullptr : true);
-#else
-                ASSERT(User[i]);
-                StateControl(i);
-                ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()].Data() != nullptr : true);
-#endif
+				StateControl(i);
             }
         }
     }
@@ -6831,9 +6702,10 @@ SpriteControl(void)
     it.Reset(STAT_NO_STATE);
     while ((i = it.NextIndex()) >= 0)
     {
-        if (User[i].Data() && User[i]->ActorActionFunc)
-            (*User[i]->ActorActionFunc)(i);
-        ASSERT(it.PeekIndex() >= 0 ? sprite[it.PeekIndex()].statnum != MAXSTATUS : true);
+        auto actor = &swActors[i];
+        auto u = actor->u();
+        if (u && u->ActorActionFunc)
+            (*u->ActorActionFunc)(actor);
     }
 
     if (MoveSkip8 == 0)
@@ -6852,10 +6724,7 @@ SpriteControl(void)
         it.Reset(STAT_WALLBLOOD_QUEUE);
         while ((i = it.NextIndex()) >= 0)
         {
-            ASSERT(User[i].Data());
-            u = User[i].Data();
-            sp = User[i]->SpriteP;
-            STATE_CONTROL(i, sp, u, StateTics)
+			StateControl(i);
             ASSERT(it.PeekIndex() >= 0 ? User[it.PeekIndex()].Data() != nullptr : true);
 
         }
@@ -6866,6 +6735,7 @@ SpriteControl(void)
     it.Reset(STAT_VATOR);
     while ((i = it.NextIndex()) >= 0)
     {
+        auto actor = &swActors[i];
         u = User[i].Data();
 
         if (u == 0)
@@ -6881,12 +6751,13 @@ SpriteControl(void)
         if (!TEST(u->Flags, SPR_ACTIVE))
             continue;
 
-        (*User[i]->ActorActionFunc)(i);
+        (*User[i]->ActorActionFunc)(actor);
     }
 
     it.Reset(STAT_SPIKE);
     while ((i = it.NextIndex()) >= 0)
     {
+        auto actor = &swActors[i];
         u = User[i].Data();
 
         if (u->Tics)
@@ -6903,12 +6774,13 @@ SpriteControl(void)
         if (i == 69 && it.PeekIndex() == -1)
             continue;
 
-        (*User[i]->ActorActionFunc)(i);
+        (*User[i]->ActorActionFunc)(actor);
     }
 
     it.Reset(STAT_ROTATOR);
     while ((i = it.NextIndex()) >= 0)
     {
+        auto actor = &swActors[i];
         u = User[i].Data();
 
         if (u->Tics)
@@ -6922,12 +6794,13 @@ SpriteControl(void)
         if (!TEST(u->Flags, SPR_ACTIVE))
             continue;
 
-        (*User[i]->ActorActionFunc)(i);
+        (*User[i]->ActorActionFunc)(actor);
     }
 
     it.Reset(STAT_SLIDOR);
     while ((i = it.NextIndex()) >= 0)
     {
+        auto actor = &swActors[i];
         u = User[i].Data();
 
         if (u->Tics)
@@ -6941,7 +6814,7 @@ SpriteControl(void)
         if (!TEST(u->Flags, SPR_ACTIVE))
             continue;
 
-        (*User[i]->ActorActionFunc)(i);
+        (*User[i]->ActorActionFunc)(actor);
     }
 
     it.Reset(STAT_SUICIDE);
@@ -6966,9 +6839,9 @@ SpriteControl(void)
 int
 move_sprite(int spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics)
 {
-    int daz;
     int retval=0, zh;
-    short dasectnum, tempshort;
+	int dasectnum;
+	short tempshort;
     SPRITEp spr;
     USERp u = User[spritenum].Data();
     short lastsectnum;
@@ -6977,13 +6850,11 @@ move_sprite(int spritenum, int xchange, int ychange, int zchange, int ceildist, 
 
     ASSERT(u);
 
+    vec3_t clippos = spr->pos;
+
     // Can't modify sprite sectors
     // directly becuase of linked lists
     dasectnum = lastsectnum = spr->sectnum;
-
-    // Must do this if not using the new
-    // centered centering (of course)
-    daz = spr->z;
 
     if (TEST(spr->cstat, CSTAT_SPRITE_YCENTER))
     {
@@ -6993,17 +6864,16 @@ move_sprite(int spritenum, int xchange, int ychange, int zchange, int ceildist, 
     {
         // move the center point up for moving
         zh = u->zclip;
-        daz -= zh;
+        clippos.z -= zh;
     }
 
 
 //    ASSERT(inside(spr->x,spr->y,dasectnum));
 
-    clipmoveboxtracenum = 1;
-    retval = clipmove_old(&spr->x, &spr->y, &daz, &dasectnum,
+    retval = clipmove(&clippos, &dasectnum,
                       ((xchange * numtics) << 11), ((ychange * numtics) << 11),
-                      (((int) spr->clipdist) << 2), ceildist, flordist, cliptype);
-    clipmoveboxtracenum = 3;
+                      (((int) spr->clipdist) << 2), ceildist, flordist, cliptype, 1);
+    spr->pos.vec2 = clippos.vec2;
 
     //if (TEST(retval, HIT_MASK) == HIT_WALL)
     //    {
@@ -7033,7 +6903,9 @@ move_sprite(int spritenum, int xchange, int ychange, int zchange, int ceildist, 
     // I subtracted 8 from the clipdist because actors kept going up on
     // ledges they were not supposed to go up on.  Did the same for the
     // player. Seems to work ok!
-    FAFgetzrange(spr->x, spr->y, spr->z - zh - 1, spr->sectnum,
+    vec3_t pos = spr->pos;
+    pos.z -= zh + 1;
+    FAFgetzrange(pos, spr->sectnum,
                  &globhiz, &globhihit, &globloz, &globlohit,
                  (((int) spr->clipdist) << 2) - GETZRANGE_CLIP_ADJ, cliptype);
 
@@ -7043,16 +6915,16 @@ move_sprite(int spritenum, int xchange, int ychange, int zchange, int ceildist, 
     // Takes info from global variables
     DoActorGlobZ(spritenum);
 
-    daz = spr->z + ((zchange * numtics) >> 3);
+    clippos.z = spr->z + ((zchange * numtics) >> 3);
 
     // test for hitting ceiling or floor
-    if ((daz - zh <= globhiz) || (daz - zh > globloz))
+    if ((clippos.z - zh <= globhiz) || (clippos.z - zh > globloz))
     {
         if (retval == 0)
         {
             if (TEST(u->Flags, SPR_CLIMBING))
             {
-                spr->z = daz;
+                spr->z = clippos.z;
                 return 0;
             }
 
@@ -7061,7 +6933,7 @@ move_sprite(int spritenum, int xchange, int ychange, int zchange, int ceildist, 
     }
     else
     {
-        spr->z = daz;
+        spr->z = clippos.z;
     }
 
     // extra processing for Stacks and warping
@@ -7096,12 +6968,11 @@ int pushmove_sprite(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum].Data();
-    short sectnum, ret;
-    int daz;
+    int sectnum, ret;
 
-    daz = sp->z - u->zclip;
+    sp->z -= u->zclip;
     sectnum = sp->sectnum;
-    ret = pushmove_old(&sp->x, &sp->y, &daz, &sectnum,
+    ret = pushmove(&sp->pos, &sectnum,
                    (((int)sp->clipdist)<<2)-GETZRANGE_CLIP_ADJ, u->ceiling_dist, u->floor_dist, CLIPMASK_ACTOR);
 
     if (sectnum != sp->sectnum && sectnum >= 0)
@@ -7113,7 +6984,7 @@ int pushmove_sprite(short SpriteNum)
         MONO_PRINT(ds);
     }
 
-    sp->z = daz + u->zclip;
+    sp->z += u->zclip;
     return 0;
 }
 
@@ -7214,9 +7085,8 @@ MissileZrange(short SpriteNum)
 int
 move_missile(int spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics)
 {
-    int daz;
     int retval, zh;
-    short dasectnum, tempshort;
+    int dasectnum, tempshort;
     SPRITEp sp;
     USERp u = User[spritenum].Data();
     short lastsectnum;
@@ -7225,13 +7095,11 @@ move_missile(int spritenum, int xchange, int ychange, int zchange, int ceildist,
 
     ASSERT(u);
 
-    // Can't modify sprite sectors
-    // directly becuase of linked lists
-    dasectnum = lastsectnum = sp->sectnum;
+    vec3_t clippos = sp->pos;
 
     // Can't modify sprite sectors
     // directly becuase of linked lists
-    daz = sp->z;
+    dasectnum = lastsectnum = sp->sectnum;
 
     if (TEST(sp->cstat, CSTAT_SPRITE_YCENTER))
     {
@@ -7240,16 +7108,15 @@ move_missile(int spritenum, int xchange, int ychange, int zchange, int ceildist,
     else
     {
         zh = u->zclip;
-        daz -= zh;
+        clippos.z -= zh;
     }
 
 
 //    ASSERT(inside(sp->x,sp->y,dasectnum));
-    clipmoveboxtracenum = 1;
-    retval = clipmove_old(&sp->x, &sp->y, &daz, &dasectnum,
+    retval = clipmove(&clippos, &dasectnum,
                       ((xchange * numtics) << 11), ((ychange * numtics) << 11),
-                      (((int) sp->clipdist) << 2), ceildist, flordist, cliptype);
-    clipmoveboxtracenum = 3;
+                      (((int) sp->clipdist) << 2), ceildist, flordist, cliptype, 1);
+    sp->pos.vec2 = clippos.vec2;
 
     if (dasectnum < 0)
     {
@@ -7281,20 +7148,20 @@ move_missile(int spritenum, int xchange, int ychange, int zchange, int ceildist,
     // missiles don't need the water to be down
     MissileWaterAdjust(spritenum);
 
-    daz = sp->z + ((zchange * numtics) >> 3);
+    clippos.z = sp->z + ((zchange * numtics) >> 3);
 
     // NOTE: this does not tell you when you hit a floor sprite
     // this case is currently treated like it hit a sector
 
     // test for hitting ceiling or floor
-    if (daz - zh <= u->hiz + ceildist)
+    if (clippos.z - zh <= u->hiz + ceildist)
     {
         // normal code
         sp->z = u->hiz + zh + ceildist;
         if (retval == 0)
             retval = dasectnum|HIT_SECTOR;
     }
-    else if (daz - zh > u->loz - flordist)
+    else if (clippos.z - zh > u->loz - flordist)
     {
         sp->z = u->loz + zh - flordist;
         if (retval == 0)
@@ -7302,7 +7169,7 @@ move_missile(int spritenum, int xchange, int ychange, int zchange, int ceildist,
     }
     else
     {
-        sp->z = daz;
+        sp->z = clippos.z;
     }
 
     if (FAF_ConnectArea(sp->sectnum))
@@ -7355,7 +7222,7 @@ move_ground_missile(short spritenum, int xchange, int ychange, int ceildist, int
 {
     int daz;
     int retval=0;
-    short dasectnum;
+    int dasectnum;
     SPRITEp sp;
     USERp u = User[spritenum].Data();
     short lastsectnum;
@@ -7369,6 +7236,7 @@ move_ground_missile(short spritenum, int xchange, int ychange, int ceildist, int
     // directly becuase of linked lists
     dasectnum = lastsectnum = sp->sectnum;
 
+    vec3_t opos = sp->pos;
     daz = sp->z;
 
     // climbing a wall
@@ -7391,8 +7259,6 @@ move_ground_missile(short spritenum, int xchange, int ychange, int ceildist, int
             u->z_tgt = 0;
     }
 
-    ox = sp->x;
-    oy = sp->y;
     sp->x += xchange/2;
     sp->y += ychange/2;
 
@@ -7402,13 +7268,12 @@ move_ground_missile(short spritenum, int xchange, int ychange, int ceildist, int
     {
         // back up and try again
         dasectnum = lastsectnum = sp->sectnum;
-        sp->x = ox;
-        sp->y = oy;
-        clipmoveboxtracenum = 1;
-        retval = clipmove_old(&sp->x, &sp->y, &daz, &dasectnum,
+        opos = sp->pos;
+        opos.z = daz;
+        retval = clipmove(&opos, &dasectnum,
                           ((xchange * numtics) << 11), ((ychange * numtics) << 11),
-                          (((int) sp->clipdist) << 2), ceildist, flordist, cliptype);
-        clipmoveboxtracenum = 3;
+                          (((int) sp->clipdist) << 2), ceildist, flordist, cliptype, 1);
+        sp->pos.vec2 = opos.vec2;
     }
 
     if (dasectnum < 0)
@@ -7531,29 +7396,14 @@ move_ground_missile(short spritenum, int xchange, int ychange, int ceildist, int
     return retval;
 }
 
-
 #include "saveable.h"
 
 static saveable_code saveable_sprite_code[] =
 {
-    SAVE_CODE(DoActorZrange),
-    SAVE_CODE(DoActorGlobZ),
-    SAVE_CODE(DoStayOnFloor),
     SAVE_CODE(DoGrating),
-    SAVE_CODE(SpearOnFloor),
-    SAVE_CODE(SpearOnCeiling),
     SAVE_CODE(DoKey),
     SAVE_CODE(DoCoin),
-    SAVE_CODE(KillGet),
-    SAVE_CODE(KillGetAmmo),
-    SAVE_CODE(KillGetWeapon),
-    SAVE_CODE(DoSpawnItemTeleporterEffect),
     SAVE_CODE(DoGet),
-    SAVE_CODE(SetEnemyActive),
-    SAVE_CODE(SetEnemyInactive),
-    SAVE_CODE(ProcessActiveVars),
-    SAVE_CODE(StateControl),
-    SAVE_CODE(SpriteControl),
 };
 
 static saveable_data saveable_sprite_data[] =

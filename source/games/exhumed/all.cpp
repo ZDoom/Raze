@@ -48,3 +48,4 @@
 #include "src/wasp.cpp"
 // This includes the VM so it is last
 #include "src/d_menu.cpp"
+

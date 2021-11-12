@@ -35,7 +35,7 @@ void DestroyBubble(DExhumedActor* pActor)
     DeleteActor(pActor);
 }
 
-DExhumedActor* BuildBubble(int x, int y, int z, short nSector)
+DExhumedActor* BuildBubble(vec3_t pos, int nSector)
 {
     int nSize = RandomSize(3);
     if (nSize > 4) {
@@ -45,9 +45,7 @@ DExhumedActor* BuildBubble(int x, int y, int z, short nSector)
     auto pActor = insertActor(nSector, 402);
 	auto pSprite = &pActor->s();
 
-    pSprite->x = x;
-    pSprite->y = y;
-    pSprite->z = z;
+    pSprite->pos = pos;
     pSprite->cstat = 0;
     pSprite->shade = -32;
     pSprite->pal = 0;
@@ -95,11 +93,11 @@ void AIBubble::Tick(RunListEvent* ev)
 
     pSprite->z += pSprite->zvel;
 
-    short nSector = pSprite->sectnum;
+    int nSector = pSprite->sectnum;
 
     if (pSprite->z <= sector[nSector].ceilingz)
     {
-        short nSectAbove = SectAbove[nSector];
+        int nSectAbove = SectAbove[nSector];
 
         if (pSprite->hitag > -1 && nSectAbove != -1) {
             BuildAnim(nullptr, 70, 0, pSprite->x, pSprite->y, sector[nSectAbove].floorz, nSectAbove, 64, 0);
@@ -118,11 +116,6 @@ void AIBubble::Draw(RunListEvent* ev)
     ev->pTSprite->owner = -1;
 }
 
-void  FuncBubble(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AIBubble ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
-}
 
 void DoBubbleMachines()
 {
@@ -136,7 +129,7 @@ void DoBubbleMachines()
             pActor->nCount = (RandomWord() % pActor->nFrame) + 30;
 
 			auto pSprite = &pActor->s();
-            BuildBubble(pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum);
+            BuildBubble(pSprite->pos, pSprite->sectnum);
         }
     }
 }
@@ -153,12 +146,12 @@ void BuildBubbleMachine(DExhumedActor* pActor)
 
 void DoBubbles(int nPlayer)
 {
-    int x, y, z;
-    short nSector;
+    vec3_t pos;
+    int nSector;
 
-    WheresMyMouth(nPlayer, &x, &y, &z, &nSector);
+    WheresMyMouth(nPlayer, &pos, &nSector);
 
-    auto pActor = BuildBubble(x, y, z, nSector);
+    auto pActor = BuildBubble(pos, nSector);
     pActor->s().hitag = nPlayer;
 }
 END_PS_NS

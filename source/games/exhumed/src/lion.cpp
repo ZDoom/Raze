@@ -41,7 +41,7 @@ static actionSeq LionSeq[] = {
 };
 
 
-void BuildLion(DExhumedActor* pActor, int x, int y, int z, short nSector, short nAngle)
+void BuildLion(DExhumedActor* pActor, int x, int y, int z, int nSector, short nAngle)
 {
     spritetype* pSprite;
     if (pActor == nullptr)
@@ -55,7 +55,7 @@ void BuildLion(DExhumedActor* pActor, int x, int y, int z, short nSector, short 
         pSprite = &pActor->s();
         x = pSprite->x;
         y = pSprite->y;
-        z = sector[pSprite->sectnum].floorz;
+        z = pSprite->sector()->floorz;
         nAngle = pSprite->ang;
     }
 
@@ -68,7 +68,7 @@ void BuildLion(DExhumedActor* pActor, int x, int y, int z, short nSector, short 
     pSprite->xrepeat = 40;
     pSprite->yrepeat = 40;
     pSprite->picnum = 1;
-    pSprite->pal = sector[pSprite->sectnum].ceilingpal;
+    pSprite->pal = pSprite->sector()->ceilingpal;
     pSprite->xoffset = 0;
     pSprite->yoffset = 0;
     pSprite->ang = nAngle;
@@ -140,7 +140,7 @@ void AILion::Damage(RunListEvent* ev)
             {
                 DropMagic(pActor);
 
-                if (ev->nMessage == EMessageType::RadialDamage)
+                if (ev->isRadialEvent())
                 {
                     pActor->nAction = 11;
                 }
@@ -553,14 +553,6 @@ void AILion::Tick(RunListEvent* ev)
             pSprite->yvel = 0;
         }
     }
-}
-
-
-
-void FuncLion(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AILion ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
 }
 
 END_PS_NS

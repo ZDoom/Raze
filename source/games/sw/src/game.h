@@ -330,9 +330,9 @@ inline int SPRITEp_SIZE_BOS(const spritetype* sp)
 #define HIT_SECTOR BIT(14)
 #define HIT_PLAX_WALL BIT(16)
 
-#define NORM_SPRITE(val) ((val) & (MAXSPRITES - 1))
-#define NORM_WALL(val) ((val) & (MAXWALLS - 1))
-#define NORM_SECTOR(val) ((val) & (MAXSECTORS - 1))
+#define NORM_SPRITE(val) ((val) & (kHitIndexMask))
+#define NORM_WALL(val) ((val) & (kHitIndexMask))
+#define NORM_SECTOR(val) ((val) & (kHitIndexMask))
 
 // overwritesprite flags
 #define OVER_SPRITE_MIDDLE      (BIT(0))
@@ -527,7 +527,8 @@ typedef struct PANEL_SPRITEstruct PANEL_SPRITE, *PANEL_SPRITEp;
 struct ANIMstruct;
 typedef struct ANIMstruct ANIM, *ANIMp;
 
-typedef int ANIMATOR (int16_t SpriteNum);
+class DSWActor;
+typedef int ANIMATOR (DSWActor* actor);
 typedef ANIMATOR *ANIMATORp;
 
 typedef void pANIMATOR (PANEL_SPRITEp);
@@ -566,7 +567,7 @@ struct STATEstruct
 typedef enum {WATER_FOOT, BLOOD_FOOT} FOOT_TYPE;
 
 extern FOOT_TYPE FootMode;
-int QueueFloorBlood(short hit_sprite);                // Weapon.c
+ANIMATOR QueueFloorBlood;                // Weapon.c
 int QueueFootPrint(short hit_sprite);                 // Weapon.c
 int QueueGeneric(short SpriteNum, short pic);        // Weapon.c
 int QueueLoWangs(short SpriteNum);                   // Weapon.c
@@ -735,7 +736,7 @@ typedef void (*PLAYER_ACTION_FUNCp)(PLAYERp);
 
 typedef struct
 {
-    short cursectnum,lastcursectnum,pang,filler;
+    int cursectnum,lastcursectnum,pang;
     int xvect,yvect,oxvect,oyvect,slide_xvect,slide_yvect;
     int posx,posy,posz;
     SECTOR_OBJECTp sop_control;
@@ -788,7 +789,7 @@ struct PLAYERstruct
     short circle_camera_ang;
     short camera_check_time_delay;
 
-    short cursectnum,lastcursectnum;
+    int cursectnum,lastcursectnum;
     fixed_t turn180_target; // 180 degree turn
 
     // variables that do not fit into sprite structure
@@ -798,7 +799,7 @@ struct PLAYERstruct
     short recoil_amt;
     short recoil_speed;
     short recoil_ndx;
-    fixed_t recoil_horizoff;
+    fixed_t recoil_ohorizoff, recoil_horizoff;
 
     int oldposx,oldposy,oldposz;
     int RevolveX, RevolveY;
@@ -1129,6 +1130,7 @@ struct USER
     short   SpriteNum;
     short   Attach;  // attach to sprite if needed - electro snake
     SPRITEp SpriteP;
+	SPRITEp s() { return SpriteP;}
 
     // if a player's sprite points to player structure
     PLAYERp PlayerP;
@@ -1690,6 +1692,7 @@ struct SECTOR_OBJECTstruct
            drive_speed,
            drive_slide,
            crush_z,
+           op_main_sector, // main sector operational SO moves in - for speed purposes
            flags;
 
     short   sector[MAX_SO_SECTOR],     // hold the sector numbers of the sector object
@@ -1725,7 +1728,6 @@ struct SECTOR_OBJECTstruct
             turn_speed,     // shift value determines how fast SO turns to match new angle
             bob_sine_ndx,   // index into sine table
             bob_speed,      // shift value for speed
-            op_main_sector, // main sector operational SO moves in - for speed purposes
             save_vel,       // save velocity
             save_spin_speed, // save spin speed
             match_event,    // match number
@@ -1854,6 +1856,7 @@ ANIMATOR NullAnimator;
 int Distance(int x1, int y1, int x2, int y2);
 
 int NewStateGroup(short SpriteNum, STATEp SpriteGroup[]);
+int NewStateGroup(USERp user, STATEp SpriteGroup[]);
 void SectorMidPoint(short sectnum, int *xmid, int *ymid, int *zmid);
 USERp SpawnUser(short SpriteNum, short id, STATEp state);
 
@@ -1952,7 +1955,7 @@ void FAFhitscan(int32_t x, int32_t y, int32_t z, int16_t sectnum,
 
 bool FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects, int32_t xe, int32_t ye, int32_t ze, int16_t secte);
 
-void FAFgetzrange(int32_t x, int32_t y, int32_t z, int16_t sectnum,
+void FAFgetzrange(vec3_t pos, int16_t sectnum,
                   int32_t* hiz, int32_t* ceilhit,
                   int32_t* loz, int32_t* florhit,
                   int32_t clipdist, int32_t clipmask);
@@ -1960,8 +1963,6 @@ void FAFgetzrange(int32_t x, int32_t y, int32_t z, int16_t sectnum,
 void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, int16_t sectnum,
                        int32_t* hiz, int32_t* ceilhit,
                        int32_t* loz, int32_t* florhit);
-
-void COVERupdatesector(int32_t x, int32_t y, int16_t* newsector);
 
 
 void short_setinterpolation(short *posptr);
@@ -2075,7 +2076,6 @@ int PickJumpMaxSpeed(short SpriteNum, short max_speed); // ripper.c
 int DoRipperRipHeart(short SpriteNum);  // ripper.c
 int DoRipper2RipHeart(short SpriteNum); // ripper2.c
 int BunnyHatch2(short Weapon);  // bunny.c
-int DoSkullBeginDeath(int16_t SpriteNum); // skull.c
 
 void TerminateLevel(void);  // game.c
 void DrawMenuLevelScreen(void); // game.c
@@ -2223,5 +2223,8 @@ struct GameInterface : public ::GameInterface
 
 
 END_SW_NS
+
+#include "swactor.h"
+
 #endif
 

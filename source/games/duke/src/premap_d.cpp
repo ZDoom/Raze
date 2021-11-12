@@ -246,9 +246,10 @@ void cacheit_d(void)
 
 	for (i = 0; i < numsectors; i++)
 	{
-		tloadtile(sector[i].floorpicnum, sector[i].floorpal);
-		tloadtile(sector[i].ceilingpicnum, sector[i].ceilingpal);
-		if (sector[i].ceilingpicnum == LA)
+		auto sectp = &sector[i];
+		tloadtile(sectp->floorpicnum, sectp->floorpal);
+		tloadtile(sectp->ceilingpicnum, sectp->ceilingpal);
+		if (sectp->ceilingpicnum == LA)
 		{
 			tloadtile(LA + 1);
 			tloadtile(LA + 2);
@@ -273,7 +274,7 @@ void cacheit_d(void)
 
 void prelevel_d(int g)
 {
-	short i, j, startwall, endwall, lotaglist;
+	int i, j, startwall, endwall, lotaglist;
 	short lotags[65];
 
 	prelevel_common(g);
@@ -292,19 +293,19 @@ void prelevel_d(int g)
 		else switch (si->picnum)
 		{
 		case GPSPEED:
-			sector[si->sectnum].extra = si->lotag;
+			si->sector()->extra = si->lotag;
 			deletesprite(ac);
 			break;
 
 		case CYCLER:
 			if (numcyclers >= MAXCYCLERS)
 				I_Error("Too many cycling sectors.");
-			cyclers[numcyclers][0] = si->sectnum;
-			cyclers[numcyclers][1] = si->lotag;
-			cyclers[numcyclers][2] = si->shade;
-			cyclers[numcyclers][3] = sector[si->sectnum].floorshade;
-			cyclers[numcyclers][4] = si->hitag;
-			cyclers[numcyclers][5] = (si->ang == 1536);
+			cyclers[numcyclers].sectnum = si->sectnum;
+			cyclers[numcyclers].lotag = si->lotag;
+			cyclers[numcyclers].shade1 = si->shade;
+			cyclers[numcyclers].shade2 = si->sector()->floorshade;
+			cyclers[numcyclers].hitag = si->hitag;
+			cyclers[numcyclers].state = (si->ang == 1536);
 			numcyclers++;
 			deletesprite(ac);
 			break;
@@ -385,13 +386,14 @@ void prelevel_d(int g)
 		if (wal->overpicnum == MIRROR && (wal->cstat & 32) != 0)
 		{
 			j = wal->nextsector;
+			auto sectp = &sector[j];
 
 			if (mirrorcnt > 63)
 				I_Error("Too many mirrors (64 max.)");
-			if ((j >= 0) && sector[j].ceilingpicnum != MIRROR)
+			if ((j >= 0) && sectp->ceilingpicnum != MIRROR)
 			{
-				sector[j].ceilingpicnum = MIRROR;
-				sector[j].floorpicnum = MIRROR;
+				sectp->ceilingpicnum = MIRROR;
+				sectp->floorpicnum = MIRROR;
 				mirrorwall[mirrorcnt] = i;
 				mirrorsector[mirrorcnt] = j;
 				mirrorcnt++;
@@ -409,7 +411,7 @@ void prelevel_d(int g)
 		{
 		case FANSHADOW:
 		case FANSPRITE:
-			wall->cstat |= 65;
+			wal->cstat |= 65;
 			animwall[numanimwalls].wallnum = i;
 			numanimwalls++;
 			break;
@@ -424,7 +426,7 @@ void prelevel_d(int g)
 			else wal->cstat |= 85 + 256;
 
 			if (wal->lotag && wal->nextwall >= 0)
-				wall[wal->nextwall].lotag = wal->lotag;
+				wal->nextWall()->lotag = wal->lotag;
 
 		case BIGFORCE:
 

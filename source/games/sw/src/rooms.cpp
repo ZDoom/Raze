@@ -54,12 +54,6 @@ SAVE save;
 
 bool FAF_DebugView = false;
 
-void COVERupdatesector(int32_t x, int32_t y, int16_t* newsector)
-{
-    // ASSERT(*newsector>=0 && *newsector<MAXSECTORS);
-    updatesector(x,y,newsector);
-}
-
 int COVERinsertsprite(short sectnum, short stat)
 {
     short spnum;
@@ -124,7 +118,7 @@ void SetWallWarpHitscan(short sectnum)
     // Travel all the way around loop setting wall bits
     do
     {
-        if ((uint16_t)wall[wall_num].nextwall < MAXWALLS)
+        if (validWallIndex(wall[wall_num].nextwall))
             SET(wall[wall_num].cstat, CSTAT_WALL_WARP_HITSCAN);
         wall_num = wall[wall_num].point2;
     }
@@ -154,7 +148,7 @@ FAFhitscan(int32_t x, int32_t y, int32_t z, int16_t sectnum,
 {
     vec3_t firstpos = { x, y, z };
     int loz, hiz;
-    short newsectnum = sectnum;
+    int newsectnum = sectnum;
     int startclipmask = 0;
     bool plax_found = false;
 
@@ -270,7 +264,7 @@ FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects,
           int32_t xe, int32_t ye, int32_t ze, int16_t secte)
 {
     int loz, hiz;
-    short newsectnum = sects;
+    int newsectnum = sects;
     int xvect, yvect, zvect;
     short ang;
     hitdata_t hitinfo;
@@ -501,7 +495,7 @@ void WaterAdjust(short florhit, int32_t* loz)
     }
 }
 
-void FAFgetzrange(int32_t x, int32_t y, int32_t z, int16_t sectnum,
+void FAFgetzrange(vec3_t pos, int16_t sectnum,
                   int32_t* hiz, int32_t* ceilhit,
                   int32_t* loz, int32_t* florhit,
                   int32_t clipdist, int32_t clipmask)
@@ -517,13 +511,13 @@ void FAFgetzrange(int32_t x, int32_t y, int32_t z, int16_t sectnum,
     // early out to regular routine
     if (sectnum < 0 || !FAF_ConnectArea(sectnum))
     {
-        getzrange_old(x, y, z, sectnum, hiz,  ceilhit, loz,  florhit, clipdist, clipmask);
+        getzrange(&pos, sectnum, hiz,  ceilhit, loz,  florhit, clipdist, clipmask);
         SectorZadjust(*ceilhit, hiz, *florhit, loz);
         WaterAdjust(*florhit, loz);
         return;
     }
 
-    getzrange_old(x, y, z, sectnum, hiz,  ceilhit, loz,  florhit, clipdist, clipmask);
+    getzrange(&pos, sectnum, hiz,  ceilhit, loz,  florhit, clipdist, clipmask);
     SkipFAFcheck = SectorZadjust(*ceilhit, hiz, *florhit, loz);
     WaterAdjust(*florhit, loz);
 
@@ -532,7 +526,7 @@ void FAFgetzrange(int32_t x, int32_t y, int32_t z, int16_t sectnum,
 
     if (FAF_ConnectCeiling(sectnum))
     {
-        short uppersect = sectnum;
+        int uppersect = sectnum;
         int newz = *hiz - Z(2);
 
         switch (TEST(*ceilhit, HIT_MASK))
@@ -541,16 +535,18 @@ void FAFgetzrange(int32_t x, int32_t y, int32_t z, int16_t sectnum,
             return;
         }
 
-        updatesectorz(x, y, newz, &uppersect);
+        updatesectorz(pos.x, pos.y, newz, &uppersect);
         if (uppersect < 0)
             return; // _ErrMsg(ERR_STD_ARG, "Did not find a sector at %d, %d, %d", x, y, newz);
-        getzrange_old(x, y, newz, uppersect, hiz,  ceilhit, &foo1,  &foo2, clipdist, clipmask);
+        vec3_t npos = pos;
+        npos.z = newz;
+        getzrange(&npos, uppersect, hiz,  ceilhit, &foo1,  &foo2, clipdist, clipmask);
         SectorZadjust(*ceilhit, hiz, -1, nullptr);
     }
     else if (FAF_ConnectFloor(sectnum) && !TEST(sector[sectnum].floorstat, FLOOR_STAT_FAF_BLOCK_HITSCAN))
     //if (FAF_ConnectFloor(sectnum))
     {
-        short lowersect = sectnum;
+        int lowersect = sectnum;
         int newz = *loz + Z(2);
 
         switch (TEST(*florhit, HIT_MASK))
@@ -563,10 +559,12 @@ void FAFgetzrange(int32_t x, int32_t y, int32_t z, int16_t sectnum,
             return;
         }
 
-        updatesectorz(x, y, newz, &lowersect);
+        updatesectorz(pos.x, pos.y, newz, &lowersect);
         if (lowersect < 0)
             return; // _ErrMsg(ERR_STD_ARG, "Did not find a sector at %d, %d, %d", x, y, newz);
-        getzrange_old(x, y, newz, lowersect, &foo1,  &foo2, loz,  florhit, clipdist, clipmask);
+        vec3_t npos = pos;
+        npos.z = newz;
+        getzrange(&npos, lowersect, &foo1,  &foo2, loz,  florhit, clipdist, clipmask);
         SectorZadjust(-1, nullptr, *florhit, loz);
         WaterAdjust(*florhit, loz);
     }
@@ -602,7 +600,7 @@ void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, int16_t sectnum,
 
     if (FAF_ConnectCeiling(sectnum))
     {
-        short uppersect = sectnum;
+        int uppersect = sectnum;
         int newz = *hiz - Z(2);
         switch (TEST(*ceilhit, HIT_MASK))
         {
@@ -618,7 +616,7 @@ void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, int16_t sectnum,
     else if (FAF_ConnectFloor(sectnum) && !TEST(sector[sectnum].floorstat, FLOOR_STAT_FAF_BLOCK_HITSCAN))
     //if (FAF_ConnectFloor(sectnum))
     {
-        short lowersect = sectnum;
+        int lowersect = sectnum;
         int newz = *loz + Z(2);
         switch (TEST(*florhit, HIT_MASK))
         {
@@ -1028,7 +1026,7 @@ void CollectPortals()
     testnewrenderer = true;
     TArray<PortalGroup> floorportals;
     TArray<PortalGroup> ceilingportals;
-    FixedBitArray<MAXSECTORS> floordone, ceilingdone;
+    BitArray floordone(numsectors), ceilingdone(numsectors);
 
     for (int i = 0; i < numsectors; i++)
     {

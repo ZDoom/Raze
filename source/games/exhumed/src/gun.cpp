@@ -117,13 +117,13 @@ void ResetPlayerWeapons(short nPlayer)
     PlayerList[nPlayer].field_3A = 0;
     PlayerList[nPlayer].field_3FOUR = 0;
 
-    PlayerList[nPlayer].nPlayerGrenade = nullptr;
+    PlayerList[nPlayer].pPlayerGrenade = nullptr;
     PlayerList[nPlayer].nPlayerWeapons = 0x1; // turn on bit 1 only
 }
 
 void InitWeapons()
 {
-    for (auto& p : PlayerList) p.nPlayerGrenade = nullptr;
+    for (auto& p : PlayerList) p.pPlayerGrenade = nullptr;
 }
 
 void SetNewWeapon(short nPlayer, short nWeapon)
@@ -231,7 +231,7 @@ void SetWeaponStatus(short nPlayer)
 uint8_t WeaponCanFire(short nPlayer)
 {
     short nWeapon = PlayerList[nPlayer].nCurrentWeapon;
-    short nSector = PlayerList[nPlayer].nPlayerViewSect;
+    int nSector =PlayerList[nPlayer].nPlayerViewSect;
 
     if (!(SectFlag[nSector] & kSectUnderwater) || WeaponInfo[nWeapon].bFireUnderwater)
     {
@@ -252,7 +252,7 @@ void ResetSwordSeqs()
     WeaponInfo[kWeaponSword].b[3] = 7;
 }
 
-int CheckCloseRange(short nPlayer, int *x, int *y, int *z, short *nSector)
+Collision CheckCloseRange(short nPlayer, int *x, int *y, int *z, short *nSector)
 {
     short hitSect, hitWall, hitSprite;
     int hitX, hitY, hitZ;
@@ -285,9 +285,10 @@ int CheckCloseRange(short nPlayer, int *x, int *y, int *z, short *nSector)
         DPrintf(DMSG_WARNING, "%s %d: overflow\n", __func__, __LINE__);
         sqrtNum = INT_MAX;
     }
+    Collision c(0);
 
     if (ksqrt(sqrtNum) >= ecx)
-        return 0;
+        return c;
 
     *x = hitX;
     *y = hitY;
@@ -295,13 +296,13 @@ int CheckCloseRange(short nPlayer, int *x, int *y, int *z, short *nSector)
     *nSector = hitSect;
 
     if (hitSprite > -1) {
-        return hitSprite | 0xC000;
+        c.setSprite(&exhumedActors[hitSprite]);
     }
     if (hitWall > -1) {
-        return hitWall | 0x8000;
+        c.setWall(hitWall);
     }
 
-    return 0;
+    return c;
 }
 
 void CheckClip(short nPlayer)
@@ -397,7 +398,7 @@ void MoveWeapons(short nPlayer)
                             if (!WeaponCanFire(nPlayer))
                             {
                                 if (!dword_96E22) {
-                                    D3PlayFX(StaticSound[4], PlayerList[nPlayer].nSprite);
+                                    D3PlayFX(StaticSound[4], PlayerList[nPlayer].Actor());
                                 }
                             }
                             else
@@ -441,7 +442,7 @@ void MoveWeapons(short nPlayer)
                             PlayerList[nPlayer].field_3A = 3;
                             PlayerList[nPlayer].field_3FOUR = 0;
 
-                            PlayerList[nPlayer].nPistolClip = std::min<int>(6, PlayerList[nPlayer].nAmmo[kWeaponPistol]);
+                            PlayerList[nPlayer].nPistolClip = min<int>(6, PlayerList[nPlayer].nAmmo[kWeaponPistol]);
                             break;
                         }
                         else if (nWeapon == kWeaponGrenade)
@@ -631,7 +632,7 @@ loc_flag:
 
         if (((!(nSectFlag & kSectUnderwater)) || nWeapon == kWeaponRing) && (nFrameFlag & 4))
         {
-            BuildFlash(nPlayer, pPlayerSprite->sectnum, 512);
+            BuildFlash(nPlayer, 512);
             AddFlash(
                 pPlayerSprite->sectnum,
                 pPlayerSprite->x,
@@ -727,9 +728,9 @@ loc_flag:
                         var_28 = 9;
                     }
 
-                    int cRange = CheckCloseRange(nPlayer, &theX, &theY, &theZ, &nSectorB);
+                    auto cRange = CheckCloseRange(nPlayer, &theX, &theY, &theZ, &nSectorB);
 
-                    if (cRange)
+                    if (cRange.type != kHitNone)
                     {
                         short nDamage = BulletInfo[kWeaponSword].nDamage;
 
@@ -737,17 +738,16 @@ loc_flag:
                             nDamage *= 2;
                         }
 
-                        if ((cRange & 0xC000) >= 0x8000)
+                        //if (cRange.type != kHitNone)
                         {
-                            if ((cRange & 0xC000) == 0x8000) // hit wall
+                            if (cRange.type == kHitWall)
                             {
                                 // loc_2730E:
                                 var_28 += 2;
                             }
-                            else if ((cRange & 0xC000) == 0xC000) // hit sprite
+                            else if (cRange.type == kHitSprite)
                             {
-                                //short nSprite2 = cRange & 0x3FFF;
-                                auto pActor2 = &exhumedActors[cRange & 0x3FFF];
+                                auto pActor2 = cRange.actor;
                                 auto pSprite2 = &pActor2->s();
 
                                 if (pSprite2->cstat & 0x50)
@@ -824,27 +824,22 @@ loc_flag:
                     int h = PlayerList[nLocalPlayer].horizon.horiz.asq16() >> 14;
                     nHeight -= h;
 
-                    int target = 0;
-                    bool gottarg = false;
-                    if (sPlayerInput[nPlayer].nTarget >= 0 && Autoaim(nPlayer))
+                    DExhumedActor* target = nullptr;
+                    if (sPlayerInput[nPlayer].pTarget != nullptr && Autoaim(nPlayer))
                     {
-                        int t = sPlayerInput[nPlayer].nTarget;
-                        if (t >= 0 && t < MAXSPRITES)
+                        auto t = sPlayerInput[nPlayer].pTarget;
+                        // only autoaim if target is in front of the player.
+                        auto pTargetSprite = &t->s();
+                        assert(pTargetSprite->sectnum < kMaxSectors);
+                        int angletotarget = bvectangbam(pTargetSprite->x - pPlayerSprite->x, pTargetSprite->y - pPlayerSprite->y).asbuild();
+                        int anglediff = (pPlayerSprite->ang - angletotarget) & 2047;
+                        if (anglediff < 512 || anglediff > 1536)
                         {
-                            // only autoaim if target is in front of the player.
-                            auto pTargetSprite = &sprite[t];
-                            assert(pTargetSprite->sectnum < kMaxSectors);
-                            int angletotarget = bvectangbam(pTargetSprite->x - pPlayerSprite->x, pTargetSprite->y - pPlayerSprite->y).asbuild();
-                            int anglediff = (pPlayerSprite->ang - angletotarget) & 2047;
-                            if (anglediff < 512 || anglediff > 1536)
-                            {
-                                target = t;
-                                gottarg = true;
-                            }
+                            target = t;
                         }
                     }
 
-                    BuildBullet(pPlayerActor, nAmmoType, nHeight, nAngle,gottarg? &exhumedActors[target] : nullptr, var_1C);
+                    BuildBullet(pPlayerActor, nAmmoType, nHeight, nAngle, target, var_1C);
                     break;
                 }
 

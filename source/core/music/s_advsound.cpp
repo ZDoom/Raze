@@ -35,7 +35,7 @@
 
 // HEADER FILES ------------------------------------------------------------
 
-#include "templates.h"
+
 #include "c_dispatch.h"
 #include "filesystem.h"
 #include "v_text.h"

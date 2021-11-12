@@ -2007,7 +2007,7 @@ int ConCompiler::parsecommand()
 	{
 		int lLabelID;
 		// syntax getsector[<var>].x <VAR>
-		// gets the value of sector[<var>].xxx into <VAR>
+		// gets the value of sector [<var>].xxx into <VAR>
 
 		// now get name of .xxx
 		while ((*textptr != '['))
@@ -2592,7 +2592,7 @@ int ConCompiler::parsecommand()
 	{
 		int lLabelID;
 		// syntax getsector[<var>].x <VAR>
-		// gets the value of sector[<var>].xxx into <VAR>
+		// gets the value of sector [<var>].xxx into <VAR>
 
 		// now get name of .xxx
 		while ((*textptr != '['))
@@ -2971,7 +2971,7 @@ int ConCompiler::parsecommand()
 		}
 #endif
 		// syntax:
-		// int x, int y, short tilenum, signed char shade, char orientation
+		// int x, int y, int tilenum, int shade, int orientation
 		// myospal adds char pal
 
 		// Parse: x

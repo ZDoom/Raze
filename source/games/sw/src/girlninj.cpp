@@ -40,7 +40,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-int DoHariKariBlood(short SpriteNum);
 //int InitActorMoveCloser(short SpriteNum);
 
 DECISION GirlNinjaBattle[] =
@@ -751,29 +750,30 @@ SetupGirlNinja(short SpriteNum)
 
 
 int
-DoGirlNinjaMove(short SpriteNum)
+DoGirlNinjaMove(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     // jumping and falling
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING) && !TEST(u->Flags, SPR_CLIMBING))
     {
         if (TEST(u->Flags, SPR_JUMPING))
-            DoActorJump(SpriteNum);
+            DoActorJump(actor);
         else if (TEST(u->Flags, SPR_FALLING))
-            DoActorFall(SpriteNum);
+            DoActorFall(actor);
     }
 
     // sliding
     if (TEST(u->Flags, SPR_SLIDING) && !TEST(u->Flags, SPR_CLIMBING))
-        DoActorSlide(SpriteNum);
+        DoActorSlide(actor);
 
     // !AIC - do track or call current action function - such as DoActorMoveCloser()
     if (u->track >= 0)
         ActorFollowTrack(SpriteNum, ACTORMOVETICS);
     else
     {
-        (*u->ActorActionFunc)(SpriteNum);
+        (*u->ActorActionFunc)(actor);
     }
 
     // stay on floor unless doing certain things
@@ -783,15 +783,16 @@ DoGirlNinjaMove(short SpriteNum)
     }
 
     // take damage from environment
-    DoActorSectorDamage(SpriteNum);
+    DoActorSectorDamage(actor);
 
     return 0;
 }
 
 int
-GirlNinjaJumpActionFunc(short SpriteNum)
+GirlNinjaJumpActionFunc(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = User[SpriteNum]->SpriteP;
     int nx, ny;
 
@@ -807,47 +808,50 @@ GirlNinjaJumpActionFunc(short SpriteNum)
 
     if (!TEST(u->Flags, SPR_JUMPING|SPR_FALLING))
     {
-        InitActorDecide(SpriteNum);
+        InitActorDecide(actor);
     }
 
     return 0;
 }
 
 int
-NullGirlNinja(short SpriteNum)
+NullGirlNinja(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     if (u->WaitTics > 0) u->WaitTics -= ACTORMOVETICS;
 
     if (TEST(u->Flags, SPR_SLIDING) && !TEST(u->Flags, SPR_CLIMBING) && !TEST(u->Flags, SPR_JUMPING|SPR_FALLING))
-        DoActorSlide(SpriteNum);
+        DoActorSlide(actor);
 
     if (!TEST(u->Flags, SPR_CLIMBING) && !TEST(u->Flags, SPR_JUMPING|SPR_FALLING))
         KeepActorOnFloor(SpriteNum);
 
-    DoActorSectorDamage(SpriteNum);
+    DoActorSectorDamage(actor);
 
     return 0;
 }
 
 
-int DoGirlNinjaPain(short SpriteNum)
+int DoGirlNinjaPain(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
-    NullGirlNinja(SpriteNum);
+    NullGirlNinja(actor);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
-        InitActorDecide(SpriteNum);
+        InitActorDecide(actor);
 
     return 0;
 }
 
-int DoGirlNinjaSpecial(short SpriteNum)
+int DoGirlNinjaSpecial(DSWActor* actor)
 {
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
 
     if (u->spal == PALETTE_PLAYER5)
     {
@@ -864,7 +868,6 @@ int DoGirlNinjaSpecial(short SpriteNum)
 
 static saveable_code saveable_girlninj_code[] =
 {
-    SAVE_CODE(SetupGirlNinja),
     SAVE_CODE(DoGirlNinjaMove),
     SAVE_CODE(GirlNinjaJumpActionFunc),
     SAVE_CODE(NullGirlNinja),

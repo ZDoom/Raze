@@ -557,23 +557,23 @@ void GameInterface::UpdateSounds()
 int soundx, soundy, soundz;
 short soundsect;
 
-void PlayFX2(unsigned short nSound, short nSprite, int sectf, EChanFlags chanflags, int sprflags)
+void PlayFX2(unsigned short nSound, DExhumedActor* pActor, int sectf, EChanFlags chanflags, int sprflags)
 {
     if (!SoundEnabled()) return;
     if ((nSound&0x1ff) >= kMaxSounds || !soundEngine->isValidSoundId((nSound & 0x1ff)+1))
     {
-        Printf("PlayFX2: Invalid sound nSound == %i, nSprite == %i\n", nSound, nSprite);
+        Printf("PlayFX2: Invalid sound nSound == %i\n", nSound);
         return;
     }
 
     bool fullvol = false, hiprio = false;
-    if (nSprite >= 0)
+    if (pActor)
     {
         fullvol = (sprflags & 0x2000) != 0;
         hiprio = (sprflags & 0x4000) != 0;
-        soundx = sprite[nSprite].x;
-        soundy = sprite[nSprite].y;
-        soundz = sprite[nSprite].z;
+        soundx = pActor->s().x;
+        soundy = pActor->s().y;
+        soundz = pActor->s().z;
     }
 
     int nVolume = 255;
@@ -584,7 +584,7 @@ void PlayFX2(unsigned short nSound, short nSprite, int sectf, EChanFlags chanfla
 
     int prio = 0;
     if (forcePlay || midprio) prio = 1000;
-    else if (nSprite != -1 && hiprio) prio = 2000;
+    else if (pActor != nullptr && hiprio) prio = 2000;
 
     short v10 = (nSound&0xe00)>>9;
     nSound &= 0x1ff;
@@ -602,16 +602,16 @@ void PlayFX2(unsigned short nSound, short nSprite, int sectf, EChanFlags chanfla
     {
         bool res = soundEngine->EnumerateChannels([=](FSoundChan* chan)
             {
-                if (chan->SourceType == SOURCE_Actor && nSprite != -1)
+                if (chan->SourceType == SOURCE_Actor && pActor != nullptr)
                 {
                     if (prio >= chan->UserData)
                     {
                         if (chan->SoundID == nSound + 1)
                         {
-                            if (!allowMultiple && &sprite[nSprite] == chan->Source)
+                            if (!allowMultiple && &pActor->s() == chan->Source)
                                 return 1;
                         }
-                        else if (&sprite[nSprite] == chan->Source)
+                        else if (&pActor->s() == chan->Source)
                         {
                             soundEngine->StopChannel(chan);
                             return -1;
@@ -619,7 +619,7 @@ void PlayFX2(unsigned short nSound, short nSprite, int sectf, EChanFlags chanfla
                     }
 
                 }
-                else if (chan->SourceType == SOURCE_Unattached && nSprite == -1)
+                else if (chan->SourceType == SOURCE_Unattached && pActor != nullptr)
                 {
                     if (chan->SoundID == nSound + 1)
                     {
@@ -633,9 +633,9 @@ void PlayFX2(unsigned short nSound, short nSprite, int sectf, EChanFlags chanfla
         if (res) return;
     }
     FSoundChan* chan = nullptr;
-    if (nSprite >= 0)
+    if (pActor != nullptr)
     {
-        chan = soundEngine->StartSound(SOURCE_Actor, &sprite[nSprite], nullptr, CHAN_BODY, chanflags| CHANF_OVERLAP, nSound+1, nVolume / 255.f,fullvol? 0.5f : ATTN_NORM, nullptr, (11025 + nPitch) / 11025.f);
+        chan = soundEngine->StartSound(SOURCE_Actor, &pActor->s(), nullptr, CHAN_BODY, chanflags| CHANF_OVERLAP, nSound+1, nVolume / 255.f,fullvol? 0.5f : ATTN_NORM, nullptr, (11025 + nPitch) / 11025.f);
     }
     else
     {
@@ -648,7 +648,7 @@ void PlayFX2(unsigned short nSound, short nSprite, int sectf, EChanFlags chanfla
     }
 
     // Nuke: added nSprite >= 0 check
-    if (nSprite != nLocalSpr && nSprite >= 0 && (sprite[nSprite].cstat&257))
+    if (pActor != PlayerList[nLocalPlayer].Actor() && pActor != nullptr && (pActor->s().cstat&257))
         nCreepyTimer = kCreepyCount;
 }
 
@@ -664,7 +664,7 @@ void PlayFXAtXYZ(unsigned short ax, int x, int y, int z, int nSector, EChanFlags
     soundy = y;
     soundz = z;
     soundsect = nSector;
-    PlayFX2(ax, -1, sectf, chanflags);
+    PlayFX2(ax, nullptr, sectf, chanflags);
 }
 
 //==========================================================================
@@ -673,12 +673,12 @@ void PlayFXAtXYZ(unsigned short ax, int x, int y, int z, int nSector, EChanFlags
 //
 //==========================================================================
 
-void CheckAmbience(short nSector)
+void CheckAmbience(int nSector)
 {
     if (!SoundEnabled()) return;
     if (SectSound[nSector] != -1)
     {
-        short nSector2 = SectSoundSect[nSector];
+        int nSector2 = SectSoundSect[nSector];
         walltype* pWall = &wall[sector[nSector2].wallptr];
         if (!soundEngine->IsSourcePlayingSomething(SOURCE_Ambient, &amb, 0))
         {
@@ -693,7 +693,7 @@ void CheckAmbience(short nSector)
                 {
                     if (nSector == nSector2)
                     {
-                        spritetype* pSprite = &sprite[PlayerList[0].nSprite];
+                        spritetype* pSprite = &PlayerList[0].Actor()->s();
                         amb = GetSoundPos(&pSprite->pos);
                     }
                     else
@@ -724,7 +724,7 @@ void UpdateCreepySounds()
 {
     if ((currentLevel->gameflags & LEVEL_EX_COUNTDOWN) || nFreeze || !SoundEnabled())
         return;
-    spritetype* pSprite = &sprite[PlayerList[nLocalPlayer].nSprite];
+    spritetype* pSprite = &PlayerList[nLocalPlayer].Actor()->s();
     nCreepyTimer--;
     if (nCreepyTimer <= 0)
     {
@@ -771,10 +771,10 @@ void UpdateCreepySounds()
 //
 //==========================================================================
 
-void StopSpriteSound(short nSprite)
+void StopActorSound(DExhumedActor *pActor)
 {
-    if (nSprite >= 0 && nSprite < MAXSPRITES)
-        soundEngine->StopSound(SOURCE_Actor, &sprite[nSprite], -1);
+    if (pActor)
+        soundEngine->StopSound(SOURCE_Actor, &pActor->s(), -1);
 }
 
 void StopAllSounds(void)

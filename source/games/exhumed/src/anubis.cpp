@@ -58,7 +58,7 @@ void BuildAnubis(DExhumedActor* ap, int x, int y, int z, int nSector, int nAngle
 
         x = sp->x;
         y = sp->y;
-        z = sector[sp->sectnum].floorz;
+        z = sp->sector()->floorz;
         nAngle = sp->ang;
     }
 
@@ -70,7 +70,7 @@ void BuildAnubis(DExhumedActor* ap, int x, int y, int z, int nSector, int nAngle
     sp->shade = -12;
     sp->yoffset = 0;
     sp->picnum = 1;
-    sp->pal = sector[sp->sectnum].ceilingpal;
+    sp->pal = sp->sector()->ceilingpal;
     sp->clipdist = 60;
     sp->ang = nAngle;
     sp->xrepeat = 40;
@@ -406,12 +406,12 @@ void AIAnubis::Damage(RunListEvent* ev)
 
                     pDrumSprite->x = sp->x;
                     pDrumSprite->y = sp->y;
-                    pDrumSprite->z = sector[pDrumSprite->sectnum].floorz;
+                    pDrumSprite->z = pDrumSprite->sector()->floorz;
                     pDrumSprite->xrepeat = 40;
                     pDrumSprite->yrepeat = 40;
                     pDrumSprite->shade = -64;
 
-                    BuildObject(pDrumActor->GetSpriteIndex(), 2, 0);
+                    BuildObject(pDrumActor, 2, 0);
                 }
 
                 ap->pTarget = ev->pOtherActor;
@@ -430,7 +430,7 @@ void AIAnubis::Damage(RunListEvent* ev)
             sp->xvel = 0;
             sp->yvel = 0;
             sp->zvel = 0;
-            sp->z = sector[sp->sectnum].floorz;
+            sp->z = sp->sector()->floorz;
             sp->cstat &= 0xFEFE;
 
             ap->nHealth = 0;
@@ -440,18 +440,12 @@ void AIAnubis::Damage(RunListEvent* ev)
             if (nAction < 11)
             {
                 DropMagic(ap);
-                ap->nAction = (ev->nMessage == EMessageType::RadialDamage) + 11;
+                ap->nAction = int(ev->isRadialEvent()) + 11;
                 ap->nFrame = 0;
             }
         }
     }
 }
 
-
-void FuncAnubis(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AIAnubis ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
-}
 
 END_PS_NS

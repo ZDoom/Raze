@@ -42,16 +42,34 @@ void precache()
 
     for (i = 0; i < numsectors; i++)
     {
-        short j = sector[i].ceilingpicnum;
-        markTileForPrecache(j, sector[i].ceilingpal);
-        j = sector[i].floorpicnum;
-        markTileForPrecache(j, sector[i].floorpal);
+        auto sectp = &sector[i];
+        int j = sectp->ceilingpicnum;
+        markTileForPrecache(j, sectp->ceilingpal);
+        if (picanm[j].sf & PICANM_ANIMTYPE_MASK)
+            for (int k = 1; k <= picanm[j].num; k++)  markTileForPrecache(j + k, sectp->ceilingpal);
+
+        j = sectp->floorpicnum;
+        markTileForPrecache(j, sectp->floorpal);
+        if (picanm[j].sf & PICANM_ANIMTYPE_MASK)
+            for (int k = 1; k <= picanm[j].num; k++)  markTileForPrecache(j + k, sectp->floorpal);
     }
 
     for (i = 0; i < numwalls; i++)
     {
-        short j = wall[i].picnum;
-        markTileForPrecache(j, wall[i].pal);
+        auto wallp = &wall[i];
+        int j = wallp->picnum;
+        markTileForPrecache(j, wallp->pal);
+        if (picanm[j].sf & PICANM_ANIMTYPE_MASK)
+            for (int k = 1; k <= picanm[j].num; k++)  markTileForPrecache(j + k, wallp->pal);
+
+        if (wallp->nextsector != -1)
+        {
+            int j = wallp->overpicnum;
+            markTileForPrecache(j, wallp->pal);
+            if (picanm[j].sf & PICANM_ANIMTYPE_MASK)
+                for (int k = 1; k <= picanm[j].num; k++)  markTileForPrecache(j + k, wallp->pal);
+
+    }
     }
 
 	ExhumedSpriteIterator it;

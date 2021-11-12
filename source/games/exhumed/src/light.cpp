@@ -46,9 +46,7 @@ const char *GradList[kMaxGrads] = {
 int rtint = 0;
 int gtint = 0;
 int btint = 0;
-//char *origpalookup[kMaxPalookups];
-//unsigned char curpal[768];
-//unsigned char kenpal[768];
+
 palette_t *fadedestpal;
 palette_t *fadecurpal;
 short nPalDelay;

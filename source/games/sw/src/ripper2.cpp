@@ -37,10 +37,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-int DoCheckSwarm(short SpriteNum);
-
 ANIMATOR InitRipper2Hang;
-ANIMATOR DoActorMoveJump;
 ANIMATOR DoRipper2MoveJump;
 ANIMATOR DoRipper2HangJF;
 ANIMATOR DoRipper2QuickJump;
@@ -610,7 +607,7 @@ STATEp sg_Ripper2Fall[] =
 //////////////////////
 
 #define RIPPER2_JUMP_ATTACK_RATE 35
-int DoRipper2BeginJumpAttack(short SpriteNum);
+int DoRipper2BeginJumpAttack(DSWActor* actor);
 
 STATE s_Ripper2JumpAttack[5][6] =
 {
@@ -937,10 +934,11 @@ SetupRipper2(short SpriteNum)
 //
 
 int
-InitRipper2Hang(short SpriteNum)
+InitRipper2Hang(DSWActor* actor)
 {
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
     int dist;
 
     hitdata_t hitinfo = { { 0, 0, 0 }, -2, 0, -2 };
@@ -975,7 +973,7 @@ InitRipper2Hang(short SpriteNum)
 
     if (!Found)
     {
-        InitActorDecide(SpriteNum);
+        InitActorDecide(actor);
         return 0;
     }
 
@@ -998,9 +996,10 @@ InitRipper2Hang(short SpriteNum)
 }
 
 int
-DoRipper2Hang(short SpriteNum)
+DoRipper2Hang(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     if ((u->WaitTics -= ACTORMOVETICS) > 0)
         return 0;
@@ -1013,10 +1012,11 @@ DoRipper2Hang(short SpriteNum)
 }
 
 int
-DoRipper2MoveHang(short SpriteNum)
+DoRipper2MoveHang(DSWActor* actor)
 {
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
     int nx, ny;
 
     // Move while jumping
@@ -1060,9 +1060,10 @@ DoRipper2MoveHang(short SpriteNum)
 
 
 int
-DoRipper2HangJF(short SpriteNum)
+DoRipper2HangJF(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
@@ -1074,13 +1075,13 @@ DoRipper2HangJF(short SpriteNum)
 
     if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
-        if (DoRipper2QuickJump(SpriteNum))
+        if (DoRipper2QuickJump(actor))
             return 0;
 
-        InitActorDecide(SpriteNum);
+        InitActorDecide(actor);
     }
 
-    DoRipper2MoveHang(SpriteNum);
+    DoRipper2MoveHang(actor);
 
     return 0;
 
@@ -1091,10 +1092,11 @@ DoRipper2HangJF(short SpriteNum)
 //
 
 int
-DoRipper2BeginJumpAttack(short SpriteNum)
+DoRipper2BeginJumpAttack(DSWActor* actor)
 {
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
     SPRITEp psp = User[SpriteNum]->tgt_sp;
     short tang;
 
@@ -1133,9 +1135,10 @@ DoRipper2BeginJumpAttack(short SpriteNum)
 }
 
 int
-DoRipper2MoveJump(short SpriteNum)
+DoRipper2MoveJump(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
@@ -1147,13 +1150,13 @@ DoRipper2MoveJump(short SpriteNum)
 
     if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
-        if (DoRipper2QuickJump(SpriteNum))
+        if (DoRipper2QuickJump(actor))
             return 0;
 
-        InitActorDecide(SpriteNum);
+        InitActorDecide(actor);
     }
 
-    DoRipper2MoveHang(SpriteNum);
+    DoRipper2MoveHang(actor);
     return 0;
 }
 
@@ -1162,9 +1165,10 @@ DoRipper2MoveJump(short SpriteNum)
 //
 
 int
-DoRipper2QuickJump(short SpriteNum)
+DoRipper2QuickJump(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     // Tests to see if ripper2 is on top of a player/enemy and then immediatly
     // does another jump
@@ -1187,27 +1191,28 @@ DoRipper2QuickJump(short SpriteNum)
 
 
 int
-NullRipper2(short SpriteNum)
+NullRipper2(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags,SPR_SLIDING))
-        DoActorSlide(SpriteNum);
+        DoActorSlide(actor);
 
-    DoActorSectorDamage(SpriteNum);
+    DoActorSectorDamage(actor);
 
     return 0;
 }
 
 
-int DoRipper2Pain(short SpriteNum)
+int DoRipper2Pain(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
-
-    NullRipper2(SpriteNum);
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
+    NullRipper2(actor);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
-        InitActorDecide(SpriteNum);
+        InitActorDecide(actor);
     return 0;
 }
 
@@ -1227,12 +1232,13 @@ int DoRipper2RipHeart(short SpriteNum)
     return 0;
 }
 
-int DoRipper2StandHeart(short SpriteNum)
+int DoRipper2StandHeart(DSWActor* actor)
 {
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
 
-    NullRipper2(SpriteNum);
+    NullRipper2(actor);
 
     if (!SoundValidAndActive(sp, CHAN_RipHeart))
         PlaySound(DIGI_RIPPER2HEARTOUT, sp, v3df_none, CHAN_RipHeart);
@@ -1297,17 +1303,18 @@ void Ripper2Hatch(short Weapon)
 }
 
 int
-DoRipper2Move(short SpriteNum)
+DoRipper2Move(DSWActor* actor)
 {
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
     
     if (sp->hitag == TAG_SWARMSPOT && sp->lotag == 1)
-        DoCheckSwarm(SpriteNum);
+        DoCheckSwarm(actor);
 
     if (u->scale_speed)
     {
-        DoScaleSprite(SpriteNum);
+        DoScaleSprite(actor);
     }
 
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
@@ -1321,39 +1328,43 @@ DoRipper2Move(short SpriteNum)
     // if on a player/enemy sprite jump quickly
     if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
-        if (DoRipper2QuickJump(SpriteNum))
+        if (DoRipper2QuickJump(actor))
             return 0;
 
         KeepActorOnFloor(SpriteNum);
     }
 
     if (TEST(u->Flags, SPR_SLIDING))
-        DoActorSlide(SpriteNum);
+        DoActorSlide(actor);
 
     if (u->track >= 0)
         ActorFollowTrack(SpriteNum, ACTORMOVETICS);
     else
-        (*u->ActorActionFunc)(SpriteNum);
+        (*u->ActorActionFunc)(actor);
 
-    DoActorSectorDamage(SpriteNum);
+    DoActorSectorDamage(actor);
 
     return 0;
 }
 
 
-int InitRipper2Charge(short SpriteNum)
+int InitRipper2Charge(DSWActor* actor)
 {
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     DoActorSetSpeed(SpriteNum, FAST_SPEED);
 
-    InitActorMoveCloser(SpriteNum);
+    InitActorMoveCloser(actor);
 
     NewStateGroup(SpriteNum, sg_Ripper2RunFast);
 
     return 0;
 }
 
-int ChestRipper2(short SpriteNum)
+int ChestRipper2(DSWActor* actor)
 {
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
     PlaySound(DIGI_RIPPER2CHEST, sp, v3df_follow);
@@ -1366,8 +1377,6 @@ int ChestRipper2(short SpriteNum)
 
 static saveable_code saveable_ripper2_code[] =
 {
-    SAVE_CODE(SetupRipper2),
-
     SAVE_CODE(InitRipper2Hang),
     SAVE_CODE(DoRipper2Hang),
     SAVE_CODE(DoRipper2MoveHang),

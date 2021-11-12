@@ -96,6 +96,7 @@ static const char * ww2gi[] = { "/WW2GI", nullptr};
 static const char * bloodfs[] = { "", R"(/addons/Cryptic Passage)", nullptr};
 static const char * sw[] = { "/Shadow Warrior", nullptr};
 static const char * redneck[] = { "/Redneck", "/AGAIN", "/HUNTIN", nullptr };
+static const char * dukezoom[] = { "/", "/AddOns", nullptr };
 
 #ifndef _WIN64
 #define WOW64 "\\"
@@ -112,6 +113,8 @@ static const RegistryPathInfo paths[] = {
 	{ L"SOFTWARE" WOW64 "GOG.com\\Games\\1374469660", L"path", bloodfs},
 	{ L"SOFTWARE" WOW64 "GOG.com\\Games\\1740836875", L"path", nullptr},
 	{ L"SOFTWARE" WOW64 "GOG.com\\Games\\2132611980", L"path", nullptr}, // Powerslave
+
+	{ L"SOFTWARE" WOW64 "ZOOM PLATFORM\\Duke Nukem 3D - Atomic Edition", L"InstallPath", dukezoom },
 
 	{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 434050", L"InstallLocation", nullptr },
 	{ L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 225140", L"InstallLocation", dukeaddons },

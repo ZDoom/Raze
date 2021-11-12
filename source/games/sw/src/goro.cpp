@@ -118,7 +118,7 @@ ATTRIBUTE GoroAttrib =
 
 #define GORO_RUN_RATE 18
 
-ANIMATOR DoGoroMove,NullGoro,DoActorDebris,NullAnimator,InitEnemyFireball;
+ANIMATOR DoGoroMove,NullGoro,DoActorDebris,InitEnemyFireball;
 
 STATE s_GoroRun[5][4] =
 {
@@ -513,53 +513,49 @@ SetupGoro(short SpriteNum)
     return 0;
 }
 
-int NullGoro(short SpriteNum)
+int NullGoro(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
-
-    ASSERT(SpriteNum >= 0);
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags,SPR_SLIDING))
-        DoActorSlide(SpriteNum);
+        DoActorSlide(actor);
 
     KeepActorOnFloor(SpriteNum);
 
-    DoActorSectorDamage(SpriteNum);
+    DoActorSectorDamage(actor);
     return 0;
 }
 
-int DoGoroPain(short SpriteNum)
+int DoGoroPain(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
-
-    ASSERT(SpriteNum >= 0);
-
-    NullGoro(SpriteNum);
+    USER* u = actor->u();
+    
+    NullGoro(actor);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
-        InitActorDecide(SpriteNum);
+        InitActorDecide(actor);
     return 0;
 }
 
-int DoGoroMove(short SpriteNum)
+int DoGoroMove(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
-
-    ASSERT(SpriteNum >= 0);
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags,SPR_SLIDING))
-        DoActorSlide(SpriteNum);
+        DoActorSlide(actor);
 
     if (u->track >= 0)
         ActorFollowTrack(SpriteNum, ACTORMOVETICS);
     else
-        (*u->ActorActionFunc)(SpriteNum);
+        (*u->ActorActionFunc)(actor);
 
     ASSERT(User[SpriteNum].Data());
 
     KeepActorOnFloor(SpriteNum);
 
-    DoActorSectorDamage(SpriteNum);
+    DoActorSectorDamage(actor);
     return 0;
 }
 
@@ -568,7 +564,6 @@ int DoGoroMove(short SpriteNum)
 
 static saveable_code saveable_goro_code[] =
 {
-    SAVE_CODE(SetupGoro),
     SAVE_CODE(NullGoro),
     SAVE_CODE(DoGoroPain),
     SAVE_CODE(DoGoroMove),

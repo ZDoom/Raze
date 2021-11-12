@@ -66,7 +66,7 @@ static int ccmd_spawn(CCmdFuncPtr parm)
 	case 3: // cstat
 		cstat = (unsigned short)atol(parm->parms[2]); set |= 2;
 	case 2: // pal
-		pal = (unsigned char)atol(parm->parms[1]); set |= 1;
+		pal = (uint8_t)atol(parm->parms[1]); set |= 1;
 	case 1: // tile number
 		if (isdigit(parm->parms[0][0])) {
 			picnum = (unsigned short)atol(parm->parms[0]);
@@ -89,8 +89,8 @@ static int ccmd_spawn(CCmdFuncPtr parm)
 	}
 
 	auto spawned = spawn(ps[myconnectindex].GetActor(), picnum);
-	if (set & 1) spawned->s->pal = (char)pal;
-	if (set & 2) spawned->s->cstat = (short)cstat;
+	if (set & 1) spawned->s->pal = (uint8_t)pal;
+	if (set & 2) spawned->s->cstat = (uint16_t)cstat;
 	if (set & 4) spawned->s->ang = ang;
 	if (set & 8) {
 		if (setsprite(spawned, x, y, z) < 0) 
@@ -107,9 +107,9 @@ void GameInterface::WarpToCoords(int x, int y, int z, int ang, int horz)
 {
 	player_struct* p = &ps[myconnectindex];
 
-	p->oposx = p->posx = x;
-	p->oposy = p->posy = y;
-	p->oposz = p->posz = z;
+	p->oposx = p->pos.x = x;
+	p->oposy = p->pos.y = y;
+	p->oposz = p->pos.z = z;
 
     if (ang != INT_MIN)
     {

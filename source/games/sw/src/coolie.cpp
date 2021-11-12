@@ -558,9 +558,11 @@ SetupCoolie(short SpriteNum)
 
 
 int NewCoolg(short);
-int SpawnCoolg(short SpriteNum)
+int SpawnCoolg(DSWActor* actor)
 {
-
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
+	
     // Don't do a ghost every time
     if (RandomRange(1000) > 700 || Skill < MinEnemySkill - 1)
     {
@@ -574,55 +576,58 @@ int SpawnCoolg(short SpriteNum)
     return 0;
 }
 
-int CooliePain(short SpriteNum)
+int CooliePain(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags,SPR_SLIDING))
-        DoActorSlide(SpriteNum);
+        DoActorSlide(actor);
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(SpriteNum);
 
-    DoActorSectorDamage(SpriteNum);
+    DoActorSectorDamage(actor);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
-        InitActorDecide(SpriteNum);
+        InitActorDecide(actor);
 
     return 0;
 }
 
-int NullCoolie(short SpriteNum)
+int NullCoolie(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags,SPR_SLIDING))
-        DoActorSlide(SpriteNum);
+        DoActorSlide(actor);
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(SpriteNum);
 
-    DoActorSectorDamage(SpriteNum);
+    DoActorSectorDamage(actor);
 
     return 0;
 }
 
-int DoCoolieMove(short SpriteNum)
+int DoCoolieMove(DSWActor* actor)
 {
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
 
     if (TEST(u->Flags,SPR_SLIDING))
-        DoActorSlide(SpriteNum);
+        DoActorSlide(actor);
 
     if (u->track >= 0)
         ActorFollowTrack(SpriteNum, ACTORMOVETICS);
     else
-        (*u->ActorActionFunc)(SpriteNum);
+        (*u->ActorActionFunc)(actor);
 
     KeepActorOnFloor(SpriteNum);
 
-    if (DoActorSectorDamage(SpriteNum))
+    if (DoActorSectorDamage(actor))
     {
         return 0;
     }
@@ -638,8 +643,10 @@ int DoCoolieMove(short SpriteNum)
     return 0;
 }
 
-int InitCoolieCharge(short SpriteNum)
+int InitCoolieCharge(DSWActor* actor)
 {
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
     if (RANDOM_P2(1024) > 950)
@@ -647,7 +654,7 @@ int InitCoolieCharge(short SpriteNum)
 
     DoActorSetSpeed(SpriteNum, FAST_SPEED);
 
-    InitActorMoveCloser(SpriteNum);
+    InitActorMoveCloser(actor);
 
     NewStateGroup(SpriteNum, sg_CoolieCharge);
 
@@ -656,11 +663,10 @@ int InitCoolieCharge(short SpriteNum)
 
 
 int
-DoCoolieWaitBirth(short SpriteNum)
+DoCoolieWaitBirth(DSWActor* actor)
 {
-    USERp u;
-
-    u = User[SpriteNum].Data();
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     if ((u->Counter -= ACTORMOVETICS) <= 0)
     {
@@ -675,8 +681,6 @@ DoCoolieWaitBirth(short SpriteNum)
 
 static saveable_code saveable_coolie_code[] =
 {
-    SAVE_CODE(EnemyDefaults),
-    SAVE_CODE(SetupCoolie),
     SAVE_CODE(SpawnCoolg),
     SAVE_CODE(CooliePain),
     SAVE_CODE(NullCoolie),

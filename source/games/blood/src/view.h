@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "messages.h"
 #include "player.h"
 #include "interpolate.h"
+#include "bloodactor.h"
 
 BEGIN_BLD_NS
 
@@ -51,13 +52,17 @@ struct VIEW {
     int at44;
     int at48; // posture
     double spin; // spin
-    int x; // x
-    int y; // y
-    int z; // z
+    union {
+        struct
+        {
+            int32_t x, y, z;
+        };
+        vec3_t pos;
+    };
     int xvel; //xvel
     int yvel; //yvel
     int zvel; //zvel
-    short sectnum; // sectnum
+    int sectnum; // sectnum
     unsigned int floordist; // floordist
     char at6e; // look center
     char at6f;
@@ -177,6 +182,10 @@ inline void viewBackupSpriteLoc(int nSprite, spritetype *pSprite)
     }
 }
 
-void viewBackupSpriteLoc(DBloodActor* actor);
+inline void viewBackupSpriteLoc(DBloodActor* actor)
+{
+    viewBackupSpriteLoc(actor->s().index, &actor->s());
+}
+
 
 END_BLD_NS

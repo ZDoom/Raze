@@ -234,7 +234,7 @@ static struct TicSpecial
 	{
 		int i;
 
-		specialsize = std::max(specialsize * 2, needed + 30);
+		specialsize = max(specialsize * 2, needed + 30);
 
 		DPrintf (DMSG_NOTIFY, "Expanding special size to %zu\n", specialsize);
 
@@ -1164,7 +1164,7 @@ void NetUpdate (void)
 			netbuffer[k++] = lowtic;
 		}
 
-		numtics = std::max(0, lowtic - realstart);
+		numtics = max(0, lowtic - realstart);
 		if (numtics > BACKUPTICS)
 			I_Error ("NetUpdate: Node %d missed too many tics", i);
 
@@ -1173,7 +1173,7 @@ void NetUpdate (void)
 		case 0:
 		default: 
 			resendto[i] = lowtic; break;
-		case 1: resendto[i] = std::max(0, lowtic - 1); break;
+		case 1: resendto[i] = max(0, lowtic - 1); break;
 		case 2: resendto[i] = nettics[i]; break;
 		}
 
@@ -1998,15 +1998,15 @@ int Net_GetLatency(int *ld, int *ad)
 	localdelay = ((localdelay / BACKUPTICS) * ticdup) * (1000 / GameTicRate);
 	int severity = 0;
 
-	if (std::max(localdelay, arbitratordelay) > 200)
+	if (max(localdelay, arbitratordelay) > 200)
 	{
 		severity = 1;
 	}
-	if (std::max(localdelay, arbitratordelay) > 400)
+	if (max(localdelay, arbitratordelay) > 400)
 	{
 		severity = 2;
 	}
-	if (std::max(localdelay, arbitratordelay) >= ((BACKUPTICS / 2 - 1) * ticdup) * (1000 / GameTicRate))
+	if (max(localdelay, arbitratordelay) >= ((BACKUPTICS / 2 - 1) * ticdup) * (1000 / GameTicRate))
 	{
 		severity = 3;
 	}

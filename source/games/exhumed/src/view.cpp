@@ -87,16 +87,16 @@ static void analyzesprites(spritetype* tsprite, int& spritesortcnt, int x, int y
         }
     }
 
-    short nPlayerSprite = PlayerList[nLocalPlayer].nSprite;
+    auto pPlayerActor = PlayerList[nLocalPlayer].Actor();
 
     int var_38 = 20;
     int var_2C = 30000;
 
-    spritetype *pPlayerSprite = &sprite[nPlayerSprite];
+    spritetype *pPlayerSprite = &pPlayerActor->s();
 
-    besttarget = -1;
+    bestTarget = nullptr;
 
-    short nSector = pPlayerSprite->sectnum;
+    int nSector =pPlayerSprite->sectnum;
 
     int nAngle = (2048 - pPlayerSprite->ang) & kAngleMask;
 
@@ -107,7 +107,8 @@ static void analyzesprites(spritetype* tsprite, int& spritesortcnt, int x, int y
     for (nTSprite = spritesortcnt-1, pTSprite = &tsprite[nTSprite]; nTSprite >= 0; nTSprite--, pTSprite--)
     {
         int nSprite = pTSprite->owner;
-        spritetype *pSprite = &sprite[nSprite];
+        auto pActor = &exhumedActors[nSprite];
+        spritetype *pSprite = &pActor->s();
 
         if (pTSprite->sectnum >= 0)
         {
@@ -129,9 +130,11 @@ static void analyzesprites(spritetype* tsprite, int& spritesortcnt, int x, int y
 
         if (pSprite->statnum > 0)
         {
-            runlist_SignalRun(pSprite->lotag - 1, nTSprite | 0x90000);
+            RunListEvent ev{};
+            ev.pTSprite = pTSprite;
+            runlist_SignalRun(pSprite->lotag - 1, nTSprite, &ExhumedAI::Draw, &ev);
 
-            if ((pSprite->statnum < 150) && (pSprite->cstat & 0x101) && (nSprite != nPlayerSprite))
+            if ((pSprite->statnum < 150) && (pSprite->cstat & 0x101) && (pActor != pPlayerActor))
             {
                 int xval = pSprite->x - x;
                 int yval = pSprite->y - y;
@@ -151,7 +154,7 @@ static void analyzesprites(spritetype* tsprite, int& spritesortcnt, int x, int y
                 edx = (abs(edx) * 32) / ebx;
                 if (ebx < 1000 && ebx < var_2C && edx < 10)
                 {
-                    besttarget = nSprite;
+                    bestTarget = pActor;
                     var_38 = edx;
                     var_2C = ebx;
                 }
@@ -162,21 +165,21 @@ static void analyzesprites(spritetype* tsprite, int& spritesortcnt, int x, int y
                     {
                         var_38 = edx;
                         var_2C = ebx;
-                        besttarget = nSprite;
+                        bestTarget = pActor;
                     }
                 }
             }
         }
     }
-    if (besttarget != -1)
+    if (bestTarget != nullptr)
     {
-        spritetype *pTarget = &sprite[besttarget];
+        spritetype *pTarget = &bestTarget->s();
 
         nCreepyTimer = kCreepyCount;
 
-        if (!cansee(x, y, z, nSector, pTarget->x, pTarget->y, pTarget->z - GetSpriteHeight(besttarget), pTarget->sectnum))
+        if (!cansee(x, y, z, nSector, pTarget->x, pTarget->y, pTarget->z - GetActorHeight(bestTarget), pTarget->sectnum))
         {
-            besttarget = -1;
+            bestTarget = nullptr;
         }
     }
 
@@ -200,7 +203,7 @@ void DrawView(double smoothRatio, bool sceneonly)
     int playerX;
     int playerY;
     int playerZ;
-    short nSector;
+    int nSector;
     binangle nAngle, rotscrnang;
     fixedhoriz pan;
 
@@ -211,10 +214,11 @@ void DrawView(double smoothRatio, bool sceneonly)
     DoInterpolations(smoothRatio / 65536.);
     pm_smoothratio = (int)smoothRatio;
 
-    int nPlayerSprite = PlayerList[nLocalPlayer].nSprite;
-	auto pPlayerSprite = &sprite[nPlayerSprite];
+    auto pPlayerActor = PlayerList[nLocalPlayer].Actor();
+	auto pPlayerSprite = &pPlayerActor->s();
     int nPlayerOldCstat = pPlayerSprite->cstat;
-    int nDoppleOldCstat = sprite[PlayerList[nLocalPlayer].nDoppleSprite].cstat;
+    auto pDop = &PlayerList[nLocalPlayer].pDoppleSprite->s();
+    int nDoppleOldCstat = pDop->cstat;
 
     if (nSnakeCam >= 0 && !sceneonly)
     {
@@ -244,10 +248,9 @@ void DrawView(double smoothRatio, bool sceneonly)
     }
     else
     {
-        auto psp = &sprite[nPlayerSprite];
-        playerX = psp->interpolatedx(smoothRatio);
-        playerY = psp->interpolatedy(smoothRatio);
-        playerZ = psp->interpolatedz(smoothRatio) + interpolatedvalue(PlayerList[nLocalPlayer].oeyelevel, PlayerList[nLocalPlayer].eyelevel, smoothRatio);
+        playerX = pPlayerSprite->interpolatedx(smoothRatio);
+        playerY = pPlayerSprite->interpolatedy(smoothRatio);
+        playerZ = pPlayerSprite->interpolatedz(smoothRatio) + interpolatedvalue(PlayerList[nLocalPlayer].oeyelevel, PlayerList[nLocalPlayer].eyelevel, smoothRatio);
 
         nSector = PlayerList[nLocalPlayer].nPlayerViewSect;
         updatesector(playerX, playerY, &nSector);
@@ -268,12 +271,12 @@ void DrawView(double smoothRatio, bool sceneonly)
         if (!bCamera)
         {
             pPlayerSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
-            sprite[PlayerList[nLocalPlayer].nDoppleSprite].cstat |= CSTAT_SPRITE_INVISIBLE;
+            pDop->cstat |= CSTAT_SPRITE_INVISIBLE;
         }
         else
         {
             pPlayerSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
-            sprite[PlayerList[nLocalPlayer].nDoppleSprite].cstat |= CSTAT_SPRITE_INVISIBLE;
+            pDop->cstat |= CSTAT_SPRITE_INVISIBLE;
         }
         pan = q16horiz(clamp(pan.asq16(), gi->playerHorizMin(), gi->playerHorizMax()));
     }
@@ -288,7 +291,7 @@ void DrawView(double smoothRatio, bool sceneonly)
     else
     {
         viewz = playerZ + nQuake[nLocalPlayer];
-        int floorZ = sector[pPlayerSprite->sectnum].floorz;
+        int floorZ = pPlayerSprite->sector()->floorz;
 
         if (viewz > floorZ)
             viewz = floorZ;
@@ -298,10 +301,10 @@ void DrawView(double smoothRatio, bool sceneonly)
         if (bCamera)
         {
             viewz -= 2560;
-            if (!calcChaseCamPos(&playerX, &playerY, &viewz, &sprite[nPlayerSprite], &nSector, nAngle, pan, smoothRatio))
+            if (!calcChaseCamPos(&playerX, &playerY, &viewz, pPlayerSprite, &nSector, nAngle, pan, smoothRatio))
             {
                 viewz += 2560;
-                calcChaseCamPos(&playerX, &playerY, &viewz, &sprite[nPlayerSprite], &nSector, nAngle, pan, smoothRatio);
+                calcChaseCamPos(&playerX, &playerY, &viewz, pPlayerSprite, &nSector, nAngle, pan, smoothRatio);
             }
         }
     }
@@ -334,9 +337,10 @@ void DrawView(double smoothRatio, bool sceneonly)
 
     if (nFreeze != 3)
     {
-        static uint8_t sectorFloorPal[MAXSECTORS];
-        static uint8_t sectorCeilingPal[MAXSECTORS];
-        static uint8_t wallPal[MAXWALLS];
+        TArray<uint8_t> paldata(numsectors * 2 + numwalls, true);
+        uint8_t* sectorFloorPal = &paldata[0];
+        uint8_t* sectorCeilingPal = &paldata[numsectors];
+        uint8_t* wallPal = &paldata[2*numsectors];
         int const viewingRange = viewingrange;
         int const vr = xs_CRoundToInt(65536. * tan(r_fov * (pi::pi() / 360.)));
 
@@ -363,7 +367,7 @@ void DrawView(double smoothRatio, bool sceneonly)
         if (!testnewrenderer)
         {
             renderSetRollAngle((float)rotscrnang.asbuildf());
-            renderDrawRoomsQ16(nCamerax, nCameray, viewz, nCameraa.asq16(), nCamerapan.asq16(), nSector);
+            renderDrawRoomsQ16(nCamerax, nCameray, viewz, nCameraa.asq16(), nCamerapan.asq16(), nSector, false);
             analyzesprites(pm_tsprite, pm_spritesortcnt, nCamerax, nCameray, viewz, smoothRatio);
             renderDrawMasks();
         }
@@ -454,7 +458,7 @@ void DrawView(double smoothRatio, bool sceneonly)
     }
 
     pPlayerSprite->cstat = nPlayerOldCstat;
-    sprite[PlayerList[nLocalPlayer].nDoppleSprite].cstat = nDoppleOldCstat;
+    pDop->cstat = nDoppleOldCstat;
     RestoreInterpolations();
 
     flash = 0;
@@ -482,20 +486,23 @@ void Clip()
 
 void SerializeView(FSerializer& arc)
 {
-    arc("camerax", nCamerax)
-        ("cameray", nCameray)
-        ("cameraz", nCameraz)
-        ("touchfloor", bTouchFloor)
-        ("chunktotal", nChunkTotal)
-        ("cameraa", nCameraa)
-        ("camerapan", nCamerapan)
-        ("camera", bCamera)
-        ("viewz", viewz)
-        ("enemy", pEnemy)
-        ("enemypal", nEnemyPal)
-        .Array("vertpan", dVertPan, countof(dVertPan))
-        .Array("quake", nQuake, countof(nQuake))
-        .EndObject();
+    if (arc.BeginObject("view"))
+    {
+        arc("camerax", nCamerax)
+            ("cameray", nCameray)
+            ("cameraz", nCameraz)
+            ("touchfloor", bTouchFloor)
+            ("chunktotal", nChunkTotal)
+            ("cameraa", nCameraa)
+            ("camerapan", nCamerapan)
+            ("camera", bCamera)
+            ("viewz", viewz)
+            ("enemy", pEnemy)
+            ("enemypal", nEnemyPal)
+            .Array("vertpan", dVertPan, countof(dVertPan))
+            .Array("quake", nQuake, countof(nQuake))
+            .EndObject();
+    }
 }
 
 END_PS_NS

@@ -95,7 +95,7 @@ void SectorLightShade(SPRITEp sp, short intensity)
             if (TEST(sp->extra, SPRX_BOOL5))
             {
                 uint16_t const nextwall = wall[w].nextwall;
-                if (nextwall < MAXWALLS)
+                if (validWallIndex(nextwall))
                 {
                     base_shade = wall_shade[wallcount];
                     wall[nextwall].shade = base_shade + intensity;

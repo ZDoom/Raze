@@ -37,11 +37,11 @@ BEGIN_DUKE_NS
 
 
 int myx, omyx, myxvel, myy, omyy, myyvel, myz, omyz, myzvel;
-short globalskillsound;
+int globalskillsound;
 binangle myang, omyang;
 fixedhoriz myhoriz, omyhoriz, myhorizoff, omyhorizoff;
-short mycursectnum, myjumpingcounter;
-char myjumpingtoggle, myonground, myhardlanding,myreturntocenter;
+int mycursectnum, myjumpingcounter;
+uint8_t myjumpingtoggle, myonground, myhardlanding,myreturntocenter;
 int fakemovefifoplc;
 int myxbak[MOVEFIFOSIZ], myybak[MOVEFIFOSIZ], myzbak[MOVEFIFOSIZ];
 int myhorizbak[MOVEFIFOSIZ];
@@ -50,9 +50,9 @@ short myangbak[MOVEFIFOSIZ];
 
 void resetmys()
 {
-	myx = omyx = ps[myconnectindex].posx;
-	myy = omyy = ps[myconnectindex].posy;
-	myz = omyz = ps[myconnectindex].posz;
+	myx = omyx = ps[myconnectindex].pos.x;
+	myy = omyy = ps[myconnectindex].pos.y;
+	myz = omyz = ps[myconnectindex].pos.z;
 	myxvel = myyvel = myzvel = 0;
 	myang = myang = ps[myconnectindex].angle.ang;
 	myhoriz = omyhoriz = ps[myconnectindex].horizon.horiz;
@@ -75,12 +75,12 @@ void fakedomovethingscorrect(void)
 	 i = ((movefifoplc-1)&(MOVEFIFOSIZ-1));
 	 p = &ps[myconnectindex];
 
-	 if (p->posx == myxbak[i] && p->posy == myybak[i] && p->posz == myzbak[i]
+	 if (p->pos.x == myxbak[i] && p->pos.y == myybak[i] && p->pos.z == myzbak[i]
 		  && p->horiz == myhorizbak[i] && p->ang == myangbak[i]) return;
 
-	 myx = p->posx; omyx = p->oposx; myxvel = p->posxv;
-	 myy = p->posy; omyy = p->oposy; myyvel = p->posyv;
-	 myz = p->posz; omyz = p->oposz; myzvel = p->poszv;
+	 myx = p->pos.x; omyx = p->oposx; myxvel = p->posxv;
+	 myy = p->pos.y; omyy = p->oposy; myyvel = p->posyv;
+	 myz = p->pos.z; omyz = p->oposz; myzvel = p->poszv;
 	 myang = p->ang; omyang = p->oang;
 	 mycursectnum = p->cursectnum;
 	 myhoriz = p->horiz; omyhoriz = p->ohoriz;
@@ -103,7 +103,7 @@ void fakedomovethings(void)
 		struct player_struct *p;
 		int i, j, k, doubvel, fz, cz, x, y;
 		Collision clz, chz;
-		short psect, psectlotag, tempsect, backcstat;
+		int psect, psectlotag, tempsect, backcstat;
 		uint8_t shrunk, spritebridge;
 		ESyncBits actions;
 

@@ -179,6 +179,7 @@ void GameInterface::LoadGameTextures()
 void GameInterface::app_init()
 {
     GameTicRate = TICS_PER_SEC / synctics;
+    InputScalePercentage = 0.070625;
     InitCheats();
     automapping = 1;
 
@@ -707,29 +708,6 @@ int StdRandomRange(int range)
         value = range - 1;
 
     return value;
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
-#include "saveable.h"
-
-saveable_module saveable_build{};
-
-void Saveable_Init_Dynamic()
-{
-    static saveable_data saveable_build_data[] =
-    {
-        {sector, MAXSECTORS*sizeof(sectortype)},
-        {sprite, MAXSPRITES*sizeof(spritetype)},
-        {wall, MAXWALLS*sizeof(walltype)},
-    };
-
-    saveable_build.data = saveable_build_data;
-    saveable_build.numdata = NUM_SAVEABLE_ITEMS(saveable_build_data);
 }
 
 //---------------------------------------------------------------------------

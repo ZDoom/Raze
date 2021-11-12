@@ -2,8 +2,6 @@
 
 BEGIN_PS_NS
 
-void mydeletesprite(int nSprite);
-
 class DExhumedActor;
 
 enum

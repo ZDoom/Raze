@@ -146,7 +146,7 @@ void BuildItemAnim(DExhumedActor* pActor)
 
 void DestroyItemAnim(DExhumedActor* actor)
 {
-    if (actor && actor->s().owner == 0) 
+    if (actor && actor->s().owner >= 0) 
         DestroyAnim(actor);
 }
 
@@ -184,7 +184,7 @@ static bool UseEye(short nPlayer)
 
     pSprite->cstat |= 0x8000;
 
-    if (PlayerList[nPlayer].nPlayerFloorSprite >= 0) {
+    if (PlayerList[nPlayer].pPlayerFloorSprite != nullptr) {
         pSprite->cstat |= 0x8000;
     }
 

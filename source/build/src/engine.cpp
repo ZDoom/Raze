@@ -207,7 +207,7 @@ static int32_t engineLoadTables(void)
         int32_t i;
 
         for (i=0; i<=512; i++)
-            sintable[i] = bsinf(i);
+            sintable[i] = int(sin(i * BAngRadian) * +SINTABLEUNIT);
         for (i=513; i<1024; i++)
             sintable[i] = sintable[1024-i];
         for (i=1024; i<2048; i++)
@@ -702,35 +702,10 @@ void initspritelists(void)
 //
 // See http://fabiensanglard.net/duke3d/build_engine_internals.php,
 // "Inside details" for the idea behind the algorithm.
-int32_t inside_ps(int32_t x, int32_t y, int16_t sectnum)
+
+int32_t inside(int32_t x, int32_t y, int sectnum)
 {
-    if (sectnum >= 0 && sectnum < numsectors)
-    {
-        int32_t cnt = 0;
-        auto wal       = (uwallptr_t)&wall[sector[sectnum].wallptr];
-        int  wallsleft = sector[sectnum].wallnum;
-
-        do
-        {
-            vec2_t v1 = { wal->x - x, wal->y - y };
-            auto const &wal2 = *(uwallptr_t)&wall[wal->point2];
-            vec2_t v2 = { wal2.x - x, wal2.y - y };
-
-            if ((v1.y^v2.y) < 0)
-                cnt ^= (((v1.x^v2.x) < 0) ? (v1.x*v2.y<v2.x*v1.y)^(v1.y<v2.y) : (v1.x >= 0));
-
-            wal++;
-        }
-        while (--wallsleft);
-
-        return cnt;
-    }
-
-    return -1;
-}
-int32_t inside_old(int32_t x, int32_t y, int16_t sectnum)
-{
-    if (sectnum >= 0 && sectnum < numsectors)
+	if (validSectorIndex(sectnum))
     {
         uint32_t cnt = 0;
         auto wal       = (uwallptr_t)&wall[sector[sectnum].wallptr];
@@ -763,71 +738,6 @@ int32_t inside_old(int32_t x, int32_t y, int16_t sectnum)
     return -1;
 }
 
-int32_t inside(int32_t x, int32_t y, int sectnum)
-{
-    switch (enginecompatibility_mode)
-    {
-    case ENGINECOMPATIBILITY_NONE:
-        break;
-    case ENGINECOMPATIBILITY_19950829:
-        return inside_ps(x, y, sectnum);
-    default:
-        return inside_old(x, y, sectnum);
-    }
-    if ((unsigned)sectnum < (unsigned)numsectors)
-    {
-        uint32_t cnt1 = 0, cnt2 = 0;
-
-        auto wal       = (uwallptr_t)&wall[sector[sectnum].wallptr];
-        int  wallsleft = sector[sectnum].wallnum;
-
-        do
-        {
-            // Get the x and y components of the [tested point]-->[wall
-            // point{1,2}] vectors.
-            vec2_t v1 = { wal->x - x, wal->y - y };
-            auto const &wal2 = *(uwallptr_t)&wall[wal->point2];
-            vec2_t v2 = { wal2.x - x, wal2.y - y };
-
-            // First, test if the point is EXACTLY_ON_WALL_POINT.
-            if ((v1.x|v1.y) == 0 || (v2.x|v2.y)==0)
-                return 1;
-
-            // If their signs differ[*], ...
-            //
-            // [*] where '-' corresponds to <0 and '+' corresponds to >=0.
-            // Equivalently, the branch is taken iff
-            //   y1 != y2 AND y_m <= y < y_M,
-            // where y_m := min(y1, y2) and y_M := max(y1, y2).
-            if ((v1.y^v2.y) < 0)
-                cnt1 ^= (((v1.x^v2.x) >= 0) ? v1.x : (v1.x*v2.y-v2.x*v1.y)^v2.y);
-
-            v1.y--;
-            v2.y--;
-
-            // Now, do the same comparisons, but with the interval half-open on
-            // the other side! That is, take the branch iff
-            //   y1 != y2 AND y_m < y <= y_M,
-            // For a rectangular sector, without EXACTLY_ON_WALL_POINT, this
-            // would still leave the lower left and upper right points
-            // "outside" the sector.
-            if ((v1.y^v2.y) < 0)
-            {
-                v1.x--;
-                v2.x--;
-
-                cnt2 ^= (((v1.x^v2.x) >= 0) ? v1.x : (v1.x*v2.y-v2.x*v1.y)^v2.y);
-            }
-
-            wal++;
-        }
-        while (--wallsleft);
-
-        return (cnt1|cnt2)>>31;
-    }
-
-    return -1;
-}
 
 int32_t getangle(int32_t xvect, int32_t yvect)
 {
@@ -878,7 +788,7 @@ int32_t spriteheightofsptr(uspriteptr_t spr, int32_t *height, int32_t alsotileyo
 //
 int32_t setsprite(int16_t spritenum, const vec3_t *newpos)
 {
-    int16_t tempsectnum = sprite[spritenum].sectnum;
+    int tempsectnum = sprite[spritenum].sectnum;
 
     if (newpos != &sprite[spritenum].pos)
         sprite[spritenum].pos = *newpos;
@@ -895,7 +805,7 @@ int32_t setsprite(int16_t spritenum, const vec3_t *newpos)
 
 int32_t setspritez(int16_t spritenum, const vec3_t *newpos)
 {
-    int16_t tempsectnum = sprite[spritenum].sectnum;
+    int tempsectnum = sprite[spritenum].sectnum;
 
     if ((void const *)newpos != (void *)&sprite[spritenum])
         sprite[spritenum].pos = *newpos;
@@ -1177,7 +1087,7 @@ void neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange,
 // flags:
 //  1: don't reset walbitmap[] (the bitmap of already dragged vertices)
 //  2: In the editor, do wall[].cstat |= (1<<14) also for the lastwall().
-void dragpoint(int16_t pointhighlight, int32_t dax, int32_t day, uint8_t flags)
+void dragpoint(int pointhighlight, int32_t dax, int32_t day, uint8_t flags)
 {
     int32_t i, numyaxwalls=0;
     static int16_t yaxwalls[MAXWALLS];
@@ -1356,9 +1266,9 @@ int findwallbetweensectors(int sect1, int sect2)
 //
 // updatesector[z]
 //
-void updatesector(int32_t const x, int32_t const y, int16_t * const sectnum)
+void updatesector(int32_t const x, int32_t const y, int * const sectnum)
 {
-    int16_t sect = *sectnum;
+    int sect = *sectnum;
     updatesectorneighbor(x, y, &sect, INITIALUPDATESECTORDIST, MAXUPDATESECTORDIST);
     if (sect != -1)
         SET_AND_RETURN(*sectnum, sect);
@@ -1373,54 +1283,23 @@ void updatesector(int32_t const x, int32_t const y, int16_t * const sectnum)
 }
 
 
-// new: if *sectnum >= MAXSECTORS, *sectnum-=MAXSECTORS is considered instead
-//      as starting sector and the 'initial' z check is skipped
-//      (not initial anymore because it follows the sector updating due to TROR)
-
-void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int16_t * const sectnum)
+void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int* const sectnum)
 {
-    if (enginecompatibility_mode != ENGINECOMPATIBILITY_NONE)
-    {
-        if ((uint32_t)(*sectnum) < 2*MAXSECTORS)
-        {
-            int32_t nofirstzcheck = 0;
+	int32_t cz, fz;
+	getzsofslope(*sectnum, x, y, &cz, &fz);
 
-            if (*sectnum >= MAXSECTORS)
-            {
-                *sectnum -= MAXSECTORS;
-                nofirstzcheck = 1;
-            }
+	walltype const * wal = &wall[sector[*sectnum].wallptr];
+	int wallsleft = sector[*sectnum].wallnum;
+	do
+	{
+		int const next = wal->nextsector;
+		if (next>=0 && inside_z_p(x,y,z, next))
+			SET_AND_RETURN(*sectnum, next);
 
-            // this block used to be outside the "if" and caused crashes in Polymost Mapster32
-            int32_t cz, fz;
-            getzsofslope(*sectnum, x, y, &cz, &fz);
-
-            if (nofirstzcheck || (z >= cz && z <= fz))
-                if (inside_p(x, y, *sectnum))
-                    return;
-
-            walltype const * wal = &wall[sector[*sectnum].wallptr];
-            int wallsleft = sector[*sectnum].wallnum;
-            do
-            {
-                // YAX: TODO: check neighboring sectors here too?
-                int const next = wal->nextsector;
-                if (next>=0 && inside_z_p(x,y,z, next))
-                    SET_AND_RETURN(*sectnum, next);
-
-                wal++;
-            }
-            while (--wallsleft);
-        }
-    }
-    else
-    {
-        int16_t sect = *sectnum;
-        updatesectorneighborz(x, y, z, &sect, INITIALUPDATESECTORDIST, MAXUPDATESECTORDIST);
-        if (sect != -1)
-            SET_AND_RETURN(*sectnum, sect);
-    }
-
+		wal++;
+	}
+	while (--wallsleft);
+ 
     // we need to support passing in a sectnum of -1, unfortunately
     for (int i = numsectors - 1; i >= 0; --i)
         if (inside_z_p(x, y, z, i))
@@ -1429,11 +1308,11 @@ void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int16_t * 
     *sectnum = -1;
 }
 
-void updatesectorneighbor(int32_t const x, int32_t const y, int16_t * const sectnum, int32_t initialMaxDistance /*= INITIALUPDATESECTORDIST*/, int32_t maxDistance /*= MAXUPDATESECTORDIST*/)
+void updatesectorneighbor(int32_t const x, int32_t const y, int * const sectnum, int32_t initialMaxDistance /*= INITIALUPDATESECTORDIST*/, int32_t maxDistance /*= MAXUPDATESECTORDIST*/)
 {
     int const initialsectnum = *sectnum;
 
-    if ((unsigned)initialsectnum < (unsigned)numsectors && getsectordist({x, y}, initialsectnum) <= initialMaxDistance)
+    if ((validSectorIndex(initialsectnum)) && getsectordist({x, y}, initialsectnum) <= initialMaxDistance)
     {
         if (inside_p(x, y, initialsectnum))
             return;
@@ -1449,53 +1328,6 @@ void updatesectorneighbor(int32_t const x, int32_t const y, int16_t * const sect
             int const listsectnum = sectlist[sectcnt];
 
             if (inside_p(x, y, listsectnum))
-                SET_AND_RETURN(*sectnum, listsectnum);
-
-            auto const sec       = &sector[listsectnum];
-            int const  startwall = sec->wallptr;
-            int const  endwall   = sec->wallptr + sec->wallnum;
-            auto       uwal      = (uwallptr_t)&wall[startwall];
-
-            for (int j=startwall; j<endwall; j++, uwal++)
-                if (uwal->nextsector >= 0 && getsectordist({x, y}, uwal->nextsector) <= maxDistance)
-                    bfirst_search_try(sectlist, sectbitmap, &nsecs, uwal->nextsector);
-        }
-    }
-
-    *sectnum = -1;
-}
-
-void updatesectorneighborz(int32_t const x, int32_t const y, int32_t const z, int16_t * const sectnum, int32_t initialMaxDistance /*= 0*/, int32_t maxDistance /*= 0*/)
-{
-    bool nofirstzcheck = false;
-
-    if (*sectnum >= MAXSECTORS && *sectnum - MAXSECTORS < numsectors)
-    {
-        *sectnum -= MAXSECTORS;
-        nofirstzcheck = true;
-    }
-
-    uint32_t const correctedsectnum = (unsigned)*sectnum;
-
-    if (correctedsectnum < (unsigned)numsectors && getsectordist({x, y}, correctedsectnum) <= initialMaxDistance)
-    {
-        int32_t cz, fz;
-        getzsofslope(correctedsectnum, x, y, &cz, &fz);
-
-        if ((nofirstzcheck || (z >= cz && z <= fz)) && inside_p(x, y, *sectnum))
-            return;
-
-        static int16_t sectlist[MAXSECTORS];
-        static uint8_t sectbitmap[(MAXSECTORS+7)>>3];
-        int16_t nsecs;
-
-        bfirst_search_init(sectlist, sectbitmap, &nsecs, MAXSECTORS, correctedsectnum);
-
-        for (int sectcnt=0; sectcnt<nsecs; sectcnt++)
-        {
-            int const listsectnum = sectlist[sectcnt];
-
-            if (inside_z_p(x, y, z, listsectnum))
                 SET_AND_RETURN(*sectnum, listsectnum);
 
             auto const sec       = &sector[listsectnum];

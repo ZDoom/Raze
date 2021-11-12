@@ -84,8 +84,8 @@ int setpal(struct player_struct* p)
 	if (p->DrugMode) palette = DRUGPAL;
 	else if (p->heat_on) palette = SLIMEPAL;
 	else if (p->cursectnum < 0) palette = BASEPAL; // don't crash if out of range.
-	else if (sector[p->cursectnum].ceilingpicnum >= TILE_FLOORSLIME && sector[p->cursectnum].ceilingpicnum <= TILE_FLOORSLIME + 2) palette = SLIMEPAL;
-	else if (sector[p->cursectnum].lotag == ST_2_UNDERWATER) palette = WATERPAL;
+	else if (p->cursector()->ceilingpicnum >= TILE_FLOORSLIME && p->cursector()->ceilingpicnum <= TILE_FLOORSLIME + 2) palette = SLIMEPAL;
+	else if (p->cursector()->lotag == ST_2_UNDERWATER) palette = WATERPAL;
 	else palette = BASEPAL;
 	return palette;
 }
@@ -134,7 +134,7 @@ void forceplayerangle(int snum)
 void tracers(int x1, int y1, int z1, int x2, int y2, int z2, int n)
 {
 	int i, xv, yv, zv;
-	short sect = -1;
+	int sect = -1;
 
 	i = n + 1;
 	xv = (x2 - x1) / i;
@@ -170,8 +170,8 @@ int hits(DDukeActor* actor)
 {
 	auto sp = actor->s;
 	int sx, sy, sz;
-	short sect;
-	short hw;
+	int sect;
+	int hw;
 	int zoff;
 	DDukeActor* d;
 
@@ -193,7 +193,7 @@ int hitasprite(DDukeActor* actor, DDukeActor** hitsp)
 {
 	auto sp = actor->s;
 	int sx, sy, sz, zoff;
-	short sect, hw;
+	int sect, hw;
 
 	if (badguy(actor))
 		zoff = (42 << 8);
@@ -217,14 +217,14 @@ int hitasprite(DDukeActor* actor, DDukeActor** hitsp)
 int hitawall(struct player_struct* p, int* hitw)
 {
 	int sx, sy, sz;
-	short sect, hitw1;
+	int sect, hitw1;
 	DDukeActor* d;
 
-	hitscan(p->posx, p->posy, p->posz, p->cursectnum,
+	hitscan(p->pos.x, p->pos.y, p->pos.z, p->cursectnum,
 		p->angle.ang.bcos(), p->angle.ang.bsin(), 0, &sect, &hitw1, &d, &sx, &sy, &sz, CLIPMASK0);
 	*hitw = hitw1;
 
-	return (FindDistance2D(sx - p->posx, sy - p->posy));
+	return (FindDistance2D(sx - p->pos.x, sy - p->pos.y));
 }
 
 
@@ -236,7 +236,7 @@ int hitawall(struct player_struct* p, int* hitw)
 
 DDukeActor* aim(DDukeActor* actor, int aang)
 {
-	char gotshrinker, gotfreezer;
+	bool gotshrinker, gotfreezer;
 	int a, k, cans;
 	int aimstats[] = { STAT_PLAYER, STAT_DUMMYPLAYER, STAT_ACTOR, STAT_ZOMBIEACTOR };
 	int dx1, dy1, dx2, dy2, dx3, dy3, smax, sdist;
@@ -278,8 +278,8 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 
 	if (isRR())
 	{
-		gotshrinker = 0;
-		gotfreezer = 0;
+		gotshrinker = false;
+		gotfreezer = false;
 	}
 	else if (isWW2GI())
 	{
@@ -494,15 +494,15 @@ void footprints(int snum)
 	auto psect = s->sectnum;
 
 	if (p->footprintcount > 0 && p->on_ground)
-		if ((sector[p->cursectnum].floorstat & 2) != 2)
+		if ((p->cursector()->floorstat & 2) != 2)
 		{
 			int j = -1;
 			DukeSectIterator it(psect);
 			while (auto act = it.Next())
 			{
 				if (act->s->picnum == TILE_FOOTPRINTS || act->s->picnum == TILE_FOOTPRINTS2 || act->s->picnum == TILE_FOOTPRINTS3 || act->s->picnum == TILE_FOOTPRINTS4)
-					if (abs(act->s->x - p->posx) < 384)
-						if (abs(act->s->y - p->posy) < 384)
+					if (abs(act->s->x - p->pos.x) < 384)
+						if (abs(act->s->y - p->pos.y) < 384)
 						{
 							j = 1;
 							break;
@@ -511,7 +511,7 @@ void footprints(int snum)
 			if (j < 0)
 			{
 				p->footprintcount--;
-				if (sector[p->cursectnum].lotag == 0 && sector[p->cursectnum].hitag == 0)
+				if (p->cursector()->lotag == 0 && p->cursector()->hitag == 0)
 				{
 					DDukeActor* fprint;
 					switch (krand() & 3)
@@ -552,7 +552,7 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 		if (s->pal != 1)
 		{
 			SetPlayerPal(p, PalEntry(63, 63, 0, 0));
-			p->posz -= (16 << 8);
+			p->pos.z -= (16 << 8);
 			s->z -= (16 << 8);
 		}
 #if 0
@@ -609,8 +609,8 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 	{
 		if (p->on_warping_sector == 0)
 		{
-			if (abs(p->posz - fz) > (gs.playerheight >> 1))
-				p->posz += 348;
+			if (abs(p->pos.z - fz) > (gs.playerheight >> 1))
+				p->pos.z += 348;
 		}
 		else
 		{
@@ -618,20 +618,20 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 			s->zvel = -348;
 		}
 
-		clipmove(&p->posx, &p->posy, &p->posz, &p->cursectnum, 0, 0, 164, (4 << 8), (4 << 8), CLIPMASK0);
-		//			  p->bobcounter += 32;
+		Collision coll;
+		clipmove_ex(&p->pos, &p->cursectnum, 0, 0, 164, (4 << 8), (4 << 8), CLIPMASK0, coll);
 	}
 
 	backupplayer(p);
 
 	p->horizon.horizoff = p->horizon.horiz = q16horiz(0);
 
-	updatesector(p->posx, p->posy, &p->cursectnum);
+	updatesector(p->pos.x, p->pos.y, &p->cursectnum);
 
-	pushmove(&p->posx, &p->posy, &p->posz, &p->cursectnum, 128L, (4 << 8), (20 << 8), CLIPMASK0);
+	pushmove(&p->pos, &p->cursectnum, 128L, (4 << 8), (20 << 8), CLIPMASK0);
 
 	if (fz > cz + (16 << 8) && s->pal != 1)
-		p->angle.rotscrnang = buildang(p->dead_flag + ((fz + p->posz) >> 7));
+		p->angle.rotscrnang = buildang(p->dead_flag + ((fz + p->pos.z) >> 7));
 
 	p->on_warping_sector = 0;
 
@@ -706,7 +706,7 @@ void playerCrouch(int snum)
 	OnEvent(EVENT_CROUCH, snum, p->GetActor(), -1);
 	if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum) == 0)
 	{
-		p->posz += (2048 + 768);
+		p->pos.z += (2048 + 768);
 		p->crack_time = CRACK_TIME;
 	}
 }
@@ -765,18 +765,18 @@ void player_struct::backuppos(bool noclipping)
 {
 	if (!noclipping)
 	{
-		oposx = posx;
-		oposy = posy;
+		oposx = pos.x;
+		oposy = pos.y;
 	}
 	else
 	{
-		posx = oposx;
-		posy = oposy;
+		pos.x = oposx;
+		pos.y = oposy;
 	}
 
-	oposz = posz;
-	bobposx = posx;
-	bobposy = posy;
+	oposz = pos.z;
+	bobposx = pos.x;
+	bobposy = pos.y;
 	opyoff = pyoff;
 }
 
@@ -1006,7 +1006,7 @@ void shootbloodsplat(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 	spritetype* const s = actor->s;
 	int sect = s->sectnum;
 	int zvel;
-	short hitsect, hitwall;
+	int hitsect, hitwall;
 	int hitx, hity, hitz;
 	DDukeActor* d;
 

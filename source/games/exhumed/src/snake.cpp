@@ -102,12 +102,12 @@ void ExplodeSnakeSprite(DExhumedActor* pActor, short nPlayer)
     }
 
     // take a copy of this, to revert after call to runlist_RadialDamageEnemy()
-    short nOwner = pSprite->owner;
-    pSprite->owner = PlayerList[nPlayer].nSprite;
+    auto nOwner = pActor->pTarget;
+    pActor->pTarget = PlayerList[nPlayer].pActor;
 
     runlist_RadialDamageEnemy(pActor, nDamage, BulletInfo[kWeaponStaff].nRadius);
 
-    pSprite->owner = nOwner;
+    pActor->pTarget = nOwner;
 
     BuildAnim(nullptr, 23, 0, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, 40, 4);
 
@@ -178,9 +178,9 @@ void BuildSnake(short nPlayer, short zVal)
         if (hitactor && hitactor->s().statnum >= 90 && hitactor->s().statnum <= 199) {
             pTarget = hitactor;
         }
-        else if (sPlayerInput[nPlayer].nTarget >= 0) 
+        else if (sPlayerInput[nPlayer].pTarget != nullptr) 
         {
-            pTarget = &exhumedActors[sPlayerInput[nPlayer].nTarget];
+            pTarget = sPlayerInput[nPlayer].pTarget;
         }
 
         short nSnake = GrabSnake();
@@ -274,7 +274,7 @@ DExhumedActor* FindSnakeEnemy(short nSnake)
     auto pSprite = &pActor->s();
 
     short nAngle = pSprite->ang;
-    short nSector = pSprite->sectnum;
+    int nSector =pSprite->sectnum;
 
     int esi = 2048;
 
@@ -380,7 +380,7 @@ void AISnake::Tick(RunListEvent* ev)
         SnakeList[nSnake].sE = (SnakeList[nSnake].sE + 64) & 0x7FF;
 
         int var_28 = (nAngle + 512) & kAngleMask;
-        short nSector = pSprite->sectnum;
+        int nSector =pSprite->sectnum;
 
         int x = pSprite->x;
         int y = pSprite->y;
@@ -423,10 +423,4 @@ void AISnake::Draw(RunListEvent* ev)
     ev->pTSprite->owner = -1;
 }
 
-
-void FuncSnake(int nObject, int nMessage, int nDamage, int nRun)
-{
-    AISnake ai;
-    runlist_DispatchEvent(&ai, nObject, nMessage, nDamage, nRun);
-}
 END_PS_NS

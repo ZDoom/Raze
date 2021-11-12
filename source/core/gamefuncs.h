@@ -4,11 +4,14 @@
 #include "binaryangle.h"
 #include "build.h"
 
+extern TArray<int> GlobalSectorList;
+
 extern int cameradist, cameraclock;
 
 void loaddefinitionsfile(const char* fn, bool cumulative = false, bool maingrp = false);
 
-bool calcChaseCamPos(int* px, int* py, int* pz, spritetype* pspr, short *psectnum, binangle ang, fixedhoriz horiz, double const smoothratio);
+bool calcChaseCamPos(int* px, int* py, int* pz, spritetype* pspr, int *psectnum, binangle ang, fixedhoriz horiz, double const smoothratio);
+
 void PlanesAtPoint(const sectortype* sec, int dax, int day, float* ceilz, float* florz);
 inline void PlanesAtPoint(const sectortype* sec, float dax, float day, float* ceilz, float* florz) // this is just for warning evasion.
 {
@@ -150,4 +153,31 @@ inline int spriteGetSlope(int spritenum)
 inline int I_GetBuildTime()
 {
     return I_GetTime(120);
+}
+
+inline int32_t getangle(walltype* wal)
+{
+    return getangle(
+        wall[wal->point2].x - wal->x,
+        wall[wal->point2].y - wal->y);
+}
+
+inline TArrayView<sectortype> sectors()
+{
+    return TArrayView<sectortype>(sector, numsectors);
+}
+
+inline TArrayView<walltype> walls()
+{
+    return TArrayView<walltype>(wall, numwalls);
+}
+
+inline TArrayView<walltype> wallsofsector(sectortype* sec)
+{
+    return TArrayView<walltype>(sec->firstWall(), sec->wallnum);
+}
+
+inline TArrayView<walltype> wallsofsector(int sec)
+{
+    return wallsofsector(&sector[sec]);
 }

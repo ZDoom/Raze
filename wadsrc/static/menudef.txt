@@ -67,6 +67,7 @@ LISTMENU "MainMenu"
 		class ExhumedMainMenu
 		Position 160, 65
 		linespacing 22
+		Animated
 		ExhumedPlasma
 		ExhumedTextItem "$MNU_NEWGAME", "n", "StartGameNoSkill", 0
 		ExhumedTextItem "$MNU_LOADGAME", "l", "LoadGameMenu"
@@ -1118,10 +1119,6 @@ OptionMenu GameplayOptions protected
 		Option "$PLRMNU_EQUIP", "cl_weaponswitch", "WeapSwitch"
 		Option "$EXPLOS_BEHAVIOR", "cl_bloodvanillaexplosions", "ExplosBehavior"
 		Option "$ENEMY_BEHAVIOR", "cl_bloodvanillaenemies", "EnemyBehavior"
-	}
-	ifgame(Exhumed)
-	{
-	    Option "$PLRMNU_EXHUMEDOLDTURN", "cl_exhumedoldturn", "OnOff"
 	}
 	StaticText ""
 	ifgame(Blood)

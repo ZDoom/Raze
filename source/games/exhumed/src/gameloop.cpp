@@ -65,7 +65,6 @@ void DoTitle(CompletionFunc completion);
 
 void GameInterface::Render()
 {
-    CheckKeys2();
     drawtime.Reset();
     drawtime.Clock();
 

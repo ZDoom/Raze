@@ -474,7 +474,7 @@ void drawroomstotile(int daposx, int daposy, int daposz,
         {
             if (!testnewrenderer)
             {
-                renderDrawRoomsQ16(daposx, daposy, daposz, ang.asq16(), horiz.asq16(), dacursectnum);
+                renderDrawRoomsQ16(daposx, daposy, daposz, ang.asq16(), horiz.asq16(), dacursectnum, false);
                 analyzesprites(pm_tsprite, pm_spritesortcnt, daposx, daposy, daposz, ang.asbuild());
                 renderDrawMasks();
             }
@@ -595,7 +595,6 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz, double smoothratio)
 
 
                 SPRITEp sp = nullptr;
-                int camhoriz;
                 short w;
                 int dx, dy, dz, tdx, tdy, tdz, midx, midy;
 
@@ -691,14 +690,8 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz, double smoothratio)
                         // tag5
                     }
 
-                    // See if there is a horizon value.  0 defaults to
-                    // 100!
-                    if (SP_TAG7(sp) != 0)
-                    {
-                        camhoriz = clamp(SP_TAG7(sp), gi->playerHorizMin(), gi->playerHorizMax());
-                    }
-                    else
-                        camhoriz = 0;     // Default
+                    // Set the horizon value.
+                    auto camhoriz = q16horiz(clamp(IntToFixed(SP_TAG7(sp) - 100), gi->playerHorizMin(), gi->playerHorizMax()));
 
                     // If player is dead still then update at MoveSkip4
                     // rate.
@@ -720,7 +713,7 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz, double smoothratio)
                             }
                             else
                             {
-                                drawroomstotile(sp->x, sp->y, sp->z, buildang(SP_TAG5(sp)), buildhoriz(camhoriz), sp->sectnum, mirror[cnt].campic, smoothratio);
+                                drawroomstotile(sp->x, sp->y, sp->z, buildang(SP_TAG5(sp)), camhoriz, sp->sectnum, mirror[cnt].campic, smoothratio);
                             }
                         }
                     }

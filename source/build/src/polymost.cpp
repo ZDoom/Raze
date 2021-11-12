@@ -981,10 +981,8 @@ static int32_t global_cf_shade, global_cf_pal, global_cf_fogpal;
 static float (*global_getzofslope_func)(usectorptr_t, float, float);
 
 static void polymost_internal_nonparallaxed(vec2f_t n0, vec2f_t n1, float ryp0, float ryp1, float x0, float x1,
-                                            float y0, float y1, int32_t sectnum)
+                                            float y0, float y1, int32_t sectnum, bool have_floor)
 {
-    int const have_floor = sectnum & MAXSECTORS;
-    sectnum &= ~MAXSECTORS;
     auto const sec = (usectorptr_t)&sector[sectnum];
 
     // comments from floor code:
@@ -1622,7 +1620,7 @@ static void polymost_drawalls(int32_t const bunch)
         {
             int32_t fz = getflorzofslope(sectnum, globalposx, globalposy);
             if (globalposz <= fz)
-                polymost_internal_nonparallaxed(n0, n1, ryp0, ryp1, x0, x1, fy0, fy1, sectnum | MAXSECTORS);
+                polymost_internal_nonparallaxed(n0, n1, ryp0, ryp1, x0, x1, fy0, fy1, sectnum, true);
         }
         else if ((nextsectnum < 0) || (!(sector[nextsectnum].floorstat&1)))
         {
@@ -1675,7 +1673,7 @@ static void polymost_drawalls(int32_t const bunch)
         {
             int32_t cz = getceilzofslope(sectnum, globalposx, globalposy);
             if (globalposz >= cz)
-                polymost_internal_nonparallaxed(n0, n1, ryp0, ryp1, x0, x1, cy0, cy1, sectnum);
+                polymost_internal_nonparallaxed(n0, n1, ryp0, ryp1, x0, x1, cy0, cy1, sectnum, false);
         }
         else if ((nextsectnum < 0) || (!(sector[nextsectnum].ceilingstat&1)))
         {
@@ -3307,7 +3305,7 @@ void renderCompleteMirror(void)
 EXTERN_CVAR(Int, gl_fogmode)
 
 int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
-    fixed_t daang, fixed_t dahoriz, int16_t dacursectnum)
+    fixed_t daang, fixed_t dahoriz, int dacursectnum, bool fromoutside)
 {
     pm_spritesortcnt = 0;
     checkRotatedWalls();
@@ -3316,9 +3314,7 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
 
     // Update starting sector number (common to classic and Polymost).
     // ADJUST_GLOBALCURSECTNUM.
-    if (dacursectnum >= MAXSECTORS)
-        dacursectnum -= MAXSECTORS;
-    else
+    if (!fromoutside)
     {
         int i = dacursectnum;
         updatesector(daposx, daposy, &dacursectnum);
@@ -3894,7 +3890,7 @@ int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr, bool rotate)
             GLInterface.EnableBlend(true);  // else GLInterface.EnableBlend(false);
     }
     else pc[3] = 1.f;
-    GLInterface.SetShade(std::max(0, globalshade), numshades);
+    GLInterface.SetShade(max(0, globalshade), numshades);
     //------------
 
     //transform to Build coords

@@ -43,7 +43,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-ANIMATOR NullAnimator,DoSuicide;
+ANIMATOR DoSuicide;
 ANIMATOR DoBloodSpray;
 int SpawnFlashBombOnActor(int16_t enemy);
 
@@ -257,10 +257,11 @@ STATE s_BloodSprayDrip[] =
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 int
-DoWallBloodDrip(short SpriteNum)
+DoWallBloodDrip(DSWActor* actor)
 {
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
 
     //sp->z += (300+RandomRange(2300)) >> 1;
 
@@ -366,10 +367,11 @@ SpawnFloorSplash(short SpriteNum)
 
 
 int
-DoBloodSpray(int16_t Weapon)
+DoBloodSpray(DSWActor* actor)
 {
+    USER* u = actor->u();
+    int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon].Data();
     int cz,fz;
 
     if (TEST(u->Flags, SPR_UNDERWATER))
@@ -593,10 +595,11 @@ DoBloodSpray(int16_t Weapon)
 
 
 int
-DoPhosphorus(int16_t Weapon)
+DoPhosphorus(DSWActor* actor)
 {
+    USER* u = actor->u();
+    int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon].Data();
 
     if (TEST(u->Flags, SPR_UNDERWATER))
     {
@@ -817,10 +820,11 @@ DoPhosphorus(int16_t Weapon)
 }
 
 int
-DoChemBomb(int16_t Weapon)
+DoChemBomb(DSWActor* actor)
 {
+    USER* u = actor->u();
+    int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon].Data();
 
     if (TEST(u->Flags, SPR_UNDERWATER))
     {
@@ -1063,9 +1067,10 @@ DoChemBomb(int16_t Weapon)
 }
 
 int
-DoCaltropsStick(int16_t Weapon)
+DoCaltropsStick(DSWActor* actor)
 {
-    USERp u = User[Weapon].Data();
+    USER* u = actor->u();
+    int Weapon = u->SpriteNum;
 
     u->Counter = !u->Counter;
 
@@ -1076,10 +1081,11 @@ DoCaltropsStick(int16_t Weapon)
 }
 
 int
-DoCaltrops(int16_t Weapon)
+DoCaltrops(DSWActor* actor)
 {
+    USER* u = actor->u();
+    int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon].Data();
 
     if (TEST(u->Flags, SPR_UNDERWATER))
     {
@@ -1332,10 +1338,11 @@ SpawnRadiationCloud(short SpriteNum)
 }
 
 int
-DoRadiationCloud(short SpriteNum)
+DoRadiationCloud(DSWActor* actor)
 {
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
 
     sp->z -= sp->zvel;
 
@@ -1642,13 +1649,16 @@ PlayerInitFlashBomb(PLAYERp pp)
 }
 
 int
-InitFlashBomb(int16_t SpriteNum)
+InitFlashBomb(DSWActor* actor)
 {
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
+    SPRITEp sp = &sprite[SpriteNum];
     int i;
     unsigned int stat;
     int dist, tx, ty, tmin;
     short damage;
-    SPRITEp sp = &sprite[SpriteNum], hp;
+    SPRITEp hp;
     USERp hu;
     PLAYERp pp = Player + screenpeek;
 
@@ -2081,8 +2091,10 @@ InitBloodSpray(int16_t SpriteNum, bool dogib, short velocity)
 }
 
 int
-BloodSprayFall(int16_t SpriteNum)
+BloodSprayFall(DSWActor* actor)
 {
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
 
     sp->z += 1500;
@@ -2171,10 +2183,11 @@ DoFlagRangeTest(short Weapon, short range)
 }
 
 int
-DoCarryFlag(int16_t Weapon)
+DoCarryFlag(DSWActor* actor)
 {
+    USER* u = actor->u();
+    int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon].Data();
 
 #define FLAG_DETONATE_STATE 99
     SPRITEp fp = &sprite[u->FlagOwner];
@@ -2326,10 +2339,12 @@ DoCarryFlag(int16_t Weapon)
 }
 
 int
-DoCarryFlagNoDet(int16_t Weapon)
+DoCarryFlagNoDet(DSWActor* actor)
 {
+    USER* u = actor->u();
+    int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon].Data();
+
     SPRITEp ap = &sprite[u->Attach];
     USERp au = User[u->Attach].Data();
     SPRITEp fp = &sprite[u->FlagOwner];
@@ -2416,10 +2431,11 @@ SetCarryFlag(int16_t Weapon)
 }
 
 int
-DoFlag(int16_t Weapon)
+DoFlag(DSWActor* actor)
 {
+    USER* u = actor->u();
+    int Weapon = u->SpriteNum;
     SPRITEp sp = &sprite[Weapon];
-    USERp u = User[Weapon].Data();
     int16_t hit_sprite = -1;
 
     hit_sprite = DoFlagRangeTest(Weapon, 1000);

@@ -1,9 +1,5 @@
 BEGIN_DUKE_NS
 
-extern int tempsectorz[MAXSECTORS];
-extern int tempsectorpicnum[MAXSECTORS];
-
-
 void SE40_Draw(int tag, spritetype *spr, int x, int y, int z, binangle a, fixedhoriz h, int smoothratio)
 {
 	int i, j = 0, k = 0;
@@ -16,6 +12,9 @@ void SE40_Draw(int tag, spritetype *spr, int x, int y, int z, binangle a, fixedh
 	i = FOF;    //Effect TILE
 	tileDelete(FOF);
 	if (!testgotpic(FOF, true)) return;
+
+	TArray<int> tempsectorz(numsectors, true);
+	TArray<int> tempsectorpicnum(numsectors, true);
 
 	floor1 = spr;
 
@@ -75,17 +74,17 @@ void SE40_Draw(int tag, spritetype *spr, int x, int y, int z, binangle a, fixedh
 		{
 			if (k == tag + 0)
 			{
-				tempsectorz[spr->sectnum] = sector[spr->sectnum].floorz;
-				sector[spr->sectnum].floorz += (((z - sector[spr->sectnum].floorz) / 32768) + 1) * 32768;
-				tempsectorpicnum[spr->sectnum] = sector[spr->sectnum].floorpicnum;
-				sector[spr->sectnum].floorpicnum = 13;
+				tempsectorz[spr->sectnum] = spr->sector()->floorz;
+				spr->sector()->floorz += (((z - spr->sector()->floorz) / 32768) + 1) * 32768;
+				tempsectorpicnum[spr->sectnum] = spr->sector()->floorpicnum;
+				spr->sector()->floorpicnum = 13;
 			}
 			if (k == tag + 1)
 			{
-				tempsectorz[spr->sectnum] = sector[spr->sectnum].ceilingz;
-				sector[spr->sectnum].ceilingz += (((z - sector[spr->sectnum].ceilingz) / 32768) - 1) * 32768;
-				tempsectorpicnum[spr->sectnum] = sector[spr->sectnum].ceilingpicnum;
-				sector[spr->sectnum].ceilingpicnum = 13;
+				tempsectorz[spr->sectnum] = spr->sector()->ceilingz;
+				spr->sector()->ceilingz += (((z - spr->sector()->ceilingz) / 32768) - 1) * 32768;
+				tempsectorpicnum[spr->sectnum] = spr->sector()->ceilingpicnum;
+				spr->sector()->ceilingpicnum = 13;
 			}
 		}
 	}
@@ -93,7 +92,7 @@ void SE40_Draw(int tag, spritetype *spr, int x, int y, int z, binangle a, fixedh
 	offx = x - floor1->x;
 	offy = y - floor1->y;
 
-	renderDrawRoomsQ16(floor2->x + offx, floor2->y + offy, z, a.asq16(), h.asq16(), floor2->sectnum);
+	renderDrawRoomsQ16(floor2->x + offx, floor2->y + offy, z, a.asq16(), h.asq16(), floor2->sectnum, false);
 	fi.animatesprites(pm_tsprite, pm_spritesortcnt, offx + floor2->x, offy + floor2->y, a.asbuild(), smoothratio);
 	renderDrawMasks();
 
@@ -108,13 +107,13 @@ void SE40_Draw(int tag, spritetype *spr, int x, int y, int z, binangle a, fixedh
 		{
 			if (k == tag + 0)
 			{
-				sector[spr->sectnum].floorz = tempsectorz[spr->sectnum];
-				sector[spr->sectnum].floorpicnum = tempsectorpicnum[spr->sectnum];
+				spr->sector()->floorz = tempsectorz[spr->sectnum];
+				spr->sector()->floorpicnum = tempsectorpicnum[spr->sectnum];
 			}
 			if (k == tag + 1)
 			{
-				sector[spr->sectnum].ceilingz = tempsectorz[spr->sectnum];
-				sector[spr->sectnum].ceilingpicnum = tempsectorpicnum[spr->sectnum];
+				spr->sector()->ceilingz = tempsectorz[spr->sectnum];
+				spr->sector()->ceilingpicnum = tempsectorpicnum[spr->sectnum];
 			}
 		}// end if
 	}// end for
@@ -183,7 +182,7 @@ void renderMirror(int cposx, int cposy, int cposz, binangle cang, fixedhoriz cho
 			int j = g_visibility;
 			g_visibility = (j >> 1) + (j >> 2);
 
-			renderDrawRoomsQ16(tposx, tposy, cposz, tang, choriz.asq16(), mirrorsector[i] + MAXSECTORS);
+			renderDrawRoomsQ16(tposx, tposy, cposz, tang, choriz.asq16(), mirrorsector[i], true);
 
 			display_mirror = 1;
 			fi.animatesprites(pm_tsprite, pm_spritesortcnt, tposx, tposy, tang, smoothratio);
@@ -204,8 +203,8 @@ void renderMirror(int cposx, int cposy, int cposz, binangle cang, fixedhoriz cho
 
 static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixedhoriz choriz, int sect, int smoothratio)
 {
-	short gs, tgsect, geosect, geoid = 0;
-	renderDrawRoomsQ16(cposx, cposy, cposz, cang.asq16(), choriz.asq16(), sect);
+	int gs, tgsect, geosect, geoid = 0;
+	renderDrawRoomsQ16(cposx, cposy, cposz, cang.asq16(), choriz.asq16(), sect, false);
 	fi.animatesprites(pm_tsprite, pm_spritesortcnt, cposx, cposy, cang.asbuild(), smoothratio);
 	renderDrawMasks();
 	for (gs = 0; gs < geocnt; gs++)
@@ -226,7 +225,7 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 	}
 	cposx -= geox[geoid];
 	cposy -= geoy[geoid];
-	renderDrawRoomsQ16(cposx, cposy, cposz, cang.asq16(), choriz.asq16(), sect);
+	renderDrawRoomsQ16(cposx, cposy, cposz, cang.asq16(), choriz.asq16(), sect, false);
 	cposx += geox[geoid];
 	cposy += geoy[geoid];
 	for (gs = 0; gs < geocnt; gs++)
@@ -258,7 +257,7 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 	}
 	cposx -= geox2[geoid];
 	cposy -= geoy2[geoid];
-	renderDrawRoomsQ16(cposx, cposy, cposz, cang.asq16(), choriz.asq16(), sect);
+	renderDrawRoomsQ16(cposx, cposy, cposz, cang.asq16(), choriz.asq16(), sect, false);
 	cposx += geox2[geoid];
 	cposy += geoy2[geoid];
 	for (gs = 0; gs < geocnt; gs++)

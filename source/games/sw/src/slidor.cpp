@@ -276,7 +276,7 @@ void DoSlidorInterp(short SpriteNum, INTERP_FUNC interp_func)
                 pw = endwall;
 
             uint16_t const nextwall = wall[w].nextwall;
-            if (nextwall >= MAXWALLS)
+            if (!validWallIndex(nextwall))
             {
                 // white wall - move 4 points
                 interp_func(w, Interp_Wall_X);
@@ -304,7 +304,7 @@ void DoSlidorInterp(short SpriteNum, INTERP_FUNC interp_func)
                 pw = endwall;
 
             uint16_t const nextwall = wall[w].nextwall;
-            if (nextwall >= MAXWALLS)
+            if (!validWallIndex(nextwall))
             {
                 // white wall - move 4 points
                 interp_func(w, Interp_Wall_X);
@@ -332,7 +332,7 @@ void DoSlidorInterp(short SpriteNum, INTERP_FUNC interp_func)
                 pw = endwall;
 
             uint16_t const nextwall = wall[w].nextwall;
-            if (nextwall >= MAXWALLS)
+            if (!validWallIndex(nextwall))
             {
                 interp_func(w, Interp_Wall_Y);
                 interp_func(pw, Interp_Wall_Y);
@@ -358,7 +358,7 @@ void DoSlidorInterp(short SpriteNum, INTERP_FUNC interp_func)
                 pw = endwall;
 
             uint16_t const nextwall = wall[w].nextwall;
-            if (nextwall >= MAXWALLS)
+            if (!validWallIndex(nextwall))
             {
                 interp_func(w, Interp_Wall_Y);
                 interp_func(pw, Interp_Wall_Y);
@@ -400,7 +400,7 @@ int DoSlidorMoveWalls(short SpriteNum, int amt)
             if (w < startwall)
                 pw = endwall;
 
-            if ((uint16_t)wall[w].nextwall >= MAXWALLS)
+            if (!validWallIndex(wall[w].nextwall))
             {
                 // white wall - move 4 points
                 wall[w].x -= amt;
@@ -424,7 +424,7 @@ int DoSlidorMoveWalls(short SpriteNum, int amt)
             if (w < startwall)
                 pw = endwall;
 
-            if ((uint16_t)wall[w].nextwall >= MAXWALLS)
+            if (!validWallIndex(wall[w].nextwall))
             {
                 // white wall - move 4 points
                 wall[w].x += amt;
@@ -448,7 +448,7 @@ int DoSlidorMoveWalls(short SpriteNum, int amt)
             if (w < startwall)
                 pw = endwall;
 
-            if ((uint16_t)wall[w].nextwall >= MAXWALLS)
+            if (!validWallIndex(wall[w].nextwall))
             {
                 wall[w].y -= amt;
                 wall[pw].y -= amt;
@@ -470,7 +470,7 @@ int DoSlidorMoveWalls(short SpriteNum, int amt)
             if (w < startwall)
                 pw = endwall;
 
-            if ((uint16_t)wall[w].nextwall >= MAXWALLS)
+            if (!validWallIndex(wall[w].nextwall))
             {
                 wall[w].y += amt;
                 wall[pw].y += amt;
@@ -679,10 +679,11 @@ int DoSlidorMove(short SpriteNum)
     return 0;
 }
 
-int DoSlidor(short SpriteNum)
+int DoSlidor(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = u->SpriteP;
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
+    SPRITEp sp = &sprite[SpriteNum];
     SECTORp sectp = &sector[sp->sectnum];
 
     DoSlidorMove(SpriteNum);
@@ -695,17 +696,6 @@ int DoSlidor(short SpriteNum)
 
 static saveable_code saveable_slidor_code[] =
 {
-    SAVE_CODE(ReverseSlidor),
-    SAVE_CODE(SlidorSwitch),
-    SAVE_CODE(SetSlidorActive),
-    SAVE_CODE(SetSlidorInactive),
-    SAVE_CODE(DoSlidorOperate),
-    SAVE_CODE(DoSlidorMatch),
-    SAVE_CODE(TestSlidorMatchActive),
-    SAVE_CODE(DoSlidorInterp),
-    SAVE_CODE(DoSlidorMoveWalls),
-    SAVE_CODE(DoSlidorInstantClose),
-    SAVE_CODE(DoSlidorMove),
     SAVE_CODE(DoSlidor),
 };
 

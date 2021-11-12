@@ -36,8 +36,6 @@ void Saveable_Init(void)
 {
     if (saveablemodules.Size() > 0) return;
 
-    Saveable_Init_Dynamic();
-
 #define MODULE(x) { \
         extern saveable_module saveable_ ## x; \
         saveablemodules.Push(&saveable_ ## x); \
@@ -45,7 +43,7 @@ void Saveable_Init(void)
 
     MODULE(actor)
     MODULE(ai)
-    MODULE(build)
+    MODULE(ai) // was 'build' but that is not used anywhere anymore.
     MODULE(bunny)
     MODULE(coolg)
     MODULE(coolie)
@@ -60,7 +58,6 @@ void Saveable_Init(void)
     MODULE(ninja)
     MODULE(panel)
     MODULE(player)
-    MODULE(quake)
     MODULE(ripper)
     MODULE(ripper2)
     MODULE(rotator)
@@ -87,8 +84,7 @@ int Saveable_FindCodeSym(void *ptr, savedcodesym *sym)
 
     if (!ptr)
     {
-        sym->module = 0;    // module 0 is the "null module" for null pointers
-        sym->index  = 0;
+        sym->name = "";
         return 0;
     }
 
@@ -96,11 +92,9 @@ int Saveable_FindCodeSym(void *ptr, savedcodesym *sym)
     {
         for (i=0; i<saveablemodules[m]->numcode; i++)
         {
-            if (ptr != saveablemodules[m]->code[i]) continue;
+            if (ptr != saveablemodules[m]->code[i].base) continue;
 
-            sym->module = 1+m;
-            sym->index  = i;
-
+            sym->name = saveablemodules[m]->code[i].name;
             return 0;
         }
     }
@@ -115,8 +109,7 @@ int Saveable_FindDataSym(void *ptr, saveddatasym *sym)
 
     if (!ptr)
     {
-        sym->module = 0;
-        sym->index  = 0;
+        sym->name = "";
         sym->offset = 0;
         return 0;
     }
@@ -129,8 +122,7 @@ int Saveable_FindDataSym(void *ptr, saveddatasym *sym)
             if (ptr >= (void *)((intptr_t)saveablemodules[m]->data[i].base +
                                 saveablemodules[m]->data[i].size)) continue;
 
-            sym->module = 1+m;
-            sym->index  = i;
+            sym->name = saveablemodules[m]->data[i].name;
             sym->offset = unsigned((intptr_t)ptr - (intptr_t)saveablemodules[m]->data[i].base);
 
             return 0;
@@ -143,54 +135,48 @@ int Saveable_FindDataSym(void *ptr, saveddatasym *sym)
 
 int Saveable_RestoreCodeSym(savedcodesym *sym, void **ptr)
 {
-    if (sym->module == 0)
+    if (sym->name.IsEmpty())
     {
         *ptr = nullptr;
         return 0;
     }
 
-    if (sym->module > saveablemodules.Size())
+    for (auto module : saveablemodules)
     {
-        debug_break();
-        return -1;
+        for (unsigned i = 0; i < module->numcode; i++)
+        {
+            if (sym->name.Compare(module->code[i].name) == 0)
+            {
+                *ptr = module->code[i].base;
+                return 0;
+            }
+        }
     }
-    if (sym->index  >= saveablemodules[sym->module-1]->numcode)
-    {
-        debug_break();
-        return -1;
-    }
-
-    *ptr = saveablemodules[sym->module-1]->code[sym->index];
-
-    return 0;
+    I_Error("Unknown code reference '%s' in savegame\n", sym->name.GetChars());
+    return -1;
 }
 
 int Saveable_RestoreDataSym(saveddatasym *sym, void **ptr)
 {
-    if (sym->module == 0)
+    if (sym->name.IsEmpty())
     {
         *ptr = nullptr;
         return 0;
     }
 
-    if (sym->module > saveablemodules.Size())
+    for (auto module : saveablemodules)
     {
-        debug_break();
-        return -1;
+        for (unsigned i = 0; i < module->numdata; i++)
+        {
+            if (sym->name.Compare(module->data[i].name) == 0)
+            {
+                *ptr = ((uint8_t*)module->data[i].base) + sym->offset;
+                return 0;
+            }
+        }
     }
-    if (sym->index  >= saveablemodules[sym->module-1]->numdata)
-    {
-        debug_break();
-        return -1;
-    }
-    if (sym->offset >= saveablemodules[sym->module-1]->data[sym->index].size)
-    {
-        debug_break();
-        return -1;
-    }
-
-    *ptr = (void *)((intptr_t)saveablemodules[sym->module-1]->data[sym->index].base + sym->offset);
-
-    return 0;
+    I_Error("Unknown data reference '%s' in savegame\n", sym->name.GetChars());
+    return -1;
 }
+
 END_SW_NS

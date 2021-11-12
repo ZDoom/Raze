@@ -676,36 +676,38 @@ SetupSumo(short SpriteNum)
     return 0;
 }
 
-int NullSumo(short SpriteNum)
+int NullSumo(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     //if (TEST(u->Flags,SPR_SLIDING))
-    //DoActorSlide(SpriteNum);
+    //DoActorSlide(actor);
 
     if (!TEST(u->Flags,SPR_CLIMBING))
         KeepActorOnFloor(SpriteNum);
 
-    DoActorSectorDamage(SpriteNum);
+    DoActorSectorDamage(actor);
 
     return 0;
 }
 
-int DoSumoMove(short SpriteNum)
+int DoSumoMove(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
 
     //if (TEST(u->Flags,SPR_SLIDING))
-    //DoActorSlide(SpriteNum);
+    //DoActorSlide(actor);
 
     if (u->track >= 0)
         ActorFollowTrack(SpriteNum, ACTORMOVETICS);
     else
-        (*u->ActorActionFunc)(SpriteNum);
+        (*u->ActorActionFunc)(actor);
 
     KeepActorOnFloor(SpriteNum);
 
-    if (DoActorSectorDamage(SpriteNum))
+    if (DoActorSectorDamage(actor))
     {
         return 0;
     }
@@ -713,37 +715,22 @@ int DoSumoMove(short SpriteNum)
     return 0;
 }
 
-#if 0
-int InitSumoCharge(short SpriteNum)
+
+int DoSumoRumble(DSWActor* actor)
 {
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
-
-    if (RANDOM_P2(1024) > 950)
-        PlaySound(DIGI_SUMOALERT, sp, v3df_follow);
-
-    DoActorSetSpeed(SpriteNum, FAST_SPEED);
-
-    InitActorMoveCloser(SpriteNum);
-
-    NewStateGroup(SpriteNum, sg_SumoCharge);
-
-    return 0;
-}
-#endif
-
-int DoSumoRumble(short SpriteNum)
-{
-    SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
 
     SetSumoQuake(SpriteNum);
 
     return 0;
 }
 
-int InitSumoFart(short SpriteNum)
+int InitSumoFart(DSWActor* actor)
 {
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
     extern int InitSumoNapalm(short SpriteNum);
 
@@ -757,8 +744,10 @@ int InitSumoFart(short SpriteNum)
     return 0;
 }
 
-int InitSumoStomp(short SpriteNum)
+int InitSumoStomp(DSWActor* actor)
 {
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
     extern int InitSumoStompAttack(short SpriteNum);
 
@@ -769,8 +758,10 @@ int InitSumoStomp(short SpriteNum)
     return 0;
 }
 
-int InitSumoClap(short SpriteNum)
+int InitSumoClap(DSWActor* actor)
 {
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
     extern int InitMiniSumoClap(short SpriteNum);
     extern int InitSumoSkull(short SpriteNum);
@@ -782,10 +773,11 @@ int InitSumoClap(short SpriteNum)
     return 0;
 }
 
-int DoSumoDeathMelt(short SpriteNum)
+int DoSumoDeathMelt(DSWActor* actor)
 {
+    USER* u = actor->u();
+    int SpriteNum = u->SpriteNum;
     SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
 
     PlaySound(DIGI_SUMOFART, sp, v3df_follow);
 
@@ -980,10 +972,8 @@ BossHealthMeter(void)
 
 static saveable_code saveable_sumo_code[] =
 {
-    SAVE_CODE(SetupSumo),
     SAVE_CODE(NullSumo),
     SAVE_CODE(DoSumoMove),
-    //SAVE_CODE(InitSumoCharge),
     SAVE_CODE(DoSumoRumble),
     SAVE_CODE(InitSumoFart),
     SAVE_CODE(InitSumoStomp),

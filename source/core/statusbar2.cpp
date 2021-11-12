@@ -36,7 +36,7 @@
 #include <assert.h>
 
 #include "build.h"
-#include "templates.h"
+
 #include "statusbar.h"
 #include "c_cvars.h"
 #include "c_dispatch.h"
@@ -109,7 +109,7 @@ void setViewport(int viewSize)
 	reserved.top = xs_CRoundToInt((reserved.top * hud_scalefactor * ydim) / 200);
 	reserved.statusbar = xs_CRoundToInt((reserved.statusbar * hud_scalefactor * ydim) / 200);
 
-	int xdimcorrect = std::min(Scale(ydim, 4, 3), xdim);
+	int xdimcorrect = min(Scale(ydim, 4, 3), xdim);
 	if (viewSize > Hud_Stbar)
 	{
 		x0 = 0;

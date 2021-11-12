@@ -189,7 +189,7 @@ inline bool playrunning()
 
 inline void doslopetilting(player_struct* p, double const scaleAdjust = 1)
 {
-	bool const canslopetilt = p->on_ground && sector[p->cursectnum].lotag != ST_2_UNDERWATER && (sector[p->cursectnum].floorstat & 2);
+	bool const canslopetilt = p->on_ground && p->cursector()->lotag != ST_2_UNDERWATER && (p->cursector()->floorstat & 2);
 	p->horizon.calcviewpitch(p->pos.vec2, p->angle.ang, p->aim_mode == 0, canslopetilt, p->cursectnum, scaleAdjust);
 }
 
@@ -202,7 +202,7 @@ inline void doslopetilting(player_struct* p, double const scaleAdjust = 1)
 
 inline void hud_draw(double x, double y, int tilenum, int shade, int orientation)
 {
-	int p = sector[ps[screenpeek].cursectnum].floorpal;
+	int p = ps[screenpeek].cursector()->floorpal;
 	hud_drawsprite(x, y, 65536, 0, tilenum, shade, p, 2 | orientation);
 }
 
