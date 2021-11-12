@@ -250,21 +250,21 @@ boolean prepareboard(const char* fname) {
 	lavadrylandcnt = 0;
 	aiInit();
 
-	for (i = 0; i < MAXSPRITES; i++) { // setup sector effect options
-		if (sprite[i].statnum >= MAXSTATUS)
-			continue;
-
-		SPRITE& spr = sprite[i];
+	WHLinearSpriteIterator it;
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		i = actor->GetSpriteIndex();
 
 		if(!isWh2() && mapon == 5 && i == 0 && spr.lotag == 0 && spr.hitag == 0) {
 			spr.lotag = 1;
 			spr.hitag = 34;
 		}
 	
-		if (sprite[i].picnum == CONE) {
-			sparksx = sprite[i].x;
-			sparksy = sprite[i].y;
-			sparksz = sprite[i].z;
+		if (spr.picnum == CONE) {
+			sparksx = spr.x;
+			sparksy = spr.y;
+			sparksz = spr.z;
 			for (int j = 0; j < 10; j++) {
 				makesparks(i, 1);
 			}
@@ -274,14 +274,14 @@ boolean prepareboard(const char* fname) {
 			for (int j = 20; j < 30; j++) {
 				makesparks(i, 3);
 			}
-			sprite[i].cstat &= ~3;
-			sprite[i].cstat |= 0x8000;
-			sprite[i].clipdist = 4;
-			changespritestat(i, (short) 0);
-			sector[sprite[i].sectnum].lotag = 50;
-			sector[sprite[i].sectnum].hitag = sprite[i].hitag;
-			if (sector[sprite[i].sectnum].hitag == 0)
-				sector[sprite[i].sectnum].hitag = 1;
+			spr.cstat &= ~3;
+			spr.cstat |= 0x8000;
+			spr.clipdist = 4;
+			ChangeActorStat(actor,  0);
+			sector[spr.sectnum].lotag = 50;
+			sector[spr.sectnum].hitag = spr.hitag;
+			if (sector[spr.sectnum].hitag == 0)
+				sector[spr.sectnum].hitag = 1;
 		}
 
 		if ((spr.cstat & (16 + 32)) == (16 + 32))
@@ -299,15 +299,15 @@ boolean prepareboard(const char* fname) {
 
 		if (spr.picnum == TORCH) {
 			spr.cstat &= ~3;
-			changespritestat(i, TORCHLIGHT);
+			ChangeActorStat(actor, TORCHLIGHT);
 		}
 
 		if (spr.picnum == STANDINTORCH || spr.picnum == BOWLOFFIRE) {
-			changespritestat(i, TORCHLIGHT);
+			ChangeActorStat(actor, TORCHLIGHT);
 		}
 
 		if (spr.picnum == GLOW) {
-			changespritestat(i, GLOWLIGHT);
+			ChangeActorStat(actor, GLOWLIGHT);
 		}
 
 		if (spr.picnum == SNDEFFECT) {
