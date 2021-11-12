@@ -3716,15 +3716,18 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 					(!isRRRA() && actor->spr.picnum != DRONE && actor->spr.picnum != SHARK && actor->spr.picnum != UFO1_RR
 							&& actor->spr.picnum != UFO2 && actor->spr.picnum != UFO3 && actor->spr.picnum != UFO4 && actor->spr.picnum != UFO5))
 			{
-				if (actor->opos.Z != actor->spr.pos.Z || (ud.multimode < 2 && ud.player_skill < 2))
+				if (!*(moveptr + 1))
 				{
-					if ((actor->temp_data[0] & 1) || ps[pnum].actorsqu == actor) return;
-					else daxvel <<= 1;
-				}
-				else
-				{
-					if ((actor->temp_data[0] & 3) || ps[pnum].actorsqu == actor) return;
-					else daxvel <<= 2;
+					if (actor->opos.Z != actor->spr.pos.Z || (ud.multimode < 2 && ud.player_skill < 2))
+					{
+						if ((actor->temp_data[0] & 1) || ps[pnum].actorsqu == actor) return;
+						else daxvel <<= 1;
+					}
+					else
+					{
+						if ((actor->temp_data[0] & 3) || ps[pnum].actorsqu == actor) return;
+						else daxvel <<= 2;
+					}
 				}
 			}
 		}
