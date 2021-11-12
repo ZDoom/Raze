@@ -330,9 +330,9 @@ inline int SPRITEp_SIZE_BOS(const spritetype* sp)
 #define HIT_SECTOR BIT(14)
 #define HIT_PLAX_WALL BIT(16)
 
-#define NORM_SPRITE(val) ((val) & (kHitIndexMask - 1))
-#define NORM_WALL(val) ((val) & (kHitIndexMask - 1))
-#define NORM_SECTOR(val) ((val) & (kHitIndexMask - 1))
+#define NORM_SPRITE(val) ((val) & (kHitIndexMask))
+#define NORM_WALL(val) ((val) & (kHitIndexMask))
+#define NORM_SECTOR(val) ((val) & (kHitIndexMask))
 
 // overwritesprite flags
 #define OVER_SPRITE_MIDDLE      (BIT(0))
