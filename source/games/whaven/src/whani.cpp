@@ -13,17 +13,18 @@ void animateobjs(PLAYER& plr) {
 	int dax, day, daz = 0, j, k;
 	short movestat = 0;
 
-	short i, nextsprite;
 	short startwall, endwall;
 
 	if (plr.sector < 0 || plr.sector >= numsectors)
 		return;
 
 	if (isWh2()) {
-		for (i = headspritestat[SHARDOFGLASS]; i >= 0; i = nextsprite) {
-			nextsprite = nextspritestat[i];
+		WHStatIterator it(SHARDOFGLASS);
+		while (auto actor = it.Next())
+		{
+			SPRITE& spr = actor->s();
+			int i = actor->GetSpriteIndex();
 
-			SPRITE& spr = sprite[i];
 			spr.lotag -= TICSPERFRAME;
 			switch (spr.extra) {
 			case 1:
@@ -51,10 +52,11 @@ void animateobjs(PLAYER& plr) {
 			}
 		}
 
-		for (i = headspritestat[SPARKSUP]; i >= 0; i = nextsprite) {
-			nextsprite = nextspritestat[i];
-
-			SPRITE& spr = sprite[i];
+		it.Reset(SPARKSUP);
+		while (auto actor = it.Next())
+		{
+			SPRITE& spr = actor->s();
+			int i = actor->GetSpriteIndex();
 
 			osectnum = spr.sectnum;
 
@@ -80,10 +82,11 @@ void animateobjs(PLAYER& plr) {
 			}
 		}
 
-		for (i = headspritestat[SPARKSDN]; i >= 0; i = nextsprite) {
-			nextsprite = nextspritestat[i];
-
-			SPRITE& spr = sprite[i];
+		it.Reset(SPARKSDN);
+		while (auto actor = it.Next())
+		{
+			SPRITE& spr = actor->s();
+			int i = actor->GetSpriteIndex();
 
 			osectnum = spr.sectnum;
 
@@ -111,10 +114,11 @@ void animateobjs(PLAYER& plr) {
 			}
 		}
 
-		for (i = headspritestat[SPARKS]; i >= 0; i = nextsprite) {
-			nextsprite = nextspritestat[i];
-
-			SPRITE& spr = sprite[i];
+		it.Reset(SPARKS);
+		while (auto actor = it.Next())
+		{
+			SPRITE& spr = actor->s();
+			int i = actor->GetSpriteIndex();
 
 			osectnum = spr.sectnum;
 			spr.lotag -= TICSPERFRAME;
@@ -141,10 +145,12 @@ void animateobjs(PLAYER& plr) {
 			}
 		}
 
-		for (i = headspritestat[STONETOFLESH]; i >= 0; i = nextsprite) {
-			nextsprite = nextspritestat[i];
+		it.Reset(STONETOFLESH);
+		while (auto actor = it.Next())
+		{
+			SPRITE& spr = actor->s();
+			int i = actor->GetSpriteIndex();
 
-			SPRITE& spr = sprite[i];
 			spr.lotag -= TICSPERFRAME;
 			if (spr.lotag < 0) {
 				switch (spr.picnum) {
@@ -218,10 +224,12 @@ void animateobjs(PLAYER& plr) {
 			}
 		}
 
-		for (i = headspritestat[SHADE]; i >= 0; i = nextsprite) {
-			nextsprite = nextspritestat[i];
+		it.Reset(SHADE);
+		while (auto actor = it.Next())
+		{
+			SPRITE& spr = actor->s();
+			int i = actor->GetSpriteIndex();
 
-			SPRITE& spr = sprite[i];
 			spr.lotag -= TICSPERFRAME;
 
 			if (spr.lotag < 0) {
@@ -234,10 +242,12 @@ void animateobjs(PLAYER& plr) {
 			}
 		}
 
-		for (i = headspritestat[EVILSPIRIT]; i >= 0; i = nextsprite) {
-			nextsprite = nextspritestat[i];
+		it.Reset(EVILSPIRIT);
+		while (auto actor = it.Next())
+		{
+			SPRITE& spr = actor->s();
+			int i = actor->GetSpriteIndex();
 
-			SPRITE& spr = sprite[i];
 			if (spr.picnum >= (GONZOBSHDEAD - 8)) {
 				if (--spr.extra <= 0) {
 					spr.picnum--;
@@ -264,10 +274,12 @@ void animateobjs(PLAYER& plr) {
 			}
 		}
 
-		for (i = headspritestat[TORCHFRONT]; i >= 0; i = nextsprite) {
-			nextsprite = nextspritestat[i];
+		it.Reset(TORCHFRONT);
+		while (auto actor = it.Next())
+		{
+			SPRITE& spr = actor->s();
+			int i = actor->GetSpriteIndex();
 
-			SPRITE& spr = sprite[i];
 			playertorch = spr.lotag -= TICSPERFRAME;
 			if (plr.selectedgun > 4) {
 				playertorch = spr.lotag = -1;
@@ -335,22 +347,28 @@ void animateobjs(PLAYER& plr) {
 		}
 	}
 
-	for (i = headspritestat[PULLTHECHAIN]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
+	WHStatIterator it(PULLTHECHAIN);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		int i = actor->GetSpriteIndex();
 
-		sprite[i].lotag -= TICSPERFRAME;
-		if (sprite[i].lotag < 0) {
-			sprite[i].picnum++;
-			sprite[i].lotag = 24;
-			if (sprite[i].picnum == PULLCHAIN3 || sprite[i].picnum == SKULLPULLCHAIN3) {
-				sprite[i].lotag = 0;
+		spr.lotag -= TICSPERFRAME;
+		if (spr.lotag < 0) {
+			spr.picnum++;
+			spr.lotag = 24;
+			if (spr.picnum == PULLCHAIN3 || spr.picnum == SKULLPULLCHAIN3) {
+				spr.lotag = 0;
 				changespritestat(i, (short) 0);
 			}
 		}
 	}
 
-	for (i = headspritestat[ANIMLEVERDN]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
+	it.Reset(ANIMLEVERDN);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		int i = actor->GetSpriteIndex();
 
 		sprite[i].lotag -= TICSPERFRAME;
 		if (sprite[i].lotag < 0) {
@@ -363,8 +381,11 @@ void animateobjs(PLAYER& plr) {
 		}
 	}
 
-	for (i = headspritestat[ANIMLEVERUP]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
+	it.Reset(ANIMLEVERUP);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		int i = actor->GetSpriteIndex();
 
 		sprite[i].lotag -= TICSPERFRAME;
 		if (sprite[i].lotag < 0) {
@@ -377,8 +398,12 @@ void animateobjs(PLAYER& plr) {
 		}
 	}
 
-	for (i = headspritestat[WARPFX]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
+	it.Reset(WARPFX);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		int i = actor->GetSpriteIndex();
+
 		sprite[i].lotag -= TICSPERFRAME;
 		if (sprite[i].lotag < 0) {
 			sprite[i].lotag = 12;
@@ -390,8 +415,11 @@ void animateobjs(PLAYER& plr) {
 	}
 
 	// FLOCKSPAWN
-	for (i = headspritestat[FLOCKSPAWN]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
+	it.Reset(FLOCKSPAWN);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		int i = actor->GetSpriteIndex();
 
 		sprite[i].lotag -= TICSPERFRAME;
 		if (sprite[i].lotag < 0) {
@@ -404,9 +432,12 @@ void animateobjs(PLAYER& plr) {
 	}
 
 	// FLOCK
-	for (i = headspritestat[FLOCK]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
-		auto& spr = sprite[i];
+	it.Reset(FLOCK);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		int i = actor->GetSpriteIndex();
+
 		spr.lotag -= TICSPERFRAME;
 		switch (spr.extra) {
 		case 0: // going out of the cave
@@ -466,8 +497,11 @@ void animateobjs(PLAYER& plr) {
 	}
 
 	// TORCHLIGHT
-	for (i = headspritestat[TORCHLIGHT]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
+	it.Reset(TORCHLIGHT);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		int i = actor->GetSpriteIndex();
 
 		osectnum = sprite[i].sectnum;
 		j = (torchpattern[PlayClock % 38]);
@@ -480,8 +514,12 @@ void animateobjs(PLAYER& plr) {
 	}
 
 	// GLOWLIGHT
-	for (i = headspritestat[GLOWLIGHT]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
+	it.Reset(GLOWLIGHT);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		int i = actor->GetSpriteIndex();
+
 		osectnum = sprite[i].sectnum;
 		j = (torchpattern[PlayClock % 38]);
 		sector[osectnum].floorshade = (byte) j;
@@ -493,15 +531,19 @@ void animateobjs(PLAYER& plr) {
 	}
 
 	// BOB
-	for (i = headspritestat[BOB]; i >= 0; i = nextspritestat[i]) {
-		nextsprite = nextspritestat[i];
-		sprite[i].z += bsin(PlayClock << 4, -6);
+	it.Reset(BOB);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		spr.z += bsin(PlayClock << 4, -6);
 	}
 
 	// LIFT UP
-	for (i = headspritestat[LIFTUP]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
-		auto& spr = sprite[i];
+	it.Reset(LIFTUP);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		int i = actor->GetSpriteIndex();
 
 		switch (spr.lotag) {
 		case 1821:
@@ -540,10 +582,13 @@ void animateobjs(PLAYER& plr) {
 	}
 
 	// LIFT DN
-	for (i = headspritestat[LIFTDN]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
+	it.Reset(LIFTDN);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		int i = actor->GetSpriteIndex();
+
 		int ironbarmove = 0;
-		auto& spr = sprite[i];
 
 		switch (spr.lotag) {
 		case 1820:
@@ -584,9 +629,11 @@ void animateobjs(PLAYER& plr) {
 	}
 
 	// MASPLASH
-	for (i = headspritestat[MASPLASH]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
-		auto& spr = sprite[i];
+	it.Reset(MASPLASH);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		int i = actor->GetSpriteIndex();
 
 		spr.lotag -= TICSPERFRAME;
 		spr.z = sector[spr.sectnum].floorz + (tileHeight(spr.picnum) << 8);
@@ -605,9 +652,11 @@ void animateobjs(PLAYER& plr) {
 	}
 
 	// SHATTER
-	for (i = headspritestat[SHATTER]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
-		auto& spr = sprite[i];
+	it.Reset(SHATTER);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		int i = actor->GetSpriteIndex();
 
 		spr.lotag -= TICSPERFRAME;
 
@@ -623,9 +672,11 @@ void animateobjs(PLAYER& plr) {
 	}
 
 	// FIRE
-	for (i = headspritestat[FIRE]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
-		auto& spr = sprite[i];
+	it.Reset(FIRE);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		int i = actor->GetSpriteIndex();
 
 		spr.lotag -= TICSPERFRAME;
 
@@ -653,10 +704,11 @@ void animateobjs(PLAYER& plr) {
 		}
 	}
 
-	// FALL
-	for (i = headspritestat[FALL]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
-		auto& spr = sprite[i];
+	it.Reset(FALL);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		int i = actor->GetSpriteIndex();
 
 		getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2,
 				CLIPMASK0);
@@ -698,9 +750,11 @@ void animateobjs(PLAYER& plr) {
 	}
 
 	// SHOVE
-	for (i = headspritestat[SHOVE]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
-		auto& spr = sprite[i];
+	it.Reset(SHOVE);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		int i = actor->GetSpriteIndex();
 
 		getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2,
 				CLIPMASK0);
@@ -740,9 +794,11 @@ void animateobjs(PLAYER& plr) {
 	}
 
 	// PUSH
-	for (i = headspritestat[PUSH]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
-		auto& spr = sprite[i];
+	it.Reset(PUSH);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		int i = actor->GetSpriteIndex();
 
 		spr.lotag -= TICSPERFRAME;
 
@@ -770,9 +826,11 @@ void animateobjs(PLAYER& plr) {
 	}
 
 	// DORMANT
-	for (i = headspritestat[DORMANT]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
-		auto& spr = sprite[i];
+	it.Reset(DORMANT);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		int i = actor->GetSpriteIndex();
 
 		if (isWh2()) {
 			osectnum = spr.sectnum;
@@ -797,9 +855,11 @@ void animateobjs(PLAYER& plr) {
 	}
 
 	// ACTIVE
-	for (i = headspritestat[ACTIVE]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
-		auto& spr = sprite[i];
+	it.Reset(ACTIVE);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		int i = actor->GetSpriteIndex();
 
 		if (isWh2()) {
 			spr.lotag -= TICSPERFRAME;
@@ -834,9 +894,11 @@ void animateobjs(PLAYER& plr) {
 	aiProcess();
 
 	// New missile code
-	for (i = headspritestat[MISSILE]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
-		auto& spr = sprite[i];
+	it.Reset(MISSILE);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		int i = actor->GetSpriteIndex();
 
 		spr.lotag -= TICSPERFRAME;
 
@@ -979,9 +1041,11 @@ void animateobjs(PLAYER& plr) {
 		}
 	}
 
-	for (i = headspritestat[JAVLIN]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
-		auto& spr = sprite[i];
+	it.Reset(JAVLIN);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		int i = actor->GetSpriteIndex();
 
 		spr.lotag -= TICSPERFRAME;
 		if (isBlades(spr.picnum)) {
@@ -1074,9 +1138,11 @@ void animateobjs(PLAYER& plr) {
 
 	// CHUNK O WALL
 
-	for (i = headspritestat[CHUNKOWALL]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
-		auto& spr = sprite[i];
+	it.Reset(CHUNKOWALL);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		int i = actor->GetSpriteIndex();
 
 		spr.lotag -= TICSPERFRAME;
 		dax = spr.xvel >> 3;
@@ -1102,9 +1168,11 @@ void animateobjs(PLAYER& plr) {
 	}
 
 	// CHUNK O MEAT
-	for (i = headspritestat[CHUNKOMEAT]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
-		auto& spr = sprite[i];
+	it.Reset(CHUNKOMEAT);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		int i = actor->GetSpriteIndex();
 
 		spr.lotag -= TICSPERFRAME;
 
@@ -1157,9 +1225,11 @@ void animateobjs(PLAYER& plr) {
 		}
 	}
 
-	for (i = headspritestat[BLOOD]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
-		auto& spr = sprite[i];
+	it.Reset(BLOOD);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		int i = actor->GetSpriteIndex();
 
 		spr.lotag -= TICSPERFRAME;
 		if (spr.lotag < 0) {
@@ -1173,9 +1243,11 @@ void animateobjs(PLAYER& plr) {
 		}
 	}
 
-	for (i = headspritestat[DEVILFIRE]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
-		auto& spr = sprite[i];
+	it.Reset(DEVILFIRE);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		int i = actor->GetSpriteIndex();
 
 		if (plr.invisibletime < 0) {
 			spr.lotag -= TICSPERFRAME;
@@ -1191,9 +1263,11 @@ void animateobjs(PLAYER& plr) {
 		}
 	}
 
-	for (i = headspritestat[DRIP]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
-		auto& spr = sprite[i];
+	it.Reset(DRIP);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		int i = actor->GetSpriteIndex();
 
 		spr.lotag -= TICSPERFRAME;
 		spr.z += spr.zvel;
@@ -1212,9 +1286,11 @@ void animateobjs(PLAYER& plr) {
 		}
 	}
 
-	for (i = headspritestat[SMOKE]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
-		auto& spr = sprite[i];
+	it.Reset(SMOKE);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		int i = actor->GetSpriteIndex();
 
 		spr.lotag -= TICSPERFRAME;
 
@@ -1231,9 +1307,11 @@ void animateobjs(PLAYER& plr) {
 	}
 
 	if (!isWh2()) {
-		for (i = headspritestat[EXPLO]; i >= 0; i = nextsprite) {
-			nextsprite = nextspritestat[i];
-			auto& spr = sprite[i];
+		it.Reset(EXPLO);
+		while (auto actor = it.Next())
+		{
+			SPRITE& spr = actor->s();
+			int i = actor->GetSpriteIndex();
 
 			spr.lotag -= TICSPERFRAME;
 			spr.x += ((spr.xvel * TICSPERFRAME) >> 5);
@@ -1280,10 +1358,12 @@ void animateobjs(PLAYER& plr) {
 			}
 		}
 	} else {
-		for (i = headspritestat[EXPLO]; i >= 0; i = nextsprite) {
-			nextsprite = nextspritestat[i];
+		it.Reset(EXPLO);
+		while (auto actor = it.Next())
+		{
+			SPRITE& spr = actor->s();
+			int i = actor->GetSpriteIndex();
 
-			SPRITE& spr = sprite[i];
 			spr.lotag -= TICSPERFRAME;
 			spr.picnum++;
 			if (spr.lotag < 0) {
@@ -1329,9 +1409,11 @@ void animateobjs(PLAYER& plr) {
 		}
 	}
 
-	for (i = headspritestat[BROKENVASE]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
-		auto& spr = sprite[i];
+	it.Reset(BROKENVASE);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		int i = actor->GetSpriteIndex();
 
 		spr.lotag -= TICSPERFRAME;
 		if (spr.lotag < 0) {
@@ -1364,9 +1446,11 @@ void animateobjs(PLAYER& plr) {
 	}
 
 	// Go through explosion sprites
-	for (i = headspritestat[FX]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
-		auto& spr = sprite[i];
+	it.Reset(FX);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		int i = actor->GetSpriteIndex();
 
 		spr.lotag -= TICSPERFRAME;
 
