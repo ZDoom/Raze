@@ -75,12 +75,12 @@ struct PlayerHorizon
 	{
 		return buildfhoriz(scaleAdjust * (((object ? object->asbuildf() : 1.) * getTicrateScale(value)) + push));
 	}
-	void scaletozero(fixedhoriz& object, double const value, double const scaleAdjust, double const push = 0.)
+	void scaletozero(fixedhoriz& object, double const value, double const scaleAdjust, double const push = DBL_MAX)
 	{
 		if (object.asq16())
 		{
 			auto sgn = Sgn(object.asq16());
-			object  -= getscaledhoriz(value, scaleAdjust, &object, push == 0 ? sgn * (1. / 3.) : push);
+			object  -= getscaledhoriz(value, scaleAdjust, &object, push == DBL_MAX ? sgn * (2. / 9.) * (scaleAdjust < 1. ? (1. - scaleAdjust * 0.5) * 1.5 : 1.) : push);
 			if (sgn != Sgn(object.asq16())) object = q16horiz(0);
 		}
 	}
@@ -195,12 +195,12 @@ struct PlayerAngle
 	{
 		return buildfang(scaleAdjust * (((object ? object->signedbuildf() : 1.) * getTicrateScale(value)) + push));
 	}
-	void scaletozero(binangle& object, double const value, double const scaleAdjust, double const push = 0.)
+	void scaletozero(binangle& object, double const value, double const scaleAdjust, double const push = DBL_MAX)
 	{
 		if (object.asbam())
 		{
 			auto sgn = Sgn(object.signedbam());
-			object  -= getscaledangle(value, scaleAdjust, &object, push == 0 ? sgn * (1. / 3.) : push);
+			object  -= getscaledangle(value, scaleAdjust, &object, push == DBL_MAX ? sgn * (2. / 9.) * (scaleAdjust < 1. ? (1. - scaleAdjust * 0.5) * 1.5 : 1.) : push);
 			if (sgn != Sgn(object.signedbam())) object = bamang(0);
 		}
 	}
