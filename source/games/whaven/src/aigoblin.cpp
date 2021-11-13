@@ -66,7 +66,7 @@ static void chasegoblin(PLAYER& plr, DWHActor* actor)
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
 		warpsprite(actor);
 
-	if (checksector6(i))
+	if (checksector6(actor))
 		return;
 
 	processfluid(i, zr_florhit, false);
@@ -190,7 +190,7 @@ static void fleegoblin(PLAYER& plr, DWHActor* actor)
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
 		warpsprite(actor);
 
-	if (checksector6(i))
+	if (checksector6(actor))
 		return;
 
 	processfluid(i, zr_florhit, false);
@@ -228,7 +228,7 @@ static void standgoblin(PLAYER& plr, DWHActor* actor)
 		}
 	}
 
-	checksector6(i);
+	checksector6(actor);
 }
 		
 static void attackgoblin(PLAYER& plr, DWHActor* actor)
@@ -269,7 +269,7 @@ static void attackgoblin(PLAYER& plr, DWHActor* actor)
 	}
 	spr.lotag -= TICSPERFRAME;
 
-	checksector6(i);
+	checksector6(actor);
 }
 
 static void resurectgoblin(PLAYER& plr, DWHActor* actor)
@@ -291,7 +291,7 @@ static void searchgoblin(PLAYER& plr, DWHActor* actor)
 	int i = actor->GetSpriteIndex();
 
 	aisearch(plr, i, false);
-	if (!checksector6(i))
+	if (!checksector6(actor))
 		checkexplgoblin(plr, actor);
 }
 		
@@ -345,7 +345,7 @@ static void skirmishgoblin(PLAYER& plr, DWHActor* actor)
 
 	setsprite(i, spr.x, spr.y, spr.z);
 
-	if (checksector6(i))
+	if (checksector6(actor))
 		return;
 
 	checkexplgoblin(plr, actor);
@@ -447,7 +447,7 @@ static void goblinWar(PLAYER& plr, DWHActor* actor)
 		else
 			spr.picnum = GOBLIN;
 
-		if (checksector6(i))
+		if (checksector6(actor))
 			return;
 
 		break;
@@ -494,7 +494,7 @@ static void goblinWar(PLAYER& plr, DWHActor* actor)
 
 		setsprite(i, spr.x, spr.y, spr.z);
 
-		if (checksector6(i))
+		if (checksector6(actor))
 			return;
 
 		break;
@@ -513,7 +513,7 @@ static void goblinWar(PLAYER& plr, DWHActor* actor)
 			spr.extra = 0;
 		}
 
-		if (checksector6(i))
+		if (checksector6(actor))
 			return;
 
 		break;

@@ -548,13 +548,13 @@ void aisearch(PLAYER& plr, short i, boolean fly) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 
-boolean checksector6(short i) {
-	SPRITE& spr = sprite[i];
+boolean checksector6(DWHActor* actor) {
+	SPRITE& spr = actor->s();
 	if (sector[spr.sectnum].floorz - (32 << 8) < sector[spr.sectnum].ceilingz) {
 		if (sector[spr.sectnum].lotag == 6)
-			newstatus(i, DIE);
+			SetNewStatus(actor, DIE);
 		else {
-			deletesprite(i);
+			deletesprite(actor->GetSpriteIndex());
 			return true;
 		}
 	}

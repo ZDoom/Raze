@@ -56,7 +56,7 @@ static void chasedragon(PLAYER& plr, DWHActor* actor)
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
 		warpsprite(actor);
 
-	if (checksector6(i))
+	if (checksector6(actor))
 		return;
 
 	processfluid(i, zr_florhit, false);
@@ -97,7 +97,7 @@ static void fleedragon(PLAYER& plr, DWHActor* actor)
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
 		warpsprite(actor);
 
-	if (checksector6(i))
+	if (checksector6(actor))
 		return;
 
 	processfluid(i, zr_florhit, false);
@@ -195,7 +195,7 @@ static void castdragon(PLAYER& plr, DWHActor* actor)
 		break;
 	}
 
-	checksector6(i);
+	checksector6(actor);
 }
 
 static void attackdragon(PLAYER& plr, DWHActor* actor)
@@ -233,7 +233,7 @@ static void searchdragon(PLAYER& plr, DWHActor* actor)
 	int i = actor->GetSpriteIndex();
 
 	aisearch(plr, i, true);
-	checksector6(i);
+	checksector6(actor);
 }
 
 static void frozendragon(PLAYER& plr, DWHActor* actor)
@@ -339,7 +339,7 @@ static void dragonAttack2(PLAYER& plr, DWHActor* actor)
 	else
 		spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
 
-	checksector6(i);
+	checksector6(actor);
 }
 
 static void firebreath(PLAYER& plr, int i, int a, int b, int c) 

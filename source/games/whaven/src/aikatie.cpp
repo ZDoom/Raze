@@ -48,7 +48,7 @@ static void chasekatie(PLAYER& plr, DWHActor* actor)
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
 		warpsprite(actor);
 
-	if (checksector6(i))
+	if (checksector6(actor))
 		return;
 
 	processfluid(i, zr_florhit, false);
@@ -82,7 +82,7 @@ static void searchkatie(PLAYER& plr, DWHActor* actor)
 	int i = actor->GetSpriteIndex();
 
 	aisearch(plr, i, false);
-	checksector6(i);
+	checksector6(actor);
 }
 	
 static void painkatie(PLAYER& plr, DWHActor* actor)
@@ -195,7 +195,7 @@ static void fleekatie(PLAYER& plr, DWHActor* actor)
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
 		warpsprite(actor);
 
-	if (checksector6(i))
+	if (checksector6(actor))
 		return;
 
 	processfluid(i, zr_florhit, false);
@@ -260,7 +260,7 @@ static void castkatie(PLAYER& plr, DWHActor* actor)
 		SetNewStatus(actor, CHASE);
 		spr.extra++;
 	}
-	checksector6(i);
+	checksector6(actor);
 }
 	
 static void diekatie(PLAYER& plr, DWHActor* actor)

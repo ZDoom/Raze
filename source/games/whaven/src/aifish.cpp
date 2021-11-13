@@ -58,7 +58,7 @@ static void chasefish(PLAYER& plr, DWHActor* actor)
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
 		warpsprite(actor);
 
-	if (checksector6(i))
+	if (checksector6(actor))
 		return;
 
 	processfluid(i, zr_florhit, false);
@@ -119,7 +119,7 @@ static void attackfish(PLAYER& plr, DWHActor* actor)
 	}
 	spr.lotag -= TICSPERFRAME;
 
-	checksector6(i);
+	checksector6(actor);
 }
 	
 static void skirmishfish(PLAYER& plr, DWHActor* actor)
@@ -143,7 +143,7 @@ static void skirmishfish(PLAYER& plr, DWHActor* actor)
 
 	setsprite(i, spr.x, spr.y, spr.z);
 
-	if (checksector6(i))
+	if (checksector6(actor))
 		return;
 }
 	
@@ -152,7 +152,7 @@ static void searchfish(PLAYER& plr, DWHActor* actor)
 	int i = actor->GetSpriteIndex();
 
 	aisearch(plr, i, false);
-	checksector6(i);
+	checksector6(actor);
 }
 	
 static void facefish(PLAYER& plr, DWHActor* actor)

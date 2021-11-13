@@ -49,7 +49,7 @@ static void chaseguardian(PLAYER& plr, DWHActor* actor)
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
 		warpsprite(actor);
 
-	if (checksector6(i))
+	if (checksector6(actor))
 		return;
 
 	processfluid(i, zr_florhit, true);
@@ -156,7 +156,7 @@ static void searchguardian(PLAYER& plr, DWHActor* actor)
 	int i = actor->GetSpriteIndex();
 
 	aisearch(plr, i, true);
-	checksector6(i);
+	checksector6(actor);
 }
 	
 static void fleeguardian(PLAYER& plr, DWHActor* actor)
@@ -190,7 +190,7 @@ static void fleeguardian(PLAYER& plr, DWHActor* actor)
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
 		warpsprite(actor);
 
-	if (checksector6(i))
+	if (checksector6(actor))
 		return;
 
 	processfluid(i, zr_florhit, true);
@@ -239,7 +239,7 @@ static void castguardian(PLAYER& plr, DWHActor* actor)
 		castspell(plr, i);
 		SetNewStatus(actor, CHASE);
 	}
-	checksector6(i);
+	checksector6(actor);
 }
 
 

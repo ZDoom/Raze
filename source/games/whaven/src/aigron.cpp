@@ -98,7 +98,7 @@ static void chasegron(PLAYER& plr, DWHActor* actor)
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
 		warpsprite(actor);
 
-	if (checksector6(i))
+	if (checksector6(actor))
 		return;
 
 	processfluid(i, zr_florhit, false);
@@ -173,7 +173,7 @@ static void skirmishgron(PLAYER& plr, DWHActor* actor)
 
 	setsprite(i, spr.x, spr.y, spr.z);
 
-	if (checksector6(i))
+	if (checksector6(actor))
 		return;
 
 	checkexplgron(plr, actor);
@@ -184,7 +184,7 @@ static void searchgron(PLAYER& plr, DWHActor* actor)
 	int i = actor->GetSpriteIndex();
 
 	aisearch(plr, i, false);
-	if (!checksector6(i))
+	if (!checksector6(actor))
 		checkexplgron(plr, actor);
 }
 	
@@ -338,7 +338,7 @@ static void attackgron(PLAYER& plr, DWHActor* actor)
 			spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
 	}
 
-	checksector6(i);
+	checksector6(actor);
 }
 	
 static void fleegron(PLAYER& plr, DWHActor* actor)
@@ -368,7 +368,7 @@ static void fleegron(PLAYER& plr, DWHActor* actor)
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
 		warpsprite(actor);
 
-	if (checksector6(i))
+	if (checksector6(actor))
 		return;
 
 	processfluid(i, zr_florhit, false);
@@ -399,7 +399,7 @@ static void castgron(PLAYER& plr, DWHActor* actor)
 		}
 	}
 
-	checksector6(i);
+	checksector6(actor);
 }
 	
 static void diegron(PLAYER& plr, DWHActor* actor)

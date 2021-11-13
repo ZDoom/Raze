@@ -70,7 +70,7 @@ static void chasekobold(PLAYER& plr, DWHActor* actor)
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
 		warpsprite(actor);
 
-	if (checksector6(i))
+	if (checksector6(actor))
 		return;
 
 	processfluid(i, zr_florhit, false);
@@ -195,7 +195,7 @@ static void fleekobold(PLAYER& plr, DWHActor* actor)
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
 		warpsprite(actor);
 
-	if (checksector6(i))
+	if (checksector6(actor))
 		return;
 
 	processfluid(i, zr_florhit, false);
@@ -240,7 +240,7 @@ static void attackkobold(PLAYER& plr, DWHActor* actor)
 	}
 	spr.lotag -= TICSPERFRAME;
 
-	checksector6(i);
+	checksector6(actor);
 }
 	
 static void resurectkobold(PLAYER& plr, DWHActor* actor)
@@ -264,7 +264,7 @@ static void searchkobold(PLAYER& plr, DWHActor* actor)
 	if ((krand() % 100) > 98)
 		spritesound(S_KSNARL1 + (krand() % 4), &sprite[i]);
 	aisearch(plr, i, false);
-	if (!checksector6(i))
+	if (!checksector6(actor))
 		checkexplkobold(plr, actor);
 }
 	
@@ -325,7 +325,7 @@ static void skirmishkobold(PLAYER& plr, DWHActor* actor)
 
 	setsprite(i, spr.x, spr.y, spr.z);
 
-	if (checksector6(i))
+	if (checksector6(actor))
 		return;
 
 	checkexplkobold(plr, actor);

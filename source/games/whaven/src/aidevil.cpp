@@ -48,7 +48,7 @@ static void chasedevil(PLAYER& plr, DWHActor* actor)
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
 		warpsprite(actor);
 
-	if (checksector6(i))
+	if (checksector6(actor))
 		return;
 
 	processfluid(i, zr_florhit, false);
@@ -158,7 +158,7 @@ static void fleedevil(PLAYER& plr, DWHActor* actor)
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
 		warpsprite(actor);
 
-	if (checksector6(i))
+	if (checksector6(actor))
 		return;
 
 	processfluid(i, zr_florhit, false);
@@ -215,7 +215,7 @@ static void searchdevil(PLAYER& plr, DWHActor* actor)
 	int i = actor->GetSpriteIndex();
 
 	aisearch(plr, i, false);
-	checksector6(i);
+	checksector6(actor);
 }
 
 static void frozendevil(PLAYER& plr, DWHActor* actor)
@@ -270,7 +270,7 @@ static void castdevil(PLAYER& plr, DWHActor* actor)
 		castspell(plr, i);
 		SetNewStatus(actor, CHASE);
 	}
-	checksector6(i);
+	checksector6(actor);
 }
 
 

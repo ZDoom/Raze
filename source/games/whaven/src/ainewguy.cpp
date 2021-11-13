@@ -84,7 +84,7 @@ static void chasenewguy(PLAYER& plr, DWHActor* actor)
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
 		warpsprite(actor);
 
-	if (checksector6(i))
+	if (checksector6(actor))
 		return;
 
 	processfluid(i, zr_florhit, false);
@@ -159,7 +159,7 @@ static void skirmishnewguy(PLAYER& plr, DWHActor* actor)
 
 	setsprite(i, spr.x, spr.y, spr.z);
 
-	checksector6(i);
+	checksector6(actor);
 }
 
 static void searchnewguy(PLAYER& plr, DWHActor* actor)
@@ -167,7 +167,7 @@ static void searchnewguy(PLAYER& plr, DWHActor* actor)
 	int i = actor->GetSpriteIndex();
 
 	aisearch(plr, i, false);
-	checksector6(i);
+	checksector6(actor);
 }
 	
 static void nukednewguy(PLAYER& plr, DWHActor* actor)
@@ -257,7 +257,7 @@ static void fleenewguy(PLAYER& plr, DWHActor* actor)
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
 		warpsprite(actor);
 
-	if (checksector6(i))
+	if (checksector6(actor))
 		return;
 
 	processfluid(i, zr_florhit, false);
@@ -315,7 +315,7 @@ static void attacknewguy(PLAYER& plr, DWHActor* actor)
 		}
 		spr.lotag -= TICSPERFRAME;
 
-		checksector6(i);
+		checksector6(actor);
 		break;
 	}
 }
@@ -366,7 +366,7 @@ static void castnewguy(PLAYER& plr, DWHActor* actor)
 		newguyarrow(i, plr);
 		SetNewStatus(actor, CHASE);
 	}
-	checksector6(i);
+	checksector6(actor);
 }
 
 static void newguyarrow(short s, PLAYER& plr) {

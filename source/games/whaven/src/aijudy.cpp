@@ -58,7 +58,7 @@ static void chasejudy(PLAYER& plr, DWHActor* actor)
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
 		warpsprite(actor);
 
-	if (checksector6(i))
+	if (checksector6(actor))
 		return;
 
 	processfluid(i, zr_florhit, false);
@@ -92,7 +92,7 @@ static void searchjudy(PLAYER& plr, DWHActor* actor)
 	int i = actor->GetSpriteIndex();
 
 	aisearch(plr, i, false);
-	checksector6(i);
+	checksector6(actor);
 }
 	
 static void nukedjudy(PLAYER& plr, DWHActor* actor)
@@ -217,7 +217,7 @@ static void fleejudy(PLAYER& plr, DWHActor* actor)
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
 		warpsprite(actor);
 
-	if (checksector6(i))
+	if (checksector6(actor))
 		return;
 
 	processfluid(i, zr_florhit, false);
@@ -337,7 +337,7 @@ static void castjudy(PLAYER& plr, DWHActor* actor)
 		}
 		SetNewStatus(actor, CHASE);
 	}
-	checksector6(i);
+	checksector6(actor);
 }
 	
 static void diejudy(PLAYER& plr, DWHActor* actor)

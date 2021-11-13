@@ -60,7 +60,7 @@ static void chasefred(PLAYER& plr, DWHActor* actor)
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
 		warpsprite(actor);
 
-	if (checksector6(i))
+	if (checksector6(actor))
 		return;
 
 	processfluid(i, zr_florhit, false);
@@ -104,7 +104,7 @@ static void skirmishfred(PLAYER& plr, DWHActor* actor)
 
 	setsprite(i, spr.x, spr.y, spr.z);
 
-	if (checksector6(i))
+	if (checksector6(actor))
 		return;
 
 	checkexplfred(plr, actor);
@@ -136,7 +136,7 @@ static void searchfred(PLAYER& plr, DWHActor* actor)
 	int i = actor->GetSpriteIndex();
 
 	aisearch(plr, i, false);
-	if (!checksector6(i))
+	if (!checksector6(actor))
 		checkexplfred(plr, actor);
 }
 	
@@ -223,7 +223,7 @@ static void attackfred(PLAYER& plr, DWHActor* actor)
 	}
 	spr.lotag -= TICSPERFRAME;
 
-	checksector6(i);
+	checksector6(actor);
 }
 	
 static void fleefred(PLAYER& plr, DWHActor* actor)
@@ -254,7 +254,7 @@ static void fleefred(PLAYER& plr, DWHActor* actor)
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
 		warpsprite(actor);
 
-	if (checksector6(i))
+	if (checksector6(actor))
 		return;
 
 	processfluid(i, zr_florhit, false);

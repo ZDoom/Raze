@@ -166,7 +166,7 @@ static void chasegonzo(PLAYER& plr, DWHActor* actor)
 		if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
 			warpsprite(actor);
 
-		if (checksector6(i))
+		if (checksector6(actor))
 			return;
 
 		processfluid(i, zr_florhit, false);
@@ -243,7 +243,7 @@ static void skirmishgonzo(PLAYER& plr, DWHActor* actor)
 
 	setsprite(i, spr.x, spr.y, spr.z);
 
-	if (checksector6(i))
+	if (checksector6(actor))
 		return;
 
 	checkexplgonzo(plr, actor);
@@ -254,7 +254,7 @@ static void searchgonzo(PLAYER& plr, DWHActor* actor)
 	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
-	if (!checksector6(i))
+	if (!checksector6(actor))
 		checkexplgonzo(plr, actor);
 }
 	
@@ -444,7 +444,7 @@ static void attackgonzo(PLAYER& plr, DWHActor* actor)
 		break;
 	}
 
-	checksector6(i);
+	checksector6(actor);
 }
 	
 static void fleegonzo(PLAYER& plr, DWHActor* actor)
@@ -477,7 +477,7 @@ static void fleegonzo(PLAYER& plr, DWHActor* actor)
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
 		warpsprite(actor);
 
-	if (checksector6(i))
+	if (checksector6(actor))
 		return;
 
 	processfluid(i, zr_florhit, false);

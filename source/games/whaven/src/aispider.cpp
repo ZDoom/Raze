@@ -67,7 +67,7 @@ static void chasespider(PLAYER& plr, DWHActor* actor)
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
 		warpsprite(actor);
 
-	if (checksector6(i))
+	if (checksector6(actor))
 		return;
 
 	processfluid(i, zr_florhit, false);
@@ -126,7 +126,7 @@ static void skirmishspider(PLAYER& plr, DWHActor* actor)
 
 	setsprite(i, spr.x, spr.y, spr.z);
 
-	if (checksector6(i))
+	if (checksector6(actor))
 		return;
 
 	checkexplspider(plr, actor);
@@ -137,7 +137,7 @@ static void searchspider(PLAYER& plr, DWHActor* actor)
 	int i = actor->GetSpriteIndex();
 
 	aisearch(plr, i, false);
-	if (!checksector6(i))
+	if (!checksector6(actor))
 		checkexplspider(plr, actor);
 }
 	
@@ -230,7 +230,7 @@ static void attackspider(PLAYER& plr, DWHActor* actor)
 	}
 	spr.lotag -= TICSPERFRAME;
 
-	checksector6(i);
+	checksector6(actor);
 }
 	
 static void fleespider(PLAYER& plr, DWHActor* actor)
@@ -261,7 +261,7 @@ static void fleespider(PLAYER& plr, DWHActor* actor)
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
 		warpsprite(actor);
 
-	if (checksector6(i))
+	if (checksector6(actor))
 		return;
 
 	processfluid(i, zr_florhit, false);

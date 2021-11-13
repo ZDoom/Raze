@@ -45,7 +45,7 @@ static void chaseskully(PLAYER& plr, DWHActor* actor)
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
 		warpsprite(actor);
 
-	if (checksector6(i))
+	if (checksector6(actor))
 		return;
 
 	processfluid(i, zr_florhit, false);
@@ -78,7 +78,7 @@ static void searchskully(PLAYER& plr, DWHActor* actor)
 	int i = actor->GetSpriteIndex();
 
 	aisearch(plr, i, false);
-	checksector6(i);
+	checksector6(actor);
 }
 	
 static void nukedskully(PLAYER& plr, DWHActor* actor)
@@ -202,7 +202,7 @@ static void fleeskully(PLAYER& plr, DWHActor* actor)
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
 		warpsprite(actor);
 
-	if (checksector6(i))
+	if (checksector6(actor))
 		return;
 
 	processfluid(i, zr_florhit, false);
@@ -227,7 +227,7 @@ static void castskully(PLAYER& plr, DWHActor* actor)
 		skullycastspell(plr, i);
 		SetNewStatus(actor, CHASE);
 	}
-	checksector6(i);
+	checksector6(actor);
 }
 	
 static void dieskully(PLAYER& plr, DWHActor* actor)

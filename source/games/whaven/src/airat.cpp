@@ -69,7 +69,7 @@ static void fleerat(PLAYER& plr, DWHActor* actor)
 		warpsprite(actor);
 
 
-	if (checksector6(i))
+	if (checksector6(actor))
 		return;
 
 	processfluid(i, zr_florhit, false);
