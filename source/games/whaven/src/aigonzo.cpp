@@ -507,11 +507,12 @@ static void diegonzo(PLAYER& plr, short i) {
 
 void gonzoProcess(PLAYER& plr)
 {
-	short nextsprite;
-	for (short i = headspritestat[LAND]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
+	WHStatIterator it(LAND);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		int i = actor->GetSpriteIndex();
 
-		SPRITE& spr = sprite[i];
 		spr.lotag -= TICSPERFRAME;
 		if (spr.lotag < 0) {
 			spr.lotag = 12;
@@ -537,10 +538,12 @@ void gonzoProcess(PLAYER& plr)
 	}
 
 	short movestat;
-	for (short i = headspritestat[AMBUSH]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
+	it.Reset(AMBUSH);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		int i = actor->GetSpriteIndex();
 
-		SPRITE& spr = sprite[i];
 		switch (spr.extra) {
 		case 1: // forward
 			spr.zvel += TICSPERFRAME << 3;
@@ -602,16 +605,18 @@ void gonzoProcess(PLAYER& plr)
 static short searchpatrol(SPRITE& spr) {
 	int mindist = 0x7fffffff;
 	short target = -1;
-	short j = headspritestat[APATROLPOINT];
-	while (j != -1) {
-		short nextj = nextspritestat[j];
-		SPRITE& tspr = sprite[j];
+
+	WHStatIterator it(ATTACK2);
+	while (auto actor = it.Next())
+	{
+		SPRITE& tspr = actor->s();
+		int j = actor->GetSpriteIndex();
+
 		int dist = abs(tspr.x - spr.x) + abs(tspr.y - spr.y);
 		if (dist < mindist) {
 			mindist = dist;
 			target = j;
 		}
-		j = nextj;
 	}
 
 	return target;

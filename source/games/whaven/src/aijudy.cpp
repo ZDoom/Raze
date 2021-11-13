@@ -223,13 +223,15 @@ static void castjudy(PLAYER& plr, short i) {
 		else {
 			if (krand() % 100 > 40) {
 				// raise the dead
-				short j = headspritestat[DEAD];
-				while (j >= 0) {
-					short nextj = nextspritestat[j];
-					sprite[j].lotag = (short)((krand() % 120) + 120);
+				WHStatIterator it(DEAD);
+				while (auto actor = it.Next())
+				{
+					SPRITE& spr = actor->s();
+					int j = actor->GetSpriteIndex();
+
+					spr.lotag = (short)((krand() % 120) + 120);
 					kills--;
 					newstatus(j, RESURECT);
-					j = nextj;
 				}
 			}
 			else {
@@ -339,10 +341,12 @@ static void diejudy(PLAYER& plr, short i) {
 	
 void judyOperate(PLAYER& plr)
 {
-	short nextsprite;
-	for (short i = headspritestat[WITCHSIT]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
-		auto& spri = sprite[i];
+	WHStatIterator it(WITCHSIT);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spri = actor->s();
+		int i = actor->GetSpriteIndex();
+
 
 		spri.ang = (short)(getangle(plr.x - spri.x, plr.y - spri.y) & 2047);
 		if (cansee(plr.x, plr.y, plr.z, plr.sector, spri.x, spri.y,

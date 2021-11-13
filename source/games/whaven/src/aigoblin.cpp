@@ -492,9 +492,12 @@ static void goblinWar(PLAYER& plr, short i) {
 	
 void goblinWarProcess(PLAYER& plr)
 {
-	for (short i = headspritestat[WAR], nextsprite; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
-		SPRITE& spr = sprite[i];
+	WHStatIterator it(WAR);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		int i = actor->GetSpriteIndex();
+
 		switch (spr.detail) {
 		case GOBLINTYPE:
 			goblinWar(plr, i);

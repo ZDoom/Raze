@@ -883,10 +883,13 @@ void weaponsprocess(int snum) {
 }
 
 void madenoise(PLAYER& plr, int val, int x, int y, int z) {
-	short nextsprite;
-	for (short i = headspritestat[FACE]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
-		if ((abs(x - sprite[i].x) + abs(y - sprite[i].y) < (val * 4096)))
+	WHStatIterator it(FACE);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		int i = actor->GetSpriteIndex();
+
+		if ((abs(x - spr.x) + abs(y - spr.y) < (val * 4096)))
 			newstatus(i, FINDME);
 	}
 }

@@ -239,9 +239,11 @@ static void nukedwillow(PLAYER& plr, short i) {
 
 void willowProcess(PLAYER& plr)
 {
-	for (short i = headspritestat[DRAIN], nextsprite; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
-		SPRITE& spr = sprite[i];
+	WHStatIterator it(DRAIN);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		int i = actor->GetSpriteIndex();
 
 		switch (spr.detail) {
 		case WILLOWTYPE:

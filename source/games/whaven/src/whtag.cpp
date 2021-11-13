@@ -879,7 +879,7 @@ void operatesector(PLAYER& plr, int s) {
 void animatetags(int nPlayer) {
 
 	int endwall, good, j, k, oldang, startwall;
-	short i, nexti;
+	short i;
 	int dasector;
 
 	PLAYER& plr = player[nPlayer];
@@ -890,12 +890,15 @@ void animatetags(int nPlayer) {
 				if (sector[i].hitag == sector[plr.sector].hitag)
 					if (sector[i].lotag != 2)
 						operatesector(plr, i);
-			i = headspritestat[0];
-			while (i != -1) {
-				nexti = nextspritestat[i];
-				if (sprite[i].hitag == sector[plr.sector].hitag)
+			
+			WHStatIterator it(0);
+			while (auto actor = it.Next())
+			{
+				SPRITE& spr = actor->s();
+				int i = actor->GetSpriteIndex();
+
+				if (spr.hitag == sector[plr.sector].hitag)
 					operatesprite(plr, i);
-				i = nexti;
 			}
 
 			sector[plr.sector].lotag = 0;
@@ -906,12 +909,15 @@ void animatetags(int nPlayer) {
 				if (sector[i].hitag == sector[plr.sector].hitag)
 					if (sector[i].lotag != 2)
 						operatesector(plr, i);
-			i = headspritestat[0];
-			while (i != -1) {
-				nexti = nextspritestat[i];
-				if (sprite[i].hitag == sector[plr.sector].hitag)
+
+			WHStatIterator it(0);
+			while (auto actor = it.Next())
+			{
+				SPRITE& spr = actor->s();
+				int i = actor->GetSpriteIndex();
+
+				if (spr.hitag == sector[plr.sector].hitag)
 					operatesprite(plr, i);
-				i = nexti;
 			}
 		}
 	}

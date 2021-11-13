@@ -290,9 +290,11 @@ static void facedragon(PLAYER& plr, short i) {
 
 void dragonProcess(PLAYER& plr)
 {
-	for (short i = headspritestat[ATTACK2], nextsprite; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
-		SPRITE& spr = sprite[i];
+	WHStatIterator it(ATTACK2);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		int i = actor->GetSpriteIndex();
 
 		switch (spr.detail) {
 		case DRAGON:
