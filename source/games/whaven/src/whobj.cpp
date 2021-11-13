@@ -109,27 +109,29 @@ int getPickHeight() {
 
 void processobjs(PLAYER& plr) {
 
-	int dh, dx, dy, dz, i, nexti;
+	int dh, dx, dy, dz;
 
 	if (plr.sector < 0 || plr.sector >= numsectors)
 		return;
 
-	i = headspritesect[plr.sector];
-	while (i != -1) {
-		nexti = nextspritesect[i];
-		dx = abs(plr.x - sprite[i].x); // x distance to sprite
-		dy = abs(plr.y - sprite[i].y); // y distance to sprite
-		dz = abs((plr.z >> 8) - (sprite[i].z >> 8)); // z distance to sprite
-		dh = tileHeight(sprite[i].picnum) >> 1; // height of sprite
+	WHSectIterator it(plr.sector);
+	while (auto actor = it.Next())
+	{
+		SPRITE& tspr = actor->s();
+		int i = actor->GetSpriteIndex();
+
+		dx = abs(plr.x - tspr.x); // x distance to sprite
+		dy = abs(plr.y - tspr.y); // y distance to sprite
+		dz = abs((plr.z >> 8) - (tspr.z >> 8)); // z distance to sprite
+		dh = tileHeight(tspr.picnum) >> 1; // height of sprite
 		if (dx + dy < PICKDISTANCE && dz - dh <= getPickHeight()) {
 			if(isItemSprite(i)) 
-				items[(sprite[i].detail & 0xFF) - ITEMSBASE].pickup(plr, (short)i);
+				items[(tspr.detail & 0xFF) - ITEMSBASE].pickup(plr, (short)i);
 
-			if (sprite[i].picnum >= EXPLOSTART && sprite[i].picnum <= EXPLOEND && sprite[i].owner != sprite[plr.spritenum].owner)
+			if (tspr.picnum >= EXPLOSTART && tspr.picnum <= EXPLOEND && tspr.owner != sprite[plr.spritenum].owner)
 				if (plr.manatime < 1)
 					addhealth(plr, -1);
 		}
-		i = nexti;
 	}
 }
 

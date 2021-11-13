@@ -34,22 +34,24 @@ static void kurtExplo(PLAYER& plr, short i) {
 	if (spr.lotag < 0)
 		spr.lotag = 12;
 
-	short j = headspritesect[spr.sectnum];
-	while (j != -1) {
-		short nextj = nextspritesect[j];
-		int dx = abs(spr.x - sprite[j].x); // x distance to sprite
-		int dy = abs(spr.y - sprite[j].y); // y distance to sprite
-		int dz = abs((spr.z >> 8) - (sprite[j].z >> 8)); // z distance to sprite
-		int dh = tileHeight(sprite[j].picnum) >> 1; // height of sprite
+	WHSectIterator it(spr.sectnum);
+	while (auto actor = it.Next())
+	{
+		SPRITE& tspr = actor->s();
+		int j = actor->GetSpriteIndex();
+
+		int dx = abs(spr.x - tspr.x); // x distance to sprite
+		int dy = abs(spr.y - tspr.y); // y distance to sprite
+		int dz = abs((spr.z >> 8) - (tspr.z >> 8)); // z distance to sprite
+		int dh = tileHeight(tspr.picnum) >> 1; // height of sprite
 		if (dx + dy < PICKDISTANCE && dz - dh <= getPickHeight()) {
-			if (sprite[j].detail == KURTTYPE) {
-				sprite[j].hitag -= TICSPERFRAME << 4;
-				if (sprite[j].hitag < 0) {
+			if (tspr.detail == KURTTYPE) {
+				tspr.hitag -= TICSPERFRAME << 4;
+				if (tspr.hitag < 0) {
 					newstatus(j, DIE);
 				}
 			}
 		}
-		j = nextj;
 	}
 }
 
