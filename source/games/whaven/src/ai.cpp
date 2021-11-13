@@ -245,10 +245,12 @@ void aiProcess() {
 		else {
 			spr.z = zr_florz;
 		}
-		short j = headspritesect[spr.sectnum];
-		while (j != -1) {
-			short nextj = nextspritesect[j];
-			SPRITE& tspr = sprite[j];
+		WHSectIterator it(spr.sectnum);
+		while (auto actor = it.Next())
+		{
+			SPRITE& tspr = actor->s();
+			int j = actor->GetSpriteIndex();
+
 			if (tspr.picnum == PATROLPOINT) {
 				int dx = abs(spr.x - tspr.x); // x distance to sprite
 				int dy = abs(spr.y - tspr.y); // y distance to sprite
@@ -258,7 +260,6 @@ void aiProcess() {
 					spr.ang = tspr.ang;
 				}
 			}
-			j = nextj;
 		}
 		if (bcos(spr.ang) * (plr.x - spr.x)	+ bsin(spr.ang) * (plr.y - spr.y) >= 0) {
 			if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),

@@ -1063,15 +1063,17 @@ void weaponpowerup(PLAYER& plr) {
 			if (sector[plr.sector].hitag > 0) {
 				sector[plr.sector].hitag--;
 				if (sector[plr.sector].hitag == 0) {
-					short j = headspritesect[plr.sector];
-					while (j != -1) {
-						short nextj = nextspritesect[j];
-						if (sprite[j].picnum == CONE) {
+					WHSectIterator it(plr.sector);
+					while (auto actor = it.Next())
+					{
+						SPRITE& tspr = actor->s();
+						int j = actor->GetSpriteIndex();
+
+						if (tspr.picnum == CONE) {
 							deletesprite(j);
-						} else if (sprite[j].picnum == SPARKBALL) {
+						} else if (tspr.picnum == SPARKBALL) {
 							deletesprite(j);
 						}
-						j = nextj;
 					}
 				}
 			}

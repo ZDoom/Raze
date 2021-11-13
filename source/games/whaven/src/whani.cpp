@@ -1370,10 +1370,12 @@ void animateobjs(PLAYER& plr) {
 				spr.lotag = 12;
 			}
 
-			j = headspritesect[spr.sectnum];
-			while (j != -1) {
-				short nextj = nextspritesect[j];
-				SPRITE tspr = sprite[j];
+			WHSectIterator it(spr.sectnum);
+			while (auto actor = it.Next())
+			{
+				SPRITE& tspr = actor->s();
+				int j = actor->GetSpriteIndex();
+
 				int dx = abs(spr.x - tspr.x); // x distance to sprite
 				int dy = abs(spr.y - tspr.y); // y distance to sprite
 				int dz = abs((spr.z >> 8) - (tspr.z >> 8)); // z distance to sprite
@@ -1400,7 +1402,6 @@ void animateobjs(PLAYER& plr) {
 						}
 					}
 				}
-				j = nextj;
 			}
 
 			if (spr.picnum == EXPLOEND) {

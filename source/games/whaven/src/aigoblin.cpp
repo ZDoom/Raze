@@ -508,10 +508,12 @@ void goblinWarProcess(PLAYER& plr)
 
 static void checkexplgoblin(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
-	short j = headspritesect[spr.sectnum];
-	while (j != -1) {
-		short nextj = nextspritesect[j];
-		auto& spri = sprite[j];
+	WHSectIterator it(spr.sectnum);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spri = actor->s();
+		int j = actor->GetSpriteIndex();
+
 		int dx = abs(spr.x - spri.x); // x distance to sprite
 		int dy = abs(spr.y - spri.y); // y distance to sprite
 		int dz = abs((spr.z >> 8) - (spri.z >> 8)); // z distance to sprite
@@ -526,7 +528,6 @@ static void checkexplgoblin(PLAYER& plr, short i) {
 				}
 			}
 		}
-		j = nextj;
 	}
 }
 
