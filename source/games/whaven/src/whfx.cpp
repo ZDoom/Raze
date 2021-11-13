@@ -512,21 +512,22 @@ void warp(int x, int y, int z, int daang, short dasector) {
 	warpang = getangle(dax - warpx, day - warpy);
 }
 
-void warpsprite(short spritenum) {
+void warpsprite(DWHActor* actor) {
 	// EG 19 Aug 2017 - Try to prevent monsters teleporting back and forth wildly
 	if (monsterwarptime > 0)
 		return;
-	short dasectnum = sprite[spritenum].sectnum;
-	warpfxsprite(spritenum);
-	warp(sprite[spritenum].x, sprite[spritenum].y, sprite[spritenum].z, sprite[spritenum].ang, dasectnum);
-	sprite[spritenum].x = warpx;
-	sprite[spritenum].y = warpy;
-	sprite[spritenum].z = warpz;
-	sprite[spritenum].ang = (short) warpang;
+	auto& spr = actor->s();
+	short dasectnum = spr.sectnum;
+	warpfxsprite(actor->GetSpriteIndex());
+	warp(spr.x, spr.y, spr.z, spr.ang, dasectnum);
+	spr.x = warpx;
+	spr.y = warpy;
+	spr.z = warpz;
+	spr.ang = (short) warpang;
 	dasectnum = (short) warpsect;
 
-	warpfxsprite(spritenum);
-	setsprite(spritenum, sprite[spritenum].x, sprite[spritenum].y, sprite[spritenum].z);
+	warpfxsprite(actor->GetSpriteIndex());
+	setsprite(actor->GetSpriteIndex(), spr.x, spr.y, spr.z);
 
 	// EG 19 Aug 2017 - Try to prevent monsters teleporting back and forth wildly
 	monsterwarptime = 120;

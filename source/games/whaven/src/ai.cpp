@@ -541,7 +541,7 @@ void aisearch(PLAYER& plr, short i, boolean fly) {
 	}
 
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
-		warpsprite(i);
+		warpsprite(actor);
 
 	processfluid(i, zr_florhit, fly);
 

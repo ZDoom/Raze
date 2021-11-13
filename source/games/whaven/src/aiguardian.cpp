@@ -47,7 +47,7 @@ static void chaseguardian(PLAYER& plr, DWHActor* actor)
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
-		warpsprite(i);
+		warpsprite(actor);
 
 	if (checksector6(i))
 		return;
@@ -188,7 +188,7 @@ static void fleeguardian(PLAYER& plr, DWHActor* actor)
 		SetNewStatus(actor, FACE);
 
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
-		warpsprite(i);
+		warpsprite(actor);
 
 	if (checksector6(i))
 		return;

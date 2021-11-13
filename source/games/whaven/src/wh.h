@@ -371,7 +371,7 @@ void revolvefx();
 void bobbingsector();
 void teleporter();
 void warp(int x, int y, int z, int daang, short dasector);
-void warpsprite(short spritenum);
+void warpsprite(DWHActor* spritenum);
 void ironbars();
 void sectorsounds();
 void scaryprocess();

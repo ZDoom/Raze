@@ -54,7 +54,7 @@ static void chasedragon(PLAYER& plr, DWHActor* actor)
 	spr.z = zr_florz;
 
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
-		warpsprite(i);
+		warpsprite(actor);
 
 	if (checksector6(i))
 		return;
@@ -95,7 +95,7 @@ static void fleedragon(PLAYER& plr, DWHActor* actor)
 		SetNewStatus(actor, FACE);
 
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
-		warpsprite(i);
+		warpsprite(actor);
 
 	if (checksector6(i))
 		return;

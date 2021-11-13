@@ -66,7 +66,7 @@ static void fleerat(PLAYER& plr, DWHActor* actor)
 	}
 
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
-		warpsprite(i);
+		warpsprite(actor);
 
 
 	if (checksector6(i))
