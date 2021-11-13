@@ -66,17 +66,25 @@ void operatesprite(PLAYER& plr, short s) {
 	}
 
 	if ((spr.lotag == 1800 || spr.lotag == 1810 || spr.lotag == 1820)
-			&& spr.sectnum == plr.sector) {
-		for (short j = 0; j < MAXSPRITES; j++) {
-			if (spr.sectnum == sprite[j].sectnum && (sprite[j].lotag >= 1800 && sprite[j].lotag <= 1899))
-				newstatus(j, LIFTDN);
+			&& spr.sectnum == plr.sector) 
+	{
+		WHSpriteIterator it;
+		while (auto itActor = it.Next())
+		{
+			auto& spk = itActor->s();
+			if (spr.sectnum == spk.sectnum && (spk.lotag >= 1800 && spk.lotag <= 1899))
+				SetNewStatus(itActor, LIFTDN);
 		}
 	}
 	if ((spr.lotag == 1801 || spr.lotag == 1811 || spr.lotag == 1821)
-			&& spr.sectnum == plr.sector) {
-		for (short j = 0; j < MAXSPRITES; j++) {
-			if (spr.sectnum == sprite[j].sectnum && (sprite[j].lotag >= 1800 && sprite[j].lotag <= 1899))
-				newstatus(j, LIFTUP);
+			&& spr.sectnum == plr.sector) 
+	{
+		WHSpriteIterator it;
+		while (auto itActor = it.Next())
+		{
+			auto& spk = itActor->s();
+			if (spr.sectnum == spk.sectnum && (spk.lotag >= 1800 && spk.lotag <= 1899))
+				SetNewStatus(itActor, LIFTUP);
 		}
 	}
 }
@@ -831,11 +839,14 @@ void operatesector(PLAYER& plr, int s) {
 
 	if (datag == 4000) {
 //			sector[s].lotag=0;
-		for (k = 0; k < MAXSPRITES; k++) {
-			if (sector[s].hitag == sprite[k].hitag && sprite[k].extra < 1) {
-				newstatus(k, FLOCKSPAWN);
+		WHSpriteIterator it;
+		while (auto itActor = it.Next())
+		{
+			auto& spk = itActor->s();
+			if (sector[s].hitag == spk.hitag && spk.extra < 1) {
+				SetNewStatus(itActor, FLOCKSPAWN);
 				if (soundEngine->GetSoundPlayingInfo(SOURCE_Any, nullptr, -1, CHAN_BAT) == 0) {
-					spritesound(S_BATSLOOP, &sprite[k], -1, CHAN_BAT);
+					spritesound(S_BATSLOOP, &spk, -1, CHAN_BAT);
 					//					sector[s].lotag = sector[s].hitag = 0;
 				}
 			}
@@ -843,9 +854,12 @@ void operatesector(PLAYER& plr, int s) {
 	}
 	if (datag == 4001) {
 //			sector[s].lotag=0;
-		for (k = 0; k < MAXSPRITES; k++) {
-			if (sector[s].hitag == sprite[k].hitag && sprite[k].picnum == GOBLIN) 
-				newstatus(k, WAR);
+		WHSpriteIterator it;
+		while (auto itActor = it.Next())
+		{
+			auto& spk = itActor->s();
+			if (sector[s].hitag == spk.hitag && spk.picnum == GOBLIN)
+				SetNewStatus(itActor, WAR);
 		}
 	}
 

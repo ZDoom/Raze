@@ -896,7 +896,7 @@ void madenoise(PLAYER& plr, int val, int x, int y, int z) {
 
 void shootgun(PLAYER& plr, float ang, int guntype) {
 	int k = 0, daz2;
-	short j, i;
+	short j;
 
 	int daang = (int) ang;
 		
@@ -1870,10 +1870,15 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 		break;
 
 	case 6: // MEDUSA
-		for (i = 0; i < MAXSPRITES; i++) {
+	{
+		WHSpriteIterator it;
+		while (auto itActor = it.Next())
+		{
+			auto& spk = itActor->s();
+			int i = itActor->GetSpriteIndex();
 			// cansee
-			if (i != plr.spritenum) {
-				switch (sprite[i].detail) {
+			if (itActor->GetSpriteIndex() != plr.spritenum) {
+				switch (spk.detail) {
 				case FREDTYPE:
 				case KOBOLDTYPE:
 				case GOBLINTYPE:
@@ -1885,8 +1890,8 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 				case GONZOTYPE:
 				case KURTTYPE:
 				case NEWGUYTYPE:
-					if (cansee(plr.x, plr.y, plr.z, plr.sector, sprite[i].x, sprite[i].y,
-							sprite[i].z - (tileHeight(sprite[i].picnum) << 7), sprite[i].sectnum)) {
+					if (cansee(plr.x, plr.y, plr.z, plr.sector, spk.x, spk.y,
+							spk.z - (tileHeight(spk.picnum) << 7), spk.sectnum)) {
 						// distance check
 						if (checkmedusadist(i, plr.x, plr.y, plr.z, plr.lvl))
 							medusa(plr, i);
@@ -1896,6 +1901,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 			}
 		}
 		break;
+		}
 	case 7: // KNOCKSPELL
 	{
 		daz2 = -MulScale(plr.horizon.horiz.asq16(), 2000, 16);
@@ -2198,13 +2204,17 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 		break;
 	}
 	case 4:
-
+	{
 		if (netgame) {
 //						netshootgun(-1,14);
 		}
 
-		for (j = 0; j < MAXSPRITES; j++) {
-			switch (sprite[j].detail) {
+		WHSpriteIterator it;
+		while (auto itActor = it.Next())
+		{
+			auto& spk = itActor->s();
+			int j = itActor->GetSpriteIndex();
+			switch (spk.detail) {
 			case DEMONTYPE:
 			case NEWGUYTYPE:
 			case KURTTYPE:
@@ -2226,15 +2236,16 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 			case SKULLYTYPE:
 			case JUDYTYPE:
 			case WILLOWTYPE:
-				if (cansee(plr.x, plr.y, plr.z, plr.sector, sprite[j].x, sprite[j].y,
-						sprite[j].z - (tileHeight(sprite[j].picnum) << 7), sprite[j].sectnum))
-					if ((isWh2() && sprite[j].owner != sprite[plr.spritenum].owner)
+				if (cansee(plr.x, plr.y, plr.z, plr.sector, spk.x, spk.y,
+						spk.z - (tileHeight(spk.picnum) << 7), spk.sectnum))
+					if ((isWh2() && spk.owner != sprite[plr.spritenum].owner)
 							|| checkmedusadist(j, plr.x, plr.y, plr.z, 12))
 						nukespell(plr, j);
 				break;
 			}
 		}
 		break;
+		}
 	}
 }
 
