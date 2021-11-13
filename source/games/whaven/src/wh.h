@@ -2,6 +2,7 @@
 
 #include "build.h"
 #include "gamestruct.h"
+#include "whactor.h"
 
 BEGIN_WH_NS
 
