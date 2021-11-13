@@ -370,12 +370,12 @@ void animateobjs(PLAYER& plr) {
 		SPRITE& spr = actor->s();
 		int i = actor->GetSpriteIndex();
 
-		sprite[i].lotag -= TICSPERFRAME;
-		if (sprite[i].lotag < 0) {
-			sprite[i].picnum++;
-			sprite[i].lotag = 24;
-			if (sprite[i].picnum == LEVERDOWN) {
-				sprite[i].lotag = 60;
+		spr.lotag -= TICSPERFRAME;
+		if (spr.lotag < 0) {
+			spr.picnum++;
+			spr.lotag = 24;
+			if (spr.picnum == LEVERDOWN) {
+				spr.lotag = 60;
 				changespritestat(i, (short) 0);
 			}
 		}
@@ -387,12 +387,12 @@ void animateobjs(PLAYER& plr) {
 		SPRITE& spr = actor->s();
 		int i = actor->GetSpriteIndex();
 
-		sprite[i].lotag -= TICSPERFRAME;
-		if (sprite[i].lotag < 0) {
-			sprite[i].picnum--;
-			sprite[i].lotag = 24;
-			if (sprite[i].picnum == LEVERUP) {
-				sprite[i].lotag = 1;
+		spr.lotag -= TICSPERFRAME;
+		if (spr.lotag < 0) {
+			spr.picnum--;
+			spr.lotag = 24;
+			if (spr.picnum == LEVERUP) {
+				spr.lotag = 1;
 				changespritestat(i, (short) 0);
 			}
 		}
@@ -404,11 +404,11 @@ void animateobjs(PLAYER& plr) {
 		SPRITE& spr = actor->s();
 		int i = actor->GetSpriteIndex();
 
-		sprite[i].lotag -= TICSPERFRAME;
-		if (sprite[i].lotag < 0) {
-			sprite[i].lotag = 12;
-			sprite[i].picnum++;
-			if (sprite[i].picnum == ANNIHILATE + 5) {
+		spr.lotag -= TICSPERFRAME;
+		if (spr.lotag < 0) {
+			spr.lotag = 12;
+			spr.picnum++;
+			if (spr.picnum == ANNIHILATE + 5) {
 				deletesprite((short) i);
 			}
 		}
@@ -421,12 +421,12 @@ void animateobjs(PLAYER& plr) {
 		SPRITE& spr = actor->s();
 		int i = actor->GetSpriteIndex();
 
-		sprite[i].lotag -= TICSPERFRAME;
-		if (sprite[i].lotag < 0) {
-			sprite[i].extra--;
-			sprite[i].lotag = (short) (krand() & 48 + 24);
+		spr.lotag -= TICSPERFRAME;
+		if (spr.lotag < 0) {
+			spr.extra--;
+			spr.lotag = (short) (krand() & 48 + 24);
 			bats(plr, i);
-			if (sprite[i].extra == 0)
+			if (spr.extra == 0)
 				changespritestat(i, (short) 0);
 		}
 	}
@@ -503,7 +503,7 @@ void animateobjs(PLAYER& plr) {
 		SPRITE& spr = actor->s();
 		int i = actor->GetSpriteIndex();
 
-		osectnum = sprite[i].sectnum;
+		osectnum = spr.sectnum;
 		j = (torchpattern[PlayClock % 38]);
 		sector[osectnum].ceilingshade = (byte) j;
 		sector[osectnum].floorshade = (byte) j;
@@ -520,7 +520,7 @@ void animateobjs(PLAYER& plr) {
 		SPRITE& spr = actor->s();
 		int i = actor->GetSpriteIndex();
 
-		osectnum = sprite[i].sectnum;
+		osectnum = spr.sectnum;
 		j = (torchpattern[PlayClock % 38]);
 		sector[osectnum].floorshade = (byte) j;
 		startwall = sector[osectnum].wallptr;
