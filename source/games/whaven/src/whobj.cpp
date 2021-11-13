@@ -135,7 +135,7 @@ void processobjs(PLAYER& plr) {
 	}
 }
 
-void newstatus(short sn, const int seq) {
+void newstatus(short sn, int seq) {
 	auto actor = &whActors[sn];
 	auto& spr = actor->s();
 	switch (seq) {

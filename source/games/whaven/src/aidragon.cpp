@@ -24,9 +24,9 @@ static void chasedragon(PLAYER& plr, DWHActor* actor)
 		if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 			spr.sectnum) && plr.invisibletime < 0)
 			if (plr.z < spr.z)
-				newstatus(i, ATTACK2);
+				SetNewStatus(actor, ATTACK2);
 			else
-				newstatus(i, ATTACK);
+				SetNewStatus(actor, ATTACK);
 		return;
 	}
 	else {
@@ -42,12 +42,12 @@ static void chasedragon(PLAYER& plr, DWHActor* actor)
 			if (plr.invisibletime < 0) {
 				if (krand() % 8 == 0) { // NEW
 					if (plr.z < spr.z)
-						newstatus(i, ATTACK2);
+						SetNewStatus(actor, ATTACK2);
 					else
-						newstatus(i, ATTACK);
+						SetNewStatus(actor, ATTACK);
 				}
 				else { // NEW
-					newstatus(i, FACE); // NEW
+					SetNewStatus(actor, FACE); // NEW
 				}
 			}
 		}
@@ -67,7 +67,7 @@ static void chasedragon(PLAYER& plr, DWHActor* actor)
 	if (sector[osectnum].lotag == KILLSECTOR) {
 		spr.hitag--;
 		if (spr.hitag < 0)
-			newstatus(i, DIE);
+			SetNewStatus(actor, DIE);
 	}
 
 	setsprite(i, spr.x, spr.y, spr.z);
@@ -91,11 +91,11 @@ static void fleedragon(PLAYER& plr, DWHActor* actor)
 		}
 		else {
 			spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
-			newstatus(i, FACE);
+			SetNewStatus(actor, FACE);
 		}
 	}
 	if (spr.lotag < 0)
-		newstatus(i, FACE);
+		SetNewStatus(actor, FACE);
 
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
 		warpsprite(i);
@@ -120,10 +120,10 @@ static void diedragon(PLAYER& plr, DWHActor* actor)
 		spr.lotag = 20;
 		if (spr.picnum == DRAGONDEAD) {
 			if (difficulty == 4)
-				newstatus(i, RESURECT);
+				SetNewStatus(actor, RESURECT);
 			else {
 				kills++;
-				newstatus(i, DEAD);
+				SetNewStatus(actor, DEAD);
 			}
 		}
 	}
@@ -191,11 +191,11 @@ static void castdragon(PLAYER& plr, DWHActor* actor)
 
 	case DRAGONATTACK2 + 5:
 		spr.picnum = DRAGON;
-		newstatus(i, CHASE);
+		SetNewStatus(actor, CHASE);
 		break;
 	case DRAGONATTACK + 22:
 		spr.picnum = DRAGONATTACK;
-		newstatus(i, CHASE);
+		SetNewStatus(actor, CHASE);
 		break;
 	}
 
@@ -211,9 +211,9 @@ static void attackdragon(PLAYER& plr, DWHActor* actor)
 	if (spr.lotag < 0) {
 		if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 			spr.sectnum))
-			newstatus(i, CAST);
+			SetNewStatus(actor, CAST);
 		else
-			newstatus(i, CHASE);
+			SetNewStatus(actor, CHASE);
 	}
 	else
 		spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
@@ -226,7 +226,7 @@ static void resurectdragon(PLAYER& plr, DWHActor* actor)
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
-		newstatus(i, FACE);
+		SetNewStatus(actor, FACE);
 		spr.picnum = DRAGON;
 		spr.hitag = (short)adjusthp(900);
 		spr.lotag = 100;
@@ -251,7 +251,7 @@ static void frozendragon(PLAYER& plr, DWHActor* actor)
 	if (spr.lotag < 0) {
 		spr.pal = 0;
 		spr.picnum = DRAGON;
-		newstatus(i, FACE);
+		SetNewStatus(actor, FACE);
 	}
 }
 
@@ -294,23 +294,23 @@ static void facedragon(PLAYER& plr, DWHActor* actor)
 		spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
 		if (plr.shadowtime > 0) {
 			spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
-			newstatus(i, FLEE);
+			SetNewStatus(actor, FLEE);
 		}
 		else {
 			spr.owner = plr.spritenum;
-			newstatus(i, CHASE);
+			SetNewStatus(actor, CHASE);
 		}
 	}
 	else { // get off the wall
 		if (spr.owner == plr.spritenum) {
 			spr.ang = (short)(((krand() & 512 - 256) + spr.ang) & 2047);
-			newstatus(i, FINDME);
+			SetNewStatus(actor, FINDME);
 		}
-		else if (cansee) newstatus(i, FLEE);
+		else if (cansee) SetNewStatus(actor, FLEE);
 	}
 
 	if (checkdist(plr, i))
-		newstatus(i, ATTACK);
+		SetNewStatus(actor, ATTACK);
 }
 
 
@@ -338,9 +338,9 @@ static void dragonAttack2(PLAYER& plr, DWHActor* actor)
 	if (spr.lotag < 0) {
 		if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 			spr.sectnum) && plr.invisibletime < 0)
-			newstatus(i, CAST);
+			SetNewStatus(actor, CAST);
 		else
-			newstatus(i, CHASE);
+			SetNewStatus(actor, CHASE);
 		return;
 	}
 	else

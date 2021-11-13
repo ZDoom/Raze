@@ -17,7 +17,7 @@ static void chaseskully(PLAYER& plr, DWHActor* actor)
 	if (krand() % 63 == 0) {
 		if (cansee(plr.x, plr.y, plr.z, plr.sector, sprite[i].x, sprite[i].y,
 			sprite[i].z - (tileHeight(sprite[i].picnum) << 7), sprite[i].sectnum))// && invisibletime < 0)
-			newstatus(i, ATTACK);
+			SetNewStatus(actor, ATTACK);
 	}
 	else {
 		checksight(plr, i);
@@ -25,16 +25,16 @@ static void chaseskully(PLAYER& plr, DWHActor* actor)
 			if ((aimove(i) & kHitTypeMask) == kHitFloor)
 			{
 				spr.ang = (short)((spr.ang + 1024) & 2047);
-				newstatus(i, FLEE);
+				SetNewStatus(actor, FLEE);
 				return;
 			}
 		}
 		else {
 			if (krand() % 8 == 0) // NEW
-				newstatus(i, ATTACK); // NEW
+				SetNewStatus(actor, ATTACK); // NEW
 			else { // NEW
 				sprite[i].ang = (short)(((krand() & 512 - 256) + sprite[i].ang + 1024) & 2047); // NEW
-				newstatus(i, FLEE); // NEW
+				SetNewStatus(actor, FLEE); // NEW
 			}
 		}
 	}
@@ -53,7 +53,7 @@ static void chaseskully(PLAYER& plr, DWHActor* actor)
 	if (sector[osectnum].lotag == KILLSECTOR) {
 		spr.hitag--;
 		if (spr.hitag < 0)
-			newstatus(i, DIE);
+			SetNewStatus(actor, DIE);
 	}
 
 	setsprite(i, spr.x, spr.y, spr.z);
@@ -66,7 +66,7 @@ static void resurectskully(PLAYER& plr, DWHActor* actor)
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
-		newstatus(i, FACE);
+		SetNewStatus(actor, FACE);
 		spr.picnum = SKULLY;
 		spr.hitag = (short)adjusthp(100);
 		spr.lotag = 100;
@@ -107,7 +107,7 @@ static void painskully(PLAYER& plr, DWHActor* actor)
 	if (spr.lotag < 0) {
 		spr.picnum = SKULLY;
 		spr.ang = plr.angle.ang.asbuild();
-		newstatus(i, FLEE);
+		SetNewStatus(actor, FLEE);
 	}
 
 	aimove(i);
@@ -128,23 +128,23 @@ static void faceskully(PLAYER& plr, DWHActor* actor)
 
 		if (plr.shadowtime > 0) {
 			spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
-			newstatus(i, FLEE);
+			SetNewStatus(actor, FLEE);
 		}
 		else {
 			spr.owner = plr.spritenum;
-			newstatus(i, CHASE);
+			SetNewStatus(actor, CHASE);
 		}
 	}
 	else { // get off the wall
 		if (spr.owner == plr.spritenum) {
 			spr.ang = (short)(((krand() & 512 - 256) + spr.ang) & 2047);
-			newstatus(i, FINDME);
+			SetNewStatus(actor, FINDME);
 		}
-		else if (cansee) newstatus(i, FLEE);
+		else if (cansee) SetNewStatus(actor, FLEE);
 	}
 
 	if (checkdist(plr, i))
-		newstatus(i, ATTACK);
+		SetNewStatus(actor, ATTACK);
 }
 	
 static void attackskully(PLAYER& plr, DWHActor* actor)
@@ -168,9 +168,9 @@ static void attackskully(PLAYER& plr, DWHActor* actor)
 	if (sprite[i].lotag < 0) {
 		if (cansee(plr.x, plr.y, plr.z, plr.sector, sprite[i].x, sprite[i].y,
 			sprite[i].z - (tileHeight(sprite[i].picnum) << 7), sprite[i].sectnum))
-			newstatus(i, CAST);
+			SetNewStatus(actor, CAST);
 		else
-			newstatus(i, CHASE);
+			SetNewStatus(actor, CHASE);
 	}
 	else
 		sprite[i].ang = getangle(plr.x - sprite[i].x, plr.y - sprite[i].y);
@@ -194,11 +194,11 @@ static void fleeskully(PLAYER& plr, DWHActor* actor)
 		}
 		else {
 			spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
-			newstatus(i, FACE);
+			SetNewStatus(actor, FACE);
 		}
 	}
 	if (spr.lotag < 0)
-		newstatus(i, FACE);
+		SetNewStatus(actor, FACE);
 
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
 		warpsprite(i);
@@ -226,7 +226,7 @@ static void castskully(PLAYER& plr, DWHActor* actor)
 		sprite[i].picnum = SKULLY;
 		spritesound(S_SKULLWITCH1 + krand() % 3, &sprite[i]);
 		skullycastspell(plr, i);
-		newstatus(i, CHASE);
+		SetNewStatus(actor, CHASE);
 	}
 	checksector6(i);
 }
@@ -244,10 +244,10 @@ static void dieskully(PLAYER& plr, DWHActor* actor)
 
 		if (spr.picnum == SKULLYDEAD) {
 			if (difficulty == 4)
-				newstatus(i, RESURECT);
+				SetNewStatus(actor, RESURECT);
 			else {
 				kills++;
-				newstatus(i, DEAD);
+				SetNewStatus(actor, DEAD);
 			}
 		}
 	}

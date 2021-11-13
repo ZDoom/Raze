@@ -21,14 +21,14 @@ static void chasefred(PLAYER& plr, DWHActor* actor)
 		if (checkdist(plr, i)) {
 			if (plr.shadowtime > 0) {
 				spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
-				newstatus(i, FLEE);
+				SetNewStatus(actor, FLEE);
 			}
 			else
-				newstatus(i, ATTACK);
+				SetNewStatus(actor, ATTACK);
 		}
 		else if (krand() % 63 > 60) {
 			spr.ang = (short)(((krand() & 128 - 256) + spr.ang + 1024) & 2047);
-			newstatus(i, FLEE);
+			SetNewStatus(actor, FLEE);
 		}
 		else {
 			int movestat = aimove(i);
@@ -39,21 +39,21 @@ static void chasefred(PLAYER& plr, DWHActor* actor)
 					spr.ang = daang;
 					if (plr.shadowtime > 0) {
 						spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
-						newstatus(i, FLEE);
+						SetNewStatus(actor, FLEE);
 					}
 					else
-						newstatus(i, SKIRMISH);
+						SetNewStatus(actor, SKIRMISH);
 				}
 				else {
 					spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
-					newstatus(i, SKIRMISH);
+					SetNewStatus(actor, SKIRMISH);
 				}
 			}
 		}
 	}
 	else {
 		spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
-		newstatus(i, FLEE);
+		SetNewStatus(actor, FLEE);
 	}
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
@@ -68,7 +68,7 @@ static void chasefred(PLAYER& plr, DWHActor* actor)
 	if (sector[osectnum].lotag == KILLSECTOR) {
 		spr.hitag--;
 		if (spr.hitag < 0)
-			newstatus(i, DIE);
+			SetNewStatus(actor, DIE);
 	}
 
 	setsprite(i, spr.x, spr.y, spr.z);
@@ -77,7 +77,7 @@ static void chasefred(PLAYER& plr, DWHActor* actor)
 		|| sector[spr.sectnum].floorpicnum == LAVA1 || sector[spr.sectnum].floorpicnum == ANILAVA)) {
 		spr.hitag--;
 		if (spr.hitag < 0)
-			newstatus(i, DIE);
+			SetNewStatus(actor, DIE);
 	}
 
 	checkexplfred(plr, actor);
@@ -91,11 +91,11 @@ static void skirmishfred(PLAYER& plr, DWHActor* actor)
 	spr.lotag -= TICSPERFRAME;
 
 	if (spr.lotag < 0)
-		newstatus(i, FACE);
+		SetNewStatus(actor, FACE);
 	short osectnum = spr.sectnum;
 	if (aimove(i) != 0) {
 		spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
-		newstatus(i, FACE);
+		SetNewStatus(actor, FACE);
 	}
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
 		warpsprite(i);
@@ -123,10 +123,10 @@ static void diefred(PLAYER& plr, DWHActor* actor)
 
 		if (spr.picnum == FREDDEAD) {
 			if (difficulty == 4)
-				newstatus(i, RESURECT);
+				SetNewStatus(actor, RESURECT);
 			else {
 				kills++;
-				newstatus(i, DEAD);
+				SetNewStatus(actor, DEAD);
 			}
 		}
 	}
@@ -150,7 +150,7 @@ static void frozenfred(PLAYER& plr, DWHActor* actor)
 	if (spr.lotag < 0) {
 		spr.pal = 0;
 		spr.picnum = FRED;
-		newstatus(i, FACE);
+		SetNewStatus(actor, FACE);
 	}
 }
 	
@@ -167,23 +167,23 @@ static void facefred(PLAYER& plr, DWHActor* actor)
 
 		if (plr.shadowtime > 0) {
 			spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
-			newstatus(i, FLEE);
+			SetNewStatus(actor, FLEE);
 		}
 		else {
 			spr.owner = plr.spritenum;
-			newstatus(i, CHASE);
+			SetNewStatus(actor, CHASE);
 		}
 	}
 	else { // get off the wall
 		if (spr.owner == plr.spritenum) {
 			spr.ang = (short)(((krand() & 512 - 256) + spr.ang) & 2047);
-			newstatus(i, FINDME);
+			SetNewStatus(actor, FINDME);
 		}
-		else if (cansee) newstatus(i, FLEE);
+		else if (cansee) SetNewStatus(actor, FLEE);
 	}
 
 	if (checkdist(plr, i))
-		newstatus(i, ATTACK);
+		SetNewStatus(actor, ATTACK);
 
 	checkexplfred(plr, actor);
 }
@@ -200,7 +200,7 @@ static void attackfred(PLAYER& plr, DWHActor* actor)
 	case TYPELAVA:
 		sprite[i].hitag--;
 		if (sprite[i].hitag < 0)
-			newstatus(i, DIE);
+			SetNewStatus(actor, DIE);
 	case TYPEWATER:
 		spr.z += tileHeight(spr.picnum) << 5;
 		break;
@@ -218,10 +218,10 @@ static void attackfred(PLAYER& plr, DWHActor* actor)
 	else if (spr.lotag < 0) {
 		if (plr.shadowtime > 0) {
 			spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
-			newstatus(i, FLEE);
+			SetNewStatus(actor, FLEE);
 		}
 		else
-			newstatus(i, CHASE);
+			SetNewStatus(actor, CHASE);
 	}
 	spr.lotag -= TICSPERFRAME;
 
@@ -247,11 +247,11 @@ static void fleefred(PLAYER& plr, DWHActor* actor)
 		}
 		else {
 			spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
-			newstatus(i, FACE);
+			SetNewStatus(actor, FACE);
 		}
 	}
 	if (spr.lotag < 0)
-		newstatus(i, FACE);
+		SetNewStatus(actor, FACE);
 
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
 		warpsprite(i);
@@ -275,7 +275,7 @@ static void painfred(PLAYER& plr, DWHActor* actor)
 	if (spr.lotag < 0) {
 		spr.picnum = FRED;
 		spr.ang = plr.angle.ang.asbuild();
-		newstatus(i, FLEE);
+		SetNewStatus(actor, FLEE);
 	}
 
 	aimove(i);
@@ -292,7 +292,7 @@ static void resurectfred(PLAYER& plr, DWHActor* actor)
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
-		newstatus(i, FACE);
+		SetNewStatus(actor, FACE);
 		spr.picnum = FRED;
 		spr.hitag = (short)adjusthp(40);
 		spr.lotag = 100;
@@ -320,7 +320,7 @@ static void checkexplfred(PLAYER& plr, DWHActor* actor)
 				|| tspr.picnum == MONSTERBALL) {
 				spr.hitag -= TICSPERFRAME << 2;
 				if (spr.hitag < 0) {
-					newstatus(i, DIE);
+					SetNewStatus(actor, DIE);
 				}
 			}
 		}

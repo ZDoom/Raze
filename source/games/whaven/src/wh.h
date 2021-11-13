@@ -543,6 +543,12 @@ struct GameInterface : public ::GameInterface
 
 
 };
- 
+
+inline void SetNewStatus(DWHActor* actor, const int seq)
+{
+	void newstatus(short sn, int seq);
+	newstatus(actor->GetSpriteIndex(), seq);
+}
+
 END_WH_NS
 

@@ -21,21 +21,21 @@ static void chasegoblin(PLAYER& plr, DWHActor* actor)
 		if (checkdist(plr, i)) {
 			if (plr.shadowtime > 0) {
 				spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
-				newstatus(i, FLEE);
+				SetNewStatus(actor, FLEE);
 			}
 			else
-				newstatus(i, ATTACK);
+				SetNewStatus(actor, ATTACK);
 		}
 		else if (krand() % 63 > 60) {
 			spr.ang = (short)(((krand() & 128 - 256) + spr.ang + 1024) & 2047);
-			newstatus(i, FLEE);
+			SetNewStatus(actor, FLEE);
 		}
 		else {
 			int movestat = aimove(i);
 			if ((movestat & kHitTypeMask) == kHitFloor)
 			{
 				spr.ang = (short)((spr.ang + 1024) & 2047);
-				newstatus(i, FLEE);
+				SetNewStatus(actor, FLEE);
 				return;
 			}
 
@@ -45,21 +45,21 @@ static void chasegoblin(PLAYER& plr, DWHActor* actor)
 					spr.ang = daang;
 					if (plr.shadowtime > 0) {
 						spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
-						newstatus(i, FLEE);
+						SetNewStatus(actor, FLEE);
 					}
 					else
-						newstatus(i, SKIRMISH);
+						SetNewStatus(actor, SKIRMISH);
 				}
 				else {
 					spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
-					newstatus(i, SKIRMISH);
+					SetNewStatus(actor, SKIRMISH);
 				}
 			}
 		}
 	}
 	else {
 		spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
-		newstatus(i, FLEE);
+		SetNewStatus(actor, FLEE);
 	}
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
@@ -74,7 +74,7 @@ static void chasegoblin(PLAYER& plr, DWHActor* actor)
 	if (sector[osectnum].lotag == KILLSECTOR) {
 		spr.hitag--;
 		if (spr.hitag < 0)
-			newstatus(i, DIE);
+			SetNewStatus(actor, DIE);
 	}
 
 	setsprite(i, spr.x, spr.y, spr.z);
@@ -83,7 +83,7 @@ static void chasegoblin(PLAYER& plr, DWHActor* actor)
 		|| sector[spr.sectnum].floorpicnum == LAVA1 || sector[spr.sectnum].floorpicnum == ANILAVA)) {
 		spr.hitag--;
 		if (spr.hitag < 0)
-			newstatus(i, DIE);
+			SetNewStatus(actor, DIE);
 	}
 
 	checkexplgoblin(plr, actor);
@@ -102,10 +102,10 @@ static void diegoblin(PLAYER& plr, DWHActor* actor)
 
 		if (spr.picnum == GOBLINDEAD) {
 			if (difficulty == 4)
-				newstatus(i, RESURECT);
+				SetNewStatus(actor, RESURECT);
 			else {
 				kills++;
-				newstatus(i, DEAD);
+				SetNewStatus(actor, DEAD);
 			}
 		}
 	}
@@ -120,7 +120,7 @@ static void paingoblin(PLAYER& plr, DWHActor* actor)
 	if (spr.lotag < 0) {
 		spr.picnum = GOBLIN;
 		spr.ang = plr.angle.ang.asbuild();
-		newstatus(i, FLEE);
+		SetNewStatus(actor, FLEE);
 	}
 
 	aimove(i);
@@ -143,23 +143,23 @@ static void facegoblin(PLAYER& plr, DWHActor* actor)
 		spr.picnum = GOBLIN;
 		if (plr.shadowtime > 0) {
 			spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
-			newstatus(i, FLEE);
+			SetNewStatus(actor, FLEE);
 		}
 		else {
 			spr.owner = plr.spritenum;
-			newstatus(i, CHASE);
+			SetNewStatus(actor, CHASE);
 		}
 	}
 	else { // get off the wall
 		if (spr.owner == plr.spritenum) {
 			spr.ang = (short)(((krand() & 512 - 256) + spr.ang) & 2047);
-			newstatus(i, FINDME);
+			SetNewStatus(actor, FINDME);
 		}
-		else if (cansee) newstatus(i, FLEE);
+		else if (cansee) SetNewStatus(actor, FLEE);
 	}
 
 	if (checkdist(plr, i))
-		newstatus(i, ATTACK);
+		SetNewStatus(actor, ATTACK);
 
 	checkexplgoblin(plr, actor);
 }
@@ -182,11 +182,11 @@ static void fleegoblin(PLAYER& plr, DWHActor* actor)
 		}
 		else {
 			spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
-			newstatus(i, FACE);
+			SetNewStatus(actor, FACE);
 		}
 	}
 	if (spr.lotag < 0)
-		newstatus(i, FACE);
+		SetNewStatus(actor, FACE);
 
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
 		warpsprite(i);
@@ -214,16 +214,16 @@ static void standgoblin(PLAYER& plr, DWHActor* actor)
 			case GOBLINCHILL:
 				spr.picnum = GOBLINSURPRISE;
 				spritesound(S_GOBPAIN1 + (krand() % 2), &spr);
-				newstatus(i, CHILL);
+				SetNewStatus(actor, CHILL);
 				break;
 			default:
 				spr.picnum = GOBLIN;
 				if (plr.shadowtime > 0) {
 					spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
-					newstatus(i, FLEE);
+					SetNewStatus(actor, FLEE);
 				}
 				else
-					newstatus(i, CHASE);
+					SetNewStatus(actor, CHASE);
 				break;
 			}
 		}
@@ -244,7 +244,7 @@ static void attackgoblin(PLAYER& plr, DWHActor* actor)
 	case TYPELAVA:
 		sprite[i].hitag--;
 		if (sprite[i].hitag < 0)
-			newstatus(i, DIE);
+			SetNewStatus(actor, DIE);
 	case TYPEWATER:
 		spr.z += tileHeight(spr.picnum) << 5;
 		break;
@@ -263,10 +263,10 @@ static void attackgoblin(PLAYER& plr, DWHActor* actor)
 		spr.picnum = GOBLIN;
 		if (plr.shadowtime > 0) {
 			spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
-			newstatus(i, FLEE);
+			SetNewStatus(actor, FLEE);
 		}
 		else
-			newstatus(i, CHASE);
+			SetNewStatus(actor, CHASE);
 	}
 	spr.lotag -= TICSPERFRAME;
 
@@ -280,7 +280,7 @@ static void resurectgoblin(PLAYER& plr, DWHActor* actor)
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
-		newstatus(i, FACE);
+		SetNewStatus(actor, FACE);
 		spr.picnum = GOBLIN;
 		spr.hitag = (short)adjusthp(35);
 		spr.lotag = 100;
@@ -306,7 +306,7 @@ static void frozengoblin(PLAYER& plr, DWHActor* actor)
 	if (spr.lotag < 0) {
 		spr.pal = 0;
 		spr.picnum = GOBLIN;
-		newstatus(i, FACE);
+		SetNewStatus(actor, FACE);
 	}
 }
 
@@ -334,12 +334,12 @@ static void skirmishgoblin(PLAYER& plr, DWHActor* actor)
 	spr.lotag -= TICSPERFRAME;
 
 	if (spr.lotag < 0)
-		newstatus(i, FACE);
+		SetNewStatus(actor, FACE);
 	short osectnum = spr.sectnum;
 	int movestat = aimove(i);
 	if ((movestat & kHitTypeMask) != kHitFloor && movestat != 0) {
 		spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
-		newstatus(i, FACE);
+		SetNewStatus(actor, FACE);
 	}
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
 		warpsprite(i);
@@ -365,7 +365,7 @@ void goblinChill(PLAYER& plr, DWHActor* actor)
 		spr.lotag = 18;
 		if (spr.picnum == GOBLINSURPRISE + 5) {
 			spr.picnum = GOBLIN;
-			newstatus(i, FACE);
+			SetNewStatus(actor, FACE);
 		}
 	}
 }
@@ -408,10 +408,10 @@ static void goblinWar(PLAYER& plr, DWHActor* actor)
 				spr.hitag = (short)adjusthp(15);
 			if (plr.shadowtime > 0) {
 				spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
-				newstatus(i, FLEE);
+				SetNewStatus(actor, FLEE);
 			}
 			else
-				newstatus(i, FACE);
+				SetNewStatus(actor, FACE);
 		}
 		break;
 	}
@@ -561,7 +561,7 @@ static void checkexplgoblin(PLAYER& plr, DWHActor* actor)
 				|| spri.picnum == MONSTERBALL) {
 				spr.hitag -= TICSPERFRAME << 2;
 				if (spr.hitag < 0) {
-					newstatus(i, DIE);
+					SetNewStatus(actor, DIE);
 				}
 			}
 		}

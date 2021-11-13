@@ -26,20 +26,20 @@ static void chasegonzo(PLAYER& plr, DWHActor* actor)
 			if (checkdist(plr, i)) {
 				if (plr.shadowtime > 0) {
 					spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
-					newstatus(i, FLEE);
+					SetNewStatus(actor, FLEE);
 				}
 				else {
-					newstatus(i, ATTACK);
+					SetNewStatus(actor, ATTACK);
 				}
 				break;
 			}
 			else if ((krand() & 0) == 1) {
 				spr.ang = (short)(((krand() & 128 - 256) + spr.ang + 1024) & 2047);
-				newstatus(i, FLEE);
+				SetNewStatus(actor, FLEE);
 			}
 			if (krand() % 63 > 60) {
 				spr.ang = (short)(((krand() & 128 - 256) + spr.ang + 1024) & 2047);
-				newstatus(i, FLEE);
+				SetNewStatus(actor, FLEE);
 				break;
 			}
 
@@ -52,7 +52,7 @@ static void chasegonzo(PLAYER& plr, DWHActor* actor)
 			if ((movestat & kHitTypeMask) == kHitFloor)
 			{
 				spr.ang = (short)((spr.ang + 1024) & 2047);
-				newstatus(i, FLEE);
+				SetNewStatus(actor, FLEE);
 				return;
 			}
 
@@ -64,7 +64,7 @@ static void chasegonzo(PLAYER& plr, DWHActor* actor)
 				movestat = 1;
 
 				if (rand() % 100 > 80 && sector[plr.sector].lotag == 25) {
-					newstatus(i, AMBUSH);
+					SetNewStatus(actor, AMBUSH);
 					spr.z -= (getPlayerHeight() << 6);
 					spr.lotag = 60;
 					spr.extra = 1;
@@ -76,7 +76,7 @@ static void chasegonzo(PLAYER& plr, DWHActor* actor)
 			}
 
 			if ((movestat & 0xc000) == 32768 && sector[plr.sector].lotag == 25) {
-				newstatus(i, AMBUSH);
+				SetNewStatus(actor, AMBUSH);
 				spr.z -= (getPlayerHeight() << 6);
 				spr.lotag = 90;
 				spr.extra = 3;
@@ -94,22 +94,22 @@ static void chasegonzo(PLAYER& plr, DWHActor* actor)
 					spr.ang = (short)daang;
 					if (plr.shadowtime > 0) {
 						spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
-						newstatus(i, FLEE);
+						SetNewStatus(actor, FLEE);
 					}
 					else {
-						newstatus(i, SKIRMISH);
+						SetNewStatus(actor, SKIRMISH);
 					}
 				}
 				else {
 					spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
-					newstatus(i, SKIRMISH);
+					SetNewStatus(actor, SKIRMISH);
 				}
 			}
 			break;
 		}
 		else {
 			if (!patrolprocess(plr, actor))
-				newstatus(i, FLEE);
+				SetNewStatus(actor, FLEE);
 		}
 		break;
 	case GONZOCSW:
@@ -119,21 +119,21 @@ static void chasegonzo(PLAYER& plr, DWHActor* actor)
 			if (checkdist(plr, i)) {
 				if (plr.shadowtime > 0) {
 					spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
-					newstatus(i, FLEE);
+					SetNewStatus(actor, FLEE);
 				}
 				else
-					newstatus(i, ATTACK);
+					SetNewStatus(actor, ATTACK);
 			}
 			else if (krand() % 63 > 60) {
 				spr.ang = (short)(((krand() & 128 - 256) + spr.ang + 1024) & 2047);
-				newstatus(i, FLEE);
+				SetNewStatus(actor, FLEE);
 			}
 			else {
 				int movestat = aimove(i);
 				if ((movestat & kHitTypeMask) == kHitFloor)
 				{
 					spr.ang = (short)((spr.ang + 1024) & 2047);
-					newstatus(i, FLEE);
+					SetNewStatus(actor, FLEE);
 					return;
 				}
 
@@ -143,21 +143,21 @@ static void chasegonzo(PLAYER& plr, DWHActor* actor)
 						spr.ang = daang;
 						if (plr.shadowtime > 0) {
 							spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
-							newstatus(i, FLEE);
+							SetNewStatus(actor, FLEE);
 						}
 						else
-							newstatus(i, SKIRMISH);
+							SetNewStatus(actor, SKIRMISH);
 					}
 					else {
 						spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
-						newstatus(i, SKIRMISH);
+						SetNewStatus(actor, SKIRMISH);
 					}
 				}
 			}
 		}
 		else {
 			if (!patrolprocess(plr, actor))
-				newstatus(i, FLEE);
+				SetNewStatus(actor, FLEE);
 		}
 
 		getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
@@ -174,7 +174,7 @@ static void chasegonzo(PLAYER& plr, DWHActor* actor)
 		if (sector[osectnum].lotag == KILLSECTOR) {
 			spr.hitag--;
 			if (spr.hitag < 0)
-				newstatus(i, DIE);
+				SetNewStatus(actor, DIE);
 		}
 
 		setsprite(i, spr.x, spr.y, spr.z);
@@ -183,7 +183,7 @@ static void chasegonzo(PLAYER& plr, DWHActor* actor)
 			|| sector[spr.sectnum].floorpicnum == LAVA1 || sector[spr.sectnum].floorpicnum == ANILAVA)) {
 			spr.hitag--;
 			if (spr.hitag < 0)
-				newstatus(i, DIE);
+				SetNewStatus(actor, DIE);
 		}
 	}
 
@@ -197,7 +197,7 @@ static void resurectgonzo(PLAYER& plr, DWHActor* actor)
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
-		newstatus(i, FACE);
+		SetNewStatus(actor, FACE);
 		switch (spr.picnum) {
 		case GONZOCSWDEAD:
 			spr.picnum = GONZOCSW;
@@ -229,13 +229,13 @@ static void skirmishgonzo(PLAYER& plr, DWHActor* actor)
 	spr.lotag -= TICSPERFRAME;
 
 	if (spr.lotag < 0)
-		newstatus(i, FACE);
+		SetNewStatus(actor, FACE);
 	short osectnum = spr.sectnum;
 
 	int movestat = aimove(i);
 	if ((movestat & kHitTypeMask) != kHitFloor && movestat != 0) {
 		spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
-		newstatus(i, FACE);
+		SetNewStatus(actor, FACE);
 	}
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
 		warpsprite(i);
@@ -266,7 +266,7 @@ static void nukedgonzo(PLAYER& plr, DWHActor* actor)
 
 	chunksofmeat(plr, i, spr.x, spr.y, spr.z, spr.sectnum, spr.ang);
 	trailingsmoke(i, false);
-	newstatus(i, DIE);
+	SetNewStatus(actor, DIE);
 }
 	
 static void frozengonzo(PLAYER& plr, DWHActor* actor)
@@ -291,7 +291,7 @@ static void frozengonzo(PLAYER& plr, DWHActor* actor)
 			spr.picnum = GONZOGSH;
 			break;
 		}
-		newstatus(i, FACE);
+		SetNewStatus(actor, FACE);
 	}
 }
 	
@@ -317,7 +317,7 @@ static void paingonzo(PLAYER& plr, DWHActor* actor)
 			break;
 		}
 		spr.ang = plr.angle.ang.asbuild();
-		newstatus(i, FLEE);
+		SetNewStatus(actor, FLEE);
 	}
 
 	aimove(i);
@@ -340,23 +340,23 @@ static void facegonzo(PLAYER& plr, DWHActor* actor)
 
 		if (plr.shadowtime > 0) {
 			spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
-			newstatus(i, FLEE);
+			SetNewStatus(actor, FLEE);
 		}
 		else {
 			spr.owner = plr.spritenum;
-			newstatus(i, CHASE);
+			SetNewStatus(actor, CHASE);
 		}
 	}
 	else { // get off the wall
 		if (spr.owner == plr.spritenum) {
 			spr.ang = (short)(((krand() & 512 - 256) + spr.ang) & 2047);
-			newstatus(i, FINDME);
+			SetNewStatus(actor, FINDME);
 		}
-		else if (cansee) newstatus(i, FLEE);
+		else if (cansee) SetNewStatus(actor, FLEE);
 	}
 
 	if (plr.invisibletime < 0 && checkdist(plr, i))
-		newstatus(i, ATTACK);
+		SetNewStatus(actor, ATTACK);
 
 	checkexplgonzo(plr, actor);
 }
@@ -404,10 +404,10 @@ static void attackgonzo(PLAYER& plr, DWHActor* actor)
 		else if (spr.lotag < 0) {
 			if (plr.shadowtime > 0) {
 				spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
-				newstatus(i, FLEE);
+				SetNewStatus(actor, FLEE);
 			}
 			else
-				newstatus(i, CHASE);
+				SetNewStatus(actor, CHASE);
 		}
 		spr.lotag -= TICSPERFRAME;
 		break;
@@ -416,9 +416,9 @@ static void attackgonzo(PLAYER& plr, DWHActor* actor)
 		if (sprite[i].lotag < 0) {
 			if (cansee(plr.x, plr.y, plr.z, plr.sector, sprite[i].x, sprite[i].y,
 				sprite[i].z - (tileHeight(sprite[i].picnum) << 7), sprite[i].sectnum))
-				newstatus(i, CAST);
+				SetNewStatus(actor, CAST);
 			else
-				newstatus(i, CHASE);
+				SetNewStatus(actor, CHASE);
 		}
 		else
 			sprite[i].ang = getangle(plr.x - sprite[i].x, plr.y - sprite[i].y);
@@ -436,10 +436,10 @@ static void attackgonzo(PLAYER& plr, DWHActor* actor)
 		else if (spr.lotag < 0) {
 			if (plr.shadowtime > 0) {
 				spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
-				newstatus(i, FLEE);
+				SetNewStatus(actor, FLEE);
 			}
 			else
-				newstatus(i, CHASE);
+				SetNewStatus(actor, CHASE);
 		}
 		spr.lotag -= TICSPERFRAME;
 		break;
@@ -468,12 +468,12 @@ static void fleegonzo(PLAYER& plr, DWHActor* actor)
 		else {
 			if (plr.invisibletime < 0) {
 				spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
-				newstatus(i, FACE);
+				SetNewStatus(actor, FACE);
 			}
 		}
 	}
 	if (spr.lotag < 0)
-		newstatus(i, FACE);
+		SetNewStatus(actor, FACE);
 
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
 		warpsprite(i);
@@ -503,7 +503,7 @@ static void castgonzo(PLAYER& plr, DWHActor* actor)
 		spr.extra--;
 		spritesound(S_GENTHROW, &spr);
 		gonzopike(i, plr);
-		newstatus(i, CHASE);
+		SetNewStatus(actor, CHASE);
 	}
 }
 	
@@ -525,10 +525,10 @@ static void diegonzo(PLAYER& plr, DWHActor* actor)
 		case GONZOGHMDEAD:
 		case GONZOGSHDEAD:
 			if (difficulty == 4)
-				newstatus(i, RESURECT);
+				SetNewStatus(actor, RESURECT);
 			else {
 				kills++;
-				newstatus(i, DEAD);
+				SetNewStatus(actor, DEAD);
 			}
 			break;
 		}
@@ -555,14 +555,14 @@ void gonzoProcess(PLAYER& plr)
 			spr.detail = GONZOTYPE;
 			enemy[GONZOTYPE].info.set(spr);
 			sprite[i].hitag = adjusthp(100);
-			newstatus(i, FACE);
+			SetNewStatus(actor, FACE);
 			break;
 		case GONZOSHJUMPEND:
 			spr.picnum = GONZOGSH;
 			spr.detail = GONZOTYPE;
 			enemy[GONZOTYPE].info.set(spr);
 			sprite[i].hitag = adjusthp(100);
-			newstatus(i, FACE);
+			SetNewStatus(actor, FACE);
 			break;
 		}
 	}
@@ -663,7 +663,7 @@ static boolean patrolprocess(PLAYER& plr, DWHActor* actor)
 		if (cansee(tspr.x, tspr.y, tspr.z, tspr.sectnum, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 			spr.sectnum)) {
 			spr.ang = getangle(tspr.x - spr.x, tspr.y - spr.y);
-			newstatus(i, PATROL);
+			SetNewStatus(actor, PATROL);
 		}
 	}
 
@@ -724,7 +724,7 @@ static void checkexplgonzo(PLAYER& plr, DWHActor* actor)
 				|| tspr.picnum == MONSTERBALL) {
 				spr.hitag -= TICSPERFRAME << 2;
 				if (spr.hitag < 0) {
-					newstatus(i, DIE);
+					SetNewStatus(actor, DIE);
 				}
 			}
 		}

@@ -197,4 +197,4 @@ inline void ChangeActorStat(DWHActor* actor, int newstat)
 	changespritestat(actor->GetSpriteIndex(), newstat);
 }
 
-END_SW_NS
+END_WH_NS

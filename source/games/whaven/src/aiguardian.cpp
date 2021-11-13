@@ -21,7 +21,7 @@ static void chaseguardian(PLAYER& plr, DWHActor* actor)
 	if (krand() % 63 == 0) {
 		if (cansee(plr.x, plr.y, plr.z, plr.sector, sprite[i].x, sprite[i].y,
 			sprite[i].z - (tileHeight(sprite[i].picnum) << 7), sprite[i].sectnum) && plr.invisibletime < 0)
-			newstatus(i, ATTACK);
+			SetNewStatus(actor, ATTACK);
 		return;
 	}
 	else {
@@ -37,10 +37,10 @@ static void chaseguardian(PLAYER& plr, DWHActor* actor)
 		}
 		else {
 			if (krand() % 8 == 0) // NEW
-				newstatus(i, ATTACK); // NEW
+				SetNewStatus(actor, ATTACK); // NEW
 			else { // NEW
 				sprite[i].ang = (short)(((krand() & 512 - 256) + sprite[i].ang + 1024) & 2047); // NEW
-				newstatus(i, CHASE); // NEW
+				SetNewStatus(actor, CHASE); // NEW
 			}
 		}
 	}
@@ -57,7 +57,7 @@ static void chaseguardian(PLAYER& plr, DWHActor* actor)
 	if (sector[osectnum].lotag == KILLSECTOR) {
 		spr.hitag--;
 		if (spr.hitag < 0)
-			newstatus(i, DIE);
+			SetNewStatus(actor, DIE);
 	}
 
 	setsprite(i, spr.x, spr.y, spr.z);
@@ -69,7 +69,7 @@ static void chaseguardian(PLAYER& plr, DWHActor* actor)
 		|| sector[spr.sectnum].floorpicnum == LAVA1 || sector[spr.sectnum].floorpicnum == ANILAVA)) {
 		spr.hitag--;
 		if (spr.hitag < 0)
-			newstatus(i, DIE);
+			SetNewStatus(actor, DIE);
 	}
 }
 	
@@ -81,7 +81,7 @@ static void nukedguardian(PLAYER& plr, DWHActor* actor)
 	if (isWh2()) {
 		chunksofmeat(plr, i, spr.x, spr.y, spr.z, spr.sectnum, spr.ang);
 		trailingsmoke(i, false);
-		newstatus((short)i, DIE);
+		SetNewStatus(actor, DIE);
 		return;
 	}
 
@@ -112,9 +112,9 @@ static void attackguardian(PLAYER& plr, DWHActor* actor)
 	if (spr.lotag < 0) {
 		if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 			spr.sectnum))
-			newstatus(i, CAST);
+			SetNewStatus(actor, CAST);
 		else
-			newstatus(i, CHASE);
+			SetNewStatus(actor, CHASE);
 	}
 	else
 		spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
@@ -133,23 +133,23 @@ static void faceguardian(PLAYER& plr, DWHActor* actor)
 
 		if (plr.shadowtime > 0) {
 			spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
-			newstatus(i, FLEE);
+			SetNewStatus(actor, FLEE);
 		}
 		else {
 			spr.owner = plr.spritenum;
-			newstatus(i, CHASE);
+			SetNewStatus(actor, CHASE);
 		}
 	}
 	else { // get off the wall
 		if (spr.owner == plr.spritenum) {
 			spr.ang = (short)(((krand() & 512 - 256) + spr.ang) & 2047);
-			newstatus(i, FINDME);
+			SetNewStatus(actor, FINDME);
 		}
-		else if (cansee) newstatus(i, FLEE);
+		else if (cansee) SetNewStatus(actor, FLEE);
 	}
 
 	if (checkdist(plr, i))
-		newstatus(i, ATTACK);
+		SetNewStatus(actor, ATTACK);
 }
 	
 static void searchguardian(PLAYER& plr, DWHActor* actor)
@@ -182,11 +182,11 @@ static void fleeguardian(PLAYER& plr, DWHActor* actor)
 		}
 		else {
 			spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
-			newstatus(i, FACE);
+			SetNewStatus(actor, FACE);
 		}
 	}
 	if (spr.lotag < 0)
-		newstatus(i, FACE);
+		SetNewStatus(actor, FACE);
 
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
 		warpsprite(i);
@@ -208,7 +208,7 @@ static void painguardian(PLAYER& plr, DWHActor* actor)
 	if (spr.lotag < 0) {
 		spr.picnum = GUARDIAN;
 		spr.ang = plr.angle.ang.asbuild();
-		newstatus(i, FLEE);
+		SetNewStatus(actor, FLEE);
 	}
 
 	//				aifly(i);
@@ -238,7 +238,7 @@ static void castguardian(PLAYER& plr, DWHActor* actor)
 		spr.picnum = GUARDIAN;
 		spritesound(S_FIREBALL, &sprite[i]);
 		castspell(plr, i);
-		newstatus(i, CHASE);
+		SetNewStatus(actor, CHASE);
 	}
 	checksector6(i);
 }

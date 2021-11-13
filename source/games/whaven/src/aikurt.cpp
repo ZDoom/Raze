@@ -14,10 +14,10 @@ static void standkurt(PLAYER& plr, DWHActor* actor)
 			plr.z, plr.sector) && plr.invisibletime < 0) {
 			if (plr.shadowtime > 0) {
 				spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
-				newstatus(i, FLEE);
+				SetNewStatus(actor, FLEE);
 			}
 			else
-				newstatus(i, CHASE);
+				SetNewStatus(actor, CHASE);
 		}
 	}
 }
@@ -29,7 +29,7 @@ static void nukedkurt(PLAYER& plr, DWHActor* actor)
 
 	chunksofmeat(plr, i, spr.x, spr.y, spr.z, spr.sectnum, spr.ang);
 	trailingsmoke(i, false);
-	newstatus(i, DIE);
+	SetNewStatus(actor, DIE);
 }
 
 static void kurtExplo(PLAYER& plr, DWHActor* actor)

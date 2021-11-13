@@ -18,7 +18,7 @@ static void chasedevil(PLAYER& plr, DWHActor* actor)
 	if (krand() % 63 == 0) {
 		if (cansee(plr.x, plr.y, plr.z, plr.sector, sprite[i].x, sprite[i].y,
 			sprite[i].z - (tileHeight(sprite[i].picnum) << 7), sprite[i].sectnum) && plr.invisibletime < 0)
-			newstatus(i, ATTACK);
+			SetNewStatus(actor, ATTACK);
 	}
 	else {
 		checksight(plr, i);
@@ -26,17 +26,17 @@ static void chasedevil(PLAYER& plr, DWHActor* actor)
 			if ((aimove(i) & kHitTypeMask) == kHitFloor)
 			{
 				spr.ang = (short)((spr.ang + 1024) & 2047);
-				newstatus(i, FLEE);
+				SetNewStatus(actor, FLEE);
 				return;
 			}
 		}
 		else {
 			if (plr.invisibletime < 0) {
 				if (krand() % 8 == 0) // NEW
-					newstatus(i, ATTACK); // NEW
+					SetNewStatus(actor, ATTACK); // NEW
 				else { // NEW
 					sprite[i].ang = (short)(((krand() & 512 - 256) + sprite[i].ang + 1024) & 2047); // NEW
-					newstatus(i, FLEE); // NEW
+					SetNewStatus(actor, FLEE); // NEW
 				}
 			}
 		}
@@ -56,7 +56,7 @@ static void chasedevil(PLAYER& plr, DWHActor* actor)
 	if (sector[osectnum].lotag == KILLSECTOR) {
 		spr.hitag--;
 		if (spr.hitag < 0)
-			newstatus(i, DIE);
+			SetNewStatus(actor, DIE);
 	}
 
 	setsprite(i, spr.x, spr.y, spr.z);
@@ -75,10 +75,10 @@ static void diedevil(PLAYER& plr, DWHActor* actor)
 
 		if (spr.picnum == DEVILDEAD) {
 			if (difficulty == 4)
-				newstatus(i, RESURECT);
+				SetNewStatus(actor, RESURECT);
 			else {
 				kills++;
-				newstatus(i, DEAD);
+				SetNewStatus(actor, DEAD);
 			}
 		}
 	}
@@ -93,7 +93,7 @@ static void paindevil(PLAYER& plr, DWHActor* actor)
 	if (spr.lotag < 0) {
 		spr.picnum = DEVIL;
 		spr.ang = plr.angle.ang.asbuild();
-		newstatus(i, FLEE);
+		SetNewStatus(actor, FLEE);
 	}
 
 	aimove(i);
@@ -113,23 +113,23 @@ static void facedevil(PLAYER& plr, DWHActor* actor)
 		spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
 		if (plr.shadowtime > 0) {
 			spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
-			newstatus(i, FLEE);
+			SetNewStatus(actor, FLEE);
 		}
 		else {
 			spr.owner = plr.spritenum;
-			newstatus(i, CHASE);
+			SetNewStatus(actor, CHASE);
 		}
 	}
 	else { // get off the wall
 		if (spr.owner == plr.spritenum) {
 			spr.ang = (short)(((krand() & 512 - 256) + spr.ang) & 2047);
-			newstatus(i, FINDME);
+			SetNewStatus(actor, FINDME);
 		}
-		else if (cansee) newstatus(i, FLEE);
+		else if (cansee) SetNewStatus(actor, FLEE);
 	}
 
 	if (checkdist(plr, i))
-		newstatus(i, ATTACK);
+		SetNewStatus(actor, ATTACK);
 }
 
 static void fleedevil(PLAYER& plr, DWHActor* actor)
@@ -150,11 +150,11 @@ static void fleedevil(PLAYER& plr, DWHActor* actor)
 		}
 		else {
 			spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
-			newstatus(i, FACE);
+			SetNewStatus(actor, FACE);
 		}
 	}
 	if (spr.lotag < 0)
-		newstatus(i, FACE);
+		SetNewStatus(actor, FACE);
 
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
 		warpsprite(i);
@@ -189,9 +189,9 @@ static void attackdevil(PLAYER& plr, DWHActor* actor)
 	if (sprite[i].lotag < 0) {
 		if (cansee(plr.x, plr.y, plr.z, plr.sector, sprite[i].x, sprite[i].y,
 			sprite[i].z - (tileHeight(sprite[i].picnum) << 7), sprite[i].sectnum))
-			newstatus(i, CAST);
+			SetNewStatus(actor, CAST);
 		else
-			newstatus(i, CHASE);
+			SetNewStatus(actor, CHASE);
 	}
 	else
 		sprite[i].ang = getangle(plr.x - sprite[i].x, plr.y - sprite[i].y);
@@ -204,7 +204,7 @@ static void resurectdevil(PLAYER& plr, DWHActor* actor)
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
-		newstatus(i, FACE);
+		SetNewStatus(actor, FACE);
 		spr.picnum = DEVIL;
 		spr.hitag = (short)adjusthp(60);
 		spr.lotag = 100;
@@ -229,7 +229,7 @@ static void frozendevil(PLAYER& plr, DWHActor* actor)
 	if (spr.lotag < 0) {
 		spr.pal = 0;
 		spr.picnum = DEVIL;
-		newstatus(i, FACE);
+		SetNewStatus(actor, FACE);
 	}
 }
 
@@ -241,7 +241,7 @@ static void nukeddevil(PLAYER& plr, DWHActor* actor)
 	if (isWh2()) {
 		chunksofmeat(plr, i, spr.x, spr.y, spr.z, spr.sectnum, spr.ang);
 		trailingsmoke(i, false);
-		newstatus((short)i, DIE);
+		SetNewStatus(actor, DIE);
 		return;
 	}
 
@@ -271,7 +271,7 @@ static void castdevil(PLAYER& plr, DWHActor* actor)
 		spr.picnum = DEVIL;
 		spritesound(S_FIREBALL, &sprite[i]);
 		castspell(plr, i);
-		newstatus(i, CHASE);
+		SetNewStatus(actor, CHASE);
 	}
 	checksector6(i);
 }

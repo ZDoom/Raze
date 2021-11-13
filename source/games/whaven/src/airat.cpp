@@ -6,7 +6,7 @@ BEGIN_WH_NS
 static void chaserat(PLAYER& plr, DWHActor* actor)
 {
 	int i = actor->GetSpriteIndex();
-	newstatus(i, FLEE);
+	SetNewStatus(actor, FLEE);
 }
 	
 static void searchrat(PLAYER& plr, DWHActor* actor)
@@ -14,7 +14,7 @@ static void searchrat(PLAYER& plr, DWHActor* actor)
 	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 	spr.ang = (short) (((krand() & 512 - 256) + spr.ang + 1024) & 2047);
-	newstatus(i, FLEE);
+	SetNewStatus(actor, FLEE);
 }
 	
 static void facerat(PLAYER& plr, DWHActor* actor)
@@ -25,7 +25,7 @@ static void facerat(PLAYER& plr, DWHActor* actor)
 	spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
 	spr.ang = (short) (((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
 	spr.owner = sprite[plr.spritenum].owner;
-	newstatus(i, FLEE);
+	SetNewStatus(actor, FLEE);
 }
 	
 static void dierat(PLAYER& plr, DWHActor* actor)
@@ -65,7 +65,7 @@ static void fleerat(PLAYER& plr, DWHActor* actor)
 
 	if (abs(plr.x - spr.x) <= 1024 && abs(plr.y - spr.y) <= 1024) {
 		spr.owner = sprite[plr.spritenum].owner;
-		newstatus(i, FACE);
+		SetNewStatus(actor, FACE);
 	}
 
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
@@ -89,7 +89,7 @@ static void fleerat(PLAYER& plr, DWHActor* actor)
 		|| sector[spr.sectnum].floorpicnum == LAVA1 || sector[spr.sectnum].floorpicnum == ANILAVA)) {
 		spr.hitag--;
 		if (spr.hitag < 0)
-			newstatus(i, DIE);
+			SetNewStatus(actor, DIE);
 	}
 
 	setsprite(i, spr.x, spr.y, spr.z);

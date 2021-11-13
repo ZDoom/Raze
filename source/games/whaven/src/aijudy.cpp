@@ -29,7 +29,7 @@ static void chasejudy(PLAYER& plr, DWHActor* actor)
 	if (krand() % 63 == 0) {
 		if (cansee(plr.x, plr.y, plr.z, plr.sector, sprite[i].x, sprite[i].y,
 			sprite[i].z - (tileHeight(sprite[i].picnum) << 7), sprite[i].sectnum))// && invisibletime < 0)
-			newstatus(i, ATTACK);
+			SetNewStatus(actor, ATTACK);
 	}
 	else {
 		checksight(plr, i);
@@ -38,16 +38,16 @@ static void chasejudy(PLAYER& plr, DWHActor* actor)
 			if ((movestat & kHitTypeMask) == kHitFloor)
 			{
 				spr.ang = (short)((spr.ang + 1024) & 2047);
-				newstatus(i, FLEE);
+				SetNewStatus(actor, FLEE);
 				return;
 			}
 		}
 		else {
 			if (krand() % 8 == 0) // NEW
-				newstatus(i, ATTACK); // NEW
+				SetNewStatus(actor, ATTACK); // NEW
 			else { // NEW
 				sprite[i].ang = (short)(((krand() & 512 - 256) + sprite[i].ang + 1024) & 2047); // NEW
-				newstatus(i, FLEE); // NEW
+				SetNewStatus(actor, FLEE); // NEW
 			}
 		}
 	}
@@ -66,7 +66,7 @@ static void chasejudy(PLAYER& plr, DWHActor* actor)
 	if (sector[osectnum].lotag == KILLSECTOR) {
 		spr.hitag--;
 		if (spr.hitag < 0)
-			newstatus(i, DIE);
+			SetNewStatus(actor, DIE);
 	}
 
 	setsprite(i, spr.x, spr.y, spr.z);
@@ -79,7 +79,7 @@ static void resurectjudy(PLAYER& plr, DWHActor* actor)
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
-		newstatus(i, FACE);
+		SetNewStatus(actor, FACE);
 		spr.picnum = JUDY;
 		spr.hitag = (short)adjusthp(200);
 		spr.lotag = 100;
@@ -120,7 +120,7 @@ static void painjudy(PLAYER& plr, DWHActor* actor)
 	if (spr.lotag < 0) {
 		spr.picnum = JUDY;
 		spr.ang = plr.angle.ang.asbuild();
-		newstatus(i, FLEE);
+		SetNewStatus(actor, FLEE);
 	}
 
 	aimove(i);
@@ -141,23 +141,23 @@ static void facejudy(PLAYER& plr, DWHActor* actor)
 	if (cansee && plr.invisibletime < 0) {
 		if (plr.shadowtime > 0) {
 			spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
-			newstatus(i, FLEE);
+			SetNewStatus(actor, FLEE);
 		}
 		else {
 			spr.owner = plr.spritenum;
-			newstatus(i, CHASE);
+			SetNewStatus(actor, CHASE);
 		}
 	}
 	else { // get off the wall
 		if (spr.owner == plr.spritenum) {
 			spr.ang = (short)(((krand() & 512 - 256) + spr.ang) & 2047);
-			newstatus(i, FINDME);
+			SetNewStatus(actor, FINDME);
 		}
-		else if (cansee) newstatus(i, FLEE);
+		else if (cansee) SetNewStatus(actor, FLEE);
 	}
 
 	if (checkdist(i, plr.x, plr.y, plr.z))
-		newstatus(i, ATTACK);
+		SetNewStatus(actor, ATTACK);
 }
 	
 static void attackjudy(PLAYER& plr, DWHActor* actor)
@@ -182,9 +182,9 @@ static void attackjudy(PLAYER& plr, DWHActor* actor)
 	if (sprite[i].lotag < 0) {
 		if (cansee(plr.x, plr.y, plr.z, plr.sector, sprite[i].x, sprite[i].y,
 			sprite[i].z - (tileHeight(sprite[i].picnum) << 7), sprite[i].sectnum))
-			newstatus(i, CAST);
+			SetNewStatus(actor, CAST);
 		else
-			newstatus(i, CHASE);
+			SetNewStatus(actor, CHASE);
 	}
 	else
 		sprite[i].ang = getangle(plr.x - sprite[i].x, plr.y - sprite[i].y);
@@ -208,11 +208,11 @@ static void fleejudy(PLAYER& plr, DWHActor* actor)
 		}
 		else {
 			spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
-			newstatus(i, FACE);
+			SetNewStatus(actor, FACE);
 		}
 	}
 	if (spr.lotag < 0)
-		newstatus(i, FACE);
+		SetNewStatus(actor, FACE);
 
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
 		warpsprite(i);
@@ -291,7 +291,7 @@ static void castjudy(PLAYER& plr, DWHActor* actor)
 				}
 			}
 		}
-		newstatus(i, CHASE);
+		SetNewStatus(actor, CHASE);
 	}
 	else if (spr.picnum == JUDYATTACK2 + 8) {
 		sprite[i].picnum = JUDYATTACK2;
@@ -337,7 +337,7 @@ static void castjudy(PLAYER& plr, DWHActor* actor)
 			}
 
 		}
-		newstatus(i, CHASE);
+		SetNewStatus(actor, CHASE);
 	}
 	checksector6(i);
 }
@@ -355,10 +355,10 @@ static void diejudy(PLAYER& plr, DWHActor* actor)
 
 		if (spr.picnum == JUDYDEAD) {
 			if (difficulty == 4)
-				newstatus(i, RESURECT);
+				SetNewStatus(actor, RESURECT);
 			else {
 				kills++;
-				newstatus(i, DEAD);
+				SetNewStatus(actor, DEAD);
 			}
 		}
 	}
@@ -382,7 +382,7 @@ void judyOperate(PLAYER& plr)
 				spri.lotag = 12;
 				if (spri.picnum == JUDYSIT + 4) {
 					spri.picnum = JUDY;
-					newstatus(i, FACE);
+					SetNewStatus(actor, FACE);
 				}
 			}
 		}
