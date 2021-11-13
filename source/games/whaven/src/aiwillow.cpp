@@ -28,7 +28,7 @@ static void chasewillow(PLAYER& plr, DWHActor* actor)
 		checksight(plr, actor);
 
 		if (!checkdist(plr, i)) {
-			checkmove(i, dax, day);
+			checkmove(actor, dax, day);
 		}
 		else {
 			if (krand() % 8 == 0) // NEW

@@ -33,8 +33,7 @@ static void chasedragon(PLAYER& plr, DWHActor* actor)
 		int day = (bsin(spr.ang) * TICSPERFRAME) << 3;
 		checksight(plr, actor);
 		if (!checkdist(plr, i)) {
-			//						checkmove(i, checksight_x, checksight_y);
-			checkmove(i, dax, day);
+			checkmove(actor, dax, day);
 		}
 		else {
 			if (plr.invisibletime < 0) {

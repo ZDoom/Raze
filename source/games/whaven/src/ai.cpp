@@ -932,11 +932,12 @@ void attack(PLAYER& plr, int const i) {
 	plr.hvel += k << 2;
 }
 
-int checkmove(short i, int dax, int day) {
-	int movestat = movesprite(i, dax, day, 0, 4 << 8, 4 << 8, CLIFFCLIP);
+int checkmove(DWHActor* actor, int dax, int day) {
+	auto& spr = actor->s();
+	int movestat = movesprite(actor->GetSpriteIndex(), dax, day, 0, 4 << 8, 4 << 8, CLIFFCLIP);
 
 	if (movestat != 0)
-		sprite[i].ang = (short)((sprite[i].ang + TICSPERFRAME) & 2047);
+		spr.ang = (short)((spr.ang + TICSPERFRAME) & 2047);
 
 	return movestat;
 }

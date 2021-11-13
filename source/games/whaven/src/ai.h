@@ -129,7 +129,7 @@ void processfluid(int i, int zr_florhit, boolean fly);
 void castspell(PLAYER& plr, int i);
 void skullycastspell(PLAYER& plr, int i);
 void attack(PLAYER& plr, int i);
-int checkmove(short i, int dax, int day);
+int checkmove(DWHActor* actor, int dax, int day);
 boolean checkdist(PLAYER& plr, int i);
 boolean checkdist(int i, int x, int y, int z);
 extern int checksight_ang;

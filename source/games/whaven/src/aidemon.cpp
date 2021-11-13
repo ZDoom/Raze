@@ -35,7 +35,7 @@ static void chasedemon(PLAYER& plr, DWHActor* actor)
 
 
 		if (!checkdist(plr, i)) {
-			checkmove(i, dax, day);
+			checkmove(actor, dax, day);
 		}
 		else {
 			if (plr.invisibletime < 0) {

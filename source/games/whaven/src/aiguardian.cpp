@@ -33,7 +33,7 @@ static void chaseguardian(PLAYER& plr, DWHActor* actor)
 			trailingsmoke(actor,true);
 
 		if (!checkdist(plr, i)) {
-			checkmove(i, dax, day);
+			checkmove(actor, dax, day);
 		}
 		else {
 			if (krand() % 8 == 0) // NEW
