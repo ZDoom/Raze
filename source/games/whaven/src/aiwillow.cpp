@@ -7,7 +7,6 @@ static void willowDrain(PLAYER& plr, DWHActor* i);
 
 static void chasewillow(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -72,7 +71,6 @@ static void chasewillow(PLAYER& plr, DWHActor* actor)
 	
 static void attackwillow(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -145,7 +143,6 @@ static void attackwillow(PLAYER& plr, DWHActor* actor)
 	
 static void facewillow(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
@@ -175,16 +172,12 @@ static void facewillow(PLAYER& plr, DWHActor* actor)
 	
 static void searchwillow(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
-	SPRITE& spr = actor->s();
-
 	aisearch(plr, actor, true);
 	checksector6(actor);
 }
 	
 static void fleewillow(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -220,7 +213,6 @@ static void fleewillow(PLAYER& plr, DWHActor* actor)
 	
 static void diewillow(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;

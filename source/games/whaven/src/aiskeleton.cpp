@@ -92,7 +92,6 @@ static void chaseskeleton(PLAYER& plr, DWHActor* actor)
 
 static void dieskeleton(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -114,7 +113,6 @@ static void dieskeleton(PLAYER& plr, DWHActor* actor)
 
 static void faceskeleton(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	boolean cansee = ::cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
@@ -188,7 +186,6 @@ static void fleeskeleton(PLAYER& plr, DWHActor* actor)
 
 static void standskeleton(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
@@ -268,8 +265,6 @@ static void resurectskeleton(PLAYER& plr, DWHActor* actor)
 	
 static void searchskeleton(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
-
 	aisearch(plr, actor, false);
 	if (!checksector6(actor))
 		checkexplskeleton(plr, actor);

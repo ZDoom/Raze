@@ -95,7 +95,6 @@ static void chasekobold(PLAYER& plr, DWHActor* actor)
 	
 static void diekobold(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -136,7 +135,6 @@ static void painkobold(PLAYER& plr, DWHActor* actor)
 	
 static void facekobold(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	boolean cansee = ::cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),

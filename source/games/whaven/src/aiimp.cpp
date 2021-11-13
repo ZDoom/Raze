@@ -166,7 +166,6 @@ static void resurectimp(PLAYER& plr, DWHActor* actor)
 	
 static void faceimp(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	boolean cansee = ::cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
@@ -277,8 +276,6 @@ static void attackimp(PLAYER& plr, DWHActor* actor)
 	
 static void searchimp(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
-
 	aisearch(plr, actor, false);
 	if (!checksector6(actor))
 		checkexplimp(plr, actor);

@@ -5,7 +5,6 @@ BEGIN_WH_NS
 
 static void chasedemon(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0)
@@ -77,16 +76,12 @@ static void chasedemon(PLAYER& plr, DWHActor* actor)
 
 static void searchdemon(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
-	SPRITE& spr = actor->s();
-
 	aisearch(plr, actor, true);
 	checksector6(actor);
 }
 
 static void paindemon(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -102,7 +97,6 @@ static void paindemon(PLAYER& plr, DWHActor* actor)
 
 static void facedemon(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	boolean cansee = ::cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7), spr.sectnum);
@@ -133,7 +127,6 @@ static void facedemon(PLAYER& plr, DWHActor* actor)
 
 static void attackdemon(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	if (plr.z < spr.z) {
@@ -157,7 +150,6 @@ static void attackdemon(PLAYER& plr, DWHActor* actor)
 
 static void fleedemon(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;

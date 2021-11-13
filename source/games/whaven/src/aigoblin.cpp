@@ -131,7 +131,6 @@ static void paingoblin(PLAYER& plr, DWHActor* actor)
 
 static void facegoblin(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	boolean cansee = ::cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
@@ -202,7 +201,6 @@ static void fleegoblin(PLAYER& plr, DWHActor* actor)
 
 static void standgoblin(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
@@ -288,8 +286,6 @@ static void resurectgoblin(PLAYER& plr, DWHActor* actor)
 
 static void searchgoblin(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
-
 	aisearch(plr, actor, false);
 	if (!checksector6(actor))
 		checkexplgoblin(plr, actor);
@@ -309,7 +305,6 @@ static void frozengoblin(PLAYER& plr, DWHActor* actor)
 
 static void nukedgoblin(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;

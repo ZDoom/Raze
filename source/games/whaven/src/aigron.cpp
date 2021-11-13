@@ -123,7 +123,6 @@ static void chasegron(PLAYER& plr, DWHActor* actor)
 	
 static void resurectgron(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -181,8 +180,6 @@ static void skirmishgron(PLAYER& plr, DWHActor* actor)
 	
 static void searchgron(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
-
 	aisearch(plr, actor, false);
 	if (!checksector6(actor))
 		checkexplgron(plr, actor);
@@ -255,7 +252,6 @@ static void paingron(PLAYER& plr, DWHActor* actor)
 	
 static void facegron(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	boolean cansee = ::cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),

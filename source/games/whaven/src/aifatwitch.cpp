@@ -78,15 +78,12 @@ static void resurectfatwitch(PLAYER& plr, DWHActor* actor)
 	
 static void searchfatwitch(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
-
 	aisearch(plr, actor, false);
 	checksector6(actor);
 }
 	
 static void nukedfatwitch(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -119,7 +116,6 @@ static void painfatwitch(PLAYER& plr, DWHActor* actor)
 	
 static void facefatwitch(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	boolean cansee = ::cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7), spr.sectnum);
@@ -213,7 +209,6 @@ static void fleefatwitch(PLAYER& plr, DWHActor* actor)
 	
 static void castfatwitch(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;

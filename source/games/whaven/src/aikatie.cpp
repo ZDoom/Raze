@@ -64,7 +64,6 @@ static void chasekatie(PLAYER& plr, DWHActor* actor)
 	
 static void resurectkatie(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -79,8 +78,6 @@ static void resurectkatie(PLAYER& plr, DWHActor* actor)
 	
 static void searchkatie(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
-
 	aisearch(plr, actor, false);
 	checksector6(actor);
 }
@@ -104,7 +101,6 @@ static void painkatie(PLAYER& plr, DWHActor* actor)
 	
 static void facekatie(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.ang = (short)(getangle(plr.x - spr.x, plr.y - spr.y) & 2047);

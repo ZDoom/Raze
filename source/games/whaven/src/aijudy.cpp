@@ -74,7 +74,6 @@ static void chasejudy(PLAYER& plr, DWHActor* actor)
 	
 static void resurectjudy(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -89,15 +88,12 @@ static void resurectjudy(PLAYER& plr, DWHActor* actor)
 	
 static void searchjudy(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
-
 	aisearch(plr, actor, false);
 	checksector6(actor);
 }
 	
 static void nukedjudy(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -130,7 +126,6 @@ static void painjudy(PLAYER& plr, DWHActor* actor)
 	
 static void facejudy(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
@@ -342,7 +337,6 @@ static void castjudy(PLAYER& plr, DWHActor* actor)
 	
 static void diejudy(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;

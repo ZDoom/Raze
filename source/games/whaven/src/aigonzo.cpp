@@ -251,9 +251,6 @@ static void skirmishgonzo(PLAYER& plr, DWHActor* actor)
 
 static void searchgonzo(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
-	SPRITE& spr = actor->s();
-
 	if (!checksector6(actor))
 		checkexplgonzo(plr, actor);
 }
@@ -270,7 +267,6 @@ static void nukedgonzo(PLAYER& plr, DWHActor* actor)
 	
 static void frozengonzo(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -328,7 +324,6 @@ static void paingonzo(PLAYER& plr, DWHActor* actor)
 	
 static void facegonzo(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	boolean cansee = ::cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
@@ -508,7 +503,6 @@ static void castgonzo(PLAYER& plr, DWHActor* actor)
 	
 static void diegonzo(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -540,7 +534,6 @@ void gonzoProcess(PLAYER& plr)
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		int i = actor->GetSpriteIndex();
 
 		spr.lotag -= TICSPERFRAME;
 		if (spr.lotag < 0) {

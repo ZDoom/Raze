@@ -102,7 +102,6 @@ static void paindevil(PLAYER& plr, DWHActor* actor)
 
 static void facedevil(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	boolean cansee = ::cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
@@ -212,8 +211,6 @@ static void resurectdevil(PLAYER& plr, DWHActor* actor)
 
 static void searchdevil(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
-
 	aisearch(plr, actor, false);
 	checksector6(actor);
 }

@@ -134,8 +134,6 @@ static void skirmishspider(PLAYER& plr, DWHActor* actor)
 	
 static void searchspider(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
-
 	aisearch(plr, actor, false);
 	if (!checksector6(actor))
 		checkexplspider(plr, actor);
@@ -155,7 +153,6 @@ static void frozenspider(PLAYER& plr, DWHActor* actor)
 	
 static void facespider(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	boolean cansee = ::cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),

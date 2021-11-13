@@ -133,8 +133,6 @@ static void diefred(PLAYER& plr, DWHActor* actor)
 	
 static void searchfred(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
-
 	aisearch(plr, actor, false);
 	if (!checksector6(actor))
 		checkexplfred(plr, actor);
@@ -154,7 +152,6 @@ static void frozenfred(PLAYER& plr, DWHActor* actor)
 	
 static void facefred(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	boolean cansee = ::cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),

@@ -5,7 +5,6 @@ BEGIN_WH_NS
 
 static void chaseguardian(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -121,7 +120,6 @@ static void attackguardian(PLAYER& plr, DWHActor* actor)
 	
 static void faceguardian(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	boolean cansee = ::cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
@@ -153,15 +151,12 @@ static void faceguardian(PLAYER& plr, DWHActor* actor)
 	
 static void searchguardian(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
-
 	aisearch(plr, actor, true);
 	checksector6(actor);
 }
 	
 static void fleeguardian(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -200,7 +195,6 @@ static void fleeguardian(PLAYER& plr, DWHActor* actor)
 	
 static void painguardian(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -213,7 +207,6 @@ static void painguardian(PLAYER& plr, DWHActor* actor)
 	
 static void castguardian(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -232,8 +225,8 @@ static void castguardian(PLAYER& plr, DWHActor* actor)
 
 	if (spr.picnum == GUARDIANATTACK + 6) {
 		spr.picnum = GUARDIAN;
-		spritesound(S_FIREBALL, &sprite[i]);
-		castspell(plr, i);
+		spritesound(S_FIREBALL, &spr);
+		castspell(plr, actor->GetSpriteIndex());
 		SetNewStatus(actor, CHASE);
 	}
 	checksector6(actor);

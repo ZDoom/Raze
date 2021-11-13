@@ -176,7 +176,6 @@ static void painminotaur(PLAYER& plr, DWHActor* actor)
 	
 static void faceminotaur(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	boolean cansee = ::cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
@@ -308,7 +307,6 @@ static void fleeminotaur(PLAYER& plr, DWHActor* actor)
 	
 static void frozenminotaur(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -321,8 +319,6 @@ static void frozenminotaur(PLAYER& plr, DWHActor* actor)
 	
 static void searchminotaur(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
-
 	aisearch(plr, actor, false);
 	if (!checksector6(actor))
 		checkexplminotaur(plr, actor);

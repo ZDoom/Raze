@@ -75,15 +75,12 @@ static void resurectskully(PLAYER& plr, DWHActor* actor)
 	
 static void searchskully(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
-
 	aisearch(plr, actor, false);
 	checksector6(actor);
 }
 	
 static void nukedskully(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -116,7 +113,6 @@ static void painskully(PLAYER& plr, DWHActor* actor)
 	
 static void faceskully(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	boolean cansee = ::cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),

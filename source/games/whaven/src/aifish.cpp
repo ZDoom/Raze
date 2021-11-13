@@ -81,7 +81,6 @@ static void chasefish(PLAYER& plr, DWHActor* actor)
 	
 static void diefish(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	DeleteActor(actor);
 }
 	
@@ -149,8 +148,6 @@ static void skirmishfish(PLAYER& plr, DWHActor* actor)
 	
 static void searchfish(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
-
 	aisearch(plr, actor, false);
 	checksector6(actor);
 }

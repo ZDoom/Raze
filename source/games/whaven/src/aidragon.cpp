@@ -10,7 +10,6 @@ static void firebreath(PLAYER& plr, int i, int a, int b, int c);
 
 static void chasedragon(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -230,8 +229,6 @@ static void resurectdragon(PLAYER& plr, DWHActor* actor)
 
 static void searchdragon(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
-
 	aisearch(plr, actor, true);
 	checksector6(actor);
 }
@@ -250,7 +247,6 @@ static void frozendragon(PLAYER& plr, DWHActor* actor)
 
 static void nukeddragon(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -277,7 +273,6 @@ static void paindragon(PLAYER& plr, DWHActor* actor)
 
 static void facedragon(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	boolean cansee = ::cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
