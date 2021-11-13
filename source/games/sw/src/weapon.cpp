@@ -20570,7 +20570,7 @@ int QueueWallBlood(short hit_sprite, short ang)
 
     // hit a sprite?
     if (hitinfo.sprite >= 0)
-        return 0;   // Don't try to put blood on a sprite
+        return -1;   // Don't try to put blood on a sprite
 
     if (hitinfo.wall >= 0)   // Don't check if blood didn't hit a wall, otherwise the ASSERT fails!
     {
