@@ -32,7 +32,7 @@ static void chasejudy(PLAYER& plr, DWHActor* actor)
 			SetNewStatus(actor, ATTACK);
 	}
 	else {
-		checksight(plr, i);
+		checksight(plr, actor);
 		if (!checkdist(i, plr.x, plr.y, plr.z)) {
 			int movestat = aimove(i);
 			if ((movestat & kHitTypeMask) == kHitFloor)

@@ -206,7 +206,7 @@ static void attackspider(PLAYER& plr, DWHActor* actor)
 	setsprite(i, spr.x, spr.y, spr.z);
 
 	if (spr.lotag >= 64) {
-		if (checksight(plr, i))
+		if (checksight(plr, actor))
 			if (checkdist(plr, i)) {
 				spr.ang = (short)checksight_ang;
 				attack(plr, i);

@@ -27,7 +27,7 @@ static void chaseguardian(PLAYER& plr, DWHActor* actor)
 	else {
 		int dax = (bcos(spr.ang) * TICSPERFRAME) << 3;
 		int day = (bsin(spr.ang) * TICSPERFRAME) << 3;
-		checksight(plr, i);
+		checksight(plr, actor);
 
 		if (PlayClock % 100 > 70)
 			trailingsmoke(actor,true);

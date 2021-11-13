@@ -21,7 +21,7 @@ static void chasedevil(PLAYER& plr, DWHActor* actor)
 			SetNewStatus(actor, ATTACK);
 	}
 	else {
-		checksight(plr, i);
+		checksight(plr, actor);
 		if (!checkdist(plr, i)) {
 			if ((aimove(i) & kHitTypeMask) == kHitFloor)
 			{

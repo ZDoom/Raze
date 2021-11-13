@@ -394,7 +394,7 @@ static void attackgonzo(PLAYER& plr, DWHActor* actor)
 	case KURTAT:
 	case KURTPUNCH:
 		if (spr.lotag == 46) {
-			if (checksight(plr, i))
+			if (checksight(plr, actor))
 				if (checkdist(plr, i)) {
 					spr.ang = (short)checksight_ang;
 					attack(plr, i);
@@ -426,7 +426,7 @@ static void attackgonzo(PLAYER& plr, DWHActor* actor)
 	case GONZOGHMAT:
 	case GONZOGSHAT:
 		if (spr.lotag == 31) {
-			if (checksight(plr, i))
+			if (checksight(plr, actor))
 				if (checkdist(plr, i)) {
 					spr.ang = (short)checksight_ang;
 					attack(plr, i);

@@ -31,7 +31,7 @@ static void chasedemon(PLAYER& plr, DWHActor* actor)
 
 		int dax = (bcos(spr.ang) * TICSPERFRAME) << 2;
 		int day = (bsin(spr.ang) * TICSPERFRAME) << 2;
-		checksight(plr, i);
+		checksight(plr, actor);
 
 
 		if (!checkdist(plr, i)) {

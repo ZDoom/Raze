@@ -72,7 +72,7 @@ static void chasegron(PLAYER& plr, DWHActor* actor)
 				SetNewStatus(actor, ATTACK);
 		}
 		else {
-			checksight(plr, i);
+			checksight(plr, actor);
 			if (!checkdist(plr, i)) {
 				if ((aimove(i) & kHitTypeMask) == kHitFloor)
 				{
@@ -309,7 +309,7 @@ static void attackgron(PLAYER& plr, DWHActor* actor)
 		setsprite(i, spr.x, spr.y, spr.z);
 
 		if (spr.lotag == 31) {
-			if (checksight(plr, i))
+			if (checksight(plr, actor))
 				if (checkdist(plr, i)) {
 					spr.ang = (short)checksight_ang;
 					attack(plr, i);

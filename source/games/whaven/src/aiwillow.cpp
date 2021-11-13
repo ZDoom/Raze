@@ -25,7 +25,7 @@ static void chasewillow(PLAYER& plr, DWHActor* actor)
 		//spr.z = sector[spr.sectnum].floorz - (32 << 8);
 		int dax = (bcos(spr.ang) * TICSPERFRAME) << 3;
 		int day = (bsin(spr.ang) * TICSPERFRAME) << 3;
-		checksight(plr, i);
+		checksight(plr, actor);
 
 		if (!checkdist(plr, i)) {
 			checkmove(i, dax, day);

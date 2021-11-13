@@ -133,7 +133,7 @@ int checkmove(short i, int dax, int day);
 boolean checkdist(PLAYER& plr, int i);
 boolean checkdist(int i, int x, int y, int z);
 extern int checksight_ang;
-boolean checksight(PLAYER& plr, int i);
+boolean checksight(PLAYER& plr, DWHActor* i);
 void monsterweapon(int i);
 PLAYER* aiGetPlayerTarget(short i);
 boolean actoruse(short i);

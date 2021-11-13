@@ -972,19 +972,20 @@ boolean checkdist(int i, int x, int y, int z) {
 	return false;
 }
 
-boolean checksight(PLAYER& plr, int i) {
+boolean checksight(PLAYER& plr, DWHActor* actor) {
+	auto& spr = actor->s();
 	if (plr.invisibletime > 0) {
 		checksight_ang = ((krand() & 512) - 256) & 2047;
 		return false;
 	}
 
-	if (cansee(plr.x, plr.y, plr.z, plr.sector, sprite[i].x, sprite[i].y,
-		sprite[i].z - (tileHeight(sprite[i].picnum) << 7), sprite[i].sectnum) && plr.invisibletime < 0) {
-		checksight_ang = (getangle(plr.x - sprite[i].x, plr.y - sprite[i].y) & 2047);
-		if (((sprite[i].ang + 2048 - checksight_ang) & 2047) < 1024)
-			sprite[i].ang = (short)((sprite[i].ang + 2048 - (TICSPERFRAME << 1)) & 2047);
+	if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y,
+		spr.z - (tileHeight(spr.picnum) << 7), spr.sectnum) && plr.invisibletime < 0) {
+		checksight_ang = (getangle(plr.x - spr.x, plr.y - spr.y) & 2047);
+		if (((spr.ang + 2048 - checksight_ang) & 2047) < 1024)
+			spr.ang = (short)((spr.ang + 2048 - (TICSPERFRAME << 1)) & 2047);
 		else
-			sprite[i].ang = (short)((sprite[i].ang + (TICSPERFRAME << 1)) & 2047);
+			spr.ang = (short)((spr.ang + (TICSPERFRAME << 1)) & 2047);
 
 		return true;
 	}

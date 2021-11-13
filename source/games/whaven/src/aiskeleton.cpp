@@ -233,7 +233,7 @@ static void attackskeleton(PLAYER& plr, DWHActor* actor)
 
 	spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
 	if (spr.lotag == 16) {
-		if (checksight(plr, i))
+		if (checksight(plr, actor))
 			if (checkdist(plr, i)) {
 				spr.ang = (short)checksight_ang;
 				attack(plr, i);
