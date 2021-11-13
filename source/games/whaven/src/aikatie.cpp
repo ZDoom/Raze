@@ -59,7 +59,7 @@ static void chasekatie(PLAYER& plr, DWHActor* actor)
 			SetNewStatus(actor, DIE);
 	}
 
-	setsprite(i, spr.x, spr.y, spr.z);
+	SetActorPos(actor, &spr.pos);
 }
 	
 static void resurectkatie(PLAYER& plr, DWHActor* actor)
@@ -99,7 +99,7 @@ static void painkatie(PLAYER& plr, DWHActor* actor)
 
 	aimove(i);
 	processfluid(i, zr_florhit, false);
-	setsprite(i, spr.x, spr.y, spr.z);
+	SetActorPos(actor, &spr.pos);
 }
 	
 static void facekatie(PLAYER& plr, DWHActor* actor)
@@ -149,7 +149,7 @@ static void attackkatie(PLAYER& plr, DWHActor* actor)
 		break;
 	}
 
-	setsprite(i, spr.x, spr.y, spr.z);
+	SetActorPos(actor, &spr.pos);
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -200,7 +200,7 @@ static void fleekatie(PLAYER& plr, DWHActor* actor)
 
 	processfluid(i, zr_florhit, false);
 
-	setsprite(i, spr.x, spr.y, spr.z);
+	SetActorPos(actor, &spr.pos);
 }
 	
 static void castkatie(PLAYER& plr, DWHActor* actor)

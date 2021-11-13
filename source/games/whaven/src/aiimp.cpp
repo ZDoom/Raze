@@ -78,7 +78,7 @@ static void chaseimp(PLAYER& plr, DWHActor* actor)
 			SetNewStatus(actor, DIE);
 	}
 
-	setsprite(i, spr.x, spr.y, spr.z);
+	SetActorPos(actor, &spr.pos);
 
 	if ((zr_florhit & kHitTypeMask) == kHitSector && (sector[spr.sectnum].floorpicnum == LAVA
 		|| sector[spr.sectnum].floorpicnum == LAVA1 || sector[spr.sectnum].floorpicnum == ANILAVA)) {
@@ -116,7 +116,7 @@ static void painimp(PLAYER& plr, DWHActor* actor)
 
 	aimove(i);
 	processfluid(i, zr_florhit, false);
-	setsprite(i, spr.x, spr.y, spr.z);
+	SetActorPos(actor, &spr.pos);
 }
 	
 static void dieimp(PLAYER& plr, DWHActor* actor)
@@ -231,7 +231,7 @@ static void fleeimp(PLAYER& plr, DWHActor* actor)
 
 	processfluid(i, zr_florhit, false);
 
-	setsprite(i, spr.x, spr.y, spr.z);
+	SetActorPos(actor, &spr.pos);
 
 	checkexplimp(plr, actor);
 }
@@ -254,7 +254,7 @@ static void attackimp(PLAYER& plr, DWHActor* actor)
 		break;
 	}
 
-	setsprite(i, spr.x, spr.y, spr.z);
+	SetActorPos(actor, &spr.pos);
 	if (spr.lotag == 32) { //original 64
 		if (checksight(plr, actor))
 			if (checkdist(plr, i)) {
@@ -304,7 +304,7 @@ static void skirmishimp(PLAYER& plr, DWHActor* actor)
 
 	processfluid(i, zr_florhit, false);
 
-	setsprite(i, spr.x, spr.y, spr.z);
+	SetActorPos(actor, &spr.pos);
 
 	if (checksector6(actor))
 		return;

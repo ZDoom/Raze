@@ -63,7 +63,7 @@ static void chasedemon(PLAYER& plr, DWHActor* actor)
 			SetNewStatus(actor, DIE);
 	}
 
-	setsprite(i, spr.x, spr.y, spr.z);
+	SetActorPos(actor, &spr.pos);
 
 	if ((zr_florhit & kHitTypeMask) == kHitSector && (sector[spr.sectnum].floorpicnum == LAVA
 		|| sector[spr.sectnum].floorpicnum == LAVA1 || sector[spr.sectnum].floorpicnum == ANILAVA)) {
@@ -97,7 +97,7 @@ static void paindemon(PLAYER& plr, DWHActor* actor)
 	}
 
 	aifly(i);
-	setsprite(i, spr.x, spr.y, spr.z);
+	SetActorPos(actor, &spr.pos);
 }
 
 static void facedemon(PLAYER& plr, DWHActor* actor)
@@ -188,7 +188,7 @@ static void fleedemon(PLAYER& plr, DWHActor* actor)
 
 	processfluid(i, zr_florhit, true);
 
-	setsprite(i, spr.x, spr.y, spr.z);
+	SetActorPos(actor, &spr.pos);
 }
 
 static void castdemon(PLAYER& plr, DWHActor* actor)

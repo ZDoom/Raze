@@ -239,7 +239,7 @@ void aiProcess() {
 		short movestat = (short)movesprite((short)i, (bcos(spr.ang) * TICSPERFRAME) << 3,
 			(bsin(spr.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
 		if (zr_florz > spr.z + (48 << 8)) {
-			setsprite(i, spr.x, spr.y, spr.z);
+			SetActorPos(actor, &spr.pos);
 			movestat = 1;
 		}
 		else {
@@ -448,9 +448,6 @@ int aimove(short i) {
 
 	if (((zr_florz - oz) >> 4) > tileHeight(sprite[i].picnum) + (sprite[i].yrepeat << 2)
 		|| (movestate & kHitTypeMask) == kHitWall) {
-		//			changespritesect(i, osect);
-		//			setsprite(i, ox + MulScale((sprite[i].clipdist) << 2, -bcos(sprite[i].ang), 16),
-		//					oy + MulScale((sprite[i].clipdist) << 2, -bsin(sprite[i].ang), 16), oz);
 
 		setsprite(i, ox, oy, oz);
 
@@ -545,7 +542,7 @@ void aisearch(PLAYER& plr, short i, boolean fly) {
 
 	processfluid(i, zr_florhit, fly);
 
-	setsprite(i, spr.x, spr.y, spr.z);
+	SetActorPos(actor, &spr.pos);
 }
 
 boolean checksector6(DWHActor* actor) {

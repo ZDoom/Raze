@@ -59,7 +59,7 @@ static void chasedevil(PLAYER& plr, DWHActor* actor)
 			SetNewStatus(actor, DIE);
 	}
 
-	setsprite(i, spr.x, spr.y, spr.z);
+	SetActorPos(actor, &spr.pos);
 }
 
 static void diedevil(PLAYER& plr, DWHActor* actor)
@@ -97,7 +97,7 @@ static void paindevil(PLAYER& plr, DWHActor* actor)
 
 	aimove(i);
 	processfluid(i, zr_florhit, false);
-	setsprite(i, spr.x, spr.y, spr.z);
+	SetActorPos(actor, &spr.pos);
 }
 
 static void facedevil(PLAYER& plr, DWHActor* actor)
@@ -163,7 +163,7 @@ static void fleedevil(PLAYER& plr, DWHActor* actor)
 
 	processfluid(i, zr_florhit, false);
 
-	setsprite(i, spr.x, spr.y, spr.z);
+	SetActorPos(actor, &spr.pos);
 }
 
 static void attackdevil(PLAYER& plr, DWHActor* actor)
@@ -181,7 +181,7 @@ static void attackdevil(PLAYER& plr, DWHActor* actor)
 		break;
 	}
 
-	setsprite(i, spr.x, spr.y, spr.z);
+	SetActorPos(actor, &spr.pos);
 
 	spr.extra -= TICSPERFRAME;
 	spr.lotag -= TICSPERFRAME;

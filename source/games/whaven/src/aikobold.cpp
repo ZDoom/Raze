@@ -81,7 +81,7 @@ static void chasekobold(PLAYER& plr, DWHActor* actor)
 			SetNewStatus(actor, DIE);
 	}
 
-	setsprite(i, spr.x, spr.y, spr.z);
+	SetActorPos(actor, &spr.pos);
 
 	if ((zr_florhit & kHitTypeMask) == kHitSector && (sector[spr.sectnum].floorpicnum == LAVA
 		|| sector[spr.sectnum].floorpicnum == LAVA1 || sector[spr.sectnum].floorpicnum == ANILAVA)) {
@@ -129,7 +129,7 @@ static void painkobold(PLAYER& plr, DWHActor* actor)
 
 	aimove(i);
 	processfluid(i, zr_florhit, false);
-	setsprite(i, spr.x, spr.y, spr.z);
+	SetActorPos(actor, &spr.pos);
 
 	checkexplkobold(plr, actor);
 }
@@ -200,7 +200,7 @@ static void fleekobold(PLAYER& plr, DWHActor* actor)
 
 	processfluid(i, zr_florhit, false);
 
-	setsprite(i, spr.x, spr.y, spr.z);
+	SetActorPos(actor, &spr.pos);
 
 	checkexplkobold(plr, actor);
 }
@@ -221,7 +221,7 @@ static void attackkobold(PLAYER& plr, DWHActor* actor)
 		break;
 	}
 
-	setsprite(i, spr.x, spr.y, spr.z);
+	SetActorPos(actor, &spr.pos);
 
 	if (spr.lotag == 34) {
 		if (checksight(plr, actor))
@@ -323,7 +323,7 @@ static void skirmishkobold(PLAYER& plr, DWHActor* actor)
 
 	processfluid(i, zr_florhit, false);
 
-	setsprite(i, spr.x, spr.y, spr.z);
+	SetActorPos(actor, &spr.pos);
 
 	if (checksector6(actor))
 		return;

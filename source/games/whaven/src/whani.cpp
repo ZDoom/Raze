@@ -76,7 +76,7 @@ void animateobjs(PLAYER& plr) {
 					spr.z = sparksz;
 					spr.ang = (short) ((krand() % 2047) & 2047);
 					spr.zvel = 0;
-					setsprite((short) i, spr.x, spr.y, spr.z);
+					SetActorPos(actor, &spr.pos);
 
 				}
 			}
@@ -108,7 +108,7 @@ void animateobjs(PLAYER& plr) {
 					spr.z = sparksz;
 					spr.ang = (short) ((krand() % 2047) & 2047);
 					spr.zvel = 0;
-					setsprite((short) i, spr.x, spr.y, spr.z);
+					SetActorPos(actor, &spr.pos);
 
 				}
 			}
@@ -139,7 +139,7 @@ void animateobjs(PLAYER& plr) {
 					spr.z = sparksz;
 					spr.ang = (short) ((krand() % 2047) & 2047);
 					spr.zvel = 0;
-					setsprite((short) i, spr.x, spr.y, spr.z);
+					SetActorPos(actor, &spr.pos);
 
 				}
 			}
@@ -448,7 +448,7 @@ void animateobjs(PLAYER& plr) {
 				movestat = (short) movesprite((short) i,
 						(bcos(spr.ang) * TICSPERFRAME) << 3,
 						(bsin(spr.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
-				setsprite(i, spr.x, spr.y, spr.z);
+				SetActorPos(actor, &spr.pos);
 				if (movestat != 0)
 					spr.ang = (short) (krand() & 2047);
 			}
@@ -465,7 +465,7 @@ void animateobjs(PLAYER& plr) {
 				movestat = (short) movesprite((short) i,
 						(bcos(spr.ang) * TICSPERFRAME) << 3,
 						(bsin(spr.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
-				setsprite(i, spr.x, spr.y, spr.z);
+				SetActorPos(actor, &spr.pos);
 				if (movestat != 0)
 					spr.ang = (short) (krand() & 2047);
 			}
@@ -481,7 +481,7 @@ void animateobjs(PLAYER& plr) {
 				movestat = (short) movesprite((short) i,
 						(bcos(spr.ang) * TICSPERFRAME) << 3,
 						(bsin(spr.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
-				setsprite(i, spr.x, spr.y, spr.z);
+				SetActorPos(actor, &spr.pos);
 				if ((movestat & 0xc000) == 16384) {// Hits a ceiling / floor
 					if (i == lastbat) {
 						soundEngine->StopSound(CHAN_BAT);
@@ -549,7 +549,7 @@ void animateobjs(PLAYER& plr) {
 		case 1821:
 			
 			spr.z -= (TICSPERFRAME << 6);
-			setsprite(i, spr.x, spr.y, spr.z);
+			SetActorPos(actor, &spr.pos);
 			if (spr.z <= sector[spr.sectnum].ceilingz + 32768) {
 				soundEngine->StopSound(CHAN_CART);
 				spritesound(S_CLUNK, &spr);
@@ -561,7 +561,7 @@ void animateobjs(PLAYER& plr) {
 		case 1811:
 			
 			spr.z -= (TICSPERFRAME << 6);
-			setsprite(i, spr.x, spr.y, spr.z);
+			SetActorPos(actor, &spr.pos);
 			if (spr.z <= sector[spr.sectnum].ceilingz + 65536) {
 				ChangeActorStat(actor, 0);
 				spr.lotag = 1810;
@@ -571,7 +571,7 @@ void animateobjs(PLAYER& plr) {
 		case 1801:
 			
 			spr.z -= (TICSPERFRAME << 6);
-			setsprite(i, spr.x, spr.y, spr.z);
+			SetActorPos(actor, &spr.pos);
 			if (spr.z <= sector[spr.sectnum].ceilingz + 65536) {
 				ChangeActorStat(actor, 0);
 				spr.lotag = 1800;
@@ -595,7 +595,7 @@ void animateobjs(PLAYER& plr) {
 			
 			ironbarmove = TICSPERFRAME << 6;
 			spr.z += ironbarmove;
-			setsprite(i, spr.x, spr.y, spr.z);
+			SetActorPos(actor, &spr.pos);
 			if (spr.z >= (sector[spr.sectnum].floorz - 32768)) {
 				soundEngine->StopSound(CHAN_CART);
 				spritesound(S_CLUNK, &spr);
@@ -607,7 +607,7 @@ void animateobjs(PLAYER& plr) {
 		case 1810:
 			ironbarmove = TICSPERFRAME << 6;
 			spr.z += ironbarmove;
-			setsprite(i, spr.x, spr.y, spr.z);
+			SetActorPos(actor, &spr.pos);
 			if (spr.z >= sector[spr.sectnum].floorz) {
 				ChangeActorStat(actor, 0);
 				spr.lotag = 1811;
@@ -618,7 +618,7 @@ void animateobjs(PLAYER& plr) {
 			
 			ironbarmove = TICSPERFRAME << 6;
 			spr.z += ironbarmove;
-			setsprite(i, spr.x, spr.y, spr.z);
+			SetActorPos(actor, &spr.pos);
 			if (spr.z >= sector[spr.sectnum].floorz) {
 				ChangeActorStat(actor, 0);
 				spr.lotag = 1801;
@@ -637,7 +637,7 @@ void animateobjs(PLAYER& plr) {
 
 		spr.lotag -= TICSPERFRAME;
 		spr.z = sector[spr.sectnum].floorz + (tileHeight(spr.picnum) << 8);
-		setsprite(i, spr.x, spr.y, spr.z);
+		SetActorPos(actor, &spr.pos);
 
 		if (spr.lotag <= 0) {
 			if ((spr.picnum >= SPLASHAROO && spr.picnum < LASTSPLASHAROO)
@@ -718,7 +718,7 @@ void animateobjs(PLAYER& plr) {
 		hitobject = (short) movesprite(i, (bcos(spr.ang) * TICSPERFRAME) << 3,
 				(bsin(spr.ang) * TICSPERFRAME) << 3, daz, 4 << 8, 4 << 8, 0);
 
-		setsprite(i, spr.x, spr.y, spr.z);
+		SetActorPos(actor, &spr.pos);
 
 		if (spr.picnum == FBARRELFALL || spr.picnum >= BOULDER && spr.picnum <= BOULDER + 3
 				&& (checkdist(i, plr.x, plr.y, plr.z))) {
@@ -764,7 +764,7 @@ void animateobjs(PLAYER& plr) {
 		hitobject = (short) movesprite(i, (bcos(spr.ang) * TICSPERFRAME) << 3,
 				(bsin(spr.ang) * TICSPERFRAME) << 3, daz, 4 << 8, 4 << 8, 0);
 
-		setsprite(i, spr.x, spr.y, spr.z);
+		SetActorPos(actor, &spr.pos);
 
 		if (spr.z >= sector[spr.sectnum].floorz) {
 			if (sector[spr.sectnum].floorpicnum == WATER
@@ -813,7 +813,7 @@ void animateobjs(PLAYER& plr) {
 		hitobject = (short) movesprite(i, (bcos(spr.ang) * TICSPERFRAME) << 3,
 				(bsin(spr.ang) * TICSPERFRAME) << 3, daz, 4 << 8, 4 << 8, 0);
 
-		setsprite(i, spr.x, spr.y, spr.z);
+		SetActorPos(actor, &spr.pos);
 
 		if (spr.lotag < 0 || (hitobject & 0xc000) == 32768) {
 			spr.lotag = 0;
@@ -1150,7 +1150,7 @@ void animateobjs(PLAYER& plr) {
 		daz = spr.zvel -= TICSPERFRAME << 2;
 		movestat = (short) movesprite(i, (bcos(spr.ang) * TICSPERFRAME) << 3,
 				(bsin(spr.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 1);
-		setsprite(i, spr.x, spr.y, spr.z);
+		SetActorPos(actor, &spr.pos);
 		if (spr.extra == 0) {
 			if (spr.lotag < 0) {
 				spr.lotag = 8;
@@ -1300,7 +1300,7 @@ void animateobjs(PLAYER& plr) {
 		if (spr.xrepeat > 1)
 			spr.xrepeat = spr.yrepeat -= TICSPERFRAME;
 
-//			setsprite(i, spr.x, spr.y, spr.z);
+//			SetActorPos(actor, &spr.pos);
 		if (spr.lotag < 0) {
 			deletesprite((short) i);
 		}
@@ -1474,7 +1474,7 @@ void animateobjs(PLAYER& plr) {
 			day = ((((int) spr.yvel) * TICSPERFRAME) >> 3);
 			daz = (((int) spr.zvel) * TICSPERFRAME);
 			movestat = (short) movesprite((short) i, dax, day, daz, 4 << 8, 4 << 8, 1);
-			setsprite(i, spr.x, spr.y, spr.z);
+			SetActorPos(actor, &spr.pos);
 		}
 
 		if (spr.picnum == ICECUBE && spr.z < sector[spr.sectnum].floorz) {

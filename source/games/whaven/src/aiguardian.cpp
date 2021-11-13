@@ -60,7 +60,7 @@ static void chaseguardian(PLAYER& plr, DWHActor* actor)
 			SetNewStatus(actor, DIE);
 	}
 
-	setsprite(i, spr.x, spr.y, spr.z);
+	SetActorPos(actor, &spr.pos);
 
 	if (!isValidSector(spr.sectnum))
 		return;
@@ -195,7 +195,7 @@ static void fleeguardian(PLAYER& plr, DWHActor* actor)
 
 	processfluid(i, zr_florhit, true);
 
-	setsprite(i, spr.x, spr.y, spr.z);
+	SetActorPos(actor, &spr.pos);
 }
 	
 static void painguardian(PLAYER& plr, DWHActor* actor)
@@ -211,7 +211,7 @@ static void painguardian(PLAYER& plr, DWHActor* actor)
 	}
 
 	//				aifly(i);
-	//				setsprite(i, spr.x, spr.y, spr.z);
+	//				SetActorPos(actor, &spr.pos);
 }
 	
 static void castguardian(PLAYER& plr, DWHActor* actor)

@@ -197,4 +197,15 @@ inline void ChangeActorStat(DWHActor* actor, int newstat)
 	changespritestat(actor->GetSpriteIndex(), newstat);
 }
 
+inline void SetActorPos(DWHActor* actor, int x, int y, int z)
+{
+	vec3_t v = { x, y, z };
+	setsprite(actor->GetSpriteIndex(), &v);
+}
+
+inline void SetActorPos(DWHActor* actor, vec3_t* pos)
+{
+	setsprite(actor->GetSpriteIndex(), pos);
+}
+
 END_WH_NS

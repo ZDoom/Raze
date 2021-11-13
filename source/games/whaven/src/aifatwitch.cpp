@@ -59,7 +59,7 @@ static void chasefatwitch(PLAYER& plr, DWHActor* actor)
 			SetNewStatus(actor, DIE);
 	}
 
-	setsprite(i, spr.x, spr.y, spr.z);
+	SetActorPos(actor, &spr.pos);
 }
 	
 static void resurectfatwitch(PLAYER& plr, DWHActor* actor)
@@ -114,7 +114,7 @@ static void painfatwitch(PLAYER& plr, DWHActor* actor)
 
 	aimove(i);
 	processfluid(i, zr_florhit, false);
-	setsprite(i, spr.x, spr.y, spr.z);
+	SetActorPos(actor, &spr.pos);
 }
 	
 static void facefatwitch(PLAYER& plr, DWHActor* actor)
@@ -162,7 +162,7 @@ static void attackfatwitch(PLAYER& plr, DWHActor* actor)
 		break;
 	}
 
-	setsprite(i, spr.x, spr.y, spr.z);
+	SetActorPos(actor, &spr.pos);
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -208,7 +208,7 @@ static void fleefatwitch(PLAYER& plr, DWHActor* actor)
 
 	processfluid(i, zr_florhit, false);
 
-	setsprite(i, spr.x, spr.y, spr.z);
+	SetActorPos(actor, &spr.pos);
 }
 	
 static void castfatwitch(PLAYER& plr, DWHActor* actor)

@@ -69,7 +69,7 @@ static void chasejudy(PLAYER& plr, DWHActor* actor)
 			SetNewStatus(actor, DIE);
 	}
 
-	setsprite(i, spr.x, spr.y, spr.z);
+	SetActorPos(actor, &spr.pos);
 }
 	
 static void resurectjudy(PLAYER& plr, DWHActor* actor)
@@ -125,7 +125,7 @@ static void painjudy(PLAYER& plr, DWHActor* actor)
 
 	aimove(i);
 	processfluid(i, zr_florhit, false);
-	setsprite(i, spr.x, spr.y, spr.z);
+	SetActorPos(actor, &spr.pos);
 }
 	
 static void facejudy(PLAYER& plr, DWHActor* actor)
@@ -175,7 +175,7 @@ static void attackjudy(PLAYER& plr, DWHActor* actor)
 		break;
 	}
 
-	setsprite(i, spr.x, spr.y, spr.z);
+	SetActorPos(actor, &spr.pos);
 
 	spr.extra -= TICSPERFRAME;
 	spr.lotag -= TICSPERFRAME;
@@ -222,7 +222,7 @@ static void fleejudy(PLAYER& plr, DWHActor* actor)
 
 	processfluid(i, zr_florhit, false);
 
-	setsprite(i, spr.x, spr.y, spr.z);
+	SetActorPos(actor, &spr.pos);
 }
 	
 static void castjudy(PLAYER& plr, DWHActor* actor)

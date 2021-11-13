@@ -67,7 +67,7 @@ static void chasedragon(PLAYER& plr, DWHActor* actor)
 			SetNewStatus(actor, DIE);
 	}
 
-	setsprite(i, spr.x, spr.y, spr.z);
+	SetActorPos(actor, &spr.pos);
 }
 
 static void fleedragon(PLAYER& plr, DWHActor* actor)
@@ -102,7 +102,7 @@ static void fleedragon(PLAYER& plr, DWHActor* actor)
 
 	processfluid(i, zr_florhit, false);
 
-	setsprite(i, spr.x, spr.y, spr.z);
+	SetActorPos(actor, &spr.pos);
 }
 
 static void diedragon(PLAYER& plr, DWHActor* actor)
@@ -272,7 +272,7 @@ static void paindragon(PLAYER& plr, DWHActor* actor)
 	spr.lotag -= TICSPERFRAME;
 	aimove(i);
 	processfluid(i, zr_florhit, false);
-	setsprite(i, spr.x, spr.y, spr.z);
+	SetActorPos(actor, &spr.pos);
 }
 
 static void facedragon(PLAYER& plr, DWHActor* actor)

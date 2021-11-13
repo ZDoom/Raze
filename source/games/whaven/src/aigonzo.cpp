@@ -60,7 +60,7 @@ static void chasegonzo(PLAYER& plr, DWHActor* actor)
 				spr.x = dax;
 				spr.y = day;
 				spr.z = daz;
-				setsprite(i, spr.x, spr.y, spr.z);
+				SetActorPos(actor, &spr.pos);
 				movestat = 1;
 
 				if (rand() % 100 > 80 && sector[plr.sector].lotag == 25) {
@@ -177,7 +177,7 @@ static void chasegonzo(PLAYER& plr, DWHActor* actor)
 				SetNewStatus(actor, DIE);
 		}
 
-		setsprite(i, spr.x, spr.y, spr.z);
+		SetActorPos(actor, &spr.pos);
 
 		if ((zr_florhit & kHitTypeMask) == kHitSector && (sector[spr.sectnum].floorpicnum == LAVA
 			|| sector[spr.sectnum].floorpicnum == LAVA1 || sector[spr.sectnum].floorpicnum == ANILAVA)) {
@@ -241,7 +241,7 @@ static void skirmishgonzo(PLAYER& plr, DWHActor* actor)
 
 	processfluid(i, zr_florhit, false);
 
-	setsprite(i, spr.x, spr.y, spr.z);
+	SetActorPos(actor, &spr.pos);
 
 	if (checksector6(actor))
 		return;
@@ -321,7 +321,7 @@ static void paingonzo(PLAYER& plr, DWHActor* actor)
 
 	aimove(i);
 	processfluid(i, zr_florhit, false);
-	setsprite(i, spr.x, spr.y, spr.z);
+	SetActorPos(actor, &spr.pos);
 
 	checkexplgonzo(plr, actor);
 }
@@ -482,7 +482,7 @@ static void fleegonzo(PLAYER& plr, DWHActor* actor)
 
 	processfluid(i, zr_florhit, false);
 
-	setsprite(i, spr.x, spr.y, spr.z);
+	SetActorPos(actor, &spr.pos);
 
 	checkexplgonzo(plr, actor);
 }
@@ -619,7 +619,7 @@ void gonzoProcess(PLAYER& plr)
 
 			spr.lotag -= TICSPERFRAME;
 
-			setsprite(i, spr.x, spr.y, spr.z);
+			SetActorPos(actor, &spr.pos);
 
 			if (spr.lotag < 0) {
 				spr.extra = 2;

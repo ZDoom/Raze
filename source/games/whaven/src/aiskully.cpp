@@ -56,7 +56,7 @@ static void chaseskully(PLAYER& plr, DWHActor* actor)
 			SetNewStatus(actor, DIE);
 	}
 
-	setsprite(i, spr.x, spr.y, spr.z);
+	SetActorPos(actor, &spr.pos);
 }
 	
 static void resurectskully(PLAYER& plr, DWHActor* actor)
@@ -111,7 +111,7 @@ static void painskully(PLAYER& plr, DWHActor* actor)
 
 	aimove(i);
 	processfluid(i, zr_florhit, false);
-	setsprite(i, spr.x, spr.y, spr.z);
+	SetActorPos(actor, &spr.pos);
 }
 	
 static void faceskully(PLAYER& plr, DWHActor* actor)
@@ -161,7 +161,7 @@ static void attackskully(PLAYER& plr, DWHActor* actor)
 		break;
 	}
 
-	setsprite(i, spr.x, spr.y, spr.z);
+	SetActorPos(actor, &spr.pos);
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -207,7 +207,7 @@ static void fleeskully(PLAYER& plr, DWHActor* actor)
 
 	processfluid(i, zr_florhit, false);
 
-	setsprite(i, spr.x, spr.y, spr.z);
+	SetActorPos(actor, &spr.pos);
 }
 	
 static void castskully(PLAYER& plr, DWHActor* actor)
