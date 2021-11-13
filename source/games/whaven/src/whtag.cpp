@@ -25,18 +25,20 @@ int dragx1[16], dragy1[16], dragx2[16], dragy2[16], dragfloorz[16];
 
 
 void operatesprite(PLAYER& plr, short s) {
-	if (sprite[s].picnum == SPAWNFIREBALL)
+	auto actor = &whActors[s];
+	auto& spr = actor->s();
+	if (spr.picnum == SPAWNFIREBALL)
 		newstatus(s, DEVILFIRE);
-	if (sprite[s].picnum == SPAWNJAVLIN)
+	if (spr.picnum == SPAWNJAVLIN)
 		trowajavlin(s);
 
-	switch (sprite[s].picnum) {
+	switch (spr.picnum) {
 	case STONEGONZOCHM:
 	case STONEGONZOGSH:
 	case STONEGRONDOVAL:
 	case STONEGONZOBSW:
-		sprite[s].lotag *= 120;
-		changespritestat((short) s, STONETOFLESH);
+		spr.lotag *= 120;
+		ChangeActorStat(actor, STONETOFLESH);
 		break;
 	case GONZOHMJUMP:
 	case GONZOSHJUMP:
@@ -51,7 +53,7 @@ void operatesprite(PLAYER& plr, short s) {
 	case STAINCIRCLE:
 	case STAINQ:
 	case STAINSCENE:
-		switch (sprite[s].lotag) {
+		switch (spr.lotag) {
 		case 2:
 			spritesound(S_GLASSBREAK1 + (rand() % 3), &sprite[s]);
 			for (int j = 0; j < 20; j++) {
@@ -63,17 +65,17 @@ void operatesprite(PLAYER& plr, short s) {
 		break;
 	}
 
-	if ((sprite[s].lotag == 1800 || sprite[s].lotag == 1810 || sprite[s].lotag == 1820)
-			&& sprite[s].sectnum == plr.sector) {
+	if ((spr.lotag == 1800 || spr.lotag == 1810 || spr.lotag == 1820)
+			&& spr.sectnum == plr.sector) {
 		for (short j = 0; j < MAXSPRITES; j++) {
-			if (sprite[s].sectnum == sprite[j].sectnum && (sprite[j].lotag >= 1800 && sprite[j].lotag <= 1899))
+			if (spr.sectnum == sprite[j].sectnum && (sprite[j].lotag >= 1800 && sprite[j].lotag <= 1899))
 				newstatus(j, LIFTDN);
 		}
 	}
-	if ((sprite[s].lotag == 1801 || sprite[s].lotag == 1811 || sprite[s].lotag == 1821)
-			&& sprite[s].sectnum == plr.sector) {
+	if ((spr.lotag == 1801 || spr.lotag == 1811 || spr.lotag == 1821)
+			&& spr.sectnum == plr.sector) {
 		for (short j = 0; j < MAXSPRITES; j++) {
-			if (sprite[s].sectnum == sprite[j].sectnum && (sprite[j].lotag >= 1800 && sprite[j].lotag <= 1899))
+			if (spr.sectnum == sprite[j].sectnum && (sprite[j].lotag >= 1800 && sprite[j].lotag <= 1899))
 				newstatus(j, LIFTUP);
 		}
 	}

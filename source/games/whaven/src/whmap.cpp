@@ -689,7 +689,6 @@ boolean prepareboard(const char* fname) {
 			spr.shade = -17;
 			spr.pal = 0;
 			spr.detail = GYSERTYPE;
-			// changespritestat(i,DORMANT);
 			break;
 		case PATROLPOINT:
 			spr.xrepeat = 24;
@@ -698,7 +697,7 @@ boolean prepareboard(const char* fname) {
 			spr.cstat &= ~3;
 			spr.cstat |= 0x8000;
 			spr.clipdist = 4;
-			changespritestat(i, APATROLPOINT);
+			ChangeActorStat(actor, APATROLPOINT);
 			break;
 		case BARREL:
 		case VASEA:
