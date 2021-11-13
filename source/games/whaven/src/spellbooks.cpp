@@ -241,7 +241,8 @@ void speelbookprocess(PLAYER& plr) {
 }
 
 void nukespell(PLAYER& plr, short const j) {
-	auto& spr = sprite[j];
+	auto actor = &whActors[j];
+	auto& spr = actor->s();
 
 	if(spr.detail != WILLOWTYPE && spr.pal == 6) //don't nuke freezed enemies
 		return;
@@ -251,7 +252,7 @@ void nukespell(PLAYER& plr, short const j) {
 		if (spr.shade > 30)
 			return;
 
-		newstatus(j, NUKED);
+		SetNewStatus(actor, NUKED);
 		spr.pal = 0;
 		spr.cstat |= 1;
 		spr.cstat &= ~3;
@@ -285,14 +286,14 @@ void nukespell(PLAYER& plr, short const j) {
 		break;
 	case KOBOLDTYPE:
 		spr.picnum = KOBOLDCHAR;
-		newstatus(j, NUKED);
+		SetNewStatus(actor, NUKED);
 		spr.pal = 0;
 		spr.cstat |= 1;
 		addscore(&plr, 150);
 		break;
 	case DEVILTYPE:
 		spr.picnum = DEVILCHAR;
-		newstatus(j, NUKED);
+		SetNewStatus(actor, NUKED);
 		spr.pal = 0;
 		spr.cstat |= 1;
 		addscore(&plr, 150);
@@ -300,56 +301,56 @@ void nukespell(PLAYER& plr, short const j) {
 	case GOBLINTYPE:
 	case IMPTYPE:
 		spr.picnum = GOBLINCHAR;
-		newstatus(j, NUKED);
+		SetNewStatus(actor, NUKED);
 		spr.pal = 0;
 		spr.cstat |= 1;
 		addscore(&plr, 150);
 		break;
 	case MINOTAURTYPE:
 		spr.picnum = MINOTAURCHAR;
-		newstatus(j, NUKED);
+		SetNewStatus(actor, NUKED);
 		spr.pal = 0;
 		spr.cstat |= 1;
 		addscore(&plr, 150);
 		break;
 	case SKELETONTYPE:
 		spr.picnum = SKELETONCHAR;
-		newstatus(j, NUKED);
+		SetNewStatus(actor, NUKED);
 		spr.pal = 0;
 		spr.cstat |= 1;
 		addscore(&plr, 150);
 		break;
 	case GRONTYPE:
 		spr.picnum = GRONCHAR;
-		newstatus(j, NUKED);
+		SetNewStatus(actor, NUKED);
 		spr.pal = 0;
 		spr.cstat |= 1;
 		addscore(&plr, 150);
 		break;
 	case DRAGONTYPE:
 		spr.picnum = DRAGONCHAR;
-		newstatus(j, NUKED);
+		SetNewStatus(actor, NUKED);
 		spr.pal = 0;
 		spr.cstat |= 1;
 		addscore(&plr, 150);
 		break;
 	case GUARDIANTYPE:
 		spr.picnum = GUARDIANCHAR;
-		newstatus(j, NUKED);
+		SetNewStatus(actor, NUKED);
 		spr.pal = 0;
 		spr.cstat |= 1;
 		addscore(&plr, 150);
 		break;
 	case FATWITCHTYPE:
 		spr.picnum = FATWITCHCHAR;
-		newstatus(j, NUKED);
+		SetNewStatus(actor, NUKED);
 		spr.pal = 0;
 		spr.cstat |= 1;
 		addscore(&plr, 150);
 		break;
 	case SKULLYTYPE:
 		spr.picnum = SKULLYCHAR;
-		newstatus(j, NUKED);
+		SetNewStatus(actor, NUKED);
 		spr.pal = 0;
 		spr.cstat |= 1;
 		addscore(&plr, 150);
@@ -357,7 +358,7 @@ void nukespell(PLAYER& plr, short const j) {
 	case JUDYTYPE:
 		if (mapon < 24) {
 			spr.picnum = JUDYCHAR;
-			newstatus(j, NUKED);
+			SetNewStatus(actor, NUKED);
 			spr.pal = 0;
 			spr.cstat |= 1;
 			addscore(&plr, 150);

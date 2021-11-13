@@ -417,10 +417,12 @@ static void goblinWar(PLAYER& plr, DWHActor* actor)
 	case 1: // chase
 	{
 		k = spr.owner;
+		auto owneractor = &whActors[k];
+		auto ownerspr = owneractor->s();
 
 		int movehit = aimove(i);
 		if (movehit == 0)
-			spr.ang = getangle(sprite[k].x - spr.x, sprite[k].y - spr.y);
+			spr.ang = getangle(ownerspr.x - spr.x, ownerspr.y - spr.y);
 		else if ((movehit & kHitTypeMask) == kHitWall) {
 			spr.extra = 3;
 			spr.ang = (short)((spr.ang + (krand() & 256 - 128)) & 2047);
@@ -433,13 +435,13 @@ static void goblinWar(PLAYER& plr, DWHActor* actor)
 				spr.ang = (short)((spr.ang + (krand() & 256 - 128)) & 2047);
 				spr.lotag = 60;
 			}
-			else spr.ang = getangle(sprite[k].x - spr.x, sprite[k].y - spr.y);
+			else spr.ang = getangle(ownerspr.x - spr.x, ownerspr.y - spr.y);
 		}
 
 		processfluid(i, zr_florhit, false);
 
 		setsprite(i, spr.x, spr.y, spr.z);
-		if (checkdist(i, sprite[k].x, sprite[k].y, sprite[k].z)) {
+		if (checkdist(i, ownerspr.x, ownerspr.y, ownerspr.z)) {
 			spr.extra = 2;
 		}
 		else
@@ -453,7 +455,9 @@ static void goblinWar(PLAYER& plr, DWHActor* actor)
 	case 2: // attack
 	{
 		k = spr.owner;
-		if (checkdist(i, sprite[k].x, sprite[k].y, sprite[k].z)) {
+		auto owneractor = &whActors[k];
+		auto& ownerspr = owneractor->s();
+		if (checkdist(i, ownerspr.x, ownerspr.y, ownerspr.z)) {
 			if ((krand() & 1) != 0) {
 				// goblins are fighting
 				// JSA_DEMO
@@ -468,17 +472,17 @@ static void goblinWar(PLAYER& plr, DWHActor* actor)
 				if (krand() % 100 > 90) { // if k is dead
 					spr.extra = 0; // needs to
 					spr.picnum = GOBLIN;
-					sprite[k].extra = 4;
-					sprite[k].picnum = GOBLINDIE;
-					sprite[k].lotag = 20;
-					sprite[k].hitag = 0;
-					newstatus(k, DIE);
+					ownerspr.extra = 4;
+					ownerspr.picnum = GOBLINDIE;
+					ownerspr.lotag = 20;
+					ownerspr.hitag = 0;
+					SetNewStatus(owneractor, DIE);
 				}
 				else { // i attack k flee
 					spr.extra = 0;
-					sprite[k].extra = 3;
-					sprite[k].ang = (short)((spr.ang + (krand() & 256 - 128)) & 2047);
-					sprite[k].lotag = 60;
+					ownerspr.extra = 3;
+					ownerspr.ang = (short)((spr.ang + (krand() & 256 - 128)) & 2047);
+					ownerspr.lotag = 60;
 				}
 			}
 		}

@@ -487,11 +487,12 @@ int aifly(short i) {
 }
 
 void aisearch(PLAYER& plr, short i, boolean fly) {
-	SPRITE& spr = sprite[i];
+	auto actor = &whActors[i];
+	SPRITE& spr = actor->s();
 	spr.lotag -= TICSPERFRAME;
 
 	//		if (plr.invisibletime > 0) {
-	//			newstatus(i, FACE);
+	//			SetNewStatus(actor, FACE);
 	//			return;
 	//		}
 
@@ -506,10 +507,10 @@ void aisearch(PLAYER& plr, short i, boolean fly) {
 	if (checkdist(plr, i)) {
 		if (plr.shadowtime > 0) {
 			spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
-			newstatus(i, FLEE);
+			SetNewStatus(actor, FLEE);
 		}
 		else
-			newstatus(i, ATTACK);
+			SetNewStatus(actor, ATTACK);
 		return;
 	}
 
@@ -517,7 +518,7 @@ void aisearch(PLAYER& plr, short i, boolean fly) {
 		if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 			spr.sectnum) && spr.lotag < 0) {
 			spr.ang = (short)((spr.ang + 1024) & 2047);
-			newstatus(i, FLEE);
+			SetNewStatus(actor, FLEE);
 			return;
 		}
 		if (spr.lotag < 0) {
@@ -535,7 +536,7 @@ void aisearch(PLAYER& plr, short i, boolean fly) {
 
 	if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 		spr.sectnum) && movestat == 0 && spr.lotag < 0) {
-		newstatus(i, FACE);
+		SetNewStatus(actor, FACE);
 		return;
 	}
 

@@ -42,10 +42,9 @@ static void kurtExplo(PLAYER& plr, DWHActor* actor)
 		spr.lotag = 12;
 
 	WHSectIterator it(spr.sectnum);
-	while (auto sect = it.Next())
+	while (auto sectactor = it.Next())
 	{
-		SPRITE& tspr = sect->s();
-		int j = sect->GetSpriteIndex();
+		SPRITE& tspr = sectactor->s();
 
 		int dx = abs(spr.x - tspr.x); // x distance to sprite
 		int dy = abs(spr.y - tspr.y); // y distance to sprite
@@ -55,7 +54,7 @@ static void kurtExplo(PLAYER& plr, DWHActor* actor)
 			if (tspr.detail == KURTTYPE) {
 				tspr.hitag -= TICSPERFRAME << 4;
 				if (tspr.hitag < 0) {
-					newstatus(j, DIE);
+					SetNewStatus(sectactor, DIE);
 				}
 			}
 		}

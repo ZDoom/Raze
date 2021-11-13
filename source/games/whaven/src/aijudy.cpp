@@ -249,11 +249,9 @@ static void castjudy(PLAYER& plr, DWHActor* actor)
 				while (auto itActor = it.Next())
 				{
 					SPRITE& spr = itActor->s();
-					int j = itActor->GetSpriteIndex();
-
 					spr.lotag = (short)((krand() % 120) + 120);
 					kills--;
-					newstatus(j, RESURECT);
+					SetNewStatus(itActor, RESURECT);
 				}
 			}
 			else {

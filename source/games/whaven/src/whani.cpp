@@ -732,7 +732,7 @@ void animateobjs(PLAYER& plr) {
 			}
 			switch (spr.picnum) {
 			case FBARRELFALL:
-				newstatus(i, SHATTER);
+				SetNewStatus(actor, SHATTER);
 				spr.lotag = 12;
 				break;
 			default:
@@ -771,12 +771,12 @@ void animateobjs(PLAYER& plr) {
 					|| sector[spr.sectnum].floorpicnum == FLOORMIRROR) {
 				makemonstersplash(SPLASHAROO, i);
 			}
-			newstatus(i, BROKENVASE);
+			SetNewStatus(actor, BROKENVASE);
 			continue;
 		}
 
 		if ((hitobject & 0xc000) == 16384) {
-			newstatus(i, BROKENVASE);
+			SetNewStatus(actor, BROKENVASE);
 			continue;
 		}
 
@@ -785,7 +785,7 @@ void animateobjs(PLAYER& plr) {
 			if (spr.owner != hitobject) {
 				hitdamage = damageactor(plr, hitobject, i);
 				if (hitdamage) {
-					newstatus(i, BROKENVASE);
+					SetNewStatus(actor, BROKENVASE);
 					continue;
 				}
 			}
@@ -843,13 +843,13 @@ void animateobjs(PLAYER& plr) {
 				wall[k].shade = (byte) j;
 			spr.lotag -= TICSPERFRAME;
 			if (spr.lotag < 0) {
-				newstatus((short) i, ACTIVE);
+				SetNewStatus(actor, ACTIVE);
 			}
 		} else {
 			spr.lotag -= TICSPERFRAME;
 			spr.xrepeat = spr.yrepeat = 2;
 			if (spr.lotag < 0) {
-				newstatus(i, ACTIVE);
+				SetNewStatus(actor, ACTIVE);
 			}
 		}
 	}
@@ -879,14 +879,14 @@ void animateobjs(PLAYER& plr) {
 				for (k = startwall; k <= endwall; k++) {
 					wall[k].shade = wallshadearray[k];
 				}
-				newstatus((short) i, DORMANT);
+				SetNewStatus(actor, DORMANT);
 			}
 		} else {
 			spr.lotag -= TICSPERFRAME;
 			spr.xrepeat = 48;
 			spr.yrepeat = 32;
 			if (spr.lotag < 0) {
-				newstatus(i, DORMANT);
+				SetNewStatus(actor, DORMANT);
 			}
 		}
 	}
@@ -1209,7 +1209,7 @@ void animateobjs(PLAYER& plr) {
 				} else {
 					spr.cstat |= 0x0020;
 					spr.lotag = 1200;
-					newstatus(i, BLOOD);
+					SetNewStatus(actor, BLOOD);
 				}
 			}
 		} else if ((movestat & 0xc000) == 32768) {
@@ -1217,7 +1217,7 @@ void animateobjs(PLAYER& plr) {
 				deletesprite((short) i);
 			} else {
 				spr.lotag = 600;
-				newstatus(i, DRIP);
+				SetNewStatus(actor, DRIP);
 			}
 		}
 		if (spr.lotag < 0) {
@@ -1236,7 +1236,7 @@ void animateobjs(PLAYER& plr) {
 			if (spr.z < sector[spr.sectnum].floorz) {
 				spr.lotag = 600;
 				spr.zvel = 0;
-				newstatus(i, DRIP);
+				SetNewStatus(actor, DRIP);
 			} else {
 				deletesprite(i);
 			}
@@ -1279,7 +1279,7 @@ void animateobjs(PLAYER& plr) {
 
 		if ((movestat & 0xc000) == 16384) {
 			spr.lotag = 1200;
-			newstatus(i, BLOOD);
+			SetNewStatus(actor, BLOOD);
 		}
 		if (spr.lotag < 0) {
 			deletesprite((short) i);
@@ -1371,10 +1371,10 @@ void animateobjs(PLAYER& plr) {
 			}
 
 			WHSectIterator it(spr.sectnum);
-			while (auto sect = it.Next())
+			while (auto sectactor = it.Next())
 			{
-				SPRITE& tspr = sect->s();
-				int j = sect->GetSpriteIndex();
+				SPRITE& tspr = sectactor->s();
+				int j = sectactor->GetSpriteIndex();
 
 				int dx = abs(spr.x - tspr.x); // x distance to sprite
 				int dy = abs(spr.y - tspr.y); // y distance to sprite
@@ -1395,7 +1395,7 @@ void animateobjs(PLAYER& plr) {
 							if (tspr.hitag > 0) {
 								tspr.hitag -= TICSPERFRAME << 4;
 								if (tspr.hitag < 0) {
-									newstatus((short) j, DIE);
+									SetNewStatus(sectactor, DIE);
 								}
 							}
 							break;
