@@ -261,29 +261,30 @@ static void throwspank(PLAYER& plr, DWHActor* actor)
 	if (j == -1)
 		return;
 
+	auto& spawned = sprite[j];
 	spritesound(S_WITCHTHROW, &spr);
 
-	sprite[j].x = spr.x;
-	sprite[j].y = spr.y;
-	sprite[j].z = sector[spr.sectnum].floorz - ((tileHeight(spr.picnum) >> 1) << 8);
-	sprite[j].cstat = 0; // Hitscan does not hit other bullets
-	sprite[j].picnum = FATSPANK;
-	sprite[j].shade = -15;
-	sprite[j].xrepeat = 64;
-	sprite[j].yrepeat = 64;
-	sprite[j].ang = (short)(((getangle(plr.x - sprite[j].x, plr.y - sprite[j].y) + (krand() & 15)
+	spawned.x = spr.x;
+	spawned.y = spr.y;
+	spawned.z = sector[spr.sectnum].floorz - ((tileHeight(spr.picnum) >> 1) << 8);
+	spawned.cstat = 0; // Hitscan does not hit other bullets
+	spawned.picnum = FATSPANK;
+	spawned.shade = -15;
+	spawned.xrepeat = 64;
+	spawned.yrepeat = 64;
+	spawned.ang = (short)(((getangle(plr.x - spawned.x, plr.y - spawned.y) + (krand() & 15)
 		- 8) + 2048) & 2047);
-	sprite[j].xvel = bcos(sprite[j].ang, -6);
-	sprite[j].yvel = bsin(sprite[j].ang, -6);
-	long discrim = ksqrt((plr.x - sprite[j].x) * (plr.x - sprite[j].x) + (plr.y - sprite[j].y) * (plr.y - sprite[j].y));
+	spawned.xvel = bcos(spawned.ang, -6);
+	spawned.yvel = bsin(spawned.ang, -6);
+	long discrim = ksqrt((plr.x - spawned.x) * (plr.x - spawned.x) + (plr.y - spawned.y) * (plr.y - spawned.y));
 	if (discrim == 0)
 		discrim = 1;
-	sprite[j].zvel = (short)(((plr.z + (48 << 8) - sprite[j].z) << 7) / discrim);
-	sprite[j].owner = (short)i;
-	sprite[j].clipdist = 16;
-	sprite[j].lotag = 512;
-	sprite[j].hitag = 0;
-	sprite[j].pal = 0;
+	spawned.zvel = (short)(((plr.z + (48 << 8) - spawned.z) << 7) / discrim);
+	spawned.owner = (short)i;
+	spawned.clipdist = 16;
+	spawned.lotag = 512;
+	spawned.hitag = 0;
+	spawned.pal = 0;
 }
 
 void createFatwitchAI() {

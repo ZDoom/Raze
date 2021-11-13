@@ -45,11 +45,10 @@ enum
 	kExtraTile = MAXTILES - MAXUSERTILES,
 
 	// Hit definitions
-	kHitTypeMask = 0xE000,
-	kHitIndexMask = 0x1FFF,
+	kHitTypeMask = 0xC000,
+	kHitIndexMask = 0x3FFF,
 	kHitFloor = 0x4000,
 	kHitSector = 0x4000,
-	kHitCeiling = 0x6000,
 	kHitWall = 0x8000,
 	kHitSprite = 0xC000,
 

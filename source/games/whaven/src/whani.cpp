@@ -1336,21 +1336,22 @@ void animateobjs(PLAYER& plr) {
 
 			if (krand() % 100 > 90) {
 				j = insertsprite(spr.sectnum, SMOKE);
+				auto& spawned = sprite[j];
 
-				sprite[j].x = spr.x;
-				sprite[j].y = spr.y;
-				sprite[j].z = spr.z;
-				sprite[j].cstat = 0x03;
-				sprite[j].cstat &= ~3;
-				sprite[j].picnum = SMOKEFX;
-				sprite[j].shade = 0;
-				sprite[j].pal = 0;
-				sprite[j].xrepeat = spr.xrepeat;
-				sprite[j].yrepeat = spr.yrepeat;
+				spawned.x = spr.x;
+				spawned.y = spr.y;
+				spawned.z = spr.z;
+				spawned.cstat = 0x03;
+				spawned.cstat &= ~3;
+				spawned.picnum = SMOKEFX;
+				spawned.shade = 0;
+				spawned.pal = 0;
+				spawned.xrepeat = spr.xrepeat;
+				spawned.yrepeat = spr.yrepeat;
 
-				sprite[j].owner = spr.owner;
-				sprite[j].lotag = 256;
-				sprite[j].hitag = 0;
+				spawned.owner = spr.owner;
+				spawned.lotag = 256;
+				spawned.hitag = 0;
 			}
 
 			if (spr.lotag < 0) {
