@@ -818,7 +818,7 @@ void newstatus(short sn, int seq) {
 			case GONZOBSHPAIN:
 				spr.picnum = GONZOBSHPAIN;
 				if (spr.shade > 30) {
-					trailingsmoke(sn, false);
+					trailingsmoke(actor, false);
 					deletesprite((short) sn);
 					return;
 				}
@@ -920,7 +920,7 @@ void newstatus(short sn, int seq) {
 			spr.lotag = 20;
 			if (mapon < 24) {
 				for (int j = 0; j < 8; j++)
-					trailingsmoke(sn, true);
+					trailingsmoke(actor, true);
 				deletesprite((short) sn);
 				return;
 			} else {
@@ -986,7 +986,7 @@ void newstatus(short sn, int seq) {
 			spr.detail = GONZOTYPE;
 			break;
 		case KATIEDEAD:
-			trailingsmoke(sn, true);
+			trailingsmoke(actor, true);
 			spr.picnum = KATIEDEAD;
 			spr.cstat &= ~3;
 			ChangeActorStat(actor, RESURECT);
@@ -995,7 +995,7 @@ void newstatus(short sn, int seq) {
 			spr.detail = KATIETYPE;
 			break;
 		case DEVILDEAD:
-			trailingsmoke(sn, true);
+			trailingsmoke(actor, true);
 			spr.picnum = DEVILDEAD;
 			spr.cstat &= ~3;
 			ChangeActorStat(actor, RESURECT);
@@ -1252,7 +1252,7 @@ void newstatus(short sn, int seq) {
 				if (netgame) {
 					break;
 				}
-				trailingsmoke(sn, true);
+				trailingsmoke(actor, true);
 				spr.picnum = DEVILDEAD;
 				spr.cstat &= ~3;
 				ChangeActorStat(actor, DEAD);
@@ -1281,7 +1281,7 @@ void newstatus(short sn, int seq) {
 				addscore(aiGetPlayerTarget(sn), 4000);
 				break;
 			case DEVILDEAD:
-				trailingsmoke(sn, true);
+				trailingsmoke(actor, true);
 				spr.picnum = DEVILDEAD;
 				spr.cstat &= ~3;
 				ChangeActorStat(actor, DEAD);
@@ -1361,7 +1361,7 @@ void newstatus(short sn, int seq) {
 			if (spr.sectnum != MAXSECTORS && (sector[spr.sectnum].floorpicnum == LAVA
 					|| sector[spr.sectnum].floorpicnum == LAVA1
 					|| sector[spr.sectnum].floorpicnum == LAVA2)) {
-				trailingsmoke(sn, true);
+				trailingsmoke(actor, true);
 				deletesprite((short) sn);
 			}
 		}
@@ -1470,13 +1470,14 @@ void explosion2(int i, int x, int y, int z, int owner) {
 	
 }
 
-void trailingsmoke(int i, boolean ball) {
-	int j = insertsprite(sprite[i].sectnum, SMOKE);
+void trailingsmoke(DWHActor* actor, boolean ball) {
+	auto& spr = actor->s();
+	int j = insertsprite(spr.sectnum, SMOKE);
 	auto& spawned = sprite[j];
 
-	spawned.x = sprite[i].x;
-	spawned.y = sprite[i].y;
-	spawned.z = sprite[i].z;
+	spawned.x = spr.x;
+	spawned.y = spr.y;
+	spawned.z = spr.z;
 	
 	spawned.cstat = 0x03;
 	spawned.cstat &= ~3;
@@ -1491,19 +1492,21 @@ void trailingsmoke(int i, boolean ball) {
 	}
 	spawned.pal = 0;
 
-	spawned.owner = sprite[i].owner;
+	spawned.owner = spr.owner;
 	spawned.lotag = 256;
 	spawned.hitag = 0;
 }
 
 void icecubes(int i, int x, int y, int z, int owner) {
-	int j = insertsprite(sprite[i].sectnum, FX);
+	auto actor = &whActors[i];
+	auto& spr = actor->s();
+	int j = insertsprite(spr.sectnum, FX);
 	auto& spawned = sprite[j];
 
 	spawned.x = x;
 	spawned.y = y;
 
-	spawned.z = sector[sprite[i].sectnum].floorz - (getPlayerHeight() << 8) + (krand() & 4096);
+	spawned.z = sector[spr.sectnum].floorz - (getPlayerHeight() << 8) + (krand() & 4096);
 
 	spawned.cstat = 0; // Hitscan does not hit smoke on wall
 	spawned.picnum = ICECUBE;
@@ -1517,7 +1520,7 @@ void icecubes(int i, int x, int y, int z, int owner) {
 	spawned.zvel = (short) ((krand() & 1023) - 512);
 
 	spawned.pal = 6;
-	spawned.owner = sprite[i].owner;
+	spawned.owner = spr.owner;
 	
 	if(isWh2())
 		spawned.lotag = 2048;

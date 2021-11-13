@@ -584,12 +584,13 @@ int checkfluid(int i, int zr_florhit) {
 }
 
 void processfluid(int i, int zr_florhit, boolean fly) {
-	SPRITE& spr = sprite[i];
+	auto actor = &whActors[i];
+	SPRITE& spr = actor->s();
 	switch (checkfluid(i, zr_florhit)) {
 	case TYPELAVA:
 		if (!fly) {
 			spr.z += tileHeight(spr.picnum) << 5;
-			trailingsmoke(i, true);
+			trailingsmoke(actor,true);
 			makemonstersplash(LAVASPLASH, i);
 		}
 		break;

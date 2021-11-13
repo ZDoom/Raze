@@ -176,7 +176,7 @@ static void nukednewguy(PLAYER& plr, DWHActor* actor)
 	SPRITE& spr = actor->s();
 
 	chunksofmeat(plr, i, spr.x, spr.y, spr.z, spr.sectnum, spr.ang);
-	trailingsmoke(i, false);
+	trailingsmoke(actor,false);
 	SetNewStatus(actor, DIE);
 }
 	

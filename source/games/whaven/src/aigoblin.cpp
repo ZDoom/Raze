@@ -317,7 +317,7 @@ static void nukedgoblin(PLAYER& plr, DWHActor* actor)
 		spr.picnum++;
 		spr.lotag = 24;
 		if (spr.picnum == GOBLINCHAR + 4) {
-			trailingsmoke(i, false);
+			trailingsmoke(actor,false);
 			deletesprite(i);
 		}
 	}

@@ -139,7 +139,7 @@ static void nukedminotaur(PLAYER& plr, DWHActor* actor)
 
 	if (isWh2()) {
 		chunksofmeat(plr, i, spr.x, spr.y, spr.z, spr.sectnum, spr.ang);
-		trailingsmoke(i, false);
+		trailingsmoke(actor,false);
 		SetNewStatus(actor, DIE);
 		return;
 	}
@@ -149,7 +149,7 @@ static void nukedminotaur(PLAYER& plr, DWHActor* actor)
 		spr.picnum++;
 		spr.lotag = 24;
 		if (spr.picnum == MINOTAURCHAR + 4) {
-			trailingsmoke(i, false);
+			trailingsmoke(actor,false);
 			deletesprite(i);
 		}
 	}

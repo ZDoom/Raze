@@ -91,7 +91,7 @@ static void nukedskully(PLAYER& plr, DWHActor* actor)
 		spr.picnum++;
 		spr.lotag = 24;
 		if (spr.picnum == SKULLYCHAR + 4) {
-			trailingsmoke(i, false);
+			trailingsmoke(actor,false);
 			deletesprite(i);
 		}
 	}

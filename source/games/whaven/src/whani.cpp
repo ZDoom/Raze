@@ -919,7 +919,7 @@ void animateobjs(PLAYER& plr) {
 
 			if (spr.picnum == MONSTERBALL && krand() % 100 > 90) {
 				if (spr.lotag < 200)
-					trailingsmoke(i, false);
+					trailingsmoke(actor,false);
 			}
 			spr.z += spr.zvel;
 			if (spr.z < sector[spr.sectnum].ceilingz + (4 << 8)) {

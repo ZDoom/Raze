@@ -30,7 +30,7 @@ static void chaseguardian(PLAYER& plr, DWHActor* actor)
 		checksight(plr, i);
 
 		if (PlayClock % 100 > 70)
-			trailingsmoke(i, true);
+			trailingsmoke(actor,true);
 
 		if (!checkdist(plr, i)) {
 			checkmove(i, dax, day);
@@ -80,7 +80,7 @@ static void nukedguardian(PLAYER& plr, DWHActor* actor)
 
 	if (isWh2()) {
 		chunksofmeat(plr, i, spr.x, spr.y, spr.z, spr.sectnum, spr.ang);
-		trailingsmoke(i, false);
+		trailingsmoke(actor,false);
 		SetNewStatus(actor, DIE);
 		return;
 	}
@@ -90,7 +90,7 @@ static void nukedguardian(PLAYER& plr, DWHActor* actor)
 		spr.picnum++;
 		spr.lotag = 24;
 		if (spr.picnum == GUARDIANCHAR + 4) {
-			trailingsmoke(i, false);
+			trailingsmoke(actor,false);
 			deletesprite(i);
 		}
 	}
@@ -168,7 +168,7 @@ static void fleeguardian(PLAYER& plr, DWHActor* actor)
 	short osectnum = spr.sectnum;
 
 	if (PlayClock % 100 > 70)
-		trailingsmoke(i, true);
+		trailingsmoke(actor,true);
 
 	int movestat = aifly(i);
 

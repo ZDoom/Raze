@@ -193,7 +193,7 @@ void newstatus(short sn, int seq);
 void makeafire(int i, int firetype);
 void explosion(int i, int x, int y, int z, int owner);
 void explosion2(int i, int x, int y, int z, int owner);
-void trailingsmoke(int i, boolean ball);
+void trailingsmoke(DWHActor* i, boolean ball);
 void icecubes(int i, int x, int y, int z, int owner);
 boolean damageactor(PLAYER& plr, int hitobject, short i);
 int movesprite(short spritenum, int dx, int dy, int dz, int ceildist, int flordist, int cliptype);

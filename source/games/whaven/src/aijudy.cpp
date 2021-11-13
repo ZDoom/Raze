@@ -20,7 +20,7 @@ static void chasejudy(PLAYER& plr, DWHActor* actor)
 		spr.extra -= TICSPERFRAME;
 		if (spr.extra < 0) {
 			for (int j = 0; j < 8; j++)
-				trailingsmoke(i, true);
+				trailingsmoke(actor,true);
 			deletesprite((short)i);
 			return;
 		}
@@ -105,7 +105,7 @@ static void nukedjudy(PLAYER& plr, DWHActor* actor)
 		spr.picnum++;
 		spr.lotag = 24;
 		if (spr.picnum == JUDYCHAR + 4) {
-			trailingsmoke(i, false);
+			trailingsmoke(actor,false);
 			deletesprite(i);
 		}
 	}

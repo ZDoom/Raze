@@ -27,7 +27,7 @@ static void chasedemon(PLAYER& plr, DWHActor* actor)
 	}
 	else {
 		if (PlayClock % 100 > 70)
-			trailingsmoke(i, true);
+			trailingsmoke(actor,true);
 
 		int dax = (bcos(spr.ang) * TICSPERFRAME) << 2;
 		int day = (bsin(spr.ang) * TICSPERFRAME) << 2;
@@ -217,7 +217,7 @@ static void nukeddemon(PLAYER& plr, DWHActor* actor)
 	SPRITE& spr = actor->s();
 
 	chunksofmeat(plr, i, spr.x, spr.y, spr.z, spr.sectnum, spr.ang);
-	trailingsmoke(i, false);
+	trailingsmoke(actor,false);
 	SetNewStatus(actor, DIE);
 }
 

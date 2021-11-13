@@ -250,7 +250,7 @@ static void nukedwillow(PLAYER& plr, DWHActor* actor)
 
 	if (isWh2()) {
 		chunksofmeat(plr, i, spr.x, spr.y, spr.z, spr.sectnum, spr.ang);
-		trailingsmoke(i, false);
+		trailingsmoke(actor,false);
 		SetNewStatus(actor, DIE);
 	}
 }

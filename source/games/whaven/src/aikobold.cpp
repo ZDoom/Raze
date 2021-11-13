@@ -287,7 +287,7 @@ static void nukedkobold(PLAYER& plr, DWHActor* actor)
 
 	if (isWh2()) {
 		chunksofmeat(plr, i, spr.x, spr.y, spr.z, spr.sectnum, spr.ang);
-		trailingsmoke(i, false);
+		trailingsmoke(actor,false);
 		SetNewStatus(actor, DIE);
 		return;
 	}
@@ -297,7 +297,7 @@ static void nukedkobold(PLAYER& plr, DWHActor* actor)
 		spr.picnum++;
 		spr.lotag = 24;
 		if (spr.picnum == KOBOLDCHAR + 4) {
-			trailingsmoke(i, false);
+			trailingsmoke(actor,false);
 			deletesprite(i);
 		}
 	}
