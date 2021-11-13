@@ -500,6 +500,11 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYERstruct& w, P
 			("RevolveDeltaAng", w.RevolveDeltaAng)
 			("RevolveAng", w.RevolveAng)
 			("PlayerSprite", w.PlayerSprite)
+#ifdef OLD_SAVEGAME
+			; // need to write out UnderSpriteP so that older revisions still load it.
+			if (arc.isWriting()) arc("UnderSpriteP", w.PlayerUnderActor);
+			arc
+#endif
 			("PlayerUnderSprite", w.PlayerUnderActor)
 			("SpriteP", w.SpriteP)
 			("pnum", w.pnum)
