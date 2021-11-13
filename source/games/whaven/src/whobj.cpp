@@ -136,32 +136,33 @@ void processobjs(PLAYER& plr) {
 }
 
 void newstatus(short sn, const int seq) {
-	auto& spr = sprite[sn];
+	auto actor = &whActors[sn];
+	auto& spr = actor->s();
 	switch (seq) {
 	case AMBUSH:
-		changespritestat(sn, AMBUSH);
+		ChangeActorStat(actor, AMBUSH);
 		break;
 	case LAND:
-		changespritestat(sn, LAND);
+		ChangeActorStat(actor, LAND);
 		break;
 	case EVILSPIRIT:
-		changespritestat(sn, EVILSPIRIT);
+		ChangeActorStat(actor, EVILSPIRIT);
 		spr.lotag = (short) (120 + (krand() & 64));
 		break;
 	case PATROL:
-		changespritestat(sn, PATROL);
+		ChangeActorStat(actor, PATROL);
 		break;
 	case WARPFX:
-		changespritestat(sn, WARPFX);
+		ChangeActorStat(actor, WARPFX);
 		spr.lotag = 12;
 		break;
 	case NUKED:
-		changespritestat(sn, NUKED);
+		ChangeActorStat(actor, NUKED);
 		if (!isWh2())
 			spr.lotag = 24;
 		break;
 	case BROKENVASE:
-		changespritestat(sn, BROKENVASE);
+		ChangeActorStat(actor, BROKENVASE);
 		switch (spr.picnum) {
 		case VASEA:
 			spritesound(S_GLASSBREAK1 + (krand() % 3), &spr);
@@ -197,47 +198,47 @@ void newstatus(short sn, const int seq) {
 		spr.cstat &= ~3;
 		break;
 	case DRAIN:
-		changespritestat(sn, DRAIN);
+		ChangeActorStat(actor, DRAIN);
 		spr.lotag = 24;
 		spr.pal = 7;
 		break;
 	case ANIMLEVERDN:
 		spritesound(S_PULLCHAIN1, &spr);
 		spr.picnum = LEVERUP;
-		changespritestat(sn, ANIMLEVERDN);
+		ChangeActorStat(actor, ANIMLEVERDN);
 		spr.lotag = 24;
 		break;
 	case ANIMLEVERUP:
 		spritesound(S_PULLCHAIN1, &spr);
 		spr.picnum = LEVERDOWN;
-		changespritestat(sn, ANIMLEVERUP);
+		ChangeActorStat(actor, ANIMLEVERUP);
 		spr.lotag = 24;
 		break;
 	case SKULLPULLCHAIN1:
 	case PULLTHECHAIN:
 		spritesound(S_PULLCHAIN1, &spr);
-		changespritestat(sn, PULLTHECHAIN);
+		ChangeActorStat(actor, PULLTHECHAIN);
 		SND_Sound(S_CHAIN1);
 		spr.lotag = 24;
 		break;
 	case FROZEN:
 		// JSA_NEW
 		spritesound(S_FREEZE, &spr);
-		changespritestat(sn, FROZEN);
+		ChangeActorStat(actor, FROZEN);
 		spr.lotag = 3600;
 		break;
 	case DEVILFIRE:
-		changespritestat(sn, DEVILFIRE);
+		ChangeActorStat(actor, DEVILFIRE);
 		spr.lotag = (short) (krand() & 120 + 360);
 		break;
 	case DRIP:
-		changespritestat(sn, DRIP);
+		ChangeActorStat(actor, DRIP);
 		break;
 	case BLOOD:
-		changespritestat(sn, BLOOD);
+		ChangeActorStat(actor, BLOOD);
 		break;
 	case WAR:
-		changespritestat(sn, WAR);
+		ChangeActorStat(actor, WAR);
 		break;
 	case PAIN:
 		spr.lotag = 36;
@@ -246,19 +247,19 @@ void newstatus(short sn, const int seq) {
 			spr.lotag = 24;
 			spritesound(S_GUARDIANPAIN1 + (krand() % 2), &spr);
 			spr.picnum = DEMON - 1;
-			changespritestat(sn, PAIN);
+			ChangeActorStat(actor, PAIN);
 			break;
 		case NEWGUYTYPE:
 			spr.lotag = 24;
 			spr.picnum = NEWGUYPAIN;
-			changespritestat(sn, PAIN);
+			ChangeActorStat(actor, PAIN);
 			spritesound(S_AGM_PAIN1, &spr);
 			break;
 
 		case KURTTYPE:
 			spr.lotag = 24;
 			spr.picnum = GONZOCSWPAIN;
-			changespritestat(sn, PAIN);
+			ChangeActorStat(actor, PAIN);
 			spritesound(S_GRONPAINA + (krand() % 3), &spr);
 			break;
 
@@ -289,29 +290,29 @@ void newstatus(short sn, const int seq) {
 					spritesound(S_GRONPAINA, &spr);
 					break;
 				default:
-					changespritestat(sn, FLEE);
+					ChangeActorStat(actor, FLEE);
 					break;
 			}
-			changespritestat(sn, PAIN);
+			ChangeActorStat(actor, PAIN);
 			break;
 		case KATIETYPE:
 			spr.picnum = KATIEPAIN;
-			changespritestat(sn, PAIN);
+			ChangeActorStat(actor, PAIN);
 			break;
 		case JUDYTYPE:
 			spr.lotag = 24;
 			spr.picnum = JUDY;
-			changespritestat(sn, PAIN);
+			ChangeActorStat(actor, PAIN);
 			break;
 		case FATWITCHTYPE:
 			spr.lotag = 24;
 			spr.picnum = FATWITCHDIE;
-			changespritestat(sn, PAIN);
+			ChangeActorStat(actor, PAIN);
 			break;
 		case SKULLYTYPE:
 			spr.lotag = 24;
 			spr.picnum = SKULLYDIE;
-			changespritestat(sn, PAIN);
+			ChangeActorStat(actor, PAIN);
 			break;
 		case GUARDIANTYPE:
 			spr.lotag = 24;
@@ -320,11 +321,11 @@ void newstatus(short sn, const int seq) {
 			
 			if(isWh2()) spr.picnum = GUARDIAN;
 			else spr.picnum = GUARDIANCHAR;
-			changespritestat(sn, PAIN);
+			ChangeActorStat(actor, PAIN);
 			break;
 		case GRONTYPE:
 			spr.lotag = 24;
-			changespritestat(sn, PAIN);
+			ChangeActorStat(actor, PAIN);
 			spritesound(S_GRONPAINA + krand() % 3, &spr);
 			
 			if(spr.picnum == GRONHAL || spr.picnum == GRONHALATTACK)
@@ -336,17 +337,17 @@ void newstatus(short sn, const int seq) {
 			break;
 		case KOBOLDTYPE:
 			spr.picnum = KOBOLDDIE;
-			changespritestat(sn, PAIN);
+			ChangeActorStat(actor, PAIN);
 			spritesound(S_KPAIN1 + (krand() % 2), &spr);
 			break;
 		case DEVILTYPE:
 			spritesound(S_MPAIN1, &spr);
 			spr.picnum = DEVILPAIN;
-			changespritestat(sn, PAIN);
+			ChangeActorStat(actor, PAIN);
 			break;
 		case FREDTYPE:
 			spr.picnum = FREDPAIN;
-			changespritestat(sn, PAIN);
+			ChangeActorStat(actor, PAIN);
 			// EG: Sounds for Fred (currently copied from ogre)
 			spritesound(S_KPAIN1 + (rand() % 2), &spr);
 			break;
@@ -355,57 +356,57 @@ void newstatus(short sn, const int seq) {
 			if (isWh2() && (spr.picnum == IMP || spr.picnum == IMPATTACK)) {
 				spr.lotag = 24;
 				spr.picnum = IMPPAIN;
-				changespritestat(sn, PAIN);
+				ChangeActorStat(actor, PAIN);
 			} else {
 				spr.picnum = GOBLINPAIN;
-				changespritestat(sn, PAIN);
+				ChangeActorStat(actor, PAIN);
 				spritesound(S_GOBPAIN1 + (krand() % 2), &spr);
 			}
 			break;
 		case MINOTAURTYPE:
 			spr.picnum = MINOTAURPAIN;
-			changespritestat(sn, PAIN);
+			ChangeActorStat(actor, PAIN);
 			spritesound(S_MPAIN1, &spr);
 			break;
 		default:
-			changespritestat(sn, FLEE);
+			ChangeActorStat(actor, FLEE);
 			break;
 		}
 		break;
 	case FLOCKSPAWN:
 		spr.lotag = 36;
 		spr.extra = 10;
-		changespritestat(sn, FLOCKSPAWN);
+		ChangeActorStat(actor, FLOCKSPAWN);
 		break;
 	case FLOCK:
 		spr.lotag = 128;
 		spr.extra = 0;
 		spr.pal = 0;
-		changespritestat(sn, FLOCK);
+		ChangeActorStat(actor, FLOCK);
 		break;
 	case FINDME:
 		spr.lotag = 360;
 		if (spr.picnum == RAT) {
 			spr.ang = (short) (((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
-			changespritestat(sn, FLEE);
+			ChangeActorStat(actor, FLEE);
 		} else
-			changespritestat(sn, FINDME);
+			ChangeActorStat(actor, FINDME);
 		break;
 	case SKIRMISH:
 		spr.lotag = 60;
 		if (spr.picnum == RAT) {
 			spr.ang = (short) (((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
-			changespritestat(sn, FLEE);
+			ChangeActorStat(actor, FLEE);
 		} else
-			changespritestat(sn, SKIRMISH);
+			ChangeActorStat(actor, SKIRMISH);
 		break;
 	case CHILL:
 		spr.lotag = 60;
-		changespritestat(sn, CHILL);
+		ChangeActorStat(actor, CHILL);
 		break;
 	case WITCHSIT:
 		spr.lotag = 12;
-		changespritestat(sn, WITCHSIT);
+		ChangeActorStat(actor, WITCHSIT);
 		break;
 	case DORMANT:
 		spr.lotag = (short) (krand() & 2047 + 2047);
@@ -470,35 +471,35 @@ void newstatus(short sn, const int seq) {
 			break;
 		}
 
-		changespritestat(sn, FLEE);
+		ChangeActorStat(actor, FLEE);
 		if (!isWh2() && spr.picnum == DEVILATTACK && spr.picnum == DEVIL)
 			spr.lotag = (short) (120 + (krand() & 360));
 		else
 			spr.lotag = 60;
 		break;
 	case BOB:
-		changespritestat(sn, BOB);
+		ChangeActorStat(actor, BOB);
 		break;
 	case LIFTUP:
 		if (soundEngine->GetSoundPlayingInfo(SOURCE_Any, nullptr, -1, CHAN_CART) == 0) {
 			spritesound(S_CLUNK, &spr);
 			spritesound(S_CHAIN1, &spr, 5, CHAN_CART);
 		}
-		changespritestat(sn, LIFTUP);
+		ChangeActorStat(actor, LIFTUP);
 		break;
 	case LIFTDN:
 		if (soundEngine->GetSoundPlayingInfo(SOURCE_Any, nullptr, -1, CHAN_CART) == 0) {
 			spritesound(S_CLUNK, &spr);
 			spritesound(S_CHAIN1, &spr, 5, CHAN_CART);
 		}
-		changespritestat(sn, LIFTDN);
+		ChangeActorStat(actor, LIFTDN);
 		break;
 	case SHOVE:
 		spr.lotag = 128;
-		changespritestat(sn, SHOVE);
+		ChangeActorStat(actor, SHOVE);
 		break;
 	case SHATTER:
-		changespritestat(sn, SHATTER);
+		ChangeActorStat(actor, SHATTER);
 		switch (spr.picnum) {
 		case FBARRELFALL:
 			spr.picnum = FSHATTERBARREL;
@@ -506,20 +507,20 @@ void newstatus(short sn, const int seq) {
 		}
 		break;
 	case YELL:
-		changespritestat(sn, YELL);
+		ChangeActorStat(actor, YELL);
 		spr.lotag = 12;
 		break;
 	case ATTACK2: //WH1
 		if(isWh2()) break;
 		spr.lotag = 40;
 		spr.cstat |= 1;
-		changespritestat(sn, ATTACK2);
+		ChangeActorStat(actor, ATTACK2);
 		spr.picnum = DRAGONATTACK2;
 		spritesound(S_DRAGON1 + (krand() % 3), &spr);
 	case ATTACK:
 		spr.lotag = 64;
 		spr.cstat |= 1;
-		changespritestat(sn, ATTACK);
+		ChangeActorStat(actor, ATTACK);
 		switch (spr.detail) {
 		case NEWGUYTYPE:
 			if (spr.extra > 20) {
@@ -643,17 +644,17 @@ void newstatus(short sn, const int seq) {
 		}
 		break;
 	case FACE:
-		changespritestat(sn, FACE);
+		ChangeActorStat(actor, FACE);
 		break;
 	case STAND:
-		changespritestat(sn, FACE);
+		ChangeActorStat(actor, FACE);
 		spr.lotag = 0;
 		break;
 	case CHASE:
 		if (spr.picnum == RAT)
-			changespritestat(sn, FLEE);
+			ChangeActorStat(actor, FLEE);
 		else
-			changespritestat(sn, CHASE);
+			ChangeActorStat(actor, CHASE);
 		spr.lotag = 256;
 		switch (spr.detail) {
 		case NEWGUYTYPE:
@@ -754,10 +755,10 @@ void newstatus(short sn, const int seq) {
 		}
 		break;
 	case MISSILE:
-		changespritestat(sn, MISSILE);
+		ChangeActorStat(actor, MISSILE);
 		break;
 	case CAST:
-		changespritestat(sn, CAST);
+		ChangeActorStat(actor, CAST);
 		spr.lotag = 12;
 		
 		if(spr.picnum == GRONHALATTACK 
@@ -768,7 +769,7 @@ void newstatus(short sn, const int seq) {
 			spr.lotag = 36;
 		break;
 	case FX:
-		changespritestat(sn, FX);
+		ChangeActorStat(actor, FX);
 		break;
 	case DIE:
 		if(spr.statnum == DIE || spr.statnum == DEAD) //already dying
@@ -942,7 +943,7 @@ void newstatus(short sn, const int seq) {
 			spr.picnum = WILLOWEXPLO;
 			break;
 		}
-		changespritestat(sn, DIE);
+		ChangeActorStat(actor, DIE);
 		break;
 
 	case RESURECT:
@@ -950,37 +951,37 @@ void newstatus(short sn, const int seq) {
 		switch (spr.picnum) {
 		case GONZOBSHDEAD:
 			spr.cstat &= ~3;
-			changespritestat(sn, RESURECT);
+			ChangeActorStat(actor, RESURECT);
 			addscore(aiGetPlayerTarget(sn), 85);
 			spr.detail = GONZOTYPE;
 			break;
 		case NEWGUYDEAD:
 			spr.cstat &= ~3;
-			changespritestat(sn, RESURECT);
+			ChangeActorStat(actor, RESURECT);
 			addscore(aiGetPlayerTarget(sn), 55);
 			spr.detail = NEWGUYTYPE;
 			break;
 		case GONZOCSWDEAD:
 			spr.cstat &= ~3;
-			changespritestat(sn, RESURECT);
+			ChangeActorStat(actor, RESURECT);
 			addscore(aiGetPlayerTarget(sn), 55);
 			spr.detail = GONZOTYPE;
 			break;
 		case GONZOGSWDEAD:
 			spr.cstat &= ~3;
-			changespritestat(sn, RESURECT);
+			ChangeActorStat(actor, RESURECT);
 			addscore(aiGetPlayerTarget(sn), 105);
 			spr.detail = GONZOTYPE;
 			break;
 		case GONZOGHMDEAD:
 			spr.cstat &= ~3;
-			changespritestat(sn, RESURECT);
+			ChangeActorStat(actor, RESURECT);
 			addscore(aiGetPlayerTarget(sn), 100);
 			spr.detail = GONZOTYPE;
 			break;
 		case GONZOGSHDEAD:
 			spr.cstat &= ~3;
-			changespritestat(sn, RESURECT);
+			ChangeActorStat(actor, RESURECT);
 			addscore(aiGetPlayerTarget(sn), 110);
 			spr.detail = GONZOTYPE;
 			break;
@@ -988,7 +989,7 @@ void newstatus(short sn, const int seq) {
 			trailingsmoke(sn, true);
 			spr.picnum = KATIEDEAD;
 			spr.cstat &= ~3;
-			changespritestat(sn, RESURECT);
+			ChangeActorStat(actor, RESURECT);
 			spawnhornskull(sn);
 			addscore(aiGetPlayerTarget(sn), 5000);
 			spr.detail = KATIETYPE;
@@ -997,21 +998,21 @@ void newstatus(short sn, const int seq) {
 			trailingsmoke(sn, true);
 			spr.picnum = DEVILDEAD;
 			spr.cstat &= ~3;
-			changespritestat(sn, RESURECT);
+			ChangeActorStat(actor, RESURECT);
 			addscore(aiGetPlayerTarget(sn), 70);
 			spr.detail = DEVILTYPE;
 			break;	
 		case IMPDEAD:
 			spr.picnum = IMPDEAD;
 			spr.cstat &= ~3;
-			changespritestat(sn, RESURECT);
+			ChangeActorStat(actor, RESURECT);
 			addscore(aiGetPlayerTarget(sn), 115);
 			spr.detail = IMPTYPE;
 			break;
 		case KOBOLDDEAD:
 			spr.picnum = KOBOLDDEAD;
 			spr.cstat &= ~3;
-			changespritestat(sn, RESURECT);
+			ChangeActorStat(actor, RESURECT);
 			spr.detail = KOBOLDTYPE;
 			if(isWh2()) {
 				switch (spr.pal) {
@@ -1032,56 +1033,56 @@ void newstatus(short sn, const int seq) {
 		case DRAGONDEAD:
 			spr.picnum = DRAGONDEAD;
 			spr.cstat &= ~3;
-			changespritestat(sn, RESURECT);
+			ChangeActorStat(actor, RESURECT);
 			addscore(aiGetPlayerTarget(sn), 4000);
 			spr.detail = DRAGONTYPE;
 			break;
 		case FREDDEAD:
 			spr.picnum = FREDDEAD;
 			spr.cstat &= ~3;
-			changespritestat(sn, RESURECT);
+			ChangeActorStat(actor, RESURECT);
 			addscore(aiGetPlayerTarget(sn), 40);
 			spr.detail = FREDTYPE;
 			break;
 		case GOBLINDEAD:
 			spr.picnum = GOBLINDEAD;
 			spr.cstat &= ~3;
-			changespritestat(sn, RESURECT);
+			ChangeActorStat(actor, RESURECT);
 			addscore(aiGetPlayerTarget(sn), 25);
 			spr.detail = GOBLINTYPE;
 			break;
 		case MINOTAURDEAD:
 			spr.picnum = MINOTAURDEAD;
 			spr.cstat &= ~3;
-			changespritestat(sn, RESURECT);
+			ChangeActorStat(actor, RESURECT);
 			addscore(aiGetPlayerTarget(sn), isWh2() ? 95 : 170);
 			spr.detail = MINOTAURTYPE;
 			break;
 		case SPIDERDEAD:
 			spr.picnum = SPIDERDEAD;
 			spr.cstat &= ~3;
-			changespritestat(sn, RESURECT);
+			ChangeActorStat(actor, RESURECT);
 			addscore(aiGetPlayerTarget(sn), 5);
 			spr.detail = SPIDERTYPE;
 			break;
 		case SKULLYDEAD:
 			spr.picnum = SKULLYDEAD;
 			spr.cstat &= ~3;
-			changespritestat(sn, RESURECT);
+			ChangeActorStat(actor, RESURECT);
 			addscore(aiGetPlayerTarget(sn), 1000);
 			spr.detail = SKULLYTYPE;
 			break;
 		case FATWITCHDEAD:
 			spr.picnum = FATWITCHDEAD;
 			spr.cstat &= ~3;
-			changespritestat(sn, RESURECT);
+			ChangeActorStat(actor, RESURECT);
 			addscore(aiGetPlayerTarget(sn), 900);
 			spr.detail = FATWITCHTYPE;
 			break;
 		case JUDYDEAD:
 			spr.picnum = JUDYDEAD;
 			spr.cstat &= ~3;
-			changespritestat(sn, RESURECT);
+			ChangeActorStat(actor, RESURECT);
 			addscore(aiGetPlayerTarget(sn), 7000);
 			spr.detail = JUDYTYPE;
 			break;
@@ -1089,7 +1090,7 @@ void newstatus(short sn, const int seq) {
 			if(spr.picnum == SKELETONDEAD) {
 				spr.picnum = SKELETONDEAD;
 				spr.cstat &= ~3;
-				changespritestat(sn, RESURECT);
+				ChangeActorStat(actor, RESURECT);
 				spr.detail = SKELETONTYPE;
 				addscore(aiGetPlayerTarget(sn), isWh2() ? 20 : 10);
 			} else if(spr.picnum == GRONDEAD) {
@@ -1097,7 +1098,7 @@ void newstatus(short sn, const int seq) {
 				spr.cstat &= ~3;
 				spr.extra = 3;
 				spr.detail = GRONTYPE;
-				changespritestat(sn, RESURECT);
+				ChangeActorStat(actor, RESURECT);
 				if(isWh2()) {
 					switch (spr.pal) {
 					   case 0:
@@ -1124,19 +1125,19 @@ void newstatus(short sn, const int seq) {
 		if(spr.picnum == SKELETONDEAD) {
 			spr.picnum = SKELETONDEAD;
 			spr.cstat &= ~3;
-			changespritestat(sn, DEAD);
+			ChangeActorStat(actor, DEAD);
 			if(isWh2()) {
 				 addscore(aiGetPlayerTarget(sn), 70);
 				monsterweapon(sn);
 			}
 		} else if(spr.picnum == FISH || spr.picnum == RAT) {
 			spr.cstat &= ~3;
-			changespritestat(sn, DEAD);
+			ChangeActorStat(actor, DEAD);
 			addscore(aiGetPlayerTarget(sn), 5);
 		} else if(spr.picnum == GRONDEAD) {
 			spr.picnum = GRONDEAD;
 			spr.cstat &= ~3;
-			changespritestat(sn, DEAD);
+			ChangeActorStat(actor, DEAD);
 			if(isWh2()) {
 				switch (spr.pal) {
 				   case 0:
@@ -1164,12 +1165,12 @@ void newstatus(short sn, const int seq) {
 				}
 				spr.picnum = GONZOBSHDEAD;
 				spr.cstat &= ~3;
-				changespritestat(sn, DEAD);
+				ChangeActorStat(actor, DEAD);
 				if (spr.pal == 4) {
-					changespritestat(sn, SHADE);
+					ChangeActorStat(actor, SHADE);
 					deaddude(sn);
 				} else {
-					changespritestat(sn, DEAD);
+					ChangeActorStat(actor, DEAD);
 					if (spr.shade < 25)
 						monsterweapon(sn);
 				}
@@ -1182,10 +1183,10 @@ void newstatus(short sn, const int seq) {
 				spr.picnum = GONZOCSWDEAD;
 				spr.cstat &= ~3;
 				if (spr.pal == 4) {
-					changespritestat(sn, SHADE);
+					ChangeActorStat(actor, SHADE);
 					deaddude(sn);
 				} else {
-					changespritestat(sn, DEAD);
+					ChangeActorStat(actor, DEAD);
 					monsterweapon(sn);
 				}
 				addscore(aiGetPlayerTarget(sn), 55);
@@ -1197,10 +1198,10 @@ void newstatus(short sn, const int seq) {
 				spr.picnum = GONZOGSWDEAD;
 				spr.cstat &= ~3;
 				if (spr.pal == 4) {
-					changespritestat(sn, SHADE);
+					ChangeActorStat(actor, SHADE);
 					deaddude(sn);
 				} else {
-					changespritestat(sn, DEAD);
+					ChangeActorStat(actor, DEAD);
 					monsterweapon(sn);
 				}
 				addscore(aiGetPlayerTarget(sn), 105);
@@ -1212,10 +1213,10 @@ void newstatus(short sn, const int seq) {
 				spr.picnum = GONZOGHMDEAD;
 				spr.cstat &= ~3;
 				if (spr.pal == 4) {
-					changespritestat(sn, SHADE);
+					ChangeActorStat(actor, SHADE);
 					deaddude(sn);
 				} else {
-					changespritestat(sn, DEAD);
+					ChangeActorStat(actor, DEAD);
 					monsterweapon(sn);
 				}
 				addscore(aiGetPlayerTarget(sn), 100);
@@ -1226,7 +1227,7 @@ void newstatus(short sn, const int seq) {
 				}
 				spr.picnum = NEWGUYDEAD;
 				spr.cstat &= ~3;
-				changespritestat(sn, DEAD);
+				ChangeActorStat(actor, DEAD);
 				monsterweapon(sn);
 				addscore(aiGetPlayerTarget(sn), 50);
 				break;
@@ -1239,10 +1240,10 @@ void newstatus(short sn, const int seq) {
 					spr.cstat &= ~3;
 				else spr.cstat &= ~1;
 				if (spr.pal == 4) {
-					changespritestat(sn, SHADE);
+					ChangeActorStat(actor, SHADE);
 					deaddude(sn);
 				} else {
-					changespritestat(sn, DEAD);
+					ChangeActorStat(actor, DEAD);
 					monsterweapon(sn);
 				}
 				addscore(aiGetPlayerTarget(sn), 110);
@@ -1254,7 +1255,7 @@ void newstatus(short sn, const int seq) {
 				trailingsmoke(sn, true);
 				spr.picnum = DEVILDEAD;
 				spr.cstat &= ~3;
-				changespritestat(sn, DEAD);
+				ChangeActorStat(actor, DEAD);
 				spawnhornskull(sn);
 				addscore(aiGetPlayerTarget(sn), 500);
 				break;
@@ -1263,27 +1264,27 @@ void newstatus(short sn, const int seq) {
 					break;
 				spr.picnum = IMPDEAD;
 				spr.cstat &= ~3;
-				changespritestat(sn, DEAD);
+				ChangeActorStat(actor, DEAD);
 				addscore(aiGetPlayerTarget(sn), 115);
 				monsterweapon(sn);
 				break;
 			case KOBOLDDEAD:
 				spr.picnum = KOBOLDDEAD;
 				spr.cstat &= ~3;
-				changespritestat(sn, DEAD);
+				ChangeActorStat(actor, DEAD);
 				addscore(aiGetPlayerTarget(sn), 10);
 				break;
 			case DRAGONDEAD:
 				spr.picnum = DRAGONDEAD;
 				spr.cstat &= ~3;
-				changespritestat(sn, DEAD);
+				ChangeActorStat(actor, DEAD);
 				addscore(aiGetPlayerTarget(sn), 4000);
 				break;
 			case DEVILDEAD:
 				trailingsmoke(sn, true);
 				spr.picnum = DEVILDEAD;
 				spr.cstat &= ~3;
-				changespritestat(sn, DEAD);
+				ChangeActorStat(actor, DEAD);
 				addscore(aiGetPlayerTarget(sn), isWh2() ? 70 : 50);
 				if(isWh2())
 					 monsterweapon(sn);
@@ -1291,13 +1292,13 @@ void newstatus(short sn, const int seq) {
 			case FREDDEAD:
 				spr.picnum = FREDDEAD;
 				spr.cstat &= ~3;
-				changespritestat(sn, DEAD);
+				ChangeActorStat(actor, DEAD);
 				addscore(aiGetPlayerTarget(sn), 40);
 				break;
 			case GOBLINDEAD:
 				spr.picnum = GOBLINDEAD;
 				spr.cstat &= ~3;
-				changespritestat(sn, DEAD);
+				ChangeActorStat(actor, DEAD);
 				addscore(aiGetPlayerTarget(sn), 25);
 				if ((rand() % 100) > 60)
 					monsterweapon(sn);
@@ -1305,7 +1306,7 @@ void newstatus(short sn, const int seq) {
 			case MINOTAURDEAD:
 				spr.picnum = MINOTAURDEAD;
 				spr.cstat &= ~3;
-				changespritestat(sn, DEAD);
+				ChangeActorStat(actor, DEAD);
 				addscore(aiGetPlayerTarget(sn), isWh2() ? 95 : 70);
 				if ((rand() % 100) > 60)
 					monsterweapon(sn);
@@ -1313,32 +1314,32 @@ void newstatus(short sn, const int seq) {
 			case SPIDERDEAD:
 				spr.picnum = SPIDERDEAD;
 				spr.cstat &= ~3;
-				changespritestat(sn, DEAD);
+				ChangeActorStat(actor, DEAD);
 				addscore(aiGetPlayerTarget(sn), 5);
 				break;
 			case SKULLYDEAD:
 				spr.picnum = SKULLYDEAD;
 				spr.cstat &= ~3;
-				changespritestat(sn, DEAD);
+				ChangeActorStat(actor, DEAD);
 				addscore(aiGetPlayerTarget(sn), 100);
 				break;
 			case FATWITCHDEAD:
 				spr.picnum = FATWITCHDEAD;
 				spr.cstat &= ~3;
-				changespritestat(sn, DEAD);
+				ChangeActorStat(actor, DEAD);
 				addscore(aiGetPlayerTarget(sn), 900);
 				break;
 			case JUDYDEAD:
 				spr.picnum = JUDYDEAD;
 				spr.cstat &= ~3;
-				changespritestat(sn, DEAD);
+				ChangeActorStat(actor, DEAD);
 				spawnapentagram(sn);
 				addscore(aiGetPlayerTarget(sn), 7000);
 				break;
 			case WILLOWEXPLO + 2:
 				spr.pal = 0;
 				spr.cstat &= ~3;
-				changespritestat(sn, (short) 0);
+				ChangeActorStat(actor, (short) 0);
 				deletesprite(sn);
 				addscore(aiGetPlayerTarget(sn), isWh2() ? 15 : 150);
 				return;

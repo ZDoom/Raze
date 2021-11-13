@@ -192,5 +192,9 @@ inline FSerializer& Serialize(FSerializer& arc, const char* keyname, DWHActor*& 
 	return arc;
 }
 
+inline void ChangeActorStat(DWHActor* actor, int newstat)
+{
+	changespritestat(actor->GetSpriteIndex(), newstat);
+}
 
 END_SW_NS
