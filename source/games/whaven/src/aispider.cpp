@@ -3,10 +3,13 @@
 
 BEGIN_WH_NS
 
-static void checkexplspider(PLAYER& plr, short i);
+static void checkexplspider(PLAYER& plr, DWHActor* i);
 
-static void chasespider(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void chasespider(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0)
 		spr.lotag = 250;
@@ -84,11 +87,13 @@ static void chasespider(PLAYER& plr, short i) {
 			newstatus(i, DIE);
 	}
 
-	checkexplspider(plr, i);
+	checkexplspider(plr, actor);
 }
 	
-static void resurectspider(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void resurectspider(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -100,8 +105,10 @@ static void resurectspider(PLAYER& plr, short i) {
 	}
 }
 	
-static void skirmishspider(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void skirmishspider(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 
@@ -123,17 +130,22 @@ static void skirmishspider(PLAYER& plr, short i) {
 	if (checksector6(i))
 		return;
 
-	checkexplspider(plr, i);
+	checkexplspider(plr, actor);
 }
 	
-static void searchspider(PLAYER& plr, short i) {
+static void searchspider(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+
 	aisearch(plr, i, false);
 	if (!checksector6(i))
-		checkexplspider(plr, i);
+		checkexplspider(plr, actor);
 }
 	
-static void frozenspider(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void frozenspider(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -143,9 +155,10 @@ static void frozenspider(PLAYER& plr, short i) {
 	}
 }
 	
-static void facespider(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
-
+static void facespider(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	boolean cansee = ::cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 		spr.sectnum);
@@ -173,11 +186,13 @@ static void facespider(PLAYER& plr, short i) {
 	if (checkdist(plr, i))
 		newstatus(i, ATTACK);
 
-	checkexplspider(plr, i);
+	checkexplspider(plr, actor);
 }
 	
-static void attackspider(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void attackspider(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
 	spr.z = zr_florz;
@@ -220,8 +235,11 @@ static void attackspider(PLAYER& plr, short i) {
 	checksector6(i);
 }
 	
-static void fleespider(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void fleespider(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	short osectnum = spr.sectnum;
 
@@ -252,11 +270,14 @@ static void fleespider(PLAYER& plr, short i) {
 
 	setsprite(i, spr.x, spr.y, spr.z);
 
-	checkexplspider(plr, i);
+	checkexplspider(plr, actor);
 }
 	
-static void diespider(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void diespider(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 
 	if (spr.lotag <= 0) {
@@ -274,13 +295,16 @@ static void diespider(PLAYER& plr, short i) {
 	}
 }
 
-static void checkexplspider(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void checkexplspider(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	WHSectIterator it(spr.sectnum);
-	while (auto actor = it.Next())
+	while (auto sectactor = it.Next())
 	{
-		SPRITE& tspr = actor->s();
-		int j = actor->GetSpriteIndex();
+		SPRITE& tspr = sectactor->s();
+		int j = sectactor->GetSpriteIndex();
 
 		int dx = abs(spr.x - tspr.x); // x distance to sprite
 		int dy = abs(spr.y - tspr.y); // y distance to sprite

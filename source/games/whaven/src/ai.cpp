@@ -9,8 +9,8 @@ Enemy enemy[MAXTYPES];
 
 int checksight_ang = 0;
 
-void skeletonChill(PLAYER& plr, short i);
-void goblinChill(PLAYER& plr, short i);
+void skeletonChill(PLAYER& plr, DWHActor* i);
+void goblinChill(PLAYER& plr, DWHActor* i);
 
 
 void createDemonAI();
@@ -246,10 +246,10 @@ void aiProcess() {
 			spr.z = zr_florz;
 		}
 		WHSectIterator it(spr.sectnum);
-		while (auto actor = it.Next())
+		while (auto sectactor = it.Next())
 		{
-			SPRITE& tspr = actor->s();
-			int j = actor->GetSpriteIndex();
+			SPRITE& tspr = sectactor->s();
+			int j = sectactor->GetSpriteIndex();
 
 			if (tspr.picnum == PATROLPOINT) {
 				int dx = abs(spr.x - tspr.x); // x distance to sprite
@@ -282,7 +282,7 @@ void aiProcess() {
 		i = actor->GetSpriteIndex();
 
 		if (enemy[spr.detail].chase != nullptr)
-			enemy[spr.detail].chase(plr, i);
+			enemy[spr.detail].chase(plr, actor);
 	}
 
 	it.Reset(RESURECT);
@@ -291,7 +291,7 @@ void aiProcess() {
 		SPRITE& spr = actor->s();
 		i = actor->GetSpriteIndex();
 		if (enemy[spr.detail].resurect != nullptr) {
-			enemy[spr.detail].resurect(plr, i);
+			enemy[spr.detail].resurect(plr, actor);
 		}
 	}
 
@@ -302,7 +302,7 @@ void aiProcess() {
 		i = actor->GetSpriteIndex();
 
 		if (enemy[spr.detail].search != nullptr)
-			enemy[spr.detail].search(plr, i);
+			enemy[spr.detail].search(plr, actor);
 	}
 
 	it.Reset(NUKED);
@@ -318,7 +318,7 @@ void aiProcess() {
 		}
 		else {
 			if (enemy[spr.detail].nuked != nullptr)
-				enemy[spr.detail].nuked(plr, i);
+				enemy[spr.detail].nuked(plr, actor);
 		}
 	}
 
@@ -329,7 +329,7 @@ void aiProcess() {
 		i = actor->GetSpriteIndex();
 
 		if (enemy[spr.detail].frozen != nullptr)
-			enemy[spr.detail].frozen(plr, i);
+			enemy[spr.detail].frozen(plr, actor);
 	}
 
 	it.Reset(PAIN);
@@ -339,7 +339,7 @@ void aiProcess() {
 		i = actor->GetSpriteIndex();
 
 		if (enemy[spr.detail].pain != nullptr)
-			enemy[spr.detail].pain(plr, i);
+			enemy[spr.detail].pain(plr, actor);
 	}
 
 	it.Reset(FACE);
@@ -349,7 +349,7 @@ void aiProcess() {
 		i = actor->GetSpriteIndex();
 
 		if (enemy[spr.detail].face != nullptr)
-			enemy[spr.detail].face(plr, i);
+			enemy[spr.detail].face(plr, actor);
 	}
 
 	it.Reset(ATTACK);
@@ -364,7 +364,7 @@ void aiProcess() {
 		}
 
 		if (enemy[spr.detail].attack != nullptr)
-			enemy[spr.detail].attack(plr, i);
+			enemy[spr.detail].attack(plr, actor);
 	}
 
 	it.Reset(FLEE);
@@ -374,7 +374,7 @@ void aiProcess() {
 		i = actor->GetSpriteIndex();
 
 		if (enemy[spr.detail].flee != nullptr)
-			enemy[spr.detail].flee(plr, i);
+			enemy[spr.detail].flee(plr, actor);
 	}
 
 	it.Reset(CAST);
@@ -384,7 +384,7 @@ void aiProcess() {
 		i = actor->GetSpriteIndex();
 
 		if (enemy[spr.detail].cast != nullptr)
-			enemy[spr.detail].cast(plr, i);
+			enemy[spr.detail].cast(plr, actor);
 	}
 
 	it.Reset(DIE);
@@ -394,7 +394,7 @@ void aiProcess() {
 		i = actor->GetSpriteIndex();
 
 		if (enemy[spr.detail].die != nullptr)
-			enemy[spr.detail].die(plr, i);
+			enemy[spr.detail].die(plr, actor);
 	}
 
 	it.Reset(SKIRMISH);
@@ -404,7 +404,7 @@ void aiProcess() {
 		i = actor->GetSpriteIndex();
 
 		if (enemy[spr.detail].skirmish != nullptr)
-			enemy[spr.detail].skirmish(plr, i);
+			enemy[spr.detail].skirmish(plr, actor);
 	}
 
 	it.Reset(STAND);
@@ -414,7 +414,7 @@ void aiProcess() {
 		i = actor->GetSpriteIndex();
 
 		if (enemy[spr.detail].stand != nullptr)
-			enemy[spr.detail].stand(plr, i);
+			enemy[spr.detail].stand(plr, actor);
 	}
 
 	it.Reset(CHILL);
@@ -425,10 +425,10 @@ void aiProcess() {
 
 		switch (spr.detail) {
 		case GOBLINTYPE:
-			goblinChill(plr, i);
+			goblinChill(plr, actor);
 			break;
 		case SKELETONTYPE:
-			skeletonChill(plr, i);
+			skeletonChill(plr, actor);
 			break;
 		}
 	}

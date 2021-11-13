@@ -4,11 +4,14 @@
 BEGIN_WH_NS
 
 static void gonzopike(short s, PLAYER& plr);
-static void checkexplgonzo(PLAYER& plr, short i);
-static boolean patrolprocess(PLAYER& plr, short i);
+static void checkexplgonzo(PLAYER& plr, DWHActor* i);
+static boolean patrolprocess(PLAYER& plr, DWHActor* i);
 
-static void chasegonzo(PLAYER& plr, short const i) {
-	SPRITE& spr = sprite[i];
+static void chasegonzo(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0)
 		spr.lotag = 250;
@@ -105,7 +108,7 @@ static void chasegonzo(PLAYER& plr, short const i) {
 			break;
 		}
 		else {
-			if (!patrolprocess(plr, i))
+			if (!patrolprocess(plr, actor))
 				newstatus(i, FLEE);
 		}
 		break;
@@ -153,7 +156,7 @@ static void chasegonzo(PLAYER& plr, short const i) {
 			}
 		}
 		else {
-			if (!patrolprocess(plr, i))
+			if (!patrolprocess(plr, actor))
 				newstatus(i, FLEE);
 		}
 
@@ -184,11 +187,13 @@ static void chasegonzo(PLAYER& plr, short const i) {
 		}
 	}
 
-	checkexplgonzo(plr, i);
+	checkexplgonzo(plr, actor);
 }
 	
-static void resurectgonzo(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void resurectgonzo(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -216,8 +221,10 @@ static void resurectgonzo(PLAYER& plr, short i) {
 	}
 }
 	
-static void skirmishgonzo(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void skirmishgonzo(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 
@@ -240,24 +247,32 @@ static void skirmishgonzo(PLAYER& plr, short i) {
 	if (checksector6(i))
 		return;
 
-	checkexplgonzo(plr, i);
+	checkexplgonzo(plr, actor);
 }
 
-static void searchgonzo(PLAYER& plr, short i) {
-	aisearch(plr, i, false);
+static void searchgonzo(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	if (!checksector6(i))
-		checkexplgonzo(plr, i);
+		checkexplgonzo(plr, actor);
 }
 	
-static void nukedgonzo(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void nukedgonzo(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	chunksofmeat(plr, i, spr.x, spr.y, spr.z, spr.sectnum, spr.ang);
 	trailingsmoke(i, false);
 	newstatus(i, DIE);
 }
 	
-static void frozengonzo(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void frozengonzo(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -280,8 +295,11 @@ static void frozengonzo(PLAYER& plr, short i) {
 	}
 }
 	
-static void paingonzo(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void paingonzo(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
 		switch (sprite[i].picnum) {
@@ -306,12 +324,13 @@ static void paingonzo(PLAYER& plr, short i) {
 	processfluid(i, zr_florhit, false);
 	setsprite(i, spr.x, spr.y, spr.z);
 
-	checkexplgonzo(plr, i);
+	checkexplgonzo(plr, actor);
 }
 	
-static void facegonzo(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
-
+static void facegonzo(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	boolean cansee = ::cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 		spr.sectnum);
@@ -339,11 +358,14 @@ static void facegonzo(PLAYER& plr, short i) {
 	if (plr.invisibletime < 0 && checkdist(plr, i))
 		newstatus(i, ATTACK);
 
-	checkexplgonzo(plr, i);
+	checkexplgonzo(plr, actor);
 }
 	
-static void attackgonzo(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void attackgonzo(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
 	spr.z = zr_florz;
 
@@ -426,8 +448,11 @@ static void attackgonzo(PLAYER& plr, short i) {
 	checksector6(i);
 }
 	
-static void fleegonzo(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void fleegonzo(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	short osectnum = spr.sectnum;
 
@@ -460,11 +485,13 @@ static void fleegonzo(PLAYER& plr, short i) {
 
 	setsprite(i, spr.x, spr.y, spr.z);
 
-	checkexplgonzo(plr, i);
+	checkexplgonzo(plr, actor);
 }
 	
-static void castgonzo(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void castgonzo(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -480,8 +507,11 @@ static void castgonzo(PLAYER& plr, short i) {
 	}
 }
 	
-static void diegonzo(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void diegonzo(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 
 	if (spr.lotag <= 0) {
@@ -607,10 +637,10 @@ static short searchpatrol(SPRITE& spr) {
 	short target = -1;
 
 	WHStatIterator it(ATTACK2);
-	while (auto actor = it.Next())
+	while (auto itActor = it.Next())
 	{
-		SPRITE& tspr = actor->s();
-		int j = actor->GetSpriteIndex();
+		SPRITE& tspr = itActor->s();
+		int j = itActor->GetSpriteIndex();
 
 		int dist = abs(tspr.x - spr.x) + abs(tspr.y - spr.y);
 		if (dist < mindist) {
@@ -622,8 +652,11 @@ static short searchpatrol(SPRITE& spr) {
 	return target;
 }
 	
-static boolean patrolprocess(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static boolean patrolprocess(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	short target = searchpatrol(spr);
 	if (target != -1) {
 		SPRITE& tspr = sprite[target];
@@ -671,13 +704,16 @@ static void gonzopike(short s, PLAYER& plr) {
 
 }
 
-static void checkexplgonzo(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void checkexplgonzo(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	WHSectIterator it(spr.sectnum);
-	while (auto actor = it.Next())
+	while (auto sectactor = it.Next())
 	{
-		SPRITE& tspr = actor->s();
-		int j = actor->GetSpriteIndex();
+		SPRITE& tspr = sectactor->s();
+		int j = sectactor->GetSpriteIndex();
 
 		int dx = abs(spr.x - tspr.x); // x distance to sprite
 		int dy = abs(spr.y - tspr.y); // y distance to sprite

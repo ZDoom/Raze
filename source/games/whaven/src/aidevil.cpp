@@ -4,8 +4,11 @@
 BEGIN_WH_NS
 
 
-static void chasedevil(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void chasedevil(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0)
 		spr.lotag = 250;
@@ -59,8 +62,11 @@ static void chasedevil(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 
-static void diedevil(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void diedevil(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 
 	if (spr.lotag <= 0) {
@@ -78,8 +84,11 @@ static void diedevil(PLAYER& plr, short i) {
 	}
 }
 
-static void paindevil(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void paindevil(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
 		spr.picnum = DEVIL;
@@ -92,10 +101,10 @@ static void paindevil(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 
-static void facedevil(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
-
-
+static void facedevil(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	boolean cansee = ::cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 		spr.sectnum);
@@ -123,8 +132,11 @@ static void facedevil(PLAYER& plr, short i) {
 		newstatus(i, ATTACK);
 }
 
-static void fleedevil(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void fleedevil(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	short osectnum = spr.sectnum;
 
@@ -155,8 +167,10 @@ static void fleedevil(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 
-static void attackdevil(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void attackdevil(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
 	spr.z = zr_florz;
@@ -183,8 +197,10 @@ static void attackdevil(PLAYER& plr, short i) {
 		sprite[i].ang = getangle(plr.x - sprite[i].x, plr.y - sprite[i].y);
 }
 
-static void resurectdevil(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void resurectdevil(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -196,13 +212,18 @@ static void resurectdevil(PLAYER& plr, short i) {
 	}
 }
 
-static void searchdevil(PLAYER& plr, short i) {
+static void searchdevil(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+
 	aisearch(plr, i, false);
 	checksector6(i);
 }
 
-static void frozendevil(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void frozendevil(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -212,8 +233,10 @@ static void frozendevil(PLAYER& plr, short i) {
 	}
 }
 
-static void nukeddevil(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void nukeddevil(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	if (isWh2()) {
 		chunksofmeat(plr, i, spr.x, spr.y, spr.z, spr.sectnum, spr.ang);
@@ -233,8 +256,10 @@ static void nukeddevil(PLAYER& plr, short i) {
 	}
 }
 
-static void castdevil(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void castdevil(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {

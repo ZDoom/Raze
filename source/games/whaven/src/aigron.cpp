@@ -3,12 +3,15 @@
 
 BEGIN_WH_NS
 
-static void checkexplgron(PLAYER& plr, short i);
+static void checkexplgron(PLAYER& plr, DWHActor* i);
 static void throwhalberd(int s);
 
 
-static void chasegron(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void chasegron(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0)
 		spr.lotag = 250;
@@ -115,11 +118,13 @@ static void chasegron(PLAYER& plr, short i) {
 			newstatus(i, DIE);
 	}
 
-	checkexplgron(plr, i);
+	checkexplgron(plr, actor);
 }
 	
-static void resurectgron(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void resurectgron(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -146,8 +151,10 @@ static void resurectgron(PLAYER& plr, short i) {
 	}
 }
 	
-static void skirmishgron(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void skirmishgron(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 
@@ -169,17 +176,22 @@ static void skirmishgron(PLAYER& plr, short i) {
 	if (checksector6(i))
 		return;
 
-	checkexplgron(plr, i);
+	checkexplgron(plr, actor);
 }
 	
-static void searchgron(PLAYER& plr, short i) {
+static void searchgron(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+
 	aisearch(plr, i, false);
 	if (!checksector6(i))
-		checkexplgron(plr, i);
+		checkexplgron(plr, actor);
 }
 	
-static void nukedgron(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void nukedgron(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	if (isWh2()) {
 		chunksofmeat(plr, i, spr.x, spr.y, spr.z, spr.sectnum, spr.ang);
@@ -199,8 +211,10 @@ static void nukedgron(PLAYER& plr, short i) {
 	}
 }
 	
-static void frozengron(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void frozengron(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -215,8 +229,11 @@ static void frozengron(PLAYER& plr, short i) {
 	}
 }
 			
-static void paingron(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void paingron(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
 		if (spr.picnum == GRONHALPAIN)
@@ -234,12 +251,13 @@ static void paingron(PLAYER& plr, short i) {
 	processfluid(i, zr_florhit, false);
 	setsprite(i, spr.x, spr.y, spr.z);
 
-	checkexplgron(plr, i);
+	checkexplgron(plr, actor);
 }
 	
-static void facegron(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
-
+static void facegron(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	boolean cansee = ::cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 		spr.sectnum);
@@ -267,11 +285,13 @@ static void facegron(PLAYER& plr, short i) {
 	if (checkdist(plr, i))
 		newstatus(i, ATTACK);
 
-	checkexplgron(plr, i);
+	checkexplgron(plr, actor);
 }
 	
-static void attackgron(PLAYER& plr, short const i) {
-	SPRITE& spr = sprite[i];
+static void attackgron(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	if (spr.picnum == GRONSWATTACK) {
 		getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
@@ -322,8 +342,11 @@ static void attackgron(PLAYER& plr, short const i) {
 	checksector6(i);
 }
 	
-static void fleegron(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void fleegron(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	short osectnum = spr.sectnum;
 
@@ -353,11 +376,13 @@ static void fleegron(PLAYER& plr, short i) {
 
 	setsprite(i, spr.x, spr.y, spr.z);
 
-	checkexplgron(plr, i);
+	checkexplgron(plr, actor);
 }
 	
-static void castgron(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void castgron(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -378,8 +403,11 @@ static void castgron(PLAYER& plr, short i) {
 	checksector6(i);
 }
 	
-static void diegron(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void diegron(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 
 	if (spr.picnum == GRONSWDIE || spr.picnum == GRONHALDIE || spr.picnum == GRONMUDIE)
@@ -407,13 +435,16 @@ static void diegron(PLAYER& plr, short i) {
 	}
 }
 
-static void checkexplgron(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void checkexplgron(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	WHSectIterator it(spr.sectnum);
-	while (auto actor = it.Next())
+	while (auto sectactor = it.Next())
 	{
-		SPRITE& spri = actor->s();
-		int j = actor->GetSpriteIndex();
+		SPRITE& spri = sectactor->s();
+		int j = sectactor->GetSpriteIndex();
 
 		int dx = abs(spr.x - spri.x); // x distance to sprite
 		int dy = abs(spr.y - spri.y); // y distance to sprite

@@ -6,11 +6,14 @@ BEGIN_WH_NS
 static int checksight_x, checksight_y = 0;
 
 static void checkspeed(int i, int speed);
-static void dragonAttack2(PLAYER& plr, short i);
+static void dragonAttack2(PLAYER& plr, DWHActor* i);
 static void firebreath(PLAYER& plr, int i, int a, int b, int c);
 
-static void chasedragon(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void chasedragon(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0)
 		spr.lotag = 250;
@@ -70,8 +73,11 @@ static void chasedragon(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 
-static void fleedragon(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void fleedragon(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	short osectnum = spr.sectnum;
 
@@ -102,8 +108,11 @@ static void fleedragon(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 
-static void diedragon(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void diedragon(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+	
 	spr.lotag -= TICSPERFRAME;
 
 	if (spr.lotag <= 0) {
@@ -120,8 +129,11 @@ static void diedragon(PLAYER& plr, short i) {
 	}
 }
 
-static void castdragon(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void castdragon(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+	
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
 		spr.picnum++;
@@ -190,8 +202,10 @@ static void castdragon(PLAYER& plr, short i) {
 	checksector6(i);
 }
 
-static void attackdragon(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void attackdragon(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -205,8 +219,10 @@ static void attackdragon(PLAYER& plr, short i) {
 		spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
 }
 
-static void resurectdragon(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void resurectdragon(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -218,13 +234,18 @@ static void resurectdragon(PLAYER& plr, short i) {
 	}
 }
 
-static void searchdragon(PLAYER& plr, short i) {
+static void searchdragon(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+
 	aisearch(plr, i, true);
 	checksector6(i);
 }
 
-static void frozendragon(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void frozendragon(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -234,8 +255,10 @@ static void frozendragon(PLAYER& plr, short i) {
 	}
 }
 
-static void nukeddragon(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void nukeddragon(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -248,18 +271,21 @@ static void nukeddragon(PLAYER& plr, short i) {
 	}
 }
 
-static void paindragon(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void paindragon(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	aimove(i);
 	processfluid(i, zr_florhit, false);
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 
-static void facedragon(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
-
-
+static void facedragon(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	boolean cansee = ::cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 		spr.sectnum);
@@ -294,18 +320,19 @@ void dragonProcess(PLAYER& plr)
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		int i = actor->GetSpriteIndex();
 
 		switch (spr.detail) {
 		case DRAGON:
-			dragonAttack2(plr, i);
+			dragonAttack2(plr, actor);
 			break;
 		}
 	}
 }
 
-static void dragonAttack2(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void dragonAttack2(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {

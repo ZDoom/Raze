@@ -3,10 +3,13 @@
 
 BEGIN_WH_NS
 
-static void checkexplminotaur(PLAYER& plr, short i);
+static void checkexplminotaur(PLAYER& plr, DWHActor* i);
 
-static void chaseminotaur(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void chaseminotaur(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0)
 		spr.lotag = 250;
@@ -84,11 +87,13 @@ static void chaseminotaur(PLAYER& plr, short i) {
 			newstatus(i, DIE);
 	}
 
-	checkexplminotaur(plr, i);
+	checkexplminotaur(plr, actor);
 }
 	
-static void resurectminotaur(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void resurectminotaur(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -100,8 +105,10 @@ static void resurectminotaur(PLAYER& plr, short i) {
 	}
 }
 	
-static void skirmishminotaur(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void skirmishminotaur(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 
@@ -123,11 +130,13 @@ static void skirmishminotaur(PLAYER& plr, short i) {
 	if (checksector6(i))
 		return;
 
-	checkexplminotaur(plr, i);
+	checkexplminotaur(plr, actor);
 }
 	
-static void nukedminotaur(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void nukedminotaur(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	if (isWh2()) {
 		chunksofmeat(plr, i, spr.x, spr.y, spr.z, spr.sectnum, spr.ang);
@@ -147,8 +156,11 @@ static void nukedminotaur(PLAYER& plr, short i) {
 	}
 }
 	
-static void painminotaur(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void painminotaur(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
 		spr.picnum = MINOTAUR;
@@ -160,12 +172,13 @@ static void painminotaur(PLAYER& plr, short i) {
 	processfluid(i, zr_florhit, false);
 	setsprite(i, spr.x, spr.y, spr.z);
 
-	checkexplminotaur(plr, i);
+	checkexplminotaur(plr, actor);
 }
 	
-static void faceminotaur(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
-
+static void faceminotaur(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	boolean cansee = ::cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 		spr.sectnum);
@@ -193,11 +206,13 @@ static void faceminotaur(PLAYER& plr, short i) {
 	if (checkdist(plr, i))
 		newstatus(i, ATTACK);
 
-	checkexplminotaur(plr, i);
+	checkexplminotaur(plr, actor);
 }
 	
-static void attackminotaur(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void attackminotaur(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
 	spr.z = zr_florz;
@@ -234,8 +249,11 @@ static void attackminotaur(PLAYER& plr, short i) {
 	checksector6(i);
 }
 	
-static void dieminotaur(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void dieminotaur(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 
 	if (spr.lotag <= 0) {
@@ -253,8 +271,11 @@ static void dieminotaur(PLAYER& plr, short i) {
 	}
 }
 	
-static void fleeminotaur(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void fleeminotaur(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	short osectnum = spr.sectnum;
 
@@ -284,11 +305,13 @@ static void fleeminotaur(PLAYER& plr, short i) {
 
 	setsprite(i, spr.x, spr.y, spr.z);
 
-	checkexplminotaur(plr, i);
+	checkexplminotaur(plr, actor);
 }
 	
-static void frozenminotaur(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void frozenminotaur(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -298,20 +321,25 @@ static void frozenminotaur(PLAYER& plr, short i) {
 	}
 }
 	
-static void searchminotaur(PLAYER& plr, short i) {
+static void searchminotaur(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+
 	aisearch(plr, i, false);
 	if (!checksector6(i))
-		checkexplminotaur(plr, i);
+		checkexplminotaur(plr, actor);
 }
 
 
-static void checkexplminotaur(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void checkexplminotaur(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	WHSectIterator it(spr.sectnum);
-	while (auto actor = it.Next())
+	while (auto sectactor = it.Next())
 	{
-		SPRITE& tspr = actor->s();
-		int j = actor->GetSpriteIndex();
+		SPRITE& tspr = sectactor->s();
 
 		int dx = abs(spr.x - tspr.x); // x distance to sprite
 		int dy = abs(spr.y - tspr.y); // y distance to sprite

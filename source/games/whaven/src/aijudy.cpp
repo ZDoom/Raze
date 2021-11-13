@@ -5,8 +5,11 @@ BEGIN_WH_NS
 
 void spawnabaddy(int i, int monster);
 
-static void chasejudy(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void chasejudy(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0)
 		spr.lotag = 250;
@@ -69,8 +72,10 @@ static void chasejudy(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 	
-static void resurectjudy(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void resurectjudy(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -82,13 +87,18 @@ static void resurectjudy(PLAYER& plr, short i) {
 	}
 }
 	
-static void searchjudy(PLAYER& plr, short i) {
+static void searchjudy(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+
 	aisearch(plr, i, false);
 	checksector6(i);
 }
 	
-static void nukedjudy(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void nukedjudy(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -101,8 +111,11 @@ static void nukedjudy(PLAYER& plr, short i) {
 	}
 }
 	
-static void painjudy(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void painjudy(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
 		spr.picnum = JUDY;
@@ -115,8 +128,10 @@ static void painjudy(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 	
-static void facejudy(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void facejudy(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
 
@@ -145,8 +160,10 @@ static void facejudy(PLAYER& plr, short i) {
 		newstatus(i, ATTACK);
 }
 	
-static void attackjudy(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void attackjudy(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
 	spr.z = zr_florz;
@@ -173,8 +190,11 @@ static void attackjudy(PLAYER& plr, short i) {
 		sprite[i].ang = getangle(plr.x - sprite[i].x, plr.y - sprite[i].y);
 }
 	
-static void fleejudy(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void fleejudy(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	short osectnum = spr.sectnum;
 
@@ -205,8 +225,10 @@ static void fleejudy(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 	
-static void castjudy(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void castjudy(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -224,10 +246,10 @@ static void castjudy(PLAYER& plr, short i) {
 			if (krand() % 100 > 40) {
 				// raise the dead
 				WHStatIterator it(DEAD);
-				while (auto actor = it.Next())
+				while (auto itActor = it.Next())
 				{
-					SPRITE& spr = actor->s();
-					int j = actor->GetSpriteIndex();
+					SPRITE& spr = itActor->s();
+					int j = itActor->GetSpriteIndex();
 
 					spr.lotag = (short)((krand() % 120) + 120);
 					kills--;
@@ -320,8 +342,11 @@ static void castjudy(PLAYER& plr, short i) {
 	checksector6(i);
 }
 	
-static void diejudy(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void diejudy(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 
 	if (spr.lotag <= 0) {

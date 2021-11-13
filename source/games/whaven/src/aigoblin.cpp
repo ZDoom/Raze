@@ -3,11 +3,14 @@
 
 BEGIN_WH_NS
 
-static void checkexplgoblin(PLAYER& plr, short i);
+static void checkexplgoblin(PLAYER& plr, DWHActor* i);
 
 
-static void chasegoblin(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void chasegoblin(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0)
 		spr.lotag = 250;
@@ -83,11 +86,14 @@ static void chasegoblin(PLAYER& plr, short i) {
 			newstatus(i, DIE);
 	}
 
-	checkexplgoblin(plr, i);
+	checkexplgoblin(plr, actor);
 }
 		
-static void diegoblin(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void diegoblin(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 
 	if (spr.lotag <= 0) {
@@ -105,8 +111,11 @@ static void diegoblin(PLAYER& plr, short i) {
 	}
 }
 
-static void paingoblin(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void paingoblin(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
 		spr.picnum = GOBLIN;
@@ -118,11 +127,13 @@ static void paingoblin(PLAYER& plr, short i) {
 	processfluid(i, zr_florhit, false);
 	setsprite(i, spr.x, spr.y, spr.z);
 
-	checkexplgoblin(plr, i);
+	checkexplgoblin(plr, actor);
 }
 
-static void facegoblin(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void facegoblin(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	boolean cansee = ::cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 		spr.sectnum);
@@ -150,11 +161,14 @@ static void facegoblin(PLAYER& plr, short i) {
 	if (checkdist(plr, i))
 		newstatus(i, ATTACK);
 
-	checkexplgoblin(plr, i);
+	checkexplgoblin(plr, actor);
 }
 
-static void fleegoblin(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void fleegoblin(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	short osectnum = spr.sectnum;
 
@@ -184,11 +198,13 @@ static void fleegoblin(PLAYER& plr, short i) {
 
 	setsprite(i, spr.x, spr.y, spr.z);
 
-	checkexplgoblin(plr, i);
+	checkexplgoblin(plr, actor);
 }
 
-static void standgoblin(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void standgoblin(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
 	if (bcos(spr.ang) * (plr.x - spr.x)	+ bsin(spr.ang) * (plr.y - spr.y) >= 0) {
@@ -216,8 +232,10 @@ static void standgoblin(PLAYER& plr, short i) {
 	checksector6(i);
 }
 		
-static void attackgoblin(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void attackgoblin(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
 	spr.z = zr_florz;
@@ -255,8 +273,10 @@ static void attackgoblin(PLAYER& plr, short i) {
 	checksector6(i);
 }
 
-static void resurectgoblin(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void resurectgoblin(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -268,14 +288,19 @@ static void resurectgoblin(PLAYER& plr, short i) {
 	}
 }
 
-static void searchgoblin(PLAYER& plr, short i) {
+static void searchgoblin(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+
 	aisearch(plr, i, false);
 	if (!checksector6(i))
-		checkexplgoblin(plr, i);
+		checkexplgoblin(plr, actor);
 }
 		
-static void frozengoblin(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void frozengoblin(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -285,8 +310,10 @@ static void frozengoblin(PLAYER& plr, short i) {
 	}
 }
 
-static void nukedgoblin(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void nukedgoblin(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -299,8 +326,10 @@ static void nukedgoblin(PLAYER& plr, short i) {
 	}
 }
 
-static void skirmishgoblin(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void skirmishgoblin(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 
@@ -322,11 +351,13 @@ static void skirmishgoblin(PLAYER& plr, short i) {
 	if (checksector6(i))
 		return;
 
-	checkexplgoblin(plr, i);
+	checkexplgoblin(plr, actor);
 }
 
-void goblinChill(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+void goblinChill(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -339,8 +370,11 @@ void goblinChill(PLAYER& plr, short i) {
 	}
 }
 
-static void goblinWar(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void goblinWar(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	short k;
 
 	if (spr.lotag > 256) {
@@ -487,7 +521,7 @@ static void goblinWar(PLAYER& plr, short i) {
 		break;
 	}
 
-	checkexplgoblin(plr, i);
+	checkexplgoblin(plr, actor);
 }
 	
 void goblinWarProcess(PLAYER& plr)
@@ -500,19 +534,22 @@ void goblinWarProcess(PLAYER& plr)
 
 		switch (spr.detail) {
 		case GOBLINTYPE:
-			goblinWar(plr, i);
+			goblinWar(plr, actor);
 			break;
 		}
 	}
 }
 
-static void checkexplgoblin(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void checkexplgoblin(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	WHSectIterator it(spr.sectnum);
-	while (auto actor = it.Next())
+	while (auto sectactor = it.Next())
 	{
-		SPRITE& spri = actor->s();
-		int j = actor->GetSpriteIndex();
+		SPRITE& spri = sectactor->s();
+		int j = sectactor->GetSpriteIndex();
 
 		int dx = abs(spr.x - spri.x); // x distance to sprite
 		int dy = abs(spr.y - spri.y); // y distance to sprite

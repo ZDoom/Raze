@@ -3,10 +3,13 @@
 
 BEGIN_WH_NS
 
-static void willowDrain(PLAYER& plr, short i);
+static void willowDrain(PLAYER& plr, DWHActor* i);
 
-static void chasewillow(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void chasewillow(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0)
 		spr.lotag = 250;
@@ -67,8 +70,10 @@ static void chasewillow(PLAYER& plr, short i) {
 	}
 }
 	
-static void attackwillow(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void attackwillow(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 	if (plr.z < spr.z)
@@ -138,9 +143,10 @@ static void attackwillow(PLAYER& plr, short i) {
 		spr.z = floorz;
 }
 	
-static void facewillow(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
-
+static void facewillow(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 		spr.sectnum) && plr.invisibletime < 0) {
@@ -167,13 +173,20 @@ static void facewillow(PLAYER& plr, short i) {
 		newstatus(i, ATTACK);
 }
 	
-static void searchwillow(PLAYER& plr, short i) {
+static void searchwillow(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	aisearch(plr, i, true);
 	checksector6(i);
 }
 	
-static void fleewillow(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void fleewillow(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	short osectnum = spr.sectnum;
 
@@ -205,8 +218,11 @@ static void fleewillow(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 	
-static void diewillow(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void diewillow(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 
 	if (spr.lotag <= 0) {
@@ -227,8 +243,10 @@ static void diewillow(PLAYER& plr, short i) {
 	}
 }
 		
-static void nukedwillow(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void nukedwillow(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	if (isWh2()) {
 		chunksofmeat(plr, i, spr.x, spr.y, spr.z, spr.sectnum, spr.ang);
@@ -247,14 +265,16 @@ void willowProcess(PLAYER& plr)
 
 		switch (spr.detail) {
 		case WILLOWTYPE:
-			willowDrain(plr, i);
+			willowDrain(plr, actor);
 			break;
 		}
 	}
 }
 	
-static void willowDrain(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void willowDrain(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {

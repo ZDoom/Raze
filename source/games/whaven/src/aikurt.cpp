@@ -4,8 +4,10 @@
 BEGIN_WH_NS
 
 
-static void standkurt(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void standkurt(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	if (bcos(spr.ang) * (plr.x - spr.x)	+ bsin(spr.ang) * (plr.y - spr.y) >= 0) {
 		if (cansee(spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7), spr.sectnum, plr.x, plr.y,
@@ -20,25 +22,31 @@ static void standkurt(PLAYER& plr, short i) {
 	}
 }
 
-static void nukedkurt(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void nukedkurt(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	chunksofmeat(plr, i, spr.x, spr.y, spr.z, spr.sectnum, spr.ang);
 	trailingsmoke(i, false);
 	newstatus(i, DIE);
 }
 
-static void kurtExplo(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void kurtExplo(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	spr.picnum++;
 	if (spr.lotag < 0)
 		spr.lotag = 12;
 
 	WHSectIterator it(spr.sectnum);
-	while (auto actor = it.Next())
+	while (auto sect = it.Next())
 	{
-		SPRITE& tspr = actor->s();
-		int j = actor->GetSpriteIndex();
+		SPRITE& tspr = sect->s();
+		int j = sect->GetSpriteIndex();
 
 		int dx = abs(spr.x - tspr.x); // x distance to sprite
 		int dy = abs(spr.y - tspr.y); // y distance to sprite

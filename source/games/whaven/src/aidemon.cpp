@@ -3,8 +3,10 @@
 
 BEGIN_WH_NS
 
-static void chasedemon(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void chasedemon(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0)
 		spr.lotag = 250;
@@ -73,13 +75,20 @@ static void chasedemon(PLAYER& plr, short i) {
 	}
 }
 
-static void searchdemon(PLAYER& plr, short i) {
+static void searchdemon(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	aisearch(plr, i, true);
 	checksector6(i);
 }
 
-static void paindemon(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void paindemon(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
 		spr.picnum = DEMON;
@@ -91,8 +100,10 @@ static void paindemon(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 
-static void facedemon(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void facedemon(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	boolean cansee = ::cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7), spr.sectnum);
 
@@ -120,8 +131,10 @@ static void facedemon(PLAYER& plr, short i) {
 }
 
 
-static void attackdemon(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void attackdemon(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	if (plr.z < spr.z) {
 		spr.z -= TICSPERFRAME << 8;
@@ -142,8 +155,11 @@ static void attackdemon(PLAYER& plr, short i) {
 		spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
 }
 
-static void fleedemon(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void fleedemon(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	short osectnum = spr.sectnum;
 
@@ -175,8 +191,10 @@ static void fleedemon(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 
-static void castdemon(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void castdemon(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 
@@ -193,8 +211,11 @@ static void castdemon(PLAYER& plr, short i) {
 	}
 }
 
-static void nukeddemon(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void nukeddemon(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	chunksofmeat(plr, i, spr.x, spr.y, spr.z, spr.sectnum, spr.ang);
 	trailingsmoke(i, false);
 	newstatus((short)i, DIE);

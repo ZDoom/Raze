@@ -3,11 +3,14 @@
 
 BEGIN_WH_NS
 
-static void checkexplfred(PLAYER& plr, short i);
+static void checkexplfred(PLAYER& plr, DWHActor* i);
 
 
-static void chasefred(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void chasefred(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0)
 		spr.lotag = 250;
@@ -77,11 +80,13 @@ static void chasefred(PLAYER& plr, short i) {
 			newstatus(i, DIE);
 	}
 
-	checkexplfred(plr, i);
+	checkexplfred(plr, actor);
 }
 	
-static void skirmishfred(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void skirmishfred(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 
@@ -102,11 +107,14 @@ static void skirmishfred(PLAYER& plr, short i) {
 	if (checksector6(i))
 		return;
 
-	checkexplfred(plr, i);
+	checkexplfred(plr, actor);
 }
 	
-static void diefred(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void diefred(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 
 	if (spr.lotag <= 0) {
@@ -124,14 +132,19 @@ static void diefred(PLAYER& plr, short i) {
 	}
 }
 	
-static void searchfred(PLAYER& plr, short i) {
+static void searchfred(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+
 	aisearch(plr, i, false);
 	if (!checksector6(i))
-		checkexplfred(plr, i);
+		checkexplfred(plr, actor);
 }
 	
-static void frozenfred(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void frozenfred(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -141,9 +154,10 @@ static void frozenfred(PLAYER& plr, short i) {
 	}
 }
 	
-static void facefred(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
-
+static void facefred(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	boolean cansee = ::cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 		spr.sectnum);
@@ -171,11 +185,13 @@ static void facefred(PLAYER& plr, short i) {
 	if (checkdist(plr, i))
 		newstatus(i, ATTACK);
 
-	checkexplfred(plr, i);
+	checkexplfred(plr, actor);
 }
 	
-static void attackfred(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void attackfred(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
 	spr.z = zr_florz;
@@ -212,8 +228,11 @@ static void attackfred(PLAYER& plr, short i) {
 	checksector6(i);
 }
 	
-static void fleefred(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void fleefred(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	short osectnum = spr.sectnum;
 
@@ -244,11 +263,14 @@ static void fleefred(PLAYER& plr, short i) {
 
 	setsprite(i, spr.x, spr.y, spr.z);
 
-	checkexplfred(plr, i);
+	checkexplfred(plr, actor);
 }
 	
-static void painfred(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void painfred(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
 		spr.picnum = FRED;
@@ -260,11 +282,13 @@ static void painfred(PLAYER& plr, short i) {
 	processfluid(i, zr_florhit, false);
 	setsprite(i, spr.x, spr.y, spr.z);
 
-	checkexplfred(plr, i);
+	checkexplfred(plr, actor);
 }
 	
-static void resurectfred(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void resurectfred(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -276,12 +300,15 @@ static void resurectfred(PLAYER& plr, short i) {
 	}
 }
 
-static void checkexplfred(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void checkexplfred(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	WHSectIterator it(spr.sectnum);
-	while (auto actor = it.Next())
+	while (auto sectactor = it.Next())
 	{
-		SPRITE& tspr = actor->s();
+		SPRITE& tspr = sectactor->s();
 
 		int dx = abs(spr.x - tspr.x); // x distance to sprite
 		int dy = abs(spr.y - tspr.y); // y distance to sprite

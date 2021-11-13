@@ -5,8 +5,11 @@ BEGIN_WH_NS
 
 static void newguyarrow(short s, PLAYER& plr);
 
-static void standnewguy(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void standnewguy(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	if (bcos(spr.ang) * (plr.x - spr.x)	+ bsin(spr.ang) * (plr.y - spr.y) >= 0) {
 		if (cansee(spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7), spr.sectnum, plr.x, plr.y,
 			plr.z, plr.sector) && plr.invisibletime < 0) {
@@ -20,8 +23,11 @@ static void standnewguy(PLAYER& plr, short i) {
 	}
 }
 	
-static void chasenewguy(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void chasenewguy(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0)
 		spr.lotag = 250;
@@ -100,8 +106,10 @@ static void chasenewguy(PLAYER& plr, short i) {
 	}
 }
 	
-static void resurectnewguy(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void resurectnewguy(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -131,8 +139,10 @@ static void resurectnewguy(PLAYER& plr, short i) {
 	}
 }
 	
-static void skirmishnewguy(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void skirmishnewguy(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 
@@ -154,20 +164,29 @@ static void skirmishnewguy(PLAYER& plr, short i) {
 	checksector6(i);
 }
 
-static void searchnewguy(PLAYER& plr, short i) {
+static void searchnewguy(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+
 	aisearch(plr, i, false);
 	checksector6(i);
 }
 	
-static void nukednewguy(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void nukednewguy(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	chunksofmeat(plr, i, spr.x, spr.y, spr.z, spr.sectnum, spr.ang);
 	trailingsmoke(i, false);
 	newstatus((short)i, DIE);
 }
 	
-static void painnewguy(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void painnewguy(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
 		spr.picnum = NEWGUY;
@@ -180,8 +199,10 @@ static void painnewguy(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 	
-static void facenewguy(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void facenewguy(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	boolean cansee = ::cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 		spr.sectnum);
@@ -209,8 +230,11 @@ static void facenewguy(PLAYER& plr, short i) {
 		newstatus(i, ATTACK);
 }
 	
-static void fleenewguy(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void fleenewguy(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	short osectnum = spr.sectnum;
 
@@ -243,8 +267,10 @@ static void fleenewguy(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 	
-static void attacknewguy(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void attacknewguy(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
 	spr.z = zr_florz;
@@ -296,8 +322,11 @@ static void attacknewguy(PLAYER& plr, short i) {
 	}
 }
 	
-static void dienewguy(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void dienewguy(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 
 	if (spr.lotag <= 0) {
@@ -315,8 +344,10 @@ static void dienewguy(PLAYER& plr, short i) {
 	}
 }
 	
-static void castnewguy(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void castnewguy(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {

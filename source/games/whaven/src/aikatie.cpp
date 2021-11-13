@@ -5,8 +5,11 @@ BEGIN_WH_NS
 
 void spawnabaddy(int i, int monster);
 
-static void chasekatie(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void chasekatie(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0)
 		spr.lotag = 250;
@@ -59,8 +62,10 @@ static void chasekatie(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 	
-static void resurectkatie(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void resurectkatie(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -72,13 +77,19 @@ static void resurectkatie(PLAYER& plr, short i) {
 	}
 }
 	
-static void searchkatie(PLAYER& plr, short i) {
+static void searchkatie(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+
 	aisearch(plr, i, false);
 	checksector6(i);
 }
 	
-static void painkatie(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void painkatie(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
 		spr.picnum = KATIE;
@@ -91,8 +102,10 @@ static void painkatie(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 	
-static void facekatie(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void facekatie(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.ang = (short)(getangle(plr.x - spr.x, plr.y - spr.y) & 2047);
 
@@ -121,8 +134,10 @@ static void facekatie(PLAYER& plr, short i) {
 		newstatus(i, ATTACK);
 }
 	
-static void attackkatie(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void attackkatie(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
 	spr.z = zr_florz;
@@ -148,8 +163,11 @@ static void attackkatie(PLAYER& plr, short i) {
 		sprite[i].ang = getangle(plr.x - sprite[i].x, plr.y - sprite[i].y);
 }
 	
-static void fleekatie(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void fleekatie(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	short osectnum = spr.sectnum;
 
@@ -185,8 +203,10 @@ static void fleekatie(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 	
-static void castkatie(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void castkatie(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -240,8 +260,11 @@ static void castkatie(PLAYER& plr, short i) {
 	checksector6(i);
 }
 	
-static void diekatie(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void diekatie(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+	
 	spr.lotag -= TICSPERFRAME;
 
 	if (spr.lotag <= 0) {

@@ -3,10 +3,13 @@
 
 BEGIN_WH_NS
 
-static void checkexplkobold(PLAYER& plr, short i);
+static void checkexplkobold(PLAYER& plr, DWHActor* i);
 
-static void chasekobold(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void chasekobold(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0)
 		spr.lotag = 250;
@@ -87,11 +90,14 @@ static void chasekobold(PLAYER& plr, short i) {
 			newstatus(i, DIE);
 	}
 
-	checkexplkobold(plr, i);
+	checkexplkobold(plr, actor);
 }
 	
-static void diekobold(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void diekobold(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 
 	if (spr.lotag <= 0) {
@@ -109,8 +115,11 @@ static void diekobold(PLAYER& plr, short i) {
 	}
 }
 	
-static void painkobold(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void painkobold(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
 		spr.picnum = KOBOLD;
@@ -122,12 +131,13 @@ static void painkobold(PLAYER& plr, short i) {
 	processfluid(i, zr_florhit, false);
 	setsprite(i, spr.x, spr.y, spr.z);
 
-	checkexplkobold(plr, i);
+	checkexplkobold(plr, actor);
 }
 	
-static void facekobold(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
-
+static void facekobold(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	boolean cansee = ::cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 		spr.sectnum);
@@ -155,11 +165,14 @@ static void facekobold(PLAYER& plr, short i) {
 	if (checkdist(plr, i))
 		newstatus(i, ATTACK);
 
-	checkexplkobold(plr, i);
+	checkexplkobold(plr, actor);
 }
 	
-static void fleekobold(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void fleekobold(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	short osectnum = spr.sectnum;
 
@@ -189,11 +202,13 @@ static void fleekobold(PLAYER& plr, short i) {
 
 	setsprite(i, spr.x, spr.y, spr.z);
 
-	checkexplkobold(plr, i);
+	checkexplkobold(plr, actor);
 }
 	
-static void attackkobold(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void attackkobold(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
 	spr.z = zr_florz;
@@ -228,8 +243,10 @@ static void attackkobold(PLAYER& plr, short i) {
 	checksector6(i);
 }
 	
-static void resurectkobold(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void resurectkobold(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -241,16 +258,21 @@ static void resurectkobold(PLAYER& plr, short i) {
 	}
 }
 	
-static void searchkobold(PLAYER& plr, short i) {
+static void searchkobold(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+
 	if ((krand() % 100) > 98)
 		spritesound(S_KSNARL1 + (krand() % 4), &sprite[i]);
 	aisearch(plr, i, false);
 	if (!checksector6(i))
-		checkexplkobold(plr, i);
+		checkexplkobold(plr, actor);
 }
 	
-static void frozenkobold(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void frozenkobold(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -260,8 +282,10 @@ static void frozenkobold(PLAYER& plr, short i) {
 	}
 }
 		
-static void nukedkobold(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void nukedkobold(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	if (isWh2()) {
 		chunksofmeat(plr, i, spr.x, spr.y, spr.z, spr.sectnum, spr.ang);
@@ -281,8 +305,10 @@ static void nukedkobold(PLAYER& plr, short i) {
 	}
 }
 	
-static void skirmishkobold(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void skirmishkobold(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 
@@ -304,17 +330,20 @@ static void skirmishkobold(PLAYER& plr, short i) {
 	if (checksector6(i))
 		return;
 
-	checkexplkobold(plr, i);
+	checkexplkobold(plr, actor);
 }
 	
 
-static void checkexplkobold(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void checkexplkobold(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	WHSectIterator it(spr.sectnum);
-	while (auto actor = it.Next())
+	while (auto sect = it.Next())
 	{
-		SPRITE& tspr = actor->s();
-		int j = actor->GetSpriteIndex();
+		SPRITE& tspr = sect->s();
+		int j = sect->GetSpriteIndex();
 
 		int dx = abs(spr.x - tspr.x); // x distance to sprite
 		int dy = abs(spr.y - tspr.y); // y distance to sprite

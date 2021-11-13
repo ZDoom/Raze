@@ -3,10 +3,13 @@
 
 BEGIN_WH_NS
 
-static void checkexplskeleton(PLAYER& plr, short i);
+static void checkexplskeleton(PLAYER& plr, DWHActor* i);
 
-static void chaseskeleton(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void chaseskeleton(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0)
 		spr.lotag = 250;
@@ -84,11 +87,14 @@ static void chaseskeleton(PLAYER& plr, short i) {
 			newstatus(i, DIE);
 	}
 
-	checkexplskeleton(plr, i);
+	checkexplskeleton(plr, actor);
 }
 
-static void dieskeleton(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void dieskeleton(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 
 	if (spr.lotag <= 0) {
@@ -106,9 +112,10 @@ static void dieskeleton(PLAYER& plr, short i) {
 	}
 }
 
-static void faceskeleton(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
-
+static void faceskeleton(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	boolean cansee = ::cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 		spr.sectnum);
@@ -136,11 +143,14 @@ static void faceskeleton(PLAYER& plr, short i) {
 	if (checkdist(plr, i))
 		newstatus(i, ATTACK);
 
-	checkexplskeleton(plr, i);
+	checkexplskeleton(plr, actor);
 }
 
-static void fleeskeleton(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void fleeskeleton(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.picnum = SKELETON;
 
 	spr.lotag -= TICSPERFRAME;
@@ -173,11 +183,13 @@ static void fleeskeleton(PLAYER& plr, short i) {
 
 	setsprite(i, spr.x, spr.y, spr.z);
 
-	checkexplskeleton(plr, i);
+	checkexplskeleton(plr, actor);
 }
 
-static void standskeleton(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void standskeleton(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
 	if (bcos(spr.ang) * (plr.x - spr.x)	+ bsin(spr.ang) * (plr.y - spr.y) >= 0) {
@@ -202,8 +214,10 @@ static void standskeleton(PLAYER& plr, short i) {
 	checksector6(i);
 }
 	
-static void attackskeleton(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void attackskeleton(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
 	spr.z = zr_florz;
@@ -238,8 +252,10 @@ static void attackskeleton(PLAYER& plr, short i) {
 	checksector6(i);
 }
 	
-static void resurectskeleton(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void resurectskeleton(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -251,14 +267,19 @@ static void resurectskeleton(PLAYER& plr, short i) {
 	}
 }
 	
-static void searchskeleton(PLAYER& plr, short i) {
+static void searchskeleton(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+
 	aisearch(plr, i, false);
 	if (!checksector6(i))
-		checkexplskeleton(plr, i);
+		checkexplskeleton(plr, actor);
 }
 	
-static void frozenskeleton(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void frozenskeleton(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -268,8 +289,10 @@ static void frozenskeleton(PLAYER& plr, short i) {
 	}
 }
 	
-static void nukedskeleton(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void nukedskeleton(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	if (isWh2()) {
 		chunksofmeat(plr, i, spr.x, spr.y, spr.z, spr.sectnum, spr.ang);
@@ -289,8 +312,10 @@ static void nukedskeleton(PLAYER& plr, short i) {
 	}
 }
 	
-static void skirmishskeleton(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void skirmishskeleton(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 
@@ -312,11 +337,13 @@ static void skirmishskeleton(PLAYER& plr, short i) {
 	if (checksector6(i))
 		return;
 
-	checkexplskeleton(plr, i);
+	checkexplskeleton(plr, actor);
 }
 
-void skeletonChill(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+void skeletonChill(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -329,13 +356,15 @@ void skeletonChill(PLAYER& plr, short i) {
 	}
 }
 
-static void checkexplskeleton(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void checkexplskeleton(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	WHSectIterator it(spr.sectnum);
-	while (auto actor = it.Next())
+	while (auto sectactor = it.Next())
 	{
-		SPRITE& tspr = actor->s();
-		int j = actor->GetSpriteIndex();
+		SPRITE& tspr = sectactor->s();
 
 		int dx = abs(spr.x - tspr.x); // x distance to sprite
 		int dy = abs(spr.y - tspr.y); // y distance to sprite

@@ -4,8 +4,11 @@
 BEGIN_WH_NS
 
 
-static void chasefish(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void chasefish(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0)
 		spr.lotag = 250;
@@ -76,12 +79,16 @@ static void chasefish(PLAYER& plr, short i) {
 	}
 }
 	
-static void diefish(PLAYER& plr, short i) {
+static void diefish(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
 	deletesprite(i);
 }
 	
-static void attackfish(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void attackfish(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.z = sector[sprite[i].sectnum].floorz;
 
@@ -115,8 +122,10 @@ static void attackfish(PLAYER& plr, short i) {
 	checksector6(i);
 }
 	
-static void skirmishfish(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void skirmishfish(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 
@@ -138,14 +147,18 @@ static void skirmishfish(PLAYER& plr, short i) {
 		return;
 }
 	
-static void searchfish(PLAYER& plr, short i) {
+static void searchfish(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+
 	aisearch(plr, i, false);
 	checksector6(i);
 }
 	
-static void facefish(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
-
+static void facefish(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	boolean cansee = ::cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 		spr.sectnum);

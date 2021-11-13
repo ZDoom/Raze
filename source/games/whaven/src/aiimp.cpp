@@ -3,10 +3,13 @@
 
 BEGIN_WH_NS
 
-static void checkexplimp(PLAYER& plr, short i);
+static void checkexplimp(PLAYER& plr, DWHActor* i);
 
-static void chaseimp(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void chaseimp(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0)
 		spr.lotag = 250;
@@ -84,11 +87,13 @@ static void chaseimp(PLAYER& plr, short i) {
 			newstatus(i, DIE);
 	}
 
-	checkexplimp(plr, i);
+	checkexplimp(plr, actor);
 }
 		
-static void frozenimp(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void frozenimp(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -98,8 +103,11 @@ static void frozenimp(PLAYER& plr, short i) {
 	}
 }
 	
-static void painimp(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void painimp(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
 		spr.picnum = IMP;
@@ -112,8 +120,11 @@ static void painimp(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 	
-static void dieimp(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void dieimp(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 
 	if (spr.lotag <= 0) {
@@ -131,15 +142,20 @@ static void dieimp(PLAYER& plr, short i) {
 	}
 }
 	
-static void nukedimp(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void nukedimp(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	chunksofmeat(plr, i, spr.x, spr.y, spr.z, spr.sectnum, spr.ang);
 	trailingsmoke(i, false);
 	newstatus((short)i, DIE);
 }
 	
-static void resurectimp(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void resurectimp(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -151,9 +167,10 @@ static void resurectimp(PLAYER& plr, short i) {
 	}
 }
 	
-static void faceimp(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
-
+static void faceimp(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	boolean cansee = ::cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 		spr.sectnum);
@@ -181,11 +198,14 @@ static void faceimp(PLAYER& plr, short i) {
 	if (checkdist(plr, i))
 		newstatus(i, ATTACK);
 
-	checkexplimp(plr, i);
+	checkexplimp(plr, actor);
 }
 
-static void fleeimp(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void fleeimp(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	short osectnum = spr.sectnum;
 
@@ -216,11 +236,13 @@ static void fleeimp(PLAYER& plr, short i) {
 
 	setsprite(i, spr.x, spr.y, spr.z);
 
-	checkexplimp(plr, i);
+	checkexplimp(plr, actor);
 }
 	
-static void attackimp(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void attackimp(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
 	spr.z = zr_florz;
@@ -256,14 +278,19 @@ static void attackimp(PLAYER& plr, short i) {
 	checksector6(i);
 }
 	
-static void searchimp(PLAYER& plr, short i) {
+static void searchimp(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+
 	aisearch(plr, i, false);
 	if (!checksector6(i))
-		checkexplimp(plr, i);
+		checkexplimp(plr, actor);
 }
 		
-static void skirmishimp(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void skirmishimp(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 
@@ -285,16 +312,19 @@ static void skirmishimp(PLAYER& plr, short i) {
 	if (checksector6(i))
 		return;
 
-	checkexplimp(plr, i);
+	checkexplimp(plr, actor);
 }
 
-static void checkexplimp(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void checkexplimp(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	WHSectIterator it(spr.sectnum);
-	while (auto actor = it.Next())
+	while (auto sect = it.Next())
 	{
-		SPRITE& tspr = actor->s();
-		int j = actor->GetSpriteIndex();
+		SPRITE& tspr = sect->s();
+		int j = sect->GetSpriteIndex();
 
 		int dx = abs(spr.x - tspr.x); // x distance to sprite
 		int dy = abs(spr.y - tspr.y); // y distance to sprite

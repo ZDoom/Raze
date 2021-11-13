@@ -3,8 +3,11 @@
 
 BEGIN_WH_NS
 
-static void chaseguardian(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void chaseguardian(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0)
 		spr.lotag = 250;
@@ -70,8 +73,10 @@ static void chaseguardian(PLAYER& plr, short i) {
 	}
 }
 	
-static void nukedguardian(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void nukedguardian(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	if (isWh2()) {
 		chunksofmeat(plr, i, spr.x, spr.y, spr.z, spr.sectnum, spr.ang);
@@ -91,8 +96,10 @@ static void nukedguardian(PLAYER& plr, short i) {
 	}
 }
 	
-static void attackguardian(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void attackguardian(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	if (plr.z < spr.z) {
 		spr.z -= TICSPERFRAME << 8;
@@ -113,9 +120,10 @@ static void attackguardian(PLAYER& plr, short i) {
 		spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
 }
 	
-static void faceguardian(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
-
+static void faceguardian(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	boolean cansee = ::cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 		spr.sectnum);
@@ -144,13 +152,19 @@ static void faceguardian(PLAYER& plr, short i) {
 		newstatus(i, ATTACK);
 }
 	
-static void searchguardian(PLAYER& plr, short i) {
+static void searchguardian(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+
 	aisearch(plr, i, true);
 	checksector6(i);
 }
 	
-static void fleeguardian(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void fleeguardian(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	short osectnum = spr.sectnum;
 
@@ -185,8 +199,11 @@ static void fleeguardian(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 	
-static void painguardian(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void painguardian(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
 		spr.picnum = GUARDIAN;
@@ -198,8 +215,10 @@ static void painguardian(PLAYER& plr, short i) {
 	//				setsprite(i, spr.x, spr.y, spr.z);
 }
 	
-static void castguardian(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void castguardian(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 

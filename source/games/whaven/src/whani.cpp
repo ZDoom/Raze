@@ -1371,10 +1371,10 @@ void animateobjs(PLAYER& plr) {
 			}
 
 			WHSectIterator it(spr.sectnum);
-			while (auto actor = it.Next())
+			while (auto sect = it.Next())
 			{
-				SPRITE& tspr = actor->s();
-				int j = actor->GetSpriteIndex();
+				SPRITE& tspr = sect->s();
+				int j = sect->GetSpriteIndex();
 
 				int dx = abs(spr.x - tspr.x); // x distance to sprite
 				int dy = abs(spr.y - tspr.y); // y distance to sprite

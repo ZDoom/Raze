@@ -3,29 +3,42 @@
 
 BEGIN_WH_NS
 
-static void chaserat(PLAYER& plr, short i) {
+static void chaserat(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
 	newstatus(i, FLEE);
 }
 	
-static void searchrat(PLAYER& plr, short i) {
-	sprite[i].ang = (short) (((krand() & 512 - 256) + sprite[i].ang + 1024) & 2047);
+static void searchrat(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+	spr.ang = (short) (((krand() & 512 - 256) + spr.ang + 1024) & 2047);
 	newstatus(i, FLEE);
 }
 	
-static void facerat(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void facerat(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
 	spr.ang = (short) (((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
 	spr.owner = sprite[plr.spritenum].owner;
 	newstatus(i, FLEE);
 }
 	
-static void dierat(PLAYER& plr, short i) {
+static void dierat(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
 	deletesprite(i);
 }
 	
-static void fleerat(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void fleerat(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	short osectnum = spr.sectnum;
 

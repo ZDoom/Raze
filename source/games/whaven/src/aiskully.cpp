@@ -3,8 +3,11 @@
 
 BEGIN_WH_NS
 
-static void chaseskully(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void chaseskully(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0)
 		spr.lotag = 250;
@@ -56,8 +59,10 @@ static void chaseskully(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 	
-static void resurectskully(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void resurectskully(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -69,13 +74,18 @@ static void resurectskully(PLAYER& plr, short i) {
 	}
 }
 	
-static void searchskully(PLAYER& plr, short i) {
+static void searchskully(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+
 	aisearch(plr, i, false);
 	checksector6(i);
 }
 	
-static void nukedskully(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void nukedskully(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -88,8 +98,11 @@ static void nukedskully(PLAYER& plr, short i) {
 	}
 }
 	
-static void painskully(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void painskully(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
 		spr.picnum = SKULLY;
@@ -102,9 +115,10 @@ static void painskully(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 	
-static void faceskully(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
-
+static void faceskully(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	boolean cansee = ::cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 		spr.sectnum);
@@ -133,8 +147,10 @@ static void faceskully(PLAYER& plr, short i) {
 		newstatus(i, ATTACK);
 }
 	
-static void attackskully(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void attackskully(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
 	spr.z = zr_florz;
@@ -160,8 +176,11 @@ static void attackskully(PLAYER& plr, short i) {
 		sprite[i].ang = getangle(plr.x - sprite[i].x, plr.y - sprite[i].y);
 }
 	
-static void fleeskully(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void fleeskully(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	short osectnum = spr.sectnum;
 
@@ -192,8 +211,10 @@ static void fleeskully(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 	
-static void castskully(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void castskully(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -210,8 +231,11 @@ static void castskully(PLAYER& plr, short i) {
 	checksector6(i);
 }
 	
-static void dieskully(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void dieskully(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 
 	if (spr.lotag <= 0) {

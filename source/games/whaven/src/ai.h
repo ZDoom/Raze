@@ -58,7 +58,7 @@ struct EnemyInfo
 };
 
 
-using AIState = void (*)(PLAYER &plr, short i);
+using AIState = void (*)(PLAYER &plr, DWHActor* actor);
 
 
 struct Enemy 

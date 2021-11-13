@@ -3,10 +3,13 @@
 
 BEGIN_WH_NS
 
-static void throwspank(PLAYER& plr, int i);
+static void throwspank(PLAYER& plr, DWHActor* i);
 
-static void chasefatwitch(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void chasefatwitch(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0)
 		spr.lotag = 250;
@@ -59,8 +62,10 @@ static void chasefatwitch(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 	
-static void resurectfatwitch(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void resurectfatwitch(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -72,13 +77,18 @@ static void resurectfatwitch(PLAYER& plr, short i) {
 	}
 }
 	
-static void searchfatwitch(PLAYER& plr, short i) {
+static void searchfatwitch(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+
 	aisearch(plr, i, false);
 	checksector6(i);
 }
 	
-static void nukedfatwitch(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void nukedfatwitch(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -91,8 +101,11 @@ static void nukedfatwitch(PLAYER& plr, short i) {
 	}
 }
 	
-static void painfatwitch(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void painfatwitch(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
 		spr.picnum = FATWITCH;
@@ -105,8 +118,10 @@ static void painfatwitch(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 	
-static void facefatwitch(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void facefatwitch(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	boolean cansee = ::cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7), spr.sectnum);
 
@@ -133,8 +148,10 @@ static void facefatwitch(PLAYER& plr, short i) {
 		newstatus(i, ATTACK);
 }
 	
-static void attackfatwitch(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void attackfatwitch(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
 	spr.z = zr_florz;
@@ -160,8 +177,11 @@ static void attackfatwitch(PLAYER& plr, short i) {
 		sprite[i].ang = getangle(plr.x - sprite[i].x, plr.y - sprite[i].y);
 }
 	
-static void fleefatwitch(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void fleefatwitch(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 	short osectnum = spr.sectnum;
 
@@ -192,8 +212,10 @@ static void fleefatwitch(PLAYER& plr, short i) {
 	setsprite(i, spr.x, spr.y, spr.z);
 }
 	
-static void castfatwitch(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void castfatwitch(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
@@ -203,14 +225,17 @@ static void castfatwitch(PLAYER& plr, short i) {
 
 	if (spr.picnum == FATWITCHATTACK + 3) {
 		sprite[i].picnum = FATWITCH;
-		throwspank(plr, i);
+		throwspank(plr, actor);
 		newstatus(i, CHASE);
 	}
 	checksector6(i);
 }
 	
-static void diefatwitch(PLAYER& plr, short i) {
-	SPRITE& spr = sprite[i];
+static void diefatwitch(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
 	spr.lotag -= TICSPERFRAME;
 
 	if (spr.lotag <= 0) {
@@ -229,15 +254,20 @@ static void diefatwitch(PLAYER& plr, short i) {
 }
 
 
-static void throwspank(PLAYER& plr, int i) {
-	int j = insertsprite(sprite[i].sectnum, MISSILE);
+static void throwspank(PLAYER& plr, DWHActor* actor)
+{
+	int i = actor->GetSpriteIndex();
+	SPRITE& spr = actor->s();
+
+	int j = insertsprite(spr.sectnum, MISSILE);
 	if (j == -1)
 		return;
-	spritesound(S_WITCHTHROW, &sprite[i]);
 
-	sprite[j].x = sprite[i].x;
-	sprite[j].y = sprite[i].y;
-	sprite[j].z = sector[sprite[i].sectnum].floorz - ((tileHeight(sprite[i].picnum) >> 1) << 8);
+	spritesound(S_WITCHTHROW, &spr);
+
+	sprite[j].x = spr.x;
+	sprite[j].y = spr.y;
+	sprite[j].z = sector[spr.sectnum].floorz - ((tileHeight(spr.picnum) >> 1) << 8);
 	sprite[j].cstat = 0; // Hitscan does not hit other bullets
 	sprite[j].picnum = FATSPANK;
 	sprite[j].shade = -15;
