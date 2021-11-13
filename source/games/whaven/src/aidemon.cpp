@@ -80,7 +80,7 @@ static void searchdemon(PLAYER& plr, DWHActor* actor)
 	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
-	aisearch(plr, i, true);
+	aisearch(plr, actor, true);
 	checksector6(actor);
 }
 

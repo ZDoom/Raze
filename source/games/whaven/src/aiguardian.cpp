@@ -155,7 +155,7 @@ static void searchguardian(PLAYER& plr, DWHActor* actor)
 {
 	int i = actor->GetSpriteIndex();
 
-	aisearch(plr, i, true);
+	aisearch(plr, actor, true);
 	checksector6(actor);
 }
 	

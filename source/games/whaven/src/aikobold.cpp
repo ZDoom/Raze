@@ -263,7 +263,7 @@ static void searchkobold(PLAYER& plr, DWHActor* actor)
 
 	if ((krand() % 100) > 98)
 		spritesound(S_KSNARL1 + (krand() % 4), &sprite[i]);
-	aisearch(plr, i, false);
+	aisearch(plr, actor, false);
 	if (!checksector6(actor))
 		checkexplkobold(plr, actor);
 }

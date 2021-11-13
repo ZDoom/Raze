@@ -279,7 +279,7 @@ static void searchimp(PLAYER& plr, DWHActor* actor)
 {
 	int i = actor->GetSpriteIndex();
 
-	aisearch(plr, i, false);
+	aisearch(plr, actor, false);
 	if (!checksector6(actor))
 		checkexplimp(plr, actor);
 }

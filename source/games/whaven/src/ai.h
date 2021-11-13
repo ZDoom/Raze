@@ -122,7 +122,7 @@ extern int checksight_ang;
 void aiProcess();
 int aimove(short i);
 int aifly(short i);
-void aisearch(PLAYER& plr, short i, boolean fly);
+void aisearch(PLAYER& plr, DWHActor* i, boolean fly);
 boolean checksector6(DWHActor* i);
 int checkfluid(int i, int zr_florhit);
 void processfluid(DWHActor* i, int zr_florhit, boolean fly);

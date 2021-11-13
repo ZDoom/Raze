@@ -482,8 +482,7 @@ int aifly(short i) {
 	return movestate;
 }
 
-void aisearch(PLAYER& plr, short i, boolean fly) {
-	auto actor = &whActors[i];
+void aisearch(PLAYER& plr, DWHActor* actor, boolean fly) {
 	SPRITE& spr = actor->s();
 	spr.lotag -= TICSPERFRAME;
 
@@ -496,11 +495,11 @@ void aisearch(PLAYER& plr, short i, boolean fly) {
 
 	int movestat;
 	if (fly)
-		movestat = aifly(i);
+		movestat = aifly(actor->GetSpriteIndex());
 	else
-		movestat = aimove(i);
+		movestat = aimove(actor->GetSpriteIndex());
 
-	if (checkdist(plr, i)) {
+	if (checkdist(plr, actor->GetSpriteIndex())) {
 		if (plr.shadowtime > 0) {
 			spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
 			SetNewStatus(actor, FLEE);

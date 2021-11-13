@@ -91,7 +91,7 @@ static void searchjudy(PLAYER& plr, DWHActor* actor)
 {
 	int i = actor->GetSpriteIndex();
 
-	aisearch(plr, i, false);
+	aisearch(plr, actor, false);
 	checksector6(actor);
 }
 	

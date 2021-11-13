@@ -270,7 +270,7 @@ static void searchskeleton(PLAYER& plr, DWHActor* actor)
 {
 	int i = actor->GetSpriteIndex();
 
-	aisearch(plr, i, false);
+	aisearch(plr, actor, false);
 	if (!checksector6(actor))
 		checkexplskeleton(plr, actor);
 }

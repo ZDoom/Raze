@@ -183,7 +183,7 @@ static void searchgron(PLAYER& plr, DWHActor* actor)
 {
 	int i = actor->GetSpriteIndex();
 
-	aisearch(plr, i, false);
+	aisearch(plr, actor, false);
 	if (!checksector6(actor))
 		checkexplgron(plr, actor);
 }
