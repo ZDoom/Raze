@@ -96,7 +96,7 @@ static void paindemon(PLAYER& plr, DWHActor* actor)
 		SetNewStatus(actor, FLEE);
 	}
 
-	aifly(i);
+	aifly(actor);
 	SetActorPos(actor, &spr.pos);
 }
 
@@ -163,7 +163,7 @@ static void fleedemon(PLAYER& plr, DWHActor* actor)
 	spr.lotag -= TICSPERFRAME;
 	short osectnum = spr.sectnum;
 
-	int movestat = aifly(i);
+	int movestat = aifly(actor);
 
 	if (movestat != 0) {
 		if ((movestat & kHitTypeMask) == kHitWall) {

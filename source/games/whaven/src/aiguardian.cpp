@@ -170,7 +170,7 @@ static void fleeguardian(PLAYER& plr, DWHActor* actor)
 	if (PlayClock % 100 > 70)
 		trailingsmoke(actor,true);
 
-	int movestat = aifly(i);
+	int movestat = aifly(actor);
 
 	if (movestat != 0) {
 		if ((movestat & kHitTypeMask) == kHitWall) {
@@ -209,9 +209,6 @@ static void painguardian(PLAYER& plr, DWHActor* actor)
 		spr.ang = plr.angle.ang.asbuild();
 		SetNewStatus(actor, FLEE);
 	}
-
-	//				aifly(i);
-	//				SetActorPos(actor, &spr.pos);
 }
 	
 static void castguardian(PLAYER& plr, DWHActor* actor)

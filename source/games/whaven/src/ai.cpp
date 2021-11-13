@@ -464,10 +464,10 @@ int aimove(short i) {
 	return movestate;
 }
 
-int aifly(short i) {
-	SPRITE& spr = sprite[i];
-	int movestate = movesprite(i, (bcos(sprite[i].ang) * TICSPERFRAME) << 3,
-		(bsin(sprite[i].ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, CLIFFCLIP);
+int aifly(DWHActor* actor) {
+	SPRITE& spr = actor->s();
+	int movestate = movesprite(actor->GetSpriteIndex(), (bcos(spr.ang) * TICSPERFRAME) << 3,
+		(bsin(spr.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, CLIFFCLIP);
 
 	spr.z -= TICSPERFRAME << 8;
 	short ocs = spr.cstat;
@@ -495,7 +495,7 @@ void aisearch(PLAYER& plr, DWHActor* actor, boolean fly) {
 
 	int movestat;
 	if (fly)
-		movestat = aifly(actor->GetSpriteIndex());
+		movestat = aifly(actor);
 	else
 		movestat = aimove(actor->GetSpriteIndex());
 
