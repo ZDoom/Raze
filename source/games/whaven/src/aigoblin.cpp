@@ -383,14 +383,17 @@ static void goblinWar(PLAYER& plr, DWHActor* actor)
 	{
 		int olddist = 1024 << 4;
 		boolean found = false;
-		for (k = 0; k < MAXSPRITES; k++) {
-			if (sprite[k].picnum == GOBLIN && spr.pal != sprite[k].pal && spr.hitag == sprite[k].hitag) {
-				int dist = abs(spr.x - sprite[k].x) + abs(spr.y - sprite[k].y);
+		WHSpriteIterator it;
+		while (auto itActor = it.Next())
+		{
+			auto& spk = itActor->s();
+			if (spk.picnum == GOBLIN && spr.pal != spk.pal && spr.hitag == spk.hitag) {
+				int dist = abs(spr.x - spk.x) + abs(spr.y - spk.y);
 				if (dist < olddist) {
 					found = true;
 					olddist = dist;
-					spr.owner = k;
-					spr.ang = getangle(sprite[k].x - spr.x, sprite[k].y - spr.y);
+					spr.owner = itActor->GetSpriteIndex();
+					spr.ang = getangle(spk.x - spr.x, spk.y - spr.y);
 					spr.extra = 1;
 				}
 			}

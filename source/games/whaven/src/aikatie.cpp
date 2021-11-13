@@ -235,12 +235,15 @@ static void castkatie(PLAYER& plr, DWHActor* actor)
 
 	if (spr.picnum == KATIEAT + 6) {
 		if (spr.extra == 1) {
-			for (short j = 0; j < MAXSPRITES; j++) {
-				if (sprite[j].pal == 8) {
-					sprite[j].picnum--;
-					sprite[j].pal = 0;
-					sprite[j].shade = 0;
-					changespritestat(j, FACE);
+			WHSpriteIterator it;
+			while (auto itActor = it.Next())
+			{
+				auto& spk = itActor->s();
+				if (spk.pal == 8) {
+					spk.picnum--;
+					spk.pal = 0;
+					spk.shade = 0;
+					ChangeActorStat(itActor, FACE);
 				}
 			}
 			spr.picnum = KATIE;

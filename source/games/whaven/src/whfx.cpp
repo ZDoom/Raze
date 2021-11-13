@@ -941,11 +941,14 @@ void cracks() {
 
 	if (datag == 3001) {
 		sector[plr.sector].lotag = 0;
-		for (short k = 0; k < MAXSPRITES; k++) {
-			if (sector[plr.sector].hitag == sprite[k].hitag) {
-				sprite[k].lotag = 36;
-				sprite[k].zvel = (short) (krand() & 1024 + 512);
-				newstatus(k, SHOVE);
+		WHSpriteIterator it;
+		while (auto itActor = it.Next())
+		{
+			auto& spk = itActor->s();
+			if (sector[plr.sector].hitag == spk.hitag) {
+				spk.lotag = 36;
+				spk.zvel = (short) (krand() & 1024 + 512);
+				SetNewStatus(itActor, SHOVE);
 			}
 		}
 	}

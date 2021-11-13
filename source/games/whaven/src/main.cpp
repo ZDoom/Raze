@@ -648,9 +648,10 @@ bool playrunning()
 
 static void recordoldspritepos()
 {
-	for (int i = 0; i < MAXSPRITES; i++)
+	WHSpriteIterator it;
+	while (auto itActor = it.Next())
 	{
-		sprite[i].backuploc();
+		itActor->s().backuploc();
 	}
 }
 

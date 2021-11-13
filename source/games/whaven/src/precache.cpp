@@ -70,9 +70,10 @@ void precacheTiles()
 			addTile(wall[i].overpicnum);
 		}
 	}
-	for (int i = 0; i < MAXSPRITES; i++) {
-		if (sprite[i].statnum < MAXSTATUS) 
-			cachespritenum(i);
+	WHSpriteIterator it;
+	while (auto itActor = it.Next())
+	{
+		cachespritenum(itActor->GetSpriteIndex());
 	}
 				
 	addTile(BAT);
