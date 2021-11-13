@@ -290,11 +290,11 @@ boolean prepareboard(const char* fname) {
 //			if (spr.picnum == RAT) {
 //				ratcnt++;
 //				if (ratcnt > 10)
-//					deletesprite((short) i);
+//					DeleteActor(actor);
 //			}
 
 		if (spr.picnum == SPAWN) {
-			deletesprite((short) i);
+			DeleteActor(actor);
 		}
 
 		if (spr.picnum == TORCH) {
@@ -312,17 +312,17 @@ boolean prepareboard(const char* fname) {
 
 		if (spr.picnum == SNDEFFECT) {
 			sector[spr.sectnum].extra = spr.lotag;
-			deletesprite((short) i);
+			DeleteActor(actor);
 		}
 
 		if (spr.picnum == SNDLOOP) { // loop on
 			sector[spr.sectnum].extra = (short) (32768 | (spr.lotag << 1) | 1);
-			deletesprite((short) i);
+			DeleteActor(actor);
 		}
 
 		if (spr.picnum == SNDLOOPOFF) { // loop off
 			sector[spr.sectnum].extra = (short) (32768 | (spr.lotag << 1));
-			deletesprite((short) i);
+			DeleteActor(actor);
 		}
 
 		if (spr.lotag == 80) {
@@ -750,6 +750,7 @@ boolean prepareboard(const char* fname) {
 		
 	if(isWh2()) {
 		if(mapon == 5) {
+			// oh my... (todo: turn into a compat patch.
 			SPRITE& spr = sprite[185];
 			if(spr.picnum == 172 && spr.x == -36864 && spr.y == -53504)
 				deletesprite((short) 185);

@@ -59,7 +59,7 @@ void operatesprite(PLAYER& plr, short s) {
 			for (int j = 0; j < 20; j++) {
 				shards(s, 2);
 			}
-			deletesprite((short) s);
+			DeleteActor(actor);
 			break;
 		}
 		break;

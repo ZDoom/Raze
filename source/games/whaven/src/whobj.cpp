@@ -118,15 +118,14 @@ void processobjs(PLAYER& plr) {
 	while (auto actor = it.Next())
 	{
 		SPRITE& tspr = actor->s();
-		int i = actor->GetSpriteIndex();
 
 		dx = abs(plr.x - tspr.x); // x distance to sprite
 		dy = abs(plr.y - tspr.y); // y distance to sprite
 		dz = abs((plr.z >> 8) - (tspr.z >> 8)); // z distance to sprite
 		dh = tileHeight(tspr.picnum) >> 1; // height of sprite
 		if (dx + dy < PICKDISTANCE && dz - dh <= getPickHeight()) {
-			if(isItemSprite(i)) 
-				items[(tspr.detail & 0xFF) - ITEMSBASE].pickup(plr, (short)i);
+			if(isItemSprite(actor->GetSpriteIndex())) 
+				items[(tspr.detail & 0xFF) - ITEMSBASE].pickup(plr, actor);
 
 			if (tspr.picnum >= EXPLOSTART && tspr.picnum <= EXPLOEND && tspr.owner != sprite[plr.spritenum].owner)
 				if (plr.manatime < 1)
@@ -819,7 +818,7 @@ void newstatus(short sn, int seq) {
 				spr.picnum = GONZOBSHPAIN;
 				if (spr.shade > 30) {
 					trailingsmoke(actor, false);
-					deletesprite((short) sn);
+					DeleteActor(actor);
 					return;
 				}
 				break;
@@ -838,7 +837,7 @@ void newstatus(short sn, int seq) {
 		case DEMONTYPE:
 			spritesound(S_GUARDIANDIE, &spr);
 			explosion(sn, spr.x, spr.y, spr.z, spr.owner);
-			deletesprite((short) sn);
+			DeleteActor(actor);
 			addscore(aiGetPlayerTarget(sn), 1500);
 			kills++;
 			return;
@@ -921,7 +920,7 @@ void newstatus(short sn, int seq) {
 			if (mapon < 24) {
 				for (int j = 0; j < 8; j++)
 					trailingsmoke(actor, true);
-				deletesprite((short) sn);
+				DeleteActor(actor);
 				return;
 			} else {
 				spr.picnum = JUDYDIE;
@@ -932,7 +931,7 @@ void newstatus(short sn, int seq) {
 			spritesound(S_GUARDIANDIE, &spr);
 			for (int j = 0; j < 4; j++)
 				explosion(sn, spr.x, spr.y, spr.z, spr.owner);
-			deletesprite((short) sn);
+			DeleteActor(actor);
 			addscore(aiGetPlayerTarget(sn), 1500);
 			kills++;
 			return;
@@ -1340,7 +1339,7 @@ void newstatus(short sn, int seq) {
 				spr.pal = 0;
 				spr.cstat &= ~3;
 				ChangeActorStat(actor, (short) 0);
-				deletesprite(sn);
+				DeleteActor(actor);
 				addscore(aiGetPlayerTarget(sn), isWh2() ? 15 : 150);
 				return;
 			}
@@ -1362,7 +1361,7 @@ void newstatus(short sn, int seq) {
 					|| sector[spr.sectnum].floorpicnum == LAVA1
 					|| sector[spr.sectnum].floorpicnum == LAVA2)) {
 				trailingsmoke(actor, true);
-				deletesprite((short) sn);
+				DeleteActor(actor);
 			}
 		}
 		break;
@@ -1529,23 +1528,25 @@ void icecubes(int i, int x, int y, int z, int owner) {
 
 }
 
-boolean damageactor(PLAYER& plr, int hitobject, short const i) {
+boolean damageactor(PLAYER& plr, int hitobject, short const i) 
+{
+	auto actor = &whActors[i];
 	short const j = (short) (hitobject & 4095); // j is the spritenum that the bullet (spritenum i) hit
-	auto& spr = sprite[i];
+	auto& spr = actor->s();
 	auto& hitspr = sprite[j];
 	if (j == plr.spritenum && spr.owner == sprite[plr.spritenum].owner)
 		return false;
 
 	if (j == plr.spritenum && spr.owner != sprite[plr.spritenum].owner) {
 		if (plr.invincibletime > 0 || plr.godMode) {
-			deletesprite(i);
+			DeleteActor(actor);
 			return false;
 		}
 		// EG 17 Oct 2017: Mass backport of RULES.CFG behavior for resist/onyx ring
 		// EG 21 Aug 2017: New RULES.CFG behavior in place of the old #ifdef
 		if (plr.manatime > 0) {
 			if (/* eg_resist_blocks_traps && */spr.picnum != FATSPANK && spr.picnum != PLASMA) {
-				deletesprite(i);
+				DeleteActor(actor);
 				return false;
 			}
 			// Use "fixed" version: EXPLOSION and MONSTERBALL are the fire attacks, account
@@ -1554,7 +1555,7 @@ boolean damageactor(PLAYER& plr, int hitobject, short const i) {
 			// exception for it.
 			else if ((spr.picnum >= EXPLOSION && spr.picnum <= (MONSTERBALL + 2)
 					&& spr.picnum != FATSPANK)) {
-				deletesprite(i);
+				DeleteActor(actor);
 				return false;
 			}
 		}
@@ -1564,7 +1565,7 @@ boolean damageactor(PLAYER& plr, int hitobject, short const i) {
 						&& spr.picnum != PLASMA)) {
 			
 //				if (eg_onyx_effect == 1 || (eg_onyx_effect == 2 && ((krand() & 32) > 16))) {
-				deletesprite(i);
+				DeleteActor(actor);
 				return false;
 //				}
 		}
@@ -1600,7 +1601,7 @@ boolean damageactor(PLAYER& plr, int hitobject, short const i) {
 
 		startredflash(10);
 		/* EG 2017 - Trap fix */
-		deletesprite(i);
+		DeleteActor(actor);
 		return true;
 	}
 
@@ -1666,7 +1667,7 @@ boolean damageactor(PLAYER& plr, int hitobject, short const i) {
 				
 				if (hitspr.hitag <= 0) {
 					newstatus(j, DIE);
-					deletesprite(i);
+					DeleteActor(actor);
 				} else
 					newstatus(j, PAIN);
 				return true;
@@ -1716,7 +1717,7 @@ boolean damageactor(PLAYER& plr, int hitobject, short const i) {
 				newstatus(j, BROKENVASE);
 				break;
 			default:
-				deletesprite(i);
+				DeleteActor(actor);
 				return true;
 			}
 		}

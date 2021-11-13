@@ -208,4 +208,9 @@ inline void SetActorPos(DWHActor* actor, vec3_t* pos)
 	setsprite(actor->GetSpriteIndex(), pos);
 }
 
+inline void DeleteActor(DWHActor* actor)
+{
+	deletesprite(actor->GetSpriteIndex());
+}
+
 END_WH_NS

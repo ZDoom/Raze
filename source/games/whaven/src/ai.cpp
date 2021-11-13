@@ -307,12 +307,11 @@ void aiProcess() {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		i = actor->GetSpriteIndex();
 
 		if (spr.picnum == ZFIRE) {
 			spr.lotag -= TICSPERFRAME;
 			if (spr.lotag <= 0)
-				deletesprite(i);
+				DeleteActor(actor);
 		}
 		else {
 			if (enemy[spr.detail].nuked != nullptr)
@@ -551,7 +550,7 @@ boolean checksector6(DWHActor* actor) {
 		if (sector[spr.sectnum].lotag == 6)
 			SetNewStatus(actor, DIE);
 		else {
-			deletesprite(actor->GetSpriteIndex());
+			DeleteActor(actor);
 			return true;
 		}
 	}

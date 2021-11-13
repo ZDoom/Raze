@@ -48,7 +48,7 @@ void animateobjs(PLAYER& plr) {
 				break;
 			}
 			if (spr.lotag < 0) {
-				deletesprite(i);
+				DeleteActor(actor);
 			}
 		}
 
@@ -270,7 +270,7 @@ void animateobjs(PLAYER& plr) {
 				spawned.lotag = 40;
 				spawned.hitag = 0;
 				spawned.detail = GONZOTYPE;
-				deletesprite((short) i);
+				DeleteActor(actor);
 			}
 		}
 
@@ -312,7 +312,7 @@ void animateobjs(PLAYER& plr) {
 				}
 			}
 			if (spr.lotag < 0) {
-				deletesprite((short) i);
+				DeleteActor(actor);
 				// set back to normall
 				sector[plr.sector].ceilingshade = ceilingshadearray[plr.sector];
 				sector[plr.sector].floorshade = floorshadearray[plr.sector];
@@ -409,7 +409,7 @@ void animateobjs(PLAYER& plr) {
 			spr.lotag = 12;
 			spr.picnum++;
 			if (spr.picnum == ANNIHILATE + 5) {
-				deletesprite((short) i);
+				DeleteActor(actor);
 			}
 		}
 	}
@@ -475,7 +475,7 @@ void animateobjs(PLAYER& plr) {
 				if (i == lastbat) {
 					soundEngine->StopSound(CHAN_BAT);
 				}
-				deletesprite((short) i);
+				DeleteActor(actor);
 				continue;
 			} else {
 				movestat = (short) movesprite((short) i,
@@ -486,7 +486,7 @@ void animateobjs(PLAYER& plr) {
 					if (i == lastbat) {
 						soundEngine->StopSound(CHAN_BAT);
 					}
-					deletesprite((short) i);
+					DeleteActor(actor);
 					continue;
 				}
 				if (movestat != 0)
@@ -646,7 +646,7 @@ void animateobjs(PLAYER& plr) {
 				spr.picnum++;
 				spr.lotag = 8;
 			} else {
-				deletesprite((short) i);
+				DeleteActor(actor);
 			}
 		}
 	}
@@ -692,7 +692,7 @@ void animateobjs(PLAYER& plr) {
 				spr.lotag = 2047;
 				break;
 			case SFIRE:
-				deletesprite(i);
+				DeleteActor(actor);
 				continue;
 			}
 		}
@@ -739,7 +739,7 @@ void animateobjs(PLAYER& plr) {
 				if (spr.picnum == TORCH) {
 					for (k = 0; k < 16; k++)
 						makeafire(i, 0);
-					deletesprite(i);
+					DeleteActor(actor);
 					break;
 				}
 				ChangeActorStat(actor, 0);
@@ -913,7 +913,7 @@ void animateobjs(PLAYER& plr) {
 				break;
 				
 			if(!isValidSector(spr.sectnum)) {
-				deletesprite((short) i);
+				DeleteActor(actor);
 				continue;
 			}
 
@@ -938,7 +938,7 @@ void animateobjs(PLAYER& plr) {
 					}
 					
 //					if (spr.picnum != THROWPIKE) { //XXX
-					deletesprite((short) i);
+					DeleteActor(actor);
 					continue;
 //					}
 			}
@@ -983,7 +983,7 @@ void animateobjs(PLAYER& plr) {
 					
 				continue;
 			}
-			deletesprite((short) i);
+			DeleteActor(actor);
 			continue;
 		} else if ((hitobject & 0xc000) == 32768) { // hit a wall
 
@@ -1000,7 +1000,7 @@ void animateobjs(PLAYER& plr) {
 					
 				continue;
 			}
-			deletesprite((short) i);
+			DeleteActor(actor);
 			continue;
 		} else if (spr.lotag < 0 && spr.picnum == PLASMA)
 			hitobject = 1;
@@ -1016,7 +1016,7 @@ void animateobjs(PLAYER& plr) {
 			if (spr.owner != hitobject)
 				hitdamage = damageactor(plr, hitobject, i);
 			if (hitdamage) {
-				deletesprite((short) i);
+				DeleteActor(actor);
 				continue;
 			}
 		}
@@ -1035,7 +1035,7 @@ void animateobjs(PLAYER& plr) {
 						|| (spr.picnum == WH2THROWPIKE && !isWh2()))
 					break;
 
-				deletesprite((short) i);
+				DeleteActor(actor);
 				continue;
 			}
 		}
@@ -1060,7 +1060,7 @@ void animateobjs(PLAYER& plr) {
 						|| sector[spr.sectnum].floorpicnum == FLOORMIRROR)
 					if (krand() % 100 > 60)
 						makemonstersplash(SPLASHAROO, i);
-				deletesprite((short) i);
+				DeleteActor(actor);
 				continue;
 			}
 			dax = spr.xvel;
@@ -1126,13 +1126,13 @@ void animateobjs(PLAYER& plr) {
 
 			if (!hitdamage)
 				if (isBlades(sprite[j].picnum)) {
-					deletesprite((short) i);
+					DeleteActor(actor);
 					continue;
 				}
 		}
 
 		if (hitobject != 0) {
-			deletesprite((short) i);
+			DeleteActor(actor);
 		}
 	}
 
@@ -1156,13 +1156,13 @@ void animateobjs(PLAYER& plr) {
 				spr.lotag = 8;
 				spr.picnum++;
 				if (spr.picnum == SMOKEFX + 3) {
-					deletesprite((short) i);
+					DeleteActor(actor);
 					continue;
 				}
 			}
 		} else {
 			if (spr.lotag < 0) {
-				deletesprite((short) i);
+				DeleteActor(actor);
 			}
 		}
 	}
@@ -1205,7 +1205,7 @@ void animateobjs(PLAYER& plr) {
 				/* EG: Add check for parallax sky */
 				if (spr.picnum >= BONECHUNK1 && spr.picnum <= BONECHUNKEND
 						|| (daz >= zr_ceilz && (sector[spr.sectnum].ceilingstat & 1) != 0)) {
-					deletesprite(i);
+					DeleteActor(actor);
 				} else {
 					spr.cstat |= 0x0020;
 					spr.lotag = 1200;
@@ -1214,14 +1214,14 @@ void animateobjs(PLAYER& plr) {
 			}
 		} else if ((movestat & 0xc000) == 32768) {
 			if (spr.picnum >= BONECHUNK1 && spr.picnum <= BONECHUNKEND) {
-				deletesprite((short) i);
+				DeleteActor(actor);
 			} else {
 				spr.lotag = 600;
 				SetNewStatus(actor, DRIP);
 			}
 		}
 		if (spr.lotag < 0) {
-			deletesprite(i);
+			DeleteActor(actor);
 		}
 	}
 
@@ -1238,7 +1238,7 @@ void animateobjs(PLAYER& plr) {
 				spr.zvel = 0;
 				SetNewStatus(actor, DRIP);
 			} else {
-				deletesprite(i);
+				DeleteActor(actor);
 			}
 		}
 	}
@@ -1282,7 +1282,7 @@ void animateobjs(PLAYER& plr) {
 			SetNewStatus(actor, BLOOD);
 		}
 		if (spr.lotag < 0) {
-			deletesprite((short) i);
+			DeleteActor(actor);
 		}
 	}
 
@@ -1302,7 +1302,7 @@ void animateobjs(PLAYER& plr) {
 
 //			SetActorPos(actor, &spr.pos);
 		if (spr.lotag < 0) {
-			deletesprite((short) i);
+			DeleteActor(actor);
 		}
 	}
 
@@ -1354,7 +1354,7 @@ void animateobjs(PLAYER& plr) {
 			}
 
 			if (spr.lotag < 0) {
-				deletesprite(i);
+				DeleteActor(actor);
 			}
 		}
 	} else {
@@ -1405,7 +1405,7 @@ void animateobjs(PLAYER& plr) {
 			}
 
 			if (spr.picnum == EXPLOEND) {
-				deletesprite((short) i);
+				DeleteActor(actor);
 			}
 		}
 	}
@@ -1491,7 +1491,7 @@ void animateobjs(PLAYER& plr) {
 			if (spr.picnum == PLASMA || spr.picnum == EXPLOSION || spr.picnum == FIREBALL
 					|| spr.picnum == MONSTERBALL || spr.picnum == FATSPANK
 					|| spr.picnum == ICECUBE) {
-				deletesprite(i);
+				DeleteActor(actor);
 				continue;
 			}
 
@@ -1506,12 +1506,12 @@ void animateobjs(PLAYER& plr) {
 				else {
 					if (krand() % 100 > 60) {
 						makemonstersplash(SPLASHAROO, i);
-						deletesprite((short) i);
+						DeleteActor(actor);
 					}
 				}
 			} else {
 				if (spr.lotag < 0) {
-					deletesprite((short) i);
+					DeleteActor(actor);
 				}
 			}
 		}

@@ -91,7 +91,7 @@ static void nukedguardian(PLAYER& plr, DWHActor* actor)
 		spr.lotag = 24;
 		if (spr.picnum == GUARDIANCHAR + 4) {
 			trailingsmoke(actor,false);
-			deletesprite(i);
+			DeleteActor(actor);
 		}
 	}
 }

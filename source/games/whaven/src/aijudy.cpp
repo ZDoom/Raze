@@ -21,7 +21,7 @@ static void chasejudy(PLAYER& plr, DWHActor* actor)
 		if (spr.extra < 0) {
 			for (int j = 0; j < 8; j++)
 				trailingsmoke(actor,true);
-			deletesprite((short)i);
+			DeleteActor(actor);
 			return;
 		}
 	}
@@ -106,7 +106,7 @@ static void nukedjudy(PLAYER& plr, DWHActor* actor)
 		spr.lotag = 24;
 		if (spr.picnum == JUDYCHAR + 4) {
 			trailingsmoke(actor,false);
-			deletesprite(i);
+			DeleteActor(actor);
 		}
 	}
 }

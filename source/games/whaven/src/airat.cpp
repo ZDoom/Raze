@@ -28,7 +28,7 @@ static void facerat(PLAYER& plr, DWHActor* actor)
 static void dierat(PLAYER& plr, DWHActor* actor)
 {
 	int i = actor->GetSpriteIndex();
-	deletesprite(i);
+	DeleteActor(actor);
 }
 	
 static void fleerat(PLAYER& plr, DWHActor* actor)

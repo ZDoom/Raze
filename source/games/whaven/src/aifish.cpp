@@ -82,7 +82,7 @@ static void chasefish(PLAYER& plr, DWHActor* actor)
 static void diefish(PLAYER& plr, DWHActor* actor)
 {
 	int i = actor->GetSpriteIndex();
-	deletesprite(i);
+	DeleteActor(actor);
 }
 	
 static void attackfish(PLAYER& plr, DWHActor* actor)

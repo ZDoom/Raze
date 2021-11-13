@@ -259,7 +259,7 @@ static void nukeddragon(PLAYER& plr, DWHActor* actor)
 		spr.lotag = 24;
 		if (spr.picnum == DRAGONCHAR + 4) {
 			trailingsmoke(actor,false);
-			deletesprite(i);
+			DeleteActor(actor);
 		}
 	}
 }
