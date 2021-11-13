@@ -32,7 +32,7 @@ static void chasedragon(PLAYER& plr, DWHActor* actor)
 		int dax = (bcos(spr.ang) * TICSPERFRAME) << 3;
 		int day = (bsin(spr.ang) * TICSPERFRAME) << 3;
 		checksight(plr, actor);
-		if (!checkdist(plr, i)) {
+		if (!checkdist(plr, actor)) {
 			checkmove(actor, dax, day);
 		}
 		else {
@@ -302,7 +302,7 @@ static void facedragon(PLAYER& plr, DWHActor* actor)
 		else if (cansee) SetNewStatus(actor, FLEE);
 	}
 
-	if (checkdist(plr, i))
+	if (checkdist(plr, actor))
 		SetNewStatus(actor, ATTACK);
 }
 

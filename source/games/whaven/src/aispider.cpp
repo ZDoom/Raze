@@ -17,7 +17,7 @@ static void chasespider(PLAYER& plr, DWHActor* actor)
 	short osectnum = spr.sectnum;
 	if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 		spr.sectnum) && plr.invisibletime < 0) {
-		if (checkdist(plr, i)) {
+		if (checkdist(plr, actor)) {
 			if (plr.shadowtime > 0) {
 				spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
 				SetNewStatus(actor, FLEE);
@@ -181,7 +181,7 @@ static void facespider(PLAYER& plr, DWHActor* actor)
 		else if (cansee) SetNewStatus(actor, FLEE);
 	}
 
-	if (checkdist(plr, i))
+	if (checkdist(plr, actor))
 		SetNewStatus(actor, ATTACK);
 
 	checkexplspider(plr, actor);
@@ -207,7 +207,7 @@ static void attackspider(PLAYER& plr, DWHActor* actor)
 
 	if (spr.lotag >= 64) {
 		if (checksight(plr, actor))
-			if (checkdist(plr, i)) {
+			if (checkdist(plr, actor)) {
 				spr.ang = (short)checksight_ang;
 				attack(plr, i);
 				if (krand() % 100 > ((plr.lvl * 7) + 20)) {

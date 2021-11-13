@@ -27,7 +27,7 @@ static void chasewillow(PLAYER& plr, DWHActor* actor)
 		int day = (bsin(spr.ang) * TICSPERFRAME) << 3;
 		checksight(plr, actor);
 
-		if (!checkdist(plr, i)) {
+		if (!checkdist(plr, actor)) {
 			checkmove(actor, dax, day);
 		}
 		else {
@@ -85,7 +85,7 @@ static void attackwillow(PLAYER& plr, DWHActor* actor)
 	if (spr.lotag < 0) {
 		if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 			spr.sectnum))
-			if (checkdist(plr, i)) {
+			if (checkdist(plr, actor)) {
 				if (plr.shockme < 0)
 					if ((krand() & 1) != 0) {
 						plr.shockme = 120;
@@ -169,7 +169,7 @@ static void facewillow(PLAYER& plr, DWHActor* actor)
 		else SetNewStatus(actor, FLEE);
 	}
 
-	if (checkdist(plr, i))
+	if (checkdist(plr, actor))
 		SetNewStatus(actor, ATTACK);
 }
 	

@@ -34,7 +34,7 @@ static void chasedemon(PLAYER& plr, DWHActor* actor)
 		checksight(plr, actor);
 
 
-		if (!checkdist(plr, i)) {
+		if (!checkdist(plr, actor)) {
 			checkmove(actor, dax, day);
 		}
 		else {
@@ -126,7 +126,7 @@ static void facedemon(PLAYER& plr, DWHActor* actor)
 		else if (cansee) SetNewStatus(actor, FLEE);
 	}
 
-	if (checkdist(plr, i))
+	if (checkdist(plr, actor))
 		SetNewStatus(actor, ATTACK);
 }
 

@@ -21,7 +21,7 @@ static void chaseskully(PLAYER& plr, DWHActor* actor)
 	}
 	else {
 		checksight(plr, actor);
-		if (!checkdist(plr, i)) {
+		if (!checkdist(plr, actor)) {
 			if ((aimove(i) & kHitTypeMask) == kHitFloor)
 			{
 				spr.ang = (short)((spr.ang + 1024) & 2047);
@@ -142,7 +142,7 @@ static void faceskully(PLAYER& plr, DWHActor* actor)
 		else if (cansee) SetNewStatus(actor, FLEE);
 	}
 
-	if (checkdist(plr, i))
+	if (checkdist(plr, actor))
 		SetNewStatus(actor, ATTACK);
 }
 	

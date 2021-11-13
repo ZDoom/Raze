@@ -499,7 +499,7 @@ void aisearch(PLAYER& plr, DWHActor* actor, boolean fly) {
 	else
 		movestat = aimove(actor->GetSpriteIndex());
 
-	if (checkdist(plr, actor->GetSpriteIndex())) {
+	if (checkdist(plr, actor)) {
 		if (plr.shadowtime > 0) {
 			spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
 			SetNewStatus(actor, FLEE);
@@ -936,15 +936,15 @@ int checkmove(DWHActor* actor, int dax, int day) {
 	return movestat;
 }
 
-boolean checkdist(PLAYER& plr, int i) {
+boolean checkdist(PLAYER& plr, DWHActor* actor) {
 	if (plr.invisibletime > 0 || plr.health <= 0)
 		return false;
 
-	return checkdist(i, plr.x, plr.y, plr.z);
+	return checkdist(actor, plr.x, plr.y, plr.z);
 }
 	
-boolean checkdist(int i, int x, int y, int z) {
-	SPRITE& spr = sprite[i];
+boolean checkdist(DWHActor* actor, int x, int y, int z) {
+	SPRITE& spr = actor->s();
 
 	int attackdist = 512;
 	int attackheight = 120;

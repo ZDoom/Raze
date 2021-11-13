@@ -697,7 +697,7 @@ void animateobjs(PLAYER& plr) {
 			}
 		}
 
-		if (checkdist(i, plr.x, plr.y, plr.z)) {
+		if (checkdist(actor, plr.x, plr.y, plr.z)) {
 			addhealth(plr, -1);
 			flashflag = 1;
 			startredflash(10);
@@ -721,7 +721,7 @@ void animateobjs(PLAYER& plr) {
 		SetActorPos(actor, &spr.pos);
 
 		if (spr.picnum == FBARRELFALL || spr.picnum >= BOULDER && spr.picnum <= BOULDER + 3
-				&& (checkdist(i, plr.x, plr.y, plr.z))) {
+				&& (checkdist(actor, plr.x, plr.y, plr.z))) {
 			addhealth(plr, -50);
 			startredflash(50);
 		}

@@ -23,7 +23,7 @@ static void chasekatie(PLAYER& plr, DWHActor* actor)
 	}
 	else {
 		checksight(plr, actor);
-		if (!checkdist(i, plr.x, plr.y, plr.z)) {
+		if (!checkdist(actor, plr.x, plr.y, plr.z)) {
 			int movestat = aimove(i);
 			if ((movestat & kHitTypeMask) == kHitFloor)
 			{
@@ -130,7 +130,7 @@ static void facekatie(PLAYER& plr, DWHActor* actor)
 		else if (cansee) SetNewStatus(actor, FLEE);
 	}
 
-	if (checkdist(i, plr.x, plr.y, plr.z))
+	if (checkdist(actor, plr.x, plr.y, plr.z))
 		SetNewStatus(actor, ATTACK);
 }
 	

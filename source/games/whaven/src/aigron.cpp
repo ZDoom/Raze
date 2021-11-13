@@ -21,7 +21,7 @@ static void chasegron(PLAYER& plr, DWHActor* actor)
 	if (spr.picnum == GRONSW) {
 		if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 			spr.sectnum) && plr.invisibletime < 0) {
-			if (checkdist(plr, i)) {
+			if (checkdist(plr, actor)) {
 				if (plr.shadowtime > 0) {
 					spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
 					SetNewStatus(actor, FLEE);
@@ -73,7 +73,7 @@ static void chasegron(PLAYER& plr, DWHActor* actor)
 		}
 		else {
 			checksight(plr, actor);
-			if (!checkdist(plr, i)) {
+			if (!checkdist(plr, actor)) {
 				if ((aimove(i) & kHitTypeMask) == kHitFloor)
 				{
 					spr.ang = (short)((spr.ang + 1024) & 2047);
@@ -281,7 +281,7 @@ static void facegron(PLAYER& plr, DWHActor* actor)
 		else if (cansee) SetNewStatus(actor, FLEE);
 	}
 
-	if (checkdist(plr, i))
+	if (checkdist(plr, actor))
 		SetNewStatus(actor, ATTACK);
 
 	checkexplgron(plr, actor);
@@ -310,7 +310,7 @@ static void attackgron(PLAYER& plr, DWHActor* actor)
 
 		if (spr.lotag == 31) {
 			if (checksight(plr, actor))
-				if (checkdist(plr, i)) {
+				if (checkdist(plr, actor)) {
 					spr.ang = (short)checksight_ang;
 					attack(plr, i);
 				}

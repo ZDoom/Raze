@@ -32,7 +32,7 @@ static void chaseguardian(PLAYER& plr, DWHActor* actor)
 		if (PlayClock % 100 > 70)
 			trailingsmoke(actor,true);
 
-		if (!checkdist(plr, i)) {
+		if (!checkdist(plr, actor)) {
 			checkmove(actor, dax, day);
 		}
 		else {
@@ -147,7 +147,7 @@ static void faceguardian(PLAYER& plr, DWHActor* actor)
 		else if (cansee) SetNewStatus(actor, FLEE);
 	}
 
-	if (checkdist(plr, i))
+	if (checkdist(plr, actor))
 		SetNewStatus(actor, ATTACK);
 }
 	

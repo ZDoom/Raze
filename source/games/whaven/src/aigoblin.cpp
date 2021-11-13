@@ -18,7 +18,7 @@ static void chasegoblin(PLAYER& plr, DWHActor* actor)
 	short osectnum = spr.sectnum;
 	if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 		spr.sectnum) && plr.invisibletime < 0) {
-		if (checkdist(plr, i)) {
+		if (checkdist(plr, actor)) {
 			if (plr.shadowtime > 0) {
 				spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
 				SetNewStatus(actor, FLEE);
@@ -157,7 +157,7 @@ static void facegoblin(PLAYER& plr, DWHActor* actor)
 		else if (cansee) SetNewStatus(actor, FLEE);
 	}
 
-	if (checkdist(plr, i))
+	if (checkdist(plr, actor))
 		SetNewStatus(actor, ATTACK);
 
 	checkexplgoblin(plr, actor);
@@ -253,7 +253,7 @@ static void attackgoblin(PLAYER& plr, DWHActor* actor)
 
 	if (spr.lotag == 31) {
 		if (checksight(plr, actor))
-			if (checkdist(plr, i)) {
+			if (checkdist(plr, actor)) {
 				spr.ang = (short)checksight_ang;
 				attack(plr, i);
 			}
@@ -441,7 +441,7 @@ static void goblinWar(PLAYER& plr, DWHActor* actor)
 		processfluid(actor, zr_florhit, false);
 
 		SetActorPos(actor, &spr.pos);
-		if (checkdist(i, ownerspr.x, ownerspr.y, ownerspr.z)) {
+		if (checkdist(actor, ownerspr.x, ownerspr.y, ownerspr.z)) {
 			spr.extra = 2;
 		}
 		else
@@ -457,7 +457,7 @@ static void goblinWar(PLAYER& plr, DWHActor* actor)
 		k = spr.owner;
 		auto owneractor = &whActors[k];
 		auto& ownerspr = owneractor->s();
-		if (checkdist(i, ownerspr.x, ownerspr.y, ownerspr.z)) {
+		if (checkdist(actor, ownerspr.x, ownerspr.y, ownerspr.z)) {
 			if ((krand() & 1) != 0) {
 				// goblins are fighting
 				// JSA_DEMO
@@ -466,7 +466,7 @@ static void goblinWar(PLAYER& plr, DWHActor* actor)
 				if (krand() % 10 > 6)
 					spritesound(S_SWORD1 + (krand() % 6), &spr);
 
-				if (checkdist(plr, i))
+				if (checkdist(plr, actor))
 					addhealth(plr, -(krand() & 5));
 
 				if (krand() % 100 > 90) { // if k is dead
