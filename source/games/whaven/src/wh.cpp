@@ -2,7 +2,9 @@
 #include "wh.h"
 #include "vm.h"
 
-BEGIN_WH_NS 
+BEGIN_WH_NS
+
+DWHActor whActors[MAXSPRITES];
 
 // Placeholders that will go away.
 int attacktheme;

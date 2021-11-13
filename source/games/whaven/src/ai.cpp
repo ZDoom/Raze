@@ -86,11 +86,11 @@ void initAI()
 }
 
 void aiInit() {
-	for (short i = 0; i < MAXSPRITES; i++) {
-		if (sprite[i].statnum >= MAXSTATUS)
-			continue;
-
-		SPRITE& spr = sprite[i];
+	WHLinearSpriteIterator it;
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		int i = actor->GetSpriteIndex();
 		int pic = spr.picnum;
 		switch (spr.picnum) {
 		default:
@@ -229,12 +229,13 @@ void aiProcess() {
 	dragonProcess(plr);
 	willowProcess(plr);
 
-	short i, nextsprite;
+	short i;
 
-	for (i = headspritestat[PATROL]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
-
-		SPRITE& spr = sprite[i];
+	WHStatIterator it(PATROL);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		i = actor->GetSpriteIndex();
 		short movestat = (short)movesprite((short)i, (bcos(spr.ang) * TICSPERFRAME) << 3,
 			(bsin(spr.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
 		if (zr_florz > spr.z + (48 << 8)) {
@@ -273,32 +274,41 @@ void aiProcess() {
 		}
 	}
 
-	for (i = headspritestat[CHASE]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
-		SPRITE& spr = sprite[i];
+	it.Reset(CHASE);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		i = actor->GetSpriteIndex();
+
 		if (enemy[spr.detail].chase != nullptr)
 			enemy[spr.detail].chase(plr, i);
 	}
 
-	for (i = headspritestat[RESURECT]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
-		SPRITE& spr = sprite[i];
+	it.Reset(RESURECT);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		i = actor->GetSpriteIndex();
 		if (enemy[spr.detail].resurect != nullptr) {
 			enemy[spr.detail].resurect(plr, i);
 		}
 	}
 
-	for (i = headspritestat[FINDME]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
-		SPRITE& spr = sprite[i];
+	it.Reset(FINDME);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		i = actor->GetSpriteIndex();
 
 		if (enemy[spr.detail].search != nullptr)
 			enemy[spr.detail].search(plr, i);
 	}
 
-	for (i = headspritestat[NUKED]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
-		SPRITE& spr = sprite[i];
+	it.Reset(NUKED);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		i = actor->GetSpriteIndex();
 
 		if (spr.picnum == ZFIRE) {
 			spr.lotag -= TICSPERFRAME;
@@ -311,32 +321,41 @@ void aiProcess() {
 		}
 	}
 
-	for (i = headspritestat[FROZEN]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
-		SPRITE& spr = sprite[i];
+	it.Reset(FROZEN);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		i = actor->GetSpriteIndex();
+
 		if (enemy[spr.detail].frozen != nullptr)
 			enemy[spr.detail].frozen(plr, i);
 	}
 
-	for (i = headspritestat[PAIN]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
-		SPRITE& spr = sprite[i];
+	it.Reset(PAIN);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		i = actor->GetSpriteIndex();
 
 		if (enemy[spr.detail].pain != nullptr)
 			enemy[spr.detail].pain(plr, i);
 	}
 
-	for (i = headspritestat[FACE]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
-		SPRITE& spr = sprite[i];
+	it.Reset(FACE);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		i = actor->GetSpriteIndex();
 
 		if (enemy[spr.detail].face != nullptr)
 			enemy[spr.detail].face(plr, i);
 	}
 
-	for (i = headspritestat[ATTACK]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
-		SPRITE& spr = sprite[i];
+	it.Reset(ATTACK);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		i = actor->GetSpriteIndex();
 
 		if (isWh2() && attacktheme == 0) {
 			attacktheme = 1;
@@ -347,48 +366,62 @@ void aiProcess() {
 			enemy[spr.detail].attack(plr, i);
 	}
 
-	for (i = headspritestat[FLEE]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
-		SPRITE& spr = sprite[i];
+	it.Reset(FLEE);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		i = actor->GetSpriteIndex();
 
 		if (enemy[spr.detail].flee != nullptr)
 			enemy[spr.detail].flee(plr, i);
 	}
 
-	for (i = headspritestat[CAST]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
-		SPRITE& spr = sprite[i];
+	it.Reset(CAST);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		i = actor->GetSpriteIndex();
 
 		if (enemy[spr.detail].cast != nullptr)
 			enemy[spr.detail].cast(plr, i);
 	}
 
-	for (i = headspritestat[DIE]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
-		SPRITE& spr = sprite[i];
+	it.Reset(DIE);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		i = actor->GetSpriteIndex();
+
 		if (enemy[spr.detail].die != nullptr)
 			enemy[spr.detail].die(plr, i);
 	}
 
-	for (i = headspritestat[SKIRMISH]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
-		SPRITE& spr = sprite[i];
+	it.Reset(SKIRMISH);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		i = actor->GetSpriteIndex();
 
 		if (enemy[spr.detail].skirmish != nullptr)
 			enemy[spr.detail].skirmish(plr, i);
 	}
 
-	for (i = headspritestat[STAND]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
-		SPRITE& spr = sprite[i];
+	it.Reset(STAND);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		i = actor->GetSpriteIndex();
 
 		if (enemy[spr.detail].stand != nullptr)
 			enemy[spr.detail].stand(plr, i);
 	}
 
-	for (i = headspritestat[CHILL]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
-		SPRITE& spr = sprite[i];
+	it.Reset(CHILL);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		i = actor->GetSpriteIndex();
+
 		switch (spr.detail) {
 		case GOBLINTYPE:
 			goblinChill(plr, i);
@@ -399,9 +432,11 @@ void aiProcess() {
 		}
 	}
 
-	for (i = headspritestat[DEAD]; i >= 0; i = nextsprite) {
-		nextsprite = nextspritestat[i];
-		SPRITE& spr = sprite[i];
+	it.Reset(DEAD);
+	while (auto actor = it.Next())
+	{
+		SPRITE& spr = actor->s();
+		i = actor->GetSpriteIndex();
 
 		getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
 		switch (checkfluid(i, zr_florhit)) {
