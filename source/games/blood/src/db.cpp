@@ -995,6 +995,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
         {
             sprite[i].cstat &= ~0x30;
         }
+        bloodActors[i].Clear();
     }
     unsigned int nCRC =  fr.ReadUInt32();
 

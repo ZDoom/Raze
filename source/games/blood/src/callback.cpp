@@ -749,7 +749,7 @@ void callbackCondition(DBloodActor* actor, int)
     XSPRITE* pXSprite = &actor->x();
     if (pXSprite->isTriggered) return;
 
-    TRCONDITION* pCond = &gCondition[pXSprite->sysData1];
+    TRCONDITION const* pCond = &gCondition[pXSprite->sysData1];
     for (unsigned i = 0; i < pCond->length; i++) {
         EVENT evn;  
         evn.type = pCond->obj[i].type;

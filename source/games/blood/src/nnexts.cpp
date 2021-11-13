@@ -498,7 +498,7 @@ void nnExtResetGlobals()
         for (int i = 0; i < gTrackingCondsCount; i++) 
         {
             TRCONDITION* pCond = &gCondition[i];
-            for (unsigned k = 0; k < pCond->length; k++) 
+        for (unsigned k = 0; k < kMaxTracedObjects; k++)
             {
                 pCond->obj[k].actor = nullptr;
                 pCond->obj[k].index_ = pCond->obj[k].cmd = 0;
@@ -1150,7 +1150,7 @@ void nnExtProcessSuperSprites()
     {
         for (int i = 0; i < gTrackingCondsCount; i++) 
         {
-            TRCONDITION* pCond = &gCondition[i];
+            TRCONDITION const* pCond = &gCondition[i];
             XSPRITE* pXCond = &pCond->actor->x();
             if (pXCond->locked || pXCond->isTriggered || ++pXCond->busy < pXCond->busyTime)
                 continue;
