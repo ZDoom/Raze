@@ -88,25 +88,13 @@ void displayloogie(player_struct* p)
 
 int animatefist(int gs, player_struct* p, double look_anghalf, double looking_arc, double plravel, int fistpal)
 {
-	int fisti;
-	double fistzoom;
-	double fistz;
-
-	fisti = p->fist_incs;
-	if (fisti > 32) fisti = 32;
+	int fisti = min(p->fist_incs, short(32));
 	if (fisti <= 0) return 0;
-
-	fistzoom = 65536 - bcosf(fisti << 6, 2);
-	if (fistzoom > 90612)
-		fistzoom = 90612;
-	if (fistzoom < 40920)
-		fistzoom = 40290;
-	fistz = 194 + bsinf((6 + fisti) << 7, -9);
 
 	hud_drawsprite(
 		(-fisti + 222 + plravel),
-		(looking_arc + fistz),
-		int(fistzoom), 0, FIST, gs, fistpal, 2);
+		(looking_arc + 194 + bsinf((6 + fisti) << 7, -9)),
+		clamp(65536. - bcosf(fisti << 6, 2), 40920., 90612.), 0, FIST, gs, fistpal, 2);
 
 	return 1;
 }
