@@ -90,12 +90,12 @@ static void attackfish(PLAYER& plr, DWHActor* actor)
 	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
-	spr.z = sector[sprite[i].sectnum].floorz;
+	spr.z = sector[spr.sectnum].floorz;
 
 	switch (checkfluid(i, zr_florhit)) {
 	case TYPELAVA:
-		sprite[i].hitag--;
-		if (sprite[i].hitag < 0)
+		spr.hitag--;
+		if (spr.hitag < 0)
 			SetNewStatus(actor, DIE);
 		break;
 	}

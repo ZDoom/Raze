@@ -3,7 +3,7 @@
 
 BEGIN_WH_NS
 
-void spawnabaddy(int i, int monster);
+void spawnabaddy(DWHActor* i, int monster);
 
 static void chasejudy(PLAYER& plr, DWHActor* actor)
 {
@@ -17,8 +17,8 @@ static void chasejudy(PLAYER& plr, DWHActor* actor)
 	short osectnum = spr.sectnum;
 
 	if (mapon < 24) {
-		sprite[i].extra -= TICSPERFRAME;
-		if (sprite[i].extra < 0) {
+		spr.extra -= TICSPERFRAME;
+		if (spr.extra < 0) {
 			for (int j = 0; j < 8; j++)
 				trailingsmoke(i, true);
 			deletesprite((short)i);
@@ -27,8 +27,8 @@ static void chasejudy(PLAYER& plr, DWHActor* actor)
 	}
 
 	if (krand() % 63 == 0) {
-		if (cansee(plr.x, plr.y, plr.z, plr.sector, sprite[i].x, sprite[i].y,
-			sprite[i].z - (tileHeight(sprite[i].picnum) << 7), sprite[i].sectnum))// && invisibletime < 0)
+		if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y,
+			spr.z - (tileHeight(spr.picnum) << 7), spr.sectnum))// && invisibletime < 0)
 			SetNewStatus(actor, ATTACK);
 	}
 	else {
@@ -46,7 +46,7 @@ static void chasejudy(PLAYER& plr, DWHActor* actor)
 			if (krand() % 8 == 0) // NEW
 				SetNewStatus(actor, ATTACK); // NEW
 			else { // NEW
-				sprite[i].ang = (short)(((krand() & 512 - 256) + sprite[i].ang + 1024) & 2047); // NEW
+				spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
 				SetNewStatus(actor, FLEE); // NEW
 			}
 		}
@@ -177,17 +177,17 @@ static void attackjudy(PLAYER& plr, DWHActor* actor)
 
 	setsprite(i, spr.x, spr.y, spr.z);
 
-	sprite[i].extra -= TICSPERFRAME;
-	sprite[i].lotag -= TICSPERFRAME;
-	if (sprite[i].lotag < 0) {
-		if (cansee(plr.x, plr.y, plr.z, plr.sector, sprite[i].x, sprite[i].y,
-			sprite[i].z - (tileHeight(sprite[i].picnum) << 7), sprite[i].sectnum))
+	spr.extra -= TICSPERFRAME;
+	spr.lotag -= TICSPERFRAME;
+	if (spr.lotag < 0) {
+		if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y,
+			spr.z - (tileHeight(spr.picnum) << 7), spr.sectnum))
 			SetNewStatus(actor, CAST);
 		else
 			SetNewStatus(actor, CHASE);
 	}
 	else
-		sprite[i].ang = getangle(plr.x - sprite[i].x, plr.y - sprite[i].y);
+		spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
 }
 	
 static void fleejudy(PLAYER& plr, DWHActor* actor)
@@ -237,7 +237,7 @@ static void castjudy(PLAYER& plr, DWHActor* actor)
 	}
 
 	if (spr.picnum == JUDYATTACK1 + 3) {
-		sprite[i].picnum = JUDYATTACK1;
+		spr.picnum = JUDYATTACK1;
 		spritesound(S_JUDY1 + krand() % 4, &sprite[i]);
 		if (krand() % 100 > 70) {
 			castspell(plr, i);
@@ -267,21 +267,21 @@ static void castjudy(PLAYER& plr, DWHActor* actor)
 					int j = krand() % 5;
 					switch (j) {
 					case 0:// SPAWN WILLOW
-						spawnabaddy(i, WILLOW);
+						spawnabaddy(actor, WILLOW);
 						break;
 					case 1:// SPAWN 10 SPIDERS
 						for (j = 0; j < 4; j++) {
-							spawnabaddy(i, SPIDER);
+							spawnabaddy(actor, SPIDER);
 						}
 						break;
 					case 2:// SPAWN 2 GRONSW
 						for (j = 0; j < 2; j++) {
-							spawnabaddy(i, GRONSW);
+							spawnabaddy(actor, GRONSW);
 						}
 						break;
 					case 3:// SPAWN SKELETONS
 						for (j = 0; j < 4; j++) {
-							spawnabaddy(i, SKELETON);
+							spawnabaddy(actor, SKELETON);
 						}
 						break;
 					case 4:
@@ -294,7 +294,7 @@ static void castjudy(PLAYER& plr, DWHActor* actor)
 		SetNewStatus(actor, CHASE);
 	}
 	else if (spr.picnum == JUDYATTACK2 + 8) {
-		sprite[i].picnum = JUDYATTACK2;
+		spr.picnum = JUDYATTACK2;
 		spritesound(S_JUDY1 + krand() % 4, &sprite[i]);
 		if (krand() % 100 > 50)
 			skullycastspell(plr, i);
@@ -313,21 +313,21 @@ static void castjudy(PLAYER& plr, DWHActor* actor)
 				int j = krand() % 5;
 				switch (j) {
 				case 0:// SPAWN WILLOW
-					spawnabaddy(i, WILLOW);
+					spawnabaddy(actor, WILLOW);
 					break;
 				case 1:// SPAWN 6 SPIDERS
 					for (j = 0; j < 4; j++) {
-						spawnabaddy(i, SPIDER);
+						spawnabaddy(actor, SPIDER);
 					}
 					break;
 				case 2:// SPAWN 2 GRONSW
 					for (j = 0; j < 2; j++) {
-						spawnabaddy(i, GRONSW);
+						spawnabaddy(actor, GRONSW);
 					}
 					break;
 				case 3:// SPAWN SKELETONS
 					for (j = 0; j < 4; j++) {
-						spawnabaddy(i, SKELETON);
+						spawnabaddy(actor, SKELETON);
 					}
 					break;
 				case 4:
@@ -389,13 +389,14 @@ void judyOperate(PLAYER& plr)
 	}
 }
 	
-void spawnabaddy(int i, int monster) {
-	short j = insertsprite(sprite[i].sectnum, FACE);
+void spawnabaddy(DWHActor* actor, int monster) {
+	auto& spr = actor->s();
+	short j = insertsprite(spr.sectnum, FACE);
 	auto& spawned = sprite[j];
 
-	spawned.x = sprite[i].x + (krand() & 2048) - 1024;
-	spawned.y = sprite[i].y + (krand() & 2048) - 1024;
-	spawned.z = sprite[i].z;
+	spawned.x = spr.x + (krand() & 2048) - 1024;
+	spawned.y = spr.y + (krand() & 2048) - 1024;
+	spawned.z = spr.z;
 
 	spawned.pal = 0;
 	spawned.shade = 0;

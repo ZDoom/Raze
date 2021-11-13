@@ -19,14 +19,14 @@ static void chaseguardian(PLAYER& plr, DWHActor* actor)
 		spr.z += TICSPERFRAME << 8;
 
 	if (krand() % 63 == 0) {
-		if (cansee(plr.x, plr.y, plr.z, plr.sector, sprite[i].x, sprite[i].y,
-			sprite[i].z - (tileHeight(sprite[i].picnum) << 7), sprite[i].sectnum) && plr.invisibletime < 0)
+		if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y,
+			spr.z - (tileHeight(spr.picnum) << 7), spr.sectnum) && plr.invisibletime < 0)
 			SetNewStatus(actor, ATTACK);
 		return;
 	}
 	else {
-		int dax = (bcos(sprite[i].ang) * TICSPERFRAME) << 3;
-		int day = (bsin(sprite[i].ang) * TICSPERFRAME) << 3;
+		int dax = (bcos(spr.ang) * TICSPERFRAME) << 3;
+		int day = (bsin(spr.ang) * TICSPERFRAME) << 3;
 		checksight(plr, i);
 
 		if (PlayClock % 100 > 70)
@@ -39,7 +39,7 @@ static void chaseguardian(PLAYER& plr, DWHActor* actor)
 			if (krand() % 8 == 0) // NEW
 				SetNewStatus(actor, ATTACK); // NEW
 			else { // NEW
-				sprite[i].ang = (short)(((krand() & 512 - 256) + sprite[i].ang + 1024) & 2047); // NEW
+				spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
 				SetNewStatus(actor, CHASE); // NEW
 			}
 		}

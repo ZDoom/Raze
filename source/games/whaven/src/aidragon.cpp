@@ -5,7 +5,6 @@ BEGIN_WH_NS
 
 static int checksight_x, checksight_y = 0;
 
-static void checkspeed(int i, int speed);
 static void dragonAttack2(PLAYER& plr, DWHActor* i);
 static void firebreath(PLAYER& plr, int i, int a, int b, int c);
 
@@ -30,9 +29,8 @@ static void chasedragon(PLAYER& plr, DWHActor* actor)
 		return;
 	}
 	else {
-		int dax = (bcos(sprite[i].ang) * TICSPERFRAME) << 3;
-		int day = (bsin(sprite[i].ang) * TICSPERFRAME) << 3;
-		//					checkspeed(i, speed);
+		int dax = (bcos(spr.ang) * TICSPERFRAME) << 3;
+		int day = (bsin(spr.ang) * TICSPERFRAME) << 3;
 		checksight(plr, i);
 		if (!checkdist(plr, i)) {
 			//						checkmove(i, checksight_x, checksight_y);
@@ -385,12 +383,6 @@ static void firebreath(PLAYER& plr, int i, int a, int b, int c)
 	}
 }
 	
-static void checkspeed(int i, int speed) {
-	checksight_x = bcos(sprite[i].ang, -speed);
-	checksight_y = bsin(sprite[i].ang, -speed);
-}
-
-
 void createDragonAI() {
 	auto& e = enemy[DRAGONTYPE];
 	e.info.Init(54, 54, 512, 120, 0, 128, false, 900, 0);

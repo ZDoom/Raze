@@ -276,7 +276,7 @@ static void frozengonzo(PLAYER& plr, DWHActor* actor)
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
 		spr.pal = 0;
-		switch (sprite[i].picnum) {
+		switch (spr.picnum) {
 		case GONZOCSWPAIN:
 			spr.picnum = GONZOCSW;
 			break;
@@ -301,7 +301,7 @@ static void paingonzo(PLAYER& plr, DWHActor* actor)
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
-		switch (sprite[i].picnum) {
+		switch (spr.picnum) {
 		case GONZOCSWPAIN:
 			spr.picnum = GONZOCSW;
 			break;
@@ -411,16 +411,16 @@ static void attackgonzo(PLAYER& plr, DWHActor* actor)
 		spr.lotag -= TICSPERFRAME;
 		break;
 	case GONZOCSWAT:
-		sprite[i].lotag -= TICSPERFRAME;
-		if (sprite[i].lotag < 0) {
-			if (cansee(plr.x, plr.y, plr.z, plr.sector, sprite[i].x, sprite[i].y,
-				sprite[i].z - (tileHeight(sprite[i].picnum) << 7), sprite[i].sectnum))
+		spr.lotag -= TICSPERFRAME;
+		if (spr.lotag < 0) {
+			if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y,
+				spr.z - (tileHeight(spr.picnum) << 7), spr.sectnum))
 				SetNewStatus(actor, CAST);
 			else
 				SetNewStatus(actor, CHASE);
 		}
 		else
-			sprite[i].ang = getangle(plr.x - sprite[i].x, plr.y - sprite[i].y);
+			spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
 		break;
 	case GONZOGSWAT:
 	case GONZOGHMAT:
@@ -517,7 +517,7 @@ static void diegonzo(PLAYER& plr, DWHActor* actor)
 		spr.picnum++;
 		spr.lotag = 20;
 
-		switch (sprite[i].picnum) {
+		switch (spr.picnum) {
 		case GONZOBSHDEAD:
 		case GONZOCSWDEAD:
 		case GONZOGSWDEAD:
@@ -553,14 +553,14 @@ void gonzoProcess(PLAYER& plr)
 			spr.picnum = GONZOGSH;
 			spr.detail = GONZOTYPE;
 			enemy[GONZOTYPE].info.set(spr);
-			sprite[i].hitag = adjusthp(100);
+			spr.hitag = adjusthp(100);
 			SetNewStatus(actor, FACE);
 			break;
 		case GONZOSHJUMPEND:
 			spr.picnum = GONZOGSH;
 			spr.detail = GONZOTYPE;
 			enemy[GONZOTYPE].info.set(spr);
-			sprite[i].hitag = adjusthp(100);
+			spr.hitag = adjusthp(100);
 			SetNewStatus(actor, FACE);
 			break;
 		}

@@ -285,16 +285,16 @@ static void attacknewguy(PLAYER& plr, DWHActor* actor)
 	switch (spr.picnum) {
 	case NEWGUYCAST:
 	case NEWGUYBOW:
-		sprite[i].lotag -= TICSPERFRAME;
-		if (sprite[i].lotag < 0) {
-			if (cansee(plr.x, plr.y, plr.z, plr.sector, sprite[i].x, sprite[i].y,
-				sprite[i].z - (tileHeight(sprite[i].picnum) << 7), sprite[i].sectnum))
+		spr.lotag -= TICSPERFRAME;
+		if (spr.lotag < 0) {
+			if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y,
+				spr.z - (tileHeight(spr.picnum) << 7), spr.sectnum))
 				SetNewStatus(actor, CAST);
 			else
 				SetNewStatus(actor, CHASE);
 		}
 		else
-			sprite[i].ang = getangle(plr.x - sprite[i].x, plr.y - sprite[i].y);
+			spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
 		break;
 	case NEWGUYMACE:
 	case NEWGUYPUNCH:

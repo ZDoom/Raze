@@ -425,6 +425,7 @@ void aiProcess() {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
+		int i = actor->GetSpriteIndex();
 
 		getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
 		switch (checkfluid(i, zr_florhit)) {

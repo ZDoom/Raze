@@ -246,8 +246,8 @@ static void attackimp(PLAYER& plr, DWHActor* actor)
 
 	switch (checkfluid(i, zr_florhit)) {
 	case TYPELAVA:
-		sprite[i].hitag--;
-		if (sprite[i].hitag < 0)
+		spr.hitag--;
+		if (spr.hitag < 0)
 			SetNewStatus(actor, DIE);
 	case TYPEWATER:
 		spr.z += tileHeight(spr.picnum) << 5;

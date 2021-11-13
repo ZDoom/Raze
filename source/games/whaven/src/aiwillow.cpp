@@ -16,15 +16,15 @@ static void chasewillow(PLAYER& plr, DWHActor* actor)
 
 	short osectnum = spr.sectnum;
 	if (krand() % 63 == 0) {
-		if (cansee(plr.x, plr.y, plr.z, plr.sector, sprite[i].x, sprite[i].y,
-			sprite[i].z - (tileHeight(sprite[i].picnum) << 7), sprite[i].sectnum) && plr.invisibletime < 0)
+		if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y,
+			spr.z - (tileHeight(spr.picnum) << 7), spr.sectnum) && plr.invisibletime < 0)
 			SetNewStatus(actor, ATTACK);
 		return;
 	}
 	else {
-		//sprite[i].z = sector[sprite[i].sectnum].floorz - (32 << 8);
-		int dax = (bcos(sprite[i].ang) * TICSPERFRAME) << 3;
-		int day = (bsin(sprite[i].ang) * TICSPERFRAME) << 3;
+		//spr.z = sector[spr.sectnum].floorz - (32 << 8);
+		int dax = (bcos(spr.ang) * TICSPERFRAME) << 3;
+		int day = (bsin(spr.ang) * TICSPERFRAME) << 3;
 		checksight(plr, i);
 
 		if (!checkdist(plr, i)) {
@@ -34,7 +34,7 @@ static void chasewillow(PLAYER& plr, DWHActor* actor)
 			if (krand() % 8 == 0) // NEW
 				SetNewStatus(actor, ATTACK); // NEW
 			else { // NEW
-				sprite[i].ang = (short)(((krand() & 512 - 256) + sprite[i].ang + 1024) & 2047); // NEW
+				spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
 				SetNewStatus(actor, CHASE); // NEW
 			}
 		}
@@ -228,9 +228,9 @@ static void diewillow(PLAYER& plr, DWHActor* actor)
 	if (spr.lotag <= 0) {
 		spr.picnum++;
 		spr.lotag = 20;
-		if (sprite[i].picnum == WILLOWEXPLO || sprite[i].picnum == WILLOWEXPLO + 1
-			|| sprite[i].picnum == WILLOWEXPLO + 2)
-			sprite[i].xrepeat = sprite[i].yrepeat <<= 1;
+		if (spr.picnum == WILLOWEXPLO || spr.picnum == WILLOWEXPLO + 1
+			|| spr.picnum == WILLOWEXPLO + 2)
+			spr.xrepeat = spr.yrepeat <<= 1;
 
 		if (spr.picnum == WILLOWEXPLO + 2) {
 			if (difficulty == 4)

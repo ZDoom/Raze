@@ -16,8 +16,8 @@ static void chasedevil(PLAYER& plr, DWHActor* actor)
 	short osectnum = spr.sectnum;
 
 	if (krand() % 63 == 0) {
-		if (cansee(plr.x, plr.y, plr.z, plr.sector, sprite[i].x, sprite[i].y,
-			sprite[i].z - (tileHeight(sprite[i].picnum) << 7), sprite[i].sectnum) && plr.invisibletime < 0)
+		if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y,
+			spr.z - (tileHeight(spr.picnum) << 7), spr.sectnum) && plr.invisibletime < 0)
 			SetNewStatus(actor, ATTACK);
 	}
 	else {
@@ -35,7 +35,7 @@ static void chasedevil(PLAYER& plr, DWHActor* actor)
 				if (krand() % 8 == 0) // NEW
 					SetNewStatus(actor, ATTACK); // NEW
 				else { // NEW
-					sprite[i].ang = (short)(((krand() & 512 - 256) + sprite[i].ang + 1024) & 2047); // NEW
+					spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
 					SetNewStatus(actor, FLEE); // NEW
 				}
 			}
@@ -183,17 +183,17 @@ static void attackdevil(PLAYER& plr, DWHActor* actor)
 
 	setsprite(i, spr.x, spr.y, spr.z);
 
-	sprite[i].extra -= TICSPERFRAME;
-	sprite[i].lotag -= TICSPERFRAME;
-	if (sprite[i].lotag < 0) {
-		if (cansee(plr.x, plr.y, plr.z, plr.sector, sprite[i].x, sprite[i].y,
-			sprite[i].z - (tileHeight(sprite[i].picnum) << 7), sprite[i].sectnum))
+	spr.extra -= TICSPERFRAME;
+	spr.lotag -= TICSPERFRAME;
+	if (spr.lotag < 0) {
+		if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y,
+			spr.z - (tileHeight(spr.picnum) << 7), spr.sectnum))
 			SetNewStatus(actor, CAST);
 		else
 			SetNewStatus(actor, CHASE);
 	}
 	else
-		sprite[i].ang = getangle(plr.x - sprite[i].x, plr.y - sprite[i].y);
+		spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
 }
 
 static void resurectdevil(PLAYER& plr, DWHActor* actor)

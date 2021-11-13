@@ -67,8 +67,8 @@ static void chasegron(PLAYER& plr, DWHActor* actor)
 	}
 	else {
 		if (krand() % 63 == 0) {
-			if (cansee(plr.x, plr.y, plr.z, plr.sector, sprite[i].x, sprite[i].y,
-				sprite[i].z - (tileHeight(sprite[i].picnum) << 7), sprite[i].sectnum))// && invisibletime < 0)
+			if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y,
+				spr.z - (tileHeight(spr.picnum) << 7), spr.sectnum))// && invisibletime < 0)
 				SetNewStatus(actor, ATTACK);
 		}
 		else {
@@ -85,7 +85,7 @@ static void chasegron(PLAYER& plr, DWHActor* actor)
 				if (krand() % 8 == 0) // NEW
 					SetNewStatus(actor, ATTACK); // NEW
 				else { // NEW
-					sprite[i].ang = (short)(((krand() & 512 - 256) + sprite[i].ang + 1024) & 2047); // NEW
+					spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
 					SetNewStatus(actor, FLEE); // NEW
 				}
 			}
@@ -131,19 +131,19 @@ static void resurectgron(PLAYER& plr, DWHActor* actor)
 		SetNewStatus(actor, FACE);
 		switch (krand() % 3) {
 		case 0:
-			sprite[i].picnum = GRONHAL;
-			sprite[i].hitag = (short)adjusthp(120);
-			sprite[i].extra = 3;
+			spr.picnum = GRONHAL;
+			spr.hitag = (short)adjusthp(120);
+			spr.extra = 3;
 			break;
 		case 1:
-			sprite[i].picnum = GRONSW;
-			sprite[i].hitag = (short)adjusthp(120);
-			sprite[i].extra = 0;
+			spr.picnum = GRONSW;
+			spr.hitag = (short)adjusthp(120);
+			spr.extra = 0;
 			break;
 		case 2:
-			sprite[i].picnum = GRONMU;
-			sprite[i].hitag = (short)adjusthp(120);
-			sprite[i].extra = 2;
+			spr.picnum = GRONMU;
+			spr.hitag = (short)adjusthp(120);
+			spr.extra = 2;
 			break;
 		}
 		spr.lotag = 100;
