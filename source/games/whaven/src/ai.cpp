@@ -539,7 +539,7 @@ void aisearch(PLAYER& plr, short i, boolean fly) {
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
 		warpsprite(actor);
 
-	processfluid(i, zr_florhit, fly);
+	processfluid(actor, zr_florhit, fly);
 
 	SetActorPos(actor, &spr.pos);
 }
@@ -579,22 +579,21 @@ int checkfluid(int i, int zr_florhit) {
 	return TYPENONE;
 }
 
-void processfluid(int i, int zr_florhit, boolean fly) {
-	auto actor = &whActors[i];
+void processfluid(DWHActor* actor, int zr_florhit, boolean fly) {
 	SPRITE& spr = actor->s();
-	switch (checkfluid(i, zr_florhit)) {
+	switch (checkfluid(actor->GetSpriteIndex(), zr_florhit)) {
 	case TYPELAVA:
 		if (!fly) {
 			spr.z += tileHeight(spr.picnum) << 5;
 			trailingsmoke(actor,true);
-			makemonstersplash(LAVASPLASH, i);
+			makemonstersplash(LAVASPLASH, actor->GetSpriteIndex());
 		}
 		break;
 	case TYPEWATER:
 		if (!fly) {
 			spr.z += tileHeight(spr.picnum) << 5;
 			if (krand() % 100 > 60)
-				makemonstersplash(SPLASHAROO, i);
+				makemonstersplash(SPLASHAROO, actor->GetSpriteIndex());
 		}
 		break;
 	}

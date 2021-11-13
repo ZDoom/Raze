@@ -55,7 +55,7 @@ static void chasedemon(PLAYER& plr, DWHActor* actor)
 
 	checksector6(actor);
 
-	processfluid(i, zr_florhit, true);
+	processfluid(actor, zr_florhit, true);
 
 	if (sector[osectnum].lotag == KILLSECTOR && spr.z + (8 << 8) >= sector[osectnum].floorz) {
 		spr.hitag--;
@@ -186,7 +186,7 @@ static void fleedemon(PLAYER& plr, DWHActor* actor)
 	if (checksector6(actor))
 		return;
 
-	processfluid(i, zr_florhit, true);
+	processfluid(actor, zr_florhit, true);
 
 	SetActorPos(actor, &spr.pos);
 }

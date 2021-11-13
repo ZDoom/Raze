@@ -69,7 +69,7 @@ static void chasegoblin(PLAYER& plr, DWHActor* actor)
 	if (checksector6(actor))
 		return;
 
-	processfluid(i, zr_florhit, false);
+	processfluid(actor, zr_florhit, false);
 
 	if (sector[osectnum].lotag == KILLSECTOR) {
 		spr.hitag--;
@@ -123,7 +123,7 @@ static void paingoblin(PLAYER& plr, DWHActor* actor)
 	}
 
 	aimove(i);
-	processfluid(i, zr_florhit, false);
+	processfluid(actor, zr_florhit, false);
 	SetActorPos(actor, &spr.pos);
 
 	checkexplgoblin(plr, actor);
@@ -193,7 +193,7 @@ static void fleegoblin(PLAYER& plr, DWHActor* actor)
 	if (checksector6(actor))
 		return;
 
-	processfluid(i, zr_florhit, false);
+	processfluid(actor, zr_florhit, false);
 
 	SetActorPos(actor, &spr.pos);
 
@@ -341,7 +341,7 @@ static void skirmishgoblin(PLAYER& plr, DWHActor* actor)
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
 		warpsprite(actor);
 
-	processfluid(i, zr_florhit, false);
+	processfluid(actor, zr_florhit, false);
 
 	SetActorPos(actor, &spr.pos);
 
@@ -438,7 +438,7 @@ static void goblinWar(PLAYER& plr, DWHActor* actor)
 			else spr.ang = getangle(ownerspr.x - spr.x, ownerspr.y - spr.y);
 		}
 
-		processfluid(i, zr_florhit, false);
+		processfluid(actor, zr_florhit, false);
 
 		SetActorPos(actor, &spr.pos);
 		if (checkdist(i, ownerspr.x, ownerspr.y, ownerspr.z)) {
@@ -490,7 +490,7 @@ static void goblinWar(PLAYER& plr, DWHActor* actor)
 			spr.extra = 1;
 		}
 
-		processfluid(i, zr_florhit, false);
+		processfluid(actor, zr_florhit, false);
 
 		SetActorPos(actor, &spr.pos);
 
@@ -504,7 +504,7 @@ static void goblinWar(PLAYER& plr, DWHActor* actor)
 
 		if (aimove(i) != 0)
 			spr.ang = (short)(krand() & 2047);
-		processfluid(i, zr_florhit, false);
+		processfluid(actor, zr_florhit, false);
 
 		SetActorPos(actor, &spr.pos);
 

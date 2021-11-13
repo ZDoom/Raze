@@ -141,19 +141,20 @@ void randompotion(int i) {
 		return;
 
 	int j = insertsprite(sprite[i].sectnum, (short)0);
+	auto& spawned = sprite[j];
 
-	sprite[j].x = sprite[i].x;
-	sprite[j].y = sprite[i].y;
-	sprite[j].z = sprite[i].z - (12 << 8);
-	sprite[j].shade = -12;
-	sprite[j].pal = 0;
-	sprite[j].cstat = 0;
-	sprite[j].cstat &= ~3;
-	sprite[j].xrepeat = 64;
-	sprite[j].yrepeat = 64;
+	spawned.x = sprite[i].x;
+	spawned.y = sprite[i].y;
+	spawned.z = sprite[i].z - (12 << 8);
+	spawned.shade = -12;
+	spawned.pal = 0;
+	spawned.cstat = 0;
+	spawned.cstat &= ~3;
+	spawned.xrepeat = 64;
+	spawned.yrepeat = 64;
 	int type = krand() % 4;
-	sprite[j].picnum = (short)(FLASKBLUE + type);
-	sprite[j].detail = (short)(FLASKBLUETYPE + type);
+	spawned.picnum = (short)(FLASKBLUE + type);
+	spawned.detail = (short)(FLASKBLUETYPE + type);
 }
 
 END_WH_NS

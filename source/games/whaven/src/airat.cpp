@@ -72,7 +72,7 @@ static void fleerat(PLAYER& plr, DWHActor* actor)
 	if (checksector6(actor))
 		return;
 
-	processfluid(i, zr_florhit, false);
+	processfluid(actor, zr_florhit, false);
 
 	//				switch (checkfluid(i, zr_florhit)) {
 	//				case TYPELAVA:

@@ -52,7 +52,7 @@ static void chasewillow(PLAYER& plr, DWHActor* actor)
 	if (checksector6(actor))
 		return;
 
-	processfluid(i, zr_florhit, true);
+	processfluid(actor, zr_florhit, true);
 
 	if (sector[osectnum].lotag == KILLSECTOR) {
 		spr.hitag--;
@@ -213,7 +213,7 @@ static void fleewillow(PLAYER& plr, DWHActor* actor)
 	if (checksector6(actor))
 		return;
 
-	processfluid(i, zr_florhit, true);
+	processfluid(actor, zr_florhit, true);
 
 	SetActorPos(actor, &spr.pos);
 }

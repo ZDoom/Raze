@@ -125,7 +125,7 @@ int aifly(short i);
 void aisearch(PLAYER& plr, short i, boolean fly);
 boolean checksector6(DWHActor* i);
 int checkfluid(int i, int zr_florhit);
-void processfluid(int i, int zr_florhit, boolean fly);
+void processfluid(DWHActor* i, int zr_florhit, boolean fly);
 void castspell(PLAYER& plr, int i);
 void skullycastspell(PLAYER& plr, int i);
 void attack(PLAYER& plr, int i);

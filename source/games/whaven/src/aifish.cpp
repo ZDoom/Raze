@@ -61,7 +61,7 @@ static void chasefish(PLAYER& plr, DWHActor* actor)
 	if (checksector6(actor))
 		return;
 
-	processfluid(i, zr_florhit, false);
+	processfluid(actor, zr_florhit, false);
 
 	if (sector[osectnum].lotag == KILLSECTOR) {
 		spr.hitag--;
@@ -139,7 +139,7 @@ static void skirmishfish(PLAYER& plr, DWHActor* actor)
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
 		warpsprite(actor);
 
-	processfluid(i, zr_florhit, false);
+	processfluid(actor, zr_florhit, false);
 
 	SetActorPos(actor, &spr.pos);
 

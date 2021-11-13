@@ -73,7 +73,7 @@ static void chasekobold(PLAYER& plr, DWHActor* actor)
 	if (checksector6(actor))
 		return;
 
-	processfluid(i, zr_florhit, false);
+	processfluid(actor, zr_florhit, false);
 
 	if (sector[osectnum].lotag == KILLSECTOR) {
 		spr.hitag--;
@@ -128,7 +128,7 @@ static void painkobold(PLAYER& plr, DWHActor* actor)
 	}
 
 	aimove(i);
-	processfluid(i, zr_florhit, false);
+	processfluid(actor, zr_florhit, false);
 	SetActorPos(actor, &spr.pos);
 
 	checkexplkobold(plr, actor);
@@ -198,7 +198,7 @@ static void fleekobold(PLAYER& plr, DWHActor* actor)
 	if (checksector6(actor))
 		return;
 
-	processfluid(i, zr_florhit, false);
+	processfluid(actor, zr_florhit, false);
 
 	SetActorPos(actor, &spr.pos);
 
@@ -321,7 +321,7 @@ static void skirmishkobold(PLAYER& plr, DWHActor* actor)
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
 		warpsprite(actor);
 
-	processfluid(i, zr_florhit, false);
+	processfluid(actor, zr_florhit, false);
 
 	SetActorPos(actor, &spr.pos);
 
