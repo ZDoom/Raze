@@ -7,7 +7,6 @@ static void newguyarrow(short s, PLAYER& plr);
 
 static void standnewguy(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	if (bcos(spr.ang) * (plr.x - spr.x)	+ bsin(spr.ang) * (plr.y - spr.y) >= 0) {
@@ -108,7 +107,6 @@ static void chasenewguy(PLAYER& plr, DWHActor* actor)
 	
 static void resurectnewguy(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -324,7 +322,6 @@ static void attacknewguy(PLAYER& plr, DWHActor* actor)
 	
 static void dienewguy(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;

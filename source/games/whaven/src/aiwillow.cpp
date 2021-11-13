@@ -261,7 +261,6 @@ void willowProcess(PLAYER& plr)
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		int i = actor->GetSpriteIndex();
 
 		switch (spr.detail) {
 		case WILLOWTYPE:

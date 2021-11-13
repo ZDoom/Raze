@@ -64,7 +64,6 @@ static void chasedevil(PLAYER& plr, DWHActor* actor)
 
 static void diedevil(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -199,7 +198,6 @@ static void attackdevil(PLAYER& plr, DWHActor* actor)
 
 static void resurectdevil(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -222,7 +220,6 @@ static void searchdevil(PLAYER& plr, DWHActor* actor)
 
 static void frozendevil(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;

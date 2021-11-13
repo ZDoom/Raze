@@ -279,7 +279,6 @@ void aiProcess() {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		i = actor->GetSpriteIndex();
 
 		if (enemy[spr.detail].chase != nullptr)
 			enemy[spr.detail].chase(plr, actor);
@@ -289,7 +288,7 @@ void aiProcess() {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		i = actor->GetSpriteIndex();
+
 		if (enemy[spr.detail].resurect != nullptr) {
 			enemy[spr.detail].resurect(plr, actor);
 		}
@@ -299,7 +298,6 @@ void aiProcess() {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		i = actor->GetSpriteIndex();
 
 		if (enemy[spr.detail].search != nullptr)
 			enemy[spr.detail].search(plr, actor);
@@ -326,7 +324,6 @@ void aiProcess() {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		i = actor->GetSpriteIndex();
 
 		if (enemy[spr.detail].frozen != nullptr)
 			enemy[spr.detail].frozen(plr, actor);
@@ -336,7 +333,6 @@ void aiProcess() {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		i = actor->GetSpriteIndex();
 
 		if (enemy[spr.detail].pain != nullptr)
 			enemy[spr.detail].pain(plr, actor);
@@ -346,7 +342,6 @@ void aiProcess() {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		i = actor->GetSpriteIndex();
 
 		if (enemy[spr.detail].face != nullptr)
 			enemy[spr.detail].face(plr, actor);
@@ -356,7 +351,6 @@ void aiProcess() {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		i = actor->GetSpriteIndex();
 
 		if (isWh2() && attacktheme == 0) {
 			attacktheme = 1;
@@ -371,7 +365,6 @@ void aiProcess() {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		i = actor->GetSpriteIndex();
 
 		if (enemy[spr.detail].flee != nullptr)
 			enemy[spr.detail].flee(plr, actor);
@@ -381,7 +374,6 @@ void aiProcess() {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		i = actor->GetSpriteIndex();
 
 		if (enemy[spr.detail].cast != nullptr)
 			enemy[spr.detail].cast(plr, actor);
@@ -391,7 +383,6 @@ void aiProcess() {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		i = actor->GetSpriteIndex();
 
 		if (enemy[spr.detail].die != nullptr)
 			enemy[spr.detail].die(plr, actor);
@@ -401,7 +392,6 @@ void aiProcess() {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		i = actor->GetSpriteIndex();
 
 		if (enemy[spr.detail].skirmish != nullptr)
 			enemy[spr.detail].skirmish(plr, actor);
@@ -411,7 +401,6 @@ void aiProcess() {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		i = actor->GetSpriteIndex();
 
 		if (enemy[spr.detail].stand != nullptr)
 			enemy[spr.detail].stand(plr, actor);
@@ -421,7 +410,6 @@ void aiProcess() {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		i = actor->GetSpriteIndex();
 
 		switch (spr.detail) {
 		case GOBLINTYPE:
@@ -437,7 +425,6 @@ void aiProcess() {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		i = actor->GetSpriteIndex();
 
 		getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
 		switch (checkfluid(i, zr_florhit)) {

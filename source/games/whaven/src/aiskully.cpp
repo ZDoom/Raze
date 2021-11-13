@@ -61,7 +61,6 @@ static void chaseskully(PLAYER& plr, DWHActor* actor)
 	
 static void resurectskully(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;

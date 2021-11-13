@@ -192,7 +192,6 @@ static void chasegonzo(PLAYER& plr, DWHActor* actor)
 	
 static void resurectgonzo(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -654,7 +653,6 @@ static short searchpatrol(SPRITE& spr) {
 	
 static boolean patrolprocess(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	short target = searchpatrol(spr);

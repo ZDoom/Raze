@@ -110,7 +110,6 @@ static void fleedragon(PLAYER& plr, DWHActor* actor)
 
 static void diedragon(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 	
 	spr.lotag -= TICSPERFRAME;
@@ -204,7 +203,6 @@ static void castdragon(PLAYER& plr, DWHActor* actor)
 
 static void attackdragon(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -221,7 +219,6 @@ static void attackdragon(PLAYER& plr, DWHActor* actor)
 
 static void resurectdragon(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -244,7 +241,6 @@ static void searchdragon(PLAYER& plr, DWHActor* actor)
 
 static void frozendragon(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;

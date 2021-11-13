@@ -92,7 +92,6 @@ static void chaseminotaur(PLAYER& plr, DWHActor* actor)
 	
 static void resurectminotaur(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -251,7 +250,6 @@ static void attackminotaur(PLAYER& plr, DWHActor* actor)
 	
 static void dieminotaur(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;

@@ -5,13 +5,11 @@ BEGIN_WH_NS
 
 static void chaserat(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SetNewStatus(actor, FLEE);
 }
 	
 static void searchrat(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 	spr.ang = (short) (((krand() & 512 - 256) + spr.ang + 1024) & 2047);
 	SetNewStatus(actor, FLEE);
@@ -19,7 +17,6 @@ static void searchrat(PLAYER& plr, DWHActor* actor)
 	
 static void facerat(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);

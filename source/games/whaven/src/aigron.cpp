@@ -213,7 +213,6 @@ static void nukedgron(PLAYER& plr, DWHActor* actor)
 	
 static void frozengron(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -405,7 +404,6 @@ static void castgron(PLAYER& plr, DWHActor* actor)
 	
 static void diegron(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;

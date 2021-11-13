@@ -245,7 +245,6 @@ static void attackkobold(PLAYER& plr, DWHActor* actor)
 	
 static void resurectkobold(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -271,7 +270,6 @@ static void searchkobold(PLAYER& plr, DWHActor* actor)
 	
 static void frozenkobold(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;

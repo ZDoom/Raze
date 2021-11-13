@@ -112,7 +112,6 @@ static void skirmishfred(PLAYER& plr, DWHActor* actor)
 	
 static void diefred(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -143,7 +142,6 @@ static void searchfred(PLAYER& plr, DWHActor* actor)
 	
 static void frozenfred(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -287,7 +285,6 @@ static void painfred(PLAYER& plr, DWHActor* actor)
 	
 static void resurectfred(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;

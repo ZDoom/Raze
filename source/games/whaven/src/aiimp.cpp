@@ -92,7 +92,6 @@ static void chaseimp(PLAYER& plr, DWHActor* actor)
 		
 static void frozenimp(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -122,7 +121,6 @@ static void painimp(PLAYER& plr, DWHActor* actor)
 	
 static void dieimp(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -154,7 +152,6 @@ static void nukedimp(PLAYER& plr, DWHActor* actor)
 	
 static void resurectimp(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;

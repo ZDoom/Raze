@@ -254,7 +254,6 @@ static void attackskeleton(PLAYER& plr, DWHActor* actor)
 	
 static void resurectskeleton(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -278,7 +277,6 @@ static void searchskeleton(PLAYER& plr, DWHActor* actor)
 	
 static void frozenskeleton(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -342,7 +340,6 @@ static void skirmishskeleton(PLAYER& plr, DWHActor* actor)
 
 void skeletonChill(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;

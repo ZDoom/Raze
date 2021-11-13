@@ -91,7 +91,6 @@ static void chasegoblin(PLAYER& plr, DWHActor* actor)
 		
 static void diegoblin(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -275,7 +274,6 @@ static void attackgoblin(PLAYER& plr, DWHActor* actor)
 
 static void resurectgoblin(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -299,7 +297,6 @@ static void searchgoblin(PLAYER& plr, DWHActor* actor)
 		
 static void frozengoblin(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -356,7 +353,6 @@ static void skirmishgoblin(PLAYER& plr, DWHActor* actor)
 
 void goblinChill(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -530,7 +526,6 @@ void goblinWarProcess(PLAYER& plr)
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		int i = actor->GetSpriteIndex();
 
 		switch (spr.detail) {
 		case GOBLINTYPE:

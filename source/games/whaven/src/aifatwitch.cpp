@@ -64,7 +64,6 @@ static void chasefatwitch(PLAYER& plr, DWHActor* actor)
 	
 static void resurectfatwitch(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -233,7 +232,6 @@ static void castfatwitch(PLAYER& plr, DWHActor* actor)
 	
 static void diefatwitch(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
