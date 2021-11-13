@@ -161,7 +161,7 @@ void animateobjs(PLAYER& plr) {
 					spr.xrepeat = 24;
 					spr.yrepeat = 24;
 					spr.clipdist = 32;
-					changespritestat(i, FACE);
+					ChangeActorStat(actor, FACE);
 					spr.hitag = (short) adjusthp(100);
 					spr.lotag = 100;
 					spr.cstat |= 0x101;
@@ -174,7 +174,7 @@ void animateobjs(PLAYER& plr) {
 					spr.xrepeat = 24;
 					spr.yrepeat = 24;
 					spr.clipdist = 32;
-					changespritestat(i, FACE);
+					ChangeActorStat(actor, FACE);
 					spr.hitag = (short) adjusthp(100);
 					spr.lotag = 100;
 					spr.cstat |= 0x101;
@@ -187,7 +187,7 @@ void animateobjs(PLAYER& plr) {
 					spr.xrepeat = 24;
 					spr.yrepeat = 24;
 					spr.clipdist = 32;
-					changespritestat(i, FACE);
+					ChangeActorStat(actor, FACE);
 					spr.hitag = (short) adjusthp(100);
 					spr.lotag = 100;
 					spr.cstat |= 0x101;
@@ -200,7 +200,7 @@ void animateobjs(PLAYER& plr) {
 					spr.xrepeat = 30;
 					spr.yrepeat = 30;
 					spr.clipdist = 64;
-					changespritestat(i, FACE);
+					ChangeActorStat(actor, FACE);
 					spr.hitag = (short) adjusthp(300);
 					spr.lotag = 100;
 					spr.cstat |= 0x101;
@@ -214,7 +214,7 @@ void animateobjs(PLAYER& plr) {
 					spr.xrepeat = 26;
 					spr.yrepeat = 26;
 					spr.clipdist = 48;
-					changespritestat(i, FACE);
+					ChangeActorStat(actor, FACE);
 					spr.hitag = (short) adjusthp(100);
 					spr.lotag = 100;
 					spr.cstat |= 0x101;
@@ -359,7 +359,7 @@ void animateobjs(PLAYER& plr) {
 			spr.lotag = 24;
 			if (spr.picnum == PULLCHAIN3 || spr.picnum == SKULLPULLCHAIN3) {
 				spr.lotag = 0;
-				changespritestat(i, (short) 0);
+				ChangeActorStat(actor, 0);
 			}
 		}
 	}
@@ -376,7 +376,7 @@ void animateobjs(PLAYER& plr) {
 			spr.lotag = 24;
 			if (spr.picnum == LEVERDOWN) {
 				spr.lotag = 60;
-				changespritestat(i, (short) 0);
+				ChangeActorStat(actor, 0);
 			}
 		}
 	}
@@ -393,7 +393,7 @@ void animateobjs(PLAYER& plr) {
 			spr.lotag = 24;
 			if (spr.picnum == LEVERUP) {
 				spr.lotag = 1;
-				changespritestat(i, (short) 0);
+				ChangeActorStat(actor, 0);
 			}
 		}
 	}
@@ -427,7 +427,7 @@ void animateobjs(PLAYER& plr) {
 			spr.lotag = (short) (krand() & 48 + 24);
 			bats(plr, i);
 			if (spr.extra == 0)
-				changespritestat(i, (short) 0);
+				ChangeActorStat(actor, 0);
 		}
 	}
 
@@ -553,7 +553,7 @@ void animateobjs(PLAYER& plr) {
 			if (spr.z <= sector[spr.sectnum].ceilingz + 32768) {
 				soundEngine->StopSound(CHAN_CART);
 				spritesound(S_CLUNK, &spr);
-				changespritestat(i, (short) 0);
+				ChangeActorStat(actor, 0);
 				spr.lotag = 1820;
 				spr.z = sector[spr.sectnum].ceilingz + 32768;
 			}
@@ -563,7 +563,7 @@ void animateobjs(PLAYER& plr) {
 			spr.z -= (TICSPERFRAME << 6);
 			setsprite(i, spr.x, spr.y, spr.z);
 			if (spr.z <= sector[spr.sectnum].ceilingz + 65536) {
-				changespritestat(i, (short) 0);
+				ChangeActorStat(actor, 0);
 				spr.lotag = 1810;
 				spr.z = sector[spr.sectnum].ceilingz + 65536;
 			}
@@ -573,7 +573,7 @@ void animateobjs(PLAYER& plr) {
 			spr.z -= (TICSPERFRAME << 6);
 			setsprite(i, spr.x, spr.y, spr.z);
 			if (spr.z <= sector[spr.sectnum].ceilingz + 65536) {
-				changespritestat(i, (short) 0);
+				ChangeActorStat(actor, 0);
 				spr.lotag = 1800;
 				spr.z = sector[spr.sectnum].ceilingz + 65536;
 			}
@@ -599,7 +599,7 @@ void animateobjs(PLAYER& plr) {
 			if (spr.z >= (sector[spr.sectnum].floorz - 32768)) {
 				soundEngine->StopSound(CHAN_CART);
 				spritesound(S_CLUNK, &spr);
-				changespritestat(i, (short) 0);
+				ChangeActorStat(actor, 0);
 				spr.lotag = 1821;
 				spr.z = sector[spr.sectnum].floorz - 32768;
 			}
@@ -609,7 +609,7 @@ void animateobjs(PLAYER& plr) {
 			spr.z += ironbarmove;
 			setsprite(i, spr.x, spr.y, spr.z);
 			if (spr.z >= sector[spr.sectnum].floorz) {
-				changespritestat(i, (short) 0);
+				ChangeActorStat(actor, 0);
 				spr.lotag = 1811;
 				spr.z = sector[spr.sectnum].floorz;
 			}
@@ -620,7 +620,7 @@ void animateobjs(PLAYER& plr) {
 			spr.z += ironbarmove;
 			setsprite(i, spr.x, spr.y, spr.z);
 			if (spr.z >= sector[spr.sectnum].floorz) {
-				changespritestat(i, (short) 0);
+				ChangeActorStat(actor, 0);
 				spr.lotag = 1801;
 				spr.z = sector[spr.sectnum].floorz;
 			}
@@ -666,7 +666,7 @@ void animateobjs(PLAYER& plr) {
 		}
 		switch (spr.picnum) {
 		case FSHATTERBARREL + 2:
-			changespritestat(i, (short) 0);
+			ChangeActorStat(actor, 0);
 			break;
 		}
 	}
@@ -742,7 +742,7 @@ void animateobjs(PLAYER& plr) {
 					deletesprite(i);
 					break;
 				}
-				changespritestat(i, (short) 0);
+				ChangeActorStat(actor, 0);
 				break;
 			}
 			spr.hitag = 0;
@@ -817,10 +817,10 @@ void animateobjs(PLAYER& plr) {
 
 		if (spr.lotag < 0 || (hitobject & 0xc000) == 32768) {
 			spr.lotag = 0;
-			changespritestat(i, (short) 0);
+			ChangeActorStat(actor, 0);
 			if (spr.z < sector[spr.sectnum].floorz) {
 				spr.zvel += 256L;
-				changespritestat(i, FALL);
+				ChangeActorStat(actor, FALL);
 			}
 		}
 	}
@@ -979,7 +979,7 @@ void animateobjs(PLAYER& plr) {
 			if (spr.picnum == THROWPIKE) {
 				spr.picnum++;
 				spr.detail = WALLPIKETYPE;
-				changespritestat(i, (short) 0);
+				ChangeActorStat(actor, 0);
 					
 				continue;
 			}
@@ -996,7 +996,7 @@ void animateobjs(PLAYER& plr) {
 			if (spr.picnum == THROWPIKE) {
 				spr.picnum++;
 				spr.detail = WALLPIKETYPE;
-				changespritestat(i, (short) 0);
+				ChangeActorStat(actor, 0);
 					
 				continue;
 			}
@@ -1098,7 +1098,7 @@ void animateobjs(PLAYER& plr) {
 					spr.detail = WALLPIKETYPE;
 				}
 
-				changespritestat(i, INACTIVE); // EG Note: RAF.H gives this a nice name, so use it
+				ChangeActorStat(actor, INACTIVE); // EG Note: RAF.H gives this a nice name, so use it
 			}
 			continue;
 		} else if ((hitobject & 0xc000) == 32768) { // hit a wall
@@ -1108,7 +1108,7 @@ void animateobjs(PLAYER& plr) {
 				spr.detail = WALLPIKETYPE;
 			}
 
-			changespritestat(i, INACTIVE);
+			ChangeActorStat(actor, INACTIVE);
 			continue;
 		}
 
@@ -1423,12 +1423,12 @@ void animateobjs(PLAYER& plr) {
 
 			if (spr.picnum == (SHATTERVASE + 6) || spr.picnum == (SHATTERVASE2 + 6)
 					|| spr.picnum == (SHATTERVASE3 + 6))
-				changespritestat(i, (short) 0);
+				ChangeActorStat(actor, 0);
 			else {
 				switch (spr.picnum) {
 				case FSHATTERBARREL + 2:
 					randompotion(i);
-					changespritestat(i, (short) 0);
+					ChangeActorStat(actor, 0);
 					break;
 				case STAINGLASS1 + 6:
 				case STAINGLASS2 + 6:
@@ -1439,7 +1439,7 @@ void animateobjs(PLAYER& plr) {
 				case STAINGLASS7 + 6:
 				case STAINGLASS8 + 6:
 				case STAINGLASS9 + 6:
-					changespritestat(i, (short) 0);
+					ChangeActorStat(actor, 0);
 					break;
 				}
 			}
@@ -1498,7 +1498,7 @@ void animateobjs(PLAYER& plr) {
 		if (spr.z + (8 << 8) >= sector[spr.sectnum].floorz && spr.picnum == ICECUBE
 				|| movestat != 0) {
 			spr.z = sector[spr.sectnum].floorz;
-			changespritestat(i, (short) 0);
+			ChangeActorStat(actor, 0);
 			if (sector[spr.sectnum].floorpicnum == WATER || sector[spr.sectnum].floorpicnum == SLIME
 					|| sector[spr.sectnum].floorpicnum == FLOORMIRROR) {
 				if (spr.picnum == FISH)
