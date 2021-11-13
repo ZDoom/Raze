@@ -1367,6 +1367,11 @@ void UpdateWallPortalState()
             continue;
         }
         walltype* wal = &wall[mirror[i].mirrorwall];
+        if (wal->picnum != MIRRORLABEL + i)
+        {
+            wal->portalflags = 0;
+            continue;
+        }
         wal->portalflags = 0;
         wal->portalnum = 0;
 
