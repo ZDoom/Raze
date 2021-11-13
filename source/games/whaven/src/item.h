@@ -2,7 +2,7 @@
 
 struct Item {
 
-	using Callback = void (*)(PLAYER &plr, short i);
+	using Callback = void (*)(PLAYER &plr, DWHActor* i);
 	
 	int sizx, sizy;
 	boolean treasures, cflag;
