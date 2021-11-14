@@ -314,7 +314,7 @@ void GameInterface::Ticker()
 
 		for (int i = 0; i < 8; i++)
 		{
-			team_ticker[i] = team_ticker[i] -= 4;
+			team_ticker[i] -= 4;
 			if (team_ticker[i] < 0)
 				team_ticker[i] = 0;
 		}

@@ -2989,7 +2989,7 @@ int ParseState::parse(void)
 		lMaxDistVar = *(insptr++);
 		lVarID = *(insptr++);
 		lMaxDist = GetGameVarID(lMaxDistVar, g_ac, g_p);
-		DDukeActor* lFound;
+		DDukeActor* lFound = nullptr;
 		lDist = 32767;	// big number
 
 		DukeStatIterator it(STAT_ACTOR);

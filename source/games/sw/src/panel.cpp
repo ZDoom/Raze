@@ -116,9 +116,10 @@ void pNullAnimator(PANEL_SPRITEp)
 
 PANEL_SPRITEp pFindMatchingSprite(PLAYERp pp, int x, int y, short pri)
 {
-    PANEL_SPRITEp psp=nullptr, next;
+    PANEL_SPRITEp next;
 
-    TRAVERSE(&pp->PanelSpriteList, psp, next)
+    auto list = pp->GetPanelSpriteList();
+    for (auto psp = list->Next; next = psp->Next, psp != list; psp = next)
     {
         // early out
         if (psp->priority > pri)
@@ -135,9 +136,10 @@ PANEL_SPRITEp pFindMatchingSprite(PLAYERp pp, int x, int y, short pri)
 
 PANEL_SPRITEp pFindMatchingSpriteID(PLAYERp pp, short id, int x, int y, short pri)
 {
-    PANEL_SPRITEp psp=nullptr, next;
+    PANEL_SPRITEp next;
 
-    TRAVERSE(&pp->PanelSpriteList, psp, next)
+    auto list = pp->GetPanelSpriteList();
+    for (auto psp = list->Next; next = psp->Next, psp != list; psp = next)
     {
         // early out
         if (psp->priority > pri)
@@ -154,11 +156,12 @@ PANEL_SPRITEp pFindMatchingSpriteID(PLAYERp pp, short id, int x, int y, short pr
 
 bool pKillScreenSpiteIDs(PLAYERp pp, short id)
 {
-    PANEL_SPRITEp psp=nullptr, next;
+    PANEL_SPRITEp next;
     bool found = false;
 
     // Kill ALL sprites with the correct id
-    TRAVERSE(&pp->PanelSpriteList, psp, next)
+    auto list = pp->GetPanelSpriteList();
+    for (auto psp = list->Next; next = psp->Next, psp != list; psp = next)
     {
         if (psp->ID == id)
         {
@@ -327,7 +330,6 @@ void PlayerUpdateHealth(PLAYERp pp, short value)
 
 void PlayerUpdateAmmo(PLAYERp pp, short UpdateWeaponNum, short value)
 {
-    USERp u = pp->Actor()->u();
     short x,y;
     short WeaponNum;
 
@@ -924,7 +926,8 @@ void RetractCurWpn(PLAYERp pp)
         else
         {
             // check for any outstanding siblings that need to go away also
-            TRAVERSE(&pp->PanelSpriteList, cur, nxt)
+            auto list = pp->GetPanelSpriteList();
+            for (auto cur = list->Next; nxt = cur->Next, cur != list; cur = nxt)
             {
                 if (cur->sibling && cur->sibling == pp->CurWpn)
                 {
@@ -6410,7 +6413,8 @@ InsertPanelSprite(PLAYERp pp, PANEL_SPRITEp psp)
     }
 
     // search for first pri in list thats less than the new pri
-    TRAVERSE(&pp->PanelSpriteList, cur, nxt)
+    auto list = pp->GetPanelSpriteList();
+    for (auto cur = list->Next; nxt = cur->Next, cur != list; cur = nxt)
     {
         // if the next pointer is the end of the list, insert it
         if ((LIST) cur->Next == (LIST) &pp->PanelSpriteList)
@@ -6568,7 +6572,7 @@ void
 pDisplaySprites(PLAYERp pp, double smoothratio)
 {
     USERp u = pp->Actor()->u();
-    PANEL_SPRITEp psp=nullptr, next=nullptr;
+    PANEL_SPRITEp next=nullptr;
     short shade, picnum, overlay_shade = 0;
     double x, y;
     unsigned i;
@@ -6580,7 +6584,8 @@ pDisplaySprites(PLAYERp pp, double smoothratio)
     double const look_anghalf = pp->angle.look_anghalf(smoothratio);
     double const looking_arc = pp->angle.looking_arc(smoothratio);
 
-    TRAVERSE(&pp->PanelSpriteList, psp, next)
+    auto list = pp->GetPanelSpriteList();
+    for (auto psp = list->Next; next = psp->Next, psp != list; psp = next)
     {
         ang = psp->rotate_ang;
         shade = 0;
@@ -6856,9 +6861,10 @@ pDisplaySprites(PLAYERp pp, double smoothratio)
 void
 pSpriteControl(PLAYERp pp)
 {
-    PANEL_SPRITEp psp=nullptr, next=nullptr;
+    PANEL_SPRITEp next=nullptr;
 
-    TRAVERSE(&pp->PanelSpriteList, psp, next)
+    auto list = pp->GetPanelSpriteList();
+    for (auto psp = list->Next; next = psp->Next, psp != list; psp = next)
     {
         // reminder - if these give an assertion look for pKillSprites
         // somewhere else other than by themselves

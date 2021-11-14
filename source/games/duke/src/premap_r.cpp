@@ -499,6 +499,7 @@ void prelevel_r(int g)
 		{
 			int ii;
 			int childsectnum = -1;
+			dist = 0;
 			DukeSectIterator it(i);
 			while (auto act = it.Next())
 			{

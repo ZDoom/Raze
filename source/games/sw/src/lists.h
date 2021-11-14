@@ -39,22 +39,21 @@ typedef
     struct List *Prev;
 } LISTHEAD, *LIST;
 
-#define FIRST(list)        (list->Next)
-#define LAST(list)         (list->Prev)
+inline void INITLIST(void* listp)
+{
+    LIST list = (LIST)listp;
+    list->Prev = list->Next = list;
+}
 
-
-#define INITLIST(list)          ( ((LIST) list)->Prev = ((LIST) list)->Next = (LIST) list)
-
-
-#define INSERT(list, nodep)  ( ((LIST) nodep)->Prev = (LIST) list,         \
-                               ((LIST) nodep)->Next = ((LIST) list)->Next, \
-                               ((LIST)  list)->Next = (LIST) nodep,        \
-                               ((LIST) nodep)->Next->Prev = (LIST) nodep)
-
-#define INSERT_TAIL(list, nodep)  ( ((LIST) nodep)->Next = (LIST) list,  \
-                                    ((LIST) nodep)->Prev = ((LIST) list)->Prev, \
-                                    ((LIST)  list)->Prev = (LIST) nodep,        \
-                                    ((LIST) nodep)->Prev->Next = (LIST) nodep)
+inline void INSERT(void* listp, void* nodepp)
+{
+    LIST list = (LIST)listp;
+    LIST nodep = (LIST)nodepp;
+    nodep->Prev = list;
+    nodep->Next = list->Next;
+    list->Next = nodep;
+    nodep->Next->Prev = nodep;
+}
 
 inline void REMOVE(PANEL_SPRITEp nodep)
 {
@@ -62,11 +61,11 @@ inline void REMOVE(PANEL_SPRITEp nodep)
     nodep->Next->Prev = nodep->Prev;
 }
 
-#define TRAVERSE(l, o, n)    ASSERT(((LIST)l)->Next && ((LIST)l)->Prev); for (o = (decltype(o))(((LIST)l)->Next);      \
-                                                                              n = o->Next, (LIST) o != (LIST) l; \
-                                                                              o = n)
-
-#define EMPTY(list)          (((LIST) list)->Next == (LIST) list)
+inline bool EMPTY(void* listp)
+{
+    LIST list = (LIST)listp;
+    return list->Next == list;
+}
 
 END_SW_NS
 

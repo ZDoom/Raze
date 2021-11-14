@@ -624,7 +624,7 @@ void spawneffector(DDukeActor* actor)
 	auto sectp = sp->sector();
 	int sect = sp->sectnum;
 	auto t = actor->temp_data;
-	int startwall, endwall, x, y, d, s, clostest;
+	int startwall, endwall, x, y, d, s, clostest = 0;
 
 	sp->yvel = sectp->extra;
 	sp->cstat |= 32768;

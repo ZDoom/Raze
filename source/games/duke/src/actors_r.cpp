@@ -1572,7 +1572,7 @@ void movetransports_r(void)
 {
 	uint8_t warpdir, warpspriteto;
 	int k, p, sectlotag;
-	int ll2, ll, onfloorz;
+	int ll2 = 0, ll, onfloorz;
 	Collision coll;
 
 	 //Transporters
@@ -4104,14 +4104,13 @@ void fall_r(DDukeActor* ac, int g_p)
 
 void destroyit(DDukeActor *actor)
 {
-	int lotag, hitag;
+	int lotag = 0, hitag = 0;
 	int wi, wj;
 	int wallstart2, wallend2;
 	int sectnum;
 	int wallstart, wallend;
 	DDukeActor* spr = nullptr;
 
-	hitag = 0;
 	DukeSectIterator it1(actor->s->sectnum);
 	while (auto a2 = it1.Next())
 	{

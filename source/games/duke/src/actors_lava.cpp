@@ -345,6 +345,10 @@ void dojaildoor(void)
 					auto wal = &wall[j];
 					switch (jaildoordir[i])
 					{
+						default: // make case of bad parameters well defined.
+							x = wal->x;
+							y = wal->y;
+							break;
 						case 10:
 							x = wal->x;
 							y = wal->y + speed;
@@ -427,23 +431,28 @@ void moveminecart(void)
 				endwall = startwall + sectp->wallnum;
 				for (j = startwall; j < endwall; j++)
 				{
+					auto wal = &wall[j];
 					switch (minecartdir[i])
 					{
+						default: // make case of bad parameters well defined.
+							x = wal->x;
+							y = wal->y;
+							break;
 						case 10:
-							x = wall[j].x;
-							y = wall[j].y + speed;
+							x = wal->x;
+							y = wal->y + speed;
 							break;
 						case 20:
-							x = wall[j].x - speed;
-							y = wall[j].y;
+							x = wal->x - speed;
+							y = wal->y;
 							break;
 						case 30:
-							x = wall[j].x;
-							y = wall[j].y - speed;
+							x = wal->x;
+							y = wal->y - speed;
 							break;
 						case 40:
-							x = wall[j].x + speed;
-							y = wall[j].y;
+							x = wal->x + speed;
+							y = wal->y;
 							break;
 					}
 					dragpoint(j,x,y);
@@ -561,7 +570,7 @@ void thunder(void)
 {
 	struct player_struct* p;
 	int r1, r2;
-	int startwall, endwall, i, j;
+	int startwall, endwall, i = 0, j;
 	uint8_t shade;
 
 	p = &ps[screenpeek];

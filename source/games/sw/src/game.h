@@ -854,6 +854,14 @@ struct PLAYERstruct
         PANEL_SPRITEp Next, Prev;
     } PanelSpriteList;
 
+    // hack stuff to get a working pointer to this list element without running into type punning warnings with GCC.
+    // The list uses itself as sentinel element despite the type mismatch.
+    PANEL_SPRITEp GetPanelSpriteList()
+    {
+        void* p = &PanelSpriteList;
+        return reinterpret_cast<PANEL_SPRITEp>(p);
+    }
+
     // Key stuff
     unsigned char HasKey[8];
 

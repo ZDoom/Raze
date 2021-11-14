@@ -493,7 +493,7 @@ void nnExtResetGlobals()
     memset(gImpactSpritesList, 0, sizeof(gImpactSpritesList));
 
     // reset tracking conditions, if any
-    for (int i = 0; i < countof(gCondition); i++) 
+    for (size_t i = 0; i < countof(gCondition); i++) 
     {
         TRCONDITION* pCond = &gCondition[i];
         for (unsigned k = 0; k < kMaxTracedObjects; k++)
@@ -2601,7 +2601,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, int objIndex, D
             // data3 = set wall hitag
             if (valueIsBetween(pXSource->data3, -1, 32767)) 
             {
-                if ((pSource->flags & kModernTypeFlag1)) pWall->hitag = pWall->hitag |= pXSource->data3;
+                if ((pSource->flags & kModernTypeFlag1)) pWall->hitag |= pXSource->data3;
                 else pWall->hitag = pXSource->data3;
             }
 
@@ -2611,7 +2611,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, int objIndex, D
                 old = pWall->cstat;
 
                 // set new cstat
-                if ((pSource->flags & kModernTypeFlag1)) pWall->cstat = pWall->cstat |= pXSource->data4; // relative
+                if ((pSource->flags & kModernTypeFlag1)) pWall->cstat |= pXSource->data4; // relative
                 else pWall->cstat = pXSource->data4; // absolute
 
                 // and hanlde exceptions
@@ -5062,12 +5062,11 @@ bool aiFightMatesHaveSameTarget(DBloodActor* leaderactor, DBloodActor* targetact
 
     for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) 
     {
-        if (rxBucket[i].type != OBJ_SPRITE)
-            continue;
+        if (rxBucket[i].type != OBJ_SPRITE) continue;
 
-            auto mate = rxBucket[i].actor;
-            if (!mate || !mate->hasX() || mate == leaderactor || !mate->IsDudeActor())
-                continue;
+        auto mate = rxBucket[i].actor;
+        if (!mate || !mate->hasX() || mate == leaderactor || !mate->IsDudeActor())
+            continue;
 
         if (mate->GetTarget() == targetactor && allow-- <= 0)
             return true;
@@ -9059,8 +9058,8 @@ bool incDecGoalValueIsReached(DBloodActor* actor)
 {
     XSPRITE* pXSprite = &actor->x();
     if (pXSprite->data3 != pXSprite->sysData1) return false;
-    char buffer[5]; 
-    snprintf(buffer, 5, "%d", abs(pXSprite->data1)); 
+    char buffer[7]; 
+    snprintf(buffer, 7, "%d", abs(pXSprite->data1)); 
     int len = int(strlen(buffer)); 
     int rx = -1;
 

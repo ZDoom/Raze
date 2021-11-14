@@ -164,7 +164,7 @@ int checkpins(int sect)
 
 void resetpins(int sect)
 {
-	int i, tag;
+	int i, tag = 0;
 	int x, y;
 	DukeSectIterator it(sect);
 	while (auto a2 = it.Next())

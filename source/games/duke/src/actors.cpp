@@ -5099,7 +5099,7 @@ int dodge(DDukeActor* actor)
 int furthestangle(DDukeActor *actor, int angs)
 {
 	auto s = actor->s;
-	int j, hitsect, hitwall, furthest_angle, angincs;
+	int j, hitsect, hitwall, furthest_angle = 0, angincs;
 	int hx, hy, hz, d, greatestd;
 	DDukeActor* dd;
 

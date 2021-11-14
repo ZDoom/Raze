@@ -2192,7 +2192,7 @@ OperateContinuousTrigger(PLAYERp pp)
     if (pp->cursectnum < 0)
         return;
 
-	switch (sector[pp->cursectnum].lotag)
+    switch (sector[pp->cursectnum].lotag)
     {
     case TAG_TRIGGER_MISSILE_TRAP:
     {

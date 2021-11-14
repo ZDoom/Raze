@@ -1861,11 +1861,11 @@ SpriteSetup(void)
     PicAnimOff(PLAYER_NINJA_RUN_R0);
 
     // Clear Sprite Extension structure
-    memset(&SectUser[0], 0, sizeof(SectUser));
 
     // Clear all extra bits - they are set by sprites
     for (i = 0; i < numsectors; i++)
     {
+        SectUser[i].Clear();
         sector[i].extra = 0;
     }
 

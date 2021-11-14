@@ -209,7 +209,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 {
 	auto s = actor->s;
 	int sect = s->sectnum;
-	int zvel;
+	int zvel = 0;
 	int hitsect, hitwall;
 	int hitx, hity, hitz;
 	DDukeActor* hitsprt;

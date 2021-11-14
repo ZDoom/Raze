@@ -97,12 +97,15 @@ static int &getvalue(so_interp::interp_data& element, bool write)
     case soi_sprx:
 		if (element.actorofang)
 			return element.actorofang->s().x;
+        break;
     case soi_spry:
 		if (element.actorofang)
 			return element.actorofang->s().y;
+        break;
     case soi_sprz:
 		if (element.actorofang)
 			return element.actorofang->s().z;
+        break;
     default:
 		break;
     }

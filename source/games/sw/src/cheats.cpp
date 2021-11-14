@@ -160,7 +160,7 @@ bool WarpCheat(cheatseq_t* c)
     if (TEST(pp->Flags, PF_DEAD))
         return true;
 
-	DeferredStartGame(maprec, g_nextskill);
+    DeferredStartGame(maprec, g_nextskill);
     return true;
 }
 

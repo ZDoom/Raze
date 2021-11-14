@@ -288,7 +288,7 @@ int BelowNear(DExhumedActor* pActor, int x, int y, int walldist, int nSector)
 
         if (GlobalSectorList.Size() > nearstart)
         {
-            short edx;
+            int edx = 0;
 
             for (unsigned i = nearstart; i < GlobalSectorList.Size(); i++)
             {
@@ -697,8 +697,8 @@ int GetAngleToSprite(DExhumedActor* a1, DExhumedActor* a2)
     if (!a1 || !a2)
         return -1;
 
-	auto pSprite1 = &a1->s();
-	auto pSprite2 = &a2->s();
+    auto pSprite1 = &a1->s();
+    auto pSprite2 = &a2->s();
 
     return GetMyAngle(pSprite2->x - pSprite1->x, pSprite2->y - pSprite1->y);
 }
@@ -708,8 +708,8 @@ int PlotCourseToSprite(DExhumedActor* pActor1, DExhumedActor* pActor2)
     if (pActor1 == nullptr || pActor2 == nullptr)
         return -1;
 
-	auto pSprite1 = &pActor1->s();
-	auto pSprite2 = &pActor2->s();
+    auto pSprite1 = &pActor1->s();
+    auto pSprite2 = &pActor2->s();
     int x = pSprite2->x - pSprite1->x;
     int y = pSprite2->y - pSprite1->y;
 

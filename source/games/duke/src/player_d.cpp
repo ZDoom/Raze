@@ -148,7 +148,7 @@ static void shootfireball(DDukeActor *actor, int p, int sx, int sy, int sz, int 
 static void shootflamethrowerflame(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 {
 	auto s = actor->s;
-	int vel, zvel;
+	int vel, zvel = 0;
 
 	if (s->extra >= 0)
 		s->shade = -96;

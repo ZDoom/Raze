@@ -576,6 +576,7 @@ void ParseScript(int lumpnum)
                         rfs.SkipBeyondValue('\n');
                     }
                 }
+                [[fallthrough]];
             }
             case kTagResource: // really light blue..
             {
