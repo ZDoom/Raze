@@ -584,7 +584,7 @@ void processinput(int num) {
 	}
 
 	//game.pInt.setsprinterpolate(plr.spritenum, sprite[plr.spritenum]);
-	setsprite(plr.spritenum, plr.x, plr.y, plr.z + (plr.height << 8));
+	SetActorPos(plr.actor(), plr.x, plr.y, plr.z + (plr.height << 8));
 	UpdatePlayerSpriteAngle(plr);
 
 	if (plr.sector >= 0 && getceilzofslope(plr.sector, plr.x, plr.y) > getflorzofslope(plr.sector, plr.x, plr.y) - (8 << 8))

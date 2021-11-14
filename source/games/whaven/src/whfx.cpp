@@ -443,7 +443,7 @@ void teleporter() {
 			plr.angle.settarget(daang);
 			plr.justwarpedfx = 48;
 			spritesound(S_WARP, plr.actor());
-			setsprite(plr.spritenum, plr.x, plr.y, plr.z + (32 << 8));
+			SetActorPos(plr.actor(), plr.x, plr.y, plr.z + (32 << 8));
 		}
 	}
 
@@ -527,7 +527,7 @@ void warpsprite(DWHActor* actor) {
 	dasectnum = (short) warpsect;
 
 	warpfxsprite(actor->GetSpriteIndex());
-	setsprite(actor->GetSpriteIndex(), spr.x, spr.y, spr.z);
+	SetActorPos(actor, spr.x, spr.y, spr.z);
 
 	// EG 19 Aug 2017 - Try to prevent monsters teleporting back and forth wildly
 	monsterwarptime = 120;
@@ -537,50 +537,52 @@ void ironbars() {
 	for (int i = 0; i < ironbarscnt; i++) {
 		if (ironbarsdone[i] == 1) {
 			short spritenum = ironbarsanim[i];
-			switch (sprite[ironbarsanim[i]].hitag) {
+			auto actor = &whActors[spritenum];
+			auto& spr = actor->s();
+			switch (spr.hitag) {
 			case 1:
-				sprite[ironbarsanim[i]].ang += TICSPERFRAME << 1;
-				if (sprite[ironbarsanim[i]].ang > 2047)
-					sprite[ironbarsanim[i]].ang -= 2047;
+				spr.ang += TICSPERFRAME << 1;
+				if (spr.ang > 2047)
+					spr.ang -= 2047;
 				ironbarsgoal[i] += TICSPERFRAME << 1;
-				setsprite(spritenum, sprite[spritenum].x, sprite[spritenum].y, sprite[spritenum].z);
+				SetActorPos(actor, &spr.pos);
 				if (ironbarsgoal[i] > 512) {
 					ironbarsgoal[i] = 0;
-					sprite[ironbarsanim[i]].hitag = 2;
+					spr.hitag = 2;
 					ironbarsdone[i] = 0;
 				}
 				break;
 			case 2:
-				sprite[ironbarsanim[i]].ang -= TICSPERFRAME << 1;
-				if (sprite[ironbarsanim[i]].ang < 0)
-					sprite[ironbarsanim[i]].ang += 2047;
+				spr.ang -= TICSPERFRAME << 1;
+				if (spr.ang < 0)
+					spr.ang += 2047;
 				ironbarsgoal[i] += TICSPERFRAME << 1;
-				setsprite(spritenum, sprite[spritenum].x, sprite[spritenum].y, sprite[spritenum].z);
+				SetActorPos(actor, &spr.pos);
 				if (ironbarsgoal[i] > 512) {
 					ironbarsgoal[i] = 0;
-					sprite[ironbarsanim[i]].hitag = 1;
+					spr.hitag = 1;
 					ironbarsdone[i] = 0;
 				}
 				break;
 			case 3:
-				sprite[ironbarsanim[i]].z -= TICSPERFRAME << 4;
-				if (sprite[ironbarsanim[i]].z < ironbarsgoal[i]) {
-					sprite[ironbarsanim[i]].z = ironbarsgoal[i];
-					sprite[ironbarsanim[i]].hitag = 4;
+				spr.z -= TICSPERFRAME << 4;
+				if (spr.z < ironbarsgoal[i]) {
+					spr.z = ironbarsgoal[i];
+					spr.hitag = 4;
 					ironbarsdone[i] = 0;
-					ironbarsgoal[i] = sprite[ironbarsanim[i]].z + 6000;
+					ironbarsgoal[i] = spr.z + 6000;
 				}
-				setsprite(spritenum, sprite[spritenum].x, sprite[spritenum].y, sprite[spritenum].z);
+				SetActorPos(actor, &spr.pos);
 				break;
 			case 4:
-				sprite[ironbarsanim[i]].z += TICSPERFRAME << 4;
-				if (sprite[ironbarsanim[i]].z > ironbarsgoal[i]) {
-					sprite[ironbarsanim[i]].z = ironbarsgoal[i];
-					sprite[ironbarsanim[i]].hitag = 3;
+				spr.z += TICSPERFRAME << 4;
+				if (spr.z > ironbarsgoal[i]) {
+					spr.z = ironbarsgoal[i];
+					spr.hitag = 3;
 					ironbarsdone[i] = 0;
-					ironbarsgoal[i] = sprite[ironbarsanim[i]].z - 6000;
+					ironbarsgoal[i] = spr.z - 6000;
 				}
-				setsprite(spritenum, sprite[spritenum].x, sprite[spritenum].y, sprite[spritenum].z);
+				SetActorPos(actor, &spr.pos);
 				break;
 			}
 		}

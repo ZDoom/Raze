@@ -797,7 +797,7 @@ boolean prepareboard(const char* fname) {
 		if(isWh2())
 			pspr.clipdist = 48;
 			
-		setsprite(plr.spritenum, plr.x, plr.y, plr.z + (getPlayerHeight() << 8));
+		SetActorPos(plr.actor(), plr.x, plr.y, plr.z + (getPlayerHeight() << 8));
 
 		warpfxsprite(plr.spritenum);
 		plr.treasure[TBRASSKEY] = plr.treasure[TBLACKKEY] = plr.treasure[TGLASSKEY] = plr.treasure[TIVORYKEY] = 0;

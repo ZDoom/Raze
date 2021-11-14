@@ -286,7 +286,7 @@ void animateobjs(PLAYER& plr) {
 			if (plr.selectedgun > 4) {
 				playertorch = spr.lotag = -1;
 			}
-			setsprite((short) i, plr.x, plr.y, plr.z);
+			SetActorPos(actor, plr.x, plr.y, plr.z);
 			osectnum = spr.sectnum;
 			j = (torchpattern[PlayClock % 38]);
 			sector[osectnum].ceilingshade = (byte) ((sector[osectnum].ceilingshade + j) >> 1);

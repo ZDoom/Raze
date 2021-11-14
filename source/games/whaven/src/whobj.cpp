@@ -1354,7 +1354,7 @@ void newstatus(short sn, int seq) {
 					|| spr.sector()->floorpicnum == SLIME)) {
 				if (spr.picnum == MINOTAURDEAD) {
 					spr.z += (8 << 8);
-					setsprite(sn, spr.x, spr.y, spr.z);
+					SetActorPos(actor, &spr.pos);
 				}
 			}
 			if (spr.sectnum != MAXSECTORS && (spr.sector()->floorpicnum == LAVA
