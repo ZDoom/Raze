@@ -445,15 +445,15 @@ Collision aimove(DWHActor* actor)
 	int oz = spr.z;
 	//		short osect = spr.sectnum;
 
-	int movestate = movesprite(actor->GetSpriteIndex(), (bcos(spr.ang) * TICSPERFRAME) << 3,
+	int movestat = movesprite(actor->GetSpriteIndex(), (bcos(spr.ang) * TICSPERFRAME) << 3,
 		(bsin(spr.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, CLIFFCLIP);
 
 	if (((zr_florz - oz) >> 4) > tileHeight(spr.picnum) + (spr.yrepeat << 2)
-		|| (movestate & kHitTypeMask) == kHitWall) {
+		|| (movestat & kHitTypeMask) == kHitWall) {
 
 		SetActorPos(actor, ox, oy, oz);
 
-		if ((movestate & kHitTypeMask) != kHitWall) {
+		if ((movestat & kHitTypeMask) != kHitWall) {
 			if (isWh2())
 				spr.z += WH2GRAVITYCONSTANT;
 			else
@@ -464,12 +464,12 @@ Collision aimove(DWHActor* actor)
 
 	spr.z = zr_florz;
 
-	return movestate;
+	return movestat;
 }
 
 Collision aifly(DWHActor* actor) {
 	SPRITE& spr = actor->s();
-	int movestate = movesprite(actor->GetSpriteIndex(), (bcos(spr.ang) * TICSPERFRAME) << 3,
+	int movestat = movesprite(actor->GetSpriteIndex(), (bcos(spr.ang) * TICSPERFRAME) << 3,
 		(bsin(spr.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, CLIFFCLIP);
 
 	spr.z -= TICSPERFRAME << 8;
@@ -482,7 +482,7 @@ Collision aifly(DWHActor* actor) {
 	if (spr.z - (tileHeight(spr.picnum) << 7) < zr_ceilz)
 		spr.z = zr_ceilz + (tileHeight(spr.picnum) << 7);
 
-	return Collision(movestate);
+	return Collision(movestat);
 }
 
 
