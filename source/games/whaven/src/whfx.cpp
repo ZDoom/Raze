@@ -431,7 +431,7 @@ void teleporter() {
 	if (plr.Sector()->lotag == 10) {
 		if (plr.sector != plr.oldsector) {
 			daang = plr.angle.ang.asbuild();
-			warpfxsprite(plr.spritenum);
+			warpfxsprite(plr.actor());
 			warp(plr.x, plr.y, plr.z, daang, plr.sector);
 			viewBackupPlayerLoc(pyrn);
 			plr.x = warpx;
@@ -439,7 +439,7 @@ void teleporter() {
 			plr.z = warpz;
 			daang = (short) warpang;
 			plr.sector = (short) warpsect;
-			warpfxsprite(plr.spritenum);
+			warpfxsprite(plr.actor());
 			plr.angle.settarget(daang);
 			plr.justwarpedfx = 48;
 			spritesound(S_WARP, plr.actor());
@@ -518,7 +518,7 @@ void warpsprite(DWHActor* actor) {
 		return;
 	auto& spr = actor->s();
 	short dasectnum = spr.sectnum;
-	warpfxsprite(actor->GetSpriteIndex());
+	warpfxsprite(actor);
 	warp(spr.x, spr.y, spr.z, spr.ang, dasectnum);
 	spr.x = warpx;
 	spr.y = warpy;
@@ -526,7 +526,7 @@ void warpsprite(DWHActor* actor) {
 	spr.ang = (short) warpang;
 	dasectnum = (short) warpsect;
 
-	warpfxsprite(actor->GetSpriteIndex());
+	warpfxsprite(actor);
 	SetActorPos(actor, spr.x, spr.y, spr.z);
 
 	// EG 19 Aug 2017 - Try to prevent monsters teleporting back and forth wildly
@@ -999,8 +999,7 @@ void lavadryland() {
 
 }
 
-void warpfxsprite(int s) {
-	auto actor = &whActors[s];
+void warpfxsprite(DWHActor* actor) {
 	auto& spr = actor->s();
 	PLAYER& plr = player[pyrn];
 
@@ -1015,7 +1014,7 @@ void warpfxsprite(int s) {
 
 	spawned.picnum = ANNIHILATE;
 	short daang;
-	if (s == plr.spritenum) {
+	if (actor == plr.actor()) {
 		daang = plr.angle.ang.asbuild();
 		spawned.ang = daang;
 	} else {

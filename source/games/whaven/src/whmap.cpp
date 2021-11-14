@@ -801,7 +801,7 @@ boolean prepareboard(const char* fname) {
 			
 		SetActorPos(plr.actor(), plr.x, plr.y, plr.z + (getPlayerHeight() << 8));
 
-		warpfxsprite(plr.spritenum);
+		warpfxsprite(plr.actor());
 		plr.treasure[TBRASSKEY] = plr.treasure[TBLACKKEY] = plr.treasure[TGLASSKEY] = plr.treasure[TIVORYKEY] = 0;
 		plr.treasure[TBLUESCEPTER] = plr.treasure[TYELLOWSCEPTER] = 0;
 			

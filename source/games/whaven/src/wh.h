@@ -169,7 +169,8 @@ void getzrange(int x, int y, int z, short sectnum, int walldist, int cliptype);
 
 struct Neartag {
 	int taghitdist;
-	short tagsector, tagwall, tagsprite;
+	short tagsector, tagwall;
+	DWHActor* tagactor;
 };
 void   neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange, Neartag& nt, int32_t neartagrange, uint8_t tagsearch);
 
@@ -190,17 +191,17 @@ extern int monsterwarptime;
 void timerprocess(PLAYER& plr);
 int getPickHeight();
 void processobjs(PLAYER& plr);
-void newstatus(short sn, int seq);
-void makeafire(int i, int firetype);
-void explosion(int i, int x, int y, int z, int ownr);
-void explosion2(int i, int x, int y, int z, int ownr);
+void SetNewStatus(DWHActor* actor, const int seq);
+void makeafire(DWHActor*, int firetype);
+void explosion(DWHActor* i, int x, int y, int z, int ownr);
+void explosion2(DWHActor* i, int x, int y, int z, int ownr);
 void trailingsmoke(DWHActor* actor, boolean ball);
 void icecubes(int i, int x, int y, int z, int ownr);
 boolean damageactor(PLAYER& plr, DWHActor* hitobject, DWHActor* actor);
 Collision movesprite(DWHActor*, int dx, int dy, int dz, int ceildist, int flordist, int cliptype);
 void trowajavlin(int s);
-void spawnhornskull(short i);
-void spawnapentagram(int sn);
+void spawnhornskull(DWHActor* i);
+void spawnapentagram(DWHActor* sn);
 void processinput(int num);
 void DrawHud(double const dasmoothratio);
 void spikeanimation(PLAYER& plr);
@@ -387,7 +388,7 @@ void makemonstersplash(int picnum, int i);
 void bats(PLAYER& plr, int k);
 void cracks();
 void lavadryland();
-void warpfxsprite(int s);
+void warpfxsprite(DWHActor* s);
 void resetEffects();
 void weaponpowerup(PLAYER& plr);
 void makesparks(short i, int type);
@@ -553,11 +554,6 @@ struct GameInterface : public ::GameInterface
 
 
 };
-
-inline void SetNewStatus(DWHActor* actor, const int seq)
-{
-	newstatus(actor->GetSpriteIndex(), seq);
-}
 
 END_WH_NS
 

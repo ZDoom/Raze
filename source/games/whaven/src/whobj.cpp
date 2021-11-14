@@ -134,8 +134,8 @@ void processobjs(PLAYER& plr) {
 	}
 }
 
-void newstatus(short sn, int seq) {
-	auto actor = &whActors[sn];
+void SetNewStatus(DWHActor* actor, const int seq)
+{
 	auto& spr = actor->s();
 	switch (seq) {
 	case AMBUSH:
@@ -836,7 +836,7 @@ void newstatus(short sn, int seq) {
 			break;
 		case DEMONTYPE:
 			spritesound(S_GUARDIANDIE, actor);
-			explosion(sn, spr.x, spr.y, spr.z, 0);
+			explosion(actor, spr.x, spr.y, spr.z, 0);
 			addscore(aiGetPlayerTarget(actor), 1500);
 			DeleteActor(actor);
 			kills++;
@@ -930,7 +930,7 @@ void newstatus(short sn, int seq) {
 		case GUARDIANTYPE:
 			spritesound(S_GUARDIANDIE, actor);
 			for (int j = 0; j < 4; j++)
-				explosion(sn, spr.x, spr.y, spr.z, 0);
+				explosion(actor, spr.x, spr.y, spr.z, 0);
 			DeleteActor(actor);
 			addscore(aiGetPlayerTarget(actor), 1500);
 			kills++;
@@ -989,7 +989,7 @@ void newstatus(short sn, int seq) {
 			spr.picnum = KATIEDEAD;
 			spr.cstat &= ~3;
 			ChangeActorStat(actor, RESURECT);
-			spawnhornskull(sn);
+			spawnhornskull(actor);
 			addscore(aiGetPlayerTarget(actor), 5000);
 			spr.detail = KATIETYPE;
 			break;
@@ -1255,7 +1255,7 @@ void newstatus(short sn, int seq) {
 				spr.picnum = DEVILDEAD;
 				spr.cstat &= ~3;
 				ChangeActorStat(actor, DEAD);
-				spawnhornskull(sn);
+				spawnhornskull(actor);
 				addscore(aiGetPlayerTarget(actor), 500);
 				break;
 			case IMPDEAD:
@@ -1332,7 +1332,7 @@ void newstatus(short sn, int seq) {
 				spr.picnum = JUDYDEAD;
 				spr.cstat &= ~3;
 				ChangeActorStat(actor, DEAD);
-				spawnapentagram(sn);
+				spawnapentagram(actor);
 				addscore(aiGetPlayerTarget(actor), 7000);
 				break;
 			case WILLOWEXPLO + 2:
@@ -1371,8 +1371,7 @@ void newstatus(short sn, int seq) {
 	//
 }
 
-void makeafire(int i, int firetype) {
-	auto actor = &whActors[i];
+void makeafire(DWHActor* actor, int firetype) {
 	auto& spr = actor->s();
 	auto spawnedactor = InsertActor(spr.sectnum, FIRE);
 	auto& spawned = spawnedactor->s();
@@ -1396,8 +1395,7 @@ void makeafire(int i, int firetype) {
 	spawned.backuploc();
 }
 
-void explosion(int i, int x, int y, int z, int ownr) {
-	auto actor = &whActors[i];
+void explosion(DWHActor* actor, int x, int y, int z, int ownr) {
 	auto& spr = actor->s();
 
 	auto spawnedactor = InsertActor(spr.sectnum, EXPLO);
@@ -1437,8 +1435,7 @@ void explosion(int i, int x, int y, int z, int ownr) {
 	spawned.backuploc();
 }
 
-void explosion2(int i, int x, int y, int z, int ownr) {
-	auto actor = &whActors[i];
+void explosion2(DWHActor* actor, int x, int y, int z, int ownr) {
 	auto& spr = actor->s();
 	auto spawnedactor = InsertActor(spr.sectnum, EXPLO);
 	auto& spawned = spawnedactor->s();
@@ -1850,13 +1847,14 @@ void trowajavlin(int s) {
 	spawned.backuploc();
 }
 
-void spawnhornskull(short i) {
-	auto spawnedactor = InsertActor(sprite[i].sectnum, (short) 0);
+void spawnhornskull(DWHActor* actor) {
+	auto& spr = actor->s();
+	auto spawnedactor = InsertActor(spr.sectnum, (short) 0);
 	auto& spawned = spawnedactor->s();
 
-	spawned.x = sprite[i].x;
-	spawned.y = sprite[i].y;
-	spawned.z = sprite[i].z - (24 << 8);
+	spawned.x = spr.x;
+	spawned.y = spr.y;
+	spawned.z = spr.z - (24 << 8);
 	
 	spawned.shade = -15;
 	spawned.cstat = 0;
@@ -1869,13 +1867,14 @@ void spawnhornskull(short i) {
 	spawned.backuploc();
 }
 
-void spawnapentagram(int sn) {
-	auto spawnedactor = InsertActor(sprite[sn].sectnum, (short) 0);
+void spawnapentagram(DWHActor* actor) {
+	auto& spr = actor->s();
+	auto spawnedactor = InsertActor(spr.sectnum, (short) 0);
 	auto& spawned = spawnedactor->s();
 
-	spawned.x = sprite[sn].x;
-	spawned.y = sprite[sn].y;
-	spawned.z = sprite[sn].z - (8 << 8);
+	spawned.x = spr.x;
+	spawned.y = spr.y;
+	spawned.z = spr.z - (8 << 8);
 	
 	spawned.xrepeat = spawned.yrepeat = 64;
 	spawned.pal = 0;

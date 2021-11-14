@@ -38,7 +38,9 @@ void getzrange(int x, int y, int z, short sectnum, int walldist, int cliptype)
 //This was done better. Strange.
 void   neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange, Neartag& nt, int32_t neartagrange, uint8_t tagsearch)
 {
-	::neartag(xs, ys, zs, sectnum, ange, &nt.tagsector, &nt.tagwall, &nt.tagsprite, &nt.taghitdist, neartagrange, tagsearch);
+	short tagsprite;
+	::neartag(xs, ys, zs, sectnum, ange, &nt.tagsector, &nt.tagwall, &tagsprite, &nt.taghitdist, neartagrange, tagsearch);
+	nt.tagactor = tagsprite >= 0 ? &whActors[tagsprite] : nullptr;
 }
 
 int hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz, Hitscan& hit, int cliptype)

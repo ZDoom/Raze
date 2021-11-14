@@ -354,7 +354,7 @@ void InitItems()
 				break;
 			case 6:
 				for (j = 0; j < 8; j++)
-					explosion(actor->GetSpriteIndex(), spr.x, spr.y, spr.z, 0);
+					explosion(actor, spr.x, spr.y, spr.z, 0);
 				spritesound(S_EXPLODE, actor);
 				DeleteActor(actor);
 				break;

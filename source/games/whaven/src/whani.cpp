@@ -23,7 +23,6 @@ void animateobjs(PLAYER& plr) {
 		while (auto actor = it.Next())
 		{
 			SPRITE& spr = actor->s();
-			int i = actor->GetSpriteIndex();
 
 			spr.lotag -= TICSPERFRAME;
 			switch (spr.extra) {
@@ -56,7 +55,6 @@ void animateobjs(PLAYER& plr) {
 		while (auto actor = it.Next())
 		{
 			SPRITE& spr = actor->s();
-			int i = actor->GetSpriteIndex();
 
 			osectnum = spr.sectnum;
 
@@ -86,7 +84,6 @@ void animateobjs(PLAYER& plr) {
 		while (auto actor = it.Next())
 		{
 			SPRITE& spr = actor->s();
-			int i = actor->GetSpriteIndex();
 
 			osectnum = spr.sectnum;
 
@@ -118,8 +115,7 @@ void animateobjs(PLAYER& plr) {
 		while (auto actor = it.Next())
 		{
 			SPRITE& spr = actor->s();
-			int i = actor->GetSpriteIndex();
-
+			
 			osectnum = spr.sectnum;
 			spr.lotag -= TICSPERFRAME;
 			if (spr.lotag < -100)
@@ -149,7 +145,6 @@ void animateobjs(PLAYER& plr) {
 		while (auto actor = it.Next())
 		{
 			SPRITE& spr = actor->s();
-			int i = actor->GetSpriteIndex();
 
 			spr.lotag -= TICSPERFRAME;
 			if (spr.lotag < 0) {
@@ -228,7 +223,6 @@ void animateobjs(PLAYER& plr) {
 		while (auto actor = it.Next())
 		{
 			SPRITE& spr = actor->s();
-			int i = actor->GetSpriteIndex();
 
 			spr.lotag -= TICSPERFRAME;
 
@@ -246,8 +240,7 @@ void animateobjs(PLAYER& plr) {
 		while (auto actor = it.Next())
 		{
 			SPRITE& spr = actor->s();
-			int i = actor->GetSpriteIndex();
-
+			
 			if (spr.picnum >= (GONZOBSHDEAD - 8)) {
 				if (--spr.extra <= 0) {
 					spr.picnum--;
@@ -280,7 +273,6 @@ void animateobjs(PLAYER& plr) {
 		while (auto actor = it.Next())
 		{
 			SPRITE& spr = actor->s();
-			int i = actor->GetSpriteIndex();
 
 			playertorch = spr.lotag -= TICSPERFRAME;
 			if (plr.selectedgun > 4) {
@@ -353,7 +345,6 @@ void animateobjs(PLAYER& plr) {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		int i = actor->GetSpriteIndex();
 
 		spr.lotag -= TICSPERFRAME;
 		if (spr.lotag < 0) {
@@ -370,7 +361,6 @@ void animateobjs(PLAYER& plr) {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		int i = actor->GetSpriteIndex();
 
 		spr.lotag -= TICSPERFRAME;
 		if (spr.lotag < 0) {
@@ -387,7 +377,6 @@ void animateobjs(PLAYER& plr) {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		int i = actor->GetSpriteIndex();
 
 		spr.lotag -= TICSPERFRAME;
 		if (spr.lotag < 0) {
@@ -404,7 +393,6 @@ void animateobjs(PLAYER& plr) {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		int i = actor->GetSpriteIndex();
 
 		spr.lotag -= TICSPERFRAME;
 		if (spr.lotag < 0) {
@@ -740,7 +728,7 @@ void animateobjs(PLAYER& plr) {
 			default:
 				if (spr.picnum == TORCH) {
 					for (k = 0; k < 16; k++)
-						makeafire(i, 0);
+						makeafire(actor, 0);
 					DeleteActor(actor);
 					break;
 				}
@@ -972,9 +960,9 @@ void animateobjs(PLAYER& plr) {
 
 		if (moveStat.type != kHitNone && spr.picnum == MONSTERBALL)
 			if (actor->GetPlayerOwner() == plr.playerNum()) {
-				explosion2(i, spr.x, spr.y, spr.z, i);
+				explosion2(actor, spr.x, spr.y, spr.z, i);
 			} else {
-				explosion(i, spr.x, spr.y, spr.z, i);
+				explosion(actor, spr.x, spr.y, spr.z, i);
 			}
 
 		if (moveStat.type == kHitSector) { // Hits a ceiling / floor
@@ -991,9 +979,9 @@ void animateobjs(PLAYER& plr) {
 
 			if (spr.picnum == MONSTERBALL) {
 				if (actor->GetPlayerOwner() == plr.playerNum())
-					explosion2(i, spr.x, spr.y, spr.z, i);
+					explosion2(actor, spr.x, spr.y, spr.z, i);
 				else
-					explosion(i, spr.x, spr.y, spr.z, i);
+					explosion(actor, spr.x, spr.y, spr.z, i);
 			}
 			if (spr.picnum == THROWPIKE) {
 				spr.picnum++;
@@ -1010,9 +998,9 @@ void animateobjs(PLAYER& plr) {
 		if (moveStat.type == kHitSprite) { // Bullet hit a sprite
 			if (spr.picnum == MONSTERBALL) {
 				if (actor->GetPlayerOwner() == plr.playerNum())
-					explosion2(i, spr.x, spr.y, spr.z, i);
+					explosion2(actor, spr.x, spr.y, spr.z, i);
 				else
-					explosion(i, spr.x, spr.y, spr.z, i);
+					explosion(actor, spr.x, spr.y, spr.z, i);
 			}
 
 			if (actor->GetOwner() != moveStat.actor)

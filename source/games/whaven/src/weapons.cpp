@@ -888,10 +888,9 @@ void madenoise(PLAYER& plr, int val, int x, int y, int z) {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		int i = actor->GetSpriteIndex();
 
 		if ((abs(x - spr.x) + abs(y - spr.y) < (val * 4096)))
-			newstatus(i, FINDME);
+			SetNewStatus(actor, FINDME);
 	}
 }
 
@@ -1048,7 +1047,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 
 				if (isWh2() && plr.currweapon == 3)
 					if (plr.weapon[plr.currweapon] == 3) {
-						explosion(pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity, pHitInfo.hitz, 4096);
+						explosion(hitActor, pHitInfo.hitx, pHitInfo.hity, pHitInfo.hitz, 4096);
 					}
 
 				if (plr.invisibletime > 0) {
@@ -1617,11 +1616,11 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 								|| hitspr.picnum == SKELETONDIE)
 							spritesound(S_SKELHIT1 + (krand() % 2), hitActor);
 					}
-					newstatus(pHitInfo.hitsprite, DIE);
+					SetNewStatus(hitActor, DIE);
 				}
 				hitspr.ang = plr.angle.ang.asbuild() + ((krand() & 32) - 64);
 				if (hitspr.hitag > 0)
-					newstatus(pHitInfo.hitsprite, PAIN);
+					SetNewStatus(hitActor, PAIN);
 				break;
 			} // switch enemytype
 
@@ -1650,7 +1649,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 						icecubes(pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity, pHitInfo.hitz,
 								pHitInfo.hitsprite);
 					addscore(&plr, 100);
-					deletesprite((short) pHitInfo.hitsprite);
+					DeleteActor(hitActor);
 				}
 				break;
 			} // switch frozen
@@ -1672,7 +1671,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 			case VASEB:
 			case VASEC:
 
-				newstatus(pHitInfo.hitsprite, BROKENVASE);
+				SetNewStatus(hitActor, BROKENVASE);
 				break;
 			} // switch
 		} // if weapondist
@@ -1701,8 +1700,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 			}
 
 			Neartag ntag;
-			neartag(pHitInfo.hitx, pHitInfo.hity, pHitInfo.hitz, (short) pHitInfo.hitsect, (short) daang,
-					ntag, 1024, 3);
+			neartag(pHitInfo.hitx, pHitInfo.hity, pHitInfo.hitz, pHitInfo.hitsect, daang, ntag, 1024, 3);
 
 			if (ntag.tagsector < 0) {
 				auto spawnedactor = InsertActor(pHitInfo.hitsect, (short) 0);
@@ -1814,14 +1812,14 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 					hitspr.hitag -= (krand() & 15) + 15;
 
 				if (hitspr.hitag <= 0) {
-					newstatus(pHitInfo.hitsprite, DIE);
+					SetNewStatus(hitActor, DIE);
 					if (hitspr.picnum == RAT)
 						chunksofmeat(plr, hitActor, pHitInfo.hitx, pHitInfo.hity, pHitInfo.hitz,
 								pHitInfo.hitsect, daang);
 				} else {
 					hitspr.ang = (short) (getangle(plr.x - hitspr.x,
 							plr.y - hitspr.y) & 2047);
-					newstatus(pHitInfo.hitsprite, PAIN);
+					SetNewStatus(hitActor, PAIN);
 				}
 				break;
 			}
@@ -1851,7 +1849,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 					for (k = 0; k < 32; k++)
 						icecubes(pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity, pHitInfo.hitz,
 								pHitInfo.hitsprite);
-					deletesprite((short) pHitInfo.hitsprite);
+					DeleteActor(hitActor);
 				}
 			} // switch frozen
 
@@ -1872,7 +1870,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 			case VASEA:
 			case VASEB:
 			case VASEC:
-				newstatus(pHitInfo.hitsprite, BROKENVASE);
+				SetNewStatus(hitActor, BROKENVASE);
 				break;
 			} // switch
 		}

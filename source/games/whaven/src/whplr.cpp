@@ -264,20 +264,21 @@ void plruse(PLAYER& plr) {
 			spritesound(S_PUSH1 + (krand() % 2), plr.actor());
 		}
 	}
-	if (nt.tagsprite >= 0) {
-		if (sprite[nt.tagsprite].lotag == 1) {
-			if(sprite[nt.tagsprite].picnum == PULLCHAIN1 || sprite[nt.tagsprite].picnum == SKULLPULLCHAIN1) {
-				sprite[nt.tagsprite].lotag = 0;
-				newstatus(nt.tagsprite, PULLTHECHAIN);
-			} else if(sprite[nt.tagsprite].picnum == LEVERUP) {
-				sprite[nt.tagsprite].lotag = 0;
-				newstatus(nt.tagsprite, ANIMLEVERUP);
+	if (nt.tagactor != nullptr) {
+		auto& spr = nt.tagactor->s();
+		if (spr.lotag == 1) {
+			if(spr.picnum == PULLCHAIN1 || spr.picnum == SKULLPULLCHAIN1) {
+				spr.lotag = 0;
+				SetNewStatus(nt.tagactor, PULLTHECHAIN);
+			} else if(spr.picnum == LEVERUP) {
+				spr.lotag = 0;
+				SetNewStatus(nt.tagactor, ANIMLEVERUP);
 			}
 			for (int i = 0; i < numsectors; i++)
-				if (sector[i].hitag == sprite[nt.tagsprite].hitag)
+				if (sector[i].hitag == spr.hitag)
 					operatesector(plr, i);
 		} else
-			operatesprite(plr, nt.tagsprite);
+			operatesprite(plr, nt.tagactor->GetSpriteIndex());
 	}
 }
 
