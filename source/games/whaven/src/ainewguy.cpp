@@ -81,7 +81,7 @@ static void chasenewguy(PLAYER& plr, DWHActor* actor)
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
 	spr.z = zr_florz;
 
-	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
+	if ((spr.sectnum != osectnum) && (spr.sector()->lotag == 10))
 		warpsprite(actor);
 
 	if (checksector6(actor))
@@ -97,8 +97,8 @@ static void chasenewguy(PLAYER& plr, DWHActor* actor)
 
 	SetActorPos(actor, &spr.pos);
 
-	if (zr_florHit.type == kHitSector && (sector[spr.sectnum].floorpicnum == LAVA
-		|| sector[spr.sectnum].floorpicnum == LAVA1 || sector[spr.sectnum].floorpicnum == ANILAVA)) {
+	if (zr_florHit.type == kHitSector && (spr.sector()->floorpicnum == LAVA
+		|| spr.sector()->floorpicnum == LAVA1 || spr.sector()->floorpicnum == ANILAVA)) {
 		spr.hitag--;
 		if (spr.hitag < 0)
 			SetNewStatus(actor, DIE);
@@ -152,7 +152,7 @@ static void skirmishnewguy(PLAYER& plr, DWHActor* actor)
 		spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
 		SetNewStatus(actor, FACE);
 	}
-	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
+	if ((spr.sectnum != osectnum) && (spr.sector()->lotag == 10))
 		warpsprite(actor);
 
 	processfluid(actor, zr_florHit, false);
@@ -251,7 +251,7 @@ static void fleenewguy(PLAYER& plr, DWHActor* actor)
 	if (spr.lotag < 0)
 		SetNewStatus(actor, FACE);
 
-	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
+	if ((spr.sectnum != osectnum) && (spr.sector()->lotag == 10))
 		warpsprite(actor);
 
 	if (checksector6(actor))

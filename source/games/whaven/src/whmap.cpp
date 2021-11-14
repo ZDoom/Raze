@@ -278,10 +278,10 @@ boolean prepareboard(const char* fname) {
 			spr.cstat |= 0x8000;
 			spr.clipdist = 4;
 			ChangeActorStat(actor,  0);
-			sector[spr.sectnum].lotag = 50;
-			sector[spr.sectnum].hitag = spr.hitag;
-			if (sector[spr.sectnum].hitag == 0)
-				sector[spr.sectnum].hitag = 1;
+			spr.sector()->lotag = 50;
+			spr.sector()->hitag = spr.hitag;
+			if (spr.sector()->hitag == 0)
+				spr.sector()->hitag = 1;
 		}
 
 		if ((spr.cstat & (16 + 32)) == (16 + 32))
@@ -311,17 +311,17 @@ boolean prepareboard(const char* fname) {
 		}
 
 		if (spr.picnum == SNDEFFECT) {
-			sector[spr.sectnum].extra = spr.lotag;
+			spr.sector()->extra = spr.lotag;
 			DeleteActor(actor);
 		}
 
 		if (spr.picnum == SNDLOOP) { // loop on
-			sector[spr.sectnum].extra = (short) (32768 | (spr.lotag << 1) | 1);
+			spr.sector()->extra = (short) (32768 | (spr.lotag << 1) | 1);
 			DeleteActor(actor);
 		}
 
 		if (spr.picnum == SNDLOOPOFF) { // loop off
-			sector[spr.sectnum].extra = (short) (32768 | (spr.lotag << 1));
+			spr.sector()->extra = (short) (32768 | (spr.lotag << 1));
 			DeleteActor(actor);
 		}
 

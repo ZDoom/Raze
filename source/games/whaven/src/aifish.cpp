@@ -55,7 +55,7 @@ static void chasefish(PLAYER& plr, DWHActor* actor)
 	}
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
-	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
+	if ((spr.sectnum != osectnum) && (spr.sector()->lotag == 10))
 		warpsprite(actor);
 
 	if (checksector6(actor))
@@ -71,8 +71,8 @@ static void chasefish(PLAYER& plr, DWHActor* actor)
 
 	SetActorPos(actor, &spr.pos);
 
-	if (zr_florHit.type == kHitSector && (sector[spr.sectnum].floorpicnum == LAVA
-		|| sector[spr.sectnum].floorpicnum == LAVA1 || sector[spr.sectnum].floorpicnum == ANILAVA)) {
+	if (zr_florHit.type == kHitSector && (spr.sector()->floorpicnum == LAVA
+		|| spr.sector()->floorpicnum == LAVA1 || spr.sector()->floorpicnum == ANILAVA)) {
 		spr.hitag--;
 		if (spr.hitag < 0)
 			SetNewStatus(actor, DIE);
@@ -89,7 +89,7 @@ static void attackfish(PLAYER& plr, DWHActor* actor)
 	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
-	spr.z = sector[spr.sectnum].floorz;
+	spr.z = spr.sector()->floorz;
 
 	switch (checkfluid(i, zr_florHit)) {
 	case TYPELAVA:
@@ -135,7 +135,7 @@ static void skirmishfish(PLAYER& plr, DWHActor* actor)
 		spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
 		SetNewStatus(actor, FACE);
 	}
-	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
+	if ((spr.sectnum != osectnum) && (spr.sector()->lotag == 10))
 		warpsprite(actor);
 
 	processfluid(actor, zr_florHit, false);

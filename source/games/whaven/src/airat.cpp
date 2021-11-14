@@ -64,7 +64,7 @@ static void fleerat(PLAYER& plr, DWHActor* actor)
 		SetNewStatus(actor, FACE);
 	}
 
-	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
+	if ((spr.sectnum != osectnum) && (spr.sector()->lotag == 10))
 		warpsprite(actor);
 
 
@@ -80,9 +80,9 @@ static void fleerat(PLAYER& plr, DWHActor* actor)
 	//					break;
 	//				}
 
-	if (zr_florHit.type == kHitSector && (sector[spr.sectnum].floorpicnum == LAVA
-		|| sector[spr.sectnum].floorpicnum == LAVA2
-		|| sector[spr.sectnum].floorpicnum == LAVA1 || sector[spr.sectnum].floorpicnum == ANILAVA)) {
+	if (zr_florHit.type == kHitSector && (spr.sector()->floorpicnum == LAVA
+		|| spr.sector()->floorpicnum == LAVA2
+		|| spr.sector()->floorpicnum == LAVA1 || spr.sector()->floorpicnum == ANILAVA)) {
 		spr.hitag--;
 		if (spr.hitag < 0)
 			SetNewStatus(actor, DIE);

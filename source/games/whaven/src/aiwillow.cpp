@@ -21,7 +21,7 @@ static void chasewillow(PLAYER& plr, DWHActor* actor)
 		return;
 	}
 	else {
-		//spr.z = sector[spr.sectnum].floorz - (32 << 8);
+		//spr.z = spr.sector()->floorz - (32 << 8);
 		int dax = (bcos(spr.ang) * TICSPERFRAME) << 3;
 		int day = (bsin(spr.ang) * TICSPERFRAME) << 3;
 		checksight(plr, actor);
@@ -40,7 +40,7 @@ static void chasewillow(PLAYER& plr, DWHActor* actor)
 	}
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
-	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
+	if ((spr.sectnum != osectnum) && (spr.sector()->lotag == 10))
 		warpsprite(actor);
 
 	if (spr.z > zr_florz)
@@ -61,8 +61,8 @@ static void chasewillow(PLAYER& plr, DWHActor* actor)
 
 	SetActorPos(actor, &spr.pos);
 
-	if (zr_florHit.type == kHitSector && (sector[spr.sectnum].floorpicnum == LAVA
-		|| sector[spr.sectnum].floorpicnum == LAVA1 || sector[spr.sectnum].floorpicnum == ANILAVA)) {
+	if (zr_florHit.type == kHitSector && (spr.sector()->floorpicnum == LAVA
+		|| spr.sector()->floorpicnum == LAVA1 || spr.sector()->floorpicnum == ANILAVA)) {
 		spr.hitag--;
 		if (spr.hitag < 0)
 			SetNewStatus(actor, DIE);
@@ -200,7 +200,7 @@ static void fleewillow(PLAYER& plr, DWHActor* actor)
 	if (spr.lotag < 0)
 		SetNewStatus(actor, FACE);
 
-	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
+	if ((spr.sectnum != osectnum) && (spr.sector()->lotag == 10))
 		warpsprite(actor);
 
 	if (checksector6(actor))

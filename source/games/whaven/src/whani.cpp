@@ -551,32 +551,32 @@ void animateobjs(PLAYER& plr) {
 			
 			spr.z -= (TICSPERFRAME << 6);
 			SetActorPos(actor, &spr.pos);
-			if (spr.z <= sector[spr.sectnum].ceilingz + 32768) {
+			if (spr.z <= spr.sector()->ceilingz + 32768) {
 				soundEngine->StopSound(CHAN_CART);
 				spritesound(S_CLUNK, &spr);
 				ChangeActorStat(actor, 0);
 				spr.lotag = 1820;
-				spr.z = sector[spr.sectnum].ceilingz + 32768;
+				spr.z = spr.sector()->ceilingz + 32768;
 			}
 			break;
 		case 1811:
 			
 			spr.z -= (TICSPERFRAME << 6);
 			SetActorPos(actor, &spr.pos);
-			if (spr.z <= sector[spr.sectnum].ceilingz + 65536) {
+			if (spr.z <= spr.sector()->ceilingz + 65536) {
 				ChangeActorStat(actor, 0);
 				spr.lotag = 1810;
-				spr.z = sector[spr.sectnum].ceilingz + 65536;
+				spr.z = spr.sector()->ceilingz + 65536;
 			}
 			break;
 		case 1801:
 			
 			spr.z -= (TICSPERFRAME << 6);
 			SetActorPos(actor, &spr.pos);
-			if (spr.z <= sector[spr.sectnum].ceilingz + 65536) {
+			if (spr.z <= spr.sector()->ceilingz + 65536) {
 				ChangeActorStat(actor, 0);
 				spr.lotag = 1800;
-				spr.z = sector[spr.sectnum].ceilingz + 65536;
+				spr.z = spr.sector()->ceilingz + 65536;
 			}
 			break;
 		}
@@ -597,22 +597,22 @@ void animateobjs(PLAYER& plr) {
 			ironbarmove = TICSPERFRAME << 6;
 			spr.z += ironbarmove;
 			SetActorPos(actor, &spr.pos);
-			if (spr.z >= (sector[spr.sectnum].floorz - 32768)) {
+			if (spr.z >= (spr.sector()->floorz - 32768)) {
 				soundEngine->StopSound(CHAN_CART);
 				spritesound(S_CLUNK, &spr);
 				ChangeActorStat(actor, 0);
 				spr.lotag = 1821;
-				spr.z = sector[spr.sectnum].floorz - 32768;
+				spr.z = spr.sector()->floorz - 32768;
 			}
 			break;
 		case 1810:
 			ironbarmove = TICSPERFRAME << 6;
 			spr.z += ironbarmove;
 			SetActorPos(actor, &spr.pos);
-			if (spr.z >= sector[spr.sectnum].floorz) {
+			if (spr.z >= spr.sector()->floorz) {
 				ChangeActorStat(actor, 0);
 				spr.lotag = 1811;
-				spr.z = sector[spr.sectnum].floorz;
+				spr.z = spr.sector()->floorz;
 			}
 			break;
 		case 1800:
@@ -620,10 +620,10 @@ void animateobjs(PLAYER& plr) {
 			ironbarmove = TICSPERFRAME << 6;
 			spr.z += ironbarmove;
 			SetActorPos(actor, &spr.pos);
-			if (spr.z >= sector[spr.sectnum].floorz) {
+			if (spr.z >= spr.sector()->floorz) {
 				ChangeActorStat(actor, 0);
 				spr.lotag = 1801;
-				spr.z = sector[spr.sectnum].floorz;
+				spr.z = spr.sector()->floorz;
 			}
 			break;
 		}
@@ -637,7 +637,7 @@ void animateobjs(PLAYER& plr) {
 		int i = actor->GetSpriteIndex();
 
 		spr.lotag -= TICSPERFRAME;
-		spr.z = sector[spr.sectnum].floorz + (tileHeight(spr.picnum) << 8);
+		spr.z = spr.sector()->floorz + (tileHeight(spr.picnum) << 8);
 		SetActorPos(actor, &spr.pos);
 
 		if (spr.lotag <= 0) {
@@ -681,10 +681,10 @@ void animateobjs(PLAYER& plr) {
 
 		spr.lotag -= TICSPERFRAME;
 
-		if (spr.z < sector[spr.sectnum].floorz)
+		if (spr.z < spr.sector()->floorz)
 			spr.z += (int) TICSPERFRAME << 8;
-		if (spr.z > sector[spr.sectnum].floorz)
-			spr.z = sector[spr.sectnum].floorz;
+		if (spr.z > spr.sector()->floorz)
+			spr.z = spr.sector()->floorz;
 
 		if (spr.lotag < 0) {
 			switch (spr.picnum) {
@@ -728,7 +728,7 @@ void animateobjs(PLAYER& plr) {
 		}
 
 		if (moveStat.type == kHitSector) {
-			if (sector[spr.sectnum].floorpicnum == WATER) {
+			if (spr.sector()->floorpicnum == WATER) {
 				makemonstersplash(SPLASHAROO, i);
 			}
 			switch (spr.picnum) {
@@ -767,9 +767,9 @@ void animateobjs(PLAYER& plr) {
 
 		SetActorPos(actor, &spr.pos);
 
-		if (spr.z >= sector[spr.sectnum].floorz) {
-			if (sector[spr.sectnum].floorpicnum == WATER
-					|| sector[spr.sectnum].floorpicnum == FLOORMIRROR) {
+		if (spr.z >= spr.sector()->floorz) {
+			if (spr.sector()->floorpicnum == WATER
+					|| spr.sector()->floorpicnum == FLOORMIRROR) {
 				makemonstersplash(SPLASHAROO, i);
 			}
 			SetNewStatus(actor, BROKENVASE);
@@ -819,7 +819,7 @@ void animateobjs(PLAYER& plr) {
 		if (spr.lotag < 0 || moveStat.type == kHitWall) {
 			spr.lotag = 0;
 			ChangeActorStat(actor, 0);
-			if (spr.z < sector[spr.sectnum].floorz) {
+			if (spr.z < spr.sector()->floorz) {
 				spr.zvel += 256L;
 				ChangeActorStat(actor, FALL);
 			}
@@ -923,16 +923,16 @@ void animateobjs(PLAYER& plr) {
 					trailingsmoke(actor,false);
 			}
 			spr.z += spr.zvel;
-			if (spr.z < sector[spr.sectnum].ceilingz + (4 << 8)) {
-				spr.z = sector[spr.sectnum].ceilingz + (4 << 8);
+			if (spr.z < spr.sector()->ceilingz + (4 << 8)) {
+				spr.z = spr.sector()->ceilingz + (4 << 8);
 				spr.zvel = (short) -(spr.zvel >> 1);
 			}
-			if (spr.z > sector[spr.sectnum].floorz - (4 << 8)) {
-				spr.z = sector[spr.sectnum].floorz - (4 << 8);
-				if (sector[spr.sectnum].floorpicnum == WATER || sector[spr.sectnum].floorpicnum == SLIME
-						|| sector[spr.sectnum].floorpicnum == FLOORMIRROR)
+			if (spr.z > spr.sector()->floorz - (4 << 8)) {
+				spr.z = spr.sector()->floorz - (4 << 8);
+				if (spr.sector()->floorpicnum == WATER || spr.sector()->floorpicnum == SLIME
+						|| spr.sector()->floorpicnum == FLOORMIRROR)
 					if (spr.picnum == FISH)
-						spr.z = sector[spr.sectnum].floorz;
+						spr.z = spr.sector()->floorz;
 					else {
 						if (krand() % 100 > 60)
 							makemonstersplash(SPLASHAROO, i);
@@ -1051,14 +1051,14 @@ void animateobjs(PLAYER& plr) {
 		spr.lotag -= TICSPERFRAME;
 		if (isBlades(spr.picnum)) {
 			spr.z -= spr.zvel;
-			if (spr.z < sector[spr.sectnum].ceilingz + (4 << 8)) {
-				spr.z = sector[spr.sectnum].ceilingz + (4 << 8);
+			if (spr.z < spr.sector()->ceilingz + (4 << 8)) {
+				spr.z = spr.sector()->ceilingz + (4 << 8);
 				spr.zvel = (short) -(spr.zvel >> 1);
 			}
-			if (spr.z > sector[spr.sectnum].floorz - (4 << 8)) {
-				spr.z = sector[spr.sectnum].floorz - (4 << 8);
-				if (sector[spr.sectnum].floorpicnum == WATER || sector[spr.sectnum].floorpicnum == SLIME
-						|| sector[spr.sectnum].floorpicnum == FLOORMIRROR)
+			if (spr.z > spr.sector()->floorz - (4 << 8)) {
+				spr.z = spr.sector()->floorz - (4 << 8);
+				if (spr.sector()->floorpicnum == WATER || spr.sector()->floorpicnum == SLIME
+						|| spr.sector()->floorpicnum == FLOORMIRROR)
 					if (krand() % 100 > 60)
 						makemonstersplash(SPLASHAROO, i);
 				DeleteActor(actor);
@@ -1092,8 +1092,8 @@ void animateobjs(PLAYER& plr) {
 			// floor/ceiling hit rather than a sprite hit, we'll need to check if the JAVLIN
 			// is
 			// actually in the floor/ceiling before going inactive.
-			if (spr.z <= sector[spr.sectnum].ceilingz
-					&& spr.z >= sector[spr.sectnum].floorz) {
+			if (spr.z <= spr.sector()->ceilingz
+					&& spr.z >= spr.sector()->floorz) {
 				if (spr.picnum == THROWPIKE) {
 					spr.picnum++;
 					spr.detail = WALLPIKETYPE;
@@ -1187,10 +1187,10 @@ void animateobjs(PLAYER& plr) {
 		moveStat = movesprite(actor, xvel, yvel, daz, 4 << 8, 4 << 8, 1);
 
 		if (moveStat.type == kHitSector) {
-			if (sector[spr.sectnum].floorpicnum == WATER || sector[spr.sectnum].floorpicnum == SLIME
-					|| sector[spr.sectnum].floorpicnum == FLOORMIRROR) {
+			if (spr.sector()->floorpicnum == WATER || spr.sector()->floorpicnum == SLIME
+					|| spr.sector()->floorpicnum == FLOORMIRROR) {
 				if (spr.picnum == FISH)
-					spr.z = sector[spr.sectnum].floorz;
+					spr.z = spr.sector()->floorz;
 				else {
 					if (krand() % 100 > 60)
 						makemonstersplash(SPLASHAROO, i);
@@ -1199,7 +1199,7 @@ void animateobjs(PLAYER& plr) {
 			} else {
 				/* EG: Add check for parallax sky */
 				if (spr.picnum >= BONECHUNK1 && spr.picnum <= BONECHUNKEND
-						|| (daz >= zr_ceilz && (sector[spr.sectnum].ceilingstat & 1) != 0)) {
+						|| (daz >= zr_ceilz && (spr.sector()->ceilingstat & 1) != 0)) {
 					DeleteActor(actor);
 				} else {
 					spr.cstat |= 0x0020;
@@ -1228,7 +1228,7 @@ void animateobjs(PLAYER& plr) {
 
 		spr.lotag -= TICSPERFRAME;
 		if (spr.lotag < 0) {
-			if (spr.z < sector[spr.sectnum].floorz) {
+			if (spr.z < spr.sector()->floorz) {
 				spr.lotag = 600;
 				spr.zvel = 0;
 				SetNewStatus(actor, DRIP);
@@ -1315,12 +1315,12 @@ void animateobjs(PLAYER& plr) {
 
 			spr.zvel += (TICSPERFRAME << 4);
 
-			if (spr.z < sector[spr.sectnum].ceilingz + (4 << 8)) {
-				spr.z = sector[spr.sectnum].ceilingz + (4 << 8);
+			if (spr.z < spr.sector()->ceilingz + (4 << 8)) {
+				spr.z = spr.sector()->ceilingz + (4 << 8);
 				spr.zvel = (short) -(spr.zvel >> 1);
 			}
-			if (spr.z > sector[spr.sectnum].floorz - (4 << 8)) {
-				spr.z = sector[spr.sectnum].floorz - (4 << 8);
+			if (spr.z > spr.sector()->floorz - (4 << 8)) {
+				spr.z = spr.sector()->floorz - (4 << 8);
 				spr.zvel = (short) -(spr.zvel >> 1);
 			}
 
@@ -1458,12 +1458,12 @@ void animateobjs(PLAYER& plr) {
 
 			// spr.z+=spr.zvel;
 			spr.zvel += (TICSPERFRAME << 5);
-			if (spr.z < sector[spr.sectnum].ceilingz + (4 << 8)) {
-				spr.z = sector[spr.sectnum].ceilingz + (4 << 8);
+			if (spr.z < spr.sector()->ceilingz + (4 << 8)) {
+				spr.z = spr.sector()->ceilingz + (4 << 8);
 				spr.zvel = (short) -(spr.zvel >> 1);
 			}
-			if (spr.z > sector[spr.sectnum].floorz - (4 << 8) && spr.picnum != EXPLOSION) {
-				spr.z = sector[spr.sectnum].floorz - (4 << 8);
+			if (spr.z > spr.sector()->floorz - (4 << 8) && spr.picnum != EXPLOSION) {
+				spr.z = spr.sector()->floorz - (4 << 8);
 				spr.zvel = 0;
 				spr.lotag = 4;
 			}
@@ -1474,7 +1474,7 @@ void animateobjs(PLAYER& plr) {
 			SetActorPos(actor, &spr.pos);
 		}
 
-		if (spr.picnum == ICECUBE && spr.z < sector[spr.sectnum].floorz) {
+		if (spr.picnum == ICECUBE && spr.z < spr.sector()->floorz) {
 			spr.z += spr.zvel;
 
 			daz = spr.zvel += TICSPERFRAME << 4;
@@ -1492,15 +1492,15 @@ void animateobjs(PLAYER& plr) {
 				continue;
 			}
 
-		if (spr.z + (8 << 8) >= sector[spr.sectnum].floorz && spr.picnum == ICECUBE
+		if (spr.z + (8 << 8) >= spr.sector()->floorz && spr.picnum == ICECUBE
 				|| moveStat.type != kHitNone)
 		{
-			spr.z = sector[spr.sectnum].floorz;
+			spr.z = spr.sector()->floorz;
 			ChangeActorStat(actor, 0);
-			if (sector[spr.sectnum].floorpicnum == WATER || sector[spr.sectnum].floorpicnum == SLIME
-					|| sector[spr.sectnum].floorpicnum == FLOORMIRROR) {
+			if (spr.sector()->floorpicnum == WATER || spr.sector()->floorpicnum == SLIME
+					|| spr.sector()->floorpicnum == FLOORMIRROR) {
 				if (spr.picnum == FISH)
-					spr.z = sector[spr.sectnum].floorz;
+					spr.z = spr.sector()->floorz;
 				else {
 					if (krand() % 100 > 60) {
 						makemonstersplash(SPLASHAROO, i);

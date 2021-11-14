@@ -1350,16 +1350,16 @@ void newstatus(short sn, int seq) {
 		spr.z = zr_florz;
 
 		if (zr_florHit.type == kHitSector) {
-			if (spr.sectnum != MAXSECTORS && (sector[spr.sectnum].floorpicnum == WATER
-					|| sector[spr.sectnum].floorpicnum == SLIME)) {
+			if (spr.sectnum != MAXSECTORS && (spr.sector()->floorpicnum == WATER
+					|| spr.sector()->floorpicnum == SLIME)) {
 				if (spr.picnum == MINOTAURDEAD) {
 					spr.z += (8 << 8);
 					setsprite(sn, spr.x, spr.y, spr.z);
 				}
 			}
-			if (spr.sectnum != MAXSECTORS && (sector[spr.sectnum].floorpicnum == LAVA
-					|| sector[spr.sectnum].floorpicnum == LAVA1
-					|| sector[spr.sectnum].floorpicnum == LAVA2)) {
+			if (spr.sectnum != MAXSECTORS && (spr.sector()->floorpicnum == LAVA
+					|| spr.sector()->floorpicnum == LAVA1
+					|| spr.sector()->floorpicnum == LAVA2)) {
 				trailingsmoke(actor, true);
 				DeleteActor(actor);
 			}
@@ -1509,7 +1509,7 @@ void icecubes(int i, int x, int y, int z, int owner) {
 	spawned.x = x;
 	spawned.y = y;
 
-	spawned.z = sector[spr.sectnum].floorz - (getPlayerHeight() << 8) + (krand() & 4096);
+	spawned.z = spr.sector()->floorz - (getPlayerHeight() << 8) + (krand() & 4096);
 
 	spawned.cstat = 0; // Hitscan does not hit smoke on wall
 	spawned.picnum = ICECUBE;

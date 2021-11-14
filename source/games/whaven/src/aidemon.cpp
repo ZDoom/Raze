@@ -49,7 +49,7 @@ static void chasedemon(PLAYER& plr, DWHActor* actor)
 	}
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
-	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
+	if ((spr.sectnum != osectnum) && (spr.sector()->lotag == 10))
 		warpsprite(actor);
 
 	checksector6(actor);
@@ -64,8 +64,8 @@ static void chasedemon(PLAYER& plr, DWHActor* actor)
 
 	SetActorPos(actor, &spr.pos);
 
-	if (zr_florHit.type == kHitSector && (sector[spr.sectnum].floorpicnum == LAVA
-		|| sector[spr.sectnum].floorpicnum == LAVA1 || sector[spr.sectnum].floorpicnum == ANILAVA)) {
+	if (zr_florHit.type == kHitSector && (spr.sector()->floorpicnum == LAVA
+		|| spr.sector()->floorpicnum == LAVA1 || spr.sector()->floorpicnum == ANILAVA)) {
 		if (spr.z + (8 << 8) >= sector[osectnum].floorz) {
 			spr.hitag--;
 			if (spr.hitag < 0)
@@ -172,7 +172,7 @@ static void fleedemon(PLAYER& plr, DWHActor* actor)
 	if (spr.lotag < 0)
 		SetNewStatus(actor, FACE);
 
-	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
+	if ((spr.sectnum != osectnum) && (spr.sector()->lotag == 10))
 		warpsprite(actor);
 
 	if (checksector6(actor))

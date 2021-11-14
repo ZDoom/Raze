@@ -45,7 +45,7 @@ static void chasefatwitch(PLAYER& plr, DWHActor* actor)
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
 	spr.z = zr_florz;
 
-	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
+	if ((spr.sectnum != osectnum) && (spr.sector()->lotag == 10))
 		warpsprite(actor);
 
 	if (checksector6(actor))
@@ -196,7 +196,7 @@ static void fleefatwitch(PLAYER& plr, DWHActor* actor)
 	if (spr.lotag < 0)
 		SetNewStatus(actor, FACE);
 
-	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
+	if ((spr.sectnum != osectnum) && (spr.sector()->lotag == 10))
 		warpsprite(actor);
 
 	if (checksector6(actor))
@@ -261,7 +261,7 @@ static void throwspank(PLAYER& plr, DWHActor* actor)
 
 	spawned.x = spr.x;
 	spawned.y = spr.y;
-	spawned.z = sector[spr.sectnum].floorz - ((tileHeight(spr.picnum) >> 1) << 8);
+	spawned.z = spr.sector()->floorz - ((tileHeight(spr.picnum) >> 1) << 8);
 	spawned.cstat = 0; // Hitscan does not hit other bullets
 	spawned.picnum = FATSPANK;
 	spawned.shade = -15;

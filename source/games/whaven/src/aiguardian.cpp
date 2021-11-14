@@ -45,7 +45,7 @@ static void chaseguardian(PLAYER& plr, DWHActor* actor)
 	}
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
-	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
+	if ((spr.sectnum != osectnum) && (spr.sector()->lotag == 10))
 		warpsprite(actor);
 
 	if (checksector6(actor))
@@ -64,8 +64,8 @@ static void chaseguardian(PLAYER& plr, DWHActor* actor)
 	if (!isValidSector(spr.sectnum))
 		return;
 
-	if (zr_florHit.type == kHitSector && (sector[spr.sectnum].floorpicnum == LAVA
-		|| sector[spr.sectnum].floorpicnum == LAVA1 || sector[spr.sectnum].floorpicnum == ANILAVA)) {
+	if (zr_florHit.type == kHitSector && (spr.sector()->floorpicnum == LAVA
+		|| spr.sector()->floorpicnum == LAVA1 || spr.sector()->floorpicnum == ANILAVA)) {
 		spr.hitag--;
 		if (spr.hitag < 0)
 			SetNewStatus(actor, DIE);
@@ -182,7 +182,7 @@ static void fleeguardian(PLAYER& plr, DWHActor* actor)
 	if (spr.lotag < 0)
 		SetNewStatus(actor, FACE);
 
-	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
+	if ((spr.sectnum != osectnum) && (spr.sector()->lotag == 10))
 		warpsprite(actor);
 
 	if (checksector6(actor))

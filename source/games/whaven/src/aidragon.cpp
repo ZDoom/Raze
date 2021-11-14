@@ -52,7 +52,7 @@ static void chasedragon(PLAYER& plr, DWHActor* actor)
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
 	spr.z = zr_florz;
 
-	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
+	if ((spr.sectnum != osectnum) && (spr.sector()->lotag == 10))
 		warpsprite(actor);
 
 	if (checksector6(actor))
@@ -93,7 +93,7 @@ static void fleedragon(PLAYER& plr, DWHActor* actor)
 	if (spr.lotag < 0)
 		SetNewStatus(actor, FACE);
 
-	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
+	if ((spr.sectnum != osectnum) && (spr.sector()->lotag == 10))
 		warpsprite(actor);
 
 	if (checksector6(actor))
@@ -349,9 +349,9 @@ static void firebreath(PLAYER& plr, int i, int a, int b, int c)
 		spawned.x = spr.x;
 		spawned.y = spr.y;
 		if (c == LOW)
-			spawned.z = sector[spr.sectnum].floorz - (32 << 8);
+			spawned.z = spr.sector()->floorz - (32 << 8);
 		else
-			spawned.z = sector[spr.sectnum].floorz - (tileHeight(spr.picnum) << 7);
+			spawned.z = spr.sector()->floorz - (tileHeight(spr.picnum) << 7);
 		spawned.cstat = 0;
 		spawned.picnum = MONSTERBALL;
 		spawned.shade = -15;

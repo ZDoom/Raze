@@ -538,7 +538,7 @@ void aisearch(PLAYER& plr, DWHActor* actor, boolean fly) {
 		return;
 	}
 
-	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
+	if ((spr.sectnum != osectnum) && (spr.sector()->lotag == 10))
 		warpsprite(actor);
 
 	processfluid(actor, zr_florHit, fly);
@@ -548,8 +548,8 @@ void aisearch(PLAYER& plr, DWHActor* actor, boolean fly) {
 
 boolean checksector6(DWHActor* actor) {
 	SPRITE& spr = actor->s();
-	if (sector[spr.sectnum].floorz - (32 << 8) < sector[spr.sectnum].ceilingz) {
-		if (sector[spr.sectnum].lotag == 6)
+	if (spr.sector()->floorz - (32 << 8) < spr.sector()->ceilingz) {
+		if (spr.sector()->lotag == 6)
 			SetNewStatus(actor, DIE);
 		else {
 			DeleteActor(actor);
@@ -562,15 +562,15 @@ boolean checksector6(DWHActor* actor) {
 
 int checkfluid(int i, Collision& florHit) {
 	SPRITE& spr = sprite[i];
-	if (isValidSector(spr.sectnum) && florHit.type == kHitSector && (sector[spr.sectnum].floorpicnum == WATER
-		/* || sector[spr.sectnum].floorpicnum == LAVA2 */ || sector[spr.sectnum].floorpicnum == LAVA
-		|| sector[spr.sectnum].floorpicnum == SLIME || sector[spr.sectnum].floorpicnum == FLOORMIRROR
+	if (isValidSector(spr.sectnum) && florHit.type == kHitSector && (spr.sector()->floorpicnum == WATER
+		/* || spr.sector()->floorpicnum == LAVA2 */ || spr.sector()->floorpicnum == LAVA
+		|| spr.sector()->floorpicnum == SLIME || spr.sector()->floorpicnum == FLOORMIRROR
 		/*
-		 * || sector[spr.sectnum].floorpicnum == LAVA1 ||
-		 * sector[spr.sectnum].floorpicnum == ANILAVA
+		 * || spr.sector()->floorpicnum == LAVA1 ||
+		 * spr.sector()->floorpicnum == ANILAVA
 		 */)) {
-		if (sector[spr.sectnum].floorpicnum == WATER || sector[spr.sectnum].floorpicnum == SLIME
-			|| sector[spr.sectnum].floorpicnum == FLOORMIRROR) {
+		if (spr.sector()->floorpicnum == WATER || spr.sector()->floorpicnum == SLIME
+			|| spr.sector()->floorpicnum == FLOORMIRROR) {
 			return TYPEWATER;
 		}
 		else {
