@@ -16,11 +16,12 @@ int dahand = 0;
 int oweapondrop, weapondrop;
 double osnakex, osnakey, snakex, snakey;
 
-boolean checkmedusadist(int i, int x, int y, int z, int lvl) {
+boolean checkmedusadist(DWHActor* actor, int x, int y, int z, int lvl) {
+	auto& spr = actor->s();
 	int attackdist = (isWh2() ? 8192 : 1024) + (lvl << 9);
 
-	if ((abs(x - sprite[i].x) + abs(y - sprite[i].y) < attackdist)
-			&& (abs((z >> 8) - ((sprite[i].z >> 8) - (tileHeight(sprite[i].picnum) >> 1))) <= 120))
+	if ((abs(x - spr.x) + abs(y - spr.y) < attackdist)
+			&& (abs((z >> 8) - ((spr.z >> 8) - (tileHeight(spr.picnum) >> 1))) <= 120))
 		return true;
 	else
 		return false;
@@ -1012,7 +1013,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 
 		if (checkweapondist(pHitInfo.hitsprite, plr.x, plr.y, plr.z, plr.selectedgun)) {
 			madeahit = true;
-			auto& hitspr = sprite[pHitInfo.hitsprite];
+			auto& hitspr = hitActor->s();
 
 			switch (hitspr.detail) {
 
@@ -1277,7 +1278,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 							hitspr.hitag = 1;
 						}
 						if (krand() % 100 > 50)
-							medusa(plr, pHitInfo.hitsprite);
+							medusa(plr, hitActor);
 						break;
 					}
 
@@ -1484,7 +1485,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 							hitspr.hitag = 1;
 						}
 						if (krand() % 100 > 75)
-							medusa(plr, pHitInfo.hitsprite);
+							medusa(plr, hitActor);
 						break;
 					}
 
@@ -1778,8 +1779,8 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 					(bsin(spawned.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
 			spawned.backuploc();
 		}
-		if ((pHitInfo.hitsprite >= 0) && (sprite[pHitInfo.hitsprite].statnum < MAXSTATUS)) {
-			auto& hitspr = sprite[pHitInfo.hitsprite];
+		if ((hitActor != nullptr) && (hitActor->s().statnum < MAXSTATUS)) {
+			auto& hitspr = hitActor->s();
 			switch (hitspr.detail) {
 			case KURTTYPE:
 			case KATIETYPE:
@@ -1901,8 +1902,8 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 					if (cansee(plr.x, plr.y, plr.z, plr.sector, spk.x, spk.y,
 							spk.z - (tileHeight(spk.picnum) << 7), spk.sectnum)) {
 						// distance check
-						if (checkmedusadist(i, plr.x, plr.y, plr.z, plr.lvl))
-							medusa(plr, i);
+						if (checkmedusadist(itActor, plr.x, plr.y, plr.z, plr.lvl))
+							medusa(plr, itActor);
 					}
 					break;
 				}
@@ -2260,7 +2261,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 				if (cansee(plr.x, plr.y, plr.z, plr.sector, spk.x, spk.y,
 						spk.z - (tileHeight(spk.picnum) << 7), spk.sectnum))
 					if ((isWh2() && itActor->GetPlayerOwner() != plr.playerNum())
-							|| checkmedusadist(j, plr.x, plr.y, plr.z, 12))
+							|| checkmedusadist(itActor, plr.x, plr.y, plr.z, 12))
 						nukespell(plr, j);
 				break;
 			}

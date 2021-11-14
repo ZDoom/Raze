@@ -124,7 +124,7 @@ void processobjs(PLAYER& plr) {
 		dz = abs((plr.z >> 8) - (tspr.z >> 8)); // z distance to sprite
 		dh = tileHeight(tspr.picnum) >> 1; // height of sprite
 		if (dx + dy < PICKDISTANCE && dz - dh <= getPickHeight()) {
-			if(isItemSprite(actor->GetSpriteIndex())) 
+			if(isItemSprite(actor)) 
 				items[(tspr.detail & 0xFF) - ITEMSBASE].pickup(plr, actor);
 
 			if (tspr.picnum >= EXPLOSTART && tspr.picnum <= EXPLOEND && actor->GetPlayerOwner() != plr.playerNum())

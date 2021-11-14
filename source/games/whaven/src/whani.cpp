@@ -1425,7 +1425,7 @@ void animateobjs(PLAYER& plr) {
 			else {
 				switch (spr.picnum) {
 				case FSHATTERBARREL + 2:
-					randompotion(i);
+					randompotion(actor);
 					ChangeActorStat(actor, 0);
 					break;
 				case STAINGLASS1 + 6:

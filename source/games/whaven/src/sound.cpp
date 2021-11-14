@@ -154,7 +154,7 @@ void GameInterface::UpdateSounds()
 	listener.underwater = false;
 	listener.Environment = 0;
 
-	listener.ListenerObject = &sprite[player[pyrn].spritenum];
+	listener.ListenerObject = &player[pyrn].actor()->s();
 	soundEngine->SetListener(listener);
 	soundEngine->UpdateSounds(I_GetTime());
 }

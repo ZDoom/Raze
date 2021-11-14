@@ -369,13 +369,13 @@ void nukespell(PLAYER& plr, short const j) {
 	}
 }
 
-void medusa(PLAYER& plr, short j) {
-	auto& spr = sprite[j];
+void medusa(PLAYER& plr, DWHActor* actor) {
+	auto& spr = actor->s();
 
 	if(spr.hitag <= 0) //don't freeze dead enemies
 		return;
 		
-	newstatus(j, FROZEN);
+	SetNewStatus(actor, FROZEN);
 	int pic = spr.picnum;
 	switch (spr.detail) {
 

@@ -728,7 +728,7 @@ boolean prepareboard(const char* fname) {
 		}
 			
 			
-		if(isItemSprite(i)) {
+		if(isItemSprite(actor)) {
 			Item& item = items[(spr.detail & 0xFF) - ITEMSBASE];
 			if(item.sizx != -1 && item.sizy != -1) {
 				spr.xrepeat = (uint8_t)item.sizx;

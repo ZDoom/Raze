@@ -136,16 +136,17 @@ void updatepotion(PLAYER& plr, int vial) {
 	}
 }
 	
-void randompotion(int i) {
+void randompotion(DWHActor* actor) {
 	if ((krand() % 100) > 20)
 		return;
 
-	auto spawnedactor = InsertActor(sprite[i].sectnum, (short)0);
+	auto& spr = actor->s();
+	auto spawnedactor = InsertActor(spr.sectnum, (short)0);
 	auto& spawned = spawnedactor->s();
 
-	spawned.x = sprite[i].x;
-	spawned.y = sprite[i].y;
-	spawned.z = sprite[i].z - (12 << 8);
+	spawned.x = spr.x;
+	spawned.y = spr.y;
+	spawned.z = spr.z - (12 << 8);
 	spawned.shade = -12;
 	spawned.pal = 0;
 	spawned.cstat = 0;

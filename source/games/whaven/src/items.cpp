@@ -6,8 +6,8 @@ BEGIN_WH_NS
 
 Item items[MAXITEMS - ITEMSBASE];
 	
-boolean isItemSprite(int i) {
-	return (sprite[i].detail & 0xFF) >= ITEMSBASE && (sprite[i].detail & 0xFF) < MAXITEMS;
+boolean isItemSprite(DWHActor* actor) {
+	return (actor->s().detail & 0xFF) >= ITEMSBASE && (actor->s().detail & 0xFF) < MAXITEMS;
 }
 	
 void InitItems()

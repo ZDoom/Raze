@@ -9,18 +9,19 @@ void addTile(int num)
 	markTileForPrecache(num, 0);
 }
 
-void cachespritenum(int i)
+void cachespritenum(DWHActor* actor)
 {
+	auto& spr = actor->s();
 	int maxc = 1;
-	if (sprite[i].picnum == RAT || sprite[i].picnum == GUARDIAN)
+	if (spr.picnum == RAT || spr.picnum == GUARDIAN)
 		maxc = 15;
-	if (sprite[i].picnum == HANGMAN)
+	if (spr.picnum == HANGMAN)
 		maxc = 40;
 
-	if (sprite[i].picnum == GRONHAL || sprite[i].picnum == GRONMU || sprite[i].picnum == GRONSW)
+	if (spr.picnum == GRONHAL || spr.picnum == GRONMU || spr.picnum == GRONSW)
 		maxc = 19;
 
-	switch (sprite[i].picnum)
+	switch (spr.picnum)
 	{
 	case GOBLINSTAND:
 	case GOBLIN:
@@ -54,7 +55,7 @@ void cachespritenum(int i)
 		maxc = 18;
 		break;
 	}
-	for (int j = sprite[i].picnum; j < (sprite[i].picnum + maxc); j++)
+	for (int j = spr.picnum; j < (spr.picnum + maxc); j++)
 		addTile(j);
 }
 
@@ -73,7 +74,7 @@ void precacheTiles()
 	WHSpriteIterator it;
 	while (auto itActor = it.Next())
 	{
-		cachespritenum(itActor->GetSpriteIndex());
+		cachespritenum(itActor);
 	}
 				
 	addTile(BAT);

@@ -307,7 +307,6 @@ extern int dahand;
 extern int oweapondrop, weapondrop;
 extern double osnakex, osnakey, snakex, snakey;
 
-boolean checkmedusadist(int i, int x, int y, int z, int lvl);
 void autoweaponchange(PLAYER& plr, int dagun);
 void weaponchange(int snum);
 void plrfireweapon(PLAYER& plr);
@@ -319,7 +318,7 @@ void swingdaweapon(PLAYER& plr);
 void swingdacrunch(PLAYER& plr, int daweapon);
 void swingdasound(int daweapon, boolean enchanted);
 
-boolean isItemSprite(int i);
+boolean isItemSprite(DWHActor* i);
 void InitItems();
 void wepdatainit();
 
@@ -333,7 +332,7 @@ boolean changebook(PLAYER& plr, int i);
 boolean lvlspellcheck(PLAYER& plr);
 void speelbookprocess(PLAYER& plr);
 void nukespell(PLAYER& plr, short j);
-void medusa(PLAYER& plr, short j);
+void medusa(PLAYER& plr, DWHActor* j);
 void displayspelltext(PLAYER& plr);
 void orbpic(PLAYER& plr, int currentorb);
 
@@ -345,7 +344,7 @@ void usapotion(PLAYER& plr);
 boolean potionspace(PLAYER& plr, int vial);
 void updatepotion(PLAYER& plr, int vial);
 void potionpic(PLAYER& plr, int currentpotion, int x, int y, int scale);
-void randompotion(int i);
+void randompotion(DWHActor* i);
 
 // whfx
 
