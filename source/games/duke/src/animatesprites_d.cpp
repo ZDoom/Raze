@@ -363,8 +363,8 @@ void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 				case FREEZE_WEAPON:      newtspr->picnum = FREEZESPRITE;         break;
 				case FLAMETHROWER_WEAPON: //Twentieth Anniversary World Tour
 					if (isWorldTour())
-						newtspr->picnum = FLAMETHROWERSPRITE;   break;
-					[[fallthrough]];
+						newtspr->picnum = FLAMETHROWERSPRITE;   
+					break;
 				case DEVISTATOR_WEAPON:  newtspr->picnum = DEVISTATORSPRITE;     break;
 				}
 

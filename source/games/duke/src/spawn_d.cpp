@@ -606,7 +606,7 @@ int spawn_d(int j, int pn)
 				// Twentieth Anniversary World Tour
 				if (!isWorldTour())
 					break;
-
+				[[fallthrough]];
 			case EXPLOSION2:
 			case EXPLOSION2BOT:
 			case BURNING:
@@ -973,6 +973,7 @@ int spawn_d(int j, int pn)
 			case FLAMETHROWERAMMO: // Twentieth Anniversary World Tour
 				if (!isWorldTour())
 					break;
+				[[fallthrough]];
 
 			case ATOMICHEALTH:
 			case STEROIDS:

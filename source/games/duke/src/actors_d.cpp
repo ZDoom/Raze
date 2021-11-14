@@ -1952,6 +1952,7 @@ void moveweapons_d(void)
 		case FIREBALL:
 			// Twentieth Anniversary World Tour
 			if (act->s->picnum == FIREBALL && !isWorldTour()) break;
+			[[fallthrough]];
 		case SHRINKSPARK:
 		case RPG:
 		case FIRELASER:
