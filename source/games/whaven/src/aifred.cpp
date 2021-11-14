@@ -8,7 +8,6 @@ static void checkexplfred(PLAYER& plr, DWHActor* i);
 
 static void chasefred(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -85,7 +84,6 @@ static void chasefred(PLAYER& plr, DWHActor* actor)
 	
 static void skirmishfred(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -225,7 +223,6 @@ static void attackfred(PLAYER& plr, DWHActor* actor)
 	
 static void fleefred(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -263,7 +260,6 @@ static void fleefred(PLAYER& plr, DWHActor* actor)
 	
 static void painfred(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;

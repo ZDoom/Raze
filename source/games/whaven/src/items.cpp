@@ -87,7 +87,7 @@ void InitItems()
 			auto& spr = actor->s();
 			spr.detail = 0;
 			treasuresfound++;
-			spritesound(S_TREASURE1, &spr);
+			spritesound(S_TREASURE1, actor);
 			int j = krand() % 8;
 			switch (j) {
 			case 0:
@@ -355,7 +355,7 @@ void InitItems()
 			case 6:
 				for (j = 0; j < 8; j++)
 					explosion(actor->GetSpriteIndex(), spr.x, spr.y, spr.z, spr.owner);
-				spritesound(S_EXPLODE, &spr);
+				spritesound(S_EXPLODE, actor);
 				DeleteActor(actor);
 				break;
 			default:
@@ -893,7 +893,7 @@ void InitItems()
 					addhealth(plr, -((krand() % 20) + 5)); // Inflict pain
 					// make it look and sound painful, too
 					if ((krand() % 9) == 0) {
-						spritesound(S_PLRPAIN1 + (rand() % 2), &spr);
+						spritesound(S_PLRPAIN1 + (rand() % 2), actor);
 					}
 					startredflash(10);
 					DeleteActor(actor);

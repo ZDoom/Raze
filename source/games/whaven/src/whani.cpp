@@ -553,7 +553,7 @@ void animateobjs(PLAYER& plr) {
 			SetActorPos(actor, &spr.pos);
 			if (spr.z <= spr.sector()->ceilingz + 32768) {
 				soundEngine->StopSound(CHAN_CART);
-				spritesound(S_CLUNK, &spr);
+				spritesound(S_CLUNK, actor);
 				ChangeActorStat(actor, 0);
 				spr.lotag = 1820;
 				spr.z = spr.sector()->ceilingz + 32768;
@@ -599,7 +599,7 @@ void animateobjs(PLAYER& plr) {
 			SetActorPos(actor, &spr.pos);
 			if (spr.z >= (spr.sector()->floorz - 32768)) {
 				soundEngine->StopSound(CHAN_CART);
-				spritesound(S_CLUNK, &spr);
+				spritesound(S_CLUNK, actor);
 				ChangeActorStat(actor, 0);
 				spr.lotag = 1821;
 				spr.z = spr.sector()->floorz - 32768;
@@ -1251,7 +1251,7 @@ void animateobjs(PLAYER& plr) {
 				if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y,
 						spr.z - (tileHeight(spr.picnum) << 7), spr.sectnum)) {
 					// JSA_NEW
-					spritesound(S_FIREBALL, &spr);
+					spritesound(S_FIREBALL, actor);
 					castspell(plr, actor);
 				}
 			}

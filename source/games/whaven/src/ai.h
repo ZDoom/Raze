@@ -39,7 +39,7 @@ struct EnemyInfo
 		return e.attackdist;
 	};
 	
-	void set(SPRITE &spr)
+	void set(SPRITE &spr )
 	{
 		spr.clipdist = clipdist;
 		spr.hitag = getHealth(*this, spr);

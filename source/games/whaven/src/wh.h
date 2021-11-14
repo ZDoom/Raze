@@ -475,6 +475,10 @@ inline int spritesound(int sn, spritetype *s, int loop = 0, int channel = CHAN_A
 	return playsound_internal(sn, s, 0, 0, loop, channel);
 }
 
+inline int spritesound(int sn, DWHActor* s, int loop = 0, int channel = CHAN_AUTO) {
+	return playsound_internal(sn, &s->s(), 0, 0, loop, channel);
+}
+
 void startmusic(int);
 void startsong(int);
 void setupmidi();

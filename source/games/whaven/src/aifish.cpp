@@ -123,7 +123,6 @@ static void attackfish(PLAYER& plr, DWHActor* actor)
 	
 static void skirmishfish(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;

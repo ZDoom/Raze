@@ -7,7 +7,6 @@ void spawnabaddy(DWHActor* i, int monster);
 
 static void chasekatie(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -84,7 +83,6 @@ static void searchkatie(PLAYER& plr, DWHActor* actor)
 	
 static void painkatie(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -132,7 +130,6 @@ static void facekatie(PLAYER& plr, DWHActor* actor)
 	
 static void attackkatie(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
@@ -161,7 +158,6 @@ static void attackkatie(PLAYER& plr, DWHActor* actor)
 	
 static void fleekatie(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -201,7 +197,6 @@ static void fleekatie(PLAYER& plr, DWHActor* actor)
 	
 static void castkatie(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -224,7 +219,7 @@ static void castkatie(PLAYER& plr, DWHActor* actor)
 			}
 			spr.picnum = KATIE;
 			spr.extra--;
-			spritesound(S_FIREBALL, &spr);
+			spritesound(S_FIREBALL, actor);
 			SetNewStatus(actor, CHASE);
 		}
 	}
@@ -243,7 +238,7 @@ static void castkatie(PLAYER& plr, DWHActor* actor)
 				}
 			}
 			spr.picnum = KATIE;
-			spritesound(S_FIREBALL, &spr);
+			spritesound(S_FIREBALL, actor);
 			SetNewStatus(actor, CHASE);
 			spr.extra--;
 		}
@@ -251,7 +246,7 @@ static void castkatie(PLAYER& plr, DWHActor* actor)
 
 	if (spr.picnum == KATIEAT + 16) {
 		spr.picnum = KATIE;
-		spritesound(S_FIREBALL, &spr);
+		spritesound(S_FIREBALL, actor);
 		castspell(plr, actor);
 		SetNewStatus(actor, CHASE);
 		spr.extra++;

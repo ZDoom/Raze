@@ -23,7 +23,6 @@ static void standkurt(PLAYER& plr, DWHActor* actor)
 
 static void nukedkurt(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	chunksofmeat(plr, actor,spr.x, spr.y, spr.z, spr.sectnum, spr.ang);

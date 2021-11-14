@@ -6,7 +6,6 @@ BEGIN_WH_NS
 
 static void chasedevil(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -85,7 +84,6 @@ static void diedevil(PLAYER& plr, DWHActor* actor)
 
 static void paindevil(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -132,7 +130,6 @@ static void facedevil(PLAYER& plr, DWHActor* actor)
 
 static void fleedevil(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -167,7 +164,6 @@ static void fleedevil(PLAYER& plr, DWHActor* actor)
 
 static void attackdevil(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
@@ -229,7 +225,6 @@ static void frozendevil(PLAYER& plr, DWHActor* actor)
 
 static void nukeddevil(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	if (isWh2()) {

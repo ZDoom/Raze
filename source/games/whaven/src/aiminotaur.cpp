@@ -7,7 +7,6 @@ static void checkexplminotaur(PLAYER& plr, DWHActor* i);
 
 static void chaseminotaur(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -106,7 +105,6 @@ static void resurectminotaur(PLAYER& plr, DWHActor* actor)
 	
 static void skirmishminotaur(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -134,7 +132,6 @@ static void skirmishminotaur(PLAYER& plr, DWHActor* actor)
 	
 static void nukedminotaur(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	if (isWh2()) {
@@ -157,7 +154,6 @@ static void nukedminotaur(PLAYER& plr, DWHActor* actor)
 	
 static void painminotaur(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -270,7 +266,6 @@ static void dieminotaur(PLAYER& plr, DWHActor* actor)
 	
 static void fleeminotaur(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;

@@ -139,27 +139,27 @@ static void castdragon(PLAYER& plr, DWHActor* actor)
 	case DRAGONATTACK + 17:
 	case DRAGONATTACK + 4:
 		if ((krand() % 2) != 0)
-			spritesound(S_FLAME1, &spr);
+			spritesound(S_FLAME1, actor);
 		else
-			spritesound(S_FIREBALL, &spr);
+			spritesound(S_FIREBALL, actor);
 
 		firebreath(plr, i, 1, 2, LOW);
 		break;
 	case DRAGONATTACK + 18:
 	case DRAGONATTACK + 5:
 		if ((krand() % 2) != 0)
-			spritesound(S_FLAME1, &spr);
+			spritesound(S_FLAME1, actor);
 		else
-			spritesound(S_FIREBALL, &spr);
+			spritesound(S_FIREBALL, actor);
 
 		firebreath(plr, i, 2, 1, LOW);
 		break;
 	case DRAGONATTACK + 19:
 	case DRAGONATTACK + 6:
 		if ((krand() % 2) != 0)
-			spritesound(S_FLAME1, &spr);
+			spritesound(S_FLAME1, actor);
 		else
-			spritesound(S_FIREBALL, &spr);
+			spritesound(S_FIREBALL, actor);
 
 		firebreath(plr, i, 4, 0, LOW);
 		break;
@@ -174,9 +174,9 @@ static void castdragon(PLAYER& plr, DWHActor* actor)
 
 	case DRAGONATTACK2 + 2:
 		if ((krand() % 2) != 0)
-			spritesound(S_FLAME1, &spr);
+			spritesound(S_FLAME1, actor);
 		else
-			spritesound(S_FIREBALL, &spr);
+			spritesound(S_FIREBALL, actor);
 
 		firebreath(plr, i, 1, -1, HIGH);
 		break;

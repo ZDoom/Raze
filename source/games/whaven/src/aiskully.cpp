@@ -5,7 +5,6 @@ BEGIN_WH_NS
 
 static void chaseskully(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -96,7 +95,6 @@ static void nukedskully(PLAYER& plr, DWHActor* actor)
 	
 static void painskully(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -144,7 +142,6 @@ static void faceskully(PLAYER& plr, DWHActor* actor)
 	
 static void attackskully(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
@@ -173,7 +170,6 @@ static void attackskully(PLAYER& plr, DWHActor* actor)
 	
 static void fleeskully(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -219,7 +215,7 @@ static void castskully(PLAYER& plr, DWHActor* actor)
 
 	if (spr.picnum == SKULLYATTACK + 2) {
 		spr.picnum = SKULLY;
-		spritesound(S_SKULLWITCH1 + krand() % 3, &sprite[i]);
+		spritesound(S_SKULLWITCH1 + krand() % 3, actor);
 		skullycastspell(plr, i);
 		SetNewStatus(actor, CHASE);
 	}

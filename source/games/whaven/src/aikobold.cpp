@@ -15,7 +15,7 @@ static void chasekobold(PLAYER& plr, DWHActor* actor)
 		spr.lotag = 250;
 
 	if ((krand() % 100) > 98)
-		spritesound(S_KSNARL1 + (krand() % 4), &sprite[i]);
+		spritesound(S_KSNARL1 + (krand() % 4), actor);
 
 	short osectnum = spr.sectnum;
 	if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
@@ -116,7 +116,6 @@ static void diekobold(PLAYER& plr, DWHActor* actor)
 	
 static void painkobold(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -168,7 +167,6 @@ static void facekobold(PLAYER& plr, DWHActor* actor)
 	
 static void fleekobold(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -260,7 +258,7 @@ static void searchkobold(PLAYER& plr, DWHActor* actor)
 	int i = actor->GetSpriteIndex();
 
 	if ((krand() % 100) > 98)
-		spritesound(S_KSNARL1 + (krand() % 4), &sprite[i]);
+		spritesound(S_KSNARL1 + (krand() % 4), actor);
 	aisearch(plr, actor, false);
 	if (!checksector6(actor))
 		checkexplkobold(plr, actor);
@@ -280,7 +278,6 @@ static void frozenkobold(PLAYER& plr, DWHActor* actor)
 		
 static void nukedkobold(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	if (isWh2()) {
@@ -303,7 +300,6 @@ static void nukedkobold(PLAYER& plr, DWHActor* actor)
 	
 static void skirmishkobold(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;

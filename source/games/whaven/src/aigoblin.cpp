@@ -8,7 +8,6 @@ static void checkexplgoblin(PLAYER& plr, DWHActor* i);
 
 static void chasegoblin(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -112,7 +111,6 @@ static void diegoblin(PLAYER& plr, DWHActor* actor)
 
 static void paingoblin(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -164,7 +162,6 @@ static void facegoblin(PLAYER& plr, DWHActor* actor)
 
 static void fleegoblin(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -210,7 +207,7 @@ static void standgoblin(PLAYER& plr, DWHActor* actor)
 			switch (spr.picnum) {
 			case GOBLINCHILL:
 				spr.picnum = GOBLINSURPRISE;
-				spritesound(S_GOBPAIN1 + (krand() % 2), &spr);
+				spritesound(S_GOBPAIN1 + (krand() % 2), actor);
 				SetNewStatus(actor, CHILL);
 				break;
 			default:
@@ -320,7 +317,6 @@ static void nukedgoblin(PLAYER& plr, DWHActor* actor)
 
 static void skirmishgoblin(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -457,9 +453,9 @@ static void goblinWar(PLAYER& plr, DWHActor* actor)
 				// goblins are fighting
 				// JSA_DEMO
 				if (krand() % 10 > 6)
-					spritesound(S_GENSWING, &spr);
+					spritesound(S_GENSWING, actor);
 				if (krand() % 10 > 6)
-					spritesound(S_SWORD1 + (krand() % 6), &spr);
+					spritesound(S_SWORD1 + (krand() % 6), actor);
 
 				if (checkdist(plr, actor))
 					addhealth(plr, -(krand() & 5));

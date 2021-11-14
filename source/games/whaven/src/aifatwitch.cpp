@@ -7,7 +7,6 @@ static void throwspank(PLAYER& plr, DWHActor* i);
 
 static void chasefatwitch(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -99,7 +98,6 @@ static void nukedfatwitch(PLAYER& plr, DWHActor* actor)
 	
 static void painfatwitch(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -145,7 +143,6 @@ static void facefatwitch(PLAYER& plr, DWHActor* actor)
 	
 static void attackfatwitch(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
@@ -174,7 +171,6 @@ static void attackfatwitch(PLAYER& plr, DWHActor* actor)
 	
 static void fleefatwitch(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -257,7 +253,7 @@ static void throwspank(PLAYER& plr, DWHActor* actor)
 		return;
 
 	auto& spawned = sprite[j];
-	spritesound(S_WITCHTHROW, &spr);
+	spritesound(S_WITCHTHROW, actor);
 
 	spawned.x = spr.x;
 	spawned.y = spr.y;

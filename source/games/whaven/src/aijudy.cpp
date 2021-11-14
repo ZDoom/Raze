@@ -7,7 +7,6 @@ void spawnabaddy(DWHActor* i, int monster);
 
 static void chasejudy(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -109,7 +108,6 @@ static void nukedjudy(PLAYER& plr, DWHActor* actor)
 	
 static void painjudy(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -157,7 +155,6 @@ static void facejudy(PLAYER& plr, DWHActor* actor)
 	
 static void attackjudy(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
@@ -187,7 +184,6 @@ static void attackjudy(PLAYER& plr, DWHActor* actor)
 	
 static void fleejudy(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -233,7 +229,7 @@ static void castjudy(PLAYER& plr, DWHActor* actor)
 
 	if (spr.picnum == JUDYATTACK1 + 3) {
 		spr.picnum = JUDYATTACK1;
-		spritesound(S_JUDY1 + krand() % 4, &sprite[i]);
+		spritesound(S_JUDY1 + krand() % 4, actor);
 		if (krand() % 100 > 70) {
 			castspell(plr, actor);
 		}
@@ -288,7 +284,7 @@ static void castjudy(PLAYER& plr, DWHActor* actor)
 	}
 	else if (spr.picnum == JUDYATTACK2 + 8) {
 		spr.picnum = JUDYATTACK2;
-		spritesound(S_JUDY1 + krand() % 4, &sprite[i]);
+		spritesound(S_JUDY1 + krand() % 4, actor);
 		if (krand() % 100 > 50)
 			skullycastspell(plr, i);
 		else {

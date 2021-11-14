@@ -152,7 +152,6 @@ static void resurectgron(PLAYER& plr, DWHActor* actor)
 	
 static void skirmishgron(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -187,7 +186,6 @@ static void searchgron(PLAYER& plr, DWHActor* actor)
 	
 static void nukedgron(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	if (isWh2()) {
@@ -227,7 +225,6 @@ static void frozengron(PLAYER& plr, DWHActor* actor)
 			
 static void paingron(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -339,7 +336,6 @@ static void attackgron(PLAYER& plr, DWHActor* actor)
 	
 static void fleegron(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;

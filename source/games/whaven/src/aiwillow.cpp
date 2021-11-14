@@ -237,7 +237,6 @@ static void diewillow(PLAYER& plr, DWHActor* actor)
 		
 static void nukedwillow(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	if (isWh2()) {
@@ -269,7 +268,7 @@ static void willowDrain(PLAYER& plr, DWHActor* actor)
 
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
-		spritesound(S_FIREBALL, &spr);
+		spritesound(S_FIREBALL, actor);
 		int oldz = spr.z;
 		spr.z += 6144;
 		castspell(plr, actor);

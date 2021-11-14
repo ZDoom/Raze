@@ -7,7 +7,6 @@ static void checkexplimp(PLAYER& plr, DWHActor* i);
 
 static void chaseimp(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -104,7 +103,6 @@ static void frozenimp(PLAYER& plr, DWHActor* actor)
 	
 static void painimp(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -142,7 +140,6 @@ static void dieimp(PLAYER& plr, DWHActor* actor)
 	
 static void nukedimp(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	chunksofmeat(plr, actor,spr.x, spr.y, spr.z, spr.sectnum, spr.ang);
@@ -199,7 +196,6 @@ static void faceimp(PLAYER& plr, DWHActor* actor)
 
 static void fleeimp(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -283,7 +279,6 @@ static void searchimp(PLAYER& plr, DWHActor* actor)
 		
 static void skirmishimp(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;

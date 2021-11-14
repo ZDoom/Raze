@@ -24,7 +24,6 @@ static void standnewguy(PLAYER& plr, DWHActor* actor)
 	
 static void chasenewguy(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -139,7 +138,6 @@ static void resurectnewguy(PLAYER& plr, DWHActor* actor)
 	
 static void skirmishnewguy(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -170,7 +168,6 @@ static void searchnewguy(PLAYER& plr, DWHActor* actor)
 	
 static void nukednewguy(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	chunksofmeat(plr, actor,spr.x, spr.y, spr.z, spr.sectnum, spr.ang);
@@ -180,7 +177,6 @@ static void nukednewguy(PLAYER& plr, DWHActor* actor)
 	
 static void painnewguy(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -227,7 +223,6 @@ static void facenewguy(PLAYER& plr, DWHActor* actor)
 	
 static void fleenewguy(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;

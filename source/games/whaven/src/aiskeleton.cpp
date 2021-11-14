@@ -7,7 +7,6 @@ static void checkexplskeleton(PLAYER& plr, DWHActor* i);
 
 static void chaseskeleton(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -146,7 +145,6 @@ static void faceskeleton(PLAYER& plr, DWHActor* actor)
 
 static void fleeskeleton(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.picnum = SKELETON;
@@ -195,7 +193,7 @@ static void standskeleton(PLAYER& plr, DWHActor* actor)
 
 			if (spr.picnum == HANGMAN) {
 				SetNewStatus(actor, CHILL);
-				spritesound(S_SKELSEE, &spr);
+				spritesound(S_SKELSEE, actor);
 			}
 			else {
 				if (plr.shadowtime > 0) {
@@ -284,7 +282,6 @@ static void frozenskeleton(PLAYER& plr, DWHActor* actor)
 	
 static void nukedskeleton(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	if (isWh2()) {
@@ -307,7 +304,6 @@ static void nukedskeleton(PLAYER& plr, DWHActor* actor)
 	
 static void skirmishskeleton(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;

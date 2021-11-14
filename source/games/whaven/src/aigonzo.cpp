@@ -9,7 +9,6 @@ static boolean patrolprocess(PLAYER& plr, DWHActor* i);
 
 static void chasegonzo(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -222,7 +221,6 @@ static void resurectgonzo(PLAYER& plr, DWHActor* actor)
 	
 static void skirmishgonzo(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -257,7 +255,6 @@ static void searchgonzo(PLAYER& plr, DWHActor* actor)
 	
 static void nukedgonzo(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	chunksofmeat(plr, actor,spr.x, spr.y, spr.z, spr.sectnum, spr.ang);
@@ -292,7 +289,6 @@ static void frozengonzo(PLAYER& plr, DWHActor* actor)
 	
 static void paingonzo(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -495,7 +491,7 @@ static void castgonzo(PLAYER& plr, DWHActor* actor)
 
 	if (spr.picnum == GONZOCSWAT) {
 		spr.extra--;
-		spritesound(S_GENTHROW, &spr);
+		spritesound(S_GENTHROW, actor);
 		gonzopike(i, plr);
 		SetNewStatus(actor, CHASE);
 	}

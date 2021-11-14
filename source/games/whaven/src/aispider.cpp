@@ -7,7 +7,6 @@ static void checkexplspider(PLAYER& plr, DWHActor* i);
 
 static void chasespider(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -106,7 +105,6 @@ static void resurectspider(PLAYER& plr, DWHActor* actor)
 	
 static void skirmishspider(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -232,7 +230,6 @@ static void attackspider(PLAYER& plr, DWHActor* actor)
 	
 static void fleespider(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;

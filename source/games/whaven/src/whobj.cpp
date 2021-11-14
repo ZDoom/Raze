@@ -164,15 +164,15 @@ void newstatus(short sn, int seq) {
 		ChangeActorStat(actor, BROKENVASE);
 		switch (spr.picnum) {
 		case VASEA:
-			spritesound(S_GLASSBREAK1 + (krand() % 3), &spr);
+			spritesound(S_GLASSBREAK1 + (krand() % 3), actor);
 			spr.picnum = SHATTERVASE;
 			break;
 		case VASEB:
-			spritesound(S_GLASSBREAK1 + (krand() % 3), &spr);
+			spritesound(S_GLASSBREAK1 + (krand() % 3), actor);
 			spr.picnum = SHATTERVASE2;
 			break;
 		case VASEC:
-			spritesound(S_GLASSBREAK1 + (krand() % 3), &spr);
+			spritesound(S_GLASSBREAK1 + (krand() % 3), actor);
 			spr.picnum = SHATTERVASE3;
 			break;
 		case STAINGLASS1:
@@ -189,7 +189,7 @@ void newstatus(short sn, int seq) {
 			break;
 		case FBARRELFALL:
 		case BARREL:
-			spritesound(S_BARRELBREAK, &spr);
+			spritesound(S_BARRELBREAK, actor);
 			spr.picnum = FSHATTERBARREL;
 			break;
 		}
@@ -202,27 +202,27 @@ void newstatus(short sn, int seq) {
 		spr.pal = 7;
 		break;
 	case ANIMLEVERDN:
-		spritesound(S_PULLCHAIN1, &spr);
+		spritesound(S_PULLCHAIN1, actor);
 		spr.picnum = LEVERUP;
 		ChangeActorStat(actor, ANIMLEVERDN);
 		spr.lotag = 24;
 		break;
 	case ANIMLEVERUP:
-		spritesound(S_PULLCHAIN1, &spr);
+		spritesound(S_PULLCHAIN1, actor);
 		spr.picnum = LEVERDOWN;
 		ChangeActorStat(actor, ANIMLEVERUP);
 		spr.lotag = 24;
 		break;
 	case SKULLPULLCHAIN1:
 	case PULLTHECHAIN:
-		spritesound(S_PULLCHAIN1, &spr);
+		spritesound(S_PULLCHAIN1, actor);
 		ChangeActorStat(actor, PULLTHECHAIN);
 		SND_Sound(S_CHAIN1);
 		spr.lotag = 24;
 		break;
 	case FROZEN:
 		// JSA_NEW
-		spritesound(S_FREEZE, &spr);
+		spritesound(S_FREEZE, actor);
 		ChangeActorStat(actor, FROZEN);
 		spr.lotag = 3600;
 		break;
@@ -244,7 +244,7 @@ void newstatus(short sn, int seq) {
 		switch (spr.detail) {
 		case DEMONTYPE:
 			spr.lotag = 24;
-			spritesound(S_GUARDIANPAIN1 + (krand() % 2), &spr);
+			spritesound(S_GUARDIANPAIN1 + (krand() % 2), actor);
 			spr.picnum = DEMON - 1;
 			ChangeActorStat(actor, PAIN);
 			break;
@@ -252,14 +252,14 @@ void newstatus(short sn, int seq) {
 			spr.lotag = 24;
 			spr.picnum = NEWGUYPAIN;
 			ChangeActorStat(actor, PAIN);
-			spritesound(S_AGM_PAIN1, &spr);
+			spritesound(S_AGM_PAIN1, actor);
 			break;
 
 		case KURTTYPE:
 			spr.lotag = 24;
 			spr.picnum = GONZOCSWPAIN;
 			ChangeActorStat(actor, PAIN);
-			spritesound(S_GRONPAINA + (krand() % 3), &spr);
+			spritesound(S_GRONPAINA + (krand() % 3), actor);
 			break;
 
 		case GONZOTYPE:
@@ -274,19 +274,19 @@ void newstatus(short sn, int seq) {
 				case KURTREADY + 1:
 				case GONZOCSW:
 					spr.picnum = GONZOCSWPAIN;
-					spritesound(S_GRONPAINA + (krand() % 3), &spr);
+					spritesound(S_GRONPAINA + (krand() % 3), actor);
 					break;
 				case GONZOGSW:
 					spr.picnum = GONZOGSWPAIN;
-					spritesound(S_GRONPAINA + (krand() % 3), &spr);
+					spritesound(S_GRONPAINA + (krand() % 3), actor);
 					break;
 				case GONZOGHM:
 					spr.picnum = GONZOGHMPAIN;
-					spritesound(S_GRONPAINA + (krand() % 3), &spr);
+					spritesound(S_GRONPAINA + (krand() % 3), actor);
 					break;
 				case GONZOGSH:
 					spr.picnum = GONZOGSHPAIN;
-					spritesound(S_GRONPAINA, &spr);
+					spritesound(S_GRONPAINA, actor);
 					break;
 				default:
 					ChangeActorStat(actor, FLEE);
@@ -316,7 +316,7 @@ void newstatus(short sn, int seq) {
 		case GUARDIANTYPE:
 			spr.lotag = 24;
 			// spr.picnum=GUARDIANATTACK;
-			spritesound(S_GUARDIANPAIN1 + (krand() % 2), &spr);
+			spritesound(S_GUARDIANPAIN1 + (krand() % 2), actor);
 			
 			if(isWh2()) spr.picnum = GUARDIAN;
 			else spr.picnum = GUARDIANCHAR;
@@ -325,7 +325,7 @@ void newstatus(short sn, int seq) {
 		case GRONTYPE:
 			spr.lotag = 24;
 			ChangeActorStat(actor, PAIN);
-			spritesound(S_GRONPAINA + krand() % 3, &spr);
+			spritesound(S_GRONPAINA + krand() % 3, actor);
 			
 			if(spr.picnum == GRONHAL || spr.picnum == GRONHALATTACK)
 				spr.picnum = GRONHALPAIN;
@@ -337,10 +337,10 @@ void newstatus(short sn, int seq) {
 		case KOBOLDTYPE:
 			spr.picnum = KOBOLDDIE;
 			ChangeActorStat(actor, PAIN);
-			spritesound(S_KPAIN1 + (krand() % 2), &spr);
+			spritesound(S_KPAIN1 + (krand() % 2), actor);
 			break;
 		case DEVILTYPE:
-			spritesound(S_MPAIN1, &spr);
+			spritesound(S_MPAIN1, actor);
 			spr.picnum = DEVILPAIN;
 			ChangeActorStat(actor, PAIN);
 			break;
@@ -348,7 +348,7 @@ void newstatus(short sn, int seq) {
 			spr.picnum = FREDPAIN;
 			ChangeActorStat(actor, PAIN);
 			// EG: Sounds for Fred (currently copied from ogre)
-			spritesound(S_KPAIN1 + (rand() % 2), &spr);
+			spritesound(S_KPAIN1 + (rand() % 2), actor);
 			break;
 		case GOBLINTYPE:
 		case IMPTYPE:
@@ -359,13 +359,13 @@ void newstatus(short sn, int seq) {
 			} else {
 				spr.picnum = GOBLINPAIN;
 				ChangeActorStat(actor, PAIN);
-				spritesound(S_GOBPAIN1 + (krand() % 2), &spr);
+				spritesound(S_GOBPAIN1 + (krand() % 2), actor);
 			}
 			break;
 		case MINOTAURTYPE:
 			spr.picnum = MINOTAURPAIN;
 			ChangeActorStat(actor, PAIN);
-			spritesound(S_MPAIN1, &spr);
+			spritesound(S_MPAIN1, actor);
 			break;
 		default:
 			ChangeActorStat(actor, FLEE);
@@ -481,14 +481,14 @@ void newstatus(short sn, int seq) {
 		break;
 	case LIFTUP:
 		if (soundEngine->GetSoundPlayingInfo(SOURCE_Any, nullptr, -1, CHAN_CART) == 0) {
-			spritesound(S_CLUNK, &spr);
+			spritesound(S_CLUNK, actor);
 			spritesound(S_CHAIN1, &spr, 5, CHAN_CART);
 		}
 		ChangeActorStat(actor, LIFTUP);
 		break;
 	case LIFTDN:
 		if (soundEngine->GetSoundPlayingInfo(SOURCE_Any, nullptr, -1, CHAN_CART) == 0) {
-			spritesound(S_CLUNK, &spr);
+			spritesound(S_CLUNK, actor);
 			spritesound(S_CHAIN1, &spr, 5, CHAN_CART);
 		}
 		ChangeActorStat(actor, LIFTDN);
@@ -515,7 +515,7 @@ void newstatus(short sn, int seq) {
 		spr.cstat |= 1;
 		ChangeActorStat(actor, ATTACK2);
 		spr.picnum = DRAGONATTACK2;
-		spritesound(S_DRAGON1 + (krand() % 3), &spr);
+		spritesound(S_DRAGON1 + (krand() % 3), actor);
 	case ATTACK:
 		spr.lotag = 64;
 		spr.cstat |= 1;
@@ -558,12 +558,12 @@ void newstatus(short sn, int seq) {
 			break;
 		case KATIETYPE:
 			if ((krand() % 10) > 4) {
-				spritesound(S_JUDY1, &spr);
+				spritesound(S_JUDY1, actor);
 			}
 			spr.picnum = KATIEAT;
 			break;
 		case DEMONTYPE:
-			spritesound(S_GUARDIAN1 + (krand() % 2), &spr);
+			spritesound(S_GUARDIAN1 + (krand() % 2), actor);
 			spr.picnum = DEMON;
 			break;
 		case GRONTYPE:
@@ -577,17 +577,17 @@ void newstatus(short sn, int seq) {
 		case KOBOLDTYPE:
 			spr.picnum = KOBOLDATTACK;
 			if (krand() % 10 > 4)
-				spritesound(S_KSNARL1 + (krand() % 4), &spr);
+				spritesound(S_KSNARL1 + (krand() % 4), actor);
 			break;
 		case DRAGONTYPE:
 			if ((krand() % 10) > 3)
-				spritesound(S_DRAGON1 + (krand() % 2), &spr);
+				spritesound(S_DRAGON1 + (krand() % 2), actor);
 
 			spr.picnum = DRAGONATTACK;
 			break;
 		case DEVILTYPE:
 			if ((krand() % 10) > 4)
-				spritesound(S_DEMON1 + (krand() % 5), &spr);
+				spritesound(S_DEMON1 + (krand() % 5), actor);
 
 			spr.picnum = DEVILATTACK;
 			break;
@@ -595,7 +595,7 @@ void newstatus(short sn, int seq) {
 			spr.picnum = FREDATTACK;
 			/* EG: Sounds for Fred (currently copied from Ogre) */
 			if (rand() % 10 > 4)
-				spritesound(S_KSNARL1 + (rand() % 4), &spr);
+				spritesound(S_KSNARL1 + (rand() % 4), actor);
 			break;
 		case SKELETONTYPE:
 			spr.picnum = SKELETONATTACK;
@@ -603,17 +603,17 @@ void newstatus(short sn, int seq) {
 		case IMPTYPE:
 			spr.lotag = 92;
 			if ((krand() % 10) > 5)
-				spritesound(S_IMPGROWL1 + (krand() % 3), &spr);
+				spritesound(S_IMPGROWL1 + (krand() % 3), actor);
 			spr.picnum = IMPATTACK;
 			break;	
 		case GOBLINTYPE:
 			if ((krand() % 10) > 5)
-				spritesound(S_GOBLIN1 + (krand() % 3), &spr);
+				spritesound(S_GOBLIN1 + (krand() % 3), actor);
 			spr.picnum = GOBLINATTACK;
 			break;
 		case MINOTAURTYPE:
 			if ((krand() % 10) > 4)
-				spritesound(S_MSNARL1 + (krand() % 3), &spr);
+				spritesound(S_MSNARL1 + (krand() % 3), actor);
 
 			spr.picnum = MINOTAURATTACK;
 			break;
@@ -622,7 +622,7 @@ void newstatus(short sn, int seq) {
 			break;
 		case FATWITCHTYPE:
 			if ((krand() % 10) > 4)
-				spritesound(S_FATLAUGH, &spr);
+				spritesound(S_FATLAUGH, actor);
 			spr.picnum = FATWITCHATTACK;
 			break;
 		case JUDYTYPE:
@@ -633,11 +633,11 @@ void newstatus(short sn, int seq) {
 				spr.picnum = JUDYATTACK2;
 			break;
 		case WILLOWTYPE:
-			spritesound(S_WISP + (krand() % 2), &spr);
+			spritesound(S_WISP + (krand() % 2), actor);
 			spr.pal = 7;
 			break;
 		case GUARDIANTYPE:
-			spritesound(S_GUARDIAN1 + (krand() % 2), &spr);
+			spritesound(S_GUARDIAN1 + (krand() % 2), actor);
 			spr.picnum = GUARDIANATTACK;
 			break;
 		}
@@ -726,14 +726,14 @@ void newstatus(short sn, int seq) {
 					spr.picnum = IMP;
 			} else {
 				if (krand() % 10 > 2)
-					spritesound(S_GOBLIN1 + (krand() % 3), &spr);
+					spritesound(S_GOBLIN1 + (krand() % 3), actor);
 
 				spr.picnum = GOBLIN;
 			}
 			break;
 		case MINOTAURTYPE:
 			// JSA_DEMO3
-			spritesound(S_MSNARL1 + (krand() % 4), &spr);
+			spritesound(S_MSNARL1 + (krand() % 4), actor);
 			spr.picnum = MINOTAUR;
 			break;
 		case SKULLYTYPE:
@@ -781,12 +781,12 @@ void newstatus(short sn, int seq) {
 		case NEWGUYTYPE:
 			spr.lotag = 20;
 			spr.picnum = NEWGUYDIE;
-			spritesound(S_AGM_DIE1 + (krand() % 3), &spr);
+			spritesound(S_AGM_DIE1 + (krand() % 3), actor);
 			break;
 		case KURTTYPE:
 		case GONZOTYPE:
 			spr.lotag = 20;
-			spritesound(S_GRONDEATHA + krand() % 3, &spr);
+			spritesound(S_GRONDEATHA + krand() % 3, actor);
 			switch (spr.picnum) {
 			case KURTSTAND:
 			case KURTKNEE:
@@ -830,12 +830,12 @@ void newstatus(short sn, int seq) {
 			}
 			break;
 		case KATIETYPE:
-			spritesound(S_JUDYDIE, &spr);
+			spritesound(S_JUDYDIE, actor);
 			spr.lotag = 20;
 			spr.picnum = KATIEPAIN;
 			break;
 		case DEMONTYPE:
-			spritesound(S_GUARDIANDIE, &spr);
+			spritesound(S_GUARDIANDIE, actor);
 			explosion(sn, spr.x, spr.y, spr.z, spr.owner);
 			DeleteActor(actor);
 			addscore(aiGetPlayerTarget(sn), 1500);
@@ -843,7 +843,7 @@ void newstatus(short sn, int seq) {
 			return;
 		case GRONTYPE:
 			spr.lotag = 20;
-			spritesound(S_GRONDEATHA + krand() % 3, &spr);
+			spritesound(S_GRONDEATHA + krand() % 3, actor);
 			if(spr.picnum == GRONHAL || spr.picnum == GRONHALATTACK || spr.picnum == GRONHALPAIN)
 				spr.picnum = GRONHALDIE;
 			else if(spr.picnum == GRONSW || spr.picnum == GRONSWATTACK || spr.picnum == GRONSWPAIN)
@@ -860,18 +860,18 @@ void newstatus(short sn, int seq) {
 			spr.lotag = 20;
 			break;
 		case KOBOLDTYPE:
-			spritesound(S_KDIE1 + (krand() % 2), &spr);
+			spritesound(S_KDIE1 + (krand() % 2), actor);
 			spr.lotag = 20;
 			spr.picnum = KOBOLDDIE;
 			break;
 		case DRAGONTYPE:
-			spritesound(S_DEMONDIE1 + (krand() % 2), &spr);
+			spritesound(S_DEMONDIE1 + (krand() % 2), actor);
 			spr.lotag = 20;
 			spr.picnum = DRAGONDIE;
 
 			break;
 		case DEVILTYPE:
-			spritesound(S_DEMONDIE1 + (krand() % 2), &spr);
+			spritesound(S_DEMONDIE1 + (krand() % 2), actor);
 			spr.lotag = 20;
 			spr.picnum = DEVILDIE;
 			break;
@@ -879,25 +879,25 @@ void newstatus(short sn, int seq) {
 			spr.lotag = 20;
 			spr.picnum = FREDDIE;
 			/* EG: Sounds for Fred (currently copied from Ogre) */
-			spritesound(S_KDIE1 + (rand() % 2), &spr);
+			spritesound(S_KDIE1 + (rand() % 2), actor);
 			break;
 		case SKELETONTYPE:
-			spritesound(S_SKELETONDIE, &spr);
+			spritesound(S_SKELETONDIE, actor);
 			spr.lotag = 20;
 			spr.picnum = SKELETONDIE;
 			break;
 		case IMPTYPE:
-			spritesound(S_IMPDIE1 + (krand() % 2), &spr);
+			spritesound(S_IMPDIE1 + (krand() % 2), actor);
 			spr.lotag = 20;
 			spr.picnum = IMPDIE;
 			break;
 		case GOBLINTYPE:
-			spritesound(S_GOBDIE1 + (krand() % 3), &spr);
+			spritesound(S_GOBDIE1 + (krand() % 3), actor);
 			spr.lotag = 20;
 			spr.picnum = GOBLINDIE;
 			break;
 		case MINOTAURTYPE:
-			spritesound(S_MDEATH1, &spr);
+			spritesound(S_MDEATH1, actor);
 			spr.lotag = 10;
 			spr.picnum = MINOTAURDIE;
 			break;
@@ -908,12 +908,12 @@ void newstatus(short sn, int seq) {
 		case SKULLYTYPE:
 			spr.lotag = 20;
 			spr.picnum = SKULLYDIE;
-			spritesound(S_SKULLWITCHDIE, &spr);
+			spritesound(S_SKULLWITCHDIE, actor);
 			break;
 		case FATWITCHTYPE:
 			spr.lotag = 20;
 			spr.picnum = FATWITCHDIE;
-			spritesound(S_FATWITCHDIE, &spr);
+			spritesound(S_FATWITCHDIE, actor);
 			break;
 		case JUDYTYPE:
 			spr.lotag = 20;
@@ -924,11 +924,11 @@ void newstatus(short sn, int seq) {
 				return;
 			} else {
 				spr.picnum = JUDYDIE;
-				spritesound(S_JUDYDIE, &spr);
+				spritesound(S_JUDYDIE, actor);
 			}
 			break;
 		case GUARDIANTYPE:
-			spritesound(S_GUARDIANDIE, &spr);
+			spritesound(S_GUARDIANDIE, actor);
 			for (int j = 0; j < 4; j++)
 				explosion(sn, spr.x, spr.y, spr.z, spr.owner);
 			DeleteActor(actor);
@@ -936,7 +936,7 @@ void newstatus(short sn, int seq) {
 			kills++;
 			return;
 		case WILLOWTYPE:
-			spritesound(S_WILLOWDIE, &spr);
+			spritesound(S_WILLOWDIE, actor);
 			spr.pal = 0;
 			spr.lotag = 20;
 			spr.picnum = WILLOWEXPLO;
@@ -1575,7 +1575,7 @@ boolean damageactor(PLAYER& plr, DWHActor* hitactor, DWHActor* actor)
 		// EG 21 Aug 2017: Move this here so as not to make ouch sounds unless pain is
 		// happening
 		if ((krand() & 9) == 0)
-			spritesound(S_PLRPAIN1 + (rand() % 2), &spr);
+			spritesound(S_PLRPAIN1 + (rand() % 2), actor);
 
 		if (isWh2() && spr.picnum == DART) {
 			plr.poisoned = 1;
@@ -1639,7 +1639,7 @@ boolean damageactor(PLAYER& plr, DWHActor* hitactor, DWHActor* actor)
 					hitspr.hitag -= 30;
 					if(spr.picnum == THROWPIKE) {
 						if ((krand() % 2) != 0)
-							spritesound(S_GORE1A + krand() % 2, &spr);
+							spritesound(S_GORE1A + krand() % 2, actor);
 					}
 				} else {
 				switch (spr.picnum) {
