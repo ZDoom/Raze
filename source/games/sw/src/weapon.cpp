@@ -10688,8 +10688,8 @@ SpawnBasicExp(int16_t Weapon)
 
 void SpawnFireballFlames(int16_t SpriteNum, int16_t enemy)
 {
-    SPRITEp sp = &sprite[SpriteNum], ep;
-    USERp u = User[SpriteNum].Data(), eu;
+    SPRITEp sp = &sprite[SpriteNum], ep = nullptr;
+    USERp u = User[SpriteNum].Data(), eu = nullptr;
 
     if (TEST(u->Flags, SPR_UNDERWATER))
         return;
@@ -19747,42 +19747,6 @@ SpawnSplashXY(int hit_x, int hit_y, int hit_z, short sectnum)
     return 0;
 }
 
-int
-SpawnUnderSplash(short SpriteNum)
-{
-    USERp u = User[SpriteNum].Data(), wu;
-    SPRITEp sp = User[SpriteNum]->SpriteP, wp;
-    short w;
-
-    SECT_USERp sectu = SectUser[sp->sectnum].Data();
-    SECTORp sectp = &sector[sp->sectnum];
-
-    return 0;
-
-    if (Prediction)
-        return 0;
-
-    if (sectu && (TEST(sectp->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_NONE))
-        return 0;
-
-    DoActorZrange(SpriteNum);
-    MissileWaterAdjust(SpriteNum);
-
-    w = SpawnSprite(STAT_MISSILE, SPLASH, s_Splash, sp->sectnum, sp->x, sp->y, u->hiz, sp->ang, 0);
-    wp = &sprite[w];
-    wu = User[w].Data();
-
-    if (sectu && TEST(sectp->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
-        wu->spal = wp->pal = PALETTE_RED_LIGHTING;
-
-    wp->xrepeat = 72;
-    wp->yrepeat = 90;
-    wp->shade = sector[sp->sectnum].floorshade - 10;
-    SET(wp->cstat, CSTAT_SPRITE_YFLIP);
-
-    return 0;
-}
-
 bool
 MissileHitDiveArea(short SpriteNum)
 {
@@ -19821,7 +19785,6 @@ MissileHitDiveArea(short SpriteNum)
             SET(u->Flags, SPR_UNDERWATER);
             SpawnSplash(short(sp - sprite));
             SpriteWarpToUnderwater(sp);
-            //SpawnUnderSplash(sp - sprite);
             SetCollision(u, 0);
             PlaySound(DIGI_PROJECTILEWATERHIT, sp, v3df_none);
             return true;
