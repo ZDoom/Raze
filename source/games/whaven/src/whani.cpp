@@ -315,10 +315,10 @@ void animateobjs(PLAYER& plr) {
 			if (spr.lotag < 0) {
 				DeleteActor(actor);
 				// set back to normall
-				sector[plr.sector].ceilingshade = ceilingshadearray[plr.sector];
-				sector[plr.sector].floorshade = floorshadearray[plr.sector];
-				startwall = sector[plr.sector].wallptr;
-				endwall = (short) (startwall + sector[plr.sector].wallnum - 1);
+				plr.Sector()->ceilingshade = ceilingshadearray[plr.sector];
+				plr.Sector()->floorshade = floorshadearray[plr.sector];
+				startwall = plr.Sector()->wallptr;
+				endwall = (short) (startwall + plr.Sector()->wallnum - 1);
 				for (k = startwall; k <= endwall; k++) {
 					wall[k].shade = wallshadearray[k];
 				}

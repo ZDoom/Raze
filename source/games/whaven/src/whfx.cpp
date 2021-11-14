@@ -428,7 +428,7 @@ void teleporter() {
 	if (plr.sector == -1)
 		return;
 
-	if (sector[plr.sector].lotag == 10) {
+	if (plr.Sector()->lotag == 10) {
 		if (plr.sector != plr.oldsector) {
 			daang = plr.angle.ang.asbuild();
 			warpfxsprite(plr.spritenum);
@@ -447,7 +447,7 @@ void teleporter() {
 		}
 	}
 
-	if (sector[plr.sector].lotag == 4002) {
+	if (plr.Sector()->lotag == 4002) {
 		if (plr.sector != plr.oldsector) {
 			if (plr.treasure[TPENTAGRAM] == 1) {
 				plr.treasure[TPENTAGRAM] = 0;
@@ -458,7 +458,7 @@ void teleporter() {
 					return;
 				}
 #endif
-				switch (sector[plr.sector].hitag) {
+				switch (plr.Sector()->hitag) {
 				case 1: // NEXTLEVEL
 					justteleported = true;
 					CompleteLevel(currentLevel);
@@ -593,7 +593,7 @@ void sectorsounds() {
 
 	PLAYER& plr = player[pyrn];
 
-	int sec = sector[plr.sector].extra & 0xFFFF;
+	int sec = plr.Sector()->extra & 0xFFFF;
 	if (sec != 0) 
 	{
 		if ((sec & 32768) != 0) 
@@ -610,7 +610,7 @@ void sectorsounds() {
 				soundEngine->StopSound(CHAN_AMBIENT1 + index);
 			}
 		} else {
-			if (plr.z <= sector[plr.sector].floorz - (8 << 8))
+			if (plr.z <= plr.Sector()->floorz - (8 << 8))
 				spritesound(sec, &sprite[plr.spritenum]);
 		}
 	}
@@ -654,7 +654,7 @@ void dofx() {
 	cracks();
 	if (isWh2()) {
 		PLAYER& plr = player[0];
-		if (sector[plr.sector].lotag == 50 && sector[plr.sector].hitag > 0)
+		if (plr.Sector()->lotag == 50 && plr.Sector()->hitag > 0)
 			weaponpowerup(plr);
 	}
 
@@ -775,13 +775,13 @@ void thesplash() {
 	if (plr.sector == -1)
 		return;
 
-	if (sector[plr.sector].floorpicnum == WATER || sector[plr.sector].floorpicnum == LAVA
-			|| sector[plr.sector].floorpicnum == SLIME) {
+	if (plr.Sector()->floorpicnum == WATER || plr.Sector()->floorpicnum == LAVA
+			|| plr.Sector()->floorpicnum == SLIME) {
 		if (plr.onsomething == 0)
 			return;
 
 		if (plr.sector != plr.oldsector) {
-			switch (sector[plr.sector].floorpicnum) {
+			switch (plr.Sector()->floorpicnum) {
 			case WATER:
 				makeasplash(SPLASHAROO, plr);
 				break;
@@ -805,7 +805,7 @@ void makeasplash(int picnum, PLAYER& plr) {
 
 	spawned.x = plr.x;
 	spawned.y = plr.y;
-	spawned.z = sector[plr.sector].floorz + (tileHeight(picnum) << 8);
+	spawned.z = plr.Sector()->floorz + (tileHeight(picnum) << 8);
 	spawned.cstat = 0; // Hitscan does not hit other bullets
 	spawned.picnum = (short) picnum;
 	spawned.shade = 0;
@@ -920,38 +920,38 @@ void cracks() {
 	if (plr.sector == -1)
 		return;
 
-	int datag = sector[plr.sector].lotag;
+	int datag = plr.Sector()->lotag;
 
 	if (floorpanningcnt < 64)
 		if (datag >= 3500 && datag <= 3599) {
-			sector[plr.sector].hitag = 0;
-			int daz = sector[plr.sector].floorz + (1024 * (sector[plr.sector].lotag - 3500));
+			plr.Sector()->hitag = 0;
+			int daz = plr.Sector()->floorz + (1024 * (plr.Sector()->lotag - 3500));
 			if ((setanimation(plr.sector, daz, 32, 0, FLOORZ)) >= 0) {
-				sector[plr.sector].floorpicnum = LAVA1;
-				sector[plr.sector].floorshade = -25;
+				plr.Sector()->floorpicnum = LAVA1;
+				plr.Sector()->floorshade = -25;
 				SND_Sound(S_CRACKING);
 			}
-			sector[plr.sector].lotag = 80;
+			plr.Sector()->lotag = 80;
 			floorpanninglist[floorpanningcnt++] = plr.sector;
 		}
 
 	if (datag >= 5100 && datag <= 5199) {
-		sector[plr.sector].hitag = 0;
-		sector[plr.sector].lotag = 0;
+		plr.Sector()->hitag = 0;
+		plr.Sector()->lotag = 0;
 	}
 
 	if (datag >= 5200 && datag <= 5299) {
-		sector[plr.sector].hitag = 0;
-		sector[plr.sector].lotag = 0;
+		plr.Sector()->hitag = 0;
+		plr.Sector()->lotag = 0;
 	}
 
 	if (datag == 3001) {
-		sector[plr.sector].lotag = 0;
+		plr.Sector()->lotag = 0;
 		WHSpriteIterator it;
 		while (auto itActor = it.Next())
 		{
 			auto& spk = itActor->s();
-			if (sector[plr.sector].hitag == spk.hitag) {
+			if (plr.Sector()->hitag == spk.hitag) {
 				spk.lotag = 36;
 				spk.zvel = (short) (krand() & 1024 + 512);
 				SetNewStatus(itActor, SHOVE);
@@ -1071,9 +1071,9 @@ void weaponpowerup(PLAYER& plr) {
 				break;
 			}
 				
-			if (sector[plr.sector].hitag > 0) {
-				sector[plr.sector].hitag--;
-				if (sector[plr.sector].hitag == 0) {
+			if (plr.Sector()->hitag > 0) {
+				plr.Sector()->hitag--;
+				if (plr.Sector()->hitag == 0) {
 					WHSectIterator it(plr.sector);
 					while (auto actor = it.Next())
 					{

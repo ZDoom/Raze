@@ -258,7 +258,7 @@ void processinput(int num) {
 	else
 		onsprite = -1;
 
-	feetoffground = (plr.sector != -1) ? (sector[plr.sector].floorz - plr.z) : 0;
+	feetoffground = (plr.sector != -1) ? (plr.Sector()->floorz - plr.z) : 0;
 
 	if (abs(plr.plInput.svel) > gi->playerKeyMove() || abs(plr.plInput.fvel) > gi->playerKeyMove()) {
 		if (feetoffground > (32 << 8))
@@ -311,21 +311,21 @@ void processinput(int num) {
 		plr.angle.applyinput(plr.plInput.avel, &bits);
 	}
 
-	if (plr.sector != -1 && ((sector[plr.sector].floorpicnum != LAVA || sector[plr.sector].floorpicnum != SLIME
-		|| sector[plr.sector].floorpicnum != WATER || sector[plr.sector].floorpicnum != HEALTHWATER
-		|| sector[plr.sector].floorpicnum != ANILAVA || sector[plr.sector].floorpicnum != LAVA1
-		|| sector[plr.sector].floorpicnum != LAVA2) && feetoffground <= (32 << 8))) {
+	if (plr.sector != -1 && ((plr.Sector()->floorpicnum != LAVA || plr.Sector()->floorpicnum != SLIME
+		|| plr.Sector()->floorpicnum != WATER || plr.Sector()->floorpicnum != HEALTHWATER
+		|| plr.Sector()->floorpicnum != ANILAVA || plr.Sector()->floorpicnum != LAVA1
+		|| plr.Sector()->floorpicnum != LAVA2) && feetoffground <= (32 << 8))) {
 		plr.plInput.fvel /= 3;
 		plr.plInput.svel /= 3;
 	}
 
-	if ((plr.sector != -1 && (sector[plr.sector].floorpicnum == LAVA || sector[plr.sector].floorpicnum == SLIME
-		|| sector[plr.sector].floorpicnum == WATER || sector[plr.sector].floorpicnum == HEALTHWATER
-		|| sector[plr.sector].floorpicnum == ANILAVA || sector[plr.sector].floorpicnum == LAVA1
-		|| sector[plr.sector].floorpicnum == LAVA2)) && plr.orbactive[5] < 0 // loz
-		&& plr.z >= sector[plr.sector].floorz - (plr.height << 8) - (8 << 8)) {
+	if ((plr.sector != -1 && (plr.Sector()->floorpicnum == LAVA || plr.Sector()->floorpicnum == SLIME
+		|| plr.Sector()->floorpicnum == WATER || plr.Sector()->floorpicnum == HEALTHWATER
+		|| plr.Sector()->floorpicnum == ANILAVA || plr.Sector()->floorpicnum == LAVA1
+		|| plr.Sector()->floorpicnum == LAVA2)) && plr.orbactive[5] < 0 // loz
+		&& plr.z >= plr.Sector()->floorz - (plr.height << 8) - (8 << 8)) {
 		goalz = loz - (32 << 8);
-		switch (sector[plr.sector].floorpicnum) {
+		switch (plr.Sector()->floorpicnum) {
 		case ANILAVA:
 		case LAVA:
 		case LAVA1:
@@ -383,7 +383,7 @@ void processinput(int num) {
 	}
 
 	if ((bits & SB_CROUCH) != 0) {
-		if (plr.sector != -1 && goalz < ((sector[plr.sector].floorz) - (plr.height >> 3))) {
+		if (plr.sector != -1 && goalz < ((plr.Sector()->floorz) - (plr.height >> 3))) {
 			if (isWh2())
 				goalz += (48 << 8);
 			else
@@ -457,7 +457,7 @@ void processinput(int num) {
 		// JSA BLORB
 
 		if (plr.sector != plr.oldsector) {
-				switch (sector[plr.sector].floorpicnum) {
+				switch (plr.Sector()->floorpicnum) {
 				case ANILAVA:
 				case LAVA:
 				case LAVA1:

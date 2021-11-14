@@ -63,7 +63,7 @@ static void chasegonzo(PLAYER& plr, DWHActor* actor)
 				SetActorPos(actor, &spr.pos);
 				moveStat.type = -1; // make invalid.
 
-				if (rand() % 100 > 80 && sector[plr.sector].lotag == 25) {
+				if (rand() % 100 > 80 && plr.Sector()->lotag == 25) {
 					SetNewStatus(actor, AMBUSH);
 					spr.z -= (getPlayerHeight() << 6);
 					spr.lotag = 60;
@@ -75,7 +75,7 @@ static void chasegonzo(PLAYER& plr, DWHActor* actor)
 
 			}
 
-			if (moveStat.type == kHitWall && sector[plr.sector].lotag == 25) {
+			if (moveStat.type == kHitWall && plr.Sector()->lotag == 25) {
 				SetNewStatus(actor, AMBUSH);
 				spr.z -= (getPlayerHeight() << 6);
 				spr.lotag = 90;

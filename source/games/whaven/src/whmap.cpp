@@ -782,7 +782,7 @@ boolean prepareboard(const char* fname) {
 
 		pspr.x = plr.x;
 		pspr.y = plr.y;
-		pspr.z = sector[plr.sector].floorz;
+		pspr.z = plr.Sector()->floorz;
 		pspr.cstat = 1 + 256;
 		pspr.picnum = isWh2() ? GRONSW : FRED;
 		pspr.shade = 0;

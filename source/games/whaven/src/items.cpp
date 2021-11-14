@@ -542,7 +542,7 @@ void InitItems()
 		items[a++].Init(-1, -1, true, true, [](PLAYER& plr, DWHActor* actor) // PENTAGRAM
 
 			{
-				if (sector[plr.sector].lotag == 4002)
+				if (plr.Sector()->lotag == 4002)
 					return;
 				else {
 					plr.treasure[TPENTAGRAM] = 1;

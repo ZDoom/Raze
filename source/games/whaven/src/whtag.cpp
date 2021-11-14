@@ -291,7 +291,7 @@ void operatesector(PLAYER& plr, int s) {
 
 	case PLATFORMELEVTAG:
 		i = getanimationgoal(sector[s], 1);
-		goalz = sector[plr.sector].floorz;
+		goalz = plr.Sector()->floorz;
 		if (i >= 0) {
 			gAnimationData[i].goal = goalz;
 		} else {
@@ -302,7 +302,7 @@ void operatesector(PLAYER& plr, int s) {
 		i = getanimationgoal(sector[s], 1);
 		j = getanimationgoal(sector[s], 2);
 		size = sector[s].ceilingz - sector[s].floorz;
-		goalz = sector[plr.sector].floorz;
+		goalz = plr.Sector()->floorz;
 		if (i >= 0) {
 
 			gAnimationData[i].goal = goalz;
@@ -901,9 +901,9 @@ void animatetags(int nPlayer) {
 	PLAYER& plr = player[nPlayer];
 
 	if (plr.sector != -1) {
-		if (sector[plr.sector].lotag == 2) {
+		if (plr.Sector()->lotag == 2) {
 			for (i = 0; i < numsectors; i++)
-				if (sector[i].hitag == sector[plr.sector].hitag)
+				if (sector[i].hitag == plr.Sector()->hitag)
 					if (sector[i].lotag != 2)
 						operatesector(plr, i);
 			
@@ -913,16 +913,16 @@ void animatetags(int nPlayer) {
 				SPRITE& spr = actor->s();
 				int i = actor->GetSpriteIndex();
 
-				if (spr.hitag == sector[plr.sector].hitag)
+				if (spr.hitag == plr.Sector()->hitag)
 					operatesprite(plr, i);
 			}
 
-			sector[plr.sector].lotag = 0;
-			sector[plr.sector].hitag = 0;
+			plr.Sector()->lotag = 0;
+			plr.Sector()->hitag = 0;
 		}
-		if ((sector[plr.sector].lotag == 1) && (plr.sector != plr.oldsector)) {
+		if ((plr.Sector()->lotag == 1) && (plr.sector != plr.oldsector)) {
 			for (i = 0; i < numsectors; i++)
-				if (sector[i].hitag == sector[plr.sector].hitag)
+				if (sector[i].hitag == plr.Sector()->hitag)
 					if (sector[i].lotag != 2)
 						operatesector(plr, i);
 
@@ -932,7 +932,7 @@ void animatetags(int nPlayer) {
 				SPRITE& spr = actor->s();
 				int i = actor->GetSpriteIndex();
 
-				if (spr.hitag == sector[plr.sector].hitag)
+				if (spr.hitag == plr.Sector()->hitag)
 					operatesprite(plr, i);
 			}
 		}

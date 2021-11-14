@@ -88,7 +88,7 @@ void initplayersprite(PLAYER& plr) {
 	plr.oldsector = plr.sector;
 	plr.horizon.horiz = q16horiz(0);
 	plr.height = getPlayerHeight();
-	plr.z = sector[plr.sector].floorz - (plr.height << 8);
+	plr.z = plr.Sector()->floorz - (plr.height << 8);
 
 	plr.spritenum = (short) insertsprite(plr.sector, (short) 0);
 	auto& spr = sprite[plr.spritenum];

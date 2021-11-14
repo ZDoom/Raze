@@ -27,7 +27,7 @@ void drawweapons(int snum, double const dasmoothratio) {
 		dapalnum = 0;
 	}
 	else {
-		dashade = sector[plr.sector].ceilingshade;
+		dashade = plr.Sector()->ceilingshade;
 		dapalnum = 0;
 	}
 
@@ -404,7 +404,7 @@ static void spikeheart(PLAYER& plr)
 	int dax = spikeanimtics[plr.currspikeframe].currx;
 	int day = spikeanimtics[plr.currspikeframe].curry;
 
-	overwritesprite(dax, day, plr.spikeframe, sector[plr.sector].ceilingshade, 0, 0);
+	overwritesprite(dax, day, plr.spikeframe, plr.Sector()->ceilingshade, 0, 0);
 	startredflash(10);
 }
 
