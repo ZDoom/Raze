@@ -254,8 +254,9 @@ void animateobjs(PLAYER& plr) {
 					spr.extra = 12;
 				}
 			} else {
-				j = insertsprite(spr.sectnum, FACE);
-				auto& spawned = sprite[j];
+				auto spawnedactor = InsertActor(spr.sectnum, FACE);
+				auto& spawned = spawnedactor->s();
+
 				enemy[GONZOTYPE].info.set(spawned);
 				spawned.x = spr.x;
 				spawned.y = spr.y;
@@ -1330,8 +1331,8 @@ void animateobjs(PLAYER& plr) {
 			spr.lotag -= TICSPERFRAME;
 
 			if (krand() % 100 > 90) {
-				j = insertsprite(spr.sectnum, SMOKE);
-				auto& spawned = sprite[j];
+				auto spawnedactor = InsertActor(spr.sectnum, SMOKE);
+				auto& spawned = spawnedactor->s();
 
 				spawned.x = spr.x;
 				spawned.y = spr.y;

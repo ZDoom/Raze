@@ -658,11 +658,8 @@ static boolean patrolprocess(PLAYER& plr, DWHActor* actor)
 }
 
 static void gonzopike(short s, PLAYER& plr) {
-	int j = insertsprite(sprite[s].sectnum, JAVLIN);
-	if (j == -1)
-		return;
-
-	SPRITE& spr = sprite[j];
+	auto spawnedactor = InsertActor(sprite[s].sectnum, JAVLIN);
+	auto& spr = spawnedactor->s();
 
 	spr.x = sprite[s].x;
 	spr.y = sprite[s].y;
@@ -796,8 +793,9 @@ void premapGonzo(short i) {
 	
 void deaddude(short sn) {
 	auto& spr = sprite[sn];
-	int j = insertsprite(spr.sectnum, DEAD);
-	auto& spawned = sprite[j];
+	auto spawnedactor = InsertActor(spr.sectnum, DEAD);
+	auto& spawned = spawnedactor->s();
+
 	spawned.x = spr.x;
 	spawned.y = spr.y;
 	spawned.z = spr.z;

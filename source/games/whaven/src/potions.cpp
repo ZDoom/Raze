@@ -140,8 +140,8 @@ void randompotion(int i) {
 	if ((krand() % 100) > 20)
 		return;
 
-	int j = insertsprite(sprite[i].sectnum, (short)0);
-	auto& spawned = sprite[j];
+	auto spawnedactor = InsertActor(sprite[i].sectnum, (short)0);
+	auto& spawned = spawnedactor->s();
 
 	spawned.x = sprite[i].x;
 	spawned.y = sprite[i].y;

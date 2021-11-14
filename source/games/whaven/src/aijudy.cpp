@@ -379,8 +379,8 @@ void judyOperate(PLAYER& plr)
 	
 void spawnabaddy(DWHActor* actor, int monster) {
 	auto& spr = actor->s();
-	short j = insertsprite(spr.sectnum, FACE);
-	auto& spawned = sprite[j];
+	auto spawnedactor = InsertActor(spr.sectnum, FACE);
+	auto& spawned = spawnedactor->s();
 
 	spawned.x = spr.x + (krand() & 2048) - 1024;
 	spawned.y = spr.y + (krand() & 2048) - 1024;
@@ -391,20 +391,20 @@ void spawnabaddy(DWHActor* actor, int monster) {
 	spawned.cstat = 0;
 
 	if (monster == WILLOW)
-		premapWillow(j);
+		premapWillow(spawnedactor->GetSpriteIndex());
 	else if (monster == SPIDER)
-		premapSpider(j);
+		premapSpider(spawnedactor->GetSpriteIndex());
 	else if (monster == GRONSW)
-		premapGron(j);
+		premapGron(spawnedactor->GetSpriteIndex());
 	else if (monster == SKELETON)
-		premapSkeleton(j);
+		premapSkeleton(spawnedactor->GetSpriteIndex());
 	else if (monster == GONZOGSH)
-		premapGonzo(j);
+		premapGonzo(spawnedactor->GetSpriteIndex());
 
 	spawned.picnum = (short)monster;
 	killcnt++;
 
-	setsprite(j, spawned.x, spawned.y, spawned.z);
+	SetActorPos(spawnedactor, &spawned.pos);
 	spawned.backuploc();
 }
 

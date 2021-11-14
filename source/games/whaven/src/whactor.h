@@ -213,4 +213,9 @@ inline void DeleteActor(DWHActor* actor)
 	deletesprite(actor->GetSpriteIndex());
 }
 
+inline DWHActor* InsertActor(int sectnum, int statnum)
+{
+	return &whActors[insertsprite(sectnum, statnum)];
+}
+
 END_WH_NS

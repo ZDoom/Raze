@@ -896,7 +896,6 @@ void madenoise(PLAYER& plr, int val, int x, int y, int z) {
 
 void shootgun(PLAYER& plr, float ang, int guntype) {
 	int k = 0, daz2;
-	short j;
 	DWHActor* hitActor = nullptr;
 
 	int daang = (int) ang;
@@ -1705,9 +1704,9 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 					ntag, 1024, 3);
 
 			if (ntag.tagsector < 0) {
-				j = insertsprite(pHitInfo.hitsect, (short) 0);
-				auto spawnedactor = &whActors[j];
+				auto spawnedactor = InsertActor(pHitInfo.hitsect, (short) 0);
 				auto& spawned = spawnedactor->s();
+
 				spawned.x = pHitInfo.hitx;
 				spawned.y = pHitInfo.hity;
 				spawned.z = pHitInfo.hitz + (8 << 8);
@@ -1728,9 +1727,9 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 				spritesound(S_ARROWHIT, spawnedactor);
 
 				if (isWh2() && plr.weapon[6] == 3 && plr.currweapon == 6) {
-					auto spawnedactor = &whActors[j];
+					auto spawnedactor = InsertActor(pHitInfo.hitsect, FIRECHUNK);
 					auto& spawned = spawnedactor->s();
-					j = insertsprite(pHitInfo.hitsect, FIRECHUNK);
+
 					spawned.x = pHitInfo.hitx;
 					spawned.y = pHitInfo.hity;
 					spawned.z = pHitInfo.hitz + (14 << 8);
@@ -1756,9 +1755,9 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 			}
 		}
 		if (pHitInfo.hitwall > 0 && pHitInfo.hitsprite > 0) {
-			j = insertsprite(pHitInfo.hitsect, FX);
-			auto spawnedactor = &whActors[j];
+			auto spawnedactor = InsertActor(pHitInfo.hitsect, FX);
 			auto& spawned = spawnedactor->s();
+
 			spawned.x = pHitInfo.hitx;
 			spawned.y = pHitInfo.hity;
 			spawned.z = pHitInfo.hitz + (8 << 8);
@@ -1956,10 +1955,10 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 					}
 
 					if (plr.weapon[plr.currweapon] == 3) {
-						j = insertsprite(plr.sector, MISSILE);
-						auto spawnedactor = &whActors[j];
+						auto spawnedactor = InsertActor(plr.sector, MISSILE);
 						auto& spawned = spawnedactor->s();
-						throwpikesprite[throwpikecnt] = j;
+
+						throwpikesprite[throwpikecnt] = spawnedactor->GetSpriteIndex();
 						spawned.x = plr.x;
 						spawned.y = plr.y;
 						spawned.z = plr.z + (24 << 8);
@@ -1985,12 +1984,13 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 						spawned.pal = 0;
 						movesprite(spawnedactor, (bcos(spawned.extra) * TICSPERFRAME) << 3,
 								(bsin(spawned.extra) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
-						setsprite((short) j, spawned.x, spawned.y, spawned.z);
+						SetActorPos(spawnedactor, &spawned.pos);
 						spawned.backuploc();
 					} else {
-						j = insertsprite(plr.sector, MISSILE);
-						auto& spawned = sprite[j];
-						throwpikesprite[throwpikecnt] = j;
+						auto spawnedactor = InsertActor(plr.sector, MISSILE);
+						auto& spawned = spawnedactor->s();
+
+						throwpikesprite[throwpikecnt] = spawnedactor->GetSpriteIndex();
 						spawned.x = plr.x;
 						spawned.y = plr.y;
 						spawned.z = plr.z + (24 << 8);
@@ -2012,8 +2012,8 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 						spawned.backuploc();
 					}
 				} else {
-					j = insertsprite(plr.sector, MISSILE);
-					auto& spawned = sprite[j];
+					auto spawnedactor = InsertActor(plr.sector, MISSILE);
+					auto& spawned = spawnedactor->s();
 
 					spawned.x = plr.x;
 					spawned.y = plr.y;
@@ -2055,10 +2055,10 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 
 					if (plr.weapon[plr.currweapon] == 3) {
 
-						j = insertsprite(plr.sector, MISSILE);
-						auto spawnedactor = &whActors[j];
+						auto spawnedactor = InsertActor(plr.sector, MISSILE);
 						auto& spawned = spawnedactor->s();
-						throwpikesprite[throwpikecnt] = j;
+
+						throwpikesprite[throwpikecnt] = spawnedactor->GetSpriteIndex();
 						spawned.x = plr.x;
 						spawned.y = plr.y;
 						spawned.z = plr.z + (24 << 8);
@@ -2081,13 +2081,13 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 						spawned.pal = 0;
 						movesprite(spawnedactor, (bcos(spawned.extra) * TICSPERFRAME) << 3,
 								(bsin(spawned.extra) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
-						setsprite((short) j, spawned.x, spawned.y, spawned.z);
+						SetActorPos(spawnedactor, &spawned.pos);
 						spawned.backuploc();
 					} else {
-						j = insertsprite(plr.sector, MISSILE);
-						auto spawnedactor = &whActors[j];
+						auto spawnedactor = InsertActor(plr.sector, MISSILE);
 						auto& spawned = spawnedactor->s();
-						throwpikesprite[throwpikecnt] = j;
+
+						throwpikesprite[throwpikecnt] = spawnedactor->GetSpriteIndex();
 						spawned.x = plr.x;
 						spawned.y = plr.y;
 						spawned.z = plr.z + (24 << 8);
@@ -2109,8 +2109,8 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 						spawned.backuploc();
 					}
 				} else {
-					j = insertsprite(plr.sector, MISSILE);
-					auto& spawned = sprite[j];
+					auto spawnedactor = InsertActor(plr.sector, MISSILE);
+					auto& spawned = spawnedactor->s();
 
 					spawned.x = plr.x;
 					spawned.y = plr.y;
@@ -2145,8 +2145,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 //						netshootgun(-1,12);
 		}
 
-		j = insertsprite(plr.sector, MISSILE);
-		auto spawnedactor = &whActors[j];
+		auto spawnedactor = InsertActor(plr.sector, MISSILE);
 		auto& spawned = spawnedactor->s();
 
 		spawned.x = plr.x;
@@ -2176,7 +2175,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 
 		movesprite(spawnedactor, (bcos(spawned.ang) * TICSPERFRAME) << 3,
 				(bsin(spawned.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
-		setsprite(j, spawned.x, spawned.y, spawned.z);
+		SetActorPos(spawnedactor, &spawned.pos);
 		spawned.backuploc();
 
 		break;
@@ -2187,8 +2186,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 //						netshootgun(-1,13);
 		}
 
-		j = insertsprite(plr.sector, MISSILE);
-		auto spawnedactor = &whActors[j];
+		auto spawnedactor = InsertActor(plr.sector, MISSILE);
 		auto& spawned = spawnedactor->s();
 
 		spawned.x = plr.x;
@@ -2221,7 +2219,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 
 		movesprite(spawnedactor, (bcos(spawned.ang) * TICSPERFRAME) << 3,
 				(bsin(spawned.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
-		setsprite(j, spawned.x, spawned.y, spawned.z);
+		SetActorPos(spawnedactor, &spawned.pos);
 		spawned.backuploc();
 
 		break;

@@ -282,7 +282,6 @@ void plruse(PLAYER& plr) {
 
 void chunksofmeat(PLAYER& plr, DWHActor* hitActor, int hitx, int hity, int hitz, short hitsect, int daang) {
 
-	int j;
 	short k;
 	short zgore = 0;
 	int chunk = REDCHUNKSTART;
@@ -346,8 +345,7 @@ void chunksofmeat(PLAYER& plr, DWHActor* hitActor, int hitx, int hity, int hitz,
 		for (k = 0; k < zgore; k++) {
 			newchunk = 0;
 
-			j = insertsprite(hitsect, CHUNKOMEAT);
-			auto spawnedactor = &whActors[j];
+			auto spawnedactor = InsertActor(hitsect, CHUNKOMEAT);
 			auto& spawned = spawnedactor->s();
 
 			spawned.x = hitx;

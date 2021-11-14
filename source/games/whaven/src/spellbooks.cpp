@@ -262,8 +262,9 @@ void nukespell(PLAYER& plr, short const j) {
 		spr.hitag = 0;
 		addscore(&plr, 150);
 
-		int k = insertsprite(spr.sectnum, NUKED);
-		auto& spawned = sprite[k];
+		auto spawnedactor = InsertActor(spr.sectnum, NUKED);
+		auto& spawned = spawnedactor->s();
+
 		spawned.lotag = 360;
 		spawned.xrepeat = 30;
 		spawned.yrepeat = 12;

@@ -362,12 +362,9 @@ static void castnewguy(PLAYER& plr, DWHActor* actor)
 }
 
 static void newguyarrow(short s, PLAYER& plr) {
-	int j = insertsprite(sprite[s].sectnum, JAVLIN);
-	if (j == -1)
-		return;
-
-	SPRITE& spr = sprite[j];
-
+	auto spawnedactor = InsertActor(sprite[s].sectnum, JAVLIN);
+	auto& spr = spawnedactor->s();
+	
 	spr.x = sprite[s].x;
 	spr.y = sprite[s].y;
 	spr.z = sprite[s].z - (40 << 8);

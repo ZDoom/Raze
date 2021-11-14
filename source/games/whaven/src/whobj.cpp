@@ -1372,9 +1372,9 @@ void newstatus(short sn, int seq) {
 }
 
 void makeafire(int i, int firetype) {
-	short j = insertsprite(sprite[i].sectnum, FIRE);
-	auto& spawned = sprite[j];
-	
+	auto spawnedactor = InsertActor(sprite[i].sectnum, FIRE);
+	auto& spawned = spawnedactor->s();
+
 	spawned.x = sprite[i].x + (krand() & 1024) - 512;
 	spawned.y = sprite[i].y + (krand() & 1024) - 512;
 	spawned.z = sprite[i].z;
@@ -1389,13 +1389,13 @@ void makeafire(int i, int firetype) {
 	spawned.owner = sprite[i].owner;
 	spawned.lotag = 2047;
 	spawned.hitag = 0;
-	changespritestat(j, FIRE);
+	ChangeActorStat(spawnedactor, FIRE);
 	spawned.backuploc();
 }
 
 void explosion(int i, int x, int y, int z, int owner) {
-	int j = insertsprite(sprite[i].sectnum, EXPLO);
-	auto& spawned = sprite[j];
+	auto spawnedactor = InsertActor(sprite[i].sectnum, EXPLO);
+	auto& spawned = spawnedactor->s();
 
 	boolean isWH2 = isWh2();
 	
@@ -1432,8 +1432,8 @@ void explosion(int i, int x, int y, int z, int owner) {
 }
 
 void explosion2(int i, int x, int y, int z, int owner) {
-	int j = insertsprite(sprite[i].sectnum, EXPLO);
-	auto& spawned = sprite[j];
+	auto spawnedactor = InsertActor(sprite[i].sectnum, EXPLO);
+	auto& spawned = spawnedactor->s();
 
 	boolean isWH2 = isWh2();
 	
@@ -1474,8 +1474,8 @@ void explosion2(int i, int x, int y, int z, int owner) {
 
 void trailingsmoke(DWHActor* actor, boolean ball) {
 	auto& spr = actor->s();
-	int j = insertsprite(spr.sectnum, SMOKE);
-	auto& spawned = sprite[j];
+	auto spawnedactor = InsertActor(spr.sectnum, SMOKE);
+	auto& spawned = spawnedactor->s();
 
 	spawned.x = spr.x;
 	spawned.y = spr.y;
@@ -1503,8 +1503,8 @@ void trailingsmoke(DWHActor* actor, boolean ball) {
 void icecubes(int i, int x, int y, int z, int owner) {
 	auto actor = &whActors[i];
 	auto& spr = actor->s();
-	int j = insertsprite(spr.sectnum, FX);
-	auto& spawned = sprite[j];
+	auto spawnedactor = InsertActor(spr.sectnum, FX);
+	auto& spawned = spawnedactor->s();
 
 	spawned.x = x;
 	spawned.y = y;
@@ -1788,8 +1788,8 @@ Collision movesprite(DWHActor* actor, int dx, int dy, int dz, int ceildist, int 
 }
 
 void trowajavlin(int s) {
-	int j = insertsprite(sprite[s].sectnum, JAVLIN);
-	auto& spawned = sprite[j];
+	auto spawnedactor = InsertActor(sprite[s].sectnum, JAVLIN);
+	auto& spawned = spawnedactor->s();
 
 	spawned.x = sprite[s].x;
 	spawned.y = sprite[s].y;
@@ -1842,8 +1842,9 @@ void trowajavlin(int s) {
 }
 
 void spawnhornskull(short i) {
-	short j = insertsprite(sprite[i].sectnum, (short) 0);
-	auto& spawned = sprite[j];
+	auto spawnedactor = InsertActor(sprite[i].sectnum, (short) 0);
+	auto& spawned = spawnedactor->s();
+
 	spawned.x = sprite[i].x;
 	spawned.y = sprite[i].y;
 	spawned.z = sprite[i].z - (24 << 8);
@@ -1860,8 +1861,8 @@ void spawnhornskull(short i) {
 }
 
 void spawnapentagram(int sn) {
-	short j = insertsprite(sprite[sn].sectnum, (short) 0);
-	auto& spawned = sprite[j];
+	auto spawnedactor = InsertActor(sprite[sn].sectnum, (short) 0);
+	auto& spawned = spawnedactor->s();
 
 	spawned.x = sprite[sn].x;
 	spawned.y = sprite[sn].y;
@@ -1878,7 +1879,7 @@ void spawnapentagram(int sn) {
 	spawned.picnum = PENTAGRAM;
 	spawned.detail = PENTAGRAMTYPE;
 
-	setsprite(j, spawned.x, spawned.y, spawned.z);
+	SetActorPos(spawnedactor, &spawned.pos);
 	spawned.backuploc();
 }
 

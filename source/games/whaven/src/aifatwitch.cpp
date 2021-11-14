@@ -248,11 +248,9 @@ static void throwspank(PLAYER& plr, DWHActor* actor)
 	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
-	int j = insertsprite(spr.sectnum, MISSILE);
-	if (j == -1)
-		return;
+	auto spawnedactor = InsertActor(spr.sectnum, MISSILE);
+	auto& spawned = spawnedactor->s();
 
-	auto& spawned = sprite[j];
 	spritesound(S_WITCHTHROW, actor);
 
 	spawned.x = spr.x;

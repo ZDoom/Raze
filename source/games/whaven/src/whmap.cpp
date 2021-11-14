@@ -758,9 +758,8 @@ boolean prepareboard(const char* fname) {
 			
 		if(mapon == 13) {
 			if(sector[427].floorpicnum == 291) {
-				int s = insertsprite((short)427, (short)0);
-				if(s != -1) {
-					SPRITE& sp = sprite[s];
+				auto spawnedActor = InsertActor(427, 0);
+				SPRITE& sp = spawnedActor->s();
 					sp.x = 27136;
 					sp.y = 51712;
 					sp.z = 7168;
@@ -772,7 +771,6 @@ boolean prepareboard(const char* fname) {
 				}
 			}
 		}
-	}
 
 	if (justteleported) { // next level
 		plr.hvel = 0;

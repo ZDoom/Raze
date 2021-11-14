@@ -341,10 +341,7 @@ static void firebreath(PLAYER& plr, DWHActor* actor, int a, int b, int c)
 {
 	auto& spr = actor->s();
 	for (int k = 0; k <= a; k++) {
-		int j = insertsprite(spr.sectnum, MISSILE);
-		if (j == -1)
-			return;
-		auto spawnedactor = &whActors[j];
+		auto spawnedactor = InsertActor(spr.sectnum, MISSILE);
 		auto& spawned = spawnedactor->s();
 
 		spawned.x = spr.x;

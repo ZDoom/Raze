@@ -453,12 +453,9 @@ static void checkexplgron(PLAYER& plr, DWHActor* actor)
 }
 
 static void throwhalberd(int s) {
-	int j = insertsprite(sprite[s].sectnum, JAVLIN);
-	auto spawnedactor = &whActors[j];
-
-	if (j == -1)
-		return;
+	auto spawnedactor = InsertActor(sprite[s].sectnum, JAVLIN);
 	SPRITE& spr = spawnedactor->s();
+
 	spr.x = sprite[s].x;
 	spr.y = sprite[s].y;
 	spr.z = sprite[s].z - (40 << 8);

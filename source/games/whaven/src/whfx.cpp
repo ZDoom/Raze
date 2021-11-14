@@ -799,8 +799,7 @@ void thesplash() {
 }
 
 void makeasplash(int picnum, PLAYER& plr) {
-	int j = insertsprite(plr.sector, MASPLASH);
-	auto spawnedactor = &whActors[j];
+	auto spawnedactor = InsertActor(plr.sector, MASPLASH);
 	auto& spawned = spawnedactor->s();
 
 	spawned.x = plr.x;
@@ -838,9 +837,9 @@ void makemonstersplash(int picnum, int i) {
 	if (sprite[i].picnum == FISH)
 		return;
 
-	int j = insertsprite(sprite[i].sectnum, MASPLASH);
-	auto spawnedactor = &whActors[j];
+	auto spawnedactor = InsertActor(sprite[i].sectnum, MASPLASH);
 	auto& spawned = spawnedactor->s();
+
 	spawned.x = sprite[i].x;
 	spawned.y = sprite[i].y;
 	spawned.z = sector[sprite[i].sectnum].floorz + (tileHeight(picnum) << 8);
@@ -891,8 +890,9 @@ void makemonstersplash(int picnum, int i) {
 }
 
 void bats(PLAYER& plr, int k) {
-	short j = insertsprite(sprite[k].sectnum, FLOCK);
-	auto& spawned = sprite[j];
+	auto spawnedactor = InsertActor(sprite[k].sectnum, FLOCK);
+	auto& spawned = spawnedactor->s();
+
 	spawned.x = sprite[k].x;
 	spawned.y = sprite[k].y;
 	spawned.z = sprite[k].z;
@@ -909,10 +909,10 @@ void bats(PLAYER& plr, int k) {
 	spawned.extra = 0;
 	spawned.backuploc();
 
-	newstatus(j, FLOCK);
+	SetNewStatus(spawnedactor, FLOCK);
 
 	if (sprite[k].extra == 1)
-		lastbat = j;
+		lastbat = spawnedactor->GetSpriteIndex();
 }
 
 void cracks() {
@@ -998,8 +998,7 @@ void lavadryland() {
 void warpfxsprite(int s) {
 	PLAYER& plr = player[pyrn];
 
-	int j = insertsprite(sprite[s].sectnum, WARPFX);
-	auto spawnedactor = &whActors[j];
+	auto spawnedactor = InsertActor(sprite[s].sectnum, WARPFX);
 	auto& spawned = spawnedactor->s();
 
 	spawned.x = sprite[s].x;
@@ -1095,24 +1094,21 @@ void weaponpowerup(PLAYER& plr) {
 
 void makesparks(short i, int type) {
 
-	int j = -1;
+	DWHActor* spawnedactor = nullptr;
 
 	switch (type) {
 	case 1:
-		j = insertsprite(sprite[i].sectnum, SPARKS);
+		spawnedactor = InsertActor(sprite[i].sectnum, SPARKS);
 		break;
 	case 2:
-		j = insertsprite(sprite[i].sectnum, SPARKSUP);
+		spawnedactor = InsertActor(sprite[i].sectnum, SPARKSUP);
 		break;
 	case 3:
-		j = insertsprite(sprite[i].sectnum, SPARKSDN);
+		spawnedactor = InsertActor(sprite[i].sectnum, SPARKSDN);
 		break;
 	}
 
-	if (j == -1)
-		return;
-
-	auto& spawned = sprite[j];
+	auto& spawned = spawnedactor->s();
 
 	spawned.x = sprite[i].x;
 	spawned.y = sprite[i].y;
@@ -1134,8 +1130,8 @@ void makesparks(short i, int type) {
 }
 
 void shards(int i, int type) {
-	short j = insertsprite(sprite[i].sectnum, SHARDOFGLASS);
-	auto& spawned = sprite[j];
+	auto spawnedactor = InsertActor(sprite[i].sectnum, SHARDOFGLASS);
+	auto& spawned = spawnedactor->s();
 
 	spawned.x = sprite[i].x + (((krand() % 512) - 256) << 2);
 	spawned.y = sprite[i].y + (((krand() % 512) - 256) << 2);

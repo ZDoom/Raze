@@ -604,8 +604,8 @@ void processfluid(DWHActor* actor, Collision& florHit, boolean fly) {
 
 void castspell(PLAYER& plr, DWHActor* actor) {
 	auto& spr = actor->s();
-	int j = insertsprite(spr.sectnum, MISSILE);
-	auto& spawned = sprite[j];
+	auto spawnedactor = InsertActor(spr.sectnum, MISSILE);
+	auto& spawned = spawnedactor->s();
 
 	spawned.x = spr.x;
 	spawned.y = spr.y;
@@ -643,8 +643,8 @@ void castspell(PLAYER& plr, DWHActor* actor) {
 
 void skullycastspell(PLAYER& plr, int i) {
 	auto& spr = sprite[i];
-	int j = insertsprite(spr.sectnum, MISSILE);
-	auto& spawned = sprite[j];
+	auto spawnedactor = InsertActor(spr.sectnum, MISSILE);
+	auto& spawned = spawnedactor->s();
 
 	spawned.x = spr.x;
 	spawned.y = spr.y;
@@ -1007,9 +1007,9 @@ void monsterweapon(int i) {
 	if ((krand() % 100) < 75)
 		return;
 
-	int j = insertsprite(sprite[i].sectnum, (short)0);
+	auto spawnedactor = InsertActor(sprite[i].sectnum, (short)0);
+	auto& weap = spawnedactor->s();
 
-	SPRITE& weap = sprite[j];
 	weap.x = sprite[i].x;
 	weap.y = sprite[i].y;
 	weap.z = sprite[i].z - (24 << 8);
