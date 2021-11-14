@@ -2016,7 +2016,7 @@ void parseModel(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
-static bool parseDefineQAVInterpolateIgnoreBlock(FScanner& sc, const int& res_id, TMap<int, TArray<int>>& ignoredata, const int& numframes)
+static bool parseDefineQAVInterpolateIgnoreBlock(FScanner& sc, const int res_id, TMap<int, TArray<int>>& ignoredata, const int numframes)
 {
 	FScanner::SavedPos blockend;
 	FScriptPosition pos = sc;
@@ -2043,7 +2043,7 @@ static bool parseDefineQAVInterpolateIgnoreBlock(FScanner& sc, const int& res_id
 		return false;
 	}
 
-	auto arraybuilder = [&](const FString& input, TArray<int>& output, const int& maxvalue) -> bool
+	auto arraybuilder = [&](const FString& input, TArray<int>& output, const int maxvalue) -> bool
 	{
 		if (input.CompareNoCase("all") == 0)
 		{
@@ -2091,7 +2091,7 @@ static bool parseDefineQAVInterpolateIgnoreBlock(FScanner& sc, const int& res_id
 	return true;
 }
 
-static bool parseDefineQAVInterpolateBlock(FScanner& sc, const int& res_id, const int& numframes)
+static bool parseDefineQAVInterpolateBlock(FScanner& sc, const int res_id, const int numframes)
 {
 	FScanner::SavedPos blockend;
 	FScriptPosition pos = sc;
@@ -2127,11 +2127,11 @@ static bool parseDefineQAVInterpolateBlock(FScanner& sc, const int& res_id, cons
 	}
 
 	// Add interpolation properties to game for processing while drawing.
-	gi->AddQAVInterpProps(res_id, interptype, loopable, ignoredata);
+	gi->AddQAVInterpProps(res_id, interptype, loopable, std::move(ignoredata));
 	return true;
 }
 
-void parseDefineQAV(FScanner& sc, FScriptPosition& pos)
+static void parseDefineQAV(FScanner& sc, FScriptPosition& pos)
 {
 	FScanner::SavedPos blockend;
 	FString fn;

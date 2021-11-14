@@ -239,13 +239,13 @@ QAV* getQAV(int res_id);
 void qavProcessTicker(QAV* const pQAV, int* duration, int* lastTick);
 void qavProcessTimer(PLAYER* const pPlayer, QAV* const pQAV, int* duration, double* smoothratio, bool const fixedduration = false, bool const ignoreWeaponTimer = false);
 
-inline bool qavIsOriginal(const int& res_id)
+inline bool qavIsOriginal(const int res_id)
 {
     auto const lump = fileSystem.FindResource(res_id, "QAV");
     return lump >= 0 && fileSystem.GetFileContainer(lump) < fileSystem.GetMaxIwadNum();
 }
 
-inline int qavGetCorrectID(const int& res_id)
+inline int qavGetCorrectID(const int res_id)
 {
     return cl_bloodweapinterp && qavIsOriginal(res_id) && fileSystem.FindResource(res_id + 10000, "QAV") != -1 ? res_id + 10000 : res_id;
 }

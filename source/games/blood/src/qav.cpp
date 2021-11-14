@@ -40,7 +40,7 @@ extern void (*qavClientCallback[])(int, void *);
 //
 //==========================================================================
 
-using QAVPrevTileFinder = TILE_FRAME* (*)(FRAMEINFO* const thisFrame, FRAMEINFO* const prevFrame, const int& i);
+using QAVPrevTileFinder = TILE_FRAME* (*)(FRAMEINFO* const thisFrame, FRAMEINFO* const prevFrame, const int i);
 
 struct QAVInterpProps
 {
@@ -48,7 +48,7 @@ struct QAVInterpProps
     bool loopable;
     TMap<int, TArray<int>> IgnoreData;
 
-    bool CanInterpFrameTile(const int& nFrame, const int& i)
+    bool CanInterpFrameTile(const int nFrame, const int i)
     {
         // Check whether the current frame's tile is skippable.
         auto thisFrame = IgnoreData.CheckKey(nFrame);
@@ -62,17 +62,17 @@ static TMap<int, QAVInterpProps> qavInterpProps;
 static void qavInitTileFinderMap()
 {
     // Interpolate between frames if the picnums match. This is safest but could miss interpolations between suitable picnums.
-    qavPrevTileFinders.Insert("picnum", [](FRAMEINFO* const thisFrame, FRAMEINFO* const prevFrame, const int& i) -> TILE_FRAME* {
+    qavPrevTileFinders.Insert("picnum", [](FRAMEINFO* const thisFrame, FRAMEINFO* const prevFrame, const int i) -> TILE_FRAME* {
         return prevFrame->tiles[i].picnum == thisFrame->tiles[i].picnum ? &prevFrame->tiles[i] : nullptr;
     });
 
     // Interpolate between frames if the picnum is valid. This can be problematic if tile indices change between frames.
-    qavPrevTileFinders.Insert("index", [](FRAMEINFO* const thisFrame, FRAMEINFO* const prevFrame, const int& i) -> TILE_FRAME* {
+    qavPrevTileFinders.Insert("index", [](FRAMEINFO* const thisFrame, FRAMEINFO* const prevFrame, const int i) -> TILE_FRAME* {
         return prevFrame->tiles[i].picnum > 0 ? &prevFrame->tiles[i] : nullptr;
     });
 
     // Find previous frame by iterating all previous frame's tiles and return on first matched x coordinate.
-    qavPrevTileFinders.Insert("x", [](FRAMEINFO* const thisFrame, FRAMEINFO* const prevFrame, const int& i) -> TILE_FRAME* {
+    qavPrevTileFinders.Insert("x", [](FRAMEINFO* const thisFrame, FRAMEINFO* const prevFrame, const int i) -> TILE_FRAME* {
         for (int j = 0; j < 8; j++) if (thisFrame->tiles[i].x == prevFrame->tiles[j].x)
         {
             return &prevFrame->tiles[j];
@@ -81,7 +81,7 @@ static void qavInitTileFinderMap()
     });
 
     // Find previous frame by iterating all previous frame's tiles and return on first matched y coordinate.
-    qavPrevTileFinders.Insert("y", [](FRAMEINFO* const thisFrame, FRAMEINFO* const prevFrame, const int& i) -> TILE_FRAME* {
+    qavPrevTileFinders.Insert("y", [](FRAMEINFO* const thisFrame, FRAMEINFO* const prevFrame, const int i) -> TILE_FRAME* {
         for (int j = 0; j < 8; j++) if (thisFrame->tiles[i].y == prevFrame->tiles[j].y)
         {
             return &prevFrame->tiles[j];
@@ -101,12 +101,12 @@ bool GameInterface::IsQAVInterpTypeValid(const FString& type)
     return qavGetInterpType(type) != nullptr;
 }
 
-void GameInterface::AddQAVInterpProps(const int& res_id, const FString& interptype, const bool& loopable, const TMap<int, TArray<int>>& ignoredata)
+void GameInterface::AddQAVInterpProps(const int res_id, const FString& interptype, const bool loopable, const TMap<int, TArray<int>>&& ignoredata)
 {
-    qavInterpProps.Insert(res_id, { qavGetInterpType(interptype), loopable, ignoredata });
+    qavInterpProps.Insert(res_id, { qavGetInterpType(interptype), loopable, std::move(ignoredata) });
 }
 
-void GameInterface::RemoveQAVInterpProps(const int& res_id)
+void GameInterface::RemoveQAVInterpProps(const int res_id)
 {
     qavInterpProps.Remove(res_id);
 }
