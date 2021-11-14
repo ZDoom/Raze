@@ -105,6 +105,7 @@ void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 				t->shade = -127;
 				continue;
 			}
+			[[fallthrough]];
 		case BULLETHOLE:
 		case CRACK1:
 		case CRACK2:
@@ -363,6 +364,7 @@ void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 				case FLAMETHROWER_WEAPON: //Twentieth Anniversary World Tour
 					if (isWorldTour())
 						newtspr->picnum = FLAMETHROWERSPRITE;   break;
+					[[fallthrough]];
 				case DEVISTATOR_WEAPON:  newtspr->picnum = DEVISTATORSPRITE;     break;
 				}
 
@@ -462,6 +464,7 @@ void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 		case DUKEGUN:
 		case DUKETORSO:
 			if (t->pal == 6) t->shade = -120;
+			[[fallthrough]];
 
 		case SCRAP1:
 		case SCRAP2:
@@ -492,6 +495,7 @@ void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 				t->pal = 7;
 				break;
 			}
+			[[fallthrough]];
 		default:
 
 			if (sectp->floorpal)
@@ -638,6 +642,7 @@ void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 			t->z = Owner->z - (3 << 8);
 			if (gs.lasermode == 2 && ps[screenpeek].heat_on == 0)
 				t->yrepeat = 0;
+			[[fallthrough]];
 		case EXPLOSION2:
 		case EXPLOSION2BOT:
 		case FREEZEBLAST:
@@ -659,6 +664,7 @@ void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 		case FIRE:
 		case FIRE2:
 			t->cstat |= 128;
+			[[fallthrough]];
 		case BURNING:
 		case BURNING2:
 			if (!Owner) break;
@@ -700,6 +706,7 @@ void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 			break;
 		case SHELL:
 			t->picnum = s->picnum + (h->temp_data[0] & 1);
+			[[fallthrough]];
 		case SHOTGUNSHELL:
 			t->cstat |= 12;
 			if (h->temp_data[0] > 1) t->cstat &= ~4;

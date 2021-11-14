@@ -441,6 +441,7 @@ bool checkhitswitch_r(int snum, int ww, DDukeActor* act)
 	case RRTILE8464:
 	case RRTILE8660:
 		if (!isRRRA()) break;
+		[[fallthrough]];
 	case DIPSWITCH2:
 	case DIPSWITCH2 + 1:
 	case DIPSWITCH3:
@@ -530,6 +531,7 @@ bool checkhitswitch_r(int snum, int ww, DDukeActor* act)
 			break;
 		case RRTILE8660:
 			if (!isRRRA()) break;
+			[[fallthrough]];
 		case ACCESSSWITCH:
 		case ACCESSSWITCH2:
 		case SLOTDOOR:
@@ -639,6 +641,7 @@ bool checkhitswitch_r(int snum, int ww, DDukeActor* act)
 				break;
 			case RRTILE8660:
 				if (!isRRRA()) break;
+				[[fallthrough]];
 			case ACCESSSWITCH:
 			case ACCESSSWITCH2:
 			case SLOTDOOR:
@@ -686,6 +689,7 @@ bool checkhitswitch_r(int snum, int ww, DDukeActor* act)
 	{
 	default:
 		if (fi.isadoorwall(picnum) == 0) break;
+		[[fallthrough]];
 	case DIPSWITCH:
 	case DIPSWITCH + 1:
 	case TECHSWITCH:
@@ -719,6 +723,7 @@ bool checkhitswitch_r(int snum, int ww, DDukeActor* act)
 	case RRTILE8464:
 	case RRTILE8660:
 		if (!isRRRA()) break;
+		[[fallthrough]];
 	case DIPSWITCH2:
 	case DIPSWITCH2 + 1:
 	case DIPSWITCH3:
@@ -839,6 +844,7 @@ bool checkhitswitch_r(int snum, int ww, DDukeActor* act)
 				case SE_47_LIGHT_SWITCH:
 				case SE_48_LIGHT_SWITCH:
 					if (!isRRRA()) break;
+					[[fallthrough]];
 				case SE_12_LIGHT_SWITCH:
 					sector[other->s->sectnum].floorpal = 0;
 					other->temp_data[0]++;
@@ -989,6 +995,7 @@ void checkhitwall_r(DDukeActor* spr, int dawallnum, int x, int y, int z, int atw
 		{
 		case RPG2:
 			if (!isRRRA()) break;
+			[[fallthrough]];
 		case HEAVYHBOMB:
 		case RADIUSEXPLOSION:
 		case RPG:
@@ -2126,6 +2133,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		{
 		case RPG2:
 			if (!isRRRA()) break;
+			[[fallthrough]];
 		case RADIUSEXPLOSION:
 		case RPG:
 		case FIRELASER:
@@ -2151,6 +2159,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		{
 		case RPG2:
 			if (!isRRRA()) break;
+			[[fallthrough]];
 		case RADIUSEXPLOSION:
 		case RPG:
 		case FIRELASER:
@@ -2203,6 +2212,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		break;
 	case RRTILE1824:
 		if (!isRRRA()) break;
+		[[fallthrough]];
 	case BOTTLE1:
 	case BOTTLE2:
 	case BOTTLE3:
@@ -2249,6 +2259,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 	case RRTILE2656:
 	case RRTILE3172:
 		if (!isRRRA()) break;
+		[[fallthrough]];
 	case BOTTLE7:
 		S_PlayActorSound(GLASS_BREAKING, targ);
 		lotsofglass(targ, -1, 10);
@@ -2345,6 +2356,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		targ = targ->GetOwner();
 		if (!targ) break;
 		s = targ->s;
+		[[fallthrough]];
 	default:
 		if ((s->cstat & 16) && s->hitag == 0 && s->lotag == 0 && s->statnum == 0)
 			break;

@@ -419,6 +419,7 @@ void prelevel_d(int g)
 		case W_FORCEFIELD:
 			for (j = 0; j < 3; j++)
 				tloadtile(W_FORCEFIELD + j);
+			[[fallthrough]];
 		case W_FORCEFIELD + 1:
 		case W_FORCEFIELD + 2:
 			if (wal->shade > 31)
@@ -427,6 +428,7 @@ void prelevel_d(int g)
 
 			if (wal->lotag && wal->nextwall >= 0)
 				wal->nextWall()->lotag = wal->lotag;
+			[[fallthrough]];
 
 		case BIGFORCE:
 

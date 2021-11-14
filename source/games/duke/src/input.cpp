@@ -652,8 +652,8 @@ static double boatApplyTurn(player_struct *p, ControlInfo* const hidInput, bool 
 	{
 		if (kbdLeft || kbdRight || p->moto_drink || hidInput->mouseturnx || hidInput->dyaw)
 		{
-			double const velScale = 6. / 19.;
-			auto const baseVel = !p->NotOnWater ? VEHICLETURN : +VEHICLETURN * velScale;
+			double const velScale = !p->NotOnWater? 1. : 6. / 19.;
+			auto const baseVel = +VEHICLETURN * velScale;
 
 			if (kbdLeft || p->moto_drink < 0 || hidInput->mouseturnx < 0 || hidInput->dyaw < 0)
 			{

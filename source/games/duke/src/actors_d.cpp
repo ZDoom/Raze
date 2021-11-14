@@ -1953,6 +1953,7 @@ void moveweapons_d(void)
 				deletesprite(act);
 				continue;
 			}
+			[[fallthrough]];
 		case FIREBALL:
 			// Twentieth Anniversary World Tour
 			if (act->s->picnum == FIREBALL && !isWorldTour()) break;
@@ -2161,6 +2162,7 @@ void movetransports_d(void)
 					if (spr2->extra > 0)
 						continue;
 				}
+				[[fallthrough]];
 			case STAT_PROJECTILE:
 			case STAT_MISC:
 			case STAT_FALLER:
@@ -2206,10 +2208,12 @@ void movetransports_d(void)
 							spr2->cstat &= 32767;
 							break;
 						}
+						[[fallthrough]];
 					default:
 						if (spr2->statnum == 5 && !(sectlotag == 1 || sectlotag == 2))
 							break;
-						
+						[[fallthrough]];
+
 					case WATERBUBBLE:
 						//if( rnd(192) && a2->s.picnum == WATERBUBBLE)
 						// break;
@@ -3163,6 +3167,7 @@ void moveactors_d(void)
 		case BOUNCEMINE:
 		case MORTER:
 			spawn(act, FRAMEEFFECT1)->temp_data[0] = 3;
+			[[fallthrough]];
 
 		case HEAVYHBOMB:
 			heavyhbomb(act);
@@ -3337,6 +3342,7 @@ void moveexplosions_d(void)  // STATNUM 5
 				SetPlayerPal(&ps[p], PalEntry(32, 32, 0, 0));
 				ps[p].GetActor()->s->extra -= 4;
 			}
+			[[fallthrough]];
 
 		case FIRELASER:
 			if (s->extra != 999)
@@ -3393,6 +3399,7 @@ void moveexplosions_d(void)  // STATNUM 5
 		case WHISPYSMOKE:
 			if (!isWorldTour())
 				continue;
+			[[fallthrough]];
 
 		case BURNING:
 		case BURNING2:

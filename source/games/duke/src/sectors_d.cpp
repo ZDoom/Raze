@@ -314,6 +314,7 @@ bool checkhitswitch_d(int snum, int ww, DDukeActor *act)
 
 			return 0;
 		}
+		[[fallthrough]];
 	case DIPSWITCH2:
 	case DIPSWITCH2 + 1:
 	case DIPSWITCH3:
@@ -486,6 +487,7 @@ bool checkhitswitch_d(int snum, int ww, DDukeActor *act)
 	{
 	default:
 		if (fi.isadoorwall(picnum) == 0) break;
+		[[fallthrough]];
 	case DIPSWITCH:
 	case DIPSWITCH + 1:
 	case TECHSWITCH:
@@ -511,6 +513,7 @@ bool checkhitswitch_d(int snum, int ww, DDukeActor *act)
 			if (numdips != correctdips) break;
 			S_PlaySound3D(END_OF_LEVEL_WARN, ps[snum].GetActor(), &v);
 		}
+		[[fallthrough]];
 	case DIPSWITCH2:
 	case DIPSWITCH2 + 1:
 	case DIPSWITCH3:
@@ -673,6 +676,7 @@ void checkhitwall_d(DDukeActor* spr, int dawallnum, int x, int y, int z, int atw
 				case W_FORCEFIELD + 1:
 				case W_FORCEFIELD + 2:
 					wal->extra = 1; // tell the forces to animate
+					[[fallthrough]];
 				case BIGFORCE:
 				{
 					updatesector(x, y, &sn);
@@ -1211,6 +1215,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		}
 		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		S_PlayActorSound(SQUISHED, targ);
+		[[fallthrough]];
 	case BOTTLE7:
 		S_PlayActorSound(GLASS_BREAKING, targ);
 		lotsofglass(targ, -1, 10);
@@ -1314,6 +1319,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 	case JURYGUY:
 		S_PlayActorSound(s->lotag, targ);
 		spawn(targ, s->hitag);
+		[[fallthrough]];
 	case SPACEMARINE:
 	{
 		s->extra -= pspr->extra;
@@ -1367,6 +1373,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		targ = targ->GetOwner();
 		if (!targ) break;
 		s = targ->s;
+		[[fallthrough]];
 	default:
 		if ((s->cstat & 16) && s->hitag == 0 && s->lotag == 0 && s->statnum == 0)
 			break;

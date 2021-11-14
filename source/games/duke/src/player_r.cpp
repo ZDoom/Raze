@@ -882,6 +882,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 
 	case SLINGBLADE:
 		if (!isRRRA()) break;
+		[[fallthrough]];
 	case KNEE:
 	case GROWSPARK:
 		shootmelee(actor, p, sx, sy, sz, sa, atwith);
@@ -1175,6 +1176,7 @@ void selectweapon_r(int snum, int weap)
 
 			case CHICKEN_WEAPON:
 				if (!isRRRA()) break;
+				[[fallthrough]];
 			case SHOTGUN_WEAPON:
 			case RIFLEGUN_WEAPON:
 			case CROSSBOW_WEAPON:
@@ -1536,6 +1538,7 @@ void checkweapons_r(struct player_struct* p)
 		{
 		case CHICKEN_WEAPON:
 			if (!isRRRA()) break;
+			[[fallthrough]];
 		case DYNAMITE_WEAPON:
 		case CROSSBOW_WEAPON:
 			spawn(p->GetActor(), EXPLOSION2);

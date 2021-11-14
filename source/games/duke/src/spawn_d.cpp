@@ -65,6 +65,7 @@ int spawn_d(int j, int pn)
 		case BOSS3STAYPUT:
 		case BOSS5STAYPUT:
 			act->actorstayput = sp->sectnum;
+			[[fallthrough]];
 		case FIREFLY:
 		case BOSS5:
 			if (sp->picnum != FIREFLY) 
@@ -179,6 +180,7 @@ int spawn_d(int j, int pn)
 				if(sectp->floorpicnum == FLOORSLIME ||
 					sectp->ceilingpicnum == FLOORSLIME)
 						sp->pal = 7;
+				[[fallthrough]];
 			case NEON1:
 			case NEON2:
 			case NEON3:
@@ -188,9 +190,11 @@ int spawn_d(int j, int pn)
 			case DOMELITE:
 				if(sp->picnum != WATERSPLASH2)
 					sp->cstat |= 257;
+				[[fallthrough]];
 			case NUKEBUTTON:
 				if(sp->picnum == DOMELITE)
 					sp->cstat |= 257;
+				[[fallthrough]];
 			case JIBS1:
 			case JIBS2:
 			case JIBS3:
@@ -279,6 +283,7 @@ int spawn_d(int j, int pn)
 			case LAVAPOOL:
 				if (!isWorldTour()) // Twentieth Anniversary World Tour
 					return i;
+				[[fallthrough]];
 
 			case BLOODPOOL:
 			case PUKE:
@@ -307,6 +312,7 @@ int spawn_d(int j, int pn)
 						sp->z = fz;
 					sp->z -= 200;
 				}
+				[[fallthrough]];
 
 			case FECES:
 				if( j >= 0)
@@ -348,6 +354,7 @@ int spawn_d(int j, int pn)
 				act->temp_data[0] = 17;
 				act->temp_data[2] = 0;
 				act->temp_data[5] = sp->ang;
+				[[fallthrough]];
 
 			case SPACEMARINE:
 				if(sp->picnum == SPACEMARINE)
@@ -425,6 +432,7 @@ int spawn_d(int j, int pn)
 			case PIPE6:
 				sp->clipdist = 32;
 				sp->cstat |= 257;
+				[[fallthrough]];
 			case OCEANSPRITE4:
 				changespritestat(i,0);
 				break;
@@ -486,6 +494,8 @@ int spawn_d(int j, int pn)
 				sp->yvel = sp->hitag;
 				sp->hitag = -1;
 				if(sp->picnum == PODFEM1) sp->extra <<= 1;
+				[[fallthrough]];
+
 			case BLOODYPOLE:
 
 			case QUEBALL:
@@ -513,6 +523,7 @@ int spawn_d(int j, int pn)
 					sp->shade = spj->shade;
 					sp->pal = ps[spj->yvel].palookup;
 				}
+				[[fallthrough]];
 			case DUKECAR:
 			case HELECOPT:
 //                if(sp->picnum == HELECOPT || sp->picnum == DUKECAR) sp->xvel = 1024;
@@ -520,6 +531,7 @@ int spawn_d(int j, int pn)
 				sp->extra = 1;
 				sp->xvel = 292;
 				sp->zvel = 360;
+				[[fallthrough]];
 			case RESPAWNMARKERRED:
 			case BLIMP:
 
@@ -533,9 +545,11 @@ int spawn_d(int j, int pn)
 					sp->cstat |= 257;
 					sp->clipdist = 128;
 				}
+				[[fallthrough]];
 			case MIKE:
 				if(sp->picnum == MIKE)
 					sp->yvel = sp->hitag;
+				[[fallthrough]];
 			case WEATHERWARN:
 				changespritestat(i,1);
 				break;
@@ -548,6 +562,7 @@ int spawn_d(int j, int pn)
 				sp->xrepeat = sp->yrepeat = 3;
 				sp->cstat = 16+(krand()&12);
 				insertspriteq(act);
+				[[fallthrough]];
 			case MONEY:
 			case MAIL:
 			case PAPER:
@@ -576,6 +591,7 @@ int spawn_d(int j, int pn)
 
 			case RESPAWN:
 				sp->extra = 66-13;
+				[[fallthrough]];
 			case MUSICANDSFX:
 				if( ud.multimode < 2 && sp->pal == 1)
 				{
@@ -697,6 +713,7 @@ int spawn_d(int j, int pn)
 
 				if(sp->picnum != WATERDRIP)
 					sp->ang = krand()&2047;
+				[[fallthrough]];
 
 			case WATERDRIPSPLASH:
 
@@ -734,6 +751,7 @@ int spawn_d(int j, int pn)
 						break;
 					}
 				}
+				[[fallthrough]];
 			case WATERBUBBLEMAKER:
 				if (sp->hitag && sp->picnum == WATERBUBBLEMAKER) 
 				{	// JBF 20030913: Pisses off move(), eg. in bobsp2
@@ -753,6 +771,7 @@ int spawn_d(int j, int pn)
 			case SIDEBOLT1+3:
 				t[0] = sp->xrepeat;
 				t[1] = sp->yrepeat;
+				[[fallthrough]];
 			case MASTERSWITCH:
 				if(sp->picnum == MASTERSWITCH)
 					sp->cstat |= 32768;
@@ -775,6 +794,7 @@ int spawn_d(int j, int pn)
 			case COMMANDERSTAYPUT:
 			case BOSS4STAYPUT:
 				act->actorstayput = sp->sectnum;
+				[[fallthrough]];
 			case BOSS1:
 			case BOSS2:
 			case BOSS3:
@@ -783,6 +803,7 @@ int spawn_d(int j, int pn)
 			case GREENSLIME:
 				if(sp->picnum == GREENSLIME)
 					sp->extra = 1;
+				[[fallthrough]];
 			case DRONE:
 			case LIZTROOPONTOILET:
 			case LIZTROOPJUSTSIT:
@@ -942,6 +963,7 @@ int spawn_d(int j, int pn)
 
 				sp->xrepeat = sp->yrepeat = 9;
 				sp->yvel = 4;
+				[[fallthrough]];
 			case REACTOR2:
 			case REACTOR:
 			case RECON:
@@ -1006,6 +1028,7 @@ int spawn_d(int j, int pn)
 				}
 
 				sp->pal = 0;
+				[[fallthrough]];
 
 			case ACCESSCARD:
 
@@ -1037,6 +1060,7 @@ int spawn_d(int j, int pn)
 
 			case WATERFOUNTAIN:
 				sp->lotag = 1;
+				[[fallthrough]];
 
 			case TREE1:
 			case TREE2:
@@ -1072,6 +1096,7 @@ int spawn_d(int j, int pn)
 
 				if(gs.camerashitable) sp->cstat = 257;
 				else sp->cstat = 0;
+				[[fallthrough]];
 
 			case GENERICPOLE:
 
@@ -1095,6 +1120,7 @@ int spawn_d(int j, int pn)
 					sp->xvel = -8;
 					ssp(act, CLIPMASK0);
 				}
+				[[fallthrough]];
 			case CEILINGSTEAM:
 				changespritestat(i,STAT_STANDABLE);
 				break;
@@ -1163,6 +1189,7 @@ int spawn_d(int j, int pn)
 			case CANWITHSOMETHING4:
 			case RUBBERCAN:
 				sp->extra = 0;
+				[[fallthrough]];
 			case EXPLODINGBARREL:
 			case HORSEONSIDE:
 			case FIREBARREL:
@@ -1178,6 +1205,7 @@ int spawn_d(int j, int pn)
 				makeitfall(act);
 				if(j >= 0) act->SetOwner(actj);
 				else act->SetOwner(act);
+				[[fallthrough]];
 
 			case EGG:
 				if( ud.monsters_off == 1 && sp->picnum == EGG )

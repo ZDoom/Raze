@@ -1100,6 +1100,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 
 	case FREEZEBLAST:
 		sz += (3 << 8);
+		[[fallthrough]];
 	case RPG:
 
 		shootrpg(actor, p, sx, sy, sz, sa, atwith);
@@ -1258,11 +1259,12 @@ void selectweapon_d(int snum, int weap) // playernum, weaponnum
 					if (p->gotweapon[k] && p->ammo_amount[k] > 0)
 					{
 						if (isPlutoPak())	// JBF 20040116: so we don't select grower with v1.3d
+						{
 							if (k == SHRINKER_WEAPON && (p->subweapon & (1 << GROW_WEAPON)))
 								k = GROW_WEAPON;
 							if (isWorldTour() && k == FREEZE_WEAPON && (p->subweapon & (1 << FLAMETHROWER_WEAPON)) != 0)
 								k = FLAMETHROWER_WEAPON;
-
+						}
 						j = k;
 						break;
 					}

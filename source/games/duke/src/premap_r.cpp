@@ -675,6 +675,7 @@ void prelevel_r(int g)
 		{
 		case RRTILE8464 + 1:
 			if (!isRRRA()) break;
+			[[fallthrough]];
 		case DIPSWITCH + 1:
 		case DIPSWITCH2 + 1:
 		case PULLSWITCH + 1:

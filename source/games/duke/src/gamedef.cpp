@@ -571,7 +571,7 @@ static void appendscriptvalue(int value)
 
 static int popscriptvalue()
 {
-	decltype(ScriptCode)::value_type p;
+	decltype(ScriptCode)::value_type p = 0;
 	ScriptCode.Pop(p);
 	return p;
 }
@@ -1566,6 +1566,7 @@ int ConCompiler::parsecommand()
 
 	case concmd_ifpinventory:
 		transnum(LABEL_DEFINE);
+		[[fallthrough]];
 	case concmd_ifrnd:
 	case concmd_ifpdistl:
 	case concmd_ifpdistg:
@@ -1591,6 +1592,7 @@ int ConCompiler::parsecommand()
 	case concmd_ifsoundid:
 	case concmd_ifsounddist:
 		transnum(tw == concmd_ifai? LABEL_AI : tw == concmd_ifaction? LABEL_ACTION : tw == concmd_ifmove? LABEL_MOVE : LABEL_DEFINE);
+		[[fallthrough]];
 	case concmd_ifonwater:
 	case concmd_ifinwater:
 	case concmd_ifactornotstayput:
@@ -1870,6 +1872,7 @@ int ConCompiler::parsecommand()
 		{
 			return 1;
 		}
+		[[fallthrough]];
 	case concmd_fall:
 	case concmd_tip:
 		//		  case 21:

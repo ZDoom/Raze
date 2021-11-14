@@ -2732,41 +2732,67 @@ int ParseState::parse(void)
 			j = 0;
 			switch(*(insptr++))
 			{
-				case 0:if( ps[g_p].steroids_amount != *insptr)
+				case 0:
+					if( ps[g_p].steroids_amount != *insptr)
 						j = 1;
 					break;
-				case 1:if(ps[g_p].shield_amount != gs.max_player_health )
+				case 1:
+					if(ps[g_p].shield_amount != gs.max_player_health )
 						j = 1;
 					break;
-				case 2:if(ps[g_p].scuba_amount != *insptr) j = 1;break;
-				case 3:if(ps[g_p].holoduke_amount != *insptr) j = 1;break;
-				case 4:if(ps[g_p].jetpack_amount != *insptr) j = 1;break;
+				case 2:
+					if(ps[g_p].scuba_amount != *insptr) j = 1;
+					break;
+				case 3:
+					if(ps[g_p].holoduke_amount != *insptr) j = 1;
+					break;
+				case 4:
+					if(ps[g_p].jetpack_amount != *insptr) j = 1;
+					break;
 				case 6:
 					if (isRR())
 					{
 						switch (g_sp->lotag)
 						{
-						case 100: if (ps[g_p].keys[1]) j = 1; break;
-						case 101: if (ps[g_p].keys[2]) j = 1; break;
-						case 102: if (ps[g_p].keys[3]) j = 1; break;
-						case 103: if (ps[g_p].keys[4]) j = 1; break;
+						case 100: 
+							if (ps[g_p].keys[1]) j = 1; 
+							break;
+						case 101: 
+							if (ps[g_p].keys[2]) j = 1; 
+							break;
+						case 102: 
+							if (ps[g_p].keys[3]) j = 1; 
+							break;
+						case 103: 
+							if (ps[g_p].keys[4]) j = 1; 
+							break;
 						}
 					}
 					else
 					{
 						switch (g_sp->pal)
 						{
-						case  0: if (ps[g_p].got_access & 1) j = 1; break;
-						case 21: if (ps[g_p].got_access & 2) j = 1; break;
-						case 23: if (ps[g_p].got_access & 4) j = 1; break;
+						case  0: 
+							if (ps[g_p].got_access & 1) j = 1; 
+							break;
+						case 21: 
+							if (ps[g_p].got_access & 2) j = 1; 
+							break;
+						case 23: 
+							if (ps[g_p].got_access & 4) j = 1; 
+							break;
 						}
 					}
 					break;
-				case 7:if(ps[g_p].heat_amount != *insptr) j = 1;break;
+				case 7:
+					if(ps[g_p].heat_amount != *insptr) j = 1;
+					break;
 				case 9:
-					if(ps[g_p].firstaid_amount != *insptr) j = 1;break;
+					if(ps[g_p].firstaid_amount != *insptr) j = 1;
+					break;
 				case 10:
-					if(ps[g_p].boot_amount != *insptr) j = 1;break;
+					if(ps[g_p].boot_amount != *insptr) j = 1;
+					break;
 			}
 
 			parseifelse(j);

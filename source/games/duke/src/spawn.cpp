@@ -706,6 +706,7 @@ void spawneffector(DDukeActor* actor)
 		case SE_47_LIGHT_SWITCH:
 		case SE_48_LIGHT_SWITCH:
 			if (!isRRRA()) break;
+			[[fallthrough]];
 		case SE_12_LIGHT_SWITCH:
 
 			t[1] = sectp->floorshade;
@@ -915,6 +916,7 @@ void spawneffector(DDukeActor* actor)
 			if (sectp->lotag &&
 				labs(sectp->ceilingz - sp->z) > 1024)
 				sectp->lotag |= 32768; //If its open
+			[[fallthrough]];
 		case SE_8_UP_OPEN_DOOR_LIGHTS:
 			//First, get the ceiling-floor shade
 
@@ -952,6 +954,7 @@ void spawneffector(DDukeActor* actor)
 		case SE_11_SWINGING_DOOR://Pivitor rotater
 			if (sp->ang > 1024) t[3] = 2;
 			else t[3] = -2;
+			[[fallthrough]];
 		case SE_0_ROTATING_SECTOR:
 		case SE_2_EARTHQUAKE://Earthquakemakers
 		case SE_5_BOSS://Boss Creature
@@ -1090,8 +1093,10 @@ void spawneffector(DDukeActor* actor)
 			}
 			actor->lastvx = j;
 		}
+		[[fallthrough]];
 		case SE_30_TWO_WAY_TRAIN:
 			if (numplayers > 1) break;
+			[[fallthrough]];
 		case SE_0_ROTATING_SECTOR:
 		case SE_1_PIVOT:
 		case SE_5_BOSS:

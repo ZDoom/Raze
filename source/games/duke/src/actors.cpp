@@ -4535,10 +4535,10 @@ void handle_se24(DDukeActor *actor, const int16_t *list1, const int16_t *list2, 
 					continue;
 				}
 
-				//[[fallthrough]]
+				[[fallthrough]];
 			case 6:
 				if (s2->picnum == TRIPBOMB) break;
-				//[[fallthrough]]
+				[[fallthrough]];
 			case 1:
 			case 0:
 				if (testlist(list2, s2->picnum) ||

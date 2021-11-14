@@ -139,6 +139,7 @@ int check_activator_motion(int lotag)
 						break;
 					case SE_18_INCREMENTAL_SECTOR_RISE_FALL:
 						if (isRRRA()) break;
+						[[fallthrough]];
 					case SE_20_STRETCH_BRIDGE:
 					case SE_31_FLOOR_RISE_FALL:
 					case SE_32_CEILING_RISE_FALL:
@@ -1143,6 +1144,7 @@ void operateactivators(int low, int plnum)
 						{
 						case SE_18_INCREMENTAL_SECTOR_RISE_FALL:
 							if (isRRRA()) break;
+							[[fallthrough]];
 						case SE_36_PROJ_SHOOTER:
 						case SE_31_FLOOR_RISE_FALL:
 						case SE_32_CEILING_RISE_FALL:

@@ -234,6 +234,7 @@ int spawn_r(int j, int pn)
 				if(sectp->floorpicnum == FLOORSLIME ||
 					sectp->ceilingpicnum == FLOORSLIME)
 						sp->pal = 7;
+				[[fallthrough]];
 			case NEON1:
 			case NEON2:
 			case NEON3:
@@ -245,6 +246,7 @@ int spawn_r(int j, int pn)
 					sp->cstat |= 257;
 				if(sp->picnum == DOMELITE)
 					sp->cstat |= 257;
+				[[fallthrough]];
 			case JIBS1:
 			case JIBS2:
 			case JIBS3:
@@ -354,6 +356,7 @@ int spawn_r(int j, int pn)
 						sp->shade = 127;
 				}
 				sp->cstat |= 32;
+				[[fallthrough]];
 
 			case BLOODSPLAT1:
 			case BLOODSPLAT2:
@@ -447,6 +450,7 @@ int spawn_r(int j, int pn)
 			case TOUGHGAL:
 				sp->yvel = sp->hitag;
 				sp->hitag = -1;
+				[[fallthrough]];
 			case QUEBALL:
 			case STRIPEBALL:
 				if (sp->picnum == QUEBALL || sp->picnum == STRIPEBALL)
@@ -555,6 +559,7 @@ int spawn_r(int j, int pn)
 				sp->extra = 1;
 				sp->xvel = 292;
 				sp->zvel = 360;
+				[[fallthrough]];
 			case RESPAWNMARKERRED:
 				if(sp->picnum == RESPAWNMARKERRED)
 				{
@@ -566,6 +571,7 @@ int spawn_r(int j, int pn)
 					sp->cstat |= 257;
 					sp->clipdist = 128;
 				}
+				[[fallthrough]];
 			case MIKE:
 				if(sp->picnum == MIKE)
 					sp->yvel = sp->hitag;
@@ -580,6 +586,7 @@ int spawn_r(int j, int pn)
 				sp->xrepeat = sp->yrepeat = 3;
 				sp->cstat = 16+(krand()&12);
 				insertspriteq(act);
+				[[fallthrough]];
 			case MONEY:
 				if(sp->picnum == MONEY)
 				{
@@ -597,6 +604,7 @@ int spawn_r(int j, int pn)
 				break;
 			case RESPAWN:
 				sp->extra = 66-13;
+				[[fallthrough]];
 			case MUSICANDSFX:
 				if (ud.multimode < 2 && sp->pal == 1)
 				{
@@ -725,6 +733,7 @@ int spawn_r(int j, int pn)
 					changespritestat(i, STAT_MISC);
 					break;
 				}
+				[[fallthrough]];
 			case WATERBUBBLEMAKER:
 				sp->cstat |= 32768;
 				changespritestat(i,6);
@@ -735,6 +744,7 @@ int spawn_r(int j, int pn)
 			case BOLT1+3:
 				t[0] = sp->xrepeat;
 				t[1] = sp->yrepeat;
+				[[fallthrough]];
 			case MASTERSWITCH:
 				if(sp->picnum == MASTERSWITCH)
 					sp->cstat |= 32768;
@@ -773,6 +783,7 @@ int spawn_r(int j, int pn)
 				else goto default_case;
 			case SBMOVE:
 				if (isRRRA()) goto default_case;
+				[[fallthrough]];
 
 			case BILLYRAYSTAYPUT:
 			case BRAYSNIPER:
@@ -784,6 +795,7 @@ int spawn_r(int j, int pn)
 			case COOTSTAYPUT:
 			rrra_stayput:
 				act->actorstayput = sp->sectnum;
+				[[fallthrough]];
 			case BOULDER:
 			case BOULDER1:
 			case RAT:
@@ -1101,6 +1113,7 @@ int spawn_r(int j, int pn)
 				act->SetOwner(act);
 				sp->xrepeat = sp->yrepeat = 9;
 				sp->yvel = 4;
+				[[fallthrough]];
 			case REACTOR2:
 			case REACTOR:
 			case RECON:
@@ -1111,6 +1124,7 @@ int spawn_r(int j, int pn)
 			case MOTOAMMO:
 			case BOATAMMO:
 				if (!isRRRA()) goto default_case;
+				[[fallthrough]];
 
 			case ATOMICHEALTH:
 			case STEROIDS:
@@ -1175,6 +1189,7 @@ int spawn_r(int j, int pn)
 				}
 
 				sp->pal = 0;
+				[[fallthrough]];
 
 			case ACCESSCARD:
 
@@ -1316,6 +1331,7 @@ int spawn_r(int j, int pn)
 				break;
 			case WATERFOUNTAIN:
 				sp->lotag = 1;
+				[[fallthrough]];
 			case TREE1:
 			case TREE2:
 			case TIRE:
@@ -1355,6 +1371,7 @@ int spawn_r(int j, int pn)
 					sp->xvel = -8;
 					ssp(act, CLIPMASK0);
 				}
+				[[fallthrough]];
 			case CEILINGSTEAM:
 				changeactorstat(act, STAT_STANDABLE);
 				break;
@@ -1442,6 +1459,7 @@ int spawn_r(int j, int pn)
 			case CANWITHSOMETHING:
 			case RUBBERCAN:
 				sp->extra = 0;
+				[[fallthrough]];
 			case EXPLODINGBARREL:
 			case HORSEONSIDE:
 			case FIREBARREL:
@@ -1457,6 +1475,7 @@ int spawn_r(int j, int pn)
 				makeitfall(act);
 				if(j >= 0) act->SetOwner(actj);
 				else act->SetOwner(act);
+				[[fallthrough]];
 
 			case EGG:
 				if( ud.monsters_off == 1 && sp->picnum == EGG )

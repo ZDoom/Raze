@@ -486,6 +486,7 @@ void displayweapon_d(int snum, double smoothratio)
 				case 1:
 				case 2:
 					hud_drawpal(weapon_xoffset + 168 - look_anghalf,looking_arc + 201 - gun_pos, SHOTGUN + 2,-128,o,pal);
+					[[fallthrough]];
 				case 0:
 				case 6:
 				case 7:

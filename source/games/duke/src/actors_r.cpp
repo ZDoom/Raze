@@ -1535,9 +1535,11 @@ void moveweapons_r(void)
 				deletesprite(proj);
 				continue;
 			}
+			[[fallthrough]];
 		case RPG2:
 		case RRTILE1790:
 			if (!isRRRA()) continue;
+			[[fallthrough]];
 		case SHRINKSPARK:
 		case RPG:
 		case FIRELASER:
@@ -1744,6 +1746,7 @@ void movetransports_r(void)
 				if (spr->picnum == SHARK ||
 					(isRRRA() && (spr->picnum == CHEERBOAT || spr->picnum == HULKBOAT || spr->picnum == MINIONBOAT || spr->picnum == UFO1_RRRA)) ||
 					(!isRRRA() && (spr->picnum == UFO1_RR || spr->picnum == UFO2 || spr->picnum == UFO3 || spr->picnum == UFO4 || spr->picnum == UFO5))) continue;
+				[[fallthrough]];
 			case STAT_PROJECTILE:
 			case STAT_MISC:
 			case STAT_DUMMYPLAYER:
@@ -1816,9 +1819,11 @@ void movetransports_r(void)
 							spr2->cstat &= 32767;
 							break;
 						}
+						[[fallthrough]];
 					default:
 						if (spr2->statnum == 5 && !(sectlotag == ST_1_ABOVE_WATER || sectlotag == ST_2_UNDERWATER || (isRRRA() && (sectlotag == 160 || sectlotag == 161))))
 							break;
+						[[fallthrough]];
 
 					case WATERBUBBLE:
 						if (rnd(192) && spr2->picnum == WATERBUBBLE)
@@ -2984,6 +2989,7 @@ void moveactors_r(void)
 				{
 					S_StopSound(356, nullptr);
 				}
+				[[fallthrough]];
 			case BOWLINGPIN:
 			case BOWLINGPIN+1:
 			case HENSTAND:
@@ -3062,6 +3068,7 @@ void moveactors_r(void)
 
 			case CHEERBOMB:
 				if (!isRRRA()) break;
+				[[fallthrough]];
 			case MORTER:
 			case HEAVYHBOMB:
 				heavyhbomb(act);
@@ -3202,6 +3209,7 @@ void moveexplosions_r(void)  // STATNUM 5
 				SetPlayerPal(&ps[p], PalEntry(32, 32, 0, 0));
 				ps[p].GetActor()->s->extra -= 4;
 			}
+			[[fallthrough]];
 
 		case COOLEXPLOSION1:
 		case FIRELASER:
@@ -3259,6 +3267,7 @@ void moveexplosions_r(void)  // STATNUM 5
 		case MAMAJIBA:
 		case MAMAJIBB:
 			if (!isRRRA()) break;
+			[[fallthrough]];
 
 		case BILLYJIBA:
 		case BILLYJIBB:
@@ -3571,6 +3580,7 @@ void moveeffectors_r(void)   //STATNUM 3
 
 		case 156:
 			if (!isRRRA()) break;
+			[[fallthrough]];
 		case SE_24_CONVEYOR:
 		case SE_34:
 		{
