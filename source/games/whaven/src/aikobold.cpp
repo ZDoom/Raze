@@ -330,7 +330,6 @@ static void checkexplkobold(PLAYER& plr, DWHActor* actor)
 	while (auto sect = it.Next())
 	{
 		SPRITE& tspr = sect->s();
-		int j = sect->GetSpriteIndex();
 
 		int dx = abs(spr.x - tspr.x); // x distance to sprite
 		int dy = abs(spr.y - tspr.y); // y distance to sprite

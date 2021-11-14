@@ -20,7 +20,7 @@ short lavadrylandsector[32];
 short lavadrylandcnt;
 short bobbingsectorlist[16], bobbingsectorcnt;
 
-int lastbat = -1;
+DWHActor* lastbat = nullptr;
 
 short revolveclip[16];
 short revolvesector[4], revolveang[4], revolvecnt;
@@ -916,7 +916,7 @@ void bats(PLAYER& plr, DWHActor* actor) {
 	SetNewStatus(spawnedactor, FLOCK);
 
 	if (spr.extra == 1)
-		lastbat = spawnedactor->GetSpriteIndex();
+		lastbat = spawnedactor;
 }
 
 void cracks() {
@@ -1097,27 +1097,28 @@ void weaponpowerup(PLAYER& plr) {
 	}
 }
 
-void makesparks(short i, int type) {
+void makesparks(DWHActor* actor, int type) {
 
+	auto& spr = actor->s();
 	DWHActor* spawnedactor = nullptr;
 
 	switch (type) {
 	case 1:
-		spawnedactor = InsertActor(sprite[i].sectnum, SPARKS);
+		spawnedactor = InsertActor(spr.sectnum, SPARKS);
 		break;
 	case 2:
-		spawnedactor = InsertActor(sprite[i].sectnum, SPARKSUP);
+		spawnedactor = InsertActor(spr.sectnum, SPARKSUP);
 		break;
 	case 3:
-		spawnedactor = InsertActor(sprite[i].sectnum, SPARKSDN);
+		spawnedactor = InsertActor(spr.sectnum, SPARKSDN);
 		break;
 	}
 
 	auto& spawned = spawnedactor->s();
 
-	spawned.x = sprite[i].x;
-	spawned.y = sprite[i].y;
-	spawned.z = sprite[i].z;
+	spawned.x = spr.x;
+	spawned.y = spr.y;
+	spawned.z = spr.z;
 	spawned.cstat = 0;
 	spawned.picnum = SPARKBALL;
 	spawned.shade = 0;

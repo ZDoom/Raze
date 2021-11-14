@@ -243,9 +243,9 @@ boolean prepareboard(const char* fname) {
 	tileDelete(FLOORMIRROR);
 
 	for (i = 0; i < ARROWCOUNTLIMIT; i++)
-		arrowsprite[i] = -1;
+		arrowsprite[i] = nullptr;
 	for (i = 0; i < THROWPIKELIMIT; i++)
-		throwpikesprite[i] = -1;
+		throwpikesprite[i] = nullptr;
 
 	lavadrylandcnt = 0;
 	aiInit();
@@ -254,7 +254,6 @@ boolean prepareboard(const char* fname) {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		i = actor->GetSpriteIndex();
 
 		if(!isWh2() && mapon == 5 && i == 0 && spr.lotag == 0 && spr.hitag == 0) {
 			spr.lotag = 1;
@@ -266,13 +265,13 @@ boolean prepareboard(const char* fname) {
 			sparksy = spr.y;
 			sparksz = spr.z;
 			for (int j = 0; j < 10; j++) {
-				makesparks(i, 1);
+				makesparks(actor, 1);
 			}
 			for (int j = 10; j < 20; j++) {
-				makesparks(i, 2);
+				makesparks(actor, 2);
 			}
 			for (int j = 20; j < 30; j++) {
-				makesparks(i, 3);
+				makesparks(actor, 3);
 			}
 			spr.cstat &= ~3;
 			spr.cstat |= 0x8000;

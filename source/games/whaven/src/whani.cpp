@@ -425,7 +425,6 @@ void animateobjs(PLAYER& plr) {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		int i = actor->GetSpriteIndex();
 
 		spr.lotag -= TICSPERFRAME;
 		switch (spr.extra) {
@@ -463,7 +462,7 @@ void animateobjs(PLAYER& plr) {
 			}
 		case 2: // fly to roof and get deleted
 			if (spr.lotag < 0) {
-				if (i == lastbat) {
+				if (actor == lastbat) {
 					soundEngine->StopSound(CHAN_BAT);
 				}
 				DeleteActor(actor);
@@ -474,7 +473,7 @@ void animateobjs(PLAYER& plr) {
 						(bsin(spr.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
 				SetActorPos(actor, &spr.pos);
 				if (moveStat.type == kHitSector) {// Hits a ceiling / floor
-					if (i == lastbat) {
+					if (actor == lastbat) {
 						soundEngine->StopSound(CHAN_BAT);
 					}
 					DeleteActor(actor);

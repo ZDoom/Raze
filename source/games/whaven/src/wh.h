@@ -154,7 +154,8 @@ extern int expgained;
 extern int difficulty;
 extern SPRITE tspritelist[MAXSPRITESONSCREEN + 1];
 extern int tspritelistcnt;
-extern short arrowsprite[ARROWCOUNTLIMIT], throwpikesprite[THROWPIKELIMIT];
+extern DWHActor* throwpikesprite[THROWPIKELIMIT];
+extern DWHActor* arrowsprite[ARROWCOUNTLIMIT];
 extern int sparksx, sparksy, sparksz;
 extern int playertorch;
 extern uint8_t ceilingshadearray[MAXSECTORS];
@@ -162,6 +163,7 @@ extern uint8_t floorshadearray[MAXSECTORS];
 extern uint8_t wallshadearray[MAXWALLS];
 extern short floormirrorsector[64];
 extern int floormirrorcnt;
+extern int arrowcnt, throwpikecnt;
 
 extern int zr_ceilz, zr_florz;
 extern Collision zr_florHit;
@@ -353,7 +355,7 @@ extern short skypanlist[64], skypancnt;
 extern short lavadrylandsector[32];
 extern short lavadrylandcnt;
 extern short bobbingsectorlist[16], bobbingsectorcnt;
-extern int lastbat;
+extern DWHActor* lastbat;
 extern short revolveclip[16];
 extern short revolvesector[4], revolveang[4], revolvecnt;
 extern int revolvex[4][32], revolvey[4][32];
@@ -391,7 +393,6 @@ void lavadryland();
 void warpfxsprite(DWHActor* s);
 void resetEffects();
 void weaponpowerup(PLAYER& plr);
-void makesparks(short i, int type);
 void shards(DWHActor* i, int type);
 
 

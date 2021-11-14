@@ -6,7 +6,7 @@ BEGIN_WH_NS
 static int weaponuseless = 0;
 static boolean madeahit;
 static int weapondropgoal;
-static int arrowcnt, throwpikecnt;
+int arrowcnt, throwpikecnt;
 
 
 // EG 17 Oct 2017: Backport shield toggle
@@ -1692,9 +1692,9 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 		if (pHitInfo.hitwall > 0 && pHitInfo.hitsprite < 0) { // XXX WH2 sector lotag < 6 || > 8
 			if (isWh2()) {
 				arrowcnt = (arrowcnt + 1) % ARROWCOUNTLIMIT;
-				if (arrowsprite[arrowcnt] != -1) {
-					deletesprite((short) arrowsprite[arrowcnt]);
-					arrowsprite[arrowcnt] = -1;
+				if (arrowsprite[arrowcnt] != nullptr) {
+					DeleteActor(arrowsprite[arrowcnt]);
+					arrowsprite[arrowcnt] = nullptr;
 				}
 			}
 
@@ -1880,9 +1880,8 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 		while (auto itActor = it.Next())
 		{
 			auto& spk = itActor->s();
-			int i = itActor->GetSpriteIndex();
 			// cansee
-			if (itActor->GetSpriteIndex() != plr.spritenum) {
+			if (itActor != plr.actor()) {
 				switch (spk.detail) {
 				case FREDTYPE:
 				case KOBOLDTYPE:
@@ -1946,16 +1945,16 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 
 				if (isWh2()) {
 					throwpikecnt = (throwpikecnt + 1) % THROWPIKELIMIT;
-					if (throwpikesprite[throwpikecnt] != -1) {
-						deletesprite(throwpikesprite[throwpikecnt]);
-						throwpikesprite[throwpikecnt] = -1;
+					if (throwpikesprite[throwpikecnt] != nullptr) {
+						DeleteActor(throwpikesprite[throwpikecnt]);
+						throwpikesprite[throwpikecnt] = nullptr;
 					}
 
 					if (plr.weapon[plr.currweapon] == 3) {
 						auto spawnedactor = InsertActor(plr.sector, MISSILE);
 						auto& spawned = spawnedactor->s();
 
-						throwpikesprite[throwpikecnt] = spawnedactor->GetSpriteIndex();
+						throwpikesprite[throwpikecnt] = spawnedactor;
 						spawned.x = plr.x;
 						spawned.y = plr.y;
 						spawned.z = plr.z + (24 << 8);
@@ -1987,7 +1986,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 						auto spawnedactor = InsertActor(plr.sector, MISSILE);
 						auto& spawned = spawnedactor->s();
 
-						throwpikesprite[throwpikecnt] = spawnedactor->GetSpriteIndex();
+						throwpikesprite[throwpikecnt] = spawnedactor;
 						spawned.x = plr.x;
 						spawned.y = plr.y;
 						spawned.z = plr.z + (24 << 8);
@@ -2045,9 +2044,9 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 
 				if (isWh2()) {
 					throwpikecnt = (throwpikecnt + 1) % THROWPIKELIMIT;
-					if (throwpikesprite[throwpikecnt] != -1) {
-						deletesprite((short) throwpikesprite[throwpikecnt]);
-						throwpikesprite[throwpikecnt] = -1;
+					if (throwpikesprite[throwpikecnt] != nullptr) {
+						DeleteActor(throwpikesprite[throwpikecnt]);
+						throwpikesprite[throwpikecnt] = nullptr;
 					}
 
 					if (plr.weapon[plr.currweapon] == 3) {
@@ -2055,7 +2054,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 						auto spawnedactor = InsertActor(plr.sector, MISSILE);
 						auto& spawned = spawnedactor->s();
 
-						throwpikesprite[throwpikecnt] = spawnedactor->GetSpriteIndex();
+						throwpikesprite[throwpikecnt] = spawnedactor;
 						spawned.x = plr.x;
 						spawned.y = plr.y;
 						spawned.z = plr.z + (24 << 8);
@@ -2084,7 +2083,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 						auto spawnedactor = InsertActor(plr.sector, MISSILE);
 						auto& spawned = spawnedactor->s();
 
-						throwpikesprite[throwpikecnt] = spawnedactor->GetSpriteIndex();
+						throwpikesprite[throwpikecnt] = spawnedactor;
 						spawned.x = plr.x;
 						spawned.y = plr.y;
 						spawned.z = plr.z + (24 << 8);

@@ -623,7 +623,6 @@ static DWHActor* searchpatrol(SPRITE& spr) {
 	while (auto itActor = it.Next())
 	{
 		SPRITE& tspr = itActor->s();
-		int j = itActor->GetSpriteIndex();
 
 		int dist = abs(tspr.x - spr.x) + abs(tspr.y - spr.y);
 		if (dist < mindist) {
@@ -693,7 +692,6 @@ static void checkexplgonzo(PLAYER& plr, DWHActor* actor)
 	while (auto sectactor = it.Next())
 	{
 		SPRITE& tspr = sectactor->s();
-		int j = sectactor->GetSpriteIndex();
 
 		int dx = abs(spr.x - tspr.x); // x distance to sprite
 		int dy = abs(spr.y - tspr.y); // y distance to sprite

@@ -430,7 +430,6 @@ static void checkexplgron(PLAYER& plr, DWHActor* actor)
 	while (auto sectactor = it.Next())
 	{
 		SPRITE& spri = sectactor->s();
-		int j = sectactor->GetSpriteIndex();
 
 		int dx = abs(spr.x - spri.x); // x distance to sprite
 		int dy = abs(spr.y - spri.y); // y distance to sprite
