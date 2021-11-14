@@ -5,7 +5,7 @@ BEGIN_WH_NS
 
 static int checksight_x, checksight_y = 0;
 
-static void dragonAttack2(PLAYER& plr, DWHActor* i);
+static void dragonAttack2(PLAYER& plr, DWHActor* actor);
 static void firebreath(PLAYER& plr, DWHActor*, int a, int b, int c);
 
 static void chasedragon(PLAYER& plr, DWHActor* actor)
@@ -392,11 +392,11 @@ void createDragonAI() {
 	e.face = facedragon;
 }
 
-void premapDragon(short i) {
-	SPRITE& spr = sprite[i];
+void premapDragon(DWHActor* actor) {
+	SPRITE& spr = actor->s();
 
 	spr.detail = DRAGONTYPE;
-	changespritestat(i, FACE);
+	ChangeActorStat(actor, FACE);
 	enemy[DRAGONTYPE].info.set(spr);
 }
 

@@ -106,12 +106,12 @@ void createRatAI() {
 	e.flee = fleerat;
 }
 	
-void premapRat(short i) {
-	SPRITE& spr = sprite[i];
+void premapRat(DWHActor* actor) {
+	SPRITE& spr = actor->s();
 
 	spr.detail = RATTYPE;
 	enemy[RATTYPE].info.set(spr);
-	changespritestat(i, FACE);
+	ChangeActorStat(actor, FACE);
 
 	spr.shade = 12;
 	spr.pal = 5;

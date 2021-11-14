@@ -194,11 +194,11 @@ void createFishAI() {
 	e.face = facefish;
 }
 
-void premapFish(short i) {
-	SPRITE& spr = sprite[i];
+void premapFish(DWHActor* actor) {
+	SPRITE& spr = actor->s();
 
 	spr.detail = FISHTYPE;
-	changespritestat(i, FACE);
+	ChangeActorStat(actor, FACE);
 	enemy[FISHTYPE].info.set(spr);
 }
 

@@ -91,11 +91,11 @@ void createKurtAI() {
 	e.die = enemy[GONZOTYPE].die;
 }
 
-void premapKurt(short i) {
-	SPRITE& spr = sprite[i];
+void premapKurt(DWHActor* actor) {
+	SPRITE& spr = actor->s();
 	spr.detail = KURTTYPE;
 	enemy[KURTTYPE].info.set(spr);
-	changespritestat(i, STAND);
+	ChangeActorStat(actor, STAND);
 
 	switch (spr.picnum) {
 	case KURTSTAND:

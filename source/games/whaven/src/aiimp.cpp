@@ -349,12 +349,12 @@ void createImpAI() {
 }
 
 	
-void premapImp(short i) {
-	SPRITE& spr = sprite[i];
+void premapImp(DWHActor* actor) {
+	SPRITE& spr = actor->s();
 
 	spr.detail = IMPTYPE;
 	enemy[IMPTYPE].info.set(spr);
-	changespritestat(i, FACE);
+	ChangeActorStat(actor, FACE);
 	spr.shade = -4;
 }
 

@@ -290,14 +290,14 @@ void createWillowAI() {
 }
 	
 
-void premapWillow(short i) {
-	SPRITE& spr = sprite[i];
+void premapWillow(DWHActor* actor) {
+	SPRITE& spr = actor->s();
 
 	spr.detail = WILLOWTYPE;
 	enemy[WILLOWTYPE].info.set(spr);
 	spr.cstat |= 128;
 	spr.z -= tileHeight(WILLOW) << 8;
-	changespritestat(i, FACE);
+	ChangeActorStat(actor, FACE);
 }
 
 END_WH_NS

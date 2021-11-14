@@ -388,8 +388,8 @@ void createSkeletonAI() {
 }
 	
 
-void premapSkeleton(short i) {
-	SPRITE& spr = sprite[i];
+void premapSkeleton(DWHActor* actor) {
+	SPRITE& spr = actor->s();
 
 	spr.detail = SKELETONTYPE;
 	enemy[SKELETONTYPE].info.set(spr);
@@ -397,11 +397,11 @@ void premapSkeleton(short i) {
 	if (spr.picnum == HANGMAN) {
 		spr.xrepeat = 28;
 		spr.yrepeat = 28;
-		changespritestat(i, STAND);
+		ChangeActorStat(actor, STAND);
 		return;
 	}
 
-	changespritestat(i, FACE);
+	ChangeActorStat(actor, FACE);
 }
 
 END_WH_NS

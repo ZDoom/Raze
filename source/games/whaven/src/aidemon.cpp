@@ -185,7 +185,6 @@ static void fleedemon(PLAYER& plr, DWHActor* actor)
 
 static void castdemon(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -205,7 +204,6 @@ static void castdemon(PLAYER& plr, DWHActor* actor)
 
 static void nukeddemon(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	chunksofmeat(plr, actor,spr.x, spr.y, spr.z, spr.sectnum, spr.ang);
@@ -234,11 +232,11 @@ void createDemonAI() {
 }
 
 
-void premapDemon(short i) {
-	SPRITE& spr = sprite[i];
+void premapDemon(DWHActor* actor) {
+	SPRITE& spr = actor->s();
 
 	spr.detail = DEMONTYPE;
-	changespritestat(i, FACE);
+	ChangeActorStat(actor, FACE);
 	enemy[DEMONTYPE].info.set(spr);
 }
 

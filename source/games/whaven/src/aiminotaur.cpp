@@ -367,12 +367,12 @@ void createMinotaurAI() {
 }
 
 
-void premapMinotaur(short i) {
-	SPRITE& spr = sprite[i];
+void premapMinotaur(DWHActor* actor) {
+	SPRITE& spr = actor->s();
 
 	spr.detail = MINOTAURTYPE;
 	enemy[MINOTAURTYPE].info.set(spr);
-	changespritestat(i, FACE);
+	ChangeActorStat(actor, FACE);
 
 	if (krand() % 100 > 50)
 		spr.extra = 1;

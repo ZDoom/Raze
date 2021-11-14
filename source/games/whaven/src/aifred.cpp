@@ -333,14 +333,14 @@ void createFredAI() {
 }
 
 
-void premapFred(short i) {
-	SPRITE& spr = sprite[i];
+void premapFred(DWHActor* actor) {
+	SPRITE& spr = actor->s();
 	if (spr.picnum == FRED && spr.pal == 1) {
-		deletesprite(i);
+		DeleteActor(actor);
 		return;
 	}
 	spr.detail = FREDTYPE;
-	changespritestat(i, FACE);
+	ChangeActorStat(actor, FACE);
 	enemy[FREDTYPE].info.set(spr);
 
 	if (krand() % 100 > 50)

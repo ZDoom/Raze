@@ -391,15 +391,15 @@ void spawnabaddy(DWHActor* actor, int monster) {
 	spawned.cstat = 0;
 
 	if (monster == WILLOW)
-		premapWillow(spawnedactor->GetSpriteIndex());
+		premapWillow(spawnedactor);
 	else if (monster == SPIDER)
-		premapSpider(spawnedactor->GetSpriteIndex());
+		premapSpider(spawnedactor);
 	else if (monster == GRONSW)
-		premapGron(spawnedactor->GetSpriteIndex());
+		premapGron(spawnedactor);
 	else if (monster == SKELETON)
-		premapSkeleton(spawnedactor->GetSpriteIndex());
+		premapSkeleton(spawnedactor);
 	else if (monster == GONZOGSH)
-		premapGonzo(spawnedactor->GetSpriteIndex());
+		premapGonzo(spawnedactor);
 
 	spawned.picnum = (short)monster;
 	killcnt++;
@@ -424,8 +424,8 @@ void createJudyAI() {
 	e.die = diejudy;
 }
 
-void premapJudy(short i) {
-	SPRITE& spr = sprite[i];
+void premapJudy(DWHActor* actor) {
+	SPRITE& spr = actor->s();
 	spr.detail = JUDYTYPE;
 
 	enemy[JUDYTYPE].info.set(spr);
@@ -434,11 +434,11 @@ void premapJudy(short i) {
 		spr.hitag = adjusthp(700);
 
 	if (spr.picnum == JUDYSIT) {
-		changespritestat(i, WITCHSIT);
+		ChangeActorStat(actor, WITCHSIT);
 		spr.extra = 1200;
 	}
 	else
-		changespritestat(i, FACE);
+		ChangeActorStat(actor, FACE);
 }
 
 END_WH_NS

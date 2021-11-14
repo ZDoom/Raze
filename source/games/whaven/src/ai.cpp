@@ -90,30 +90,29 @@ void aiInit() {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		int i = actor->GetSpriteIndex();
 		int pic = spr.picnum;
 		switch (spr.picnum) {
 		default:
 			if (pic == SKELETON || pic == HANGMAN) {
-				premapSkeleton(i);
+				premapSkeleton(actor);
 				killcnt++;
 			}
 			else if (pic == GUARDIAN) {
-				premapGuardian(i);
+				premapGuardian(actor);
 				killcnt++;
 			}
 			else if (pic == WILLOW) {
-				premapWillow(i);
+				premapWillow(actor);
 				killcnt++;
 			}
 			else if (pic == RAT) {
-				premapRat(i);
+				premapRat(actor);
 			}
 			else if (pic == FISH) {
-				premapFish(i);
+				premapFish(actor);
 			}
 			else if (pic == GRONHAL || pic == GRONMU || pic == GRONSW) {
-				premapGron(i);
+				premapGron(actor);
 				killcnt++;
 			}
 			break;
@@ -122,65 +121,65 @@ void aiInit() {
 		case GOBLINCHILL:
 			killcnt++;
 			if (isWh2() && spr.picnum == IMP) {
-				premapImp(i);
+				premapImp(actor);
 				break;
 			}
 
 			if (!isWh2())
-				premapGoblin(i);
+				premapGoblin(actor);
 			break;
 		case DEVIL:
 		case DEVILSTAND:
-			if (sprite[i].pal != 8) {
-				premapDevil(i);
+			if (actor->s().pal != 8) {
+				premapDevil(actor);
 				killcnt++;
 			}
 			break;
 		case DRAGON:
-			premapDragon(i);
+			premapDragon(actor);
 			killcnt++;
 			break;
 		case KOBOLD:
-			premapKobold(i);
+			premapKobold(actor);
 			killcnt++;
 			break;
 		case FRED:
 		case FREDSTAND:
-			premapFred(i);
+			premapFred(actor);
 			killcnt++;
 			break;
 		case SPIDER:
-			premapSpider(i);
+			premapSpider(actor);
 			killcnt++;
 			break;
 		case MINOTAUR:
-			premapMinotaur(i);
+			premapMinotaur(actor);
 			killcnt++;
 			break;
 		case FATWITCH:
-			premapFatwitch(i);
+			premapFatwitch(actor);
 			killcnt++;
 			break;
 		case SKULLY:
-			premapSkully(i);
+			premapSkully(actor);
 			killcnt++;
 			break;
 		case JUDY:
 		case JUDYSIT:
-			premapJudy(i);
+			premapJudy(actor);
 			killcnt++;
 			break;
 		case DEMON:
-			premapDemon(i);
+			premapDemon(actor);
 			killcnt++;
 			break;
 		case KATIE:
-			premapKatie(i);
+			premapKatie(actor);
 			killcnt++;
 			break;
 		case KURTSTAND:
 		case KURTKNEE:
-			premapKurt(i);
+			premapKurt(actor);
 			killcnt++;
 			break;
 		case NEWGUYSTAND:
@@ -190,7 +189,7 @@ void aiInit() {
 		case NEWGUYMACE:
 		case NEWGUYPUNCH:
 		case NEWGUY:
-			premapNewGuy(i);
+			premapNewGuy(actor);
 			killcnt++;
 			break;
 		case KURTAT:
@@ -199,7 +198,7 @@ void aiInit() {
 		case GONZOGSW:
 		case GONZOGHM:
 		case GONZOGSH:
-			premapGonzo(i);
+			premapGonzo(actor);
 			killcnt++;
 			break;
 		}

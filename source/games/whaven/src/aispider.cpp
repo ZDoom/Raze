@@ -328,12 +328,12 @@ void createSpiderAI() {
 	e.die = diespider;
 }
 
-void premapSpider(short i) {
-	SPRITE& spr = sprite[i];
+void premapSpider(DWHActor* actor) {
+	SPRITE& spr = actor->s();
 
 	spr.detail = SPIDERTYPE;
 	enemy[SPIDERTYPE].info.set(spr);
-	changespritestat(i, FACE);
+	ChangeActorStat(actor, FACE);
 }
 
 END_WH_NS

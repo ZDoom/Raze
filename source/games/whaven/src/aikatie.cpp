@@ -290,11 +290,11 @@ void createKatieAI() {
 	e.die = diekatie;
 }
 
-void premapKatie(short i) {
-	SPRITE& spr = sprite[i];
+void premapKatie(DWHActor* actor) {
+	SPRITE& spr = actor->s();
 
 	spr.detail = KATIETYPE;
-	changespritestat(i, FACE);
+	ChangeActorStat(actor, FACE);
 	enemy[KATIETYPE].info.set(spr);
 	spr.extra = 5;
 }

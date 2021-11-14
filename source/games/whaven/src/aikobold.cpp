@@ -370,12 +370,12 @@ void createKoboldAI() {
 	e.skirmish = skirmishkobold;
 }
 
-void premapKobold(short i) {
-	SPRITE& spr = sprite[i];
+void premapKobold(DWHActor* actor) {
+	SPRITE& spr = actor->s();
 
 	spr.detail = KOBOLDTYPE;
 	enemy[KOBOLDTYPE].info.set(spr);
-	changespritestat(i, FACE);
+	ChangeActorStat(actor, FACE);
 
 	if (spr.pal == 8)
 		spr.hitag = adjusthp(40);

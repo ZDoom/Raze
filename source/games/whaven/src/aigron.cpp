@@ -530,15 +530,15 @@ void createGronAI() {
 }
 
 
-void premapGron(short i) {
-	SPRITE& spr = sprite[i];
+void premapGron(DWHActor* actor) {
+	SPRITE& spr = actor->s();
 
 	if (spr.picnum == GRONSW && spr.pal == 10)
-		deletesprite(i);
+		DeleteActor(actor);
 
 	spr.detail = GRONTYPE;
 	enemy[GRONTYPE].info.set(spr);
-	changespritestat(i, FACE);
+	ChangeActorStat(actor, FACE);
 
 	if (spr.picnum == GRONHAL)
 		spr.extra = 4;

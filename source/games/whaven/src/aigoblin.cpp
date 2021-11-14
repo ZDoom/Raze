@@ -588,8 +588,8 @@ void createGoblinAI() {
 }
 
 
-void premapGoblin(short i) {
-	SPRITE& spr = sprite[i];
+void premapGoblin(DWHActor* actor) {
+	SPRITE& spr = actor->s();
 
 	spr.detail = GOBLINTYPE;
 
@@ -607,14 +607,14 @@ void premapGoblin(short i) {
 	}
 
 	if (spr.picnum == GOBLINCHILL) {
-		changespritestat(i, STAND);
+		ChangeActorStat(actor, STAND);
 		spr.lotag = 30;
 		if (krand() % 100 > 50)
 			spr.extra = 1;
 		return;
 	}
 
-	changespritestat(i, FACE);
+	ChangeActorStat(actor, FACE);
 	if (krand() % 100 > 50)
 		spr.extra = 1;
 }

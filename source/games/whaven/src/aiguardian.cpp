@@ -246,12 +246,12 @@ void createGuardianAI() {
 	e.cast = castguardian;
 }
 
-void premapGuardian(short i) {
-	SPRITE& spr = sprite[i];
+void premapGuardian(DWHActor* actor) {
+	SPRITE& spr = actor->s();
 
 	spr.detail = GUARDIANTYPE;
 	enemy[GUARDIANTYPE].info.set(spr);
-	changespritestat(i, FACE);
+	ChangeActorStat(actor, FACE);
 }
 
 END_WH_NS

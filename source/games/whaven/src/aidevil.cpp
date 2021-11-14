@@ -281,10 +281,10 @@ void createDevilAI() {
 	e.cast = castdevil;
 }
 
-void premapDevil(short i) {
-	SPRITE& spr = sprite[i];
+void premapDevil(DWHActor* actor) {
+	SPRITE& spr = actor->s();
 	spr.detail = DEVILTYPE;
-	changespritestat(i, FACE);
+	ChangeActorStat(actor, FACE);
 	enemy[DEVILTYPE].info.set(spr);
 	if (spr.pal == 2)
 		spr.hitag = adjusthp(60);

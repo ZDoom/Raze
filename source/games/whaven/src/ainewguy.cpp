@@ -454,8 +454,8 @@ void createNewGuyAI() {
 }
 
 
-void premapNewGuy(short i) {
-	SPRITE& spr = sprite[i];
+void premapNewGuy(DWHActor* actor) {
+	SPRITE& spr = actor->s();
 	spr.detail = NEWGUYTYPE;
 
 	enemy[NEWGUYTYPE].info.set(spr);
@@ -463,7 +463,7 @@ void premapNewGuy(short i) {
 	switch (spr.picnum) {
 	case NEWGUYSTAND:
 	case NEWGUYKNEE:
-		changespritestat(i, STAND);
+		ChangeActorStat(actor, STAND);
 		if (spr.picnum == NEWGUYSTAND)
 			spr.extra = 20;
 		else
@@ -488,7 +488,7 @@ void premapNewGuy(short i) {
 			spr.extra = 0;
 			break;
 		}
-		changespritestat(i, FACE);
+		ChangeActorStat(actor, FACE);
 		spr.picnum = NEWGUY;
 	}
 }

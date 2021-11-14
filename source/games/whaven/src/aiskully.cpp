@@ -259,12 +259,12 @@ void createSkullyAI() {
 	e.die = dieskully;
 }
 
-void premapSkully(short i) {
-	SPRITE& spr = sprite[i];
+void premapSkully(DWHActor* actor) {
+	SPRITE& spr = actor->s();
 
 	spr.detail = SKULLYTYPE;
 	enemy[SKULLYTYPE].info.set(spr);
-	changespritestat(i, FACE);
+	ChangeActorStat(actor, FACE);
 
 	if (krand() % 100 > 50)
 		spr.extra = 1;

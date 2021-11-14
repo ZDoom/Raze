@@ -573,7 +573,7 @@ void gonzoProcess(PLAYER& plr)
 
 			if (zr_florz <= spr.z && spr.lotag < 0) {
 				spr.z = zr_florz;
-				changespritestat(i, LAND);
+				ChangeActorStat(actor, LAND);
 			}
 
 			if (moveStat.type== kHitSprite) { // Bullet hit a sprite
@@ -595,7 +595,7 @@ void gonzoProcess(PLAYER& plr)
 
 			if (zr_florz <= spr.z && spr.lotag < 0) {
 				spr.z = zr_florz;
-				changespritestat(i, LAND);
+				ChangeActorStat(actor, LAND);
 			}
 
 			break;
@@ -764,12 +764,12 @@ void createGonzoAI() {
 }
 	
 
-void premapGonzo(short i) {
-	SPRITE& spr = sprite[i];
+void premapGonzo(DWHActor* actor) {
+	SPRITE& spr = actor->s();
 
 	spr.detail = GONZOTYPE;
 	enemy[GONZOTYPE].info.set(spr);
-	changespritestat(i, FACE);
+	ChangeActorStat(actor, FACE);
 
 	switch (spr.picnum) {
 	case KURTAT:

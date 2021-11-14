@@ -292,11 +292,11 @@ void createFatwitchAI() {
 	e.die = diefatwitch;
 }
 
-void premapFatwitch(short i) {
-	SPRITE& spr = sprite[i];
+void premapFatwitch(DWHActor* actor) {
+	SPRITE& spr = actor->s();
 
 	spr.detail = FATWITCHTYPE;
-	changespritestat(i, FACE);
+	ChangeActorStat(actor, FACE);
 	enemy[FATWITCHTYPE].info.set(spr);
 	if (spr.pal == 7)
 		spr.hitag = (short)adjusthp(290);
