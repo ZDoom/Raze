@@ -202,7 +202,7 @@ void processinput(int num) {
 	int oldposx, oldposy;
 	int dist;
 	int feetoffground;
-	short onsprite = -1;
+	DWHActor* onsprite = nullptr;
 
 	PLAYER& plr = player[num];
 	oldposx = plr.x;
@@ -253,10 +253,10 @@ void processinput(int num) {
 	if (lohit.type == kHitSprite) {
 		auto& spr = lohit.actor->s();
 		if ((spr.z - plr.z) <= (getPlayerHeight() << 8))
-			onsprite = lohit.actor->GetSpriteIndex();
+			onsprite = lohit.actor;
 	}
 	else
-		onsprite = -1;
+		onsprite = nullptr;
 
 	feetoffground = (plr.sector != -1) ? (plr.Sector()->floorz - plr.z) : 0;
 
@@ -479,16 +479,16 @@ void processinput(int num) {
 		if (abs(plr.plInput.svel) > gi->playerKeyMove() || abs(plr.plInput.fvel) > gi->playerKeyMove()) {
 			dist >>= 2;
 
-		if (dist > 0 && feetoffground <= (plr.height << 8) || onsprite != -1) {
+		if (dist > 0 && feetoffground <= (plr.height << 8) || onsprite != nullptr) {
 			oldhoriz = ((dist * bsinf(PlayClock << 5)) * (1. / 524288.)) * (1. / 4.);
 			plr.horizon.addadjustment(oldhoriz);
 		}
 		else
 			oldhoriz = 0;
 
-		if (onsprite != -1 && dist > 50 && lopoint == 1 && justplayed == 0) {
+		if (onsprite != nullptr && dist > 50 && lopoint == 1 && justplayed == 0) {
 
-			switch (sprite[onsprite].picnum) {
+			switch (onsprite->s().picnum) {
 			case WALLARROW:
 			case OPENCHEST:
 			case GIFTBOX:
@@ -527,9 +527,9 @@ void processinput(int num) {
 				break;
 			case SPIDER:
 				// STOMP
-				spritesound(S_DEADSTEP, &whActors[onsprite]);
+				spritesound(S_DEADSTEP, onsprite);
 				justplayed = 1;
-				newstatus(onsprite, DIE);
+				SetNewStatus(onsprite, DIE);
 				break;
 
 			case FREDDEAD:
@@ -552,11 +552,11 @@ void processinput(int num) {
 				break;
 			}
 
-			if (sprite[onsprite].picnum == RAT)
+			if (onsprite->s().picnum == RAT)
 			{
-				spritesound(S_RATS1 + (krand() % 2), &whActors[onsprite]);
+				spritesound(S_RATS1 + (krand() % 2), onsprite);
 				justplayed = 1;
-				deletesprite(onsprite);
+				DeleteActor(onsprite);
 			}
 		}
 

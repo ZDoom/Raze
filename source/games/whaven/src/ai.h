@@ -136,7 +136,7 @@ extern int checksight_ang;
 boolean checksight(PLAYER& plr, DWHActor* actor);
 void monsterweapon(DWHActor*);
 PLAYER* aiGetPlayerTarget(DWHActor*);
-boolean actoruse(short i);
+boolean actoruse(DWHActor* i);
 
 void initAI();
 void aiInit();
@@ -163,7 +163,7 @@ void premapSkeleton(DWHActor* actor);
 void premapSkully(DWHActor* actor);
 void premapSpider(DWHActor* actor);
 void premapWillow(DWHActor* actor);
-void deaddude(short sn);
+void deaddude(DWHActor* sn);
 
 
 inline int findplayer() {

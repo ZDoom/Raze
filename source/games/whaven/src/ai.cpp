@@ -268,7 +268,7 @@ void aiProcess() {
 		}
 		else if (moveStat.type != kHitNone) {
 			if (moveStat.type == kHitWall) { // hit a wall
-				actoruse(i);
+				actoruse(actor);
 			}
 			SetNewStatus(actor, FINDME);
 		}
@@ -1203,8 +1203,8 @@ PLAYER* aiGetPlayerTarget(DWHActor* actor) {
 	return &player[pnum];
 }
 
-boolean actoruse(short i) {
-	SPRITE& spr = sprite[i];
+boolean actoruse(DWHActor* actor) {
+	SPRITE& spr = actor->s();
 	Neartag nearTag;
 
 	neartag(spr.x, spr.y, spr.z, spr.sectnum, spr.ang, nearTag, 1024, 3);

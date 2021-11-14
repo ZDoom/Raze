@@ -1167,7 +1167,7 @@ void newstatus(short sn, int seq) {
 				ChangeActorStat(actor, DEAD);
 				if (spr.pal == 4) {
 					ChangeActorStat(actor, SHADE);
-					deaddude(sn);
+					deaddude(actor);
 				} else {
 					ChangeActorStat(actor, DEAD);
 					if (spr.shade < 25)
@@ -1183,7 +1183,7 @@ void newstatus(short sn, int seq) {
 				spr.cstat &= ~3;
 				if (spr.pal == 4) {
 					ChangeActorStat(actor, SHADE);
-					deaddude(sn);
+					deaddude(actor);
 				} else {
 					ChangeActorStat(actor, DEAD);
 					monsterweapon(actor);
@@ -1198,7 +1198,7 @@ void newstatus(short sn, int seq) {
 				spr.cstat &= ~3;
 				if (spr.pal == 4) {
 					ChangeActorStat(actor, SHADE);
-					deaddude(sn);
+					deaddude(actor);
 				} else {
 					ChangeActorStat(actor, DEAD);
 					monsterweapon(actor);
@@ -1213,7 +1213,7 @@ void newstatus(short sn, int seq) {
 				spr.cstat &= ~3;
 				if (spr.pal == 4) {
 					ChangeActorStat(actor, SHADE);
-					deaddude(sn);
+					deaddude(actor);
 				} else {
 					ChangeActorStat(actor, DEAD);
 					monsterweapon(actor);
@@ -1240,7 +1240,7 @@ void newstatus(short sn, int seq) {
 				else spr.cstat &= ~1;
 				if (spr.pal == 4) {
 					ChangeActorStat(actor, SHADE);
-					deaddude(sn);
+					deaddude(actor);
 				} else {
 					ChangeActorStat(actor, DEAD);
 					monsterweapon(actor);

@@ -9,6 +9,7 @@ void analyzesprites(PLAYER& plr, int dasmoothratio,tspritetype* tsprite, int& sp
 	tspritelistcnt = spritesortcnt;
 	for (int i = spritesortcnt - 1; i >= 0; i--) {
 		SPRITE& tspr = tsprite[i];
+		auto tactor = &whActors[tspr.owner];
 
 		if (plr.nightglowtime <= 0) {
 			if(((tspr.detail != GONZOTYPE && tspr.picnum != GONZOGSHDEAD) || tspr.shade != 31) && tspr.statnum != EVILSPIRIT)
@@ -23,7 +24,7 @@ void analyzesprites(PLAYER& plr, int dasmoothratio,tspritetype* tsprite, int& sp
 			tspr.ang = tspr.interpolatedang(dasmoothratio);
 		}
 
-		switch (sprite[tspr.owner].detail) {
+		switch (tactor->s().detail) {
 		case GRONTYPE:
 			if (tspr.picnum == GRONHAL || tspr.picnum == GRONSW || tspr.picnum == GRONSWATTACK
 					|| tspr.picnum == GRONMU) {

@@ -616,9 +616,9 @@ void gonzoProcess(PLAYER& plr)
 	}
 }
 
-static short searchpatrol(SPRITE& spr) {
+static DWHActor* searchpatrol(SPRITE& spr) {
 	int mindist = 0x7fffffff;
-	short target = -1;
+	DWHActor* target = nullptr;
 
 	WHStatIterator it(ATTACK2);
 	while (auto itActor = it.Next())
@@ -629,7 +629,7 @@ static short searchpatrol(SPRITE& spr) {
 		int dist = abs(tspr.x - spr.x) + abs(tspr.y - spr.y);
 		if (dist < mindist) {
 			mindist = dist;
-			target = j;
+			target = itActor;
 		}
 	}
 
@@ -640,9 +640,9 @@ static boolean patrolprocess(PLAYER& plr, DWHActor* actor)
 {
 	SPRITE& spr = actor->s();
 
-	short target = searchpatrol(spr);
-	if (target != -1) {
-		SPRITE& tspr = sprite[target];
+	auto target = searchpatrol(spr);
+	if (target != nullptr) {
+		SPRITE& tspr = target->s();
 		if (cansee(tspr.x, tspr.y, tspr.z, tspr.sectnum, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 			spr.sectnum)) {
 			spr.ang = getangle(tspr.x - spr.x, tspr.y - spr.y);
@@ -650,7 +650,7 @@ static boolean patrolprocess(PLAYER& plr, DWHActor* actor)
 		}
 	}
 
-	return target != -1;
+	return target != nullptr;
 }
 
 static void gonzopike(DWHActor* actor, PLAYER& plr) {
@@ -787,8 +787,9 @@ void premapGonzo(DWHActor* actor) {
 	}
 }
 	
-void deaddude(short sn) {
-	auto& spr = sprite[sn];
+void deaddude(DWHActor* actor) 
+{
+	auto& spr = actor->s();
 	auto spawnedactor = InsertActor(spr.sectnum, DEAD);
 	auto& spawned = spawnedactor->s();
 
