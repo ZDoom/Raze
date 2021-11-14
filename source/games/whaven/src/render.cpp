@@ -45,18 +45,18 @@ void drawscreen(int num, double dasmoothratio, bool sceneonly)
 
 		if (plr.over_shoulder_on)
 		{
-			sprite[plr.spritenum].cstat |= CSTAT_SPRITE_TRANSLUCENT;
+			plr.actor()->s().cstat |= CSTAT_SPRITE_TRANSLUCENT;
 
 			cposz -= 2560;
-			if (!calcChaseCamPos(&cposx, &cposy, &cposz, &sprite[plr.spritenum], &plr.sector, cang, choriz, dasmoothratio))
+			if (!calcChaseCamPos(&cposx, &cposy, &cposz, &plr.actor()->s(), &plr.sector, cang, choriz, dasmoothratio))
 			{
 				cposz += 2560;
-				calcChaseCamPos(&cposx, &cposy, &cposz, &sprite[plr.spritenum], &plr.sector, cang, choriz, dasmoothratio);
+				calcChaseCamPos(&cposx, &cposy, &cposz, &plr.actor()->s(), &plr.sector, cang, choriz, dasmoothratio);
 			}
 		}
 		else
 		{
-			sprite[plr.spritenum].cstat &= ~CSTAT_SPRITE_TRANSLUCENT;
+			plr.actor()->s().cstat &= ~CSTAT_SPRITE_TRANSLUCENT;
 		}
 	}
 

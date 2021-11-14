@@ -688,7 +688,7 @@ void attack(PLAYER& plr, DWHActor* actor) {
 	//		if ((krand() & (15 < plr.armortype ? 11 : 10)) != 0)
 	//			return;
 	auto& spr = actor->s();
-	auto& pspr = sprite[plr.spritenum];
+	auto& pspr = plr.actor()->s();
 
 	if (!droptheshield && plr.shieldpoints > 0 && plr.selectedgun > 0 && plr.selectedgun < 5) {
 		short a = getangle(spr.x - plr.x, spr.y - plr.y);

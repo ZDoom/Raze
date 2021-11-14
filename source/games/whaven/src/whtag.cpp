@@ -969,7 +969,7 @@ void animatetags(int nPlayer) {
 			// Update sprite representation of player
 				
 			SetActorPos(plr.actor(), plr.x, plr.y, plr.z + (plr.height));
-			sprite[plr.spritenum].ang = plr.angle.ang.asbuild();
+			plr.actor()->s().ang = plr.angle.ang.asbuild();
 		}
 	}
 

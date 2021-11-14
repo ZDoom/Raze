@@ -971,7 +971,7 @@ void animateobjs(PLAYER& plr) {
 		}
 
 		if (moveStat.type != kHitNone && spr.picnum == MONSTERBALL)
-			if (spr.owner == sprite[plr.spritenum].owner) {
+			if (spr.owner == plr.actor()->s().owner) {
 				explosion2(i, spr.x, spr.y, spr.z, i);
 			} else {
 				explosion(i, spr.x, spr.y, spr.z, i);
@@ -990,7 +990,7 @@ void animateobjs(PLAYER& plr) {
 		} else if (moveStat.type == kHitWall) { // hit a wall
 
 			if (spr.picnum == MONSTERBALL) {
-				if (spr.owner == sprite[plr.spritenum].owner)
+				if (spr.owner == plr.actor()->s().owner)
 					explosion2(i, spr.x, spr.y, spr.z, i);
 				else
 					explosion(i, spr.x, spr.y, spr.z, i);
@@ -1009,7 +1009,7 @@ void animateobjs(PLAYER& plr) {
 
 		if (moveStat.type == kHitSprite) { // Bullet hit a sprite
 			if (spr.picnum == MONSTERBALL) {
-				if (spr.owner == sprite[plr.spritenum].owner)
+				if (spr.owner == plr.actor()->s().owner)
 					explosion2(i, spr.x, spr.y, spr.z, i);
 				else
 					explosion(i, spr.x, spr.y, spr.z, i);

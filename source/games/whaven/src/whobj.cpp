@@ -127,7 +127,7 @@ void processobjs(PLAYER& plr) {
 			if(isItemSprite(actor->GetSpriteIndex())) 
 				items[(tspr.detail & 0xFF) - ITEMSBASE].pickup(plr, actor);
 
-			if (tspr.picnum >= EXPLOSTART && tspr.picnum <= EXPLOEND && tspr.owner != sprite[plr.spritenum].owner)
+			if (tspr.picnum >= EXPLOSTART && tspr.picnum <= EXPLOEND && tspr.owner != plr.actor()->s().owner)
 				if (plr.manatime < 1)
 					addhealth(plr, -1);
 		}
@@ -1537,10 +1537,10 @@ boolean damageactor(PLAYER& plr, DWHActor* hitactor, DWHActor* actor)
 {
 	auto& spr = actor->s();
 	auto& hitspr = hitactor->s();
-	if (hitactor == plr.actor() && spr.owner == sprite[plr.spritenum].owner)
+	if (hitactor == plr.actor() && spr.owner == plr.actor()->s().owner)
 		return false;
 
-	if (hitactor == plr.actor() && spr.owner != sprite[plr.spritenum].owner) {
+	if (hitactor == plr.actor() && spr.owner != plr.actor()->s().owner) {
 		if (plr.invincibletime > 0 || plr.godMode) {
 			DeleteActor(actor);
 			return false;

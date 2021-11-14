@@ -114,7 +114,7 @@ void GameInterface::clearlocalinputstate()
 
 static void UpdatePlayerSpriteAngle(PLAYER& plr)
 {
-	sprite[plr.spritenum].ang = plr.angle.ang.asbuild();
+	plr.actor()->s().ang = plr.angle.ang.asbuild();
 }
 
 void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
@@ -242,13 +242,13 @@ void processinput(int num) {
 	if (damage_angvel != 0)
 		damage_angvel = std::max(damage_angvel - (tics << 1), 0);
 
-	sprite[plr.spritenum].cstat ^= 1;
+	plr.actor()->s().cstat ^= 1;
 	getzrange(plr.x, plr.y, plr.z, plr.sector, 128, CLIPMASK0);
 
 	loz = zr_florz;
 	auto lohit = zr_florHit;
 
-	sprite[plr.spritenum].cstat ^= 1;
+	plr.actor()->s().cstat ^= 1;
 
 	if (lohit.type == kHitSprite) {
 		auto& spr = lohit.actor->s();
@@ -583,7 +583,7 @@ void processinput(int num) {
 		}
 	}
 
-	//game.pInt.setsprinterpolate(plr.spritenum, sprite[plr.spritenum]);
+	//game.pInt.setsprinterpolate(plr.spritenum, plr.actor()->s());
 	SetActorPos(plr.actor(), plr.x, plr.y, plr.z + (plr.height << 8));
 	UpdatePlayerSpriteAngle(plr);
 

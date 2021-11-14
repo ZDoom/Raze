@@ -776,7 +776,7 @@ boolean prepareboard(const char* fname) {
 		plr.hvel = 0;
 		plr.spritenum = insertsprite(plr.sector, (short) 0);
 		plr.oldsector = plr.sector;
-		auto& pspr = sprite[plr.spritenum];
+		auto& pspr = plr.actor()->s();
 
 		pspr.x = plr.x;
 		pspr.y = plr.y;

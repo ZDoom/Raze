@@ -427,7 +427,7 @@ void chunksofmeat(PLAYER& plr, DWHActor* hitActor, int hitx, int hity, int hitz,
 			spawned.zvel = (short) ((krand() & 1023) - 512);
 			if (newchunk == 1)
 				spawned.zvel <<= 1;
-			spawned.owner = sprite[plr.spritenum].owner;
+			spawned.owner = plr.actor()->s().owner;
 			spawned.lotag = 512;
 			spawned.hitag = 0;
 			spawned.pal = 0;

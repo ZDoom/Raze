@@ -21,7 +21,7 @@ static void facerat(PLAYER& plr, DWHActor* actor)
 
 	spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
 	spr.ang = (short) (((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
-	spr.owner = sprite[plr.spritenum].owner;
+	spr.owner = plr.actor()->s().owner;
 	SetNewStatus(actor, FLEE);
 }
 	
@@ -59,7 +59,7 @@ static void fleerat(PLAYER& plr, DWHActor* actor)
 	}
 
 	if (abs(plr.x - spr.x) <= 1024 && abs(plr.y - spr.y) <= 1024) {
-		spr.owner = sprite[plr.spritenum].owner;
+		spr.owner = plr.actor()->s().owner;
 		SetNewStatus(actor, FACE);
 	}
 
