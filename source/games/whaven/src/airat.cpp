@@ -73,7 +73,7 @@ static void fleerat(PLAYER& plr, DWHActor* actor)
 
 	processfluid(actor, zr_florHit, false);
 
-	//				switch (checkfluid(i, zr_florHit)) {
+	//				switch (checkfluid(actor, zr_florHit)) {
 	//				case TYPELAVA:
 	//				case TYPEWATER:
 	//					spr.z += tileHeight(spr.picnum) << 5;

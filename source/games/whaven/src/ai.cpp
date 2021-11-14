@@ -427,7 +427,7 @@ void aiProcess() {
 		int i = actor->GetSpriteIndex();
 
 		getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
-		switch (checkfluid(i, zr_florHit)) {
+		switch (checkfluid(actor, zr_florHit)) {
 		case TYPELAVA:
 		case TYPEWATER:
 			spr.z = zr_florz + (tileHeight(spr.picnum) << 5);
@@ -560,8 +560,9 @@ boolean checksector6(DWHActor* actor) {
 	return false;
 }
 
-int checkfluid(int i, Collision& florHit) {
-	SPRITE& spr = sprite[i];
+int checkfluid(DWHActor* actor, Collision& florHit) 
+{
+	SPRITE& spr = actor->s();
 	if (isValidSector(spr.sectnum) && florHit.type == kHitSector && (spr.sector()->floorpicnum == WATER
 		/* || spr.sector()->floorpicnum == LAVA2 */ || spr.sector()->floorpicnum == LAVA
 		|| spr.sector()->floorpicnum == SLIME || spr.sector()->floorpicnum == FLOORMIRROR
@@ -583,7 +584,7 @@ int checkfluid(int i, Collision& florHit) {
 
 void processfluid(DWHActor* actor, Collision& florHit, boolean fly) {
 	SPRITE& spr = actor->s();
-	switch (checkfluid(actor->GetSpriteIndex(), florHit)) {
+	switch (checkfluid(actor, florHit)) {
 	case TYPELAVA:
 		if (!fly) {
 			spr.z += tileHeight(spr.picnum) << 5;

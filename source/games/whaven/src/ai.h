@@ -124,7 +124,7 @@ Collision aimove(DWHActor* actor);
 Collision aifly(DWHActor* i);
 void aisearch(PLAYER& plr, DWHActor* i, boolean fly);
 boolean checksector6(DWHActor* i);
-int checkfluid(int i, Collision& florhit);
+int checkfluid(DWHActor* i, Collision& florhit);
 void processfluid(DWHActor* i, Collision& florHit, boolean fly);
 void castspell(PLAYER& plr, DWHActor* i);
 void skullycastspell(PLAYER& plr, int i);

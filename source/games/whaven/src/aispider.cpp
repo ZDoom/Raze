@@ -192,7 +192,7 @@ static void attackspider(PLAYER& plr, DWHActor* actor)
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
 	spr.z = zr_florz;
 
-	switch (checkfluid(i, zr_florHit)) {
+	switch (checkfluid(actor, zr_florHit)) {
 	case TYPELAVA:
 		spr.hitag--;
 		if (spr.hitag < 0)

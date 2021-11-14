@@ -91,7 +91,7 @@ static void attackfish(PLAYER& plr, DWHActor* actor)
 
 	spr.z = spr.sector()->floorz;
 
-	switch (checkfluid(i, zr_florHit)) {
+	switch (checkfluid(actor, zr_florHit)) {
 	case TYPELAVA:
 		spr.hitag--;
 		if (spr.hitag < 0)
