@@ -526,7 +526,7 @@ void VMDisasm(FILE *out, const VMOP *code, int codesize, const VMScriptFunction 
 			{
 				printf_wrapper(out, ",%d\n", code[++i].i24);
 			}
-			else if (code[i].op == OP_CALL_K)
+			else if (code[i].op == OP_CALL_K && callfunc)
 			{
 				printf_wrapper(out, "  [%s]\n", callfunc->PrintableName.GetChars());
 			}

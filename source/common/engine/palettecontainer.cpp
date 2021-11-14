@@ -234,7 +234,7 @@ void PaletteContainer::UpdateTranslation(int trans, FRemapTable* remap)
 
 int PaletteContainer::AddTranslation(int slot, FRemapTable* remap, int count)
 {
-	uint32_t id;
+	uint32_t id = 0;
 	for (int i = 0; i < count; i++)
 	{
 		auto newremap = AddRemap(&remap[i]);
@@ -265,7 +265,7 @@ FRemapTable *PaletteContainer::TranslationToTable(int translation)
 	unsigned int type = GetTranslationType(translation);
 	unsigned int index = GetTranslationIndex(translation);
 
-	if (type < 0 || type >= TranslationTables.Size() || index >= NumTranslations(type))
+	if (type >= TranslationTables.Size() || index >= NumTranslations(type))
 	{
 		return uniqueRemaps[0]; // this is the identity table.
 	}

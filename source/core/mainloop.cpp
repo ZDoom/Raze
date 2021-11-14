@@ -220,6 +220,7 @@ static void GameTicker()
 
 		case ga_newgame:
 			FX_StopAllSounds();
+			[[fallthrough]];
 		case ga_newgamenostopsound:
 			DeleteScreenJob();
 			FX_SetReverb(0);
@@ -240,6 +241,7 @@ static void GameTicker()
 		case ga_mainmenu:
 			FX_StopAllSounds();
 			if (isBlood()) Mus_Stop();
+			[[fallthrough]];
 		case ga_mainmenunostopsound:
 			gi->FreeLevelData();
 			gamestate = GS_MENUSCREEN;

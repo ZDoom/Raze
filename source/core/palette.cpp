@@ -84,11 +84,13 @@ void paletteSetColorTable(int32_t id, uint8_t const* table, bool notransparency,
 
 void paletteLoadFromDisk(void)
 {
-    for (auto & x : glblend)
+    for (auto& x : glblend)
+    {
         x = defaultglblend;
+    }
 
-	auto fil = fileSystem.OpenFileReader("palette.dat");
-	if (!fil.isOpen())
+    auto fil = fileSystem.OpenFileReader("palette.dat");
+    if (!fil.isOpen())
         return;
 
     // Base palette
@@ -425,7 +427,7 @@ glblend_t glblend[MAXBLENDTABS];
 
 void videoSetPalette(int palid)
 {
-	curbasepal = (GPalette.GetTranslation(Translation_BasePalettes, palid) == nullptr)? 0 : palid;
+    curbasepal = (GPalette.GetTranslation(Translation_BasePalettes, palid) == nullptr)? 0 : palid;
 }
 
 //==========================================================================

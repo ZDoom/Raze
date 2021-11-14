@@ -71,11 +71,8 @@ enum dukeweapon_t
 	FLAMETHROWER_WEAPON,    // World Tour
 
 	MIN_WEAPON = 0,
-	MAX_WEAPON = 9
-};
+	MAX_WEAPON = 9,
 
-enum redneck_weapon_t
-{
 	// These names have been pieced together from RedneckGDX and RedNukem because the reconstructed source recycled Duke's names for the first 11 weapons.
 	// Names for 0-2 are the same
 	RIFLEGUN_WEAPON = 3,

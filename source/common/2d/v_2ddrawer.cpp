@@ -842,6 +842,7 @@ void F2DDrawer::AddFlatFill(int left, int top, int right, int bottom, FGameTextu
 
 	switch (local_origin)
 	{
+	default:
 	case 0:
 		fU1 = float(left) / (float)src->GetDisplayWidth() * fs;
 		fV1 = float(top) / (float)src->GetDisplayHeight() * fs;

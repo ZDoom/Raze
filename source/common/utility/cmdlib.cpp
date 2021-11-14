@@ -359,7 +359,7 @@ FString StripExtension(const char* path)
 	src = path + strlen(path) - 1;
 
 	//
-	// back up until a . and abort on a \
+	// back up until a . and abort on a '/'
 	//
 	while (src != path && !IsSeperator(*(src - 1)))
 	{

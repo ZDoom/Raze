@@ -475,7 +475,7 @@ ZCCCompiler::ZCCCompiler(ZCC_AST &ast, DObject *_outer, PSymbolTable &_symbols, 
 	if (ast.TopNode != NULL)
 	{
 		ZCC_TreeNode *node = ast.TopNode;
-		PSymbolTreeNode *tnode;
+		PSymbolTreeNode *tnode = nullptr;
 
 		// [pbeta] Anything that must be processed before classes, structs, etc. should go here.
 		do

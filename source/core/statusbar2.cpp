@@ -160,12 +160,12 @@ void setLevelStarted(MapRecord *mi)
 
 void drawMapTitle()
 {
-    if (!hud_showmapname || levelTextTime <= 0 || M_Active())
-        return;
+	if (!hud_showmapname || levelTextTime <= 0 || M_Active())
+		return;
 	
 	double alpha = levelTextTime > 16? 1.0 : levelTextTime / 16.;
-    if (alpha > 0)
-    {
+	if (alpha > 0)
+	{
 		double scale = isRR()? 0.4 : isSWALL()? 0.7 : 1.0;
 		auto text = currentLevel->DisplayName();
 		auto myfont = PickBigFont(text);
@@ -178,7 +178,7 @@ void drawMapTitle()
 			DrawText(twod, myfont, CR_UNTRANSLATED, x+1, y+1, text, DTA_FullscreenScale, FSMode_Fit320x200, DTA_Color, 0xff000000, DTA_Alpha, alpha / 2., DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
 		}
 		DrawText(twod, myfont, CR_UNTRANSLATED, x, y, text, DTA_FullscreenScale, FSMode_Fit320x200, DTA_Alpha, alpha, DTA_ScaleX, scale, DTA_ScaleY, scale, TAG_DONE);
-    }
+	}
 }
 
 void UpdateStatusBar(SummaryInfo* info)

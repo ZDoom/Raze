@@ -315,7 +315,7 @@ static FSessionStatistics *StatisticsEntry(FStatistics *stats, const char *text,
 	lt = localtime (&clock);
 
 	if (lt != NULL)
-		snprintf(s.name, countof(s.name), "%02d.%02d.%04d",lt->tm_mday, lt->tm_mon+1, lt->tm_year+1900);
+		mysnprintf(s.name, countof(s.name), "%02d.%02d.%04d",lt->tm_mday, lt->tm_mon+1, lt->tm_year+1900);
 	else
 		strcpy(s.name,"00.00.0000");
 

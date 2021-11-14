@@ -948,7 +948,7 @@ void InterplayDecoder::DecodeBlock13(int32_t offset)
 {
     // 4-color block encoding: each 4x4 block is a different color
     uint8_t* pBuffer = GetCurrentFrame() + (intptr_t)offset;
-    uint8_t P[2];
+    uint8_t P[2] = {};
 
     for (int y = 0; y < 8; y++)
     {
