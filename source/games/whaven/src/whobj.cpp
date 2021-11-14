@@ -837,8 +837,8 @@ void newstatus(short sn, int seq) {
 		case DEMONTYPE:
 			spritesound(S_GUARDIANDIE, actor);
 			explosion(sn, spr.x, spr.y, spr.z, spr.owner);
+			addscore(aiGetPlayerTarget(actor), 1500);
 			DeleteActor(actor);
-			addscore(aiGetPlayerTarget(sn), 1500);
 			kills++;
 			return;
 		case GRONTYPE:
@@ -932,7 +932,7 @@ void newstatus(short sn, int seq) {
 			for (int j = 0; j < 4; j++)
 				explosion(sn, spr.x, spr.y, spr.z, spr.owner);
 			DeleteActor(actor);
-			addscore(aiGetPlayerTarget(sn), 1500);
+			addscore(aiGetPlayerTarget(actor), 1500);
 			kills++;
 			return;
 		case WILLOWTYPE:
@@ -951,37 +951,37 @@ void newstatus(short sn, int seq) {
 		case GONZOBSHDEAD:
 			spr.cstat &= ~3;
 			ChangeActorStat(actor, RESURECT);
-			addscore(aiGetPlayerTarget(sn), 85);
+			addscore(aiGetPlayerTarget(actor), 85);
 			spr.detail = GONZOTYPE;
 			break;
 		case NEWGUYDEAD:
 			spr.cstat &= ~3;
 			ChangeActorStat(actor, RESURECT);
-			addscore(aiGetPlayerTarget(sn), 55);
+			addscore(aiGetPlayerTarget(actor), 55);
 			spr.detail = NEWGUYTYPE;
 			break;
 		case GONZOCSWDEAD:
 			spr.cstat &= ~3;
 			ChangeActorStat(actor, RESURECT);
-			addscore(aiGetPlayerTarget(sn), 55);
+			addscore(aiGetPlayerTarget(actor), 55);
 			spr.detail = GONZOTYPE;
 			break;
 		case GONZOGSWDEAD:
 			spr.cstat &= ~3;
 			ChangeActorStat(actor, RESURECT);
-			addscore(aiGetPlayerTarget(sn), 105);
+			addscore(aiGetPlayerTarget(actor), 105);
 			spr.detail = GONZOTYPE;
 			break;
 		case GONZOGHMDEAD:
 			spr.cstat &= ~3;
 			ChangeActorStat(actor, RESURECT);
-			addscore(aiGetPlayerTarget(sn), 100);
+			addscore(aiGetPlayerTarget(actor), 100);
 			spr.detail = GONZOTYPE;
 			break;
 		case GONZOGSHDEAD:
 			spr.cstat &= ~3;
 			ChangeActorStat(actor, RESURECT);
-			addscore(aiGetPlayerTarget(sn), 110);
+			addscore(aiGetPlayerTarget(actor), 110);
 			spr.detail = GONZOTYPE;
 			break;
 		case KATIEDEAD:
@@ -990,7 +990,7 @@ void newstatus(short sn, int seq) {
 			spr.cstat &= ~3;
 			ChangeActorStat(actor, RESURECT);
 			spawnhornskull(sn);
-			addscore(aiGetPlayerTarget(sn), 5000);
+			addscore(aiGetPlayerTarget(actor), 5000);
 			spr.detail = KATIETYPE;
 			break;
 		case DEVILDEAD:
@@ -998,14 +998,14 @@ void newstatus(short sn, int seq) {
 			spr.picnum = DEVILDEAD;
 			spr.cstat &= ~3;
 			ChangeActorStat(actor, RESURECT);
-			addscore(aiGetPlayerTarget(sn), 70);
+			addscore(aiGetPlayerTarget(actor), 70);
 			spr.detail = DEVILTYPE;
 			break;	
 		case IMPDEAD:
 			spr.picnum = IMPDEAD;
 			spr.cstat &= ~3;
 			ChangeActorStat(actor, RESURECT);
-			addscore(aiGetPlayerTarget(sn), 115);
+			addscore(aiGetPlayerTarget(actor), 115);
 			spr.detail = IMPTYPE;
 			break;
 		case KOBOLDDEAD:
@@ -1016,73 +1016,73 @@ void newstatus(short sn, int seq) {
 			if(isWh2()) {
 				switch (spr.pal) {
 				   case 0:
-					   addscore(aiGetPlayerTarget(sn), 25);
+					   addscore(aiGetPlayerTarget(actor), 25);
 						break;
 				   case 7:
-					   addscore(aiGetPlayerTarget(sn), 40);
+					   addscore(aiGetPlayerTarget(actor), 40);
 						break;
 				   }
-				addscore(aiGetPlayerTarget(sn), 10);
+				addscore(aiGetPlayerTarget(actor), 10);
 				break;
 			}
 			
 			
-			addscore(aiGetPlayerTarget(sn), 10);
+			addscore(aiGetPlayerTarget(actor), 10);
 			break;
 		case DRAGONDEAD:
 			spr.picnum = DRAGONDEAD;
 			spr.cstat &= ~3;
 			ChangeActorStat(actor, RESURECT);
-			addscore(aiGetPlayerTarget(sn), 4000);
+			addscore(aiGetPlayerTarget(actor), 4000);
 			spr.detail = DRAGONTYPE;
 			break;
 		case FREDDEAD:
 			spr.picnum = FREDDEAD;
 			spr.cstat &= ~3;
 			ChangeActorStat(actor, RESURECT);
-			addscore(aiGetPlayerTarget(sn), 40);
+			addscore(aiGetPlayerTarget(actor), 40);
 			spr.detail = FREDTYPE;
 			break;
 		case GOBLINDEAD:
 			spr.picnum = GOBLINDEAD;
 			spr.cstat &= ~3;
 			ChangeActorStat(actor, RESURECT);
-			addscore(aiGetPlayerTarget(sn), 25);
+			addscore(aiGetPlayerTarget(actor), 25);
 			spr.detail = GOBLINTYPE;
 			break;
 		case MINOTAURDEAD:
 			spr.picnum = MINOTAURDEAD;
 			spr.cstat &= ~3;
 			ChangeActorStat(actor, RESURECT);
-			addscore(aiGetPlayerTarget(sn), isWh2() ? 95 : 170);
+			addscore(aiGetPlayerTarget(actor), isWh2() ? 95 : 170);
 			spr.detail = MINOTAURTYPE;
 			break;
 		case SPIDERDEAD:
 			spr.picnum = SPIDERDEAD;
 			spr.cstat &= ~3;
 			ChangeActorStat(actor, RESURECT);
-			addscore(aiGetPlayerTarget(sn), 5);
+			addscore(aiGetPlayerTarget(actor), 5);
 			spr.detail = SPIDERTYPE;
 			break;
 		case SKULLYDEAD:
 			spr.picnum = SKULLYDEAD;
 			spr.cstat &= ~3;
 			ChangeActorStat(actor, RESURECT);
-			addscore(aiGetPlayerTarget(sn), 1000);
+			addscore(aiGetPlayerTarget(actor), 1000);
 			spr.detail = SKULLYTYPE;
 			break;
 		case FATWITCHDEAD:
 			spr.picnum = FATWITCHDEAD;
 			spr.cstat &= ~3;
 			ChangeActorStat(actor, RESURECT);
-			addscore(aiGetPlayerTarget(sn), 900);
+			addscore(aiGetPlayerTarget(actor), 900);
 			spr.detail = FATWITCHTYPE;
 			break;
 		case JUDYDEAD:
 			spr.picnum = JUDYDEAD;
 			spr.cstat &= ~3;
 			ChangeActorStat(actor, RESURECT);
-			addscore(aiGetPlayerTarget(sn), 7000);
+			addscore(aiGetPlayerTarget(actor), 7000);
 			spr.detail = JUDYTYPE;
 			break;
 		default:
@@ -1091,7 +1091,7 @@ void newstatus(short sn, int seq) {
 				spr.cstat &= ~3;
 				ChangeActorStat(actor, RESURECT);
 				spr.detail = SKELETONTYPE;
-				addscore(aiGetPlayerTarget(sn), isWh2() ? 20 : 10);
+				addscore(aiGetPlayerTarget(actor), isWh2() ? 20 : 10);
 			} else if(spr.picnum == GRONDEAD) {
 				spr.picnum = GRONDEAD;
 				spr.cstat &= ~3;
@@ -1101,19 +1101,19 @@ void newstatus(short sn, int seq) {
 				if(isWh2()) {
 					switch (spr.pal) {
 					   case 0:
-						   addscore(aiGetPlayerTarget(sn),125);
+						   addscore(aiGetPlayerTarget(actor),125);
 							break;
 					   case 10:
-						   addscore(aiGetPlayerTarget(sn),90);
+						   addscore(aiGetPlayerTarget(actor),90);
 							break;
 					   case 11:
-						   addscore(aiGetPlayerTarget(sn),115);
+						   addscore(aiGetPlayerTarget(actor),115);
 							break;
 					   case 12:
-						   addscore(aiGetPlayerTarget(sn),65);
+						   addscore(aiGetPlayerTarget(actor),65);
 							break;
 					   }
-					} else addscore(aiGetPlayerTarget(sn), 200);
+					} else addscore(aiGetPlayerTarget(actor), 200);
 			}
 			break;
 		}
@@ -1126,13 +1126,13 @@ void newstatus(short sn, int seq) {
 			spr.cstat &= ~3;
 			ChangeActorStat(actor, DEAD);
 			if(isWh2()) {
-				 addscore(aiGetPlayerTarget(sn), 70);
+				 addscore(aiGetPlayerTarget(actor), 70);
 				monsterweapon(actor);
 			}
 		} else if(spr.picnum == FISH || spr.picnum == RAT) {
 			spr.cstat &= ~3;
 			ChangeActorStat(actor, DEAD);
-			addscore(aiGetPlayerTarget(sn), 5);
+			addscore(aiGetPlayerTarget(actor), 5);
 		} else if(spr.picnum == GRONDEAD) {
 			spr.picnum = GRONDEAD;
 			spr.cstat &= ~3;
@@ -1140,20 +1140,20 @@ void newstatus(short sn, int seq) {
 			if(isWh2()) {
 				switch (spr.pal) {
 				   case 0:
-					   addscore(aiGetPlayerTarget(sn), 125);
+					   addscore(aiGetPlayerTarget(actor), 125);
 						break;
 				   case 10:
-					   addscore(aiGetPlayerTarget(sn), 90);
+					   addscore(aiGetPlayerTarget(actor), 90);
 						break;
 				   case 11:
-					   addscore(aiGetPlayerTarget(sn), 115);
+					   addscore(aiGetPlayerTarget(actor), 115);
 						break;
 				   case 12:
-					   addscore(aiGetPlayerTarget(sn), 65);
+					   addscore(aiGetPlayerTarget(actor), 65);
 						break;
 				   }
 			} else {
-				addscore(aiGetPlayerTarget(sn), 200);
+				addscore(aiGetPlayerTarget(actor), 200);
 			}
 			monsterweapon(actor);
 		} else {
@@ -1173,7 +1173,7 @@ void newstatus(short sn, int seq) {
 					if (spr.shade < 25)
 						monsterweapon(actor);
 				}
-				addscore(aiGetPlayerTarget(sn), 85);
+				addscore(aiGetPlayerTarget(actor), 85);
 				break;
 			case GONZOCSWDEAD:
 				if (netgame) {
@@ -1188,7 +1188,7 @@ void newstatus(short sn, int seq) {
 					ChangeActorStat(actor, DEAD);
 					monsterweapon(actor);
 				}
-				addscore(aiGetPlayerTarget(sn), 55);
+				addscore(aiGetPlayerTarget(actor), 55);
 				break;
 			case GONZOGSWDEAD:
 				if (netgame) {
@@ -1203,7 +1203,7 @@ void newstatus(short sn, int seq) {
 					ChangeActorStat(actor, DEAD);
 					monsterweapon(actor);
 				}
-				addscore(aiGetPlayerTarget(sn), 105);
+				addscore(aiGetPlayerTarget(actor), 105);
 				break;
 			case GONZOGHMDEAD:
 				if (netgame) {
@@ -1218,7 +1218,7 @@ void newstatus(short sn, int seq) {
 					ChangeActorStat(actor, DEAD);
 					monsterweapon(actor);
 				}
-				addscore(aiGetPlayerTarget(sn), 100);
+				addscore(aiGetPlayerTarget(actor), 100);
 				break;
 			case NEWGUYDEAD:
 				if (netgame) {
@@ -1228,7 +1228,7 @@ void newstatus(short sn, int seq) {
 				spr.cstat &= ~3;
 				ChangeActorStat(actor, DEAD);
 				monsterweapon(actor);
-				addscore(aiGetPlayerTarget(sn), 50);
+				addscore(aiGetPlayerTarget(actor), 50);
 				break;
 			case GONZOGSHDEAD:
 				if (netgame) {
@@ -1245,7 +1245,7 @@ void newstatus(short sn, int seq) {
 					ChangeActorStat(actor, DEAD);
 					monsterweapon(actor);
 				}
-				addscore(aiGetPlayerTarget(sn), 110);
+				addscore(aiGetPlayerTarget(actor), 110);
 				break;
 			case KATIEDEAD:
 				if (netgame) {
@@ -1256,7 +1256,7 @@ void newstatus(short sn, int seq) {
 				spr.cstat &= ~3;
 				ChangeActorStat(actor, DEAD);
 				spawnhornskull(sn);
-				addscore(aiGetPlayerTarget(sn), 500);
+				addscore(aiGetPlayerTarget(actor), 500);
 				break;
 			case IMPDEAD:
 				if (!isWh2())
@@ -1264,27 +1264,27 @@ void newstatus(short sn, int seq) {
 				spr.picnum = IMPDEAD;
 				spr.cstat &= ~3;
 				ChangeActorStat(actor, DEAD);
-				addscore(aiGetPlayerTarget(sn), 115);
+				addscore(aiGetPlayerTarget(actor), 115);
 				monsterweapon(actor);
 				break;
 			case KOBOLDDEAD:
 				spr.picnum = KOBOLDDEAD;
 				spr.cstat &= ~3;
 				ChangeActorStat(actor, DEAD);
-				addscore(aiGetPlayerTarget(sn), 10);
+				addscore(aiGetPlayerTarget(actor), 10);
 				break;
 			case DRAGONDEAD:
 				spr.picnum = DRAGONDEAD;
 				spr.cstat &= ~3;
 				ChangeActorStat(actor, DEAD);
-				addscore(aiGetPlayerTarget(sn), 4000);
+				addscore(aiGetPlayerTarget(actor), 4000);
 				break;
 			case DEVILDEAD:
 				trailingsmoke(actor, true);
 				spr.picnum = DEVILDEAD;
 				spr.cstat &= ~3;
 				ChangeActorStat(actor, DEAD);
-				addscore(aiGetPlayerTarget(sn), isWh2() ? 70 : 50);
+				addscore(aiGetPlayerTarget(actor), isWh2() ? 70 : 50);
 				if(isWh2())
 					 monsterweapon(actor);
 				break;
@@ -1292,13 +1292,13 @@ void newstatus(short sn, int seq) {
 				spr.picnum = FREDDEAD;
 				spr.cstat &= ~3;
 				ChangeActorStat(actor, DEAD);
-				addscore(aiGetPlayerTarget(sn), 40);
+				addscore(aiGetPlayerTarget(actor), 40);
 				break;
 			case GOBLINDEAD:
 				spr.picnum = GOBLINDEAD;
 				spr.cstat &= ~3;
 				ChangeActorStat(actor, DEAD);
-				addscore(aiGetPlayerTarget(sn), 25);
+				addscore(aiGetPlayerTarget(actor), 25);
 				if ((rand() % 100) > 60)
 					monsterweapon(actor);
 				break;
@@ -1306,7 +1306,7 @@ void newstatus(short sn, int seq) {
 				spr.picnum = MINOTAURDEAD;
 				spr.cstat &= ~3;
 				ChangeActorStat(actor, DEAD);
-				addscore(aiGetPlayerTarget(sn), isWh2() ? 95 : 70);
+				addscore(aiGetPlayerTarget(actor), isWh2() ? 95 : 70);
 				if ((rand() % 100) > 60)
 					monsterweapon(actor);
 				break;
@@ -1314,33 +1314,33 @@ void newstatus(short sn, int seq) {
 				spr.picnum = SPIDERDEAD;
 				spr.cstat &= ~3;
 				ChangeActorStat(actor, DEAD);
-				addscore(aiGetPlayerTarget(sn), 5);
+				addscore(aiGetPlayerTarget(actor), 5);
 				break;
 			case SKULLYDEAD:
 				spr.picnum = SKULLYDEAD;
 				spr.cstat &= ~3;
 				ChangeActorStat(actor, DEAD);
-				addscore(aiGetPlayerTarget(sn), 100);
+				addscore(aiGetPlayerTarget(actor), 100);
 				break;
 			case FATWITCHDEAD:
 				spr.picnum = FATWITCHDEAD;
 				spr.cstat &= ~3;
 				ChangeActorStat(actor, DEAD);
-				addscore(aiGetPlayerTarget(sn), 900);
+				addscore(aiGetPlayerTarget(actor), 900);
 				break;
 			case JUDYDEAD:
 				spr.picnum = JUDYDEAD;
 				spr.cstat &= ~3;
 				ChangeActorStat(actor, DEAD);
 				spawnapentagram(sn);
-				addscore(aiGetPlayerTarget(sn), 7000);
+				addscore(aiGetPlayerTarget(actor), 7000);
 				break;
 			case WILLOWEXPLO + 2:
 				spr.pal = 0;
 				spr.cstat &= ~3;
 				ChangeActorStat(actor, (short) 0);
 				DeleteActor(actor);
-				addscore(aiGetPlayerTarget(sn), isWh2() ? 15 : 150);
+				addscore(aiGetPlayerTarget(actor), isWh2() ? 15 : 150);
 				return;
 			}
 		}

@@ -1195,14 +1195,12 @@ void monsterweapon(DWHActor* actor) {
 	}
 }
 
-PLAYER* aiGetPlayerTarget(short i) {
-	if (sprite[i].owner >= 0 && sprite[i].owner < MAXSPRITES) {
-		int playernum = sprite[sprite[i].owner].owner;
-		if (playernum >= 4096)
-			return &player[playernum - 4096];
-	}
-
-	return nullptr;
+PLAYER* aiGetPlayerTarget(DWHActor* actor) {
+	auto ownr = actor->GetOwner();
+	if (!ownr) return nullptr;
+	int pnum = ownr->GetPlayerOwner();
+	if (pnum < 0) return nullptr;
+	return &player[pnum];
 }
 
 boolean actoruse(short i) {

@@ -135,7 +135,7 @@ boolean checkdist(DWHActor* actor, int x, int y, int z);
 extern int checksight_ang;
 boolean checksight(PLAYER& plr, DWHActor* actor);
 void monsterweapon(DWHActor*);
-PLAYER* aiGetPlayerTarget(short i);
+PLAYER* aiGetPlayerTarget(DWHActor*);
 boolean actoruse(short i);
 
 void initAI();
