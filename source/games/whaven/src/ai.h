@@ -120,8 +120,8 @@ extern Enemy enemy[MAXTYPES];
 extern int checksight_ang;
 
 void aiProcess();
-int aimove(short i);
-int aifly(DWHActor* i);
+Collision aimove(DWHActor* actor);
+Collision aifly(DWHActor* i);
 void aisearch(PLAYER& plr, DWHActor* i, boolean fly);
 boolean checksector6(DWHActor* i);
 int checkfluid(int i, int zr_florhit);

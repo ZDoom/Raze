@@ -30,16 +30,16 @@ static void chaseimp(PLAYER& plr, DWHActor* actor)
 			SetNewStatus(actor, FLEE);
 		}
 		else {
-			int movestat = aimove(i);
-			if ((movestat & kHitTypeMask) == kHitFloor)
+			auto moveStat = aimove(actor);
+			if (moveStat.type == kHitFloor)
 			{
 				spr.ang = (short)((spr.ang + 1024) & 2047);
 				SetNewStatus(actor, FLEE);
 				return;
 			}
 
-			if ((movestat & kHitTypeMask) == kHitSprite) {
-				if ((movestat & kHitIndexMask) != plr.spritenum) {
+			if (moveStat.type == kHitSprite) {
+				if (moveStat.actor != plr.actor()) {
 					short daang = (short)((spr.ang - 256) & 2047);
 					spr.ang = daang;
 					if (plr.shadowtime > 0) {
@@ -114,7 +114,7 @@ static void painimp(PLAYER& plr, DWHActor* actor)
 		SetNewStatus(actor, FLEE);
 	}
 
-	aimove(i);
+	aimove(actor);
 	processfluid(actor, zr_florhit, false);
 	SetActorPos(actor, &spr.pos);
 }
@@ -205,11 +205,11 @@ static void fleeimp(PLAYER& plr, DWHActor* actor)
 	spr.lotag -= TICSPERFRAME;
 	short osectnum = spr.sectnum;
 
-	int movestat = aimove(i);
+	auto moveStat = aimove(actor);
 
-	if ((movestat & kHitTypeMask) != kHitFloor && movestat != 0) {
-		if ((movestat & kHitTypeMask) == kHitWall) {
-			int nWall = movestat & kHitIndexMask;
+	if (moveStat.type != kHitFloor && moveStat.type != kHitNone) {
+		if (moveStat.type == kHitWall) {
+			int nWall = moveStat.index;
 			int nx = -(wall[wall[nWall].point2].y - wall[nWall].y) >> 4;
 			int ny = (wall[wall[nWall].point2].x - wall[nWall].x) >> 4;
 			spr.ang = getangle(nx, ny);
@@ -291,8 +291,8 @@ static void skirmishimp(PLAYER& plr, DWHActor* actor)
 	if (spr.lotag < 0)
 		SetNewStatus(actor, FACE);
 	short osectnum = spr.sectnum;
-	int movestat = aimove(i);
-	if ((movestat & kHitTypeMask) != kHitFloor && movestat != 0) {
+	auto moveStat = aimove(actor);
+	if (moveStat.type != kHitFloor && moveStat.type != kHitNone) {
 		spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
 		SetNewStatus(actor, FACE);
 	}

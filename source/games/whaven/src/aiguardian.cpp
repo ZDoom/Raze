@@ -165,11 +165,11 @@ static void fleeguardian(PLAYER& plr, DWHActor* actor)
 	if (PlayClock % 100 > 70)
 		trailingsmoke(actor,true);
 
-	int movestat = aifly(actor);
+	auto moveStat = aifly(actor);
 
-	if (movestat != 0) {
-		if ((movestat & kHitTypeMask) == kHitWall) {
-			int nWall = movestat & kHitIndexMask;
+	if (moveStat.type != kHitNone) {
+		if (moveStat.type == kHitWall) {
+			int nWall = moveStat.index;
 			int nx = -(wall[wall[nWall].point2].y - wall[nWall].y) >> 4;
 			int ny = (wall[wall[nWall].point2].x - wall[nWall].x) >> 4;
 			spr.ang = getangle(nx, ny);

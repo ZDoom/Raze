@@ -31,16 +31,16 @@ static void chasegoblin(PLAYER& plr, DWHActor* actor)
 			SetNewStatus(actor, FLEE);
 		}
 		else {
-			int movestat = aimove(i);
-			if ((movestat & kHitTypeMask) == kHitFloor)
+			auto moveStat = aimove(actor);
+			if (moveStat.type == kHitFloor)
 			{
 				spr.ang = (short)((spr.ang + 1024) & 2047);
 				SetNewStatus(actor, FLEE);
 				return;
 			}
 
-			if ((movestat & kHitTypeMask) == kHitSprite) {
-				if ((movestat & kHitIndexMask) != plr.spritenum) {
+			if (moveStat.type == kHitSprite) {
+				if (moveStat.actor != plr.actor()) {
 					short daang = (short)((spr.ang - 256) & 2047);
 					spr.ang = daang;
 					if (plr.shadowtime > 0) {
@@ -122,7 +122,7 @@ static void paingoblin(PLAYER& plr, DWHActor* actor)
 		SetNewStatus(actor, FLEE);
 	}
 
-	aimove(i);
+	aimove(actor);
 	processfluid(actor, zr_florhit, false);
 	SetActorPos(actor, &spr.pos);
 
@@ -170,10 +170,10 @@ static void fleegoblin(PLAYER& plr, DWHActor* actor)
 	spr.lotag -= TICSPERFRAME;
 	short osectnum = spr.sectnum;
 
-	int movestat = aimove(i);
-	if ((movestat & kHitTypeMask) != kHitFloor && movestat != 0) {
-		if ((movestat & kHitTypeMask) == kHitWall) {
-			int nWall = movestat & kHitIndexMask;
+	auto moveStat = aimove(actor);
+	if (moveStat.type != kHitFloor && moveStat.type != kHitNone) {
+		if (moveStat.type == kHitWall) {
+			int nWall = moveStat.index;
 			int nx = -(wall[wall[nWall].point2].y - wall[nWall].y) >> 4;
 			int ny = (wall[wall[nWall].point2].x - wall[nWall].x) >> 4;
 			spr.ang = getangle(nx, ny);
@@ -328,8 +328,8 @@ static void skirmishgoblin(PLAYER& plr, DWHActor* actor)
 	if (spr.lotag < 0)
 		SetNewStatus(actor, FACE);
 	short osectnum = spr.sectnum;
-	int movestat = aimove(i);
-	if ((movestat & kHitTypeMask) != kHitFloor && movestat != 0) {
+	auto moveStat = aimove(actor);
+	if (moveStat.type != kHitFloor && moveStat.type != kHitNone) {
 		spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
 		SetNewStatus(actor, FACE);
 	}
@@ -415,16 +415,16 @@ static void goblinWar(PLAYER& plr, DWHActor* actor)
 		auto owneractor = &whActors[k];
 		auto ownerspr = owneractor->s();
 
-		int movehit = aimove(i);
-		if (movehit == 0)
+		auto moveStat = aimove(actor);
+		if (moveStat.type == kHitNone)
 			spr.ang = getangle(ownerspr.x - spr.x, ownerspr.y - spr.y);
-		else if ((movehit & kHitTypeMask) == kHitWall) {
+		else if (moveStat.type == kHitWall) {
 			spr.extra = 3;
 			spr.ang = (short)((spr.ang + (krand() & 256 - 128)) & 2047);
 			spr.lotag = 60;
 		}
-		else if ((movehit & kHitTypeMask) == kHitSprite) {
-			int sprnum = movehit & kHitIndexMask;
+		else if (moveStat.type == kHitSprite) {
+			int sprnum = moveStat.actor->GetSpriteIndex();
 			if (sprnum != k) {
 				spr.extra = 3;
 				spr.ang = (short)((spr.ang + (krand() & 256 - 128)) & 2047);
@@ -497,7 +497,7 @@ static void goblinWar(PLAYER& plr, DWHActor* actor)
 	case 3: // flee
 		spr.lotag -= TICSPERFRAME;
 
-		if (aimove(i) != 0)
+		if (aimove(actor).type != kHitNone)
 			spr.ang = (short)(krand() & 2047);
 		processfluid(actor, zr_florhit, false);
 

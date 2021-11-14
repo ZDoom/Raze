@@ -238,9 +238,10 @@ void aiProcess() {
 		i = actor->GetSpriteIndex();
 		short movestat = (short)movesprite((short)i, (bcos(spr.ang) * TICSPERFRAME) << 3,
 			(bsin(spr.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
+		auto moveStat = Collision(movestat);
 		if (zr_florz > spr.z + (48 << 8)) {
 			SetActorPos(actor, &spr.pos);
-			movestat = 1;
+			moveStat.type = -1;
 		}
 		else {
 			spr.z = zr_florz;
@@ -267,8 +268,8 @@ void aiProcess() {
 				newstatus(i, CHASE);
 			}
 		}
-		else if (movestat != 0) {
-			if ((movestat & 0xc000) == 32768) { // hit a wall
+		else if (moveStat.type != kHitNone) {
+			if (moveStat.type == kHitWall) { // hit a wall
 				actoruse(i);
 			}
 			newstatus(i, FINDME);
@@ -436,35 +437,37 @@ void aiProcess() {
 	}
 }
 
-int aimove(short i) {
-	int ox = sprite[i].x;
-	int oy = sprite[i].y;
-	int oz = sprite[i].z;
-	//		short osect = sprite[i].sectnum;
+Collision aimove(DWHActor* actor)
+{
+	auto& spr = actor->s();
+	int ox = spr.x;
+	int oy = spr.y;
+	int oz = spr.z;
+	//		short osect = spr.sectnum;
 
-	int movestate = movesprite(i, (bcos(sprite[i].ang) * TICSPERFRAME) << 3,
-		(bsin(sprite[i].ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, CLIFFCLIP);
+	int movestate = movesprite(actor->GetSpriteIndex(), (bcos(spr.ang) * TICSPERFRAME) << 3,
+		(bsin(spr.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, CLIFFCLIP);
 
-	if (((zr_florz - oz) >> 4) > tileHeight(sprite[i].picnum) + (sprite[i].yrepeat << 2)
+	if (((zr_florz - oz) >> 4) > tileHeight(spr.picnum) + (spr.yrepeat << 2)
 		|| (movestate & kHitTypeMask) == kHitWall) {
 
-		setsprite(i, ox, oy, oz);
+		SetActorPos(actor, ox, oy, oz);
 
 		if ((movestate & kHitTypeMask) != kHitWall) {
 			if (isWh2())
-				sprite[i].z += WH2GRAVITYCONSTANT;
+				spr.z += WH2GRAVITYCONSTANT;
 			else
-				sprite[i].z += GRAVITYCONSTANT;
+				spr.z += GRAVITYCONSTANT;
 			return 16384 | zr_florhit;
 		}
 	}
 
-	sprite[i].z = zr_florz;
+	spr.z = zr_florz;
 
 	return movestate;
 }
 
-int aifly(DWHActor* actor) {
+Collision aifly(DWHActor* actor) {
 	SPRITE& spr = actor->s();
 	int movestate = movesprite(actor->GetSpriteIndex(), (bcos(spr.ang) * TICSPERFRAME) << 3,
 		(bsin(spr.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, CLIFFCLIP);
@@ -479,8 +482,9 @@ int aifly(DWHActor* actor) {
 	if (spr.z - (tileHeight(spr.picnum) << 7) < zr_ceilz)
 		spr.z = zr_ceilz + (tileHeight(spr.picnum) << 7);
 
-	return movestate;
+	return Collision(movestate);
 }
+
 
 void aisearch(PLAYER& plr, DWHActor* actor, boolean fly) {
 	SPRITE& spr = actor->s();
@@ -493,11 +497,11 @@ void aisearch(PLAYER& plr, DWHActor* actor, boolean fly) {
 
 	short osectnum = spr.sectnum;
 
-	int movestat;
+	Collision moveStat;
 	if (fly)
-		movestat = aifly(actor);
+		moveStat = aifly(actor);
 	else
-		movestat = aimove(actor->GetSpriteIndex());
+		moveStat = aimove(actor);
 
 	if (checkdist(plr, actor)) {
 		if (plr.shadowtime > 0) {
@@ -509,7 +513,7 @@ void aisearch(PLAYER& plr, DWHActor* actor, boolean fly) {
 		return;
 	}
 
-	if (movestat != 0) {
+	if (moveStat.type != kHitNone) {
 		if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 			spr.sectnum) && spr.lotag < 0) {
 			spr.ang = (short)((spr.ang + 1024) & 2047);
@@ -530,7 +534,7 @@ void aisearch(PLAYER& plr, DWHActor* actor, boolean fly) {
 	}
 
 	if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
-		spr.sectnum) && movestat == 0 && spr.lotag < 0) {
+		spr.sectnum) && moveStat.type == kHitNone && spr.lotag < 0) {
 		SetNewStatus(actor, FACE);
 		return;
 	}
@@ -932,7 +936,7 @@ int checkmove(DWHActor* actor, int dax, int day) {
 	auto& spr = actor->s();
 	int movestat = movesprite(actor->GetSpriteIndex(), dax, day, 0, 4 << 8, 4 << 8, CLIFFCLIP);
 
-	if (movestat != 0)
+	if (movestat != 0) // (moveStat.type != kHitNone)
 		spr.ang = (short)((spr.ang + TICSPERFRAME) & 2047);
 
 	return movestat;

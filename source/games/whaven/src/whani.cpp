@@ -450,7 +450,7 @@ void animateobjs(PLAYER& plr) {
 						(bcos(spr.ang) * TICSPERFRAME) << 3,
 						(bsin(spr.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
 				SetActorPos(actor, &spr.pos);
-				if (movestat != 0)
+				if (movestat != 0)// moveStat.type != kHitNone)
 					spr.ang = (short) (krand() & 2047);
 			}
 			break;
@@ -467,7 +467,7 @@ void animateobjs(PLAYER& plr) {
 						(bcos(spr.ang) * TICSPERFRAME) << 3,
 						(bsin(spr.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
 				SetActorPos(actor, &spr.pos);
-				if (movestat != 0)
+				if (movestat != 0)// moveStat.type != kHitNone)
 					spr.ang = (short) (krand() & 2047);
 			}
 			break;
@@ -490,7 +490,7 @@ void animateobjs(PLAYER& plr) {
 					DeleteActor(actor);
 					continue;
 				}
-				if (movestat != 0)
+				if (movestat != 0)// moveStat.type != kHitNone)
 					spr.ang = (short) (krand() & 2047);
 			}
 			break;
@@ -1490,7 +1490,7 @@ void animateobjs(PLAYER& plr) {
 
 		}
 
-		if (spr.lotag < 0 || movestat != 0)
+		if (spr.lotag < 0 || movestat != 0)// moveStat.type != kHitNone)
 			if (spr.picnum == PLASMA || spr.picnum == EXPLOSION || spr.picnum == FIREBALL
 					|| spr.picnum == MONSTERBALL || spr.picnum == FATSPANK
 					|| spr.picnum == ICECUBE) {
@@ -1499,7 +1499,8 @@ void animateobjs(PLAYER& plr) {
 			}
 
 		if (spr.z + (8 << 8) >= sector[spr.sectnum].floorz && spr.picnum == ICECUBE
-				|| movestat != 0) {
+				|| movestat != 0)// moveStat.type != kHitNone)
+		{
 			spr.z = sector[spr.sectnum].floorz;
 			ChangeActorStat(actor, 0);
 			if (sector[spr.sectnum].floorpicnum == WATER || sector[spr.sectnum].floorpicnum == SLIME

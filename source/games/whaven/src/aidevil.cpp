@@ -23,7 +23,7 @@ static void chasedevil(PLAYER& plr, DWHActor* actor)
 	else {
 		checksight(plr, actor);
 		if (!checkdist(plr, actor)) {
-			if ((aimove(i) & kHitTypeMask) == kHitFloor)
+			if (aimove(actor).type == kHitFloor)
 			{
 				spr.ang = (short)((spr.ang + 1024) & 2047);
 				SetNewStatus(actor, FLEE);
@@ -95,7 +95,7 @@ static void paindevil(PLAYER& plr, DWHActor* actor)
 		SetNewStatus(actor, FLEE);
 	}
 
-	aimove(i);
+	aimove(actor);
 	processfluid(actor, zr_florhit, false);
 	SetActorPos(actor, &spr.pos);
 }
@@ -138,10 +138,10 @@ static void fleedevil(PLAYER& plr, DWHActor* actor)
 	spr.lotag -= TICSPERFRAME;
 	short osectnum = spr.sectnum;
 
-	int movestat = aimove(i);
-	if ((movestat & kHitTypeMask) != kHitFloor && movestat != 0) {
-		if ((movestat & kHitTypeMask) == kHitWall) {
-			int nWall = movestat & kHitIndexMask;
+	auto moveStat = aimove(actor);
+	if (moveStat.type != kHitFloor && moveStat.type != kHitNone) {
+		if (moveStat.type == kHitWall) {
+			int nWall = moveStat.index;
 			int nx = -(wall[wall[nWall].point2].y - wall[nWall].y) >> 4;
 			int ny = (wall[wall[nWall].point2].x - wall[nWall].x) >> 4;
 			spr.ang = getangle(nx, ny);

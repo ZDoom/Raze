@@ -29,10 +29,10 @@ static void chasefish(PLAYER& plr, DWHActor* actor)
 			SetNewStatus(actor, FLEE);
 		}
 		else {
-			int movestat = aimove(i);
+			auto moveStat = aimove(actor);
 
-			if ((movestat & kHitTypeMask) == kHitSprite) {
-				if ((movestat & kHitIndexMask) != plr.spritenum) {
+			if (moveStat.type == kHitSprite) {
+				if (moveStat.actor != plr.actor()) {
 					short daang = (short)((spr.ang - 256) & 2047);
 					spr.ang = daang;
 					if (plr.shadowtime > 0) {
@@ -131,7 +131,7 @@ static void skirmishfish(PLAYER& plr, DWHActor* actor)
 	if (spr.lotag < 0)
 		SetNewStatus(actor, FACE);
 	short osectnum = spr.sectnum;
-	if (aimove(i) != 0) {
+	if (aimove(actor).type != kHitNone) {
 		spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
 		SetNewStatus(actor, FACE);
 	}

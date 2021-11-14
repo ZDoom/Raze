@@ -31,10 +31,10 @@ static void chasefred(PLAYER& plr, DWHActor* actor)
 			SetNewStatus(actor, FLEE);
 		}
 		else {
-			int movestat = aimove(i);
+			auto moveStat = aimove(actor);
 
-			if ((movestat & kHitTypeMask) == kHitSprite) {
-				if ((movestat & kHitIndexMask) != plr.spritenum) {
+			if (moveStat.type == kHitSprite) {
+				if (moveStat.actor != plr.actor()) {
 					short daang = (short)((spr.ang - 256) & 2047);
 					spr.ang = daang;
 					if (plr.shadowtime > 0) {
@@ -93,7 +93,7 @@ static void skirmishfred(PLAYER& plr, DWHActor* actor)
 	if (spr.lotag < 0)
 		SetNewStatus(actor, FACE);
 	short osectnum = spr.sectnum;
-	if (aimove(i) != 0) {
+	if (aimove(actor).type != kHitNone) {
 		spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
 		SetNewStatus(actor, FACE);
 	}
@@ -231,11 +231,11 @@ static void fleefred(PLAYER& plr, DWHActor* actor)
 	spr.lotag -= TICSPERFRAME;
 	short osectnum = spr.sectnum;
 
-	int movestat = aimove(i);
+	auto moveStat = aimove(actor);
 
-	if (movestat != 0) {
-		if ((movestat & kHitTypeMask) == kHitWall) {
-			int nWall = movestat & kHitIndexMask;
+	if (moveStat.type != kHitNone) {
+		if (moveStat.type == kHitWall) {
+			int nWall = moveStat.index;
 			int nx = -(wall[wall[nWall].point2].y - wall[nWall].y) >> 4;
 			int ny = (wall[wall[nWall].point2].x - wall[nWall].x) >> 4;
 			spr.ang = getangle(nx, ny);
@@ -273,7 +273,7 @@ static void painfred(PLAYER& plr, DWHActor* actor)
 		SetNewStatus(actor, FLEE);
 	}
 
-	aimove(i);
+	aimove(actor);
 	processfluid(actor, zr_florhit, false);
 	SetActorPos(actor, &spr.pos);
 

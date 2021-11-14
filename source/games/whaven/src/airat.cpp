@@ -38,23 +38,23 @@ static void fleerat(PLAYER& plr, DWHActor* actor)
 	spr.lotag -= TICSPERFRAME;
 	short osectnum = spr.sectnum;
 
-	int movestat = aimove(i);
-	if ((movestat & kHitTypeMask) == kHitFloor)
+	auto moveStat = aimove(actor);
+	if (moveStat.type == kHitFloor)
 	{
 		spr.ang = (short)((spr.ang + 1024) & 2047);
 		return;
 	}
 
-	if ((movestat & kHitTypeMask) == kHitWall) {
-		WALL& wal = wall[movestat & kHitIndexMask];
+	if (moveStat.type == kHitWall) {
+		WALL& wal = wall[moveStat.index];
 		short wallang = (short)((getangle(wall[wal.point2].x - wal.x, wall[wal.point2].y - wal.y) + 512)
 			& 2047);
 		spr.ang = (short)(krand() & 512 - 256 + wallang);
 	}
 
-	if ((movestat & kHitTypeMask) == kHitSprite) {
-		SPRITE& sp = sprite[movestat & kHitIndexMask];
-		spr.owner = (short)(movestat & kHitIndexMask);
+	if (moveStat.type == kHitSprite) {
+		SPRITE& sp = moveStat.actor->s();
+		spr.owner = moveStat.actor->GetSpriteIndex();
 		spr.ang = getangle(sp.x - spr.x, sp.y - spr.y);
 		spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
 	}
