@@ -120,7 +120,7 @@ struct GameInterface
 	virtual void LeavePortal(spritetype* viewer, int type) {}
 	virtual bool GetGeoEffect(GeoEffect* eff, int viewsector) { return false; }
 	virtual int Voxelize(int sprnum) { return -1; }
-	virtual void AddExcludedEpisode(FString episode) {}
+	virtual void AddExcludedEpisode(const FString& episode) {}
 	virtual int GetCurrentSkill() { return -1; }
 	virtual bool IsQAVInterpTypeValid(const FString& type) { return false; }
 	virtual void AddQAVInterpProps(const int res_id, const FString& interptype, const bool loopable, const TMap<int, TArray<int>>&& ignoredata) { }

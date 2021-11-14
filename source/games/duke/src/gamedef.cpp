@@ -62,7 +62,7 @@ enum { VERSIONCHECK = 41 };
 
 static TArray<FString> exclEpisodes;
 
-void GameInterface::AddExcludedEpisode(FString episode)
+void GameInterface::AddExcludedEpisode(const FString& episode)
 {
 	auto s = FStringTable::MakeMacro(episode.GetChars());
 	s.StripRight();
