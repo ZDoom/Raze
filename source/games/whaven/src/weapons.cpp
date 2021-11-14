@@ -2230,7 +2230,6 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 		while (auto itActor = it.Next())
 		{
 			auto& spk = itActor->s();
-			int j = itActor->GetSpriteIndex();
 			switch (spk.detail) {
 			case DEMONTYPE:
 			case NEWGUYTYPE:
@@ -2257,7 +2256,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 						spk.z - (tileHeight(spk.picnum) << 7), spk.sectnum))
 					if ((isWh2() && itActor->GetPlayerOwner() != plr.playerNum())
 							|| checkmedusadist(itActor, plr.x, plr.y, plr.z, 12))
-						nukespell(plr, j);
+						nukespell(plr, itActor);
 				break;
 			}
 		}

@@ -536,8 +536,7 @@ void warpsprite(DWHActor* actor) {
 void ironbars() {
 	for (int i = 0; i < ironbarscnt; i++) {
 		if (ironbarsdone[i] == 1) {
-			short spritenum = ironbarsanim[i];
-			auto actor = &whActors[spritenum];
+			auto actor = ironbarsanim[i];
 			auto& spr = actor->s();
 			switch (spr.hitag) {
 			case 1:
@@ -1083,7 +1082,6 @@ void weaponpowerup(PLAYER& plr) {
 					while (auto actor = it.Next())
 					{
 						SPRITE& tspr = actor->s();
-						int j = actor->GetSpriteIndex();
 
 						if (tspr.picnum == CONE) {
 							DeleteActor(actor);

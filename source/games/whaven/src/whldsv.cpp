@@ -36,7 +36,7 @@ FSerializer& Serialize(FSerializer& arc, const char* key, PLAYER& sw, PLAYER* de
 			("hvel", sw.hvel)
 			("sector", sw.sector)
 			("oldsector", sw.oldsector)
-			("spritenum", sw.spritenum)
+			("spritenum", sw.theactor)
 			("keytoggle", sw.keytoggle)
 			("flags", sw.flags)
 			.Array("weapon", sw.weapon, countof(sw.weapon))

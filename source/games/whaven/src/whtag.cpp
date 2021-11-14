@@ -10,7 +10,8 @@ Delayitem delayitem[MAXSECTORS];
 short ironbarsector[16];
 short ironbarscnt;
 int ironbarsgoal1[16], ironbarsgoal2[16];
-short ironbarsdone[16], ironbarsanim[16];
+short ironbarsdone[16];
+DWHActor* ironbarsanim[16];
 int ironbarsgoal[16];
 
 short warpsectorlist[64], warpsectorcnt;
@@ -798,7 +799,7 @@ void operatesector(PLAYER& plr, int s) {
 			if (ironbarsector[k] == s) {
 				ironbarsdone[k] = 1;
 
-				switch (sprite[ironbarsanim[k]].picnum) {
+				switch (ironbarsanim[k]->s().picnum) {
 
 				case SWINGDOOR:
 
@@ -829,7 +830,7 @@ void operatesector(PLAYER& plr, int s) {
 					break;
 				}
 					
-				int pic = sprite[ironbarsanim[k]].picnum;
+				int pic = ironbarsanim[k]->s().picnum;
 				if(pic == SWINGGATE3 || pic == SWINGGATE4 || pic == SWINGGATE5 || pic == GEARS2START)
 					SND_Sound(S_CREAKDOOR1);
 			}

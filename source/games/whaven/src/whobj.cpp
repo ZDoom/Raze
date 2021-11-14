@@ -1698,7 +1698,7 @@ boolean damageactor(PLAYER& plr, DWHActor* hitactor, DWHActor* actor)
 				// raf because monsters could shatter a guy thats been frozen
 				if (hitspr.pal == 6) {
 					for (int k = 0; k < 32; k++)
-						icecubes(hitactor, hitspr.x, hitspr.y, hitspr.z, hitactor->GetSpriteIndex());
+						icecubes(hitactor, hitspr.x, hitspr.y, hitspr.z, 0);
 					// EG 26 Oct 2017: Move this here from medusa (anti multi-freeze exploit)
 					addscore(&plr, 100);
 					DeleteActor(hitactor);

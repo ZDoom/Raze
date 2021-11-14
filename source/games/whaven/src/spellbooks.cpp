@@ -240,8 +240,7 @@ void speelbookprocess(PLAYER& plr) {
 	}
 }
 
-void nukespell(PLAYER& plr, short const j) {
-	auto actor = &whActors[j];
+void nukespell(PLAYER& plr, DWHActor* actor) {
 	auto& spr = actor->s();
 
 	if(spr.detail != WILLOWTYPE && spr.pal == 6) //don't nuke freezed enemies

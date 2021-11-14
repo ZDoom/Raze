@@ -232,7 +232,7 @@ struct WhPlayer native {
     native int hvel;               
     native int sector;
 	native int oldsector;
-	native int16 spritenum;
+	//native int16 spritenum;
 	native bool keytoggle;
 	native int flags;
 	native int weapon[Witchaven.MAXWEAPONS], preenchantedweapon[Witchaven.MAXWEAPONS];

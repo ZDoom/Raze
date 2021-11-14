@@ -842,7 +842,7 @@ DEFINE_FIELD_X(WhPlayer,PLAYER,height);
 DEFINE_FIELD_X(WhPlayer,PLAYER,hvel);
 DEFINE_FIELD_X(WhPlayer,PLAYER, sector);
 DEFINE_FIELD_X(WhPlayer,PLAYER, oldsector);
-DEFINE_FIELD_X(WhPlayer,PLAYER, spritenum);
+//DEFINE_FIELD_X(WhPlayer,PLAYER, spritenum);
 DEFINE_FIELD_X(WhPlayer,PLAYER, keytoggle);
 DEFINE_FIELD_X(WhPlayer,PLAYER,flags);
 DEFINE_FIELD_X(WhPlayer,PLAYER,weapon);

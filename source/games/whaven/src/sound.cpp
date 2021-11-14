@@ -138,7 +138,7 @@ void GameInterface::UpdateSounds()
 			return false;
 		});
 
-	if (player[pyrn].spritenum >= 0)
+	if (player[pyrn].actor() != nullptr)
 	{
 		listener.angle = float(-FixedToFloat(player[pyrn].angle.ang.asq16()) * pi::pi() / 1024); // Build uses a period of 2048.
 		listener.velocity.Zero();

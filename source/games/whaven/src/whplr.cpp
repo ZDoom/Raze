@@ -91,7 +91,7 @@ void initplayersprite(PLAYER& plr) {
 	plr.z = plr.Sector()->floorz - (plr.height << 8);
 
 	auto pactor = InsertActor(plr.sector, (short)0);
-	plr.spritenum = pactor->GetSpriteIndex();
+	plr.theactor = pactor;
 	auto& spr = pactor->s();
 
 	plr.onsomething = 1;

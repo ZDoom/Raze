@@ -327,7 +327,7 @@ boolean prepareboard(const char* fname) {
 		if (spr.lotag == 80) {
 			ironbarsector[ironbarscnt] = spr.sectnum;
 			ironbarsdone[ironbarscnt] = 0;
-			ironbarsanim[ironbarscnt] = (short) i;
+			ironbarsanim[ironbarscnt] = actor;
 			ironbarsgoal[ironbarscnt] = 0;
 			ironbarscnt++;
 		}
@@ -776,7 +776,7 @@ boolean prepareboard(const char* fname) {
 		auto pactor = InsertActor(plr.sector, (short)0);
 		auto& pspr = pactor->s();
 
-		plr.spritenum = pactor->GetSpriteIndex();
+		plr.theactor = pactor;
 		plr.oldsector = plr.sector;
 
 		pspr.x = plr.x;

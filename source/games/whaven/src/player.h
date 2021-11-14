@@ -22,8 +22,8 @@ struct PLAYER {
     int hvel;               
     int sector;
 	int oldsector;
-	short spritenum;
-	DWHActor* actor() { return &whActors[spritenum]; }
+	DWHActor* theactor;
+	DWHActor* actor() { return theactor; }
 	sectortype* Sector() { return &::sector[sector]; }
 	int playerNum();
 	boolean keytoggle;

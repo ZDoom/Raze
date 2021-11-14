@@ -256,7 +256,8 @@ extern Delayitem delayitem[MAXSECTORS];
 extern short ironbarsector[16];
 extern short ironbarscnt;
 extern int ironbarsgoal1[16], ironbarsgoal2[16];
-extern short ironbarsdone[16], ironbarsanim[16];
+extern short ironbarsdone[16];
+extern DWHActor* ironbarsanim[16];
 extern int ironbarsgoal[16];
 
 extern short warpsectorlist[64], warpsectorcnt;
@@ -334,7 +335,7 @@ void bookprocess(int snum);
 boolean changebook(PLAYER& plr, int i);
 boolean lvlspellcheck(PLAYER& plr);
 void speelbookprocess(PLAYER& plr);
-void nukespell(PLAYER& plr, short j);
+void nukespell(PLAYER& plr, DWHActor* j);
 void medusa(PLAYER& plr, DWHActor* j);
 void displayspelltext(PLAYER& plr);
 void orbpic(PLAYER& plr, int currentorb);

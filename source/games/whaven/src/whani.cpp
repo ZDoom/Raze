@@ -491,7 +491,6 @@ void animateobjs(PLAYER& plr) {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		int i = actor->GetSpriteIndex();
 
 		osectnum = spr.sectnum;
 		j = (torchpattern[PlayClock % 38]);
@@ -508,7 +507,6 @@ void animateobjs(PLAYER& plr) {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		int i = actor->GetSpriteIndex();
 
 		osectnum = spr.sectnum;
 		j = (torchpattern[PlayClock % 38]);
@@ -533,7 +531,6 @@ void animateobjs(PLAYER& plr) {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		int i = actor->GetSpriteIndex();
 
 		switch (spr.lotag) {
 		case 1821:
@@ -576,7 +573,6 @@ void animateobjs(PLAYER& plr) {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		int i = actor->GetSpriteIndex();
 
 		int ironbarmove = 0;
 
@@ -623,7 +619,6 @@ void animateobjs(PLAYER& plr) {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		int i = actor->GetSpriteIndex();
 
 		spr.lotag -= TICSPERFRAME;
 		spr.z = spr.sector()->floorz + (tileHeight(spr.picnum) << 8);
@@ -646,7 +641,6 @@ void animateobjs(PLAYER& plr) {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		int i = actor->GetSpriteIndex();
 
 		spr.lotag -= TICSPERFRAME;
 
@@ -666,8 +660,7 @@ void animateobjs(PLAYER& plr) {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		int i = actor->GetSpriteIndex();
-
+		
 		spr.lotag -= TICSPERFRAME;
 
 		if (spr.z < spr.sector()->floorz)
@@ -698,7 +691,6 @@ void animateobjs(PLAYER& plr) {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		int i = actor->GetSpriteIndex();
 
 		getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2,
 				CLIPMASK0);
@@ -744,7 +736,6 @@ void animateobjs(PLAYER& plr) {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		int i = actor->GetSpriteIndex();
 
 		getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2,
 				CLIPMASK0);
@@ -788,7 +779,6 @@ void animateobjs(PLAYER& plr) {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		int i = actor->GetSpriteIndex();
 
 		spr.lotag -= TICSPERFRAME;
 
@@ -820,7 +810,6 @@ void animateobjs(PLAYER& plr) {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		int i = actor->GetSpriteIndex();
 
 		if (isWh2()) {
 			osectnum = spr.sectnum;
@@ -849,7 +838,6 @@ void animateobjs(PLAYER& plr) {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		int i = actor->GetSpriteIndex();
 
 		if (isWh2()) {
 			spr.lotag -= TICSPERFRAME;
@@ -888,7 +876,6 @@ void animateobjs(PLAYER& plr) {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		int i = actor->GetSpriteIndex();
 
 		spr.lotag -= TICSPERFRAME;
 
@@ -960,9 +947,9 @@ void animateobjs(PLAYER& plr) {
 
 		if (moveStat.type != kHitNone && spr.picnum == MONSTERBALL)
 			if (actor->GetPlayerOwner() == plr.playerNum()) {
-				explosion2(actor, spr.x, spr.y, spr.z, i);
+				explosion2(actor, spr.x, spr.y, spr.z, 0);
 			} else {
-				explosion(actor, spr.x, spr.y, spr.z, i);
+				explosion(actor, spr.x, spr.y, spr.z, 0);
 			}
 
 		if (moveStat.type == kHitSector) { // Hits a ceiling / floor
@@ -979,9 +966,9 @@ void animateobjs(PLAYER& plr) {
 
 			if (spr.picnum == MONSTERBALL) {
 				if (actor->GetPlayerOwner() == plr.playerNum())
-					explosion2(actor, spr.x, spr.y, spr.z, i);
+					explosion2(actor, spr.x, spr.y, spr.z, 0);
 				else
-					explosion(actor, spr.x, spr.y, spr.z, i);
+					explosion(actor, spr.x, spr.y, spr.z, 0);
 			}
 			if (spr.picnum == THROWPIKE) {
 				spr.picnum++;
@@ -998,9 +985,9 @@ void animateobjs(PLAYER& plr) {
 		if (moveStat.type == kHitSprite) { // Bullet hit a sprite
 			if (spr.picnum == MONSTERBALL) {
 				if (actor->GetPlayerOwner() == plr.playerNum())
-					explosion2(actor, spr.x, spr.y, spr.z, i);
+					explosion2(actor, spr.x, spr.y, spr.z, 0);
 				else
-					explosion(actor, spr.x, spr.y, spr.z, i);
+					explosion(actor, spr.x, spr.y, spr.z, 0);
 			}
 
 			if (actor->GetOwner() != moveStat.actor)
@@ -1035,7 +1022,6 @@ void animateobjs(PLAYER& plr) {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		int i = actor->GetSpriteIndex();
 
 		spr.lotag -= TICSPERFRAME;
 		if (isBlades(spr.picnum)) {
@@ -1126,7 +1112,6 @@ void animateobjs(PLAYER& plr) {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		int i = actor->GetSpriteIndex();
 
 		spr.lotag -= TICSPERFRAME;
 		dax = spr.xvel >> 3;
@@ -1156,8 +1141,7 @@ void animateobjs(PLAYER& plr) {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		int i = actor->GetSpriteIndex();
-
+		
 		spr.lotag -= TICSPERFRAME;
 
 		spr.z += spr.zvel;
@@ -1213,7 +1197,6 @@ void animateobjs(PLAYER& plr) {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		int i = actor->GetSpriteIndex();
 
 		spr.lotag -= TICSPERFRAME;
 		if (spr.lotag < 0) {
@@ -1231,8 +1214,7 @@ void animateobjs(PLAYER& plr) {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		int i = actor->GetSpriteIndex();
-
+		
 		if (plr.invisibletime < 0) {
 			spr.lotag -= TICSPERFRAME;
 			if (spr.lotag < 0) {
@@ -1251,7 +1233,6 @@ void animateobjs(PLAYER& plr) {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		int i = actor->GetSpriteIndex();
 
 		spr.lotag -= TICSPERFRAME;
 		spr.z += spr.zvel;
@@ -1274,17 +1255,12 @@ void animateobjs(PLAYER& plr) {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		int i = actor->GetSpriteIndex();
 
 		spr.lotag -= TICSPERFRAME;
-
-//			
-//			spr.z -= (TICSPERFRAME << 6);
 
 		if (spr.xrepeat > 1)
 			spr.xrepeat = spr.yrepeat -= TICSPERFRAME;
 
-//			SetActorPos(actor, &spr.pos);
 		if (spr.lotag < 0) {
 			DeleteActor(actor);
 		}
@@ -1295,7 +1271,6 @@ void animateobjs(PLAYER& plr) {
 		while (auto actor = it.Next())
 		{
 			SPRITE& spr = actor->s();
-			int i = actor->GetSpriteIndex();
 
 			spr.lotag -= TICSPERFRAME;
 			spr.x += ((spr.xvel * TICSPERFRAME) >> 5);
@@ -1348,7 +1323,6 @@ void animateobjs(PLAYER& plr) {
 		while (auto actor = it.Next())
 		{
 			SPRITE& spr = actor->s();
-			int i = actor->GetSpriteIndex();
 
 			spr.lotag -= TICSPERFRAME;
 			spr.picnum++;
@@ -1360,7 +1334,6 @@ void animateobjs(PLAYER& plr) {
 			while (auto sectactor = it.Next())
 			{
 				SPRITE& tspr = sectactor->s();
-				int j = sectactor->GetSpriteIndex();
 
 				int dx = abs(spr.x - tspr.x); // x distance to sprite
 				int dy = abs(spr.y - tspr.y); // y distance to sprite
@@ -1400,7 +1373,6 @@ void animateobjs(PLAYER& plr) {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		int i = actor->GetSpriteIndex();
 
 		spr.lotag -= TICSPERFRAME;
 		if (spr.lotag < 0) {
@@ -1437,7 +1409,6 @@ void animateobjs(PLAYER& plr) {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		int i = actor->GetSpriteIndex();
 
 		spr.lotag -= TICSPERFRAME;
 
