@@ -241,6 +241,7 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 	do
 	{
 		dasect = tempsect[sectcnt++];
+		dasectp = &sector[dasect];
 		if (((dasectp->ceilingz - spri->z) >> 8) < r)
 		{
 			d = abs(wall[dasectp->wallptr].x - spri->x) + abs(wall[dasectp->wallptr].y - spri->y);
