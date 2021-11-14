@@ -27,8 +27,26 @@ public:
 
 	DWHActor* GetOwner()
 	{
+		if (s().owner >= 4096) return nullptr; // player index hackery
 		if (s().owner == -1 || s().owner == MAXSPRITES - 1) return nullptr;
 		return base() + s().owner;
+	}
+
+	void SetPlayerOwner(int num)
+	{
+		s().owner = num + 4096; // caution! This needs to be changed later!!!
+	}
+
+	int GetPlayerOwner()
+	{
+		if (s().owner >= 4096) return s().owner - 4096;
+		return -1;
+	}
+
+	// we need this because the owner later needs to be split up - but some stuff copies the value without checking.
+	void CopyOwner(DWHActor* other)
+	{
+		s().owner = other->s().owner;
 	}
 
 	int GetSpriteIndex() const
