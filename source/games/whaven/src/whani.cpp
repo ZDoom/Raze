@@ -784,7 +784,7 @@ void animateobjs(PLAYER& plr) {
 		if (moveStat.type == kHitSprite) { // Bullet hit a sprite
 
 			if (spr.owner != moveStat.actor->GetSpriteIndex()) {
-				hitdamage = damageactor(plr, moveStat.actor->GetSpriteIndex(), i);
+				hitdamage = damageactor(plr, moveStat.actor, actor);
 				if (hitdamage) {
 					SetNewStatus(actor, BROKENVASE);
 					continue;
@@ -1015,7 +1015,7 @@ void animateobjs(PLAYER& plr) {
 			}
 
 			if (spr.owner != moveStat.actor->GetSpriteIndex())
-				hitdamage = damageactor(plr, moveStat.actor->GetSpriteIndex(), i);
+				hitdamage = damageactor(plr, moveStat.actor, actor);
 			if (hitdamage) {
 				DeleteActor(actor);
 				continue;
@@ -1114,19 +1114,13 @@ void animateobjs(PLAYER& plr) {
 		}
 
 		if (moveStat.type == kHitSprite) { // Bullet hit a sprite
-			j = moveStat.actor->GetSpriteIndex(); // j is the spritenum that the bullet (spritenum i) hit
 
-			hitdamage = damageactor(plr, j, i);
+			hitdamage = damageactor(plr, moveStat.actor, actor);
 			if (hitdamage)
 				continue;
 
-//				if (spr.owner != hitobject) {
-//					hitdamage = damageactor(plr, hitobject, i);
-//					continue;
-//				}
-
 			if (!hitdamage)
-				if (isBlades(sprite[j].picnum)) {
+				if (isBlades(moveStat.actor->s().picnum)) {
 					DeleteActor(actor);
 					continue;
 				}

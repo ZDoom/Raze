@@ -585,7 +585,7 @@ void gonzoProcess(PLAYER& plr)
 				for (int j = 0; j < 15; j++) {
 					shards(k, 1);
 				}
-				damageactor(plr, moveStat.actor->GetSpriteIndex(), i);
+				damageactor(plr, moveStat.actor, actor);
 			}
 
 			break;

@@ -1533,16 +1533,14 @@ void icecubes(int i, int x, int y, int z, int owner) {
 
 }
 
-boolean damageactor(PLAYER& plr, int hitobject, short const i) 
+boolean damageactor(PLAYER& plr, DWHActor* hitactor, DWHActor* actor) 
 {
-	auto actor = &whActors[i];
-	short const j = (short) (hitobject & 4095); // j is the spritenum that the bullet (spritenum i) hit
 	auto& spr = actor->s();
-	auto& hitspr = sprite[j];
-	if (j == plr.spritenum && spr.owner == sprite[plr.spritenum].owner)
+	auto& hitspr = hitactor->s();
+	if (hitactor == plr.actor() && spr.owner == sprite[plr.spritenum].owner)
 		return false;
 
-	if (j == plr.spritenum && spr.owner != sprite[plr.spritenum].owner) {
+	if (hitactor == plr.actor() && spr.owner != sprite[plr.spritenum].owner) {
 		if (plr.invincibletime > 0 || plr.godMode) {
 			DeleteActor(actor);
 			return false;
@@ -1610,8 +1608,8 @@ boolean damageactor(PLAYER& plr, int hitobject, short const i)
 		return true;
 	}
 
-	if (j != plr.spritenum && !netgame) // Les 08/11/95
-		if (spr.owner != j) {
+	if (hitactor == plr.actor() && !netgame) // Les 08/11/95
+		if (spr.owner != hitactor->GetSpriteIndex()) {
 			
 //				final int DEMONTYPE = 1; XXX
 //				final int DRAGONTYPE = 3;
@@ -1671,10 +1669,10 @@ boolean damageactor(PLAYER& plr, int hitobject, short const i)
 				}
 				
 				if (hitspr.hitag <= 0) {
-					newstatus(j, DIE);
+					SetNewStatus(hitactor, DIE);
 					DeleteActor(actor);
 				} else
-					newstatus(j, PAIN);
+					SetNewStatus(hitactor, PAIN);
 				return true;
 			}
 			
@@ -1695,10 +1693,10 @@ boolean damageactor(PLAYER& plr, int hitobject, short const i)
 				// raf because monsters could shatter a guy thats been frozen
 				if (hitspr.pal == 6) {
 					for (int k = 0; k < 32; k++)
-						icecubes(j, hitspr.x, hitspr.y, hitspr.z, j);
+						icecubes(hitactor->GetSpriteIndex(), hitspr.x, hitspr.y, hitspr.z, hitactor->GetSpriteIndex());
 					// EG 26 Oct 2017: Move this here from medusa (anti multi-freeze exploit)
 					addscore(&plr, 100);
-					deletesprite(j);
+					DeleteActor(hitactor);
 				}
 				return true;
 			}
@@ -1719,7 +1717,7 @@ boolean damageactor(PLAYER& plr, int hitobject, short const i)
 			case STAINGLASS9:
 				hitspr.hitag = 0;
 				hitspr.lotag = 0;
-				newstatus(j, BROKENVASE);
+				SetNewStatus(hitactor, BROKENVASE);
 				break;
 			default:
 				DeleteActor(actor);
