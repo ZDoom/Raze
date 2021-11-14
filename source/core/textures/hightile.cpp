@@ -411,7 +411,6 @@ bool PreBindTexture(FRenderState* state, FGameTexture*& tex, EUpscaleFlags& flag
 	bool foggy = state && (state->GetFogColor() & 0xffffff);
 	if (PickTexture(tex, translation, pick, hw_int_useindexedcolortextures && !foggy))
 	{
-		int TextureType = (pick.translation & 0x80000000) ? TT_INDEXED : TT_TRUECOLOR;
 		int lookuppal = pick.translation & 0x7fffffff;
 
 		if (pick.translation & 0x80000000)

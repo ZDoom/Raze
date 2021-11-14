@@ -491,6 +491,10 @@ void moveminecart(void)
 					auto wal = &wall[j];
 					switch (minecartdir[i])
 					{
+						default: // make case of bad parameters well defined.
+							x = wal->x;
+							y = wal->y;
+							break;
 						case 10:
 							x = wal->x;
 							y = wal->y + speed;

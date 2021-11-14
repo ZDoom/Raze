@@ -697,7 +697,6 @@ CCMD(mapinfo)
 		int lump = fileSystem.FindFile(map->fileName);
 		if (lump >= 0)
 		{
-			int rfnum = fileSystem.GetFileContainer(lump);
 			Printf("map %s \"%s\"\n{\n", map->labelName.GetChars(), map->DisplayName());
 			Printf("\tlevelnum = %d\n\tCluster = %d\n", map->levelNumber, map->cluster);
 			if (map->Author.IsNotEmpty())
@@ -1049,9 +1048,6 @@ void FMapInfoParser::ParseCutsceneInfo()
 	FString map;
 	FString pic;
 	FString name;
-	bool remove = false;
-	char key = 0;
-	int flags = 0;
 
 	ParseOpenBrace();
 
@@ -1107,9 +1103,6 @@ void FMapInfoParser::ParseGameInfo()
 	FString map;
 	FString pic;
 	FString name;
-	bool remove = false;
-	char key = 0;
-	int flags = 0;
 
 	ParseOpenBrace();
 
@@ -1301,10 +1294,6 @@ void G_ParseMapInfo ()
 {
 	int lump, lastlump = 0;
 	MapRecord gamedefaults;
-
-	// first parse the internal one which sets up the needed basics and patches the legacy definitions of each game.
-	FMapInfoParser parse;
-	MapRecord defaultinfo;
 
 	// Parse internal RMAPINFOs.
 	while ((lump = fileSystem.FindLumpFullName("engine/rmapinfo.txt", &lastlump, false)) != -1)

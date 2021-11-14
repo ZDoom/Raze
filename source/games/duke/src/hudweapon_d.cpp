@@ -921,10 +921,10 @@ void displayweapon_d(int snum, double smoothratio)
 					looking_arc += rand() & 3;
 				}
 				gun_pos -= 16;
-				hud_drawpal(weapon_xoffset + 210 - look_anghalf, looking_arc + 261 - gun_pos, /*isWorldTour() ? FREEZEFIREWIDE :*/ FREEZE + 2, -32, o|pin, pal);
-				hud_drawpal(weapon_xoffset + 210 - look_anghalf, looking_arc + 235 - gun_pos, FREEZE + 3 + cat_frames[*kb % 6], -32, o | pin, pal);
+				hud_drawpal(weapon_xoffset + 210 - look_anghalf, looking_arc + 261 - gun_pos, pic + 2, -32, o|pin, pal);
+				hud_drawpal(weapon_xoffset + 210 - look_anghalf, looking_arc + 235 - gun_pos, pic + 3 + cat_frames[*kb % 6], -32, o | pin, pal);
 			}
-			else hud_drawpal(weapon_xoffset + 210 - look_anghalf, looking_arc + 261 - gun_pos, /*isWorldTour() ? FREEZEWIDE :*/ FREEZE, shade, o | pin, pal);
+			else hud_drawpal(weapon_xoffset + 210 - look_anghalf, looking_arc + 261 - gun_pos, pic, shade, o | pin, pal);
 		};
 
 		//---------------------------------------------------------------------------

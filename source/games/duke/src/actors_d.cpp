@@ -650,7 +650,7 @@ void guts_d(DDukeActor* actor, int gtype, int n, int p)
 {
 	auto s = actor->s;
 	int gutz, floorz;
-	int i=0, j;
+	int j;
 	int sx, sy;
 	uint8_t pal;
 
@@ -1126,8 +1126,6 @@ static void movetripbomb(DDukeActor *actor)
 
 		s->ang = l;
 
-		int k = 0;
-
 		if (lTripBombControl & TRIPBOMB_TRIPWIRE)
 		{
 			// we're on a trip wire
@@ -1243,8 +1241,6 @@ static void movefireext(DDukeActor* actor)
 	int j = fi.ifhitbyweapon(actor);
 	if (j == -1) return;
 
-	int* t = &actor->temp_data[0];
-
 	for (int k = 0; k < 16; k++)
 	{
 		auto spawned = EGS(actor->s->sectnum, actor->s->x, actor->s->y, actor->s->z - (krand() % (48 << 8)), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (actor->s->zvel >> 2), actor, 5);
@@ -1316,7 +1312,7 @@ static void movesidebolt(DDukeActor* actor)
 	int x;
 	auto sectp = s->sector();
 
-	auto p = findplayer(actor, &x);
+	findplayer(actor, &x);
 	if (x > 20480) return;
 
 CLEAR_THE_BOLT2:
@@ -1359,7 +1355,7 @@ static void movebolt(DDukeActor *actor)
 	int x;
 	auto sectp = s->sector();
 
-	auto p = findplayer(actor, &x);
+	findplayer(actor, &x);
 	if (x > 20480) return;
 
 	if (t[3] == 0)
@@ -1757,7 +1753,6 @@ static void weaponcommon_d(DDukeActor* proj)
 		if (!S_CheckActorSoundPlaying(proj, WIERDSHOT_FLY))
 			S_PlayActorSound(WIERDSHOT_FLY, proj);
 
-	int p = -1;
 	int k, ll;
 	vec3_t oldpos = s->pos;
 
@@ -2732,7 +2727,6 @@ static void flamethrowerflame(DDukeActor *actor)
 	int day = s->y;
 	int daz = s->z;
 	int xvel = s->xvel;
-	int zvel = s->zvel;
 
 	getglobalz(actor);
 
@@ -3215,7 +3209,6 @@ void moveactors_d(void)
 
 static void fireflyflyingeffect(DDukeActor *actor)
 {
-	auto t = &actor->temp_data[0];
 	int x, p = findplayer(actor, &x);
 	execute(actor, p, x);
 
@@ -3449,7 +3442,6 @@ void handle_se06_d(DDukeActor* actor)
 	auto t = &actor->temp_data[0];
 
 	auto sc = actor->getSector();
-	int st = s->lotag;
 	int sh = s->hitag;
 
 	int k = sc->extra;
@@ -3502,9 +3494,6 @@ void handle_se06_d(DDukeActor* actor)
 static void handle_se28(DDukeActor* actor)
 {
 	auto s = actor->s;
-	auto sc = actor->getSector();
-	int st = s->lotag;
-	int sh = s->hitag;
 	int* t = &actor->temp_data[0];
 
 	if (t[5] > 0)
@@ -3516,7 +3505,7 @@ static void handle_se28(DDukeActor* actor)
 	if (t[0] == 0)
 	{
 		int x;
-		int p = findplayer(actor, &x);
+		findplayer(actor, &x);
 		if (x > 15500)
 			return;
 		t[0] = 1;

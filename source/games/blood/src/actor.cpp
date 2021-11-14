@@ -2437,7 +2437,6 @@ static void actInitDudes()
 		BloodStatIterator it(kStatDude);
 		while (auto act = it.Next())
 		{
-			spritetype* pSprite = &act->s();
 			if (act->hasX() && act->x().key > 0) // Drop Key
 				actDropObject(act, kItemKeyBase + (act->x().key - 1));
 			DeleteSprite(act);
@@ -2852,7 +2851,6 @@ static DBloodActor* actDropKey(DBloodActor* actor, int nType)
 		if (act2 && gGameOptions.nGameType == 1)
 		{
 			act2->addX();
-			auto pSprite2 = &act2->s();
 			act2->x().respawn = 3;
 			act2->hit.florhit = 0;
 			act2->hit.ceilhit = 0;
@@ -3334,7 +3332,6 @@ static void burningCultistDeath(DBloodActor* actor, int nSeq)
 
 static void modernCustomDudeDeath(DBloodActor* actor, int nSeq, int damageType)
 {
-	auto pSprite = &actor->s();
 	auto pXSprite = &actor->x();
 
 	playGenDudeSound(actor, kGenDudeSndDeathNormal);
@@ -3363,8 +3360,6 @@ static void modernCustomDudeDeath(DBloodActor* actor, int nSeq, int damageType)
 
 static void modernCustomDudeBurningDeath(DBloodActor* actor, int nSeq)
 {
-	auto pSprite = &actor->s();
-
 	playGenDudeSound(actor, kGenDudeSndDeathExplode);
 	int dudeToGib = (actCheckRespawn(actor)) ? -1 : nDudeToGibClient1;
 
@@ -3436,7 +3431,6 @@ static void zombieButcherDeath(DBloodActor* actor, int nSeq)
 
 static void genericDeath(DBloodActor* actor, int nSeq, int sound1, int seqnum)
 {
-	auto pSprite = &actor->s();
 	if (Chance(0x4000) && nSeq == 3) sfxPlay3DSound(actor, sound1 + 2, -1, 0);
 	else sfxPlay3DSound(actor, sound1 + Random(2), -1, 0);
 	seqSpawn(seqnum, actor, -1);
@@ -3450,11 +3444,9 @@ static void genericDeath(DBloodActor* actor, int nSeq, int sound1, int seqnum)
 
 void actKillDude(DBloodActor* killerActor, DBloodActor* actor, DAMAGE_TYPE damageType, int damage)
 {
-	spritetype* pKillerSprite = &killerActor->s();
 	auto pSprite = &actor->s();
 	assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax&& actor->hasX());
 	int nType = pSprite->type - kDudeBase;
-	XSPRITE* pXSprite = &actor->x();
 
 	if (actKillDudeStage1(actor, damageType)) return;
 
@@ -4406,7 +4398,6 @@ static void checkHit(DBloodActor* actor)
 static void checkFloorHit(DBloodActor* actor)
 {
 	auto pSprite = &actor->s();
-	auto pXSprite = actor->hasX() ? &actor->x() : nullptr;
 
 	Collision coll(actor->hit.florhit);
 	switch (coll.type)
@@ -4626,7 +4617,6 @@ static Collision MoveThing(DBloodActor* actor)
 {
 	auto pSprite = &actor->s();
 	assert(actor->hasX());
-	XSPRITE* pXSprite = &actor->x();
 	assert(pSprite->type >= kThingBase && pSprite->type < kThingMax);
 	const THINGINFO* pThingInfo = &thingInfo[pSprite->type - kThingBase];
 	int nSector = pSprite->sectnum;
@@ -5330,7 +5320,6 @@ void MoveDude(DBloodActor* actor)
 int MoveMissile(DBloodActor* actor)
 {
 	auto pSprite = &actor->s();
-	auto pXSprite = &actor->x();
 	auto Owner = actor->GetOwner();
 	int cliptype = -1;
 	int bakCstat = 0;
@@ -5358,8 +5347,6 @@ int MoveMissile(DBloodActor* actor)
 			RotatePoint(&vx, &vy, (nTargetAngle + 1536) & 2047, 0, 0);
 			actor->xvel = vx;
 			actor->yvel = vy;
-			int dx = pTarget->x - pSprite->x;
-			int dy = pTarget->y - pSprite->y;
 			int dz = pTarget->z - pSprite->z;
 
 			int deltaz = dz / 10;
@@ -7336,7 +7323,6 @@ void actPostProcess(void)
 
 void MakeSplash(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
 	auto pSprite = &actor->s();
 	pSprite->flags &= ~2;
 	pSprite->z -= 4 << 8;

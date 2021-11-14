@@ -145,7 +145,6 @@ void AIWasp::Damage(RunListEvent* ev)
     auto pActor = ev->pObjActor;
     if (!pActor) return;
     auto pSprite = &pActor->s();
-    short nAction = pActor->nAction;
 
     if (!ev->nDamage) {
         return;

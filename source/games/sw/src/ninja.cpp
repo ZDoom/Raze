@@ -2136,7 +2136,6 @@ int DoNinjaSpecial(DSWActor* actor)
 
 int CheckFire(DSWActor* actor)
 {
-    USER* u = actor->u();
     if (!CanSeePlayer(actor))
         InitActorDuck(actor);
     return 0;
@@ -2144,11 +2143,7 @@ int CheckFire(DSWActor* actor)
 
 int DoNinjaCeiling(DSWActor* actor)
 {
-    USER* u = actor->u();
-    SPRITEp sp = &actor->s();
-
     DoActorSectorDamage(actor);
-
     return 0;
 }
 

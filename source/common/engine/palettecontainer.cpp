@@ -649,7 +649,6 @@ bool FRemapTable::AddTint(int start, int end, int r, int g, int b, int amount)
 bool FRemapTable::AddToTranslation(const char *range)
 {
 	int start,end;
-	bool desaturated = false;
 	FScanner sc;
 
 	sc.OpenMem("translation", range, int(strlen(range)));

@@ -2452,7 +2452,6 @@ void DriveCrush(PLAYERp pp, int *x, int *y)
     while (auto actor = it.Next())
     {
         sp = &actor->s();
-		auto u = actor->u();
 
         if (testpointinquad(sp->x, sp->y, x, y))
         {
@@ -3730,7 +3729,7 @@ DSWActor* FindNearSprite(DSWActor* actor, short stat)
 
 bool PlayerOnLadder(PLAYERp pp)
 {
-    short sec, wal, spr;
+    short sec, wal = 0, spr;
     int dist, nx, ny;
     unsigned i;
     SPRITEp lsp;
@@ -6595,8 +6594,6 @@ void MoveSkipSavePos(void)
 
 void PlayerTimers(PLAYERp pp)
 {
-    SPRITEp sp = &pp->Actor()->s();
-
     InventoryTimer(pp);
 }
 

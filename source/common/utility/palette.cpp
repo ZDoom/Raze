@@ -903,7 +903,6 @@ int ReadPalette(int lumpnum, uint8_t* buffer)
 		fr.Seek(33, FileReader::SeekSet);
 		fr.Read(&len, 4);
 		fr.Read(&id, 4);
-		bool succeeded = false;
 		while (id != MAKE_ID('I', 'D', 'A', 'T') && id != MAKE_ID('I', 'E', 'N', 'D'))
 		{
 			len = BigLong((unsigned int)len);

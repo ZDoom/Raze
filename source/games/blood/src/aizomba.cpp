@@ -109,7 +109,6 @@ static void zombaThinkGoto(DBloodActor* actor)
 
 static void zombaThinkChase(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
 	auto pSprite = &actor->s();
 	if (actor->GetTarget() == nullptr)
 	{
@@ -161,7 +160,6 @@ static void zombaThinkChase(DBloodActor* actor)
 
 static void zombaThinkPonder(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
 	auto pSprite = &actor->s();
 	if (actor->GetTarget() == nullptr)
 	{
@@ -214,7 +212,6 @@ static void zombaThinkPonder(DBloodActor* actor)
 
 static void myThinkTarget(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
 	auto pSprite = &actor->s();
 	assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);

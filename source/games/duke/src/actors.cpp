@@ -1047,7 +1047,6 @@ void movewaterdrip(DDukeActor *actor, int drip)
 {
 	auto s = actor->s;
 	int* t = &actor->temp_data[0];
-	int sect = s->sectnum;
 
 	if (t[1])
 	{
@@ -2171,7 +2170,6 @@ bool money(DDukeActor* actor, int BLOODPOOL)
 {
 	auto s = actor->s;
 	auto sectp = s->sector();
-	int* t = &actor->temp_data[0];
 
 	s->xvel = (krand() & 7) + bsin(actor->temp_data[0], -9);
 	actor->temp_data[0] += (krand() & 63);
@@ -2642,14 +2640,12 @@ void handle_se00(DDukeActor* actor, int LASERLINE)
 	auto s = actor->s;
 	int* t = &actor->temp_data[0];
 	sectortype *sect = actor->getSector();
-	int st = s->lotag;
-	int sh = s->hitag;
 
 	int zchange = 0;
 
 	auto Owner = actor->GetOwner();
 
-	if (!Owner || Owner->s->lotag == (short)65535)
+	if (!Owner || Owner->s->lotag == -1)
 	{
 		deletesprite(actor);
 		return;
@@ -2833,7 +2829,6 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 	int* t = &actor->temp_data[0];
 	auto sc = actor->getSector();
 	int st = s->lotag;
-	int sh = s->hitag;
 
 	if (actor->GetOwner() == nullptr)
 	{
@@ -3037,8 +3032,6 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 	auto s = actor->s;
 	int* t = &actor->temp_data[0];
 	auto sc = actor->getSector();
-	int st = s->lotag;
-	int sh = s->hitag;
 
 	auto Owner = actor->GetOwner();
 	if (Owner == nullptr)
@@ -3210,7 +3203,6 @@ void handle_se02(DDukeActor *actor)
 	auto s = actor->s;
 	int* t = &actor->temp_data[0];
 	auto sc = actor->getSector();
-	int st = s->lotag;
 	int sh = s->hitag;
 
 	if (t[4] > 0 && t[0] == 0)
@@ -3287,11 +3279,12 @@ void handle_se03(DDukeActor *actor)
 	auto s = actor->s;
 	int* t = &actor->temp_data[0];
 	auto sc = actor->getSector();
-	int st = s->lotag;
 	int sh = s->hitag;
 
 	if (t[4] == 0) return;
-	int x, p = findplayer(actor, &x);
+	int x;
+		
+	findplayer(actor, &x);
 
 	int palvals = actor->palvals;
 
@@ -3339,7 +3332,6 @@ void handle_se04(DDukeActor *actor)
 	auto s = actor->s;
 	int* t = &actor->temp_data[0];
 	auto sc = actor->getSector();
-	int st = s->lotag;
 	int sh = s->hitag;
 	int j;
 
@@ -3408,8 +3400,6 @@ void handle_se05(DDukeActor* actor, int FIRELASER)
 	auto s = actor->s;
 	int* t = &actor->temp_data[0];
 	auto sc = actor->getSector();
-	int st = s->lotag;
-	int sh = s->hitag;
 	int j, l, m;
 
 	int x, p = findplayer(actor, &x);
@@ -3589,10 +3579,9 @@ void handle_se10(DDukeActor* actor, const int* specialtags)
 	auto s = actor->s;
 	int* t = &actor->temp_data[0];
 	auto sc = actor->getSector();
-	int st = s->lotag;
 	int sh = s->hitag;
 
-	if ((sc->lotag & 0xff) == 27 || (sc->floorz > sc->ceilingz && (sc->lotag & 0xff) != 23) || sc->lotag == (short)32791)
+	if ((sc->lotag & 0xff) == 27 || (sc->floorz > sc->ceilingz && (sc->lotag & 0xff) != 23) || sc->lotag == 65536 - 32791)
 	{
 		int j = 1;
 
@@ -3633,8 +3622,6 @@ void handle_se11(DDukeActor *actor)
 	auto s = actor->s;
 	int* t = &actor->temp_data[0];
 	auto sc = actor->getSector();
-	int st = s->lotag;
-	int sh = s->hitag;
 	if (t[5] > 0)
 	{
 		t[5]--;
@@ -3705,8 +3692,6 @@ void handle_se12(DDukeActor *actor, int planeonly)
 	auto s = actor->s;
 	int* t = &actor->temp_data[0];
 	auto sc = actor->getSector();
-	int st = s->lotag;
-	int sh = s->hitag;
 	if (t[0] == 3 || t[3] == 1) //Lights going off
 	{
 		sc->floorpal = 0;
@@ -3787,8 +3772,6 @@ void handle_se13(DDukeActor* actor)
 	auto s = actor->s;
 	int* t = &actor->temp_data[0];
 	auto sc = actor->getSector();
-	int st = s->lotag;
-	int sh = s->hitag;
 	if (t[2])
 	{
 		int j = (s->yvel << 5) | 1;
@@ -3949,7 +3932,6 @@ void handle_se17(DDukeActor* actor)
 	auto s = actor->s;
 	int* t = &actor->temp_data[0];
 	auto sc = actor->getSector();
-	int st = s->lotag;
 	int sh = s->hitag;
 
 	int q = t[0] * (s->yvel << 2);
@@ -4064,8 +4046,6 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 {
 	int* t = &actor->temp_data[0];
 	auto sc = actor->getSector();
-	int st = actor->s->lotag;
-	int sh = actor->s->hitag;
 
 	if (t[0])
 	{
@@ -4163,7 +4143,6 @@ void handle_se19(DDukeActor *actor, int BIGFORCE)
 {
 	int* t = &actor->temp_data[0];
 	auto sc = actor->getSector();
-	int st = actor->s->lotag;
 	int sh = actor->s->hitag;
 	int j, x, q;
 
@@ -4261,8 +4240,6 @@ void handle_se20(DDukeActor* actor)
 	auto s = actor->s;
 	int* t = &actor->temp_data[0];
 	auto sc = actor->getSector();
-	int st = s->lotag;
-	int sh = s->hitag;
 
 	if (t[0] == 0) return;
 	if (t[0] == 1) s->xvel = 8;
@@ -4335,8 +4312,6 @@ void handle_se21(DDukeActor* actor)
 	auto s = actor->s;
 	int* t = &actor->temp_data[0];
 	auto sc = actor->getSector();
-	int st = s->lotag;
-	int sh = s->hitag;
 	int* lp;
 
 	if (t[0] == 0) return;
@@ -4445,8 +4420,6 @@ void handle_se27(DDukeActor* actor)
 {
 	auto s = actor->s;
 	int* t = &actor->temp_data[0];
-	auto sc = actor->getSector();
-	int st = s->lotag;
 	int sh = s->hitag;
 	int x, p;
 
@@ -4737,7 +4710,6 @@ void handle_se35(DDukeActor *actor, int SMALLSMOKE, int EXPLOSION2)
 void handle_se128(DDukeActor *actor)
 {
 	int* t = &actor->temp_data[0];
-	auto sc = actor->getSector();
 
 	auto wal = &wall[t[2]];
 

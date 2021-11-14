@@ -109,7 +109,6 @@ void setViewport(int viewSize)
 	reserved.top = xs_CRoundToInt((reserved.top * hud_scalefactor * ydim) / 200);
 	reserved.statusbar = xs_CRoundToInt((reserved.statusbar * hud_scalefactor * ydim) / 200);
 
-	int xdimcorrect = min(Scale(ydim, 4, 3), xdim);
 	if (viewSize > Hud_Stbar)
 	{
 		x0 = 0;

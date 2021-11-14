@@ -476,7 +476,7 @@ bool checkhitswitch_d(int snum, int ww, DDukeActor *act)
 			}
 	}
 
-	if (lotag == (short)65535)
+	if (lotag == -1)
 	{
 		setnextmap(false);
 		return 1;

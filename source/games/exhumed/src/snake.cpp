@@ -188,7 +188,7 @@ void BuildSnake(short nPlayer, short zVal)
 
         //		GrabTimeSlot(3);
 
-        DExhumedActor* sprt;
+        DExhumedActor* sprt = nullptr;
 
         for (int i = 0; i < kSnakeSprites; i++)
         {
@@ -268,7 +268,6 @@ DExhumedActor* FindSnakeEnemy(short nSnake)
 {
     short nPlayer = SnakeList[nSnake].nSnakePlayer;
 	auto pPlayerActor = PlayerList[nPlayer].Actor();
-	auto pPlayerSprite = &pPlayerActor->s();
 	
     auto pActor = SnakeList[nSnake].pSprites[0]; // CHECKME
     auto pSprite = &pActor->s();

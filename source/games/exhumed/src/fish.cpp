@@ -277,7 +277,6 @@ void AIFish::Damage(RunListEvent* ev)
         return;
     }
     auto pSprite = &pActor->s();
-    short nAction = pActor->nAction;
 
     pActor->nHealth -= dmgAdjust(ev->nDamage);
     if (pActor->nHealth <= 0)

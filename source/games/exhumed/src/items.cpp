@@ -370,8 +370,6 @@ void StartRegenerate(DExhumedActor* pActor)
 {
     spritetype *pSprite = &pActor->s();
 
-    DExhumedActor* pCurr = nullptr;
-
     auto pos = Regenerates.Find(pActor);
     if (pos >= Regenerates.Size())
     {

@@ -286,7 +286,6 @@ void OpenGLFrameBuffer::PrecacheMaterial(FMaterial *mat, int translation)
 {
 	if (mat->Source()->GetUseType() == ETextureType::SWCanvas) return;
 
-	int flags = mat->GetScaleFlags();
 	int numLayers = mat->NumLayers();
 	MaterialLayerInfo* layer;
 	auto base = static_cast<FHardwareTexture*>(mat->GetLayer(0, translation, &layer));

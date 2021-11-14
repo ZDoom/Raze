@@ -1139,7 +1139,6 @@ int VDoorBusy(unsigned int nSector, unsigned int a2)
     auto actor = GetCrushedSpriteExtents(nSector,&top,&bottom);
     if (actor && a2 > pXSector->busy)
     {
-        spritetype *pSprite = &actor->s();
         assert(actor->hasX());
         XSPRITE *pXSprite = &actor->x();
         if (pXSector->onCeilZ > pXSector->offCeilZ || pXSector->onFloorZ < pXSector->offFloorZ)
@@ -1173,7 +1172,6 @@ int VDoorBusy(unsigned int nSector, unsigned int a2)
     }
     else if (actor && a2 < pXSector->busy)
     {
-        spritetype* pSprite = &actor->s();
         assert(actor->hasX());
         XSPRITE* pXSprite = &actor->x();
         if (pXSector->offCeilZ > pXSector->onCeilZ || pXSector->offFloorZ < pXSector->onFloorZ)
@@ -1623,7 +1621,7 @@ void OperateSector(unsigned int nSector, XSECTOR *pXSector, EVENT event)
 void InitPath(unsigned int nSector, XSECTOR *pXSector)
 {
     DBloodActor* actor = nullptr;
-    spritetype *pSprite;
+    spritetype *pSprite = nullptr;
     XSPRITE *pXSprite;
     assert(nSector < (unsigned int)numsectors);
     int nId = pXSector->data;

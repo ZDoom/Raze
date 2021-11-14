@@ -500,8 +500,6 @@ void GameInterface::UpdateSounds()
     if (nFreeze)
         return;
 
-    int nLocalSectFlags = SectFlag[PlayerList[nLocalPlayer].nPlayerViewSect];
-
     vec3_t pos;
     short ang;
     if (nSnakeCam > -1)

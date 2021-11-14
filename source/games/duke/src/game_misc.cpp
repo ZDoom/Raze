@@ -215,8 +215,6 @@ void V_AddBlend (float r, float g, float b, float a, float v_blend[4])
 
 void drawoverlays(double smoothratio)
 {
-	uint8_t fader = 0, fadeg = 0, fadeb = 0, fadef = 0, tintr = 0, tintg = 0, tintb = 0, tintf = 0, dotint = 0;
-
 	struct player_struct* pp;
 	int cposx, cposy, cang;
 
@@ -334,8 +332,6 @@ void cameratext(DDukeActor *cam)
 	}
 	else
 	{
-		int flipbits = (PlayClock << 1) & 48;
-
 		for (int x = -64; x < 394; x += 64)
 			for (int y = 0; y < 200; y += 64)
 				drawitem(TILE_STATIC, x, y, !!(PlayClock & 8), !!(PlayClock & 16));

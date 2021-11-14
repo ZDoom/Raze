@@ -48,7 +48,6 @@ AISTATE zombieFTeslaRecoil = { kAiStateRecoil, 4, -1, 0, NULL, NULL, NULL, &zomb
 
 void zombfHackSeqCallback(int, DBloodActor* actor)
 {
-	XSPRITE* pXSprite = &actor->x();
 	spritetype* pSprite = &actor->s();
 	if (pSprite->type != kDudeZombieButcher)
 		return;
@@ -89,7 +88,6 @@ void ThrowSeqCallback(int, DBloodActor* actor)
 static void zombfThinkSearch(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
 	aiChooseDirection(actor, pXSprite->goalAng);
 	aiThinkTarget(actor);
 }
@@ -112,7 +110,6 @@ static void zombfThinkGoto(DBloodActor* actor)
 
 static void zombfThinkChase(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
 	auto pSprite = &actor->s();
 	if (actor->GetTarget() == nullptr)
 	{

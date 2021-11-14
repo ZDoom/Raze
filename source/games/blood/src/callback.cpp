@@ -71,7 +71,6 @@ void Remove(DBloodActor* actor, int) // 1
 void FlareBurst(DBloodActor* actor, int) // 2
 {
     if (!actor) return;
-    spritetype *pSprite = &actor->s();
     int nAngle = getangle(actor->xvel, actor->yvel);
     int nRadius = 0x55555;
     for (int i = 0; i < 8; i++)

@@ -487,7 +487,6 @@ void HWDrawInfo::CreateScene(bool portal)
 
 void HWDrawInfo::RenderScene(FRenderState &state)
 {
-	const auto &vp = Viewpoint;
 	RenderAll.Clock();
 
 	state.SetDepthMask(true);
@@ -675,7 +674,6 @@ void HWDrawInfo::DrawScene(int drawmode, bool portal)
 {
 	static int recursion = 0;
 	static int ssao_portals_available = 0;
-	const auto& vp = Viewpoint;
 
 	bool applySSAO = false;
 	if (drawmode == DM_MAINVIEW)

@@ -1037,8 +1037,6 @@ FString GameInterface::GetCoordString()
 void PrintSpriteInfo(PLAYERp pp)
 {
     const int Y_STEP = 7;
-    int x = windowxy1.x+2;
-    int y = windowxy1.y+2;
     SPRITEp sp;
     USERp u;
 

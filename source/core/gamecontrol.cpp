@@ -1029,7 +1029,6 @@ int RunGame()
 	palindexmap[0] = 255;
 	for (int i = 1; i <= 255; i++) palindexmap[i] = i;
 	GPalette.Init(MAXPALOOKUPS + 2, palindexmap);    // one slot for each translation, plus a separate one for the base palettes and the internal one
-	int v = ColorMatcher.Pick(0, 0, 0);
 	gi->loadPalette();
 	StartScreen->Progress();
 	InitTextures();
@@ -1396,7 +1395,6 @@ CVAR(Int, crosshair, 0, CVAR_ARCHIVE)
 
 void DrawCrosshair(int deftile, int health, double xdelta, double ydelta, double scale, PalEntry color)
 {
-	int type = -1;
 	if (automapMode == am_off && cl_crosshair)
 	{
 		if (deftile < MAXTILES && crosshair == 0)

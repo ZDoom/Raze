@@ -113,6 +113,7 @@ int checkpins(int sect)
 			{
 				switch (i)
 				{
+				default:
 				case 0:
 					x = 64;
 					y = 48;
@@ -201,6 +202,7 @@ void resetpins(int sect)
 		{
 			switch (i)
 			{
+			default:
 			case 0:
 				x = 64;
 				y = 48;
@@ -262,6 +264,7 @@ void resetlanepics(void)
 		{
 			switch (i)
 			{
+			default:
 			case 0:
 				x = 64;
 				y = 48;

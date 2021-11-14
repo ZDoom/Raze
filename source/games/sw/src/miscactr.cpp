@@ -502,7 +502,6 @@ int WashGirlUzi(DSWActor* actor)
 int WashGirlPain(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
     NullWashGirl(actor);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)

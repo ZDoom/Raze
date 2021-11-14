@@ -559,8 +559,6 @@ int SetupCoolie(DSWActor* actor)
 int NewCoolg(DSWActor*);
 int SpawnCoolg(DSWActor* actor)
 {
-    USER* u = actor->u();
-	
     // Don't do a ghost every time
     if (RandomRange(1000) > 700 || Skill < MinEnemySkill - 1)
     {
@@ -638,7 +636,6 @@ int DoCoolieMove(DSWActor* actor)
 
 int InitCoolieCharge(DSWActor* actor)
 {
-    USER* u = actor->u();
     SPRITEp sp = &actor->s();
 
     if (RANDOM_P2(1024) > 950)

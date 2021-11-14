@@ -838,7 +838,6 @@ int DoChemBomb(DSWActor* actor)
             if (!TEST(sp->cstat, CSTAT_SPRITE_INVISIBLE))
                 PlaySound(DIGI_CHEMBOUNCE, sp, v3df_dontpan);
 
-            auto hitActor = u->coll.actor;
             hsp = &actor->s();
 
             if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
@@ -1594,7 +1593,6 @@ int PlayerInitFlashBomb(PLAYERp pp)
 int
 InitFlashBomb(DSWActor* actor)
 {
-    USER* u = actor->u();
     SPRITEp sp = &actor->s();
     int i;
     unsigned int stat;

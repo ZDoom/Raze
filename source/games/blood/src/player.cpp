@@ -869,7 +869,7 @@ bool findDroppedLeech(PLAYER *a1, DBloodActor *a2)
 char PickupItem(PLAYER *pPlayer, DBloodActor* itemactor)
 {
     spritetype* pItem = &itemactor->s();
-    spritetype *pSprite = pPlayer->pSprite; XSPRITE *pXSprite = pPlayer->pXSprite;
+    spritetype *pSprite = pPlayer->pSprite;
     char buffer[80]; int pickupSnd = 775; int nType = pItem->type - kItemBase;
 
     switch (pItem->type) {
@@ -985,8 +985,6 @@ char PickupItem(PLAYER *pPlayer, DBloodActor* itemactor)
             {
                 pPlayer->hasFlag &= ~1;
                 pPlayer->ctfFlagState[0] = nullptr;
-                spritetype* pOwner = &itemactor->GetOwner()->s();
-                XSPRITE* pXOwner = &itemactor->GetOwner()->x();
                 trTriggerSprite(itemactor->GetOwner(), kCmdOn);
                 sprintf(buffer, "%s returned Blue Flag", PlayerName(pPlayer->nPlayer));
                 sndStartSample(8003, 255, 2, 0);
@@ -1011,8 +1009,6 @@ char PickupItem(PLAYER *pPlayer, DBloodActor* itemactor)
             {
                 pPlayer->hasFlag &= ~2;
                 pPlayer->ctfFlagState[1] = nullptr;
-                spritetype* pOwner = &itemactor->GetOwner()->s();
-                XSPRITE* pXOwner = &itemactor->GetOwner()->x();
                 trTriggerSprite(itemactor->GetOwner(), kCmdOn);
                 sprintf(buffer, "%s returned Red Flag", PlayerName(pPlayer->nPlayer));
                 sndStartSample(8002, 255, 2, 0);
@@ -1905,7 +1901,6 @@ void flagDropped(PLAYER *pPlayer, int a2)
     auto playeractor = pPlayer->actor;
     DBloodActor* actor;
     char buffer[80];
-    spritetype *pSprite = NULL;
     switch (a2)
     {
     case kItemFlagA:
@@ -2157,7 +2152,6 @@ void playerLandingSound(PLAYER *pPlayer)
 
 void PlayerSurvive(int, DBloodActor* actor)
 {
-    XSPRITE* pXSprite = &actor->x();
     spritetype* pSprite = &actor->s();
     char buffer[80];
     actHealDude(actor, 1, 2);

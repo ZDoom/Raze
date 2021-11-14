@@ -205,9 +205,7 @@ void DrawView(double smoothRatio, bool sceneonly)
     int playerZ;
     int nSector;
     binangle nAngle, rotscrnang;
-    fixedhoriz pan;
-
-    fixed_t dang = IntToFixed(1024);
+    fixedhoriz pan = {};
 
     zbob = bsin(2 * bobangle, -3);
 

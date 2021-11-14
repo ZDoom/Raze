@@ -58,7 +58,6 @@ AISTATE cerberus1398AC = { kAiStateOther, 7, -1, 120, NULL, aiMoveTurn, NULL, &c
 
 void cerberusBiteSeqCallback(int, DBloodActor* actor)
 {
-	XSPRITE* pXSprite = &actor->x();
 	spritetype* pSprite = &actor->s();
 	int dx = bcos(pSprite->ang);
 	int dy = bsin(pSprite->ang);
@@ -77,7 +76,6 @@ void cerberusBiteSeqCallback(int, DBloodActor* actor)
 
 void cerberusBurnSeqCallback(int, DBloodActor* actor)
 {
-	XSPRITE* pXSprite = &actor->x();
 	spritetype* pSprite = &actor->s();
 	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
 	int height = pDudeInfo->eyeHeight * pSprite->yrepeat;
@@ -155,7 +153,6 @@ void cerberusBurnSeqCallback(int, DBloodActor* actor)
 
 void cerberusBurnSeqCallback2(int, DBloodActor* actor)
 {
-	XSPRITE* pXSprite = &actor->x();
 	spritetype* pSprite = &actor->s();
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
@@ -238,7 +235,6 @@ void cerberusBurnSeqCallback2(int, DBloodActor* actor)
 static void cerberusThinkSearch(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
 	aiChooseDirection(actor, pXSprite->goalAng);
 	aiThinkTarget(actor);
 }
@@ -336,7 +332,6 @@ static void cerberusThinkGoto(DBloodActor* actor)
 
 static void cerberusThinkChase(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
 	auto pSprite = &actor->s();
 	if (actor->GetTarget() == nullptr) {
 		switch (pSprite->type) {

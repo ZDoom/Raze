@@ -392,7 +392,6 @@ bool FShader::Load(const char * name, const char * vert_prog_lump_, const char *
 
 	assert(screen->mLights != NULL);
 
-	bool lightbuffertype = screen->mLights->GetBufferType();
 	unsigned int lightbuffersize = screen->mLights->GetBlockSize();
 
 	vp_comb.Format("#version 100\n#define NUM_UBO_LIGHTS %d\n#define NO_CLIPDISTANCE_SUPPORT\n", lightbuffersize);
@@ -851,7 +850,7 @@ void FShaderCollection::CompileShaders(EPassType passType)
 		mMaterialShaders.Push(shc);
 		if (i < SHADER_NoTexture)
 		{
-			FShader *shc = Compile(defaultshaders[i].ShaderName, defaultshaders[i].gettexelfunc, defaultshaders[i].lightfunc, defaultshaders[i].Defines, false, passType);
+			shc = Compile(defaultshaders[i].ShaderName, defaultshaders[i].gettexelfunc, defaultshaders[i].lightfunc, defaultshaders[i].Defines, false, passType);
 			mMaterialShadersNAT.Push(shc);
 		}
 	}

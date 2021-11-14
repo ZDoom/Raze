@@ -507,7 +507,6 @@ static int getlabeloffset(LABELS* pLabel, const char* psz)
 {
 	// find the label psz in the table pLabel.
 	// returns the offset in the array for the label, or -1
-	int l = -1;
 	int i;
 
 	for (i = 0; pLabel[i].lId >= 0; i++)
@@ -1191,6 +1190,7 @@ int ConCompiler::parsecommand()
 		popscriptvalue();
 		parsing_actor = scriptpos();
 
+		j = 0;
 		if (tw == concmd_useractor)
 		{ 
 			transnum(LABEL_DEFINE);

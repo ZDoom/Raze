@@ -134,7 +134,6 @@ inline void copyfloorpal(spritetype* spr, const sectortype* sect)
 
 inline void spriteSetSlope(spritetype* spr, int heinum)
 {
-    int cstat = spr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK;
     if (spr->cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)
     {
         spr->xoffset = heinum & 255;

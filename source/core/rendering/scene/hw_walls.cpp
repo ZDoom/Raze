@@ -1052,8 +1052,6 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 		PlanesAtPoint(backsector, wal->x, wal->y, &bch1, &bfh1);
 		PlanesAtPoint(backsector, p2wall->x, p2wall->y, &bch2, &bfh2);
 
-		float zalign = 0.f;
-
 		SkyTop(di, wal, frontsector, backsector, v1, v2, fch1, fch2);
 		SkyBottom(di, wal, frontsector, backsector, v1, v2, ffh1, ffh2);
 

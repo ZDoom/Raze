@@ -317,8 +317,6 @@ void HWPortal::RemoveStencil(HWDrawInfo *di, FRenderState &state, bool usestenci
 	bool needdepth = NeedDepthBuffer();
 
 	// Restore the old view
-	auto &vp = di->Viewpoint;
-	//if (vp.camera != nullptr) vp.camera->renderflags = (vp.camera->renderflags & ~RF_MAYBEINVISIBLE) | savedvisibility;
 
 	if (usestencil)
 	{

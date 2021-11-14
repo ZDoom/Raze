@@ -3921,7 +3921,6 @@ int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr, bool rotate)
 
     GLInterface.SetMatrix(Matrix_Model, mat);
 
-    int palId = TRANSLATION(Translation_Remap + curbasepal, globalpal);
     GLInterface.SetPalswap(globalpal);
     GLInterface.SetFade(sector[tspr->sectnum].floorpal);
 

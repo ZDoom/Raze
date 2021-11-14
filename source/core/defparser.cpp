@@ -318,7 +318,7 @@ void parseCopyTile(FScanner& sc, FScriptPosition& pos)
 	FScanner::SavedPos blockend;
 	int tile = -1, source = -1;
 	int havetile = 0, xoffset = -1024, yoffset = -1024;
-	int flags = 0, tsiz = 0, temppal = -1, tempsource = -1;
+	int flags = 0, temppal = -1, tempsource = -1;
 
 	if (!sc.GetNumber(tile, true)) return;
 
@@ -1953,7 +1953,7 @@ void parseModel(FScanner& sc, FScriptPosition& pos)
 
 	FString modelfn;
 	double scale = 1.0, mzadd = 0.0, myoffset = 0.0;
-	int32_t shadeoffs = 0, pal = 0, flags = 0;
+	int32_t shadeoffs = 0, flags = 0;
 	FixedBitArray<1024> usedframes;
 
 	usedframes.Zero();

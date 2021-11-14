@@ -1174,7 +1174,6 @@ sectdone:
 
     int var_5C = SectFlag[nViewSect] & kSectUnderwater;
 
-    uint16_t buttons = sPlayerInput[nPlayer].buttons;
     auto actions = sPlayerInput[nPlayer].actions;
 
     // loc_1AEF5:

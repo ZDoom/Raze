@@ -679,7 +679,7 @@ bool checkhitswitch_r(int snum, int ww, DDukeActor* act)
 			}
 	}
 
-	if (lotag == (short)65535)
+	if (lotag == -1)
 	{
 		setnextmap(false);
 	}
@@ -1085,7 +1085,6 @@ void checkhitwall_r(DDukeActor* spr, int dawallnum, int x, int y, int z, int atw
 	case RRTILE3643 + 3:
 	{
 		int sect;
-		int unk = 0;
 		int startwall, endwall;
 		sect = wal->nextWall()->nextsector;
 		DukeSectIterator it(sect);
@@ -2448,7 +2447,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 
 void checksectors_r(int snum)
 {
-	int i = -1, oldz;
+	int oldz;
 	struct player_struct* p;
 	int hitscanwall;
 	int neartagsector, neartagwall;

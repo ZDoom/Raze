@@ -311,7 +311,6 @@ void operateweapon_ww(int snum, ESyncBits actions, int psect)
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
 	int i, k;
-	int psectlotag = sector[psect].lotag;
 
 	// already firing...
 	if (aplWeaponWorksLike[p->curr_weapon][snum] == HANDBOMB_WEAPON)

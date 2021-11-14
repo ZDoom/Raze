@@ -326,7 +326,6 @@ void FGameConfigFile::DoGameSetup (const char *gamename)
 	strncpy (subsection, "ConsoleAliases", sublen);
 	if (SetSection (section))
 	{
-		const char *name = NULL;
 		while (NextInSection (key, value))
 		{
 			FStringf cmd("alias %s \"%s\"", key, value);

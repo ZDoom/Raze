@@ -717,7 +717,7 @@ void FTextureManager::ParseTextureDef(int lump, FMultipatchTextureBuilder &build
 			sc.String[8]=0;
 
 			tlist.Clear();
-			int amount = ListTextures(sc.String, tlist);
+			ListTextures(sc.String, tlist);
 			FName texname = sc.String;
 
 			sc.MustGetString();
@@ -919,7 +919,6 @@ void FTextureManager::LoadTextureX(int wadnum, FMultipatchTextureBuilder &build)
 void FTextureManager::AddTexturesForWad(int wadnum, FMultipatchTextureBuilder &build)
 {
 	int firsttexture = Textures.Size();
-	int lumpcount = fileSystem.GetNumEntries();
 	bool iwad = wadnum >= fileSystem.GetIwadNum() && wadnum <= fileSystem.GetMaxIwadNum();
 
 	FirstTextureForFile.Push(firsttexture);

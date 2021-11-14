@@ -491,7 +491,6 @@ void evSend(DBloodActor* actor, int nIndex, int nType, int rxId, COMMAND_ID comm
 
 				if (actor && actor->hasX() && !(actor->s().flags & 32))
 				{
-					XSPRITE* pXSprite = &actor->x();
 					if (actor->x().rxID > 0)
 						trMessageSprite(actor, event);
 				}

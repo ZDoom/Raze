@@ -259,7 +259,7 @@ int CanHitPlayer(DSWActor* actor)
     SPRITEp sp = &actor->s();
     hitdata_t hitinfo;
     int xvect,yvect,zvect;
-    short ang,ret=false;
+    short ang;
     // if actor can still see the player
     int zhs, zhh;
 
@@ -469,8 +469,8 @@ int DoActorOperate(DSWActor* actor)
 {
     SPRITEp sp = &actor->s();
     USERp u = actor->u();
-    short nearsector, nearwall, nearsprite;
-    int nearhitdist;
+    short nearsector = 0, nearwall = 0, nearsprite = 0;
+    int nearhitdist = 0;
     int z[2];
     unsigned int i;
 
@@ -751,7 +751,6 @@ int InitActorDecide(DSWActor* actor)
 int DoActorDecide(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = &actor->s();
     ANIMATORp actor_action;
 
     // See what to do next

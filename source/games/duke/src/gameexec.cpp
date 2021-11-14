@@ -855,7 +855,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_GOTWEAPON:
-		if (bSet) ps[iPlayer].gotweapon[lParm2, lValue] = true;
+		if (bSet) ps[iPlayer].gotweapon[lParm2] = !!lValue;
 		else SetGameVarID(lVar2, ps[iPlayer].gotweapon[lParm2], sActor, sPlayer);
 		break;
 
@@ -3685,8 +3685,6 @@ void LoadActor(DDukeActor *actor, int p, int x)
 
 	auto addr = gs.tileinfo[actor->s->picnum].loadeventscriptptr;
 	if (addr == 0) return;
-
-	int *insptr = &ScriptCode[addr + 1];
 
 	s.killit_flag = 0;
 

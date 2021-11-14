@@ -474,7 +474,6 @@ int32_t clipmove(vec3_t * const pos, int * const sectnum, int32_t xvect, int32_t
     vec2_t const  clipMin = { cent.x - rad, cent.y - rad };
     vec2_t const  clipMax = { cent.x + rad, cent.y + rad };
 
-    int clipshapeidx  = -1;
     int clipsectcnt   = 0;
     int clipspritecnt = 0;
 
@@ -958,8 +957,7 @@ void getzrange(const vec3_t *pos, int16_t sectnum,
 
     int32_t clipsectcnt = 0;
 
-    uspriteptr_t curspr=NULL;  // non-NULL when handling sprite with sector-like clipping
-    int32_t curidx=-1, clipspritecnt = 0;
+    int32_t clipspritecnt = 0;
 
     //Extra walldist for sprites on sector lines
     const int32_t extradist = walldist+MAXCLIPDIST+1;
@@ -1063,7 +1061,7 @@ void getzrange(const vec3_t *pos, int16_t sectnum,
         while ((j = it.NextIndex()) >= 0)
         {
             const int32_t cstat = sprite[j].cstat;
-            int32_t daz, daz2;
+            int32_t daz = 0, daz2 = 0;
 
             if (sprite[j].cstat2 & CSTAT2_SPRITE_NOFIND) continue;
             if (cstat&dasprclipmask)
@@ -1203,7 +1201,7 @@ static int32_t hitscan_trysector(const vec3_t *sv, usectorptr_t sec, hitdata_t *
                                  int32_t vx, int32_t vy, int32_t vz,
                                  uint16_t stat, int16_t heinum, int32_t z, int32_t how, const intptr_t *tmp)
 {
-    int32_t x1 = INT32_MAX, y1, z1;
+    int32_t x1 = INT32_MAX, y1 = 0, z1 = 0;
     int32_t i;
 
     if (stat&2)
@@ -1278,7 +1276,7 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
     int16_t tempshortcnt, tempshortnum;
 
     uspriteptr_t curspr = NULL;
-    int32_t clipspritecnt, curidx=-1;
+    int32_t clipspritecnt;
     // tmp: { (int32_t)curidx, (spritetype *)curspr, (!=0 if outer sector) }
     intptr_t *tmpptr=NULL;
     const int32_t dawalclipmask = (cliptype&65535);

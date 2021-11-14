@@ -424,7 +424,7 @@ void prelevel_r(int g)
 	int endwall;
 	int lotaglist;
 	short lotags[65];
-	int speed;
+	int speed = 0;
 	int dist;
 	int sound;
 	sound = 0;
@@ -469,6 +469,7 @@ void prelevel_r(int g)
 		case 41:
 		{
 			DukeSectIterator it(i);
+			dist = 0;
 			while (auto act = it.Next())
 			{
 				auto spr = act->s;
@@ -500,6 +501,7 @@ void prelevel_r(int g)
 			int ii;
 			int childsectnum = -1;
 			dist = 0;
+			speed = 0;
 			DukeSectIterator it(i);
 			while (auto act = it.Next())
 			{

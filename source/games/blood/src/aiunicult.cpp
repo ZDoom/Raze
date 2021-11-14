@@ -119,8 +119,6 @@ short gCustomDudeDebrisPics[6] = {
 
 static void forcePunch(DBloodActor* actor)
 {
-    auto pXSprite = &actor->x();
-    auto pSprite = &actor->s();
     if (actor->genDudeExtra.forcePunch && seqGetStatus(actor) == -1)
         punchCallback(0, actor);
 }
@@ -139,7 +137,6 @@ static void forcePunch(DBloodActor* actor)
 static bool genDudeAdjustSlope(DBloodActor* actor, int dist, int weaponType, int by = 64)
 {
     spritetype* pSprite = &actor->s();
-    XSPRITE* pXSprite = &actor->x();
     if (actor->GetTarget() != nullptr)
     {
         int fStart = 0; 
@@ -198,7 +195,6 @@ void genDudeUpdate(DBloodActor* actor)
 
 void punchCallback(int, DBloodActor* actor)
 {
-    auto const pXSprite = &actor->x();
     auto const pSprite = &actor->s();
     auto const target = actor->GetTarget();
     if (target != nullptr) 
@@ -311,7 +307,6 @@ void ThrowCallback2(int, DBloodActor* actor)
 
 static void ThrowThing(DBloodActor* actor, bool impact) 
 {
-    XSPRITE* pXSprite = &actor->x();
     spritetype* pSprite = &actor->s();
 
     if (actor->GetTarget() == nullptr)
@@ -611,7 +606,6 @@ static void unicultThinkChase(DBloodActor* actor)
                                 return;
                             }
 
-                            XSPRITE* pXLeech = &actLeech->x();
                             int ldist = aiFightGetTargetDist(targetactor, pDudeInfo, actLeech);
                             if (ldist > 3 || !cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum,
                                 pLeech->x, pLeech->y, pLeech->z, pLeech->sectnum) || actLeech->GetTarget() == nullptr) 
@@ -1081,8 +1075,6 @@ static void unicultThinkChase(DBloodActor* actor)
 
 int checkAttackState(DBloodActor* actor)
 {
-    auto pXSprite = &actor->x();
-    auto pSprite = &actor->s();
     if (dudeIsPlayingSeq(actor, 14) || spriteIsUnderwater(actor,false))
     {
         if ( !dudeIsPlayingSeq(actor, 14) || spriteIsUnderwater(actor,false))
@@ -1266,7 +1258,6 @@ void aiGenDudeNewState(DBloodActor* actor, AISTATE* pAIState)
         return;
     }
 
-    auto const pSprite = &actor->s();
     auto const pXSprite = &actor->x();
 
     // redirect dudes which cannot walk to non-walk states
@@ -1328,7 +1319,6 @@ void aiGenDudeNewState(DBloodActor* actor, AISTATE* pAIState)
 
 bool playGenDudeSound(DBloodActor* actor, int mode) 
 {
-    auto const pSprite = &actor->s();
     auto const pXSprite = &actor->x();
     if (mode < kGenDudeSndTargetSpot || mode >= kGenDudeSndMax) return false;
     const GENDUDESND* sndInfo = &gCustomDudeSnd[mode]; bool gotSnd = false;
@@ -1422,7 +1412,6 @@ DBloodActor* leechIsDropped(DBloodActor* actor)
 
 void removeDudeStuff(DBloodActor* actor)
 {
-    auto pSprite = &actor->s();
     BloodStatIterator it(kStatThing);
     while (auto actor2 = it.Next())
     {
@@ -2173,8 +2162,6 @@ void updateTargetOfLeech(DBloodActor* actor)
 {
     if (!actor->hasX()) return;
 
-    auto const pSprite = &actor->s();
-    
     auto actLeech = leechIsDropped(actor);
     if (actLeech == NULL || !actLeech->hasX()) actor->genDudeExtra.pLifeLeech = nullptr;
     else
@@ -2207,7 +2194,6 @@ void updateTargetOfSlaves(DBloodActor* actor)
     if (!actor->hasX()) return;
 
     auto const pSprite = &actor->s();
-    auto const pXSprite = &actor->x();
 
     GENDUDEEXTRA* pExtra = &actor->genDudeExtra; 
     auto slave = pExtra->slave;

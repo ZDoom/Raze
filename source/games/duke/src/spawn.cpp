@@ -235,7 +235,6 @@ int initspriteforspawn(DDukeActor* actj, int pn, const std::initializer_list<int
 void spawninitdefault(DDukeActor* actj, DDukeActor *act)
 {
 	auto sp = act->s;
-	auto sect = sp->sectnum;
 
 	if (gs.actorinfo[sp->picnum].scriptaddress)
 	{
@@ -430,7 +429,6 @@ void initfootprint(DDukeActor* actj, DDukeActor* acti)
 void initshell(DDukeActor* actj, DDukeActor* acti, bool isshell)
 {
 	auto sp = acti->s;
-	int sect = sp->sectnum;
 	auto t = acti->temp_data;
 	if (actj)
 	{
@@ -537,7 +535,6 @@ void initcrane(DDukeActor* actj, DDukeActor* acti, int CRANEPOLE)
 void initwaterdrip(DDukeActor* actj, DDukeActor* actor)
 {
 	auto sp = actor->s;
-	int sect = sp->sectnum;
 	auto t = actor->temp_data;
 	if (actj && (actj->s->statnum == 10 || actj->s->statnum == 1))
 	{
@@ -573,8 +570,6 @@ void initwaterdrip(DDukeActor* actj, DDukeActor* actor)
 int initreactor(DDukeActor* actj, DDukeActor* actor, bool isrecon)
 {
 	auto sp = actor->s;
-	int sect = sp->sectnum;
-	auto t = actor->temp_data;
 	if (isrecon)
 	{
 		if (sp->lotag > ud.player_skill)
@@ -1205,7 +1200,6 @@ void ceilingglass(DDukeActor* actor, int sectnum, int n)
 {
 	int j, xv, yv, z, x1, y1;
 	int a, s, startwall, endwall;
-	auto sp = actor->s;
 
 	startwall = sector[sectnum].wallptr;
 	endwall = startwall + sector[sectnum].wallnum;

@@ -812,7 +812,6 @@ void nnExtInitModernStuff()
     BloodStatIterator it2(kStatModernCondition);
     while (auto iactor = it2.Next())
     {
-        spritetype* pSprite = &iactor->s(); 
         XSPRITE* pXSprite = &iactor->x();
 
         if (pXSprite->busyTime <= 0 || pXSprite->isTriggered) continue;
@@ -1045,7 +1044,7 @@ DBloodActor* randomSpawnDude(DBloodActor* sourceactor, DBloodActor* origin, int 
 
 static void windGenDoVerticalWind(int factor, int nSector) 
 {
-    int val, maxZ, zdiff; bool maxZfound = false;
+    int val, maxZ = 0, zdiff; bool maxZfound = false;
    
     // find maxz marker first
     BloodSectIterator it(nSector);
@@ -1261,8 +1260,6 @@ void nnExtProcessSuperSprites()
             if ((!pXSightSpr->Interrutable && pXSightSpr->state != pXSightSpr->restState) || pXSightSpr->locked == 1 ||
                 pXSightSpr->isTriggered) continue; // don't process locked or triggered sprites
 
-            int index = pSightSpr->index;
-
             // sprite is drawn for one of players
             if ((pXSightSpr->unused3 & kTriggerSpriteScreen) && (gSightSpritesList[i]->s().cstat2 & CSTAT2_SPRITE_MAPPED))
             {
@@ -1460,7 +1457,7 @@ void sfxPlayVectorSound(DBloodActor* actor, int vectorId)
 int getSpriteMassBySize(DBloodActor* actor)
 {
     auto pSprite = &actor->s();
-    int mass = 0; int seqId = -1; int clipDist = pSprite->clipdist; Seq* pSeq = NULL;
+    int mass = 0; int seqId = -1; int clipDist = pSprite->clipdist;
     if (!actor->hasX())
     {
         I_Error("getSpriteMassBySize: pSprite->extra < 0");
@@ -4093,7 +4090,6 @@ bool condCheckSector(DBloodActor* aCond, int cmpOp, bool PUSH)
 {
     auto pXCond = &aCond->x();
 
-    int var = -1;
     int cond = pXCond->data1 - kCondSectorBase; 
     int arg1 = pXCond->data2;
     int arg2 = pXCond->data3; //int arg3 = pXCond->data4;
@@ -4983,7 +4979,6 @@ DBloodActor* aiFightGetTargetInRange(DBloodActor* actor, int minDist, int maxDis
     {
         if (!aiFightDudeCanSeeTarget(actor, pDudeInfo, targactor)) continue;
 
-        auto pTarget = &targactor->s();
         auto pXTarget = &targactor->x();
 
         int dist = aiFightGetTargetDist(actor, pDudeInfo, targactor);
@@ -5083,7 +5078,6 @@ bool aiFightMatesHaveSameTarget(DBloodActor* leaderactor, DBloodActor* targetact
 bool aiFightDudeCanSeeTarget(DBloodActor* dudeactor, DUDEINFO* pDudeInfo, DBloodActor* targetactor) 
 {
     auto pDude = &dudeactor->s();
-    auto pXDude = &dudeactor->x();
     auto pTarget = &targetactor->s();
 
     int dx = pTarget->x - pDude->x; int dy = pTarget->y - pDude->y;
@@ -5232,7 +5226,6 @@ bool aiFightGetDudesForBattle(DBloodActor* actor)
 void aiFightAlarmDudesInSight(DBloodActor* actor, int max) 
 {
     auto pSprite = &actor->s();
-    auto pSXprite = &actor->x();
 
     DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
 
@@ -6146,7 +6139,6 @@ void seqTxSendCmdAll(DBloodActor* source, DBloodActor* actor, COMMAND_ID cmd, bo
 
 void useRandomTx(DBloodActor* sourceactor, COMMAND_ID cmd, bool setState) 
 {
-    spritetype* pSource = &sourceactor->s();
     auto pXSource = &sourceactor->x();
     int tx = 0; int maxRetries = kMaxRandomizeRetries;
     
@@ -6181,7 +6173,6 @@ void useRandomTx(DBloodActor* sourceactor, COMMAND_ID cmd, bool setState)
 
 void useSequentialTx(DBloodActor* sourceactor, COMMAND_ID cmd, bool setState) 
 {
-    spritetype* pSource = &sourceactor->s();
     auto pXSource = &sourceactor->x();
 
     bool range = txIsRanged(sourceactor); int cnt = 3; int tx = 0;
@@ -6895,7 +6886,6 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
         else 
         {
             auto burnactor = actor->GetBurnSource();
-            spritetype* pBurnSource = &burnactor->s();
             if (burnactor->hasX()) 
             {
                 if (pXSource->data2 == 1 && pXSprite->rxID == burnactor->x().rxID) 
@@ -6990,7 +6980,6 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
             auto matetarget = mateactor->GetTarget();
             if (matetarget != nullptr && matetarget->hasX())
             {
-                auto pMateTarget = &matetarget->s();
                 // force mate stop attack dude, if he does
                 if (matetarget == actor)
                 {
@@ -7035,9 +7024,6 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
             auto newtargactor = aiFightGetTargetInRange(actor, 0, mDist, pXSource->data1, pXSource->data2);
             if (newtargactor != nullptr)
             {
-                auto pNewTarg = &newtargactor->s();
-                auto pXNewTarg = &newtargactor->x();
-
                 // Make prev target not aim in dude
                 if (targetactor)
                 {
@@ -7117,8 +7103,6 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
         DBloodActor* pMateTargetActor = aiFightGetMateTargets(actor);
         if (pMateTargetActor != nullptr && pMateTargetActor->hasX()) 
         {
-            auto pMateTarget = &pMateTargetActor->s();
-            XSPRITE* pXMateTarget = &pMateTargetActor->x();
 
             if (aiFightDudeCanSeeTarget(actor, pDudeInfo, pMateTargetActor)) 
             {
@@ -7796,7 +7780,6 @@ DBloodActor* aiPatrolMarkerBusy(DBloodActor* except, DBloodActor* marker)
 bool aiPatrolMarkerReached(DBloodActor* actor) 
 {
     spritetype* pSprite = &actor->s();
-    XSPRITE* pXSprite = &actor->x();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
 
     const DUDEINFO_EXTRA* pExtra = &gDudeInfoExtra[pSprite->type - kDudeBase];
@@ -7934,7 +7917,6 @@ void aiPatrolSetMarker(DBloodActor* actor)
         int next;
 
         int breakChance = 0;
-        auto pCur = &targetactor->s();
         auto pXCur = &targetactor->x();
         if (actor->prevmarker)
         {
@@ -8172,7 +8154,6 @@ void aiPatrolAlarmLite(DBloodActor* actor, DBloodActor* targetactor)
     spritetype* pSprite = &actor->s();
     XSPRITE* pXSprite = &actor->x();
     spritetype* pTarget = &targetactor->s();
-    XSPRITE* pXTarget = &targetactor->x();
 
     if (pXSprite->health <= 0)
         return;
@@ -8224,7 +8205,6 @@ void aiPatrolAlarmFull(DBloodActor* actor, DBloodActor* targetactor, bool chain)
     spritetype* pSprite = &actor->s();
     XSPRITE* pXSprite = &actor->x();
     spritetype* pTarget = &targetactor->s();
-    XSPRITE* pXTarget = &targetactor->x();
 
     if (pXSprite->health <= 0)
         return;

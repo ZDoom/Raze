@@ -124,8 +124,6 @@ void processSpritesOnOtherSideOfPortal(int x, int y, int interpolation)
 
 void render3DViewPolymost(int nSectnum, int cX, int cY, int cZ, binangle cA, fixedhoriz cH)
 {
-    int yxAspect = yxaspect;
-    int viewingRange = viewingrange;
     videoSetCorrectedAspect();
 
     int v1 = xs_CRoundToInt(double(viewingrange) * tan(r_fov * (pi::pi() / 360.)));
@@ -252,7 +250,7 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
                 {
                     renderPrepareMirror(x, y, z, a, horiz, nWall, &cx, &cy, &ca);
                 }
-                int32_t didmirror = renderDrawRoomsQ16(cx, cy, z, ca, horiz, mirrorsector, true);
+                renderDrawRoomsQ16(cx, cy, z, ca, horiz, mirrorsector, true);
                 viewProcessSprites(pm_tsprite, pm_spritesortcnt, cx, cy, z, FixedToInt(ca), smooth);
                 renderDrawMasks();
                 if (GetWallType(nWall) != kWallStack)
@@ -267,7 +265,7 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
             {
                 r_rorphase = 1;
                 int nSector = mirror[i].link;
-                int bakCstat;
+                int bakCstat = 0;
                 if (viewPlayer >= 0)
                 {
                     bakCstat = gPlayer[viewPlayer].pSprite->cstat;
@@ -299,7 +297,7 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
             {
                 r_rorphase = 1;
                 int nSector = mirror[i].link;
-                int bakCstat;
+                int bakCstat = 0;
                 if (viewPlayer >= 0)
                 {
                     bakCstat = gPlayer[viewPlayer].pSprite->cstat;

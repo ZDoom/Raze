@@ -238,7 +238,7 @@ void AILavaDude::Tick(RunListEvent* ev)
 
     short nFlag = FrameFlag[SeqBase[nSeq] + var_38];
 
-    int var_1C;
+    int var_1C = 0;
 
     if (nAction)
     {

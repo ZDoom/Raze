@@ -340,7 +340,7 @@ static HANDLE WriteMyMiniDump (void)
 	MINIDUMP_EXCEPTION_INFORMATION exceptor = { DbgThreadID, &CrashPointers, FALSE };
 	WCHAR dbghelpPath[MAX_PATH+12], *bs;
 	WRITEDUMP pMiniDumpWriteDump;
-	HANDLE file;
+	HANDLE file = INVALID_HANDLE_VALUE;
 	BOOL good = FALSE;
 	HMODULE dbghelp = NULL;
 

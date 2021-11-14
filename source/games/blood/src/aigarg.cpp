@@ -72,14 +72,12 @@ AISTATE statueFBreakSEQ = { kAiStateOther, 5, -1, 0, entryFStatue, NULL, playSta
 AISTATE statueSBreakSEQ = { kAiStateOther, 5, -1, 0, entrySStatue, NULL, playStatueBreakSnd, &gargoyleSMorph2 };
 
 static void playStatueBreakSnd(DBloodActor* actor) {
-	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
+
 	aiPlay3DSound(actor, 313, AI_SFX_PRIORITY_1, -1);
 }
 
 void SlashFSeqCallback(int, DBloodActor* actor)
 {
-	XSPRITE* pXSprite = &actor->x();
 	spritetype* pSprite = &actor->s();
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	spritetype* pTarget = &actor->GetTarget()->s();
@@ -101,8 +99,6 @@ void SlashFSeqCallback(int, DBloodActor* actor)
 
 void ThrowFSeqCallback(int, DBloodActor* actor)
 {
-	XSPRITE* pXSprite = &actor->x();
-	spritetype* pSprite = &actor->s();
 	actFireThing(actor, 0, 0, actor->dudeSlope - 7500, kThingBone, 0xeeeee);
 }
 
@@ -114,8 +110,6 @@ void BlastSSeqCallback(int, DBloodActor* actor)
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	spritetype* pTarget = &actor->GetTarget()->s();
 	int height = (pSprite->yrepeat * getDudeInfo(pSprite->type)->eyeHeight) << 2;
-	int dx = pXSprite->targetX - pSprite->x;
-	int dy = pXSprite->targetY - pSprite->y;
 	int x = pSprite->x;
 	int y = pSprite->y;
 	int z = height;
@@ -353,7 +347,6 @@ static void gargMoveDodgeDown(DBloodActor* actor)
 
 static void gargThinkChase(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
 	auto pSprite = &actor->s();
 	if (actor->GetTarget() == nullptr)
 	{

@@ -56,7 +56,6 @@ void HWSprite::DrawSprite(HWDrawInfo* di, FRenderState& state, bool translucent)
 {
 	bool additivefog = false;
 	bool foglayer = false;
-	auto& vp = di->Viewpoint;
 
 	if (translucent)
 	{

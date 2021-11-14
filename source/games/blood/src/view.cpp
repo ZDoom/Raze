@@ -542,8 +542,6 @@ void render3DViewPolymost(int nSectnum, int cX, int cY, int cZ, binangle cA, fix
 
 void viewDrawScreen(bool sceneonly)
 {
-    int nPalette = 0;
-	
 	if (testgotpic(2342, true))
 	{
 		FireProcess();
@@ -591,8 +589,6 @@ void viewDrawScreen(bool sceneonly)
         SetupView(cX, cY, cZ, cA, cH, nSectnum, zDelta, shakeX, shakeY, rotscrnang);
 
         binangle tilt = interpolatedangle(buildang(gScreenTiltO), buildang(gScreenTilt), gInterpolate);
-        uint8_t v14 = 0;
-        uint8_t v10 = 0;
         bool bDelirium = powerupCheck(gView, kPwUpDeliriumShroom) > 0;
         static bool bDeliriumOld = false;
         //int tiltcs, tiltdim;
@@ -759,17 +755,12 @@ FString GameInterface::GetCoordString()
 
 bool GameInterface::DrawAutomapPlayer(int x, int y, int z, int a, double const smoothratio)
 {
-    // [MR]: Confirm that this is correct as math doesn't match the variable names.
-    int nCos = z * -bsin(a);
-    int nSin = z * -bcos(a);
-
     for (int i = connecthead; i >= 0; i = connectpoint2[i])
     {
         PLAYER* pPlayer = &gPlayer[i];
         spritetype* pSprite = pPlayer->pSprite;
         int x1 = pSprite->x - x;
         int y1 = pSprite->y - y;
-        int pa = (pSprite->ang - a) & 2047;
         if (i == gView->nPlayer || gGameOptions.nGameType == 1)
         {
             int nTile = pSprite->picnum;

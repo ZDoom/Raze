@@ -295,7 +295,7 @@ bool SectorGeometry::MakeVertices(unsigned int secnum, int plane, const FVector2
 	{
 		for (auto& pt : polygon[a])
 		{
-			float planez;
+			float planez = 0;
 			PlanesAtPoint(sectorp, (pt.first * 16), (pt.second * -16), plane ? &planez : nullptr, !plane ? &planez : nullptr);
 			FVector3 point = { pt.first, pt.second, planez };
 			points[p++] = point;
@@ -523,7 +523,7 @@ nexti:;
 	{
 		auto& pt = entry.vertices[i];
 
-		float planez;
+		float planez = 0;
 		PlanesAtPoint(sectorp, (pt.X * 16), (pt.Y * -16), plane ? &planez : nullptr, !plane ? &planez : nullptr);
 		entry.vertices[i].Z = planez;
 		entry.texcoords[i] = uvcalc.GetUV(int(pt.X * 16.), int(pt.Y * -16.), pt.Z);

@@ -2,7 +2,7 @@ BEGIN_DUKE_NS
 
 void SE40_Draw(int tag, spritetype *spr, int x, int y, int z, binangle a, fixedhoriz h, int smoothratio)
 {
-	int i, j = 0, k = 0;
+	int i, k = 0;
 	int ok = 0, fofmode = 0;
 	int offx, offy;
 	spritetype* floor1, *floor2 = nullptr;

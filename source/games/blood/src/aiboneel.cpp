@@ -63,7 +63,6 @@ AISTATE eelDodgeDownLeft = { kAiStateMove, 0, -1, 90, NULL, eelMoveDodgeDown, NU
 
 void eelBiteSeqCallback(int, DBloodActor* actor)
 {
-	XSPRITE* pXSprite = &actor->x();
 	spritetype* pSprite = &actor->s();
 
 	/*
@@ -149,7 +148,6 @@ static void eelThinkTarget(DBloodActor* actor)
 static void eelThinkSearch(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
 	aiChooseDirection(actor, pXSprite->goalAng);
 	eelThinkTarget(actor);
 }
@@ -172,7 +170,6 @@ static void eelThinkGoto(DBloodActor* actor)
 
 static void eelThinkPonder(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
 	auto pSprite = &actor->s();
 	if (actor->GetTarget() == nullptr)
 	{
@@ -279,7 +276,6 @@ static void eelMoveDodgeDown(DBloodActor* actor)
 
 static void eelThinkChase(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
 	auto pSprite = &actor->s();
 	if (actor->GetTarget() == nullptr)
 	{

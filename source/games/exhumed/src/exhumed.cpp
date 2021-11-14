@@ -615,7 +615,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, DExhumedActor& w, 
 
 void SerializeState(FSerializer& arc)
 {
-    int loaded = 0;
     if (arc.BeginObject("state"))
     {
         if (arc.isReading() && (currentLevel->gameflags & LEVEL_EX_COUNTDOWN))

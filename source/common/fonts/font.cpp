@@ -424,7 +424,6 @@ void FFont::ReadSheetFont(TArray<FolderEntry> &folderdata, int width, int height
 	LastChar = maxchar;
 	auto count = maxchar - minchar + 1;
 	Chars.Resize(count);
-	int fontheight = 0;
 
 	for (int i = 0; i < count; i++)
 	{

@@ -85,7 +85,6 @@ void SeqAttackCallback(int, DBloodActor* actor)
 static void calebThinkSearch(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
 	aiChooseDirection(actor, pXSprite->goalAng);
 	aiThinkTarget(actor);
 }
@@ -119,7 +118,6 @@ static void calebThinkGoto(DBloodActor* actor)
 
 static void calebThinkChase(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
 	auto pSprite = &actor->s();
 	if (actor->GetTarget() == nullptr)
 	{
@@ -263,7 +261,6 @@ static void calebThinkSwimGoto(DBloodActor* actor)
 
 static void calebThinkSwimChase(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
 	auto pSprite = &actor->s();
 	if (actor->GetTarget() == nullptr)
 	{

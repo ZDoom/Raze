@@ -48,7 +48,6 @@ int spawn_r(int j, int pn)
 	auto sp = act->s;
 	auto spj = j < 0? nullptr : actj->s;
 	auto t = act->temp_data;
-	int sect = sp->sectnum;
 	auto sectp = sp->sector();
 
 	switch(sp->picnum)

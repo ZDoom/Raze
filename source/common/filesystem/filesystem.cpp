@@ -218,7 +218,6 @@ void FileSystem::InitMultipleFiles (TArray<FString> &filenames, bool quiet, Lump
 
 	for(unsigned i=0;i<filenames.Size(); i++)
 	{
-		int baselump = NumEntries;
 		AddFile (filenames[i], nullptr, quiet, filter);
 		
 		if (i == (unsigned)MaxIwadIndex) MoveLumpsInFolder("after_iwad/");

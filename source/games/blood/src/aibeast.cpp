@@ -65,7 +65,6 @@ AISTATE beast138FEC = { kAiStateOther, 9, -1, 120, NULL, aiMoveTurn, NULL, &beas
 
 void SlashSeqCallback(int, DBloodActor* actor)
 {
-	XSPRITE* pXSprite = &actor->x();
 	spritetype* pSprite = &actor->s();
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	spritetype* pTarget = &actor->GetTarget()->s();
@@ -84,7 +83,6 @@ void SlashSeqCallback(int, DBloodActor* actor)
 void StompSeqCallback(int, DBloodActor* actor1)
 {
 	uint8_t sectmap[(kMaxSectors + 7) >> 3];
-	XSPRITE* pXSprite = &actor1->x();
 	spritetype* pSprite = &actor1->s();
 	int dx = bcos(pSprite->ang);
 	int dy = bsin(pSprite->ang);
@@ -176,7 +174,6 @@ void StompSeqCallback(int, DBloodActor* actor1)
 
 static void MorphToBeast(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
 	auto pSprite = &actor->s();
 	actHealDude(actor, dudeInfo[51].startHealth, dudeInfo[51].startHealth);
 	pSprite->type = kDudeBeast;
@@ -185,7 +182,6 @@ static void MorphToBeast(DBloodActor* actor)
 static void beastThinkSearch(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
 	aiChooseDirection(actor, pXSprite->goalAng);
 	aiThinkTarget(actor);
 }
@@ -219,7 +215,6 @@ static void beastThinkGoto(DBloodActor* actor)
 
 static void beastThinkChase(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
 	auto pSprite = &actor->s();
 	if (actor->GetTarget() == nullptr)
 	{
@@ -398,7 +393,6 @@ static void beastThinkSwimGoto(DBloodActor* actor)
 
 static void beastThinkSwimChase(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
 	auto pSprite = &actor->s();
 	if (actor->GetTarget() == nullptr)
 	{

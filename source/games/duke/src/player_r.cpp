@@ -43,7 +43,7 @@ BEGIN_DUKE_NS
 
 void incur_damage_r(struct player_struct* p)
 {
-	int  damage = 0, unk = 0, shield_damage = 0;
+	int  damage = 0, shield_damage = 0;
 	int gut = 0;
 
 	p->GetActor()->s->extra -= p->extra_extra8 >> 8;
@@ -463,7 +463,7 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 {
 	auto s = actor->s;
 	int sect = s->sectnum;
-	int vel, zvel;
+	int vel = 0, zvel;
 	int scount;
 
 	if (isRRRA())
@@ -755,7 +755,7 @@ static void shootwhip(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, 
 {
 	auto s = actor->s;
 	int sect = s->sectnum;
-	int vel, zvel;
+	int vel = 0, zvel;
 	int scount;
 
 	if (s->extra >= 0) s->shade = -96;
@@ -2283,7 +2283,6 @@ static void underwater(int snum, ESyncBits actions, int psect, int fz, int cz)
 {
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
-	int psectlotag = sector[psect].lotag;
 
 	p->jumping_counter = 0;
 
@@ -2359,7 +2358,6 @@ void onMotorcycleMove(int snum, int psect, int j)
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
 	auto s = pact->s;
-	int psectlotag = sector[psect].lotag;
 	int angleDelta = abs(p->angle.ang.asbuild() - getangle(wall[wall[j].point2].x - wall[j].x, wall[wall[j].point2].y - wall[j].y));
 	int damageAmount;
 
@@ -3275,11 +3273,6 @@ static void processweapon(int snum, ESyncBits actions, int psect)
 	auto s = pact->s;
 	int shrunk = (s->yrepeat < 8);
 
-	if (actions & SB_FIRE)
-	{
-		int a = 0;
-	}
-
 	if (p->detonate_count > 0)
 	{
 		if (ud.god)
@@ -3798,8 +3791,6 @@ HORIZONLY:
 
 	if (clip.type == kHitWall)
 	{
-		int var60 = wall[clip.index].lotag;
-
 		if (p->OnMotorcycle)
 		{
 			onMotorcycleMove(snum, psect, clip.index);
@@ -4026,7 +4017,6 @@ HORIZONLY:
 void processmove_r(int snum, ESyncBits actions, int psect, int fz, int cz, int shrunk, int truefdist)
 {
 	int psectlotag = sector[psect].lotag;
-	auto p = &ps[snum];
 	if (psectlotag == ST_2_UNDERWATER)
 	{
 		underwater(snum, actions, psect, fz, cz);

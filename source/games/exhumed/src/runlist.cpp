@@ -1732,8 +1732,6 @@ int runlist_CheckRadialDamage(DExhumedActor* pActor)
 
 void runlist_RadialDamageEnemy(DExhumedActor* pActor, short nDamage, short nRadius)
 {
-	auto pSprite = &pActor->s();
-
     if (!nRadius) {
         return;
     }

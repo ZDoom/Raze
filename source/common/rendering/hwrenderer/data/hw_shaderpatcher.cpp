@@ -152,7 +152,7 @@ FString RemoveSamplerBindings(FString code, TArray<std::pair<FString, int>> &sam
 	char *chars = code.LockBuffer();
 
 	ptrdiff_t startIndex = 0;
-	ptrdiff_t startpos, endpos;
+	ptrdiff_t startpos, endpos = 0;
 	while (true)
 	{
 		ptrdiff_t matchIndex = code.IndexOf("layout(binding", startIndex);
@@ -216,7 +216,6 @@ FString RemoveSamplerBindings(FString code, TArray<std::pair<FString, int>> &sam
 
 FString RemoveLayoutLocationDecl(FString code, const char *inoutkeyword)
 {
-	ptrdiff_t len = code.Len();
 	char *chars = code.LockBuffer();
 
 	ptrdiff_t startIndex = 0;

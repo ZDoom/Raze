@@ -251,7 +251,6 @@ void LookupTableInfo::postLoadLookups()
 {
     int numpalettes = GPalette.NumTranslations(Translation_BasePalettes);
     if (numpalettes == 0) return;
-    auto basepalette = GPalette.GetTranslation(Translation_BasePalettes, 0);
 
     for (int i = 0; i < numpalettes; i++)
     {

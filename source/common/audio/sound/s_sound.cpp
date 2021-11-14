@@ -164,7 +164,6 @@ void SoundEngine::CacheSound (sfxinfo_t *sfx)
 {
 	if (GSnd && !sfx->bTentative)
 	{
-		sfxinfo_t *orig = sfx;
 		while (!sfx->bRandomHeader && sfx->link != sfxinfo_t::NO_LINK)
 		{
 			sfx = &S_sfx[sfx->link];

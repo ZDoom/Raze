@@ -490,7 +490,6 @@ void TerminateLevel(void)
 }
 
 
-using namespace ShadowWarrior;
 static bool DidOrderSound;
 static int zero = 0;
 

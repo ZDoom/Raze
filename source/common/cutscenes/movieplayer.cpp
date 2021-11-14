@@ -805,7 +805,6 @@ DEFINE_ACTION_FUNCTION(_MoviePlayer, Frame)
 	PARAM_SELF_STRUCT_PROLOGUE(MoviePlayer);
 	PARAM_FLOAT(clock);
 	ACTION_RETURN_INT(self->Frame(int64_t(clock)));
-	return 0;
 }
 
 DEFINE_ACTION_FUNCTION(_MoviePlayer, Destroy)

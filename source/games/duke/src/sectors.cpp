@@ -703,7 +703,7 @@ static void handle_st29(int sn, DDukeActor* actor)
 static void handle_st20(int sn, DDukeActor* actor)
 {
 	sectortype* sptr = &sector[sn];
-	int j;
+	int j = 0;
 REDODOOR:
 
 	if (sptr->lotag & 0x8000)

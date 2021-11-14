@@ -256,7 +256,6 @@ void displayrooms(int snum, double smoothratio)
 	binangle cang, rotscrnang;
 	fixedhoriz choriz;
 	struct player_struct* p;
-	int tiltcs = 0; // JBF 20030807
 
 	p = &ps[snum];
 	pm_smoothratio = (int)smoothratio;

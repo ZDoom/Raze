@@ -2089,7 +2089,6 @@ void AIObject::Damage(RunListEvent* ev)
     if (!pActor) return;
     auto pSprite = &pActor->s();
     short nStat = pSprite->statnum;
-    short bx = pActor->nIndex;
 
     if (nStat >= 150 || pActor->nHealth <= 0) {
         return;

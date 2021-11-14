@@ -865,7 +865,6 @@ void AIBullet::Draw(RunListEvent* ev)
 
     short nSeq = SeqOffsets[BulletList[nBullet].nSeq];
 
-    short nSprite2 = ev->nParam;
     ev->pTSprite->statnum = 1000;
 
     if (BulletList[nBullet].nType == 15)

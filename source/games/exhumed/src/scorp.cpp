@@ -121,10 +121,8 @@ void AIScorp::Damage(RunListEvent* ev)
 	auto pActor = ev->pObjActor;
 	if (!pActor) return;
 
-    short nAction = pActor->nAction;
     auto pSprite = &pActor->s();
 
-    bool bVal = false;
 
     DExhumedActor* pTarget = nullptr;
 
@@ -422,8 +420,6 @@ void AIScorp::Effect(RunListEvent* ev, DExhumedActor* pTarget, int mode)
 
     short nAction = pActor->nAction;
     auto pSprite = &pActor->s();
-
-    bool bVal = false;
 
     if (mode == 0)
     {

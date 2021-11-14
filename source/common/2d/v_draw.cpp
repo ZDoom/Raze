@@ -671,7 +671,6 @@ bool ParseDrawTextureTags(F2DDrawer *drawer, FGameTexture *img, double x, double
 {
 	INTBOOL boolval;
 	int intval;
-	bool translationset = false;
 	bool fillcolorset = false;
 
 	if (!fortext)

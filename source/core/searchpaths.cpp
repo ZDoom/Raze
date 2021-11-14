@@ -157,7 +157,7 @@ void G_AddExternalSearchPaths(TArray<FString> &searchpaths)
 				FString path;
 				for (int i = 0; entry.subpaths[i]; i++)
 				{
-					path.Format("%s%s", buf, entry.subpaths[i]);
+					path.Format("%s%s", buf.GetChars(), entry.subpaths[i]);
 					AddSearchPath(searchpaths, path);
 				}
 			}

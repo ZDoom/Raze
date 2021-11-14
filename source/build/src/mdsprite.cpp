@@ -359,7 +359,6 @@ FGameTexture *mdloadskin(idmodel_t *m, int32_t number, int32_t pal, int32_t surf
 {
     int32_t i;
     mdskinmap_t *sk, *skzero = NULL;
-    int32_t doalloc = 1;
 
     if (m->mdnum == 2)
         surf = 0;
@@ -1361,9 +1360,6 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
         if (!tex)
             continue;
 		
-		FGameTexture *det = nullptr, *glow = nullptr;
-		float detscale = 1.f;
-
         int palid = TRANSLATION(Translation_Remap + curbasepal, globalpal);
         GLInterface.SetFade(sector[tspr->sectnum].floorpal);
         GLInterface.SetTexture(tex, palid, CLAMP_XY);

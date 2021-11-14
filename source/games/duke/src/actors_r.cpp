@@ -473,7 +473,7 @@ void guts_r(DDukeActor* actor, int gtype, int n, int p)
 {
 	auto s = actor->s;
 	int gutz, floorz;
-	int i=0, j;
+	int j;
 	int sx, sy;
 	uint8_t pal;
 
@@ -937,7 +937,7 @@ static void movebolt(DDukeActor* actor)
 	int x;
 	auto sectp = s->sector();
 
-	auto p = findplayer(actor, &x);
+	findplayer(actor, &x);
 	if (x > 20480) return;
 
 	if (t[3] == 0)
@@ -1570,7 +1570,7 @@ void moveweapons_r(void)
 
 void movetransports_r(void)
 {
-	uint8_t warpdir, warpspriteto;
+	uint8_t warpdir = 0, warpspriteto;
 	int k, p, sectlotag;
 	int ll2 = 0, ll, onfloorz;
 	Collision coll;
@@ -2750,7 +2750,6 @@ DETONATEB:
 static int henstand(DDukeActor *actor)
 {
 	auto s = actor->s;
-	auto t = &actor->temp_data[0];
 
 	if (s->picnum == HENSTAND || s->picnum == HENSTAND + 1)
 	{
@@ -2864,8 +2863,7 @@ void moveactors_r(void)
 		}
 
 		auto sectp = s->sector();
-		auto t = &act->temp_data[0];
-
+		
 		switch(s->picnum)
 		{
 			case RESPAWNMARKERRED:
@@ -3356,7 +3354,6 @@ void handle_se06_r(DDukeActor *actor)
 	auto t = &actor->temp_data[0];
 
 	auto sc = actor->getSector();
-	int st = s->lotag;
 	int sh = s->hitag;
 
 	int k = sc->extra;
@@ -3471,7 +3468,6 @@ void moveeffectors_r(void)   //STATNUM 3
 	{
 		auto sc = act->getSector();
 		int st = act->s->lotag;
-		int sh = act->s->hitag;
 
 		auto t = &act->temp_data[0];
 
@@ -3654,7 +3650,6 @@ void moveeffectors_r(void)   //STATNUM 3
 	it.Reset(STAT_EFFECTOR);
 	while (auto act = it.Next())
 	{
-		auto s = act->s;
 		if (act->s->lotag != SE_29_WAVES) continue;
 		auto sc = act->getSector();
 		if (sc->wallnum != 4) continue;

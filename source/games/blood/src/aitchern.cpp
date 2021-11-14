@@ -48,8 +48,6 @@ AISTATE tcherno13AA28 = { kAiStateChase, 8, -1, 60, NULL, aiMoveTurn, NULL, &tch
 
 void sub_71A90(int, DBloodActor* actor)
 {
-	XSPRITE* pXSprite = &actor->x();
-	spritetype* pSprite = &actor->s();
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
 	if (target->x().burnTime == 0)
@@ -61,7 +59,6 @@ void sub_71A90(int, DBloodActor* actor)
 
 void sub_71BD4(int, DBloodActor* actor)
 {
-	XSPRITE* pXSprite = &actor->x();
 	spritetype* pSprite = &actor->s();
 	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
 	int height = pSprite->yrepeat * pDudeInfo->eyeHeight;
@@ -131,7 +128,6 @@ void sub_71BD4(int, DBloodActor* actor)
 
 void sub_720AC(int, DBloodActor* actor)
 {
-	XSPRITE* pXSprite = &actor->x();
 	spritetype* pSprite = &actor->s();
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 
@@ -207,7 +203,6 @@ void sub_720AC(int, DBloodActor* actor)
 static void sub_72580(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
 	aiChooseDirection(actor, pXSprite->goalAng);
 	aiThinkTarget(actor);
 }
@@ -293,7 +288,6 @@ static void sub_72850(DBloodActor* actor)
 
 static void sub_72934(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
 	auto pSprite = &actor->s();
 	if (actor->GetTarget() == nullptr)
 	{

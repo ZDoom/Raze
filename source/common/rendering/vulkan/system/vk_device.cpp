@@ -347,8 +347,6 @@ void VulkanDevice::CreateInstance()
 
 VkBool32 VulkanDevice::DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* callbackData, void* userData)
 {
-	VulkanDevice *device = (VulkanDevice*)userData;
-
 	static std::mutex mtx;
 	static std::set<FString> seenMessages;
 	static int totalMessages;

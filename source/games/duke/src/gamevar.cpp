@@ -96,8 +96,6 @@ int AddGameVar(const char* pszLabel, intptr_t lValue, unsigned dwFlags)
 	int i;
 	int j;
 
-	int b = 0;
-
 	if (dwFlags & (GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_PFUNC))
 		dwFlags |= GAMEVAR_FLAG_SYSTEM;	// force system if PLONG
 

@@ -2436,7 +2436,7 @@ ExpEmit FxAssign::Emit(VMFunctionBuilder *build)
 
 	ExpEmit result;
 	bool intconst = false;
-	int intconstval;
+	int intconstval = 0;
 
 	if (Right->isConstant() && Right->ValueType->GetRegType() == REGT_INT)
 	{
@@ -4396,7 +4396,7 @@ ExpEmit FxBinaryLogical::Emit(VMFunctionBuilder *build)
 	build->Emit(OP_LI, to.RegNum, (Operator == TK_AndAnd) ? 1 : 0);
 	build->Emit(OP_JMP, 1);
 	build->BackpatchListToHere(no);
-	auto ctarget = build->Emit(OP_LI, to.RegNum, (Operator == TK_AndAnd) ? 0 : 1);
+	build->Emit(OP_LI, to.RegNum, (Operator == TK_AndAnd) ? 0 : 1);
 	list.DeleteAndClear();
 	list.ShrinkToFit();
 	return to;
@@ -8036,7 +8036,7 @@ FxExpression *FxMemberFunctionCall::Resolve(FCompileContext& ctx)
 			}
 			// No need to create a dedicated node here, all builtins map directly to trivial operations.
 			Self->ValueType = TypeSInt32;	// all builtins treat the texture index as integer.
-			FxExpression *x;
+			FxExpression *x = nullptr;
 			switch (MethodName.GetIndex())
 			{
 			case NAME_IsValid:

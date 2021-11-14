@@ -63,7 +63,6 @@ static char spidBlindEffect(DBloodActor* dudeactor, int nBlind, int max)
 
 void SpidBiteSeqCallback(int, DBloodActor* actor)
 {
-	XSPRITE* pXSprite = &actor->x();
 	spritetype* pSprite = &actor->s();
 	int dx = bcos(pSprite->ang);
 	int dy = bsin(pSprite->ang);
@@ -75,7 +74,6 @@ void SpidBiteSeqCallback(int, DBloodActor* actor)
 
 	auto const target = actor->GetTarget();
 	spritetype* pTarget = &target->s();
-	XSPRITE* pXTarget = &target->x();
 	if (IsPlayerSprite(pTarget))
 	{
         int hit = HitScan(actor, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
@@ -115,7 +113,6 @@ void SpidBiteSeqCallback(int, DBloodActor* actor)
 
 void SpidJumpSeqCallback(int, DBloodActor* actor)
 {
-	XSPRITE* pXSprite = &actor->x();
 	spritetype* pSprite = &actor->s();
 	int dx = bcos(pSprite->ang);
 	int dy = bsin(pSprite->ang);
@@ -176,7 +173,6 @@ void SpidBirthSeqCallback(int, DBloodActor* actor)
 static void spidThinkSearch(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
 	aiChooseDirection(actor, pXSprite->goalAng);
 	aiThinkTarget(actor);
 }
@@ -199,7 +195,6 @@ static void spidThinkGoto(DBloodActor* actor)
 
 static void spidThinkChase(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
 	auto pSprite = &actor->s();
 	if (actor->GetTarget() == nullptr)
 	{

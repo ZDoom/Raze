@@ -420,7 +420,6 @@ void AIMummy::RadialDamage(RunListEvent* ev)
 {
     auto pActor = ev->pObjActor;
     if (!pActor) return;
-    auto pSprite = &pActor->s();
 
     if (pActor->nHealth <= 0)
         return;
