@@ -427,7 +427,7 @@ void chunksofmeat(PLAYER& plr, DWHActor* hitActor, int hitx, int hity, int hitz,
 			spawned.zvel = (short) ((krand() & 1023) - 512);
 			if (newchunk == 1)
 				spawned.zvel <<= 1;
-			spawned.owner = plr.actor()->s().owner;
+			spawnedactor->CopyOwner(plr.actor());
 			spawned.lotag = 512;
 			spawned.hitag = 0;
 			spawned.pal = 0;

@@ -261,12 +261,12 @@ static void facegron(PLAYER& plr, DWHActor* actor)
 			SetNewStatus(actor, FLEE);
 		}
 		else {
-			spr.owner = plr.spritenum;
+			actor->SetOwner(plr.actor());
 			SetNewStatus(actor, CHASE);
 		}
 	}
 	else { // get off the wall
-		if (spr.owner == plr.spritenum) {
+		if (actor->GetOwner() == plr.actor()) {
 			spr.ang = (short)(((krand() & 512 - 256) + spr.ang) & 2047);
 			SetNewStatus(actor, FINDME);
 		}
@@ -472,7 +472,7 @@ static void throwhalberd(DWHActor* actor) {
 	spawned.xvel = (short)((krand() & 256) - 128);
 	spawned.yvel = (short)((krand() & 256) - 128);
 	spawned.zvel = (short)((krand() & 256) - 128);
-	spawned.owner = actor->GetSpriteIndex();
+	spawnedactor->SetOwner(actor);
 	spawned.lotag = 0;
 	spawned.hitag = 0;
 	spawned.pal = 0;

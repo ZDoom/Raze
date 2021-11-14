@@ -125,12 +125,12 @@ static void facefatwitch(PLAYER& plr, DWHActor* actor)
 			SetNewStatus(actor, FLEE);
 		}
 		else {
-			spr.owner = plr.spritenum;
+			actor->SetOwner(plr.actor());
 			SetNewStatus(actor, CHASE);
 		}
 	}
 	else { // get off the wall
-		if (spr.owner == plr.spritenum) {
+		if (actor->GetOwner() == plr.actor()) {
 			spr.ang = (short)(((krand() & 512 - 256) + spr.ang) & 2047);
 			SetNewStatus(actor, FINDME);
 		}
@@ -268,7 +268,7 @@ static void throwspank(PLAYER& plr, DWHActor* actor)
 	if (discrim == 0)
 		discrim = 1;
 	spawned.zvel = (short)(((plr.z + (48 << 8) - spawned.z) << 7) / discrim);
-	spawned.owner = actor->GetSpriteIndex();
+	spawnedactor->SetOwner(actor);
 	spawned.clipdist = 16;
 	spawned.lotag = 512;
 	spawned.hitag = 0;

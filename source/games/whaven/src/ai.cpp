@@ -669,7 +669,7 @@ void skullycastspell(PLAYER& plr, DWHActor* actor) {
 		discrim = 1;
 	spawned.zvel = (short)(((plr.z + (48 << 8) - spawned.z) << 7) / discrim);
 
-	spawned.owner = actor->GetSpriteIndex();
+	spawnedactor->SetOwner(actor);
 	spawned.clipdist = 16;
 	spawned.lotag = 512;
 	spawned.hitag = 0;

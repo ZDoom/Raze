@@ -1720,7 +1720,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 				spawned.xvel = 0;
 				spawned.yvel = 0;
 				spawned.zvel = 0;
-				spawned.owner = plr.actor()->s().owner;
+				spawnedactor->CopyOwner(plr.actor());
 				spawned.lotag = 32;
 				spawned.hitag = 0;
 				spawned.backuploc();
@@ -1771,7 +1771,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 			spawned.xvel = 0;
 			spawned.yvel = 0;
 			spawned.zvel = 0;
-			spawned.owner = plr.actor()->s().owner;
+			spawnedactor->CopyOwner(plr.actor());
 			spawned.lotag = 32;
 			spawned.hitag = 0;
 			movesprite(spawnedactor, (bcos(spawned.ang) * TICSPERFRAME) << 3,
@@ -1978,7 +1978,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 						} else {
 							spawned.zvel = plr.horizon.horiz.asq16() >> 12;
 						}
-						spawned.owner = plr.actor()->s().owner;
+						spawnedactor->CopyOwner(plr.actor());
 						spawned.lotag = 1024;
 						spawned.hitag = 0;
 						spawned.pal = 0;
@@ -2005,7 +2005,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 						spawned.xvel = (short) ((krand() & 256) - 128);
 						spawned.yvel = (short) ((krand() & 256) - 128);
 						spawned.zvel = plr.horizon.horiz.asq16() >> 12;
-						spawned.owner = plr.actor()->s().owner;
+						spawnedactor->CopyOwner(plr.actor());
 						spawned.lotag = 1024;
 						spawned.hitag = 0;
 						spawned.pal = 0;
@@ -2034,7 +2034,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 					spawned.yvel = (short) ((krand() & 256) - 128);
 					// spawned.zvel=((krand()&256)-128);
 					spawned.zvel = plr.horizon.horiz.asq16() >> 12;
-					spawned.owner = plr.actor()->s().owner;
+					spawnedactor->CopyOwner(plr.actor());
 					spawned.lotag = 1024;
 					spawned.hitag = 0;
 					spawned.pal = 0;
@@ -2075,7 +2075,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 						spawned.xvel = (short) ((krand() & 256) - 128);
 						spawned.yvel = (short) ((krand() & 256) - 128);
 						spawned.zvel = plr.horizon.horiz.asq16() >> 12;
-						spawned.owner = plr.actor()->s().owner;
+						spawnedactor->CopyOwner(plr.actor());
 						spawned.lotag = 1024;
 						spawned.hitag = 0;
 						spawned.pal = 0;
@@ -2102,7 +2102,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 						spawned.xvel = (short) ((krand() & 256) - 128);
 						spawned.yvel = (short) ((krand() & 256) - 128);
 						spawned.zvel = plr.horizon.horiz.asq16() >> 12;
-						spawned.owner = plr.actor()->s().owner;
+						spawnedactor->CopyOwner(plr.actor());
 						spawned.lotag = 1024;
 						spawned.hitag = 0;
 						spawned.pal = 0;
@@ -2129,7 +2129,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 					spawned.xvel = (short) ((krand() & 256) - 128);
 					spawned.yvel = (short) ((krand() & 256) - 128);
 					spawned.zvel = (short) ((krand() & 256) - 128);
-					spawned.owner = plr.actor()->s().owner;
+					spawnedactor->CopyOwner(plr.actor());
 					spawned.lotag = 1024;
 					spawned.hitag = 0;
 					spawned.pal = 0;
@@ -2168,7 +2168,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 			spawned.zvel = plr.horizon.horiz.asq16() >> 12;
 		}
 
-		spawned.owner = plr.actor()->s().owner;
+		spawnedactor->CopyOwner(plr.actor());
 		spawned.lotag = 256;
 		spawned.hitag = 0;
 		spawned.clipdist = 48;
@@ -2209,7 +2209,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 			spawned.zvel = plr.horizon.horiz.asq16() >> 12;
 		}
 
-		spawned.owner = plr.actor()->s().owner;
+		spawnedactor->CopyOwner(plr.actor());
 		spawned.lotag = 256;
 		spawned.hitag = 0;
 		spawned.clipdist = 64;

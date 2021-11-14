@@ -282,12 +282,12 @@ static void facedragon(PLAYER& plr, DWHActor* actor)
 			SetNewStatus(actor, FLEE);
 		}
 		else {
-			spr.owner = plr.spritenum;
+			actor->SetOwner(plr.actor());
 			SetNewStatus(actor, CHASE);
 		}
 	}
 	else { // get off the wall
-		if (spr.owner == plr.spritenum) {
+		if (actor->GetOwner() == plr.actor()) {
 			spr.ang = (short)(((krand() & 512 - 256) + spr.ang) & 2047);
 			SetNewStatus(actor, FINDME);
 		}
@@ -364,7 +364,7 @@ static void firebreath(PLAYER& plr, DWHActor* actor, int a, int b, int c)
 		else
 			spawned.zvel = (short)((((plr.z + (8 << 8)) - spawned.z) << 7) / discrim);// NEW
 
-		spawned.owner = actor->GetSpriteIndex();
+		spawnedactor->SetOwner(actor);
 		spawned.clipdist = 16;
 		spawned.lotag = 512;
 		spawned.hitag = 0;

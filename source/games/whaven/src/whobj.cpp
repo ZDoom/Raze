@@ -1393,7 +1393,7 @@ void makeafire(int i, int firetype) {
 	spawned.backuploc();
 }
 
-void explosion(int i, int x, int y, int z, int owner) {
+void explosion(int i, int x, int y, int z, int ownr) {
 	auto spawnedactor = InsertActor(sprite[i].sectnum, EXPLO);
 	auto& spawned = spawnedactor->s();
 
@@ -1431,7 +1431,7 @@ void explosion(int i, int x, int y, int z, int owner) {
 	spawned.backuploc();
 }
 
-void explosion2(int i, int x, int y, int z, int owner) {
+void explosion2(int i, int x, int y, int z, int ownr) {
 	auto spawnedactor = InsertActor(sprite[i].sectnum, EXPLO);
 	auto& spawned = spawnedactor->s();
 
@@ -1500,7 +1500,7 @@ void trailingsmoke(DWHActor* actor, boolean ball) {
 	spawned.backuploc();
 }
 
-void icecubes(int i, int x, int y, int z, int owner) {
+void icecubes(int i, int x, int y, int z, int ownr) {
 	auto actor = &whActors[i];
 	auto& spr = actor->s();
 	auto spawnedactor = InsertActor(spr.sectnum, FX);
@@ -1537,7 +1537,7 @@ boolean damageactor(PLAYER& plr, DWHActor* hitactor, DWHActor* actor)
 {
 	auto& spr = actor->s();
 	auto& hitspr = hitactor->s();
-	if (hitactor == plr.actor() && spr.owner == plr.actor()->s().owner)
+	if (hitactor == plr.actor() && actor->CompareOwner(plr.actor()))
 		return false;
 
 	if (hitactor == plr.actor() && spr.owner != plr.actor()->s().owner) {

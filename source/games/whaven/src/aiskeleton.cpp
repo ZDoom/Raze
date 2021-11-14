@@ -125,12 +125,12 @@ static void faceskeleton(PLAYER& plr, DWHActor* actor)
 			SetNewStatus(actor, FLEE);
 		}
 		else {
-			spr.owner = plr.spritenum;
+			actor->SetOwner(plr.actor());
 			SetNewStatus(actor, CHASE);
 		}
 	}
 	else { // get off the wall
-		if (spr.owner == plr.spritenum) {
+		if (actor->GetOwner() == plr.actor()) {
 			spr.ang = (short)(((krand() & 512 - 256) + spr.ang) & 2047);
 			SetNewStatus(actor, FINDME);
 		}
