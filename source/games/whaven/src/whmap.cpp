@@ -774,9 +774,11 @@ boolean prepareboard(const char* fname) {
 
 	if (justteleported) { // next level
 		plr.hvel = 0;
-		plr.spritenum = insertsprite(plr.sector, (short) 0);
+		auto pactor = InsertActor(plr.sector, (short)0);
+		auto& pspr = pactor->s();
+
+		plr.spritenum = pactor->GetSpriteIndex();
 		plr.oldsector = plr.sector;
-		auto& pspr = plr.actor()->s();
 
 		pspr.x = plr.x;
 		pspr.y = plr.y;
@@ -790,7 +792,7 @@ boolean prepareboard(const char* fname) {
 		pspr.xvel = 0;
 		pspr.yvel = 0;
 		pspr.zvel = 0;
-		pspr.owner = (short) (4096 + myconnectindex);
+		pactor->SetPlayerOwner(myconnectindex);
 		pspr.lotag = 0;
 		pspr.hitag = 0;
 		pspr.pal = (short) (isWh2() ? 10 : 1);

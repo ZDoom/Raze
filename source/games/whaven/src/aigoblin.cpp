@@ -379,7 +379,7 @@ static void goblinWar(PLAYER& plr, DWHActor* actor)
 				if (dist < olddist) {
 					found = true;
 					olddist = dist;
-					spr.owner = itActor->GetSpriteIndex();
+					actor->SetOwner(itActor);
 					spr.ang = getangle(spk.x - spr.x, spk.y - spr.y);
 					spr.extra = 1;
 				}
@@ -403,7 +403,9 @@ static void goblinWar(PLAYER& plr, DWHActor* actor)
 	}
 	case 1: // chase
 	{
-		auto owneractor = &whActors[spr.owner];
+		auto owneractor = actor->GetOwner();
+		assert(owneractor);
+		if (!owneractor) break;
 		auto ownerspr = owneractor->s();
 
 		auto moveStat = aimove(actor);
@@ -415,8 +417,7 @@ static void goblinWar(PLAYER& plr, DWHActor* actor)
 			spr.lotag = 60;
 		}
 		else if (moveStat.type == kHitSprite) {
-			int sprnum = moveStat.actor->GetSpriteIndex();
-			if (sprnum != spr.owner) {
+			if (moveStat.actor != owneractor) {
 				spr.extra = 3;
 				spr.ang = (short)((spr.ang + (krand() & 256 - 128)) & 2047);
 				spr.lotag = 60;
@@ -440,7 +441,9 @@ static void goblinWar(PLAYER& plr, DWHActor* actor)
 	}
 	case 2: // attack
 	{
-		auto owneractor = &whActors[spr.owner];
+		auto owneractor = actor->GetOwner();
+		assert(owneractor);
+		if (!owneractor) break;
 		auto& ownerspr = owneractor->s();
 		if (checkdist(actor, ownerspr.x, ownerspr.y, ownerspr.z)) {
 			if ((krand() & 1) != 0) {
@@ -594,7 +597,7 @@ void premapGoblin(DWHActor* actor) {
 		if (spr.pal != 0)
 			spr.xrepeat = 30;
 		spr.extra = 0;
-		spr.owner = 0;
+		actor->SetOwner(nullptr);
 		spr.hitag = ohitag;
 		return;
 	}

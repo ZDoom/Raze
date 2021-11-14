@@ -209,6 +209,10 @@ void spikeanimation(PLAYER& plr);
 // whplr
 
 extern PLAYER player[MAXPLAYERS];
+inline int PLAYER::playerNum()
+{
+	return int(this - player);
+}
 extern PLOCATION gPrevPlayerLoc[MAXPLAYERS];
 extern short monsterangle[MAXSPRITESONSCREEN], monsterlist[MAXSPRITESONSCREEN];
 extern int shootgunzvel;

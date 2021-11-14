@@ -90,8 +90,9 @@ void initplayersprite(PLAYER& plr) {
 	plr.height = getPlayerHeight();
 	plr.z = plr.Sector()->floorz - (plr.height << 8);
 
-	plr.spritenum = (short) insertsprite(plr.sector, (short) 0);
-	auto& spr = sprite[plr.spritenum];
+	auto pactor = InsertActor(plr.sector, (short)0);
+	plr.spritenum = pactor->GetSpriteIndex();
+	auto& spr = pactor->s();
 
 	plr.onsomething = 1;
 
@@ -107,7 +108,7 @@ void initplayersprite(PLAYER& plr) {
 	spr.xvel = 0;
 	spr.yvel = 0;
 	spr.zvel = 0;
-	spr.owner = (short) (4096 + myconnectindex);
+	pactor->SetPlayerOwner(myconnectindex);
 	spr.lotag = 0;
 	spr.hitag = 0;
 	spr.pal = (short) (isWh2() ? 10 : 1);
@@ -427,7 +428,7 @@ void chunksofmeat(PLAYER& plr, DWHActor* hitActor, int hitx, int hity, int hitz,
 			spawned.zvel = (short) ((krand() & 1023) - 512);
 			if (newchunk == 1)
 				spawned.zvel <<= 1;
-			spawnedactor->CopyOwner(plr.actor());
+			spawnedactor->SetPlayerOwner(plr.playerNum());
 			spawned.lotag = 512;
 			spawned.hitag = 0;
 			spawned.pal = 0;

@@ -3,7 +3,7 @@
 
 BEGIN_WH_NS
 
-void analyzesprites(PLAYER& plr, int dasmoothratio,spritetype* tsprite, int& spritesortcnt) 
+void analyzesprites(PLAYER& plr, int dasmoothratio,tspritetype* tsprite, int& spritesortcnt) 
 {
 	int k;
 	tspritelistcnt = spritesortcnt;

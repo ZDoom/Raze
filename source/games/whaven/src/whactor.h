@@ -49,11 +49,6 @@ public:
 		s().owner = other->s().owner;
 	}
 
-	bool CompareOwner(DWHActor* other)
-	{
-		return s().owner == other->s().owner;
-	}
-
 	int GetSpriteIndex() const
 	{
 		return index;

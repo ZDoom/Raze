@@ -25,6 +25,7 @@ struct PLAYER {
 	short spritenum;
 	DWHActor* actor() { return &whActors[spritenum]; }
 	sectortype* Sector() { return &::sector[sector]; }
+	int playerNum();
 	boolean keytoggle;
 	int flags;
 	int weapon[MAXWEAPONS], preenchantedweapon[MAXWEAPONS];

@@ -127,7 +127,7 @@ void processobjs(PLAYER& plr) {
 			if(isItemSprite(actor->GetSpriteIndex())) 
 				items[(tspr.detail & 0xFF) - ITEMSBASE].pickup(plr, actor);
 
-			if (tspr.picnum >= EXPLOSTART && tspr.picnum <= EXPLOEND && tspr.owner != plr.actor()->s().owner)
+			if (tspr.picnum >= EXPLOSTART && tspr.picnum <= EXPLOEND && actor->GetPlayerOwner() != plr.playerNum())
 				if (plr.manatime < 1)
 					addhealth(plr, -1);
 		}
@@ -836,7 +836,7 @@ void newstatus(short sn, int seq) {
 			break;
 		case DEMONTYPE:
 			spritesound(S_GUARDIANDIE, actor);
-			explosion(sn, spr.x, spr.y, spr.z, spr.owner);
+			explosion(sn, spr.x, spr.y, spr.z, 0);
 			addscore(aiGetPlayerTarget(actor), 1500);
 			DeleteActor(actor);
 			kills++;
@@ -930,7 +930,7 @@ void newstatus(short sn, int seq) {
 		case GUARDIANTYPE:
 			spritesound(S_GUARDIANDIE, actor);
 			for (int j = 0; j < 4; j++)
-				explosion(sn, spr.x, spr.y, spr.z, spr.owner);
+				explosion(sn, spr.x, spr.y, spr.z, 0);
 			DeleteActor(actor);
 			addscore(aiGetPlayerTarget(actor), 1500);
 			kills++;
@@ -1372,12 +1372,14 @@ void newstatus(short sn, int seq) {
 }
 
 void makeafire(int i, int firetype) {
-	auto spawnedactor = InsertActor(sprite[i].sectnum, FIRE);
+	auto actor = &whActors[i];
+	auto& spr = actor->s();
+	auto spawnedactor = InsertActor(spr.sectnum, FIRE);
 	auto& spawned = spawnedactor->s();
 
-	spawned.x = sprite[i].x + (krand() & 1024) - 512;
-	spawned.y = sprite[i].y + (krand() & 1024) - 512;
-	spawned.z = sprite[i].z;
+	spawned.x = spr.x + (krand() & 1024) - 512;
+	spawned.y = spr.y + (krand() & 1024) - 512;
+	spawned.z = spr.z;
 
 	spawned.cstat = 0;
 	spawned.xrepeat = 64;
@@ -1386,7 +1388,8 @@ void makeafire(int i, int firetype) {
 	spawned.shade = 0;
 
 	spawned.clipdist = 64;
-	spawned.owner = sprite[i].owner;
+
+	spawnedactor->CopyOwner(actor);
 	spawned.lotag = 2047;
 	spawned.hitag = 0;
 	ChangeActorStat(spawnedactor, FIRE);
@@ -1394,7 +1397,10 @@ void makeafire(int i, int firetype) {
 }
 
 void explosion(int i, int x, int y, int z, int ownr) {
-	auto spawnedactor = InsertActor(sprite[i].sectnum, EXPLO);
+	auto actor = &whActors[i];
+	auto& spr = actor->s();
+
+	auto spawnedactor = InsertActor(spr.sectnum, EXPLO);
 	auto& spawned = spawnedactor->s();
 
 	boolean isWH2 = isWh2();
@@ -1418,7 +1424,7 @@ void explosion(int i, int x, int y, int z, int ownr) {
 	spawned.xvel = (short) ((krand() & 511) - 256);
 	spawned.yvel = (short) ((krand() & 511) - 256);
 	spawned.zvel = (short) ((krand() & 511) - 256);
-	spawned.owner = sprite[i].owner;
+	spawnedactor->CopyOwner(actor);
 	spawned.hitag = 0;
 	spawned.pal = 0;
 	if(!isWH2) {
@@ -1432,7 +1438,9 @@ void explosion(int i, int x, int y, int z, int ownr) {
 }
 
 void explosion2(int i, int x, int y, int z, int ownr) {
-	auto spawnedactor = InsertActor(sprite[i].sectnum, EXPLO);
+	auto actor = &whActors[i];
+	auto& spr = actor->s();
+	auto spawnedactor = InsertActor(spr.sectnum, EXPLO);
 	auto& spawned = spawnedactor->s();
 
 	boolean isWH2 = isWh2();
@@ -1457,7 +1465,7 @@ void explosion2(int i, int x, int y, int z, int ownr) {
 	spawned.xvel = (short) ((krand() & 256) - 128);
 	spawned.yvel = (short) ((krand() & 256) - 128);
 	spawned.zvel = (short) ((krand() & 256) - 128);
-	spawned.owner = sprite[i].owner;
+	spawnedactor->CopyOwner(actor);
 	spawned.hitag = 0;
 	spawned.pal = 0;
 	
@@ -1494,7 +1502,7 @@ void trailingsmoke(DWHActor* actor, boolean ball) {
 	}
 	spawned.pal = 0;
 
-	spawned.owner = spr.owner;
+	spawnedactor->CopyOwner(actor);
 	spawned.lotag = 256;
 	spawned.hitag = 0;
 	spawned.backuploc();
@@ -1523,8 +1531,8 @@ void icecubes(int i, int x, int y, int z, int ownr) {
 	spawned.zvel = (short) ((krand() & 1023) - 512);
 
 	spawned.pal = 6;
-	spawned.owner = spr.owner;
-	
+	spawnedactor->CopyOwner(actor);
+
 	if(isWh2())
 		spawned.lotag = 2048;
 	else spawned.lotag = 999;
@@ -1537,10 +1545,11 @@ boolean damageactor(PLAYER& plr, DWHActor* hitactor, DWHActor* actor)
 {
 	auto& spr = actor->s();
 	auto& hitspr = hitactor->s();
-	if (hitactor == plr.actor() && actor->CompareOwner(plr.actor()))
+	if (hitactor == plr.actor() && actor->GetPlayerOwner() == plr.playerNum())
 		return false;
 
-	if (hitactor == plr.actor() && spr.owner != plr.actor()->s().owner) {
+	if (hitactor == plr.actor() && actor->GetPlayerOwner() != plr.playerNum())
+	{
 		if (plr.invincibletime > 0 || plr.godMode) {
 			DeleteActor(actor);
 			return false;
@@ -1609,7 +1618,7 @@ boolean damageactor(PLAYER& plr, DWHActor* hitactor, DWHActor* actor)
 	}
 
 	if (hitactor == plr.actor() && !netgame) // Les 08/11/95
-		if (spr.owner != hitactor->GetSpriteIndex()) {
+		if (actor->GetOwner() != hitactor) {
 			
 //				final int DEMONTYPE = 1; XXX
 //				final int DRAGONTYPE = 3;
@@ -1834,7 +1843,7 @@ void trowajavlin(int s) {
 	spawned.yvel = (short) ((krand() & 256) - 128);
 	spawned.zvel = (short) ((krand() & 256) - 128);
 
-	spawned.owner = 0;
+	spawnedactor->SetOwner(nullptr);
 	spawned.lotag = 0;
 	spawned.hitag = 0;
 	spawned.pal = 0;

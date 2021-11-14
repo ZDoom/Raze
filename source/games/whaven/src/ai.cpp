@@ -633,7 +633,7 @@ void castspell(PLAYER& plr, DWHActor* actor) {
 	else
 		spawned.zvel = (short)(((plr.z + (48 << 8) - spawned.z) << 7) / discrim);
 
-	spawned.owner = (short)actor->GetSpriteIndex();
+	spawnedactor->SetOwner(actor);
 	spawned.clipdist = 16;
 	spawned.lotag = 512;
 	spawned.hitag = 0;

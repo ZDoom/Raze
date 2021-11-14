@@ -801,7 +801,7 @@ void deaddude(short sn) {
 	spawned.pal = 0;
 	spawned.xrepeat = spr.xrepeat;
 	spawned.yrepeat = spr.yrepeat;
-	spawned.owner = 0;
+	spawnedactor->SetOwner(nullptr);
 	spawned.lotag = 0;
 	spawned.hitag = 0;
 	spawned.backuploc();

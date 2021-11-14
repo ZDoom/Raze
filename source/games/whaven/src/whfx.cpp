@@ -813,7 +813,7 @@ void makeasplash(int picnum, PLAYER& plr) {
 	spawned.pal = 0;
 	spawned.xrepeat = 64;
 	spawned.yrepeat = 64;
-	spawned.owner = 0;
+	spawnedactor->SetOwner(nullptr);
 	spawned.clipdist = 16;
 	spawned.lotag = 8;
 	spawned.hitag = 0;
@@ -861,7 +861,7 @@ void makemonstersplash(int picnum, int i) {
 		spawned.xrepeat = 64;
 		spawned.yrepeat = 64;
 	}
-	spawned.owner = 0;
+	spawnedactor->SetOwner(nullptr);
 	spawned.clipdist = 16;
 	spawned.lotag = 8;
 	spawned.hitag = 0;
@@ -892,22 +892,24 @@ void makemonstersplash(int picnum, int i) {
 }
 
 void bats(PLAYER& plr, int k) {
-	auto spawnedactor = InsertActor(sprite[k].sectnum, FLOCK);
+	auto actor = &whActors[k];
+	auto& spr = actor->s();
+	auto spawnedactor = InsertActor(spr.sectnum, FLOCK);
 	auto& spawned = spawnedactor->s();
 
-	spawned.x = sprite[k].x;
-	spawned.y = sprite[k].y;
-	spawned.z = sprite[k].z;
+	spawned.x = spr.x;
+	spawned.y = spr.y;
+	spawned.z = spr.z;
 	spawned.cstat = 0;
 	spawned.picnum = BAT;
 	spawned.shade = 0;
 	spawned.xrepeat = 64;
 	spawned.yrepeat = 64;
-	spawned.ang = (short) ((sprite[k].ang + (krand() & 128 - 256)) & 2047);
-	spawned.owner = (short) k;
+	spawned.ang = (short) ((spr.ang + (krand() & 128 - 256)) & 2047);
+	spawnedactor->SetOwner(actor);
 	spawned.clipdist = 16;
 	spawned.lotag = 128;
-	spawned.hitag = (short) k;
+	spawned.hitag = (short) k; // see: flying in circles
 	spawned.extra = 0;
 	spawned.backuploc();
 
@@ -998,14 +1000,16 @@ void lavadryland() {
 }
 
 void warpfxsprite(int s) {
+	auto actor = &whActors[s];
+	auto& spr = actor->s();
 	PLAYER& plr = player[pyrn];
 
-	auto spawnedactor = InsertActor(sprite[s].sectnum, WARPFX);
+	auto spawnedactor = InsertActor(spr.sectnum, WARPFX);
 	auto& spawned = spawnedactor->s();
 
-	spawned.x = sprite[s].x;
-	spawned.y = sprite[s].y;
-	spawned.z = sprite[s].z - (32 << 8);
+	spawned.x = spr.x;
+	spawned.y = spr.y;
+	spawned.z = spr.z - (32 << 8);
 
 	spawned.cstat = 0;
 
@@ -1015,7 +1019,7 @@ void warpfxsprite(int s) {
 		daang = plr.angle.ang.asbuild();
 		spawned.ang = daang;
 	} else {
-		daang = sprite[s].ang;
+		daang = spr.ang;
 		spawned.ang = daang;
 	}
 
@@ -1028,7 +1032,7 @@ void warpfxsprite(int s) {
 	spawned.xvel = (short) ((krand() & 256) - 128);
 	spawned.yvel = (short) ((krand() & 256) - 128);
 	spawned.zvel = (short) ((krand() & 256) - 128);
-	spawned.owner = (short) s;
+	spawnedactor->SetOwner(actor);
 	spawned.lotag = 12;
 	spawned.hitag = 0;
 	spawned.pal = 0;
@@ -1121,7 +1125,7 @@ void makesparks(short i, int type) {
 	spawned.xrepeat = 24;
 	spawned.yrepeat = 24;
 	spawned.ang = (short) ((krand() % 2047) & 2047);
-	spawned.owner = 0;
+	spawnedactor->SetOwner(nullptr);
 	spawned.clipdist = 16;
 	spawned.lotag = (short) (krand() % 100);
 	spawned.hitag = 0;
@@ -1132,20 +1136,22 @@ void makesparks(short i, int type) {
 }
 
 void shards(int i, int type) {
-	auto spawnedactor = InsertActor(sprite[i].sectnum, SHARDOFGLASS);
+	auto actor = &whActors[i];
+	auto& spr = actor->s();
+	auto spawnedactor = InsertActor(spr.sectnum, SHARDOFGLASS);
 	auto& spawned = spawnedactor->s();
 
-	spawned.x = sprite[i].x + (((krand() % 512) - 256) << 2);
-	spawned.y = sprite[i].y + (((krand() % 512) - 256) << 2);
-	spawned.z = sprite[i].z - (getPlayerHeight() << 8) + (((krand() % 48) - 16) << 7);
+	spawned.x = spr.x + (((krand() % 512) - 256) << 2);
+	spawned.y = spr.y + (((krand() % 512) - 256) << 2);
+	spawned.z = spr.z - (getPlayerHeight() << 8) + (((krand() % 48) - 16) << 7);
 	spawned.zvel = (short) (krand() % 256);
 	spawned.cstat = 0;
 	spawned.picnum = (short) (SHARD + (krand() % 3));
 	spawned.shade = 0;
 	spawned.xrepeat = 64;
 	spawned.yrepeat = 64;
-	spawned.ang = (short) (sprite[i].ang + ((krand() % 512) - 256) & 2047);
-	spawned.owner = (short) i;
+	spawned.ang = (short) (spr.ang + ((krand() % 512) - 256) & 2047);
+	spawnedactor->SetOwner(actor);
 	spawned.clipdist = 16;
 	spawned.lotag = (short) (120 + (krand() % 100));
 	spawned.hitag = 0;

@@ -267,7 +267,7 @@ void animateobjs(PLAYER& plr) {
 				spawned.pal = 0;
 				spawned.xrepeat = spr.xrepeat;
 				spawned.yrepeat = spr.yrepeat;
-				spawned.owner = 0;
+				spawnedactor->SetOwner(nullptr);
 				spawned.lotag = 40;
 				spawned.hitag = 0;
 				spawned.detail = GONZOTYPE;
@@ -784,7 +784,7 @@ void animateobjs(PLAYER& plr) {
 
 		if (moveStat.type == kHitSprite) { // Bullet hit a sprite
 
-			if (spr.owner != moveStat.actor->GetSpriteIndex()) {
+			if (actor->GetOwner() != moveStat.actor) {
 				hitdamage = damageactor(plr, moveStat.actor, actor);
 				if (hitdamage) {
 					SetNewStatus(actor, BROKENVASE);
@@ -971,7 +971,7 @@ void animateobjs(PLAYER& plr) {
 		}
 
 		if (moveStat.type != kHitNone && spr.picnum == MONSTERBALL)
-			if (actor->CompareOwner(plr.actor())) {
+			if (actor->GetPlayerOwner() == plr.playerNum()) {
 				explosion2(i, spr.x, spr.y, spr.z, i);
 			} else {
 				explosion(i, spr.x, spr.y, spr.z, i);
@@ -990,7 +990,7 @@ void animateobjs(PLAYER& plr) {
 		} else if (moveStat.type == kHitWall) { // hit a wall
 
 			if (spr.picnum == MONSTERBALL) {
-				if (actor->CompareOwner(plr.actor()))
+				if (actor->GetPlayerOwner() == plr.playerNum())
 					explosion2(i, spr.x, spr.y, spr.z, i);
 				else
 					explosion(i, spr.x, spr.y, spr.z, i);
@@ -1009,13 +1009,13 @@ void animateobjs(PLAYER& plr) {
 
 		if (moveStat.type == kHitSprite) { // Bullet hit a sprite
 			if (spr.picnum == MONSTERBALL) {
-				if (actor->CompareOwner(plr.actor()))
+				if (actor->GetPlayerOwner() == plr.playerNum())
 					explosion2(i, spr.x, spr.y, spr.z, i);
 				else
 					explosion(i, spr.x, spr.y, spr.z, i);
 			}
 
-			if (spr.owner != moveStat.actor->GetSpriteIndex())
+			if (actor->GetOwner() != moveStat.actor)
 				hitdamage = damageactor(plr, moveStat.actor, actor);
 			if (hitdamage) {
 				DeleteActor(actor);
@@ -1345,7 +1345,7 @@ void animateobjs(PLAYER& plr) {
 				spawned.xrepeat = spr.xrepeat;
 				spawned.yrepeat = spr.yrepeat;
 
-				spawned.owner = spr.owner;
+				spawnedactor->CopyOwner(actor);
 				spawned.lotag = 256;
 				spawned.hitag = 0;
 				spawned.backuploc();
@@ -1379,7 +1379,7 @@ void animateobjs(PLAYER& plr) {
 				int dz = abs((spr.z >> 8) - (tspr.z >> 8)); // z distance to sprite
 				int dh = tileHeight(tspr.picnum) >> 1; // height of sprite
 				if (dx + dy < PICKDISTANCE && dz - dh <= getPickHeight()) {
-					if (tspr.owner == 4096) {
+					if (sectactor->GetPlayerOwner() == 0) {
 						// strcpy(displaybuf,"hit player");
 					} else {
 						switch (tspr.detail) {
