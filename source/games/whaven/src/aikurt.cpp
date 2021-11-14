@@ -32,7 +32,6 @@ static void nukedkurt(PLAYER& plr, DWHActor* actor)
 
 static void kurtExplo(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;

@@ -32,7 +32,6 @@ static void dierat(PLAYER& plr, DWHActor* actor)
 	
 static void fleerat(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;

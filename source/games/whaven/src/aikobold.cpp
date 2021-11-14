@@ -7,7 +7,6 @@ static void checkexplkobold(PLAYER& plr, DWHActor* actor);
 
 static void chasekobold(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -203,7 +202,6 @@ static void fleekobold(PLAYER& plr, DWHActor* actor)
 	
 static void attackkobold(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
@@ -255,8 +253,6 @@ static void resurectkobold(PLAYER& plr, DWHActor* actor)
 	
 static void searchkobold(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
-
 	if ((krand() % 100) > 98)
 		spritesound(S_KSNARL1 + (krand() % 4), actor);
 	aisearch(plr, actor, false);
@@ -328,7 +324,6 @@ static void skirmishkobold(PLAYER& plr, DWHActor* actor)
 
 static void checkexplkobold(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	WHSectIterator it(spr.sectnum);

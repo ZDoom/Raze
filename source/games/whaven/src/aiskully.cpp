@@ -204,7 +204,6 @@ static void fleeskully(PLAYER& plr, DWHActor* actor)
 	
 static void castskully(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -224,7 +223,6 @@ static void castskully(PLAYER& plr, DWHActor* actor)
 	
 static void dieskully(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;

@@ -211,7 +211,6 @@ static void standskeleton(PLAYER& plr, DWHActor* actor)
 	
 static void attackskeleton(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
@@ -346,7 +345,6 @@ void skeletonChill(PLAYER& plr, DWHActor* actor)
 
 static void checkexplskeleton(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	WHSectIterator it(spr.sectnum);

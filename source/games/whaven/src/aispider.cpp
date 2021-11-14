@@ -184,7 +184,6 @@ static void facespider(PLAYER& plr, DWHActor* actor)
 	
 static void attackspider(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
@@ -288,7 +287,6 @@ static void diespider(PLAYER& plr, DWHActor* actor)
 
 static void checkexplspider(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	WHSectIterator it(spr.sectnum);

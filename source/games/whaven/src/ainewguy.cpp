@@ -3,7 +3,7 @@
 
 BEGIN_WH_NS
 
-static void newguyarrow(short s, PLAYER& plr);
+static void newguyarrow(DWHActor* s, PLAYER& plr);
 
 static void standnewguy(PLAYER& plr, DWHActor* actor)
 {
@@ -259,7 +259,6 @@ static void fleenewguy(PLAYER& plr, DWHActor* actor)
 	
 static void attacknewguy(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
@@ -335,7 +334,6 @@ static void dienewguy(PLAYER& plr, DWHActor* actor)
 	
 static void castnewguy(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -355,41 +353,42 @@ static void castnewguy(PLAYER& plr, DWHActor* actor)
 		spr.extra--;
 		spr.picnum = NEWGUY;
 		spritesound(S_PLRWEAPON3, actor);
-		newguyarrow(i, plr);
+		newguyarrow(actor, plr);
 		SetNewStatus(actor, CHASE);
 	}
 	checksector6(actor);
 }
 
-static void newguyarrow(short s, PLAYER& plr) {
-	auto spawnedactor = InsertActor(sprite[s].sectnum, JAVLIN);
-	auto& spr = spawnedactor->s();
+static void newguyarrow(DWHActor* actor, PLAYER& plr) {
+	auto& spr = actor->s();
+	auto spawnedactor = InsertActor(spr.sectnum, JAVLIN);
+	auto& spawned = spawnedactor->s();
 	
-	spr.x = sprite[s].x;
-	spr.y = sprite[s].y;
-	spr.z = sprite[s].z - (40 << 8);
+	spawned.x = spr.x;
+	spawned.y = spr.y;
+	spawned.z = spr.z - (40 << 8);
 
-	spr.cstat = 21;
+	spawned.cstat = 21;
 
-	spr.picnum = WALLARROW;
-	spr.ang = (short)(((sprite[s].ang + 2048 + 96) - 512) & 2047);
-	spr.xrepeat = 24;
-	spr.yrepeat = 24;
-	spr.clipdist = 32;
+	spawned.picnum = WALLARROW;
+	spawned.ang = (short)(((spr.ang + 2048 + 96) - 512) & 2047);
+	spawned.xrepeat = 24;
+	spawned.yrepeat = 24;
+	spawned.clipdist = 32;
 
-	spr.extra = sprite[s].ang;
-	spr.shade = -15;
-	spr.xvel = (short)((krand() & 256) - 128);
-	spr.yvel = (short)((krand() & 256) - 128);
+	spawned.extra = spr.ang;
+	spawned.shade = -15;
+	spawned.xvel = (short)((krand() & 256) - 128);
+	spawned.yvel = (short)((krand() & 256) - 128);
 
-	spr.zvel = (short)(((plr.z + (8 << 8) - sprite[s].z) << 7) / ksqrt((plr.x - sprite[s].x) * (plr.x - sprite[s].x) + (plr.y - sprite[s].y) * (plr.y - sprite[s].y)));
+	spawned.zvel = (short)(((plr.z + (8 << 8) - spr.z) << 7) / ksqrt((plr.x - spr.x) * (plr.x - spr.x) + (plr.y - spr.y) * (plr.y - spr.y)));
 
-	spr.zvel += ((krand() % 256) - 128);
+	spawned.zvel += ((krand() % 256) - 128);
 
-	spr.owner = s;
-	spr.lotag = 1024;
-	spr.hitag = 0;
-	spr.pal = 0;
+	spawned.owner = actor->GetSpriteIndex();
+	spawned.lotag = 1024;
+	spawned.hitag = 0;
+	spawned.pal = 0;
 	spr.backuploc();
 }
 

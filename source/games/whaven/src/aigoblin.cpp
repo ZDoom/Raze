@@ -360,8 +360,6 @@ static void goblinWar(PLAYER& plr, DWHActor* actor)
 {
 	SPRITE& spr = actor->s();
 
-	short k;
-
 	if (spr.lotag > 256) {
 		spr.lotag = 100;
 		spr.extra = 0;
@@ -405,8 +403,7 @@ static void goblinWar(PLAYER& plr, DWHActor* actor)
 	}
 	case 1: // chase
 	{
-		k = spr.owner;
-		auto owneractor = &whActors[k];
+		auto owneractor = &whActors[spr.owner];
 		auto ownerspr = owneractor->s();
 
 		auto moveStat = aimove(actor);
@@ -419,7 +416,7 @@ static void goblinWar(PLAYER& plr, DWHActor* actor)
 		}
 		else if (moveStat.type == kHitSprite) {
 			int sprnum = moveStat.actor->GetSpriteIndex();
-			if (sprnum != k) {
+			if (sprnum != spr.owner) {
 				spr.extra = 3;
 				spr.ang = (short)((spr.ang + (krand() & 256 - 128)) & 2047);
 				spr.lotag = 60;
@@ -443,8 +440,7 @@ static void goblinWar(PLAYER& plr, DWHActor* actor)
 	}
 	case 2: // attack
 	{
-		k = spr.owner;
-		auto owneractor = &whActors[k];
+		auto owneractor = &whActors[spr.owner];
 		auto& ownerspr = owneractor->s();
 		if (checkdist(actor, ownerspr.x, ownerspr.y, ownerspr.z)) {
 			if ((krand() & 1) != 0) {

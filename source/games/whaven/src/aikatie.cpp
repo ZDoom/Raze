@@ -256,7 +256,6 @@ static void castkatie(PLAYER& plr, DWHActor* actor)
 	
 static void diekatie(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 	
 	spr.lotag -= TICSPERFRAME;
