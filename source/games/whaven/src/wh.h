@@ -223,7 +223,7 @@ void playerdead(PLAYER& plr);
 void initplayersprite(PLAYER& plr);
 void updateviewmap(PLAYER& plr);
 void plruse(PLAYER& plr);
-void chunksofmeat(PLAYER& plr, int hitsprite, int hitx, int hity, int hitz, short hitsect, int daang);
+void chunksofmeat(PLAYER& plr, DWHActor* hitsprite, int hitx, int hity, int hitz, short hitsect, int daang);
 void addhealth(PLAYER& plr, int hp);
 void addarmor(PLAYER& plr, int arm);
 void addscore(PLAYER* plr, int score);

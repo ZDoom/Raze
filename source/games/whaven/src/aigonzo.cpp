@@ -260,7 +260,7 @@ static void nukedgonzo(PLAYER& plr, DWHActor* actor)
 	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
-	chunksofmeat(plr, i, spr.x, spr.y, spr.z, spr.sectnum, spr.ang);
+	chunksofmeat(plr, actor,spr.x, spr.y, spr.z, spr.sectnum, spr.ang);
 	trailingsmoke(actor,false);
 	SetNewStatus(actor, DIE);
 }

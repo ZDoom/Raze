@@ -279,7 +279,7 @@ void plruse(PLAYER& plr) {
 	}
 }
 
-void chunksofmeat(PLAYER& plr, int hitsprite, int hitx, int hity, int hitz, short hitsect, int daang) {
+void chunksofmeat(PLAYER& plr, DWHActor* hitActor, int hitx, int hity, int hitz, short hitsect, int daang) {
 
 	int j;
 	short k;
@@ -287,7 +287,7 @@ void chunksofmeat(PLAYER& plr, int hitsprite, int hitx, int hity, int hitz, shor
 	int chunk = REDCHUNKSTART;
 	int newchunk;
 
-	auto& hitspr = sprite[hitsprite];
+	auto& hitspr = hitActor->s();
 
 	if (adult_lockout)
 		return;
@@ -341,7 +341,7 @@ void chunksofmeat(PLAYER& plr, int hitsprite, int hitx, int hity, int hitz, shor
 			spritesound(S_GORE1 + (krand() % 4), &hitspr);
 	}
 
-	if ((hitsprite >= 0) && (hitspr.statnum < MAXSTATUS)) {
+	if (hitActor != nullptr) {
 		for (k = 0; k < zgore; k++) {
 			newchunk = 0;
 

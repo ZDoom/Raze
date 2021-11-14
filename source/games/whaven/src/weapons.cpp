@@ -897,6 +897,7 @@ void madenoise(PLAYER& plr, int val, int x, int y, int z) {
 void shootgun(PLAYER& plr, float ang, int guntype) {
 	int k = 0, daz2;
 	short j;
+	DWHActor* hitActor = nullptr;
 
 	int daang = (int) ang;
 		
@@ -915,7 +916,10 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 				pHitInfo, CLIPMASK1);
 
 		if (pHitInfo.hitsprite >= 0)
+		{
 			madeahit = true;
+			hitActor = &whActors[pHitInfo.hitsprite];
+		}
 
 		if (pHitInfo.hitwall >= 0) {
 			if ((abs(plr.x - pHitInfo.hitx) + abs(plr.y - pHitInfo.hity) < 512)
@@ -1295,98 +1299,98 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 						case 1: // knife
 							if (plr.currweaponframe == KNIFEATTACK + 6)
 								if (plr.currweaponanim == 8 && plr.currweapontics == 8)
-									chunksofmeat(plr, pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity,
+									chunksofmeat(plr, hitActor, pHitInfo.hitx, pHitInfo.hity,
 											pHitInfo.hitz, pHitInfo.hitsect, daang);
 							if (plr.currweaponframe == KNIFEATTACK2 + 2)
 								if (plr.currweaponanim == 5 || plr.currweaponanim == 9 && plr.currweapontics == 8)
-									chunksofmeat(plr, pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity,
+									chunksofmeat(plr, hitActor, pHitInfo.hitx, pHitInfo.hity,
 											pHitInfo.hitz, pHitInfo.hitsect, daang);
 							break;
 						case 2: // short sword
 							if (plr.currweaponframe == GOBSWORDATTACK + 4
 									|| plr.currweaponframe == ZSHORTATTACK + 7)
 								if (plr.currweaponanim == 4 && plr.currweapontics == 10)
-									chunksofmeat(plr, pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity,
+									chunksofmeat(plr, hitActor, pHitInfo.hitx, pHitInfo.hity,
 											pHitInfo.hitz, pHitInfo.hitsect, daang);
 							if (plr.currweaponframe == GOBSWORDATTACK2 + 4
 									|| plr.currweaponframe == ZSHORTATTACK + 4)
 								if (plr.currweaponanim == 4 && plr.currweapontics == 10)
-									chunksofmeat(plr, pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity,
+									chunksofmeat(plr, hitActor, pHitInfo.hitx, pHitInfo.hity,
 											pHitInfo.hitz, pHitInfo.hitsect, daang);
 							break;
 						case 3: // morning
 							if (plr.currweaponframe == MORNINGSTAR + 5 || plr.currweaponframe == ZSTARATTACK + 7)
 								if (plr.currweaponanim == 7 && plr.currweapontics == 12)
-									chunksofmeat(plr, pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity,
+									chunksofmeat(plr, hitActor, pHitInfo.hitx, pHitInfo.hity,
 											pHitInfo.hitz, pHitInfo.hitsect, daang);
 							if (plr.currweaponframe == MORNINGATTACK2 + 3
 									|| plr.currweaponframe == ZSTARATTACK2 + 3)
 								if (plr.currweaponanim == 3 && plr.currweapontics == 12)
-									chunksofmeat(plr, pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity,
+									chunksofmeat(plr, hitActor, pHitInfo.hitx, pHitInfo.hity,
 											pHitInfo.hitz, pHitInfo.hitsect, daang);
 							break;
 						case 4: // sword
 							if (plr.currweaponframe == SWORDATTACK + 7)
 								if (plr.currweaponanim == 7 && plr.currweapontics == 8)
-									chunksofmeat(plr, pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity,
+									chunksofmeat(plr, hitActor, pHitInfo.hitx, pHitInfo.hity,
 											pHitInfo.hitz, pHitInfo.hitsect, daang);
 							if (plr.currweaponframe == SWORDATTACK2 + 6)
 								if (plr.currweaponanim == 6 && plr.currweapontics == 8)
 									break;
-							chunksofmeat(plr, pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity, pHitInfo.hitz,
+							chunksofmeat(plr, hitActor, pHitInfo.hitx, pHitInfo.hity, pHitInfo.hitz,
 									pHitInfo.hitsect, daang);
 						case 5: // battleaxe
 							if (plr.currweaponframe == BIGAXEATTACK + 7 || plr.currweaponframe == ZAXEATTACK + 12)
 								if (plr.currweaponanim == 7 && plr.currweapontics == 12)
-									chunksofmeat(plr, pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity,
+									chunksofmeat(plr, hitActor, pHitInfo.hitx, pHitInfo.hity,
 											pHitInfo.hitz, pHitInfo.hitsect, daang);
 							if (plr.currweaponframe == BIGAXEATTACK2 + 6 || plr.currweaponframe == ZAXEATTACK2 + 6)
 								if (plr.currweaponanim == 6 && plr.currweapontics == 12)
 									break;
-							chunksofmeat(plr, pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity, pHitInfo.hitz,
+							chunksofmeat(plr, hitActor, pHitInfo.hitx, pHitInfo.hity, pHitInfo.hitz,
 									pHitInfo.hitsect, daang);
 						case 6: // bow
 							if (plr.currweaponframe == BOWWALK + 4)
 								if (plr.currweaponanim == 4 && plr.currweapontics == 6)
-									chunksofmeat(plr, pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity,
+									chunksofmeat(plr, hitActor, pHitInfo.hitx, pHitInfo.hity,
 											pHitInfo.hitz, pHitInfo.hitsect, daang);
 							if (plr.currweaponframe == ZBOWATTACK + 4)
 								if (plr.currweaponanim == 4 && plr.currweapontics == 6)
-									chunksofmeat(plr, pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity,
+									chunksofmeat(plr, hitActor, pHitInfo.hitx, pHitInfo.hity,
 											pHitInfo.hitz, pHitInfo.hitsect, daang);
 							break;
 						case 7: // pike
 							if (plr.currweaponframe == PIKEATTACK1 + 4 || plr.currweaponframe == ZPIKEATTACK + 4)
 								if (plr.currweaponanim == 8 && plr.currweapontics == 10)
-									chunksofmeat(plr, pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity,
+									chunksofmeat(plr, hitActor, pHitInfo.hitx, pHitInfo.hity,
 											pHitInfo.hitz, pHitInfo.hitsect, daang);
 							if (plr.currweaponframe == PIKEATTACK2 + 4 || plr.currweaponframe == ZPIKEATTACK2 + 4)
 								if (plr.currweaponanim == 4 && plr.currweapontics == 10)
 									break;
-							chunksofmeat(plr, pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity, pHitInfo.hitz,
+							chunksofmeat(plr, hitActor, pHitInfo.hitx, pHitInfo.hity, pHitInfo.hitz,
 									pHitInfo.hitsect, daang);
 						case 8: // two handed sword
 							if (plr.currweaponframe == EXCALATTACK1 + 7
 									|| plr.currweaponframe == ZTWOHANDATTACK + 12)
 								if (plr.currweaponanim == 7 && plr.currweapontics == 8)
-									chunksofmeat(plr, pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity,
+									chunksofmeat(plr, hitActor, pHitInfo.hitx, pHitInfo.hity,
 											pHitInfo.hitz, pHitInfo.hitsect, daang);
 							if (plr.currweaponframe == EXCALATTACK2 + 5
 									|| plr.currweaponframe == ZTWOHANDATTACK2 + 5)
 								if (plr.currweaponanim == 5 && plr.currweapontics == 8)
 									break;
-							chunksofmeat(plr, pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity, pHitInfo.hitz,
+							chunksofmeat(plr, hitActor, pHitInfo.hitx, pHitInfo.hity, pHitInfo.hitz,
 									pHitInfo.hitsect, daang);
 						case 9: // halberd
 							if (plr.currweaponframe == HALBERDATTACK1 + 3
 									|| plr.currweaponframe == ZHALBERDATTACK + 4)
 								if (plr.currweaponanim == 6 && plr.currweapontics == 12)
-									chunksofmeat(plr, pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity,
+									chunksofmeat(plr, hitActor, pHitInfo.hitx, pHitInfo.hity,
 											pHitInfo.hitz, pHitInfo.hitsect, daang);
 							if (plr.currweaponframe == HALBERDATTACK2 + 3
 									|| plr.currweaponframe == ZHALBERDATTACK2 + 3)
 								if (plr.currweaponanim == 4 && plr.currweapontics == 12)
-									chunksofmeat(plr, pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity,
+									chunksofmeat(plr, hitActor, pHitInfo.hitx, pHitInfo.hity,
 											pHitInfo.hitz, pHitInfo.hitsect, daang);
 							break;
 						}
@@ -1500,98 +1504,98 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 						case 1: // knife
 							if (plr.currweaponframe == KNIFEATTACK + 6)
 								if (plr.currweaponanim == 8 && plr.currweapontics == 8)
-									chunksofmeat(plr, pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity,
+									chunksofmeat(plr, hitActor, pHitInfo.hitx, pHitInfo.hity,
 											pHitInfo.hitz, pHitInfo.hitsect, daang);
 							if (plr.currweaponframe == KNIFEATTACK2 + 2)
 								if (plr.currweaponanim == 5 || plr.currweaponanim == 9 && plr.currweapontics == 8)
-									chunksofmeat(plr, pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity,
+									chunksofmeat(plr, hitActor, pHitInfo.hitx, pHitInfo.hity,
 											pHitInfo.hitz, pHitInfo.hitsect, daang);
 							break;
 						case 2: // short sword
 							if (plr.currweaponframe == GOBSWORDATTACK + 4
 									|| plr.currweaponframe == ZSHORTATTACK + 7)
 								if (plr.currweaponanim == 4 && plr.currweapontics == 10)
-									chunksofmeat(plr, pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity,
+									chunksofmeat(plr, hitActor, pHitInfo.hitx, pHitInfo.hity,
 											pHitInfo.hitz, pHitInfo.hitsect, daang);
 							if (plr.currweaponframe == GOBSWORDATTACK2 + 4
 									|| plr.currweaponframe == ZSHORTATTACK2 + 4)
 								if (plr.currweaponanim == 4 && plr.currweapontics == 10)
-									chunksofmeat(plr, pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity,
+									chunksofmeat(plr, hitActor, pHitInfo.hitx, pHitInfo.hity,
 											pHitInfo.hitz, pHitInfo.hitsect, daang);
 							break;
 						case 3: // morning
 							if (plr.currweaponframe == MORNINGSTAR + 5 || plr.currweaponframe == ZSTARATTACK + 7)
 								if (plr.currweaponanim == 7 && plr.currweapontics == 12)
-									chunksofmeat(plr, pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity,
+									chunksofmeat(plr, hitActor, pHitInfo.hitx, pHitInfo.hity,
 											pHitInfo.hitz, pHitInfo.hitsect, daang);
 							if (plr.currweaponframe == MORNINGATTACK2 + 3
 									|| plr.currweaponframe == ZSTARATTACK2 + 3)
 								if (plr.currweaponanim == 3 && plr.currweapontics == 12)
-									chunksofmeat(plr, pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity,
+									chunksofmeat(plr, hitActor, pHitInfo.hitx, pHitInfo.hity,
 											pHitInfo.hitz, pHitInfo.hitsect, daang);
 							break;
 						case 4: // sword
 							if (plr.currweaponframe == SWORDATTACK + 7)
 								if (plr.currweaponanim == 7 && plr.currweapontics == 8)
-									chunksofmeat(plr, pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity,
+									chunksofmeat(plr, hitActor, pHitInfo.hitx, pHitInfo.hity,
 											pHitInfo.hitz, pHitInfo.hitsect, daang);
 							if (plr.currweaponframe == SWORDATTACK2 + 6)
 								if (plr.currweaponanim == 6 && plr.currweapontics == 8)
-									chunksofmeat(plr, pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity,
+									chunksofmeat(plr, hitActor, pHitInfo.hitx, pHitInfo.hity,
 											pHitInfo.hitz, pHitInfo.hitsect, daang);
 							break;
 						case 5: // battleaxe
 							if (plr.currweaponframe == BIGAXEATTACK + 7 || plr.currweaponframe == ZAXEATTACK + 12)
 								if (plr.currweaponanim == 7 && plr.currweapontics == 12)
-									chunksofmeat(plr, pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity,
+									chunksofmeat(plr, hitActor, pHitInfo.hitx, pHitInfo.hity,
 											pHitInfo.hitz, pHitInfo.hitsect, daang);
 							if (plr.currweaponframe == BIGAXEATTACK2 + 6 || plr.currweaponframe == ZAXEATTACK2 + 6)
 								if (plr.currweaponanim == 6 && plr.currweapontics == 12)
-									chunksofmeat(plr, pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity,
+									chunksofmeat(plr, hitActor, pHitInfo.hitx, pHitInfo.hity,
 											pHitInfo.hitz, pHitInfo.hitsect, daang);
 							break;
 						case 6: // bow
 							if (plr.currweaponframe == BOWWALK + 4)
 								if (plr.currweaponanim == 4 && plr.currweapontics == 6)
-									chunksofmeat(plr, pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity,
+									chunksofmeat(plr, hitActor, pHitInfo.hitx, pHitInfo.hity,
 											pHitInfo.hitz, pHitInfo.hitsect, daang);
 							if (plr.currweaponframe == ZBOWATTACK + 4)
 								if (plr.currweaponanim == 4 && plr.currweapontics == 6)
-									chunksofmeat(plr, pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity,
+									chunksofmeat(plr, hitActor, pHitInfo.hitx, pHitInfo.hity,
 											pHitInfo.hitz, pHitInfo.hitsect, daang);
 							break;
 						case 7: // pike
 							if (plr.currweaponframe == PIKEATTACK1 + 4 || plr.currweaponframe == ZPIKEATTACK + 4)
 								if (plr.currweaponanim == 8 && plr.currweapontics == 10)
-									chunksofmeat(plr, pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity,
+									chunksofmeat(plr, hitActor, pHitInfo.hitx, pHitInfo.hity,
 											pHitInfo.hitz, pHitInfo.hitsect, daang);
 							if (plr.currweaponframe == PIKEATTACK2 + 4 || plr.currweaponframe == ZPIKEATTACK2 + 4)
 								if (plr.currweaponanim == 4 && plr.currweapontics == 10)
-									chunksofmeat(plr, pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity,
+									chunksofmeat(plr, hitActor, pHitInfo.hitx, pHitInfo.hity,
 											pHitInfo.hitz, pHitInfo.hitsect, daang);
 							break;
 						case 8: // two handed sword
 							if (plr.currweaponframe == EXCALATTACK1 + 7
 									|| plr.currweaponframe == ZTWOHANDATTACK + 12)
 								if (plr.currweaponanim == 7 && plr.currweapontics == 8)
-									chunksofmeat(plr, pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity,
+									chunksofmeat(plr, hitActor, pHitInfo.hitx, pHitInfo.hity,
 											pHitInfo.hitz, pHitInfo.hitsect, daang);
 							if (plr.currweaponframe == EXCALATTACK2 + 5
 									|| plr.currweaponframe == ZTWOHANDATTACK2 + 5)
 								if (plr.currweaponanim == 5 && plr.currweapontics == 8)
-									chunksofmeat(plr, pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity,
+									chunksofmeat(plr, hitActor, pHitInfo.hitx, pHitInfo.hity,
 											pHitInfo.hitz, pHitInfo.hitsect, daang);
 							break;
 						case 9: // halberd
 							if (plr.currweaponframe == HALBERDATTACK1 + 3
 									|| plr.currweaponframe == ZHALBERDATTACK + 4)
 								if (plr.currweaponanim == 6 && plr.currweapontics == 12)
-									chunksofmeat(plr, pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity,
+									chunksofmeat(plr, hitActor, pHitInfo.hitx, pHitInfo.hity,
 											pHitInfo.hitz, pHitInfo.hitsect, daang);
 							if (plr.currweaponframe == HALBERDATTACK2 + 3
 									|| plr.currweaponframe == ZHALBERDATTACK2 + 3)
 								if (plr.currweaponanim == 4 && plr.currweapontics == 12)
-									chunksofmeat(plr, pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity,
+									chunksofmeat(plr, hitActor, pHitInfo.hitx, pHitInfo.hity,
 											pHitInfo.hitz, pHitInfo.hitsect, daang);
 							break;
 						}
@@ -1606,7 +1610,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 					if (plr.selectedgun > 1) {
 						// JSA GORE on death ?
 						// RAF ans:death
-						chunksofmeat(plr, pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity, pHitInfo.hitz,
+						chunksofmeat(plr, hitActor, pHitInfo.hitx, pHitInfo.hity, pHitInfo.hitz,
 								pHitInfo.hitsect, daang);
 						if (hitspr.picnum == SKELETON
 								|| hitspr.picnum == SKELETONATTACK
@@ -1807,7 +1811,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 				if (hitspr.hitag <= 0) {
 					newstatus(pHitInfo.hitsprite, DIE);
 					if (hitspr.picnum == RAT)
-						chunksofmeat(plr, pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity, pHitInfo.hitz,
+						chunksofmeat(plr, hitActor, pHitInfo.hitx, pHitInfo.hity, pHitInfo.hitz,
 								pHitInfo.hitsect, daang);
 				} else {
 					hitspr.ang = (short) (getangle(plr.x - hitspr.x,
