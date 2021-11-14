@@ -71,16 +71,16 @@ static void fleerat(PLAYER& plr, DWHActor* actor)
 	if (checksector6(actor))
 		return;
 
-	processfluid(actor, zr_florhit, false);
+	processfluid(actor, zr_florHit, false);
 
-	//				switch (checkfluid(i, zr_florhit)) {
+	//				switch (checkfluid(i, zr_florHit)) {
 	//				case TYPELAVA:
 	//				case TYPEWATER:
 	//					spr.z += tileHeight(spr.picnum) << 5;
 	//					break;
 	//				}
 
-	if ((zr_florhit & kHitTypeMask) == kHitSector && (sector[spr.sectnum].floorpicnum == LAVA
+	if (zr_florHit.type == kHitSector && (sector[spr.sectnum].floorpicnum == LAVA
 		|| sector[spr.sectnum].floorpicnum == LAVA2
 		|| sector[spr.sectnum].floorpicnum == LAVA1 || sector[spr.sectnum].floorpicnum == ANILAVA)) {
 		spr.hitag--;

@@ -427,7 +427,7 @@ void aiProcess() {
 		int i = actor->GetSpriteIndex();
 
 		getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
-		switch (checkfluid(i, zr_florhit)) {
+		switch (checkfluid(i, zr_florHit)) {
 		case TYPELAVA:
 		case TYPEWATER:
 			spr.z = zr_florz + (tileHeight(spr.picnum) << 5);
@@ -457,7 +457,7 @@ Collision aimove(DWHActor* actor)
 				spr.z += WH2GRAVITYCONSTANT;
 			else
 				spr.z += GRAVITYCONSTANT;
-			return moveStat.setSector(zr_florhit);
+			return zr_florHit;
 		}
 	}
 
@@ -541,7 +541,7 @@ void aisearch(PLAYER& plr, DWHActor* actor, boolean fly) {
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
 		warpsprite(actor);
 
-	processfluid(actor, zr_florhit, fly);
+	processfluid(actor, zr_florHit, fly);
 
 	SetActorPos(actor, &spr.pos);
 }
@@ -560,9 +560,9 @@ boolean checksector6(DWHActor* actor) {
 	return false;
 }
 
-int checkfluid(int i, int zr_florhit) {
+int checkfluid(int i, Collision& florHit) {
 	SPRITE& spr = sprite[i];
-	if (isValidSector(spr.sectnum) && (zr_florhit & kHitTypeMask) == kHitSector && (sector[spr.sectnum].floorpicnum == WATER
+	if (isValidSector(spr.sectnum) && florHit.type == kHitSector && (sector[spr.sectnum].floorpicnum == WATER
 		/* || sector[spr.sectnum].floorpicnum == LAVA2 */ || sector[spr.sectnum].floorpicnum == LAVA
 		|| sector[spr.sectnum].floorpicnum == SLIME || sector[spr.sectnum].floorpicnum == FLOORMIRROR
 		/*
@@ -581,9 +581,9 @@ int checkfluid(int i, int zr_florhit) {
 	return TYPENONE;
 }
 
-void processfluid(DWHActor* actor, int zr_florhit, boolean fly) {
+void processfluid(DWHActor* actor, Collision& florHit, boolean fly) {
 	SPRITE& spr = actor->s();
-	switch (checkfluid(actor->GetSpriteIndex(), zr_florhit)) {
+	switch (checkfluid(actor->GetSpriteIndex(), florHit)) {
 	case TYPELAVA:
 		if (!fly) {
 			spr.z += tileHeight(spr.picnum) << 5;

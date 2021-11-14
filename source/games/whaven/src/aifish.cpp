@@ -61,7 +61,7 @@ static void chasefish(PLAYER& plr, DWHActor* actor)
 	if (checksector6(actor))
 		return;
 
-	processfluid(actor, zr_florhit, false);
+	processfluid(actor, zr_florHit, false);
 
 	if (sector[osectnum].lotag == KILLSECTOR) {
 		spr.hitag--;
@@ -71,7 +71,7 @@ static void chasefish(PLAYER& plr, DWHActor* actor)
 
 	SetActorPos(actor, &spr.pos);
 
-	if ((zr_florhit & kHitTypeMask) == kHitSector && (sector[spr.sectnum].floorpicnum == LAVA
+	if (zr_florHit.type == kHitSector && (sector[spr.sectnum].floorpicnum == LAVA
 		|| sector[spr.sectnum].floorpicnum == LAVA1 || sector[spr.sectnum].floorpicnum == ANILAVA)) {
 		spr.hitag--;
 		if (spr.hitag < 0)
@@ -91,7 +91,7 @@ static void attackfish(PLAYER& plr, DWHActor* actor)
 
 	spr.z = sector[spr.sectnum].floorz;
 
-	switch (checkfluid(i, zr_florhit)) {
+	switch (checkfluid(i, zr_florHit)) {
 	case TYPELAVA:
 		spr.hitag--;
 		if (spr.hitag < 0)
@@ -138,7 +138,7 @@ static void skirmishfish(PLAYER& plr, DWHActor* actor)
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
 		warpsprite(actor);
 
-	processfluid(actor, zr_florhit, false);
+	processfluid(actor, zr_florHit, false);
 
 	SetActorPos(actor, &spr.pos);
 

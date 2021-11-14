@@ -58,7 +58,7 @@ static void chasedragon(PLAYER& plr, DWHActor* actor)
 	if (checksector6(actor))
 		return;
 
-	processfluid(actor, zr_florhit, false);
+	processfluid(actor, zr_florHit, false);
 
 	if (sector[osectnum].lotag == KILLSECTOR) {
 		spr.hitag--;
@@ -99,7 +99,7 @@ static void fleedragon(PLAYER& plr, DWHActor* actor)
 	if (checksector6(actor))
 		return;
 
-	processfluid(actor, zr_florhit, false);
+	processfluid(actor, zr_florHit, false);
 
 	SetActorPos(actor, &spr.pos);
 }
@@ -267,7 +267,7 @@ static void paindragon(PLAYER& plr, DWHActor* actor)
 
 	spr.lotag -= TICSPERFRAME;
 	aimove(actor);
-	processfluid(actor, zr_florhit, false);
+	processfluid(actor, zr_florHit, false);
 	SetActorPos(actor, &spr.pos);
 }
 

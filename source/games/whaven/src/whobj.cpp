@@ -1349,7 +1349,7 @@ void newstatus(short sn, int seq) {
 				(spr.clipdist) << 2, CLIPMASK0);
 		spr.z = zr_florz;
 
-		if ((zr_florhit & kHitTypeMask) == kHitSector) {
+		if (zr_florHit.type == kHitSector) {
 			if (spr.sectnum != MAXSECTORS && (sector[spr.sectnum].floorpicnum == WATER
 					|| sector[spr.sectnum].floorpicnum == SLIME)) {
 				if (spr.picnum == MINOTAURDEAD) {

@@ -163,7 +163,8 @@ extern uint8_t wallshadearray[MAXWALLS];
 extern short floormirrorsector[64];
 extern int floormirrorcnt;
 
-extern int zr_ceilz, zr_ceilhit, zr_florz, zr_florhit;
+extern int zr_ceilz, zr_florz;
+extern Collision zr_florHit;
 void getzrange(int x, int y, int z, short sectnum, int walldist, int cliptype);
 
 struct Neartag {

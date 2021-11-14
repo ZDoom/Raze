@@ -51,7 +51,7 @@ static void chasewillow(PLAYER& plr, DWHActor* actor)
 	if (checksector6(actor))
 		return;
 
-	processfluid(actor, zr_florhit, true);
+	processfluid(actor, zr_florHit, true);
 
 	if (sector[osectnum].lotag == KILLSECTOR) {
 		spr.hitag--;
@@ -61,7 +61,7 @@ static void chasewillow(PLAYER& plr, DWHActor* actor)
 
 	SetActorPos(actor, &spr.pos);
 
-	if ((zr_florhit & kHitTypeMask) == kHitSector && (sector[spr.sectnum].floorpicnum == LAVA
+	if (zr_florHit.type == kHitSector && (sector[spr.sectnum].floorpicnum == LAVA
 		|| sector[spr.sectnum].floorpicnum == LAVA1 || sector[spr.sectnum].floorpicnum == ANILAVA)) {
 		spr.hitag--;
 		if (spr.hitag < 0)
@@ -206,7 +206,7 @@ static void fleewillow(PLAYER& plr, DWHActor* actor)
 	if (checksector6(actor))
 		return;
 
-	processfluid(actor, zr_florhit, true);
+	processfluid(actor, zr_florHit, true);
 
 	SetActorPos(actor, &spr.pos);
 }

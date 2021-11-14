@@ -73,7 +73,7 @@ static void chasekobold(PLAYER& plr, DWHActor* actor)
 	if (checksector6(actor))
 		return;
 
-	processfluid(actor, zr_florhit, false);
+	processfluid(actor, zr_florHit, false);
 
 	if (sector[osectnum].lotag == KILLSECTOR) {
 		spr.hitag--;
@@ -83,7 +83,7 @@ static void chasekobold(PLAYER& plr, DWHActor* actor)
 
 	SetActorPos(actor, &spr.pos);
 
-	if ((zr_florhit & kHitTypeMask) == kHitSector && (sector[spr.sectnum].floorpicnum == LAVA
+	if (zr_florHit.type == kHitSector && (sector[spr.sectnum].floorpicnum == LAVA
 		|| sector[spr.sectnum].floorpicnum == LAVA1 || sector[spr.sectnum].floorpicnum == ANILAVA)) {
 		spr.hitag--;
 		if (spr.hitag < 0)
@@ -127,7 +127,7 @@ static void painkobold(PLAYER& plr, DWHActor* actor)
 	}
 
 	aimove(actor);
-	processfluid(actor, zr_florhit, false);
+	processfluid(actor, zr_florHit, false);
 	SetActorPos(actor, &spr.pos);
 
 	checkexplkobold(plr, actor);
@@ -196,7 +196,7 @@ static void fleekobold(PLAYER& plr, DWHActor* actor)
 	if (checksector6(actor))
 		return;
 
-	processfluid(actor, zr_florhit, false);
+	processfluid(actor, zr_florHit, false);
 
 	SetActorPos(actor, &spr.pos);
 
@@ -211,7 +211,7 @@ static void attackkobold(PLAYER& plr, DWHActor* actor)
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
 	spr.z = zr_florz;
 
-	switch (checkfluid(i, zr_florhit))
+	switch (checkfluid(i, zr_florHit))
 	{
 	case TYPELAVA:
 	case TYPEWATER:
@@ -319,7 +319,7 @@ static void skirmishkobold(PLAYER& plr, DWHActor* actor)
 	if ((spr.sectnum != osectnum) && (sector[spr.sectnum].lotag == 10))
 		warpsprite(actor);
 
-	processfluid(actor, zr_florhit, false);
+	processfluid(actor, zr_florHit, false);
 
 	SetActorPos(actor, &spr.pos);
 

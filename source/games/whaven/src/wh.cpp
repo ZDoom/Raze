@@ -25,10 +25,14 @@ short floormirrorsector[64];
 int floormirrorcnt;
 
 // We owe this to Java. Unfortunately WitchavenGDX was a bit sloppy with the use of its global variables so the wrapper is here to stay. :(
-int zr_ceilz, zr_ceilhit, zr_florz, zr_florhit;
+int zr_ceilz, zr_florz;
+Collision zr_florHit;
 void getzrange(int x, int y, int z, short sectnum, int walldist, int cliptype) 
 {
-	::getzrange(x, y, z, sectnum, &zr_ceilz, &zr_ceilhit, &zr_florz, &zr_florhit, walldist, cliptype);
+	int zr_ceilhit; // The game does not use this.
+	int lflorhit;
+	::getzrange(x, y, z, sectnum, &zr_ceilz, &zr_ceilhit, &zr_florz, &lflorhit, walldist, cliptype);
+	zr_florHit.setFromEngine(lflorhit);
 }
 
 //This was done better. Strange.

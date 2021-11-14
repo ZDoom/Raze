@@ -197,7 +197,7 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
  
 void processinput(int num) {
 
-	int goalz, lohit = 0, loz = 0, tics, xvect, yvect;
+	int goalz, loz = 0, tics, xvect, yvect;
 
 	int oldposx, oldposy;
 	int dist;
@@ -246,13 +246,14 @@ void processinput(int num) {
 	getzrange(plr.x, plr.y, plr.z, plr.sector, 128, CLIPMASK0);
 
 	loz = zr_florz;
-	lohit = zr_florhit;
+	auto lohit = zr_florHit;
 
 	sprite[plr.spritenum].cstat ^= 1;
 
-	if ((lohit & 0xc000) == 49152) {
-		if ((sprite[lohit & 4095].z - plr.z) <= (getPlayerHeight() << 8))
-			onsprite = (short)(lohit & 4095);
+	if (lohit.type == kHitSprite) {
+		auto& spr = lohit.actor->s();
+		if ((spr.z - plr.z) <= (getPlayerHeight() << 8))
+			onsprite = lohit.actor->GetSpriteIndex();
 	}
 	else
 		onsprite = -1;

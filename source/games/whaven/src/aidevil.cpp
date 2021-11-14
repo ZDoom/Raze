@@ -51,7 +51,7 @@ static void chasedevil(PLAYER& plr, DWHActor* actor)
 	if (checksector6(actor))
 		return;
 
-	processfluid(actor, zr_florhit, false);
+	processfluid(actor, zr_florHit, false);
 
 	if (sector[osectnum].lotag == KILLSECTOR) {
 		spr.hitag--;
@@ -96,7 +96,7 @@ static void paindevil(PLAYER& plr, DWHActor* actor)
 	}
 
 	aimove(actor);
-	processfluid(actor, zr_florhit, false);
+	processfluid(actor, zr_florHit, false);
 	SetActorPos(actor, &spr.pos);
 }
 
@@ -160,7 +160,7 @@ static void fleedevil(PLAYER& plr, DWHActor* actor)
 	if (checksector6(actor))
 		return;
 
-	processfluid(actor, zr_florhit, false);
+	processfluid(actor, zr_florHit, false);
 
 	SetActorPos(actor, &spr.pos);
 }
@@ -173,7 +173,7 @@ static void attackdevil(PLAYER& plr, DWHActor* actor)
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
 	spr.z = zr_florz;
 
-	switch (checkfluid(i, zr_florhit)) {
+	switch (checkfluid(i, zr_florHit)) {
 	case TYPELAVA:
 	case TYPEWATER:
 		spr.z += tileHeight(spr.picnum) << 5;
