@@ -559,7 +559,7 @@ void gonzoProcess(PLAYER& plr)
 		}
 	}
 
-	short movestat;
+	Collision moveStat;
 	it.Reset(AMBUSH);
 	while (auto actor = it.Next())
 	{
@@ -570,7 +570,7 @@ void gonzoProcess(PLAYER& plr)
 		case 1: // forward
 			spr.zvel += TICSPERFRAME << 3;
 
-			movestat = (short)movesprite(i, (bcos(spr.ang) * TICSPERFRAME) << 3,
+			moveStat = movesprite(actor, (bcos(spr.ang) * TICSPERFRAME) << 3,
 				(bsin(spr.ang) * TICSPERFRAME) << 3, spr.zvel, 4 << 8, 4 << 8, 0);
 
 			spr.lotag -= TICSPERFRAME;
@@ -580,19 +580,19 @@ void gonzoProcess(PLAYER& plr)
 				changespritestat(i, LAND);
 			}
 
-			if ((movestat & 0xc000) == 49152) { // Bullet hit a sprite
-				int k = (movestat & 4095);
+			if (moveStat.type== kHitSprite) { // Bullet hit a sprite
+				int k = moveStat.actor->GetSpriteIndex();
 				for (int j = 0; j < 15; j++) {
 					shards(k, 1);
 				}
-				damageactor(plr, movestat, i);
+				damageactor(plr, moveStat.actor->GetSpriteIndex(), i);
 			}
 
 			break;
 		case 2: // fall
 			spr.zvel += TICSPERFRAME << 4;
 
-			movestat = (short)movesprite(i, (bcos(spr.ang) * TICSPERFRAME) << 1,
+			moveStat = movesprite(actor, (bcos(spr.ang) * TICSPERFRAME) << 1,
 				(bsin(spr.ang) * TICSPERFRAME) << 1, spr.zvel, 4 << 8, 4 << 8, 0);
 
 			spr.lotag -= TICSPERFRAME;
@@ -607,7 +607,7 @@ void gonzoProcess(PLAYER& plr)
 
 			spr.zvel -= TICSPERFRAME << 4;
 
-			movestat = (short)movesprite(i, (bcos(spr.ang) * TICSPERFRAME) << 3,
+			moveStat = movesprite(actor, (bcos(spr.ang) * TICSPERFRAME) << 3,
 				(bsin(spr.ang) * TICSPERFRAME) << 3, spr.zvel, 4 << 8, 4 << 8, 0);
 
 			spr.lotag -= TICSPERFRAME;

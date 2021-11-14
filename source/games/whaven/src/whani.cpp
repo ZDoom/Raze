@@ -11,7 +11,7 @@ void animateobjs(PLAYER& plr) {
 	boolean hitdamage = false;
 	short osectnum = 0;
 	int dax, day, daz = 0, j, k;
-	short movestat = 0;
+	Collision moveStat = 0;
 
 	short startwall, endwall;
 
@@ -29,17 +29,17 @@ void animateobjs(PLAYER& plr) {
 			switch (spr.extra) {
 			case 1:
 				spr.zvel += TICSPERFRAME << 3;
-				movestat = movesprite((short) i, (bcos(spr.ang) * TICSPERFRAME) << 3,
+				moveStat = movesprite(actor, (bcos(spr.ang) * TICSPERFRAME) << 3,
 						(bsin(spr.ang) * TICSPERFRAME) << 3, spr.zvel, 4 << 8, 4 << 8, 0);
 				break;
 			case 2:
 				spr.zvel += TICSPERFRAME << 5;
-				movestat = movesprite((short) i, (bcos(spr.ang) * TICSPERFRAME) << 1,
+				moveStat = movesprite(actor, (bcos(spr.ang) * TICSPERFRAME) << 1,
 						(bsin(spr.ang) * TICSPERFRAME) << 1, spr.zvel, 4 << 8, 4 << 8, 0);
 				break;
 			case 3:
 				spr.zvel -= TICSPERFRAME << 5;
-				movestat = movesprite((short) i, (bcos(spr.ang) * TICSPERFRAME) << 2,
+				moveStat = movesprite(actor, (bcos(spr.ang) * TICSPERFRAME) << 2,
 						(bsin(spr.ang) * TICSPERFRAME) << 2, spr.zvel, 4 << 8, 4 << 8, 0);
 				if (spr.lotag < 0) {
 					spr.lotag = 30;
@@ -67,7 +67,7 @@ void animateobjs(PLAYER& plr) {
 				daz = spr.zvel -= TICSPERFRAME << 4;
 				spr.ang = (short) ((spr.ang + (TICSPERFRAME << 2)) & 2047);
 
-				movesprite((short) i, (bcos(spr.ang) * TICSPERFRAME) << 3,
+				movesprite(actor, (bcos(spr.ang) * TICSPERFRAME) << 3,
 						(bsin(spr.ang) * TICSPERFRAME) << 3, daz, 4 << 8, 4 << 8, 1);
 
 				if (osectnum != spr.sectnum) {
@@ -99,7 +99,7 @@ void animateobjs(PLAYER& plr) {
 				daz = spr.zvel += TICSPERFRAME << 4;
 				spr.ang = (short) ((spr.ang + (TICSPERFRAME << 2)) & 2047);
 
-				movesprite((short) i, (bcos(spr.ang) * TICSPERFRAME) << 3,
+				movesprite(actor, (bcos(spr.ang) * TICSPERFRAME) << 3,
 						(bsin(spr.ang) * TICSPERFRAME) << 3, daz, 4 << 8, 4 << 8, 1);
 
 				if (osectnum != spr.sectnum) {
@@ -130,7 +130,7 @@ void animateobjs(PLAYER& plr) {
 				daz = 0;
 				spr.ang = (short) ((spr.ang + (TICSPERFRAME << 2)) & 2047);
 
-				movesprite((short) i, (bcos(spr.ang) * TICSPERFRAME) << 3,
+				movesprite(actor, (bcos(spr.ang) * TICSPERFRAME) << 3,
 						(bsin(spr.ang) * TICSPERFRAME) << 3, daz, 4 << 8, 4 << 8, 1);
 
 				if (osectnum != spr.sectnum) {
@@ -295,7 +295,7 @@ void animateobjs(PLAYER& plr) {
 			for (k = startwall; k <= endwall; k++) {
 				wall[k].shade = (byte) ((wall[k].shade + j) >> 1);
 			}
-			movestat = movesprite((short) i,
+			moveStat = movesprite(actor,
 					(plr.angle.ang.bcos() << TICSPERFRAME) << 8,
 					(plr.angle.ang.bsin() << TICSPERFRAME) << 8, 0, 4 << 8, 4 << 8, 0);
 
@@ -446,11 +446,11 @@ void animateobjs(PLAYER& plr) {
 				spr.extra = 1;
 				spr.lotag = 512;
 			} else {
-				movestat = movesprite((short) i,
+				moveStat = movesprite(actor,
 						(bcos(spr.ang) * TICSPERFRAME) << 3,
 						(bsin(spr.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
 				SetActorPos(actor, &spr.pos);
-				if (movestat != 0)// moveStat.type != kHitNone)
+				if (moveStat.type != kHitNone)
 					spr.ang = (short) (krand() & 2047);
 			}
 			break;
@@ -463,11 +463,11 @@ void animateobjs(PLAYER& plr) {
 			} else {
 				spr.z -= TICSPERFRAME << 4;
 				spr.ang = (short) ((spr.ang + (TICSPERFRAME << 2)) & 2047);
-				movestat = movesprite((short) i,
+				moveStat = movesprite(actor,
 						(bcos(spr.ang) * TICSPERFRAME) << 3,
 						(bsin(spr.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
 				SetActorPos(actor, &spr.pos);
-				if (movestat != 0)// moveStat.type != kHitNone)
+				if (moveStat.type != kHitNone)
 					spr.ang = (short) (krand() & 2047);
 			}
 			break;
@@ -479,18 +479,18 @@ void animateobjs(PLAYER& plr) {
 				DeleteActor(actor);
 				continue;
 			} else {
-				movestat = movesprite((short) i,
+				moveStat = movesprite(actor,
 						(bcos(spr.ang) * TICSPERFRAME) << 3,
 						(bsin(spr.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
 				SetActorPos(actor, &spr.pos);
-				if ((movestat & 0xc000) == 16384) {// Hits a ceiling / floor
+				if (moveStat.type == kHitSector) {// Hits a ceiling / floor
 					if (i == lastbat) {
 						soundEngine->StopSound(CHAN_BAT);
 					}
 					DeleteActor(actor);
 					continue;
 				}
-				if (movestat != 0)// moveStat.type != kHitNone)
+				if (moveStat.type != kHitNone)
 					spr.ang = (short) (krand() & 2047);
 			}
 			break;
@@ -716,7 +716,7 @@ void animateobjs(PLAYER& plr) {
 		if (spr.z < zr_florz)
 			daz = spr.zvel += (TICSPERFRAME << 9);
 
-		movestat = movesprite(i, (bcos(spr.ang) * TICSPERFRAME) << 3,
+		moveStat = movesprite(actor, (bcos(spr.ang) * TICSPERFRAME) << 3,
 				(bsin(spr.ang) * TICSPERFRAME) << 3, daz, 4 << 8, 4 << 8, 0);
 
 		SetActorPos(actor, &spr.pos);
@@ -727,7 +727,7 @@ void animateobjs(PLAYER& plr) {
 			startredflash(50);
 		}
 
-		if ((movestat & 0xc0000) == 16384) {
+		if (moveStat.type == kHitSector) {
 			if (sector[spr.sectnum].floorpicnum == WATER) {
 				makemonstersplash(SPLASHAROO, i);
 			}
@@ -762,7 +762,7 @@ void animateobjs(PLAYER& plr) {
 		if (spr.z < zr_florz)
 			daz = spr.zvel += (TICSPERFRAME << 5);
 
-		movestat = movesprite(i, (bcos(spr.ang) * TICSPERFRAME) << 3,
+		moveStat = movesprite(actor, (bcos(spr.ang) * TICSPERFRAME) << 3,
 				(bsin(spr.ang) * TICSPERFRAME) << 3, daz, 4 << 8, 4 << 8, 0);
 
 		SetActorPos(actor, &spr.pos);
@@ -776,15 +776,15 @@ void animateobjs(PLAYER& plr) {
 			continue;
 		}
 
-		if ((movestat & 0xc000) == 16384) {
+		if (moveStat.type == kHitSector) {
 			SetNewStatus(actor, BROKENVASE);
 			continue;
 		}
 
-		if ((movestat & 0xc000) == 49152) { // Bullet hit a sprite
+		if (moveStat.type == kHitSprite) { // Bullet hit a sprite
 
-			if (spr.owner != movestat) {
-				hitdamage = damageactor(plr, movestat, i);
+			if (spr.owner != moveStat.actor->GetSpriteIndex()) {
+				hitdamage = damageactor(plr, moveStat.actor->GetSpriteIndex(), i);
 				if (hitdamage) {
 					SetNewStatus(actor, BROKENVASE);
 					continue;
@@ -811,12 +811,12 @@ void animateobjs(PLAYER& plr) {
 			daz = spr.zvel += (TICSPERFRAME << 1);
 
 		// clip type was 1
-		movestat = movesprite(i, (bcos(spr.ang) * TICSPERFRAME) << 3,
+		moveStat = movesprite(actor, (bcos(spr.ang) * TICSPERFRAME) << 3,
 				(bsin(spr.ang) * TICSPERFRAME) << 3, daz, 4 << 8, 4 << 8, 0);
 
 		SetActorPos(actor, &spr.pos);
 
-		if (spr.lotag < 0 || (movestat & 0xc000) == 32768) {
+		if (spr.lotag < 0 || moveStat.type == kHitWall) {
 			spr.lotag = 0;
 			ChangeActorStat(actor, 0);
 			if (spr.z < sector[spr.sectnum].floorz) {
@@ -958,25 +958,25 @@ void animateobjs(PLAYER& plr) {
 
 		if (spr.picnum == THROWPIKE) {
 			spr.cstat = 0;
-			movestat = movesprite((short) i,
+			moveStat = movesprite(actor,
 					(bcos(spr.extra) * TICSPERFRAME) << 6,
 					(bsin(spr.extra) * TICSPERFRAME) << 6, daz, 4 << 8, 4 << 8, 1);
 			spr.cstat = 21;
 		} else {
-			movestat = movesprite((short) i,
+			moveStat = movesprite(actor,
 					(bcos(spr.ang) * TICSPERFRAME) << 6, // was 3
 					(bsin(spr.ang) * TICSPERFRAME) << 6, // was 3
 					daz, 4 << 8, 4 << 8, 1);
 		}
 
-		if (movestat != 0 && spr.picnum == MONSTERBALL)
+		if (moveStat.type != kHitNone && spr.picnum == MONSTERBALL)
 			if (spr.owner == sprite[plr.spritenum].owner) {
 				explosion2(i, spr.x, spr.y, spr.z, i);
 			} else {
 				explosion(i, spr.x, spr.y, spr.z, i);
 			}
 
-		if ((movestat & 0xc000) == 16384) { // Hits a ceiling / floor
+		if (moveStat.type == kHitSector) { // Hits a ceiling / floor
 			if (spr.picnum == THROWPIKE) {
 				spr.picnum++;
 				spr.detail = WALLPIKETYPE;
@@ -986,7 +986,7 @@ void animateobjs(PLAYER& plr) {
 			}
 			DeleteActor(actor);
 			continue;
-		} else if ((movestat & 0xc000) == 32768) { // hit a wall
+		} else if (moveStat.type == kHitWall) { // hit a wall
 
 			if (spr.picnum == MONSTERBALL) {
 				if (spr.owner == sprite[plr.spritenum].owner)
@@ -1004,9 +1004,9 @@ void animateobjs(PLAYER& plr) {
 			DeleteActor(actor);
 			continue;
 		} else if (spr.lotag < 0 && spr.picnum == PLASMA)
-			movestat = 1;
+			moveStat.type = -1;
 
-		if ((movestat & 0xc000) == 49152) { // Bullet hit a sprite
+		if (moveStat.type == kHitSprite) { // Bullet hit a sprite
 			if (spr.picnum == MONSTERBALL) {
 				if (spr.owner == sprite[plr.spritenum].owner)
 					explosion2(i, spr.x, spr.y, spr.z, i);
@@ -1014,15 +1014,15 @@ void animateobjs(PLAYER& plr) {
 					explosion(i, spr.x, spr.y, spr.z, i);
 			}
 
-			if (spr.owner != movestat)
-				hitdamage = damageactor(plr, movestat, i);
+			if (spr.owner != moveStat.actor->GetSpriteIndex())
+				hitdamage = damageactor(plr, moveStat.actor->GetSpriteIndex(), i);
 			if (hitdamage) {
 				DeleteActor(actor);
 				continue;
 			}
 		}
 
-		if (movestat != 0 || spr.lotag < 0) {
+		if (moveStat.type != kHitNone || spr.lotag < 0) {
 			int pic = spr.picnum;
 			switch (pic) {
 			case PLASMA:
@@ -1076,7 +1076,7 @@ void animateobjs(PLAYER& plr) {
 
 		spr.cstat = 0;
 
-		movestat = movesprite(i, (bcos(spr.extra) * TICSPERFRAME) << 6,
+		moveStat = movesprite(actor, (bcos(spr.extra) * TICSPERFRAME) << 6,
 				(bsin(spr.extra) * TICSPERFRAME) << 6, daz, 4 << 8, 4 << 8, 0);
 
 		if (spr.picnum == WALLARROW || spr.picnum == THROWHALBERD)
@@ -1086,7 +1086,7 @@ void animateobjs(PLAYER& plr) {
 		else
 			spr.cstat = 0x15;
 
-		if ((movestat & 0xc000) == 16384) { // Hits a ceiling / floor
+		if (moveStat.type == kHitSector) { // Hits a ceiling / floor
 			// EG Bugfix 17 Aug 2014: Since the game thinks that a javlin hitting the
 			// player's pike axe is a
 			// floor/ceiling hit rather than a sprite hit, we'll need to check if the JAVLIN
@@ -1102,7 +1102,7 @@ void animateobjs(PLAYER& plr) {
 				ChangeActorStat(actor, INACTIVE); // EG Note: RAF.H gives this a nice name, so use it
 			}
 			continue;
-		} else if ((movestat & 0xc000) == 32768) { // hit a wall
+		} else if (moveStat.type == kHitWall) { // hit a wall
 
 			if (spr.picnum == THROWPIKE) {
 				spr.picnum++;
@@ -1113,10 +1113,10 @@ void animateobjs(PLAYER& plr) {
 			continue;
 		}
 
-		if ((movestat - 49152) >= 0 || (movestat & 0xc000) == 49152) { // Bullet hit a sprite
-			j = (movestat & 4095); // j is the spritenum that the bullet (spritenum i) hit
+		if (moveStat.type == kHitSprite) { // Bullet hit a sprite
+			j = moveStat.actor->GetSpriteIndex(); // j is the spritenum that the bullet (spritenum i) hit
 
-			hitdamage = damageactor(plr, movestat, i);
+			hitdamage = damageactor(plr, j, i);
 			if (hitdamage)
 				continue;
 
@@ -1132,7 +1132,7 @@ void animateobjs(PLAYER& plr) {
 				}
 		}
 
-		if (movestat != 0) {
+		if (moveStat.type != kHitNone) {
 			DeleteActor(actor);
 		}
 	}
@@ -1149,7 +1149,7 @@ void animateobjs(PLAYER& plr) {
 		dax = spr.xvel >> 3;
 		day = spr.yvel >> 3;
 		daz = spr.zvel -= TICSPERFRAME << 2;
-		movestat = movesprite(i, (bcos(spr.ang) * TICSPERFRAME) << 3,
+		moveStat = movesprite(actor, (bcos(spr.ang) * TICSPERFRAME) << 3,
 				(bsin(spr.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 1);
 		SetActorPos(actor, &spr.pos);
 		if (spr.extra == 0) {
@@ -1190,9 +1190,9 @@ void animateobjs(PLAYER& plr) {
 			yvel >>= 1;
 		}
 
-		movestat = movesprite((short) i, xvel, yvel, daz, 4 << 8, 4 << 8, 1);
+		moveStat = movesprite(actor, xvel, yvel, daz, 4 << 8, 4 << 8, 1);
 
-		if ((movestat & 0xc000) == 16384) {
+		if (moveStat.type == kHitSector) {
 			if (sector[spr.sectnum].floorpicnum == WATER || sector[spr.sectnum].floorpicnum == SLIME
 					|| sector[spr.sectnum].floorpicnum == FLOORMIRROR) {
 				if (spr.picnum == FISH)
@@ -1213,7 +1213,7 @@ void animateobjs(PLAYER& plr) {
 					SetNewStatus(actor, BLOOD);
 				}
 			}
-		} else if ((movestat & 0xc000) == 32768) {
+		} else if (moveStat.type == kHitWall) {
 			if (spr.picnum >= BONECHUNK1 && spr.picnum <= BONECHUNKEND) {
 				DeleteActor(actor);
 			} else {
@@ -1276,9 +1276,9 @@ void animateobjs(PLAYER& plr) {
 		day = 0;
 		daz = spr.zvel += TICSPERFRAME << 1;
 		daz = (((spr.zvel) * TICSPERFRAME) << 1);
-		movestat = movesprite(i, dax, day, daz, 4 << 8, 4 << 8, 1);
+		moveStat = movesprite(actor, dax, day, daz, 4 << 8, 4 << 8, 1);
 
-		if ((movestat & 0xc000) == 16384) {
+		if (moveStat.type == kHitSector) {
 			spr.lotag = 1200;
 			SetNewStatus(actor, BLOOD);
 		}
@@ -1476,7 +1476,7 @@ void animateobjs(PLAYER& plr) {
 			dax = ((((int) spr.xvel) * TICSPERFRAME) >> 3);
 			day = ((((int) spr.yvel) * TICSPERFRAME) >> 3);
 			daz = (((int) spr.zvel) * TICSPERFRAME);
-			movestat = movesprite((short) i, dax, day, daz, 4 << 8, 4 << 8, 1);
+			moveStat = movesprite(actor, dax, day, daz, 4 << 8, 4 << 8, 1);
 			SetActorPos(actor, &spr.pos);
 		}
 
@@ -1485,12 +1485,12 @@ void animateobjs(PLAYER& plr) {
 
 			daz = spr.zvel += TICSPERFRAME << 4;
 
-			movestat = movesprite((short) i, (bcos(spr.ang) * TICSPERFRAME) << 3,
+			moveStat = movesprite(actor, (bcos(spr.ang) * TICSPERFRAME) << 3,
 					(bsin(spr.ang) * TICSPERFRAME) << 3, daz, 4 << 8, 4 << 8, 1);
 
 		}
 
-		if (spr.lotag < 0 || movestat != 0)// moveStat.type != kHitNone)
+		if (spr.lotag < 0 || moveStat.type != kHitNone)
 			if (spr.picnum == PLASMA || spr.picnum == EXPLOSION || spr.picnum == FIREBALL
 					|| spr.picnum == MONSTERBALL || spr.picnum == FATSPANK
 					|| spr.picnum == ICECUBE) {
@@ -1499,7 +1499,7 @@ void animateobjs(PLAYER& plr) {
 			}
 
 		if (spr.z + (8 << 8) >= sector[spr.sectnum].floorz && spr.picnum == ICECUBE
-				|| movestat != 0)// moveStat.type != kHitNone)
+				|| moveStat.type != kHitNone)
 		{
 			spr.z = sector[spr.sectnum].floorz;
 			ChangeActorStat(actor, 0);

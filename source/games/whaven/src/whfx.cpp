@@ -800,7 +800,9 @@ void thesplash() {
 
 void makeasplash(int picnum, PLAYER& plr) {
 	int j = insertsprite(plr.sector, MASPLASH);
-	auto& spawned = sprite[j]; 
+	auto spawnedactor = &whActors[j];
+	auto& spawned = spawnedactor->s();
+
 	spawned.x = plr.x;
 	spawned.y = plr.y;
 	spawned.z = sector[plr.sector].floorz + (tileHeight(picnum) << 8);
@@ -827,7 +829,7 @@ void makeasplash(int picnum, PLAYER& plr) {
 		break;
 	}
 
-	movesprite((short) j, (bcos(spawned.ang) * TICSPERFRAME) << 3,
+	movesprite(spawnedactor, (bcos(spawned.ang) * TICSPERFRAME) << 3,
 			(bsin(spawned.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
 	spawned.backuploc();
 }
@@ -996,7 +998,8 @@ void warpfxsprite(int s) {
 	PLAYER& plr = player[pyrn];
 
 	int j = insertsprite(sprite[s].sectnum, WARPFX);
-	auto& spawned = sprite[j];
+	auto spawnedactor = &whActors[j];
+	auto& spawned = spawnedactor->s();
 
 	spawned.x = sprite[s].x;
 	spawned.y = sprite[s].y;
@@ -1030,7 +1033,7 @@ void warpfxsprite(int s) {
 
 	int daz = (((spawned.zvel) * TICSPERFRAME) >> 3);
 
-	movesprite((short) j, (bcos(daang) * TICSPERFRAME) << 3,
+	movesprite(spawnedactor, (bcos(daang) * TICSPERFRAME) << 3,
 			(bsin(daang) * TICSPERFRAME) << 3, daz, 4 << 8, 4 << 8, 1);
 	spawned.backuploc();
 }

@@ -1730,15 +1730,16 @@ boolean damageactor(PLAYER& plr, int hitobject, short const i)
 	return false;
 }
 
-int movesprite(short spritenum, int dx, int dy, int dz, int ceildist, int flordist, int cliptype) {
+Collision movesprite(DWHActor* actor, int dx, int dy, int dz, int ceildist, int flordist, int cliptype) {
 
+	Collision coll;
 	int zoffs;
 	int retval;
 	int tempshort, dasectnum;
 
-	SPRITE& spr = sprite[spritenum];
+	SPRITE& spr = actor->s();
 	if (spr.statnum == MAXSTATUS)
-		return (-1);
+		return coll.setNone();
 
 	int dcliptype = 0;
 	switch (cliptype) {
@@ -1769,7 +1770,7 @@ int movesprite(short spritenum, int dx, int dy, int dz, int ceildist, int flordi
 	spr.y = pos.y;
 	
 	if ((dasectnum != spr.sectnum) && (dasectnum >= 0))
-		changespritesect(spritenum, dasectnum);
+		changespritesect(actor->GetSpriteIndex(), dasectnum);
 
 	// Set the blocking bit to 0 temporarly so getzrange doesn't pick up
 	// its own sprite
@@ -1781,11 +1782,11 @@ int movesprite(short spritenum, int dx, int dy, int dz, int ceildist, int flordi
 	int daz = spr.z + zoffs + dz;
 	if ((daz <= zr_ceilz) || (daz > zr_florz)) {
 		if (retval != 0)
-			return (retval);
-		return (16384 | dasectnum);
+			return Collision(retval);
+		return coll.setSector(dasectnum);
 	}
 	spr.z = (daz - zoffs);
-	return (retval);
+	return Collision(retval);
 }
 
 void trowajavlin(int s) {

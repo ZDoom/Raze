@@ -1756,7 +1756,8 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 		}
 		if (pHitInfo.hitwall > 0 && pHitInfo.hitsprite > 0) {
 			j = insertsprite(pHitInfo.hitsect, FX);
-			auto& spawned = sprite[j];
+			auto spawnedactor = &whActors[j];
+			auto& spawned = spawnedactor->s();
 			spawned.x = pHitInfo.hitx;
 			spawned.y = pHitInfo.hity;
 			spawned.z = pHitInfo.hitz + (8 << 8);
@@ -1773,7 +1774,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 			spawned.owner = sprite[plr.spritenum].owner;
 			spawned.lotag = 32;
 			spawned.hitag = 0;
-			movesprite((short) j, (bcos(spawned.ang) * TICSPERFRAME) << 3,
+			movesprite(spawnedactor, (bcos(spawned.ang) * TICSPERFRAME) << 3,
 					(bsin(spawned.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
 			spawned.backuploc();
 		}
@@ -1955,7 +1956,8 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 
 					if (plr.weapon[plr.currweapon] == 3) {
 						j = insertsprite(plr.sector, MISSILE);
-						auto& spawned = sprite[j];
+						auto spawnedactor = &whActors[j];
+						auto& spawned = spawnedactor->s();
 						throwpikesprite[throwpikecnt] = j;
 						spawned.x = plr.x;
 						spawned.y = plr.y;
@@ -1980,7 +1982,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 						spawned.lotag = 1024;
 						spawned.hitag = 0;
 						spawned.pal = 0;
-						movesprite((short) j, (bcos(spawned.extra) * TICSPERFRAME) << 3,
+						movesprite(spawnedactor, (bcos(spawned.extra) * TICSPERFRAME) << 3,
 								(bsin(spawned.extra) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
 						setsprite((short) j, spawned.x, spawned.y, spawned.z);
 						spawned.backuploc();
@@ -2053,7 +2055,8 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 					if (plr.weapon[plr.currweapon] == 3) {
 
 						j = insertsprite(plr.sector, MISSILE);
-						auto& spawned = sprite[j];
+						auto spawnedactor = &whActors[j];
+						auto& spawned = spawnedactor->s();
 						throwpikesprite[throwpikecnt] = j;
 						spawned.x = plr.x;
 						spawned.y = plr.y;
@@ -2075,13 +2078,14 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 						spawned.lotag = 1024;
 						spawned.hitag = 0;
 						spawned.pal = 0;
-						movesprite((short) j, (bcos(spawned.extra) * TICSPERFRAME) << 3,
+						movesprite(spawnedactor, (bcos(spawned.extra) * TICSPERFRAME) << 3,
 								(bsin(spawned.extra) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
 						setsprite((short) j, spawned.x, spawned.y, spawned.z);
 						spawned.backuploc();
 					} else {
 						j = insertsprite(plr.sector, MISSILE);
-						auto& spawned = sprite[j];
+						auto spawnedactor = &whActors[j];
+						auto& spawned = spawnedactor->s();
 						throwpikesprite[throwpikecnt] = j;
 						spawned.x = plr.x;
 						spawned.y = plr.y;
@@ -2141,7 +2145,8 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 		}
 
 		j = insertsprite(plr.sector, MISSILE);
-		auto& spawned = sprite[j];
+		auto spawnedactor = &whActors[j];
+		auto& spawned = spawnedactor->s();
 
 		spawned.x = plr.x;
 		spawned.y = plr.y;
@@ -2168,7 +2173,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 		spawned.hitag = 0;
 		spawned.clipdist = 48;
 
-		movesprite((short) j, (bcos(spawned.ang) * TICSPERFRAME) << 3,
+		movesprite(spawnedactor, (bcos(spawned.ang) * TICSPERFRAME) << 3,
 				(bsin(spawned.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
 		setsprite(j, spawned.x, spawned.y, spawned.z);
 		spawned.backuploc();
@@ -2182,7 +2187,9 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 		}
 
 		j = insertsprite(plr.sector, MISSILE);
-		auto& spawned = sprite[j];
+		auto spawnedactor = &whActors[j];
+		auto& spawned = spawnedactor->s();
+
 		spawned.x = plr.x;
 		spawned.y = plr.y;
 		spawned.z = plr.z + (8 << 8);
@@ -2211,7 +2218,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 		// dax=bcos(spawned.ang, -6);
 		// day=bsin(spawned.ang, -6);
 
-		movesprite((short) j, (bcos(spawned.ang) * TICSPERFRAME) << 3,
+		movesprite(spawnedactor, (bcos(spawned.ang) * TICSPERFRAME) << 3,
 				(bsin(spawned.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
 		setsprite(j, spawned.x, spawned.y, spawned.z);
 		spawned.backuploc();

@@ -458,10 +458,11 @@ static void checkexplgron(PLAYER& plr, DWHActor* actor)
 
 static void throwhalberd(int s) {
 	int j = insertsprite(sprite[s].sectnum, JAVLIN);
+	auto spawnedactor = &whActors[j];
 
 	if (j == -1)
 		return;
-	SPRITE& spr = sprite[j];
+	SPRITE& spr = spawnedactor->s();
 	spr.x = sprite[s].x;
 	spr.y = sprite[s].y;
 	spr.z = sprite[s].z - (40 << 8);
@@ -487,7 +488,7 @@ static void throwhalberd(int s) {
 
 	spr.cstat = 0;
 	int daz = (((spr.zvel) * TICSPERFRAME) >> 3);
-	movesprite((short)j, (bcos(spr.extra) * TICSPERFRAME) << 7,
+	movesprite(spawnedactor, (bcos(spr.extra) * TICSPERFRAME) << 7,
 		(bsin(spr.extra) * TICSPERFRAME) << 7, daz, 4 << 8, 4 << 8, 1);
 	spr.cstat = 21;
 	spr.backuploc();

@@ -236,9 +236,8 @@ void aiProcess() {
 	{
 		SPRITE& spr = actor->s();
 		i = actor->GetSpriteIndex();
-		short movestat = (short)movesprite((short)i, (bcos(spr.ang) * TICSPERFRAME) << 3,
+		Collision moveStat = movesprite(actor, (bcos(spr.ang) * TICSPERFRAME) << 3,
 			(bsin(spr.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
-		auto moveStat = Collision(movestat);
 		if (zr_florz > spr.z + (48 << 8)) {
 			SetActorPos(actor, &spr.pos);
 			moveStat.type = -1;
@@ -445,31 +444,31 @@ Collision aimove(DWHActor* actor)
 	int oz = spr.z;
 	//		short osect = spr.sectnum;
 
-	int movestat = movesprite(actor->GetSpriteIndex(), (bcos(spr.ang) * TICSPERFRAME) << 3,
+	Collision moveStat = movesprite(actor, (bcos(spr.ang) * TICSPERFRAME) << 3,
 		(bsin(spr.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, CLIFFCLIP);
 
 	if (((zr_florz - oz) >> 4) > tileHeight(spr.picnum) + (spr.yrepeat << 2)
-		|| (movestat & kHitTypeMask) == kHitWall) {
+		|| moveStat.type == kHitWall) {
 
 		SetActorPos(actor, ox, oy, oz);
 
-		if ((movestat & kHitTypeMask) != kHitWall) {
+		if (moveStat.type != kHitWall) {
 			if (isWh2())
 				spr.z += WH2GRAVITYCONSTANT;
 			else
 				spr.z += GRAVITYCONSTANT;
-			return 16384 | zr_florhit;
+			return moveStat.setSector(zr_florhit);
 		}
 	}
 
 	spr.z = zr_florz;
 
-	return movestat;
+	return moveStat;
 }
 
 Collision aifly(DWHActor* actor) {
 	SPRITE& spr = actor->s();
-	int movestat = movesprite(actor->GetSpriteIndex(), (bcos(spr.ang) * TICSPERFRAME) << 3,
+	Collision moveStat = movesprite(actor, (bcos(spr.ang) * TICSPERFRAME) << 3,
 		(bsin(spr.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, CLIFFCLIP);
 
 	spr.z -= TICSPERFRAME << 8;
@@ -482,7 +481,7 @@ Collision aifly(DWHActor* actor) {
 	if (spr.z - (tileHeight(spr.picnum) << 7) < zr_ceilz)
 		spr.z = zr_ceilz + (tileHeight(spr.picnum) << 7);
 
-	return Collision(movestat);
+	return moveStat;
 }
 
 
@@ -934,12 +933,12 @@ void attack(PLAYER& plr, int const i) {
 
 int checkmove(DWHActor* actor, int dax, int day) {
 	auto& spr = actor->s();
-	int movestat = movesprite(actor->GetSpriteIndex(), dax, day, 0, 4 << 8, 4 << 8, CLIFFCLIP);
+	Collision moveStat = movesprite(actor, dax, day, 0, 4 << 8, 4 << 8, CLIFFCLIP);
 
-	if (movestat != 0) // (moveStat.type != kHitNone)
+	if (moveStat.type != kHitNone)
 		spr.ang = (short)((spr.ang + TICSPERFRAME) & 2047);
 
-	return movestat;
+	return moveStat.legacyVal;
 }
 
 boolean checkdist(PLAYER& plr, DWHActor* actor) {

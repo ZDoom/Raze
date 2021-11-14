@@ -196,7 +196,7 @@ void explosion2(int i, int x, int y, int z, int owner);
 void trailingsmoke(DWHActor* i, boolean ball);
 void icecubes(int i, int x, int y, int z, int owner);
 boolean damageactor(PLAYER& plr, int hitobject, short i);
-int movesprite(short spritenum, int dx, int dy, int dz, int ceildist, int flordist, int cliptype);
+Collision movesprite(DWHActor*, int dx, int dy, int dz, int ceildist, int flordist, int cliptype);
 void trowajavlin(int s);
 void spawnhornskull(short i);
 void spawnapentagram(int sn);

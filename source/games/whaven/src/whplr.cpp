@@ -347,9 +347,9 @@ void chunksofmeat(PLAYER& plr, DWHActor* hitActor, int hitx, int hity, int hitz,
 			newchunk = 0;
 
 			j = insertsprite(hitsect, CHUNKOMEAT);
-			if(j == -1)
-				return;
-			auto& spawned = sprite[j];
+			auto spawnedactor = &whActors[j];
+			auto& spawned = spawnedactor->s();
+
 			spawned.x = hitx;
 			spawned.y = hity;
 			spawned.z = hitz;
@@ -433,7 +433,7 @@ void chunksofmeat(PLAYER& plr, DWHActor* hitActor, int hitx, int hity, int hitz,
 			spawned.lotag = 512;
 			spawned.hitag = 0;
 			spawned.pal = 0;
-			movesprite((short) j, (bcos(spawned.ang) * TICSPERFRAME) << 3,
+			movesprite(spawnedactor, (bcos(spawned.ang) * TICSPERFRAME) << 3,
 					(bsin(spawned.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
 			spawned.backuploc();
 		}
