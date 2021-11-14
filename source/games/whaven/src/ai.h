@@ -134,7 +134,7 @@ boolean checkdist(PLAYER& plr, DWHActor* actor);
 boolean checkdist(DWHActor* actor, int x, int y, int z);
 extern int checksight_ang;
 boolean checksight(PLAYER& plr, DWHActor* actor);
-void monsterweapon(int i);
+void monsterweapon(DWHActor*);
 PLAYER* aiGetPlayerTarget(short i);
 boolean actoruse(short i);
 

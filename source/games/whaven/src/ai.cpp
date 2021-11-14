@@ -995,23 +995,25 @@ boolean checksight(PLAYER& plr, DWHActor* actor) {
 	return false;
 }
 
-void monsterweapon(int i) {
+void monsterweapon(DWHActor* actor) {
 
-	if (sprite[i].shade > 20)
+	auto& spr = actor->s();
+
+	if (spr.shade > 20)
 		return;
 
-	if (sprite[i].picnum == SKELETONDEAD || sprite[i].picnum == KOBOLDDEAD)
+	if (spr.picnum == SKELETONDEAD || spr.picnum == KOBOLDDEAD)
 		return;
 
 	if ((krand() % 100) < 75)
 		return;
 
-	auto spawnedactor = InsertActor(sprite[i].sectnum, (short)0);
+	auto spawnedactor = InsertActor(spr.sectnum, (short)0);
 	auto& weap = spawnedactor->s();
 
-	weap.x = sprite[i].x;
-	weap.y = sprite[i].y;
-	weap.z = sprite[i].z - (24 << 8);
+	weap.x = spr.x;
+	weap.y = spr.y;
+	weap.z = spr.z - (24 << 8);
 	weap.shade = -15;
 	weap.cstat = 0;
 	weap.cstat &= ~3;
@@ -1024,7 +1026,7 @@ void monsterweapon(int i) {
 	weap.xrepeat = 25;
 	weap.yrepeat = 20;
 
-	switch (sprite[i].picnum) {
+	switch (spr.picnum) {
 	case NEWGUYDEAD:
 		weap.xrepeat = 25;
 		weap.yrepeat = 20;
@@ -1119,11 +1121,11 @@ void monsterweapon(int i) {
 		weap.detail = GOBWEAPONTYPE;
 		break;
 	default:
-		if (sprite[i].picnum == GRONDEAD) {
+		if (spr.picnum == GRONDEAD) {
 			if (netgame) {
-				weap.x = sprite[i].x;
-				weap.y = sprite[i].y;
-				weap.z = sprite[i].z - (24 << 8);
+				weap.x = spr.x;
+				weap.y = spr.y;
+				weap.z = spr.z - (24 << 8);
 				weap.shade = -15;
 				weap.cstat = 0;
 				weap.cstat &= ~3;
