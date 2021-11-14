@@ -1081,9 +1081,9 @@ void weaponpowerup(PLAYER& plr) {
 						int j = actor->GetSpriteIndex();
 
 						if (tspr.picnum == CONE) {
-							deletesprite(j);
+							DeleteActor(actor);
 						} else if (tspr.picnum == SPARKBALL) {
-							deletesprite(j);
+							DeleteActor(actor);
 						}
 					}
 				}

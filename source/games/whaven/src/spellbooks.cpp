@@ -282,7 +282,7 @@ void nukespell(PLAYER& plr, short const j) {
 	switch (spr.detail) {
 	case WILLOWTYPE:
 	case SPIDERTYPE:
-		deletesprite((short) j);
+		DeleteActor(actor);
 		addscore(&plr, 10);
 		break;
 	case KOBOLDTYPE:

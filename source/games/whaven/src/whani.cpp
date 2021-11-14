@@ -238,7 +238,7 @@ void animateobjs(PLAYER& plr) {
 				spr.cstat = 0x303;
 				spr.pal = 0;
 				spr.extra = 12;
-				newstatus((short) i, EVILSPIRIT);
+				SetNewStatus(actor, EVILSPIRIT);
 			}
 		}
 

@@ -28,7 +28,7 @@ void operatesprite(PLAYER& plr, short s) {
 	auto actor = &whActors[s];
 	auto& spr = actor->s();
 	if (spr.picnum == SPAWNFIREBALL)
-		newstatus(s, DEVILFIRE);
+		SetNewStatus(actor, DEVILFIRE);
 	if (spr.picnum == SPAWNJAVLIN)
 		trowajavlin(s);
 
@@ -42,7 +42,7 @@ void operatesprite(PLAYER& plr, short s) {
 		break;
 	case GONZOHMJUMP:
 	case GONZOSHJUMP:
-		newstatus((short) s, AMBUSH);
+		SetNewStatus(actor, AMBUSH);
 		break;
 	case STAINGLASS1:
 	case STAINGLASS2:

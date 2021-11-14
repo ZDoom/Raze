@@ -264,14 +264,14 @@ void aiProcess() {
 		if (bcos(spr.ang) * (plr.x - spr.x)	+ bsin(spr.ang) * (plr.y - spr.y) >= 0) {
 			if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 				spr.sectnum)) {
-				newstatus(i, CHASE);
+				SetNewStatus(actor, CHASE);
 			}
 		}
 		else if (moveStat.type != kHitNone) {
 			if (moveStat.type == kHitWall) { // hit a wall
 				actoruse(i);
 			}
-			newstatus(i, FINDME);
+			SetNewStatus(actor, FINDME);
 		}
 	}
 
