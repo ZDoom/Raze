@@ -3,7 +3,7 @@
 
 BEGIN_WH_NS
 
-static void checkexplspider(PLAYER& plr, DWHActor* i);
+static void checkexplspider(PLAYER& plr, DWHActor* actor);
 
 static void chasespider(PLAYER& plr, DWHActor* actor)
 {

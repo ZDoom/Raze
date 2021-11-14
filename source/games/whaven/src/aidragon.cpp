@@ -71,7 +71,6 @@ static void chasedragon(PLAYER& plr, DWHActor* actor)
 
 static void fleedragon(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -126,7 +125,6 @@ static void diedragon(PLAYER& plr, DWHActor* actor)
 
 static void castdragon(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 	
 	spr.lotag -= TICSPERFRAME;
@@ -262,7 +260,6 @@ static void nukeddragon(PLAYER& plr, DWHActor* actor)
 
 static void paindragon(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -319,7 +316,6 @@ void dragonProcess(PLAYER& plr)
 
 static void dragonAttack2(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;

@@ -3,13 +3,12 @@
 
 BEGIN_WH_NS
 
-static void checkexplgron(PLAYER& plr, DWHActor* i);
-static void throwhalberd(int s);
+static void checkexplgron(PLAYER& plr, DWHActor* actor);
+static void throwhalberd(DWHActor* s);
 
 
 static void chasegron(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -282,7 +281,6 @@ static void facegron(PLAYER& plr, DWHActor* actor)
 	
 static void attackgron(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	if (spr.picnum == GRONSWATTACK) {
@@ -372,7 +370,6 @@ static void fleegron(PLAYER& plr, DWHActor* actor)
 	
 static void castgron(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -380,7 +377,7 @@ static void castgron(PLAYER& plr, DWHActor* actor)
 		if (spr.picnum == GRONHALATTACK) {
 			spr.extra--;
 			spritesound(S_THROWPIKE, actor);
-			throwhalberd(i);
+			throwhalberd(actor);
 			SetNewStatus(actor, CHASE);
 		}
 		else if (spr.picnum == GRONMUATTACK) {
@@ -427,7 +424,6 @@ static void diegron(PLAYER& plr, DWHActor* actor)
 
 static void checkexplgron(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	WHSectIterator it(spr.sectnum);
@@ -452,38 +448,40 @@ static void checkexplgron(PLAYER& plr, DWHActor* actor)
 	}
 }
 
-static void throwhalberd(int s) {
-	auto spawnedactor = InsertActor(sprite[s].sectnum, JAVLIN);
-	SPRITE& spr = spawnedactor->s();
+static void throwhalberd(DWHActor* actor) {
 
-	spr.x = sprite[s].x;
-	spr.y = sprite[s].y;
-	spr.z = sprite[s].z - (40 << 8);
+	auto& spr = actor->s();
+	auto spawnedactor = InsertActor(spr.sectnum, JAVLIN);
+	SPRITE& spawned = spawnedactor->s();
 
-	spr.cstat = 17;
+	spawned.x = spr.x;
+	spawned.y = spr.y;
+	spawned.z = spr.z - (40 << 8);
 
-	spr.picnum = THROWHALBERD;
-	spr.detail = THROWHALBERDTYPE;
-	spr.ang = (short)(((sprite[s].ang + 2048) - 512) & 2047);
-	spr.xrepeat = 8;
-	spr.yrepeat = 16;
-	spr.clipdist = 32;
+	spawned.cstat = 17;
 
-	spr.extra = sprite[s].ang;
-	spr.shade = -15;
-	spr.xvel = (short)((krand() & 256) - 128);
-	spr.yvel = (short)((krand() & 256) - 128);
-	spr.zvel = (short)((krand() & 256) - 128);
-	spr.owner = (short)s;
-	spr.lotag = 0;
-	spr.hitag = 0;
-	spr.pal = 0;
+	spawned.picnum = THROWHALBERD;
+	spawned.detail = THROWHALBERDTYPE;
+	spawned.ang = (short)(((spr.ang + 2048) - 512) & 2047);
+	spawned.xrepeat = 8;
+	spawned.yrepeat = 16;
+	spawned.clipdist = 32;
 
-	spr.cstat = 0;
-	int daz = (((spr.zvel) * TICSPERFRAME) >> 3);
-	movesprite(spawnedactor, (bcos(spr.extra) * TICSPERFRAME) << 7,
-		(bsin(spr.extra) * TICSPERFRAME) << 7, daz, 4 << 8, 4 << 8, 1);
-	spr.cstat = 21;
+	spawned.extra = spr.ang;
+	spawned.shade = -15;
+	spawned.xvel = (short)((krand() & 256) - 128);
+	spawned.yvel = (short)((krand() & 256) - 128);
+	spawned.zvel = (short)((krand() & 256) - 128);
+	spawned.owner = actor->GetSpriteIndex();
+	spawned.lotag = 0;
+	spawned.hitag = 0;
+	spawned.pal = 0;
+
+	spawned.cstat = 0;
+	int daz = (((spawned.zvel) * TICSPERFRAME) >> 3);
+	movesprite(spawnedactor, (bcos(spawned.extra) * TICSPERFRAME) << 7,
+		(bsin(spawned.extra) * TICSPERFRAME) << 7, daz, 4 << 8, 4 << 8, 1);
+	spawned.cstat = 21;
 	spr.backuploc();
 }
 

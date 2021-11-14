@@ -3,7 +3,7 @@
 
 BEGIN_WH_NS
 
-static void checkexplfred(PLAYER& plr, DWHActor* i);
+static void checkexplfred(PLAYER& plr, DWHActor* actor);
 
 
 static void chasefred(PLAYER& plr, DWHActor* actor)
@@ -183,7 +183,6 @@ static void facefred(PLAYER& plr, DWHActor* actor)
 	
 static void attackfred(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
@@ -292,7 +291,6 @@ static void resurectfred(PLAYER& plr, DWHActor* actor)
 
 static void checkexplfred(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	WHSectIterator it(spr.sectnum);

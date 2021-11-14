@@ -348,7 +348,7 @@ static void castnewguy(PLAYER& plr, DWHActor* actor)
 		spr.extra--;
 		spr.picnum = NEWGUY;
 		spritesound(S_WISP, actor);
-		skullycastspell(plr, i);
+		skullycastspell(plr, actor);
 		SetNewStatus(actor, CHASE);
 	}
 	if (spr.picnum == NEWGUYBOW + 2) {

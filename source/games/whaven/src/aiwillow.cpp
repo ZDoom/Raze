@@ -3,7 +3,7 @@
 
 BEGIN_WH_NS
 
-static void willowDrain(PLAYER& plr, DWHActor* i);
+static void willowDrain(PLAYER& plr, DWHActor* actor);
 
 static void chasewillow(PLAYER& plr, DWHActor* actor)
 {

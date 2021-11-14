@@ -3,7 +3,7 @@
 
 BEGIN_WH_NS
 
-static void checkexplkobold(PLAYER& plr, DWHActor* i);
+static void checkexplkobold(PLAYER& plr, DWHActor* actor);
 
 static void chasekobold(PLAYER& plr, DWHActor* actor)
 {

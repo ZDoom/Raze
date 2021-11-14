@@ -9,8 +9,8 @@ Enemy enemy[MAXTYPES];
 
 int checksight_ang = 0;
 
-void skeletonChill(PLAYER& plr, DWHActor* i);
-void goblinChill(PLAYER& plr, DWHActor* i);
+void skeletonChill(PLAYER& plr, DWHActor* actor);
+void goblinChill(PLAYER& plr, DWHActor* actor);
 
 
 void createDemonAI();
@@ -640,8 +640,8 @@ void castspell(PLAYER& plr, DWHActor* actor) {
 	spawned.backuploc();
 }
 
-void skullycastspell(PLAYER& plr, int i) {
-	auto& spr = sprite[i];
+void skullycastspell(PLAYER& plr, DWHActor* actor) {
+	auto& spr = actor->s();
 	auto spawnedactor = InsertActor(spr.sectnum, MISSILE);
 	auto& spawned = spawnedactor->s();
 
@@ -669,7 +669,7 @@ void skullycastspell(PLAYER& plr, int i) {
 		discrim = 1;
 	spawned.zvel = (short)(((plr.z + (48 << 8) - spawned.z) << 7) / discrim);
 
-	spawned.owner = (short)i;
+	spawned.owner = actor->GetSpriteIndex();
 	spawned.clipdist = 16;
 	spawned.lotag = 512;
 	spawned.hitag = 0;

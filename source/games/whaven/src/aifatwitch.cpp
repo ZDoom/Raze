@@ -3,7 +3,7 @@
 
 BEGIN_WH_NS
 
-static void throwspank(PLAYER& plr, DWHActor* i);
+static void throwspank(PLAYER& plr, DWHActor* actor);
 
 static void chasefatwitch(PLAYER& plr, DWHActor* actor)
 {
@@ -245,7 +245,6 @@ static void diefatwitch(PLAYER& plr, DWHActor* actor)
 
 static void throwspank(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	auto spawnedactor = InsertActor(spr.sectnum, MISSILE);
@@ -269,7 +268,7 @@ static void throwspank(PLAYER& plr, DWHActor* actor)
 	if (discrim == 0)
 		discrim = 1;
 	spawned.zvel = (short)(((plr.z + (48 << 8) - spawned.z) << 7) / discrim);
-	spawned.owner = (short)i;
+	spawned.owner = actor->GetSpriteIndex();
 	spawned.clipdist = 16;
 	spawned.lotag = 512;
 	spawned.hitag = 0;

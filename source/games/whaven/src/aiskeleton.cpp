@@ -3,7 +3,7 @@
 
 BEGIN_WH_NS
 
-static void checkexplskeleton(PLAYER& plr, DWHActor* i);
+static void checkexplskeleton(PLAYER& plr, DWHActor* actor);
 
 static void chaseskeleton(PLAYER& plr, DWHActor* actor)
 {

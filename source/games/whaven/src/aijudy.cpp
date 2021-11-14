@@ -3,7 +3,7 @@
 
 BEGIN_WH_NS
 
-void spawnabaddy(DWHActor* i, int monster);
+void spawnabaddy(DWHActor* actor, int monster);
 
 static void chasejudy(PLAYER& plr, DWHActor* actor)
 {
@@ -218,7 +218,6 @@ static void fleejudy(PLAYER& plr, DWHActor* actor)
 	
 static void castjudy(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -286,7 +285,7 @@ static void castjudy(PLAYER& plr, DWHActor* actor)
 		spr.picnum = JUDYATTACK2;
 		spritesound(S_JUDY1 + krand() % 4, actor);
 		if (krand() % 100 > 50)
-			skullycastspell(plr, i);
+			skullycastspell(plr, actor);
 		else {
 			if (krand() % 100 > 70) {
 				if (krand() % 100 > 50) {
@@ -358,8 +357,6 @@ void judyOperate(PLAYER& plr)
 	while (auto actor = it.Next())
 	{
 		SPRITE& spri = actor->s();
-		int i = actor->GetSpriteIndex();
-
 
 		spri.ang = (short)(getangle(plr.x - spri.x, plr.y - spri.y) & 2047);
 		if (cansee(plr.x, plr.y, plr.z, plr.sector, spri.x, spri.y,

@@ -194,7 +194,7 @@ void newstatus(short sn, int seq);
 void makeafire(int i, int firetype);
 void explosion(int i, int x, int y, int z, int owner);
 void explosion2(int i, int x, int y, int z, int owner);
-void trailingsmoke(DWHActor* i, boolean ball);
+void trailingsmoke(DWHActor* actor, boolean ball);
 void icecubes(int i, int x, int y, int z, int owner);
 boolean damageactor(PLAYER& plr, DWHActor* hitobject, DWHActor* actor);
 Collision movesprite(DWHActor*, int dx, int dy, int dz, int ceildist, int flordist, int cliptype);

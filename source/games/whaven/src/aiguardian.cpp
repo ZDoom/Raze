@@ -74,7 +74,6 @@ static void chaseguardian(PLAYER& plr, DWHActor* actor)
 	
 static void nukedguardian(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	if (isWh2()) {

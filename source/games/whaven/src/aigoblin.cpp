@@ -3,7 +3,7 @@
 
 BEGIN_WH_NS
 
-static void checkexplgoblin(PLAYER& plr, DWHActor* i);
+static void checkexplgoblin(PLAYER& plr, DWHActor* actor);
 
 
 static void chasegoblin(PLAYER& plr, DWHActor* actor)
@@ -228,7 +228,6 @@ static void standgoblin(PLAYER& plr, DWHActor* actor)
 		
 static void attackgoblin(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
@@ -359,7 +358,6 @@ void goblinChill(PLAYER& plr, DWHActor* actor)
 
 static void goblinWar(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	short k;
@@ -535,7 +533,6 @@ void goblinWarProcess(PLAYER& plr)
 
 static void checkexplgoblin(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	WHSectIterator it(spr.sectnum);

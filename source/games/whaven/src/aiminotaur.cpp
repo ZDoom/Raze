@@ -3,7 +3,7 @@
 
 BEGIN_WH_NS
 
-static void checkexplminotaur(PLAYER& plr, DWHActor* i);
+static void checkexplminotaur(PLAYER& plr, DWHActor* actor);
 
 static void chaseminotaur(PLAYER& plr, DWHActor* actor)
 {

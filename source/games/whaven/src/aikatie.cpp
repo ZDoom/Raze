@@ -3,7 +3,7 @@
 
 BEGIN_WH_NS
 
-void spawnabaddy(DWHActor* i, int monster);
+void spawnabaddy(DWHActor* actor, int monster);
 
 static void chasekatie(PLAYER& plr, DWHActor* actor)
 {

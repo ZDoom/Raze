@@ -6,7 +6,6 @@ BEGIN_WH_NS
 
 static void chasefish(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -86,7 +85,6 @@ static void diefish(PLAYER& plr, DWHActor* actor)
 	
 static void attackfish(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.z = spr.sector()->floorz;
@@ -153,7 +151,6 @@ static void searchfish(PLAYER& plr, DWHActor* actor)
 	
 static void facefish(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	boolean cansee = ::cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),

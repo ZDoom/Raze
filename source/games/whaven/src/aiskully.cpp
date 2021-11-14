@@ -216,7 +216,7 @@ static void castskully(PLAYER& plr, DWHActor* actor)
 	if (spr.picnum == SKULLYATTACK + 2) {
 		spr.picnum = SKULLY;
 		spritesound(S_SKULLWITCH1 + krand() % 3, actor);
-		skullycastspell(plr, i);
+		skullycastspell(plr, actor);
 		SetNewStatus(actor, CHASE);
 	}
 	checksector6(actor);
