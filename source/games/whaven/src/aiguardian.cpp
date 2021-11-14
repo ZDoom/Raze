@@ -226,7 +226,7 @@ static void castguardian(PLAYER& plr, DWHActor* actor)
 	if (spr.picnum == GUARDIANATTACK + 6) {
 		spr.picnum = GUARDIAN;
 		spritesound(S_FIREBALL, &spr);
-		castspell(plr, actor->GetSpriteIndex());
+		castspell(plr, actor);
 		SetNewStatus(actor, CHASE);
 	}
 	checksector6(actor);

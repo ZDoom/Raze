@@ -252,7 +252,7 @@ static void castkatie(PLAYER& plr, DWHActor* actor)
 	if (spr.picnum == KATIEAT + 16) {
 		spr.picnum = KATIE;
 		spritesound(S_FIREBALL, &spr);
-		castspell(plr, i);
+		castspell(plr, actor);
 		SetNewStatus(actor, CHASE);
 		spr.extra++;
 	}

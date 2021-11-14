@@ -598,8 +598,8 @@ void processfluid(DWHActor* actor, int zr_florhit, boolean fly) {
 	}
 }
 
-void castspell(PLAYER& plr, int i) {
-	auto& spr = sprite[i];
+void castspell(PLAYER& plr, DWHActor* actor) {
+	auto& spr = actor->s();
 	int j = insertsprite(spr.sectnum, MISSILE);
 	auto& spawned = sprite[j];
 
@@ -630,7 +630,7 @@ void castspell(PLAYER& plr, int i) {
 	else
 		spawned.zvel = (short)(((plr.z + (48 << 8) - spawned.z) << 7) / discrim);
 
-	spawned.owner = (short)i;
+	spawned.owner = (short)actor->GetSpriteIndex();
 	spawned.clipdist = 16;
 	spawned.lotag = 512;
 	spawned.hitag = 0;

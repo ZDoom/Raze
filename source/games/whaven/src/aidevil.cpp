@@ -264,7 +264,7 @@ static void castdevil(PLAYER& plr, DWHActor* actor)
 	if (spr.picnum == DEVILATTACK + 2) {
 		spr.picnum = DEVIL;
 		spritesound(S_FIREBALL, &sprite[i]);
-		castspell(plr, i);
+		castspell(plr, actor);
 		SetNewStatus(actor, CHASE);
 	}
 	checksector6(actor);

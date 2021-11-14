@@ -198,7 +198,7 @@ static void castdemon(PLAYER& plr, DWHActor* actor)
 	}
 
 	if (spr.lotag < 0) {
-		castspell(plr, i);
+		castspell(plr, actor);
 		SetNewStatus(actor, CHASE);
 	}
 }

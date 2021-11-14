@@ -272,7 +272,7 @@ static void willowDrain(PLAYER& plr, DWHActor* actor)
 		spritesound(S_FIREBALL, &spr);
 		int oldz = spr.z;
 		spr.z += 6144;
-		castspell(plr, i);
+		castspell(plr, actor);
 		spr.z = oldz;
 		SetNewStatus(actor, CHASE);
 	}

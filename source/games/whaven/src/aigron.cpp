@@ -390,7 +390,7 @@ static void castgron(PLAYER& plr, DWHActor* actor)
 		else if (spr.picnum == GRONMUATTACK) {
 			spr.extra--;
 			spritesound(S_SPELL2, &sprite[i]);
-			castspell(plr, i);
+			castspell(plr, actor);
 			SetNewStatus(actor, CHASE);
 		}
 	}

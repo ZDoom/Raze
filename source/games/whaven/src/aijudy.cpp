@@ -235,7 +235,7 @@ static void castjudy(PLAYER& plr, DWHActor* actor)
 		spr.picnum = JUDYATTACK1;
 		spritesound(S_JUDY1 + krand() % 4, &sprite[i]);
 		if (krand() % 100 > 70) {
-			castspell(plr, i);
+			castspell(plr, actor);
 		}
 		else {
 			if (krand() % 100 > 40) {
@@ -278,7 +278,7 @@ static void castjudy(PLAYER& plr, DWHActor* actor)
 						}
 						break;
 					case 4:
-						castspell(plr, i);
+						castspell(plr, actor);
 						break;
 					}
 				}
@@ -324,7 +324,7 @@ static void castjudy(PLAYER& plr, DWHActor* actor)
 					}
 					break;
 				case 4:
-					castspell(plr, i);
+					castspell(plr, actor);
 					break;
 				}
 			}

@@ -1257,7 +1257,7 @@ void animateobjs(PLAYER& plr) {
 						spr.z - (tileHeight(spr.picnum) << 7), spr.sectnum)) {
 					// JSA_NEW
 					spritesound(S_FIREBALL, &spr);
-					castspell(plr, i);
+					castspell(plr, actor);
 				}
 			}
 		}
