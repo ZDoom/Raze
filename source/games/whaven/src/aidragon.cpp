@@ -6,7 +6,7 @@ BEGIN_WH_NS
 static int checksight_x, checksight_y = 0;
 
 static void dragonAttack2(PLAYER& plr, DWHActor* i);
-static void firebreath(PLAYER& plr, int i, int a, int b, int c);
+static void firebreath(PLAYER& plr, DWHActor*, int a, int b, int c);
 
 static void chasedragon(PLAYER& plr, DWHActor* actor)
 {
@@ -143,7 +143,7 @@ static void castdragon(PLAYER& plr, DWHActor* actor)
 		else
 			spritesound(S_FIREBALL, actor);
 
-		firebreath(plr, i, 1, 2, LOW);
+		firebreath(plr, actor, 1, 2, LOW);
 		break;
 	case DRAGONATTACK + 18:
 	case DRAGONATTACK + 5:
@@ -152,7 +152,7 @@ static void castdragon(PLAYER& plr, DWHActor* actor)
 		else
 			spritesound(S_FIREBALL, actor);
 
-		firebreath(plr, i, 2, 1, LOW);
+		firebreath(plr, actor, 2, 1, LOW);
 		break;
 	case DRAGONATTACK + 19:
 	case DRAGONATTACK + 6:
@@ -161,15 +161,15 @@ static void castdragon(PLAYER& plr, DWHActor* actor)
 		else
 			spritesound(S_FIREBALL, actor);
 
-		firebreath(plr, i, 4, 0, LOW);
+		firebreath(plr, actor, 4, 0, LOW);
 		break;
 	case DRAGONATTACK + 20:
 	case DRAGONATTACK + 7:
-		firebreath(plr, i, 2, -1, LOW);
+		firebreath(plr, actor, 2, -1, LOW);
 		break;
 	case DRAGONATTACK + 21:
 	case DRAGONATTACK + 8:
-		firebreath(plr, i, 1, -2, LOW);
+		firebreath(plr, actor, 1, -2, LOW);
 		break;
 
 	case DRAGONATTACK2 + 2:
@@ -178,10 +178,10 @@ static void castdragon(PLAYER& plr, DWHActor* actor)
 		else
 			spritesound(S_FIREBALL, actor);
 
-		firebreath(plr, i, 1, -1, HIGH);
+		firebreath(plr, actor, 1, -1, HIGH);
 		break;
 	case DRAGONATTACK2 + 3:
-		firebreath(plr, i, 2, 0, HIGH);
+		firebreath(plr, actor, 2, 0, HIGH);
 		break;
 
 	case DRAGONATTACK2 + 5:
@@ -337,14 +337,15 @@ static void dragonAttack2(PLAYER& plr, DWHActor* actor)
 	checksector6(actor);
 }
 
-static void firebreath(PLAYER& plr, int i, int a, int b, int c) 
+static void firebreath(PLAYER& plr, DWHActor* actor, int a, int b, int c) 
 {
-	auto& spr = sprite[i];
+	auto& spr = actor->s();
 	for (int k = 0; k <= a; k++) {
 		int j = insertsprite(spr.sectnum, MISSILE);
 		if (j == -1)
 			return;
-		auto& spawned = sprite[j];
+		auto spawnedactor = &whActors[j];
+		auto& spawned = spawnedactor->s();
 
 		spawned.x = spr.x;
 		spawned.y = spr.y;
@@ -370,7 +371,7 @@ static void firebreath(PLAYER& plr, int i, int a, int b, int c)
 		else
 			spawned.zvel = (short)((((plr.z + (8 << 8)) - spawned.z) << 7) / discrim);// NEW
 
-		spawned.owner = (short)i;
+		spawned.owner = actor->GetSpriteIndex();
 		spawned.clipdist = 16;
 		spawned.lotag = 512;
 		spawned.hitag = 0;

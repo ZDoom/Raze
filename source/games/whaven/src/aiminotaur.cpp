@@ -227,7 +227,7 @@ static void attackminotaur(PLAYER& plr, DWHActor* actor)
 		if (checksight(plr, actor))
 			if (checkdist(plr, actor)) {
 				spr.ang = (short)checksight_ang;
-				attack(plr, i);
+				attack(plr, actor);
 			}
 	}
 	else if (spr.lotag < 0) {

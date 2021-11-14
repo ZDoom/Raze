@@ -678,7 +678,7 @@ void skullycastspell(PLAYER& plr, int i) {
 	spawned.backuploc();
 }
 
-void attack(PLAYER& plr, int const i) {
+void attack(PLAYER& plr, DWHActor* actor) {
 	int s = 0;
 	if (plr.invincibletime > 0 || plr.godMode)
 		return;
@@ -688,7 +688,6 @@ void attack(PLAYER& plr, int const i) {
 
 	//		if ((krand() & (15 < plr.armortype ? 11 : 10)) != 0)
 	//			return;
-	auto actor = &whActors[i];
 	auto& spr = actor->s();
 	auto& pspr = sprite[plr.spritenum];
 

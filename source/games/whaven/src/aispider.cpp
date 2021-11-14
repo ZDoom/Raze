@@ -204,7 +204,7 @@ static void attackspider(PLAYER& plr, DWHActor* actor)
 		if (checksight(plr, actor))
 			if (checkdist(plr, actor)) {
 				spr.ang = (short)checksight_ang;
-				attack(plr, i);
+				attack(plr, actor);
 				if (krand() % 100 > ((plr.lvl * 7) + 20)) {
 					spritesound(S_SPIDERBITE, actor);
 					plr.poisoned = 1;

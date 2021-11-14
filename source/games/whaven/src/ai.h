@@ -128,7 +128,7 @@ int checkfluid(DWHActor* i, Collision& florhit);
 void processfluid(DWHActor* i, Collision& florHit, boolean fly);
 void castspell(PLAYER& plr, DWHActor* i);
 void skullycastspell(PLAYER& plr, int i);
-void attack(PLAYER& plr, int i);
+void attack(PLAYER& plr, DWHActor* i);
 int checkmove(DWHActor* actor, int dax, int day);
 boolean checkdist(PLAYER& plr, DWHActor* i);
 boolean checkdist(DWHActor* i, int x, int y, int z);
