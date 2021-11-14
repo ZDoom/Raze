@@ -51,7 +51,7 @@ void castaorb(PLAYER& plr) {
 	switch (plr.currentorb) {
 	case 0: // SCARE
 		if (isWh2())
-			spritesound(S_GENERALMAGIC4, &sprite[plr.spritenum]);
+			spritesound(S_GENERALMAGIC4, plr.actor());
 		plr.shadowtime = ((plr.lvl + 1) * 120) << 2;
 		break;
 	case 1: // NIGHTVISION
@@ -59,16 +59,16 @@ void castaorb(PLAYER& plr) {
 		break;
 	case 2: // FREEZE
 		if (isWh2())
-			spritesound(S_GENERALMAGIC3, &sprite[plr.spritenum]);
+			spritesound(S_GENERALMAGIC3, plr.actor());
 		else
-			spritesound(S_SPELL1, &sprite[plr.spritenum]);
+			spritesound(S_SPELL1, plr.actor());
 		daang = plr.angle.ang.asbuild();
 		shootgun(plr, daang, 6);
 		break;
 	case 3: // MAGIC ARROW
 		if (isWh2()) {
 			lockon(plr,10,2);
-			spritesound(S_GENERALMAGIC2, &sprite[plr.spritenum]);
+			spritesound(S_GENERALMAGIC2, plr.actor());
 		}
 		else {
 			daang = (float)BClampAngle(plr.angle.ang.asbuild() - 36);
@@ -76,42 +76,42 @@ void castaorb(PLAYER& plr) {
 				daang = (float)BClampAngle(int(daang) + (k << 1));
 				shootgun(plr, daang, 2);
 			}
-			spritesound(S_SPELL1, &sprite[plr.spritenum]);
+			spritesound(S_SPELL1, plr.actor());
 		}
 		break;
 	case 4: // OPEN DOORS
 		daang = plr.angle.ang.asbuild();
 		shootgun(plr, daang, 7);
 		if (isWh2())
-			spritesound(S_DOORSPELL, &sprite[plr.spritenum]);
+			spritesound(S_DOORSPELL, plr.actor());
 		else
-			spritesound(S_SPELL1, &sprite[plr.spritenum]);
+			spritesound(S_SPELL1, plr.actor());
 		break;
 	case 5: // FLY
 		plr.orbactive[plr.currentorb] = 3600 + (plr.lvl * 120);
 		if (isWh2())
-			spritesound(S_GENERALMAGIC1, &sprite[plr.spritenum]);
+			spritesound(S_GENERALMAGIC1, plr.actor());
 		else
-			spritesound(S_SPELL1, &sprite[plr.spritenum]);
+			spritesound(S_SPELL1, plr.actor());
 		break;
 	case 6: // FIREBALL
 		if (isWh2()) {
 			lockon(plr,3,3);
-			spritesound(S_FIRESPELL, &sprite[plr.spritenum]);
+			spritesound(S_FIRESPELL, plr.actor());
 		}
 		else {
 			daang = plr.angle.ang.asbuild();
 			shootgun(plr, daang, 3);
-			spritesound(S_SPELL1, &sprite[plr.spritenum]);
+			spritesound(S_SPELL1, plr.actor());
 		}
 		break;
 	case 7: // NUKE
 		daang = plr.angle.ang.asbuild();
 		shootgun(plr, daang, 4);
 		if (isWh2())
-			spritesound(S_NUKESPELL, &sprite[plr.spritenum]);
+			spritesound(S_NUKESPELL, plr.actor());
 		else
-			spritesound(S_SPELL1, &sprite[plr.spritenum]);
+			spritesound(S_SPELL1, plr.actor());
 		break;
 	}
 }

@@ -247,7 +247,6 @@ static void nukeddevil(PLAYER& plr, DWHActor* actor)
 
 static void castdevil(PLAYER& plr, DWHActor* actor)
 {
-	int i = actor->GetSpriteIndex();
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
@@ -258,7 +257,7 @@ static void castdevil(PLAYER& plr, DWHActor* actor)
 
 	if (spr.picnum == DEVILATTACK + 2) {
 		spr.picnum = DEVIL;
-		spritesound(S_FIREBALL, &sprite[i]);
+		spritesound(S_FIREBALL, actor);
 		castspell(plr, actor);
 		SetNewStatus(actor, CHASE);
 	}

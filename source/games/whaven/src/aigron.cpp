@@ -379,13 +379,13 @@ static void castgron(PLAYER& plr, DWHActor* actor)
 	if (spr.lotag < 0) {
 		if (spr.picnum == GRONHALATTACK) {
 			spr.extra--;
-			spritesound(S_THROWPIKE, &sprite[i]);
+			spritesound(S_THROWPIKE, actor);
 			throwhalberd(i);
 			SetNewStatus(actor, CHASE);
 		}
 		else if (spr.picnum == GRONMUATTACK) {
 			spr.extra--;
-			spritesound(S_SPELL2, &sprite[i]);
+			spritesound(S_SPELL2, actor);
 			castspell(plr, actor);
 			SetNewStatus(actor, CHASE);
 		}

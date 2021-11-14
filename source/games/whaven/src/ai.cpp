@@ -697,14 +697,14 @@ void attack(PLAYER& plr, int const i) {
 		auto ang = plr.angle.ang.asbuild();
 		if ((a < ang && ang - a < 128) || (a > ang && ((ang + a) & 2047) < 128)) {
 			if (krand() % 100 > 80) {
-				spritesound(S_SWORD1 + krand() % 3, &pspr);
+				spritesound(S_SWORD1 + krand() % 3, plr.actor());
 				return;
 			}
 			else {
 				s = krand() % 50;
 				plr.shieldpoints -= s;
 				if (krand() % 100 > 50) {
-					spritesound(S_SWORD1 + krand() % 3, &pspr);
+					spritesound(S_SWORD1 + krand() % 3, plr.actor());
 					return;
 				}
 			}
@@ -757,8 +757,8 @@ void attack(PLAYER& plr, int const i) {
 	case KOBOLDTYPE:
 		spritesound(S_GENSWING, actor);
 		if ((krand() % 10) > 4) {
-			spritesound(S_KOBOLDHIT, &pspr);
-			spritesound(S_BREATH1 + (krand() % 6), &pspr);
+			spritesound(S_KOBOLDHIT, plr.actor());
+			spritesound(S_BREATH1 + (krand() % 6), plr.actor());
 		}
 		if (isWh2())
 			k = (krand() % 5) + 5;
@@ -803,8 +803,8 @@ void attack(PLAYER& plr, int const i) {
 		if (spr.picnum == NEWGUYMACE) { // damage 5 - 20
 			spritesound(S_PLRWEAPON2, actor);
 			if (krand() % 10 > 4) {
-				spritesound(S_KOBOLDHIT, &pspr);
-				spritesound(S_BREATH1 + (krand() % 6), &pspr);
+				spritesound(S_KOBOLDHIT, plr.actor());
+				spritesound(S_BREATH1 + (krand() % 6), plr.actor());
 			}
 			k = (krand() % 15) + 5;
 			break;
@@ -837,8 +837,8 @@ void attack(PLAYER& plr, int const i) {
 		else {
 			spritesound(S_GENSWING, actor);
 			if (krand() % 10 > 4) {
-				spritesound(S_SOCK1 + (krand() % 4), &pspr);
-				spritesound(S_BREATH1 + (krand() % 6), &pspr);
+				spritesound(S_SOCK1 + (krand() % 4), plr.actor());
+				spritesound(S_BREATH1 + (krand() % 6), plr.actor());
 			}
 			k = (krand() % 4) + 1;
 		}

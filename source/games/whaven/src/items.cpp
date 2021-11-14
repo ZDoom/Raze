@@ -1054,7 +1054,7 @@ void InitItems()
 
 			{
 				if (plr.manatime < 1 && plr.invincibletime <= 0 && !plr.godMode) {
-					spritesound(S_FIREBALL, &actor->s());
+					spritesound(S_FIREBALL, actor);
 					addhealth(plr, -1);
 					startredflash(30);
 				}

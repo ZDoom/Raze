@@ -55,7 +55,7 @@ void operatesprite(PLAYER& plr, short s) {
 	case STAINSCENE:
 		switch (spr.lotag) {
 		case 2:
-			spritesound(S_GLASSBREAK1 + (rand() % 3), &sprite[s]);
+			spritesound(S_GLASSBREAK1 + (rand() % 3), actor);
 			for (int j = 0; j < 20; j++) {
 				shards(s, 2);
 			}
@@ -838,7 +838,6 @@ void operatesector(PLAYER& plr, int s) {
 	}
 
 	if (datag == 4000) {
-//			sector[s].lotag=0;
 		WHSpriteIterator it;
 		while (auto itActor = it.Next())
 		{
@@ -846,14 +845,12 @@ void operatesector(PLAYER& plr, int s) {
 			if (sector[s].hitag == spk.hitag && spk.extra < 1) {
 				SetNewStatus(itActor, FLOCKSPAWN);
 				if (soundEngine->GetSoundPlayingInfo(SOURCE_Any, nullptr, -1, CHAN_BAT) == 0) {
-					spritesound(S_BATSLOOP, &spk, -1, CHAN_BAT);
-					//					sector[s].lotag = sector[s].hitag = 0;
+					spritesound(S_BATSLOOP, itActor, -1, CHAN_BAT);
 				}
 			}
 		}
 	}
 	if (datag == 4001) {
-//			sector[s].lotag=0;
 		WHSpriteIterator it;
 		while (auto itActor = it.Next())
 		{

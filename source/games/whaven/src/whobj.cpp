@@ -482,14 +482,14 @@ void newstatus(short sn, int seq) {
 	case LIFTUP:
 		if (soundEngine->GetSoundPlayingInfo(SOURCE_Any, nullptr, -1, CHAN_CART) == 0) {
 			spritesound(S_CLUNK, actor);
-			spritesound(S_CHAIN1, &spr, 5, CHAN_CART);
+			spritesound(S_CHAIN1, actor, 5, CHAN_CART);
 		}
 		ChangeActorStat(actor, LIFTUP);
 		break;
 	case LIFTDN:
 		if (soundEngine->GetSoundPlayingInfo(SOURCE_Any, nullptr, -1, CHAN_CART) == 0) {
 			spritesound(S_CLUNK, actor);
-			spritesound(S_CHAIN1, &spr, 5, CHAN_CART);
+			spritesound(S_CHAIN1, actor, 5, CHAN_CART);
 		}
 		ChangeActorStat(actor, LIFTDN);
 		break;
@@ -1589,7 +1589,7 @@ boolean damageactor(PLAYER& plr, DWHActor* hitactor, DWHActor* actor)
 			if (spr.picnum == PLASMA)
 				addhealth(plr, -((krand() & 15) + 15));
 			else if (spr.picnum == FATSPANK) {
-				spritesound(S_GORE1A + (krand() % 3),  &sprite[plr.spritenum]);
+				spritesound(S_GORE1A + (krand() % 3),  plr.actor());
 				addhealth(plr, -((krand() & 10) + 10));
 				if ((krand() % 100) > 90) {
 					plr.poisoned = 1;

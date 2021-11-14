@@ -206,7 +206,7 @@ static void attackspider(PLAYER& plr, DWHActor* actor)
 				spr.ang = (short)checksight_ang;
 				attack(plr, i);
 				if (krand() % 100 > ((plr.lvl * 7) + 20)) {
-					spritesound(S_SPIDERBITE, &sprite[i]);
+					spritesound(S_SPIDERBITE, actor);
 					plr.poisoned = 1;
 					plr.poisontime = 7200;
 					showmessage("Poisoned", 360);

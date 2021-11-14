@@ -404,15 +404,15 @@ void processinput(int num) {
 	if (!onground && plr.onsomething != 0) {
 		if (plr.fallz > 32768) {
 			if ((krand() % 2) != 0)
-				spritesound(S_PLRPAIN1 + (krand() % 2), &sprite[plr.spritenum]);
+				spritesound(S_PLRPAIN1 + (krand() % 2), plr.actor());
 			else
-				spritesound(S_PUSH1 + (krand() % 2), &sprite[plr.spritenum]);
+				spritesound(S_PUSH1 + (krand() % 2), plr.actor());
 
 			addhealth(plr, -(plr.fallz >> 13));
 			plr.fallz = 0;// wango
 		}
 		else if (plr.fallz > 8192) {
-			spritesound(S_BREATH1 + (krand() % 2), &sprite[plr.spritenum]);
+			spritesound(S_BREATH1 + (krand() % 2), plr.actor());
 		}
 	}
 
@@ -527,7 +527,7 @@ void processinput(int num) {
 				break;
 			case SPIDER:
 				// STOMP
-				spritesound(S_DEADSTEP, &sprite[onsprite]);
+				spritesound(S_DEADSTEP, &whActors[onsprite]);
 				justplayed = 1;
 				newstatus(onsprite, DIE);
 				break;
@@ -543,7 +543,7 @@ void processinput(int num) {
 			case 1952:
 			case 1941:
 			case 1940:
-				spritesound(S_DEADSTEP, &sprite[plr.spritenum]);
+				spritesound(S_DEADSTEP, plr.actor());
 				justplayed = 1;
 
 				break;
@@ -554,7 +554,7 @@ void processinput(int num) {
 
 			if (sprite[onsprite].picnum == RAT)
 			{
-				spritesound(S_RATS1 + (krand() % 2), &sprite[onsprite]);
+				spritesound(S_RATS1 + (krand() % 2), &whActors[onsprite]);
 				justplayed = 1;
 				deletesprite(onsprite);
 			}

@@ -1289,7 +1289,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 							if (hitspr.picnum == SKELETON
 									|| hitspr.picnum == SKELETONATTACK
 									|| hitspr.picnum == SKELETONDIE)
-								spritesound(S_SKELHIT1 + (krand() % 2), &hitspr);
+								spritesound(S_SKELHIT1 + (krand() % 2), hitActor);
 						}
 
 						// HERE
@@ -1495,7 +1495,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 							if (hitspr.picnum == SKELETON
 									|| hitspr.picnum == SKELETONATTACK
 									|| hitspr.picnum == SKELETONDIE)
-								spritesound(S_SKELHIT1 + (krand() % 2), &hitspr);
+								spritesound(S_SKELHIT1 + (krand() % 2), hitActor);
 						}
 						// HERE
 						switch (plr.currweapon) {
@@ -1615,7 +1615,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 						if (hitspr.picnum == SKELETON
 								|| hitspr.picnum == SKELETONATTACK
 								|| hitspr.picnum == SKELETONDIE)
-							spritesound(S_SKELHIT1 + (krand() % 2), &hitspr);
+							spritesound(S_SKELHIT1 + (krand() % 2), hitActor);
 					}
 					newstatus(pHitInfo.hitsprite, DIE);
 				}
@@ -1706,7 +1706,8 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 
 			if (ntag.tagsector < 0) {
 				j = insertsprite(pHitInfo.hitsect, (short) 0);
-				auto& spawned = sprite[j];
+				auto spawnedactor = &whActors[j];
+				auto& spawned = spawnedactor->s();
 				spawned.x = pHitInfo.hitx;
 				spawned.y = pHitInfo.hity;
 				spawned.z = pHitInfo.hitz + (8 << 8);
@@ -1724,7 +1725,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 				spawned.lotag = 32;
 				spawned.hitag = 0;
 				spawned.backuploc();
-				spritesound(S_ARROWHIT, &spawned);
+				spritesound(S_ARROWHIT, spawnedactor);
 
 				if (isWh2() && plr.weapon[6] == 3 && plr.currweapon == 6) {
 					auto spawnedactor = &whActors[j];
@@ -2347,7 +2348,7 @@ void swingdaweapon(PLAYER& plr) {
 				// || plr.currweaponframe == PIKEATTACK2+4
 				&& plr.weapon[7] == 2 && plr.ammo[7] > 0) {
 			shootgun(plr, daang, 10);
-			spritesound(S_THROWPIKE, &sprite[plr.spritenum]);
+			spritesound(S_THROWPIKE, plr.actor());
 			plr.hasshot = 1;
 			return;
 		}
@@ -2372,12 +2373,12 @@ void swingdaweapon(PLAYER& plr) {
 
 		if (plr.currweaponframe == PIKEATTACK1 + 4 && plr.weapon[7] == 2 && plr.ammo[7] > 0) {
 			shootgun(plr, daang, 10);
-			spritesound(S_GENTHROW, &sprite[plr.spritenum]);
+			spritesound(S_GENTHROW, plr.actor());
 			plr.hasshot = 1;
 			return;
 		} else if (plr.currweaponframe == ZPIKEATTACK + 4 && plr.weapon[7] == 3 && plr.ammo[7] > 0) {
 			lockon(plr, 3, 10);
-			spritesound(S_GENTHROW, &sprite[plr.spritenum]);
+			spritesound(S_GENTHROW, plr.actor());
 			plr.hasshot = 1;
 			return;
 		}
@@ -2444,44 +2445,44 @@ void swingdacrunch(PLAYER& plr, int daweapon) {
 	auto& pspr = sprite[player->spritenum];
 	switch (daweapon) {
 	case 0: // fist
-		spritesound(S_SOCK1 + (krand() % 4), &pspr);
+		spritesound(S_SOCK1 + (krand() % 4), plr.actor());
 		break;
 	case 1: // dagger
 		if ((krand() % 2) != 0)
-			spritesound(S_GORE1 + (krand() % 4), &pspr);
+			spritesound(S_GORE1 + (krand() % 4), plr.actor());
 		break;
 	case 2: // short sword
-		spritesound(S_SWORD2 + (krand() % 3), &pspr);
+		spritesound(S_SWORD2 + (krand() % 3), plr.actor());
 		break;
 	case 3: // morningstar
-		spritesound(S_SOCK1 + (krand() % 4), &pspr);
+		spritesound(S_SOCK1 + (krand() % 4), plr.actor());
 		break;
 	case 4: // broad sword
-		spritesound(S_SWORD1 + (krand() % 3), &pspr);
+		spritesound(S_SWORD1 + (krand() % 3), plr.actor());
 		break;
 	case 5: // battle axe
 		if ((krand() % 2) != 0)
-			spritesound(S_SOCK1 + (krand() % 4), &pspr);
+			spritesound(S_SOCK1 + (krand() % 4), plr.actor());
 		else
-			spritesound(S_SWORD1 + (krand() % 3), &pspr);
+			spritesound(S_SWORD1 + (krand() % 3), plr.actor());
 		break;
 	case 6: // bow
 
 		break;
 	case 7: // pike
 		if ((krand() % 2) != 0)
-			spritesound(S_SOCK1 + (krand() % 4), &pspr);
+			spritesound(S_SOCK1 + (krand() % 4), plr.actor());
 		else
-			spritesound(S_SWORD1 + (krand() % 3), &pspr);
+			spritesound(S_SWORD1 + (krand() % 3), plr.actor());
 		break;
 	case 8: // two handed sword
-		spritesound(S_SWORD1 + (krand() % 2), &pspr);
+		spritesound(S_SWORD1 + (krand() % 2), plr.actor());
 		break;
 	case 9: // halberd
 		if ((krand() % 2) != 0)
-			spritesound(S_SOCK1 + (krand() % 4), &pspr);
+			spritesound(S_SOCK1 + (krand() % 4), plr.actor());
 		else
-			spritesound(S_SWORD1 + (krand() % 3), &pspr);
+			spritesound(S_SWORD1 + (krand() % 3), plr.actor());
 		break;
 	}
 }

@@ -471,9 +471,11 @@ inline int SND_Sound(int sn) {
 	return playsound(sn, 0, 0);
 }
 
+/*
 inline int spritesound(int sn, spritetype *s, int loop = 0, int channel = CHAN_AUTO) {
 	return playsound_internal(sn, s, 0, 0, loop, channel);
 }
+*/
 
 inline int spritesound(int sn, DWHActor* s, int loop = 0, int channel = CHAN_AUTO) {
 	return playsound_internal(sn, &s->s(), 0, 0, loop, channel);

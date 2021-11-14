@@ -442,7 +442,7 @@ void teleporter() {
 			warpfxsprite(plr.spritenum);
 			plr.angle.settarget(daang);
 			plr.justwarpedfx = 48;
-			spritesound(S_WARP, &sprite[plr.spritenum]);
+			spritesound(S_WARP, plr.actor());
 			setsprite(plr.spritenum, plr.x, plr.y, plr.z + (32 << 8));
 		}
 	}
@@ -464,7 +464,7 @@ void teleporter() {
 					CompleteLevel(currentLevel);
 					break;
 				case 2: // ENDOFDEMO
-					spritesound(S_THUNDER1, &sprite[plr.spritenum]);
+					spritesound(S_THUNDER1, plr.actor());
 					justteleported = true;
 					CompleteLevel(nullptr);
 					break;
@@ -611,7 +611,7 @@ void sectorsounds() {
 			}
 		} else {
 			if (plr.z <= plr.Sector()->floorz - (8 << 8))
-				spritesound(sec, &sprite[plr.spritenum]);
+				spritesound(sec, plr.actor());
 		}
 	}
 }
@@ -823,7 +823,7 @@ void makeasplash(int picnum, PLAYER& plr) {
 		if(!isWh2() && picnum == SLIMESPLASH)
 			break;
 			
-		spritesound(S_SPLASH1 + (krand() % 3), &spawned);
+		spritesound(S_SPLASH1 + (krand() % 3), spawnedactor);
 		break;
 	case LAVASPLASH:
 		break;
@@ -839,7 +839,8 @@ void makemonstersplash(int picnum, int i) {
 		return;
 
 	int j = insertsprite(sprite[i].sectnum, MASPLASH);
-	auto& spawned = sprite[j];
+	auto spawnedactor = &whActors[j];
+	auto& spawned = spawnedactor->s();
 	spawned.x = sprite[i].x;
 	spawned.y = sprite[i].y;
 	spawned.z = sector[sprite[i].sectnum].floorz + (tileHeight(picnum) << 8);
@@ -873,14 +874,14 @@ void makemonstersplash(int picnum, int i) {
 			if ((gotpic[WATER >> 3] & (1 << (WATER & 7))) > 0) {
 				gotpic[WATER >> 3] &= ~(1 << (WATER & 7));
 					if ((krand() % 2) != 0)
-						spritesound(S_SPLASH1 + (krand() % 3), &spawned);
+						spritesound(S_SPLASH1 + (krand() % 3), spawnedactor);
 			}
 		}
 		if ((krand() % 2) != 0) {
 			if ((gotpic[SLIME >> 3] & (1 << (SLIME & 7))) > 0) {
 				gotpic[SLIME >> 3] &= ~(1 << (SLIME & 7));
 					if ((krand() % 2) != 0)
-						spritesound(S_SPLASH1 + (krand() % 3), &spawned);
+						spritesound(S_SPLASH1 + (krand() % 3), spawnedactor);
 			}
 		}
 		break;

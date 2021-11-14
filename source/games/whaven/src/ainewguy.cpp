@@ -347,14 +347,14 @@ static void castnewguy(PLAYER& plr, DWHActor* actor)
 	if (spr.picnum == NEWGUYCAST + 2) {
 		spr.extra--;
 		spr.picnum = NEWGUY;
-		spritesound(S_WISP, &sprite[i]);
+		spritesound(S_WISP, actor);
 		skullycastspell(plr, i);
 		SetNewStatus(actor, CHASE);
 	}
 	if (spr.picnum == NEWGUYBOW + 2) {
 		spr.extra--;
 		spr.picnum = NEWGUY;
-		spritesound(S_PLRWEAPON3, &sprite[i]);
+		spritesound(S_PLRWEAPON3, actor);
 		newguyarrow(i, plr);
 		SetNewStatus(actor, CHASE);
 	}
