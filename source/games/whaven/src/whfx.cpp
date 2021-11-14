@@ -835,26 +835,27 @@ void makeasplash(int picnum, PLAYER& plr) {
 	spawned.backuploc();
 }
 
-void makemonstersplash(int picnum, int i) {
-	if (sprite[i].picnum == FISH)
+void makemonstersplash(int picnum, DWHActor* actor) {
+	auto& spr = actor->s();
+	if (spr.picnum == FISH)
 		return;
 
-	auto spawnedactor = InsertActor(sprite[i].sectnum, MASPLASH);
+	auto spawnedactor = InsertActor(spr.sectnum, MASPLASH);
 	auto& spawned = spawnedactor->s();
 
-	spawned.x = sprite[i].x;
-	spawned.y = sprite[i].y;
-	spawned.z = sector[sprite[i].sectnum].floorz + (tileHeight(picnum) << 8);
+	spawned.x = spr.x;
+	spawned.y = spr.y;
+	spawned.z = sector[spr.sectnum].floorz + (tileHeight(picnum) << 8);
 	spawned.cstat = 0; // Hitscan does not hit other bullets
 	spawned.picnum = (short) picnum;
 	spawned.shade = 0;
 
-	if (sector[sprite[i].sectnum].floorpal == 9)
+	if (sector[spr.sectnum].floorpal == 9)
 		spawned.pal = 9;
 	else
 		spawned.pal = 0;
 		
-	if (sprite[i].picnum == RAT) {
+	if (spr.picnum == RAT) {
 		spawned.xrepeat = 40;
 		spawned.yrepeat = 40;
 	} else {
@@ -891,8 +892,7 @@ void makemonstersplash(int picnum, int i) {
 	}
 }
 
-void bats(PLAYER& plr, int k) {
-	auto actor = &whActors[k];
+void bats(PLAYER& plr, DWHActor* actor) {
 	auto& spr = actor->s();
 	auto spawnedactor = InsertActor(spr.sectnum, FLOCK);
 	auto& spawned = spawnedactor->s();
@@ -909,13 +909,13 @@ void bats(PLAYER& plr, int k) {
 	spawnedactor->SetOwner(actor);
 	spawned.clipdist = 16;
 	spawned.lotag = 128;
-	spawned.hitag = (short) k; // see: flying in circles
+	//spawned.hitag = (short) k; // see: flying in circles
 	spawned.extra = 0;
 	spawned.backuploc();
 
 	SetNewStatus(spawnedactor, FLOCK);
 
-	if (sprite[k].extra == 1)
+	if (spr.extra == 1)
 		lastbat = spawnedactor->GetSpriteIndex();
 }
 
@@ -1134,8 +1134,7 @@ void makesparks(short i, int type) {
 	spawned.backuploc();
 }
 
-void shards(int i, int type) {
-	auto actor = &whActors[i];
+void shards(DWHActor* actor, int type) {
 	auto& spr = actor->s();
 	auto spawnedactor = InsertActor(spr.sectnum, SHARDOFGLASS);
 	auto& spawned = spawnedactor->s();

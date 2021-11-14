@@ -573,9 +573,8 @@ void gonzoProcess(PLAYER& plr)
 			}
 
 			if (moveStat.type== kHitSprite) { // Bullet hit a sprite
-				int k = moveStat.actor->GetSpriteIndex();
 				for (int j = 0; j < 15; j++) {
-					shards(k, 1);
+					shards(moveStat.actor, 1);
 				}
 				damageactor(plr, moveStat.actor, actor);
 			}

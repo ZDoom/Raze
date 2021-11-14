@@ -233,7 +233,10 @@ inline void DeleteActor(DWHActor* actor)
 
 inline DWHActor* InsertActor(int sectnum, int statnum)
 {
-	return &whActors[insertsprite(sectnum, statnum)];
+	int j = insertsprite(sectnum, statnum);
+	auto act = &whActors[j];
+	act->s().detail = 0;
+	return act;
 }
 
 END_WH_NS

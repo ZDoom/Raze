@@ -409,13 +409,12 @@ void animateobjs(PLAYER& plr) {
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		int i = actor->GetSpriteIndex();
 
 		spr.lotag -= TICSPERFRAME;
 		if (spr.lotag < 0) {
 			spr.extra--;
 			spr.lotag = (short) (krand() & 48 + 24);
-			bats(plr, i);
+			bats(plr, actor);
 			if (spr.extra == 0)
 				ChangeActorStat(actor, 0);
 		}
@@ -444,11 +443,12 @@ void animateobjs(PLAYER& plr) {
 			}
 			break;
 		case 1: // flying in circles
-			if (spr.lotag < 0) {
+		{
+			auto spot = actor->GetOwner(); // was spr.hitag
+			if (spr.lotag < 0 && spot) {
 				spr.extra = 2;
 				spr.lotag = 512;
-				spr.ang = (short) (((getangle(sprite[spr.hitag].x - spr.x,
-						sprite[spr.hitag].y - spr.y) & 2047) - 1024) & 2047);
+				spr.ang = (short) (((getangle(spot->s().x - spr.x, spot->s().y - spr.y) & 2047) - 1024) & 2047);
 			} else {
 				spr.z -= TICSPERFRAME << 4;
 				spr.ang = (short) ((spr.ang + (TICSPERFRAME << 2)) & 2047);
@@ -460,6 +460,7 @@ void animateobjs(PLAYER& plr) {
 					spr.ang = (short) (krand() & 2047);
 			}
 			break;
+			}
 		case 2: // fly to roof and get deleted
 			if (spr.lotag < 0) {
 				if (i == lastbat) {
@@ -718,7 +719,7 @@ void animateobjs(PLAYER& plr) {
 
 		if (moveStat.type == kHitSector) {
 			if (spr.sector()->floorpicnum == WATER) {
-				makemonstersplash(SPLASHAROO, i);
+				makemonstersplash(SPLASHAROO, actor);
 			}
 			switch (spr.picnum) {
 			case FBARRELFALL:
@@ -759,7 +760,7 @@ void animateobjs(PLAYER& plr) {
 		if (spr.z >= spr.sector()->floorz) {
 			if (spr.sector()->floorpicnum == WATER
 					|| spr.sector()->floorpicnum == FLOORMIRROR) {
-				makemonstersplash(SPLASHAROO, i);
+				makemonstersplash(SPLASHAROO, actor);
 			}
 			SetNewStatus(actor, BROKENVASE);
 			continue;
@@ -924,7 +925,7 @@ void animateobjs(PLAYER& plr) {
 						spr.z = spr.sector()->floorz;
 					else {
 						if (krand() % 100 > 60)
-							makemonstersplash(SPLASHAROO, i);
+							makemonstersplash(SPLASHAROO, actor);
 					}
 					
 //					if (spr.picnum != THROWPIKE) { //XXX
@@ -1049,7 +1050,7 @@ void animateobjs(PLAYER& plr) {
 				if (spr.sector()->floorpicnum == WATER || spr.sector()->floorpicnum == SLIME
 						|| spr.sector()->floorpicnum == FLOORMIRROR)
 					if (krand() % 100 > 60)
-						makemonstersplash(SPLASHAROO, i);
+						makemonstersplash(SPLASHAROO, actor);
 				DeleteActor(actor);
 				continue;
 			}
@@ -1182,7 +1183,7 @@ void animateobjs(PLAYER& plr) {
 					spr.z = spr.sector()->floorz;
 				else {
 					if (krand() % 100 > 60)
-						makemonstersplash(SPLASHAROO, i);
+						makemonstersplash(SPLASHAROO, actor);
 				}
 				spr.lotag = -1;
 			} else {
@@ -1492,7 +1493,7 @@ void animateobjs(PLAYER& plr) {
 					spr.z = spr.sector()->floorz;
 				else {
 					if (krand() % 100 > 60) {
-						makemonstersplash(SPLASHAROO, i);
+						makemonstersplash(SPLASHAROO, actor);
 						DeleteActor(actor);
 					}
 				}

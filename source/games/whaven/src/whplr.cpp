@@ -278,7 +278,7 @@ void plruse(PLAYER& plr) {
 				if (sector[i].hitag == spr.hitag)
 					operatesector(plr, i);
 		} else
-			operatesprite(plr, nt.tagactor->GetSpriteIndex());
+			operatesprite(plr, nt.tagactor);
 	}
 }
 

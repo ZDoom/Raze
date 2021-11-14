@@ -24,13 +24,12 @@ short dragsectorlist[16], dragxdir[16], dragydir[16], dragsectorcnt;
 int dragx1[16], dragy1[16], dragx2[16], dragy2[16], dragfloorz[16];
 
 
-void operatesprite(PLAYER& plr, short s) {
-	auto actor = &whActors[s];
+void operatesprite(PLAYER& plr, DWHActor* actor) {
 	auto& spr = actor->s();
 	if (spr.picnum == SPAWNFIREBALL)
 		SetNewStatus(actor, DEVILFIRE);
 	if (spr.picnum == SPAWNJAVLIN)
-		trowajavlin(s);
+		trowajavlin(actor);
 
 	switch (spr.picnum) {
 	case STONEGONZOCHM:
@@ -57,7 +56,7 @@ void operatesprite(PLAYER& plr, short s) {
 		case 2:
 			spritesound(S_GLASSBREAK1 + (rand() % 3), actor);
 			for (int j = 0; j < 20; j++) {
-				shards(s, 2);
+				shards(actor, 2);
 			}
 			DeleteActor(actor);
 			break;
@@ -908,10 +907,9 @@ void animatetags(int nPlayer) {
 			while (auto actor = it.Next())
 			{
 				SPRITE& spr = actor->s();
-				int i = actor->GetSpriteIndex();
 
 				if (spr.hitag == plr.Sector()->hitag)
-					operatesprite(plr, i);
+					operatesprite(plr, actor);
 			}
 
 			plr.Sector()->lotag = 0;
@@ -927,10 +925,9 @@ void animatetags(int nPlayer) {
 			while (auto actor = it.Next())
 			{
 				SPRITE& spr = actor->s();
-				int i = actor->GetSpriteIndex();
 
 				if (spr.hitag == plr.Sector()->hitag)
-					operatesprite(plr, i);
+					operatesprite(plr, actor);
 			}
 		}
 	}

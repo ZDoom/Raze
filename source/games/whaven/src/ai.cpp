@@ -228,13 +228,10 @@ void aiProcess() {
 	dragonProcess(plr);
 	willowProcess(plr);
 
-	short i;
-
 	WHStatIterator it(PATROL);
 	while (auto actor = it.Next())
 	{
 		SPRITE& spr = actor->s();
-		i = actor->GetSpriteIndex();
 		Collision moveStat = movesprite(actor, (bcos(spr.ang) * TICSPERFRAME) << 3,
 			(bsin(spr.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
 		if (zr_florz > spr.z + (48 << 8)) {
@@ -248,7 +245,6 @@ void aiProcess() {
 		while (auto sectactor = it.Next())
 		{
 			SPRITE& tspr = sectactor->s();
-			int j = sectactor->GetSpriteIndex();
 
 			if (tspr.picnum == PATROLPOINT) {
 				int dx = abs(spr.x - tspr.x); // x distance to sprite
@@ -588,14 +584,14 @@ void processfluid(DWHActor* actor, Collision& florHit, boolean fly) {
 		if (!fly) {
 			spr.z += tileHeight(spr.picnum) << 5;
 			trailingsmoke(actor,true);
-			makemonstersplash(LAVASPLASH, actor->GetSpriteIndex());
+			makemonstersplash(LAVASPLASH, actor);
 		}
 		break;
 	case TYPEWATER:
 		if (!fly) {
 			spr.z += tileHeight(spr.picnum) << 5;
 			if (krand() % 100 > 60)
-				makemonstersplash(SPLASHAROO, actor->GetSpriteIndex());
+				makemonstersplash(SPLASHAROO, actor);
 		}
 		break;
 	}

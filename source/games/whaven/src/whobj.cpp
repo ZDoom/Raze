@@ -1505,8 +1505,7 @@ void trailingsmoke(DWHActor* actor, boolean ball) {
 	spawned.backuploc();
 }
 
-void icecubes(int i, int x, int y, int z, int ownr) {
-	auto actor = &whActors[i];
+void icecubes(DWHActor* actor, int x, int y, int z, int ownr) {
 	auto& spr = actor->s();
 	auto spawnedactor = InsertActor(spr.sectnum, FX);
 	auto& spawned = spawnedactor->s();
@@ -1699,7 +1698,7 @@ boolean damageactor(PLAYER& plr, DWHActor* hitactor, DWHActor* actor)
 				// raf because monsters could shatter a guy thats been frozen
 				if (hitspr.pal == 6) {
 					for (int k = 0; k < 32; k++)
-						icecubes(hitactor->GetSpriteIndex(), hitspr.x, hitspr.y, hitspr.z, hitactor->GetSpriteIndex());
+						icecubes(hitactor, hitspr.x, hitspr.y, hitspr.z, hitactor->GetSpriteIndex());
 					// EG 26 Oct 2017: Move this here from medusa (anti multi-freeze exploit)
 					addscore(&plr, 100);
 					DeleteActor(hitactor);
@@ -1793,48 +1792,49 @@ Collision movesprite(DWHActor* actor, int dx, int dy, int dz, int ceildist, int 
 	return Collision(retval);
 }
 
-void trowajavlin(int s) {
-	auto spawnedactor = InsertActor(sprite[s].sectnum, JAVLIN);
+void trowajavlin(DWHActor* actor) {
+	auto& spr = actor->s();
+	auto spawnedactor = InsertActor(spr.sectnum, JAVLIN);
 	auto& spawned = spawnedactor->s();
 
-	spawned.x = sprite[s].x;
-	spawned.y = sprite[s].y;
-	spawned.z = sprite[s].z;// - (40 << 8);
+	spawned.x = spr.x;
+	spawned.y = spr.y;
+	spawned.z = spr.z;// - (40 << 8);
 	
 	spawned.cstat = 21;
 
-	switch (sprite[s].lotag) {
+	switch (spr.lotag) {
 	case 91:
 		spawned.picnum = WALLARROW;
-		spawned.ang = (short) (((sprite[s].ang + 2048) - 512) & 2047);
+		spawned.ang = (short) (((spr.ang + 2048) - 512) & 2047);
 		spawned.xrepeat = 16;
 		spawned.yrepeat = 48;
 		spawned.clipdist = 24;
 		break;
 	case 92:
 		spawned.picnum = DART;
-		spawned.ang = (short) (((sprite[s].ang + 2048) - 512) & 2047);
+		spawned.ang = (short) (((spr.ang + 2048) - 512) & 2047);
 		spawned.xrepeat = 64;
 		spawned.yrepeat = 64;
 		spawned.clipdist = 16;
 		break;
 	case 93:
 		spawned.picnum = HORIZSPIKEBLADE;
-		spawned.ang = (short) (((sprite[s].ang + 2048) - 512) & 2047);
+		spawned.ang = (short) (((spr.ang + 2048) - 512) & 2047);
 		spawned.xrepeat = 16;
 		spawned.yrepeat = 48;
 		spawned.clipdist = 32;
 		break;
 	case 94:
 		spawned.picnum = THROWPIKE;
-		spawned.ang = (short) (((sprite[s].ang + 2048) - 512) & 2047);
+		spawned.ang = (short) (((spr.ang + 2048) - 512) & 2047);
 		spawned.xrepeat = 24;
 		spawned.yrepeat = 24;
 		spawned.clipdist = 32;
 		break;
 	}
 
-	spawned.extra = sprite[s].ang;
+	spawned.extra = spr.ang;
 	spawned.shade = -15;
 	spawned.xvel = (short) ((krand() & 256) - 128);
 	spawned.yvel = (short) ((krand() & 256) - 128);

@@ -1010,7 +1010,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 			}
 		}
 
-		if (checkweapondist(pHitInfo.hitsprite, plr.x, plr.y, plr.z, plr.selectedgun)) {
+		if (checkweapondist(hitActor, plr.x, plr.y, plr.z, plr.selectedgun)) {
 			madeahit = true;
 			auto& hitspr = hitActor->s();
 
@@ -1646,8 +1646,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 					SND_Sound(S_SOCK1 + (krand() % 4));
 					playsound(S_FREEZEDIE, pHitInfo.hitx, pHitInfo.hity);
 					for (k = 0; k < 32; k++)
-						icecubes(pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity, pHitInfo.hitz,
-								pHitInfo.hitsprite);
+						icecubes(hitActor, pHitInfo.hitx, pHitInfo.hity, pHitInfo.hitz,	pHitInfo.hitsprite);
 					addscore(&plr, 100);
 					DeleteActor(hitActor);
 				}
@@ -1847,8 +1846,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 					SND_Sound(S_SOCK1 + (krand() % 4));
 					playsound(S_FREEZEDIE, pHitInfo.hitx, pHitInfo.hity);
 					for (k = 0; k < 32; k++)
-						icecubes(pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity, pHitInfo.hitz,
-								pHitInfo.hitsprite);
+						icecubes(hitActor, pHitInfo.hitx, pHitInfo.hity, pHitInfo.hitz,	pHitInfo.hitsprite);
 					DeleteActor(hitActor);
 				}
 			} // switch frozen
@@ -2269,7 +2267,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 	}
 }
 
-boolean checkweapondist(int i, int x, int y, int z, int guntype) {
+boolean checkweapondist(DWHActor* actor, int x, int y, int z, int guntype) {
 	int length = 1024;
 
 	if (guntype != 0) {
@@ -2295,9 +2293,11 @@ boolean checkweapondist(int i, int x, int y, int z, int guntype) {
 			break;
 		}
 	}
+	if (actor == nullptr) return false;
+	auto& spr = actor->s();
 
-	if (i >= 0 && (abs(x - sprite[i].x) + abs(y - sprite[i].y) < length)
-			&& (abs((z >> 8) - ((sprite[i].z >> 8) - (tileHeight(sprite[i].picnum) >> 1))) <= (length >> 3)))
+	if ((abs(x - spr.x) + abs(y - spr.y) < length)
+			&& (abs((z >> 8) - ((spr.z >> 8) - (tileHeight(spr.picnum) >> 1))) <= (length >> 3)))
 		return true;
 	else
 		return false;
@@ -2439,7 +2439,7 @@ void swingdaweapon(PLAYER& plr) {
 
 void swingdacrunch(PLAYER& plr, int daweapon) {
 
-	auto& pspr = sprite[player->spritenum];
+	auto& pspr = plr.actor()->s();
 	switch (daweapon) {
 	case 0: // fist
 		spritesound(S_SOCK1 + (krand() % 4), plr.actor());

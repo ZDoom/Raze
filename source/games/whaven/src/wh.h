@@ -196,10 +196,10 @@ void makeafire(DWHActor*, int firetype);
 void explosion(DWHActor* i, int x, int y, int z, int ownr);
 void explosion2(DWHActor* i, int x, int y, int z, int ownr);
 void trailingsmoke(DWHActor* actor, boolean ball);
-void icecubes(int i, int x, int y, int z, int ownr);
+void icecubes(DWHActor* i, int x, int y, int z, int ownr);
 boolean damageactor(PLAYER& plr, DWHActor* hitobject, DWHActor* actor);
 Collision movesprite(DWHActor*, int dx, int dy, int dz, int ceildist, int flordist, int cliptype);
-void trowajavlin(int s);
+void trowajavlin(DWHActor* s);
 void spawnhornskull(DWHActor* i);
 void spawnapentagram(DWHActor* sn);
 void processinput(int num);
@@ -268,7 +268,7 @@ extern short dragsectorlist[16], dragxdir[16], dragydir[16], dragsectorcnt;
 extern int dragx1[16], dragy1[16], dragx2[16], dragy2[16], dragfloorz[16];
 
 
-void operatesprite(PLAYER& plr, short s);
+void operatesprite(PLAYER& plr, DWHActor* s);
 void operatesector(PLAYER& plr, int s);
 void animatetags(int nPlayer);
 void dodelayitems(int tics);
@@ -313,7 +313,7 @@ void weaponchange(int snum);
 void plrfireweapon(PLAYER& plr);
 void weaponsprocess(int snum);
 void shootgun(PLAYER& plr, float ang, int guntype);
-boolean checkweapondist(int i, int x, int y, int z, int guntype);
+boolean checkweapondist(DWHActor* i, int x, int y, int z, int guntype);
 void swingdapunch(PLAYER& plr, int daweapon);
 void swingdaweapon(PLAYER& plr);
 void swingdacrunch(PLAYER& plr, int daweapon);
@@ -384,15 +384,15 @@ void dofx();
 void thunder();
 void thesplash();
 void makeasplash(int picnum, PLAYER& plr);
-void makemonstersplash(int picnum, int i);
-void bats(PLAYER& plr, int k);
+void makemonstersplash(int picnum, DWHActor* i);
+void bats(PLAYER& plr, DWHActor* k);
 void cracks();
 void lavadryland();
 void warpfxsprite(DWHActor* s);
 void resetEffects();
 void weaponpowerup(PLAYER& plr);
 void makesparks(short i, int type);
-void shards(int i, int type);
+void shards(DWHActor* i, int type);
 
 
 // animate
@@ -490,14 +490,6 @@ void startsong(int);
 void setupmidi();
 
 extern int attacktheme;
-
-inline int insertsprite(int sectnum, int statnum)
-{
-	int j = ::insertsprite(sectnum, statnum);
-	if (j != -1)
-		sprite[j].detail = 0;
-	return j;
-}
 
 void analyzesprites(PLAYER& plr, int dasmoothratio, spritetype* tsprite, int& spritesortcnt);
 void precacheTiles();
