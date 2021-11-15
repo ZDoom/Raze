@@ -4,6 +4,66 @@
 #include "binaryangle.h"
 #include "build.h"
 
+// breadth first search, this gets used multiple times throughout the engine, mainly for iterating over sectors.
+// Only works on indices, this has no knowledge of the actual objects being looked at.
+// All objects of this type operate on the same shared store. Interleaved use is not allowed, nested use is fine.
+class BFSSearch
+{
+	static inline TArray<unsigned> store;
+
+	unsigned bitpos;
+	unsigned startpos;
+	unsigned curpos;
+	
+public:
+	BFSSearch(unsigned datasize, unsigned startnode)
+	{
+		bitpos = store.Size();
+		unsigned bitsize = (datasize + 31) >> 5;
+		store.Reserve(bitsize);
+		memset(&store[bitpos], 0, bitsize*4);
+		
+		startpos = store.Size();
+		curpos = startpos;
+		store.Push(startnode);
+	}
+	
+	~BFSSearch()
+	{
+		store.Clamp(bitpos);
+	}
+	
+private:
+	bool Check(unsigned index) const
+	{
+		return !!(store[bitpos + (index >> 5)] & (1 << (index & 31)));
+	}
+
+	void Set(unsigned index)
+	{
+		store[bitpos + (index >> 5)] |= (1 << (index & 31));
+	}
+
+public:
+	unsigned GetNext()
+	{
+		curpos++;
+		if (curpos <= store.Size())
+			return store[curpos-1];
+		else
+			return ~0;
+	}
+	
+	void Add(unsigned elem)
+	{
+		if (!Check(elem))
+		{
+			Set(elem);
+			store.Push(elem);
+		}
+	}
+};
+
 extern TArray<int> GlobalSectorList;
 
 extern int cameradist, cameraclock;
