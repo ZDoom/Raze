@@ -139,6 +139,9 @@ struct walltype
     sectortype* nextSector() const;
     walltype* nextWall() const;
     walltype* point2Wall() const;
+	vec2_t delta() const { return point2Wall()->pos - pos; }
+	int deltax() const { return point2Wall()->x - x; }
+	int deltay() const { return point2Wall()->y - y; }
     bool twoSided() const { return nextsector >= 0; }
 
 #if 0

@@ -1299,10 +1299,10 @@ void bounce(DDukeActor* actor)
 
 	auto sectp = s->sector();
 
-	int k = sectp->wallptr; 
-	int l = wall[k].point2;
-	int daang = getangle(wall[l].x - wall[k].x, wall[l].y - wall[k].y);
+	auto delta = sectp->firstWall()->delta();
+	int daang = getangle(delta.x, delta.y);
 
+	int k, l;
 	if (s->z < (actor->floorz + actor->ceilingz) >> 1)
 		k = sectp->ceilingheinum;
 	else
@@ -1513,12 +1513,10 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 
 		if (j == kHitWall)
 		{
-			j = coll.index;
-				int k = getangle(
-					wall[wall[j].point2].x - wall[j].x,
-					wall[wall[j].point2].y - wall[j].y);
-				s->ang = ((k << 1) - s->ang) & 2047;
-			}
+			auto delta = coll.wall()->delta();
+			int k = getangle(delta.x, delta.y);
+			s->ang = ((k << 1) - s->ang) & 2047;
+		}
 		else if (j == kHitSprite)
 		{
 			fi.checkhitsprite(actor, coll.actor);
