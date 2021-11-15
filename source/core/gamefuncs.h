@@ -16,6 +16,7 @@ class BFSSearch
 	unsigned curpos;
 	
 public:
+	enum { EOL = ~0u };
 	BFSSearch(unsigned datasize, unsigned startnode)
 	{
 		bitpos = store.Size();

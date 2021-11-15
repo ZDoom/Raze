@@ -341,27 +341,22 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 {
 	walltype* wal;
 	int d, q, x1, y1;
-	int sectcnt, sectend, dasect, startwall, endwall, nextsect;
+	int startwall, endwall, nextsect;
 	int p, x;
 	int sect;
 	static const uint8_t statlist[] = { STAT_DEFAULT, STAT_ACTOR, STAT_STANDABLE, STAT_PLAYER, STAT_FALLER, STAT_ZOMBIEACTOR, STAT_MISC };
-	int tempsect[128];	// originally hijacked a global buffer which is bad. Q: How many do we really need? RedNukem says 64.
-	
+
 	auto spri = actor->s;
 	
 	if(spri->picnum == RPG && spri->xrepeat < 11) goto SKIPWALLCHECK;
 	
 	if(spri->picnum != SHRINKSPARK)
 	{
-		tempsect[0] = spri->sectnum;
-		dasect = spri->sectnum;
-		auto dasectp = spri->sector();
-		sectcnt = 0; sectend = 1;
-		
-		do
+		BFSSearch search(numsectors, spri->sectnum);
+	
+		for(unsigned dasect; (dasect = search.GetNext()) != BFSSearch::EOL;)
 		{
-			dasect = tempsect[sectcnt++];
-			dasectp = &sector[dasect];
+			auto dasectp = &sector[dasect];
 			if (((dasectp->ceilingz - spri->z) >> 8) < r)
 			{
 				d = abs(wall[dasectp->wallptr].x - spri->x) + abs(wall[dasectp->wallptr].y - spri->y);
@@ -384,9 +379,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 					nextsect = wal->nextsector;
 					if (nextsect >= 0)
 					{
-						for (dasect = sectend - 1; dasect >= 0; dasect--)
-							if (tempsect[dasect] == nextsect) break;
-						if (dasect < 0) tempsect[sectend++] = nextsect;
+						search.Add(nextsect);
 					}
 					x1 = (((wal->x + wall[wal->point2].x) >> 1) + spri->x) >> 1;
 					y1 = (((wal->y + wall[wal->point2].y) >> 1) + spri->y) >> 1;
@@ -394,7 +387,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 					if (sect >= 0 && cansee(x1, y1, spri->z, sect, spri->x, spri->y, spri->z, spri->sectnum))
 						fi.checkhitwall(actor, x, wal->x, wal->y, spri->z, spri->picnum);
 				}
-		} while (sectcnt < sectend && sectcnt < (int)countof(tempsect));
+	}
 	}
 	
 SKIPWALLCHECK:
