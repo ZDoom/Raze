@@ -4142,26 +4142,26 @@ void handle_se19(DDukeActor *actor, int BIGFORCE)
 	int* t = &actor->temp_data[0];
 	auto sc = actor->getSector();
 	int sh = actor->s->hitag;
-	int j, x, q;
 
 	if (t[0])
 	{
 		if (t[0] == 1)
 		{
 			t[0]++;
-			x = sc->wallptr;
-			q = x + sc->wallnum;
-			for (j = x; j < q; j++)
-				if (wall[j].overpicnum == BIGFORCE)
+			for (auto& wal : wallsofsector(sc))
+			{
+				if (wal.overpicnum == BIGFORCE)
 				{
-					wall[j].cstat &= (128 + 32 + 8 + 4 + 2);
-					wall[j].overpicnum = 0;
-					if (wall[j].nextwall >= 0)
+					wal.cstat &= (128 + 32 + 8 + 4 + 2);
+					wal.overpicnum = 0;
+					auto nextwal = wal.nextWall();
+					if (nextwal != nullptr)
 					{
-						wall[wall[j].nextwall].overpicnum = 0;
-						wall[wall[j].nextwall].cstat &= (128 + 32 + 8 + 4 + 2);
+						nextwal->overpicnum = 0;
+						nextwal->cstat &= (128 + 32 + 8 + 4 + 2);
 					}
 				}
+			}
 		}
 
 		if (sc->ceilingz < sc->floorz)
@@ -4196,7 +4196,7 @@ void handle_se19(DDukeActor *actor, int BIGFORCE)
 			DukeStatIterator it(STAT_EFFECTOR);
 			while (auto ac = it.Next())
 			{
-				x = ac->s->lotag & 0x7fff;
+				int x = ac->s->lotag & 0x7fff;
 				switch (x)
 				{
 				case 0:
