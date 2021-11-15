@@ -233,29 +233,27 @@ static void cachegoodsprites(void)
 void cacheit_d(void)
 {
 	if (!r_precache) return;
-	int i;
 
 	cachegoodsprites();
 
-	for (i = 0; i < numwalls; i++)
+	for (auto& wal : walls())
 	{
-		tloadtile(wall[i].picnum, wall[i].pal);
-		if (wall[i].overpicnum >= 0)
-			tloadtile(wall[i].overpicnum, wall[i].pal);
+		tloadtile(wal.picnum, wal.pal);
+		if (wal.overpicnum >= 0)
+			tloadtile(wal.overpicnum, wal.pal);
 	}
 
-	for (i = 0; i < numsectors; i++)
+	for (auto& sect : sectors())
 	{
-		auto sectp = &sector[i];
-		tloadtile(sectp->floorpicnum, sectp->floorpal);
-		tloadtile(sectp->ceilingpicnum, sectp->ceilingpal);
-		if (sectp->ceilingpicnum == LA)
+		tloadtile(sect.floorpicnum, sect.floorpal);
+		tloadtile(sect.ceilingpicnum, sect.ceilingpal);
+		if (sect.ceilingpicnum == LA)
 		{
 			tloadtile(LA + 1);
 			tloadtile(LA + 2);
 		}
 
-		DukeSectIterator it(i);
+		DukeSectIterator it(&sect);
 		while (auto j = it.Next())
 		{
 			if (j->s->xrepeat != 0 && j->s->yrepeat != 0 && (j->s->cstat & 32768) == 0)

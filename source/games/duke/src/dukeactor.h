@@ -33,6 +33,10 @@ public:
 	{
 	}
 	
+	DukeSectIterator(sectortype* stat) : SectIterator(stat)
+	{
+	}
+	
 	DDukeActor *Next()
 	{
 		int n = NextIndex();
