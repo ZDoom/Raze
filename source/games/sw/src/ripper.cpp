@@ -1234,6 +1234,7 @@ void RipperHatch(DSWActor* actor)
         auto actorNew = InsertActor(wp->sectnum, STAT_DEFAULT);
         np = &actorNew->s();
 		np->clear();
+        ClearOwner(actorNew);
 		np->sectnum = wp->sectnum;
         np->statnum = STAT_DEFAULT;
         np->x = wp->x;

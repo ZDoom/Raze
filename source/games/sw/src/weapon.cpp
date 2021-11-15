@@ -5826,6 +5826,15 @@ objects.
 
 */
 
+// this was done wrong multiple times below, resulting in spurious crashes.
+bool OwnerIs(DSWActor* actor, int pic)
+{
+    auto Own = GetOwner(actor);
+    if (Own == nullptr || !Own->hasU()) return false;
+    return Own->u()->ID == pic;
+}
+
+
 int
 DoDamage(short SpriteNum, short Weapon)
 {
@@ -6857,7 +6866,7 @@ DoDamage(short SpriteNum, short Weapon)
         else
         {
             // Don't let it hurt the SUMO
-            if (wp->owner >=0 && User[wp->owner].Data() && User[wp->owner]->ID == SUMO_RUN_R0) break;  // JBF: added sanity check for wp->owner and User[wp->owner]
+            if (OwnerIs(weapActor, SUMO_RUN_R0)) break;
             ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
             ActorDamageSlide(SpriteNum, damage, ANG2SPRITE(sp, wp));
@@ -6901,7 +6910,7 @@ DoDamage(short SpriteNum, short Weapon)
 
     case MINE_EXP:
         damage = GetDamage(SpriteNum, Weapon, DMG_MINE_EXP);
-        if (wp->owner >= 0 && User[wp->owner].Data() && User[wp->owner]->ID == SERP_RUN_R0)
+        if (OwnerIs(weapActor, SERP_RUN_R0))
         {
             damage /= 6;
         }
@@ -6928,9 +6937,9 @@ DoDamage(short SpriteNum, short Weapon)
             if (wp->owner >= 0)
             {
                 // Don't let serp skulls hurt the Serpent God
-                if (User[wp->owner]->ID == SERP_RUN_R0) break;
+                if (OwnerIs(weapActor, SERP_RUN_R0)) break;
                 // Don't let it hurt the SUMO
-                if (User[wp->owner]->ID == SUMO_RUN_R0) break;
+                if (OwnerIs(weapActor, SUMO_RUN_R0)) break;
             }
             if (u->ID == TRASHCAN)
                 ActorHealth(SpriteNum, -500);
@@ -6981,8 +6990,8 @@ DoDamage(short SpriteNum, short Weapon)
         damage = GetDamage(SpriteNum, Weapon, DMG_NAPALM_EXP);
 
         // Sumo Nap does less
-        if (wp->owner >= 0 && User[wp->owner].Data() && User[wp->owner]->ID == SUMO_RUN_R0)
-            damage /= 4;
+        if (OwnerIs(weapActor, SUMO_RUN_R0))
+        damage /= 4;
 
         if (u->sop_parent)
         {
@@ -7004,7 +7013,7 @@ DoDamage(short SpriteNum, short Weapon)
         else
         {
             // Don't let it hurt the SUMO
-            if (User[wp->owner]->ID == SUMO_RUN_R0) break;
+            if (OwnerIs(weapActor, SUMO_RUN_R0)) break;
             ActorHealth(SpriteNum, damage);
             ActorChooseDeath(SpriteNum, Weapon);
         }
@@ -7217,7 +7226,7 @@ DoDamage(short SpriteNum, short Weapon)
         else
         {
             // Don't let it hurt the SUMO
-            if (wp->owner >= 0 && User[wp->owner]->ID == SUMO_RUN_R0) break;    // JBF: added owner check
+            if (OwnerIs(weapActor, SUMO_RUN_R0)) break;
             ActorHealth(SpriteNum, damage);
             ActorPain(SpriteNum);
             ActorChooseDeath(SpriteNum, Weapon);
