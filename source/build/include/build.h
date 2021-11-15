@@ -377,6 +377,7 @@ int32_t    engineInit(void);
 void   engineUnInit(void);
 void   initspritelists(void);
 
+void allocateMapArrays(int numsprites);
 void ValidateSprite(spritetype& spr);
 void engineLoadBoard(const char *filename, int flags, vec3_t *dapos, int16_t *daang, int *dacursectnum);
 void loadMapBackup(const char* filename);

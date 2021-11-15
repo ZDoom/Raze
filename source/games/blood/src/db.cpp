@@ -503,9 +503,6 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, int 
     gModernMap = false;
     #endif
 
-    memset(sector, 0, sizeof(sector));
-    memset(wall, 0, sizeof(wall));
-    memset(sprite, 0, sizeof(sprite));
     memset(xsprite, 0, sizeof(xsprite));
 
 #ifdef NOONE_EXTENSIONS
@@ -595,6 +592,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, int 
     gMapRev = mapHeader.revision;
     numsectors = mapHeader.numsectors;
     numwalls = mapHeader.numwalls;
+    allocateMapArrays(mapHeader.numsprites);
     dbInit();
     if (encrypted)
     {
