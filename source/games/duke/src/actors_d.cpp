@@ -3745,7 +3745,7 @@ void moveeffectors_d(void)   //STATNUM 3
 			}
 			break;
 
-		case 128: //SE to control glass breakage
+		case SE_128_GLASS_BREAKING:
 			handle_se128(act);
 			break;
 

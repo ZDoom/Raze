@@ -723,7 +723,7 @@ void checkhitwall_d(DDukeActor* spr, int dawallnum, int x, int y, int z, int atw
 					auto spawned = EGS(sn, x, y, z, SECTOREFFECTOR, 0, 0, 0, ps[0].angle.ang.asbuild(), 0, 0, spr, 3);
 					spawned->s->lotag = 128; 
 					spawned->temp_data[1] = 5;
-					spawned->temp_data[2] = dawallnum;
+					spawned->temp_walls[0] = wal;
 					S_PlayActorSound(GLASS_BREAKING, spawned);
 					return;
 				}

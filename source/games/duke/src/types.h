@@ -35,6 +35,10 @@ struct DDukeActor
 		int palvals;
 	};
 	int temp_data[6];
+	// Some SE's stored indices in temp_data. For purposes of clarity avoid that. These variables are meant to store these elements now
+	walltype* temp_walls[2]; // SE20 + SE128
+	sectortype* temp_sect;
+	
 	DDukeActor* temp_actor, *seek_actor;
 	spritetype* s;	// direct reference to the corresponding sprite.
 

@@ -4276,8 +4276,9 @@ void handle_se20(DDukeActor* actor)
 			}
 		}
 
-		dragpoint(t[1], wall[t[1]].x + x, wall[t[1]].y + l);
-		dragpoint(t[2], wall[t[2]].x + x, wall[t[2]].y + l);
+		auto& wal = actor->temp_walls;
+		dragpoint(wal[0], wal[0]->x + x, wal[0]->y + l);
+		dragpoint(wal[1], wal[1]->x + x, wal[1]->y + l);
 
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 			if (ps[p].cursectnum == s->sectnum && ps[p].on_ground)
@@ -4709,9 +4710,10 @@ void handle_se128(DDukeActor *actor)
 {
 	int* t = &actor->temp_data[0];
 
-	auto wal = &wall[t[2]];
+	auto wal = actor->temp_walls[0]; 
+	if (!wal) return; // E4L1 contains an uninitialized SE128 which would crash without this.
 
-//	if (wal->cstat | 32) // this has always been bugged, the condition can never be false.
+	//if (wal->cstat | 32) // this has always been bugged, the condition can never be false.
 	{
 		wal->cstat &= (255 - 32);
 		wal->cstat |= 16;
@@ -4724,15 +4726,16 @@ void handle_se128(DDukeActor *actor)
 //	else return;
 
 	wal->overpicnum++;
-	if (wal->nextwall >= 0)
-		wal->nextWall()->overpicnum++;
+	auto nextwal = wal->nextWall();
+	if (nextwal)
+		nextwal->overpicnum++;
 
 	if (t[0] < t[1]) t[0]++;
 	else
 	{
 		wal->cstat &= (128 + 32 + 8 + 4 + 2);
-		if (wal->nextwall >= 0)
-			wal->nextWall()->cstat &= (128 + 32 + 8 + 4 + 2);
+		if (nextwal)
+			nextwal->cstat &= (128 + 32 + 8 + 4 + 2);
 		deletesprite(actor);
 	}
 }

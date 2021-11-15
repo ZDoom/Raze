@@ -293,7 +293,27 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, DDukeActor& w, DDu
 			("temp_actor", w.temp_actor, def->temp_actor)
 			("seek_actor", w.seek_actor, def->seek_actor)
 			.Array("temp_data", w.temp_data, def->temp_data, 6)
+			.Array("temo_wall", w.temp_walls, def->temp_walls,2)
+			("temp_sect", w.temp_sect, def->temp_sect)
 			.EndObject();
+
+#ifdef  OLD_SAVEGAME
+		// compat handling
+		if (SaveVersion < 12 && arc.isReading())
+		{
+			if (w.s->picnum == SECTOREFFECTOR)
+			{
+				if (w.s->lotag == SE_20_STRETCH_BRIDGE)
+				{
+					for (int i : {0, 1}) w.temp_walls[i] = &wall[w.temp_data[i+1]];
+				}
+				if (w.s->lotag == SE_128_GLASS_BREAKING)
+				{
+					w.temp_walls[0] = &wall[w.temp_data[2]];
+				}
+			}
+		}
+#endif
 	}
 	return arc;
 }

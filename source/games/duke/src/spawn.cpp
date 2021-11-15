@@ -796,6 +796,7 @@ void spawneffector(DDukeActor* actor)
 		case SE_20_STRETCH_BRIDGE:
 		{
 			int q;
+			walltype* closewall = nullptr;
 
 			startwall = sectp->wallptr;
 			endwall = startwall + sectp->wallnum;
@@ -803,37 +804,31 @@ void spawneffector(DDukeActor* actor)
 			//find the two most clostest wall x's and y's
 			q = 0x7fffffff;
 
-			for (s = startwall; s < endwall; s++)
+			for (auto& wal : wallsofsector(sectp))
 			{
-				x = wall[s].x;
-				y = wall[s].y;
-
-				d = FindDistance2D(sp->x - x, sp->y - y);
+				d = FindDistance2D(sp->x - wal.x, sp->y - wal.y);
 				if (d < q)
 				{
 					q = d;
-					clostest = s;
+					closewall = &wal;
 				}
 			}
 
-			t[1] = clostest;
+			actor->temp_walls[0] = closewall;
 
 			q = 0x7fffffff;
 
-			for (s = startwall; s < endwall; s++)
+			for (auto& wal : wallsofsector(sectp))
 			{
-				x = wall[s].x;
-				y = wall[s].y;
-
-				d = FindDistance2D(sp->x - x, sp->y - y);
-				if (d < q && s != t[1])
+				d = FindDistance2D(sp->x - wal.x, sp->y - wal.y);
+				if (d < q && &wal != actor->temp_walls[0])
 				{
 					q = d;
-					clostest = s;
+					closewall = &wal;
 				}
 			}
 
-			t[2] = clostest;
+			actor->temp_walls[1] = closewall;
 			StartInterpolation(sect, Interp_Sect_FloorPanX);
 			StartInterpolation(sect, Interp_Sect_FloorPanY);
 			break;
