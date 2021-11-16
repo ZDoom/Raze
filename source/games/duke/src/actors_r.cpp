@@ -1203,7 +1203,7 @@ static bool weaponhitsprite(DDukeActor *proj, DDukeActor *targ, const vec3_t &ol
 //
 //---------------------------------------------------------------------------
 
-static bool weaponhitwall(DDukeActor *proj, int wal, const vec3_t& oldpos)
+static bool weaponhitwall(DDukeActor *proj, walltype* wal, const vec3_t& oldpos)
 {
 	auto s = proj->s;
 	if (isRRRA() && proj->GetOwner() && proj->GetOwner()->s->picnum == MAMA)
@@ -1213,11 +1213,10 @@ static bool weaponhitwall(DDukeActor *proj, int wal, const vec3_t& oldpos)
 		guts_r(proj, RABBITJIBC, 2, myconnectindex);
 	}
 
-	if (s->picnum != RPG && (!isRRRA() || s->picnum != RPG2) && s->picnum != FREEZEBLAST && s->picnum != SPIT && s->picnum != SHRINKSPARK && (wall[wal].overpicnum == MIRROR || wall[wal].picnum == MIRROR))
+	if (s->picnum != RPG && (!isRRRA() || s->picnum != RPG2) && s->picnum != FREEZEBLAST && s->picnum != SPIT && s->picnum != SHRINKSPARK && (wal->overpicnum == MIRROR || wal->picnum == MIRROR))
 	{
-		int k = getangle(
-			wall[wall[wal].point2].x - wall[wal].x,
-			wall[wall[wal].point2].y - wall[wal].y);
+		auto delta = wal->delta();
+		int k = getangle(delta.x, delta.y);
 		s->ang = ((k << 1) - s->ang) & 2047;
 		proj->SetOwner(proj);
 		spawn(proj, TRANSPORTERSTAR);
@@ -1226,11 +1225,11 @@ static bool weaponhitwall(DDukeActor *proj, int wal, const vec3_t& oldpos)
 	else
 	{
 		setsprite(proj, oldpos);
-		fi.checkhitwall(proj, wal, s->x, s->y, s->z, s->picnum);
+		fi.checkhitwall(proj, wallnum(wal), s->x, s->y, s->z, s->picnum);
 
 		if (!isRRRA() && s->picnum == FREEZEBLAST)
 		{
-			if (wall[wal].overpicnum != MIRROR && wall[wal].picnum != MIRROR)
+			if (wal->overpicnum != MIRROR && wal->picnum != MIRROR)
 			{
 				s->extra >>= 1;
 				if (s->xrepeat > 8)
@@ -1240,15 +1239,14 @@ static bool weaponhitwall(DDukeActor *proj, int wal, const vec3_t& oldpos)
 				s->yvel--;
 			}
 
-			int k = getangle(
-				wall[wall[wal].point2].x - wall[wal].x,
-				wall[wall[wal].point2].y - wall[wal].y);
+			auto delta = wal->delta();
+			int k = getangle(delta.x, delta.y);
 			s->ang = ((k << 1) - s->ang) & 2047;
 			return true;
 		}
 		if (s->picnum == SHRINKSPARK)
 		{
-			if (wall[wal].picnum >= RRTILE3643 && wall[wal].picnum < RRTILE3643 + 3)
+			if (wal->picnum >= RRTILE3643 && wal->picnum < RRTILE3643 + 3)
 			{
 				deletesprite(proj);
 			}
@@ -1269,15 +1267,14 @@ static bool weaponhitwall(DDukeActor *proj, int wal, const vec3_t& oldpos)
 				deletesprite(proj);
 				return true;
 			}
-			if (wall[wal].overpicnum != MIRROR && wall[wal].picnum != MIRROR)
+			if (wal->overpicnum != MIRROR && wal->picnum != MIRROR)
 			{
 				s->extra -= 20;
 				s->yvel--;
 			}
 
-			int k = getangle(
-				wall[wall[wal].point2].x - wall[wal].x,
-				wall[wall[wal].point2].y - wall[wal].y);
+			auto delta = wal->delta();
+			int k = getangle(delta.x, delta.y);
 			s->ang = ((k << 1) - s->ang) & 2047;
 			return true;
 		}
@@ -1450,7 +1447,7 @@ static void weaponcommon_r(DDukeActor *proj)
 		}
 		else if (coll.type == kHitWall)
 		{
-			if (weaponhitwall(proj, coll.index, oldpos)) return;
+			if (weaponhitwall(proj, coll.wall(), oldpos)) return;
 		}
 		else if (coll.type == kHitSector)
 		{

@@ -1641,16 +1641,15 @@ static bool weaponhitsprite(DDukeActor* proj, DDukeActor *targ, bool fireball)
 //
 //---------------------------------------------------------------------------
 
-static bool weaponhitwall(DDukeActor *proj, int j, const vec3_t &oldpos)
+static bool weaponhitwall(DDukeActor *proj, walltype* wal, const vec3_t &oldpos)
 {
 	auto s = proj->s;
 	if (s->picnum != RPG && s->picnum != FREEZEBLAST && s->picnum != SPIT &&
 		(!isWorldTour() || s->picnum != FIREBALL) &&
-		(wall[j].overpicnum == MIRROR || wall[j].picnum == MIRROR))
+		(wal->overpicnum == MIRROR || wal->picnum == MIRROR))
 	{
-		int k = getangle(
-			wall[wall[j].point2].x - wall[j].x,
-			wall[wall[j].point2].y - wall[j].y);
+		auto delta = wal->delta();
+		int k = getangle(delta.x, delta.y);
 		s->ang = ((k << 1) - s->ang) & 2047;
 		proj->SetOwner(proj);
 		spawn(proj, TRANSPORTERSTAR);
@@ -1659,19 +1658,18 @@ static bool weaponhitwall(DDukeActor *proj, int j, const vec3_t &oldpos)
 	else
 	{
 		setsprite(proj, oldpos);
-		fi.checkhitwall(proj, j, s->x, s->y, s->z, s->picnum);
+		fi.checkhitwall(proj, wallnum(wal), s->x, s->y, s->z, s->picnum);
 
 		if (s->picnum == FREEZEBLAST)
 		{
-			if (wall[j].overpicnum != MIRROR && wall[j].picnum != MIRROR)
+			if (wal->overpicnum != MIRROR && wal->picnum != MIRROR)
 			{
 				s->extra >>= 1;
 				s->yvel--;
 			}
 
-			int k = getangle(
-				wall[wall[j].point2].x - wall[j].x,
-				wall[wall[j].point2].y - wall[j].y);
+			auto delta = wal->delta();
+			int k = getangle(delta.x, delta.y);
 			s->ang = ((k << 1) - s->ang) & 2047;
 			return true;
 		}
@@ -1839,7 +1837,7 @@ static void weaponcommon_d(DDukeActor* proj)
 		}
 		else if (coll.type == kHitWall)
 		{
-			if (weaponhitwall(proj, coll.index, oldpos)) return;
+			if (weaponhitwall(proj, coll.wall(), oldpos)) return;
 		}
 		else if (coll.type == kHitSector)
 		{
