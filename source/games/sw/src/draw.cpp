@@ -102,8 +102,8 @@ ShadeSprite(tspriteptr_t tsp)
 short
 GetRotation(spritetype* tsprite, int& spritesortcnt, short tSpriteNum, int viewx, int viewy)
 {
-    static short RotTable8[] = {0, 7, 6, 5, 4, 3, 2, 1};
-    static short RotTable5[] = {0, 1, 2, 3, 4, 3, 2, 1};
+    static const uint8_t RotTable8[] = {0, 7, 6, 5, 4, 3, 2, 1};
+    static const uint8_t RotTable5[] = {0, 1, 2, 3, 4, 3, 2, 1};
     short rotation;
 
     tspriteptr_t tsp = &tsprite[tSpriteNum];

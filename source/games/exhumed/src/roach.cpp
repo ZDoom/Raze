@@ -34,18 +34,6 @@ static actionSeq RoachSeq[] = {
     {42, 1}
 };
 
-struct Roach
-{
-    short nHealth;
-    short nFrame;
-    short nAction;
-    short nSprite;
-    short nTarget;
-    short nRun;
-    short nCount;
-    short nIndex;
-};
-
 // TODO - make nType a bool?
 void BuildRoach(int nType, DExhumedActor* pActor, int x, int y, int z, int nSector, int angle)
 {

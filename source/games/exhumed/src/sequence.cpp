@@ -469,7 +469,7 @@ int seq_GetSeqPicnum(short nSeq, short edx, short ebx)
     return ChunkPict[c];
 }
 
-int seq_PlotArrowSequence(short nSprite, short nSeq, int nVal)
+int seq_PlotArrowSequence(int nSprite, short nSeq, int nVal)
 {
     tspriteptr_t pTSprite = &mytsprite[nSprite];
     int nAngle = GetMyAngle(nCamerax - pTSprite->x, nCameray - pTSprite->y);
@@ -517,7 +517,7 @@ int seq_PlotArrowSequence(short nSprite, short nSeq, int nVal)
     return ChunkPict[nFrameBase];
 }
 
-int seq_PlotSequence(short nSprite, short edx, short nFrame, short ecx)
+int seq_PlotSequence(int nSprite, short edx, short nFrame, short ecx)
 {
     tspriteptr_t pTSprite = &mytsprite[nSprite];
     int nAngle = GetMyAngle(nCamerax - pTSprite->x, nCameray - pTSprite->y);

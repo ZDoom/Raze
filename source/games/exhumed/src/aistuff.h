@@ -333,9 +333,7 @@ void FuncRa(int, int, int, int);
 // rat
 
 void InitRats();
-void SetRatVel(short nSprite);
 void BuildRat(DExhumedActor* nSprite, int x, int y, int z, int nSector, int nAngle);
-int FindFood(short nSprite);
 void FuncRat(int a, int, int b, int nRun);
 
 // rex
@@ -698,7 +696,7 @@ void runlist_DoSubRunRec(int RunPtr);
 void runlist_SubRunRec(int RunPtr);
 void runlist_ProcessWallTag(int nWall, short nLotag, short nHitag);
 int runlist_CheckRadialDamage(DExhumedActor* actor);
-void runlist_RadialDamageEnemy(DExhumedActor* nSprite, short nSprite2, short nDamage);
+void runlist_RadialDamageEnemy(DExhumedActor* pActor, short nDamage, short nRadius);
 void runlist_DamageEnemy(DExhumedActor* nSprite, DExhumedActor* nSprite2, short nDamage);
 void runlist_SignalRun(int NxtPtr, int edx, void(ExhumedAI::* func)(RunListEvent*), RunListEvent* ev = nullptr);
 
