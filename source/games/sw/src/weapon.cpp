@@ -7621,9 +7621,8 @@ short StatBreakList[] =
 
 void TraverseBreakableWalls(short start_sect, int x, int y, int z, short ang, int radius)
 {
-    int j, k;
+    int k;
     int sect, startwall, endwall, nextsector;
-    unsigned sectlistplc, sectliststart;
     int xmid,ymid;
     int dist;
     short break_count;
@@ -7633,29 +7632,24 @@ void TraverseBreakableWalls(short start_sect, int x, int y, int z, short ang, in
     int hit_x,hit_y,hit_z;
     
 
-    sectliststart = sectlistplc = GlobalSectorList.Size();
-    GlobalSectorList.Push(start_sect);
-
     // limit radius
     if (radius > 2000)
         radius = 2000;
 
     break_count = 0;
-    while (sectlistplc < GlobalSectorList.Size())
+
+
+    BFSSearch search(numsectors, start_sect);
+    for (unsigned sect; (sect = search.GetNext()) != BFSSearch::EOL;)
     {
-        sect = GlobalSectorList[sectlistplc++];
-
-        startwall = sector[sect].wallptr;
-        endwall = startwall + sector[sect].wallnum;
-
-        for (j = startwall; j < endwall - 1; j++)
+        for(auto& wal : wallsofsector(sect))
         {
             // see if this wall should be broken
-            if (wall[j].lotag == TAG_WALL_BREAK)
+            if (wal.lotag == TAG_WALL_BREAK)
             {
                 // find midpoint
-                xmid = (wall[j].x + wall[j+1].x) >> 1;
-                ymid = (wall[j].y + wall[j+1].y) >> 1;
+                xmid = (wal.x + wal.point2Wall()->x) >> 1;
+                ymid = (wal.y + wal.point2Wall()->y) >> 1;
 
                 // don't need to go further if wall is too far out
 
@@ -7663,44 +7657,28 @@ void TraverseBreakableWalls(short start_sect, int x, int y, int z, short ang, in
                 if (dist > radius)
                     continue;
 
-                if (WallBreakPosition(j, &sectnum, &hit_x, &hit_y, &hit_z, &wall_ang))
+                if (WallBreakPosition(wallnum(&wal), &sectnum, &hit_x, &hit_y, &hit_z, &wall_ang))
                 {
                     if (hit_x != INT32_MAX && sectnum >= 0 && FAFcansee(x, y, z, start_sect, hit_x, hit_y, hit_z, sectnum))
                     {
-                        //HitBreakWall(&wall[j], x, y, z, ang, 0);
-                        HitBreakWall(&wall[j], INT32_MAX, INT32_MAX, INT32_MAX, ang, 0);
+                        HitBreakWall(&wal, INT32_MAX, INT32_MAX, INT32_MAX, ang, 0);
 
                         break_count++;
                         if (break_count > 4)
                         {
-                            GlobalSectorList.Resize(sectliststart);
                             return;
                         }
                     }
                 }
             }
 
-            nextsector = wall[j].nextsector;
+            nextsector = wal.nextsector;
 
-            if (nextsector < 0)
-                continue;
-
-            // make sure its not on the list
-            for (k = GlobalSectorList.Size() - 1; k >= (int)sectliststart; k--)
-            {
-                if (GlobalSectorList[k] == nextsector)
-                    break;
-            }
-
-            // if its not on the list add it to the end
-            if (k < 0)
-            {
-                GlobalSectorList.Push(nextsector);
-            }
+            if (nextsector >= 0)
+                search.Add(nextsector);
         }
 
     }
-    GlobalSectorList.Resize(sectliststart);
 }
 
 
