@@ -85,8 +85,8 @@ int GetDistToLine(int x1, int y1, int x2, int y2, int x3, int y3);
 unsigned int ClipMove(vec3_t* pos, int *nSector, int xv, int yv, int wd, int cd, int fd, unsigned int nMask, int tracecount = 3);
 int GetClosestSectors(int nSector, int x, int y, int nDist, short *pSectors, char *pSectBit);
 int GetClosestSpriteSectors(int nSector, int x, int y, int nDist, uint8_t *pSectBit, short *pWalls = nullptr, bool newSectCheckMethod = false);
-int picWidth(short nPic, short repeat);
-int picHeight(short nPic, short repeat);
+int picWidth(int nPic, int repeat);
+int picHeight(int nPic, int repeat);
 
 
 END_BLD_NS

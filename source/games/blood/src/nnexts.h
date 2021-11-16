@@ -279,11 +279,11 @@ extern DBloodActor* gProxySpritesList[kMaxSuperXSprites];
 extern DBloodActor* gSightSpritesList[kMaxSuperXSprites];
 extern DBloodActor* gPhysSpritesList[kMaxSuperXSprites];
 extern DBloodActor* gImpactSpritesList[kMaxSuperXSprites];
-extern short gProxySpritesCount;
-extern short gSightSpritesCount;
-extern short gPhysSpritesCount;
-extern short gImpactSpritesCount;
-extern short gTrackingCondsCount;
+extern int gProxySpritesCount;
+extern int gSightSpritesCount;
+extern int gPhysSpritesCount;
+extern int gImpactSpritesCount;
+extern int gTrackingCondsCount;
 extern AISTATE genPatrolStates[kPatrolStateSize];
 
 
@@ -354,7 +354,7 @@ void callbackUniMissileBurst(DBloodActor*actor, int nSprite);
 void callbackMakeMissileBlocking(DBloodActor* actor, int nSprite);
 void callbackGenDudeUpdate(DBloodActor* actor, int nSprite);
 //  -------------------------------------------------------------------------   //
-PLAYER* getPlayerById(short id);
+PLAYER* getPlayerById(int id);
 bool isGrown(DBloodActor* pSprite);
 bool isShrinked(DBloodActor* pSprite);
 bool IsBurningDude(DBloodActor* pSprite);

@@ -41,13 +41,13 @@ inline int mulscale8(int a, int b) { return MulScale(a, b, 8); }
 bool gAllowTrueRandom = false;
 bool gEventRedirectsUsed = false;
 DBloodActor* gProxySpritesList[];  // list of additional sprites which can be triggered by Proximity
-short gProxySpritesCount;   // current count
+int gProxySpritesCount;   // current count
 DBloodActor* gSightSpritesList[];  // list of additional sprites which can be triggered by Sight
-short gSightSpritesCount;   // current count
+int gSightSpritesCount;   // current count
 DBloodActor* gPhysSpritesList[];   // list of additional sprites which can be affected by physics
-short gPhysSpritesCount;    // current count
+int gPhysSpritesCount;    // current count
 DBloodActor* gImpactSpritesList[];
-short gImpactSpritesCount;
+int gImpactSpritesCount;
 
 
 
@@ -68,7 +68,7 @@ short gEffectGenCallbacks[] = {
 TRPLAYERCTRL gPlayerCtrl[kMaxPlayers];
 
 TRCONDITION gCondition[kMaxTrackingConditions];
-short gTrackingCondsCount;
+int gTrackingCondsCount;
 
 std::default_random_engine gStdRandom;
 
@@ -261,7 +261,7 @@ CONDITION_TYPE_NAMES gCondTypeNames[7] = {
 //
 //---------------------------------------------------------------------------
 
-static DBloodActor* nnExtSpawnDude(DBloodActor* sourceActor, DBloodActor* origin, short nType, int a3, int a4)
+static DBloodActor* nnExtSpawnDude(DBloodActor* sourceActor, DBloodActor* origin, int nType, int a3, int a4)
 {
     DBloodActor* pDudeActor = nullptr;
     auto pSource = &sourceActor->s();
@@ -7359,7 +7359,7 @@ void playerDeactivateShrooms(PLAYER* pPlayer)
 //
 //---------------------------------------------------------------------------
 
-PLAYER* getPlayerById(short id) 
+PLAYER* getPlayerById(int id) 
 {
     // relative to connected players
     if (id >= 1 && id <= kMaxPlayers) 

@@ -2242,7 +2242,7 @@ void updateTargetOfSlaves(DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-short inDodge(AISTATE* aiState) 
+int inDodge(AISTATE* aiState)
 {
     if (aiState == &genDudeDodgeL) return 1;
     else if (aiState == &genDudeDodgeD) return 2;
@@ -2266,12 +2266,11 @@ bool inAttack(AISTATE* aiState) {
         || aiState == &genDudeFireD || aiState == &genDudeThrow || aiState == &genDudeThrow2 || aiState == &genDudePunch);
 }
 
-short inSearch(AISTATE* aiState) {
-    if (aiState->stateType == kAiStateSearch) return 1;
-    return 0;
+bool inSearch(AISTATE* aiState) {
+    return (aiState->stateType == kAiStateSearch);
 }
 
-short inChase(AISTATE* aiState) {
+int inChase(AISTATE* aiState) {
     if (aiState == &genDudeChaseL) return 1;
     else if (aiState == &genDudeChaseD) return 2;
     else if (aiState == &genDudeChaseW) return 3;
@@ -2281,14 +2280,14 @@ short inChase(AISTATE* aiState) {
     else return 0;
 }
 
-short inRecoil(AISTATE* aiState) {
+int inRecoil(AISTATE* aiState) {
     if (aiState == &genDudeRecoilL || aiState == &genDudeRecoilTesla) return 1;
     else if (aiState == &genDudeRecoilD) return 2;
     else if (aiState == &genDudeRecoilW) return 3;
     else return 0;
 }
 
-short inDuck(AISTATE* aiState) {
+int inDuck(AISTATE* aiState) {
     if (aiState == &genDudeFireD) return 1;
     else if (aiState == &genDudeChaseD) return 2;
     else if (aiState == &genDudeChaseNoWalkD) return 3;

@@ -6437,7 +6437,7 @@ DBloodActor* actSpawnSprite(DBloodActor* source, int nStat)
 //
 //---------------------------------------------------------------------------
 
-DBloodActor* actSpawnDude(DBloodActor* source, short nType, int a3, int a4)
+DBloodActor* actSpawnDude(DBloodActor* source, int nType, int a3, int a4)
 {
 	auto pSource = &source->s();
 	XSPRITE* pXSource = &source->x();
