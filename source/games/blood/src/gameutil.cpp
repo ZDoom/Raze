@@ -751,62 +751,43 @@ unsigned int ClipMove(vec3_t *pos, int *nSector, int xv, int yv, int wd, int cd,
     return nRes;
 }
 
-BitArray GetClosestSpriteSectors(int nSector, int x, int y, int nDist, short *pWalls, bool newSectCheckMethod)
+BitArray GetClosestSpriteSectors(int nSector, int x, int y, int nDist, TArray<int>* pWalls, bool newSectCheckMethod)
 {
     // by default this function fails with sectors that linked with wide spans, or there was more than one link to the same sector. for example...
     // E6M1: throwing TNT on the stone footpath while standing on the brown road will fail due to the start/end points of the span being too far away. it'll only do damage at one end of the road
     // E1M2: throwing TNT at the double doors while standing on the train platform
     // by setting newSectCheckMethod to true these issues will be resolved
 
-    BitArray sectorMap(numsectors * 2); // first half gets returned to caller, second half is internal work space.
+    BitArray sectorMap(numsectors); // this gets returned to the caller.
     sectorMap.Zero();
-
-    unsigned sectorstart = GlobalSectorList.Size();
-    unsigned i = sectorstart;
-
-    GlobalSectorList.Push(nSector);
-    sectorMap.Set(numsectors + nSector);
     sectorMap.Set(nSector);
-    int m = 0;
 
-    while (i < GlobalSectorList.Size()) // scan through sectors
+    BFSSearch search(numsectors, nSector);
+
+    for (unsigned nCurSector; (nCurSector = search.GetNext()) != BFSSearch::EOL;)
     {
-        const int nCurSector = GlobalSectorList[i];
-        const int nStartWall = sector[nCurSector].wallptr;
-        const int nEndWall = nStartWall + sector[nCurSector].wallnum;
-        for (int j = nStartWall; j < nEndWall; j++) // scan each wall of current sector for new sectors
+        for (auto& wal : wallsofsector(nCurSector))
         {
-            const walltype *pWall = &wall[j];
-            const int nNextSector = pWall->nextsector;
+            const int nNextSector = wal.nextsector;
             if (nNextSector < 0) // if next wall isn't linked to a sector, skip
                 continue;
-            if (sectorMap[numsectors + nNextSector]) // if we've already checked this sector, skip
-                continue;
-            bool setSectBit = true;
             bool withinRange = false;
             if (!newSectCheckMethod) // original method
             {
-                withinRange = CheckProximityWall(pWall->point2, x, y, nDist);
+                if (search.Check(nNextSector)) // if we've already checked this sector, skip. This is bad, therefore only in compat mode.
+                    continue;
+                withinRange = CheckProximityWall(wal.point2, x, y, nDist);
             }
-            else // new method - first test edges and then wall span midpoints
+            else // new method
             {
-                for (int k = (j+1); k < nEndWall; k++) // scan through the rest of the sector's walls
-                {
-                    if (wall[k].nextsector == nNextSector) // if the next walls still reference the sector, then don't flag the sector as checked (yet)
-                    {
-                        setSectBit = false;
-                        break;
-                    }
-                }
-                const int nWallA = j;
-                const int nWallB = wall[nWallA].point2;
-                int x1 = wall[nWallA].x, y1 = wall[nWallA].y;
-                int x2 = wall[nWallB].x, y2 = wall[nWallB].y;
-                int point1Dist = approxDist(x-x1, y-y1); // setup edge distance needed for below loop (determines which point to shift closer to center)
-                int point2Dist = approxDist(x-x2, y-y2);
-                int nLength = approxDist(x1-x2, y1-y2);
-                const int nDist4 = nDist<<4;
-                nLength = ClipRange(nLength / (nDist4+(nDist4>>1)), 1, 4); // always test midpoint at least once, and never split more than 4 times
+                // Q: do this with proper math?
+                int x1 = wal.x, y1 = wal.y;
+                int x2 = wal.point2Wall()->x, y2 = wal.point2Wall()->y;
+                int point1Dist = approxDist(x - x1, y - y1); // setup edge distance needed for below loop (determines which point to shift closer to center)
+                int point2Dist = approxDist(x - x2, y - y2);
+                int nLength = approxDist(x1 - x2, y1 - y2);
+                const int nDist4 = nDist << 4;
+                nLength = ClipRange(nLength / (nDist4 + (nDist4 >> 1)), 1, 4); // always test midpoint at least once, and never split more than 4 times
                 for (int k = 0; true; k++) // check both points of wall and subdivide span into smaller chunks towards target
                 {
                     withinRange = (point1Dist < nDist4) || (point2Dist < nDist4); // check if both points of span is within radius
@@ -814,39 +795,32 @@ BitArray GetClosestSpriteSectors(int nSector, int x, int y, int nDist, short *pW
                         break;
                     if (k == nLength) // reached end
                         break;
-                    const int xcenter = (x1+x2)>>1, ycenter = (y1+y2)>>1;
+                    const int xcenter = (x1 + x2) >> 1, ycenter = (y1 + y2) >> 1;
                     if (point1Dist < point2Dist) // shift closest side of wall towards target point, and refresh point distance values
                     {
                         x2 = xcenter, y2 = ycenter;
-                        point2Dist = approxDist(x-x2, y-y2);
+                        point2Dist = approxDist(x - x2, y - y2);
                     }
                     else
                     {
                         x1 = xcenter, y1 = ycenter;
-                        point1Dist = approxDist(x-x1, y-y1);
+                        point1Dist = approxDist(x - x1, y - y1);
                     }
                 }
             }
-            if (withinRange) // if new sector is within range, set to current sector and test walls
+            if (withinRange) // if new sector is within range, add it to the processing queue
             {
-                setSectBit = true; // sector is within range, set the sector as checked
                 sectorMap.Set(nNextSector);
-                GlobalSectorList.Push(nNextSector);
-                if (pWalls && pWall->extra > 0)
+                search.Add(nNextSector);
+                if (pWalls && wal.extra > 0)
                 {
-                    XWALL *pXWall = &xwall[pWall->extra];
+                    XWALL *pXWall = &xwall[wal.extra];
                     if (pXWall->triggerVector && !pXWall->isTriggered && !pXWall->state)
-                        pWalls[m++] = j;
+                        pWalls->Push(wallnum(&wal));
                 }
             }
-            if (setSectBit)
-                sectorMap.Set(numsectors + nNextSector);
         }
-        i++;
     }
-    GlobalSectorList.Resize(sectorstart);
-    if (pWalls) pWalls[m] = -1;
-    sectorMap.Resize(numsectors);
     return sectorMap;
 }
 

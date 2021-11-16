@@ -34,12 +34,12 @@ public:
 		store.Clamp(bitpos);
 	}
 	
-private:
 	bool Check(unsigned index) const
 	{
 		return !!(store[bitpos + (index >> 5)] & (1 << (index & 31)));
 	}
 
+private:
 	void Set(unsigned index)
 	{
 		store[bitpos + (index >> 5)] |= (1 << (index & 31));
@@ -250,3 +250,4 @@ inline int sectnum(sectortype* sect)
 {
 	return int(sect - sector);
 }
+

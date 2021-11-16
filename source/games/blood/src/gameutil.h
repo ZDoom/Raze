@@ -84,7 +84,7 @@ void GetZRange(DBloodActor *pSprite, int *ceilZ, Collision *ceilHit, int *floorZ
 void GetZRangeAtXYZ(int x, int y, int z, int nSector, int *ceilZ, Collision *ceilHit, int *floorZ, Collision *floorHit, int nDist, unsigned int nMask, unsigned int nClipParallax = 0);
 int GetDistToLine(int x1, int y1, int x2, int y2, int x3, int y3);
 unsigned int ClipMove(vec3_t* pos, int *nSector, int xv, int yv, int wd, int cd, int fd, unsigned int nMask, int tracecount = 3);
-BitArray GetClosestSpriteSectors(int nSector, int x, int y, int nDist, short *pWalls = nullptr, bool newSectCheckMethod = false);
+BitArray GetClosestSpriteSectors(int nSector, int x, int y, int nDist, TArray<int>* pWalls, bool newSectCheckMethod = false);
 int picWidth(int nPic, int repeat);
 int picHeight(int nPic, int repeat);
 

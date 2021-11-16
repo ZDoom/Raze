@@ -5897,6 +5897,7 @@ static void actCheckProjectiles()
 //
 //
 //---------------------------------------------------------------------------
+static TArray<int> affectedXWalls; // keep this outside the function so that it only needs to be allocated once
 
 static void actCheckExplosion()
 {
@@ -5932,15 +5933,12 @@ static void actCheckExplosion()
 		// GetClosestSpriteSectors() has issues checking some sectors due to optimizations
 		// the new flag newSectCheckMethod for GetClosestSpriteSectors() does rectify these issues, but this may cause unintended side effects for level scripted explosions
 		// so only allow this new checking method for dude spawned explosions
-		short gAffectedXWalls[kMaxXWalls];
+		affectedXWalls.Clear();
 		const bool newSectCheckMethod = !cl_bloodvanillaexplosions && Owner && Owner->IsDudeActor() && !VanillaMode(); // use new sector checking logic
-		auto sectorMap = GetClosestSpriteSectors(nSector, x, y, radius, gAffectedXWalls, newSectCheckMethod);
+		auto sectorMap = GetClosestSpriteSectors(nSector, x, y, radius, &affectedXWalls, newSectCheckMethod);
 
-		for (int i = 0; i < kMaxXWalls; i++)
+		for (auto& nWall : affectedXWalls)
 		{
-			int nWall = gAffectedXWalls[i];
-			if (nWall == -1)
-				break;
 			XWALL* pXWall = &xwall[wall[nWall].extra];
 			trTriggerWall(nWall, pXWall, kCmdWallImpact);
 		}
