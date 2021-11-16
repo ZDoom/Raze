@@ -1693,14 +1693,12 @@ void PreMapCombineFloors(void)
                 sprite[j].y += dy;
             }
 
-            startwall = sector[dasect].wallptr;
-            endwall = startwall + sector[dasect].wallnum;
-            for (j=startwall; j<endwall; j++)
+            for (auto& wal : wallsofsector(dasect))
             {
-                wall[j].x += dx;
-                wall[j].y += dy;
+                wal.x += dx;
+                wal.y += dy;
 
-                nextsector = wall[j].nextsector;
+                nextsector = wal.nextsector;
                 if (nextsector < 0) continue;
 
                 // make sure its not on the list
@@ -4807,7 +4805,7 @@ getzrangepoint(int x, int y, int z, short sectnum,
     int j, k, l, dax, day, daz, xspan, yspan, xoff, yoff;
     int x1, y1, x2, y2, x3, y3, x4, y4, cosang, sinang, tilenum;
     short cstat;
-    uint8_t clipyou;
+    char clipyou;
 
     if (sectnum < 0)
     {
