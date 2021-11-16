@@ -397,52 +397,41 @@ static void clipupdatesector(vec2_t const pos, int * const sectnum, int walldist
         walldist = 0x7fff;
     }
 
-    static int16_t sectlist[MAXSECTORS];
-    static uint8_t sectbitmap[(MAXSECTORS+7)>>3];
-
-    bfirst_search_init(sectlist, sectbitmap, &nsecs, MAXSECTORS, *sectnum);
-
-    for (int sectcnt = 0; sectcnt < nsecs; sectcnt++)
     {
-        int const listsectnum = sectlist[sectcnt];
+        BFSSearch search(numsectors, *sectnum);
 
-        if (inside_p(pos.x, pos.y, listsectnum))
-            SET_AND_RETURN(*sectnum, listsectnum);
+        for (unsigned listsectnum; (listsectnum = search.GetNext()) != BFSSearch::EOL;)
+        {
+            if (inside_p(pos.x, pos.y, listsectnum))
+            {
+                *sectnum = listsectnum;
+                return;
+            }
 
-        auto const sec       = &sector[listsectnum];
-        int const  startwall = sec->wallptr;
-        int const  endwall   = sec->wallptr + sec->wallnum;
-        auto       uwal      = (uwallptr_t)&wall[startwall];
-
-        for (int j = startwall; j < endwall; j++, uwal++)
-            if (uwal->nextsector >= 0 && bitmap_test(clipsectormap, uwal->nextsector))
-                bfirst_search_try(sectlist, sectbitmap, &nsecs, uwal->nextsector);
+            for (auto& wal : wallsofsector(listsectnum))
+            {
+                if (wal.nextsector >= 0 && bitmap_test(clipsectormap, wal.nextsector))
+                    search.Add(wal.nextsector);
+            }
+        }
     }
 
-    bfirst_search_init(sectlist, sectbitmap, &nsecs, MAXSECTORS, *sectnum);
-
-    for (int sectcnt = 0; sectcnt < nsecs; sectcnt++)
     {
-        int const listsectnum = sectlist[sectcnt];
+        BFSSearch search(numsectors, *sectnum);
 
-        if (inside_p(pos.x, pos.y, listsectnum))
+        for (unsigned listsectnum; (listsectnum = search.GetNext()) != BFSSearch::EOL;)
         {
-            // add sector to clipping list so the next call to clipupdatesector()
-            // finishes in the loop above this one
-            addclipsect(listsectnum);
-            SET_AND_RETURN(*sectnum, listsectnum);
+            if (inside_p(pos.x, pos.y, listsectnum))
+            {
+                *sectnum = listsectnum;
+                return;
+            }
+            for (auto& wal : wallsofsector(listsectnum))
+            {
+                if (wal.nextsector >= 0 && getwalldist(pos, wallnum(&wal)) <= (walldist + 8))
+                    search.Add(wal.nextsector);
+            }
         }
-
-        auto const sec       = &sector[listsectnum];
-        int const  startwall = sec->wallptr;
-        int const  endwall   = sec->wallptr + sec->wallnum;
-        auto       uwal      = (uwallptr_t)&wall[startwall];
-
-        // check floor curbs here?
-
-        for (int j = startwall; j < endwall; j++, uwal++)
-            if (uwal->nextsector >= 0 && getwalldist(pos, j) <= (walldist + 8))
-                bfirst_search_try(sectlist, sectbitmap, &nsecs, uwal->nextsector);
     }
 
     *sectnum = -1;
