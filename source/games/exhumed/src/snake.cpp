@@ -92,7 +92,7 @@ void DestroySnake(int nSnake)
     }
 }
 
-void ExplodeSnakeSprite(DExhumedActor* pActor, short nPlayer)
+void ExplodeSnakeSprite(DExhumedActor* pActor, int nPlayer)
 {
     auto pSprite = &pActor->s();
     short nDamage = BulletInfo[kWeaponStaff].nDamage;
@@ -116,7 +116,7 @@ void ExplodeSnakeSprite(DExhumedActor* pActor, short nPlayer)
     StopActorSound(pActor);
 }
 
-void BuildSnake(short nPlayer, short zVal)
+void BuildSnake(int nPlayer, short zVal)
 {
 
     zVal -= 1280;
@@ -266,7 +266,7 @@ void BuildSnake(short nPlayer, short zVal)
 
 DExhumedActor* FindSnakeEnemy(short nSnake)
 {
-    short nPlayer = SnakeList[nSnake].nSnakePlayer;
+    int nPlayer = SnakeList[nSnake].nSnakePlayer;
 	auto pPlayerActor = PlayerList[nPlayer].Actor();
 	
     auto pActor = SnakeList[nSnake].pSprites[0]; // CHECKME
@@ -360,7 +360,7 @@ void AISnake::Tick(RunListEvent* ev)
 
     if (nMov.type || nMov.exbits)
     {
-        short nPlayer = SnakeList[nSnake].nSnakePlayer;
+        int nPlayer = SnakeList[nSnake].nSnakePlayer;
         ExplodeSnakeSprite(SnakeList[nSnake].pSprites[0], nPlayer);
 
         nPlayerSnake[nPlayer] = -1;

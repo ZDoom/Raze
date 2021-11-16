@@ -27,10 +27,10 @@ BEGIN_PS_NS
 void RestoreSavePoint(int nPlayer, int *x, int *y, int *z, short *nSector, short *nAngle);
 void SetSavePoint(int nPlayer, int x, int y, int z, int nSector, int nAngle);
 void InitPlayer();
-void InitPlayerKeys(short nPlayer);
+void InitPlayerKeys(int nPlayer);
 int GrabPlayer();
-void InitPlayerInventory(short nPlayer);
-void RestartPlayer(short nPlayer);
+void InitPlayerInventory(int nPlayer);
+void RestartPlayer(int nPlayer);
 
 void FuncPlayer(int, int nSector, int nSprite, int nRun);
 

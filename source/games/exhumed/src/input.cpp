@@ -27,7 +27,7 @@ BEGIN_PS_NS
 
 PlayerInput sPlayerInput[kMaxPlayers];
 
-void ClearSpaceBar(short nPlayer)
+void ClearSpaceBar(int nPlayer)
 {
     sPlayerInput[nPlayer].actions &= SB_OPEN;
     buttonMap.ClearButton(gamefunc_Open);

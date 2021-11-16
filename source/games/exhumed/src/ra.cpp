@@ -60,7 +60,7 @@ void SerializeRa(FSerializer& arc)
     arc.Array("ra", Ra, PlayerCount);
 }
 
-void FreeRa(short nPlayer)
+void FreeRa(int nPlayer)
 {
     int nRun = Ra[nPlayer].nRun;
     auto pActor = Ra[nPlayer].pActor;
@@ -73,7 +73,7 @@ void FreeRa(short nPlayer)
     DeleteActor(pActor);
 }
 
-void BuildRa(short nPlayer)
+void BuildRa(int nPlayer)
 {
     auto pPlayerActor = PlayerList[nPlayer].Actor();
     auto pPlayerSprite = &pPlayerActor->s();
@@ -111,7 +111,7 @@ void InitRa()
     memset(Ra, 0, sizeof(RA) * kMaxPlayers);
 }
 
-void MoveRaToEnemy(short nPlayer)
+void MoveRaToEnemy(int nPlayer)
 {
     auto pTarget = Ra[nPlayer].pTarget;
     auto pActor = Ra[nPlayer].pActor;
@@ -168,7 +168,7 @@ void MoveRaToEnemy(short nPlayer)
 
 void AIRa::Tick(RunListEvent* ev)
 {
-    short nPlayer = RunData[ev->nRun].nObjIndex;
+    int nPlayer = RunData[ev->nRun].nObjIndex;
     short nCurrentWeapon = PlayerList[nPlayer].nCurrentWeapon;
 
     short nSeq = SeqOffsets[kSeqEyeHit] + RaSeq[Ra[nPlayer].nAction].a;
@@ -291,7 +291,7 @@ void AIRa::Tick(RunListEvent* ev)
 
 void AIRa::Draw(RunListEvent* ev)
 {
-    short nPlayer = RunData[ev->nRun].nObjIndex;
+    int nPlayer = RunData[ev->nRun].nObjIndex;
     short nSeq = SeqOffsets[kSeqEyeHit] + RaSeq[Ra[nPlayer].nAction].a;
 
     seq_PlotSequence(ev->nParam, nSeq, Ra[nPlayer].nFrame, 1);

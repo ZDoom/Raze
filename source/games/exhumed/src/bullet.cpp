@@ -470,7 +470,7 @@ HITSPRITE:
             auto hitsprite = &hitactor->s();
             if (pSprite->pal == 5 && hitsprite->statnum == 100)
             {
-                short nPlayer = GetPlayerFromActor(hitactor);
+                int nPlayer = GetPlayerFromActor(hitactor);
                 if (!PlayerList[nPlayer].bIsMummified)
                 {
                     PlayerList[nPlayer].bIsMummified = true;

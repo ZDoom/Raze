@@ -1775,7 +1775,7 @@ void runlist_DamageEnemy(DExhumedActor* pActor, DExhumedActor* pActor2, short nD
             return;
         }
 
-        short nPlayer = GetPlayerFromActor(pActor2);
+        int nPlayer = GetPlayerFromActor(pActor2);
         PlayerList[nPlayer].nTauntTimer--;
 
         if (PlayerList[nPlayer].nTauntTimer <= 0)

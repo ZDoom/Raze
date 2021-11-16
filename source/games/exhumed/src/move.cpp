@@ -548,7 +548,7 @@ Collision movesprite(DExhumedActor* pActor, int dx, int dy, int dz, int ceildist
 
     if (pSprite->statnum == 100)
     {
-        short nPlayer = GetPlayerFromActor(pActor);
+        int nPlayer = GetPlayerFromActor(pActor);
 
         int varA = 0;
         int varB = 0;

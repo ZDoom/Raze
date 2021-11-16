@@ -97,7 +97,7 @@ enum { kMaxGrenades = 50 };
 
 void BuildGrenade(int nPlayer);
 void DestroyGrenade(short nGrenade);
-void ThrowGrenade(short nPlayer, int edx, int ebx, int ecx, int push1);
+void ThrowGrenade(int nPlayer, int edx, int ebx, int ecx, int push1);
 void FuncGrenade(int, int, int, int);
 
 // gun
@@ -130,18 +130,18 @@ struct Weapon
 extern Weapon WeaponInfo[];
 extern short nTemperature[];
 
-void RestoreMinAmmo(short nPlayer);
-void FillWeapons(short nPlayer);
-void ResetPlayerWeapons(short nPlayer);
+void RestoreMinAmmo(int nPlayer);
+void FillWeapons(int nPlayer);
+void ResetPlayerWeapons(int nPlayer);
 void InitWeapons();
-void SetNewWeapon(short nPlayer, short nWeapon);
-void SetNewWeaponImmediate(short nPlayer, short nWeapon);
-void SetNewWeaponIfBetter(short nPlayer, short nWeapon);
-void SelectNewWeapon(short nPlayer);
-void StopFiringWeapon(short nPlayer);
-void FireWeapon(short nPlayer);
-void CheckClip(short nPlayer);
-void MoveWeapons(short nPlayer);
+void SetNewWeapon(int nPlayer, short nWeapon);
+void SetNewWeaponImmediate(int nPlayer, short nWeapon);
+void SetNewWeaponIfBetter(int nPlayer, short nWeapon);
+void SelectNewWeapon(int nPlayer);
+void StopFiringWeapon(int nPlayer);
+void FireWeapon(int nPlayer);
+void CheckClip(int nPlayer);
+void MoveWeapons(int nPlayer);
 void DrawWeapons(double smooth);
 
 // items
@@ -160,10 +160,10 @@ extern short nItemMagic[];
 
 void BuildItemAnim(DExhumedActor* nSprite);
 void ItemFlash();
-void FillItems(short nPlayer);
-void UseItem(short nPlayer, int nItem);
-void UseCurItem(short nPlayer);
-int GrabItem(short nPlayer, int nItem);
+void FillItems(int nPlayer);
+void UseItem(int nPlayer, int nItem);
+void UseCurItem(int nPlayer);
+int GrabItem(int nPlayer, int nItem);
 void DropMagic(DExhumedActor* actor);
 void InitItems();
 void StartRegenerate(DExhumedActor* nSprite);
@@ -318,16 +318,16 @@ struct RA
     short nRun;
     short field_A;
     short field_C;
-    short nPlayer;
+    int nPlayer;
 };
 
 // ra
 extern RA Ra[];
 
-void FreeRa(short nPlayer);
-void BuildRa(short nPlayer);
+void FreeRa(int nPlayer);
+void BuildRa(int nPlayer);
 void InitRa();
-void MoveRaToEnemy(short nPlayer);
+void MoveRaToEnemy(int nPlayer);
 void FuncRa(int, int, int, int);
 
 // rat
@@ -741,7 +741,7 @@ extern FreeListArray<Snake, kMaxSnakes> SnakeList;
 
 void InitSnakes();
 short GrabSnake();
-void BuildSnake(short nPlayer, short zVal);
+void BuildSnake(int nPlayer, short zVal);
 void FuncSnake(int, int, int, int);
 
 // spider

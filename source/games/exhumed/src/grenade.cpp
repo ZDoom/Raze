@@ -47,7 +47,7 @@ void BounceGrenade(DExhumedActor* pActor, int nAngle)
     D3PlayFX(StaticSound[kSound3], pActor);
 }
 
-void ThrowGrenade(short nPlayer, int, int, int ecx, int push1)
+void ThrowGrenade(int nPlayer, int, int, int ecx, int push1)
 {
     if (PlayerList[nPlayer].pPlayerGrenade == nullptr)
         return;
@@ -231,7 +231,7 @@ void AIGrenade::Tick(RunListEvent* ev)
     pActor->nIndex2--;
     if (!pActor->nIndex2)
     {
-        short nPlayer = pGrenadeSprite->owner;
+        int nPlayer = pGrenadeSprite->owner;
 
         if (pActor->nTurn < 0)
         {
