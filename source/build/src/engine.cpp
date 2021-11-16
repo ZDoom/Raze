@@ -1177,11 +1177,6 @@ int32_t lastwall(int16_t point)
  * NOTE: The redundant bound checks are expected to be optimized away in the
  * inlined code. */
 
-static inline int inside_exclude_p(int32_t const x, int32_t const y, int const sectnum, const uint8_t *excludesectbitmap)
-{
-    return (sectnum>=0 && !bitmap_test(excludesectbitmap, sectnum) && inside_p(x, y, sectnum));
-}
-
 /* NOTE: no bound check */
 static inline int inside_z_p(int32_t const x, int32_t const y, int32_t const z, int const sectnum)
 {

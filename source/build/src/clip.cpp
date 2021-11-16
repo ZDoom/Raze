@@ -25,6 +25,8 @@ static int16_t clipobjectval[MAXCLIPNUM];
 static uint8_t clipignore[(MAXCLIPNUM+7)>>3];
 static int32_t rxi[8], ryi[8];
 
+inline void bitmap_set(uint8_t* const ptr, int const n) { ptr[n >> 3] |= 1 << (n & 7); }
+inline char bitmap_test(uint8_t const* const ptr, int const n) { return ptr[n >> 3] & (1 << (n & 7)); }
 
 
 int32_t quickloadboard=0;
