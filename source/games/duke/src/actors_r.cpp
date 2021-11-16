@@ -217,11 +217,6 @@ void addweapon_r(struct player_struct* p, int weapon)
 
 void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  hp4)
 {
-	walltype* wal;
-	int d, q, x1, y1;
-	int startwall, endwall, nextsect;
-	int p, x;
-	int sect;
 	static const uint8_t statlist[] = { STAT_DEFAULT, STAT_ACTOR, STAT_STANDABLE, STAT_PLAYER, STAT_FALLER, STAT_ZOMBIEACTOR, STAT_MISC };
 
 	auto spri = actor->s;
@@ -236,7 +231,7 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 			if (((dasectp->ceilingz - spri->z) >> 8) < r)
 			{
 				auto wal = dasectp->firstWall();
-				d = abs(wal->x - spri->x) + abs(wal->y - spri->y);
+				int d = abs(wal->x - spri->x) + abs(wal->y - spri->y);
 				if (d < r)
 					fi.checkhitceiling(dasect);
 				else
@@ -247,30 +242,31 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 						fi.checkhitceiling(dasect);
 				}
 			}
-
-			startwall = dasectp->wallptr;
-			endwall = startwall + dasectp->wallnum;
-			for (x = startwall, wal = &wall[startwall]; x < endwall; x++, wal++)
-				if ((abs(wal->x - spri->x) + abs(wal->y - spri->y)) < r)
+			
+			for (auto& wal : wallsofsector(dasectp))
+			{
+				if ((abs(wal.x - spri->x) + abs(wal.y - spri->y)) < r)
 				{
-					nextsect = wal->nextsector;
+					int nextsect = wal.nextsector;
 					if (nextsect >= 0)
 					{
 						search.Add(nextsect);
 					}
-					x1 = (((wal->x + wall[wal->point2].x) >> 1) + spri->x) >> 1;
-					y1 = (((wal->y + wall[wal->point2].y) >> 1) + spri->y) >> 1;
+					int x1 = (((wal.x + wal.point2Wall()->x) >> 1) + spri->x) >> 1;
+					int y1 = (((wal.y + wal.point2Wall()->y) >> 1) + spri->y) >> 1;
+					int sect;
 					updatesector(x1, y1, &sect);
 					if (sect >= 0 && cansee(x1, y1, spri->z, sect, spri->x, spri->y, spri->z, spri->sectnum))
-						fi.checkhitwall(actor, x, wal->x, wal->y, spri->z, spri->picnum);
+						fi.checkhitwall(actor, wallnum(&wal), wal.x, wal.y, spri->z, spri->picnum);
 				}
+			}
 		}
 	}
 
-	q = -(24 << 8) + (krand() & ((32 << 8) - 1));
+	int q = -(24 << 8) + (krand() & ((32 << 8) - 1));
 
 	auto Owner = actor->GetOwner();
-	for (x = 0; x < 7; x++)
+	for (int x = 0; x < 7; x++)
 	{
 		DukeStatIterator it1(statlist[x]);
 		while (auto act2 = it1.Next())
@@ -300,7 +296,7 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 				}
 
 				if (spri2->picnum == APLAYER) spri2->z -= gs.playerheight;
-				d = dist(actor, act2);
+				int d = dist(actor, act2);
 				if (spri2->picnum == APLAYER) spri2->z += gs.playerheight;
 
 				if (d < r && cansee(spri2->x, spri2->y, spri2->z - (8 << 8), spri2->sectnum, spri->x, spri->y, spri->z - (12 << 8), spri->sectnum))
@@ -353,7 +349,7 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 					{
 						if (spri2->picnum == APLAYER)
 						{
-							p = act2->PlayerIndex();
+							int p = act2->PlayerIndex();
 							if (ps[p].newOwner != nullptr)
 							{
 								clearcamera(&ps[p]);

@@ -239,3 +239,14 @@ inline TArrayView<walltype> wallsofsector(int sec)
 {
     return wallsofsector(&sector[sec]);
 }
+
+// these are mainly meant as refactoring aids to mark function calls to work on.
+inline int wallnum(walltype* wal)
+{
+	return int(wal - wall);
+}
+
+inline int sectnum(sectortype* sect)
+{
+	return int(sect - sector);
+}
