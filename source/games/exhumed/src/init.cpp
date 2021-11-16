@@ -803,8 +803,8 @@ void ExamineSprites()
         int nStatus = pSprite->statnum;
         if (!nStatus)
         {
-            short lotag = pSprite->lotag;
-            short hitag = pSprite->hitag;
+            int lotag = pSprite->lotag;
+            int hitag = pSprite->hitag;
 
             if ((nStatus < kMaxStatus) && lotag)
             {
@@ -849,8 +849,8 @@ void LoadObjects()
     for (int nSector = 0; nSector < numsectors; nSector++)
     {
         auto sectp = &sector[nSector];
-        short hitag = sectp->hitag;
-        short lotag = sectp->lotag;
+        int hitag = sectp->hitag;
+        int lotag = sectp->lotag;
 
         sectp->hitag = 0;
         sectp->lotag = 0;
@@ -869,8 +869,8 @@ void LoadObjects()
     {
         wall[nWall].extra = -1;
 
-        short lotag = wall[nWall].lotag;
-        short hitag = wall[nWall].hitag;
+        int lotag = wall[nWall].lotag;
+        int hitag = wall[nWall].hitag;
 
         wall[nWall].lotag = 0;
 

@@ -261,7 +261,7 @@ static bool UseHand(short nPlayer)
     return true;
 }
 
-void UseItem(short nPlayer, short nItem)
+void UseItem(short nPlayer, int nItem)
 {
     bool didit = false;
     switch (nItem)
@@ -313,7 +313,7 @@ void UseItem(short nPlayer, short nItem)
 }
 
 // TODO - bool return type?
-int GrabItem(short nPlayer, short nItem)
+int GrabItem(short nPlayer, int nItem)
 {
     if (PlayerList[nPlayer].items[nItem] >= 5) {
         return 0;

@@ -57,12 +57,12 @@ struct bulletInfo
     int16_t nDamage; // 0
     int16_t field_2; // 2
     int field_4;   // 4
-    short field_8; // 8
-    short nSeq; // 10
-    short field_C; // 12
-    short nFlags;
-    short nRadius; // damage radius
-    short xyRepeat;
+    int16_t field_8; // 8
+    int16_t nSeq; // 10
+    int16_t field_C; // 12
+    int16_t nFlags;
+    int16_t nRadius; // damage radius
+    int16_t xyRepeat;
 };
 
 extern bulletInfo BulletInfo[];
@@ -161,9 +161,9 @@ extern short nItemMagic[];
 void BuildItemAnim(DExhumedActor* nSprite);
 void ItemFlash();
 void FillItems(short nPlayer);
-void UseItem(short nPlayer, short nItem);
+void UseItem(short nPlayer, int nItem);
 void UseCurItem(short nPlayer);
-int GrabItem(short nPlayer, short nItem);
+int GrabItem(short nPlayer, int nItem);
 void DropMagic(DExhumedActor* actor);
 void InitItems();
 void StartRegenerate(DExhumedActor* nSprite);
@@ -766,9 +766,9 @@ std::pair<int, int> BuildSwNotOnPause(int nChannel, int nLink, int nSector, int 
 int BuildLink(int nCount, ...);
 std::pair<int, int> BuildSwPressSector(int nChannel, int nLink, int nSector, int ecx);
 std::pair<int, int> BuildSwStepOn(int nChannel, int nLink, int nSector);
-std::pair<int, int> BuildSwReady(int nChannel, short nLink);
+std::pair<int, int> BuildSwReady(int nChannel, int nLink);
 
-std::pair<int, int> BuildSwPressWall(short nChannel, short nLink, int nWall);
+std::pair<int, int> BuildSwPressWall(int nChannel, int nLink, int nWall);
 
 // wasp
 

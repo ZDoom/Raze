@@ -1972,7 +1972,7 @@ void AIObject::Tick(RunListEvent* ev)
     if (!pActor) return;
     auto pSprite = &pActor->s();
     short nStat = pSprite->statnum;
-    short bx = pActor->nIndex;
+    int bx = pActor->nIndex;
 
     if (nStat == 97 || (!(pSprite->cstat & 0x101))) {
         return;
@@ -2088,7 +2088,7 @@ void AIObject::Damage(RunListEvent* ev)
     auto pActor = ev->pObjActor;
     if (!pActor) return;
     auto pSprite = &pActor->s();
-    short nStat = pSprite->statnum;
+    int nStat = pSprite->statnum;
 
     if (nStat >= 150 || pActor->nHealth <= 0) {
         return;
@@ -2119,7 +2119,7 @@ void AIObject::Draw(RunListEvent* ev)
 {
     auto pActor = ev->pObjActor;
     if (!pActor) return;
-    short bx = pActor->nIndex;
+    int bx = pActor->nIndex;
 
     if (bx > -1)
     {

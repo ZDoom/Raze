@@ -60,23 +60,23 @@ struct Player
 {
 	DExhumedActor* Actor() { return pActor; }
     DExhumedActor* pActor;
-    short nHealth;
-    short nLives;
-    short nDouble;
-    short nInvisible;
-    short nTorch;
-    short field_2;
-    short nAction;
-    short bIsMummified;
-    short invincibility;
-    short nAir;
-    short nSeq;
-    short nMaskAmount;
+    int16_t nHealth;
+    int16_t nLives;
+    int16_t nDouble;
+    int16_t nInvisible;
+    int16_t nTorch;
+    int16_t field_2;
+    int16_t nAction;
+    int16_t bIsMummified;
+    int16_t invincibility;
+    int16_t nAir;
+    int16_t nSeq;
+    int16_t nMaskAmount;
     uint16_t keys;
-    short nMagic;
-    short nItem;
+    int16_t nMagic;
+    int16_t nItem;
     uint8_t items[8];
-    short nAmmo[7]; // TODO - kMaxWeapons?
+    int16_t nAmmo[7]; // TODO - kMaxWeapons?
 
     short nCurrentWeapon;
     short field_3FOUR;
@@ -91,21 +91,21 @@ struct Player
     PlayerHorizon horizon;
     PlayerAngle angle;
 
-    short nBreathTimer;
-    short nPlayerSwear;
-    short nPlayerPushSect;
-    short nDeathType;
-    short nPlayerScore;
-    short nPlayerColor;
+    int16_t nBreathTimer;
+    int16_t nPlayerSwear;
+    int nPlayerPushSect;
+    int16_t nDeathType;
+    int16_t nPlayerScore;
+    int16_t nPlayerColor;
+    int16_t nPistolClip;
     int nPlayerDY;
     int nPlayerDX;
-    short nPistolClip;
     int nXDamage;
     int nYDamage;
-    short nPlayerOldWeapon;
-    short nPlayerClip;
-    short nPlayerPushSound;
-    short nTauntTimer;
+    int16_t nPlayerOldWeapon;
+    int16_t nPlayerClip;
+    int16_t nPlayerPushSound;
+    int16_t nTauntTimer;
     uint16_t nPlayerWeapons; // each set bit represents a weapon the player has
     short nPlayerViewSect;
     PlayerSave sPlayerSave;
