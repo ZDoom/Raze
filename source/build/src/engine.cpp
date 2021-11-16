@@ -1308,27 +1308,21 @@ void updatesectorneighbor(int32_t const x, int32_t const y, int * const sectnum,
         if (inside_p(x, y, initialsectnum))
             return;
 
-        static int16_t sectlist[MAXSECTORS];
-        static uint8_t sectbitmap[(MAXSECTORS+7)>>3];
-        int16_t nsecs;
+        BFSSearch search(numsectors, *sectnum);
 
-        bfirst_search_init(sectlist, sectbitmap, &nsecs, MAXSECTORS, initialsectnum);
-
-        for (int sectcnt=0; sectcnt<nsecs; sectcnt++)
+        for (unsigned listsectnum; (listsectnum = search.GetNext()) != BFSSearch::EOL;)
         {
-            int const listsectnum = sectlist[sectcnt];
-
             if (inside_p(x, y, listsectnum))
-                SET_AND_RETURN(*sectnum, listsectnum);
+            {
+                *sectnum = listsectnum;
+                return;
+            }
 
-            auto const sec       = &sector[listsectnum];
-            int const  startwall = sec->wallptr;
-            int const  endwall   = sec->wallptr + sec->wallnum;
-            auto       uwal      = (uwallptr_t)&wall[startwall];
-
-            for (int j=startwall; j<endwall; j++, uwal++)
-                if (uwal->nextsector >= 0 && getsectordist({x, y}, uwal->nextsector) <= maxDistance)
-                    bfirst_search_try(sectlist, sectbitmap, &nsecs, uwal->nextsector);
+            for (auto& wal : wallsofsector(listsectnum))
+            {
+                if (wal.nextsector >= 0 && getsectordist({ x, y }, wal.nextsector) <= maxDistance)
+                    search.Add(wal.nextsector);
+            }
         }
     }
 

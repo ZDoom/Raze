@@ -92,27 +92,5 @@ static_assert(sizeof(vec3f_t) == sizeof(float) * 3);
 inline void bitmap_set(uint8_t *const ptr, int const n) { ptr[n>>3] |= 1 << (n&7); }
 inline char bitmap_test(uint8_t const *const ptr, int const n) { return ptr[n>>3] & (1 << (n&7)); }
 
-////////// Utility functions //////////
-
-// breadth-first search helpers
-template <typename T>
-void bfirst_search_init(T *const list, uint8_t *const bitmap, T *const eltnumptr, int const maxelts, int const firstelt)
-{
-    memset(bitmap, 0, (maxelts+7)>>3);
-
-    list[0] = firstelt;
-    bitmap_set(bitmap, firstelt);
-    *eltnumptr = 1;
-}
-
-template <typename T>
-void bfirst_search_try(T *const list, uint8_t *const bitmap, T *const eltnumptr, int const elt)
-{
-    if (!bitmap_test(bitmap, elt))
-    {
-        bitmap_set(bitmap, elt);
-        list[(*eltnumptr)++] = elt;
-    }
-}
 
 #endif // compat_h_
