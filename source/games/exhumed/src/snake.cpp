@@ -129,7 +129,7 @@ void BuildSnake(short nPlayer, short zVal)
     int x = pPlayerSprite->x;
     int y = pPlayerSprite->y;
     int z = (pPlayerSprite->z + zVal) - 2560;
-    short nAngle = pPlayerSprite->ang;
+    int nAngle = pPlayerSprite->ang;
 
     short hitsect;
     int hitx, hity, hitz;
@@ -272,7 +272,7 @@ DExhumedActor* FindSnakeEnemy(short nSnake)
     auto pActor = SnakeList[nSnake].pSprites[0]; // CHECKME
     auto pSprite = &pActor->s();
 
-    short nAngle = pSprite->ang;
+    int nAngle = pSprite->ang;
     int nSector =pSprite->sectnum;
 
     int esi = 2048;
@@ -370,7 +370,7 @@ void AISnake::Tick(RunListEvent* ev)
     }
     else
     {
-        short nAngle = pSprite->ang;
+        int nAngle = pSprite->ang;
         int var_30 = -bcos(nAngle, 6);
         int var_34 = -bsin(nAngle, 6);
 

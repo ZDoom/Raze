@@ -41,7 +41,7 @@ static actionSeq LionSeq[] = {
 };
 
 
-void BuildLion(DExhumedActor* pActor, int x, int y, int z, int nSector, short nAngle)
+void BuildLion(DExhumedActor* pActor, int x, int y, int z, int nSector, int nAngle)
 {
     spritetype* pSprite;
     if (pActor == nullptr)
@@ -395,7 +395,7 @@ void AILion::Tick(RunListEvent* ev)
 
             int nCheckDist = 0x7FFFFFFF;
 
-            short nAngle = pSprite->ang;
+            int nAngle = pSprite->ang;
             short nScanAngle = (pSprite->ang - 512) & kAngleMask;
 
             for (int i = 0; i < 5; i++)

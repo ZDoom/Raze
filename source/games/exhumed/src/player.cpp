@@ -98,7 +98,7 @@ void RestoreSavePoint(int nPlayer, int *x, int *y, int *z, short *nSector, short
     *nAngle  = PlayerList[nPlayer].sPlayerSave.nAngle;
 }
 
-void SetSavePoint(int nPlayer, int x, int y, int z, int nSector, short nAngle)
+void SetSavePoint(int nPlayer, int x, int y, int z, int nSector, int nAngle)
 {
     PlayerList[nPlayer].sPlayerSave.x = x;
     PlayerList[nPlayer].sPlayerSave.y = y;

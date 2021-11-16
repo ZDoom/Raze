@@ -1206,7 +1206,7 @@ Collision AngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int ebx, int
         nClipType = CLIPMASK0;
     }
 
-    short nAngle;
+    int nAngle;
 
     if (pActor2 == nullptr)
     {
@@ -1498,7 +1498,7 @@ void AICreatureChunk::Tick(RunListEvent* ev)
         if (!nVal.type && !nVal.exbits)
             return;
 
-        short nAngle;
+        int nAngle;
 
         if (nVal.exbits & kHitAux2)
         {

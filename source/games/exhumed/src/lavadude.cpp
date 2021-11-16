@@ -104,7 +104,7 @@ void AILavaDudeLimb::Draw(RunListEvent* ev)
 }
 
 
-void BuildLava(DExhumedActor* pActor, int x, int y, int, int nSector, short nAngle, int nChannel)
+void BuildLava(DExhumedActor* pActor, int x, int y, int, int nSector, int nAngle, int nChannel)
 {
     spritetype* pSprite;
     if (pActor == nullptr)

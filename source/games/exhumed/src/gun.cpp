@@ -668,7 +668,7 @@ loc_flag:
             }
 
             short nAmmoType = WeaponInfo[nWeapon].nAmmoType;
-            short nAngle = pPlayerSprite->ang;
+            int nAngle = pPlayerSprite->ang;
             int theX = pPlayerSprite->x;
             int theY = pPlayerSprite->y;
             int theZ = pPlayerSprite->z;

@@ -691,7 +691,7 @@ void AddFlow(int nIndex, int nSpeed, int b, int nAngle)
         StartInterpolation(nIndex, Interp_Wall_PanX);
         StartInterpolation(nIndex, Interp_Wall_PanY);
 
-        short nAngle;
+        int nAngle;
 
         if (b == 2) {
             nAngle = 512;

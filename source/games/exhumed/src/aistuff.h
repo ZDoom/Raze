@@ -83,7 +83,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int val1, int nAngl
 
 void IgniteSprite(DExhumedActor* nSprite);
 void FuncBullet(int, int, int, int);
-void BackUpBullet(int *x, int *y, short nAngle);
+void BackUpBullet(int *x, int *y, int nAngle);
 
 // fish
 
@@ -171,7 +171,7 @@ void DoRegenerates();
 
 // lavadude
 
-void BuildLava(DExhumedActor* nSprite, int x, int y, int z, int nSector, short nAngle, int nChannel);
+void BuildLava(DExhumedActor* nSprite, int x, int y, int z, int nSector, int nAngle, int nChannel);
 DExhumedActor* BuildLavaLimb(DExhumedActor* nSprite, int edx, int ebx);
 void FuncLavaLimb(int, int, int, int);
 void FuncLava(int, int, int, int);
@@ -194,7 +194,7 @@ extern short bTorch;
 
 // lion
 
-void BuildLion(DExhumedActor* nSprite, int x, int y, int z, int nSector, short nAngle);
+void BuildLion(DExhumedActor* nSprite, int x, int y, int z, int nSector, int nAngle);
 void FuncLion(int, int, int, int);
 
 // move
@@ -340,7 +340,7 @@ void FuncRat(int a, int, int b, int nRun);
 
 // rex
 
-void BuildRex(DExhumedActor* nSprite, int x, int y, int z, int nSector, short nAngle, int nChannel);
+void BuildRex(DExhumedActor* nSprite, int x, int y, int z, int nSector, int nAngle, int nChannel);
 void FuncRex(int, int, int, int);
 
 // roach
@@ -707,12 +707,12 @@ void runlist_ExecObjects();
 
 // scorp
 
-void BuildScorp(DExhumedActor* nSprite, int x, int y, int z, int nSector, short nAngle, int nChannel);
+void BuildScorp(DExhumedActor* nSprite, int x, int y, int z, int nSector, int nAngle, int nChannel);
 void FuncScorp(int, int, int, int);
 
 // set
 
-void BuildSet(DExhumedActor* nSprite, int x, int y, int z, int nSector, short nAngle, int nChannel);
+void BuildSet(DExhumedActor* nSprite, int x, int y, int z, int nSector, int nAngle, int nChannel);
 void FuncSoul(int, int, int, int);
 void FuncSet(int, int, int, int);
 
@@ -772,7 +772,7 @@ std::pair<int, int> BuildSwPressWall(short nChannel, short nLink, int nWall);
 
 // wasp
 
-DExhumedActor* BuildWasp(DExhumedActor* nSprite, int x, int y, int z, int nSector, short nAngle, bool bEggWasp);
+DExhumedActor* BuildWasp(DExhumedActor* nSprite, int x, int y, int z, int nSector, int nAngle, bool bEggWasp);
 void FuncWasp(int eax, int, int edx, int nRun);
 
 

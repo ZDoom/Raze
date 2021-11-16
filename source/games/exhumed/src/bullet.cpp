@@ -228,7 +228,7 @@ void BulletHitsSprite(Bullet *pBullet, DExhumedActor* pBulletActor, DExhumedActo
 
             if (nStat == kStatAnubisDrum)
             {
-                short nAngle = (pSprite->ang + 256) - RandomSize(9);
+                int nAngle = (pSprite->ang + 256) - RandomSize(9);
 
                 pHitSprite->xvel = bcos(nAngle, 1);
                 pHitSprite->yvel = bsin(nAngle, 1);
@@ -291,7 +291,7 @@ void BulletHitsSprite(Bullet *pBullet, DExhumedActor* pBulletActor, DExhumedActo
 }
 
 
-void BackUpBullet(int *x, int *y, short nAngle)
+void BackUpBullet(int *x, int *y, int nAngle)
 {
     *x -= bcos(nAngle, -11);
     *y -= bsin(nAngle, -11);
