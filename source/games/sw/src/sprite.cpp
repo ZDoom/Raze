@@ -1628,13 +1628,12 @@ IconDefault(short SpriteNum)
 
 void PreMapCombineFloors(void)
 {
-#define MAX_FLOORS 32
+    const int MAX_FLOORS = 32;
     SPRITEp sp;
     int i, j, k;
     int base_offset;
-    int dx,dy;
+    int dx, dy;
     int dasect, startwall, endwall, nextsector;
-    unsigned sectliststart, sectlistplc;
     short pnum;
 
     typedef struct
@@ -1663,7 +1662,6 @@ void PreMapCombineFloors(void)
         }
     }
 
-    sectliststart = GlobalSectorList.Size();
     for (i = base_offset = 0; i < MAX_FLOORS; i++)
     {
         // blank so continue
@@ -1679,13 +1677,9 @@ void PreMapCombineFloors(void)
         dx = BoundList[base_offset].offset->x - BoundList[i].offset->x;
         dy = BoundList[base_offset].offset->y - BoundList[i].offset->y;
 
-        GlobalSectorList.Resize(sectliststart);
-        GlobalSectorList.Push(BoundList[i].offset->sectnum);
-        sectlistplc = sectliststart;
-        while (sectlistplc < GlobalSectorList.Size())
+        BFSSearch search(numsectors, BoundList[i].offset->sectnum);
+        for (unsigned dasect; (dasect = search.GetNext()) != BFSSearch::EOL;)
         {
-            dasect = GlobalSectorList[sectlistplc++];
-
             SectIterator it(dasect);
             while ((j = it.NextIndex()) >= 0)
             {
@@ -1699,31 +1693,19 @@ void PreMapCombineFloors(void)
                 wal.y += dy;
 
                 nextsector = wal.nextsector;
-                if (nextsector < 0) continue;
-
-                // make sure its not on the list
-                for (k = GlobalSectorList.Size() - 1; k >= (int)sectliststart; k--)
-                {
-                    if (GlobalSectorList[k] == nextsector)
-                        break;
-                }
-
-                // if its not on the list add it to the end
-                if (k < 0)
-                {
-                    GlobalSectorList.Push(nextsector);
-                }
+                if (nextsector >= 0)
+                    search.Add(nextsector);
             }
-
         }
 
         TRAVERSE_CONNECT(pnum)
         {
             PLAYERp pp = &Player[pnum];
             dasect = pp->cursectnum;
-            for (unsigned j = sectliststart; j < GlobalSectorList.Size(); j++)
+            search.Rewind();
+            for (unsigned itsect; (itsect = search.GetNext()) != BFSSearch::EOL;)
             {
-                if (GlobalSectorList[j] == dasect)
+                if (itsect == dasect)
                 {
                     pp->posx += dx;
                     pp->posy += dy;
@@ -1742,7 +1724,6 @@ void PreMapCombineFloors(void)
     {
         KillActor(actor);
     }
-    GlobalSectorList.Resize(sectliststart);
 }
 
 #if 0
