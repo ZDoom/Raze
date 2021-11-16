@@ -42,11 +42,11 @@ BEGIN_BLD_NS
 
 
 static struct {
-	short nTile;
+	int16_t nTile;
 	uint8_t nStat;
 	uint8_t nPal;
 	int nScale;
-	short nX, nY;
+	int16_t nX, nY;
 } burnTable[9] = {
 	 { 2101, 2, 0, 118784, 10, 220 },
 	 { 2101, 2, 0, 110592, 40, 220 },

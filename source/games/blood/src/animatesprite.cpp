@@ -104,8 +104,8 @@ static const int effectDetail[kViewEffectMax] = {
 
 
 struct WEAPONICON {
-    short nTile;
-    char zOffset;
+    int16_t nTile;
+    uint8_t zOffset;
 };
 
 static const WEAPONICON gWeaponIcon[] = {

@@ -105,7 +105,7 @@ const GENDUDESND gCustomDudeSnd[] = {
 };
 
 // for kModernThingThrowableRock
-short gCustomDudeDebrisPics[6] = {
+const int16_t gCustomDudeDebrisPics[6] = {
     
     2406, 2280, 2185, 2155, 2620, 3135
 
@@ -235,7 +235,7 @@ void genDudeAttack1(int, DBloodActor* actor)
     actor->xvel = actor->yvel = 0;
     
     GENDUDEEXTRA* pExtra = &actor->genDudeExtra;
-    short dispersion = pExtra->baseDispersion;
+    int dispersion = pExtra->baseDispersion;
     if (inDuck(pXSprite->aiState))
         dispersion = ClipLow(dispersion >> 1, kGenDudeMinDispesion);
 
@@ -1322,7 +1322,7 @@ bool playGenDudeSound(DBloodActor* actor, int mode)
     auto const pXSprite = &actor->x();
     if (mode < kGenDudeSndTargetSpot || mode >= kGenDudeSndMax) return false;
     const GENDUDESND* sndInfo = &gCustomDudeSnd[mode]; bool gotSnd = false;
-    short sndStartId = pXSprite->sysData1; 
+    int sndStartId = pXSprite->sysData1;
     int rand = sndInfo->randomRange;
     int sndId = (sndStartId <= 0) ? sndInfo->defaultSndId : sndStartId + sndInfo->sndIdOffset;
     GENDUDEEXTRA* pExtra = &actor->genDudeExtra;
@@ -1520,8 +1520,8 @@ bool dudeIsMelee(DBloodActor* actor)
 static void scaleDamage(DBloodActor* actor) 
 {
     auto const pXSprite = &actor->x();
-    short curWeapon = actor->genDudeExtra.curWeapon;
-    short weaponType = actor->genDudeExtra.weaponType;
+    int curWeapon = actor->genDudeExtra.curWeapon;
+    int weaponType = actor->genDudeExtra.weaponType;
     signed short* curScale = actor->genDudeExtra.dmgControl;
     for (int i = 0; i < kDmgMax; i++)
         curScale[i] = getDudeInfo(kDudeModernCustom)->startDamage[i];
@@ -1630,7 +1630,7 @@ static void scaleDamage(DBloodActor* actor)
     }
 
     // take in account yrepeat of sprite
-    short yrepeat = actor->s().yrepeat;
+    int yrepeat = actor->s().yrepeat;
     if (yrepeat < 64) 
     {
         for (int i = 0; i < kDmgMax; i++) curScale[i] += (64 - yrepeat);
@@ -1756,7 +1756,7 @@ static int getRangeAttackDist(DBloodActor* actor, int minDist, int maxDist)
 {
     auto const pSprite = &actor->s();
     auto const pXSprite = &actor->x();
-    short yrepeat = pSprite->yrepeat;
+    int yrepeat = pSprite->yrepeat;
     int dist = 0;
     int seqId = pXSprite->data2; 
     int mul = 550; 

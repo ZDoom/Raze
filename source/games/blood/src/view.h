@@ -64,12 +64,12 @@ struct VIEW {
     int zvel; //zvel
     int sectnum; // sectnum
     unsigned int floordist; // floordist
-    char at6e; // look center
-    char at6f;
-    char at70; // run
-    char at71; // jump
-    char at72; // underwater
-    short at73; // sprite flags
+    uint8_t at6e; // look center
+    uint8_t at6f;
+    uint8_t at70; // run
+    uint8_t at71; // jump
+    uint8_t at72; // underwater
+    int16_t at73; // sprite flags
     SPRITEHIT at75;
     binangle look_ang;
     binangle rotscrnang;

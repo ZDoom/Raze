@@ -1725,7 +1725,7 @@ void debrisMove(int listIndex)
     if (actor->xvel || actor->yvel) 
     {
 
-        short oldcstat = pSprite->cstat;
+        auto oldcstat = pSprite->cstat;
         pSprite->cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
         moveHit = actor->hit.hit = ClipMove(&pSprite->pos, &nSector, actor->xvel >> 12,
@@ -3318,7 +3318,7 @@ void useSectorWindGen(DBloodActor* sourceactor, sectortype* pSector)
             StartInterpolation(pXSector->reference, Interp_Sect_FloorPanY);
         }
 
-        short oldPan = pXSector->panVel;
+        int oldPan = pXSector->panVel;
         pXSector->panAngle = pXSector->windAng;
         pXSector->panVel = pXSector->windVel;
 

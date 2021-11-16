@@ -264,23 +264,23 @@ struct XWALL {
 
 struct MAPSIGNATURE {
     char signature[4];
-    short version;
+    int16_t version;
 };
 
 struct MAPHEADER  {
-    int x; // x
-    int y; // y
-    int z; // z
-    short ang; // ang
-    short sect; // sect
-    short pskybits; // pskybits
-    int visibility; // visibility
-    int mattid; // song id, Matt
-    char parallax; // parallaxtype
-    int revision; // map revision
-    short numsectors; // numsectors
-    short numwalls; // numwalls
-    short numsprites; // numsprites
+    int32_t x; // x
+    int32_t y; // y
+    int32_t z; // z
+    int16_t ang; // ang
+    int16_t sect; // sect
+    int16_t pskybits; // pskybits
+    int32_t visibility; // visibility
+    int32_t mattid; // song id, Matt
+    uint8_t parallax; // parallaxtype
+    int32_t revision; // map revision
+    int16_t numsectors; // numsectors
+    int16_t numwalls; // numwalls
+    int16_t numsprites; // numsprites
 };
 
 struct MAPHEADER2 {

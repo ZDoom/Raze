@@ -157,15 +157,15 @@ void RemoveSpriteStat(int nSprite)
 
 void qinitspritelists(void) // Replace
 {
-    for (short i = 0; i <= kMaxSectors; i++)
+    for (int i = 0; i <= kMaxSectors; i++)
     {
         headspritesect[i] = -1;
     }
-    for (short i = 0; i <= kMaxStatus; i++)
+    for (int i = 0; i <= kMaxStatus; i++)
     {
         headspritestat[i] = -1;
     }
-    for (short i = 0; i < kMaxSprites; i++)
+    for (int i = 0; i < kMaxSprites; i++)
     {
         sprite[i].sectnum = -1;
         sprite[i].index = -1;

@@ -53,10 +53,10 @@ struct SEQFRAME
 
 struct Seq {
 	char signature[4];
-	short version;
-	short nFrames;
-	short ticksPerFrame;
-	short soundId;
+	int16_t version;
+	int16_t nFrames;
+	int16_t ticksPerFrame;
+	int16_t soundId;
 	int flags;
 	SEQFRAME frames[1];
 	void Precache(int palette);

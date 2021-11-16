@@ -199,8 +199,8 @@ struct TILE_FRAME
     int z;
     int stat;
     int8_t shade;
-    char palnum;
-    unsigned short angle;
+    int8_t palnum;
+    uint16_t angle;
 };
 
 struct SOUNDINFO
@@ -227,7 +227,7 @@ struct QAV
     int duration; // 10
     int x; // 14
     int y; // 18
-    unsigned short res_id;
+    uint16_t res_id;
     FRAMEINFO frames[1]; // 24
     void Draw(double x, double y, int ticks, int stat, int shade, int palnum, bool to3dview, double const smoothratio = 65536);
     void Draw(int ticks, int stat, int shade, int palnum, bool to3dview, double const smoothratio = 65536) { Draw(x, y, ticks, stat, shade, palnum, to3dview, smoothratio); }

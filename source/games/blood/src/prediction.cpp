@@ -89,7 +89,7 @@ void viewInitializePrediction(void)
 void viewUpdatePrediction(InputPacket *pInput)
 {
     predictOld = predict;
-	short bakCstat = gMe->pSprite->cstat;
+	auto bakCstat = gMe->pSprite->cstat;
     gMe->pSprite->cstat = 0;
     fakePlayerProcess(gMe, pInput);
     fakeActProcessSprites();
@@ -276,7 +276,7 @@ void fakePlayerProcess(PLAYER *pPlayer, InputPacket *pInput)
     int dzt = (predict.z-top)/4;
 
     int dw = pSprite->clipdist<<2;
-    short nSector = predict.sectnum;
+    int nSector = predict.sectnum;
     if (!gNoClip)
     {
         pushmove(&predict.pos, &predict.sectnum, dw, dzt, dzb, CLIPMASK0);
@@ -382,7 +382,7 @@ static void fakeMoveDude(spritetype *pSprite)
         }
         else
         {
-            short bakCstat = pSprite->cstat;
+            auto bakCstat = pSprite->cstat;
             pSprite->cstat &= ~257;
             predict.at75.hit = ClipMove(&predict.pos, &nSector, predict.xvel >> 12, predict.yvel >> 12, wd, tz, bz, CLIPMASK0);
             if (nSector == -1)

@@ -26,9 +26,9 @@ BEGIN_BLD_NS
 
 // By NoOne: renamed dude struct
 struct DUDEINFO {
-    short seqStartID; // seq
-    short startHealth; // health
-    unsigned short mass; // mass
+    int16_t seqStartID; // seq
+    int16_t startHealth; // health
+    uint16_t mass; // mass
     int at6; // unused?
     uint8_t clipdist; // clipdist
     int eyeHeight;

@@ -189,12 +189,12 @@ kPatrolMoveBackward                 = 1,
 // - STRUCTS ------------------------------------------------------------------
 struct SPRITEMASS { // sprite mass info for getSpriteMassBySize();
     int seqId;
-    short picnum; // mainly needs for moving debris
-    short xrepeat;
-    short yrepeat;
-    short clipdist; // mass multiplier
+    int16_t picnum; // mainly needs for moving debris
+    int16_t xrepeat;
+    int16_t yrepeat;
+    int16_t clipdist; // mass multiplier
     int mass;
-    short airVel; // mainly needs for moving debris
+    int16_t airVel; // mainly needs for moving debris
     int fraction; // mainly needs for moving debris
 };
 

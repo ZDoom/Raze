@@ -4629,7 +4629,7 @@ static Collision MoveThing(DBloodActor* actor)
 	const int bakCompat = enginecompatibility_mode;
 	if (actor->xvel || actor->yvel)
 	{
-		short bakCstat = pSprite->cstat;
+		auto bakCstat = pSprite->cstat;
 		pSprite->cstat &= ~257;
 		if ((actor->GetOwner()) && !cl_bloodvanillaexplosions && !VanillaMode())
 			enginecompatibility_mode = ENGINECOMPATIBILITY_NONE; // improved clipmove accuracy
@@ -4855,7 +4855,7 @@ void MoveDude(DBloodActor* actor)
 		}
 		else
 		{
-			short bakCstat = pSprite->cstat;
+			auto bakCstat = pSprite->cstat;
 			pSprite->cstat &= ~257;
 			actor->hit.hit = ClipMove(&pSprite->pos, &nSector, actor->xvel >> 12, actor->yvel >> 12, wd, tz, bz, CLIPMASK0);
 			if (nSector == -1)
@@ -5366,7 +5366,7 @@ int MoveMissile(DBloodActor* actor)
 	{
 		vec3_t pos = pSprite->pos;
 		int nSector2 = pSprite->sectnum;
-		const short bakSpriteCstat = pSprite->cstat;
+		const auto bakSpriteCstat = pSprite->cstat;
 		if (pOwner && !isFlameSprite && !cl_bloodvanillaexplosions && !VanillaMode())
 		{
 			enginecompatibility_mode = ENGINECOMPATIBILITY_NONE; // improved clipmove accuracy

@@ -68,14 +68,14 @@ enum VECTOR_TYPE {
 
 struct THINGINFO
 {
-    short startHealth;
-    short mass;
+    int16_t startHealth;
+    int16_t mass;
     uint8_t clipdist;
-    short flags;
-    int elastic; // elasticity
-    int dmgResist; // damage resistance
-    short cstat;
-    short picnum;
+    int16_t flags;
+    int32_t elastic; // elasticity
+    int32_t dmgResist; // damage resistance
+    int16_t cstat;
+    int16_t picnum;
     int8_t shade;
     uint8_t pal;
     uint8_t xrepeat; // xrepeat
@@ -85,44 +85,44 @@ struct THINGINFO
 
 struct AMMOITEMDATA
 {
-    short cstat;
-    short picnum;
+    int16_t cstat;
+    int16_t picnum;
     int8_t shade;
     uint8_t pal;
     uint8_t xrepeat;
     uint8_t yrepeat;
-    short count;
+    int16_t count;
     uint8_t type;
     uint8_t weaponType;
 };
 
 struct WEAPONITEMDATA
 {
-    short cstat;
-    short picnum;
+    int16_t cstat;
+    int16_t picnum;
     int8_t shade;
     uint8_t pal;
     uint8_t xrepeat;
     uint8_t yrepeat;
-    short type;
-    short ammoType;
-    short count;
+    int16_t type;
+    int16_t ammoType;
+    int16_t count;
 };
 
 struct ITEMDATA
 {
-    short cstat;
-    short picnum;
+    int16_t cstat;
+    int16_t picnum;
     int8_t shade;
     uint8_t pal;
     uint8_t xrepeat;
     uint8_t yrepeat;
-    short packSlot;
+    int16_t packSlot;
 };
 
 struct MissileType
 {
-    short picnum;
+    int16_t picnum;
     int velocity;
     int angleOfs;
     uint8_t xrepeat;

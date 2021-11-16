@@ -34,15 +34,15 @@ CFX gFX;
 struct FXDATA {
     CALLBACK_ID funcID; // callback
     uint8_t detail; // detail
-    short seq; // seq
-    short flags; // flags
-    int gravity; // gravity
-    int drag; // air drag
-    int ate;
-    short picnum; // picnum
+    int16_t seq; // seq
+    int16_t flags; // flags
+    int32_t gravity; // gravity
+    int32_t drag; // air drag
+    int32_t ate;
+    int16_t picnum; // picnum
     uint8_t xrepeat; // xrepeat
     uint8_t yrepeat; // yrepeat
-    short cstat; // cstat
+    int16_t cstat; // cstat
     int8_t shade; // shade
     uint8_t pal; // pal
 };

@@ -189,7 +189,7 @@ struct AMMOINFO
 
 struct POWERUPINFO
 {
-    short picnum;
+    int16_t picnum;
     bool pickupOnce;
     int bonusTime;
     int maxTime;

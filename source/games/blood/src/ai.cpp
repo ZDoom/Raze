@@ -1297,7 +1297,7 @@ void RecoilDude(DBloodActor* actor)
 				else aiGenDudeNewState(actor, &genDudeRecoilL);
 			}
 
-			short rState = inRecoil(pXSprite->aiState);
+			int rState = inRecoil(pXSprite->aiState);
 			if (rState > 0)
 			{
 				if (!canWalk(actor))
