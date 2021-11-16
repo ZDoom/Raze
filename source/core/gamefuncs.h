@@ -26,6 +26,7 @@ public:
 		
 		startpos = store.Size();
 		curpos = startpos;
+		Set(startnode);
 		store.Push(startnode);
 	}
 	
