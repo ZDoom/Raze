@@ -2610,12 +2610,11 @@ static void heavyhbomb(DDukeActor *actor)
 
 	if (coll.type == kHitWall)
 	{
-		int j = coll.index;
-		fi.checkhitwall(actor, j, s->x, s->y, s->z, s->picnum);
+		auto wal = coll.wall();
+		fi.checkhitwall(actor, wallnum(wal), s->x, s->y, s->z, s->picnum);
 
-		int k = getangle(
-			wall[wall[j].point2].x - wall[j].x,
-			wall[wall[j].point2].y - wall[j].y);
+		auto delta = wal->delta();
+		int k = getangle(delta.x, delta.y);
 
 		if (s->picnum == CHEERBOMB)
 		{
@@ -2757,10 +2756,9 @@ static int henstand(DDukeActor *actor)
 		{
 			if (coll.type == kHitWall)
 			{
-				int j = coll.index;
-				int k = getangle(
-					wall[wall[j].point2].x - wall[j].x,
-					wall[wall[j].point2].y - wall[j].y);
+				auto wal = coll.wall();
+				auto delta = wal->delta();
+				int k = getangle(delta.x, delta.y);
 				s->ang = ((k << 1) - s->ang) & 2047;
 			}
 			else if (coll.type == kHitSprite)
@@ -3635,7 +3633,7 @@ void moveeffectors_r(void)   //STATNUM 3
 		if (act->s->lotag != SE_29_WAVES) continue;
 		auto sc = act->getSector();
 		if (sc->wallnum != 4) continue;
-		auto wal = &wall[sc->wallptr + 2];
+		auto wal = sc->firstWall() + 2;
 		alignflorslope(act->s->sectnum, wal->x, wal->y, wal->nextSector()->floorz);
 	}
 }
@@ -4082,10 +4080,7 @@ void fall_r(DDukeActor* ac, int g_p)
 void destroyit(DDukeActor *actor)
 {
 	int lotag = 0, hitag = 0;
-	int wi, wj;
-	int wallstart2, wallend2;
 	int sectnum;
-	int wallstart, wallend;
 	DDukeActor* spr = nullptr;
 
 	DukeSectIterator it1(actor->s->sectnum);
@@ -4123,23 +4118,21 @@ void destroyit(DDukeActor *actor)
 				auto destsect = spr->getSector();
 				auto srcsect = &sector[it_sect];
 
-				wallstart = destsect->wallptr;
-				wallend = wallstart + destsect->wallnum;
-				wallstart2 = srcsect->wallptr;
-				wallend2 = wallstart2 + srcsect->wallnum;
-				for (wi = wallstart, wj = wallstart2; wi < wallend; wi++, wj++)
+				auto destwal = destsect->firstWall();
+				auto srcwal = srcsect->firstWall();
+				for (int i = 0; i < destsect->wallnum; i++, srcwal++, destwal++)
 				{
-					wall[wi].picnum = wall[wj].picnum;
-					wall[wi].overpicnum = wall[wj].overpicnum;
-					wall[wi].shade = wall[wj].shade;
-					wall[wi].xrepeat = wall[wj].xrepeat;
-					wall[wi].yrepeat = wall[wj].yrepeat;
-					wall[wi].xpan_ = wall[wj].xpan_;
-					wall[wi].ypan_ = wall[wj].ypan_;
-					if (isRRRA() && wall[wi].nextwall != -1)
+					destwal->picnum = srcwal->picnum;
+					destwal->overpicnum = srcwal->overpicnum;
+					destwal->shade = srcwal->shade;
+					destwal->xrepeat = srcwal->xrepeat;
+					destwal->yrepeat = srcwal->yrepeat;
+					destwal->xpan_ = srcwal->xpan_;
+					destwal->ypan_ = srcwal->ypan_;
+					if (isRRRA() && destwal->nextwall != -1)
 					{
-						wall[wi].cstat = 0;
-						wall[wall[wi].nextwall].cstat = 0;
+						destwal->cstat = 0;
+						destwal->nextWall()->cstat = 0;
 					}
 				}
 				destsect->floorz = srcsect->floorz;
