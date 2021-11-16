@@ -124,7 +124,7 @@ bool ToggleFlyMode = false;
 
 extern bool DebugOperate;
 
-//unsigned char synctics, lastsynctics;
+//uint8_t synctics, lastsynctics;
 
 int ChopTics;
 

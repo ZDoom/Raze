@@ -65,7 +65,6 @@ int display_mirror;
 static int OverlapDraw = false;
 extern bool QuitFlag, SpriteInfo;
 extern bool Voxel;
-extern char buffer[];
 bool DrawScreen;
 extern short f_c;
 

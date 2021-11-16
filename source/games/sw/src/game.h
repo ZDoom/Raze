@@ -602,19 +602,6 @@ void BossHealthMeter(void);
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 //
-// CALLER - DLL handler
-//
-///////////////////////////////////////////////////////////////////////////////////////////
-extern unsigned char DLL_Loaded;
-extern int DLL_Handle; // Global DLL handle
-extern char *DLL_path; // DLL path name
-
-int DLL_Load(char *DLLpathname);
-bool DLL_Unload(int procHandle);
-bool DLL_ExecFunc(int procHandle, char *fName);
-
-///////////////////////////////////////////////////////////////////////////////////////////
-//
 // JPlayer
 //
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -863,7 +850,7 @@ struct PLAYERstruct
     }
 
     // Key stuff
-    unsigned char HasKey[8];
+    uint8_t HasKey[8];
 
     // Weapon stuff
     short SwordAng;
@@ -874,12 +861,12 @@ struct PLAYERstruct
     PANEL_SPRITEp CurWpn;
     PANEL_SPRITEp Wpn[MAX_WEAPONS];
     PANEL_SPRITEp Chops;
-    unsigned char WpnRocketType; // rocket type
-    unsigned char WpnRocketHeat; // 5 to 0 range
-    unsigned char WpnRocketNuke; // 1, you have it, or you don't
-    unsigned char WpnFlameType; // Guardian weapons fire
-    unsigned char WpnFirstType; // First weapon type - Sword/Shuriken
-    unsigned char WeaponType; // for weapons with secondary functions
+    uint8_t WpnRocketType; // rocket type
+    uint8_t WpnRocketHeat; // 5 to 0 range
+    uint8_t WpnRocketNuke; // 1, you have it, or you don't
+    uint8_t WpnFlameType; // Guardian weapons fire
+    uint8_t WpnFirstType; // First weapon type - Sword/Shuriken
+    uint8_t WeaponType; // for weapons with secondary functions
     short FirePause; // for sector objects - limits rapid firing
     //
     // Inventory Vars
@@ -907,30 +894,30 @@ struct PLAYERstruct
     //char RocketBarrel;
     char PlayerName[32];
 
-    unsigned char UziShellLeftAlt;
-    unsigned char UziShellRightAlt;
-    unsigned char TeamColor;  // used in team play and also used in regular mulit-play for show
+    uint8_t UziShellLeftAlt;
+    uint8_t UziShellRightAlt;
+    uint8_t TeamColor;  // used in team play and also used in regular mulit-play for show
 
     // palette fading up and down for player hit and get items
     short FadeTics;                 // Tics between each fade cycle
     short FadeAmt;                  // Current intensity of fade
     bool NightVision;               // Is player's night vision active?
-    unsigned char StartColor;       // Darkest color in color range being used
+    uint8_t StartColor;       // Darkest color in color range being used
     //short electro[64];
     bool IsAI;                      // Is this and AI character?
     short fta,ftq;                  // First time active and first time quote, for talking in multiplayer games
     short NumFootPrints;            // Number of foot prints left to lay down
-    unsigned char WpnUziType;                // Toggle between single or double uzi's if you own 2.
-    unsigned char WpnShotgunType;            // Shotgun has normal or fully automatic fire
-    unsigned char WpnShotgunAuto;            // 50-0 automatic shotgun rounds
-    unsigned char WpnShotgunLastShell;       // Number of last shell fired
-    unsigned char WpnRailType;               // Normal Rail Gun or EMP Burst Mode
+    uint8_t WpnUziType;                // Toggle between single or double uzi's if you own 2.
+    uint8_t WpnShotgunType;            // Shotgun has normal or fully automatic fire
+    uint8_t WpnShotgunAuto;            // 50-0 automatic shotgun rounds
+    uint8_t WpnShotgunLastShell;       // Number of last shell fired
+    uint8_t WpnRailType;               // Normal Rail Gun or EMP Burst Mode
     bool Bloody;                    // Is player gooey from the slaughter?
     bool InitingNuke;
     bool TestNukeInit;
     bool NukeInitialized;           // Nuke already has counted down
     short FistAng;                  // KungFu attack angle
-    unsigned char WpnKungFuMove;             // KungFu special moves
+    uint8_t WpnKungFuMove;             // KungFu special moves
     short HitBy;                    // SpriteNum of whatever player was last hit by
     short Reverb;                   // Player's current reverb setting
     short Heads;                    // Number of Accursed Heads orbiting player
@@ -2061,7 +2048,7 @@ extern int16_t StatDamageList[STAT_DAMAGE_LIST_SIZE];
 ///////////////////////////////////////////////////////////////
 
 #define COLOR_PAIN  128  // Light red range
-extern void SetFadeAmt(PLAYERp pp, short damage, unsigned char startcolor);
+extern void SetFadeAmt(PLAYERp pp, short damage, uint8_t startcolor);
 extern void DoPaletteFlash(PLAYERp pp);
 extern bool NightVision;
 

@@ -78,9 +78,9 @@ static int faderamp[32] =
 
 typedef struct RGB_color_typ
 {
-	unsigned char red;
-	unsigned char green;
-	unsigned char blue;
+	uint8_t red;
+	uint8_t green;
+	uint8_t blue;
 } RGB_color, * RGB_color_ptr;
 
 
@@ -88,7 +88,7 @@ typedef struct RGB_color_typ
 // Set the amount of redness for damage
 // the player just took
 //////////////////////////////////////////
-void SetFadeAmt(PLAYERp pp, short damage, unsigned char startcolor)
+void SetFadeAmt(PLAYERp pp, short damage, uint8_t startcolor)
 {
     const int FADE_DAMAGE_FACTOR = 3;   // 100 health / 32 shade cycles = 3.125
 

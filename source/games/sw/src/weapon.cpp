@@ -14174,7 +14174,7 @@ InitStar(PLAYERp pp)
 
     static short dang[] = {-12, 12};
 //    static short dang[] = {-0, 0};
-    unsigned char i;
+    uint8_t i;
     SPRITEp np;
     USERp nu;
     short nw;

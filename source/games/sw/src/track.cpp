@@ -731,7 +731,7 @@ SectorObjectSetupBounds(SECTOR_OBJECTp sop)
     SECTORp *sectp;
     USERp u = sop->sp_child->u();
 
-    static unsigned char StatList[] =
+    static uint8_t StatList[] =
     {
         STAT_DEFAULT, STAT_MISC, STAT_ITEM, STAT_TRAP,
         STAT_SPAWN_SPOT, STAT_SOUND_SPOT, STAT_WALL_MOVE,

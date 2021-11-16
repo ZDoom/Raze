@@ -1579,7 +1579,7 @@ enum
     AWAY = -1
 };
 
-int FindNewAngle(DSWActor* actor, signed char dir, int DistToMove)
+int FindNewAngle(DSWActor* actor, int dir, int DistToMove)
 {
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
