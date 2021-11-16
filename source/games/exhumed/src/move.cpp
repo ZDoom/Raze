@@ -225,53 +225,6 @@ void clipwall()
 
 int BelowNear(DExhumedActor* pActor, int x, int y, int walldist, int nSector)
 {
-    unsigned nearstart = GlobalSectorList.Size();
-    GlobalSectorList.Push(nSector);
-
-    unsigned i = nearstart;
-
-    while (i < GlobalSectorList.Size())
-    {
-        int nSector = GlobalSectorList[i];
-
-        int nWall = sector[nSector].wallptr;
-        int nWallCount = sector[nSector].wallnum;
-
-        while (1)
-        {
-            nWallCount--;
-            if (nWallCount < 0)
-            {
-                i++;
-                break;
-            }
-
-            short nNextSector = wall[nWall].nextsector;
-
-            if (nNextSector >= 0)
-            {
-                unsigned j = nearstart;
-                for (; j < GlobalSectorList.Size(); j++)
-                {
-                    // loc_14F4D:
-                    if (nNextSector == GlobalSectorList[j])
-                        break;
-                }
-
-                if (j >= GlobalSectorList.Size())
-                {
-                    vec2_t pos = { x, y };
-                    if (clipinsidebox(&pos, nWall, walldist))
-                    {
-                        GlobalSectorList.Push(wall[nWall].nextsector);
-                    }
-                }
-            }
-
-            nWall++;
-        }
-    }
-
     auto pSprite = &pActor->s();
     nSector = pSprite->sectnum;
     int z = pSprite->z;
@@ -286,32 +239,46 @@ int BelowNear(DExhumedActor* pActor, int x, int y, int walldist, int nSector)
     {
         z2 = sector[nSector].floorz + SectDepth[nSector];
 
-        if (GlobalSectorList.Size() > nearstart)
+        BFSSearch search(numsectors, nSector);
+
+        int edx = 0;
+        for (unsigned nCurSector; (nCurSector = search.GetNext()) != BFSSearch::EOL;)
         {
-            int edx = 0;
-
-            for (unsigned i = nearstart; i < GlobalSectorList.Size(); i++)
+            for (auto& wal : wallsofsector(nCurSector))
             {
-                int nSect2 = GlobalSectorList[i];
-
-                while (nSect2 >= 0)
+                int nNextSector = wal.nextsector;
+                if (nNextSector >= 0)
                 {
-                    edx = nSect2;
-                    nSect2 = SectBelow[nSect2];
+                    if (!search.Check(nNextSector))
+                    {
+                        vec2_t pos = { x, y };
+                        if (clipinsidebox(&pos, wallnum(&wal), walldist))
+                        {
+                            search.Add(nNextSector);
+                        }
+                    }
                 }
+            }
 
-                int ecx = sector[edx].floorz + SectDepth[edx];
-                int eax = ecx - z;
+            int nSect2 = nCurSector;
 
-                if (eax < 0 && eax >= -5120)
-                {
-                    z2 = ecx;
-                    nSector = edx;
-                }
+            while (nSect2 >= 0)
+            {
+                edx = nSect2;
+                nSect2 = SectBelow[nSect2];
+            }
+
+            int ecx = sector[edx].floorz + SectDepth[edx];
+            int eax = ecx - z;
+
+            if (eax < 0 && eax >= -5120)
+            {
+                z2 = ecx;
+                nSector = edx;
             }
         }
     }
-    GlobalSectorList.Resize(nearstart);
+    
 
     if (z2 < pSprite->z)
     {

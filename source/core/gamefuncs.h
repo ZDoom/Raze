@@ -54,6 +54,11 @@ public:
 		else
 			return ~0;
 	}
+
+	void Rewind()
+	{
+		curpos = startpos;
+	}
 	
 	void Add(unsigned elem)
 	{
