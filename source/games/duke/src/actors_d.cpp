@@ -2894,12 +2894,11 @@ static void heavyhbomb(DDukeActor *actor)
 
 	if (coll.type== kHitWall)
 	{
-		int j = coll.index;
-		fi.checkhitwall(actor, j, s->x, s->y, s->z, s->picnum);
+		auto wal = coll.wall();
+		fi.checkhitwall(actor, wallnum(wal), s->x, s->y, s->z, s->picnum);
 
-		int k = getangle(
-			wall[wall[j].point2].x - wall[j].x,
-			wall[wall[j].point2].y - wall[j].y);
+		auto delta = wal->delta();
+		int k = getangle(delta.x, delta.y);
 
 		s->ang = ((k << 1) - s->ang) & 2047;
 		s->xvel >>= 1;
@@ -3749,7 +3748,7 @@ void moveeffectors_d(void)   //STATNUM 3
 		if (act->s->lotag != SE_29_WAVES) continue;
 		auto sc = act->getSector();
 		if (sc->wallnum != 4) continue;
-		auto wal = &wall[sc->wallptr + 2];
+		auto wal = sc->firstWall() + 2;
 		alignflorslope(act->s->sectnum, wal->x, wal->y, wal->nextSector()->floorz);
 	}
 }
