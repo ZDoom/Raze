@@ -34,12 +34,12 @@ BEGIN_BLD_NS
 int fireSize = 128;
 int gDamping = 6;
 
-char CoolTable[1024];
+uint8_t CoolTable[1024];
 
-void CellularFrame(char *pFrame, int sizeX, int sizeY);
+void CellularFrame(uint8_t *pFrame, int sizeX, int sizeY);
 
-char FrameBuffer[17280];
-char SeedBuffer[16][128];
+static uint8_t FrameBuffer[17280];
+static uint8_t SeedBuffer[16][128];
 static TArray<uint8_t> gCLU;
 
 void InitSeedBuffers(void)
@@ -64,7 +64,7 @@ void DoFireFrame(void)
     }
     CellularFrame(FrameBuffer, 128, 132);	
 	auto pData = TileFiles.tileMakeWritable(2342);
-    char *pSource = FrameBuffer;
+    uint8_t *pSource = FrameBuffer;
     int x = fireSize;
     do
     {
@@ -106,7 +106,7 @@ void FireProcess(void)
     }
 }
 
-void CellularFrame(char *pFrame, int sizeX, int sizeY)
+void CellularFrame(uint8_t *pFrame, int sizeX, int sizeY)
 {
     int nSquare = sizeX * sizeY;
     uint8_t *pPtr1 = (uint8_t*)pFrame;

@@ -102,7 +102,7 @@ enum SurfaceType {
     kSurfMax
 };
 
-extern char surfType[MAXTILES];
+extern uint8_t surfType[MAXTILES];
 extern int8_t tileShade[MAXTILES];
 extern short voxelIndex[MAXTILES];
 

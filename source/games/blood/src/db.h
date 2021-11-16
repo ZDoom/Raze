@@ -288,7 +288,7 @@ struct MAPHEADER2 {
     int numxsprites; // xsprite size
     int numxwalls; // xwall size
     int numxsectors; // xsector size
-    char pad[52];
+    uint8_t pad[52];
 };
 
 #pragma pack(pop)
@@ -305,7 +305,7 @@ extern XWALL xwall[kMaxXWalls];
 extern FixedBitArray<MAXSPRITES> activeXSprites;
 
 
-extern char qsector_filler[kMaxSectors];
+extern uint8_t qsector_filler[kMaxSectors];
 
 extern int gVisibility;
 extern int gMapRev, gMattId, gSkyCount;

@@ -531,7 +531,7 @@ inline int ClipRange(int a, int b, int c)
     return a;
 }
 
-inline char Chance(int a1)
+inline uint8_t Chance(int a1)
 {
     return wrand() < (a1>>1);
 }
@@ -576,10 +576,10 @@ inline void ClearBitString(T *pArray, int nIndex)
 }
 
 template<class T>
-inline char TestBitString(T *pArray, int nIndex)
+inline bool TestBitString(T *pArray, int nIndex)
 {
 	static_assert(sizeof(T) == 1, "Bit array element too large");
-	return pArray[nIndex>>3] & (1<<(nIndex&7));
+	return !!(pArray[nIndex>>3] & (1<<(nIndex&7)));
 }
 
 // This is to override the namepace prioritization without altering the actual calls.
@@ -637,7 +637,7 @@ public:
     {
         return x0 < x1 && y0 < y1;
     }
-    char isEmpty(void) const
+    bool isEmpty(void) const
     {
         return !isValid();
     }

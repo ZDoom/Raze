@@ -42,7 +42,7 @@ struct DUDEINFO {
     int changeTarget; // chance to change target when attacked someone else
     int changeTargetKin; // chance to change target when attacked by same type
     int alertChance;
-    char lockOut; // indicates if this dude can trigger something via trigger flags
+    uint8_t lockOut; // indicates if this dude can trigger something via trigger flags
     int frontSpeed; // acceleration
     int sideSpeed; // dodge
     int backSpeed; // backward speed (unused)

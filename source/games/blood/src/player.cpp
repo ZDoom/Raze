@@ -237,7 +237,7 @@ int powerupCheck(PLAYER *pPlayer, int nPowerUp)
 }
 
 
-char powerupActivate(PLAYER *pPlayer, int nPowerUp)
+bool powerupActivate(PLAYER *pPlayer, int nPowerUp)
 {
     if (powerupCheck(pPlayer, nPowerUp) > 0 && gPowerUpInfo[nPowerUp].pickupOnce)
         return 0;
@@ -353,7 +353,7 @@ void powerupDeactivate(PLAYER *pPlayer, int nPowerUp)
     }
 }
 
-void powerupSetState(PLAYER *pPlayer, int nPowerUp, char bState)
+void powerupSetState(PLAYER *pPlayer, int nPowerUp, bool bState)
 {
     if (!bState)
         powerupActivate(pPlayer, nPowerUp);
@@ -439,7 +439,7 @@ int powerupToPackItem(int nPowerUp)
     return -1;
 }
 
-char packAddItem(PLAYER *pPlayer, unsigned int nPack)
+bool packAddItem(PLAYER *pPlayer, unsigned int nPack)
 {
     if (nPack <= 4)
     {
@@ -471,7 +471,7 @@ bool packItemActive(PLAYER *pPlayer, int nPack)
 
 void packUseItem(PLAYER *pPlayer, int nPack)
 {
-    char v4 = 0;
+    bool v4 = 0;
     int nPowerUp = -1;
     if (pPlayer->packSlots[nPack].curAmount > 0)
     {
@@ -562,7 +562,7 @@ void packNextItem(PLAYER* pPlayer)
     pPlayer->packItemTime = 600;
 }
 
-char playerSeqPlaying(PLAYER * pPlayer, int nSeq)
+bool playerSeqPlaying(PLAYER * pPlayer, int nSeq)
 {
     int nCurSeq = seqGetID(pPlayer->actor);
     if (pPlayer->pDudeInfo->seqStartID+nSeq == nCurSeq && seqGetStatus(pPlayer->actor) >= 0)
@@ -866,11 +866,13 @@ bool findDroppedLeech(PLAYER *a1, DBloodActor *a2)
     return 0;
 }
 
-char PickupItem(PLAYER *pPlayer, DBloodActor* itemactor)
+bool PickupItem(PLAYER *pPlayer, DBloodActor* itemactor)
 {
     spritetype* pItem = &itemactor->s();
     spritetype *pSprite = pPlayer->pSprite;
-    char buffer[80]; int pickupSnd = 775; int nType = pItem->type - kItemBase;
+    char buffer[80];
+	int pickupSnd = 775;
+	int nType = pItem->type - kItemBase;
 
     switch (pItem->type) {
         case kItemShadowCloak:
@@ -1093,7 +1095,7 @@ char PickupItem(PLAYER *pPlayer, DBloodActor* itemactor)
     return 1;
 }
 
-char PickupAmmo(PLAYER* pPlayer, DBloodActor* ammoactor)
+bool PickupAmmo(PLAYER* pPlayer, DBloodActor* ammoactor)
 {
     spritetype* pAmmo = &ammoactor->s();
     const AMMOITEMDATA* pAmmoItemData = &gAmmoItemData[pAmmo->type - kItemAmmoBase];
@@ -1112,7 +1114,7 @@ char PickupAmmo(PLAYER* pPlayer, DBloodActor* ammoactor)
     return 1;
 }
 
-char PickupWeapon(PLAYER *pPlayer, DBloodActor* weaponactor)
+bool PickupWeapon(PLAYER *pPlayer, DBloodActor* weaponactor)
 {
     spritetype* pWeapon = &weaponactor->s();
     const WEAPONITEMDATA *pWeaponItemData = &gWeaponItemData[pWeapon->type - kItemWeaponBase];
@@ -1157,7 +1159,7 @@ void PickUp(PLAYER *pPlayer, DBloodActor* actor)
     spritetype* pSprite = &actor->s();
 	const char *msg = nullptr;
     int nType = pSprite->type;
-    char pickedUp = 0;
+    bool pickedUp = 0;
     int customMsg = -1;
     #ifdef NOONE_EXTENSIONS
         if (gModernMap && actor->hasX()) { // allow custom INI message instead "Picked up"
@@ -1335,7 +1337,7 @@ void doslopetilting(PLAYER* pPlayer, double const scaleAdjust = 1)
     auto* const pSprite = pPlayer->pSprite;
     auto* const pXSprite = pPlayer->pXSprite;
     int const florhit = pPlayer->actor->hit.florhit.type;
-    char const va = pXSprite->height < 16 && (florhit == kHitSector || florhit == 0) ? 1 : 0;
+    bool const va = pXSprite->height < 16 && (florhit == kHitSector || florhit == 0) ? 1 : 0;
     pPlayer->horizon.calcviewpitch(pSprite->pos.vec2, buildang(pSprite->ang), va, sector[pSprite->sectnum].floorstat & 2, pSprite->sectnum, scaleAdjust);
 }
 
@@ -1369,7 +1371,7 @@ void ProcessInput(PLAYER *pPlayer)
     WeaponProcess(pPlayer);
     if (pXSprite->health == 0)
     {
-        char bSeqStat = playerSeqPlaying(pPlayer, 16);
+        bool bSeqStat = playerSeqPlaying(pPlayer, 16);
         auto fragger = pPlayer->fragger;
         if (fragger)
         {
@@ -1939,7 +1941,7 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int nDeathSeqID = -1;
     int nKneelingPlayer = -1;
-    char va = playerSeqPlaying(pPlayer, 16);
+    bool va = playerSeqPlaying(pPlayer, 16);
     if (!pXSprite->health)
     {
         if (va)

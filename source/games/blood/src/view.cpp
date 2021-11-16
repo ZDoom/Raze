@@ -88,7 +88,7 @@ void viewCorrectViewOffsets(int nPlayer, vec3_t const *oldpos)
     pView->viewz += pPlayer->pSprite->z-oldpos->z;
 }
 
-void viewDrawText(FFont* pFont, const char *pString, int x, int y, int nShade, int nPalette, int position, char shadow)
+void viewDrawText(FFont* pFont, const char *pString, int x, int y, int nShade, int nPalette, int position, bool shadow)
 {
     if (!pString) return;
 

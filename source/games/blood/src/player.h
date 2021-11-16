@@ -238,20 +238,20 @@ inline bool IsTargetTeammate(spritetype *pSourceSprite, spritetype *pTargetSprit
 }
 
 int powerupCheck(PLAYER *pPlayer, int nPowerUp);
-char powerupActivate(PLAYER *pPlayer, int nPowerUp);
+bool powerupActivate(PLAYER *pPlayer, int nPowerUp);
 void powerupDeactivate(PLAYER *pPlayer, int nPowerUp);
-void powerupSetState(PLAYER *pPlayer, int nPowerUp, char bState);
+void powerupSetState(PLAYER *pPlayer, int nPowerUp, bool bState);
 void powerupProcess(PLAYER *pPlayer);
 void powerupClear(PLAYER *pPlayer);
 int packItemToPowerup(int nPack);
 int powerupToPackItem(int nPowerUp);
-char packAddItem(PLAYER *pPlayer, unsigned int nPack);
+bool packAddItem(PLAYER *pPlayer, unsigned int nPack);
 int packCheckItem(PLAYER *pPlayer, int nPack);
 bool packItemActive(PLAYER *pPlayer, int nPack);
 void packUseItem(PLAYER *pPlayer, int nPack);
 void packPrevItem(PLAYER *pPlayer);
 void packNextItem(PLAYER *pPlayer);
-char        playerSeqPlaying(PLAYER *pPlayer, int nSeq);
+bool        playerSeqPlaying(PLAYER *pPlayer, int nSeq);
 void playerSetRace(PLAYER *pPlayer, int nLifeMode);
 void playerSetGodMode(PLAYER *pPlayer, bool bGodMode);
 void playerResetInertia(PLAYER *pPlayer);

@@ -631,7 +631,7 @@ void SetupGibWallState(walltype *pWall, XWALL *pXWall)
         }
         return;
     }
-    char bVector = pXWall->triggerVector != 0;
+    bool bVector = pXWall->triggerVector != 0;
     pWall->cstat |= 1;
     if (bVector)
         pWall->cstat |= 64;
@@ -668,7 +668,7 @@ void OperateWall(int nWall, XWALL *pXWall, EVENT event) {
     switch (pWall->type) {
         case kWallGib:
             if (GetWallType(nWall) != pWall->type) break;
-            char bStatus;
+            bool bStatus;
             switch (event.cmd) {
                 case kCmdOn:
                 case kCmdWallImpact:

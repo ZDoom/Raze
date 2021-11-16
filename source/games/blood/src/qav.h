@@ -209,7 +209,7 @@ struct SOUNDINFO
     uint8_t priority;
     uint8_t sndFlags; // (by NoOne) Various sound flags
     uint8_t sndRange; // (by NoOne) Random sound range
-    char reserved[1];
+    uint8_t reserved[1];
 };
 
 struct FRAMEINFO

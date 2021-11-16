@@ -233,11 +233,8 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
 
     int nSector = predict.sectnum;
     int florhit = predict.at75.florhit.type;
-    char va;
-    if (predict.floordist < 16 && (florhit == kHitSector || florhit == 0))
-        va = 1;
-    else
-        va = 0;
+	bool va = (predict.floordist < 16 && (florhit == kHitSector || florhit == 0));
+
     if (va && (sector[nSector].floorstat&2) != 0)
     {
         int z1 = getflorzofslope(nSector, predict.x, predict.y);
@@ -424,8 +421,8 @@ static void fakeMoveDude(spritetype *pSprite)
         assert(nSector >= 0 && nSector < kMaxSectors);
         predict.sectnum = nSector;
     }
-    char bUnderwater = 0;
-    char bDepth = 0;
+    bool bUnderwater = 0;
+    bool bDepth = 0;
     int nXSector = sector[nSector].extra;
     if (nXSector > 0)
     {

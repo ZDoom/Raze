@@ -586,7 +586,7 @@ void ParseScript(int lumpnum)
                 }
 
                 strcpy(inp, scriptBuffer);
-                char nFlags = 0;
+                uint8_t nFlags = 0;
                 int ID = 0;
                 bool isDefine = false;
 
@@ -773,7 +773,7 @@ void ParseScript(int lumpnum)
                 // eg strcpy(fileName, "AMB1.SFX");
                 strcpy(fileName, scriptBuffer);
 
-                char nFlags = 0;
+                uint8_t nFlags = 0;
                 int ID = 0;
 
                 bool isDefine = false;

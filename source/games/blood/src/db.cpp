@@ -54,7 +54,7 @@ int XWallsUsed, XSectorsUsed;
 
 
 
-char qsector_filler[kMaxSectors];
+uint8_t qsector_filler[kMaxSectors];
 
 int gVisibility;
 
