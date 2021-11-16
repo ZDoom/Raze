@@ -57,13 +57,13 @@ struct DUDEEXTRA_STATS
         int thinkTime;
         int birthCounter;
     };
-    char active;
+	uint8_t active;
 };
 
 struct DUDEEXTRA
 {
     int time;
-    char teslaHit;
+    uint8_t teslaHit;
     int prio;
     DUDEEXTRA_STATS stats;
 };

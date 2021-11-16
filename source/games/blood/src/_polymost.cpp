@@ -182,7 +182,7 @@ RORHACK:
 }
 
 // hack the portal planes with the sky flag for rendering. Only Polymost needs this hack.
-void setPortalFlags(char mode)
+void setPortalFlags(int mode)
 {
     for (int i = mirrorcnt - 1; i >= 0; i--)
     {

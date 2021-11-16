@@ -247,7 +247,7 @@ int packItemToPowerup(int nPack);
 int powerupToPackItem(int nPowerUp);
 char packAddItem(PLAYER *pPlayer, unsigned int nPack);
 int packCheckItem(PLAYER *pPlayer, int nPack);
-char packItemActive(PLAYER *pPlayer, int nPack);
+bool packItemActive(PLAYER *pPlayer, int nPack);
 void packUseItem(PLAYER *pPlayer, int nPack);
 void packPrevItem(PLAYER *pPlayer);
 void packNextItem(PLAYER *pPlayer);

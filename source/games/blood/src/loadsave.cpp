@@ -441,7 +441,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, AISTATE*& w, AISTA
 FSerializer& Serialize(FSerializer& arc, const char* keyname, DUDEEXTRA& w, DUDEEXTRA* def)
 {
 	int empty = 0;
-	char empty2 = 0;
+	uint8_t empty2 = 0;
 	if (arc.isReading()) w = {};
 
 	if (arc.BeginObject(keyname))

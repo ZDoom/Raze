@@ -440,7 +440,7 @@ static tspritetype *viewAddEffect(spritetype* tsprite, int& spritesortcnt, int n
         pNSprite->y = pTSprite->y;
         pNSprite->z = pSector->floorz;
         pNSprite->picnum = 624;
-        char nShade = (pSector->floorz-pTSprite->z)>>8; 
+        uint8_t nShade = (pSector->floorz-pTSprite->z)>>8;
         pNSprite->shade = nShade-32;
         pNSprite->pal = 2;
         pNSprite->xrepeat = pNSprite->yrepeat = nShade;

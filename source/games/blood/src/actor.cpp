@@ -2446,15 +2446,12 @@ static void actInitDudes()
 	{
 		// by NoOne: WTF is this?
 		///////////////
-		char unk[kDudeMax - kDudeBase];
-		memset(unk, 0, sizeof(unk));
 		BloodStatIterator it(kStatDude);
 		while (auto act = it.Next())
 		{
 			spritetype* pSprite = &act->s();
 			if (pSprite->type < kDudeBase || pSprite->type >= kDudeMax)
 				I_Error("Non-enemy sprite (%d) in the enemy sprite list.\n", act->GetIndex());
-			unk[pSprite->type - kDudeBase] = 1;
 		}
 
 		gKillMgr.CountTotalKills();
@@ -6206,7 +6203,7 @@ static void actCheckDudes()
 
 				if (pPlayer->isUnderwater)
 				{
-					char bActive = packItemActive(pPlayer, 1);
+					bool bActive = packItemActive(pPlayer, 1);
 
 					if (bActive || pPlayer->godMode) pPlayer->underwaterTime = 1200;
 					else pPlayer->underwaterTime = ClipLow(pPlayer->underwaterTime - 4, 0);
@@ -6722,7 +6719,7 @@ DBloodActor* actFireMissile(DBloodActor* actor, int a2, int a3, int a4, int a5, 
 {
 
 	assert(nType >= kMissileBase && nType < kMissileMax);
-	char v4 = 0;
+	bool impact = false;
 	auto pSprite = &actor->s();
 	const MissileType* pMissileInfo = &missileInfo[nType - kMissileBase];
 	int x = pSprite->x + MulScale(a2, Cos(pSprite->ang + 512), 30);
@@ -6736,7 +6733,7 @@ DBloodActor* actFireMissile(DBloodActor* actor, int a2, int a3, int a4, int a5, 
 	{
 		if (hit == 3 || hit == 0)
 		{
-			v4 = 1;
+			impact = true;
 			x = gHitInfo.hitx - MulScale(Cos(pSprite->ang), 16, 30);
 			y = gHitInfo.hity - MulScale(Sin(pSprite->ang), 16, 30);
 		}
@@ -6768,7 +6765,7 @@ DBloodActor* actFireMissile(DBloodActor* actor, int a2, int a3, int a4, int a5, 
 
 	actBuildMissile(spawned, actor);
 
-	if (v4)
+	if (impact)
 	{
 		actImpactMissile(spawned, hit);
 		return nullptr;

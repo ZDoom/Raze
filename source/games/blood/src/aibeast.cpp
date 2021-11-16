@@ -95,20 +95,15 @@ void StompSeqCallback(int, DBloodActor* actor1)
 	int v10 = 25 + 30 * gGameOptions.nDifficulty;
 	const bool newSectCheckMethod = !cl_bloodvanillaenemies && !VanillaMode(); // use new sector checking logic
 	GetClosestSpriteSectors(nSector, x, y, vc, sectmap, nullptr, newSectCheckMethod);
-	char v4 = 0;
 	int hit = HitScan(actor1, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
 	DBloodActor* actor2 = nullptr;
 	actHitcodeToData(hit, &gHitInfo, &actor2);
-	if (hit == 3 && actor2)
-	{
-		if (actor2->s().statnum == kStatDude)
-			v4 = 0;
-	}
+
 	vc <<= 4;
 	BloodStatIterator it1(kStatDude);
 	while (auto actor2 = it1.Next())
 	{
-		if (actor1 != actor2 || v4)
+		if (actor1 != actor2)
 		{
 			spritetype* pSprite2 = &actor2->s();
             if (actor2->hasX())

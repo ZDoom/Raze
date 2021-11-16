@@ -1265,7 +1265,7 @@ void RecoilDude(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
 	auto pSprite = &actor->s();
-	char v4 = Chance(0x8000);
+	uint8_t v4 = Chance(0x8000);
 	DUDEEXTRA* pDudeExtra = &actor->dudeExtra;
 	if (pSprite->statnum == kStatDude && (pSprite->type >= kDudeBase && pSprite->type < kDudeMax))
 	{

@@ -134,8 +134,8 @@ struct MissileType
 struct EXPLOSION
 {
     uint8_t repeat;
-    char dmg;
-    char dmgRng;
+    uint8_t dmg;
+    uint8_t dmgRng;
     int radius;
     int dmgType;
     int burnTime;

@@ -464,7 +464,7 @@ int packCheckItem(PLAYER *pPlayer, int nPack)
     return pPlayer->packSlots[nPack].curAmount;
 }
 
-char packItemActive(PLAYER *pPlayer, int nPack)
+bool packItemActive(PLAYER *pPlayer, int nPack)
 {
     return pPlayer->packSlots[nPack].isActive;
 }

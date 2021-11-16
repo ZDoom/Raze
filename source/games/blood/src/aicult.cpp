@@ -130,7 +130,7 @@ void cultThrowSeqCallback(int, DBloodActor* actor)
 	int nMissile = kThingArmedTNTStick;
 	if (gGameOptions.nDifficulty > 2)
 		nMissile = kThingArmedTNTBundle;
-	char v4 = Chance(0x6000);
+	uint8_t v4 = Chance(0x6000);
 	sfxPlay3DSound(actor, 455, -1, 0);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	spritetype* pTarget = &actor->GetTarget()->s();
@@ -178,15 +178,15 @@ void sub_68230(int, DBloodActor* actor)
 	pMissile->x().Impact = 1;
 }
 
-static char TargetNearExplosion(spritetype* pSprite)
+static bool TargetNearExplosion(spritetype* pSprite)
 {
 	BloodSectIterator it(pSprite->sectnum);
 	while (auto actor = it.Next())
 	{
 		if (actor->s().type == kThingArmedTNTStick || actor->s().statnum == kStatExplosion)
-			return 1;
+			return true;
 	}
-	return 0;
+	return false;
 }
 
 static void cultThinkSearch(DBloodActor* actor)
