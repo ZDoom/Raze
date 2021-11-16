@@ -371,7 +371,7 @@ unsigned short dbInsertXSector(int nSector);
 void dbInit(void);
 void PropagateMarkerReferences(void);
 unsigned int dbReadMapCRC(const char *pPath);
-void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short *pSector, unsigned int *pCRC);
+void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, int *pSector, unsigned int *pCRC);
 
 inline XSECTOR* getxsector(int index)
 {

@@ -511,7 +511,7 @@ struct walltypedisk
 #pragma pack(pop)
 
 
-void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short *pSector, unsigned int *pCRC) {
+void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, int *pSector, unsigned int *pCRC) {
     int16_t tpskyoff[256];
     ClearAutomap();
     #ifdef NOONE_EXTENSIONS
@@ -1092,8 +1092,8 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
 END_BLD_NS
 
 // only used by the backup loader.
-void qloadboard(const char* filename, char flags, vec3_t* dapos, int16_t* daang, int16_t* dacursectnum)
+void qloadboard(const char* filename, char flags, vec3_t* dapos, int16_t* daang, int* dacursectnum)
 {
-    Blood::dbLoadMap(filename, &dapos->x, &dapos->y, &dapos->z, (short*)daang, (short*)dacursectnum, NULL);
+    Blood::dbLoadMap(filename, &dapos->x, &dapos->y, &dapos->z, daang, dacursectnum, NULL);
     Blood::dbInit();    // clean up immediately.
 }

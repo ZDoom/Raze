@@ -512,13 +512,13 @@ void evPost_(DBloodActor* actor, int nIndex, int nType, unsigned int nDelta, COM
 	assert(command != kCmdCallback);
 	if (command == kCmdState) command = evGetSourceState(nType, nIndex, actor) ? kCmdOn : kCmdOff;
 	else if (command == kCmdNotState) command = evGetSourceState(nType, nIndex, actor) ? kCmdOff : kCmdOn;
-	EVENT evn = {actor, (int16_t)nIndex, (int8_t)nType, (int8_t)command, 0, PlayClock + (int)nDelta };
+	EVENT evn = {actor, nIndex, (int8_t)nType, (int8_t)command, 0, PlayClock + (int)nDelta };
 	queue.insert(evn);
 }
 
 void evPost_(DBloodActor* actor, int nIndex, int nType, unsigned int nDelta, CALLBACK_ID callback)
 {
-	EVENT evn = {actor, (int16_t)nIndex, (int8_t)nType, kCmdCallback, (int16_t)callback, PlayClock + (int)nDelta };
+	EVENT evn = {actor, nIndex, (int8_t)nType, kCmdCallback, (int16_t)callback, PlayClock + (int)nDelta };
 	queue.insert(evn);
 }
 

@@ -28,8 +28,8 @@ BEGIN_BLD_NS
 
 struct HITINFO {
     DBloodActor* hitactor;
-    short hitsect;
-    short hitwall;
+    int hitsect;
+    int hitwall;
     int hitx;
     int hity;
     int hitz;

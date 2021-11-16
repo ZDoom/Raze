@@ -173,7 +173,7 @@ void CalcOtherPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsec
     pSprite->cstat &= ~256;
     assert(*vsectnum >= 0 && *vsectnum < kMaxSectors);
     FindSector(*pX, *pY, *pZ, vsectnum);
-    short nHSector;
+    int nHSector;
     int hX, hY;
     vec3_t pos = {*pX, *pY, *pZ};
     hitdata_t hitdata;

@@ -6931,7 +6931,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 	int x = gHitInfo.hitx - MulScale(a4, 16, 14);
 	int y = gHitInfo.hity - MulScale(a5, 16, 14);
 	int z = gHitInfo.hitz - MulScale(a6, 256, 14);
-	short nSector = gHitInfo.hitsect;
+	int nSector = gHitInfo.hitsect;
 	uint8_t nSurf = kSurfNone;
 	if (nRange == 0 || approxDist(gHitInfo.hitx - pShooter->x, gHitInfo.hity - pShooter->y) < nRange)
 	{

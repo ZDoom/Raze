@@ -61,7 +61,8 @@ int blood_globalflags;
 PLAYER gPlayerTemp[kMaxPlayers];
 int gHealthTemp[kMaxPlayers];
 vec3_t startpos;
-int16_t startang, startsectnum;
+int16_t startang;
+int startsectnum;
 
 
 void QuitGame(void)
