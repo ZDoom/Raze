@@ -251,3 +251,26 @@ inline int sectnum(sectortype* sect)
 	return int(sect - sector);
 }
 
+inline double SquareDist(double lx1, double ly1, double lx2, double ly2)
+{
+	double dx = lx2 - lx1;
+	double dy = ly2 - ly1;
+	return dx * dx + dy * dy;
+}
+
+inline double SquareDistToWall(double px, double py, const walltype* wal) 
+{
+	double lx1 = wal->x;
+	double ly1 = wal->y;
+	double lx2 = wal->point2Wall()->x;
+	double ly2 = wal->point2Wall()->y;
+	
+	double wall_length = SquareDist(lx1, ly1, lx2, ly2);
+
+	if (wall_length == 0) return SquareDist(px, py, lx1, ly1);
+
+	double t = ((px - lx1) * (lx2 - lx1) + (py - ly1) * (ly2 - ly1)) / wall_length;
+	t = clamp(t, 0., 1.);
+	return SquareDist(px, py, lx1 + t * (lx2 - lx1), ly1 + t * (ly2 - ly1));
+}
+

@@ -761,6 +761,7 @@ BitArray GetClosestSpriteSectors(int nSector, int x, int y, int nDist, TArray<in
     BitArray sectorMap(numsectors); // this gets returned to the caller.
     sectorMap.Zero();
     sectorMap.Set(nSector);
+    double nDist4sq = 256. * nDist * nDist;    // (nDist * 16)^2 - * 16 to account for Build's 28.4 fixed point format.
 
     BFSSearch search(numsectors, nSector);
 
@@ -778,35 +779,10 @@ BitArray GetClosestSpriteSectors(int nSector, int x, int y, int nDist, TArray<in
                     continue;
                 withinRange = CheckProximityWall(wal.point2, x, y, nDist);
             }
-            else // new method
+            else // new method using proper math and no bad shortcut.
             {
-                // Q: do this with proper math?
-                int x1 = wal.x, y1 = wal.y;
-                int x2 = wal.point2Wall()->x, y2 = wal.point2Wall()->y;
-                int point1Dist = approxDist(x - x1, y - y1); // setup edge distance needed for below loop (determines which point to shift closer to center)
-                int point2Dist = approxDist(x - x2, y - y2);
-                int nLength = approxDist(x1 - x2, y1 - y2);
-                const int nDist4 = nDist << 4;
-                nLength = ClipRange(nLength / (nDist4 + (nDist4 >> 1)), 1, 4); // always test midpoint at least once, and never split more than 4 times
-                for (int k = 0; true; k++) // check both points of wall and subdivide span into smaller chunks towards target
-                {
-                    withinRange = (point1Dist < nDist4) || (point2Dist < nDist4); // check if both points of span is within radius
-                    if (withinRange)
-                        break;
-                    if (k == nLength) // reached end
-                        break;
-                    const int xcenter = (x1 + x2) >> 1, ycenter = (y1 + y2) >> 1;
-                    if (point1Dist < point2Dist) // shift closest side of wall towards target point, and refresh point distance values
-                    {
-                        x2 = xcenter, y2 = ycenter;
-                        point2Dist = approxDist(x - x2, y - y2);
-                    }
-                    else
-                    {
-                        x1 = xcenter, y1 = ycenter;
-                        point1Dist = approxDist(x - x1, y - y1);
-                    }
-                }
+                double dist1 = SquareDistToWall(x, y, &wal);
+                withinRange = dist1 <= nDist4sq;
             }
             if (withinRange) // if new sector is within range, add it to the processing queue
             {
