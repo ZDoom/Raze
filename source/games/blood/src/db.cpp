@@ -203,11 +203,6 @@ int InsertSprite(int nSector, int nStat)
     return nSprite;
 }
 
-int qinsertsprite(short nSector, short nStat) // Replace
-{
-    return InsertSprite(nSector, nStat);
-}
-
 int DeleteSprite(int nSprite)
 {
     FVector3 pos = GetSoundPos(&sprite[nSprite].pos);
@@ -228,11 +223,6 @@ int DeleteSprite(int nSprite)
     Numsprites--;
 
     return nSprite;
-}
-
-int qdeletesprite(short nSprite) // Replace
-{
-    return DeleteSprite(nSprite);
 }
 
 int ChangeSpriteSect(int nSprite, int nSector)
@@ -259,11 +249,6 @@ int ChangeSpriteStat(int nSprite, int nStatus)
     RemoveSpriteStat(nSprite);
     InsertSpriteStat(nSprite, nStatus);
     return 0;
-}
-
-int qchangespritestat(short nSprite, short nStatus)
-{
-    return ChangeSpriteStat(nSprite, nStatus);
 }
 
 void InitFreeList(unsigned short *pList, int nCount)

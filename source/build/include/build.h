@@ -687,10 +687,7 @@ extern int32_t rintersect(int32_t x1, int32_t y1, int32_t z1,
 
 extern int32_t(*animateoffs_replace)(int const tilenum, int fakevar);
 extern void(*initspritelists_replace)(void);
-extern int32_t(*insertsprite_replace)(int16_t sectnum, int16_t statnum);
-extern int32_t(*deletesprite_replace)(int16_t spritenum);
 extern int32_t(*changespritesect_replace)(int16_t spritenum, int16_t newsectnum);
-extern int32_t(*changespritestat_replace)(int16_t spritenum, int16_t newstatnum);
 
 // Masking these into the object index to keep it in 16 bit was probably the single most dumbest and pointless thing Build ever did.
 // Gonna be fun to globally replace these to finally lift the limit this imposes on map size.

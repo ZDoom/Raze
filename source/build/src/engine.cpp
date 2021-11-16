@@ -314,11 +314,8 @@ static void do_deletespritestat(int16_t deleteme)
 //
 // insertsprite
 //
-int32_t(*insertsprite_replace)(int16_t sectnum, int16_t statnum) = NULL;
 int32_t insertsprite(int16_t sectnum, int16_t statnum)
 {
-    if (insertsprite_replace)
-        return insertsprite_replace(sectnum, statnum);
     // TODO: guard against bad sectnum?
     int32_t const newspritenum = insertspritestat(statnum);
 
@@ -338,12 +335,9 @@ int32_t insertsprite(int16_t sectnum, int16_t statnum)
 //
 // deletesprite
 //
-int32_t (*deletesprite_replace)(int16_t spritenum) = NULL;
 int32_t deletesprite(int16_t spritenum)
 {
     Polymost::polymost_deletesprite(spritenum);
-    if (deletesprite_replace)
-        return deletesprite_replace(spritenum);
     assert((sprite[spritenum].statnum == MAXSTATUS)
             == (sprite[spritenum].sectnum == MAXSECTORS));
 
@@ -401,11 +395,8 @@ int32_t changespritesect(int16_t spritenum, int16_t newsectnum)
 //
 // changespritestat
 //
-int32_t (*changespritestat_replace)(int16_t spritenum, int16_t newstatnum) = NULL;
 int32_t changespritestat(int16_t spritenum, int16_t newstatnum)
 {
-    if (changespritestat_replace)
-        return changespritestat_replace(spritenum, newstatnum);
     // XXX: NOTE: MAXSTATUS is allowed
     if ((newstatnum < 0 || newstatnum > MAXSTATUS) || (sprite[spritenum].statnum == MAXSTATUS))
         return -1;  // can't set the statnum of a sprite not in the world
