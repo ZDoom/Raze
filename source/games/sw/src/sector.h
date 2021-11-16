@@ -75,8 +75,6 @@ void ShootableSwitch(DSWActor*);
 bool TestKillSectorObject(SECTOR_OBJECTp sop);
 void WeaponExplodeSectorInRange(DSWActor*);
 
-void initlava(void);
-void movelava(char *dapic);
 
 END_SW_NS
 

@@ -69,7 +69,6 @@ TO DO
 void InitLevelGlobals(void);
 
 extern int lastUpdate;
-extern char SaveGameDescr[10][80];
 extern short Bunny_Count;
 extern bool NewGame;
 extern int GodMode;

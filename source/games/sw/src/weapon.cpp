@@ -3259,7 +3259,7 @@ SpawnShrap(DSWActor* parentActor, DSWActor* secondaryActor, int means, BREAK_INF
 
 UserShrap:
 
-            shrap_delta_size = (signed char)SP_TAG10(parent);
+            shrap_delta_size = (int8_t)SP_TAG10(parent);
             shrap_rand_zamt = SP_TAG9(parent);
             // Hey, better limit this in case mappers go crazy, like I did. :)
             // Kills frame rate!
@@ -4763,7 +4763,7 @@ DoFireballFlames(DSWActor* actor)
             sp->xrepeat--;
             sp->yrepeat--;
 
-            if (((signed char)sp->xrepeat) == 0)
+            if (((int8_t)sp->xrepeat) == 0)
             {
                 if (u->attachActor != nullptr)
                 {
@@ -4839,7 +4839,7 @@ DoBreakFlames(DSWActor* actor)
             sp->xrepeat--;
             sp->yrepeat--;
 
-            if (((signed char)sp->xrepeat) == 0)
+            if (((int8_t)sp->xrepeat) == 0)
             {
                 if (u->attachActor != nullptr)
                 {
@@ -5077,9 +5077,7 @@ ActorChooseDeath(short SpriteNum, short Weapon)
 
                 if (wu->WeaponNum == WPN_FIST && STD_RANDOM_RANGE(1000)>500 && pp == Player+myconnectindex)
                 {
-                    char choosesnd = 0;
-
-                    choosesnd=STD_RANDOM_RANGE(6);
+                    int choosesnd = STD_RANDOM_RANGE(6);
 
                     if (choosesnd == 0)
                         PlayerSound(DIGI_KUNGFU, v3df_follow|v3df_dontpan,pp);
@@ -11854,7 +11852,7 @@ DoFireball(DSWActor* actor)
 
     if (u->ret)
     {
-        char hit_burn = 0;
+        bool hit_burn = false;
 
         if (WeaponMoveHit(Weapon))
         {

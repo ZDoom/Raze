@@ -368,7 +368,6 @@ void InitLevel(MapRecord *maprec)
     PlaceActorsOnTracks();
     PostSetupSectorObject();
     SetupMirrorTiles();
-    initlava();
     CollectPortals();
 
     // reset NewGame

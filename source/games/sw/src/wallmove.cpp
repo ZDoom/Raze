@@ -143,7 +143,7 @@ int DoWallMove(DSWActor* actor)
     }
 
     SP_TAG9(sp)--;
-    if ((signed char)SP_TAG9(sp) <= 0)
+    if ((int8_t)SP_TAG9(sp) <= 0)
     {
         KillActor(actor);
     }

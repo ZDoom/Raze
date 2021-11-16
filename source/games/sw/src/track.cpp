@@ -2225,11 +2225,11 @@ void CallbackSOsink(ANIMp ap, void *data)
     SPRITEp sp;
     USERp u;
     SECT_USERp su;
-    short startwall, endwall, j;
-    short dest_sector = -1;
-    short src_sector = -1;
-    short i, ndx;
-    char found = false;
+    int startwall, endwall, j;
+    int dest_sector = -1;
+    int src_sector = -1;
+    int i, ndx;
+    bool found = false;
     int tgt_depth;
 
     sop = (SECTOR_OBJECTp)data;

@@ -891,7 +891,6 @@ struct PLAYERstruct
     short Armor;
     short MaxHealth;
 
-    //char RocketBarrel;
     char PlayerName[32];
 
     uint8_t UziShellLeftAlt;
@@ -2033,9 +2032,6 @@ extern int MinEnemySkill;
 
 #define MASTER_SWITCHING 1
 
-extern char option[];
-extern char keys[];
-
 extern short screenpeek;
 
 #define STAT_DAMAGE_LIST_SIZE 20
@@ -2149,7 +2145,7 @@ extern short LevelSecrets;
 extern short TotalKillable;
 extern int OrigCommPlayers;
 
-extern char PlayerGravity;
+extern uint8_t PlayerGravity;
 extern short wait_active_check_offset;
 //extern short Zombies;
 extern int PlaxCeilGlobZadjust, PlaxFloorGlobZadjust;

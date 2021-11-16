@@ -93,7 +93,7 @@ bool pWeaponUnHideKeys(PANEL_SPRITEp psp, PANEL_STATEp state);
 bool pWeaponHideKeys(PANEL_SPRITEp psp, PANEL_STATEp state);
 void pHotHeadOverlays(PANEL_SPRITEp psp, short mode);
 
-char UziRecoilYadj = 0;
+uint8_t UziRecoilYadj = 0;
 
 extern short screenpeek;
 
@@ -655,7 +655,7 @@ WeaponOK(PLAYERp pp)
 {
     USERp u;
     short min_ammo, WeaponNum, FindWeaponNum;
-    static char wpn_order[] = {2,3,4,5,6,7,8,9,1,0};
+    static const uint8_t wpn_order[] = {2,3,4,5,6,7,8,9,1,0};
     unsigned wpn_ndx=0;
 
     if (!pp->Actor())
@@ -2287,10 +2287,9 @@ pUziRest(PANEL_SPRITEp psp)
 void
 pUziAction(PANEL_SPRITEp psp)
 {
-    char shooting;
     static int alternate = 0;
 
-    shooting = (psp->PlayerP->input.actions & SB_FIRE) && (psp->PlayerP->KeyPressBits & SB_FIRE);
+    bool shooting = (psp->PlayerP->input.actions & SB_FIRE) && (psp->PlayerP->KeyPressBits & SB_FIRE);
 
     if (shooting)
     {
@@ -2918,8 +2917,8 @@ pShotgunRest(PANEL_SPRITEp psp)
 {
     bool force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
     //short ammo = psp->PlayerP->WpnAmmo[psp->PlayerP->WeaponType];
-    short ammo = psp->PlayerP->WpnAmmo[WPN_SHOTGUN];
-    char lastammo = psp->PlayerP->WpnShotgunLastShell;
+    int ammo = psp->PlayerP->WpnAmmo[WPN_SHOTGUN];
+    int lastammo = psp->PlayerP->WpnShotgunLastShell;
 
     if (pWeaponHideKeys(psp, ps_ShotgunHide))
         return;
@@ -3771,9 +3770,7 @@ pHotheadRest(PANEL_SPRITEp psp)
 void
 pHotheadAction(PANEL_SPRITEp psp)
 {
-    char shooting;
-
-    shooting = (psp->PlayerP->input.actions & SB_FIRE) && (psp->PlayerP->KeyPressBits & SB_FIRE);
+    bool shooting = (psp->PlayerP->input.actions & SB_FIRE) && (psp->PlayerP->KeyPressBits & SB_FIRE);
 
     if (shooting)
     {

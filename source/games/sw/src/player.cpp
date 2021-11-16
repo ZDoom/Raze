@@ -117,7 +117,7 @@ extern int FinishAnim;
 #define PLAYER_JUMP_AMT (-650)
 #define PLAYER_CLIMB_JUMP_AMT (-1100)
 #define MAX_JUMP_DURATION 12
-char PlayerGravity = PLAYER_JUMP_GRAV;
+uint8_t PlayerGravity = PLAYER_JUMP_GRAV;
 #endif
 
 bool ToggleFlyMode = false;
@@ -3199,7 +3199,7 @@ void DoPlayerClimb(PLAYERp pp)
 {
     USERp u = pp->Actor()->u();
     int climb_amt;
-    char i;
+    int i;
     SPRITEp sp = &pp->Actor()->s();
     int climbvel;
     int dot;

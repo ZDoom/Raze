@@ -2572,8 +2572,8 @@ void DoSineWaveFloor(void)
 {
     SINE_WAVE_FLOOR *swf;
     int newz;
-    short wave;
-    char flags;
+    int wave;
+    int flags;
 
     for (wave = 0; wave < MAX_SINE_WAVE; wave++)
     {
@@ -2829,14 +2829,6 @@ short AnimSetVelAdj(short anim_ndx, short vel_adj)
     return anim_ndx;
 }
 
-
-void initlava(void)
-{
-}
-
-void movelava(char *dapic)
-{
-}
 
 
 void DoPanning(void)

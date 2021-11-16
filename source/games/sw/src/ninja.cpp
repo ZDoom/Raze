@@ -2391,7 +2391,7 @@ void InitPlayerSprite(PLAYERp pp)
 
     sp->picnum = u->State->Pic;
     sp->shade = -60; // was 15
-    sp->clipdist = (char)(256L >> 2);
+    sp->clipdist = (256 >> 2);
 
     sp->xrepeat = PLAYER_NINJA_XREPEAT;
     sp->yrepeat = PLAYER_NINJA_YREPEAT;
