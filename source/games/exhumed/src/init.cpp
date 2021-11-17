@@ -174,7 +174,6 @@ void InitLevel(MapRecord* map)
         InitPlayerKeys(i);
     }
     EndLevel = 0;
-    lastfps = 0;
     ResetView();
     ResetEngine();
     totalmoves = 0;

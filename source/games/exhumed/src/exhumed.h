@@ -130,8 +130,6 @@ extern short nButtonColor;
 
 extern short nHeadStage;
 
-extern short lastfps;
-
 extern int flash;
 
 extern short nSnakeCam;

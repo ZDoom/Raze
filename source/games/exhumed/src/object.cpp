@@ -154,7 +154,7 @@ struct Trap
 
     short field_0;
     short nType;
-    short field_6;
+    int field_6;
     int field_8; // wallnum
     short field_A;
     short field_C;
@@ -2612,15 +2612,8 @@ void PostProcess()
 
                     if (i != j && SectSpeed[j] && !(SectFlag[i] & kSectLava))
                     {
-                        int xVal = wall[sector[i].wallptr].x - wall[sector[j].wallptr].x;
-                        if (xVal < 0) {
-                            xVal = -xVal;
-                        }
-
-                        int yVal = wall[sector[i].wallptr].x - wall[sector[j].wallptr].x;
-                        if (yVal < 0) {
-                            yVal = -yVal;
-                        }
+						int xVal = abs(sector[i].firstWall()->x - sector[j].firstWall()->x);
+						int yVal = abs(sector[i].firstWall()->y - sector[j].firstWall()->y);
 
                         if (xVal < 15000 && yVal < 15000 && (xVal + yVal < var_20))
                         {

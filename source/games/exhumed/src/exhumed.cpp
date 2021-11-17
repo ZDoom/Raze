@@ -108,13 +108,10 @@ short nAlarmTicks;
 short nButtonColor;
 short nEnergyChan;
 
-
-short bModemPlay = false;
 int lCountDown = 0;
 short nEnergyTowers = 0;
 
 short nCfgNetPlayers = 0;
-FILE *vcrfp = NULL;
 
 int lLocalCodes = 0;
 
@@ -122,12 +119,6 @@ short bCoordinates = false;
 
 int nNetTime = -1;
 
-short nCodeMin = 0;
-short nCodeMax = 0;
-short nCodeIndex = 0;
-
-//short nScreenWidth = 320;
-//short nScreenHeight = 200;
 int flash;
 int totalmoves;
 
@@ -135,14 +126,9 @@ short nCurBodyNum = 0;
 
 short nBodyTotal = 0;
 
-short lastfps;
 short nTotalPlayers = 1;
 // TODO: Rename this (or make it static) so it doesn't conflict with library function
-//short socket = 0;
 
-short nFirstPassword = 0;
-short nFirstPassInfo = 0;
-short nPasswordCount = 0;
 
 short bSnakeCam = false;
 short bRecord = false;
