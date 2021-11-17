@@ -640,12 +640,9 @@ void activatebysector_d(int sect, DDukeActor* activator)
 //
 //---------------------------------------------------------------------------
 
-void checkhitwall_d(DDukeActor* spr, int dawallnum, int x, int y, int z, int atwith)
+void checkhitwall_d(DDukeActor* spr, walltype* wal, int x, int y, int z, int atwith)
 {
 	int j, sn = -1, darkestwall;
-	walltype* wal;
-
-	wal = &wall[dawallnum];
 
 	if (wal->overpicnum == MIRROR)
 	{
@@ -658,7 +655,7 @@ void checkhitwall_d(DDukeActor* spr, int dawallnum, int x, int y, int z, int atw
 		case SEENINE:
 		case OOZFILTER:
 		case EXPLODINGBARREL:
-			lotsofglass(spr, dawallnum, 70);
+			lotsofglass(spr, wallnum(wal), 70);
 			wal->cstat &= ~16;
 			wal->overpicnum = MIRRORBROKE;
 			wal->portalflags = 0;
@@ -715,7 +712,7 @@ void checkhitwall_d(DDukeActor* spr, int dawallnum, int x, int y, int z, int atw
 				{
 					updatesector(x, y, &sn); if (sn < 0) return;
 					wal->overpicnum = GLASS2;
-					lotsofglass(spr, dawallnum, 10);
+					lotsofglass(spr, wallnum(wal), 10);
 					wal->cstat = 0;
 
 					if (wal->nextwall >= 0)
@@ -730,7 +727,7 @@ void checkhitwall_d(DDukeActor* spr, int dawallnum, int x, int y, int z, int atw
 				}
 				case STAINGLASS1:
 					updatesector(x, y, &sn); if (sn < 0) return;
-					lotsofcolourglass(spr, dawallnum, 80);
+					lotsofcolourglass(spr, wallnum(wal), 80);
 					wal->cstat = 0;
 					if (wal->nextwall >= 0)
 						wal->nextWall()->cstat = 0;
@@ -743,7 +740,7 @@ void checkhitwall_d(DDukeActor* spr, int dawallnum, int x, int y, int z, int atw
 	{
 	case COLAMACHINE:
 	case VENDMACHINE:
-		breakwall(wal->picnum + 2, spr, dawallnum);
+		breakwall(wal->picnum + 2, spr, wallnum(wal));
 		S_PlayActorSound(VENT_BUST, spr);
 		return;
 
@@ -774,7 +771,7 @@ void checkhitwall_d(DDukeActor* spr, int dawallnum, int x, int y, int z, int atw
 	case SCREENBREAK19:
 	case BORNTOBEWILDSCREEN:
 
-		lotsofglass(spr, dawallnum, 30);
+		lotsofglass(spr, wallnum(wal), 30);
 		wal->picnum = W_SCREENBREAK + (krand() % 3);
 		S_PlayActorSound(GLASS_HEAVYBREAK, spr);
 		return;
@@ -784,14 +781,14 @@ void checkhitwall_d(DDukeActor* spr, int dawallnum, int x, int y, int z, int atw
 	case W_TECHWALL7:
 	case W_TECHWALL8:
 	case W_TECHWALL9:
-		breakwall(wal->picnum + 1, spr, dawallnum);
+		breakwall(wal->picnum + 1, spr, wallnum(wal));
 		return;
 	case W_MILKSHELF:
-		breakwall(W_MILKSHELFBROKE, spr, dawallnum);
+		breakwall(W_MILKSHELFBROKE, spr, wallnum(wal));
 		return;
 
 	case W_TECHWALL10:
-		breakwall(W_HITTECHWALL10, spr, dawallnum);
+		breakwall(W_HITTECHWALL10, spr, wallnum(wal));
 		return;
 
 	case W_TECHWALL1:
@@ -799,27 +796,27 @@ void checkhitwall_d(DDukeActor* spr, int dawallnum, int x, int y, int z, int atw
 	case W_TECHWALL12:
 	case W_TECHWALL13:
 	case W_TECHWALL14:
-		breakwall(W_HITTECHWALL1, spr, dawallnum);
+		breakwall(W_HITTECHWALL1, spr, wallnum(wal));
 		return;
 
 	case W_TECHWALL15:
-		breakwall(W_HITTECHWALL15, spr, dawallnum);
+		breakwall(W_HITTECHWALL15, spr, wallnum(wal));
 		return;
 
 	case W_TECHWALL16:
-		breakwall(W_HITTECHWALL16, spr, dawallnum);
+		breakwall(W_HITTECHWALL16, spr, wallnum(wal));
 		return;
 
 	case W_TECHWALL2:
-		breakwall(W_HITTECHWALL2, spr, dawallnum);
+		breakwall(W_HITTECHWALL2, spr, wallnum(wal));
 		return;
 
 	case W_TECHWALL3:
-		breakwall(W_HITTECHWALL3, spr, dawallnum);
+		breakwall(W_HITTECHWALL3, spr, wallnum(wal));
 		return;
 
 	case W_TECHWALL4:
-		breakwall(W_HITTECHWALL4, spr, dawallnum);
+		breakwall(W_HITTECHWALL4, spr, wallnum(wal));
 		return;
 
 	case ATM:
@@ -838,7 +835,7 @@ void checkhitwall_d(DDukeActor* spr, int dawallnum, int x, int y, int z, int atw
 		if (rnd(128))
 			S_PlayActorSound(GLASS_HEAVYBREAK, spr);
 		else S_PlayActorSound(GLASS_BREAKING, spr);
-		lotsofglass(spr, dawallnum, 30);
+		lotsofglass(spr, wallnum(wal), 30);
 
 		if (wal->picnum == WALLLIGHT1)
 			wal->picnum = WALLLIGHTBUST1;
@@ -873,7 +870,7 @@ void checkhitwall_d(DDukeActor* spr, int dawallnum, int x, int y, int z, int atw
 		DukeStatIterator it(STAT_EFFECTOR);
 		while (auto effector = it.Next())
 		{
-			if (effector->s->hitag == wall[dawallnum].lotag && effector->s->lotag == 3)
+			if (effector->s->hitag == wal->lotag && effector->s->lotag == 3)
 			{
 				effector->temp_data[2] = j;
 				effector->temp_data[3] = darkestwall;
@@ -927,7 +924,7 @@ void checkplayerhurt_d(struct player_struct* p, const Collision& coll)
 		p->posyv = -p->angle.ang.bsin(8);
 		S_PlayActorSound(DUKE_LONGTERM_PAIN, p->GetActor());
 
-		fi.checkhitwall(p->GetActor(), wallnum(wal),
+		fi.checkhitwall(p->GetActor(), wal,
 			p->pos.x + p->angle.ang.bcos(-9),
 			p->pos.y + p->angle.ang.bsin(-9),
 			p->pos.z, -1);
@@ -936,7 +933,7 @@ void checkplayerhurt_d(struct player_struct* p, const Collision& coll)
 
 	case BIGFORCE:
 		p->hurt_delay = 26;
-		fi.checkhitwall(p->GetActor(), wallnum(wal),
+		fi.checkhitwall(p->GetActor(), wal,
 			p->pos.x + p->angle.ang.bcos(-9),
 			p->pos.y + p->angle.ang.bsin(-9),
 			p->pos.z, -1);

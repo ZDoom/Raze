@@ -980,14 +980,11 @@ static void lotsofpopcorn(DDukeActor *actor, int wallnum, int n)
 //
 //---------------------------------------------------------------------------
 
-void checkhitwall_r(DDukeActor* spr, int dawallnum, int x, int y, int z, int atwith)
+void checkhitwall_r(DDukeActor* spr, walltype* wal, int x, int y, int z, int atwith)
 {
 	int j, i;
 	int sn = -1, darkestwall;
-	walltype* wal;
 	spritetype* s;
-
-	wal = &wall[dawallnum];
 
 	if (wal->overpicnum == MIRROR)
 	{
@@ -1003,7 +1000,7 @@ void checkhitwall_r(DDukeActor* spr, int dawallnum, int x, int y, int z, int atw
 		case SEENINE:
 		case OOZFILTER:
 		case EXPLODINGBARREL:
-			lotsofglass(spr, dawallnum, 70);
+			lotsofglass(spr, wallnum(wal), 70);
 			wal->cstat &= ~16;
 			wal->overpicnum = MIRRORBROKE;
 			wal->portalflags = 0;
@@ -1033,7 +1030,7 @@ void checkhitwall_r(DDukeActor* spr, int dawallnum, int x, int y, int z, int atw
 				{
 					updatesector(x, y, &sn); if (sn < 0) return;
 					wal->overpicnum = GLASS2;
-					lotsofpopcorn(spr, dawallnum, 64);
+					lotsofpopcorn(spr, wallnum(wal), 64);
 					wal->cstat = 0;
 
 					if (wal->nextwall >= 0)
@@ -1050,7 +1047,7 @@ void checkhitwall_r(DDukeActor* spr, int dawallnum, int x, int y, int z, int atw
 				{
 					updatesector(x, y, &sn); if (sn < 0) return;
 					wal->overpicnum = GLASS2;
-					lotsofglass(spr, dawallnum, 10);
+					lotsofglass(spr, wallnum(wal), 10);
 					wal->cstat = 0;
 
 					if (wal->nextwall >= 0)
@@ -1065,7 +1062,7 @@ void checkhitwall_r(DDukeActor* spr, int dawallnum, int x, int y, int z, int atw
 				}
 				case STAINGLASS1:
 					updatesector(x, y, &sn); if (sn < 0) return;
-					lotsofcolourglass(spr, dawallnum, 80);
+					lotsofcolourglass(spr, wallnum(wal), 80);
 					wal->cstat = 0;
 					if (wal->nextwall >= 0)
 						wal->nextWall()->cstat = 0;
@@ -1245,7 +1242,7 @@ void checkhitwall_r(DDukeActor* spr, int dawallnum, int x, int y, int z, int atw
 
 	case COLAMACHINE:
 	case VENDMACHINE:
-		breakwall(wal->picnum + 2, spr, dawallnum);
+		breakwall(wal->picnum + 2, spr, wallnum(wal));
 		S_PlayActorSound(GLASS_BREAKING, spr);
 		return;
 
@@ -1255,7 +1252,7 @@ void checkhitwall_r(DDukeActor* spr, int dawallnum, int x, int y, int z, int atw
 	case SCREENBREAK7:
 	case SCREENBREAK8:
 
-		lotsofglass(spr, dawallnum, 30);
+		lotsofglass(spr, wallnum(wal), 30);
 		wal->picnum = W_SCREENBREAK + (krand() % (isRRRA() ? 2 : 3));
 		S_PlayActorSound(GLASS_HEAVYBREAK, spr);
 		return;
@@ -1289,7 +1286,7 @@ void checkhitwall_r(DDukeActor* spr, int dawallnum, int x, int y, int z, int atw
 		if (rnd(128))
 			S_PlayActorSound(GLASS_HEAVYBREAK, spr);
 		else S_PlayActorSound(GLASS_BREAKING, spr);
-		lotsofglass(spr, dawallnum, 30);
+		lotsofglass(spr, wallnum(wal), 30);
 
 		if (wal->picnum == RRTILE1814)
 			wal->picnum = RRTILE1817;
@@ -1363,7 +1360,7 @@ void checkhitwall_r(DDukeActor* spr, int dawallnum, int x, int y, int z, int atw
 		DukeStatIterator it(STAT_EFFECTOR);
 		while (auto act = it.Next())
 		{
-			if (act->s->hitag == wall[dawallnum].lotag && act->s->lotag == 3)
+			if (act->s->hitag == wal->lotag && act->s->lotag == 3)
 			{
 				act->temp_data[2] = j;
 				act->temp_data[3] = darkestwall;
@@ -1415,14 +1412,14 @@ void checkplayerhurt_r(struct player_struct* p, const Collision &coll)
 	}
 
 	if (coll.type != kHitWall) return;
-	int j = coll.index;
+	auto wal = coll.wall();
 
 	if (p->hurt_delay > 0) p->hurt_delay--;
-	else if (wall[j].cstat & 85) switch (wall[j].overpicnum)
+	else if (wal->cstat & 85) switch (wal->overpicnum)
 	{
 	case BIGFORCE:
 		p->hurt_delay = 26;
-		fi.checkhitwall(p->GetActor(), j,
+		fi.checkhitwall(p->GetActor(), wal,
 			p->pos.x + p->angle.ang.bcos(-9),
 			p->pos.y + p->angle.ang.bsin(-9),
 			p->pos.z, -1);

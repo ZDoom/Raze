@@ -182,7 +182,7 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 
 				if (/*hitwall >= 0 &&*/ wal->picnum != ACCESSSWITCH && wal->picnum != ACCESSSWITCH2)
 				{
-					fi.checkhitwall(wpn, wallnum(wal), hitx, hity, hitz, atwith);
+					fi.checkhitwall(wpn, wal, hitx, hity, hitz, atwith);
 					if (p >= 0) fi.checkhitswitch(p, wallnum(wal), nullptr);
 				}
 			}
@@ -426,9 +426,9 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 			if (wal->cstat & 2)
 				if (wal->nextsector >= 0)
 					if (hitz >= (wal->nextSector()->floorz))
-						hitwall = wal->nextwall;
+						wal = wal->nextWall();
 
-			fi.checkhitwall(spark, hitwall, hitx, hity, hitz, SHOTSPARK1);
+			fi.checkhitwall(spark, wal, hitx, hity, hitz, SHOTSPARK1);
 		}
 	}
 	else
@@ -444,7 +444,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 			else spark->s->xrepeat = spark->s->yrepeat = 0;
 		}
 		else if (hitwall >= 0)
-			fi.checkhitwall(spark, hitwall, hitx, hity, hitz, SHOTSPARK1);
+			fi.checkhitwall(spark, &wall[hitwall], hitx, hity, hitz, SHOTSPARK1);
 	}
 
 	if ((krand() & 255) < 10)
