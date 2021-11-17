@@ -974,12 +974,10 @@ void operatesectors(int sn, DDukeActor *actor)
 
 	case 7:
 		if (!isRR()) break;
-		startwall = sptr->wallptr;
-		endwall = startwall + sptr->wallnum;
-		for (j = startwall; j < endwall; j++)
+		for (auto& wal : wallsofsector(sptr))
 		{
-			setanimation(sn, anim_vertexx, j, wall[j].x + 1024, 4);
-			setanimation(sn, anim_vertexx, wall[j].nextwall, wall[wall[j].nextwall].x + 1024, 4);
+			setanimation(sn, anim_vertexx, wallnum(&wal), wal.x + 1024, 4);
+			setanimation(sn, anim_vertexx, wal.nextwall, wal.nextWall()->x + 1024, 4);
 		}
 		break;
 
@@ -1193,26 +1191,26 @@ void operatemasterswitches(int low)
 
 void operateforcefields_common(DDukeActor *effector, int low, const std::initializer_list<int> &tiles)
 {
-	int i, p;
+	int p;
 
-	for (p = numanimwalls; p >= 0; p--)
+	for (int p = numanimwalls; p >= 0; p--)
 	{
-		i = animwall[p].wallnum;
+		auto wal = &wall[animwall[p].wallnum];
 
-		if (low == wall[i].lotag || low == -1)
-			if (isIn(wall[i].overpicnum, tiles))
+		if (low == wal->lotag || low == -1)
+			if (isIn(wal->overpicnum, tiles))
 			{
 				animwall[p].tag = 0;
 
-				if (wall[i].cstat)
+				if (wal->cstat)
 				{
-					wall[i].cstat = 0;
+					wal->cstat = 0;
 
 					if (effector && effector->s->picnum == SECTOREFFECTOR && effector->s->lotag == 30)
-						wall[i].lotag = 0;
+						wal->lotag = 0;
 				}
 				else
-					wall[i].cstat = 85;
+					wal->cstat = 85;
 			}
 	}
 }
