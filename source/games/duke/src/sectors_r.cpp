@@ -347,8 +347,9 @@ void operateforcefields_r(DDukeActor* act, int low)
 bool checkhitswitch_r(int snum, int ww, DDukeActor* act)
 {
 	uint8_t switchpal;
-	int i, x, lotag, hitag, picnum, correctdips, numdips;
+	int lotag, hitag, picnum, correctdips, numdips;
 	int sx, sy;
+	walltype* wwal = nullptr;
 
 	if (ww < 0 && act == nullptr) return 0;
 	correctdips = 1;
@@ -366,14 +367,14 @@ bool checkhitswitch_r(int snum, int ww, DDukeActor* act)
 	}
 	else
 	{
-		auto wal = &wall[ww];
-		lotag = wal->lotag;
+		wwal = &wall[ww];
+		lotag = wwal->lotag;
 		if (lotag == 0) return 0;
-		hitag = wal->hitag;
-		sx = wal->x;
-		sy = wal->y;
-		picnum = wal->picnum;
-		switchpal = wal->pal;
+		hitag = wwal->hitag;
+		sx = wwal->x;
+		sy = wwal->y;
+		picnum = wwal->picnum;
+		switchpal = wwal->pal;
 	}
 
 	switch (picnum)
@@ -602,42 +603,41 @@ bool checkhitswitch_r(int snum, int ww, DDukeActor* act)
 		}
 	}
 
-	for (i = 0; i < numwalls; i++)
+	for (auto& wal : walls())
 	{
-		x = i;
-		if (lotag == wall[x].lotag)
-			switch (wall[x].picnum)
+		if (lotag == wal.lotag)
+			switch (wal.picnum)
 			{
 			case DIPSWITCH:
 			case TECHSWITCH:
 			case ALIENSWITCH:
-				if (!act && i == ww) wall[x].picnum++;
-				else if (wall[x].hitag == 0) correctdips++;
+				if (!act && &wal == wwal) wal.picnum++;
+				else if (wal.hitag == 0) correctdips++;
 				numdips++;
 				break;
 			case DIPSWITCH + 1:
 			case TECHSWITCH + 1:
 			case ALIENSWITCH + 1:
-				if (!act && i == ww) wall[x].picnum--;
-				else if (wall[x].hitag == 1) correctdips++;
+				if (!act && &wal == wwal) wal.picnum--;
+				else if (wal.hitag == 1) correctdips++;
 				numdips++;
 				break;
 			case MULTISWITCH:
 			case MULTISWITCH + 1:
 			case MULTISWITCH + 2:
 			case MULTISWITCH + 3:
-				wall[x].picnum++;
-				if (wall[x].picnum > (MULTISWITCH + 3))
-					wall[x].picnum = MULTISWITCH;
+				wal.picnum++;
+				if (wal.picnum > (MULTISWITCH + 3))
+					wal.picnum = MULTISWITCH;
 				break;
 			case MULTISWITCH2:
 			case MULTISWITCH2 + 1:
 			case MULTISWITCH2 + 2:
 			case MULTISWITCH2 + 3:
 				if (!isRRRA()) break;
-				wall[x].picnum++;
-				if (wall[x].picnum > (MULTISWITCH2 + 3))
-					wall[x].picnum = MULTISWITCH2;
+				wal.picnum++;
+				if (wal.picnum > (MULTISWITCH2 + 3))
+					wal.picnum = MULTISWITCH2;
 				break;
 			case RRTILE8660:
 				if (!isRRRA()) break;
@@ -658,7 +658,7 @@ bool checkhitswitch_r(int snum, int ww, DDukeActor* act)
 			case DIPSWITCH3:
 			case RRTILE2697:
 			case RRTILE2707:
-				wall[x].picnum++;
+				wal.picnum++;
 				break;
 			case HANDSWITCH + 1:
 			case PULLSWITCH + 1:
@@ -674,7 +674,7 @@ bool checkhitswitch_r(int snum, int ww, DDukeActor* act)
 			case DIPSWITCH3 + 1:
 			case RRTILE2697 + 1:
 			case RRTILE2707 + 1:
-				wall[x].picnum--;
+				wal.picnum--;
 				break;
 			}
 	}
