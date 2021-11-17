@@ -415,8 +415,8 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 							}
 							auto l = spawn(spark, BULLETHOLE);
 							l->s->xvel = -1;
-							l->s->ang = getangle(wal->x - wall[wal->point2].x,
-								wal->y - wall[wal->point2].y) + 512;
+							auto delta = wal->delta();
+							l->s->ang = getangle(-delta.x, -delta.y) + 512;
 							ssp(l, CLIPMASK0);
 						}
 
@@ -2355,6 +2355,7 @@ static void underwater(int snum, ESyncBits actions, int psect, int fz, int cz)
 
 void onMotorcycleMove(int snum, int psect, int j)
 {
+	auto wal = &wall[j];
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
 	auto s = pact->s;
