@@ -2221,7 +2221,7 @@ int ConCompiler::parsecommand()
 	{
 		int lLabelID;
 		// syntax getwall[<var>].x <VAR>
-		// gets the value of wall[<var>].xxx into <VAR>
+		// gets the value of wall [<var>].xxx into <VAR>
 
 		// now get name of .xxx
 		while ((*textptr != '['))
@@ -2322,7 +2322,7 @@ int ConCompiler::parsecommand()
 	{
 		int lLabelID;
 		// syntax getwall[<var>].x <VAR>
-		// gets the value of wall[<var>].xxx into <VAR>
+		// gets the value of wall [<var>].xxx into <VAR>
 
 		// now get name of .xxx
 		while ((*textptr != '['))

@@ -1021,21 +1021,22 @@ void shootbloodsplat(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 		bsin(sa), zvel << 6,
 		&hitsect, &hitwall, &d, &hitx, &hity, &hitz, CLIPMASK1);
 
+	auto wal = hitwall < 0? nullptr : &wall[hitwall];
+	auto hitsectp = hitsect < 0? nullptr : &sector[hitsect];
 	// oh my...
 	if (FindDistance2D(sx - hitx, sy - hity) < 1024 &&
-		(hitwall >= 0 && wall[hitwall].overpicnum != BIGFORCE) &&
-		((wall[hitwall].nextsector >= 0 && hitsect >= 0 &&
-			sector[wall[hitwall].nextsector].lotag == 0 &&
-			sector[hitsect].lotag == 0 &&
-			sector[wall[hitwall].nextsector].lotag == 0 &&
-			(sector[hitsect].floorz - sector[wall[hitwall].nextsector].floorz) > (16 << 8)) ||
-			(wall[hitwall].nextsector == -1 && sector[hitsect].lotag == 0)))
+		(hitwall >= 0 && wal->overpicnum != BIGFORCE) &&
+		((wal->nextsector >= 0 && hitsect >= 0 &&
+			wal->nextSector()->lotag == 0 &&
+			hitsectp->lotag == 0 &&
+			(hitsectp->floorz - wal->nextSector()->floorz) > (16 << 8)) ||
+			(wal->nextsector == -1 && hitsectp->lotag == 0)))
 	{
-		if ((wall[hitwall].cstat & 16) == 0)
+		if ((wal->cstat & 16) == 0)
 		{
-			if (wall[hitwall].nextsector >= 0)
+			if (wal->nextsector >= 0)
 			{
-				DukeSectIterator it(wall[hitwall].nextsector);
+				DukeSectIterator it(wal->nextsector);
 				while (auto act2 = it.Next())
 				{
 					if (act2->s->statnum == STAT_EFFECTOR && act2->s->lotag == SE_13_EXPLOSIVE)
@@ -1043,15 +1044,16 @@ void shootbloodsplat(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 				}
 			}
 
-			if (wall[hitwall].nextwall >= 0 &&
-				wall[wall[hitwall].nextwall].hitag != 0)
+			if (wal->nextwall >= 0 &&
+				wal->nextWall()->hitag != 0)
 				return;
 
-			if (wall[hitwall].hitag == 0)
+			if (wal->hitag == 0)
 			{
 				auto spawned = spawn(actor, atwith);
 				spawned->s->xvel = -12;
-				spawned->s->ang = getangle(wall[hitwall].x - wall[wall[hitwall].point2].x, wall[hitwall].y - wall[wall[hitwall].point2].y) + 512;
+				auto delta = wal->delta();
+				spawned->s->ang = getangle(-delta.x, -delta.y) + 512; // note the '-' sign here!
 				spawned->s->x = hitx;
 				spawned->s->y = hity;
 				spawned->s->z = hitz;
