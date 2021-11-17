@@ -190,7 +190,6 @@ void dotorch(void)
 {
 	int ds;
 	int j;
-	int startwall, endwall;
 	uint8_t shade;
 	ds = krand()&8;
 	for (int i = 0; i < torchcnt; i++)
@@ -216,25 +215,23 @@ void dotorch(void)
 				sect->floorshade = shade;
 				break;
 		}
-		startwall = sect->wallptr;
-		endwall = startwall + sect->wallnum;
-		for (j = startwall; j < endwall; j++)
+		for (auto& wal : wallsofsector(sect))
 		{
-			if (wall[j].lotag != 1)
+			if (wal.lotag != 1)
 			{
 				switch (torchtype[i])
 				{
 					case 0:
-						wall[j].shade = shade;
+						wal.shade = shade;
 						break;
 					case 1:
-						wall[j].shade = shade;
+						wal.shade = shade;
 						break;
 					case 2:
-						wall[j].shade = shade;
+						wal.shade = shade;
 						break;
 					case 3:
-						wall[j].shade = shade;
+						wal.shade = shade;
 						break;
 				}
 			}
@@ -250,12 +247,9 @@ void dotorch(void)
 
 void dojaildoor(void)
 {
-	int j;
-	int startwall, endwall;
-	int x, y;
-	int speed;
 	for (int i = 0; i < jaildoorcnt; i++)
 	{
+		int speed;
 		auto sectp = &sector[jaildoorsect[i]];
 		if (numplayers > 2)
 			speed = jaildoorspeed[i];
@@ -288,12 +282,10 @@ void dojaildoor(void)
 			}
 			else
 			{
-				startwall = sectp->wallptr;
-				endwall = startwall + sectp->wallnum;
-				for (j = startwall; j < endwall; j++)
+				for (auto& wal : wallsofsector(sectp))
 				{
-					x = wall[j].x;
-					y = wall[j].y;
+					int x = wal.x;
+					int y = wal.y;
 					switch (jaildoordir[i])
 					{
 						case 10:
@@ -309,7 +301,7 @@ void dojaildoor(void)
 							x += speed;
 							break;
 					}
-					dragpoint(j,x,y);
+					dragpoint(&wal, x, y);
 				}
 			}
 		}
@@ -338,35 +330,33 @@ void dojaildoor(void)
 			}
 			else
 			{
-				startwall = sectp->wallptr;
-				endwall = startwall + sectp->wallnum;
-				for (j = startwall; j < endwall; j++)
+				for (auto& wal : wallsofsector(sectp))
 				{
-					auto wal = &wall[j];
+					int x, y;
 					switch (jaildoordir[i])
 					{
 						default: // make case of bad parameters well defined.
-							x = wal->x;
-							y = wal->y;
+							x = wal.x;
+							y = wal.y;
 							break;
 						case 10:
-							x = wal->x;
-							y = wal->y + speed;
+							x = wal.x;
+							y = wal.y + speed;
 							break;
 						case 20:
-							x = wal->x - speed;
-							y = wal->y;
+							x = wal.x - speed;
+							y = wal.y;
 							break;
 						case 30:
-							x = wal->x;
-							y = wal->y - speed;
+							x = wal.x;
+							y = wal.y - speed;
 							break;
 						case 40:
-							x = wal->x + speed;
-							y = wal->y;
+							x = wal.x + speed;
+							y = wal.y;
 							break;
 					}
-					dragpoint(j,x,y);
+					dragpoint(&wal, x, y);
 				}
 			}
 		}
@@ -427,35 +417,32 @@ void moveminecart(void)
 			}
 			else
 			{
-				startwall = sectp->wallptr;
-				endwall = startwall + sectp->wallnum;
-				for (j = startwall; j < endwall; j++)
+				for (auto& wal : wallsofsector(sectp))
 				{
-					auto wal = &wall[j];
 					switch (minecartdir[i])
 					{
 						default: // make case of bad parameters well defined.
-							x = wal->x;
-							y = wal->y;
+							x = wal.x;
+							y = wal.y;
 							break;
 						case 10:
-							x = wal->x;
-							y = wal->y + speed;
+							x = wal.x;
+							y = wal.y + speed;
 							break;
 						case 20:
-							x = wal->x - speed;
-							y = wal->y;
+							x = wal.x - speed;
+							y = wal.y;
 							break;
 						case 30:
-							x = wal->x;
-							y = wal->y - speed;
+							x = wal.x;
+							y = wal.y - speed;
 							break;
 						case 40:
-							x = wal->x + speed;
-							y = wal->y;
+							x = wal.x + speed;
+							y = wal.y;
 							break;
 					}
-					dragpoint(j,x,y);
+					dragpoint(&wal, x, y);
 				}
 			}
 		}
@@ -484,47 +471,42 @@ void moveminecart(void)
 			}
 			else
 			{
-				startwall = sectp->wallptr;
-				endwall = startwall + sectp->wallnum;
-				for (j = startwall; j < endwall; j++)
+				for (auto& wal : wallsofsector(sectp))
 				{
-					auto wal = &wall[j];
 					switch (minecartdir[i])
 					{
 						default: // make case of bad parameters well defined.
-							x = wal->x;
-							y = wal->y;
+							x = wal.x;
+							y = wal.y;
 							break;
 						case 10:
-							x = wal->x;
-							y = wal->y + speed;
+							x = wal.x;
+							y = wal.y + speed;
 							break;
 						case 20:
-							x = wal->x - speed;
-							y = wal->y;
+							x = wal.x - speed;
+							y = wal.y;
 							break;
 						case 30:
-							x = wal->x;
-							y = wal->y - speed;
+							x = wal.x;
+							y = wal.y - speed;
 							break;
 						case 40:
-							x = wal->x + speed;
-							y = wal->y;
+							x = wal.x + speed;
+							y = wal.y;
 							break;
 					}
-					dragpoint(j,x,y);
+					dragpoint(&wal, x, y);
 				}
 			}
 		}
 		csect = minecartchildsect[i];
-		startwall = sector[csect].wallptr;
-		endwall = startwall + sector[csect].wallnum;
 		max_x = max_y = -0x20000;
 		min_x = min_y = 0x20000;
-		for (j = startwall; j < endwall; j++)
+		for (auto& wal : wallsofsector(csect))
 		{
-			x = wall[j].x;
-			y = wall[j].y;
+			x = wal.x;
+			y = wal.y;
 			if (x > max_x)
 				max_x = x;
 			if (y > max_y)
@@ -629,12 +611,10 @@ void thunder(void)
 			for (i = 0; i < lightnincnt; i++)
 			{
 				auto sectp = &sector[lightninsector[i]];
-				startwall = sectp->wallptr;
-				endwall = startwall + sectp->wallnum;
 				sectp->floorshade = (int8_t)lightninsectorshade[i];
 				sectp->ceilingshade = (int8_t)lightninsectorshade[i];
-				for (j = startwall; j < endwall; j++)
-					wall[j].shade = (int8_t)lightninsectorshade[i];
+				for (auto& wal : wallsofsector(sectp))
+					wal.shade = (int8_t)lightninsectorshade[i];
 			}
 		}
 	}
@@ -671,12 +651,10 @@ void thunder(void)
 		for (i = 0; i < lightnincnt; i++)
 		{
 			auto sectp = &sector[lightninsector[i]];
-			startwall = sectp->wallptr;
-			endwall = startwall + sectp->wallnum;
 			sectp->floorshade = lightninsectorshade[i] - shade;
 			sectp->ceilingshade = lightninsectorshade[i] - shade;
-			for (j = startwall; j < endwall; j++)
-				wall[j].shade = lightninsectorshade[i] - shade;
+			for (auto& wal : wallsofsector(sectp))
+				wal.shade = lightninsectorshade[i] - shade;
 		}
 	}
 }
