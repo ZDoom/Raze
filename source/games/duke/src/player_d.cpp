@@ -844,39 +844,40 @@ static void shootlaser(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 	spritetype* const s = actor->s;
 	int sect = s->sectnum;
 	int zvel;
-	int hitsect, hitwall, j;
+	int j;
 	int hitx, hity, hitz;
 	DDukeActor* hitsprt;
+	sectortype* hitsectp;
+	walltype* wal;
 
 	if (p >= 0)
 		zvel = -ps[p].horizon.sum().asq16() >> 11;
 	else zvel = 0;
 
-	hitscanw(sx, sy, sz - ps[p].pyoff, sect,
+	hitscan(sx, sy, sz - ps[p].pyoff, sect,
 		bcos(sa),
 		bsin(sa),
-		zvel << 6, &hitsect, &hitwall, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
+		zvel << 6, &hitsectp, &wal, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
 
 	j = 0;
 	if (hitsprt) return;
 
-	if (hitwall >= 0 && hitsect >= 0)
+	if (wal && hitsectp)
 	{
-		auto wal = &wall[hitwall];
 		if (((hitx - sx) * (hitx - sx) + (hity - sy) * (hity - sy)) < (290 * 290))
 		{
 			if (wal->nextsector >= 0)
 			{
-				if (wal->nextSector()->lotag <= 2 && sector[hitsect].lotag <= 2)
+				if (wal->nextSector()->lotag <= 2 && hitsectp->lotag <= 2)
 					j = 1;
 			}
-			else if (sector[hitsect].lotag <= 2)
+			else if (hitsectp->lotag <= 2)
 				j = 1;
 		}
 
 		if (j == 1)
 		{
-			auto bomb = EGS(hitsect, hitx, hity, hitz, TRIPBOMB, -16, 4, 5, sa, 0, 0, actor, 6);
+			auto bomb = EGS(sectnum(hitsectp), hitx, hity, hitz, TRIPBOMB, -16, 4, 5, sa, 0, 0, actor, 6);
 			if (isWW2GI())
 			{
 				int lTripBombControl = GetGameVar("TRIPBOMB_CONTROL", TRIPBOMB_TRIPWIRE, nullptr, -1);
@@ -919,9 +920,11 @@ static void shootgrowspark(DDukeActor* actor, int p, int sx, int sy, int sz, int
 	auto s = actor->s;
 	int sect = s->sectnum;
 	int zvel;
-	int hitsect, hitwall, k;
+	int k;
 	int hitx, hity, hitz;
 	DDukeActor* hitsprt;
+	sectortype* hitsectp;
+	walltype* wal;
 
 	if (p >= 0)
 	{
@@ -970,8 +973,8 @@ static void shootgrowspark(DDukeActor* actor, int p, int sx, int sy, int sz, int
 	//RESHOOTGROW:
 
 	s->cstat &= ~257;
-	hitscanw(sx, sy, sz, sect, bcos(sa), bsin(sa),
-		zvel << 6, &hitsect, &hitwall, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
+	hitscan(sx, sy, sz, sect, bcos(sa), bsin(sa),
+		zvel << 6, &hitsectp, &wal, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
 
 	s->cstat |= 257;
 
@@ -981,15 +984,14 @@ static void shootgrowspark(DDukeActor* actor, int p, int sx, int sy, int sz, int
 	spark->s->cstat |= 130;
 	spark->s->xrepeat = spark->s->yrepeat = 1;
 
-	if (hitwall == -1 && hitsprt == nullptr && hitsect >= 0)
+	if (wal == nullptr && hitsprt == nullptr && hitsectp != nullptr)
 	{
-		if (zvel < 0 && (sector[hitsect].ceilingstat & 1) == 0)
-			fi.checkhitceiling(hitsect);
+		if (zvel < 0 && (hitsectp->ceilingstat & 1) == 0)
+			fi.checkhitceiling(sectnum(hitsectp));
 	}
 	else if (hitsprt != nullptr) fi.checkhitsprite(hitsprt, spark);
-	else if (hitwall >= 0)
+	else if (wal != nullptr)
 	{
-		auto wal = &wall[hitwall];
 		if (wal->picnum != ACCESSSWITCH && wal->picnum != ACCESSSWITCH2)
 		{
 			fi.checkhitwall(spark, wal, hitx, hity, hitz, GROWSPARK);
@@ -2014,27 +2016,27 @@ int operateTripbomb(int snum)
 	auto p = &ps[snum];
 
 	int sx, sy, sz;
-	int sect, hw;
 	DDukeActor* hitsprt;
+	sectortype *hitsectp;
+	walltype* wal;
 
-	hitscanw(p->pos.x, p->pos.y, p->pos.z,
+	hitscan(p->pos.x, p->pos.y, p->pos.z,
 		p->cursectnum, p->angle.ang.bcos(),
 		p->angle.ang.bsin(), -p->horizon.sum().asq16() >> 11,
-		&sect, &hw, &hitsprt, &sx, &sy, &sz, CLIPMASK1);
+		&hitsectp, &wal, &hitsprt, &sx, &sy, &sz, CLIPMASK1);
 
-	if (sect < 0 || hitsprt)
+	if (hitsectp == nullptr || hitsprt)
 		return 0;
 
-	if (hw >= 0 && sector[sect].lotag > 2)
+	if (wal != nullptr && hitsectp->lotag > 2)
 		return 0;
 
-	auto wal = hw < 0? nullptr : &wall[hw];
-	if (hw >= 0 && wal->overpicnum >= 0)
+	if (wal != nullptr && wal->overpicnum >= 0)
 		if (wal->overpicnum == BIGFORCE)
 			return 0;
 
 	DDukeActor* j;
-	DukeSectIterator it(sect);
+	DukeSectIterator it(hitsectp);
 	while ((j = it.Next()))
 	{
 		auto sj = j->s;
@@ -2043,8 +2045,8 @@ int operateTripbomb(int snum)
 			return 0;
 	}
 
-	if (j == nullptr && hw >= 0 && (wal->cstat & 16) == 0)
-		if ((wal->nextsector >= 0 && wal->nextSector()->lotag <= 2) || (wal->nextsector == -1 && sector[sect].lotag <= 2))
+	if (j == nullptr && wal != nullptr && (wal->cstat & 16) == 0)
+		if ((wal->nextsector >= 0 && wal->nextSector()->lotag <= 2) || (wal->nextsector == -1 && hitsectp->lotag <= 2))
 			if (((sx - p->pos.x) * (sx - p->pos.x) + (sy - p->pos.y) * (sy - p->pos.y)) < (290 * 290))
 			{
 				p->pos.z = p->oposz;

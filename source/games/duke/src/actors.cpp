@@ -5105,7 +5105,7 @@ int furthestangle(DDukeActor *actor, int angs)
 int furthestcanseepoint(DDukeActor *actor, DDukeActor* tosee, int* dax, int* day)
 {
 	auto s = actor->s;
-	int j, hitsect, hitwall, angincs;
+	int j, hitsect, angincs;
 	int hx, hy, hz, d, da;//, d, cd, ca,tempx,tempy,cx,cy;
 	DDukeActor* dd;
 
@@ -5119,7 +5119,7 @@ int furthestcanseepoint(DDukeActor *actor, DDukeActor* tosee, int* dax, int* day
 	for (j = ts->ang; j < (2048 + ts->ang); j += (angincs - (krand() & 511)))
 	{
 		hitscanw(ts->x, ts->y, ts->z - (16 << 8), ts->sectnum, bcos(j), bsin(j), 16384 - (krand() & 32767), 
-			&hitsect, &hitwall, &dd, &hx, &hy, &hz, CLIPMASK1);
+			&hitsect, nullptr, &dd, &hx, &hy, &hz, CLIPMASK1);
 
 		d = abs(hx - ts->x) + abs(hy - ts->y);
 		da = abs(hx - s->x) + abs(hy - s->y);
