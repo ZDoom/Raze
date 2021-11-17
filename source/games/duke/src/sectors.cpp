@@ -484,7 +484,7 @@ bool activatewarpelevators(DDukeActor* actor, int d) //Parm = sectoreffectornum
 static void handle_st09(int sn, DDukeActor* actor)
 {
 	int dax, day, dax2, day2, sp;
-	int wallfind[2];
+	walltype* wallfind[2];
 	sectortype* sptr = &sector[sn];
 
 	int startwall = sptr->wallptr;
@@ -494,71 +494,74 @@ static void handle_st09(int sn, DDukeActor* actor)
 
 	//first find center point by averaging all points
 	dax = 0L, day = 0L;
-	for (int i = startwall; i <= endwall; i++)
+	for (auto& wal : wallsofsector(sptr))
 	{
-		dax += wall[i].x;
-		day += wall[i].y;
+		dax += wal.x;
+		day += wal.y;
 	}
-	dax /= (endwall - startwall + 1);
-	day /= (endwall - startwall + 1);
+	dax /= sptr->wallnum;
+	day /= sptr->wallnum;
 
 	//find any points with either same x or same y coordinate
 	//  as center (dax, day) - should be 2 points found.
-	wallfind[0] = -1;
-	wallfind[1] = -1;
-	for (int i = startwall; i <= endwall; i++)
-		if ((wall[i].x == dax) || (wall[i].y == day))
+	wallfind[0] = nullptr;
+	wallfind[1] = nullptr;
+	for (auto& wal : wallsofsector(sptr))
+		if ((wal.x == dax) || (wal.y == day))
 		{
-			if (wallfind[0] == -1)
-				wallfind[0] = i;
-			else wallfind[1] = i;
+			if (wallfind[0] == nullptr)
+				wallfind[0] = &wal;
+			else wallfind[1] = &wal;
 		}
 
 	for (int j = 0; j < 2; j++)
 	{
-		if ((wall[wallfind[j]].x == dax) && (wall[wallfind[j]].y == day))
+		auto wal = wallfind[j];
+		
+		//find what direction door should open by averaging the
+		//  2 neighboring points of wallfind[0] & wallfind[1].
+		auto prevwall = wal - 1;
+		if (prevwall < sptr->firstWall()) prevwall += sptr->wallnum;
+
+		if ((wal->x == dax) && (wal->y == day))
 		{
-			//find what direction door should open by averaging the
-			//  2 neighboring points of wallfind[0] & wallfind[1].
-			int i = wallfind[j] - 1; if (i < startwall) i = endwall;
-			dax2 = ((wall[i].x + wall[wall[wallfind[j]].point2].x) >> 1) - wall[wallfind[j]].x;
-			day2 = ((wall[i].y + wall[wall[wallfind[j]].point2].y) >> 1) - wall[wallfind[j]].y;
+			dax2 = ((prevwall->x + wal->point2Wall()->x) >> 1) - wal->x;
+			day2 = ((prevwall->y + wal->point2Wall()->y) >> 1) - wal->y;
 			if (dax2 != 0)
 			{
-				dax2 = wall[wall[wall[wallfind[j]].point2].point2].x;
-				dax2 -= wall[wall[wallfind[j]].point2].x;
-				setanimation(sn, anim_vertexx, wallfind[j], wall[wallfind[j]].x + dax2, sp);
-				setanimation(sn, anim_vertexx, i, wall[i].x + dax2, sp);
-				setanimation(sn, anim_vertexx, wall[wallfind[j]].point2, wall[wall[wallfind[j]].point2].x + dax2, sp);
+				dax2 = wal->point2Wall()->point2Wall()->x;
+				dax2 -= wal->point2Wall()->x;
+				setanimation(sn, anim_vertexx, wallnum(wal), wal->x + dax2, sp);
+				setanimation(sn, anim_vertexx, wallnum(prevwall), prevwall->x + dax2, sp);
+				setanimation(sn, anim_vertexx, wal->point2, wal->point2Wall()->x + dax2, sp);
 				callsound(sn, actor);
 			}
 			else if (day2 != 0)
 			{
-				day2 = wall[wall[wall[wallfind[j]].point2].point2].y;
-				day2 -= wall[wall[wallfind[j]].point2].y;
-				setanimation(sn, anim_vertexy, wallfind[j], wall[wallfind[j]].y + day2, sp);
-				setanimation(sn, anim_vertexy, i, wall[i].y + day2, sp);
-				setanimation(sn, anim_vertexy, wall[wallfind[j]].point2, wall[wall[wallfind[j]].point2].y + day2, sp);
+				day2 = wal->point2Wall()->point2Wall()->y;
+				day2 -= wal->point2Wall()->y;
+				setanimation(sn, anim_vertexy, wallnum(wal), wal->y + day2, sp);
+				setanimation(sn, anim_vertexy, wallnum(prevwall), prevwall->y + day2, sp);
+				setanimation(sn, anim_vertexy, wal->point2, wal->point2Wall()->y + day2, sp);
 				callsound(sn, actor);
 			}
 		}
 		else
 		{
-			int i = wallfind[j] - 1; if (i < startwall) i = endwall;
-			dax2 = ((wall[i].x + wall[wall[wallfind[j]].point2].x) >> 1) - wall[wallfind[j]].x;
-			day2 = ((wall[i].y + wall[wall[wallfind[j]].point2].y) >> 1) - wall[wallfind[j]].y;
+			dax2 = ((prevwall->x + wal->point2Wall()->x) >> 1) - wal->x;
+			day2 = ((prevwall->y + wal->point2Wall()->y) >> 1) - wal->y;
 			if (dax2 != 0)
 			{
-				setanimation(sn, anim_vertexx, wallfind[j], dax, sp);
-				setanimation(sn, anim_vertexx, i, dax + dax2, sp);
-				setanimation(sn, anim_vertexx, wall[wallfind[j]].point2, dax + dax2, sp);
+				setanimation(sn, anim_vertexx, wallnum(wal), dax, sp);
+				setanimation(sn, anim_vertexx, wallnum(prevwall), dax + dax2, sp);
+				setanimation(sn, anim_vertexx, wal->point2, dax + dax2, sp);
 				callsound(sn, actor);
 			}
 			else if (day2 != 0)
 			{
-				setanimation(sn, anim_vertexy, wallfind[j], day, sp);
-				setanimation(sn, anim_vertexy, i, day + day2, sp);
-				setanimation(sn, anim_vertexy, wall[wallfind[j]].point2, day + day2, sp);
+				setanimation(sn, anim_vertexy, wallnum(wal), day, sp);
+				setanimation(sn, anim_vertexy, wallnum(prevwall), day + day2, sp);
+				setanimation(sn, anim_vertexy, wal->point2, day + day2, sp);
 				callsound(sn, actor);
 			}
 		}
