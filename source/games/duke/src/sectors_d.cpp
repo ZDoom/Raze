@@ -692,7 +692,8 @@ void checkhitwall_d(DDukeActor* spr, int dawallnum, int x, int y, int z, int atw
 					}
 
 					spawned->s->cstat |= 18 + 128;
-					spawned->s->ang = getangle(wal->x - wall[wal->point2].x,	wal->y - wall[wal->point2].y) - 512;
+					auto delta = wal->delta();
+					spawned->s->ang = getangle(-delta.x, -delta.y) - 512;
 
 					S_PlayActorSound(SOMETHINGHITFORCE, spawned);
 
@@ -909,10 +910,10 @@ void checkplayerhurt_d(struct player_struct* p, const Collision& coll)
 	}
 
 	if (coll.type != kHitWall) return;
-	int j = coll.index;
+	auto wal = coll.wall();
 
 	if (p->hurt_delay > 0) p->hurt_delay--;
-	else if (wall[j].cstat & 85) switch (wall[j].overpicnum)
+	else if (wal->cstat & 85) switch (wal->overpicnum)
 	{
 	case W_FORCEFIELD:
 	case W_FORCEFIELD + 1:
@@ -926,7 +927,7 @@ void checkplayerhurt_d(struct player_struct* p, const Collision& coll)
 		p->posyv = -p->angle.ang.bsin(8);
 		S_PlayActorSound(DUKE_LONGTERM_PAIN, p->GetActor());
 
-		fi.checkhitwall(p->GetActor(), j,
+		fi.checkhitwall(p->GetActor(), wallnum(wal),
 			p->pos.x + p->angle.ang.bcos(-9),
 			p->pos.y + p->angle.ang.bsin(-9),
 			p->pos.z, -1);
@@ -935,7 +936,7 @@ void checkplayerhurt_d(struct player_struct* p, const Collision& coll)
 
 	case BIGFORCE:
 		p->hurt_delay = 26;
-		fi.checkhitwall(p->GetActor(), j,
+		fi.checkhitwall(p->GetActor(), wallnum(wal),
 			p->pos.x + p->angle.ang.bcos(-9),
 			p->pos.y + p->angle.ang.bsin(-9),
 			p->pos.z, -1);
