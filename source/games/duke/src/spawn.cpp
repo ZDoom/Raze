@@ -382,7 +382,7 @@ int spawnbloodpoolpart1(DDukeActor *actj, DDukeActor* acti)
 void initfootprint(DDukeActor* actj, DDukeActor* acti)
 {
 	auto sp = acti->s;
-	int sect = sp->sectnum;
+	auto sect = sp->sector();
 	if (actj)
 	{
 		auto s1 = sp->sector();
@@ -412,8 +412,8 @@ void initfootprint(DDukeActor* actj, DDukeActor* acti)
 		sp->ang = actj->s->ang;
 	}
 
-	sp->z = sector[sect].floorz;
-	if (sector[sect].lotag != 1 && sector[sect].lotag != 2)
+	sp->z = sect->floorz;
+	if (sect->lotag != 1 && sect->lotag != 2)
 		sp->xrepeat = sp->yrepeat = 32;
 
 	insertspriteq(acti);
@@ -482,12 +482,12 @@ void initshell(DDukeActor* actj, DDukeActor* acti, bool isshell)
 void initcrane(DDukeActor* actj, DDukeActor* acti, int CRANEPOLE)
 {
 	auto sp = acti->s;
-	int sect = sp->sectnum;
+	auto sect = sp->sector();
 	auto t = acti->temp_data;
 	sp->cstat |= 64 | 257;
 
 	sp->picnum += 2;
-	sp->z = sector[sect].ceilingz + (48 << 8);
+	sp->z = sect->ceilingz + (48 << 8);
 	t[4] = cranes.Reserve(1);
 
 	auto& apt = cranes[t[4]];
@@ -1092,10 +1092,8 @@ void spawneffector(DDukeActor* actor)
 void lotsofglass(DDukeActor *actor, walltype* wal, int n)
 {
 	int j, z, a;
-	int sect;
+	sectortype* sect = nullptr;
 	auto sp = actor->s;
-
-	sect = -1;
 
 	if (wal == nullptr)
 	{
@@ -1121,9 +1119,9 @@ void lotsofglass(DDukeActor *actor, walltype* wal, int n)
 		y1 += delta.y;
 
 		updatesector(x1, y1, &sect);
-		if (sect >= 0)
+		if (sect)
 		{
-			z = sector[sect].floorz - (krand() & (abs(sector[sect].ceilingz - sector[sect].floorz)));
+			z = sect->floorz - (krand() & (abs(sect->ceilingz - sect->floorz)));
 			if (z < -(32 << 8) || z >(32 << 8))
 				z = sp->z - (32 << 8) + (krand() & ((64 << 8) - 1));
 			a = sp->ang - 1024;
@@ -1189,7 +1187,7 @@ void ceilingglass(DDukeActor* actor, int sectnum, int n)
 void lotsofcolourglass(DDukeActor* actor, walltype* wal, int n)
 {
 	int j, z;
-	int sect = -1;
+	sectortype* sect = nullptr;
 	int a;;
 	auto sp = actor->s;
 
@@ -1215,7 +1213,7 @@ void lotsofcolourglass(DDukeActor* actor, walltype* wal, int n)
 		y1 += delta.y;
 
 		updatesector(x1, y1, &sect);
-		z = sector[sect].floorz - (krand() & (abs(sector[sect].ceilingz - sector[sect].floorz)));
+		z = sect->floorz - (krand() & (abs(sect->ceilingz - sect->floorz)));
 		if (z < -(32 << 8) || z >(32 << 8))
 			z = sp->z - (32 << 8) + (krand() & ((64 << 8) - 1));
 		a = sp->ang - 1024;
