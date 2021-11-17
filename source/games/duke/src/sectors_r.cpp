@@ -2446,7 +2446,7 @@ void checksectors_r(int snum)
 {
 	int oldz;
 	struct player_struct* p;
-	int hitscanwall;
+	walltype* hitscanwall;
 	int neartagsector, neartagwall;
 	DDukeActor* neartagsprite;
 	int neartaghitdist;
@@ -2502,16 +2502,15 @@ void checksectors_r(int snum)
 	{
 		neartagsprite = nullptr;
 		p->toggle_key_flag = 1;
-		hitscanwall = -1;
+		hitscanwall = nullptr;
 
 		hitawall(p, &hitscanwall);
 
-		if (hitscanwall >= 0)
+		if (hitscanwall != nullptr)
 		{
-			auto hitwal = &wall[hitscanwall];
 			if (isRRRA())
 			{
-				if (hitwal->overpicnum == MIRROR && snum == screenpeek)
+				if (hitscanwall->overpicnum == MIRROR && snum == screenpeek)
 					if (numplayers == 1)
 					{
 						if (S_CheckActorSoundPlaying(pact, 27) == 0 && S_CheckActorSoundPlaying(pact, 28) == 0 && S_CheckActorSoundPlaying(pact, 29) == 0
@@ -2534,16 +2533,16 @@ void checksectors_r(int snum)
 			}
 			else
 			{
-				if (hitwal->overpicnum == MIRROR)
-					if (hitwal->lotag > 0 && S_CheckActorSoundPlaying(pact, hitwal->lotag) == 0 && snum == screenpeek)
+				if (hitscanwall->overpicnum == MIRROR)
+					if (hitscanwall->lotag > 0 && S_CheckActorSoundPlaying(pact, hitscanwall->lotag) == 0 && snum == screenpeek)
 					{
-						S_PlayActorSound(hitwal->lotag, pact);
+						S_PlayActorSound(hitscanwall->lotag, pact);
 						return;
 					}
 			}
 			
-			if ((hitwal->cstat & 16))
-				if (hitwal->lotag)
+			if ((hitscanwall->cstat & 16))
+				if (hitscanwall->lotag)
 					return;
 			
 		}
@@ -2736,9 +2735,10 @@ void checksectors_r(int snum)
 
 		if (neartagwall >= 0)
 		{
-			if (wall[neartagwall].lotag > 0 && fi.isadoorwall(wall[neartagwall].picnum))
+			auto ntwall = &wall[neartagwall];
+			if (ntwall->lotag > 0 && fi.isadoorwall(ntwall->picnum))
 			{
-				if (hitscanwall == neartagwall || hitscanwall == -1)
+				if (hitscanwall == ntwall || hitscanwall == nullptr)
 					fi.checkhitswitch(snum, neartagwall, nullptr);
 				return;
 			}

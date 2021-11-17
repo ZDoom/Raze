@@ -1496,7 +1496,8 @@ void checksectors_d(int snum)
 {
 	int i = -1, oldz;
 	struct player_struct* p;
-	int j, hitscanwall;
+	int j;
+	walltype* hitscanwall;
 	int neartagsector, neartagwall;
 	DDukeActor* neartagsprite;
 	int neartaghitdist;
@@ -1567,21 +1568,20 @@ void checksectors_d(int snum)
 
 		neartagsprite = nullptr;
 		p->toggle_key_flag = 1;
-		hitscanwall = -1;
+		hitscanwall = nullptr;
 
 		i = hitawall(p, &hitscanwall);
-		if (hitscanwall >= 0)
+		if (hitscanwall != nullptr)
 		{
-			auto hitwal = &wall[hitscanwall];
-			if (i < 1280 && hitwal->overpicnum == MIRROR)
-				if (hitwal->lotag > 0 && S_CheckSoundPlaying(hitwal->lotag) == 0 && snum == screenpeek)
+			if (i < 1280 && hitscanwall->overpicnum == MIRROR)
+				if (hitscanwall->lotag > 0 && S_CheckSoundPlaying(hitscanwall->lotag) == 0 && snum == screenpeek)
 				{
-					S_PlayActorSound(hitwal->lotag, pact);
+					S_PlayActorSound(hitscanwall->lotag, pact);
 					return;
 				}
 			
-			if (hitscanwall >= 0 && (hitwal->cstat & 16))
-				if (hitwal->lotag)
+			if (hitscanwall != nullptr && (hitscanwall->cstat & 16))
+				if (hitscanwall->lotag)
 					return;
 		}
 		if (p->newOwner != nullptr)
@@ -1673,9 +1673,10 @@ void checksectors_d(int snum)
 				return;
 
 			case NUKEBUTTON:
-
-				hitawall(p, &j);
-				if (j >= 0 && wall[j].overpicnum == 0)
+			{
+				walltype* wal;
+				hitawall(p, &wal);
+				if (wal != nullptr && wal->overpicnum == 0)
 					if (neartagsprite->temp_data[0] == 0)
 					{
 						neartagsprite->temp_data[0] = 1;
@@ -1686,6 +1687,7 @@ void checksectors_d(int snum)
 						else ud.secretlevel = 0;
 					}
 				return;
+			}
 			case WATERFOUNTAIN:
 				if (neartagsprite->temp_data[0] != 1)
 				{
@@ -1771,9 +1773,10 @@ void checksectors_d(int snum)
 
 		if (neartagwall >= 0)
 		{
-			if (wall[neartagwall].lotag > 0 && fi.isadoorwall(wall[neartagwall].picnum))
+			auto ntwall = &wall[neartagwall];
+			if (ntwall->lotag > 0 && fi.isadoorwall(ntwall->picnum))
 			{
-				if (hitscanwall == neartagwall || hitscanwall == -1)
+				if (hitscanwall == ntwall || hitscanwall == nullptr)
 					fi.checkhitswitch(snum, neartagwall, nullptr);
 				return;
 			}

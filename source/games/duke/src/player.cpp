@@ -211,14 +211,12 @@ int hitasprite(DDukeActor* actor, DDukeActor** hitsp)
 //
 //---------------------------------------------------------------------------
 
-int hitawall(struct player_struct* p, int* hitw)
+int hitawall(struct player_struct* p, walltype** hitw)
 {
 	int sx, sy, sz;
-	int hitw1;
 
-	hitscanw(p->pos.x, p->pos.y, p->pos.z, p->cursectnum,
-		p->angle.ang.bcos(), p->angle.ang.bsin(), 0, nullptr, &hitw1, nullptr, &sx, &sy, &sz, CLIPMASK0);
-	*hitw = hitw1;
+	hitscan(p->pos.x, p->pos.y, p->pos.z, p->cursectnum,
+		p->angle.ang.bcos(), p->angle.ang.bsin(), 0, nullptr, hitw, nullptr, &sx, &sy, &sz, CLIPMASK0);
 
 	return (FindDistance2D(sx - p->pos.x, sy - p->pos.y));
 }
