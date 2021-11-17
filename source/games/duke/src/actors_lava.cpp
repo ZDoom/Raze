@@ -189,7 +189,6 @@ void addminecart(int p1, int p2, int i, int iht, int p3, int childsectnum)
 void dotorch(void)
 {
 	int ds;
-	int j;
 	uint8_t shade;
 	ds = krand()&8;
 	for (int i = 0; i < torchcnt; i++)
@@ -372,10 +371,7 @@ void dojaildoor(void)
 void moveminecart(void)
 {
 	int i;
-	int j;
 	int csect;
-	int startwall;
-	int endwall;
 	int speed;
 	int y;
 	int x;
@@ -556,7 +552,7 @@ void thunder(void)
 {
 	struct player_struct* p;
 	int r1, r2;
-	int startwall, endwall, i = 0, j;
+	int i = 0;
 	uint8_t shade;
 
 	p = &ps[screenpeek];
