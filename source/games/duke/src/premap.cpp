@@ -408,7 +408,7 @@ void resetprestat(int snum,int g)
 	p->holster_weapon = 0;
 	p->last_pissed_time = 0;
 
-	p->one_parallax_sectnum = -1;
+	p->one_parallax_sectnum = nullptr;
 	p->visibility = ud.const_visibility;
 
 	screenpeek              = myconnectindex;
@@ -652,8 +652,6 @@ void lava_cleararrays();
 
 void prelevel_common(int g)
 {
-	int i;
-
 	auto p = &ps[screenpeek];
 	p->sea_sick_stat = 0;
 	ufospawnsminion = 0;
@@ -691,9 +689,9 @@ void prelevel_common(int g)
 	memset(ambienthitag, -1, sizeof(ambienthitag));
 	memset(ambientlotag, -1, sizeof(ambientlotag));
 
-	for (i = 0; i < numsectors; i++)
+	for(auto&sec : sectors())
 	{
-		auto sectp = &sector[i];
+		auto sectp = &sec;
 		sectp->extra = 256;
 
 		switch (sectp->lotag)
@@ -712,8 +710,8 @@ void prelevel_common(int g)
 			if (sectp->ceilingpicnum == TILE_CLOUDYSKIES && numclouds < 127)
 				clouds[numclouds++] = sectp;
 
-			if (ps[0].one_parallax_sectnum == -1)
-				ps[0].one_parallax_sectnum = i;
+			if (ps[0].one_parallax_sectnum == nullptr)
+				ps[0].one_parallax_sectnum = sectp;
 		}
 
 		if (sectp->lotag == 32767) //Found a secret room

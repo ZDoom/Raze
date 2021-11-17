@@ -211,7 +211,8 @@ struct player_struct
 
 	int aim_mode, ftt;
 
-	int cursectnum, one_parallax_sectnum; // wall + sector references. Make them pointers later?
+	int cursectnum;
+	sectortype* one_parallax_sectnum; // wall + sector references. Make them pointers later?
 	walltype* access_wall;
 
 	short last_extra, subweapon;
@@ -311,11 +312,6 @@ struct player_struct
 	{
 		return &::sector[cursectnum];
 	}
-	sectortype* one_parallax_sector() const
-	{
-		return &::sector[one_parallax_sectnum];
-	}
-
 
 };
 

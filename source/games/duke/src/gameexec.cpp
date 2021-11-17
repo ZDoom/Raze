@@ -601,11 +601,6 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		else SetGameVarID(lVar2, ps[iPlayer].i, sActor, sPlayer);
 		break;
 
-	case PLAYER_ONE_PARALLAX_SECTNUM:
-		if (bSet) ps[iPlayer].one_parallax_sectnum = lValue;
-		else SetGameVarID(lVar2, ps[iPlayer].one_parallax_sectnum, sActor, sPlayer);
-		break;
-
 	case PLAYER_OVER_SHOULDER_ON:
 		if (bSet) ps[iPlayer].over_shoulder_on = lValue;
 		else SetGameVarID(lVar2, ps[iPlayer].over_shoulder_on, sActor, sPlayer);

@@ -3815,10 +3815,10 @@ void handle_se13(DDukeActor* actor)
 
 				sc->floorshade = s->shade;
 
-				if (ps[0].one_parallax_sectnum >= 0)
+				if (ps[0].one_parallax_sectnum != nullptr)
 				{
-					sc->ceilingpicnum = ps[0].one_parallax_sector()->ceilingpicnum;
-					sc->ceilingshade = ps[0].one_parallax_sector()->ceilingshade;
+					sc->ceilingpicnum = ps[0].one_parallax_sectnum->ceilingpicnum;
+					sc->ceilingshade = ps[0].one_parallax_sectnum->ceilingshade;
 				}
 			}
 		}

@@ -159,7 +159,7 @@ struct DukePlayer
 	native int randomflamex, crack_time;
 	native int aim_mode, ftt;
 
-	native int cursectnum, one_parallax_sectnum;
+	//native int cursectnum;// , one_parallax_sectnum
 	//native walltype access_wall; // can't do yet.
 
 	native int16 last_extra, subweapon;
