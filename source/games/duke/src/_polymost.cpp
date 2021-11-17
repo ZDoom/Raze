@@ -168,16 +168,16 @@ void renderMirror(int cposx, int cposy, int cposz, binangle cang, fixedhoriz cho
 		int dst = 0x7fffffff, i = 0;
 		for (int k = 0; k < mirrorcnt; k++)
 		{
-			int j = abs(wall[mirrorwall[k]].x - cposx) + abs(wall[mirrorwall[k]].y - cposy);
+			int j = abs(mirrorwall[k]->x - cposx) + abs(mirrorwall[k]->y - cposy);
 			if (j < dst) dst = j, i = k;
 		}
 
-		if (wall[mirrorwall[i]].overpicnum == TILE_MIRROR)
+		if (mirrorwall[i]->overpicnum == TILE_MIRROR)
 		{
 			int tposx, tposy;
 			fixed_t tang;
 
-			renderPrepareMirror(cposx, cposy, cposz, cang.asq16(), choriz.asq16(), mirrorwall[i], &tposx, &tposy, &tang);
+			renderPrepareMirror(cposx, cposy, cposz, cang.asq16(), choriz.asq16(), wallnum(mirrorwall[i]), &tposx, &tposy, &tang);
 
 			int j = g_visibility;
 			g_visibility = (j >> 1) + (j >> 2);

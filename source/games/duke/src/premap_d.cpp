@@ -389,7 +389,7 @@ void prelevel_d(int g)
 				assert(wallnum(&wal) > 0);
 				sectp->ceilingpicnum = MIRROR;
 				sectp->floorpicnum = MIRROR;
-				mirrorwall[mirrorcnt] = wallnum(&wal);
+				mirrorwall[mirrorcnt] = &wal;
 				mirrorsector[mirrorcnt] = sectnum(sectp);
 				mirrorcnt++;
 				continue;

@@ -116,7 +116,7 @@ int numcyclers;								// sector lighting effects
 Cycler cyclers[MAXCYCLERS];
 int mirrorcnt;
 int mirrorsector[64];					// mirrors
-int mirrorwall[64];
+walltype* mirrorwall[64];
 int numplayersprites;						// player management for some SEs.
 player_orig po[MAXPLAYERS];
 unsigned ambientfx;							// used by soundtag and soundtagonce script commands. If exported, export the commands, not the data!

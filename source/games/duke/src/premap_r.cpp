@@ -732,7 +732,7 @@ void prelevel_r(int g)
 			{
 				sector[j].ceilingpicnum = MIRROR;
 				sector[j].floorpicnum = MIRROR;
-				mirrorwall[mirrorcnt] = i;
+				mirrorwall[mirrorcnt] = wal;
 				mirrorsector[mirrorcnt] = j;
 				mirrorcnt++;
 				continue;
