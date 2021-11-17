@@ -855,14 +855,12 @@ void checkhitwall_d(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 
 		if (!wal->lotag) return;
 
-		sn = wal->nextsector;
-		if (sn < 0) return;
+		if (wal->nextsector < 0) return;
 		darkestwall = 0;
 
-		wal = &wall[sector[sn].wallptr];
-		for (int i = sector[sn].wallnum; i > 0; i--, wal++)
-			if (wal->shade > darkestwall)
-				darkestwall = wal->shade;
+		for (auto& wl : wallsofsector(wal->nextSector()))
+			if (wl.shade > darkestwall)
+				darkestwall = wl.shade;
 
 		j = krand() & 1;
 		DukeStatIterator it(STAT_EFFECTOR);

@@ -1079,7 +1079,6 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 	case RRTILE3643 + 3:
 	{
 		int sect;
-		int startwall, endwall;
 		sect = wal->nextWall()->nextsector;
 		DukeSectIterator it(sect);
 		while (auto act = it.Next())
@@ -1087,14 +1086,13 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 			s = act->s;
 			if (s->lotag == 6)
 			{
-				//for (j = 0; j < 16; j++) RANDOMSCRAP(s, -1); This never spawned anything due to the -1.
 				act->spriteextra++;
 				if (act->spriteextra == 25)
 				{
-					startwall = s->sector()->wallptr;
-					endwall = startwall + s->sector()->wallnum;
-					for (i = startwall; i < endwall; i++)
-						sector[wall[i].nextsector].lotag = 0;
+					for(auto& wl : wallsofsector(s->sectnum))
+					{
+						if (wl.nextsector >= 0) wl.nextSector()->lotag = 0;
+					}
 					s->sector()->lotag = 0;
 					S_StopSound(act->s->lotag);
 					S_PlayActorSound(400, act);
@@ -2792,9 +2790,8 @@ void checksectors_r(int snum)
 //
 //---------------------------------------------------------------------------
 
-void dofurniture(int wl, int sect, int snum)
+void dofurniture(walltype* wlwal, sectortype* sectp, int snum)
 {
-	auto wlwal = &wall[wl];
 	int nextsect = wlwal->nextsector;
 	int var_C;
 	int x;
@@ -2809,7 +2806,7 @@ void dofurniture(int wl, int sect, int snum)
 	var_C = 1;
 	max_x = max_y = -0x20000;
 	min_x = min_y = 0x20000;
-	var_cx = sector[sect].hitag;
+	var_cx = sectp->hitag;
 	if (var_cx > 16)
 		var_cx = 16;
 	else if (var_cx == 0)
@@ -2831,16 +2828,16 @@ void dofurniture(int wl, int sect, int snum)
 	max_y += var_cx + 1;
 	min_x -= var_cx + 1;
 	min_y -= var_cx + 1;
-	ins = inside(max_x, max_y, sect);
+	ins = inside(max_x, max_y, sectnum(sectp));
 	if (!ins)
 		var_C = 0;
-	ins = inside(max_x, min_y, sect);
+	ins = inside(max_x, min_y, sectnum(sectp));
 	if (!ins)
 		var_C = 0;
-	ins = inside(min_x, min_y, sect);
+	ins = inside(min_x, min_y, sectnum(sectp));
 	if (!ins)
 		var_C = 0;
-	ins = inside(min_x, max_y, sect);
+	ins = inside(min_x, max_y, sectnum(sectp));
 	if (!ins)
 		var_C = 0;
 	if (var_C)

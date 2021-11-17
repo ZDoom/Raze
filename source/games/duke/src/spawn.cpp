@@ -742,20 +742,18 @@ void spawneffector(DDukeActor* actor)
 
 				if (sp->ang == 512)
 				{
-					startwall = sectp->wallptr;
-					endwall = startwall + sectp->wallnum;
-					for (int j = startwall; j < endwall; j++)
+					for (auto& wl : wallsofsector(sectp))
 					{
-						int x = wall[j].nextsector;
-						if (x >= 0)
-							if (!(sector[x].ceilingstat & 1))
+						if (wl.nextsector >= 0)
+						{
+							auto nsec = wl.nextSector();
+							if (!(nsec->ceilingstat & 1))
 							{
-								sectp->ceilingpicnum =
-									sector[x].ceilingpicnum;
-								sectp->ceilingshade =
-									sector[x].ceilingshade;
-								break; //Leave earily
+								sectp->ceilingpicnum = nsec->ceilingpicnum;
+								sectp->ceilingshade = nsec->ceilingshade;
+								break; //Leave early
 							}
+						}
 					}
 				}
 			}
