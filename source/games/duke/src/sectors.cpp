@@ -425,6 +425,11 @@ int setanimation(int animsect, int animtype, int animtarget, int thegoal, int th
 	return(j);
 }
 
+int setanimation(int animsect, int animtype, walltype* animtarget, int thegoal, int thevel)
+{
+	assert(animtype == anim_vertexx || animtype == anim_vertexy);
+	return setanimation(animsect, animtype, wallnum(animtarget), thegoal, thevel);
+}
 
 //---------------------------------------------------------------------------
 //
@@ -531,8 +536,8 @@ static void handle_st09(int sn, DDukeActor* actor)
 			{
 				dax2 = wal->point2Wall()->point2Wall()->x;
 				dax2 -= wal->point2Wall()->x;
-				setanimation(sn, anim_vertexx, wallnum(wal), wal->x + dax2, sp);
-				setanimation(sn, anim_vertexx, wallnum(prevwall), prevwall->x + dax2, sp);
+				setanimation(sn, anim_vertexx, wal, wal->x + dax2, sp);
+				setanimation(sn, anim_vertexx, prevwall, prevwall->x + dax2, sp);
 				setanimation(sn, anim_vertexx, wal->point2, wal->point2Wall()->x + dax2, sp);
 				callsound(sn, actor);
 			}
@@ -540,8 +545,8 @@ static void handle_st09(int sn, DDukeActor* actor)
 			{
 				day2 = wal->point2Wall()->point2Wall()->y;
 				day2 -= wal->point2Wall()->y;
-				setanimation(sn, anim_vertexy, wallnum(wal), wal->y + day2, sp);
-				setanimation(sn, anim_vertexy, wallnum(prevwall), prevwall->y + day2, sp);
+				setanimation(sn, anim_vertexy, wal, wal->y + day2, sp);
+				setanimation(sn, anim_vertexy, prevwall, prevwall->y + day2, sp);
 				setanimation(sn, anim_vertexy, wal->point2, wal->point2Wall()->y + day2, sp);
 				callsound(sn, actor);
 			}
@@ -552,15 +557,15 @@ static void handle_st09(int sn, DDukeActor* actor)
 			day2 = ((prevwall->y + wal->point2Wall()->y) >> 1) - wal->y;
 			if (dax2 != 0)
 			{
-				setanimation(sn, anim_vertexx, wallnum(wal), dax, sp);
-				setanimation(sn, anim_vertexx, wallnum(prevwall), dax + dax2, sp);
+				setanimation(sn, anim_vertexx, wal, dax, sp);
+				setanimation(sn, anim_vertexx, prevwall, dax + dax2, sp);
 				setanimation(sn, anim_vertexx, wal->point2, dax + dax2, sp);
 				callsound(sn, actor);
 			}
 			else if (day2 != 0)
 			{
-				setanimation(sn, anim_vertexy, wallnum(wal), day, sp);
-				setanimation(sn, anim_vertexy, wallnum(prevwall), day + day2, sp);
+				setanimation(sn, anim_vertexy, wal, day, sp);
+				setanimation(sn, anim_vertexy, prevwall, day + day2, sp);
 				setanimation(sn, anim_vertexy, wal->point2, day + day2, sp);
 				callsound(sn, actor);
 			}
@@ -976,8 +981,8 @@ void operatesectors(int sn, DDukeActor *actor)
 		if (!isRR()) break;
 		for (auto& wal : wallsofsector(sptr))
 		{
-			setanimation(sn, anim_vertexx, wallnum(&wal), wal.x + 1024, 4);
-			setanimation(sn, anim_vertexx, wal.nextwall, wal.nextWall()->x + 1024, 4);
+			setanimation(sn, anim_vertexx, &wal, wal.x + 1024, 4);
+			if (wal.nextwall >= 0) setanimation(sn, anim_vertexx, wal.nextwall, wal.nextWall()->x + 1024, 4);
 		}
 		break;
 
