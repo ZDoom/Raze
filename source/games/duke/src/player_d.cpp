@@ -2022,8 +2022,9 @@ int operateTripbomb(int snum)
 	if (hw >= 0 && sector[sect].lotag > 2)
 		return 0;
 
-	if (hw >= 0 && wall[hw].overpicnum >= 0)
-		if (wall[hw].overpicnum == BIGFORCE)
+	auto wal = hw < 0? nullptr : &wall[hw];
+	if (hw >= 0 && wal->overpicnum >= 0)
+		if (wal->overpicnum == BIGFORCE)
 			return 0;
 
 	DDukeActor* j;
@@ -2036,8 +2037,8 @@ int operateTripbomb(int snum)
 			return 0;
 	}
 
-	if (j == nullptr && hw >= 0 && (wall[hw].cstat & 16) == 0)
-		if ((wall[hw].nextsector >= 0 && sector[wall[hw].nextsector].lotag <= 2) || (wall[hw].nextsector == -1 && sector[sect].lotag <= 2))
+	if (j == nullptr && hw >= 0 && (wal->cstat & 16) == 0)
+		if ((wal->nextsector >= 0 && wal->nextSector()->lotag <= 2) || (wal->nextsector == -1 && sector[sect].lotag <= 2))
 			if (((sx - p->pos.x) * (sx - p->pos.x) + (sy - p->pos.y) * (sy - p->pos.y)) < (290 * 290))
 			{
 				p->pos.z = p->oposz;
