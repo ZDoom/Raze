@@ -88,12 +88,12 @@ bool isadoorwall_d(int dapic)
 
 void animatewalls_d(void)
 {
-	int i, j, p, t;
+	int t;
 
-	for (p = 0; p < numanimwalls; p++)
+	for (int p = 0; p < numanimwalls; p++)
 	{
-		i = animwall[p].wallnum;
-		j = wall[i].picnum;
+		auto wal = &wall[animwall[p].wallnum];
+		int j = wal->picnum;
 
 		switch (j)
 		{
@@ -117,8 +117,8 @@ void animatewalls_d(void)
 
 			if ((krand() & 255) < 16)
 			{
-				animwall[p].tag = wall[i].picnum;
-				wall[i].picnum = SCREENBREAK6;
+				animwall[p].tag = wal->picnum;
+				wal->picnum = SCREENBREAK6;
 			}
 
 			continue;
@@ -127,20 +127,20 @@ void animatewalls_d(void)
 		case SCREENBREAK7:
 		case SCREENBREAK8:
 
-			if (animwall[p].tag >= 0 && wall[i].extra != FEMPIC2 && wall[i].extra != FEMPIC3)
-				wall[i].picnum = animwall[p].tag;
+			if (animwall[p].tag >= 0 && wal->extra != FEMPIC2 && wal->extra != FEMPIC3)
+				wal->picnum = animwall[p].tag;
 			else
 			{
-				wall[i].picnum++;
-				if (wall[i].picnum == (SCREENBREAK6 + 3))
-					wall[i].picnum = SCREENBREAK6;
+				wal->picnum++;
+				if (wal->picnum == (SCREENBREAK6 + 3))
+					wal->picnum = SCREENBREAK6;
 			}
 			continue;
 
 		}
 
-		if (wall[i].cstat & 16)
-			switch (wall[i].overpicnum)
+		if (wal->cstat & 16)
+			switch (wal->overpicnum)
 			{
 			case W_FORCEFIELD:
 			case W_FORCEFIELD + 1:
@@ -148,14 +148,14 @@ void animatewalls_d(void)
 
 				t = animwall[p].tag;
 
-				if (wall[i].cstat & 254)
+				if (wal->cstat & 254)
 				{
-					wall[i].addxpan(-t / 4096.f); // bcos(t, -12);
-					wall[i].addypan(-t / 4096.f); // bsin(t, -12);
+					wal->addxpan(-t / 4096.f); // bcos(t, -12);
+					wal->addypan(-t / 4096.f); // bsin(t, -12);
 
-					if (wall[i].extra == 1)
+					if (wal->extra == 1)
 					{
-						wall[i].extra = 0;
+						wal->extra = 0;
 						animwall[p].tag = 0;
 					}
 					else
@@ -164,14 +164,14 @@ void animatewalls_d(void)
 					if (animwall[p].tag < (128 << 4))
 					{
 						if (animwall[p].tag & 128)
-							wall[i].overpicnum = W_FORCEFIELD;
-						else wall[i].overpicnum = W_FORCEFIELD + 1;
+							wal->overpicnum = W_FORCEFIELD;
+						else wal->overpicnum = W_FORCEFIELD + 1;
 					}
 					else
 					{
 						if ((krand() & 255) < 32)
 							animwall[p].tag = 128 << (krand() & 3);
-						else wall[i].overpicnum = W_FORCEFIELD + 1;
+						else wal->overpicnum = W_FORCEFIELD + 1;
 					}
 				}
 
