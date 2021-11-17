@@ -1346,10 +1346,9 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 		if (sn < 0) return;
 		darkestwall = 0;
 
-		wal = sector[sn].firstWall();
-		for (i = sector[sn].wallnum; i > 0; i--, wal++)
-			if (wal->shade > darkestwall)
-				darkestwall = wal->shade;
+		for (auto& wl : wallsofsector(wal->nextsector))
+			if (wl.shade > darkestwall)
+				darkestwall = wl.shade;
 
 		j = krand() & 1;
 		DukeStatIterator it(STAT_EFFECTOR);
@@ -2602,7 +2601,9 @@ void checksectors_r(int snum)
 			if (isanunderoperator(p->GetActor()->getSector()->lotag))
 				neartagsector = p->GetActor()->s->sectnum;
 
-		if (neartagsector >= 0 && (sector[neartagsector].lotag & 16384))
+		auto ntsect = neartagsector < 0? nullptr : &sector[neartagsector];
+
+		if (neartagsector >= 0 && (ntsect->lotag & 16384))
 			return;
 
 		if (neartagsprite == nullptr && neartagwall == -1)
@@ -2739,7 +2740,7 @@ void checksectors_r(int snum)
 			}
 		}
 
-		if (neartagsector >= 0 && (sector[neartagsector].lotag & 16384) == 0 && isanearoperator(sector[neartagsector].lotag))
+		if (neartagsector >= 0 && (ntsect->lotag & 16384) == 0 && isanearoperator(ntsect->lotag))
 		{
 			DukeSectIterator it(neartagsector);
 			while (auto act = it.Next())

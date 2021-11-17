@@ -439,7 +439,7 @@ int setanimation(int animsect, int animtype, walltype* animtarget, int thegoal, 
 
 bool activatewarpelevators(DDukeActor* actor, int d) //Parm = sectoreffectornum
 {
-	int sn = actor->s->sectnum;
+	auto sect = actor->s->sector();
 
 	// See if the sector exists
 
@@ -449,8 +449,8 @@ bool activatewarpelevators(DDukeActor* actor, int d) //Parm = sectoreffectornum
 	{
 		if (act2->s->lotag == SE_17_WARP_ELEVATOR || (isRRRA() && act2->s->lotag == SE_18_INCREMENTAL_SECTOR_RISE_FALL))
 			if (act2->s->hitag == actor->s->hitag)
-				if ((abs(sector[sn].floorz - actor->temp_data[2]) > act2->s->yvel) ||
-					(act2->getSector()->hitag == (sector[sn].hitag - d)))
+				if ((abs(sect->floorz - actor->temp_data[2]) > act2->s->yvel) ||
+					(act2->getSector()->hitag == (sect->hitag - d)))
 					break;
 	}
 

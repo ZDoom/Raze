@@ -852,11 +852,11 @@ static void SpawnPortals()
 					{
 						if (processedTags.Find(spr->hitag) == processedTags.Size())
 						{
-							int s1 = spr->sectnum, s2 = spr2->sectnum;
-							sector[s1].portalflags = PORTAL_SECTOR_FLOOR;
-							sector[s2].portalflags = PORTAL_SECTOR_CEILING;
-							sector[s1].portalnum = portalAdd(PORTAL_SECTOR_FLOOR, s2, spr2->x - spr->x, spr2->y - spr->y, spr->hitag);
-							sector[s2].portalnum = portalAdd(PORTAL_SECTOR_CEILING, s1, spr->x - spr2->x, spr->y - spr2->y, spr->hitag);
+							sectortype* s1 = spr->sector(), *s2 = spr2->sector();
+							s1->portalflags = PORTAL_SECTOR_FLOOR;
+							s1->portalflags = PORTAL_SECTOR_CEILING;
+							s2->portalnum = portalAdd(PORTAL_SECTOR_FLOOR, sectnum(s2), spr2->x - spr->x, spr2->y - spr->y, spr->hitag);
+							s2->portalnum = portalAdd(PORTAL_SECTOR_CEILING, sectnum(s1), spr->x - spr2->x, spr->y - spr2->y, spr->hitag);
 							processedTags.Push(spr->hitag);
 						}
 						else
