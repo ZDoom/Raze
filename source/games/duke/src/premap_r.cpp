@@ -724,16 +724,16 @@ void prelevel_r(int g)
 
 		if (wal->overpicnum == MIRROR && (wal->cstat & 32) != 0)
 		{
-			j = wal->nextsector;
+			auto sect = wal->nextSector();
 
 			if (mirrorcnt > 63)
 				I_Error("Too many mirrors (64 max.)");
-			if ((j >= 0) && sector[j].ceilingpicnum != MIRROR)
+			if ((j >= 0) && sect->ceilingpicnum != MIRROR)
 			{
-				sector[j].ceilingpicnum = MIRROR;
-				sector[j].floorpicnum = MIRROR;
+				sect->ceilingpicnum = MIRROR;
+				sect->floorpicnum = MIRROR;
 				mirrorwall[mirrorcnt] = wal;
-				mirrorsector[mirrorcnt] = j;
+				mirrorsector[mirrorcnt] = sect;
 				mirrorcnt++;
 				continue;
 			}
@@ -777,12 +777,10 @@ void prelevel_r(int g)
 	//Invalidate textures in sector behind mirror
 	for (i = 0; i < mirrorcnt; i++)
 	{
-		startwall = sector[mirrorsector[i]].wallptr;
-		endwall = startwall + sector[mirrorsector[i]].wallnum;
-		for (j = startwall; j < endwall; j++)
+		for (auto& mwal : wallsofsector(mirrorsector[i]))
 		{
-			wall[j].picnum = MIRROR;
-			wall[j].overpicnum = MIRROR;
+			mwal.picnum = MIRROR;
+			mwal.overpicnum = MIRROR;
 		}
 	}
 	thunder_brightness = 0;

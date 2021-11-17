@@ -182,7 +182,7 @@ void renderMirror(int cposx, int cposy, int cposz, binangle cang, fixedhoriz cho
 			int j = g_visibility;
 			g_visibility = (j >> 1) + (j >> 2);
 
-			renderDrawRoomsQ16(tposx, tposy, cposz, tang, choriz.asq16(), mirrorsector[i], true);
+			renderDrawRoomsQ16(tposx, tposy, cposz, tang, choriz.asq16(), sectnum(mirrorsector[i]), true);
 
 			display_mirror = 1;
 			fi.animatesprites(pm_tsprite, pm_spritesortcnt, tposx, tposy, tang, smoothratio);

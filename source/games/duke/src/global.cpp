@@ -115,7 +115,7 @@ int cloudclock;
 int numcyclers;								// sector lighting effects
 Cycler cyclers[MAXCYCLERS];
 int mirrorcnt;
-int mirrorsector[64];					// mirrors
+sectortype* mirrorsector[64];					// mirrors
 walltype* mirrorwall[64];
 int numplayersprites;						// player management for some SEs.
 player_orig po[MAXPLAYERS];

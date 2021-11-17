@@ -97,7 +97,7 @@ extern int cloudclock;
 
 extern DDukeActor *spriteq[1024];
 extern Cycler cyclers[MAXCYCLERS];
-extern int mirrorsector[64];
+extern sectortype* mirrorsector[64];
 extern walltype* mirrorwall[64];
 
 extern int wupass;
