@@ -88,9 +88,10 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 	spritetype* const s = actor->s;
 	int sect = s->sectnum;
 	int zvel;
-	int hitsect, hitwall;
 	int hitx, hity, hitz;
 	DDukeActor* hitsprt;
+	sectortype* hitsectp;
+	walltype* wal;
 
 	if (p >= 0)
 	{
@@ -106,25 +107,24 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 		sa = getangle(pspr->s->x - sx, pspr->s->y - sy);
 	}
 
-	hitscanw(sx, sy, sz, sect,
+	hitscan(sx, sy, sz, sect,
 		bcos(sa),
 		bsin(sa), zvel << 6,
-		&hitsect, &hitwall, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
+		&hitsectp, &wal, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
 
-	if (isRRRA() && hitsect >= 0 && ((sector[hitsect].lotag == 160 && zvel > 0) || (sector[hitsect].lotag == 161 && zvel < 0))
-		&& hitsprt == nullptr && hitwall == -1)
+	if (isRRRA() && hitsectp != nullptr && ((hitsectp->lotag == 160 && zvel > 0) || (hitsectp->lotag == 161 && zvel < 0))
+		&& hitsprt == nullptr && wal == nullptr)
 	{
-		DukeLinearSpriteIterator its;
+		DukeStatIterator its(STAT_EFFECTOR);
 		while (auto effector = its.Next())
 		{
-			// shouldn't this only check STAT_EFFECTOR?
-			if (effector->s->sectnum == hitsect && effector->s->picnum == SECTOREFFECTOR && effector->GetOwner()
-				&& effector->s->lotag == 7)
+			if (effector->s->sector() == hitsectp && effector->s->picnum == SECTOREFFECTOR && effector->GetOwner()
+				&& effector->s->lotag == SE_7_TELEPORT)
 			{
 				int nx, ny, nz;
 				nx = hitx + (effector->GetOwner()->s->x - effector->s->x);
 				ny = hity + (effector->GetOwner()->s->y - effector->s->y);
-				if (sector[hitsect].lotag == 161)
+				if (hitsectp->lotag == 161)
 				{
 					nz = effector->GetOwner()->getSector()->floorz;
 				}
@@ -132,28 +132,28 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 				{
 					nz = effector->GetOwner()->getSector()->ceilingz;
 				}
-				hitscanw(nx, ny, nz, effector->GetOwner()->s->sectnum, bcos(sa), bsin(sa), zvel << 6,
-					&hitsect, &hitwall, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
+				hitscan(nx, ny, nz, effector->GetOwner()->s->sectnum, bcos(sa), bsin(sa), zvel << 6,
+					&hitsectp, &wal, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
 				break;
 			}
 		}
 	}
 
-	if (hitsect < 0) return;
+	if (hitsectp == nullptr) return;
 
 	if ((abs(sx - hitx) + abs(sy - hity)) < 1024)
 	{
-		if (hitwall >= 0 || hitsprt)
+		if (wal != nullptr || hitsprt)
 		{
 			DDukeActor* wpn;
 			if (isRRRA() && atwith == SLINGBLADE)
 			{
-				wpn = EGS(hitsect, hitx, hity, hitz, SLINGBLADE, -15, 0, 0, sa, 32, 0, actor, 4);
+				wpn = EGS(sectnum(hitsectp), hitx, hity, hitz, SLINGBLADE, -15, 0, 0, sa, 32, 0, actor, 4);
 				wpn->s->extra += 50;
 			}
 			else
 			{
-				wpn = EGS(hitsect, hitx, hity, hitz, KNEE, -15, 0, 0, sa, 32, 0, actor, 4);
+				wpn = EGS(sectnum(hitsectp), hitx, hity, hitz, KNEE, -15, 0, 0, sa, 32, 0, actor, 4);
 				wpn->s->extra += (krand() & 7);
 			}
 			if (p >= 0)
@@ -172,22 +172,21 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 				fi.checkhitsprite(hitsprt, wpn);
 				if (p >= 0) fi.checkhitswitch(p, -1, hitsprt);
 			}
-			else if (hitwall >= 0)
+			else if (wal)
 			{
-				auto wal = &wall[hitwall];
 				if (wal->cstat & 2)
 					if (wal->nextsector >= 0)
 						if (hitz >= (wal->nextSector()->floorz))
 							wal = wal->nextWall();
 
-				if (/*hitwall >= 0 &&*/ wal->picnum != ACCESSSWITCH && wal->picnum != ACCESSSWITCH2)
+				if (wal->picnum != ACCESSSWITCH && wal->picnum != ACCESSSWITCH2)
 				{
 					fi.checkhitwall(wpn, wal, hitx, hity, hitz, atwith);
 					if (p >= 0) fi.checkhitswitch(p, wallnum(wal), nullptr);
 				}
 			}
 		}
-		else if (p >= 0 && zvel > 0 && sector[hitsect].lotag == 1)
+		else if (p >= 0 && zvel > 0 && hitsectp->lotag == 1)
 		{
 			auto splash = spawn(ps[p].GetActor(), WATERSPLASH2);
 			splash->s->x = hitx;
@@ -211,9 +210,10 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 	auto s = actor->s;
 	int sect = s->sectnum;
 	int zvel = 0;
-	int hitsect, hitwall;
 	int hitx, hity, hitz;
 	DDukeActor* hitsprt;
+	sectortype* hitsectp;
+	walltype* wal;
 
 	if (s->extra >= 0) s->shade = -96;
 
@@ -266,23 +266,22 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 	}
 
 	s->cstat &= ~257;
-	hitscanw(sx, sy, sz, sect, bcos(sa), bsin(sa),
-		zvel << 6, &hitsect, &hitwall, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
+	hitscan(sx, sy, sz, sect, bcos(sa), bsin(sa),
+		zvel << 6, &hitsectp, &wal, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
 
-	if (isRRRA() && hitsect >= 0 && (((sector[hitsect].lotag == 160 && zvel > 0) || (sector[hitsect].lotag == 161 && zvel < 0))
-		&& hitsprt == nullptr && hitwall == -1))
+	if (isRRRA() && hitsectp != nullptr && (((hitsectp->lotag == 160 && zvel > 0) || (hitsectp->lotag == 161 && zvel < 0))
+		&& hitsprt == nullptr && wal == nullptr))
 	{
-		DukeLinearSpriteIterator its;
+		DukeStatIterator its(STAT_EFFECTOR);
 		while (auto effector = its.Next())
 		{
-			// shouldn't this only check STAT_EFFECTOR?
-			if (effector->s->sectnum == hitsect && effector->s->picnum == SECTOREFFECTOR && effector->GetOwner()
-				&& effector->s->lotag == 7)
+			if (effector->s->sector() == hitsectp && effector->s->picnum == SECTOREFFECTOR && effector->GetOwner()
+				&& effector->s->lotag == SE_7_TELEPORT)
 			{
 				int nx, ny, nz;
 				nx = hitx + (effector->GetOwner()->s->x - effector->s->x);
 				ny = hity + (effector->GetOwner()->s->y - effector->s->y);
-				if (sector[hitsect].lotag == 161)
+				if (hitsectp->lotag == 161)
 				{
 					nz = effector->GetOwner()->getSector()->floorz;
 				}
@@ -290,8 +289,8 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 				{
 					nz = effector->GetOwner()->getSector()->ceilingz;
 				}
-				hitscanw(nx, ny, nz, effector->GetOwner()->s->sectnum, bcos(sa), bsin(sa), zvel << 6,
-					&hitsect, &hitwall, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
+				hitscan(nx, ny, nz, effector->GetOwner()->s->sectnum, bcos(sa), bsin(sa), zvel << 6,
+					&hitsectp, &wal, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
 				break;
 			}
 		}
@@ -299,37 +298,37 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 
 	s->cstat |= 257;
 
-	if (hitsect < 0) return;
+	if (hitsectp == nullptr) return;
 
 	if (atwith == SHOTGUN)
-		if (sector[hitsect].lotag == 1)
+		if (hitsectp->lotag == 1)
 			if (krand() & 1)
 				return;
 
-	if ((krand() & 15) == 0 && sector[hitsect].lotag == 2)
+	if ((krand() & 15) == 0 && hitsectp->lotag == 2)
 		tracers(hitx, hity, hitz, sx, sy, sz, 8 - (ud.multimode >> 1));
 
 	DDukeActor* spark;
 	if (p >= 0)
 	{
-		spark = EGS(hitsect, hitx, hity, hitz, SHOTSPARK1, -15, 10, 10, sa, 0, 0, actor, 4);
+		spark = EGS(sectnum(hitsectp), hitx, hity, hitz, SHOTSPARK1, -15, 10, 10, sa, 0, 0, actor, 4);
 		spark->s->extra = ScriptCode[gs.actorinfo[atwith].scriptaddress];
 		spark->s->extra += (krand() % 6);
 
-		if (hitwall == -1 && hitsprt == nullptr)
+		if (wal == nullptr && hitsprt == nullptr)
 		{
 			if (zvel < 0)
 			{
-				if (sector[hitsect].ceilingstat & 1)
+				if (hitsectp->ceilingstat & 1)
 				{
 					spark->s->xrepeat = 0;
 					spark->s->yrepeat = 0;
 					return;
 				}
 				else
-					fi.checkhitceiling(hitsect);
+					fi.checkhitceiling(sectnum(hitsectp));
 			}
-			if (sector[hitsect].lotag != 1)
+			if (hitsectp->lotag != 1)
 				spawn(spark, SMALLSMOKE);
 		}
 
@@ -364,10 +363,9 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 				return;
 			}
 		}
-		else if (hitwall >= 0)
+		else if (wal != nullptr)
 		{
 			spawn(spark, SMALLSMOKE);
-			auto wal = &wall[hitwall];
 
 			if (fi.isadoorwall(wal->picnum) == 1)
 				goto SKIPBULLETHOLE;
@@ -384,17 +382,17 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 				wal->picnum == HANDSWITCH ||
 				wal->picnum == HANDSWITCH + 1))
 			{
-				fi.checkhitswitch(p, hitwall, nullptr);
+				fi.checkhitswitch(p, wallnum(wal), nullptr);
 				return;
 			}
 
 			if (wal->hitag != 0 || (wal->nextwall >= 0 && wal->nextWall()->hitag != 0))
 				goto SKIPBULLETHOLE;
 
-			if (hitsect >= 0 && sector[hitsect].lotag == 0)
+			if (hitsectp != nullptr && hitsectp->lotag == 0)
 				if (wal->overpicnum != BIGFORCE)
 					if ((wal->nextsector >= 0 && wal->nextSector()->lotag == 0) ||
-						(wal->nextsector == -1 && sector[hitsect].lotag == 0))
+						(wal->nextsector == -1 && hitsectp->lotag == 0))
 						if ((wal->cstat & 16) == 0)
 						{
 							if (wal->nextsector >= 0)
@@ -433,7 +431,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 	}
 	else
 	{
-		spark = EGS(hitsect, hitx, hity, hitz, SHOTSPARK1, -15, 24, 24, sa, 0, 0, actor, 4);
+		spark = EGS(sectnum(hitsectp), hitx, hity, hitz, SHOTSPARK1, -15, 24, 24, sa, 0, 0, actor, 4);
 		spark->s->extra = ScriptCode[gs.actorinfo[atwith].scriptaddress];
 
 		if (hitsprt)
@@ -443,8 +441,8 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 				spawn(spark, SMALLSMOKE);
 			else spark->s->xrepeat = spark->s->yrepeat = 0;
 		}
-		else if (hitwall >= 0)
-			fi.checkhitwall(spark, &wall[hitwall], hitx, hity, hitz, SHOTSPARK1);
+		else if (wal != nullptr)
+			fi.checkhitwall(spark, wal, hitx, hity, hitz, SHOTSPARK1);
 	}
 
 	if ((krand() & 255) < 10)
