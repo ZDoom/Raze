@@ -395,19 +395,12 @@ void InitElev()
 // done
 DExhumedActor* BuildWallSprite(int nSector)
 {
-    int nWall = sector[nSector].wallptr;
-
-    int x = wall[nWall].x;
-    int y = wall[nWall].y;
-
-    int x2 = wall[nWall + 1].x;
-    int y2 = wall[nWall + 1].y;
+    auto wal = sector[nSector].firstWall();
 
     auto pActor = insertActor(nSector, 401);
     auto pSprite = &pActor->s();
 
-    pSprite->x = (x + x2) / 2;
-    pSprite->y = (y + y2) / 2;
+	pSprite->pos.vec2 = wal->center();
     pSprite->z = (sector[nSector].floorz + sector[nSector].ceilingz) / 2;
     pSprite->cstat = 0x8000;
 
@@ -420,33 +413,26 @@ DExhumedActor* FindWallSprites(int nSector)
     int var_24 = 0x7FFFFFFF;
     int ecx = 0x7FFFFFFF;
 
-    int nWall = sector[nSector].wallptr;
-    int nWallCount = sector[nSector].wallnum;
-
     int esi = 0x80000002;
     int edi = 0x80000002;
 
-    int i;
-
-    for (i = 0; i < nWallCount; i++)
+	for (auto& wal : wallsofsector(nSector))
     {
-        if (wall[nWall].x < var_24) {
-            var_24 = wall[nWall].x;
+        if (wal.x < var_24) {
+            var_24 = wal.x;
         }
 
-        if (esi < wall[nWall].x) {
-            esi = wall[nWall].x;
+        if (esi < wal.x) {
+            esi = wal.x;
         }
 
-        if (ecx > wall[nWall].y) {
-            ecx = wall[nWall].y;
+        if (ecx > wal.y) {
+            ecx = wal.y;
         }
 
-        if (edi < wall[nWall].y) {
-            edi = wall[nWall].y;
+        if (edi < wal.y) {
+            edi = wal.y;
         }
-
-        nWall++;
     }
 
     ecx -= 5;

@@ -1258,11 +1258,9 @@ Collision AngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int ebx, int
 
 int GetWallNormal(int nWall)
 {
-    nWall &= kMaxWalls-1;
+	auto delta = wall[nWall].delta();
 
-    int nWall2 = wall[nWall].point2;
-
-    int nAngle = GetMyAngle(wall[nWall2].x - wall[nWall].x, wall[nWall2].y - wall[nWall].y);
+    int nAngle = GetMyAngle(delta.x, delta.y);
     return (nAngle + 512) & kAngleMask;
 }
 
