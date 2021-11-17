@@ -1219,12 +1219,12 @@ void operateforcefields_common(DDukeActor *effector, int low, const std::initial
 //
 //---------------------------------------------------------------------------
 
-void breakwall(int newpn, DDukeActor* spr, int dawallnum)
+void breakwall(int newpn, DDukeActor* spr, walltype* wal)
 {
-	wall[dawallnum].picnum = newpn;
+	wal->picnum = newpn;
 	S_PlayActorSound(VENT_BUST, spr);
 	S_PlayActorSound(GLASS_HEAVYBREAK, spr);
-	lotsofglass(spr, dawallnum, 10);
+	lotsofglass(spr, wallnum(wal), 10);
 }
 
 //---------------------------------------------------------------------------

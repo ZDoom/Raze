@@ -1240,7 +1240,7 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 
 	case COLAMACHINE:
 	case VENDMACHINE:
-		breakwall(wal->picnum + 2, spr, wallnum(wal));
+		breakwall(wal->picnum + 2, spr, wal);
 		S_PlayActorSound(GLASS_BREAKING, spr);
 		return;
 

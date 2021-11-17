@@ -738,7 +738,7 @@ void checkhitwall_d(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 	{
 	case COLAMACHINE:
 	case VENDMACHINE:
-		breakwall(wal->picnum + 2, spr, wallnum(wal));
+		breakwall(wal->picnum + 2, spr, wal);
 		S_PlayActorSound(VENT_BUST, spr);
 		return;
 
@@ -779,14 +779,14 @@ void checkhitwall_d(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 	case W_TECHWALL7:
 	case W_TECHWALL8:
 	case W_TECHWALL9:
-		breakwall(wal->picnum + 1, spr, wallnum(wal));
+		breakwall(wal->picnum + 1, spr, wal);
 		return;
 	case W_MILKSHELF:
-		breakwall(W_MILKSHELFBROKE, spr, wallnum(wal));
+		breakwall(W_MILKSHELFBROKE, spr, wal);
 		return;
 
 	case W_TECHWALL10:
-		breakwall(W_HITTECHWALL10, spr, wallnum(wal));
+		breakwall(W_HITTECHWALL10, spr, wal);
 		return;
 
 	case W_TECHWALL1:
@@ -794,27 +794,27 @@ void checkhitwall_d(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 	case W_TECHWALL12:
 	case W_TECHWALL13:
 	case W_TECHWALL14:
-		breakwall(W_HITTECHWALL1, spr, wallnum(wal));
+		breakwall(W_HITTECHWALL1, spr, wal);
 		return;
 
 	case W_TECHWALL15:
-		breakwall(W_HITTECHWALL15, spr, wallnum(wal));
+		breakwall(W_HITTECHWALL15, spr, wal);
 		return;
 
 	case W_TECHWALL16:
-		breakwall(W_HITTECHWALL16, spr, wallnum(wal));
+		breakwall(W_HITTECHWALL16, spr, wal);
 		return;
 
 	case W_TECHWALL2:
-		breakwall(W_HITTECHWALL2, spr, wallnum(wal));
+		breakwall(W_HITTECHWALL2, spr, wal);
 		return;
 
 	case W_TECHWALL3:
-		breakwall(W_HITTECHWALL3, spr, wallnum(wal));
+		breakwall(W_HITTECHWALL3, spr, wal);
 		return;
 
 	case W_TECHWALL4:
-		breakwall(W_HITTECHWALL4, spr, wallnum(wal));
+		breakwall(W_HITTECHWALL4, spr, wal);
 		return;
 
 	case ATM:
