@@ -959,7 +959,7 @@ static void handle_st28(int sn, DDukeActor* actor)
 
 void operatesectors(int sn, DDukeActor *actor)
 {
-	int j=0, startwall, endwall;
+	int j=0;
 	int i;
 	sectortype* sptr;
 
@@ -1191,8 +1191,6 @@ void operatemasterswitches(int low)
 
 void operateforcefields_common(DDukeActor *effector, int low, const std::initializer_list<int> &tiles)
 {
-	int p;
-
 	for (int p = numanimwalls; p >= 0; p--)
 	{
 		auto wal = &wall[animwall[p].wallnum];

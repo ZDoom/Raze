@@ -846,15 +846,12 @@ void spawneffector(DDukeActor* actor)
 
 			//fix all the walls;
 
-			startwall = sectp->wallptr;
-			endwall = startwall + sectp->wallnum;
-
-			for (s = startwall; s < endwall; s++)
+			for (auto& wal : wallsofsector(sectp))
 			{
-				if (!(wall[s].hitag & 1))
-					wall[s].shade = sp->shade;
-				if ((wall[s].cstat & 2) && wall[s].nextwall >= 0)
-					wall[wall[s].nextwall].shade = sp->shade;
+				if (!(wal.hitag & 1))
+					wal.shade = sp->shade;
+				if ((wal.cstat & 2) && wal.nextwall >= 0)
+					wal.nextWall()->shade = sp->shade;
 			}
 			break;
 
@@ -863,11 +860,8 @@ void spawneffector(DDukeActor* actor)
 			//	t[2] = sp->hitag;
 			if (sp->ang != 1536) sectp->floorz = sp->z;
 
-			startwall = sectp->wallptr;
-			endwall = startwall + sectp->wallnum;
-
-			for (s = startwall; s < endwall; s++)
-				if (wall[s].hitag == 0) wall[s].hitag = 9999;
+			for (auto& wal : wallsofsector(sectp))
+				if (wal.hitag == 0) wal.hitag = 9999;
 
 			StartInterpolation(sect, Interp_Sect_Floorz);
 
@@ -877,11 +871,8 @@ void spawneffector(DDukeActor* actor)
 			t[2] = sp->hitag;
 			if (sp->ang != 1536) sectp->ceilingz = sp->z;
 
-			startwall = sectp->wallptr;
-			endwall = startwall + sectp->wallnum;
-
-			for (s = startwall; s < endwall; s++)
-				if (wall[s].hitag == 0) wall[s].hitag = 9999;
+			for (auto& wal : wallsofsector(sectp))
+				if (wal.hitag == 0) wal.hitag = 9999;
 
 			StartInterpolation(sect, Interp_Sect_Ceilingz);
 
@@ -891,14 +882,11 @@ void spawneffector(DDukeActor* actor)
 
 			t[2] = sectp->floorshade;
 
-			startwall = sectp->wallptr;
-			endwall = startwall + sectp->wallnum;
-
 			actor->palvals = (sectp->ceilingpal << 8) | sectp->floorpal;
 
-			for (s = startwall; s < endwall; s++)
-				if (wall[s].shade > t[3])
-					t[3] = wall[s].shade;
+			for (auto& wal : wallsofsector(sectp))
+				if (wal.shade > t[3])
+					t[3] = wal.shade;
 
 			break;
 
@@ -913,12 +901,9 @@ void spawneffector(DDukeActor* actor)
 			t[0] = sectp->floorshade;
 			t[1] = sectp->ceilingshade;
 
-			startwall = sectp->wallptr;
-			endwall = startwall + sectp->wallnum;
-
-			for (s = startwall; s < endwall; s++)
-				if (wall[s].shade > t[2])
-					t[2] = wall[s].shade;
+			for (auto& wal : wallsofsector(sectp))
+				if (wal.shade > t[2])
+					t[2] = wal.shade;
 
 			t[3] = 1; //Take Out;
 
@@ -931,12 +916,9 @@ void spawneffector(DDukeActor* actor)
 			t[0] = sectp->floorshade;
 			t[1] = sectp->ceilingshade;
 
-			startwall = sectp->wallptr;
-			endwall = startwall + sectp->wallnum;
-
-			for (s = startwall; s < endwall; s++)
-				if (wall[s].shade > t[2])
-					t[2] = wall[s].shade;
+			for (auto& wal : wallsofsector(sectp))
+				if (wal.shade > t[2])
+					t[2] = wal.shade;
 
 			t[3] = 1; //Take Out;
 			break;
