@@ -342,19 +342,19 @@ void spawntransporter(DDukeActor *actj, DDukeActor* acti, bool beam)
 int spawnbloodpoolpart1(DDukeActor *actj, DDukeActor* acti)
 {
 	auto sp = acti->s;
-	int s1 = sp->sectnum;
+	auto s1 = sp->sector();
 
 	updatesector(sp->x + 108, sp->y + 108, &s1);
-	if (s1 >= 0 && sector[s1].floorz == sp->sector()->floorz)
+	if (s1 && s1->floorz == sp->sector()->floorz)
 	{
 		updatesector(sp->x - 108, sp->y - 108, &s1);
-		if (s1 >= 0 && sector[s1].floorz == sp->sector()->floorz)
+		if (s1 && s1->floorz == sp->sector()->floorz)
 		{
 			updatesector(sp->x + 108, sp->y - 108, &s1);
-			if (s1 >= 0 && sector[s1].floorz == sp->sector()->floorz)
+			if (s1 && s1->floorz == sp->sector()->floorz)
 			{
 				updatesector(sp->x - 108, sp->y + 108, &s1);
-				if (s1 >= 0 && sector[s1].floorz != sp->sector()->floorz)
+				if (s1 && s1->floorz != sp->sector()->floorz)
 				{
 					sp->xrepeat = sp->yrepeat = 0; changeactorstat(acti, STAT_MISC); return true;
 				}
@@ -385,19 +385,19 @@ void initfootprint(DDukeActor* actj, DDukeActor* acti)
 	int sect = sp->sectnum;
 	if (actj)
 	{
-		int s1 = sp->sectnum;
+		auto s1 = sp->sector();
 
 		updatesector(sp->x + 84, sp->y + 84, &s1);
-		if (s1 >= 0 && sector[s1].floorz == sp->sector()->floorz)
+		if (s1 && s1->floorz == sp->sector()->floorz)
 		{
 			updatesector(sp->x - 84, sp->y - 84, &s1);
-			if (s1 >= 0 && sector[s1].floorz == sp->sector()->floorz)
+			if (s1 && s1->floorz == sp->sector()->floorz)
 			{
 				updatesector(sp->x + 84, sp->y - 84, &s1);
-				if (s1 >= 0 && sector[s1].floorz == sp->sector()->floorz)
+				if (s1 && s1->floorz == sp->sector()->floorz)
 				{
 					updatesector(sp->x - 84, sp->y + 84, &s1);
-					if (s1 >= 0 && sector[s1].floorz != sp->sector()->floorz)
+					if (s1 && s1->floorz != sp->sector()->floorz)
 					{
 						sp->xrepeat = sp->yrepeat = 0; changeactorstat(acti, STAT_MISC); return;
 					}
