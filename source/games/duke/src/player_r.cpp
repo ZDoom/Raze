@@ -174,15 +174,16 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 			}
 			else if (hitwall >= 0)
 			{
-				if (wall[hitwall].cstat & 2)
-					if (wall[hitwall].nextsector >= 0)
-						if (hitz >= (sector[wall[hitwall].nextsector].floorz))
-							hitwall = wall[hitwall].nextwall;
+				auto wal = &wall[hitwall];
+				if (wal->cstat & 2)
+					if (wal->nextsector >= 0)
+						if (hitz >= (wal->nextSector()->floorz))
+							wal = wal->nextWall();
 
-				if (hitwall >= 0 && wall[hitwall].picnum != ACCESSSWITCH && wall[hitwall].picnum != ACCESSSWITCH2)
+				if (/*hitwall >= 0 &&*/ wal->picnum != ACCESSSWITCH && wal->picnum != ACCESSSWITCH2)
 				{
-					fi.checkhitwall(wpn, hitwall, hitx, hity, hitz, atwith);
-					if (p >= 0) fi.checkhitswitch(p, hitwall, nullptr);
+					fi.checkhitwall(wpn, wallnum(wal), hitx, hity, hitz, atwith);
+					if (p >= 0) fi.checkhitswitch(p, wallnum(wal), nullptr);
 				}
 			}
 		}
@@ -2353,13 +2354,13 @@ static void underwater(int snum, ESyncBits actions, int psect, int fz, int cz)
 //
 //---------------------------------------------------------------------------
 
-void onMotorcycleMove(int snum, int psect, int j)
+void onMotorcycleMove(int snum, int psect, walltype* wal)
 {
-	auto wal = &wall[j];
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
 	auto s = pact->s;
-	int angleDelta = abs(p->angle.ang.asbuild() - getangle(wall[wall[j].point2].x - wall[j].x, wall[wall[j].point2].y - wall[j].y));
+	auto delta = wal->delta();
+	int angleDelta = abs(p->angle.ang.asbuild() - getangle(delta.x, delta.y));
 	int damageAmount;
 
 	p->angle.addadjustment(p->MotoSpeed / (krand() & 1 ? -2 : 2));
@@ -2409,12 +2410,13 @@ void onMotorcycleMove(int snum, int psect, int j)
 //
 //---------------------------------------------------------------------------
 
-void onBoatMove(int snum, int psect, int j)
+void onBoatMove(int snum, int psect, walltype* wal)
 {
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
 	int psectlotag = sector[psect].lotag;
-	int angleDelta = abs(p->angle.ang.asbuild() - getangle(wall[wall[j].point2].x - wall[j].x, wall[wall[j].point2].y - wall[j].y));
+	auto delta = wal->delta();
+	int angleDelta = abs(p->angle.ang.asbuild() - getangle(delta.x, delta.y));
 
 	p->angle.addadjustment(p->MotoSpeed / (krand() & 1 ? -4 : 4));
 
@@ -3792,19 +3794,20 @@ HORIZONLY:
 
 	if (clip.type == kHitWall)
 	{
+		auto wal = clip.wall();
 		if (p->OnMotorcycle)
 		{
-			onMotorcycleMove(snum, psect, clip.index);
+			onMotorcycleMove(snum, psect, wal);
 		}
 		else if (p->OnBoat)
 		{
-			onBoatMove(snum, psect, clip.index);
+			onBoatMove(snum, psect, wal);
 		}
 		else
 		{
-			if (wall[clip.index].lotag >= 40 && wall[clip.index].lotag <= 44)
+			if (wal->lotag >= 40 && wal->lotag <= 44)
 			{
-				if (wall[clip.index].lotag < 44)
+				if (wal->lotag < 44)
 				{
 					dofurniture(clip.index, p->cursectnum, snum);
 					pushmove(&p->pos, &p->cursectnum, 172L, (4L << 8), (4L << 8), CLIPMASK0);
