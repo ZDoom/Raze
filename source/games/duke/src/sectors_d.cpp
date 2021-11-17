@@ -1573,18 +1573,20 @@ void checksectors_d(int snum)
 		hitscanwall = -1;
 
 		i = hitawall(p, &hitscanwall);
-
-		if (i < 1280 && hitscanwall >= 0 && wall[hitscanwall].overpicnum == MIRROR)
-			if (wall[hitscanwall].lotag > 0 && S_CheckSoundPlaying(wall[hitscanwall].lotag) == 0 && snum == screenpeek)
-			{
-				S_PlayActorSound(wall[hitscanwall].lotag, pact);
-				return;
-			}
-
-		if (hitscanwall >= 0 && (wall[hitscanwall].cstat & 16))
-			if (wall[hitscanwall].lotag)
-				return;
-
+		if (hitscanwall >= 0)
+		{
+			auto hitwal = &wall[hitscanwall];
+			if (i < 1280 && hitwal->overpicnum == MIRROR)
+				if (hitwal->lotag > 0 && S_CheckSoundPlaying(hitwal->lotag) == 0 && snum == screenpeek)
+				{
+					S_PlayActorSound(hitwal->lotag, pact);
+					return;
+				}
+			
+			if (hitscanwall >= 0 && (hitwal->cstat & 16))
+				if (hitwal->lotag)
+					return;
+		}
 		if (p->newOwner != nullptr)
 			neartag(p->oposx, p->oposy, p->oposz, p->GetActor()->s->sectnum, p->angle.oang.asbuild(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 1);
 		else

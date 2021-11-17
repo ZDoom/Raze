@@ -2509,43 +2509,47 @@ void checksectors_r(int snum)
 
 		hitawall(p, &hitscanwall);
 
-		if (isRRRA())
+		if (hitscanwall >= 0)
 		{
-			if (hitscanwall >= 0 && wall[hitscanwall].overpicnum == MIRROR && snum == screenpeek)
-				if (numplayers == 1)
-				{
-					if (S_CheckActorSoundPlaying(pact, 27) == 0 && S_CheckActorSoundPlaying(pact, 28) == 0 && S_CheckActorSoundPlaying(pact, 29) == 0
-						&& S_CheckActorSoundPlaying(pact, 257) == 0 && S_CheckActorSoundPlaying(pact, 258) == 0)
+			auto hitwal = &wall[hitscanwall];
+			if (isRRRA())
+			{
+				if (hitwal->overpicnum == MIRROR && snum == screenpeek)
+					if (numplayers == 1)
 					{
-						int snd = krand() % 5;
-						if (snd == 0)
-							S_PlayActorSound(27, pact);
-						else if (snd == 1)
-							S_PlayActorSound(28, pact);
-						else if (snd == 2)
-							S_PlayActorSound(29, pact);
-						else if (snd == 3)
-							S_PlayActorSound(257, pact);
-						else if (snd == 4)
-							S_PlayActorSound(258, pact);
+						if (S_CheckActorSoundPlaying(pact, 27) == 0 && S_CheckActorSoundPlaying(pact, 28) == 0 && S_CheckActorSoundPlaying(pact, 29) == 0
+							&& S_CheckActorSoundPlaying(pact, 257) == 0 && S_CheckActorSoundPlaying(pact, 258) == 0)
+						{
+							int snd = krand() % 5;
+							if (snd == 0)
+								S_PlayActorSound(27, pact);
+							else if (snd == 1)
+								S_PlayActorSound(28, pact);
+							else if (snd == 2)
+								S_PlayActorSound(29, pact);
+							else if (snd == 3)
+								S_PlayActorSound(257, pact);
+							else if (snd == 4)
+								S_PlayActorSound(258, pact);
+						}
+						return;
 					}
+			}
+			else
+			{
+				if (hitwal->overpicnum == MIRROR)
+					if (hitwal->lotag > 0 && S_CheckActorSoundPlaying(pact, hitwal->lotag) == 0 && snum == screenpeek)
+					{
+						S_PlayActorSound(hitwal->lotag, pact);
+						return;
+					}
+			}
+			
+			if ((hitwal->cstat & 16))
+				if (hitwal->lotag)
 					return;
-				}
+			
 		}
-		else
-		{
-			if (hitscanwall >= 0 && wall[hitscanwall].overpicnum == MIRROR)
-		  		if (wall[hitscanwall].lotag > 0 && S_CheckActorSoundPlaying(pact, wall[hitscanwall].lotag) == 0 && snum == screenpeek)
-				{
-					S_PlayActorSound(wall[hitscanwall].lotag, pact);
-					return;
-				}
-		}
-
-		if (hitscanwall >= 0 && (wall[hitscanwall].cstat & 16))
-			if (wall[hitscanwall].lotag)
-				return;
-
 		if (isRRRA())
 		{
 			if (p->OnMotorcycle)
@@ -2796,8 +2800,8 @@ void checksectors_r(int snum)
 
 void dofurniture(int wl, int sect, int snum)
 {
-	int nextsect = wall[wl].nextsector;
-	int i;
+	auto wlwal = &wall[wl];
+	int nextsect = wlwal->nextsector;
 	int var_C;
 	int x;
 	int y;
@@ -2853,7 +2857,7 @@ void dofurniture(int wl, int sect, int snum)
 		{
 			x = wal.x;
 			y = wal.y;
-			switch (wall[wl].lotag)
+			switch (wlwal->lotag)
 			{
 			case 42:
 				y = wal.y + var_cx;
@@ -2880,7 +2884,7 @@ void dofurniture(int wl, int sect, int snum)
 		{
 			x = wal.x;
 			y = wal.y;
-			switch (wall[wl].lotag)
+			switch (wlwal->lotag)
 			{
 			case 42:
 				y = wal.y - (var_cx - 2);
