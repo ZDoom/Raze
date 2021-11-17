@@ -488,11 +488,12 @@ void initcrane(DDukeActor* actj, DDukeActor* acti, int CRANEPOLE)
 
 	sp->picnum += 2;
 	sp->z = sector[sect].ceilingz + (48 << 8);
-	t[4] = tempwallptr;
+	t[4] = cranes.Reserve(1);
 
-	msx[tempwallptr] = sp->x;
-	msy[tempwallptr] = sp->y;
-	msx[tempwallptr + 2] = sp->z;
+	auto& apt = cranes[t[4]];
+	apt.x = sp->x;
+	apt.y = sp->y;
+	apt.z = sp->z;
 
 	DukeStatIterator it(STAT_DEFAULT);
 	while (auto act = it.Next())
@@ -500,15 +501,15 @@ void initcrane(DDukeActor* actj, DDukeActor* acti, int CRANEPOLE)
 		auto ss = act->s;
 		if (ss->picnum == CRANEPOLE && sp->hitag == (ss->hitag))
 		{
-			msy[tempwallptr + 2] = ActorToScriptIndex(act);
+			apt.poleactor = act;
 
 			t[1] = ss->sectnum;
 
 			ss->xrepeat = 48;
 			ss->yrepeat = 128;
 
-			msx[tempwallptr + 1] = ss->x;
-			msy[tempwallptr + 1] = ss->y;
+			apt.polex = ss->x;
+			apt.poley = ss->y;
 
 			ss->x = sp->x;
 			ss->y = sp->y;
@@ -520,7 +521,6 @@ void initcrane(DDukeActor* actj, DDukeActor* acti, int CRANEPOLE)
 		}
 	}
 
-	tempwallptr += 3;
 	acti->SetOwner(nullptr);
 	sp->extra = 8;
 	changeactorstat(acti, STAT_STANDABLE);

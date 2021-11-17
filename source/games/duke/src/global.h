@@ -120,7 +120,8 @@ extern int geocnt;
 extern short ambientlotag[64];
 extern short ambienthitag[64];
 extern unsigned ambientfx;
-extern int msx[MAXANIMPOINTS], msy[MAXANIMPOINTS];
+extern int msx[MAXANIMPOINTS], msy[MAXANIMPOINTS]; // todo: unlimit
+extern TArray<CraneDef> cranes;
 extern int WindTime, WindDir;
 extern short fakebubba_spawn, mamaspawn_count, banjosound;
 extern short BellTime;

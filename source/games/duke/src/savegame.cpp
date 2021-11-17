@@ -55,6 +55,21 @@ void lava_serialize(FSerializer& arc);
 void SerializeGameVars(FSerializer &arc);
 
 
+FSerializer& Serialize(FSerializer& arc, const char* keyname, CraneDef& w, CraneDef* def)
+{
+	if (arc.BeginObject(keyname))
+	{
+		arc("x", w.x)
+			("y", w.y)
+			("z", w.z)
+			("polex", w.polex)
+			("poley", w.poley)
+			("pole", w.poleactor)
+			.EndObject();
+	}
+	return arc;
+}
+
 FSerializer& Serialize(FSerializer& arc, const char* keyname, animwalltype& w, animwalltype* def)
 {
 	if (arc.BeginObject(keyname))
@@ -373,6 +388,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 			.Array("sectorextra", sectorextra, numsectors)
 			("rtsplaying", rtsplaying)
 			("tempwallptr", tempwallptr)
+			("cranes", cranes)
 			("sound445done", sound445done)
 			.Array("players", ps, ud.multimode)
 			("spriteqamount", spriteqamount)

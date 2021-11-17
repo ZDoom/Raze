@@ -644,6 +644,7 @@ void movecrane(DDukeActor *actor, int crane)
 	auto spri = actor->s;
 	auto sectp = spri->sector();
 	int x;
+	auto& cpt = cranes[t[4]];
 
 	//t[0] = state
 	//t[1] = checking sector number
@@ -661,8 +662,8 @@ void movecrane(DDukeActor *actor, int crane)
 			case STAT_ZOMBIEACTOR:
 			case STAT_STANDABLE:
 			case STAT_PLAYER:
-				spri->ang = getangle(msx[t[4] + 1] - spri->x, msy[t[4] + 1] - spri->y);
-				setsprite(a2, msx[t[4] + 1], msy[t[4] + 1], a2->s->z);
+				spri->ang = getangle(cpt.polex - spri->x, cpt.poley - spri->y);
+				setsprite(a2, cpt.polex, cpt.poley, a2->s->z);
 				t[0]++;
 				return;
 			}
@@ -758,7 +759,7 @@ void movecrane(DDukeActor *actor, int crane)
 			if ((sectp->floorz - spri->z) > 8192)
 				spri->picnum++;
 
-		if (spri->z < msx[t[4] + 2])
+		if (spri->z < cpt.z)
 		{
 			t[0]++;
 			spri->xvel = 0;
@@ -770,16 +771,16 @@ void movecrane(DDukeActor *actor, int crane)
 	{
 		if (spri->xvel < 192)
 			spri->xvel += 8;
-		spri->ang = getangle(msx[t[4]] - spri->x, msy[t[4]] - spri->y);
+		spri->ang = getangle(cpt.x - spri->x, cpt.y - spri->y);
 		ssp(actor, CLIPMASK0);
-		if (((spri->x - msx[t[4]]) * (spri->x - msx[t[4]]) + (spri->y - msy[t[4]]) * (spri->y - msy[t[4]])) < (128 * 128))
+		if (((spri->x - cpt.x) * (spri->x - cpt.x) + (spri->y - cpt.y) * (spri->y - cpt.y)) < (128 * 128))
 			t[0]++;
 	}
 
 	else if (t[0] == 9)
 		t[0] = 0;
 
-	setsprite(ScriptIndexToActor(msy[t[4] + 2]), spri->x, spri->y, spri->z - (34 << 8));
+	setsprite(cpt.poleactor, spri->x, spri->y, spri->z - (34 << 8));
 
 	auto Owner = actor->GetOwner();
 	if (Owner != nullptr || actor->IsActiveCrane())

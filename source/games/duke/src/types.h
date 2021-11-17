@@ -160,6 +160,13 @@ struct player_orig
 	short oa, os;
 };
 
+struct CraneDef
+{
+	int x, y, z;
+	int polex, poley;
+	DDukeActor* poleactor;
+};
+
 struct player_struct 
 {
 	// This is basically the version from JFDuke but this first block contains a few changes to make it work with other parts of Raze.

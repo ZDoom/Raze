@@ -267,6 +267,7 @@ enum
 	MAXANIMATES     = 1024,
 	MAXANIMWALLS    = 512,
 	MAXANIMPOINTS   = 2048,
+	MAXCRANES		= 16,
 };
 
 enum amoveflags_t
