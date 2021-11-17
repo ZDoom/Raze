@@ -923,16 +923,15 @@ void activatebysector_r(int sect, DDukeActor* activator)
 //
 //---------------------------------------------------------------------------
 
-static void lotsofpopcorn(DDukeActor *actor, int wallnum, int n)
+static void lotsofpopcorn(DDukeActor *actor, walltype* wal, int n)
 {
-	auto wal = &wall[wallnum];
 	int j, z;
 	int sect, a;
 
 	sect = -1;
 	auto sp = actor->s;
 
-	if (wallnum < 0)
+	if (wal == nullptr)
 	{
 		for (j = n - 1; j >= 0; j--)
 		{
@@ -1028,7 +1027,7 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 				{
 					updatesector(x, y, &sn); if (sn < 0) return;
 					wal->overpicnum = GLASS2;
-					lotsofpopcorn(spr, wallnum(wal), 64);
+					lotsofpopcorn(spr, wal, 64);
 					wal->cstat = 0;
 
 					if (wal->nextwall >= 0)
