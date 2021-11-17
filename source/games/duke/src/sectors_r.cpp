@@ -927,7 +927,8 @@ void activatebysector_r(int sect, DDukeActor* activator)
 
 static void lotsofpopcorn(DDukeActor *actor, int wallnum, int n)
 {
-	int j, xv, yv, z, x1, y1;
+	auto wal = &wall[wallnum];
+	int j, z;
 	int sect, a;
 
 	sect = -1;
@@ -945,22 +946,21 @@ static void lotsofpopcorn(DDukeActor *actor, int wallnum, int n)
 
 	j = n + 1;
 
-	x1 = wall[wallnum].x;
-	y1 = wall[wallnum].y;
+	int x1 = wal->x;
+	int y1 = wal->y;
 
-	xv = wall[wall[wallnum].point2].x - x1;
-	yv = wall[wall[wallnum].point2].y - y1;
+	auto delta = wal->delta();
 
-	x1 -= Sgn(yv);
-	y1 += Sgn(xv);
+	x1 -= Sgn(delta.x);
+	y1 += Sgn(delta.y);
 
-	xv /= j;
-	yv /= j;
+	delta.x /= j;
+	delta.y /= j;
 
 	for (j = n; j > 0; j--)
 	{
-		x1 += xv;
-		y1 += yv;
+		x1 += delta.x;
+		y1 += delta.y;
 
 		updatesector(x1, y1, &sect);
 		if (sect >= 0)
@@ -2796,8 +2796,7 @@ void checksectors_r(int snum)
 
 void dofurniture(int wl, int sect, int snum)
 {
-	int startwall;
-	int endwall;
+	int nextsect = wall[wl].nextsector;
 	int i;
 	int var_C;
 	int x;
@@ -2809,8 +2808,6 @@ void dofurniture(int wl, int sect, int snum)
 	int ins;
 	int var_cx;
 
-	startwall = sector[wall[wl].nextsector].wallptr;;
-	endwall = startwall + sector[wall[wl].nextsector].wallnum;
 	var_C = 1;
 	max_x = max_y = -0x20000;
 	min_x = min_y = 0x20000;
@@ -2819,10 +2816,10 @@ void dofurniture(int wl, int sect, int snum)
 		var_cx = 16;
 	else if (var_cx == 0)
 		var_cx = 4;
-	for (i = startwall; i < endwall; i++)
+	for(auto& wal : wallsofsector(nextsect))
 	{
-		x = wall[i].x;
-		y = wall[i].y;
+		x = wal.x;
+		y = wal.y;
 		if (x > max_x)
 			max_x = x;
 		if (y > max_y)
@@ -2852,54 +2849,54 @@ void dofurniture(int wl, int sect, int snum)
 	{
 		if (S_CheckActorSoundPlaying(ps[snum].GetActor(), 389) == 0)
 			S_PlayActorSound(389, ps[snum].GetActor());
-		for (i = startwall; i < endwall; i++)
+		for(auto& wal : wallsofsector(nextsect))
 		{
-			x = wall[i].x;
-			y = wall[i].y;
+			x = wal.x;
+			y = wal.y;
 			switch (wall[wl].lotag)
 			{
 			case 42:
-				y = wall[i].y + var_cx;
-				dragpoint(i, x, y);
+				y = wal.y + var_cx;
+				dragpoint(&wal, x, y);
 				break;
 			case 41:
-				x = wall[i].x - var_cx;
-				dragpoint(i, x, y);
+				x = wal.x - var_cx;
+				dragpoint(&wal, x, y);
 				break;
 			case 40:
-				y = wall[i].y - var_cx;
-				dragpoint(i, x, y);
+				y = wal.y - var_cx;
+				dragpoint(&wal, x, y);
 				break;
 			case 43:
-				x = wall[i].x + var_cx;
-				dragpoint(i, x, y);
+				x = wal.x + var_cx;
+				dragpoint(&wal, x, y);
 				break;
 			}
 		}
 	}
 	else
 	{
-		for (i = startwall; i < endwall; i++)
+		for(auto& wal : wallsofsector(nextsect))
 		{
-			x = wall[i].x;
-			y = wall[i].y;
+			x = wal.x;
+			y = wal.y;
 			switch (wall[wl].lotag)
 			{
 			case 42:
-				y = wall[i].y - (var_cx - 2);
-				dragpoint(i, x, y);
+				y = wal.y - (var_cx - 2);
+				dragpoint(&wal, x, y);
 				break;
 			case 41:
-				x = wall[i].x + (var_cx - 2);
-				dragpoint(i, x, y);
+				x = wal.x + (var_cx - 2);
+				dragpoint(&wal, x, y);
 				break;
 			case 40:
-				y = wall[i].y + (var_cx - 2);
-				dragpoint(i, x, y);
+				y = wal.y + (var_cx - 2);
+				dragpoint(&wal, x, y);
 				break;
 			case 43:
-				x = wall[i].x - (var_cx - 2);
-				dragpoint(i, x, y);
+				x = wal.x - (var_cx - 2);
+				dragpoint(&wal, x, y);
 				break;
 			}
 		}
