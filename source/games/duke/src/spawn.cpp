@@ -619,7 +619,7 @@ void spawneffector(DDukeActor* actor)
 	auto sectp = sp->sector();
 	int sect = sp->sectnum;
 	auto t = actor->temp_data;
-	int startwall, endwall, d, s, clostest = 0;
+	int startwall, endwall, d, clostest = 0;
 
 	sp->yvel = sectp->extra;
 	sp->cstat |= 32768;
@@ -978,25 +978,19 @@ void spawneffector(DDukeActor* actor)
 				}
 			}
 
-			startwall = sectp->wallptr;
-			endwall = startwall + sectp->wallnum;
-
 			t[1] = tempwallptr;
-			for (s = startwall; s < endwall; s++)
+			for (auto& wal : wallsofsector(sectp))
 			{
-				msx[tempwallptr] = wall[s].x - sp->x;
-				msy[tempwallptr] = wall[s].y - sp->y;
+				msx[tempwallptr] = wal.x - sp->x;
+				msy[tempwallptr] = wal.y - sp->y;
 				tempwallptr++;
 				if (tempwallptr > 2047)
 				{
-					I_Error("Too many moving sectors at (%d,%d).\n", wall[s].x, wall[s].y);
+					I_Error("Too many moving sectors at (%d,%d).\n", wal.x, wal.y);
 				}
 			}
 			if (sp->lotag == SE_30_TWO_WAY_TRAIN || sp->lotag == SE_6_SUBWAY || sp->lotag == SE_14_SUBWAY_CAR || sp->lotag == SE_5_BOSS)
 			{
-
-				startwall = sectp->wallptr;
-				endwall = startwall + sectp->wallnum;
 
 				if (sectp->hitag == -1)
 					sp->extra = 0;
@@ -1004,21 +998,19 @@ void spawneffector(DDukeActor* actor)
 
 				sectp->hitag = ActorToScriptIndex(actor);
 
-				int j = 0;
-
-				for (s = startwall; s < endwall; s++)
+				int s = -1;
+				for (auto& wal : wallsofsector(sectp))
 				{
-					if (wall[s].nextsector >= 0 &&
-						sector[wall[s].nextsector].hitag == 0 &&
-						(sector[wall[s].nextsector].lotag < 3 || (isRRRA() && sector[wall[s].nextsector].lotag == 160)))
+					if (wal.nextsector >= 0 &&
+						wal.nextSector()->hitag == 0 &&
+						(wal.nextSector()->lotag < 3 || (isRRRA() && wal.nextSector()->lotag == 160)))
 					{
-						s = wall[s].nextsector;
-						j = 1;
+						s = wal.nextsector;
 						break;
 					}
 				}
 
-				if (j == 0)
+				if (s == -1)
 				{
 					I_Error("Subway found no zero'd sectors with locators\nat (%d,%d).\n", sp->x, sp->y);
 				}
