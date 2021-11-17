@@ -282,15 +282,16 @@ static void shootknee(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 
 			else if (hitwall >= 0)
 			{
-				if (wall[hitwall].cstat & 2)
-					if (wall[hitwall].nextsector >= 0)
-						if (hitz >= (sector[wall[hitwall].nextsector].floorz))
-							hitwall = wall[hitwall].nextwall;
+				auto wal = &wall[hitwall];
+				if (wal->cstat & 2)
+					if (wal->nextsector >= 0)
+						if (hitz >= (wal->nextSector()->floorz))
+							wal =wal->nextWall();
 
-				if (hitwall >= 0 && wall[hitwall].picnum != ACCESSSWITCH && wall[hitwall].picnum != ACCESSSWITCH2)
+				if (/*hitwall >= 0 &&*/ wal->picnum != ACCESSSWITCH && wal->picnum != ACCESSSWITCH2)
 				{
-					fi.checkhitwall(knee, hitwall, hitx, hity, hitz, KNEE);
-					if (p >= 0) fi.checkhitswitch(p, hitwall, nullptr);
+					fi.checkhitwall(knee, wallnum(wal), hitx, hity, hitz, KNEE);
+					if (p >= 0) fi.checkhitswitch(p, wallnum(wal), nullptr);
 				}
 			}
 		}
@@ -515,8 +516,8 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 							}
 							auto hole = spawn(spark, BULLETHOLE);
 							hole->s->xvel = -1;
-							hole->s->ang = getangle(wal->x - wall[wal->point2].x,
-								wal->y - wall[wal->point2].y) + 512;
+							auto delta = wal->delta();
+							hole->s->ang = getangle(-delta.x, -delta.y) + 512;
 							ssp(hole, CLIPMASK0);
 						}
 
@@ -858,46 +859,50 @@ static void shootlaser(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 	if (hitsprt) return;
 
 	if (hitwall >= 0 && hitsect >= 0)
+	{
+		auto wal = &wall[hitwall];
 		if (((hitx - sx) * (hitx - sx) + (hity - sy) * (hity - sy)) < (290 * 290))
 		{
-			if (wall[hitwall].nextsector >= 0)
+			if (wal->nextsector >= 0)
 			{
-				if (sector[wall[hitwall].nextsector].lotag <= 2 && sector[hitsect].lotag <= 2)
+				if (wal->nextSector()->lotag <= 2 && sector[hitsect].lotag <= 2)
 					j = 1;
 			}
 			else if (sector[hitsect].lotag <= 2)
 				j = 1;
 		}
 
-	if (j == 1)
-	{
-		auto bomb = EGS(hitsect, hitx, hity, hitz, TRIPBOMB, -16, 4, 5, sa, 0, 0, actor, 6);
-		if (isWW2GI())
+		if (j == 1)
 		{
-			int lTripBombControl = GetGameVar("TRIPBOMB_CONTROL", TRIPBOMB_TRIPWIRE, nullptr, -1);
-			if (lTripBombControl & TRIPBOMB_TIMER)
+			auto bomb = EGS(hitsect, hitx, hity, hitz, TRIPBOMB, -16, 4, 5, sa, 0, 0, actor, 6);
+			if (isWW2GI())
 			{
-				int lLifetime = GetGameVar("STICKYBOMB_LIFETIME", NAM_GRENADE_LIFETIME, nullptr, p);
-				int lLifetimeVar = GetGameVar("STICKYBOMB_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, nullptr, p);
-				// set timer.  blows up when at zero....
-				bomb->s->extra = lLifetime
+				int lTripBombControl = GetGameVar("TRIPBOMB_CONTROL", TRIPBOMB_TRIPWIRE, nullptr, -1);
+				if (lTripBombControl & TRIPBOMB_TIMER)
+				{
+					int lLifetime = GetGameVar("STICKYBOMB_LIFETIME", NAM_GRENADE_LIFETIME, nullptr, p);
+					int lLifetimeVar = GetGameVar("STICKYBOMB_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, nullptr, p);
+					// set timer.  blows up when at zero....
+					bomb->s->extra = lLifetime
 					+ MulScale(krand(), lLifetimeVar, 14)
 					- lLifetimeVar;
+				}
 			}
+			
+			// this originally used the sprite index as tag to link the laser segments.
+			// This value is never used again to reference an actor by index. Decouple this for robustness.
+			ud.bomb_tag = (ud.bomb_tag + 1) & 32767;
+			bomb->s->hitag = ud.bomb_tag;
+			S_PlayActorSound(LASERTRIP_ONWALL, bomb);
+			bomb->s->xvel = -20;
+			ssp(bomb, CLIPMASK0);
+			bomb->s->cstat = 16;
+			auto delta = wal->delta();
+			bomb->temp_data[5] = bomb->s->ang = getangle(-delta.x, -delta.y) - 512;
+			
+			if (p >= 0)
+				ps[p].ammo_amount[TRIPBOMB_WEAPON]--;
 		}
-
-		// this originally used the sprite index as tag to link the laser segments.
-		// This value is never used again to reference an actor by index. Decouple this for robustness.
-		ud.bomb_tag = (ud.bomb_tag + 1) & 32767;
-		bomb->s->hitag = ud.bomb_tag;
-		S_PlayActorSound(LASERTRIP_ONWALL, bomb);
-		bomb->s->xvel = -20;
-		ssp(bomb, CLIPMASK0);
-		bomb->s->cstat = 16;
-		bomb->temp_data[5] = bomb->s->ang = getangle(wall[hitwall].x - wall[wall[hitwall].point2].x, wall[hitwall].y - wall[wall[hitwall].point2].y) - 512;
-
-		if (p >= 0)
-			ps[p].ammo_amount[TRIPBOMB_WEAPON]--;
 	}
 }
 
