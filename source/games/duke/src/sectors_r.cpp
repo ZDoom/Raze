@@ -998,7 +998,7 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 		case SEENINE:
 		case OOZFILTER:
 		case EXPLODINGBARREL:
-			lotsofglass(spr, wallnum(wal), 70);
+			lotsofglass(spr, wal, 70);
 			wal->cstat &= ~16;
 			wal->overpicnum = MIRRORBROKE;
 			wal->portalflags = 0;
@@ -1045,7 +1045,7 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 				{
 					updatesector(x, y, &sn); if (sn < 0) return;
 					wal->overpicnum = GLASS2;
-					lotsofglass(spr, wallnum(wal), 10);
+					lotsofglass(spr, wal, 10);
 					wal->cstat = 0;
 
 					if (wal->nextwall >= 0)
@@ -1060,7 +1060,7 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 				}
 				case STAINGLASS1:
 					updatesector(x, y, &sn); if (sn < 0) return;
-					lotsofcolourglass(spr, wallnum(wal), 80);
+					lotsofcolourglass(spr, wal, 80);
 					wal->cstat = 0;
 					if (wal->nextwall >= 0)
 						wal->nextWall()->cstat = 0;
@@ -1250,7 +1250,7 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 	case SCREENBREAK7:
 	case SCREENBREAK8:
 
-		lotsofglass(spr, wallnum(wal), 30);
+		lotsofglass(spr, wal, 30);
 		wal->picnum = W_SCREENBREAK + (krand() % (isRRRA() ? 2 : 3));
 		S_PlayActorSound(GLASS_HEAVYBREAK, spr);
 		return;
@@ -1284,7 +1284,7 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 		if (rnd(128))
 			S_PlayActorSound(GLASS_HEAVYBREAK, spr);
 		else S_PlayActorSound(GLASS_BREAKING, spr);
-		lotsofglass(spr, wallnum(wal), 30);
+		lotsofglass(spr, wal, 30);
 
 		if (wal->picnum == RRTILE1814)
 			wal->picnum = RRTILE1817;
@@ -1892,12 +1892,12 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 	case RRTILE2123:
 		s->picnum = RRTILE2124;
 		S_PlayActorSound(GLASS_BREAKING, targ);
-		lotsofglass(targ, -1, 10);
+		lotsofglass(targ, nullptr, 10);
 		break;
 	case RRTILE3773:
 		s->picnum = RRTILE8651;
 		S_PlayActorSound(GLASS_BREAKING, targ);
-		lotsofglass(targ, -1, 10);
+		lotsofglass(targ, nullptr, 10);
 		break;
 	case RRTILE7533:
 		s->picnum = RRTILE5035;
@@ -2034,7 +2034,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 	case RRTILE2030:
 		s->picnum = RRTILE2034;
 		S_PlayActorSound(GLASS_BREAKING, targ);
-		lotsofglass(targ, -1, 10);
+		lotsofglass(targ, nullptr, 10);
 		break;
 	case RRTILE2893:
 	case RRTILE2915:
@@ -2056,7 +2056,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 			break;
 		}
 		S_PlayActorSound(GLASS_BREAKING, targ);
-		lotsofglass(targ, -1, 10);
+		lotsofglass(targ, nullptr, 10);
 		break;
 	case RRTILE2156:
 	case RRTILE2158:
@@ -2064,13 +2064,13 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 	case RRTILE2175:
 		s->picnum++;
 		S_PlayActorSound(GLASS_BREAKING, targ);
-		lotsofglass(targ, -1, 10);
+		lotsofglass(targ, nullptr, 10);
 		break;
 	case RRTILE2137:
 	case RRTILE2151:
 	case RRTILE2152:
 		S_PlayActorSound(GLASS_BREAKING, targ);
-		lotsofglass(targ, -1, 10);
+		lotsofglass(targ, nullptr, 10);
 		s->picnum++;
 		for (k = 0; k < 6; k++)
 			EGS(s->sectnum, s->x, s->y, s->z - (8 << 8), SCRAP6 + (krand() & 15), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (s->zvel >> 2), targ, 5);
@@ -2238,15 +2238,15 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 			fi.lotsofmoney(targ, 4 + (krand() & 3));
 		else if (s->picnum == STATUE || s->picnum == STATUEFLASH)
 		{
-			lotsofcolourglass(targ, -1, 40);
+			lotsofcolourglass(targ, nullptr, 40);
 			S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		}
 		else if (s->picnum == VASE)
-			lotsofglass(targ, -1, 40);
+			lotsofglass(targ, nullptr, 40);
 
 		S_PlayActorSound(GLASS_BREAKING, targ);
 		s->ang = krand() & 2047;
-		lotsofglass(targ, -1, 8);
+		lotsofglass(targ, nullptr, 8);
 		deletesprite(targ);
 		break;
 	case RRTILE2654:
@@ -2256,7 +2256,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		[[fallthrough]];
 	case BOTTLE7:
 		S_PlayActorSound(GLASS_BREAKING, targ);
-		lotsofglass(targ, -1, 10);
+		lotsofglass(targ, nullptr, 10);
 		deletesprite(targ);
 		break;
 	case FORCESPHERE:

@@ -1091,7 +1091,7 @@ void spawneffector(DDukeActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void lotsofglass(DDukeActor *actor, int wallnum, int n)
+void lotsofglass(DDukeActor *actor, walltype* wal, int n)
 {
 	int j, z, a;
 	int sect;
@@ -1099,7 +1099,7 @@ void lotsofglass(DDukeActor *actor, int wallnum, int n)
 
 	sect = -1;
 
-	if (wallnum < 0)
+	if (wal == nullptr)
 	{
 		for (j = n - 1; j >= 0; j--)
 		{
@@ -1109,7 +1109,6 @@ void lotsofglass(DDukeActor *actor, int wallnum, int n)
 		return;
 	}
 
-	auto wal = &wall[wallnum];
 	int x1 = wal->x;
 	int y1 = wal->y;
 	auto delta = wal->delta() / (n + 1);
@@ -1189,14 +1188,14 @@ void ceilingglass(DDukeActor* actor, int sectnum, int n)
 //
 //---------------------------------------------------------------------------
 
-void lotsofcolourglass(DDukeActor* actor, int wallnum, int n)
+void lotsofcolourglass(DDukeActor* actor, walltype* wal, int n)
 {
 	int j, z;
 	int sect = -1;
 	int a;;
 	auto sp = actor->s;
 
-	if (wallnum < 0)
+	if (wal == nullptr)
 	{
 		for (j = n - 1; j >= 0; j--)
 		{
@@ -1207,12 +1206,10 @@ void lotsofcolourglass(DDukeActor* actor, int wallnum, int n)
 		return;
 	}
 	
-	auto& wal = wall[wallnum];
+	int x1 = wal->x;
+	int y1 = wal->y;
 
-	int x1 = wal.x;
-	int y1 = wal.y;
-
-	auto delta = wal.delta() / (n + 1);
+	auto delta = wal->delta() / (n + 1);
 
 	for (j = n; j > 0; j--)
 	{

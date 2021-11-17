@@ -172,8 +172,8 @@ void OnEvent(int id, int pnum = -1, DDukeActor* snum = nullptr, int dist = -1);
 DDukeActor* EGS(int whatsect, int s_x, int s_y, int s_z, int s_pn, int8_t s_s, int8_t s_xr, int8_t s_yr, int s_a, int s_ve, int s_zv, DDukeActor* s_ow, int8_t s_ss);
 void ceilingglass(DDukeActor* snum, int sectnum, int cnt);
 void spriteglass(DDukeActor* snum, int cnt);
-void lotsofcolourglass(DDukeActor* snum, int wallNum, int cnt);
-void lotsofglass(DDukeActor* snum, int wallnum, int cnt);
+void lotsofcolourglass(DDukeActor* snum, walltype* wallNum, int cnt);
+void lotsofglass(DDukeActor* snum, walltype* wallnum, int cnt);
 void checkplayerhurt_d(struct player_struct* p, const Collision& coll);
 void checkplayerhurt_r(struct player_struct* p, const Collision& coll);
 

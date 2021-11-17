@@ -1229,7 +1229,7 @@ void breakwall(int newpn, DDukeActor* spr, walltype* wal)
 	wal->picnum = newpn;
 	S_PlayActorSound(VENT_BUST, spr);
 	S_PlayActorSound(GLASS_HEAVYBREAK, spr);
-	lotsofglass(spr, wallnum(wal), 10);
+	lotsofglass(spr, wal, 10);
 }
 
 //---------------------------------------------------------------------------
