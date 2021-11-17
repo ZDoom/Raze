@@ -198,23 +198,23 @@ bool isablockdoor(int dapic)
 
 void animatewalls_r(void)
 {
-	int i, j, p, t;
+	int t;
 
 	if (isRRRA() &&ps[screenpeek].sea_sick_stat == 1)
 	{
-		for (i = 0; i < MAXWALLS; i++)
+		for (auto& wal : walls())
 		{
-			if (wall[i].picnum == RRTILE7873)
-				wall[i].addxpan(6);
-			else if (wall[i].picnum == RRTILE7870)
-				wall[i].addxpan(6);
+			if (wal.picnum == RRTILE7873)
+				wal.addxpan(6);
+			else if (wal.picnum == RRTILE7870)
+				wal.addxpan(6);
 		}
 	}
 
-	for (p = 0; p < numanimwalls; p++)
+	for (int p = 0; p < numanimwalls; p++)
 	{
-		i = animwall[p].wallnum;
-		j = wall[i].picnum;
+		auto wal = &wall[animwall[p].wallnum];
+		int j = wal->picnum;
 
 		switch (j)
 		{
@@ -232,8 +232,8 @@ void animatewalls_r(void)
 
 			if ((krand() & 255) < 16)
 			{
-				animwall[p].tag = wall[i].picnum;
-				wall[i].picnum = SCREENBREAK6;
+				animwall[p].tag = wal->picnum;
+				wal->picnum = SCREENBREAK6;
 			}
 
 			continue;
@@ -243,19 +243,19 @@ void animatewalls_r(void)
 		case SCREENBREAK8:
 
 			if (animwall[p].tag >= 0)
-				wall[i].picnum = animwall[p].tag;
+				wal->picnum = animwall[p].tag;
 			else
 			{
-				wall[i].picnum++;
-				if (wall[i].picnum == (SCREENBREAK6 + 3))
-					wall[i].picnum = SCREENBREAK6;
+				wal->picnum++;
+				if (wal->picnum == (SCREENBREAK6 + 3))
+					wal->picnum = SCREENBREAK6;
 			}
 			continue;
 
 		}
 
-		if (wall[i].cstat & 16)
-			switch (wall[i].overpicnum)
+		if (wal->cstat & 16)
+			switch (wal->overpicnum)
 			{
 			case W_FORCEFIELD:
 			case W_FORCEFIELD + 1:
@@ -263,14 +263,14 @@ void animatewalls_r(void)
 
 				t = animwall[p].tag;
 
-				if (wall[i].cstat & 254)
+				if (wal->cstat & 254)
 				{
-					wall[i].addxpan(-t / 4096.f); // bcos(t, -12);
-					wall[i].addypan(-t / 4096.f); // bsin(t, -12);
+					wal->addxpan(-t / 4096.f); // bcos(t, -12);
+					wal->addypan(-t / 4096.f); // bsin(t, -12);
 
-					if (wall[i].extra == 1)
+					if (wal->extra == 1)
 					{
-						wall[i].extra = 0;
+						wal->extra = 0;
 						animwall[p].tag = 0;
 					}
 					else
@@ -279,14 +279,14 @@ void animatewalls_r(void)
 					if (animwall[p].tag < (128 << 4))
 					{
 						if (animwall[p].tag & 128)
-							wall[i].overpicnum = W_FORCEFIELD;
-						else wall[i].overpicnum = W_FORCEFIELD + 1;
+							wal->overpicnum = W_FORCEFIELD;
+						else wal->overpicnum = W_FORCEFIELD + 1;
 					}
 					else
 					{
 						if ((krand() & 255) < 32)
 							animwall[p].tag = 128 << (krand() & 3);
-						else wall[i].overpicnum = W_FORCEFIELD + 1;
+						else wal->overpicnum = W_FORCEFIELD + 1;
 					}
 				}
 
