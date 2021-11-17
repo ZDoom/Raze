@@ -723,8 +723,8 @@ void prelevel_common(int g)
 
 		if (sectp->lotag == -1)
 		{
-			ps[0].exitx = wall[sectp->wallptr].x;
-			ps[0].exity = wall[sectp->wallptr].y;
+			ps[0].exitx = sectp->firstWall()->x;
+			ps[0].exity = sectp->firstWall()->y;
 			continue;
 		}
 	}
@@ -823,9 +823,9 @@ void donewgame(MapRecord* map, int sk)
 
 static void SpawnPortals()
 {
-	for (int i = 0; i < numwalls; i++)
+	for (auto& wal : walls())
 	{
-		if (wall[i].overpicnum == TILE_MIRROR && (wall[i].cstat & CSTAT_WALL_1WAY)) wall[i].portalflags |= PORTAL_WALL_MIRROR;
+		if (wal.overpicnum == TILE_MIRROR && (wal.cstat & CSTAT_WALL_1WAY)) wal.portalflags |= PORTAL_WALL_MIRROR;
 	}
 
 	portalClear();
@@ -1055,10 +1055,10 @@ void enterlevel(MapRecord *mi, int gamemode)
 	setLevelStarted(mi);
 	if (isRRRA() && ps[screenpeek].sea_sick_stat == 1)
 	{
-		for (int i = 0; i < MAXWALLS; i++)
+		for (auto& wal : walls())
 		{
-			if (wall[i].picnum == 7873 || wall[i].picnum == 7870)
-				StartInterpolation(i, Interp_Wall_PanX);
+			if (wal.picnum == 7873 || wal.picnum == 7870)
+				StartInterpolation(wallnum(&wal), Interp_Wall_PanX);
 		}
 	}
 }
