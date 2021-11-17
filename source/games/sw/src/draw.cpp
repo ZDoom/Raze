@@ -1226,7 +1226,7 @@ PostDraw(void)
     it.Reset(STAT_FAF_COPY);
     while (auto actor = it.Next())
     {
-        actor->u()->Clear();
+        actor->clearUser();
         deletesprite(actor->GetSpriteIndex());
     }
 }

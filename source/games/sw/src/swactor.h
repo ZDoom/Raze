@@ -12,21 +12,15 @@ class DSWActor
 
 public:
 
-	int cumulDamage;
-
 	DSWActor() :index(int(this - base())) { /*assert(index >= 0 && index < kMaxSprites);*/ }
 	DSWActor& operator=(const DSWActor& other) = default;
 
 	void Clear()
 	{
+		clearUser();
 	}
 	bool hasU() { return User[index].Data() != nullptr; }
-	/*
-	void addU()
-	{
-		if (s().extra == -1) dbInsertXSprite(s().index);
-	}
-	*/
+
 	spritetype& s() { return sprite[index]; }
 	USER* u() { return User[index].Data(); }
 	USER* allocUser() 
@@ -39,7 +33,7 @@ public:
 
 	void clearUser()
 	{
-		User[index].Clear();
+		if (hasU()) User[index].Clear();
 	}
 
 	int GetIndex() 
