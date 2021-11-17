@@ -306,7 +306,7 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 			if (ps[snum].access_incs == 1)
 			{
 				if (!act)
-					ps[snum].access_wallnum = wallnum(wwal);
+					ps[snum].access_wall = wwal;
 				else
 					ps[snum].access_spritenum = act;
 			}

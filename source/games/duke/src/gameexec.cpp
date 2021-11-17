@@ -566,16 +566,6 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		else SetGameVarID(lVar2, ps[iPlayer].access_incs, sActor, sPlayer);
 		break;
 
-	case PLAYER_ACCESS_WALLNUM:
-		if (bSet) ps[iPlayer].access_wallnum = lValue;
-		else SetGameVarID(lVar2, ps[iPlayer].access_wallnum, sActor, sPlayer);
-		break;
-
-	case PLAYER_ACCESS_SPRITENUM:
-		if (bSet) ps[iPlayer].access_spritenum = ScriptIndexToActor(lValue);
-		else SetGameVarID(lVar2, ActorToScriptIndex(ps[iPlayer].access_spritenum), sActor, sPlayer);
-		break;
-
 	case PLAYER_KICKBACK_PIC:
 		if (bSet) ps[iPlayer].kickback_pic = lValue;
 		else SetGameVarID(lVar2, ps[iPlayer].kickback_pic, sActor, sPlayer);

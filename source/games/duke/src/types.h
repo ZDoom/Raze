@@ -210,7 +210,8 @@ struct player_struct
 
 	int aim_mode, ftt;
 
-	int cursectnum, one_parallax_sectnum, access_wallnum; // wall + sector references. Make them pointers later?
+	int cursectnum, one_parallax_sectnum; // wall + sector references. Make them pointers later?
+	walltype* access_wall;
 
 	short last_extra, subweapon;
 	short ammo_amount[MAX_WEAPONS], frag, fraggedself;

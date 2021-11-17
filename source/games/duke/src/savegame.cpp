@@ -151,7 +151,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 			("knee_incs", w.knee_incs)
 			("access_incs", w.access_incs)
 			("ftq", w.ftq)
-			("access_wallnum", w.access_wallnum)
+			("access_wallnum", w.access_wall)
 			("access_spritenum", w.access_spritenum)
 			("kickback_pic", w.kickback_pic)
 			("got_access", w.got_access)

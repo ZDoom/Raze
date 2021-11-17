@@ -1406,8 +1406,8 @@ int doincrements_r(struct player_struct* p)
 			}
 			else
 			{
-				fi.checkhitswitch(snum, &wall[p->access_wallnum], nullptr);
-				switch (wall[p->access_wallnum].pal)
+				fi.checkhitswitch(snum, p->access_wall, nullptr);
+				switch (p->access_wall->pal)
 				{
 				case 0:p->keys[1] = 1; break;
 				case 21:p->keys[2] = 1; break;
