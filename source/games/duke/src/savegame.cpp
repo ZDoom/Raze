@@ -74,7 +74,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, animwalltype& w, a
 {
 	if (arc.BeginObject(keyname))
 	{
-	  arc("wallnum", w.wallnum)
+	  arc("wallnum", w.wall)
 		("tag", w.tag)
 		.EndObject();
 	}

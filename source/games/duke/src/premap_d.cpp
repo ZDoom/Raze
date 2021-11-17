@@ -400,14 +400,14 @@ void prelevel_d(int g)
 			I_Error("Too many 'anim' walls (max 512.)");
 
 		animwall[numanimwalls].tag = 0;
-		animwall[numanimwalls].wallnum = 0;
+		animwall[numanimwalls].wall = nullptr;
 
 		switch (wal.overpicnum)
 		{
 		case FANSHADOW:
 		case FANSPRITE:
 			wal.cstat |= 65;
-			animwall[numanimwalls].wallnum = wallnum(&wal);
+			animwall[numanimwalls].wall = &wal;
 			numanimwalls++;
 			break;
 
@@ -427,7 +427,7 @@ void prelevel_d(int g)
 
 		case BIGFORCE:
 
-			animwall[numanimwalls].wallnum = wallnum(&wal);
+			animwall[numanimwalls].wall = &wal;
 			numanimwalls++;
 
 			continue;
@@ -441,7 +441,7 @@ void prelevel_d(int g)
 		case W_TECHWALL2:
 		case W_TECHWALL3:
 		case W_TECHWALL4:
-			animwall[numanimwalls].wallnum = wallnum(&wal);
+			animwall[numanimwalls].wall = &wal;
 			//                animwall[numanimwalls].tag = -1;
 			numanimwalls++;
 			break;
@@ -450,7 +450,7 @@ void prelevel_d(int g)
 		case SCREENBREAK8:
 			for (int j = SCREENBREAK6; j < SCREENBREAK9; j++)
 				tloadtile(j);
-			animwall[numanimwalls].wallnum = wallnum(&wal);
+			animwall[numanimwalls].wall = &wal;
 			animwall[numanimwalls].tag = -1;
 			numanimwalls++;
 			break;
@@ -462,7 +462,7 @@ void prelevel_d(int g)
 			wal.extra = wal.picnum;
 			animwall[numanimwalls].tag = -1;
 
-			animwall[numanimwalls].wallnum = wallnum(&wal);
+			animwall[numanimwalls].wall = &wal;
 			animwall[numanimwalls].tag = wal.picnum;
 			numanimwalls++;
 			break;
@@ -485,7 +485,7 @@ void prelevel_d(int g)
 		case SCREENBREAK18:
 		case SCREENBREAK19:
 
-			animwall[numanimwalls].wallnum = wallnum(&wal);
+			animwall[numanimwalls].wall = &wal;
 			animwall[numanimwalls].tag = wal.picnum;
 			numanimwalls++;
 			break;

@@ -418,8 +418,6 @@ void prelevel_r(int g)
 	struct player_struct* p;
 	int i;
 	int j;
-	int startwall;
-	int endwall;
 	int lotaglist;
 	short lotags[65];
 	int speed = 0;
@@ -717,18 +715,18 @@ void prelevel_r(int g)
 
 	mirrorcnt = 0;
 
-	for (i = 0; i < numwalls; i++)
+	for (auto& wl : walls())
 	{
-		walltype* wal;
-		wal = &wall[i];
+		walltype* wal = &wl;
 
+		
 		if (wal->overpicnum == MIRROR && (wal->cstat & 32) != 0)
 		{
 			auto sect = wal->nextSector();
 
 			if (mirrorcnt > 63)
 				I_Error("Too many mirrors (64 max.)");
-			if ((j >= 0) && sect->ceilingpicnum != MIRROR)
+			if (sect->ceilingpicnum != MIRROR)
 			{
 				sect->ceilingpicnum = MIRROR;
 				sect->floorpicnum = MIRROR;
@@ -743,17 +741,17 @@ void prelevel_r(int g)
 			I_Error("Too many 'anim' walls (max 512.)");
 
 		animwall[numanimwalls].tag = 0;
-		animwall[numanimwalls].wallnum = 0;
+		animwall[numanimwalls].wall = nullptr;
 
 		switch (wal->overpicnum)
 		{
 		case FANSPRITE:
 			wal->cstat |= 65;
-			animwall[numanimwalls].wallnum = i;
+			animwall[numanimwalls].wall = wal;
 			numanimwalls++;
 			break;
 		case BIGFORCE:
-			animwall[numanimwalls].wallnum = i;
+			animwall[numanimwalls].wall = wal;
 			numanimwalls++;
 			continue;
 		}
@@ -767,7 +765,7 @@ void prelevel_r(int g)
 		case SCREENBREAK8:
 			for (j = SCREENBREAK6; j <= SCREENBREAK8; j++)
 				tloadtile(j);
-			animwall[numanimwalls].wallnum = i;
+			animwall[numanimwalls].wall = wal;
 			animwall[numanimwalls].tag = -1;
 			numanimwalls++;
 			break;

@@ -213,7 +213,7 @@ void animatewalls_r(void)
 
 	for (int p = 0; p < numanimwalls; p++)
 	{
-		auto wal = &wall[animwall[p].wallnum];
+		auto wal = animwall[p].wall;
 		int j = wal->picnum;
 
 		switch (j)
@@ -1349,7 +1349,7 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 		if (sn < 0) return;
 		darkestwall = 0;
 
-		wal = &wall[sector[sn].wallptr];
+		wal = sector[sn].firstWall();
 		for (i = sector[sn].wallnum; i > 0; i--, wal++)
 			if (wal->shade > darkestwall)
 				darkestwall = wal->shade;

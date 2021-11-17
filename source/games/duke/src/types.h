@@ -107,7 +107,8 @@ inline DDukeActor* DDukeActor::array() { return hittype; }
 
 struct animwalltype
 {
-	int wallnum, tag;
+	walltype* wall;
+	int tag;
 };
 
 // Todo - put more state in here

@@ -92,7 +92,7 @@ void animatewalls_d(void)
 
 	for (int p = 0; p < numanimwalls; p++)
 	{
-		auto wal = &wall[animwall[p].wallnum];
+		auto wal = animwall[p].wall;
 		int j = wal->picnum;
 
 		switch (j)

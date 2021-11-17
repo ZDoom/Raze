@@ -1191,9 +1191,9 @@ void operatemasterswitches(int low)
 
 void operateforcefields_common(DDukeActor *effector, int low, const std::initializer_list<int> &tiles)
 {
-	for (int p = numanimwalls; p >= 0; p--)
+	for (int p = numanimwalls-1; p >= 0; p--)
 	{
-		auto wal = &wall[animwall[p].wallnum];
+		auto wal = animwall[p].wall;
 
 		if (low == wal->lotag || low == -1)
 			if (isIn(wal->overpicnum, tiles))
