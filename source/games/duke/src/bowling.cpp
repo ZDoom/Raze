@@ -74,7 +74,7 @@ int pinsectorresetup(int sect)
 
 	if (j == -1)
 	{
-		j = sector[nextsectorneighborz(sect, sector[sect].ceilingz, -1, -1)].ceilingz;
+		j = nextsectorneighborzptr(&sector[sect], sector[sect].ceilingz, -1, -1)->ceilingz;
 		setanimation(sect, anim_ceilingz, sect, j, 64);
 		return 1;
 	}

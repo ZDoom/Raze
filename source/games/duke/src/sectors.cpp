@@ -620,22 +620,20 @@ static void handle_st16(int sn, DDukeActor* actor)
 {
 	sectortype* sptr = &sector[sn];
 	int i = getanimationgoal(anim_floorz, sn);
-	int j;
+	sectortype* sectp;
 
 	if (i == -1)
 	{
-		i = nextsectorneighborz(sn, sptr->floorz, 1, 1);
-		if (i == -1)
+		sectp = nextsectorneighborzptr(sptr, sptr->floorz, 1, 1);
+		if (sectp == nullptr)
 		{
-			i = nextsectorneighborz(sn, sptr->floorz, 1, -1);
-			if (i == -1) return;
-			j = sector[i].floorz;
-			setanimation(sn, anim_floorz, sn, j, sptr->extra);
+			sectp = nextsectorneighborzptr(sptr, sptr->floorz, 1, -1);
+			if (sectp == nullptr) return;
+			setanimation(sn, anim_floorz, sn, sectp->floorz, sptr->extra);
 		}
 		else
 		{
-			j = sector[i].floorz;
-			setanimation(sn, anim_floorz, sn, j, sptr->extra);
+			setanimation(sn, anim_floorz, sn, sectp->floorz, sptr->extra);
 		}
 		callsound(sn, actor);
 	}
@@ -654,10 +652,10 @@ static void handle_st18(int sn, DDukeActor* actor)
 
 	if (i == -1)
 	{
-		i = nextsectorneighborz(sn, sptr->floorz, 1, -1);
-		if (i == -1) i = nextsectorneighborz(sn, sptr->floorz, 1, 1);
-		if (i == -1) return;
-		int j = sector[i].floorz;
+		auto sectp = nextsectorneighborzptr(sptr, sptr->floorz, 1, -1);
+		if (sectp == nullptr) sectp = nextsectorneighborzptr(sectp, sptr->floorz, 1, 1);
+		if (sectp == nullptr) return;
+		int j = sectp->floorz;
 		int q = sptr->extra;
 		int l = sptr->ceilingz - sptr->floorz;
 		setanimation(sn, anim_floorz, sn, j, q);
@@ -678,9 +676,9 @@ static void handle_st29(int sn, DDukeActor* actor)
 	int j;
 
 	if (sptr->lotag & 0x8000)
-		j = sector[nextsectorneighborz(sn, sptr->ceilingz, 1, 1)].floorz;
+		j = nextsectorneighborzptr(sptr, sptr->ceilingz, 1, 1)->floorz;
 	else
-		j = sector[nextsectorneighborz(sn, sptr->ceilingz, -1, -1)].ceilingz;
+		j = nextsectorneighborzptr(sn, sptr->ceilingz, -1, -1)->ceilingz;
 
 	DukeStatIterator it(STAT_EFFECTOR);
 	while (auto act2 = it.Next())
@@ -731,9 +729,9 @@ REDODOOR:
 	}
 	else
 	{
-		j = nextsectorneighborz(sn, sptr->ceilingz, -1, -1);
+		auto sectp = nextsectorneighborzptr(sptr, sptr->ceilingz, -1, -1);
 
-		if (j >= 0) j = sector[j].ceilingz;
+		if (sectp) j = sectp->ceilingz;
 		else
 		{
 			sptr->lotag |= 32768;
@@ -761,14 +759,14 @@ static void handle_st21(int sn, DDukeActor* actor)
 	if (i >= 0)
 	{
 		if (animategoal[i] == sptr->ceilingz)
-			animategoal[i] = sector[nextsectorneighborz(sn, sptr->ceilingz, 1, 1)].floorz;
+			animategoal[i] = nextsectorneighborzptr(sptr, sptr->ceilingz, 1, 1)->floorz;
 		else animategoal[i] = sptr->ceilingz;
 		j = animategoal[i];
 	}
 	else
 	{
 		if (sptr->ceilingz == sptr->floorz)
-			j = sector[nextsectorneighborz(sn, sptr->ceilingz, 1, 1)].floorz;
+			j = nextsectorneighborzptr(sn, sptr->ceilingz, 1, 1)->floorz;
 		else j = sptr->ceilingz;
 
 		sptr->lotag ^= 0x8000;
@@ -796,9 +794,9 @@ static void handle_st22(int sn, DDukeActor* actor)
 	}
 	else
 	{
-		q = sector[nextsectorneighborz(sn, sptr->floorz, 1, 1)].floorz;
+		q = nextsectorneighborzptr(sptr, sptr->floorz, 1, 1)->floorz;
 		j = setanimation(sn, anim_floorz, sn, q, sptr->extra);
-		q = sector[nextsectorneighborz(sn, sptr->ceilingz, -1, -1)].ceilingz;
+		q = nextsectorneighborzptr(sptr, sptr->ceilingz, -1, -1)->ceilingz;
 		j = setanimation(sn, anim_ceilingz, sn, q, sptr->extra);
 	}
 

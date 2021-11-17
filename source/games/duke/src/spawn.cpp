@@ -763,12 +763,8 @@ void spawneffector(DDukeActor* actor)
 		case SE_17_WARP_ELEVATOR:
 		{
 			t[2] = sectp->floorz; //Stopping loc
-
-			int j = nextsectorneighborz(sect, sectp->floorz, -1, -1);
-			t[3] = sector[j].ceilingz;
-
-			j = nextsectorneighborz(sect, sectp->ceilingz, 1, 1);
-			t[4] = sector[j].floorz;
+			t[3] = nextsectorneighborzptr(sect, sectp->floorz, -1, -1)->ceilingz;
+			t[4] = nextsectorneighborzptr(sect, sectp->ceilingz, 1, 1)->floorz;
 
 			if (numplayers < 2)
 			{
