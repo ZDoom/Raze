@@ -140,6 +140,7 @@ struct walltype
     walltype* nextWall() const;
     walltype* point2Wall() const;
 	vec2_t delta() const { return point2Wall()->pos - pos; }
+	vec2_t center() const { return(point2Wall()->pos + pos) / 2; }
 	int deltax() const { return point2Wall()->x - x; }
 	int deltay() const { return point2Wall()->y - y; }
     bool twoSided() const { return nextsector >= 0; }
