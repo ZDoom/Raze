@@ -170,15 +170,12 @@ int hits(DDukeActor* actor)
 {
 	auto sp = actor->s;
 	int sx, sy, sz;
-	int sect;
-	int hw;
 	int zoff;
-	DDukeActor* d;
 
 	if (sp->picnum == TILE_APLAYER) zoff = isRR() ? PHEIGHT_RR : PHEIGHT_DUKE;
 	else zoff = 0;
 
-	hitscan(sp->x, sp->y, sp->z - zoff, sp->sectnum, bcos(sp->ang), bsin(sp->ang), 0, &sect, &hw, &d, &sx, &sy, &sz, CLIPMASK1);
+	hitscan(sp->x, sp->y, sp->z - zoff, sp->sectnum, bcos(sp->ang), bsin(sp->ang), 0, nullptr, nullptr, nullptr, &sx, &sy, &sz, CLIPMASK1);
 
 	return (FindDistance2D(sx - sp->x, sy - sp->y));
 }
@@ -193,16 +190,16 @@ int hitasprite(DDukeActor* actor, DDukeActor** hitsp)
 {
 	auto sp = actor->s;
 	int sx, sy, sz, zoff;
-	int sect, hw;
+	walltype* wal;
 
 	if (badguy(actor))
 		zoff = (42 << 8);
 	else if (sp->picnum == TILE_APLAYER) zoff = (39 << 8);
 	else zoff = 0;
 
-	hitscan(sp->x, sp->y, sp->z - zoff, sp->sectnum, bcos(sp->ang), bsin(sp->ang), 0, &sect, &hw, hitsp, &sx, &sy, &sz, CLIPMASK1);
+	hitscan(sp->x, sp->y, sp->z - zoff, sp->sectnum, bcos(sp->ang), bsin(sp->ang), 0, nullptr, &wal, hitsp, &sx, &sy, &sz, CLIPMASK1);
 
-	if (hw >= 0 && (wall[hw].cstat & 16) && badguy(actor))
+	if (wal != nullptr && (wal->cstat & 16) && badguy(actor))
 		return((1 << 30));
 
 	return (FindDistance2D(sx - sp->x, sy - sp->y));
@@ -217,11 +214,10 @@ int hitasprite(DDukeActor* actor, DDukeActor** hitsp)
 int hitawall(struct player_struct* p, int* hitw)
 {
 	int sx, sy, sz;
-	int sect, hitw1;
-	DDukeActor* d;
+	int hitw1;
 
-	hitscan(p->pos.x, p->pos.y, p->pos.z, p->cursectnum,
-		p->angle.ang.bcos(), p->angle.ang.bsin(), 0, &sect, &hitw1, &d, &sx, &sy, &sz, CLIPMASK0);
+	hitscanw(p->pos.x, p->pos.y, p->pos.z, p->cursectnum,
+		p->angle.ang.bcos(), p->angle.ang.bsin(), 0, nullptr, &hitw1, nullptr, &sx, &sy, &sz, CLIPMASK0);
 	*hitw = hitw1;
 
 	return (FindDistance2D(sx - p->pos.x, sy - p->pos.y));
@@ -1006,8 +1002,9 @@ void shootbloodsplat(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 	spritetype* const s = actor->s;
 	int sect = s->sectnum;
 	int zvel;
-	int hitsect, hitwall;
 	int hitx, hity, hitz;
+	sectortype* hitsectp;
+	walltype* wal;
 	DDukeActor* d;
 
 	if (p >= 0)
@@ -1019,14 +1016,12 @@ void shootbloodsplat(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 	hitscan(sx, sy, sz, sect,
 		bcos(sa),
 		bsin(sa), zvel << 6,
-		&hitsect, &hitwall, &d, &hitx, &hity, &hitz, CLIPMASK1);
+		&hitsectp, &wal, &d, &hitx, &hity, &hitz, CLIPMASK1);
 
-	auto wal = hitwall < 0? nullptr : &wall[hitwall];
-	auto hitsectp = hitsect < 0? nullptr : &sector[hitsect];
 	// oh my...
 	if (FindDistance2D(sx - hitx, sy - hity) < 1024 &&
-		(hitwall >= 0 && wal->overpicnum != BIGFORCE) &&
-		((wal->nextsector >= 0 && hitsect >= 0 &&
+		(wal != nullptr && wal->overpicnum != BIGFORCE) &&
+		((wal->nextsector >= 0 && hitsectp != nullptr &&
 			wal->nextSector()->lotag == 0 &&
 			hitsectp->lotag == 0 &&
 			(hitsectp->floorz - wal->nextSector()->floorz) > (16 << 8)) ||

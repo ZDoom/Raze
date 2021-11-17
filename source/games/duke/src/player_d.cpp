@@ -232,9 +232,10 @@ static void shootknee(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 	auto s = actor->s;
 	int sect = s->sectnum;
 	int zvel;
-	int hitsect, hitwall;
 	int hitx, hity, hitz;
 	DDukeActor* hitsprt;
+	sectortype* hitsectp;
+	walltype* hitwallp;
 
 	if (p >= 0)
 	{
@@ -253,16 +254,16 @@ static void shootknee(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 	hitscan(sx, sy, sz, sect,
 		bcos(sa),
 		bsin(sa), zvel << 6,
-		&hitsect, &hitwall, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
+		&hitsectp, &hitwallp, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
 
 
-	if (hitsect < 0) return;
+	if (hitsectp == nullptr) return;
 
 	if ((abs(sx - hitx) + abs(sy - hity)) < 1024)
 	{
-		if (hitwall >= 0 || hitsprt)
+		if (hitwallp || hitsprt)
 		{
-			auto knee = EGS(hitsect, hitx, hity, hitz, KNEE, -15, 0, 0, sa, 32, 0, actor, 4);
+			auto knee = EGS(sectnum(hitsectp), hitx, hity, hitz, KNEE, -15, 0, 0, sa, 32, 0, actor, 4);
 			knee->s->extra += (krand() & 7);
 			if (p >= 0)
 			{
@@ -280,9 +281,9 @@ static void shootknee(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 				if (p >= 0) fi.checkhitswitch(p, -1, hitsprt);
 			}
 
-			else if (hitwall >= 0)
+			else if (hitwallp)
 			{
-				auto wal = &wall[hitwall];
+				auto wal = hitwallp;
 				if (wal->cstat & 2)
 					if (wal->nextsector >= 0)
 						if (hitz >= (wal->nextSector()->floorz))
@@ -295,7 +296,7 @@ static void shootknee(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 				}
 			}
 		}
-		else if (p >= 0 && zvel > 0 && sector[hitsect].lotag == 1)
+		else if (p >= 0 && zvel > 0 && hitsectp->lotag == 1)
 		{
 			auto splash = spawn(ps[p].GetActor(), WATERSPLASH2);
 			splash->s->x = hitx;
@@ -320,9 +321,10 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 	auto s = actor->s;
 	int sect = s->sectnum;
 	int zvel = 0;
-	int hitsect, hitwall;
 	int hitx, hity, hitz;
 	DDukeActor* hitact;
+	sectortype* hitsectp;
+	walltype* hitwallp;
 
 	if (s->extra >= 0) s->shade = -96;
 
@@ -407,34 +409,34 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 	hitscan(sx, sy, sz, sect,
 		bcos(sa),
 		bsin(sa),
-		zvel << 6, &hitsect, &hitwall, &hitact, &hitx, &hity, &hitz, CLIPMASK1);
+		zvel << 6, &hitsectp, &hitwallp, &hitact, &hitx, &hity, &hitz, CLIPMASK1);
 	s->cstat |= 257;
 
 
-	if (hitsect < 0) return;
+	if (hitsectp == nullptr) return;
 
-	if ((krand() & 15) == 0 && sector[hitsect].lotag == 2)
+	if ((krand() & 15) == 0 && hitsectp->lotag == 2)
 		tracers(hitx, hity, hitz, sx, sy, sz, 8 - (ud.multimode >> 1));
 
 	DDukeActor* spark;
 	if (p >= 0)
 	{
-		spark = EGS(hitsect, hitx, hity, hitz, SHOTSPARK1, -15, 10, 10, sa, 0, 0, actor, 4);
+		spark = EGS(sectnum(hitsectp), hitx, hity, hitz, SHOTSPARK1, -15, 10, 10, sa, 0, 0, actor, 4);
 		spark->s->extra = ScriptCode[gs.actorinfo[atwith].scriptaddress];
 		spark->s->extra += (krand() % 6);
 
-		if (hitwall == -1 && hitact == nullptr)
+		if (hitwallp == nullptr && hitact == nullptr)
 		{
 			if (zvel < 0)
 			{
-				if (sector[hitsect].ceilingstat & 1)
+				if (hitsectp->ceilingstat & 1)
 				{
 					spark->s->xrepeat = 0;
 					spark->s->yrepeat = 0;
 					return;
 				}
 				else
-					fi.checkhitceiling(hitsect);
+					fi.checkhitceiling(sectnum(hitsectp));
 			}
 			spawn(spark, SMALLSMOKE);
 		}
@@ -467,10 +469,10 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 				return;
 			}
 		}
-		else if (hitwall >= 0)
+		else if (hitwallp)
 		{
 			spawn(spark, SMALLSMOKE);
-			auto wal = &wall[hitwall];
+			auto wal = hitwallp;
 
 			if (fi.isadoorwall(wal->picnum) == 1)
 				goto SKIPBULLETHOLE;
@@ -484,17 +486,17 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 				wal->picnum == HANDSWITCH ||
 				wal->picnum == HANDSWITCH + 1))
 			{
-				fi.checkhitswitch(p, hitwall, nullptr);
+				fi.checkhitswitch(p, wallnum(wal), nullptr);
 				return;
 			}
 
 			if (wal->hitag != 0 || (wal->nextwall >= 0 && wal->nextWall()->hitag != 0))
 				goto SKIPBULLETHOLE;
 
-			if (hitsect >= 0 && sector[hitsect].lotag == 0)
+			if (hitsectp && hitsectp->lotag == 0)
 				if (wal->overpicnum != BIGFORCE)
 					if ((wal->nextsector >= 0 && wal->nextSector()->lotag == 0) ||
-						(wal->nextsector == -1 && sector[hitsect].lotag == 0))
+						(wal->nextsector == -1 && hitsectp->lotag == 0))
 						if ((wal->cstat & 16) == 0)
 						{
 							if (wal->nextsector >= 0)
@@ -533,7 +535,7 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 	}
 	else
 	{
-		spark = EGS(hitsect, hitx, hity, hitz, SHOTSPARK1, -15, 24, 24, sa, 0, 0, actor, 4);
+		spark = EGS(sectnum(hitsectp), hitx, hity, hitz, SHOTSPARK1, -15, 24, 24, sa, 0, 0, actor, 4);
 		spark->s->extra = ScriptCode[gs.actorinfo[atwith].scriptaddress];
 
 		if (hitact)
@@ -543,8 +545,8 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 				spawn(spark, SMALLSMOKE);
 			else spark->s->xrepeat = spark->s->yrepeat = 0;
 		}
-		else if (hitwall >= 0)
-			fi.checkhitwall(spark, &wall[hitwall], hitx, hity, hitz, SHOTSPARK1);
+		else if (hitwallp)
+			fi.checkhitwall(spark, hitwallp, hitx, hity, hitz, SHOTSPARK1);
 	}
 
 	if ((krand() & 255) < 4)
@@ -850,7 +852,7 @@ static void shootlaser(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 		zvel = -ps[p].horizon.sum().asq16() >> 11;
 	else zvel = 0;
 
-	hitscan(sx, sy, sz - ps[p].pyoff, sect,
+	hitscanw(sx, sy, sz - ps[p].pyoff, sect,
 		bcos(sa),
 		bsin(sa),
 		zvel << 6, &hitsect, &hitwall, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
@@ -968,7 +970,7 @@ static void shootgrowspark(DDukeActor* actor, int p, int sx, int sy, int sz, int
 	//RESHOOTGROW:
 
 	s->cstat &= ~257;
-	hitscan(sx, sy, sz, sect, bcos(sa), bsin(sa),
+	hitscanw(sx, sy, sz, sect, bcos(sa), bsin(sa),
 		zvel << 6, &hitsect, &hitwall, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
 
 	s->cstat |= 257;
@@ -2015,7 +2017,7 @@ int operateTripbomb(int snum)
 	int sect, hw;
 	DDukeActor* hitsprt;
 
-	hitscan(p->pos.x, p->pos.y, p->pos.z,
+	hitscanw(p->pos.x, p->pos.y, p->pos.z,
 		p->cursectnum, p->angle.ang.bcos(),
 		p->angle.ang.bsin(), -p->horizon.sum().asq16() >> 11,
 		&sect, &hw, &hitsprt, &sx, &sy, &sz, CLIPMASK1);

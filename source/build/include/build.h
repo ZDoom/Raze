@@ -411,9 +411,9 @@ inline int hitscan(int x, int y, int z, int16_t sectnum, int32_t vx, int32_t vy,
     vec3_t v{ x,y,z };
     hitdata_t hd{};
     int res = hitscan(&v, sectnum, vx, vy, vz, &hd, cliptype);
-    *hitsect = hd.sect;
-    *hitwall = hd.wall;
-    *hitspr = hd.sprite;
+    if (hitsect) *hitsect = hd.sect;
+    if (hitwall) *hitwall = hd.wall;
+    if (hitspr) *hitspr = hd.sprite;
     *hitx = hd.pos.x;
     *hity = hd.pos.y;
     *hitz = hd.pos.z   ;

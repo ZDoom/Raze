@@ -5072,9 +5072,8 @@ int dodge(DDukeActor* actor)
 int furthestangle(DDukeActor *actor, int angs)
 {
 	auto s = actor->s;
-	int j, hitsect, hitwall, furthest_angle = 0, angincs;
+	int j, furthest_angle = 0, angincs;
 	int hx, hy, hz, d, greatestd;
-	DDukeActor* dd;
 
 	greatestd = -(1 << 30);
 	angincs = 2048 / angs;
@@ -5084,7 +5083,7 @@ int furthestangle(DDukeActor *actor, int angs)
 
 	for (j = s->ang; j < (2048 + s->ang); j += angincs)
 	{
-		hitscan(s->x, s->y, s->z - (8 << 8), s->sectnum, bcos(j), bsin(j), 0, &hitsect, &hitwall, &dd, &hx, &hy, &hz, CLIPMASK1);
+		hitscan(s->x, s->y, s->z - (8 << 8), s->sectnum, bcos(j), bsin(j), 0, nullptr, nullptr, nullptr, &hx, &hy, &hz, CLIPMASK1);
 
 		d = abs(hx - s->x) + abs(hy - s->y);
 
@@ -5119,7 +5118,7 @@ int furthestcanseepoint(DDukeActor *actor, DDukeActor* tosee, int* dax, int* day
 	auto ts = tosee->s;
 	for (j = ts->ang; j < (2048 + ts->ang); j += (angincs - (krand() & 511)))
 	{
-		hitscan(ts->x, ts->y, ts->z - (16 << 8), ts->sectnum, bcos(j), bsin(j), 16384 - (krand() & 32767), 
+		hitscanw(ts->x, ts->y, ts->z - (16 << 8), ts->sectnum, bcos(j), bsin(j), 16384 - (krand() & 32767), 
 			&hitsect, &hitwall, &dd, &hx, &hy, &hz, CLIPMASK1);
 
 		d = abs(hx - ts->x) + abs(hy - ts->y);
