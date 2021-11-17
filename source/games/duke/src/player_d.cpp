@@ -288,7 +288,7 @@ static void shootknee(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 						if (hitz >= (wal->nextSector()->floorz))
 							wal =wal->nextWall();
 
-				if (/*hitwall >= 0 &&*/ wal->picnum != ACCESSSWITCH && wal->picnum != ACCESSSWITCH2)
+				if (wal->picnum != ACCESSSWITCH && wal->picnum != ACCESSSWITCH2)
 				{
 					fi.checkhitwall(knee, wallnum(wal), hitx, hity, hitz, KNEE);
 					if (p >= 0) fi.checkhitswitch(p, wallnum(wal), nullptr);

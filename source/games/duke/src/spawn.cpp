@@ -1093,7 +1093,7 @@ void spawneffector(DDukeActor* actor)
 
 void lotsofglass(DDukeActor *actor, int wallnum, int n)
 {
-	int j, xv, yv, z, x1, y1, a;
+	int j, z, a;
 	int sect;
 	auto sp = actor->s;
 
@@ -1109,24 +1109,19 @@ void lotsofglass(DDukeActor *actor, int wallnum, int n)
 		return;
 	}
 
-	j = n + 1;
+	auto wal = &wall[wallnum];
+	int x1 = wal->x;
+	int y1 = wal->y;
+	auto delta = wal->delta() / (n + 1);
 
-	x1 = wall[wallnum].x;
-	y1 = wall[wallnum].y;
+	x1 -= Sgn(delta.y);
+	y1 += Sgn(delta.x);
 
-	xv = wall[wall[wallnum].point2].x - x1;
-	yv = wall[wall[wallnum].point2].y - y1;
-
-	x1 -= Sgn(yv);
-	y1 += Sgn(xv);
-
-	xv /= j;
-	yv /= j;
 
 	for (j = n; j > 0; j--)
 	{
-		x1 += xv;
-		y1 += yv;
+		x1 += delta.x;
+		y1 += delta.y;
 
 		updatesector(x1, y1, &sect);
 		if (sect >= 0)
@@ -1167,24 +1162,20 @@ void spriteglass(DDukeActor* actor, int n)
 
 void ceilingglass(DDukeActor* actor, int sectnum, int n)
 {
-	int j, xv, yv, z, x1, y1;
-	int a, s, startwall, endwall;
+	int j, z;
+	int a;
 
-	startwall = sector[sectnum].wallptr;
-	endwall = startwall + sector[sectnum].wallnum;
-
-	for (s = startwall; s < (endwall - 1); s++)
+	for (auto& wal : wallsofsector(sectnum))
 	{
-		x1 = wall[s].x;
-		y1 = wall[s].y;
+		int x1 = wal.x;
+		int y1 = wal.y;
 
-		xv = (wall[s + 1].x - x1) / (n + 1);
-		yv = (wall[s + 1].y - y1) / (n + 1);
+		auto delta = wal.delta() / (n + 1);
 
 		for (j = n; j > 0; j--)
 		{
-			x1 += xv;
-			y1 += yv;
+			x1 += delta.x;
+			y1 += delta.y;
 			a = krand() & 2047;
 			z = sector[sectnum].ceilingz + ((krand() & 15) << 8);
 			EGS(sectnum, x1, y1, z, TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, (krand() & 31), 0, actor, 5);
@@ -1200,7 +1191,7 @@ void ceilingglass(DDukeActor* actor, int sectnum, int n)
 
 void lotsofcolourglass(DDukeActor* actor, int wallnum, int n)
 {
-	int j, xv, yv, z, x1, y1;
+	int j, z;
 	int sect = -1;
 	int a;;
 	auto sp = actor->s;
@@ -1215,18 +1206,18 @@ void lotsofcolourglass(DDukeActor* actor, int wallnum, int n)
 		}
 		return;
 	}
+	
+	auto& wal = wall[wallnum];
 
-	j = n + 1;
-	x1 = wall[wallnum].x;
-	y1 = wall[wallnum].y;
+	int x1 = wal.x;
+	int y1 = wal.y;
 
-	xv = (wall[wall[wallnum].point2].x - wall[wallnum].x) / j;
-	yv = (wall[wall[wallnum].point2].y - wall[wallnum].y) / j;
+	auto delta = wal.delta() / (n + 1);
 
 	for (j = n; j > 0; j--)
 	{
-		x1 += xv;
-		y1 += yv;
+		x1 += delta.x;
+		y1 += delta.y;
 
 		updatesector(x1, y1, &sect);
 		z = sector[sect].floorz - (krand() & (abs(sector[sect].ceilingz - sector[sect].floorz)));
