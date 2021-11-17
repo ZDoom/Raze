@@ -278,7 +278,7 @@ static void shootknee(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 			if (hitsprt && hitsprt->s->picnum != ACCESSSWITCH && hitsprt->s->picnum != ACCESSSWITCH2)
 			{
 				fi.checkhitsprite(hitsprt, knee);
-				if (p >= 0) fi.checkhitswitch(p, -1, hitsprt);
+				if (p >= 0) fi.checkhitswitch(p, nullptr, hitsprt);
 			}
 
 			else if (hitwallp)
@@ -292,7 +292,7 @@ static void shootknee(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 				if (wal->picnum != ACCESSSWITCH && wal->picnum != ACCESSSWITCH2)
 				{
 					fi.checkhitwall(knee, wal, hitx, hity, hitz, KNEE);
-					if (p >= 0) fi.checkhitswitch(p, wallnum(wal), nullptr);
+					if (p >= 0) fi.checkhitswitch(p, wal, nullptr);
 				}
 			}
 		}
@@ -465,7 +465,7 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 				hitact->s->picnum == HANDSWITCH ||
 				hitact->s->picnum == HANDSWITCH + 1))
 			{
-				fi.checkhitswitch(p, -1, hitact);
+				fi.checkhitswitch(p, nullptr, hitact);
 				return;
 			}
 		}
@@ -486,7 +486,7 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 				wal->picnum == HANDSWITCH ||
 				wal->picnum == HANDSWITCH + 1))
 			{
-				fi.checkhitswitch(p, wallnum(wal), nullptr);
+				fi.checkhitswitch(p, wal, nullptr);
 				return;
 			}
 
@@ -1547,7 +1547,7 @@ int doincrements_d(struct player_struct* p)
 		{
 			if (p->access_spritenum != nullptr)
 			{
-				fi.checkhitswitch(snum, -1, p->access_spritenum);
+				fi.checkhitswitch(snum, nullptr, p->access_spritenum);
 				switch (p->access_spritenum->s->pal)
 				{
 				case 0:p->got_access &= (0xffff - 0x1); break;
@@ -1558,7 +1558,7 @@ int doincrements_d(struct player_struct* p)
 			}
 			else
 			{
-				fi.checkhitswitch(snum, p->access_wallnum, nullptr);
+				fi.checkhitswitch(snum, &wall[p->access_wallnum], nullptr);
 				switch (wall[p->access_wallnum].pal)
 				{
 				case 0:p->got_access &= (0xffff - 0x1); break;

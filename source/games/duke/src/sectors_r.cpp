@@ -344,14 +344,13 @@ void operateforcefields_r(DDukeActor* act, int low)
 //
 //---------------------------------------------------------------------------
 
-bool checkhitswitch_r(int snum, int ww, DDukeActor* act)
+bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 {
 	uint8_t switchpal;
 	int lotag, hitag, picnum, correctdips, numdips;
 	int sx, sy;
-	walltype* wwal = nullptr;
 
-	if (ww < 0 && act == nullptr) return 0;
+	if (wwal == nullptr && act == nullptr) return 0;
 	correctdips = 1;
 	numdips = 0;
 
@@ -367,7 +366,6 @@ bool checkhitswitch_r(int snum, int ww, DDukeActor* act)
 	}
 	else
 	{
-		wwal = &wall[ww];
 		lotag = wwal->lotag;
 		if (lotag == 0) return 0;
 		hitag = wwal->hitag;
@@ -426,7 +424,7 @@ bool checkhitswitch_r(int snum, int ww, DDukeActor* act)
 			if (ps[snum].access_incs == 1)
 			{
 				if (!act)
-					ps[snum].access_wallnum = ww;
+					ps[snum].access_wallnum = wallnum(wwal);
 				else
 					ps[snum].access_spritenum = act;
 			}
@@ -816,7 +814,7 @@ bool checkhitswitch_r(int snum, int ww, DDukeActor* act)
 								switches[j]->s->picnum = MULTISWITCH2 + 3;
 							else
 								switches[j]->s->picnum = MULTISWITCH + 3;
-							checkhitswitch_r(snum, -1, switches[j]);
+							checkhitswitch_r(snum, nullptr, switches[j]);
 						}
 					}
 					return 1;
@@ -2601,6 +2599,7 @@ void checksectors_r(int snum)
 				neartagsector = -1;
 			}
 		}
+		auto ntwall = neartagwall < 0? nullptr : &wall[neartagwall];
 
 		if (p->newOwner == nullptr && neartagsprite == nullptr && neartagsector == -1 && neartagwall == -1)
 			if (isanunderoperator(p->GetActor()->getSector()->lotag))
@@ -2620,7 +2619,7 @@ void checksectors_r(int snum)
 
 		if (neartagsprite != nullptr)
 		{
-			if (fi.checkhitswitch(snum, -1,neartagsprite)) return;
+			if (fi.checkhitswitch(snum, nullptr, neartagsprite)) return;
 
 			switch (neartagsprite->s->picnum)
 			{
@@ -2735,11 +2734,10 @@ void checksectors_r(int snum)
 
 		if (neartagwall >= 0)
 		{
-			auto ntwall = &wall[neartagwall];
 			if (ntwall->lotag > 0 && fi.isadoorwall(ntwall->picnum))
 			{
 				if (hitscanwall == ntwall || hitscanwall == nullptr)
-					fi.checkhitswitch(snum, neartagwall, nullptr);
+					fi.checkhitswitch(snum, ntwall, nullptr);
 				return;
 			}
 		}
@@ -2784,7 +2782,7 @@ void checksectors_r(int snum)
 					FTA(41, p);
 				}
 			}
-			else fi.checkhitswitch(snum, neartagwall, nullptr);
+			else fi.checkhitswitch(snum, ntwall, nullptr);
 		}
 	}
 }

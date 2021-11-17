@@ -222,14 +222,13 @@ void operateforcefields_d(DDukeActor* act, int low)
 //
 //---------------------------------------------------------------------------
 
-bool checkhitswitch_d(int snum, int ww, DDukeActor *act)
+bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 {
 	uint8_t switchpal;
 	int lotag, hitag, picnum, correctdips, numdips;
 	int sx, sy;
-	walltype* wwal = nullptr;
 
-	if (ww < 0 && act == nullptr) return 0;
+	if (wwal == nullptr && act == nullptr) return 0;
 	correctdips = 1;
 	numdips = 0;
 	
@@ -245,7 +244,6 @@ bool checkhitswitch_d(int snum, int ww, DDukeActor *act)
 	}
 	else
 	{
-		wwal = &wall[ww];
 		lotag = wwal->lotag;
 		if (lotag == 0) return 0;
 		hitag = wwal->hitag;
@@ -308,7 +306,7 @@ bool checkhitswitch_d(int snum, int ww, DDukeActor *act)
 			if (ps[snum].access_incs == 1)
 			{
 				if (!act)
-					ps[snum].access_wallnum = ww;
+					ps[snum].access_wallnum = wallnum(wwal);
 				else
 					ps[snum].access_spritenum = act;
 			}
@@ -1488,6 +1486,33 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 
 //---------------------------------------------------------------------------
 //
+// taken out of checksectors to eliminate some gotos.
+//
+//---------------------------------------------------------------------------
+
+void clearcameras(int i, player_struct* p)
+{
+	if (i < 0)
+	{
+		p->pos.x = p->oposx;
+		p->pos.y = p->oposy;
+		p->pos.z = p->oposz;
+		p->newOwner = nullptr;
+
+		updatesector(p->pos.x, p->pos.y, &p->cursectnum);
+
+		DukeStatIterator it(STAT_ACTOR);
+		while (auto act = it.Next())
+		{
+			if (act->s->picnum == CAMERA1) act->s->yvel = 0;
+		}
+	}
+	else if (p->newOwner != nullptr)
+		p->newOwner = nullptr;
+}
+
+//---------------------------------------------------------------------------
+//
 // 
 //
 //---------------------------------------------------------------------------
@@ -1498,9 +1523,9 @@ void checksectors_d(int snum)
 	struct player_struct* p;
 	int j;
 	walltype* hitscanwall;
-	int neartagsector, neartagwall;
-	DDukeActor* neartagsprite;
-	int neartaghitdist;
+	int neartagsector = -1, neartagwall = -1;
+	DDukeActor* neartagsprite = nullptr;
+	int neartaghitdist = 0;
 
 	p = &ps[snum];
 	auto pact = p->GetActor();
@@ -1545,8 +1570,8 @@ void checksectors_d(int snum)
 	{
 		if (abs(PlayerInputSideVel(snum)) > 768 || abs(PlayerInputForwardVel(snum)) > 768)
 		{
-			i = -1;
-			goto CLEARCAMERAS;
+			clearcameras(-1, p);
+			return;
 		}
 	}
 
@@ -1560,8 +1585,7 @@ void checksectors_d(int snum)
 		{
 			if (p->newOwner != nullptr)
 			{
-				i = -1;
-				goto CLEARCAMERAS;
+				clearcameras(-1, p);
 			}
 			return;
 		}
@@ -1623,6 +1647,7 @@ void checksectors_d(int snum)
 				neartagsector = -1;
 			}
 		}
+		auto ntwall = neartagwall < 0? nullptr : &wall[neartagwall];
 
 		if (p->newOwner == nullptr && neartagsprite == nullptr && neartagsector == -1 && neartagwall == -1)
 			if (isanunderoperator(p->GetActor()->getSector()->lotag))
@@ -1643,7 +1668,7 @@ void checksectors_d(int snum)
 
 		if (neartagsprite != nullptr)
 		{
-			if (fi.checkhitswitch(snum, -1, neartagsprite)) return;
+			if (fi.checkhitswitch(snum, nullptr, neartagsprite)) return;
 
 			switch (neartagsprite->s->picnum)
 			{
@@ -1735,32 +1760,17 @@ void checksectors_d(int snum)
 				i = -1;
 			}
 
-		CLEARCAMERAS:
-
-			if (i < 0)
-			{
-				p->pos.x = p->oposx;
-				p->pos.y = p->oposy;
-				p->pos.z = p->oposz;
-				p->newOwner = nullptr;
-
-				updatesector(p->pos.x, p->pos.y, &p->cursectnum);
-
-				DukeStatIterator it(STAT_ACTOR);
-				while (auto act = it.Next())
-				{
-					if (act->s->picnum == CAMERA1) act->s->yvel = 0;
+			clearcameras(i, p);
+			return;
 				}
 			}
-			else if (p->newOwner != nullptr)
-				p->newOwner = nullptr;
-
-			return;
-			}
-		}
 
 		if (!PlayerInput(snum, SB_OPEN)) return;
-		else if (p->newOwner != nullptr) { i = -1; goto CLEARCAMERAS; }
+			else if (p->newOwner != nullptr)
+		{
+			clearcameras(-1, p);
+			return;
+			}
 
 		if (neartagwall == -1 && neartagsector == -1 && neartagsprite == nullptr)
 			if (abs(hits(p->GetActor())) < 512)
@@ -1773,17 +1783,16 @@ void checksectors_d(int snum)
 
 		if (neartagwall >= 0)
 		{
-			auto ntwall = &wall[neartagwall];
 			if (ntwall->lotag > 0 && fi.isadoorwall(ntwall->picnum))
 			{
 				if (hitscanwall == ntwall || hitscanwall == nullptr)
-					fi.checkhitswitch(snum, neartagwall, nullptr);
+					fi.checkhitswitch(snum, ntwall, nullptr);
 				return;
 			}
 			else if (p->newOwner != nullptr)
 			{
-				i = -1;
-				goto CLEARCAMERAS;
+				clearcameras(-1, p);
+				return;
 			}
 		}
 
@@ -1808,7 +1817,7 @@ void checksectors_d(int snum)
 				}
 				operatesectors(p->GetActor()->s->sectnum, p->GetActor());
 			}
-			else fi.checkhitswitch(snum, neartagwall, nullptr);
+			else fi.checkhitswitch(snum, ntwall, nullptr);
 		}
 	}
 }
