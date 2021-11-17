@@ -5098,16 +5098,17 @@ int furthestangle(DDukeActor *actor, int angs)
 
 //---------------------------------------------------------------------------
 //
-// 
+// return value was changed to what its only caller really expects
 //
 //---------------------------------------------------------------------------
 
 int furthestcanseepoint(DDukeActor *actor, DDukeActor* tosee, int* dax, int* day)
 {
 	auto s = actor->s;
-	int j, hitsect, angincs;
+	int j, angincs;
 	int hx, hy, hz, d, da;//, d, cd, ca,tempx,tempy,cx,cy;
 	DDukeActor* dd;
+	sectortype* hitsect;
 
 	if ((actor->temp_data[0] & 63)) return -1;
 
@@ -5118,21 +5119,21 @@ int furthestcanseepoint(DDukeActor *actor, DDukeActor* tosee, int* dax, int* day
 	auto ts = tosee->s;
 	for (j = ts->ang; j < (2048 + ts->ang); j += (angincs - (krand() & 511)))
 	{
-		hitscanw(ts->x, ts->y, ts->z - (16 << 8), ts->sectnum, bcos(j), bsin(j), 16384 - (krand() & 32767), 
+		hitscan(ts->x, ts->y, ts->z - (16 << 8), ts->sectnum, bcos(j), bsin(j), 16384 - (krand() & 32767), 
 			&hitsect, nullptr, &dd, &hx, &hy, &hz, CLIPMASK1);
 
 		d = abs(hx - ts->x) + abs(hy - ts->y);
 		da = abs(hx - s->x) + abs(hy - s->y);
 
 		if (d < da)
-			if (cansee(hx, hy, hz, hitsect, s->x, s->y, s->z - (16 << 8), s->sectnum))
+			if (cansee(hx, hy, hz, sectnum(hitsect), s->x, s->y, s->z - (16 << 8), s->sectnum))
 			{
 				*dax = hx;
 				*day = hy;
-				return hitsect;
+				return 1;
 			}
 	}
-	return -1;
+	return 0;
 }
 
 //---------------------------------------------------------------------------

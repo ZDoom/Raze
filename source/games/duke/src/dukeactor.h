@@ -197,17 +197,6 @@ inline void getzrange_ex(int x, int y, int z, int sectnum, int32_t* ceilz, Colli
 	florhit.setFromEngine(fh);
 }
 
-inline int hitscanw(int x, int y, int z, int sectnum, int32_t vx, int32_t vy, int32_t vz,
-	int* hitsect, int* hitwall, DDukeActor** hitspr, int* hitx, int* hity, int* hitz, uint32_t cliptype)
-{
-	short hitsprt, hitsct, hitwal;
-	int res = ::hitscan(x, y, z, sectnum, vx, vy, vz, &hitsct, &hitwal, &hitsprt, hitx, hity, hitz, cliptype);
-	if (hitspr) *hitspr = hitsprt == -1 ? nullptr : &hittype[hitsprt];
-	if (hitsect) *hitsect = hitsct;
-	if (hitwall) *hitwall = hitwal;
-	return res;
-}
-
 inline int hitscan(int x, int y, int z, int sectnum, int32_t vx, int32_t vy, int32_t vz,
 	sectortype** hitsect, walltype** hitwall, DDukeActor** hitspr, int* hitx, int* hity, int* hitz, uint32_t cliptype)
 {

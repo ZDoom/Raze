@@ -1483,7 +1483,7 @@ static bool ifcansee(DDukeActor* actor, int pnum)
 	{
 		// search around for target player
 		// also modifies 'target' x&y if found.
-		j = furthestcanseepoint(actor, tosee, &actor->lastvx, &actor->lastvy) != -1;
+		j = furthestcanseepoint(actor, tosee, &actor->lastvx, &actor->lastvy);
 	}
 	else
 	{
