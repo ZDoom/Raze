@@ -230,66 +230,38 @@ void SnapSectors(int nSectorA, int nSectorB, int b)
 
     while (num1 > nCount)
     {
-        short dx = nWallB;
+        int dx = nWallB;
 
-        int esi = 0x7FFFFFF;
-        int edi = esi;
+        int bestx = 0x7FFFFFF;
+        int besty = bestx;
 
         int x = wall[nWallA].x;
         int y = wall[nWallA].y;
 
-        int var_14 = 0;
+        walltype* bestwall = nullptr;
 
         int nCount2 = 0;
 
         while (nCount2 < num2)
         {
-            int eax = x - wall[dx].x;
-            int ebx = y - wall[dx].y;
+			auto wal = &wall[dx];
+            int thisx = x - wal->x;
+            int thisy = y - wal->y;
+            int thisdist = abs(thisx) + abs(thisy);
+			int bestdist = abs(bestx) + abs(besty);
 
-            if (eax < 0) {
-                eax = -eax;
-            }
-
-            int var_38 = eax;
-
-            if (ebx < 0) {
-                ebx = -ebx;
-            }
-
-            int var_3C = ebx;
-
-            var_38 += var_3C;
-
-            eax = esi;
-            if (eax < 0) {
-                eax = -eax;
-            }
-
-            var_3C = eax;
-
-            eax = edi;
-//			int var_34 = edi;
-            if (eax < 0) {
-                eax = -eax;
-            }
-
-            int var_34 = eax;
-
-            var_34 += var_3C;
-
-            if (var_38 < var_34)
+            if (thisdist < bestdist)
             {
-                esi = x - wall[dx].x;
-                edi = y - wall[dx].y;
-                var_14 = dx;
+                bestx = thisx;
+                besty = thisy;
+                bestwall = wal;
             }
 
             dx++;
             nCount2++;
         }
 
-        dragpoint(var_14, wall[var_14].x + esi, wall[var_14].y + edi, 0);
+        dragpoint(bestwall, bestwall->x + bestx, bestwall->y + besty, 0);
 
         nCount++;
         nWallA++;
