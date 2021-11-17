@@ -1279,16 +1279,16 @@ void moveclouds(double smoothratio)
 		{
 			if (!testnewrenderer)
 			{
-				sector[clouds[i]].setceilingxpan(cloudx);
-				sector[clouds[i]].setceilingypan(cloudy);
+				clouds[i]->setceilingxpan(cloudx);
+				clouds[i]->setceilingypan(cloudy);
 			}
 			else
 			{ 
 				// no clamping here!
-				sector[clouds[i]].ceilingxpan_ = cloudx;
-				sector[clouds[i]].ceilingypan_ = cloudy;
+				clouds[i]->ceilingxpan_ = cloudx;
+				clouds[i]->ceilingypan_ = cloudy;
 			}
-			sector[clouds[i]].exflags |= SECTOREX_CLOUDSCROLL;
+			clouds[i]->exflags |= SECTOREX_CLOUDSCROLL;
 		}
 	}
 }

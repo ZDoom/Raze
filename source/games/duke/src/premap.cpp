@@ -710,7 +710,7 @@ void prelevel_common(int g)
 			//setupbackdrop(sectp->ceilingpicnum);
 
 			if (sectp->ceilingpicnum == TILE_CLOUDYSKIES && numclouds < 127)
-				clouds[numclouds++] = i;
+				clouds[numclouds++] = sectp;
 
 			if (ps[0].one_parallax_sectnum == -1)
 				ps[0].one_parallax_sectnum = i;
