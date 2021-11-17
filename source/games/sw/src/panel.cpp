@@ -51,7 +51,6 @@ PANEL_SPRITEp InitWeaponUziSecondaryReload(PANEL_SPRITEp);
 PANEL_SPRITEp InitWeaponUzi2(PANEL_SPRITEp);
 int InitShotgun(PLAYERp pp);
 int InitRail(PLAYERp pp);
-int InitEMP(PLAYERp pp);
 int InitMicro(PLAYERp pp);
 int InitRocket(PLAYERp pp);
 int InitNuke(PLAYERp pp);
@@ -3379,10 +3378,7 @@ void
 pRailFire(PANEL_SPRITEp psp)
 {
     SpawnVis(psp->PlayerP->Actor(), -1, -1, -1, -1, 16);
-    if (psp->PlayerP->WpnRailType == 0)
-        InitRail(psp->PlayerP);
-    else
-        InitEMP(psp->PlayerP);
+    InitRail(psp->PlayerP);
 }
 
 void
