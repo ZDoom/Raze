@@ -51,7 +51,7 @@ static int interptype[] = { Interp_Sect_Floorz, Interp_Sect_Ceilingz, Interp_Wal
 //---------------------------------------------------------------------------
 static bool haltsoundhack;
 
-int callsound(int sn, DDukeActor* whatsprite)
+int callsound(sectortype* sn, DDukeActor* whatsprite)
 {
 	if (!isRRRA() && haltsoundhack)
 	{
@@ -887,8 +887,8 @@ static void handle_st25(sectortype* sptr, DDukeActor* actor)
 			{
 				act3->getSector()->lotag ^= 0x8000; // Toggle the open or close
 				act3->s->ang += 1024;
-				if (act3->temp_data[4]) callsound(act3->s->sectnum, act3);
-				callsound(act3->s->sectnum, act3);
+				if (act3->temp_data[4]) callsound(act3->getSector(), act3);
+				callsound(act3->getSector(), act3);
 				if (act3->getSector()->lotag & 0x8000) act3->temp_data[4] = 1;
 				else act3->temp_data[4] = 2;
 			}
@@ -1147,16 +1147,16 @@ void operateactivators(int low, int plnum)
 						case SE_31_FLOOR_RISE_FALL:
 						case SE_32_CEILING_RISE_FALL:
 							a2->temp_data[0] = 1 - a2->temp_data[0];
-							callsound(act->s->sectnum, a2);
+							callsound(act->getSector(), a2);
 							break;
 						}
 					}
 				}
 
 				if (k == -1 && (act->getSector()->lotag & 0xff) == 22)
-					k = callsound(act->s->sectnum, act);
+					k = callsound(act->getSector(), act);
 
-				operatesectors(act->s->sector(), act);
+				operatesectors(act->getSector(), act);
 			}
 		}
 	}

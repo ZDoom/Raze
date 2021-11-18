@@ -623,7 +623,6 @@ void spawneffector(DDukeActor* actor)
 {
 	auto sp = actor->s;
 	auto sectp = sp->sector();
-	int sect = sp->sectnum;
 	auto t = actor->temp_data;
 	int d, clostest = 0;
 
@@ -769,8 +768,8 @@ void spawneffector(DDukeActor* actor)
 		case SE_17_WARP_ELEVATOR:
 		{
 			t[2] = sectp->floorz; //Stopping loc
-			t[3] = nextsectorneighborzptr(sect, sectp->floorz, -1, -1)->ceilingz;
-			t[4] = nextsectorneighborzptr(sect, sectp->ceilingz, 1, 1)->floorz;
+			t[3] = nextsectorneighborzptr(sectp, sectp->floorz, -1, -1)->ceilingz;
+			t[4] = nextsectorneighborzptr(sectp, sectp->ceilingz, 1, 1)->floorz;
 
 			if (numplayers < 2)
 			{
@@ -1045,7 +1044,7 @@ void spawneffector(DDukeActor* actor)
 		case SE_6_SUBWAY:
 		case SE_14_SUBWAY_CAR:
 		{
-			int j = callsound(sect, actor);
+			int j = callsound(sectp, actor);
 			if (j == -1)
 			{
 				if (!isRR()) j = SUBWAY;	// Duke

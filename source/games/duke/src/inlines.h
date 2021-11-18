@@ -193,11 +193,6 @@ inline void doslopetilting(player_struct* p, double const scaleAdjust = 1)
 	p->horizon.calcviewpitch(p->pos.vec2, p->angle.ang, p->aim_mode == 0, canslopetilt, p->cursectnum, scaleAdjust);
 }
 
-inline int callsound(sectortype* sect, DDukeActor* snum)
-{
-	return callsound(sectnum(sect), snum);
-}
-
 //---------------------------------------------------------------------------
 //
 //

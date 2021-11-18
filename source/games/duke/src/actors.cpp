@@ -2669,7 +2669,7 @@ void handle_se00(DDukeActor* actor, int LASERLINE)
 			{
 				actor->tempang += 4;
 				if (actor->tempang >= 256)
-					callsound(s->sectnum, actor);
+					callsound(s->sector(), actor);
 				if (s->clipdist) l = 1;
 				else l = -1;
 			}
@@ -2697,7 +2697,7 @@ void handle_se00(DDukeActor* actor, int LASERLINE)
 			{
 				actor->tempang -= 4;
 				if (actor->tempang <= 0)
-					callsound(s->sectnum, actor);
+					callsound(s->sector(), actor);
 				if (s->clipdist) l = -1;
 				else l = 1;
 			}
@@ -3854,7 +3854,7 @@ void handle_se15(DDukeActor* actor)
 			if (t[3] >= (s->yvel >> 3))
 			{
 				t[4] = 0; //Turn off the sliders
-				callsound(s->sectnum, actor);
+				callsound(s->sector(), actor);
 				return;
 			}
 			t[3]++;
@@ -3864,7 +3864,7 @@ void handle_se15(DDukeActor* actor)
 			if (t[3] < 1)
 			{
 				t[4] = 0;
-				callsound(s->sectnum, actor);
+				callsound(s->sector(), actor);
 				return;
 			}
 			t[3]--;
@@ -4259,7 +4259,7 @@ void handle_se20(DDukeActor* actor)
 			s->x -= x;
 			s->y -= l;
 			t[0] = 0;
-			callsound(s->sectnum, actor);
+			callsound(s->sector(), actor);
 			return;
 		}
 
@@ -4612,7 +4612,7 @@ void handle_se32(DDukeActor *actor)
 				if (abs(sc->ceilingz - s->z) < (s->yvel << 1))
 				{
 					sc->ceilingz = s->z;
-					callsound(s->sectnum, actor);
+					callsound(s->sector(), actor);
 					t[2] = 0;
 					t[0] = 0;
 				}
@@ -4623,7 +4623,7 @@ void handle_se32(DDukeActor *actor)
 				if (abs(sc->ceilingz - t[1]) < (s->yvel << 1))
 				{
 					sc->ceilingz = t[1];
-					callsound(s->sectnum, actor);
+					callsound(s->sector(), actor);
 					t[2] = 0;
 					t[0] = 0;
 				}
@@ -4638,7 +4638,7 @@ void handle_se32(DDukeActor *actor)
 			{
 				t[0] = 0;
 				t[2] = !t[2];
-				callsound(s->sectnum, actor);
+				callsound(s->sector(), actor);
 				sc->ceilingz = s->z;
 			}
 			else sc->ceilingz += Sgn(s->z - sc->ceilingz) * s->yvel;
@@ -4649,7 +4649,7 @@ void handle_se32(DDukeActor *actor)
 			{
 				t[0] = 0;
 				t[2] = !t[2];
-				callsound(s->sectnum, actor);
+				callsound(s->sector(), actor);
 			}
 			else sc->ceilingz -= Sgn(s->z - t[1]) * s->yvel;
 		}
@@ -4810,7 +4810,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 					t[2] = 0;
 					t[0] = 0;
 					if (choosedir) t[3] = s->hitag;
-					callsound(s->sectnum, actor);
+					callsound(s->sector(), actor);
 				}
 				else
 				{
@@ -4836,7 +4836,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 				if (abs(sec->floorz - t[1]) < s->yvel)
 				{
 					sec->floorz = t[1];
-					callsound(s->sectnum, actor);
+					callsound(s->sector(), actor);
 					t[2] = 0;
 					t[0] = 0;
 					if (choosedir) t[3] = s->hitag;
@@ -4867,7 +4867,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 		{
 			if (abs(s->z - sec->floorz) < s->yvel)
 			{
-				callsound(s->sectnum, actor);
+				callsound(s->sector(), actor);
 				t[0] = 0;
 				t[2] = 1;
 				if (choosedir) t[3] = s->hitag;
@@ -4896,7 +4896,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 			if (abs(sec->floorz - t[1]) < s->yvel)
 			{
 				t[0] = 0;
-				callsound(s->sectnum, actor);
+				callsound(s->sector(), actor);
 				t[2] = 1;
 				t[3] = s->hitag;
 			}
