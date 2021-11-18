@@ -2495,7 +2495,7 @@ int ParseState::parse(void)
 									break;
 							}
 							if (a2 == nullptr)
-								operatesectors(sectnum(sectp), g_ac);
+								operatesectors(sectp, g_ac);
 						}
 			}
 		}

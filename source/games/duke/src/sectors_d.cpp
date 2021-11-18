@@ -613,7 +613,7 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 //
 //---------------------------------------------------------------------------
 
-void activatebysector_d(int sect, DDukeActor* activator)
+void activatebysector_d(sectortype* sect, DDukeActor* activator)
 {
 	int didit = 0;
 
@@ -1801,7 +1801,7 @@ void checksectors_d(int snum)
 				if (act->s->picnum == ACTIVATOR || act->s->picnum == MASTERSWITCH)
 					return;
 			}
-			operatesectors(sectnum(ntsector), p->GetActor());
+			operatesectors(ntsector, p->GetActor());
 		}
 		else if ((p->GetActor()->getSector()->lotag & 16384) == 0)
 		{
@@ -1812,7 +1812,7 @@ void checksectors_d(int snum)
 				{
 					if (act->s->picnum == ACTIVATOR || act->s->picnum == MASTERSWITCH) return;
 				}
-				operatesectors(p->GetActor()->s->sectnum, p->GetActor());
+				operatesectors(p->GetActor()->s->sector(), p->GetActor());
 			}
 			else fi.checkhitswitch(snum, ntwall, nullptr);
 		}

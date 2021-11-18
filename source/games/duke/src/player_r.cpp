@@ -3923,7 +3923,7 @@ HORIZONLY:
 		{
 			if (!(s->sector()->lotag & 0x8000) && (isanunderoperator(s->sector()->lotag) ||
 				isanearoperator(s->sector()->lotag)))
-				fi.activatebysector(s->sectnum, pact);
+				fi.activatebysector(s->sector(), pact);
 			if (j)
 			{
 				quickkill(p);
@@ -3931,7 +3931,7 @@ HORIZONLY:
 			}
 		}
 		else if (abs(fz - cz) < (32 << 8) && isanunderoperator(psectp->lotag))
-			fi.activatebysector(psect, pact);
+			fi.activatebysector(psectp, pact);
 	}
 
 	if (ud.clipping == 0 && p->cursector()->ceilingz > (p->cursector()->floorz - (12 << 8)))

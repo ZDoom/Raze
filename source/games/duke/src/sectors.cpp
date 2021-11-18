@@ -967,13 +967,10 @@ static void handle_st28(sectortype* sptr, DDukeActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void operatesectors(int sn, DDukeActor *actor)
+void operatesectors(sectortype* sptr, DDukeActor *actor)
 {
 	int j=0;
 	int i;
-	sectortype* sptr;
-
-	sptr = &sector[sn];
 
 	switch (sptr->lotag & (0x3fff))
 	{
@@ -986,8 +983,8 @@ void operatesectors(int sn, DDukeActor *actor)
 		if (!isRR()) break;
 		for (auto& wal : wallsofsector(sptr))
 		{
-			setanimation(sn, anim_vertexx, &wal, wal.x + 1024, 4);
-			if (wal.nextwall >= 0) setanimation(sn, anim_vertexx, wal.nextwall, wal.nextWall()->x + 1024, 4);
+			setanimation(sptr, anim_vertexx, &wal, wal.x + 1024, 4);
+			if (wal.nextwall >= 0) setanimation(sptr, anim_vertexx, wal.nextWall(), wal.nextWall()->x + 1024, 4);
 		}
 		break;
 
@@ -995,7 +992,7 @@ void operatesectors(int sn, DDukeActor *actor)
 	{
 		auto act = ScriptIndexToActor(sptr->hitag);
 		if (!act) break;
-		if (act->tempang == 0 || act->tempang == 256) callsound(sn, actor);
+		if (act->tempang == 0 || act->tempang == 256) callsound(sptr, actor);
 		if (act->s->extra == 1) act->s->extra = 3;
 		else act->s->extra = 1;
 		break;
@@ -1008,20 +1005,20 @@ void operatesectors(int sn, DDukeActor *actor)
 		if (act->temp_data[4] == 0)
 			act->temp_data[4] = 1;
 
-		callsound(sn, actor);
+		callsound(sptr, actor);
 		break;
 	}
 	case ST_26_SPLITTING_ST_DOOR: //The split doors
-		i = getanimationgoal(anim_ceilingz, sn);
+		i = getanimationgoal(anim_ceilingz, sectnum(sptr));
 		if (i == -1) //if the door has stopped
 		{
 			haltsoundhack = 1;
 			sptr->lotag &= 0xff00;
 			sptr->lotag |= ST_22_SPLITTING_DOOR;
-			operatesectors(sn, actor);
+			operatesectors(sptr, actor);
 			sptr->lotag &= 0xff00;
 			sptr->lotag |= ST_9_SLIDING_ST_DOOR;
-			operatesectors(sn, actor);
+			operatesectors(sptr, actor);
 			sptr->lotag &= 0xff00;
 			sptr->lotag |= ST_26_SPLITTING_ST_DOOR;
 		}
@@ -1169,7 +1166,7 @@ void operateactivators(int low, int plnum)
 				if (k == -1 && (act->getSector()->lotag & 0xff) == 22)
 					k = callsound(act->s->sectnum, act);
 
-				operatesectors(act->s->sectnum, act);
+				operatesectors(act->s->sector(), act);
 			}
 		}
 	}

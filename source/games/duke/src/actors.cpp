@@ -973,7 +973,7 @@ void movemasterswitch(DDukeActor *actor, int spectype1, int spectype2)
 		spri->hitag--;
 		if (spri->hitag <= 0)
 		{
-			operatesectors(spri->sectnum, actor);
+			operatesectors(spri->sector(), actor);
 
 			DukeSectIterator it(spri->sectnum);
 			while (auto effector = it.Next())
@@ -3597,7 +3597,7 @@ void handle_se10(DDukeActor* actor, const int* specialtags)
 						return;
 					}
 				}
-				fi.activatebysector(s->sectnum, actor);
+				fi.activatebysector(s->sector(), actor);
 				t[0] = 0;
 			}
 			else t[0]++;

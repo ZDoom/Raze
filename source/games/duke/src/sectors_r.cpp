@@ -900,7 +900,7 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 //
 //---------------------------------------------------------------------------
 
-void activatebysector_r(int sect, DDukeActor* activator)
+void activatebysector_r(sectortype* sect, DDukeActor* activator)
 {
 	DukeSectIterator it(sect);
 	while (auto act = it.Next())
@@ -912,7 +912,7 @@ void activatebysector_r(int sect, DDukeActor* activator)
 		}
 	}
 
-	if (sector[sect].lotag != 22)
+	if (sect->lotag != 22)
 		operatesectors(sect, activator);
 }
 
@@ -926,9 +926,9 @@ void activatebysector_r(int sect, DDukeActor* activator)
 static void lotsofpopcorn(DDukeActor *actor, walltype* wal, int n)
 {
 	int j, z;
-	int sect, a;
+	int a;
 
-	sect = -1;
+	sectortype* sect = nullptr;
 	auto sp = actor->s;
 
 	if (wal == nullptr)
@@ -960,9 +960,9 @@ static void lotsofpopcorn(DDukeActor *actor, walltype* wal, int n)
 		y1 += delta.y;
 
 		updatesector(x1, y1, &sect);
-		if (sect >= 0)
+		if (sect)
 		{
-			z = sector[sect].floorz - (krand() & (abs(sector[sect].ceilingz - sector[sect].floorz)));
+			z = sect->floorz - (krand() & (abs(sect->ceilingz - sect->floorz)));
 			if (z < -(32 << 8) || z >(32 << 8))
 				z = sp->z - (32 << 8) + (krand() & ((64 << 8) - 1));
 			a = sp->ang - 1024;
@@ -2746,7 +2746,7 @@ void checksectors_r(int snum)
 					return;
 			}
 			if (haskey(sectnum(ntsector), snum))
-				operatesectors(sectnum(ntsector), p->GetActor());
+				operatesectors(ntsector, p->GetActor());
 			else
 			{
 				if (neartagsprite && neartagsprite->spriteextra > 3)
@@ -2767,7 +2767,7 @@ void checksectors_r(int snum)
 						return;
 				}
 				if (haskey(sectnum(ntsector), snum))
-					operatesectors(p->GetActor()->s->sectnum, p->GetActor());
+					operatesectors(p->GetActor()->s->sector(), p->GetActor());
 				else
 				{
 					if (neartagsprite && neartagsprite->spriteextra > 3)
