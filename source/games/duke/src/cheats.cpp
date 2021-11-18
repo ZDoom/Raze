@@ -101,15 +101,15 @@ static const char *cheatGod(int myconnectindex, int state)
 static const char* cheatUnlock()
 {
 	if (isShareware()) return nullptr;
-	for (int i = numsectors - 1; i >= 0; i--) //Unlock
+	for (auto&sect : sectors())
 	{
-		int j = sector[i].lotag;
+		int j = sect.lotag;
 		if (j == -1 || j == 32767) continue;
 		if ((j & 0x7fff) > 2)
 		{
 			if (j & (0xffff - 16384))
-				sector[i].lotag &= (0xffff - 16384);
-			operatesectors(i, ps[myconnectindex].GetActor());
+				sect.lotag &= (0xffff - 16384);
+			operatesectors(sectnum(&sect), ps[myconnectindex].GetActor());
 		}
 	}
 	fi.operateforcefields(ps[myconnectindex].GetActor(), -1);
