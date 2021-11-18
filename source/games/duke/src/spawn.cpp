@@ -686,7 +686,7 @@ void spawneffector(DDukeActor* actor)
 				t[4] = sectp->ceilingz;
 
 			sectp->ceilingz = sp->z;
-			StartInterpolation(sect, Interp_Sect_Ceilingz);
+			StartInterpolation(sectp, Interp_Sect_Ceilingz);
 			break;
 		case SE_35:
 			sectp->ceilingz = sp->z;
@@ -768,8 +768,8 @@ void spawneffector(DDukeActor* actor)
 
 			if (numplayers < 2)
 			{
-				StartInterpolation(sect, Interp_Sect_Floorz);
-				StartInterpolation(sect, Interp_Sect_Ceilingz);
+				StartInterpolation(sectp, Interp_Sect_Floorz);
+				StartInterpolation(sectp, Interp_Sect_Ceilingz);
 			}
 
 			break;
@@ -778,11 +778,11 @@ void spawneffector(DDukeActor* actor)
 			break;
 
 		case 34:
-			StartInterpolation(sect, Interp_Sect_FloorPanX);
+			StartInterpolation(sectp, Interp_Sect_FloorPanX);
 			break;
 
 		case SE_24_CONVEYOR:
-			StartInterpolation(sect, Interp_Sect_FloorPanX);
+			StartInterpolation(sectp, Interp_Sect_FloorPanX);
 			sp->yvel <<= 1;
 		case SE_36_PROJ_SHOOTER:
 			break;
@@ -820,8 +820,8 @@ void spawneffector(DDukeActor* actor)
 			}
 
 			actor->temp_walls[1] = closewall;
-			StartInterpolation(sect, Interp_Sect_FloorPanX);
-			StartInterpolation(sect, Interp_Sect_FloorPanY);
+			StartInterpolation(sectp, Interp_Sect_FloorPanX);
+			StartInterpolation(sectp, Interp_Sect_FloorPanY);
 			break;
 		}
 
@@ -854,7 +854,7 @@ void spawneffector(DDukeActor* actor)
 			for (auto& wal : wallsofsector(sectp))
 				if (wal.hitag == 0) wal.hitag = 9999;
 
-			StartInterpolation(sect, Interp_Sect_Floorz);
+			StartInterpolation(sectp, Interp_Sect_Floorz);
 
 			break;
 		case SE_32_CEILING_RISE_FALL:
@@ -865,7 +865,7 @@ void spawneffector(DDukeActor* actor)
 			for (auto& wal : wallsofsector(sectp))
 				if (wal.hitag == 0) wal.hitag = 9999;
 
-			StartInterpolation(sect, Interp_Sect_Ceilingz);
+			StartInterpolation(sectp, Interp_Sect_Ceilingz);
 
 			break;
 
@@ -1063,8 +1063,8 @@ void spawneffector(DDukeActor* actor)
 			break;
 
 		case SE_29_WAVES:
-			StartInterpolation(actor->s->sectnum, Interp_Sect_Floorheinum);
-			StartInterpolation(actor->s->sectnum, Interp_Sect_Floorz);
+			StartInterpolation(actor->s->sector(), Interp_Sect_Floorheinum);
+			StartInterpolation(actor->s->sector(), Interp_Sect_Floorz);
 			break;
 	}
 

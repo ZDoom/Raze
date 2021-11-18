@@ -3471,7 +3471,7 @@ void handle_se05(DDukeActor* actor, int FIRELASER)
 
 	s->z += s->zvel;
 	sc->ceilingz += s->zvel;
-	sector[t[0]].ceilingz += s->zvel;
+	actor->temp_sect->ceilingz += s->zvel;
 	ms(actor);
 	setsprite(actor, s->pos);
 }

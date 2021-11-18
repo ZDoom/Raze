@@ -1057,7 +1057,7 @@ void enterlevel(MapRecord *mi, int gamemode)
 		for (auto& wal : walls())
 		{
 			if (wal.picnum == 7873 || wal.picnum == 7870)
-				StartInterpolation(wallnum(&wal), Interp_Wall_PanX);
+				StartInterpolation(&wal, Interp_Wall_PanX);
 		}
 	}
 }
