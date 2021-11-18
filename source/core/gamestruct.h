@@ -13,6 +13,7 @@ bool System_WantGuiCapture();	// During playing this tells us whether the game m
 class FSerializer;
 struct FRenderViewpoint;
 struct spritetype;
+struct sectortype;
 
 struct GameStats
 {
@@ -118,7 +119,7 @@ struct GameInterface
 	virtual void UpdateCameras(double smoothratio) {}
 	virtual void EnterPortal(spritetype* viewer, int type) {}
 	virtual void LeavePortal(spritetype* viewer, int type) {}
-	virtual bool GetGeoEffect(GeoEffect* eff, int viewsector) { return false; }
+	virtual bool GetGeoEffect(GeoEffect* eff, sectortype* viewsector) { return false; }
 	virtual int Voxelize(int sprnum) { return -1; }
 	virtual void AddExcludedEpisode(const FString& episode) {}
 	virtual int GetCurrentSkill() { return -1; }

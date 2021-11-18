@@ -403,7 +403,7 @@ void HWDrawInfo::CreateScene(bool portal)
 	int drawsect = effsect;
 	// RR geometry hack. Ugh...
 	// This just adds to the existing render list, so we must offset the effect areas to the same xy-space as the main one as we cannot change the view matrix.
-	if (gi->GetGeoEffect(&eff, effsect))
+	if (gi->GetGeoEffect(&eff, &sector[effsect]))
 	{
 		ingeo = true;
 		geoofs = { (float)eff.geox[0], (float)eff.geoy[0] };
