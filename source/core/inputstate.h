@@ -127,14 +127,3 @@ inline void resetForcedSyncInput()
 {
 	gamesetinput = false;
 }
-
-inline bool specialKeyEvent(event_t* ev)
-{
-	if (ev->type == EV_KeyDown || ev->type == EV_KeyUp)
-	{
-		int key = ev->data1;
-		if (key == KEY_VOLUMEDOWN || key == KEY_VOLUMEUP || (key > KEY_LASTJOYBUTTON && key < KEY_PAD_LTHUMB_RIGHT)) return true;
-	}
-	return false;
-}
-
