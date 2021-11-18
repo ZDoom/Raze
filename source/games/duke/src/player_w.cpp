@@ -340,7 +340,7 @@ void operateweapon_ww(int snum, ESyncBits actions, int psect)
 				i = -512 - MulScale(p->horizon.sum().asq16(), 20, 16);
 			}
 
-			auto j = EGS(p->cursectnum,
+			auto j = EGS(p->cursector(),
 				p->pos.x + p->angle.ang.bcos(-6),
 				p->pos.y + p->angle.ang.bsin(-6),
 				p->pos.z, HEAVYHBOMB, -16, 9, 9,

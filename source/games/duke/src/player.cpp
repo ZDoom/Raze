@@ -134,7 +134,7 @@ void forceplayerangle(int snum)
 void tracers(int x1, int y1, int z1, int x2, int y2, int z2, int n)
 {
 	int i, xv, yv, zv;
-	int sect = -1;
+	sectortype* sect = nullptr;
 
 	i = n + 1;
 	xv = (x2 - x1) / i;
@@ -150,9 +150,9 @@ void tracers(int x1, int y1, int z1, int x2, int y2, int z2, int n)
 		y1 += yv;
 		z1 += zv;
 		updatesector(x1, y1, &sect);
-		if (sect >= 0)
+		if (sect)
 		{
-			if (sector[sect].lotag == 2)
+			if (sect->lotag == 2)
 				EGS(sect, x1, y1, z1, TILE_WATERBUBBLE, -32, 4 + (krand() & 3), 4 + (krand() & 3), krand() & 2047, 0, 0, ps[0].GetActor(), 5);
 			else
 				EGS(sect, x1, y1, z1, TILE_SMALLSMOKE, -32, 14, 14, 0, 0, 0, ps[0].GetActor(), 5);

@@ -148,12 +148,12 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 			DDukeActor* wpn;
 			if (isRRRA() && atwith == SLINGBLADE)
 			{
-				wpn = EGS(sectnum(hitsectp), hitx, hity, hitz, SLINGBLADE, -15, 0, 0, sa, 32, 0, actor, 4);
+				wpn = EGS(hitsectp, hitx, hity, hitz, SLINGBLADE, -15, 0, 0, sa, 32, 0, actor, 4);
 				wpn->s->extra += 50;
 			}
 			else
 			{
-				wpn = EGS(sectnum(hitsectp), hitx, hity, hitz, KNEE, -15, 0, 0, sa, 32, 0, actor, 4);
+				wpn = EGS(hitsectp, hitx, hity, hitz, KNEE, -15, 0, 0, sa, 32, 0, actor, 4);
 				wpn->s->extra += (krand() & 7);
 			}
 			if (p >= 0)
@@ -311,7 +311,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 	DDukeActor* spark;
 	if (p >= 0)
 	{
-		spark = EGS(sectnum(hitsectp), hitx, hity, hitz, SHOTSPARK1, -15, 10, 10, sa, 0, 0, actor, 4);
+		spark = EGS(hitsectp, hitx, hity, hitz, SHOTSPARK1, -15, 10, 10, sa, 0, 0, actor, 4);
 		spark->s->extra = ScriptCode[gs.actorinfo[atwith].scriptaddress];
 		spark->s->extra += (krand() % 6);
 
@@ -431,7 +431,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 	}
 	else
 	{
-		spark = EGS(sectnum(hitsectp), hitx, hity, hitz, SHOTSPARK1, -15, 24, 24, sa, 0, 0, actor, 4);
+		spark = EGS(hitsectp, hitx, hity, hitz, SHOTSPARK1, -15, 24, 24, sa, 0, 0, actor, 4);
 		spark->s->extra = ScriptCode[gs.actorinfo[atwith].scriptaddress];
 
 		if (hitsprt)
@@ -461,7 +461,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, int atwith)
 {
 	auto s = actor->s;
-	int sect = s->sectnum;
+	auto sect = s->sector();
 	int vel = 0, zvel;
 	int scount;
 
@@ -601,7 +601,7 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 static void shootrpg(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, int atwith)
 {
 	auto s = actor->s;
-	int sect = s->sectnum;
+	auto sect = s->sector();
 	int vel, zvel;
 	int l, scount;
 
@@ -753,7 +753,7 @@ static void shootrpg(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 static void shootwhip(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, int atwith)
 {
 	auto s = actor->s;
-	int sect = s->sectnum;
+	auto sect = s->sector();
 	int vel = 0, zvel;
 	int scount;
 
@@ -829,11 +829,11 @@ void shoot_r(DDukeActor* actor, int atwith)
 {
 	spritetype* const s = actor->s;
 
-	int sect, sa, p;
+	int sa, p;
 	int sx, sy, sz, vel, zvel, x;
 
 
-	sect = s->sectnum;
+	auto const sect = s->sector();
 	zvel = 0;
 
 	if (s->picnum == TILE_APLAYER)
@@ -2736,7 +2736,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 				i = -512 - MulScale(p->horizon.sum().asq16(), 20, 16);
 			}
 
-			auto spawned = EGS(p->cursectnum,
+			auto spawned = EGS(p->cursector(),
 				p->pos.x + p->angle.ang.bcos(-6),
 				p->pos.y + p->angle.ang.bsin(-6),
 				p->pos.z, HEAVYHBOMB, -16, 9, 9,
@@ -3146,7 +3146,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 				i = -512 - MulScale(p->horizon.sum().asq16(), 20, 16);
 			}
 
-			EGS(p->cursectnum,
+			EGS(p->cursector(),
 				p->pos.x + p->angle.ang.bcos(-6),
 				p->pos.y + p->angle.ang.bsin(-6),
 				p->pos.z, TRIPBOMBSPRITE, -16, 9, 9,

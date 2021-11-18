@@ -61,7 +61,7 @@ void RANDOMSCRAP(DDukeActor* origin)
 {
 	int r1 = krand(), r2 = krand(), r3 = krand(), r4 = krand(), r5 = krand(), r6 = krand(), r7 = krand();
 	int v = isRR() ? 16 : 48;
-	EGS(origin->s->sectnum, 
+	EGS(origin->s->sector(),
 		origin->s->x + (r7 & 255) - 128, origin->s->y + (r6 & 255) - 128, origin->s->z - (8 << 8) - (r5 & 8191), 
 		TILE_SCRAP6 + (r4 & 15), -8, v, v, r3 & 2047, (r2 & 63) + 64, -512 - (r1 & 2047), origin, 5); 
 }
@@ -268,7 +268,7 @@ void lotsofstuff(DDukeActor* actor, int n, int spawntype)
 	for (int i = n; i > 0; i--)
 	{
 		int r1 = krand(), r2 = krand();	// using the RANDCORRECT version from RR.
-		auto j = EGS(s->sectnum, s->x, s->y, s->z - (r2 % (47 << 8)), spawntype, -32, 8, 8, r1 & 2047, 0, 0, actor, 5);
+		auto j = EGS(s->sector(), s->x, s->y, s->z - (r2 % (47 << 8)), spawntype, -32, 8, 8, r1 & 2047, 0, 0, actor, 5);
 		j->s->cstat = krand() & 12;
 	}
 }
@@ -1358,7 +1358,7 @@ void movetongue(DDukeActor *actor, int tongue, int jaw)
 		s->z = Owner->s->z - (34 << 8);
 	for (int k = 0; k < actor->temp_data[0]; k++)
 	{
-		auto q = EGS(s->sectnum,
+		auto q = EGS(s->sector(),
 			s->x + MulScale(k, bcos(s->ang), 9),
 			s->y + MulScale(k, bsin(s->ang), 9),
 			s->z + ((k * Sgn(s->zvel)) * abs(s->zvel / 12)), tongue, -40 + (k << 1),
@@ -1370,7 +1370,7 @@ void movetongue(DDukeActor *actor, int tongue, int jaw)
 	}
 	}
 	int k = actor->temp_data[0];	// do not depend on the above loop counter.
-	auto spawned = EGS(s->sectnum,
+	auto spawned = EGS(s->sector(),
 		s->x + MulScale(k, bcos(s->ang), 9),
 		s->y + MulScale(k, bsin(s->ang), 9),
 		s->z + ((k * Sgn(s->zvel)) * abs(s->zvel / 12)), jaw, -40,
@@ -2620,7 +2620,7 @@ void gutsdir(DDukeActor* actor, int gtype, int n, int p)
 		int r1 = krand();
 		int r2 = krand();
 		// TRANSITIONAL: owned by a player???
-		EGS(actor->s->sectnum, actor->s->x, actor->s->y, gutz, gtype, -32, sx, sy, a, 256 + (r2 & 127), -512 - (r1 & 2047), ps[p].GetActor(), 5);
+		EGS(actor->s->sector(), actor->s->x, actor->s->y, gutz, gtype, -32, sx, sy, a, 256 + (r2 & 127), -512 - (r1 & 2047), ps[p].GetActor(), 5);
 	}
 }
 

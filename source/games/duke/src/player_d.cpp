@@ -126,7 +126,7 @@ static void shootfireball(DDukeActor *actor, int p, int sx, int sy, int sz, int 
 		sizy = 7;
 	}
 
-	auto spawned = EGS(s->sectnum, sx, sy, sz, FIREBALL, -127, sizx, sizy, sa, vel, zvel, actor, (short)4);
+	auto spawned = EGS(s->sector(), sx, sy, sz, FIREBALL, -127, sizx, sizy, sa, vel, zvel, actor, (short)4);
 	auto spr = spawned->s;
 	spr->extra += (krand() & 7);
 	if (s->picnum == BOSS5 || p >= 0)
@@ -263,7 +263,7 @@ static void shootknee(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 	{
 		if (hitwallp || hitsprt)
 		{
-			auto knee = EGS(sectnum(hitsectp), hitx, hity, hitz, KNEE, -15, 0, 0, sa, 32, 0, actor, 4);
+			auto knee = EGS(hitsectp, hitx, hity, hitz, KNEE, -15, 0, 0, sa, 32, 0, actor, 4);
 			knee->s->extra += (krand() & 7);
 			if (p >= 0)
 			{
@@ -421,7 +421,7 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 	DDukeActor* spark;
 	if (p >= 0)
 	{
-		spark = EGS(sectnum(hitsectp), hitx, hity, hitz, SHOTSPARK1, -15, 10, 10, sa, 0, 0, actor, 4);
+		spark = EGS(hitsectp, hitx, hity, hitz, SHOTSPARK1, -15, 10, 10, sa, 0, 0, actor, 4);
 		spark->s->extra = ScriptCode[gs.actorinfo[atwith].scriptaddress];
 		spark->s->extra += (krand() % 6);
 
@@ -535,7 +535,7 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 	}
 	else
 	{
-		spark = EGS(sectnum(hitsectp), hitx, hity, hitz, SHOTSPARK1, -15, 24, 24, sa, 0, 0, actor, 4);
+		spark = EGS(hitsectp, hitx, hity, hitz, SHOTSPARK1, -15, 24, 24, sa, 0, 0, actor, 4);
 		spark->s->extra = ScriptCode[gs.actorinfo[atwith].scriptaddress];
 
 		if (hitact)
@@ -565,7 +565,7 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, int atwith)
 {
 	spritetype* const s = actor->s;
-	int sect = s->sectnum;
+	sectortype* sect = s->sector();
 	int vel, zvel;
 	int l, scount;
 
@@ -676,7 +676,7 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 static void shootrpg(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, int atwith)
 {
 	auto s = actor->s;
-	int sect = s->sectnum;
+	auto sect = s->sector();
 	int vel, zvel;
 	int l, scount;
 
@@ -877,7 +877,7 @@ static void shootlaser(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 
 		if (j == 1)
 		{
-			auto bomb = EGS(sectnum(hitsectp), hitx, hity, hitz, TRIPBOMB, -16, 4, 5, sa, 0, 0, actor, 6);
+			auto bomb = EGS(hitsectp, hitx, hity, hitz, TRIPBOMB, -16, 4, 5, sa, 0, 0, actor, 6);
 			if (isWW2GI())
 			{
 				int lTripBombControl = GetGameVar("TRIPBOMB_CONTROL", TRIPBOMB_TRIPWIRE, nullptr, -1);
@@ -918,7 +918,7 @@ static void shootlaser(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 static void shootgrowspark(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 {
 	auto s = actor->s;
-	int sect = s->sectnum;
+	auto sect = s->sector();
 	int zvel;
 	int k;
 	int hitx, hity, hitz;
@@ -973,7 +973,7 @@ static void shootgrowspark(DDukeActor* actor, int p, int sx, int sy, int sz, int
 	//RESHOOTGROW:
 
 	s->cstat &= ~257;
-	hitscan(sx, sy, sz, sect, bcos(sa), bsin(sa),
+	hitscan(sx, sy, sz, sectnum(sect), bcos(sa), bsin(sa),
 		zvel << 6, &hitsectp, &wal, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
 
 	s->cstat |= 257;
@@ -1009,7 +1009,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 {
 	spritetype* const s = actor->s;
 
-	int sect, l, j;
+	int l, j;
 	int sx, sy, sz, sa, p, vel, zvel, x, dal;
 	if (s->picnum == TILE_APLAYER)
 	{
@@ -1029,7 +1029,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 	}
 
 
-	sect = s->sectnum;
+	auto sect = s->sector();
 	zvel = 0;
 
 	if (s->picnum == TILE_APLAYER)
@@ -1074,7 +1074,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 		case FIREFLY: // BOSS5 shot
 		{
 			auto k = spawn(actor, atwith);
-			k->s->sectnum = sect;
+			k->s->sectnum = sectnum(sect);
 			k->s->x = sx;
 			k->s->y = sy;
 			k->s->z = sz;
@@ -2213,7 +2213,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 				i = -512 - MulScale(p->horizon.sum().asq16(), 20, 16);
 			}
 
-			auto spawned = EGS(p->cursectnum,
+			auto spawned = EGS(p->cursector(),
 				p->pos.x + p->angle.ang.bcos(-6),
 				p->pos.y + p->angle.ang.bsin(-6),
 				p->pos.z, HEAVYHBOMB, -16, 9, 9,

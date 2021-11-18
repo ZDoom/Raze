@@ -936,7 +936,7 @@ static void lotsofpopcorn(DDukeActor *actor, walltype* wal, int n)
 		for (j = n - 1; j >= 0; j--)
 		{
 			a = sp->ang - 256 + (krand() & 511) + 1024;
-			EGS(sp->sectnum, sp->x, sp->y, sp->z, POPCORN, -32, 36, 36, a, 32 + (krand() & 63), 1024 - (krand() & 1023), actor, 5);
+			EGS(sp->sector(), sp->x, sp->y, sp->z, POPCORN, -32, 36, 36, a, 32 + (krand() & 63), 1024 - (krand() & 1023), actor, 5);
 		}
 		return;
 	}
@@ -966,7 +966,7 @@ static void lotsofpopcorn(DDukeActor *actor, walltype* wal, int n)
 			if (z < -(32 << 8) || z >(32 << 8))
 				z = sp->z - (32 << 8) + (krand() & ((64 << 8) - 1));
 			a = sp->ang - 1024;
-			EGS(sp->sectnum, x1, y1, z, POPCORN, -32, 36, 36, a, 32 + (krand() & 63), -(krand() & 1023), actor, 5);
+			EGS(sp->sector(), x1, y1, z, POPCORN, -32, 36, 36, a, 32 + (krand() & 63), -(krand() & 1023), actor, 5);
 		}
 	}
 }
@@ -1025,7 +1025,9 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 
 				case RRTILE1973:
 				{
-					updatesector(x, y, &sn); if (sn < 0) return;
+					sectortype* sptr = nullptr;
+					updatesector(x, y, &sptr);
+					if (sptr == nullptr) return;
 					wal->overpicnum = GLASS2;
 					lotsofpopcorn(spr, wal, 64);
 					wal->cstat = 0;
@@ -1033,7 +1035,7 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 					if (wal->nextwall >= 0)
 						wal->nextWall()->cstat = 0;
 
-					auto spawned = EGS(sn, x, y, z, SECTOREFFECTOR, 0, 0, 0, ps[0].angle.ang.asbuild(), 0, 0, spr, 3);
+					auto spawned = EGS(sptr, x, y, z, SECTOREFFECTOR, 0, 0, 0, ps[0].angle.ang.asbuild(), 0, 0, spr, 3);
 					spawned->s->lotag = SE_128_GLASS_BREAKING; 
 					spawned->temp_data[1] = 2; 
 					spawned->temp_walls[0] = wal;
@@ -1042,7 +1044,9 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 				}
 				case GLASS:
 				{
-					updatesector(x, y, &sn); if (sn < 0) return;
+					sectortype* sptr = nullptr;
+					updatesector(x, y, &sptr);
+					if (sptr == nullptr) return;
 					wal->overpicnum = GLASS2;
 					lotsofglass(spr, wal, 10);
 					wal->cstat = 0;
@@ -1050,7 +1054,7 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 					if (wal->nextwall >= 0)
 						wal->nextWall()->cstat = 0;
 
-					auto spawned = EGS(sn, x, y, z, SECTOREFFECTOR, 0, 0, 0, ps[0].angle.ang.asbuild(), 0, 0, spr, 3);
+					auto spawned = EGS(sptr, x, y, z, SECTOREFFECTOR, 0, 0, 0, ps[0].angle.ang.asbuild(), 0, 0, spr, 3);
 					spawned->s->lotag = SE_128_GLASS_BREAKING;
 					spawned->temp_data[1] = 2;
 					spawned->temp_walls[0] = wal;
@@ -2068,7 +2072,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		lotsofglass(targ, nullptr, 10);
 		s->picnum++;
 		for (k = 0; k < 6; k++)
-			EGS(s->sectnum, s->x, s->y, s->z - (8 << 8), SCRAP6 + (krand() & 15), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (s->zvel >> 2), targ, 5);
+			EGS(s->sector(), s->x, s->y, s->z - (8 << 8), SCRAP6 + (krand() & 15), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (s->zvel >> 2), targ, 5);
 		break;
 	case BOWLINGBALL:
 		pspr->xvel = (s->xvel >> 1) + (s->xvel >> 2);
@@ -2160,7 +2164,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		case UWHIP:
 			for (k = 0; k < 64; k++)
 			{
-				auto j = EGS(s->sectnum, s->x, s->y, s->z - (krand() % (48 << 8)), SCRAP6 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (s->zvel >> 2), targ, 5);
+				auto j = EGS(s->sector(), s->x, s->y, s->z - (krand() % (48 << 8)), SCRAP6 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (s->zvel >> 2), targ, 5);
 				j->s->pal = 8;
 			}
 
@@ -2193,7 +2197,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		if (gs.actorinfo[SHOTSPARK1].scriptaddress && pspr->extra != ScriptCode[gs.actorinfo[SHOTSPARK1].scriptaddress])
 		{
 			for (j = 0; j < 15; j++)
-				EGS(s->sectnum, s->x, s->y, s->sector()->floorz - (12 << 8) - (j << 9), SCRAP1 + (krand() & 15), -8, 64, 64,
+				EGS(s->sector(), s->x, s->y, s->sector()->floorz - (12 << 8) - (j << 9), SCRAP1 + (krand() & 15), -8, 64, 64,
 					krand() & 2047, (krand() & 127) + 64, -(krand() & 511) - 256, targ, 5);
 			spawn(targ, EXPLOSION2);
 			deletesprite(targ);

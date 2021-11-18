@@ -2162,7 +2162,7 @@ int ParseState::parse(void)
 					s = 0;
 				else s = (krand()%3);
 
-				auto l = EGS(g_sp->sectnum,
+				auto l = EGS(g_sp->sector(),
 					g_sp->x + (krand() & 255) - 128, g_sp->y + (krand() & 255) - 128, g_sp->z - (8 << 8) - (krand() & 8191),
 					dnum + s, g_sp->shade, 32 + (krand() & 15), 32 + (krand() & 15),
 					krand() & 2047, (krand() & 127) + 32, -(krand() & 2047), g_ac, 5);

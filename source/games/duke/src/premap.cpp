@@ -508,7 +508,7 @@ void resetpspritevars(int g)
 	int aimmode[MAXPLAYERS];
 	STATUSBARTYPE tsbar[MAXPLAYERS];
 
-	EGS(ps[0].cursectnum, ps[0].pos.x, ps[0].pos.y, ps[0].pos.z,
+	EGS(ps[0].cursector(), ps[0].pos.x, ps[0].pos.y, ps[0].pos.z,
 		TILE_APLAYER, 0, 0, 0, ps[0].angle.ang.asbuild(), 0, 0, nullptr, 10);
 
 	if (ud.recstat != 2) for (i = 0; i < MAXPLAYERS; i++)

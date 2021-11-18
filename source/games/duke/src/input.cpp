@@ -281,7 +281,7 @@ void hud_input(int plnum)
 							p->inven_icon = 3;
 
 							auto pactor =
-								EGS(p->cursectnum,
+								EGS(p->cursector(),
 									p->pos.x,
 									p->pos.y,
 									p->pos.z + (30 << 8), TILE_APLAYER, -64, 0, 0, p->angle.ang.asbuild(), 0, 0, nullptr, 10);

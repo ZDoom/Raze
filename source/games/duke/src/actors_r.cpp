@@ -495,7 +495,7 @@ void guts_r(DDukeActor* actor, int gtype, int n, int p)
 		int r4 = krand();
 		int r5 = krand();
 		// TRANSITIONAL: owned by a player???
-		auto spawned = EGS(s->sectnum, s->x + (r5 & 255) - 128, s->y + (r4 & 255) - 128, gutz - (r3 & 8191), gtype, -32, sx >> 1, sy >> 1, a, 48 + (r2 & 31), -512 - (r1 & 2047), ps[p].GetActor(), 5);
+		auto spawned = EGS(s->sector(), s->x + (r5 & 255) - 128, s->y + (r4 & 255) - 128, gutz - (r3 & 8191), gtype, -32, sx >> 1, sy >> 1, a, 48 + (r2 & 31), -512 - (r1 & 2047), ps[p].GetActor(), 5);
 		if (pal != 0)
 			spawned->s->pal = pal;
 	}
@@ -1426,7 +1426,7 @@ static void weaponcommon_r(DDukeActor *proj)
 	{
 		for (k = -3; k < 2; k++)
 		{
-			auto x = EGS(s->sectnum,
+			auto x = EGS(s->sector(),
 				s->x + MulScale(k, bcos(s->ang), 9),
 				s->y + MulScale(k, bsin(s->ang), 9),
 				s->z + ((k * Sgn(s->zvel)) * abs(s->zvel / 24)), FIRELASER, -40 + (k << 2),
@@ -3359,7 +3359,7 @@ void handle_se06_r(DDukeActor *actor)
 				ns->s->pal = 33;
 				if (!hulkspawn)
 				{
-					ns = EGS(s->sectnum, s->x, s->y, s->sector()->ceilingz + 119428, 3677, -8, 16, 16, 0, 0, 0, actor, 5);
+					ns = EGS(s->sector(), s->x, s->y, s->sector()->ceilingz + 119428, 3677, -8, 16, 16, 0, 0, 0, actor, 5);
 					ns->s->cstat = 514;
 					ns->s->pal = 7;
 					ns->s->xrepeat = 80;

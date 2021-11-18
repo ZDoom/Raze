@@ -674,16 +674,17 @@ void checkhitwall_d(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 					[[fallthrough]];
 				case BIGFORCE:
 				{
-					updatesector(x, y, &sn);
-					if (sn < 0) return;
+					sectortype* sptr = nullptr;
+					updatesector(x, y, &sptr);
+					if (sptr == nullptr) return;
 					DDukeActor* spawned;
 					if (atwith == -1)
-						spawned = EGS(sn, x, y, z, FORCERIPPLE, -127, 8, 8, 0, 0, 0, spr, 5);
+						spawned = EGS(sptr, x, y, z, FORCERIPPLE, -127, 8, 8, 0, 0, 0, spr, 5);
 					else
 					{
 						if (atwith == CHAINGUN)
-							spawned = EGS(sn, x, y, z, FORCERIPPLE, -127, 16 + spr->s->xrepeat, 16 + spr->s->yrepeat, 0, 0, 0, spr, 5);
-						else spawned = EGS(sn, x, y, z, FORCERIPPLE, -127, 32, 32, 0, 0, 0, spr, 5);
+							spawned = EGS(sptr, x, y, z, FORCERIPPLE, -127, 16 + spr->s->xrepeat, 16 + spr->s->yrepeat, 0, 0, 0, spr, 5);
+						else spawned = EGS(sptr, x, y, z, FORCERIPPLE, -127, 32, 32, 0, 0, 0, spr, 5);
 					}
 
 					spawned->s->cstat |= 18 + 128;
@@ -708,7 +709,9 @@ void checkhitwall_d(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 
 				case GLASS:
 				{
-					updatesector(x, y, &sn); if (sn < 0) return;
+					sectortype* sptr = nullptr;
+					updatesector(x, y, &sptr);
+					if (sptr == nullptr) return;
 					wal->overpicnum = GLASS2;
 					lotsofglass(spr, wal, 10);
 					wal->cstat = 0;
@@ -716,7 +719,7 @@ void checkhitwall_d(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 					if (wal->nextwall >= 0)
 						wal->nextWall()->cstat = 0;
 
-					auto spawned = EGS(sn, x, y, z, SECTOREFFECTOR, 0, 0, 0, ps[0].angle.ang.asbuild(), 0, 0, spr, 3);
+					auto spawned = EGS(sptr, x, y, z, SECTOREFFECTOR, 0, 0, 0, ps[0].angle.ang.asbuild(), 0, 0, spr, 3);
 					spawned->s->lotag = 128; 
 					spawned->temp_data[1] = 5;
 					spawned->temp_walls[0] = wal;
@@ -724,7 +727,9 @@ void checkhitwall_d(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 					return;
 				}
 				case STAINGLASS1:
-					updatesector(x, y, &sn); if (sn < 0) return;
+					sectortype* sptr = nullptr;
+					updatesector(x, y, &sptr);
+					if (sptr == nullptr) return;
 					lotsofcolourglass(spr, wal, 80);
 					wal->cstat = 0;
 					if (wal->nextwall >= 0)
@@ -1101,7 +1106,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		case HEAVYHBOMB:
 			for (k = 0; k < 64; k++)
 			{
-				auto j = EGS(s->sectnum, s->x, s->y, s->z - (krand() % (48 << 8)), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (s->zvel >> 2), targ, 5);
+				auto j = EGS(s->sector(), s->x, s->y, s->z - (krand() % (48 << 8)), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (s->zvel >> 2), targ, 5);
 				j->s->pal = 8;
 			}
 
@@ -1116,7 +1121,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 	case HANGLIGHT:
 	case GENERICPOLE2:
 		for (k = 0; k < 6; k++)
-			EGS(s->sectnum, s->x, s->y, s->z - (8 << 8), SCRAP1 + (krand() & 15), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (s->zvel >> 2), targ, 5);
+			EGS(s->sector(), s->x, s->y, s->z - (8 << 8), SCRAP1 + (krand() & 15), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (s->zvel >> 2), targ, 5);
 		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		deletesprite(targ);
 		break;
@@ -1146,7 +1151,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		if (gs.actorinfo[SHOTSPARK1].scriptaddress && pspr->extra != ScriptCode[gs.actorinfo[SHOTSPARK1].scriptaddress])
 		{
 			for (j = 0; j < 15; j++)
-				EGS(s->sectnum, s->x, s->y, s->sector()->floorz - (12 << 8) - (j << 9), SCRAP1 + (krand() & 15), -8, 64, 64,
+				EGS(s->sector(), s->x, s->y, s->sector()->floorz - (12 << 8) - (j << 9), SCRAP1 + (krand() & 15), -8, 64, 64,
 					krand() & 2047, (krand() & 127) + 64, -(krand() & 511) - 256, targ, 5);
 			spawn(targ, EXPLOSION2);
 			deletesprite(targ);
