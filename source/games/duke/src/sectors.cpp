@@ -375,11 +375,12 @@ void doanimations(void)
 //
 //---------------------------------------------------------------------------
 
-int getanimationgoal(int animtype, int animtarget)
+int getanimationgoal(int animtype, sectortype* animtargetp)
 {
 	int i, j;
 
 	j = -1;
+	int animtarget = sectnum(animtargetp);
 	for (i = animatecnt - 1; i >= 0; i--)
 		if (animtype == animatetype[i] && animtarget == animatetarget[i])
 		{
@@ -620,7 +621,7 @@ static void handle_st15(sectortype* sptr, DDukeActor* actor)
 
 static void handle_st16(sectortype* sptr, DDukeActor* actor)
 {
-	int i = getanimationgoal(anim_floorz, sectnum(sptr));
+	int i = getanimationgoal(anim_floorz, sptr);
 	sectortype* sectp;
 
 	if (i == -1)
@@ -648,7 +649,7 @@ static void handle_st16(sectortype* sptr, DDukeActor* actor)
 
 static void handle_st18(sectortype* sptr, DDukeActor* actor)
 {
-	int i = getanimationgoal(anim_floorz, sectnum(sptr));
+	int i = getanimationgoal(anim_floorz, sptr);
 
 	if (i == -1)
 	{
@@ -751,7 +752,7 @@ REDODOOR:
 
 static void handle_st21(sectortype* sptr, DDukeActor* actor)
 {
-	int i = getanimationgoal(anim_floorz, sectnum(sptr));
+	int i = getanimationgoal(anim_floorz, sptr);
 	int j;
 	if (i >= 0)
 	{
@@ -998,7 +999,7 @@ void operatesectors(sectortype* sptr, DDukeActor *actor)
 		break;
 	}
 	case ST_26_SPLITTING_ST_DOOR: //The split doors
-		i = getanimationgoal(anim_ceilingz, sectnum(sptr));
+		i = getanimationgoal(anim_ceilingz, sptr);
 		if (i == -1) //if the door has stopped
 		{
 			haltsoundhack = 1;

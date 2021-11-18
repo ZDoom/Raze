@@ -150,7 +150,7 @@ void operateforcefields_common(DDukeActor* s, int low, const std::initializer_li
 void operatemasterswitches(int lotag);
 void operatesectors(sectortype* s, DDukeActor* i);
 void hud_input(int playerNum);
-int getanimationgoal(int animtype, int animindex);
+int getanimationgoal(int animtype, sectortype* animindex);
 bool isanearoperator(int lotag);
 bool isanunderoperator(int lotag);
 int setanimation(sectortype* animsect, int animtype, walltype* animtarget, int thegoal, int thevel);

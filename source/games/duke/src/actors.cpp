@@ -3503,7 +3503,7 @@ void handle_se08(DDukeActor *actor, bool checkhitag1)
 		}
 		j = 1;
 	}
-	else j = getanimationgoal(anim_ceilingz, s->sectnum);
+	else j = getanimationgoal(anim_ceilingz, s->sector());
 
 	if (j >= 0)
 	{
@@ -3592,7 +3592,7 @@ void handle_se10(DDukeActor* actor, const int* specialtags)
 			{
 				if (specialtags) for (int i = 0; specialtags[i]; i++)
 				{
-					if (s->sector()->lotag == specialtags[i] && getanimationgoal(anim_ceilingz, s->sectnum) >= 0)
+					if (s->sector()->lotag == specialtags[i] && getanimationgoal(anim_ceilingz, s->sector()) >= 0)
 					{
 						return;
 					}
@@ -4342,7 +4342,7 @@ void handle_se22(DDukeActor* actor)
 	auto sc = actor->getSector();
 	if (t[1])
 	{
-		if (getanimationgoal(anim_ceilingz, t[0]) >= 0)
+		if (getanimationgoal(anim_ceilingz, &sector[t[0]]) >= 0)
 			sc->ceilingz += sc->extra * 9;
 		else t[1] = 0;
 	}

@@ -59,11 +59,11 @@ void ballreturn(DDukeActor *ball)
 
 void pinsectorresetdown(int sect)
 {
-	int j = getanimationgoal(anim_ceilingz, sect);
+	auto sec = &sector[sect];
+	int j = getanimationgoal(anim_ceilingz, sec);
 
 	if (j == -1)
 	{
-		auto sec = &sector[sect];
 		j = sec->floorz;
 		setanimation(sec, anim_ceilingz, sec, j, 64);
 	}
@@ -71,11 +71,11 @@ void pinsectorresetdown(int sect)
 
 int pinsectorresetup(int sect)
 {
-	int j = getanimationgoal(anim_ceilingz, sect);
+	auto sec = &sector[sect];
+	int j = getanimationgoal(anim_ceilingz, sec);
 
 	if (j == -1)
 	{
-		auto sec = &sector[sect];
 		j = nextsectorneighborzptr(sec, sec->ceilingz, -1, -1)->ceilingz;
 		setanimation(sec, anim_ceilingz, sec, j, 64);
 		return 1;
