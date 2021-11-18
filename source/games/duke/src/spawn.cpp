@@ -509,7 +509,7 @@ void initcrane(DDukeActor* actj, DDukeActor* acti, int CRANEPOLE)
 		{
 			apt.poleactor = act;
 
-			t[1] = ss->sectnum;
+			acti->temp_sect = ss->sector();
 
 			ss->xrepeat = 48;
 			ss->yrepeat = 128;

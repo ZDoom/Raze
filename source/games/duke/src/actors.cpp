@@ -652,7 +652,7 @@ void movecrane(DDukeActor *actor, int crane)
 
 	if (t[0] == 0) //Waiting to check the sector
 	{
-		DukeSectIterator it(t[1]);
+		DukeSectIterator it(actor->temp_sect);
 		while (auto a2 = it.Next())
 		{
 			switch (a2->s->statnum)
@@ -678,7 +678,7 @@ void movecrane(DDukeActor *actor, int crane)
 		}
 		//IFMOVING;	// JBF 20040825: see my rant above about this
 		ssp(actor, CLIPMASK0);
-		if (spri->sectnum == t[1])
+		if (spri->sector() == actor->temp_sect)
 			t[0]++;
 	}
 	else if (t[0] == 2 || t[0] == 7)
@@ -718,7 +718,7 @@ void movecrane(DDukeActor *actor, int crane)
 		spri->picnum++;
 		if (spri->picnum == (crane + 2))
 		{
-			int p = checkcursectnums(&sector[t[1]]);
+			int p = checkcursectnums(actor->temp_sect);
 			if (p >= 0 && ps[p].on_ground)
 			{
 				actor->SetActiveCrane(true);
@@ -728,7 +728,7 @@ void movecrane(DDukeActor *actor, int crane)
 			}
 			else
 			{
-				DukeSectIterator it(t[1]);
+				DukeSectIterator it(actor->temp_sect);
 				while (auto a2 = it.Next())
 				{
 					switch (a2->s->statnum)
