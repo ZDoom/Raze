@@ -2475,18 +2475,18 @@ int ParseState::parse(void)
 		insptr++;
 		if( g_sp->sector()->lotag == 0 )
 		{
-			int neartagsector, neartagwall;
+			sectortype* sectp;
+			walltype* neartagwall;
 			DDukeActor* neartagsprite;
 			int32_t neartaghitdist;
-			neartag(g_sp->x, g_sp->y, g_sp->z - (32 << 8), g_sp->sectnum, g_sp->ang, &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 768L, 1);
-			if (neartagsector >= 0)
+			neartag(g_sp->x, g_sp->y, g_sp->z - (32 << 8), g_sp->sectnum, g_sp->ang, &sectp, &neartagwall, &neartagsprite, &neartaghitdist, 768L, 1);
+			if (sectp)
 			{
-				auto sectp = &sector[neartagsector];
 				if (isanearoperator(sectp->lotag))
 					if ((sectp->lotag & 0xff) == ST_23_SWINGING_DOOR || sectp->floorz == sectp->ceilingz)
 						if ((sectp->lotag & 16384) == 0 && (sectp->lotag & 32768) == 0)
 						{
-							DukeSectIterator it(neartagsector);
+							DukeSectIterator it(sectp);
 							DDukeActor* a2;
 							while ((a2 = it.Next()))
 							{
@@ -2495,7 +2495,7 @@ int ParseState::parse(void)
 									break;
 							}
 							if (a2 == nullptr)
-								operatesectors(neartagsector, g_ac);
+								operatesectors(sectnum(sectp), g_ac);
 						}
 			}
 		}

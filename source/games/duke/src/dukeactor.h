@@ -209,15 +209,15 @@ inline int hitscan(int x, int y, int z, int sectnum, int32_t vx, int32_t vy, int
 }
 
 inline void   neartag(int32_t xs, int32_t ys, int32_t zs, int sectnum, int ange,
-	int* neartagsector, int* neartagwall, DDukeActor** neartagsprite,
+	sectortype** neartagsector, walltype** neartagwall, DDukeActor** neartagsprite,
 	int32_t* neartaghitdist, int32_t neartagrange, uint8_t tagsearch)
 {
 	int16_t nts;
 	int16_t ntsec, ntwal;
 	::neartag(xs, ys, zs, sectnum, ange, &ntsec, &ntwal, &nts, neartaghitdist, neartagrange, tagsearch);
 	*neartagsprite = nts == -1 ? nullptr : &hittype[nts];
-	*neartagsector = ntsec;
-	*neartagwall = ntwal;
+	*neartagsector = ntsec == -1? nullptr : &sector[ntsec];
+	*neartagwall = ntwal == -1? nullptr : &wall[ntwal];
 }
 
 
