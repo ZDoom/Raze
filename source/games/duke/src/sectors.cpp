@@ -657,10 +657,9 @@ static void handle_st16(sectortype* sptr, DDukeActor* actor)
 //
 //---------------------------------------------------------------------------
 
-static void handle_st18(int sn, DDukeActor* actor)
+static void handle_st18(sectortype* sptr, DDukeActor* actor)
 {
-	sectortype* sptr = &sector[sn];
-	int i = getanimationgoal(anim_floorz, sn);
+	int i = getanimationgoal(anim_floorz, sectnum(sptr));
 
 	if (i == -1)
 	{
@@ -670,9 +669,9 @@ static void handle_st18(int sn, DDukeActor* actor)
 		int j = sectp->floorz;
 		int q = sptr->extra;
 		int l = sptr->ceilingz - sptr->floorz;
-		setanimation(sn, anim_floorz, sn, j, q);
-		setanimation(sn, anim_ceilingz, sn, j + l, q);
-		callsound(sn, actor);
+		setanimation(sptr, anim_floorz, sptr, j, q);
+		setanimation(sptr, anim_ceilingz, sptr, j + l, q);
+		callsound(sptr, actor);
 	}
 }
 
@@ -682,15 +681,14 @@ static void handle_st18(int sn, DDukeActor* actor)
 //
 //---------------------------------------------------------------------------
 
-static void handle_st29(int sn, DDukeActor* actor)
+static void handle_st29(sectortype* sptr, DDukeActor* actor)
 {
-	sectortype* sptr = &sector[sn];
 	int j;
 
 	if (sptr->lotag & 0x8000)
 		j = nextsectorneighborzptr(sptr, sptr->ceilingz, 1, 1)->floorz;
 	else
-		j = nextsectorneighborzptr(sn, sptr->ceilingz, -1, -1)->ceilingz;
+		j = nextsectorneighborzptr(sptr, sptr->ceilingz, -1, -1)->ceilingz;
 
 	DukeStatIterator it(STAT_EFFECTOR);
 	while (auto act2 = it.Next())
@@ -700,16 +698,16 @@ static void handle_st29(int sn, DDukeActor* actor)
 		{
 			act2->getSector()->extra = -act2->getSector()->extra;
 
-			act2->temp_data[0] = sn;
+			act2->temp_data[0] = sectnum(sptr);
 			act2->temp_data[1] = 1;
 		}
 	}
 
 	sptr->lotag ^= 0x8000;
 
-	setanimation(sn, anim_ceilingz, sn, j, sptr->extra);
+	setanimation(sptr, anim_ceilingz, sptr, j, sptr->extra);
 
-	callsound(sn, actor);
+	callsound(sptr, actor);
 }
 
 //---------------------------------------------------------------------------
@@ -718,16 +716,15 @@ static void handle_st29(int sn, DDukeActor* actor)
 //
 //---------------------------------------------------------------------------
 
-static void handle_st20(int sn, DDukeActor* actor)
+static void handle_st20(sectortype* sptr, DDukeActor* actor)
 {
-	sectortype* sptr = &sector[sn];
 	int j = 0;
 REDODOOR:
 
 	if (sptr->lotag & 0x8000)
 	{
 		DDukeActor* a2;
-		DukeSectIterator it(sn);
+		DukeSectIterator it(sptr);
 		while ((a2 = it.Next()))
 		{
 			if (a2->s->statnum == 3 && a2->s->lotag == 9)
@@ -753,8 +750,8 @@ REDODOOR:
 
 	sptr->lotag ^= 0x8000;
 
-	setanimation(sn, anim_ceilingz, sn, j, sptr->extra);
-	callsound(sn, actor);
+	setanimation(sptr, anim_ceilingz, sptr, j, sptr->extra);
+	callsound(sptr, actor);
 }
 
 //---------------------------------------------------------------------------
@@ -763,10 +760,9 @@ REDODOOR:
 //
 //---------------------------------------------------------------------------
 
-static void handle_st21(int sn, DDukeActor* actor)
+static void handle_st21(sectortype* sptr, DDukeActor* actor)
 {
-	sectortype* sptr = &sector[sn];
-	int i = getanimationgoal(anim_floorz, sn);
+	int i = getanimationgoal(anim_floorz, sectnum(sptr));
 	int j;
 	if (i >= 0)
 	{
@@ -778,13 +774,13 @@ static void handle_st21(int sn, DDukeActor* actor)
 	else
 	{
 		if (sptr->ceilingz == sptr->floorz)
-			j = nextsectorneighborzptr(sn, sptr->ceilingz, 1, 1)->floorz;
+			j = nextsectorneighborzptr(sptr, sptr->ceilingz, 1, 1)->floorz;
 		else j = sptr->ceilingz;
 
 		sptr->lotag ^= 0x8000;
 
-		if (setanimation(sn, anim_floorz, sn, j, sptr->extra) >= 0)
-			callsound(sn, actor);
+		if (setanimation(sptr, anim_floorz, sptr, j, sptr->extra) >= 0)
+			callsound(sptr, actor);
 	}
 }
 
@@ -794,27 +790,26 @@ static void handle_st21(int sn, DDukeActor* actor)
 //
 //---------------------------------------------------------------------------
 
-static void handle_st22(int sn, DDukeActor* actor)
+static void handle_st22(sectortype* sptr, DDukeActor* actor)
 {
-	sectortype* sptr = &sector[sn];
 	int j, q;
 	if ((sptr->lotag & 0x8000))
 	{
 		q = (sptr->ceilingz + sptr->floorz) >> 1;
-		j = setanimation(sn, anim_floorz, sn, q, sptr->extra);
-		j = setanimation(sn, anim_ceilingz, sn, q, sptr->extra);
+		j = setanimation(sptr, anim_floorz, sptr, q, sptr->extra);
+		j = setanimation(sptr, anim_ceilingz, sptr, q, sptr->extra);
 	}
 	else
 	{
 		q = nextsectorneighborzptr(sptr, sptr->floorz, 1, 1)->floorz;
-		j = setanimation(sn, anim_floorz, sn, q, sptr->extra);
+		j = setanimation(sptr, anim_floorz, sptr, q, sptr->extra);
 		q = nextsectorneighborzptr(sptr, sptr->ceilingz, -1, -1)->ceilingz;
-		j = setanimation(sn, anim_ceilingz, sn, q, sptr->extra);
+		j = setanimation(sptr, anim_ceilingz, sptr, q, sptr->extra);
 	}
 
 	sptr->lotag ^= 0x8000;
 
-	callsound(sn, actor);
+	callsound(sptr, actor);
 
 }
 
@@ -1047,22 +1042,22 @@ void operatesectors(int sn, DDukeActor *actor)
 
 	case ST_18_ELEVATOR_DOWN:
 	case ST_19_ELEVATOR_UP:
-		handle_st18(sn, actor);
+		handle_st18(sptr, actor);
 		return;
 
 	case ST_29_TEETH_DOOR:
-		handle_st29(sn, actor);
+		handle_st29(sptr, actor);
 		return;
 	case ST_20_CEILING_DOOR:
-		handle_st20(sn, actor);
+		handle_st20(sptr, actor);
 		return;
 
 	case ST_21_FLOOR_DOOR:
-		handle_st21(sn, actor);
+		handle_st21(sptr, actor);
 		return;
 
 	case ST_22_SPLITTING_DOOR:
-		handle_st22(sn, actor);
+		handle_st22(sptr, actor);
 		return;
 
 	case ST_23_SWINGING_DOOR: //Swingdoor
