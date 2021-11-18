@@ -2049,7 +2049,7 @@ static void onBoat(int snum, ESyncBits &actions)
 //
 //---------------------------------------------------------------------------
 
-static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int shrunk, int truefdist, int psectlotag)
+static void movement(int snum, ESyncBits actions, sectortype* psect, int fz, int cz, int shrunk, int truefdist, int psectlotag)
 {
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
@@ -2106,7 +2106,7 @@ static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int
 
 	if (p->pos.z < (fz - (i << 8))) //falling
 	{
-		if ((actions & (SB_JUMP|SB_CROUCH)) == 0 && p->on_ground && (sector[psect].floorstat & 2) && p->pos.z >= (fz - (i << 8) - (16 << 8)))
+		if ((actions & (SB_JUMP|SB_CROUCH)) == 0 && p->on_ground && (psect->floorstat & 2) && p->pos.z >= (fz - (i << 8) - (16 << 8)))
 			p->pos.z = fz - (i << 8);
 		else
 		{
@@ -2278,7 +2278,7 @@ static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int
 //
 //---------------------------------------------------------------------------
 
-static void underwater(int snum, ESyncBits actions, int psect, int fz, int cz)
+static void underwater(int snum, ESyncBits actions, int fz, int cz)
 {
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
@@ -2352,7 +2352,7 @@ static void underwater(int snum, ESyncBits actions, int psect, int fz, int cz)
 //
 //---------------------------------------------------------------------------
 
-void onMotorcycleMove(int snum, int psect, walltype* wal)
+void onMotorcycleMove(int snum, walltype* wal)
 {
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
@@ -2408,11 +2408,10 @@ void onMotorcycleMove(int snum, int psect, walltype* wal)
 //
 //---------------------------------------------------------------------------
 
-void onBoatMove(int snum, int psect, walltype* wal)
+void onBoatMove(int snum, int psectlotag, walltype* wal)
 {
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
-	int psectlotag = sector[psect].lotag;
 	auto delta = wal->delta();
 	int angleDelta = abs(p->angle.ang.asbuild() - getangle(delta.x, delta.y));
 
@@ -3361,8 +3360,8 @@ void processinput_r(int snum)
 		}
 		psect = 0;
 	}
-
-	psectlotag = sector[psect].lotag;
+	auto psectp = &sector[psect];
+	psectlotag = psectp->lotag;
 
 	if (psectlotag == 867)
 	{
@@ -3377,7 +3376,7 @@ void processinput_r(int snum)
 	else if (psectlotag == 7777 && (currentLevel->gameflags & LEVEL_RR_HULKSPAWN))
 			lastlevel = 1;
 
-	if (psectlotag == 848 && sector[psect].floorpicnum == WATERTILE2)
+	if (psectlotag == 848 && psectp->floorpicnum == WATERTILE2)
 		psectlotag = 1;
 
 	if (psectlotag == 857)
@@ -3588,11 +3587,11 @@ void processinput_r(int snum)
 
 	if (psectlotag == ST_2_UNDERWATER)
 	{
-		underwater(snum, actions, psect, fz, cz);
+		underwater(snum, actions, fz, cz);
 	}
 	else
 	{
-		movement(snum, actions, psect, fz, cz, shrunk, truefdist, psectlotag);
+		movement(snum, actions, psectp, fz, cz, shrunk, truefdist, psectlotag);
 	}
 
 	p->psectlotag = psectlotag;
@@ -3668,7 +3667,7 @@ void processinput_r(int snum)
 
 					if (clz.type == kHitSprite)
 						j = clz.actor->s->picnum;
-					else j = sector[psect].floorpicnum;
+					else j = psectp->floorpicnum;
 					break;
 				case 1:
 					if ((krand() & 1) == 0)
@@ -3707,13 +3706,13 @@ void processinput_r(int snum)
 			}
 		}
 
-		if (isRRRA() && sector[psect].floorpicnum == RRTILE7888)
+		if (isRRRA() && psectp->floorpicnum == RRTILE7888)
 		{
 			if (p->OnMotorcycle)
 				if (p->on_ground)
 					p->moto_on_oil = 1;
 		}
-		else if (isRRRA() && sector[psect].floorpicnum == RRTILE7889)
+		else if (isRRRA() && psectp->floorpicnum == RRTILE7889)
 		{
 			if (p->OnMotorcycle)
 			{
@@ -3730,7 +3729,7 @@ void processinput_r(int snum)
 		}
 		else
 
-			if (sector[psect].floorpicnum == RRTILE3073 || sector[psect].floorpicnum == RRTILE2702)
+			if (psectp->floorpicnum == RRTILE3073 || psectp->floorpicnum == RRTILE2702)
 			{
 				if (p->OnMotorcycle)
 				{
@@ -3795,11 +3794,11 @@ HORIZONLY:
 		auto wal = clip.wall();
 		if (p->OnMotorcycle)
 		{
-			onMotorcycleMove(snum, psect, wal);
+			onMotorcycleMove(snum, wal);
 		}
 		else if (p->OnBoat)
 		{
-			onBoatMove(snum, psect, wal);
+			onBoatMove(snum, psectlotag, wal);
 		}
 		else
 		{
@@ -3888,9 +3887,10 @@ HORIZONLY:
 	if (psectlotag < 3)
 	{
 		psect = s->sectnum;
-		if (ud.clipping == 0 && sector[psect].lotag == ST_31_TWO_WAY_TRAIN)
+		psectp = &sector[psect];
+		if (ud.clipping == 0 && psectp->lotag == ST_31_TWO_WAY_TRAIN)
 		{
-			auto act = ScriptIndexToActor(sector[psect].hitag);
+			auto act = ScriptIndexToActor(psectp->hitag);
 			if (act && act->s->xvel && act->temp_data[0] == 0)
 			{
 				quickkill(p);
@@ -3930,7 +3930,7 @@ HORIZONLY:
 				return;
 			}
 		}
-		else if (abs(fz - cz) < (32 << 8) && isanunderoperator(sector[psect].lotag))
+		else if (abs(fz - cz) < (32 << 8) && isanunderoperator(psectp->lotag))
 			fi.activatebysector(psect, pact);
 	}
 
@@ -4018,14 +4018,15 @@ HORIZONLY:
 
 void processmove_r(int snum, ESyncBits actions, int psect, int fz, int cz, int shrunk, int truefdist)
 {
-	int psectlotag = sector[psect].lotag;
+	auto psectp = &sector[psect];
+	int psectlotag = psectp->lotag;
 	if (psectlotag == ST_2_UNDERWATER)
 	{
-		underwater(snum, actions, psect, fz, cz);
+		underwater(snum, actions, fz, cz);
 	}
 	else
 	{
-		movement(snum, actions, psect, fz, cz, shrunk, truefdist, psectlotag);
+		movement(snum, actions, psectp, fz, cz, shrunk, truefdist, psectlotag);
 	}
 }
 

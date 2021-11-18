@@ -1748,7 +1748,7 @@ static void operateJetpack(int snum, ESyncBits actions, int psectlotag, int fz, 
 //
 //---------------------------------------------------------------------------
 
-static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int shrunk, int truefdist, int psectlotag)
+static void movement(int snum, ESyncBits actions, sectortype* psect, int fz, int cz, int shrunk, int truefdist, int psectlotag)
 {
 	int j;
 	auto p = &ps[snum];
@@ -1796,7 +1796,7 @@ static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int
 	{
 
 		// not jumping or crouching
-		if ((actions & (SB_JUMP|SB_CROUCH)) == 0 && p->on_ground && (sector[psect].floorstat & 2) && p->pos.z >= (fz - (i << 8) - (16 << 8)))
+		if ((actions & (SB_JUMP|SB_CROUCH)) == 0 && p->on_ground && (psect->floorstat & 2) && p->pos.z >= (fz - (i << 8) - (16 << 8)))
 			p->pos.z = fz - (i << 8);
 		else
 		{
@@ -1934,7 +1934,7 @@ static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int
 //
 //---------------------------------------------------------------------------
 
-static void underwater(int snum, ESyncBits actions, int psect, int fz, int cz)
+static void underwater(int snum, ESyncBits actions, int fz, int cz)
 {
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
@@ -2747,7 +2747,8 @@ void processinput_d(int snum)
 		psect = 0;
 	}
 
-	psectlotag = sector[psect].lotag;
+	auto psectp = &sector[psect];
+	psectlotag = psectp->lotag;
 	p->spritebridge = 0;
 
 	shrunk = (s->yrepeat < 32);
@@ -2866,7 +2867,7 @@ void processinput_d(int snum)
 
 	if (psectlotag == ST_2_UNDERWATER)
 	{
-		underwater(snum, actions, psect, fz, cz);
+		underwater(snum, actions, fz, cz);
 	}
 
 	else if (p->jetpack_on)
@@ -2875,7 +2876,7 @@ void processinput_d(int snum)
 	}
 	else if (psectlotag != ST_2_UNDERWATER)
 	{
-		movement(snum, actions, psect, fz, cz, shrunk, truefdist, psectlotag);
+		movement(snum, actions, psectp, fz, cz, shrunk, truefdist, psectlotag);
 	}
 
 	p->psectlotag = psectlotag;
@@ -2954,7 +2955,7 @@ void processinput_d(int snum)
 					if (clz.type == kHitSprite)
 						j = clz.actor->s->picnum;
 					else
-						j = sector[psect].floorpicnum;
+						j = psectp->floorpicnum;
 
 					switch (j)
 					{
@@ -3063,9 +3064,9 @@ HORIZONLY:
 	if (psectlotag < 3)
 	{
 		psect = s->sectnum;
-		if (ud.clipping == 0 && sector[psect].lotag == 31)
+		if (ud.clipping == 0 && psectp->lotag == 31)
 		{
-			auto secact = ScriptIndexToActor(sector[psect].hitag);
+			auto secact = ScriptIndexToActor(psectp->hitag);
 			if (secact && secact->s->xvel && secact->temp_data[0] == 0)
 			{
 				quickkill(p);
@@ -3098,7 +3099,7 @@ HORIZONLY:
 				return;
 			}
 		}
-		else if (abs(fz - cz) < (32 << 8) && isanunderoperator(sector[psect].lotag))
+		else if (abs(fz - cz) < (32 << 8) && isanunderoperator(psectp->lotag))
 			fi.activatebysector(psect, pact);
 	}
 
@@ -3173,11 +3174,12 @@ HORIZONLY:
 
 void processmove_d(int snum, ESyncBits actions, int psect, int fz, int cz, int shrunk, int truefdist)
 {
-	int psectlotag = sector[psect].lotag;
+	auto psectp = &sector[psect];
+	int psectlotag = psectp->lotag;
 	auto p = &ps[snum];
 	if (psectlotag == 2)
 	{
-		underwater(snum, actions, psect, fz, cz);
+		underwater(snum, actions, fz, cz);
 	}
 
 	else if (p->jetpack_on)
@@ -3186,7 +3188,7 @@ void processmove_d(int snum, ESyncBits actions, int psect, int fz, int cz, int s
 	}
 	else if (psectlotag != 2)
 	{
-		movement(snum, actions, psect, fz, cz, shrunk, truefdist, psectlotag);
+		movement(snum, actions, psectp, fz, cz, shrunk, truefdist, psectlotag);
 	}
 }
 END_DUKE_NS
