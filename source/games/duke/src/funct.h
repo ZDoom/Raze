@@ -15,8 +15,8 @@ BEGIN_DUKE_NS
 // This list is not sorted in any way.
 
 void lava_cleararrays();
-void addjaildoor(int p1, int p2, int iht, int jlt, int p3, int h);
-void addminecart(int p1, int p2, int i, int iht, int p3, int childsectnum);
+void addjaildoor(int p1, int p2, int iht, int jlt, int p3, sectortype* h);
+void addminecart(int p1, int p2, sectortype* i, int iht, int p3, sectortype* childsectnum);
 void addtorch(spritetype* i);
 void addlightning(spritetype* i);
 

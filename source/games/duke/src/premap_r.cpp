@@ -35,12 +35,6 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 
 BEGIN_DUKE_NS 
 
-void addjaildoor(int p1, int p2, int iht, int jlt, int p3, int h);
-void addminecart(int p1, int p2, int i, int iht, int p3, int childsectnum);
-void addtorch(int i);
-void addlightning(int i);
-
-
 static inline void tloadtile(int tilenum, int palnum = 0)
 {
 	markTileForPrecache(tilenum, palnum);
@@ -454,9 +448,9 @@ void prelevel_r(int g)
 		}
 	}
 
-	for (i = 0; i < numsectors; i++)
+	for (auto&sect : sectors())
 	{
-		auto sectp = &sector[i];
+		auto sectp = &sect;
 		if (sectp->ceilingpicnum == RRTILE2577)
 			thunderon = 1;
 
@@ -464,7 +458,7 @@ void prelevel_r(int g)
 		{
 		case 41:
 		{
-			DukeSectIterator it(i);
+			DukeSectIterator it(sectp);
 			dist = 0;
 			while (auto act = it.Next())
 			{
@@ -481,13 +475,13 @@ void prelevel_r(int g)
 					deletesprite(act);
 				}
 			}
-			for (j = 0; j < numsectors; j++)
+			for(auto& osect : sectors())
 			{
-				if (sectp->hitag == sector[j].hitag && j != i)
+				if (sectp->hitag == osect.hitag && &osect != sectp)
 				{
 					// & 32767 to avoid some ordering issues here. 
 					// Other code assumes that the lotag is always a sector effector type and can mask the high bit in.
-					addjaildoor(dist, speed, sectp->hitag, sector[j].lotag & 32767, sound, j);
+					addjaildoor(dist, speed, sectp->hitag, osect.lotag & 32767, sound, &osect);
 				}
 			}
 			break;
@@ -495,10 +489,10 @@ void prelevel_r(int g)
 		case 42:
 		{
 			int ii;
-			int childsectnum = -1;
+			sectortype* childsectnum = nullptr;
 			dist = 0;
 			speed = 0;
-			DukeSectIterator it(i);
+			DukeSectIterator it(sectp);
 			while (auto act = it.Next())
 			{
 				auto sj = act->s;
@@ -512,7 +506,7 @@ void prelevel_r(int g)
 						if (spr->picnum == RRTILE66)
 							if (spr->lotag == sj->sectnum)
 							{
-								childsectnum = spr->sectnum;
+								childsectnum = spr->sector();
 								deletesprite(ii);
 							}
 					}
@@ -524,7 +518,7 @@ void prelevel_r(int g)
 					deletesprite(act);
 				}
 			}
-			addminecart(dist, speed, i, sectp->hitag, sound, childsectnum);
+			addminecart(dist, speed, sectp, sectp->hitag, sound, childsectnum);
 			break;
 		}
 		}

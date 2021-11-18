@@ -29,6 +29,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include "global.h"
 #include "names_r.h"
 #include "serializer.h"
+#include "savegamehelp.h"
 #include "dukeactor.h"
 
 BEGIN_DUKE_NS
@@ -38,7 +39,7 @@ static int jaildoorcnt;
 static int minecartcnt;
 static int lightnincnt;
 
-static int torchsector[64];
+static sectortype* torchsector[64];
 static short torchsectorshade[64];
 static short torchtype[64];
 
@@ -49,18 +50,18 @@ static short jaildoorsecthtag[32];
 static int jaildoordist[32];
 static short jaildoordir[32];
 static short jaildooropen[32];
-static int jaildoorsect[32];
+static sectortype* jaildoorsect[32];
 
 static short minecartdir[16];
 static int minecartspeed[16];
-static int minecartchildsect[16];
+static sectortype* minecartchildsect[16];
 static short minecartsound[16];
 static int minecartdist[16];
 static int minecartdrag[16];
 static short minecartopen[16];
-static int minecartsect[16];
+static sectortype* minecartsect[16];
 
-static int lightninsector[64];
+static sectortype* lightninsector[64];
 static short lightninsectorshade[64];
 
 static uint8_t brightness;
@@ -127,7 +128,7 @@ void addtorch(spritetype* s)
 	if (torchcnt >= 64)
 		I_Error("Too many torch effects");
 
-	torchsector[torchcnt] = s->sectnum;
+	torchsector[torchcnt] = s->sector();
 	torchsectorshade[torchcnt] = s->sector()->floorshade;
 	torchtype[torchcnt] = s->lotag;
 	torchcnt++;
@@ -138,12 +139,12 @@ void addlightning(spritetype* s)
 	if (lightnincnt >= 64)
 		I_Error("Too many lightnin effects");
 
-	lightninsector[lightnincnt] = s->sectnum;
+	lightninsector[lightnincnt] = s->sector();
 	lightninsectorshade[lightnincnt] = s->sector()->floorshade;
 	lightnincnt++;
 }
 
-void addjaildoor(int p1, int p2, int iht, int jlt, int p3, int j)
+void addjaildoor(int p1, int p2, int iht, int jlt, int p3, sectortype* j)
 {
 	if (jaildoorcnt >= 32)
 		I_Error("Too many jaildoor sectors");
@@ -165,14 +166,14 @@ void addjaildoor(int p1, int p2, int iht, int jlt, int p3, int j)
 	jaildoorcnt++;
 }
 
-void addminecart(int p1, int p2, int i, int iht, int p3, int childsectnum)
+void addminecart(int p1, int p2, sectortype* i, int iht, int p3, sectortype* childsectnum)
 {
 	if (minecartcnt >= 16)
 		I_Error("Too many minecart sectors");
 	minecartdist[minecartcnt] = p1;
 	minecartspeed[minecartcnt] = p2;
 	minecartsect[minecartcnt] = i;
-	minecartdir[minecartcnt] = sector[i].hitag;
+	minecartdir[minecartcnt] = i->hitag;
 	minecartdrag[minecartcnt] = p1;
 	minecartopen[minecartcnt] = 1;
 	minecartsound[minecartcnt] = p3;
@@ -193,7 +194,7 @@ void dotorch(void)
 	ds = krand()&8;
 	for (int i = 0; i < torchcnt; i++)
 	{
-		auto sect = &sector[torchsector[i]];
+		auto sect = torchsector[i];
 		shade = torchsectorshade[i] - ds;
 		switch (torchtype[i])
 		{
@@ -249,7 +250,7 @@ void dojaildoor(void)
 	for (int i = 0; i < jaildoorcnt; i++)
 	{
 		int speed;
-		auto sectp = &sector[jaildoorsect[i]];
+		auto sectp = jaildoorsect[i];
 		if (numplayers > 2)
 			speed = jaildoorspeed[i];
 		else
@@ -371,7 +372,6 @@ void dojaildoor(void)
 void moveminecart(void)
 {
 	int i;
-	int csect;
 	int speed;
 	int y;
 	int x;
@@ -383,7 +383,7 @@ void moveminecart(void)
 	int min_x;
 	for (i = 0; i < minecartcnt; i++)
 	{
-		auto sectp = &sector[minecartsect[i]];
+		auto sectp = minecartsect[i];
 		speed = minecartspeed[i];
 		if (speed < 2)
 			speed = 2;
@@ -496,7 +496,7 @@ void moveminecart(void)
 				}
 			}
 		}
-		csect = minecartchildsect[i];
+		auto csect = minecartchildsect[i];
 		max_x = max_y = -0x20000;
 		min_x = min_y = 0x20000;
 		for (auto& wal : wallsofsector(csect))
@@ -606,7 +606,7 @@ void thunder(void)
 			winderflash = 0;
 			for (i = 0; i < lightnincnt; i++)
 			{
-				auto sectp = &sector[lightninsector[i]];
+				auto sectp = lightninsector[i];
 				sectp->floorshade = (int8_t)lightninsectorshade[i];
 				sectp->ceilingshade = (int8_t)lightninsectorshade[i];
 				for (auto& wal : wallsofsector(sectp))
@@ -646,7 +646,7 @@ void thunder(void)
 		shade = torchsectorshade[i] + r2;
 		for (i = 0; i < lightnincnt; i++)
 		{
-			auto sectp = &sector[lightninsector[i]];
+			auto sectp = lightninsector[i];
 			sectp->floorshade = lightninsectorshade[i] - shade;
 			sectp->ceilingshade = lightninsectorshade[i] - shade;
 			for (auto& wal : wallsofsector(sectp))
