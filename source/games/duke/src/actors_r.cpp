@@ -402,7 +402,7 @@ int movesprite_ex_r(DDukeActor* actor, int xchange, int ychange, int zchange, un
 			clipmove_ex(&pos, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), clipdist, (4 << 8), (4 << 8), cliptype, result);
 		}
 
-		if (dasectnum < 0 || (dasectnum >= 0 && actor->actorstayput >= 0 && actor->actorstayput != dasectnum))
+		if (dasectnum < 0 || (dasectnum >= 0 && actor->actorstayput != nullptr && actor->actorstayput != dasectp))
 		{
 			if (dasectp->lotag == ST_1_ABOVE_WATER)
 				spri->ang = (krand() & 2047);

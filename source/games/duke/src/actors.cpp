@@ -3169,7 +3169,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 				{
 					if (a2->s->statnum == 1 && badguy(a2) && a2->s->picnum != SECTOREFFECTOR && a2->s->picnum != LOCATORS)
 					{
-						//					if(a2->s.sectnum != s->sectnum)
+						//					if(a2->s->sectnum != s->sectnum)
 						{
 							int k = a2->s->sectnum;
 							updatesector(a2->s->x, a2->s->y, &k);

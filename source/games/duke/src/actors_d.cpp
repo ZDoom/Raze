@@ -567,7 +567,7 @@ int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, un
 
 		// conditional code from hell...
 		if (dasectnum < 0 || (dasectnum >= 0 &&
-			((actor->actorstayput >= 0 && actor->actorstayput != dasectnum) ||
+			((actor->actorstayput != nullptr && actor->actorstayput != dasectp) ||
 			 ((spri->picnum == BOSS2) && spri->pal == 0 && dasectp->lotag != 3) ||
 			 ((spri->picnum == BOSS1 || spri->picnum == BOSS2) && dasectp->lotag == ST_1_ABOVE_WATER) ||
 			 (dasectp->lotag == ST_1_ABOVE_WATER && (spri->picnum == LIZMAN || (spri->picnum == LIZTROOP && spri->zvel == 0)))

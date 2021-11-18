@@ -1271,10 +1271,6 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		if (bSet) act->tempang = lValue;
 		else SetGameVarID(lVar2, act->tempang, sActor, sPlayer);
 		break;
-	case ACTOR_HTACTORSTAYPUT:
-		if (bSet) act->actorstayput = lValue;
-		else SetGameVarID(lVar2, act->actorstayput, sActor, sPlayer);
-		break;
 	case ACTOR_HTDISPICNUM:
 		if (bSet) act->dispicnum = lValue;
 		else SetGameVarID(lVar2, act->dispicnum, sActor, sPlayer);
@@ -1525,7 +1521,7 @@ int ParseState::parse(void)
 		break;
 
 	case concmd_ifactornotstayput:
-		parseifelse(g_ac->actorstayput == -1);
+		parseifelse(g_ac->actorstayput == nullptr);
 		break;
 	case concmd_ifcansee:
 		parseifelse(ifcansee(g_ac, g_p));
@@ -1890,7 +1886,7 @@ int ParseState::parse(void)
 			}
 		}
 		else ps[g_p].actors_killed += *insptr;
-		g_ac->actorstayput = -1;
+		g_ac->actorstayput = nullptr;
 		insptr++;
 		break;
 	case concmd_lotsofglass:
@@ -2256,7 +2252,7 @@ int ParseState::parse(void)
 			g_ac->cgg = 0;
 			g_ac->movflag = 0;
 			g_ac->tempang = 0;
-			g_ac->actorstayput = -1;
+			g_ac->actorstayput = nullptr;
 			g_ac->dispicnum = 0;
 			g_ac->SetHitOwner(ps[g_p].GetActor());
 			g_ac->temp_data[4] = 0;

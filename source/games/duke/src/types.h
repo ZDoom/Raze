@@ -26,7 +26,7 @@ struct DDukeActor
 	uint8_t spriteextra;	// moved here for easier maintenance. This was originally a hacked in field in the sprite structure called 'filler'.
 	short owner; // todo: make a pointer.
 	short picnum, ang, extra, movflag;
-	short tempang, actorstayput, dispicnum;
+	short tempang, dispicnum;
 	short timetosleep;
 	int floorz, ceilingz, lastvx, lastvy, aflags;
 	union
@@ -37,7 +37,7 @@ struct DDukeActor
 	int temp_data[6];
 	// Some SE's stored indices in temp_data. For purposes of clarity avoid that. These variables are meant to store these elements now
 	walltype* temp_walls[2]; // SE20 + SE128
-	sectortype* temp_sect;
+	sectortype* temp_sect, *actorstayput;
 	
 	DDukeActor* temp_actor, *seek_actor;
 	spritetype* s;	// direct reference to the corresponding sprite.
@@ -49,8 +49,9 @@ struct DDukeActor
 	DDukeActor& operator=(const DDukeActor& other) = delete;
 	void clear()
 	{
+		actorstayput = nullptr;
 		cgg = spriteextra = 0;
-		picnum = ang = extra = owner = movflag = tempang = actorstayput = dispicnum = timetosleep = 0;
+		picnum = ang = extra = owner = movflag = tempang = dispicnum = timetosleep = 0;
 		floorz = ceilingz = lastvx = lastvy = aflags = saved_ammo = 0;
 		memset(temp_data, 0, sizeof(temp_data));
 	}

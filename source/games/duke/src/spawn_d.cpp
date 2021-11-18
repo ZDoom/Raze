@@ -63,7 +63,7 @@ int spawn_d(int j, int pn)
 		case BOSS2STAYPUT:
 		case BOSS3STAYPUT:
 		case BOSS5STAYPUT:
-			act->actorstayput = sp->sectnum;
+			act->actorstayput = sp->sector();
 			[[fallthrough]];
 		case FIREFLY:
 		case BOSS5:
@@ -792,7 +792,7 @@ int spawn_d(int j, int pn)
 			case PIGCOPDIVE:
 			case COMMANDERSTAYPUT:
 			case BOSS4STAYPUT:
-				act->actorstayput = sp->sectnum;
+				act->actorstayput = sp->sector();
 				[[fallthrough]];
 			case BOSS1:
 			case BOSS2:

@@ -84,7 +84,7 @@ DDukeActor* EGS(sectortype* whatsectp, int s_x, int s_y, int s_z, int s_pn, int8
 	act->lastvy = 0;
 
 	act->timetosleep = 0;
-	act->actorstayput = -1;
+	act->actorstayput = nullptr;
 	act->extra = -1;
 	act->cgg = 0;
 	act->movflag = 0;
@@ -173,7 +173,7 @@ int initspriteforspawn(DDukeActor* actj, int pn, const std::initializer_list<int
 
 		act->lastvx = 0;
 		act->lastvy = 0;
-		act->actorstayput = -1;
+		act->actorstayput = nullptr;
 
 		t[0] = t[1] = t[2] = t[3] = t[4] = t[5] = 0;
 		act->temp_actor = nullptr;
@@ -262,7 +262,7 @@ void spawninitdefault(DDukeActor* actj, DDukeActor *act)
 			makeitfall(act);
 
 			if (actorflag(act, SFLAG_BADGUYSTAYPUT))
-				act->actorstayput = sp->sectnum;
+				act->actorstayput = sp->sector();
 
 			if (!isRR() || actorflag(act, SFLAG_KILLCOUNT))	// Duke is just like Doom - Bad guys always count as kill.
 				ps[myconnectindex].max_actors_killed++;

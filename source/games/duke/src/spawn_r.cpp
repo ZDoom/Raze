@@ -793,7 +793,7 @@ int spawn_r(int j, int pn)
 			case MINIONSTAYPUT:
 			case COOTSTAYPUT:
 			rrra_stayput:
-				act->actorstayput = sp->sectnum;
+				act->actorstayput = sp->sector();
 				[[fallthrough]];
 			case BOULDER:
 			case BOULDER1:
