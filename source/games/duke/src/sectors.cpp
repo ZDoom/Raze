@@ -431,6 +431,24 @@ int setanimation(int animsect, int animtype, walltype* animtarget, int thegoal, 
 	return setanimation(animsect, animtype, wallnum(animtarget), thegoal, thevel);
 }
 
+int setanimation(int animsect, int animtype, sectortype* animtarget, int thegoal, int thevel)
+{
+	assert(animtype == anim_ceilingz || animtype == anim_floorz);
+	return setanimation(animsect, animtype, sectnum(animtarget), thegoal, thevel);
+}
+
+int setanimation(sectortype* animsect, int animtype, walltype* animtarget, int thegoal, int thevel)
+{
+	assert(animtype == anim_vertexx || animtype == anim_vertexy);
+	return setanimation(sectnum(animsect), animtype, wallnum(animtarget), thegoal, thevel);
+}
+
+int setanimation(sectortype* animsect, int animtype, sectortype* animtarget, int thegoal, int thevel)
+{
+	assert(animtype == anim_ceilingz || animtype == anim_floorz);
+	return setanimation(sectnum(animsect), animtype, sectnum(animtarget), thegoal, thevel);
+}
+
 //---------------------------------------------------------------------------
 //
 // 
@@ -486,11 +504,10 @@ bool activatewarpelevators(DDukeActor* actor, int d) //Parm = sectoreffectornum
 //
 //---------------------------------------------------------------------------
 
-static void handle_st09(int sn, DDukeActor* actor)
+static void handle_st09(sectortype* sptr, DDukeActor* actor)
 {
 	int dax, day, dax2, day2, sp;
 	walltype* wallfind[2];
-	sectortype* sptr = &sector[sn];
 
 	sp = sptr->extra >> 4;
 
@@ -533,19 +550,19 @@ static void handle_st09(int sn, DDukeActor* actor)
 			{
 				dax2 = wal->point2Wall()->point2Wall()->x;
 				dax2 -= wal->point2Wall()->x;
-				setanimation(sn, anim_vertexx, wal, wal->x + dax2, sp);
-				setanimation(sn, anim_vertexx, prevwall, prevwall->x + dax2, sp);
-				setanimation(sn, anim_vertexx, wal->point2, wal->point2Wall()->x + dax2, sp);
-				callsound(sn, actor);
+				setanimation(sptr, anim_vertexx, wal, wal->x + dax2, sp);
+				setanimation(sptr, anim_vertexx, prevwall, prevwall->x + dax2, sp);
+				setanimation(sptr, anim_vertexx, wal->point2Wall(), wal->point2Wall()->x + dax2, sp);
+				callsound(sptr, actor);
 			}
 			else if (day2 != 0)
 			{
 				day2 = wal->point2Wall()->point2Wall()->y;
 				day2 -= wal->point2Wall()->y;
-				setanimation(sn, anim_vertexy, wal, wal->y + day2, sp);
-				setanimation(sn, anim_vertexy, prevwall, prevwall->y + day2, sp);
-				setanimation(sn, anim_vertexy, wal->point2, wal->point2Wall()->y + day2, sp);
-				callsound(sn, actor);
+				setanimation(sptr, anim_vertexy, wal, wal->y + day2, sp);
+				setanimation(sptr, anim_vertexy, prevwall, prevwall->y + day2, sp);
+				setanimation(sptr, anim_vertexy, wal->point2Wall(), wal->point2Wall()->y + day2, sp);
+				callsound(sptr, actor);
 			}
 		}
 		else
@@ -554,17 +571,17 @@ static void handle_st09(int sn, DDukeActor* actor)
 			day2 = ((prevwall->y + wal->point2Wall()->y) >> 1) - wal->y;
 			if (dax2 != 0)
 			{
-				setanimation(sn, anim_vertexx, wal, dax, sp);
-				setanimation(sn, anim_vertexx, prevwall, dax + dax2, sp);
-				setanimation(sn, anim_vertexx, wal->point2, dax + dax2, sp);
-				callsound(sn, actor);
+				setanimation(sptr, anim_vertexx, wal, dax, sp);
+				setanimation(sptr, anim_vertexx, prevwall, dax + dax2, sp);
+				setanimation(sptr, anim_vertexx, wal->point2Wall(), dax + dax2, sp);
+				callsound(sptr, actor);
 			}
 			else if (day2 != 0)
 			{
-				setanimation(sn, anim_vertexy, wal, day, sp);
-				setanimation(sn, anim_vertexy, prevwall, day + day2, sp);
-				setanimation(sn, anim_vertexy, wal->point2, day + day2, sp);
-				callsound(sn, actor);
+				setanimation(sptr, anim_vertexy, wal, day, sp);
+				setanimation(sptr, anim_vertexy, prevwall, day + day2, sp);
+				setanimation(sptr, anim_vertexy, wal->point2Wall(), day + day2, sp);
+				callsound(sptr, actor);
 			}
 		}
 	}
@@ -1018,7 +1035,7 @@ void operatesectors(int sn, DDukeActor *actor)
 		return;
 
 	case ST_9_SLIDING_ST_DOOR:
-		handle_st09(sn, actor);
+		handle_st09(sptr, actor);
 		return;
 
 	case ST_15_WARP_ELEVATOR://Warping elevators

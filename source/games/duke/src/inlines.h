@@ -198,6 +198,11 @@ inline DDukeActor* EGS(sectortype* whatsect, int s_x, int s_y, int s_z, int s_pn
 	return EGS(sectnum(whatsect), s_x, s_y, s_z, s_pn, s_s, s_xr, s_yr, s_a, s_ve, s_zv, s_ow, s_ss);
 }
 
+inline int callsound(sectortype* sect, DDukeActor* snum)
+{
+	return callsound(sectnum(sect), snum);
+}
+
 //---------------------------------------------------------------------------
 //
 //
@@ -209,5 +214,6 @@ inline void hud_draw(double x, double y, int tilenum, int shade, int orientation
 	int p = ps[screenpeek].cursector()->floorpal;
 	hud_drawsprite(x, y, 65536, 0, tilenum, shade, p, 2 | orientation);
 }
+
 
 END_DUKE_NS
