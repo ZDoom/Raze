@@ -160,7 +160,7 @@ void dotorch();
 int hitawall(struct player_struct* pl, walltype** hitWall);
 int hits(DDukeActor* snum);
 
-DDukeActor* LocateTheLocator(int n, int sectnum);
+DDukeActor* LocateTheLocator(int n, sectortype* sectnum);
 void clearcamera(player_struct* ps);
 
 void LoadActor(DDukeActor* i, int p, int x);

@@ -688,7 +688,7 @@ static void handle_st29(sectortype* sptr, DDukeActor* actor)
 		{
 			act2->getSector()->extra = -act2->getSector()->extra;
 
-			act2->temp_data[0] = sectnum(sptr);
+			act2->temp_sect = sptr;
 			act2->temp_data[1] = 1;
 		}
 	}

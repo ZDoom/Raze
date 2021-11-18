@@ -994,25 +994,25 @@ void spawneffector(DDukeActor* actor)
 
 				sectp->hitag = ActorToScriptIndex(actor);
 
-				int s = -1;
+				sectortype* s = nullptr;
 				for (auto& wal : wallsofsector(sectp))
 				{
 					if (wal.nextsector >= 0 &&
 						wal.nextSector()->hitag == 0 &&
 						(wal.nextSector()->lotag < 3 || (isRRRA() && wal.nextSector()->lotag == 160)))
 					{
-						s = wal.nextsector;
+						s = wal.nextSector();
 						break;
 					}
 				}
 
-				if (s == -1)
+				if (s == nullptr)
 				{
 					I_Error("Subway found no zero'd sectors with locators\nat (%d,%d).\n", sp->x, sp->y);
 				}
 
 				actor->SetOwner(nullptr);
-				t[0] = s;
+				actor->temp_sect = s;
 
 				if (sp->lotag != SE_30_TWO_WAY_TRAIN)
 					t[3] = sp->hitag;

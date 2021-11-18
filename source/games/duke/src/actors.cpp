@@ -1802,11 +1802,11 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 			if (t[0] == 0)
 				t[0] = 1;
 			else t[0] = 4;
-			auto NewOwner = LocateTheLocator(s->hitag, -1);
+			auto NewOwner = LocateTheLocator(s->hitag, nullptr);
 			if (!NewOwner)
 			{
 				s->hitag = actor->temp_data[5];
-				NewOwner = LocateTheLocator(s->hitag, -1);
+				NewOwner = LocateTheLocator(s->hitag, nullptr);
 				if (!NewOwner)
 				{
 					deletesprite(actor);
@@ -2837,7 +2837,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 
 	if (actor->GetOwner() == nullptr)
 	{
-		auto NewOwner = LocateTheLocator(t[3], t[0]);
+		auto NewOwner = LocateTheLocator(t[3], actor->temp_sect);
 
 		if (NewOwner == nullptr)
 		{
@@ -2855,11 +2855,11 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 			if (Owner->s->hitag & 1)
 				t[4] = sc->extra; //Slow it down
 		t[3]++;
-		auto NewOwner = LocateTheLocator(t[3], t[0]);
+		auto NewOwner = LocateTheLocator(t[3], actor->temp_sect);
 		if (NewOwner == nullptr)
 		{
 			t[3] = 0;
-			NewOwner = LocateTheLocator(0, t[0]);
+			NewOwner = LocateTheLocator(0, actor->temp_sect);
 		}
 		if (NewOwner) actor->SetOwner(NewOwner);
 	}
@@ -3042,7 +3042,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 	if (Owner == nullptr)
 	{
 		t[3] = !t[3];
-		Owner = LocateTheLocator(t[3], t[0]);
+		Owner = LocateTheLocator(t[3], actor->temp_sect);
 		actor->SetOwner(Owner);
 	}
 	else
@@ -3423,7 +3423,7 @@ void handle_se05(DDukeActor* actor, int FIRELASER)
 		l = 0x7fffffff;
 		while (1) //Find the shortest dist
 		{
-			auto NewOwner = LocateTheLocator(t[4], -1); //t[0] hold sectnum
+			auto NewOwner = LocateTheLocator(t[4], nullptr);
 			if (NewOwner == nullptr) break;
 
 			m = ldist(ps[p].GetActor(), NewOwner);
@@ -4352,7 +4352,7 @@ void handle_se22(DDukeActor* actor)
 	auto sc = actor->getSector();
 	if (t[1])
 	{
-		if (getanimationgoal(anim_ceilingz, &sector[t[0]]) >= 0)
+		if (getanimationgoal(anim_ceilingz, actor->temp_sect) >= 0)
 			sc->ceilingz += sc->extra * 9;
 		else t[1] = 0;
 	}
@@ -5319,12 +5319,12 @@ void fall_common(DDukeActor *actor, int playernum, int JIBS6, int DRONE, int BLO
 //
 //---------------------------------------------------------------------------
 
-DDukeActor *LocateTheLocator(int n, int sectnum)
+DDukeActor *LocateTheLocator(int n, sectortype* sect)
 {
 	DukeStatIterator it(STAT_LOCATOR);
 	while (auto ac = it.Next())
 	{
-		if ((sectnum == -1 || sectnum == ac->s->sectnum) && n == ac->s->lotag)
+		if ((sect == nullptr || sect == ac->s->sector()) && n == ac->s->lotag)
 			return ac;
 	}
 	return nullptr;
