@@ -356,12 +356,15 @@ void PropagateMarkerReferences(void);
 unsigned int dbReadMapCRC(const char *pPath);
 void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, int *pSector, unsigned int *pCRC);
 
-inline XSECTOR* getxsector(int index)
-{
-    return index <= 0? nullptr : &xsector[sector[index].extra];
-}
-inline XWALL* getxwall(int index)
-{
-    return index <= 0 ? nullptr : &xwall[sector[index].extra];
-}
 END_BLD_NS
+
+// refactoring aids.
+inline Blood::XWALL& walltype::xw() const
+{
+    return Blood::xwall[extra];
+}
+
+inline Blood::XSECTOR& sectortype::xs() const
+{
+    return Blood::xsector[extra];
+}

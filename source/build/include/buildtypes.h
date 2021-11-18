@@ -50,6 +50,12 @@ enum
 };
 
 
+namespace Blood
+{
+    struct XWALL;
+    struct XSECTOR;
+}
+
 //40 bytes
 struct walltype;
 struct sectortype
@@ -89,6 +95,11 @@ struct sectortype
     void addceilingxpan(float add) { ceilingxpan_ = fmodf(ceilingxpan_ + add + 512, 256); } // +512 is for handling negative offsets
     void addceilingypan(float add) { ceilingypan_ = fmodf(ceilingypan_ + add + 512, 256); } // +512 is for handling negative offsets
     walltype *firstWall() const;
+
+    // These will unfortunately have to be within the base struct to refactor Blood properly. They can later be removed again, once everything is done.
+    Blood::XSECTOR& xs() const;
+    bool hasX() const { return extra > 0; } // 0 is invalid!
+
 };
 
 //cstat:
@@ -144,6 +155,10 @@ struct walltype
 	int deltax() const { return point2Wall()->x - x; }
 	int deltay() const { return point2Wall()->y - y; }
     bool twoSided() const { return nextsector >= 0; }
+
+    // These will unfortunately have to be within the base struct to refactor Blood properly. They can later be removed again, once everything is done.
+    Blood::XWALL& xw() const;
+    bool hasX() const { return extra > 0; } // 0 is invalid!
 
 #if 0
     // make sure we do not accidentally copy this
