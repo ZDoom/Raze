@@ -492,9 +492,6 @@ static void handle_st09(int sn, DDukeActor* actor)
 	walltype* wallfind[2];
 	sectortype* sptr = &sector[sn];
 
-	int startwall = sptr->wallptr;
-	int endwall = startwall + sptr->wallnum - 1;
-
 	sp = sptr->extra >> 4;
 
 	//first find center point by averaging all points

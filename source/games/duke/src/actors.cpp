@@ -283,7 +283,6 @@ void ms(DDukeActor* const actor)
 {
 	//T1,T2 and T3 are used for all the sector moving stuff!!!
 
-	int startwall, endwall, x;
 	int tx, ty;
 	auto s = actor->s;
 
@@ -293,17 +292,14 @@ void ms(DDukeActor* const actor)
 	int j = actor->temp_data[1];
 	int k = actor->temp_data[2];
 
-	startwall = s->sector()->wallptr;
-	endwall = startwall + s->sector()->wallnum;
-	for (x = startwall; x < endwall; x++)
+	for(auto& wal : wallsofsector(s->sectnum))
 	{
 		rotatepoint(
 			0, 0,
 			msx[j], msy[j],
 			k & 2047, &tx, &ty);
 
-		dragpoint(x, s->x + tx, s->y + ty);
-
+		dragpoint(&wal, s->x + tx, s->y + ty);
 		j++;
 	}
 }
@@ -3629,19 +3625,13 @@ void handle_se11(DDukeActor *actor)
 
 	if (t[4])
 	{
-		int startwall, endwall;
-
-		startwall = sc->wallptr;
-		endwall = startwall + sc->wallnum;
-
-
-		for (int j = startwall; j < endwall; j++)
+		for(auto& wal : wallsofsector(sc))
 		{
 			DukeStatIterator it(STAT_ACTOR);
 			while (auto ac = it.Next())
 			{
 				auto sk = ac->s;
-				if (sk->extra > 0 && badguy(ac) && clipinsidebox(sk->x, sk->y, j, 256L) == 1)
+				if (sk->extra > 0 && badguy(ac) && clipinsidebox(sk->x, sk->y, wallnum(&wal), 256) == 1)
 					return;
 			}
 		}
@@ -3652,13 +3642,13 @@ void handle_se11(DDukeActor *actor)
 		ms(actor);
 		setsprite(actor, s->pos);
 
-		for (int j = startwall; j < endwall; j++)
+		for(auto& wal : wallsofsector(sc))
 		{
 			DukeStatIterator it(STAT_PLAYER);
 			while (auto ac = it.Next())
 			{
 				auto sk = ac->s;
-				if (ac->GetOwner() && clipinsidebox(sk->x, sk->y, j, 144L) == 1)
+				if (ac->GetOwner() && clipinsidebox(sk->x, sk->y, wallnum(&wal), 144) == 1)
 				{
 					t[5] = 8; // Delay
 					t[2] -= k;
@@ -3696,14 +3686,14 @@ void handle_se12(DDukeActor *actor, int planeonly)
 		sc->floorpal = 0;
 		sc->ceilingpal = 0;
 
-		auto wal = sc->firstWall();
-		for (int j = sc->wallnum; j > 0; j--, wal++)
-			if (wal->hitag != 1)
+		for (auto& wal : wallsofsector(sc))
+		{
+			if (wal.hitag != 1)
 			{
-				wal->shade = t[1];
-				wal->pal = 0;
+				wal.shade = t[1];
+				wal.pal = 0;
 			}
-
+		}
 		sc->floorshade = t[1];
 		sc->ceilingshade = t[2];
 		t[0] = 0;
@@ -3737,13 +3727,14 @@ void handle_se12(DDukeActor *actor, int planeonly)
 			if (planeonly != 2) sc->floorshade -= 2;
 			if (planeonly != 1) sc->ceilingshade -= 2;
 
-			auto wal = sc->firstWall();
-			for (int j = sc->wallnum; j > 0; j--, wal++)
-				if (wal->hitag != 1)
+			for (auto& wal : wallsofsector(sc))
+			{
+				if (wal.hitag != 1)
 				{
-					wal->pal = s->pal;
-					wal->shade -= 2;
+					wal.pal = s->pal;
+					wal.shade -= 2;
 				}
+			}
 		}
 		else t[0] = 2;
 
@@ -3809,9 +3800,8 @@ void handle_se13(DDukeActor* actor)
 
 			if (s->ang == 512)
 			{
-				auto wal = sc->firstWall();
-				for (j = sc->wallnum; j > 0; j--, wal++)
-					wal->shade = s->shade;
+				for (auto& wal : wallsofsector(sc))
+					wal.shade = s->shade;
 
 				sc->floorshade = s->shade;
 

@@ -619,7 +619,7 @@ void spawneffector(DDukeActor* actor)
 	auto sectp = sp->sector();
 	int sect = sp->sectnum;
 	auto t = actor->temp_data;
-	int startwall, endwall, d, clostest = 0;
+	int d, clostest = 0;
 
 	sp->yvel = sectp->extra;
 	sp->cstat |= 32768;
@@ -791,9 +791,6 @@ void spawneffector(DDukeActor* actor)
 		{
 			int q;
 			walltype* closewall = nullptr;
-
-			startwall = sectp->wallptr;
-			endwall = startwall + sectp->wallnum;
 
 			//find the two most clostest wall x's and y's
 			q = 0x7fffffff;
