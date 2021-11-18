@@ -97,7 +97,7 @@ struct DDukeActor
 
 	sectortype* getSector() const
 	{
-		return &sector[s->sectnum];
+		return s->sector();
 	}
 
 
@@ -318,14 +318,12 @@ struct player_struct
 
 struct Cycler
 {
-	int sectnum;
+	sectortype* sector;
 	int16_t lotag;
 	int16_t hitag;
 	int16_t shade1;
 	int16_t shade2;
 	bool state;
-
-	sectortype* sector() const { return &::sector[sectnum]; }
 };
 
 // Wrapper around the insane collision info mess from Build.

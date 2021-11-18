@@ -339,7 +339,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Cycler& w, Cycler*
 	if (!def) def = &nul;
 	if (arc.BeginObject(keyname))
 	{
-		arc("sector", w.sectnum, def->sectnum)
+		arc("sector", w.sector, def->sector)
 			("lotag", w.lotag, def->lotag)
 			("hitag", w.hitag, def->hitag)
 			("shade1", w.shade1, def->shade1)

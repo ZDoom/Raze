@@ -2674,12 +2674,12 @@ static void fireweapon(int snum)
 //
 //---------------------------------------------------------------------------
 
-static void operateweapon(int snum, ESyncBits actions, int psect)
+static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 {
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
 	int i, k;
-	int psectlotag = sector[psect].lotag;
+	int psectlotag = psectp->lotag;
 
 	if (!isRRRA() && p->curr_weapon >= MOTORCYCLE_WEAPON) return;
 	switch (p->curr_weapon)
@@ -3266,7 +3266,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 //
 //---------------------------------------------------------------------------
 
-static void processweapon(int snum, ESyncBits actions, int psect)
+static void processweapon(int snum, ESyncBits actions, sectortype* psectp)
 {
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
@@ -3312,7 +3312,7 @@ static void processweapon(int snum, ESyncBits actions, int psect)
 	}
 	else if (p->kickback_pic)
 	{
-		operateweapon(snum, actions, psect);
+		operateweapon(snum, actions, psectp);
 	}
 }
 
@@ -3543,7 +3543,7 @@ void processinput_r(int snum)
 
 		fi.doincrements(p);
 
-		if (p->curr_weapon == THROWINGDYNAMITE_WEAPON) processweapon(snum, actions, psect);
+		if (p->curr_weapon == THROWINGDYNAMITE_WEAPON) processweapon(snum, actions, psectp);
 		return;
 	}
 
@@ -3887,7 +3887,7 @@ HORIZONLY:
 	if (psectlotag < 3)
 	{
 		psect = s->sectnum;
-		psectp = &sector[psect];
+		psectp = s->sector();
 		if (ud.clipping == 0 && psectp->lotag == ST_31_TWO_WAY_TRAIN)
 		{
 			auto act = ScriptIndexToActor(psectp->hitag);
@@ -4007,7 +4007,7 @@ HORIZONLY:
 		else p->weapon_pos--;
 	}
 
-	processweapon(snum, actions, psect);
+	processweapon(snum, actions, psectp);
 }
 
 //---------------------------------------------------------------------------

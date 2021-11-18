@@ -315,7 +315,7 @@ void movecyclers(void)
 	for (int q = numcyclers - 1; q >= 0; q--)
 	{
 		Cycler* c = &cyclers[q];
-		auto sect = c->sector();
+		auto sect = c->sector;
 
 		int t = c->shade2;
 		int j = t + bsin(c->lotag, -10);

@@ -38,10 +38,10 @@ void dojaildoor();
 void moveminecart();
 
 void ballreturn(DDukeActor* spr);
-void pinsectorresetdown(int sect);
-int pinsectorresetup(int sect);
-int checkpins(int sect);
-void resetpins(int sect);
+void pinsectorresetdown(sectortype* sect);
+int pinsectorresetup(sectortype* sect);
+int checkpins(sectortype* sect);
+void resetpins(sectortype* sect);
 void resetlanepics(void);
 
 
@@ -2433,13 +2433,13 @@ void rr_specialstats()
 		if (s->picnum == BOWLINGPINSPOT)
 			if (s->lotag == 100)
 			{
-				auto pst = pinsectorresetup(s->sectnum);
+				auto pst = pinsectorresetup(s->sector());
 				if (pst)
 				{
 					s->lotag = 0;
 					if (s->extra == 1)
 					{
-						pst = checkpins(s->sectnum);
+						pst = checkpins(s->sector());
 						if (!pst)
 						{
 							s->extra = 2;
@@ -2448,7 +2448,7 @@ void rr_specialstats()
 					if (s->extra == 2)
 					{
 						s->extra = 0;
-						resetpins(s->sectnum);
+						resetpins(s->sector());
 					}
 				}
 			}
@@ -4097,7 +4097,7 @@ void destroyit(DDukeActor *actor)
 	DukeStatIterator it(STAT_DESTRUCT);
 	while (auto a2 = it.Next())
 	{
-		int it_sect = a2->s->sectnum;
+		auto it_sect = a2->s->sector();
 		if (hitag && hitag == a2->s->hitag)
 		{
 			DukeSectIterator its(it_sect);
@@ -4110,13 +4110,13 @@ void destroyit(DDukeActor *actor)
 				}
 			}
 		}
-		if (spr && spr->s->sectnum != it_sect)
+		if (spr && spr->s->sector() != it_sect)
 			if (lotag == a2->s->lotag)
 			{
 				sectnum = spr->s->sectnum;
 
 				auto destsect = spr->getSector();
-				auto srcsect = &sector[it_sect];
+				auto srcsect = it_sect;
 
 				auto destwal = destsect->firstWall();
 				auto srcwal = srcsect->firstWall();
@@ -4152,7 +4152,7 @@ void destroyit(DDukeActor *actor)
 				destsect->floorxpan_ = srcsect->floorxpan_;
 				destsect->floorypan_ = srcsect->floorypan_;
 				destsect->visibility = srcsect->visibility;
-				sectorextra[sectnum] = sectorextra[it_sect]; // TRANSITIONAL: at least rename this.
+				sectorextra[sectnum] = sectorextra[::sectnum(it_sect)]; // TRANSITIONAL: at least rename this.
 				destsect->lotag = srcsect->lotag;
 				destsect->hitag = srcsect->hitag;
 				destsect->extra = srcsect->extra;

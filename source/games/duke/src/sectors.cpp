@@ -1086,7 +1086,7 @@ void operateactivators(int low, int plnum)
 
 		if (p->hitag == low)
 		{
-			auto sect = p->sector();
+			auto sect = p->sector;
 			p->state = !p->state;
 
 			sect->floorshade = sect->ceilingshade = (int8_t)p->shade2;

@@ -50,16 +50,15 @@ void ballreturn(DDukeActor *ball)
 				{
 					act2->s->lotag = 100;
 					act2->s->extra++;
-					pinsectorresetdown(act2->s->sectnum);
+					pinsectorresetdown(act2->getSector());
 				}
 			}
 		}
 	}
 }
 
-void pinsectorresetdown(int sect)
+void pinsectorresetdown(sectortype* sec)
 {
-	auto sec = &sector[sect];
 	int j = getanimationgoal(anim_ceilingz, sec);
 
 	if (j == -1)
@@ -69,9 +68,8 @@ void pinsectorresetdown(int sect)
 	}
 }
 
-int pinsectorresetup(int sect)
+int pinsectorresetup(sectortype* sec)
 {
-	auto sec = &sector[sect];
 	int j = getanimationgoal(anim_ceilingz, sec);
 
 	if (j == -1)
@@ -83,7 +81,7 @@ int pinsectorresetup(int sect)
 	return 0;
 }
 
-int checkpins(int sect)
+int checkpins(sectortype* sect)
 {
 	int  x, y;
 	bool pins[10] = {};
@@ -165,7 +163,7 @@ int checkpins(int sect)
 	return pin;
 }
 
-void resetpins(int sect)
+void resetpins(sectortype* sect)
 {
 	int i, tag = 0;
 	int x, y;
