@@ -2595,17 +2595,17 @@ void checksectors_r(int snum)
 			}
 		}
 		auto ntwall = neartagwall < 0? nullptr : &wall[neartagwall];
+		auto ntsector = neartagsector < 0 ? nullptr : &sector[neartagsector];
 
-		if (p->newOwner == nullptr && neartagsprite == nullptr && neartagsector == -1 && neartagwall == -1)
+		if (p->newOwner == nullptr && neartagsprite == nullptr && ntsector == nullptr && ntwall == nullptr)
 			if (isanunderoperator(p->GetActor()->getSector()->lotag))
-				neartagsector = p->GetActor()->s->sectnum;
+				ntsector = p->GetActor()->s->sector();
 
-		auto ntsect = neartagsector < 0? nullptr : &sector[neartagsector];
 
-		if (neartagsector >= 0 && (ntsect->lotag & 16384))
+		if (ntsector && (ntsector->lotag & 16384))
 			return;
 
-		if (neartagsprite == nullptr && neartagwall == -1)
+		if (neartagsprite == nullptr && ntwall == nullptr)
 			if (p->cursector()->lotag == 2)
 			{
 				DDukeActor* hit;
@@ -2720,7 +2720,7 @@ void checksectors_r(int snum)
 
 		if (!PlayerInput(snum, SB_OPEN)) return;
 
-		if (neartagwall == -1 && neartagsector == -1 && neartagsprite == nullptr)
+		if (ntwall == nullptr && ntsector == nullptr && neartagsprite == nullptr)
 			if (abs(hits(p->GetActor())) < 512)
 			{
 				if ((krand() & 255) < 16)
@@ -2729,7 +2729,7 @@ void checksectors_r(int snum)
 				return;
 			}
 
-		if (neartagwall >= 0)
+		if (ntwall != nullptr)
 		{
 			if (ntwall->lotag > 0 && fi.isadoorwall(ntwall->picnum))
 			{
@@ -2739,16 +2739,16 @@ void checksectors_r(int snum)
 			}
 		}
 
-		if (neartagsector >= 0 && (ntsect->lotag & 16384) == 0 && isanearoperator(ntsect->lotag))
+		if (ntsector && (ntsector->lotag & 16384) == 0 && isanearoperator(ntsector->lotag))
 		{
-			DukeSectIterator it(neartagsector);
+			DukeSectIterator it(ntsector);
 			while (auto act = it.Next())
 			{
 				if (act->s->picnum == ACTIVATOR || act->s->picnum == MASTERSWITCH)
 					return;
 			}
-			if (haskey(neartagsector, snum))
-				operatesectors(neartagsector, p->GetActor());
+			if (haskey(sectnum(ntsector), snum))
+				operatesectors(sectnum(ntsector), p->GetActor());
 			else
 			{
 				if (neartagsprite && neartagsprite->spriteextra > 3)
@@ -2768,7 +2768,7 @@ void checksectors_r(int snum)
 					if (act->s->picnum == ACTIVATOR || act->s->picnum == MASTERSWITCH)
 						return;
 				}
-				if (haskey(neartagsector, snum))
+				if (haskey(sectnum(ntsector), snum))
 					operatesectors(p->GetActor()->s->sectnum, p->GetActor());
 				else
 				{
