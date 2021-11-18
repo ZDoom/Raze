@@ -49,9 +49,9 @@ BEGIN_DUKE_NS
 //
 //---------------------------------------------------------------------------
 
-DDukeActor* EGS(int whatsect, int s_x, int s_y, int s_z, int s_pn, int8_t s_s, int8_t s_xr, int8_t s_yr, int s_a, int s_ve, int s_zv, DDukeActor* s_ow, int8_t s_ss) 
+DDukeActor* EGS(sectortype* whatsectp, int s_x, int s_y, int s_z, int s_pn, int8_t s_s, int8_t s_xr, int8_t s_yr, int s_a, int s_ve, int s_zv, DDukeActor* s_ow, int8_t s_ss) 
 {
-	int const i = insertsprite(whatsect, s_ss);
+	int const i = insertsprite(sectnum(whatsectp), s_ss);
 
 	if (i < 0)
 		I_Error(" Too many sprites spawned.");
@@ -1166,7 +1166,7 @@ void ceilingglass(DDukeActor* actor, sectortype* sectp, int n)
 			y1 += delta.y;
 			a = krand() & 2047;
 			z = sectp->ceilingz + ((krand() & 15) << 8);
-			EGS(sectnum(sectp), x1, y1, z, TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, (krand() & 31), 0, actor, 5);
+			EGS(sectp, x1, y1, z, TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, (krand() & 31), 0, actor, 5);
 		}
 	}
 }

@@ -193,11 +193,6 @@ inline void doslopetilting(player_struct* p, double const scaleAdjust = 1)
 	p->horizon.calcviewpitch(p->pos.vec2, p->angle.ang, p->aim_mode == 0, canslopetilt, p->cursectnum, scaleAdjust);
 }
 
-inline DDukeActor* EGS(sectortype* whatsect, int s_x, int s_y, int s_z, int s_pn, int8_t s_s, int8_t s_xr, int8_t s_yr, int s_a, int s_ve, int s_zv, DDukeActor* s_ow, int8_t s_ss)
-{
-	return EGS(sectnum(whatsect), s_x, s_y, s_z, s_pn, s_s, s_xr, s_yr, s_a, s_ve, s_zv, s_ow, s_ss);
-}
-
 inline int callsound(sectortype* sect, DDukeActor* snum)
 {
 	return callsound(sectnum(sect), snum);
