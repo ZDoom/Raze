@@ -429,10 +429,6 @@ int32_t   cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1,
                  int32_t x2, int32_t y2, int32_t z2, int16_t sect2);
 int32_t   inside(int32_t x, int32_t y, int sectnum);
 void   dragpoint(int pointhighlight, int32_t dax, int32_t day);
-inline void   dragpoint(walltype* pointhighlight, int32_t dax, int32_t day)
-{
-	dragpoint(int(pointhighlight - wall), dax, day);
-}
 int32_t try_facespr_intersect(uspriteptr_t const spr, vec3_t const in,
                                      int32_t vx, int32_t vy, int32_t vz,
                                      vec3_t * const intp, int32_t strictly_smaller_than_p);
@@ -452,6 +448,7 @@ void updatesectorneighbor(int32_t const x, int32_t const y, int * const sectnum,
 void updatesectorneighborz(int32_t const x, int32_t const y, int32_t const z, int * const sectnum, int32_t initialMaxDistance = INITIALUPDATESECTORDIST, int32_t maxDistance = MAXUPDATESECTORDIST) ATTRIBUTE((nonnull(4)));
 
 int findwallbetweensectors(int sect1, int sect2);
+
 inline int sectoradjacent(int sect1, int sect2) { return findwallbetweensectors(sect1, sect2) != -1; }
 int32_t getsectordist(vec2_t const in, int const sectnum, vec2_t * const out = nullptr);
 extern const int16_t *chsecptr_onextwall;

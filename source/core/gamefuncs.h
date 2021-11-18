@@ -296,3 +296,17 @@ inline double SquareDistToWall(double px, double py, const walltype* wal)
 	return SquareDist(px, py, lx1 + t * (lx2 - lx1), ly1 + t * (ly2 - ly1));
 }
 
+inline int inside(int x, int y, sectortype* sect)
+{
+	return inside(x, y, sectnum(sect));
+}
+
+inline void   dragpoint(walltype* pointhighlight, int32_t dax, int32_t day)
+{
+	dragpoint(wallnum(pointhighlight), dax, day);
+}
+
+inline int findwallbetweensectors(sectortype* sect1, sectortype* sect2)
+{
+	return findwallbetweensectors(sectnum(sect1), sectnum(sect2));
+}

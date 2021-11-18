@@ -4016,26 +4016,6 @@ HORIZONLY:
 //
 //---------------------------------------------------------------------------
 
-void processmove_r(int snum, ESyncBits actions, int psect, int fz, int cz, int shrunk, int truefdist)
-{
-	auto psectp = &sector[psect];
-	int psectlotag = psectp->lotag;
-	if (psectlotag == ST_2_UNDERWATER)
-	{
-		underwater(snum, actions, fz, cz);
-	}
-	else
-	{
-		movement(snum, actions, psectp, fz, cz, shrunk, truefdist, psectlotag);
-	}
-}
-
-//---------------------------------------------------------------------------
-//
-//
-//
-//---------------------------------------------------------------------------
-
 void OnMotorcycle(struct player_struct *p, DDukeActor* motosprite)
 {
 	if (!p->OnMotorcycle && !(p->cursector()->lotag == 2))

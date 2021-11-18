@@ -3172,23 +3172,4 @@ HORIZONLY:
 	processweapon(snum, actions, psect);
 }
 
-void processmove_d(int snum, ESyncBits actions, int psect, int fz, int cz, int shrunk, int truefdist)
-{
-	auto psectp = &sector[psect];
-	int psectlotag = psectp->lotag;
-	auto p = &ps[snum];
-	if (psectlotag == 2)
-	{
-		underwater(snum, actions, fz, cz);
-	}
-
-	else if (p->jetpack_on)
-	{
-		operateJetpack(snum, actions, psectlotag, fz, cz, shrunk);
-	}
-	else if (psectlotag != 2)
-	{
-		movement(snum, actions, psectp, fz, cz, shrunk, truefdist, psectlotag);
-	}
-}
 END_DUKE_NS

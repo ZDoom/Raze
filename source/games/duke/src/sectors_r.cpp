@@ -2749,7 +2749,7 @@ void checksectors_r(int snum)
 				if (act->s->picnum == ACTIVATOR || act->s->picnum == MASTERSWITCH)
 					return;
 			}
-			if (haskey(sectnum(ntsector), snum))
+			if (haskey(ntsector, snum))
 				operatesectors(ntsector, p->GetActor());
 			else
 			{
@@ -2770,7 +2770,7 @@ void checksectors_r(int snum)
 					if (act->s->picnum == ACTIVATOR || act->s->picnum == MASTERSWITCH)
 						return;
 				}
-				if (haskey(sectnum(ntsector), snum))
+				if (haskey(ntsector, snum))
 					operatesectors(p->GetActor()->s->sector(), p->GetActor());
 				else
 				{
@@ -2830,16 +2830,16 @@ void dofurniture(walltype* wlwal, sectortype* sectp, int snum)
 	max_y += var_cx + 1;
 	min_x -= var_cx + 1;
 	min_y -= var_cx + 1;
-	ins = inside(max_x, max_y, sectnum(sectp));
+	ins = inside(max_x, max_y, sectp);
 	if (!ins)
 		var_C = 0;
-	ins = inside(max_x, min_y, sectnum(sectp));
+	ins = inside(max_x, min_y, sectp);
 	if (!ins)
 		var_C = 0;
-	ins = inside(min_x, min_y, sectnum(sectp));
+	ins = inside(min_x, min_y, sectp);
 	if (!ins)
 		var_C = 0;
-	ins = inside(min_x, max_y, sectnum(sectp));
+	ins = inside(min_x, max_y, sectp);
 	if (!ins)
 		var_C = 0;
 	if (var_C)

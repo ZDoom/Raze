@@ -133,7 +133,7 @@ int findotherplayer(int p, int* d);
 void quickkill(struct player_struct* p);
 int setpal(struct player_struct* p);
 int madenoise(int playerNum);
-int haskey(int sect, int snum);
+int haskey(sectortype* sect, int snum);
 void shootbloodsplat(DDukeActor* i, int p, int sx, int sy, int sz, int sa, int atwith, int BIGFORCE, int OOZFILTER, int NEWBEAST);
 
 void breakwall(int newpn, DDukeActor* spr, walltype* dawallnum);
