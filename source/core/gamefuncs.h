@@ -29,6 +29,16 @@ public:
 		Set(startnode);
 		store.Push(startnode);
 	}
+
+	// This allows this object to just work as a bit array
+	// which is useful for using its shared storage.
+	BFSSearch(unsigned datasize)
+	{
+		bitpos = store.Size();
+		unsigned bitsize = (datasize + 31) >> 5;
+		store.Reserve(bitsize);
+		memset(&store[bitpos], 0, bitsize * 4);
+	}
 	
 	~BFSSearch()
 	{
@@ -40,12 +50,13 @@ public:
 		return !!(store[bitpos + (index >> 5)] & (1 << (index & 31)));
 	}
 
-private:
 	void Set(unsigned index)
 	{
 		store[bitpos + (index >> 5)] |= (1 << (index & 31));
 	}
 
+
+private:
 public:
 	unsigned GetNext()
 	{

@@ -1708,7 +1708,7 @@ void MovePoints(SECTOR_OBJECTp sop, short delta_ang, int nx, int ny)
 
             if (wp->extra && TEST(wp->extra, WALLFX_LOOP_OUTER))
             {
-                dragpoint(k, wp->x += nx, wp->y += ny, 0);
+                dragpoint(k, wp->x += nx, wp->y += ny);
             }
             else
             {
@@ -1731,7 +1731,7 @@ void MovePoints(SECTOR_OBJECTp sop, short delta_ang, int nx, int ny)
 
             if (wp->extra && TEST(wp->extra, WALLFX_LOOP_OUTER))
             {
-                dragpoint(k, rxy.x, rxy.y, 0);
+                dragpoint(k, rxy.x, rxy.y);
             }
             else
             {
@@ -1957,7 +1957,7 @@ void RefreshPoints(SECTOR_OBJECTp sop, int nx, int ny, bool dynamic)
 
                     if (wp->extra && TEST(wp->extra, WALLFX_LOOP_OUTER))
                     {
-                        dragpoint(k, dx, dy, 0);
+                        dragpoint(k, dx, dy);
                     }
                     else
                     {
@@ -2119,7 +2119,7 @@ void CollapseSectorObject(SECTOR_OBJECTp sop, int nx, int ny)
 
                 if (wp->extra && TEST(wp->extra, WALLFX_LOOP_OUTER))
                 {
-                    dragpoint(k, nx, ny, 0);
+                    dragpoint(k, nx, ny);
                 }
                 else
                 {

@@ -260,7 +260,7 @@ void SnapSectors(int nSectorA, int nSectorB, int b)
             nCount2++;
         }
 
-        dragpoint(bestwall, bestwall->x + bestx, bestwall->y + besty, 0);
+        dragpoint(bestwall, bestwall->x + bestx, bestwall->y + besty);
 
         nCount++;
         nWallA++;

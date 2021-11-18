@@ -62,8 +62,6 @@ int16_t pskybits_override = -1;
 
 static int32_t beforedrawrooms = 1;
 
-static int8_t tempbuf[MAXWALLS];
-
 static int32_t no_radarang2 = 0;
 static int16_t radarang[1280];
 
@@ -1075,72 +1073,55 @@ void neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange,
 //
 // dragpoint
 //
-// flags:
-//  1: don't reset walbitmap[] (the bitmap of already dragged vertices)
-//  2: In the editor, do wall[].cstat |= (1<<14) also for the lastwall().
-void dragpoint(int pointhighlight, int32_t dax, int32_t day, uint8_t flags)
+void dragpoint(int w, int32_t dax, int32_t day)
 {
-    int32_t i, numyaxwalls=0;
-    static int16_t yaxwalls[MAXWALLS];
+    BFSSearch walbitmap(numwalls);
+    int clockwise = 0;
+    const int tmpstartwall = w;
+    int cnt = 16384; // limit the number of iterations.
 
-    uint8_t *const walbitmap = (uint8_t *)tempbuf;
-
-    if ((flags&1)==0)
-        memset(walbitmap, 0, (numwalls+7)>>3);
-    yaxwalls[numyaxwalls++] = pointhighlight;
-
-    for (i=0; i<numyaxwalls; i++)
+    while (1)
     {
-        int32_t clockwise = 0;
-        int32_t w = yaxwalls[i];
-        const int32_t tmpstartwall = w;
+        sector[wall[w].sector].dirty = 255;
+        wall[w].x = dax;
+        wall[w].y = day;
+        walbitmap.Set(w);
 
-        bssize_t cnt = MAXWALLS;
-
-        while (1)
+        if (!clockwise)  //search points CCW
         {
-            sector[wall[w].sector].dirty = 255;
-            wall[w].x = dax;
-            wall[w].y = day;
-            walbitmap[w>>3] |= (1<<(w&7));
-
-            if (!clockwise)  //search points CCW
+            if (wall[w].nextwall >= 0)
+                w = wall[wall[w].nextwall].point2;
+            else
             {
-                if (wall[w].nextwall >= 0)
-                    w = wall[wall[w].nextwall].point2;
-                else
-                {
-                    w = tmpstartwall;
-                    clockwise = 1;
-                }
-            }
-
-            cnt--;
-            if (cnt==0)
-            {
-                Printf("dragpoint %d: infloop!\n", pointhighlight);
-                i = numyaxwalls;
-                break;
-            }
-
-            if (clockwise)
-            {
-                int32_t thelastwall = lastwall(w);
-                if (wall[thelastwall].nextwall >= 0)
-                    w = wall[thelastwall].nextwall;
-                else
-                    break;
-            }
-
-            if ((walbitmap[w>>3] & (1<<(w&7))))
-            {
-                if (clockwise)
-                    break;
-
                 w = tmpstartwall;
                 clockwise = 1;
-                continue;
             }
+        }
+
+        cnt--;
+        if (cnt==0)
+        {
+            Printf("dragpoint %d: infinite loop!\n", w);
+            break;
+        }
+
+        if (clockwise)
+        {
+            int32_t thelastwall = lastwall(w);
+            if (wall[thelastwall].nextwall >= 0)
+                w = wall[thelastwall].nextwall;
+            else
+                break;
+        }
+
+        if (walbitmap.Check(w))
+        {
+            if (clockwise)
+                break;
+
+            w = tmpstartwall;
+            clockwise = 1;
+            continue;
         }
     }
 }

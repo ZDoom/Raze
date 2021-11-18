@@ -2576,13 +2576,13 @@ void DoSineWaveWall(void)
             {
                 New = sw->orig_xy + MulScale(sw->range, bsin(sw->sintable_ndx), 14);
                 // wall[sw->wall].y = New;
-                dragpoint(sw->wall, wall[sw->wall].x, New, 0);
+                dragpoint(sw->wall, wall[sw->wall].x, New);
             }
             else
             {
                 New = sw->orig_xy + MulScale(sw->range, bsin(sw->sintable_ndx), 14);
                 // wall[sw->wall].x = New;
-                dragpoint(sw->wall, New, wall[sw->wall].y, 0);
+                dragpoint(sw->wall, New, wall[sw->wall].y);
             }
         }
     }

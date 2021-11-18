@@ -1129,7 +1129,7 @@ void AISlide::Tick(RunListEvent* ev)
         int var_2C = nSeekB;
         int var_24 = nSeekB;
 
-        dragpoint(SlideData[nSlide].field_4, x, y, 0);
+        dragpoint(SlideData[nSlide].field_4, x, y);
         movesprite(SlideData[nSlide].pActor, var_34 << 14, var_2C << 14, 0, 0, 0, CLIPMASK1);
 
         if (var_34 == 0)
@@ -1145,7 +1145,7 @@ void AISlide::Tick(RunListEvent* ev)
         y = wall[nWall].y + var_24;
         x = wall[nWall].x + var_20;
 
-        dragpoint(SlideData[nSlide].field_0, x, y, 0);
+        dragpoint(SlideData[nSlide].field_0, x, y);
 
         nWall = SlideData[nSlide].field_C;
 
@@ -1160,7 +1160,7 @@ void AISlide::Tick(RunListEvent* ev)
         int edi = nSeekD;
         var_24 = nSeekD;
 
-        dragpoint(SlideData[nSlide].field_C, x, y, 0);
+        dragpoint(SlideData[nSlide].field_C, x, y);
 
         if (var_30 == 0 && edi == 0) {
             ebp++;
@@ -1171,7 +1171,7 @@ void AISlide::Tick(RunListEvent* ev)
         x = wall[nWall].x + var_20;
         y = wall[nWall].y + var_24;
 
-        dragpoint(SlideData[nSlide].field_8, x, y, 0);
+        dragpoint(SlideData[nSlide].field_8, x, y);
     }
     else if (cx == 0) // right branch
     {
@@ -1187,7 +1187,7 @@ void AISlide::Tick(RunListEvent* ev)
         int ecx = nSeekB;
         int var_28 = nSeekB;
 
-        dragpoint(SlideData[nSlide].field_0, x, y, 0);
+        dragpoint(SlideData[nSlide].field_0, x, y);
 
         if (edi == 0 && ecx == 0) {
             ebp = clipmask;
@@ -1198,7 +1198,7 @@ void AISlide::Tick(RunListEvent* ev)
         y = wall[nWall].y + var_28;
         x = wall[nWall].x + var_1C;
 
-        dragpoint(SlideData[nSlide].field_4, x, y, 0);
+        dragpoint(SlideData[nSlide].field_4, x, y);
 
         nWall = SlideData[nSlide].field_8;
 
@@ -1213,7 +1213,7 @@ void AISlide::Tick(RunListEvent* ev)
         ecx = nSeekD;
         var_28 = nSeekD;
 
-        dragpoint(SlideData[nSlide].field_8, x, y, 0);
+        dragpoint(SlideData[nSlide].field_8, x, y);
 
         if (edi == 0 && ecx == 0) {
             ebp++;
@@ -1224,7 +1224,7 @@ void AISlide::Tick(RunListEvent* ev)
         y = wall[nWall].y + var_28;
         x = wall[nWall].x + var_1C;
 
-        dragpoint(SlideData[nSlide].field_C, x, y, 0);
+        dragpoint(SlideData[nSlide].field_C, x, y);
     }
 
     // loc_21A51:

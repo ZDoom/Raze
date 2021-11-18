@@ -1058,7 +1058,7 @@ void MoveSector(int nSector, int nAngle, int *nXVel, int *nYVel)
 
         for (int i = 0; i < nWalls; i++)
         {
-            dragpoint(startwall, xvect + pStartWall->x, yvect + pStartWall->y, 0);
+            dragpoint(startwall, xvect + pStartWall->x, yvect + pStartWall->y);
             pStartWall++;
             startwall++;
         }
