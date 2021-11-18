@@ -2239,7 +2239,7 @@ void movetransports_d(void)
 						case 0:
 							if (onfloorz)
 							{
-								if (spr2->statnum == STAT_PROJECTILE || (checkcursectnums(spr->sectnum) == -1 && checkcursectnums(Owner->s->sectnum) == -1))
+								if (spr2->statnum == STAT_PROJECTILE || (checkcursectnums(spr->sector()) == -1 && checkcursectnums(Owner->s->sector()) == -1))
 								{
 									spr2->x += (Owner->s->x - spr->x);
 									spr2->y += (Owner->s->y - spr->y);

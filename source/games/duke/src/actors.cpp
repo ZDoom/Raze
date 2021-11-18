@@ -718,7 +718,7 @@ void movecrane(DDukeActor *actor, int crane)
 		spri->picnum++;
 		if (spri->picnum == (crane + 2))
 		{
-			int p = checkcursectnums(t[1]);
+			int p = checkcursectnums(&sector[t[1]]);
 			if (p >= 0 && ps[p].on_ground)
 			{
 				actor->SetActiveCrane(true);
@@ -1126,7 +1126,7 @@ void movetouchplate(DDukeActor* actor, int plate)
 			else
 			{
 				sectp->floorz += sectp->extra;
-				p = checkcursectnums(s->sectnum);
+				p = checkcursectnums(s->sector());
 				if (p >= 0) ps[p].pos.z += sectp->extra;
 			}
 		}
@@ -1140,7 +1140,7 @@ void movetouchplate(DDukeActor* actor, int plate)
 			else
 			{
 				sectp->floorz -= sectp->extra;
-				p = checkcursectnums(s->sectnum);
+				p = checkcursectnums(s->sector());
 				if (p >= 0)
 					ps[p].pos.z -= sectp->extra;
 			}
@@ -1150,7 +1150,7 @@ void movetouchplate(DDukeActor* actor, int plate)
 
 	if (t[5] == 1) return;
 
-	p = checkcursectnums(s->sectnum);
+	p = checkcursectnums(s->sector());
 	if (p >= 0 && (ps[p].on_ground || s->ang == 512))
 	{
 		if (t[0] == 0 && !check_activator_motion(s->lotag))

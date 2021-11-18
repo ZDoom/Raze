@@ -1842,7 +1842,7 @@ void movetransports_r(void)
 						case ST_0_NO_EFFECT:
 							if (onfloorz)
 							{
-								if (checkcursectnums(spr->sectnum) == -1 && checkcursectnums(Owner->s->sectnum) == -1)
+								if (checkcursectnums(spr->sector()) == -1 && checkcursectnums(Owner->s->sector()) == -1)
 								{
 									spr2->x += (Owner->s->x - spr->x);
 									spr2->y += (Owner->s->y - spr->y);

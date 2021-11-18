@@ -73,11 +73,11 @@ inline bool wallswitchcheck(DDukeActor* s)
 	return !!(gs.tileinfo[s->s->picnum].flags & TFLAG_WALLSWITCH);
 }
 
-inline int checkcursectnums(int se)
+inline int checkcursectnums(sectortype* se)
 {
 	int i;
 	for(i=connecthead;i>=0;i=connectpoint2[i])
-		if(ps[i].GetActor() && ps[i].GetActor()->s->sectnum == se ) return i;
+		if(ps[i].GetActor() && ps[i].GetActor()->s->sector() == se ) return i;
 	return -1;
 }
 
