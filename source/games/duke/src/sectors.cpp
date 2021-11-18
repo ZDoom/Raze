@@ -594,12 +594,11 @@ static void handle_st09(sectortype* sptr, DDukeActor* actor)
 //
 //---------------------------------------------------------------------------
 
-static void handle_st15(int sn, DDukeActor* actor)
+static void handle_st15(sectortype* sptr, DDukeActor* actor)
 {
 	if (actor->s->picnum != TILE_APLAYER) return;
 
-	sectortype* sptr = &sector[sn];
-	DukeSectIterator it(sn);
+	DukeSectIterator it(sptr);
 	DDukeActor* a2;
 	while ((a2 = it.Next()))
 	{
@@ -607,7 +606,7 @@ static void handle_st15(int sn, DDukeActor* actor)
 	}
 	if (!a2) return;
 
-	if (actor->s->sectnum == sn)
+	if (actor->s->sector() == sptr)
 	{
 		if (activatewarpelevators(a2, -1))
 			activatewarpelevators(a2, 1);
@@ -630,10 +629,9 @@ static void handle_st15(int sn, DDukeActor* actor)
 //
 //---------------------------------------------------------------------------
 
-static void handle_st16(int sn, DDukeActor* actor)
+static void handle_st16(sectortype* sptr, DDukeActor* actor)
 {
-	sectortype* sptr = &sector[sn];
-	int i = getanimationgoal(anim_floorz, sn);
+	int i = getanimationgoal(anim_floorz, sectnum(sptr));
 	sectortype* sectp;
 
 	if (i == -1)
@@ -643,13 +641,13 @@ static void handle_st16(int sn, DDukeActor* actor)
 		{
 			sectp = nextsectorneighborzptr(sptr, sptr->floorz, 1, -1);
 			if (sectp == nullptr) return;
-			setanimation(sn, anim_floorz, sn, sectp->floorz, sptr->extra);
+			setanimation(sptr, anim_floorz, sptr, sectp->floorz, sptr->extra);
 		}
 		else
 		{
-			setanimation(sn, anim_floorz, sn, sectp->floorz, sptr->extra);
+			setanimation(sptr, anim_floorz, sptr, sectp->floorz, sptr->extra);
 		}
-		callsound(sn, actor);
+		callsound(sptr, actor);
 	}
 }
 
@@ -1039,12 +1037,12 @@ void operatesectors(int sn, DDukeActor *actor)
 		return;
 
 	case ST_15_WARP_ELEVATOR://Warping elevators
-		handle_st15(sn, actor);
+		handle_st15(sptr, actor);
 		return;
 
 	case ST_16_PLATFORM_DOWN:
 	case ST_17_PLATFORM_UP:
-		handle_st16(sn, actor);
+		handle_st16(sptr, actor);
 		return;
 
 	case ST_18_ELEVATOR_DOWN:
