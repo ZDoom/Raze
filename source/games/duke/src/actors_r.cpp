@@ -233,13 +233,13 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 				auto wal = dasectp->firstWall();
 				int d = abs(wal->x - spri->x) + abs(wal->y - spri->y);
 				if (d < r)
-					fi.checkhitceiling(dasect);
+					fi.checkhitceiling(dasectp);
 				else
 				{
 					auto thirdpoint = wal->point2Wall()->point2Wall();
 					d = abs(thirdpoint->x - spri->x) + abs(thirdpoint->y - spri->y);
 					if (d < r)
-						fi.checkhitceiling(dasect);
+						fi.checkhitceiling(dasectp);
 				}
 			}
 			
@@ -1310,7 +1310,7 @@ bool weaponhitsector(DDukeActor *proj, const vec3_t& oldpos)
 				return true;
 			}
 
-		fi.checkhitceiling(s->sectnum);
+		fi.checkhitceiling(s->sector());
 	}
 
 	if (!isRRRA() && s->picnum == FREEZEBLAST)

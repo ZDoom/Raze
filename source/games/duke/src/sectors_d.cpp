@@ -944,9 +944,8 @@ void checkplayerhurt_d(struct player_struct* p, const Collision& coll)
 //
 //---------------------------------------------------------------------------
 
-bool checkhitceiling_d(int sn)
+bool checkhitceiling_d(sectortype* sectp)
 {
-	auto sectp = &sector[sn];
 	int j;
 
 	switch (sectp->ceilingpicnum)
@@ -958,7 +957,7 @@ bool checkhitceiling_d(int sn)
 	case TECHLIGHT2:
 	case TECHLIGHT4:
 
-		ceilingglass(ps[myconnectindex].GetActor(), sn, 10);
+		ceilingglass(ps[myconnectindex].GetActor(), sectp, 10);
 		S_PlayActorSound(GLASS_BREAKING, ps[screenpeek].GetActor());
 
 		if (sectp->ceilingpicnum == WALLLIGHT1)
@@ -982,7 +981,7 @@ bool checkhitceiling_d(int sn)
 
 		if (!sectp->hitag)
 		{
-			DukeSectIterator it(sn);
+			DukeSectIterator it(sectp);
 			while (auto act = it.Next())
 			{
 				if (act->s->picnum == SECTOREFFECTOR && act->s->lotag == 12)

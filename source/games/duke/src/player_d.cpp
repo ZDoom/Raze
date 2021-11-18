@@ -436,7 +436,7 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 					return;
 				}
 				else
-					fi.checkhitceiling(sectnum(hitsectp));
+					fi.checkhitceiling(hitsectp);
 			}
 			spawn(spark, SMALLSMOKE);
 		}
@@ -987,7 +987,7 @@ static void shootgrowspark(DDukeActor* actor, int p, int sx, int sy, int sz, int
 	if (wal == nullptr && hitsprt == nullptr && hitsectp != nullptr)
 	{
 		if (zvel < 0 && (hitsectp->ceilingstat & 1) == 0)
-			fi.checkhitceiling(sectnum(hitsectp));
+			fi.checkhitceiling(hitsectp);
 	}
 	else if (hitsprt != nullptr) fi.checkhitsprite(hitsprt, spark);
 	else if (wal != nullptr)

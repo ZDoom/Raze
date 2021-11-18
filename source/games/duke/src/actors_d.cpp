@@ -355,13 +355,13 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 				auto wal = dasectp->firstWall();
 				int d = abs(wal->x - spri->x) + abs(wal->y - spri->y);
 				if (d < r)
-					fi.checkhitceiling(dasect);
+					fi.checkhitceiling(dasectp);
 				else
 				{
 					auto thirdpoint = wal->point2Wall()->point2Wall();
 					d = abs(thirdpoint->x - spri->x) + abs(thirdpoint->y - spri->y);
 					if (d < r)
-						fi.checkhitceiling(dasect);
+						fi.checkhitceiling(dasectp);
 				}
 			}
 
@@ -1697,7 +1697,7 @@ static bool weaponhitsector(DDukeActor* proj, const vec3_t& oldpos, bool firebal
 				return true;
 			}
 
-		fi.checkhitceiling(s->sectnum);
+		fi.checkhitceiling(s->sector());
 	}
 	else if (fireball)
 	{
@@ -2771,7 +2771,7 @@ static void flamethrowerflame(DDukeActor *actor)
 		{
 			setsprite(actor, dax, day, daz);
 			if (s->zvel < 0)
-				fi.checkhitceiling(s->sectnum);
+				fi.checkhitceiling(s->sector());
 		}
 
 		if (s->xrepeat >= 10)

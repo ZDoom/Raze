@@ -1428,9 +1428,8 @@ void checkplayerhurt_r(struct player_struct* p, const Collision &coll)
 //
 //---------------------------------------------------------------------------
 
-bool checkhitceiling_r(int sn)
+bool checkhitceiling_r(sectortype* sectp)
 {
-	auto sectp = &sector[sn];
 	int j;
 
 	switch (sectp->ceilingpicnum)
@@ -1449,7 +1448,7 @@ bool checkhitceiling_r(int sn)
 	case RRTILE2898:
 
 
-		ceilingglass(ps[myconnectindex].GetActor(), sn, 10);
+		ceilingglass(ps[myconnectindex].GetActor(), sectp, 10);
 		S_PlayActorSound(GLASS_BREAKING, ps[screenpeek].GetActor());
 
 		if (sectp->ceilingpicnum == WALLLIGHT1)
@@ -1491,7 +1490,7 @@ bool checkhitceiling_r(int sn)
 
 		if (!sectp->hitag)
 		{
-			DukeSectIterator it(sn);
+			DukeSectIterator it(sectp);
 			while (auto act1 = it.Next())
 			{
 				auto spr1 = act1->s;

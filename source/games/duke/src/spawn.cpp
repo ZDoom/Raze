@@ -1148,12 +1148,12 @@ void spriteglass(DDukeActor* actor, int n)
 //
 //---------------------------------------------------------------------------
 
-void ceilingglass(DDukeActor* actor, int sectnum, int n)
+void ceilingglass(DDukeActor* actor, sectortype* sectp, int n)
 {
 	int j, z;
 	int a;
 
-	for (auto& wal : wallsofsector(sectnum))
+	for (auto& wal : wallsofsector(sectp))
 	{
 		int x1 = wal.x;
 		int y1 = wal.y;
@@ -1165,8 +1165,8 @@ void ceilingglass(DDukeActor* actor, int sectnum, int n)
 			x1 += delta.x;
 			y1 += delta.y;
 			a = krand() & 2047;
-			z = sector[sectnum].ceilingz + ((krand() & 15) << 8);
-			EGS(sectnum, x1, y1, z, TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, (krand() & 31), 0, actor, 5);
+			z = sectp->ceilingz + ((krand() & 15) << 8);
+			EGS(sectnum(sectp), x1, y1, z, TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, (krand() & 31), 0, actor, 5);
 		}
 	}
 }

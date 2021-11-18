@@ -326,7 +326,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 					return;
 				}
 				else
-					fi.checkhitceiling(sectnum(hitsectp));
+					fi.checkhitceiling(hitsectp);
 			}
 			if (hitsectp->lotag != 1)
 				spawn(spark, SMALLSMOKE);
