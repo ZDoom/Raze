@@ -819,7 +819,7 @@ static void handle_st22(sectortype* sptr, DDukeActor* actor)
 //
 //---------------------------------------------------------------------------
 
-static void handle_st23(int sn, DDukeActor* actor)
+static void handle_st23(sectortype* sptr, DDukeActor* actor)
 {
 	int q = 0;
 	
@@ -827,7 +827,7 @@ static void handle_st23(int sn, DDukeActor* actor)
 	DDukeActor* act2;
 	while ((act2 = it.Next()))
 	{
-		if (act2->s->lotag == SE_11_SWINGING_DOOR && act2->s->sectnum == sn && !act2->temp_data[4])
+		if (act2->s->lotag == SE_11_SWINGING_DOOR && act2->s->sector() == sptr && !act2->temp_data[4])
 		{
 			break;
 		}
@@ -859,7 +859,7 @@ static void handle_st23(int sn, DDukeActor* actor)
 				act3->temp_data[3] = -act3->temp_data[3];
 				if (q == 0)
 				{
-					callsound(sn, act3);
+					callsound(sptr, act3);
 					q = 1;
 				}
 			}
@@ -873,13 +873,13 @@ static void handle_st23(int sn, DDukeActor* actor)
 //
 //---------------------------------------------------------------------------
 
-static void handle_st25(int sn, DDukeActor* actor)
+static void handle_st25(sectortype* sptr, DDukeActor* actor)
 {
 	DukeStatIterator it(STAT_EFFECTOR);
 	DDukeActor* act2;
 	while ((act2 = it.Next()))
 	{
-		if (act2->s->lotag == 15 && act2->s->sectnum == sn)
+		if (act2->s->lotag == 15 && act2->s->sector() == sptr)
 		{
 			break;
 		}
@@ -912,19 +912,19 @@ static void handle_st25(int sn, DDukeActor* actor)
 //
 //---------------------------------------------------------------------------
 
-static void handle_st27(int sn, DDukeActor* actor)
+static void handle_st27(sectortype* sptr, DDukeActor* actor)
 {
 	DukeStatIterator it(STAT_EFFECTOR);
 	while (auto act2 = it.Next())
 	{
-		if ((act2->s->lotag & 0xff) == 20 && act2->s->sectnum == sn) //Bridge
+		if ((act2->s->lotag & 0xff) == 20 && act2->s->sector() == sptr) //Bridge
 		{
 
-			sector[sn].lotag ^= 0x8000;
-			if (sector[sn].lotag & 0x8000) //OPENING
+			sptr->lotag ^= 0x8000;
+			if (sptr->lotag & 0x8000) //OPENING
 				act2->temp_data[0] = 1;
 			else act2->temp_data[0] = 2;
-			callsound(sn, actor);
+			callsound(sptr, actor);
 			break;
 		}
 	}
@@ -936,11 +936,11 @@ static void handle_st27(int sn, DDukeActor* actor)
 //
 //---------------------------------------------------------------------------
 
-static void handle_st28(int sn, DDukeActor* actor)
+static void handle_st28(sectortype* sptr, DDukeActor* actor)
 {
 	//activate the rest of them
 	int j = -1;
-	DukeSectIterator it(sn);
+	DukeSectIterator it(sptr);
 	while (auto a2 = it.Next())
 	{
 		if (a2->s->statnum == 3 && (a2->s->lotag & 0xff) == 21)
@@ -958,7 +958,7 @@ static void handle_st28(int sn, DDukeActor* actor)
 			(act3->s->hitag) == j)
 			act3->temp_data[0] = 1;
 	}
-	callsound(sn, actor);
+	callsound(sptr, actor);
 }
 
 //---------------------------------------------------------------------------
@@ -1061,20 +1061,20 @@ void operatesectors(int sn, DDukeActor *actor)
 		return;
 
 	case ST_23_SWINGING_DOOR: //Swingdoor
-		handle_st23(sn, actor);
+		handle_st23(sptr, actor);
 		return;
 
 	case ST_25_SLIDING_DOOR: //Subway type sliding doors
 	{
-		handle_st25(sn, actor);
+		handle_st25(sptr, actor);
 		return;
 	}
 	case ST_27_STRETCH_BRIDGE:  //Extended bridge
-		handle_st27(sn, actor);
+		handle_st27(sptr, actor);
 		return;
 
 	case ST_28_DROP_FLOOR:
-		handle_st28(sn, actor);
+		handle_st28(sptr, actor);
 		return;
 	}
 }
