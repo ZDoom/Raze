@@ -158,7 +158,8 @@ struct user_defs
 struct player_orig
 {
 	int ox, oy, oz;
-	short oa, os;
+	short oa;
+	int os;
 };
 
 struct CraneDef
