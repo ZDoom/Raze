@@ -102,7 +102,7 @@ DDukeActor* spriteq[1024];
 animwalltype animwall[MAXANIMWALLS];		// animated walls
 int numanimwalls;
 int animatecnt;								// sector plane movement
-int animatesect[MAXANIMATES];
+sectortype* animatesect[MAXANIMATES];
 int8_t animatetype[MAXANIMATES];
 int animatetarget[MAXANIMATES];
 int animategoal[MAXANIMATES];

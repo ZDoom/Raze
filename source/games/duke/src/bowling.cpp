@@ -63,8 +63,9 @@ void pinsectorresetdown(int sect)
 
 	if (j == -1)
 	{
-		j = sector[sect].floorz;
-		setanimation(sect, anim_ceilingz, sect, j, 64);
+		auto sec = &sector[sect];
+		j = sec->floorz;
+		setanimation(sec, anim_ceilingz, sec, j, 64);
 	}
 }
 
@@ -74,8 +75,9 @@ int pinsectorresetup(int sect)
 
 	if (j == -1)
 	{
-		j = nextsectorneighborzptr(&sector[sect], sector[sect].ceilingz, -1, -1)->ceilingz;
-		setanimation(sect, anim_ceilingz, sect, j, 64);
+		auto sec = &sector[sect];
+		j = nextsectorneighborzptr(sec, sec->ceilingz, -1, -1)->ceilingz;
+		setanimation(sec, anim_ceilingz, sec, j, 64);
 		return 1;
 	}
 	return 0;

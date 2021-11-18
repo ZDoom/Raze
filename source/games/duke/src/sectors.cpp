@@ -123,7 +123,7 @@ int check_activator_motion(int lotag)
 		if (act->s->lotag == lotag)
 		{
 			for (int j = animatecnt - 1; j >= 0; j--)
-				if (act->s->sectnum == animatesect[j])
+				if (act->s->sector() == animatesect[j])
 					return(1);
 
 			DukeStatIterator it1(STAT_EFFECTOR);
@@ -310,13 +310,13 @@ int* animateptr(int i)
 
 void doanimations(void)
 {
-	int i, a, p, v, dasect;
+	int i, a, p, v;
 
 	for (i = animatecnt - 1; i >= 0; i--)
 	{
 		a = *animateptr(i);
 		v = animatevel[i] * TICSPERFRAME;
-		dasect = animatesect[i];
+		auto dasectp = animatesect[i];
 
 		if (a == animategoal[i])
 		{
@@ -328,12 +328,13 @@ void doanimations(void)
 			animategoal[i] = animategoal[animatecnt];
 			animatevel[i] = animatevel[animatecnt];
 			animatesect[i] = animatesect[animatecnt];
-			if (sector[animatesect[i]].lotag == ST_18_ELEVATOR_DOWN || sector[animatesect[i]].lotag == ST_19_ELEVATOR_UP)
+			dasectp = animatesect[i];
+			if (dasectp->lotag == ST_18_ELEVATOR_DOWN || dasectp->lotag == ST_19_ELEVATOR_UP)
 				if (animatetype[i] == anim_ceilingz)
 					continue;
 
-			if ((sector[dasect].lotag & 0xff) != ST_22_SPLITTING_DOOR)
-				callsound(dasect, nullptr);
+			if ((dasectp->lotag & 0xff) != ST_22_SPLITTING_DOOR)
+				callsound(dasectp, nullptr);
 
 			continue;
 		}
@@ -344,22 +345,22 @@ void doanimations(void)
 		if (animatetype[i] == anim_floorz)
 		{
 			for (p = connecthead; p >= 0; p = connectpoint2[p])
-				if (ps[p].cursectnum == dasect)
-					if ((sector[dasect].floorz - ps[p].pos.z) < (64 << 8))
+				if (ps[p].cursector() == dasectp)
+					if ((dasectp->floorz - ps[p].pos.z) < (64 << 8))
 						if (ps[p].GetActor()->GetOwner() != nullptr)
 						{
 							ps[p].pos.z += v;
 							ps[p].poszv = 0;
 						}
 
-			DukeSectIterator it(dasect);
+			DukeSectIterator it(dasectp);
 			while (auto act = it.Next())
 			{
 				if (act->s->statnum != STAT_EFFECTOR)
 				{
 					act->s->backupz();
 					act->s->z += v;
-					act->floorz = sector[dasect].floorz + v;
+					act->floorz = dasectp->floorz + v;
 				}
 			}
 		}
@@ -394,7 +395,7 @@ int getanimationgoal(int animtype, int animtarget)
 //
 //---------------------------------------------------------------------------
 
-int setanimation(int animsect, int animtype, int animtarget, int thegoal, int thevel)
+static int dosetanimation(sectortype* animsect, int animtype, int animtarget, int thegoal, int thevel)
 {
 	int i, j;
 
@@ -425,28 +426,16 @@ int setanimation(int animsect, int animtype, int animtarget, int thegoal, int th
 	return(j);
 }
 
-int setanimation(int animsect, int animtype, walltype* animtarget, int thegoal, int thevel)
-{
-	assert(animtype == anim_vertexx || animtype == anim_vertexy);
-	return setanimation(animsect, animtype, wallnum(animtarget), thegoal, thevel);
-}
-
-int setanimation(int animsect, int animtype, sectortype* animtarget, int thegoal, int thevel)
-{
-	assert(animtype == anim_ceilingz || animtype == anim_floorz);
-	return setanimation(animsect, animtype, sectnum(animtarget), thegoal, thevel);
-}
-
 int setanimation(sectortype* animsect, int animtype, walltype* animtarget, int thegoal, int thevel)
 {
 	assert(animtype == anim_vertexx || animtype == anim_vertexy);
-	return setanimation(sectnum(animsect), animtype, wallnum(animtarget), thegoal, thevel);
+	return dosetanimation(animsect, animtype, wallnum(animtarget), thegoal, thevel);
 }
 
 int setanimation(sectortype* animsect, int animtype, sectortype* animtarget, int thegoal, int thevel)
 {
 	assert(animtype == anim_ceilingz || animtype == anim_floorz);
-	return setanimation(sectnum(animsect), animtype, sectnum(animtarget), thegoal, thevel);
+	return dosetanimation(animsect, animtype, sectnum(animtarget), thegoal, thevel);
 }
 
 //---------------------------------------------------------------------------

@@ -557,7 +557,7 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 				switch (other->s->lotag)
 				{
 				case SE_12_LIGHT_SWITCH:
-					sector[other->s->sectnum].floorpal = 0;
+					other->getSector()->floorpal = 0;
 					other->temp_data[0]++;
 					if (other->temp_data[0] == 2)
 						other->temp_data[0]++;
