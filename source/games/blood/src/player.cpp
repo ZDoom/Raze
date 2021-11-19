@@ -1236,10 +1236,10 @@ void CheckPickUp(PLAYER *pPlayer)
     }
 }
 
-int ActionScan(PLAYER *pPlayer, int *pIndex, int *pXIndex, DBloodActor** pAct)
+int ActionScan(PLAYER *pPlayer, int *pIndex, DBloodActor** pAct)
 {
+	int xx = 0; int* pXIndex = &xx;
     *pIndex = 0;
-    *pXIndex = 0;
     *pAct = nullptr;
     spritetype *pSprite = pPlayer->pSprite;
     int x = bcos(pSprite->ang);
@@ -1499,36 +1499,36 @@ void ProcessInput(PLAYER *pPlayer)
     }
     if (pInput->actions & SB_OPEN)
     {
-        int a2, a3;
+        int a2;
         DBloodActor* act;
-        int hit = ActionScan(pPlayer, &a2, &a3, &act);
+        int hit = ActionScan(pPlayer, &a2, &act);
         switch (hit)
         {
         case 6:
-            if (a3 > 0 && a3 <= 2048)
+        {
+            auto pSector = &sector[a2];
+            auto pXSector = &pSector->xs();
+            int key = pXSector->Key;
+            if (pXSector->locked && pPlayer == gMe)
             {
-                XSECTOR *pXSector = &xsector[a3];
-                int key = pXSector->Key;
-                if (pXSector->locked && pPlayer == gMe)
-                {
-                    viewSetMessage(GStrings("TXTB_LOCKED"));
-                    auto snd = 3062;
-                    if (sndCheckPlaying(snd))
-                        sndStopSample(snd);
-                    sndStartSample(snd, 255, 2, 0);
-                }
-                if (!key || pPlayer->hasKey[key])
-                    trTriggerSector(&sector[a2], kCmdSpritePush);
-                else if (pPlayer == gMe)
-                {
-                    viewSetMessage(GStrings("TXTB_KEY"));
-                    auto snd = 3063;
-                    if (sndCheckPlaying(snd))
-                        sndStopSample(snd);
-                    sndStartSample(snd, 255, 2, 0);
-                }
+                viewSetMessage(GStrings("TXTB_LOCKED"));
+                auto snd = 3062;
+                if (sndCheckPlaying(snd))
+                    sndStopSample(snd);
+                sndStartSample(snd, 255, 2, 0);
+            }
+            if (!key || pPlayer->hasKey[key])
+                trTriggerSector(pSector, kCmdSpritePush);
+            else if (pPlayer == gMe)
+            {
+                viewSetMessage(GStrings("TXTB_KEY"));
+                auto snd = 3063;
+                if (sndCheckPlaying(snd))
+                    sndStopSample(snd);
+                sndStartSample(snd, 255, 2, 0);
             }
             break;
+        }
         case 0:
         {
             auto pWall = &wall[a2];
