@@ -749,8 +749,8 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
     KillActor(BoundActor);
 
     // set radius for explosion checking - based on bounding box
-    u->Radius = DIV4((xhigh - xlow) + (yhigh - ylow));
-    u->Radius -= DIV4(u->Radius); // trying to get it a good size
+    u->Radius = ((xhigh - xlow) + (yhigh - ylow)) >> 2;
+    u->Radius -= (u->Radius >> 2); // trying to get it a good size
 
     // search for center sprite if it exists
 
@@ -2693,8 +2693,8 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
     // calculate a new x and y
     if (sop->vel && !TEST(sop->flags,SOBJ_MOVE_VERTICAL))
     {
-        *nx = (DIV256(sop->vel)) * locktics * bcos(sop->ang_moving) >> 14;
-        *ny = (DIV256(sop->vel)) * locktics * bsin(sop->ang_moving) >> 14;
+        *nx = ((sop->vel) >> 8) * locktics * bcos(sop->ang_moving) >> 14;
+        *ny = ((sop->vel) >> 8) * locktics * bsin(sop->ang_moving) >> 14;
 
         dist = Distance(sop->xmid, sop->ymid, sop->xmid + *nx, sop->ymid + *ny);
         sop->target_dist -= dist;
@@ -2861,7 +2861,7 @@ void DoTornadoObject(SECTOR_OBJECTp sop)
     yvect = sop->vel * bcos(*ang);
 
     cursect = sop->op_main_sector; // for sop->vel
-    floor_dist = DIV4(labs(sector[cursect].ceilingz - sector[cursect].floorz));
+    floor_dist = (labs(sector[cursect].ceilingz - sector[cursect].floorz)) >> 2;
     pos.x = sop->xmid;
     pos.y = sop->ymid;
     pos.z = floor_dist;
@@ -3673,7 +3673,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
             }
 
             // update the real velocity
-            sp->xvel = DIV256(u->track_vel);
+            sp->xvel = (u->track_vel) >> 8;
         }
         else if (TEST(u->Flags, SPR_SLOW_DOWN))
         {
@@ -3683,7 +3683,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
                 RESET(u->Flags, SOBJ_SLOW_DOWN);
             }
 
-            sp->xvel = DIV256(u->track_vel);
+            sp->xvel = (u->track_vel) >> 8;
         }
 
         nx = 0;
@@ -3691,7 +3691,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
 
         if (TEST(u->Flags, SPR_CLIMBING))
         {
-            if (SPRITEp_TOS(sp) + DIV4(SPRITEp_SIZE_Z(sp)) < u->sz)
+            if (SPRITEp_TOS(sp) + (SPRITEp_SIZE_Z(sp) >> 2) < u->sz)
             {
                 RESET(u->Flags, SPR_CLIMBING);
 

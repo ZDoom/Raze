@@ -1201,11 +1201,11 @@ DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets
             if (u && u->PlayerP)
                 zh = u->PlayerP->posz;
             else
-                zh = SPRITEp_TOS(sp) + DIV4(SPRITEp_SIZE_Z(sp));
+                zh = SPRITEp_TOS(sp) + (SPRITEp_SIZE_Z(sp) >> 2);
 
-            ezh = SPRITEp_TOS(ep) + DIV4(SPRITEp_SIZE_Z(ep));
+            ezh = SPRITEp_TOS(ep) + (SPRITEp_SIZE_Z(ep) >> 2);
             ezhm = SPRITEp_TOS(ep) + DIV2(SPRITEp_SIZE_Z(ep));
-            ezhl = SPRITEp_BOS(ep) - DIV4(SPRITEp_SIZE_Z(ep));
+            ezhl = SPRITEp_BOS(ep) - (SPRITEp_SIZE_Z(ep) >> 2);
 
             // If you can't see 'em you can't shoot 'em
             if (!FAFcansee(sp->x, sp->y, zh, sp->sectnum, ep->x, ep->y, ezh, ep->sectnum) &&
@@ -1454,7 +1454,7 @@ void DoPlayerHeight(PLAYERp pp)
 
     diff = pp->posz - (pp->loz - PLAYER_HEIGHT);
 
-    pp->posz = pp->posz - (DIV4(diff) + DIV8(diff));
+    pp->posz = pp->posz - ((diff >> 2) + (diff >> 3));
 }
 
 void DoPlayerJumpHeight(PLAYERp pp)
@@ -1474,7 +1474,7 @@ void DoPlayerCrawlHeight(PLAYERp pp)
     int diff;
 
     diff = pp->posz - (pp->loz - PLAYER_CRAWL_HEIGHT);
-    pp->posz = pp->posz - (DIV4(diff) + DIV8(diff));
+    pp->posz = pp->posz - ((diff >> 2) + (diff >> 3));
 }
 
 void UpdatePlayerSpriteAngle(PLAYERp pp)

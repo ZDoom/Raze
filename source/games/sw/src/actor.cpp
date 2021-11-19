@@ -300,8 +300,8 @@ void DoDebrisCurrent(DSWActor* actor)
 
     //sp->clipdist = (256+128)>>2;
 
-    nx = MulScale(DIV4(sectu->speed), bcos(sectu->ang), 14);
-    ny = MulScale(DIV4(sectu->speed), bsin(sectu->ang), 14);
+    nx = MulScale((sectu->speed >> 2), bcos(sectu->ang), 14);
+    ny = MulScale((sectu->speed >> 2), bsin(sectu->ang), 14);
 
     Collision ret = move_sprite(actor, nx, ny, 0, u->ceiling_dist, u->floor_dist, 0, ACTORMOVETICS);
 
@@ -310,8 +310,8 @@ void DoDebrisCurrent(DSWActor* actor)
     {
         short rang = RANDOM_P2(2048);
 
-        nx = MulScale(DIV4(sectu->speed), bcos(sectu->ang + rang), 14);
-        nx = MulScale(DIV4(sectu->speed), bsin(sectu->ang + rang), 14);
+        nx = MulScale((sectu->speed >> 2), bcos(sectu->ang + rang), 14);
+        nx = MulScale((sectu->speed >> 2), bsin(sectu->ang + rang), 14);
 
         move_sprite(actor, nx, ny, 0, u->ceiling_dist, u->floor_dist, 0, ACTORMOVETICS);
     }

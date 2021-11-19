@@ -42,15 +42,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 ===========================
 */
 
-// For fast DIVision of integers
-
 #define DIV2(x)  ((x) >> 1)
-#define DIV4(x)  ((x) >> 2)
-#define DIV8(x)  ((x) >> 3)
-#define DIV256(x) ((x) >> 8)
-
-// Fast mods of any power of 2
-
 #define MOD_P2(number,modby)  ((number) & ((modby)-1))
 
 

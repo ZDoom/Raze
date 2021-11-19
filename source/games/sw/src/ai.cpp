@@ -111,7 +111,7 @@ bool ActorFlaming(DSWActor* actor)
         int size;
         SPRITEp fp = &u->flameActor->s();
 
-        size = SPRITEp_SIZE_Z(sp) - DIV4(SPRITEp_SIZE_Z(sp));
+        size = SPRITEp_SIZE_Z(sp) - (SPRITEp_SIZE_Z(sp) >> 2);
 
         if (SPRITEp_SIZE_Z(fp) > size)
             return true;
@@ -1611,7 +1611,7 @@ int FindNewAngle(DSWActor* actor, int dir, int DistToMove)
 
     // if on fire, run shorter distances
     if (ActorFlaming(actor))
-        DistToMove = DIV4(DistToMove) + DIV8(DistToMove);
+        DistToMove = (DistToMove >> 2) + (DistToMove >> 3);
 
     // Find angle to from the player
     oang = NORM_ANGLE(getangle(u->targetActor->s().x - sp->x, u->targetActor->s().y - sp->y));

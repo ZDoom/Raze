@@ -871,9 +871,7 @@ int GetJumpHeight(int jump_speed, int jump_grav)
 
     height = jump_speed * jump_iterations * ACTORMOVETICS;
 
-    height = DIV256(height);
-
-    return DIV2(height);
+    return height >> 9;
 }
 
 int PickJumpSpeed(DSWActor* actor, int pix_height)

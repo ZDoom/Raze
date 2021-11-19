@@ -4067,7 +4067,7 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, i
                 hit_ang = NORM_ANGLE(wp->ang + 1024);
                 hit_x = sp->x;
                 hit_y = sp->y;
-                hit_z = SPRITEp_TOS(wp) + DIV4(SPRITEp_SIZE_Z(wp));
+                hit_z = SPRITEp_TOS(wp) + (SPRITEp_SIZE_Z(wp) >> 2);
 
                 //ASSERT(wu->PlayerP);
             }
@@ -4077,7 +4077,7 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, i
             hit_ang = NORM_ANGLE(wp->ang + 1024);
             hit_x = sp->x;
             hit_y = sp->y;
-            hit_z = SPRITEp_TOS(sp) + DIV4(SPRITEp_SIZE_Z(sp));
+            hit_z = SPRITEp_TOS(sp) + (SPRITEp_SIZE_Z(sp) >> 2);
             break;
         case BLADE1:
         case BLADE2:
@@ -4102,14 +4102,14 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, i
             hit_ang = wp->ang;
             hit_x = sp->x;
             hit_y = sp->y;
-            hit_z = SPRITEp_TOS(sp) + DIV4(SPRITEp_SIZE_Z(sp));
+            hit_z = SPRITEp_TOS(sp) + (SPRITEp_SIZE_Z(sp) >> 2);
             break;
         default:
             p = SomeBlood;
             hit_ang = NORM_ANGLE(wp->ang + 1024);
             hit_x = sp->x;
             hit_y = sp->y;
-            hit_z = SPRITEp_TOS(wp) + DIV4(SPRITEp_SIZE_Z(wp));
+            hit_z = SPRITEp_TOS(wp) + (SPRITEp_SIZE_Z(wp) >> 2);
             break;
         }
     }
@@ -4320,7 +4320,7 @@ bool WeaponMoveHit(DSWActor* actor)
         ASSERT(sectp->extra != -1);
 
         // hit floor - closer to floor than ceiling
-        if (sp->z > DIV2(u->hiz + u->loz))
+        if (sp->z > ((u->hiz + u->loz) >> 1))
         {
             // hit a floor sprite
             if (u->lowActor)
@@ -5416,7 +5416,7 @@ int GetDamage(DSWActor* actor, DSWActor* weapActor, int DamageNdx)
 
             //return(damage_amt);
             // formula: damage_amt = 75% + random(25%)
-            return DIV2(damage_amt) + DIV4(damage_amt) + RandomRange(DIV4(damage_amt));
+            return (damage_amt >> 1) + (damage_amt >> 2) + RandomRange(damage_amt >> 2);
         }
         else
         {
@@ -7676,7 +7676,7 @@ int DoStar(DSWActor* actor)
             bool did_hit_wall;
             short hit_sect = u->coll.index;
 
-            if (sp->z > DIV2(u->hiz + u->loz))
+            if (sp->z > ((u->hiz + u->loz) >> 1))
             {
                 if (SectUser[hit_sect].Data() && FixedToInt(SectUser[hit_sect]->depth_fixed) > 0)
                 {
@@ -7706,7 +7706,7 @@ int DoStar(DSWActor* actor)
             u->xchange = MulScale(u->xchange, 64000 + (RandomRange(64000) - 32000), 16);
             u->ychange = MulScale(u->ychange, 64000 + (RandomRange(64000) - 32000), 16);
 
-            if (sp->z > DIV2(u->hiz + u->loz))
+            if (sp->z > ((u->hiz + u->loz) >> 1))
                 u->zchange = MulScale(u->zchange, 50000, 16); // floor
             else
                 u->zchange = MulScale(u->zchange, 40000, 16); // ceiling
@@ -7748,7 +7748,7 @@ int DoStar(DSWActor* actor)
             // 32000 to 96000
             u->xchange = MulScale(u->xchange, 64000 + (RandomRange(64000) - 32000), 16);
             u->ychange = MulScale(u->ychange, 64000 + (RandomRange(64000) - 32000), 16);
-            if (sp->z > DIV2(u->hiz + u->loz))
+            if (sp->z > ((u->hiz + u->loz) >> 1))
                 u->zchange = MulScale(u->zchange, 50000, 16); // floor
             else
                 u->zchange = MulScale(u->zchange, 40000, 16); // ceiling
@@ -7904,7 +7904,7 @@ int MissileSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range/*, int1
 
         sp->ang -= delta_ang;
 
-        zh = SPRITEp_TOS(hp) + DIV4(SPRITEp_SIZE_Z(hp));
+        zh = SPRITEp_TOS(hp) + (SPRITEp_SIZE_Z(hp) >> 2);
 
         delta_ang = (zh - sp->z)>>1;
 
@@ -7980,7 +7980,7 @@ int ComboMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range/*,
         u->xchange = MOVEx(sp->xvel, sp->ang);
         u->ychange = MOVEy(sp->xvel, sp->ang);
 
-        zh = SPRITEp_TOS(hp) + DIV4(SPRITEp_SIZE_Z(hp));
+        zh = SPRITEp_TOS(hp) + (SPRITEp_SIZE_Z(hp) >> 2);
 
         dist = ksqrt(SQ(sp->x - hp->x) + SQ(sp->y - hp->y) + (SQ(sp->z - zh)>>8));
 
@@ -8060,7 +8060,7 @@ int VectorMissileSeek(DSWActor* actor, int16_t delay_tics, int16_t turn_speed, i
 
         if (!hp) return 0;
 
-        zh = SPRITEp_TOS(hp) + DIV4(SPRITEp_SIZE_Z(hp));
+        zh = SPRITEp_TOS(hp) + (SPRITEp_SIZE_Z(hp) >> 2);
 
         dist = ksqrt(SQ(sp->x - hp->x) + SQ(sp->y - hp->y) + (SQ(sp->z - zh)>>8));
 
@@ -8125,7 +8125,7 @@ int VectorWormSeek(DSWActor* actor, int16_t delay_tics, int16_t aware_range1, in
         int ox,oy,oz;
         hp = &u->WpnGoalActor->s();
 
-        zh = SPRITEp_TOS(hp) + DIV4(SPRITEp_SIZE_Z(hp));
+        zh = SPRITEp_TOS(hp) + (SPRITEp_SIZE_Z(hp) >> 2);
 
         dist = ksqrt(SQ(sp->x - hp->x) + SQ(sp->y - hp->y) + (SQ(sp->z - zh)>>8));
 
@@ -8584,7 +8584,7 @@ int DoGrenade(DSWActor* actor)
                 else
                 {
                     // hit a sector
-                    if (sp->z > DIV2(u->hiz + u->loz))
+                    if (sp->z > ((u->hiz + u->loz) >> 1))
                     {
                         // hit a floor
                         if (!TEST(u->Flags, SPR_BOUNCE))
@@ -8620,7 +8620,7 @@ int DoGrenade(DSWActor* actor)
             else
             {
                 // hit floor
-                if (sp->z > DIV2(u->hiz + u->loz))
+                if (sp->z > ((u->hiz + u->loz) >> 1))
                 {
                     if (TEST(u->Flags, SPR_UNDERWATER))
                         SET(u->Flags, SPR_BOUNCE); // no bouncing underwater
@@ -8796,7 +8796,7 @@ int DoVulcanBoulder(DSWActor* actor)
                 else
                 {
                     // hit a sloped sector
-                    if (sp->z > DIV2(u->hiz + u->loz))
+                    if (sp->z > ((u->hiz + u->loz) >> 1))
                     {
                         // hit a floor
                         u->xchange = MulScale(u->xchange, 30000, 16);
@@ -8821,7 +8821,7 @@ int DoVulcanBoulder(DSWActor* actor)
             else
             {
                 // hit unsloped floor
-                if (sp->z > DIV2(u->hiz + u->loz))
+                if (sp->z > ((u->hiz + u->loz) >> 1))
                 {
                     u->coll.setNone();
                     u->Counter = 0;
@@ -9172,7 +9172,7 @@ int DoMine(DSWActor* actor)
                 else if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR))
                 {
                     // hit floor
-                    if (sp->z > DIV2(u->hiz + u->loz))
+                    if (sp->z > ((u->hiz + u->loz) >> 1))
                         SET(u->Flags2, SPR2_ATTACH_FLOOR);
                     else
                         SET(u->Flags2, SPR2_ATTACH_CEILING);
@@ -9224,7 +9224,7 @@ int DoMine(DSWActor* actor)
             SetMineStuck(actor);
 
             // hit floor
-            if (sp->z > DIV2(u->hiz + u->loz))
+            if (sp->z > ((u->hiz + u->loz) >> 1))
                 SET(u->Flags2, SPR2_ATTACH_FLOOR);
             else
                 SET(u->Flags2, SPR2_ATTACH_CEILING);
@@ -10086,7 +10086,7 @@ int SpawnCoolieExp(DSWActor* actor)
 
     u->Counter = RandomRange(120);  // This is the wait til birth time!
 
-    zh = sp->z - SPRITEp_SIZE_Z(sp) + DIV4(SPRITEp_SIZE_Z(sp));
+    zh = sp->z - SPRITEp_SIZE_Z(sp) + (SPRITEp_SIZE_Z(sp) >> 2);
     nx = sp->x + MOVEx(64, sp->ang+1024);
     ny = sp->y + MOVEy(64, sp->ang+1024);
 
@@ -10135,7 +10135,7 @@ void SpawnFireballFlames(DSWActor* actor, DSWActor* enemyActor)
 
         if (eu->flameActor != nullptr)
         {
-            int sizez = SPRITEp_SIZE_Z(ep) + DIV4(SPRITEp_SIZE_Z(ep));
+            int sizez = SPRITEp_SIZE_Z(ep) + (SPRITEp_SIZE_Z(ep) >> 2);
             auto np = &eu->flameActor->s();
             auto nu = eu->flameActor->u();
 
@@ -10184,7 +10184,7 @@ void SpawnFireballFlames(DSWActor* actor, DSWActor* enemyActor)
         // large flame for trees and such
         if (TEST(ep->extra, SPRX_BURNABLE))
         {
-            int sizez = SPRITEp_SIZE_Z(ep) + DIV4(SPRITEp_SIZE_Z(ep));
+            int sizez = SPRITEp_SIZE_Z(ep) + (SPRITEp_SIZE_Z(ep) >> 2);
             nu->Counter = SPRITEp_SIZE_Z_2_YREPEAT(np, sizez);
         }
         else
@@ -12025,7 +12025,7 @@ int InitLavaThrow(DSWActor* actor)
 
     nx = sp->x;
     ny = sp->y;
-    nz = SPRITEp_TOS(sp) + DIV4(SPRITEp_SIZE_Z(sp));
+    nz = SPRITEp_TOS(sp) + (SPRITEp_SIZE_Z(sp) >> 2);
 
     // Spawn a shot
     auto actorNew = SpawnActor(STAT_MISSILE, LAVA_BOULDER, s_LavaBoulder, sp->sectnum,
@@ -12331,7 +12331,7 @@ int InitEnemyNapalm(DSWActor* actor)
     for (i = 0; i < SIZ(mp); i++)
     {
         auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL1, s_Napalm, sp->sectnum,
-                        sp->x, sp->y, SPRITEp_TOS(sp) + DIV4(SPRITEp_SIZE_Z(sp)), sp->ang, NAPALM_VELOCITY);
+                        sp->x, sp->y, SPRITEp_TOS(sp) + (SPRITEp_SIZE_Z(sp) >> 2), sp->ang, NAPALM_VELOCITY);
 
         wp = &actorNew->s();
         wu = actorNew->u();
@@ -12445,7 +12445,7 @@ int InitEnemyMirv(DSWActor* actor)
     PlaySound(DIGI_MIRVFIRE, actor, v3df_none);
 
     auto actorNew = SpawnActor(STAT_MISSILE, MIRV_METEOR, s_Mirv, sp->sectnum,
-                    sp->x, sp->y, SPRITEp_TOS(sp) + DIV4(SPRITEp_SIZE_Z(sp)), sp->ang, MIRV_VELOCITY);
+                    sp->x, sp->y, SPRITEp_TOS(sp) + (SPRITEp_SIZE_Z(sp) >> 2), sp->ang, MIRV_VELOCITY);
 
     wp = &actorNew->s();
     wu = actorNew->u();
@@ -13122,13 +13122,13 @@ int WeaponAutoAim(DSWActor* actor, DSWActor* mislActor, short ang, bool test)
 
             // hit_sprite is below
             if (diff < -Z(50))
-                zh = tos + DIV2(siz);
+                zh = tos + (siz >> 1);
             else
             // hit_sprite is above
             if (diff > Z(50))
-                zh = tos + DIV8(siz);
+                zh = tos + (siz >> 3);
             else
-                zh = tos + DIV4(siz);
+                zh = tos + (siz >> 2);
 
             wp->zvel = (wp->xvel * (zh - wp->z)) / dist;
         }
@@ -13189,13 +13189,13 @@ int WeaponAutoAimZvel(DSWActor* actor, DSWActor* missileActor, int *zvel, short 
 
             // hit_sprite is below
             if (diff < -Z(50))
-                zh = tos + DIV2(siz);
+                zh = tos + (siz >> 1);
             else
-            // hit_sprite is above
-            if (diff > Z(50))
-                zh = tos + DIV8(siz);
-            else
-                zh = tos + DIV4(siz);
+                // hit_sprite is above
+                if (diff > Z(50))
+                    zh = tos + (siz >> 3);
+                else
+                    zh = tos + (siz >> 2);
 
             *zvel = (wp->xvel * (zh - wp->z)) / dist;
         }
@@ -13292,7 +13292,7 @@ DSWActor* WeaponAutoAimHitscan(DSWActor* actor, int *z, short *ang, bool test)
 
         if (dist != 0)
         {
-            zh = SPRITEp_TOS(hp) + DIV4(SPRITEp_SIZE_Z(hp));
+            zh = SPRITEp_TOS(hp) + (SPRITEp_SIZE_Z(hp) >> 2);
 
             xvect = bcos(*ang);
             yvect = bsin(*ang);
@@ -14570,7 +14570,7 @@ int InitMicro(PLAYERp pp)
             if (dist != 0)
             {
                 int zh;
-                zh = SPRITEp_TOS(hp) + DIV4(SPRITEp_SIZE_Z(hp));
+                zh = SPRITEp_TOS(hp) + (SPRITEp_SIZE_Z(hp) >> 2);
                 wp->zvel = (wp->xvel * (zh - wp->z)) / dist;
             }
 
@@ -16507,7 +16507,7 @@ int InitTurretMicro(DSWActor* actor, PLAYERp pp)
             if (dist != 0)
             {
                 int zh;
-                zh = SPRITEp_TOS(hp) + DIV4(SPRITEp_SIZE_Z(hp));
+                zh = SPRITEp_TOS(hp) + (SPRITEp_SIZE_Z(hp) >> 2);
                 wp->zvel = (wp->xvel * (zh - wp->z)) / dist;
             }
 
@@ -17294,7 +17294,7 @@ int InitEnemyUzi(DSWActor* actor)
     else
     {
         zh = SPRITEp_SIZE_Z(sp);
-        zh -= DIV4(zh);
+        zh -= (zh >> 2);
     }
     daz = sp->z - zh;
 
@@ -17464,7 +17464,7 @@ int InitGrenade(PLAYERp pp)
     // don't throw it as far if crawling
     if (TEST(pp->Flags, PF_CRAWLING))
     {
-        wp->xvel -= DIV4(wp->xvel);
+        wp->xvel -= (wp->xvel >> 2);
     }
 
     wu->RotNum = 5;
@@ -17833,8 +17833,7 @@ int InitEnemyFireball(DSWActor* actor)
     sp->ang = NORM_ANGLE(getangle(tsp->x - sp->x, tsp->y - sp->y));
 
     size_z = Z(SPRITEp_SIZE_Y(sp));
-    //nz = sp->z - size_z + DIV4(size_z) + DIV8(size_z);
-    nz = sp->z - size_z + DIV4(size_z) + DIV8(size_z) + Z(4);
+    nz = sp->z - size_z + (size_z >> 2) + (size_z >> 3) + Z(4);
 
     xchange = MOVEx(GORO_FIREBALL_VELOCITY, sp->ang);
     ychange = MOVEy(GORO_FIREBALL_VELOCITY, sp->ang);
@@ -18297,7 +18296,7 @@ bool MissileHitDiveArea(DSWActor* actor)
         if (SpriteInDiveArea(sp))
         {
             // make sure you are close to the floor
-            if (sp->z < DIV2(u->hiz + u->loz))
+            if (sp->z < ((u->hiz + u->loz) >> 1))
                 return false;
 
             // Check added by Jim because of sprite bridge over water
@@ -18314,7 +18313,7 @@ bool MissileHitDiveArea(DSWActor* actor)
         else if (SpriteInUnderwaterArea(sp))
         {
             // make sure you are close to the ceiling
-            if (sp->z > DIV2(u->hiz + u->loz))
+            if (sp->z > ((u->hiz + u->loz) >> 1))
                 return false;
 
             RESET(u->Flags, SPR_UNDERWATER);
@@ -19303,7 +19302,7 @@ int DoShrapVelocity(DSWActor* actor)
                 else
                 {
                     // hit a sector
-                    if (sp->z > DIV2(u->hiz + u->loz))
+                    if (sp->z > ((u->hiz + u->loz) >> 1))
                     {
                         // hit a floor
                         if (!TEST(u->Flags, SPR_BOUNCE))
@@ -19332,7 +19331,7 @@ int DoShrapVelocity(DSWActor* actor)
             else
             {
                 // hit floor
-                if (sp->z > DIV2(u->hiz + u->loz))
+                if (sp->z > ((u->hiz + u->loz) >> 1))
                 {
                     sp->z = u->loz;
                     if (TEST(u->Flags, SPR_UNDERWATER))
@@ -19625,7 +19624,7 @@ int DoItemFly(DSWActor* actor)
         case kHitSector:
         {
             // hit floor
-            if (sp->z > DIV2(u->hiz + u->loz))
+            if (sp->z > ((u->hiz + u->loz) >> 1))
             {
                 sp->z = u->loz;
                 u->Counter = 0;

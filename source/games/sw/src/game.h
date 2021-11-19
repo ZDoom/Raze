@@ -297,8 +297,8 @@ inline int SPRITEp_SIZE_BOS(const spritetype* sp)
 
 // mid and upper/lower sprite calculations
 #define SPRITEp_MID(sp) (DIV2(SPRITEp_TOS(sp) + SPRITEp_BOS(sp)))
-#define SPRITEp_UPPER(sp) (SPRITEp_TOS(sp) + DIV4(SPRITEp_SIZE_Z(sp)))
-#define SPRITEp_LOWER(sp) (SPRITEp_BOS(sp) - DIV4(SPRITEp_SIZE_Z(sp)))
+#define SPRITEp_UPPER(sp) (SPRITEp_TOS(sp) + (SPRITEp_SIZE_Z(sp) >> 2))
+#define SPRITEp_LOWER(sp) (SPRITEp_BOS(sp) - (SPRITEp_SIZE_Z(sp) >> 2))
 
 #define Z(value) ((int)(value) << 8)
 #define PIXZ(value) ((int)(value) >> 8)

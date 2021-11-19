@@ -499,7 +499,7 @@ int DoBloodSpray(DSWActor* actor)
         case kHitSector:
         {
             // hit floor
-            if (sp->z > DIV2(u->hiz + u->loz))
+            if (sp->z > ((u->hiz + u->loz) >> 1))
             {
                 if (TEST(u->Flags, SPR_UNDERWATER))
                     SET(u->Flags, SPR_BOUNCE);  // no bouncing
@@ -688,7 +688,7 @@ int DoPhosphorus(DSWActor* actor)
                 else
                 {
                     // hit a sector
-                    if (sp->z > DIV2(u->hiz + u->loz))
+                    if (sp->z > ((u->hiz + u->loz) >> 1))
                     {
                         // hit a floor
                         if (!TEST(u->Flags, SPR_BOUNCE))
@@ -717,7 +717,7 @@ int DoPhosphorus(DSWActor* actor)
             else
             {
                 // hit floor
-                if (sp->z > DIV2(u->hiz + u->loz))
+                if (sp->z > ((u->hiz + u->loz) >> 1))
                 {
                     if (TEST(u->Flags, SPR_UNDERWATER))
                         SET(u->Flags, SPR_BOUNCE);  // no bouncing
@@ -906,7 +906,7 @@ int DoChemBomb(DSWActor* actor)
                 else
                 {
                     // hit a sector
-                    if (sp->z > DIV2(u->hiz + u->loz))
+                    if (sp->z > ((u->hiz + u->loz) >> 1))
                     {
                         // hit a floor
                         if (!TEST(u->Flags, SPR_BOUNCE))
@@ -945,7 +945,7 @@ int DoChemBomb(DSWActor* actor)
             else
             {
                 // hit floor
-                if (sp->z > DIV2(u->hiz + u->loz))
+                if (sp->z > ((u->hiz + u->loz) >> 1))
                 {
                     if (TEST(u->Flags, SPR_UNDERWATER))
                         SET(u->Flags, SPR_BOUNCE);  // no bouncing
@@ -1132,7 +1132,7 @@ int DoCaltrops(DSWActor* actor)
                 else
                 {
                     // hit a sector
-                    if (sp->z > DIV2(u->hiz + u->loz))
+                    if (sp->z > ((u->hiz + u->loz) >> 1))
                     {
                         // hit a floor
                         if (!TEST(u->Flags, SPR_BOUNCE))
@@ -1162,7 +1162,7 @@ int DoCaltrops(DSWActor* actor)
             else
             {
                 // hit floor
-                if (sp->z > DIV2(u->hiz + u->loz))
+                if (sp->z > ((u->hiz + u->loz) >> 1))
                 {
                     if (TEST(u->Flags, SPR_UNDERWATER))
                         SET(u->Flags, SPR_BOUNCE);  // no bouncing
@@ -1339,7 +1339,7 @@ int PlayerInitChemBomb(PLAYERp pp)
     // don't throw it as far if crawling
     if (TEST(pp->Flags, PF_CRAWLING))
     {
-        wp->xvel -= DIV4(wp->xvel);
+        wp->xvel -= (wp->xvel >> 2);
     }
 
 //    wu->RotNum = 5;
@@ -1762,7 +1762,7 @@ int PlayerInitCaltrops(PLAYERp pp)
     // don't throw it as far if crawling
     if (TEST(pp->Flags, PF_CRAWLING))
     {
-        wp->xvel -= DIV4(wp->xvel);
+        wp->xvel -= (wp->xvel >> 2);
     }
 
     SET(wu->Flags, SPR_XFLIP_TOGGLE);

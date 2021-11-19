@@ -2303,7 +2303,7 @@ pUziAction(PANEL_SPRITEp psp)
         }
         // Only Recoil if shooting
         pUziBobSetup(psp);
-        UziRecoilYadj = DIV256(RANDOM_P2(1024));        // global hack for
+        UziRecoilYadj = (RANDOM_P2(1024)) >> 8;        // global hack for
         // weapon Bob
         pWeaponBob(psp, PLAYER_MOVING(psp->PlayerP) || shooting);
         UziRecoilYadj = 0;              // reset my global hack
