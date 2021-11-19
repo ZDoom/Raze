@@ -2145,7 +2145,7 @@ void MoveZ(SECTOR_OBJECTp sop)
         // for all sectors
         for (i = 0, sectp = &sop->sectp[0]; *sectp; sectp++, i++)
         {
-            if (SectUser[sop->sector[i]].Data() && TEST(SectUser[sop->sector[i]]->flags, SECTFU_SO_DONT_BOB))
+            if (sop->sectp[i]->hasU() && TEST(sop->sectp[i]->u()->flags, SECTFU_SO_DONT_BOB))
                 continue;
 
             (*sectp)->floorz = sop->zorig_floor[i] + sop->bob_diff;
@@ -2202,7 +2202,7 @@ void CallbackSOsink(ANIMp ap, void *data)
 
     for (i = 0; sop->sector[i] != -1; i++)
     {
-        if (SectUser[sop->sector[i]].Data() && TEST(SectUser[sop->sector[i]]->flags, SECTFU_SO_SINK_DEST))
+        if (sop->sectp[i]->hasU() && TEST(sop->sectp[i]->u()->flags, SECTFU_SO_SINK_DEST))
         {
             src_sector = sop->sector[i];
             break;
@@ -2493,7 +2493,7 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
 
             for (i = 0; sop->sector[i] != -1; i++)
             {
-                if (SectUser[sop->sector[i]].Data() && TEST(SectUser[sop->sector[i]]->flags, SECTFU_SO_SINK_DEST))
+                if (sop->sectp[i]->hasU() && TEST(sop->sectp[i]->u()->flags, SECTFU_SO_SINK_DEST))
                 {
                     dest_sector = sop->sector[i];
                     break;
@@ -2511,7 +2511,7 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
 
             for (i = 0, sectp = &sop->sectp[0]; *sectp; sectp++, i++)
             {
-                if (SectUser[sop->sector[i]].Data() && TEST(SectUser[sop->sector[i]]->flags, SECTFU_SO_DONT_SINK))
+                if (sop->sectp[i]->hasU() && TEST(sop->sectp[i]->u()->flags, SECTFU_SO_DONT_SINK))
                     continue;
 
                 ndx = AnimSet(ANIM_Floorz, sectnum(*sectp), nullptr, sector[dest_sector].floorz, tpoint->tag_high);
@@ -2723,7 +2723,7 @@ void OperateSectorObjectForTics(SECTOR_OBJECTp sop, short newang, int newx, int 
         // for all sectors
         for (i = 0, sectp = &sop->sectp[0]; *sectp; sectp++, i++)
         {
-            if (SectUser[sop->sector[i]].Data() && TEST(SectUser[sop->sector[i]]->flags, SECTFU_SO_DONT_BOB))
+            if (sop->sectp[i]->hasU() && TEST(sop->sectp[i]->u()->flags, SECTFU_SO_DONT_BOB))
                 continue;
 
             (*sectp)->floorz = sop->zorig_floor[i] + sop->bob_diff;

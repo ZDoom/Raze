@@ -38,6 +38,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #include "build.h"
 #include "d_net.h"
+#include "gamefuncs.h"
 
 #include "mytypes.h"
 #include "sounds.h"
@@ -912,6 +913,8 @@ struct PLAYERstruct
     int cookieTime;
 
     uint8_t WpnReloadState;
+
+    sectortype* cursector() const { return &sector[cursectnum]; }
 };
 
 extern PLAYER Player[MAX_SW_PLAYERS_REG+1];
@@ -1686,10 +1689,10 @@ struct SECTOR_OBJECTstruct
            drive_slide,
            crush_z,
            op_main_sector, // main sector operational SO moves in - for speed purposes
-           flags;
+           flags,
+           sector[MAX_SO_SECTOR];     // hold the sector numbers of the sector object
 
-    short   sector[MAX_SO_SECTOR],     // hold the sector numbers of the sector object
-            xorig[MAX_SO_POINTS],   // save the original x & y location of each wall so it can be
+    short   xorig[MAX_SO_POINTS],   // save the original x & y location of each wall so it can be
             yorig[MAX_SO_POINTS],   // refreshed
             sectnum,        // current secnum of midpoint
             mid_sector,     // middle sector
@@ -1760,6 +1763,7 @@ struct SECTOR_OBJECTstruct
     // limit rotation angle
             limit_ang_center, // for limiting the angle of turning - turrets etc
             limit_ang_delta; //
+
 };
 
 #define MAX_SECTOR_OBJECTS 20
@@ -2300,5 +2304,11 @@ extern short AnimCnt;
 
 
 END_SW_NS
+
+inline ShadowWarrior::SECT_USER* sectortype::u() const
+{
+    return ShadowWarrior::SectUser[sectnum(this)].Data();
+}
+
 #endif
 

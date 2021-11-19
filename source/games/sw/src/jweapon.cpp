@@ -505,7 +505,7 @@ int DoBloodSpray(DSWActor* actor)
                     SET(u->Flags, SPR_BOUNCE);  // no bouncing
                 // underwater
 
-                if (u->lo_sectp && SectUser[sp->sectnum].Data() && FixedToInt(SectUser[sp->sectnum]->depth_fixed))
+                if (u->lo_sectp && sp->sector()->hasU() && FixedToInt(sp->sector()->u()->depth_fixed))
                     SET(u->Flags, SPR_BOUNCE);  // no bouncing on
                 // shallow water
 
@@ -723,7 +723,7 @@ int DoPhosphorus(DSWActor* actor)
                         SET(u->Flags, SPR_BOUNCE);  // no bouncing
                     // underwater
 
-                    if (u->lo_sectp && SectUser[sp->sectnum].Data() && FixedToInt(SectUser[sp->sectnum]->depth_fixed))
+                    if (u->lo_sectp && sp->sector()->hasU() && FixedToInt(sp->sector()->u()->depth_fixed))
                         SET(u->Flags, SPR_BOUNCE);  // no bouncing on
                     // shallow water
 
@@ -951,7 +951,7 @@ int DoChemBomb(DSWActor* actor)
                         SET(u->Flags, SPR_BOUNCE);  // no bouncing
                     // underwater
 
-                    if (u->lo_sectp && SectUser[sp->sectnum].Data() && FixedToInt(SectUser[sp->sectnum]->depth_fixed))
+                    if (u->lo_sectp && sp->sector()->hasU() && FixedToInt(sp->sector()->u()->depth_fixed))
                         SET(u->Flags, SPR_BOUNCE);  // no bouncing on
                     // shallow water
 
@@ -1168,7 +1168,7 @@ int DoCaltrops(DSWActor* actor)
                         SET(u->Flags, SPR_BOUNCE);  // no bouncing
                     // underwater
 
-                    if (u->lo_sectp && SectUser[sp->sectnum].Data() && FixedToInt(SectUser[sp->sectnum]->depth_fixed))
+                    if (u->lo_sectp && sp->sector()->hasU() && FixedToInt(sp->sector()->u()->depth_fixed))
                         SET(u->Flags, SPR_BOUNCE);  // no bouncing on
                     // shallow water
 

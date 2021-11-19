@@ -56,6 +56,11 @@ namespace Blood
     struct XSECTOR;
 }
 
+namespace ShadowWarrior
+{
+    struct SECT_USER;
+};
+
 //40 bytes
 struct walltype;
 struct sectortype
@@ -100,6 +105,12 @@ struct sectortype
     Blood::XSECTOR& xs() const;
     bool hasX() const { return extra > 0; } // 0 is invalid!
     void addX();
+
+    // same for SW
+    ShadowWarrior::SECT_USER* u() const;
+    bool hasU() const { return u() != nullptr; }
+
+
 
 };
 

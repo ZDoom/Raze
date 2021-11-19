@@ -626,7 +626,7 @@ void SectorMidPoint(short sectnum, int *xmid, int *ymid, int *zmid)
 void DoSpringBoard(PLAYERp pp/*, short sectnum*/)
 {
 
-    pp->jump_speed = -sector[pp->cursectnum].hitag;
+    pp->jump_speed = -pp->cursector()->hitag;
     DoPlayerBeginForceJump(pp);
     return;
 }
@@ -1900,10 +1900,10 @@ void OperateTripTrigger(PLAYERp pp)
     if (pp->cursectnum < 0)
         return;
 
-    SECTORp sectp = &sector[pp->cursectnum];
+    SECTORp sectp = pp->cursector();
 
     // old method
-    switch (sector[pp->cursectnum].lotag)
+    switch (pp->cursector()->lotag)
     {
     // same tag for sector as for switch
     case TAG_LEVEL_EXIT_SWITCH:
@@ -1996,31 +1996,31 @@ void OperateTripTrigger(PLAYERp pp)
     case TAG_TRIGGER_MISSILE_TRAP:
     {
         // reset traps so they fire immediately
-        DoTrapReset(sector[pp->cursectnum].hitag);
+        DoTrapReset(pp->cursector()->hitag);
         break;
     }
 
     case TAG_TRIGGER_EXPLODING_SECTOR:
     {
-        DoMatchEverything(nullptr, sector[pp->cursectnum].hitag, -1);
+        DoMatchEverything(nullptr, pp->cursector()->hitag, -1);
         break;
     }
 
     case TAG_SPAWN_ACTOR_TRIGGER:
     {
-        DoMatchEverything(nullptr, sector[pp->cursectnum].hitag, -1);
+        DoMatchEverything(nullptr, pp->cursector()->hitag, -1);
 
-        sector[pp->cursectnum].hitag = 0;
-        sector[pp->cursectnum].lotag = 0;
+        pp->cursector()->hitag = 0;
+        pp->cursector()->lotag = 0;
         break;
     }
 
     case TAG_SO_EVENT_TRIGGER:
     {
-        DoMatchEverything(nullptr, sector[pp->cursectnum].hitag, -1);
+        DoMatchEverything(nullptr, pp->cursector()->hitag, -1);
 
-        sector[pp->cursectnum].hitag = 0;
-        sector[pp->cursectnum].lotag = 0;
+        pp->cursector()->hitag = 0;
+        pp->cursector()->lotag = 0;
 
         PlaySound(DIGI_REGULARSWITCH, pp, v3df_none);
         break;
@@ -2036,11 +2036,11 @@ void OperateContinuousTrigger(PLAYERp pp)
     if (pp->cursectnum < 0)
         return;
 
-    switch (sector[pp->cursectnum].lotag)
+    switch (pp->cursector()->lotag)
     {
     case TAG_TRIGGER_MISSILE_TRAP:
     {
-        DoTrapMatch(sector[pp->cursectnum].hitag);
+        DoTrapMatch(pp->cursector()->hitag);
 
         break;
     }
@@ -2050,7 +2050,7 @@ void OperateContinuousTrigger(PLAYERp pp)
 
 short PlayerTakeSectorDamage(PLAYERp pp)
 {
-    SECT_USERp sectu = SectUser[pp->cursectnum].Data();
+    SECT_USERp sectu = pp->cursector()->u();
     USERp u = pp->Actor()->u();
 
     // the calling routine must make sure sectu exists
@@ -2074,10 +2074,10 @@ bool NearThings(PLAYERp pp)
 
 
     // Check player's current sector for triggered sound
-    if (sector[pp->cursectnum].hitag == PLAYER_SOUNDEVENT_TAG)
+    if (pp->cursector()->hitag == PLAYER_SOUNDEVENT_TAG)
     {
         if (pp == Player+myconnectindex)
-            PlayerSound(sector[pp->cursectnum].lotag, v3df_follow|v3df_dontpan,pp);
+            PlayerSound(pp->cursector()->lotag, v3df_follow|v3df_dontpan,pp);
         return false;
     }
 
@@ -2417,7 +2417,7 @@ void PlayerOperateEnv(PLAYERp pp)
             // Trigger operations
             //
 
-			switch (sector[pp->cursectnum].lotag)
+			switch (pp->cursector()->lotag)
             {
             case TAG_VATOR:
                 DoVatorOperate(pp, pp->cursectnum);
@@ -2451,7 +2451,7 @@ void PlayerOperateEnv(PLAYERp pp)
     SECT_USERp sectu;
     if (pp->cursectnum >= 0 && (sectu = SectUser[pp->cursectnum].Data()) && sectu->damage)
     {
-        SECTORp sectp = &sector[pp->cursectnum];
+        SECTORp sectp = pp->cursector();
         if (TEST(sectu->flags, SECTFU_DAMAGE_ABOVE_SECTOR))
         {
             PlayerTakeSectorDamage(pp);
@@ -2481,7 +2481,7 @@ void PlayerOperateEnv(PLAYERp pp)
     {
         OperateTripTrigger(pp);
 
-        if (pp->cursectnum >= 0 && TEST(sector[pp->cursectnum].extra, SECTFX_WARP_SECTOR))
+        if (pp->cursectnum >= 0 && TEST(pp->cursector()->extra, SECTFX_WARP_SECTOR))
         {
             if (!TEST(pp->Flags2, PF2_TELEPORTED))
             {

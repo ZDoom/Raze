@@ -1442,8 +1442,8 @@ void DoPlayerSetWadeDepth(PLAYERp pp)
     if (TEST(sectp->extra, SECTFX_SINK))
     {
         // make sure your even in the water
-        if (pp->posz + PLAYER_HEIGHT > pp->lo_sectp->floorz - Z(FixedToInt(SectUser[sectnum(pp->lo_sectp)]->depth_fixed)))
-            pp->WadeDepth = FixedToInt(SectUser[sectnum(pp->lo_sectp)]->depth_fixed);
+        if (pp->posz + PLAYER_HEIGHT > pp->lo_sectp->floorz - Z(FixedToInt(pp->lo_sectp->u()->depth_fixed)))
+            pp->WadeDepth = FixedToInt(pp->lo_sectp->u()->depth_fixed);
     }
 }
 
@@ -1598,22 +1598,22 @@ void SlipSlope(PLAYERp pp)
     short ang;
     SECT_USERp sectu;
 
-    if (pp->cursectnum < 0 || !(sectu = SectUser[pp->cursectnum].Data()) || !TEST(sectu->flags, SECTFU_SLIDE_SECTOR) || !TEST(sector[pp->cursectnum].floorstat, FLOOR_STAT_SLOPE))
+    if (pp->cursectnum < 0 || !(sectu = SectUser[pp->cursectnum].Data()) || !TEST(sectu->flags, SECTFU_SLIDE_SECTOR) || !TEST(pp->cursector()->floorstat, FLOOR_STAT_SLOPE))
         return;
 
-    short wallptr = sector[pp->cursectnum].wallptr;
+    short wallptr = pp->cursector()->wallptr;
 
     ang = getangle(wall[wall[wallptr].point2].x - wall[wallptr].x, wall[wall[wallptr].point2].y - wall[wallptr].y);
 
     ang = NORM_ANGLE(ang + 512);
 
-    pp->xvect += MulScale(bcos(ang), sector[pp->cursectnum].floorheinum, sectu->speed);
-    pp->yvect += MulScale(bsin(ang), sector[pp->cursectnum].floorheinum, sectu->speed);
+    pp->xvect += MulScale(bcos(ang), pp->cursector()->floorheinum, sectu->speed);
+    pp->yvect += MulScale(bsin(ang), pp->cursector()->floorheinum, sectu->speed);
 }
 
 void DoPlayerHorizon(PLAYERp pp, float const horz, double const scaleAdjust)
 {
-    bool const canslopetilt = !TEST(pp->Flags, PF_FLYING|PF_SWIMMING|PF_DIVING|PF_CLIMBING|PF_JUMPING|PF_FALLING) && TEST(sector[pp->cursectnum].floorstat, FLOOR_STAT_SLOPE);
+    bool const canslopetilt = !TEST(pp->Flags, PF_FLYING|PF_SWIMMING|PF_DIVING|PF_CLIMBING|PF_JUMPING|PF_FALLING) && TEST(pp->cursector()->floorstat, FLOOR_STAT_SLOPE);
     pp->horizon.calcviewpitch(pp->pos.vec2, pp->angle.ang, pp->input.actions & SB_AIMMODE, canslopetilt, pp->cursectnum, scaleAdjust, TEST(pp->Flags, PF_CLIMBING));
     pp->horizon.applyinput(horz, &pp->input.actions, scaleAdjust);
 }
@@ -1789,7 +1789,7 @@ void UpdatePlayerSprite(PLAYERp pp)
 
     if (pp->sop_control)
     {
-        sp->z = sector[pp->cursectnum].floorz;
+        sp->z = pp->cursector()->floorz;
         ChangeActorSect(pp->Actor(), pp->cursectnum);
     }
     else if (pp->DoPlayerAction == DoPlayerCrawl)
@@ -2163,7 +2163,7 @@ void DoPlayerMove(PLAYERp pp)
         DoPlayerHorizon(pp, pp->input.horz, 1);
     }
 
-    if (pp->cursectnum >= 0 && TEST(sector[pp->cursectnum].extra, SECTFX_DYNAMIC_AREA))
+    if (pp->cursectnum >= 0 && TEST(pp->cursector()->extra, SECTFX_DYNAMIC_AREA))
     {
         if (TEST(pp->Flags, PF_FLYING|PF_JUMPING|PF_FALLING))
         {
@@ -2191,7 +2191,7 @@ void DoPlayerSectorUpdatePreMove(PLAYERp pp)
     if (sectnum < 0)
         return;
 
-    if (TEST(sector[pp->cursectnum].extra, SECTFX_DYNAMIC_AREA))
+    if (TEST(pp->cursector()->extra, SECTFX_DYNAMIC_AREA))
     {
         updatesectorz(pp->posx, pp->posy, pp->posz, &sectnum);
         if (sectnum < 0)
@@ -2676,7 +2676,7 @@ void DoPlayerMoveVehicle(PLAYERp pp)
 
             if (vel > 13000)
             {
-                vec3_t hit_pos = { DIV2(x[0] + x[1]), DIV2(y[0] + y[1]), sector[pp->cursectnum].floorz - Z(10) };
+                vec3_t hit_pos = { DIV2(x[0] + x[1]), DIV2(y[0] + y[1]), pp->cursector()->floorz - Z(10) };
 
                 hitscan(&hit_pos, pp->cursectnum,
                         //pp->xvect, pp->yvect, 0,
@@ -3078,8 +3078,8 @@ void DoPlayerFall(PLAYERp pp)
 
         if (PlayerFloorHit(pp, pp->loz - PLAYER_HEIGHT + recoil_amt))
         {
-            SECT_USERp sectu = SectUser[pp->cursectnum].Data();
-            SECTORp sectp = &sector[pp->cursectnum];
+            SECT_USERp sectu = pp->cursector()->u();
+            SECTORp sectp = pp->cursector();
 
             PlayerSectorBound(pp, Z(1));
 
@@ -3430,7 +3430,7 @@ int DoPlayerWadeSuperJump(PLAYERp pp)
     unsigned i;
     //short angs[3];
     static short angs[3] = {0, 0, 0};
-    int zh = sector[pp->cursectnum].floorz - Z(pp->WadeDepth) - Z(2);
+    int zh = pp->cursector()->floorz - Z(pp->WadeDepth) - Z(2);
 
     if (Prediction) return false;   // !JIM! 8/5/97 Teleporter FAFhitscan SuperJump bug.
 
@@ -3520,7 +3520,7 @@ void DoPlayerCrawl(PLAYERp pp)
         if (FAF_ConnectArea(pp->cursectnum))
         {
             // adjust the z
-            pp->posz = sector[pp->cursectnum].ceilingz + Z(12);
+            pp->posz = pp->cursector()->ceilingz + Z(12);
         }
 
         DoPlayerBeginDiveNoWarp(pp);
@@ -3572,7 +3572,7 @@ void DoPlayerCrawl(PLAYERp pp)
         return;
     }
 
-    if (pp->cursectnum >= 0 && TEST(sector[pp->cursectnum].extra, SECTFX_DYNAMIC_AREA))
+    if (pp->cursectnum >= 0 && TEST(pp->cursector()->extra, SECTFX_DYNAMIC_AREA))
     {
         pp->posz = pp->loz - PLAYER_CRAWL_HEIGHT;
     }
@@ -3843,7 +3843,7 @@ int PlayerInDiveArea(PLAYERp pp)
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         //Attention: This changed on 07/29/97
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        sectp = &sector[pp->cursectnum];
+        sectp = pp->cursector();
         //sectp = pp->lo_sectp;
     }
     else
@@ -4080,7 +4080,7 @@ int GetOverlapSector2(int x, int y, short *over, short *under)
 void DoPlayerWarpToUnderwater(PLAYERp pp)
 {
     USERp u = pp->Actor()->u();
-    SECT_USERp sectu = SectUser[pp->cursectnum].Data();
+    SECT_USERp sectu = pp->cursector()->u();
     SPRITEp under_sp = nullptr, over_sp = nullptr;
     bool Found = false;
     short over, under;
@@ -4096,8 +4096,8 @@ void DoPlayerWarpToUnderwater(PLAYERp pp)
         over_sp = &actor->s();
 
         if (TEST(sector[over_sp->sectnum].extra, SECTFX_DIVE_AREA) &&
-            SectUser[over_sp->sectnum].Data() &&
-            SectUser[over_sp->sectnum]->number == sectu->number)
+            over_sp->sector()->hasU() &&
+            over_sp->sector()->u()->number == sectu->number)
         {
             Found = true;
             break;
@@ -4114,8 +4114,8 @@ void DoPlayerWarpToUnderwater(PLAYERp pp)
         under_sp = &actor->s();
 
         if (TEST(sector[under_sp->sectnum].extra, SECTFX_UNDERWATER) &&
-            SectUser[under_sp->sectnum].Data() &&
-            SectUser[under_sp->sectnum]->number == sectu->number)
+            under_sp->sector()->hasU() &&
+            under_sp->sector()->u()->number == sectu->number)
         {
             Found = true;
             break;
@@ -4155,7 +4155,7 @@ void DoPlayerWarpToUnderwater(PLAYERp pp)
 void DoPlayerWarpToSurface(PLAYERp pp)
 {
     USERp u = pp->Actor()->u();
-    SECT_USERp sectu = SectUser[pp->cursectnum].Data();
+    SECT_USERp sectu = pp->cursector()->u();
     short over, under;
 
     SPRITEp under_sp = nullptr, over_sp = nullptr;
@@ -4171,8 +4171,8 @@ void DoPlayerWarpToSurface(PLAYERp pp)
         under_sp = &actor->s();
 
         if (TEST(sector[under_sp->sectnum].extra, SECTFX_UNDERWATER) &&
-            SectUser[under_sp->sectnum].Data() &&
-            SectUser[under_sp->sectnum]->number == sectu->number)
+            under_sp->sector()->hasU() &&
+            under_sp->sector()->u()->number == sectu->number)
         {
             Found = true;
             break;
@@ -4189,8 +4189,8 @@ void DoPlayerWarpToSurface(PLAYERp pp)
         over_sp = &actor->s();
 
         if (TEST(sector[over_sp->sectnum].extra, SECTFX_DIVE_AREA) &&
-            SectUser[over_sp->sectnum].Data() &&
-            SectUser[over_sp->sectnum]->number == sectu->number)
+            over_sp->sector()->hasU() &&
+            over_sp->sector()->u()->number == sectu->number)
         {
             Found = true;
             break;
@@ -4446,7 +4446,7 @@ void DoPlayerDiveMeter(PLAYERp pp)
 void DoPlayerDive(PLAYERp pp)
 {
     USERp u = pp->Actor()->u();
-    SECT_USERp sectu = SectUser[pp->cursectnum].Data();
+    SECT_USERp sectu = pp->cursector()->u();
 
     // whenever your view is not in a water area
     if (pp->cursectnum < 0 || !SectorIsUnderwaterArea(pp->cursectnum))
@@ -4513,18 +4513,18 @@ void DoPlayerDive(PLAYERp pp)
 
     if (pp->z_speed < 0 && FAF_ConnectArea(pp->cursectnum))
     {
-        if (pp->posz < sector[pp->cursectnum].ceilingz + Z(10))
+        if (pp->posz < pp->cursector()->ceilingz + Z(10))
         {
             int sectnum = pp->cursectnum;
 
             // check for sector above to see if it is an underwater sector also
-            updatesectorz(pp->posx, pp->posy, sector[pp->cursectnum].ceilingz - Z(8), &sectnum);
+            updatesectorz(pp->posx, pp->posy, pp->cursector()->ceilingz - Z(8), &sectnum);
 
             if (sectnum >= 0 && !SectorIsUnderwaterArea(sectnum))
             {
                 // if not underwater sector we must surface
                 // force into above sector
-                pp->posz = sector[pp->cursectnum].ceilingz - Z(8);
+                pp->posz = pp->cursector()->ceilingz - Z(8);
                 pp->cursectnum = sectnum;
                 DoPlayerStopDiveNoWarp(pp);
                 DoPlayerBeginRun(pp);
@@ -4642,7 +4642,7 @@ int DoPlayerTestPlaxDeath(PLAYERp pp)
 void DoPlayerCurrent(PLAYERp pp)
 {
     int xvect, yvect;
-    SECT_USERp sectu = SectUser[pp->cursectnum].Data();
+    SECT_USERp sectu = pp->cursector()->u();
     int push_ret;
 
     if (!sectu)
@@ -4759,7 +4759,7 @@ void DoPlayerWade(PLAYERp pp)
         {
             if (pp->KeyPressBits & SB_OPEN)
             {
-                if (TEST(sector[pp->cursectnum].extra, SECTFX_OPERATIONAL))
+                if (TEST(pp->cursector()->extra, SECTFX_OPERATIONAL))
                 {
                     pp->KeyPressBits &= ~SB_OPEN;
                     DoPlayerBeginOperate(pp);
@@ -5927,7 +5927,7 @@ void DoPlayerDeathCheckKeys(PLAYERp pp)
 
 void DoPlayerHeadDebris(PLAYERp pp)
 {
-    SECTORp sectp = &sector[pp->cursectnum];
+    SECTORp sectp = pp->cursector();
 
     if (TEST(sectp->extra, SECTFX_SINK))
     {
@@ -6385,13 +6385,13 @@ void DoPlayerRun(PLAYERp pp)
             {
                 if ((pp->KeyPressBits & SB_OPEN) && pp->cursectnum >= 0)
                 {
-                    if (TEST(sector[pp->cursectnum].extra, SECTFX_OPERATIONAL))
+                    if (TEST(pp->cursector()->extra, SECTFX_OPERATIONAL))
                     {
                         pp->KeyPressBits &= ~SB_OPEN;
                         DoPlayerBeginOperate(pp);
                         return;
                     }
-                    else if (TEST(sector[pp->cursectnum].extra, SECTFX_TRIGGER))
+                    else if (TEST(pp->cursector()->extra, SECTFX_TRIGGER))
                     {
                         auto sActor = FindNearSprite(pp->Actor(), STAT_TRIGGER);
                         if (sActor && SP_TAG5(&sActor->s()) == TRIGGER_TYPE_REMOTE_SO)
@@ -6454,7 +6454,7 @@ void DoPlayerRun(PLAYERp pp)
         return;
     }
 
-    if (TEST(sector[pp->cursectnum].extra, SECTFX_DYNAMIC_AREA))
+    if (TEST(pp->cursector()->extra, SECTFX_DYNAMIC_AREA))
     {
         pp->posz = pp->loz - PLAYER_HEIGHT;
     }

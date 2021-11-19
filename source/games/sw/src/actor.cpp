@@ -296,7 +296,7 @@ void DoDebrisCurrent(DSWActor* actor)
     int nx, ny;
     USERp u = actor->u();
     auto sp = &actor->s();
-    SECT_USERp sectu = SectUser[sp->sectnum].Data();
+    SECT_USERp sectu = sp->sector()->u();
 
     //sp->clipdist = (256+128)>>2;
 
@@ -323,7 +323,7 @@ int DoActorSectorDamage(DSWActor* actor)
 {
     USER* u = actor->u();
     SPRITEp sp = &actor->s();
-    SECT_USERp sectu = SectUser[sp->sectnum].Data();
+    SECT_USERp sectu = sp->sector()->u();
     SECTORp sectp = sp->sector();
 
     if (u->Health <= 0)
@@ -446,7 +446,7 @@ int DoActorDebris(DSWActor* actor)
             }
         }
 
-        if (SectUser[sp->sectnum].Data() && FixedToInt(SectUser[sp->sectnum]->depth_fixed) > 10) // JBF: added null check
+        if (sp->sector()->hasU() && FixedToInt(sp->sector()->u()->depth_fixed) > 10) // JBF: added null check
         {
             u->WaitTics = (u->WaitTics + (ACTORMOVETICS << 3)) & 1023;
             //sp->z = Z(2) + u->loz + ((Z(4) * (int) bsin(u->WaitTics)) >> 14);
@@ -527,7 +527,7 @@ void KeepActorOnFloor(DSWActor* actor)
         return;
 
     if (u->lo_sectp && SectUser[sectnum(u->lo_sectp)].Data())
-        depth = FixedToInt(SectUser[sectnum(u->lo_sectp)]->depth_fixed);
+        depth = FixedToInt(u->lo_sectp->u()->depth_fixed);
     else
         depth = 0;
 

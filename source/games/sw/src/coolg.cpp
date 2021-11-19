@@ -654,8 +654,8 @@ int DoCoolgMatchPlayerZ(DSWActor* actor)
     hiz = u->hiz;
 
     // adjust loz/hiz for water depth
-    if (u->lo_sectp && SectUser[sectnum(u->lo_sectp)].Data() && FixedToInt(SectUser[sectnum(u->lo_sectp)]->depth_fixed))
-        loz -= Z(FixedToInt(SectUser[sectnum(u->lo_sectp)]->depth_fixed)) - Z(8);
+    if (u->lo_sectp && u->lo_sectp->hasU() && FixedToInt(u->lo_sectp->u()->depth_fixed))
+        loz -= Z(FixedToInt(u->lo_sectp->u()->depth_fixed)) - Z(8);
 
     // lower bound
     if (u->lowActor)

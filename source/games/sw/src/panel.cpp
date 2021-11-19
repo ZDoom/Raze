@@ -6719,9 +6719,9 @@ pDisplaySprites(PLAYERp pp, double smoothratio)
             int16_t floorshade = 0;
             if (pp->cursectnum >= 0)
             {
-                sectu = SectUser[pp->cursectnum].Data();
-                pal = sector[pp->cursectnum].floorpal;
-                floorshade = sector[pp->cursectnum].floorshade;
+                sectu = pp->cursector()->u();
+                pal = pp->cursector()->floorpal;
+                floorshade = pp->cursector()->floorshade;
 
                 if (pal != PALETTE_DEFAULT)
                 {
@@ -6740,7 +6740,7 @@ pDisplaySprites(PLAYERp pp, double smoothratio)
                 SET(flags, RS_TRANS1);
             }
 
-            //shade = overlay_shade = DIV2(sector[pp->cursectnum].floorshade + sector[pp->cursectnum].ceilingshade);
+            //shade = overlay_shade = DIV2(pp->cursector()->floorshade + pp->cursector()->ceilingshade);
             shade = overlay_shade = floorshade - 10;
 
             if (TEST(psp->PlayerP->Flags, PF_VIEW_FROM_OUTSIDE))
