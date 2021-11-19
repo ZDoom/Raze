@@ -6827,7 +6827,7 @@ bool actCanSplatWall(int nWall)
 
 	if (pWall->nextsector != -1)
 	{
-		sectortype* pSector = &sector[pWall->nextsector];
+		sectortype* pSector = pWall->nextSector();
 		if (pSector->type >= kSectorBase && pSector->type < kSectorMax) return 0;
 	}
 	return 1;

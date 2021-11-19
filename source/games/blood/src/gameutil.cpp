@@ -516,7 +516,7 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
             if (pWall->nextsector == -1)
                 return 0;
             sectortype *pSector = &sector[gHitInfo.hitsect];
-            sectortype *pSectorNext = &sector[pWall->nextsector];
+            sectortype *pSectorNext = pWall->nextSector();
             int nZCeil, nZFloor;
             getzsofslope(pWall->nextsector, gHitInfo.hitx, gHitInfo.hity, &nZCeil, &nZFloor);
             if (gHitInfo.hitz <= nZCeil)
@@ -546,10 +546,10 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
 
             nOffset = (nOffset*pWall->yrepeat) / 8;
             nOffset += int((nSizY*pWall->ypan_) / 256);
-            int nLength = approxDist(pWall->x - wall[pWall->point2].x, pWall->y - wall[pWall->point2].y);
+            int nLength = approxDist(pWall->x - pWall->point2Wall()->x, pWall->y - pWall->point2Wall()->y);
             int nHOffset;
             if (pWall->cstat & 8)
-                nHOffset = approxDist(gHitInfo.hitx - wall[pWall->point2].x, gHitInfo.hity - wall[pWall->point2].y);
+                nHOffset = approxDist(gHitInfo.hitx - pWall->point2Wall()->x, gHitInfo.hity - pWall->point2Wall()->y);
             else
                 nHOffset = approxDist(gHitInfo.hitx - pWall->x, gHitInfo.hity - pWall->y);
 

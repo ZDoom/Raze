@@ -1972,9 +1972,9 @@ void windGenStopWindOnSectors(DBloodActor* sourceactor)
 {
     spritetype* pSource = &sourceactor->s();
     auto pXSource = &sourceactor->x();
-    if (pXSource->txID <= 0 && xsectRangeIsFine(sector[pSource->sectnum].extra)) 
+    if (pXSource->txID <= 0 && pSource->sector()->hasX())
     {
-        xsector[sector[pSource->sectnum].extra].windVel = 0;
+        pSource->sector()->xs().windVel = 0;
         return;
     }
 
@@ -3800,9 +3800,9 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
         case 15: // x-index is fine?
             switch (objType) 
 			{
-                case OBJ_WALL: return xwallRangeIsFine(wall[objIndex].extra);
+                case OBJ_WALL: return wall[objIndex].hasX();
                 case OBJ_SPRITE: return objActor && objActor->hasX();
-                case OBJ_SECTOR: return xsectRangeIsFine(sector[objIndex].extra);
+                case OBJ_SECTOR: return sector[objIndex].hasX();
             }
             break;
         case 20: // type in a range?
@@ -4771,10 +4771,10 @@ void modernTypeTrigger(int destObjType, int destObjIndex, DBloodActor* destactor
 
     switch (destObjType) {
         case OBJ_SECTOR:
-            if (!xsectRangeIsFine(sector[destObjIndex].extra)) return;
+            if (!sector[destObjIndex].hasX()) return;
             break;
         case OBJ_WALL:
-            if (!xwallRangeIsFine(wall[destObjIndex].extra)) return;
+            if (!wall[destObjIndex].hasX()) return;
             break;
         case OBJ_SPRITE:
         {
@@ -5297,15 +5297,15 @@ void sectorKillSounds(int nSector)
 
 void sectorPauseMotion(int nSector) 
 {
-    if (!xsectRangeIsFine(sector[nSector].extra)) return;
-    XSECTOR* pXSector = &xsector[sector[nSector].extra];
+    if (!sector[nSector].hasX()) return;
+    XSECTOR* pXSector = &sector[nSector].xs();
     pXSector->unused1 = 1;
     
     evKillSector(nSector);
 
     sectorKillSounds(nSector);
     if ((pXSector->busy == 0 && !pXSector->state) || (pXSector->busy == 65536 && pXSector->state))
-    SectorEndSound(nSector, xsector[sector[nSector].extra].state);
+    SectorEndSound(nSector, pXSector->state);
 }
 
 //---------------------------------------------------------------------------
@@ -5316,21 +5316,22 @@ void sectorPauseMotion(int nSector)
 
 void sectorContinueMotion(int nSector, EVENT event) 
 {
-    if (!xsectRangeIsFine(sector[nSector].extra)) return;
-    else if (gBusyCount >= kMaxBusyCount) 
+    auto pSector = &sector[nSector];
+    if (!pSector->hasX()) return;
+    else if (gBusyCount >= kMaxBusyCount)
     {
         Printf(PRINT_HIGH, "Failed to continue motion for sector #%d. Max (%d) busy objects count reached!", nSector, kMaxBusyCount);
         return;
     }
 
-    XSECTOR* pXSector = &xsector[sector[nSector].extra];
+    XSECTOR* pXSector = &pSector->xs();
     pXSector->unused1 = 0;
     
     int busyTimeA = pXSector->busyTimeA;   
     int waitTimeA = pXSector->waitTimeA;
     int busyTimeB = pXSector->busyTimeB;   
     int waitTimeB = pXSector->waitTimeB;
-    if (sector[nSector].type == kSectorPath) 
+    if (pSector->type == kSectorPath) 
     {
         if (!pXSector->marker0) return;
         busyTimeA = busyTimeB = pXSector->marker0->x().busyTime;
@@ -5379,7 +5380,7 @@ void sectorContinueMotion(int nSector, EVENT event)
 
     //bool crush = pXSector->Crush;
     int busyFunc = BUSYID_0;
-    switch (sector[nSector].type) 
+    switch (pSector->type) 
     {
         case kSectorZMotion:
             busyFunc = BUSYID_2;
@@ -5402,7 +5403,7 @@ void sectorContinueMotion(int nSector, EVENT event)
             busyFunc = BUSYID_7;
             break;
         default:
-            I_Error("Unsupported sector type %d", sector[nSector].type);
+            I_Error("Unsupported sector type %d", pSector->type);
             break;
     }
 

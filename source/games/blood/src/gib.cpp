@@ -254,8 +254,8 @@ GIBLIST gibList[] = {
 void gibCalcWallArea(int a1, int &a2, int &a3, int &a4, int &a5, int &a6, int &a7, int &a8)
 {
     walltype *pWall = &wall[a1];
-    a2 = (pWall->x+wall[pWall->point2].x)>>1;
-    a3 = (pWall->y+wall[pWall->point2].y)>>1;
+    a2 = (pWall->x+pWall->point2Wall()->x)>>1;
+    a3 = (pWall->y+pWall->point2Wall()->y)>>1;
     int nSector = sectorofwall(a1);
     int32_t ceilZ, floorZ;
     getzsofslope(nSector, a2, a3, &ceilZ, &floorZ);
@@ -264,8 +264,8 @@ void gibCalcWallArea(int a1, int &a2, int &a3, int &a4, int &a5, int &a6, int &a
     ceilZ = ClipLow(ceilZ, ceilZ2);
     floorZ = ClipHigh(floorZ, floorZ2);
     a7 = floorZ-ceilZ;
-    a5 = wall[pWall->point2].x-pWall->x;
-    a6 = wall[pWall->point2].y-pWall->y;
+    a5 = pWall->point2Wall()->x-pWall->x;
+    a6 = pWall->point2Wall()->y-pWall->y;
     a8 = (a7>>8)*approxDist(a5>>4, a6>>4);
     a4 = (ceilZ+floorZ)>>1;
 }
@@ -484,8 +484,8 @@ void GibWall(int nWall, GIBTYPE nGibType, CGibVelocity *pVel)
     int cx, cy, cz, wx, wy, wz;
     walltype *pWall = &wall[nWall];
 
-    cx = (pWall->x+wall[pWall->point2].x)>>1;
-    cy = (pWall->y+wall[pWall->point2].y)>>1;
+    cx = (pWall->x+pWall->point2Wall()->x)>>1;
+    cy = (pWall->y+pWall->point2Wall()->y)>>1;
     int nSector = sectorofwall(nWall);
     int32_t ceilZ, floorZ;
     getzsofslope(nSector, cx, cy, &ceilZ, &floorZ);
@@ -495,8 +495,8 @@ void GibWall(int nWall, GIBTYPE nGibType, CGibVelocity *pVel)
     ceilZ = ClipLow(ceilZ, ceilZ2);
     floorZ = ClipHigh(floorZ, floorZ2);
     wz = floorZ-ceilZ;
-    wx = wall[pWall->point2].x-pWall->x;
-    wy = wall[pWall->point2].y-pWall->y;
+    wx = pWall->point2Wall()->x-pWall->x;
+    wy = pWall->point2Wall()->y-pWall->y;
     cz = (ceilZ+floorZ)>>1;
 
     GIBLIST *pGib = &gibList[nGibType];

@@ -216,8 +216,8 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
                 pWall->nextsector = mirrorsector;
                 wall[mirrorwall[0]].nextwall = nWall;
                 wall[mirrorwall[0]].nextsector = nSector;
-                wall[mirrorwall[0]].x = wall[pWall->point2].x;
-                wall[mirrorwall[0]].y = wall[pWall->point2].y;
+                wall[mirrorwall[0]].x = pWall->point2Wall()->x;
+                wall[mirrorwall[0]].y = pWall->point2Wall()->y;
                 wall[mirrorwall[1]].x = pWall->x;
                 wall[mirrorwall[1]].y = pWall->y;
                 wall[mirrorwall[2]].x = wall[mirrorwall[1]].x + (wall[mirrorwall[1]].x - wall[mirrorwall[0]].x) * 16;
@@ -229,8 +229,8 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
                 int cx, cy, ca;
                 if (GetWallType(nWall) == kWallStack)
                 {
-                    cx = x - (wall[pWall->hitag].x - wall[pWall->point2].x);
-                    cy = y - (wall[pWall->hitag].y - wall[pWall->point2].y);
+                    cx = x - (wall[pWall->hitag].x - pWall->point2Wall()->x);
+                    cy = y - (wall[pWall->hitag].y - pWall->point2Wall()->y);
                     ca = a;
                 }
                 else

@@ -50,30 +50,32 @@ void InitMirrors(void)
 	}
     for (int i = numwalls - 1; i >= 0; i--)
     {
+        auto pWalli = &wall[i];
         if (mirrorcnt == 16)
             break;
         int nTile = 4080+mirrorcnt;
-        if (wall[i].overpicnum == 504)
+        if (pWalli->overpicnum == 504)
         {
-            if (wall[i].extra > 0 && GetWallType(i) == kWallStack)
+            if (pWalli->extra > 0 && GetWallType(i) == kWallStack)
             {
-                wall[i].overpicnum = nTile;
+                pWalli->overpicnum = nTile;
 
                 mirror[mirrorcnt].wallnum = i;
                 mirror[mirrorcnt].type = 0;
-                wall[i].cstat |= 32;
-                int tmp = wall[i].xw().data;
+                pWalli->cstat |= 32;
+                int tmp = pWalli->xw().data;
                 int j;
                 for (j = numwalls - 1; j >= 0; j--)
                 {
                     if (j == i)
                         continue;
-                    if (wall[j].extra > 0 && GetWallType(i) == kWallStack)
+                    auto pWallj = &wall[j];
+                    if (pWallj->extra > 0 && GetWallType(i) == kWallStack)
                     {
-                        if (tmp != wall[j].xw().data)
+                        if (tmp != pWallj->xw().data)
                             continue;
-                        wall[i].hitag = j;
-                        wall[j].hitag = i;
+                        pWalli->hitag = j;
+                        pWallj->hitag = i;
                         mirror[mirrorcnt].link = j;
                         break;
                     }
@@ -85,20 +87,20 @@ void InitMirrors(void)
                 else
                 {
                     mirrorcnt++;
-                    wall[i].portalflags = PORTAL_WALL_VIEW;
-                    wall[i].portalnum = j;
+                    pWalli->portalflags = PORTAL_WALL_VIEW;
+                    pWalli->portalnum = j;
                 }
             }
             continue;
         }
-        if (wall[i].picnum == 504)
+        if (pWalli->picnum == 504)
         {
             mirror[mirrorcnt].link = i;
             mirror[mirrorcnt].wallnum = i;
-            wall[i].picnum = nTile;
+            pWalli->picnum = nTile;
             mirror[mirrorcnt].type = 0;
-            wall[i].cstat |= 32;
-            wall[i].portalflags = PORTAL_WALL_MIRROR;
+            pWalli->cstat |= 32;
+            pWalli->portalflags = PORTAL_WALL_MIRROR;
             mirrorcnt++;
             continue;
         }
@@ -147,12 +149,13 @@ void InitMirrors(void)
     for (int i = 0; i < 4; i++)
     {
         mirrorwall[i] = numwalls+i;
-        wall[mirrorwall[i]].picnum = 504;
-        wall[mirrorwall[i]].overpicnum = 504;
-        wall[mirrorwall[i]].cstat = 0;
-        wall[mirrorwall[i]].nextsector = -1;
-        wall[mirrorwall[i]].nextwall = -1;
-        wall[mirrorwall[i]].point2 = numwalls+i+1;
+        auto pWall = &wall[mirrorwall[i]];
+        pWall->picnum = 504;
+        pWall->overpicnum = 504;
+        pWall->cstat = 0;
+        pWall->nextsector = -1;
+        pWall->nextwall = -1;
+        pWall->point2 = numwalls+i+1;
     }
     wall[mirrorwall[3]].point2 = mirrorwall[0];
     sector[mirrorsector].ceilingpicnum = 504;
@@ -215,12 +218,13 @@ void SerializeMirrors(FSerializer& arc)
 		}
 		for (int i = 0; i < 4; i++)
 		{
-			wall[mirrorwall[i]].picnum = 504;
-			wall[mirrorwall[i]].overpicnum = 504;
-			wall[mirrorwall[i]].cstat = 0;
-			wall[mirrorwall[i]].nextsector = -1;
-			wall[mirrorwall[i]].nextwall = -1;
-			wall[mirrorwall[i]].point2 = numwalls + i + 1;
+            auto pWall = &wall[mirrorwall[i]];
+            pWall->picnum = 504;
+			pWall->overpicnum = 504;
+			pWall->cstat = 0;
+			pWall->nextsector = -1;
+			pWall->nextwall = -1;
+			pWall->point2 = numwalls + i + 1;
 		}
 		wall[mirrorwall[3]].point2 = mirrorwall[0];
 		sector[mirrorsector].ceilingpicnum = 504;
