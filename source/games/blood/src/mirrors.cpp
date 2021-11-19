@@ -62,7 +62,7 @@ void InitMirrors(void)
                 mirror[mirrorcnt].wallnum = i;
                 mirror[mirrorcnt].type = 0;
                 wall[i].cstat |= 32;
-                int tmp = xwall[wall[i].extra].data;
+                int tmp = wall[i].xw().data;
                 int j;
                 for (j = numwalls - 1; j >= 0; j--)
                 {
@@ -70,7 +70,7 @@ void InitMirrors(void)
                         continue;
                     if (wall[j].extra > 0 && GetWallType(i) == kWallStack)
                     {
-                        if (tmp != xwall[wall[j].extra].data)
+                        if (tmp != wall[j].xw().data)
                             continue;
                         wall[i].hitag = j;
                         wall[j].hitag = i;

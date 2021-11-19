@@ -461,8 +461,8 @@ void nnExtTriggerObject(int objType, int objIndex, DBloodActor* objActor, int co
             trTriggerSector(objIndex, &xsector[sector[objIndex].extra], command);
             break;
         case OBJ_WALL:
-            if (!xwallRangeIsFine(wall[objIndex].extra)) break;
-            trTriggerWall(objIndex, &xwall[wall[objIndex].extra], command);
+            if (wall[objIndex].hasX())
+                trTriggerWall(objIndex, &wall[objIndex].xw(), command);
             break;
         case OBJ_SPRITE:
             if (!objActor || !objActor->hasX()) break;
@@ -860,13 +860,12 @@ void nnExtInitModernStuff()
             pCond->obj[count++].cmd = xsector[i].command;
         }
 
-        for (int i = 0; i < kMaxXWalls; i++) 
+        for(auto& wal : walls())
         {
-            if (!wallRangeIsFine(xwall[i].reference) || xwall[i].txID != pXSprite->rxID)
+            if (!wal.hasX() || wal.xw().txID != pXSprite->rxID)
                 continue;
 
-            walltype* pWall = &wall[xwall[i].reference];
-            switch (pWall->type) {
+            switch (wal.type) {
                 case kSwitchToggle: // exceptions
                 case kSwitchOneWay: // exceptions
                     continue;
@@ -876,9 +875,9 @@ void nnExtInitModernStuff()
                 condError(iactor, "Max(%d) objects to track reached for condition #%d, RXID: %d!");
                 
             pCond->obj[count].type = OBJ_WALL;
-            pCond->obj[count].index_ = xwall[i].reference;
+            pCond->obj[count].index_ = wallnum(&wal);
             pCond->obj[count].actor = nullptr;
-            pCond->obj[count++].cmd = xwall[i].command;
+            pCond->obj[count++].cmd = wal.xw().command;
         }
 
         if (pXSprite->data1 > kCondGameMax && count == 0)
@@ -3939,7 +3938,7 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
                         return condCmp(0, arg1, arg2, cmpOp);
                     
                     auto pObj = &wall[objIndex];
-                    XWALL* pXObj =  &xwall[pObj->extra];
+                    XWALL* pXObj =  &pObj->xw();
                     switch (cond) 
                     {
                         case 41: return condCmp(pXObj->data, arg1, arg2, cmpOp);
@@ -4159,7 +4158,6 @@ bool condCheckWall(DBloodActor* aCond, int cmpOp, bool PUSH)
         condError(aCond, "Object #%d (objType: %d) is not a wall!", objIndex, objType);
         
     walltype* pWall = &wall[objIndex];
-    //XWALL* pXWall = (xwallRangeIsFine(pWall->extra)) ? &xwall[pWall->extra] : NULL;
     
     if (cond < (kCondRange >> 1)) 
     {
@@ -7439,8 +7437,8 @@ int getDataFieldOfObject(int objType, int objIndex, DBloodActor* actor, int data
                 case 4: return actor->x().data4;
                 default: return data;
             }
-        case OBJ_SECTOR: return xsector[sector[objIndex].extra].data;
-        case OBJ_WALL: return xwall[wall[objIndex].extra].data;
+        case OBJ_SECTOR: return sector[objIndex].xs().data;
+        case OBJ_WALL: return wall[objIndex].xw().data;
         default: return data;
     }
 }
@@ -7522,10 +7520,10 @@ bool setDataValueOfObject(int objType, int objIndex, DBloodActor* objActor, int 
             }
         }
         case OBJ_SECTOR:
-            xsector[sector[objIndex].extra].data = value;
+            sector[objIndex].xs().data = value;
             return true;
         case OBJ_WALL:
-            xwall[wall[objIndex].extra].data = value;
+            wall[objIndex].xw().data = value;
             return true;
         default:
             return false;

@@ -804,7 +804,7 @@ static void unicultThinkChase(DBloodActor* actor)
                         case 0:
                         case 4:
                             pHWall = &wall[gHitInfo.hitwall];
-                            if (xwallRangeIsFine(pHWall->extra)) pXHWall = &xwall[pHWall->extra];
+                            if (pHWall->hasX()) pXHWall = &pHWall->xw();
                             hscn = (pHWall->cstat & CSTAT_WALL_BLOCK_HITSCAN); blck = (pHWall->cstat & CSTAT_WALL_BLOCK);
                             break;
                         }

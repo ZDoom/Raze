@@ -1800,11 +1800,13 @@ void trMessageSector(unsigned int nSector, EVENT event) {
     }
 }
 
-void trMessageWall(unsigned int nWall, EVENT event) {
-    assert(nWall < (unsigned int)numwalls);
-    assert(wall[nWall].extra > 0 && wall[nWall].extra < kMaxXWalls);
+void trMessageWall(unsigned int nWall, EVENT event) 
+{
+    assert(validWallIndex(nWall));
+    auto pWall = &wall[nWall];
+    assert(pWall->hasX());
     
-    XWALL *pXWall = &xwall[wall[nWall].extra];
+    XWALL *pXWall = &pWall->xw();
     if (!pXWall->locked || event.cmd == kCmdUnlock || event.cmd == kCmdToggleLock) {
         switch (event.cmd) {
             case kCmdLink:
@@ -2012,13 +2014,11 @@ void trInit(void)
             actor->basePoint = spr->pos;
         }
     }
-    for (int i = 0; i < numwalls; i++)
+    for(auto& wal : walls())
     {
-        int nXWall = wall[i].extra;
-        assert(nXWall < kMaxXWalls);
-        if (nXWall > 0)
+        if (wal.hasX())
         {
-            XWALL *pXWall = &xwall[nXWall];
+            XWALL *pXWall = &wal.xw();
             if (pXWall->state)
                 pXWall->busy = 65536;
         }

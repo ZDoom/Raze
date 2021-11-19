@@ -353,17 +353,17 @@ void InitSectorFX(void)
             }
         }
     }
-    for (int i = 0; i < numwalls; i++)
+    for(auto& wal : walls())
     {
-        int nXWall = wall[i].extra;
+        int nXWall = wal.extra;
         if (nXWall > 0)
         {
             XWALL *pXWall = &xwall[nXWall];
             if (pXWall->panXVel || pXWall->panYVel)
             {
                 wallPanList[wallPanCount++] = nXWall;
-                if (pXWall->panXVel) StartInterpolation(i, Interp_Wall_PanX);
-                if (pXWall->panXVel) StartInterpolation(i, Interp_Wall_PanY);
+                if (pXWall->panXVel) StartInterpolation(wallnum(&wal), Interp_Wall_PanX);
+                if (pXWall->panXVel) StartInterpolation(wallnum(&wal), Interp_Wall_PanY);
             }
         }
     }

@@ -52,14 +52,17 @@ static int GetBucketChannel(const RXBUCKET* pBucket)
 	switch (pBucket->type)
 	{
 	case SS_SECTOR:
-		nXIndex = sector[pBucket->rxindex].extra;
-		assert(nXIndex > 0);
-		return xsector[nXIndex].rxID;
-
+	{
+		auto pSector = &sector[pBucket->rxindex];
+		assert(pSector->hasX());
+		return pSector->xs().rxID;
+	}
 	case SS_WALL:
-		nXIndex = wall[pBucket->rxindex].extra;
-		assert(nXIndex > 0);
-		return xwall[nXIndex].rxID;
+	{
+		auto pWall = &wall[pBucket->rxindex];
+		assert(pWall->hasX());
+		return pWall->xw().rxID;
+	}
 
 	case SS_SPRITE:
 		return pBucket->GetActor()? pBucket->GetActor()->x().rxID : 0;

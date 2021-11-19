@@ -1288,7 +1288,7 @@ int ActionScan(PLAYER *pPlayer, int *pIndex, int *pXIndex, DBloodActor** pAct)
         case 4:
             *pIndex = gHitInfo.hitwall;
             *pXIndex = wall[*pIndex].extra;
-            if (*pXIndex > 0 && xwall[*pXIndex].triggerPush)
+            if (*pXIndex > 0 && wall[*pIndex].xw().triggerPush)
                 return 0;
             if (wall[*pIndex].nextsector >= 0)
             {

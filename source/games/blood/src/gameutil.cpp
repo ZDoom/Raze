@@ -796,7 +796,7 @@ BitArray GetClosestSpriteSectors(int nSector, int x, int y, int nDist, TArray<in
                 search.Add(nNextSector);
                 if (pWalls && wal.extra > 0)
                 {
-                    XWALL *pXWall = &xwall[wal.extra];
+                    XWALL* pXWall = &wal.xw();
                     if (pXWall->triggerVector && !pXWall->isTriggered && !pXWall->state)
                         pWalls->Push(wallnum(&wal));
                 }
