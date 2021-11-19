@@ -653,7 +653,7 @@ static void handle_st18(int sn, DDukeActor* actor)
 	if (i == -1)
 	{
 		auto sectp = nextsectorneighborzptr(sptr, sptr->floorz, 1, -1);
-		if (sectp == nullptr) sectp = nextsectorneighborzptr(sectp, sptr->floorz, 1, 1);
+		if (sectp == nullptr) sectp = nextsectorneighborzptr(sptr, sptr->floorz, 1, 1);
 		if (sectp == nullptr) return;
 		int j = sectp->floorz;
 		int q = sptr->extra;
