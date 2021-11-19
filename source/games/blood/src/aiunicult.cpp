@@ -1394,7 +1394,7 @@ bool spriteIsUnderwater(DBloodActor* actor, bool oldWay)
 {
     auto const pSprite = &actor->s();
     auto const pXSprite = &actor->x();
-    return ((sector[pSprite->sectnum].extra >= 0 && xsector[sector[pSprite->sectnum].extra].Underwater)
+    return (IsUnderwaterSector(pSprite->sector())
         || (oldWay && (pXSprite->medium == kMediumWater || pXSprite->medium == kMediumGoo)));
 }
 

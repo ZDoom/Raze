@@ -353,9 +353,9 @@ void CounterCheck(DBloodActor*, int nSector) // 12
     if (!validSectorIndex(nSector)) return;
     auto pSector = &sector[nSector];
     if (pSector->type != kSectorCounter) return;
-    if (pSector->extra <= 0) return;
+    if (!pSector->hasX()) return;
     
-    XSECTOR *pXSector = &xsector[pSector->extra];
+    XSECTOR* pXSector = &pSector->xs();
     int nReq = pXSector->waitTimeA;
     int nType = pXSector->data;
     int nCount = 0;

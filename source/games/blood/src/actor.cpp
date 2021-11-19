@@ -5276,8 +5276,7 @@ void MoveDude(DBloodActor* actor)
 				return;
 			}
 		}
-		int nXSector = sector[pSprite->sectnum].extra;
-		if (nXSector > 0 && xsector[nXSector].Underwater)
+		if (IsUnderwaterSector(pSprite->sector()))
 			return;
 		if (pXSprite->height >= 0x100)
 			return;

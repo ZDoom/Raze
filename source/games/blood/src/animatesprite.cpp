@@ -505,8 +505,7 @@ static tspritetype *viewAddEffect(spritetype* tsprite, int& spritesortcnt, int n
 
 static void viewApplyDefaultPal(tspritetype *pTSprite, sectortype const *pSector)
 {
-    auto& nXSector = pSector->extra;
-    XSECTOR const *pXSector = nXSector >= 0 ? &xsector[nXSector] : NULL;
+    XSECTOR const *pXSector =  pSector->hasX()? &pSector->xs() : nullptr;
     if (pXSector && pXSector->color && (VanillaMode() || pSector->floorpal != 0))
     {
         copyfloorpal(pTSprite, pSector);
@@ -688,16 +687,9 @@ void viewProcessSprites(spritetype* tsprite, int& spritesortcnt, int32_t cX, int
         }
 
         sectortype *pSector = &sector[pTSprite->sectnum];
-        XSECTOR *pXSector;
+        XSECTOR const* pXSector = pSector->hasX() ? &pSector->xs() : nullptr;
         int nShade = pTSprite->shade;
-        if (pSector->extra > 0)
-        {
-            pXSector = &xsector[pSector->extra];
-        }
-        else
-        {
-            pXSector = NULL;
-        }
+
         if ((pSector->ceilingstat&1) && (pSector->floorstat&32768) == 0)
         {
             nShade += tileShade[pSector->ceilingpicnum]+pSector->ceilingshade;

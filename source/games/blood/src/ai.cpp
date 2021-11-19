@@ -153,15 +153,13 @@ bool CanMove(DBloodActor* actor, DBloodActor* target, int nAngle, int nRange)
 	if (!FindSector(x, y, z, &nSector))
 		return false;
 	int floorZ = getflorzofslope(nSector, x, y);
-	int nXSector = sector[nSector].extra;
+	auto pXSector = sector[nSector].hasX()? &sector[nSector].xs() : nullptr;
     bool Underwater = 0; 
     bool Water = 0; 
     bool Depth = 0; 
     bool Crusher = 0;
-	XSECTOR* pXSector = NULL;
-	if (nXSector > 0)
+	if (pXSector)
 	{
-		pXSector = &xsector[nXSector];
 		if (pXSector->Underwater)
 			Underwater = 1;
 		if (pXSector->Depth)
@@ -240,7 +238,7 @@ bool CanMove(DBloodActor* actor, DBloodActor* target, int nAngle, int nRange)
 	default:
 		if (Crusher)
 			return false;
-		if ((nXSector < 0 || (!xsector[nXSector].Underwater && !xsector[nXSector].Depth)) && floorZ - bottom > 0x2000)
+		if ((pXSector == nullptr || (!pXSector->Underwater && !pXSector->Depth)) && floorZ - bottom > 0x2000)
 			return false;
 		break;
 	}
@@ -587,9 +585,8 @@ void aiActivateDude(DBloodActor* actor)
 	case kDudeGillBeast:
 	{
 		DUDEEXTRA_STATS* pDudeExtraE = &actor->dudeExtra.stats;
-		XSECTOR* pXSector = NULL;
-		if (sector[pSprite->sectnum].extra > 0)
-			pXSector = &xsector[sector[pSprite->sectnum].extra];
+		XSECTOR* pXSector = pSprite->sector()->hasX()? &pSprite->sector()->xs() : nullptr;
+
 		pDudeExtraE->thinkTime = 0;
 		pDudeExtraE->active = 1;
 		if (actor->GetTarget() == nullptr)
@@ -1432,9 +1429,8 @@ void RecoilDude(DBloodActor* actor)
 			aiNewState(actor, &eelRecoil);
 			break;
 		case kDudeGillBeast: {
-			XSECTOR* pXSector = NULL;
-			if (sector[pSprite->sectnum].extra > 0)
-				pXSector = &xsector[sector[pSprite->sectnum].extra];
+			XSECTOR* pXSector = pSprite->sector()->hasX() ? &pSprite->sector()->xs() : nullptr;
+
 			aiPlay3DSound(actor, 1702, AI_SFX_PRIORITY_2, -1);
 			if (pXSector && pXSector->Underwater)
 				aiNewState(actor, &gillBeastSwimRecoil);
@@ -1720,11 +1716,8 @@ void aiInitSprite(DBloodActor* actor)
 {
 	auto pSprite = &actor->s();
 	auto pXSprite = &actor->x();
-	int nSector = pSprite->sectnum;
-	int nXSector = sector[nSector].extra;
-	XSECTOR* pXSector = NULL;
-	if (nXSector > 0)
-		pXSector = &xsector[nXSector];
+	XSECTOR* pXSector = pSprite->sector()->hasX() ? &pSprite->sector()->xs() : nullptr;
+
 	DUDEEXTRA* pDudeExtra = &actor->dudeExtra;
 	DUDEEXTRA_STATS* pDudeExtraE = &actor->dudeExtra.stats;
 	pDudeExtra->teslaHit = 0;
