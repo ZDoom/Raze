@@ -172,15 +172,13 @@ unsigned int GetSourceBusy(EVENT a1)
     {
     case 6:
     {
-        int nXIndex = sector[nIndex].extra;
-        assert(nXIndex > 0 && nXIndex < kMaxXSectors);
-        return xsector[nXIndex].busy;
+        auto sect = &sector[nIndex];
+        return sect->hasX()? sect->xs().busy : 0;
     }
     case 0:
     {
-        int nXIndex = wall[nIndex].extra;
-        assert(nXIndex > 0 && nXIndex < kMaxXWalls);
-        return xwall[nXIndex].busy;
+        auto wal = &wall[nIndex];
+        return wal->hasX()? wal->xw().busy : 0;
     }
     case 3:
     {
