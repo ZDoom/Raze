@@ -1518,7 +1518,7 @@ void ProcessInput(PLAYER *pPlayer)
                     sndStartSample(snd, 255, 2, 0);
                 }
                 if (!key || pPlayer->hasKey[key])
-                    trTriggerSector(a2, pXSector, kCmdSpritePush);
+                    trTriggerSector(&sector[a2], kCmdSpritePush);
                 else if (pPlayer == gMe)
                 {
                     viewSetMessage(GStrings("TXTB_KEY"));
@@ -2050,7 +2050,7 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
     {
         powerupClear(pPlayer);
         if (nXSector > 0 && xsector[nXSector].Exit)
-            trTriggerSector(pSprite->sectnum, &xsector[nXSector], kCmdSectorExit);
+            trTriggerSector(pSprite->sector(), kCmdSectorExit);
         pSprite->flags |= 7;
         for (int p = connecthead; p >= 0; p = connectpoint2[p])
         {

@@ -53,7 +53,7 @@ struct BUSY {
 extern BUSY gBusy[kMaxBusyCount];
 extern int gBusyCount;
 
-void trTriggerSector(unsigned int nSector, XSECTOR *pXSector, int command);
+void trTriggerSector(sectortype *pSector, int command);
 void trMessageSector(unsigned int nSector, EVENT event);
 void trTriggerWall(walltype*, int command);
 void trMessageWall(unsigned int nWall, EVENT event);

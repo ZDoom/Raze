@@ -351,11 +351,14 @@ void EnemyBubble(DBloodActor* actor, int) // 11
 void CounterCheck(DBloodActor*, int nSector) // 12
 {
     if (!validSectorIndex(nSector)) return;
-    if (sector[nSector].type != kSectorCounter) return;
-    if (sector[nSector].extra <= 0) return;
+    auto pSector = &sector[nSector];
+    if (pSector->type != kSectorCounter) return;
+    if (pSector->extra <= 0) return;
     
-    XSECTOR *pXSector = &xsector[sector[nSector].extra];
-    int nReq = pXSector->waitTimeA; int nType = pXSector->data; int nCount = 0;
+    XSECTOR *pXSector = &xsector[pSector->extra];
+    int nReq = pXSector->waitTimeA;
+    int nType = pXSector->data;
+    int nCount = 0;
     if (!nType || !nReq) return;
     
     BloodSectIterator it(nSector);
@@ -369,7 +372,7 @@ void CounterCheck(DBloodActor*, int nSector) // 12
         return;
     } else {
         //pXSector->waitTimeA = 0; //do not reset necessary objects counter to zero
-        trTriggerSector(nSector, pXSector, kCmdOn);
+        trTriggerSector(pSector, kCmdOn);
         pXSector->locked = 1; //lock sector, so it can be opened again later
     }
 }

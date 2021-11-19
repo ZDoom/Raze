@@ -4907,7 +4907,7 @@ void MoveDude(DBloodActor* actor)
 				XSECTOR* pHitXSector = pHitSector->hasX()? &pHitSector->xs() : nullptr;
 
 				if (pDudeInfo->lockOut && pHitXSector && pHitXSector->Wallpush && !pHitXSector->Key && !pHitXSector->dudeLockout && !pHitXSector->state && !pHitXSector->busy && !pPlayer)
-					trTriggerSector(pHitWall->nextsector, pHitXSector, kCmdSectorPush);
+					trTriggerSector(pHitSector, kCmdSectorPush);
 
 				if (top < pHitSector->ceilingz || bottom > pHitSector->floorz)
 				{
@@ -4935,14 +4935,14 @@ void MoveDude(DBloodActor* actor)
 		XSECTOR* pXOldSector = pOldSector->hasX()? &pOldSector->xs() : nullptr;
 
 		if (pXOldSector && pXOldSector->Exit && (pPlayer || !pXOldSector->dudeLockout))
-			trTriggerSector(pSprite->sectnum, pXOldSector, kCmdSectorExit);
+			trTriggerSector(pOldSector, kCmdSectorExit);
 		ChangeActorSect(actor, nSector);
 
 		if (pXSector && pXSector->Enter && (pPlayer || !pXSector->dudeLockout))
 		{
 			if (pSector->type == kSectorTeleport)
 				pXSector->actordata = actor;
-			trTriggerSector(nSector, pXSector, kCmdSectorEnter);
+			trTriggerSector(pSector, kCmdSectorEnter);
 		}
 
 		nSector = pSprite->sectnum;

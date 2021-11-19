@@ -1717,20 +1717,21 @@ void LinkWall(int nWall, XWALL *pXWall, EVENT event)
         SetWallState(nWall, pXWall, FixedToInt(nBusy));
 }
 
-void trTriggerSector(unsigned int nSector, XSECTOR *pXSector, int command) {
-    assert(nSector < (unsigned int)numsectors);
+void trTriggerSector(sectortype* pSector, int command) 
+{
+    auto pXSector = &pSector->xs();
     if (!pXSector->locked && !pXSector->isTriggered) {
         
         if (pXSector->triggerOnce) 
             pXSector->isTriggered = 1;
         
         if (pXSector->decoupled && pXSector->txID > 0)
-            evSendSector(nSector,pXSector->txID, (COMMAND_ID)pXSector->command);
+            evSendSector(sectnum(pSector),pXSector->txID, (COMMAND_ID)pXSector->command);
         
         else {
             EVENT event;
             event.cmd = command;
-            OperateSector(nSector, pXSector, event);
+            OperateSector(sectnum(pSector), pXSector, event);
         }
 
     }

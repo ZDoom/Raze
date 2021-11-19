@@ -457,8 +457,7 @@ void nnExtTriggerObject(int objType, int objIndex, DBloodActor* objActor, int co
     switch (objType) 
     {
         case OBJ_SECTOR:
-            if (!xsectRangeIsFine(sector[objIndex].extra)) break;
-            trTriggerSector(objIndex, &xsector[sector[objIndex].extra], command);
+            trTriggerSector(&sector[objIndex], command);
             break;
         case OBJ_WALL:
             trTriggerWall(&wall[objIndex], command);
@@ -3038,7 +3037,7 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
     {
 
         if (pXSector->Enter && (pPlayer || (isDude && !pXSector->dudeLockout)))
-            trTriggerSector(pSource->sectnum, pXSector, kCmdSectorEnter);
+            trTriggerSector(pSource->sector(), kCmdSectorEnter);
 
         if (pXSector->Underwater) 
         {

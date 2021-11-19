@@ -48,7 +48,6 @@ static std::multiset<EVENT> queue;
 
 static int GetBucketChannel(const RXBUCKET* pBucket)
 {
-	int nXIndex;
 	switch (pBucket->type)
 	{
 	case SS_SECTOR:
