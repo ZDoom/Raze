@@ -124,6 +124,7 @@ void SetDispatcher()
 		checkhitceiling_d,
 		checkhitsprite_d,
 		checksectors_d,
+		spawninit_d,
 
 		ceilingspace_d,
 		floorspace_d,
@@ -167,6 +168,7 @@ void SetDispatcher()
 		checkhitceiling_r,
 		checkhitsprite_r,
 		checksectors_r,
+		spawninit_r,
 
 		ceilingspace_r,
 		floorspace_r,

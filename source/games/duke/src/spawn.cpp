@@ -137,96 +137,99 @@ DDukeActor* EGS(sectortype* whatsectp, int s_x, int s_y, int s_z, int s_pn, int8
 //
 //---------------------------------------------------------------------------
 
-int initspriteforspawn(DDukeActor* actj, int pn, const std::initializer_list<int> &excludes)
+int initspriteforspawn(int i, const std::initializer_list<int> &excludes)
 {
-	spritetype* sp;
-	int* t;
-	int i = -1;
+	auto act = &hittype[i];
+	auto sp = act->s;
+	auto t = act->temp_data;
 
+	act->picnum = sp->picnum;
+	act->timetosleep = 0;
+	act->extra = -1;
+
+	sp->backuppos();
+
+	act->SetOwner(act);
+	act->SetHitOwner(act);
+	act->cgg = 0;
+	act->movflag = 0;
+	act->tempang = 0;
+	act->dispicnum = 0;
+	act->floorz = sp->sector()->floorz;
+	act->ceilingz = sp->sector()->ceilingz;
+
+	act->lastvx = 0;
+	act->lastvy = 0;
+	act->actorstayput = nullptr;
+
+	t[0] = t[1] = t[2] = t[3] = t[4] = t[5] = 0;
+	act->temp_actor = nullptr;
+
+	if (sp->cstat & 48)
+		if (!isIn(sp->picnum, excludes) && (sp->cstat & 48))
+		{
+			if (sp->shade == 127) return i;
+			if (wallswitchcheck(act) && (sp->cstat & 16))
+			{
+				if (sp->picnum != TILE_ACCESSSWITCH && sp->picnum != TILE_ACCESSSWITCH2 && sp->pal)
+				{
+					if ((ud.multimode < 2) || (ud.multimode > 1 && ud.coop == 1))
+					{
+						sp->xrepeat = sp->yrepeat = 0;
+						sp->cstat = sp->lotag = sp->hitag = 0;
+						return i;
+					}
+				}
+				sp->cstat |= 257;
+				if (sp->pal && sp->picnum != TILE_ACCESSSWITCH && sp->picnum != TILE_ACCESSSWITCH2)
+					sp->pal = 0;
+				return i;
+			}
+
+			if (sp->hitag)
+			{
+				changespritestat(i, 12);
+				sp->cstat |= 257;
+				sp->extra = gs.impact_damage;
+				return i;
+			}
+		}
+
+	int s = sp->picnum;
+
+	if (sp->cstat & 1) sp->cstat |= 256;
+
+	if (gs.actorinfo[s].scriptaddress)
+	{
+		sp->extra = ScriptCode[gs.actorinfo[s].scriptaddress];
+		t[4] = ScriptCode[gs.actorinfo[s].scriptaddress+1];
+		t[1] = ScriptCode[gs.actorinfo[s].scriptaddress+2];
+		int s3 = ScriptCode[gs.actorinfo[s].scriptaddress+3];
+		if (s3 && sp->hitag == 0)
+			sp->hitag = s3;
+	}
+	else t[1] = t[4] = 0;
+	return i | 0x1000000;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+DDukeActor* spawn(DDukeActor* actj, int pn)
+{
 	if (actj)
 	{
 		auto spawned = EGS(actj->s->sector(), actj->s->x, actj->s->y, actj->s->z, pn, 0, 0, 0, 0, 0, 0, actj, 0);
 		if (spawned)
 		{
 			spawned->picnum = actj->s->picnum;
-			i = spawned->GetSpriteIndex();
+			return fi.spawninit(actj, spawned);
 		}
 	}
-	else
-	{
-		i = pn;
-		auto act = &hittype[i];
-		sp = act->s;
-		t = act->temp_data;
-
-		act->picnum = sp->picnum;
-		act->timetosleep = 0;
-		act->extra = -1;
-
-		sp->backuppos();
-
-		act->SetOwner(act);
-		act->SetHitOwner(act);
-		act->cgg = 0;
-		act->movflag = 0;
-		act->tempang = 0;
-		act->dispicnum = 0;
-		act->floorz = sp->sector()->floorz;
-		act->ceilingz = sp->sector()->ceilingz;
-
-		act->lastvx = 0;
-		act->lastvy = 0;
-		act->actorstayput = nullptr;
-
-		t[0] = t[1] = t[2] = t[3] = t[4] = t[5] = 0;
-		act->temp_actor = nullptr;
-
-		if (sp->cstat & 48)
-			if (!isIn(sp->picnum, excludes) && (sp->cstat & 48))
-			{
-				if (sp->shade == 127) return i;
-				if (wallswitchcheck(act) && (sp->cstat & 16))
-				{
-					if (sp->picnum != TILE_ACCESSSWITCH && sp->picnum != TILE_ACCESSSWITCH2 && sp->pal)
-					{
-						if ((ud.multimode < 2) || (ud.multimode > 1 && ud.coop == 1))
-						{
-							sp->xrepeat = sp->yrepeat = 0;
-							sp->cstat = sp->lotag = sp->hitag = 0;
-							return i;
-						}
-					}
-					sp->cstat |= 257;
-					if (sp->pal && sp->picnum != TILE_ACCESSSWITCH && sp->picnum != TILE_ACCESSSWITCH2)
-						sp->pal = 0;
-					return i;
-				}
-
-				if (sp->hitag)
-				{
-					changespritestat(i, 12);
-					sp->cstat |= 257;
-					sp->extra = gs.impact_damage;
-					return i;
-				}
-			}
-
-		int s = sp->picnum;
-
-		if (sp->cstat & 1) sp->cstat |= 256;
-
-		if (gs.actorinfo[s].scriptaddress)
-		{
-			sp->extra = ScriptCode[gs.actorinfo[s].scriptaddress];
-			t[4] = ScriptCode[gs.actorinfo[s].scriptaddress+1];
-			t[1] = ScriptCode[gs.actorinfo[s].scriptaddress+2];
-			int s3 = ScriptCode[gs.actorinfo[s].scriptaddress+3];
-			if (s3 && sp->hitag == 0)
-				sp->hitag = s3;
-		}
-		else t[1] = t[4] = 0;
-	}
-	return i | 0x1000000;
+	return nullptr;
 }
 
 //---------------------------------------------------------------------------
@@ -342,7 +345,7 @@ void spawntransporter(DDukeActor *actj, DDukeActor* acti, bool beam)
 //
 //---------------------------------------------------------------------------
 
-int spawnbloodpoolpart1(DDukeActor *actj, DDukeActor* acti)
+int spawnbloodpoolpart1(DDukeActor* acti)
 {
 	auto sp = acti->s;
 	auto s1 = sp->sector();

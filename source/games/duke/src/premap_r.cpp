@@ -407,6 +407,12 @@ void cacheit_r(void)
 //
 //---------------------------------------------------------------------------
 
+void spriteinit_r(int i)
+{
+	i = initspriteforspawn(i, { CRACK1, CRACK2, CRACK3, CRACK4 });
+	if ((i & 0x1000000)) spawninit_r(nullptr, &hittype[i & 0xffffff]);
+}
+
 void prelevel_r(int g)
 {
 	struct player_struct* p;
@@ -635,9 +641,9 @@ void prelevel_r(int g)
 		auto spr = &sprite[i];
 		if (spr->statnum < MAXSTATUS)
 		{
-			if (spr->picnum == SECTOREFFECTOR && spr->lotag == 14)
+			if (spr->picnum == SECTOREFFECTOR && spr->lotag == SE_14_SUBWAY_CAR)
 				continue;
-			spawn(nullptr, i);
+			spriteinit_r(i);
 		}
 	}
 
@@ -646,8 +652,8 @@ void prelevel_r(int g)
 		auto spr = &sprite[i];
 		if (spr->statnum < MAXSTATUS)
 		{
-			if (spr->picnum == SECTOREFFECTOR && spr->lotag == 14)
-				spawn(nullptr, i);
+			if (spr->picnum == SECTOREFFECTOR && spr->lotag == SE_14_SUBWAY_CAR)
+				spriteinit_r(i);
 		}
 		if (spr->picnum == RRTILE19)
 			deletesprite(i);

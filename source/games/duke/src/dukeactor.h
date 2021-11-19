@@ -138,14 +138,7 @@ inline DDukeActor* ScriptIndexToActor(int index)
 	return &hittype[index];
 }
 
-int spawn_d(int j, int pn);
-int spawn_r(int j, int pn);
-
-inline DDukeActor* spawn(DDukeActor* spawner, int type)
-{
-	int i = (isRR()? spawn_r : spawn_d)(spawner ? spawner->GetSpriteIndex() : -1, type);
-	return i == -1 ? nullptr : &hittype[i];
-}
+DDukeActor* spawn(DDukeActor* spawner, int type);
 
 inline int ldist(DDukeActor* s1, DDukeActor* s2)
 {

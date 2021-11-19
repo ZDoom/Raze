@@ -88,6 +88,7 @@ struct Dispatcher
 	bool (*checkhitceiling)(sectortype* sn);
 	void (*checkhitsprite)(DDukeActor* i, DDukeActor* sn);
 	void (*checksectors)(int low);
+	DDukeActor* (*spawninit)(DDukeActor* actj, DDukeActor* act);
 
 	bool (*ceilingspace)(sectortype* sectp);
 	bool (*floorspace)(sectortype* sectp);

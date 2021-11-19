@@ -155,7 +155,11 @@ EXTERN int leveltimer;
 
 inline sectortype* spritetype::sector() const
 {
+#ifdef _DEBUG
+    return sectnum < 0? nullptr : &::sector[sectnum];
+#else
     return &::sector[sectnum];
+#endif
 }
 
 inline sectortype* walltype::nextSector() const

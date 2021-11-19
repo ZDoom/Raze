@@ -178,13 +178,19 @@ void lotsofcolourglass(DDukeActor* snum, walltype* wallNum, int cnt);
 void lotsofglass(DDukeActor* snum, walltype* wallnum, int cnt);
 void checkplayerhurt_d(struct player_struct* p, const Collision& coll);
 void checkplayerhurt_r(struct player_struct* p, const Collision& coll);
+DDukeActor* dospawnsprite(DDukeActor* actj, int pn);
+
+void spriteinit_d(int);
+void spriteinit_r(int);
+DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act);
+DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act);
 
 void addspritetodelete(int spnum=0);
 void checkavailinven(struct player_struct* p);
-int initspriteforspawn(DDukeActor* j, int pn, const std::initializer_list<int> &excludes);
+int initspriteforspawn(int spn, const std::initializer_list<int> &excludes);
 void spawninitdefault(DDukeActor* actj, DDukeActor* act);
 void spawntransporter(DDukeActor* actj, DDukeActor* acti, bool beam);
-int spawnbloodpoolpart1(DDukeActor* actj, DDukeActor* acti);
+int spawnbloodpoolpart1(DDukeActor* acti);
 void initfootprint(DDukeActor* actj, DDukeActor* acti);
 void initshell(DDukeActor* actj, DDukeActor* acti, bool isshell);
 void initcrane(DDukeActor* actj, DDukeActor* acti, int CRANEPOLE);

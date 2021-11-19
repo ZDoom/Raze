@@ -269,6 +269,11 @@ void cacheit_d(void)
 //
 //
 //---------------------------------------------------------------------------
+void spriteinit_d(int i)
+{
+	i = initspriteforspawn(i, { CRACK1, CRACK2, CRACK3, CRACK4, SPEAKER, LETTER, DUCK, TARGET, TRIPBOMB, VIEWSCREEN, VIEWSCREEN2 });
+	if ((i & 0x1000000)) spawninit_d(nullptr, &hittype[i&0xffffff]);
+}
 
 void prelevel_d(int g)
 {
@@ -318,7 +323,7 @@ void prelevel_d(int g)
 		{
 			if (spr->picnum == SECTOREFFECTOR && spr->lotag == SE_14_SUBWAY_CAR)
 				continue;
-			spawn(nullptr, i);
+			spriteinit_d(i);
 		}
 	}
 
@@ -328,7 +333,7 @@ void prelevel_d(int g)
 		if (spr->statnum < MAXSTATUS)
 		{
 			if (spr->picnum == SECTOREFFECTOR && spr->lotag == SE_14_SUBWAY_CAR)
-				spawn(nullptr, i);
+				spriteinit_d(i);
 		}
 	}
 	lotaglist = 0;
