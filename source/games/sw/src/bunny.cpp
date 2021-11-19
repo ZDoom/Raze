@@ -1330,7 +1330,7 @@ int DoBunnyMove(DSWActor* actor)
 
     if (RandomRange(1000) > 985 && sp->pal != PALETTE_PLAYER1 && u->track < 0)
     {
-        switch (sector[sp->sectnum].floorpicnum)
+        switch (sp->sector()->floorpicnum)
         {
         case 153:
         case 154:
@@ -1391,7 +1391,7 @@ int DoBunnyEat(DSWActor* actor)
 
     DoActorSectorDamage(actor);
 
-    switch (sector[sp->sectnum].floorpicnum)
+    switch (sp->sector()->floorpicnum)
     {
     case 153:
     case 154:

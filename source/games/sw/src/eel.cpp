@@ -439,13 +439,13 @@ int DoEelMatchPlayerZ(DSWActor* actor)
     {
         if (u->hi_sectp)
         {
-            u->hiz = sector[sp->sectnum].ceilingz + Z(16);
-            u->hi_sectp = &sector[sp->sectnum];
+            u->hiz = sp->sector()->ceilingz + Z(16);
+            u->hi_sectp = sp->sector();
         }
         else
         {
-            if (u->hiz < sector[sp->sectnum].ceilingz + Z(16))
-                u->hiz = sector[sp->sectnum].ceilingz + Z(16);
+            if (u->hiz < sp->sector()->ceilingz + Z(16))
+                u->hiz = sp->sector()->ceilingz + Z(16);
         }
     }
 

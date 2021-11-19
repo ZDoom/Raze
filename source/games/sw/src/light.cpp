@@ -66,15 +66,15 @@ void SectorLightShade(DSWActor* actor, short intensity)
     if (!TEST_BOOL2(sp))
     {
         if (!TEST_BOOL6(sp))
-            sector[sp->sectnum].floorpal = sp->pal;
-        sector[sp->sectnum].floorshade = LIGHT_FloorShade(sp) + intensity;     // floor change
+            sp->sector()->floorpal = sp->pal;
+        sp->sector()->floorshade = LIGHT_FloorShade(sp) + intensity;     // floor change
     }
 
     if (!TEST_BOOL3(sp))
     {
         if (!TEST_BOOL6(sp))
-            sector[sp->sectnum].ceilingpal = sp->pal;
-        sector[sp->sectnum].ceilingshade = LIGHT_CeilingShade(sp) + intensity;   // ceiling change
+            sp->sector()->ceilingpal = sp->pal;
+        sp->sector()->ceilingshade = LIGHT_CeilingShade(sp) + intensity;   // ceiling change
     }
 
     // change wall
@@ -83,8 +83,8 @@ void SectorLightShade(DSWActor* actor, short intensity)
         ASSERT(u && u->WallShade.Data());
         wall_shade = u->WallShade.Data();
 
-        startwall = sector[sp->sectnum].wallptr;
-        endwall = startwall + sector[sp->sectnum].wallnum - 1;
+        startwall = sp->sector()->wallptr;
+        endwall = startwall + sp->sector()->wallnum - 1;
 
         for (w = startwall, wallcount = 0; w <= endwall; w++)
         {

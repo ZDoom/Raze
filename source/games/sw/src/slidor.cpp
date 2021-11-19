@@ -229,8 +229,8 @@ void DoSlidorInterp(DSWActor* actor, INTERP_FUNC interp_func)
     auto sp = &actor->s();
     short w, pw, startwall, endwall;
 
-    w = startwall = sector[sp->sectnum].wallptr;
-    endwall = startwall + sector[sp->sectnum].wallnum - 1;
+    w = startwall = sp->sector()->wallptr;
+    endwall = startwall + sp->sector()->wallnum - 1;
 
     do
     {
@@ -355,8 +355,8 @@ int DoSlidorMoveWalls(DSWActor* actor, int amt)
     auto sp = &actor->s();
     short w, pw, startwall, endwall;
 
-    w = startwall = sector[sp->sectnum].wallptr;
-    endwall = startwall + sector[sp->sectnum].wallnum - 1;
+    w = startwall = sp->sector()->wallptr;
+    endwall = startwall + sp->sector()->wallnum - 1;
 
     do
     {
@@ -469,7 +469,7 @@ int DoSlidorInstantClose(DSWActor* actor)
     short w, startwall;
     int diff;
 
-    w = startwall = sector[sp->sectnum].wallptr;
+    w = startwall = sp->sector()->wallptr;
 
     do
     {
@@ -621,8 +621,8 @@ int DoSlidor(DSWActor* actor)
                 {
                     pp = Player + pnum;
 
-                    if (pp->lo_sectp == &sector[sp->sectnum] ||
-                        pp->hi_sectp == &sector[sp->sectnum])
+                    if (pp->lo_sectp == sp->sector() ||
+                        pp->hi_sectp == sp->sector())
                     {
                         ReverseSlidor(actor);
 

@@ -238,8 +238,8 @@ void DoRotatorSetInterp(DSWActor* actor)
     SPRITEp sp = &actor->s();
     short w,startwall,endwall;
 
-    startwall = sector[sp->sectnum].wallptr;
-    endwall = startwall + sector[sp->sectnum].wallnum - 1;
+    startwall = sp->sector()->wallptr;
+    endwall = startwall + sp->sector()->wallnum - 1;
 
     // move points
     for (w = startwall; w <= endwall; w++)
@@ -261,8 +261,8 @@ void DoRotatorStopInterp(DSWActor* actor)
     SPRITEp sp = &actor->s();
     short w,startwall,endwall;
 
-    startwall = sector[sp->sectnum].wallptr;
-    endwall = startwall + sector[sp->sectnum].wallnum - 1;
+    startwall = sp->sector()->wallptr;
+    endwall = startwall + sp->sector()->wallnum - 1;
 
     // move points
     for (w = startwall; w <= endwall; w++)
@@ -381,8 +381,8 @@ int DoRotator(DSWActor* actor)
     if (!pivot)
         return 0;
 
-    startwall = sector[sp->sectnum].wallptr;
-    endwall = startwall + sector[sp->sectnum].wallnum - 1;
+    startwall = sp->sector()->wallptr;
+    endwall = startwall + sp->sector()->wallnum - 1;
 
     // move points
     for (w = startwall, ndx = 0; w <= endwall; w++)

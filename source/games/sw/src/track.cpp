@@ -968,7 +968,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
                         if (sop->sector[j] == sp->sectnum)
                         {
                             SET(u->Flags, SPR_ON_SO_SECTOR);
-                            u->sz = sector[sp->sectnum].floorz - sp->z;
+                            u->sz = sp->sector()->floorz - sp->z;
                             break;
                         }
                     }
@@ -1804,7 +1804,7 @@ PlayerPart:
             if (TEST(u->Flags, SPR_ON_SO_SECTOR))
             {
                 // move with sector its on
-                sp->z = sector[sp->sectnum].floorz - u->sz;
+                sp->z = sp->sector()->floorz - u->sz;
             }
             else
             {
@@ -1823,10 +1823,10 @@ PlayerPart:
 
             // IS part of a sector, sprite can do things based on the
             // current sector it is in
-            if (TEST(wall[sector[sp->sectnum].wallptr].extra, WALLFX_LOOP_DONT_SPIN))
+            if (TEST(wall[sp->sector()->wallptr].extra, WALLFX_LOOP_DONT_SPIN))
                 continue;
 
-            if (TEST(wall[sector[sp->sectnum].wallptr].extra, WALLFX_LOOP_REVERSE_SPIN))
+            if (TEST(wall[sp->sector()->wallptr].extra, WALLFX_LOOP_REVERSE_SPIN))
             {
                 rotatepoint(sop->pmid.vec2, sp->pos.vec2, -delta_ang, &sp->pos.vec2);
                 sp->ang = NORM_ANGLE(sp->ang - delta_ang);
@@ -3462,7 +3462,7 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
         if (TEST(u->Flags, SPR_ZDIFF_MODE))
         {
             RESET(u->Flags, SPR_ZDIFF_MODE);
-            sp->z = sector[sp->sectnum].floorz;
+            sp->z = sp->sector()->floorz;
             sp->zvel = 0;
         }
         else

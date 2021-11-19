@@ -109,21 +109,21 @@ void FAF_DrawRooms(int x, int y, int z, fixed_t q16ang, fixed_t q16horiz, short 
         if (SP_TAG3(sp) == 0)
         {
             // back up ceilingpicnum and ceilingstat
-            SP_TAG5(sp) = sector[sp->sectnum].ceilingpicnum;
-            sector[sp->sectnum].ceilingpicnum = SP_TAG2(sp);
-            SP_TAG4(sp) = sector[sp->sectnum].ceilingstat;
+            SP_TAG5(sp) = sp->sector()->ceilingpicnum;
+            sp->sector()->ceilingpicnum = SP_TAG2(sp);
+            SP_TAG4(sp) = sp->sector()->ceilingstat;
             //SET(sp->sectnum].ceilingstat, ((int)SP_TAG7(sp))<<7);
-            SET(sector[sp->sectnum].ceilingstat, SP_TAG6(sp));
-            RESET(sector[sp->sectnum].ceilingstat, CEILING_STAT_PLAX);
+            SET(sp->sector()->ceilingstat, SP_TAG6(sp));
+            RESET(sp->sector()->ceilingstat, CEILING_STAT_PLAX);
         }
         else if (SP_TAG3(sp) == 1)
         {
-            SP_TAG5(sp) = sector[sp->sectnum].floorpicnum;
-            sector[sp->sectnum].floorpicnum = SP_TAG2(sp);
-            SP_TAG4(sp) = sector[sp->sectnum].floorstat;
-            //SET(sector[sp->sectnum].floorstat, ((int)SP_TAG7(sp))<<7);
-            SET(sector[sp->sectnum].floorstat, SP_TAG6(sp));
-            RESET(sector[sp->sectnum].floorstat, FLOOR_STAT_PLAX);
+            SP_TAG5(sp) = sp->sector()->floorpicnum;
+            sp->sector()->floorpicnum = SP_TAG2(sp);
+            SP_TAG4(sp) = sp->sector()->floorstat;
+            //SET(sp->sector()->floorstat, ((int)SP_TAG7(sp))<<7);
+            SET(sp->sector()->floorstat, SP_TAG6(sp));
+            RESET(sp->sector()->floorstat, FLOOR_STAT_PLAX);
         }
     }
 
@@ -142,17 +142,17 @@ void FAF_DrawRooms(int x, int y, int z, fixed_t q16ang, fixed_t q16horiz, short 
         if (SP_TAG3(sp) == 0)
         {
             // restore ceilingpicnum and ceilingstat
-            sector[sp->sectnum].ceilingpicnum = SP_TAG5(sp);
-            sector[sp->sectnum].ceilingstat = SP_TAG4(sp);
-            //RESET(sector[sp->sectnum].ceilingstat, CEILING_STAT_TYPE_MASK);
-            RESET(sector[sp->sectnum].ceilingstat, CEILING_STAT_PLAX);
+            sp->sector()->ceilingpicnum = SP_TAG5(sp);
+            sp->sector()->ceilingstat = SP_TAG4(sp);
+            //RESET(sp->sector()->ceilingstat, CEILING_STAT_TYPE_MASK);
+            RESET(sp->sector()->ceilingstat, CEILING_STAT_PLAX);
         }
         else if (SP_TAG3(sp) == 1)
         {
-            sector[sp->sectnum].floorpicnum = SP_TAG5(sp);
-            sector[sp->sectnum].floorstat = SP_TAG4(sp);
-            //RESET(sector[sp->sectnum].floorstat, FLOOR_STAT_TYPE_MASK);
-            RESET(sector[sp->sectnum].floorstat, FLOOR_STAT_PLAX);
+            sp->sector()->floorpicnum = SP_TAG5(sp);
+            sp->sector()->floorstat = SP_TAG4(sp);
+            //RESET(sp->sector()->floorstat, FLOOR_STAT_TYPE_MASK);
+            RESET(sp->sector()->floorstat, FLOOR_STAT_PLAX);
         }
     }
 }

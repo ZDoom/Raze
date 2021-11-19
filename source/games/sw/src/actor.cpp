@@ -324,7 +324,7 @@ int DoActorSectorDamage(DSWActor* actor)
     USER* u = actor->u();
     SPRITEp sp = &actor->s();
     SECT_USERp sectu = SectUser[sp->sectnum].Data();
-    SECTORp sectp = &sector[sp->sectnum];
+    SECTORp sectp = sp->sector();
 
     if (u->Health <= 0)
         return false;
@@ -403,7 +403,7 @@ int DoActorDebris(DSWActor* actor)
 {
     USER* u = actor->u();
     SPRITEp sp = &actor->s();
-    SECTORp sectp = &sector[sp->sectnum];
+    SECTORp sectp = sp->sector();
     int nx, ny;
 
     // This was move from DoActorDie so actor's can't be walked through until they are on the floor
@@ -418,8 +418,8 @@ int DoActorDebris(DSWActor* actor)
         return 0;
     case ZILLA_RUN_R0:
         getzsofslope(sp->sectnum, sp->x, sp->y, &u->hiz, &u->loz);
-        u->lo_sectp = &sector[sp->sectnum];
-        u->hi_sectp = &sector[sp->sectnum];
+        u->lo_sectp = sp->sector();
+        u->hi_sectp = sp->sector();
         u->lowActor = nullptr;
         u->highActor = nullptr;
         break;
@@ -519,7 +519,7 @@ void KeepActorOnFloor(DSWActor* actor)
     SECTORp sectp;
     int depth;
 
-    sectp = &sector[sp->sectnum];
+    sectp = sp->sector();
 
     RESET(sp->cstat, CSTAT_SPRITE_YFLIP); // If upside down, reset it
 

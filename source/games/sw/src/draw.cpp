@@ -87,7 +87,7 @@ void
 ShadeSprite(tspriteptr_t tsp)
 {
     // set shade of sprite
-    tsp->shade = sector[tsp->sectnum].floorshade - 25;
+    tsp->shade = tsp->sector()->floorshade - 25;
 
     if (tsp->shade > -3)
         tsp->shade = -3;
@@ -665,9 +665,9 @@ void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int view
             }
 
             // set palette lookup correctly
-            if (tsp->pal != sector[tsp->sectnum].floorpal)
+            if (tsp->pal != tsp->sector()->floorpal)
             {
-                if (sector[tsp->sectnum].floorpal == PALETTE_DEFAULT)
+                if (tsp->sector()->floorpal == PALETTE_DEFAULT)
                 {
                     // default pal for sprite is stored in tu->spal
                     // mostly for players and other monster types
@@ -677,7 +677,7 @@ void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int view
                 {
                     // if sector pal is something other than default
                     SECT_USERp sectu = SectUser[tsp->sectnum].Data();
-                    uint8_t pal = sector[tsp->sectnum].floorpal;
+                    uint8_t pal = tsp->sector()->floorpal;
                     bool nosectpal=false;
 
                     // sprite does not take on the new pal if sector flag is set
@@ -795,10 +795,10 @@ void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int view
             tsp->shade = int8_t(newshade);
         }
 
-        if (TEST(sector[tsp->sectnum].ceilingstat, CEILING_STAT_PLAX))
+        if (TEST(tsp->sector()->ceilingstat, CEILING_STAT_PLAX))
         {
             newshade = tsp->shade;
-            newshade += sector[tsp->sectnum].ceilingshade;
+            newshade += tsp->sector()->ceilingshade;
             if (newshade > 127) newshade = 127;
             if (newshade < -128) newshade = -128;
             tsp->shade = int8_t(newshade);
@@ -806,7 +806,7 @@ void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int view
         else
         {
             newshade = tsp->shade;
-            newshade += sector[tsp->sectnum].floorshade;
+            newshade += tsp->sector()->floorshade;
             if (newshade > 127) newshade = 127;
             if (newshade < -128) newshade = -128;
             tsp->shade = int8_t(newshade);
@@ -1264,7 +1264,7 @@ DSWActor* ConnectCopySprite(spritetype const * tsp)
         newsector = tsp->sectnum;
         testz = SPRITEp_TOS(tsp) - Z(10);
 
-        if (testz < sector[tsp->sectnum].ceilingz)
+        if (testz < tsp->sector()->ceilingz)
             updatesectorz(tsp->x, tsp->y, testz, &newsector);
 
         if (newsector >= 0 && newsector != tsp->sectnum)
@@ -1278,7 +1278,7 @@ DSWActor* ConnectCopySprite(spritetype const * tsp)
         newsector = tsp->sectnum;
         testz = SPRITEp_BOS(tsp) + Z(10);
 
-        if (testz > sector[tsp->sectnum].floorz)
+        if (testz > tsp->sector()->floorz)
             updatesectorz(tsp->x, tsp->y, testz, &newsector);
 
         if (newsector >= 0 && newsector != tsp->sectnum)
@@ -1388,21 +1388,21 @@ void UpdateWallPortalState()
         if (SP_TAG3(sp) == 0)
         {
             // back up ceilingpicnum and ceilingstat
-            SP_TAG5(sp) = sector[sp->sectnum].ceilingpicnum;
-            sector[sp->sectnum].ceilingpicnum = SP_TAG2(sp);
-            SP_TAG4(sp) = sector[sp->sectnum].ceilingstat;
-            //SET(sector[sp->sectnum].ceilingstat, ((int)SP_TAG7(sp))<<7);
-            SET(sector[sp->sectnum].ceilingstat, SP_TAG6(sp));
-            RESET(sector[sp->sectnum].ceilingstat, CEILING_STAT_PLAX);
+            SP_TAG5(sp) = sp->sector()->ceilingpicnum;
+            sp->sector()->ceilingpicnum = SP_TAG2(sp);
+            SP_TAG4(sp) = sp->sector()->ceilingstat;
+            //SET(sp->sector()->ceilingstat, ((int)SP_TAG7(sp))<<7);
+            SET(sp->sector()->ceilingstat, SP_TAG6(sp));
+            RESET(sp->sector()->ceilingstat, CEILING_STAT_PLAX);
         }
         else if (SP_TAG3(sp) == 1)
         {
-            SP_TAG5(sp) = sector[sp->sectnum].floorpicnum;
-            sector[sp->sectnum].floorpicnum = SP_TAG2(sp);
-            SP_TAG4(sp) = sector[sp->sectnum].floorstat;
-            //SET(sector[sp->sectnum].floorstat, ((int)SP_TAG7(sp))<<7);
-            SET(sector[sp->sectnum].floorstat, SP_TAG6(sp));
-            RESET(sector[sp->sectnum].floorstat, FLOOR_STAT_PLAX);
+            SP_TAG5(sp) = sp->sector()->floorpicnum;
+            sp->sector()->floorpicnum = SP_TAG2(sp);
+            SP_TAG4(sp) = sp->sector()->floorstat;
+            //SET(sp->sector()->floorstat, ((int)SP_TAG7(sp))<<7);
+            SET(sp->sector()->floorstat, SP_TAG6(sp));
+            RESET(sp->sector()->floorstat, FLOOR_STAT_PLAX);
         }
     }
 
@@ -1417,17 +1417,17 @@ void RestorePortalState()
         if (SP_TAG3(sp) == 0)
         {
             // restore ceilingpicnum and ceilingstat
-            sector[sp->sectnum].ceilingpicnum = SP_TAG5(sp);
-            sector[sp->sectnum].ceilingstat = SP_TAG4(sp);
-            //RESET(sector[sp->sectnum].ceilingstat, CEILING_STAT_TYPE_MASK);
-            RESET(sector[sp->sectnum].ceilingstat, CEILING_STAT_PLAX);
+            sp->sector()->ceilingpicnum = SP_TAG5(sp);
+            sp->sector()->ceilingstat = SP_TAG4(sp);
+            //RESET(sp->sector()->ceilingstat, CEILING_STAT_TYPE_MASK);
+            RESET(sp->sector()->ceilingstat, CEILING_STAT_PLAX);
         }
         else if (SP_TAG3(sp) == 1)
         {
-            sector[sp->sectnum].floorpicnum = SP_TAG5(sp);
-            sector[sp->sectnum].floorstat = SP_TAG4(sp);
-            //RESET(sector[sp->sectnum].floorstat, FLOOR_STAT_TYPE_MASK);
-            RESET(sector[sp->sectnum].floorstat, FLOOR_STAT_PLAX);
+            sp->sector()->floorpicnum = SP_TAG5(sp);
+            sp->sector()->floorstat = SP_TAG4(sp);
+            //RESET(sp->sector()->floorstat, FLOOR_STAT_TYPE_MASK);
+            RESET(sp->sector()->floorstat, FLOOR_STAT_PLAX);
         }
     }
 }

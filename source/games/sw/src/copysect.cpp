@@ -196,7 +196,7 @@ void CopySectorMatch(short match)
                             SECTOR_OBJECTp sop;
 
                             // find and add sprite to SO
-                            sop = DetectSectorObject(&sector[sp->sectnum]);
+                            sop = DetectSectorObject(sp->sector());
                             AddSpriteToSectorObject(itActor, sop);
 
                             // update sprites postions so they aren't in the

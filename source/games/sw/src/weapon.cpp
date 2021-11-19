@@ -4592,7 +4592,7 @@ int DoFireballFlames(DSWActor* actor)
         {
             if (SectUser[sp->sectnum].Data() && FixedToInt(SectUser[sp->sectnum]->depth_fixed) > 0)
             {
-                if (labs(sector[sp->sectnum].floorz - sp->z) <= Z(4))
+                if (labs(sp->sector()->floorz - sp->z) <= Z(4))
                 {
                     KillActor(actor);
                     return 0;
@@ -4667,7 +4667,7 @@ int DoBreakFlames(DSWActor* actor)
     {
         if (SectUser[sp->sectnum].Data() && FixedToInt(SectUser[sp->sectnum]->depth_fixed) > 0)
         {
-            if (labs(sector[sp->sectnum].floorz - sp->z) <= Z(4))
+            if (labs(sp->sector()->floorz - sp->z) <= Z(4))
             {
                 KillActor(actor);
                 return 0;
@@ -10767,7 +10767,7 @@ void SpawnBigGunFlames(DSWActor* actor, DSWActor* Operator, SECTOR_OBJECTp sop, 
     if (TEST(u->Flags, SPR_ON_SO_SECTOR))
     {
         // move with sector its on
-        exp->z = sector[sp->sectnum].floorz - u->sz;
+        exp->z = sp->sector()->floorz - u->sz;
         exp->backupz();
     }
     else
@@ -18209,7 +18209,7 @@ int SpawnSplash(DSWActor* actor)
     SPRITEp sp = &actor->s(), wp;
 
     SECT_USERp sectu = SectUser[sp->sectnum].Data();
-    SECTORp sectp = &sector[sp->sectnum];
+    SECTORp sectp = sp->sector();
 
     if (Prediction)
         return 0;
@@ -18234,7 +18234,7 @@ int SpawnSplash(DSWActor* actor)
 
     wp->xrepeat = 45;
     wp->yrepeat = 42;
-    wp->shade = sector[sp->sectnum].floorshade - 10;
+    wp->shade = sp->sector()->floorshade - 10;
 
     return 0;
 }
@@ -18269,7 +18269,7 @@ int SpawnSplashXY(int hit_x, int hit_y, int hit_z, int sectnum)
 
     wp->xrepeat = 45;
     wp->yrepeat = 42;
-    wp->shade = sector[wp->sectnum].floorshade - 10;
+    wp->shade = wp->sector()->floorshade - 10;
 
     return 0;
 }
@@ -18347,7 +18347,7 @@ DSWActor* SpawnBubble(DSWActor* actor)
     bu->sy = bp->yrepeat;
     bu->ceiling_dist = Z(1);
     bu->floor_dist = Z(1);
-    bp->shade = sector[sp->sectnum].floorshade - 10;
+    bp->shade = sp->sector()->floorshade - 10;
     bu->WaitTics = 120 * 120;
     bp->zvel = 512;
     bp->clipdist = 12 >> 2;
@@ -18473,7 +18473,7 @@ int DoBubble(DSWActor* actor)
     sp->xrepeat = u->sx + (RANDOM_P2(8 << 8) >> 8) - 4;
     sp->yrepeat = u->sy + (RANDOM_P2(8 << 8) >> 8) - 4;
 
-    if (sp->z < sector[sp->sectnum].ceilingz)
+    if (sp->z < sp->sector()->ceilingz)
     {
         if (SectorIsUnderwaterArea(sectnum(u->hi_sectp)))
         {
@@ -19122,13 +19122,13 @@ void QueueGeneric(DSWActor* actor, short pic)
     SPRITEp sp = &actor->s();
     SPRITEp osp;
 
-    if (TEST(sector[sp->sectnum].extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_WATER)
+    if (TEST(sp->sector()->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_WATER)
     {
         KillActor(actor);
         return;
     }
 
-    if (TEST(sector[sp->sectnum].extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
+    if (TEST(sp->sector()->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
     {
         KillActor(actor);
         return;
@@ -19209,13 +19209,13 @@ DoShellShrap(DSWActor* actor)
     }
 
     // Get rid of shell if they fall in non-divable liquid areas
-    if (TEST(sector[sp->sectnum].extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_WATER)
+    if (TEST(sp->sector()->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_WATER)
     {
         KillActor(actor);
         return 0;
     }
 
-    if (TEST(sector[sp->sectnum].extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
+    if (TEST(sp->sector()->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
     {
         KillActor(actor);
         return 0;
@@ -19654,12 +19654,12 @@ void QueueLoWangs(DSWActor* actor)
     DSWActor* NewSprite;
 
 
-    if (TEST(sector[sp->sectnum].extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_WATER)
+    if (TEST(sp->sector()->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_WATER)
     {
         return;
     }
 
-    if (TEST(sector[sp->sectnum].extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
+    if (TEST(sp->sector()->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
     {
         return;
     }

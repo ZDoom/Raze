@@ -95,7 +95,7 @@ void SetSpikeActive(DSWActor* actor)
 {
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
-    SECTORp sectp = &sector[sp->sectnum];
+    SECTORp sectp = sp->sector();
 
     if (TEST(sp->cstat, CSTAT_SPRITE_YFLIP))
         StartInterpolation(sp->sectnum, Interp_Sect_Ceilingheinum);
@@ -123,7 +123,7 @@ void SetSpikeInactive(DSWActor* actor)
 {
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
-    SECTORp sectp = &sector[sp->sectnum];
+    SECTORp sectp = sp->sector();
 
     if (TEST(sp->cstat, CSTAT_SPRITE_YFLIP))
         StopInterpolation(sp->sectnum, Interp_Sect_Ceilingheinum);
@@ -404,8 +404,8 @@ int DoSpike(DSWActor* actor)
                 {
                     pp = Player + pnum;
 
-                    if (pp->lo_sectp == &sector[sp->sectnum] ||
-                        pp->hi_sectp == &sector[sp->sectnum])
+                    if (pp->lo_sectp == sp->sector() ||
+                        pp->hi_sectp == sp->sector())
                     {
                         ReverseSpike(actor);
                         found = true;

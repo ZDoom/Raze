@@ -812,7 +812,7 @@ void SpawnZombie2(DSWActor* actor)
     SPRITEp np;
     USERp nu;
     SECT_USERp sectu = SectUser[sp->sectnum].Data();
-    SECTORp sectp = &sector[sp->sectnum];
+    SECTORp sectp = sp->sector();
 
     auto ownerActor = GetOwner(actor);
 

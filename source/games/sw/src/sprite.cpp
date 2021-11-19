@@ -908,12 +908,12 @@ USERp SpawnUser(DSWActor* actor, short id, STATEp state)
     // Problem with sprites spawned really close to white sector walls
     // cant do a getzrange there
     // Just put in some valid starting values
-    u->loz = sector[sp->sectnum].floorz;
-    u->hiz = sector[sp->sectnum].ceilingz;
+    u->loz = sp->sector()->floorz;
+    u->hiz = sp->sector()->ceilingz;
     u->lowActor = nullptr;
     u->highActor = nullptr;
-    u->lo_sectp = &sector[sp->sectnum];
-    u->hi_sectp = &sector[sp->sectnum];
+    u->lo_sectp = sp->sector();
+    u->hi_sectp = sp->sector();
 
     return u;
 }
@@ -1880,7 +1880,7 @@ void SpriteSetup(void)
             {
                 bit = 1 << (tag);
 
-                SET(sector[sp->sectnum].extra, bit);
+                SET(sp->sector()->extra, bit);
 
                 if (TEST(bit, SECTFX_SINK))
                 {
@@ -2069,7 +2069,7 @@ void SpriteSetup(void)
 
                 case TRIGGER_SECTOR:
                 {
-                    SET(sector[sp->sectnum].extra, SECTFX_TRIGGER);
+                    SET(sp->sector()->extra, SECTFX_TRIGGER);
                     change_actor_stat(actor, STAT_TRIGGER);
                     break;
                 }
@@ -2102,16 +2102,16 @@ void SpriteSetup(void)
                     if (SP_TAG7(sp) == 0 || SP_TAG7(sp) == 1)
                     {
                         if (SP_TAG3(sp) == 0)
-                            SET(sector[sp->sectnum].ceilingstat, CEILING_STAT_FAF_BLOCK_HITSCAN);
+                            SET(sp->sector()->ceilingstat, CEILING_STAT_FAF_BLOCK_HITSCAN);
                         else
-                            SET(sector[sp->sectnum].floorstat, FLOOR_STAT_FAF_BLOCK_HITSCAN);
+                            SET(sp->sector()->floorstat, FLOOR_STAT_FAF_BLOCK_HITSCAN);
                     }
                     else if (TEST_BOOL1(sp))
                     {
                         if (SP_TAG3(sp) == 0)
-                            SET(sector[sp->sectnum].ceilingstat, CEILING_STAT_FAF_BLOCK_HITSCAN);
+                            SET(sp->sector()->ceilingstat, CEILING_STAT_FAF_BLOCK_HITSCAN);
                         else
-                            SET(sector[sp->sectnum].floorstat, FLOOR_STAT_FAF_BLOCK_HITSCAN);
+                            SET(sp->sector()->floorstat, FLOOR_STAT_FAF_BLOCK_HITSCAN);
                     }
 
                     // copy tag 7 to tag 6 and pre-shift it
@@ -2155,7 +2155,7 @@ void SpriteSetup(void)
 
                 case SECT_VATOR:
                 {
-                    SECTORp sectp = &sector[sp->sectnum];
+                    SECTORp sectp = sp->sector();
                     SECT_USERp sectu;
                     short speed,vel,time,type,start_on,floor_vator;
                     u = SpawnUser(actor, 0, nullptr);
@@ -2168,7 +2168,7 @@ void SpriteSetup(void)
                     }
                     SET(sectp->extra, SECTFX_VATOR);
                     SetSectorWallBits(sp->sectnum, WALLFX_DONT_STICK, true, true);
-                    SET(sector[sp->sectnum].extra, SECTFX_DYNAMIC_AREA);
+                    SET(sp->sector()->extra, SECTFX_DYNAMIC_AREA);
 
                     // don't step on toes of other sector settings
                     if (sectp->lotag == 0 && sectp->hitag == 0)
@@ -2265,7 +2265,7 @@ void SpriteSetup(void)
 
                 case SECT_ROTATOR:
                 {
-					SECTORp sectp = &sector[sp->sectnum];
+					SECTORp sectp = sp->sector();
                     short time,type;
                     short wallcount,startwall,endwall,w;
                     u = SpawnUser(actor, 0, nullptr);
@@ -2282,8 +2282,8 @@ void SpriteSetup(void)
                     u->WaitTics = time*15; // 1/8 of a sec
                     u->Tics = 0;
 
-                    startwall = sector[sp->sectnum].wallptr;
-                    endwall = startwall + sector[sp->sectnum].wallnum - 1;
+                    startwall = sp->sector()->wallptr;
+                    endwall = startwall + sp->sector()->wallnum - 1;
 
                     // count walls of sector
                     for (w = startwall, wallcount = 0; w <= endwall; w++)
@@ -2326,7 +2326,7 @@ void SpriteSetup(void)
 
                 case SECT_SLIDOR:
                 {
-                    SECTORp sectp = &sector[sp->sectnum];
+                    SECTORp sectp = sp->sector();
                     short time,type;
 
                     u = SpawnUser(actor, 0, nullptr);
@@ -2384,7 +2384,7 @@ void SpriteSetup(void)
                     u = SpawnUser(actor, 0, nullptr);
 
                     SetSectorWallBits(sp->sectnum, WALLFX_DONT_STICK, false, true);
-                    SET(sector[sp->sectnum].extra, SECTFX_DYNAMIC_AREA);
+                    SET(sp->sector()->extra, SECTFX_DYNAMIC_AREA);
 
                     type = SP_TAG3(sp);
                     speed = SP_TAG4(sp);
@@ -2477,11 +2477,11 @@ void SpriteSetup(void)
                         LIGHT_ShadeInc(sp) = 1;
 
                     // save off original floor and ceil shades
-                    LIGHT_FloorShade(sp) = sector[sp->sectnum].floorshade;
-                    LIGHT_CeilingShade(sp) = sector[sp->sectnum].ceilingshade;
+                    LIGHT_FloorShade(sp) = sp->sector()->floorshade;
+                    LIGHT_CeilingShade(sp) = sp->sector()->ceilingshade;
 
-                    startwall = sector[sp->sectnum].wallptr;
-                    endwall = startwall + sector[sp->sectnum].wallnum - 1;
+                    startwall = sp->sector()->wallptr;
+                    endwall = startwall + sp->sector()->wallnum - 1;
 
                     // count walls of sector
                     for (w = startwall, wallcount = 0; w <= endwall; w++)
@@ -2531,11 +2531,11 @@ void SpriteSetup(void)
                     LIGHT_Tics(sp) = 0;
 
                     // save off original floor and ceil shades
-                    LIGHT_FloorShade(sp) = sector[sp->sectnum].floorshade;
-                    LIGHT_CeilingShade(sp) = sector[sp->sectnum].ceilingshade;
+                    LIGHT_FloorShade(sp) = sp->sector()->floorshade;
+                    LIGHT_CeilingShade(sp) = sp->sector()->ceilingshade;
 
-                    startwall = sector[sp->sectnum].wallptr;
-                    endwall = startwall + sector[sp->sectnum].wallnum - 1;
+                    startwall = sp->sector()->wallptr;
+                    endwall = startwall + sp->sector()->wallnum - 1;
 
                     // count walls of sector
                     for (w = startwall, wallcount = 0; w <= endwall; w++)
@@ -2623,7 +2623,7 @@ void SpriteSetup(void)
 
                 case SECT_EXPLODING_CEIL_FLOOR:
                 {
-                    SECTORp sectp = &sector[sp->sectnum];
+                    SECTORp sectp = sp->sector();
 
                     SetSectorWallBits(sp->sectnum, WALLFX_DONT_STICK, false, true);
 
@@ -2795,7 +2795,7 @@ void SpriteSetup(void)
 
                 case PLAX_GLOB_Z_ADJUST:
                 {
-                    SET(sector[sp->sectnum].extra, SECTFX_Z_ADJUST);
+                    SET(sp->sector()->extra, SECTFX_Z_ADJUST);
                     PlaxCeilGlobZadjust = SP_TAG2(sp);
                     PlaxFloorGlobZadjust = SP_TAG3(sp);
                     KillActor(actor);
@@ -2804,16 +2804,16 @@ void SpriteSetup(void)
 
                 case CEILING_Z_ADJUST:
                 {
-                    //SET(sector[sp->sectnum].ceilingstat, CEILING_STAT_FAF_BLOCK_HITSCAN);
-                    SET(sector[sp->sectnum].extra, SECTFX_Z_ADJUST);
+                    //SET(sp->sector()->ceilingstat, CEILING_STAT_FAF_BLOCK_HITSCAN);
+                    SET(sp->sector()->extra, SECTFX_Z_ADJUST);
                     change_actor_stat(actor, STAT_ST1);
                     break;
                 }
 
                 case FLOOR_Z_ADJUST:
                 {
-                    //SET(sector[sp->sectnum].floorstat, FLOOR_STAT_FAF_BLOCK_HITSCAN);
-                    SET(sector[sp->sectnum].extra, SECTFX_Z_ADJUST);
+                    //SET(sp->sector()->floorstat, FLOOR_STAT_FAF_BLOCK_HITSCAN);
+                    SET(sp->sector()->extra, SECTFX_Z_ADJUST);
                     change_actor_stat(actor, STAT_ST1);
                     break;
                 }
@@ -2824,7 +2824,7 @@ void SpriteSetup(void)
                     short sectnum = sp->sectnum;
 
                     SET(sp->cstat, CSTAT_SPRITE_INVISIBLE);
-                    SET(sector[sp->sectnum].extra, SECTFX_WARP_SECTOR);
+                    SET(sp->sector()->extra, SECTFX_WARP_SECTOR);
                     change_actor_stat(actor, STAT_WARP);
 
                     // if just a destination teleporter
@@ -2855,19 +2855,19 @@ void SpriteSetup(void)
                 case WARP_FLOOR_PLANE:
                 {
                     SET(sp->cstat, CSTAT_SPRITE_INVISIBLE);
-                    SET(sector[sp->sectnum].extra, SECTFX_WARP_SECTOR);
+                    SET(sp->sector()->extra, SECTFX_WARP_SECTOR);
                     change_actor_stat(actor, STAT_WARP);
                     break;
                 }
 
                 case WARP_COPY_SPRITE1:
                     SET(sp->cstat, CSTAT_SPRITE_INVISIBLE);
-                    SET(sector[sp->sectnum].extra, SECTFX_WARP_SECTOR);
+                    SET(sp->sector()->extra, SECTFX_WARP_SECTOR);
                     change_actor_stat(actor, STAT_WARP_COPY_SPRITE1);
                     break;
                 case WARP_COPY_SPRITE2:
                     SET(sp->cstat, CSTAT_SPRITE_INVISIBLE);
-                    SET(sector[sp->sectnum].extra, SECTFX_WARP_SECTOR);
+                    SET(sp->sector()->extra, SECTFX_WARP_SECTOR);
                     change_actor_stat(actor, STAT_WARP_COPY_SPRITE2);
                     break;
 
@@ -2920,7 +2920,7 @@ void SpriteSetup(void)
                 {
                     sectu = GetSectUser(sp->sectnum);
                     SET(sectu->flags, SECTFU_SO_SLOPE_FLOOR_TO_POINT);
-                    SET(sector[sp->sectnum].extra, SECTFX_DYNAMIC_AREA);
+                    SET(sp->sector()->extra, SECTFX_DYNAMIC_AREA);
                     KillActor(actor);
                     break;
                 }
@@ -2929,7 +2929,7 @@ void SpriteSetup(void)
                 {
                     sectu = GetSectUser(sp->sectnum);
                     SET(sectu->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT);
-                    SET(sector[sp->sectnum].extra, SECTFX_DYNAMIC_AREA);
+                    SET(sp->sector()->extra, SECTFX_DYNAMIC_AREA);
                     KillActor(actor);
                     break;
                 }
@@ -3060,8 +3060,8 @@ KeyMain:
              *
              * sp->ang = 0; sp->xvel = 4;
              *
-             * if (labs(sp->z - sector[sp->sectnum].floorz) < Z(32)) sp->z =
-             * sector[sp->sectnum].floorz - Z(32);
+             * if (labs(sp->z - sp->sector()->floorz) < Z(32)) sp->z =
+             * sp->sector()->floorz - Z(32);
              *
              * u->sz = sp->z;
              *
@@ -3549,8 +3549,8 @@ NUKE_REPLACEMENT:
 
             u = SpawnUser(actor, ICON_FLAG, s_IconFlag);
             u->spal = sp->pal;
-            sector[sp->sectnum].hitag = 9000;       // Put flag's color in sect containing it
-            sector[sp->sectnum].lotag = u->spal;
+            sp->sector()->hitag = 9000;       // Put flag's color in sect containing it
+            sp->sector()->lotag = u->spal;
             IconDefault(actor);
             PicAnimOff(sp->picnum);
             break;
@@ -6847,7 +6847,7 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
     if (FAF_ConnectArea(sp->sectnum))
         SetActorZ(actor, &sp->pos);
 
-    if (TEST(sector[sp->sectnum].extra, SECTFX_WARP_SECTOR))
+    if (TEST(sp->sector()->extra, SECTFX_WARP_SECTOR))
     {
         DSWActor* sp_warp;
 
@@ -6867,17 +6867,17 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
         }
     }
 
-    if (retval.type != kHitNone && TEST(sector[sp->sectnum].ceilingstat, CEILING_STAT_PLAX))
+    if (retval.type != kHitNone && TEST(sp->sector()->ceilingstat, CEILING_STAT_PLAX))
     {
-        if (sp->z < sector[sp->sectnum].ceilingz)
+        if (sp->z < sp->sector()->ceilingz)
         {
             retval.setSky();
         }
     }
 
-    if (retval.type != kHitNone && TEST(sector[sp->sectnum].floorstat, FLOOR_STAT_PLAX))
+    if (retval.type != kHitNone && TEST(sp->sector()->floorstat, FLOOR_STAT_PLAX))
     {
-        if (sp->z > sector[sp->sectnum].floorz)
+        if (sp->z > sp->sector()->floorz)
         {
             retval.setSky();
         }
@@ -6970,7 +6970,7 @@ Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int cei
 
     getzsofslope(sp->sectnum, sp->x, sp->y, &u->hiz, &u->loz);
 
-    u->hi_sectp = u->lo_sectp = &sector[sp->sectnum];
+    u->hi_sectp = u->lo_sectp = sp->sector();
     u->highActor = nullptr; u->lowActor = nullptr;
     sp->z = u->loz - Z(8);
 
@@ -6981,7 +6981,7 @@ Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int cei
         return retval;
     }
 
-    if (TEST(sector[sp->sectnum].extra, SECTFX_WARP_SECTOR))
+    if (TEST(sp->sector()->extra, SECTFX_WARP_SECTOR))
     {
         DSWActor* sp_warp;
 

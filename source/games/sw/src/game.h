@@ -2202,12 +2202,12 @@ struct GameInterface : public ::GameInterface
 // OVER and UNDER water macros
 inline bool SpriteInDiveArea(SPRITEp sp)
 {
-    return (TEST(sector[(sp)->sectnum].extra, SECTFX_DIVE_AREA) ? true : false);
+    return (TEST(sp->sector()->extra, SECTFX_DIVE_AREA) ? true : false);
 }
 
 inline bool SpriteInUnderwaterArea(SPRITEp sp)
 {
-    return (TEST(sector[(sp)->sectnum].extra, SECTFX_UNDERWATER | SECTFX_UNDERWATER2) ? true : false);
+    return (TEST(sp->sector()->extra, SECTFX_UNDERWATER | SECTFX_UNDERWATER2) ? true : false);
 }
 
 inline bool SectorIsDiveArea(int sect)

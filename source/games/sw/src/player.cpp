@@ -1758,7 +1758,7 @@ void UpdatePlayerUnderSprite(PLAYERp pp)
     zdiff = SPRITEp_BOS(over_sp) - water_level_z;
 
     // add diff to ceiling
-    sp->z = sector[sp->sectnum].ceilingz + zdiff;
+    sp->z = sp->sector()->ceilingz + zdiff;
 
     u->State = over_u->State;
     u->Rot = over_u->Rot;

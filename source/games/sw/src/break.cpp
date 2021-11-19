@@ -657,12 +657,12 @@ bool UserBreakWall(WALLp wp, short)
         DoSpawnSpotsForKill(match);
         RESET(wp->cstat, flags);
         if (wp->nextwall >= 0)
-            RESET(wall[wp->nextwall].cstat, flags);
+            RESET(wp->nextWall()->cstat, flags);
 
         // clear tags
         wp->hitag = wp->lotag = 0;
         if (wp->nextwall >= 0)
-            wall[wp->nextwall].hitag = wall[wp->nextwall].lotag = 0;
+            wp->nextWall()->hitag = wp->nextWall()->lotag = 0;
         return true;
     }
 
@@ -683,7 +683,7 @@ bool UserBreakWall(WALLp wp, short)
             // clear tags
             wp->hitag = wp->lotag = 0;
             if (wp->nextwall >= 0)
-                wall[wp->nextwall].hitag = wall[wp->nextwall].lotag = 0;
+                wp->nextWall()->hitag = wp->nextWall()->lotag = 0;
             ret = false;
         }
         else if (SP_TAG8(sp) == 1)
@@ -691,11 +691,11 @@ bool UserBreakWall(WALLp wp, short)
             // clear flags
             RESET(wp->cstat, flags);
             if (wp->nextwall >= 0)
-                RESET(wall[wp->nextwall].cstat, flags);
+                RESET(wp->nextWall()->cstat, flags);
             // clear tags
             wp->hitag = wp->lotag = 0;
             if (wp->nextwall >= 0)
-                wall[wp->nextwall].hitag = wall[wp->nextwall].lotag = 0;
+                wp->nextWall()->hitag = wp->nextWall()->lotag = 0;
 
             ret = true;
         }
@@ -707,12 +707,12 @@ bool UserBreakWall(WALLp wp, short)
             // clear flags
             RESET(wp->cstat, block_flags);
             if (wp->nextwall >= 0)
-                RESET(wall[wp->nextwall].cstat, block_flags);
+                RESET(wp->nextWall()->cstat, block_flags);
 
             // clear tags
             wp->hitag = wp->lotag = 0;
             if (wp->nextwall >= 0)
-                wall[wp->nextwall].hitag = wall[wp->nextwall].lotag = 0;
+                wp->nextWall()->hitag = wp->nextWall()->lotag = 0;
 
             ret = false;
         }

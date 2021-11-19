@@ -632,23 +632,23 @@ SetupMirrorTiles(void)
     {
         sp = &actor->s();
 
-        if (sector[sp->sectnum].ceilingpicnum == FAF_PLACE_MIRROR_PIC)
+        if (sp->sector()->ceilingpicnum == FAF_PLACE_MIRROR_PIC)
         {
-            sector[sp->sectnum].ceilingpicnum = FAF_MIRROR_PIC;
-            SET(sector[sp->sectnum].ceilingstat, CEILING_STAT_PLAX);
+            sp->sector()->ceilingpicnum = FAF_MIRROR_PIC;
+            SET(sp->sector()->ceilingstat, CEILING_STAT_PLAX);
         }
 
-        if (sector[sp->sectnum].floorpicnum == FAF_PLACE_MIRROR_PIC)
+        if (sp->sector()->floorpicnum == FAF_PLACE_MIRROR_PIC)
         {
-            sector[sp->sectnum].floorpicnum = FAF_MIRROR_PIC;
-            SET(sector[sp->sectnum].floorstat, FLOOR_STAT_PLAX);
+            sp->sector()->floorpicnum = FAF_MIRROR_PIC;
+            SET(sp->sector()->floorstat, FLOOR_STAT_PLAX);
         }
 
-        if (sector[sp->sectnum].ceilingpicnum == FAF_PLACE_MIRROR_PIC+1)
-            sector[sp->sectnum].ceilingpicnum = FAF_MIRROR_PIC+1;
+        if (sp->sector()->ceilingpicnum == FAF_PLACE_MIRROR_PIC+1)
+            sp->sector()->ceilingpicnum = FAF_MIRROR_PIC+1;
 
-        if (sector[sp->sectnum].floorpicnum == FAF_PLACE_MIRROR_PIC+1)
-            sector[sp->sectnum].floorpicnum = FAF_MIRROR_PIC+1;
+        if (sp->sector()->floorpicnum == FAF_PLACE_MIRROR_PIC+1)
+            sp->sector()->floorpicnum = FAF_MIRROR_PIC+1;
     }
 }
 
@@ -787,8 +787,8 @@ bool FindCeilingView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* se
 
     if (!testnewrenderer)
     {
-        pix_diff = labs(z - sector[sp->sectnum].floorz) >> 8;
-        newz = sector[sp->sectnum].floorz + ((pix_diff / 128) + 1) * Z(128);
+        pix_diff = labs(z - sp->sector()->floorz) >> 8;
+        newz = sp->sector()->floorz + ((pix_diff / 128) + 1) * Z(128);
 
         it.Reset(STAT_FAF);
         while (auto actor = it.Next())
@@ -802,15 +802,15 @@ bool FindCeilingView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* se
                 {
                     // save it off
                     save.sectnum[save.zcount] = sp->sectnum;
-                    save.zval[save.zcount] = sector[sp->sectnum].floorz;
-                    save.pic[save.zcount] = sector[sp->sectnum].floorpicnum;
-                    save.slope[save.zcount] = sector[sp->sectnum].floorheinum;
+                    save.zval[save.zcount] = sp->sector()->floorz;
+                    save.pic[save.zcount] = sp->sector()->floorpicnum;
+                    save.slope[save.zcount] = sp->sector()->floorheinum;
 
-                    sector[sp->sectnum].floorz = newz;
+                    sp->sector()->floorz = newz;
                     // don't change FAF_MIRROR_PIC - ConnectArea
-                    if (sector[sp->sectnum].floorpicnum != FAF_MIRROR_PIC)
-                        sector[sp->sectnum].floorpicnum = FAF_MIRROR_PIC + 1;
-                    sector[sp->sectnum].floorheinum = 0;
+                    if (sp->sector()->floorpicnum != FAF_MIRROR_PIC)
+                        sp->sector()->floorpicnum = FAF_MIRROR_PIC + 1;
+                    sp->sector()->floorheinum = 0;
 
                     save.zcount++;
                     PRODUCTION_ASSERT(save.zcount < ZMAX);
@@ -883,8 +883,8 @@ bool FindFloorView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sect
     if (!testnewrenderer)
     {
         // move ceiling multiple of 128 so that the wall tile will line up
-        pix_diff = labs(z - sector[sp->sectnum].ceilingz) >> 8;
-        newz = sector[sp->sectnum].ceilingz - ((pix_diff / 128) + 1) * Z(128);
+        pix_diff = labs(z - sp->sector()->ceilingz) >> 8;
+        newz = sp->sector()->ceilingz - ((pix_diff / 128) + 1) * Z(128);
 
         it.Reset(STAT_FAF);
         while (auto actor = it.Next())
@@ -898,16 +898,16 @@ bool FindFloorView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sect
                 {
                     // save it off
                     save.sectnum[save.zcount] = sp->sectnum;
-                    save.zval[save.zcount] = sector[sp->sectnum].ceilingz;
-                    save.pic[save.zcount] = sector[sp->sectnum].ceilingpicnum;
-                    save.slope[save.zcount] = sector[sp->sectnum].ceilingheinum;
+                    save.zval[save.zcount] = sp->sector()->ceilingz;
+                    save.pic[save.zcount] = sp->sector()->ceilingpicnum;
+                    save.slope[save.zcount] = sp->sector()->ceilingheinum;
 
-                    sector[sp->sectnum].ceilingz = newz;
+                    sp->sector()->ceilingz = newz;
 
                     // don't change FAF_MIRROR_PIC - ConnectArea
-                    if (sector[sp->sectnum].ceilingpicnum != FAF_MIRROR_PIC)
-                        sector[sp->sectnum].ceilingpicnum = FAF_MIRROR_PIC + 1;
-                    sector[sp->sectnum].ceilingheinum = 0;
+                    if (sp->sector()->ceilingpicnum != FAF_MIRROR_PIC)
+                        sp->sector()->ceilingpicnum = FAF_MIRROR_PIC + 1;
+                    sp->sector()->ceilingheinum = 0;
 
                     save.zcount++;
                     PRODUCTION_ASSERT(save.zcount < ZMAX);

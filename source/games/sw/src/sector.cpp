@@ -1367,7 +1367,7 @@ void DoChangorMatch(short match)
     while (auto actor = it.Next())
     {
         auto sp = &actor->s();
-        sectp = &sector[sp->sectnum];
+        sectp = sp->sector();
 
         if (SP_TAG2(sp) != match)
             continue;
@@ -2771,7 +2771,7 @@ void DoPanning(void)
     while (auto actor = it.Next())
     {
         sp = &actor->s();
-        sectp = &sector[sp->sectnum];
+        sectp = sp->sector();
 
         nx = MulScale(sp->xvel, bcos(sp->ang), 20);
         ny = MulScale(sp->xvel, bsin(sp->ang), 20);
@@ -2784,7 +2784,7 @@ void DoPanning(void)
     while (auto actor = it.Next())
     {
         sp = &actor->s();
-        sectp = &sector[sp->sectnum];
+        sectp = sp->sector();
 
         nx = MulScale(sp->xvel, bcos(sp->ang), 20);
         ny = MulScale(sp->xvel, bsin(sp->ang), 20);
