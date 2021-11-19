@@ -686,13 +686,14 @@ void checkhitwall_d(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 							spawned = EGS(sptr, x, y, z, FORCERIPPLE, -127, 16 + spr->s->xrepeat, 16 + spr->s->yrepeat, 0, 0, 0, spr, 5);
 						else spawned = EGS(sptr, x, y, z, FORCERIPPLE, -127, 32, 32, 0, 0, 0, spr, 5);
 					}
+					if (spawned)
+					{
+						spawned->s->cstat |= 18 + 128;
+						auto delta = wal->delta();
+						spawned->s->ang = getangle(-delta.x, -delta.y) - 512;
 
-					spawned->s->cstat |= 18 + 128;
-					auto delta = wal->delta();
-					spawned->s->ang = getangle(-delta.x, -delta.y) - 512;
-
-					S_PlayActorSound(SOMETHINGHITFORCE, spawned);
-
+						S_PlayActorSound(SOMETHINGHITFORCE, spawned);
+					}
 					return;
 				}
 				case FANSPRITE:
@@ -720,10 +721,13 @@ void checkhitwall_d(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 						wal->nextWall()->cstat = 0;
 
 					auto spawned = EGS(sptr, x, y, z, SECTOREFFECTOR, 0, 0, 0, ps[0].angle.ang.asbuild(), 0, 0, spr, 3);
-					spawned->s->lotag = 128; 
-					spawned->temp_data[1] = 5;
-					spawned->temp_walls[0] = wal;
-					S_PlayActorSound(GLASS_BREAKING, spawned);
+					if (spawned)
+					{
+							spawned->s->lotag = 128;
+						spawned->temp_data[1] = 5;
+						spawned->temp_walls[0] = wal;
+						S_PlayActorSound(GLASS_BREAKING, spawned);
+					}
 					return;
 				}
 				case STAINGLASS1:

@@ -51,6 +51,8 @@ BEGIN_DUKE_NS
 
 DDukeActor* EGS(sectortype* whatsectp, int s_x, int s_y, int s_z, int s_pn, int8_t s_s, int8_t s_xr, int8_t s_yr, int s_a, int s_ve, int s_zv, DDukeActor* s_ow, int8_t s_ss) 
 {
+	// sector pointer must be strictly validated here or the engine will crash.
+	if (whatsectp == nullptr || !validSectorIndex(sectnum(whatsectp))) return nullptr;
 	int const i = insertsprite(sectnum(whatsectp), s_ss);
 
 	if (i < 0)
@@ -139,15 +141,16 @@ int initspriteforspawn(DDukeActor* actj, int pn, const std::initializer_list<int
 {
 	spritetype* sp;
 	int* t;
-	int i;
+	int i = -1;
 
 	if (actj)
 	{
 		auto spawned = EGS(actj->s->sector(), actj->s->x, actj->s->y, actj->s->z, pn, 0, 0, 0, 0, 0, 0, actj, 0);
-		spawned->picnum = actj->s->picnum;
-		sp = spawned->s;
-		t = spawned->temp_data;
-		i = spawned->GetSpriteIndex();
+		if (spawned)
+		{
+			spawned->picnum = actj->s->picnum;
+			i = spawned->GetSpriteIndex();
+		}
 	}
 	else
 	{
@@ -1138,7 +1141,7 @@ void spriteglass(DDukeActor* actor, int n)
 		int a = krand() & 2047;
 		int z = sp->z - ((krand() & 16) << 8);
 		auto k = EGS(sp->sector(), sp->x, sp->y, z, TILE_GLASSPIECES + (j % 3), krand() & 15, 36, 36, a, 32 + (krand() & 63), -512 - (krand() & 2047), actor, 5);
-		k->s->pal = sp->pal;
+		if (k) k->s->pal = sp->pal;
 	}
 }
 
@@ -1190,7 +1193,7 @@ void lotsofcolourglass(DDukeActor* actor, walltype* wal, int n)
 		{
 			a = krand() & 2047;
 			auto k = EGS(sp->sector(), sp->x, sp->y, sp->z - (krand() & (63 << 8)), TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), 1024 - (krand() & 2047), actor, 5);
-			k->s->pal = krand() & 15;
+			if (k) k->s->pal = krand() & 15;
 		}
 		return;
 	}
@@ -1211,7 +1214,7 @@ void lotsofcolourglass(DDukeActor* actor, walltype* wal, int n)
 			z = sp->z - (32 << 8) + (krand() & ((64 << 8) - 1));
 		a = sp->ang - 1024;
 		auto k = EGS(sp->sector(), x1, y1, z, TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), -(krand() & 2047), actor, 5);
-		k->s->pal = krand() & 7;
+		if (k) k->s->pal = krand() & 7;
 	}
 }
 

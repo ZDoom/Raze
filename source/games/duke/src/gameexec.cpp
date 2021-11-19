@@ -2162,10 +2162,13 @@ int ParseState::parse(void)
 					g_sp->x + (krand() & 255) - 128, g_sp->y + (krand() & 255) - 128, g_sp->z - (8 << 8) - (krand() & 8191),
 					dnum + s, g_sp->shade, 32 + (krand() & 15), 32 + (krand() & 15),
 					krand() & 2047, (krand() & 127) + 32, -(krand() & 2047), g_ac, 5);
-				if(weap)
-					l->s->yvel = gs.weaponsandammosprites[j%14];
-				else l->s->yvel = -1;
-				l->s->pal = g_sp->pal;
+				if (l)
+				{
+					if (weap)
+						l->s->yvel = gs.weaponsandammosprites[j % 14];
+					else l->s->yvel = -1;
+					l->s->pal = g_sp->pal;
+				}
 			}
 			insptr++;
 		}

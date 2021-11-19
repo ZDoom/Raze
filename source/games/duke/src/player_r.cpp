@@ -149,11 +149,13 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 			if (isRRRA() && atwith == SLINGBLADE)
 			{
 				wpn = EGS(hitsectp, hitx, hity, hitz, SLINGBLADE, -15, 0, 0, sa, 32, 0, actor, 4);
+				if (!wpn) return;
 				wpn->s->extra += 50;
 			}
 			else
 			{
 				wpn = EGS(hitsectp, hitx, hity, hitz, KNEE, -15, 0, 0, sa, 32, 0, actor, 4);
+				if (!wpn) return;
 				wpn->s->extra += (krand() & 7);
 			}
 			if (p >= 0)
@@ -312,6 +314,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 	if (p >= 0)
 	{
 		spark = EGS(hitsectp, hitx, hity, hitz, SHOTSPARK1, -15, 10, 10, sa, 0, 0, actor, 4);
+		if (!spark) return;
 		spark->s->extra = ScriptCode[gs.actorinfo[atwith].scriptaddress];
 		spark->s->extra += (krand() % 6);
 
@@ -432,6 +435,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 	else
 	{
 		spark = EGS(hitsectp, hitx, hity, hitz, SHOTSPARK1, -15, 24, 24, sa, 0, 0, actor, 4);
+		if (!spark) return;
 		spark->s->extra = ScriptCode[gs.actorinfo[atwith].scriptaddress];
 
 		if (hitsprt)
@@ -575,6 +579,7 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 	while (scount > 0)
 	{
 		auto j = EGS(sect, sx, sy, sz, atwith, -127, sizx, sizy, sa, vel, zvel, actor, 4);
+		if (!j) return;
 		j->s->extra += (krand() & 7);
 		j->s->cstat = 128;
 		j->s->clipdist = 4;
@@ -675,6 +680,7 @@ static void shootrpg(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 		sy + (bsin(sa + 348) / 448),
 		sz - (1 << 8), atwith, 0, 14, 14, sa, vel, zvel, actor, 4);
 
+	if (!spawned) return;
 	if (isRRRA())
 	{
 		if (atwith == RRTILE1790)
@@ -808,6 +814,7 @@ static void shootwhip(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, 
 	while (scount > 0)
 	{
 		auto j = EGS(sect, sx, sy, sz, atwith, -127, sizx, sizy, sa, vel, zvel, actor, 4);
+		if (!j) return;
 		j->s->extra += (krand() & 7);
 		j->s->cstat = 128;
 		j->s->clipdist = 4;
@@ -2742,21 +2749,24 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 				p->pos.z, HEAVYHBOMB, -16, 9, 9,
 				p->angle.ang.asbuild(), (k + (p->hbomb_hold_delay << 5)) * 2, i, pact, 1);
 
-			if (k == 15)
+			if (spawned)
 			{
-				spawned->s->yvel = 3;
-				spawned->s->z += (8 << 8);
-			}
+				if (k == 15)
+				{
+					spawned->s->yvel = 3;
+					spawned->s->z += (8 << 8);
+				}
 
-			k = hits(p->GetActor());
-			if (k < 512)
-			{
-				spawned->s->ang += 1024;
-				spawned->s->zvel /= 3;
-				spawned->s->xvel /= 3;
-			}
+				k = hits(p->GetActor());
+				if (k < 512)
+				{
+					spawned->s->ang += 1024;
+					spawned->s->zvel /= 3;
+					spawned->s->xvel /= 3;
+				}
 
-			p->hbomb_on = 1;
+				p->hbomb_on = 1;
+			}
 		}
 		else if (p->kickback_pic < 12 && (actions & SB_FIRE))
 			p->hbomb_hold_delay++;

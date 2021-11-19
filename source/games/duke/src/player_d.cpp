@@ -127,16 +127,19 @@ static void shootfireball(DDukeActor *actor, int p, int sx, int sy, int sz, int 
 	}
 
 	auto spawned = EGS(s->sector(), sx, sy, sz, FIREBALL, -127, sizx, sizy, sa, vel, zvel, actor, (short)4);
-	auto spr = spawned->s;
-	spr->extra += (krand() & 7);
-	if (s->picnum == BOSS5 || p >= 0)
+	if (spawned)
 	{
-		spr->xrepeat = 40;
-		spr->yrepeat = 40;
+		auto spr = spawned->s;
+		spr->extra += (krand() & 7);
+		if (s->picnum == BOSS5 || p >= 0)
+		{
+			spr->xrepeat = 40;
+			spr->yrepeat = 40;
+		}
+		spr->yvel = p;
+		spr->cstat = 128;
+		spr->clipdist = 4;
 	}
-	spr->yvel = p;
-	spr->cstat = 128;
-	spr->clipdist = 4;
 }
 
 //---------------------------------------------------------------------------
@@ -264,17 +267,19 @@ static void shootknee(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 		if (hitwallp || hitsprt)
 		{
 			auto knee = EGS(hitsectp, hitx, hity, hitz, KNEE, -15, 0, 0, sa, 32, 0, actor, 4);
-			knee->s->extra += (krand() & 7);
-			if (p >= 0)
+			if (knee)
 			{
-				auto k = spawn(knee, SMALLSMOKE);
-				k->s->z -= (8 << 8);
-				S_PlayActorSound(KICK_HIT, knee);
+				knee->s->extra += (krand() & 7);
+				if (p >= 0)
+				{
+					auto k = spawn(knee, SMALLSMOKE);
+					k->s->z -= (8 << 8);
+					S_PlayActorSound(KICK_HIT, knee);
+				}
+
+				if (p >= 0 && ps[p].steroids_amount > 0 && ps[p].steroids_amount < 400)
+					knee->s->extra += (gs.max_player_health >> 2);
 			}
-
-			if (p >= 0 && ps[p].steroids_amount > 0 && ps[p].steroids_amount < 400)
-				knee->s->extra += (gs.max_player_health >> 2);
-
 			if (hitsprt && hitsprt->s->picnum != ACCESSSWITCH && hitsprt->s->picnum != ACCESSSWITCH2)
 			{
 				fi.checkhitsprite(hitsprt, knee);
@@ -422,6 +427,8 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 	if (p >= 0)
 	{
 		spark = EGS(hitsectp, hitx, hity, hitz, SHOTSPARK1, -15, 10, 10, sa, 0, 0, actor, 4);
+		if (!spark) return;
+
 		spark->s->extra = ScriptCode[gs.actorinfo[atwith].scriptaddress];
 		spark->s->extra += (krand() % 6);
 
@@ -536,17 +543,20 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 	else
 	{
 		spark = EGS(hitsectp, hitx, hity, hitz, SHOTSPARK1, -15, 24, 24, sa, 0, 0, actor, 4);
-		spark->s->extra = ScriptCode[gs.actorinfo[atwith].scriptaddress];
-
-		if (hitact)
+		if (spark)
 		{
-			fi.checkhitsprite(hitact, spark);
-			if (hitact->s->picnum != TILE_APLAYER)
-				spawn(spark, SMALLSMOKE);
-			else spark->s->xrepeat = spark->s->yrepeat = 0;
+			spark->s->extra = ScriptCode[gs.actorinfo[atwith].scriptaddress];
+
+			if (hitact)
+			{
+				fi.checkhitsprite(hitact, spark);
+				if (hitact->s->picnum != TILE_APLAYER)
+					spawn(spark, SMALLSMOKE);
+				else spark->s->xrepeat = spark->s->yrepeat = 0;
+			}
+			else if (hitwallp)
+				fi.checkhitwall(spark, hitwallp, hitx, hity, hitz, SHOTSPARK1);
 		}
-		else if (hitwallp)
-			fi.checkhitwall(spark, hitwallp, hitx, hity, hitz, SHOTSPARK1);
 	}
 
 	if ((krand() & 255) < 4)
@@ -642,6 +652,7 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 	while (scount > 0)
 	{
 		auto spawned = EGS(sect, sx, sy, sz, atwith, -127, sizx, sizy, sa, vel, zvel, actor, 4);
+		if (!spawned) return;
 		spawned->s->extra += (krand() & 7);
 
 		if (atwith == COOLEXPLOSION1)
@@ -736,6 +747,8 @@ static void shootrpg(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, i
 		sy + (bsin(sa + 348) / 448),
 		sz - (1 << 8), atwith, 0, 14, 14, sa, vel, zvel, actor, 4);
 
+	if (!spawned) return;
+		
 	auto spj = spawned->s;
 	spj->extra += (krand() & 7);
 	if (atwith != FREEZEBLAST)
@@ -878,6 +891,7 @@ static void shootlaser(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 		if (j == 1)
 		{
 			auto bomb = EGS(hitsectp, hitx, hity, hitz, TRIPBOMB, -16, 4, 5, sa, 0, 0, actor, 6);
+			if (!bomb) return;
 			if (isWW2GI())
 			{
 				int lTripBombControl = GetGameVar("TRIPBOMB_CONTROL", TRIPBOMB_TRIPWIRE, nullptr, -1);
@@ -979,6 +993,7 @@ static void shootgrowspark(DDukeActor* actor, int p, int sx, int sy, int sz, int
 	s->cstat |= 257;
 
 	auto spark = EGS(sect, hitx, hity, hitz, GROWSPARK, -16, 28, 28, sa, 0, 0, actor, 1);
+	if (!spark) return;
 
 	spark->s->pal = 2;
 	spark->s->cstat |= 130;
@@ -1174,8 +1189,11 @@ void shoot_d(DDukeActor* actor, int atwith)
 			sy + bcos(sa, -12),
 			sz + (2 << 8), SHRINKSPARK, -16, 28, 28, sa, 768, zvel, actor, 4);
 
-		j->s->cstat = 128;
-		j->s->clipdist = 32;
+		if (j)
+		{
+			j->s->cstat = 128;
+			j->s->clipdist = 32;
+		}
 
 
 		return;

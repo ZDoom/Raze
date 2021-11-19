@@ -269,7 +269,7 @@ void lotsofstuff(DDukeActor* actor, int n, int spawntype)
 	{
 		int r1 = krand(), r2 = krand();	// using the RANDCORRECT version from RR.
 		auto j = EGS(s->sector(), s->x, s->y, s->z - (r2 % (47 << 8)), spawntype, -32, 8, 8, r1 & 2047, 0, 0, actor, 5);
-		j->s->cstat = krand() & 12;
+		if (j) j->s->cstat = krand() & 12;
 	}
 }
 

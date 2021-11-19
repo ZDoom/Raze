@@ -496,7 +496,7 @@ void guts_r(DDukeActor* actor, int gtype, int n, int p)
 		int r5 = krand();
 		// TRANSITIONAL: owned by a player???
 		auto spawned = EGS(s->sector(), s->x + (r5 & 255) - 128, s->y + (r4 & 255) - 128, gutz - (r3 & 8191), gtype, -32, sx >> 1, sy >> 1, a, 48 + (r2 & 31), -512 - (r1 & 2047), ps[p].GetActor(), 5);
-		if (pal != 0)
+		if (spawned && pal != 0)
 			spawned->s->pal = pal;
 	}
 }
@@ -1432,8 +1432,11 @@ static void weaponcommon_r(DDukeActor *proj)
 				s->z + ((k * Sgn(s->zvel)) * abs(s->zvel / 24)), FIRELASER, -40 + (k << 2),
 				s->xrepeat, s->yrepeat, 0, 0, 0, proj->GetOwner(), 5);
 
-			x->s->cstat = 128;
-			x->s->pal = s->pal;
+			if (x)
+			{
+				x->s->cstat = 128;
+				x->s->pal = s->pal;
+			}
 		}
 	}
 	else if (s->picnum == SPIT) if (s->zvel < 6144)
@@ -3360,10 +3363,13 @@ void handle_se06_r(DDukeActor *actor)
 				if (!hulkspawn)
 				{
 					ns = EGS(s->sector(), s->x, s->y, s->sector()->ceilingz + 119428, 3677, -8, 16, 16, 0, 0, 0, actor, 5);
-					ns->s->cstat = 514;
-					ns->s->pal = 7;
-					ns->s->xrepeat = 80;
-					ns->s->yrepeat = 255;
+					if (ns)
+					{
+						ns->s->cstat = 514;
+						ns->s->pal = 7;
+						ns->s->xrepeat = 80;
+						ns->s->yrepeat = 255;
+					}
 					ns = spawn(actor, 296);
 					ns->s->cstat = 0;
 					ns->s->cstat |= 32768;

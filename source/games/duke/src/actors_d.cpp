@@ -670,13 +670,16 @@ void guts_d(DDukeActor* actor, int gtype, int n, int p)
 		int r5 = krand();
 		// TRANSITIONAL: owned by a player???
 		auto spawned = EGS(s->sector(), s->x + (r5 & 255) - 128, s->y + (r4 & 255) - 128, gutz - (r3 & 8191), gtype, -32, sx, sy, a, 48 + (r2 & 31), -512 - (r1 & 2047), ps[p].GetActor(), 5);
-		if (spawned->s->picnum == JIBS2)
+		if (spawned)
 		{
-			spawned->s->xrepeat >>= 2;
-			spawned->s->yrepeat >>= 2;
+			if (spawned->s->picnum == JIBS2)
+			{
+				spawned->s->xrepeat >>= 2;
+				spawned->s->yrepeat >>= 2;
+			}
+			if (pal != 0)
+				spawned->s->pal = pal;
 		}
-		if (pal != 0)
-			spawned->s->pal = pal;
 	}
 }
 
@@ -1230,7 +1233,7 @@ static void movefireext(DDukeActor* actor)
 	for (int k = 0; k < 16; k++)
 	{
 		auto spawned = EGS(actor->s->sector(), actor->s->x, actor->s->y, actor->s->z - (krand() % (48 << 8)), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (actor->s->zvel >> 2), actor, 5);
-		spawned->s->pal = 2;
+		if(spawned) spawned->s->pal = 2;
 	}
 
 	spawn(actor, EXPLOSION2);
@@ -1809,9 +1812,11 @@ static void weaponcommon_d(DDukeActor* proj)
 				s->y + MulScale(k, bsin(s->ang), 9),
 				s->z + ((k * Sgn(s->zvel)) * abs(s->zvel / 24)), FIRELASER, -40 + (k << 2),
 				s->xrepeat, s->yrepeat, 0, 0, 0, proj->GetOwner(), 5);
-
-			spawned->s->cstat = 128;
-			spawned->s->pal = s->pal;
+			if (spawned)
+			{
+				spawned->s->cstat = 128;
+				spawned->s->pal = s->pal;
+			}
 		}
 	}
 	else if (s->picnum == SPIT) if (s->zvel < 6144)
