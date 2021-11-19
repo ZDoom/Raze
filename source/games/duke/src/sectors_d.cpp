@@ -1533,6 +1533,8 @@ void checksectors_d(int snum)
 	p = &ps[snum];
 	auto pact = p->GetActor();
 
+	if (!p->insector()) return;
+
 	switch (p->cursector()->lotag)
 	{
 

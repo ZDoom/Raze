@@ -448,7 +448,7 @@ enum
 
 void PlayerHorizon::calcviewpitch(vec2_t const pos, binangle const ang, bool const aimmode, bool const canslopetilt, int const cursectnum, double const scaleAdjust, bool const climbing)
 {
-	if (cl_slopetilting)
+	if (cl_slopetilting && cursectnum >= 0)
 	{
 		if (aimmode && canslopetilt) // If the floor is sloped
 		{

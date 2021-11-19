@@ -360,7 +360,7 @@ void movedummyplayers(void)
 		p = act->GetOwner()->PlayerIndex();
 		auto spri = act->s;
 
-		if ((!isRR() && ps[p].on_crane != nullptr) || ps[p].cursector()->lotag != 1 || ps->GetActor()->s->extra <= 0)
+		if ((!isRR() && ps[p].on_crane != nullptr) || !ps[p].insector() || ps[p].cursector()->lotag != 1 || ps->GetActor()->s->extra <= 0)
 		{
 			ps[p].dummyplayersprite = nullptr;
 			deletesprite(act);
@@ -2916,7 +2916,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 		{
 			auto psp = ps[p].GetActor();
-			if (ps[p].cursector()->lotag != 2)
+			if (ps[p].insector() && ps[p].cursector()->lotag != 2)
 			{
 				if (po[p].os == s->sectnum)
 				{

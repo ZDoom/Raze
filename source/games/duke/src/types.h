@@ -312,7 +312,17 @@ struct player_struct
 
 	sectortype* cursector() const
 	{
+#ifdef _DEBUG	// this is an aid for detecting invalid sector access during development as it will cause the game to crash when sector -1 is being accessed.
+		return cursectnum < 0 ? nullptr : &::sector[cursectnum];
+#else
 		return &::sector[cursectnum];
+#endif
+	}
+
+	bool insector() const
+	{
+		assert(cursectnum >= -1 && cursectnum < numsectors);	// check for truly invalid values.
+		return validSectorIndex(cursectnum);
 	}
 
 };

@@ -1576,7 +1576,7 @@ int doincrements_d(struct player_struct* p)
 		}
 	}
 
-	if (p->scuba_on == 0 && p->cursector()->lotag == 2)
+	if (p->scuba_on == 0 && p->insector() && p->cursector()->lotag == 2)
 	{
 		if (p->scuba_amount > 0)
 		{
@@ -1813,7 +1813,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz, int
 			if ((p->pos.z + p->poszv) >= (fz - (i << 8))) // hit the ground
 			{
 				S_StopSound(DUKE_SCREAM, pact);
-				if (p->cursector()->lotag != 1)
+				if (!p->insector() || p->cursector()->lotag != 1)
 				{
 					if (p->falling_counter > 62) quickkill(p);
 
@@ -3023,7 +3023,7 @@ HORIZONLY:
 	if (psectlotag == 1 || p->spritebridge == 1) ii = (4L << 8);
 	else ii = (20L << 8);
 
-	if (p->cursector()->lotag == 2) k = 0;
+	if (p->insector() && p->cursector()->lotag == 2) k = 0;
 	else k = 1;
 
 	Collision clip{};
@@ -3075,7 +3075,7 @@ HORIZONLY:
 		}
 	}
 
-	if (truefdist < gs.playerheight && p->on_ground && psectlotag != 1 && shrunk == 0 && p->cursector()->lotag == 1)
+	if (truefdist < gs.playerheight && p->on_ground && psectlotag != 1 && shrunk == 0 && p->insector() && p->cursector()->lotag == 1)
 		if (!S_CheckActorSoundPlaying(pact, DUKE_ONWATER))
 			S_PlayActorSound(DUKE_ONWATER, pact);
 

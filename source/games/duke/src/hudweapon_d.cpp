@@ -251,7 +251,7 @@ void displayweapon_d(int snum, double smoothratio)
 	shade = p->GetActor()->s->shade;
 	if(shade > 24) shade = 24;
 
-	pal = p->GetActor()->s->pal == 1 ? 1 : p->cursector()->floorpal;
+	pal = !p->insector() ? 0 : p->GetActor()->s->pal == 1 ? 1 : p->cursector()->floorpal;
 	if (pal == 0)
 		pal = p->palookup;
 

@@ -2452,6 +2452,8 @@ void checksectors_r(int snum)
 	p = &ps[snum];
 	auto pact = p->GetActor();
 
+	if (!p->insector()) return;
+
 	switch (p->cursector()->lotag)
 	{
 

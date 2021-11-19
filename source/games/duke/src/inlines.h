@@ -189,7 +189,7 @@ inline bool playrunning()
 
 inline void doslopetilting(player_struct* p, double const scaleAdjust = 1)
 {
-	bool const canslopetilt = p->on_ground && p->cursector()->lotag != ST_2_UNDERWATER && (p->cursector()->floorstat & 2);
+	bool const canslopetilt = p->on_ground && p->insector() && p->cursector()->lotag != ST_2_UNDERWATER && (p->cursector()->floorstat & 2);
 	p->horizon.calcviewpitch(p->pos.vec2, p->angle.ang, p->aim_mode == 0, canslopetilt, p->cursectnum, scaleAdjust);
 }
 
