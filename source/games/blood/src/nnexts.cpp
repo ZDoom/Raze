@@ -3315,19 +3315,11 @@ void useSectorWindGen(DBloodActor* sourceactor, sectortype* pSector)
         pXSector->panVel = pXSector->windVel;
 
         // add to panList if panVel was set to 0 previously
-        if (oldPan == 0 && pXSector->panVel != 0 && panCount < kMaxXSectors) 
+        if (oldPan == 0 && pXSector->panVel != 0) 
         {
-            int i;
-            for (i = 0; i < panCount; i++) 
-            {
-                if (panList[i] != nXSector) continue;
-                break;
-            }
-
-            if (i == panCount)
-            {
-                panList[panCount++] = nXSector;
-            }
+            auto newSect = &sector[pXSector->reference];
+            if (!panList.Contains(newSect))
+                panList.Push(newSect);
         }
     }
 }
@@ -6788,18 +6780,11 @@ void useSectorLigthChanger(DBloodActor* sourceactor, XSECTOR* pXSector)
     }
 
     // add to shadeList if amplitude was set to 0 previously
-    if (oldAmplitude != pXSector->amplitude && shadeCount < kMaxXSectors) 
+    if (oldAmplitude != pXSector->amplitude) 
     {
-        bool found = false;
-        for (int i = 0; i < shadeCount; i++) 
-        {
-            if (shadeList[i] != sector[pXSector->reference].extra) continue;
-            found = true;
-            break;
-        }
-
-        if (!found)
-            shadeList[shadeCount++] = sector[pXSector->reference].extra;
+        auto newSect = &sector[pXSector->reference];
+        if (!shadeList.Contains(newSect))
+            shadeList.Push(newSect);
     }
 }
 

@@ -103,52 +103,49 @@ int GetWaveValue(int a, int b, int c)
     return 0;
 }
 
-int shadeCount = 0;
-short shadeList[kMaxXSectors];
-int panCount = 0;
-short panList[kMaxXSectors];
+// These can be fully regenerated after loading a savegame.
+TArray<sectortype*> shadeList;
+TArray<sectortype*> panList;
+TArray<walltype*> wallPanList;
 
 void DoSectorLighting(void)
 {
-    for (int i = 0; i < shadeCount; i++)
+    for (auto& pSector : shadeList)
     {
-        int nXSector = shadeList[i];
-        XSECTOR *pXSector = &xsector[nXSector];
-        int nSector = pXSector->reference;
-        assert(sector[nSector].extra == nXSector);
+        XSECTOR* pXSector = &pSector->xs();
         if (pXSector->shade)
         {
             int v4 = pXSector->shade;
             if (pXSector->shadeFloor)
             {
-                sector[nSector].floorshade -= v4;
+                pSector->floorshade -= v4;
                 if (pXSector->color)
                 {
                     int nTemp = pXSector->floorpal;
-                    pXSector->floorpal = sector[nSector].floorpal;
-                    sector[nSector].floorpal = nTemp;
+                    pXSector->floorpal = pSector->floorpal;
+                    pSector->floorpal = nTemp;
                 }
             }
             if (pXSector->shadeCeiling)
             {
-                sector[nSector].ceilingshade -= v4;
+                pSector->ceilingshade -= v4;
                 if (pXSector->color)
                 {
                     int nTemp = pXSector->ceilpal;
-                    pXSector->ceilpal = sector[nSector].ceilingpal;
-                    sector[nSector].ceilingpal = nTemp;
+                    pXSector->ceilpal = pSector->ceilingpal;
+                    pSector->ceilingpal = nTemp;
                 }
             }
             if (pXSector->shadeWalls)
             {
-                int nStartWall = sector[nSector].wallptr;
-                int nEndWall = nStartWall + sector[nSector].wallnum;
+                int nStartWall = pSector->wallptr;
+                int nEndWall = nStartWall + pSector->wallnum;
                 for (int j = nStartWall; j < nEndWall; j++)
                 {
                     wall[j].shade -= v4;
                     if (pXSector->color)
                     {
-                        wall[j].pal = sector[nSector].floorpal;
+                        wall[j].pal = pSector->floorpal;
                     }
                 }
             }
@@ -165,34 +162,34 @@ void DoSectorLighting(void)
             int v4 = GetWaveValue(t1, pXSector->phase*8+pXSector->freq*PlayClock, t2);
             if (pXSector->shadeFloor)
             {
-                sector[nSector].floorshade = ClipRange(sector[nSector].floorshade+v4, -128, 127);
+                pSector->floorshade = ClipRange(pSector->floorshade+v4, -128, 127);
                 if (pXSector->color && v4 != 0)
                 {
                     int nTemp = pXSector->floorpal;
-                    pXSector->floorpal = sector[nSector].floorpal;
-                    sector[nSector].floorpal = nTemp;
+                    pXSector->floorpal = pSector->floorpal;
+                    pSector->floorpal = nTemp;
                 }
             }
             if (pXSector->shadeCeiling)
             {
-                sector[nSector].ceilingshade = ClipRange(sector[nSector].ceilingshade+v4, -128, 127);
+                pSector->ceilingshade = ClipRange(pSector->ceilingshade+v4, -128, 127);
                 if (pXSector->color && v4 != 0)
                 {
                     int nTemp = pXSector->ceilpal;
-                    pXSector->ceilpal = sector[nSector].ceilingpal;
-                    sector[nSector].ceilingpal = nTemp;
+                    pXSector->ceilpal = pSector->ceilingpal;
+                    pSector->ceilingpal = nTemp;
                 }
             }
             if (pXSector->shadeWalls)
             {
-                int nStartWall = sector[nSector].wallptr;
-                int nEndWall = nStartWall + sector[nSector].wallnum;
+                int nStartWall = pSector->wallptr;
+                int nEndWall = nStartWall + pSector->wallnum;
                 for (int j = nStartWall; j < nEndWall; j++)
                 {
                     wall[j].shade = ClipRange(wall[j].shade+v4, -128, 127);
                     if (pXSector->color && v4 != 0)
                     {
-                        wall[j].pal = sector[nSector].floorpal;
+                        wall[j].pal = pSector->floorpal;
                     }
                 }
             }
@@ -251,19 +248,12 @@ void UndoSectorLighting(void)
     }
 }
 
-short wallPanList[kMaxXWalls];
-int wallPanCount;
 
 void DoSectorPanning(void)
 {
-    for (int i = 0; i < panCount; i++)
+    for(auto pSector : panList)
     {
-        int nXSector = panList[i];
-        XSECTOR *pXSector = &xsector[nXSector];
-        int nSector = pXSector->reference;
-        assert(validSectorIndex(nSector));
-        sectortype *pSector = &sector[nSector];
-        assert(pSector->extra == nXSector);
+        XSECTOR *pXSector = &pSector->xs();
         if (pXSector->panAlways || pXSector->busy)
         {
             int angle = pXSector->panAngle+1024;
@@ -297,12 +287,9 @@ void DoSectorPanning(void)
             }
         }
     }
-    for (int i = 0; i < wallPanCount; i++)
+    for (auto pWall : wallPanList)
     {
-        int nXWall = wallPanList[i];
-        XWALL *pXWall = &xwall[nXWall];
-        int nWall = pXWall->reference;
-        assert(wall[nWall].extra == nXWall);
+        XWALL *pXWall = &pWall->xw();
         if (pXWall->panAlways || pXWall->busy)
         {
             int psx = pXWall->panXVel<<10;
@@ -312,42 +299,41 @@ void DoSectorPanning(void)
                 psx = MulScale(psx, pXWall->busy, 16);
                 psy = MulScale(psy, pXWall->busy, 16);
             }
-            int nTile = wall[nWall].picnum;
+            int nTile = pWall->picnum;
             int px = (psx << 2) / tileWidth(nTile);
             int py = (psy << 2) / tileHeight(nTile);
 
-            wall[nWall].addxpan(px * (1.f / 256));
-            wall[nWall].addypan(py * (1.f / 256));
+            pWall->addxpan(px * (1.f / 256));
+            pWall->addypan(py * (1.f / 256));
         }
     }
 }
 
 void InitSectorFX(void)
 {
-    shadeCount = 0;
-    panCount = 0;
-    wallPanCount = 0;
-    for (int i = 0; i < numsectors; i++)
+    shadeList.Clear();
+    panList.Clear();
+    wallPanList.Clear();
+    for (auto& sect : sectors())
     {
-        int nXSector = sector[i].extra;
-        if (nXSector > 0)
+        if (sect.hasX())
         {
-            XSECTOR *pXSector = &xsector[nXSector];
+            XSECTOR *pXSector = &sect.xs();
             if (pXSector->amplitude)
-                shadeList[shadeCount++] = nXSector;
+                shadeList.Push(&sect);
             if (pXSector->panVel)
             {
-                panList[panCount++] = nXSector;
+                panList.Push(&sect);
 
                 if (pXSector->panCeiling)
                 {
-                    StartInterpolation(i, Interp_Sect_CeilingPanX);
-                    StartInterpolation(i, Interp_Sect_CeilingPanY);
+                    StartInterpolation(&sect, Interp_Sect_CeilingPanX);
+                    StartInterpolation(&sect, Interp_Sect_CeilingPanY);
                 }
                 if (pXSector->panFloor)
                 {
-                    StartInterpolation(i, Interp_Sect_FloorPanX);
-                    StartInterpolation(i, Interp_Sect_FloorPanY);
+                    StartInterpolation(&sect, Interp_Sect_FloorPanX);
+                    StartInterpolation(&sect, Interp_Sect_FloorPanY);
                 }
 
             }
@@ -355,15 +341,14 @@ void InitSectorFX(void)
     }
     for(auto& wal : walls())
     {
-        int nXWall = wal.extra;
-        if (nXWall > 0)
+        if (wal.hasX())
         {
-            XWALL *pXWall = &xwall[nXWall];
+            XWALL *pXWall = &wal.xw();
             if (pXWall->panXVel || pXWall->panYVel)
             {
-                wallPanList[wallPanCount++] = nXWall;
-                if (pXWall->panXVel) StartInterpolation(wallnum(&wal), Interp_Wall_PanX);
-                if (pXWall->panXVel) StartInterpolation(wallnum(&wal), Interp_Wall_PanY);
+                wallPanList.Push(&wal);
+                if (pXWall->panXVel) StartInterpolation(&wal, Interp_Wall_PanX);
+                if (pXWall->panXVel) StartInterpolation(&wal, Interp_Wall_PanY);
             }
         }
     }
