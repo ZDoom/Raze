@@ -53,41 +53,42 @@ void CopySectorWalls(short dest_sectnum, short src_sectnum)
 
     do
     {
-        wall[dest_wall_num].picnum = wall[src_wall_num].picnum;
+        auto dwall = &wall[dest_wall_num];
+        auto swall = &wall[src_wall_num];
+        dwall->picnum = swall->picnum;
 
-        wall[dest_wall_num].xrepeat =       wall[src_wall_num].xrepeat;
-        wall[dest_wall_num].yrepeat =       wall[src_wall_num].yrepeat;
-        wall[dest_wall_num].overpicnum =    wall[src_wall_num].overpicnum;
-        wall[dest_wall_num].pal =           wall[src_wall_num].pal;
-        wall[dest_wall_num].cstat =         wall[src_wall_num].cstat;
-        wall[dest_wall_num].shade =         wall[src_wall_num].shade;
-        wall[dest_wall_num].xpan_ =      wall[src_wall_num].xpan_;
-        wall[dest_wall_num].ypan_ =      wall[src_wall_num].ypan_;
-        wall[dest_wall_num].hitag =         wall[src_wall_num].hitag;
-        wall[dest_wall_num].lotag =         wall[src_wall_num].lotag;
-        wall[dest_wall_num].extra =         wall[src_wall_num].extra;
+        dwall->xrepeat =       swall->xrepeat;
+        dwall->yrepeat =       swall->yrepeat;
+        dwall->overpicnum =    swall->overpicnum;
+        dwall->pal =           swall->pal;
+        dwall->cstat =         swall->cstat;
+        dwall->shade =         swall->shade;
+        dwall->xpan_ =         swall->xpan_;
+        dwall->ypan_ =         swall->ypan_;
+        dwall->hitag =         swall->hitag;
+        dwall->lotag =         swall->lotag;
+        dwall->extra =         swall->extra;
 
-        uint32_t const dest_nextwall = wall[dest_wall_num].nextwall;
-        uint32_t const src_nextwall = wall[src_wall_num].nextwall;
-
-        if (validWallIndex(dest_nextwall) && validWallIndex(src_nextwall))
+        if (validWallIndex(dwall->nextwall) && validWallIndex(swall->nextwall))
         {
-            wall[dest_nextwall].picnum = wall[src_nextwall].picnum;
-            wall[dest_nextwall].xrepeat = wall[src_nextwall].xrepeat;
-            wall[dest_nextwall].yrepeat = wall[src_nextwall].yrepeat;
-            wall[dest_nextwall].overpicnum = wall[src_nextwall].overpicnum;
-            wall[dest_nextwall].pal = wall[src_nextwall].pal;
-            wall[dest_nextwall].cstat = wall[src_nextwall].cstat;
-            wall[dest_nextwall].shade = wall[src_nextwall].shade;
-            wall[dest_nextwall].xpan_ = wall[src_nextwall].xpan_;
-            wall[dest_nextwall].ypan_ = wall[src_nextwall].ypan_;
-            wall[dest_nextwall].hitag = wall[src_nextwall].hitag;
-            wall[dest_nextwall].lotag = wall[src_nextwall].lotag;
-            wall[dest_nextwall].extra = wall[src_nextwall].extra;
+            auto const dest_nextwall = dwall->nextWall();
+            auto const src_nextwall = swall->nextWall();
+            dest_nextwall->picnum = src_nextwall->picnum;
+            dest_nextwall->xrepeat = src_nextwall->xrepeat;
+            dest_nextwall->yrepeat = src_nextwall->yrepeat;
+            dest_nextwall->overpicnum = src_nextwall->overpicnum;
+            dest_nextwall->pal = src_nextwall->pal;
+            dest_nextwall->cstat = src_nextwall->cstat;
+            dest_nextwall->shade = src_nextwall->shade;
+            dest_nextwall->xpan_ = src_nextwall->xpan_;
+            dest_nextwall->ypan_ = src_nextwall->ypan_;
+            dest_nextwall->hitag = src_nextwall->hitag;
+            dest_nextwall->lotag = src_nextwall->lotag;
+            dest_nextwall->extra = src_nextwall->extra;
         }
 
-        dest_wall_num = wall[dest_wall_num].point2;
-        src_wall_num = wall[src_wall_num].point2;
+        dest_wall_num = dwall->point2;
+        src_wall_num = swall->point2;
     }
     while (dest_wall_num != start_wall);
 
