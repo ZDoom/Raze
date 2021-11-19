@@ -300,10 +300,9 @@ void PropagateMarkerReferences(void)
                 int nOwner = actor->s().owner;
                 if (nOwner >= 0 && nOwner < numsectors) 
                 {
-                    int nXSector = sector[nOwner].extra;
-                    if (nXSector > 0 && nXSector < kMaxXSectors) 
+                    if (sector[nOwner].hasX())
                     {
-                        xsector[nXSector].marker0 = actor;
+                        sector[nOwner].xs().marker0 = actor;
                         continue;
                     }
                 }
@@ -314,10 +313,9 @@ void PropagateMarkerReferences(void)
                 int nOwner = actor->s().owner;
                 if (nOwner >= 0 && nOwner < numsectors)
                 {
-                    int nXSector = sector[nOwner].extra;
-                    if (nXSector > 0 && nXSector < kMaxXSectors)
+                    if (sector[nOwner].hasX())
                     {
-                        xsector[nXSector].marker1 = actor;
+                        sector[nOwner].xs().marker1 = actor;
                         continue;
                     }
                 }

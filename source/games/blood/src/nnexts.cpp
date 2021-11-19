@@ -1165,7 +1165,7 @@ void nnExtProcessSuperSprites()
                     continue;
 
                 int index = rxBucket[j].rxindex;
-                XSECTOR* pXSector = &xsector[sector[index].extra];
+                XSECTOR* pXSector = &sector[index].xs();
                 if ((!pXSector->locked) && (fWindAlways || pXSector->windAlways || pXSector->busy))
                     windGenDoVerticalWind(pXWind->sysData2, index);
             }
@@ -1179,7 +1179,7 @@ void nnExtProcessSuperSprites()
                         continue;
 
                     int index = rxBucket[j].rxindex;
-                    XSECTOR* pXSector = &xsector[sector[index].extra];
+                    XSECTOR* pXSector = &sector[index].xs();
                     if ((!pXSector->locked) && (fWindAlways || pXSector->windAlways || pXSector->busy))
                         windGenDoVerticalWind(pXWind->sysData2, index);
                 }
@@ -1333,7 +1333,7 @@ void nnExtProcessSuperSprites()
                 continue;
             }
 
-            XSECTOR* pXSector = (sector[pDebris->sectnum].extra >= 0) ? &xsector[sector[pDebris->sectnum].extra] : nullptr;
+            XSECTOR* pXSector = (sector[pDebris->sectnum].hasX()) ? &sector[pDebris->sectnum].xs() : nullptr;
             viewBackupSpriteLoc(debrisactor);
 
             bool uwater = false;
@@ -1707,7 +1707,7 @@ void debrisMove(int listIndex)
 
     bool uwater = false;
     int tmpFraction = actor->spriteMass.fraction;
-    if (sector[nSector].extra >= 0 && xsector[sector[nSector].extra].Underwater) 
+    if (sector[nSector].hasX() && sector[nSector].xs().Underwater) 
     {
         tmpFraction >>= 1;
         uwater = true;
@@ -1756,8 +1756,8 @@ void debrisMove(int listIndex)
         nSector = pSprite->sectnum;
         }
 
-    if (sector[nSector].extra > 0)
-        uwater = xsector[sector[nSector].extra].Underwater;
+    if (sector[nSector].hasX())
+        uwater = sector[nSector].xs().Underwater;
 
     if (actor->zvel)
         pSprite->z += actor->zvel >> 8;
@@ -1981,7 +1981,7 @@ void windGenStopWindOnSectors(DBloodActor* sourceactor)
     for (int i = bucketHead[pXSource->txID]; i < bucketHead[pXSource->txID + 1]; i++) 
     {
         if (rxBucket[i].type != OBJ_SECTOR) continue;
-        XSECTOR* pXSector = &xsector[sector[rxBucket[i].rxindex].extra];
+        XSECTOR* pXSector = &sector[rxBucket[i].rxindex].xs();
         if ((pXSector->state == 1 && !pXSector->windAlways)
             || ((pSource->flags & kModernTypeFlag1) && !(pSource->flags & kModernTypeFlag2))) 
         {
@@ -1997,7 +1997,7 @@ void windGenStopWindOnSectors(DBloodActor* sourceactor)
         for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) 
         {
             if (rxBucket[i].type != OBJ_SECTOR) continue;
-            XSECTOR* pXSector = &xsector[sector[rxBucket[i].rxindex].extra];
+            XSECTOR* pXSector = &sector[rxBucket[i].rxindex].xs();
             if ((pXSector->state == 1 && !pXSector->windAlways) || (pSource->flags & kModernTypeFlag2))
                 pXSector->windVel = 0;
         }
@@ -2855,7 +2855,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, int objIndex, D
         case OBJ_SECTOR: 
         {
             sectortype* pSector = &sector[objIndex];
-            XSECTOR* pXSector = &xsector[sector[objIndex].extra];
+            XSECTOR* pXSector = &pSector->xs();
 
             // data1 = sector underwater status and depth level
             if (pXSource->data1 >= 0 && pXSource->data1 < 2) {
@@ -3014,7 +3014,7 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
     auto pXSource = &sourceactor->x();
 
     PLAYER* pPlayer = getPlayerById(pSprite->type);
-    XSECTOR* pXSector = (sector[pSource->sectnum].extra >= 0) ? &xsector[sector[pSource->sectnum].extra] : NULL;
+    XSECTOR* pXSector = (pSource->sector()->hasX()) ? &pSource->sector()->xs() : nullptr;
     bool isDude = (!pPlayer && actor->IsDudeActor());
 
     if (pSprite->sectnum != pSource->sectnum)
@@ -7533,9 +7533,9 @@ bool nnExtCanMove(DBloodActor* actor, DBloodActor* target, int nAngle, int nRang
     if (!FindSector(x, y, z, &nSector))
         return false;
 
-    if (sector[nSector].extra > 0) {
+    if (sector[nSector].hasX()) {
 
-        XSECTOR* pXSector = &xsector[sector[nSector].extra];
+        XSECTOR* pXSector = &sector[nSector].xs();
         return !((sector[nSector].type == kSectorDamage || pXSector->damageType > 0) && pXSector->state && !nnExtIsImmune(actor, pXSector->damageType, 16));
 
     }

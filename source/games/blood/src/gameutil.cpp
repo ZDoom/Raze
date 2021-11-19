@@ -636,9 +636,9 @@ void GetZRange(DBloodActor *actor, int *ceilZ, Collision *ceilColl, int *floorZ,
         int nSector = floorColl->index;
         if ((nClipParallax & PARALLAXCLIP_FLOOR) == 0 && (sector[nSector].floorstat & 1))
             *floorZ = 0x7fffffff;
-        if (sector[nSector].extra > 0)
+        if (sector[nSector].hasX())
         {
-            XSECTOR *pXSector = &xsector[sector[nSector].extra];
+            XSECTOR *pXSector = &sector[nSector].xs();
             *floorZ += pXSector->Depth << 10;
         }
         auto actor = getUpperLink(nSector);
@@ -682,9 +682,9 @@ void GetZRangeAtXYZ(int x, int y, int z, int nSector, int *ceilZ, Collision* cei
         int nSector = floorColl->index;
         if ((nClipParallax & PARALLAXCLIP_FLOOR) == 0 && (sector[nSector].floorstat & 1))
             *floorZ = 0x7fffffff;
-        if (sector[nSector].extra > 0)
+        if (sector[nSector].hasX())
         {
-            XSECTOR *pXSector = &xsector[sector[nSector].extra];
+            XSECTOR* pXSector = &sector[nSector].xs();
             *floorZ += pXSector->Depth << 10;
         }
         auto actor = getUpperLink(nSector);
@@ -794,7 +794,7 @@ BitArray GetClosestSpriteSectors(int nSector, int x, int y, int nDist, TArray<in
             {
                 sectorMap.Set(nNextSector);
                 search.Add(nNextSector);
-                if (pWalls && wal.extra > 0)
+                if (pWalls && wal.hasX())
                 {
                     XWALL* pXWall = &wal.xw();
                     if (pXWall->triggerVector && !pXWall->isTriggered && !pXWall->state)

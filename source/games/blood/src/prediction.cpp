@@ -549,8 +549,7 @@ static void fakeMoveDude(spritetype *pSprite)
                 return;
             }
         }
-        int n XSector = sector [pSprite->sectnum]. extra;
-        if (n XSector > 0 && xsector[n XSector].Underwater)
+        if (pSprite->sector()->hasX() && pSprite->sector()->xs().Underwater)
             return;
         if (predict.floordist >= 0x100)
             return;

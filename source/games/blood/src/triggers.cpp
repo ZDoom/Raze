@@ -1774,10 +1774,11 @@ void trTriggerSprite(DBloodActor* actor, int command)
     }
 }
 
-void trMessageSector(unsigned int nSector, EVENT event) {
-    assert(nSector < (unsigned int)numsectors);
-    assert(sector[nSector].extra > 0 && sector[nSector].extra < kMaxXSectors);
-    XSECTOR *pXSector = &xsector[sector[nSector].extra];
+void trMessageSector(unsigned int nSector, EVENT event) 
+{
+    assert(validSectorIndex(nSector));
+    assert(sector[nSector].hasX());
+    XSECTOR *pXSector = &sector[nSector].xs();
     if (!pXSector->locked || event.cmd == kCmdUnlock || event.cmd == kCmdToggleLock) {
         switch (event.cmd) {
             case kCmdLink:
@@ -1965,7 +1966,7 @@ void trProcessBusy(void)
         int oldBusy = gBusy[i].busy;
         gBusy[i].busy = ClipRange(oldBusy+gBusy[i].delta*4, 0, 65536);
         #ifdef NOONE_EXTENSIONS
-            if (!gModernMap || !xsector[sector[gBusy[i].index].extra].unused1) nStatus = gBusyProc[gBusy[i].type](gBusy[i].index, gBusy[i].busy);
+            if (!gModernMap || !sector[gBusy[i].index].xs().unused1) nStatus = gBusyProc[gBusy[i].type](gBusy[i].index, gBusy[i].busy);
             else nStatus = 3; // allow to pause/continue motion for sectors any time by sending special command
         #else
             nStatus = gBusyProc[gBusy[i].type](gBusy[i].at0, gBusy[i].at8);
