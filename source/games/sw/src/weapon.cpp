@@ -4335,7 +4335,7 @@ bool WeaponMoveHit(DSWActor* actor)
                 return true;
             }
 
-            if (SectUser[hit_sect].Data() && FixedToInt(SectUser[hit_sect]->depth_fixed) > 0)
+            if (sector[hit_sect].hasU() && FixedToInt(sector[hit_sect].u()->depth_fixed) > 0)
             {
                 SpawnSplash(actor);
                 return true;
@@ -7678,7 +7678,7 @@ int DoStar(DSWActor* actor)
 
             if (sp->z > ((u->hiz + u->loz) >> 1))
             {
-                if (SectUser[hit_sect].Data() && FixedToInt(SectUser[hit_sect]->depth_fixed) > 0)
+                if (sector[hit_sect].hasU() && FixedToInt(sector[hit_sect].u()->depth_fixed) > 0)
                 {
                     SpawnSplash(actor);
                     KillActor(actor);

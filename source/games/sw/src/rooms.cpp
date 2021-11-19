@@ -489,7 +489,9 @@ void WaterAdjust(const Collision& florhit, int32_t* loz)
 {
     if (florhit.type == kHitSector)
     {
-        SECT_USERp sectu = SectUser[florhit.index].Data();
+        auto sect = &sector[florhit.index];
+        if (!sect->hasU()) return;
+        SECT_USERp sectu = sect->u();
 
         if (sectu && FixedToInt(sectu->depth_fixed))
             *loz += Z(FixedToInt(sectu->depth_fixed));

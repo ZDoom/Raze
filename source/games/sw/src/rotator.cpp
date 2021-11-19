@@ -180,13 +180,11 @@ void DoRotatorMatch(PLAYERp pp, short match, bool manual)
             if (firstVator == nullptr)
                 firstVator = actor;
 
-            sectnum = fsp->sectnum;
+            auto sect = fsp->sector();
 
-            if (pp && SectUser[sectnum].Data() && SectUser[sectnum]->stag == SECT_LOCK_DOOR && SectUser[sectnum]->number)
+            if (pp && sect->hasU() && sect->u()->stag == SECT_LOCK_DOOR && sect->u()->number)
             {
-                short key_num;
-
-                key_num = SectUser[sectnum]->number;
+                int key_num = sect->u()->number;
 
                 {
                     PutStringInfo(pp, quoteMgr.GetQuote(QUOTE_DOORMSG + key_num - 1));

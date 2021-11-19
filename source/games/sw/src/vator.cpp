@@ -295,13 +295,13 @@ void InterpSectorSprites(short sectnum, bool state)
     }
 }
 
-void MoveSpritesWithSector(short sectnum, int z_amt, bool type)
+void MoveSpritesWithSector(int sectnum, int z_amt, bool type)
 {
     SPRITEp sp;
     bool both = false;
-
-    if (SectUser[sectnum].Data())
-        both = !!TEST(SectUser[sectnum]->flags, SECTFU_VATOR_BOTH);
+    auto sect = &sector[sectnum];
+    if ( sect->hasU())
+        both = !!TEST(sect->u()->flags, SECTFU_VATOR_BOTH);
 
     SWSectIterator it(sectnum);
     while (auto actor = it.Next())
@@ -320,7 +320,7 @@ void MoveSpritesWithSector(short sectnum, int z_amt, bool type)
             case STAT_STATIC_FIRE:
                 break;
             default:
-                goto cont;
+                continue;
             }
         }
         else
@@ -331,7 +331,7 @@ void MoveSpritesWithSector(short sectnum, int z_amt, bool type)
             case STAT_HOLE_QUEUE:
 //              case STAT_WALLBLOOD_QUEUE:
 //              case STAT_FLOORBLOOD_QUEUE:
-                goto cont;
+                continue;
             }
         }
 
@@ -356,9 +356,6 @@ void MoveSpritesWithSector(short sectnum, int z_amt, bool type)
         }
 
         sp->z += z_amt;
-
-cont:
-        continue;
     }
 }
 

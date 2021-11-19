@@ -806,25 +806,26 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
 
         if (SectorInBounds)
         {
+            auto sect = &sector[k];
             sop->sector[sop->num_sectors] = k;
-            sop->sectp[sop->num_sectors] = &sector[k];
+            sop->sectp[sop->num_sectors] = sect;
 
             // all sectors in sector object have this flag set - for colision
             // detection and recognition
-            SET(sector[k].extra, SECTFX_SECTOR_OBJECT);
+            SET(sect->extra, SECTFX_SECTOR_OBJECT);
 
-            sop->zorig_floor[sop->num_sectors] = sector[k].floorz;
-            sop->zorig_ceiling[sop->num_sectors] = sector[k].ceilingz;
+            sop->zorig_floor[sop->num_sectors] = sect->floorz;
+            sop->zorig_ceiling[sop->num_sectors] = sect->ceilingz;
 
-            if (TEST(sector[k].extra, SECTFX_SINK))
-                sop->zorig_floor[sop->num_sectors] += Z(FixedToInt(SectUser[k]->depth_fixed));
+            if (TEST(sect->extra, SECTFX_SINK))
+                sop->zorig_floor[sop->num_sectors] += Z(FixedToInt(sect->u()->depth_fixed));
 
             // lowest and highest floorz's
-            if (sector[k].floorz > sop->floor_loz)
-                sop->floor_loz = sector[k].floorz;
+            if (sect->floorz > sop->floor_loz)
+                sop->floor_loz = sect->floorz;
 
-            if (sector[k].floorz < sop->floor_hiz)
-                sop->floor_hiz = sector[k].floorz;
+            if (sect->floorz < sop->floor_hiz)
+                sop->floor_hiz = sect->floorz;
 
             sop->num_sectors++;
         }
@@ -2531,14 +2532,17 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
 
             for (i = 0, sectp = &sop->sectp[0]; *sectp; sectp++, i++)
             {
-                sectu = SectUser[sectnum(*sectp)].Data();
-
-                if (sectu && sectu->stag == SECT_SO_FORM_WHIRLPOOL)
+                if ((*sectp)->hasU())
                 {
-                    AnimSet(ANIM_Floorz, sectnum(*sectp), nullptr, (*sectp)->floorz + Z(sectu->height), 128);
-                    (*sectp)->floorshade += sectu->height/6;
+                    sectu = (*sectp)->u();
 
-                    RESET((*sectp)->extra, SECTFX_NO_RIDE);
+                    if (sectu && sectu->stag == SECT_SO_FORM_WHIRLPOOL)
+                    {
+                        AnimSet(ANIM_Floorz, sectnum(*sectp), nullptr, (*sectp)->floorz + Z(sectu->height), 128);
+                        (*sectp)->floorshade += sectu->height / 6;
+
+                        RESET((*sectp)->extra, SECTFX_NO_RIDE);
+                    }
                 }
             }
 
