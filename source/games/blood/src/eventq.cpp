@@ -273,26 +273,24 @@ void evInit()
 	memset(rxBucket, 0, sizeof(rxBucket));
 
 	// add all the tags to the bucket array
-	for (int i = 0; i < numsectors; i++)
+	for(auto& sect : sectors())
 	{
-		int nXSector = sector[i].extra;
-		if (nXSector > 0 && xsector[nXSector].rxID > 0)
+		if (sect.hasX() && sect.xs().rxID > 0)
 		{
 			assert(nCount < kChannelMax);
 			rxBucket[nCount].type = SS_SECTOR;
-			rxBucket[nCount].rxindex = i;
+			rxBucket[nCount].rxindex = sectnum(&sect);
 			nCount++;
 		}
 	}
 
-	for (int i = 0; i < numwalls; i++)
+	for(auto& wal: walls())
 	{
-		int nXWall = wall[i].extra;
-		if (nXWall > 0 && xwall[nXWall].rxID > 0)
+		if (wal.hasX() && wal.xw().rxID > 0)
 		{
 			assert(nCount < kChannelMax);
 			rxBucket[nCount].type = SS_WALL;
-			rxBucket[nCount].rxindex = i;
+			rxBucket[nCount].rxindex = wallnum(&wal);
 			nCount++;
 		}
 	}
@@ -323,19 +321,13 @@ void evInit()
 
 static bool evGetSourceState(int type, int nIndex, DBloodActor* actor)
 {
-	int nXIndex;
-
 	switch (type)
 	{
 	case SS_SECTOR:
-		nXIndex = sector[nIndex].extra;
-		assert(nXIndex > 0 && nXIndex < kMaxXSectors);
-		return xsector[nXIndex].state != 0;
+		return  sector[nIndex].hasX() && sector[nIndex].xs().state != 0;
 
 	case SS_WALL:
-		nXIndex = wall[nIndex].extra;
-		assert(nXIndex > 0 && nXIndex < kMaxXWalls);
-		return xwall[nXIndex].state != 0;
+		return wall[nIndex].hasX() && wall[nIndex].xw().state != 0;
 
 	case SS_SPRITE:
 		if (actor->hasX())
