@@ -8336,7 +8336,8 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
                         sndy = emitter->y;
 
                         // sound attached to the sprite
-                        if (pSpr != emitter && emitter->owner != actor->GetSpriteIndex())
+                        auto emitterActor = &bloodActors[emitter - sprite];
+                        if (pSpr != emitter && emitterActor->GetOwner() != actor)
                         {
 
                             if (!sectRangeIsFine(emitter->sectnum)) return false;
