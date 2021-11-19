@@ -138,14 +138,12 @@ void DoSectorLighting(void)
             }
             if (pXSector->shadeWalls)
             {
-                int nStartWall = pSector->wallptr;
-                int nEndWall = nStartWall + pSector->wallnum;
-                for (int j = nStartWall; j < nEndWall; j++)
+                for(auto& wal : wallsofsector(pSector))
                 {
-                    wall[j].shade -= v4;
+                    wal.shade -= v4;
                     if (pXSector->color)
                     {
-                        wall[j].pal = pSector->floorpal;
+                        wal.pal = pSector->floorpal;
                     }
                 }
             }
@@ -182,14 +180,12 @@ void DoSectorLighting(void)
             }
             if (pXSector->shadeWalls)
             {
-                int nStartWall = pSector->wallptr;
-                int nEndWall = nStartWall + pSector->wallnum;
-                for (int j = nStartWall; j < nEndWall; j++)
+                for (auto& wal : wallsofsector(pSector))
                 {
-                    wall[j].shade = ClipRange(wall[j].shade+v4, -128, 127);
+                    wal.shade = ClipRange(wal.shade+v4, -128, 127);
                     if (pXSector->color && v4 != 0)
                     {
-                        wall[j].pal = pSector->floorpal;
+                        wal.pal = pSector->floorpal;
                     }
                 }
             }
@@ -200,45 +196,42 @@ void DoSectorLighting(void)
 
 void UndoSectorLighting(void)
 {
-    for (int i = 0; i < numsectors; i++)
+    for (auto& sect : sectors())
     {
-        int nXSprite = sector[i].extra;
-        if (nXSprite > 0)
+        if (sect.hasX())
         {
-            XSECTOR *pXSector = &xsector[i];
+            XSECTOR *pXSector = &sect.xs();
             if (pXSector->shade)
             {
                 int v4 = pXSector->shade;
                 if (pXSector->shadeFloor)
                 {
-                    sector[i].floorshade -= v4;
+                    sect.floorshade -= v4;
                     if (pXSector->color)
                     {
                         int nTemp = pXSector->floorpal;
-                        pXSector->floorpal = sector[i].floorpal;
-                        sector[i].floorpal = nTemp;
+                        pXSector->floorpal = sect.floorpal;
+                        sect.floorpal = nTemp;
                     }
                 }
                 if (pXSector->shadeCeiling)
                 {
-                    sector[i].ceilingshade -= v4;
+                    sect.ceilingshade -= v4;
                     if (pXSector->color)
                     {
                         int nTemp = pXSector->ceilpal;
-                        pXSector->ceilpal = sector[i].ceilingpal;
-                        sector[i].ceilingpal = nTemp;
+                        pXSector->ceilpal = sect.ceilingpal;
+                        sect.ceilingpal = nTemp;
                     }
                 }
                 if (pXSector->shadeWalls)
                 {
-                    int nStartWall = sector[i].wallptr;
-                    int nEndWall = nStartWall + sector[i].wallnum;
-                    for (int j = nStartWall; j < nEndWall; j++)
+                    for(auto& wal : wallsofsector(&sect))
                     {
-                        wall[j].shade -= v4;
+                        wal.shade -= v4;
                         if (pXSector->color)
                         {
-                            wall[j].pal = sector[i].floorpal;
+                            wal.pal = sect.floorpal;
                         }
                     }
                 }
