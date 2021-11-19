@@ -186,7 +186,6 @@ struct XSECTOR {
     int32_t onFloorZ;
     uint32_t windVel;          // Wind vel (changed from 10 bit to use higher velocity values)
 
-    uint16_t reference;
     uint16_t data;             // Data
     uint16_t txID;             // TX ID
     uint16_t rxID;             // RX ID

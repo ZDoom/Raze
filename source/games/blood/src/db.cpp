@@ -272,7 +272,6 @@ unsigned short dbInsertXSector(int nSector)
         I_Error("Out of free XSectors");
     }
     memset(&xsector[nXSector], 0, sizeof(XSECTOR));
-    xsector[nXSector].reference = nSector;
     sector[nSector].extra = nXSector;
     return nXSector;
 }
@@ -280,10 +279,6 @@ unsigned short dbInsertXSector(int nSector)
 void dbInit(void)
 {
     XWallsUsed = XSectorsUsed = 1;  // 0 is not usable because it's the default for 'extra' and some code actually uses it to clobber the contents in here. :(
-    for (int i = 1; i < kMaxXSectors; i++)
-    {
-        xsector[i].reference = -1;
-    }
     initspritelists();
     for (int i = 0; i < kMaxSprites; i++)
     {
@@ -689,8 +684,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, int 
             pXSector->bobFloor = bitReader.readUnsigned(1);
             pXSector->bobCeiling = bitReader.readUnsigned(1);
             pXSector->bobRotate = bitReader.readUnsigned(1);
-            xsector[sector[i].extra].reference = i;
-            xsector[sector[i].extra].busy = IntToFixed(xsector[sector[i].extra].state);
+            pXSector->busy = IntToFixed(pXSector->state);
 
         }
     }
