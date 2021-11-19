@@ -1531,7 +1531,8 @@ void ProcessInput(PLAYER *pPlayer)
             break;
         case 0:
         {
-            XWALL *pXWall = &xwall[a3];
+            auto pWall = &wall[a2];
+            auto pXWall = &pWall->xw();
             int key = pXWall->key;
             if (pXWall->locked && pPlayer == gMe)
             {
@@ -1542,7 +1543,7 @@ void ProcessInput(PLAYER *pPlayer)
                 sndStartSample(snd, 255, 2, 0);
             }
             if (!key || pPlayer->hasKey[key])
-                trTriggerWall(a2, pXWall, kCmdWallPush);
+                trTriggerWall(pWall, kCmdWallPush);
             else if (pPlayer == gMe)
             {
                 viewSetMessage(GStrings("TXTB_KEY"));

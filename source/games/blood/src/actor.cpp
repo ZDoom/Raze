@@ -4909,7 +4909,7 @@ void MoveDude(DBloodActor* actor)
 			if (pHitWall->extra > 0) pHitXWall = &pHitWall->xw();
 
 			if (pDudeInfo->lockOut && pHitXWall && pHitXWall->triggerPush && !pHitXWall->key && !pHitXWall->dudeLockout && !pHitXWall->state && !pHitXWall->busy && !pPlayer)
-				trTriggerWall(nHitWall, pHitXWall, kCmdWallPush);
+				trTriggerWall(pHitWall, kCmdWallPush);
 
 			if (pHitWall->nextsector != -1)
 			{
@@ -5396,12 +5396,12 @@ int MoveMissile(DBloodActor* actor)
 		if (cliptype == 4)
 		{
 			walltype* pWall = &wall[gHitInfo.hitwall];
-			if (pWall->extra > 0)
+			if (pWall->hasX())
 			{
 				XWALL* pXWall = &pWall->xw();
 				if (pXWall->triggerVector)
 				{
-					trTriggerWall(gHitInfo.hitwall, pXWall, kCmdWallImpact);
+					trTriggerWall(pWall, kCmdWallImpact);
 					if (!(pWall->cstat & 64))
 					{
 						cliptype = -1;
@@ -5938,8 +5938,7 @@ static void actCheckExplosion()
 
 		for (auto& nWall : affectedXWalls)
 		{
-			XWALL* pXWall = &wall[nWall].xw();
-			trTriggerWall(nWall, pXWall, kCmdWallImpact);
+			trTriggerWall(&wall[nWall], kCmdWallImpact);
 		}
 
 		BloodStatIterator it1(kStatDude);
@@ -6949,12 +6948,12 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 		{
 			int nWall = gHitInfo.hitwall;
 			assert(nWall >= 0 && nWall < kMaxWalls);
-			nSurf = surfType[wall[nWall].overpicnum];
-			if (wall[nWall].hasX())
+			auto pWall = &wall[nWall];
+			nSurf = surfType[pWall->overpicnum];
+			if (pWall->hasX())
 			{
-				XWALL* pXWall = &wall->xw();
-				if (pXWall->triggerVector)
-					trTriggerWall(nWall, pXWall, kCmdWallImpact);
+				if (pWall->xw().triggerVector)
+					trTriggerWall(pWall, kCmdWallImpact);
 			}
 			break;
 		}

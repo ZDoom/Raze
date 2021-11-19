@@ -461,8 +461,7 @@ void nnExtTriggerObject(int objType, int objIndex, DBloodActor* objActor, int co
             trTriggerSector(objIndex, &xsector[sector[objIndex].extra], command);
             break;
         case OBJ_WALL:
-            if (wall[objIndex].hasX())
-                trTriggerWall(objIndex, &wall[objIndex].xw(), command);
+            trTriggerWall(&wall[objIndex], command);
             break;
         case OBJ_SPRITE:
             if (!objActor || !objActor->hasX()) break;

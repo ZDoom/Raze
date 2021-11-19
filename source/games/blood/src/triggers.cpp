@@ -1738,6 +1738,7 @@ void trTriggerSector(unsigned int nSector, XSECTOR *pXSector, int command) {
 
 void trTriggerWall(walltype* pWall, int command) 
 {
+    if (!pWall->hasX()) return;
     auto pXWall = &pWall->xw();
     if (!pXWall->locked && !pXWall->isTriggered) {
         
