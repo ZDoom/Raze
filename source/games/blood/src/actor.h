@@ -210,7 +210,7 @@ void NapalmSeqCallback(int, int);
 void sub_3888C(int, int);
 void TreeToGibCallback(int, int);
 
-bool IsUnderwaterSector(int nSector);
+bool IsUnderwaterSector(sectortype* pSector);
 void actInit();
 int actWallBounceVector(int *x, int *y, int nWall, int a4);
 int actFloorBounceVector(int *x, int *y, int *z, int nSector, int a5);

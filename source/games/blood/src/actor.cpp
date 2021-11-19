@@ -2335,12 +2335,9 @@ TArray<POSTPONE> gPost;
 //
 //---------------------------------------------------------------------------
 
-bool IsUnderwaterSector(int nSector)
+bool IsUnderwaterSector(sectortype* pSector)
 {
-	int nXSector = sector[nSector].extra;
-	if (nXSector > 0 && xsector[nXSector].Underwater)
-		return 1;
-	return 0;
+	return !!pSector->hasX() && pSector->xs().Underwater;
 }
 
 //---------------------------------------------------------------------------
@@ -4170,13 +4167,9 @@ static void actKickObject(DBloodActor* kicker, DBloodActor* kicked)
 //
 //---------------------------------------------------------------------------
 
-static void actTouchFloor(DBloodActor* actor, int nSector)
+static void actTouchFloor(DBloodActor* actor, sectortype* pSector)
 {
-	assert(actor != nullptr);
-	assert(validSectorIndex(nSector));
-	sectortype* pSector = &sector[nSector];
-	XSECTOR* pXSector = nullptr;
-	if (pSector->extra > 0) pXSector = &xsector[pSector->extra];
+	XSECTOR* pXSector = pSector->hasX()? &pSector->xs() :  nullptr;
 
 	bool doDamage = (pXSector && (pSector->type == kSectorDamage || pXSector->damageType > 0));
 	// don't allow damage for damage sectors if they are not enabled
@@ -4196,7 +4189,7 @@ static void actTouchFloor(DBloodActor* actor, int nSector)
 
 		actDamageSprite(actor, actor, nDamageType, scale(4, nDamage, 120) << 4);
 	}
-	if (tileGetSurfType(sector[nSector].floorpicnum) == kSurfLava)
+	if (tileGetSurfType(pSector->floorpicnum) == kSurfLava)
 	{
 		actDamageSprite(actor, actor, kDamageBurn, 16);
 		sfxPlay3DSound(actor, 352, 5, 2);
@@ -4401,7 +4394,7 @@ static void checkFloorHit(DBloodActor* actor)
 	case kHitWall:
 		break;
 	case kHitSector:
-		actTouchFloor(actor, coll.index);
+		actTouchFloor(actor, coll.sector());
 		break;
 	case kHitSprite:
 		if (coll.actor->hasX())
@@ -4581,14 +4574,11 @@ void actAirDrag(DBloodActor* actor, int a2)
 
 	int wind_x = 0;
 	int wind_y = 0;
-	int nSector = pSprite->sectnum;
-	assert(validSectorIndex(nSector));
-	sectortype* pSector = &sector[nSector];
-	int nXSector = pSector->extra;
-	if (nXSector > 0)
+	assert(validSectorIndex(pSprite->sectnum));
+	sectortype* pSector = pSprite->sector();
+	if (pSector->hasX())
 	{
-		assert(nXSector < kMaxXSectors);
-		XSECTOR* pXSector = &xsector[nXSector];
+		XSECTOR* pXSector = &pSector->xs();
 		if (pXSector->windVel && (pXSector->windAlways || pXSector->busy))
 		{
 			int wind = pXSector->windVel << 12;
@@ -4698,7 +4688,7 @@ static Collision MoveThing(DBloodActor* actor)
 	GetActorExtents(actor, &top, &bottom);
 	if (bottom >= floorZ)
 	{
-		actTouchFloor(actor, pSprite->sectnum);
+		actTouchFloor(actor, pSprite->sector());
 		actor->hit.florhit = floorColl;
 		pSprite->z += floorZ - bottom;
 
@@ -4913,10 +4903,8 @@ void MoveDude(DBloodActor* actor)
 
 			if (pHitWall->nextsector != -1)
 			{
-				sectortype* pHitSector = &sector[pHitWall->nextsector];
-				XSECTOR* pHitXSector = nullptr;
-				if (pHitSector->extra > 0)
-					pHitXSector = &xsector[pHitSector->extra];
+				sectortype* pHitSector = pHitWall->nextSector();
+				XSECTOR* pHitXSector = pHitSector->hasX()? &pHitSector->xs() : nullptr;
 
 				if (pDudeInfo->lockOut && pHitXSector && pHitXSector->Wallpush && !pHitXSector->Key && !pHitXSector->dudeLockout && !pHitXSector->state && !pHitXSector->busy && !pPlayer)
 					trTriggerSector(pHitWall->nextsector, pHitXSector, kCmdSectorPush);
@@ -4936,24 +4924,23 @@ void MoveDude(DBloodActor* actor)
 		assert(validSectorIndex(nSector));
 		FindSector(pSprite->x, pSprite->y, pSprite->z, &nSector);
 	}
+
+	auto pSector = &sector[nSector];
+	XSECTOR* pXSector = pSector->hasX() ? &pSector->xs() : nullptr;
+
 	if (pSprite->sectnum != nSector)
 	{
-		assert(validSectorIndex(nSector));
-		XSECTOR* pXSector;
-		int nXSector = sector[pSprite->sectnum].extra;
-		if (nXSector > 0)
-			pXSector = &xsector[nXSector];
-		else
-			pXSector = nullptr;
-		if (pXSector && pXSector->Exit && (pPlayer || !pXSector->dudeLockout))
-			trTriggerSector(pSprite->sectnum, pXSector, kCmdSectorExit);
+		assert(validSectorIndex(pSprite->sectnum));
+		auto pOldSector = pSprite->sector();
+		XSECTOR* pXOldSector = pOldSector->hasX()? &pOldSector->xs() : nullptr;
+
+		if (pXOldSector && pXOldSector->Exit && (pPlayer || !pXOldSector->dudeLockout))
+			trTriggerSector(pSprite->sectnum, pXOldSector, kCmdSectorExit);
 		ChangeActorSect(actor, nSector);
 
-		nXSector = sector[nSector].extra;
-		pXSector = (nXSector > 0) ? &xsector[nXSector] : nullptr;
 		if (pXSector && pXSector->Enter && (pPlayer || !pXSector->dudeLockout))
 		{
-			if (sector[nSector].type == kSectorTeleport)
+			if (pSector->type == kSectorTeleport)
 				pXSector->actordata = actor;
 			trTriggerSector(nSector, pXSector, kCmdSectorEnter);
 		}
@@ -4962,9 +4949,8 @@ void MoveDude(DBloodActor* actor)
 	}
 	int bUnderwater = 0;
 	int bDepth = 0;
-	if (sector[nSector].extra > 0)
+	if (pXSector)
 	{
-		XSECTOR* pXSector = &xsector[sector[nSector].extra];
 		if (pXSector->Underwater) bUnderwater = 1;
 		if (pXSector->Depth) bDepth = 1;
 	}

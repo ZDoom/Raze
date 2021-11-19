@@ -771,7 +771,7 @@ void playerStart(int nPlayer, int bNewLevel)
     {
         viewInitializePrediction();
     }
-    if (IsUnderwaterSector(pSprite->sectnum))
+    if (IsUnderwaterSector(pSprite->sector()))
     {
         pPlayer->posture = 1;
         pPlayer->pXSprite->medium = kMediumWater;
