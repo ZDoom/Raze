@@ -491,12 +491,13 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, DBloodActor& w, DB
 		// The rest is only relevant if the actor has an xsprite.
 		if (w.hasX())
 		{
-			arc ("xsprite", w.xsprite, def->xsprite)
+			arc("xsprite", w.xsprite, def->xsprite)
 				("dudeslope", w.dudeSlope, def->dudeSlope)
 				("dudeextra", w.dudeExtra, def->dudeExtra)
 				("explosionflag", w.explosionhackflag, def->explosionhackflag)
 				("spritehit", w.hit, def->hit)
-				("basepoint", w.basePoint, def->basePoint);
+				("basepoint", w.basePoint, def->basePoint)
+				("owneractor", w.ownerActor, def->ownerActor);
 
 #ifdef NOONE_EXTENSIONS
 			if (gModernMap)

@@ -120,6 +120,7 @@ public:
 	SPRITEMASS spriteMass;
 	GENDUDEEXTRA genDudeExtra;
 	DBloodActor* prevmarker;	// needed by the nnext marker code. This originally hijacked targetX in XSPRITE
+	DBloodActor* ownerActor;	// was previously stored in the sprite's owner field.
 	POINT3D basePoint;
 	ConditionElement condition[2];
 	bool explosionhackflag; // this originally hijacked the target field which is not safe when working with pointers.
@@ -157,13 +158,12 @@ public:
 
 	void SetOwner(DBloodActor* own)
 	{
-		s().owner = own ? own->GetSpriteIndex() : -1;
+		ownerActor = own;
 	}
 
 	DBloodActor* GetOwner()
 	{
-		if (s().owner == -1 || s().owner == kMaxSprites - 1) return nullptr;
-		return base() + s().owner;
+		return ownerActor;
 	}
 
 	void SetTarget(DBloodActor* own)
@@ -200,12 +200,13 @@ public:
 
 	void SetSpecialOwner() // nnext hackery
 	{
+		ownerActor = nullptr;
 		s().owner = kMaxSprites - 1;
 	}
 
 	bool GetSpecialOwner()
 	{
-		return (s().owner == kMaxSprites - 1);
+		return  ownerActor == nullptr && (s().owner == kMaxSprites - 1);
 	}
 
 	bool IsPlayerActor()
