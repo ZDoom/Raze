@@ -185,12 +185,9 @@ static void beastThinkGoto(DBloodActor* actor)
 	auto pSprite = &actor->s();
 	assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
-	XSECTOR* pXSector;
-	int nXSector = sector[pSprite->sectnum].extra;
-	if (nXSector > 0)
-		pXSector = &xsector[nXSector];
-	else
-		pXSector = NULL;
+	auto pSector = pSprite->sector();
+	auto pXSector = pSector->hasX() ? &pSector->xs() : nullptr;
+
 	int dx = pXSprite->targetX - pSprite->x;
 	int dy = pXSprite->targetY - pSprite->y;
 	int nAngle = getangle(dx, dy);
@@ -208,15 +205,12 @@ static void beastThinkGoto(DBloodActor* actor)
 
 static void beastThinkChase(DBloodActor* actor)
 {
-	auto pSprite = &actor->s();
+	auto const pSprite = &actor->s();
 	if (actor->GetTarget() == nullptr)
 	{
-		XSECTOR* pXSector;
-		int nXSector = sector[pSprite->sectnum].extra;
-		if (nXSector > 0)
-			pXSector = &xsector[nXSector];
-		else
-			pXSector = NULL;
+		auto pSector = pSprite->sector();
+		auto pXSector = pSector->hasX() ? &pSector->xs() : nullptr;
+
 		if (pXSector && pXSector->Underwater)
 			aiNewState(actor, &beastSwimSearch);
 		else
@@ -231,14 +225,12 @@ static void beastThinkChase(DBloodActor* actor)
 	int dx = pTarget->x - pSprite->x;
 	int dy = pTarget->y - pSprite->y;
 	aiChooseDirection(actor, getangle(dx, dy));
+
+	auto pSector = pSprite->sector();
+	auto pXSector = pSector->hasX() ? &pSector->xs() : nullptr;
+
 	if (pXTarget->health == 0)
 	{
-		XSECTOR* pXSector;
-		int nXSector = sector[pSprite->sectnum].extra;
-		if (nXSector > 0)
-			pXSector = &xsector[nXSector];
-		else
-			pXSector = NULL;
 		if (pXSector && pXSector->Underwater)
 			aiNewState(actor, &beastSwimSearch);
 		else
@@ -247,12 +239,6 @@ static void beastThinkChase(DBloodActor* actor)
 	}
 	if (IsPlayerSprite(pTarget) && powerupCheck(&gPlayer[pTarget->type - kDudePlayer1], kPwUpShadowCloak) > 0)
 	{
-		XSECTOR* pXSector;
-		int nXSector = sector[pSprite->sectnum].extra;
-		if (nXSector > 0)
-			pXSector = &xsector[nXSector];
-		else
-			pXSector = NULL;
 		if (pXSector && pXSector->Underwater)
 			aiNewState(actor, &beastSwimSearch);
 		else
@@ -273,12 +259,6 @@ static void beastThinkChase(DBloodActor* actor)
 				if (nDist < 0x1400 && nDist > 0xa00 && abs(nDeltaAngle) < 85 && (pTarget->flags & 2)
 					&& IsPlayerSprite(pTarget) && Chance(0x8000))
 				{
-					XSECTOR* pXSector;
-					int nXSector = sector[pSprite->sectnum].extra;
-					if (nXSector > 0)
-						pXSector = &xsector[nXSector];
-					else
-						pXSector = NULL;
 					int hit = HitScan(actor, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
 					if (pXTarget->health > (unsigned)gPlayerTemplate[0].startHealth / 2)
 					{
@@ -311,12 +291,6 @@ static void beastThinkChase(DBloodActor* actor)
 				}
 				if (nDist < 921 && abs(nDeltaAngle) < 28)
 				{
-					XSECTOR* pXSector;
-					int nXSector = sector[pSprite->sectnum].extra;
-					if (nXSector > 0)
-						pXSector = &xsector[nXSector];
-					else
-						pXSector = NULL;
 					int hit = HitScan(actor, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
 					switch (hit)
 					{
@@ -355,12 +329,6 @@ static void beastThinkChase(DBloodActor* actor)
 		}
 	}
 
-	XSECTOR* pXSector;
-	int nXSector = sector[pSprite->sectnum].extra;
-	if (nXSector > 0)
-		pXSector = &xsector[nXSector];
-	else
-		pXSector = NULL;
 	if (pXSector && pXSector->Underwater)
 		aiNewState(actor, &beastSwimGoto);
 	else

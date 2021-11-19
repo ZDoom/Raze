@@ -85,12 +85,10 @@ static void gillThinkGoto(DBloodActor* actor)
 	auto pSprite = &actor->s();
 	assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
-	XSECTOR* pXSector;
-	int nXSector = sector[pSprite->sectnum].extra;
-	if (nXSector > 0)
-		pXSector = &xsector[nXSector];
-	else
-		pXSector = NULL;
+
+	auto pSector = pSprite->sector();
+	auto pXSector = pSector->hasX() ? &pSector->xs() : nullptr;
+
 	int dx = pXSprite->targetX - pSprite->x;
 	int dy = pXSprite->targetY - pSprite->y;
 	int nAngle = getangle(dx, dy);
@@ -108,15 +106,12 @@ static void gillThinkGoto(DBloodActor* actor)
 
 static void gillThinkChase(DBloodActor* actor)
 {
-	auto pSprite = &actor->s();
+	auto const pSprite = &actor->s();
+	auto pSector = pSprite->sector();
+	auto pXSector = pSector->hasX() ? &pSector->xs() : nullptr;
+
 	if (actor->GetTarget() == nullptr)
 	{
-		XSECTOR* pXSector;
-		int nXSector = sector[pSprite->sectnum].extra;
-		if (nXSector > 0)
-			pXSector = &xsector[nXSector];
-		else
-			pXSector = NULL;
 		if (pXSector && pXSector->Underwater)
 			aiNewState(actor, &gillBeastSwimSearch);
 		else
@@ -133,12 +128,6 @@ static void gillThinkChase(DBloodActor* actor)
 	aiChooseDirection(actor, getangle(dx, dy));
 	if (pXTarget->health == 0)
 	{
-		XSECTOR* pXSector;
-		int nXSector = sector[pSprite->sectnum].extra;
-		if (nXSector > 0)
-			pXSector = &xsector[nXSector];
-		else
-			pXSector = NULL;
 		if (pXSector && pXSector->Underwater)
 			aiNewState(actor, &gillBeastSwimSearch);
 		else
@@ -147,12 +136,6 @@ static void gillThinkChase(DBloodActor* actor)
 	}
 	if (IsPlayerSprite(pTarget) && powerupCheck(&gPlayer[pTarget->type - kDudePlayer1], kPwUpShadowCloak) > 0)
 	{
-		XSECTOR* pXSector;
-		int nXSector = sector[pSprite->sectnum].extra;
-		if (nXSector > 0)
-			pXSector = &xsector[nXSector];
-		else
-			pXSector = NULL;
 		if (pXSector && pXSector->Underwater)
 			aiNewState(actor, &gillBeastSwimSearch);
 		else
@@ -172,12 +155,6 @@ static void gillThinkChase(DBloodActor* actor)
 				actor->dudeSlope = nDist == 0 ? 0 : DivScale(pTarget->z - pSprite->z, nDist, 10);
 				if (nDist < 921 && abs(nDeltaAngle) < 28)
 				{
-					XSECTOR* pXSector;
-					int nXSector = sector[pSprite->sectnum].extra;
-					if (nXSector > 0)
-						pXSector = &xsector[nXSector];
-					else
-						pXSector = NULL;
 					int hit = HitScan(actor, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
 					switch (hit)
 					{
@@ -216,12 +193,6 @@ static void gillThinkChase(DBloodActor* actor)
 		}
 	}
 
-	XSECTOR* pXSector;
-	int nXSector = sector[pSprite->sectnum].extra;
-	if (nXSector > 0)
-		pXSector = &xsector[nXSector];
-	else
-		pXSector = NULL;
 	if (pXSector && pXSector->Underwater)
 		aiNewState(actor, &gillBeastSwimGoto);
 	else
