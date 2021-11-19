@@ -1339,7 +1339,7 @@ void doslopetilting(PLAYER* pPlayer, double const scaleAdjust = 1)
     auto* const pXSprite = pPlayer->pXSprite;
     int const florhit = pPlayer->actor->hit.florhit.type;
     bool const va = pXSprite->height < 16 && (florhit == kHitSector || florhit == 0) ? 1 : 0;
-    pPlayer->horizon.calcviewpitch(pSprite->pos.vec2, buildang(pSprite->ang), va, sector[pSprite->sectnum].floorstat & 2, pSprite->sectnum, scaleAdjust);
+    pPlayer->horizon.calcviewpitch(pSprite->pos.vec2, buildang(pSprite->ang), va, pSprite->sector()->floorstat & 2, pSprite->sectnum, scaleAdjust);
 }
 
 void ProcessInput(PLAYER *pPlayer)

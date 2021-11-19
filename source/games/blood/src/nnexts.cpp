@@ -746,8 +746,8 @@ void nnExtInitModernStuff()
             
             // very quick fix for floor sprites with Touch trigger flag if their Z is equals sector floorz / ceilgz
             if (pSprite->sectnum >= 0 && pXSprite->Touch && (pSprite->cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)) {
-                if (pSprite->z == sector[pSprite->sectnum].floorz) pSprite->z--;
-                else if (pSprite->z == sector[pSprite->sectnum].ceilingz) pSprite->z++;
+                if (pSprite->z == pSprite->sector()->floorz) pSprite->z--;
+                else if (pSprite->z == pSprite->sector()->ceilingz) pSprite->z++;
             }
 
         // make Proximity flag work not just for dudes and things...
@@ -3177,7 +3177,7 @@ void useEffectGen(DBloodActor* sourceactor, DBloodActor* actor)
             case 3:
             case 4:
                 if (!sectRangeIsFine(pSprite->sectnum)) pos = top;
-                else pos = (pXSource->data4 == 3) ? sector[pSprite->sectnum].floorz : sector[pSprite->sectnum].ceilingz;
+                else pos = (pXSource->data4 == 3) ? pSprite->sector()->floorz : pSprite->sector()->ceilingz;
                 break;
             default:
                 pos = top;

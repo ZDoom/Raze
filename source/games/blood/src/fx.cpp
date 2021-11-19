@@ -205,7 +205,7 @@ void CFX::fxProcess(void)
         pSprite->y += actor->yvel>>12;
         pSprite->z += actor->zvel>>8;
         // Weird...
-        if (actor->xvel || (actor->yvel && pSprite->z >= sector[pSprite->sectnum].floorz))
+        if (actor->xvel || (actor->yvel && pSprite->z >= pSprite->sector()->floorz))
         {
             updatesector(pSprite->x, pSprite->y, &nSector);
             if (nSector == -1)

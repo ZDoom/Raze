@@ -2557,10 +2557,10 @@ bool genDudePrepare(DBloodActor* actor, int propId)
 
             // make sure dudes aren't in the floor or ceiling
             int zTop, zBot; GetSpriteExtents(pSprite, &zTop, &zBot);
-            if (!(sector[pSprite->sectnum].ceilingstat & 0x0001))
-                pSprite->z += ClipLow(sector[pSprite->sectnum].ceilingz - zTop, 0);
-            if (!(sector[pSprite->sectnum].floorstat & 0x0001))
-                pSprite->z += ClipHigh(sector[pSprite->sectnum].floorz - zBot, 0);
+            if (!(pSprite->sector()->ceilingstat & 0x0001))
+                pSprite->z += ClipLow(pSprite->sector()->ceilingz - zTop, 0);
+            if (!(pSprite->sector()->floorstat & 0x0001))
+                pSprite->z += ClipHigh(pSprite->sector()->floorz - zBot, 0);
 
             pSprite->clipdist = ClipRange((pSprite->xrepeat + pSprite->yrepeat) >> 1, 4, 120);           
             if (propId) break;

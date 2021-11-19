@@ -2616,16 +2616,17 @@ int actWallBounceVector(int* x, int* y, int nWall, int a4)
 int actFloorBounceVector(int* x, int* y, int* z, int nSector, int a5)
 {
 	int t = 0x10000 - a5;
-	if (sector[nSector].floorheinum == 0)
+	auto pSector = &sector[nSector];
+	if (pSector->floorheinum == 0)
 	{
 		int t2 = MulScale(*z, t, 16);
 		*z = -(*z - t2);
 		return t2;
 	}
-	walltype* pWall = &wall[sector[nSector].wallptr];
-	walltype* pWall2 = &wall[pWall->point2];
+	walltype* pWall = pSector->firstWall();
+	walltype* pWall2 = pWall->point2Wall();
 	int angle = getangle(pWall2->x - pWall->x, pWall2->y - pWall->y) + 512;
-	int t2 = sector[nSector].floorheinum << 4;
+	int t2 = pSector->floorheinum << 4;
 	int t3 = approxDist(-0x10000, t2);
 	int t4 = DivScale(-0x10000, t3, 16);
 	int t5 = DivScale(t2, t3, 16);
@@ -5019,11 +5020,11 @@ void MoveDude(DBloodActor* actor)
 		{
 		case kMarkerLowStack:
 			if (pPlayer == gView)
-				setgotpic(sector[pSprite->sectnum].floorpicnum);
+				setgotpic(pSprite->sector()->floorpicnum);
 			break;
 		case kMarkerUpStack:
 			if (pPlayer == gView)
-				setgotpic(sector[pSprite->sectnum].ceilingpicnum);
+				setgotpic(pSprite->sector()->ceilingpicnum);
 			break;
 		case kMarkerLowWater:
 		case kMarkerLowGoo:
@@ -6895,13 +6896,14 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 		{
 			int nWall = gHitInfo.hitwall;
 			assert(nWall >= 0 && nWall < kMaxWalls);
-			nSurf = surfType[wall[nWall].picnum];
+			auto pWall = &wall[nWall];
+			nSurf = surfType[pWall->picnum];
 			if (actCanSplatWall(nWall))
 			{
 				int x = gHitInfo.hitx - MulScale(a4, 16, 14);
 				int y = gHitInfo.hity - MulScale(a5, 16, 14);
 				int z = gHitInfo.hitz - MulScale(a6, 256, 14);
-				int nSurf = surfType[wall[nWall].picnum];
+				int nSurf = surfType[pWall->picnum];
 				assert(nSurf < kSurfMax);
 				if (pVectorData->surfHit[nSurf].fx1 >= 0)
 				{
