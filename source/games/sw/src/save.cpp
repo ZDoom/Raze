@@ -574,9 +574,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYERstruct& w, P
 			("keypressbits", w.KeyPressBits)
 			("chops", w.Chops);
 
-			if (arc.isWriting())	// we need this for loading saves in older builds for debugging.
-			arc("SpriteP", w.actor);
-
 
 		SerializeCodePtr(arc, "DoPlayerAction", (void**)&w.DoPlayerAction);
 		arc.EndObject();
@@ -922,14 +919,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, USER& w, USER* def
 			("rotator", w.rotator)
 			("oz", w.oz, def->oz);
 
-		if (arc.isWriting())	// we need this for loading saves in older builds for debugging.
-		{
-			arc("SpriteP", w.SpriteNum, def->SpriteNum)
-				("SpriteNum", w.SpriteNum, def->SpriteNum);
-		}
-
-
-
 		SerializeCodePtr(arc, "ActorActionFunc", (void**)&w.ActorActionFunc);
 		arc.EndObject();
 
@@ -941,35 +930,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, USER& w, USER* def
 	}
 	return arc;
 }
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-void SerializeUser(FSerializer& arc)
-{
-	FixedBitArray<MAXSPRITES> hitlist;
-
-	if (arc.isWriting())
-	{
-		for (int i = 0; i < MAXSPRITES; i++)
-		{
-			hitlist.Set(i, swActors[i].hasU());
-		}
-	}
-	else
-	{
-		for (int i = 0; i < MAXSPRITES; i++)
-		{
-			swActors[i].clearUser();
-		}
-	}
-	arc("usermap", hitlist);
-	arc.SparseArray("user", User, MAXSPRITES, hitlist);
-}
-
 
 //---------------------------------------------------------------------------
 //
@@ -1173,6 +1133,13 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, TRACK_POINT& w, TR
 	return arc;
 }
 
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 FSerializer& Serialize(FSerializer& arc, const char* keyname, TRACK& w, TRACK* def)
 {
 	static int nul;
@@ -1204,6 +1171,27 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, TRACK& w, TRACK* d
 //
 //---------------------------------------------------------------------------
 
+FSerializer& Serialize(FSerializer& arc, const char* keyname, DSWActor& w, DSWActor* def)
+{
+	if (arc.isReading())
+	{
+		w.Clear();
+	}
+	if (arc.BeginObject(keyname))
+	{
+		arc("hasuser", w.hasUser);
+		if (w.hasUser) arc("user", w.user); // only write if defined.
+		arc.EndObject();
+	}
+	return arc;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 void GameInterface::SerializeGameState(FSerializer& arc)
 {
 	pspAsArray.Clear();
@@ -1212,10 +1200,10 @@ void GameInterface::SerializeGameState(FSerializer& arc)
     if (arc.BeginObject("state"))
     {
         preSerializePanelSprites(arc);
-        SerializeUser(arc);
 		SerializeSectUser(arc);
 		so_serializeinterpolations(arc);
-		arc("numplayers", numplayers)
+		arc .SparseArray("actors", swActors, MAXSPRITES, activeSprites)
+			("numplayers", numplayers)
 			.Array("players", Player, numplayers)
 			("skill", Skill)
 			("screenpeek", screenpeek)

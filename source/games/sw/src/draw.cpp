@@ -571,7 +571,7 @@ void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int view
         int SpriteNum = tsprite[tSpriteNum].owner;
         auto tActor = &swActors[SpriteNum];
         tspriteptr_t tsp = &tsprite[tSpriteNum];
-        tu = tActor->u();
+        tu = tActor->hasU()? tActor->u() : nullptr;
 
 #if 0
         // Brighten up the sprite if set somewhere else to do so

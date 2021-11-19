@@ -82,7 +82,6 @@ int DoTrapMatch(short match);
 PLAYERp GlobPlayerP;
 
 TPointer<SECT_USER> SectUser[MAXSECTORS];
-TPointer<USER> User[MAXSPRITES];
 
 ANIM Anim[MAXANIM];
 short AnimCnt = 0;

@@ -9,9 +9,11 @@ class DSWActor
 {
 	int index;
 	DSWActor* base();
-	auto& up() { return User[index]; }
 
 public:
+
+	bool hasUser;
+	USER user;
 
 	DSWActor() :index(int(this - base())) { /*assert(index >= 0 && index < kMaxSprites);*/ }
 	DSWActor& operator=(const DSWActor& other) = default;
@@ -20,21 +22,21 @@ public:
 	{
 		clearUser();
 	}
-	bool hasU() { return u() != nullptr; }
+	bool hasU() { return hasUser; }
 
 
 	spritetype& s() { return sprite[index]; }
-	USER* u() { return up().Data(); }
+	USER* u() { return &user; }
 	USER* allocUser() 
 	{ 
-		up().Alloc(); 
-		u()->SpriteNum = GetSpriteIndex();
+		hasUser = true;
 		return u(); 
 	}
 
 	void clearUser()
 	{
-		up().Clear();
+		hasUser = false;
+		user.Clear();
 	}
 
 	int GetIndex() 

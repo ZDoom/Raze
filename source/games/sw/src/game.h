@@ -1096,7 +1096,6 @@ struct USER
     DSWActor* attachActor;  // attach to sprite if needed - electro snake
     DSWActor* flagOwnerActor;
     DSWActor* WpnGoalActor;
-    short   SpriteNum; // only needed for writing out to savegames that can be loaded by older builds.
 
     int Flags;
     int Flags2;
@@ -1124,9 +1123,9 @@ struct USER
     short lo_step;
     int hiz,loz;
     int zclip; // z height to move up for clipmove
+    int active_range;
     SECTORp hi_sectp, lo_sectp;
 
-    int active_range;
 
     // if a player's sprite points to player structure
     PLAYERp PlayerP;
@@ -1388,7 +1387,6 @@ enum
     SPR2_FLAMEDIE           = BIT(25),  // was previously 'flame == -2'
 };
 
-extern TPointer<USER> User[MAXSPRITES];
 
 typedef struct
 {

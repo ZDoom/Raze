@@ -789,10 +789,12 @@ void KillActor(DSWActor* actor)
     sp->sectnum = sectnum;
 
     // Kill references in all users - slow but unavoidable if we don't want the game to crash on stale pointers.
-    for (auto& u : User)
+    SWSpriteIterator it;
+    while (auto actor = it.Next())
     {
-        if (u.Data())
+        if (actor->hasU())
         {
+            auto u = actor->u();
             if (u->highActor == actor) u->highActor = nullptr;
             if (u->lowActor == actor) u->lowActor = nullptr;
             if (u->targetActor == actor) u->targetActor = nullptr;
@@ -885,7 +887,6 @@ USERp SpawnUser(DSWActor* actor, short id, STATEp state)
     u->targetActor = Player[0].Actor();
     u->Radius = 220;
     u->Sibling = -1;
-    u->SpriteNum = actor->GetSpriteIndex();
     u->WaitTics = 0;
     u->OverlapZ = Z(4);
     u->bounce = 0;
