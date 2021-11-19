@@ -3531,16 +3531,16 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, int index, DBloodAc
             if (pXSource->data2 <= 0) 
             {
                 if (pXSource->data3 == 3 || pXSource->data3 == 1)
-                    seqKill(2, sector[index].extra);
+                    seqKill(2, index);
                 if (pXSource->data3 == 3 || pXSource->data3 == 2)
-                    seqKill(1, sector[index].extra);
+                    seqKill(1, index);
             }
             else 
             {
                 if (pXSource->data3 == 3 || pXSource->data3 == 1)
-                    seqSpawn(pXSource->data2, 2, sector[index].extra, -1);
+                    seqSpawn(pXSource->data2, SS_FLOOR, index, -1);
                 if (pXSource->data3 == 3 || pXSource->data3 == 2)
-                    seqSpawn(pXSource->data2, 1, sector[index].extra, -1);
+                    seqSpawn(pXSource->data2, SS_CEILING, index, -1);
             }
             return;
 
@@ -3548,26 +3548,26 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, int index, DBloodAc
             if (pXSource->data2 <= 0) 
             {
                 if (pXSource->data3 == 3 || pXSource->data3 == 1)
-                    seqKill(0, wall[index].extra);
+                    seqKill(0, index);
                 if ((pXSource->data3 == 3 || pXSource->data3 == 2) && (wall[index].cstat & CSTAT_WALL_MASKED))
-                    seqKill(4, wall[index].extra);
+                    seqKill(4, index);
             } 
             else 
             {
                 if (pXSource->data3 == 3 || pXSource->data3 == 1)
-                    seqSpawn(pXSource->data2, 0, wall[index].extra, -1);
+                    seqSpawn(pXSource->data2, SS_WALL, index, -1);
 
                 if (pXSource->data3 == 3 || pXSource->data3 == 2) {
 
                     if (wall[index].nextwall < 0) {
                         if (pXSource->data3 == 3)
-                            seqSpawn(pXSource->data2, 0, wall[index].extra, -1);
+                            seqSpawn(pXSource->data2, SS_WALL, index, -1);
 
                     } else {
                         if (!(wall[index].cstat & CSTAT_WALL_MASKED))
                             wall[index].cstat |= CSTAT_WALL_MASKED;
 
-                        seqSpawn(pXSource->data2, 4, wall[index].extra, -1);
+                        seqSpawn(pXSource->data2, SS_MASKED, index, -1);
                     }
                 }
 
@@ -3925,7 +3925,7 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
             {
                 case OBJ_WALL: 
                 {
-                    if (!xwallRangeIsFine(wall[objIndex].extra))
+                    if (!wall[objIndex].hasX())
                         return condCmp(0, arg1, arg2, cmpOp);
                     
                     auto pObj = &wall[objIndex];
@@ -3946,17 +3946,17 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
                         case 70:
                             switch (arg3) 
                             {
-                                default: return (condCmp(seqGetID(0, pObj->extra), arg1, arg2, cmpOp) || condCmp(seqGetID(4, pObj->extra), arg1, arg2, cmpOp));
-                                case 1:  return condCmp(seqGetID(0, pObj->extra), arg1, arg2, cmpOp);
-                                case 2:  return condCmp(seqGetID(4, pObj->extra), arg1, arg2, cmpOp);
+                                default: return (condCmp(seqGetID(0, objIndex), arg1, arg2, cmpOp) || condCmp(seqGetID(4, objIndex), arg1, arg2, cmpOp));
+                                case 1:  return condCmp(seqGetID(0, objIndex), arg1, arg2, cmpOp);
+                                case 2:  return condCmp(seqGetID(4, objIndex), arg1, arg2, cmpOp);
                             }
                             break;
                         case 71:
                             switch (arg3) 
                             {
-                                default: return (condCmp(seqGetStatus(0, pObj->extra), arg1, arg2, cmpOp) || condCmp(seqGetStatus(4, pObj->extra), arg1, arg2, cmpOp));
-                                case 1:  return condCmp(seqGetStatus(0, pObj->extra), arg1, arg2, cmpOp);
-                                case 2:  return condCmp(seqGetStatus(4, pObj->extra), arg1, arg2, cmpOp);
+                                default: return (condCmp(seqGetStatus(0, objIndex), arg1, arg2, cmpOp) || condCmp(seqGetStatus(4, objIndex), arg1, arg2, cmpOp));
+                                case 1:  return condCmp(seqGetStatus(0, objIndex), arg1, arg2, cmpOp);
+                                case 2:  return condCmp(seqGetStatus(4, objIndex), arg1, arg2, cmpOp);
                             }
                             break;
                     }
@@ -3989,10 +3989,10 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
                 }
                 case OBJ_SECTOR: 
                 {
-                    if (xsectRangeIsFine(sector[objIndex].extra))
+                    if (!sector[objIndex].hasX())
                         return condCmp(0, arg1, arg2, cmpOp);
                     
-                    XSECTOR* pXObj = &xsector[sector[objIndex].extra];
+                    XSECTOR* pXObj = &sector[objIndex].xs();
                     switch (cond) {
                         case 41: return condCmp(pXObj->data, arg1, arg2, cmpOp);
                         case 50: return condCmp(pXObj->rxID, arg1, arg2, cmpOp);
@@ -4009,17 +4009,17 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
                             // wall???
                             switch (arg3) 
                             {
-                                default: return (condCmp(seqGetID(1, wall[objIndex].extra), arg1, arg2, cmpOp) || condCmp(seqGetID(2, wall[objIndex].extra), arg1, arg2, cmpOp));
-                                case 1:  return condCmp(seqGetID(1, wall[objIndex].extra), arg1, arg2, cmpOp);
-                                case 2:  return condCmp(seqGetID(2, wall[objIndex].extra), arg1, arg2, cmpOp);
+                                default: return (condCmp(seqGetID(1, objIndex), arg1, arg2, cmpOp) || condCmp(seqGetID(2, objIndex), arg1, arg2, cmpOp));
+                                case 1:  return condCmp(seqGetID(1, objIndex), arg1, arg2, cmpOp);
+                                case 2:  return condCmp(seqGetID(2, objIndex), arg1, arg2, cmpOp);
                             }
                             break;
                         case 71:
                             switch (arg3) 
                             {
-                                default: return (condCmp(seqGetStatus(1, wall[objIndex].extra), arg1, arg2, cmpOp) || condCmp(seqGetStatus(2, wall[objIndex].extra), arg1, arg2, cmpOp));
-                                case 1:  return condCmp(seqGetStatus(1, wall[objIndex].extra), arg1, arg2, cmpOp);
-                                case 2:  return condCmp(seqGetStatus(2, wall[objIndex].extra), arg1, arg2, cmpOp);
+                                default: return (condCmp(seqGetStatus(1, objIndex), arg1, arg2, cmpOp) || condCmp(seqGetStatus(2, objIndex), arg1, arg2, cmpOp));
+                                case 1:  return condCmp(seqGetStatus(1, objIndex), arg1, arg2, cmpOp);
+                                case 2:  return condCmp(seqGetStatus(2, objIndex), arg1, arg2, cmpOp);
                             }
                             break;
                     }

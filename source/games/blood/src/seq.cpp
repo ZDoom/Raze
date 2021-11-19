@@ -126,13 +126,10 @@ void seqPrecacheId(int id, int palette)
 //
 //---------------------------------------------------------------------------
 
-void UpdateCeiling(int nXSector, SEQFRAME* pFrame)
+void UpdateCeiling(int nSector, SEQFRAME* pFrame)
 {
-	assert(nXSector > 0 && nXSector < kMaxXSectors);
-	int nSector = xsector[nXSector].reference;
 	assert(validSectorIndex(nSector));
 	sectortype* pSector = &sector[nSector];
-	assert(pSector->extra == nXSector);
 	pSector->ceilingpicnum = seqGetTile(pFrame);
 	pSector->ceilingshade = pFrame->shade;
 	if (pFrame->palette)
@@ -145,13 +142,10 @@ void UpdateCeiling(int nXSector, SEQFRAME* pFrame)
 //
 //---------------------------------------------------------------------------
 
-void UpdateFloor(int nXSector, SEQFRAME* pFrame)
+void UpdateFloor(int nSector, SEQFRAME* pFrame)
 {
-	assert(nXSector > 0 && nXSector < kMaxXSectors);
-	int nSector = xsector[nXSector].reference;
 	assert(validSectorIndex(nSector));
 	sectortype* pSector = &sector[nSector];
-	assert(pSector->extra == nXSector);
 	pSector->floorpicnum = seqGetTile(pFrame);
 	pSector->floorshade = pFrame->shade;
 	if (pFrame->palette)
@@ -164,13 +158,11 @@ void UpdateFloor(int nXSector, SEQFRAME* pFrame)
 //
 //---------------------------------------------------------------------------
 
-void UpdateWall(int nXWall, SEQFRAME* pFrame)
+void UpdateWall(int nWall, SEQFRAME* pFrame)
 {
-	assert(nXWall > 0 && nXWall < kMaxXWalls);
-	int nWall = xwall[nXWall].reference;
-	assert(nWall >= 0 && nWall < kMaxWalls);
+	assert(validWallIndex(nWall));
 	walltype* pWall = &wall[nWall];
-	assert(pWall->extra == nXWall);
+	assert(pWall->hasX());
 	pWall->picnum = seqGetTile(pFrame);
 	if (pFrame->palette)
 		pWall->pal = pFrame->palette;
@@ -198,15 +190,12 @@ void UpdateWall(int nXWall, SEQFRAME* pFrame)
 //
 //---------------------------------------------------------------------------
 
-void UpdateMasked(int nXWall, SEQFRAME* pFrame)
+void UpdateMasked(int nWall, SEQFRAME* pFrame)
 {
-	assert(nXWall > 0 && nXWall < kMaxXWalls);
-	int nWall = xwall[nXWall].reference;
-	assert(nWall >= 0 && nWall < kMaxWalls);
+	assert(validWallIndex(nWall));
 	walltype* pWall = &wall[nWall];
-	assert(pWall->extra == nXWall);
-	assert(pWall->nextwall >= 0);
-	walltype* pWallNext = &wall[pWall->nextwall];
+	assert(pWall->hasX());
+	walltype* pWallNext = pWall->nextWall();
 	pWall->overpicnum = pWallNext->overpicnum = seqGetTile(pFrame);
 	if (pFrame->palette)
 		pWall->pal = pWallNext->pal = pFrame->palette;
@@ -496,9 +485,9 @@ static ActiveList activeList;
 //
 //---------------------------------------------------------------------------
 
-SEQINST* GetInstance(int type, int nXIndex)
+SEQINST* GetInstance(int type, int nIndex)
 {
-	return activeList.get(type, nXIndex);
+	return activeList.get(type, nIndex);
 }
 
 SEQINST* GetInstance(DBloodActor* actor)
@@ -520,10 +509,10 @@ int seqGetID(DBloodActor* actor)
 	return -1;
 }
 
-void seqKill(int type, int nXIndex)
+void seqKill(int type, int nIndex)
 {
 	assert(type != SS_SPRITE);
-	activeList.remove(type, nXIndex);
+	activeList.remove(type, nIndex);
 }
 
 void seqKillAll()
@@ -606,14 +595,14 @@ Seq* getSequence(int res_id)
 //
 //---------------------------------------------------------------------------
 
-void seqSpawn(int nSeqID, int type, int nXIndex, int callback)
+void seqSpawn(int nSeqID, int type, int nIndex, int callback)
 {
 	assert(type != SS_SPRITE);
 	Seq* pSequence = getSequence(nSeqID);
 
 	if (pSequence == nullptr) return;
 
-	SEQINST* pInst = activeList.get(type, nXIndex);
+	SEQINST* pInst = activeList.get(type, nIndex);
 	if (!pInst)
 	{
 		pInst = activeList.getNew();
@@ -631,7 +620,7 @@ void seqSpawn(int nSeqID, int type, int nXIndex, int callback)
 	pInst->timeCounter = (short)pSequence->ticksPerFrame;
 	pInst->frameIndex = 0;
 	pInst->type = type;
-	pInst->seqindex = nXIndex;
+	pInst->seqindex = nIndex;
 	pInst->actor = nullptr;
 	pInst->Update();
 }
@@ -671,16 +660,16 @@ void seqSpawn(int nSeqID, DBloodActor* actor, int callback)
 //
 //---------------------------------------------------------------------------
 
-int seqGetStatus(int type, int nXIndex)
+int seqGetStatus(int type, int nIndex)
 {
-	SEQINST* pInst = activeList.get(type, nXIndex);
+	SEQINST* pInst = activeList.get(type, nIndex);
 	if (pInst) return pInst->frameIndex;
 	return -1;
 }
 
-int seqGetID(int type, int nXIndex)
+int seqGetID(int type, int nIndex)
 {
-	SEQINST* pInst = activeList.get(type, nXIndex);
+	SEQINST* pInst = activeList.get(type, nIndex);
 	if (pInst) return pInst->nSeqID;
 	return -1;
 }
@@ -727,11 +716,11 @@ void seqProcess(int nTicks)
 
 						else if (pInst->type == SS_MASKED)
 						{
-							int nWall = xwall[index].reference;
-							assert(nWall >= 0 && nWall < kMaxWalls);
-							wall[nWall].cstat &= ~(8 + 16 + 32);
-							if (wall[nWall].nextwall != -1)
-								wall[wall[nWall].nextwall].cstat &= ~(8 + 16 + 32);
+							assert(index >= 0 && index < kMaxWalls);
+							auto pWall = &wall[index];
+							pWall->cstat &= ~(8 + 16 + 32);
+							if (pWall->twoSided())
+								pWall->nextWall()->cstat &= ~(8 + 16 + 32);
 						}
 					}
 
