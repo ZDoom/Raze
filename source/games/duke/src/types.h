@@ -24,7 +24,7 @@ struct DDukeActor
 {
 	uint8_t cgg;
 	uint8_t spriteextra;	// moved here for easier maintenance. This was originally a hacked in field in the sprite structure called 'filler'.
-	short owner; // todo: make a pointer.
+	DDukeActor* ownerActor, * hitOwnerActor;
 	short picnum, ang, extra, movflag;
 	short tempang, dispicnum;
 	short timetosleep;
@@ -50,36 +50,36 @@ struct DDukeActor
 	void clear()
 	{
 		actorstayput = nullptr;
+		ownerActor = nullptr;
+		hitOwnerActor = nullptr;
 		cgg = spriteextra = 0;
-		picnum = ang = extra = owner = movflag = tempang = dispicnum = timetosleep = 0;
+		picnum = ang = extra = movflag = tempang = dispicnum = timetosleep = 0;
 		floorz = ceilingz = lastvx = lastvy = aflags = saved_ammo = 0;
 		memset(temp_data, 0, sizeof(temp_data));
 	}
 	int GetSpriteIndex() const { return int(this - array()); }
 
-	// Wrapper around some ugliness. The 'owner' field gets abused by some actors, so better wrap its real use in access functions to keep things in order.
+	// This once was stored in the owner field of the sprite
 	inline DDukeActor* GetOwner()
 	{
-		return s->owner < 0 ? nullptr : &array()[s->owner];
+		return ownerActor;
 	}
 
 	inline void SetOwner(DDukeActor* a)
 	{
-		s->owner = a? a->GetSpriteIndex() : -1;
+		ownerActor = a;
 	}
 
-	// same for the 'hittype' owner - which is normally the shooter in an attack.
 	inline DDukeActor* GetHitOwner()
 	{
-		return owner < 0 ? nullptr : &array()[owner];
+		return hitOwnerActor;
 	}
 
 	inline void SetHitOwner(DDukeActor* a)
 	{
-		owner = a ? a->GetSpriteIndex() : -1;
+		hitOwnerActor = a;
 	}
 
-	// This used the Owner field - better move this to something more safe.
 	inline bool IsActiveCrane()
 	{
 		return s->owner == -2;

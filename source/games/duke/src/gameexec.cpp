@@ -1259,10 +1259,6 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		if (bSet) act->extra = lValue;
 		else SetGameVarID(lVar2, act->extra, sActor, sPlayer);
 		break;
-	case ACTOR_HTOWNER:
-		if (bSet) act->owner = lValue;
-		else SetGameVarID(lVar2, act->owner, sActor, sPlayer);
-		break;
 	case ACTOR_HTMOVFLAG:
 		if (bSet) act->movflag = lValue;
 		else SetGameVarID(lVar2, act->movflag, sActor, sPlayer);
