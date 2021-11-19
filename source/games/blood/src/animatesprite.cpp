@@ -67,7 +67,7 @@ static void RotateXZ(int *pX, int *, int *pZ, int ang)
 	*pZ = dmulscale30r(oX,angSin,oZ,angCos);
 }
 
-template<typename T> tspritetype* viewInsertTSprite(spritetype* tsprite, int& spritesortcnt, int nSector, int nStatnum, T const * const pSprite)
+template<typename T> tspritetype* viewInsertTSprite(spritetype* tsprite, int& spritesortcnt, int nSector, int nStatnum, T const * const parentTSprite)
 {
     if (spritesortcnt >= MAXSPRITESONSCREEN)
         return nullptr;
@@ -83,13 +83,13 @@ template<typename T> tspritetype* viewInsertTSprite(spritetype* tsprite, int& sp
     pTSprite->statnum = nStatnum;
     pTSprite->sectnum = nSector;
     spritesortcnt++;
-    if (pSprite)
+    if (parentTSprite)
     {
-        pTSprite->x = pSprite->x;
-        pTSprite->y = pSprite->y;
-        pTSprite->z = pSprite->z;
-        pTSprite->owner = pSprite->owner;
-        pTSprite->ang = pSprite->ang;
+        pTSprite->x = parentTSprite->x;
+        pTSprite->y = parentTSprite->y;
+        pTSprite->z = parentTSprite->z;
+        pTSprite->owner = parentTSprite->owner;
+        pTSprite->ang = parentTSprite->ang;
     }
     pTSprite->x += Cos(gCameraAng)>>25;
     pTSprite->y += Sin(gCameraAng)>>25;
