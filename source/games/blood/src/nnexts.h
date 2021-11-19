@@ -321,7 +321,7 @@ void useUniMissileGen(DBloodActor* sourceactor, DBloodActor* actor);
 void useSoundGen(DBloodActor* sourceactor, DBloodActor* actor);
 void useIncDecGen(DBloodActor* sourceactor, short objType, int objIndex, DBloodActor* objactor);
 void useDataChanger(DBloodActor* sourceactor, int objType, int objIndex, DBloodActor* objActor);
-void useSectorLigthChanger(DBloodActor* pXSource, XSECTOR* pXSector);
+void useSectorLigthChanger(DBloodActor* pXSource, sectortype* pSector);
 void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor);
 void usePictureChanger(DBloodActor* sourceactor, int objType, int objIndex, DBloodActor* objActor);
 void useSequentialTx(DBloodActor* pXSource, COMMAND_ID cmd, bool setState);

@@ -4873,7 +4873,7 @@ void modernTypeTrigger(int destObjType, int destObjIndex, DBloodActor* destactor
         // change sector lighting dynamically
         case kModernSectorFXChanger:
             if (destObjType != OBJ_SECTOR) break;
-            useSectorLigthChanger(event.actor, &xsector[sector[destObjIndex].extra]);
+            useSectorLigthChanger(event.actor, &sector[destObjIndex]);
             break;
         // change target of dudes and make it fight
         case kModernDudeTargetChanger:
@@ -6746,10 +6746,11 @@ void useDataChanger(DBloodActor* sourceactor, int objType, int objIndex, DBloodA
 //
 //---------------------------------------------------------------------------
 
-void useSectorLigthChanger(DBloodActor* sourceactor, XSECTOR* pXSector) 
+void useSectorLigthChanger(DBloodActor* sourceactor, sectortype* pSector) 
 {
     auto pXSource = &sourceactor->x();
     spritetype* pSource = &sourceactor->s();
+    auto pXSector = &pSector->xs();
 
     if (valueIsBetween(pXSource->data1, -1, 32767))
         pXSector->wave = ClipHigh(pXSource->data1, 11);
@@ -6782,9 +6783,8 @@ void useSectorLigthChanger(DBloodActor* sourceactor, XSECTOR* pXSector)
     // add to shadeList if amplitude was set to 0 previously
     if (oldAmplitude != pXSector->amplitude) 
     {
-        auto newSect = &sector[pXSector->reference];
-        if (!shadeList.Contains(newSect))
-            shadeList.Push(newSect);
+        if (!shadeList.Contains(pSector))
+            shadeList.Push(pSector);
     }
 }
 
