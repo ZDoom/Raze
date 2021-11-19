@@ -811,8 +811,8 @@ void DragPoint(int nWall, int x, int y)
 void TranslateSector(int nSector, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, int a10, int a11, char a12)
 {
     int x, y;
-    int nXSector = sector[nSector].extra;
-    XSECTOR *pXSector = &xsector[nXSector];
+    auto pSector = &sector[nSector];
+    XSECTOR *pXSector = &pSector->xs();
     int v20 = interpolatedvalue(a6, a9, a2);
     int vc = interpolatedvalue(a6, a9, a3);
     int v28 = vc - v20;
@@ -822,10 +822,10 @@ void TranslateSector(int nSector, int a2, int a3, int a4, int a5, int a6, int a7
     int v44 = interpolatedvalue(a8, a11, a2);
     int vbp = interpolatedvalue(a8, a11, a3);
     int v14 = vbp - v44;
-    int nWall = sector[nSector].wallptr;
+    int nWall = pSector->wallptr;
     if (a12)
     {
-        for (int i = 0; i < sector[nSector].wallnum; nWall++, i++)
+        for (int i = 0; i < pSector->wallnum; nWall++, i++)
         {
             x = baseWall[nWall].x;
             y = baseWall[nWall].y;
@@ -836,7 +836,7 @@ void TranslateSector(int nSector, int a2, int a3, int a4, int a5, int a6, int a7
     }
     else
     {
-        for (int i = 0; i < sector[nSector].wallnum; nWall++, i++)
+        for (int i = 0; i < pSector->wallnum; nWall++, i++)
         {
             int v10 = wall[nWall].point2;
             x = baseWall[nWall].x;
@@ -1035,10 +1035,10 @@ DBloodActor* GetCrushedSpriteExtents(unsigned int nSector, int *pzTop, int *pzBo
 
 int VCrushBusy(unsigned int nSector, unsigned int a2)
 {
-    assert(nSector < (unsigned int)numsectors);
-    int nXSector = sector[nSector].extra;
-    assert(nXSector > 0 && nXSector < kMaxXSectors);
-    XSECTOR *pXSector = &xsector[nXSector];
+    assert(validSectorIndex(nSector));
+    auto pSector = &sector[nSector];
+    assert(pSector->hasX());
+    XSECTOR *pXSector = &pSector->xs();
     int nWave;
     if (pXSector->busy < a2)
         nWave = pXSector->busyWaveA;
@@ -1057,9 +1057,9 @@ int VCrushBusy(unsigned int nSector, unsigned int a2)
         return 1;
     viewInterpolateSector(nSector, &sector[nSector]);
     if (dz1 != 0)
-        sector[nSector].ceilingz = vc;
+        pSector->ceilingz = vc;
     if (dz2 != 0)
-        sector[nSector].floorz = v10;
+        pSector->floorz = v10;
     pXSector->busy = a2;
     if (pXSector->command == kCmdLink && pXSector->txID)
         evSendSector(nSector,pXSector->txID, kCmdLink);
@@ -1074,10 +1074,10 @@ int VCrushBusy(unsigned int nSector, unsigned int a2)
 
 int VSpriteBusy(unsigned int nSector, unsigned int a2)
 {
-    assert(nSector < (unsigned int)numsectors);
-    int nXSector = sector[nSector].extra;
-    assert(nXSector > 0 && nXSector < kMaxXSectors);
-    XSECTOR *pXSector = &xsector[nXSector];
+    assert(validSectorIndex(nSector));
+    auto pSector = &sector[nSector];
+    assert(pSector->hasX());
+    XSECTOR* pXSector = &pSector->xs();
     int nWave;
     if (pXSector->busy < a2)
         nWave = pXSector->busyWaveA;
@@ -1125,10 +1125,10 @@ int VSpriteBusy(unsigned int nSector, unsigned int a2)
 
 int VDoorBusy(unsigned int nSector, unsigned int a2)
 {
-    assert(nSector < (unsigned int)numsectors);
-    int nXSector = sector[nSector].extra;
-    assert(nXSector > 0 && nXSector < kMaxXSectors);
-    XSECTOR *pXSector = &xsector[nXSector];
+    assert(validSectorIndex(nSector));
+    auto pSector = &sector[nSector];
+    assert(pSector->hasX());
+    XSECTOR *pXSector = &pSector->xs();
     int vbp;
     if (pXSector->state)
         vbp = 65536/ClipLow((120*pXSector->busyTimeA)/10, 1);
@@ -1222,11 +1222,10 @@ int VDoorBusy(unsigned int nSector, unsigned int a2)
 
 int HDoorBusy(unsigned int nSector, unsigned int a2)
 {
-    assert(nSector < (unsigned int)numsectors);
+    assert(validSectorIndex(nSector));
     sectortype *pSector = &sector[nSector];
-    int nXSector = pSector->extra;
-    assert(nXSector > 0 && nXSector < kMaxXSectors);
-    XSECTOR *pXSector = &xsector[nXSector];
+    assert(pSector->hasX());
+    XSECTOR* pXSector = &pSector->xs();
     int nWave;
     if (pXSector->busy < a2)
         nWave = pXSector->busyWaveA;
@@ -1251,11 +1250,10 @@ int HDoorBusy(unsigned int nSector, unsigned int a2)
 
 int RDoorBusy(unsigned int nSector, unsigned int a2)
 {
-    assert(nSector < (unsigned int)numsectors);
+    assert(validSectorIndex(nSector));
     sectortype *pSector = &sector[nSector];
-    int nXSector = pSector->extra;
-    assert(nXSector > 0 && nXSector < kMaxXSectors);
-    XSECTOR *pXSector = &xsector[nXSector];
+    assert(pSector->hasX());
+    XSECTOR* pXSector = &pSector->xs();
     int nWave;
     if (pXSector->busy < a2)
         nWave = pXSector->busyWaveA;
@@ -1279,11 +1277,10 @@ int RDoorBusy(unsigned int nSector, unsigned int a2)
 
 int StepRotateBusy(unsigned int nSector, unsigned int a2)
 {
-    assert(nSector < (unsigned int)numsectors);
+    assert(validSectorIndex(nSector));
     sectortype *pSector = &sector[nSector];
-    int nXSector = pSector->extra;
-    assert(nXSector > 0 && nXSector < kMaxXSectors);
-    XSECTOR *pXSector = &xsector[nXSector];
+    assert(pSector->hasX());
+    XSECTOR* pXSector = &pSector->xs();
     if (!pXSector->marker0) return 0;
     spritetype* pSprite = &pXSector->marker0->s();
     int vbp;
@@ -1314,11 +1311,10 @@ int StepRotateBusy(unsigned int nSector, unsigned int a2)
 
 int GenSectorBusy(unsigned int nSector, unsigned int a2)
 {
-    assert(nSector < (unsigned int)numsectors);
+    assert(validSectorIndex(nSector));
     sectortype *pSector = &sector[nSector];
-    int nXSector = pSector->extra;
-    assert(nXSector > 0 && nXSector < kMaxXSectors);
-    XSECTOR *pXSector = &xsector[nXSector];
+    assert(pSector->hasX());
+    XSECTOR* pXSector = &pSector->xs();
     pXSector->busy = a2;
     if (pXSector->command == kCmdLink && pXSector->txID)
         evSendSector(nSector,pXSector->txID, kCmdLink);
@@ -1333,11 +1329,10 @@ int GenSectorBusy(unsigned int nSector, unsigned int a2)
 
 int PathBusy(unsigned int nSector, unsigned int a2)
 {
-    assert(nSector < (unsigned int)numsectors);
+    assert(validSectorIndex(nSector));
     sectortype *pSector = &sector[nSector];
-    int nXSector = pSector->extra;
-    assert(nXSector > 0 && nXSector < kMaxXSectors);
-    XSECTOR *pXSector = &xsector[nXSector];
+    assert(pSector->hasX());
+    XSECTOR* pXSector = &pSector->xs();
 
     if (!pXSector->basePath || !pXSector->marker0 || !pXSector->marker1) return 0;
     spritetype* pSprite = &pXSector->basePath->s();
@@ -1856,10 +1851,8 @@ void ProcessMotion(void)
     int nSector;
     for (pSector = &sector[0], nSector = 0; nSector < numsectors; nSector++, pSector++)
     {
-        int nXSector = pSector->extra;
-        if (nXSector <= 0)
-            continue;
-        XSECTOR *pXSector = &xsector[nXSector];
+        if (!pSector->hasX()) continue;
+        XSECTOR* pXSector = &pSector->xs();
         if (pXSector->bobSpeed != 0)
         {
             if (pXSector->bobAlways)
@@ -2029,11 +2022,9 @@ void trInit(void)
         sectortype *pSector = &sector[i];
         baseFloor[i] = pSector->floorz;
         baseCeil[i] = pSector->ceilingz;
-        int nXSector = pSector->extra;
-        if (nXSector > 0)
+        if (pSector->hasX())
         {
-            assert(nXSector < kMaxXSectors);
-            XSECTOR *pXSector = &xsector[nXSector];
+            XSECTOR *pXSector = &pSector->xs();
             if (pXSector->state)
                 pXSector->busy = 65536;
             switch (pSector->type)

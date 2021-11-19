@@ -422,10 +422,9 @@ static void fakeMoveDude(spritetype *pSprite)
     }
     bool bUnderwater = 0;
     bool bDepth = 0;
-    int nXSector = sector[nSector].extra;
-    if (nXSector > 0)
+    if (sector[sectnum].hasX())
     {
-        XSECTOR *pXSector = &xsector[nXSector];
+        XSECTOR *pXSector = &sector[sectnum].xs();
         if (pXSector->Underwater)
             bUnderwater = 1;
         if (pXSector->Depth)
@@ -550,8 +549,8 @@ static void fakeMoveDude(spritetype *pSprite)
                 return;
             }
         }
-        int nXSector = sector[pSprite->sectnum].extra;
-        if (nXSector > 0 && xsector[nXSector].Underwater)
+        int n XSector = sector [pSprite->sectnum]. extra;
+        if (n XSector > 0 && xsector[n XSector].Underwater)
             return;
         if (predict.floordist >= 0x100)
             return;

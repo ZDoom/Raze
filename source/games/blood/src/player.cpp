@@ -1939,7 +1939,6 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
     spritetype *pSprite = pPlayer->pSprite;
     XSPRITE *pXSprite = pPlayer->pXSprite;
     auto pActor = pPlayer->actor;
-    int nXSector = sector[pSprite->sectnum].extra;
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int nDeathSeqID = -1;
     int nKneelingPlayer = -1;
@@ -2051,7 +2050,7 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
     if (nDeathSeqID != 16)
     {
         powerupClear(pPlayer);
-        if (nXSector > 0 && xsector[nXSector].Exit)
+        if (pSprite->sector()->hasX() && pSprite->sector()->xs().Exit)
             trTriggerSector(pSprite->sector(), kCmdSectorExit);
         pSprite->flags |= 7;
         for (int p = connecthead; p >= 0; p = connectpoint2[p])

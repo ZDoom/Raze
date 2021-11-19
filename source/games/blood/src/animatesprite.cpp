@@ -79,7 +79,6 @@ template<typename T> tspritetype* viewInsertTSprite(spritetype* tsprite, int& sp
     pTSprite->xrepeat = 64;
     pTSprite->yrepeat = 64;
     pTSprite->owner = -1;
-    pTSprite->extra = -1;
     pTSprite->type = -spritesortcnt;
     pTSprite->statnum = nStatnum;
     pTSprite->sectnum = nSector;
@@ -523,7 +522,6 @@ void viewProcessSprites(spritetype* tsprite, int& spritesortcnt, int32_t cX, int
     {
         tspritetype *pTSprite = &tsprite[nTSprite];
         auto owneractor = &bloodActors[pTSprite->owner];
-        //int nXSprite = pTSprite->extra;
         XSPRITE *pTXSprite = NULL;
         if (sprite[pTSprite->owner].detail > gDetail)
         {

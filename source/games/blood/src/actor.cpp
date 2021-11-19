@@ -4896,7 +4896,7 @@ void MoveDude(DBloodActor* actor)
 			int nHitWall = coll.index;
 			walltype* pHitWall = &wall[nHitWall];
 			XWALL* pHitXWall = nullptr;
-			if (pHitWall->extra > 0) pHitXWall = &pHitWall->xw();
+			if (pHitWall->hasX()) pHitXWall = &pHitWall->xw();
 
 			if (pDudeInfo->lockOut && pHitXWall && pHitXWall->triggerPush && !pHitXWall->key && !pHitXWall->dudeLockout && !pHitXWall->state && !pHitXWall->busy && !pPlayer)
 				trTriggerWall(pHitWall, kCmdWallPush);

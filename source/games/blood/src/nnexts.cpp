@@ -1186,10 +1186,10 @@ void nnExtProcessSuperSprites()
             }
 
         }
-        else if (sectRangeIsFine(pWind->sectnum))
+        else if (validSectorIndex(pWind->sectnum))
         {
-            sectortype* pSect = &sector[pWind->sectnum];
-            XSECTOR* pXSector = (pSect->extra > 0) ? &xsector[pSect->extra] : NULL;
+            sectortype* pSect = pWind->sector();
+            XSECTOR* pXSector = (pSect->hasX()) ? &pSect->xs() : nullptr;
             if ((fWindAlways) || (pXSector && !pXSector->locked && (pXSector->windAlways || pXSector->busy)))
                 windGenDoVerticalWind(pXWind->sysData2, pWind->sectnum);
         }
@@ -1457,7 +1457,7 @@ int getSpriteMassBySize(DBloodActor* actor)
     int mass = 0; int seqId = -1; int clipDist = pSprite->clipdist;
     if (!actor->hasX())
     {
-        I_Error("getSpriteMassBySize: pSprite->extra < 0");
+        I_Error("getSpriteMassBySize: pSprite->hasX == false");
     }
     else if (actor->IsDudeActor()) 
     {
@@ -4054,7 +4054,7 @@ bool condCheckSector(DBloodActor* aCond, int cmpOp, bool PUSH)
         condError(aCond, "Object #%d (objType: %d) is not a sector!", objIndex, objType);
 
     sectortype* pSect = &sector[objIndex];
-    XSECTOR* pXSect = (xsectRangeIsFine(pSect->extra)) ? &xsector[pSect->extra] : NULL;
+    XSECTOR* pXSect = pSect->hasX()? &pSect->xs() : nullptr;
 
     if (cond < (kCondRange >> 1)) 
     {
