@@ -609,9 +609,9 @@ void evSendSector(int index, int rxId, COMMAND_ID command)
 	evSend(nullptr, index, SS_SECTOR, rxId, command);
 }
 
-void evSendWall(int index, int rxId, COMMAND_ID command)
+void evSendWall(walltype* wal, int rxId, COMMAND_ID command)
 {
-	evSend(nullptr, index, SS_WALL, rxId, command);
+	evSend(nullptr, wallnum(wal), SS_WALL, rxId, command);
 }
 
 //---------------------------------------------------------------------------

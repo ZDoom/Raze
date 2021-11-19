@@ -87,9 +87,9 @@ bool SetWallState(int nWall, XWALL *pXWall, int nState)
     if (pXWall->txID)
     {
         if (pXWall->command != kCmdLink && pXWall->triggerOn && pXWall->state)
-            evSendWall(nWall, pXWall->txID, (COMMAND_ID)pXWall->command);
+            evSendWall(&wall[nWall], pXWall->txID, (COMMAND_ID)pXWall->command);
         if (pXWall->command != kCmdLink && pXWall->triggerOff && !pXWall->state)
-            evSendWall(nWall, pXWall->txID, (COMMAND_ID)pXWall->command);
+            evSendWall(&wall[nWall], pXWall->txID, (COMMAND_ID)pXWall->command);
     }
     return 1;
 }
@@ -646,9 +646,9 @@ void SetupGibWallState(walltype *pWall, XWALL *pXWall)
     }
 }
 
-void OperateWall(int nWall, XWALL *pXWall, EVENT event) {
-    walltype *pWall = &wall[nWall];
-    
+void OperateWall(walltype* pWall, EVENT event) {
+    auto pXWall = &pWall->xw();
+  
     switch (event.cmd) {
         case kCmdLock:
             pXWall->locked = 1;
@@ -662,24 +662,24 @@ void OperateWall(int nWall, XWALL *pXWall, EVENT event) {
     }
     
     #ifdef NOONE_EXTENSIONS
-    if (gModernMap && modernTypeOperateWall(nWall, pWall, pXWall, event))
+    if (gModernMap && modernTypeOperateWall(wallnum(pWall), pWall, pXWall, event))
         return;
     #endif
 
     switch (pWall->type) {
         case kWallGib:
-            if (GetWallType(nWall) != pWall->type) break;
+            if (GetWallType(wallnum(pWall)) != pWall->type) break;
             bool bStatus;
             switch (event.cmd) {
                 case kCmdOn:
                 case kCmdWallImpact:
-                    bStatus = SetWallState(nWall, pXWall, 1);
+                    bStatus = SetWallState(wallnum(pWall), pXWall, 1);
                     break;
                 case kCmdOff:
-                    bStatus = SetWallState(nWall, pXWall, 0);
+                    bStatus = SetWallState(wallnum(pWall), pXWall, 0);
                     break;
                 default:
-                    bStatus = SetWallState(nWall, pXWall, pXWall->state ^ 1);
+                    bStatus = SetWallState(wallnum(pWall), pXWall, pXWall->state ^ 1);
                     break;
             }
 
@@ -689,20 +689,20 @@ void OperateWall(int nWall, XWALL *pXWall, EVENT event) {
                     CGibVelocity vel(100, 100, 250);
                     int nType = ClipRange(pXWall->data, 0, 31);
                     if (nType > 0)
-                        GibWall(nWall, (GIBTYPE)nType, &vel);
+                        GibWall(wallnum(pWall), (GIBTYPE)nType, &vel);
                 }
             }
             return;
         default:
             switch (event.cmd) {
                 case kCmdOff:
-                    SetWallState(nWall, pXWall, 0);
+                    SetWallState(wallnum(pWall), pXWall, 0);
                     break;
                 case kCmdOn:
-                    SetWallState(nWall, pXWall, 1);
+                    SetWallState(wallnum(pWall), pXWall, 1);
                     break;
                 default:
-                    SetWallState(nWall, pXWall, pXWall->state ^ 1);
+                    SetWallState(wallnum(pWall), pXWall, pXWall->state ^ 1);
                     break;
             }
             return;
@@ -1738,20 +1738,21 @@ void trTriggerSector(unsigned int nSector, XSECTOR *pXSector, int command) {
     }
 }
 
-void trTriggerWall(unsigned int nWall, XWALL *pXWall, int command) {
-    assert(nWall < (unsigned int)numwalls);
+void trTriggerWall(walltype* pWall, int command) 
+{
+    auto pXWall = &pWall->xw();
     if (!pXWall->locked && !pXWall->isTriggered) {
         
         if (pXWall->triggerOnce)
             pXWall->isTriggered = 1;
         
         if (pXWall->decoupled && pXWall->txID > 0)
-            evSendWall(nWall, pXWall->txID, (COMMAND_ID)pXWall->command);
+            evSendWall(pWall, pXWall->txID, (COMMAND_ID)pXWall->command);
 
         else {
             EVENT event;
             event.cmd = command;
-            OperateWall(nWall, pXWall, event);
+            OperateWall(pWall, event);
         }
 
     }
@@ -1815,7 +1816,7 @@ void trMessageWall(unsigned int nWall, EVENT event) {
                 break;
             #endif
             default:
-                OperateWall(nWall, pXWall, event);
+                OperateWall(&wall[nWall], event);
                 break;
         }
     }

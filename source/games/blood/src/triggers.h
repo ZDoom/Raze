@@ -55,7 +55,11 @@ extern int gBusyCount;
 
 void trTriggerSector(unsigned int nSector, XSECTOR *pXSector, int command);
 void trMessageSector(unsigned int nSector, EVENT event);
-void trTriggerWall(unsigned int nWall, XWALL *pXWall, int command);
+void trTriggerWall(walltype*, int command);
+inline void trTriggerWall(unsigned int nWall, XWALL* pXWall, int command)
+{
+    trTriggerWall(&wall[nWall], command);
+}
 void trMessageWall(unsigned int nWall, EVENT event);
 void trTriggerSprite(DBloodActor* actor, int command);
 void trMessageSprite(DBloodActor* actor, EVENT event);

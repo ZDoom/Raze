@@ -4551,20 +4551,19 @@ static void ProcessTouchObjects(DBloodActor* actor)
 
 		// Touch walls
 		Collision coll = actor->hit.hit;
-		int nHWall = -1;
+		walltype* pHWall = nullptr;
 		if (coll.type == kHitWall)
 		{
-			nHWall = coll.index;
-			if (wallRangeIsFine(nHWall) && xwallRangeIsFine(wall[nHWall].extra))
+			pHWall = coll.wall();
+			if (pHWall && pHWall->hasX())
 			{
-				XWALL* pXHWall = &xwall[wall[nHWall].extra];
-				if (pXHWall->triggerTouch && !pXHWall->isTriggered && (!pXHWall->dudeLockout || actor->IsPlayerActor()))
-					trTriggerWall(nHWall, pXHWall, kCmdWallTouch);
+				if (pHWall->xw().triggerTouch && !pHWall->xw().isTriggered && (!pHWall->xw().dudeLockout || actor->IsPlayerActor()))
+					trTriggerWall(pHWall, kCmdWallTouch);
 			}
 		}
 
 		// enough to reset SpriteHit values
-		if (nHWall != -1 || actor2) actor->xvel += 5;
+		if (pHWall != nullptr || actor2) actor->xvel += 5;
 
 	}
 #endif
