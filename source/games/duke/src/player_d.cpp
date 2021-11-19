@@ -196,6 +196,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, int sx, int sy, int
 	if (spawned == nullptr)
 	{
 		spawned = spawn(actor, FLAMETHROWERFLAME);
+		if (!spawned) return;
 		spawned->s->xvel = (short)vel;
 		spawned->s->zvel = (short)zvel;
 	}
@@ -273,7 +274,7 @@ static void shootknee(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 				if (p >= 0)
 				{
 					auto k = spawn(knee, SMALLSMOKE);
-					k->s->z -= (8 << 8);
+					if (k) k->s->z -= (8 << 8);
 					S_PlayActorSound(KICK_HIT, knee);
 				}
 
@@ -304,12 +305,15 @@ static void shootknee(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 		else if (p >= 0 && zvel > 0 && hitsectp->lotag == 1)
 		{
 			auto splash = spawn(ps[p].GetActor(), WATERSPLASH2);
-			splash->s->x = hitx;
-			splash->s->y = hity;
-			splash->s->ang = ps[p].angle.ang.asbuild(); // Total tweek
-			splash->s->xvel = 32;
-			ssp(actor, CLIPMASK0);
-			splash->s->xvel = 0;
+			if (splash)
+			{
+				splash->s->x = hitx;
+				splash->s->y = hity;
+				splash->s->ang = ps[p].angle.ang.asbuild(); // Total tweek
+				splash->s->xvel = 32;
+				ssp(actor, CLIPMASK0);
+				splash->s->xvel = 0;
+			}
 
 		}
 	}
@@ -453,12 +457,15 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 			fi.checkhitsprite(hitact, spark);
 			if (hitact->s->picnum == TILE_APLAYER && (ud.coop != 1 || ud.ffire == 1))
 			{
-				auto jib = spawn(spark, JIBS6);
 				spark->s->xrepeat = spark->s->yrepeat = 0;
-				jib->s->z += (4 << 8);
-				jib->s->xvel = 16;
-				jib->s->xrepeat = jib->s->yrepeat = 24;
-				jib->s->ang += 64 - (krand() & 127);
+				auto jib = spawn(spark, JIBS6);
+				if (jib)
+				{
+					jib->s->z += (4 << 8);
+					jib->s->xvel = 16;
+					jib->s->xrepeat = jib->s->yrepeat = 24;
+					jib->s->ang += 64 - (krand() & 127);
+				}
 			}
 			else spawn(spark, SMALLSMOKE);
 
@@ -524,10 +531,13 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 										goto SKIPBULLETHOLE;
 							}
 							auto hole = spawn(spark, BULLETHOLE);
-							hole->s->xvel = -1;
-							auto delta = wal->delta();
-							hole->s->ang = getangle(-delta.x, -delta.y) + 512;
-							ssp(hole, CLIPMASK0);
+							if (hole)
+							{
+								hole->s->xvel = -1;
+								auto delta = wal->delta();
+								hole->s->ang = getangle(-delta.x, -delta.y) + 512;
+								ssp(hole, CLIPMASK0);
+							}
 						}
 
 		SKIPBULLETHOLE:
@@ -1089,13 +1099,16 @@ void shoot_d(DDukeActor* actor, int atwith)
 		case FIREFLY: // BOSS5 shot
 		{
 			auto k = spawn(actor, atwith);
-			k->s->sectnum = sectnum(sect);
-			k->s->x = sx;
-			k->s->y = sy;
-			k->s->z = sz;
-			k->s->ang = sa;
-			k->s->xvel = 500;
-			k->s->zvel = 0;
+			if (k)
+			{
+				k->s->sectnum = sectnum(sect);
+				k->s->x = sx;
+				k->s->y = sy;
+				k->s->z = sz;
+				k->s->ang = sa;
+				k->s->xvel = 500;
+				k->s->zvel = 0;
+			}
 			return;
 		}
 		}
@@ -2015,11 +2028,14 @@ static void underwater(int snum, ESyncBits actions, int fz, int cz)
 	if (p->scuba_on && (krand() & 255) < 8)
 	{
 		auto j = spawn(pact, WATERBUBBLE);
-		j->s->x += bcos(p->angle.ang.asbuild() + 64 - (global_random & 128), -6);
-		j->s->y += bsin(p->angle.ang.asbuild() + 64 - (global_random & 128), -6);
-		j->s->xrepeat = 3;
-		j->s->yrepeat = 2;
-		j->s->z = p->pos.z + (8 << 8);
+		if (j)
+		{
+			j->s->x += bcos(p->angle.ang.asbuild() + 64 - (global_random & 128), -6);
+			j->s->y += bsin(p->angle.ang.asbuild() + 64 - (global_random & 128), -6);
+			j->s->xrepeat = 3;
+			j->s->yrepeat = 2;
+			j->s->z = p->pos.z + (8 << 8);
+		}
 	}
 }
 
@@ -2377,9 +2393,12 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 		case 24:
 		{
 			auto j = spawn(pact, SHOTGUNSHELL);
-			j->s->ang += 1024;
-			ssp(j, CLIPMASK0);
-			j->s->ang += 1024;
+			if (j)
+			{
+				j->s->ang += 1024;
+				ssp(j, CLIPMASK0);
+				j->s->ang += 1024;
+			}
 			p->kickback_pic++;
 			break;
 		}
@@ -2402,12 +2421,14 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 				if ((p->kickback_pic % 3) == 0)
 				{
 					auto j = spawn(pact, SHELL);
-
-					j->s->ang += 1024;
-					j->s->ang &= 2047;
-					j->s->xvel += 32;
-					j->s->z += (3 << 8);
-					ssp(j, CLIPMASK0);
+					if (j)
+					{
+						j->s->ang += 1024;
+						j->s->ang &= 2047;
+						j->s->xvel += 32;
+						j->s->z += (3 << 8);
+						ssp(j, CLIPMASK0);
+					}
 				}
 
 				S_PlayActorSound(CHAINGUN_FIRE, pact);

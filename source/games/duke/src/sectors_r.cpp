@@ -313,7 +313,7 @@ void operaterespawns_r(int low)
 			if (badguypic(act->s->hitag) && ud.monsters_off) break;
 
 			auto star = spawn(act, TRANSPORTERSTAR);
-			star->s->z -= (32 << 8);
+			if (star) star->s->z -= (32 << 8);
 
 			act->s->extra = 66 - 12;   // Just a way to killit
 			break;
@@ -2328,7 +2328,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		}
 		{
 			auto j = spawn(targ, STEAM);
-			j->s->z = s->sector()->floorz - (32 << 8);
+			if (j) j->s->z = s->sector()->floorz - (32 << 8);
 		}
 		break;
 
@@ -2371,12 +2371,15 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 						//if (actortype[s->picnum] == 0) //TRANSITIONAL. Cannot be done right with EDuke mess backing the engine. 
 						{
 							auto spawned = spawn(proj, JIBS6);
-							if (pspr->pal == 6)
-								spawned->s->pal = 6;
-							spawned->s->z += (4 << 8);
-							spawned->s->xvel = 16;
-							spawned->s->xrepeat = spawned->s->yrepeat = 24;
-							spawned->s->ang += 32 - (krand() & 63);
+							if (spawned)
+							{
+								if (pspr->pal == 6)
+									spawned->s->pal = 6;
+								spawned->s->z += (4 << 8);
+								spawned->s->xvel = 16;
+								spawned->s->xrepeat = spawned->s->yrepeat = 24;
+								spawned->s->ang += 32 - (krand() & 63);
+							}
 						}
 
 				auto Owner = proj->GetOwner();

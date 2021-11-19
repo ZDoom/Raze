@@ -1087,7 +1087,7 @@ static void chickenarrow(DDukeActor* actor)
 	if (actor->picnum != BOSS2 && s->xrepeat >= 10 && s->sector()->lotag != 2)
 	{
 		auto spawned = spawn(actor, SMALLSMOKE);
-		spawned->s->z += (1 << 8);
+		if (spawned) spawned->s->z += (1 << 8);
 		if ((krand() & 15) == 2)
 		{
 			spawn(actor, MONEY);
@@ -1151,9 +1151,12 @@ static bool weaponhitsprite(DDukeActor *proj, DDukeActor *targ, const vec3_t &ol
 		if (badguy(targ) || targ->s->picnum == APLAYER)
 		{
 			auto star = spawn(proj, TRANSPORTERSTAR);
-			star->s->pal = 1;
-			star->s->xrepeat = 32;
-			star->s->yrepeat = 32;
+			if (star)
+			{
+				star->s->pal = 1;
+				star->s->xrepeat = 32;
+				star->s->yrepeat = 32;
+			}
 
 			deletesprite(proj);
 			return true;
@@ -1258,11 +1261,14 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const vec3_t& oldpos)
 				if (!isRRRA() || !Owner || (Owner->s->picnum != CHEER && Owner->s->picnum != CHEERSTAYPUT))
 				{
 					auto j = spawn(proj, CIRCLESTUCK);
-					j->s->xrepeat = 8;
-					j->s->yrepeat = 8;
-					j->s->cstat = 16;
-					j->s->ang = (j->s->ang + 512) & 2047;
-					j->s->clipdist = MulScale(s->xrepeat, tileWidth(s->picnum), 7);
+					if (j)
+					{
+						j->s->xrepeat = 8;
+						j->s->yrepeat = 8;
+						j->s->cstat = 16;
+						j->s->ang = (j->s->ang + 512) & 2047;
+						j->s->clipdist = MulScale(s->xrepeat, tileWidth(s->picnum), 7);
+					}
 				}
 				deletesprite(proj);
 				return true;
@@ -1465,13 +1471,16 @@ static void weaponcommon_r(DDukeActor *proj)
 			else if (s->picnum != FREEZEBLAST && s->picnum != FIRELASER && s->picnum != SHRINKSPARK)
 			{
 				auto k = spawn(proj, 1441);
-				k->s->xrepeat = k->s->yrepeat = s->xrepeat >> 1;
-				if (coll.type == kHitSector)
+				if (k)
 				{
-					if (s->zvel < 0)
+					k->s->xrepeat = k->s->yrepeat = s->xrepeat >> 1;
+					if (coll.type == kHitSector)
 					{
-						k->s->cstat |= 8;
-						k->s->z += (72 << 8);
+						if (s->zvel < 0)
+						{
+							k->s->cstat |= 8;
+							k->s->z += (72 << 8);
+						}
 					}
 				}
 			}
@@ -1514,9 +1523,12 @@ void moveweapons_r(void)
 			if (proj->s->yvel < 1 || proj->s->extra < 2 || (proj->s->xvel | proj->s->zvel) == 0)
 			{
 				auto star = spawn(proj, TRANSPORTERSTAR);
-				star->s->pal = 1;
-				star->s->xrepeat = 32;
-				star->s->yrepeat = 32;
+				if (star)
+				{
+					star->s->pal = 1;
+					star->s->xrepeat = 32;
+					star->s->yrepeat = 32;
+				}
 				deletesprite(proj);
 				continue;
 			}
@@ -1624,7 +1636,7 @@ void movetransports_r(void)
 							ps[p].cursectnum = spr2->sectnum;
 
 							auto beam = spawn(Owner, TRANSPORTERBEAM);
-							S_PlayActorSound(TELEPORTER, beam);
+							if (beam) S_PlayActorSound(TELEPORTER, beam);
 
 							break;
 						}
@@ -1817,7 +1829,7 @@ void movetransports_r(void)
 						if (sectlotag > 0)
 						{
 							auto k = spawn(act2, WATERSPLASH2);
-							if (sectlotag == 1 && spr2->statnum == 4)
+							if (k && sectlotag == 1 && spr2->statnum == 4)
 							{
 								k->s->xvel = spr2->xvel >> 1;
 								k->s->ang = spr2->ang;
@@ -1840,10 +1852,10 @@ void movetransports_r(void)
 									spr2->backupang();
 
 									auto beam = spawn(act, TRANSPORTERBEAM);
-									S_PlayActorSound(TELEPORTER, beam);
+									if (beam) S_PlayActorSound(TELEPORTER, beam);
 
 									beam = spawn(Owner, TRANSPORTERBEAM);
-									S_PlayActorSound(TELEPORTER, beam);
+									if (beam) S_PlayActorSound(TELEPORTER, beam);
 
 									if (Owner->GetOwner() != Owner)
 									{
@@ -2379,7 +2391,7 @@ void rr_specialstats()
 				{
 					auto j = spawn(act, RRTILE3132);
 					s->lotag = 96;
-					if (!isRRRA()) S_PlayActorSound(472, j);
+					if (j && !isRRRA()) S_PlayActorSound(472, j);
 				}
 				break;
 			case RRTILE289:
@@ -2772,9 +2784,12 @@ static int henstand(DDukeActor *actor)
 				{
 					auto ns = spawn(hitact, HENSTAND);
 					deletesprite(hitact);
-					ns->s->xvel = 32;
-					ns->s->lotag = 40;
-					ns->s->ang = s->ang;
+					if (ns)
+					{
+						ns->s->xvel = 32;
+						ns->s->lotag = 40;
+						ns->s->ang = s->ang;
+					}
 				}
 			}
 		}
@@ -2948,7 +2963,7 @@ void moveactors_r(void)
 					if (sectp->lotag == 1)
 					{
 						auto j = spawn(act, WATERSPLASH2);
-						j->s->z = j->getSector()->floorz;
+						if (j) j->s->z = j->getSector()->floorz;
 					}
 					deletesprite(act);
 					continue;
@@ -3358,8 +3373,11 @@ void handle_se06_r(DDukeActor *actor)
 			{
 				hulkspawn--;
 				auto ns = spawn(actor, HULK);
-				ns->s->z = ns->getSector()->ceilingz;
-				ns->s->pal = 33;
+				if (ns)
+				{
+					ns->s->z = ns->getSector()->ceilingz;
+					ns->s->pal = 33;
+				}
 				if (!hulkspawn)
 				{
 					ns = EGS(s->sector(), s->x, s->y, s->sector()->ceilingz + 119428, 3677, -8, 16, 16, 0, 0, 0, actor, 5);
@@ -3371,9 +3389,12 @@ void handle_se06_r(DDukeActor *actor)
 						ns->s->yrepeat = 255;
 					}
 					ns = spawn(actor, 296);
-					ns->s->cstat = 0;
-					ns->s->cstat |= 32768;
-					ns->s->z = s->sector()->floorz - 6144;
+					if (ns)
+					{
+						ns->s->cstat = 0;
+						ns->s->cstat |= 32768;
+						ns->s->z = s->sector()->floorz - 6144;
+					}
 					deletesprite(actor);
 					return;
 				}
@@ -3412,7 +3433,7 @@ void handle_se06_r(DDukeActor *actor)
 				}
 				else pn = UFO1_RRRA;
 				auto ns = spawn(actor, pn);
-				ns->s->z = ns->getSector()->ceilingz;
+				if (ns) ns->s->z = ns->getSector()->ceilingz;
 			}
 		}
 	}

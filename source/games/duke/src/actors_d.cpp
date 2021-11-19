@@ -1057,9 +1057,12 @@ static void movetripbomb(DDukeActor *actor)
 			fi.hitradius(actor, gs.tripbombblastradius, x >> 2, x >> 1, x - (x >> 2), x);
 
 			auto spawned = spawn(actor, EXPLOSION2);
-			spawned->s->ang = s->ang;
-			spawned->s->xvel = 348;
-			ssp(spawned, CLIPMASK0);
+			if (spawned)
+			{
+				spawned->s->ang = s->ang;
+				spawned->s->xvel = 348;
+				ssp(spawned, CLIPMASK0);
+			}
 
 			DukeStatIterator it(STAT_MISC);
 			while (auto a1 = it.Next())
@@ -1121,29 +1124,31 @@ static void movetripbomb(DDukeActor *actor)
 			while (x > 0)
 			{
 				auto spawned = spawn(actor, LASERLINE);
-				setsprite(spawned, spawned->s->pos);
-				spawned->s->hitag = s->hitag;
-				spawned->temp_data[1] = spawned->s->z;
-
-				if (x < 1024)
+				if (spawned)
 				{
-					spawned->s->xrepeat = x >> 5;
-					break;
+					setsprite(spawned, spawned->s->pos);
+					spawned->s->hitag = s->hitag;
+					spawned->temp_data[1] = spawned->s->z;
+
+					if (x < 1024)
+					{
+						spawned->s->xrepeat = x >> 5;
+						break;
+					}
+					x -= 1024;
+
+					s->x += bcos(actor->temp_data[5], -4);
+					s->y += bsin(actor->temp_data[5], -4);
+					updatesectorneighbor(s->x, s->y, &curSectNum, 1024, 2048);
+
+					if (curSectNum == -1)
+						break;
+
+					changeactorsect(actor, curSectNum);
+
+					// this is a hack to work around the LASERLINE sprite's art tile offset
+					changeactorsect(spawned, curSectNum);
 				}
-				x -= 1024;
-
-				s->x += bcos(actor->temp_data[5], -4);
-				s->y += bsin(actor->temp_data[5], -4);
-				updatesectorneighbor(s->x, s->y, &curSectNum, 1024, 2048);
-
-				if (curSectNum == -1)
-					break;
-
-				changeactorsect(actor, curSectNum);
-
-				// this is a hack to work around the LASERLINE sprite's art tile offset
-				changeactorsect(spawned, curSectNum);
-
 			}
 		}
 
@@ -1543,33 +1548,36 @@ static bool movefireball(DDukeActor* actor)
 			// This still needs work- it stores an actor reference in a general purpose integer field.
 			int trail = actor->temp_data[1];
 			auto ball = spawn(actor, FIREBALL);
-			auto spr = ball->s;
-			actor->temp_data[1] = ball->GetSpriteIndex();
-			
-			spr->xvel = s->xvel;
-			spr->yvel = s->yvel;
-			spr->zvel = s->zvel;
-			if (actor->temp_data[0] > 1)
+			if (ball)
 			{
-				FireProj* proj = fire.CheckKey(trail);
-				if (proj != nullptr)
-				{
-					spr->x = proj->x;
-					spr->y = proj->y;
-					spr->z = proj->z;
-					spr->xvel = proj->xv;
-					spr->yvel = proj->yv;
-					spr->zvel = proj->zv;
-				}
-			}
-			spr->yrepeat = spr->xrepeat = (uint8_t)(s->xrepeat * siz);
-			spr->cstat = s->cstat;
-			spr->extra = 0;
+				auto spr = ball->s;
+				actor->temp_data[1] = ball->GetSpriteIndex();
 
-			FireProj proj = { spr->x, spr->y, spr->z, spr->xvel, spr->yvel, spr->zvel };
-			
-			fire.Insert(ball->GetSpriteIndex(), proj);
-			changeactorstat(ball, STAT_PROJECTILE);
+				spr->xvel = s->xvel;
+				spr->yvel = s->yvel;
+				spr->zvel = s->zvel;
+				if (actor->temp_data[0] > 1)
+				{
+					FireProj* proj = fire.CheckKey(trail);
+					if (proj != nullptr)
+					{
+						spr->x = proj->x;
+						spr->y = proj->y;
+						spr->z = proj->z;
+						spr->xvel = proj->xv;
+						spr->yvel = proj->yv;
+						spr->zvel = proj->zv;
+					}
+				}
+				spr->yrepeat = spr->xrepeat = (uint8_t)(s->xrepeat * siz);
+				spr->cstat = s->cstat;
+				spr->extra = 0;
+
+				FireProj proj = { spr->x, spr->y, spr->z, spr->xvel, spr->yvel, spr->zvel };
+
+				fire.Insert(ball->GetSpriteIndex(), proj);
+				changeactorstat(ball, STAT_PROJECTILE);
+			}
 		}
 		actor->temp_data[0]++;
 	}
@@ -1591,9 +1599,12 @@ static bool weaponhitsprite(DDukeActor* proj, DDukeActor *targ, bool fireball)
 		if (badguy(targ) || targ->s->picnum == APLAYER)
 		{
 			auto spawned = spawn(targ, TRANSPORTERSTAR);
-			spawned->s->pal = 1;
-			spawned->s->xrepeat = 32;
-			spawned->s->yrepeat = 32;
+			if (spawned)
+			{
+				spawned->s->pal = 1;
+				spawned->s->xrepeat = 32;
+				spawned->s->yrepeat = 32;
+			}
 
 			deletesprite(proj);
 			return true;
@@ -1705,9 +1716,12 @@ static bool weaponhitsector(DDukeActor* proj, const vec3_t& oldpos, bool firebal
 	else if (fireball)
 	{
 		auto spawned = spawn(proj, LAVAPOOL);
-		spawned->SetOwner(proj);
-		spawned->SetHitOwner(proj);
-		spawned->s->yvel = s->yvel;
+		if (spawned)
+		{
+			spawned->SetOwner(proj);
+			spawned->SetHitOwner(proj);
+			spawned->s->yvel = s->yvel;
+		}
 		deletesprite(proj);
 		return true;
 	}
@@ -1762,7 +1776,7 @@ static void weaponcommon_d(DDukeActor* proj)
 		if (proj->picnum != BOSS2 && s->xrepeat >= 10 && s->sector()->lotag != 2)
 		{
 			auto spawned = spawn(proj, SMALLSMOKE);
-			spawned->s->z += (1 << 8);
+			if (spawned) spawned->s->z += (1 << 8);
 		}
 		break;
 
@@ -1865,19 +1879,22 @@ static void weaponcommon_d(DDukeActor* proj)
 			else if (s->picnum != COOLEXPLOSION1 && s->picnum != FREEZEBLAST && s->picnum != FIRELASER && (!isWorldTour() || s->picnum != FIREBALL))
 			{
 				auto k = spawn(proj, EXPLOSION2);
-				k->s->xrepeat = k->s->yrepeat = s->xrepeat >> 1;
-				if (coll.type == kHitSector)
+				if (k)
 				{
-					if (s->zvel < 0)
+					k->s->xrepeat = k->s->yrepeat = s->xrepeat >> 1;
+					if (coll.type == kHitSector)
 					{
-						k->s->cstat |= 8; k->s->z += (72 << 8);
+						if (s->zvel < 0)
+						{
+							k->s->cstat |= 8; k->s->z += (72 << 8);
+						}
 					}
 				}
 			}
 			if (fireball)
 			{
 				auto spawned = spawn(proj, EXPLOSION2);
-				spawned->s->xrepeat = spawned->s->yrepeat = (short)(s->xrepeat >> 1);
+				if (spawned) spawned->s->xrepeat = spawned->s->yrepeat = (short)(s->xrepeat >> 1);
 			}
 		}
 		if (s->picnum != COOLEXPLOSION1)
@@ -1931,9 +1948,12 @@ void moveweapons_d(void)
 			if (act->s->yvel < 1 || act->s->extra < 2 || (act->s->xvel|act->s->zvel) == 0)
 			{
 				auto spawned = spawn(act,TRANSPORTERSTAR);
-				spawned->s->pal = 1;
-				spawned->s->xrepeat = 32;
-				spawned->s->yrepeat = 32;
+				if (spawned)
+				{
+					spawned->s->pal = 1;
+					spawned->s->xrepeat = 32;
+					spawned->s->yrepeat = 32;
+				}
 				deletesprite(act);
 				continue;
 			}
@@ -2039,7 +2059,7 @@ void movetransports_d(void)
 							if (spr->pal == 0)
 							{
 								auto k = spawn(Owner, TRANSPORTERBEAM);
-								S_PlayActorSound(TELEPORTER, k);
+								if (k) S_PlayActorSound(TELEPORTER, k);
 							}
 							
 							break;
@@ -2124,7 +2144,7 @@ void movetransports_d(void)
 							for (int l = 0; l < 9; l++)
 						{
 							auto q = spawn(ps[p].GetActor(), WATERBUBBLE);
-							q->s->z += krand() & 16383;
+							if (q) q->s->z += krand() & 16383;
 						}
 					}
 				}
@@ -2206,7 +2226,7 @@ void movetransports_d(void)
 						if (sectlotag > 0)
 						{
 							auto k = spawn(act2, WATERSPLASH2);
-							if (sectlotag == 1 && spr2->statnum == 4)
+							if (k && sectlotag == 1 && spr2->statnum == 4)
 							{
 								k->s->xvel = spr2->xvel >> 1;
 								k->s->ang = spr2->ang;
@@ -2231,10 +2251,10 @@ void movetransports_d(void)
 									if (spr->pal == 0)
 									{
 										auto k = spawn(act, TRANSPORTERBEAM);
-										S_PlayActorSound(TELEPORTER, k);
+										if (k) S_PlayActorSound(TELEPORTER, k);
 										
 										k = spawn(Owner, TRANSPORTERBEAM);
-										S_PlayActorSound(TELEPORTER, k);
+										if (k) S_PlayActorSound(TELEPORTER, k);
 									}
 									
 									if (Owner && Owner->GetOwner() == Owner)
@@ -2405,7 +2425,7 @@ static void greenslime(DDukeActor *actor)
 				if ((krand() & 255) < 32)
 				{
 					auto j = spawn(actor, BLOODPOOL);
-					j->s->pal = 0;
+					if (j) j->s->pal = 0;
 				}
 				ps[p].actors_killed++;
 				t[0] = -3;
@@ -2506,13 +2526,13 @@ static void greenslime(DDukeActor *actor)
 		if ((krand() & 255) < 32)
 		{
 			auto j = spawn(actor, BLOODPOOL);
-			j->s->pal = 0;
+			if (j) j->s->pal = 0;
 		}
 
 		for (x = 0; x < 8; x++)
 		{
 			auto j = EGS(s->sector(), s->x, s->y, s->z - (8 << 8), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (s->zvel >> 2), actor, 5);
-			j->s->pal = 6;
+			if (j) j->s->pal = 6;
 		}
 		t[0] = -3;
 		deletesprite(actor);

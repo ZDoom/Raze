@@ -515,8 +515,11 @@ void footprints(int snum)
 					case 2:	 fprint = spawn(actor, TILE_FOOTPRINTS3); break;
 					default: fprint = spawn(actor, TILE_FOOTPRINTS4); break;
 					}
-					fprint->s->pal = p->footprintpal;
-					fprint->s->shade = (int8_t)p->footprintshade;
+					if (fprint)
+					{
+						fprint->s->pal = p->footprintpal;
+						fprint->s->shade = (int8_t)p->footprintshade;
+					}
 				}
 			}
 		}
@@ -1036,17 +1039,20 @@ void shootbloodsplat(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 			if (wal->hitag == 0)
 			{
 				auto spawned = spawn(actor, atwith);
-				spawned->s->xvel = -12;
-				auto delta = wal->delta();
-				spawned->s->ang = getangle(-delta.x, -delta.y) + 512; // note the '-' sign here!
-				spawned->s->x = hitx;
-				spawned->s->y = hity;
-				spawned->s->z = hitz;
-				spawned->s->cstat |= (krand() & 4);
-				ssp(spawned, CLIPMASK0);
-				setsprite(spawned, spawned->s->pos);
-				if (s->picnum == OOZFILTER || s->picnum == NEWBEAST)
-					spawned->s->pal = 6;
+				if (spawned)
+				{
+					spawned->s->xvel = -12;
+					auto delta = wal->delta();
+					spawned->s->ang = getangle(-delta.x, -delta.y) + 512; // note the '-' sign here!
+					spawned->s->x = hitx;
+					spawned->s->y = hity;
+					spawned->s->z = hitz;
+					spawned->s->cstat |= (krand() & 4);
+					ssp(spawned, CLIPMASK0);
+					setsprite(spawned, spawned->s->pos);
+					if (s->picnum == OOZFILTER || s->picnum == NEWBEAST)
+						spawned->s->pal = 6;
+				}
 			}
 		}
 	}

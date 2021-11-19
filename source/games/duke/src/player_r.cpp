@@ -161,7 +161,7 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 			if (p >= 0)
 			{
 				auto k = spawn(wpn, SMALLSMOKE);
-				k->s->z -= (8 << 8);
+				if (k) k->s->z -= (8 << 8);
 				if (atwith == KNEE) S_PlayActorSound(KICK_HIT, wpn);
 				else if (isRRRA() && atwith == SLINGBLADE)	S_PlayActorSound(260, wpn);
 			}
@@ -191,12 +191,15 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 		else if (p >= 0 && zvel > 0 && hitsectp->lotag == 1)
 		{
 			auto splash = spawn(ps[p].GetActor(), WATERSPLASH2);
-			splash->s->x = hitx;
-			splash->s->y = hity;
-			splash->s->ang = ps[p].angle.ang.asbuild(); // Total tweek
-			splash->s->xvel = 32;
-			ssp(actor, 0);
-			splash->s->xvel = 0;
+			if (splash)
+			{
+				splash->s->x = hitx;
+				splash->s->y = hity;
+				splash->s->ang = ps[p].angle.ang.asbuild(); // Total tweek
+				splash->s->xvel = 32;
+				ssp(actor, 0);
+				splash->s->xvel = 0;
+			}
 		}
 	}
 }
@@ -344,10 +347,13 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 			{
 				auto l = spawn(spark, JIBS6);
 				spark->s->xrepeat = spark->s->yrepeat = 0;
-				l->s->z += (4 << 8);
-				l->s->xvel = 16;
-				l->s->xrepeat = l->s->yrepeat = 24;
-				l->s->ang += 64 - (krand() & 127);
+				if (l)
+				{
+					l->s->z += (4 << 8);
+					l->s->xvel = 16;
+					l->s->xrepeat = l->s->yrepeat = 24;
+					l->s->ang += 64 - (krand() & 127);
+				}
 			}
 			else spawn(spark, SMALLSMOKE);
 
@@ -416,10 +422,13 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 										goto SKIPBULLETHOLE;
 							}
 							auto l = spawn(spark, BULLETHOLE);
-							l->s->xvel = -1;
-							auto delta = wal->delta();
-							l->s->ang = getangle(-delta.x, -delta.y) + 512;
-							ssp(l, CLIPMASK0);
+							if (l)
+							{
+								l->s->xvel = -1;
+								auto delta = wal->delta();
+								l->s->ang = getangle(-delta.x, -delta.y) + 512;
+								ssp(l, CLIPMASK0);
+							}
 						}
 
 		SKIPBULLETHOLE:
@@ -903,17 +912,23 @@ void shoot_r(DDukeActor* actor, int atwith)
 	case TRIPBOMBSPRITE:
 	{
 		auto j = spawn(actor, atwith);
-		j->s->xvel = 32;
-		j->s->ang = s->ang;
-		j->s->z -= (5 << 8);
+		if (j)
+		{
+			j->s->xvel = 32;
+			j->s->ang = s->ang;
+			j->s->z -= (5 << 8);
+		}
 		break;
 	}
 	case BOWLINGBALL:
 	{
 		auto j = spawn(actor, atwith);
-		j->s->xvel = 250;
-		j->s->ang = s->ang;
-		j->s->z -= (15 << 8);
+		if (j)
+		{
+			j->s->xvel = 250;
+			j->s->ang = s->ang;
+			j->s->z -= (15 << 8);
+		}
 		break;
 	}
 	case OWHIP:
@@ -1505,8 +1520,11 @@ void checkweapons_r(struct player_struct* p)
 		if (p->OnMotorcycle && numplayers > 1)
 		{
 			auto j = spawn(p->GetActor(), 7220);
-			j->s->ang = p->angle.ang.asbuild();
-			j->saved_ammo = p->ammo_amount[MOTORCYCLE_WEAPON];
+			if (j)
+			{
+				j->s->ang = p->angle.ang.asbuild();
+				j->saved_ammo = p->ammo_amount[MOTORCYCLE_WEAPON];
+			}
 			p->OnMotorcycle = 0;
 			p->gotweapon[MOTORCYCLE_WEAPON] = false;
 			p->horizon.horiz = q16horiz(0);
@@ -1521,8 +1539,11 @@ void checkweapons_r(struct player_struct* p)
 		else if (p->OnBoat && numplayers > 1)
 		{
 			auto j = spawn(p->GetActor(), 7233);
-			j->s->ang = p->angle.ang.asbuild();
-			j->saved_ammo = p->ammo_amount[BOAT_WEAPON];
+			if (j)
+			{
+				j->s->ang = p->angle.ang.asbuild();
+				j->saved_ammo = p->ammo_amount[BOAT_WEAPON];
+			}
 			p->OnBoat = 0;
 			p->gotweapon[BOAT_WEAPON] = false;
 			p->horizon.horiz = q16horiz(0);
@@ -1557,7 +1578,7 @@ void checkweapons_r(struct player_struct* p)
 		if (p->keys[i] == 1)
 		{
 			auto j = spawn(p->GetActor(), ACCESSCARD);
-			switch (i)
+			if (j) switch (i)
 			{
 			case 1:
 				j->s->lotag = 100;
@@ -2344,12 +2365,15 @@ static void underwater(int snum, ESyncBits actions, int fz, int cz)
 	if (p->scuba_on && (krand() & 255) < 8)
 	{
 		auto j = spawn(pact, WATERBUBBLE);
-		j->s->x += bcos(p->angle.ang.asbuild() + 64 - (global_random & 128) + 128, -6);
-		j->s->y += bsin(p->angle.ang.asbuild() + 64 - (global_random & 128) + 128, -6);
-		j->s->xrepeat = 3;
-		j->s->yrepeat = 2;
-		j->s->z = p->pos.z + (8 << 8);
-		j->s->cstat = 514;
+		if (j)
+		{
+			j->s->x += bcos(p->angle.ang.asbuild() + 64 - (global_random & 128) + 128, -6);
+			j->s->y += bsin(p->angle.ang.asbuild() + 64 - (global_random & 128) + 128, -6);
+			j->s->xrepeat = 3;
+			j->s->yrepeat = 2;
+			j->s->z = p->pos.z + (8 << 8);
+			j->s->cstat = 514;
+		}
 	}
 }
 
@@ -2973,12 +2997,15 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 				if ((p->kickback_pic % 3) == 0)
 				{
 					auto j = spawn(pact, SHELL);
+					if (j)
+					{
 
-					j->s->ang += 1024;
-					j->s->ang &= 2047;
-					j->s->xvel += 32;
-					j->s->z += (3 << 8);
-					ssp(j, CLIPMASK0);
+						j->s->ang += 1024;
+						j->s->ang &= 2047;
+						j->s->xvel += 32;
+						j->s->z += (3 << 8);
+						ssp(j, CLIPMASK0);
+					}
 				}
 
 				S_PlayActorSound(CHAINGUN_FIRE, pact);
@@ -4090,10 +4117,13 @@ void OffMotorcycle(struct player_struct *p)
 		p->posyv -= p->angle.ang.bsin(7);
 		p->moto_underwater = 0;
 		auto spawned = spawn(p->GetActor(), EMPTYBIKE);
-		spawned->s->ang = p->angle.ang.asbuild();
-		spawned->s->xvel += p->angle.ang.bcos(7);
-		spawned->s->yvel += p->angle.ang.bsin(7);
-		spawned->saved_ammo = p->ammo_amount[MOTORCYCLE_WEAPON];
+		if (spawned)
+		{
+			spawned->s->ang = p->angle.ang.asbuild();
+			spawned->s->xvel += p->angle.ang.bcos(7);
+			spawned->s->yvel += p->angle.ang.bsin(7);
+			spawned->saved_ammo = p->ammo_amount[MOTORCYCLE_WEAPON];
+		}
 	}
 }
 
@@ -4154,10 +4184,13 @@ void OffBoat(struct player_struct *p)
 		p->posyv -= p->angle.ang.bsin(7);
 		p->moto_underwater = 0;
 		auto spawned = spawn(p->GetActor(), EMPTYBOAT);
-		spawned->s->ang = p->angle.ang.asbuild();
-		spawned->s->xvel += p->angle.ang.bcos(7);
-		spawned->s->yvel += p->angle.ang.bsin(7);
-		spawned->saved_ammo = p->ammo_amount[BOAT_WEAPON];
+		if (spawned)
+		{
+			spawned->s->ang = p->angle.ang.asbuild();
+			spawned->s->xvel += p->angle.ang.bcos(7);
+			spawned->s->yvel += p->angle.ang.bsin(7);
+			spawned->saved_ammo = p->ammo_amount[BOAT_WEAPON];
+		}
 	}
 }
 

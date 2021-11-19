@@ -179,16 +179,19 @@ void resetpins(sectortype* sect)
 		if (a2->s->picnum == 283)
 		{
 			auto spawned = spawn(a2, BOWLINGPIN);
-			spawned->s->lotag = a2->s->lotag;
-			if (spawned->s->lotag == 3 || spawned->s->lotag == 5)
+			if (spawned)
 			{
-				spawned->s->clipdist = (1 + (krand() % 1)) * 16 + 32;
+				spawned->s->lotag = a2->s->lotag;
+				if (spawned->s->lotag == 3 || spawned->s->lotag == 5)
+				{
+					spawned->s->clipdist = (1 + (krand() % 1)) * 16 + 32;
+				}
+				else
+				{
+					spawned->s->clipdist = (1 + (krand() % 1)) * 16 + 32;
+				}
+				spawned->s->ang -= ((krand() & 32) - (krand() & 64)) & 2047;
 			}
-			else
-			{
-				spawned->s->clipdist = (1 + (krand() % 1)) * 16 + 32;
-			}
-			spawned->s->ang -= ((krand() & 32) - (krand() & 64)) & 2047;
 		}
 		if (a2->s->picnum == 280)
 			tag = a2->s->hitag;

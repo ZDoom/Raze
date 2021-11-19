@@ -554,7 +554,7 @@ void movefx(void)
 			if (spri->extra == 66)
 			{
 				auto j = spawn(act, spri->hitag);
-				if (isRRRA())
+				if (isRRRA() && j)
 				{
 					respawn_rrra(act, j);
 				}
@@ -870,7 +870,7 @@ void moveflammable(DDukeActor* actor, int tire, int box, int pool)
 		{
 			spri->cstat = 0;
 			auto spawned = spawn(actor, pool);
-			spawned->s->shade = 127;
+			if (spawned) spawned->s->shade = 127;
 		}
 		else
 		{
@@ -1393,6 +1393,7 @@ void rpgexplode(DDukeActor *actor, int hit, const vec3_t &pos, int EXPLOSION2, i
 {
 	auto s = actor->s;
 	auto explosion = spawn(actor, EXPLOSION2);
+	if (!explosion) return;
 	explosion->s->pos = pos;
 
 	if (s->xrepeat < 10)
@@ -1596,12 +1597,15 @@ void forcesphere(DDukeActor* actor, int forcesphere)
 			for (int j = 0; j < 2048; j += 128)
 			{
 				auto k = spawn(actor, forcesphere);
-				k->s->cstat = 257 + 128;
-				k->s->clipdist = 64;
-				k->s->ang = j;
-				k->s->zvel = bsin(l, -5);
-				k->s->xvel = bcos(l, -9);
-				k->SetOwner(actor);
+				if (k)
+				{
+					k->s->cstat = 257 + 128;
+					k->s->clipdist = 64;
+					k->s->ang = j;
+					k->s->zvel = bsin(l, -5);
+					k->s->xvel = bcos(l, -9);
+					k->SetOwner(actor);
+				}
 			}
 	}
 
@@ -2584,9 +2588,12 @@ void scrap(DDukeActor* actor, int SCRAP1, int SCRAP6)
 		if (s->picnum == SCRAP1 && s->yvel > 0)
 		{
 			auto spawned = spawn(actor, s->yvel);
-			setsprite(spawned, s->pos);
-			getglobalz(spawned);
-			spawned->s->hitag = spawned->s->lotag = 0;
+			if (spawned)
+			{
+				setsprite(spawned, s->pos);
+				getglobalz(spawned);
+				spawned->s->hitag = spawned->s->lotag = 0;
+			}
 		}
 		deletesprite(actor);
 	}
@@ -4664,11 +4671,14 @@ void handle_se35(DDukeActor *actor, int SMALLSMOKE, int EXPLOSION2)
 		{
 			s->ang += krand() & 511;
 			auto spawned = spawn(actor, SMALLSMOKE);
-			spawned->s->xvel = 96 + (krand() & 127);
-			ssp(spawned, CLIPMASK0);
-			setsprite(spawned, spawned->s->pos);
-			if (rnd(16))
-				spawn(actor, EXPLOSION2);
+			if (spawned)
+			{
+				spawned->s->xvel = 96 + (krand() & 127);
+				ssp(spawned, CLIPMASK0);
+				setsprite(spawned, spawned->s->pos);
+				if (rnd(16))
+					spawn(actor, EXPLOSION2);
+			}
 		}
 
 	switch (t[0])
@@ -4754,11 +4764,14 @@ void handle_se130(DDukeActor *actor, int countmax, int EXPLOSION2)
 	if (rnd(64))
 	{
 		auto k = spawn(actor, EXPLOSION2);
-		k->s->xrepeat = k->s->yrepeat = 2 + (krand() & 7);
-		k->s->z = sc->floorz - (krand() % x);
-		k->s->ang += 256 - (krand() % 511);
-		k->s->xvel = krand() & 127;
-		ssp(k, CLIPMASK0);
+		if (k)
+		{
+			k->s->xrepeat = k->s->yrepeat = 2 + (krand() & 7);
+			k->s->z = sc->floorz - (krand() % x);
+			k->s->ang += 256 - (krand() % 511);
+			k->s->xvel = krand() & 127;
+			ssp(k, CLIPMASK0);
+		}
 	}
 }
 

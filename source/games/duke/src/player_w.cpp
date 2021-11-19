@@ -112,6 +112,7 @@ void DoSpawn(struct player_struct *p, int snum)
 		return;
 		
 	auto j = spawn(p->GetActor(), aplWeaponSpawn[p->curr_weapon][snum]);
+	if (!j) return;
 	
 	if((aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_SPAWNTYPE2 ) )
 	{

@@ -121,9 +121,12 @@ static const char *cheatKfc(int player)
 	for (int i = 0; i < 7; i++)
 	{
 		auto spr = spawn(ps[player].GetActor(), TILE_HEN);
-		spr->s->pal = 1;
-		spr->s->xrepeat = spr->s->xrepeat << 2;
-		spr->s->yrepeat = spr->s->yrepeat << 2;
+		if (spr)
+		{
+			spr->s->pal = 1;
+			spr->s->xrepeat = spr->s->xrepeat << 2;
+			spr->s->yrepeat = spr->s->yrepeat << 2;
+		}
 	}
 	return quoteMgr.GetQuote(QUOTE_CHEAT_KFC);
 }
