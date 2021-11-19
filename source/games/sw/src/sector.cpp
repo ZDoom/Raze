@@ -746,16 +746,18 @@ int OperateSector(short sectnum, short player_is_operating)
     if (!player_is_operating)
     {
         SPRITEp fsp;
+        auto sect = &sector[sectnum];
 
-        if (SectUser[sectnum].Data() && SectUser[sectnum]->stag == SECT_LOCK_DOOR)
+        if (sect->hasU() && sect->u()->stag == SECT_LOCK_DOOR)
             return false;
 
         SWSectIterator it(sectnum);
         while (auto actor = it.Next())
         {
             fsp = &actor->s();
+            auto fsect = fsp->sector();
 
-            if (SectUser[fsp->sectnum].Data() && SectUser[fsp->sectnum]->stag == SECT_LOCK_DOOR)
+            if (fsect->hasU() && fsect->u()->stag == SECT_LOCK_DOOR)
                 return false;
 
             if (fsp->statnum == STAT_VATOR && SP_TAG1(fsp) == SECT_VATOR && TEST_BOOL7(fsp))
@@ -767,9 +769,6 @@ int OperateSector(short sectnum, short player_is_operating)
 
         }
     }
-
-    //CON_Message("Operating sectnum %d",sectnum);
-    //CON_Message("stag = %d, lock = %d",SectUser[sectnum]->stag,SECT_LOCK_DOOR);
 
     switch (sector[sectnum].lotag)
     {
@@ -1647,11 +1646,10 @@ int OperateSprite(DSWActor* actor, short player_is_operating)
         key_num = sp->hitag;
         if (pp->HasKey[key_num - 1])
         {
-            int i;
-            for (i=0; i<numsectors; i++)
+            for(auto& sect : sectors())
             {
-                if (SectUser[i].Data() && SectUser[i]->stag == SECT_LOCK_DOOR && SectUser[i]->number == key_num)
-                    SectUser[i]->number = 0;  // unlock all doors of this type
+                if (sect.hasU() && sect.u()->stag == SECT_LOCK_DOOR && sect.u()->number == key_num)
+                    sect.u()->number = 0;  // unlock all doors of this type
             }
             UnlockKeyLock(key_num, actor);
         }
@@ -2449,7 +2447,7 @@ void PlayerOperateEnv(PLAYERp pp)
     // ////////////////////////////
 
     SECT_USERp sectu;
-    if (pp->cursectnum >= 0 && (sectu = SectUser[pp->cursectnum].Data()) && sectu->damage)
+    if (pp->cursectnum >= 0 && (sectu = pp->cursector()->u()) && sectu->damage)
     {
         SECTORp sectp = pp->cursector();
         if (TEST(sectu->flags, SECTFU_DAMAGE_ABOVE_SECTOR))

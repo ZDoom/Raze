@@ -471,18 +471,16 @@ void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SETp action, PERSONALITYp perso
     //KeepActorOnFloor(actor); // for swimming actors
 
     // make sure we start in the water if thats where we are
-    if (u->lo_sectp) // && SectUser[u->lo_sectp - sector])
+    if (u->lo_sectp)
     {
-        int i;
-        int sectno = sectnum(u->lo_sectp);
 
-        if (SectUser[sectno].Data() && TEST(u->lo_sectp->extra, SECTFX_SINK))
+        if (u->lo_sectp->hasU() && TEST(u->lo_sectp->extra, SECTFX_SINK))
         {
-            depth = FixedToInt(SectUser[sectno]->depth_fixed);
+            depth = FixedToInt(u->lo_sectp->u()->depth_fixed);
         }
         else
         {
-            SWSectIterator it(sectno);
+            SWSectIterator it(u->lo_sectp);
             while (auto itActor = it.Next())
             {
                 SPRITEp np = &itActor->s();

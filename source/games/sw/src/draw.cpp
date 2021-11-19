@@ -676,7 +676,7 @@ void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int view
                 else
                 {
                     // if sector pal is something other than default
-                    SECT_USERp sectu = SectUser[tsp->sectnum].Data();
+                    SECT_USERp sectu = tsp->sector()->u();
                     uint8_t pal = tsp->sector()->floorpal;
                     bool nosectpal=false;
 

@@ -156,7 +156,7 @@ void DoVatorOperate(PLAYERp pp, short sectnum)
 
         if (fsp->statnum == STAT_VATOR && SP_TAG1(fsp) == SECT_VATOR && SP_TAG3(fsp) == 0)
         {
-            sectnum = fsp->sectnum;
+            auto fsect = fsp->sector();
 
             // single play only vator
             // bool 8 must be set for message to display
@@ -174,11 +174,11 @@ void DoVatorOperate(PLAYERp pp, short sectnum)
                 return;
             }
 
-            if (pp && SectUser[sectnum].Data() && SectUser[sectnum]->stag == SECT_LOCK_DOOR && SectUser[sectnum]->number)
+            if (pp && fsect->hasU() && fsect->u()->stag == SECT_LOCK_DOOR && fsect->u()->number)
             {
                 short key_num;
 
-                key_num = SectUser[sectnum]->number;
+                key_num = fsect->u()->number;
 
                 {
                     PutStringInfo(pp, quoteMgr.GetQuote(QUOTE_DOORMSG + key_num - 1));
@@ -198,7 +198,6 @@ void DoVatorMatch(PLAYERp pp, short match)
 {
     USERp fu;
     SPRITEp fsp;
-    short sectnum;
 
     SWStatIterator it(STAT_VATOR);
     while (auto actor = it.Next())
@@ -218,12 +217,10 @@ void DoVatorMatch(PLAYERp pp, short match)
             }
 
             // lock code
-            sectnum = fsp->sectnum;
-            if (pp && SectUser[sectnum].Data() && SectUser[sectnum]->stag == SECT_LOCK_DOOR && SectUser[sectnum]->number)
+            auto fsect = fsp->sector();
+            if (pp && fsect->hasU() && fsect->u()->stag == SECT_LOCK_DOOR && fsect->u()->number)
             {
-                short key_num;
-
-                key_num = SectUser[sectnum]->number;
+                int key_num = fsect->u()->number;
 
                 {
                     PutStringInfo(pp, quoteMgr.GetQuote(QUOTE_DOORMSG + key_num - 1));

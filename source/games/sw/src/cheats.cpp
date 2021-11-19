@@ -239,10 +239,10 @@ static void ItemCheat(int player)
 
     PlayerUpdateInventory(p, p->InventoryNum);
 
-    for (int i = 0; i < numsectors; i++)
+    for (auto& sect : sectors())
     {
-        if (SectUser[i].Data() && SectUser[i]->stag == SECT_LOCK_DOOR)
-            SectUser[i]->number = 0;  // unlock all doors of this type
+        if (sect.hasU() && sect.u()->stag == SECT_LOCK_DOOR)
+            sect.u()->number = 0;  // unlock all doors of this type
     }
 }
 

@@ -208,7 +208,7 @@ void CopySectorMatch(short match)
                 }
 
                 // copy sector user if there is one
-                if (SectUser[src_sp->sectnum].Data() || SectUser[dest_sp->sectnum].Data())
+                if (src_sp->sector()->hasU() || dest_sp->sector()->hasU())
                 {
                     SECT_USERp ssectu = GetSectUser(src_sp->sectnum);
                     SECT_USERp dsectu = GetSectUser(dest_sp->sectnum);

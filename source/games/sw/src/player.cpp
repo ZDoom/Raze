@@ -1596,9 +1596,13 @@ void DoPlayerTurnTurret(PLAYERp pp, float avel)
 void SlipSlope(PLAYERp pp)
 {
     short ang;
-    SECT_USERp sectu;
 
-    if (pp->cursectnum < 0 || !(sectu = SectUser[pp->cursectnum].Data()) || !TEST(sectu->flags, SECTFU_SLIDE_SECTOR) || !TEST(pp->cursector()->floorstat, FLOOR_STAT_SLOPE))
+    if (pp->cursectnum < 0 || !pp->cursector()->hasU())
+        return;
+
+    SECT_USERp sectu = pp->cursector()->u();
+
+    if (!TEST(sectu->flags, SECTFU_SLIDE_SECTOR) || !TEST(pp->cursector()->floorstat, FLOOR_STAT_SLOPE))
         return;
 
     short wallptr = pp->cursector()->wallptr;
@@ -3922,8 +3926,10 @@ int GetOverlapSector(int x, int y, short *over, short *under)
 {
     int i, found = 0;
     short sf[2]= {0,0};                       // sectors found
+    auto secto = &sector[*over];
+    auto sectu = &sector[*under];
 
-    if ((SectUser[*under].Data() && SectUser[*under]->number >= 30000) || (SectUser[*over].Data() && SectUser[*over]->number >= 30000))
+    if ((sectu->hasU() && sectu->u()->number >= 30000) || (secto->hasU() && secto->u()->number >= 30000))
         return GetOverlapSector2(x,y,over,under);
 
     // instead of check ALL sectors, just check the two most likely first

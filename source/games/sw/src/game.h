@@ -2292,7 +2292,7 @@ struct ANIMstruct
 		case ANIM_Userz:
 			return animactor->u()->sz;
 		case ANIM_SUdepth:
-			return SectUser[animindex]->depth_fixed;
+			return sector[animindex].u()->depth_fixed;
 		default:
 			return animindex;
 		}

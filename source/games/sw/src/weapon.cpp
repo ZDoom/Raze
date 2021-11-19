@@ -17901,7 +17901,7 @@ int InitEnemyFireball(DSWActor* actor)
 bool WarpToUnderwater(short *sectnum, int *x, int *y, int *z)
 {
     int i;
-    SECT_USERp sectu = SectUser[*sectnum].Data();
+    SECT_USERp sectu = sector[*sectnum].u();
     SPRITEp under_sp = nullptr, over_sp = nullptr;
     bool Found = false;
     short over, under;
@@ -17974,7 +17974,7 @@ bool WarpToUnderwater(short *sectnum, int *x, int *y, int *z)
 bool WarpToSurface(short *sectnum, int *x, int *y, int *z)
 {
     int i;
-    SECT_USERp sectu = SectUser[*sectnum].Data();
+    SECT_USERp sectu = sector[*sectnum].u();
     short over, under;
     int sx, sy;
 
@@ -18251,8 +18251,8 @@ int SpawnSplashXY(int hit_x, int hit_y, int hit_z, int sectnum)
     if (Prediction)
         return 0;
 
-    sectu = SectUser[sectnum].Data();
     sectp = &sector[sectnum];
+    sectu = sectp->hasU() ? sectp->u() : nullptr;
 
     if (sectu && (TEST(sectp->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_NONE))
         return 0;

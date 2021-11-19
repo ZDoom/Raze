@@ -526,7 +526,7 @@ void KeepActorOnFloor(DSWActor* actor)
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
         return;
 
-    if (u->lo_sectp && SectUser[sectnum(u->lo_sectp)].Data())
+    if (u->lo_sectp && u->lo_sectp->hasU())
         depth = FixedToInt(u->lo_sectp->u()->depth_fixed);
     else
         depth = 0;
