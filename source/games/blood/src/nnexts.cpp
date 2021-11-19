@@ -4873,7 +4873,7 @@ void modernTypeTrigger(int destObjType, int destObjIndex, DBloodActor* destactor
         // change sector lighting dynamically
         case kModernSectorFXChanger:
             if (destObjType != OBJ_SECTOR) break;
-            useSectorLigthChanger(event.actor, &sector[destObjIndex]);
+            useSectorLightChanger(event.actor, &sector[destObjIndex]);
             break;
         // change target of dudes and make it fight
         case kModernDudeTargetChanger:
@@ -6746,7 +6746,7 @@ void useDataChanger(DBloodActor* sourceactor, int objType, int objIndex, DBloodA
 //
 //---------------------------------------------------------------------------
 
-void useSectorLigthChanger(DBloodActor* sourceactor, sectortype* pSector) 
+void useSectorLightChanger(DBloodActor* sourceactor, sectortype* pSector) 
 {
     auto pXSource = &sourceactor->x();
     spritetype* pSource = &sourceactor->s();
@@ -8925,9 +8925,9 @@ DBloodActor* evrIsRedirector(DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-DBloodActor* evrListRedirectors(int objType, int objXIndex, DBloodActor* objActor, DBloodActor* pXRedir, int* tx) 
+DBloodActor* evrListRedirectors(int objType, int objIndex, DBloodActor* objActor, DBloodActor* pXRedir, int* tx) 
 {
-    if (!gEventRedirectsUsed) return NULL;
+    if (!gEventRedirectsUsed) return nullptr;
     else if (pXRedir && (*tx = listTx(pXRedir, *tx)) != -1)
         return pXRedir;
 
@@ -8935,19 +8935,25 @@ DBloodActor* evrListRedirectors(int objType, int objXIndex, DBloodActor* objActo
     switch (objType) 
     {
         case OBJ_SECTOR:
-            if (!xsectRangeIsFine(objXIndex)) return NULL;
-            id = xsector[objXIndex].txID;
+        {
+            auto pSector = &sector[objIndex];
+            if (!pSector->hasX()) return nullptr;
+            id = sector[objIndex].xs().txID;
             break;
+        }
         case OBJ_SPRITE:
-            if (!objActor) return NULL;
+            if (!objActor) return nullptr;
             id = objActor->x().txID;
             break;
         case OBJ_WALL:
-            if (!xwallRangeIsFine(objXIndex)) return NULL;
-            id = xwall[objXIndex].txID;
+        {
+            auto pWall = &wall[objIndex];
+            if (!pWall->hasX()) return nullptr;
+            id = wall[objIndex].xw().txID;
             break;
+        }
         default:
-            return NULL;
+            return nullptr;
     }
 
     bool prevFound = false;
