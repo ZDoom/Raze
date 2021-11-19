@@ -244,7 +244,6 @@ struct XWALL {
     };
     uint32_t busy;
 
-    int16_t reference;
     int16_t data;               // Data
     uint16_t txID;             // TX ID
     uint16_t rxID;             // RX ID

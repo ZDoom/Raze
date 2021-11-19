@@ -533,7 +533,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, XWALL& w, XWALL* d
 	{
 		arc("flags", w.flags, def->flags)
 			("busy", w.busy, def->busy)
-			("reference", w.reference, def->reference)
 			("data", w.data, def->data)
 			("txid", w.txID, def->txID)
 			("rxid", w.rxID, def->rxID)

@@ -260,7 +260,6 @@ unsigned short dbInsertXWall(int nWall)
         I_Error("Out of free XWalls");
     }
     memset(&xwall[nXWall], 0, sizeof(XWALL));
-    xwall[nXWall].reference = nWall;
     wall[nWall].extra = nXWall;
     return nXWall;
 }
@@ -281,10 +280,6 @@ unsigned short dbInsertXSector(int nSector)
 void dbInit(void)
 {
     XWallsUsed = XSectorsUsed = 1;  // 0 is not usable because it's the default for 'extra' and some code actually uses it to clobber the contents in here. :(
-    for (int i = 1; i < kMaxXWalls; i++)
-    {
-        xwall[i].reference = -1;
-    }
     for (int i = 1; i < kMaxXSectors; i++)
     {
         xsector[i].reference = -1;
@@ -744,7 +739,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, int 
             assert(nCount <= nXWallSize);
             fr.Read(pBuffer, nCount);
             BitReader bitReader(pBuffer, nCount);
-            pXWall->reference = bitReader.readSigned(14);
+            /*pXWall->reference =*/ bitReader.readSigned(14);
             pXWall->state = bitReader.readUnsigned(1);
             pXWall->busy = bitReader.readUnsigned(17);
             pXWall->data = bitReader.readSigned(16);
@@ -775,7 +770,6 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, int 
             pXWall->dudeLockout = bitReader.readUnsigned(1);
             bitReader.readUnsigned(4);
             bitReader.readUnsigned(32);
-            xwall[wall[i].extra].reference = i;
             xwall[wall[i].extra].busy = IntToFixed(xwall[wall[i].extra].state);
 
         }
