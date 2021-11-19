@@ -168,13 +168,12 @@ public:
 
 	void SetTarget(DBloodActor* own)
 	{
-		x().target_i = own ? own->GetSpriteIndex() : -1;
+		x().target = own;
 	}
 
 	DBloodActor* GetTarget()
 	{
-		if (x().target_i <= -1 || x().target_i == kMaxSprites - 1) return nullptr;
-		return base() + x().target_i;
+		return x().target;
 	}
 
 	bool ValidateTarget(const char* func)
