@@ -847,16 +847,16 @@ void nnExtInitModernStuff()
             pCond->obj[count++].cmd = (uint8_t)pXSpr->command;
         }
 
-        for (int i = 0; i < kMaxXSectors; i++) 
+        for (auto& sect : sectors())
         {
-            if (!sectRangeIsFine(xsector[i].reference) || xsector[i].txID != pXSprite->rxID) continue;
+            if (!sect.hasX() || sect.xs().txID != pXSprite->rxID) continue;
             else if (count >= kMaxTracedObjects)
                 condError(iactor, "Max(%d) objects to track reached for condition #%d, RXID: %d!");
 
             pCond->obj[count].type = OBJ_SECTOR;
             pCond->obj[count].actor = nullptr;
-            pCond->obj[count].index_ = xsector[i].reference;
-            pCond->obj[count++].cmd = xsector[i].command;
+            pCond->obj[count].index_ = sectnum(&sect);
+            pCond->obj[count++].cmd = sect.xs().command;
         }
 
         for(auto& wal : walls())
@@ -3225,22 +3225,22 @@ void useSectorWindGen(DBloodActor* sourceactor, sectortype* pSector)
     auto pXSource = &sourceactor->x();
 
     XSECTOR* pXSector = nullptr;
-    int nXSector = 0;
     
     if (pSector != nullptr) 
     {
-        pXSector = &xsector[pSector->extra];
-        nXSector = sector[pXSector->reference].extra;
+        pXSector = &pSector->xs();
     }
-    else if (xsectRangeIsFine(sector[pSource->sectnum].extra)) 
+    else if (pSource->sector()->hasX())
     {
-        pXSector = &xsector[sector[pSource->sectnum].extra];
-        nXSector = sector[pXSector->reference].extra;
+        pSector = pSource->sector();
+        pXSector = &pSector->xs();
     }
     else 
     {
-        nXSector = dbInsertXSector(pSource->sectnum);
-        pXSector = &xsector[nXSector]; pXSector->windAlways = 1;
+        pSector = pSource->sector();
+        pSector->addX();
+        pXSector = &pSector->xs();
+        pXSector->windAlways = 1;
     }
 
     int windVel = ClipRange(pXSource->data2, 0, 32767);
@@ -3301,13 +3301,13 @@ void useSectorWindGen(DBloodActor* sourceactor, sectortype* pSector)
         }
         if (pXSector->panCeiling)
         {
-            StartInterpolation(pXSector->reference, Interp_Sect_CeilingPanX);
-            StartInterpolation(pXSector->reference, Interp_Sect_CeilingPanY);
+            StartInterpolation(pSector, Interp_Sect_CeilingPanX);
+            StartInterpolation(pSector, Interp_Sect_CeilingPanY);
         }
         if (pXSector->panFloor)
         {
-            StartInterpolation(pXSector->reference, Interp_Sect_FloorPanX);
-            StartInterpolation(pXSector->reference, Interp_Sect_FloorPanY);
+            StartInterpolation(pSector, Interp_Sect_FloorPanX);
+            StartInterpolation(pSector, Interp_Sect_FloorPanY);
         }
 
         int oldPan = pXSector->panVel;
@@ -3317,9 +3317,8 @@ void useSectorWindGen(DBloodActor* sourceactor, sectortype* pSector)
         // add to panList if panVel was set to 0 previously
         if (oldPan == 0 && pXSector->panVel != 0) 
         {
-            auto newSect = &sector[pXSector->reference];
-            if (!panList.Contains(newSect))
-                panList.Push(newSect);
+            if (!panList.Contains(pSector))
+                panList.Push(pSector);
         }
     }
 }

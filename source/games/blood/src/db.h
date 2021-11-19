@@ -367,3 +367,9 @@ inline Blood::XSECTOR& sectortype::xs() const
 {
     return Blood::xsector[extra];
 }
+
+[[deprecated]]
+inline void sectortype::addX()
+{
+    extra = Blood::dbInsertXSector(sectnum(this));
+}

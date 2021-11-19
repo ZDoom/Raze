@@ -5772,16 +5772,9 @@ static void actCheckThings()
 		if (!actor->hasX()) continue;
 
 		auto pXSprite = &actor->x();
-		int nSector = pSprite->sectnum;
+		auto pSector = pSprite->sector();
 
-		int nXSector = sector[nSector].extra;
-		XSECTOR* pXSector = NULL;
-		if (nXSector > 0)
-		{
-			assert(nXSector > 0 && nXSector < kMaxXSectors);
-			assert(xsector[nXSector].reference == nSector);
-			pXSector = &xsector[nXSector];
-		}
+		XSECTOR* pXSector = pSector->hasX()? &pSector->xs() : nullptr;
 		if (pXSector && pXSector->panVel && (pXSector->panAlways || pXSector->state || pXSector->busy))
 		{
 			int nType = pSprite->type - kThingBase;
@@ -5797,7 +5790,7 @@ static void actCheckThings()
 			{
 				int top, bottom;
 				GetActorExtents(actor, &top, &bottom);
-				if (getflorzofslope(nSector, pSprite->x, pSprite->y) <= bottom)
+				if (getflorzofslopeptr(pSector, pSprite->x, pSprite->y) <= bottom)
 				{
 					int angle = pXSector->panAngle;
 					int speed = 0;
@@ -5806,7 +5799,7 @@ static void actCheckThings()
 						speed = pXSector->panVel << 9;
 						if (!pXSector->panAlways && pXSector->busy) speed = MulScale(speed, pXSector->busy, 16);
 					}
-					if (sector[nSector].floorstat & 64) angle = (angle + GetWallAngle(sector[nSector].wallptr) + 512) & 2047;
+					if (pSector->floorstat & 64) angle = (angle + GetWallAngle(pSector->wallptr) + 512) & 2047;
 
 					actor->xvel += MulScale(speed, Cos(angle), 30);
 					actor->yvel += MulScale(speed, Sin(angle), 30);
@@ -6237,22 +6230,15 @@ static void actCheckDudes()
 		spritetype* pSprite = &actor->s();
 		if (pSprite->flags & 32 || !actor->hasX()) continue;
 
-		int nSector = pSprite->sectnum;
+		auto pSector = pSprite->sector();
 		viewBackupSpriteLoc(actor);
-		int nXSector = sector[nSector].extra;
-		XSECTOR* pXSector = NULL;
+		XSECTOR* pXSector = pSector->hasX()? &pSector->xs() : nullptr;
 
-		if (nXSector > 0)
-		{
-			assert(nXSector > 0 && nXSector < kMaxXSectors);
-			assert(xsector[nXSector].reference == nSector);
-			pXSector = &xsector[nXSector];
-		}
 		if (pXSector)
 		{
 			int top, bottom;
 			GetActorExtents(actor, &top, &bottom);
-			if (getflorzofslope(nSector, pSprite->x, pSprite->y) <= bottom)
+			if (getflorzofslopeptr(pSector, pSprite->x, pSprite->y) <= bottom)
 			{
 				int angle = pXSector->panAngle;
 				int speed = 0;
@@ -6262,8 +6248,8 @@ static void actCheckDudes()
 					if (!pXSector->panAlways && pXSector->busy)
 						speed = MulScale(speed, pXSector->busy, 16);
 				}
-				if (sector[nSector].floorstat & 64)
-					angle = (angle + GetWallAngle(sector[nSector].wallptr) + 512) & 2047;
+				if (pSector->floorstat & 64)
+					angle = (angle + GetWallAngle(pSector->wallptr) + 512) & 2047;
 				int dx = MulScale(speed, Cos(angle), 30);
 				int dy = MulScale(speed, Sin(angle), 30);
 				actor->xvel += dx;

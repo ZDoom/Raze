@@ -570,14 +570,11 @@ static void fakeActAirDrag(spritetype *, int num)
 {
     int xvec = 0;
     int yvec = 0;
-    int nSector = predict.sectnum;
-    assert(validSectorIndex(nSector));
-    sectortype *pSector = &sector[nSector];
-    int nXSector = pSector->extra;
-    if (nXSector > 0)
+    assert(validSectorIndex(predict.sectnum));
+    sectortype *pSector = &sector[predict.sectnum];
+    if (pSector->hasX())
     {
-        assert(nXSector < kMaxXSectors);
-        XSECTOR *pXSector = &xsector[nXSector];
+        XSECTOR *pXSector = &pSector->xs();
         if (pXSector->windVel && (pXSector->windAlways || pXSector->busy))
         {
             int vel = pXSector->windVel<<12;
@@ -598,14 +595,8 @@ void fakeActProcessSprites(void)
 	if (pSprite->statnum == kStatDude)
 	{
 		int nSector = predict.sectnum;
-		int nXSector = sector[nSector].extra;
-        XSECTOR *pXSector = NULL;
-        if (nXSector > 0)
-        {
-            assert(nXSector > 0 && nXSector < kMaxXSectors);
-            assert(xsector[nXSector].reference == nSector);
-            pXSector = &xsector[nXSector];
-        }
+        auto pSector = &sector[predict.sectnum];
+		auto pXSector = pSector->hasX()? &pSector->xs() : nullptr;
 		if (pXSector)
 		{
             int top, bottom;
@@ -622,8 +613,8 @@ void fakeActProcessSprites(void)
 					if (!pXSector->panAlways && pXSector->busy)
 						speed = MulScale(speed, pXSector->busy, 16);
 				}
-				if (sector[nSector].floorstat&64)
-					angle = (GetWallAngle(sector[nSector].wallptr)+512)&2047;
+				if (pSector->floorstat&64)
+					angle = (GetWallAngle(pSector->wallptr)+512)&2047;
 				predict.xvel += MulScale(speed,Cos(angle), 30);
 				predict.yvel += MulScale(speed,Sin(angle), 30);
 			}

@@ -612,7 +612,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, int 
             assert(nCount <= nXSectorSize);
             fr.Read(pBuffer, nCount);
             BitReader bitReader(pBuffer, nCount);
-            pXSector->reference = bitReader.readSigned(14);
+            /*pXSector->reference =*/ bitReader.readSigned(14);
             pXSector->state = bitReader.readUnsigned(1);
             pXSector->busy = bitReader.readUnsigned(17);
             pXSector->data = bitReader.readUnsigned(16);
@@ -770,7 +770,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, int 
             pXWall->dudeLockout = bitReader.readUnsigned(1);
             bitReader.readUnsigned(4);
             bitReader.readUnsigned(32);
-            xwall[wall[i].extra].busy = IntToFixed(xwall[wall[i].extra].state);
+            pXWall->busy = IntToFixed(pXWall->state);
 
         }
     }

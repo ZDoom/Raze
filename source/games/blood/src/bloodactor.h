@@ -251,6 +251,11 @@ public:
 			return true;
 		}
 	}
+
+	sectortype* sector()
+	{
+		return s().sector();
+	}
 };
 
 extern DBloodActor bloodActors[kMaxSprites];
