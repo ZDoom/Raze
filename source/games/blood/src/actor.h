@@ -242,6 +242,6 @@ void actPostProcess(void);
 void MakeSplash(DBloodActor *actor);
 void actBuildMissile(DBloodActor* spawned, DBloodActor* actor);
 
-extern const int DudeDifficulty[];
+extern const int16_t DudeDifficulty[];
 
 END_BLD_NS

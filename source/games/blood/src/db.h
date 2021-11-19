@@ -286,7 +286,7 @@ struct MAPHEADER2 {
 
 #pragma pack(pop)
 
-extern unsigned short gStatCount[kMaxStatus + 1];;
+extern unsigned int gStatCount[kMaxStatus + 1];;
 
 extern bool drawtile2048, encrypted;
 extern MAPHEADER2 byte_19AE44;
@@ -347,12 +347,10 @@ int ChangeSpriteSect(int nSprite, int nSector);
 int qchangespritesect(short nSprite, short nSector);
 int ChangeSpriteStat(int nSprite, int nStatus);
 void InitFreeList(unsigned short *pList, int nCount);
-unsigned short dbInsertXWall(int nWall);
-unsigned short dbInsertXSector(int nSector);
 void dbInit(void);
 void PropagateMarkerReferences(void);
 unsigned int dbReadMapCRC(const char *pPath);
-void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, int *pSector, unsigned int *pCRC);
+void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, int* pSector, unsigned int* pCRC);
 
 END_BLD_NS
 
@@ -365,10 +363,4 @@ inline Blood::XWALL& walltype::xw() const
 inline Blood::XSECTOR& sectortype::xs() const
 {
     return Blood::xsector[extra];
-}
-
-[[deprecated]]
-inline void sectortype::addX()
-{
-    extra = Blood::dbInsertXSector(sectnum(this));
 }

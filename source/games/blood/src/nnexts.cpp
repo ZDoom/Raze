@@ -6447,7 +6447,7 @@ void useSoundGen(DBloodActor* sourceactor, DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void useIncDecGen(DBloodActor* sourceactor, short objType, int objIndex, DBloodActor* objactor) 
+void useIncDecGen(DBloodActor* sourceactor, int objType, int objIndex, DBloodActor* objactor) 
 {
     auto pXSource = &sourceactor->x();
     spritetype* pSource = &sourceactor->s();

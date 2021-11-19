@@ -2313,11 +2313,11 @@ const EXPLOSION explodeInfo[] = {
 	},
 };
 
-static const short gPlayerGibThingComments[] = {
+static const int16_t gPlayerGibThingComments[] = {
 	734, 735, 736, 737, 738, 739, 740, 741, 3038, 3049
 };
 
-const int DudeDifficulty[5] = {
+const int16_t DudeDifficulty[5] = {
 	512, 384, 256, 208, 160
 };
 

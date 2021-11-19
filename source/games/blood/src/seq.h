@@ -81,7 +81,7 @@ struct SEQINST
 
 	int nSeqID;
 	int callback;
-	short timeCounter;
+	int16_t timeCounter;
 	uint8_t frameIndex;
 	void Update();
 };

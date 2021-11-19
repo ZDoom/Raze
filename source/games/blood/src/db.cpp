@@ -42,7 +42,7 @@ DBloodActor bloodActors[kMaxSprites];
 
 
 bool gModernMap = false;
-unsigned short gStatCount[kMaxStatus + 1];
+unsigned int gStatCount[kMaxStatus + 1];
 
 XSECTOR xsector[kMaxXSectors];
 XWALL xwall[kMaxXWalls];
@@ -242,17 +242,17 @@ int ChangeSpriteStat(int nSprite, int nStatus)
     return 0;
 }
 
-void InitFreeList(unsigned short *pList, int nCount)
+void InitFreeList(unsigned short* pList, int nCount)
 {
     for (int i = 1; i < nCount; i++)
     {
-        pList[i] = i-1;
+        pList[i] = i - 1;
     }
     pList[0] = nCount - 1;
 }
 
 
-unsigned short dbInsertXWall(int nWall)
+unsigned int dbInsertXWall(int nWall)
 {
     int nXWall = XWallsUsed++;
     if (nXWall >= kMaxXWalls)
@@ -264,7 +264,7 @@ unsigned short dbInsertXWall(int nWall)
     return nXWall;
 }
 
-unsigned short dbInsertXSector(int nSector)
+unsigned int dbInsertXSector(int nSector)
 {
     int nXSector = XSectorsUsed++;
     if (nXSector >= kMaxXSectors)
@@ -427,12 +427,13 @@ struct walltypedisk
 #pragma pack(pop)
 
 
-void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, int *pSector, unsigned int *pCRC) {
+void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, int* pSector, unsigned int* pCRC)
+{
     int16_t tpskyoff[256];
     ClearAutomap();
-    #ifdef NOONE_EXTENSIONS
+#ifdef NOONE_EXTENSIONS
     gModernMap = false;
-    #endif
+#endif
 
 #ifdef NOONE_EXTENSIONS
     for (auto& ctrl : gPlayerCtrl) ctrl.qavScene.initiator = nullptr;
@@ -460,20 +461,21 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, int 
     encrypted = 0;
     if ((LittleShort(header.version) & 0xff00) == 0x700) {
         encrypted = 1;
-        
-        #ifdef NOONE_EXTENSIONS
+
+#ifdef NOONE_EXTENSIONS
         // indicate if the map requires modern features to work properly
         // for maps wich created in PMAPEDIT BETA13 or higher versions. Since only minor version changed,
         // the map is still can be loaded with vanilla BLOOD / MAPEDIT and should work in other ports too.
         if ((header.version & 0x00ff) == 0x001) gModernMap = true;
-        #endif
+#endif
 
-    } else {
+    }
+    else {
         I_Error("%s: Map file is wrong version", mapname.GetChars());
     }
 
     MAPHEADER mapHeader;
-    fr.Read(&mapHeader,37/* sizeof(mapHeader)*/);
+    fr.Read(&mapHeader, 37/* sizeof(mapHeader)*/);
     if (mapHeader.mattid != 0 && mapHeader.mattid != 0x7474614d && mapHeader.mattid != 0x4d617474) {
         dbCrypt((char*)&mapHeader, sizeof(mapHeader), 0x7474614d);
     }
@@ -536,11 +538,11 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, int 
     {
         memset(&byte_19AE44, 0, 128);
     }
-    gSkyCount = 1<< mapHeader.pskybits;
-    fr.Read(tpskyoff, gSkyCount*sizeof(tpskyoff[0]));
+    gSkyCount = 1 << mapHeader.pskybits;
+    fr.Read(tpskyoff, gSkyCount * sizeof(tpskyoff[0]));
     if (encrypted)
     {
-        dbCrypt((char*)tpskyoff, gSkyCount*sizeof(tpskyoff[0]), gSkyCount*2);
+        dbCrypt((char*)tpskyoff, gSkyCount * sizeof(tpskyoff[0]), gSkyCount * 2);
     }
 
     psky_t* pSky = tileSetupSky(DEFAULTPSKY);
@@ -553,12 +555,12 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, int 
 
     for (int i = 0; i < numsectors; i++)
     {
-        sectortype *pSector = &sector[i];
+        sectortype* pSector = &sector[i];
         sectortypedisk load;
         fr.Read(&load, sizeof(sectortypedisk));
         if (encrypted)
         {
-            dbCrypt((char*)&load, sizeof(sectortypedisk), gMapRev*sizeof(sectortypedisk));
+            dbCrypt((char*)&load, sizeof(sectortypedisk), gMapRev * sizeof(sectortypedisk));
         }
         pSector->wallptr = LittleShort(load.wallptr);
         pSector->wallnum = LittleShort(load.wallnum);
@@ -591,7 +593,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, int 
         {
             char pBuffer[nXSectorSize];
             int nXSector = dbInsertXSector(i);
-            XSECTOR *pXSector = &xsector[nXSector];
+            XSECTOR* pXSector = &xsector[nXSector];
             memset(pXSector, 0, sizeof(XSECTOR));
             int nCount;
             if (!encrypted)
@@ -688,12 +690,12 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, int 
     }
     for (int i = 0; i < numwalls; i++)
     {
-        walltype *pWall = &wall[i];
+        walltype* pWall = &wall[i];
         walltypedisk load;
         fr.Read(&load, sizeof(walltypedisk));
         if (encrypted)
         {
-            dbCrypt((char*)&load, sizeof(walltypedisk), (gMapRev*sizeof(sectortypedisk)) | 0x7474614d);
+            dbCrypt((char*)&load, sizeof(walltypedisk), (gMapRev * sizeof(sectortypedisk)) | 0x7474614d);
         }
         pWall->x = LittleLong(load.x);
         pWall->y = LittleLong(load.y);
@@ -717,7 +719,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, int 
         {
             char pBuffer[nXWallSize];
             int nXWall = dbInsertXWall(i);
-            XWALL *pXWall = &xwall[nXWall];
+            XWALL* pXWall = &xwall[nXWall];
             memset(pXWall, 0, sizeof(XWALL));
             int nCount;
             if (!encrypted)
@@ -774,11 +776,11 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, int 
         spritetypedisk load;
         auto actor = &bloodActors[i];
         actor->Clear();
-        spritetype *pSprite = &actor->s();
+        spritetype* pSprite = &actor->s();
         fr.Read(&load, sizeof(spritetypedisk)); // load into an intermediate buffer so that spritetype is no longer bound by file formats.
         if (encrypted) // What were these people thinking? :(
         {
-            dbCrypt((char*)&load, sizeof(spritetypedisk), (gMapRev*sizeof(spritetypedisk)) | 0x7474614d);
+            dbCrypt((char*)&load, sizeof(spritetypedisk), (gMapRev * sizeof(spritetypedisk)) | 0x7474614d);
         }
 
         pSprite->x = LittleLong(load.x);
@@ -815,7 +817,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, int 
         {
             char pBuffer[nXSpriteSize];
             actor->addX();
-            XSPRITE *pXSprite = &actor->x();
+            XSPRITE* pXSprite = &actor->x();
             int nCount;
             if (!encrypted)
             {
@@ -894,19 +896,19 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, int 
                 pXSprite->lT |= pXSprite->lB;
             }
 
-            #ifdef NOONE_EXTENSIONS
+#ifdef NOONE_EXTENSIONS
             // indicate if the map requires modern features to work properly
             // for maps wich created in different editors (include vanilla MAPEDIT) or in PMAPEDIT version below than BETA13
             if (!gModernMap && pXSprite->rxID == kChannelMapModernize && pXSprite->rxID == pXSprite->txID && pXSprite->command == kCmdModernFeaturesEnable)
                 gModernMap = true;
-            #endif
+#endif
         }
         if ((sprite[i].cstat & 0x30) == 0x30)
         {
             sprite[i].cstat &= ~0x30;
         }
     }
-    unsigned int nCRC =  fr.ReadUInt32();
+    unsigned int nCRC = fr.ReadUInt32();
 
     fr.Seek(0, FileReader::SeekSet);
     auto buffer = fr.Read();
@@ -914,7 +916,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, int 
     md4once(buffer.Data(), buffer.Size(), md4);
     G_LoadMapHack(mapname, md4);
 
-    if (CalcCRC32(buffer.Data(), buffer.Size() -4) != nCRC)
+    if (CalcCRC32(buffer.Data(), buffer.Size() - 4) != nCRC)
     {
         I_Error("%s: Map File does not match CRC", mapname.GetChars());
     }
@@ -943,15 +945,15 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, int 
 
     if ((header.version & 0xff00) == 0x600)
     {
-        switch (header.version&0xff)
+        switch (header.version & 0xff)
         {
         case 0:
             for (int i = 0; i < numsectors; i++)
             {
-                sectortype *pSector = &sector[i];
+                sectortype* pSector = &sector[i];
                 if (pSector->extra > 0)
                 {
-                    XSECTOR *pXSector = &xsector[pSector->extra];
+                    XSECTOR* pXSector = &xsector[pSector->extra];
                     pXSector->busyTimeB = pXSector->busyTimeA;
                     if (pXSector->busyTimeA > 0)
                     {
@@ -972,10 +974,10 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, int 
         case 1:
             for (int i = 0; i < numsectors; i++)
             {
-                sectortype *pSector = &sector[i];
+                sectortype* pSector = &sector[i];
                 if (pSector->extra > 0)
                 {
-                    XSECTOR *pXSector = &xsector[pSector->extra];
+                    XSECTOR* pXSector = &xsector[pSector->extra];
                     pXSector->freq >>= 1;
                 }
             }
@@ -985,7 +987,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, int 
             {
             }
             break;
-            
+
         }
     }
 
@@ -1006,3 +1008,7 @@ void qloadboard(const char* filename, char flags, vec3_t* dapos, int16_t* daang,
     Blood::dbInit();    // clean up immediately.
 }
     
+inline void sectortype::addX()
+{
+    extra = Blood::dbInsertXSector(sectnum(this));
+}
