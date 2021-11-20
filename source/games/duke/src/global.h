@@ -53,9 +53,6 @@ extern int show_shareware;
 extern int screenpeek;
 
 // Variables that must be saved
-extern uint8_t sectorextra[MAXSECTORS]; // these hold fields that were formerly in sprite and sector. Move these back into the base structs!
-extern uint8_t shadedsector[MAXSECTORS];
-
 extern int rtsplaying;
 extern int tempwallptr;
 

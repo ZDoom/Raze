@@ -576,7 +576,7 @@ void prelevel_r(int g)
 			break;
 
 		case RRTILE68:
-			shadedsector[si->sectnum] = 1;
+			si->sector()->shadedsector = 1;
 			deletesprite(ac);
 			break;
 
@@ -659,7 +659,7 @@ void prelevel_r(int g)
 			deletesprite(i);
 		if (spr->picnum == RRTILE34)
 		{
-			sectorextra[spr->sectnum] = uint8_t(spr->lotag);
+			spr->sector()->keyinfo = uint8_t(spr->lotag);
 			deletesprite(i);
 		}
 	}

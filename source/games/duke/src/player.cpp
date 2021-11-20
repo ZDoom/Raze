@@ -967,17 +967,17 @@ int haskey(sectortype* sectp, int snum)
 {
 	int sect = sectnum(sectp);
 	auto p = &ps[snum];
-	if (!sectorextra[sect])
+	if (!sectp->keyinfo)
 		return 1;
-	if (sectorextra[sect] > 6)
+	if (sectp->keyinfo > 6)
 		return 1;
-	int wk = sectorextra[sect];
+	int wk = sectp->keyinfo;
 	if (wk > 3)
 		wk -= 3;
 
 	if (p->keys[wk] == 1)
 	{
-		sectorextra[sect] = 0;
+		sectp->keyinfo = 0;
 		return 1;
 	}
 

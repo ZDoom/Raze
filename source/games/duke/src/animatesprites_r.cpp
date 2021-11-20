@@ -110,7 +110,7 @@ void animatesprites_r(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 		default:
 			if (((t->cstat & 16)) || (badguy(t) && t->extra > 0) || t->statnum == 10)
 			{
-				if (shadedsector[s->sectnum] == 1 && s->statnum != 1)
+				if (s->sector()->shadedsector == 1 && s->statnum != 1)
 				{
 					s->shade = 16;
 					t->shade = 16;
@@ -588,7 +588,7 @@ void animatesprites_r(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 		stuff:
 			if (t->pal == 6) t->shade = -120;
 
-			if (shadedsector[s->sectnum] == 1)
+			if (s->sector()->shadedsector == 1)
 				t->shade = 16;
 			[[fallthrough]];
 

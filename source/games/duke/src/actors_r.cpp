@@ -3819,7 +3819,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 		{
 			if (spr->sector()->ceilingstat & 1)
 			{
-				if (shadedsector[spr->sectnum] == 1)
+				if (spr->sector()->shadedsector == 1)
 				{
 					spr->shade += (16 - spr->shade) >> 1;
 				}
@@ -3971,7 +3971,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 	{
 		if (spr->sector()->ceilingstat & 1)
 		{
-			if (shadedsector[spr->sectnum] == 1)
+			if (spr->sector()->shadedsector == 1)
 			{
 				spr->shade += (16 - spr->shade) >> 1;
 			}
@@ -4179,7 +4179,7 @@ void destroyit(DDukeActor *actor)
 				destsect->floorxpan_ = srcsect->floorxpan_;
 				destsect->floorypan_ = srcsect->floorypan_;
 				destsect->visibility = srcsect->visibility;
-				sectorextra[sectnum] = sectorextra[::sectnum(it_sect)]; // TRANSITIONAL: at least rename this.
+				destsect->keyinfo = srcsect->keyinfo;
 				destsect->lotag = srcsect->lotag;
 				destsect->hitag = srcsect->hitag;
 				destsect->extra = srcsect->extra;

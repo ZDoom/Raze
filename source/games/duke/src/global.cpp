@@ -91,10 +91,6 @@ TArray<CraneDef> cranes;
 
 bool sound445done;							// used in checksectors_r. This was local state inside a function, but this must be maintained globally and serialized
 
-// serialized
-uint8_t sectorextra[MAXSECTORS];			// something about keys, all access through the haskey function.
-uint8_t shadedsector[MAXSECTORS];			// display hackiness
-
 DDukeActor hittype[MAXSPRITES + 1];			// +1 to have a blank entry for serialization, all access in game code through the iterators.
 int spriteqamount = 64;						// internal sprite queue
 int spriteqloc;

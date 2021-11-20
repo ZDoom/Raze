@@ -144,7 +144,7 @@ void displayweapon_r(int snum, double smoothratio)
 	weapon_xoffset -= bcosf(weapon_sway * 0.5) * (1. / 1536.);
 	weapon_xoffset -= 58 + p->weapon_ang;
 
-	if (p->insector() && shadedsector[p->cursectnum] == 1)
+	if (p->insector() && p->cursector()->shadedsector == 1)
 		shade = 16;
 	else
 		shade = p->GetActor()->s->shade;

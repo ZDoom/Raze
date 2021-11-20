@@ -339,8 +339,6 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 	if (arc.isReading())
 	{
 		for (auto& h : hittype) h.clear();
-		memset(sectorextra, 0, sizeof(sectorextra));
-		memset(shadedsector, 0, sizeof(shadedsector));
 		memset(geosectorwarp, -1, sizeof(geosectorwarp));
 		memset(geosectorwarp2, -1, sizeof(geosectorwarp2));
 		memset(ambienthitag, -1, sizeof(ambienthitag));
@@ -368,14 +366,12 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 			("levelclock", PlayClock)
 			("bomb_tag", ud.bomb_tag)
 
-			.Array("sectorextra", sectorextra, numsectors)
 			("rtsplaying", rtsplaying)
 			("tempwallptr", tempwallptr)
 			("cranes", cranes)
 			("sound445done", sound445done)
 			.Array("players", ps, ud.multimode)
 			("spriteqamount", spriteqamount)
-			.Array("shadedsector", shadedsector, numsectors)
 			("lastvisinc", lastvisinc)
 			("numanimwalls", numanimwalls)
 			.Array("animwall", animwall, numanimwalls)
