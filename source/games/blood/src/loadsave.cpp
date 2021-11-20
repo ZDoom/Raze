@@ -713,7 +713,6 @@ void SerializeState(FSerializer& arc)
 			.Array("basewall", baseWall, numwalls)
 			("hitinfo", gHitInfo)
 			.Array("statcount", gStatCount, kMaxStatus + 1)
-			("xsectorsused", XSectorsUsed)
 			("fogmode", gFogMode)
 #ifdef NOONE_EXTENSIONS
 			("modern", gModernMap)
@@ -727,7 +726,6 @@ void SerializeState(FSerializer& arc)
 			("numtiles", pSky->lognumtiles)
 			("gameoptions", gGameOptions)
 
-			.Array("xsector", xsector, XSectorsUsed)
 			.SparseArray("actors", bloodActors, kMaxSprites, activeSprites);
 
 		arc.EndObject();

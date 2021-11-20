@@ -44,11 +44,6 @@ DBloodActor bloodActors[kMaxSprites];
 bool gModernMap = false;
 unsigned int gStatCount[kMaxStatus + 1];
 
-XSECTOR xsector[kMaxXSectors];
-int XSectorsUsed;
-
-
-
 int gVisibility;
 
 void dbCrypt(char *pPtr, int nLength, int nKey)
@@ -248,21 +243,8 @@ void InitFreeList(unsigned short* pList, int nCount)
 }
 
 
-unsigned int dbInsertXSector(int nSector)
-{
-    int nXSector = XSectorsUsed++;
-    if (nXSector >= kMaxXSectors)
-    {
-        I_Error("Out of free XSectors");
-    }
-    memset(&xsector[nXSector], 0, sizeof(XSECTOR));
-    sector[nSector].extra = nXSector;
-    return nXSector;
-}
-
 void dbInit(void)
 {
-    XSectorsUsed = 1;  // 0 is not usable because it's the default for 'extra' and some code actually uses it to clobber the contents in here. :(
     initspritelists();
     for (int i = 0; i < kMaxSprites; i++)
     {
@@ -573,12 +555,11 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, int*
         pSector->exflags = 0;
         pSector->fogpal = 0;
 
-        if (sector[i].extra > 0)
+        if (pSector->extra > 0)
         {
             char pBuffer[nXSectorSize];
-            int nXSector = dbInsertXSector(i);
-            XSECTOR* pXSector = &xsector[nXSector];
-            memset(pXSector, 0, sizeof(XSECTOR));
+            pSector->allocX();
+            XSECTOR* pXSector = &pSector->xs();
             int nCount;
             if (!encrypted)
             {
@@ -934,9 +915,9 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, int*
             for (int i = 0; i < numsectors; i++)
             {
                 sectortype* pSector = &sector[i];
-                if (pSector->extra > 0)
+                if (pSector->hasX())
                 {
-                    XSECTOR* pXSector = &xsector[pSector->extra];
+                    XSECTOR* pXSector = &pSector->xs();
                     pXSector->busyTimeB = pXSector->busyTimeA;
                     if (pXSector->busyTimeA > 0)
                     {
@@ -958,9 +939,9 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, int*
             for (int i = 0; i < numsectors; i++)
             {
                 sectortype* pSector = &sector[i];
-                if (pSector->extra > 0)
+                if (pSector->hasX())
                 {
-                    XSECTOR* pXSector = &xsector[pSector->extra];
+                    XSECTOR* pXSector = &pSector->xs();
                     pXSector->freq >>= 1;
                 }
             }

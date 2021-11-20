@@ -152,8 +152,8 @@ struct sectortype
 
 
     // These will unfortunately have to be within the base struct to refactor Blood properly. They can later be removed again, once everything is done.
-    Blood::XSECTOR& xs() const;
-    bool hasX() const { return extra > 0; } // 0 is invalid!
+    Blood::XSECTOR& xs() const { return *_xs;  }
+    bool hasX() const { return _xs != nullptr; } // 0 is invalid!
     void allocX();
 
     // same for SW

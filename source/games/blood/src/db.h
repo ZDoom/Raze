@@ -26,12 +26,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-
-enum
-{
-	kMaxXSectors = 512
-};
-
 enum
 {
 	kAttrMove = 0x0001, // is affected by movement physics
@@ -85,15 +79,11 @@ extern unsigned int gStatCount[kMaxStatus + 1];;
 extern bool drawtile2048, encrypted;
 extern MAPHEADER2 byte_19AE44;
 
-extern XSECTOR xsector[kMaxXSectors];
-
 extern int gVisibility;
 extern int gMapRev, gMattId, gSkyCount;
 extern const char *gItemText[];
 extern const char *gAmmoText[];
 extern const char *gWeaponText[];
-
-extern int XSectorsUsed;
 
 static inline int GetWallType(int nWall)
 {
@@ -145,9 +135,3 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, int*
 
 
 END_BLD_NS
-
-// refactoring aids.
-inline Blood::XSECTOR& sectortype::xs() const
-{
-    return Blood::xsector[extra];
-}
