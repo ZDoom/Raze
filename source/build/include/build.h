@@ -152,35 +152,6 @@ extern TArray<walltype> wall;
 extern spritetype sprite[MAXSPRITES];
 EXTERN int leveltimer;
 
-inline sectortype* spritetype::sector() const
-{
-#ifdef _DEBUG
-    return sectnum < 0? nullptr : &::sector[sectnum];
-#else
-    return &::sector[sectnum];
-#endif
-}
-
-inline sectortype* walltype::nextSector() const
-{
-    return &::sector[nextsector];
-}
-
-inline walltype* walltype::nextWall() const
-{
-    return &::wall[nextwall];
-}
-
-inline walltype* walltype::point2Wall() const
-{
-    return &::wall[point2];
-}
-
-inline walltype* sectortype::firstWall() const
-{
-    return &wall[wallptr];
-}
-
 
 extern TArray<sectortype> sectorbackup;
 extern TArray<walltype> wallbackup;
@@ -221,6 +192,40 @@ inline bool validSectorIndex(int sectnum)
 inline bool validWallIndex(int wallnum)
 {
 	return wallnum >= 0 && wallnum < numwalls;
+}
+
+inline sectortype* spritetype::sector() const
+{
+#ifdef _DEBUG
+    return !validSectorIndex(sectnum) ? nullptr : &::sector[sectnum];
+#else
+    return &::sector[sectnum];
+#endif
+}
+
+inline bool spritetype::insector() const
+{
+    return validSectorIndex(sectnum);
+}
+
+inline sectortype* walltype::nextSector() const
+{
+    return &::sector[nextsector];
+}
+
+inline walltype* walltype::nextWall() const
+{
+    return &::wall[nextwall];
+}
+
+inline walltype* walltype::point2Wall() const
+{
+    return &::wall[point2];
+}
+
+inline walltype* sectortype::firstWall() const
+{
+    return &wall[wallptr];
 }
 
 EXTERN int32_t randomseed;

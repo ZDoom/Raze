@@ -101,6 +101,11 @@ struct DDukeActor
 		return s->sector();
 	}
 
+	bool insector() const
+	{
+		return s->insector();
+	}
+
 
 };
 extern DDukeActor hittype[MAXSPRITES + 1];
