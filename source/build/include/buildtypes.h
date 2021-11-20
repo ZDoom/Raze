@@ -153,6 +153,10 @@ struct walltype
     uint8_t portalflags;
     uint16_t portalnum;
 
+    // Blood is the only game which extends the wall struct.
+    Blood::XWALL* _xw;
+    vec2_t baseWall;
+
     int xpan() const { return int(xpan_); }
     int ypan() const { return int(ypan_); }
     void setxpan(float add) { xpan_ = fmodf(add + 512, 256); } // +512 is for handling negative offsets
@@ -168,9 +172,9 @@ struct walltype
 	int deltay() const { return point2Wall()->y - y; }
     bool twoSided() const { return nextsector >= 0; }
 
-    // These will unfortunately have to be within the base struct to refactor Blood properly. They can later be removed again, once everything is done.
-    Blood::XWALL& xw() const;
-    bool hasX() const { return extra > 0; } // 0 is invalid!
+    Blood::XWALL& xw() const { return *_xw; }
+    bool hasX() const { return _xw != nullptr; }
+    void allocX();
 
 #if 0
     // make sure we do not accidentally copy this

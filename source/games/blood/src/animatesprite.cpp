@@ -556,7 +556,6 @@ void viewProcessSprites(spritetype* tsprite, int& spritesortcnt, int32_t cX, int
         int nAnim = 0;
         switch (picanm[nTile].extra & 7) {
             case 0:
-                //assert(nXSprite > 0 && nXSprite < kMaxXSprites);
                 if (pTXSprite == nullptr) break;
                 switch (pTSprite->type) {
                     case kSwitchToggle:

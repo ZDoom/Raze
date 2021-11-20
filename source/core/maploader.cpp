@@ -46,6 +46,7 @@
 #include "render.h"
 #include "hw_sections.h"
 #include "interpolate.h"
+#include "games/blood/src/mapstructs.h"
 
 // needed for skipping over to get the map size first.
 enum
@@ -57,6 +58,16 @@ enum
 	wallsize6 = 32,
 	wallsize7 = 32,
 };
+
+// This arena stores the larger allocated game-specific extension data. Since this can be freed in bulk a memory arena is better suited than malloc.
+static FMemArena mapDataArena;
+
+void walltype::allocX()
+{
+	using XWALL = BLD_NS::XWALL;
+	_xw = (XWALL*)mapDataArena.Alloc(sizeof(XWALL));
+	memset(_xw, 0, sizeof(XWALL));
+}
 
 
 static void ReadSectorV7(FileReader& fr, sectortype& sect)

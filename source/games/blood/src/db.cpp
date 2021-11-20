@@ -45,9 +45,7 @@ bool gModernMap = false;
 unsigned int gStatCount[kMaxStatus + 1];
 
 XSECTOR xsector[kMaxXSectors];
-XWALL xwall[kMaxXWalls];
-
-int XWallsUsed, XSectorsUsed;
+int XSectorsUsed;
 
 
 
@@ -252,18 +250,6 @@ void InitFreeList(unsigned short* pList, int nCount)
 }
 
 
-unsigned int dbInsertXWall(int nWall)
-{
-    int nXWall = XWallsUsed++;
-    if (nXWall >= kMaxXWalls)
-    {
-        I_Error("Out of free XWalls");
-    }
-    memset(&xwall[nXWall], 0, sizeof(XWALL));
-    wall[nWall].extra = nXWall;
-    return nXWall;
-}
-
 unsigned int dbInsertXSector(int nSector)
 {
     int nXSector = XSectorsUsed++;
@@ -278,7 +264,7 @@ unsigned int dbInsertXSector(int nSector)
 
 void dbInit(void)
 {
-    XWallsUsed = XSectorsUsed = 1;  // 0 is not usable because it's the default for 'extra' and some code actually uses it to clobber the contents in here. :(
+    XSectorsUsed = 1;  // 0 is not usable because it's the default for 'extra' and some code actually uses it to clobber the contents in here. :(
     initspritelists();
     for (int i = 0; i < kMaxSprites; i++)
     {
@@ -715,12 +701,11 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, int*
         pWall->yrepeat = load.yrepeat;
         pWall->ypan_ = load.ypanning;
 
-        if (wall[i].extra > 0)
+        if (pWall->extra > 0)
         {
             char pBuffer[nXWallSize];
-            int nXWall = dbInsertXWall(i);
-            XWALL* pXWall = &xwall[nXWall];
-            memset(pXWall, 0, sizeof(XWALL));
+            pWall->allocX();
+            XWALL* pXWall = &pWall->xw();
             int nCount;
             if (!encrypted)
             {

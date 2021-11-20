@@ -60,6 +60,8 @@
 #include "hw_sections.h"
 #include "sectorgeometry.h"
 #include "d_net.h"
+#include "ns.h"
+#include "games/blood/src/mapstructs.h"
 #include <zlib.h>
 
 
@@ -75,7 +77,13 @@ int SaveVersion;
 void SerializeMap(FSerializer &arc);
 FixedBitArray<MAXSPRITES> activeSprites;
 
-CVAR(String, cl_savedir, "", CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
+CVAR(String, cl_savedir, "", CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+
+BEGIN_BLD_NS
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, XWALL& w, XWALL* def);
+
+END_BLD_NS
 
 //=============================================================================
 //
@@ -555,8 +563,30 @@ FSerializer &Serialize(FSerializer &arc, const char *key, walltype &c, walltype 
 			("hitag", c.hitag, def->hitag)
 			("extra", c.extra, def->extra)
 			("portalflags", c.portalflags, def->portalflags)
-			("portalnum", c.portalnum, def->portalnum)
-			.EndObject();
+			("portalnum", c.portalnum, def->portalnum);
+
+		// Save the blood-specific extensions only when playing Blood
+		if (isBlood())
+		{
+			arc("wallbase", c.baseWall, def->baseWall);
+			if (arc.isWriting())
+			{
+				if (c.hasX())
+				{
+					BLD_NS::Serialize(arc, "xwall", *c._xw, nullptr);
+				}
+			}
+			else
+			{
+				if (arc.HasObject("xwall"))
+				{
+					c.allocX();
+					BLD_NS::Serialize(arc, "xwall", *c._xw, nullptr);
+				}
+			}
+		}
+
+		arc.EndObject();
 	}
 	return arc;
 }

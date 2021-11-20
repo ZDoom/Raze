@@ -290,6 +290,28 @@ bool FSerializer::BeginObject(const char *name)
 //
 //==========================================================================
 
+bool FSerializer::HasObject(const char* name)
+{
+	if (isReading())
+	{
+		auto val = r->FindKey(name);
+		if (val != nullptr)
+		{
+			if (val->IsObject())
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
 void FSerializer::EndObject()
 {
 	if (isWriting())

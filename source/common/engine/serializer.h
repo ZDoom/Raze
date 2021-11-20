@@ -85,6 +85,7 @@ public:
 	void ReadObjects(bool hubtravel);
 	bool BeginObject(const char *name);
 	void EndObject();
+	bool HasObject(const char* name);
 	bool BeginArray(const char *name);
 	void EndArray();
 	unsigned GetSize(const char *group);
