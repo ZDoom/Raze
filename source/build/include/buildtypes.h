@@ -1,6 +1,7 @@
 #ifndef buildtypes_h__
 #define buildtypes_h__
 
+#include "ns.h"
 //ceilingstat/floorstat:
 //   bit 0: 1 = parallaxing, 0 = not                                 "P"
 //   bit 1: 1 = sloped, 0 = not
@@ -49,12 +50,11 @@ enum
     PORTAL_SECTOR_GEOMETRY = 8,
 };
 
-
-namespace Blood
-{
+BEGIN_BLD_NS
     struct XWALL;
     struct XSECTOR;
-}
+    class DBloodActor;
+END_BLD_NS
 
 namespace ShadowWarrior
 {
@@ -87,6 +87,55 @@ struct sectortype
     uint8_t portalflags;
     int8_t portalnum;
 
+    // section reference (not written to a savegame
+    int numsections;
+    int* sections;
+
+    union
+    {
+        struct // DukeRR
+        {
+            uint8_t keyinfo;
+            uint8_t shadedsector;
+        };
+        struct // Blood
+        {
+            BLD_NS::XSECTOR* _xs;
+            uint8_t q_filler;
+            int baseFloor, baseCeil;
+            int velFloor, velCeil;
+            BLD_NS::DBloodActor* upperLink;
+            BLD_NS::DBloodActor* lowerLink;
+        };
+        struct // Exhumed
+        {
+            int   SoundSect;
+            int   Depth;
+            int   Above;
+            int   Below;
+            short Sound;
+            short Flag;
+            short Damage;
+            short Speed;
+        };
+        struct // SW
+        {
+            // No need to allocate this on demand as it is smaller than what Blood needs.
+            bool defined;
+            int dist, flags;
+            int depth_fixed;
+            short stag,    // ST? tag number - for certain things it helps to know it
+                ang,
+                height,
+                speed,
+                damage,
+                number;  // usually used for matching number
+            uint8_t    flags2;
+
+        };
+
+    };
+
     int ceilingxpan() const { return int(ceilingxpan_); }
     int ceilingypan() const { return int(ceilingypan_); }
     int floorxpan() const { return int(floorxpan_); }
@@ -101,10 +150,11 @@ struct sectortype
     void addceilingypan(float add) { ceilingypan_ = fmodf(ceilingypan_ + add + 512, 256); } // +512 is for handling negative offsets
     walltype *firstWall() const;
 
+
     // These will unfortunately have to be within the base struct to refactor Blood properly. They can later be removed again, once everything is done.
     Blood::XSECTOR& xs() const;
     bool hasX() const { return extra > 0; } // 0 is invalid!
-    void addX();
+    void allocX();
 
     // same for SW
     ShadowWarrior::SECT_USER* u() const;

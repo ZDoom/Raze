@@ -993,7 +993,3 @@ void qloadboard(const char* filename, char flags, vec3_t* dapos, int16_t* daang,
     Blood::dbInit();    // clean up immediately.
 }
     
-inline void sectortype::addX()
-{
-    extra = Blood::dbInsertXSector(sectnum(this));
-}

@@ -194,6 +194,11 @@ inline bool isShareware()
 	return g_gameType & GAMEFLAG_SHAREWARE;
 }
 
+inline bool isDukeLike()
+{
+	return g_gameType & (GAMEFLAG_NAM | GAMEFLAG_NAPALM | GAMEFLAG_WW2GI | GAMEFLAG_DUKE | GAMEFLAG_RRALL);
+}
+
 inline bool isBlood()
 {
 	return g_gameType & GAMEFLAG_BLOOD;

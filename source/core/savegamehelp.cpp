@@ -82,6 +82,7 @@ CVAR(String, cl_savedir, "", CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 BEGIN_BLD_NS
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, XWALL& w, XWALL* def);
+FSerializer& Serialize(FSerializer& arc, const char* keyname, XSECTOR& w, XSECTOR* def);
 
 END_BLD_NS
 
@@ -535,8 +536,34 @@ FSerializer &Serialize(FSerializer &arc, const char *key, sectortype &c, sectort
 			("hitag", c.hitag, def->hitag)
 			("extra", c.extra, def->extra)
 			("portalflags", c.portalflags, def->portalflags)
-			("portalnum", c.portalnum, def->portalnum)
-			.EndObject();
+			("portalnum", c.portalnum, def->portalnum);
+
+		// Save the blood-specific extensions only when playing Blood
+		if (isDukeLike())
+		{
+			arc("keyinfo", c.keyinfo, def->keyinfo);
+			arc("shadedsector", c.shadedsector, def->shadedsector);
+		}
+		else if (isBlood())
+		{
+			if (arc.isWriting())
+			{
+				if (c.hasX())
+				{
+					BLD_NS::Serialize(arc, "xsector", *c._xs, nullptr);
+				}
+			}
+			else
+			{
+				if (arc.HasObject("xsector"))
+				{
+					c.allocX();
+					BLD_NS::Serialize(arc, "xsector", *c._xs, nullptr);
+				}
+			}
+		}
+
+			arc.EndObject();
 	}
 	return arc;
 }

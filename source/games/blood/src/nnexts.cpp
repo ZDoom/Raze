@@ -3237,7 +3237,7 @@ void useSectorWindGen(DBloodActor* sourceactor, sectortype* pSector)
     else 
     {
         pSector = pSource->sector();
-        pSector->addX();
+        pSector->allocX();
         pXSector = &pSector->xs();
         pXSector->windAlways = 1;
     }

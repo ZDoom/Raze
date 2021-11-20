@@ -1483,7 +1483,6 @@ enum ShrapType
 
 typedef struct SECT_USER
 {
-    SECT_USER() { memset(this, 0, sizeof(*this)); }
     int dist, flags;
     int depth_fixed;
     short stag,    // ST? tag number - for certain things it helps to know it

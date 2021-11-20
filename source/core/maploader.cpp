@@ -69,6 +69,12 @@ void walltype::allocX()
 	memset(_xw, 0, sizeof(XWALL));
 }
 
+void sectortype::allocX()
+{
+	using XSECTOR = BLD_NS::XSECTOR;
+	_xs = (XSECTOR*)mapDataArena.Alloc(sizeof(XSECTOR));
+	memset(_xs, 0, sizeof(XSECTOR));
+}
 
 static void ReadSectorV7(FileReader& fr, sectortype& sect)
 {
@@ -406,7 +412,7 @@ void allocateMapArrays(int numsprites)
 
 	memset(sector, 0, sizeof(*sector) * MAXSECTORS);
 	memset(wall, 0, sizeof(*wall) * MAXWALLS);
-	memset(sprite, 0, sizeof(*sector) * MAXSPRITES);
+	memset(sprite, 0, sizeof(*sprite) * MAXSPRITES);
 	memset(spriteext, 0, sizeof(spriteext_t) * MAXSPRITES);
 	memset(spritesmooth, 0, sizeof(spritesmooth_t) * (MAXSPRITES + MAXUNIQHUDID));
 
