@@ -2101,7 +2101,7 @@ void movetransports_d(void)
 						if (ps[p].GetActor()->s->extra > 0)
 							S_PlayActorSound(DUKE_UNDERWATER, act2);
 						ps[p].oposz = ps[p].pos.z =
-						Owner->getSector()->ceilingz + (7 << 8);
+						Owner->sector()->ceilingz + (7 << 8);
 						
 						ps[p].posxv = 4096 - (krand() & 8192);
 						ps[p].posyv = 4096 - (krand() & 8192);
@@ -2119,7 +2119,7 @@ void movetransports_d(void)
 						S_PlayActorSound(DUKE_GASP, act2);
 						
 						ps[p].oposz = ps[p].pos.z =
-						Owner->getSector()->floorz - (7 << 8);
+						Owner->sector()->floorz - (7 << 8);
 						
 						ps[p].jumping_toggle = 1;
 						ps[p].jumping_counter = 0;
@@ -2243,7 +2243,7 @@ void movetransports_d(void)
 								{
 									spr2->x += (Owner->s->x - spr->x);
 									spr2->y += (Owner->s->y - spr->y);
-									spr2->z -= spr->z - Owner->getSector()->floorz;
+									spr2->z -= spr->z - Owner->sector()->floorz;
 									spr2->ang = Owner->s->ang;
 									
 									spr2->backupang();
@@ -2280,7 +2280,7 @@ void movetransports_d(void)
 						case 1:
 							spr2->x += (Owner->s->x - spr->x);
 							spr2->y += (Owner->s->y - spr->y);
-							spr2->z = Owner->getSector()->ceilingz + ll;
+							spr2->z = Owner->sector()->ceilingz + ll;
 							
 							spr2->backupz();
 							
@@ -2290,7 +2290,7 @@ void movetransports_d(void)
 						case 2:
 							spr2->x += (Owner->s->x - spr->x);
 							spr2->y += (Owner->s->y - spr->y);
-							spr2->z = Owner->getSector()->floorz - ll;
+							spr2->z = Owner->sector()->floorz - ll;
 							
 							spr2->backupz();
 							
@@ -3450,7 +3450,7 @@ void handle_se06_d(DDukeActor* actor)
 	auto s = actor->s;
 	auto t = &actor->temp_data[0];
 
-	auto sc = actor->getSector();
+	auto sc = actor->sector();
 	int sh = s->hitag;
 
 	int k = sc->extra;
@@ -3599,7 +3599,7 @@ void moveeffectors_d(void)   //STATNUM 3
 	DukeStatIterator it(STAT_EFFECTOR);
 	while (auto act = it.Next())
 	{
-		auto sc = act->getSector();
+		auto sc = act->sector();
 		switch (act->s->lotag)
 		{
 		case SE_0_ROTATING_SECTOR:
@@ -3771,7 +3771,7 @@ void moveeffectors_d(void)   //STATNUM 3
 	while (auto act = it.Next())
 	{
 		if (act->s->lotag != SE_29_WAVES) continue;
-		auto sc = act->getSector();
+		auto sc = act->sector();
 		if (sc->wallnum != 4) continue;
 		auto wal = sc->firstWall() + 2;
 		alignflorslope(act->s->sectnum, wal->x, wal->y, wal->nextSector()->floorz);

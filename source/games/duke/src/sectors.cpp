@@ -458,7 +458,7 @@ bool activatewarpelevators(DDukeActor* actor, int d) //Parm = sectoreffectornum
 		if (act2->s->lotag == SE_17_WARP_ELEVATOR || (isRRRA() && act2->s->lotag == SE_18_INCREMENTAL_SECTOR_RISE_FALL))
 			if (act2->s->hitag == actor->s->hitag)
 				if ((abs(sect->floorz - actor->temp_data[2]) > act2->s->yvel) ||
-					(act2->getSector()->hitag == (sect->hitag - d)))
+					(act2->sector()->hitag == (sect->hitag - d)))
 					break;
 	}
 
@@ -686,7 +686,7 @@ static void handle_st29(sectortype* sptr, DDukeActor* actor)
 		if ((act2->s->lotag == 22) &&
 			(act2->s->hitag == sptr->hitag))
 		{
-			act2->getSector()->extra = -act2->getSector()->extra;
+			act2->sector()->extra = -act2->sector()->extra;
 
 			act2->temp_sect = sptr;
 			act2->temp_data[1] = 1;
@@ -824,7 +824,7 @@ static void handle_st23(sectortype* sptr, DDukeActor* actor)
 	}
 	if (!act2) return;
 
-	int l = act2->getSector()->lotag & 0x8000;
+	int l = act2->sector()->lotag & 0x8000;
 
 	if (act2)
 	{
@@ -832,7 +832,7 @@ static void handle_st23(sectortype* sptr, DDukeActor* actor)
 
 		while (auto act3 = it.Next())
 		{
-			if (l == (act3->getSector()->lotag & 0x8000) && act3->s->lotag == SE_11_SWINGING_DOOR && act2->s->hitag == act3->s->hitag && act3->temp_data[4])
+			if (l == (act3->sector()->lotag & 0x8000) && act3->s->lotag == SE_11_SWINGING_DOOR && act2->s->hitag == act3->s->hitag && act3->temp_data[4])
 			{
 				return;
 			}
@@ -841,10 +841,10 @@ static void handle_st23(sectortype* sptr, DDukeActor* actor)
 		it.Reset(STAT_EFFECTOR);
 		while (auto act3 = it.Next())
 		{
-			if (l == (act3->getSector()->lotag & 0x8000) && act3->s->lotag == SE_11_SWINGING_DOOR && act2->s->hitag == act3->s->hitag)
+			if (l == (act3->sector()->lotag & 0x8000) && act3->s->lotag == SE_11_SWINGING_DOOR && act2->s->hitag == act3->s->hitag)
 			{
-				if (act3->getSector()->lotag & 0x8000) act3->getSector()->lotag &= 0x7fff;
-				else act3->getSector()->lotag |= 0x8000;
+				if (act3->sector()->lotag & 0x8000) act3->sector()->lotag &= 0x7fff;
+				else act3->sector()->lotag |= 0x8000;
 				act3->temp_data[4] = 1;
 				act3->temp_data[3] = -act3->temp_data[3];
 				if (q == 0)
@@ -885,11 +885,11 @@ static void handle_st25(sectortype* sptr, DDukeActor* actor)
 		{
 			if (act3->s->lotag == 15)
 			{
-				act3->getSector()->lotag ^= 0x8000; // Toggle the open or close
+				act3->sector()->lotag ^= 0x8000; // Toggle the open or close
 				act3->s->ang += 1024;
-				if (act3->temp_data[4]) callsound(act3->getSector(), act3);
-				callsound(act3->getSector(), act3);
-				if (act3->getSector()->lotag & 0x8000) act3->temp_data[4] = 1;
+				if (act3->temp_data[4]) callsound(act3->sector(), act3);
+				callsound(act3->sector(), act3);
+				if (act3->sector()->lotag & 0x8000) act3->temp_data[4] = 1;
 				else act3->temp_data[4] = 2;
 			}
 		}
@@ -1104,11 +1104,11 @@ void operateactivators(int low, int plnum)
 		{
 			if (act->s->picnum == ACTIVATORLOCKED)
 			{
-				act->getSector()->lotag ^= 16384;
+				act->sector()->lotag ^= 16384;
 
 				if (plnum >= 0)
 				{
-					if (act->getSector()->lotag & 16384)
+					if (act->sector()->lotag & 16384)
 						FTA(4, &ps[plnum]);
 					else FTA(8, &ps[plnum]);
 				}
@@ -1120,20 +1120,20 @@ void operateactivators(int low, int plnum)
 				case 0:
 					break;
 				case 1:
-					if (act->getSector()->floorz != act->getSector()->ceilingz)
+					if (act->sector()->floorz != act->sector()->ceilingz)
 					{
 						continue;
 					}
 					break;
 				case 2:
-					if (act->getSector()->floorz == act->getSector()->ceilingz)
+					if (act->sector()->floorz == act->sector()->ceilingz)
 					{
 						continue;
 					}
 					break;
 				}
 
-				if (act->getSector()->lotag < 3)
+				if (act->sector()->lotag < 3)
 				{
 					DukeSectIterator it(act->s->sectnum);
 					while (auto a2 = it.Next())
@@ -1147,16 +1147,16 @@ void operateactivators(int low, int plnum)
 						case SE_31_FLOOR_RISE_FALL:
 						case SE_32_CEILING_RISE_FALL:
 							a2->temp_data[0] = 1 - a2->temp_data[0];
-							callsound(act->getSector(), a2);
+							callsound(act->sector(), a2);
 							break;
 						}
 					}
 				}
 
-				if (k == -1 && (act->getSector()->lotag & 0xff) == 22)
-					k = callsound(act->getSector(), act);
+				if (k == -1 && (act->sector()->lotag & 0xff) == 22)
+					k = callsound(act->sector(), act);
 
-				operatesectors(act->getSector(), act);
+				operatesectors(act->sector(), act);
 			}
 		}
 	}
@@ -1242,8 +1242,8 @@ void allignwarpelevators(void)
 			{
 				if ((act2->s->lotag) == SE_17_WARP_ELEVATOR && act != act2 && act->s->hitag == act2->s->hitag)
 				{
-					act2->getSector()->floorz = act->getSector()->floorz;
-					act2->getSector()->ceilingz = act->getSector()->ceilingz;
+					act2->sector()->floorz = act->sector()->floorz;
+					act2->sector()->ceilingz = act->sector()->ceilingz;
 				}
 			}
 		}

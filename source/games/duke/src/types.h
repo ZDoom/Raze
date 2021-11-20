@@ -96,7 +96,7 @@ struct DDukeActor
 		return s->yvel;
 	}
 
-	sectortype* getSector() const
+	sectortype* sector() const
 	{
 		return s->sector();
 	}

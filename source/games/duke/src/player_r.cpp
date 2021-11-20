@@ -126,11 +126,11 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 				ny = hity + (effector->GetOwner()->s->y - effector->s->y);
 				if (hitsectp->lotag == 161)
 				{
-					nz = effector->GetOwner()->getSector()->floorz;
+					nz = effector->GetOwner()->sector()->floorz;
 				}
 				else
 				{
-					nz = effector->GetOwner()->getSector()->ceilingz;
+					nz = effector->GetOwner()->sector()->ceilingz;
 				}
 				hitscan(nx, ny, nz, effector->GetOwner()->s->sectnum, bcos(sa), bsin(sa), zvel << 6,
 					&hitsectp, &wal, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
@@ -288,11 +288,11 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 				ny = hity + (effector->GetOwner()->s->y - effector->s->y);
 				if (hitsectp->lotag == 161)
 				{
-					nz = effector->GetOwner()->getSector()->floorz;
+					nz = effector->GetOwner()->sector()->floorz;
 				}
 				else
 				{
-					nz = effector->GetOwner()->getSector()->ceilingz;
+					nz = effector->GetOwner()->sector()->ceilingz;
 				}
 				hitscan(nx, ny, nz, effector->GetOwner()->s->sectnum, bcos(sa), bsin(sa), zvel << 6,
 					&hitsectp, &wal, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);

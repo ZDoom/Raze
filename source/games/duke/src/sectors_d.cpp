@@ -560,7 +560,7 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 				switch (other->s->lotag)
 				{
 				case SE_12_LIGHT_SWITCH:
-					other->getSector()->floorpal = 0;
+					other->sector()->floorpal = 0;
 					other->temp_data[0]++;
 					if (other->temp_data[0] == 2)
 						other->temp_data[0]++;
@@ -1664,7 +1664,7 @@ void checksectors_d(int snum)
 		}
 
 		if (p->newOwner == nullptr && neartagsprite == nullptr && ntsector == nullptr && ntwall == nullptr)
-			if (isanunderoperator(p->GetActor()->getSector()->lotag))
+			if (isanunderoperator(p->GetActor()->sector()->lotag))
 				ntsector = p->GetActor()->s->sector();
 
 		if (ntsector && (ntsector->lotag & 16384))
@@ -1820,9 +1820,9 @@ void checksectors_d(int snum)
 			}
 			operatesectors(ntsector, p->GetActor());
 		}
-		else if ((p->GetActor()->getSector()->lotag & 16384) == 0)
+		else if ((p->GetActor()->sector()->lotag & 16384) == 0)
 		{
-			if (isanunderoperator(p->GetActor()->getSector()->lotag))
+			if (isanunderoperator(p->GetActor()->sector()->lotag))
 			{
 				DukeSectIterator it(p->GetActor()->s->sectnum);
 				while (auto act = it.Next())

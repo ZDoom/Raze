@@ -1669,7 +1669,7 @@ void movetransports_r(void)
 						{
 							k = 2;
 							ps[p].oposz = ps[p].pos.z =
-								Owner->getSector()->ceilingz + (7 << 8);
+								Owner->sector()->ceilingz + (7 << 8);
 						}
 
 						if (onfloorz && sectlotag == 161 && ps[p].pos.z < (sectp->ceilingz + (6 << 8)))
@@ -1677,7 +1677,7 @@ void movetransports_r(void)
 							k = 2;
 							if (ps[p].GetActor()->s->extra <= 0) break;
 							ps[p].oposz = ps[p].pos.z =
-								Owner->getSector()->floorz - (49 << 8);
+								Owner->sector()->floorz - (49 << 8);
 						}
 					}
 
@@ -1692,7 +1692,7 @@ void movetransports_r(void)
 						}
 						S_PlayActorSound(DUKE_UNDERWATER, ps[p].GetActor());
 						ps[p].oposz = ps[p].pos.z =
-							Owner->getSector()->ceilingz + (7 << 8);
+							Owner->sector()->ceilingz + (7 << 8);
 						if (ps[p].OnMotorcycle)
 							ps[p].moto_underwater = 1;
 					}
@@ -1708,7 +1708,7 @@ void movetransports_r(void)
 						S_PlayActorSound(DUKE_GASP, ps[p].GetActor());
 
 						ps[p].oposz = ps[p].pos.z =
-							Owner->getSector()->floorz - (7 << 8);
+							Owner->sector()->floorz - (7 << 8);
 					}
 
 					if (k == 1)
@@ -1846,7 +1846,7 @@ void movetransports_r(void)
 								{
 									spr2->x += (Owner->s->x - spr->x);
 									spr2->y += (Owner->s->y - spr->y);
-									spr2->z -= spr->z - Owner->getSector()->floorz;
+									spr2->z -= spr->z - Owner->sector()->floorz;
 									spr2->ang = Owner->s->ang;
 
 									spr2->backupang();
@@ -1880,7 +1880,7 @@ void movetransports_r(void)
 						case ST_1_ABOVE_WATER:
 							spr2->x += (Owner->s->x - spr->x);
 							spr2->y += (Owner->s->y - spr->y);
-							spr2->z = Owner->getSector()->ceilingz + ll;
+							spr2->z = Owner->sector()->ceilingz + ll;
 
 							spr2->backupz();
 
@@ -1890,7 +1890,7 @@ void movetransports_r(void)
 						case ST_2_UNDERWATER:
 							spr2->x += (Owner->s->x - spr->x);
 							spr2->y += (Owner->s->y - spr->y);
-							spr2->z = Owner->getSector()->floorz - ll;
+							spr2->z = Owner->sector()->floorz - ll;
 
 							spr2->backupz();
 
@@ -1902,7 +1902,7 @@ void movetransports_r(void)
 							if (!isRRRA()) break;
 							spr2->x += (Owner->s->x - spr->x);
 							spr2->y += (Owner->s->y - spr->y);
-							spr2->z = Owner->getSector()->ceilingz + ll2;
+							spr2->z = Owner->sector()->ceilingz + ll2;
 
 							spr2->backupz();
 
@@ -1916,7 +1916,7 @@ void movetransports_r(void)
 							if (!isRRRA()) break;
 							spr2->x += (Owner->s->x - spr->x);
 							spr2->y += (Owner->s->y - spr->y);
-							spr2->z = Owner->getSector()->floorz - ll2;
+							spr2->z = Owner->sector()->floorz - ll2;
 
 							spr2->backupz();
 
@@ -2963,7 +2963,7 @@ void moveactors_r(void)
 					if (sectp->lotag == 1)
 					{
 						auto j = spawn(act, WATERSPLASH2);
-						if (j) j->s->z = j->getSector()->floorz;
+						if (j) j->s->z = j->sector()->floorz;
 					}
 					deletesprite(act);
 					continue;
@@ -3351,7 +3351,7 @@ void handle_se06_r(DDukeActor *actor)
 	auto s = actor->s;
 	auto t = &actor->temp_data[0];
 
-	auto sc = actor->getSector();
+	auto sc = actor->sector();
 	int sh = s->hitag;
 
 	int k = sc->extra;
@@ -3375,7 +3375,7 @@ void handle_se06_r(DDukeActor *actor)
 				auto ns = spawn(actor, HULK);
 				if (ns)
 				{
-					ns->s->z = ns->getSector()->ceilingz;
+					ns->s->z = ns->sector()->ceilingz;
 					ns->s->pal = 33;
 				}
 				if (!hulkspawn)
@@ -3433,7 +3433,7 @@ void handle_se06_r(DDukeActor *actor)
 				}
 				else pn = UFO1_RRRA;
 				auto ns = spawn(actor, pn);
-				if (ns) ns->s->z = ns->getSector()->ceilingz;
+				if (ns) ns->s->z = ns->sector()->ceilingz;
 			}
 		}
 	}
@@ -3473,7 +3473,7 @@ void moveeffectors_r(void)   //STATNUM 3
 	DukeStatIterator it(STAT_EFFECTOR);
 	while (auto act = it.Next())
 	{
-		auto sc = act->getSector();
+		auto sc = act->sector();
 		int st = act->s->lotag;
 
 		auto t = &act->temp_data[0];
@@ -3658,7 +3658,7 @@ void moveeffectors_r(void)   //STATNUM 3
 	while (auto act = it.Next())
 	{
 		if (act->s->lotag != SE_29_WAVES) continue;
-		auto sc = act->getSector();
+		auto sc = act->sector();
 		if (sc->wallnum != 4) continue;
 		auto wal = sc->firstWall() + 2;
 		alignflorslope(act->s->sectnum, wal->x, wal->y, wal->nextSector()->floorz);
@@ -4142,7 +4142,7 @@ void destroyit(DDukeActor *actor)
 			{
 				sectnum = spr->s->sectnum;
 
-				auto destsect = spr->getSector();
+				auto destsect = spr->sector();
 				auto srcsect = it_sect;
 
 				auto destwal = destsect->firstWall();

@@ -1023,7 +1023,7 @@ void enterlevel(MapRecord *mi, int gamemode)
 	for (int i = connecthead; i >= 0; i = connectpoint2[i])
 	{
 		bool clearweapon = !!(currentLevel->flags & LEVEL_CLEARWEAPONS);
-		int pn = ps[i].GetActor()->getSector()->floorpicnum;
+		int pn = ps[i].GetActor()->sector()->floorpicnum;
 		if (pn == TILE_HURTRAIL || pn == TILE_FLOORSLIME || pn == TILE_FLOORPLASMA)
 		{
 			resetinventory(i);
