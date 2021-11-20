@@ -270,7 +270,7 @@ inline int wallnum(const walltype* wal)
 
 inline int sectnum(const sectortype* sect)
 {
-	return int(sect - sector);
+	return sector.IndexOf(sect);
 }
 
 inline double SquareDist(double lx1, double ly1, double lx2, double ly2)

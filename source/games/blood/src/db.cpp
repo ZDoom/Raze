@@ -959,7 +959,7 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, int*
     hw_BuildSections();
     sectorGeometry.SetSize(numsections);
     memcpy(wallbackup, wall, sizeof(wallbackup));
-    memcpy(sectorbackup, sector, sizeof(sectorbackup));
+    sectorbackup = sector;
 }
 
 

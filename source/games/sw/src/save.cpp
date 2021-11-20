@@ -759,65 +759,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, ROTATOR& w, ROTATO
 // 
 //
 //---------------------------------------------------------------------------
-
-FSerializer& Serialize(FSerializer& arc, const char* keyname, SECT_USER& w, SECT_USER* def)
-{
-	static SECT_USER nul;
-	if (!def)
-	{
-		def = &nul;
-		if (arc.isReading()) w = {};
-	}
-	if (arc.BeginObject(keyname))
-	{
-		arc("dist", w.dist, def->dist)
-			("flags", w.flags, def->flags)
-			("depth", w.depth_fixed, def->depth_fixed)
-			("stag", w.stag, def->stag)
-			("ang", w.ang, def->ang)
-			("height", w.height, def->height)
-			("speed", w.speed, def->speed)
-			("damage", w.damage, def->damage)
-			("number", w.number, def->number)
-			("flags2", w.flags2, def->flags2)
-			.EndObject();
-	}
-	return arc;
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
-void SerializeSectUser(FSerializer& arc)
-{
-	BitArray hitlist(numsectors);
-
-	if (arc.isWriting())
-	{
-		for (int i = 0; i < numsectors; i++)
-		{
-			hitlist.Set(i, !!SectUser[i].Data());
-		}
-	}
-	else
-	{
-		for (int i = 0; i < numsectors; i++)
-		{
-			SectUser[i].Clear();
-		}
-	}
-	arc.SerializeMemory("sectusermap", hitlist.Storage().Data(), hitlist.Storage().Size());
-	arc.SparseArray("sectuser", SectUser, numsectors, hitlist);
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
 static USER nuluser; // must be outside the function to evade C++'s retarded initialization rules for static function variables.
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, USER& w, USER* def)
@@ -1200,7 +1141,6 @@ void GameInterface::SerializeGameState(FSerializer& arc)
     if (arc.BeginObject("state"))
     {
         preSerializePanelSprites(arc);
-		SerializeSectUser(arc);
 		so_serializeinterpolations(arc);
 		arc .SparseArray("actors", swActors, MAXSPRITES, activeSprites)
 			("numplayers", numplayers)

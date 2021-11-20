@@ -55,7 +55,7 @@ public:
 	SectIterator(sectortype* sect)
 	{
 		assert(sect);
-		next = headspritesect[sect - sector];
+		next = headspritesect[sector.IndexOf(sect)];
 	}
     
     void Reset(int stat)
@@ -67,8 +67,8 @@ public:
 	void Reset(sectortype* sect)
 	{
 		assert(sect);
-		next = headspritesect[sect - sector];
-	}
+        next = headspritesect[sector.IndexOf(sect)];
+    }
 	
     int NextIndex()
     {

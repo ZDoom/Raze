@@ -174,9 +174,9 @@ void DoSlidorMatch(PLAYERp pp, short match, bool manual)
 
             auto sect = fsp->sector();
 
-            if (pp && sect->hasU() && sect->u()->stag == SECT_LOCK_DOOR && sect->u()->number)
+            if (pp && sect->hasU() && sect->stag == SECT_LOCK_DOOR && sect->number)
             {
-                int key_num = sect->u()->number;
+                int key_num = sect->number;
 
                 {
                     PutStringInfo(pp, quoteMgr.GetQuote(QUOTE_DOORMSG + key_num - 1));

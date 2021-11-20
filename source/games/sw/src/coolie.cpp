@@ -476,7 +476,7 @@ void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SETp action, PERSONALITYp perso
 
         if (u->lo_sectp->hasU() && TEST(u->lo_sectp->extra, SECTFX_SINK))
         {
-            depth = FixedToInt(u->lo_sectp->u()->depth_fixed);
+            depth = FixedToInt(u->lo_sectp->depth_fixed);
         }
         else
         {

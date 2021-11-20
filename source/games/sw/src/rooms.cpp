@@ -491,10 +491,9 @@ void WaterAdjust(const Collision& florhit, int32_t* loz)
     {
         auto sect = &sector[florhit.index];
         if (!sect->hasU()) return;
-        SECT_USERp sectu = sect->u();
 
-        if (sectu && FixedToInt(sectu->depth_fixed))
-            *loz += Z(FixedToInt(sectu->depth_fixed));
+        if (sect->hasU() && FixedToInt(sect->depth_fixed))
+            *loz += Z(FixedToInt(sect->depth_fixed));
     }
 }
 

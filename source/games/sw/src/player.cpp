@@ -1442,8 +1442,8 @@ void DoPlayerSetWadeDepth(PLAYERp pp)
     if (TEST(sectp->extra, SECTFX_SINK))
     {
         // make sure your even in the water
-        if (pp->posz + PLAYER_HEIGHT > pp->lo_sectp->floorz - Z(FixedToInt(pp->lo_sectp->u()->depth_fixed)))
-            pp->WadeDepth = FixedToInt(pp->lo_sectp->u()->depth_fixed);
+        if (pp->posz + PLAYER_HEIGHT > pp->lo_sectp->floorz - Z(FixedToInt(pp->lo_sectp->depth_fixed)))
+            pp->WadeDepth = FixedToInt(pp->lo_sectp->depth_fixed);
     }
 }
 
@@ -1600,7 +1600,7 @@ void SlipSlope(PLAYERp pp)
     if (pp->cursectnum < 0 || !pp->cursector()->hasU())
         return;
 
-    SECT_USERp sectu = pp->cursector()->u();
+    auto sectu = pp->cursector();
 
     if (!TEST(sectu->flags, SECTFU_SLIDE_SECTOR) || !TEST(pp->cursector()->floorstat, FLOOR_STAT_SLOPE))
         return;
@@ -2302,7 +2302,7 @@ void DoTankTreads(PLAYERp pp)
 
     for (sectp = pp->sop->sectp, j = 0; *sectp; sectp++, j++)
     {
-        SWSectIterator it(int(*sectp - sector));
+        SWSectIterator it(*sectp);
         while (auto actor = it.Next())
         {
             sp = &actor->s();
@@ -2531,7 +2531,7 @@ void DriveCrush(PLAYERp pp, int *x, int *y)
     // if it ends up actually in the drivable sector kill it
     for (sectp = sop->sectp; *sectp; sectp++)
     {
-        SWSectIterator it(int(*sectp - sector));
+        SWSectIterator it(*sectp);
         while (auto actor = it.Next())
         {
             sp = &actor->s();
@@ -3082,12 +3082,11 @@ void DoPlayerFall(PLAYERp pp)
 
         if (PlayerFloorHit(pp, pp->loz - PLAYER_HEIGHT + recoil_amt))
         {
-            SECT_USERp sectu = pp->cursector()->u();
             SECTORp sectp = pp->cursector();
 
             PlayerSectorBound(pp, Z(1));
 
-            if (sectu && (TEST(sectp->extra, SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE))
+            if (sectp->hasU() && (TEST(sectp->extra, SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE))
             {
                 PlaySound(DIGI_SPLASH1, pp, v3df_dontpan);
             }
@@ -3929,7 +3928,7 @@ int GetOverlapSector(int x, int y, short *over, short *under)
     auto secto = &sector[*over];
     auto sectu = &sector[*under];
 
-    if ((sectu->hasU() && sectu->u()->number >= 30000) || (secto->hasU() && secto->u()->number >= 30000))
+    if ((sectu->hasU() && sectu->number >= 30000) || (secto->hasU() && secto->number >= 30000))
         return GetOverlapSector2(x,y,over,under);
 
     // instead of check ALL sectors, just check the two most likely first
@@ -4086,7 +4085,7 @@ int GetOverlapSector2(int x, int y, short *over, short *under)
 void DoPlayerWarpToUnderwater(PLAYERp pp)
 {
     USERp u = pp->Actor()->u();
-    SECT_USERp sectu = pp->cursector()->u();
+    auto sectu = pp->cursector();
     SPRITEp under_sp = nullptr, over_sp = nullptr;
     bool Found = false;
     short over, under;
@@ -4103,7 +4102,7 @@ void DoPlayerWarpToUnderwater(PLAYERp pp)
 
         if (TEST(sector[over_sp->sectnum].extra, SECTFX_DIVE_AREA) &&
             over_sp->sector()->hasU() &&
-            over_sp->sector()->u()->number == sectu->number)
+            over_sp->sector()->number == sectu->number)
         {
             Found = true;
             break;
@@ -4121,7 +4120,7 @@ void DoPlayerWarpToUnderwater(PLAYERp pp)
 
         if (TEST(sector[under_sp->sectnum].extra, SECTFX_UNDERWATER) &&
             under_sp->sector()->hasU() &&
-            under_sp->sector()->u()->number == sectu->number)
+            under_sp->sector()->number == sectu->number)
         {
             Found = true;
             break;
@@ -4161,7 +4160,7 @@ void DoPlayerWarpToUnderwater(PLAYERp pp)
 void DoPlayerWarpToSurface(PLAYERp pp)
 {
     USERp u = pp->Actor()->u();
-    SECT_USERp sectu = pp->cursector()->u();
+    auto sectu = pp->cursector();
     short over, under;
 
     SPRITEp under_sp = nullptr, over_sp = nullptr;
@@ -4178,7 +4177,7 @@ void DoPlayerWarpToSurface(PLAYERp pp)
 
         if (TEST(sector[under_sp->sectnum].extra, SECTFX_UNDERWATER) &&
             under_sp->sector()->hasU() &&
-            under_sp->sector()->u()->number == sectu->number)
+            under_sp->sector()->number == sectu->number)
         {
             Found = true;
             break;
@@ -4196,7 +4195,7 @@ void DoPlayerWarpToSurface(PLAYERp pp)
 
         if (TEST(sector[over_sp->sectnum].extra, SECTFX_DIVE_AREA) &&
             over_sp->sector()->hasU() &&
-            over_sp->sector()->u()->number == sectu->number)
+            over_sp->sector()->number == sectu->number)
         {
             Found = true;
             break;
@@ -4452,7 +4451,7 @@ void DoPlayerDiveMeter(PLAYERp pp)
 void DoPlayerDive(PLAYERp pp)
 {
     USERp u = pp->Actor()->u();
-    SECT_USERp sectu = pp->cursector()->u();
+    auto sectu = pp->cursector();
 
     // whenever your view is not in a water area
     if (pp->cursectnum < 0 || !SectorIsUnderwaterArea(pp->cursectnum))
@@ -4648,7 +4647,7 @@ int DoPlayerTestPlaxDeath(PLAYERp pp)
 void DoPlayerCurrent(PLAYERp pp)
 {
     int xvect, yvect;
-    SECT_USERp sectu = pp->cursector()->u();
+    auto sectu = pp->cursector();
     int push_ret;
 
     if (!sectu)

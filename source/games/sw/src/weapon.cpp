@@ -4335,7 +4335,7 @@ bool WeaponMoveHit(DSWActor* actor)
                 return true;
             }
 
-            if (sector[hit_sect].hasU() && FixedToInt(sector[hit_sect].u()->depth_fixed) > 0)
+            if (sector[hit_sect].hasU() && FixedToInt(sector[hit_sect].depth_fixed) > 0)
             {
                 SpawnSplash(actor);
                 return true;
@@ -4590,7 +4590,7 @@ int DoFireballFlames(DSWActor* actor)
         }
         else
         {
-            if (sp->sector()->hasU() && FixedToInt(sp->sector()->u()->depth_fixed) > 0)
+            if (sp->sector()->hasU() && FixedToInt(sp->sector()->depth_fixed) > 0)
             {
                 if (labs(sp->sector()->floorz - sp->z) <= Z(4))
                 {
@@ -4665,7 +4665,7 @@ int DoBreakFlames(DSWActor* actor)
     }
     else
     {
-        if (sp->sector()->hasU() && FixedToInt(sp->sector()->u()->depth_fixed) > 0)
+        if (sp->sector()->hasU() && FixedToInt(sp->sector()->depth_fixed) > 0)
         {
             if (labs(sp->sector()->floorz - sp->z) <= Z(4))
             {
@@ -7678,7 +7678,7 @@ int DoStar(DSWActor* actor)
 
             if (sp->z > ((u->hiz + u->loz) >> 1))
             {
-                if (sector[hit_sect].hasU() && FixedToInt(sector[hit_sect].u()->depth_fixed) > 0)
+                if (sector[hit_sect].hasU() && FixedToInt(sector[hit_sect].depth_fixed) > 0)
                 {
                     SpawnSplash(actor);
                     KillActor(actor);
@@ -8625,7 +8625,7 @@ int DoGrenade(DSWActor* actor)
                     if (TEST(u->Flags, SPR_UNDERWATER))
                         SET(u->Flags, SPR_BOUNCE); // no bouncing underwater
 
-                    if (u->lo_sectp && sp->sector()->hasU() && FixedToInt(sp->sector()->u()->depth_fixed))
+                    if (u->lo_sectp && sp->sector()->hasU() && FixedToInt(sp->sector()->depth_fixed))
                         SET(u->Flags, SPR_BOUNCE); // no bouncing on shallow water
 
                     if (!TEST(u->Flags, SPR_BOUNCE))
@@ -17901,7 +17901,7 @@ int InitEnemyFireball(DSWActor* actor)
 bool WarpToUnderwater(short *sectnum, int *x, int *y, int *z)
 {
     int i;
-    SECT_USERp sectu = sector[*sectnum].u();
+    auto sectu = &sector[*sectnum];
     SPRITEp under_sp = nullptr, over_sp = nullptr;
     bool Found = false;
     short over, under;
@@ -17918,8 +17918,8 @@ bool WarpToUnderwater(short *sectnum, int *x, int *y, int *z)
         over_sp = &itActor->s();
 
         if (TEST(sector[over_sp->sectnum].extra, SECTFX_DIVE_AREA) &&
-            over_sp->sector()->hasU() &&
-            over_sp->sector()->u()->number == sectu->number)
+            over_sp->sector()->hasU() && sectu->hasU() &&
+            over_sp->sector()->number == sectu->number)
         {
             Found = true;
             break;
@@ -17937,7 +17937,7 @@ bool WarpToUnderwater(short *sectnum, int *x, int *y, int *z)
 
         if (TEST(sector[under_sp->sectnum].extra, SECTFX_UNDERWATER) &&
             under_sp->sector()->hasU() &&
-            under_sp->sector()->u()->number == sectu->number)
+            under_sp->sector()->number == sectu->number)
         {
             Found = true;
             break;
@@ -17974,7 +17974,7 @@ bool WarpToUnderwater(short *sectnum, int *x, int *y, int *z)
 bool WarpToSurface(short *sectnum, int *x, int *y, int *z)
 {
     int i;
-    SECT_USERp sectu = sector[*sectnum].u();
+    auto sectu = &sector[*sectnum];
     short over, under;
     int sx, sy;
 
@@ -17992,8 +17992,8 @@ bool WarpToSurface(short *sectnum, int *x, int *y, int *z)
         under_sp = &itActor->s();
 
         if (TEST(sector[under_sp->sectnum].extra, SECTFX_UNDERWATER) &&
-            under_sp->sector()->hasU() &&
-            under_sp->sector()->u()->number == sectu->number)
+            under_sp->sector()->hasU() && sectu->hasU() &&
+            under_sp->sector()->number == sectu->number)
         {
             Found = true;
             break;
@@ -18011,7 +18011,7 @@ bool WarpToSurface(short *sectnum, int *x, int *y, int *z)
 
         if (TEST(sector[over_sp->sectnum].extra, SECTFX_DIVE_AREA) &&
             over_sp->sector()->hasU() &&
-            over_sp->sector()->u()->number == sectu->number)
+            over_sp->sector()->number == sectu->number)
         {
             Found = true;
             break;
@@ -18047,7 +18047,7 @@ bool SpriteWarpToUnderwater(DSWActor* actor)
     USERp u = actor->u();
     auto sp = &actor->s();
     int i;
-    SECT_USERp sectu = sp->sector()->u();
+    auto sectu = sp->sector();
     SPRITEp under_sp = nullptr, over_sp = nullptr;
     bool Found = false;
     short over, under;
@@ -18065,7 +18065,7 @@ bool SpriteWarpToUnderwater(DSWActor* actor)
 
         if (TEST(sector[over_sp->sectnum].extra, SECTFX_DIVE_AREA) &&
             over_sp->sector()->hasU() &&
-            over_sp->sector()->u()->number == sectu->number)
+            over_sp->sector()->number == sectu->number)
         {
             Found = true;
             break;
@@ -18083,7 +18083,7 @@ bool SpriteWarpToUnderwater(DSWActor* actor)
 
         if (TEST(sector[under_sp->sectnum].extra, SECTFX_UNDERWATER) &&
             under_sp->sector()->hasU() &&
-            under_sp->sector()->u()->number == sectu->number)
+            under_sp->sector()->number == sectu->number)
         {
             Found = true;
             break;
@@ -18124,7 +18124,7 @@ bool SpriteWarpToSurface(DSWActor* actor)
 {
     USERp u = actor->u();
     auto sp = &actor->s();
-    SECT_USERp sectu = sp->sector()->u();
+    auto sectu = sp->sector();
     short over, under;
     int sx, sy;
 
@@ -18143,7 +18143,7 @@ bool SpriteWarpToSurface(DSWActor* actor)
 
         if (TEST(sector[under_sp->sectnum].extra, SECTFX_UNDERWATER) &&
             under_sp->sector()->hasU() &&
-            under_sp->sector()->u()->number == sectu->number)
+            under_sp->sector()->number == sectu->number)
         {
             Found = true;
             break;
@@ -18165,7 +18165,7 @@ bool SpriteWarpToSurface(DSWActor* actor)
 
         if (TEST(sector[over_sp->sectnum].extra, SECTFX_DIVE_AREA) &&
             over_sp->sector()->hasU() &&
-            over_sp->sector()->u()->number == sectu->number)
+            over_sp->sector()->number == sectu->number)
         {
             Found = true;
             break;
@@ -18208,7 +18208,7 @@ int SpawnSplash(DSWActor* actor)
     USERp u = actor->u(), wu;
     SPRITEp sp = &actor->s(), wp;
 
-    SECT_USERp sectu = sp->sector()->u();
+    auto sectu = sp->sector();
     SECTORp sectp = sp->sector();
 
     if (Prediction)
@@ -18243,28 +18243,24 @@ int SpawnSplashXY(int hit_x, int hit_y, int hit_z, int sectnum)
 {
     USERp wu;
     SPRITEp wp;
-    //short sectnum=0;
-
-    SECT_USERp sectu;
     SECTORp sectp;
 
     if (Prediction)
         return 0;
 
     sectp = &sector[sectnum];
-    sectu = sectp->hasU() ? sectp->u() : nullptr;
 
-    if (sectu && (TEST(sectp->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_NONE))
+    if (sectp->hasU() && (TEST(sectp->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_NONE))
         return 0;
 
-    if (sectu && TEST(sectp->floorstat, FLOOR_STAT_PLAX))
+    if (sectp->hasU() && TEST(sectp->floorstat, FLOOR_STAT_PLAX))
         return 0;
 
     auto actorNew = SpawnActor(STAT_MISSILE, SPLASH, s_Splash, sectnum, hit_x, hit_y, hit_z, 0, 0);
     wp = &actorNew->s();
     wu = actorNew->u();
 
-    if (sectu && TEST(sectp->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
+    if (sectp->hasU() && TEST(sectp->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
         wu->spal = wp->pal = PALETTE_RED_LIGHTING;
 
     wp->xrepeat = 45;
@@ -19337,7 +19333,7 @@ int DoShrapVelocity(DSWActor* actor)
                     if (TEST(u->Flags, SPR_UNDERWATER))
                         SET(u->Flags, SPR_BOUNCE); // no bouncing underwater
 
-                    if (u->lo_sectp && sp->sector()->hasU() && FixedToInt(sp->sector()->u()->depth_fixed))
+                    if (u->lo_sectp && sp->sector()->hasU() && FixedToInt(sp->sector()->depth_fixed))
                         SET(u->Flags, SPR_BOUNCE); // no bouncing on shallow water
 
                     if (!TEST(u->Flags, SPR_BOUNCE))

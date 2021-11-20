@@ -358,7 +358,7 @@ MorphTornado(SECTOR_OBJECTp sop)
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
     {
         if ((*sectp)->hasU() &&
-            TEST((*sectp)->u()->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT))
+            TEST((*sectp)->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT))
         {
 #define TOR_LOW (floorz)
             if (sop->morph_z > TOR_LOW)
@@ -451,7 +451,7 @@ MorphFloor(SECTOR_OBJECTp sop)
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
     {
         if ((*sectp)->hasU() &&
-            TEST((*sectp)->u()->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT))
+            TEST((*sectp)->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT))
         {
             alignflorslope(sectnum(*sectp), mx, my, floorz + sop->morph_z);
         }
@@ -467,7 +467,7 @@ SOBJ_AlignFloorToPoint(SECTOR_OBJECTp sop, int x, int y, int z)
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
     {
         if ((*sectp)->hasU() &&
-            TEST((*sectp)->u()->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT))
+            TEST((*sectp)->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT))
         {
             alignflorslope(int16_t(sectnum(*sectp)), x, y, z);
         }
@@ -483,7 +483,7 @@ SOBJ_AlignCeilingToPoint(SECTOR_OBJECTp sop, int x, int y, int z)
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
     {
         if ((*sectp)->hasU() &&
-            TEST((*sectp)->u()->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT))
+            TEST((*sectp)->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT))
         {
             alignceilslope(int16_t(sectnum(*sectp)), x, y, z);
         }
@@ -499,7 +499,7 @@ SOBJ_AlignFloorCeilingToPoint(SECTOR_OBJECTp sop, int x, int y, int z)
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
     {
         if ((*sectp)->hasU() &&
-            TEST((*sectp)->u()->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT))
+            TEST((*sectp)->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT))
         {
             alignflorslope(sectnum(*sectp), x, y, z);
             alignceilslope(sectnum(*sectp), x, y, z);

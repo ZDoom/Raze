@@ -748,7 +748,7 @@ int OperateSector(short sectnum, short player_is_operating)
         SPRITEp fsp;
         auto sect = &sector[sectnum];
 
-        if (sect->hasU() && sect->u()->stag == SECT_LOCK_DOOR)
+        if (sect->hasU() && sect->stag == SECT_LOCK_DOOR)
             return false;
 
         SWSectIterator it(sectnum);
@@ -757,7 +757,7 @@ int OperateSector(short sectnum, short player_is_operating)
             fsp = &actor->s();
             auto fsect = fsp->sector();
 
-            if (fsect->hasU() && fsect->u()->stag == SECT_LOCK_DOOR)
+            if (fsect->hasU() && fsect->stag == SECT_LOCK_DOOR)
                 return false;
 
             if (fsp->statnum == STAT_VATOR && SP_TAG1(fsp) == SECT_VATOR && TEST_BOOL7(fsp))
@@ -1648,8 +1648,8 @@ int OperateSprite(DSWActor* actor, short player_is_operating)
         {
             for(auto& sect : sectors())
             {
-                if (sect.hasU() && sect.u()->stag == SECT_LOCK_DOOR && sect.u()->number == key_num)
-                    sect.u()->number = 0;  // unlock all doors of this type
+                if (sect.hasU() && sect.stag == SECT_LOCK_DOOR && sect.number == key_num)
+                    sect.number = 0;  // unlock all doors of this type
             }
             UnlockKeyLock(key_num, actor);
         }
@@ -2048,7 +2048,7 @@ void OperateContinuousTrigger(PLAYERp pp)
 
 short PlayerTakeSectorDamage(PLAYERp pp)
 {
-    SECT_USERp sectu = pp->cursector()->u();
+    auto sectu = pp->cursector();
     USERp u = pp->Actor()->u();
 
     // the calling routine must make sure sectu exists
@@ -2446,11 +2446,10 @@ void PlayerOperateEnv(PLAYERp pp)
     //
     // ////////////////////////////
 
-    SECT_USERp sectu;
-    if (pp->cursectnum >= 0 && (sectu = pp->cursector()->u()) && sectu->damage)
+    SECTORp sectp = pp->cursector();
+    if (pp->cursectnum >= 0 && sectp->hasU() && sectp->damage)
     {
-        SECTORp sectp = pp->cursector();
-        if (TEST(sectu->flags, SECTFU_DAMAGE_ABOVE_SECTOR))
+        if (TEST(sectp->flags, SECTFU_DAMAGE_ABOVE_SECTOR))
         {
             PlayerTakeSectorDamage(pp);
         }

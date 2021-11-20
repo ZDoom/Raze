@@ -1854,7 +1854,7 @@ void SpriteSetup(void)
 
         case ST1:
         {
-            SECT_USERp sectu;
+            sectortype* sectp = sp->sector();
             short tag;
             short bit;
 
@@ -1884,8 +1884,8 @@ void SpriteSetup(void)
 
                 if (TEST(bit, SECTFX_SINK))
                 {
-                    sectu = GetSectUser(sp->sectnum);
-                    sectu->depth_fixed = IntToFixed(sp->lotag);
+                    sectp->u_defined = true;
+                    sectp->depth_fixed = IntToFixed(sp->lotag);
                     KillActor(actor);
                 }
                 else if (TEST(bit, SECTFX_OPERATIONAL))
@@ -1894,9 +1894,9 @@ void SpriteSetup(void)
                 }
                 else if (TEST(bit, SECTFX_CURRENT))
                 {
-                    sectu = GetSectUser(sp->sectnum);
-                    sectu->speed = sp->lotag;
-                    sectu->ang = sp->ang;
+                    sectp->u_defined = true;
+                    sectp->speed = sp->lotag;
+                    sectp->ang = sp->ang;
                     KillActor(actor);
                 }
                 else if (TEST(bit, SECTFX_NO_RIDE))
@@ -1905,22 +1905,22 @@ void SpriteSetup(void)
                 }
                 else if (TEST(bit, SECTFX_DIVE_AREA))
                 {
-                    sectu = GetSectUser(sp->sectnum);
-                    sectu->number = sp->lotag;
+                    sectp->u_defined = true;
+                    sectp->number = sp->lotag;
                     change_actor_stat(actor, STAT_DIVE_AREA);
                 }
                 else if (TEST(bit, SECTFX_UNDERWATER))
                 {
-                    sectu = GetSectUser(sp->sectnum);
-                    sectu->number = sp->lotag;
+                    sectp->u_defined = true;
+                    sectp->number = sp->lotag;
                     change_actor_stat(actor, STAT_UNDERWATER);
                 }
                 else if (TEST(bit, SECTFX_UNDERWATER2))
                 {
-                    sectu = GetSectUser(sp->sectnum);
-                    sectu->number = sp->lotag;
+                    sectp->u_defined = true;
+                    sectp->number = sp->lotag;
                     if (sp->clipdist == 1)
-                        SET(sectu->flags, SECTFU_CANT_SURFACE);
+                        SET(sectp->flags, SECTFU_CANT_SURFACE);
                     change_actor_stat(actor, STAT_UNDERWATER2);
                 }
             }
@@ -1938,26 +1938,25 @@ void SpriteSetup(void)
 #endif
 
                 case SECT_MATCH:
-                    sectu = GetSectUser(sp->sectnum);
-
-                    sectu->number = sp->lotag;
+                    sectp->u_defined = true;
+                    sectp->number = sp->lotag;
 
                     KillActor(actor);
                     break;
 
                 case SLIDE_SECTOR:
-                    sectu = GetSectUser(sp->sectnum);
-                    SET(sectu->flags, SECTFU_SLIDE_SECTOR);
-                    sectu->speed = SP_TAG2(sp);
+                    sectp->u_defined = true;
+                    SET(sectp->flags, SECTFU_SLIDE_SECTOR);
+                    sectp->speed = SP_TAG2(sp);
                     KillActor(actor);
                     break;
 
                 case SECT_DAMAGE:
                 {
-                    sectu = GetSectUser(sp->sectnum);
+                    sectp->u_defined = true;
                     if (TEST_BOOL1(sp))
-                        SET(sectu->flags, SECTFU_DAMAGE_ABOVE_SECTOR);
-                    sectu->damage = sp->lotag;
+                        SET(sectp->flags, SECTFU_DAMAGE_ABOVE_SECTOR);
+                    sectp->damage = sp->lotag;
                     KillActor(actor);
                     break;
                 }
@@ -1979,9 +1978,8 @@ void SpriteSetup(void)
 
                 case SECT_DONT_COPY_PALETTE:
                 {
-                    sectu = GetSectUser(sp->sectnum);
-
-                    SET(sectu->flags, SECTFU_DONT_COPY_PALETTE);
+                    sectp->u_defined = true;
+                    SET(sectp->flags, SECTFU_DONT_COPY_PALETTE);
                     KillActor(actor);
                     break;
                 }
@@ -2156,15 +2154,14 @@ void SpriteSetup(void)
                 case SECT_VATOR:
                 {
                     SECTORp sectp = sp->sector();
-                    SECT_USERp sectu;
                     short speed,vel,time,type,start_on,floor_vator;
                     u = SpawnUser(actor, 0, nullptr);
 
                     // vator already set - ceiling AND floor vator
                     if (TEST(sectp->extra, SECTFX_VATOR))
                     {
-                        sectu = GetSectUser(sp->sectnum);
-                        SET(sectu->flags, SECTFU_VATOR_BOTH);
+                        sectp->u_defined = true;
+                        SET(sectp->flags, SECTFU_VATOR_BOTH);
                     }
                     SET(sectp->extra, SECTFX_VATOR);
                     SetSectorWallBits(sp->sectnum, WALLFX_DONT_STICK, true, true);
@@ -2883,26 +2880,26 @@ void SpriteSetup(void)
 
                 case SECT_SO_DONT_BOB:
                 {
-                    sectu = GetSectUser(sp->sectnum);
-                    SET(sectu->flags, SECTFU_SO_DONT_BOB);
+                    sectp->u_defined = true;
+                    SET(sectp->flags, SECTFU_SO_DONT_BOB);
                     KillActor(actor);
                     break;
                 }
 
                 case SECT_LOCK_DOOR:
                 {
-                    sectu = GetSectUser(sp->sectnum);
-                    sectu->number = sp->lotag;
-                    sectu->stag = SECT_LOCK_DOOR;
+                    sectp->u_defined = true;
+                    sectp->number = sp->lotag;
+                    sectp->stag = SECT_LOCK_DOOR;
                     KillActor(actor);
                     break;
                 }
 
                 case SECT_SO_SINK_DEST:
                 {
-                    sectu = GetSectUser(sp->sectnum);
-                    SET(sectu->flags, SECTFU_SO_SINK_DEST);
-                    sectu->number = sp->lotag;  // acually the offset Z
+                    sectp->u_defined = true;
+                    SET(sectp->flags, SECTFU_SO_SINK_DEST);
+                    sectp->number = sp->lotag;  // acually the offset Z
                     // value
                     KillActor(actor);
                     break;
@@ -2910,34 +2907,34 @@ void SpriteSetup(void)
 
                 case SECT_SO_DONT_SINK:
                 {
-                    sectu = GetSectUser(sp->sectnum);
-                    SET(sectu->flags, SECTFU_SO_DONT_SINK);
+                    sectp->u_defined = true;
+                    SET(sectp->flags, SECTFU_SO_DONT_SINK);
                     KillActor(actor);
                     break;
                 }
 
                 case SO_SLOPE_FLOOR_TO_POINT:
                 {
-                    sectu = GetSectUser(sp->sectnum);
-                    SET(sectu->flags, SECTFU_SO_SLOPE_FLOOR_TO_POINT);
-                    SET(sp->sector()->extra, SECTFX_DYNAMIC_AREA);
+                    sectp->u_defined = true;
+                    SET(sectp->flags, SECTFU_SO_SLOPE_FLOOR_TO_POINT);
+                    SET(sectp->extra, SECTFX_DYNAMIC_AREA);
                     KillActor(actor);
                     break;
                 }
 
                 case SO_SLOPE_CEILING_TO_POINT:
                 {
-                    sectu = GetSectUser(sp->sectnum);
-                    SET(sectu->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT);
-                    SET(sp->sector()->extra, SECTFX_DYNAMIC_AREA);
+                    sectp->u_defined = true;
+                    SET(sectp->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT);
+                    SET(sectp->extra, SECTFX_DYNAMIC_AREA);
                     KillActor(actor);
                     break;
                 }
                 case SECT_SO_FORM_WHIRLPOOL:
                 {
-                    sectu = GetSectUser(sp->sectnum);
-                    sectu->stag = SECT_SO_FORM_WHIRLPOOL;
-                    sectu->height = sp->lotag;
+                    sectp->u_defined = true;
+                    sectp->stag = SECT_SO_FORM_WHIRLPOOL;
+                    sectp->height = sp->lotag;
                     KillActor(actor);
                     break;
                 }
@@ -6729,11 +6726,11 @@ int MissileWaterAdjust(DSWActor* actor)
 {
     USERp u = actor->u();
 
-    if (u->lo_sectp)
+    auto sectp = u->lo_sectp;
+    if (sectp && sectp->hasU())
     {
-        SECT_USERp sectu = u->lo_sectp->u();
-        if (sectu && FixedToInt(sectu->depth_fixed))
-            u->loz -= Z(FixedToInt(sectu->depth_fixed));
+        if (FixedToInt(sectp->depth_fixed))
+            u->loz -= Z(FixedToInt(sectp->depth_fixed));
     }
     return 0;
 }

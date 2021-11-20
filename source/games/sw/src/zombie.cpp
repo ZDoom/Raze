@@ -811,7 +811,7 @@ void SpawnZombie2(DSWActor* actor)
     SPRITEp sp = &actor->s();
     SPRITEp np;
     USERp nu;
-    SECT_USERp sectu = sp->sector()->u();
+    auto sectu = sp->sector();
     SECTORp sectp = sp->sector();
 
     auto ownerActor = GetOwner(actor);

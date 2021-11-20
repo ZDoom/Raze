@@ -65,7 +65,8 @@
 #include <zlib.h>
 
 
-sectortype sectorbackup[MAXSECTORS];
+TArray<sectortype> sectorbackup;
+//TArray<walltype> wallbackup;
 walltype wallbackup[MAXWALLS];
 
 void WriteSavePic(FileWriter* file, int width, int height);
@@ -539,7 +540,7 @@ FSerializer &Serialize(FSerializer &arc, const char *key, sectortype &c, sectort
 			("portalflags", c.portalflags, def->portalflags)
 			("portalnum", c.portalnum, def->portalnum);
 
-		// Save the blood-specific extensions only when playing Blood
+		// Save the extensions only when playing their respective games.
 		if (isDukeLike())
 		{
 			arc("keyinfo", c.keyinfo, def->keyinfo);
@@ -583,8 +584,21 @@ FSerializer &Serialize(FSerializer &arc, const char *key, sectortype &c, sectort
 				("Speed", c.Speed, def->Speed);
 
 		}
+		else if (isSWALL())
+		{
+			arc("flags", c.flags, def->flags)
+				("depth_fixed", c.depth_fixed, def->depth_fixed)
+				("stag", c.stag, def->stag)
+				("ang", c.ang, def->ang)
+				("height", c.height, def->height)
+				("speed", c.speed, def->speed)
+				("damage", c.damage, def->damage)
+				("number", c.number, def->number)
+				("u_defined", c.u_defined, def->u_defined)
+				("flags2", c.flags2, def->flags2);
+		}
 
-			arc.EndObject();
+		arc.EndObject();
 	}
 	return arc;
 }
@@ -676,7 +690,7 @@ void SerializeMap(FSerializer& arc)
 			.SparseArray("sprites", sprite, MAXSPRITES, activeSprites)
 			.SparseArray("spriteext", spriteext, MAXSPRITES, activeSprites)
 			("numsectors", numsectors)
-			.Array("sectors", sector, sectorbackup, numsectors)
+			("sectors", sector, sectorbackup)
 			("numwalls", numwalls)
 			.Array("walls", wall, wallbackup, numwalls)
 			.Array("headspritestat", headspritestat, MAXSTATUS + 1)

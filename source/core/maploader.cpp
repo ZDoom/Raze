@@ -410,7 +410,10 @@ void allocateMapArrays(int numsprites)
 {
 	ClearInterpolations();
 
-	memset(sector, 0, sizeof(*sector) * MAXSECTORS);
+
+	mapDataArena.FreeAll();
+	sector.Resize(numsectors);
+	memset(sector.Data(), 0, sizeof(sectortype) * numsectors);
 	memset(wall, 0, sizeof(*wall) * MAXWALLS);
 	memset(sprite, 0, sizeof(*sprite) * MAXSPRITES);
 	memset(spriteext, 0, sizeof(spriteext_t) * MAXSPRITES);
@@ -519,7 +522,7 @@ void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang,
 
 
 	memcpy(wallbackup, wall, sizeof(wallbackup));
-	memcpy(sectorbackup, sector, sizeof(sectorbackup));
+	sectorbackup = sector;
 }
 
 

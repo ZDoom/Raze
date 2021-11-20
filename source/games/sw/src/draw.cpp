@@ -572,6 +572,7 @@ void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int view
         auto tActor = &swActors[SpriteNum];
         tspriteptr_t tsp = &tsprite[tSpriteNum];
         tu = tActor->hasU()? tActor->u() : nullptr;
+        auto tsectp = tsp->sector();
 
 #if 0
         // Brighten up the sprite if set somewhere else to do so
@@ -665,9 +666,9 @@ void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int view
             }
 
             // set palette lookup correctly
-            if (tsp->pal != tsp->sector()->floorpal)
+            if (tsp->pal != tsectp->floorpal)
             {
-                if (tsp->sector()->floorpal == PALETTE_DEFAULT)
+                if (tsectp->floorpal == PALETTE_DEFAULT)
                 {
                     // default pal for sprite is stored in tu->spal
                     // mostly for players and other monster types
@@ -676,12 +677,11 @@ void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int view
                 else
                 {
                     // if sector pal is something other than default
-                    SECT_USERp sectu = tsp->sector()->u();
-                    uint8_t pal = tsp->sector()->floorpal;
+                    uint8_t pal = tsectp->floorpal;
                     bool nosectpal=false;
 
                     // sprite does not take on the new pal if sector flag is set
-                    if (sectu && TEST(sectu->flags, SECTFU_DONT_COPY_PALETTE))
+                    if (tsectp->hasU() && TEST(tsectp->flags, SECTFU_DONT_COPY_PALETTE))
                     {
                         pal = PALETTE_DEFAULT;
                         nosectpal = true;
@@ -795,10 +795,10 @@ void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int view
             tsp->shade = int8_t(newshade);
         }
 
-        if (TEST(tsp->sector()->ceilingstat, CEILING_STAT_PLAX))
+        if (TEST(tsectp->ceilingstat, CEILING_STAT_PLAX))
         {
             newshade = tsp->shade;
-            newshade += tsp->sector()->ceilingshade;
+            newshade += tsectp->ceilingshade;
             if (newshade > 127) newshade = 127;
             if (newshade < -128) newshade = -128;
             tsp->shade = int8_t(newshade);
@@ -806,7 +806,7 @@ void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int view
         else
         {
             newshade = tsp->shade;
-            newshade += tsp->sector()->floorshade;
+            newshade += tsectp->floorshade;
             if (newshade > 127) newshade = 127;
             if (newshade < -128) newshade = -128;
             tsp->shade = int8_t(newshade);

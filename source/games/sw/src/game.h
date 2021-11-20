@@ -1483,7 +1483,7 @@ enum ShrapType
 
 typedef struct SECT_USER
 {
-    int dist, flags;
+    int _flags;
     int depth_fixed;
     short stag,    // ST? tag number - for certain things it helps to know it
           ang,
@@ -2291,7 +2291,7 @@ struct ANIMstruct
 		case ANIM_Userz:
 			return animactor->u()->sz;
 		case ANIM_SUdepth:
-			return sector[animindex].u()->depth_fixed;
+			return sector[animindex].depth_fixed;
 		default:
 			return animindex;
 		}
@@ -2303,11 +2303,6 @@ extern short AnimCnt;
 
 
 END_SW_NS
-
-inline ShadowWarrior::SECT_USER* sectortype::u() const
-{
-    return ShadowWarrior::SectUser[sectnum(this)].Data();
-}
 
 #endif
 

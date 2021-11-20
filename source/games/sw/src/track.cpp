@@ -818,7 +818,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
             sop->zorig_ceiling[sop->num_sectors] = sect->ceilingz;
 
             if (TEST(sect->extra, SECTFX_SINK))
-                sop->zorig_floor[sop->num_sectors] += Z(FixedToInt(sect->u()->depth_fixed));
+                sop->zorig_floor[sop->num_sectors] += Z(FixedToInt(sect->depth_fixed));
 
             // lowest and highest floorz's
             if (sect->floorz > sop->floor_loz)
@@ -2146,7 +2146,7 @@ void MoveZ(SECTOR_OBJECTp sop)
         // for all sectors
         for (i = 0, sectp = &sop->sectp[0]; *sectp; sectp++, i++)
         {
-            if (sop->sectp[i]->hasU() && TEST(sop->sectp[i]->u()->flags, SECTFU_SO_DONT_BOB))
+            if (sop->sectp[i]->hasU() && TEST(sop->sectp[i]->flags, SECTFU_SO_DONT_BOB))
                 continue;
 
             (*sectp)->floorz = sop->zorig_floor[i] + sop->bob_diff;
@@ -2203,7 +2203,7 @@ void CallbackSOsink(ANIMp ap, void *data)
 
     for (i = 0; sop->sector[i] != -1; i++)
     {
-        if (sop->sectp[i]->hasU() && TEST(sop->sectp[i]->u()->flags, SECTFU_SO_SINK_DEST))
+        if (sop->sectp[i]->hasU() && TEST(sop->sectp[i]->flags, SECTFU_SO_SINK_DEST))
         {
             src_sector = sop->sector[i];
             break;
@@ -2494,7 +2494,7 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
 
             for (i = 0; sop->sector[i] != -1; i++)
             {
-                if (sop->sectp[i]->hasU() && TEST(sop->sectp[i]->u()->flags, SECTFU_SO_SINK_DEST))
+                if (sop->sectp[i]->hasU() && TEST(sop->sectp[i]->flags, SECTFU_SO_SINK_DEST))
                 {
                     dest_sector = sop->sector[i];
                     break;
@@ -2512,7 +2512,7 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
 
             for (i = 0, sectp = &sop->sectp[0]; *sectp; sectp++, i++)
             {
-                if (sop->sectp[i]->hasU() && TEST(sop->sectp[i]->u()->flags, SECTFU_SO_DONT_SINK))
+                if (sop->sectp[i]->hasU() && TEST(sop->sectp[i]->flags, SECTFU_SO_DONT_SINK))
                     continue;
 
                 ndx = AnimSet(ANIM_Floorz, sectnum(*sectp), nullptr, sector[dest_sector].floorz, tpoint->tag_high);
@@ -2534,12 +2534,10 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
             {
                 if ((*sectp)->hasU())
                 {
-                    sectu = (*sectp)->u();
-
-                    if (sectu && sectu->stag == SECT_SO_FORM_WHIRLPOOL)
+                    if ((*sectp) && (*sectp)->stag == SECT_SO_FORM_WHIRLPOOL)
                     {
-                        AnimSet(ANIM_Floorz, sectnum(*sectp), nullptr, (*sectp)->floorz + Z(sectu->height), 128);
-                        (*sectp)->floorshade += sectu->height / 6;
+                        AnimSet(ANIM_Floorz, sectnum(*sectp), nullptr, (*sectp)->floorz + Z((*sectp)->height), 128);
+                        (*sectp)->floorshade += (*sectp)->height / 6;
 
                         RESET((*sectp)->extra, SECTFX_NO_RIDE);
                     }
@@ -2727,7 +2725,7 @@ void OperateSectorObjectForTics(SECTOR_OBJECTp sop, short newang, int newx, int 
         // for all sectors
         for (i = 0, sectp = &sop->sectp[0]; *sectp; sectp++, i++)
         {
-            if (sop->sectp[i]->hasU() && TEST(sop->sectp[i]->u()->flags, SECTFU_SO_DONT_BOB))
+            if (sop->sectp[i]->hasU() && TEST(sop->sectp[i]->flags, SECTFU_SO_DONT_BOB))
                 continue;
 
             (*sectp)->floorz = sop->zorig_floor[i] + sop->bob_diff;

@@ -296,12 +296,12 @@ void DoDebrisCurrent(DSWActor* actor)
     int nx, ny;
     USERp u = actor->u();
     auto sp = &actor->s();
-    SECT_USERp sectu = sp->sector()->u();
+    auto sectp = sp->sector();
 
     //sp->clipdist = (256+128)>>2;
 
-    nx = MulScale((sectu->speed >> 2), bcos(sectu->ang), 14);
-    ny = MulScale((sectu->speed >> 2), bsin(sectu->ang), 14);
+    nx = MulScale((sectp->speed >> 2), bcos(sectp->ang), 14);
+    ny = MulScale((sectp->speed >> 2), bsin(sectp->ang), 14);
 
     Collision ret = move_sprite(actor, nx, ny, 0, u->ceiling_dist, u->floor_dist, 0, ACTORMOVETICS);
 
@@ -310,8 +310,8 @@ void DoDebrisCurrent(DSWActor* actor)
     {
         short rang = RANDOM_P2(2048);
 
-        nx = MulScale((sectu->speed >> 2), bcos(sectu->ang + rang), 14);
-        nx = MulScale((sectu->speed >> 2), bsin(sectu->ang + rang), 14);
+        nx = MulScale((sectp->speed >> 2), bcos(sectp->ang + rang), 14);
+        nx = MulScale((sectp->speed >> 2), bsin(sectp->ang + rang), 14);
 
         move_sprite(actor, nx, ny, 0, u->ceiling_dist, u->floor_dist, 0, ACTORMOVETICS);
     }
@@ -323,20 +323,19 @@ int DoActorSectorDamage(DSWActor* actor)
 {
     USER* u = actor->u();
     SPRITEp sp = &actor->s();
-    SECT_USERp sectu = sp->sector()->u();
     SECTORp sectp = sp->sector();
 
     if (u->Health <= 0)
         return false;
 
-    if (sectu && sectu->damage)
+    if (sectp->hasU() && sectp->damage)
     {
-        if (TEST(sectu->flags, SECTFU_DAMAGE_ABOVE_SECTOR))
+        if (TEST(sectp->flags, SECTFU_DAMAGE_ABOVE_SECTOR))
         {
             if ((u->DamageTics -= synctics) < 0)
             {
                 u->DamageTics = 60;
-                u->Health -= sectu->damage;
+                u->Health -= sectp->damage;
 
                 if (u->Health <= 0)
                 {
@@ -351,7 +350,7 @@ int DoActorSectorDamage(DSWActor* actor)
             if ((u->DamageTics -= synctics) < 0)
             {
                 u->DamageTics = 60;
-                u->Health -= sectu->damage;
+                u->Health -= sectp->damage;
 
                 if (u->Health <= 0)
                 {
@@ -446,7 +445,7 @@ int DoActorDebris(DSWActor* actor)
             }
         }
 
-        if (sp->sector()->hasU() && FixedToInt(sp->sector()->u()->depth_fixed) > 10) // JBF: added null check
+        if (sp->sector()->hasU() && FixedToInt(sp->sector()->depth_fixed) > 10) // JBF: added null check
         {
             u->WaitTics = (u->WaitTics + (ACTORMOVETICS << 3)) & 1023;
             //sp->z = Z(2) + u->loz + ((Z(4) * (int) bsin(u->WaitTics)) >> 14);
@@ -527,7 +526,7 @@ void KeepActorOnFloor(DSWActor* actor)
         return;
 
     if (u->lo_sectp && u->lo_sectp->hasU())
-        depth = FixedToInt(u->lo_sectp->u()->depth_fixed);
+        depth = FixedToInt(u->lo_sectp->depth_fixed);
     else
         depth = 0;
 

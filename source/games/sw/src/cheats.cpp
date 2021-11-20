@@ -241,8 +241,8 @@ static void ItemCheat(int player)
 
     for (auto& sect : sectors())
     {
-        if (sect.hasU() && sect.u()->stag == SECT_LOCK_DOOR)
-            sect.u()->number = 0;  // unlock all doors of this type
+        if (sect.hasU() && sect.stag == SECT_LOCK_DOOR)
+            sect.number = 0;  // unlock all doors of this type
     }
 }
 

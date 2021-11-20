@@ -208,13 +208,17 @@ void CopySectorMatch(short match)
                 }
 
                 // copy sector user if there is one
-                if (src_sp->sector()->hasU() || dest_sp->sector()->hasU())
-                {
-                    SECT_USERp ssectu = GetSectUser(src_sp->sectnum);
-                    SECT_USERp dsectu = GetSectUser(dest_sp->sectnum);
 
-                    memcpy(dsectu, ssectu, sizeof(SECT_USER));
-                }
+                dsectp->flags        = ssectp->flags;
+                dsectp->depth_fixed  = ssectp->depth_fixed;
+                dsectp->stag         = ssectp->stag;
+                dsectp->ang          = ssectp->ang;
+                dsectp->height       = ssectp->height;
+                dsectp->speed        = ssectp->speed;
+                dsectp->damage       = ssectp->damage;
+                dsectp->number       = ssectp->number;
+                dsectp->u_defined    = ssectp->u_defined;
+                dsectp->flags2       = ssectp->flags2;
 
                 dsectp->hitag = ssectp->hitag;
                 dsectp->lotag = ssectp->lotag;

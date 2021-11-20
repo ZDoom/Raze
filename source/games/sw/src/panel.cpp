@@ -6715,17 +6715,17 @@ pDisplaySprites(PLAYERp pp, double smoothratio)
         // if its a weapon sprite and the view is set to the outside don't draw the sprite
         if (TEST(psp->flags, PANF_WEAPON_SPRITE))
         {
-            SECT_USERp sectu = nullptr;
+            sectortype* sectp = nullptr;
             int16_t floorshade = 0;
             if (pp->cursectnum >= 0)
             {
-                sectu = pp->cursector()->u();
-                pal = pp->cursector()->floorpal;
-                floorshade = pp->cursector()->floorshade;
+                sectp = pp->cursector();
+                pal = sectp->floorpal;
+                floorshade = sectp->floorshade;
 
                 if (pal != PALETTE_DEFAULT)
                 {
-                    if (sectu && TEST(sectu->flags, SECTFU_DONT_COPY_PALETTE))
+                    if (sectp->hasU() && TEST(sectp->flags, SECTFU_DONT_COPY_PALETTE))
                         pal = PALETTE_DEFAULT;
                 }
 
@@ -6754,7 +6754,7 @@ pDisplaySprites(PLAYERp pp, double smoothratio)
 
             // !FRANK - this was moved from BELOW this IF statement
             // if it doesn't have a picflag or its in the view
-            if (sectu && TEST(sectu->flags, SECTFU_DONT_COPY_PALETTE))
+            if (sectp && sectp->hasU() && TEST(sectp->flags, SECTFU_DONT_COPY_PALETTE))
                 pal = 0;
         }
 

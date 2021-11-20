@@ -121,7 +121,7 @@ struct sectortype
         struct // SW
         {
             // No need to allocate this on demand as it is smaller than what Blood needs.
-            int dist, flags;
+            int flags;
             int depth_fixed;
             short stag;    // ST? tag number - for certain things it helps to know it
             short ang;
@@ -129,7 +129,7 @@ struct sectortype
             short speed;
             short damage;
             short number;  // usually used for matching number
-            bool defined;
+            bool u_defined;
             uint8_t flags2;
 
         };
@@ -157,8 +157,7 @@ struct sectortype
     void allocX();
 
     // same for SW
-    ShadowWarrior::SECT_USER* u() const;
-    bool hasU() const { return u() != nullptr; }
+    bool hasU() const { return u_defined; }
 
 
 

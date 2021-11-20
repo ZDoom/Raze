@@ -194,7 +194,7 @@ void so_addinterpolation(SECTOR_OBJECTp sop)
         }
 
 
-        SWSectIterator it(int(*sectp - sector));
+        SWSectIterator it(*sectp);
         while (auto actor = it.Next())
             if (actor->s().statnum == STAT_VATOR && SP_TAG1(&actor->s()) == SECT_VATOR)
             {

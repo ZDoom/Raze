@@ -43,7 +43,7 @@
 spriteext_t spriteext[MAXSPRITES];
 spritesmooth_t spritesmooth[MAXSPRITES + MAXUNIQHUDID];
 
-sectortype sector[MAXSECTORS];
+TArray<sectortype> sector;
 walltype wall[MAXWALLS];
 spritetype sprite[MAXSPRITES];
 

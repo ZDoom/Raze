@@ -147,7 +147,7 @@ struct usermaphack_t
 extern spriteext_t spriteext[MAXSPRITES];
 extern spritesmooth_t spritesmooth[MAXSPRITES + MAXUNIQHUDID];
 
-extern sectortype sector[MAXSECTORS];
+extern TArray<sectortype> sector;
 extern walltype wall[MAXWALLS];
 extern spritetype sprite[MAXSPRITES];
 EXTERN int leveltimer;
@@ -182,10 +182,9 @@ inline walltype* sectortype::firstWall() const
 }
 
 
-extern sectortype sectorbackup[MAXSECTORS];
+extern TArray<sectortype> sectorbackup;
+//extern TArray<walltype> wallbackup;
 extern walltype wallbackup[MAXWALLS];
-
-extern bool inpreparemirror;
 
 inline tspriteptr_t renderAddTSpriteFromSprite(spritetype* tsprite, int& spritesortcnt, uint16_t const spritenum)
 {
@@ -212,7 +211,7 @@ EXTERN int32_t xdim, ydim;
 EXTERN int32_t yxaspect, viewingrange;
 
 EXTERN int32_t Numsprites;
-EXTERN int16_t numsectors, numwalls;
+EXTERN int numsectors, numwalls;
 EXTERN int32_t display_mirror;
 
 inline bool validSectorIndex(int sectnum)
@@ -442,7 +441,7 @@ int32_t try_facespr_intersect(uspriteptr_t const spr, vec3_t const in,
 void updatesector(int const x, int const y, int * const sectnum) ATTRIBUTE((nonnull(3)));
 inline void updatesector(int const x, int const y, sectortype** const sectp)
 {
-	int sectno = *sectp? (*sectp) - sector : -1;
+	int sectno = *sectp? sector.IndexOf(*sectp) : -1;
 	updatesector(x, y, &sectno);
 	*sectp = sectno == -1? nullptr : &sector[sectno];
 }
@@ -496,7 +495,7 @@ inline sectortype* nextsectorneighborzptr(int16_t sectnum, int32_t refz, int16_t
 
 inline sectortype* nextsectorneighborzptr(sectortype* sectp, int32_t refz, int16_t topbottom, int16_t direction)
 {
-	auto sect = nextsectorneighborz(int(sectp - sector), refz, topbottom, direction);
+	auto sect = nextsectorneighborz(sector.IndexOf(sectp), refz, topbottom, direction);
 	return sect == -1? nullptr : &sector[sect];
 }
 

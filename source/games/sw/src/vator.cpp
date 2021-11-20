@@ -174,11 +174,11 @@ void DoVatorOperate(PLAYERp pp, short sectnum)
                 return;
             }
 
-            if (pp && fsect->hasU() && fsect->u()->stag == SECT_LOCK_DOOR && fsect->u()->number)
+            if (pp && fsect->hasU() && fsect->stag == SECT_LOCK_DOOR && fsect->number)
             {
                 short key_num;
 
-                key_num = fsect->u()->number;
+                key_num = fsect->number;
 
                 {
                     PutStringInfo(pp, quoteMgr.GetQuote(QUOTE_DOORMSG + key_num - 1));
@@ -218,9 +218,9 @@ void DoVatorMatch(PLAYERp pp, short match)
 
             // lock code
             auto fsect = fsp->sector();
-            if (pp && fsect->hasU() && fsect->u()->stag == SECT_LOCK_DOOR && fsect->u()->number)
+            if (pp && fsect->hasU() && fsect->stag == SECT_LOCK_DOOR && fsect->number)
             {
-                int key_num = fsect->u()->number;
+                int key_num = fsect->number;
 
                 {
                     PutStringInfo(pp, quoteMgr.GetQuote(QUOTE_DOORMSG + key_num - 1));
@@ -301,7 +301,7 @@ void MoveSpritesWithSector(int sectnum, int z_amt, bool type)
     bool both = false;
     auto sect = &sector[sectnum];
     if ( sect->hasU())
-        both = !!TEST(sect->u()->flags, SECTFU_VATOR_BOTH);
+        both = !!TEST(sect->flags, SECTFU_VATOR_BOTH);
 
     SWSectIterator it(sectnum);
     while (auto actor = it.Next())
