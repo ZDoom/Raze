@@ -292,7 +292,7 @@ void ms(DDukeActor* const actor)
 	int j = actor->temp_data[1];
 	int k = actor->temp_data[2];
 
-	for(auto& wal : wallsofsector(s->sectnum))
+	for(auto& wal : wallsofsector(actor->sector()))
 	{
 		rotatepoint(
 			0, 0,
@@ -1859,15 +1859,15 @@ void ooz(DDukeActor *actor)
 //
 //---------------------------------------------------------------------------
 
-void reactor(DDukeActor* actor, int REACTOR, int REACTOR2, int REACTORBURNT, int REACTOR2BURNT, int REACTORSPARK, int REACTOR2SPARK)
+void reactor(DDukeActor* const actor, int REACTOR, int REACTOR2, int REACTORBURNT, int REACTOR2BURNT, int REACTORSPARK, int REACTOR2SPARK)
 {
-	spritetype* s = actor->s;
+	spritetype* const s = actor->s;
 	int* t = &actor->temp_data[0];
 	auto sectp = s->sector();
 
 	if (t[4] == 1)
 	{
-		DukeSectIterator it(s->sectnum);
+		DukeSectIterator it(actor->sector());
 		while (auto act2 = it.Next())
 		{
 			auto sprj = act2->s;
@@ -1958,7 +1958,7 @@ void reactor(DDukeActor* actor, int REACTOR, int REACTOR2, int REACTORBURNT, int
 		case 10:
 		case 15:
 		{
-			DukeSectIterator it(s->sectnum);
+			DukeSectIterator it(actor->sector());
 			while (auto a2 = it.Next())
 			{
 				if (a2 != actor)
@@ -2830,7 +2830,7 @@ void handle_se01(DDukeActor *actor)
 
 void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 {
-	auto s = actor->s;
+	auto const s = actor->s;
 	int* t = &actor->temp_data[0];
 	auto sc = actor->sector();
 	int st = s->lotag;
@@ -2959,7 +2959,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 				}
 			}
 		}
-		DukeSectIterator it(s->sectnum);
+		DukeSectIterator it(actor->sector());
 		while (auto a2 = it.Next())
 		{
 			auto sj = a2->s;
@@ -3203,9 +3203,9 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 //
 //---------------------------------------------------------------------------
 
-void handle_se02(DDukeActor *actor)
+void handle_se02(DDukeActor* actor)
 {
-	auto s = actor->s;
+	auto const s = actor->s;
 	int* t = &actor->temp_data[0];
 	auto sc = actor->sector();
 	int sh = s->hitag;
@@ -3257,7 +3257,7 @@ void handle_se02(DDukeActor *actor)
 				ps[p].bobposy += x;
 			}
 
-		DukeSectIterator it(s->sectnum);
+		DukeSectIterator it(actor->sector());
 		while (auto a2 = it.Next())
 		{
 			auto sj = a2->s;
@@ -3377,7 +3377,7 @@ void handle_se04(DDukeActor *actor)
 		}
 	}
 
-	DukeSectIterator it(s->sectnum);
+	DukeSectIterator it(actor->sector());
 	while (auto a2 = it.Next())
 	{
 		auto sj = a2->s;
@@ -3748,7 +3748,7 @@ void handle_se12(DDukeActor *actor, int planeonly)
 		}
 		else t[0] = 2;
 
-		DukeSectIterator it(s->sectnum);
+		DukeSectIterator it(actor->sector());
 		while (auto a2 = it.Next())
 		{
 			if (a2->s->cstat & 16)
@@ -3898,7 +3898,7 @@ void handle_se16(DDukeActor* actor, int REACTOR, int REACTOR2)
 		//If there isn't, then kill this sectoreffector
 		//itself.....
 
-		DukeSectIterator it(s->sectnum);
+		DukeSectIterator it(actor->sector());
 		DDukeActor* a2;
 		while ((a2 = it.Next()))
 		{
@@ -3938,7 +3938,7 @@ void handle_se17(DDukeActor* actor)
 	sc->ceilingz += q;
 	sc->floorz += q;
 
-	DukeSectIterator it(s->sectnum);
+	DukeSectIterator it(actor->sector());
 	while (auto act1 = it.Next())
 	{
 		if (act1->s->statnum == STAT_PLAYER && act1->GetOwner())
@@ -4263,7 +4263,7 @@ void handle_se20(DDukeActor* actor)
 			return;
 		}
 
-		DukeSectIterator it(s->sectnum);
+		DukeSectIterator it(actor->sector());
 		while (auto a2 = it.Next())
 		{
 			if (a2->s->statnum != 3 && a2->s->zvel == 0)
@@ -4386,7 +4386,7 @@ void handle_se26(DDukeActor* actor)
 	else
 		sc->floorz += s->zvel;
 
-	DukeSectIterator it(s->sectnum);
+	DukeSectIterator it(actor->sector());
 	while (auto a2 = it.Next())
 	{
 		if (a2->s->statnum != 3 && a2->s->statnum != 10)
@@ -4817,7 +4817,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 					int l = Sgn(s->z - sec->floorz) * s->yvel;
 					sec->floorz += l;
 
-					DukeSectIterator it(s->sectnum);
+					DukeSectIterator it(actor->sector());
 					while (auto a2 = it.Next())
 					{
 						if (a2->s->picnum == TILE_APLAYER && a2->GetOwner())
@@ -4846,7 +4846,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 					int l = Sgn(t[1] - sec->floorz) * s->yvel;
 					sec->floorz += l;
 
-					DukeSectIterator it(s->sectnum);
+					DukeSectIterator it(actor->sector());
 					while (auto a2 = it.Next())
 					{
 						if (a2->s->picnum == TILE_APLAYER && a2->GetOwner())
@@ -4877,7 +4877,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 				int l = Sgn(s->z - sec->floorz) * s->yvel;
 				sec->floorz += l;
 
-				DukeSectIterator it(s->sectnum);
+				DukeSectIterator it(actor->sector());
 				while (auto a2 = it.Next())
 				{
 					if (a2->s->picnum == TILE_APLAYER && a2->GetOwner())
@@ -4905,7 +4905,7 @@ void handle_se31(DDukeActor* actor, bool choosedir)
 				int l = Sgn(s->z - t[1]) * s->yvel;
 				sec->floorz -= l;
 
-				DukeSectIterator it(s->sectnum);
+				DukeSectIterator it(actor->sector());
 				while (auto a2 = it.Next())
 				{
 					if (a2->s->picnum ==TILE_APLAYER && a2->GetOwner())

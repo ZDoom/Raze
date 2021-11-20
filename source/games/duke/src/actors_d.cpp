@@ -2596,7 +2596,7 @@ static void greenslime(DDukeActor *actor)
 	//Check randomly to see of there is an actor near
 	if (rnd(32))
 	{
-		DukeSectIterator it(s->sectnum);
+		DukeSectIterator it(actor->sector());
 		while (auto a2 = it.Next())
 		{
 			if (gs.actorinfo[a2->s->picnum].flags & SFLAG_GREENSLIMEFOOD)

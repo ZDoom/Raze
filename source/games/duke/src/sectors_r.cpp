@@ -1098,7 +1098,7 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 				act->spriteextra++;
 				if (act->spriteextra == 25)
 				{
-					for(auto& wl : wallsofsector(s->sectnum))
+					for(auto& wl : wallsofsector(act->sector()))
 					{
 						if (wl.nextsector >= 0) wl.nextSector()->lotag = 0;
 					}

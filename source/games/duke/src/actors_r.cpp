@@ -3404,7 +3404,7 @@ void handle_se06_r(DDukeActor *actor)
 	else
 	{
 		s->xvel = k;
-		DukeSectIterator it(s->sectnum);
+		DukeSectIterator it(actor->sector());
 		while (auto a2 = it.Next())
 		{
 			if (a2->s->picnum == UFOBEAM && ufospawn && ++ufocnt == 64)
