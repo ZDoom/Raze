@@ -267,9 +267,8 @@ void SerializeAutomap(FSerializer& arc)
 	{
 		arc("automapping", automapping)
 			("fullmap", gFullMap)
-			// Only store what's needed. Unfortunately for sprites it is not that easy
-			.SerializeMemory("mappedsectors", show2dsector.Storage().Data(), (numsectors + 7) / 8)
-			.SerializeMemory("mappedwalls", show2dwall.Storage().Data(), (numwalls + 7) / 8)
+			("mappedsectors", show2dsector)
+			("mappedwalls", show2dwall)
 			.EndObject();
 	}
 }
