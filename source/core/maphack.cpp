@@ -117,7 +117,7 @@ static int32_t LoadMapHack(const char *filename)
             if (sc.CheckNumber())
             {
                 currentwall = sc.Number;
-                if (currentwall < 0 || currentwall >= MAXWALLS)
+                if (!validWallIndex(currentwall))
                 {
                     sc.ScriptMessage("Invalid wall number %d", currentwall);
                     currentwall = -1;
@@ -132,7 +132,7 @@ static int32_t LoadMapHack(const char *filename)
             if (sc.CheckNumber())
             {
                 currentsector = sc.Number;
-                if (currentsector < 0 || currentsector >= MAXSECTORS)
+                if (!validSectorIndex(currentsector))
                 {
                     sc.ScriptMessage("Invalid sector number %d", currentsector);
                     currentsector = -1;

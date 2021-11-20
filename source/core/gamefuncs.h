@@ -265,7 +265,7 @@ inline TArrayView<walltype> wallsofsector(int sec)
 // these are mainly meant as refactoring aids to mark function calls to work on.
 inline int wallnum(const walltype* wal)
 {
-	return int(wal - wall);
+	return wall.IndexOf(wal);
 }
 
 inline int sectnum(const sectortype* sect)

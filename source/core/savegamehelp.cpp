@@ -66,8 +66,7 @@
 
 
 TArray<sectortype> sectorbackup;
-//TArray<walltype> wallbackup;
-walltype wallbackup[MAXWALLS];
+TArray<walltype> wallbackup;
 
 void WriteSavePic(FileWriter* file, int width, int height);
 bool WriteZip(const char* filename, TArray<FString>& filenames, TArray<FCompressedBuffer>& content);
@@ -692,7 +691,7 @@ void SerializeMap(FSerializer& arc)
 			("numsectors", numsectors)
 			("sectors", sector, sectorbackup)
 			("numwalls", numwalls)
-			.Array("walls", wall, wallbackup, numwalls)
+			("walls", wall, wallbackup)
 			.Array("headspritestat", headspritestat, MAXSTATUS + 1)
 			.Array("nextspritestat", nextspritestat, MAXSPRITES)
 			.Array("prevspritestat", prevspritestat, MAXSPRITES)

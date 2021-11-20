@@ -2268,7 +2268,7 @@ void polymost_drawrooms()
     maskwallcnt = 0;
 
     // NOTE: globalcursectnum has been already adjusted in ADJUST_GLOBALCURSECTNUM.
-    assert((unsigned)globalcursectnum < MAXSECTORS);
+    assert(validSectorIndex(globalcursectnum));
     polymost_scansector(globalcursectnum);
 
     grhalfxdown10x = grhalfxdown10;

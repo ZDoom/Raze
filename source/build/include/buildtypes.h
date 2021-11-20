@@ -56,11 +56,6 @@ BEGIN_BLD_NS
     class DBloodActor;
 END_BLD_NS
 
-namespace ShadowWarrior
-{
-    struct SECT_USER;
-};
-
 //40 bytes
 struct walltype;
 struct sectortype

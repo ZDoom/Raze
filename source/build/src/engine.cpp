@@ -44,7 +44,7 @@ spriteext_t spriteext[MAXSPRITES];
 spritesmooth_t spritesmooth[MAXSPRITES + MAXUNIQHUDID];
 
 TArray<sectortype> sector;
-walltype wall[MAXWALLS];
+TArray<walltype> wall;
 spritetype sprite[MAXSPRITES];
 
 int32_t r_rortexture = 0;

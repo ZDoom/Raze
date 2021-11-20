@@ -414,7 +414,8 @@ void allocateMapArrays(int numsprites)
 	mapDataArena.FreeAll();
 	sector.Resize(numsectors);
 	memset(sector.Data(), 0, sizeof(sectortype) * numsectors);
-	memset(wall, 0, sizeof(*wall) * MAXWALLS);
+	wall.Resize(numwalls);
+	memset(wall.Data(), 0, sizeof(walltype) * numwalls);
 	memset(sprite, 0, sizeof(*sprite) * MAXSPRITES);
 	memset(spriteext, 0, sizeof(spriteext_t) * MAXSPRITES);
 	memset(spritesmooth, 0, sizeof(spritesmooth_t) * (MAXSPRITES + MAXUNIQHUDID));
@@ -443,11 +444,9 @@ void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang,
 
 	// Get the basics out before loading the data so that we can set up the global storage.
 	numsectors = fr.ReadUInt16();
-	if ((unsigned)numsectors > MAXSECTORS) I_Error("%s: Invalid map, too many sectors", filename);
 	auto sectorpos = fr.Tell();
 	fr.Seek((mapversion == 5 ? sectorsize5 : mapversion == 6 ? sectorsize6 : sectorsize7) * numsectors, FileReader::SeekCur);
 	numwalls = fr.ReadUInt16();
-	if ((unsigned)numwalls > MAXWALLS) I_Error("%s: Invalid map, too many walls", filename);
 	auto wallpos = fr.Tell();
 	fr.Seek((mapversion == 5 ? wallsize5 : mapversion == 6 ? wallsize6 : wallsize7)* numwalls, FileReader::SeekCur);
 	int numsprites = fr.ReadUInt16();
@@ -521,7 +520,7 @@ void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang,
 	sectorGeometry.SetSize(numsections);
 
 
-	memcpy(wallbackup, wall, sizeof(wallbackup));
+	wallbackup = wall;
 	sectorbackup = sector;
 }
 

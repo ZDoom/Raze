@@ -148,7 +148,7 @@ extern spriteext_t spriteext[MAXSPRITES];
 extern spritesmooth_t spritesmooth[MAXSPRITES + MAXUNIQHUDID];
 
 extern TArray<sectortype> sector;
-extern walltype wall[MAXWALLS];
+extern TArray<walltype> wall;
 extern spritetype sprite[MAXSPRITES];
 EXTERN int leveltimer;
 
@@ -183,8 +183,7 @@ inline walltype* sectortype::firstWall() const
 
 
 extern TArray<sectortype> sectorbackup;
-//extern TArray<walltype> wallbackup;
-extern walltype wallbackup[MAXWALLS];
+extern TArray<walltype> wallbackup;
 
 inline tspriteptr_t renderAddTSpriteFromSprite(spritetype* tsprite, int& spritesortcnt, uint16_t const spritenum)
 {

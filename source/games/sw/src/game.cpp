@@ -454,11 +454,9 @@ void TerminateLevel(void)
         KillActor(actor);
     }
 
-    // Free SectUser memory
-
     TRAVERSE_CONNECT(pnum)
     {
-        PLAYERp pp = Player + pnum;
+        PLAYERp pp = &Player[pnum];
 
         // Free panel sprites for players
         pClearSpriteList(pp);
