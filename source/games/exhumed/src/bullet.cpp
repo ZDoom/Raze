@@ -313,7 +313,7 @@ int MoveBullet(short nBullet)
     int x = pSprite->x;
     int y = pSprite->y;
     int z = pSprite->z; // ebx
-    short nSectFlag = SectFlag[pSprite->sectnum];
+    short nSectFlag = pSprite->sector()->Flag;
 
     int x2, y2, z2;
 
@@ -412,7 +412,7 @@ MOVEEND:
         nVal = coll.type || coll.exbits? 1:0;
 
         // pSprite->sectnum may have changed since we set nSectFlag ?
-        short nFlagVal = nSectFlag ^ SectFlag[pSprite->sectnum];
+        short nFlagVal = nSectFlag ^ pSprite->sector()->Flag;
         if (nFlagVal & kSectUnderwater)
         {
             DestroyBullet(nBullet);
@@ -504,7 +504,8 @@ HITWALL:
         {
             if (hitactor == nullptr && hitwall < 0)
             {
-                if ((SectBelow[hitsect] >= 0 && (SectFlag[SectBelow[hitsect]] & kSectUnderwater)) || SectDepth[hitsect])
+                auto pHitSect = &sector[hitsect];
+                if ((pHitSect->Below >= 0 && (sector[pHitSect->Below].Flag & kSectUnderwater)) || pHitSect->Depth)
                 {
                     pSprite->x = x2;
                     pSprite->y = y2;
@@ -711,13 +712,13 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int n
 
     while (pBulletSprite->z < sector[nSector].ceilingz)
     {
-        if (SectAbove[nSector] == -1)
+        if (sector[nSector].Above == -1)
         {
             pBulletSprite->z = sector[nSector].ceilingz;
             break;
         }
 
-        nSector = SectAbove[nSector];
+        nSector = sector[nSector].Above;
         ChangeActorSect(pBulletActor, nSector);
     }
 

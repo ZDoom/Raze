@@ -217,7 +217,7 @@ void AIWasp::Tick(RunListEvent* ev)
     {
         pTarget = pActor->pTarget;
 
-        if (pTarget && (!(pTarget->s().cstat & 0x101) || (SectFlag[pTarget->s().sectnum] & kSectUnderwater)))
+        if (pTarget && (!(pTarget->s().cstat & 0x101) || (pTarget->s().sector()->Flag & kSectUnderwater)))
         {
             // goto pink
             pActor->pTarget = nullptr;
@@ -344,7 +344,7 @@ void AIWasp::Tick(RunListEvent* ev)
 
         if (pSprite->z >= sector[nSector].floorz)
         {
-            if (SectBelow[nSector] > -1)
+            if (sector[nSector].Below > -1)
             {
                 BuildSplash(pActor, nSector);
                 pSprite->cstat |= 0x8000;

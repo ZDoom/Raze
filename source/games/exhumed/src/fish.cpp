@@ -326,7 +326,7 @@ void AIFish::Tick(RunListEvent* ev)
 
     short nAction = pActor->nAction;
 
-    if (!(SectFlag[pSprite->sectnum] & kSectUnderwater))
+    if (!(pSprite->sector()->Flag & kSectUnderwater))
     {
         Gravity(pActor);
     }
@@ -442,7 +442,7 @@ void AIFish::Tick(RunListEvent* ev)
     // loc_2EF54
     Collision coll = movesprite(pActor, pSprite->xvel << 13, pSprite->yvel << 13, pSprite->zvel << 2, 0, 0, CLIPMASK0);
 
-    if (!(SectFlag[pSprite->sectnum] & kSectUnderwater))
+    if (!(pSprite->sector()->Flag & kSectUnderwater))
     {
         ChangeActorSect(pActor, nSector);
         pSprite->x = x;

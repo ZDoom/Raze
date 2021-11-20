@@ -97,7 +97,7 @@ void AIBubble::Tick(RunListEvent* ev)
 
     if (pSprite->z <= sector[nSector].ceilingz)
     {
-        int nSectAbove = SectAbove[nSector];
+        int nSectAbove = sector[nSector].Above;
 
         if (pSprite->hitag > -1 && nSectAbove != -1) {
             BuildAnim(nullptr, 70, 0, pSprite->x, pSprite->y, sector[nSectAbove].floorz, nSectAbove, 64, 0);

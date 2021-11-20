@@ -237,7 +237,7 @@ int BelowNear(DExhumedActor* pActor, int x, int y, int walldist, int nSector)
     }
     else
     {
-        z2 = sector[nSector].floorz + SectDepth[nSector];
+        z2 = sector[nSector].floorz + sector[nSector].Depth;
 
         BFSSearch search(numsectors, nSector);
 
@@ -265,10 +265,10 @@ int BelowNear(DExhumedActor* pActor, int x, int y, int walldist, int nSector)
             while (nSect2 >= 0)
             {
                 edx = nSect2;
-                nSect2 = SectBelow[nSect2];
+                nSect2 = sector[nSect2].Below;
             }
 
-            int ecx = sector[edx].floorz + SectDepth[edx];
+            int ecx = sector[edx].floorz + sector[edx].Depth;
             int eax = ecx - z;
 
             if (eax < 0 && eax >= -5120)
@@ -312,7 +312,7 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
 
     Collision nRet(0);
 
-    short nSectFlags = SectFlag[nSector];
+    short nSectFlags = sector[nSector].Flag;
 
     if (nSectFlags & kSectUnderwater) {
         z >>= 1;
@@ -329,18 +329,16 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
     }
 
     // loc_151E7:
-    while (ebp > pSprite->sector()->floorz && SectBelow[pSprite->sectnum] >= 0)
+    while (ebp > pSprite->sector()->floorz && pSprite->sector()->Below >= 0)
     {
-        edi = SectBelow[pSprite->sectnum];
-
-        ChangeActorSect(pActor, edi);
+        ChangeActorSect(pActor, pSprite->sector()->Below);
     }
 
     if (edi != nSector)
     {
         pSprite->z = ebp;
 
-        if (SectFlag[edi] & kSectUnderwater)
+        if (sector[edi].Flag & kSectUnderwater)
         {
             if (pActor == PlayerList[nLocalPlayer].Actor()) {
                 D3PlayFX(StaticSound[kSound2], pActor);
@@ -353,9 +351,9 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
     }
     else
     {
-        while ((ebp < pSprite->sector()->ceilingz) && (SectAbove[pSprite->sectnum] >= 0))
+        while ((ebp < pSprite->sector()->ceilingz) && (pSprite->sector()->Above >= 0))
         {
-            edi = SectAbove[pSprite->sectnum];
+            edi = pSprite->sector()->Above;
 
             ChangeActorSect(pActor, edi);
         }
@@ -374,7 +372,7 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
     int mySprfloor = sprfloor;
 
     if (loHit.type != kHitSprite) {
-        mySprfloor += SectDepth[pSprite->sectnum];
+        mySprfloor += pSprite->sector()->Depth;
     }
 
     if (ebp > mySprfloor)
@@ -415,11 +413,11 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
             else
             {
                 // Path B
-                if (SectBelow[pSprite->sectnum] == -1)
+                if (pSprite->sector()->Below == -1)
                 {
                     nRet.exbits |= kHitAux2;
 
-                    short nSectDamage = SectDamage[pSprite->sectnum];
+                    int nSectDamage = pSprite->sector()->Damage;
 
                     if (nSectDamage != 0)
                     {
@@ -446,7 +444,7 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
     }
     else
     {
-        if ((ebp - height) < sprceiling && (hiHit.type == kHitSprite || SectAbove[pSprite->sectnum] == -1))
+        if ((ebp - height) < sprceiling && (hiHit.type == kHitSprite || pSprite->sector()->Above == -1))
         {
             ebp = sprceiling + height;
             nRet.exbits |= kHitAux1;
@@ -455,7 +453,7 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
 
     if (spriteZ <= floorZ && ebp > floorZ)
     {
-        if ((SectDepth[nSector] != 0) || (edi != nSector && (SectFlag[edi] & kSectUnderwater)))
+        if ((sector[nSector].Depth != 0) || (edi != nSector && (sector[edi].Flag & kSectUnderwater)))
         {
             assert(validSectorIndex(nSector));
             BuildSplash(pActor, nSector);
@@ -503,7 +501,7 @@ Collision movesprite(DExhumedActor* pActor, int dx, int dy, int dz, int ceildist
 
     int floorZ = sector[nSector].floorz;
 
-    if ((SectFlag[nSector] & kSectUnderwater) || (floorZ < z))
+    if ((sector[nSector].Flag & kSectUnderwater) || (floorZ < z))
     {
         dx >>= 1;
         dy >>= 1;
@@ -574,7 +572,7 @@ void Gravity(DExhumedActor* actor)
     auto pSprite = &actor->s();
     int nSector =pSprite->sectnum;
 
-    if (SectFlag[nSector] & kSectUnderwater)
+    if (sector[nSector].Flag & kSectUnderwater)
     {
         if (pSprite->statnum != 100)
         {
@@ -628,26 +626,26 @@ Collision MoveCreatureWithCaution(DExhumedActor* pActor)
     int x = pSprite->x;
     int y = pSprite->y;
     int z = pSprite->z;
-    short nSectorPre = pSprite->sectnum;
+    auto pSectorPre = pSprite->sector();
 
     auto ecx = MoveCreature(pActor);
 
-    int nSector =pSprite->sectnum;
+    auto pSector =pSprite->sector();
 
-    if (nSector != nSectorPre)
+    if (pSector != pSectorPre)
     {
-        int zDiff = sector[nSectorPre].floorz - sector[nSector].floorz;
+        int zDiff = pSectorPre->floorz - pSector->floorz;
         if (zDiff < 0) {
             zDiff = -zDiff;
         }
 
-        if (zDiff > 15360 || (SectFlag[nSector] & kSectUnderwater) || (SectBelow[nSector] > -1 && SectFlag[SectBelow[nSector]]) || SectDamage[nSector])
+        if (zDiff > 15360 || (pSector->Flag & kSectUnderwater) || (pSector->Below > -1 && sector[pSector->Below].Flag) || pSector->Damage)
         {
             pSprite->x = x;
             pSprite->y = y;
             pSprite->z = z;
 
-            ChangeActorSect(pActor, nSectorPre);
+            ChangeActorSect(pActor, sectnum(pSectorPre));
 
             pSprite->ang = (pSprite->ang + 256) & kAngleMask;
             pSprite->xvel = bcos(pSprite->ang, -2);
@@ -750,13 +748,14 @@ DExhumedActor* FindPlayer(DExhumedActor* pActor, int nDistance, bool dontengage)
 
 void CheckSectorFloor(int nSector, int z, int *x, int *y)
 {
-    short nSpeed = SectSpeed[nSector];
+    auto pSector = &sector[nSector];
+    int nSpeed = pSector->Speed;
 
     if (!nSpeed) {
         return;
     }
 
-    short nFlag = SectFlag[nSector];
+    short nFlag = pSector->Flag;
     short nAng = nFlag & kAngleMask;
 
     if (z >= sector[nSector].floorz)
@@ -891,7 +890,7 @@ void MoveSector(int nSector, int nAngle, int *nXVel, int *nYVel)
  
 
     short nBlock = pSector->extra;
-    short nSectFlag = SectFlag[nSector];
+    short nSectFlag = sector[nSector].Flag;
 
     int nFloorZ = pSector->floorz;
     int startwall = pSector->wallptr;

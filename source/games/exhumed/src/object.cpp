@@ -2199,7 +2199,7 @@ void DoDrips()
 
             short nSeqOffset = SeqOffsets[kSeqDrips];
 
-            if (!(SectFlag[pSprite->sectnum] & kSectLava)) {
+            if (!(pSprite->sector()->Flag & kSectLava)) {
                 nSeqOffset++;
             }
 
@@ -2293,7 +2293,7 @@ void AddSectorBob(int nSector, int nHitag, int bx)
     sBob[nBobs].nSector = nSector;
     StartInterpolation(nSector, bx == 0 ? Interp_Sect_Floorz : Interp_Sect_Ceilingz);
 
-    SectFlag[nSector] |= 0x0010;
+    sector[nSector].Flag |= 0x0010;
 }
 
 int FindTrail(int nVal)
@@ -2555,7 +2555,7 @@ void PostProcess()
 
         int nSector =sMoveSect[i].nSector;
 
-        if (SectFlag[nSector] & kSectUnderwater)
+        if (sector[nSector].Flag & kSectUnderwater)
         {
             sector[nSector].ceilingstat |= 0x40;
             sector[nSector].floorstat &= 0xBFFF;
@@ -2596,30 +2596,32 @@ void PostProcess()
         // esi is i
         for (i = 0; i < numsectors; i++)
         {
+            auto secti = &sector[i];
             int var_20 = 30000;
 
-            if (SectSpeed[i] && SectDepth[i] && !(SectFlag[i] & kSectLava))
+            if (secti->Speed && secti->Depth && !(secti->Flag & kSectLava))
             {
-                SectSoundSect[i] = i;
-                SectSound[i] = StaticSound[kSound43];
+                secti->SoundSect = i;
+                secti->Sound = StaticSound[kSound43];
             }
             else
             {
                 // ebp and ecx are j
                 for (j = 0; j < numsectors; j++)
                 {
+                    auto sectj = &sector[j];
                     // loc_23CA6:
 
-                    if (i != j && SectSpeed[j] && !(SectFlag[i] & kSectLava))
+                    if (i != j && sectj->Speed && !(secti->Flag & kSectLava))
                     {
-						int xVal = abs(sector[i].firstWall()->x - sector[j].firstWall()->x);
-						int yVal = abs(sector[i].firstWall()->y - sector[j].firstWall()->y);
+						int xVal = abs(secti->firstWall()->x - sectj->firstWall()->x);
+						int yVal = abs(secti->firstWall()->y - sectj->firstWall()->y);
 
                         if (xVal < 15000 && yVal < 15000 && (xVal + yVal < var_20))
                         {
                             var_20 = xVal + yVal;
-                            SectSoundSect[i] = j;
-                            SectSound[i] = StaticSound[kSound43];
+                            secti->SoundSect = j;
+                            secti->Sound = StaticSound[kSound43];
                         }
                     }
                 }
@@ -2633,8 +2635,9 @@ void PostProcess()
 
         for (i = 0; i < numsectors; i++)
         {
-            SectSoundSect[i] = i;
-            SectSound[i] = StaticSound[kSound62];
+            auto secti = &sector[i];
+            secti->SoundSect = i;
+            secti->Sound = StaticSound[kSound62];
 
             int startwall = sector[ebp].wallptr;
             int endwall = sector[ebp].wallptr + sector[ebp].wallnum;

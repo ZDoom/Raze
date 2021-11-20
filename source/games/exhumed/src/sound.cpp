@@ -238,7 +238,7 @@ void InitFX(void)
 void GetSpriteSoundPitch(int* pVolume, int* pPitch)
 {
     int nSoundSect = PlayerList[nLocalPlayer].nPlayerViewSect;
-    int nLocalSectFlags = SectFlag[nSoundSect];
+    int nLocalSectFlags = sector[nSoundSect].Flag;
     if (nLocalSectFlags & kSectUnderwater)
     {
 		if (*pVolume == 255)
@@ -673,15 +673,16 @@ void PlayFXAtXYZ(unsigned short ax, int x, int y, int z, int nSector, EChanFlags
 void CheckAmbience(int nSector)
 {
     if (!SoundEnabled()) return;
-    if (SectSound[nSector] != -1)
+    auto sect = &sector[nSector];
+    if (sect->Sound != -1)
     {
-        int nSector2 = SectSoundSect[nSector];
-        walltype* pWall = &wall[sector[nSector2].wallptr];
+        int nSector2 = sect->SoundSect;
+        walltype* pWall = sector[nSector2].firstWall();
         if (!soundEngine->IsSourcePlayingSomething(SOURCE_Ambient, &amb, 0))
         {
             vec3_t v = { pWall->x, pWall->y, sector[nSector2].floorz };
             amb = GetSoundPos(&v);
-            soundEngine->StartSound(SOURCE_Ambient, &amb, nullptr, CHAN_BODY, CHANF_TRANSIENT, SectSound[nSector] + 1, 1.f, ATTN_NORM);
+            soundEngine->StartSound(SOURCE_Ambient, &amb, nullptr, CHAN_BODY, CHANF_TRANSIENT, sect->Sound + 1, 1.f, ATTN_NORM);
             return;
         }
         soundEngine->EnumerateChannels([=](FSoundChan* chan)
@@ -725,7 +726,7 @@ void UpdateCreepySounds()
     nCreepyTimer--;
     if (nCreepyTimer <= 0)
     {
-        if (nCreaturesKilled < nCreaturesTotal && !(SectFlag[PlayerList[nLocalPlayer].nPlayerViewSect] & 0x2000))
+        if (nCreaturesKilled < nCreaturesTotal && !(sector[PlayerList[nLocalPlayer].nPlayerViewSect].Flag & 0x2000))
         {
             int vsi = seq_GetFrameSound(SeqOffsets[kSeqCreepy], totalmoves % SeqSize[SeqOffsets[kSeqCreepy]]);
             if (vsi >= 0 && (vsi & 0x1ff) < kMaxSounds)

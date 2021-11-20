@@ -51,15 +51,6 @@ int movefifopos;
 
 short nCurBodyGunNum;
 
-int SectSoundSect[kMaxSectors] = { 0 };
-short SectSound[kMaxSectors]     = { 0 };
-short SectFlag[kMaxSectors]      = { 0 };
-int   SectDepth[kMaxSectors]     = { 0 };
-int   SectAbove[kMaxSectors]     = { 0 };
-short SectDamage[kMaxSectors]    = { 0 };
-short SectSpeed[kMaxSectors]     = { 0 };
-int   SectBelow[kMaxSectors]     = { 0 };
-
 int Counters[kNumCounters];
 
 
@@ -205,12 +196,12 @@ void InitNewGame()
 
 void SetBelow(short nCurSector, short nBelowSector)
 {
-    SectBelow[nCurSector] = nBelowSector;
+    sector[nCurSector].Below = nBelowSector;
 }
 
 void SetAbove(short nCurSector, short nAboveSector)
 {
-    SectAbove[nCurSector] = nAboveSector;
+    sector[nCurSector].Above = nAboveSector;
 }
 
 void SnapSectors(int nSectorA, int nSectorB, int b)
@@ -269,23 +260,19 @@ void SnapSectors(int nSectorA, int nSectorB, int b)
         sector[nSectorB].ceilingz = sector[nSectorA].floorz;
     }
 
-    if (SectFlag[nSectorA] & 0x1000) {
+    if (sector[nSectorA].Flag & 0x1000) {
         SnapBobs(nSectorA, nSectorB);
     }
 }
 
 void InitSectFlag()
 {
-    for (int i = 0; i < kMaxSectors; i++)
+    for(auto& Sect : sectors())
     {
-        SectSoundSect[i] = -1;
-        SectSound[i] = -1;
-        SectAbove[i] = -1;
-        SectBelow[i] = -1;
-        SectDepth[i] = 0;
-        SectFlag[i]  = 0;
-        SectSpeed[i] = 0;
-        SectDamage[i] = 0;
+        Sect.SoundSect = -1;
+        Sect.Sound = -1;
+        Sect.Above = -1;
+        Sect.Below = -1;
     }
 }
 
@@ -603,7 +590,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, short nLotag, short nHitag)
             {
                 int nSector =pSprite->sectnum;
                 SetAbove(nSector, nHitag);
-                SectFlag[nSector] |= kSectUnderwater;
+                sector[nSector].Flag |= kSectUnderwater;
 
                 DeleteActor(pActor);
                 return;
@@ -631,10 +618,10 @@ void ProcessSpriteTag(DExhumedActor* pActor, short nLotag, short nHitag)
                     nDamage = 1;
                 }
 
-                int nSector =pSprite->sectnum;
+                auto pSector =pSprite->sector();
 
-                SectDamage[nSector] = nDamage;
-                SectFlag[nSector] |= kSectLava;
+                pSector->Damage = nDamage;
+                pSector->Flag |= kSectLava;
 
                 DeleteActor(pActor);
                 return;
@@ -648,8 +635,8 @@ void ProcessSpriteTag(DExhumedActor* pActor, short nLotag, short nHitag)
             }
             case 94: // water
             {
-                int nSector =pSprite->sectnum;
-                SectDepth[nSector] = nHitag << 8;
+                auto pSector = pSprite->sector();
+                pSector->Depth = nHitag << 8;
 
                 DeleteActor(pActor);
                 return;
@@ -667,10 +654,9 @@ void ProcessSpriteTag(DExhumedActor* pActor, short nLotag, short nHitag)
             case 79:
             case 89:
             {
-                int nSector =pSprite->sectnum;
-
-                SectSpeed[nSector] = nSpeed;
-                SectFlag[nSector] |= pSprite->ang;
+                auto pSector = pSprite->sector();
+                pSector->Speed = nSpeed;
+                pSector->Flag |= pSprite->ang;
 
                 DeleteActor(pActor);
                 return;
@@ -684,8 +670,8 @@ void ProcessSpriteTag(DExhumedActor* pActor, short nLotag, short nHitag)
             }
             case 80: // underwater
             {
-                int nSector =pSprite->sectnum;
-                SectFlag[nSector] |= kSectUnderwater;
+                auto pSector = pSprite->sector();
+                pSector->Flag |= kSectUnderwater;
 
                 DeleteActor(pActor);
                 return;
@@ -694,8 +680,8 @@ void ProcessSpriteTag(DExhumedActor* pActor, short nLotag, short nHitag)
             {
                 AddFlow(pSprite->sectnum, nSpeed, 1, pSprite->ang);
 
-                int nSector =pSprite->sectnum;
-                SectFlag[nSector] |= 0x8000;
+                auto pSector = pSprite->sector();
+                pSector->Flag |= 0x8000;
 
                 DeleteActor(pActor);
                 return;
@@ -879,14 +865,6 @@ void SerializeInit(FSerializer& arc)
             ("curchunk", nCurChunkNum)
             .Array("bodygunsprite", nBodyGunSprite, countof(nBodyGunSprite))
             ("curbodygun", nCurBodyGunNum)
-            .Array("soundsect", SectSoundSect, numsectors)
-            .Array("sectsound", SectSound, numsectors)
-            .Array("sectflag", SectFlag, numsectors)
-            .Array("sectdepth", SectDepth, numsectors)
-            .Array("sectabove", SectAbove, numsectors)
-            .Array("sectdamage", SectDamage, numsectors)
-            .Array("sectspeed", SectSpeed, numsectors)
-            .Array("sectbelow", SectBelow, numsectors)
             .Array("counters", Counters, kNumCounters)
             .EndObject();
     }

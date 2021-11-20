@@ -1509,7 +1509,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 80:
         {
-            SectFlag[nSector] |= 0x8000;
+            sector[nSector].Flag |= 0x8000;
             return;
         }
     }
@@ -1784,7 +1784,7 @@ void runlist_DamageEnemy(DExhumedActor* pActor, DExhumedActor* pActor2, short nD
             auto pPlayerActor = PlayerList[nPlayer].Actor();
             int nSector = pPlayerActor->s().sectnum;
 
-            if (!(SectFlag[nSector] & kSectUnderwater))
+            if (!(sector[nSector].Flag & kSectUnderwater))
             {
                 int ebx = 0x4000;
 

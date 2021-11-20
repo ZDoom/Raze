@@ -363,7 +363,7 @@ void seq_DrawPilotLightSeq(double xOffset, double yOffset)
 {
     short nSect = PlayerList[nLocalPlayer].nPlayerViewSect;
 
-    if (!(SectFlag[nSect] & kSectUnderwater))
+    if (!(sector[nSect].Flag & kSectUnderwater))
     {
         short nFrame = nPilotLightBase + nPilotLightFrame;
         short nFrameBase = FrameBase[nFrame];

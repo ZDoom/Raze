@@ -153,7 +153,7 @@ void ExplodeGrenade(DExhumedActor* pActor)
 
     pActor->nFrame = 1;
 
-    if (SectFlag[nGrenadeSect] & kSectUnderwater)
+    if (sector[nGrenadeSect].Flag & kSectUnderwater)
     {
         var_28 = 75;
         var_20 = 60;
@@ -300,7 +300,7 @@ void AIGrenade::Tick(RunListEvent* ev)
         {
             if (zVel)
             {
-                if (SectDamage[pGrenadeSprite->sectnum] > 0)
+                if (pGrenadeSprite->sector()->Damage > 0)
                 {
                     ExplodeGrenade(pActor);
                     return;

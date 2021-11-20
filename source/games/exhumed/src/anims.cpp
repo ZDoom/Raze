@@ -243,7 +243,7 @@ void BuildExplosion(DExhumedActor* pActor)
 
     int edx = 36;
 
-    if (SectFlag[nSector] & kSectUnderwater)
+    if (sector[nSector].Flag & kSectUnderwater)
     {
         edx = 75;
     }
@@ -271,7 +271,7 @@ void BuildSplash(DExhumedActor* actor, int nSector)
         nSound = kSound1;
     }
 
-    int bIsLava = SectFlag[nSector] & kSectLava;
+    int bIsLava = sector[nSector].Flag & kSectLava;
 
     int edx, nFlag;
 

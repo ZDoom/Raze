@@ -571,6 +571,18 @@ FSerializer &Serialize(FSerializer &arc, const char *key, sectortype &c, sectort
 				}
 			}
 		}
+		else if (isExhumed())
+		{
+			arc("SoundSect", c.SoundSect, def->SoundSect)
+				("Depth", c.Depth, def->Depth)
+				("Above", c.Above, def->Above)
+				("Below", c.Below, def->Below)
+				("Sound", c.Sound, def->Sound)
+				("Flag", c.Flag, def->Flag)
+				("Damage", c.Damage, def->Damage)
+				("Speed", c.Speed, def->Speed);
+
+		}
 
 			arc.EndObject();
 	}

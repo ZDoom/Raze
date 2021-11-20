@@ -89,15 +89,6 @@ extern int Counters[kNumCounters];
 
 void SnapSectors(int nSectorA, int nSectorB, int b);
 
-extern short SectSound[];
-extern short SectDamage[];
-extern short SectSpeed[];
-extern int SectBelow[];
-extern short SectFlag[];
-extern int SectDepth[];
-extern int SectSoundSect[];
-extern int SectAbove[];
-
 void LoadObjects();
 
 // light

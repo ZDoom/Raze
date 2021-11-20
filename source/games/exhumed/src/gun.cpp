@@ -233,7 +233,7 @@ uint8_t WeaponCanFire(int nPlayer)
     short nWeapon = PlayerList[nPlayer].nCurrentWeapon;
     int nSector =PlayerList[nPlayer].nPlayerViewSect;
 
-    if (!(SectFlag[nSector] & kSectUnderwater) || WeaponInfo[nWeapon].bFireUnderwater)
+    if (!(sector[nSector].Flag & kSectUnderwater) || WeaponInfo[nWeapon].bFireUnderwater)
     {
         short nAmmoType = WeaponInfo[nWeapon].nAmmoType;
 
@@ -324,7 +324,7 @@ void MoveWeapons(int nPlayer)
 {
     static int dword_96E22 = 0;
 
-    short nSectFlag = SectFlag[PlayerList[nPlayer].nPlayerViewSect];
+    int nSectFlag = sector[PlayerList[nPlayer].nPlayerViewSect].Flag;
 
     if ((nSectFlag & kSectUnderwater) && (totalmoves & 1)) {
         return;

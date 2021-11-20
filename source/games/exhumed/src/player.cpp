@@ -458,8 +458,9 @@ void StartDeathSeq(int nPlayer, int nVal)
             if (nWeapon > kWeaponSword && nWeapon <= kWeaponRing)
             {
                 int nSector =pSprite->sectnum;
-                if (SectBelow[nSector] > -1) {
-                    nSector = SectBelow[nSector];
+                auto pSector = pSprite->sector();
+                if (pSector->Below > -1) {
+                    nSector = pSector->Below;
                 }
 
                 auto pGunActor = GrabBodyGunSprite();
@@ -490,7 +491,7 @@ void StartDeathSeq(int nPlayer, int nVal)
 
     SetNewWeaponImmediate(nPlayer, -2);
 
-    if (SectDamage[pSprite->sectnum] <= 0)
+    if (pSprite->sector()->Damage <= 0)
     {
         PlayerList[nPlayer].nDeathType = nVal;
     }
@@ -501,7 +502,7 @@ void StartDeathSeq(int nPlayer, int nVal)
 
     nVal *= 2;
 
-    if (nVal || !(SectFlag[pSprite->sectnum] & kSectUnderwater))
+    if (nVal || !(pSprite->sector()->Flag & kSectUnderwater))
     {
         PlayerList[nPlayer].nAction = nVal + 17;
     }
@@ -673,7 +674,7 @@ void AIPlayer::Damage(RunListEvent* ev)
                 return;
             }
 
-            if (SectFlag[pPlayerSprite->sectnum] & kSectUnderwater)
+            if (pPlayerSprite->sector()->Flag & kSectUnderwater)
             {
                 if (nAction != 12)
                 {
@@ -864,7 +865,7 @@ void AIPlayer::Tick(RunListEvent* ev)
 
     // loc_1A4E6
     int nSector =pPlayerSprite->sectnum;
-    short nSectFlag = SectFlag[PlayerList[nPlayer].nPlayerViewSect];
+    int nSectFlag = sector[PlayerList[nPlayer].nPlayerViewSect].Flag;
 
     int playerX = pPlayerSprite->x;
     int playerY = pPlayerSprite->y;
@@ -929,7 +930,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     }
 
     //			int _bTouchFloor = bTouchFloor;
-    short bUnderwater = SectFlag[pPlayerSprite->sectnum] & kSectUnderwater;
+    short bUnderwater = pPlayerSprite->sector()->Flag & kSectUnderwater;
 
     if (bUnderwater)
     {
@@ -938,7 +939,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     }
 
     // Trigger Ramses?
-    if ((SectFlag[pPlayerSprite->sectnum] & 0x8000) && bTouchFloor)
+    if ((pPlayerSprite->sector()->Flag & 0x8000) && bTouchFloor)
     {
         if (nTotalPlayers <= 1)
         {
@@ -1121,10 +1122,10 @@ sectdone:
         if (EyeZ >= nCeilZ)
             break;
 
-        if (SectAbove[nViewSect] <= -1)
+        if (sector[nViewSect].Above <= -1)
             break;
 
-        nViewSect = SectAbove[nViewSect];
+        nViewSect = sector[nViewSect].Above;
     }
 
     // Do underwater sector check
@@ -1171,7 +1172,7 @@ sectdone:
     PlayerList[nPlayer].nPlayerDX = pPlayerSprite->x - spr_x;
     PlayerList[nPlayer].nPlayerDY = pPlayerSprite->y - spr_y;
 
-    int var_5C = SectFlag[nViewSect] & kSectUnderwater;
+    int var_5C = sector[nViewSect].Flag & kSectUnderwater;
 
     auto actions = sPlayerInput[nPlayer].actions;
 
@@ -1249,11 +1250,11 @@ sectdone:
         }
         else
         {
-            int nTmpSectNum = pPlayerSprite->sectnum;
+            auto pTmpSect = pPlayerSprite->sector();
 
-            if (PlayerList[nPlayer].totalvel > 25 && pPlayerSprite->z > sector[nTmpSectNum].floorz)
+            if (PlayerList[nPlayer].totalvel > 25 && pPlayerSprite->z > pTmpSect->floorz)
             {
-                if (SectDepth[nTmpSectNum] && !SectSpeed[nTmpSectNum] && !SectDamage[nTmpSectNum])
+                if (pTmpSect->Depth && !pTmpSect->Speed && !pTmpSect->Damage)
                 {
                     D3PlayFX(StaticSound[kSound42], pPlayerActor);
                 }
@@ -2593,7 +2594,7 @@ sectdone:
                 }
                 else if (PlayerList[nPlayer].horizon.horiz.asq16() <= 0)
                 {
-                    if (!(SectFlag[pPlayerSprite->sectnum] & kSectUnderwater))
+                    if (!(pPlayerSprite->sector()->Flag & kSectUnderwater))
                     {
                         SetNewWeapon(nPlayer, PlayerList[nPlayer].nDeathType + 8);
                     }
@@ -2607,10 +2608,10 @@ sectdone:
     // loc_1C4E1
     pDopple->s().pos = pPlayerSprite->pos;
 
-    if (SectAbove[pPlayerSprite->sectnum] > -1)
+    if (pPlayerSprite->sector()->Above > -1)
     {
         pDopple->s().ang = pPlayerSprite->ang;
-        ChangeActorSect(pDopple, SectAbove[pPlayerSprite->sectnum]);
+        ChangeActorSect(pDopple, pPlayerSprite->sector()->Above);
         pDopple->s().cstat = 0x101;
     }
     else
@@ -2764,7 +2765,7 @@ DEFINE_ACTION_FUNCTION(_ExhumedPlayer, IsUnderwater)
 {
     PARAM_SELF_STRUCT_PROLOGUE(Player);
     auto nLocalPlayer = self - PlayerList;
-    ACTION_RETURN_BOOL(SectFlag[PlayerList[nLocalPlayer].nPlayerViewSect] & kSectUnderwater);
+    ACTION_RETURN_BOOL(sector[PlayerList[nLocalPlayer].nPlayerViewSect].Flag & kSectUnderwater);
 }
 
 DEFINE_ACTION_FUNCTION(_ExhumedPlayer, GetAngle)

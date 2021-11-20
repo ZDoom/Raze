@@ -209,6 +209,12 @@ inline bool isSWALL()
 	return g_gameType & (GAMEFLAG_SW | GAMEFLAG_SWWANTON | GAMEFLAG_SWTWINDRAG);
 }
 
+inline bool isExhumed()
+{
+	return g_gameType & GAMEFLAG_PSEXHUMED;
+}
+
+
 TArray<GrpEntry> GrpScan();
 void S_PauseSound(bool notmusic, bool notsfx);
 void S_ResumeSound(bool notsfx);
