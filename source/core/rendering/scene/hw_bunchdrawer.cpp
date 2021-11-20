@@ -45,8 +45,7 @@
 #include "gamecontrol.h"
 #include "hw_sections.h"
 
-extern TArray<int> blockingpairs[MAXWALLS];
-
+extern TArray<TArray<int>> blockingpairs;
 //==========================================================================
 //
 //
@@ -301,7 +300,7 @@ void BunchDrawer::ProcessBunch(int bnch)
 			int ww = sectionLines[i].wall;
 			if (ww != -1)
 			{
-				for (auto p : blockingpairs[ww]) blockwall.Set(sectionLines[p].wall);
+				if (blockingpairs.Size() > 0) for (auto p : blockingpairs[ww]) blockwall.Set(sectionLines[p].wall);
 				show2dwall.Set(ww);
 
 				if (!gotwall[i])

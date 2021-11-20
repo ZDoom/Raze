@@ -41,7 +41,7 @@
 #include "mapinfo.h"
 
 static TArray<usermaphack_t> usermaphacks;
-TArray<int> blockingpairs[MAXWALLS];
+TArray<TArray<int>> blockingpairs;
 
 void AddUserMapHack(usermaphack_t& mhk)
 {
@@ -144,6 +144,10 @@ static int32_t LoadMapHack(const char *filename)
         {
             if (sc.CheckNumber() && validateWall())
             {
+                if (blockingpairs.Size() < (unsigned)numwalls)
+                {
+                    blockingpairs.Resize(numwalls);
+                }
                 blockingpairs[currentwall].Push(sc.Number);
             }
         }
@@ -376,8 +380,8 @@ static int32_t LoadMapHack(const char *filename)
 void G_LoadMapHack(const char* filename, const unsigned char* md4)
 {
     hw_ClearSplitSector();
+    blockingpairs.Reset();
 
-    for (auto& p : blockingpairs) p.Clear();
     FString internal = "engine/compatibility/";
     for (int j = 0; j < 16; ++j)
     {
