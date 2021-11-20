@@ -445,13 +445,13 @@ void fxBouncingSleeve(DBloodActor* actor, int) // 16
     int top, bottom; GetSpriteExtents(pSprite, &top, &bottom);
     pSprite->z += floorZ - bottom;
     
-    int zv = actor->zvel - velFloor[pSprite->sectnum];
+    int zv = actor->zvel - pSprite->sector()->velFloor;
     
     if (actor->zvel == 0) sleeveStopBouncing(actor);
     else if (zv > 0) {
         actFloorBounceVector((int*)& actor->xvel, (int*)& actor->yvel, &zv, pSprite->sectnum, 0x9000);
         actor->zvel = zv;
-        if (velFloor[pSprite->sectnum] == 0 && abs(actor->zvel) < 0x20000)  {
+        if (pSprite->sector()->velFloor == 0 && abs(actor->zvel) < 0x20000)  {
             sleeveStopBouncing(actor);
             return;
         }

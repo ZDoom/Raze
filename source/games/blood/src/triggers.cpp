@@ -935,8 +935,8 @@ void ZTranslateSector(int nSector, XSECTOR *pXSector, int a3, int a4)
     if (dz != 0)
     {
         int oldZ = pSector->floorz;
-        baseFloor[nSector] = pSector->floorz = pXSector->offFloorZ + MulScale(dz, GetWaveValue(a3, a4), 16);
-        velFloor[nSector] += (pSector->floorz-oldZ)<<8;
+        pSector->baseFloor = pSector->floorz = pXSector->offFloorZ + MulScale(dz, GetWaveValue(a3, a4), 16);
+        pSector->velFloor += (pSector->floorz-oldZ)<<8;
 
         BloodSectIterator it(nSector);
         while (auto actor = it.Next())
@@ -964,8 +964,8 @@ void ZTranslateSector(int nSector, XSECTOR *pXSector, int a3, int a4)
     if (dz != 0)
     {
         int oldZ = pSector->ceilingz;
-        baseCeil[nSector] = pSector->ceilingz = pXSector->offCeilZ + MulScale(dz, GetWaveValue(a3, a4), 16);
-        velCeil[nSector] += (pSector->ceilingz-oldZ)<<8;
+        pSector->baseCeil = pSector->ceilingz = pXSector->offCeilZ + MulScale(dz, GetWaveValue(a3, a4), 16);
+        pSector->velCeil += (pSector->ceilingz-oldZ)<<8;
 
         BloodSectIterator it(nSector);
         while (auto actor = it.Next())
@@ -1878,7 +1878,7 @@ void ProcessMotion(void)
             {
                 int floorZ = pSector->floorz;
                 viewInterpolateSector(nSector, pSector);
-                pSector->floorz = baseFloor[nSector]+vdi;
+                pSector->floorz = pSector->baseFloor + vdi;
 
                 BloodSectIterator it(nSector);
                 while (auto actor = it.Next())
@@ -1902,7 +1902,7 @@ void ProcessMotion(void)
             {
                 int ceilZ = pSector->ceilingz;
                 viewInterpolateSector(nSector, pSector);
-                pSector->ceilingz = baseCeil[nSector]+vdi;
+                pSector->ceilingz = pSector->baseCeil + vdi;
 
                 BloodSectIterator it(nSector);
                 while (auto actor = it.Next())
@@ -1927,9 +1927,9 @@ void AlignSlopes(void)
     int nSector;
     for (pSector = &sector[0], nSector = 0; nSector < numsectors; nSector++, pSector++)
     {
-        if (qsector_filler[nSector])
+        if (pSector->slopewallofs)
         {
-            walltype *pWall = &wall[pSector->wallptr+qsector_filler[nSector]];
+            walltype *pWall = &wall[pSector->wallptr+pSector->slopewallofs];
             walltype *pWall2 = &wall[pWall->point2];
             int nNextSector = pWall->nextsector;
             if (nNextSector >= 0)
@@ -1958,8 +1958,10 @@ int(*gBusyProc[])(unsigned int, unsigned int) =
 
 void trProcessBusy(void)
 {
-    memset(velFloor, 0, sizeof(velFloor));
-    memset(velCeil, 0, sizeof(velCeil));
+    for (auto& sect : sectors())
+    {
+        sect.velCeil = sect.velFloor = 0;
+    }
     for (int i = gBusyCount-1; i >= 0; i--)
     {
         int nStatus;
@@ -2021,8 +2023,8 @@ void trInit(void)
     for (int i = 0; i < numsectors; i++)
     {
         sectortype *pSector = &sector[i];
-        baseFloor[i] = pSector->floorz;
-        baseCeil[i] = pSector->ceilingz;
+        pSector->baseFloor = pSector->floorz;
+        pSector->baseCeil = pSector->ceilingz;
         if (pSector->hasX())
         {
             XSECTOR *pXSector = &pSector->xs();

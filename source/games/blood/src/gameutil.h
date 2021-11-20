@@ -43,10 +43,6 @@ struct HITINFO {
 };
 
 extern POINT2D baseWall[kMaxWalls];
-extern int baseFloor[kMaxSectors];
-extern int baseCeil[kMaxSectors];
-extern int velFloor[kMaxSectors];
-extern int velCeil[kMaxSectors];
 extern HITINFO gHitInfo;
 
 enum {

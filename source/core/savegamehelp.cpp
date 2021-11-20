@@ -548,7 +548,12 @@ FSerializer &Serialize(FSerializer &arc, const char *key, sectortype &c, sectort
 		else if (isBlood())
 		{
 			arc("upperlink", c.upperLink, def->upperLink)
-				("lowerlink", c.lowerLink, def->lowerLink);
+				("lowerlink", c.lowerLink, def->lowerLink)
+				("basefloor", c.baseFloor, def->baseFloor)
+				("baseCeil", c.baseCeil, def->baseCeil)
+				("velfloor", c.velFloor, def->velFloor)
+				("velCeil", c.velCeil, def->velCeil)
+				("slopwwallofs", c.slopewallofs, def->slopewallofs);
 
 			if (arc.isWriting())
 			{

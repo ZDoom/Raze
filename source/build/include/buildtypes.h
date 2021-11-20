@@ -91,6 +91,7 @@ struct sectortype
     int numsections;
     int* sections;
 
+    // Game specific extensions. Due to how sectors are used they need to be defined in the global class. :(
     union
     {
         struct // DukeRR
@@ -104,7 +105,7 @@ struct sectortype
             BLD_NS::DBloodActor* upperLink, *lowerLink;
             int baseFloor, baseCeil;
             int velFloor, velCeil;
-            uint8_t q_filler;
+            uint8_t slopewallofs;
         };
         struct // Exhumed
         {

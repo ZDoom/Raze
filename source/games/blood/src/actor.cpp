@@ -4693,7 +4693,7 @@ static Collision MoveThing(DBloodActor* actor)
 		actor->hit.florhit = floorColl;
 		pSprite->z += floorZ - bottom;
 
-		int v20 = actor->zvel - velFloor[pSprite->sectnum];
+		int v20 = actor->zvel - pSprite->sector()->velFloor;
 		if (v20 > 0)
 		{
 
@@ -4703,7 +4703,7 @@ static Collision MoveThing(DBloodActor* actor)
 			if (nDamage > 0) actDamageSprite(actor, actor, kDamageFall, nDamage);
 
 			actor->zvel = v20;
-			if (velFloor[pSprite->sectnum] == 0 && abs(actor->zvel) < 0x10000)
+			if (pSprite->sector()->velFloor == 0 && abs(actor->zvel) < 0x10000)
 			{
 				actor->zvel = 0;
 				pSprite->flags &= ~4;
@@ -5188,7 +5188,7 @@ void MoveDude(DBloodActor* actor)
 	{
 		actor->hit.florhit = floorColl;
 		pSprite->z += floorZ - bottom;
-		int v30 = actor->zvel - velFloor[pSprite->sectnum];
+		int v30 = actor->zvel - pSprite->sector()->velFloor;
 		if (v30 > 0)
 		{
 			int vax = actFloorBounceVector((int*)&actor->xvel, (int*)&actor->yvel, (int*)&v30, pSprite->sectnum, 0);
@@ -5208,7 +5208,7 @@ void MoveDude(DBloodActor* actor)
 			actor->zvel = v30;
 			if (abs(actor->zvel) < 0x10000)
 			{
-				actor->zvel = velFloor[pSprite->sectnum];
+				actor->zvel = pSprite->sector()->velFloor;
 				pSprite->flags &= ~4;
 			}
 			else
@@ -5794,7 +5794,7 @@ static void actCheckThings()
 			actAirDrag(actor, 128);
 
 			if (((actor->GetIndex() >> 8) & 15) == (gFrameCount & 15) && (pSprite->flags & 2))	pSprite->flags |= 4;
-			if ((pSprite->flags & 4) || actor->xvel || actor->yvel || actor->zvel || velFloor[pSprite->sectnum] || velCeil[pSprite->sectnum])
+			if ((pSprite->flags & 4) || actor->xvel || actor->yvel || actor->zvel || pSprite->sector()->velFloor || pSprite->sector()->velCeil)
 			{
 				Collision hit = MoveThing(actor);
 				if (hit.type)
@@ -6245,7 +6245,7 @@ static void actCheckDudes()
 		if (pXSector && pXSector->Underwater) actAirDrag(actor, 5376);
 		else actAirDrag(actor, 128);
 
-		if ((pSprite->flags & 4) || actor->xvel || actor->yvel || actor->zvel || velFloor[pSprite->sectnum] || velCeil[pSprite->sectnum])
+		if ((pSprite->flags & 4) || actor->xvel || actor->yvel || actor->zvel || pSprite->sector()->velFloor || pSprite->sector()->velCeil)
 			MoveDude(actor);
 	}
 }

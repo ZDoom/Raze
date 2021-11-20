@@ -707,15 +707,10 @@ void SerializeState(FSerializer& arc)
 	{
 		psky_t* pSky = tileSetupSky(DEFAULTPSKY);
 
-		arc.Array("sector_filler", qsector_filler, numsectors)
-			("visibility", gVisibility)
+		arc("visibility", gVisibility)
 			("frameclock", PlayClock)
 			("framecount", gFrameCount)
 			.Array("basewall", baseWall, numwalls)
-			.Array("basefloor", baseFloor, numsectors)
-			.Array("baseceil", baseCeil, numsectors)
-			.Array("velfloor", velFloor, numsectors)
-			.Array("velceil", velCeil, numsectors)
 			("hitinfo", gHitInfo)
 			.Array("statcount", gStatCount, kMaxStatus + 1)
 			("xsectorsused", XSectorsUsed)

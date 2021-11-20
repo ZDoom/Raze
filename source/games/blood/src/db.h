@@ -87,8 +87,6 @@ extern MAPHEADER2 byte_19AE44;
 
 extern XSECTOR xsector[kMaxXSectors];
 
-extern uint8_t qsector_filler[kMaxSectors];
-
 extern int gVisibility;
 extern int gMapRev, gMattId, gSkyCount;
 extern const char *gItemText[];

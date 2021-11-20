@@ -34,10 +34,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 POINT2D baseWall[kMaxWalls];
-int baseFloor[kMaxSectors];
-int baseCeil[kMaxSectors];
-int velFloor[kMaxSectors];
-int velCeil[kMaxSectors];
 HITINFO gHitInfo;
 
 bool FindSector(int nX, int nY, int nZ, int *nSector)

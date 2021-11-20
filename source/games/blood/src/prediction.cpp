@@ -502,14 +502,14 @@ static void fakeMoveDude(spritetype *pSprite)
     {
         predict.at75.florhit = floorColl;
         predict.z += floorZ-bottom;
-        int var44 = predict.zvel-velFloor[predict.sectnum];
+        int var44 = predict.zvel-predict.sector()->velFloor;
         if (var44 > 0)
         {
             actFloorBounceVector(&predict.xvel, &predict.yvel, &var44, predict.sectnum, 0);
             predict.zvel = var44;
             if (abs(predict.zvel) < 0x10000)
             {
-                predict.zvel = velFloor[predict.sectnum];
+                predict.zvel = predict.sector()->velFloor;
                 predict.at73 &= ~4;
             }
             else
@@ -566,6 +566,7 @@ static void fakeMoveDude(spritetype *pSprite)
 
 static void fakeActAirDrag(spritetype *, int num)
 {
+#if 0
     int xvec = 0;
     int yvec = 0;
     assert(validSectorIndex(predict.sectnum));
@@ -585,10 +586,12 @@ static void fakeActAirDrag(spritetype *, int num)
     predict.xvel += MulScale(xvec-predict.xvel, num, 16);
     predict.yvel += MulScale(yvec-predict.yvel, num, 16);
     predict.zvel -= MulScale(predict.zvel, num, 16);
+#endif
 }
 
 void fakeActProcessSprites(void)
 {
+#if 0
 	spritetype *pSprite = gMe->pSprite;
 	if (pSprite->statnum == kStatDude)
 	{
@@ -622,11 +625,12 @@ void fakeActProcessSprites(void)
         else
             fakeActAirDrag(pSprite, 128);
 
-        if ((predict.at73 & 4) != 0 || predict.xvel != 0 || predict.yvel != 0 || predict.zvel != 0 || velFloor[predict.sectnum] != 0 || velCeil[predict.sectnum] != 0)
+        if ((predict.at73 & 4) != 0 || predict.xvel != 0 || predict.yvel != 0 || predict.zvel != 0 || predict.sector()->velFloor != 0 || predict.sector()->velCeil != 0)
         {
             fakeMoveDude(pSprite);
         }
 	}
+#endif
 }
 
 void viewCorrectPrediction(void)

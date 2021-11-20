@@ -1388,7 +1388,7 @@ void nnExtProcessSuperSprites()
             }
             
             if (pXDebris->physAttr & kPhysGravity) pXDebris->physAttr |= kPhysFalling;
-            if ((pXDebris->physAttr & kPhysFalling) || debrisactor->xvel || debrisactor->yvel || debrisactor->zvel || velFloor[pDebris->sectnum] || velCeil[pDebris->sectnum])
+            if ((pXDebris->physAttr & kPhysFalling) || debrisactor->xvel || debrisactor->yvel || debrisactor->zvel || pDebris->sector()->velFloor || pDebris->sector()->velCeil)
             debrisMove(i);
 
             if (debrisactor->xvel || debrisactor->yvel)
@@ -1829,7 +1829,7 @@ void debrisMove(int listIndex)
     if (floorZ <= bottom) {
 
         actor->hit.florhit = floorColl;
-        int v30 = actor->zvel - velFloor[pSprite->sectnum];
+        int v30 = actor->zvel - pSprite->sector()->velFloor;
 
         if (v30 > 0) 
         {
@@ -1839,7 +1839,7 @@ void debrisMove(int listIndex)
 
             if (abs(actor->zvel) < 0x10000)
             {
-                actor->zvel = velFloor[pSprite->sectnum];
+                actor->zvel = pSprite->sector()->velFloor;
                 pXSprite->physAttr &= ~kPhysFalling;
             }
 

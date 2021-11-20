@@ -49,8 +49,6 @@ int XSectorsUsed;
 
 
 
-uint8_t qsector_filler[kMaxSectors];
-
 int gVisibility;
 
 void dbCrypt(char *pPtr, int nLength, int nKey)
@@ -570,7 +568,7 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, int*
         pSector->floorxpan_ = load.floorxpanning;
         pSector->floorypan_ = load.floorypanning;
         pSector->visibility = load.visibility;
-        qsector_filler[i] = load.fogpal;
+        pSector->slopewallofs = load.fogpal;
         pSector->dirty = 255;
         pSector->exflags = 0;
         pSector->fogpal = 0;
