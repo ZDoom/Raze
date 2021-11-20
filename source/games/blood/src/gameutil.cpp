@@ -42,33 +42,6 @@ DBloodActor* gUpperLink[kMaxSectors];
 DBloodActor* gLowerLink[kMaxSectors];
 HITINFO gHitInfo;
 
-bool AreSectorsNeighbors(int sect1, int sect2)
-{
-    assert(validSectorIndex(sect1));
-	assert(validSectorIndex(sect2));
-    if (sector[sect1].wallnum < sector[sect2].wallnum)
-    {
-        for (int i = 0; i < sector[sect1].wallnum; i++)
-        {
-            if (wall[sector[sect1].wallptr+i].nextsector == sect2)
-            {
-                return 1;
-            }
-        }
-    }
-    else
-    {
-        for (int i = 0; i < sector[sect2].wallnum; i++)
-        {
-            if (wall[sector[sect2].wallptr+i].nextsector == sect1)
-            {
-                return 1;
-            }
-        }
-    }
-    return 0;
-}
-
 bool FindSector(int nX, int nY, int nZ, int *nSector)
 {
     int32_t nZFloor, nZCeil;

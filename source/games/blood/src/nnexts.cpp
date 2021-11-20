@@ -1725,7 +1725,7 @@ void debrisMove(int listIndex)
         pSprite->cstat = oldcstat;
         if (pSprite->sectnum != nSector) 
         {
-            if (!sectRangeIsFine(nSector)) return;
+            if (!validSectorIndex(nSector)) return;
             else ChangeActorSect(actor, nSector);
         }
 
@@ -3176,7 +3176,7 @@ void useEffectGen(DBloodActor* sourceactor, DBloodActor* actor)
                 break;
             case 3:
             case 4:
-                if (!sectRangeIsFine(pSprite->sectnum)) pos = top;
+                if (!validSectorIndex(pSprite->sectnum)) pos = top;
                 else pos = (pXSource->data4 == 3) ? pSprite->sector()->floorz : pSprite->sector()->ceilingz;
                 break;
             default:
@@ -3592,7 +3592,7 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, int index, DBloodAc
         {
             auto pSprite = &iactor->s();
             if (pXSource->data2 <= 0) seqKill(iactor);
-            else if (sectRangeIsFine(pSprite->sectnum))
+            else if (validSectorIndex(pSprite->sectnum))
             {
                 if (pXSource->data3 > 0)
                 {
@@ -3617,7 +3617,7 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, int index, DBloodAc
                         break;
                     case 5:
                     case 6:
-                        if (!sectRangeIsFine(pSprite->sectnum)) pSpawned->z = top;
+                        if (!validSectorIndex(pSprite->sectnum)) pSpawned->z = top;
                         else pSpawned->z = (pXSource->data3 == 5) ? sector[pSpawned->sectnum].floorz : sector[pSpawned->sectnum].ceilingz;
                         break;
                     }
@@ -3794,8 +3794,8 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
 
     switch (cond) 
     {
-        case 0:  return (objType == OBJ_SECTOR && sectRangeIsFine(objIndex)); // is a sector?
-        case 5:  return (objType == OBJ_WALL && wallRangeIsFine(objIndex));   // is a wall?
+        case 0:  return (objType == OBJ_SECTOR && validSectorIndex(objIndex)); // is a sector?
+        case 5:  return (objType == OBJ_WALL && validWallIndex(objIndex));   // is a wall?
         case 10: return (objType == OBJ_SPRITE && objActor != nullptr); // is a sprite?
         case 15: // x-index is fine?
             switch (objType) 
@@ -4050,7 +4050,7 @@ bool condCheckSector(DBloodActor* aCond, int cmpOp, bool PUSH)
     DBloodActor* objActor = nullptr;
     condUnserialize(aCond, &objType, &objIndex, &objActor);
 
-    if (objType != OBJ_SECTOR || !sectRangeIsFine(objIndex))
+    if (objType != OBJ_SECTOR || !validSectorIndex(objIndex))
         condError(aCond, "Object #%d (objType: %d) is not a sector!", objIndex, objType);
 
     sectortype* pSect = &sector[objIndex];
@@ -4143,7 +4143,7 @@ bool condCheckWall(DBloodActor* aCond, int cmpOp, bool PUSH)
     DBloodActor* objActor = nullptr;
     condUnserialize(aCond, &objType, &objIndex, &objActor);
 
-    if (objType != OBJ_WALL || !wallRangeIsFine(objIndex))
+    if (objType != OBJ_WALL || !validWallIndex(objIndex))
         condError(aCond, "Object #%d (objType: %d) is not a wall!", objIndex, objType);
         
     walltype* pWall = &wall[objIndex];
@@ -4156,21 +4156,21 @@ bool condCheckWall(DBloodActor* aCond, int cmpOp, bool PUSH)
             case 0:
                 return condCmp(pWall->overpicnum, arg1, arg2, cmpOp);
             case 5:
-                if (!sectRangeIsFine((var = sectorofwall(objIndex)))) return false;
+                if (!validSectorIndex((var = sectorofwall(objIndex)))) return false;
                 else if (PUSH) condPush(aCond, OBJ_SECTOR, var, nullptr);
                 return true;
             case 10: // this wall is a mirror?                          // must be as constants here
                 return (pWall->type != kWallStack && condCmp(pWall->picnum, 4080, (4080 + 16) - 1, 0));
             case 15:
-                if (!sectRangeIsFine(pWall->nextsector)) return false;
+                if (!validSectorIndex(pWall->nextsector)) return false;
                 else if (PUSH) condPush(aCond, OBJ_SECTOR, pWall->nextsector, nullptr);
                 return true;
             case 20:
-                if (!wallRangeIsFine(pWall->nextwall)) return false;
+                if (!validWallIndex(pWall->nextwall)) return false;
                 else if (PUSH) condPush(aCond, OBJ_WALL, pWall->nextwall, nullptr);
                 return true;
             case 25: // next wall belongs to sector?
-                if (!sectRangeIsFine(var = sectorofwall(pWall->nextwall))) return false;
+                if (!validSectorIndex(var = sectorofwall(pWall->nextwall))) return false;
                 else if (PUSH) condPush(aCond, OBJ_SECTOR, var, nullptr);
                 return true;
         }
@@ -4471,7 +4471,7 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
             else if (PUSH) condPush(aCond, OBJ_SPRITE, 0, objActor->GetOwner());
                 return true;
             case 20: // stays in a sector?
-                if (!sectRangeIsFine(pSpr->sectnum)) return false;
+                if (!validSectorIndex(pSpr->sectnum)) return false;
             else if (PUSH) condPush(aCond, OBJ_SECTOR, pSpr->sectnum, nullptr);
                 return true;
             case 25:
@@ -5639,7 +5639,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT event)
                     [[fallthrough]];
                 case kCmdRepeat:
                     if (pXSprite->txID > 0) modernTypeSendCommand(actor, pXSprite->txID, (COMMAND_ID)pXSprite->command);
-                    else if (pXSprite->data1 == 0 && sectRangeIsFine(pSprite->sectnum)) useSpriteDamager(actor, OBJ_SECTOR, pSprite->sectnum, nullptr);
+                    else if (pXSprite->data1 == 0 && validSectorIndex(pSprite->sectnum)) useSpriteDamager(actor, OBJ_SECTOR, pSprite->sectnum, nullptr);
                     else if (pXSprite->data1 >= 666 && pXSprite->data1 < 669) useSpriteDamager(actor, -1, -1, nullptr);
                     else
                     {
@@ -6684,7 +6684,7 @@ void useSlopeChanger(DBloodActor* sourceactor, int objType, int objIndex, DBlood
             case 1:
             case 2:
             case 3:
-                if (!sectRangeIsFine(pSpr->sectnum)) break;
+                if (!validSectorIndex(pSpr->sectnum)) break;
                 switch (pXSource->data4) 
                 {
                     case 1: sprite2sectorSlope(objActor, &sector[pSpr->sectnum], 0, flag2); break;
@@ -8340,7 +8340,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
                         if (pSpr != emitter && emitterActor->GetOwner() != actor)
                         {
 
-                            if (!sectRangeIsFine(emitter->sectnum)) return false;
+                            if (!validSectorIndex(emitter->sectnum)) return false;
                             searchsect = emitter->sectnum;
                         }
                     }

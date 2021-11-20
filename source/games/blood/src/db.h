@@ -354,6 +354,7 @@ void PropagateMarkerReferences(void);
 unsigned int dbReadMapCRC(const char *pPath);
 void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, int* pSector, unsigned int* pCRC);
 
+
 END_BLD_NS
 
 // refactoring aids.

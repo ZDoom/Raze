@@ -57,18 +57,7 @@ enum {
 };
 
 
-// by NoOne: functions to quickly check range of specifical arrays
-// todo: get rid of these - renaming must wait because there's still code pending to be merged.
-inline bool sectRangeIsFine(int nIndex) {
-    return validSectorIndex(nIndex);
-}
-
-inline bool wallRangeIsFine(int nIndex) {
-    return validWallIndex(nIndex);
-}
-///
 struct Collision;
-bool AreSectorsNeighbors(int sect1, int sect2);
 bool FindSector(int nX, int nY, int nZ, int *nSector);
 bool FindSector(int nX, int nY, int *nSector);
 bool CheckProximity(DBloodActor *pSprite, int nX, int nY, int nZ, int nSector, int nDist);
