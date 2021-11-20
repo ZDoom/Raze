@@ -26,8 +26,6 @@ enum
 {
 	kStatIgnited = 404,
 	kMaxSprites = 4096,
-	kMaxSectors = 1024,
-	kMaxWalls   = 8192,
 	kMaxVoxels	= 4096,
 	kMaxPalookups = 256,
 	kMaxStatus   = 1024,

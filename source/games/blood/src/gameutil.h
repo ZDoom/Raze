@@ -42,7 +42,6 @@ struct HITINFO {
     void set(hitdata_t* hit);
 };
 
-extern POINT2D baseWall[kMaxWalls];
 extern HITINFO gHitInfo;
 
 enum {

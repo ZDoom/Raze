@@ -411,6 +411,9 @@ void allocateMapArrays(int numsprites)
 	ClearInterpolations();
 
 
+	show2dsector.Resize(numsectors);
+	show2dwall.Resize(numwalls);
+
 	mapDataArena.FreeAll();
 	sector.Resize(numsectors);
 	memset(sector.Data(), 0, sizeof(sectortype) * numsectors);

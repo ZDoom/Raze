@@ -33,7 +33,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-POINT2D baseWall[kMaxWalls];
 HITINFO gHitInfo;
 
 bool FindSector(int nX, int nY, int nZ, int *nSector)
@@ -299,7 +298,7 @@ int GetWallAngle(walltype* pWall)
 
 void GetWallNormal(int nWall, int *pX, int *pY)
 {
-    assert(nWall >= 0 && nWall < kMaxWalls);
+    assert(validWallIndex(nWall));
     int nWall2 = wall[nWall].point2;
     int dX = -(wall[nWall2].y - wall[nWall].y);
     dX >>= 4;

@@ -423,7 +423,7 @@ void UndoFlashes()
 
                 case 1:
                 {
-                    assert(nIndex >= 0 && nIndex < kMaxWalls);
+                    assert(validWallIndex(nIndex));
 
                     pShade = &wall[nIndex].shade;
                     break;

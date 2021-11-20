@@ -35,8 +35,6 @@ void QuitGame(void);
 
 enum
 {
-    kMaxSectors = MAXSECTORS,
-    kMaxWalls = MAXWALLS,
     kMaxSprites = MAXSPRITES,
 
     kMaxTiles = MAXTILES,

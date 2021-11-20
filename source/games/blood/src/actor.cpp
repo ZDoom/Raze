@@ -3851,7 +3851,7 @@ void actHitcodeToData(int a1, HITINFO* pHitInfo, DBloodActor** pActor, walltype*
 	case 0:
 	case 4:
 		nWall = pHitInfo->hitwall;
-		if (nWall >= 0 && nWall < kMaxWalls) pWall = &wall[nWall];
+		if (validWallIndex(nWall)) pWall = &wall[nWall];
 		break;
 	default:
 		break;
@@ -6818,7 +6818,7 @@ bool actCheckRespawn(DBloodActor* actor)
 
 bool actCanSplatWall(int nWall)
 {
-	assert(nWall >= 0 && nWall < kMaxWalls);
+	assert(validWallIndex(nWall));
 	walltype* pWall = &wall[nWall];
 	if (pWall->cstat & 16384) return 0;
 	if (pWall->cstat & 32768) return 0;
@@ -6895,7 +6895,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 		case 0:
 		{
 			int nWall = gHitInfo.hitwall;
-			assert(nWall >= 0 && nWall < kMaxWalls);
+			assert(validWallIndex(nWall));
 			auto pWall = &wall[nWall];
 			nSurf = surfType[pWall->picnum];
 			if (actCanSplatWall(nWall))
@@ -6920,7 +6920,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 		case 4:
 		{
 			int nWall = gHitInfo.hitwall;
-			assert(nWall >= 0 && nWall < kMaxWalls);
+			assert(validWallIndex(nWall));
 			auto pWall = &wall[nWall];
 			nSurf = surfType[pWall->overpicnum];
 			if (pWall->hasX())

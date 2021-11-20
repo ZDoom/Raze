@@ -184,9 +184,9 @@ void setsectinterpolate(int sectnum)
 	{
 		StartInterpolation(&wal, Interp_Wall_X);
 		StartInterpolation(&wal, Interp_Wall_Y);
-		auto nwal = wal.nextWall();
-		if (nwal)
+		if (wal.twoSided())
 		{
+			auto nwal = wal.nextWall();
 			StartInterpolation(nwal, Interp_Wall_X);
 			StartInterpolation(nwal, Interp_Wall_Y);
 			nwal = nwal->point2Wall();
@@ -204,7 +204,7 @@ void clearsectinterpolate(int sectnum)
 	{
 		StopInterpolation(&wal, Interp_Wall_X);
 		StopInterpolation(&wal, Interp_Wall_Y);
-		if (wal.nextwall >= 0)
+		if (wal.twoSided())
 		{
 			StopInterpolation(wal.nextWall(), Interp_Wall_X);
 			StopInterpolation(wal.nextWall(), Interp_Wall_Y);

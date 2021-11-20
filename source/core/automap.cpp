@@ -61,8 +61,8 @@ int follow_x = INT_MAX, follow_y = INT_MAX, follow_a = INT_MAX;
 static int gZoom = 768;
 bool automapping;
 bool gFullMap;
-FixedBitArray<MAXSECTORS> show2dsector;
-FixedBitArray<MAXWALLS> show2dwall;
+BitArray show2dsector;
+BitArray show2dwall;
 static int x_min_bound = INT_MAX, y_min_bound, x_max_bound, y_max_bound;
 
 CVAR(Color, am_twosidedcolor, 0xaaaaaa, CVAR_ARCHIVE)
@@ -268,8 +268,8 @@ void SerializeAutomap(FSerializer& arc)
 		arc("automapping", automapping)
 			("fullmap", gFullMap)
 			// Only store what's needed. Unfortunately for sprites it is not that easy
-			.SerializeMemory("mappedsectors", show2dsector.Storage(), (numsectors + 7) / 8)
-			.SerializeMemory("mappedwalls", show2dwall.Storage(), (numwalls + 7) / 8)
+			.SerializeMemory("mappedsectors", show2dsector.Storage().Data(), (numsectors + 7) / 8)
+			.SerializeMemory("mappedwalls", show2dwall.Storage().Data(), (numwalls + 7) / 8)
 			.EndObject();
 	}
 }

@@ -827,8 +827,8 @@ void TranslateSector(int nSector, int a2, int a3, int a4, int a5, int a6, int a7
     {
         for (int i = 0; i < pSector->wallnum; nWall++, i++)
         {
-            x = baseWall[nWall].x;
-            y = baseWall[nWall].y;
+            x = wall[nWall].baseWall.x;
+            y = wall[nWall].baseWall.y;
             if (vbp)
                 RotatePoint((int*)&x, (int*)&y, vbp, a4, a5);
             DragPoint(nWall, x+vc-a4, y+v8-a5);
@@ -839,8 +839,8 @@ void TranslateSector(int nSector, int a2, int a3, int a4, int a5, int a6, int a7
         for (int i = 0; i < pSector->wallnum; nWall++, i++)
         {
             int v10 = wall[nWall].point2;
-            x = baseWall[nWall].x;
-            y = baseWall[nWall].y;
+            x = wall[nWall].baseWall.x;
+            y = wall[nWall].baseWall.y;
             if (wall[nWall].cstat&16384)
             {
                 if (vbp)
@@ -848,8 +848,8 @@ void TranslateSector(int nSector, int a2, int a3, int a4, int a5, int a6, int a7
                 DragPoint(nWall, x+vc-a4, y+v8-a5);
                 if ((wall[v10].cstat&49152) == 0)
                 {
-                    x = baseWall[v10].x;
-                    y = baseWall[v10].y;
+                    x = wall[v10].baseWall.x;
+                    y = wall[v10].baseWall.y;
                     if (vbp)
                         RotatePoint((int*)&x, (int*)&y, vbp, a4, a5);
                     DragPoint(v10, x+vc-a4, y+v8-a5);
@@ -863,8 +863,8 @@ void TranslateSector(int nSector, int a2, int a3, int a4, int a5, int a6, int a7
                 DragPoint(nWall, x-(vc-a4), y-(v8-a5));
                 if ((wall[v10].cstat&49152) == 0)
                 {
-                    x = baseWall[v10].x;
-                    y = baseWall[v10].y;
+                    x = wall[v10].baseWall.x;
+                    y = wall[v10].baseWall.y;
                     if (vbp)
                         RotatePoint((int*)&x, (int*)&y, -vbp, a4, a5);
                     DragPoint(v10, x-(vc-a4), y-(v8-a5));
@@ -1997,8 +1997,8 @@ void trInit(void)
     gBusyCount = 0;
     for (int i = 0; i < numwalls; i++)
     {
-        baseWall[i].x = wall[i].x;
-        baseWall[i].y = wall[i].y;
+        wall[i].baseWall.x = wall[i].x;
+        wall[i].baseWall.y = wall[i].y;
     }
     BloodLinearSpriteIterator it;
     while (auto actor = it.Next())
@@ -2053,8 +2053,8 @@ void trInit(void)
                 TranslateSector(i, 0, -65536, pSprite1->x, pSprite1->y, pSprite1->x, pSprite1->y, pSprite1->ang, pSprite2->x, pSprite2->y, pSprite2->ang, pSector->type == kSectorSlide);
                 for (int j = 0; j < pSector->wallnum; j++)
                 {
-                    baseWall[pSector->wallptr+j].x = wall[pSector->wallptr+j].x;
-                    baseWall[pSector->wallptr+j].y = wall[pSector->wallptr+j].y;
+                    wall[pSector->wallptr + j].baseWall.x = wall[pSector->wallptr+j].x;
+                    wall[pSector->wallptr + j].baseWall.y = wall[pSector->wallptr+j].y;
                 }
                 BloodSectIterator it(i);
                 while (auto actor = it.Next())
@@ -2072,8 +2072,8 @@ void trInit(void)
                 TranslateSector(i, 0, -65536, pSprite1->x, pSprite1->y, pSprite1->x, pSprite1->y, 0, pSprite1->x, pSprite1->y, pSprite1->ang, pSector->type == kSectorRotate);
                 for (int j = 0; j < pSector->wallnum; j++)
                 {
-                    baseWall[pSector->wallptr+j].x = wall[pSector->wallptr+j].x;
-                    baseWall[pSector->wallptr+j].y = wall[pSector->wallptr+j].y;
+                    wall[pSector->wallptr + j].baseWall.x = wall[pSector->wallptr + j].x;
+                    wall[pSector->wallptr + j].baseWall.y = wall[pSector->wallptr + j].y;
                 }
                 BloodSectIterator it(i);
                 while (auto actor = it.Next())

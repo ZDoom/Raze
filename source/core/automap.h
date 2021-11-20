@@ -10,8 +10,8 @@ struct event_t;
 
 extern bool automapping;
 extern bool gFullMap;
-extern FixedBitArray<MAXSECTORS> show2dsector;
-extern FixedBitArray<MAXWALLS> show2dwall;
+extern BitArray show2dsector;
+extern BitArray show2dwall;
 
 void SerializeAutomap(FSerializer& arc);
 void ClearAutomap();

@@ -29,8 +29,8 @@ class BunchDrawer
     float gcosang, gsinang;
     FixedBitArray<MAXSECTORS> gotsector;
     FixedBitArray<MAXSECTORS*5/4> gotsection2;
-    FixedBitArray<MAXWALLS> gotwall;
-    FixedBitArray<MAXWALLS> blockwall;
+    BitArray gotwall;
+    BitArray blockwall;
     binangle ang1, ang2, angrange;
 
     int sectionstartang[MAXSECTORS*5/4], sectionendang[MAXSECTORS*5/4];

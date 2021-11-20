@@ -145,7 +145,7 @@ void RemoveSpriteStat(int nSprite)
 
 void qinitspritelists(void) // Replace
 {
-    for (int i = 0; i <= kMaxSectors; i++)
+    for (int i = 0; i <= MAXSECTORS; i++)
     {
         headspritesect[i] = -1;
     }

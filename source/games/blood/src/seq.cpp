@@ -716,7 +716,7 @@ void seqProcess(int nTicks)
 
 						else if (pInst->type == SS_MASKED)
 						{
-							assert(index >= 0 && index < kMaxWalls);
+							assert(validWallIndex(index));
 							auto pWall = &wall[index];
 							pWall->cstat &= ~(8 + 16 + 32);
 							if (pWall->twoSided())
