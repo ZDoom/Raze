@@ -419,7 +419,6 @@ void TerminateLevel(void)
     if (!currentLevel) return;
 
     int i, stat, pnum, ndx;
-    SECT_USERp* sectu;
 
     // Free any track points
     for (ndx = 0; ndx < MAX_TRACKS; ndx++)
@@ -456,7 +455,6 @@ void TerminateLevel(void)
     }
 
     // Free SectUser memory
-    for (auto& su : SectUser) su.Clear();
 
     TRAVERSE_CONNECT(pnum)
     {

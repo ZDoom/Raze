@@ -41,6 +41,7 @@ typedef struct {
 
 static_assert(sizeof(vec3d_t) == sizeof(double) * 3);
 int32_t xyaspect = -1;
+bool inpreparemirror = 0;
 
 
 

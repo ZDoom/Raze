@@ -81,8 +81,6 @@ int DoTrapMatch(short match);
 
 PLAYERp GlobPlayerP;
 
-TPointer<SECT_USER> SectUser[MAXSECTORS];
-
 ANIM Anim[MAXANIM];
 short AnimCnt = 0;
 
@@ -328,47 +326,41 @@ void WallSetup(void)
 }
 
 
-void SectorLiquidSet(short i)
+void SectorLiquidSet(int i)
 {
-    SECT_USERp sectu;
-
+    auto sectp = &sector[i];
     // ///////////////////////////////////
     //
     // CHECK for pics that mean something
     //
     // ///////////////////////////////////
 
-    if (sector[i].floorpicnum >= 300 && sector[i].floorpicnum <= 307)
+    if (sectp->floorpicnum >= 300 && sectp->floorpicnum <= 307)
     {
-        sectu = GetSectUser(i);
-
-        SET(sector[i].extra, SECTFX_LIQUID_WATER);
+        sectp->u_defined = true;
+        SET(sectp->extra, SECTFX_LIQUID_WATER);
     }
-    else if (sector[i].floorpicnum >= 320 && sector[i].floorpicnum <= 343)
+    else if (sectp->floorpicnum >= 320 && sectp->floorpicnum <= 343)
     {
-        sectu = GetSectUser(i);
-
-        SET(sector[i].extra, SECTFX_LIQUID_WATER);
+        sectp->u_defined = true;
+        SET(sectp->extra, SECTFX_LIQUID_WATER);
     }
-    else if (sector[i].floorpicnum >= 780 && sector[i].floorpicnum <= 794)
+    else if (sectp->floorpicnum >= 780 && sectp->floorpicnum <= 794)
     {
-        sectu = GetSectUser(i);
-
-        SET(sector[i].extra, SECTFX_LIQUID_WATER);
+        sectp->u_defined = true;
+        SET(sectp->extra, SECTFX_LIQUID_WATER);
     }
-    else if (sector[i].floorpicnum >= 890 && sector[i].floorpicnum <= 897)
+    else if (sectp->floorpicnum >= 890 && sectp->floorpicnum <= 897)
     {
-        sectu = GetSectUser(i);
-
-        SET(sector[i].extra, SECTFX_LIQUID_WATER);
+        sectp->u_defined = true;
+        SET(sectp->extra, SECTFX_LIQUID_WATER);
     }
-    else if (sector[i].floorpicnum >= 175 && sector[i].floorpicnum <= 182)
+    else if (sectp->floorpicnum >= 175 && sectp->floorpicnum <= 182)
     {
-        sectu = GetSectUser(i);
-
-        SET(sector[i].extra, SECTFX_LIQUID_LAVA);
-        if (!sectu->damage)
-            sectu->damage = 40;
+        sectp->u_defined = true;
+        SET(sectp->extra, SECTFX_LIQUID_LAVA);
+        if (!sectp->damage)
+            sectp->damage = 40;
     }
 }
 

@@ -1481,23 +1481,6 @@ enum ShrapType
     SHRAP_USER_DEFINED      = 99
 };
 
-typedef struct SECT_USER
-{
-    int _flags;
-    int depth_fixed;
-    short stag,    // ST? tag number - for certain things it helps to know it
-          ang,
-          height,
-          speed,
-          damage,
-          number;  // usually used for matching number
-    uint8_t    flags2;
-} *SECT_USERp;
-
-extern TPointer<SECT_USER> SectUser[MAXSECTORS];
-SECT_USERp SpawnSectUser(short sectnum);
-
-
 # define CallocMem(size, num) M_Calloc(size, num)
 # define FreeMem(ptr) M_Free(ptr)
 
@@ -1822,8 +1805,6 @@ void SectorMidPoint(short sectnum, int *xmid, int *ymid, int *zmid);
 USERp SpawnUser(DSWActor* actor, short id, STATEp state);
 
 short ActorFindTrack(DSWActor* actor, int8_t player_dir, int track_type, short *track_point_num, short *track_dir);
-
-SECT_USERp GetSectUser(short sectnum);
 
 // Some sounds were checked by storing handles in static local variables.
 // Problems with this design:

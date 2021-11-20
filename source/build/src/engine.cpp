@@ -153,7 +153,6 @@ int16_t pointhighlight=-1, linehighlight=-1, highlightcnt=0;
 
 static int16_t numhits;
 
-bool inpreparemirror = 0;
 
 
 //

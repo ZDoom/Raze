@@ -918,22 +918,6 @@ USERp SpawnUser(DSWActor* actor, short id, STATEp state)
     return u;
 }
 
-SECT_USERp GetSectUser(short sectnum)
-{
-    SECT_USERp sectu;
-
-    if (SectUser[sectnum].Data())
-        return SectUser[sectnum].Data();
-
-    SectUser[sectnum].Alloc();
-    sectu = SectUser[sectnum].Data();
-
-    ASSERT(sectu != nullptr);
-
-    return sectu;
-}
-
-
 DSWActor* SpawnActor(short stat, short id, STATEp state, short sectnum, int x, int y, int z, int init_ang, int vel)
 {
     SPRITEp sp;
@@ -1698,7 +1682,6 @@ void SpriteSetup(void)
     // Clear all extra bits - they are set by sprites
     for (int i = 0; i < numsectors; i++)
     {
-        SectUser[i].Clear();
         sector[i].extra = 0;
     }
 

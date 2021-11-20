@@ -2191,7 +2191,6 @@ void CallbackSOsink(ANIMp ap, void *data)
     SECTOR_OBJECTp sop;
     SPRITEp sp;
     USERp u;
-    SECT_USERp su;
     int startwall, endwall, j;
     int dest_sector = -1;
     int src_sector = -1;
@@ -2230,15 +2229,13 @@ void CallbackSOsink(ANIMp ap, void *data)
 
     RESET(sector[dest_sector].floorstat, FLOOR_STAT_RELATIVE);
 
-    su = GetSectUser(dest_sector);
+    auto su = &sector[dest_sector];
 
-    ASSERT(su != nullptr);
+    ASSERT(su->hasU() && sector[src_sector].hasU());
 
-    ASSERT(GetSectUser(src_sector));
-    tgt_depth = FixedToInt((GetSectUser(src_sector))->depth_fixed);
+    tgt_depth = FixedToInt(sector[src_sector].depth_fixed);
 
-    short sectnum;
-    for (sectnum = 0; sectnum < numsectors; sectnum++)
+    for (int sectnum = 0; sectnum < numsectors; sectnum++)
     {
         if (sectnum == dest_sector)
         {
@@ -2527,9 +2524,8 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
         {
             // for lowering the whirlpool in level 1
             SECTORp *sectp;
-            short i;
-            SECT_USERp sectu;
-
+            int i;
+            
             for (i = 0, sectp = &sop->sectp[0]; *sectp; sectp++, i++)
             {
                 if ((*sectp)->hasU())
