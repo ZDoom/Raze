@@ -361,12 +361,14 @@ inline void GetActorExtents(DBloodActor* actor, int* top, int* bottom)
 
 inline DBloodActor* getUpperLink(int sect)
 {
-	return gUpperLink[sect];
+	auto pSect = &sector[sect];
+	return pSect->upperLink;
 }
 
 inline DBloodActor* getLowerLink(int sect)
 {
-	return gLowerLink[sect];
+	auto pSect = &sector[sect];
+	return pSect->lowerLink;
 }
 
 inline void sfxPlay3DSound(DBloodActor* pSprite, int soundId, int a3 = -1, int a4 = 0)

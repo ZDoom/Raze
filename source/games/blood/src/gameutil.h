@@ -47,8 +47,6 @@ extern int baseFloor[kMaxSectors];
 extern int baseCeil[kMaxSectors];
 extern int velFloor[kMaxSectors];
 extern int velCeil[kMaxSectors];
-extern DBloodActor* gUpperLink[kMaxSectors];
-extern DBloodActor* gLowerLink[kMaxSectors];
 extern HITINFO gHitInfo;
 
 enum {

@@ -38,8 +38,6 @@ int baseFloor[kMaxSectors];
 int baseCeil[kMaxSectors];
 int velFloor[kMaxSectors];
 int velCeil[kMaxSectors];
-DBloodActor* gUpperLink[kMaxSectors];
-DBloodActor* gLowerLink[kMaxSectors];
 HITINFO gHitInfo;
 
 bool FindSector(int nX, int nY, int nZ, int *nSector)

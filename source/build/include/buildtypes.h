@@ -101,11 +101,10 @@ struct sectortype
         struct // Blood
         {
             BLD_NS::XSECTOR* _xs;
-            uint8_t q_filler;
+            BLD_NS::DBloodActor* upperLink, *lowerLink;
             int baseFloor, baseCeil;
             int velFloor, velCeil;
-            BLD_NS::DBloodActor* upperLink;
-            BLD_NS::DBloodActor* lowerLink;
+            uint8_t q_filler;
         };
         struct // Exhumed
         {
@@ -121,16 +120,16 @@ struct sectortype
         struct // SW
         {
             // No need to allocate this on demand as it is smaller than what Blood needs.
-            bool defined;
             int dist, flags;
             int depth_fixed;
-            short stag,    // ST? tag number - for certain things it helps to know it
-                ang,
-                height,
-                speed,
-                damage,
-                number;  // usually used for matching number
-            uint8_t    flags2;
+            short stag;    // ST? tag number - for certain things it helps to know it
+            short ang;
+            short height;
+            short speed;
+            short damage;
+            short number;  // usually used for matching number
+            bool defined;
+            uint8_t flags2;
 
         };
 

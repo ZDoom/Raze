@@ -41,15 +41,15 @@ void validateLinks()
     for (auto& sect : sectors())
     {
 
-        if (getUpperLink(snum) && !getUpperLink(snum)->GetOwner())
+        if (sect.upperLink && !sect.upperLink->GetOwner())
         {
             Printf(PRINT_HIGH, "Unpartnered upper link in sector %d\n", snum);
-            gUpperLink[snum] = nullptr;
+            sect.upperLink = nullptr;
         }
-        if (getLowerLink(snum) && !getLowerLink(snum)->GetOwner())
+        if (sect.upperLink && !sect.upperLink->GetOwner())
         {
-            Printf(PRINT_HIGH, "Unpartnered upper link in sector %d\n", snum);
-            gLowerLink[snum] = nullptr;
+            Printf(PRINT_HIGH, "Unpartnered lower link in sector %d\n", snum);
+            sect.lowerLink = nullptr;
         }
         snum++;
     }
@@ -57,11 +57,6 @@ void validateLinks()
 
 void warpInit(void)
 {
-    for (int i = 0; i < kMaxSectors; i++)
-    {
-        gUpperLink[i] = nullptr;
-        gLowerLink[i] = nullptr;
-    }
     #ifdef NOONE_EXTENSIONS
     int team1 = 0; int team2 = 0; gTeamsSpawnUsed = false; // increment if team start positions specified.
     #endif
@@ -123,19 +118,19 @@ void warpInit(void)
                         }
                         break;
                     case kMarkerUpLink:
-                        gUpperLink[pSprite->sectnum] = actor;
+                        pSprite->sector()->upperLink = actor;
                         pSprite->cstat |= 32768;
                         pSprite->cstat &= ~257;
                         break;
                     case kMarkerLowLink:
-                        gLowerLink[pSprite->sectnum] = actor;
+                        pSprite->sector()->lowerLink = actor;
                         pSprite->cstat |= 32768;
                         pSprite->cstat &= ~257;
                         break;
                     case kMarkerUpWater:
                     case kMarkerUpStack:
                     case kMarkerUpGoo:
-                        gUpperLink[pSprite->sectnum] = actor;
+                        pSprite->sector()->upperLink = actor;
                         pSprite->cstat |= 32768;
                         pSprite->cstat &= ~257;
                         pSprite->z = getflorzofslope(pSprite->sectnum, pSprite->x, pSprite->y);
@@ -143,7 +138,7 @@ void warpInit(void)
                     case kMarkerLowWater:
                     case kMarkerLowStack:
                     case kMarkerLowGoo:
-                        gLowerLink[pSprite->sectnum] = actor;
+                        pSprite->sector()->lowerLink = actor;
                         pSprite->cstat |= 32768;
                         pSprite->cstat &= ~257;
                         pSprite->z = getceilzofslope(pSprite->sectnum, pSprite->x, pSprite->y);
@@ -337,8 +332,6 @@ void SerializeWarp(FSerializer& arc)
 	if (arc.BeginObject("warp"))
 	{
 		arc.Array("startzone", gStartZone, kMaxPlayers)
-			.Array("upperlink", gUpperLink, numsectors)
-			.Array("lowerlink", gLowerLink, numsectors)
 			.EndObject();
 	}
 }

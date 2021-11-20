@@ -83,6 +83,7 @@ BEGIN_BLD_NS
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, XWALL& w, XWALL* def);
 FSerializer& Serialize(FSerializer& arc, const char* keyname, XSECTOR& w, XSECTOR* def);
+FSerializer& Serialize(FSerializer& arc, const char* keyname, DBloodActor*& w, DBloodActor** def);
 
 END_BLD_NS
 
@@ -546,6 +547,9 @@ FSerializer &Serialize(FSerializer &arc, const char *key, sectortype &c, sectort
 		}
 		else if (isBlood())
 		{
+			arc("upperlink", c.upperLink, def->upperLink)
+				("lowerlink", c.lowerLink, def->lowerLink);
+
 			if (arc.isWriting())
 			{
 				if (c.hasX())
