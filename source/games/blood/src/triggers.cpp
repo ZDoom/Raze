@@ -2051,10 +2051,10 @@ void trInit(void)
                 spritetype* pSprite1 = &pXSector->marker0->s();
                 spritetype* pSprite2 = &pXSector->marker1->s();
                 TranslateSector(i, 0, -65536, pSprite1->x, pSprite1->y, pSprite1->x, pSprite1->y, pSprite1->ang, pSprite2->x, pSprite2->y, pSprite2->ang, pSector->type == kSectorSlide);
-                for (int j = 0; j < pSector->wallnum; j++)
+                for(auto& wal : wallsofsector(pSector))
                 {
-                    wall[pSector->wallptr + j].baseWall.x = wall[pSector->wallptr+j].x;
-                    wall[pSector->wallptr + j].baseWall.y = wall[pSector->wallptr+j].y;
+                    wal.baseWall.x = wal.x;
+                    wal.baseWall.y = wal.y;
                 }
                 BloodSectIterator it(i);
                 while (auto actor = it.Next())
@@ -2070,10 +2070,10 @@ void trInit(void)
             {
                 spritetype* pSprite1 = &pXSector->marker0->s();
                 TranslateSector(i, 0, -65536, pSprite1->x, pSprite1->y, pSprite1->x, pSprite1->y, 0, pSprite1->x, pSprite1->y, pSprite1->ang, pSector->type == kSectorRotate);
-                for (int j = 0; j < pSector->wallnum; j++)
+                for (auto& wal : wallsofsector(pSector))
                 {
-                    wall[pSector->wallptr + j].baseWall.x = wall[pSector->wallptr + j].x;
-                    wall[pSector->wallptr + j].baseWall.y = wall[pSector->wallptr + j].y;
+                    wal.baseWall.x = wal.x;
+                    wal.baseWall.y = wal.y;
                 }
                 BloodSectIterator it(i);
                 while (auto actor = it.Next())
