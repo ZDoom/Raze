@@ -218,7 +218,7 @@ void processinput(int num) {
 	if (plr.health <= 0) {
 		playerdead(plr);
 		if (plr.dead) {
-			if (plr.horizon.horiz.asbuild() < gi->playerHorizMax())
+			if (plr.horizon.horiz.asq16() < gi->playerHorizMax())
 				plr.horizon.addadjustment(TICSPERFRAME << 1);
 		}
 		return;
