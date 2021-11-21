@@ -410,7 +410,7 @@ static void fakeMoveDude(spritetype *pSprite)
                     // ???
                 }
             }
-            actWallBounceVector(&predict.xvel, &predict.yvel, nHitWall, 0);
+            actWallBounceVector(&predict.xvel, &predict.yvel, pHitWall, 0);
             break;
         }
         }

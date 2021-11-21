@@ -5785,7 +5785,7 @@ static void actCheckThings()
 						speed = pXSector->panVel << 9;
 						if (!pXSector->panAlways && pXSector->busy) speed = MulScale(speed, pXSector->busy, 16);
 					}
-					if (pSector->floorstat & 64) angle = (angle + GetWallAngle(pSector->wallptr) + 512) & 2047;
+					if (pSector->floorstat & 64) angle = (angle + GetWallAngle(pSector->firstWall()) + 512) & 2047;
 
 					actor->xvel += MulScale(speed, Cos(angle), 30);
 					actor->yvel += MulScale(speed, Sin(angle), 30);
@@ -6235,7 +6235,7 @@ static void actCheckDudes()
 						speed = MulScale(speed, pXSector->busy, 16);
 				}
 				if (pSector->floorstat & 64)
-					angle = (angle + GetWallAngle(pSector->wallptr) + 512) & 2047;
+					angle = (angle + GetWallAngle(pSector->firstWall()) + 512) & 2047;
 				int dx = MulScale(speed, Cos(angle), 30);
 				int dy = MulScale(speed, Sin(angle), 30);
 				actor->xvel += dx;
@@ -6910,7 +6910,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 					auto pFX = gFX.fxSpawnActor(pVectorData->surfHit[nSurf].fx1, nSector, x, y, z, 0);
 					if (pFX)
 					{
-						pFX->s().ang = (GetWallAngle(nWall) + 512) & 2047;
+						pFX->s().ang = (GetWallAngle(pWall) + 512) & 2047;
 						pFX->s().cstat |= 16;
 					}
 				}
@@ -7017,7 +7017,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 								if (pFX)
 								{
 									pFX->zvel = 0x2222;
-									pFX->s().ang = (GetWallAngle(nWall) + 512) & 2047;
+									pFX->s().ang = (GetWallAngle(&wall[nWall]) + 512) & 2047;
 									pFX->s().cstat |= 16;
 								}
 							}

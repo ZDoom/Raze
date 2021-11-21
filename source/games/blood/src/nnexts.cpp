@@ -1356,7 +1356,7 @@ void nnExtProcessSuperSprites()
                             speed = MulScale(speed, pXSector->busy, 16);
                     }
                     if (sector[pDebris->sectnum].floorstat & 64)
-                        angle = (angle + GetWallAngle(sector[pDebris->sectnum].wallptr) + 512) & 2047;
+                        angle = (angle + GetWallAngle(sector[pDebris->sectnum].firstWall()) + 512) & 2047;
                     int dx = MulScale(speed, Cos(angle), 30);
                     int dy = MulScale(speed, Sin(angle), 30);
                     debrisactor->xvel += dx;

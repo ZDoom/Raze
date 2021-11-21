@@ -284,12 +284,6 @@ bool CheckProximityWall(int nWall, int x, int y, int nDist)
     return check1 * check1 < check2 * nDist * nDist;
 }
 
-int GetWallAngle(int nWall)
-{
-    int nWall2 = wall[nWall].point2;
-    return getangle(wall[nWall2].x - wall[nWall].x, wall[nWall2].y - wall[nWall].y);
-}
-
 int GetWallAngle(walltype* pWall)
 {
     int nWall2 = pWall->point2;

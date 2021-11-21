@@ -152,7 +152,6 @@ extern TArray<walltype> wall;
 extern spritetype sprite[MAXSPRITES];
 EXTERN int leveltimer;
 
-
 extern TArray<sectortype> sectorbackup;
 extern TArray<walltype> wallbackup;
 
