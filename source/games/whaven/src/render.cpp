@@ -39,6 +39,10 @@ void drawscreen(int num, double dasmoothratio, bool sceneonly)
 			crotscrnang = plr.angle.interpolatedrotscrn(dasmoothratio);
 		}
 
+		DoInterpolations(dasmoothratio / 65536.);
+		pm_smoothratio = (int)dasmoothratio;
+
+
 		if (plr.over_shoulder_on)
 		{
 			sprite[plr.spritenum].cstat |= CSTAT_SPRITE_TRANSLUCENT;
@@ -114,6 +118,7 @@ void drawscreen(int num, double dasmoothratio, bool sceneonly)
 			DrawOverheadMap(cposx, cposy, cang.asbuild(), dasmoothratio);
 		}
 	}
+	RestoreInterpolations();
 }
 
 void GameInterface::processSprites(spritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio)

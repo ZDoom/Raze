@@ -670,6 +670,7 @@ void GameInterface::Ticker()
 		r_NoInterpolate = true;
 		return;
 	}
+	UpdateInterpolations();
 
 	for (int i = connecthead; i >= 0; i = connectpoint2[i])
 		player[i].oldsector = player[i].sector;
