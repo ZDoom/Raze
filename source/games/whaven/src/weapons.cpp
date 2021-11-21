@@ -2405,46 +2405,47 @@ void swingdaweapon(PLAYER& plr) {
 
 void swingdacrunch(PLAYER& plr, int daweapon) {
 
+	auto& pspr = sprite[player->spritenum];
 	switch (daweapon) {
 	case 0: // fist
-		spritesound(S_SOCK1 + (krand() % 4), &sprite[plr.spritenum]);
+		spritesound(S_SOCK1 + (krand() % 4), &pspr);
 		break;
 	case 1: // dagger
 		if ((krand() % 2) != 0)
-			spritesound(S_GORE1 + (krand() % 4), &sprite[plr.spritenum]);
+			spritesound(S_GORE1 + (krand() % 4), &pspr);
 		break;
 	case 2: // short sword
-		spritesound(S_SWORD2 + (krand() % 3), &sprite[plr.spritenum]);
+		spritesound(S_SWORD2 + (krand() % 3), &pspr);
 		break;
 	case 3: // morningstar
-		spritesound(S_SOCK1 + (krand() % 4), &sprite[plr.spritenum]);
+		spritesound(S_SOCK1 + (krand() % 4), &pspr);
 		break;
 	case 4: // broad sword
-		spritesound(S_SWORD1 + (krand() % 3), &sprite[plr.spritenum]);
+		spritesound(S_SWORD1 + (krand() % 3), &pspr);
 		break;
 	case 5: // battle axe
 		if ((krand() % 2) != 0)
-			spritesound(S_SOCK1 + (krand() % 4), &sprite[plr.spritenum]);
+			spritesound(S_SOCK1 + (krand() % 4), &pspr);
 		else
-			spritesound(S_SWORD1 + (krand() % 3), &sprite[plr.spritenum]);
+			spritesound(S_SWORD1 + (krand() % 3), &pspr);
 		break;
 	case 6: // bow
 
 		break;
 	case 7: // pike
 		if ((krand() % 2) != 0)
-			spritesound(S_SOCK1 + (krand() % 4), &sprite[plr.spritenum]);
+			spritesound(S_SOCK1 + (krand() % 4), &pspr);
 		else
-			spritesound(S_SWORD1 + (krand() % 3), &sprite[plr.spritenum]);
+			spritesound(S_SWORD1 + (krand() % 3), &pspr);
 		break;
 	case 8: // two handed sword
-		spritesound(S_SWORD1 + (krand() % 2), &sprite[plr.spritenum]);
+		spritesound(S_SWORD1 + (krand() % 2), &pspr);
 		break;
 	case 9: // halberd
 		if ((krand() % 2) != 0)
-			spritesound(S_SOCK1 + (krand() % 4), &sprite[plr.spritenum]);
+			spritesound(S_SOCK1 + (krand() % 4), &pspr);
 		else
-			spritesound(S_SWORD1 + (krand() % 3), &sprite[plr.spritenum]);
+			spritesound(S_SWORD1 + (krand() % 3), &pspr);
 		break;
 	}
 }
