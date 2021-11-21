@@ -837,33 +837,35 @@ void TranslateSector(int nSector, int a2, int a3, int a4, int a5, int a6, int a7
     {
         for (int i = 0; i < pSector->wallnum; nWall++, i++)
         {
-            int v10 = wall[nWall].point2;
-            x = wall[nWall].baseWall.x;
-            y = wall[nWall].baseWall.y;
-            if (wall[nWall].cstat&16384)
+            auto pWall = &wall[nWall];
+            int v10 = pWall->point2;
+            auto p2Wall = pWall->point2Wall();
+            x = pWall->baseWall.x;
+            y = pWall->baseWall.y;
+            if (pWall->cstat&16384)
             {
                 if (vbp)
                     RotatePoint((int*)&x, (int*)&y, vbp, a4, a5);
                 DragPoint(nWall, x+vc-a4, y+v8-a5);
-                if ((wall[v10].cstat&49152) == 0)
+                if ((p2Wall->cstat&49152) == 0)
                 {
-                    x = wall[v10].baseWall.x;
-                    y = wall[v10].baseWall.y;
+                    x = p2Wall->baseWall.x;
+                    y = p2Wall->baseWall.y;
                     if (vbp)
                         RotatePoint((int*)&x, (int*)&y, vbp, a4, a5);
                     DragPoint(v10, x+vc-a4, y+v8-a5);
                 }
                 continue;
             }
-            if (wall[nWall].cstat&32768)
+            if (pWall->cstat&32768)
             {
                 if (vbp)
                     RotatePoint((int*)&x, (int*)&y, -vbp, a4, a5);
                 DragPoint(nWall, x-(vc-a4), y-(v8-a5));
-                if ((wall[v10].cstat&49152) == 0)
+                if ((p2Wall->cstat&49152) == 0)
                 {
-                    x = wall[v10].baseWall.x;
-                    y = wall[v10].baseWall.y;
+                    x = p2Wall->baseWall.x;
+                    y = p2Wall->baseWall.y;
                     if (vbp)
                         RotatePoint((int*)&x, (int*)&y, -vbp, a4, a5);
                     DragPoint(v10, x-(vc-a4), y-(v8-a5));
