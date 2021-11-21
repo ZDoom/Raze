@@ -2596,10 +2596,10 @@ static void ConcussSprite(DBloodActor* source, DBloodActor* actor, int x, int y,
 //
 //---------------------------------------------------------------------------
 
-int actWallBounceVector(int* x, int* y, int nWall, int a4)
+int actWallBounceVector(int* x, int* y, walltype* pWall, int a4)
 {
 	int wx, wy;
-	GetWallNormal(nWall, &wx, &wy);
+	GetWallNormal(pWall, &wx, &wy);
 	int t = DMulScale(*x, wx, *y, wy, 16);
 	int t2 = mulscale16r(t, a4 + 0x10000);
 	*x -= MulScale(wx, t2, 16);
@@ -4632,8 +4632,7 @@ static Collision MoveThing(DBloodActor* actor)
 		Collision &coll = actor->hit.hit;
 		if (coll.type == kHitWall)
 		{
-			int nHitWall = coll.index;
-			actWallBounceVector(&actor->xvel, &actor->yvel, nHitWall, pThingInfo->elastic);
+			actWallBounceVector(&actor->xvel, &actor->yvel, coll.wall(), pThingInfo->elastic);
 			switch (pSprite->type)
 			{
 			case kThingZombieHead:
@@ -4894,8 +4893,7 @@ void MoveDude(DBloodActor* actor)
 		}
 		case kHitWall:
 		{
-			int nHitWall = coll.index;
-			walltype* pHitWall = &wall[nHitWall];
+			walltype* pHitWall = coll.wall();
 			XWALL* pHitXWall = nullptr;
 			if (pHitWall->hasX()) pHitXWall = &pHitWall->xw();
 
@@ -4915,7 +4913,7 @@ void MoveDude(DBloodActor* actor)
 					// ???
 				}
 			}
-			actWallBounceVector((int*)&actor->xvel, (int*)&actor->yvel, nHitWall, 0);
+			actWallBounceVector((int*)&actor->xvel, (int*)&actor->yvel, pHitWall, 0);
 			break;
 		}
 		}

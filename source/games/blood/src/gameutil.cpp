@@ -290,14 +290,13 @@ int GetWallAngle(walltype* pWall)
     return getangle(delta.x, delta.y);
 }
 
-void GetWallNormal(int nWall, int *pX, int *pY)
+void GetWallNormal(walltype* pWall, int *pX, int *pY)
 {
-    assert(validWallIndex(nWall));
-    int nWall2 = wall[nWall].point2;
-    int dX = -(wall[nWall2].y - wall[nWall].y);
-    dX >>= 4;
-    int dY = wall[nWall2].x - wall[nWall].x;
-    dY >>= 4;
+
+    auto delta = pWall->delta();
+    int dX = -delta.y >> 4;
+    int dY = delta.x >> 4;
+
     int nLength = ksqrt(dX*dX+dY*dY);
     if (nLength <= 0)
         nLength = 1;

@@ -212,7 +212,7 @@ void TreeToGibCallback(int, int);
 
 bool IsUnderwaterSector(sectortype* pSector);
 void actInit();
-int actWallBounceVector(int *x, int *y, int nWall, int a4);
+int actWallBounceVector(int *x, int *y, walltype* pWall, int a4);
 int actFloorBounceVector(int *x, int *y, int *z, int nSector, int a5);
 void actRadiusDamage(DBloodActor* source, int x, int y, int z, int nSector, int nDist, int a7, int a8, DAMAGE_TYPE a9, int a10, int a11);
 DBloodActor *actDropObject(DBloodActor *pSprite, int nType);

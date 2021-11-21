@@ -63,13 +63,13 @@ struct Collision
 		return type;
 	}
 
-	walltype* wall()
+	walltype* wall() const
 	{
 		assert(type == kHitWall);
 		return &::wall[index];
 	}
 
-	sectortype* sector()
+	sectortype* sector() const
 	{
 		assert(type == kHitSector);
 		return &::sector[index];

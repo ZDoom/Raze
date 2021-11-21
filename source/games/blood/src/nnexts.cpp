@@ -1695,7 +1695,7 @@ void debrisMove(int listIndex)
         return;
     }
 
-    int top, bottom, i;
+    int top, bottom;
     GetActorExtents(actor, &top, &bottom);
 
     Collision moveHit;
@@ -1739,8 +1739,7 @@ void debrisMove(int listIndex)
         if (actor->hit.hit.type == kHitWall)
         {
             moveHit = actor->hit.hit;
-            i = moveHit.index;
-            actWallBounceVector(&actor->xvel, &actor->yvel, i, tmpFraction);
+            actWallBounceVector(&actor->xvel, &actor->yvel, moveHit.wall(), tmpFraction);
         }
 
     } 
@@ -1795,6 +1794,7 @@ void debrisMove(int listIndex)
 
     }
 
+    int i;
     if ((i = CheckLink(actor)) != 0)
     {
         GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, clipDist, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
