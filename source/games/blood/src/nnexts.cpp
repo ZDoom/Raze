@@ -2554,17 +2554,18 @@ void useObjResizer(DBloodActor* sourceactor, int targType, int targIndex, DBlood
         break;
     }
     case OBJ_WALL:
+        auto pWall = &wall[targIndex];
         if (valueIsBetween(pXSource->data1, -1, 32767))
-            wall[targIndex].xrepeat = ClipRange(pXSource->data1, 0, 255);
+            pWall->xrepeat = ClipRange(pXSource->data1, 0, 255);
 
         if (valueIsBetween(pXSource->data2, -1, 32767))
-            wall[targIndex].yrepeat = ClipRange(pXSource->data2, 0, 255);
+            pWall->yrepeat = ClipRange(pXSource->data2, 0, 255);
 
         if (valueIsBetween(pXSource->data3, -1, 32767))
-            wall[targIndex].xpan_ = (float)ClipRange(pXSource->data3, 0, 255);
+            pWall->xpan_ = (float)ClipRange(pXSource->data3, 0, 255);
 
         if (valueIsBetween(pXSource->data4, -1, 65535))
-            wall[targIndex].ypan_ = (float)ClipRange(pXSource->data4, 0, 255);
+            pWall->ypan_ = (float)ClipRange(pXSource->data4, 0, 255);
         break;
     }
 }
@@ -3543,42 +3544,45 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, int index, DBloodAc
             return;
 
         case OBJ_WALL:
-            if (pXSource->data2 <= 0) 
+        {
+            auto pWall = &wall[index];
+            if (pXSource->data2 <= 0)
             {
                 if (pXSource->data3 == 3 || pXSource->data3 == 1)
                     seqKill(0, index);
-                if ((pXSource->data3 == 3 || pXSource->data3 == 2) && (wall[index].cstat & CSTAT_WALL_MASKED))
+                if ((pXSource->data3 == 3 || pXSource->data3 == 2) && (pWall->cstat & CSTAT_WALL_MASKED))
                     seqKill(4, index);
-            } 
-            else 
+            }
+            else
             {
                 if (pXSource->data3 == 3 || pXSource->data3 == 1)
                     seqSpawn(pXSource->data2, SS_WALL, index, -1);
 
                 if (pXSource->data3 == 3 || pXSource->data3 == 2) {
 
-                    if (wall[index].nextwall < 0) {
+                    if (pWall->nextwall < 0) {
                         if (pXSource->data3 == 3)
                             seqSpawn(pXSource->data2, SS_WALL, index, -1);
 
-                    } else {
-                        if (!(wall[index].cstat & CSTAT_WALL_MASKED))
-                            wall[index].cstat |= CSTAT_WALL_MASKED;
+                    }
+                    else {
+                        if (!(pWall->cstat & CSTAT_WALL_MASKED))
+                            pWall->cstat |= CSTAT_WALL_MASKED;
 
                         seqSpawn(pXSource->data2, SS_MASKED, index, -1);
                     }
                 }
 
-                if (pXSource->data4 > 0) 
+                if (pXSource->data4 > 0)
                 {
                     int cx, cy, cz;
-                    cx = (wall[index].x + wall[wall[index].point2].x) >> 1;
-                    cy = (wall[index].y + wall[wall[index].point2].y) >> 1;
+                    cx = (pWall->x + pWall->point2Wall()->x) >> 1;
+                    cy = (pWall->y + pWall->point2Wall()->y) >> 1;
                     int nSector = sectorofwall(index);
                     int32_t ceilZ, floorZ;
                     getzsofslope(nSector, cx, cy, &ceilZ, &floorZ);
                     int32_t ceilZ2, floorZ2;
-                    getzsofslope(wall[index].nextsector, cx, cy, &ceilZ2, &floorZ2);
+                    getzsofslope(pWall->nextsector, cx, cy, &ceilZ2, &floorZ2);
                     ceilZ = ClipLow(ceilZ, ceilZ2);
                     floorZ = ClipHigh(floorZ, floorZ2);
                     cz = (ceilZ + floorZ) >> 1;
@@ -3587,7 +3591,7 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, int index, DBloodAc
                 }
             }
             return;
-
+        }
         case OBJ_SPRITE:
         {
             auto pSprite = &iactor->s();

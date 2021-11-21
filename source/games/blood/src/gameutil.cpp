@@ -148,12 +148,12 @@ bool CheckProximityPoint(int nX1, int nY1, int nZ1, int nX2, int nY2, int nZ2, i
     return 1;
 }
 
-bool CheckProximityWall(int nWall, int x, int y, int nDist)
+bool CheckProximityWall(walltype* pWall, int x, int y, int nDist)
 {
-    int x1 = wall[nWall].x;
-    int y1 = wall[nWall].y;
-    int x2 = wall[wall[nWall].point2].x;
-    int y2 = wall[wall[nWall].point2].y;
+    int x1 = pWall->x;
+    int y1 = pWall->y;
+    int x2 = pWall->point2Wall()->x;
+    int y2 = pWall->point2Wall()->y;
     nDist <<= 4;
     if (x1 < x2)
     {
@@ -742,7 +742,7 @@ BitArray GetClosestSpriteSectors(int nSector, int x, int y, int nDist, TArray<in
             {
                 if (search.Check(nNextSector)) // if we've already checked this sector, skip. This is bad, therefore only in compat mode.
                     continue;
-                withinRange = CheckProximityWall(wal.point2, x, y, nDist);
+                withinRange = CheckProximityWall(wal.point2Wall(), x, y, nDist);
             }
             else // new method using proper math and no bad shortcut.
             {
