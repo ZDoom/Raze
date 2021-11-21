@@ -7,7 +7,7 @@ static void gonzopike(short s, PLAYER& plr);
 static void checkexplgonzo(PLAYER& plr, short i);
 static boolean patrolprocess(PLAYER& plr, short i);
 
-static void chasegonzo(PLAYER& plr, short i) {
+static void chasegonzo(PLAYER& plr, short const i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0)
@@ -62,10 +62,10 @@ static void chasegonzo(PLAYER& plr, short i) {
 
 				if (rand() % 100 > 80 && sector[plr.sector].lotag == 25) {
 					newstatus(i, AMBUSH);
-					sprite[i].z -= (getPlayerHeight() << 6);
-					sprite[i].lotag = 60;
-					sprite[i].extra = 1;
-					sprite[i].picnum = GONZOHMJUMP;
+					spr.z -= (getPlayerHeight() << 6);
+					spr.lotag = 60;
+					spr.extra = 1;
+					spr.picnum = GONZOHMJUMP;
 					return;
 
 				}
@@ -74,10 +74,10 @@ static void chasegonzo(PLAYER& plr, short i) {
 
 			if ((movestat & 0xc000) == 32768 && sector[plr.sector].lotag == 25) {
 				newstatus(i, AMBUSH);
-				sprite[i].z -= (getPlayerHeight() << 6);
-				sprite[i].lotag = 90;
-				sprite[i].extra = 3;
-				sprite[i].picnum = GONZOHMJUMP;
+				spr.z -= (getPlayerHeight() << 6);
+				spr.lotag = 90;
+				spr.extra = 3;
+				spr.picnum = GONZOHMJUMP;
 				return;
 			}
 
