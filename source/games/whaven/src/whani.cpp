@@ -586,17 +586,18 @@ void animateobjs(PLAYER& plr) {
 	// MASPLASH
 	for (i = headspritestat[MASPLASH]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
-		
-		sprite[i].lotag -= TICSPERFRAME;
-		sprite[i].z = sector[sprite[i].sectnum].floorz + (tileHeight(sprite[i].picnum) << 8);
-		setsprite(i, sprite[i].x, sprite[i].y, sprite[i].z);
+		auto& spr = sprite[i];
 
-		if (sprite[i].lotag <= 0) {
-			if ((sprite[i].picnum >= SPLASHAROO && sprite[i].picnum < LASTSPLASHAROO)
-					|| (sprite[i].picnum >= LAVASPLASH && sprite[i].picnum < LASTLAVASPLASH)
-					|| (sprite[i].picnum >= SLIMESPLASH && sprite[i].picnum < LASTSLIMESPLASH)) {
-				sprite[i].picnum++;
-				sprite[i].lotag = 8;
+		spr.lotag -= TICSPERFRAME;
+		spr.z = sector[spr.sectnum].floorz + (tileHeight(spr.picnum) << 8);
+		setsprite(i, spr.x, spr.y, spr.z);
+
+		if (spr.lotag <= 0) {
+			if ((spr.picnum >= SPLASHAROO && spr.picnum < LASTSPLASHAROO)
+					|| (spr.picnum >= LAVASPLASH && spr.picnum < LASTLAVASPLASH)
+					|| (spr.picnum >= SLIMESPLASH && spr.picnum < LASTSLIMESPLASH)) {
+				spr.picnum++;
+				spr.lotag = 8;
 			} else {
 				deletesprite((short) i);
 			}
@@ -606,13 +607,15 @@ void animateobjs(PLAYER& plr) {
 	// SHATTER
 	for (i = headspritestat[SHATTER]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
-		sprite[i].lotag -= TICSPERFRAME;
+		auto& spr = sprite[i];
 
-		if (sprite[i].lotag < 0) {
-			sprite[i].picnum++;
-			sprite[i].lotag = 12;
+		spr.lotag -= TICSPERFRAME;
+
+		if (spr.lotag < 0) {
+			spr.picnum++;
+			spr.lotag = 12;
 		}
-		switch (sprite[i].picnum) {
+		switch (spr.picnum) {
 		case FSHATTERBARREL + 2:
 			changespritestat(i, (short) 0);
 			break;
@@ -622,19 +625,20 @@ void animateobjs(PLAYER& plr) {
 	// FIRE
 	for (i = headspritestat[FIRE]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
+		auto& spr = sprite[i];
 
-		sprite[i].lotag -= TICSPERFRAME;
+		spr.lotag -= TICSPERFRAME;
 
-		if (sprite[i].z < sector[sprite[i].sectnum].floorz)
-			sprite[i].z += (int) TICSPERFRAME << 8;
-		if (sprite[i].z > sector[sprite[i].sectnum].floorz)
-			sprite[i].z = sector[sprite[i].sectnum].floorz;
+		if (spr.z < sector[spr.sectnum].floorz)
+			spr.z += (int) TICSPERFRAME << 8;
+		if (spr.z > sector[spr.sectnum].floorz)
+			spr.z = sector[spr.sectnum].floorz;
 
-		if (sprite[i].lotag < 0) {
-			switch (sprite[i].picnum) {
+		if (spr.lotag < 0) {
+			switch (spr.picnum) {
 			case LFIRE:
-				sprite[i].picnum = SFIRE;
-				sprite[i].lotag = 2047;
+				spr.picnum = SFIRE;
+				spr.lotag = 2047;
 				break;
 			case SFIRE:
 				deletesprite(i);
