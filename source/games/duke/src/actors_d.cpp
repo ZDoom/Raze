@@ -345,11 +345,10 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 	
 	if(spri->picnum != SHRINKSPARK && !(spri->picnum == RPG && spri->xrepeat < 11))
 	{
-		BFSSearch search(numsectors, spri->sectnum);
+		BFSSectorSearch search(spri->sector());
 	
-		for(unsigned dasect; (dasect = search.GetNext()) != BFSSearch::EOL;)
+		while (auto dasectp = search.GetNext())
 		{
-			auto dasectp = &sector[dasect];
 			if (((dasectp->ceilingz - spri->z) >> 8) < r)
 			{
 				auto wal = dasectp->firstWall();
@@ -369,10 +368,9 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 			{
 				if ((abs(wal.x - spri->x) + abs(wal.y - spri->y)) < r)
 				{
-					int nextsect = wal.nextsector;
-					if (nextsect >= 0)
+					if (wal.twoSided())
 					{
-						search.Add(nextsect);
+						search.Add(wal.nextSector());
 					}
 					int x1 = (((wal.x + wal.point2Wall()->x) >> 1) + spri->x) >> 1;
 					int y1 = (((wal.y + wal.point2Wall()->y) >> 1) + spri->y) >> 1;

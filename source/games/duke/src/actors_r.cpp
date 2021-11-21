@@ -223,11 +223,10 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 
 	if (spri->xrepeat >= 11 || !(spri->picnum == RPG || ((isRRRA()) && spri->picnum == RPG2)))
 	{
-		BFSSearch search(numsectors, spri->sectnum);
-
-		for (unsigned dasect; (dasect = search.GetNext()) != BFSSearch::EOL;)
+		BFSSectorSearch search(spri->sector());
+	
+		while (auto dasectp = search.GetNext())
 		{
-			auto dasectp = &sector[dasect];
 			if (((dasectp->ceilingz - spri->z) >> 8) < r)
 			{
 				auto wal = dasectp->firstWall();
@@ -247,10 +246,9 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 			{
 				if ((abs(wal.x - spri->x) + abs(wal.y - spri->y)) < r)
 				{
-					int nextsect = wal.nextsector;
-					if (nextsect >= 0)
+					if (wal.twoSided())
 					{
-						search.Add(nextsect);
+						search.Add(wal.nextSector());
 					}
 					int x1 = (((wal.x + wal.point2Wall()->x) >> 1) + spri->x) >> 1;
 					int y1 = (((wal.y + wal.point2Wall()->y) >> 1) + spri->y) >> 1;
