@@ -5133,7 +5133,7 @@ int furthestcanseepoint(DDukeActor *actor, DDukeActor* tosee, int* dax, int* day
 		da = abs(hx - s->x) + abs(hy - s->y);
 
 		if (d < da && hitsect)
-			if (cansee(hx, hy, hz, sectnum(hitsect), s->x, s->y, s->z - (16 << 8), s->sectnum))
+			if (cansee(hx, hy, hz, hitsect, s->x, s->y, s->z - (16 << 8), s->sector()))
 			{
 				*dax = hx;
 				*day = hy;

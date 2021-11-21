@@ -997,7 +997,7 @@ static void shootgrowspark(DDukeActor* actor, int p, int sx, int sy, int sz, int
 	//RESHOOTGROW:
 
 	s->cstat &= ~257;
-	hitscan(sx, sy, sz, sectnum(sect), bcos(sa), bsin(sa),
+	hitscan(sx, sy, sz, sect, bcos(sa), bsin(sa),
 		zvel << 6, &hitsectp, &wal, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
 
 	s->cstat |= 257;

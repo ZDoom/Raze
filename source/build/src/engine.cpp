@@ -863,7 +863,7 @@ int32_t cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1, int32_t x2, in
 
     BFSSearch search(numsectors, sect1);
 
-    for (int dasectnum; (dasectnum = search.GetNext()) != BFSSearch::EOL;)
+    for (unsigned dasectnum; (dasectnum = search.GetNext()) != BFSSearch::EOL;)
     {
         auto const sec = (usectorptr_t)&sector[dasectnum];
         uwallptr_t wal;

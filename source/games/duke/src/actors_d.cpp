@@ -3473,7 +3473,7 @@ void handle_se06_d(DDukeActor* actor)
 	DukeStatIterator it(STAT_EFFECTOR);
 	while (auto act2 = it.Next())
 	{
-		if ((act2->s->lotag == 14) && (sh == act2->s->hitag) && (act2->temp_data[0] == t[0])) // sectnum()
+		if ((act2->s->lotag == 14) && (sh == act2->s->hitag) && (act2->temp_data[0] == t[0]))
 		{
 			act2->s->xvel = s->xvel;
 			//if( t[4] == 1 )
