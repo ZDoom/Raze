@@ -1829,7 +1829,7 @@ void checksectors_d(int snum)
 				{
 					if (act->s->picnum == ACTIVATOR || act->s->picnum == MASTERSWITCH) return;
 				}
-				operatesectors(p->GetActor()->s->sector(), p->GetActor());
+				operatesectors(p->GetActor()->sector(), p->GetActor());
 			}
 			else fi.checkhitswitch(snum, ntwall, nullptr);
 		}

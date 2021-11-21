@@ -2197,7 +2197,7 @@ bool money(DDukeActor* actor, int BLOODPOOL)
 		deletesprite(actor);
 		return false;
 	}
-	int l = getflorzofslope(s->sectnum, s->x, s->y);
+	int l = getflorzofslopeptr(s->sector(), s->x, s->y);
 
 	if (s->z > l)
 	{
@@ -2330,7 +2330,7 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 			}
 			t[2]++;
 		}
-		l = getflorzofslope(s->sectnum, s->x, s->y);
+		l = getflorzofslopeptr(s->sector(), s->x, s->y);
 
 		s->z = l - (2 << 8);
 		s->xvel = 0;
@@ -2772,7 +2772,7 @@ void handle_se00(DDukeActor* actor, int LASERLINE)
 				}
 			}
 		}
-		DukeSectIterator itp(s->sectnum);
+		DukeSectIterator itp(actor->sector());
 		while (auto ap = itp.Next())
 		{
 			auto sprp = ap->s;
@@ -3179,7 +3179,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 				{
 					if (a2->s->statnum == 1 && badguy(a2) && a2->s->picnum != SECTOREFFECTOR && a2->s->picnum != LOCATORS)
 					{
-						//					if(a2->s->sectnum != s->sectnum)
+						//					if(a2->s->sector != s->sector)
 						{
 							int k = a2->s->sectnum;
 							updatesector(a2->s->x, a2->s->y, &k);

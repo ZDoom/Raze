@@ -215,11 +215,11 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act)
 		{
 			if (spj->sector()->lotag == 2)
 			{
-				sp->z = getceilzofslope(sp->sectnum, sp->x, sp->y) + (16 << 8);
+				sp->z = getceilzofslopeptr(sp->sector(), sp->x, sp->y) + (16 << 8);
 				sp->cstat |= 8;
 			}
 			else if (spj->sector()->lotag == 1)
-				sp->z = getflorzofslope(sp->sectnum, sp->x, sp->y);
+				sp->z = getflorzofslopeptr(sp->sector(), sp->x, sp->y);
 		}
 
 		if (sectp->floorpicnum == FLOORSLIME ||
@@ -652,7 +652,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act)
 
 		if (spj)
 		{
-			int x = getflorzofslope(sp->sectnum, sp->x, sp->y);
+			int x = getflorzofslopeptr(sp->sector(), sp->x, sp->y);
 			if (sp->z > x - (12 << 8))
 				sp->z = x - (12 << 8);
 		}

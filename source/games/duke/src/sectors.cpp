@@ -1135,7 +1135,7 @@ void operateactivators(int low, int plnum)
 
 				if (act->sector()->lotag < 3)
 				{
-					DukeSectIterator it(act->s->sectnum);
+					DukeSectIterator it(act->sector());
 					while (auto a2 = it.Next())
 					{
 						if (a2->s->statnum == 3) switch (a2->s->lotag)

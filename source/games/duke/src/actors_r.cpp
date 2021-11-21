@@ -467,7 +467,7 @@ void guts_r(DDukeActor* actor, int gtype, int n, int p)
 	else sx = sy = 32;
 
 	gutz = s->z - (8 << 8);
-	floorz = getflorzofslope(s->sectnum, s->x, s->y);
+	floorz = getflorzofslopeptr(s->sector(), s->x, s->y);
 
 	if (gutz > (floorz - (8 << 8)))
 		gutz = floorz - (8 << 8);
@@ -1591,7 +1591,7 @@ void movetransports_r(void)
 
 		if (act->temp_data[0] > 0) act->temp_data[0]--;
 
-		DukeSectIterator itj(spr->sectnum);
+		DukeSectIterator itj(act->sector());
 		while (auto act2 = itj.Next())
 		{
 			auto spr2 = act2->s;
@@ -1632,7 +1632,7 @@ void movetransports_r(void)
 							ps[p].bobposy = ps[p].oposy = ps[p].pos.y = Owner->s->y;
 							ps[p].oposz = ps[p].pos.z = Owner->s->z - (gs.playerheight - (4 << 8));
 
-							changeactorsect(act2, Owner->s->sectnum);
+							changeactorsect(act2, Owner->sector());
 							ps[p].cursectnum = spr2->sectnum;
 
 							auto beam = spawn(Owner, TRANSPORTERBEAM);
@@ -1655,7 +1655,7 @@ void movetransports_r(void)
 							else ps[p].pos.z = Owner->s->z + 6144;
 							ps[p].oposz = ps[p].pos.z;
 
-							changeactorsect(act2, Owner->s->sectnum);
+							changeactorsect(act2, Owner->sector());
 							ps[p].cursectnum = Owner->s->sectnum;
 
 							break;
@@ -1720,7 +1720,7 @@ void movetransports_r(void)
 							ps[p].transporter_hold = -2;
 						ps[p].cursectnum = Owner->s->sectnum;
 
-						changeactorsect(act2, Owner->s->sectnum);
+						changeactorsect(act2, Owner->sector());
 
 						if ((krand() & 255) < 32)
 							spawn(ps[p].GetActor(), WATERSPLASH2);
@@ -1734,7 +1734,7 @@ void movetransports_r(void)
 							ps[p].transporter_hold = -2;
 						ps[p].cursectnum = Owner->s->sectnum;
 
-						changeactorsect(act2, Owner->s->sectnum);
+						changeactorsect(act2, Owner->sector());
 					}
 				}
 				break;
@@ -1863,7 +1863,7 @@ void movetransports_r(void)
 										Owner->temp_data[0] = 13;
 									}
 
-									changeactorsect(act2, Owner->s->sectnum);
+									changeactorsect(act2, Owner->sector());
 								}
 							}
 							else
@@ -1874,7 +1874,7 @@ void movetransports_r(void)
 
 								spr2->backupz();
 
-								changeactorsect(act2, Owner->s->sectnum);
+								changeactorsect(act2, Owner->sector());
 							}
 							break;
 						case ST_1_ABOVE_WATER:
@@ -1884,7 +1884,7 @@ void movetransports_r(void)
 
 							spr2->backupz();
 
-							changeactorsect(act2, Owner->s->sectnum);
+							changeactorsect(act2, Owner->sector());
 
 							break;
 						case ST_2_UNDERWATER:
@@ -1894,7 +1894,7 @@ void movetransports_r(void)
 
 							spr2->backupz();
 
-							changeactorsect(act2, Owner->s->sectnum);
+							changeactorsect(act2, Owner->sector());
 
 							break;
 
@@ -1906,7 +1906,7 @@ void movetransports_r(void)
 
 							spr2->backupz();
 
-							changeactorsect(act2, Owner->s->sectnum);
+							changeactorsect(act2, Owner->sector());
 
 							movesprite_ex(act2, MulScale(spr2->xvel, bcos(spr2->ang), 14),
 								MulScale(spr2->xvel, bsin(spr2->ang), 14), 0, CLIPMASK1, coll);
@@ -1920,7 +1920,7 @@ void movetransports_r(void)
 
 							spr2->backupz();
 
-							changeactorsect(act2, Owner->s->sectnum);
+							changeactorsect(act2, Owner->sector());
 
 							movesprite_ex(act2, MulScale(spr2->xvel, bcos(spr2->ang), 14),
 								MulScale(spr2->xvel, bsin(spr2->ang), 14), 0, CLIPMASK1, coll);
@@ -3223,7 +3223,7 @@ void moveexplosions_r(void)  // STATNUM 5
 			deletesprite(act);
 			continue;
 		case FEATHER + 1: // feather
-			act->floorz = s->z = getflorzofslope(s->sectnum, s->x, s->y);
+			act->floorz = s->z = getflorzofslopeptr(s->sector(), s->x, s->y);
 			if (s->sector()->lotag == 800)
 			{
 				deletesprite(act);
@@ -3859,7 +3859,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 			{
 				if (spr->zvel > 0)
 				{
-					actor->floorz = l = getflorzofslope(spr->sectnum, spr->x, spr->y);
+					actor->floorz = l = getflorzofslopeptr(spr->sector(), spr->x, spr->y);
 					if (isRRRA())
 					{
 						if (spr->z > (l - (28 << 8)))
@@ -3873,7 +3873,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 				}
 				else
 				{
-					actor->ceilingz = l = getceilzofslope(spr->sectnum, spr->x, spr->y);
+					actor->ceilingz = l = getceilzofslopeptr(spr->sector(), spr->x, spr->y);
 					if ((spr->z - l) < (50 << 8))
 					{
 						spr->z = l + (50 << 8);
@@ -3885,7 +3885,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 				spr->z = actor->floorz;
 			if (spr->zvel < 0)
 			{
-				l = getceilzofslope(spr->sectnum, spr->x, spr->y);
+				l = getceilzofslopeptr(spr->sector(), spr->x, spr->y);
 				if ((spr->z - l) < (66 << 8))
 				{
 					spr->z = l + (66 << 8);

@@ -109,6 +109,11 @@ inline void changeactorsect(DDukeActor* a, int newsect)
 	::changespritesect(a->GetSpriteIndex(), newsect);
 }
 
+inline void changeactorsect(DDukeActor* a, sectortype* newsect)
+{
+	::changespritesect(a->GetSpriteIndex(), sectnum(newsect));
+}
+
 inline int setsprite(DDukeActor* a, int x, int y, int z)
 {
 	return ::setsprite(a->GetSpriteIndex(), x, y, z);

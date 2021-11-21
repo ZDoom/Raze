@@ -645,7 +645,7 @@ void guts_d(DDukeActor* actor, int gtype, int n, int p)
 	else sx = sy = 32;
 
 	gutz = s->z - (8 << 8);
-	floorz = getflorzofslope(s->sectnum, s->x, s->y);
+	floorz = getflorzofslopeptr(s->sector(), s->x, s->y);
 
 	if (gutz > (floorz - (8 << 8)))
 		gutz = floorz - (8 << 8);
@@ -2053,7 +2053,7 @@ void movetransports_d(void)
 							ps[p].bobposy = ps[p].oposy = ps[p].pos.y = Owner->s->y;
 							ps[p].oposz = ps[p].pos.z = Owner->s->z - gs.playerheight;
 							
-							changeactorsect(act2, Owner->s->sectnum);
+							changeactorsect(act2, Owner->sector());
 							ps[p].cursectnum = spr2->sectnum;
 							
 							if (spr->pal == 0)
@@ -2082,7 +2082,7 @@ void movetransports_d(void)
 							auto pa = ps[p].GetActor();
 							pa->s->opos = ps[p].pos;
 							
-							changeactorsect(act2, Owner->s->sectnum);
+							changeactorsect(act2, Owner->sector());
 							ps[p].cursectnum = Owner->s->sectnum;
 							
 							break;
@@ -2134,7 +2134,7 @@ void movetransports_d(void)
 							ps[p].transporter_hold = -2;
 						ps[p].cursectnum = Owner->s->sectnum;
 						
-						changeactorsect(act2, Owner->s->sectnum);
+						changeactorsect(act2, Owner->sector());
 						setsprite(ps[p].GetActor(), ps[p].pos.x, ps[p].pos.y, ps[p].pos.z + gs.playerheight);
 						
 						if ((krand() & 255) < 32)
@@ -2263,7 +2263,7 @@ void movetransports_d(void)
 										Owner->temp_data[0] = 13;
 									}
 									
-									changeactorsect(act2, Owner->s->sectnum);
+									changeactorsect(act2, Owner->sector());
 								}
 							}
 							else
@@ -2274,7 +2274,7 @@ void movetransports_d(void)
 								
 								spr2->backupz();
 								
-								changeactorsect(act2, Owner->s->sectnum);
+								changeactorsect(act2, Owner->sector());
 							}
 							break;
 						case 1:
@@ -2284,7 +2284,7 @@ void movetransports_d(void)
 							
 							spr2->backupz();
 							
-							changeactorsect(act2, Owner->s->sectnum);
+							changeactorsect(act2, Owner->sector());
 							
 							break;
 						case 2:
@@ -2294,7 +2294,7 @@ void movetransports_d(void)
 							
 							spr2->backupz();
 							
-							changeactorsect(act2, Owner->s->sectnum);
+							changeactorsect(act2, Owner->sector());
 							
 							break;
 						}
@@ -3361,7 +3361,7 @@ void moveexplosions_d(void)  // STATNUM 5
 		case MONEY + 1:
 		case MAIL + 1:
 		case PAPER + 1:
-			act->floorz = s->z = getflorzofslope(s->sectnum, s->x, s->y);
+			act->floorz = s->z = getflorzofslopeptr(s->sector(), s->x, s->y);
 			break;
 		case MONEY:
 		case MAIL:
@@ -3877,14 +3877,14 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 			{
 				if (spr->picnum == COMMANDER)
 				{
-					actor->floorz = l = getflorzofslope(spr->sectnum, spr->x, spr->y);
+					actor->floorz = l = getflorzofslopeptr(spr->sector(), spr->x, spr->y);
 					if (spr->z > (l - (8 << 8)))
 					{
 						if (spr->z > (l - (8 << 8))) spr->z = l - (8 << 8);
 						spr->zvel = 0;
 					}
 
-					actor->ceilingz = l = getceilzofslope(spr->sectnum, spr->x, spr->y);
+					actor->ceilingz = l = getceilzofslopeptr(spr->sector(), spr->x, spr->y);
 					if ((spr->z - l) < (80 << 8))
 					{
 						spr->z = l + (80 << 8);
@@ -3895,13 +3895,13 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 				{
 					if (spr->zvel > 0)
 					{
-						actor->floorz = l = getflorzofslope(spr->sectnum, spr->x, spr->y);
+						actor->floorz = l = getflorzofslopeptr(spr->sector(), spr->x, spr->y);
 						if (spr->z > (l - (30 << 8)))
 							spr->z = l - (30 << 8);
 					}
 					else
 					{
-						actor->ceilingz = l = getceilzofslope(spr->sectnum, spr->x, spr->y);
+						actor->ceilingz = l = getceilzofslopeptr(spr->sector(), spr->x, spr->y);
 						if ((spr->z - l) < (50 << 8))
 						{
 							spr->z = l + (50 << 8);
@@ -3916,7 +3916,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 					spr->z = actor->floorz;
 				if (spr->zvel < 0)
 				{
-					l = getceilzofslope(spr->sectnum, spr->x, spr->y);
+					l = getceilzofslopeptr(spr->sector(), spr->x, spr->y);
 					if ((spr->z - l) < (66 << 8))
 					{
 						spr->z = l + (66 << 8);
