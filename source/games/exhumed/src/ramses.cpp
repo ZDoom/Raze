@@ -30,16 +30,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-short cPupData[300];
+int16_t cPupData[300];
 uint8_t *Worktile;
 int lHeadStartClock;
-short* pPupData;
+int16_t* pPupData;
 int lNextStateChange;
 int nPixels;
 int nHeadTimeStart;
-short nHeadStage;
-short curx[kSpiritY * kSpiritX];
-short cury[kSpiritY * kSpiritX];
+int nHeadStage;
+int16_t curx[kSpiritY * kSpiritX];
+int16_t cury[kSpiritY * kSpiritX];
 int8_t destvelx[kSpiritY * kSpiritX];
 int8_t destvely[kSpiritY * kSpiritX];
 uint8_t pixelval[kSpiritY * kSpiritX];
@@ -47,9 +47,9 @@ int8_t origy[kSpiritY * kSpiritX];
 int8_t origx[kSpiritY * kSpiritX];
 int8_t velx[kSpiritY * kSpiritX];
 int8_t vely[kSpiritY * kSpiritX];
-short nMouthTile;
+int16_t nMouthTile;
 
-short nPupData = 0;
+int nPupData = 0;
 
 short word_964E8 = 0;
 short word_964EA = 0;
@@ -373,8 +373,8 @@ void DoSpiritHead()
                     vely[i] = 0;
                 }
 
-                curx[i] = (short)(x << 8);
-                cury[i] = (short)(y << 8);
+                curx[i] = (int)(x << 8);
+                cury[i] = (int)(y << 8);
 
                 Worktile[212 * (x + 97) + 106 + y] = pixelval[i++];
             }
@@ -403,14 +403,14 @@ void DoSpiritHead()
                     dx = ((origx[i] << 8) - curx[i]) >> 3;
                 else {
                     dx = 0;
-                    curx[i] = (short)(origx[i] << 8);
+                    curx[i] = (int)(origx[i] << 8);
                 }
 
                 if (origy[i] << 8 == cury[i] || abs((origy[i] << 8) - cury[i]) >= 8)
                     dy = ((origy[i] << 8) - cury[i]) >> 3;
                 else {
                     dy = 0;
-                    cury[i] = (short)(origy[i] << 8);
+                    cury[i] = (int)(origy[i] << 8);
                 }
 
                 if ((dx | dy) != 0) 

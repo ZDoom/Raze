@@ -54,18 +54,18 @@ static actionSeq PlayerSeq[] = {
     {122, 1}
 };
 
-static short nHeightTemplate[] = { 0, 0, 0, 0, 0, 0, 7, 7, 7, 9, 9, 9, 9, 0, 0, 0, 0, 0, 0, 0, 0 };
+static const uint8_t nHeightTemplate[] = { 0, 0, 0, 0, 0, 0, 7, 7, 7, 9, 9, 9, 9, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-short nActionEyeLevel[] = {
+static const int16_t nActionEyeLevel[] = {
     -14080, -14080, -14080, -14080, -14080, -14080, -8320,
     -8320,  -8320,  -8320,  -8320,  -8320,  -8320,  -14080,
     -14080, -14080, -14080, -14080, -14080, -14080, -14080
 };
 
-uint16_t nGunLotag[] = { 52, 53, 54, 55, 56, 57 };
-uint16_t nGunPicnum[] = { 57, 488, 490, 491, 878, 899, 3455 };
+static const uint16_t nGunLotag[] = { 52, 53, 54, 55, 56, 57 };
+static const uint16_t nGunPicnum[] = { 57, 488, 490, 491, 878, 899, 3455 };
 
-int16_t nItemText[] = {
+static const int16_t nItemText[] = {
     -1, -1, -1, -1, -1, -1, 18, 20, 19, 13, -1, 10, 1, 0, 2, -1, 3,
     -1, 4, 5, 9, 6, 7, 8, -1, 11, -1, 13, 12, 14, 15, -1, 16, 17,
     -1, -1, -1, 21, 22, -1, -1, -1, -1, -1, -1, 23, 24, 25, 26, 27,
@@ -84,7 +84,6 @@ short nStandHeight;
 
 
 short PlayerCount;
-
 short nNetStartSprites;
 short nCurStartSprite;
 

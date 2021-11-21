@@ -75,9 +75,9 @@ extern TArray<DExhumedActor*> EnergyBlocks;
 
 void InitBullets();
 int GrabBullet();
-void DestroyBullet(short nRun);
-int MoveBullet(short nBullet);
-void SetBulletEnemy(short nBullet, DExhumedActor* nEnemy);
+void DestroyBullet(int nRun);
+int MoveBullet(int nBullet);
+void SetBulletEnemy(int nBullet, DExhumedActor* nEnemy);
 DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int val1, int nAngle, DExhumedActor* pTarget, int val3);
 
 void IgniteSprite(DExhumedActor* nSprite);
@@ -133,9 +133,9 @@ void RestoreMinAmmo(int nPlayer);
 void FillWeapons(int nPlayer);
 void ResetPlayerWeapons(int nPlayer);
 void InitWeapons();
-void SetNewWeapon(int nPlayer, short nWeapon);
-void SetNewWeaponImmediate(int nPlayer, short nWeapon);
-void SetNewWeaponIfBetter(int nPlayer, short nWeapon);
+void SetNewWeapon(int nPlayer, int nWeapon);
+void SetNewWeaponImmediate(int nPlayer, int nWeapon);
+void SetNewWeaponIfBetter(int nPlayer, int nWeapon);
 void SelectNewWeapon(int nPlayer);
 void StopFiringWeapon(int nPlayer);
 void FireWeapon(int nPlayer);

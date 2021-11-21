@@ -126,7 +126,7 @@ void InitWeapons()
     for (auto& p : PlayerList) p.pPlayerGrenade = nullptr;
 }
 
-void SetNewWeapon(int nPlayer, short nWeapon)
+void SetNewWeapon(int nPlayer, int nWeapon)
 {
     if (nWeapon == kWeaponMummified)
     {
@@ -167,7 +167,7 @@ void SetNewWeapon(int nPlayer, short nWeapon)
     PlayerList[nPlayer].field_38 = nWeapon;
 }
 
-void SetNewWeaponImmediate(int nPlayer, short nWeapon)
+void SetNewWeaponImmediate(int nPlayer, int nWeapon)
 {
     SetNewWeapon(nPlayer, nWeapon);
 
@@ -177,7 +177,7 @@ void SetNewWeaponImmediate(int nPlayer, short nWeapon)
     PlayerList[nPlayer].field_3A = 0;
 }
 
-void SetNewWeaponIfBetter(int nPlayer, short nWeapon)
+void SetNewWeaponIfBetter(int nPlayer, int nWeapon)
 {
     if (nWeapon > PlayerList[nPlayer].nCurrentWeapon) {
         SetNewWeapon(nPlayer, nWeapon);
@@ -230,12 +230,12 @@ void SetWeaponStatus(int nPlayer)
 
 uint8_t WeaponCanFire(int nPlayer)
 {
-    short nWeapon = PlayerList[nPlayer].nCurrentWeapon;
+    int nWeapon = PlayerList[nPlayer].nCurrentWeapon;
     int nSector =PlayerList[nPlayer].nPlayerViewSect;
 
     if (!(sector[nSector].Flag & kSectUnderwater) || WeaponInfo[nWeapon].bFireUnderwater)
     {
-        short nAmmoType = WeaponInfo[nWeapon].nAmmoType;
+        int nAmmoType = WeaponInfo[nWeapon].nAmmoType;
 
         if (WeaponInfo[nWeapon].d <= PlayerList[nPlayer].nAmmo[nAmmoType]) {
             return true;
@@ -252,7 +252,7 @@ void ResetSwordSeqs()
     WeaponInfo[kWeaponSword].b[3] = 7;
 }
 
-Collision CheckCloseRange(int nPlayer, int *x, int *y, int *z, short *nSector)
+Collision CheckCloseRange(int nPlayer, int *x, int *y, int *z, int *nSector)
 {
     short hitSect, hitWall, hitSprite;
     int hitX, hitY, hitZ;
@@ -628,7 +628,7 @@ void MoveWeapons(int nPlayer)
 loc_flag:
 
         // loc_27001
-        short nFrameFlag = seq_GetFrameFlag(var_3C, PlayerList[nPlayer].field_3FOUR);
+        int nFrameFlag = seq_GetFrameFlag(var_3C, PlayerList[nPlayer].field_3FOUR);
 
         if (((!(nSectFlag & kSectUnderwater)) || nWeapon == kWeaponRing) && (nFrameFlag & 4))
         {
@@ -667,7 +667,7 @@ loc_flag:
                 }
             }
 
-            short nAmmoType = WeaponInfo[nWeapon].nAmmoType;
+            int nAmmoType = WeaponInfo[nWeapon].nAmmoType;
             int nAngle = pPlayerSprite->ang;
             int theX = pPlayerSprite->x;
             int theY = pPlayerSprite->y;
@@ -708,7 +708,7 @@ loc_flag:
                 }
             }
 
-            short nSectorB = pPlayerSprite->sectnum;
+            int nSectorB = pPlayerSprite->sectnum;
 
             switch (nWeapon)
             {

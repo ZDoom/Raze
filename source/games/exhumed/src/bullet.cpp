@@ -136,7 +136,7 @@ int GrabBullet()
     return grabbed;
 }
 
-void DestroyBullet(short nBullet)
+void DestroyBullet(int nBullet)
 {
     auto pActor = BulletList[nBullet].pActor;
 	auto pSprite = &pActor->s();
@@ -297,10 +297,10 @@ void BackUpBullet(int *x, int *y, int nAngle)
     *y -= bsin(nAngle, -11);
 }
 
-int MoveBullet(short nBullet)
+int MoveBullet(int nBullet)
 {
-    short hitsect = -1;
-    short hitwall = -1;
+    int hitsect = -1;
+    int hitwall = -1;
     DExhumedActor* hitactor = nullptr;
 
     Bullet *pBullet = &BulletList[nBullet];
@@ -563,7 +563,7 @@ HITWALL:
     return nVal;
 }
 
-void SetBulletEnemy(short nBullet, DExhumedActor* pEnemy)
+void SetBulletEnemy(int nBullet, DExhumedActor* pEnemy)
 {
     if (nBullet >= 0) {
         BulletList[nBullet].pEnemy = pEnemy;
@@ -651,7 +651,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int n
 
     pBulletSprite->clipdist = 25;
 
-    short nRepeat = pBulletInfo->xyRepeat;
+    int nRepeat = pBulletInfo->xyRepeat;
     if (nRepeat < 0) {
         nRepeat = 30;
     }
@@ -676,7 +676,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int n
     pBullet->field_E = pBulletInfo->field_2;
     pBullet->nFrame  = 0;
 
-    short nSeq;
+    int nSeq;
 
     if (pBulletInfo->field_8 != -1)
     {
@@ -819,14 +819,14 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int n
 
 void AIBullet::Tick(RunListEvent* ev)
 {
-    short nBullet = RunData[ev->nRun].nObjIndex;
+    int nBullet = RunData[ev->nRun].nObjIndex;
     assert(nBullet >= 0 && nBullet < kMaxBullets);
 
-    short nSeq = SeqOffsets[BulletList[nBullet].nSeq];
+    int nSeq = SeqOffsets[BulletList[nBullet].nSeq];
     auto pActor = BulletList[nBullet].pActor;
     auto pSprite = &pActor->s();
 
-    short nFlag = FrameFlag[SeqBase[nSeq] + BulletList[nBullet].nFrame];
+    int nFlag = FrameFlag[SeqBase[nSeq] + BulletList[nBullet].nFrame];
 
     seq_MoveSequence(pActor, nSeq, BulletList[nBullet].nFrame);
 
@@ -859,10 +859,10 @@ void AIBullet::Tick(RunListEvent* ev)
 
 void AIBullet::Draw(RunListEvent* ev)
 {
-    short nBullet = RunData[ev->nRun].nObjIndex;
+    int nBullet = RunData[ev->nRun].nObjIndex;
     assert(nBullet >= 0 && nBullet < kMaxBullets);
 
-    short nSeq = SeqOffsets[BulletList[nBullet].nSeq];
+    int nSeq = SeqOffsets[BulletList[nBullet].nSeq];
 
     ev->pTSprite->statnum = 1000;
 

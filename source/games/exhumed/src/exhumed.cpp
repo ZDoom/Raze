@@ -89,9 +89,9 @@ void MySetView(int x1, int y1, int x2, int y2);
 
 char sHollyStr[40];
 
-short nFontFirstChar;
-short nBackgroundPic;
-short nShadowPic;
+int nFontFirstChar;
+int nBackgroundPic;
+int nShadowPic;
 
 short nCreaturesKilled = 0, nCreaturesTotal = 0;
 
@@ -568,11 +568,6 @@ bool GameInterface::CanSave()
 {
     return new GameInterface;
 }
-
-extern short cPupData[300];
-extern uint8_t* Worktile;
-extern int lHeadStartClock;
-extern short* pPupData;
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, DExhumedActor& w, DExhumedActor* def)
 {

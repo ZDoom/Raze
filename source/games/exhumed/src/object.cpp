@@ -104,10 +104,10 @@ struct MoveSect
 
 struct wallFace
 {
-    short nChannel;
     int nWall;
-    short field_4;
-    short field_6[8];
+    int16_t nChannel;
+    int16_t count;
+    int16_t piclist[8];
 };
 
 struct slideData
@@ -274,8 +274,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, wallFace& w, wallF
     {
         arc("channel", w.nChannel)
             ("wall", w.nWall)
-            ("at4", w.field_4)
-            .Array("at6", w.field_6, 8)
+            ("at4", w.count)
+            .Array("at6", w.piclist, 8)
             .EndObject();
     }
     return arc;
@@ -898,7 +898,7 @@ int BuildWallFace(short nChannel, int nWall, int nCount, ...)
 {
     auto WallFaceCount = WallFace.Reserve(1);
 
-    WallFace[WallFaceCount].field_4 = 0;
+    WallFace[WallFaceCount].count = 0;
     WallFace[WallFaceCount].nWall = nWall;
     WallFace[WallFaceCount].nChannel = nChannel;
 
@@ -909,12 +909,12 @@ int BuildWallFace(short nChannel, int nWall, int nCount, ...)
     va_list piclist;
     va_start(piclist, nCount);
 
-    while (WallFace[WallFaceCount].field_4 < nCount)
+    while (WallFace[WallFaceCount].count < nCount)
     {
-        int i = WallFace[WallFaceCount].field_4;
-        WallFace[WallFaceCount].field_4++;
+        int i = WallFace[WallFaceCount].count;
+        WallFace[WallFaceCount].count++;
 
-        WallFace[WallFaceCount].field_6[i] = (short)va_arg(piclist, int);
+        WallFace[WallFaceCount].piclist[i] = (int16_t)va_arg(piclist, int);
     }
     va_end(piclist);
 
@@ -926,13 +926,13 @@ void AIWallFace::ProcessChannel(RunListEvent* ev)
     int nWallFace = RunData[ev->nRun].nObjIndex;
     assert(nWallFace >= 0 && nWallFace < (int)WallFace.Size());
 
-    short nChannel = WallFace[nWallFace].nChannel;
+    int16_t nChannel = WallFace[nWallFace].nChannel;
 
-    short si = sRunChannels[nChannel].c;
+    int16_t si = sRunChannels[nChannel].c;
 
-    if ((si <= WallFace[nWallFace].field_4) && (si >= 0))
+    if ((si <= WallFace[nWallFace].count) && (si >= 0))
     {
-        wall[WallFace[nWallFace].nWall].picnum = WallFace[nWallFace].field_6[si];
+        wall[WallFace[nWallFace].nWall].picnum = WallFace[nWallFace].piclist[si];
     }
 }
 
@@ -2086,7 +2086,7 @@ void AIObject::Damage(RunListEvent* ev)
         return;
     }
 
-    pActor->nHealth -= (short)ev->nDamage;
+    pActor->nHealth -= (int16_t)ev->nDamage;
     if (pActor->nHealth > 0) {
         return;
     }

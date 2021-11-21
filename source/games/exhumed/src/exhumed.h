@@ -102,9 +102,9 @@ extern int nNetTime;
 
 extern short nTotalPlayers;
 
-extern short nFontFirstChar;
-extern short nBackgroundPic;
-extern short nShadowPic;
+extern int nFontFirstChar;
+extern int nBackgroundPic;
+extern int nShadowPic;
 
 extern short nCreaturesTotal, nCreaturesKilled;
 
@@ -127,7 +127,7 @@ extern short bSnakeCam;
 
 extern short nButtonColor;
 
-extern short nHeadStage;
+extern int nHeadStage;
 
 extern int flash;
 
