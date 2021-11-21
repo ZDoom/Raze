@@ -526,7 +526,7 @@ enum
 static void processInputBits(player_struct *p, ControlInfo* const hidInput)
 {
 	// Set-up crouch bools.
-	int const sectorLotag = p->cursectnum != -1 ? p->cursector()->lotag : 0;
+	int const sectorLotag = p->insector() ? p->cursector()->lotag : 0;
 	bool const crouchable = sectorLotag != ST_2_UNDERWATER && (sectorLotag != ST_1_ABOVE_WATER || p->spritebridge);
 	bool const disableToggle = p->jetpack_on || (!crouchable && p->on_ground) || (isRRRA() && (p->OnMotorcycle || p->OnBoat));
 

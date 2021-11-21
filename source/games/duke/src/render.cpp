@@ -259,7 +259,7 @@ void displayrooms(int snum, double smoothratio)
 	p = &ps[snum];
 	pm_smoothratio = (int)smoothratio;
 
-	if (automapMode == am_full || p->cursectnum == -1)
+	if (automapMode == am_full || !p->insector())
 		return;
 
 	// Do not light up the fog in RRRA's E2L1. Ideally this should apply to all foggy levels but all others use lookup table hacks for their fog.

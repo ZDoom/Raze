@@ -206,6 +206,17 @@ inline int hitscan(int x, int y, int z, int sectnum, int32_t vx, int32_t vy, int
 	return res;
 }
 
+inline int hitscan(int x, int y, int z, sectortype* sect, int32_t vx, int32_t vy, int32_t vz,
+	sectortype** hitsect, walltype** hitwall, DDukeActor** hitspr, int* hitx, int* hity, int* hitz, uint32_t cliptype)
+{
+	short hitsprt, hitsct, hitwal;
+	int res = ::hitscan(x, y, z, sectnum(sect), vx, vy, vz, &hitsct, &hitwal, &hitsprt, hitx, hity, hitz, cliptype);
+	if (hitspr) *hitspr = hitsprt == -1 ? nullptr : &hittype[hitsprt];
+	if (hitsect) *hitsect = hitsct >= 0? &sector[hitsct] : nullptr;
+	if (hitwall) *hitwall = hitwal >= 0? &wall[hitwal] : nullptr;
+	return res;
+}
+
 inline void   neartag(int32_t xs, int32_t ys, int32_t zs, int sectnum, int ange,
 	sectortype** neartagsector, walltype** neartagwall, DDukeActor** neartagsprite,
 	int32_t* neartaghitdist, int32_t neartagrange, uint8_t tagsearch)

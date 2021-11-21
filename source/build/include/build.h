@@ -747,6 +747,11 @@ inline walltype* sectortype::firstWall() const
 	return &wall[wallptr]; // cannot be -1 in a proper map
 }
 
+inline int cansee(int x1, int y1, int z1, sectortype* sect1, int x2, int y2, int z2, sectortype* sect2)
+{
+	return cansee(x1, y1, z1, sector.IndexOf(sect1), x2, y2, z2, sector.IndexOf(sect2));
+}
+
 
 
 #include "iterators.h"

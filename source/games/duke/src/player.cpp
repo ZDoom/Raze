@@ -83,7 +83,7 @@ int setpal(struct player_struct* p)
 	int palette;
 	if (p->DrugMode) palette = DRUGPAL;
 	else if (p->heat_on) palette = SLIMEPAL;
-	else if (p->cursectnum < 0) palette = BASEPAL; // don't crash if out of range.
+	else if (!p->insector()) palette = BASEPAL; // don't crash if out of range.
 	else if (p->cursector()->ceilingpicnum >= TILE_FLOORSLIME && p->cursector()->ceilingpicnum <= TILE_FLOORSLIME + 2) palette = SLIMEPAL;
 	else if (p->cursector()->lotag == ST_2_UNDERWATER) palette = WATERPAL;
 	else palette = BASEPAL;
@@ -215,7 +215,7 @@ int hitawall(struct player_struct* p, walltype** hitw)
 {
 	int sx, sy, sz;
 
-	hitscan(p->pos.x, p->pos.y, p->pos.z, p->cursectnum,
+	hitscan(p->pos.x, p->pos.y, p->pos.z, p->cursector(),
 		p->angle.ang.bcos(), p->angle.ang.bsin(), 0, nullptr, hitw, nullptr, &sx, &sy, &sz, CLIPMASK0);
 
 	return (FindDistance2D(sx - p->pos.x, sy - p->pos.y));

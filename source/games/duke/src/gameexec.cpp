@@ -465,11 +465,6 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		if (!bSet) SetGameVarID(lVar2, 0, sActor, sPlayer);
 		break;
 
-	case PLAYER_CURSECTNUM:
-		if (bSet) ps[iPlayer].cursectnum = lValue;
-		else SetGameVarID(lVar2, ps[iPlayer].cursectnum, sActor, sPlayer);
-		break;
-
 	case PLAYER_LOOK_ANG:
 		if (bSet) ps[iPlayer].angle.look_ang = buildang(lValue);
 		else SetGameVarID(lVar2, ps[iPlayer].angle.look_ang.asbuild(), sActor, sPlayer);

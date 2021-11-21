@@ -147,7 +147,7 @@ void se40code(int x, int y, int z, binangle a, fixedhoriz h, int smoothratio)
 		case 43:
 		case 44:
 		case 45:
-			if (ps[screenpeek].cursectnum == act->s->sectnum)
+			if (ps[screenpeek].cursector() == act->s->sector())
 				SE40_Draw(tag, act->s, x, y, z, a, h, smoothratio);
 			break;
 		}

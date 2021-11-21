@@ -730,13 +730,13 @@ void movefta_d(void)
 
 						int r1 = krand();
 						int r2 = krand();
-						j = cansee(sx, sy, s->z - (r2 % (52 << 8)), s->sectnum, px, py, ps[p].oposz - (r1 % (32 << 8)), ps[p].cursectnum);
+						j = cansee(sx, sy, s->z - (r2 % (52 << 8)), s->sector(), px, py, ps[p].oposz - (r1 % (32 << 8)), ps[p].cursector());
 					}
 					else
 					{
 						int r1 = krand();
 						int r2 = krand();
-						j = cansee(s->x, s->y, s->z - ((r2 & 31) << 8), s->sectnum, ps[p].oposx, ps[p].oposy, ps[p].oposz - ((r1 & 31) << 8), ps[p].cursectnum);
+						j = cansee(s->x, s->y, s->z - ((r2 & 31) << 8), s->sector(), ps[p].oposx, ps[p].oposy, ps[p].oposz - ((r1 & 31) << 8), ps[p].cursector());
 					}
 
 
@@ -2032,7 +2032,7 @@ void movetransports_d(void)
 							}
 							
 							for (int k = connecthead; k >= 0; k = connectpoint2[k])
-							if (ps[k].cursectnum == Owner->s->sectnum)
+							if (ps[k].cursector() == Owner->sector())
 							{
 								ps[k].frag_ps = p;
 								ps[k].GetActor()->s->extra = 0;
@@ -2052,7 +2052,7 @@ void movetransports_d(void)
 							ps[p].oposz = ps[p].pos.z = Owner->s->z - gs.playerheight;
 							
 							changeactorsect(act2, Owner->sector());
-							ps[p].cursectnum = spr2->sectnum;
+							ps[p].setCursector(spr2->sector());
 							
 							if (spr->pal == 0)
 							{
@@ -2081,7 +2081,7 @@ void movetransports_d(void)
 							pa->s->opos = ps[p].pos;
 							
 							changeactorsect(act2, Owner->sector());
-							ps[p].cursectnum = Owner->s->sectnum;
+							ps[p].setCursector(Owner->sector());
 							
 							break;
 						}
@@ -2130,8 +2130,8 @@ void movetransports_d(void)
 						
 						if (!Owner || Owner->GetOwner() != Owner)
 							ps[p].transporter_hold = -2;
-						ps[p].cursectnum = Owner->s->sectnum;
-						
+						ps[p].setCursector(Owner->sector());
+
 						changeactorsect(act2, Owner->sector());
 						setsprite(ps[p].GetActor(), ps[p].pos.x, ps[p].pos.y, ps[p].pos.z + gs.playerheight);
 						
@@ -2985,7 +2985,7 @@ DETONATEB:
 		}
 	}
 	else if (s->picnum == HEAVYHBOMB && x < 788 && t[0] > 7 && s->xvel == 0)
-		if (cansee(s->x, s->y, s->z - (8 << 8), s->sectnum, ps[p].pos.x, ps[p].pos.y, ps[p].pos.z, ps[p].cursectnum))
+		if (cansee(s->x, s->y, s->z - (8 << 8), s->sector(), ps[p].pos.x, ps[p].pos.y, ps[p].pos.z, ps[p].cursector()))
 			if (ps[p].ammo_amount[HANDBOMB_WEAPON] < gs.max_ammo_amount[HANDBOMB_WEAPON])
 			{
 				if (ud.coop >= 1 && Owner == actor)
@@ -3543,7 +3543,7 @@ static void handle_se28(DDukeActor* actor)
 		}
 		else if (t[2] > (t[1] >> 3) && t[2] < (t[1] >> 2))
 		{
-			int j = !!cansee(s->x, s->y, s->z, s->sectnum, ps[screenpeek].pos.x, ps[screenpeek].pos.y, ps[screenpeek].pos.z, ps[screenpeek].cursectnum);
+			int j = !!cansee(s->x, s->y, s->z, s->sector(), ps[screenpeek].pos.x, ps[screenpeek].pos.y, ps[screenpeek].pos.z, ps[screenpeek].cursector());
 
 			if (rnd(192) && (t[2] & 1))
 			{
