@@ -799,19 +799,20 @@ void thesplash() {
 
 void makeasplash(int picnum, PLAYER& plr) {
 	int j = insertsprite(plr.sector, MASPLASH);
-	sprite[j].x = plr.x;
-	sprite[j].y = plr.y;
-	sprite[j].z = sector[plr.sector].floorz + (tileHeight(picnum) << 8);
-	sprite[j].cstat = 0; // Hitscan does not hit other bullets
-	sprite[j].picnum = (short) picnum;
-	sprite[j].shade = 0;
-	sprite[j].pal = 0;
-	sprite[j].xrepeat = 64;
-	sprite[j].yrepeat = 64;
-	sprite[j].owner = 0;
-	sprite[j].clipdist = 16;
-	sprite[j].lotag = 8;
-	sprite[j].hitag = 0;
+	auto& spawned = sprite[j]; 
+	spawned.x = plr.x;
+	spawned.y = plr.y;
+	spawned.z = sector[plr.sector].floorz + (tileHeight(picnum) << 8);
+	spawned.cstat = 0; // Hitscan does not hit other bullets
+	spawned.picnum = (short) picnum;
+	spawned.shade = 0;
+	spawned.pal = 0;
+	spawned.xrepeat = 64;
+	spawned.yrepeat = 64;
+	spawned.owner = 0;
+	spawned.clipdist = 16;
+	spawned.lotag = 8;
+	spawned.hitag = 0;
 
 	switch (picnum) {
 	case SPLASHAROO:
@@ -819,14 +820,14 @@ void makeasplash(int picnum, PLAYER& plr) {
 		if(!isWh2() && picnum == SLIMESPLASH)
 			break;
 			
-		spritesound(S_SPLASH1 + (krand() % 3), &sprite[j]);
+		spritesound(S_SPLASH1 + (krand() % 3), &spawned);
 		break;
 	case LAVASPLASH:
 		break;
 	}
 
-	movesprite((short) j, (bcos(sprite[j].ang) * TICSPERFRAME) << 3,
-			(bsin(sprite[j].ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
+	movesprite((short) j, (bcos(spawned.ang) * TICSPERFRAME) << 3,
+			(bsin(spawned.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
 }
 
 void makemonstersplash(int picnum, int i) {
@@ -834,29 +835,30 @@ void makemonstersplash(int picnum, int i) {
 		return;
 
 	int j = insertsprite(sprite[i].sectnum, MASPLASH);
-	sprite[j].x = sprite[i].x;
-	sprite[j].y = sprite[i].y;
-	sprite[j].z = sector[sprite[i].sectnum].floorz + (tileHeight(picnum) << 8);
-	sprite[j].cstat = 0; // Hitscan does not hit other bullets
-	sprite[j].picnum = (short) picnum;
-	sprite[j].shade = 0;
+	auto& spawned = sprite[j];
+	spawned.x = sprite[i].x;
+	spawned.y = sprite[i].y;
+	spawned.z = sector[sprite[i].sectnum].floorz + (tileHeight(picnum) << 8);
+	spawned.cstat = 0; // Hitscan does not hit other bullets
+	spawned.picnum = (short) picnum;
+	spawned.shade = 0;
 
 	if (sector[sprite[i].sectnum].floorpal == 9)
-		sprite[j].pal = 9;
+		spawned.pal = 9;
 	else
-		sprite[j].pal = 0;
+		spawned.pal = 0;
 		
 	if (sprite[i].picnum == RAT) {
-		sprite[j].xrepeat = 40;
-		sprite[j].yrepeat = 40;
+		spawned.xrepeat = 40;
+		spawned.yrepeat = 40;
 	} else {
-		sprite[j].xrepeat = 64;
-		sprite[j].yrepeat = 64;
+		spawned.xrepeat = 64;
+		spawned.yrepeat = 64;
 	}
-	sprite[j].owner = 0;
-	sprite[j].clipdist = 16;
-	sprite[j].lotag = 8;
-	sprite[j].hitag = 0;
+	spawned.owner = 0;
+	spawned.clipdist = 16;
+	spawned.lotag = 8;
+	spawned.hitag = 0;
 
 	// JSA 5/3 start
 	switch (picnum) {
@@ -866,14 +868,14 @@ void makemonstersplash(int picnum, int i) {
 			if ((gotpic[WATER >> 3] & (1 << (WATER & 7))) > 0) {
 				gotpic[WATER >> 3] &= ~(1 << (WATER & 7));
 					if ((krand() % 2) != 0)
-						spritesound(S_SPLASH1 + (krand() % 3), &sprite[j]);
+						spritesound(S_SPLASH1 + (krand() % 3), &spawned);
 			}
 		}
 		if ((krand() % 2) != 0) {
 			if ((gotpic[SLIME >> 3] & (1 << (SLIME & 7))) > 0) {
 				gotpic[SLIME >> 3] &= ~(1 << (SLIME & 7));
 					if ((krand() % 2) != 0)
-						spritesound(S_SPLASH1 + (krand() % 3), &sprite[j]);
+						spritesound(S_SPLASH1 + (krand() % 3), &spawned);
 			}
 		}
 		break;
