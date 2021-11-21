@@ -2088,7 +2088,7 @@ void MorphTornado(SECTOR_OBJECTp sop);  // morph.c
 void MorphFloor(SECTOR_OBJECTp sop);    // morph.c
 void ScaleRandomPoint(SECTOR_OBJECTp sop,short k,short ang,int x,int y,int *dx,int *dy);    // morph.c
 
-void CopySectorMatch(short match);  // copysect.c
+void CopySectorMatch(int match);  // copysect.c
 
 int DoWallMoveMatch(short match);   // wallmove.c
 int DoWallMove(DSWActor* sp); // wallmove.c

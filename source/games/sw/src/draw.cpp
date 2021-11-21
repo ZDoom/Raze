@@ -99,16 +99,15 @@ ShadeSprite(tspriteptr_t tsp)
 #endif
 
 
-short
-GetRotation(spritetype* tsprite, int& spritesortcnt, short tSpriteNum, int viewx, int viewy)
+int GetRotation(spritetype* tsprite, int& spritesortcnt, int tSpriteNum, int viewx, int viewy)
 {
     static const uint8_t RotTable8[] = {0, 7, 6, 5, 4, 3, 2, 1};
     static const uint8_t RotTable5[] = {0, 1, 2, 3, 4, 3, 2, 1};
-    short rotation;
+    int rotation;
 
     tspriteptr_t tsp = &tsprite[tSpriteNum];
     USERp tu = swActors[tsp->owner].u();
-    short angle2;
+    int angle2;
 
     if (tu->RotNum == 0)
         return 0;
@@ -170,12 +169,11 @@ directions was not standardized.
 
 */
 
-int
-SetActorRotation(spritetype* tsprite, int& spritesortcnt, short tSpriteNum, int viewx, int viewy)
+int SetActorRotation(spritetype* tsprite, int& spritesortcnt, int tSpriteNum, int viewx, int viewy)
 {
     tspriteptr_t tsp = &tsprite[tSpriteNum];
     USERp tu = swActors[tsp->owner].u();
-    short StateOffset, Rotation;
+    int StateOffset, Rotation;
 
     // don't modify ANY tu vars - back them up!
     STATEp State = tu->State;
@@ -185,7 +183,7 @@ SetActorRotation(spritetype* tsprite, int& spritesortcnt, short tSpriteNum, int 
         return 0;
 
     // Get the offset into the State animation
-    StateOffset = short(State - StateStart);
+    StateOffset = int(State - StateStart);
 
     // Get the rotation angle
     Rotation = GetRotation(tsprite, spritesortcnt, tSpriteNum, viewx, viewy);
@@ -205,15 +203,14 @@ SetActorRotation(spritetype* tsprite, int& spritesortcnt, short tSpriteNum, int 
     return 0;
 }
 
-int
-DoShadowFindGroundPoint(tspriteptr_t sp)
+int DoShadowFindGroundPoint(tspriteptr_t sp)
 {
     // USES TSPRITE !!!!!
     USERp u = swActors[sp->owner].u();
     SPRITEp hsp;
     Collision ceilhit, florhit;
     int hiz, loz = u->loz;
-    short save_cstat, bak_cstat;
+    int save_cstat, bak_cstat;
 
     // recursive routine to find the ground - either sector or floor sprite
     // skips over enemy and other types of sprites
@@ -269,8 +266,8 @@ DoShadows(spritetype* tsprite, int& spritesortcnt, tspriteptr_t tsp, int viewz, 
     int ground_dist = 0;
     int view_dist = 0;
     int loz;
-    short xrepeat;
-    short yrepeat;
+    int xrepeat;
+    int yrepeat;
     int sectnum;
 
     sectnum = tsp->sectnum;
@@ -332,8 +329,8 @@ DoShadows(spritetype* tsprite, int& spritesortcnt, tspriteptr_t tsp, int viewz, 
 
     xrepeat = max(xrepeat - ground_dist - view_dist, 4);
     yrepeat = max(yrepeat - ground_dist - view_dist, 4);
-    xrepeat = min(xrepeat, short(255));
-    yrepeat = min(yrepeat, short(255));
+    xrepeat = min(xrepeat, 255);
+    yrepeat = min(yrepeat, 255);
 
     tSpr->xrepeat = uint8_t(xrepeat);
     tSpr->yrepeat = uint8_t(yrepeat);
@@ -366,8 +363,8 @@ DoMotionBlur(spritetype* tsprite, int& spritesortcnt, tspritetype const * const 
 {
     USERp tu = swActors[tsp->owner].u();
     int nx,ny,nz = 0,dx,dy,dz;
-    short i, ang;
-    short xrepeat, yrepeat, repeat_adj = 0;
+    int i, ang;
+    int xrepeat, yrepeat, repeat_adj = 0;
     int z_amt_per_pixel;
 
     ang = NORM_ANGLE(tsp->ang + 1024);
@@ -443,7 +440,7 @@ DoMotionBlur(spritetype* tsprite, int& spritesortcnt, tspritetype const * const 
 
 }
 
-void SetVoxelSprite(SPRITEp sp, short pic)
+void SetVoxelSprite(SPRITEp sp, int pic)
 {
     SET(sp->cstat, CSTAT_SPRITE_ALIGNMENT_SLAB);
     sp->picnum = pic;
@@ -454,8 +451,8 @@ void WarpCopySprite(spritetype* tsprite, int& spritesortcnt)
     SPRITEp sp1, sp2, sp;
     int spnum;
     int xoff,yoff,zoff;
-    short match;
-    short sect1, sect2;
+    int match;
+    int sect1, sect2;
 
     // look for the first one
     SWStatIterator it(STAT_WARP_COPY_SPRITE1);
@@ -556,7 +553,7 @@ void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int view
     USERp tu;
     static int ang = 0;
     PLAYERp pp = Player + screenpeek;
-    short newshade=0;
+    int newshade=0;
 
     const int DART_PIC = 2526;
     const int DART_REPEAT = 16;
@@ -578,7 +575,7 @@ void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int view
         // Brighten up the sprite if set somewhere else to do so
         if (tu && tu->Vis > 0)
         {
-            short tmpshade; // Having this prevent overflow
+            int tmpshade; // Having this prevent overflow
 
             tmpshade = tsp->shade  - tu->Vis;
             if (tmpshade < -128) tmpshade = -128;
@@ -913,7 +910,7 @@ CircleCamera(int *nx, int *ny, int *nz, int *vsect, binangle *nang, fixed_t q16h
     SPRITEp sp;
     hitdata_t hitinfo;
     int i, vx, vy, vz, hx, hy;
-    short bakcstat, daang;
+    int bakcstat, daang;
     PLAYERp pp = &Player[screenpeek];
     binangle ang;
 
@@ -1226,7 +1223,7 @@ PostDraw(void)
     }
 }
 
-DSWActor* CopySprite(spritetype const * tsp, short newsector)
+DSWActor* CopySprite(spritetype const * tsp, int newsector)
 {
     SPRITEp sp;
 

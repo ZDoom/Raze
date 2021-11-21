@@ -40,9 +40,9 @@ BEGIN_SW_NS
 
 extern int GlobSpeedSO;
 
-void CopySectorWalls(short dest_sectnum, short src_sectnum)
+void CopySectorWalls(int dest_sectnum, int src_sectnum)
 {
-    short dest_wall_num, src_wall_num, start_wall;
+    int dest_wall_num, src_wall_num, start_wall;
     SECTOR_OBJECTp sop;
     SECTORp *sectp;
 
@@ -107,7 +107,7 @@ void CopySectorWalls(short dest_sectnum, short src_sectnum)
     }
 }
 
-void CopySectorMatch(short match)
+void CopySectorMatch(int match)
 {
     SPRITEp dest_sp, src_sp;
     SECTORp dsectp,ssectp;
