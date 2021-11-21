@@ -594,14 +594,9 @@ void DoGlows()
         sectp->ceilingshade += nShade;
         sectp->floorshade   += nShade;
 
-        int startwall = sectp->wallptr;
-        int endwall = startwall + sectp->wallnum - 1;
-
-        for (int nWall = startwall; nWall <= endwall; nWall++)
+		for(auto& wal : wallsofsector(sectp))
         {
-            wall[nWall].shade += nShade;
-
-            // CHECKME - ASM has edx decreasing here. why?
+            wal.shade += nShade;
         }
     }
 }
@@ -643,14 +638,9 @@ void DoFlickers()
             sectp->ceilingshade += shade;
             sectp->floorshade += shade;
 
-            int startwall = sectp->wallptr;
-            int endwall = startwall + sectp->wallnum - 1;
-
-            for (int nWall = endwall; nWall >= startwall; nWall--)
+			for(auto& wal : wallsofsector(sectp))
             {
-                wall[nWall].shade += shade;
-
-                // CHECKME - ASM has edx decreasing here. why?
+                wal.shade += shade;
             }
         }
     }

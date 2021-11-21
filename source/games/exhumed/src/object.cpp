@@ -934,32 +934,11 @@ void InitSlide()
     SlideData.Clear();
 }
 
-int IdentifySector(int nVal)
-{
-    for (int i = 0; i < numsectors; i++)
-    {
-        for (int j = 0; ; j++)
-        {
-            if (j < sector[i].wallnum)
-            {
-                int nWall = sector[i].wallptr;
-                if (nWall + j == nVal)
-                    return i;
-            }
-            else {
-                break;
-            }
-        }
-    }
-
-    return -1;
-}
-
 int BuildSlide(int nChannel, int nStartWall, int nWall1, int ecx, int nWall2, int nWall3, int nWall4)
 {
     auto nSlide = SlideData.Reserve(1);
 
-    int nSector =IdentifySector(nStartWall);
+    int nSector = wall[nStartWall].sector;
 
     SlideData[nSlide].nRunRec = -1;
     SlideData[nSlide].nChannel = nChannel;

@@ -810,22 +810,18 @@ void CreatePushBlock(int nSector)
 {
     auto sectp = &sector[nSector];
     int nBlock = GrabPushBlock();
-    int i;
-
-    int startwall = sectp->wallptr;
-    int nWalls = sectp->wallnum;
 
     int xSum = 0;
     int ySum = 0;
 
-    for (i = 0; i < nWalls; i++)
+    for (auto& wal : wallsofsector(sectp))
     {
-        xSum += wall[startwall + i].x;
-        ySum += wall[startwall + i].y;
+        xSum += wal.x;
+        ySum += wal.y;
     }
 
-    int xAvg = xSum / nWalls;
-    int yAvg = ySum / nWalls;
+    int xAvg = xSum / sectp->wallnum;
+    int yAvg = ySum / sectp->wallnum;
 
     sBlockInfo[nBlock].x = xAvg;
     sBlockInfo[nBlock].y = yAvg;
@@ -842,10 +838,10 @@ void CreatePushBlock(int nSector)
 
     int var_28 = 0;
 
-    for (i = 0; i < nWalls; i++)
+	for (auto& wal : wallsofsector(sectp))
     {
-        uint32_t xDiff = abs(xAvg - wall[startwall + i].x);
-        uint32_t yDiff = abs(yAvg - wall[startwall + i].y);
+        uint32_t xDiff = abs(xAvg - wal.x);
+        uint32_t yDiff = abs(yAvg - wal.y);
 
         uint32_t sqrtNum = xDiff * xDiff + yDiff * yDiff;
 
@@ -893,11 +889,9 @@ void MoveSector(int nSector, int nAngle, int *nXVel, int *nYVel)
     int nSectFlag = sector[nSector].Flag;
 
     int nFloorZ = pSector->floorz;
-    int startwall = pSector->wallptr;
-    int nWalls = pSector->wallnum;
 
-    walltype *pStartWall = &wall[startwall];
-    int nNextSector = wall[startwall].nextsector;
+    walltype *pStartWall = pSector->firstWall();
+    sectortype* pNextSector = pStartWall->nextSector();
 
     BlockInfo *pBlockInfo = &sBlockInfo[nBlock];
 
@@ -909,7 +903,7 @@ void MoveSector(int nSector, int nAngle, int *nXVel, int *nYVel)
     pos.y = sBlockInfo[nBlock].y;
     int y_b = sBlockInfo[nBlock].y;
 
-    int nSectorB = nSector;
+    auto nSectorB = nSector;
 
     int nZVal;
 
@@ -918,16 +912,16 @@ void MoveSector(int nSector, int nAngle, int *nXVel, int *nYVel)
     if (nSectFlag & kSectUnderwater)
     {
         nZVal = pSector->ceilingz;
-        pos.z = sector[nNextSector].ceilingz + 256;
+        pos.z = pNextSector->ceilingz + 256;
 
-        pSector->ceilingz = sector[nNextSector].ceilingz;
+        pSector->ceilingz = pNextSector->ceilingz;
     }
     else
     {
         nZVal = pSector->floorz;
-        pos.z = sector[nNextSector].floorz - 256;
+        pos.z = pNextSector->floorz - 256;
 
-        pSector->floorz = sector[nNextSector].floorz;
+        pSector->floorz = pNextSector->floorz;
     }
 
     clipmove(&pos, &nSectorB, nXVect, nYVect, pBlockInfo->field_8, 0, 0, CLIPMASK1);
@@ -935,7 +929,7 @@ void MoveSector(int nSector, int nAngle, int *nXVel, int *nYVel)
     int yvect = pos.y - y_b;
     int xvect = pos.x - x_b;
 
-    if (nSectorB != nNextSector && nSectorB != nSector)
+    if (&sector[nSectorB] != pNextSector && nSectorB != nSector)
     {
         yvect = 0;
         xvect = 0;
@@ -1020,8 +1014,8 @@ void MoveSector(int nSector, int nAngle, int *nXVel, int *nYVel)
                 }
             }
         }
-
-        it.Reset(nNextSector);
+		int nNextSector = sectnum(pNextSector);
+        it.Reset(pNextSector);
         while (auto pActor = it.Next())
         {
             auto pSprite = &pActor->s();
@@ -1055,11 +1049,9 @@ void MoveSector(int nSector, int nAngle, int *nXVel, int *nYVel)
             }
         }
 
-        for (int i = 0; i < nWalls; i++)
+		for(auto& wal : wallsofsector(pSector))
         {
-            dragpoint(startwall, xvect + pStartWall->x, yvect + pStartWall->y);
-            pStartWall++;
-            startwall++;
+            dragpoint(&wal, xvect + wal.x, yvect + wal.y);
         }
 
         pBlockInfo->x += xvect;

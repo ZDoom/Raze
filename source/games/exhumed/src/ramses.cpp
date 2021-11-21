@@ -161,13 +161,10 @@ void InitSpiritHead()
 
 void DimSector(int nSector)
 {
-    int startwall = sector[nSector].wallptr;
-    int nWalls = sector[nSector].wallnum;
-
-    for (int i = 0; i < nWalls; i++)
+	for(auto& wal : wallsofsector(nSector))
     {
-        if (wall[startwall+i].shade < 40) {
-            wall[startwall+i].shade++;
+        if (wal.shade < 40) {
+            wal.shade++;
         }
     }
 
