@@ -1778,91 +1778,94 @@ int movesprite(short spritenum, int dx, int dy, int dz, int ceildist, int flordi
 
 void trowajavlin(int s) {
 	int j = insertsprite(sprite[s].sectnum, JAVLIN);
+	auto& spawned = sprite[j];
 
-	sprite[j].x = sprite[s].x;
-	sprite[j].y = sprite[s].y;
-	sprite[j].z = sprite[s].z;// - (40 << 8);
+	spawned.x = sprite[s].x;
+	spawned.y = sprite[s].y;
+	spawned.z = sprite[s].z;// - (40 << 8);
 	
-	sprite[j].cstat = 21;
+	spawned.cstat = 21;
 
 	switch (sprite[s].lotag) {
 	case 91:
-		sprite[j].picnum = WALLARROW;
-		sprite[j].ang = (short) (((sprite[s].ang + 2048) - 512) & 2047);
-		sprite[j].xrepeat = 16;
-		sprite[j].yrepeat = 48;
-		sprite[j].clipdist = 24;
+		spawned.picnum = WALLARROW;
+		spawned.ang = (short) (((sprite[s].ang + 2048) - 512) & 2047);
+		spawned.xrepeat = 16;
+		spawned.yrepeat = 48;
+		spawned.clipdist = 24;
 		break;
 	case 92:
-		sprite[j].picnum = DART;
-		sprite[j].ang = (short) (((sprite[s].ang + 2048) - 512) & 2047);
-		sprite[j].xrepeat = 64;
-		sprite[j].yrepeat = 64;
-		sprite[j].clipdist = 16;
+		spawned.picnum = DART;
+		spawned.ang = (short) (((sprite[s].ang + 2048) - 512) & 2047);
+		spawned.xrepeat = 64;
+		spawned.yrepeat = 64;
+		spawned.clipdist = 16;
 		break;
 	case 93:
-		sprite[j].picnum = HORIZSPIKEBLADE;
-		sprite[j].ang = (short) (((sprite[s].ang + 2048) - 512) & 2047);
-		sprite[j].xrepeat = 16;
-		sprite[j].yrepeat = 48;
-		sprite[j].clipdist = 32;
+		spawned.picnum = HORIZSPIKEBLADE;
+		spawned.ang = (short) (((sprite[s].ang + 2048) - 512) & 2047);
+		spawned.xrepeat = 16;
+		spawned.yrepeat = 48;
+		spawned.clipdist = 32;
 		break;
 	case 94:
-		sprite[j].picnum = THROWPIKE;
-		sprite[j].ang = (short) (((sprite[s].ang + 2048) - 512) & 2047);
-		sprite[j].xrepeat = 24;
-		sprite[j].yrepeat = 24;
-		sprite[j].clipdist = 32;
+		spawned.picnum = THROWPIKE;
+		spawned.ang = (short) (((sprite[s].ang + 2048) - 512) & 2047);
+		spawned.xrepeat = 24;
+		spawned.yrepeat = 24;
+		spawned.clipdist = 32;
 		break;
 	}
 
-	sprite[j].extra = sprite[s].ang;
-	sprite[j].shade = -15;
-	sprite[j].xvel = (short) ((krand() & 256) - 128);
-	sprite[j].yvel = (short) ((krand() & 256) - 128);
-	sprite[j].zvel = (short) ((krand() & 256) - 128);
+	spawned.extra = sprite[s].ang;
+	spawned.shade = -15;
+	spawned.xvel = (short) ((krand() & 256) - 128);
+	spawned.yvel = (short) ((krand() & 256) - 128);
+	spawned.zvel = (short) ((krand() & 256) - 128);
 
-	sprite[j].owner = 0;
-	sprite[j].lotag = 0;
-	sprite[j].hitag = 0;
-	sprite[j].pal = 0;
+	spawned.owner = 0;
+	spawned.lotag = 0;
+	spawned.hitag = 0;
+	spawned.pal = 0;
 }
 
 void spawnhornskull(short i) {
 	short j = insertsprite(sprite[i].sectnum, (short) 0);
-	sprite[j].x = sprite[i].x;
-	sprite[j].y = sprite[i].y;
-	sprite[j].z = sprite[i].z - (24 << 8);
+	auto& spawned = sprite[j];
+	spawned.x = sprite[i].x;
+	spawned.y = sprite[i].y;
+	spawned.z = sprite[i].z - (24 << 8);
 	
-	sprite[j].shade = -15;
-	sprite[j].cstat = 0;
-	sprite[j].cstat &= ~3;
-	sprite[j].pal = 0;
-	sprite[j].picnum = HORNEDSKULL;
-	sprite[j].detail = HORNEDSKULLTYPE;
-	sprite[j].xrepeat = 64;
-	sprite[j].yrepeat = 64;
+	spawned.shade = -15;
+	spawned.cstat = 0;
+	spawned.cstat &= ~3;
+	spawned.pal = 0;
+	spawned.picnum = HORNEDSKULL;
+	spawned.detail = HORNEDSKULLTYPE;
+	spawned.xrepeat = 64;
+	spawned.yrepeat = 64;
 }
 
 void spawnapentagram(int sn) {
 	short j = insertsprite(sprite[sn].sectnum, (short) 0);
+	auto& spawned = sprite[j];
 
-	sprite[j].x = sprite[sn].x;
-	sprite[j].y = sprite[sn].y;
-	sprite[j].z = sprite[sn].z - (8 << 8);
+	spawned.x = sprite[sn].x;
+	spawned.y = sprite[sn].y;
+	spawned.z = sprite[sn].z - (8 << 8);
 	
-	sprite[j].xrepeat = sprite[j].yrepeat = 64;
-	sprite[j].pal = 0;
-	sprite[j].shade = -15;
-	sprite[j].cstat = 0;
-	sprite[j].clipdist = 64;
-	sprite[j].lotag = 0;
-	sprite[j].hitag = 0;
-	sprite[j].extra = 0;
-	sprite[j].picnum = PENTAGRAM;
-	sprite[j].detail = PENTAGRAMTYPE;
+	spawned.xrepeat = spawned.yrepeat = 64;
+	spawned.pal = 0;
+	spawned.shade = -15;
+	spawned.cstat = 0;
+	spawned.clipdist = 64;
+	spawned.lotag = 0;
+	spawned.hitag = 0;
+	spawned.extra = 0;
+	spawned.picnum = PENTAGRAM;
+	spawned.detail = PENTAGRAMTYPE;
 
-	setsprite(j, sprite[j].x, sprite[j].y, sprite[j].z);
+	setsprite(j, spawned.x, spawned.y, spawned.z);
 }
 
 END_WH_NS
