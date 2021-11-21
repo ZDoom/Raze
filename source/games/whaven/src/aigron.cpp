@@ -205,12 +205,12 @@ static void frozengron(PLAYER& plr, short i) {
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
 		spr.pal = 0;
-		if (sprite[i].picnum == GRONHALDIE)
-			sprite[i].picnum = GRONHAL;
-		else if (sprite[i].picnum == GRONSWDIE)
-			sprite[i].picnum = GRONSW;
-		else if (sprite[i].picnum == GRONMUDIE)
-			sprite[i].picnum = GRONMU;
+		if (spr.picnum == GRONHALDIE)
+			spr.picnum = GRONHAL;
+		else if (spr.picnum == GRONSWDIE)
+			spr.picnum = GRONSW;
+		else if (spr.picnum == GRONMUDIE)
+			spr.picnum = GRONMU;
 		newstatus(i, FACE);
 	}
 }
@@ -219,12 +219,12 @@ static void paingron(PLAYER& plr, short i) {
 	SPRITE& spr = sprite[i];
 	spr.lotag -= TICSPERFRAME;
 	if (spr.lotag < 0) {
-		if (sprite[i].picnum == GRONHALPAIN)
-			sprite[i].picnum = GRONHAL;
-		else if (sprite[i].picnum == GRONSWPAIN)
-			sprite[i].picnum = GRONSW;
-		else if (sprite[i].picnum == GRONMUPAIN)
-			sprite[i].picnum = GRONMU;
+		if (spr.picnum == GRONHALPAIN)
+			spr.picnum = GRONHAL;
+		else if (spr.picnum == GRONSWPAIN)
+			spr.picnum = GRONSW;
+		else if (spr.picnum == GRONMUPAIN)
+			spr.picnum = GRONMU;
 
 		spr.ang = plr.angle.ang.asbuild();
 		newstatus(i, FLEE);
@@ -270,7 +270,7 @@ static void facegron(PLAYER& plr, short i) {
 	checkexplgron(plr, i);
 }
 	
-static void attackgron(PLAYER& plr, short i) {
+static void attackgron(PLAYER& plr, short const i) {
 	SPRITE& spr = sprite[i];
 
 	if (spr.picnum == GRONSWATTACK) {
@@ -279,8 +279,8 @@ static void attackgron(PLAYER& plr, short i) {
 
 		switch (checkfluid(i, zr_florhit)) {
 		case TYPELAVA:
-			sprite[i].hitag--;
-			if (sprite[i].hitag < 0)
+			spr.hitag--;
+			if (spr.hitag < 0)
 				newstatus(i, DIE);
 		case TYPEWATER:
 			spr.z += tileHeight(spr.picnum) << 5;
@@ -412,13 +412,14 @@ static void checkexplgron(PLAYER& plr, short i) {
 	short j = headspritesect[spr.sectnum];
 	while (j != -1) {
 		short nextj = nextspritesect[j];
-		int dx = abs(spr.x - sprite[j].x); // x distance to sprite
-		int dy = abs(spr.y - sprite[j].y); // y distance to sprite
-		int dz = abs((spr.z >> 8) - (sprite[j].z >> 8)); // z distance to sprite
-		int dh = tileHeight(sprite[j].picnum) >> 1; // height of sprite
+		auto& spri = sprite[j];
+		int dx = abs(spr.x - spri.x); // x distance to sprite
+		int dy = abs(spr.y - spri.y); // y distance to sprite
+		int dz = abs((spr.z >> 8) - (spri.z >> 8)); // z distance to sprite
+		int dh = tileHeight(spri.picnum) >> 1; // height of sprite
 		if (dx + dy < PICKDISTANCE && dz - dh <= getPickHeight()) {
-			if (sprite[j].picnum == EXPLO2
-				|| sprite[j].picnum == MONSTERBALL) {
+			if (spri.picnum == EXPLO2
+				|| spri.picnum == MONSTERBALL) {
 				spr.hitag -= TICSPERFRAME << 2;
 				if (spr.hitag < 0) {
 					newstatus(i, DIE);
