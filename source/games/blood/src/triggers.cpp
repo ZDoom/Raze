@@ -666,7 +666,6 @@ void OperateWall(walltype* pWall, EVENT event) {
 
     switch (pWall->type) {
         case kWallGib:
-            if (GetWallType(wallnum(pWall)) != pWall->type) break;
             bool bStatus;
             switch (event.cmd) {
                 case kCmdOn:

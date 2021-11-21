@@ -5368,18 +5368,18 @@ int MoveMissile(DBloodActor* actor)
 		else if (clipmoveresult.type == kHitWall)
 		{
 			gHitInfo.hitwall = clipmoveresult.index;
-			if (wall[clipmoveresult.index].nextsector == -1) cliptype = 0;
+			if (clipmoveresult.wall()->nextsector == -1) cliptype = 0;
 			else
 			{
 				int32_t fz, cz;
-				getzsofslope(wall[clipmoveresult.index].nextsector, pos.x, pos.y, &cz, &fz);
+				getzsofslope(clipmoveresult.wall()->nextsector, pos.x, pos.y, &cz, &fz);
 				if (pos.z <= cz || pos.z >= fz) cliptype = 0;
 				else cliptype = 4;
 			}
 		}
 		if (cliptype == 4)
 		{
-			walltype* pWall = &wall[gHitInfo.hitwall];
+			walltype* pWall = clipmoveresult.wall();
 			if (pWall->hasX())
 			{
 				XWALL* pXWall = &pWall->xw();
@@ -6814,14 +6814,12 @@ bool actCheckRespawn(DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-bool actCanSplatWall(int nWall)
+bool actCanSplatWall(walltype* pWall)
 {
-	assert(validWallIndex(nWall));
-	walltype* pWall = &wall[nWall];
 	if (pWall->cstat & 16384) return 0;
 	if (pWall->cstat & 32768) return 0;
 
-	int nType = GetWallType(nWall);
+	int nType = pWall->type;
 	if (nType >= kWallBase && nType < kWallMax) return 0;
 
 	if (pWall->nextsector != -1)
@@ -6896,7 +6894,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 			assert(validWallIndex(nWall));
 			auto pWall = &wall[nWall];
 			nSurf = surfType[pWall->picnum];
-			if (actCanSplatWall(nWall))
+			if (actCanSplatWall(pWall))
 			{
 				int x = gHitInfo.hitx - MulScale(a4, 16, 14);
 				int y = gHitInfo.hity - MulScale(a5, 16, 14);
@@ -6999,7 +6997,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 						{
 							int nWall = gHitInfo.hitwall;
 							int nSector = gHitInfo.hitsect;
-							if (actCanSplatWall(nWall))
+							if (actCanSplatWall(&wall[nWall]))
 							{
 								int x = gHitInfo.hitx - MulScale(a4, 16, 14);
 								int y = gHitInfo.hity - MulScale(a5, 16, 14);

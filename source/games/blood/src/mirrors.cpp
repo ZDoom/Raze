@@ -56,7 +56,7 @@ void InitMirrors(void)
         int nTile = 4080+mirrorcnt;
         if (pWalli->overpicnum == 504)
         {
-            if (pWalli->extra > 0 && GetWallType(i) == kWallStack)
+            if (pWalli->extra > 0 && pWalli->type == kWallStack)
             {
                 pWalli->overpicnum = nTile;
 
@@ -70,7 +70,7 @@ void InitMirrors(void)
                     if (j == i)
                         continue;
                     auto pWallj = &wall[j];
-                    if (pWallj->extra > 0 && GetWallType(i) == kWallStack)
+                    if (pWallj->extra > 0 && pWallj->type == kWallStack)
                     {
                         if (tmp != pWallj->xw().data)
                             continue;

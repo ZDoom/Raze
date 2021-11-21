@@ -231,7 +231,7 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
                 sector.Data()[mirrorsector].floorz = sector[nSector].floorz;
                 sector.Data()[mirrorsector].ceilingz = sector[nSector].ceilingz;
                 int cx, cy, ca;
-                if (GetWallType(nWall) == kWallStack)
+                if (pWall->type == kWallStack)
                 {
                     cx = x - (wall[pWall->hitag].x - pWall->point2Wall()->x);
                     cy = y - (wall[pWall->hitag].y - pWall->point2Wall()->y);
@@ -244,7 +244,7 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
                 renderDrawRoomsQ16(cx, cy, z, ca, horiz, mirrorsector, true);
                 viewProcessSprites(pm_tsprite, pm_spritesortcnt, cx, cy, z, FixedToInt(ca), smooth);
                 renderDrawMasks();
-                if (GetWallType(nWall) != kWallStack)
+                if (pWall->type != kWallStack)
                     renderCompleteMirror();
                 pWall->nextwall = nNextWall;
                 pWall->nextsector = nNextSector;

@@ -85,11 +85,6 @@ extern const char *gItemText[];
 extern const char *gAmmoText[];
 extern const char *gWeaponText[];
 
-static inline int GetWallType(int nWall)
-{
-    return wall[nWall].type;
-}
-
 template<typename T> void GetSpriteExtents(T const * const pSprite, int *top, int *bottom)
 {
     *top = *bottom = pSprite->z;
