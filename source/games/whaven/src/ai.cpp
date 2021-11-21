@@ -580,39 +580,41 @@ void processfluid(int i, int zr_florhit, boolean fly) {
 }
 
 void castspell(PLAYER& plr, int i) {
-	int j = insertsprite(sprite[i].sectnum, MISSILE);
+	auto& spr = sprite[i];
+	int j = insertsprite(spr.sectnum, MISSILE);
+	auto& spawned = sprite[j];
 
-	sprite[j].x = sprite[i].x;
-	sprite[j].y = sprite[i].y;
-	if (isWh2() || sprite[i].picnum == SPAWNFIREBALL)
-		sprite[j].z = sprite[i].z - ((tileHeight(sprite[i].picnum) >> 1) << 8);
+	spawned.x = spr.x;
+	spawned.y = spr.y;
+	if (isWh2() || spr.picnum == SPAWNFIREBALL)
+		spawned.z = spr.z - ((tileHeight(spr.picnum) >> 1) << 8);
 	else
-		sprite[j].z = getflorzofslope(sprite[i].sectnum, sprite[i].x, sprite[i].y) - ((tileHeight(sprite[i].picnum) >> 1) << 8);
-	sprite[j].cstat = 0; // Hitscan does not hit other bullets
-	sprite[j].picnum = MONSTERBALL;
-	sprite[j].shade = -15;
-	sprite[j].xrepeat = 64;
-	sprite[j].yrepeat = 64;
-	if (sprite[i].picnum == SPAWNFIREBALL)
-		sprite[j].ang = (short)((getangle(plr.x - sprite[j].x, plr.y - sprite[j].y) + 2048) & 2047);
+		spawned.z = getflorzofslope(spr.sectnum, spr.x, spr.y) - ((tileHeight(spr.picnum) >> 1) << 8);
+	spawned.cstat = 0; // Hitscan does not hit other bullets
+	spawned.picnum = MONSTERBALL;
+	spawned.shade = -15;
+	spawned.xrepeat = 64;
+	spawned.yrepeat = 64;
+	if (spr.picnum == SPAWNFIREBALL)
+		spawned.ang = (short)((getangle(plr.x - spawned.x, plr.y - spawned.y) + 2048) & 2047);
 	else
-		sprite[j].ang = (short)(((getangle(plr.x - sprite[j].x, plr.y - sprite[j].y) + (krand() & 15)
+		spawned.ang = (short)(((getangle(plr.x - spawned.x, plr.y - spawned.y) + (krand() & 15)
 			- 8) + 2048) & 2047);
-	sprite[j].xvel = bcos(sprite[j].ang, -6);
-	sprite[j].yvel = bsin(sprite[j].ang, -6);
+	spawned.xvel = bcos(spawned.ang, -6);
+	spawned.yvel = bsin(spawned.ang, -6);
 
-	int discrim = ksqrt((plr.x - sprite[j].x) * (plr.x - sprite[j].x) + (plr.y - sprite[j].y) * (plr.y - sprite[j].y));
+	int discrim = ksqrt((plr.x - spawned.x) * (plr.x - spawned.x) + (plr.y - spawned.y) * (plr.y - spawned.y));
 	if (discrim == 0)
 		discrim = 1;
 	if (isWh2())
-		sprite[j].zvel = (short)(((plr.z + (8 << 8) - sprite[j].z) << 7) / discrim);
+		spawned.zvel = (short)(((plr.z + (8 << 8) - spawned.z) << 7) / discrim);
 	else
-		sprite[j].zvel = (short)(((plr.z + (48 << 8) - sprite[j].z) << 7) / discrim);
+		spawned.zvel = (short)(((plr.z + (48 << 8) - spawned.z) << 7) / discrim);
 
-	sprite[j].owner = (short)i;
-	sprite[j].clipdist = 16;
-	sprite[j].lotag = 512;
-	sprite[j].hitag = 0;
+	spawned.owner = (short)i;
+	spawned.clipdist = 16;
+	spawned.lotag = 512;
+	spawned.hitag = 0;
 }
 
 void skullycastspell(PLAYER& plr, int i) {
