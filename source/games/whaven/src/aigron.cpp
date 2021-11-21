@@ -15,7 +15,7 @@ static void chasegron(PLAYER& plr, DWHActor* actor)
 	if (spr.lotag < 0)
 		spr.lotag = 250;
 
-	short osectnum = spr.sectnum;
+	auto osectnum = spr.sectnum;
 
 	if (spr.picnum == GRONSW) {
 		if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
@@ -43,7 +43,7 @@ static void chasegron(PLAYER& plr, DWHActor* actor)
 
 				if (moveStat.type == kHitSprite) {
 					if (moveStat.actor != plr.actor()) {
-						short daang = ((spr.ang - 256) & 2047);
+						int16_t daang = ((spr.ang - 256) & 2047);
 						spr.ang = daang;
 						if (plr.shadowtime > 0) {
 							spr.ang = (((krand() & 512 - 256) + spr.ang + 1024) & 2047);
@@ -157,7 +157,7 @@ static void skirmishgron(PLAYER& plr, DWHActor* actor)
 
 	if (spr.lotag < 0)
 		SetNewStatus(actor, FACE);
-	short osectnum = spr.sectnum;
+	auto osectnum = spr.sectnum;
 	auto moveStat = aimove(actor);
 	if (moveStat.type != kHitFloor && moveStat.type != kHitNone) {
 		spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
@@ -337,7 +337,7 @@ static void fleegron(PLAYER& plr, DWHActor* actor)
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
-	short osectnum = spr.sectnum;
+	auto osectnum = spr.sectnum;
 
 	auto moveStat = aimove(actor);
 	if (moveStat.type != kHitFloor && moveStat.type != kHitNone) {

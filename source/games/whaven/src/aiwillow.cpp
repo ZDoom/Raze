@@ -13,7 +13,7 @@ static void chasewillow(PLAYER& plr, DWHActor* actor)
 	if (spr.lotag < 0)
 		spr.lotag = 250;
 
-	short osectnum = spr.sectnum;
+	auto osectnum = spr.sectnum;
 	if (krand() % 63 == 0) {
 		if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y,
 			spr.z - (tileHeight(spr.picnum) << 7), spr.sectnum) && plr.invisibletime < 0)
@@ -181,7 +181,7 @@ static void fleewillow(PLAYER& plr, DWHActor* actor)
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
-	short osectnum = spr.sectnum;
+	auto osectnum = spr.sectnum;
 
 	auto moveStat = aifly(actor);
 

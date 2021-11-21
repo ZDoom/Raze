@@ -407,7 +407,7 @@ void teleporter() {
 	short startwall, endwall;
 	int i, j;
 	int s;
-	short daang;
+	int16_t daang;
 
 	auto &plr = player[pyrn];
 
@@ -1012,7 +1012,7 @@ void warpfxsprite(DWHActor* actor) {
 	spawned.cstat = 0;
 
 	spawned.picnum = ANNIHILATE;
-	short daang;
+	int16_t daang;
 	if (actor == plr.actor()) {
 		daang = plr.angle.ang.asbuild();
 		spawned.ang = daang;

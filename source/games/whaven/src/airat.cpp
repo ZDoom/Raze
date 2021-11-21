@@ -35,7 +35,7 @@ static void fleerat(PLAYER& plr, DWHActor* actor)
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
-	short osectnum = spr.sectnum;
+	auto osectnum = spr.sectnum;
 
 	auto moveStat = aimove(actor);
 	if (moveStat.type == kHitFloor)

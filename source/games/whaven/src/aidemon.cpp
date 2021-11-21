@@ -17,7 +17,7 @@ static void chasedemon(PLAYER& plr, DWHActor* actor)
 		spr.z += TICSPERFRAME << 8;
 	}
 
-	short osectnum = spr.sectnum;
+	auto osectnum = spr.sectnum;
 	if (krand() % 63 == 0) {
 		if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y,
 			spr.z - (tileHeight(spr.picnum) << 7), spr.sectnum) && plr.invisibletime < 0)
@@ -153,7 +153,7 @@ static void fleedemon(PLAYER& plr, DWHActor* actor)
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
-	short osectnum = spr.sectnum;
+	auto osectnum = spr.sectnum;
 
 	auto moveStat = aifly(actor);
 

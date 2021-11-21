@@ -49,7 +49,7 @@ int hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz, Hitsc
 	return ::hitscan(xs, ys, zs, sectnum, vx, vy, vz, &hit.hitsect, &hit.hitwall, &hit.hitsprite, &hit.hitx, &hit.hity, &hit.hitz, cliptype);
 }
 
-Point rotatepoint(int xpivot, int ypivot, int x, int y, short daang) { // jfBuild
+Point rotatepoint(int xpivot, int ypivot, int x, int y, int16_t daang) { // jfBuild
 	Point rotatepoint;
 	int dacos = bcos(daang);
 	int dasin = bsin(daang);

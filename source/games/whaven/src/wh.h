@@ -182,7 +182,7 @@ struct Hitscan {
 };
 
 int hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz, Hitscan& hit, int cliptype);
-Point rotatepoint(int xpivot, int ypivot, int x, int y, short daang);
+Point rotatepoint(int xpivot, int ypivot, int x, int y, int16_t daang);
 
 // whobj
 

@@ -11,7 +11,7 @@ static void chaseguardian(PLAYER& plr, DWHActor* actor)
 	if (spr.lotag < 0)
 		spr.lotag = 250;
 
-	short osectnum = spr.sectnum;
+	auto osectnum = spr.sectnum;
 	if (plr.z < spr.z)
 		spr.z -= TICSPERFRAME << 8;
 	if (plr.z > spr.z)
@@ -159,7 +159,7 @@ static void fleeguardian(PLAYER& plr, DWHActor* actor)
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
-	short osectnum = spr.sectnum;
+	auto osectnum = spr.sectnum;
 
 	if (PlayClock % 100 > 70)
 		trailingsmoke(actor,true);

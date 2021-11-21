@@ -16,7 +16,7 @@ static void chasedragon(PLAYER& plr, DWHActor* actor)
 	if (spr.lotag < 0)
 		spr.lotag = 250;
 
-	short osectnum = spr.sectnum;
+	auto osectnum = spr.sectnum;
 	//				int speed = 10;
 	if ((krand() % 16) == 0) {
 		if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
@@ -74,7 +74,7 @@ static void fleedragon(PLAYER& plr, DWHActor* actor)
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
-	short osectnum = spr.sectnum;
+	auto osectnum = spr.sectnum;
 
 	auto moveStat = aimove(actor);
 	if (moveStat.type != kHitFloor && moveStat.type != kHitNone) {

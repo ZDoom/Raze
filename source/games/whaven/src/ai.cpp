@@ -209,7 +209,7 @@ void aiProcess() {
 
 	PLAYER& plr = player[0];
 
-	//		short daang = plr.angle.ang.asbuild();
+	//		int16_t daang = plr.angle.ang.asbuild();
 	//		int daz2 = -MulScale(plr.horizon.horiz.asq16(), 2000, 16);
 	//		hitscan(plr.x, plr.y, plr.z, plr.sector, // Start position
 	//				bcos(daang), // X vector of 3D ang
@@ -488,7 +488,7 @@ void aisearch(PLAYER& plr, DWHActor* actor, boolean fly) {
 	//			return;
 	//		}
 
-	short osectnum = spr.sectnum;
+	auto osectnum = spr.sectnum;
 
 	Collision moveStat;
 	if (fly)

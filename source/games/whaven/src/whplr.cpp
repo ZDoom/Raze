@@ -244,7 +244,7 @@ void plruse(PLAYER& plr) {
 		if (sector[nt.tagsector].hitag == 0) {
 			operatesector(plr, nt.tagsector);
 		} else {
-			short daang = plr.angle.ang.asbuild();
+			int16_t daang = plr.angle.ang.asbuild();
 			int daz2 = -MulScale(plr.horizon.horiz.asq16(), 2000, 16);
 			Hitscan pHitInfo;
 			hitscan(plr.x, plr.y, plr.z, plr.sector, // Start position
@@ -556,7 +556,7 @@ void goesupalevel1(PLAYER& plr) {
 }
 
 void lockon(PLAYER& plr, int numshots, int shootguntype) {
-	short daang, i, k, n = 0, s;
+	int16_t daang, i, k, n = 0, s;
 
 	for (i = 0; i < tspritelistcnt && n < numshots; i++) {
 		auto &spr = tspritelist[i];

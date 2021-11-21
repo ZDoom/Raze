@@ -12,7 +12,7 @@ static void chasedevil(PLAYER& plr, DWHActor* actor)
 	if (spr.lotag < 0)
 		spr.lotag = 250;
 
-	short osectnum = spr.sectnum;
+	auto osectnum = spr.sectnum;
 
 	if (krand() % 63 == 0) {
 		if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y,
@@ -133,7 +133,7 @@ static void fleedevil(PLAYER& plr, DWHActor* actor)
 	SPRITE& spr = actor->s();
 
 	spr.lotag -= TICSPERFRAME;
-	short osectnum = spr.sectnum;
+	auto osectnum = spr.sectnum;
 
 	auto moveStat = aimove(actor);
 	if (moveStat.type != kHitFloor && moveStat.type != kHitNone) {
