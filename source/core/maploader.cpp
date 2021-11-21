@@ -250,14 +250,14 @@ void ValidateSprite(spritetype& spr)
 		Printf("Sprite #%d (%d,%d) has invalid picnum %d.\n", index, spr.x, spr.y, spr.picnum);
 		bugged = true;
 	}
-	else if ((unsigned)spr.sectnum >= (unsigned)numsectors)
+	else if (!validSectorIndex(spr.sectnum))
 	{
 		int sectnum = -1;
 		updatesector(spr.x, spr.y, &sectnum);
+		bugged = sectnum < 0;
 
 		if (!DPrintf(DMSG_WARNING, "Sprite #%d (%d,%d) with invalid sector %d was corrected to sector %d\n", index, spr.x, spr.y, spr.sectnum, sectnum))
 		{
-			bugged = sectnum < 0;
 			if (bugged) Printf("Sprite #%d (%d,%d) with invalid sector %d\n", index, spr.x, spr.y, spr.sectnum);
 		}
 		spr.sectnum = sectnum;
