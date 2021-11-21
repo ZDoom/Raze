@@ -2572,21 +2572,21 @@ void checksectors_r(int snum)
 				}
 				return;
 			}
-			neartag(p->pos.x, p->pos.y, p->pos.z, p->GetActor()->s->sectnum, p->angle.oang.asbuild(), &ntsector, &ntwall, &neartagsprite, &neartaghitdist, 1280L, 3);
+			neartag(p->pos.x, p->pos.y, p->pos.z, p->GetActor()->sector(), p->angle.oang.asbuild(), &ntsector, &ntwall, &neartagsprite, &neartaghitdist, 1280L, 3);
 		}
 
 		if (p->newOwner != nullptr)
-			neartag(p->oposx, p->oposy, p->oposz, p->GetActor()->s->sectnum, p->angle.oang.asbuild(), &ntsector, &ntwall, &neartagsprite, &neartaghitdist, 1280L, 1);
+			neartag(p->oposx, p->oposy, p->oposz, p->GetActor()->sector(), p->angle.oang.asbuild(), &ntsector, &ntwall, &neartagsprite, &neartaghitdist, 1280L, 1);
 		else
 		{
-			neartag(p->pos.x, p->pos.y, p->pos.z, p->GetActor()->s->sectnum, p->angle.oang.asbuild(), &ntsector, &ntwall, &neartagsprite, &neartaghitdist, 1280L, 1);
+			neartag(p->pos.x, p->pos.y, p->pos.z, p->GetActor()->sector(), p->angle.oang.asbuild(), &ntsector, &ntwall, &neartagsprite, &neartaghitdist, 1280L, 1);
 			if (neartagsprite == nullptr && ntwall == nullptr && ntsector == nullptr)
-				neartag(p->pos.x, p->pos.y, p->pos.z + (8 << 8), p->GetActor()->s->sectnum, p->angle.oang.asbuild(), &ntsector, &ntwall, &neartagsprite, &neartaghitdist, 1280L, 1);
+				neartag(p->pos.x, p->pos.y, p->pos.z + (8 << 8), p->GetActor()->sector(), p->angle.oang.asbuild(), &ntsector, &ntwall, &neartagsprite, &neartaghitdist, 1280L, 1);
 			if (neartagsprite == nullptr && ntwall == nullptr && ntsector == nullptr)
-				neartag(p->pos.x, p->pos.y, p->pos.z + (16 << 8), p->GetActor()->s->sectnum, p->angle.oang.asbuild(), &ntsector, &ntwall, &neartagsprite, &neartaghitdist, 1280L, 1);
+				neartag(p->pos.x, p->pos.y, p->pos.z + (16 << 8), p->GetActor()->sector(), p->angle.oang.asbuild(), &ntsector, &ntwall, &neartagsprite, &neartaghitdist, 1280L, 1);
 			if (neartagsprite == nullptr && ntwall == nullptr && ntsector == nullptr)
 			{
-				neartag(p->pos.x, p->pos.y, p->pos.z + (16 << 8), p->GetActor()->s->sectnum, p->angle.oang.asbuild(), &ntsector, &ntwall, &neartagsprite, &neartaghitdist, 1280L, 3);
+				neartag(p->pos.x, p->pos.y, p->pos.z + (16 << 8), p->GetActor()->sector(), p->angle.oang.asbuild(), &ntsector, &ntwall, &neartagsprite, &neartaghitdist, 1280L, 3);
 				if (neartagsprite != nullptr)
 				{
 					switch (neartagsprite->s->picnum)
@@ -2915,7 +2915,7 @@ void dofurniture(walltype* wlwal, sectortype* sectp, int snum)
 //
 //---------------------------------------------------------------------------
 
-void tearitup(int sect)
+void tearitup(sectortype* sect)
 {
 	DukeSectIterator it(sect);
 	while (auto act = it.Next())

@@ -506,14 +506,15 @@ void prelevel_r(int g)
 				{
 					dist = sj->lotag << 4;
 					speed = sj->hitag;
-					for (ii = 0; ii < MAXSPRITES; ii++)
+					DukeSpriteIterator itt;
+					while(auto act = itt.Next())
 					{
-						auto spr = &sprite[ii];
+						auto spr = act->s;
 						if (spr->picnum == RRTILE66)
 							if (spr->lotag == sj->sectnum)
 							{
 								childsectnum = spr->sector();
-								deletesprite(ii);
+								deletesprite(act);
 							}
 					}
 					deletesprite(act);

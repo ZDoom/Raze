@@ -1476,7 +1476,7 @@ void PreMapCombineFloors(void)
     int i, j, k;
     int base_offset;
     int dx, dy;
-    int dasect, startwall, endwall, nextsector;
+    int startwall, endwall, nextsector;
     short pnum;
 
     typedef struct
@@ -1544,7 +1544,7 @@ void PreMapCombineFloors(void)
         TRAVERSE_CONNECT(pnum)
         {
             PLAYERp pp = &Player[pnum];
-            dasect = pp->cursectnum;
+            unsigned dasect = pp->cursectnum;
             search.Rewind();
             for (unsigned itsect; (itsect = search.GetNext()) != BFSSearch::EOL;)
             {

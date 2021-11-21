@@ -265,7 +265,7 @@ inline bool S_IsAmbientSFX(DDukeActor* actor)
 //
 //==========================================================================
 
-static int GetPositionInfo(DDukeActor* actor, int soundNum, int sectNum,
+static int GetPositionInfo(DDukeActor* actor, int soundNum, sectortype* sect,
 							 const vec3_t *cam, const vec3_t *pos, int *distPtr, FVector3 *sndPos)
 {
 	// There's a lot of hackery going on here that could be mapped to rolloff and attenuation parameters.
@@ -291,7 +291,7 @@ static int GetPositionInfo(DDukeActor* actor, int soundNum, int sectNum,
 	sndist += dist_adjust;
 	if (sndist < 0) sndist = 0;
 
-	if (sectNum > -1 && sndist && sp->picnum != MUSICANDSFX && !cansee(cam->x, cam->y, cam->z - (24 << 8), sectNum, sp->x, sp->y, sp->z - (24 << 8), sp->sectnum))
+	if (sect!= nullptr && sndist && sp->picnum != MUSICANDSFX && !cansee(cam->x, cam->y, cam->z - (24 << 8), sect, sp->x, sp->y, sp->z - (24 << 8), sp->sector()))
 		sndist += sndist >> (isRR() ? 2 : 5);
 
 	// Here the sound distance was clamped to a minimum of 144*4. 
@@ -325,19 +325,19 @@ static int GetPositionInfo(DDukeActor* actor, int soundNum, int sectNum,
 //
 //==========================================================================
 
-void S_GetCamera(vec3_t** c, int32_t* ca, int32_t* cs)
+void S_GetCamera(vec3_t** c, int32_t* ca, sectortype** cs)
 {
 	if (ud.cameraactor == nullptr)
 	{
 		auto p = &ps[screenpeek];
 		if (c) *c = &p->pos;
-		if (cs) *cs = sectnum(p->cursector);
+		if (cs) *cs = p->cursector;
 		if (ca) *ca = p->angle.ang.asbuild();
 	}
 	else
 	{
 		if (c) *c =  &ud.cameraactor->s->pos;
-		if (cs) *cs = ud.cameraactor->s->sectnum;
+		if (cs) *cs = ud.cameraactor->s->sector();
 		if (ca) *ca = ud.cameraactor->s->ang;
 	}
 }
@@ -355,7 +355,7 @@ void DukeSoundEngine::CalcPosVel(int type, const void* source, const float pt[3]
 	if (pos != nullptr)
 	{
 		vec3_t* campos;
-		int32_t camsect;
+		sectortype* camsect;
 
 		S_GetCamera(&campos, nullptr, &camsect);
 		if (vel) vel->Zero();
@@ -402,7 +402,8 @@ void GameInterface::UpdateSounds(void)
 {
 	SoundListener listener;
 	vec3_t* c;
-	int32_t ca, cs;
+	int32_t ca;
+	sectortype* cs;
 	
 	if (isRR() && !Mus_IsPlaying() && !paused && gamestate == GS_LEVEL)
 		S_PlayRRMusic(); 
@@ -480,7 +481,7 @@ int S_PlaySound3D(int sndnum, DDukeActor* actor, const vec3_t* pos, int channel,
 	FVector3 sndpos;    // this is in sound engine space.
 
 	vec3_t* campos;
-	int32_t camsect;
+	sectortype* camsect;
 
 	S_GetCamera(&campos, nullptr, &camsect);
 	GetPositionInfo(actor, sndnum, camsect, campos, pos, &sndist, &sndpos);

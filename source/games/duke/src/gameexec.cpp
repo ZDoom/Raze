@@ -83,7 +83,7 @@ struct ParseState
 int furthestcanseepoint(DDukeActor* i, DDukeActor* ts, int* dax, int* day);
 bool ifsquished(DDukeActor* i, int p);
 void fakebubbaspawn(DDukeActor* actor, int g_p);
-void tearitup(int sect);
+void tearitup(sectortype* sect);
 void destroyit(DDukeActor* actor);
 void mamaspawn(DDukeActor* actor);
 void forceplayerangle(int snum);
@@ -1817,7 +1817,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_tearitup:
 		insptr++;
-		tearitup(g_sp->sectnum);
+		tearitup(g_sp->sector());
 		break;
 	case concmd_fall:
 		insptr++;

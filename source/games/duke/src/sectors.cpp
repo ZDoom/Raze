@@ -129,7 +129,7 @@ int check_activator_motion(int lotag)
 			DukeStatIterator it1(STAT_EFFECTOR);
 			while (auto act2 = it1.Next())
 			{
-				if (act->s->sectnum == act2->s->sectnum)
+				if (act->s->sector() == act2->s->sector())
 					switch (act2->s->lotag)
 					{
 					case SE_11_SWINGING_DOOR:

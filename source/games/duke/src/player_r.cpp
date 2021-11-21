@@ -86,7 +86,7 @@ void incur_damage_r(struct player_struct* p)
 static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, int atwith)
 {
 	spritetype* const s = actor->s;
-	int sect = s->sectnum;
+	auto sectp = s->sector();
 	int zvel;
 	int hitx, hity, hitz;
 	DDukeActor* hitsprt;
@@ -107,7 +107,7 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 		sa = getangle(pspr->s->x - sx, pspr->s->y - sy);
 	}
 
-	hitscan(sx, sy, sz, sect,
+	hitscan(sx, sy, sz, sectp,
 		bcos(sa),
 		bsin(sa), zvel << 6,
 		&hitsectp, &wal, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
@@ -132,7 +132,7 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 				{
 					nz = effector->GetOwner()->sector()->ceilingz;
 				}
-				hitscan(nx, ny, nz, effector->GetOwner()->s->sectnum, bcos(sa), bsin(sa), zvel << 6,
+				hitscan(nx, ny, nz, effector->GetOwner()->s->sector(), bcos(sa), bsin(sa), zvel << 6,
 					&hitsectp, &wal, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
 				break;
 			}
@@ -213,7 +213,7 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, int atwith)
 {
 	auto s = actor->s;
-	int sect = s->sectnum;
+	auto sectp = s->sector();
 	int zvel = 0;
 	int hitx, hity, hitz;
 	DDukeActor* hitsprt;
@@ -271,7 +271,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 	}
 
 	s->cstat &= ~257;
-	hitscan(sx, sy, sz, sect, bcos(sa), bsin(sa),
+	hitscan(sx, sy, sz, sectp, bcos(sa), bsin(sa),
 		zvel << 6, &hitsectp, &wal, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
 
 	if (isRRRA() && hitsectp != nullptr && (((hitsectp->lotag == 160 && zvel > 0) || (hitsectp->lotag == 161 && zvel < 0))
@@ -294,7 +294,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 				{
 					nz = effector->GetOwner()->sector()->ceilingz;
 				}
-				hitscan(nx, ny, nz, effector->GetOwner()->s->sectnum, bcos(sa), bsin(sa), zvel << 6,
+				hitscan(nx, ny, nz, effector->GetOwner()->s->sector(), bcos(sa), bsin(sa), zvel << 6,
 					&hitsectp, &wal, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
 				break;
 			}

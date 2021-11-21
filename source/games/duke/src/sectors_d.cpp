@@ -1424,10 +1424,10 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 					if ((s->cstat & 48) == 0)
 						s->ang = (pspr->ang + 1024) & 2047;
 					s->xvel = -(pspr->extra << 2);
-					j = s->sectnum;
-					pushmove(&s->pos, &j, 128L, (4 << 8), (4 << 8), CLIPMASK0);
-					if (j != s->sectnum && validSectorIndex(j))
-						changeactorsect(targ, j);
+					auto sp = s->sector();
+					pushmove(&s->pos, &sp, 128L, (4 << 8), (4 << 8), CLIPMASK0);
+					if (sp != s->sector() && sp != nullptr)
+						changeactorsect(targ, sp);
 				}
 
 				if (s->statnum == 2)
@@ -1623,17 +1623,17 @@ void checksectors_d(int snum)
 					return;
 		}
 		if (p->newOwner != nullptr)
-			neartag(p->oposx, p->oposy, p->oposz, p->GetActor()->s->sectnum, p->angle.oang.asbuild(), &ntsector, &ntwall, &neartagsprite, &neartaghitdist, 1280L, 1);
+			neartag(p->oposx, p->oposy, p->oposz, p->GetActor()->sector(), p->angle.oang.asbuild(), &ntsector, &ntwall, &neartagsprite, &neartaghitdist, 1280L, 1);
 		else
 		{
-			neartag(p->pos.x, p->pos.y, p->pos.z, p->GetActor()->s->sectnum, p->angle.oang.asbuild(), &ntsector, &ntwall, &neartagsprite, &neartaghitdist, 1280L, 1);
+			neartag(p->pos.x, p->pos.y, p->pos.z, p->GetActor()->sector(), p->angle.oang.asbuild(), &ntsector, &ntwall, &neartagsprite, &neartaghitdist, 1280L, 1);
 			if (neartagsprite == nullptr && ntwall == nullptr && ntsector == nullptr)
-				neartag(p->pos.x, p->pos.y, p->pos.z + (8 << 8), p->GetActor()->s->sectnum, p->angle.oang.asbuild(), &ntsector, &ntwall, &neartagsprite, &neartaghitdist, 1280L, 1);
+				neartag(p->pos.x, p->pos.y, p->pos.z + (8 << 8), p->GetActor()->sector(), p->angle.oang.asbuild(), &ntsector, &ntwall, &neartagsprite, &neartaghitdist, 1280L, 1);
 			if (neartagsprite == nullptr && ntwall == nullptr && ntsector == nullptr)
-				neartag(p->pos.x, p->pos.y, p->pos.z + (16 << 8), p->GetActor()->s->sectnum, p->angle.oang.asbuild(), &ntsector, &ntwall, &neartagsprite, &neartaghitdist, 1280L, 1);
+				neartag(p->pos.x, p->pos.y, p->pos.z + (16 << 8), p->GetActor()->sector(), p->angle.oang.asbuild(), &ntsector, &ntwall, &neartagsprite, &neartaghitdist, 1280L, 1);
 			if (neartagsprite == nullptr && ntwall == nullptr && ntsector == nullptr)
 			{
-				neartag(p->pos.x, p->pos.y, p->pos.z + (16 << 8), p->GetActor()->s->sectnum, p->angle.oang.asbuild(), &ntsector, &ntwall, &neartagsprite, &neartaghitdist, 1280L, 3);
+				neartag(p->pos.x, p->pos.y, p->pos.z + (16 << 8), p->GetActor()->sector(), p->angle.oang.asbuild(), &ntsector, &ntwall, &neartagsprite, &neartaghitdist, 1280L, 3);
 				if (neartagsprite != nullptr)
 				{
 					switch (neartagsprite->s->picnum)
