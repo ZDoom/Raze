@@ -91,27 +91,28 @@ void initplayersprite(PLAYER& plr) {
 	plr.z = sector[plr.sector].floorz - (plr.height << 8);
 
 	plr.spritenum = (short) insertsprite(plr.sector, (short) 0);
+	auto& spr = sprite[plr.spritenum];
 
 	plr.onsomething = 1;
 
-	sprite[plr.spritenum].x = plr.x;
-	sprite[plr.spritenum].y = plr.y;
-	sprite[plr.spritenum].z = plr.z + (plr.height << 8);
-	sprite[plr.spritenum].cstat = 1 + 256;
-	sprite[plr.spritenum].picnum = isWh2() ? GRONSW : FRED;
-	sprite[plr.spritenum].shade = 0;
-	sprite[plr.spritenum].xrepeat = 36;
-	sprite[plr.spritenum].yrepeat = 36;
-	sprite[plr.spritenum].ang = plr.angle.ang.asbuild();
-	sprite[plr.spritenum].xvel = 0;
-	sprite[plr.spritenum].yvel = 0;
-	sprite[plr.spritenum].zvel = 0;
-	sprite[plr.spritenum].owner = (short) (4096 + myconnectindex);
-	sprite[plr.spritenum].lotag = 0;
-	sprite[plr.spritenum].hitag = 0;
-	sprite[plr.spritenum].pal = (short) (isWh2() ? 10 : 1);
+	spr.x = plr.x;
+	spr.y = plr.y;
+	spr.z = plr.z + (plr.height << 8);
+	spr.cstat = 1 + 256;
+	spr.picnum = isWh2() ? GRONSW : FRED;
+	spr.shade = 0;
+	spr.xrepeat = 36;
+	spr.yrepeat = 36;
+	spr.ang = plr.angle.ang.asbuild();
+	spr.xvel = 0;
+	spr.yvel = 0;
+	spr.zvel = 0;
+	spr.owner = (short) (4096 + myconnectindex);
+	spr.lotag = 0;
+	spr.hitag = 0;
+	spr.pal = (short) (isWh2() ? 10 : 1);
 	if(isWh2())
-		sprite[plr.spritenum].clipdist = 48;
+		spr.clipdist = 48;
 		
 	plr.selectedgun = 0;
 		
