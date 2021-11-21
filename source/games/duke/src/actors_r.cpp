@@ -252,9 +252,9 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 					}
 					int x1 = (((wal.x + wal.point2Wall()->x) >> 1) + spri->x) >> 1;
 					int y1 = (((wal.y + wal.point2Wall()->y) >> 1) + spri->y) >> 1;
-					int sect;
+					auto sect = wal.sectorp();
 					updatesector(x1, y1, &sect);
-					if (sect >= 0 && cansee(x1, y1, spri->z, sect, spri->x, spri->y, spri->z, spri->sectnum))
+					if (sect != nullptr && cansee(x1, y1, spri->z, sect, spri->x, spri->y, spri->z, spri->sector()))
 						fi.checkhitwall(actor, &wal, wal.x, wal.y, spri->z, spri->picnum);
 				}
 			}
@@ -275,7 +275,7 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 				if (spri2->cstat & 257)
 					if (dist(actor, act2) < r)
 					{
-						if (badguy(act2) && !cansee(spri2->x, spri2->y, spri2->z + q, spri2->sectnum, spri->x, spri->y, spri->z + q, spri->sectnum))
+						if (badguy(act2) && !cansee(spri2->x, spri2->y, spri2->z + q, spri2->sector(), spri->x, spri->y, spri->z + q, spri->sector()))
 						{
 							continue;
 						}
@@ -297,7 +297,7 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 				int d = dist(actor, act2);
 				if (spri2->picnum == APLAYER) spri2->z += gs.playerheight;
 
-				if (d < r && cansee(spri2->x, spri2->y, spri2->z - (8 << 8), spri2->sectnum, spri->x, spri->y, spri->z - (12 << 8), spri->sectnum))
+				if (d < r && cansee(spri2->x, spri2->y, spri2->z - (8 << 8), spri2->sector(), spri->x, spri->y, spri->z - (12 << 8), spri->sector()))
 				{
 					if ((isRRRA()) && spri2->picnum == MINION && spri2->pal == 19)
 					{
@@ -510,7 +510,7 @@ void movefta_r(void)
 {
 	int x, px, py, sx, sy;
 	int j, p;
-	int psect, ssect;
+	sectortype* psect, *ssect;
 
 	DukeStatIterator it(STAT_ZOMBIEACTOR);
 	while(auto act = it.Next())
@@ -519,7 +519,7 @@ void movefta_r(void)
 		p = findplayer(act, &x);
 		j = 0;
 
-		ssect = psect = s->sectnum;
+		ssect = psect = s->sector();
 
 		if (ps[p].GetActor()->s->extra > 0)
 		{
@@ -533,14 +533,14 @@ void movefta_r(void)
 						px = ps[p].oposx + 64 - (krand() & 127);
 						py = ps[p].oposy + 64 - (krand() & 127);
 						updatesector(px, py, &psect);
-						if (psect == -1)
+						if (psect == nullptr)
 						{
 							continue;
 						}
 						sx = s->x + 64 - (krand() & 127);
 						sy = s->y + 64 - (krand() & 127);
 						updatesector(px, py, &ssect);
-						if (ssect == -1)
+						if (ssect == nullptr)
 						{
 							continue;
 						}
@@ -622,12 +622,13 @@ void movefta_r(void)
 //
 //---------------------------------------------------------------------------
 
-DDukeActor* ifhitsectors_r(int sectnum)
+																		  
+DDukeActor* ifhitsectors_r(sectortype* sect)
 {
 	DukeStatIterator it(STAT_MISC);
 	while (auto a1 = it.Next())
 	{
-		if (a1->s->picnum == EXPLOSION2 || (a1->s->picnum == EXPLOSION3 && sectnum == a1->s->sectnum))
+		if (a1->s->picnum == EXPLOSION2 || (a1->s->picnum == EXPLOSION3 && sect == a1->s->sector()))
 			return a1;
 	}
 	return nullptr;
@@ -2487,7 +2488,7 @@ void rr_specialstats()
 						ps[p].bobposy = ps[p].oposy = ps[p].pos.y = act2->s->y;
 						ps[p].oposz = ps[p].pos.z = act2->s->z - (36 << 8);
 						auto pact = ps[p].GetActor();
-						changeactorsect(pact, act2->s->sectnum);
+						changeactorsect(pact, act2->sector());
 						ps[p].setCursector(pact->sector());
 						S_PlayActorSound(70, act2);
 						deletesprite(act2);
@@ -3659,7 +3660,7 @@ void moveeffectors_r(void)   //STATNUM 3
 		auto sc = act->sector();
 		if (sc->wallnum != 4) continue;
 		auto wal = sc->firstWall() + 2;
-		alignflorslope(act->s->sectnum, wal->x, wal->y, wal->nextSector()->floorz);
+		alignflorslope(act->sector(), wal->x, wal->y, wal->nextSector()->floorz);
 	}
 }
 
@@ -4105,10 +4106,9 @@ void fall_r(DDukeActor* ac, int g_p)
 void destroyit(DDukeActor *actor)
 {
 	int lotag = 0, hitag = 0;
-	int sectnum;
 	DDukeActor* spr = nullptr;
 
-	DukeSectIterator it1(actor->s->sectnum);
+	DukeSectIterator it1(actor->sector());
 	while (auto a2 = it1.Next())
 	{
 		if (a2->s->picnum == RRTILE63)
@@ -4138,7 +4138,7 @@ void destroyit(DDukeActor *actor)
 		if (spr && spr->s->sector() != it_sect)
 			if (lotag == a2->s->lotag)
 			{
-				sectnum = spr->s->sectnum;
+				auto sect = spr->s->sector();
 
 				auto destsect = spr->sector();
 				auto srcsect = it_sect;
@@ -4183,7 +4183,7 @@ void destroyit(DDukeActor *actor)
 				destsect->extra = srcsect->extra;
 			}
 	}
-	it1.Reset(actor->s->sectnum);
+	it1.Reset(actor->s->sector());
 	while (auto a2 = it1.Next())
 	{
 		switch (a2->s->picnum)

@@ -234,7 +234,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, int sx, int sy, int
 static void shootknee(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 {
 	auto s = actor->s;
-	int sect = s->sectnum;
+	auto sectp = s->sector();
 	int zvel;
 	int hitx, hity, hitz;
 	DDukeActor* hitsprt;
@@ -255,7 +255,7 @@ static void shootknee(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 		sa = getangle(pactor->s->x - sx, pactor->s->y - sy);
 	}
 
-	hitscan(sx, sy, sz, sect,
+	hitscan(sx, sy, sz, sectp,
 		bcos(sa),
 		bsin(sa), zvel << 6,
 		&hitsectp, &hitwallp, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
@@ -328,7 +328,7 @@ static void shootknee(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, int atwith)
 {
 	auto s = actor->s;
-	int sect = s->sectnum;
+	auto sectp = s->sector();
 	int zvel = 0;
 	int hitx, hity, hitz;
 	DDukeActor* hitact;
@@ -415,7 +415,7 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 	}
 
 	s->cstat &= ~257;
-	hitscan(sx, sy, sz, sect,
+	hitscan(sx, sy, sz, sectp,
 		bcos(sa),
 		bsin(sa),
 		zvel << 6, &hitsectp, &hitwallp, &hitact, &hitx, &hity, &hitz, CLIPMASK1);
@@ -865,7 +865,7 @@ static void shootrpg(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, i
 static void shootlaser(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 {
 	spritetype* const s = actor->s;
-	int sect = s->sectnum;
+	auto sectp = s->sector();
 	int zvel;
 	int j;
 	int hitx, hity, hitz;
@@ -877,7 +877,7 @@ static void shootlaser(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 		zvel = -ps[p].horizon.sum().asq16() >> 11;
 	else zvel = 0;
 
-	hitscan(sx, sy, sz - ps[p].pyoff, sect,
+	hitscan(sx, sy, sz - ps[p].pyoff, sectp,
 		bcos(sa),
 		bsin(sa),
 		zvel << 6, &hitsectp, &wal, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);

@@ -175,7 +175,7 @@ int hits(DDukeActor* actor)
 	if (sp->picnum == TILE_APLAYER) zoff = isRR() ? PHEIGHT_RR : PHEIGHT_DUKE;
 	else zoff = 0;
 
-	hitscan(sp->x, sp->y, sp->z - zoff, sp->sectnum, bcos(sp->ang), bsin(sp->ang), 0, nullptr, nullptr, nullptr, &sx, &sy, &sz, CLIPMASK1);
+	hitscan(sp->x, sp->y, sp->z - zoff, sp->sector(), bcos(sp->ang), bsin(sp->ang), 0, nullptr, nullptr, nullptr, &sx, &sy, &sz, CLIPMASK1);
 
 	return (FindDistance2D(sx - sp->x, sy - sp->y));
 }
@@ -197,7 +197,7 @@ int hitasprite(DDukeActor* actor, DDukeActor** hitsp)
 	else if (sp->picnum == TILE_APLAYER) zoff = (39 << 8);
 	else zoff = 0;
 
-	hitscan(sp->x, sp->y, sp->z - zoff, sp->sectnum, bcos(sp->ang), bsin(sp->ang), 0, nullptr, &wal, hitsp, &sx, &sy, &sz, CLIPMASK1);
+	hitscan(sp->x, sp->y, sp->z - zoff, sp->sector(), bcos(sp->ang), bsin(sp->ang), 0, nullptr, &wal, hitsp, &sx, &sy, &sz, CLIPMASK1);
 
 	if (wal != nullptr && (wal->cstat & 16) && badguy(actor))
 		return((1 << 30));
@@ -334,7 +334,7 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 									a = (abs(Scale(sp->z - s->z, 10, sdist) - ps[s->yvel].horizon.sum().asbuild()) < 100);
 								else a = 1;
 
-								cans = cansee(sp->x, sp->y, sp->z - (32 << 8) + gs.actorinfo[sp->picnum].aimoffset, sp->sectnum, s->x, s->y, s->z - (32 << 8), s->sectnum);
+								cans = cansee(sp->x, sp->y, sp->z - (32 << 8) + gs.actorinfo[sp->picnum].aimoffset, sp->sector(), s->x, s->y, s->z - (32 << 8), s->sector());
 
 								if (a && cans)
 								{
@@ -485,13 +485,12 @@ void footprints(int snum)
 	auto p = &ps[snum];
 	auto actor = p->GetActor();
 	auto s = actor->s;
-	auto psect = s->sectnum;
 
 	if (p->footprintcount > 0 && p->on_ground)
 		if ((p->cursector->floorstat & 2) != 2)
 		{
 			int j = -1;
-			DukeSectIterator it(psect);
+			DukeSectIterator it(s->sector());
 			while (auto act = it.Next())
 			{
 				if (act->s->picnum == TILE_FOOTPRINTS || act->s->picnum == TILE_FOOTPRINTS2 || act->s->picnum == TILE_FOOTPRINTS3 || act->s->picnum == TILE_FOOTPRINTS4)
@@ -992,7 +991,7 @@ int haskey(sectortype* sectp, int snum)
 void shootbloodsplat(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, int atwith, int BIGFORCE, int OOZFILTER, int NEWBEAST)
 {
 	spritetype* const s = actor->s;
-	int sect = s->sectnum;
+	auto sectp = s->sector();
 	int zvel;
 	int hitx, hity, hitz;
 	sectortype* hitsectp;
@@ -1005,7 +1004,7 @@ void shootbloodsplat(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 	zvel = 1024 - (krand() & 2047);
 
 
-	hitscan(sx, sy, sz, sect,
+	hitscan(sx, sy, sz, sectp,
 		bcos(sa),
 		bsin(sa), zvel << 6,
 		&hitsectp, &wal, &d, &hitx, &hity, &hitz, CLIPMASK1);

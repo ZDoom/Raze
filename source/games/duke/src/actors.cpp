@@ -4185,7 +4185,7 @@ void handle_se19(DDukeActor *actor, int BIGFORCE)
 	}
 	else //Not hit yet
 	{
-		auto hitter = fi.ifhitsectors(actor->s->sectnum);
+		auto hitter = fi.ifhitsectors(actor->sector());
 		if (hitter)
 		{
 			FTA(8, &ps[myconnectindex]);

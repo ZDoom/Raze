@@ -368,7 +368,7 @@ void animatesprites_r(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 					t->y = interpolatedvalue(omyy, myy, smoothratio);
 					t->z = interpolatedvalue(omyz, myz, smoothratio) + PHEIGHT_RR;
 					t->ang = interpolatedangle(omyang, myang, smoothratio).asbuild();
-					t->sectnum = mycursectnum;
+					t->sector = mycursectnum;
 				}
 #endif
 			}

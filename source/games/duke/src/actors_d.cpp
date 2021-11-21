@@ -430,7 +430,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 				int d = dist(actor, act2);
 				if (spri2->picnum == APLAYER) spri2->z += gs.playerheight;
 				
-				if (d < r && cansee(spri2->x, spri2->y, spri2->z - (8 << 8), spri2->sectnum, spri->x, spri->y, spri->z - (12 << 8), spri->sectnum))
+				if (d < r && cansee(spri2->x, spri2->y, spri2->z - (8 << 8), spri2->sector(), spri->x, spri->y, spri->z - (12 << 8), spri->sector()))
 				{
 					act2->ang = getangle(spri2->x - spri->x, spri2->y - spri->y);
 					
@@ -691,7 +691,7 @@ void movefta_d(void)
 {
 	int x, px, py, sx, sy;
 	int p;
-	int psect, ssect;
+	sectortype* psect, *ssect;
 	int j;
 
 	DukeStatIterator iti(STAT_ZOMBIEACTOR);
@@ -701,7 +701,7 @@ void movefta_d(void)
 		auto s = act->s;
 		p = findplayer(act, &x);
 
-		ssect = psect = s->sectnum;
+		ssect = psect = s->sector();
 
 		auto pa = ps[p].GetActor();
 		if (pa->s->extra > 0)
@@ -716,14 +716,14 @@ void movefta_d(void)
 						px = ps[p].oposx + 64 - (krand() & 127);
 						py = ps[p].oposy + 64 - (krand() & 127);
 						updatesector(px, py, &psect);
-						if (psect == -1)
+						if (psect == nullptr)
 						{
 							continue;
 						}
 						sx = s->x + 64 - (krand() & 127);
 						sy = s->y + 64 - (krand() & 127);
 						updatesector(px, py, &ssect);
-						if (ssect == -1)
+						if (ssect == nullptr)
 						{
 							continue;
 						}
@@ -789,12 +789,12 @@ void movefta_d(void)
 //
 //---------------------------------------------------------------------------
 
-DDukeActor* ifhitsectors_d(int sectnum)
+DDukeActor* ifhitsectors_d(sectortype* sect)
 {
 	DukeStatIterator it(STAT_MISC);
 	while (auto a1 = it.Next())
 	{
-		if (a1->s->picnum == EXPLOSION2 && sectnum == a1->s->sectnum)
+		if (a1->s->picnum == EXPLOSION2 && sect == a1->s->sector())
 			return a1;
 	}
 	return nullptr;
@@ -1103,11 +1103,11 @@ static void movetripbomb(DDukeActor *actor)
 		s->z -= (3 << 8);
 
 		// Laser fix from EDuke32.
-		int const oldSectNum = s->sectnum;
-		int       curSectNum = s->sectnum;
+		auto const oldSect = s->sector();
+		auto       curSect = s->sector();
 
-		updatesectorneighbor(s->x, s->y, &curSectNum, 2048);
-		changeactorsect(actor, curSectNum);
+		updatesectorneighbor(s->x, s->y, &curSect, 2048);
+		changeactorsect(actor, curSect);
 
 		DDukeActor* hit;
 		x = hitasprite(actor, &hit);
@@ -1137,15 +1137,15 @@ static void movetripbomb(DDukeActor *actor)
 
 					s->x += bcos(actor->temp_data[5], -4);
 					s->y += bsin(actor->temp_data[5], -4);
-					updatesectorneighbor(s->x, s->y, &curSectNum, 2048);
+					updatesectorneighbor(s->x, s->y, &curSect, 2048);
 
-					if (curSectNum == -1)
+					if (curSect == nullptr)
 						break;
 
-					changeactorsect(actor, curSectNum);
+					changeactorsect(actor, curSect);
 
 					// this is a hack to work around the LASERLINE sprite's art tile offset
-					changeactorsect(spawned, curSectNum);
+					changeactorsect(spawned, curSect);
 				}
 			}
 		}
@@ -1153,7 +1153,7 @@ static void movetripbomb(DDukeActor *actor)
 		actor->temp_data[0]++;
 		s->x = actor->temp_data[3]; s->y = actor->temp_data[4];
 		s->z += (3 << 8);
-		changeactorsect(actor, oldSectNum);
+		changeactorsect(actor, oldSect);
 		actor->temp_data[3] = 0;
 		if (hit && lTripBombControl & TRIPBOMB_TRIPWIRE)
 		{
@@ -3037,16 +3037,16 @@ DETONATEB:
 void moveactors_d(void)
 {
 	int x;
-	int sect, p;
+	int p;
 	unsigned int k;
 	
 	DukeStatIterator it(STAT_ACTOR);
 	while (auto act = it.Next())
 	{
 		auto s = act->s;
-		sect = s->sectnum;
+		auto sectp = s->sector();
 
-		if (s->xrepeat == 0 || !validSectorIndex(sect))
+		if (s->xrepeat == 0 || sectp == nullptr)
 		{ 
 			deletesprite(act);
 			continue;
@@ -3772,7 +3772,7 @@ void moveeffectors_d(void)   //STATNUM 3
 		auto sc = act->sector();
 		if (sc->wallnum != 4) continue;
 		auto wal = sc->firstWall() + 2;
-		alignflorslope(act->s->sectnum, wal->x, wal->y, wal->nextSector()->floorz);
+		alignflorslope(act->s->sector(), wal->x, wal->y, wal->nextSector()->floorz);
 	}
 }
 

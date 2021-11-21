@@ -1437,7 +1437,7 @@ static bool ifcansee(DDukeActor* actor, int pnum)
 	if (ps[pnum].holoduke_on != nullptr && !isRR())
 	{
 		tosee = ps[pnum].holoduke_on;
-		j = cansee(spr->x, spr->y, spr->z - (krand() & ((32 << 8) - 1)), spr->sectnum, tosee->s->x, tosee->s->y, tosee->s->z, tosee->s->sectnum);
+		j = cansee(spr->x, spr->y, spr->z - (krand() & ((32 << 8) - 1)), spr->sector(), tosee->s->x, tosee->s->y, tosee->s->z, tosee->sector());
 
 		if (j == 0)
 		{
@@ -1449,7 +1449,7 @@ static bool ifcansee(DDukeActor* actor, int pnum)
 	else tosee = ps[pnum].GetActor();	// holoduke not on. look for player
 
 	// can they see player, (or player's holoduke)
-	j = cansee(spr->x, spr->y, spr->z - (krand() & ((47 << 8))), spr->sectnum, tosee->s->x, tosee->s->y, tosee->s->z - ((isRR()? 28 : 24) << 8), tosee->s->sectnum);
+	j = cansee(spr->x, spr->y, spr->z - (krand() & ((47 << 8))), spr->sector(), tosee->s->x, tosee->s->y, tosee->s->z - ((isRR()? 28 : 24) << 8), tosee->sector());
 
 	if (j == 0)
 	{
@@ -1501,12 +1501,12 @@ int ParseState::parse(void)
 		parseifelse(ifcanshoottarget(g_ac, g_p, g_x));
 		break;
 	case concmd_ifcanseetarget:
-		j = cansee(g_sp->x, g_sp->y, g_sp->z - ((krand() & 41) << 8), g_sp->sectnum, ps[g_p].pos.x, ps[g_p].pos.y, ps[g_p].pos.z/*-((krand()&41)<<8)*/, ps[g_p].GetActor()->s->sectnum);
+		j = cansee(g_sp->x, g_sp->y, g_sp->z - ((krand() & 41) << 8), g_sp->sector(), ps[g_p].pos.x, ps[g_p].pos.y, ps[g_p].pos.z/*-((krand()&41)<<8)*/, ps[g_p].GetActor()->sector());
 		parseifelse(j);
 		if (j) g_ac->timetosleep = SLEEPTIME;
 		break;
 	case concmd_ifnocover:
-		j = cansee(g_sp->x, g_sp->y, g_sp->z, g_sp->sectnum, ps[g_p].pos.x, ps[g_p].pos.y, ps[g_p].pos.z, ps[g_p].GetActor()->s->sectnum);
+		j = cansee(g_sp->x, g_sp->y, g_sp->z, g_sp->sector(), ps[g_p].pos.x, ps[g_p].pos.y, ps[g_p].pos.z, ps[g_p].GetActor()->sector());
 		parseifelse(j);
 		if (j) g_ac->timetosleep = SLEEPTIME;
 		break;
@@ -2469,7 +2469,7 @@ int ParseState::parse(void)
 			walltype* neartagwall;
 			DDukeActor* neartagsprite;
 			int32_t neartaghitdist;
-			neartag(g_sp->x, g_sp->y, g_sp->z - (32 << 8), g_sp->sectnum, g_sp->ang, &sectp, &neartagwall, &neartagsprite, &neartaghitdist, 768L, 1);
+			neartag(g_sp->x, g_sp->y, g_sp->z - (32 << 8), g_sp->sector(), g_sp->ang, &sectp, &neartagwall, &neartagsprite, &neartaghitdist, 768L, 1);
 			if (sectp)
 			{
 				if (isanearoperator(sectp->lotag))
@@ -2776,7 +2776,7 @@ int ParseState::parse(void)
 	case concmd_pstomp:
 		insptr++;
 		if( ps[g_p].knee_incs == 0 && ps[g_p].GetActor()->s->xrepeat >= (isRR()? 9: 40) )
-			if( cansee(g_sp->x,g_sp->y,g_sp->z-(4<<8),g_sp->sectnum,ps[g_p].pos.x,ps[g_p].pos.y,ps[g_p].pos.z+(16<<8),ps[g_p].GetActor()->s->sectnum) )
+			if( cansee(g_sp->x,g_sp->y,g_sp->z-(4<<8),g_sp->sector(),ps[g_p].pos.x,ps[g_p].pos.y,ps[g_p].pos.z+(16<<8),ps[g_p].GetActor()->s->sector()) )
 		{
 			ps[g_p].knee_incs = 1;
 			if(ps[g_p].weapon_pos == 0)
@@ -2786,23 +2786,21 @@ int ParseState::parse(void)
 		break;
 	case concmd_ifawayfromwall:
 	{
-		int s1;
-
-		s1 = g_sp->sectnum;
+		auto s1 = g_sp->sector();
 
 		j = 0;
 
 		updatesector(g_sp->x + 108, g_sp->y + 108, &s1);
-		if (s1 == g_sp->sectnum)
+		if (s1 == g_sp->sector())
 		{
 			updatesector(g_sp->x - 108, g_sp->y - 108, &s1);
-			if (s1 == g_sp->sectnum)
+			if (s1 == g_sp->sector())
 			{
 				updatesector(g_sp->x + 108, g_sp->y - 108, &s1);
-				if (s1 == g_sp->sectnum)
+				if (s1 == g_sp->sector())
 				{
 					updatesector(g_sp->x - 108, g_sp->y + 108, &s1);
-					if (s1 == g_sp->sectnum)
+					if (s1 == g_sp->sector())
 						j = 1;
 				}
 			}

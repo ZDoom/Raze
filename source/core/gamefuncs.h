@@ -345,6 +345,23 @@ inline int pushmove(vec3_t *const vect, sectortype**const sect, int32_t const wa
 	return res;
 }
 
+inline void   alignceilslope(sectortype* dasect, int32_t x, int32_t y, int32_t z)
+{
+	alignceilslope(sector.IndexOf(dasect), x, y, z);
+}
+inline void   alignflorslope(sectortype* dasect, int32_t x, int32_t y, int32_t z)
+{
+	alignflorslope(sector.IndexOf(dasect), x, y, z);
+}
+
+inline void updatesectorneighbor(int32_t const x, int32_t const y, sectortype* * const sect, int32_t maxDistance = MAXUPDATESECTORDIST)
+{
+	int sectno = *sect? sector.IndexOf(*sect) : -1;
+	updatesectorneighbor(x, y, &sectno, maxDistance);
+	*sect = sectno < 0? nullptr : &sector[sectno];
+}
+
+
 
 inline int findwallbetweensectors(sectortype* sect1, sectortype* sect2)
 {
