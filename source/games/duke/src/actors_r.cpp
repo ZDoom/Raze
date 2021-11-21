@@ -986,7 +986,7 @@ void movestandables_r(void)
 	{
 		int picnum = act->s->picnum;
 
-		if (act->s->sectnum < 0)
+		if (!act->insector())
 		{
 			deletesprite(act);
 			continue;
@@ -1406,7 +1406,7 @@ static void weaponcommon_r(DDukeActor *proj)
 		if (FindDistance2D(s->x - proj->temp_actor->s->x, s->y - proj->temp_actor->s->y) < 256)
 			coll.setSprite(proj->temp_actor);
 
-	if (s->sectnum < 0) // || (isRR() && s->sector()->filler == 800))
+	if (!s->insector()) // || (isRR() && s->sector()->filler == 800))
 	{
 		deletesprite(proj);
 		return;
@@ -1504,7 +1504,7 @@ void moveweapons_r(void)
 	DukeStatIterator it(STAT_PROJECTILE);
 	while (auto proj = it.Next())
 	{
-		if (proj->s->sectnum < 0)
+		if (!proj->insector())
 		{
 			deletesprite(proj);
 			continue;
@@ -2854,7 +2854,7 @@ void moveactors_r(void)
 		auto s = act->s;
 		bool deleteafterexecute = false;	// taking a cue here from RedNukem to not run scripts on deleted sprites.
 
-		if( s->xrepeat == 0 || !validSectorIndex(s->sectnum))
+		if( s->xrepeat == 0 || !s->insector())
 		{
 			deletesprite(act);
 			continue;
@@ -3124,7 +3124,7 @@ void moveexplosions_r(void)  // STATNUM 5
 		t = &act->temp_data[0];
 		auto sectp = s->sector();
 
-		if (s->sectnum < 0 || s->xrepeat == 0) 
+		if (!s->insector() || s->xrepeat == 0) 
 		{
 			deletesprite(act);
 			continue;

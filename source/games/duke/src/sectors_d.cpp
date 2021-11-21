@@ -1824,7 +1824,7 @@ void checksectors_d(int snum)
 		{
 			if (isanunderoperator(p->GetActor()->sector()->lotag))
 			{
-				DukeSectIterator it(p->GetActor()->s->sectnum);
+				DukeSectIterator it(p->GetActor()->sector());
 				while (auto act = it.Next())
 				{
 					if (act->s->picnum == ACTIVATOR || act->s->picnum == MASTERSWITCH) return;

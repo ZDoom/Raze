@@ -1413,7 +1413,7 @@ void movestandables_d(void)
 	{
 		int picnum = act->s->picnum;
 
-		if (act->s->sectnum < 0)
+		if (!act->insector())
 		{
 			deletesprite(act);
 			continue;
@@ -1794,7 +1794,7 @@ static void weaponcommon_d(DDukeActor* proj)
 		if (FindDistance2D(s->x - proj->temp_actor->s->x, s->y - proj->temp_actor->s->y) < 256)
 			coll.setSprite(proj->temp_actor);
 
-	if (s->sectnum < 0)
+	if (!s->insector())
 	{
 		deletesprite(proj);
 		return;
@@ -1927,7 +1927,7 @@ void moveweapons_d(void)
 	DukeStatIterator it(STAT_PROJECTILE);
 	while (auto act = it.Next())
 	{
-		if (act->s->sectnum < 0)
+		if (!act->insector())
 		{
 			deletesprite(act);
 			continue;
@@ -2009,7 +2009,7 @@ void movetransports_d(void)
 		
 		if (act->temp_data[0] > 0) act->temp_data[0]--;
 		
-		DukeSectIterator itj(spr->sectnum);
+		DukeSectIterator itj(act->sector());
 		while (auto act2 = itj.Next()) 
 		{
 			auto spr2 = act2->s;
@@ -2757,7 +2757,7 @@ static void flamethrowerflame(DDukeActor *actor)
 	movesprite_ex(actor, MulScale(xvel, bcos(s->ang), 14),
 		MulScale(xvel, bsin(s->ang), 14), s->zvel, CLIPMASK1, coll);
 
-	if (s->sectnum < 0)
+	if (!s->insector())
 	{
 		deletesprite(actor);
 		return;
@@ -3268,7 +3268,7 @@ void moveexplosions_d(void)  // STATNUM 5
 	{
 		auto s = act->s;
 
-		if (s->sectnum < 0 || s->xrepeat == 0) 
+		if (!s->insector() || s->xrepeat == 0) 
 		{
 			deletesprite(act);
 			continue;

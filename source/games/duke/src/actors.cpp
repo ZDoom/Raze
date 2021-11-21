@@ -978,7 +978,7 @@ void movemasterswitch(DDukeActor *actor, int spectype1, int spectype2)
 		{
 			operatesectors(spri->sector(), actor);
 
-			DukeSectIterator it(spri->sectnum);
+			DukeSectIterator it(actor->sector());
 			while (auto effector = it.Next())
 			{
 				auto sj = effector->s;
@@ -2255,7 +2255,7 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 	if (callsetsprite) setsprite(actor, s->pos);
 
 	// this was after the slope calls, but we should avoid calling that for invalid sectors.
-	if (!validSectorIndex(s->sectnum))
+	if (!s->insector())
 	{
 		deletesprite(actor);
 		return false;
@@ -2451,7 +2451,7 @@ void shell(DDukeActor* actor, bool morecheck)
 
 	ssp(actor, CLIPMASK0);
 
-	if (s->sectnum < 0 || morecheck)
+	if (!s->insector() || morecheck)
 	{
 		deletesprite(actor);
 		return;
@@ -2506,7 +2506,7 @@ void glasspieces(DDukeActor* actor)
 	makeitfall(actor);
 
 	if (s->zvel > 4096) s->zvel = 4096;
-	if (s->sectnum < 0)
+	if (!s->insector())
 	{
 		deletesprite(actor);
 		return;
@@ -3006,7 +3006,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 			auto Owner = actor->GetOwner();
 			if (Owner)
 			{
-				DukeSectIterator itr(Owner->s->sectnum);
+				DukeSectIterator itr(Owner->sector());
 				while (auto a2 = itr.Next())
 				{
 					if (a2->s->statnum == 1 && badguy(a2) && a2->s->picnum != SECTOREFFECTOR && a2->s->picnum != LOCATORS)
@@ -3174,7 +3174,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 
 			if (Owner)
 			{
-				DukeSectIterator it(Owner->s->sectnum);
+				DukeSectIterator it(Owner->sector());
 				while (auto a2 = it.Next())
 				{
 					if (a2->s->statnum == 1 && badguy(a2) && a2->s->picnum != SECTOREFFECTOR && a2->s->picnum != LOCATORS)
@@ -3990,7 +3990,7 @@ void handle_se17(DDukeActor* actor)
 		if (act2 == nullptr) return;
 		auto spr2 = act2->s;
 
-		DukeSectIterator its(s->sectnum);
+		DukeSectIterator its(actor->sector());
 		while (auto act3 = its.Next())
 		{
 			auto spr3 = act3->s;
@@ -4065,7 +4065,7 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 				sc->floorz += sc->extra;
 				if (morecheck)
 				{
-					DukeSectIterator it(actor->s->sectnum);
+					DukeSectIterator it(actor->sector());
 					while (auto a2 = it.Next())
 					{
 						if (a2->s->picnum == TILE_APLAYER && a2->GetOwner())
@@ -4102,7 +4102,7 @@ void handle_se18(DDukeActor *actor, bool morecheck)
 				sc->floorz -= sc->extra;
 				if (morecheck)
 				{
-					DukeSectIterator it(actor->s->sectnum);
+					DukeSectIterator it(actor->sector());
 					while (auto a2 = it.Next())
 					{
 						if (a2->s->picnum == TILE_APLAYER && a2->GetOwner())
@@ -4489,7 +4489,7 @@ void handle_se24(DDukeActor *actor, const int16_t *list1, const int16_t *list2, 
 	int x = MulScale(actor->s->yvel, bcos(actor->s->ang), 18);
 	int l = MulScale(actor->s->yvel, bsin(actor->s->ang), 18);
 
-	DukeSectIterator it(actor->s->sectnum);
+	DukeSectIterator it(actor->sector());
 	while (auto a2 = it.Next())
 	{
 		auto s2 = a2->s;

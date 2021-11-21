@@ -164,7 +164,6 @@ void animatesprites_r(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 			t->pos = s->interpolatedvec3(smoothratio);
 		}
 
-		//sect = s->sectnum;
 		auto sectp = s->sector();
 		t1 = h->temp_data[1];
 		t3 = h->temp_data[3];
