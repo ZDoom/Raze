@@ -656,34 +656,35 @@ void animateobjs(PLAYER& plr) {
 	// FALL
 	for (i = headspritestat[FALL]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
+		auto& spr = sprite[i];
 
-		getzrange(sprite[i].x, sprite[i].y, sprite[i].z - 1, sprite[i].sectnum, (sprite[i].clipdist) << 2,
+		getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2,
 				CLIPMASK0);
-		if (sprite[i].z < zr_florz)
-			daz = sprite[i].zvel += (TICSPERFRAME << 9);
+		if (spr.z < zr_florz)
+			daz = spr.zvel += (TICSPERFRAME << 9);
 
-		hitobject = (short) movesprite(i, (bcos(sprite[i].ang) * TICSPERFRAME) << 3,
-				(bsin(sprite[i].ang) * TICSPERFRAME) << 3, daz, 4 << 8, 4 << 8, 0);
+		hitobject = (short) movesprite(i, (bcos(spr.ang) * TICSPERFRAME) << 3,
+				(bsin(spr.ang) * TICSPERFRAME) << 3, daz, 4 << 8, 4 << 8, 0);
 
-		setsprite(i, sprite[i].x, sprite[i].y, sprite[i].z);
+		setsprite(i, spr.x, spr.y, spr.z);
 
-		if (sprite[i].picnum == FBARRELFALL || sprite[i].picnum >= BOULDER && sprite[i].picnum <= BOULDER + 3
+		if (spr.picnum == FBARRELFALL || spr.picnum >= BOULDER && spr.picnum <= BOULDER + 3
 				&& (checkdist(i, plr.x, plr.y, plr.z))) {
 			addhealth(plr, -50);
 			startredflash(50);
 		}
 
 		if ((hitobject & 0xc0000) == 16384) {
-			if (sector[sprite[i].sectnum].floorpicnum == WATER) {
+			if (sector[spr.sectnum].floorpicnum == WATER) {
 				makemonstersplash(SPLASHAROO, i);
 			}
-			switch (sprite[i].picnum) {
+			switch (spr.picnum) {
 			case FBARRELFALL:
 				newstatus(i, SHATTER);
-				sprite[i].lotag = 12;
+				spr.lotag = 12;
 				break;
 			default:
-				if (sprite[i].picnum == TORCH) {
+				if (spr.picnum == TORCH) {
 					for (k = 0; k < 16; k++)
 						makeafire(i, 0);
 					deletesprite(i);
@@ -692,26 +693,28 @@ void animateobjs(PLAYER& plr) {
 				changespritestat(i, (short) 0);
 				break;
 			}
-			sprite[i].hitag = 0;
+			spr.hitag = 0;
 		}
 	}
 
 	// SHOVE
 	for (i = headspritestat[SHOVE]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
-		getzrange(sprite[i].x, sprite[i].y, sprite[i].z - 1, sprite[i].sectnum, (sprite[i].clipdist) << 2,
+		auto& spr = sprite[i];
+
+		getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2,
 				CLIPMASK0);
-		if (sprite[i].z < zr_florz)
-			daz = sprite[i].zvel += (TICSPERFRAME << 5);
+		if (spr.z < zr_florz)
+			daz = spr.zvel += (TICSPERFRAME << 5);
 
-		hitobject = (short) movesprite(i, (bcos(sprite[i].ang) * TICSPERFRAME) << 3,
-				(bsin(sprite[i].ang) * TICSPERFRAME) << 3, daz, 4 << 8, 4 << 8, 0);
+		hitobject = (short) movesprite(i, (bcos(spr.ang) * TICSPERFRAME) << 3,
+				(bsin(spr.ang) * TICSPERFRAME) << 3, daz, 4 << 8, 4 << 8, 0);
 
-		setsprite(i, sprite[i].x, sprite[i].y, sprite[i].z);
+		setsprite(i, spr.x, spr.y, spr.z);
 
-		if (sprite[i].z >= sector[sprite[i].sectnum].floorz) {
-			if (sector[sprite[i].sectnum].floorpicnum == WATER
-					|| sector[sprite[i].sectnum].floorpicnum == FLOORMIRROR) {
+		if (spr.z >= sector[spr.sectnum].floorz) {
+			if (sector[spr.sectnum].floorpicnum == WATER
+					|| sector[spr.sectnum].floorpicnum == FLOORMIRROR) {
 				makemonstersplash(SPLASHAROO, i);
 			}
 			newstatus(i, BROKENVASE);
@@ -725,7 +728,7 @@ void animateobjs(PLAYER& plr) {
 
 		if ((hitobject & 0xc000) == 49152) { // Bullet hit a sprite
 
-			if (sprite[i].owner != hitobject) {
+			if (spr.owner != hitobject) {
 				hitdamage = damageactor(plr, hitobject, i);
 				if (hitdamage) {
 					newstatus(i, BROKENVASE);
