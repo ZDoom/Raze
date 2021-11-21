@@ -508,14 +508,15 @@ static void checkexplgoblin(PLAYER& plr, short i) {
 	short j = headspritesect[spr.sectnum];
 	while (j != -1) {
 		short nextj = nextspritesect[j];
-		int dx = abs(spr.x - sprite[j].x); // x distance to sprite
-		int dy = abs(spr.y - sprite[j].y); // y distance to sprite
-		int dz = abs((spr.z >> 8) - (sprite[j].z >> 8)); // z distance to sprite
-		int dh = tileHeight(sprite[j].picnum) >> 1; // height of sprite
+		auto& spri = sprite[j];
+		int dx = abs(spr.x - spri.x); // x distance to sprite
+		int dy = abs(spr.y - spri.y); // y distance to sprite
+		int dz = abs((spr.z >> 8) - (spri.z >> 8)); // z distance to sprite
+		int dh = tileHeight(spri.picnum) >> 1; // height of sprite
 		if (dx + dy < PICKDISTANCE && dz - dh <= getPickHeight()) {
-			if (sprite[j].picnum == EXPLO2
-				|| sprite[j].picnum == SMOKEFX
-				|| sprite[j].picnum == MONSTERBALL) {
+			if (spri.picnum == EXPLO2
+				|| spri.picnum == SMOKEFX
+				|| spri.picnum == MONSTERBALL) {
 				spr.hitag -= TICSPERFRAME << 2;
 				if (spr.hitag < 0) {
 					newstatus(i, DIE);
