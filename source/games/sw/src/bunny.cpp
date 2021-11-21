@@ -841,7 +841,7 @@ int DoBunnyBeginJumpAttack(DSWActor* actor)
     USER* u = actor->u();
     SPRITEp sp = &actor->s();
     SPRITEp psp = &u->targetActor->s();
-    short tang;
+    int tang;
 
     tang = getangle(psp->x - sp->x, psp->y - sp->y);
 
@@ -1149,7 +1149,7 @@ void BunnyHatch(DSWActor* actor)
     SPRITEp np;
     USERp nu;
     const int MAX_BUNNYS = 1;
-    short rip_ang[MAX_BUNNYS];
+    int16_t rip_ang[MAX_BUNNYS];
 
     rip_ang[0] = RANDOM_P2(2048);
 

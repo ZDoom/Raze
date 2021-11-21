@@ -66,7 +66,7 @@ static int OverlapDraw = false;
 extern bool QuitFlag, SpriteInfo;
 extern bool Voxel;
 bool DrawScreen;
-extern short f_c;
+extern int f_c;
 
 extern ParentalStruct aVoxelArray[MAXTILES];
 

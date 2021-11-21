@@ -106,7 +106,7 @@ short screenpeek = 0;
 
 int GodMode = false;
 short Skill = 2;
-short TotalKillable;
+int TotalKillable;
 
 const GAME_SET gs_defaults =
 {

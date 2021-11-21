@@ -728,7 +728,7 @@ void GetUpperLowerSector(short match, int x, int y, short *upper, short *lower)
     }
 }
 
-bool FindCeilingView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum)
+bool FindCeilingView(int match, int* x, int* y, int z, int* sectnum)
 {
     int xoff = 0;
     int yoff = 0;
@@ -823,7 +823,7 @@ bool FindCeilingView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* se
     return true;
 }
 
-bool FindFloorView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum)
+bool FindFloorView(int match, int* x, int* y, int z, int* sectnum)
 {
     int xoff = 0;
     int yoff = 0;
@@ -1023,7 +1023,7 @@ void CollectPortals()
                 int tx = actor->s().x;
                 int ty = actor->s().y;
                 int tz = actor->s().z;
-                int16_t tsectnum = sec;
+                int tsectnum = sec;
 
                 int match = FindViewSectorInScene(tsectnum, VIEW_LEVEL1);
                 if (match != -1)
@@ -1053,7 +1053,7 @@ void CollectPortals()
                 int tx = actor->s().x;
                 int ty = actor->s().y;
                 int tz = actor->s().z;
-                int16_t tsectnum = sec;
+                int tsectnum = sec;
 
                 int match = FindViewSectorInScene(tsectnum, VIEW_LEVEL2);
                 if (match != -1)

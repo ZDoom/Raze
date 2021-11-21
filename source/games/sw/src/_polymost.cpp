@@ -1,20 +1,15 @@
 BEGIN_SW_NS
 
-bool FindCeilingView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum);
-bool FindFloorView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum);
+bool FindCeilingView(int match, int* x, int* y, int z, int* sectnum);
+bool FindFloorView(int match, int* x, int* y, int z, int* sectnum);
 
 
-short
-ViewSectorInScene(short cursectnum, short level)
+int ViewSectorInScene(int cursectnum, int level)
 {
-    int i;
-    SPRITEp sp;
-    short match;
-
     SWStatIterator it(STAT_FAF);
     while (auto actor = it.Next())
     {
-        sp = &actor->s();
+        auto sp = &actor->s();
 
         if (sp->hitag == level)
         {
@@ -27,7 +22,7 @@ ViewSectorInScene(short cursectnum, short level)
                 // only gets to here is sprite is pointing down
 
                 // found a potential match
-                match = sp->lotag;
+                int match = sp->lotag;
 
                 if (!testgotpic(FAF_MIRROR_PIC, true))
                     return -1;
@@ -41,15 +36,11 @@ ViewSectorInScene(short cursectnum, short level)
 
 
 
-void
-DrawOverlapRoom(int tx, int ty, int tz, fixed_t tq16ang, fixed_t tq16horiz, short tsectnum)
+void DrawOverlapRoom(int tx, int ty, int tz, fixed_t tq16ang, fixed_t tq16horiz, int tsectnum)
 {
-    short i;
-    short match;
-
     save.zcount = 0;
 
-    match = ViewSectorInScene(tsectnum, VIEW_LEVEL1);
+    int match = ViewSectorInScene(tsectnum, VIEW_LEVEL1);
     if (match != -1)
     {
         FindCeilingView(match, &tx, &ty, tz, &tsectnum);
@@ -60,7 +51,7 @@ DrawOverlapRoom(int tx, int ty, int tz, fixed_t tq16ang, fixed_t tq16horiz, shor
         renderDrawRoomsQ16(tx, ty, tz, tq16ang, tq16horiz, tsectnum, false);
 
         // reset Z's
-        for (i = 0; i < save.zcount; i++)
+        for (int i = 0; i < save.zcount; i++)
         {
             sector[save.sectnum[i]].floorz = save.zval[i];
             sector[save.sectnum[i]].floorpicnum = save.pic[i];
@@ -74,7 +65,7 @@ DrawOverlapRoom(int tx, int ty, int tz, fixed_t tq16ang, fixed_t tq16horiz, shor
     }
     else
     {
-        match = ViewSectorInScene(tsectnum, VIEW_LEVEL2);
+        int match = ViewSectorInScene(tsectnum, VIEW_LEVEL2);
         if (match != -1)
         {
             FindFloorView(match, &tx, &ty, tz, &tsectnum);
@@ -85,7 +76,7 @@ DrawOverlapRoom(int tx, int ty, int tz, fixed_t tq16ang, fixed_t tq16horiz, shor
             renderDrawRoomsQ16(tx, ty, tz, tq16ang, tq16horiz, tsectnum, false);
 
             // reset Z's
-            for (i = 0; i < save.zcount; i++)
+            for (int i = 0; i < save.zcount; i++)
             {
                 sector[save.sectnum[i]].ceilingz = save.zval[i];
                 sector[save.sectnum[i]].ceilingpicnum = save.pic[i];
@@ -100,7 +91,7 @@ DrawOverlapRoom(int tx, int ty, int tz, fixed_t tq16ang, fixed_t tq16horiz, shor
     }
 }
 
-void FAF_DrawRooms(int x, int y, int z, fixed_t q16ang, fixed_t q16horiz, short sectnum)
+void FAF_DrawRooms(int x, int y, int z, fixed_t q16ang, fixed_t q16horiz, int sectnum)
 {
     SWStatIterator it(STAT_CEILING_FLOOR_PIC_OVERRIDE);
     while (auto actor = it.Next())
@@ -243,7 +234,7 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fixed_t tpq16ang, fixed
                 {
                     SPRITEp sp=nullptr;
                     int camhoriz;
-                    short w;
+                    int w;
                     int dx, dy, dz, tdx, tdy, tdz, midx, midy;
 
 
@@ -255,8 +246,8 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fixed_t tpq16ang, fixed
                     w = mirror[cnt].mirrorwall;
 
                     // Get wall midpoint for offset in mirror view
-                    midx = (wall[w].x + wall[wall[w].point2].x) / 2;
-                    midy = (wall[w].y + wall[wall[w].point2].y) / 2;
+                    midx = (wall[w].x + wall[w].point2Wall()->x) / 2;
+                    midy = (wall[w].y + wall[w].point2Wall()->y) / 2;
 
                     // Finish finding offsets
                     tdx = abs(midx - tx);

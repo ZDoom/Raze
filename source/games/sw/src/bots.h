@@ -65,12 +65,12 @@ struct NODETREEstruct
 // Bots main action variables
 typedef struct BOT_BRAIN
 {
-    short tgt_inv;      // Inventory item it wants to use
-    short tgt_weapon;   // weapon in wants to activate and use
-    short tgt_enemy;    // Enemy it wants to kill
-    short tgt_sprite;   // Sprite it wants to pickup or operate
-    short tgt_sector;   // Sector it wants to get to
-    short tgt_wall;     // Wall it wants to touch
+    int16_t tgt_inv;      // Inventory item it wants to use
+    int16_t tgt_weapon;   // weapon in wants to activate and use
+    int16_t tgt_enemy;    // Enemy it wants to kill
+    int16_t tgt_sprite;   // Sprite it wants to pickup or operate
+    int16_t tgt_sector;   // Sector it wants to get to
+    int16_t tgt_wall;     // Wall it wants to touch
     BOT_Actions action; // Bot's current action
 } BotBrain, *BotBrain_p;
 

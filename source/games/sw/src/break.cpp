@@ -39,8 +39,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-static int SectorOfWall(short theline);
-static void DoWallBreakSpriteMatch(short match);
+static int SectorOfWall(int theline);
+static void DoWallBreakSpriteMatch(int match);
 
 BREAK_INFO WallBreakInfo[] =
 {
@@ -441,18 +441,18 @@ static int CompareBreakInfo(void const * a, void const * b)
     return break_info1->picnum - break_info2->picnum;
 }
 
-int CompareSearchBreakInfo(short *picnum, BREAK_INFOp break_info)
+int CompareSearchBreakInfo(int *picnum, BREAK_INFOp break_info)
     {
     // will return a number less than 0 if picnum < break_info->picnum
     return(*picnum - break_info->picnum);
     }
 
-BREAK_INFOp FindWallBreakInfo(short picnum)
+BREAK_INFOp FindWallBreakInfo(int picnum)
     {
     return(BREAK_INFOp)(bsearch(&picnum, &WallBreakInfo, SIZ(WallBreakInfo), sizeof(BREAK_INFO), (int(*)(const void*,const void*))CompareSearchBreakInfo));
     }
 
-BREAK_INFOp FindSpriteBreakInfo(short picnum)
+BREAK_INFOp FindSpriteBreakInfo(int picnum)
     {
     return(BREAK_INFOp)(bsearch(&picnum, &SpriteBreakInfo, SIZ(SpriteBreakInfo), sizeof(BREAK_INFO), (int(*)(const void*,const void*))CompareSearchBreakInfo));
     }
@@ -494,7 +494,7 @@ BREAK_INFOp SetupWallForBreak(WALLp wallp)
 BREAK_INFOp SetupSpriteForBreak(DSWActor* actor)
 {
     auto sp = &actor->s();
-    short picnum = sp->picnum;
+    int picnum = sp->picnum;
     BREAK_INFOp break_info;
 
     // ignore as a breakable if true
@@ -532,7 +532,7 @@ BREAK_INFOp SetupSpriteForBreak(DSWActor* actor)
 // ACTIVATE
 //////////////////////////////////////////////
 
-DSWActor* FindBreakSpriteMatch(short match)
+DSWActor* FindBreakSpriteMatch(int match)
 {
     SWStatIterator it(STAT_BREAKABLE);
     while (auto actor = it.Next())
@@ -551,7 +551,7 @@ DSWActor* FindBreakSpriteMatch(short match)
 // WALL
 //
 
-int AutoBreakWall(WALLp wallp, int hit_x, int hit_y, int hit_z, short ang, short type)
+int AutoBreakWall(WALLp wallp, int hit_x, int hit_y, int hit_z, int ang, int type)
 {
     BREAK_INFOp break_info;
     WALLp nwp;
@@ -641,9 +641,9 @@ int AutoBreakWall(WALLp wallp, int hit_x, int hit_y, int hit_z, short ang, short
     return true;
 }
 
-bool UserBreakWall(WALLp wp, short)
+bool UserBreakWall(WALLp wp)
 {
-    short match = wp->hitag;
+    int match = wp->hitag;
     int block_flags = CSTAT_WALL_BLOCK|CSTAT_WALL_BLOCK_HITSCAN;
     int type_flags = CSTAT_WALL_TRANSLUCENT|CSTAT_WALL_MASKED|CSTAT_WALL_1WAY;
     int flags = block_flags|type_flags;
@@ -730,12 +730,12 @@ bool UserBreakWall(WALLp wp, short)
     return false;
 }
 
-int WallBreakPosition(short hit_wall, int *sectnum, int *x, int *y, int *z, short *ang)
+int WallBreakPosition(int hit_wall, int *sectnum, int *x, int *y, int *z, int *ang)
 {
-    short w,nw;
+    int w,nw;
     WALLp wp;
     int nx,ny;
-    short wall_ang;
+    int wall_ang;
 
     w = hit_wall;
     wp = &wall[w];
@@ -752,29 +752,29 @@ int WallBreakPosition(short hit_wall, int *sectnum, int *x, int *y, int *z, shor
 
     //getzsofsector(*sectnum, *x, *y, cz, fz);
 
-    if (wp->nextwall < 0)
+    if (!wp->twoSided())
     {
         // white wall
         *z = DIV2(sector[*sectnum].floorz + sector[*sectnum].ceilingz);
     }
     else
     {
-        short next_sectnum = wp->nextsector;
+        auto next_sect = wp->nextSector();
 
         // red wall
         ASSERT(wp->nextsector >= 0);
 
         // floor and ceiling meet
-        if (sector[next_sectnum].floorz == sector[next_sectnum].ceilingz)
-            *z = DIV2(sector[*sectnum].floorz + sector[*sectnum].ceilingz);
+        if (next_sect->floorz == next_sect->ceilingz)
+            *z = (sector[*sectnum].floorz + sector[*sectnum].ceilingz) >> 1;
         else
         // floor is above other sector
-        if (sector[next_sectnum].floorz < sector[*sectnum].floorz)
-            *z = DIV2(sector[next_sectnum].floorz + sector[*sectnum].floorz);
+        if (next_sect->floorz < sector[*sectnum].floorz)
+            *z = (next_sect->floorz + sector[*sectnum].floorz) >> 1;
         else
         // ceiling is below other sector
-        if (sector[next_sectnum].ceilingz > sector[*sectnum].ceilingz)
-            *z = DIV2(sector[next_sectnum].ceilingz + sector[*sectnum].ceilingz);
+        if (next_sect->ceilingz > sector[*sectnum].ceilingz)
+            *z = (next_sect->ceilingz + sector[*sectnum].ceilingz) >> 1;
     }
 
     *ang = wall_ang;
@@ -796,13 +796,13 @@ int WallBreakPosition(short hit_wall, int *sectnum, int *x, int *y, int *z, shor
 }
 
 // If the tough parameter is not set, then it can't break tough walls and sprites
-bool HitBreakWall(WALLp wp, int hit_x, int hit_y, int hit_z, short ang, short type)
+bool HitBreakWall(WALLp wp, int hit_x, int hit_y, int hit_z, int ang, int type)
 {
-    short match = wp->hitag;
+    int match = wp->hitag;
 
     if (match > 0)
     {
-        UserBreakWall(wp, ang);
+        UserBreakWall(wp);
         return true;
     }
 
@@ -855,8 +855,8 @@ int UserBreakSprite(DSWActor* breakActor)
 {
     SPRITEp sp;
     SPRITEp bp = &breakActor->s();
-    short match = bp->lotag;
-    short match_extra;
+    int match = bp->lotag;
+    int match_extra;
 
     auto actor = FindBreakSpriteMatch(match);
 
@@ -924,11 +924,10 @@ int UserBreakSprite(DSWActor* breakActor)
     return false;
 }
 
-int AutoBreakSprite(DSWActor* breakActor, short type)
+int AutoBreakSprite(DSWActor* breakActor, int type)
 {
     SPRITEp bp = &breakActor->s();
     BREAK_INFOp break_info;
-    extern void DoWallBreakMatch(short match);
 
     break_info = FindSpriteBreakInfo(bp->picnum);
 
@@ -1011,7 +1010,7 @@ bool NullActor(DSWActor* actor)
     return false;
 }
 
-int HitBreakSprite(DSWActor* breakActor, short type)
+int HitBreakSprite(DSWActor* breakActor, int type)
 {
     SPRITEp bp = &breakActor->s();
     USERp bu = breakActor->u();
@@ -1038,48 +1037,32 @@ int HitBreakSprite(DSWActor* breakActor, short type)
     return AutoBreakSprite(breakActor, type);
 }
 
-static int SectorOfWall(short theline)
+static int SectorOfWall(int theline)
 {
-    short i, startwall, endwall, sectnum;
-
-    sectnum = -1;
-
-    for (i=0; i<numsectors; i++)
-    {
-        startwall = sector[i].wallptr;
-        endwall = startwall + sector[i].wallnum - 1;
-        if ((theline >= startwall) && (theline <= endwall))
-        {
-            sectnum = i;
-            break;
-        }
-    }
-
-    return sectnum;
+	return wall[theline].sector;
 }
 
-void DoWallBreakMatch(short match)
+void DoWallBreakMatch(int match)
 {
     int i,sectnum;
     int x,y,z;
     WALLp wp;
-    short wall_ang;
+    int wall_ang;
 
     for (i=0; i<=numwalls; i++)
     {
         if (wall[i].hitag == match)
         {
             WallBreakPosition(i, &sectnum, &x, &y, &z, &wall_ang);
-            //short nw = wall[i].point2;
-            //wall_ang = NORM_ANGLE(getangle(wall[nw].x - wall[i].x, wall[nw].y - wall[i].y)+512);
-            wp = &wall[i];
+
+			wp = &wall[i];
             wp->hitag = 0; // Reset the hitag
             AutoBreakWall(wp, x, y, z, wall_ang, 0);
         }
     }
 }
 
-static void DoWallBreakSpriteMatch(short match)
+static void DoWallBreakSpriteMatch(int match)
 {
     SWStatIterator it(STAT_ENEMY);
     while (auto actor = it.Next())

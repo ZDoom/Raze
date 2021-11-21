@@ -2113,7 +2113,7 @@ int32_t registerosdcommands(void);
 void SW_InitMultiPsky(void);
 
 extern short LevelSecrets;
-extern short TotalKillable;
+extern int TotalKillable;
 extern int OrigCommPlayers;
 
 extern uint8_t PlayerGravity;

@@ -32,10 +32,10 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-short f_c = 3;
+int f_c = 3;
 
 void
-MapColors(short num, COLOR_MAP cm, short create, uint8_t *tempbuf)
+MapColors(int num, COLOR_MAP cm, int create, uint8_t *tempbuf)
 {
     int i;
     float inc;
@@ -212,7 +212,7 @@ void GameInterface::loadPalette(void)
     static COLOR_MAP MenuHighlight = {16, 16, RED, FIRE};
 
     unsigned int i;
-    short play;
+    int play;
     uint8_t tempbuf[256];
 
     paletteLoadFromDisk();

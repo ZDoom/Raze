@@ -341,41 +341,6 @@ STATEp sg_CoolieDead[] =
     s_CoolieDead
 };
 
-/*
-typedef struct
-{
-#define MAX_ACTOR_CLOSE_ATTACK 2
-#define MAX_ACTOR_ATTACK 6
-STATEp *Stand;
-STATEp *Run;
-STATEp *Jump;
-STATEp *Fall;
-STATEp *Crawl;
-STATEp *Swim;
-STATEp *Fly;
-STATEp *Rise;
-STATEp *Sit;
-STATEp *Look;
-STATEp *Climb;
-STATEp *Pain;
-STATEp *Death1;
-STATEp *Death2;
-STATEp *Dead;
-STATEp *DeathJump;
-STATEp *DeathFall;
-
-STATEp *CloseAttack[MAX_ACTOR_CLOSE_ATTACK];
-short  CloseAttackPercent[MAX_ACTOR_CLOSE_ATTACK];
-
-STATEp *Attack[MAX_ACTOR_ATTACK];
-short  AttackPercent[MAX_ACTOR_ATTACK];
-
-STATEp *Special[2];
-STATEp *Duck;
-STATEp *Dive;
-}ACTOR_ACTION_SET,*ACTOR_ACTION_SETp;
-*/
-
 ACTOR_ACTION_SET CoolieActionSet =
 {
     sg_CoolieStand,
@@ -410,10 +375,9 @@ void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SETp action, PERSONALITYp perso
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
     unsigned int wpn;
-    short wpn_cnt;
-    short depth = 0;
-    extern short TotalKillable;
-
+    int wpn_cnt;
+    int depth = 0;
+ 
     switch (u->ID)
     {
     case PACHINKO1:

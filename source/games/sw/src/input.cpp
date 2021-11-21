@@ -86,8 +86,8 @@ static void processWeapon(PLAYERp const pp)
 
     if (loc.getNewWeapon() == WeaponSel_Next)
     {
-        short next_weapon = u->WeaponNum + 1;
-        short start_weapon;
+        int next_weapon = u->WeaponNum + 1;
+        int start_weapon;
 
         start_weapon = u->WeaponNum + 1;
 
@@ -121,8 +121,8 @@ static void processWeapon(PLAYERp const pp)
     }
     else if (loc.getNewWeapon() == WeaponSel_Prev)
     {
-        short prev_weapon = u->WeaponNum - 1;
-        short start_weapon;
+        int prev_weapon = u->WeaponNum - 1;
+        int start_weapon;
 
         start_weapon = u->WeaponNum - 1;
 
@@ -153,7 +153,7 @@ static void processWeapon(PLAYERp const pp)
     }
     else if (loc.getNewWeapon() == WeaponSel_Alt)
     {
-        short const which_weapon = u->WeaponNum + 1;
+        int which_weapon = u->WeaponNum + 1;
         loc.setNewWeapon(which_weapon);
     }
 }

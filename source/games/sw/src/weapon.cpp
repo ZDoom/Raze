@@ -7313,7 +7313,7 @@ void TraverseBreakableWalls(short start_sect, int x, int y, int z, short ang, in
     short break_count;
 
 	int sectnum;
-	short wall_ang;
+	int wall_ang;
     int hit_x,hit_y,hit_z;
     
 
@@ -19515,7 +19515,7 @@ int ShrapKillSprite(DSWActor* actor)
     return 0;
 }
 
-bool CheckBreakToughness(BREAK_INFOp break_info, short ID)
+bool CheckBreakToughness(BREAK_INFOp break_info, int ID)
 {
     ////DSPRINTF(ds,"CheckBreakToughness called with %d",ID);
     //CON_Message(ds);

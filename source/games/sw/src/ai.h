@@ -32,7 +32,7 @@ BEGIN_SW_NS
 // Call functions based on a random range value
 typedef struct
 {
-    short range;
+    int range;
     ANIMATORp action;
 } DECISION, *DECISIONp;
 
@@ -61,7 +61,7 @@ typedef enum
 
 struct ATTRIBUTEstruct
 {
-    short Speed[MAX_SPEED];
+    int16_t Speed[MAX_SPEED];
     int8_t TicAdjust[MAX_SPEED];
     uint8_t MaxWeapons;
     /*ATTRIB_SNDS*/ int Sounds[MAXATTRIBSNDS];  // JBF: ATTRIB_SNDS? Somehow I don't think this is what was intended...
@@ -90,8 +90,8 @@ int InitActorExtra6Noise(DSWActor* actor);
 int InitActorMoveCloser(DSWActor* actor);
 int DoActorCantMoveCloser(DSWActor* actor);
 int DoActorMoveCloser(DSWActor* actor);
-short FindTrackToPlayer(DSWActor* actor);
-short FindTrackAwayFromPlayer(DSWActor* actor);
+int FindTrackToPlayer(DSWActor* actor);
+int FindTrackAwayFromPlayer(DSWActor* actor);
 int InitActorRunAway(DSWActor* actor);
 int InitActorRunToward(DSWActor* actor);
 int InitActorAttack(DSWActor* actor);

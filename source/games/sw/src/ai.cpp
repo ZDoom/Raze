@@ -992,7 +992,7 @@ int DoActorMoveCloser(DSWActor* actor)
 */
 
 
-short FindTrackToPlayer(DSWActor* actor)
+int FindTrackToPlayer(DSWActor* actor)
 {
     auto u = actor->u();
     SPRITEp sp = &actor->s();
@@ -1031,8 +1031,6 @@ short FindTrackToPlayer(DSWActor* actor)
         BIT(TT_SCAN)
     };
 
-    //MONO_PRINT("FindTrackToPlayer\n");
-
     zdiff = ActorUpper(u->targetActor) - (sp->z - SPRITEp_SIZE_Z(sp) + Z(8));
 
     if (labs(zdiff) <= Z(20))
@@ -1065,9 +1063,6 @@ short FindTrackToPlayer(DSWActor* actor)
             u->track_dir = track_dir;
             SET(Track[track].flags, TF_TRACK_OCCUPIED);
 
-            ////DSPRINTF(ds, "Found Track To Player\n");
-            //MONO_PRINT(ds);
-
             return track;
         }
     }
@@ -1078,7 +1073,7 @@ short FindTrackToPlayer(DSWActor* actor)
 
 
 
-short FindTrackAwayFromPlayer(DSWActor* actor)
+int FindTrackAwayFromPlayer(DSWActor* actor)
 {
     auto u = actor->u();
     int point, track_dir, track;
@@ -1098,8 +1093,6 @@ short FindTrackAwayFromPlayer(DSWActor* actor)
         BIT(TT_SCAN)
     };
 
-    //MONO_PRINT("FindTrackAwayFromPlayer\n");
-
     for (i = 0; i < SIZ(RunAwayTracks); i++)
     {
         track = ActorFindTrack(actor, -1, RunAwayTracks[i], &point, &track_dir);
@@ -1110,12 +1103,8 @@ short FindTrackAwayFromPlayer(DSWActor* actor)
             u->track_dir = track_dir;
             SET(Track[track].flags, TF_TRACK_OCCUPIED);
 
-            ////DSPRINTF(ds, "Found Run Away Track\n");
-            //MONO_PRINT(ds);
-
             return track;
         }
-        //MONO_PRINT("Did not find a run away track!\n");
     }
 
     return -1;
@@ -1123,7 +1112,7 @@ short FindTrackAwayFromPlayer(DSWActor* actor)
 }
 
 
-short FindWanderTrack(DSWActor* actor)
+int FindWanderTrack(DSWActor* actor)
 {
     auto u = actor->u();
     int point, track_dir, track;
@@ -1305,7 +1294,7 @@ int DoActorAttack(DSWActor* actor)
 {
     USER* u = actor->u();
     SPRITEp sp = &actor->s();
-    short rand_num;
+    int rand_num;
     int dist,a,b,c;
 
     DoActorNoise(ChooseAction(u->Personality->Broadcast),actor);
@@ -1415,9 +1404,7 @@ int InitActorDuck(DSWActor* actor)
 {
     USER* u = actor->u();
     SPRITEp sp = &actor->s();
-    short dist;
-
-//    MONO_PRINT(strcpy(ds, "Init Actor Duck"));
+    int dist;
 
     if (!u->ActorActionSet->Duck)
     {
@@ -1482,7 +1469,7 @@ int DoActorMoveJump(DSWActor* actor)
 }
 
 
-Collision move_scan(DSWActor* actor, short ang, int dist, int *stopx, int *stopy, int *stopz, short *stopsect)
+Collision move_scan(DSWActor* actor, int ang, int dist, int *stopx, int *stopy, int *stopz, int *stopsect)
 {
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
@@ -1490,7 +1477,7 @@ Collision move_scan(DSWActor* actor, short ang, int dist, int *stopx, int *stopy
     int nx,ny;
     uint32_t cliptype = CLIPMASK_ACTOR;
 
-    short sang,ss;
+    int sang,ss;
     int x, y, z, loz, hiz;
     DSWActor* highActor;
     DSWActor* lowActor;
@@ -1555,7 +1542,7 @@ int FindNewAngle(DSWActor* actor, int dir, int DistToMove)
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
 
-    static short toward_angle_delta[4][9] =
+    static const int16_t toward_angle_delta[4][9] =
     {
         { -160, -384, 160, 384, -256, 256, -512, 512, -99},
         { -384, -160, 384, 160, -256, 256, -512, 512, -99},
@@ -1563,7 +1550,7 @@ int FindNewAngle(DSWActor* actor, int dir, int DistToMove)
         { 384, 160, -384, -160, 256, -256, 512, -512, -99}
     };
 
-    static short away_angle_delta[4][8] =
+    static const int16_t away_angle_delta[4][8] =
     {
         { -768, 768, -640, 640, -896, 896, 1024, -99},
         { 768, -768, 640, -640, -896, 896, 1024, -99},
@@ -1572,14 +1559,14 @@ int FindNewAngle(DSWActor* actor, int dir, int DistToMove)
     };
 
 
-    int16_t* adp = nullptr;
+    const int16_t* adp = nullptr;
 
-    short new_ang, oang;
-    short save_ang = -1;
+    int new_ang, oang;
+    int save_ang = -1;
     int set;
 
     int dist, stopx, stopy, stopz;
-    short stopsect;
+    int stopsect;
     // start out with mininum distance that will be accepted as a move
     int save_dist = 500;
 
@@ -1691,7 +1678,7 @@ int InitActorReposition(DSWActor* actor)
 {
     USER* u = actor->u();
     SPRITEp sp = &actor->s();
-    short ang;
+    int ang;
     int rnum;
     int dist;
 

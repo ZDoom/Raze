@@ -544,8 +544,6 @@ int SetupCoolg(DSWActor* actor)
     return 0;
 }
 
-extern short TotalKillable;
-
 int NewCoolg(DSWActor* actor)
 {
     USERp u = actor->u();

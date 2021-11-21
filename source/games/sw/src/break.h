@@ -41,20 +41,20 @@ enum
 
 typedef struct BREAK_INFO
 {
-    short picnum, breaknum, shrap_type;
-    short flags, shrap_amt;
+    int16_t picnum, breaknum, shrap_type;
+    int16_t flags, shrap_amt;
 } *BREAK_INFOp;
 
-BREAK_INFOp FindWallBreakInfo(short picnum);
-BREAK_INFOp FindSpriteBreakInfo(short picnum);
+BREAK_INFOp FindWallBreakInfo(int picnum);
+BREAK_INFOp FindSpriteBreakInfo(int picnum);
 void SortBreakInfo(void);
 BREAK_INFOp SetupWallForBreak(WALLp wallp);
 BREAK_INFOp SetupSpriteForBreak(DSWActor* actor);
-bool HitBreakWall(WALLp wp, int, int, int, short ang, short type);
-int HitBreakSprite(short BreakSprite, short type);
-bool CheckBreakToughness(BREAK_INFOp break_info, short ID);
-int WallBreakPosition(short hit_wall, int *sectnum, int *x, int *y, int *z, short *ang);
+bool HitBreakWall(WALLp wp, int, int, int, int ang, int type);
+bool CheckBreakToughness(BREAK_INFOp break_info, int ID);
+int WallBreakPosition(int hit_wall, int *sectnum, int *x, int *y, int *z, int *ang);
 void SortBreakInfo(void);
+void DoWallBreakMatch(int match);
 
 END_SW_NS
 
