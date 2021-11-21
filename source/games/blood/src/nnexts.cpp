@@ -6014,13 +6014,13 @@ bool modernTypeOperateWall(int nWall, walltype* pWall, XWALL* pXWall, EVENT even
         case kSwitchOneWay:
             switch (event.cmd) {
                 case kCmdOff:
-                    SetWallState(nWall, pXWall, 0);
+                    SetWallState(pWall, 0);
                     break;
                 case kCmdOn:
-                    SetWallState(nWall, pXWall, 1);
+                    SetWallState(pWall, 1);
                     break;
                 default:
-                    SetWallState(nWall, pXWall, pXWall->restState ^ 1);
+                    SetWallState(pWall, pXWall->restState ^ 1);
                     break;
             }
             return true;

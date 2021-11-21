@@ -75,21 +75,22 @@ bool SetSpriteState(DBloodActor* actor, int nState)
     return 1;
 }
 
-bool SetWallState(int nWall, XWALL *pXWall, int nState)
+bool SetWallState(walltype* pWall, int nState)
 {
+    auto pXWall = &pWall->xw();
     if ((pXWall->busy&0xffff) == 0 && pXWall->state == nState)
         return 0;
     pXWall->busy  = IntToFixed(nState);
     pXWall->state = nState;
-    evKillWall(nWall);
+    evKillWall(wallnum(pWall));
     if (pXWall->restState != nState && pXWall->waitTime > 0)
-        evPostWall(nWall, (pXWall->waitTime*120) / 10, pXWall->restState ? kCmdOn : kCmdOff);
+        evPostWall(wallnum(pWall), (pXWall->waitTime*120) / 10, pXWall->restState ? kCmdOn : kCmdOff);
     if (pXWall->txID)
     {
         if (pXWall->command != kCmdLink && pXWall->triggerOn && pXWall->state)
-            evSendWall(&wall[nWall], pXWall->txID, (COMMAND_ID)pXWall->command);
+            evSendWall(pWall, pXWall->txID, (COMMAND_ID)pXWall->command);
         if (pXWall->command != kCmdLink && pXWall->triggerOff && !pXWall->state)
-            evSendWall(&wall[nWall], pXWall->txID, (COMMAND_ID)pXWall->command);
+            evSendWall(pWall, pXWall->txID, (COMMAND_ID)pXWall->command);
     }
     return 1;
 }
@@ -670,13 +671,13 @@ void OperateWall(walltype* pWall, EVENT event) {
             switch (event.cmd) {
                 case kCmdOn:
                 case kCmdWallImpact:
-                    bStatus = SetWallState(wallnum(pWall), pXWall, 1);
+                    bStatus = SetWallState(pWall, 1);
                     break;
                 case kCmdOff:
-                    bStatus = SetWallState(wallnum(pWall), pXWall, 0);
+                    bStatus = SetWallState(pWall, 0);
                     break;
                 default:
-                    bStatus = SetWallState(wallnum(pWall), pXWall, pXWall->state ^ 1);
+                    bStatus = SetWallState(pWall, pXWall->state ^ 1);
                     break;
             }
 
@@ -693,13 +694,13 @@ void OperateWall(walltype* pWall, EVENT event) {
         default:
             switch (event.cmd) {
                 case kCmdOff:
-                    SetWallState(wallnum(pWall), pXWall, 0);
+                    SetWallState(pWall, 0);
                     break;
                 case kCmdOn:
-                    SetWallState(wallnum(pWall), pXWall, 1);
+                    SetWallState(pWall, 1);
                     break;
                 default:
-                    SetWallState(wallnum(pWall), pXWall, pXWall->state ^ 1);
+                    SetWallState(pWall, pXWall->state ^ 1);
                     break;
             }
             return;
@@ -1710,7 +1711,7 @@ void LinkWall(int nWall, XWALL *pXWall, EVENT event)
     int nBusy = GetSourceBusy(event);
     pXWall->busy = nBusy;
     if ((pXWall->busy & 0xffff) == 0)
-        SetWallState(nWall, pXWall, FixedToInt(nBusy));
+        SetWallState(&wall[nWall], FixedToInt(nBusy));
 }
 
 void trTriggerSector(sectortype* pSector, int command) 

@@ -47,10 +47,9 @@ bool FindSector(int nX, int nY, int nZ, int *nSector)
             return 1;
         }
     }
-    walltype *pWall = &wall[sector[*nSector].wallptr];
-    for (int i = sector[*nSector].wallnum; i > 0; i--, pWall++)
+    for (auto& wal : wallsofsector(*nSector))
     {
-        int nOSector = pWall->nextsector;
+        int nOSector = wal.nextsector;
         if (nOSector >= 0 && inside(nX, nY, nOSector))
         {
             getzsofslope(nOSector, nX, nY, &nZCeil, &nZFloor);
@@ -83,10 +82,9 @@ bool FindSector(int nX, int nY, int *nSector)
     {
         return 1;
     }
-    walltype *pWall = &wall[sector[*nSector].wallptr];
-    for (int i = sector[*nSector].wallnum; i > 0; i--, pWall++)
+    for (auto& wal : wallsofsector(*nSector))
     {
-        int nOSector = pWall->nextsector;
+        int nOSector = wal.nextsector;
         if (nOSector >= 0 && inside(nX, nY, nOSector))
         {
             *nSector = nOSector;
