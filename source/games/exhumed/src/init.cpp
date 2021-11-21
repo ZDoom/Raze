@@ -206,36 +206,20 @@ void SetAbove(int nCurSector, int nAboveSector)
 
 void SnapSectors(int nSectorA, int nSectorB, int b)
 {
-    // edx - nSectorA
-    // eax - nSectorB
-
-    int nWallA = sector[nSectorA].wallptr;
-    int nWallB = sector[nSectorB].wallptr;
-
-    int num1 = sector[nSectorA].wallnum;
-    int num2 = sector[nSectorB].wallnum;
-
-    int nCount = 0;
-
-    while (num1 > nCount)
+	for(auto& wal1 : wallsofsector(nSectorA))
     {
-        int dx = nWallB;
-
-        int bestx = 0x7FFFFFF;
+		int bestx = 0x7FFFFFF;
         int besty = bestx;
 
-        int x = wall[nWallA].x;
-        int y = wall[nWallA].y;
+        int x = wal1.x;
+        int y = wal1.y;
 
         walltype* bestwall = nullptr;
 
-        int nCount2 = 0;
-
-        while (nCount2 < num2)
+        for(auto& wal2 : wallsofsector(nSectorB))
         {
-			auto wal = &wall[dx];
-            int thisx = x - wal->x;
-            int thisy = y - wal->y;
+            int thisx = x - wal2.x;
+            int thisy = y - wal2.y;
             int thisdist = abs(thisx) + abs(thisy);
 			int bestdist = abs(bestx) + abs(besty);
 
@@ -243,17 +227,11 @@ void SnapSectors(int nSectorA, int nSectorB, int b)
             {
                 bestx = thisx;
                 besty = thisy;
-                bestwall = wal;
+                bestwall = &wal2;
             }
-
-            dx++;
-            nCount2++;
         }
 
         dragpoint(bestwall, bestwall->x + bestx, bestwall->y + besty);
-
-        nCount++;
-        nWallA++;
     }
 
     if (b) {
