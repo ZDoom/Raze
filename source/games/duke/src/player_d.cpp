@@ -42,7 +42,7 @@ source as it is released.
 BEGIN_DUKE_NS 
 
 void fireweapon_ww(int snum);
-void operateweapon_ww(int snum, ESyncBits actions, int psect);
+void operateweapon_ww(int snum, ESyncBits actions);
 
 //---------------------------------------------------------------------------
 //
@@ -2055,7 +2055,7 @@ int operateTripbomb(int snum)
 	walltype* wal;
 
 	hitscan(p->pos.x, p->pos.y, p->pos.z,
-		p->cursectnum, p->angle.ang.bcos(),
+		p->cursector(), p->angle.ang.bcos(),
 		p->angle.ang.bsin(), -p->horizon.sum().asq16() >> 11,
 		&hitsectp, &wal, &hitsprt, &sx, &sy, &sz, CLIPMASK1);
 
@@ -2215,7 +2215,7 @@ static void fireweapon(int snum)
 //
 //---------------------------------------------------------------------------
 
-static void operateweapon(int snum, ESyncBits actions, int psect)
+static void operateweapon(int snum, ESyncBits actions)
 {
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
@@ -2673,7 +2673,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 //
 //---------------------------------------------------------------------------
 
-static void processweapon(int snum, ESyncBits actions, int psect)
+static void processweapon(int snum, ESyncBits actions)
 {
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
@@ -2743,8 +2743,8 @@ static void processweapon(int snum, ESyncBits actions, int psect)
 	}
 	else if (p->kickback_pic)
 	{
-		if (!isWW2GI()) operateweapon(snum, actions, psect);
-		else operateweapon_ww(snum, actions, psect);
+		if (!isWW2GI()) operateweapon(snum, actions);
+		else operateweapon_ww(snum, actions);
 	}
 }
 //---------------------------------------------------------------------------
@@ -2758,7 +2758,7 @@ void processinput_d(int snum)
 	int j, k, doubvel, fz, cz, truefdist;
 	Collision chz, clz;
 	bool shrunk;
-	int psect, psectlotag;
+	int psectlotag;
 	struct player_struct* p;
 	spritetype* s;
 
@@ -2775,28 +2775,27 @@ void processinput_d(int snum)
 	auto sb_svel = PlayerInputSideVel(snum);
 	auto sb_avel = PlayerInputAngVel(snum);
 
-	psect = p->cursectnum;
-	if (psect == -1)
+	auto psectp = p->cursector();
+	if (psectp == nullptr)
 	{
 		if (s->extra > 0 && ud.clipping == 0)
 		{
 			quickkill(p);
 			S_PlayActorSound(SQUISHED, pact);
 		}
-		psect = 0;
+		psectp = &sector[0];
 	}
 
-	auto psectp = &sector[psect];
 	psectlotag = psectp->lotag;
 	p->spritebridge = 0;
 
 	shrunk = (s->yrepeat < 32);
-	getzrange_ex(p->pos.x, p->pos.y, p->pos.z, psect, &cz, chz, &fz, clz, 163L, CLIPMASK0);
+	getzrange_ex(p->pos.x, p->pos.y, p->pos.z, psectp, &cz, chz, &fz, clz, 163, CLIPMASK0);
 
-	j = getflorzofslope(psect, p->pos.x, p->pos.y);
+	j = getflorzofslopeptr(psectp, p->pos.x, p->pos.y);
 
 	p->truefz = j;
-	p->truecz = getceilzofslope(psect, p->pos.x, p->pos.y);
+	p->truecz = getceilzofslopeptr(psectp, p->pos.x, p->pos.y);
 
 	truefdist = abs(p->pos.z - j);
 	if (clz.type == kHitSector && psectlotag == 1 && truefdist > gs.playerheight + (16 << 8))
@@ -2882,8 +2881,8 @@ void processinput_d(int snum)
 
 		fi.doincrements(p);
 
-		if (isWW2GI() && aplWeaponWorksLike[p->curr_weapon][snum] == HANDREMOTE_WEAPON) processweapon(snum, actions, psect);
-		if (!isWW2GI() && p->curr_weapon == HANDREMOTE_WEAPON) processweapon(snum, actions, psect);
+		if (isWW2GI() && aplWeaponWorksLike[p->curr_weapon][snum] == HANDREMOTE_WEAPON) processweapon(snum, actions);
+		if (!isWW2GI() && p->curr_weapon == HANDREMOTE_WEAPON) processweapon(snum, actions);
 		return;
 	}
 
@@ -3102,8 +3101,7 @@ HORIZONLY:
 
 	if (psectlotag < 3)
 	{
-		psect = s->sectnum;
-		psectp = s->sector(); //
+		psectp = s->sector();
 		if (ud.clipping == 0 && psectp->lotag == 31)
 		{
 			auto secact = ScriptIndexToActor(psectp->hitag);
@@ -3209,7 +3207,7 @@ HORIZONLY:
 	}
 
 	// HACKS
-	processweapon(snum, actions, psect);
+	processweapon(snum, actions);
 }
 
 END_DUKE_NS

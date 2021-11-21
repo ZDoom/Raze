@@ -1533,7 +1533,6 @@ void checksectors_d(int snum)
 {
 	int i = -1, oldz;
 	struct player_struct* p;
-	int j;
 	walltype* hitscanwall;
 	sectortype* ntsector = nullptr;
 	walltype* ntwall = nullptr;

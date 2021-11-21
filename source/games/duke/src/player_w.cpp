@@ -307,7 +307,7 @@ void fireweapon_ww(int snum)
 //
 //---------------------------------------------------------------------------
 
-void operateweapon_ww(int snum, ESyncBits actions, int psect)
+void operateweapon_ww(int snum, ESyncBits actions)
 {
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
