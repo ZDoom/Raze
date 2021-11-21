@@ -1371,57 +1371,59 @@ void newstatus(short sn, const int seq) {
 
 void makeafire(int i, int firetype) {
 	short j = insertsprite(sprite[i].sectnum, FIRE);
+	auto& spawned = sprite[j];
 	
-	sprite[j].x = sprite[i].x + (krand() & 1024) - 512;
-	sprite[j].y = sprite[i].y + (krand() & 1024) - 512;
-	sprite[j].z = sprite[i].z;
+	spawned.x = sprite[i].x + (krand() & 1024) - 512;
+	spawned.y = sprite[i].y + (krand() & 1024) - 512;
+	spawned.z = sprite[i].z;
 
-	sprite[j].cstat = 0;
-	sprite[j].xrepeat = 64;
-	sprite[j].yrepeat = 64;
+	spawned.cstat = 0;
+	spawned.xrepeat = 64;
+	spawned.yrepeat = 64;
 
-	sprite[j].shade = 0;
+	spawned.shade = 0;
 
-	sprite[j].clipdist = 64;
-	sprite[j].owner = sprite[i].owner;
-	sprite[j].lotag = 2047;
-	sprite[j].hitag = 0;
+	spawned.clipdist = 64;
+	spawned.owner = sprite[i].owner;
+	spawned.lotag = 2047;
+	spawned.hitag = 0;
 	changespritestat(j, FIRE);
 }
 
 void explosion(int i, int x, int y, int z, int owner) {
 	int j = insertsprite(sprite[i].sectnum, EXPLO);
+	auto& spawned = sprite[j];
 
 	boolean isWH2 = isWh2();
 	
 	if(!isWH2) {
-		sprite[j].x = x + (krand() & 1024) - 512;
-		sprite[j].y = y + (krand() & 1024) - 512;
-		sprite[j].z = z;
+		spawned.x = x + (krand() & 1024) - 512;
+		spawned.y = y + (krand() & 1024) - 512;
+		spawned.z = z;
 	} else {
-		sprite[j].x = x;
-		sprite[j].y = y;
-		sprite[j].z = z + (16 << 8);
+		spawned.x = x;
+		spawned.y = y;
+		spawned.z = z + (16 << 8);
 	}
 
-	sprite[j].cstat = 0; // Hitscan does not hit smoke on wall
-	sprite[j].cstat &= ~3;
-	sprite[j].shade = -15;
-	sprite[j].xrepeat = 64;
-	sprite[j].yrepeat = 64;
-	sprite[j].ang = (short) (krand() & 2047);
-	sprite[j].xvel = (short) ((krand() & 511) - 256);
-	sprite[j].yvel = (short) ((krand() & 511) - 256);
-	sprite[j].zvel = (short) ((krand() & 511) - 256);
-	sprite[j].owner = sprite[i].owner;
-	sprite[j].hitag = 0;
-	sprite[j].pal = 0;
+	spawned.cstat = 0; // Hitscan does not hit smoke on wall
+	spawned.cstat &= ~3;
+	spawned.shade = -15;
+	spawned.xrepeat = 64;
+	spawned.yrepeat = 64;
+	spawned.ang = (short) (krand() & 2047);
+	spawned.xvel = (short) ((krand() & 511) - 256);
+	spawned.yvel = (short) ((krand() & 511) - 256);
+	spawned.zvel = (short) ((krand() & 511) - 256);
+	spawned.owner = sprite[i].owner;
+	spawned.hitag = 0;
+	spawned.pal = 0;
 	if(!isWH2) {
-		sprite[j].picnum = MONSTERBALL;
-		sprite[j].lotag = 256;
+		spawned.picnum = MONSTERBALL;
+		spawned.lotag = 256;
 	} else {
-		sprite[j].picnum = EXPLOSTART;
-		sprite[j].lotag = 12;
+		spawned.picnum = EXPLOSTART;
+		spawned.lotag = 12;
 	}
 }
 
