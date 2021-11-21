@@ -1939,81 +1939,84 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 
 					if (plr.weapon[plr.currweapon] == 3) {
 						j = insertsprite(plr.sector, MISSILE);
+						auto& spawned = sprite[j];
 						throwpikesprite[throwpikecnt] = j;
-						sprite[j].x = plr.x;
-						sprite[j].y = plr.y;
-						sprite[j].z = plr.z + (24 << 8);
-						sprite[j].cstat = 21;
-						sprite[j].picnum = THROWPIKE;
-						sprite[j].ang = (short) (((daang + 2048 + 96) - 512) & 2047);
-						sprite[j].xrepeat = 24;
-						sprite[j].yrepeat = 24;
-						sprite[j].clipdist = 32;
-						sprite[j].extra = (short) daang;
-						sprite[j].shade = -15;
-						sprite[j].xvel = (short) ((krand() & 256) - 128);
-						sprite[j].yvel = (short) ((krand() & 256) - 128);
+						spawned.x = plr.x;
+						spawned.y = plr.y;
+						spawned.z = plr.z + (24 << 8);
+						spawned.cstat = 21;
+						spawned.picnum = THROWPIKE;
+						spawned.ang = (short) (((daang + 2048 + 96) - 512) & 2047);
+						spawned.xrepeat = 24;
+						spawned.yrepeat = 24;
+						spawned.clipdist = 32;
+						spawned.extra = (short) daang;
+						spawned.shade = -15;
+						spawned.xvel = (short) ((krand() & 256) - 128);
+						spawned.yvel = (short) ((krand() & 256) - 128);
 						if (shootgunzvel != 0) {
-							sprite[j].zvel = (short) shootgunzvel;
+							spawned.zvel = (short) shootgunzvel;
 							shootgunzvel = 0;
 						} else {
-							sprite[j].zvel = plr.horizon.horiz.asq16() >> 12;
+							spawned.zvel = plr.horizon.horiz.asq16() >> 12;
 						}
-						sprite[j].owner = sprite[plr.spritenum].owner;
-						sprite[j].lotag = 1024;
-						sprite[j].hitag = 0;
-						sprite[j].pal = 0;
-						movesprite((short) j, (bcos(sprite[j].extra) * TICSPERFRAME) << 3,
-								(bsin(sprite[j].extra) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
-						setsprite((short) j, sprite[j].x, sprite[j].y, sprite[j].z);
+						spawned.owner = sprite[plr.spritenum].owner;
+						spawned.lotag = 1024;
+						spawned.hitag = 0;
+						spawned.pal = 0;
+						movesprite((short) j, (bcos(spawned.extra) * TICSPERFRAME) << 3,
+								(bsin(spawned.extra) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
+						setsprite((short) j, spawned.x, spawned.y, spawned.z);
 					} else {
 						j = insertsprite(plr.sector, MISSILE);
+						auto& spawned = sprite[j];
 						throwpikesprite[throwpikecnt] = j;
-						sprite[j].x = plr.x;
-						sprite[j].y = plr.y;
-						sprite[j].z = plr.z + (24 << 8);
-						sprite[j].cstat = 21;
-						sprite[j].picnum = THROWPIKE;
-						sprite[j].ang = ((plr.angle.ang.asbuild() + 2048 + 96) - 512) & 2047;
-						sprite[j].xrepeat = 24;
-						sprite[j].yrepeat = 24;
-						sprite[j].clipdist = 32;
-						sprite[j].extra = plr.angle.ang.asbuild();
-						sprite[j].shade = -15;
-						sprite[j].xvel = (short) ((krand() & 256) - 128);
-						sprite[j].yvel = (short) ((krand() & 256) - 128);
-						sprite[j].zvel = plr.horizon.horiz.asq16() >> 12;
-						sprite[j].owner = sprite[plr.spritenum].owner;
-						sprite[j].lotag = 1024;
-						sprite[j].hitag = 0;
-						sprite[j].pal = 0;
+						spawned.x = plr.x;
+						spawned.y = plr.y;
+						spawned.z = plr.z + (24 << 8);
+						spawned.cstat = 21;
+						spawned.picnum = THROWPIKE;
+						spawned.ang = ((plr.angle.ang.asbuild() + 2048 + 96) - 512) & 2047;
+						spawned.xrepeat = 24;
+						spawned.yrepeat = 24;
+						spawned.clipdist = 32;
+						spawned.extra = plr.angle.ang.asbuild();
+						spawned.shade = -15;
+						spawned.xvel = (short) ((krand() & 256) - 128);
+						spawned.yvel = (short) ((krand() & 256) - 128);
+						spawned.zvel = plr.horizon.horiz.asq16() >> 12;
+						spawned.owner = sprite[plr.spritenum].owner;
+						spawned.lotag = 1024;
+						spawned.hitag = 0;
+						spawned.pal = 0;
 					}
 				} else {
 					j = insertsprite(plr.sector, MISSILE);
+					auto& spawned = sprite[j];
 
-					sprite[j].x = plr.x;
-					sprite[j].y = plr.y;
-					sprite[j].z = plr.z + (16 << 8);
+					spawned.x = plr.x;
+					spawned.y = plr.y;
+					spawned.z = plr.z + (16 << 8);
 
-					// sprite[j].cstat=17;
-					sprite[j].cstat = 21;
+					// spawned.cstat=17;
+					spawned.cstat = 21;
 
-					sprite[j].picnum = THROWPIKE;
-					sprite[j].ang = BClampAngle((plr.angle.ang.asbuild() + 96) - 512);
-					sprite[j].xrepeat = 24;
-					sprite[j].yrepeat = 24;
-					sprite[j].clipdist = 24;
+					spawned.picnum = THROWPIKE;
+					spawned.ang = BClampAngle((plr.angle.ang.asbuild() + 96) - 512);
+					spawned.xrepeat = 24;
+					spawned.yrepeat = 24;
+					spawned.clipdist = 24;
 
-					sprite[j].extra = plr.angle.ang.asbuild();
-					sprite[j].shade = -15;
-					sprite[j].xvel = (short) ((krand() & 256) - 128);
-					sprite[j].yvel = (short) ((krand() & 256) - 128);
-					// sprite[j].zvel=((krand()&256)-128);
-					sprite[j].zvel = plr.horizon.horiz.asq16() >> 12;
-					sprite[j].owner = sprite[plr.spritenum].owner;
-					sprite[j].lotag = 1024;
-					sprite[j].hitag = 0;
-					sprite[j].pal = 0;
+					spawned.extra = plr.angle.ang.asbuild();
+					spawned.shade = -15;
+					spawned.xvel = (short) ((krand() & 256) - 128);
+					spawned.yvel = (short) ((krand() & 256) - 128);
+					// spawned.zvel=((krand()&256)-128);
+					spawned.zvel = plr.horizon.horiz.asq16() >> 12;
+					spawned.owner = sprite[plr.spritenum].owner;
+					spawned.lotag = 1024;
+					spawned.hitag = 0;
+					spawned.pal = 0;
 				}
 			}
 		}
