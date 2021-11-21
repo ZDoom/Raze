@@ -501,38 +501,39 @@ void animateobjs(PLAYER& plr) {
 	// LIFT UP
 	for (i = headspritestat[LIFTUP]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
+		auto& spr = sprite[i];
 
-		switch (sprite[i].lotag) {
+		switch (spr.lotag) {
 		case 1821:
 			
-			sprite[i].z -= (TICSPERFRAME << 6);
-			setsprite(i, sprite[i].x, sprite[i].y, sprite[i].z);
-			if (sprite[i].z <= sector[sprite[i].sectnum].ceilingz + 32768) {
+			spr.z -= (TICSPERFRAME << 6);
+			setsprite(i, spr.x, spr.y, spr.z);
+			if (spr.z <= sector[spr.sectnum].ceilingz + 32768) {
 				soundEngine->StopSound(CHAN_CART);
-				spritesound(S_CLUNK, &sprite[i]);
+				spritesound(S_CLUNK, &spr);
 				changespritestat(i, (short) 0);
-				sprite[i].lotag = 1820;
-				sprite[i].z = sector[sprite[i].sectnum].ceilingz + 32768;
+				spr.lotag = 1820;
+				spr.z = sector[spr.sectnum].ceilingz + 32768;
 			}
 			break;
 		case 1811:
 			
-			sprite[i].z -= (TICSPERFRAME << 6);
-			setsprite(i, sprite[i].x, sprite[i].y, sprite[i].z);
-			if (sprite[i].z <= sector[sprite[i].sectnum].ceilingz + 65536) {
+			spr.z -= (TICSPERFRAME << 6);
+			setsprite(i, spr.x, spr.y, spr.z);
+			if (spr.z <= sector[spr.sectnum].ceilingz + 65536) {
 				changespritestat(i, (short) 0);
-				sprite[i].lotag = 1810;
-				sprite[i].z = sector[sprite[i].sectnum].ceilingz + 65536;
+				spr.lotag = 1810;
+				spr.z = sector[spr.sectnum].ceilingz + 65536;
 			}
 			break;
 		case 1801:
 			
-			sprite[i].z -= (TICSPERFRAME << 6);
-			setsprite(i, sprite[i].x, sprite[i].y, sprite[i].z);
-			if (sprite[i].z <= sector[sprite[i].sectnum].ceilingz + 65536) {
+			spr.z -= (TICSPERFRAME << 6);
+			setsprite(i, spr.x, spr.y, spr.z);
+			if (spr.z <= sector[spr.sectnum].ceilingz + 65536) {
 				changespritestat(i, (short) 0);
-				sprite[i].lotag = 1800;
-				sprite[i].z = sector[sprite[i].sectnum].ceilingz + 65536;
+				spr.lotag = 1800;
+				spr.z = sector[spr.sectnum].ceilingz + 65536;
 			}
 			break;
 		}
@@ -542,40 +543,41 @@ void animateobjs(PLAYER& plr) {
 	for (i = headspritestat[LIFTDN]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
 		int ironbarmove = 0;
+		auto& spr = sprite[i];
 
-		switch (sprite[i].lotag) {
+		switch (spr.lotag) {
 		case 1820:
 			
 			ironbarmove = TICSPERFRAME << 6;
-			sprite[i].z += ironbarmove;
-			setsprite(i, sprite[i].x, sprite[i].y, sprite[i].z);
-			if (sprite[i].z >= (sector[sprite[i].sectnum].floorz - 32768)) {
+			spr.z += ironbarmove;
+			setsprite(i, spr.x, spr.y, spr.z);
+			if (spr.z >= (sector[spr.sectnum].floorz - 32768)) {
 				soundEngine->StopSound(CHAN_CART);
-				spritesound(S_CLUNK, &sprite[i]);
+				spritesound(S_CLUNK, &spr);
 				changespritestat(i, (short) 0);
-				sprite[i].lotag = 1821;
-				sprite[i].z = sector[sprite[i].sectnum].floorz - 32768;
+				spr.lotag = 1821;
+				spr.z = sector[spr.sectnum].floorz - 32768;
 			}
 			break;
 		case 1810:
 			ironbarmove = TICSPERFRAME << 6;
-			sprite[i].z += ironbarmove;
-			setsprite(i, sprite[i].x, sprite[i].y, sprite[i].z);
-			if (sprite[i].z >= sector[sprite[i].sectnum].floorz) {
+			spr.z += ironbarmove;
+			setsprite(i, spr.x, spr.y, spr.z);
+			if (spr.z >= sector[spr.sectnum].floorz) {
 				changespritestat(i, (short) 0);
-				sprite[i].lotag = 1811;
-				sprite[i].z = sector[sprite[i].sectnum].floorz;
+				spr.lotag = 1811;
+				spr.z = sector[spr.sectnum].floorz;
 			}
 			break;
 		case 1800:
 			
 			ironbarmove = TICSPERFRAME << 6;
-			sprite[i].z += ironbarmove;
-			setsprite(i, sprite[i].x, sprite[i].y, sprite[i].z);
-			if (sprite[i].z >= sector[sprite[i].sectnum].floorz) {
+			spr.z += ironbarmove;
+			setsprite(i, spr.x, spr.y, spr.z);
+			if (spr.z >= sector[spr.sectnum].floorz) {
 				changespritestat(i, (short) 0);
-				sprite[i].lotag = 1801;
-				sprite[i].z = sector[sprite[i].sectnum].floorz;
+				spr.lotag = 1801;
+				spr.z = sector[spr.sectnum].floorz;
 			}
 			break;
 		}
