@@ -15,20 +15,20 @@ BEGIN_WH_NS
 #define WATERMAXDROPS 1
 
 
-short skypanlist[64], skypancnt;
-short lavadrylandsector[32];
-short lavadrylandcnt;
-short bobbingsectorlist[16], bobbingsectorcnt;
+int skypanlist[64], skypancnt;
+int lavadrylandsector[32];
+int lavadrylandcnt;
+int bobbingsectorlist[16], bobbingsectorcnt;
 
 DWHActor* lastbat = nullptr;
 
-short revolveclip[16];
-short revolvesector[4], revolveang[4], revolvecnt;
+int revolveclip[16];
+int revolvesector[4], revolveang[4], revolvecnt;
 int revolvex[4][32], revolvey[4][32];
 int revolvepivotx[4], revolvepivoty[4];
 
 static int revolvesyncstat;
-static short revolvesyncang, revolvesyncrotang;
+static int revolvesyncang, revolvesyncrotang;
 static int revolvesyncx, revolvesyncy;
 
 int warpx, warpy, warpz, warpang;
@@ -359,7 +359,7 @@ void panningfx() {
 
 void revolvefx() {
 
-	short startwall, endwall;
+	int startwall, endwall;
 
 	int dax, day;
 	PLAYER& plr = player[pyrn];
@@ -370,7 +370,7 @@ void revolvefx() {
 		endwall =  (startwall + sector[revolvesector[i]].wallnum - 1);
 
 		revolveang[i] =  ((revolveang[i] + 2048 - ((TICSPERFRAME) << 1)) & 2047);
-		for (short k = startwall; k <= endwall; k++) {
+		for (int k = startwall; k <= endwall; k++) {
 			Point out = rotatepoint(revolvepivotx[i], revolvepivoty[i], revolvex[i][k - startwall],
 					revolvey[i][k - startwall], revolveang[i]);
 			dax = out.getX();
@@ -396,15 +396,15 @@ void revolvefx() {
 
 void bobbingsector() {
 	for (int i = 0; i < bobbingsectorcnt; i++) {
-		short dasector = bobbingsectorlist[i];
+		int dasector = bobbingsectorlist[i];
 		sector[dasector].floorz += bsin(PlayClock << 4, -6);
 	}
 }
 
 void teleporter() {
 
-	short dasector;
-	short startwall, endwall;
+	int dasector;
+	int startwall, endwall;
 	int i, j;
 	int s;
 	int16_t daang;
@@ -477,7 +477,7 @@ void teleporter() {
 	}
 }
 
-void warp(int x, int y, int z, int daang, short dasector) {
+void warp(int x, int y, int z, int daang, int dasector) {
 	warpx = x;
 	warpy = y;
 	warpz = z;
@@ -517,7 +517,7 @@ void warpsprite(DWHActor* actor) {
 	if (monsterwarptime > 0)
 		return;
 	auto& spr = actor->s();
-	short dasectnum = spr.sectnum;
+	int dasectnum = spr.sectnum;
 	warpfxsprite(actor);
 	warp(spr.x, spr.y, spr.z, spr.ang, dasectnum);
 	spr.x = warpx;

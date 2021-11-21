@@ -193,7 +193,7 @@ void plrfireweapon(PLAYER& plr) {
 					weaponuseless = 1;
 				}
 				break;
-			case 2: // short sword
+			case 2: // Short sword
 				if (plr.ammo[plr.selectedgun] == 10) {
 					showmessage("Short Sword is damaged", 360);
 				}
@@ -451,7 +451,7 @@ void weaponsprocess(int snum) {
 				if ((plr.currweaponanim == 5 || plr.currweaponanim == 9) && plr.currweapontics == 8)
 					swingdasound(plr.currweapon, plr.weapon[plr.currweapon] == 3);
 			break;
-		case 2: // shortsword
+		case 2: // Shortsword
 			if (plr.currweaponframe == GOBSWORDATTACK + 4 || plr.currweaponframe == ZSHORTATTACK + 7)
 				if (plr.currweaponanim == 4 && plr.currweapontics == 10)
 					swingdasound(plr.currweapon, plr.weapon[plr.currweapon] == 3);
@@ -938,7 +938,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 						if (plr.currweaponanim == 5 || plr.currweaponanim == 9 && plr.currweapontics == 8)
 							swingdapunch(plr, plr.currweapon);
 					break;
-				case 2: // short sword
+				case 2: // Short sword
 					if (plr.currweaponframe == GOBSWORDATTACK + 4 || plr.currweaponframe == ZSHORTATTACK + 7)
 						if (plr.currweaponanim == 4 && plr.currweapontics == 10)
 							swingdapunch(plr, plr.currweapon);
@@ -1080,7 +1080,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 						k = (krand() & 3) + 5;
 
 					break;
-				case 2: // short sword
+				case 2: // Short sword
 					if (isWh2()) {
 						k = (krand() % 10) + 5;
 						break;
@@ -1205,7 +1205,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 							if (plr.currweaponanim == 5 || plr.currweaponanim == 9 && plr.currweapontics == 8)
 								swingdacrunch(plr, plr.currweapon);
 						break;
-					case 2: // short sword
+					case 2: // Short sword
 						if (plr.currweaponframe == GOBSWORDATTACK + 4 || plr.currweaponframe == ZSHORTATTACK + 7)
 							if (plr.currweaponanim == 4 && plr.currweapontics == 10)
 								swingdacrunch(plr, plr.currweapon);
@@ -1305,7 +1305,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 									chunksofmeat(plr, hitActor, pHitInfo.hitx, pHitInfo.hity,
 											pHitInfo.hitz, pHitInfo.hitsect, daang);
 							break;
-						case 2: // short sword
+						case 2: // Short sword
 							if (plr.currweaponframe == GOBSWORDATTACK + 4
 									|| plr.currweaponframe == ZSHORTATTACK + 7)
 								if (plr.currweaponanim == 4 && plr.currweapontics == 10)
@@ -1510,7 +1510,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 									chunksofmeat(plr, hitActor, pHitInfo.hitx, pHitInfo.hity,
 											pHitInfo.hitz, pHitInfo.hitsect, daang);
 							break;
-						case 2: // short sword
+						case 2: // Short sword
 							if (plr.currweaponframe == GOBSWORDATTACK + 4
 									|| plr.currweaponframe == ZSHORTATTACK + 7)
 								if (plr.currweaponanim == 4 && plr.currweapontics == 10)
@@ -2388,7 +2388,7 @@ void swingdaweapon(PLAYER& plr) {
 		shootgun(plr, daang, 0);
 		plr.hasshot = 1;
 		break;
-	case 2: // shortsword
+	case 2: // Shortsword
 		shootgun(plr, daang, 0);
 		plr.hasshot = 1;
 		break;
@@ -2446,7 +2446,7 @@ void swingdacrunch(PLAYER& plr, int daweapon) {
 		if ((krand() % 2) != 0)
 			spritesound(S_GORE1 + (krand() % 4), plr.actor());
 		break;
-	case 2: // short sword
+	case 2: // Short sword
 		spritesound(S_SWORD2 + (krand() % 3), plr.actor());
 		break;
 	case 3: // morningstar
@@ -2491,7 +2491,7 @@ void swingdasound(int daweapon, boolean enchanted) {
 	case 1: // knife
 		SND_Sound(S_PLRWEAPON1);
 		break;
-	case 2: // short sword
+	case 2: // Short sword
 		if (isWh2() && enchanted)
 			SND_Sound(S_FIRESWING);
 		else

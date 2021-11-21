@@ -196,8 +196,8 @@ void preparesectors() {
 
 boolean prepareboard(const char* fname) {
 
-	short i;
-	short treesize;
+	int i;
+	int treesize;
 
 	PLAYER& plr = player[0];
 

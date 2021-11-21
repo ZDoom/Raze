@@ -22,13 +22,13 @@ int playertorch = 0;
 uint8_t ceilingshadearray[MAXSECTORS];
 uint8_t floorshadearray[MAXSECTORS];
 uint8_t wallshadearray[MAXWALLS];
-short floormirrorsector[64];
+int floormirrorsector[64];
 int floormirrorcnt;
 
 // We owe this to Java. Unfortunately WitchavenGDX was a bit sloppy with the use of its global variables so the wrapper is here to stay. :(
 int zr_ceilz, zr_florz;
 Collision zr_florHit;
-void getzrange(int x, int y, int z, short sectnum, int walldist, int cliptype) 
+void getzrange(int x, int y, int z, int sectnum, int walldist, int cliptype) 
 {
 	int zr_ceilhit; // The game does not use this.
 	int lflorhit;
@@ -44,7 +44,7 @@ void   neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange
 	nt.tagactor = tagsprite >= 0 ? &whActors[tagsprite] : nullptr;
 }
 
-int hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz, Hitscan& hit, int cliptype)
+int hitscan(int xs, int ys, int zs, int sectnum, int vx, int vy, int vz, Hitscan& hit, int cliptype)
 {
 	return ::hitscan(xs, ys, zs, sectnum, vx, vy, vz, &hit.hitsect, &hit.hitwall, &hit.hitsprite, &hit.hitx, &hit.hity, &hit.hitz, cliptype);
 }

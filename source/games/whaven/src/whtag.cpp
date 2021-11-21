@@ -7,21 +7,22 @@ int d_soundplayed = 0;
 int delaycnt;
 Delayitem delayitem[MAXSECTORS];
 
-short ironbarsector[16];
-short ironbarscnt;
+int ironbarsector[16];
+int ironbarscnt;
 int ironbarsgoal1[16], ironbarsgoal2[16];
-short ironbarsdone[16];
+int16_t ironbarsdone[16];
 DWHActor* ironbarsanim[16];
-int ironbarsgoal[16];
+int16_t ironbarsgoal[16];
 
-short warpsectorlist[64], warpsectorcnt;
-short xpanningsectorlist[16], xpanningsectorcnt;
-short ypanningwalllist[128], ypanningwallcnt;
-short floorpanninglist[64], floorpanningcnt;
+int warpsectorlist[64], warpsectorcnt;
+int xpanningsectorlist[16], xpanningsectorcnt;
+int ypanningwalllist[128], ypanningwallcnt;
+int floorpanninglist[64], floorpanningcnt;
 SwingDoor swingdoor[MAXSWINGDOORS];
-short swingcnt;
+int swingcnt;
 
-short dragsectorlist[16], dragxdir[16], dragydir[16], dragsectorcnt;
+int16_t dragxdir[16], dragydir[16];
+int dragsectorlist[16], dragsectorcnt;
 int dragx1[16], dragy1[16], dragx2[16], dragy2[16], dragfloorz[16];
 
 
@@ -96,7 +97,7 @@ void operatesector(PLAYER& plr, int s) {
 	int doorantic, doorkey, doortype;
 
 	int temp1, temp2, temp3;
-	short k;
+	int k;
 
 	int keysok = 0;
 	int datag = sector[s].lotag;
@@ -892,7 +893,7 @@ void operatesector(PLAYER& plr, int s) {
 void animatetags(int nPlayer) {
 
 	int endwall, good, j, k, oldang, startwall;
-	short i;
+	int i;
 	int dasector;
 
 	PLAYER& plr = player[nPlayer];

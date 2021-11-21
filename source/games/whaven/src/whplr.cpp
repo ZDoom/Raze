@@ -7,7 +7,7 @@ BEGIN_WH_NS
 PLAYER player[MAXPLAYERS];
 PLOCATION gPrevPlayerLoc[MAXPLAYERS];
 	
-short monsterangle[MAXSPRITESONSCREEN],	monsterlist[MAXSPRITESONSCREEN];
+int16_t monsterangle[MAXSPRITESONSCREEN],	monsterlist[MAXSPRITESONSCREEN];
 int shootgunzvel;
 	
 boolean justteleported;
@@ -282,10 +282,10 @@ void plruse(PLAYER& plr) {
 	}
 }
 
-void chunksofmeat(PLAYER& plr, DWHActor* hitActor, int hitx, int hity, int hitz, short hitsect, int daang) {
+void chunksofmeat(PLAYER& plr, DWHActor* hitActor, int hitx, int hity, int hitz, int hitsect, int daang) {
 
-	short k;
-	short zgore = 0;
+	int k;
+	int zgore = 0;
 	int chunk = REDCHUNKSTART;
 	int newchunk;
 

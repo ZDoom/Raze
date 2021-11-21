@@ -9,11 +9,11 @@ BEGIN_WH_NS
 void animateobjs(PLAYER& plr) {
 
 	boolean hitdamage = false;
-	short osectnum = 0;
+	int osectnum = 0;
 	int dax, day, daz = 0, j, k;
 	Collision moveStat = 0;
 
-	short startwall, endwall;
+	int startwall, endwall;
 
 	if (plr.sector < 0 || plr.sector >= numsectors)
 		return;

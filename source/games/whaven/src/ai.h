@@ -3,15 +3,15 @@
 
 BEGIN_WH_NS
 
-short adjusthp(int hp);
+int adjusthp(int hp);
 
 struct EnemyInfo 
 {
-	short sizx, sizy;
+	int16_t sizx, sizy;
 	int attackdist;
 	int attackdamage;
 	int attackheight;
-	short health;
+	int16_t health;
 	bool fly;
 	int clipdist;
 	int score;
@@ -29,7 +29,7 @@ struct EnemyInfo
 		this->score = score;
 	}
 	
-	short (*getHealth)(EnemyInfo& e, SPRITE& spr) = [](EnemyInfo& e, SPRITE& spr)
+	int (*getHealth)(EnemyInfo& e, SPRITE& spr) = [](EnemyInfo& e, SPRITE& spr)
 	{
 		return adjusthp(e.health);
 	};

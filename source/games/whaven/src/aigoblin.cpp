@@ -591,7 +591,7 @@ void premapGoblin(DWHActor* actor) {
 	if (spr.hitag < 90 || spr.hitag > 99)
 		enemy[GOBLINTYPE].info.set(spr);
 	else {
-		short ohitag = spr.hitag;
+		auto ohitag = spr.hitag;
 		enemy[GOBLINTYPE].info.set(spr);
 		if (spr.pal != 0)
 			spr.xrepeat = 30;

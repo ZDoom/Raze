@@ -46,7 +46,7 @@ static void fleerat(PLAYER& plr, DWHActor* actor)
 
 	if (moveStat.type == kHitWall) {
 		WALL& wal = wall[moveStat.index];
-		short wallang = ((getangle(wall[wal.point2].x - wal.x, wall[wal.point2].y - wal.y) + 512)
+		int wallang = ((getangle(wall[wal.point2].x - wal.x, wall[wal.point2].y - wal.y) + 512)
 			& 2047);
 		spr.ang = (krand() & 512 - 256 + wallang);
 	}
@@ -94,7 +94,7 @@ static void fleerat(PLAYER& plr, DWHActor* actor)
 void createRatAI() {
 	auto& e = enemy[RATTYPE];
 	e.info.Init(32, 32, 512, 120, 0, 32, false, 0, 0);
-	e.info.getHealth = [](EnemyInfo&, SPRITE& spr) -> short
+	e.info.getHealth = [](EnemyInfo&, SPRITE& spr)
 	{
 		return 10;
 	};

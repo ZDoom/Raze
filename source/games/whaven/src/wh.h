@@ -161,13 +161,13 @@ extern int playertorch;
 extern uint8_t ceilingshadearray[MAXSECTORS];
 extern uint8_t floorshadearray[MAXSECTORS];
 extern uint8_t wallshadearray[MAXWALLS];
-extern short floormirrorsector[64];
+extern int floormirrorsector[64];
 extern int floormirrorcnt;
 extern int arrowcnt, throwpikecnt;
 
 extern int zr_ceilz, zr_florz;
 extern Collision zr_florHit;
-void getzrange(int x, int y, int z, short sectnum, int walldist, int cliptype);
+void getzrange(int x, int y, int z, int sectnum, int walldist, int cliptype);
 
 struct Neartag {
 	int taghitdist;
@@ -181,13 +181,13 @@ struct Hitscan {
 	short hitsect = -1, hitwall = -1, hitsprite = -1;
 };
 
-int hitscan(int xs, int ys, int zs, short sectnum, int vx, int vy, int vz, Hitscan& hit, int cliptype);
+int hitscan(int xs, int ys, int zs, int sectnum, int vx, int vy, int vz, Hitscan& hit, int cliptype);
 Point rotatepoint(int xpivot, int ypivot, int x, int y, int16_t daang);
 
 // whobj
 
 extern byte flashflag;
-extern short torchpattern[];
+extern const uint8_t torchpattern[];
 extern int monsterwarptime;
 
 void timerprocess(PLAYER& plr);
@@ -217,7 +217,7 @@ inline int PLAYER::playerNum()
 	return int(this - player);
 }
 extern PLOCATION gPrevPlayerLoc[MAXPLAYERS];
-extern short monsterangle[MAXSPRITESONSCREEN], monsterlist[MAXSPRITESONSCREEN];
+extern int16_t monsterangle[MAXSPRITESONSCREEN], monsterlist[MAXSPRITESONSCREEN];
 extern int shootgunzvel;
 extern boolean justteleported;
 extern int victor;
@@ -231,7 +231,7 @@ void playerdead(PLAYER& plr);
 void initplayersprite(PLAYER& plr);
 void updateviewmap(PLAYER& plr);
 void plruse(PLAYER& plr);
-void chunksofmeat(PLAYER& plr, DWHActor* hitsprite, int hitx, int hity, int hitz, short hitsect, int daang);
+void chunksofmeat(PLAYER& plr, DWHActor* hitsprite, int hitx, int hity, int hitz, int hitsect, int daang);
 void addhealth(PLAYER& plr, int hp);
 void addarmor(PLAYER& plr, int arm);
 void addscore(PLAYER* plr, int score);
@@ -253,21 +253,22 @@ extern int d_soundplayed;
 extern int delaycnt;
 extern Delayitem delayitem[MAXSECTORS];
 
-extern short ironbarsector[16];
-extern short ironbarscnt;
+extern int ironbarsector[16];
+extern int ironbarscnt;
 extern int ironbarsgoal1[16], ironbarsgoal2[16];
-extern short ironbarsdone[16];
+extern int16_t ironbarsdone[16];
 extern DWHActor* ironbarsanim[16];
-extern int ironbarsgoal[16];
+extern int16_t ironbarsgoal[16];
 
-extern short warpsectorlist[64], warpsectorcnt;
-extern short xpanningsectorlist[16], xpanningsectorcnt;
-extern short ypanningwalllist[128], ypanningwallcnt;
-extern short floorpanninglist[64], floorpanningcnt;
+extern int warpsectorlist[64], warpsectorcnt;
+extern int xpanningsectorlist[16], xpanningsectorcnt;
+extern int ypanningwalllist[128], ypanningwallcnt;
+extern int floorpanninglist[64], floorpanningcnt;
 extern SwingDoor swingdoor[MAXSWINGDOORS];
-extern short swingcnt;
+extern int swingcnt;
 
-extern short dragsectorlist[16], dragxdir[16], dragydir[16], dragsectorcnt;
+extern int16_t dragxdir[16], dragydir[16];
+extern int dragsectorlist[16], dragsectorcnt;
 extern int dragx1[16], dragy1[16], dragx2[16], dragy2[16], dragfloorz[16];
 
 
@@ -352,13 +353,13 @@ void randompotion(DWHActor* i);
 
 // whfx
 
-extern short skypanlist[64], skypancnt;
-extern short lavadrylandsector[32];
-extern short lavadrylandcnt;
-extern short bobbingsectorlist[16], bobbingsectorcnt;
+extern int skypanlist[64], skypancnt;
+extern int lavadrylandsector[32];
+extern int lavadrylandcnt;
+extern int bobbingsectorlist[16], bobbingsectorcnt;
 extern DWHActor* lastbat;
-extern short revolveclip[16];
-extern short revolvesector[4], revolveang[4], revolvecnt;
+extern int revolveclip[16];
+extern int revolvesector[4], revolveang[4], revolvecnt;
 extern int revolvex[4][32], revolvey[4][32];
 extern int revolvepivotx[4], revolvepivoty[4];
 extern int warpx, warpy, warpz, warpang;
@@ -378,7 +379,7 @@ void panningfx();
 void revolvefx();
 void bobbingsector();
 void teleporter();
-void warp(int x, int y, int z, int daang, short dasector);
+void warp(int x, int y, int z, int daang, int dasector);
 void warpsprite(DWHActor* spritenum);
 void ironbars();
 void sectorsounds();
@@ -400,7 +401,7 @@ void shards(DWHActor* i, int type);
 // animate
 struct ANIMATION
 {
-	short id;
+	int16_t id;
 	byte type;
 	int goal;
 	int vel;

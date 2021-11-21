@@ -727,7 +727,7 @@ void createGonzoAI() {
 		return out;
 	};
 
-	e.info.getHealth = [](EnemyInfo& e, SPRITE& spr) ->short
+	e.info.getHealth = [](EnemyInfo& e, SPRITE& spr)
 	{
 		switch (spr.picnum) {
 		case KURTAT:

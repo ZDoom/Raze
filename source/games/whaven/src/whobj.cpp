@@ -8,12 +8,12 @@ byte flashflag = 0x00;
 
 static const int eg_onyx_effect = 1;
 
-short torchpattern[] = { 2, 2, 2, 3, 3, 3, 4, 4, 5, 5, 6, 6, 4, 4, 6, 6, 4, 4, 6, 6, 4, 4, 6, 6, 4, 4, 6, 6, 5, 5, 4, 4, 3, 3, 3, 2, 2, 2 };
+const uint8_t torchpattern[] = { 2, 2, 2, 3, 3, 3, 4, 4, 5, 5, 6, 6, 4, 4, 6, 6, 4, 4, 6, 6, 4, 4, 6, 6, 4, 4, 6, 6, 5, 5, 4, 4, 3, 3, 3, 2, 2, 2 };
 
 // EG 19 Aug 2017 - Try to prevent monsters teleporting back and forth wildly
 int monsterwarptime;
 
-short adjusthp(int hp) {
+int adjusthp(int hp) {
 #if 0
 	// this doesn't do much because 'factor' will always be 0 due to integer division
 	float factor = (krand() % 20) / 100;

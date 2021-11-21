@@ -344,7 +344,7 @@ void analyzesprites(PLAYER& plr, int dasmoothratio,tspritetype* tsprite, int& sp
 			if (spritesortcnt < (MAXSPRITESONSCREEN - 2)) {
 				int fz = getflorzofslope(tspr.sectnum, tspr.x, tspr.y);
 				if (fz > plr.z) {
-					short siz =  std::max((tspr.xrepeat - ((fz - tspr.z) >> 10)), 1);
+					int siz =  std::max((tspr.xrepeat - ((fz - tspr.z) >> 10)), 1);
 					if(siz > 4) {
 						SPRITE& tshadow = tsprite[spritesortcnt];
 						tshadow = tspr;

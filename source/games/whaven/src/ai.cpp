@@ -436,7 +436,6 @@ Collision aimove(DWHActor* actor)
 	int ox = spr.x;
 	int oy = spr.y;
 	int oz = spr.z;
-	//		short osect = spr.sectnum;
 
 	Collision moveStat = movesprite(actor, (bcos(spr.ang) * TICSPERFRAME) << 3,
 		(bsin(spr.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, CLIFFCLIP);
@@ -466,7 +465,7 @@ Collision aifly(DWHActor* actor) {
 		(bsin(spr.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, CLIFFCLIP);
 
 	spr.z -= TICSPERFRAME << 8;
-	short ocs = spr.cstat;
+	auto ocs = spr.cstat;
 	spr.cstat = 0;
 	getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2, CLIPMASK0);
 	spr.cstat = ocs;
@@ -686,7 +685,7 @@ void attack(PLAYER& plr, DWHActor* actor) {
 	auto& pspr = plr.actor()->s();
 
 	if (!droptheshield && plr.shieldpoints > 0 && plr.selectedgun > 0 && plr.selectedgun < 5) {
-		short a = getangle(spr.x - plr.x, spr.y - plr.y);
+		int a = getangle(spr.x - plr.x, spr.y - plr.y);
 		auto ang = plr.angle.ang.asbuild();
 		if ((a < ang && ang - a < 128) || (a > ang && ((ang + a) & 2047) < 128)) {
 			if (krand() % 100 > 80) {
