@@ -981,43 +981,45 @@ void animateobjs(PLAYER& plr) {
 
 	for (i = headspritestat[JAVLIN]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
-		sprite[i].lotag -= TICSPERFRAME;
-		if (isBlades(sprite[i].picnum)) {
-			sprite[i].z -= sprite[i].zvel;
-			if (sprite[i].z < sector[sprite[i].sectnum].ceilingz + (4 << 8)) {
-				sprite[i].z = sector[sprite[i].sectnum].ceilingz + (4 << 8);
-				sprite[i].zvel = (short) -(sprite[i].zvel >> 1);
+		auto& spr = sprite[i];
+
+		spr.lotag -= TICSPERFRAME;
+		if (isBlades(spr.picnum)) {
+			spr.z -= spr.zvel;
+			if (spr.z < sector[spr.sectnum].ceilingz + (4 << 8)) {
+				spr.z = sector[spr.sectnum].ceilingz + (4 << 8);
+				spr.zvel = (short) -(spr.zvel >> 1);
 			}
-			if (sprite[i].z > sector[sprite[i].sectnum].floorz - (4 << 8)) {
-				sprite[i].z = sector[sprite[i].sectnum].floorz - (4 << 8);
-				if (sector[sprite[i].sectnum].floorpicnum == WATER || sector[sprite[i].sectnum].floorpicnum == SLIME
-						|| sector[sprite[i].sectnum].floorpicnum == FLOORMIRROR)
+			if (spr.z > sector[spr.sectnum].floorz - (4 << 8)) {
+				spr.z = sector[spr.sectnum].floorz - (4 << 8);
+				if (sector[spr.sectnum].floorpicnum == WATER || sector[spr.sectnum].floorpicnum == SLIME
+						|| sector[spr.sectnum].floorpicnum == FLOORMIRROR)
 					if (krand() % 100 > 60)
 						makemonstersplash(SPLASHAROO, i);
 				deletesprite((short) i);
 				continue;
 			}
-			dax = sprite[i].xvel;
-			day = sprite[i].yvel;
+			dax = spr.xvel;
+			day = spr.yvel;
 			if (isWh2())
-				daz = sprite[i].zvel;
+				daz = spr.zvel;
 			else
-				daz = (((sprite[i].zvel) * TICSPERFRAME) >> 3);
+				daz = (((spr.zvel) * TICSPERFRAME) >> 3);
 		}
 
-		osectnum = sprite[i].sectnum;
+		osectnum = spr.sectnum;
 
-		sprite[i].cstat = 0;
+		spr.cstat = 0;
 
-		hitobject = (short) movesprite(i, (bcos(sprite[i].extra) * TICSPERFRAME) << 6,
-				(bsin(sprite[i].extra) * TICSPERFRAME) << 6, daz, 4 << 8, 4 << 8, 0);
+		hitobject = (short) movesprite(i, (bcos(spr.extra) * TICSPERFRAME) << 6,
+				(bsin(spr.extra) * TICSPERFRAME) << 6, daz, 4 << 8, 4 << 8, 0);
 
-		if (sprite[i].picnum == WALLARROW || sprite[i].picnum == THROWHALBERD)
-			sprite[i].cstat = 0x11;
-		else if (sprite[i].picnum == DART)
-			sprite[i].cstat = 0x10;
+		if (spr.picnum == WALLARROW || spr.picnum == THROWHALBERD)
+			spr.cstat = 0x11;
+		else if (spr.picnum == DART)
+			spr.cstat = 0x10;
 		else
-			sprite[i].cstat = 0x15;
+			spr.cstat = 0x15;
 
 		if ((hitobject & 0xc000) == 16384) { // Hits a ceiling / floor
 			// EG Bugfix 17 Aug 2014: Since the game thinks that a javlin hitting the
@@ -1025,11 +1027,11 @@ void animateobjs(PLAYER& plr) {
 			// floor/ceiling hit rather than a sprite hit, we'll need to check if the JAVLIN
 			// is
 			// actually in the floor/ceiling before going inactive.
-			if (sprite[i].z <= sector[sprite[i].sectnum].ceilingz
-					&& sprite[i].z >= sector[sprite[i].sectnum].floorz) {
-				if (sprite[i].picnum == THROWPIKE) {
-					sprite[i].picnum++;
-					sprite[i].detail = WALLPIKETYPE;
+			if (spr.z <= sector[spr.sectnum].ceilingz
+					&& spr.z >= sector[spr.sectnum].floorz) {
+				if (spr.picnum == THROWPIKE) {
+					spr.picnum++;
+					spr.detail = WALLPIKETYPE;
 				}
 
 				changespritestat(i, INACTIVE); // EG Note: RAF.H gives this a nice name, so use it
@@ -1037,9 +1039,9 @@ void animateobjs(PLAYER& plr) {
 			continue;
 		} else if ((hitobject & 0xc000) == 32768) { // hit a wall
 
-			if (sprite[i].picnum == THROWPIKE) {
-				sprite[i].picnum++;
-				sprite[i].detail = WALLPIKETYPE;
+			if (spr.picnum == THROWPIKE) {
+				spr.picnum++;
+				spr.detail = WALLPIKETYPE;
 			}
 
 			changespritestat(i, INACTIVE);
@@ -1053,7 +1055,7 @@ void animateobjs(PLAYER& plr) {
 			if (hitdamage)
 				continue;
 
-//				if (sprite[i].owner != hitobject) {
+//				if (spr.owner != hitobject) {
 //					hitdamage = damageactor(plr, hitobject, i);
 //					continue;
 //				}
