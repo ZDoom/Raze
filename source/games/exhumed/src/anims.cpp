@@ -25,9 +25,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-short nMagicSeq = -1;
-short nPreMagicSeq  = -1;
-short nSavePointSeq = -1;
+int nMagicSeq = -1;
+int nPreMagicSeq  = -1;
+int nSavePointSeq = -1;
 //FreeListArray<Anim, kMaxAnims> AnimList;
 
 
@@ -126,10 +126,10 @@ void AIAnim::Tick(RunListEvent* ev)
     auto pActor = ev->pObjActor;
     if (!pActor) return;
 
-    short nIndex2 = pActor->nIndex2;
+    int nIndex2 = pActor->nIndex2;
     auto pSprite = &pActor->s();
 
-    short nIndex = pActor->nIndex;
+    int nIndex = pActor->nIndex;
 
     if (!(pSprite->cstat & 0x8000))
     {
@@ -164,7 +164,7 @@ void AIAnim::Tick(RunListEvent* ev)
             {
                 if (pSpriteB->cstat != 0x8000)
                 {
-                    short hitag2 = pSpriteB->hitag;
+                    int hitag2 = pSpriteB->hitag;
                     pSpriteB->hitag--;
 
                     if (hitag2 >= 15)
@@ -229,7 +229,7 @@ void AIAnim::Draw(RunListEvent* ev)
 {
     auto pActor = ev->pObjActor;
     if (!pActor) return;
-    short nIndex2 = pActor->nIndex2;
+    int nIndex2 = pActor->nIndex2;
 
     seq_PlotSequence(ev->nParam, nIndex2, pActor->nIndex, 0x101);
     ev->pTSprite->owner = -1;

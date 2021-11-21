@@ -80,13 +80,13 @@ Flicker sFlicker[kMaxFlickers];
 Flow sFlowInfo[kMaxFlows];
 int flickermask[kMaxFlickerMask];
 
-short bTorch = 0;
-short nFirstFlash = -1;
-short nLastFlash = -1;
-short nFlashDepth = 2;
-short nFlowCount;
-short nFlickerCount;
-short nGlowCount;
+int bTorch = 0;
+int nFirstFlash = -1;
+int nLastFlash = -1;
+int nFlashDepth = 2;
+int nFlowCount;
+int nFlickerCount;
+int nGlowCount;
 
 int bDoFlicks = 0;
 int bDoGlows = 0;

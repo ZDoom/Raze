@@ -120,7 +120,7 @@ int GetMyAngle(int x, int y)
 }
 
 // 100% done
-int AngleDiff(short a, short b)
+int AngleDiff(int a, int b)
 {
     int diff = (b - a) & kAngleMask;
 

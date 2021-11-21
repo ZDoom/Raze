@@ -41,7 +41,7 @@ short ChannelLast = -1;
 int nDamageRadius;
 int nRadialDamage;
 short RunChain;
-short NewRun;
+int NewRun;
 
 int sRunStack[kMaxRunStack];
 RunChannel sRunChannels[kMaxChannels];
@@ -463,11 +463,11 @@ void runlist_InitChan()
     }
 }
 
-void runlist_ChangeChannel(int eax, short nVal)
+void runlist_ChangeChannel(int eax, int nVal)
 {
     if (sRunChannels[eax].b < 0)
     {
-        short nChannel = ChannelList;
+        int nChannel = ChannelList;
         ChannelList = eax;
         sRunChannels[eax].b = nChannel;
     }
@@ -476,11 +476,11 @@ void runlist_ChangeChannel(int eax, short nVal)
     sRunChannels[eax].d |= 2;
 }
 
-void runlist_ReadyChannel(short eax)
+void runlist_ReadyChannel(int eax)
 {
     if (sRunChannels[eax].b < 0)
     {
-        short nChannel = ChannelList;
+        int nChannel = ChannelList;
         ChannelList = eax;
         sRunChannels[eax].b = nChannel;
     }
@@ -601,7 +601,7 @@ void runlist_ProcessChannels()
 #endif
 }
 
-int runlist_FindChannel(short ax)
+int runlist_FindChannel(int ax)
 {
     for (int i = 0; i < kMaxChannels; i++)
     {
@@ -1515,7 +1515,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
     }
 }
 
-void runlist_ProcessWallTag(int nWall, short nLotag, short nHitag)
+void runlist_ProcessWallTag(int nWall, int nLotag, int nHitag)
 {
     int nChannel = runlist_AllocChannel(nHitag % 1000);
     assert(nChannel >= 0 && nChannel < kMaxChannels);
@@ -1730,7 +1730,7 @@ int runlist_CheckRadialDamage(DExhumedActor* pActor)
     return edi;
 }
 
-void runlist_RadialDamageEnemy(DExhumedActor* pActor, short nDamage, short nRadius)
+void runlist_RadialDamageEnemy(DExhumedActor* pActor, int nDamage, int nRadius)
 {
     if (!nRadius) {
         return;
@@ -1748,7 +1748,7 @@ void runlist_RadialDamageEnemy(DExhumedActor* pActor, short nDamage, short nRadi
     }
 }
 
-void runlist_DamageEnemy(DExhumedActor* pActor, DExhumedActor* pActor2, short nDamage)
+void runlist_DamageEnemy(DExhumedActor* pActor, DExhumedActor* pActor2, int nDamage)
 {
 	auto pSprite = &pActor->s();
 

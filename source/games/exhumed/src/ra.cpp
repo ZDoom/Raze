@@ -46,8 +46,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, RA& w, RA* def)
             ("sprite", w.pActor)
             ("target", w.pTarget)
             ("run", w.nRun)
-            ("ata", w.field_A)
-            ("atc", w.field_C)
+            ("atc", w.nState)
             ("player", w.nPlayer)
             .EndObject();
     }
@@ -102,7 +101,7 @@ void BuildRa(int nPlayer)
     Ra[nPlayer].pTarget = nullptr;
     Ra[nPlayer].nFrame  = 0;
     Ra[nPlayer].nAction = 0;
-    Ra[nPlayer].field_C = 0;
+    Ra[nPlayer].nState = 0;
     Ra[nPlayer].nPlayer = nPlayer;
 }
 
@@ -198,7 +197,7 @@ void AIRa::Tick(RunListEvent* ev)
     {
         MoveRaToEnemy(nPlayer);
 
-        if (!Ra[nPlayer].field_C || Ra[nPlayer].pTarget == nullptr)
+        if (!Ra[nPlayer].nState || Ra[nPlayer].pTarget == nullptr)
         {
             pSprite->cstat = 0x8000;
         }
@@ -214,7 +213,7 @@ void AIRa::Tick(RunListEvent* ev)
 
     case 1:
     {
-        if (!Ra[nPlayer].field_C)
+        if (!Ra[nPlayer].nState)
         {
             Ra[nPlayer].nAction = 3;
             Ra[nPlayer].nFrame = 0;
@@ -278,7 +277,7 @@ void AIRa::Tick(RunListEvent* ev)
             pSprite->cstat |= 0x8000;
             Ra[nPlayer].nAction = 0;
             Ra[nPlayer].nFrame = 0;
-            Ra[nPlayer].field_C = 0;
+            Ra[nPlayer].nState = 0;
         }
 
         return;

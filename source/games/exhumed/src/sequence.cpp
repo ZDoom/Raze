@@ -51,19 +51,19 @@ short nPilotLightBase;
 short nShadowWidth = 1;
 short nFlameHeight = 1;
 
-short SeqBase[kMaxSequences];
-short SeqSize[kMaxSequences];
-short SeqFlag[kMaxSequences];
+int16_t SeqBase[kMaxSequences];
+int16_t SeqSize[kMaxSequences];
+int16_t SeqFlag[kMaxSequences];
 
-short FrameSound[kMaxSEQFrames];
-short FrameSize[kMaxSEQFrames];
-short FrameBase[kMaxSEQFrames];
-short FrameFlag[kMaxSEQFrames];
+int16_t FrameSound[kMaxSEQFrames];
+int16_t FrameSize[kMaxSEQFrames];
+int16_t FrameBase[kMaxSEQFrames];
+int16_t FrameFlag[kMaxSEQFrames];
 
-short ChunkYpos[kMaxSEQChunks];
-short ChunkXpos[kMaxSEQChunks];
-short ChunkPict[kMaxSEQChunks];
-short ChunkFlag[kMaxSEQChunks];
+int16_t ChunkYpos[kMaxSEQChunks];
+int16_t ChunkXpos[kMaxSEQChunks];
+int16_t ChunkPict[kMaxSEQChunks];
+int16_t ChunkFlag[kMaxSEQChunks];
 
 
 const char *SeqNames[kMaxSEQFiles] =

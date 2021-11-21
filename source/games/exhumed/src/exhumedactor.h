@@ -85,17 +85,17 @@ class DExhumedActor
 public:
 	DExhumedActor* pTarget;
 
-	short nPhase;
+	int16_t nPhase;
 
-	short nHealth;
-	short nFrame;
-	short nAction;
-	short nCount;
-	short nRun;
-	union { short nIndex; short nAngle; };	// angle is for wasp.
-	union { short nIndex2; short nAngle2; }; // index2 is for scorpion, angle2 is for wasp.
-	union { short nChannel; short nVel; };	// channel is for scorpion, vel is for wasp.
-	union { short nDamage; short nAction2; }; // nAction2 is for the queen.
+	int16_t nHealth;
+	int16_t nFrame;
+	int16_t nAction;
+	int16_t nCount;
+	int16_t nRun;
+	union { int16_t nIndex; int16_t nAngle; };	// angle is for wasp.
+	union { int16_t nIndex2; int16_t nAngle2; }; // index2 is for scorpion, angle2 is for wasp.
+	union { int16_t nChannel; int16_t nVel; };	// channel is for scorpion, vel is for wasp.
+	union { int16_t nDamage; int16_t nAction2; }; // nAction2 is for the queen.
 
 	// for the grenade.
 	int nTurn;

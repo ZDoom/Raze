@@ -43,7 +43,7 @@ struct Bullet
     int16_t nRunRec2;
     int16_t nType;
     int16_t nPitch;
-    short field_E;
+    int16_t field_E;
     uint16_t field_10;
     uint8_t field_12;
     uint8_t nDoubleDamage;
@@ -56,7 +56,7 @@ FreeListArray<Bullet, kMaxBullets> BulletList;
 int lasthitz, lasthitx, lasthity;
 int lasthitsect;
 
-short nRadialBullet = 0;
+int nRadialBullet = 0;
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, Bullet& w, Bullet* def)
 {
@@ -164,7 +164,7 @@ void IgniteSprite(DExhumedActor* pActor)
         pAnimActor->pTarget = pActor;
         ChangeActorStat(pAnimActor, kStatIgnited);
 
-        short yRepeat = (tileHeight(pAnimActor->s().picnum) * 32) / nFlameHeight;
+        int yRepeat = (tileHeight(pAnimActor->s().picnum) * 32) / nFlameHeight;
         if (yRepeat < 1)
             yRepeat = 1;
 
@@ -179,7 +179,7 @@ void BulletHitsSprite(Bullet *pBullet, DExhumedActor* pBulletActor, DExhumedActo
     bulletInfo *pBulletInfo = &BulletInfo[pBullet->nType];
 
     auto pHitSprite = &pHitActor->s();
-    short nStat = pHitSprite->statnum;
+    int nStat = pHitSprite->statnum;
 
     switch (pBullet->nType)
     {
@@ -256,7 +256,7 @@ void BulletHitsSprite(Bullet *pBullet, DExhumedActor* pBulletActor, DExhumedActo
     }
 
     // BHS_switchBreak:
-    short nDamage = pBulletInfo->nDamage;
+    int nDamage = pBulletInfo->nDamage;
 
     if (pBullet->nDoubleDamage > 1) {
         nDamage *= 2;
@@ -304,7 +304,7 @@ int MoveBullet(int nBullet)
     DExhumedActor* hitactor = nullptr;
 
     Bullet *pBullet = &BulletList[nBullet];
-    short nType = pBullet->nType;
+    int nType = pBullet->nType;
     bulletInfo *pBulletInfo = &BulletInfo[nType];
 
     auto pActor = BulletList[nBullet].pActor;
@@ -313,7 +313,7 @@ int MoveBullet(int nBullet)
     int x = pSprite->x;
     int y = pSprite->y;
     int z = pSprite->z; // ebx
-    short nSectFlag = pSprite->sector()->Flag;
+    int nSectFlag = pSprite->sector()->Flag;
 
     int x2, y2, z2;
 
@@ -412,7 +412,7 @@ MOVEEND:
         nVal = coll.type || coll.exbits? 1:0;
 
         // pSprite->sectnum may have changed since we set nSectFlag ?
-        short nFlagVal = nSectFlag ^ pSprite->sector()->Flag;
+        int nFlagVal = nSectFlag ^ pSprite->sector()->Flag;
         if (nFlagVal & kSectUnderwater)
         {
             DestroyBullet(nBullet);
@@ -490,7 +490,7 @@ HITWALL:
                 int nSector =wall[hitwall].nextsector;
                 if (nSector > -1)
                 {
-                    short nDamage = BulletInfo[pBullet->nType].nDamage;
+                    int nDamage = BulletInfo[pBullet->nType].nDamage;
                     if (pBullet->nDoubleDamage > 1) {
                         nDamage *= 2;
                     }

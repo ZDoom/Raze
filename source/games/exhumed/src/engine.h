@@ -56,14 +56,14 @@ enum {
 extern int initx;
 extern int inity;
 extern int initz;
-extern short inita;
+extern int16_t inita;
 extern int initsect;
 
-extern short nCurChunkNum;
+extern int nCurChunkNum;
 extern DExhumedActor* nBodyGunSprite[50];
 extern int movefifoend;
 extern int movefifopos;
-extern short nCurBodyGunNum;
+extern int nCurBodyGunNum;
 
 // all static counters combined in an array for easier maintenance.
 enum ECounter
@@ -98,15 +98,13 @@ void FixPalette();
 int HavePLURemap();
 uint8_t RemapPLU(uint8_t pal);
 
-extern short overscanindex;
-
 extern char *origpalookup[];
 
-extern short nPalDiff;
+extern int nPalDiff;
 
 // map
 
-extern short bShowTowers;
+extern bool bShowTowers;
 
 void GrabMap();
 void UpdateMap();
@@ -130,7 +128,7 @@ int RandomSize(int nSize);
 
 int GetMyAngle(int x, int y);
 
-int AngleDiff(short a, short b);
+int AngleDiff(int a, int b);
 int AngleDelta(int a, int b, int c);
 
 END_PS_NS

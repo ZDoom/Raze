@@ -40,16 +40,16 @@ enum
 };
 
 int initx, inity, initz;
-short inita;
+int16_t inita;
 int initsect;
 
-short nCurChunkNum = 0;
+int nCurChunkNum = 0;
 
 DExhumedActor* nBodyGunSprite[50];
 int movefifoend;
 int movefifopos;
 
-short nCurBodyGunNum;
+int nCurBodyGunNum;
 
 int Counters[kNumCounters];
 

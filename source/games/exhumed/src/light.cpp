@@ -49,9 +49,8 @@ int btint = 0;
 
 palette_t *fadedestpal;
 palette_t *fadecurpal;
-short nPalDelay;
-short nPalDiff;
-short overscanindex;
+int nPalDelay;
+int nPalDiff;
 int bGreenPal = 0;
 
 // keep a local copy of the palette that would have been sent to the VGA display adapter

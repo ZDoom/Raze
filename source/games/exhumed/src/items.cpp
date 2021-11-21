@@ -96,7 +96,7 @@ AnimInfo nItemAnimInfo[] = {
     { -1, 32 }
 };
 
-short nItemMagic[] = { 500, 1000, 100, 500, 400, 200, 700, 0 };
+const int16_t nItemMagic[] = { 500, 1000, 100, 500, 400, 200, 700, 0 };
 
 /*
 

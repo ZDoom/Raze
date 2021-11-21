@@ -66,7 +66,7 @@ struct bulletInfo
 
 extern bulletInfo BulletInfo[];
 
-extern short nRadialBullet;
+extern int nRadialBullet;
 extern int lasthitsect;
 extern int lasthitz;
 extern int lasthitx;
@@ -95,7 +95,6 @@ void FuncFishLimb(int a, int b, int c);
 enum { kMaxGrenades = 50 };
 
 void BuildGrenade(int nPlayer);
-void DestroyGrenade(short nGrenade);
 void ThrowGrenade(int nPlayer, int edx, int ebx, int ecx, int push1);
 void FuncGrenade(int, int, int, int);
 
@@ -117,17 +116,16 @@ enum
 
 struct Weapon
 {
-    short nSeq;
-    short b[12]; // seq offsets?
-    short nAmmoType;
-    short c;
-    short d; // default or min ammo? or ammo used per 'shot' ?
-    short bFireUnderwater;
-//	short pad[15];
+    int16_t nSeq;
+    int16_t b[12]; // seq offsets?
+    int16_t nAmmoType;
+    int16_t c;
+    int16_t d; // default or min ammo? or ammo used per 'shot' ?
+    int16_t bFireUnderwater;
 };
 
 extern Weapon WeaponInfo[];
-extern short nTemperature[];
+extern int16_t nTemperature[];
 
 void RestoreMinAmmo(int nPlayer);
 void FillWeapons(int nPlayer);
@@ -155,7 +153,7 @@ enum
     kItemMask,
 };
 
-extern short nItemMagic[];
+extern const int16_t nItemMagic[];
 
 void BuildItemAnim(DExhumedActor* nSprite);
 void ItemFlash();
@@ -177,7 +175,6 @@ void FuncLava(int, int, int, int);
 
 // lighting
 
-extern short nFlashDepth;
 
 void InitLights();
 void AddFlash(int nSector, int x, int y, int z, int val);
@@ -189,7 +186,6 @@ void BuildFlash(int nPlayer, int nVal);
 void AddGlow(int nSector, int nVal);
 void AddFlicker(int nSector, int nVal);
 
-extern short bTorch;
 
 // lion
 
@@ -260,8 +256,10 @@ enum kStatus
 
 };
 
-extern short nSmokeSparks;
-extern short nDronePitch;
+extern int nFlashDepth;
+extern int bTorch;
+extern int nSmokeSparks;
+extern int nDronePitch;
 extern int lFinaleStart;
 extern DExhumedActor* pFinaleSpr;
 
@@ -294,7 +292,7 @@ void BuildDrip(DExhumedActor* nSprite);
 DExhumedActor* BuildEnergyBlock(int nSector);
 int BuildElevC(int arg1, int nChannel, int nSector, DExhumedActor* nWallSprite, int arg5, int arg6, int nCount, ...);
 int BuildElevF(int nChannel, int nSector, DExhumedActor* nWallSprite, int arg_4, int arg_5, int nCount, ...);
-int BuildWallFace(short nChannel, int nWall, int nCount, ...);
+int BuildWallFace(int nChannel, int nWall, int nCount, ...);
 int BuildSlide(int nChannel, int edx, int ebx, int ecx, int arg1, int arg2, int arg3);
 
 // queen
@@ -312,11 +310,10 @@ struct RA
 	DExhumedActor* pActor;
 	DExhumedActor* pTarget;
 	
-    short nAction;
-    short nFrame;
-    short nRun;
-    short field_A;
-    short field_C;
+    int16_t nAction;
+    int16_t nFrame;
+    int16_t nRun;
+    int16_t nState;
     int nPlayer;
 };
 
@@ -358,16 +355,16 @@ struct RunStruct
     int nAIType;                // todo later: replace this with an AI pointer
     int nObjIndex;              // If object is a non-actor / not refactored yet.
     DExhumedActor* pObjActor;   // If object is an actor
-    short next;
-    short prev;
+    int next;
+    int prev;
 };
 
 struct RunChannel
 {
-    short a;
-    short b;
-    short c;
-    short d;
+    int16_t a;
+    int16_t b;
+    int16_t c;
+    int16_t d;
 };
 
 
@@ -676,7 +673,7 @@ typedef void(*AiFunc)(int, int, int, int nRun);
 extern FreeListArray<RunStruct, kMaxRuns> RunData;
 
 extern RunChannel sRunChannels[kMaxChannels];
-extern short NewRun;
+extern int NewRun;
 
 void runlist_InitRun();
 
@@ -687,16 +684,16 @@ int runlist_AddRunRec(int index, DExhumedActor* object, int aitype);
 int runlist_AddRunRec(int index, RunStruct* other);
 int runlist_HeadRun();
 void runlist_InitChan();
-void runlist_ChangeChannel(int eax, short dx);
-void runlist_ReadyChannel(short eax);
+void runlist_ChangeChannel(int eax, int dx);
+void runlist_ReadyChannel(int eax);
 void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag);
 int runlist_AllocChannel(int a);
 void runlist_DoSubRunRec(int RunPtr);
 void runlist_SubRunRec(int RunPtr);
-void runlist_ProcessWallTag(int nWall, short nLotag, short nHitag);
+void runlist_ProcessWallTag(int nWall, int nLotag, int nHitag);
 int runlist_CheckRadialDamage(DExhumedActor* actor);
-void runlist_RadialDamageEnemy(DExhumedActor* pActor, short nDamage, short nRadius);
-void runlist_DamageEnemy(DExhumedActor* nSprite, DExhumedActor* nSprite2, short nDamage);
+void runlist_RadialDamageEnemy(DExhumedActor* pActor, int nDamage, int nRadius);
+void runlist_DamageEnemy(DExhumedActor* nSprite, DExhumedActor* nSprite2, int nDamage);
 void runlist_SignalRun(int NxtPtr, int edx, void(ExhumedAI::* func)(RunListEvent*), RunListEvent* ev = nullptr);
 
 void runlist_CleanRunRecs();
@@ -723,13 +720,12 @@ struct Snake
     DExhumedActor* pEnemy;	 // nRun
     DExhumedActor* pSprites[kSnakeSprites];
 
-	short nCountdown;
-    short sC;
-    short nRun;
+	int16_t nCountdown;
+    int16_t nRun;
 
     uint8_t c[8];
-    short sE;
-    short nSnakePlayer;
+    int16_t nAngle;
+    int16_t nSnakePlayer;
 };
 
 enum { kMaxSnakes = 50 };
@@ -737,8 +733,8 @@ enum { kMaxSnakes = 50 };
 extern FreeListArray<Snake, kMaxSnakes> SnakeList;
 
 void InitSnakes();
-short GrabSnake();
-void BuildSnake(int nPlayer, short zVal);
+int GrabSnake();
+void BuildSnake(int nPlayer, int zVal);
 void FuncSnake(int, int, int, int);
 
 // spider

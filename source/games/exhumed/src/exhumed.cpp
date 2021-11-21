@@ -80,10 +80,9 @@ void GameInterface::loadPalette()
     LoadPaletteLookups();
 }
 
-void CopyTileToBitmap(short nSrcTile, short nDestTile, int xPos, int yPos);
+void CopyTileToBitmap(int nSrcTile, int nDestTile, int xPos, int yPos);
 
 // void TestSaveLoad();
-void EraseScreen(int nVal);
 void LoadStatus();
 void MySetView(int x1, int y1, int x2, int y2);
 
@@ -93,52 +92,50 @@ int nFontFirstChar;
 int nBackgroundPic;
 int nShadowPic;
 
-short nCreaturesKilled = 0, nCreaturesTotal = 0;
+int nCreaturesKilled = 0, nCreaturesTotal = 0;
 
-short nFreeze;
+int nFreeze;
 
-short nSnakeCam = -1;
+int nSnakeCam = -1;
 
 int nNetPlayerCount = 0;
 
-short nClockVal;
-short nRedTicks;
-short nAlarmTicks;
-short nButtonColor;
-short nEnergyChan;
+int nClockVal;
+int nRedTicks;
+int nAlarmTicks;
+int nButtonColor;
+int nEnergyChan;
 
 int lCountDown = 0;
-short nEnergyTowers = 0;
+int nEnergyTowers = 0;
 
-short nCfgNetPlayers = 0;
+int nCfgNetPlayers = 0;
 
 int lLocalCodes = 0;
 
-short bCoordinates = false;
+bool bCoordinates = false;
 
 int nNetTime = -1;
 
 int flash;
 int totalmoves;
 
-short nCurBodyNum = 0;
+int nCurBodyNum = 0;
 
-short nBodyTotal = 0;
+int nBodyTotal = 0;
 
-short nTotalPlayers = 1;
+int nTotalPlayers = 1;
 // TODO: Rename this (or make it static) so it doesn't conflict with library function
 
 
-short bSnakeCam = false;
-short bRecord = false;
-short bPlayback = false;
-short bInDemo = false;
-short bSlipMode = false;
-short bDoFlashes = true;
+bool bSnakeCam = false;
+bool bRecord = false;
+bool bPlayback = false;
+bool bInDemo = false;
+bool bSlipMode = false;
+bool bDoFlashes = true;
 
 DExhumedActor* bestTarget;
-
-short scan_char = 0;
 
 int nStartLevel;
 int nTimeLimit;
@@ -511,7 +508,7 @@ void DeleteActor(DExhumedActor* actor)
 
 
 
-void CopyTileToBitmap(short nSrcTile,  short nDestTile, int xPos, int yPos)
+void CopyTileToBitmap(int nSrcTile,  int nDestTile, int xPos, int yPos)
 {
     int nOffs = tileHeight(nDestTile) * xPos;
 

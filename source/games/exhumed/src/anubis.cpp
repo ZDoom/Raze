@@ -123,7 +123,7 @@ void AIAnubis::Tick(RunListEvent* ev)
         Gravity(ap);
     }
 
-    short nSeq = SeqOffsets[kSeqAnubis] + AnubisSeq[nAction].a;
+    int nSeq = SeqOffsets[kSeqAnubis] + AnubisSeq[nAction].a;
 
     seq_MoveSequence(ap, nSeq, ap->nFrame);
 
@@ -138,8 +138,8 @@ void AIAnubis::Tick(RunListEvent* ev)
 
     auto pTarget = ap->pTarget;
 
-    short nFrame = SeqBase[nSeq] + ap->nFrame;
-    short nFlag = FrameFlag[nFrame];
+    int nFrame = SeqBase[nSeq] + ap->nFrame;
+    int nFlag = FrameFlag[nFrame];
 
     Collision move(0);
 

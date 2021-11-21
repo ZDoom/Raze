@@ -179,11 +179,11 @@ TArray<DExhumedActor*> EnergyBlocks;
 
 int lFinaleStart;
 
-short nFinaleStage;
+int nFinaleStage;
 DExhumedActor* pFinaleSpr;
 
-short nDronePitch = 0;
-short nSmokeSparks = 0;
+int nDronePitch = 0;
+int nSmokeSparks = 0;
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, Trail& w, Trail* def)
 {
@@ -894,7 +894,7 @@ void InitWallFace()
     WallFace.Clear();
 }
 
-int BuildWallFace(short nChannel, int nWall, int nCount, ...)
+int BuildWallFace(int nChannel, int nWall, int nCount, ...)
 {
     auto WallFaceCount = WallFace.Reserve(1);
 

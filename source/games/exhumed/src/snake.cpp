@@ -31,7 +31,7 @@ BEGIN_PS_NS
 
 FreeListArray<Snake, kMaxSnakes> SnakeList;
 
-short nPlayerSnake[kMaxPlayers];
+int16_t nPlayerSnake[kMaxPlayers];
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, Snake& w, Snake* def)
 {
@@ -40,10 +40,9 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Snake& w, Snake* d
         arc("enemy", w.pEnemy)
 			("countdown", w.nCountdown)
             .Array("sprites", w.pSprites, kSnakeSprites)
-            ("sc", w.sC)
             ("run", w.nRun)
             .Array("c", w.c, countof(w.c))
-            ("se", w.sE)
+            ("se", w.nAngle)
             ("player", w.nSnakePlayer)
             .EndObject();
     }
@@ -63,14 +62,14 @@ void InitSnakes()
     memset(nPlayerSnake, 0, sizeof(nPlayerSnake));
 }
 
-short GrabSnake()
+int GrabSnake()
 {
     return SnakeList.Get();
 }
 
 void DestroySnake(int nSnake)
 {
-    short nRun = SnakeList[nSnake].nRun;
+    int nRun = SnakeList[nSnake].nRun;
     runlist_SubRunRec(nRun);
 
     for (int i = 0; i < kSnakeSprites; i++)
@@ -95,7 +94,7 @@ void DestroySnake(int nSnake)
 void ExplodeSnakeSprite(DExhumedActor* pActor, int nPlayer)
 {
     auto pSprite = &pActor->s();
-    short nDamage = BulletInfo[kWeaponStaff].nDamage;
+    int nDamage = BulletInfo[kWeaponStaff].nDamage;
 
     if (PlayerList[nPlayer].nDouble > 0) {
         nDamage *= 2;
@@ -116,22 +115,22 @@ void ExplodeSnakeSprite(DExhumedActor* pActor, int nPlayer)
     StopActorSound(pActor);
 }
 
-void BuildSnake(int nPlayer, short zVal)
+void BuildSnake(int nPlayer, int zVal)
 {
 
     zVal -= 1280;
 
     auto pPlayerActor = PlayerList[nPlayer].Actor();
     auto pPlayerSprite = &pPlayerActor->s();
-    short nViewSect = PlayerList[nPlayer].nPlayerViewSect;
-    short nPic = seq_GetSeqPicnum(kSeqSnakBody, 0, 0);
+    int nViewSect = PlayerList[nPlayer].nPlayerViewSect;
+    int nPic = seq_GetSeqPicnum(kSeqSnakBody, 0, 0);
 
     int x = pPlayerSprite->x;
     int y = pPlayerSprite->y;
     int z = (pPlayerSprite->z + zVal) - 2560;
     int nAngle = pPlayerSprite->ang;
 
-    short hitsect;
+    int hitsect;
     int hitx, hity, hitz;
 	DExhumedActor* hitactor;
 
@@ -183,7 +182,7 @@ void BuildSnake(int nPlayer, short zVal)
             pTarget = sPlayerInput[nPlayer].pTarget;
         }
 
-        short nSnake = GrabSnake();
+        int nSnake = GrabSnake();
         if (nSnake == -1) return;
 
         //		GrabTimeSlot(3);
@@ -248,8 +247,7 @@ void BuildSnake(int nPlayer, short zVal)
         SnakeList[nSnake].c[7] = 7;
         SnakeList[nSnake].pEnemy = pTarget;
 		SnakeList[nSnake].nCountdown = 0;
-        SnakeList[nSnake].sC = 1200;
-        SnakeList[nSnake].sE = 0;
+        SnakeList[nSnake].nAngle = 0;
         SnakeList[nSnake].nSnakePlayer = nPlayer;
         nPlayerSnake[nPlayer] = nSnake;
 
@@ -264,7 +262,7 @@ void BuildSnake(int nPlayer, short zVal)
     }
 }
 
-DExhumedActor* FindSnakeEnemy(short nSnake)
+DExhumedActor* FindSnakeEnemy(int nSnake)
 {
     int nPlayer = SnakeList[nSnake].nSnakePlayer;
 	auto pPlayerActor = PlayerList[nPlayer].Actor();
@@ -317,7 +315,7 @@ DExhumedActor* FindSnakeEnemy(short nSnake)
 
 void AISnake::Tick(RunListEvent* ev)
 {
-    short nSnake = RunData[ev->nRun].nObjIndex;
+    int nSnake = RunData[ev->nRun].nObjIndex;
     assert(nSnake >= 0 && nSnake < kMaxSnakes);
 
     auto pActor = SnakeList[nSnake].pSprites[0];
@@ -336,7 +334,7 @@ void AISnake::Tick(RunListEvent* ev)
         nMov = movesprite(pActor,
             600 * bcos(pSprite->ang),
             600 * bsin(pSprite->ang),
-            bsin(SnakeList[nSnake].sE, -5),
+            bsin(SnakeList[nSnake].nAngle, -5),
             0, 0, CLIPMASK1);
 
         FindSnakeEnemy(nSnake);
@@ -353,7 +351,7 @@ void AISnake::Tick(RunListEvent* ev)
 
         zVal = pSprite->z;
 
-        nMov = AngleChase(pActor, pEnemySprite, 1200, SnakeList[nSnake].sE, 32);
+        nMov = AngleChase(pActor, pEnemySprite, 1200, SnakeList[nSnake].nAngle, 32);
 
         zVal = pSprite->z - zVal;
     }
@@ -374,9 +372,9 @@ void AISnake::Tick(RunListEvent* ev)
         int var_30 = -bcos(nAngle, 6);
         int var_34 = -bsin(nAngle, 6);
 
-        int var_20 = SnakeList[nSnake].sE;
+        int var_20 = SnakeList[nSnake].nAngle;
 
-        SnakeList[nSnake].sE = (SnakeList[nSnake].sE + 64) & 0x7FF;
+        SnakeList[nSnake].nAngle = (SnakeList[nSnake].nAngle + 64) & 0x7FF;
 
         int var_28 = (nAngle + 512) & kAngleMask;
         int nSector =pSprite->sectnum;

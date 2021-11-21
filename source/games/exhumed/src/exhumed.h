@@ -100,50 +100,50 @@ extern int nNetPlayerCount;
 
 extern int nNetTime;
 
-extern short nTotalPlayers;
+extern int nTotalPlayers;
 
 extern int nFontFirstChar;
 extern int nBackgroundPic;
 extern int nShadowPic;
 
-extern short nCreaturesTotal, nCreaturesKilled;
+extern int nCreaturesTotal, nCreaturesKilled;
 
 extern int lLocalButtons;
 
-extern short nEnergyTowers;
+extern int nEnergyTowers;
 
-extern short nEnergyChan;
+extern int nEnergyChan;
 
 extern DExhumedActor* pSpiritSprite;
 
-extern short bInDemo;
+extern bool bInDemo;
 
-extern short nFreeze;
+extern int nFreeze;
 
-extern short nCurBodyNum;
-extern short nBodyTotal;
+extern int nCurBodyNum;
+extern int nBodyTotal;
 
-extern short bSnakeCam;
+extern bool bSnakeCam;
 
-extern short nButtonColor;
+extern int nButtonColor;
 
 extern int nHeadStage;
 
 extern int flash;
 
-extern short nSnakeCam;
+extern int nSnakeCam;
 
-extern short bCoordinates;
+extern bool bCoordinates;
 
 extern int totalmoves;
 
 extern int lCountDown;
-extern short nAlarmTicks;
-extern short nRedTicks;
-extern short nClockVal;
+extern int nAlarmTicks;
+extern int nRedTicks;
+extern int nClockVal;
 
-extern short bSlipMode;
-extern short bDoFlashes;
+extern bool bSlipMode;
+extern bool bDoFlashes;
 
 extern int bVanilla;
 

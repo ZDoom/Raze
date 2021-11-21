@@ -31,17 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-/*
-struct Weapon
-{
-    short nSeq;
-    short b[12]; // seq offsets?
-    short nAmmoType;
-    short c;
-    short d;
-    short bFireUnderwater;
-};
-*/
 
 Weapon WeaponInfo[] = {
     { kSeqSword,   { 0, 1, 3,  7, -1,  2,  4, 5, 6, 8, 9, 10 }, 0, 0, 0, true },
@@ -57,8 +46,8 @@ Weapon WeaponInfo[] = {
     { kSeqDeadBrn, { 1, 0, 0,  0,  0,  0,  0, 0, 0, 0, 0, 0 },  0, 1, 0, false }
 };
 
-short nTemperature[kMaxPlayers];
-short nMinAmmo[] = { 0, 24, 51, 50, 1, 0, 0 };
+int16_t nTemperature[kMaxPlayers];
+static const uint8_t nMinAmmo[] = { 0, 24, 51, 50, 1, 0, 0 };
 short isRed = 0;
 
 
@@ -410,7 +399,7 @@ void MoveWeapons(int nPlayer)
 
                                     Ra[nPlayer].nAction = 0;
                                     Ra[nPlayer].nFrame  = 0;
-                                    Ra[nPlayer].field_C = 1;
+                                    Ra[nPlayer].nState = 1;
                                 }
 
                                 PlayerList[nPlayer].nState = 2;
@@ -530,7 +519,7 @@ void MoveWeapons(int nPlayer)
                                 SelectNewWeapon(nPlayer);
                             }
 
-                            Ra[nPlayer].field_C = 0;
+                            Ra[nPlayer].nState = 0;
                             break;
                         }
                         else if (nWeapon == kWeaponM60)

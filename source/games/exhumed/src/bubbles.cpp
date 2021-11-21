@@ -80,7 +80,7 @@ void AIBubble::Tick(RunListEvent* ev)
     auto pActor = ev->pObjActor;
     if (!pActor) return;
 
-    short nSeq = pActor->nIndex;
+    int nSeq = pActor->nIndex;
     auto pSprite = &pActor->s();
 
     seq_MoveSequence(pActor, nSeq, pActor->nFrame);

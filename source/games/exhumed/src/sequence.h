@@ -110,11 +110,10 @@ struct actionSeq
 
 extern short frames;
 
-extern short SeqBase[];
-extern short SeqSize[];
-extern short SeqOffsets[];
-
-extern short FrameFlag[];
+extern int16_t SeqBase[];
+extern int16_t SeqSize[];
+extern int16_t SeqOffsets[];
+extern int16_t FrameFlag[];
 
 extern short nShadowWidth;
 extern short nFlameHeight;
@@ -122,12 +121,12 @@ extern short nFlameHeight;
 extern short nPilotLightFrame;
 extern short nPilotLightCount;
 
-extern short ChunkYpos[];
-extern short ChunkXpos[];
-extern short ChunkPict[];
-extern short ChunkFlag[];
-extern short FrameSize[];
-extern short FrameBase[];
+extern int16_t ChunkYpos[];
+extern int16_t ChunkXpos[];
+extern int16_t ChunkPict[];
+extern int16_t ChunkFlag[];
+extern int16_t FrameSize[];
+extern int16_t FrameBase[];
 
 
 void seq_LoadSequences();

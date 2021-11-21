@@ -189,7 +189,7 @@ static void analyzesprites(spritetype* tsprite, int& spritesortcnt, int x, int y
 
 void ResetView()
 {
-    EraseScreen(overscanindex);
+    EraseScreen(0);
 #ifdef USE_OPENGL
     videoTintBlood(0, 0, 0);
 #endif
