@@ -26,7 +26,7 @@ static void chasekatie(PLAYER& plr, DWHActor* actor)
 			auto moveStat = aimove(actor);
 			if (moveStat.type == kHitFloor)
 			{
-				spr.ang = (short)((spr.ang + 1024) & 2047);
+				spr.ang = ((spr.ang + 1024) & 2047);
 				SetNewStatus(actor, FLEE);
 				return;
 			}
@@ -35,7 +35,7 @@ static void chasekatie(PLAYER& plr, DWHActor* actor)
 			if (krand() % 8 == 0) // NEW
 				SetNewStatus(actor, ATTACK); // NEW
 			else { // NEW
-				spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
+				spr.ang = (((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
 				SetNewStatus(actor, FLEE); // NEW
 			}
 		}
@@ -69,7 +69,7 @@ static void resurectkatie(PLAYER& plr, DWHActor* actor)
 	if (spr.lotag < 0) {
 		SetNewStatus(actor, FACE);
 		spr.picnum = KATIE;
-		spr.hitag = (short)adjusthp(200);
+		spr.hitag = adjusthp(200);
 		spr.lotag = 100;
 		spr.cstat |= 1;
 	}
@@ -101,14 +101,14 @@ static void facekatie(PLAYER& plr, DWHActor* actor)
 {
 	SPRITE& spr = actor->s();
 
-	spr.ang = (short)(getangle(plr.x - spr.x, plr.y - spr.y) & 2047);
+	spr.ang = (getangle(plr.x - spr.x, plr.y - spr.y) & 2047);
 
 	boolean cansee = ::cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 		spr.sectnum);
 
 	if (cansee && plr.invisibletime < 0) {
 		if (plr.shadowtime > 0) {
-			spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
+			spr.ang = (((krand() & 512 - 256) + spr.ang + 1024) & 2047);
 			SetNewStatus(actor, FLEE);
 		}
 		else {
@@ -118,7 +118,7 @@ static void facekatie(PLAYER& plr, DWHActor* actor)
 	}
 	else { // get off the wall
 		if (actor->GetOwner() == plr.actor()) {
-			spr.ang = (short)(((krand() & 512 - 256) + spr.ang) & 2047);
+			spr.ang = (((krand() & 512 - 256) + spr.ang) & 2047);
 			SetNewStatus(actor, FINDME);
 		}
 		else if (cansee) SetNewStatus(actor, FLEE);

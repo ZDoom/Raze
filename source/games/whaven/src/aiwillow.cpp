@@ -33,7 +33,7 @@ static void chasewillow(PLAYER& plr, DWHActor* actor)
 			if (krand() % 8 == 0) // NEW
 				SetNewStatus(actor, ATTACK); // NEW
 			else { // NEW
-				spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
+				spr.ang = (((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
 				SetNewStatus(actor, CHASE); // NEW
 			}
 		}
@@ -147,10 +147,10 @@ static void facewillow(PLAYER& plr, DWHActor* actor)
 
 	if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 		spr.sectnum) && plr.invisibletime < 0) {
-		spr.ang = (short)(getangle(plr.x - spr.x, plr.y - spr.y) & 2047);
+		spr.ang = (getangle(plr.x - spr.x, plr.y - spr.y) & 2047);
 
 		if (plr.shadowtime > 0) {
-			spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
+			spr.ang = (((krand() & 512 - 256) + spr.ang + 1024) & 2047);
 			SetNewStatus(actor, FLEE);
 		}
 		else {
@@ -160,7 +160,7 @@ static void facewillow(PLAYER& plr, DWHActor* actor)
 	}
 	else { // get off the wall
 		if (actor->GetOwner() == plr.actor()) {
-			spr.ang = (short)(((krand() & 512 - 256) + spr.ang) & 2047);
+			spr.ang = (((krand() & 512 - 256) + spr.ang) & 2047);
 			SetNewStatus(actor, FINDME);
 		}
 		else SetNewStatus(actor, FLEE);

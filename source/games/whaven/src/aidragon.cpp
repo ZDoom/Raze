@@ -219,7 +219,7 @@ static void resurectdragon(PLAYER& plr, DWHActor* actor)
 	if (spr.lotag < 0) {
 		SetNewStatus(actor, FACE);
 		spr.picnum = DRAGON;
-		spr.hitag = (short)adjusthp(900);
+		spr.hitag = adjusthp(900);
 		spr.lotag = 100;
 		spr.cstat |= 1;
 	}
@@ -278,7 +278,7 @@ static void facedragon(PLAYER& plr, DWHActor* actor)
 	if (cansee && plr.invisibletime < 0) {
 		spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
 		if (plr.shadowtime > 0) {
-			spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
+			spr.ang = (((krand() & 512 - 256) + spr.ang + 1024) & 2047);
 			SetNewStatus(actor, FLEE);
 		}
 		else {
@@ -288,7 +288,7 @@ static void facedragon(PLAYER& plr, DWHActor* actor)
 	}
 	else { // get off the wall
 		if (actor->GetOwner() == plr.actor()) {
-			spr.ang = (short)(((krand() & 512 - 256) + spr.ang) & 2047);
+			spr.ang = (((krand() & 512 - 256) + spr.ang) & 2047);
 			SetNewStatus(actor, FINDME);
 		}
 		else if (cansee) SetNewStatus(actor, FLEE);
@@ -351,7 +351,7 @@ static void firebreath(PLAYER& plr, DWHActor* actor, int a, int b, int c)
 		spawned.shade = -15;
 		spawned.xrepeat = 128;
 		spawned.yrepeat = 128;
-		spawned.ang = (short)((((getangle(plr.x - spawned.x, plr.y - spawned.y)
+		spawned.ang = ((((getangle(plr.x - spawned.x, plr.y - spawned.y)
 			+ (krand() & 15) - 8) + 2048) + ((b * 22) + (k * 10))) & 2047);
 		spawned.xvel = bcos(spawned.ang, -6);
 		spawned.yvel = bsin(spawned.ang, -6);
@@ -360,9 +360,9 @@ static void firebreath(PLAYER& plr, DWHActor* actor, int a, int b, int c)
 		if (discrim == 0)
 			discrim = 1;
 		if (c == HIGH)
-			spawned.zvel = (short)(((plr.z + (32 << 8) - spawned.z) << 7) / discrim);
+			spawned.zvel = (((plr.z + (32 << 8) - spawned.z) << 7) / discrim);
 		else
-			spawned.zvel = (short)((((plr.z + (8 << 8)) - spawned.z) << 7) / discrim);// NEW
+			spawned.zvel = ((((plr.z + (8 << 8)) - spawned.z) << 7) / discrim);// NEW
 
 		spawnedactor->SetOwner(actor);
 		spawned.clipdist = 16;

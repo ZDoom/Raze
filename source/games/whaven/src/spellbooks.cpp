@@ -421,11 +421,11 @@ void medusa(PLAYER& plr, DWHActor* actor) {
 		break;
 	case GRONTYPE:
 		if(pic == GRONHAL || pic == GRONHALATTACK)
-			spr.picnum = (short) GRONHALDIE;
+			spr.picnum =  GRONHALDIE;
 		else if(pic == GRONMU || pic == GRONMUATTACK)
-			spr.picnum = (short) GRONMUDIE;
+			spr.picnum =  GRONMUDIE;
 		else if(pic == GRONSW || pic == GRONSWATTACK)
-			spr.picnum = (short) GRONSWDIE;
+			spr.picnum =  GRONSWDIE;
 		break;
 	}
 	spr.pal = 6;

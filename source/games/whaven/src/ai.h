@@ -18,14 +18,14 @@ struct EnemyInfo
 	
 	void Init(int sizx, int sizy, int dist, int height, int damage, int clipdist, bool fly, int health, int score)
 	{
-		this->sizx = (short) sizx;
-		this->sizy = (short) sizy;
+		this->sizx =  sizx;
+		this->sizy =  sizy;
 		this->attackdist = dist;
 		this->attackheight = height;
 		this->attackdamage = damage;
 		this->clipdist = clipdist;
 		this->fly = fly;
-		this->health = (short) health;
+		this->health =  health;
 		this->score = score;
 	}
 	
@@ -53,7 +53,7 @@ struct EnemyInfo
 		if((spr.cstat & 514) != 0) 
 			tflag = spr.cstat & 514;
 
-		spr.cstat = (short) (0x101 | tflag);
+		spr.cstat =  (0x101 | tflag);
 	}
 };
 

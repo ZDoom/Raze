@@ -12,7 +12,7 @@ static void standkurt(PLAYER& plr, DWHActor* actor)
 		if (cansee(spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7), spr.sectnum, plr.x, plr.y,
 			plr.z, plr.sector) && plr.invisibletime < 0) {
 			if (plr.shadowtime > 0) {
-				spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
+				spr.ang = (((krand() & 512 - 256) + spr.ang + 1024) & 2047);
 				SetNewStatus(actor, FLEE);
 			}
 			else

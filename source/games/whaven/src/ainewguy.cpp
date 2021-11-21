@@ -13,7 +13,7 @@ static void standnewguy(PLAYER& plr, DWHActor* actor)
 		if (cansee(spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7), spr.sectnum, plr.x, plr.y,
 			plr.z, plr.sector) && plr.invisibletime < 0) {
 			if (plr.shadowtime > 0) {
-				spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
+				spr.ang = (((krand() & 512 - 256) + spr.ang + 1024) & 2047);
 				SetNewStatus(actor, FLEE);
 			}
 			else
@@ -35,45 +35,45 @@ static void chasenewguy(PLAYER& plr, DWHActor* actor)
 		spr.sectnum) && plr.invisibletime < 0) {
 		if (checkdist(plr, actor)) {
 			if (plr.shadowtime > 0) {
-				spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
+				spr.ang = (((krand() & 512 - 256) + spr.ang + 1024) & 2047);
 				SetNewStatus(actor, FLEE);
 			}
 			else
 				SetNewStatus(actor, ATTACK);
 		}
 		else if (krand() % 63 > 60) {
-			spr.ang = (short)(((krand() & 128 - 256) + spr.ang + 1024) & 2047);
+			spr.ang = (((krand() & 128 - 256) + spr.ang + 1024) & 2047);
 			SetNewStatus(actor, FLEE);
 		}
 		else {
 			auto moveStat = aimove(actor);
 			if (moveStat.type == kHitFloor)
 			{
-				spr.ang = (short)((spr.ang + 1024) & 2047);
+				spr.ang = ((spr.ang + 1024) & 2047);
 				SetNewStatus(actor, FLEE);
 				return;
 			}
 
 			if (moveStat.type == kHitSprite) {
 				if (moveStat.actor != plr.actor()) {
-					short daang = (short)((spr.ang - 256) & 2047);
+					short daang = ((spr.ang - 256) & 2047);
 					spr.ang = daang;
 					if (plr.shadowtime > 0) {
-						spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
+						spr.ang = (((krand() & 512 - 256) + spr.ang + 1024) & 2047);
 						SetNewStatus(actor, FLEE);
 					}
 					else
 						SetNewStatus(actor, SKIRMISH);
 				}
 				else {
-					spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
+					spr.ang = (((krand() & 512 - 256) + spr.ang + 1024) & 2047);
 					SetNewStatus(actor, SKIRMISH);
 				}
 			}
 		}
 	}
 	else {
-		spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
+		spr.ang = (((krand() & 512 - 256) + spr.ang + 1024) & 2047);
 		SetNewStatus(actor, FLEE);
 	}
 
@@ -115,19 +115,19 @@ static void resurectnewguy(PLAYER& plr, DWHActor* actor)
 		switch (j) {
 		case 0:
 			spr.extra = 30;
-			spr.hitag = (short)adjusthp(85);
+			spr.hitag = adjusthp(85);
 			break;
 		case 1:
 			spr.extra = 20;
-			spr.hitag = (short)adjusthp(85);
+			spr.hitag = adjusthp(85);
 			break;
 		case 2:
 			spr.extra = 10;
-			spr.hitag = (short)adjusthp(45);
+			spr.hitag = adjusthp(45);
 			break;
 		case 3:
 			spr.extra = 0;
-			spr.hitag = (short)adjusthp(15);
+			spr.hitag = adjusthp(15);
 			break;
 		}
 		spr.xrepeat = 35;
@@ -201,7 +201,7 @@ static void facenewguy(PLAYER& plr, DWHActor* actor)
 	if (cansee && plr.invisibletime < 0) {
 		spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
 		if (plr.shadowtime > 0) {
-			spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
+			spr.ang = (((krand() & 512 - 256) + spr.ang + 1024) & 2047);
 			SetNewStatus(actor, FLEE);
 		}
 		else {
@@ -211,7 +211,7 @@ static void facenewguy(PLAYER& plr, DWHActor* actor)
 	}
 	else { // get off the wall
 		if (actor->GetOwner() == plr.actor()) {
-			spr.ang = (short)(((krand() & 512 - 256) + spr.ang) & 2047);
+			spr.ang = (((krand() & 512 - 256) + spr.ang) & 2047);
 			SetNewStatus(actor, FINDME);
 		}
 		else if (cansee) SetNewStatus(actor, FLEE);
@@ -292,13 +292,13 @@ static void attacknewguy(PLAYER& plr, DWHActor* actor)
 		if (spr.lotag == 31) {
 			if (checksight(plr, actor))
 				if (checkdist(plr, actor)) {
-					spr.ang = (short)checksight_ang;
+					spr.ang = checksight_ang;
 					attack(plr, actor);
 				}
 		}
 		else if (spr.lotag < 0) {
 			if (plr.shadowtime > 0) {
-				spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
+				spr.ang = (((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
 				SetNewStatus(actor, FLEE);
 			}
 			else
@@ -371,17 +371,17 @@ static void newguyarrow(DWHActor* actor, PLAYER& plr) {
 	spawned.cstat = 21;
 
 	spawned.picnum = WALLARROW;
-	spawned.ang = (short)(((spr.ang + 2048 + 96) - 512) & 2047);
+	spawned.ang = (((spr.ang + 2048 + 96) - 512) & 2047);
 	spawned.xrepeat = 24;
 	spawned.yrepeat = 24;
 	spawned.clipdist = 32;
 
 	spawned.extra = spr.ang;
 	spawned.shade = -15;
-	spawned.xvel = (short)((krand() & 256) - 128);
-	spawned.yvel = (short)((krand() & 256) - 128);
+	spawned.xvel = ((krand() & 256) - 128);
+	spawned.yvel = ((krand() & 256) - 128);
 
-	spawned.zvel = (short)(((plr.z + (8 << 8) - spr.z) << 7) / ksqrt((plr.x - spr.x) * (plr.x - spr.x) + (plr.y - spr.y) * (plr.y - spr.y)));
+	spawned.zvel = (((plr.z + (8 << 8) - spr.z) << 7) / ksqrt((plr.x - spr.x) * (plr.x - spr.x) + (plr.y - spr.y) * (plr.y - spr.y)));
 
 	spawned.zvel += ((krand() % 256) - 128);
 

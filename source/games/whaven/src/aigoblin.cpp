@@ -19,45 +19,45 @@ static void chasegoblin(PLAYER& plr, DWHActor* actor)
 		spr.sectnum) && plr.invisibletime < 0) {
 		if (checkdist(plr, actor)) {
 			if (plr.shadowtime > 0) {
-				spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
+				spr.ang = (((krand() & 512 - 256) + spr.ang + 1024) & 2047);
 				SetNewStatus(actor, FLEE);
 			}
 			else
 				SetNewStatus(actor, ATTACK);
 		}
 		else if (krand() % 63 > 60) {
-			spr.ang = (short)(((krand() & 128 - 256) + spr.ang + 1024) & 2047);
+			spr.ang = (((krand() & 128 - 256) + spr.ang + 1024) & 2047);
 			SetNewStatus(actor, FLEE);
 		}
 		else {
 			auto moveStat = aimove(actor);
 			if (moveStat.type == kHitFloor)
 			{
-				spr.ang = (short)((spr.ang + 1024) & 2047);
+				spr.ang = ((spr.ang + 1024) & 2047);
 				SetNewStatus(actor, FLEE);
 				return;
 			}
 
 			if (moveStat.type == kHitSprite) {
 				if (moveStat.actor != plr.actor()) {
-					short daang = (short)((spr.ang - 256) & 2047);
+					short daang = ((spr.ang - 256) & 2047);
 					spr.ang = daang;
 					if (plr.shadowtime > 0) {
-						spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
+						spr.ang = (((krand() & 512 - 256) + spr.ang + 1024) & 2047);
 						SetNewStatus(actor, FLEE);
 					}
 					else
 						SetNewStatus(actor, SKIRMISH);
 				}
 				else {
-					spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
+					spr.ang = (((krand() & 512 - 256) + spr.ang + 1024) & 2047);
 					SetNewStatus(actor, SKIRMISH);
 				}
 			}
 		}
 	}
 	else {
-		spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
+		spr.ang = (((krand() & 512 - 256) + spr.ang + 1024) & 2047);
 		SetNewStatus(actor, FLEE);
 	}
 
@@ -138,7 +138,7 @@ static void facegoblin(PLAYER& plr, DWHActor* actor)
 		spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
 		spr.picnum = GOBLIN;
 		if (plr.shadowtime > 0) {
-			spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
+			spr.ang = (((krand() & 512 - 256) + spr.ang + 1024) & 2047);
 			SetNewStatus(actor, FLEE);
 		}
 		else {
@@ -148,7 +148,7 @@ static void facegoblin(PLAYER& plr, DWHActor* actor)
 	}
 	else { // get off the wall
 		if (actor->GetOwner() == plr.actor()) {
-			spr.ang = (short)(((krand() & 512 - 256) + spr.ang) & 2047);
+			spr.ang = (((krand() & 512 - 256) + spr.ang) & 2047);
 			SetNewStatus(actor, FINDME);
 		}
 		else if (cansee) SetNewStatus(actor, FLEE);
@@ -213,7 +213,7 @@ static void standgoblin(PLAYER& plr, DWHActor* actor)
 			default:
 				spr.picnum = GOBLIN;
 				if (plr.shadowtime > 0) {
-					spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
+					spr.ang = (((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
 					SetNewStatus(actor, FLEE);
 				}
 				else
@@ -248,14 +248,14 @@ static void attackgoblin(PLAYER& plr, DWHActor* actor)
 	if (spr.lotag == 31) {
 		if (checksight(plr, actor))
 			if (checkdist(plr, actor)) {
-				spr.ang = (short)checksight_ang;
+				spr.ang = checksight_ang;
 				attack(plr, actor);
 			}
 	}
 	else if (spr.lotag < 0) {
 		spr.picnum = GOBLIN;
 		if (plr.shadowtime > 0) {
-			spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
+			spr.ang = (((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
 			SetNewStatus(actor, FLEE);
 		}
 		else
@@ -274,7 +274,7 @@ static void resurectgoblin(PLAYER& plr, DWHActor* actor)
 	if (spr.lotag < 0) {
 		SetNewStatus(actor, FACE);
 		spr.picnum = GOBLIN;
-		spr.hitag = (short)adjusthp(35);
+		spr.hitag = adjusthp(35);
 		spr.lotag = 100;
 		spr.cstat |= 1;
 	}
@@ -387,13 +387,13 @@ static void goblinWar(PLAYER& plr, DWHActor* actor)
 		}
 		if (!found) {
 			if (spr.pal == 5)
-				spr.hitag = (short)adjusthp(35);
+				spr.hitag = adjusthp(35);
 			else if (spr.pal == 4)
-				spr.hitag = (short)adjusthp(25);
+				spr.hitag = adjusthp(25);
 			else
-				spr.hitag = (short)adjusthp(15);
+				spr.hitag = adjusthp(15);
 			if (plr.shadowtime > 0) {
-				spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
+				spr.ang = (((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
 				SetNewStatus(actor, FLEE);
 			}
 			else
@@ -413,13 +413,13 @@ static void goblinWar(PLAYER& plr, DWHActor* actor)
 			spr.ang = getangle(ownerspr.x - spr.x, ownerspr.y - spr.y);
 		else if (moveStat.type == kHitWall) {
 			spr.extra = 3;
-			spr.ang = (short)((spr.ang + (krand() & 256 - 128)) & 2047);
+			spr.ang = ((spr.ang + (krand() & 256 - 128)) & 2047);
 			spr.lotag = 60;
 		}
 		else if (moveStat.type == kHitSprite) {
 			if (moveStat.actor != owneractor) {
 				spr.extra = 3;
-				spr.ang = (short)((spr.ang + (krand() & 256 - 128)) & 2047);
+				spr.ang = ((spr.ang + (krand() & 256 - 128)) & 2047);
 				spr.lotag = 60;
 			}
 			else spr.ang = getangle(ownerspr.x - spr.x, ownerspr.y - spr.y);
@@ -469,7 +469,7 @@ static void goblinWar(PLAYER& plr, DWHActor* actor)
 				else { // i attack k flee
 					spr.extra = 0;
 					ownerspr.extra = 3;
-					ownerspr.ang = (short)((spr.ang + (krand() & 256 - 128)) & 2047);
+					ownerspr.ang = ((spr.ang + (krand() & 256 - 128)) & 2047);
 					ownerspr.lotag = 60;
 				}
 			}
@@ -491,7 +491,7 @@ static void goblinWar(PLAYER& plr, DWHActor* actor)
 		spr.lotag -= TICSPERFRAME;
 
 		if (aimove(actor).type != kHitNone)
-			spr.ang = (short)(krand() & 2047);
+			spr.ang = (krand() & 2047);
 		processfluid(actor, zr_florHit, false);
 
 		SetActorPos(actor, &spr.pos);

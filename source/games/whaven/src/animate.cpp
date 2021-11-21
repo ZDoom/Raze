@@ -38,7 +38,7 @@ int setanimation(int index, int thegoal, int thevel, int theacc, int type)
 	if (j == -1) j = gAnimationCount;
 
 	ANIMATION& gAnm = gAnimationData[j];
-	gAnm.id = (short)index;
+	gAnm.id = index;
 	gAnm.goal = thegoal;
 	gAnm.vel = thevel;
 	gAnm.acc = theacc;

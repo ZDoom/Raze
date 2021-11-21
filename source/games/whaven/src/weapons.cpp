@@ -1702,7 +1702,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 			neartag(pHitInfo.hitx, pHitInfo.hity, pHitInfo.hitz, pHitInfo.hitsect, daang, ntag, 1024, 3);
 
 			if (ntag.tagsector < 0) {
-				auto spawnedactor = InsertActor(pHitInfo.hitsect, (short) 0);
+				auto spawnedactor = InsertActor(pHitInfo.hitsect,  0);
 				auto& spawned = spawnedactor->s();
 
 				spawned.x = pHitInfo.hitx;
@@ -1714,7 +1714,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 				spawned.pal = 0;
 				spawned.xrepeat = 16;
 				spawned.yrepeat = 48;
-				spawned.ang = (short) (((daang) - 512 + (krand() & 128 - 64)) & 2047);
+				spawned.ang =  (((daang) - 512 + (krand() & 128 - 64)) & 2047);
 				spawned.xvel = 0;
 				spawned.yvel = 0;
 				spawned.zvel = 0;
@@ -1765,7 +1765,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 			spawned.pal = 0;
 			spawned.xrepeat = 32;
 			spawned.yrepeat = 32;
-			spawned.ang = (short) daang;
+			spawned.ang =  daang;
 			spawned.xvel = 0;
 			spawned.yvel = 0;
 			spawned.zvel = 0;
@@ -1816,7 +1816,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 						chunksofmeat(plr, hitActor, pHitInfo.hitx, pHitInfo.hity, pHitInfo.hitz,
 								pHitInfo.hitsect, daang);
 				} else {
-					hitspr.ang = (short) (getangle(plr.x - hitspr.x,
+					hitspr.ang =  (getangle(plr.x - hitspr.x,
 							plr.y - hitspr.y) & 2047);
 					SetNewStatus(hitActor, PAIN);
 				}
@@ -1919,7 +1919,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 
 		if (pHitInfo.hitsect < 0 && pHitInfo.hitsprite < 0 || pHitInfo.hitwall >= 0) {
 
-			neartag(pHitInfo.hitx, pHitInfo.hity, pHitInfo.hitz, (short)pHitInfo.hitsect, (short)daang,	ntag, 1024, 3);
+			neartag(pHitInfo.hitx, pHitInfo.hity, pHitInfo.hitz, pHitInfo.hitsect, daang,	ntag, 1024, 3);
 
 			if (ntag.tagsector >= 0) {
 				if (sector[ntag.tagsector].lotag >= 60 && sector[ntag.tagsector].lotag <= 69) {
@@ -1960,16 +1960,16 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 						spawned.z = plr.z + (24 << 8);
 						spawned.cstat = 21;
 						spawned.picnum = THROWPIKE;
-						spawned.ang = (short) (((daang + 2048 + 96) - 512) & 2047);
+						spawned.ang =  (((daang + 2048 + 96) - 512) & 2047);
 						spawned.xrepeat = 24;
 						spawned.yrepeat = 24;
 						spawned.clipdist = 32;
-						spawned.extra = (short) daang;
+						spawned.extra =  daang;
 						spawned.shade = -15;
-						spawned.xvel = (short) ((krand() & 256) - 128);
-						spawned.yvel = (short) ((krand() & 256) - 128);
+						spawned.xvel =  ((krand() & 256) - 128);
+						spawned.yvel =  ((krand() & 256) - 128);
 						if (shootgunzvel != 0) {
-							spawned.zvel = (short) shootgunzvel;
+							spawned.zvel =  shootgunzvel;
 							shootgunzvel = 0;
 						} else {
 							spawned.zvel = plr.horizon.horiz.asq16() >> 12;
@@ -1998,8 +1998,8 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 						spawned.clipdist = 32;
 						spawned.extra = plr.angle.ang.asbuild();
 						spawned.shade = -15;
-						spawned.xvel = (short) ((krand() & 256) - 128);
-						spawned.yvel = (short) ((krand() & 256) - 128);
+						spawned.xvel =  ((krand() & 256) - 128);
+						spawned.yvel =  ((krand() & 256) - 128);
 						spawned.zvel = plr.horizon.horiz.asq16() >> 12;
 						spawnedactor->SetPlayerOwner(plr.playerNum());
 						spawned.lotag = 1024;
@@ -2026,8 +2026,8 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 
 					spawned.extra = plr.angle.ang.asbuild();
 					spawned.shade = -15;
-					spawned.xvel = (short) ((krand() & 256) - 128);
-					spawned.yvel = (short) ((krand() & 256) - 128);
+					spawned.xvel =  ((krand() & 256) - 128);
+					spawned.yvel =  ((krand() & 256) - 128);
 					// spawned.zvel=((krand()&256)-128);
 					spawned.zvel = plr.horizon.horiz.asq16() >> 12;
 					spawnedactor->SetPlayerOwner(plr.playerNum());
@@ -2060,16 +2060,16 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 						spawned.z = plr.z + (24 << 8);
 						spawned.cstat = 21;
 						spawned.picnum = THROWPIKE;
-						spawned.ang = (short) daang;
+						spawned.ang =  daang;
 
 						spawned.xrepeat = 24;
 						spawned.yrepeat = 24;
 						spawned.clipdist = 32;
-						spawned.extra = (short) daang;
+						spawned.extra =  daang;
 
 						spawned.shade = -15;
-						spawned.xvel = (short) ((krand() & 256) - 128);
-						spawned.yvel = (short) ((krand() & 256) - 128);
+						spawned.xvel =  ((krand() & 256) - 128);
+						spawned.yvel =  ((krand() & 256) - 128);
 						spawned.zvel = plr.horizon.horiz.asq16() >> 12;
 						spawnedactor->SetPlayerOwner(plr.playerNum());
 						spawned.lotag = 1024;
@@ -2095,8 +2095,8 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 						spawned.clipdist = 32;
 						spawned.extra = plr.angle.ang.asbuild();
 						spawned.shade = -15;
-						spawned.xvel = (short) ((krand() & 256) - 128);
-						spawned.yvel = (short) ((krand() & 256) - 128);
+						spawned.xvel =  ((krand() & 256) - 128);
+						spawned.yvel =  ((krand() & 256) - 128);
 						spawned.zvel = plr.horizon.horiz.asq16() >> 12;
 						spawnedactor->SetPlayerOwner(plr.playerNum());
 						spawned.lotag = 1024;
@@ -2122,9 +2122,9 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 
 					spawned.extra = plr.angle.ang.asbuild();
 					spawned.shade = -15;
-					spawned.xvel = (short) ((krand() & 256) - 128);
-					spawned.yvel = (short) ((krand() & 256) - 128);
-					spawned.zvel = (short) ((krand() & 256) - 128);
+					spawned.xvel =  ((krand() & 256) - 128);
+					spawned.yvel =  ((krand() & 256) - 128);
+					spawned.zvel =  ((krand() & 256) - 128);
 					spawnedactor->SetPlayerOwner(plr.playerNum());
 					spawned.lotag = 1024;
 					spawned.hitag = 0;
@@ -2153,12 +2153,12 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 		spawned.pal = 0;
 		spawned.xrepeat = 16;
 		spawned.yrepeat = 16;
-		spawned.ang = (short) daang;
+		spawned.ang =  daang;
 		spawned.xvel = bcos(daang, -5);
 		spawned.yvel = bsin(daang, -5);
 
 		if (shootgunzvel != 0) {
-			spawned.zvel = (short) shootgunzvel;
+			spawned.zvel =  shootgunzvel;
 			shootgunzvel = 0;
 		} else {
 			spawned.zvel = plr.horizon.horiz.asq16() >> 12;
@@ -2199,7 +2199,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 		spawned.yvel = bsin(daang, -7);
 
 		if (shootgunzvel != 0) {
-			spawned.zvel = (short) shootgunzvel;
+			spawned.zvel =  shootgunzvel;
 			shootgunzvel = 0;
 		} else {
 			spawned.zvel = plr.horizon.horiz.asq16() >> 12;

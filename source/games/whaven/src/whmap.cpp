@@ -33,13 +33,13 @@ void preparesectors() {
 //				spikesector[spikecnt++] = i;
 
 		if (sector[i].lotag == 70)
-			skypanlist[skypancnt++] = (short) i;
+			skypanlist[skypancnt++] =  i;
 
 		if (sector[i].lotag >= 80 && sector[i].lotag <= 89)
-			floorpanninglist[floorpanningcnt++] = (short) i;
+			floorpanninglist[floorpanningcnt++] =  i;
 
 		if (sector[i].lotag >= 900 && sector[i].lotag <= 999) {
-			lavadrylandsector[lavadrylandcnt] = (short) i;
+			lavadrylandsector[lavadrylandcnt] =  i;
 			lavadrylandcnt++;
 		}
 
@@ -61,7 +61,7 @@ void preparesectors() {
 				revolvey[revolvecnt][k] = wall[j].y;
 				k++;
 			}
-			revolvesector[revolvecnt] = (short) i;
+			revolvesector[revolvecnt] =  i;
 			revolveang[revolvecnt] = 0;
 
 			revolveclip[revolvecnt] = 1;
@@ -111,7 +111,7 @@ void preparesectors() {
 			}
 			break;
 		case 11:
-			xpanningsectorlist[xpanningsectorcnt++] = (short) i;
+			xpanningsectorlist[xpanningsectorcnt++] =  i;
 			break;
 		case 12:
 			dasector = i;
@@ -166,22 +166,22 @@ void preparesectors() {
 			dragy2[dragsectorcnt] -= (day2 - wall[sector[i].wallptr].y);
 			dragfloorz[dragsectorcnt] = sector[i].floorz;
 
-			dragsectorlist[dragsectorcnt++] = (short) i;
+			dragsectorlist[dragsectorcnt++] =  i;
 			break;
 		case 10:
 		case 14:
 			// case 15:
 			// captureflag sector
 		case 4002:
-			warpsectorlist[warpsectorcnt++] = (short) i;
+			warpsectorlist[warpsectorcnt++] =  i;
 			break;
 		case 10000:
-			bobbingsectorlist[bobbingsectorcnt++] = (short) i;
+			bobbingsectorlist[bobbingsectorcnt++] =  i;
 		}
 		if (sector[i].floorpicnum == TELEPAD && sector[i].lotag == 0)
-			warpsectorlist[warpsectorcnt++] = (short) i;
+			warpsectorlist[warpsectorcnt++] =  i;
 		if (sector[i].floorpicnum == FLOORMIRROR)
-			floormirrorsector[floormirrorcnt++] = (short) i;
+			floormirrorsector[floormirrorcnt++] =  i;
 	}
 
 	ypanningwallcnt = 0;
@@ -189,7 +189,7 @@ void preparesectors() {
 		wallshadearray[i] = wall[i].shade;
 		if (wall[i].lotag == 1) {
 			if (ypanningwallcnt < countof(ypanningwalllist))
-				ypanningwalllist[ypanningwallcnt++] = (short) i;
+				ypanningwalllist[ypanningwallcnt++] =  i;
 		}
 	}
 }
@@ -315,12 +315,12 @@ boolean prepareboard(const char* fname) {
 		}
 
 		if (spr.picnum == SNDLOOP) { // loop on
-			spr.sector()->extra = (short) (32768 | (spr.lotag << 1) | 1);
+			spr.sector()->extra =  (32768 | (spr.lotag << 1) | 1);
 			DeleteActor(actor);
 		}
 
 		if (spr.picnum == SNDLOOPOFF) { // loop off
-			spr.sector()->extra = (short) (32768 | (spr.lotag << 1));
+			spr.sector()->extra =  (32768 | (spr.lotag << 1));
 			DeleteActor(actor);
 		}
 
@@ -676,7 +676,7 @@ boolean prepareboard(const char* fname) {
 			break;
 			
 		case PINE:
-			treesize = (short) (((krand() % 5) + 3) << 4);
+			treesize =  (((krand() % 5) + 3) << 4);
 			spr.xrepeat = (uint8_t)treesize;
 			spr.yrepeat = (uint8_t)treesize;
 			break;
@@ -752,7 +752,7 @@ boolean prepareboard(const char* fname) {
 			// oh my... (todo: turn into a compat patch.
 			SPRITE& spr = sprite[185];
 			if(spr.picnum == 172 && spr.x == -36864 && spr.y == -53504)
-				deletesprite((short) 185);
+				deletesprite( 185);
 		}
 			
 		if(mapon == 13) {
@@ -773,7 +773,7 @@ boolean prepareboard(const char* fname) {
 
 	if (justteleported) { // next level
 		plr.hvel = 0;
-		auto pactor = InsertActor(plr.sector, (short)0);
+		auto pactor = InsertActor(plr.sector, 0);
 		auto& pspr = pactor->s();
 
 		plr.theactor = pactor;
@@ -794,7 +794,7 @@ boolean prepareboard(const char* fname) {
 		pactor->SetPlayerOwner(myconnectindex);
 		pspr.lotag = 0;
 		pspr.hitag = 0;
-		pspr.pal = (short) (isWh2() ? 10 : 1);
+		pspr.pal =  (isWh2() ? 10 : 1);
 		if(isWh2())
 			pspr.clipdist = 48;
 			

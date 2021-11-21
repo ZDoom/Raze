@@ -141,7 +141,7 @@ void randompotion(DWHActor* actor) {
 		return;
 
 	auto& spr = actor->s();
-	auto spawnedactor = InsertActor(spr.sectnum, (short)0);
+	auto spawnedactor = InsertActor(spr.sectnum, 0);
 	auto& spawned = spawnedactor->s();
 
 	spawned.x = spr.x;
@@ -154,8 +154,8 @@ void randompotion(DWHActor* actor) {
 	spawned.xrepeat = 64;
 	spawned.yrepeat = 64;
 	int type = krand() % 4;
-	spawned.picnum = (short)(FLASKBLUE + type);
-	spawned.detail = (short)(FLASKBLUETYPE + type);
+	spawned.picnum = (FLASKBLUE + type);
+	spawned.detail = (FLASKBLUETYPE + type);
 	spawned.backuploc();
 }
 

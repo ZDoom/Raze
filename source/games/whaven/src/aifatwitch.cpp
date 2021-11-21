@@ -26,7 +26,7 @@ static void chasefatwitch(PLAYER& plr, DWHActor* actor)
 			auto moveStat = aimove(actor);
 			if (moveStat.type == kHitFloor)
 			{
-				spr.ang = (short)((spr.ang + 1024) & 2047);
+				spr.ang = ((spr.ang + 1024) & 2047);
 				SetNewStatus(actor, FLEE);
 				return;
 			}
@@ -35,7 +35,7 @@ static void chasefatwitch(PLAYER& plr, DWHActor* actor)
 			if (krand() % 8 == 0) // NEW
 				SetNewStatus(actor, ATTACK); // NEW
 			else { // NEW
-				spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
+				spr.ang = (((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
 				SetNewStatus(actor, FLEE); // NEW
 			}
 		}
@@ -69,7 +69,7 @@ static void resurectfatwitch(PLAYER& plr, DWHActor* actor)
 	if (spr.lotag < 0) {
 		SetNewStatus(actor, FACE);
 		spr.picnum = FATWITCH;
-		spr.hitag = (short)adjusthp(90);
+		spr.hitag = adjusthp(90);
 		spr.lotag = 100;
 		spr.cstat |= 1;
 	}
@@ -121,7 +121,7 @@ static void facefatwitch(PLAYER& plr, DWHActor* actor)
 	if (cansee && plr.invisibletime < 0) {
 		spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
 		if (plr.shadowtime > 0) {
-			spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
+			spr.ang = (((krand() & 512 - 256) + spr.ang + 1024) & 2047);
 			SetNewStatus(actor, FLEE);
 		}
 		else {
@@ -131,7 +131,7 @@ static void facefatwitch(PLAYER& plr, DWHActor* actor)
 	}
 	else { // get off the wall
 		if (actor->GetOwner() == plr.actor()) {
-			spr.ang = (short)(((krand() & 512 - 256) + spr.ang) & 2047);
+			spr.ang = (((krand() & 512 - 256) + spr.ang) & 2047);
 			SetNewStatus(actor, FINDME);
 		}
 		else if (cansee) SetNewStatus(actor, FLEE);
@@ -260,14 +260,14 @@ static void throwspank(PLAYER& plr, DWHActor* actor)
 	spawned.shade = -15;
 	spawned.xrepeat = 64;
 	spawned.yrepeat = 64;
-	spawned.ang = (short)(((getangle(plr.x - spawned.x, plr.y - spawned.y) + (krand() & 15)
+	spawned.ang = (((getangle(plr.x - spawned.x, plr.y - spawned.y) + (krand() & 15)
 		- 8) + 2048) & 2047);
 	spawned.xvel = bcos(spawned.ang, -6);
 	spawned.yvel = bsin(spawned.ang, -6);
-	long discrim = ksqrt((plr.x - spawned.x) * (plr.x - spawned.x) + (plr.y - spawned.y) * (plr.y - spawned.y));
+	int discrim = ksqrt((plr.x - spawned.x) * (plr.x - spawned.x) + (plr.y - spawned.y) * (plr.y - spawned.y));
 	if (discrim == 0)
 		discrim = 1;
-	spawned.zvel = (short)(((plr.z + (48 << 8) - spawned.z) << 7) / discrim);
+	spawned.zvel = (((plr.z + (48 << 8) - spawned.z) << 7) / discrim);
 	spawnedactor->SetOwner(actor);
 	spawned.clipdist = 16;
 	spawned.lotag = 512;
@@ -298,7 +298,7 @@ void premapFatwitch(DWHActor* actor) {
 	ChangeActorStat(actor, FACE);
 	enemy[FATWITCHTYPE].info.set(spr);
 	if (spr.pal == 7)
-		spr.hitag = (short)adjusthp(290);
+		spr.hitag = adjusthp(290);
 	if (krand() % 100 > 50)
 		spr.extra = 1;
 

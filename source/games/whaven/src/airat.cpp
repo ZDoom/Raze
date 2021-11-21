@@ -11,7 +11,7 @@ static void chaserat(PLAYER& plr, DWHActor* actor)
 static void searchrat(PLAYER& plr, DWHActor* actor)
 {
 	SPRITE& spr = actor->s();
-	spr.ang = (short) (((krand() & 512 - 256) + spr.ang + 1024) & 2047);
+	spr.ang =  (((krand() & 512 - 256) + spr.ang + 1024) & 2047);
 	SetNewStatus(actor, FLEE);
 }
 	
@@ -20,7 +20,7 @@ static void facerat(PLAYER& plr, DWHActor* actor)
 	SPRITE& spr = actor->s();
 
 	spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
-	spr.ang = (short) (((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
+	spr.ang =  (((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
 	actor->SetPlayerOwner(plr.playerNum());
 	SetNewStatus(actor, FLEE);
 }
@@ -40,22 +40,22 @@ static void fleerat(PLAYER& plr, DWHActor* actor)
 	auto moveStat = aimove(actor);
 	if (moveStat.type == kHitFloor)
 	{
-		spr.ang = (short)((spr.ang + 1024) & 2047);
+		spr.ang = ((spr.ang + 1024) & 2047);
 		return;
 	}
 
 	if (moveStat.type == kHitWall) {
 		WALL& wal = wall[moveStat.index];
-		short wallang = (short)((getangle(wall[wal.point2].x - wal.x, wall[wal.point2].y - wal.y) + 512)
+		short wallang = ((getangle(wall[wal.point2].x - wal.x, wall[wal.point2].y - wal.y) + 512)
 			& 2047);
-		spr.ang = (short)(krand() & 512 - 256 + wallang);
+		spr.ang = (krand() & 512 - 256 + wallang);
 	}
 
 	if (moveStat.type == kHitSprite) {
 		SPRITE& sp = moveStat.actor->s();
 		actor->SetOwner(moveStat.actor);
 		spr.ang = getangle(sp.x - spr.x, sp.y - spr.y);
-		spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
+		spr.ang = (((krand() & 512 - 256) + spr.ang + 1024) & 2047);
 	}
 
 	if (abs(plr.x - spr.x) <= 1024 && abs(plr.y - spr.y) <= 1024) {

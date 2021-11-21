@@ -950,7 +950,7 @@ void animatetags(int nPlayer) {
 			dragydir[i] = -16;
 
 		for (j = startwall; j <= endwall; j++)
-			dragpoint((short) j, wall[j].x + dragxdir[i], wall[j].y + dragydir[i]);
+			dragpoint( j, wall[j].x + dragxdir[i], wall[j].y + dragydir[i]);
 		j = sector[dasector].floorz;
 			
 		StartInterpolation(dasector, Interp_Sect_Ceilingz);
@@ -985,17 +985,17 @@ void animatetags(int nPlayer) {
 			}
 			for (k = 1; k <= 3; k++) {
 				Point out = rotatepoint(swingdoor[i].x[0], swingdoor[i].y[0], swingdoor[i].x[k],
-						swingdoor[i].y[k], (short) swingdoor[i].ang);
+						swingdoor[i].y[k],  swingdoor[i].ang);
 
 				StartInterpolation(swingdoor[i].wall[k], Interp_Wall_X);
 				StartInterpolation(swingdoor[i].wall[k], Interp_Wall_Y);
-				dragpoint((short)swingdoor[i].wall[k], out.getX(), out.getY());
+				dragpoint(swingdoor[i].wall[k], out.getX(), out.getY());
 			}
 			if (swingdoor[i].anginc != 0) {
 				if (plr.sector == swingdoor[i].sector) {
 					good = 1;
 					for (k = 1; k <= 3; k++) {
-						if (clipinsidebox(plr.x, plr.y, (short) swingdoor[i].wall[k], 512) != 0) {
+						if (clipinsidebox(plr.x, plr.y,  swingdoor[i].wall[k], 512) != 0) {
 							good = 0;
 							break;
 						}
@@ -1004,11 +1004,11 @@ void animatetags(int nPlayer) {
 						swingdoor[i].ang = oldang;
 						for (k = 1; k <= 3; k++) {
 							Point out = rotatepoint(swingdoor[i].x[0], swingdoor[i].y[0], swingdoor[i].x[k],
-									swingdoor[i].y[k], (short) swingdoor[i].ang);
+									swingdoor[i].y[k],  swingdoor[i].ang);
 
 							StartInterpolation(swingdoor[i].wall[k], Interp_Wall_X);
 							StartInterpolation(swingdoor[i].wall[k], Interp_Wall_Y);
-							dragpoint((short)swingdoor[i].wall[k], out.getX(), out.getY());
+							dragpoint(swingdoor[i].wall[k], out.getX(), out.getY());
 						}
 						swingdoor[i].anginc = -swingdoor[i].anginc;
 						break;

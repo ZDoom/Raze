@@ -498,7 +498,7 @@ void aisearch(PLAYER& plr, DWHActor* actor, boolean fly) {
 
 	if (checkdist(plr, actor)) {
 		if (plr.shadowtime > 0) {
-			spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
+			spr.ang = (((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
 			SetNewStatus(actor, FLEE);
 		}
 		else
@@ -509,15 +509,15 @@ void aisearch(PLAYER& plr, DWHActor* actor, boolean fly) {
 	if (moveStat.type != kHitNone) {
 		if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y, spr.z - (tileHeight(spr.picnum) << 7),
 			spr.sectnum) && spr.lotag < 0) {
-			spr.ang = (short)((spr.ang + 1024) & 2047);
+			spr.ang = ((spr.ang + 1024) & 2047);
 			SetNewStatus(actor, FLEE);
 			return;
 		}
 		if (spr.lotag < 0) {
 			if (krand() % 100 > 50)
-				spr.ang = (short)((spr.ang + 512) & 2047);
+				spr.ang = ((spr.ang + 512) & 2047);
 			else
-				spr.ang = (short)((spr.ang + 1024) & 2047);
+				spr.ang = ((spr.ang + 1024) & 2047);
 
 			spr.lotag = 30;
 		}
@@ -613,9 +613,9 @@ void castspell(PLAYER& plr, DWHActor* actor) {
 	spawned.xrepeat = 64;
 	spawned.yrepeat = 64;
 	if (spr.picnum == SPAWNFIREBALL)
-		spawned.ang = (short)((getangle(plr.x - spawned.x, plr.y - spawned.y) + 2048) & 2047);
+		spawned.ang = ((getangle(plr.x - spawned.x, plr.y - spawned.y) + 2048) & 2047);
 	else
-		spawned.ang = (short)(((getangle(plr.x - spawned.x, plr.y - spawned.y) + (krand() & 15)
+		spawned.ang = (((getangle(plr.x - spawned.x, plr.y - spawned.y) + (krand() & 15)
 			- 8) + 2048) & 2047);
 	spawned.xvel = bcos(spawned.ang, -6);
 	spawned.yvel = bsin(spawned.ang, -6);
@@ -624,9 +624,9 @@ void castspell(PLAYER& plr, DWHActor* actor) {
 	if (discrim == 0)
 		discrim = 1;
 	if (isWh2())
-		spawned.zvel = (short)(((plr.z + (8 << 8) - spawned.z) << 7) / discrim);
+		spawned.zvel = (((plr.z + (8 << 8) - spawned.z) << 7) / discrim);
 	else
-		spawned.zvel = (short)(((plr.z + (48 << 8) - spawned.z) << 7) / discrim);
+		spawned.zvel = (((plr.z + (48 << 8) - spawned.z) << 7) / discrim);
 
 	spawnedactor->SetOwner(actor);
 	spawned.clipdist = 16;
@@ -652,9 +652,9 @@ void skullycastspell(PLAYER& plr, DWHActor* actor) {
 	spawned.xrepeat = 64;
 	spawned.yrepeat = 64;
 	if (spr.picnum == SPAWNFIREBALL)
-		spawned.ang = (short)((getangle(plr.x - spawned.x, plr.y - spawned.y) + 2048) & 2047);
+		spawned.ang = ((getangle(plr.x - spawned.x, plr.y - spawned.y) + 2048) & 2047);
 	else
-		spawned.ang = (short)(((getangle(plr.x - spawned.x, plr.y - spawned.y) + (krand() & 15)
+		spawned.ang = (((getangle(plr.x - spawned.x, plr.y - spawned.y) + (krand() & 15)
 			- 8) + 2048) & 2047);
 	spawned.xvel = bcos(spawned.ang, -6);
 	spawned.yvel = bsin(spawned.ang, -6);
@@ -662,7 +662,7 @@ void skullycastspell(PLAYER& plr, DWHActor* actor) {
 	int discrim = ksqrt((plr.x - spawned.x) * (plr.x - spawned.x) + (plr.y - spawned.y) * (plr.y - spawned.y));
 	if (discrim == 0)
 		discrim = 1;
-	spawned.zvel = (short)(((plr.z + (48 << 8) - spawned.z) << 7) / discrim);
+	spawned.zvel = (((plr.z + (48 << 8) - spawned.z) << 7) / discrim);
 
 	spawnedactor->SetOwner(actor);
 	spawned.clipdist = 16;
@@ -931,7 +931,7 @@ int checkmove(DWHActor* actor, int dax, int day) {
 	Collision moveStat = movesprite(actor, dax, day, 0, 4 << 8, 4 << 8, CLIFFCLIP);
 
 	if (moveStat.type != kHitNone)
-		spr.ang = (short)((spr.ang + TICSPERFRAME) & 2047);
+		spr.ang = ((spr.ang + TICSPERFRAME) & 2047);
 
 	return moveStat.legacyVal;
 }
@@ -978,9 +978,9 @@ boolean checksight(PLAYER& plr, DWHActor* actor) {
 		spr.z - (tileHeight(spr.picnum) << 7), spr.sectnum) && plr.invisibletime < 0) {
 		checksight_ang = (getangle(plr.x - spr.x, plr.y - spr.y) & 2047);
 		if (((spr.ang + 2048 - checksight_ang) & 2047) < 1024)
-			spr.ang = (short)((spr.ang + 2048 - (TICSPERFRAME << 1)) & 2047);
+			spr.ang = ((spr.ang + 2048 - (TICSPERFRAME << 1)) & 2047);
 		else
-			spr.ang = (short)((spr.ang + (TICSPERFRAME << 1)) & 2047);
+			spr.ang = ((spr.ang + (TICSPERFRAME << 1)) & 2047);
 
 		return true;
 	}
@@ -1003,7 +1003,7 @@ void monsterweapon(DWHActor* actor) {
 	if ((krand() % 100) < 75)
 		return;
 
-	auto spawnedactor = InsertActor(spr.sectnum, (short)0);
+	auto spawnedactor = InsertActor(spr.sectnum, 0);
 	auto& weap = spawnedactor->s();
 
 	weap.x = spr.x;
@@ -1016,8 +1016,8 @@ void monsterweapon(DWHActor* actor) {
 	weap.backuploc();
 
 	int type = (krand() % 4);
-	weap.picnum = (short)(FLASKBLUE + type);
-	weap.detail = (short)(FLASKBLUETYPE + type);
+	weap.picnum = (FLASKBLUE + type);
+	weap.detail = (FLASKBLUETYPE + type);
 	weap.xrepeat = 25;
 	weap.yrepeat = 20;
 

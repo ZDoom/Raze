@@ -20,11 +20,11 @@ short adjusthp(int hp) {
 	int howhard = difficulty;
 
 	if (krand() % 100 > 50)
-		return (short) ((hp * (factor + 1)) * howhard);
+		return  ((hp * (factor + 1)) * howhard);
 	else
-		return (short) ((hp - (hp * (factor))) * howhard);
+		return  ((hp - (hp * (factor))) * howhard);
 #else
-	return (short)(hp * difficulty);
+	return (hp * difficulty);
 #endif
 }
 
@@ -146,7 +146,7 @@ void SetNewStatus(DWHActor* actor, const int seq)
 		break;
 	case EVILSPIRIT:
 		ChangeActorStat(actor, EVILSPIRIT);
-		spr.lotag = (short) (120 + (krand() & 64));
+		spr.lotag =  (120 + (krand() & 64));
 		break;
 	case PATROL:
 		ChangeActorStat(actor, PATROL);
@@ -228,7 +228,7 @@ void SetNewStatus(DWHActor* actor, const int seq)
 		break;
 	case DEVILFIRE:
 		ChangeActorStat(actor, DEVILFIRE);
-		spr.lotag = (short) (krand() & 120 + 360);
+		spr.lotag =  (krand() & 120 + 360);
 		break;
 	case DRIP:
 		ChangeActorStat(actor, DRIP);
@@ -386,7 +386,7 @@ void SetNewStatus(DWHActor* actor, const int seq)
 	case FINDME:
 		spr.lotag = 360;
 		if (spr.picnum == RAT) {
-			spr.ang = (short) (((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
+			spr.ang =  (((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
 			ChangeActorStat(actor, FLEE);
 		} else
 			ChangeActorStat(actor, FINDME);
@@ -394,7 +394,7 @@ void SetNewStatus(DWHActor* actor, const int seq)
 	case SKIRMISH:
 		spr.lotag = 60;
 		if (spr.picnum == RAT) {
-			spr.ang = (short) (((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
+			spr.ang =  (((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
 			ChangeActorStat(actor, FLEE);
 		} else
 			ChangeActorStat(actor, SKIRMISH);
@@ -408,7 +408,7 @@ void SetNewStatus(DWHActor* actor, const int seq)
 		ChangeActorStat(actor, WITCHSIT);
 		break;
 	case DORMANT:
-		spr.lotag = (short) (krand() & 2047 + 2047);
+		spr.lotag =  (krand() & 2047 + 2047);
 		break;
 	case ACTIVE:
 		spr.lotag = 360;
@@ -472,7 +472,7 @@ void SetNewStatus(DWHActor* actor, const int seq)
 
 		ChangeActorStat(actor, FLEE);
 		if (!isWh2() && spr.picnum == DEVILATTACK && spr.picnum == DEVIL)
-			spr.lotag = (short) (120 + (krand() & 360));
+			spr.lotag =  (120 + (krand() & 360));
 		else
 			spr.lotag = 60;
 		break;
@@ -1338,7 +1338,7 @@ void SetNewStatus(DWHActor* actor, const int seq)
 			case WILLOWEXPLO + 2:
 				spr.pal = 0;
 				spr.cstat &= ~3;
-				ChangeActorStat(actor, (short) 0);
+				ChangeActorStat(actor,  0);
 				DeleteActor(actor);
 				addscore(aiGetPlayerTarget(actor), isWh2() ? 15 : 150);
 				return;
@@ -1418,10 +1418,10 @@ void explosion(DWHActor* actor, int x, int y, int z, int ownr) {
 	spawned.shade = -15;
 	spawned.xrepeat = 64;
 	spawned.yrepeat = 64;
-	spawned.ang = (short) (krand() & 2047);
-	spawned.xvel = (short) ((krand() & 511) - 256);
-	spawned.yvel = (short) ((krand() & 511) - 256);
-	spawned.zvel = (short) ((krand() & 511) - 256);
+	spawned.ang =  (krand() & 2047);
+	spawned.xvel =  ((krand() & 511) - 256);
+	spawned.yvel =  ((krand() & 511) - 256);
+	spawned.zvel =  ((krand() & 511) - 256);
 	spawnedactor->CopyOwner(actor);
 	spawned.hitag = 0;
 	spawned.pal = 0;
@@ -1458,10 +1458,10 @@ void explosion2(DWHActor* actor, int x, int y, int z, int ownr) {
 	spawned.shade = -25;
 	spawned.xrepeat = 64;
 	spawned.yrepeat = 64;
-	spawned.ang = (short) (krand() & 2047);
-	spawned.xvel = (short) ((krand() & 256) - 128);
-	spawned.yvel = (short) ((krand() & 256) - 128);
-	spawned.zvel = (short) ((krand() & 256) - 128);
+	spawned.ang =  (krand() & 2047);
+	spawned.xvel =  ((krand() & 256) - 128);
+	spawned.yvel =  ((krand() & 256) - 128);
+	spawned.zvel =  ((krand() & 256) - 128);
 	spawnedactor->CopyOwner(actor);
 	spawned.hitag = 0;
 	spawned.pal = 0;
@@ -1521,10 +1521,10 @@ void icecubes(DWHActor* actor, int x, int y, int z, int ownr) {
 	spawned.xrepeat = 16;
 	spawned.yrepeat = 16;
 
-	spawned.ang = (short) (((krand() & 1023) - 1024) & 2047);
-	spawned.xvel = (short) ((krand() & 1023) - 512);
-	spawned.yvel = (short) ((krand() & 1023) - 512);
-	spawned.zvel = (short) ((krand() & 1023) - 512);
+	spawned.ang =  (((krand() & 1023) - 1024) & 2047);
+	spawned.xvel =  ((krand() & 1023) - 512);
+	spawned.yvel =  ((krand() & 1023) - 512);
+	spawned.zvel =  ((krand() & 1023) - 512);
 
 	spawned.pal = 6;
 	spawnedactor->CopyOwner(actor);
@@ -1806,28 +1806,28 @@ void trowajavlin(DWHActor* actor) {
 	switch (spr.lotag) {
 	case 91:
 		spawned.picnum = WALLARROW;
-		spawned.ang = (short) (((spr.ang + 2048) - 512) & 2047);
+		spawned.ang =  (((spr.ang + 2048) - 512) & 2047);
 		spawned.xrepeat = 16;
 		spawned.yrepeat = 48;
 		spawned.clipdist = 24;
 		break;
 	case 92:
 		spawned.picnum = DART;
-		spawned.ang = (short) (((spr.ang + 2048) - 512) & 2047);
+		spawned.ang =  (((spr.ang + 2048) - 512) & 2047);
 		spawned.xrepeat = 64;
 		spawned.yrepeat = 64;
 		spawned.clipdist = 16;
 		break;
 	case 93:
 		spawned.picnum = HORIZSPIKEBLADE;
-		spawned.ang = (short) (((spr.ang + 2048) - 512) & 2047);
+		spawned.ang =  (((spr.ang + 2048) - 512) & 2047);
 		spawned.xrepeat = 16;
 		spawned.yrepeat = 48;
 		spawned.clipdist = 32;
 		break;
 	case 94:
 		spawned.picnum = THROWPIKE;
-		spawned.ang = (short) (((spr.ang + 2048) - 512) & 2047);
+		spawned.ang =  (((spr.ang + 2048) - 512) & 2047);
 		spawned.xrepeat = 24;
 		spawned.yrepeat = 24;
 		spawned.clipdist = 32;
@@ -1836,9 +1836,9 @@ void trowajavlin(DWHActor* actor) {
 
 	spawned.extra = spr.ang;
 	spawned.shade = -15;
-	spawned.xvel = (short) ((krand() & 256) - 128);
-	spawned.yvel = (short) ((krand() & 256) - 128);
-	spawned.zvel = (short) ((krand() & 256) - 128);
+	spawned.xvel =  ((krand() & 256) - 128);
+	spawned.yvel =  ((krand() & 256) - 128);
+	spawned.zvel =  ((krand() & 256) - 128);
 
 	spawnedactor->SetOwner(nullptr);
 	spawned.lotag = 0;
@@ -1849,7 +1849,7 @@ void trowajavlin(DWHActor* actor) {
 
 void spawnhornskull(DWHActor* actor) {
 	auto& spr = actor->s();
-	auto spawnedactor = InsertActor(spr.sectnum, (short) 0);
+	auto spawnedactor = InsertActor(spr.sectnum,  0);
 	auto& spawned = spawnedactor->s();
 
 	spawned.x = spr.x;
@@ -1869,7 +1869,7 @@ void spawnhornskull(DWHActor* actor) {
 
 void spawnapentagram(DWHActor* actor) {
 	auto& spr = actor->s();
-	auto spawnedactor = InsertActor(spr.sectnum, (short) 0);
+	auto spawnedactor = InsertActor(spr.sectnum,  0);
 	auto& spawned = spawnedactor->s();
 
 	spawned.x = spr.x;

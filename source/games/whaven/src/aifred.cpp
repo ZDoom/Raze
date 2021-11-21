@@ -19,14 +19,14 @@ static void chasefred(PLAYER& plr, DWHActor* actor)
 		spr.sectnum) && plr.invisibletime < 0) {
 		if (checkdist(plr, actor)) {
 			if (plr.shadowtime > 0) {
-				spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
+				spr.ang = (((krand() & 512 - 256) + spr.ang + 1024) & 2047);
 				SetNewStatus(actor, FLEE);
 			}
 			else
 				SetNewStatus(actor, ATTACK);
 		}
 		else if (krand() % 63 > 60) {
-			spr.ang = (short)(((krand() & 128 - 256) + spr.ang + 1024) & 2047);
+			spr.ang = (((krand() & 128 - 256) + spr.ang + 1024) & 2047);
 			SetNewStatus(actor, FLEE);
 		}
 		else {
@@ -34,24 +34,24 @@ static void chasefred(PLAYER& plr, DWHActor* actor)
 
 			if (moveStat.type == kHitSprite) {
 				if (moveStat.actor != plr.actor()) {
-					short daang = (short)((spr.ang - 256) & 2047);
+					short daang = ((spr.ang - 256) & 2047);
 					spr.ang = daang;
 					if (plr.shadowtime > 0) {
-						spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
+						spr.ang = (((krand() & 512 - 256) + spr.ang + 1024) & 2047);
 						SetNewStatus(actor, FLEE);
 					}
 					else
 						SetNewStatus(actor, SKIRMISH);
 				}
 				else {
-					spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
+					spr.ang = (((krand() & 512 - 256) + spr.ang + 1024) & 2047);
 					SetNewStatus(actor, SKIRMISH);
 				}
 			}
 		}
 	}
 	else {
-		spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
+		spr.ang = (((krand() & 512 - 256) + spr.ang + 1024) & 2047);
 		SetNewStatus(actor, FLEE);
 	}
 
@@ -156,10 +156,10 @@ static void facefred(PLAYER& plr, DWHActor* actor)
 		spr.sectnum);
 
 	if (cansee && plr.invisibletime < 0) {
-		spr.ang = (short)(getangle(plr.x - spr.x, plr.y - spr.y) & 2047);
+		spr.ang = (getangle(plr.x - spr.x, plr.y - spr.y) & 2047);
 
 		if (plr.shadowtime > 0) {
-			spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
+			spr.ang = (((krand() & 512 - 256) + spr.ang + 1024) & 2047);
 			SetNewStatus(actor, FLEE);
 		}
 		else {
@@ -169,7 +169,7 @@ static void facefred(PLAYER& plr, DWHActor* actor)
 	}
 	else { // get off the wall
 		if (actor->GetOwner() == plr.actor()) {
-			spr.ang = (short)(((krand() & 512 - 256) + spr.ang) & 2047);
+			spr.ang = (((krand() & 512 - 256) + spr.ang) & 2047);
 			SetNewStatus(actor, FINDME);
 		}
 		else if (cansee) SetNewStatus(actor, FLEE);
@@ -203,13 +203,13 @@ static void attackfred(PLAYER& plr, DWHActor* actor)
 	if (spr.lotag >= 64) {
 		if (checksight(plr, actor))
 			if (checkdist(plr, actor)) {
-				spr.ang = (short)checksight_ang;
+				spr.ang = checksight_ang;
 				attack(plr, actor);
 			}
 	}
 	else if (spr.lotag < 0) {
 		if (plr.shadowtime > 0) {
-			spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
+			spr.ang = (((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
 			SetNewStatus(actor, FLEE);
 		}
 		else
@@ -283,7 +283,7 @@ static void resurectfred(PLAYER& plr, DWHActor* actor)
 	if (spr.lotag < 0) {
 		SetNewStatus(actor, FACE);
 		spr.picnum = FRED;
-		spr.hitag = (short)adjusthp(40);
+		spr.hitag = adjusthp(40);
 		spr.lotag = 100;
 		spr.cstat |= 1;
 	}

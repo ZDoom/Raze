@@ -367,9 +367,9 @@ void revolvefx() {
 	for (int i = 0; i < revolvecnt; i++) {
 
 		startwall = sector[revolvesector[i]].wallptr;
-		endwall = (short) (startwall + sector[revolvesector[i]].wallnum - 1);
+		endwall =  (startwall + sector[revolvesector[i]].wallnum - 1);
 
-		revolveang[i] = (short) ((revolveang[i] + 2048 - ((TICSPERFRAME) << 1)) & 2047);
+		revolveang[i] =  ((revolveang[i] + 2048 - ((TICSPERFRAME) << 1)) & 2047);
 		for (short k = startwall; k <= endwall; k++) {
 			Point out = rotatepoint(revolvepivotx[i], revolvepivoty[i], revolvex[i][k - startwall],
 					revolvey[i][k - startwall], revolveang[i]);
@@ -383,7 +383,7 @@ void revolvefx() {
 			revolvesyncrotang = 0;
 			revolvesyncx = plr.x;
 			revolvesyncy = plr.y;
-			revolvesyncrotang = (short) ((revolvesyncrotang + 2048 - ((TICSPERFRAME) << 1)) & 2047);
+			revolvesyncrotang =  ((revolvesyncrotang + 2048 - ((TICSPERFRAME) << 1)) & 2047);
 			Point out = rotatepoint(revolvepivotx[i], revolvepivoty[i], revolvesyncx, revolvesyncy,
 					revolvesyncrotang);
 			viewBackupPlayerLoc(pyrn);
@@ -420,7 +420,7 @@ void teleporter() {
 			sector[dasector].ceilingshade = (byte) j;
 			sector[dasector].floorshade = (byte) j;
 			startwall = sector[dasector].wallptr;
-			endwall = (short) (startwall + sector[dasector].wallnum - 1);
+			endwall =  (startwall + sector[dasector].wallnum - 1);
 			for (s = startwall; s <= endwall; s++)
 				wall[s].shade = (byte) j;
 		}
@@ -437,8 +437,8 @@ void teleporter() {
 			plr.x = warpx;
 			plr.y = warpy;
 			plr.z = warpz;
-			daang = (short) warpang;
-			plr.sector = (short) warpsect;
+			daang =  warpang;
+			plr.sector =  warpsect;
 			warpfxsprite(plr.actor());
 			plr.angle.settarget(daang);
 			plr.justwarpedfx = 48;
@@ -493,7 +493,7 @@ void warp(int x, int y, int z, int daang, short dasector) {
 
 	// find center of sector
 	int startwall = sector[warpsect].wallptr;
-	int endwall = (short) (startwall + sector[warpsect].wallnum - 1);
+	int endwall =  (startwall + sector[warpsect].wallnum - 1);
 	int dax = 0, day = 0, i = 0;
 	for (int s = startwall; s <= endwall; s++) {
 		dax += wall[s].x;
@@ -523,8 +523,8 @@ void warpsprite(DWHActor* actor) {
 	spr.x = warpx;
 	spr.y = warpy;
 	spr.z = warpz;
-	spr.ang = (short) warpang;
-	dasectnum = (short) warpsect;
+	spr.ang =  warpang;
+	dasectnum =  warpsect;
 
 	warpfxsprite(actor);
 	SetActorPos(actor, spr.x, spr.y, spr.z);
@@ -807,7 +807,7 @@ void makeasplash(int picnum, PLAYER& plr) {
 	spawned.y = plr.y;
 	spawned.z = plr.Sector()->floorz + (tileHeight(picnum) << 8);
 	spawned.cstat = 0; // Hitscan does not hit other bullets
-	spawned.picnum = (short) picnum;
+	spawned.picnum =  picnum;
 	spawned.shade = 0;
 	spawned.pal = 0;
 	spawned.xrepeat = 64;
@@ -846,7 +846,7 @@ void makemonstersplash(int picnum, DWHActor* actor) {
 	spawned.y = spr.y;
 	spawned.z = sector[spr.sectnum].floorz + (tileHeight(picnum) << 8);
 	spawned.cstat = 0; // Hitscan does not hit other bullets
-	spawned.picnum = (short) picnum;
+	spawned.picnum =  picnum;
 	spawned.shade = 0;
 
 	if (sector[spr.sectnum].floorpal == 9)
@@ -904,11 +904,11 @@ void bats(PLAYER& plr, DWHActor* actor) {
 	spawned.shade = 0;
 	spawned.xrepeat = 64;
 	spawned.yrepeat = 64;
-	spawned.ang = (short) ((spr.ang + (krand() & 128 - 256)) & 2047);
+	spawned.ang =  ((spr.ang + (krand() & 128 - 256)) & 2047);
 	spawnedactor->SetOwner(actor);
 	spawned.clipdist = 16;
 	spawned.lotag = 128;
-	//spawned.hitag = (short) k; // see: flying in circles
+	//spawned.hitag =  k; // see: flying in circles
 	spawned.extra = 0;
 	spawned.backuploc();
 
@@ -957,7 +957,7 @@ void cracks() {
 			auto& spk = itActor->s();
 			if (plr.Sector()->hitag == spk.hitag) {
 				spk.lotag = 36;
-				spk.zvel = (short) (krand() & 1024 + 512);
+				spk.zvel =  (krand() & 1024 + 512);
 				SetNewStatus(itActor, SHOVE);
 			}
 		}
@@ -1027,9 +1027,9 @@ void warpfxsprite(DWHActor* actor) {
 
 	spawned.extra = 0;
 	spawned.shade = -31;
-	spawned.xvel = (short) ((krand() & 256) - 128);
-	spawned.yvel = (short) ((krand() & 256) - 128);
-	spawned.zvel = (short) ((krand() & 256) - 128);
+	spawned.xvel =  ((krand() & 256) - 128);
+	spawned.yvel =  ((krand() & 256) - 128);
+	spawned.zvel =  ((krand() & 256) - 128);
 	spawnedactor->SetOwner(actor);
 	spawned.lotag = 12;
 	spawned.hitag = 0;
@@ -1122,10 +1122,10 @@ void makesparks(DWHActor* actor, int type) {
 	spawned.shade = 0;
 	spawned.xrepeat = 24;
 	spawned.yrepeat = 24;
-	spawned.ang = (short) ((krand() % 2047) & 2047);
+	spawned.ang =  ((krand() % 2047) & 2047);
 	spawnedactor->SetOwner(nullptr);
 	spawned.clipdist = 16;
-	spawned.lotag = (short) (krand() % 100);
+	spawned.lotag =  (krand() % 100);
 	spawned.hitag = 0;
 	spawned.extra = 0;
 
@@ -1141,18 +1141,18 @@ void shards(DWHActor* actor, int type) {
 	spawned.x = spr.x + (((krand() % 512) - 256) << 2);
 	spawned.y = spr.y + (((krand() % 512) - 256) << 2);
 	spawned.z = spr.z - (getPlayerHeight() << 8) + (((krand() % 48) - 16) << 7);
-	spawned.zvel = (short) (krand() % 256);
+	spawned.zvel =  (krand() % 256);
 	spawned.cstat = 0;
-	spawned.picnum = (short) (SHARD + (krand() % 3));
+	spawned.picnum =  (SHARD + (krand() % 3));
 	spawned.shade = 0;
 	spawned.xrepeat = 64;
 	spawned.yrepeat = 64;
-	spawned.ang = (short) (spr.ang + ((krand() % 512) - 256) & 2047);
+	spawned.ang =  (spr.ang + ((krand() % 512) - 256) & 2047);
 	spawnedactor->SetOwner(actor);
 	spawned.clipdist = 16;
-	spawned.lotag = (short) (120 + (krand() % 100));
+	spawned.lotag =  (120 + (krand() % 100));
 	spawned.hitag = 0;
-	spawned.extra = (short) type;
+	spawned.extra =  type;
 	spawned.pal = 0;
 	spawned.backuploc();
 }

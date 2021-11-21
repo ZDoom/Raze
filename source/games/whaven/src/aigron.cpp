@@ -22,45 +22,45 @@ static void chasegron(PLAYER& plr, DWHActor* actor)
 			spr.sectnum) && plr.invisibletime < 0) {
 			if (checkdist(plr, actor)) {
 				if (plr.shadowtime > 0) {
-					spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
+					spr.ang = (((krand() & 512 - 256) + spr.ang + 1024) & 2047);
 					SetNewStatus(actor, FLEE);
 				}
 				else
 					SetNewStatus(actor, ATTACK);
 			}
 			else if (krand() % 63 > 60) {
-				spr.ang = (short)(((krand() & 128 - 256) + spr.ang + 1024) & 2047);
+				spr.ang = (((krand() & 128 - 256) + spr.ang + 1024) & 2047);
 				SetNewStatus(actor, FLEE);
 			}
 			else {
 				auto moveStat = aimove(actor);
 				if (moveStat.type == kHitFloor)
 				{
-					spr.ang = (short)((spr.ang + 1024) & 2047);
+					spr.ang = ((spr.ang + 1024) & 2047);
 					SetNewStatus(actor, FLEE);
 					return;
 				}
 
 				if (moveStat.type == kHitSprite) {
 					if (moveStat.actor != plr.actor()) {
-						short daang = (short)((spr.ang - 256) & 2047);
+						short daang = ((spr.ang - 256) & 2047);
 						spr.ang = daang;
 						if (plr.shadowtime > 0) {
-							spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
+							spr.ang = (((krand() & 512 - 256) + spr.ang + 1024) & 2047);
 							SetNewStatus(actor, FLEE);
 						}
 						else
 							SetNewStatus(actor, SKIRMISH);
 					}
 					else {
-						spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
+						spr.ang = (((krand() & 512 - 256) + spr.ang + 1024) & 2047);
 						SetNewStatus(actor, SKIRMISH);
 					}
 				}
 			}
 		}
 		else {
-			spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
+			spr.ang = (((krand() & 512 - 256) + spr.ang + 1024) & 2047);
 			SetNewStatus(actor, FLEE);
 		}
 	}
@@ -75,7 +75,7 @@ static void chasegron(PLAYER& plr, DWHActor* actor)
 			if (!checkdist(plr, actor)) {
 				if (aimove(actor).type == kHitFloor)
 				{
-					spr.ang = (short)((spr.ang + 1024) & 2047);
+					spr.ang = ((spr.ang + 1024) & 2047);
 					SetNewStatus(actor, FLEE);
 					return;
 				}
@@ -84,7 +84,7 @@ static void chasegron(PLAYER& plr, DWHActor* actor)
 				if (krand() % 8 == 0) // NEW
 					SetNewStatus(actor, ATTACK); // NEW
 				else { // NEW
-					spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
+					spr.ang = (((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
 					SetNewStatus(actor, FLEE); // NEW
 				}
 			}
@@ -130,17 +130,17 @@ static void resurectgron(PLAYER& plr, DWHActor* actor)
 		switch (krand() % 3) {
 		case 0:
 			spr.picnum = GRONHAL;
-			spr.hitag = (short)adjusthp(120);
+			spr.hitag = adjusthp(120);
 			spr.extra = 3;
 			break;
 		case 1:
 			spr.picnum = GRONSW;
-			spr.hitag = (short)adjusthp(120);
+			spr.hitag = adjusthp(120);
 			spr.extra = 0;
 			break;
 		case 2:
 			spr.picnum = GRONMU;
-			spr.hitag = (short)adjusthp(120);
+			spr.hitag = adjusthp(120);
 			spr.extra = 2;
 			break;
 		}
@@ -254,10 +254,10 @@ static void facegron(PLAYER& plr, DWHActor* actor)
 		spr.sectnum);
 
 	if (cansee && plr.invisibletime < 0) {
-		spr.ang = (short)(getangle(plr.x - spr.x, plr.y - spr.y) & 2047);
+		spr.ang = (getangle(plr.x - spr.x, plr.y - spr.y) & 2047);
 
 		if (plr.shadowtime > 0) {
-			spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047);
+			spr.ang = (((krand() & 512 - 256) + spr.ang + 1024) & 2047);
 			SetNewStatus(actor, FLEE);
 		}
 		else {
@@ -267,7 +267,7 @@ static void facegron(PLAYER& plr, DWHActor* actor)
 	}
 	else { // get off the wall
 		if (actor->GetOwner() == plr.actor()) {
-			spr.ang = (short)(((krand() & 512 - 256) + spr.ang) & 2047);
+			spr.ang = (((krand() & 512 - 256) + spr.ang) & 2047);
 			SetNewStatus(actor, FINDME);
 		}
 		else if (cansee) SetNewStatus(actor, FLEE);
@@ -302,13 +302,13 @@ static void attackgron(PLAYER& plr, DWHActor* actor)
 		if (spr.lotag == 31) {
 			if (checksight(plr, actor))
 				if (checkdist(plr, actor)) {
-					spr.ang = (short)checksight_ang;
+					spr.ang = checksight_ang;
 					attack(plr, actor);
 				}
 		}
 		else if (spr.lotag < 0) {
 			if (plr.shadowtime > 0) {
-				spr.ang = (short)(((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
+				spr.ang = (((krand() & 512 - 256) + spr.ang + 1024) & 2047); // NEW
 				SetNewStatus(actor, FLEE);
 			}
 			else
@@ -461,16 +461,16 @@ static void throwhalberd(DWHActor* actor) {
 
 	spawned.picnum = THROWHALBERD;
 	spawned.detail = THROWHALBERDTYPE;
-	spawned.ang = (short)(((spr.ang + 2048) - 512) & 2047);
+	spawned.ang = (((spr.ang + 2048) - 512) & 2047);
 	spawned.xrepeat = 8;
 	spawned.yrepeat = 16;
 	spawned.clipdist = 32;
 
 	spawned.extra = spr.ang;
 	spawned.shade = -15;
-	spawned.xvel = (short)((krand() & 256) - 128);
-	spawned.yvel = (short)((krand() & 256) - 128);
-	spawned.zvel = (short)((krand() & 256) - 128);
+	spawned.xvel = ((krand() & 256) - 128);
+	spawned.yvel = ((krand() & 256) - 128);
+	spawned.zvel = ((krand() & 256) - 128);
 	spawnedactor->SetOwner(actor);
 	spawned.lotag = 0;
 	spawned.hitag = 0;

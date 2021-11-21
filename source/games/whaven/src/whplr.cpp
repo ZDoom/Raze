@@ -90,7 +90,7 @@ void initplayersprite(PLAYER& plr) {
 	plr.height = getPlayerHeight();
 	plr.z = plr.Sector()->floorz - (plr.height << 8);
 
-	auto pactor = InsertActor(plr.sector, (short)0);
+	auto pactor = InsertActor(plr.sector, 0);
 	plr.theactor = pactor;
 	auto& spr = pactor->s();
 
@@ -111,7 +111,7 @@ void initplayersprite(PLAYER& plr) {
 	pactor->SetPlayerOwner(myconnectindex);
 	spr.lotag = 0;
 	spr.hitag = 0;
-	spr.pal = (short) (isWh2() ? 10 : 1);
+	spr.pal =  (isWh2() ? 10 : 1);
 	if(isWh2())
 		spr.clipdist = 48;
 		
@@ -238,7 +238,7 @@ void updateviewmap(PLAYER& plr) {
 
 void plruse(PLAYER& plr) {
 	Neartag nt;
-	neartag(plr.x, plr.y, plr.z, (short) plr.sector, plr.angle.ang.asbuild(), nt, 1024, 3);
+	neartag(plr.x, plr.y, plr.z,  plr.sector, plr.angle.ang.asbuild(), nt, 1024, 3);
 
 	if (nt.tagsector >= 0) {
 		if (sector[nt.tagsector].hitag == 0) {
@@ -416,17 +416,17 @@ void chunksofmeat(PLAYER& plr, DWHActor* hitActor, int hitx, int hity, int hitz,
 			if (plr.weapon[2] == 3 && plr.currweapon == 2) {
 				spawned.picnum = ARROWFLAME;
 			} else {
-				spawned.picnum = (short) chunk; // = REDCHUNKSTART + (rand() % 8);
+				spawned.picnum =  chunk; // = REDCHUNKSTART + (rand() % 8);
 			}
 
 			spawned.shade = -16;
 			spawned.xrepeat = 64;
 			spawned.yrepeat = 64;
 			spawned.clipdist = 16;
-			spawned.ang = (short) (((krand() & 1023) - 1024) & 2047);
-			spawned.xvel = (short) ((krand() & 1023) - 512);
-			spawned.yvel = (short) ((krand() & 1023) - 512);
-			spawned.zvel = (short) ((krand() & 1023) - 512);
+			spawned.ang =  (((krand() & 1023) - 1024) & 2047);
+			spawned.xvel =  ((krand() & 1023) - 512);
+			spawned.yvel =  ((krand() & 1023) - 512);
+			spawned.zvel =  ((krand() & 1023) - 512);
 			if (newchunk == 1)
 				spawned.zvel <<= 1;
 			spawnedactor->SetPlayerOwner(plr.playerNum());
@@ -592,7 +592,7 @@ void lockon(PLAYER& plr, int numshots, int shootguntype) {
 			daang = monsterangle[s];
 			shootgunzvel = ((spr.z - (48 << 8) - plr.z) << 8)
 					/ ksqrt((spr.x - plr.x) * (spr.x - plr.x) + (spr.y - plr.y) * (spr.y - plr.y));
-			s = (short) ((s + 1) % n);
+			s =  ((s + 1) % n);
 		} else {
 			daang += (128 / numshots);
 		}

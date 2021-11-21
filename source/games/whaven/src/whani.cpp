@@ -63,7 +63,7 @@ void animateobjs(PLAYER& plr) {
 				spr.lotag = -100;
 			if (spr.lotag < 0) {
 				daz = spr.zvel -= TICSPERFRAME << 4;
-				spr.ang = (short) ((spr.ang + (TICSPERFRAME << 2)) & 2047);
+				spr.ang =  ((spr.ang + (TICSPERFRAME << 2)) & 2047);
 
 				movesprite(actor, (bcos(spr.ang) * TICSPERFRAME) << 3,
 						(bsin(spr.ang) * TICSPERFRAME) << 3, daz, 4 << 8, 4 << 8, 1);
@@ -72,7 +72,7 @@ void animateobjs(PLAYER& plr) {
 					spr.x = sparksx;
 					spr.y = sparksy;
 					spr.z = sparksz;
-					spr.ang = (short) ((krand() % 2047) & 2047);
+					spr.ang =  ((krand() % 2047) & 2047);
 					spr.zvel = 0;
 					SetActorPos(actor, &spr.pos);
 
@@ -94,7 +94,7 @@ void animateobjs(PLAYER& plr) {
 			if (spr.lotag < 0) {
 
 				daz = spr.zvel += TICSPERFRAME << 4;
-				spr.ang = (short) ((spr.ang + (TICSPERFRAME << 2)) & 2047);
+				spr.ang =  ((spr.ang + (TICSPERFRAME << 2)) & 2047);
 
 				movesprite(actor, (bcos(spr.ang) * TICSPERFRAME) << 3,
 						(bsin(spr.ang) * TICSPERFRAME) << 3, daz, 4 << 8, 4 << 8, 1);
@@ -103,7 +103,7 @@ void animateobjs(PLAYER& plr) {
 					spr.x = sparksx;
 					spr.y = sparksy;
 					spr.z = sparksz;
-					spr.ang = (short) ((krand() % 2047) & 2047);
+					spr.ang =  ((krand() % 2047) & 2047);
 					spr.zvel = 0;
 					SetActorPos(actor, &spr.pos);
 
@@ -124,7 +124,7 @@ void animateobjs(PLAYER& plr) {
 			if (spr.lotag < 0) {
 
 				daz = 0;
-				spr.ang = (short) ((spr.ang + (TICSPERFRAME << 2)) & 2047);
+				spr.ang =  ((spr.ang + (TICSPERFRAME << 2)) & 2047);
 
 				movesprite(actor, (bcos(spr.ang) * TICSPERFRAME) << 3,
 						(bsin(spr.ang) * TICSPERFRAME) << 3, daz, 4 << 8, 4 << 8, 1);
@@ -133,7 +133,7 @@ void animateobjs(PLAYER& plr) {
 					spr.x = sparksx;
 					spr.y = sparksy;
 					spr.z = sparksz;
-					spr.ang = (short) ((krand() % 2047) & 2047);
+					spr.ang =  ((krand() % 2047) & 2047);
 					spr.zvel = 0;
 					SetActorPos(actor, &spr.pos);
 
@@ -157,7 +157,7 @@ void animateobjs(PLAYER& plr) {
 					spr.yrepeat = 24;
 					spr.clipdist = 32;
 					ChangeActorStat(actor, FACE);
-					spr.hitag = (short) adjusthp(100);
+					spr.hitag =  adjusthp(100);
 					spr.lotag = 100;
 					spr.cstat |= 0x101;
 					spr.extra = 0;
@@ -170,7 +170,7 @@ void animateobjs(PLAYER& plr) {
 					spr.yrepeat = 24;
 					spr.clipdist = 32;
 					ChangeActorStat(actor, FACE);
-					spr.hitag = (short) adjusthp(100);
+					spr.hitag =  adjusthp(100);
 					spr.lotag = 100;
 					spr.cstat |= 0x101;
 					spr.extra = 0;
@@ -183,7 +183,7 @@ void animateobjs(PLAYER& plr) {
 					spr.yrepeat = 24;
 					spr.clipdist = 32;
 					ChangeActorStat(actor, FACE);
-					spr.hitag = (short) adjusthp(100);
+					spr.hitag =  adjusthp(100);
 					spr.lotag = 100;
 					spr.cstat |= 0x101;
 					spr.extra = 0;
@@ -196,7 +196,7 @@ void animateobjs(PLAYER& plr) {
 					spr.yrepeat = 30;
 					spr.clipdist = 64;
 					ChangeActorStat(actor, FACE);
-					spr.hitag = (short) adjusthp(300);
+					spr.hitag =  adjusthp(300);
 					spr.lotag = 100;
 					spr.cstat |= 0x101;
 					spr.extra = 4;
@@ -210,7 +210,7 @@ void animateobjs(PLAYER& plr) {
 					spr.yrepeat = 26;
 					spr.clipdist = 48;
 					ChangeActorStat(actor, FACE);
-					spr.hitag = (short) adjusthp(100);
+					spr.hitag =  adjusthp(100);
 					spr.lotag = 100;
 					spr.cstat |= 0x101;
 					spr.extra = 30;
@@ -284,7 +284,7 @@ void animateobjs(PLAYER& plr) {
 			sector[osectnum].ceilingshade = (byte) ((sector[osectnum].ceilingshade + j) >> 1);
 			sector[osectnum].floorshade = (byte) ((sector[osectnum].floorshade + j) >> 1);
 			startwall = sector[osectnum].wallptr;
-			endwall = (short) (startwall + sector[osectnum].wallnum - 1);
+			endwall =  (startwall + sector[osectnum].wallnum - 1);
 			for (k = startwall; k <= endwall; k++) {
 				wall[k].shade = (byte) ((wall[k].shade + j) >> 1);
 			}
@@ -300,7 +300,7 @@ void animateobjs(PLAYER& plr) {
 
 				sector[osectnum].floorshade = (byte) j;
 				startwall = sector[osectnum].wallptr;
-				endwall = (short) (startwall + sector[osectnum].wallnum - 1);
+				endwall =  (startwall + sector[osectnum].wallnum - 1);
 				for (k = startwall; k <= endwall; k++) {
 					wall[k].shade = (byte) j;
 				}
@@ -311,21 +311,21 @@ void animateobjs(PLAYER& plr) {
 				plr.Sector()->ceilingshade = ceilingshadearray[plr.sector];
 				plr.Sector()->floorshade = floorshadearray[plr.sector];
 				startwall = plr.Sector()->wallptr;
-				endwall = (short) (startwall + plr.Sector()->wallnum - 1);
+				endwall =  (startwall + plr.Sector()->wallnum - 1);
 				for (k = startwall; k <= endwall; k++) {
 					wall[k].shade = wallshadearray[k];
 				}
 				sector[plr.oldsector].ceilingshade = ceilingshadearray[plr.oldsector];
 				sector[plr.oldsector].floorshade = floorshadearray[plr.oldsector];
 				startwall = sector[plr.oldsector].wallptr;
-				endwall = (short) (startwall + sector[plr.oldsector].wallnum - 1);
+				endwall =  (startwall + sector[plr.oldsector].wallnum - 1);
 				for (k = startwall; k <= endwall; k++) {
 					wall[k].shade = wallshadearray[k];
 				}
 				sector[osectnum].ceilingshade = ceilingshadearray[osectnum];
 				sector[osectnum].floorshade = floorshadearray[osectnum];
 				startwall = sector[osectnum].wallptr;
-				endwall = (short) (startwall + sector[osectnum].wallnum - 1);
+				endwall =  (startwall + sector[osectnum].wallnum - 1);
 				for (k = startwall; k <= endwall; k++) {
 					wall[k].shade = wallshadearray[k];
 				}
@@ -333,7 +333,7 @@ void animateobjs(PLAYER& plr) {
 				sector[osectnum].ceilingshade = ceilingshadearray[osectnum];
 				sector[osectnum].floorshade = floorshadearray[osectnum];
 				startwall = sector[osectnum].wallptr;
-				endwall = (short) (startwall + sector[osectnum].wallnum - 1);
+				endwall =  (startwall + sector[osectnum].wallnum - 1);
 				for (k = startwall; k <= endwall; k++) {
 					wall[k].shade = wallshadearray[k];
 				}
@@ -413,7 +413,7 @@ void animateobjs(PLAYER& plr) {
 		spr.lotag -= TICSPERFRAME;
 		if (spr.lotag < 0) {
 			spr.extra--;
-			spr.lotag = (short) (krand() & 48 + 24);
+			spr.lotag =  (krand() & 48 + 24);
 			bats(plr, actor);
 			if (spr.extra == 0)
 				ChangeActorStat(actor, 0);
@@ -438,7 +438,7 @@ void animateobjs(PLAYER& plr) {
 						(bsin(spr.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
 				SetActorPos(actor, &spr.pos);
 				if (moveStat.type != kHitNone)
-					spr.ang = (short) (krand() & 2047);
+					spr.ang =  (krand() & 2047);
 			}
 			break;
 		case 1: // flying in circles
@@ -447,16 +447,16 @@ void animateobjs(PLAYER& plr) {
 			if (spr.lotag < 0 && spot) {
 				spr.extra = 2;
 				spr.lotag = 512;
-				spr.ang = (short) (((getangle(spot->s().x - spr.x, spot->s().y - spr.y) & 2047) - 1024) & 2047);
+				spr.ang =  (((getangle(spot->s().x - spr.x, spot->s().y - spr.y) & 2047) - 1024) & 2047);
 			} else {
 				spr.z -= TICSPERFRAME << 4;
-				spr.ang = (short) ((spr.ang + (TICSPERFRAME << 2)) & 2047);
+				spr.ang =  ((spr.ang + (TICSPERFRAME << 2)) & 2047);
 				moveStat = movesprite(actor,
 						(bcos(spr.ang) * TICSPERFRAME) << 3,
 						(bsin(spr.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
 				SetActorPos(actor, &spr.pos);
 				if (moveStat.type != kHitNone)
-					spr.ang = (short) (krand() & 2047);
+					spr.ang =  (krand() & 2047);
 			}
 			break;
 			}
@@ -480,7 +480,7 @@ void animateobjs(PLAYER& plr) {
 					continue;
 				}
 				if (moveStat.type != kHitNone)
-					spr.ang = (short) (krand() & 2047);
+					spr.ang =  (krand() & 2047);
 			}
 			break;
 		}
@@ -497,7 +497,7 @@ void animateobjs(PLAYER& plr) {
 		sector[osectnum].ceilingshade = (byte) j;
 		sector[osectnum].floorshade = (byte) j;
 		startwall = sector[osectnum].wallptr;
-		endwall = (short) (startwall + sector[osectnum].wallnum - 1);
+		endwall =  (startwall + sector[osectnum].wallnum - 1);
 		for (k = startwall; k <= endwall; k++)
 			wall[k].shade = (byte) j;
 	}
@@ -512,7 +512,7 @@ void animateobjs(PLAYER& plr) {
 		j = (torchpattern[PlayClock % 38]);
 		sector[osectnum].floorshade = (byte) j;
 		startwall = sector[osectnum].wallptr;
-		endwall = (short) (startwall + sector[osectnum].wallnum - 1);
+		endwall =  (startwall + sector[osectnum].wallnum - 1);
 		for (k = startwall; k <= endwall; k++)
 			wall[k].shade = (byte) j;
 //			startredflash(j);
@@ -817,7 +817,7 @@ void animateobjs(PLAYER& plr) {
 			sector[osectnum].ceilingshade = (byte) j;
 			sector[osectnum].floorshade = (byte) j;
 			startwall = sector[osectnum].wallptr;
-			endwall = (short) (startwall + sector[osectnum].wallnum - 1);
+			endwall =  (startwall + sector[osectnum].wallnum - 1);
 			for (k = startwall; k <= endwall; k++)
 				wall[k].shade = (byte) j;
 			spr.lotag -= TICSPERFRAME;
@@ -846,14 +846,14 @@ void animateobjs(PLAYER& plr) {
 			sector[osectnum].ceilingshade = (byte) j;
 			sector[osectnum].floorshade = (byte) j;
 			startwall = sector[osectnum].wallptr;
-			endwall = (short) (startwall + sector[osectnum].wallnum - 1);
+			endwall =  (startwall + sector[osectnum].wallnum - 1);
 			for (k = startwall; k <= endwall; k++)
 				wall[k].shade = (byte) j;
 			if (spr.lotag < 0) {
 				sector[osectnum].ceilingshade = ceilingshadearray[osectnum];
 				sector[osectnum].floorshade = floorshadearray[osectnum];
 				startwall = sector[osectnum].wallptr;
-				endwall = (short) (startwall + sector[osectnum].wallnum - 1);
+				endwall =  (startwall + sector[osectnum].wallnum - 1);
 				for (k = startwall; k <= endwall; k++) {
 					wall[k].shade = wallshadearray[k];
 				}
@@ -901,7 +901,7 @@ void animateobjs(PLAYER& plr) {
 			spr.z += spr.zvel;
 			if (spr.z < spr.sector()->ceilingz + (4 << 8)) {
 				spr.z = spr.sector()->ceilingz + (4 << 8);
-				spr.zvel = (short) -(spr.zvel >> 1);
+				spr.zvel =  -(spr.zvel >> 1);
 			}
 			if (spr.z > spr.sector()->floorz - (4 << 8)) {
 				spr.z = spr.sector()->floorz - (4 << 8);
@@ -1028,7 +1028,7 @@ void animateobjs(PLAYER& plr) {
 			spr.z -= spr.zvel;
 			if (spr.z < spr.sector()->ceilingz + (4 << 8)) {
 				spr.z = spr.sector()->ceilingz + (4 << 8);
-				spr.zvel = (short) -(spr.zvel >> 1);
+				spr.zvel =  -(spr.zvel >> 1);
 			}
 			if (spr.z > spr.sector()->floorz - (4 << 8)) {
 				spr.z = spr.sector()->floorz - (4 << 8);
@@ -1218,7 +1218,7 @@ void animateobjs(PLAYER& plr) {
 		if (plr.invisibletime < 0) {
 			spr.lotag -= TICSPERFRAME;
 			if (spr.lotag < 0) {
-				spr.lotag = (short) (krand() & 120 + 360);
+				spr.lotag =  (krand() & 120 + 360);
 				if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y,
 						spr.z - (tileHeight(spr.picnum) << 7), spr.sectnum)) {
 					// JSA_NEW
@@ -1281,11 +1281,11 @@ void animateobjs(PLAYER& plr) {
 
 			if (spr.z < spr.sector()->ceilingz + (4 << 8)) {
 				spr.z = spr.sector()->ceilingz + (4 << 8);
-				spr.zvel = (short) -(spr.zvel >> 1);
+				spr.zvel =  -(spr.zvel >> 1);
 			}
 			if (spr.z > spr.sector()->floorz - (4 << 8)) {
 				spr.z = spr.sector()->floorz - (4 << 8);
-				spr.zvel = (short) -(spr.zvel >> 1);
+				spr.zvel =  -(spr.zvel >> 1);
 			}
 
 			spr.xrepeat += TICSPERFRAME;
@@ -1420,7 +1420,7 @@ void animateobjs(PLAYER& plr) {
 			spr.zvel += (TICSPERFRAME << 5);
 			if (spr.z < spr.sector()->ceilingz + (4 << 8)) {
 				spr.z = spr.sector()->ceilingz + (4 << 8);
-				spr.zvel = (short) -(spr.zvel >> 1);
+				spr.zvel =  -(spr.zvel >> 1);
 			}
 			if (spr.z > spr.sector()->floorz - (4 << 8) && spr.picnum != EXPLOSION) {
 				spr.z = spr.sector()->floorz - (4 << 8);
