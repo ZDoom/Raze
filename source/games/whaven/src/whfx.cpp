@@ -886,20 +886,21 @@ void makemonstersplash(int picnum, int i) {
 
 void bats(PLAYER& plr, int k) {
 	short j = insertsprite(sprite[k].sectnum, FLOCK);
-	sprite[j].x = sprite[k].x;
-	sprite[j].y = sprite[k].y;
-	sprite[j].z = sprite[k].z;
-	sprite[j].cstat = 0;
-	sprite[j].picnum = BAT;
-	sprite[j].shade = 0;
-	sprite[j].xrepeat = 64;
-	sprite[j].yrepeat = 64;
-	sprite[j].ang = (short) ((sprite[k].ang + (krand() & 128 - 256)) & 2047);
-	sprite[j].owner = (short) k;
-	sprite[j].clipdist = 16;
-	sprite[j].lotag = 128;
-	sprite[j].hitag = (short) k;
-	sprite[j].extra = 0;
+	auto& spawned = sprite[j];
+	spawned.x = sprite[k].x;
+	spawned.y = sprite[k].y;
+	spawned.z = sprite[k].z;
+	spawned.cstat = 0;
+	spawned.picnum = BAT;
+	spawned.shade = 0;
+	spawned.xrepeat = 64;
+	spawned.yrepeat = 64;
+	spawned.ang = (short) ((sprite[k].ang + (krand() & 128 - 256)) & 2047);
+	spawned.owner = (short) k;
+	spawned.clipdist = 16;
+	spawned.lotag = 128;
+	spawned.hitag = (short) k;
+	spawned.extra = 0;
 
 	newstatus(j, FLOCK);
 
@@ -988,38 +989,39 @@ void warpfxsprite(int s) {
 	PLAYER& plr = player[pyrn];
 
 	int j = insertsprite(sprite[s].sectnum, WARPFX);
+	auto& spawned = sprite[j];
 
-	sprite[j].x = sprite[s].x;
-	sprite[j].y = sprite[s].y;
-	sprite[j].z = sprite[s].z - (32 << 8);
+	spawned.x = sprite[s].x;
+	spawned.y = sprite[s].y;
+	spawned.z = sprite[s].z - (32 << 8);
 
-	sprite[j].cstat = 0;
+	spawned.cstat = 0;
 
-	sprite[j].picnum = ANNIHILATE;
+	spawned.picnum = ANNIHILATE;
 	short daang;
 	if (s == plr.spritenum) {
 		daang = plr.angle.ang.asbuild();
-		sprite[j].ang = daang;
+		spawned.ang = daang;
 	} else {
 		daang = sprite[s].ang;
-		sprite[j].ang = daang;
+		spawned.ang = daang;
 	}
 
-	sprite[j].xrepeat = 48;
-	sprite[j].yrepeat = 48;
-	sprite[j].clipdist = 16;
+	spawned.xrepeat = 48;
+	spawned.yrepeat = 48;
+	spawned.clipdist = 16;
 
-	sprite[j].extra = 0;
-	sprite[j].shade = -31;
-	sprite[j].xvel = (short) ((krand() & 256) - 128);
-	sprite[j].yvel = (short) ((krand() & 256) - 128);
-	sprite[j].zvel = (short) ((krand() & 256) - 128);
-	sprite[j].owner = (short) s;
-	sprite[j].lotag = 12;
-	sprite[j].hitag = 0;
-	sprite[j].pal = 0;
+	spawned.extra = 0;
+	spawned.shade = -31;
+	spawned.xvel = (short) ((krand() & 256) - 128);
+	spawned.yvel = (short) ((krand() & 256) - 128);
+	spawned.zvel = (short) ((krand() & 256) - 128);
+	spawned.owner = (short) s;
+	spawned.lotag = 12;
+	spawned.hitag = 0;
+	spawned.pal = 0;
 
-	int daz = (((sprite[j].zvel) * TICSPERFRAME) >> 3);
+	int daz = (((spawned.zvel) * TICSPERFRAME) >> 3);
 
 	movesprite((short) j, (bcos(daang) * TICSPERFRAME) << 3,
 			(bsin(daang) * TICSPERFRAME) << 3, daz, 4 << 8, 4 << 8, 1);
