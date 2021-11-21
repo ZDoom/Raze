@@ -41,16 +41,11 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 BEGIN_SW_NS
 
 ANIMATOR InitActorRunToward;
-bool FAF_Sector(short);
-bool DropAhead(DSWActor* actor, short min_height);
+bool FAF_Sector(int sectnum);
+bool DropAhead(DSWActor* actor, int  min_height);
 
 ANIMATORp ChooseAction(DECISION decision[]);
 
-
-//static short ZigZagDeltaAng[] = {-200, 200};
-
-// Choose between two things
-short AttackOrRun = 200;
 
 #define CHOOSE2(value) (RANDOM_P2(1024) < (value))
 
@@ -146,13 +141,10 @@ void DoActorSetSpeed(DSWActor* actor, uint8_t speed)
 
 ANIMATORp ChooseAction(DECISION decision[])
 {
-    short random_value;
-    short i;
-
     // !JIM! Here is an opportunity for some AI, instead of randomness!
-    random_value = RANDOM_P2(1024<<5)>>5;
+    int random_value = RANDOM_P2(1024<<5)>>5;
 
-    for (i = 0; true; i++)
+    for (int i = 0; true; i++)
     {
         ASSERT(i < 10);
 
@@ -167,14 +159,11 @@ ANIMATORp ChooseAction(DECISION decision[])
   !AIC - Sometimes just want the offset of the action
 */
 
-short ChooseActionNumber(short decision[])
+int ChooseActionNumber(int16_t decision[])
 {
-    short random_value;
-    short i;
+    int random_value = RANDOM_P2(1024<<5)>>5;
 
-    random_value = RANDOM_P2(1024<<5)>>5;
-
-    for (i = 0; true; i++)
+    for (int i = 0; true; i++)
     {
         if (random_value <= decision[i])
         {
@@ -259,7 +248,7 @@ int CanHitPlayer(DSWActor* actor)
     SPRITEp sp = &actor->s();
     HITINFO hitinfo;
     int xvect,yvect,zvect;
-    short ang;
+    int ang;
     // if actor can still see the player
     int zhs, zhh;
 
@@ -314,7 +303,7 @@ int DoActorPickClosePlayer(DSWActor* actor)
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
     int dist, near_dist = MAX_ACTIVE_RANGE, a,b,c;
-    short pnum;
+    int pnum;
     PLAYERp pp;
     // if actor can still see the player
     int look_height = SPRITEp_TOS(sp);
@@ -436,7 +425,7 @@ TARGETACTOR:
 DSWActor* GetPlayerSpriteNum(DSWActor* actor)
 {
     USERp u = actor->u();
-    short pnum;
+    int pnum;
     PLAYERp pp;
 
     TRAVERSE_CONNECT(pnum)
@@ -1008,11 +997,12 @@ short FindTrackToPlayer(DSWActor* actor)
     auto u = actor->u();
     SPRITEp sp = &actor->s();
 
-    short point, track_dir, track;
-    short i, *type, size;
+    int point, track_dir, track;
+    int i, size;
+    const uint16_t* type;
     int zdiff;
 
-    static short PlayerAbove[] =
+    static const uint16_t PlayerAbove[] =
     {
         BIT(TT_LADDER),
         BIT(TT_STAIRS),
@@ -1022,7 +1012,7 @@ short FindTrackToPlayer(DSWActor* actor)
         BIT(TT_SCAN)
     };
 
-    static short PlayerBelow[] =
+    static const uint16_t PlayerBelow[] =
     {
         BIT(TT_JUMP_DOWN),
         BIT(TT_STAIRS),
@@ -1031,7 +1021,7 @@ short FindTrackToPlayer(DSWActor* actor)
         BIT(TT_SCAN)
     };
 
-    static short PlayerOnLevel[] =
+    static const uint16_t PlayerOnLevel[] =
     {
         BIT(TT_DUCK_N_SHOOT),
         BIT(TT_HIDE_N_SHOOT),
@@ -1091,10 +1081,10 @@ short FindTrackToPlayer(DSWActor* actor)
 short FindTrackAwayFromPlayer(DSWActor* actor)
 {
     auto u = actor->u();
-    short point, track_dir, track;
+    int point, track_dir, track;
     unsigned int i;
 
-    static short RunAwayTracks[] =
+    static const int16_t RunAwayTracks[] =
     {
         BIT(TT_EXIT),
         BIT(TT_LADDER),
@@ -1136,10 +1126,10 @@ short FindTrackAwayFromPlayer(DSWActor* actor)
 short FindWanderTrack(DSWActor* actor)
 {
     auto u = actor->u();
-    short point, track_dir, track;
+    int point, track_dir, track;
     unsigned int i;
 
-    static short WanderTracks[] =
+    static const int16_t WanderTracks[] =
     {
         BIT(TT_DUCK_N_SHOOT),
         BIT(TT_HIDE_N_SHOOT),
@@ -1285,22 +1275,6 @@ int InitActorAttack(DSWActor* actor)
         InitActorRunAway(actor);
         return 0;
     }
-
-#if 0
-    // if low on health determine if needs to run away
-    if (u->Health < 26)
-    {
-        if (CHOOSE2(AttackOrRun))
-        {
-            InitActorRunAway(actor);
-
-            // could do a FindHealth here
-
-            return 0;
-        }
-
-    }
-#endif
 
     // Hari Kari for Ninja's
     if (u->ActorActionSet->Death2)

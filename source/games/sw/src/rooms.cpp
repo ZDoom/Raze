@@ -81,7 +81,7 @@ DSWActor* InsertActor(int sectnum, int stat)
     return pActor;
 }
 
-bool FAF_Sector(short sectnum)
+bool FAF_Sector(int sectnum)
 {
     SPRITEp sp;
 

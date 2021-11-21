@@ -63,8 +63,6 @@ DAMAGE_DATA DamageData[] =
 };
 #undef  DAMAGE_TABLE
 
-short ADJUST=120;
-
 FOOT_TYPE FootMode=WATER_FOOT;
 bool left_foot = false;
 int FinishTimer = 0;
@@ -72,18 +70,18 @@ int FinishTimer = 0;
 // This is how many bullet shells have been spawned since the beginning of the game.
 int ShellCount = 0;
 
-//short Zombies = 0;
-short StarQueueHead=0;
+//int Zombies = 0;
+int StarQueueHead=0;
 DSWActor* StarQueue[MAX_STAR_QUEUE];
-short HoleQueueHead=0;
+int HoleQueueHead=0;
 DSWActor* HoleQueue[MAX_HOLE_QUEUE];
-short WallBloodQueueHead=0;
+int WallBloodQueueHead=0;
 DSWActor* WallBloodQueue[MAX_WALLBLOOD_QUEUE];
-short FloorBloodQueueHead=0;
+int FloorBloodQueueHead=0;
 DSWActor* FloorBloodQueue[MAX_FLOORBLOOD_QUEUE];
-short GenericQueueHead=0;
+int GenericQueueHead=0;
 DSWActor* GenericQueue[MAX_GENERIC_QUEUE];
-short LoWangsQueueHead=0;
+int LoWangsQueueHead=0;
 DSWActor* LoWangsQueue[MAX_LOWANGS_QUEUE];
 void SpawnBreakStaticFlames(DSWActor* actor);
 

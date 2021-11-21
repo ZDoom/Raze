@@ -40,7 +40,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-//extern short Zombies;
 #define ZOMBIE_TIME_LIMIT ((120*20)/ACTORMOVETICS)
 
 DECISION ZombieBattle[] =

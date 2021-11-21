@@ -92,7 +92,6 @@ int DoSlidorInstantClose(DSWActor*);
 void InitWeaponRocket(PLAYERp);
 void InitWeaponUzi(PLAYERp);
 
-bool FAF_Sector(short sectnum);
 int MoveSkip4, MoveSkip2, MoveSkip8;
 int MinEnemySkill;
 
@@ -4809,8 +4808,7 @@ bool ActorDrop(DSWActor* actor, int x, int y, int z, short new_sector, short min
 }
 
 // Primarily used in ai.c for now - need to get rid of
-bool
-DropAhead(DSWActor* actor, short min_height)
+bool DropAhead(DSWActor* actor, int  min_height)
 {
     SPRITEp sp = &actor->s();
     int dax, day;

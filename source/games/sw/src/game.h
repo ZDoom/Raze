@@ -213,11 +213,11 @@ inline int32_t FIXED(int32_t msw, int32_t lsw)
 #define SP_TAG10(sp) (LSB_VAR((sp)->owner))
 #define SP_TAG11(sp) ((sp)->shade)
 #define SP_TAG12(sp) ((sp)->pal)
-#define SP_TAG13(sp) LittleShort(*((short*)&(sp)->xoffset))
-#define SP_TAG14(sp) LittleShort(*((short*)&(sp)->xrepeat))
+#define SP_TAG13(sp) LittleShort(*((int16_t*)&(sp)->xoffset))
+#define SP_TAG14(sp) LittleShort(*((int16_t*)&(sp)->xrepeat))
 #define SP_TAG15(sp) ((sp)->z)
-#define SET_SP_TAG13(sp,val) (*((short*)&(sp)->xoffset)) = LittleShort((short)val)
-#define SET_SP_TAG14(sp,val) (*((short*)&(sp)->xrepeat)) = LittleShort((short)val)
+#define SET_SP_TAG13(sp,val) (*((int16_t*)&(sp)->xoffset)) = LittleShort((int16_t)val)
+#define SET_SP_TAG14(sp,val) (*((int16_t*)&(sp)->xrepeat)) = LittleShort((int16_t)val)
 
 #define TRAVERSE_CONNECT(i)   for (i = connecthead; i != -1; i = connectpoint2[i])
 
@@ -750,7 +750,7 @@ struct PLAYERstruct
     int oposx, oposy, oposz;
 
     // holds last valid move position
-    short lv_sectnum;
+    int lv_sectnum;
     int lv_x,lv_y,lv_z;
 
     REMOTE_CONTROL remote;
@@ -758,7 +758,7 @@ struct PLAYERstruct
     SECTOR_OBJECTp sop;  // will either be sop_remote or sop_control
 
     int jump_count, jump_speed;     // jumping
-    short down_speed, up_speed; // diving
+    int16_t down_speed, up_speed; // diving
     int z_speed,oz_speed; // used for diving and flying instead of down_speed, up_speed
     int climb_ndx;
     int hiz,loz;
@@ -768,19 +768,19 @@ struct PLAYERstruct
     SPRITEp last_camera_sp;
     int circle_camera_dist;
     int six,siy,siz; // save player interp position for PlayerSprite
-    short siang;
+    int16_t siang;
 
     int xvect, yvect;
     int oxvect, oyvect;
     int friction;
     int slide_xvect, slide_yvect;
-    short slide_ang;
+    int16_t slide_ang;
     int slide_dec;
     float drive_avel;
 
-    short view_outside_dang;  // outside view delta ang
-    short circle_camera_ang;
-    short camera_check_time_delay;
+    int16_t view_outside_dang;  // outside view delta ang
+    int16_t circle_camera_ang;
+    int16_t camera_check_time_delay;
 
     int cursectnum,lastcursectnum;
     fixed_t turn180_target; // 180 degree turn
@@ -789,25 +789,25 @@ struct PLAYERstruct
     int hvel,tilt,tilt_dest;
     PlayerHorizon horizon;
     PlayerAngle angle;
-    short recoil_amt;
-    short recoil_speed;
-    short recoil_ndx;
+    int16_t recoil_amt;
+    int16_t recoil_speed;
+    int16_t recoil_ndx;
     fixed_t recoil_ohorizoff, recoil_horizoff;
 
     int oldposx,oldposy,oldposz;
     int RevolveX, RevolveY;
-    short RevolveDeltaAng;
+    int16_t RevolveDeltaAng;
     binangle RevolveAng;
 
-    short pnum; // carry along the player number
+    int16_t pnum; // carry along the player number
 
-    short LadderSector;
+    int16_t LadderSector;
     int lx,ly; // ladder x and y
-    short JumpDuration;
-    short WadeDepth;
-    short bob_amt;
-    short bob_ndx;
-    short bcnt; // bob count
+    int16_t JumpDuration;
+    int16_t WadeDepth;
+    int16_t bob_amt;
+    int16_t bob_ndx;
+    int16_t bcnt; // bob count
     int bob_z, obob_z;
 
     //Multiplayer variables
@@ -841,11 +841,11 @@ struct PLAYERstruct
     uint8_t HasKey[8];
 
     // Weapon stuff
-    short SwordAng;
+    int16_t SwordAng;
     int WpnGotOnceFlags; // for no respawn mode where weapons are allowed grabbed only once
     int WpnFlags;
-    short WpnAmmo[MAX_WEAPONS];
-    short WpnNum;
+    int16_t WpnAmmo[MAX_WEAPONS];
+    int16_t WpnNum;
     PANEL_SPRITEp CurWpn;
     PANEL_SPRITEp Wpn[MAX_WEAPONS];
     PANEL_SPRITEp Chops;
@@ -855,29 +855,29 @@ struct PLAYERstruct
     uint8_t WpnFlameType; // Guardian weapons fire
     uint8_t WpnFirstType; // First weapon type - Sword/Shuriken
     uint8_t WeaponType; // for weapons with secondary functions
-    short FirePause; // for sector objects - limits rapid firing
+    int16_t FirePause; // for sector objects - limits rapid firing
     //
     // Inventory Vars
     //
-    short InventoryNum;
-    short InventoryBarTics;
-    short InventoryTics[MAX_INVENTORY];
-    short InventoryPercent[MAX_INVENTORY];
+    int16_t InventoryNum;
+    int16_t InventoryBarTics;
+    int16_t InventoryTics[MAX_INVENTORY];
+    int16_t InventoryPercent[MAX_INVENTORY];
     int8_t InventoryAmount[MAX_INVENTORY];
     bool InventoryActive[MAX_INVENTORY];
 
-    short DiveTics;
-    short DiveDamageTics;
+    int16_t DiveTics;
+    int16_t DiveDamageTics;
 
     // Death stuff
     uint16_t DeathType;
-    short Kills;
-    short KilledPlayer[MAX_SW_PLAYERS_REG];
-    short SecretsFound;
+    int16_t Kills;
+    int16_t KilledPlayer[MAX_SW_PLAYERS_REG];
+    int16_t SecretsFound;
 
     // Health
-    short Armor;
-    short MaxHealth;
+    int16_t Armor;
+    int16_t MaxHealth;
 
     char PlayerName[32];
 
@@ -886,14 +886,14 @@ struct PLAYERstruct
     uint8_t TeamColor;  // used in team play and also used in regular mulit-play for show
 
     // palette fading up and down for player hit and get items
-    short FadeTics;                 // Tics between each fade cycle
-    short FadeAmt;                  // Current intensity of fade
+    int16_t FadeTics;                 // Tics between each fade cycle
+    int16_t FadeAmt;                  // Current intensity of fade
     bool NightVision;               // Is player's night vision active?
     uint8_t StartColor;       // Darkest color in color range being used
     //short electro[64];
     bool IsAI;                      // Is this and AI character?
-    short fta,ftq;                  // First time active and first time quote, for talking in multiplayer games
-    short NumFootPrints;            // Number of foot prints left to lay down
+    int16_t fta,ftq;                  // First time active and first time quote, for talking in multiplayer games
+    int16_t NumFootPrints;            // Number of foot prints left to lay down
     uint8_t WpnUziType;                // Toggle between single or double uzi's if you own 2.
     uint8_t WpnShotgunType;            // Shotgun has normal or fully automatic fire
     uint8_t WpnShotgunAuto;            // 50-0 automatic shotgun rounds
@@ -903,10 +903,10 @@ struct PLAYERstruct
     bool InitingNuke;
     bool TestNukeInit;
     bool NukeInitialized;           // Nuke already has counted down
-    short FistAng;                  // KungFu attack angle
+    int16_t FistAng;                  // KungFu attack angle
     uint8_t WpnKungFuMove;             // KungFu special moves
-    short Reverb;                   // Player's current reverb setting
-    short Heads;                    // Number of Accursed Heads orbiting player
+    int16_t Reverb;                   // Player's current reverb setting
+    int16_t Heads;                    // Number of Accursed Heads orbiting player
     int PlayerVersion;
 
     char cookieQuote[256];          // Should be an FString but must be POD for now so that PLAYER remains POD.
@@ -1010,10 +1010,10 @@ typedef struct
     STATEp *DeathFall;
 
     STATEp *CloseAttack[MAX_ACTOR_CLOSE_ATTACK];
-    short  CloseAttackPercent[MAX_ACTOR_CLOSE_ATTACK];
+    int16_t  CloseAttackPercent[MAX_ACTOR_CLOSE_ATTACK];
 
     STATEp *Attack[MAX_ACTOR_ATTACK];
-    short  AttackPercent[MAX_ACTOR_ATTACK];
+    int16_t  AttackPercent[MAX_ACTOR_ATTACK];
 
     STATEp *Special[2];
     STATEp *Duck;
@@ -1105,25 +1105,25 @@ struct USER
     int Tics;
     int oz; // serialized copy of sprite.oz
 
-    short RotNum;
-    short ID;
+    int16_t RotNum;
+    int16_t ID;
 
     // Health/Pain related
-    short Health;
-    short MaxHealth;
+    int16_t Health;
+    int16_t MaxHealth;
 
-    short LastDamage;           // last damage amount taken
-    short PainThreshold;       // amount of damage that can be taken before
+    int16_t LastDamage;           // last damage amount taken
+    int16_t PainThreshold;       // amount of damage that can be taken before
     // going into pain frames.
 
     // jump & fall
-    short jump_speed;
-    short jump_grav;
+    int16_t jump_speed;
+    int16_t jump_grav;
 
     // clipmove
-    short ceiling_dist;
-    short floor_dist;
-    short lo_step;
+    int16_t ceiling_dist;
+    int16_t floor_dist;
+    int16_t lo_step;
     int hiz,loz;
     int zclip; // z height to move up for clipmove
     int active_range;
@@ -1132,7 +1132,7 @@ struct USER
 
     // if a player's sprite points to player structure
     PLAYERp PlayerP;
-    short Sibling;
+    int16_t Sibling;
 
 
     //
@@ -1146,14 +1146,14 @@ struct USER
 
     // velocity
     int  vel_tgt;
-    short vel_rate;
+    int16_t vel_rate;
     uint8_t speed; // Ordinal Speed Range 0-3 from slow to fast
 
-    short Counter;
-    short Counter2;
-    short Counter3;
-    short DamageTics;
-    short BladeDamageTics;
+    int16_t Counter;
+    int16_t Counter2;
+    int16_t Counter3;
+    int16_t DamageTics;
+    int16_t BladeDamageTics;
 
     unsigned int Radius;    // for distance checking
     int  OverlapZ;  // for z overlap variable
@@ -1165,38 +1165,35 @@ struct USER
     
 
     // scaling
-    short scale_speed;
+    int16_t scale_speed;
     unsigned short scale_value;
-    short scale_tgt;
+    int16_t scale_tgt;
 
     // zig zagging
-    short DistCheck;
-    //short ZigZagDist;
-    //short ZigZagAng;
-    //short ZigZagDir;
+    int16_t DistCheck;
 
-    short Dist;
-    short TargetDist;
-    short WaitTics;
+    int16_t Dist;
+    int16_t TargetDist;
+    int16_t WaitTics;
 
     // track
-    short track;
-    short point;
-    short track_dir;
+    int16_t track;
+    int16_t point;
+    int16_t track_dir;
     int  track_vel;
 
     // sliding variables - slide backwards etc
-    short slide_ang;
+    int16_t slide_ang;
     int  slide_vel;
-    short slide_dec;
+    int16_t slide_dec;
 
-    short motion_blur_dist;
-    short motion_blur_num;
+    int16_t motion_blur_dist;
+    int16_t motion_blur_num;
 
-    short wait_active_check;  // for enemy checking of player
-    short inactive_time; // length of time actor has been unaware of his tgt
+    int16_t wait_active_check;  // for enemy checking of player
+    int16_t inactive_time; // length of time actor has been unaware of his tgt
     int  sx,sy,sz;
-    short sang;
+    int16_t sang;
     uint8_t spal;  // save off default palette number
 
     Collision coll; // same thing broken up into useful components.
@@ -1207,12 +1204,12 @@ struct USER
     int8_t  LastWeaponNum;
     int8_t  WeaponNum;
 
-    short bounce;           // count bounces off wall for killing shrap stuff
+    int16_t bounce;           // count bounces off wall for killing shrap stuff
     // !JIM! my extensions
     int ShellNum;          // This is shell no. 0 to whatever
     // Shell gets deleted when ShellNum < (ShellCount - MAXSHELLS)
-    short FlagOwner;        // The spritenum of the original flag (abused to hell by other things)
-    short Vis;              // Shading upgrade, for shooting, etc...
+    int16_t FlagOwner;        // Not the spritenum of the original flag (abused to hell by other things)
+    int16_t Vis;              // Shading upgrade, for shooting, etc...
     bool DidAlert;          // Has actor done his alert noise before?
 
     int16_t oangdiff;      // Used for interpolating sprite angles
@@ -1224,7 +1221,7 @@ using USERp = USER*;
 
 struct USERSAVE
 {
-    short Health;
+    int16_t Health;
     int8_t WeaponNum;
     int8_t LastWeaponNum;
 
@@ -1393,7 +1390,7 @@ enum
 
 typedef struct
 {
-    short high;
+    int16_t high;
 } RANGE,*RANGEp;
 
 
@@ -1487,7 +1484,7 @@ enum ShrapType
 typedef struct TARGET_SORT
 {
     DSWActor* actor;
-    short dang;
+    int16_t dang;
     int dist;
     int weight;
 } *TARGET_SORTp;
@@ -1510,9 +1507,9 @@ typedef enum DoorType DOOR_TYPE;
 typedef struct
 {
     DOOR_TYPE Type;
-    short Sector;
-    short Speed;
-    short TimeOut;
+    int Sector;
+    int16_t Speed;
+    int16_t TimeOut;
 } DOOR_AUTO_CLOSE, *DOOR_AUTO_CLOSEp;
 
 #define MAX_DOOR_AUTO_CLOSE 16
@@ -1520,13 +1517,14 @@ typedef struct
 typedef struct
 {
     int origx[17], origy[17];
-    short sector, angopen, angclosed, angopendir, sang, anginc, wall[17];
+    int sector;
+    int16_t angopen, angclosed, angopendir, sang, anginc, wall[17];
 } SWING;
 
 typedef struct SINE_WAVE_FLOOR
 {
-    int floor_origz, ceiling_origz, range;
-    short sector, sintable_ndx, speed_shift;
+    int floor_origz, ceiling_origz, range, sector;
+    int16_t sintable_ndx, speed_shift;
     uint8_t flags;
 } *SINE_WAVE_FLOORp;
 
@@ -1535,8 +1533,8 @@ extern SINE_WAVE_FLOOR SineWaveFloor[MAX_SINE_WAVE][21];
 
 typedef struct SINE_WALL
 {
-    int orig_xy, range;
-    short wall, sintable_ndx, speed_shift, type;
+    int orig_xy, range, wall;
+    int16_t sintable_ndx, speed_shift, type;
 } *SINE_WALLp;
 
 #define MAX_SINE_WALL 10
@@ -1545,7 +1543,7 @@ extern SINE_WALL SineWall[MAX_SINE_WALL][MAX_SINE_WALL_POINTS];
 
 struct SPRING_BOARD
 {
-    short Sector, TimeOut;
+    int Sector, TimeOut;
 };
 
 extern SPRING_BOARD SpringBoard[20];
@@ -1553,7 +1551,7 @@ extern SWING Rotate[17];
 
 typedef struct
 {
-    short sector, speed;
+    int sector, speed;
     int xmid, ymid;
 } SPIN;
 
@@ -1578,7 +1576,7 @@ enum
 typedef struct TRACK_POINT
 {
     int x,y,z;
-    short ang, tag_low, tag_high, filler;
+    int16_t ang, tag_low, tag_high, filler;
 } *TRACK_POINTp;
 
 typedef struct TRACK
@@ -1672,12 +1670,12 @@ struct SECTOR_OBJECTstruct
            crush_z,
            op_main_sector, // main sector operational SO moves in - for speed purposes
            flags,
-           sector[MAX_SO_SECTOR];     // hold the sector numbers of the sector object
-
-    short   xorig[MAX_SO_POINTS],   // save the original x & y location of each wall so it can be
-            yorig[MAX_SO_POINTS],   // refreshed
+           sector[MAX_SO_SECTOR],     // hold the sector numbers of the sector object
             sectnum,        // current secnum of midpoint
-            mid_sector,     // middle sector
+            mid_sector;     // middle sector
+
+    int16_t xorig[MAX_SO_POINTS],   // save the original x & y location of each wall so it can be
+            yorig[MAX_SO_POINTS],   // refreshed
             max_damage,     // max damage
             ram_damage,     // damage taken by ramming
             wait_tics,      //
@@ -1804,7 +1802,7 @@ int NewStateGroup(DSWActor* actor, STATEp SpriteGroup[]);
 void SectorMidPoint(short sectnum, int *xmid, int *ymid, int *zmid);
 USERp SpawnUser(DSWActor* actor, short id, STATEp state);
 
-short ActorFindTrack(DSWActor* actor, int8_t player_dir, int track_type, short *track_point_num, short *track_dir);
+short ActorFindTrack(DSWActor* actor, int8_t player_dir, int track_type, int *track_point_num, int *track_dir);
 
 // Some sounds were checked by storing handles in static local variables.
 // Problems with this design:
@@ -2053,7 +2051,7 @@ void computergetinput(int snum,InputPacket *syn); // jplayer.c
 
 void DrawOverlapRoom(int tx,int ty,int tz,fixed_t tq16ang,fixed_t tq16horiz,short tsectnum);    // rooms.c
 void SetupMirrorTiles(void);    // rooms.c
-bool FAF_Sector(short sectnum); // rooms.c
+bool FAF_Sector(int sectnum); // rooms.c
 int GetZadjustment(short sectnum,short hitag);  // rooms.c
 
 void InitSetup(void);   // setup.c

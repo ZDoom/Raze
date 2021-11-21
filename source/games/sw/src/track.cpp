@@ -116,7 +116,7 @@ point to the sprite.
 
 */
 
-short ActorFindTrack(DSWActor* actor, int8_t player_dir, int track_type, short *track_point_num, short *track_dir)
+short ActorFindTrack(DSWActor* actor, int8_t player_dir, int track_type, int *track_point_num, int *track_dir)
 {
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
@@ -124,7 +124,7 @@ short ActorFindTrack(DSWActor* actor, int8_t player_dir, int track_type, short *
     int dist, near_dist = 999999, zdiff;
     int track_sect=0;
 
-    short i;
+    int i;
     short end_point[2] = {0,0};
 
     TRACKp t, near_track = nullptr;

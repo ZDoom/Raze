@@ -58,17 +58,17 @@ enum
 };
 
 
-extern short StarQueueHead;
+extern int StarQueueHead;
 extern DSWActor* StarQueue[MAX_STAR_QUEUE];
-extern short HoleQueueHead;
+extern int HoleQueueHead;
 extern DSWActor* HoleQueue[MAX_HOLE_QUEUE];
-extern short WallBloodQueueHead;
+extern int WallBloodQueueHead;
 extern DSWActor* WallBloodQueue[MAX_WALLBLOOD_QUEUE];
-extern short FloorBloodQueueHead;
+extern int FloorBloodQueueHead;
 extern DSWActor* FloorBloodQueue[MAX_FLOORBLOOD_QUEUE];
-extern short GenericQueueHead;
+extern int GenericQueueHead;
 extern DSWActor* GenericQueue[MAX_GENERIC_QUEUE];
-extern short LoWangsQueueHead;
+extern int LoWangsQueueHead;
 extern DSWActor* LoWangsQueue[MAX_LOWANGS_QUEUE];
 
 void ChangeState(DSWActor* actor, STATEp statep);
@@ -168,7 +168,7 @@ extern short target_ang;
 bool SpriteOverlap(short, short);
 
 DSWActor* SpawnShotgunSparks(PLAYERp pp, short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang);
-int DoActorBeginSlide(DSWActor* actor, short ang, short vel, short dec);
+int DoActorBeginSlide(DSWActor* actor, int ang, int vel, int dec);
 int GetOverlapSector(int x, int y, short *over, short *under);
 bool MissileHitDiveArea(DSWActor*);
 

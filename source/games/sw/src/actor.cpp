@@ -308,7 +308,7 @@ void DoDebrisCurrent(DSWActor* actor)
     // attempt to move away from wall
     if (ret.type != kHitNone)
     {
-        short rang = RANDOM_P2(2048);
+        int rang = RANDOM_P2(2048);
 
         nx = MulScale((sectp->speed >> 2), bcos(sectp->ang + rang), 14);
         nx = MulScale((sectp->speed >> 2), bsin(sectp->ang + rang), 14);
@@ -603,7 +603,7 @@ void KeepActorOnFloor(DSWActor* actor)
 
 }
 
-int DoActorBeginSlide(DSWActor* actor, short ang, short vel, short dec)
+int DoActorBeginSlide(DSWActor* actor, int ang, int vel, int dec)
 {
     USERp u = actor->u();
 

@@ -1163,7 +1163,7 @@ pSwordBobSetup(PANEL_SPRITEp psp)
 void
 pSwordHide(PANEL_SPRITEp psp)
 {
-    short picnum = psp->picndx;
+    int picnum = psp->picndx;
 
     psp->backupy();
     psp->y += 3 * synctics;
@@ -1232,7 +1232,7 @@ pSwordAttack(PANEL_SPRITEp psp)
 void
 pSwordRetract(PANEL_SPRITEp psp)
 {
-    short picnum = psp->picndx;
+    int picnum = psp->picndx;
 
     psp->backupy();
     psp->y += 3 * synctics * pspPresentRetractScale(picnum, 136);
@@ -1461,7 +1461,7 @@ pLStarBobSetup(PANEL_SPRITEp psp)
 void
 pStarHide(PANEL_SPRITEp psp)
 {
-    short picnum = psp->picndx;
+    int picnum = psp->picndx;
 
     psp->backupy();
     psp->y += 3 * synctics;
@@ -1525,7 +1525,7 @@ pStarThrow(PANEL_SPRITEp psp)
 void
 pStarRetract(PANEL_SPRITEp psp)
 {
-    short picnum = psp->picndx;
+    int picnum = psp->picndx;
 
     psp->backupy();
     psp->y += 3 * synctics;
@@ -2210,7 +2210,7 @@ pUziStartReload(PANEL_SPRITEp psp)
 void
 pUziHide(PANEL_SPRITEp psp)
 {
-    short picnum = psp->picndx;
+    int picnum = psp->picndx;
 
     psp->backupy();
     psp->y += 3 * synctics;
@@ -2368,7 +2368,7 @@ void
 pUziRetract(PANEL_SPRITEp psp)
 {
     // PANEL_SPRITEp sib = psp->sibling;
-    short picnum = psp->picndx;
+    int picnum = psp->picndx;
 
     psp->backupy();
     psp->y += 3 * synctics;
@@ -2760,7 +2760,7 @@ pShotgunRecoilUp(PANEL_SPRITEp psp)
 void
 pShotgunReloadDown(PANEL_SPRITEp psp)
 {
-    short picnum = psp->picndx;
+    int picnum = psp->picndx;
 
     psp->backupy();
     psp->y += 3 * synctics;
@@ -2878,7 +2878,7 @@ PANEL_STATE ps_ShotgunFlash[] =
 void
 pShotgunHide(PANEL_SPRITEp psp)
 {
-    short picnum = psp->picndx;
+    int picnum = psp->picndx;
 
     psp->backupy();
     psp->y += 3 * synctics;
@@ -3013,7 +3013,7 @@ pShotgunFire(PANEL_SPRITEp psp)
 void
 pShotgunRetract(PANEL_SPRITEp psp)
 {
-    short picnum = psp->picndx;
+    int picnum = psp->picndx;
 
     psp->backupy();
     psp->y += 3 * synctics;
@@ -3280,7 +3280,7 @@ pRailBobSetup(PANEL_SPRITEp psp)
 void
 pRailHide(PANEL_SPRITEp psp)
 {
-    short picnum = psp->picndx;
+    int picnum = psp->picndx;
 
     psp->backupy();
     psp->y += 3 * synctics;
@@ -3383,7 +3383,7 @@ pRailFire(PANEL_SPRITEp psp)
 void
 pRailRetract(PANEL_SPRITEp psp)
 {
-    short picnum = psp->picndx;
+    int picnum = psp->picndx;
 
     psp->backupy();
     psp->y += 3 * synctics;
@@ -3698,7 +3698,7 @@ pHotheadBobSetup(PANEL_SPRITEp psp)
 void
 pHotheadHide(PANEL_SPRITEp psp)
 {
-    short picnum = psp->picndx;
+    int picnum = psp->picndx;
 
     psp->backupx();
     psp->x += 3 * synctics;
@@ -3797,7 +3797,7 @@ pHotheadAttack(PANEL_SPRITEp psp)
 void
 pHotheadRetract(PANEL_SPRITEp psp)
 {
-    short picnum = psp->picndx;
+    int picnum = psp->picndx;
 
     psp->backupy();
     psp->y += 3 * synctics;
@@ -4146,7 +4146,7 @@ pMicroBobSetup(PANEL_SPRITEp psp)
 void
 pMicroHide(PANEL_SPRITEp psp)
 {
-    short picnum = psp->picndx;
+    int picnum = psp->picndx;
 
     psp->backupy();
     psp->y += 3 * synctics;
@@ -4357,7 +4357,7 @@ pMicroFire(PANEL_SPRITEp psp)
 void
 pMicroRetract(PANEL_SPRITEp psp)
 {
-    short picnum = psp->picndx;
+    int picnum = psp->picndx;
 
     psp->backupy();
     psp->y += 3 * synctics;
@@ -4563,7 +4563,7 @@ pHeartBobSetup(PANEL_SPRITEp psp)
 void
 pHeartHide(PANEL_SPRITEp psp)
 {
-    short picnum = psp->picndx;
+    int picnum = psp->picndx;
 
     psp->backupy();
     psp->y += 3 * synctics;
@@ -4667,7 +4667,7 @@ pHeartAttack(PANEL_SPRITEp psp)
 void
 pHeartRetract(PANEL_SPRITEp psp)
 {
-    short picnum = psp->picndx;
+    int picnum = psp->picndx;
 
     psp->backupy();
     psp->y += 3 * synctics;
@@ -5010,7 +5010,7 @@ InitWeaponGrenade(PLAYERp pp)
 void
 pGrenadeRecoilDown(PANEL_SPRITEp psp)
 {
-//    short picnum = psp->picndx;
+//    int picnum = psp->picndx;
 
     psp->backupcoords();
 
@@ -5096,7 +5096,7 @@ pGrenadeBobSetup(PANEL_SPRITEp psp)
 void
 pGrenadeHide(PANEL_SPRITEp psp)
 {
-    short picnum = psp->picndx;
+    int picnum = psp->picndx;
 
     psp->backupy();
     psp->y += 3 * synctics;
@@ -5158,7 +5158,7 @@ pGrenadeFire(PANEL_SPRITEp psp)
 void
 pGrenadeRetract(PANEL_SPRITEp psp)
 {
-    short picnum = psp->picndx;
+    int picnum = psp->picndx;
 
     psp->backupy();
     psp->y += 3 * synctics;
@@ -5346,7 +5346,7 @@ pMineBobSetup(PANEL_SPRITEp psp)
 void
 pMineHide(PANEL_SPRITEp psp)
 {
-    short picnum = psp->picndx;
+    int picnum = psp->picndx;
 
     psp->backupy();
     psp->y += 3 * synctics;
@@ -5405,7 +5405,7 @@ pMineThrow(PANEL_SPRITEp psp)
 void
 pMineRetract(PANEL_SPRITEp psp)
 {
-    short picnum = psp->picndx;
+    int picnum = psp->picndx;
 
     psp->backupy();
     psp->y += 3 * synctics;
@@ -5636,7 +5636,7 @@ void ChopsSetRetract(PLAYERp pp)
 void
 pChopsRetract(PANEL_SPRITEp psp)
 {
-    short picnum = psp->picndx;
+    int picnum = psp->picndx;
 
     psp->backupy();
     psp->y += 6 * synctics;
@@ -6175,7 +6175,7 @@ pFistBobSetup(PANEL_SPRITEp psp)
 void
 pFistHide(PANEL_SPRITEp psp)
 {
-    short picnum = psp->picndx;
+    int picnum = psp->picndx;
 
     psp->backupy();
     psp->y += 3 * synctics;
@@ -6251,7 +6251,7 @@ pFistAttack(PANEL_SPRITEp psp)
 void
 pFistRetract(PANEL_SPRITEp psp)
 {
-    short picnum = psp->picndx;
+    int picnum = psp->picndx;
 
     psp->backupy();
     psp->y += 3 * synctics;

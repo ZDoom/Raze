@@ -71,7 +71,7 @@ extern ATTRIBUTE DefaultAttrib;
 
 // AI.C functions
 bool ActorMoveHitReact(DSWActor* actor);
-short ChooseActionNumber(short decision[]);
+int ChooseActionNumber(int16_t decision[]);
 bool CanSeePlayer(DSWActor* actor);
 int DoActorPickClosePlayer(DSWActor* actor);
 int InitActorDecide(DSWActor* actor);
