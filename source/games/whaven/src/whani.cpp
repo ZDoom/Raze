@@ -406,40 +406,41 @@ void animateobjs(PLAYER& plr) {
 	// FLOCK
 	for (i = headspritestat[FLOCK]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
-		sprite[i].lotag -= TICSPERFRAME;
-		switch (sprite[i].extra) {
+		auto& spr = sprite[i];
+		spr.lotag -= TICSPERFRAME;
+		switch (spr.extra) {
 		case 0: // going out of the cave
-			if (sprite[i].lotag < 0) {
-				sprite[i].extra = 1;
-				sprite[i].lotag = 512;
+			if (spr.lotag < 0) {
+				spr.extra = 1;
+				spr.lotag = 512;
 			} else {
 				movestat = (short) movesprite((short) i,
-						(bcos(sprite[i].ang) * TICSPERFRAME) << 3,
-						(bsin(sprite[i].ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
-				setsprite(i, sprite[i].x, sprite[i].y, sprite[i].z);
+						(bcos(spr.ang) * TICSPERFRAME) << 3,
+						(bsin(spr.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
+				setsprite(i, spr.x, spr.y, spr.z);
 				if (movestat != 0)
-					sprite[i].ang = (short) (krand() & 2047);
+					spr.ang = (short) (krand() & 2047);
 			}
 			break;
 		case 1: // flying in circles
-			if (sprite[i].lotag < 0) {
-				sprite[i].extra = 2;
-				sprite[i].lotag = 512;
-				sprite[i].ang = (short) (((getangle(sprite[sprite[i].hitag].x - sprite[i].x,
-						sprite[sprite[i].hitag].y - sprite[i].y) & 2047) - 1024) & 2047);
+			if (spr.lotag < 0) {
+				spr.extra = 2;
+				spr.lotag = 512;
+				spr.ang = (short) (((getangle(sprite[spr.hitag].x - spr.x,
+						sprite[spr.hitag].y - spr.y) & 2047) - 1024) & 2047);
 			} else {
-				sprite[i].z -= TICSPERFRAME << 4;
-				sprite[i].ang = (short) ((sprite[i].ang + (TICSPERFRAME << 2)) & 2047);
+				spr.z -= TICSPERFRAME << 4;
+				spr.ang = (short) ((spr.ang + (TICSPERFRAME << 2)) & 2047);
 				movestat = (short) movesprite((short) i,
-						(bcos(sprite[i].ang) * TICSPERFRAME) << 3,
-						(bsin(sprite[i].ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
-				setsprite(i, sprite[i].x, sprite[i].y, sprite[i].z);
+						(bcos(spr.ang) * TICSPERFRAME) << 3,
+						(bsin(spr.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
+				setsprite(i, spr.x, spr.y, spr.z);
 				if (movestat != 0)
-					sprite[i].ang = (short) (krand() & 2047);
+					spr.ang = (short) (krand() & 2047);
 			}
 			break;
 		case 2: // fly to roof and get deleted
-			if (sprite[i].lotag < 0) {
+			if (spr.lotag < 0) {
 				if (i == lastbat) {
 					soundEngine->StopSound(CHAN_BAT);
 				}
@@ -447,9 +448,9 @@ void animateobjs(PLAYER& plr) {
 				continue;
 			} else {
 				movestat = (short) movesprite((short) i,
-						(bcos(sprite[i].ang) * TICSPERFRAME) << 3,
-						(bsin(sprite[i].ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
-				setsprite(i, sprite[i].x, sprite[i].y, sprite[i].z);
+						(bcos(spr.ang) * TICSPERFRAME) << 3,
+						(bsin(spr.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
+				setsprite(i, spr.x, spr.y, spr.z);
 				if ((movestat & 0xc000) == 16384) {// Hits a ceiling / floor
 					if (i == lastbat) {
 						soundEngine->StopSound(CHAN_BAT);
@@ -458,7 +459,7 @@ void animateobjs(PLAYER& plr) {
 					continue;
 				}
 				if (movestat != 0)
-					sprite[i].ang = (short) (krand() & 2047);
+					spr.ang = (short) (krand() & 2047);
 			}
 			break;
 		}
