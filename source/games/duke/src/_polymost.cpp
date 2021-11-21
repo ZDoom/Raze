@@ -13,9 +13,6 @@ void SE40_Draw(int tag, spritetype *spr, int x, int y, int z, binangle a, fixedh
 	tileDelete(FOF);
 	if (!testgotpic(FOF, true)) return;
 
-	TArray<int> tempsectorz(numsectors, true);
-	TArray<int> tempsectorpicnum(numsectors, true);
-
 	floor1 = spr;
 
 	if (spr->lotag == tag + 2) fofmode = tag + 0;
@@ -72,19 +69,21 @@ void SE40_Draw(int tag, spritetype *spr, int x, int y, int z, binangle a, fixedh
 			spr->hitag == floor1->hitag
 			)
 		{
+			auto sect = spr->sector();
+			// repurpose otherwise unused fields in sectortype as temporary storage.
 			if (k == tag + 0)
 			{
-				tempsectorz[spr->sectnum] = spr->sector()->floorz;
-				spr->sector()->floorz += (((z - spr->sector()->floorz) / 32768) + 1) * 32768;
-				tempsectorpicnum[spr->sectnum] = spr->sector()->floorpicnum;
-				spr->sector()->floorpicnum = 13;
+				sect->Above = sect->floorz;
+				sect->floorz += (((z - sect->floorz) / 32768) + 1) * 32768;
+				sect->Below = sect->floorpicnum;
+				sect->floorpicnum = 13;
 			}
 			if (k == tag + 1)
 			{
-				tempsectorz[spr->sectnum] = spr->sector()->ceilingz;
-				spr->sector()->ceilingz += (((z - spr->sector()->ceilingz) / 32768) - 1) * 32768;
-				tempsectorpicnum[spr->sectnum] = spr->sector()->ceilingpicnum;
-				spr->sector()->ceilingpicnum = 13;
+				sect->Above = sect->ceilingz;
+				sect->ceilingz += (((z - sect->ceilingz) / 32768) - 1) * 32768;
+				sect->Below = sect->ceilingpicnum;
+				sect->ceilingpicnum = 13;
 			}
 		}
 	}
@@ -105,15 +104,16 @@ void SE40_Draw(int tag, spritetype *spr, int x, int y, int z, binangle a, fixedh
 			spr->hitag == floor1->hitag
 			)
 		{
+			auto sect = spr->sector();
 			if (k == tag + 0)
 			{
-				spr->sector()->floorz = tempsectorz[spr->sectnum];
-				spr->sector()->floorpicnum = tempsectorpicnum[spr->sectnum];
+				sect->floorz = sect->Above;
+				sect->floorpicnum = sect->Below;
 			}
 			if (k == tag + 1)
 			{
-				spr->sector()->ceilingz = tempsectorz[spr->sectnum];
-				spr->sector()->ceilingpicnum = tempsectorpicnum[spr->sectnum];
+				sect->ceilingz = sect->Above;
+				sect->ceilingpicnum = sect->Below;
 			}
 		}// end if
 	}// end for
