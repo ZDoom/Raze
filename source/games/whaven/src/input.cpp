@@ -108,7 +108,7 @@ static double lPlayerXVel, lPlayerYVel;
 
 void GameInterface::clearlocalinputstate()
 {
-    localInput = {};
+	localInput = {};
 	lPlayerXVel = lPlayerYVel = 0;
 }
 
@@ -119,55 +119,58 @@ static void UpdatePlayerSpriteAngle(PLAYER& plr)
 
 void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 {
-    if (paused || M_Active())
-    {
-        localInput = {};
-        lPlayerYVel = 0;
-        lPlayerXVel = 0;
-        return;
-    }
+	if (paused || M_Active())
+	{
+		localInput = {};
+		lPlayerYVel = 0;
+		lPlayerXVel = 0;
+		return;
+	}
 
-    PLAYER& plr = player[myconnectindex];
+	PLAYER& plr = player[myconnectindex];
 
-    if (packet != nullptr)
-    {
-        localInput = {};
-        ApplyGlobalInput(localInput, hidInput);
-        if (plr.dead) localInput.actions &= SB_OPEN;
-    }
+	if (packet != nullptr)
+	{
+		localInput = {};
+		ApplyGlobalInput(localInput, hidInput);
+		if (plr.dead) localInput.actions &= SB_OPEN;
+	}
 
-    double const scaleAdjust = InputScale();
-    InputPacket input{};
+	double const scaleAdjust = InputScale();
+	InputPacket input{};
 
-    if (plr.dead)
-    {
-        lPlayerYVel = 0;
-        lPlayerXVel = 0;
-    }
-    else
-    {
-        processMovement(&input, &localInput, hidInput, scaleAdjust);
-    }
+	if (!plr.dead)
+	{
+		processMovement(&input, &localInput, hidInput, scaleAdjust);
+	}
+	else
+	{
+		lPlayerYVel = 0;
+		lPlayerXVel = 0;
+	}
 
-    if (!cl_syncinput)
-    {
-		plr.angle.applyinput(input.avel, &plr.plInput.actions, scaleAdjust);
-		plr.horizon.applyinput(input.horz, &plr.plInput.actions, scaleAdjust);
+	if (!cl_syncinput)
+	{
+		if (!plr.dead)
+		{
+			plr.angle.applyinput(input.avel, &plr.plInput.actions, scaleAdjust);
+			plr.horizon.applyinput(input.horz, &plr.plInput.actions, scaleAdjust);
+		}
 
-        plr.angle.processhelpers(scaleAdjust);
-        plr.horizon.processhelpers(scaleAdjust);
-        UpdatePlayerSpriteAngle(plr);
-    }
+		plr.angle.processhelpers(scaleAdjust);
+		plr.horizon.processhelpers(scaleAdjust);
+		UpdatePlayerSpriteAngle(plr);
+	}
 
-    if (packet)
-    {
-		double k = 0.92;
-		double sin = plr.angle.ang.fsin() * 16384.;
-		double cos = plr.angle.ang.fcos() * 16384.;
+	if (packet)
+	{
+		double const k = 0.92;
+		double const sin = plr.angle.ang.fsin() * 16384.;
+		double const cos = plr.angle.ang.fcos() * 16384.;
 		double xvel = (localInput.fvel * cos) + (localInput.svel * sin);
 		double yvel = (localInput.fvel * sin) - (localInput.svel * cos);
-		double len = sqrt(xvel * xvel + yvel * yvel);
-		auto keymove = localInput.actions & SB_RUN ? gi->playerKeyMove() << 1 : gi->playerKeyMove();
+		double const len = sqrt(xvel * xvel + yvel * yvel);
+		auto const keymove = localInput.actions & SB_RUN ? gi->playerKeyMove() << 1 : gi->playerKeyMove();
 
 		if (len > (keymove << 14))
 		{
@@ -188,7 +191,7 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 
 		*packet = localInput;
 		localInput = {};
-    }
+	}
 }
 
  
