@@ -309,14 +309,14 @@ static void attackgron(PLAYER& plr, short const i) {
 	else {
 		spr.lotag -= TICSPERFRAME;
 		if (spr.lotag < 0) {
-			if (cansee(plr.x, plr.y, plr.z, plr.sector, sprite[i].x, sprite[i].y,
-				spr.z - (tileHeight(sprite[i].picnum) << 7), sprite[i].sectnum))
+			if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y,
+				spr.z - (tileHeight(spr.picnum) << 7), spr.sectnum))
 				newstatus(i, CAST);
 			else
 				newstatus(i, CHASE);
 		}
 		else
-			spr.ang = getangle(plr.x - sprite[i].x, plr.y - sprite[i].y);
+			spr.ang = getangle(plr.x - spr.x, plr.y - spr.y);
 	}
 
 	checksector6(i);
