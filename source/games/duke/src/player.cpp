@@ -1014,17 +1014,17 @@ void shootbloodsplat(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 	// oh my...
 	if (FindDistance2D(sx - hitx, sy - hity) < 1024 &&
 		(wal != nullptr && wal->overpicnum != BIGFORCE) &&
-		((wal->nextsector >= 0 && hitsectp != nullptr &&
+		((wal->twoSided() && hitsectp != nullptr &&
 			wal->nextSector()->lotag == 0 &&
 			hitsectp->lotag == 0 &&
 			(hitsectp->floorz - wal->nextSector()->floorz) > (16 << 8)) ||
-			(wal->nextsector == -1 && hitsectp->lotag == 0)))
+			(!wal->twoSided() && hitsectp->lotag == 0)))
 	{
 		if ((wal->cstat & 16) == 0)
 		{
-			if (wal->nextsector >= 0)
+			if (wal->twoSided())
 			{
-				DukeSectIterator it(wal->nextsector);
+				DukeSectIterator it(wal->nextSector());
 				while (auto act2 = it.Next())
 				{
 					if (act2->s->statnum == STAT_EFFECTOR && act2->s->lotag == SE_13_EXPLOSIVE)
@@ -1032,7 +1032,7 @@ void shootbloodsplat(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 				}
 			}
 
-			if (wal->nextwall >= 0 &&
+			if (wal->twoSided() &&
 				wal->nextWall()->hitag != 0)
 				return;
 

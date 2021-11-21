@@ -665,7 +665,7 @@ void checkhitwall_d(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 		}
 	}
 
-	if (((wal->cstat & 16) || wal->overpicnum == BIGFORCE) && wal->nextsector >= 0)
+	if (((wal->cstat & 16) || wal->overpicnum == BIGFORCE) && wal->twoSided())
 		if (wal->nextSector()->floorz > z)
 			if (wal->nextSector()->floorz - wal->nextSector()->ceilingz)
 				switch (wal->overpicnum)
@@ -702,7 +702,7 @@ void checkhitwall_d(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 				case FANSPRITE:
 					wal->overpicnum = FANSPRITEBROKE;
 					wal->cstat &= 65535 - 65;
-					if (wal->nextwall >= 0)
+					if (wal->twoSided())
 					{
 						wal->nextWall()->overpicnum = FANSPRITEBROKE;
 						wal->nextWall()->cstat &= 65535 - 65;
@@ -720,7 +720,7 @@ void checkhitwall_d(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 					lotsofglass(spr, wal, 10);
 					wal->cstat = 0;
 
-					if (wal->nextwall >= 0)
+					if (wal->twoSided())
 						wal->nextWall()->cstat = 0;
 
 					auto spawned = EGS(sptr, x, y, z, SECTOREFFECTOR, 0, 0, 0, ps[0].angle.ang.asbuild(), 0, 0, spr, 3);
@@ -739,7 +739,7 @@ void checkhitwall_d(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 					if (sptr == nullptr) return;
 					lotsofcolourglass(spr, wal, 80);
 					wal->cstat = 0;
-					if (wal->nextwall >= 0)
+					if (wal->twoSided())
 						wal->nextWall()->cstat = 0;
 					S_PlayActorSound(VENT_BUST, spr);
 					S_PlayActorSound(GLASS_BREAKING, spr);
@@ -867,7 +867,7 @@ void checkhitwall_d(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 
 		if (!wal->lotag) return;
 
-		if (wal->nextsector < 0) return;
+		if (!wal->twoSided()) return;
 		darkestwall = 0;
 
 		for (auto& wl : wallsofsector(wal->nextSector()))

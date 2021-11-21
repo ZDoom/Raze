@@ -1006,7 +1006,7 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 		}
 	}
 
-	if (((wal->cstat & 16) || wal->overpicnum == BIGFORCE) && wal->nextsector >= 0)
+	if (((wal->cstat & 16) || wal->overpicnum == BIGFORCE) && wal->twoSided())
 		if (wal->nextSector()->floorz > z)
 			if (wal->nextSector()->floorz - wal->nextSector()->ceilingz)
 				switch (wal->overpicnum)
@@ -1014,7 +1014,7 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 				case FANSPRITE:
 					wal->overpicnum = FANSPRITEBROKE;
 					wal->cstat &= 65535 - 65;
-					if (wal->nextwall >= 0)
+					if (wal->twoSided())
 					{
 						wal->nextWall()->overpicnum = FANSPRITEBROKE;
 						wal->nextWall()->cstat &= 65535 - 65;
@@ -1032,7 +1032,7 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 					lotsofpopcorn(spr, wal, 64);
 					wal->cstat = 0;
 
-					if (wal->nextwall >= 0)
+					if (wal->twoSided())
 						wal->nextWall()->cstat = 0;
 
 					auto spawned = EGS(sptr, x, y, z, SECTOREFFECTOR, 0, 0, 0, ps[0].angle.ang.asbuild(), 0, 0, spr, 3);
@@ -1053,7 +1053,7 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 					lotsofglass(spr, wal, 10);
 					wal->cstat = 0;
 
-					if (wal->nextwall >= 0)
+					if (wal->twoSided())
 						wal->nextWall()->cstat = 0;
 
 					auto spawned = EGS(sptr, x, y, z, SECTOREFFECTOR, 0, 0, 0, ps[0].angle.ang.asbuild(), 0, 0, spr, 3);
@@ -1070,7 +1070,7 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 					updatesector(x, y, &sn); if (sn < 0) return;
 					lotsofcolourglass(spr, wal, 80);
 					wal->cstat = 0;
-					if (wal->nextwall >= 0)
+					if (wal->twoSided())
 						wal->nextWall()->cstat = 0;
 					S_PlayActorSound(VENT_BUST, spr);
 					S_PlayActorSound(GLASS_BREAKING, spr);
@@ -1087,8 +1087,7 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 	case RRTILE3643 + 2:
 	case RRTILE3643 + 3:
 	{
-		int sect;
-		sect = wal->nextWall()->nextsector;
+		auto sect = wal->nextWall()->nextSector();
 		DukeSectIterator it(sect);
 		while (auto act = it.Next())
 		{
@@ -1100,7 +1099,7 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 				{
 					for(auto& wl : wallsofsector(act->sector()))
 					{
-						if (wl.nextsector >= 0) wl.nextSector()->lotag = 0;
+						if (wl.twoSided()) wl.nextSector()->lotag = 0;
 					}
 					s->sector()->lotag = 0;
 					S_StopSound(act->s->lotag);
@@ -1351,11 +1350,10 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 
 		if (!wal->lotag) return;
 
-		sn = wal->nextsector;
-		if (sn < 0) return;
+		if (!wal->twoSided()) return;
 		darkestwall = 0;
 
-		for (auto& wl : wallsofsector(wal->nextsector))
+		for (auto& wl : wallsofsector(wal->nextSector()))
 			if (wl.shade > darkestwall)
 				darkestwall = wl.shade;
 
@@ -2804,7 +2802,8 @@ void checksectors_r(int snum)
 
 void dofurniture(walltype* wlwal, sectortype* sectp, int snum)
 {
-	int nextsect = wlwal->nextsector;
+	assert(wlwal->twoSided());
+	auto nextsect = wlwal->nextSector();
 	int var_C;
 	int x;
 	int y;

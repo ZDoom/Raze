@@ -426,7 +426,7 @@ void prelevel_d(int g)
 				wal.cstat = 0;
 			else wal.cstat |= 85 + 256;
 
-			if (wal.lotag && wal.nextwall >= 0)
+			if (wal.lotag && wal.twoSided())
 				wal.nextWall()->lotag = wal.lotag;
 			[[fallthrough]];
 

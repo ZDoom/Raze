@@ -333,7 +333,7 @@ void movecyclers(void)
 				{
 					wal.shade = j;
 
-					if ((wal.cstat & CSTAT_WALL_BOTTOM_SWAP) && wal.nextwall >= 0)
+					if ((wal.cstat & CSTAT_WALL_BOTTOM_SWAP) && wal.twoSided())
 						wal.nextWall()->shade = j;
 
 				}
@@ -3318,7 +3318,7 @@ void handle_se03(DDukeActor *actor)
 		if (wal.hitag != 1)
 		{
 			wal.shade = t[0];
-			if ((wal.cstat & 2) && wal.nextwall >= 0)
+			if ((wal.cstat & 2) && wal.twoSided())
 			{
 				wal.nextWall()->shade = wal.shade;
 			}
@@ -3372,7 +3372,7 @@ void handle_se04(DDukeActor *actor)
 		if (wal.hitag != 1)
 		{
 			wal.shade = t[0];
-			if ((wal.cstat & 2) && wal.nextwall >= 0)
+			if ((wal.cstat & 2) && wal.twoSided())
 				wal.nextWall()->shade = wal.shade;
 		}
 	}
@@ -3546,7 +3546,7 @@ void handle_se08(DDukeActor *actor, bool checkhitag1)
 						else if (wal.shade > ac->temp_data[2])
 							wal.shade = ac->temp_data[2];
 
-						if (wal.nextwall >= 0)
+						if (wal.twoSided())
 							if (wal.nextWall()->hitag != 1)
 								wal.nextWall()->shade = wal.shade;
 					}
@@ -4721,7 +4721,7 @@ void handle_se128(DDukeActor *actor)
 	{
 		wal->cstat &= (255 - 32);
 		wal->cstat |= 16;
-		if (wal->nextwall >= 0)
+		if (wal->twoSided())
 		{
 			wal->nextWall()->cstat &= (255 - 32);
 			wal->nextWall()->cstat |= 16;

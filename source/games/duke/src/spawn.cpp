@@ -749,7 +749,7 @@ void spawneffector(DDukeActor* actor)
 				{
 					for (auto& wl : wallsofsector(sectp))
 					{
-						if (wl.nextsector >= 0)
+						if (wl.twoSided())
 						{
 							auto nsec = wl.nextSector();
 							if (!(nsec->ceilingstat & 1))
@@ -846,7 +846,7 @@ void spawneffector(DDukeActor* actor)
 			{
 				if (!(wal.hitag & 1))
 					wal.shade = sp->shade;
-				if ((wal.cstat & 2) && wal.nextwall >= 0)
+				if ((wal.cstat & 2) && wal.twoSided())
 					wal.nextWall()->shade = sp->shade;
 			}
 			break;
@@ -997,7 +997,7 @@ void spawneffector(DDukeActor* actor)
 				sectortype* s = nullptr;
 				for (auto& wal : wallsofsector(sectp))
 				{
-					if (wal.nextsector >= 0 &&
+					if (wal.twoSided() &&
 						wal.nextSector()->hitag == 0 &&
 						(wal.nextSector()->lotag < 3 || (isRRRA() && wal.nextSector()->lotag == 160)))
 					{

@@ -4156,7 +4156,7 @@ void destroyit(DDukeActor *actor)
 					destwal->yrepeat = srcwal->yrepeat;
 					destwal->xpan_ = srcwal->xpan_;
 					destwal->ypan_ = srcwal->ypan_;
-					if (isRRRA() && destwal->nextwall != -1)
+					if (isRRRA() && destwal->twoSided())
 					{
 						destwal->cstat = 0;
 						destwal->nextWall()->cstat = 0;

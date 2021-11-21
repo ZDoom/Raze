@@ -291,7 +291,7 @@ static void shootknee(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 			{
 				auto wal = hitwallp;
 				if (wal->cstat & 2)
-					if (wal->nextsector >= 0)
+					if (wal->twoSided())
 						if (hitz >= (wal->nextSector()->floorz))
 							wal =wal->nextWall();
 
@@ -504,18 +504,18 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 				return;
 			}
 
-			if (wal->hitag != 0 || (wal->nextwall >= 0 && wal->nextWall()->hitag != 0))
+			if (wal->hitag != 0 || (wal->twoSided() && wal->nextWall()->hitag != 0))
 				goto SKIPBULLETHOLE;
 
 			if (hitsectp && hitsectp->lotag == 0)
 				if (wal->overpicnum != BIGFORCE)
-					if ((wal->nextsector >= 0 && wal->nextSector()->lotag == 0) ||
-						(wal->nextsector == -1 && hitsectp->lotag == 0))
+					if ((wal->twoSided() && wal->nextSector()->lotag == 0) ||
+						(!wal->twoSided() && hitsectp->lotag == 0))
 						if ((wal->cstat & 16) == 0)
 						{
-							if (wal->nextsector >= 0)
+							if (wal->twoSided())
 							{
-								DukeSectIterator it(wal->nextsector);
+								DukeSectIterator it(wal->nextSector());
 								while (auto l = it.Next())
 								{
 									if (l->s->statnum == 3 && l->s->lotag == 13)
@@ -543,7 +543,7 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 		SKIPBULLETHOLE:
 
 			if (wal->cstat & 2)
-				if (wal->nextsector >= 0)
+				if (wal->twoSided())
 					if (hitz >= (wal->nextSector()->floorz))
 						wal = wal->nextWall();
 
@@ -889,7 +889,7 @@ static void shootlaser(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 	{
 		if (((hitx - sx) * (hitx - sx) + (hity - sy) * (hity - sy)) < (290 * 290))
 		{
-			if (wal->nextsector >= 0)
+			if (wal->twoSided())
 			{
 				if (wal->nextSector()->lotag <= 2 && hitsectp->lotag <= 2)
 					j = 1;
@@ -2080,7 +2080,7 @@ int operateTripbomb(int snum)
 	}
 
 	if (j == nullptr && wal != nullptr && (wal->cstat & 16) == 0)
-		if ((wal->nextsector >= 0 && wal->nextSector()->lotag <= 2) || (wal->nextsector == -1 && hitsectp->lotag <= 2))
+		if ((wal->twoSided() && wal->nextSector()->lotag <= 2) || (!wal->twoSided() && hitsectp->lotag <= 2))
 			if (((sx - p->pos.x) * (sx - p->pos.x) + (sy - p->pos.y) * (sy - p->pos.y)) < (290 * 290))
 			{
 				p->pos.z = p->oposz;

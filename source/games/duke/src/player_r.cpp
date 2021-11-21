@@ -177,7 +177,7 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 			else if (wal)
 			{
 				if (wal->cstat & 2)
-					if (wal->nextsector >= 0)
+					if (wal->twoSided())
 						if (hitz >= (wal->nextSector()->floorz))
 							wal = wal->nextWall();
 
@@ -395,18 +395,18 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 				return;
 			}
 
-			if (wal->hitag != 0 || (wal->nextwall >= 0 && wal->nextWall()->hitag != 0))
+			if (wal->hitag != 0 || (wal->twoSided() && wal->nextWall()->hitag != 0))
 				goto SKIPBULLETHOLE;
 
 			if (hitsectp != nullptr && hitsectp->lotag == 0)
 				if (wal->overpicnum != BIGFORCE)
-					if ((wal->nextsector >= 0 && wal->nextSector()->lotag == 0) ||
-						(wal->nextsector == -1 && hitsectp->lotag == 0))
+					if ((wal->twoSided() && wal->nextSector()->lotag == 0) ||
+						(!wal->twoSided() && hitsectp->lotag == 0))
 						if ((wal->cstat & 16) == 0)
 						{
-							if (wal->nextsector >= 0)
+							if (wal->twoSided())
 							{
-								DukeSectIterator it(wal->nextsector);
+								DukeSectIterator it(wal->nextSector());
 								while (auto l = it.Next())
 								{
 									if (l->s->statnum == 3 && l->s->lotag == 13)
@@ -434,7 +434,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 		SKIPBULLETHOLE:
 
 			if (wal->cstat & 2)
-				if (wal->nextsector >= 0)
+				if (wal->twoSided())
 					if (hitz >= (wal->nextSector()->floorz))
 						wal = wal->nextWall();
 

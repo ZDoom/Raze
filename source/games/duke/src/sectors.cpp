@@ -974,7 +974,7 @@ void operatesectors(sectortype* sptr, DDukeActor *actor)
 		for (auto& wal : wallsofsector(sptr))
 		{
 			setanimation(sptr, anim_vertexx, &wal, wal.x + 1024, 4);
-			if (wal.nextwall >= 0) setanimation(sptr, anim_vertexx, wal.nextWall(), wal.nextWall()->x + 1024, 4);
+			if (wal.twoSided()) setanimation(sptr, anim_vertexx, wal.nextWall(), wal.nextWall()->x + 1024, 4);
 		}
 		break;
 
