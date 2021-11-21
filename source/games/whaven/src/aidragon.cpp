@@ -320,40 +320,43 @@ static void dragonAttack2(PLAYER& plr, short i) {
 	checksector6(i);
 }
 
-static void firebreath(PLAYER& plr, int i, int a, int b, int c) {
+static void firebreath(PLAYER& plr, int i, int a, int b, int c) 
+{
+	auto& spr = sprite[i];
 	for (int k = 0; k <= a; k++) {
-		int j = insertsprite(sprite[i].sectnum, MISSILE);
+		int j = insertsprite(spr.sectnum, MISSILE);
 		if (j == -1)
 			return;
+		auto& spawned = sprite[j];
 
-		sprite[j].x = sprite[i].x;
-		sprite[j].y = sprite[i].y;
+		spawned.x = spr.x;
+		spawned.y = spr.y;
 		if (c == LOW)
-			sprite[j].z = sector[sprite[i].sectnum].floorz - (32 << 8);
+			spawned.z = sector[spr.sectnum].floorz - (32 << 8);
 		else
-			sprite[j].z = sector[sprite[i].sectnum].floorz - (tileHeight(sprite[i].picnum) << 7);
-		sprite[j].cstat = 0;
-		sprite[j].picnum = MONSTERBALL;
-		sprite[j].shade = -15;
-		sprite[j].xrepeat = 128;
-		sprite[j].yrepeat = 128;
-		sprite[j].ang = (short)((((getangle(plr.x - sprite[j].x, plr.y - sprite[j].y)
+			spawned.z = sector[spr.sectnum].floorz - (tileHeight(spr.picnum) << 7);
+		spawned.cstat = 0;
+		spawned.picnum = MONSTERBALL;
+		spawned.shade = -15;
+		spawned.xrepeat = 128;
+		spawned.yrepeat = 128;
+		spawned.ang = (short)((((getangle(plr.x - spawned.x, plr.y - spawned.y)
 			+ (krand() & 15) - 8) + 2048) + ((b * 22) + (k * 10))) & 2047);
-		sprite[j].xvel = bcos(sprite[j].ang, -6);
-		sprite[j].yvel = bsin(sprite[j].ang, -6);
+		spawned.xvel = bcos(spawned.ang, -6);
+		spawned.yvel = bsin(spawned.ang, -6);
 		int discrim = ksqrt(
-			(plr.x - sprite[j].x) * (plr.x - sprite[j].x) + (plr.y - sprite[j].y) * (plr.y - sprite[j].y));
+			(plr.x - spawned.x) * (plr.x - spawned.x) + (plr.y - spawned.y) * (plr.y - spawned.y));
 		if (discrim == 0)
 			discrim = 1;
 		if (c == HIGH)
-			sprite[j].zvel = (short)(((plr.z + (32 << 8) - sprite[j].z) << 7) / discrim);
+			spawned.zvel = (short)(((plr.z + (32 << 8) - spawned.z) << 7) / discrim);
 		else
-			sprite[j].zvel = (short)((((plr.z + (8 << 8)) - sprite[j].z) << 7) / discrim);// NEW
+			spawned.zvel = (short)((((plr.z + (8 << 8)) - spawned.z) << 7) / discrim);// NEW
 
-		sprite[j].owner = (short)i;
-		sprite[j].clipdist = 16;
-		sprite[j].lotag = 512;
-		sprite[j].hitag = 0;
+		spawned.owner = (short)i;
+		spawned.clipdist = 16;
+		spawned.lotag = 512;
+		spawned.hitag = 0;
 	}
 }
 	

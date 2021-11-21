@@ -221,7 +221,6 @@ void aiProcess() {
 	//		if(pHitInfo.hitsprite != -1)
 	//		{
 	//			int sprid = pHitInfo.hitsprite;
-	//			System.err.println(sprite[sprid].statnum);
 	//		}
 
 	judyOperate(plr);
