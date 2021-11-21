@@ -1159,12 +1159,13 @@ void animateobjs(PLAYER& plr) {
 
 	for (i = headspritestat[BLOOD]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
+		auto& spr = sprite[i];
 
-		sprite[i].lotag -= TICSPERFRAME;
-		if (sprite[i].lotag < 0) {
-			if (sprite[i].z < sector[sprite[i].sectnum].floorz) {
-				sprite[i].lotag = 600;
-				sprite[i].zvel = 0;
+		spr.lotag -= TICSPERFRAME;
+		if (spr.lotag < 0) {
+			if (spr.z < sector[spr.sectnum].floorz) {
+				spr.lotag = 600;
+				spr.zvel = 0;
 				newstatus(i, DRIP);
 			} else {
 				deletesprite(i);
@@ -1174,15 +1175,16 @@ void animateobjs(PLAYER& plr) {
 
 	for (i = headspritestat[DEVILFIRE]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
+		auto& spr = sprite[i];
 
 		if (plr.invisibletime < 0) {
-			sprite[i].lotag -= TICSPERFRAME;
-			if (sprite[i].lotag < 0) {
-				sprite[i].lotag = (short) (krand() & 120 + 360);
-				if (cansee(plr.x, plr.y, plr.z, plr.sector, sprite[i].x, sprite[i].y,
-						sprite[i].z - (tileHeight(sprite[i].picnum) << 7), sprite[i].sectnum)) {
+			spr.lotag -= TICSPERFRAME;
+			if (spr.lotag < 0) {
+				spr.lotag = (short) (krand() & 120 + 360);
+				if (cansee(plr.x, plr.y, plr.z, plr.sector, spr.x, spr.y,
+						spr.z - (tileHeight(spr.picnum) << 7), spr.sectnum)) {
 					// JSA_NEW
-					spritesound(S_FIREBALL, &sprite[i]);
+					spritesound(S_FIREBALL, &spr);
 					castspell(plr, i);
 				}
 			}
@@ -1191,37 +1193,39 @@ void animateobjs(PLAYER& plr) {
 
 	for (i = headspritestat[DRIP]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
+		auto& spr = sprite[i];
 
-		sprite[i].lotag -= TICSPERFRAME;
-		sprite[i].z += sprite[i].zvel;
+		spr.lotag -= TICSPERFRAME;
+		spr.z += spr.zvel;
 		dax = 0;
 		day = 0;
-		daz = sprite[i].zvel += TICSPERFRAME << 1;
-		daz = (((sprite[i].zvel) * TICSPERFRAME) << 1);
+		daz = spr.zvel += TICSPERFRAME << 1;
+		daz = (((spr.zvel) * TICSPERFRAME) << 1);
 		movestat = (short) movesprite(i, dax, day, daz, 4 << 8, 4 << 8, 1);
 
 		if ((movestat & 0xc000) == 16384) {
-			sprite[i].lotag = 1200;
+			spr.lotag = 1200;
 			newstatus(i, BLOOD);
 		}
-		if (sprite[i].lotag < 0) {
+		if (spr.lotag < 0) {
 			deletesprite((short) i);
 		}
 	}
 
 	for (i = headspritestat[SMOKE]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
+		auto& spr = sprite[i];
 
-		sprite[i].lotag -= TICSPERFRAME;
+		spr.lotag -= TICSPERFRAME;
 
 //			
-//			sprite[i].z -= (TICSPERFRAME << 6);
+//			spr.z -= (TICSPERFRAME << 6);
 
-		if (sprite[i].xrepeat > 1)
-			sprite[i].xrepeat = sprite[i].yrepeat -= TICSPERFRAME;
+		if (spr.xrepeat > 1)
+			spr.xrepeat = spr.yrepeat -= TICSPERFRAME;
 
-//			setsprite(i, sprite[i].x, sprite[i].y, sprite[i].z);
-		if (sprite[i].lotag < 0) {
+//			setsprite(i, spr.x, spr.y, spr.z);
+		if (spr.lotag < 0) {
 			deletesprite((short) i);
 		}
 	}
@@ -1229,48 +1233,49 @@ void animateobjs(PLAYER& plr) {
 	if (!isWh2()) {
 		for (i = headspritestat[EXPLO]; i >= 0; i = nextsprite) {
 			nextsprite = nextspritestat[i];
+			auto& spr = sprite[i];
 
-			sprite[i].lotag -= TICSPERFRAME;
-			sprite[i].x += ((sprite[i].xvel * TICSPERFRAME) >> 5);
-			sprite[i].y += ((sprite[i].yvel * TICSPERFRAME) >> 5);
-			sprite[i].z -= ((sprite[i].zvel * TICSPERFRAME) >> 6);
+			spr.lotag -= TICSPERFRAME;
+			spr.x += ((spr.xvel * TICSPERFRAME) >> 5);
+			spr.y += ((spr.yvel * TICSPERFRAME) >> 5);
+			spr.z -= ((spr.zvel * TICSPERFRAME) >> 6);
 
-			sprite[i].zvel += (TICSPERFRAME << 4);
+			spr.zvel += (TICSPERFRAME << 4);
 
-			if (sprite[i].z < sector[sprite[i].sectnum].ceilingz + (4 << 8)) {
-				sprite[i].z = sector[sprite[i].sectnum].ceilingz + (4 << 8);
-				sprite[i].zvel = (short) -(sprite[i].zvel >> 1);
+			if (spr.z < sector[spr.sectnum].ceilingz + (4 << 8)) {
+				spr.z = sector[spr.sectnum].ceilingz + (4 << 8);
+				spr.zvel = (short) -(spr.zvel >> 1);
 			}
-			if (sprite[i].z > sector[sprite[i].sectnum].floorz - (4 << 8)) {
-				sprite[i].z = sector[sprite[i].sectnum].floorz - (4 << 8);
-				sprite[i].zvel = (short) -(sprite[i].zvel >> 1);
+			if (spr.z > sector[spr.sectnum].floorz - (4 << 8)) {
+				spr.z = sector[spr.sectnum].floorz - (4 << 8);
+				spr.zvel = (short) -(spr.zvel >> 1);
 			}
 
-			sprite[i].xrepeat += TICSPERFRAME;
-			sprite[i].yrepeat += TICSPERFRAME;
+			spr.xrepeat += TICSPERFRAME;
+			spr.yrepeat += TICSPERFRAME;
 
-			sprite[i].lotag -= TICSPERFRAME;
+			spr.lotag -= TICSPERFRAME;
 
 			if (krand() % 100 > 90) {
-				j = insertsprite(sprite[i].sectnum, SMOKE);
+				j = insertsprite(spr.sectnum, SMOKE);
 
-				sprite[j].x = sprite[i].x;
-				sprite[j].y = sprite[i].y;
-				sprite[j].z = sprite[i].z;
+				sprite[j].x = spr.x;
+				sprite[j].y = spr.y;
+				sprite[j].z = spr.z;
 				sprite[j].cstat = 0x03;
 				sprite[j].cstat &= ~3;
 				sprite[j].picnum = SMOKEFX;
 				sprite[j].shade = 0;
 				sprite[j].pal = 0;
-				sprite[j].xrepeat = sprite[i].xrepeat;
-				sprite[j].yrepeat = sprite[i].yrepeat;
+				sprite[j].xrepeat = spr.xrepeat;
+				sprite[j].yrepeat = spr.yrepeat;
 
-				sprite[j].owner = sprite[i].owner;
+				sprite[j].owner = spr.owner;
 				sprite[j].lotag = 256;
 				sprite[j].hitag = 0;
 			}
 
-			if (sprite[i].lotag < 0) {
+			if (spr.lotag < 0) {
 				deletesprite(i);
 			}
 		}
