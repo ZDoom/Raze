@@ -742,27 +742,28 @@ void animateobjs(PLAYER& plr) {
 	// PUSH
 	for (i = headspritestat[PUSH]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
+		auto& spr = sprite[i];
 
-		sprite[i].lotag -= TICSPERFRAME;
+		spr.lotag -= TICSPERFRAME;
 
-		osectnum = sprite[i].sectnum;
+		osectnum = spr.sectnum;
 
-		getzrange(sprite[i].x, sprite[i].y, sprite[i].z - 1, sprite[i].sectnum, (sprite[i].clipdist) << 2,
+		getzrange(spr.x, spr.y, spr.z - 1, spr.sectnum, (spr.clipdist) << 2,
 				CLIPMASK0);
-		if (sprite[i].z < zr_florz)
-			daz = sprite[i].zvel += (TICSPERFRAME << 1);
+		if (spr.z < zr_florz)
+			daz = spr.zvel += (TICSPERFRAME << 1);
 
 		// clip type was 1
-		hitobject = (short) movesprite(i, (bcos(sprite[i].ang) * TICSPERFRAME) << 3,
-				(bsin(sprite[i].ang) * TICSPERFRAME) << 3, daz, 4 << 8, 4 << 8, 0);
+		hitobject = (short) movesprite(i, (bcos(spr.ang) * TICSPERFRAME) << 3,
+				(bsin(spr.ang) * TICSPERFRAME) << 3, daz, 4 << 8, 4 << 8, 0);
 
-		setsprite(i, sprite[i].x, sprite[i].y, sprite[i].z);
+		setsprite(i, spr.x, spr.y, spr.z);
 
-		if (sprite[i].lotag < 0 || (hitobject & 0xc000) == 32768) {
-			sprite[i].lotag = 0;
+		if (spr.lotag < 0 || (hitobject & 0xc000) == 32768) {
+			spr.lotag = 0;
 			changespritestat(i, (short) 0);
-			if (sprite[i].z < sector[sprite[i].sectnum].floorz) {
-				sprite[i].zvel += 256L;
+			if (spr.z < sector[spr.sectnum].floorz) {
+				spr.zvel += 256L;
 				changespritestat(i, FALL);
 			}
 		}
@@ -771,9 +772,9 @@ void animateobjs(PLAYER& plr) {
 	// DORMANT
 	for (i = headspritestat[DORMANT]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
+		auto& spr = sprite[i];
 
 		if (isWh2()) {
-			SPRITE& spr = sprite[i];
 			osectnum = spr.sectnum;
 			j = (torchpattern[PlayClock % 38]);
 			sector[osectnum].ceilingshade = (byte) j;
@@ -787,9 +788,9 @@ void animateobjs(PLAYER& plr) {
 				newstatus((short) i, ACTIVE);
 			}
 		} else {
-			sprite[i].lotag -= TICSPERFRAME;
-			sprite[i].xrepeat = sprite[i].yrepeat = 2;
-			if (sprite[i].lotag < 0) {
+			spr.lotag -= TICSPERFRAME;
+			spr.xrepeat = spr.yrepeat = 2;
+			if (spr.lotag < 0) {
 				newstatus(i, ACTIVE);
 			}
 		}
@@ -798,9 +799,9 @@ void animateobjs(PLAYER& plr) {
 	// ACTIVE
 	for (i = headspritestat[ACTIVE]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
+		auto& spr = sprite[i];
 
 		if (isWh2()) {
-			SPRITE& spr = sprite[i];
 			spr.lotag -= TICSPERFRAME;
 			osectnum = spr.sectnum;
 			j = (torchpattern[PlayClock % 38]);
@@ -821,10 +822,10 @@ void animateobjs(PLAYER& plr) {
 				newstatus((short) i, DORMANT);
 			}
 		} else {
-			sprite[i].lotag -= TICSPERFRAME;
-			sprite[i].xrepeat = 48;
-			sprite[i].yrepeat = 32;
-			if (sprite[i].lotag < 0) {
+			spr.lotag -= TICSPERFRAME;
+			spr.xrepeat = 48;
+			spr.yrepeat = 32;
+			if (spr.lotag < 0) {
 				newstatus(i, DORMANT);
 			}
 		}
