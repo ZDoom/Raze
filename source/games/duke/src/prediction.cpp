@@ -82,7 +82,7 @@ void fakedomovethingscorrect(void)
 	 myy = p->pos.y; omyy = p->oposy; myyvel = p->posyv;
 	 myz = p->pos.z; omyz = p->oposz; myzvel = p->poszv;
 	 myang = p->ang; omyang = p->oang;
-	 mycursectnum = p->cursectnum;
+	 mycursectnum = p->cursector;
 	 myhoriz = p->horiz; omyhoriz = p->ohoriz;
 	 myhorizoff = p->horizoff; omyhorizoff = p->ohorizoff;
 	 myjumpingcounter = p->jumping_counter;

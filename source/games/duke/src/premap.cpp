@@ -64,7 +64,7 @@ void pickrandomspot(int snum)
 	p->bobposy = p->oposy = p->pos.y = po[i].oy;
 	p->oposz = p->pos.z = po[i].oz;
 	p->angle.oang = p->angle.ang = buildang(po[i].oa);
-	p->cursectnum = po[i].os;
+	p->setCursector(po[i].os);
 }
 
 
@@ -588,7 +588,7 @@ void resetpspritevars(int g)
 		po[numplayersprites].oy = s->y;
 		po[numplayersprites].oz = s->z;
 		po[numplayersprites].oa = s->ang;
-		po[numplayersprites].os = s->sectnum;
+		po[numplayersprites].os = s->sector();
 
 		numplayersprites++;
 		if (j >= 0)

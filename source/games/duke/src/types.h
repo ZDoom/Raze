@@ -165,7 +165,7 @@ struct player_orig
 {
 	int ox, oy, oz;
 	short oa;
-	int os;
+	sectortype* os;
 };
 
 struct CraneDef

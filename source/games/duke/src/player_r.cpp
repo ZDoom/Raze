@@ -3364,7 +3364,7 @@ void processinput_r(int snum)
 	int i, k, doubvel, fz, cz, truefdist;
 	Collision chz, clz;
 	bool shrunk;
-	int psect, psectlotag;
+	int psectlotag;
 
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
@@ -3379,7 +3379,7 @@ void processinput_r(int snum)
 	auto sb_svel = PlayerInputSideVel(snum);
 	auto sb_avel = PlayerInputAngVel(snum);
 
-	psect = p->cursectnum;
+	auto psectp = p->cursector();
 	if (p->OnMotorcycle && s->extra > 0)
 	{
 		onMotorcycle(snum, actions);
@@ -3388,21 +3388,20 @@ void processinput_r(int snum)
 	{
 		onBoat(snum, actions);
 	}
-	if (psect == -1)
+	if (psectp == nullptr)
 	{
 		if (s->extra > 0 && ud.clipping == 0)
 		{
 			quickkill(p);
 			S_PlayActorSound(SQUISHED, pact);
 		}
-		psect = 0;
+		psectp = &sector[0];
 	}
-	auto psectp = &sector[psect];
 	psectlotag = psectp->lotag;
 
 	if (psectlotag == 867)
 	{
-		DukeSectIterator it(psect);
+		DukeSectIterator it(psectp);
 		while (auto act2 = it.Next())
 		{
 			if (act2->s->picnum == RRTILE380)
@@ -3427,17 +3426,17 @@ void processinput_r(int snum)
 	int tempfz;
 	if (s->clipdist == 64)
 	{
-		getzrange_ex(p->pos.x, p->pos.y, p->pos.z, psect, &cz, chz, &fz, clz, 163L, CLIPMASK0);
-		tempfz = getflorzofslope(psect, p->pos.x, p->pos.y);
+		getzrange_ex(p->pos.x, p->pos.y, p->pos.z, psectp, &cz, chz, &fz, clz, 163L, CLIPMASK0);
+		tempfz = getflorzofslopeptr(psectp, p->pos.x, p->pos.y);
 	}
 	else
 	{
-		getzrange_ex(p->pos.x, p->pos.y, p->pos.z, psect, &cz, chz, &fz, clz, 4L, CLIPMASK0);
-		tempfz = getflorzofslope(psect, p->pos.x, p->pos.y);
+		getzrange_ex(p->pos.x, p->pos.y, p->pos.z, psectp, &cz, chz, &fz, clz, 4L, CLIPMASK0);
+		tempfz = getflorzofslopeptr(psectp, p->pos.x, p->pos.y);
 	}
 
 	p->truefz = tempfz;
-	p->truecz = getceilzofslope(psect, p->pos.x, p->pos.y);
+	p->truecz = getceilzofslopeptr(psectp, p->pos.x, p->pos.y);
 
 	truefdist = abs(p->pos.z - tempfz);
 	if (clz.type == kHitSector && psectlotag == 1 && truefdist > gs.playerheight + (16 << 8))
@@ -3812,7 +3811,7 @@ HORIZONLY:
 		p->pos.x += p->posxv >> 14;
 		p->pos.y += p->posyv >> 14;
 		updatesector(p->pos.x, p->pos.y, &p->cursectnum);
-		changeactorsect(pact, p->cursectnum);
+		changeactorsect(pact, p->cursector());
 	}
 	else
 		clipmove_ex(&p->pos, &p->cursectnum, p->posxv, p->posyv, 164, (4 << 8), i, CLIPMASK0, clip);
@@ -3923,7 +3922,6 @@ HORIZONLY:
 
 	if (psectlotag < 3)
 	{
-		psect = s->sectnum;
 		psectp = s->sector();
 		if (ud.clipping == 0 && psectp->lotag == ST_31_TWO_WAY_TRAIN)
 		{
@@ -3941,8 +3939,8 @@ HORIZONLY:
 			if (!isRRRA() || (!p->OnBoat && !p->OnMotorcycle && p->cursector()->hitag != 321))
 				S_PlayActorSound(DUKE_ONWATER, pact);
 
-	if (p->cursectnum != s->sectnum)
-		changeactorsect(pact, p->cursectnum);
+	if (p->cursector() != s->sector())
+		changeactorsect(pact, p->cursector());
 
 	int j;
 	if (ud.clipping == 0)

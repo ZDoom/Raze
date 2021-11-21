@@ -320,6 +320,7 @@ void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 			if (ps[p].over_shoulder_on > 0 && ps[p].newOwner == nullptr)
 			{
 				t->cstat |= 2;
+#if 0 // multiplayer only
 				if (screenpeek == myconnectindex && numplayers >= 2)
 				{
 					t->x = interpolatedvalue(omyx, myx, smoothratio);
@@ -328,6 +329,7 @@ void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 					t->ang = interpolatedangle(omyang, myang, smoothratio).asbuild();
 					t->sectnum = mycursectnum;
 				}
+#endif
 			}
 
 			if ((display_mirror == 1 || screenpeek != p || !h->GetOwner()) && ud.multimode > 1 && cl_showweapon && ps[p].GetActor()->s->extra > 0 && ps[p].curr_weapon > 0)

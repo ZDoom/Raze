@@ -2928,7 +2928,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 			auto psp = ps[p].GetActor();
 			if (ps[p].insector() && ps[p].cursector()->lotag != 2)
 			{
-				if (po[p].os == s->sectnum)
+				if (po[p].os == s->sector())
 				{
 					po[p].ox += m;
 					po[p].oy += x;
@@ -3123,7 +3123,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 				ps[p].bobposy += x;
 			}
 
-			if (po[p].os == s->sectnum)
+			if (po[p].os == s->sector())
 			{
 				po[p].ox += l;
 				po[p].oy += x;
