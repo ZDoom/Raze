@@ -1495,39 +1495,42 @@ void trailingsmoke(int i, boolean ball) {
 
 void icecubes(int i, int x, int y, int z, int owner) {
 	int j = insertsprite(sprite[i].sectnum, FX);
+	auto& spawned = sprite[j];
 
-	sprite[j].x = x;
-	sprite[j].y = y;
+	spawned.x = x;
+	spawned.y = y;
 
-	sprite[j].z = sector[sprite[i].sectnum].floorz - (getPlayerHeight() << 8) + (krand() & 4096);
+	spawned.z = sector[sprite[i].sectnum].floorz - (getPlayerHeight() << 8) + (krand() & 4096);
 
-	sprite[j].cstat = 0; // Hitscan does not hit smoke on wall
-	sprite[j].picnum = ICECUBE;
-	sprite[j].shade = -16;
-	sprite[j].xrepeat = 16;
-	sprite[j].yrepeat = 16;
+	spawned.cstat = 0; // Hitscan does not hit smoke on wall
+	spawned.picnum = ICECUBE;
+	spawned.shade = -16;
+	spawned.xrepeat = 16;
+	spawned.yrepeat = 16;
 
-	sprite[j].ang = (short) (((krand() & 1023) - 1024) & 2047);
-	sprite[j].xvel = (short) ((krand() & 1023) - 512);
-	sprite[j].yvel = (short) ((krand() & 1023) - 512);
-	sprite[j].zvel = (short) ((krand() & 1023) - 512);
+	spawned.ang = (short) (((krand() & 1023) - 1024) & 2047);
+	spawned.xvel = (short) ((krand() & 1023) - 512);
+	spawned.yvel = (short) ((krand() & 1023) - 512);
+	spawned.zvel = (short) ((krand() & 1023) - 512);
 
-	sprite[j].pal = 6;
-	sprite[j].owner = sprite[i].owner;
+	spawned.pal = 6;
+	spawned.owner = sprite[i].owner;
 	
 	if(isWh2())
-		sprite[j].lotag = 2048;
-	else sprite[j].lotag = 999;
-	sprite[j].hitag = 0;
+		spawned.lotag = 2048;
+	else spawned.lotag = 999;
+	spawned.hitag = 0;
 
 }
 
-boolean damageactor(PLAYER& plr, int hitobject, short i) {
-	short j = (short) (hitobject & 4095); // j is the spritenum that the bullet (spritenum i) hit
-	if (j == plr.spritenum && sprite[i].owner == sprite[plr.spritenum].owner)
+boolean damageactor(PLAYER& plr, int hitobject, short const i) {
+	short const j = (short) (hitobject & 4095); // j is the spritenum that the bullet (spritenum i) hit
+	auto& spr = sprite[i];
+	auto& hitspr = sprite[j];
+	if (j == plr.spritenum && spr.owner == sprite[plr.spritenum].owner)
 		return false;
 
-	if (j == plr.spritenum && sprite[i].owner != sprite[plr.spritenum].owner) {
+	if (j == plr.spritenum && spr.owner != sprite[plr.spritenum].owner) {
 		if (plr.invincibletime > 0 || plr.godMode) {
 			deletesprite(i);
 			return false;
@@ -1535,7 +1538,7 @@ boolean damageactor(PLAYER& plr, int hitobject, short i) {
 		// EG 17 Oct 2017: Mass backport of RULES.CFG behavior for resist/onyx ring
 		// EG 21 Aug 2017: New RULES.CFG behavior in place of the old #ifdef
 		if (plr.manatime > 0) {
-			if (/* eg_resist_blocks_traps && */sprite[i].picnum != FATSPANK && sprite[i].picnum != PLASMA) {
+			if (/* eg_resist_blocks_traps && */spr.picnum != FATSPANK && spr.picnum != PLASMA) {
 				deletesprite(i);
 				return false;
 			}
@@ -1543,16 +1546,16 @@ boolean damageactor(PLAYER& plr, int hitobject, short i) {
 			// for animation
 			// FATSPANK is right in the middle of this group of tiles, so still keep an
 			// exception for it.
-			else if ((sprite[i].picnum >= EXPLOSION && sprite[i].picnum <= (MONSTERBALL + 2)
-					&& sprite[i].picnum != FATSPANK)) {
+			else if ((spr.picnum >= EXPLOSION && spr.picnum <= (MONSTERBALL + 2)
+					&& spr.picnum != FATSPANK)) {
 				deletesprite(i);
 				return false;
 			}
 		}
 		// EG 21 Aug 2017: onyx ring
 		else if (plr.treasure[TONYXRING] == 1 /*&& eg_onyx_effect != 0*/
-				&& ((sprite[i].picnum < EXPLOSION || sprite[i].picnum > MONSTERBALL + 2)
-						&& sprite[i].picnum != PLASMA)) {
+				&& ((spr.picnum < EXPLOSION || spr.picnum > MONSTERBALL + 2)
+						&& spr.picnum != PLASMA)) {
 			
 //				if (eg_onyx_effect == 1 || (eg_onyx_effect == 2 && ((krand() & 32) > 16))) {
 				deletesprite(i);
@@ -1562,9 +1565,9 @@ boolean damageactor(PLAYER& plr, int hitobject, short i) {
 		// EG 21 Aug 2017: Move this here so as not to make ouch sounds unless pain is
 		// happening
 		if ((krand() & 9) == 0)
-			spritesound(S_PLRPAIN1 + (rand() % 2), &sprite[i]);
+			spritesound(S_PLRPAIN1 + (rand() % 2), &spr);
 
-		if (isWh2() && sprite[i].picnum == DART) {
+		if (isWh2() && spr.picnum == DART) {
 			plr.poisoned = 1;
 			plr.poisontime = 7200;
 			showmessage("Poisoned", 360);
@@ -1573,9 +1576,9 @@ boolean damageactor(PLAYER& plr, int hitobject, short i) {
 		if (netgame) {
 //						netdamageactor(j,i);
 		} else {
-			if (sprite[i].picnum == PLASMA)
+			if (spr.picnum == PLASMA)
 				addhealth(plr, -((krand() & 15) + 15));
-			else if (sprite[i].picnum == FATSPANK) {
+			else if (spr.picnum == FATSPANK) {
 				spritesound(S_GORE1A + (krand() % 3),  &sprite[plr.spritenum]);
 				addhealth(plr, -((krand() & 10) + 10));
 				if ((krand() % 100) > 90) {
@@ -1583,7 +1586,7 @@ boolean damageactor(PLAYER& plr, int hitobject, short i) {
 					plr.poisontime = 7200;
 					showmessage("Poisoned", 360);
 				}
-			} else if (sprite[i].picnum == THROWPIKE) {
+			} else if (spr.picnum == THROWPIKE) {
 				addhealth(plr, -((krand() % 10) + 5));
 			} else
 				addhealth(plr, -((krand() & 20) + 5));
@@ -1596,7 +1599,7 @@ boolean damageactor(PLAYER& plr, int hitobject, short i) {
 	}
 
 	if (j != plr.spritenum && !netgame) // Les 08/11/95
-		if (sprite[i].owner != j) {
+		if (spr.owner != j) {
 			
 //				final int DEMONTYPE = 1; XXX
 //				final int DRAGONTYPE = 3;
@@ -1605,7 +1608,7 @@ boolean damageactor(PLAYER& plr, int hitobject, short i) {
 //				final int RATTYPE = 18;
 //				final int SKULLYTYPE = 20;
 			
-			switch (sprite[j].detail) {
+			switch (hitspr.detail) {
 			case NEWGUYTYPE:
 			case KURTTYPE:
 			case GONZOTYPE:
@@ -1622,40 +1625,40 @@ boolean damageactor(PLAYER& plr, int hitobject, short i) {
 			case FATWITCHTYPE:
 			case WILLOWTYPE:
 			case GUARDIANTYPE:
-				if(isBlades(sprite[i].picnum)) {
-					sprite[j].hitag -= 30;
-					if(sprite[i].picnum == THROWPIKE) {
+				if(isBlades(spr.picnum)) {
+					hitspr.hitag -= 30;
+					if(spr.picnum == THROWPIKE) {
 						if ((krand() % 2) != 0)
-							spritesound(S_GORE1A + krand() % 2, &sprite[i]);
+							spritesound(S_GORE1A + krand() % 2, &spr);
 					}
 				} else {
-				switch (sprite[i].picnum) {
+				switch (spr.picnum) {
 					case PLASMA:
-						sprite[j].hitag -= 40;
+						hitspr.hitag -= 40;
 						break;
 					case FATSPANK:
-						sprite[j].hitag -= 10;
+						hitspr.hitag -= 10;
 						break;
 					case MONSTERBALL:
-						sprite[j].hitag -= 40;
+						hitspr.hitag -= 40;
 						break;
 					case FIREBALL:
 						if(!isWh2())
-							sprite[j].hitag -= 3;
+							hitspr.hitag -= 3;
 						break;
 					case BULLET:
-						sprite[j].hitag -= 10;
+						hitspr.hitag -= 10;
 						break;
 					case DISTORTIONBLAST:
-						sprite[j].hitag = 10;
+						hitspr.hitag = 10;
 						break;
 					case BARREL:
-						sprite[j].hitag -= 100;
+						hitspr.hitag -= 100;
 						break;
 					}
 				}
 				
-				if (sprite[j].hitag <= 0) {
+				if (hitspr.hitag <= 0) {
 					newstatus(j, DIE);
 					deletesprite(i);
 				} else
@@ -1663,7 +1666,7 @@ boolean damageactor(PLAYER& plr, int hitobject, short i) {
 				return true;
 			}
 			
-			switch(sprite[j].detail) {
+			switch(hitspr.detail) {
 			case GONZOTYPE:
 			case NEWGUYTYPE:
 			case KATIETYPE:
@@ -1678,9 +1681,9 @@ boolean damageactor(PLAYER& plr, int hitobject, short i) {
 			case IMPTYPE:
 				// JSA_NEW //why is this here it's in whplr
 				// raf because monsters could shatter a guy thats been frozen
-				if (sprite[j].pal == 6) {
+				if (hitspr.pal == 6) {
 					for (int k = 0; k < 32; k++)
-						icecubes(j, sprite[j].x, sprite[j].y, sprite[j].z, j);
+						icecubes(j, hitspr.x, hitspr.y, hitspr.z, j);
 					// EG 26 Oct 2017: Move this here from medusa (anti multi-freeze exploit)
 					addscore(&plr, 100);
 					deletesprite(j);
@@ -1688,7 +1691,7 @@ boolean damageactor(PLAYER& plr, int hitobject, short i) {
 				return true;
 			}
 			
-			switch (sprite[j].picnum) {
+			switch (hitspr.picnum) {
 			case BARREL:
 			case VASEA:
 			case VASEB:
@@ -1702,8 +1705,8 @@ boolean damageactor(PLAYER& plr, int hitobject, short i) {
 			case STAINGLASS7:
 			case STAINGLASS8:
 			case STAINGLASS9:
-				sprite[j].hitag = 0;
-				sprite[j].lotag = 0;
+				hitspr.hitag = 0;
+				hitspr.lotag = 0;
 				newstatus(j, BROKENVASE);
 				break;
 			default:
