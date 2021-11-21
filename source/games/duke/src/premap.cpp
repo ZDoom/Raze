@@ -508,7 +508,7 @@ void resetpspritevars(int g)
 	int aimmode[MAXPLAYERS];
 	STATUSBARTYPE tsbar[MAXPLAYERS];
 
-	EGS(ps[0].cursector(), ps[0].pos.x, ps[0].pos.y, ps[0].pos.z,
+	EGS(ps[0].cursector, ps[0].pos.x, ps[0].pos.y, ps[0].pos.z,
 		TILE_APLAYER, 0, 0, 0, ps[0].angle.ang.asbuild(), 0, 0, nullptr, 10);
 
 	if (ud.recstat != 2) for (i = 0; i < MAXPLAYERS; i++)
@@ -634,7 +634,7 @@ void resetpspritevars(int g)
 			s->backuppos();
 			ps[j].angle.oang = ps[j].angle.ang = buildang(s->ang);
 
-			updatesector(s->x, s->y, &ps[j].cursectnum);
+			updatesector(s->x, s->y, &ps[j].cursector);
 
 			j = connectpoint2[j];
 
@@ -945,8 +945,8 @@ static int LoadTheMap(MapRecord *mi, struct player_struct *p, int gamemode)
 
 	currentLevel = mi;
 	int sect;
-	engineLoadBoard(mi->fileName, isShareware(), &p->pos, &lbang, &sect);// &p->cursectnum);
-	p->cursectnum = sect;
+	engineLoadBoard(mi->fileName, isShareware(), &p->pos, &lbang, &sect);
+	p->cursector = &sector[sect];
 
 	SECRET_SetMapName(mi->DisplayName(), mi->name);
 	STAT_NewLevel(mi->fileName);

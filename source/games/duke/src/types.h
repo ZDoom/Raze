@@ -218,7 +218,7 @@ struct player_struct
 
 	int aim_mode, ftt;
 
-	int cursectnum;
+	sectortype* cursector;
 	sectortype* one_parallax_sectnum; // wall + sector references. Make them pointers later?
 	walltype* access_wall;
 
@@ -316,20 +316,14 @@ struct player_struct
 		return (psectlotag == ST_2_UNDERWATER)? avel * 0.875f : avel;
 	}
 
-	sectortype* cursector() const
-	{
-		return cursectnum < 0 ? nullptr : &::sector[cursectnum];
-	}
-	
 	void setCursector(sectortype* sect)
 	{
-		cursectnum = ::sector.IndexOf(sect);
+		cursector = sect;
 	}
 
 	bool insector() const
 	{
-		assert(cursectnum >= -1 && cursectnum < numsectors);	// check for truly invalid values.
-		return validSectorIndex(cursectnum);
+		return cursector != nullptr;
 	}
 
 };

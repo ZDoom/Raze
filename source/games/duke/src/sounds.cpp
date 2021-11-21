@@ -331,7 +331,7 @@ void S_GetCamera(vec3_t** c, int32_t* ca, int32_t* cs)
 	{
 		auto p = &ps[screenpeek];
 		if (c) *c = &p->pos;
-		if (cs) *cs = p->cursectnum;
+		if (cs) *cs = sectnum(p->cursector);
 		if (ca) *ca = p->angle.ang.asbuild();
 	}
 	else
@@ -488,7 +488,7 @@ int S_PlaySound3D(int sndnum, DDukeActor* actor, const vec3_t* pos, int channel,
 
 	bool explosion = ((userflags & (SF_GLOBAL | SF_DTAG)) == (SF_GLOBAL | SF_DTAG)) || ((sndnum == PIPEBOMB_EXPLODE || sndnum == LASERTRIP_EXPLODE || sndnum == RPG_EXPLODE));
 
-	bool underwater = ps[screenpeek].insector() && ps[screenpeek].cursector()->lotag == ST_2_UNDERWATER;
+	bool underwater = ps[screenpeek].insector() && ps[screenpeek].cursector->lotag == ST_2_UNDERWATER;
 	if (explosion)
 	{
 		if (underwater)

@@ -84,8 +84,8 @@ int setpal(struct player_struct* p)
 	if (p->DrugMode) palette = DRUGPAL;
 	else if (p->heat_on) palette = SLIMEPAL;
 	else if (!p->insector()) palette = BASEPAL; // don't crash if out of range.
-	else if (p->cursector()->ceilingpicnum >= TILE_FLOORSLIME && p->cursector()->ceilingpicnum <= TILE_FLOORSLIME + 2) palette = SLIMEPAL;
-	else if (p->cursector()->lotag == ST_2_UNDERWATER) palette = WATERPAL;
+	else if (p->cursector->ceilingpicnum >= TILE_FLOORSLIME && p->cursector->ceilingpicnum <= TILE_FLOORSLIME + 2) palette = SLIMEPAL;
+	else if (p->cursector->lotag == ST_2_UNDERWATER) palette = WATERPAL;
 	else palette = BASEPAL;
 	return palette;
 }
@@ -215,7 +215,7 @@ int hitawall(struct player_struct* p, walltype** hitw)
 {
 	int sx, sy, sz;
 
-	hitscan(p->pos.x, p->pos.y, p->pos.z, p->cursector(),
+	hitscan(p->pos.x, p->pos.y, p->pos.z, p->cursector,
 		p->angle.ang.bcos(), p->angle.ang.bsin(), 0, nullptr, hitw, nullptr, &sx, &sy, &sz, CLIPMASK0);
 
 	return (FindDistance2D(sx - p->pos.x, sy - p->pos.y));
@@ -488,7 +488,7 @@ void footprints(int snum)
 	auto psect = s->sectnum;
 
 	if (p->footprintcount > 0 && p->on_ground)
-		if ((p->cursector()->floorstat & 2) != 2)
+		if ((p->cursector->floorstat & 2) != 2)
 		{
 			int j = -1;
 			DukeSectIterator it(psect);
@@ -505,7 +505,7 @@ void footprints(int snum)
 			if (j < 0)
 			{
 				p->footprintcount--;
-				if (p->cursector()->lotag == 0 && p->cursector()->hitag == 0)
+				if (p->cursector->lotag == 0 && p->cursector->hitag == 0)
 				{
 					DDukeActor* fprint;
 					switch (krand() & 3)
@@ -607,16 +607,16 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 		}
 
 		Collision coll;
-		clipmove_ex(&p->pos, &p->cursectnum, 0, 0, 164, (4 << 8), (4 << 8), CLIPMASK0, coll);
+		clipmove_ex(&p->pos, &p->cursector, 0, 0, 164, (4 << 8), (4 << 8), CLIPMASK0, coll);
 	}
 
 	backupplayer(p);
 
 	p->horizon.horizoff = p->horizon.horiz = q16horiz(0);
 
-	updatesector(p->pos.x, p->pos.y, &p->cursectnum);
+	updatesector(p->pos.x, p->pos.y, &p->cursector);
 
-	pushmove(&p->pos, &p->cursectnum, 128L, (4 << 8), (20 << 8), CLIPMASK0);
+	pushmove(&p->pos, &p->cursector, 128L, (4 << 8), (20 << 8), CLIPMASK0);
 
 	if (fz > cz + (16 << 8) && s->pal != 1)
 		p->angle.rotscrnang = buildang(p->dead_flag + ((fz + p->pos.z) >> 7));
@@ -1098,7 +1098,7 @@ DEFINE_FIELD_X(DukePlayer, player_struct, randomflamex)
 DEFINE_FIELD_X(DukePlayer, player_struct, crack_time)
 DEFINE_FIELD_X(DukePlayer, player_struct, aim_mode)
 DEFINE_FIELD_X(DukePlayer, player_struct, ftt)
-DEFINE_FIELD_X(DukePlayer, player_struct, cursectnum)
+DEFINE_FIELD_X(DukePlayer, player_struct, cursector)
 DEFINE_FIELD_X(DukePlayer, player_struct, last_extra)
 DEFINE_FIELD_X(DukePlayer, player_struct, subweapon)
 DEFINE_FIELD_X(DukePlayer, player_struct, ammo_amount)

@@ -251,7 +251,7 @@ void displayweapon_d(int snum, double smoothratio)
 	shade = p->GetActor()->s->shade;
 	if(shade > 24) shade = 24;
 
-	pal = !p->insector() ? 0 : p->GetActor()->s->pal == 1 ? 1 : p->cursector()->floorpal;
+	pal = !p->insector() ? 0 : p->GetActor()->s->pal == 1 ? 1 : p->cursector->floorpal;
 	if (pal == 0)
 		pal = p->palookup;
 
@@ -1162,7 +1162,7 @@ void displayweapon_d(int snum, double smoothratio)
 
 		auto displayflamethrower = [&]()
 		{
-			if (*kb < 1 || p->cursector()->lotag == 2)
+			if (*kb < 1 || p->cursector->lotag == 2)
 			{
 				hud_drawpal(weapon_xoffset + 210 - look_anghalf, looking_arc + 261 - gun_pos, FLAMETHROWER, shade, o, pal);
 				hud_drawpal(weapon_xoffset + 210 - look_anghalf, looking_arc + 261 - gun_pos, FLAMETHROWERPILOT, shade, o, pal);

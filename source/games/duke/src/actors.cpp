@@ -207,7 +207,7 @@ void clearcamera(player_struct* ps)
 	ps->pos.y = ps->oposy;
 	ps->pos.z = ps->oposz;
 	ps->angle.restore();
-	updatesector(ps->pos.x, ps->pos.y, &ps->cursectnum);
+	updatesector(ps->pos.x, ps->pos.y, &ps->cursector);
 
 	DukeStatIterator it(STAT_ACTOR);
 	while (auto k = it.Next())
@@ -360,7 +360,7 @@ void movedummyplayers(void)
 		p = act->GetOwner()->PlayerIndex();
 		auto spri = act->s;
 
-		if ((!isRR() && ps[p].on_crane != nullptr) || !ps[p].insector() || ps[p].cursector()->lotag != 1 || ps->GetActor()->s->extra <= 0)
+		if ((!isRR() && ps[p].on_crane != nullptr) || !ps[p].insector() || ps[p].cursector->lotag != 1 || ps->GetActor()->s->extra <= 0)
 		{
 			ps[p].dummyplayersprite = nullptr;
 			deletesprite(act);
@@ -368,7 +368,7 @@ void movedummyplayers(void)
 		}
 		else
 		{
-			if (ps[p].on_ground && ps[p].on_warping_sector == 1 && ps[p].cursector()->lotag == 1)
+			if (ps[p].on_ground && ps[p].on_warping_sector == 1 && ps[p].cursector->lotag == 1)
 			{
 				spri->cstat = CSTAT_SPRITE_BLOCK_ALL;
 				spri->z = spri->sector()->ceilingz + (27 << 8);
@@ -619,7 +619,7 @@ void movefx(void)
 				{
 					if (act->temp_data[4] > 0) act->temp_data[4]--;
 					else for (p = connecthead; p >= 0; p = connectpoint2[p])
-						if (p == myconnectindex && ps[p].cursector() == spri->sector())
+						if (p == myconnectindex && ps[p].cursector == spri->sector())
 						{
 							S_PlaySound(spri->lotag + (unsigned)global_random % (spri->hitag + 1));
 							act->temp_data[4] = 26 * 40 + (global_random % (26 * 40));
@@ -1572,7 +1572,7 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 					}
 			}
 		}
-		if (x < 512 && s->sector() == ps[p].cursector())
+		if (x < 512 && s->sector() == ps[p].cursector)
 		{
 			s->ang = getangle(s->x - ps[p].pos.x, s->y - ps[p].pos.y);
 			s->xvel = 48;
@@ -1724,7 +1724,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 			fi.shoot(actor, firelaser);
 			s->ang = a;
 		}
-		if (t[2] > (26 * 3) || !cansee(s->x, s->y, s->z - (16 << 8), s->sector(), ps[p].pos.x, ps[p].pos.y, ps[p].pos.z, ps[p].cursector()))
+		if (t[2] > (26 * 3) || !cansee(s->x, s->y, s->z - (16 << 8), s->sector(), ps[p].pos.x, ps[p].pos.y, ps[p].pos.z, ps[p].cursector))
 		{
 			t[0] = 0;
 			t[2] = 0;
@@ -1747,7 +1747,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 		else
 		{
 			t[2]++;
-			if (t[2] > (26 * 3) || !cansee(s->x, s->y, s->z - (16 << 8), s->sector(), ps[p].pos.x, ps[p].pos.y, ps[p].pos.z, ps[p].cursector()))
+			if (t[2] > (26 * 3) || !cansee(s->x, s->y, s->z - (16 << 8), s->sector(), ps[p].pos.x, ps[p].pos.y, ps[p].pos.z, ps[p].cursector))
 			{
 				t[0] = 1;
 				t[2] = 0;
@@ -2749,7 +2749,7 @@ void handle_se00(DDukeActor* actor, int LASERLINE)
 		int p;
 		for (p = connecthead; p >= 0; p = connectpoint2[p])
 		{
-			if (ps[p].cursector() == s->sector() && ps[p].on_ground == 1)
+			if (ps[p].cursector == s->sector() && ps[p].on_ground == 1)
 			{
 				ps[p].angle.addadjustment(l * q);
 
@@ -2905,9 +2905,9 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 					auto psp = ps[p].GetActor();
 					if (psp->s->extra > 0)
 					{
-						auto k = ps[p].cursector();
+						auto k = ps[p].cursector;
 						updatesector(ps[p].pos.x, ps[p].pos.y, &k);
-						if ((k == nullptr && ud.clipping == 0) || (k == s->sector() && ps[p].cursector() != s->sector()))
+						if ((k == nullptr && ud.clipping == 0) || (k == s->sector() && ps[p].cursector != s->sector()))
 						{
 							ps[p].pos.x = s->x;
 							ps[p].pos.y = s->y;
@@ -2926,7 +2926,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 		{
 			auto psp = ps[p].GetActor();
-			if (ps[p].insector() && ps[p].cursector()->lotag != 2)
+			if (ps[p].insector() && ps[p].cursector->lotag != 2)
 			{
 				if (po[p].os == s->sector())
 				{
@@ -2989,9 +2989,9 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 				{
 					if (ps[p].GetActor()->s->extra > 0)
 					{
-						auto k = ps[p].cursector();
+						auto k = ps[p].cursector;
 						updatesector(ps[p].pos.x, ps[p].pos.y, &k);
-						if ((k == nullptr && ud.clipping == 0) || (k == s->sector() && ps[p].cursector() != s->sector()))
+						if ((k == nullptr && ud.clipping == 0) || (k == s->sector() && ps[p].cursector != s->sector()))
 						{
 							ps[p].oposx = ps[p].pos.x = s->x;
 							ps[p].oposy = ps[p].pos.y = s->y;
@@ -3092,9 +3092,9 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 					auto psp = ps[p].GetActor();
 					if (psp->s->extra > 0)
 					{
-						auto k = ps[p].cursector();
+						auto k = ps[p].cursector;
 						updatesector(ps[p].pos.x, ps[p].pos.y, &k);
-						if ((k == nullptr && ud.clipping == 0) || (k == s->sector() && ps[p].cursector() != s->sector()))
+						if ((k == nullptr && ud.clipping == 0) || (k == s->sector() && ps[p].cursector != s->sector()))
 						{
 							ps[p].pos.x = s->x;
 							ps[p].pos.y = s->y;
@@ -3155,9 +3155,9 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 				for (int p = connecthead; p >= 0; p = connectpoint2[p])
 					if (ps[p].GetActor()->s->extra > 0)
 					{
-						auto k = ps[p].cursector();
+						auto k = ps[p].cursector;
 						updatesector(ps[p].pos.x, ps[p].pos.y, &k);
-						if ((k == nullptr && ud.clipping == 0) || (k == s->sector() && ps[p].cursector() != s->sector()))
+						if ((k == nullptr && ud.clipping == 0) || (k == s->sector() && ps[p].cursector != s->sector()))
 						{
 							ps[p].pos.x = s->x;
 							ps[p].pos.y = s->y;
@@ -3248,7 +3248,7 @@ void handle_se02(DDukeActor* actor)
 
 
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
-			if (ps[p].cursector() == s->sector() && ps[p].on_ground)
+			if (ps[p].cursector == s->sector() && ps[p].on_ground)
 			{
 				ps[p].pos.x += m;
 				ps[p].pos.y += x;
@@ -4282,7 +4282,7 @@ void handle_se20(DDukeActor* actor)
 		dragpoint(wal[1], wal[1]->x + x, wal[1]->y + l);
 
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
-			if (ps[p].cursector() == s->sector() && ps[p].on_ground)
+			if (ps[p].cursector == s->sector() && ps[p].on_ground)
 			{
 				ps[p].pos.x += x;
 				ps[p].pos.y += l;
@@ -4437,7 +4437,7 @@ void handle_se27(DDukeActor* actor)
 		}
 		else if (ud.recstat == 2 && ps[p].newOwner == nullptr)
 		{
-			if (cansee(s->x, s->y, s->z, s->sector(), ps[p].pos.x, ps[p].pos.y, ps[p].pos.z, ps[p].cursector()))
+			if (cansee(s->x, s->y, s->z, s->sector(), ps[p].pos.x, ps[p].pos.y, ps[p].pos.z, ps[p].cursector))
 			{
 				if (x < sh)
 				{
@@ -4539,7 +4539,7 @@ void handle_se24(DDukeActor *actor, const int16_t *list1, const int16_t *list2, 
 
 	for (auto p = connecthead; p >= 0; p = connectpoint2[p])
 	{
-		if (ps[p].cursector() == actor->s->sector() && ps[p].on_ground)
+		if (ps[p].cursector == actor->s->sector() && ps[p].on_ground)
 		{
 			if (abs(ps[p].pos.z - ps[p].truefz) < gs.playerheight + (9 << 8))
 			{

@@ -281,7 +281,7 @@ void hud_input(int plnum)
 							p->inven_icon = 3;
 
 							auto pactor =
-								EGS(p->cursector(),
+								EGS(p->cursector,
 									p->pos.x,
 									p->pos.y,
 									p->pos.z + (30 << 8), TILE_APLAYER, -64, 0, 0, p->angle.ang.asbuild(), 0, 0, nullptr, 10);
@@ -335,7 +335,7 @@ void hud_input(int plnum)
 					S_PlayActorSound(390, pact);
 					p->noise_radius = 16384;
 					madenoise(plnum);
-					if (p->cursector()->lotag == 857)
+					if (p->cursector->lotag == 857)
 					{
 						if (p->GetActor()->s->extra <= gs.max_player_health)
 						{
@@ -526,7 +526,7 @@ enum
 static void processInputBits(player_struct *p, ControlInfo* const hidInput)
 {
 	// Set-up crouch bools.
-	int const sectorLotag = p->insector() ? p->cursector()->lotag : 0;
+	int const sectorLotag = p->insector() ? p->cursector->lotag : 0;
 	bool const crouchable = sectorLotag != ST_2_UNDERWATER && (sectorLotag != ST_1_ABOVE_WATER || p->spritebridge);
 	bool const disableToggle = p->jetpack_on || (!crouchable && p->on_ground) || (isRRRA() && (p->OnMotorcycle || p->OnBoat));
 

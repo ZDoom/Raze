@@ -2030,7 +2030,7 @@ int ParseState::parse(void)
 			ps[g_p].pos.y = ps[g_p].oposy;
 			ps[g_p].pos.z = ps[g_p].oposz;
 			ps[g_p].angle.restore();
-			updatesector(ps[g_p].pos.x,ps[g_p].pos.y,&ps[g_p].cursectnum);
+			updatesector(ps[g_p].pos.x,ps[g_p].pos.y,&ps[g_p].cursector);
 
 			DukeStatIterator it(STAT_ACTOR);
 			while (auto j = it.Next())
@@ -2209,7 +2209,7 @@ int ParseState::parse(void)
 			g_sp->y = ps[g_p].bobposy = ps[g_p].oposy = ps[g_p].pos.y;
 			g_sp->z = ps[g_p].oposz = ps[g_p].pos.z;
 			g_sp->backuppos();
-			updatesector(ps[g_p].pos.x, ps[g_p].pos.y, &ps[g_p].cursectnum);
+			updatesector(ps[g_p].pos.x, ps[g_p].pos.y, &ps[g_p].cursector);
 			setsprite(ps[g_p].GetActor(), ps[g_p].pos.x, ps[g_p].pos.y, ps[g_p].pos.z + gs.playerheight);
 			g_sp->cstat = 257;
 

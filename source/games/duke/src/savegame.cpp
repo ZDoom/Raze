@@ -131,7 +131,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 			("crack_time", w.crack_time)
 			("aim.mode", w.aim_mode)
 			("psectlotag", w.psectlotag)
-			("cursectnum", w.cursectnum)
+			("cursectnum", w.cursector)
 			("last_extra", w.last_extra)
 			("subweapon", w.subweapon)
 			.Array("ammo_count", w.ammo_amount, MAX_WEAPONS)

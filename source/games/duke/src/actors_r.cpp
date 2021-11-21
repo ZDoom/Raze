@@ -553,14 +553,14 @@ void movefta_r(void)
 						{
 							int r1 = krand();
 							int r2 = krand();
-							j = cansee(sx, sy, s->z - (r2 % (52 << 8)), s->sector(), px, py, ps[p].oposz - (r1 % (32 << 8)), ps[p].cursector());
+							j = cansee(sx, sy, s->z - (r2 % (52 << 8)), s->sector(), px, py, ps[p].oposz - (r1 % (32 << 8)), ps[p].cursector);
 						}
 					}
 					else
 					{
 						int r1 = krand();
 						int r2 = krand();
-						j = cansee(s->x, s->y, s->z - ((r2 & 31) << 8), s->sector(), ps[p].oposx, ps[p].oposy, ps[p].oposz - ((r1 & 31) << 8), ps[p].cursector());
+						j = cansee(s->x, s->y, s->z - ((r2 & 31) << 8), s->sector(), ps[p].oposx, ps[p].oposy, ps[p].oposz - ((r1 & 31) << 8), ps[p].cursector);
 					}
 
 
@@ -1611,7 +1611,7 @@ void movetransports_r(void)
 							S_PlayActorSound(TELEPORTER, act);
 
 							for (k = connecthead; k >= 0; k = connectpoint2[k])
-								if (ps[k].cursector() == Owner->sector())
+								if (ps[k].cursector == Owner->sector())
 								{
 									ps[k].frag_ps = p;
 									ps[k].GetActor()->s->extra = 0;
@@ -2691,7 +2691,7 @@ DETONATEB:
 		}
 	}
 	else if (s->picnum == HEAVYHBOMB && x < 788 && t[0] > 7 && s->xvel == 0)
-		if (cansee(s->x, s->y, s->z - (8 << 8), s->sector(), ps[p].pos.x, ps[p].pos.y, ps[p].pos.z, ps[p].cursector()))
+		if (cansee(s->x, s->y, s->z - (8 << 8), s->sector(), ps[p].pos.x, ps[p].pos.y, ps[p].pos.z, ps[p].cursector))
 			if (ps[p].ammo_amount[DYNAMITE_WEAPON] < gs.max_ammo_amount[DYNAMITE_WEAPON])
 				if (s->pal == 0)
 				{

@@ -345,7 +345,7 @@ void doanimations(void)
 		if (animatetype[i] == anim_floorz)
 		{
 			for (p = connecthead; p >= 0; p = connectpoint2[p])
-				if (ps[p].cursector() == dasectp)
+				if (ps[p].cursector == dasectp)
 					if ((dasectp->floorz - ps[p].pos.z) < (64 << 8))
 						if (ps[p].GetActor()->GetOwner() != nullptr)
 						{

@@ -2420,7 +2420,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 					ps[p].pos.y = ps[p].oposy;
 					ps[p].pos.z = ps[p].oposz;
 
-					updatesector(ps[p].pos.x, ps[p].pos.y, &ps[p].cursectnum);
+					updatesector(ps[p].pos.x, ps[p].pos.y, &ps[p].cursector);
 
 					DukeStatIterator it(STAT_EFFECTOR);
 					while (auto act = it.Next())
@@ -2460,17 +2460,17 @@ void checksectors_r(int snum)
 
 	if (!p->insector()) return;
 
-	switch (p->cursector()->lotag)
+	switch (p->cursector->lotag)
 	{
 
 	case 32767:
-		p->cursector()->lotag = 0;
+		p->cursector->lotag = 0;
 		FTA(9, p);
 		p->secret_rooms++;
-		SECRET_Trigger(p->cursectnum);
+		SECRET_Trigger(sectnum(p->cursector));
 		return;
 	case -1:
-		p->cursector()->lotag = 0;
+		p->cursector->lotag = 0;
 		if (!isRRRA() || !RRRA_ExitedLevel)
 		{
 			setnextmap(false);
@@ -2478,16 +2478,16 @@ void checksectors_r(int snum)
 		}
 		return;
 	case -2:
-		p->cursector()->lotag = 0;
+		p->cursector->lotag = 0;
 		p->timebeforeexit = 26 * 8;
-		p->customexitsound = p->cursector()->hitag;
+		p->customexitsound = p->cursector->hitag;
 		return;
 	default:
-		if (p->cursector()->lotag >= 10000)
+		if (p->cursector->lotag >= 10000)
 		{
 			if (snum == screenpeek || ud.coop == 1)
-				S_PlayActorSound(p->cursector()->lotag - 10000, pact);
-			p->cursector()->lotag = 0;
+				S_PlayActorSound(p->cursector->lotag - 10000, pact);
+			p->cursector->lotag = 0;
 		}
 		break;
 
@@ -2616,7 +2616,7 @@ void checksectors_r(int snum)
 			return;
 
 		if (neartagsprite == nullptr && ntwall == nullptr)
-			if (p->cursector()->lotag == 2)
+			if (p->cursector->lotag == 2)
 			{
 				DDukeActor* hit;
 				oldz = hitasprite(p->GetActor(), &hit);

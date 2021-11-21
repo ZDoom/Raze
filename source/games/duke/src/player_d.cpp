@@ -1607,7 +1607,7 @@ int doincrements_d(struct player_struct* p)
 		}
 	}
 
-	if (p->scuba_on == 0 && p->insector() && p->cursector()->lotag == 2)
+	if (p->scuba_on == 0 && p->insector() && p->cursector->lotag == 2)
 	{
 		if (p->scuba_amount > 0)
 		{
@@ -1811,7 +1811,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz, int
 					p->dummyplayersprite = spawn(pact, PLAYERONWATER);
 
 				p->footprintcount = 6;
-				if (p->cursector()->floorpicnum == FLOORSLIME)
+				if (p->cursector->floorpicnum == FLOORSLIME)
 					p->footprintpal = 8;
 				else p->footprintpal = 0;
 				p->footprintshade = 0;
@@ -1844,7 +1844,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz, int
 			if ((p->pos.z + p->poszv) >= (fz - (i << 8))) // hit the ground
 			{
 				S_StopSound(DUKE_SCREAM, pact);
-				if (!p->insector() || p->cursector()->lotag != 1)
+				if (!p->insector() || p->cursector->lotag != 1)
 				{
 					if (p->falling_counter > 62) quickkill(p);
 
@@ -2055,7 +2055,7 @@ int operateTripbomb(int snum)
 	walltype* wal;
 
 	hitscan(p->pos.x, p->pos.y, p->pos.z,
-		p->cursector(), p->angle.ang.bcos(),
+		p->cursector, p->angle.ang.bcos(),
 		p->angle.ang.bsin(), -p->horizon.sum().asq16() >> 11,
 		&hitsectp, &wal, &hitsprt, &sx, &sy, &sz, CLIPMASK1);
 
@@ -2195,7 +2195,7 @@ static void fireweapon(int snum)
 		if (isWorldTour() && p->ammo_amount[FLAMETHROWER_WEAPON] > 0) 
 		{
 			p->kickback_pic = 1;
-			if (p->cursector()->lotag != 2)
+			if (p->cursector->lotag != 2)
 				S_PlayActorSound(FLAMETHROWER_INTRO, pact);
 		}
 		break;
@@ -2247,7 +2247,7 @@ static void operateweapon(int snum, ESyncBits actions)
 				i = -512 - MulScale(p->horizon.sum().asq16(), 20, 16);
 			}
 
-			auto spawned = EGS(p->cursector(),
+			auto spawned = EGS(p->cursector,
 				p->pos.x + p->angle.ang.bcos(-6),
 				p->pos.y + p->angle.ang.bsin(-6),
 				p->pos.z, HEAVYHBOMB, -16, 9, 9,
@@ -2599,7 +2599,7 @@ static void operateweapon(int snum, ESyncBits actions)
 		p->kickback_pic++;
 		if (p->kickback_pic == 2) 
 		{
-			if (p->cursector()->lotag != 2) 
+			if (p->cursector->lotag != 2) 
 			{
 				p->ammo_amount[FLAMETHROWER_WEAPON]--;
 				if (snum == screenpeek)
@@ -2775,7 +2775,7 @@ void processinput_d(int snum)
 	auto sb_svel = PlayerInputSideVel(snum);
 	auto sb_avel = PlayerInputAngVel(snum);
 
-	auto psectp = p->cursector();
+	auto psectp = p->cursector;
 	if (psectp == nullptr)
 	{
 		if (s->extra > 0 && ud.clipping == 0)
@@ -2899,7 +2899,7 @@ void processinput_d(int snum)
 	s->xvel = clamp(ksqrt((p->pos.x - p->bobposx) * (p->pos.x - p->bobposx) + (p->pos.y - p->bobposy) * (p->pos.y - p->bobposy)), 0, 512);
 	if (p->on_ground) p->bobcounter += p->GetActor()->s->xvel >> 1;
 
-	p->backuppos(ud.clipping == 0 && (p->cursector()->floorpicnum == MIRROR || !p->insector()));
+	p->backuppos(ud.clipping == 0 && (p->cursector->floorpicnum == MIRROR || !p->insector()));
 
 	// Shrinking code
 
@@ -3061,7 +3061,7 @@ HORIZONLY:
 	if (psectlotag == 1 || p->spritebridge == 1) ii = (4L << 8);
 	else ii = (20L << 8);
 
-	if (p->insector() && p->cursector()->lotag == 2) k = 0;
+	if (p->insector() && p->cursector->lotag == 2) k = 0;
 	else k = 1;
 
 	Collision clip{};
@@ -3069,11 +3069,11 @@ HORIZONLY:
 	{
 		p->pos.x += p->posxv >> 14;
 		p->pos.y += p->posyv >> 14;
-		updatesector(p->pos.x, p->pos.y, &p->cursectnum);
-		changeactorsect(pact, p->cursector());
+		updatesector(p->pos.x, p->pos.y, &p->cursector);
+		changeactorsect(pact, p->cursector);
 	}
 	else
-		clipmove_ex(&p->pos, &p->cursectnum, p->posxv, p->posyv, 164, (4 << 8), ii, CLIPMASK0, clip);
+		clipmove_ex(&p->pos, &p->cursector, p->posxv, p->posyv, 164, (4 << 8), ii, CLIPMASK0, clip);
 
 	if (p->jetpack_on == 0 && psectlotag != 2 && psectlotag != 1 && shrunk)
 		p->pos.z += 32 << 8;
@@ -3113,15 +3113,15 @@ HORIZONLY:
 		}
 	}
 
-	if (truefdist < gs.playerheight && p->on_ground && psectlotag != 1 && shrunk == 0 && p->insector() && p->cursector()->lotag == 1)
+	if (truefdist < gs.playerheight && p->on_ground && psectlotag != 1 && shrunk == 0 && p->insector() && p->cursector->lotag == 1)
 		if (!S_CheckActorSoundPlaying(pact, DUKE_ONWATER))
 			S_PlayActorSound(DUKE_ONWATER, pact);
 
-	if (p->cursector() != s->sector())
-		changeactorsect(pact, p->cursector());
+	if (p->cursector != s->sector())
+		changeactorsect(pact, p->cursector);
 
 	if (ud.clipping == 0)
-		j = (pushmove(&p->pos, &p->cursectnum, 164L, (4L << 8), (4L << 8), CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < 512);
+		j = (pushmove(&p->pos, &p->cursector, 164L, (4L << 8), (4L << 8), CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < 512);
 	else j = 0;
 
 	if (ud.clipping == 0)

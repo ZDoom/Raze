@@ -1446,7 +1446,7 @@ int doincrements_r(struct player_struct* p)
 		}
 	}
 
-	if (p->scuba_on == 0 && p->insector() && p->cursector()->lotag == 2)
+	if (p->scuba_on == 0 && p->insector() && p->cursector->lotag == 2)
 	{
 		if (p->scuba_amount > 0)
 		{
@@ -2109,12 +2109,12 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz, int
 					p->dummyplayersprite = spawn(pact, PLAYERONWATER);
 
 				p->footprintcount = 6;
-				if (p->cursector()->floorpicnum == FLOORSLIME)
+				if (p->cursector->floorpicnum == FLOORSLIME)
 				{
 					p->footprintpal = 8;
 					p->footprintshade = 0;
 				}
-				else if (isRRRA() && (p->cursector()->floorpicnum == RRTILE7756 || p->cursector()->floorpicnum == RRTILE7888))
+				else if (isRRRA() && (p->cursector->floorpicnum == RRTILE7756 || p->cursector->floorpicnum == RRTILE7888))
 				{
 					p->footprintpal = 0;
 					p->footprintshade = 40;
@@ -2173,10 +2173,10 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz, int
 			if ((p->pos.z + p->poszv) >= (fz - (i << 8))) // hit the ground
 			{
 				S_StopSound(DUKE_SCREAM, pact);
-				if (!p->insector() || p->cursector()->lotag != 1)
+				if (!p->insector() || p->cursector->lotag != 1)
 				{
 					if (isRRRA()) p->MotoOnGround = 1;
-					if (p->falling_counter > 62 || (isRRRA() && p->falling_counter > 2 && p->insector() && p->cursector()->lotag == 802))
+					if (p->falling_counter > 62 || (isRRRA() && p->falling_counter > 2 && p->insector() && p->cursector->lotag == 802))
 						quickkill(p);
 
 					else if (p->falling_counter > 9)
@@ -2767,7 +2767,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 				i = -512 - MulScale(p->horizon.sum().asq16(), 20, 16);
 			}
 
-			auto spawned = EGS(p->cursector(),
+			auto spawned = EGS(p->cursector,
 				p->pos.x + p->angle.ang.bcos(-6),
 				p->pos.y + p->angle.ang.bsin(-6),
 				p->pos.z, HEAVYHBOMB, -16, 9, 9,
@@ -3183,7 +3183,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 				i = -512 - MulScale(p->horizon.sum().asq16(), 20, 16);
 			}
 
-			EGS(p->cursector(),
+			EGS(p->cursector,
 				p->pos.x + p->angle.ang.bcos(-6),
 				p->pos.y + p->angle.ang.bsin(-6),
 				p->pos.z, TRIPBOMBSPRITE, -16, 9, 9,
@@ -3379,7 +3379,7 @@ void processinput_r(int snum)
 	auto sb_svel = PlayerInputSideVel(snum);
 	auto sb_avel = PlayerInputAngVel(snum);
 
-	auto psectp = p->cursector();
+	auto psectp = p->cursector;
 	if (p->OnMotorcycle && s->extra > 0)
 	{
 		onMotorcycle(snum, actions);
@@ -3596,7 +3596,7 @@ void processinput_r(int snum)
 	s->xvel = clamp(ksqrt((p->pos.x - p->bobposx) * (p->pos.x - p->bobposx) + (p->pos.y - p->bobposy) * (p->pos.y - p->bobposy)), 0, 512);
 	if (p->on_ground) p->bobcounter += p->GetActor()->s->xvel >> 1;
 
-	p->backuppos(ud.clipping == 0 && (p->cursector()->floorpicnum == MIRROR || !p->insector()));
+	p->backuppos(ud.clipping == 0 && (p->cursector->floorpicnum == MIRROR || !p->insector()));
 
 	// Shrinking code
 
@@ -3605,7 +3605,7 @@ void processinput_r(int snum)
 	if (psectlotag == ST_17_PLATFORM_UP || (isRRRA() && psectlotag == ST_18_ELEVATOR_DOWN))
 	{
 		int tmp;
-		tmp = getanimationgoal(anim_floorz, p->cursector());
+		tmp = getanimationgoal(anim_floorz, p->cursector);
 		if (tmp >= 0)
 		{
 			if (!S_CheckActorSoundPlaying(pact, 432))
@@ -3707,7 +3707,7 @@ void processinput_r(int snum)
 					break;
 				case 1:
 					if ((krand() & 1) == 0)
-						if  (!isRRRA() || (!p->OnBoat && !p->OnMotorcycle && p->cursector()->hitag != 321))
+						if  (!isRRRA() || (!p->OnBoat && !p->OnMotorcycle && p->cursector->hitag != 321))
 							S_PlayActorSound(DUKE_ONWATER, pact);
 					p->walking_snd_toggle = 1;
 					break;
@@ -3802,7 +3802,7 @@ HORIZONLY:
 	if (psectlotag == 1 || p->spritebridge == 1) i = (4L << 8);
 	else i = (20L << 8);
 
-	if (p->insector() && p->cursector()->lotag == 2) k = 0;
+	if (p->insector() && p->cursector->lotag == 2) k = 0;
 	else k = 1;
 
 	Collision clip{};
@@ -3810,11 +3810,11 @@ HORIZONLY:
 	{
 		p->pos.x += p->posxv >> 14;
 		p->pos.y += p->posyv >> 14;
-		updatesector(p->pos.x, p->pos.y, &p->cursectnum);
-		changeactorsect(pact, p->cursector());
+		updatesector(p->pos.x, p->pos.y, &p->cursector);
+		changeactorsect(pact, p->cursector);
 	}
 	else
-		clipmove_ex(&p->pos, &p->cursectnum, p->posxv, p->posyv, 164, (4 << 8), i, CLIPMASK0, clip);
+		clipmove_ex(&p->pos, &p->cursector, p->posxv, p->posyv, 164, (4 << 8), i, CLIPMASK0, clip);
 
 	if (p->jetpack_on == 0 && psectlotag != 2 && psectlotag != 1 && shrunk)
 		p->pos.z += 32 << 8;
@@ -3842,11 +3842,11 @@ HORIZONLY:
 			{
 				if (wal->lotag < 44)
 				{
-					dofurniture(clip.wall(), p->cursector(), snum);
-					pushmove(&p->pos, &p->cursectnum, 172L, (4L << 8), (4L << 8), CLIPMASK0);
+					dofurniture(clip.wall(), p->cursector, snum);
+					pushmove(&p->pos, &p->cursector, 172L, (4L << 8), (4L << 8), CLIPMASK0);
 				}
 				else
-					pushmove(&p->pos, &p->cursectnum, 172L, (4L << 8), (4L << 8), CLIPMASK0);
+					pushmove(&p->pos, &p->cursector, 172L, (4L << 8), (4L << 8), CLIPMASK0);
 			}
 		}
 	}
@@ -3934,21 +3934,21 @@ HORIZONLY:
 		}
 	}
 
-	if (truefdist < gs.playerheight && p->on_ground && psectlotag != 1 && shrunk == 0 && p->insector() && p->cursector()->lotag == 1)
+	if (truefdist < gs.playerheight && p->on_ground && psectlotag != 1 && shrunk == 0 && p->insector() && p->cursector->lotag == 1)
 		if (!S_CheckActorSoundPlaying(pact, DUKE_ONWATER))
-			if (!isRRRA() || (!p->OnBoat && !p->OnMotorcycle && p->cursector()->hitag != 321))
+			if (!isRRRA() || (!p->OnBoat && !p->OnMotorcycle && p->cursector->hitag != 321))
 				S_PlayActorSound(DUKE_ONWATER, pact);
 
-	if (p->cursector() != s->sector())
-		changeactorsect(pact, p->cursector());
+	if (p->cursector != s->sector())
+		changeactorsect(pact, p->cursector);
 
 	int j;
 	if (ud.clipping == 0)
 	{
 		if (s->clipdist == 64)
-			j = (pushmove(&p->pos, &p->cursectnum, 128L, (4L << 8), (4L << 8), CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < 512);
+			j = (pushmove(&p->pos, &p->cursector, 128L, (4L << 8), (4L << 8), CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < 512);
 		else
-			j = (pushmove(&p->pos, &p->cursectnum, 16L, (4L << 8), (4L << 8), CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < 512);
+			j = (pushmove(&p->pos, &p->cursector, 16L, (4L << 8), (4L << 8), CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < 512);
 	}
 	else j = 0;
 
@@ -3969,7 +3969,7 @@ HORIZONLY:
 			fi.activatebysector(psectp, pact);
 	}
 
-	if (ud.clipping == 0 && p->cursector()->ceilingz > (p->cursector()->floorz - (12 << 8)))
+	if (ud.clipping == 0 && p->cursector->ceilingz > (p->cursector->floorz - (12 << 8)))
 	{
 		quickkill(p);
 		return;
@@ -4053,7 +4053,7 @@ HORIZONLY:
 
 void OnMotorcycle(struct player_struct *p, DDukeActor* motosprite)
 {
-	if (!p->OnMotorcycle && !(p->cursector()->lotag == 2))
+	if (!p->OnMotorcycle && !(p->cursector->lotag == 2))
 	{
 		if (motosprite)
 		{
