@@ -1006,8 +1006,9 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 
 		if (checkweapondist(pHitInfo.hitsprite, plr.x, plr.y, plr.z, plr.selectedgun)) {
 			madeahit = true;
+			auto& hitspr = sprite[pHitInfo.hitsprite];
 
-			switch (sprite[pHitInfo.hitsprite].detail) {
+			switch (hitspr.detail) {
 
 			case DEMONTYPE:
 			case GONZOTYPE:
@@ -1035,7 +1036,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 					// XXX netshootgun(pHitInfo.hitsprite,currweapon);
 				}
 					
-				if(sprite[pHitInfo.hitsprite].statnum == DIE || sprite[pHitInfo.hitsprite].statnum == DEAD) //already dying
+				if(hitspr.statnum == DIE || hitspr.statnum == DEAD) //already dying
 					break;
 
 				if (isWh2() && plr.currweapon == 3)
@@ -1109,7 +1110,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 				case 5: // battle axe
 					if (isWh2()) {
 						k = (krand() % 25) + 5;
-						switch (sprite[pHitInfo.hitsprite].detail) {
+						switch (hitspr.detail) {
 						case GRONTYPE:
 						case NEWGUYTYPE:
 						case KURTTYPE:
@@ -1263,11 +1264,11 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 								swingdacrunch(plr, plr.currweapon);
 						break;
 					}
-					sprite[pHitInfo.hitsprite].hitag -= (k << 1);
+					hitspr.hitag -= (k << 1);
 					if (isWh2() && plr.weapon[plr.currweapon] == 3 && plr.currweapon == 8
-							&& sprite[pHitInfo.hitsprite].pal != 6) {
-						if (sprite[pHitInfo.hitsprite].hitag <= 0) {
-							sprite[pHitInfo.hitsprite].hitag = 1;
+							&& hitspr.pal != 6) {
+						if (hitspr.hitag <= 0) {
+							hitspr.hitag = 1;
 						}
 						if (krand() % 100 > 50)
 							medusa(plr, pHitInfo.hitsprite);
@@ -1278,10 +1279,10 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 
 						// JSA GORE1 you have strong time
 						if (krand() % 100 > 50) {
-							if (sprite[pHitInfo.hitsprite].picnum == SKELETON
-									|| sprite[pHitInfo.hitsprite].picnum == SKELETONATTACK
-									|| sprite[pHitInfo.hitsprite].picnum == SKELETONDIE)
-								spritesound(S_SKELHIT1 + (krand() % 2), &sprite[pHitInfo.hitsprite]);
+							if (hitspr.picnum == SKELETON
+									|| hitspr.picnum == SKELETONATTACK
+									|| hitspr.picnum == SKELETONDIE)
+								spritesound(S_SKELHIT1 + (krand() % 2), &hitspr);
 						}
 
 						// HERE
@@ -1469,12 +1470,12 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 								swingdacrunch(plr, plr.currweapon);
 						break;
 					}
-					sprite[pHitInfo.hitsprite].hitag -= k;
+					hitspr.hitag -= k;
 
 					if (isWh2() && plr.weapon[plr.currweapon] == 3 && plr.currweapon == 8
-							&& sprite[pHitInfo.hitsprite].pal != 6) {
-						if (sprite[pHitInfo.hitsprite].hitag <= 0) {
-							sprite[pHitInfo.hitsprite].hitag = 1;
+							&& hitspr.pal != 6) {
+						if (hitspr.hitag <= 0) {
+							hitspr.hitag = 1;
 						}
 						if (krand() % 100 > 75)
 							medusa(plr, pHitInfo.hitsprite);
@@ -1484,10 +1485,10 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 					if (plr.currweapon != 0) {
 						// JSA GORE normal
 						if (krand() % 100 > 50) {
-							if (sprite[pHitInfo.hitsprite].picnum == SKELETON
-									|| sprite[pHitInfo.hitsprite].picnum == SKELETONATTACK
-									|| sprite[pHitInfo.hitsprite].picnum == SKELETONDIE)
-								spritesound(S_SKELHIT1 + (krand() % 2), &sprite[pHitInfo.hitsprite]);
+							if (hitspr.picnum == SKELETON
+									|| hitspr.picnum == SKELETONATTACK
+									|| hitspr.picnum == SKELETONDIE)
+								spritesound(S_SKELHIT1 + (krand() % 2), &hitspr);
 						}
 						// HERE
 						switch (plr.currweapon) {
@@ -1598,26 +1599,26 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 					break;
 				}
 
-				if (sprite[pHitInfo.hitsprite].hitag <= 0) {
+				if (hitspr.hitag <= 0) {
 					if (plr.selectedgun > 1) {
 						// JSA GORE on death ?
 						// RAF ans:death
 						chunksofmeat(plr, pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity, pHitInfo.hitz,
 								pHitInfo.hitsect, daang);
-						if (sprite[pHitInfo.hitsprite].picnum == SKELETON
-								|| sprite[pHitInfo.hitsprite].picnum == SKELETONATTACK
-								|| sprite[pHitInfo.hitsprite].picnum == SKELETONDIE)
-							spritesound(S_SKELHIT1 + (krand() % 2), &sprite[pHitInfo.hitsprite]);
+						if (hitspr.picnum == SKELETON
+								|| hitspr.picnum == SKELETONATTACK
+								|| hitspr.picnum == SKELETONDIE)
+							spritesound(S_SKELHIT1 + (krand() % 2), &hitspr);
 					}
 					newstatus(pHitInfo.hitsprite, DIE);
 				}
-				sprite[pHitInfo.hitsprite].ang = plr.angle.ang.asbuild() + ((krand() & 32) - 64);
-				if (sprite[pHitInfo.hitsprite].hitag > 0)
+				hitspr.ang = plr.angle.ang.asbuild() + ((krand() & 32) - 64);
+				if (hitspr.hitag > 0)
 					newstatus(pHitInfo.hitsprite, PAIN);
 				break;
 			} // switch enemytype
 
-			switch (sprite[pHitInfo.hitsprite].detail) {
+			switch (hitspr.detail) {
 			case GRONTYPE:
 			case KOBOLDTYPE:
 			case DRAGONTYPE:
@@ -1634,7 +1635,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 			case NEWGUYTYPE:
 			case GONZOTYPE:
 			case KURTTYPE:
-				if (sprite[pHitInfo.hitsprite].pal == 6) {
+				if (hitspr.pal == 6) {
 					// JSA_NEW
 					SND_Sound(S_SOCK1 + (krand() % 4));
 					playsound(S_FREEZEDIE, pHitInfo.hitx, pHitInfo.hity);
@@ -1647,7 +1648,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 				break;
 			} // switch frozen
 
-			switch (sprite[pHitInfo.hitsprite].picnum) {
+			switch (hitspr.picnum) {
 			case STAINGLASS1:
 			case STAINGLASS2:
 			case STAINGLASS3:
@@ -1763,7 +1764,8 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 					(bsin(sprite[j].ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
 		}
 		if ((pHitInfo.hitsprite >= 0) && (sprite[pHitInfo.hitsprite].statnum < MAXSTATUS)) {
-			switch (sprite[pHitInfo.hitsprite].detail) {
+			auto& hitspr = sprite[pHitInfo.hitsprite];
+			switch (hitspr.detail) {
 			case KURTTYPE:
 			case KATIETYPE:
 			case NEWGUYTYPE:
@@ -1791,24 +1793,24 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 					break;
 				}
 				if (isWh2())
-					sprite[pHitInfo.hitsprite].hitag -= (krand() & 30) + 15;
+					hitspr.hitag -= (krand() & 30) + 15;
 				else
-					sprite[pHitInfo.hitsprite].hitag -= (krand() & 15) + 15;
+					hitspr.hitag -= (krand() & 15) + 15;
 
-				if (sprite[pHitInfo.hitsprite].hitag <= 0) {
+				if (hitspr.hitag <= 0) {
 					newstatus(pHitInfo.hitsprite, DIE);
-					if (sprite[pHitInfo.hitsprite].picnum == RAT)
+					if (hitspr.picnum == RAT)
 						chunksofmeat(plr, pHitInfo.hitsprite, pHitInfo.hitx, pHitInfo.hity, pHitInfo.hitz,
 								pHitInfo.hitsect, daang);
 				} else {
-					sprite[pHitInfo.hitsprite].ang = (short) (getangle(plr.x - sprite[pHitInfo.hitsprite].x,
-							plr.y - sprite[pHitInfo.hitsprite].y) & 2047);
+					hitspr.ang = (short) (getangle(plr.x - hitspr.x,
+							plr.y - hitspr.y) & 2047);
 					newstatus(pHitInfo.hitsprite, PAIN);
 				}
 				break;
 			}
 
-			switch (sprite[pHitInfo.hitsprite].detail) {
+			switch (hitspr.detail) {
 			// SHATTER FROZEN CRITTER
 			case GRONTYPE:
 			case KOBOLDTYPE:
@@ -1826,7 +1828,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 			case NEWGUYTYPE:
 			case GONZOTYPE:
 			case KURTTYPE:
-				if (sprite[pHitInfo.hitsprite].pal == 6) {
+				if (hitspr.pal == 6) {
 					// JSA_NEW
 					SND_Sound(S_SOCK1 + (krand() % 4));
 					playsound(S_FREEZEDIE, pHitInfo.hitx, pHitInfo.hity);
@@ -1837,7 +1839,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 				}
 			} // switch frozen
 
-			switch (sprite[pHitInfo.hitsprite].picnum) {
+			switch (hitspr.picnum) {
 			case STAINGLASS1:
 			case STAINGLASS2:
 			case STAINGLASS3:
