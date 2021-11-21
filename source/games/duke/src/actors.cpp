@@ -1504,12 +1504,12 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 		}
 
 		Collision coll;
-		int sect = s->sectnum;
+		auto sect = s->sector();
 		int j = clipmove_ex(&s->pos, &sect,
 			(MulScale(s->xvel, bcos(s->ang), 14) * TICSPERFRAME) << 11,
 			(MulScale(s->xvel, bsin(s->ang), 14) * TICSPERFRAME) << 11,
 			24L, (4 << 8), (4 << 8), CLIPMASK1, coll);
-		s->sectnum = sect;
+		s->setsector(sect);
 
 		if (j == kHitWall)
 		{

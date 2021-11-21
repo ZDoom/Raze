@@ -717,6 +717,12 @@ inline sectortype* spritetype::sector() const
 	return !validSectorIndex(sectnum)? nullptr : &::sector[sectnum];
 }
 
+inline void spritetype::setsector(sectortype* sect)
+{
+	// place for asserts.
+	sectnum = sect? ::sector.IndexOf(sect) : -1;
+}
+
 inline bool spritetype::insector() const
 {
 	return validSectorIndex(sectnum);
