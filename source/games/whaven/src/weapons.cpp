@@ -1699,42 +1699,45 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 
 			if (ntag.tagsector < 0) {
 				j = insertsprite(pHitInfo.hitsect, (short) 0);
-				sprite[j].x = pHitInfo.hitx;
-				sprite[j].y = pHitInfo.hity;
-				sprite[j].z = pHitInfo.hitz + (8 << 8);
-				sprite[j].cstat = 17;// was16
-				sprite[j].picnum = WALLARROW;
-				sprite[j].shade = 0;
-				sprite[j].pal = 0;
-				sprite[j].xrepeat = 16;
-				sprite[j].yrepeat = 48;
-				sprite[j].ang = (short) (((daang) - 512 + (krand() & 128 - 64)) & 2047);
-				sprite[j].xvel = 0;
-				sprite[j].yvel = 0;
-				sprite[j].zvel = 0;
-				sprite[j].owner = sprite[plr.spritenum].owner;
-				sprite[j].lotag = 32;
-				sprite[j].hitag = 0;
-				spritesound(S_ARROWHIT, &sprite[j]);
+				auto& spawned = sprite[j];
+				spawned.x = pHitInfo.hitx;
+				spawned.y = pHitInfo.hity;
+				spawned.z = pHitInfo.hitz + (8 << 8);
+				spawned.cstat = 17;// was16
+				spawned.picnum = WALLARROW;
+				spawned.shade = 0;
+				spawned.pal = 0;
+				spawned.xrepeat = 16;
+				spawned.yrepeat = 48;
+				spawned.ang = (short) (((daang) - 512 + (krand() & 128 - 64)) & 2047);
+				spawned.xvel = 0;
+				spawned.yvel = 0;
+				spawned.zvel = 0;
+				spawned.owner = sprite[plr.spritenum].owner;
+				spawned.lotag = 32;
+				spawned.hitag = 0;
+				spritesound(S_ARROWHIT, &spawned);
 
 				if (isWh2() && plr.weapon[6] == 3 && plr.currweapon == 6) {
+					auto spawnedactor = &whActors[j];
+					auto& spawned = spawnedactor->s();
 					j = insertsprite(pHitInfo.hitsect, FIRECHUNK);
-					sprite[j].x = pHitInfo.hitx;
-					sprite[j].y = pHitInfo.hity;
-					sprite[j].z = pHitInfo.hitz + (14 << 8);
-					sprite[j].cstat = 0;
-					sprite[j].picnum = ARROWFLAME;
-					sprite[j].shade = 0;
-					sprite[j].pal = 0;
-					sprite[j].xrepeat = 64;
-					sprite[j].yrepeat = 64;
-					sprite[j].ang = 0;
-					sprite[j].xvel = 0;
-					sprite[j].yvel = 0;
-					sprite[j].zvel = 0;
-					sprite[j].owner = 0;
-					sprite[j].lotag = 1200;
-					sprite[j].hitag = 0;
+					spawned.x = pHitInfo.hitx;
+					spawned.y = pHitInfo.hity;
+					spawned.z = pHitInfo.hitz + (14 << 8);
+					spawned.cstat = 0;
+					spawned.picnum = ARROWFLAME;
+					spawned.shade = 0;
+					spawned.pal = 0;
+					spawned.xrepeat = 64;
+					spawned.yrepeat = 64;
+					spawned.ang = 0;
+					spawned.xvel = 0;
+					spawned.yvel = 0;
+					spawned.zvel = 0;
+					spawned.owner = 0;
+					spawned.lotag = 1200;
+					spawned.hitag = 0;
 				}
 			}
 
@@ -1744,24 +1747,25 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 		}
 		if (pHitInfo.hitwall > 0 && pHitInfo.hitsprite > 0) {
 			j = insertsprite(pHitInfo.hitsect, FX);
-			sprite[j].x = pHitInfo.hitx;
-			sprite[j].y = pHitInfo.hity;
-			sprite[j].z = pHitInfo.hitz + (8 << 8);
-			sprite[j].cstat = 2;
-			sprite[j].picnum = PLASMA;
-			sprite[j].shade = -32;
-			sprite[j].pal = 0;
-			sprite[j].xrepeat = 32;
-			sprite[j].yrepeat = 32;
-			sprite[j].ang = (short) daang;
-			sprite[j].xvel = 0;
-			sprite[j].yvel = 0;
-			sprite[j].zvel = 0;
-			sprite[j].owner = sprite[plr.spritenum].owner;
-			sprite[j].lotag = 32;
-			sprite[j].hitag = 0;
-			movesprite((short) j, (bcos(sprite[j].ang) * TICSPERFRAME) << 3,
-					(bsin(sprite[j].ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
+			auto& spawned = sprite[j];
+			spawned.x = pHitInfo.hitx;
+			spawned.y = pHitInfo.hity;
+			spawned.z = pHitInfo.hitz + (8 << 8);
+			spawned.cstat = 2;
+			spawned.picnum = PLASMA;
+			spawned.shade = -32;
+			spawned.pal = 0;
+			spawned.xrepeat = 32;
+			spawned.yrepeat = 32;
+			spawned.ang = (short) daang;
+			spawned.xvel = 0;
+			spawned.yvel = 0;
+			spawned.zvel = 0;
+			spawned.owner = sprite[plr.spritenum].owner;
+			spawned.lotag = 32;
+			spawned.hitag = 0;
+			movesprite((short) j, (bcos(spawned.ang) * TICSPERFRAME) << 3,
+					(bsin(spawned.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
 		}
 		if ((pHitInfo.hitsprite >= 0) && (sprite[pHitInfo.hitsprite].statnum < MAXSTATUS)) {
 			auto& hitspr = sprite[pHitInfo.hitsprite];
