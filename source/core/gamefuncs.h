@@ -82,6 +82,36 @@ public:
 	}
 };
 
+class BFSSectorSearch : public BFSSearch
+{
+public:
+	
+	BFSSectorSearch(sectortype* startnode) : BFSSearch(numsectors, sector.IndexOf(startnode))
+	{
+	}
+
+	bool Check(sectortype* index) const
+	{
+		return BFSSearch::Check(sector.IndexOf(index));
+	}
+
+	void Set(sectortype* index)
+	{
+		BFSSearch::Set(sector.IndexOf(index));
+	}
+
+	sectortype* GetNext()
+	{
+		unsigned ret = BFSSearch::GetNext();
+		return ret == EOL? nullptr : &sector[ret];
+	}
+
+	void Add(sectortype* elem)
+	{
+		BFSSearch::Add(sector.IndexOf(elem));
+	}
+};
+
 extern int cameradist, cameraclock;
 
 void loaddefinitionsfile(const char* fn, bool cumulative = false, bool maingrp = false);

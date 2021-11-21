@@ -194,39 +194,6 @@ inline bool validWallIndex(int wallnum)
 	return wallnum >= 0 && wallnum < numwalls;
 }
 
-inline sectortype* spritetype::sector() const
-{
-#ifdef _DEBUG
-    return !validSectorIndex(sectnum) ? nullptr : &::sector[sectnum];
-#else
-    return &::sector[sectnum];
-#endif
-}
-
-inline bool spritetype::insector() const
-{
-    return validSectorIndex(sectnum);
-}
-
-inline sectortype* walltype::nextSector() const
-{
-    return &::sector[nextsector];
-}
-
-inline walltype* walltype::nextWall() const
-{
-    return &::wall[nextwall];
-}
-
-inline walltype* walltype::point2Wall() const
-{
-    return &::wall[point2];
-}
-
-inline walltype* sectortype::firstWall() const
-{
-    return &wall[wallptr];
-}
 
 EXTERN int32_t randomseed;
 
@@ -745,11 +712,41 @@ inline bool testgotpic(int32_t tilenume, bool reset = false)
     return res;
 }
 
+inline sectortype* spritetype::sector() const
+{
+	return !validSectorIndex(sectnum)? nullptr : &::sector[sectnum];
+}
 
 inline bool spritetype::insector() const
 {
-    return validSectorIndex(sectnum);
+	return validSectorIndex(sectnum);
 }
+
+inline sectortype* walltype::nextSector() const
+{
+	return !validSectorIndex(nextsector)? nullptr :  &::sector[nextsector];
+}
+
+inline walltype* walltype::nextWall() const
+{
+	return !validWallIndex(nextwall)? nullptr : &::wall[nextwall];
+}
+
+inline sectortype* walltype::sectorp() const
+{
+	return &::sector[sector]; // cannot be -1 in a proper map.
+}
+
+inline walltype* walltype::point2Wall() const
+{
+	return &::wall[point2]; // cannot be -1 in a proper map.
+}
+
+inline walltype* sectortype::firstWall() const
+{
+	return &wall[wallptr]; // cannot be -1 in a proper map
+}
+
 
 
 #include "iterators.h"

@@ -208,7 +208,8 @@ struct walltype
     void addxpan(float add) { xpan_ = fmodf(xpan_ + add + 512, 256); } // +512 is for handling negative offsets
     void addypan(float add) { ypan_ = fmodf(ypan_ + add + 512, 256); } // +512 is for handling negative offsets
     sectortype* nextSector() const;
-    walltype* nextWall() const;
+	sectortype* sectorp() const;
+	walltype* nextWall() const;
     walltype* point2Wall() const;
 	vec2_t delta() const { return point2Wall()->pos - pos; }
 	vec2_t center() const { return(point2Wall()->pos + pos) / 2; }
