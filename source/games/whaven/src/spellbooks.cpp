@@ -240,123 +240,126 @@ void speelbookprocess(PLAYER& plr) {
 	}
 }
 
-void nukespell(PLAYER& plr, short j) {
-	if(sprite[j].detail != WILLOWTYPE && sprite[j].pal == 6) //don't nuke freezed enemies
+void nukespell(PLAYER& plr, short const j) {
+	auto& spr = sprite[j];
+
+	if(spr.detail != WILLOWTYPE && spr.pal == 6) //don't nuke freezed enemies
 		return;
 
 	if (isWh2()) {
 		// dont nuke a shade
-		if (sprite[j].shade > 30)
+		if (spr.shade > 30)
 			return;
 
 		newstatus(j, NUKED);
-		sprite[j].pal = 0;
-		sprite[j].cstat |= 1;
-		sprite[j].cstat &= ~3;
-		sprite[j].shade = 6;
-		sprite[j].lotag = 360;
-		sprite[j].ang = plr.angle.ang.asbuild();
-		sprite[j].hitag = 0;
+		spr.pal = 0;
+		spr.cstat |= 1;
+		spr.cstat &= ~3;
+		spr.shade = 6;
+		spr.lotag = 360;
+		spr.ang = plr.angle.ang.asbuild();
+		spr.hitag = 0;
 		addscore(&plr, 150);
 
-		int k = insertsprite(sprite[j].sectnum, NUKED);
-		sprite[k].lotag = 360;
-		sprite[k].xrepeat = 30;
-		sprite[k].yrepeat = 12;
-		sprite[k].picnum = ZFIRE;
-		sprite[k].pal = 0;
-		sprite[k].ang = sprite[j].ang;
-		sprite[k].x = sprite[j].x;
-		sprite[k].y = sprite[j].y;
-		sprite[k].z = sprite[j].z;
-		sprite[k].cstat = sprite[j].cstat;
+		int k = insertsprite(spr.sectnum, NUKED);
+		auto& spawned = sprite[k];
+		spawned.lotag = 360;
+		spawned.xrepeat = 30;
+		spawned.yrepeat = 12;
+		spawned.picnum = ZFIRE;
+		spawned.pal = 0;
+		spawned.ang = spr.ang;
+		spawned.x = spr.x;
+		spawned.y = spr.y;
+		spawned.z = spr.z;
+		spawned.cstat = spr.cstat;
 
 		return;
 	}
 
-	switch (sprite[j].detail) {
+	switch (spr.detail) {
 	case WILLOWTYPE:
 	case SPIDERTYPE:
 		deletesprite((short) j);
 		addscore(&plr, 10);
 		break;
 	case KOBOLDTYPE:
-		sprite[j].picnum = KOBOLDCHAR;
+		spr.picnum = KOBOLDCHAR;
 		newstatus(j, NUKED);
-		sprite[j].pal = 0;
-		sprite[j].cstat |= 1;
+		spr.pal = 0;
+		spr.cstat |= 1;
 		addscore(&plr, 150);
 		break;
 	case DEVILTYPE:
-		sprite[j].picnum = DEVILCHAR;
+		spr.picnum = DEVILCHAR;
 		newstatus(j, NUKED);
-		sprite[j].pal = 0;
-		sprite[j].cstat |= 1;
+		spr.pal = 0;
+		spr.cstat |= 1;
 		addscore(&plr, 150);
 		break;
 	case GOBLINTYPE:
 	case IMPTYPE:
-		sprite[j].picnum = GOBLINCHAR;
+		spr.picnum = GOBLINCHAR;
 		newstatus(j, NUKED);
-		sprite[j].pal = 0;
-		sprite[j].cstat |= 1;
+		spr.pal = 0;
+		spr.cstat |= 1;
 		addscore(&plr, 150);
 		break;
 	case MINOTAURTYPE:
-		sprite[j].picnum = MINOTAURCHAR;
+		spr.picnum = MINOTAURCHAR;
 		newstatus(j, NUKED);
-		sprite[j].pal = 0;
-		sprite[j].cstat |= 1;
+		spr.pal = 0;
+		spr.cstat |= 1;
 		addscore(&plr, 150);
 		break;
 	case SKELETONTYPE:
-		sprite[j].picnum = SKELETONCHAR;
+		spr.picnum = SKELETONCHAR;
 		newstatus(j, NUKED);
-		sprite[j].pal = 0;
-		sprite[j].cstat |= 1;
+		spr.pal = 0;
+		spr.cstat |= 1;
 		addscore(&plr, 150);
 		break;
 	case GRONTYPE:
-		sprite[j].picnum = GRONCHAR;
+		spr.picnum = GRONCHAR;
 		newstatus(j, NUKED);
-		sprite[j].pal = 0;
-		sprite[j].cstat |= 1;
+		spr.pal = 0;
+		spr.cstat |= 1;
 		addscore(&plr, 150);
 		break;
 	case DRAGONTYPE:
-		sprite[j].picnum = DRAGONCHAR;
+		spr.picnum = DRAGONCHAR;
 		newstatus(j, NUKED);
-		sprite[j].pal = 0;
-		sprite[j].cstat |= 1;
+		spr.pal = 0;
+		spr.cstat |= 1;
 		addscore(&plr, 150);
 		break;
 	case GUARDIANTYPE:
-		sprite[j].picnum = GUARDIANCHAR;
+		spr.picnum = GUARDIANCHAR;
 		newstatus(j, NUKED);
-		sprite[j].pal = 0;
-		sprite[j].cstat |= 1;
+		spr.pal = 0;
+		spr.cstat |= 1;
 		addscore(&plr, 150);
 		break;
 	case FATWITCHTYPE:
-		sprite[j].picnum = FATWITCHCHAR;
+		spr.picnum = FATWITCHCHAR;
 		newstatus(j, NUKED);
-		sprite[j].pal = 0;
-		sprite[j].cstat |= 1;
+		spr.pal = 0;
+		spr.cstat |= 1;
 		addscore(&plr, 150);
 		break;
 	case SKULLYTYPE:
-		sprite[j].picnum = SKULLYCHAR;
+		spr.picnum = SKULLYCHAR;
 		newstatus(j, NUKED);
-		sprite[j].pal = 0;
-		sprite[j].cstat |= 1;
+		spr.pal = 0;
+		spr.cstat |= 1;
 		addscore(&plr, 150);
 		break;
 	case JUDYTYPE:
 		if (mapon < 24) {
-			sprite[j].picnum = JUDYCHAR;
+			spr.picnum = JUDYCHAR;
 			newstatus(j, NUKED);
-			sprite[j].pal = 0;
-			sprite[j].cstat |= 1;
+			spr.pal = 0;
+			spr.cstat |= 1;
 			addscore(&plr, 150);
 		}
 		break;
@@ -364,65 +367,67 @@ void nukespell(PLAYER& plr, short j) {
 }
 
 void medusa(PLAYER& plr, short j) {
-	if(sprite[j].hitag <= 0) //don't freeze dead enemies
+	auto& spr = sprite[j];
+
+	if(spr.hitag <= 0) //don't freeze dead enemies
 		return;
 		
 	newstatus(j, FROZEN);
-	int pic = sprite[j].picnum;
-	switch (sprite[j].detail) {
+	int pic = spr.picnum;
+	switch (spr.detail) {
 
 	case NEWGUYTYPE:
-		sprite[j].picnum = NEWGUYPAIN;
+		spr.picnum = NEWGUYPAIN;
 		break;
 	case KURTTYPE:
-		sprite[j].picnum = GONZOCSWPAIN;
+		spr.picnum = GONZOCSWPAIN;
 		break;	
 	case GONZOTYPE:
 		if(pic == GONZOCSW || pic == GONZOCSWAT)
-			sprite[j].picnum = GONZOCSWPAIN;
+			spr.picnum = GONZOCSWPAIN;
 		else if(pic == GONZOGSW || pic == GONZOGSWAT)
-			sprite[j].picnum = GONZOGSWPAIN;
+			spr.picnum = GONZOGSWPAIN;
 		else if(pic == GONZOGHM || pic == GONZOGHMAT 
 				|| pic == GONZOGSH || pic == GONZOGSHAT)
-			sprite[j].picnum = GONZOGHMPAIN;
+			spr.picnum = GONZOGHMPAIN;
 		break;
 	case KATIETYPE:
-		sprite[j].picnum = KATIEPAIN;
+		spr.picnum = KATIEPAIN;
 		break;	
 	case KOBOLDTYPE:
-		sprite[j].picnum = KOBOLDDIE;
+		spr.picnum = KOBOLDDIE;
 		break;
 	case DEVILTYPE:
-		sprite[j].picnum = DEVILDIE;
+		spr.picnum = DEVILDIE;
 		break;
 	case FREDTYPE:
-		sprite[j].picnum = FREDDIE;
+		spr.picnum = FREDDIE;
 		break;
 	case GOBLINTYPE:
 	case IMPTYPE:
-		if(isWh2()) sprite[j].picnum = IMPDIE;
-		else sprite[j].picnum = GOBLINDIE;
+		if(isWh2()) spr.picnum = IMPDIE;
+		else spr.picnum = GOBLINDIE;
 		break;	
 	case MINOTAURTYPE:
-		sprite[j].picnum = MINOTAURDIE;
+		spr.picnum = MINOTAURDIE;
 		break;
 	case SPIDERTYPE:
-		sprite[j].picnum = SPIDERDIE;
+		spr.picnum = SPIDERDIE;
 		break;
 	case SKELETONTYPE:
-		sprite[j].picnum = SKELETONDIE;
+		spr.picnum = SKELETONDIE;
 		break;
 	case GRONTYPE:
 		if(pic == GRONHAL || pic == GRONHALATTACK)
-			sprite[j].picnum = (short) GRONHALDIE;
+			spr.picnum = (short) GRONHALDIE;
 		else if(pic == GRONMU || pic == GRONMUATTACK)
-			sprite[j].picnum = (short) GRONMUDIE;
+			spr.picnum = (short) GRONMUDIE;
 		else if(pic == GRONSW || pic == GRONSWATTACK)
-			sprite[j].picnum = (short) GRONSWDIE;
+			spr.picnum = (short) GRONSWDIE;
 		break;
 	}
-	sprite[j].pal = 6;
-	sprite[j].cstat |= 1;
+	spr.pal = 6;
+	spr.cstat |= 1;
 	addscore(&plr, 100);
 }
 
