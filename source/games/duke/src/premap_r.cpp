@@ -494,7 +494,6 @@ void prelevel_r(int g)
 		}
 		case 42:
 		{
-			int ii;
 			sectortype* childsectnum = nullptr;
 			dist = 0;
 			speed = 0;

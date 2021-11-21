@@ -780,38 +780,37 @@ void LoadObjects()
     InitWallFace();
     InitSectFlag();
 
-    for (int nSector = 0; nSector < numsectors; nSector++)
+	for (auto& sect : sectors())
     {
-        auto sectp = &sector[nSector];
-        int hitag = sectp->hitag;
-        int lotag = sectp->lotag;
+        int hitag = sect.hitag;
+        int lotag = sect.lotag;
 
-        sectp->hitag = 0;
-        sectp->lotag = 0;
-        sectp->extra = -1;
+        sect.hitag = 0;
+        sect.lotag = 0;
+        sect.extra = -1;
 
         if (hitag || lotag)
         {
-            sectp->lotag = runlist_HeadRun() + 1;
-            sectp->hitag = lotag;
+            sect.lotag = runlist_HeadRun() + 1;
+            sect.hitag = lotag;
 
-            runlist_ProcessSectorTag(nSector, lotag, hitag);
+            runlist_ProcessSectorTag(sectnum(&sect), lotag, hitag);
         }
     }
 
-    for (int nWall = 0; nWall < numwalls; nWall++)
+    for (auto& wal : walls())
     {
-        wall[nWall].extra = -1;
+        wal.extra = -1;
 
-        int lotag = wall[nWall].lotag;
-        int hitag = wall[nWall].hitag;
+        int lotag = wal.lotag;
+        int hitag = wal.hitag;
 
-        wall[nWall].lotag = 0;
+        wal.lotag = 0;
 
         if (hitag || lotag)
         {
-            wall[nWall].lotag = runlist_HeadRun() + 1;
-            runlist_ProcessWallTag(nWall, lotag, hitag);
+            wal.lotag = runlist_HeadRun() + 1;
+            runlist_ProcessWallTag(wallnum(&wal), lotag, hitag);
         }
     }
 

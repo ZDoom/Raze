@@ -1583,42 +1583,38 @@ void DoFinale()
 
 DExhumedActor* BuildEnergyBlock(int nSector)
 {
-    int startwall = sector[nSector].wallptr;
-    int nWalls = sector[nSector].wallnum;
-
     int x = 0;
     int y = 0;
+	
+	auto pSector = &sector[nSector];
 
-    for (int i = 0; i < nWalls; i++)
+	for(auto& wal : wallsofsector(pSector))
     {
-        x += wall[startwall + i].x;
-        y += wall[startwall + i].y;
+        x += wal.x;
+        y += wal.y;
 
-        wall[startwall + i].picnum = kClockSymbol16;
-        wall[startwall + i].pal = 0;
-        wall[startwall + i].shade = 50;
+        wal.picnum = kClockSymbol16;
+        wal.pal = 0;
+        wal.shade = 50;
     }
 
-    int xAvg = x / nWalls;
-    int yAvg = y / nWalls;
+    int xAvg = x / pSector->wallnum;
+    int yAvg = y / pSector->wallnum;
 
     auto pActor = insertActor(nSector, 406);
     auto spr = &pActor->s();
 
-
-    int nextsector = wall[startwall].nextsector;
-
-    spr->x = xAvg;
+	spr->x = xAvg;
     spr->y = yAvg;
 
     sector[nSector].extra = (int16_t)EnergyBlocks.Push(pActor);
 
     //	GrabTimeSlot(3);
 
-    spr->z = sector[nextsector].floorz;
+    spr->z = pSector->firstWall()->nextSector()->floorz;
 
     // CHECKME - name of this variable?
-    int nRepeat = (spr->z - sector[nSector].floorz) >> 8;
+    int nRepeat = (spr->z - pSector->floorz) >> 8;
     if (nRepeat > 255) {
         nRepeat = 255;
     }

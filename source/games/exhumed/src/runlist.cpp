@@ -1517,6 +1517,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
 void runlist_ProcessWallTag(int nWall, int nLotag, int nHitag)
 {
+	auto& wal = wall[nWall];
     int nChannel = runlist_AllocChannel(nHitag % 1000);
     assert(nChannel >= 0 && nChannel < kMaxChannels);
 
@@ -1536,7 +1537,7 @@ void runlist_ProcessWallTag(int nWall, int nLotag, int nHitag)
 
         case 1:
         {
-            int nWallFace = BuildWallFace(nChannel, nWall, 2, wall[nWall].picnum, wall[nWall].picnum + 1);
+            int nWallFace = BuildWallFace(nChannel, nWall, 2, wal.picnum, wal.picnum + 1);
             runlist_AddRunRec(sRunChannels[nChannel].a, nWallFace,  0x70000);
 
             auto nSwitch = BuildSwPressWall(nChannel, BuildLink(2, nEffectTag, 0), nWall);
@@ -1554,7 +1555,7 @@ void runlist_ProcessWallTag(int nWall, int nLotag, int nHitag)
 
         case 7: // Regular switch
         {
-            int nWallFace = BuildWallFace(nChannel, nWall, 2, wall[nWall].picnum, wall[nWall].picnum + 1);
+            int nWallFace = BuildWallFace(nChannel, nWall, 2, wal.picnum, wal.picnum + 1);
             runlist_AddRunRec(sRunChannels[nChannel].a, nWallFace,  0x70000);
 
             auto nSwitch = BuildSwPressWall(nChannel, BuildLink(1, 1), nWall);
@@ -1564,7 +1565,7 @@ void runlist_ProcessWallTag(int nWall, int nLotag, int nHitag)
 
         case 8: // Reverse switch
         {
-            int nWallFace = BuildWallFace(nChannel, nWall, 2, wall[nWall].picnum, wall[nWall].picnum + 1);
+            int nWallFace = BuildWallFace(nChannel, nWall, 2, wal.picnum, wal.picnum + 1);
             runlist_AddRunRec(sRunChannels[nChannel].a, nWallFace,  0x70000);
 
             auto nSwitch = BuildSwPressWall(nChannel, BuildLink(2, -1, 0), nWall);
