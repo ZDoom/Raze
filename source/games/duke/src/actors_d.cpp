@@ -526,8 +526,6 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, unsigned int cliptype, Collision &result)
 {
 	int clipdist;
-	int dasectnum;
-
 	auto spri = actor->s;
 	int bg = badguy(actor);
 
@@ -541,7 +539,6 @@ int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, un
 		return result.setNone();
 	}
 
-	dasectnum = spri->sectnum;
 	auto dasectp = spri->sector();
 
 	vec3_t pos = spri->pos;
@@ -550,7 +547,7 @@ int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, un
 	if (bg)
 	{
 		if (spri->xrepeat > 60)
-			clipmove_ex(&pos, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 1024, (4 << 8), (4 << 8), cliptype, result);
+			clipmove_ex(&pos, &dasectp, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 1024, (4 << 8), (4 << 8), cliptype, result);
 		else 
 		{
 			if (spri->picnum == LIZMAN)
@@ -560,11 +557,11 @@ int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, un
 			else
 				clipdist = 192;
 
-			clipmove_ex(&pos, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), clipdist, (4 << 8), (4 << 8), cliptype, result);
+			clipmove_ex(&pos, &dasectp, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), clipdist, (4 << 8), (4 << 8), cliptype, result);
 		}
 
 		// conditional code from hell...
-		if (dasectnum < 0 || (dasectnum >= 0 &&
+		if (dasectp == nullptr || (dasectp != nullptr &&
 			((actor->actorstayput != nullptr && actor->actorstayput != dasectp) ||
 			 ((spri->picnum == BOSS2) && spri->pal == 0 && dasectp->lotag != 3) ||
 			 ((spri->picnum == BOSS1 || spri->picnum == BOSS2) && dasectp->lotag == ST_1_ABOVE_WATER) ||
@@ -572,34 +569,34 @@ int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, un
 			))
 		 )
 		{
-			if (dasectp->lotag == ST_1_ABOVE_WATER && spri->picnum == LIZMAN)
+			if (dasectp && dasectp->lotag == ST_1_ABOVE_WATER && spri->picnum == LIZMAN)
 				spri->ang = (krand()&2047);
 			else if ((actor->temp_data[0]&3) == 1 && spri->picnum != COMMANDER)
 				spri->ang = (krand()&2047);
 			setsprite(actor,spri->pos);
-			if (dasectnum < 0) dasectnum = 0;
-			return result.setSector(dasectnum);
+			if (dasectp == nullptr) dasectp = &sector[0];
+			return result.setSector(dasectp);
 		}
 		if ((result.type == kHitWall || result.type == kHitSprite) && (actor->cgg == 0)) spri->ang += 768;
 	}
 	else
 	{
 		if (spri->statnum == STAT_PROJECTILE)
-			clipmove_ex(&pos, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 8, (4 << 8), (4 << 8), cliptype, result);
+			clipmove_ex(&pos, &dasectp, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 8, (4 << 8), (4 << 8), cliptype, result);
 		else
-			clipmove_ex(&pos, &dasectnum, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), (int)(spri->clipdist << 2), (4 << 8), (4 << 8), cliptype, result);
+			clipmove_ex(&pos, &dasectp, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), (int)(spri->clipdist << 2), (4 << 8), (4 << 8), cliptype, result);
 	}
 	spri->x = pos.x;
 	spri->y = pos.y;
 
-	if (dasectnum >= 0)
-		if ((dasectnum != spri->sectnum))
-			changeactorsect(actor, dasectnum);
+	if (dasectp != nullptr)
+		if (dasectp != spri->sector())
+			changeactorsect(actor, dasectp);
 	int daz = spri->z + ((zchange * TICSPERFRAME) >> 3);
 	if ((daz > actor->ceilingz) && (daz <= actor->floorz))
 		spri->z = daz;
 	else if (result.type == kHitNone)
-		return result.setSector(dasectnum);
+		return result.setSector(dasectp);
 
 	return result.type;
 }

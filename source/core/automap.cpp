@@ -295,7 +295,7 @@ void ClearAutomap()
 
 void MarkSectorSeen(int i)
 {
-	if (i >= 0) 
+	if (validSectorIndex(i)) 
 	{
 		show2dsector.Set(i);
 		auto wal = &wall[sector[i].wallptr];
