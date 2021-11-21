@@ -764,19 +764,21 @@ void premapGonzo(short i) {
 }
 	
 void deaddude(short sn) {
-	int j = insertsprite(sprite[sn].sectnum, DEAD);
-	sprite[j].x = sprite[sn].x;
-	sprite[j].y = sprite[sn].y;
-	sprite[j].z = sprite[sn].z;
-	sprite[j].cstat = 0;
-	sprite[j].picnum = GONZOBSHDEAD;
-	sprite[j].shade = sector[sprite[sn].sectnum].floorshade;
-	sprite[j].pal = 0;
-	sprite[j].xrepeat = sprite[sn].xrepeat;
-	sprite[j].yrepeat = sprite[sn].yrepeat;
-	sprite[j].owner = 0;
-	sprite[j].lotag = 0;
-	sprite[j].hitag = 0;
+	auto& spr = sprite[sn];
+	int j = insertsprite(spr.sectnum, DEAD);
+	auto& spawned = sprite[j];
+	spawned.x = spr.x;
+	spawned.y = spr.y;
+	spawned.z = spr.z;
+	spawned.cstat = 0;
+	spawned.picnum = GONZOBSHDEAD;
+	spawned.shade = sector[spr.sectnum].floorshade;
+	spawned.pal = 0;
+	spawned.xrepeat = spr.xrepeat;
+	spawned.yrepeat = spr.yrepeat;
+	spawned.owner = 0;
+	spawned.lotag = 0;
+	spawned.hitag = 0;
 }
 
 END_WH_NS
