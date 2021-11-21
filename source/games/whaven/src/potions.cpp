@@ -155,6 +155,7 @@ void randompotion(int i) {
 	int type = krand() % 4;
 	spawned.picnum = (short)(FLASKBLUE + type);
 	spawned.detail = (short)(FLASKBLUETYPE + type);
+	spawned.backuploc();
 }
 
 END_WH_NS

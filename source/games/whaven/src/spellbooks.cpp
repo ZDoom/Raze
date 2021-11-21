@@ -274,6 +274,7 @@ void nukespell(PLAYER& plr, short const j) {
 		spawned.y = spr.y;
 		spawned.z = spr.z;
 		spawned.cstat = spr.cstat;
+		spawned.backuploc();
 
 		return;
 	}

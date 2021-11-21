@@ -129,7 +129,7 @@ void GameInterface::processSprites(spritetype* tsprite, int& spritesortcnt, int 
 
 void GameInterface::Render()
 {
-	double const smoothRatio = playrunning() ? I_GetTimeFrac() * MaxSmoothRatio : MaxSmoothRatio;
+	double const smoothRatio = !playrunning() || !cl_interpolate || cl_capfps ? MaxSmoothRatio : I_GetTimeFrac() * MaxSmoothRatio;
 
 	drawscreen(pyrn, smoothRatio, false); 
 	if (!paused && isWh2() && attacktheme && !Mus_IsPlaying())

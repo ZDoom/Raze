@@ -634,6 +634,7 @@ void castspell(PLAYER& plr, DWHActor* actor) {
 	spawned.clipdist = 16;
 	spawned.lotag = 512;
 	spawned.hitag = 0;
+	spawned.backuploc();
 }
 
 void skullycastspell(PLAYER& plr, int i) {
@@ -670,6 +671,7 @@ void skullycastspell(PLAYER& plr, int i) {
 	spawned.lotag = 512;
 	spawned.hitag = 0;
 	spawned.pal = 7;
+	spawned.backuploc();
 }
 
 void attack(PLAYER& plr, int const i) {
@@ -1011,6 +1013,7 @@ void monsterweapon(int i) {
 	weap.cstat = 0;
 	weap.cstat &= ~3;
 	weap.pal = 0;
+	weap.backuploc();
 
 	int type = (krand() % 4);
 	weap.picnum = (short)(FLASKBLUE + type);

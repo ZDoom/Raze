@@ -409,6 +409,7 @@ void spawnabaddy(DWHActor* actor, int monster) {
 	killcnt++;
 
 	setsprite(j, spawned.x, spawned.y, spawned.z);
+	spawned.backuploc();
 }
 
 

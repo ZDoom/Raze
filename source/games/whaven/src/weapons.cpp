@@ -1723,6 +1723,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 				spawned.owner = sprite[plr.spritenum].owner;
 				spawned.lotag = 32;
 				spawned.hitag = 0;
+				spawned.backuploc();
 				spritesound(S_ARROWHIT, &spawned);
 
 				if (isWh2() && plr.weapon[6] == 3 && plr.currweapon == 6) {
@@ -1745,6 +1746,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 					spawned.owner = 0;
 					spawned.lotag = 1200;
 					spawned.hitag = 0;
+					spawned.backuploc();
 				}
 			}
 
@@ -1773,6 +1775,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 			spawned.hitag = 0;
 			movesprite((short) j, (bcos(spawned.ang) * TICSPERFRAME) << 3,
 					(bsin(spawned.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
+			spawned.backuploc();
 		}
 		if ((pHitInfo.hitsprite >= 0) && (sprite[pHitInfo.hitsprite].statnum < MAXSTATUS)) {
 			auto& hitspr = sprite[pHitInfo.hitsprite];
@@ -1980,6 +1983,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 						movesprite((short) j, (bcos(spawned.extra) * TICSPERFRAME) << 3,
 								(bsin(spawned.extra) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
 						setsprite((short) j, spawned.x, spawned.y, spawned.z);
+						spawned.backuploc();
 					} else {
 						j = insertsprite(plr.sector, MISSILE);
 						auto& spawned = sprite[j];
@@ -2002,6 +2006,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 						spawned.lotag = 1024;
 						spawned.hitag = 0;
 						spawned.pal = 0;
+						spawned.backuploc();
 					}
 				} else {
 					j = insertsprite(plr.sector, MISSILE);
@@ -2030,6 +2035,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 					spawned.lotag = 1024;
 					spawned.hitag = 0;
 					spawned.pal = 0;
+					spawned.backuploc();
 				}
 			}
 		}
@@ -2072,6 +2078,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 						movesprite((short) j, (bcos(spawned.extra) * TICSPERFRAME) << 3,
 								(bsin(spawned.extra) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
 						setsprite((short) j, spawned.x, spawned.y, spawned.z);
+						spawned.backuploc();
 					} else {
 						j = insertsprite(plr.sector, MISSILE);
 						auto& spawned = sprite[j];
@@ -2094,6 +2101,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 						spawned.lotag = 1024;
 						spawned.hitag = 0;
 						spawned.pal = 0;
+						spawned.backuploc();
 					}
 				} else {
 					j = insertsprite(plr.sector, MISSILE);
@@ -2120,6 +2128,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 					spawned.lotag = 1024;
 					spawned.hitag = 0;
 					spawned.pal = 0;
+					spawned.backuploc();
 				}
 
 			}
@@ -2162,6 +2171,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 		movesprite((short) j, (bcos(spawned.ang) * TICSPERFRAME) << 3,
 				(bsin(spawned.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
 		setsprite(j, spawned.x, spawned.y, spawned.z);
+		spawned.backuploc();
 
 		break;
 	}
@@ -2204,6 +2214,7 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 		movesprite((short) j, (bcos(spawned.ang) * TICSPERFRAME) << 3,
 				(bsin(spawned.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
 		setsprite(j, spawned.x, spawned.y, spawned.z);
+		spawned.backuploc();
 
 		break;
 	}

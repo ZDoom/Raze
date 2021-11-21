@@ -621,7 +621,7 @@ void GameInterface::Render()
     }
     else
     {
-        smoothratio = I_GetTimeFrac() * MaxSmoothRatio;
+        smoothratio = !cl_interpolate || cl_capfps ? MaxSmoothRatio : I_GetTimeFrac() * MaxSmoothRatio;
     }
 
     drawtime.Reset();

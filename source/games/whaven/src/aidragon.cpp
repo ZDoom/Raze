@@ -374,6 +374,7 @@ static void firebreath(PLAYER& plr, int i, int a, int b, int c)
 		spawned.clipdist = 16;
 		spawned.lotag = 512;
 		spawned.hitag = 0;
+		spawned.backuploc();
 	}
 }
 	

@@ -490,6 +490,7 @@ static void throwhalberd(int s) {
 	movesprite((short)j, (bcos(spr.extra) * TICSPERFRAME) << 7,
 		(bsin(spr.extra) * TICSPERFRAME) << 7, daz, 4 << 8, 4 << 8, 1);
 	spr.cstat = 21;
+	spr.backuploc();
 }
 
 void createGronAI() {

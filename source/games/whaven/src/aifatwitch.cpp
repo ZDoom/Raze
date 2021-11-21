@@ -280,6 +280,7 @@ static void throwspank(PLAYER& plr, DWHActor* actor)
 	spawned.lotag = 512;
 	spawned.hitag = 0;
 	spawned.pal = 0;
+	spawned.backuploc();
 }
 
 void createFatwitchAI() {

@@ -398,6 +398,7 @@ static void newguyarrow(short s, PLAYER& plr) {
 	spr.lotag = 1024;
 	spr.hitag = 0;
 	spr.pal = 0;
+	spr.backuploc();
 }
 
 void createNewGuyAI() {

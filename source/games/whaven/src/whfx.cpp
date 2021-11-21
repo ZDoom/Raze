@@ -829,6 +829,7 @@ void makeasplash(int picnum, PLAYER& plr) {
 
 	movesprite((short) j, (bcos(spawned.ang) * TICSPERFRAME) << 3,
 			(bsin(spawned.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
+	spawned.backuploc();
 }
 
 void makemonstersplash(int picnum, int i) {
@@ -860,6 +861,7 @@ void makemonstersplash(int picnum, int i) {
 	spawned.clipdist = 16;
 	spawned.lotag = 8;
 	spawned.hitag = 0;
+	spawned.backuploc();
 
 	// JSA 5/3 start
 	switch (picnum) {
@@ -902,6 +904,7 @@ void bats(PLAYER& plr, int k) {
 	spawned.lotag = 128;
 	spawned.hitag = (short) k;
 	spawned.extra = 0;
+	spawned.backuploc();
 
 	newstatus(j, FLOCK);
 
@@ -1029,6 +1032,7 @@ void warpfxsprite(int s) {
 
 	movesprite((short) j, (bcos(daang) * TICSPERFRAME) << 3,
 			(bsin(daang) * TICSPERFRAME) << 3, daz, 4 << 8, 4 << 8, 1);
+	spawned.backuploc();
 }
 
 void resetEffects() {
@@ -1122,6 +1126,7 @@ void makesparks(short i, int type) {
 	spawned.extra = 0;
 
 	spawned.pal = 0;
+	spawned.backuploc();
 }
 
 void shards(int i, int type) {
@@ -1144,6 +1149,7 @@ void shards(int i, int type) {
 	spawned.hitag = 0;
 	spawned.extra = (short) type;
 	spawned.pal = 0;
+	spawned.backuploc();
 }
 
 

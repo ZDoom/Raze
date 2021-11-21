@@ -692,6 +692,7 @@ static void gonzopike(short s, PLAYER& plr) {
 	spr.lotag = 1024;
 	spr.hitag = 0;
 	spr.pal = 0;
+	spr.backuploc();
 
 }
 
@@ -813,6 +814,7 @@ void deaddude(short sn) {
 	spawned.owner = 0;
 	spawned.lotag = 0;
 	spawned.hitag = 0;
+	spawned.backuploc();
 }
 
 END_WH_NS

@@ -211,6 +211,7 @@ void initplayersprite(PLAYER& plr) {
 	plr.nightglowtime = -1;
 	plr.strongtime = -1;
 	plr.invisibletime = -1;
+	spr.backuploc();
 }
 
 void updateviewmap(PLAYER& plr) {
@@ -434,6 +435,7 @@ void chunksofmeat(PLAYER& plr, DWHActor* hitActor, int hitx, int hity, int hitz,
 			spawned.pal = 0;
 			movesprite((short) j, (bcos(spawned.ang) * TICSPERFRAME) << 3,
 					(bsin(spawned.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
+			spawned.backuploc();
 		}
 	}
 

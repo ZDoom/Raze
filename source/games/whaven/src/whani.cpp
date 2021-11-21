@@ -271,6 +271,7 @@ void animateobjs(PLAYER& plr) {
 				spawned.hitag = 0;
 				spawned.detail = GONZOTYPE;
 				DeleteActor(actor);
+				spawned.backuploc();
 			}
 		}
 
@@ -1352,6 +1353,7 @@ void animateobjs(PLAYER& plr) {
 				spawned.owner = spr.owner;
 				spawned.lotag = 256;
 				spawned.hitag = 0;
+				spawned.backuploc();
 			}
 
 			if (spr.lotag < 0) {

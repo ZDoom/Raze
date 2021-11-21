@@ -768,6 +768,7 @@ boolean prepareboard(const char* fname) {
 					sp.cstat = 515;
 					sp.shade = -3;
 					sp.xrepeat = sp.yrepeat = 64;
+					sp.backuploc();
 				}
 			}
 		}
@@ -809,6 +810,7 @@ boolean prepareboard(const char* fname) {
         // dont forget to cleanup values
 		plr.treasure[TONYXRING] = 0;
 		soundEngine->StopAllChannels();
+		pspr.backuploc();
 
 		justteleported = false;
 	} else {

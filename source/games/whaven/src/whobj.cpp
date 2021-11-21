@@ -1390,6 +1390,7 @@ void makeafire(int i, int firetype) {
 	spawned.lotag = 2047;
 	spawned.hitag = 0;
 	changespritestat(j, FIRE);
+	spawned.backuploc();
 }
 
 void explosion(int i, int x, int y, int z, int owner) {
@@ -1427,6 +1428,7 @@ void explosion(int i, int x, int y, int z, int owner) {
 		spawned.picnum = EXPLOSTART;
 		spawned.lotag = 12;
 	}
+	spawned.backuploc();
 }
 
 void explosion2(int i, int x, int y, int z, int owner) {
@@ -1466,7 +1468,8 @@ void explosion2(int i, int x, int y, int z, int owner) {
 		spawned.picnum = EXPLOSTART;
 		spawned.lotag = 12;
 	}
-	
+	spawned.backuploc();
+
 }
 
 void trailingsmoke(DWHActor* actor, boolean ball) {
@@ -1494,6 +1497,7 @@ void trailingsmoke(DWHActor* actor, boolean ball) {
 	spawned.owner = spr.owner;
 	spawned.lotag = 256;
 	spawned.hitag = 0;
+	spawned.backuploc();
 }
 
 void icecubes(int i, int x, int y, int z, int owner) {
@@ -1525,6 +1529,7 @@ void icecubes(int i, int x, int y, int z, int owner) {
 		spawned.lotag = 2048;
 	else spawned.lotag = 999;
 	spawned.hitag = 0;
+	spawned.backuploc();
 
 }
 
@@ -1834,6 +1839,7 @@ void trowajavlin(int s) {
 	spawned.lotag = 0;
 	spawned.hitag = 0;
 	spawned.pal = 0;
+	spawned.backuploc();
 }
 
 void spawnhornskull(short i) {
@@ -1851,6 +1857,7 @@ void spawnhornskull(short i) {
 	spawned.detail = HORNEDSKULLTYPE;
 	spawned.xrepeat = 64;
 	spawned.yrepeat = 64;
+	spawned.backuploc();
 }
 
 void spawnapentagram(int sn) {
@@ -1873,6 +1880,7 @@ void spawnapentagram(int sn) {
 	spawned.detail = PENTAGRAMTYPE;
 
 	setsprite(j, spawned.x, spawned.y, spawned.z);
+	spawned.backuploc();
 }
 
 END_WH_NS

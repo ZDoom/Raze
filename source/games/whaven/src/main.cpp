@@ -671,6 +671,12 @@ void GameInterface::Ticker()
 		return;
 	}
 	UpdateInterpolations();
+	
+	WHSpriteIterator it;
+	while (auto ac = it.Next())
+	{
+		ac->s().backuploc();
+	}
 
 	for (int i = connecthead; i >= 0; i = connectpoint2[i])
 		player[i].oldsector = player[i].sector;
