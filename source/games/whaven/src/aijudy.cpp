@@ -342,16 +342,17 @@ void judyOperate(PLAYER& plr)
 	short nextsprite;
 	for (short i = headspritestat[WITCHSIT]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
+		auto& spri = sprite[i];
 
-		sprite[i].ang = (short)(getangle(plr.x - sprite[i].x, plr.y - sprite[i].y) & 2047);
-		if (cansee(plr.x, plr.y, plr.z, plr.sector, sprite[i].x, sprite[i].y,
-			sprite[i].z - (tileHeight(sprite[i].picnum) << 7), sprite[i].sectnum)) {
-			sprite[i].lotag -= TICSPERFRAME;
-			if (sprite[i].lotag < 0) {
-				sprite[i].picnum++;
-				sprite[i].lotag = 12;
-				if (sprite[i].picnum == JUDYSIT + 4) {
-					sprite[i].picnum = JUDY;
+		spri.ang = (short)(getangle(plr.x - spri.x, plr.y - spri.y) & 2047);
+		if (cansee(plr.x, plr.y, plr.z, plr.sector, spri.x, spri.y,
+			spri.z - (tileHeight(spri.picnum) << 7), spri.sectnum)) {
+			spri.lotag -= TICSPERFRAME;
+			if (spri.lotag < 0) {
+				spri.picnum++;
+				spri.lotag = 12;
+				if (spri.picnum == JUDYSIT + 4) {
+					spri.picnum = JUDY;
 					newstatus(i, FACE);
 				}
 			}
@@ -361,14 +362,15 @@ void judyOperate(PLAYER& plr)
 	
 void spawnabaddy(int i, int monster) {
 	short j = insertsprite(sprite[i].sectnum, FACE);
+	auto& spawned = sprite[j];
 
-	sprite[j].x = sprite[i].x + (krand() & 2048) - 1024;
-	sprite[j].y = sprite[i].y + (krand() & 2048) - 1024;
-	sprite[j].z = sprite[i].z;
+	spawned.x = sprite[i].x + (krand() & 2048) - 1024;
+	spawned.y = sprite[i].y + (krand() & 2048) - 1024;
+	spawned.z = sprite[i].z;
 
-	sprite[j].pal = 0;
-	sprite[j].shade = 0;
-	sprite[j].cstat = 0;
+	spawned.pal = 0;
+	spawned.shade = 0;
+	spawned.cstat = 0;
 
 	if (monster == WILLOW)
 		premapWillow(j);
@@ -381,10 +383,10 @@ void spawnabaddy(int i, int monster) {
 	else if (monster == GONZOGSH)
 		premapGonzo(j);
 
-	sprite[j].picnum = (short)monster;
+	spawned.picnum = (short)monster;
 	killcnt++;
 
-	setsprite(j, sprite[j].x, sprite[j].y, sprite[j].z);
+	setsprite(j, spawned.x, spawned.y, spawned.z);
 }
 
 
