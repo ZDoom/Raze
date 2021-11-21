@@ -227,7 +227,7 @@ void BlowChunks(DExhumedActor* pActor)
     }
 }
 
-void DestroyEgg(short nEgg)
+void DestroyEgg(int nEgg)
 {
     auto pActor = QueenEgg[nEgg].pActor;
     auto pSprite = &pActor->s();

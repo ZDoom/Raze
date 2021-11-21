@@ -40,7 +40,7 @@ static actionSeq FishSeq[] = {
 
 
 
-void BuildFishLimb(DExhumedActor* pActor, short anim)
+void BuildFishLimb(DExhumedActor* pActor, int anim)
 {
 	auto pSprite = &pActor->s();
 
@@ -198,7 +198,7 @@ void BuildFish(DExhumedActor* pActor, int x, int y, int z, int nSector, int nAng
     nCreaturesTotal++;
 }
 
-void IdleFish(DExhumedActor* pActor, short edx)
+void IdleFish(DExhumedActor* pActor, int edx)
 {
     auto pSprite = &pActor->s();
 
@@ -241,7 +241,7 @@ void AIFish::Draw(RunListEvent* ev)
 {
     auto pActor = ev->pObjActor;
     if (pActor == nullptr) return;
-    short nAction = pActor->nAction;
+    int nAction = pActor->nAction;
 
     seq_PlotSequence(ev->nParam, SeqOffsets[kSeqFish] + FishSeq[nAction].a, pActor->nFrame, FishSeq[nAction].b);
     ev->pTSprite->owner = -1;
@@ -324,14 +324,14 @@ void AIFish::Tick(RunListEvent* ev)
     if (pActor == nullptr) return;
     auto pSprite = &pActor->s();
 
-    short nAction = pActor->nAction;
+    int nAction = pActor->nAction;
 
     if (!(pSprite->sector()->Flag & kSectUnderwater))
     {
         Gravity(pActor);
     }
 
-    short nSeq = SeqOffsets[kSeqFish] + FishSeq[nAction].a;
+    int nSeq = SeqOffsets[kSeqFish] + FishSeq[nAction].a;
 
     pSprite->picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
 

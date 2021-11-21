@@ -1779,7 +1779,7 @@ sectdone:
                     // loc_1B75D
                     int var_18 = 1 << var_40;
 
-                    short weapons = PlayerList[nPlayer].nPlayerWeapons;
+                    int weapons = PlayerList[nPlayer].nPlayerWeapons;
 
                     if (weapons & var_18)
                     {
@@ -1841,7 +1841,7 @@ sectdone:
                     // loc_1B75D
                     int var_18 = 1 << var_40;
 
-                    short weapons = PlayerList[nPlayer].nPlayerWeapons;
+                    int weapons = PlayerList[nPlayer].nPlayerWeapons;
 
                     if (weapons & var_18)
                     {
@@ -1903,7 +1903,7 @@ sectdone:
                     // loc_1B75D
                     int var_18 = 1 << var_40;
 
-                    short weapons = PlayerList[nPlayer].nPlayerWeapons;
+                    int weapons = PlayerList[nPlayer].nPlayerWeapons;
 
                     if (weapons & var_18)
                     {
@@ -1965,7 +1965,7 @@ sectdone:
                     // loc_1B75D
                     int var_18 = 1 << var_40;
 
-                    short weapons = PlayerList[nPlayer].nPlayerWeapons;
+                    int weapons = PlayerList[nPlayer].nPlayerWeapons;
 
                     if (weapons & var_18)
                     {
@@ -2027,7 +2027,7 @@ sectdone:
                     // loc_1B75D
                     int var_18 = 1 << var_40;
 
-                    short weapons = PlayerList[nPlayer].nPlayerWeapons;
+                    int weapons = PlayerList[nPlayer].nPlayerWeapons;
 
                     if (weapons & var_18)
                     {
@@ -2089,7 +2089,7 @@ sectdone:
                     // loc_1B75D
                     int var_18 = 1 << var_40;
 
-                    short weapons = PlayerList[nPlayer].nPlayerWeapons;
+                    int weapons = PlayerList[nPlayer].nPlayerWeapons;
 
                     if (weapons & var_18)
                     {

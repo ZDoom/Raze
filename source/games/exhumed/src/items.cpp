@@ -29,8 +29,8 @@ BEGIN_PS_NS
 
 struct AnimInfo
 {
-    short a;
-    short repeat;
+    int16_t a;
+    int16_t repeat;
 };
 
 AnimInfo nItemAnimInfo[] = {
@@ -98,15 +98,8 @@ AnimInfo nItemAnimInfo[] = {
 
 const int16_t nItemMagic[] = { 500, 1000, 100, 500, 400, 200, 700, 0 };
 
-/*
-
-short something
-short x/y repeat
-
-*/
-
 TArray<DExhumedActor*> Regenerates;
-short nMagicCount;
+int nMagicCount;
 
 void SerializeItems(FSerializer& arc)
 {

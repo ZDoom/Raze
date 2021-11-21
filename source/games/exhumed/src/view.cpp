@@ -36,7 +36,7 @@ EXTERN_CVAR(Bool, testnewrenderer)
 
 BEGIN_PS_NS
 
-short bSubTitles = true;
+bool bSubTitles = true;
 
 int zbob;
 

@@ -31,11 +31,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-static short ObjectSeq[] = {
+static const int8_t ObjectSeq[] = {
     46, -1, 72, -1
 };
 
-static short ObjectStatnum[] = {
+static const short ObjectStatnum[] = {
     kStatExplodeTrigger, kStatExplodeTarget, 98, kStatDestructibleSprite
 };
 
@@ -51,8 +51,8 @@ struct TrailPoint
     int x;
     int y;
     uint8_t nTrailPointVal;
-    short nTrailPointPrev;
-    short nTrailPointNext;
+    int16_t nTrailPointPrev;
+    int16_t nTrailPointNext;
 
 };
 
@@ -62,7 +62,7 @@ struct Bob
     uint8_t field_2;
     uint8_t field_3;
     int z;
-    short sBobID;
+    uint16_t sBobID;
 
 };
 
@@ -76,16 +76,15 @@ struct Drip
 struct Elev
 {
     DExhumedActor* pActor;
-    short field_0;
-    short nChannel;
+    int16_t nFlags;
+    int16_t nChannel;
     int nSector;
-    int field_6;
-    int field_A;
-    short nCountZOffsets; // count of items in zOffsets
-    short nCurZOffset;
+    int nParam1;
+    int nParam2;
+    int16_t nCountZOffsets; // count of items in zOffsets
+    int16_t nCurZOffset;
     int zOffsets[8]; // different Z offsets
-    short field_32;
-    short field_36;
+    int16_t nRunRec;
 };
 
 // 16 bytes
@@ -236,17 +235,16 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Elev& w, Elev* def
 {
     if (arc.BeginObject(keyname))
     {
-        arc("at0", w.field_0)
+        arc("at0", w.nFlags)
             ("channel", w.nChannel)
             ("sector", w.nSector)
-            ("at6", w.field_6)
-            ("ata", w.field_A)
+            ("at6", w.nParam1)
+            ("ata", w.nParam2)
             ("countz", w.nCountZOffsets)
             ("curz", w.nCurZOffset)
             .Array("zofs", w.zOffsets, 8)
-            ("at32", w.field_32)
+            ("at32", w.nRunRec)
             ("sprite", w.pActor)
-            ("at36", w.field_36)
             .EndObject();
     }
     return arc;
@@ -483,15 +481,14 @@ int BuildElevF(int nChannel, int nSector, DExhumedActor* nWallSprite, int arg_4,
 {
     auto ElevCount = Elevator.Reserve(1);
 
-    Elevator[ElevCount].field_0 = 2;
-    Elevator[ElevCount].field_6 = arg_4;
-    Elevator[ElevCount].field_32 = -1;
-    Elevator[ElevCount].field_A = arg_5;
+    Elevator[ElevCount].nFlags = 2;
+    Elevator[ElevCount].nParam1 = arg_4;
+    Elevator[ElevCount].nRunRec = -1;
+    Elevator[ElevCount].nParam2 = arg_5;
     Elevator[ElevCount].nChannel = nChannel;
     Elevator[ElevCount].nSector = nSector;
     Elevator[ElevCount].nCountZOffsets = 0;
     Elevator[ElevCount].nCurZOffset = 0;
-    Elevator[ElevCount].field_36 = 0;
 
     if (nWallSprite == nullptr) {
         nWallSprite = BuildWallSprite(nSector);
@@ -525,19 +522,18 @@ int BuildElevC(int arg1, int nChannel, int nSector, DExhumedActor* nWallSprite, 
 
     auto ElevCount = Elevator.Reserve(1);
 
-    Elevator[ElevCount].field_0 = arg1;
+    Elevator[ElevCount].nFlags = arg1;
 
     if (arg1 & 4)
     {
         edi = arg5 / 2;
     }
 
-    Elevator[ElevCount].field_6 = edi;
+    Elevator[ElevCount].nParam1 = edi;
     Elevator[ElevCount].nCountZOffsets = 0;
-    Elevator[ElevCount].field_36 = 0;
     Elevator[ElevCount].nCurZOffset = 0;
-    Elevator[ElevCount].field_A = arg6;
-    Elevator[ElevCount].field_32 = -1;
+    Elevator[ElevCount].nParam2 = arg6;
+    Elevator[ElevCount].nRunRec = -1;
     Elevator[ElevCount].nChannel = nChannel;
     Elevator[ElevCount].nSector = nSector;
 
@@ -683,8 +679,8 @@ void AIElev::ProcessChannel(RunListEvent* ev)
     short nElev = RunData[nRun].nObjIndex;
     assert(nElev >= 0 && nElev < (int)Elevator.Size());
 
-    short nChannel = Elevator[nElev].nChannel;
-    short var_18 = Elevator[nElev].field_0;
+    int nChannel = Elevator[nElev].nChannel;
+    int nFlags = Elevator[nElev].nFlags;
 
     assert(nChannel >= 0 && nChannel < kMaxChannels);
 
@@ -693,7 +689,7 @@ void AIElev::ProcessChannel(RunListEvent* ev)
 
     int edi = 999; // FIXME CHECKME - this isn't default set to anything in the ASM that I can see - if ax is 0 and var_24 is 0, this will never be set to a known value otherwise!
 
-    if (var_18 & 0x8)
+    if (nFlags & 0x8)
     {
         if (dx) {
             edi = 1;
@@ -705,12 +701,12 @@ void AIElev::ProcessChannel(RunListEvent* ev)
     else
     {
         // loc_20D48:
-        if (var_18 & 0x10) // was var_24
+        if (nFlags & 0x10) // was var_24
         {
-            if (Elevator[nElev].field_32 < 0)
+            if (Elevator[nElev].nRunRec < 0)
             {
-                Elevator[nElev].field_32 = runlist_AddRunRec(NewRun, &RunData[nRun]);
-                StartElevSound(Elevator[nElev].pActor, var_18);
+                Elevator[nElev].nRunRec = runlist_AddRunRec(NewRun, &RunData[nRun]);
+                StartElevSound(Elevator[nElev].pActor, nFlags);
 
                 edi = 1;
             }
@@ -724,7 +720,6 @@ void AIElev::ProcessChannel(RunListEvent* ev)
             {
                 if (dx == Elevator[nElev].nCurZOffset || dx >= Elevator[nElev].nCountZOffsets)
                 {
-                    Elevator[nElev].field_36 = dx;
                     edi = 1;
                 }
                 else
@@ -741,20 +736,20 @@ void AIElev::ProcessChannel(RunListEvent* ev)
     // loc_20DF9:
     if (edi)
     {
-        if (Elevator[nElev].field_32 < 0)
+        if (Elevator[nElev].nRunRec < 0)
         {
-            Elevator[nElev].field_32 = runlist_AddRunRec(NewRun, &RunData[nRun]);
+            Elevator[nElev].nRunRec = runlist_AddRunRec(NewRun, &RunData[nRun]);
 
-            StartElevSound(Elevator[nElev].pActor, var_18);
+            StartElevSound(Elevator[nElev].pActor, nFlags);
         }
     }
     else
     {
         //loc_20E4E:
-        if (Elevator[nElev].field_32 >= 0)
+        if (Elevator[nElev].nRunRec >= 0)
         {
-            runlist_SubRunRec(Elevator[nElev].field_32);
-            Elevator[nElev].field_32 = -1;
+            runlist_SubRunRec(Elevator[nElev].nRunRec);
+            Elevator[nElev].nRunRec = -1;
         }
     }
 }
@@ -766,7 +761,7 @@ void AIElev::Tick(RunListEvent* ev)
     assert(nElev >= 0 && nElev < (int)Elevator.Size());
 
     short nChannel = Elevator[nElev].nChannel;
-    short var_18 = Elevator[nElev].field_0;
+    short var_18 = Elevator[nElev].nFlags;
 
     assert(nChannel >= 0 && nChannel < kMaxChannels);
 
@@ -783,7 +778,7 @@ void AIElev::Tick(RunListEvent* ev)
         short nSectorB = nSector;
 
         StartInterpolation(nSector, Interp_Sect_Floorz);
-        int nVal = LongSeek((int*)&sector[nSector].floorz, nZVal, Elevator[nElev].field_6, Elevator[nElev].field_A);
+        int nVal = LongSeek((int*)&sector[nSector].floorz, nZVal, Elevator[nElev].nParam1, Elevator[nElev].nParam2);
         ebp = nVal;
 
         if (!nVal)
@@ -797,7 +792,7 @@ void AIElev::Tick(RunListEvent* ev)
             {
                 StopActorSound(pElevSpr);
                 runlist_SubRunRec(nRun);
-                Elevator[nElev].field_32 = -1;
+                Elevator[nElev].nRunRec = -1;
                 runlist_ReadyChannel(nChannel);
 
                 D3PlayFX(StaticSound[nStopSound], Elevator[nElev].pActor);
@@ -825,7 +820,7 @@ void AIElev::Tick(RunListEvent* ev)
         int zVal = Elevator[nElev].zOffsets[nZOffset];
 
         StartInterpolation(nSector, Interp_Sect_Ceilingz);
-        int nVal = LongSeek(&ceilZ, zVal, Elevator[nElev].field_6, Elevator[nElev].field_A);
+        int nVal = LongSeek(&ceilZ, zVal, Elevator[nElev].nParam1, Elevator[nElev].nParam2);
         ebp = nVal;
 
         if (!nVal)
@@ -839,7 +834,7 @@ void AIElev::Tick(RunListEvent* ev)
             else
             {
                 runlist_SubRunRec(nRun);
-                Elevator[nElev].field_32 = -1;
+                Elevator[nElev].nRunRec = -1;
                 StopActorSound(Elevator[nElev].pActor);
                 D3PlayFX(StaticSound[nStopSound], Elevator[nElev].pActor);
                 runlist_ReadyChannel(nChannel);

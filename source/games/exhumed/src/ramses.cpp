@@ -51,15 +51,15 @@ int16_t nMouthTile;
 
 int nPupData = 0;
 
-short word_964E8 = 0;
-short word_964EA = 0;
-short word_964EC = 10;
+int word_964E8 = 0;
+int word_964EA = 0;
+int word_964EC = 10;
 
-short nSpiritRepeatX;
-short nSpiritRepeatY;
+int nSpiritRepeatX;
+int nSpiritRepeatY;
 DExhumedActor* pSpiritSprite;
-short nPixelsToShow;
-short nTalkTime = 0;
+int nPixelsToShow;
+int nTalkTime = 0;
 
 
 void InitSpiritHead()
@@ -180,7 +180,7 @@ void DimSector(int nSector)
     }
 }
 
-void CopyHeadToWorkTile(short nTile)
+void CopyHeadToWorkTile(int nTile)
 {
 	const uint8_t* pSrc = tilePtr(nTile);
     uint8_t *pDest = &Worktile[212 * 49 + 53];
@@ -197,7 +197,7 @@ void CopyHeadToWorkTile(short nTile)
 // This is based on BuildGDX's version of this function which was a lot less cryptic than PCExhumed's.
 void DoSpiritHead() 
 {
-    static short dimSectCount = 0;
+    static int dimSectCount = 0;
     auto pSpiritSpr = &pSpiritSprite->s();
 
     sPlayerInput[0].actions |= SB_CENTERVIEW;
@@ -214,7 +214,7 @@ void DoSpiritHead()
         {
             if (nPupData != 0) 
             {
-                short clock = *pPupData++;
+                int clock = *pPupData++;
                 nPupData -= 2;
                 if (nPupData > 0) 
                 {

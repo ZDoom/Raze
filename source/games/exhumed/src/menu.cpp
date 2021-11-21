@@ -50,7 +50,7 @@ uint8_t *dest;
 
 unsigned int nRandom = 0x41C6167E;
 int dword_9AB57 = 0x1F;
-short word_9AB5B = 0;
+int word_9AB5B = 0;
 
 int keytimer = 0;
 
@@ -86,7 +86,7 @@ void DoEnergyTile()
     uint8_t* ptr1 = energy1 + 1984;
     uint8_t* ptr2 = energy1 + 2048;
 
-    short nColor = nButtonColor + 161;
+    int nColor = nButtonColor + 161;
 
     int i, j;
 

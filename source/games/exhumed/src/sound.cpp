@@ -112,16 +112,16 @@ const char *SoundFiles[kMaxSoundFiles] =
   "jon_air2" // 79
 };
 
-short nStopSound;
-short nStoneSound;
-short nSwitchSound;
-short nLocalEyeSect;
-short nElevSound;
-short nCreepyTimer;
+int nStopSound;
+int nStoneSound;
+int nSwitchSound;
+int nLocalEyeSect;
+int nElevSound;
+int nCreepyTimer;
 
 bool looped[kMaxSounds];
 
-short StaticSound[kMaxSounds];
+int16_t StaticSound[kMaxSounds];
 int fakesources[] = { 0, 1, 2, 3 };
 int swirlysources[4]= { 0, 1, 2, 3 };
 FVector3 amb, creepy;
@@ -281,7 +281,7 @@ void BendAmbientSound(void)
 //
 //==========================================================================
 
-void PlayLocalSound(short nSound, short nRate, bool unattached, EChanFlags cflags)
+void PlayLocalSound(int nSound, int nRate, bool unattached, EChanFlags cflags)
 {
     if (!SoundEnabled()) return;
     if (nSound < 0 || nSound >= kMaxSounds || !soundEngine->isValidSoundId(nSound + 1))
@@ -347,7 +347,7 @@ void StartSwirly(int nActiveSound)
     if (!SoundEnabled()) return;
     auto &swirly = swirlysources[nActiveSound];
 
-    short nPitch = nNextFreq - RandomSize(9);
+    int nPitch = nNextFreq - RandomSize(9);
     nNextFreq = 25000 - RandomSize(10) * 6;
     if (nNextFreq > 32000)
         nNextFreq = 32000;
@@ -405,7 +405,7 @@ void SoundBigEntrance(void)
     StopAllSounds();
     for (int i = 0; i < 4; i++)
     {
-        short nPitch = 11025 + (i * 512 - 1200);
+        int nPitch = 11025 + (i * 512 - 1200);
         //pASound->snd_pitch = nPitch;
         soundEngine->StopSound(SOURCE_EXBoss, &fakesources[i], -1);
         soundEngine->StartSound(SOURCE_EXBoss, &fakesources[i], nullptr, CHAN_BODY, CHANF_TRANSIENT, StaticSound[kSoundTorchOn]+1, 200 / 255.f, ATTN_NONE, nullptr, nPitch / 11025.f);
@@ -500,7 +500,7 @@ void GameInterface::UpdateSounds()
         return;
 
     vec3_t pos;
-    short ang;
+    int ang;
     if (nSnakeCam > -1)
     {
         Snake *pSnake = &SnakeList[nSnakeCam];
@@ -552,9 +552,9 @@ void GameInterface::UpdateSounds()
 //==========================================================================
 
 int soundx, soundy, soundz;
-short soundsect;
+int soundsect;
 
-void PlayFX2(unsigned short nSound, DExhumedActor* pActor, int sectf, EChanFlags chanflags, int sprflags)
+void PlayFX2(unsigned int nSound, DExhumedActor* pActor, int sectf, EChanFlags chanflags, int sprflags)
 {
     if (!SoundEnabled()) return;
     if ((nSound&0x1ff) >= kMaxSounds || !soundEngine->isValidSoundId((nSound & 0x1ff)+1))
@@ -583,7 +583,7 @@ void PlayFX2(unsigned short nSound, DExhumedActor* pActor, int sectf, EChanFlags
     if (forcePlay || midprio) prio = 1000;
     else if (pActor != nullptr && hiprio) prio = 2000;
 
-    short v10 = (nSound&0xe00)>>9;
+    int v10 = (nSound&0xe00)>>9;
     nSound &= 0x1ff;
 
     int nPitch = 0;
@@ -655,7 +655,7 @@ void PlayFX2(unsigned short nSound, DExhumedActor* pActor, int sectf, EChanFlags
 //
 //==========================================================================
 
-void PlayFXAtXYZ(unsigned short ax, int x, int y, int z, int nSector, EChanFlags chanflags, int sectf)
+void PlayFXAtXYZ(unsigned int ax, int x, int y, int z, int nSector, EChanFlags chanflags, int sectf)
 {
     soundx = x;
     soundy = y;
@@ -747,7 +747,7 @@ void UpdateCreepySounds()
                 }
 
                 int nVolume = 255;
-                short v10 = (vsi & 0xe00) >> 9;
+                int v10 = (vsi & 0xe00) >> 9;
                 vsi &= 0x1ff;
 
                 int nPitch = 0;

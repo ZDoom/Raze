@@ -194,12 +194,12 @@ void InitNewGame()
     }
 }
 
-void SetBelow(short nCurSector, short nBelowSector)
+void SetBelow(int nCurSector, int nBelowSector)
 {
     sector[nCurSector].Below = nBelowSector;
 }
 
-void SetAbove(short nCurSector, short nAboveSector)
+void SetAbove(int nCurSector, int nAboveSector)
 {
     sector[nCurSector].Above = nAboveSector;
 }
@@ -276,7 +276,7 @@ void InitSectFlag()
     }
 }
 
-void ProcessSpriteTag(DExhumedActor* pActor, short nLotag, short nHitag)
+void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
 {
 	auto pSprite = &pActor->s();
     int nChannel = runlist_AllocChannel(nHitag % 1000);

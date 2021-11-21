@@ -30,10 +30,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-short nPushBlocks;
+int nPushBlocks;
 
 // TODO - moveme?
-short overridesect;
+int overridesect;
 
 DExhumedActor* nBodySprite[50];
 
@@ -303,7 +303,7 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
     assert(validSectorIndex(nSector));
 
     overridesect = nSector;
-    short edi = nSector;
+    int edi = nSector;
 
     // backup cstat
     uint16_t cstat = pSprite->cstat;
@@ -312,7 +312,7 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
 
     Collision nRet(0);
 
-    short nSectFlags = sector[nSector].Flag;
+    int nSectFlags = sector[nSector].Flag;
 
     if (nSectFlags & kSectUnderwater) {
         z >>= 1;
@@ -388,7 +388,7 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
 
                 if (pSprite->statnum == 100 && pFloorSprite->statnum != 0 && pFloorSprite->statnum < 100)
                 {
-                    short nDamage = (z >> 9);
+                    int nDamage = (z >> 9);
                     if (nDamage)
                     {
                         runlist_DamageEnemy(loHit.actor, pActor, nDamage << 1);
@@ -755,8 +755,8 @@ void CheckSectorFloor(int nSector, int z, int *x, int *y)
         return;
     }
 
-    short nFlag = pSector->Flag;
-    short nAng = nFlag & kAngleMask;
+    int nFlag = pSector->Flag;
+    int nAng = nFlag & kAngleMask;
 
     if (z >= sector[nSector].floorz)
     {
@@ -889,15 +889,15 @@ void MoveSector(int nSector, int nAngle, int *nXVel, int *nYVel)
     sectortype *pSector = &sector[nSector];
  
 
-    short nBlock = pSector->extra;
-    short nSectFlag = sector[nSector].Flag;
+    int nBlock = pSector->extra;
+    int nSectFlag = sector[nSector].Flag;
 
     int nFloorZ = pSector->floorz;
     int startwall = pSector->wallptr;
     int nWalls = pSector->wallnum;
 
     walltype *pStartWall = &wall[startwall];
-    short nNextSector = wall[startwall].nextsector;
+    int nNextSector = wall[startwall].nextsector;
 
     BlockInfo *pBlockInfo = &sBlockInfo[nBlock];
 

@@ -164,8 +164,8 @@ void AILavaDude::Draw(RunListEvent* ev)
     auto pActor = ev->pObjActor;
     if (!pActor) return;
 
-    short nAction = pActor->nAction;
-    short nSeq = LavadudeSeq[nAction].a + SeqOffsets[kSeqLavag];
+    int nAction = pActor->nAction;
+    int nSeq = LavadudeSeq[nAction].a + SeqOffsets[kSeqLavag];
 
     seq_PlotSequence(ev->nParam, nSeq, pActor->nFrame, LavadudeSeq[nAction].b);
     ev->pTSprite->owner = -1;
@@ -177,7 +177,7 @@ void AILavaDude::Damage(RunListEvent* ev)
     auto pActor = ev->pObjActor;
     if (!pActor) return;
 
-    short nAction = pActor->nAction;
+    int nAction = pActor->nAction;
     auto pSprite = &pActor->s();
 
     if (!ev->nDamage) 
@@ -228,15 +228,15 @@ void AILavaDude::Tick(RunListEvent* ev)
     auto pActor = ev->pObjActor;
     if (!pActor) return;
 
-    short nAction = pActor->nAction;
-    short nSeq = LavadudeSeq[nAction].a + SeqOffsets[kSeqLavag];
+    int nAction = pActor->nAction;
+    int nSeq = LavadudeSeq[nAction].a + SeqOffsets[kSeqLavag];
 
     auto pSprite = &pActor->s();
 
     pSprite->picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
     int var_38 = pActor->nFrame;
 
-    short nFlag = FrameFlag[SeqBase[nSeq] + var_38];
+    int nFlag = FrameFlag[SeqBase[nSeq] + var_38];
 
     int var_1C = 0;
 

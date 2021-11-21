@@ -57,8 +57,6 @@ void BlackOut();
 
 void DoGameOverScene(bool finallevel);
 
-int Query(short n, short l, ...);
-
 extern unsigned char curpal[];
 
 void TintPalette(int a, int b, int c);
@@ -84,7 +82,6 @@ void GameTicker();
 void InitLevel(MapRecord*);
 void InitNewGame();
 
-int showmap(short nLevel, short nLevelNew, short nLevelBest);
 void menu_DoPlasma();
 void DoEnergyTile();
 void InitEnergyTile();
@@ -174,7 +171,7 @@ class TextOverlay
 {
     FFont* font;
 	double nCrawlY;
-	short nLeft[50];
+	int16_t nLeft[50];
 	int nHeight;
     double lastclock;
 	TArray<FString> screentext;

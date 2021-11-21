@@ -114,7 +114,7 @@ void MoveRaToEnemy(int nPlayer)
 {
     auto pTarget = Ra[nPlayer].pTarget;
     auto pActor = Ra[nPlayer].pActor;
-    short nAction = Ra[nPlayer].nAction;
+    int nAction = Ra[nPlayer].nAction;
 	auto pSprite = &pActor->s();
 
     if (pTarget)
@@ -168,9 +168,9 @@ void MoveRaToEnemy(int nPlayer)
 void AIRa::Tick(RunListEvent* ev)
 {
     int nPlayer = RunData[ev->nRun].nObjIndex;
-    short nCurrentWeapon = PlayerList[nPlayer].nCurrentWeapon;
+    int nCurrentWeapon = PlayerList[nPlayer].nCurrentWeapon;
 
-    short nSeq = SeqOffsets[kSeqEyeHit] + RaSeq[Ra[nPlayer].nAction].a;
+    int nSeq = SeqOffsets[kSeqEyeHit] + RaSeq[Ra[nPlayer].nAction].a;
     auto pActor = Ra[nPlayer].pActor;
     auto pSprite = &pActor->s();
 
@@ -291,7 +291,7 @@ void AIRa::Tick(RunListEvent* ev)
 void AIRa::Draw(RunListEvent* ev)
 {
     int nPlayer = RunData[ev->nRun].nObjIndex;
-    short nSeq = SeqOffsets[kSeqEyeHit] + RaSeq[Ra[nPlayer].nAction].a;
+    int nSeq = SeqOffsets[kSeqEyeHit] + RaSeq[Ra[nPlayer].nAction].a;
 
     seq_PlotSequence(ev->nParam, nSeq, Ra[nPlayer].nFrame, 1);
     ev->pTSprite->owner = -1;

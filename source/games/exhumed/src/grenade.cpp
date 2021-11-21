@@ -193,7 +193,7 @@ void ExplodeGrenade(DExhumedActor* pActor)
         }
     }
 
-    short nDamage = BulletInfo[kWeaponGrenade].nDamage;
+    int nDamage = BulletInfo[kWeaponGrenade].nDamage;
 
     if (PlayerList[nPlayer].nDouble > 0) {
         nDamage *= 2;
@@ -212,7 +212,7 @@ void AIGrenade::Draw(RunListEvent* ev)
     auto pActor = ev->pObjActor;
     if (!pActor) return;
 
-    short nSeq = pActor->nFrame ? SeqOffsets[kSeqGrenBoom] : SeqOffsets[kSeqGrenRoll] + pActor->nIndex;
+    int nSeq = pActor->nFrame ? SeqOffsets[kSeqGrenBoom] : SeqOffsets[kSeqGrenRoll] + pActor->nIndex;
     seq_PlotSequence(ev->nParam, nSeq, pActor->nHealth >> 8, 1);
 }
 
@@ -223,7 +223,7 @@ void AIGrenade::Tick(RunListEvent* ev)
     if (!pActor) return;
 
     auto pGrenadeSprite = &pActor->s();
-    short nSeq = pActor->nFrame ? SeqOffsets[kSeqGrenBoom] : SeqOffsets[kSeqGrenRoll] + pActor->nIndex;
+    int nSeq = pActor->nFrame ? SeqOffsets[kSeqGrenBoom] : SeqOffsets[kSeqGrenRoll] + pActor->nIndex;
 
     seq_MoveSequence(pActor, nSeq, pActor->nHealth >> 8);
     pGrenadeSprite->picnum = seq_GetSeqPicnum2(nSeq, pActor->nHealth >> 8);

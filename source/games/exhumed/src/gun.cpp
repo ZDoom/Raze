@@ -48,7 +48,7 @@ Weapon WeaponInfo[] = {
 
 int16_t nTemperature[kMaxPlayers];
 static const uint8_t nMinAmmo[] = { 0, 24, 51, 50, 1, 0, 0 };
-short isRed = 0;
+int isRed = 0;
 
 
 void SerializeGun(FSerializer& arc)
@@ -134,7 +134,7 @@ void SetNewWeapon(int nPlayer, int nWeapon)
         }
         else if (nWeapon != kWeaponGrenade || PlayerList[nPlayer].nAmmo[kWeaponGrenade] > 0)
         {
-            short nCurrentWeapon = PlayerList[nPlayer].nCurrentWeapon;
+            int nCurrentWeapon = PlayerList[nPlayer].nCurrentWeapon;
 
             if (nCurrentWeapon != kWeaponMummified)
             {
@@ -243,7 +243,7 @@ void ResetSwordSeqs()
 
 Collision CheckCloseRange(int nPlayer, int *x, int *y, int *z, int *nSector)
 {
-    short hitSect, hitWall, hitSprite;
+    int hitSect, hitWall, hitSprite;
     int hitX, hitY, hitZ;
 
     auto pActor = PlayerList[nPlayer].Actor();
@@ -329,7 +329,7 @@ void MoveWeapons(int nPlayer)
 
     auto pPlayerActor = PlayerList[nPlayer].Actor();
 	auto pPlayerSprite = &pPlayerActor->s();
-    short nWeapon = PlayerList[nPlayer].nCurrentWeapon;
+    int nWeapon = PlayerList[nPlayer].nCurrentWeapon;
 
     if (nWeapon < -1)
     {
@@ -345,10 +345,10 @@ void MoveWeapons(int nPlayer)
     }
 
     // loc_26ACC
-    short eax = PlayerList[nPlayer].nState;
-    short nSeq = WeaponInfo[nWeapon].nSeq;
+    int eax = PlayerList[nPlayer].nState;
+    int nSeq = WeaponInfo[nWeapon].nSeq;
 
-    short var_3C = WeaponInfo[nWeapon].b[eax] + SeqOffsets[nSeq];
+    int var_3C = WeaponInfo[nWeapon].b[eax] + SeqOffsets[nSeq];
 
     int var_1C = (PlayerList[nPlayer].nDouble > 0) + 1;
 
@@ -721,7 +721,7 @@ loc_flag:
 
                     if (cRange.type != kHitNone)
                     {
-                        short nDamage = BulletInfo[kWeaponSword].nDamage;
+                        int nDamage = BulletInfo[kWeaponSword].nDamage;
 
                         if (PlayerList[nPlayer].nDouble) {
                             nDamage *= 2;
@@ -851,7 +851,7 @@ loc_flag:
 
                 case kWeaponMummified:
                 {
-                    short nDamage = BulletInfo[kWeaponMummified].nDamage;
+                    int nDamage = BulletInfo[kWeaponMummified].nDamage;
                     if (PlayerList[nPlayer].nDouble) {
                         nDamage *= 2;
                     }
@@ -903,15 +903,15 @@ void DrawWeapons(double smooth)
         return;
     }
 
-    short nWeapon = PlayerList[nLocalPlayer].nCurrentWeapon;
+    int nWeapon = PlayerList[nLocalPlayer].nCurrentWeapon;
     if (nWeapon < -1) {
         return;
     }
-    short var_34 = PlayerList[nLocalPlayer].nState;
+    int var_34 = PlayerList[nLocalPlayer].nState;
 
-    short var_30 = SeqOffsets[WeaponInfo[nWeapon].nSeq];
+    int var_30 = SeqOffsets[WeaponInfo[nWeapon].nSeq];
 
-    short var_28 = var_30 + WeaponInfo[nWeapon].b[var_34];
+    int var_28 = var_30 + WeaponInfo[nWeapon].b[var_34];
 
     int8_t nShade = sector[initsect].ceilingshade;
 
@@ -1015,7 +1015,7 @@ void DrawWeapons(double smooth)
         {
             int nClip = PlayerList[nLocalPlayer].nPlayerClip;
 
-            short edx = (nClip % 3) * 4;
+            int edx = (nClip % 3) * 4;
 
             if (nClip <= 0) {
                 return;
@@ -1046,7 +1046,7 @@ void DrawWeapons(double smooth)
         {
             int nClip = PlayerList[nLocalPlayer].nPlayerClip;
 
-            short dx = PlayerList[nLocalPlayer].nSeqSize2;
+            int dx = PlayerList[nLocalPlayer].nSeqSize2;
 
             if (nClip <= 0) {
                 return;
@@ -1082,7 +1082,7 @@ void DrawWeapons(double smooth)
         {
             int nClip = PlayerList[nLocalPlayer].nPlayerClip;
 
-            short ax = PlayerList[nLocalPlayer].nSeqSize2;
+            int ax = PlayerList[nLocalPlayer].nSeqSize2;
 
             if (nClip <= 0) {
                 return;

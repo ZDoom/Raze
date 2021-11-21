@@ -103,17 +103,16 @@ enum {
     kSound79,
 };
 
-extern short gMusicVolume;
-extern short gFXVolume;
+extern int gMusicVolume;
+extern int gFXVolume;
+extern int nStopSound;
+extern int nStoneSound;
+extern int nSwitchSound;
+extern int nLocalEyeSect;
+extern int nElevSound;
+extern int nCreepyTimer;
 
-extern short nStopSound;
-extern short nStoneSound;
-extern short nSwitchSound;
-extern short nLocalEyeSect;
-extern short nElevSound;
-extern short nCreepyTimer;
-
-extern short StaticSound[];
+extern int16_t StaticSound[];
 
 
 void UpdateCreepySounds();
@@ -125,16 +124,16 @@ int LocalSoundPlaying();
 void LoadFX();
 void StopAllSounds();
 void StopLocalSound();
-void PlayLocalSound(short nSound, short val, bool unattached = false, EChanFlags cflags = CHANF_NONE);
+void PlayLocalSound(int nSound, int val, bool unattached = false, EChanFlags cflags = CHANF_NONE);
 int LoadSound(const char* sound);
 
 void BendAmbientSound();
 void CheckAmbience(int nSector);
 
-void PlayFX2(unsigned short nSound, DExhumedActor* nSprite, int sectf = 0, EChanFlags chanflags = CHANF_NONE, int sprflags = 0);
+void PlayFX2(unsigned int nSound, DExhumedActor* nSprite, int sectf = 0, EChanFlags chanflags = CHANF_NONE, int sprflags = 0);
 
-void PlayFXAtXYZ(unsigned short nSound, int x, int y, int z, int nSector, EChanFlags chanflags = CHANF_NONE, int sectf = 0);
-inline void D3PlayFX(unsigned short nSound, DExhumedActor* actor, short flags = 0)
+void PlayFXAtXYZ(unsigned int nSound, int x, int y, int z, int nSector, EChanFlags chanflags = CHANF_NONE, int sectf = 0);
+inline void D3PlayFX(unsigned int nSound, DExhumedActor* actor, int flags = 0)
 {
     PlayFX2(nSound, actor, 0, CHANF_NONE, flags);
 }

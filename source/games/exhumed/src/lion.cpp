@@ -99,7 +99,7 @@ void AILion::Draw(RunListEvent* ev)
 {
     auto pActor = ev->pObjActor;
     if (!pActor) return;
-    short nAction = pActor->nAction;
+    int nAction = pActor->nAction;
 
     seq_PlotSequence(ev->nParam, SeqOffsets[kSeqLion] + LionSeq[nAction].a, pActor->nFrame, LionSeq[nAction].b);
 }
@@ -119,7 +119,7 @@ void AILion::Damage(RunListEvent* ev)
     if (!pActor) return;
 
     auto pSprite = &pActor->s();
-    short nAction = pActor->nAction;
+    int nAction = pActor->nAction;
 
     if (ev->nDamage && pActor->nHealth > 0)
     {
@@ -199,7 +199,7 @@ void AILion::Tick(RunListEvent* ev)
     if (!pActor) return;
 
     auto pSprite = &pActor->s();
-    short nAction = pActor->nAction;
+    int nAction = pActor->nAction;
 
     bool bVal = false;
 
@@ -208,7 +208,7 @@ void AILion::Tick(RunListEvent* ev)
         Gravity(pActor);
     }
 
-    short nSeq = SeqOffsets[kSeqLion] + LionSeq[nAction].a;
+    int nSeq = SeqOffsets[kSeqLion] + LionSeq[nAction].a;
 
     pSprite->picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
 
@@ -221,7 +221,7 @@ void AILion::Tick(RunListEvent* ev)
         bVal = true;
     }
 
-    short nFlag = FrameFlag[SeqBase[nSeq] + pActor->nFrame];
+    int nFlag = FrameFlag[SeqBase[nSeq] + pActor->nFrame];
     auto pTarget = pActor->pTarget;
 
     auto nMov = MoveCreatureWithCaution(pActor);
@@ -396,11 +396,11 @@ void AILion::Tick(RunListEvent* ev)
             int nCheckDist = 0x7FFFFFFF;
 
             int nAngle = pSprite->ang;
-            short nScanAngle = (pSprite->ang - 512) & kAngleMask;
+            int nScanAngle = (pSprite->ang - 512) & kAngleMask;
 
             for (int i = 0; i < 5; i++)
             {
-                short hitwall;
+                int hitwall;
                 int hitx, hity;
                 vec3_t startPos = { x, y, z };
                 hitdata_t hitData;

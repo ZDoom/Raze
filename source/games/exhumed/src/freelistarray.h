@@ -40,7 +40,7 @@
 template<class Type, int size> class FreeListArray
 {
     int freecount;
-    short FreeList[size];
+    int16_t FreeList[size];
     Type DataList[size];
 public:
     enum { count = size };

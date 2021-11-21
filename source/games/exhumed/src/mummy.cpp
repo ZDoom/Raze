@@ -131,7 +131,7 @@ void AIMummy::Tick(RunListEvent* ev)
     auto pTarget = UpdateEnemy(&pActor->pTarget);
 
     auto pSprite = &pActor->s();
-    short nAction = pActor->nAction;
+    int nAction = pActor->nAction;
 
     Gravity(pActor);
 
@@ -139,8 +139,8 @@ void AIMummy::Tick(RunListEvent* ev)
 
     pSprite->picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
 
-    short nFrame = SeqBase[nSeq] + pActor->nFrame;
-    short nFrameFlag = FrameFlag[nFrame];
+    int nFrame = SeqBase[nSeq] + pActor->nFrame;
+    int nFrameFlag = FrameFlag[nFrame];
 
     seq_MoveSequence(pActor, nSeq, pActor->nFrame);
 
@@ -410,7 +410,7 @@ void AIMummy::Draw(RunListEvent* ev)
 {
     auto pActor = ev->pObjActor;
     if (!pActor) return;
-    short nAction = pActor->nAction;
+    int nAction = pActor->nAction;
 
     seq_PlotSequence(ev->nParam, SeqOffsets[kSeqMummy] + MummySeq[nAction].a, pActor->nFrame, MummySeq[nAction].b);
     return;

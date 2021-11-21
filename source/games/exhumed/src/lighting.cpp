@@ -47,17 +47,17 @@ struct Flash
 
 struct Glow
 {
-    short field_0;
-    short field_2;
+    int16_t nShade;
+    int16_t nCounter;
     int nSector;
-    short field_6;
+    int16_t nThreshold;
 };
 
 struct Flicker
 {
-    short field_0;
+    int16_t nShade;
     int nSector;
-    unsigned int field_4;
+    unsigned int nMask;
 };
 
 struct Flow
@@ -109,10 +109,10 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Glow& w, Glow* def
 {
     if (arc.BeginObject(keyname))
     {
-        arc("at0", w.field_0)
-            ("at2", w.field_2)
+        arc("at0", w.nShade)
+            ("at2", w.nCounter)
             ("sector", w.nSector)
-            ("at6", w.field_6)
+            ("at6", w.nThreshold)
             .EndObject();
     }
     return arc;
@@ -122,9 +122,9 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Flicker& w, Flicke
 {
     if (arc.BeginObject(keyname))
     {
-        arc("at0", w.field_0)
+        arc("at0", w.nShade)
             ("sector", w.nSector)
-            ("at4", w.field_4)
+            ("at4", w.nMask)
             .EndObject();
     }
     return arc;
@@ -267,7 +267,7 @@ void AddFlash(int nSector, int x, int y, int z, int val)
             {
                 if (!pNextSector || pNextSector->floorz < sectp->floorz)
                 {
-                    short nFlash = GrabFlash();
+                    int nFlash = GrabFlash();
                     if (nFlash < 0) {
                         return;
                     }
@@ -298,7 +298,7 @@ void AddFlash(int nSector, int x, int y, int z, int val)
 
     if (var_14 && sectp->floorpal < 4)
     {
-        short nFlash = GrabFlash();
+        int nFlash = GrabFlash();
         if (nFlash < 0) {
             return;
         }
@@ -322,7 +322,7 @@ void AddFlash(int nSector, int x, int y, int z, int val)
         {
             if (sectp->ceilingpal < 4)
             {
-                short nFlash2 = GrabFlash();
+                int nFlash2 = GrabFlash();
                 if (nFlash2 >= 0)
                 {
                     sFlash[nFlash2].nType = var_20 | 3;
@@ -349,7 +349,7 @@ void AddFlash(int nSector, int x, int y, int z, int val)
 			auto pSprite = &pActor->s();
             if (pSprite->pal < 4)
             {
-                short nFlash3 = GrabFlash();
+                int nFlash3 = GrabFlash();
                 if (nFlash3 >= 0)
                 {
                     sFlash[nFlash3].nType = var_20 | 4;
@@ -378,7 +378,7 @@ void AddFlash(int nSector, int x, int y, int z, int val)
 
                     if (eax < 0)
                     {
-                        short shade = pSprite->shade + eax;
+                        int shade = pSprite->shade + eax;
                         if (shade < -127) {
                             shade = -127;
                         }
@@ -540,10 +540,10 @@ void AddGlow(int nSector, int nVal)
         return;
     }
 
-    sGlow[nGlowCount].field_6 = nVal;
+    sGlow[nGlowCount].nThreshold = nVal;
     sGlow[nGlowCount].nSector = nSector;
-    sGlow[nGlowCount].field_0 = -1;
-    sGlow[nGlowCount].field_2 = 0;
+    sGlow[nGlowCount].nShade = -1;
+    sGlow[nGlowCount].nCounter = 0;
 
     nGlowCount++;
 }
@@ -555,14 +555,14 @@ void AddFlicker(int nSector, int nVal)
         return;
     }
 
-    sFlicker[nFlickerCount].field_0 = nVal;
+    sFlicker[nFlickerCount].nShade = nVal;
     sFlicker[nFlickerCount].nSector = nSector;
 
     if (nVal >= 25) {
         nVal = 24;
     }
 
-    sFlicker[nFlickerCount].field_4 = flickermask[nVal];
+    sFlicker[nFlickerCount].nMask = flickermask[nVal];
 
     nFlickerCount++;
 }
@@ -579,16 +579,16 @@ void DoGlows()
 
     for (int i = 0; i < nGlowCount; i++)
     {
-        sGlow[i].field_2++;
+        sGlow[i].nCounter++;
 
         int nSector =sGlow[i].nSector;
         auto sectp = &sector[nSector];
-        short nShade = sGlow[i].field_0;
+        int nShade = sGlow[i].nShade;
 
-        if (sGlow[i].field_2 >= sGlow[i].field_6)
+        if (sGlow[i].nCounter >= sGlow[i].nThreshold)
         {
-            sGlow[i].field_2 = 0;
-            sGlow[i].field_0 = -sGlow[i].field_0;
+            sGlow[i].nCounter = 0;
+            sGlow[i].nShade = -sGlow[i].nShade;
         }
 
         sectp->ceilingshade += nShade;
@@ -618,26 +618,26 @@ void DoFlickers()
         int nSector =sFlicker[i].nSector;
         auto sectp = &sector[nSector];
  
-        unsigned int eax = (sFlicker[i].field_4 & 1);
-        unsigned int edx = (sFlicker[i].field_4 & 1) << 31;
-        unsigned int ebp = sFlicker[i].field_4 >> 1;
+        unsigned int eax = (sFlicker[i].nMask & 1);
+        unsigned int edx = (sFlicker[i].nMask & 1) << 31;
+        unsigned int ebp = sFlicker[i].nMask >> 1;
 
         ebp |= edx;
         edx = ebp & 1;
 
-        sFlicker[i].field_4 = ebp;
+        sFlicker[i].nMask = ebp;
 
         if (edx ^ eax)
         {
-            short shade;
+            int shade;
 
             if (eax)
             {
-                shade = sFlicker[i].field_0;
+                shade = sFlicker[i].nShade;
             }
             else
             {
-                shade = -sFlicker[i].field_0;
+                shade = -sFlicker[i].nShade;
             }
 
             sectp->ceilingshade += shade;
@@ -662,13 +662,13 @@ void AddFlow(int nIndex, int nSpeed, int b, int nAngle)
     if (nFlowCount >= kMaxFlows)
         return;
 
-    short nFlow = nFlowCount;
+    int nFlow = nFlowCount;
     nFlowCount++;
 
 
     if (b < 2)
     {
-        short nPic = sector[nIndex].floorpicnum;
+        int nPic = sector[nIndex].floorpicnum;
 
         sFlowInfo[nFlow].xacc = (tileWidth(nPic) << 14) - 1;
         sFlowInfo[nFlow].yacc = (tileHeight(nPic) << 14) - 1;
@@ -693,7 +693,7 @@ void AddFlow(int nIndex, int nSpeed, int b, int nAngle)
             nAngle = 1536;
         }
 
-        short nPic = wall[nIndex].picnum;
+        int nPic = wall[nIndex].picnum;
 
         sFlowInfo[nFlow].xacc = (tileWidth(nPic) * wall[nIndex].xrepeat) << 8;
         sFlowInfo[nFlow].yacc = (tileHeight(nPic) * wall[nIndex].yrepeat) << 8;

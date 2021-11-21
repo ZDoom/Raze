@@ -52,7 +52,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-short nBestLevel;
+int nBestLevel;
 
 void RunCinemaScene(int num);
 void GameMove(void);

@@ -121,7 +121,7 @@ void AIWasp::Draw(RunListEvent* ev)
 {
     auto pActor = ev->pObjActor;
     if (!pActor) return;
-    short nAction = pActor->nAction;
+    int nAction = pActor->nAction;
 
     seq_PlotSequence(ev->nParam, SeqOffsets[kSeqWasp] + WaspSeq[nAction].a, pActor->nFrame, WaspSeq[nAction].b);
     return;
@@ -194,13 +194,13 @@ void AIWasp::Tick(RunListEvent* ev)
     auto pActor = ev->pObjActor;
     if (!pActor) return;
     auto pSprite = &pActor->s();
-    short nAction = pActor->nAction;
+    int nAction = pActor->nAction;
 
     DExhumedActor* pTarget = nullptr;
 
     bool bVal = false;
 
-    short nSeq = SeqOffsets[kSeqWasp] + WaspSeq[nAction].a;
+    int nSeq = SeqOffsets[kSeqWasp] + WaspSeq[nAction].a;
 
     pSprite->picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
 
