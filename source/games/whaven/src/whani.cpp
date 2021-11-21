@@ -836,85 +836,87 @@ void animateobjs(PLAYER& plr) {
 	// New missile code
 	for (i = headspritestat[MISSILE]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
-		sprite[i].lotag -= TICSPERFRAME;
+		auto& spr = sprite[i];
 
-		switch (sprite[i].picnum) {
+		spr.lotag -= TICSPERFRAME;
+
+		switch (spr.picnum) {
 		case WH1THROWPIKE:
 		case WH2THROWPIKE:
 		case FATSPANK:
 		case MONSTERBALL:
 		case FIREBALL:
 		case PLASMA:
-			if ((sprite[i].picnum == WH1THROWPIKE && isWh2()) || (sprite[i].picnum == WH2THROWPIKE && !isWh2()))
+			if ((spr.picnum == WH1THROWPIKE && isWh2()) || (spr.picnum == WH2THROWPIKE && !isWh2()))
 				break;
 				
-			if(!isValidSector(sprite[i].sectnum)) {
+			if(!isValidSector(spr.sectnum)) {
 				deletesprite((short) i);
 				continue;
 			}
 
-			if (sprite[i].picnum == MONSTERBALL && krand() % 100 > 90) {
-				if (sprite[i].lotag < 200)
+			if (spr.picnum == MONSTERBALL && krand() % 100 > 90) {
+				if (spr.lotag < 200)
 					trailingsmoke(i, false);
 			}
-			sprite[i].z += sprite[i].zvel;
-			if (sprite[i].z < sector[sprite[i].sectnum].ceilingz + (4 << 8)) {
-				sprite[i].z = sector[sprite[i].sectnum].ceilingz + (4 << 8);
-				sprite[i].zvel = (short) -(sprite[i].zvel >> 1);
+			spr.z += spr.zvel;
+			if (spr.z < sector[spr.sectnum].ceilingz + (4 << 8)) {
+				spr.z = sector[spr.sectnum].ceilingz + (4 << 8);
+				spr.zvel = (short) -(spr.zvel >> 1);
 			}
-			if (sprite[i].z > sector[sprite[i].sectnum].floorz - (4 << 8)) {
-				sprite[i].z = sector[sprite[i].sectnum].floorz - (4 << 8);
-				if (sector[sprite[i].sectnum].floorpicnum == WATER || sector[sprite[i].sectnum].floorpicnum == SLIME
-						|| sector[sprite[i].sectnum].floorpicnum == FLOORMIRROR)
-					if (sprite[i].picnum == FISH)
-						sprite[i].z = sector[sprite[i].sectnum].floorz;
+			if (spr.z > sector[spr.sectnum].floorz - (4 << 8)) {
+				spr.z = sector[spr.sectnum].floorz - (4 << 8);
+				if (sector[spr.sectnum].floorpicnum == WATER || sector[spr.sectnum].floorpicnum == SLIME
+						|| sector[spr.sectnum].floorpicnum == FLOORMIRROR)
+					if (spr.picnum == FISH)
+						spr.z = sector[spr.sectnum].floorz;
 					else {
 						if (krand() % 100 > 60)
 							makemonstersplash(SPLASHAROO, i);
 					}
 					
-//					if (sprite[i].picnum != THROWPIKE) { //XXX
+//					if (spr.picnum != THROWPIKE) { //XXX
 					deletesprite((short) i);
 					continue;
 //					}
 			}
-			dax = sprite[i].xvel;
-			day = sprite[i].yvel;
-			daz = ((((int) sprite[i].zvel) * TICSPERFRAME) >> 3);
+			dax = spr.xvel;
+			day = spr.yvel;
+			daz = ((((int) spr.zvel) * TICSPERFRAME) >> 3);
 			break;
 		case BULLET:
-			dax = sprite[i].xvel;
-			day = sprite[i].yvel;
-			daz = sprite[i].zvel;
+			dax = spr.xvel;
+			day = spr.yvel;
+			daz = spr.zvel;
 			break;
 		} // switch
 
-		osectnum = sprite[i].sectnum;
+		osectnum = spr.sectnum;
 
-		if (sprite[i].picnum == THROWPIKE) {
-			sprite[i].cstat = 0;
+		if (spr.picnum == THROWPIKE) {
+			spr.cstat = 0;
 			hitobject = (short) movesprite((short) i,
-					(bcos(sprite[i].extra) * TICSPERFRAME) << 6,
-					(bsin(sprite[i].extra) * TICSPERFRAME) << 6, daz, 4 << 8, 4 << 8, 1);
-			sprite[i].cstat = 21;
+					(bcos(spr.extra) * TICSPERFRAME) << 6,
+					(bsin(spr.extra) * TICSPERFRAME) << 6, daz, 4 << 8, 4 << 8, 1);
+			spr.cstat = 21;
 		} else {
 			hitobject = (short) movesprite((short) i,
-					(bcos(sprite[i].ang) * TICSPERFRAME) << 6, // was 3
-					(bsin(sprite[i].ang) * TICSPERFRAME) << 6, // was 3
+					(bcos(spr.ang) * TICSPERFRAME) << 6, // was 3
+					(bsin(spr.ang) * TICSPERFRAME) << 6, // was 3
 					daz, 4 << 8, 4 << 8, 1);
 		}
 
-		if (hitobject != 0 && sprite[i].picnum == MONSTERBALL)
-			if (sprite[i].owner == sprite[plr.spritenum].owner) {
-				explosion2(i, sprite[i].x, sprite[i].y, sprite[i].z, i);
+		if (hitobject != 0 && spr.picnum == MONSTERBALL)
+			if (spr.owner == sprite[plr.spritenum].owner) {
+				explosion2(i, spr.x, spr.y, spr.z, i);
 			} else {
-				explosion(i, sprite[i].x, sprite[i].y, sprite[i].z, i);
+				explosion(i, spr.x, spr.y, spr.z, i);
 			}
 
 		if ((hitobject & 0xc000) == 16384) { // Hits a ceiling / floor
-			if (sprite[i].picnum == THROWPIKE) {
-				sprite[i].picnum++;
-				sprite[i].detail = WALLPIKETYPE;
+			if (spr.picnum == THROWPIKE) {
+				spr.picnum++;
+				spr.detail = WALLPIKETYPE;
 				changespritestat(i, (short) 0);
 					
 				continue;
@@ -923,33 +925,33 @@ void animateobjs(PLAYER& plr) {
 			continue;
 		} else if ((hitobject & 0xc000) == 32768) { // hit a wall
 
-			if (sprite[i].picnum == MONSTERBALL) {
-				if (sprite[i].owner == sprite[plr.spritenum].owner)
-					explosion2(i, sprite[i].x, sprite[i].y, sprite[i].z, i);
+			if (spr.picnum == MONSTERBALL) {
+				if (spr.owner == sprite[plr.spritenum].owner)
+					explosion2(i, spr.x, spr.y, spr.z, i);
 				else
-					explosion(i, sprite[i].x, sprite[i].y, sprite[i].z, i);
+					explosion(i, spr.x, spr.y, spr.z, i);
 			}
-			if (sprite[i].picnum == THROWPIKE) {
-				sprite[i].picnum++;
-				sprite[i].detail = WALLPIKETYPE;
+			if (spr.picnum == THROWPIKE) {
+				spr.picnum++;
+				spr.detail = WALLPIKETYPE;
 				changespritestat(i, (short) 0);
 					
 				continue;
 			}
 			deletesprite((short) i);
 			continue;
-		} else if (sprite[i].lotag < 0 && sprite[i].picnum == PLASMA)
+		} else if (spr.lotag < 0 && spr.picnum == PLASMA)
 			hitobject = 1;
 
 		if ((hitobject & 0xc000) == 49152) { // Bullet hit a sprite
-			if (sprite[i].picnum == MONSTERBALL) {
-				if (sprite[i].owner == sprite[plr.spritenum].owner)
-					explosion2(i, sprite[i].x, sprite[i].y, sprite[i].z, i);
+			if (spr.picnum == MONSTERBALL) {
+				if (spr.owner == sprite[plr.spritenum].owner)
+					explosion2(i, spr.x, spr.y, spr.z, i);
 				else
-					explosion(i, sprite[i].x, sprite[i].y, sprite[i].z, i);
+					explosion(i, spr.x, spr.y, spr.z, i);
 			}
 
-			if (sprite[i].owner != hitobject)
+			if (spr.owner != hitobject)
 				hitdamage = damageactor(plr, hitobject, i);
 			if (hitdamage) {
 				deletesprite((short) i);
@@ -957,8 +959,8 @@ void animateobjs(PLAYER& plr) {
 			}
 		}
 
-		if (hitobject != 0 || sprite[i].lotag < 0) {
-			int pic = sprite[i].picnum;
+		if (hitobject != 0 || spr.lotag < 0) {
+			int pic = spr.picnum;
 			switch (pic) {
 			case PLASMA:
 			case FATSPANK:
@@ -967,8 +969,8 @@ void animateobjs(PLAYER& plr) {
 			case BULLET:
 			case WH1THROWPIKE:
 			case WH2THROWPIKE:
-				if ((sprite[i].picnum == WH1THROWPIKE && isWh2())
-						|| (sprite[i].picnum == WH2THROWPIKE && !isWh2()))
+				if ((spr.picnum == WH1THROWPIKE && isWh2())
+						|| (spr.picnum == WH2THROWPIKE && !isWh2()))
 					break;
 
 				deletesprite((short) i);
