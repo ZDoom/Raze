@@ -1691,38 +1691,35 @@ void ExplodeEnergyBlock(DExhumedActor* pActor)
     auto pSprite = &pActor->s();
 
     int nSector =pSprite->sectnum;
+	auto pSector = pSprite->sector();
 
-    int startwall = sector[nSector].wallptr;
-    int nWalls = sector[nSector].wallnum;
-
-    int i;
-
-    for (i = 0; i < nWalls; i++)
+	for(auto& wal : wallsofsector(pSector))
     {
-        int nextwall = wall[startwall + i].nextwall;
+		if (!wal.twoSided()) continue;
+		auto nextwall = wal.nextWall();
 
-        if (wall[nextwall].pal >= 4) {
-            wall[nextwall].pal = 7;
+        if (nextwall->pal >= 4) {
+            nextwall->pal = 7;
         }
         else {
-            wall[nextwall].pal = 0;
+            nextwall->pal = 0;
         }
 
-        wall[nextwall].shade = 50;
+        nextwall->shade = 50;
     }
 
-    if (sector[nSector].floorpal >= 4) {
-        sector[nSector].floorpal = 7;
+    if (pSector->floorpal >= 4) {
+        pSector->floorpal = 7;
     }
     else {
-        sector[nSector].floorpal = 0;
+        pSector->floorpal = 0;
     }
 
-    sector[nSector].floorshade = 50;
-    sector[nSector].extra = -1;
-    sector[nSector].floorz = pSprite->z;
+    pSector->floorshade = 50;
+    pSector->extra = -1;
+    pSector->floorz = pSprite->z;
 
-    pSprite->z = (pSprite->z + sector[nSector].floorz) / 2;
+    pSprite->z = (pSprite->z + pSector->floorz) / 2;
 
     BuildSpark(pActor, 3);
 
@@ -1735,7 +1732,7 @@ void ExplodeEnergyBlock(DExhumedActor* pActor)
 
     nEnergyTowers--;
 
-    for (i = 0; i < 20; i++)
+    for (int i = 0; i < 20; i++)
     {
         pSprite->ang = RandomSize(11);
         BuildSpark(pActor, 1); // shoot out blue orbs
@@ -1761,23 +1758,20 @@ void ExplodeEnergyBlock(DExhumedActor* pActor)
             lFinaleStart = lFinaleStart + 1;
         }
 
-        for (i = 0; i < numsectors; i++)
+		for(auto& sect : sectors())
         {
-            if (sector[i].ceilingpal == 1) {
-                sector[i].ceilingpal = 0;
+            if (sect.ceilingpal == 1) {
+                sect.ceilingpal = 0;
             }
 
-            if (sector[i].floorpal == 1) {
-                sector[i].floorpal = 0;
+            if (sect.floorpal == 1) {
+                sect.floorpal = 0;
             }
 
-            int startwall = sector[i].wallptr;
-            int endwall = startwall + sector[i].wallnum;
-
-            for (int nWall = startwall; nWall < endwall; nWall++)
-            {
-                if (wall[nWall].pal == 1) {
-                    wall[nWall].pal = 0;
+			for (auto& wal : wallsofsector(&sect))
+             {
+                if (wal.pal == 1) {
+                    wal.pal = 0;
                 }
             }
         }
