@@ -12,7 +12,7 @@ int justplayed;
 int lopoint;
 int walktoggle;
 int runningtime;
-int oldhoriz;
+double oldhoriz;
 
 
 static int osdcmd_third_person_view(CCmdFuncPtr parm)
@@ -476,7 +476,7 @@ void processinput(int num) {
 			dist >>= 2;
 
 		if (dist > 0 && feetoffground <= (plr.height << 8) || onsprite != -1) {
-			oldhoriz = ((dist * bsin(PlayClock << 5)) >> 19) >> 2;
+			oldhoriz = ((dist * bsinf(PlayClock << 5)) * (1. / 524288.)) * (1. / 4.);
 			plr.horizon.addadjustment(oldhoriz);
 		}
 		else
