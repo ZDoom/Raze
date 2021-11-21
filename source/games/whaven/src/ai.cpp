@@ -653,7 +653,7 @@ void skullycastspell(PLAYER& plr, int i) {
 	spawned.pal = 7;
 }
 
-void attack(PLAYER& plr, int i) {
+void attack(PLAYER& plr, int const i) {
 	int s = 0;
 	if (plr.invincibletime > 0 || plr.godMode)
 		return;
@@ -663,20 +663,22 @@ void attack(PLAYER& plr, int i) {
 
 	//		if ((krand() & (15 < plr.armortype ? 11 : 10)) != 0)
 	//			return;
+	auto& spr = sprite[i];
+	auto& pspr = sprite[plr.spritenum];
 
 	if (!droptheshield && plr.shieldpoints > 0 && plr.selectedgun > 0 && plr.selectedgun < 5) {
-		short a = getangle(sprite[i].x - plr.x, sprite[i].y - plr.y);
+		short a = getangle(spr.x - plr.x, spr.y - plr.y);
 		auto ang = plr.angle.ang.asbuild();
 		if ((a < ang && ang - a < 128) || (a > ang && ((ang + a) & 2047) < 128)) {
 			if (krand() % 100 > 80) {
-				spritesound(S_SWORD1 + krand() % 3, &sprite[plr.spritenum]);
+				spritesound(S_SWORD1 + krand() % 3, &pspr);
 				return;
 			}
 			else {
 				s = krand() % 50;
 				plr.shieldpoints -= s;
 				if (krand() % 100 > 50) {
-					spritesound(S_SWORD1 + krand() % 3, &sprite[plr.spritenum]);
+					spritesound(S_SWORD1 + krand() % 3, &pspr);
 					return;
 				}
 			}
@@ -695,7 +697,7 @@ void attack(PLAYER& plr, int i) {
 			k = 5;
 	}
 
-	switch (sprite[i].detail) {
+	switch (spr.detail) {
 	case SPIDER:
 		k = 5;
 		break;
@@ -704,11 +706,11 @@ void attack(PLAYER& plr, int i) {
 		k = 3;
 		break;
 	case SKELETONTYPE:
-		spritesound(S_RIP1 + (krand() % 3), &sprite[i]);
+		spritesound(S_RIP1 + (krand() % 3), &spr);
 		if ((krand() % 2) != 0)
-			spritesound(S_GORE1 + (krand() % 4), &sprite[i]);
+			spritesound(S_GORE1 + (krand() % 4), &spr);
 		if ((krand() % 2) != 0)
-			spritesound(S_BREATH1 + (krand() % 6), &sprite[i]);
+			spritesound(S_BREATH1 + (krand() % 6), &spr);
 
 		if (isWh2())
 			k = (krand() % 5) + 5;
@@ -716,21 +718,21 @@ void attack(PLAYER& plr, int i) {
 			k >>= 2;
 		break;
 	case KATIETYPE: // damage 5 - 50
-		spritesound(S_DEMONTHROW, &sprite[i]);
+		spritesound(S_DEMONTHROW, &spr);
 		k = (krand() % 45) + 5;
 		break;
 
 	case DEVILTYPE:
-		spritesound(S_DEMONTHROW, &sprite[i]);
+		spritesound(S_DEMONTHROW, &spr);
 		if (!isWh2())
 			k >>= 2;
 		break;
 
 	case KOBOLDTYPE:
-		spritesound(S_GENSWING, &sprite[i]);
+		spritesound(S_GENSWING, &spr);
 		if ((krand() % 10) > 4) {
-			spritesound(S_KOBOLDHIT, &sprite[plr.spritenum]);
-			spritesound(S_BREATH1 + (krand() % 6), &sprite[plr.spritenum]);
+			spritesound(S_KOBOLDHIT, &pspr);
+			spritesound(S_BREATH1 + (krand() % 6), &pspr);
 		}
 		if (isWh2())
 			k = (krand() % 5) + 5;
@@ -740,21 +742,21 @@ void attack(PLAYER& plr, int i) {
 	case FREDTYPE:
 
 		/* Sounds for Fred (currently copied from Goblin) */
-		spritesound(S_GENSWING, &sprite[i]);
+		spritesound(S_GENSWING, &spr);
 		if (rand() % 10 > 4)
-			spritesound(S_SWORD1 + (rand() % 6), &sprite[i]);
+			spritesound(S_SWORD1 + (rand() % 6), &spr);
 
 		k >>= 3;
 		break;
 	case IMPTYPE:
 		if (!isWh2())
 			break;
-		spritesound(S_RIP1 + (krand() % 3), &sprite[i]);
+		spritesound(S_RIP1 + (krand() % 3), &spr);
 		if ((krand() % 2) != 0) {
-			spritesound(S_GORE1 + (krand() % 4), &sprite[i]);
+			spritesound(S_GORE1 + (krand() % 4), &spr);
 		}
 		if ((krand() % 2) != 0) {
-			spritesound(S_BREATH1 + (krand() % 6), &sprite[i]);
+			spritesound(S_BREATH1 + (krand() % 6), &spr);
 		}
 
 		k = (krand() % 5) + 5;
@@ -766,79 +768,79 @@ void attack(PLAYER& plr, int i) {
 		if (isWh2())
 			break;
 
-		spritesound(S_GENSWING, &sprite[i]);
+		spritesound(S_GENSWING, &spr);
 		if ((krand() % 10) > 4)
-			spritesound(S_SWORD1 + (krand() % 6), &sprite[i]);
+			spritesound(S_SWORD1 + (krand() % 6), &spr);
 		k >>= 2;
 		break;
 	case NEWGUYTYPE:
-		if (sprite[i].picnum == NEWGUYMACE) { // damage 5 - 20
-			spritesound(S_PLRWEAPON2, &sprite[i]);
+		if (spr.picnum == NEWGUYMACE) { // damage 5 - 20
+			spritesound(S_PLRWEAPON2, &spr);
 			if (krand() % 10 > 4) {
-				spritesound(S_KOBOLDHIT, &sprite[plr.spritenum]);
-				spritesound(S_BREATH1 + (krand() % 6), &sprite[plr.spritenum]);
+				spritesound(S_KOBOLDHIT, &pspr);
+				spritesound(S_BREATH1 + (krand() % 6), &pspr);
 			}
 			k = (krand() % 15) + 5;
 			break;
 		}
 	case KURTTYPE:
 	case GONZOTYPE:
-		spritesound(S_GENSWING, &sprite[i]);
-		if (sprite[i].picnum == GONZOCSWAT || sprite[i].picnum == GONZOGSWAT) { // damage 5 - 15
+		spritesound(S_GENSWING, &spr);
+		if (spr.picnum == GONZOCSWAT || spr.picnum == GONZOGSWAT) { // damage 5 - 15
 			if (krand() % 10 > 6)
-				spritesound(S_SWORD1 + (krand() % 6), &sprite[i]);
+				spritesound(S_SWORD1 + (krand() % 6), &spr);
 			k = (krand() % 15) + 5;
 		}
-		else if (sprite[i].picnum == GONZOGHMAT) { // damage 5 - 15
+		else if (spr.picnum == GONZOGHMAT) { // damage 5 - 15
 			if (krand() % 10 > 6)
-				spritesound(S_SWORD1 + (krand() % 6), &sprite[i]);
+				spritesound(S_SWORD1 + (krand() % 6), &spr);
 			k = (krand() % 10) + 5;
 		}
-		else if (sprite[i].picnum == GONZOGSHAT) { // damage 5 - 20
+		else if (spr.picnum == GONZOGSHAT) { // damage 5 - 20
 			if (krand() % 10 > 3)
-				spritesound(S_SWORD1 + (krand() % 6), &sprite[i]);
+				spritesound(S_SWORD1 + (krand() % 6), &spr);
 			k = (krand() % 15) + 5;
 		}
-		else if (sprite[i].picnum == KURTAT) { // damage 5 - 15
-			spritesound(S_GENSWING, &sprite[i]);
+		else if (spr.picnum == KURTAT) { // damage 5 - 15
+			spritesound(S_GENSWING, &spr);
 			if (krand() % 10 > 3) {
-				spritesound(S_SWORD1 + (krand() % 6), &sprite[i]);
+				spritesound(S_SWORD1 + (krand() % 6), &spr);
 			}
 			k = (krand() % 10) + 5;
 		}
 		else {
-			spritesound(S_GENSWING, &sprite[i]);
+			spritesound(S_GENSWING, &spr);
 			if (krand() % 10 > 4) {
-				spritesound(S_SOCK1 + (krand() % 4), &sprite[plr.spritenum]);
-				spritesound(S_BREATH1 + (krand() % 6), &sprite[plr.spritenum]);
+				spritesound(S_SOCK1 + (krand() % 4), &pspr);
+				spritesound(S_BREATH1 + (krand() % 6), &pspr);
 			}
 			k = (krand() % 4) + 1;
 		}
 		break;
 
 	case GRONTYPE:
-		if (sprite[i].picnum != GRONSWATTACK)
+		if (spr.picnum != GRONSWATTACK)
 			break;
 
 		if (isWh2()) {
 			k = (krand() % 20) + 5;
-			if (sprite[i].shade > 30) {
+			if (spr.shade > 30) {
 				k += krand() % 10;
 			}
 		}
 		else {
-			if (sprite[i].shade > 30)
+			if (spr.shade > 30)
 				k >>= 1;
 		}
-		spritesound(S_GENSWING, &sprite[i]);
+		spritesound(S_GENSWING, &spr);
 		if ((krand() % 10) > 3)
-			spritesound(S_SWORD1 + (krand() % 6), &sprite[i]);
+			spritesound(S_SWORD1 + (krand() % 6), &spr);
 
 		break;
 	case MINOTAURTYPE:
-		spritesound(S_GENSWING, &sprite[i]);
+		spritesound(S_GENSWING, &spr);
 		if (krand() % 10 > 4)
-			spritesound(S_SWORD1 + (krand() % 6), &sprite[i]);
+			spritesound(S_SWORD1 + (krand() % 6), &spr);
 		if (isWh2())
 			k = (krand() % 25) + 5;
 		break;
