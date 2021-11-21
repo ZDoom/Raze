@@ -338,7 +338,7 @@ void RestartPlayer(int nPlayer)
 		plr->nHealth = 1600; // TODO - define
 	}
 
-	plr->field_2 = 0;
+	plr->nSeqSize = 0;
 	plr->pActor = pActor;
 	plr->bIsMummified = false;
 
@@ -354,9 +354,9 @@ void RestartPlayer(int nPlayer)
 	plr->nInvisible = 0;
 
 	plr->bIsFiring = 0;
-	plr->field_3FOUR = 0;
+	plr->nSeqSize2 = 0;
 	plr->nPlayerViewSect = plr->sPlayerSave.nSector;
-	plr->field_3A = 0;
+	plr->nState = 0;
 
 	plr->nDouble = 0;
 
@@ -364,13 +364,13 @@ void RestartPlayer(int nPlayer)
 
 	plr->nPlayerPushSound = -1;
 
-	plr->field_38 = -1;
+	plr->nNextWeapon = -1;
 
 	if (plr->nCurrentWeapon == 7) {
-		plr->nCurrentWeapon = plr->field_3C;
+		plr->nCurrentWeapon = plr->nLastWeapon;
 	}
 
-	plr->field_3C = 0;
+	plr->nLastWeapon = 0;
 	plr->nAir = 100;
 
 	if (!(currentLevel->gameflags & LEVEL_EX_MULTI))
@@ -509,7 +509,7 @@ void StartDeathSeq(int nPlayer, int nVal)
         PlayerList[nPlayer].nAction = 16;
     }
 
-    PlayerList[nPlayer].field_2 = 0;
+    PlayerList[nPlayer].nSeqSize = 0;
 
     pSprite->cstat &= 0xFEFE;
 
@@ -577,13 +577,13 @@ void SetPlayerMummified(int nPlayer, int bIsMummified)
         PlayerList[nPlayer].nSeq = kSeqJoe;
     }
 
-    PlayerList[nPlayer].field_2 = 0;
+    PlayerList[nPlayer].nSeqSize = 0;
 }
 
 void ShootStaff(int nPlayer)
 {
     PlayerList[nPlayer].nAction = 15;
-    PlayerList[nPlayer].field_2 = 0;
+    PlayerList[nPlayer].nSeqSize = 0;
     PlayerList[nPlayer].nSeq = kSeqJoe;
 }
 
@@ -617,7 +617,7 @@ void AIPlayer::Draw(RunListEvent* ev)
     assert(nPlayer >= 0 && nPlayer < kMaxPlayers);
     short nAction = PlayerList[nPlayer].nAction;
 
-    seq_PlotSequence(ev->nParam, SeqOffsets[PlayerList[nPlayer].nSeq] + PlayerSeq[nAction].a, PlayerList[nPlayer].field_2, PlayerSeq[nAction].b);
+    seq_PlotSequence(ev->nParam, SeqOffsets[PlayerList[nPlayer].nSeq] + PlayerSeq[nAction].a, PlayerList[nPlayer].nSeqSize, PlayerSeq[nAction].b);
 }
 
 void AIPlayer::RadialDamage(RunListEvent* ev)
@@ -677,7 +677,7 @@ void AIPlayer::Damage(RunListEvent* ev)
             {
                 if (nAction != 12)
                 {
-                    PlayerList[nPlayer].field_2 = 0;
+                    PlayerList[nPlayer].nSeqSize = 0;
                     PlayerList[nPlayer].nAction = 12;
                     return;
                 }
@@ -686,7 +686,7 @@ void AIPlayer::Damage(RunListEvent* ev)
             {
                 if (nAction != 4)
                 {
-                    PlayerList[nPlayer].field_2 = 0;
+                    PlayerList[nPlayer].nSeqSize = 0;
                     PlayerList[nPlayer].nAction = 4;
 
                     if (pActor2)
@@ -774,7 +774,7 @@ void AIPlayer::Tick(RunListEvent* ev)
         sPlayerInput[nPlayer].nItem = -1;
     }
 
-    int var_EC = PlayerList[nPlayer].field_2;
+    int var_EC = PlayerList[nPlayer].nSeqSize;
 
     pPlayerSprite->picnum = seq_GetSeqPicnum(PlayerList[nPlayer].nSeq, PlayerSeq[nHeightTemplate[nAction]].a, var_EC);
     pDopple->s().picnum = pPlayerSprite->picnum;
@@ -2426,7 +2426,7 @@ sectdone:
         {
             nAction = nActionB;
             PlayerList[nPlayer].nAction = nActionB;
-            PlayerList[nPlayer].field_2 = 0;
+            PlayerList[nPlayer].nSeqSize = 0;
         }
 
         Player* pPlayer = &PlayerList[nPlayer];
@@ -2512,12 +2512,12 @@ sectdone:
 
     int var_AC = SeqOffsets[PlayerList[nPlayer].nSeq] + PlayerSeq[nAction].a;
 
-    seq_MoveSequence(pPlayerActor, var_AC, PlayerList[nPlayer].field_2);
-    PlayerList[nPlayer].field_2++;
+    seq_MoveSequence(pPlayerActor, var_AC, PlayerList[nPlayer].nSeqSize);
+    PlayerList[nPlayer].nSeqSize++;
 
-    if (PlayerList[nPlayer].field_2 >= SeqSize[var_AC])
+    if (PlayerList[nPlayer].nSeqSize >= SeqSize[var_AC])
     {
-        PlayerList[nPlayer].field_2 = 0;
+        PlayerList[nPlayer].nSeqSize = 0;
 
         switch (PlayerList[nPlayer].nAction)
         {
@@ -2525,13 +2525,13 @@ sectdone:
             break;
 
         case 3:
-            PlayerList[nPlayer].field_2 = SeqSize[var_AC] - 1;
+            PlayerList[nPlayer].nSeqSize = SeqSize[var_AC] - 1;
             break;
         case 4:
             PlayerList[nPlayer].nAction = 0;
             break;
         case 16:
-            PlayerList[nPlayer].field_2 = SeqSize[var_AC] - 1;
+            PlayerList[nPlayer].nSeqSize = SeqSize[var_AC] - 1;
 
             if (pPlayerSprite->z < pPlayerSprite->sector()->floorz) {
                 pPlayerSprite->z += 256;
@@ -2627,7 +2627,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Player& w, Player*
     if (arc.BeginObject(keyname))
     {
         arc("health", w.nHealth)
-            ("at2", w.field_2)
+            ("at2", w.nSeqSize)
             ("action", w.nAction)
             ("sprite", w.pActor)
             ("mummy", w.bIsMummified)
@@ -2642,10 +2642,10 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Player& w, Player*
             .Array("ammo", w.nAmmo, countof(w.nAmmo))
             ("weapon", w.nCurrentWeapon)
             ("isfiring", w.bIsFiring)
-            ("field3f", w.field_3FOUR)
-            ("field38", w.field_38)
-            ("field3a", w.field_3A)
-            ("field3c", w.field_3C)
+            ("field3f", w.nSeqSize2)
+            ("field38", w.nNextWeapon)
+            ("field3a", w.nState)
+            ("field3c", w.nLastWeapon)
             ("seq", w.nSeq)
             ("horizon", w.horizon)
             ("angle", w.angle)
@@ -2721,7 +2721,7 @@ DEFINE_FIELD_X(ExhumedPlayer, Player, nLives);
 DEFINE_FIELD_X(ExhumedPlayer, Player, nDouble);
 DEFINE_FIELD_X(ExhumedPlayer, Player, nInvisible);
 DEFINE_FIELD_X(ExhumedPlayer, Player, nTorch);
-DEFINE_FIELD_X(ExhumedPlayer, Player, field_2);
+DEFINE_FIELD_X(ExhumedPlayer, Player, nSeqSize);
 DEFINE_FIELD_X(ExhumedPlayer, Player, nAction);
 DEFINE_FIELD_X(ExhumedPlayer, Player, pActor);
 DEFINE_FIELD_X(ExhumedPlayer, Player, bIsMummified);
@@ -2736,11 +2736,11 @@ DEFINE_FIELD_X(ExhumedPlayer, Player, items);
 DEFINE_FIELD_X(ExhumedPlayer, Player, nAmmo); // TODO - kMaxWeapons?
 
 DEFINE_FIELD_X(ExhumedPlayer, Player, nCurrentWeapon);
-DEFINE_FIELD_X(ExhumedPlayer, Player, field_3FOUR);
+DEFINE_FIELD_X(ExhumedPlayer, Player, nSeqSize2);
 DEFINE_FIELD_X(ExhumedPlayer, Player, bIsFiring);
-DEFINE_FIELD_X(ExhumedPlayer, Player, field_38);
-DEFINE_FIELD_X(ExhumedPlayer, Player, field_3A);
-DEFINE_FIELD_X(ExhumedPlayer, Player, field_3C);
+DEFINE_FIELD_X(ExhumedPlayer, Player, nNextWeapon);
+DEFINE_FIELD_X(ExhumedPlayer, Player, nState);
+DEFINE_FIELD_X(ExhumedPlayer, Player, nLastWeapon);
 DEFINE_FIELD_X(ExhumedPlayer, Player, nRun);
 DEFINE_FIELD_X(ExhumedPlayer, Player, bPlayerPan);
 DEFINE_FIELD_X(ExhumedPlayer, Player, bLockPan);

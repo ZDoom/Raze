@@ -37,12 +37,12 @@ struct Bullet
     DExhumedActor* pActor;
     DExhumedActor* pEnemy;
 
-    short nSeq;
-    short nFrame;
-    short field_6;
-    short field_8;
-    short nType;
-    short nPitch;
+    int16_t nSeq;
+    int16_t nFrame;
+    int16_t nRunRec;
+    int16_t nRunRec2;
+    int16_t nType;
+    int16_t nPitch;
     short field_E;
     uint16_t field_10;
     uint8_t field_12;
@@ -54,7 +54,7 @@ struct Bullet
 
 FreeListArray<Bullet, kMaxBullets> BulletList;
 int lasthitz, lasthitx, lasthity;
-short lasthitsect;
+int lasthitsect;
 
 short nRadialBullet = 0;
 
@@ -75,8 +75,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Bullet& w, Bullet*
             ("x", w.x, def->x)
             ("y", w.y, def->y)
             ("z", w.z, def->z)
-            ("at6", w.field_6, def->field_6)
-            ("at8", w.field_8, def->field_8)
+            ("at6", w.nRunRec, def->nRunRec)
+            ("at8", w.nRunRec2, def->nRunRec2)
             ("atc", w.nPitch, def->nPitch)
             ("ate", w.field_E, def->field_E)
             ("at10", w.field_10, def->field_10)
@@ -141,9 +141,9 @@ void DestroyBullet(int nBullet)
     auto pActor = BulletList[nBullet].pActor;
 	auto pSprite = &pActor->s();
 
-    runlist_DoSubRunRec(BulletList[nBullet].field_6);
+    runlist_DoSubRunRec(BulletList[nBullet].nRunRec);
     runlist_DoSubRunRec(pSprite->lotag - 1);
-    runlist_SubRunRec(BulletList[nBullet].field_8);
+    runlist_SubRunRec(BulletList[nBullet].nRunRec2);
 
     StopActorSound(pActor);
 
@@ -700,8 +700,8 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int n
     pBullet->nPitch = nPitch;
     pBullet->nType = nType;
     pBullet->pActor = pBulletActor;
-    pBullet->field_6 = runlist_AddRunRec(pBulletSprite->lotag - 1, nBullet, 0xB0000);
-    pBullet->field_8 = runlist_AddRunRec(NewRun, nBullet, 0xB0000);
+    pBullet->nRunRec = runlist_AddRunRec(pBulletSprite->lotag - 1, nBullet, 0xB0000);
+    pBullet->nRunRec2 = runlist_AddRunRec(NewRun, nBullet, 0xB0000);
     pBullet->nDoubleDamage = nDoubleDamage;
     pBulletSprite->z += nZOffset;
     pBulletSprite->backuppos();

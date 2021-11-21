@@ -64,7 +64,7 @@ struct Player
     int16_t nDouble;
     int16_t nInvisible;
     int16_t nTorch;
-    int16_t field_2;
+    int16_t nSeqSize;
     int16_t nAction;
     int16_t bIsMummified;
     int16_t invincibility;
@@ -77,13 +77,13 @@ struct Player
     uint8_t items[8];
     int16_t nAmmo[7]; // TODO - kMaxWeapons?
 
-    short nCurrentWeapon;
-    short field_3FOUR;
-    short bIsFiring;
-    short field_38;
-    short field_3A;
-    short field_3C;
-    short nRun;
+    int16_t nCurrentWeapon;
+    int16_t nSeqSize2;
+    int16_t bIsFiring;
+    int16_t nNextWeapon;
+    int16_t nState;
+    int16_t nLastWeapon;
+    int16_t nRun;
     bool bPlayerPan, bLockPan;
     fixedhoriz nDestVertPan;
 

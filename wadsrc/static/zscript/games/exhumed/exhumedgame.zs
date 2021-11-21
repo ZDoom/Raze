@@ -39,7 +39,7 @@ struct ExhumedPlayer native
 	native int16 nDouble;
 	native int16 nInvisible;
 	native int16 nTorch;
-	native int16 field_2;
+	native int16 nSeqSize;
 	native int16 nAction;
 	//native int16 nSprite;
 	native int16 bIsMummified;
@@ -54,11 +54,11 @@ struct ExhumedPlayer native
 	native int16 nAmmo[7]; // TODO - kMaxWeapons?
 
 	native int16 nCurrentWeapon;
-	native int16 field_3FOUR;
+	native int16 nSeqSize2;
+	native int16 nNextWeapon;
+	native int16 nState;
+	native int16 nLastWeapon;
 	native int16 bIsFiring;
-	native int16 field_38;
-	native int16 field_3A;
-	native int16 field_3C;
 	native int16 nRun;
 	native bool bPlayerPan, bLockPan;
 	//fixedhoriz nDestVertPan;

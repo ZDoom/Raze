@@ -67,7 +67,7 @@ struct bulletInfo
 extern bulletInfo BulletInfo[];
 
 extern short nRadialBullet;
-extern short lasthitsect;
+extern int lasthitsect;
 extern int lasthitz;
 extern int lasthitx;
 extern int lasthity;

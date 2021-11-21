@@ -235,8 +235,8 @@ void AIGrenade::Tick(RunListEvent* ev)
 
         if (pActor->nTurn < 0)
         {
-            PlayerList[nPlayer].field_3A = 0;
-            PlayerList[nPlayer].field_3FOUR = 0;
+            PlayerList[nPlayer].nState = 0;
+            PlayerList[nPlayer].nSeqSize2 = 0;
 
             if (PlayerList[nPlayer].nAmmo[kWeaponGrenade])
             {
@@ -246,8 +246,8 @@ void AIGrenade::Tick(RunListEvent* ev)
             {
                 SelectNewWeapon(nPlayer);
 
-                PlayerList[nPlayer].nCurrentWeapon = PlayerList[nPlayer].field_38;
-                PlayerList[nPlayer].field_38 = -1;
+                PlayerList[nPlayer].nCurrentWeapon = PlayerList[nPlayer].nNextWeapon;
+                PlayerList[nPlayer].nNextWeapon = -1;
             }
         }
 
