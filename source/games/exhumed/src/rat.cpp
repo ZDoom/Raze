@@ -25,9 +25,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-short nMinChunk;
-short nPlayerPic;
-short nMaxChunk;
+int nMinChunk;
+int nPlayerPic;
+int nMaxChunk;
 
 static actionSeq RatSeq[] = {
     {0, 1},
@@ -196,7 +196,7 @@ void AIRat::Draw(RunListEvent* ev)
 {
     auto pActor = ev->pObjActor;
     if (!pActor) return;
-    short nAction = pActor->nAction;
+    int nAction = pActor->nAction;
 
     seq_PlotSequence(ev->nParam, SeqOffsets[kSeqRat] + RatSeq[nAction].a, pActor->nFrame, RatSeq[nAction].b);
 }
@@ -207,7 +207,7 @@ void AIRat::Tick(RunListEvent* ev)
     auto pActor = ev->pObjActor;
     if (!pActor) return;
 
-    short nAction = pActor->nAction;
+    int nAction = pActor->nAction;
     auto pSprite = &pActor->s();
 
     bool bVal = false;

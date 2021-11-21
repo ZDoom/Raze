@@ -106,7 +106,7 @@ void AIRoach::Draw(RunListEvent* ev)
 {
 	auto pActor = ev->pObjActor;
 	if (!pActor) return;
-    short nAction = pActor->nAction;
+    int nAction = pActor->nAction;
 
     seq_PlotSequence(ev->nParam, RoachSeq[nAction].a + SeqOffsets[kSeqRoach], pActor->nFrame, RoachSeq[nAction].b);
     return;
@@ -127,7 +127,7 @@ void AIRoach::Damage(RunListEvent* ev)
 	if (!pActor) return;
 
 	auto pSprite = &pActor->s();
-    short nAction = pActor->nAction;
+    int nAction = pActor->nAction;
 
     if (ev->nDamage)
     {
@@ -188,7 +188,7 @@ void AIRoach::Tick(RunListEvent* ev)
 	if (!pActor) return;
 
 	auto pSprite = &pActor->s();
-    short nAction = pActor->nAction;
+    int nAction = pActor->nAction;
     bool bVal = false;
 
     Gravity(pActor);

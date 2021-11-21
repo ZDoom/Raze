@@ -40,16 +40,16 @@ enum
 	kMaxSEQChunks	= 21000
 };
 
-short sequences = 0;
-short frames = 0;
-short chunks = 0;
-short nPilotLightFrame;
-short nPilotLightCount;
+int16_t sequences = 0;
+int16_t frames = 0;
+int16_t chunks = 0;
+int16_t nPilotLightFrame;
+int16_t nPilotLightCount;
 
-short nPilotLightBase;
+int16_t nPilotLightBase;
 
-short nShadowWidth = 1;
-short nFlameHeight = 1;
+int16_t nShadowWidth = 1;
+int16_t nFlameHeight = 1;
 
 int16_t SeqBase[kMaxSequences];
 int16_t SeqSize[kMaxSequences];
@@ -148,7 +148,7 @@ const char *SeqNames[kMaxSEQFiles] =
   "rat"
 };
 
-short SeqOffsets[kMaxSEQFiles];
+int16_t SeqOffsets[kMaxSEQFiles];
 
 
 int seq_ReadSequence(const char *seqName)
@@ -167,7 +167,7 @@ int seq_ReadSequence(const char *seqName)
         return 0;
     }
 
-    unsigned short tag;
+    uint16_t tag;
     hFile.Read(&tag, sizeof(tag));
     if (tag < MAKE_ID('I', 'H', 0, 0) || (tag > MAKE_ID('I', 'H', 0, 0) && tag != MAKE_ID('D', 'S', 0, 0)))
     {
@@ -175,8 +175,8 @@ int seq_ReadSequence(const char *seqName)
         return 0;
     }
 
-    short centerx, centery; // TODO - are global vars?
-    short nSeqs;
+    int16_t centerx, centery; // TODO - are global vars?
+    int16_t nSeqs;
     hFile.Read(&centerx, sizeof(centerx));
     hFile.Read(&centery, sizeof(centery));
     hFile.Read(&nSeqs, sizeof(nSeqs));
@@ -202,7 +202,7 @@ int seq_ReadSequence(const char *seqName)
         SeqBase[sequences + i] += frames;
     }
 
-    short vdi = frames;
+    int16_t vdi = frames;
 
     int16_t nFrames;
     hFile.Read(&nFrames, sizeof(nFrames));
@@ -263,7 +263,7 @@ int seq_ReadSequence(const char *seqName)
 
     if (tag == MAKE_ID('D', 'S', 0, 0))
     {
-        short var_20;
+        int16_t var_20;
         hFile.Read(&var_20, sizeof(var_20));
 
         for (i = 0; i < var_20; i++)
@@ -271,12 +271,12 @@ int seq_ReadSequence(const char *seqName)
             hFile.Read(&buffer[i * 10], 8);
         }
 
-        short var_24;
+        int16_t var_24;
         hFile.Read(&var_24, sizeof(var_24));
 
         for (i = 0; i < var_24; i++)
         {
-            short var_28, var_2C;
+            int16_t var_28, var_2C;
             hFile.Read(&var_28, sizeof(var_28));
             hFile.Read(&var_2C, sizeof(var_2C));
 
@@ -345,7 +345,7 @@ void seq_LoadSequences()
 
     nFontFirstChar = seq_GetFirstSeqPicnum(kSeqFont2);
 
-    short nSize = SeqSize[SeqOffsets[kSeqFont2]];
+    int16_t nSize = SeqSize[SeqOffsets[kSeqFont2]];
 
     for (i = 0; i < nSize; i++)
     {
@@ -354,20 +354,20 @@ void seq_LoadSequences()
     }
 }
 
-short seq_GetFrameFlag(short val, short nFrame)
+int16_t seq_GetFrameFlag(int16_t val, int16_t nFrame)
 {
     return FrameFlag[SeqBase[val] + nFrame];
 }
 
 void seq_DrawPilotLightSeq(double xOffset, double yOffset)
 {
-    short nSect = PlayerList[nLocalPlayer].nPlayerViewSect;
+    int16_t nSect = PlayerList[nLocalPlayer].nPlayerViewSect;
 
     if (!(sector[nSect].Flag & kSectUnderwater))
     {
-        short nFrame = nPilotLightBase + nPilotLightFrame;
-        short nFrameBase = FrameBase[nFrame];
-        short nFrameSize = FrameSize[nFrame];
+        int16_t nFrame = nPilotLightBase + nPilotLightFrame;
+        int16_t nFrameBase = FrameBase[nFrame];
+        int16_t nFrameSize = FrameSize[nFrame];
 
         while (1)
         {
@@ -375,7 +375,7 @@ void seq_DrawPilotLightSeq(double xOffset, double yOffset)
             if (nFrameSize < 0)
                 return;
 
-            short nTile = ChunkPict[nFrameBase];
+            int16_t nTile = ChunkPict[nFrameBase];
             double x = ChunkXpos[nFrameBase] + (160 + xOffset);
             double y = ChunkYpos[nFrameBase] + (100 + yOffset);
 
@@ -392,7 +392,7 @@ void seq_DrawPilotLightSeq(double xOffset, double yOffset)
 
 */
 
-int seq_DrawGunSequence(int nSeqOffset, short dx, double xOffs, double yOffs, int nShade, int nPal)
+int seq_DrawGunSequence(int nSeqOffset, int16_t dx, double xOffs, double yOffs, int nShade, int nPal)
 {
     int nFrame = SeqBase[nSeqOffset] + dx;
     int nFrameBase = FrameBase[nFrame];
@@ -415,7 +415,7 @@ int seq_DrawGunSequence(int nSeqOffset, short dx, double xOffs, double yOffs, in
         if (ChunkFlag[nFrameBase] & 2)
             stat |= RS_YFLIPHUD;
 
-        short nTile = ChunkPict[nFrameBase];
+        int16_t nTile = ChunkPict[nFrameBase];
 
         if (frameFlag & 4)
             nShade = -100;
@@ -437,7 +437,7 @@ int seq_GetFrameSound(int val, int edx)
     return FrameSound[SeqBase[val] + edx];
 }
 
-void seq_MoveSequence(DExhumedActor* actor, short nSeq, short bx)
+void seq_MoveSequence(DExhumedActor* actor, int16_t nSeq, int16_t bx)
 {
     assert(nSeq >= 0); // TEMP
 
@@ -454,35 +454,35 @@ void seq_MoveSequence(DExhumedActor* actor, short nSeq, short bx)
     }
 }
 
-int seq_GetSeqPicnum2(short nSeq, short nFrame)
+int seq_GetSeqPicnum2(int16_t nSeq, int16_t nFrame)
 {
-    short nBase = FrameBase[SeqBase[nSeq] + nFrame];
+    int16_t nBase = FrameBase[SeqBase[nSeq] + nFrame];
     return ChunkPict[nBase];
 }
 
-int seq_GetSeqPicnum(short nSeq, short edx, short ebx)
+int seq_GetSeqPicnum(int16_t nSeq, int16_t edx, int16_t ebx)
 {
     edx += SeqOffsets[nSeq];
     ebx += SeqBase[edx];
-    short c = FrameBase[ebx];
+    int16_t c = FrameBase[ebx];
 
     return ChunkPict[c];
 }
 
-int seq_PlotArrowSequence(int nSprite, short nSeq, int nVal)
+int seq_PlotArrowSequence(int nSprite, int16_t nSeq, int nVal)
 {
     tspriteptr_t pTSprite = &mytsprite[nSprite];
     int nAngle = GetMyAngle(nCamerax - pTSprite->x, nCameray - pTSprite->y);
 
     int nSeqOffset = ((((pTSprite->ang + 512) - nAngle) + 128) & kAngleMask) >> 8;
 
-    short nFrame = SeqBase[nSeqOffset + nSeq] + nVal;
+    int16_t nFrame = SeqBase[nSeqOffset + nSeq] + nVal;
 
-    short nFrameBase = FrameBase[nFrame];
-    short nFrameSize = FrameSize[nFrame];
+    int16_t nFrameBase = FrameBase[nFrame];
+    int16_t nFrameSize = FrameSize[nFrame];
 
     uint8_t nShade = pTSprite->shade;
-    short nStat = pTSprite->cstat;
+    int16_t nStat = pTSprite->cstat;
 
     nStat |= 0x80;
 
@@ -517,7 +517,7 @@ int seq_PlotArrowSequence(int nSprite, short nSeq, int nVal)
     return ChunkPict[nFrameBase];
 }
 
-int seq_PlotSequence(int nSprite, short edx, short nFrame, short ecx)
+int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
 {
     tspriteptr_t pTSprite = &mytsprite[nSprite];
     int nAngle = GetMyAngle(nCamerax - pTSprite->x, nCameray - pTSprite->y);
@@ -536,8 +536,8 @@ int seq_PlotSequence(int nSprite, short edx, short nFrame, short ecx)
     int eax = SeqBase[edx] + nFrame;
     int edi = SeqBase[edx + val] + nFrame;
 
-    short nBase = FrameBase[edi];
-    short nSize = FrameSize[edi];
+    int16_t nBase = FrameBase[edi];
+    int16_t nSize = FrameSize[edi];
 
     int8_t shade = pTSprite->shade;
 
@@ -546,7 +546,7 @@ int seq_PlotSequence(int nSprite, short edx, short nFrame, short ecx)
         shade -= 100;
     }
 
-    short nPict = ChunkPict[nBase];
+    int16_t nPict = ChunkPict[nBase];
 
     if (ecx & 0x100)
     {
@@ -561,7 +561,7 @@ int seq_PlotSequence(int nSprite, short edx, short nFrame, short ecx)
     esi += edx;
 
     int var_14 = edx + 1;
-    short nOwner = pTSprite->owner;
+    int16_t nOwner = pTSprite->owner;
 
     while (1)
     {

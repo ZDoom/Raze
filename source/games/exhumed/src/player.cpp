@@ -87,7 +87,7 @@ short PlayerCount;
 short nNetStartSprites;
 short nCurStartSprite;
 
-void RestoreSavePoint(int nPlayer, int *x, int *y, int *z, short *nSector, short *nAngle)
+void RestoreSavePoint(int nPlayer, int *x, int *y, int *z, int *nSector, int16_t *nAngle)
 {
     *x = PlayerList[nPlayer].sPlayerSave.x;
     *y = PlayerList[nPlayer].sPlayerSave.y;
@@ -124,7 +124,7 @@ void feebtag(int x, int y, int z, int nSector, DExhumedActor **nSprite, int nVal
             while (auto pActor = it.Next())
             {
                 auto pSprite = &pActor->s();
-                short nStat = pSprite->statnum;
+                int nStat = pSprite->statnum;
 
                 if (nStat >= 900 && !(pSprite->cstat & 0x8000))
                 {
@@ -205,7 +205,7 @@ void InitPlayerInventory(int nPlayer)
     PlayerList[nPlayer].nPlayerColor = pixels[tileWidth(nPlayer + kTile3571) * tileHeight(nPlayer + kTile3571) / 2];
 }
 
-short GetPlayerFromActor(DExhumedActor* pActor)
+int GetPlayerFromActor(DExhumedActor* pActor)
 {
 	auto pSprite = &pActor->s();
     return RunData[pSprite->owner].nObjIndex;
@@ -438,7 +438,7 @@ void StartDeathSeq(int nPlayer, int nVal)
 	auto pSprite = &pActor->s();
     PlayerList[nPlayer].nHealth = 0;
 
-    short nLotag = pSprite->sector()->lotag;
+    int nLotag = pSprite->sector()->lotag;
 
     if (nLotag > 0) {
         runlist_SignalRun(nLotag - 1, nPlayer, &ExhumedAI::EnterSector);
@@ -533,7 +533,7 @@ int AddAmmo(int nPlayer, int nWeapon, int nAmmoAmount)
         nAmmoAmount = 1;
     }
 
-    short nCurAmmo = PlayerList[nPlayer].nAmmo[nWeapon];
+    int nCurAmmo = PlayerList[nPlayer].nAmmo[nWeapon];
 
     if (nCurAmmo >= 300 && nAmmoAmount > 0) {
         return 0;
@@ -615,7 +615,7 @@ void AIPlayer::Draw(RunListEvent* ev)
 {
     int nPlayer = RunData[ev->nRun].nObjIndex;
     assert(nPlayer >= 0 && nPlayer < kMaxPlayers);
-    short nAction = PlayerList[nPlayer].nAction;
+    int nAction = PlayerList[nPlayer].nAction;
 
     seq_PlotSequence(ev->nParam, SeqOffsets[PlayerList[nPlayer].nSeq] + PlayerSeq[nAction].a, PlayerList[nPlayer].nSeqSize, PlayerSeq[nAction].b);
 }
@@ -641,7 +641,7 @@ void AIPlayer::Damage(RunListEvent* ev)
     int nDamage = ev->nDamage;
     int nPlayer = RunData[ev->nRun].nObjIndex;
     auto pPlayerActor = PlayerList[nPlayer].Actor();
-    short nAction = PlayerList[nPlayer].nAction;
+    int nAction = PlayerList[nPlayer].nAction;
     auto pPlayerSprite = &pPlayerActor->s();
     auto pDopple = PlayerList[nPlayer].pDoppleSprite;
 
@@ -709,7 +709,7 @@ void AIPlayer::Damage(RunListEvent* ev)
         // player has died
         if (pActor2 && pActor2->s().statnum == 100)
         {
-            short nPlayer2 = GetPlayerFromActor(pActor2);
+            int nPlayer2 = GetPlayerFromActor(pActor2);
 
             if (nPlayer2 == nPlayer) // player caused their own death
             {
@@ -756,8 +756,8 @@ void AIPlayer::Tick(RunListEvent* ev)
 
     auto pDopple = PlayerList[nPlayer].pDoppleSprite;
 
-    short nAction = PlayerList[nPlayer].nAction;
-    short nActionB = PlayerList[nPlayer].nAction;
+    int nAction = PlayerList[nPlayer].nAction;
+    int nActionB = PlayerList[nPlayer].nAction;
 
     PlayerList[nPlayer].angle.backup();
     PlayerList[nPlayer].horizon.backup();
@@ -853,7 +853,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     }
 
     // pPlayerSprite->zvel is modified within Gravity()
-    short zVel = pPlayerSprite->zvel;
+    int zVel = pPlayerSprite->zvel;
 
     Gravity(pPlayerActor);
 
@@ -929,7 +929,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     }
 
     //			int _bTouchFloor = bTouchFloor;
-    short bUnderwater = pPlayerSprite->sector()->Flag & kSectUnderwater;
+    int bUnderwater = pPlayerSprite->sector()->Flag & kSectUnderwater;
 
     if (bUnderwater)
     {
@@ -984,7 +984,7 @@ void AIPlayer::Tick(RunListEvent* ev)
 
             if (nPlayer == nLocalPlayer)
             {
-                short zVelB = zVel;
+                int zVelB = zVel;
 
                 if (zVelB < 0) {
                     zVelB = -zVelB;
@@ -1057,7 +1057,7 @@ void AIPlayer::Tick(RunListEvent* ev)
                         if (PlayerList[nPlayer].nPlayerPushSound <= -1)
                         {
                             PlayerList[nPlayer].nPlayerPushSound = 1;
-                            short nBlock = sector[PlayerList[nPlayer].nPlayerPushSect].extra;
+                            int nBlock = sector[PlayerList[nPlayer].nPlayerPushSect].extra;
                             auto pBlockActor = sBlockInfo[nBlock].pActor;
 
                             D3PlayFX(StaticSound[kSound23], pBlockActor, 0x4000);

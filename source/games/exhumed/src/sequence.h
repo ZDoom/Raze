@@ -104,22 +104,22 @@ enum {
 
 struct actionSeq
 {
-    short a;
-    short b;
+    int16_t a;
+    int16_t b;
 };
 
-extern short frames;
+extern int16_t frames;
 
 extern int16_t SeqBase[];
 extern int16_t SeqSize[];
 extern int16_t SeqOffsets[];
 extern int16_t FrameFlag[];
 
-extern short nShadowWidth;
-extern short nFlameHeight;
+extern int16_t nShadowWidth;
+extern int16_t nFlameHeight;
 
-extern short nPilotLightFrame;
-extern short nPilotLightCount;
+extern int16_t nPilotLightFrame;
+extern int16_t nPilotLightCount;
 
 extern int16_t ChunkYpos[];
 extern int16_t ChunkXpos[];
@@ -131,16 +131,16 @@ extern int16_t FrameBase[];
 
 void seq_LoadSequences();
 int seq_GetFrameSound(int val, int edx);
-void seq_MoveSequence(DExhumedActor* actor, short nSeq, short bx);
+void seq_MoveSequence(DExhumedActor* actor, int16_t nSeq, int16_t bx);
 
-int seq_GetSeqPicnum2(short nSeq, short nFrame);
-int seq_GetSeqPicnum(short nSeq, short edx, short ebx);
-void seq_DrawStatusSequence(short nSequence, uint16_t edx, short ebx);
+int seq_GetSeqPicnum2(int16_t nSeq, int16_t nFrame);
+int seq_GetSeqPicnum(int16_t nSeq, int16_t edx, int16_t ebx);
+void seq_DrawStatusSequence(int16_t nSequence, uint16_t edx, int16_t ebx);
 
-int seq_DrawGunSequence(int nSeqOffset, short dx, double xOffs, double yOffs, int nShade, int nPal);
-short seq_GetFrameFlag(short val, short nFrame);
-int seq_PlotSequence(int nSprite, short edx, short nFrame, short ecx);
-int seq_PlotArrowSequence(int nSprite, short nSeq, int nVal);
+int seq_DrawGunSequence(int nSeqOffset, int16_t dx, double xOffs, double yOffs, int nShade, int nPal);
+int16_t seq_GetFrameFlag(int16_t val, int16_t nFrame);
+int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx);
+int seq_PlotArrowSequence(int nSprite, int16_t nSeq, int nVal);
 void seq_DrawPilotLightSeq(double xOffset, double yOffset);
 
 END_PS_NS

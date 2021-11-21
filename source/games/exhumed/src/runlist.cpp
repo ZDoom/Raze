@@ -1610,9 +1610,9 @@ void runlist_ProcessWallTag(int nWall, int nLotag, int nHitag)
                 nLastWall = nWall;
             }
 
-            short nWall2 = wall[nStart].point2;
-            short nWall3 = wall[nWall2].point2;
-            short nWall4 = wall[nWall3].point2;
+            int nWall2 = wall[nStart].point2;
+            int nWall3 = wall[nWall2].point2;
+            int nWall4 = wall[nWall3].point2;
 
             int nSlide = BuildSlide(nChannel, nStart, nLastWall, n2ndLastWall, nWall2, nWall3, nWall4);
 
@@ -1756,12 +1756,12 @@ void runlist_DamageEnemy(DExhumedActor* pActor, DExhumedActor* pActor2, int nDam
         return;
     }
 
-    short nRun = pSprite->owner;
+    int nRun = pSprite->owner;
     if (nRun <= -1) {
         return;
     }
 
-    short nPreCreaturesKilled = nCreaturesKilled;
+    int nPreCreaturesKilled = nCreaturesKilled;
 
     RunListEvent ev{};
     ev.pOtherActor = pActor2;

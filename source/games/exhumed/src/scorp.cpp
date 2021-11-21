@@ -101,7 +101,7 @@ void AIScorp::Draw(RunListEvent* ev)
 	auto pActor = ev->pObjActor;
 	if (!pActor) return;
 
-    short nAction = pActor->nAction;
+    int nAction = pActor->nAction;
 
     seq_PlotSequence(ev->nParam, SeqOffsets[kSeqScorp] + ScorpSeq[nAction].a, pActor->nFrame, ScorpSeq[nAction].b);
 }
@@ -181,7 +181,7 @@ void AIScorp::Tick(RunListEvent* ev)
 	if (!pActor) return;
 
 
-    short nAction = pActor->nAction;
+    int nAction = pActor->nAction;
     auto pSprite = &pActor->s();
 
     bool bVal = false;
@@ -418,7 +418,7 @@ void AIScorp::Effect(RunListEvent* ev, DExhumedActor* pTarget, int mode)
 	auto pActor = ev->pObjActor;
 	if (!pActor) return;
 
-    short nAction = pActor->nAction;
+    int nAction = pActor->nAction;
     auto pSprite = &pActor->s();
 
     if (mode == 0)

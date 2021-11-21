@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-void RestoreSavePoint(int nPlayer, int *x, int *y, int *z, short *nSector, short *nAngle);
+void RestoreSavePoint(int nPlayer, int *x, int *y, int *z, int *nSector, int16_t *nAngle);
 void SetSavePoint(int nPlayer, int x, int y, int z, int nSector, int nAngle);
 void InitPlayer();
 void InitPlayerKeys(int nPlayer);
@@ -127,7 +127,7 @@ extern DExhumedActor* nNetStartSprite[kMaxPlayers];
 extern short nNetStartSprites;
 extern short nCurStartSprite;
 
-short GetPlayerFromActor(DExhumedActor* actor);
+int GetPlayerFromActor(DExhumedActor* actor);
 void SetPlayerMummified(int nPlayer, int bIsMummified);
 int AddAmmo(int nPlayer, int nWeapon, int nAmmoAmount);
 void ShootStaff(int nPlayer);

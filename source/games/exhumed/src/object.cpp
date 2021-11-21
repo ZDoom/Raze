@@ -35,15 +35,15 @@ static const int8_t ObjectSeq[] = {
     46, -1, 72, -1
 };
 
-static const short ObjectStatnum[] = {
+static const int16_t ObjectStatnum[] = {
     kStatExplodeTrigger, kStatExplodeTarget, 98, kStatDestructibleSprite
 };
 
 struct Trail
 {
-    short field_0;
-    short field_2;
-    short field_4;
+    int16_t nPoint;
+    int16_t nVal;
+    int16_t nPoint2;
 };
 
 struct TrailPoint
@@ -59,17 +59,16 @@ struct TrailPoint
 struct Bob
 {
     int nSector;
+    int z;
     uint8_t field_2;
     uint8_t field_3;
-    int z;
     uint16_t sBobID;
-
 };
 
 struct Drip
 {
     DExhumedActor* pActor;
-    short nCount;
+    int16_t nCount;
 };
 
 // 56 bytes
@@ -91,13 +90,13 @@ struct Elev
 struct MoveSect
 {
     int nSector;
-    short nTrail;
-    short nTrailPoint;
-    short field_6;
-    short field_8; // nSector?
+    int nCurSector;
     int field_10;
-    short field_14; // nChannel?
-    short sMoveDir;
+    int16_t nTrail;
+    int16_t nTrailPoint;
+    int16_t nFlags;
+    int16_t nChannel; // nChannel?
+    int16_t sMoveDir;
 
 };
 
@@ -112,10 +111,10 @@ struct wallFace
 struct slideData
 {
     DExhumedActor* pActor;
-    short nChannel;
-    short nStart;
-    short field_4a;
-    short field_8a;
+    int16_t nChannel;
+    int16_t nStart;
+    int16_t nRunRec;
+    int16_t nRunC;
 
     int field_0;
     int field_4;
@@ -188,9 +187,9 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Trail& w, Trail* d
 {
     if (arc.BeginObject(keyname))
     {
-        arc("at0", w.field_0)
-            ("at2", w.field_2)
-            ("at4", w.field_4)
+        arc("at0", w.nPoint)
+            ("at2", w.nVal)
+            ("at4", w.nPoint2)
             .EndObject();
     }
     return arc;
@@ -256,10 +255,10 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, MoveSect& w, MoveS
         arc("sector", w.nSector)
             ("trail", w.nTrail)
             ("trailpoint", w.nTrailPoint)
-            ("at6", w.field_6)
-            ("at8", w.field_8)
+            ("at6", w.nFlags)
+            ("at8", w.nCurSector)
             ("at10", w.field_10)
-            ("at14", w.field_14)
+            ("at14", w.nChannel)
             ("movedir", w.sMoveDir)
             .EndObject();
     }
@@ -300,9 +299,9 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, slideData& w, slid
             ("at3c", w.y6)
             ("channel", w.nChannel)
             ("at2a", w.nStart)
-            ("at4a", w.field_4a)
+            ("at4a", w.nRunRec)
             ("at6a", w.pActor)
-            ("at8a", w.field_8a)
+            ("at8a", w.nRunC)
             .EndObject();
     }
     return arc;
@@ -976,7 +975,7 @@ int BuildSlide(int nChannel, int nStartWall, int nWall1, int ecx, int nWall2, in
 
     int nSector =IdentifySector(nStartWall);
 
-    SlideData[nSlide].field_4a = -1;
+    SlideData[nSlide].nRunRec = -1;
     SlideData[nSlide].nChannel = nChannel;
     SlideData[nSlide].nStart = -1;
 
@@ -1065,7 +1064,7 @@ int BuildSlide(int nChannel, int nStartWall, int nWall1, int ecx, int nWall2, in
     pSprite->z = sector[nSector].floorz;
     pSprite->backuppos();
 
-    SlideData[nSlide].field_8a = 0;
+    SlideData[nSlide].nRunC = 0;
 
     return nSlide;
 }
@@ -1078,22 +1077,22 @@ void AISlide::ProcessChannel(RunListEvent* ev)
 
     short nChannel = SlideData[nSlide].nChannel;
 
-    if (SlideData[nSlide].field_4a >= 0)
+    if (SlideData[nSlide].nRunRec >= 0)
     {
-        runlist_SubRunRec(SlideData[nSlide].field_4a);
-        SlideData[nSlide].field_4a = -1;
+        runlist_SubRunRec(SlideData[nSlide].nRunRec);
+        SlideData[nSlide].nRunRec = -1;
     }
 
     if (sRunChannels[nChannel].c && sRunChannels[nChannel].c != 1) {
         return;
     }
 
-    SlideData[nSlide].field_4a = runlist_AddRunRec(NewRun, &RunData[nRun]);
+    SlideData[nSlide].nRunRec = runlist_AddRunRec(NewRun, &RunData[nRun]);
 
-    if (SlideData[nSlide].field_8a != sRunChannels[nChannel].c)
+    if (SlideData[nSlide].nRunC != sRunChannels[nChannel].c)
     {
         D3PlayFX(StaticSound[kSound23], SlideData[nSlide].pActor);
-        SlideData[nSlide].field_8a = sRunChannels[nChannel].c;
+        SlideData[nSlide].nRunC = sRunChannels[nChannel].c;
     }
 }
 
@@ -1225,9 +1224,9 @@ void AISlide::Tick(RunListEvent* ev)
     // loc_21A51:
     if (ebp >= 2)
     {
-        runlist_SubRunRec(SlideData[nSlide].field_4a);
+        runlist_SubRunRec(SlideData[nSlide].nRunRec);
 
-        SlideData[nSlide].field_4a = -1;
+        SlideData[nSlide].nRunRec = -1;
         D3PlayFX(StaticSound[nStopSound], SlideData[nSlide].pActor);
 
         runlist_ReadyChannel(nChannel);
@@ -2295,14 +2294,14 @@ int FindTrail(int nVal)
 {
     for (unsigned i = 0; i < sTrail.Size(); i++)
     {
-        if (sTrail[i].field_2 == nVal)
+        if (sTrail[i].nVal == nVal)
             return i;
     }
 
     auto nTrails = sTrail.Reserve(1);
-    sTrail[nTrails].field_2 = nVal;
-    sTrail[nTrails].field_0 = -1;
-    sTrail[nTrails].field_4 = -1;
+    sTrail[nTrails].nVal = nVal;
+    sTrail[nTrails].nPoint = -1;
+    sTrail[nTrails].nPoint2 = -1;
     return nTrails;
 }
 
@@ -2321,12 +2320,12 @@ void ProcessTrailSprite(DExhumedActor* pActor, int nLotag, int nHitag)
 
     sTrailPoint[nPoint].nTrailPointVal = var_14;
 
-    int field0 = sTrail[nTrail].field_0;
+    int field0 = sTrail[nTrail].nPoint;
 
     if (field0 == -1)
     {
-        sTrail[nTrail].field_0 = nPoint;
-        sTrail[nTrail].field_4 = nPoint;
+        sTrail[nTrail].nPoint = nPoint;
+        sTrail[nTrail].nPoint2 = nPoint;
 
         sTrailPoint[nPoint].nTrailPointNext = -1;
         sTrailPoint[nPoint].nTrailPointPrev = -1;
@@ -2343,8 +2342,8 @@ void ProcessTrailSprite(DExhumedActor* pActor, int nLotag, int nHitag)
                 sTrailPoint[field0].nTrailPointPrev = nPoint;
                 sTrailPoint[nPoint].nTrailPointNext = field0;
 
-                if (field0 == sTrail[nTrail].field_0) {
-                    sTrail[nTrail].field_0 = nPoint;
+                if (field0 == sTrail[nTrail].nPoint) {
+                    sTrail[nTrail].nPoint = nPoint;
                 }
 
                 break;
@@ -2359,7 +2358,7 @@ void ProcessTrailSprite(DExhumedActor* pActor, int nLotag, int nHitag)
             sTrailPoint[ecx].nTrailPointNext = nPoint;
             sTrailPoint[nPoint].nTrailPointPrev = ecx;
             sTrailPoint[nPoint].nTrailPointNext = -1;
-            sTrail[nTrail].field_4 = nPoint;
+            sTrail[nTrail].nPoint2 = nPoint;
         }
     }
 
@@ -2381,18 +2380,18 @@ void AddMovingSector(int nSector, int edx, int ebx, int ecx)
     pMoveSect->sMoveDir = 1;
     pMoveSect->nTrail = nTrail;
     pMoveSect->nTrailPoint = -1;
-    pMoveSect->field_8 = -1;
-    pMoveSect->field_6 = ecx;
+    pMoveSect->nCurSector = -1;
+    pMoveSect->nFlags = ecx;
     pMoveSect->field_10 = (edx / 1000) + 1;
     pMoveSect->nSector = nSector;
 
     if (ecx & 8)
     {
-        pMoveSect->field_14 = runlist_AllocChannel(ebx % 1000);
+        pMoveSect->nChannel = runlist_AllocChannel(ebx % 1000);
     }
     else
     {
-        pMoveSect->field_14 = -1;
+        pMoveSect->nChannel = -1;
     }
 
     sector[nSector].floorstat |= 0x40;
@@ -2406,7 +2405,7 @@ void DoMovingSects()
             continue;
         }
 
-        if (sMoveSect[i].field_14 != -1 && !sRunChannels[sMoveSect[i].field_14].c) {
+        if (sMoveSect[i].nChannel != -1 && !sRunChannels[sMoveSect[i].nChannel].c) {
             continue;
         }
 
@@ -2417,28 +2416,28 @@ void DoMovingSects()
 
         if (sMoveSect[i].nTrailPoint == -1)
         {
-            if (sMoveSect[i].field_6 & 0x20)
+            if (sMoveSect[i].nFlags & 0x20)
             {
-                runlist_ChangeChannel(sMoveSect[i].field_14, 0);
+                runlist_ChangeChannel(sMoveSect[i].nChannel, 0);
             }
 
             short ax;
 
-            if (sMoveSect[i].field_6 & 0x10)
+            if (sMoveSect[i].nFlags & 0x10)
             {
                 sMoveSect[i].sMoveDir = -sMoveSect[i].sMoveDir;
                 if (sMoveSect[i].sMoveDir > 0)
                 {
-                    ax = sTrail[sMoveSect[i].nTrail].field_0;
+                    ax = sTrail[sMoveSect[i].nTrail].nPoint;
                 }
                 else
                 {
-                    ax = sTrail[sMoveSect[i].nTrail].field_4;
+                    ax = sTrail[sMoveSect[i].nTrail].nPoint2;
                 }
             }
             else
             {
-                ax = sTrail[sMoveSect[i].nTrail].field_0;
+                ax = sTrail[sMoveSect[i].nTrail].nPoint;
             }
 
             sMoveSect[i].nTrailPoint = ax;
@@ -2517,9 +2516,9 @@ void DoMovingSects()
         }
 
         // loc_2393A:
-        if (sMoveSect[i].field_8 != -1)
+        if (sMoveSect[i].nCurSector != -1)
         {
-            MoveSector(sMoveSect[i].field_8, -1, &nXVel, &nYVel);
+            MoveSector(sMoveSect[i].nCurSector, -1, &nXVel, &nYVel);
         }
 
         int var_2C = nXVel;
@@ -2529,8 +2528,8 @@ void DoMovingSects()
 
         if (nXVel != var_2C || nYVel != var_30)
         {
-            MoveSector(sMoveSect[i].field_8, -1, &var_2C, &var_30);
-            MoveSector(sMoveSect[i].field_8, -1, &nXVel, &nYVel);
+            MoveSector(sMoveSect[i].nCurSector, -1, &var_2C, &var_30);
+            MoveSector(sMoveSect[i].nCurSector, -1, &nXVel, &nYVel);
         }
     }
 }
@@ -2542,10 +2541,10 @@ void PostProcess()
     for (unsigned i = 0; i < sMoveSect.Size(); i++)
     {
         int nTrail = sMoveSect[i].nTrail;
-        sMoveSect[i].nTrailPoint = sTrail[nTrail].field_0;
+        sMoveSect[i].nTrailPoint = sTrail[nTrail].nPoint;
 
-        if (sMoveSect[i].field_6 & 0x40) {
-            runlist_ChangeChannel(sMoveSect[i].field_14, 1);
+        if (sMoveSect[i].nFlags & 0x40) {
+            runlist_ChangeChannel(sMoveSect[i].nChannel, 1);
         }
 
         int nSector =sMoveSect[i].nSector;
@@ -2559,7 +2558,7 @@ void PostProcess()
             {
                 if (j != i && sMoveSect[i].nTrail == sMoveSect[j].nTrail)
                 {
-                    sMoveSect[j].field_8 = sMoveSect[i].nSector;
+                    sMoveSect[j].nCurSector = sMoveSect[i].nSector;
 
                     SnapSectors(sMoveSect[j].nSector, sMoveSect[i].nSector, 0);
                     sMoveSect[i].nSector = -1;
