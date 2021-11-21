@@ -25,6 +25,39 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
+// Object storage helper that packs the value into 8 bytes. This depends on pointer alignment being a multiple of 8 bytes for actors
+class EventObject
+{
+	enum EType
+	{
+		Actor = 0,
+		Sector = 1,
+		Wall = 2
+	};
+	union
+	{
+		DBloodActor* ActorP;
+		uint64_t index;
+	};
+	
+	EventObject() = default;
+	EventObject(DBloodActor* actor_) { ActorP = actor_; assert(isActor()); /* GC:WriteBarrier(actor);*/ }
+	EventObject(sectortype *sect) { index = (sectnum(sect) << 8) | Sector; }
+	EventObject(walltype* wall) { index = (wallnum(wall) << 8) | Wall; }
+
+	EventObject& operator=(DBloodActor* actor_) { ActorP = actor_; assert(isActor()); /* GC:WriteBarrier(actor);*/ return *this; }
+	EventObject& operator=(sectortype *sect) { index = (sectnum(sect) << 8) | Sector; return *this; }
+	EventObject& operator=(walltype* wall) { index = (wallnum(wall) << 8) | Wall; return *this; }
+
+	bool isActor() const { return (index&7) == Actor; }
+	bool isSector() const { return (index&7) == Sector; }
+	bool isWall() const { return (index&7) == Wall; }
+	
+	DBloodActor* actor() const { assert(isActor()); return /*GC::ReadBarrier*/(ActorP); }
+	sectortype* sector() const { assert(isSector()); return &::sector[index >> 8]; }
+	walltype* wall() const { assert(isWall()); return &::wall[index >> 8]; }
+};
+
 
 enum {
 	kChannelZero = 0,
