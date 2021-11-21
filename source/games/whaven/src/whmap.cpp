@@ -777,25 +777,26 @@ boolean prepareboard(const char* fname) {
 		plr.hvel = 0;
 		plr.spritenum = insertsprite(plr.sector, (short) 0);
 		plr.oldsector = plr.sector;
+		auto& pspr = sprite[plr.spritenum];
 
-		sprite[plr.spritenum].x = plr.x;
-		sprite[plr.spritenum].y = plr.y;
-		sprite[plr.spritenum].z = sector[plr.sector].floorz;
-		sprite[plr.spritenum].cstat = 1 + 256;
-		sprite[plr.spritenum].picnum = isWh2() ? GRONSW : FRED;
-		sprite[plr.spritenum].shade = 0;
-		sprite[plr.spritenum].xrepeat = 36;
-		sprite[plr.spritenum].yrepeat = 36;
-		sprite[plr.spritenum].ang = plr.angle.ang.asbuild();
-		sprite[plr.spritenum].xvel = 0;
-		sprite[plr.spritenum].yvel = 0;
-		sprite[plr.spritenum].zvel = 0;
-		sprite[plr.spritenum].owner = (short) (4096 + myconnectindex);
-		sprite[plr.spritenum].lotag = 0;
-		sprite[plr.spritenum].hitag = 0;
-		sprite[plr.spritenum].pal = (short) (isWh2() ? 10 : 1);
+		pspr.x = plr.x;
+		pspr.y = plr.y;
+		pspr.z = sector[plr.sector].floorz;
+		pspr.cstat = 1 + 256;
+		pspr.picnum = isWh2() ? GRONSW : FRED;
+		pspr.shade = 0;
+		pspr.xrepeat = 36;
+		pspr.yrepeat = 36;
+		pspr.ang = plr.angle.ang.asbuild();
+		pspr.xvel = 0;
+		pspr.yvel = 0;
+		pspr.zvel = 0;
+		pspr.owner = (short) (4096 + myconnectindex);
+		pspr.lotag = 0;
+		pspr.hitag = 0;
+		pspr.pal = (short) (isWh2() ? 10 : 1);
 		if(isWh2())
-			sprite[plr.spritenum].clipdist = 48;
+			pspr.clipdist = 48;
 			
 		setsprite(plr.spritenum, plr.x, plr.y, plr.z + (getPlayerHeight() << 8));
 
