@@ -1331,17 +1331,18 @@ void animateobjs(PLAYER& plr) {
 
 	for (i = headspritestat[BROKENVASE]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
+		auto& spr = sprite[i];
 
-		sprite[i].lotag -= TICSPERFRAME;
-		if (sprite[i].lotag < 0) {
-			sprite[i].picnum++;
-			sprite[i].lotag = 18;
+		spr.lotag -= TICSPERFRAME;
+		if (spr.lotag < 0) {
+			spr.picnum++;
+			spr.lotag = 18;
 
-			if (sprite[i].picnum == (SHATTERVASE + 6) || sprite[i].picnum == (SHATTERVASE2 + 6)
-					|| sprite[i].picnum == (SHATTERVASE3 + 6))
+			if (spr.picnum == (SHATTERVASE + 6) || spr.picnum == (SHATTERVASE2 + 6)
+					|| spr.picnum == (SHATTERVASE3 + 6))
 				changespritestat(i, (short) 0);
 			else {
-				switch (sprite[i].picnum) {
+				switch (spr.picnum) {
 				case FSHATTERBARREL + 2:
 					randompotion(i);
 					changespritestat(i, (short) 0);
@@ -1365,56 +1366,58 @@ void animateobjs(PLAYER& plr) {
 	// Go through explosion sprites
 	for (i = headspritestat[FX]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
-		sprite[i].lotag -= TICSPERFRAME;
+		auto& spr = sprite[i];
 
-		if (// sprite[i].picnum == PLASMA ||
-		sprite[i].picnum == BULLET || sprite[i].picnum == EXPLOSION || sprite[i].picnum == FIREBALL
-				|| sprite[i].picnum == MONSTERBALL || sprite[i].picnum == FATSPANK) {
+		spr.lotag -= TICSPERFRAME;
 
-			// sprite[i].z+=sprite[i].zvel;
-			sprite[i].zvel += (TICSPERFRAME << 5);
-			if (sprite[i].z < sector[sprite[i].sectnum].ceilingz + (4 << 8)) {
-				sprite[i].z = sector[sprite[i].sectnum].ceilingz + (4 << 8);
-				sprite[i].zvel = (short) -(sprite[i].zvel >> 1);
+		if (// spr.picnum == PLASMA ||
+		spr.picnum == BULLET || spr.picnum == EXPLOSION || spr.picnum == FIREBALL
+				|| spr.picnum == MONSTERBALL || spr.picnum == FATSPANK) {
+
+			// spr.z+=spr.zvel;
+			spr.zvel += (TICSPERFRAME << 5);
+			if (spr.z < sector[spr.sectnum].ceilingz + (4 << 8)) {
+				spr.z = sector[spr.sectnum].ceilingz + (4 << 8);
+				spr.zvel = (short) -(spr.zvel >> 1);
 			}
-			if (sprite[i].z > sector[sprite[i].sectnum].floorz - (4 << 8) && sprite[i].picnum != EXPLOSION) {
-				sprite[i].z = sector[sprite[i].sectnum].floorz - (4 << 8);
-				sprite[i].zvel = 0;
-				sprite[i].lotag = 4;
+			if (spr.z > sector[spr.sectnum].floorz - (4 << 8) && spr.picnum != EXPLOSION) {
+				spr.z = sector[spr.sectnum].floorz - (4 << 8);
+				spr.zvel = 0;
+				spr.lotag = 4;
 			}
-			dax = ((((int) sprite[i].xvel) * TICSPERFRAME) >> 3);
-			day = ((((int) sprite[i].yvel) * TICSPERFRAME) >> 3);
-			daz = (((int) sprite[i].zvel) * TICSPERFRAME);
+			dax = ((((int) spr.xvel) * TICSPERFRAME) >> 3);
+			day = ((((int) spr.yvel) * TICSPERFRAME) >> 3);
+			daz = (((int) spr.zvel) * TICSPERFRAME);
 			movestat = (short) movesprite((short) i, dax, day, daz, 4 << 8, 4 << 8, 1);
-			setsprite(i, sprite[i].x, sprite[i].y, sprite[i].z);
+			setsprite(i, spr.x, spr.y, spr.z);
 		}
 
-		if (sprite[i].picnum == ICECUBE && sprite[i].z < sector[sprite[i].sectnum].floorz) {
-			sprite[i].z += sprite[i].zvel;
+		if (spr.picnum == ICECUBE && spr.z < sector[spr.sectnum].floorz) {
+			spr.z += spr.zvel;
 
-			daz = sprite[i].zvel += TICSPERFRAME << 4;
+			daz = spr.zvel += TICSPERFRAME << 4;
 
-			movestat = (short) movesprite((short) i, (bcos(sprite[i].ang) * TICSPERFRAME) << 3,
-					(bsin(sprite[i].ang) * TICSPERFRAME) << 3, daz, 4 << 8, 4 << 8, 1);
+			movestat = (short) movesprite((short) i, (bcos(spr.ang) * TICSPERFRAME) << 3,
+					(bsin(spr.ang) * TICSPERFRAME) << 3, daz, 4 << 8, 4 << 8, 1);
 
 		}
 
-		if (sprite[i].lotag < 0 || movestat != 0)
-			if (sprite[i].picnum == PLASMA || sprite[i].picnum == EXPLOSION || sprite[i].picnum == FIREBALL
-					|| sprite[i].picnum == MONSTERBALL || sprite[i].picnum == FATSPANK
-					|| sprite[i].picnum == ICECUBE) {
+		if (spr.lotag < 0 || movestat != 0)
+			if (spr.picnum == PLASMA || spr.picnum == EXPLOSION || spr.picnum == FIREBALL
+					|| spr.picnum == MONSTERBALL || spr.picnum == FATSPANK
+					|| spr.picnum == ICECUBE) {
 				deletesprite(i);
 				continue;
 			}
 
-		if (sprite[i].z + (8 << 8) >= sector[sprite[i].sectnum].floorz && sprite[i].picnum == ICECUBE
+		if (spr.z + (8 << 8) >= sector[spr.sectnum].floorz && spr.picnum == ICECUBE
 				|| movestat != 0) {
-			sprite[i].z = sector[sprite[i].sectnum].floorz;
+			spr.z = sector[spr.sectnum].floorz;
 			changespritestat(i, (short) 0);
-			if (sector[sprite[i].sectnum].floorpicnum == WATER || sector[sprite[i].sectnum].floorpicnum == SLIME
-					|| sector[sprite[i].sectnum].floorpicnum == FLOORMIRROR) {
-				if (sprite[i].picnum == FISH)
-					sprite[i].z = sector[sprite[i].sectnum].floorz;
+			if (sector[spr.sectnum].floorpicnum == WATER || sector[spr.sectnum].floorpicnum == SLIME
+					|| sector[spr.sectnum].floorpicnum == FLOORMIRROR) {
+				if (spr.picnum == FISH)
+					spr.z = sector[spr.sectnum].floorz;
 				else {
 					if (krand() % 100 > 60) {
 						makemonstersplash(SPLASHAROO, i);
@@ -1422,7 +1425,7 @@ void animateobjs(PLAYER& plr) {
 					}
 				}
 			} else {
-				if (sprite[i].lotag < 0) {
+				if (spr.lotag < 0) {
 					deletesprite((short) i);
 				}
 			}
