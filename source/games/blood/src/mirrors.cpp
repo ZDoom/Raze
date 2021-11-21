@@ -145,28 +145,7 @@ void InitMirrors(void)
     }
     mirrorsector = numsectors;
     mergePortals();
-#if 1 // The new backend won't need this shit anymore.
-    for (int i = 0; i < 4; i++)
-    {
-        mirrorwall[i] = numwalls+i;
-        auto pWall = &wall[mirrorwall[i]];
-        pWall->picnum = 504;
-        pWall->overpicnum = 504;
-        pWall->cstat = 0;
-        pWall->nextsector = -1;
-        pWall->nextwall = -1;
-        pWall->point2 = numwalls+i+1;
-    }
-    wall[mirrorwall[3]].point2 = mirrorwall[0];
-    sector[mirrorsector].ceilingpicnum = 504;
-    sector[mirrorsector].floorpicnum = 504;
-    sector[mirrorsector].wallptr = mirrorwall[0];
-    sector[mirrorsector].wallnum = 4;
-#endif
-}
-
-void TranslateMirrorColors(int nShade, int nPalette)
-{
+    InitPolymostMirrorHack();
 }
 
 //---------------------------------------------------------------------------
@@ -194,10 +173,8 @@ void SerializeMirrors(FSerializer& arc)
 {
 	if (arc.BeginObject("mirror"))
 	{
-		arc("mirrorcnt", mirrorcnt)
-			("mirrorsector", mirrorsector)
-			.Array("mirror", mirror, countof(mirror))
-			.Array("mirrorwall", mirrorwall, countof(mirrorwall))
+        arc("mirrorcnt", mirrorcnt)
+            .Array("mirror", mirror, countof(mirror))
 			.EndObject();
 	}
 
@@ -206,32 +183,15 @@ void SerializeMirrors(FSerializer& arc)
 
 		tileDelete(504);
 
-#ifdef USE_OPENGL
 		r_rortexture = 4080;
 		r_rortexturerange = 16;
-
-#endif
 
 		for (int i = 0; i < 16; i++)
 		{
 			tileDelete(4080 + i);
 		}
-		for (int i = 0; i < 4; i++)
-		{
-            auto pWall = &wall[mirrorwall[i]];
-            pWall->picnum = 504;
-			pWall->overpicnum = 504;
-			pWall->cstat = 0;
-			pWall->nextsector = -1;
-			pWall->nextwall = -1;
-			pWall->point2 = numwalls + i + 1;
-		}
-		wall[mirrorwall[3]].point2 = mirrorwall[0];
-		sector[mirrorsector].ceilingpicnum = 504;
-		sector[mirrorsector].floorpicnum = 504;
-		sector[mirrorsector].wallptr = mirrorwall[0];
-		sector[mirrorsector].wallnum = 4;
-	}
+        InitPolymostMirrorHack();
+    }
 }
 
 END_BLD_NS

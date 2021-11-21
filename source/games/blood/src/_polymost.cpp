@@ -195,9 +195,11 @@ void setPortalFlags(int mode)
     }
 }
 
+// Note: wall range checks on wall[] need to be disabled because this writes beyond the regular part.
 
 void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int viewPlayer)
 {
+    auto wallarr = wall.Data(); // this disables the range checks for the wall TArray,
     for (int i = mirrorcnt - 1; i >= 0; i--)
     {
         int nTile = 4080 + i;
@@ -207,6 +209,8 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
             {
             case 0:
             {
+                numwalls += 4; // hack alert. Blood adds some dummy walls and sectors that must not be among the counter, but here they have to be valid.
+                numsectors++;
                 int nWall = mirror[i].link;
                 int nSector = sectorofwall(nWall);
                 walltype* pWall = &wall[nWall];
@@ -214,18 +218,18 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
                 int nNextSector = pWall->nextsector;
                 pWall->nextwall = mirrorwall[0];
                 pWall->nextsector = mirrorsector;
-                wall[mirrorwall[0]].nextwall = nWall;
-                wall[mirrorwall[0]].nextsector = nSector;
-                wall[mirrorwall[0]].x = pWall->point2Wall()->x;
-                wall[mirrorwall[0]].y = pWall->point2Wall()->y;
-                wall[mirrorwall[1]].x = pWall->x;
-                wall[mirrorwall[1]].y = pWall->y;
-                wall[mirrorwall[2]].x = wall[mirrorwall[1]].x + (wall[mirrorwall[1]].x - wall[mirrorwall[0]].x) * 16;
-                wall[mirrorwall[2]].y = wall[mirrorwall[1]].y + (wall[mirrorwall[1]].y - wall[mirrorwall[0]].y) * 16;
-                wall[mirrorwall[3]].x = wall[mirrorwall[0]].x + (wall[mirrorwall[0]].x - wall[mirrorwall[1]].x) * 16;
-                wall[mirrorwall[3]].y = wall[mirrorwall[0]].y + (wall[mirrorwall[0]].y - wall[mirrorwall[1]].y) * 16;
-                sector[mirrorsector].floorz = sector[nSector].floorz;
-                sector[mirrorsector].ceilingz = sector[nSector].ceilingz;
+                wallarr[mirrorwall[0]].nextwall = nWall;
+                wallarr[mirrorwall[0]].nextsector = nSector;
+                wallarr[mirrorwall[0]].x = pWall->point2Wall()->x;
+                wallarr[mirrorwall[0]].y = pWall->point2Wall()->y;
+                wallarr[mirrorwall[1]].x = pWall->x;
+                wallarr[mirrorwall[1]].y = pWall->y;
+                wallarr[mirrorwall[2]].x = wallarr[mirrorwall[1]].x + (wallarr[mirrorwall[1]].x - wallarr[mirrorwall[0]].x) * 16;
+                wallarr[mirrorwall[2]].y = wallarr[mirrorwall[1]].y + (wallarr[mirrorwall[1]].y - wallarr[mirrorwall[0]].y) * 16;
+                wallarr[mirrorwall[3]].x = wallarr[mirrorwall[0]].x + (wallarr[mirrorwall[0]].x - wallarr[mirrorwall[1]].x) * 16;
+                wallarr[mirrorwall[3]].y = wallarr[mirrorwall[0]].y + (wallarr[mirrorwall[0]].y - wallarr[mirrorwall[1]].y) * 16;
+                sector.Data()[mirrorsector].floorz = sector[nSector].floorz;
+                sector.Data()[mirrorsector].ceilingz = sector[nSector].ceilingz;
                 int cx, cy, ca;
                 if (GetWallType(nWall) == kWallStack)
                 {
@@ -242,10 +246,11 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
                 renderDrawMasks();
                 if (GetWallType(nWall) != kWallStack)
                     renderCompleteMirror();
-                if (wall[nWall].pal != 0 || wall[nWall].shade != 0)
-                    TranslateMirrorColors(wall[nWall].shade, wall[nWall].pal);
                 pWall->nextwall = nNextWall;
                 pWall->nextsector = nNextSector;
+                numwalls -= 4;
+                numsectors--;
+
                 return;
             }
             case 1:
@@ -318,5 +323,35 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
 }
 
 
+void InitPolymostMirrorHack()
+{
+    mirrorsector = numsectors;
+    for (int i = 0; i < 4; i++)
+    {
+        mirrorwall[i] = numwalls + i;
+        auto pWall = &(wall.Data()[mirrorwall[i]]);
+        pWall->picnum = 504;
+        pWall->overpicnum = 504;
+        pWall->cstat = 0;
+        pWall->nextsector = -1;
+        pWall->nextwall = -1;
+        pWall->point2 = numwalls + i + 1;
+    }
+    wall.Data()[mirrorwall[3]].point2 = mirrorwall[0];
+    sector.Data()[mirrorsector].ceilingpicnum = 504;
+    sector.Data()[mirrorsector].floorpicnum = 504;
+    sector.Data()[mirrorsector].wallptr = mirrorwall[0];
+    sector.Data()[mirrorsector].wallnum = 4;
+}
 
+void PolymostAllocFakeSector()
+{
+    // these additional entries are needed by Blood's mirror code. We must get them upon map load to avoid a later occuring reallocation. Ugh...
+    // We do not want to actually increase the array size for this, though because it may screw with the savegame code. 
+    // Before rendering this will temporarily be bumped up.
+    sector.Reserve(1);
+    wall.Reserve(4);
+    sector.Resize(numsectors);
+    wall.Resize(numwalls);
+}
 END_BLD_NS

@@ -490,6 +490,10 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, int*
     numsectors = mapHeader.numsectors;
     numwalls = mapHeader.numwalls;
     allocateMapArrays(mapHeader.numsprites);
+#if 1 // bad, bad hack, just for making Polymost happy...
+	PolymostAllocFakeSector();
+#endif
+
     dbInit();
     if (encrypted)
     {

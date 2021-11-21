@@ -95,6 +95,11 @@ struct MIRROR
 extern MIRROR mirror[16];
 extern int mirrorcnt, mirrorsector, mirrorwall[4];
 
+//polymost needs to do some voodoo for mirrors.
+void InitPolymostMirrorHack();
+void PolymostAllocFakeSector();
+
+
 
 inline bool DemoRecordStatus(void)
 {

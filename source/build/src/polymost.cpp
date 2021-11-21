@@ -2333,6 +2333,7 @@ static void polymost_drawmaskwallinternal(int32_t wallIndex)
 {
     auto const wal = (uwallptr_t)&wall[wallIndex];
     auto const wal2 = (uwallptr_t)&wall[wal->point2];
+    if (wal->nextwall == -1) return;
     int32_t const sectnum = wall[wal->nextwall].nextsector;
     auto const sec = (usectorptr_t)&sector[sectnum];
 
