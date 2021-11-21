@@ -374,9 +374,9 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 					}
 					int x1 = (((wal.x + wal.point2Wall()->x) >> 1) + spri->x) >> 1;
 					int y1 = (((wal.y + wal.point2Wall()->y) >> 1) + spri->y) >> 1;
-					int sect;
+					sectortype* sect = wal.sectorp();
 					updatesector(x1, y1, &sect);
-					if (sect >= 0 && cansee(x1, y1, spri->z, sect, spri->x, spri->y, spri->z, spri->sectnum))
+					if (sect && cansee(x1, y1, spri->z, sect, spri->x, spri->y, spri->z, spri->sector()))
 						fi.checkhitwall(actor, &wal, wal.x, wal.y, spri->z, spri->picnum);
 				}
 			}
@@ -410,7 +410,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 				if (spri->picnum != SHRINKSPARK || (spri2->cstat & 257))
 					if (dist(actor, act2) < r)
 					{
-						if (badguy(act2) && !cansee(spri2->x, spri2->y, spri2->z + q, spri2->sectnum, spri->x, spri->y, spri->z + q, spri->sectnum))
+						if (badguy(act2) && !cansee(spri2->x, spri2->y, spri2->z + q, spri2->sector(), spri->x, spri->y, spri->z + q, spri->sector()))
 							continue;
 						fi.checkhitsprite(act2, actor);
 					}
@@ -1802,14 +1802,14 @@ static void weaponcommon_d(DDukeActor* proj)
 	{
 		if (s->z < proj->ceilingz)
 		{
-			coll.setSector(s->sectnum);
+			coll.setSector(s->sector());
 			s->zvel = -1;
 		}
 		else
 			if ((s->z > proj->floorz && s->sector()->lotag != 1) ||
 				(s->z > proj->floorz + (16 << 8) && s->sector()->lotag == 1))
 			{
-				coll.setSector(s->sectnum);
+				coll.setSector(s->sector());
 				if (s->sector()->lotag != 1)
 					s->zvel = 1;
 			}
@@ -2765,13 +2765,13 @@ static void flamethrowerflame(DDukeActor *actor)
 	{
 		if (s->z < actor->ceilingz)
 		{
-			coll.setSector(s->sectnum);
+			coll.setSector(s->sector());
 			s->zvel = -1;
 		}
 		else if ((s->z > actor->floorz && s->sector()->lotag != 1)
 			|| (s->z > actor->floorz + (16 << 8) && s->sector()->lotag == 1))
 		{
-			coll.setSector(s->sectnum);
+			coll.setSector(s->sector());
 			if (s->sector()->lotag != 1)
 				s->zvel = 1;
 		}

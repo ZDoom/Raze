@@ -1504,7 +1504,6 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 		}
 
 		Collision coll;
-		static_assert(sizeof(s->sectnum) != sizeof(int)); // this will error out when sectnum gets expanded.
 		int sect = s->sectnum;
 		int j = clipmove_ex(&s->pos, &sect,
 			(MulScale(s->xvel, bcos(s->ang), 14) * TICSPERFRAME) << 11,
@@ -2192,7 +2191,7 @@ bool money(DDukeActor* actor, int BLOODPOOL)
 	if ((krand() & 3) == 0)
 		setsprite(actor, s->pos);
 
-	if (s->sectnum == -1)
+	if (!s->insector())
 	{
 		deletesprite(actor);
 		return false;
@@ -2318,7 +2317,7 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 		}
 		if (t[2] == 0)
 		{
-			if (s->sectnum == -1)
+			if (!s->insector())
 			{
 				deletesprite(actor);
 				return false;
@@ -2617,7 +2616,7 @@ void gutsdir(DDukeActor* actor, int gtype, int n, int p)
 	else sx = sy = 32;
 
 	int gutz = actor->s->z - (8 << 8);
-	int floorz = getflorzofslope(actor->s->sectnum, actor->s->x, actor->s->y);
+	int floorz = getflorzofslopeptr(actor->sector(), actor->s->x, actor->s->y);
 
 	if (gutz > (floorz - (8 << 8)))
 		gutz = floorz - (8 << 8);
@@ -2934,7 +2933,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 					po[p].oy += x;
 				}
 
-				if (s->sectnum == psp->s->sectnum)
+				if (s->sector() == psp->s->sector())
 				{
 					rotatepoint(s->x, s->y, ps[p].pos.x, ps[p].pos.y, q, &ps[p].pos.x, &ps[p].pos.y);
 
@@ -3011,9 +3010,9 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 				{
 					if (a2->s->statnum == 1 && badguy(a2) && a2->s->picnum != SECTOREFFECTOR && a2->s->picnum != LOCATORS)
 					{
-						int k = a2->s->sectnum;
+						auto k = a2->s->sector();
 						updatesector(a2->s->x, a2->s->y, &k);
-						if (a2->s->extra >= 0 && k == s->sectnum)
+						if (a2->s->extra >= 0 && k == s->sector())
 						{
 							gutsdir(a2, JIBS6, 72, myconnectindex);
 							S_PlayActorSound(SQUISHED, actor);
@@ -3108,7 +3107,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 		{
 			auto psp = ps[p].GetActor();
-			if (psp->s->sectnum == s->sectnum)
+			if (psp->s->sector() == s->sector())
 			{
 				ps[p].pos.x += l;
 				ps[p].pos.y += x;
@@ -3130,7 +3129,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 			}
 		}
 
-		DukeSectIterator its(s->sectnum);
+		DukeSectIterator its(s->sector());
 		while (auto a2 = its.Next())
 		{
 			auto spa2 = a2->s;
@@ -3181,9 +3180,9 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 					{
 						//					if(a2->s->sector != s->sector)
 						{
-							int k = a2->s->sectnum;
+							auto k = a2->s->sector();
 							updatesector(a2->s->x, a2->s->y, &k);
-							if (a2->s->extra >= 0 && k == s->sectnum)
+							if (a2->s->extra >= 0 && k == s->sector())
 							{
 								gutsdir(a2, JIBS6, 24, myconnectindex);
 								S_PlayActorSound(SQUISHED, a2);
@@ -3517,8 +3516,6 @@ void handle_se08(DDukeActor *actor, bool checkhitag1)
 
 	if (j >= 0)
 	{
-		int sn;
-
 		if ((sc->lotag & 0x8000) || actor->temp_data[4])
 			x = -t[3];
 		else
@@ -3531,7 +3528,6 @@ void handle_se08(DDukeActor *actor, bool checkhitag1)
 		{
 			if (((ac->s->lotag) == st) && (ac->s->hitag) == sh)
 			{
-				sn = ac->s->sectnum;
 				auto sect = ac->sector();
 				int m = ac->s->shade;
 
@@ -3593,7 +3589,7 @@ void handle_se10(DDukeActor* actor, const int* specialtags)
 		if ((sc->lotag & 0xff) != 27)
 			for (int p = connecthead; p >= 0; p = connectpoint2[p])
 				if (sc->lotag != 30 && sc->lotag != 31 && sc->lotag != 0)
-					if (s->sectnum == ps[p].GetActor()->s->sectnum)
+					if (s->sector() == ps[p].GetActor()->s->sector())
 						j = 0;
 
 		if (j == 1)
@@ -4013,7 +4009,7 @@ void handle_se17(DDukeActor* actor)
 				ps[p].truecz = act3->ceilingz;
 				ps[p].bobcounter = 0;
 
-				changeactorsect(act3, spr2->sectnum);
+				changeactorsect(act3, spr2->sector());
 				ps[p].setCursector(spr2->sector());
 			}
 			else if (spr3->statnum != STAT_EFFECTOR)
@@ -4024,7 +4020,7 @@ void handle_se17(DDukeActor* actor)
 
 				spr3->backupz();
 
-				changeactorsect(act3, spr2->sectnum);
+				changeactorsect(act3, spr2->sector());
 				setsprite(act3, spr3->pos);
 
 				act3->floorz = spr2->sector()->floorz;
@@ -4321,7 +4317,7 @@ void handle_se21(DDukeActor* actor)
 	else
 		lp = &sc->floorz;
 
-	if (t[0] == 1) //Decide if the s->sectnum should go up or down
+	if (t[0] == 1) //Decide if the sector should go up or down
 	{
 		s->zvel = Sgn(s->z - *lp) * (s->yvel << 4);
 		t[0]++;
@@ -4399,7 +4395,7 @@ void handle_se26(DDukeActor* actor)
 	}
 
 	for (int p = connecthead; p >= 0; p = connectpoint2[p])
-		if (ps[p].GetActor()->s->sectnum == s->sectnum && ps[p].on_ground)
+		if (ps[p].GetActor()->sector() == s->sector() && ps[p].on_ground)
 		{
 			ps[p].fric.x += l << 5;
 			ps[p].fric.y += x << 5;
@@ -4942,7 +4938,7 @@ void getglobalz(DDukeActor* actor)
 
 		auto cc = s->cstat2;
 		s->cstat2 |= CSTAT2_SPRITE_NOFIND; // don't clip against self. getzrange cannot detect this because it only receives a coordinate.
-		getzrange_ex(s->x, s->y, s->z - (FOURSLEIGHT), s->sectnum, &actor->ceilingz, hz, &actor->floorz, lz, zr, CLIPMASK0);
+		getzrange_ex(s->x, s->y, s->z - (FOURSLEIGHT), s->sector(), &actor->ceilingz, hz, &actor->floorz, lz, zr, CLIPMASK0);
 		s->cstat2 = cc;
 
 		if( lz.type == kHitSprite && (lz.actor->s->cstat&48) == 0 )
@@ -5006,7 +5002,7 @@ void makeitfall(DDukeActor* actor)
 	if ((s->statnum == STAT_ACTOR || s->statnum == STAT_PLAYER || s->statnum == STAT_ZOMBIEACTOR || s->statnum == STAT_STANDABLE))
 	{
 		Collision c;
-		getzrange_ex(s->x, s->y, s->z - (FOURSLEIGHT), s->sectnum, &actor->ceilingz, c, &actor->floorz, c, 127, CLIPMASK0);
+		getzrange_ex(s->x, s->y, s->z - (FOURSLEIGHT), s->sector(), &actor->ceilingz, c, &actor->floorz, c, 127, CLIPMASK0);
 	}
 	else
 	{
@@ -5048,7 +5044,7 @@ int dodge(DDukeActor* actor)
 	while (auto ac = it.Next())
 	{
 		auto si = ac->s;
-		if (ac->GetOwner() == ac || si->sectnum != s->sectnum)
+		if (ac->GetOwner() == ac || si->sector() != s->sector())
 			continue;
 
 		bx = si->x - mx;
@@ -5090,7 +5086,7 @@ int furthestangle(DDukeActor *actor, int angs)
 
 	for (j = s->ang; j < (2048 + s->ang); j += angincs)
 	{
-		hitscan(s->x, s->y, s->z - (8 << 8), s->sectnum, bcos(j), bsin(j), 0, nullptr, nullptr, nullptr, &hx, &hy, &hz, CLIPMASK1);
+		hitscan(s->x, s->y, s->z - (8 << 8), s->sector(), bcos(j), bsin(j), 0, nullptr, nullptr, nullptr, &hx, &hy, &hz, CLIPMASK1);
 
 		d = abs(hx - s->x) + abs(hy - s->y);
 
@@ -5126,7 +5122,7 @@ int furthestcanseepoint(DDukeActor *actor, DDukeActor* tosee, int* dax, int* day
 	auto ts = tosee->s;
 	for (j = ts->ang; j < (2048 + ts->ang); j += (angincs - (krand() & 511)))
 	{
-		hitscan(ts->x, ts->y, ts->z - (16 << 8), ts->sectnum, bcos(j), bsin(j), 16384 - (krand() & 32767), 
+		hitscan(ts->x, ts->y, ts->z - (16 << 8), ts->sector(), bcos(j), bsin(j), 16384 - (krand() & 32767), 
 			&hitsect, nullptr, &dd, &hx, &hy, &hz, CLIPMASK1);
 
 		d = abs(hx - ts->x) + abs(hy - ts->y);
@@ -5173,7 +5169,7 @@ void alterang(int ang, DDukeActor* actor, int playernum)
 
 		// NOTE: looks like 'Owner' is set to target sprite ID...
 
-		if (holoduke && cansee(holoduke->s->x, holoduke->s->y, holoduke->s->z, holoduke->s->sectnum, s->x, s->y, s->z, s->sectnum))
+		if (holoduke && cansee(holoduke->s->x, holoduke->s->y, holoduke->s->z, holoduke->s->sector(), s->x, s->y, s->z, s->sector()))
 			actor->SetOwner(holoduke);
 		else actor->SetOwner(ps[playernum].GetActor());
 
@@ -5298,9 +5294,9 @@ void fall_common(DDukeActor *actor, int playernum, int JIBS6, int DRONE, int BLO
 				else if (s->zvel > 2048 && s->sector()->lotag != 1)
 				{
 
-					int j = s->sectnum;
+					auto j = s->sector();
 					pushmove(&s->pos, &j, 128, (4 << 8), (4 << 8), CLIPMASK0);
-					if (j != s->sectnum && validSectorIndex(j))
+					if (j != s->sector() && j != nullptr)
 						changeactorsect(actor, j);
 
 					S_PlayActorSound(thud, actor);

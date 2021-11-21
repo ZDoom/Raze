@@ -368,6 +368,14 @@ struct Collision
 		actor = nullptr;
 		return kHitSector;
 	}
+	int setSector(sectortype* sec)
+	{
+		type = kHitSector;
+		index = ::sector.IndexOf(sec);
+		legacyVal = type | index;
+		actor = nullptr;
+		return kHitSector;
+	}
 	int setWall(int num)
 	{
 		type = kHitWall;

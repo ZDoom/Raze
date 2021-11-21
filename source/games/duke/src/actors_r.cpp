@@ -1414,13 +1414,13 @@ static void weaponcommon_r(DDukeActor *proj)
 	{
 		if (s->z < proj->ceilingz)
 		{
-			coll.setSector(s->sectnum);
+			coll.setSector(s->sector());
 			s->zvel = -1;
 		}
 		else
 			if (s->z > proj->floorz)
 			{
-				coll.setSector(s->sectnum);
+				coll.setSector(s->sector());
 				if (s->sector()->lotag != 1)
 					s->zvel = 1;
 			}
