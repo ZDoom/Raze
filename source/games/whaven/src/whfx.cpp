@@ -1098,43 +1098,46 @@ void makesparks(short i, int type) {
 	if (j == -1)
 		return;
 
-	sprite[j].x = sprite[i].x;
-	sprite[j].y = sprite[i].y;
-	sprite[j].z = sprite[i].z;
-	sprite[j].cstat = 0;
-	sprite[j].picnum = SPARKBALL;
-	sprite[j].shade = 0;
-	sprite[j].xrepeat = 24;
-	sprite[j].yrepeat = 24;
-	sprite[j].ang = (short) ((krand() % 2047) & 2047);
-	sprite[j].owner = 0;
-	sprite[j].clipdist = 16;
-	sprite[j].lotag = (short) (krand() % 100);
-	sprite[j].hitag = 0;
-	sprite[j].extra = 0;
+	auto& spawned = sprite[j];
 
-	sprite[j].pal = 0;
+	spawned.x = sprite[i].x;
+	spawned.y = sprite[i].y;
+	spawned.z = sprite[i].z;
+	spawned.cstat = 0;
+	spawned.picnum = SPARKBALL;
+	spawned.shade = 0;
+	spawned.xrepeat = 24;
+	spawned.yrepeat = 24;
+	spawned.ang = (short) ((krand() % 2047) & 2047);
+	spawned.owner = 0;
+	spawned.clipdist = 16;
+	spawned.lotag = (short) (krand() % 100);
+	spawned.hitag = 0;
+	spawned.extra = 0;
+
+	spawned.pal = 0;
 }
 
 void shards(int i, int type) {
 	short j = insertsprite(sprite[i].sectnum, SHARDOFGLASS);
+	auto& spawned = sprite[j];
 
-	sprite[j].x = sprite[i].x + (((krand() % 512) - 256) << 2);
-	sprite[j].y = sprite[i].y + (((krand() % 512) - 256) << 2);
-	sprite[j].z = sprite[i].z - (getPlayerHeight() << 8) + (((krand() % 48) - 16) << 7);
-	sprite[j].zvel = (short) (krand() % 256);
-	sprite[j].cstat = 0;
-	sprite[j].picnum = (short) (SHARD + (krand() % 3));
-	sprite[j].shade = 0;
-	sprite[j].xrepeat = 64;
-	sprite[j].yrepeat = 64;
-	sprite[j].ang = (short) (sprite[i].ang + ((krand() % 512) - 256) & 2047);
-	sprite[j].owner = (short) i;
-	sprite[j].clipdist = 16;
-	sprite[j].lotag = (short) (120 + (krand() % 100));
-	sprite[j].hitag = 0;
-	sprite[j].extra = (short) type;
-	sprite[j].pal = 0;
+	spawned.x = sprite[i].x + (((krand() % 512) - 256) << 2);
+	spawned.y = sprite[i].y + (((krand() % 512) - 256) << 2);
+	spawned.z = sprite[i].z - (getPlayerHeight() << 8) + (((krand() % 48) - 16) << 7);
+	spawned.zvel = (short) (krand() % 256);
+	spawned.cstat = 0;
+	spawned.picnum = (short) (SHARD + (krand() % 3));
+	spawned.shade = 0;
+	spawned.xrepeat = 64;
+	spawned.yrepeat = 64;
+	spawned.ang = (short) (sprite[i].ang + ((krand() % 512) - 256) & 2047);
+	spawned.owner = (short) i;
+	spawned.clipdist = 16;
+	spawned.lotag = (short) (120 + (krand() % 100));
+	spawned.hitag = 0;
+	spawned.extra = (short) type;
+	spawned.pal = 0;
 }
 
 
