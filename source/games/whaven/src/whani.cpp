@@ -1076,25 +1076,26 @@ void animateobjs(PLAYER& plr) {
 
 	for (i = headspritestat[CHUNKOWALL]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
+		auto& spr = sprite[i];
 
-		sprite[i].lotag -= TICSPERFRAME;
-		dax = sprite[i].xvel >> 3;
-		day = sprite[i].yvel >> 3;
-		daz = sprite[i].zvel -= TICSPERFRAME << 2;
-		movestat = (short) movesprite(i, (bcos(sprite[i].ang) * TICSPERFRAME) << 3,
-				(bsin(sprite[i].ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 1);
-		setsprite(i, sprite[i].x, sprite[i].y, sprite[i].z);
-		if (sprite[i].extra == 0) {
-			if (sprite[i].lotag < 0) {
-				sprite[i].lotag = 8;
-				sprite[i].picnum++;
-				if (sprite[i].picnum == SMOKEFX + 3) {
+		spr.lotag -= TICSPERFRAME;
+		dax = spr.xvel >> 3;
+		day = spr.yvel >> 3;
+		daz = spr.zvel -= TICSPERFRAME << 2;
+		movestat = (short) movesprite(i, (bcos(spr.ang) * TICSPERFRAME) << 3,
+				(bsin(spr.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 1);
+		setsprite(i, spr.x, spr.y, spr.z);
+		if (spr.extra == 0) {
+			if (spr.lotag < 0) {
+				spr.lotag = 8;
+				spr.picnum++;
+				if (spr.picnum == SMOKEFX + 3) {
 					deletesprite((short) i);
 					continue;
 				}
 			}
 		} else {
-			if (sprite[i].lotag < 0) {
+			if (spr.lotag < 0) {
 				deletesprite((short) i);
 			}
 		}
@@ -1103,17 +1104,18 @@ void animateobjs(PLAYER& plr) {
 	// CHUNK O MEAT
 	for (i = headspritestat[CHUNKOMEAT]; i >= 0; i = nextsprite) {
 		nextsprite = nextspritestat[i];
+		auto& spr = sprite[i];
 
-		sprite[i].lotag -= TICSPERFRAME;
+		spr.lotag -= TICSPERFRAME;
 
-		sprite[i].z += sprite[i].zvel;
+		spr.z += spr.zvel;
 
-		daz = sprite[i].zvel += TICSPERFRAME << 4;
+		daz = spr.zvel += TICSPERFRAME << 4;
 
-		int xvel = (bcos(sprite[i].ang) * TICSPERFRAME) << 3;
-		int yvel = (bsin(sprite[i].ang) * TICSPERFRAME) << 3;
+		int xvel = (bcos(spr.ang) * TICSPERFRAME) << 3;
+		int yvel = (bsin(spr.ang) * TICSPERFRAME) << 3;
 
-		if (sprite[i].picnum == BONECHUNK1 && sprite[i].picnum == BONECHUNKEND) {
+		if (spr.picnum == BONECHUNK1 && spr.picnum == BONECHUNKEND) {
 			daz >>= 1;
 			xvel >>= 1;
 			yvel >>= 1;
@@ -1122,35 +1124,35 @@ void animateobjs(PLAYER& plr) {
 		movestat = (short) movesprite((short) i, xvel, yvel, daz, 4 << 8, 4 << 8, 1);
 
 		if ((movestat & 0xc000) == 16384) {
-			if (sector[sprite[i].sectnum].floorpicnum == WATER || sector[sprite[i].sectnum].floorpicnum == SLIME
-					|| sector[sprite[i].sectnum].floorpicnum == FLOORMIRROR) {
-				if (sprite[i].picnum == FISH)
-					sprite[i].z = sector[sprite[i].sectnum].floorz;
+			if (sector[spr.sectnum].floorpicnum == WATER || sector[spr.sectnum].floorpicnum == SLIME
+					|| sector[spr.sectnum].floorpicnum == FLOORMIRROR) {
+				if (spr.picnum == FISH)
+					spr.z = sector[spr.sectnum].floorz;
 				else {
 					if (krand() % 100 > 60)
 						makemonstersplash(SPLASHAROO, i);
 				}
-				sprite[i].lotag = -1;
+				spr.lotag = -1;
 			} else {
 				/* EG: Add check for parallax sky */
-				if (sprite[i].picnum >= BONECHUNK1 && sprite[i].picnum <= BONECHUNKEND
-						|| (daz >= zr_ceilz && (sector[sprite[i].sectnum].ceilingstat & 1) != 0)) {
+				if (spr.picnum >= BONECHUNK1 && spr.picnum <= BONECHUNKEND
+						|| (daz >= zr_ceilz && (sector[spr.sectnum].ceilingstat & 1) != 0)) {
 					deletesprite(i);
 				} else {
-					sprite[i].cstat |= 0x0020;
-					sprite[i].lotag = 1200;
+					spr.cstat |= 0x0020;
+					spr.lotag = 1200;
 					newstatus(i, BLOOD);
 				}
 			}
 		} else if ((movestat & 0xc000) == 32768) {
-			if (sprite[i].picnum >= BONECHUNK1 && sprite[i].picnum <= BONECHUNKEND) {
+			if (spr.picnum >= BONECHUNK1 && spr.picnum <= BONECHUNKEND) {
 				deletesprite((short) i);
 			} else {
-				sprite[i].lotag = 600;
+				spr.lotag = 600;
 				newstatus(i, DRIP);
 			}
 		}
-		if (sprite[i].lotag < 0) {
+		if (spr.lotag < 0) {
 			deletesprite(i);
 		}
 	}
