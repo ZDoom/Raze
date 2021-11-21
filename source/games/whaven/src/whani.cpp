@@ -152,67 +152,67 @@ void animateobjs(PLAYER& plr) {
 					spr.picnum = GONZOGHM;
 					enemy[GONZOTYPE].info.set(spr);
 					spr.detail = GONZOTYPE;
-					sprite[i].xrepeat = 24;
-					sprite[i].yrepeat = 24;
-					sprite[i].clipdist = 32;
+					spr.xrepeat = 24;
+					spr.yrepeat = 24;
+					spr.clipdist = 32;
 					changespritestat(i, FACE);
-					sprite[i].hitag = (short) adjusthp(100);
-					sprite[i].lotag = 100;
-					sprite[i].cstat |= 0x101;
-					sprite[i].extra = 0;
+					spr.hitag = (short) adjusthp(100);
+					spr.lotag = 100;
+					spr.cstat |= 0x101;
+					spr.extra = 0;
 					break;
 				case STONEGONZOBSH:
 					spr.picnum = GONZOGSH;
 					enemy[GONZOTYPE].info.set(spr);
 					spr.detail = GONZOTYPE;
-					sprite[i].xrepeat = 24;
-					sprite[i].yrepeat = 24;
-					sprite[i].clipdist = 32;
+					spr.xrepeat = 24;
+					spr.yrepeat = 24;
+					spr.clipdist = 32;
 					changespritestat(i, FACE);
-					sprite[i].hitag = (short) adjusthp(100);
-					sprite[i].lotag = 100;
-					sprite[i].cstat |= 0x101;
-					sprite[i].extra = 0;
+					spr.hitag = (short) adjusthp(100);
+					spr.lotag = 100;
+					spr.cstat |= 0x101;
+					spr.extra = 0;
 					break;
 				case STONEGONZOGSH:
 					spr.picnum = GONZOGSH;
 					enemy[GONZOTYPE].info.set(spr);
 					spr.detail = GONZOTYPE;
-					sprite[i].xrepeat = 24;
-					sprite[i].yrepeat = 24;
-					sprite[i].clipdist = 32;
+					spr.xrepeat = 24;
+					spr.yrepeat = 24;
+					spr.clipdist = 32;
 					changespritestat(i, FACE);
-					sprite[i].hitag = (short) adjusthp(100);
-					sprite[i].lotag = 100;
-					sprite[i].cstat |= 0x101;
-					sprite[i].extra = 0;
+					spr.hitag = (short) adjusthp(100);
+					spr.lotag = 100;
+					spr.cstat |= 0x101;
+					spr.extra = 0;
 					break;
 				case STONEGRONDOVAL:
 					spr.picnum = GRONHAL;
 					enemy[GRONTYPE].info.set(spr);
 					spr.detail = GRONTYPE;
-					sprite[i].xrepeat = 30;
-					sprite[i].yrepeat = 30;
-					sprite[i].clipdist = 64;
+					spr.xrepeat = 30;
+					spr.yrepeat = 30;
+					spr.clipdist = 64;
 					changespritestat(i, FACE);
-					sprite[i].hitag = (short) adjusthp(300);
-					sprite[i].lotag = 100;
-					sprite[i].cstat |= 0x101;
-					sprite[i].extra = 4;
+					spr.hitag = (short) adjusthp(300);
+					spr.lotag = 100;
+					spr.cstat |= 0x101;
+					spr.extra = 4;
 					break;
 				case STONEGONZOBSW2:
 				case STONEGONZOBSW:
 					spr.picnum = NEWGUY;
 					enemy[NEWGUYTYPE].info.set(spr);
 					spr.detail = NEWGUYTYPE;
-					sprite[i].xrepeat = 26;
-					sprite[i].yrepeat = 26;
-					sprite[i].clipdist = 48;
+					spr.xrepeat = 26;
+					spr.yrepeat = 26;
+					spr.clipdist = 48;
 					changespritestat(i, FACE);
-					sprite[i].hitag = (short) adjusthp(100);
-					sprite[i].lotag = 100;
-					sprite[i].cstat |= 0x101;
-					sprite[i].extra = 30;
+					spr.hitag = (short) adjusthp(100);
+					spr.lotag = 100;
+					spr.cstat |= 0x101;
+					spr.extra = 30;
 					break;
 				}
 			}
@@ -245,20 +245,21 @@ void animateobjs(PLAYER& plr) {
 				}
 			} else {
 				j = insertsprite(spr.sectnum, FACE);
-				enemy[GONZOTYPE].info.set(sprite[j]);
-				sprite[j].x = spr.x;
-				sprite[j].y = spr.y;
-				sprite[j].z = spr.z;
-				sprite[j].cstat = 0x303;
-				sprite[j].picnum = GONZOGSH;
-				sprite[j].shade = 31;
-				sprite[j].pal = 0;
-				sprite[j].xrepeat = spr.xrepeat;
-				sprite[j].yrepeat = spr.yrepeat;
-				sprite[j].owner = 0;
-				sprite[j].lotag = 40;
-				sprite[j].hitag = 0;
-				sprite[j].detail = GONZOTYPE;
+				auto& spawned = sprite[j];
+				enemy[GONZOTYPE].info.set(spawned);
+				spawned.x = spr.x;
+				spawned.y = spr.y;
+				spawned.z = spr.z;
+				spawned.cstat = 0x303;
+				spawned.picnum = GONZOGSH;
+				spawned.shade = 31;
+				spawned.pal = 0;
+				spawned.xrepeat = spr.xrepeat;
+				spawned.yrepeat = spr.yrepeat;
+				spawned.owner = 0;
+				spawned.lotag = 40;
+				spawned.hitag = 0;
+				spawned.detail = GONZOTYPE;
 				deletesprite((short) i);
 			}
 		}
