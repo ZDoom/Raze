@@ -399,17 +399,18 @@ void HWDrawInfo::CreateScene(bool portal)
 
 	GeoEffect eff;
 	int effsect = vp.SectNums ? vp.SectNums[0] : vp.SectCount;
-	int drawsect = effsect;
+	auto drawsectp = &sector[effsect];
+	auto orgdrawsectp = drawsectp;
 	// RR geometry hack. Ugh...
 	// This just adds to the existing render list, so we must offset the effect areas to the same xy-space as the main one as we cannot change the view matrix.
-	if (gi->GetGeoEffect(&eff, &sector[effsect]))
+	if (gi->GetGeoEffect(&eff, drawsectp))
 	{
 		ingeo = true;
 		geoofs = { (float)eff.geox[0], (float)eff.geoy[0] };
 		// process the first layer.
 		for (int i = 0; i < eff.geocnt; i++)
 		{
-			auto sect = &sector[eff.geosectorwarp[i]];
+			auto sect = eff.geosectorwarp[i];
 			for (auto w = 0; w < sect->wallnum; w++)
 			{
 				auto wal = &wall[sect->wallptr + w];
@@ -417,17 +418,18 @@ void HWDrawInfo::CreateScene(bool portal)
 				wal->y += eff.geoy[i];
 			}
 			sect->dirty = 255;
-			if (eff.geosector[i] == effsect) drawsect = eff.geosectorwarp[i];
+			if (eff.geosector[i] == drawsectp) drawsectp = eff.geosectorwarp[i];
 		}
 
 		if (a1 != 0xffffffff) mDrawer.Init(this, mClipper, view, bamang(vp.RotAngle - a1), bamang(vp.RotAngle + a1));
 		else mDrawer.Init(this, mClipper, view, bamang(0), bamang(0));
 
+		int drawsect = sectnum(drawsectp);
 		mDrawer.RenderScene(&drawsect, 1, false);
 
 		for (int i = 0; i < eff.geocnt; i++)
 		{
-			auto sect = &sector[eff.geosectorwarp[i]];
+			auto sect = eff.geosectorwarp[i];
 			for (auto w = 0; w < sect->wallnum; w++)
 			{
 				auto wal = &wall[sect->wallptr + w];
@@ -440,7 +442,7 @@ void HWDrawInfo::CreateScene(bool portal)
 		geoofs = { (float)eff.geox2[0], (float)eff.geoy2[0] };
 		for (int i = 0; i < eff.geocnt; i++)
 		{
-			auto sect = &sector[eff.geosectorwarp2[i]];
+			auto sect = eff.geosectorwarp2[i];
 			for (auto w = 0; w < sect->wallnum; w++)
 			{
 				auto wal = &wall[sect->wallptr + w];
@@ -448,16 +450,17 @@ void HWDrawInfo::CreateScene(bool portal)
 				wal->y += eff.geoy2[i];
 			}
 			sect->dirty = 255;
-			if (eff.geosector[i] == effsect) drawsect = eff.geosectorwarp2[i];
+			if (eff.geosector[i] == orgdrawsectp) drawsectp = eff.geosectorwarp2[i];
 		}
 
 		if (a1 != 0xffffffff) mDrawer.Init(this, mClipper, view, bamang(vp.RotAngle - a1), bamang(vp.RotAngle + a1));
 		else mDrawer.Init(this, mClipper, view, bamang(0), bamang(0));
+		drawsect = sectnum(drawsectp);
 		mDrawer.RenderScene(&drawsect, 1, false);
 
 		for (int i = 0; i < eff.geocnt; i++)
 		{
-			auto sect = &sector[eff.geosectorwarp2[i]];
+			auto sect = eff.geosectorwarp2[i];
 			for (auto w = 0; w < sect->wallnum; w++)
 			{
 				auto wal = &wall[sect->wallptr + w];

@@ -203,7 +203,9 @@ void renderMirror(int cposx, int cposy, int cposz, binangle cang, fixedhoriz cho
 
 static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixedhoriz choriz, int sect, int smoothratio)
 {
-	int gs, tgsect, geosect, geoid = 0;
+	auto sectp = &sector[sect];
+	int gs, geoid = 0;
+	sectortype* tgsect, *geosect;
 	renderDrawRoomsQ16(cposx, cposy, cposz, cang.asq16(), choriz.asq16(), sect, false);
 	fi.animatesprites(pm_tsprite, pm_spritesortcnt, cposx, cposy, cang.asbuild(), smoothratio);
 	renderDrawMasks();
@@ -217,7 +219,7 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 			changeactorsect(act, geosectorwarp[gs]);
 			setsprite(act, act->s->x -= geox[gs], act->s->y -= geoy[gs], act->s->z);
 		}
-		if (geosector[gs] == sect)
+		if (geosector[gs] == sectp)
 		{
 			geosect = geosectorwarp[gs];
 			geoid = gs;
@@ -249,7 +251,7 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 			changeactorsect(act, geosectorwarp2[gs]);
 			setsprite(act, act->s->x -= geox2[gs], act->s->y -= geoy2[gs], act->s->z);
 		}
-		if (geosector[gs] == sect)
+		if (geosector[gs] == sectp)
 		{
 			geosect = geosectorwarp2[gs];
 			geoid = gs;

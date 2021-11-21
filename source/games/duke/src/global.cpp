@@ -123,9 +123,9 @@ uint32_t everyothertime;					// Global animation ticker helper.
 // Redneck Rampage
 int thunder_brightness;
 int wupass;									// used to play the level entry sound only once.
-int geosectorwarp[MAXGEOSECTORS];			// geometry render hack (overlay a secondary scene)
-int geosectorwarp2[MAXGEOSECTORS];
-int geosector[MAXGEOSECTORS];
+sectortype* geosectorwarp[MAXGEOSECTORS];			// geometry render hack (overlay a secondary scene)
+sectortype* geosectorwarp2[MAXGEOSECTORS];
+sectortype* geosector[MAXGEOSECTORS];
 int geox[MAXGEOSECTORS];
 int geoy[MAXGEOSECTORS];
 int geox2[MAXGEOSECTORS];

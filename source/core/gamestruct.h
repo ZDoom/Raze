@@ -50,9 +50,9 @@ extern cycle_t drawtime, actortime, thinktime, gameupdatetime;
 
 struct GeoEffect
 {
-	int* geosectorwarp;
-	int* geosectorwarp2;
-	int* geosector;
+	sectortype** geosectorwarp;
+	sectortype** geosectorwarp2;
+	sectortype** geosector;
 	int* geox;
 	int* geoy;
 	int* geox2;

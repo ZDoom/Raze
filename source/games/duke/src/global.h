@@ -104,9 +104,9 @@ extern int ufocnt;
 extern int hulkspawn;
 extern int lastlevel;
 
-extern int geosectorwarp[MAXGEOSECTORS];
-extern int geosectorwarp2[MAXGEOSECTORS];
-extern int geosector[MAXGEOSECTORS];
+extern sectortype* geosectorwarp[MAXGEOSECTORS];
+extern sectortype* geosectorwarp2[MAXGEOSECTORS];
+extern sectortype* geosector[MAXGEOSECTORS];
 extern int geox[MAXGEOSECTORS];
 extern int geoy[MAXGEOSECTORS];
 extern int geox2[MAXGEOSECTORS];

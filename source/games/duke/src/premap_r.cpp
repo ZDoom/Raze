@@ -610,7 +610,7 @@ void prelevel_r(int g)
 				I_Error("Too many geometry effects");
 			if (spr->hitag == 0)
 			{
-				geosector[geocnt] = spr->sectnum;
+				geosector[geocnt] = spr->sector();
 				for (j = 0; j < MAXSPRITES; j++)
 				{
 					auto spj = &sprite[j];
@@ -618,14 +618,14 @@ void prelevel_r(int g)
 					{
 						if (spj->hitag == 1)
 						{
-							geosectorwarp[geocnt] = spj->sectnum;
+							geosectorwarp[geocnt] = spj->sector();
 							geox[geocnt] = spr->x - spj->x;
 							geoy[geocnt] = spr->y - spj->y;
 							//geoz[geocnt] = spr->z - spj->z;
 						}
 						if (spj->hitag == 2)
 						{
-							geosectorwarp2[geocnt] = spj->sectnum;
+							geosectorwarp2[geocnt] = spj->sector();
 							geox2[geocnt] = spr->x - spj->x;
 							geoy2[geocnt] = spr->y - spj->y;
 							//geoz2[geocnt] = spr->z - spj->z;
