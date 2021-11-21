@@ -286,11 +286,13 @@ void chunksofmeat(PLAYER& plr, int hitsprite, int hitx, int hity, int hitz, shor
 	int chunk = REDCHUNKSTART;
 	int newchunk;
 
+	auto& hitspr = sprite[hitsprite];
+
 	if (adult_lockout)
 		return;
 
-	if (sprite[hitsprite].picnum == JUDY || sprite[hitsprite].picnum == JUDYATTACK1
-			|| sprite[hitsprite].picnum == JUDYATTACK2)
+	if (hitspr.picnum == JUDY || hitspr.picnum == JUDYATTACK1
+			|| hitspr.picnum == JUDYATTACK2)
 		return;
 
 	switch (plr.selectedgun) {
@@ -317,49 +319,50 @@ void chunksofmeat(PLAYER& plr, int hitsprite, int hitx, int hity, int hitz, shor
 		break;
 	}
 
-	if (sprite[hitsprite].statnum == NUKED) {
+	if (hitspr.statnum == NUKED) {
 		zgore = 32;
 	}
 
-	if (sprite[hitsprite].picnum == RAT)
+	if (hitspr.picnum == RAT)
 		zgore = 1;
 
-	if (sprite[hitsprite].picnum == WILLOW || sprite[hitsprite].picnum == WILLOWEXPLO
-			|| sprite[hitsprite].picnum == WILLOWEXPLO + 1 || sprite[hitsprite].picnum == WILLOWEXPLO + 2
-			|| sprite[hitsprite].picnum == GUARDIAN || sprite[hitsprite].picnum == GUARDIANATTACK
-			|| sprite[hitsprite].picnum == DEMON)
+	if (hitspr.picnum == WILLOW || hitspr.picnum == WILLOWEXPLO
+			|| hitspr.picnum == WILLOWEXPLO + 1 || hitspr.picnum == WILLOWEXPLO + 2
+			|| hitspr.picnum == GUARDIAN || hitspr.picnum == GUARDIANATTACK
+			|| hitspr.picnum == DEMON)
 		return;
 
-	if (sprite[hitsprite].picnum == SKELETON || sprite[hitsprite].picnum == SKELETONATTACK
-			|| sprite[hitsprite].picnum == SKELETONDIE) {
-		spritesound(S_SKELHIT1 + (krand() % 2), &sprite[hitsprite]);
+	if (hitspr.picnum == SKELETON || hitspr.picnum == SKELETONATTACK
+			|| hitspr.picnum == SKELETONDIE) {
+		spritesound(S_SKELHIT1 + (krand() % 2), &hitspr);
 	} else {
 		if (krand() % 100 > 60)
-			spritesound(S_GORE1 + (krand() % 4), &sprite[hitsprite]);
+			spritesound(S_GORE1 + (krand() % 4), &hitspr);
 	}
 
-	if ((hitsprite >= 0) && (sprite[hitsprite].statnum < MAXSTATUS)) {
+	if ((hitsprite >= 0) && (hitspr.statnum < MAXSTATUS)) {
 		for (k = 0; k < zgore; k++) {
 			newchunk = 0;
 
 			j = insertsprite(hitsect, CHUNKOMEAT);
 			if(j == -1)
 				return;
-			sprite[j].x = hitx;
-			sprite[j].y = hity;
-			sprite[j].z = hitz;
-			sprite[j].cstat = 0;
+			auto& spawned = sprite[j];
+			spawned.x = hitx;
+			spawned.y = hity;
+			spawned.z = hitz;
+			spawned.cstat = 0;
 			if (krand() % 100 > 50) {
-				switch (sprite[hitsprite].detail) {
+				switch (hitspr.detail) {
 				case GRONTYPE:
 					chunk = REDCHUNKSTART + (krand() % 8);
 					break;
 				case KOBOLDTYPE:
-					if (sprite[hitsprite].pal == 0)
+					if (hitspr.pal == 0)
 						chunk = BROWNCHUNKSTART + (krand() % 8);
-					if (sprite[hitsprite].pal == 4)
+					if (hitspr.pal == 4)
 						chunk = GREENCHUNKSTART + (krand() % 8);
-					if (sprite[hitsprite].pal == 7)
+					if (hitspr.pal == 7)
 						chunk = REDCHUNKSTART + (krand() % 8);
 					break;
 				case DRAGONTYPE:
@@ -373,15 +376,15 @@ void chunksofmeat(PLAYER& plr, int hitsprite, int hitx, int hity, int hitz, shor
 					break;
 				case GOBLINTYPE:
 				case IMPTYPE:
-					if(isWh2() && (sprite[hitsprite].picnum == IMP || sprite[hitsprite].picnum == IMPATTACK)) {
-						if (sprite[hitsprite].pal == 0)
+					if(isWh2() && (hitspr.picnum == IMP || hitspr.picnum == IMPATTACK)) {
+						if (hitspr.pal == 0)
 							chunk = GREENCHUNKSTART + (krand() % 8);
 					} else {
-						if (sprite[hitsprite].pal == 0)
+						if (hitspr.pal == 0)
 							chunk = GREENCHUNKSTART + (krand() % 8);
-						if (sprite[hitsprite].pal == 4)
+						if (hitspr.pal == 4)
 							chunk = BROWNCHUNKSTART + (krand() % 8);
-						if (sprite[hitsprite].pal == 5)
+						if (hitspr.pal == 5)
 							chunk = TANCHUNKSTART + (krand() % 8);
 					}
 					break;
@@ -405,31 +408,31 @@ void chunksofmeat(PLAYER& plr, int hitsprite, int hitx, int hity, int hitz, shor
 					chunk = REDCHUNKSTART + (krand() % 8);
 			}
 				
-			if (sprite[hitsprite].detail == SKELETONTYPE)
+			if (hitspr.detail == SKELETONTYPE)
 				chunk = BONECHUNK1 + (krand() % 9);
 
 			if (plr.weapon[2] == 3 && plr.currweapon == 2) {
-				sprite[j].picnum = ARROWFLAME;
+				spawned.picnum = ARROWFLAME;
 			} else {
-				sprite[j].picnum = (short) chunk; // = REDCHUNKSTART + (rand() % 8);
+				spawned.picnum = (short) chunk; // = REDCHUNKSTART + (rand() % 8);
 			}
 
-			sprite[j].shade = -16;
-			sprite[j].xrepeat = 64;
-			sprite[j].yrepeat = 64;
-			sprite[j].clipdist = 16;
-			sprite[j].ang = (short) (((krand() & 1023) - 1024) & 2047);
-			sprite[j].xvel = (short) ((krand() & 1023) - 512);
-			sprite[j].yvel = (short) ((krand() & 1023) - 512);
-			sprite[j].zvel = (short) ((krand() & 1023) - 512);
+			spawned.shade = -16;
+			spawned.xrepeat = 64;
+			spawned.yrepeat = 64;
+			spawned.clipdist = 16;
+			spawned.ang = (short) (((krand() & 1023) - 1024) & 2047);
+			spawned.xvel = (short) ((krand() & 1023) - 512);
+			spawned.yvel = (short) ((krand() & 1023) - 512);
+			spawned.zvel = (short) ((krand() & 1023) - 512);
 			if (newchunk == 1)
-				sprite[j].zvel <<= 1;
-			sprite[j].owner = sprite[plr.spritenum].owner;
-			sprite[j].lotag = 512;
-			sprite[j].hitag = 0;
-			sprite[j].pal = 0;
-			movesprite((short) j, (bcos(sprite[j].ang) * TICSPERFRAME) << 3,
-					(bsin(sprite[j].ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
+				spawned.zvel <<= 1;
+			spawned.owner = sprite[plr.spritenum].owner;
+			spawned.lotag = 512;
+			spawned.hitag = 0;
+			spawned.pal = 0;
+			movesprite((short) j, (bcos(spawned.ang) * TICSPERFRAME) << 3,
+					(bsin(spawned.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
 		}
 	}
 
