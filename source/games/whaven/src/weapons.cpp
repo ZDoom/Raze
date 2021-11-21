@@ -2113,82 +2113,87 @@ void shootgun(PLAYER& plr, float ang, int guntype) {
 		}
 		break;
 	case 2: // parabolic trajectory
-
+	{
 		if (netgame) {
 //						netshootgun(-1,12);
 		}
 
 		j = insertsprite(plr.sector, MISSILE);
-		sprite[j].x = plr.x;
-		sprite[j].y = plr.y;
-		sprite[j].z = plr.z + (8 << 8) + ((krand() & 10) << 8);
-		sprite[j].cstat = 0;
-		sprite[j].picnum = PLASMA;
-		sprite[j].shade = -32;
-		sprite[j].pal = 0;
-		sprite[j].xrepeat = 16;
-		sprite[j].yrepeat = 16;
-		sprite[j].ang = (short) daang;
-		sprite[j].xvel = bcos(daang, -5);
-		sprite[j].yvel = bsin(daang, -5);
+		auto& spawned = sprite[j];
+
+		spawned.x = plr.x;
+		spawned.y = plr.y;
+		spawned.z = plr.z + (8 << 8) + ((krand() & 10) << 8);
+		spawned.cstat = 0;
+		spawned.picnum = PLASMA;
+		spawned.shade = -32;
+		spawned.pal = 0;
+		spawned.xrepeat = 16;
+		spawned.yrepeat = 16;
+		spawned.ang = (short) daang;
+		spawned.xvel = bcos(daang, -5);
+		spawned.yvel = bsin(daang, -5);
 
 		if (shootgunzvel != 0) {
-			sprite[j].zvel = (short) shootgunzvel;
+			spawned.zvel = (short) shootgunzvel;
 			shootgunzvel = 0;
 		} else {
-			sprite[j].zvel = plr.horizon.horiz.asq16() >> 12;
+			spawned.zvel = plr.horizon.horiz.asq16() >> 12;
 		}
 
-		sprite[j].owner = sprite[plr.spritenum].owner;
-		sprite[j].lotag = 256;
-		sprite[j].hitag = 0;
-		sprite[j].clipdist = 48;
+		spawned.owner = sprite[plr.spritenum].owner;
+		spawned.lotag = 256;
+		spawned.hitag = 0;
+		spawned.clipdist = 48;
 
-		movesprite((short) j, (bcos(sprite[j].ang) * TICSPERFRAME) << 3,
-				(bsin(sprite[j].ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
-		setsprite(j, sprite[j].x, sprite[j].y, sprite[j].z);
+		movesprite((short) j, (bcos(spawned.ang) * TICSPERFRAME) << 3,
+				(bsin(spawned.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
+		setsprite(j, spawned.x, spawned.y, spawned.z);
 
 		break;
+	}
 	case 3:
-
+	{
 		if (netgame) {
 //						netshootgun(-1,13);
 		}
 
 		j = insertsprite(plr.sector, MISSILE);
-		sprite[j].x = plr.x;
-		sprite[j].y = plr.y;
-		sprite[j].z = plr.z + (8 << 8);
-		sprite[j].cstat = 0; // Hitscan does not hit other bullets
-		sprite[j].picnum = MONSTERBALL;
-		sprite[j].shade = -32;
-		sprite[j].pal = 0;
-		sprite[j].xrepeat = 64;
-		sprite[j].yrepeat = 64;
-		sprite[j].ang = plr.angle.ang.asbuild();
-		sprite[j].xvel = bcos(daang, -7);
-		sprite[j].yvel = bsin(daang, -7);
+		auto& spawned = sprite[j];
+		spawned.x = plr.x;
+		spawned.y = plr.y;
+		spawned.z = plr.z + (8 << 8);
+		spawned.cstat = 0; // Hitscan does not hit other bullets
+		spawned.picnum = MONSTERBALL;
+		spawned.shade = -32;
+		spawned.pal = 0;
+		spawned.xrepeat = 64;
+		spawned.yrepeat = 64;
+		spawned.ang = plr.angle.ang.asbuild();
+		spawned.xvel = bcos(daang, -7);
+		spawned.yvel = bsin(daang, -7);
 
 		if (shootgunzvel != 0) {
-			sprite[j].zvel = (short) shootgunzvel;
+			spawned.zvel = (short) shootgunzvel;
 			shootgunzvel = 0;
 		} else {
-			sprite[j].zvel = plr.horizon.horiz.asq16() >> 12;
+			spawned.zvel = plr.horizon.horiz.asq16() >> 12;
 		}
 
-		sprite[j].owner = sprite[plr.spritenum].owner;
-		sprite[j].lotag = 256;
-		sprite[j].hitag = 0;
-		sprite[j].clipdist = 64;
+		spawned.owner = sprite[plr.spritenum].owner;
+		spawned.lotag = 256;
+		spawned.hitag = 0;
+		spawned.clipdist = 64;
 
-		// dax=bcos(sprite[j].ang, -6);
-		// day=bsin(sprite[j].ang, -6);
+		// dax=bcos(spawned.ang, -6);
+		// day=bsin(spawned.ang, -6);
 
-		movesprite((short) j, (bcos(sprite[j].ang) * TICSPERFRAME) << 3,
-				(bsin(sprite[j].ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
-		setsprite(j, sprite[j].x, sprite[j].y, sprite[j].z);
+		movesprite((short) j, (bcos(spawned.ang) * TICSPERFRAME) << 3,
+				(bsin(spawned.ang) * TICSPERFRAME) << 3, 0, 4 << 8, 4 << 8, 0);
+		setsprite(j, spawned.x, spawned.y, spawned.z);
 
 		break;
+	}
 	case 4:
 
 		if (netgame) {
