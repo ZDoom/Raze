@@ -28,7 +28,7 @@ BEGIN_PS_NS
 
 enum { kMaxSwitches = 1024 };
 
-short SwitchCount = -1;
+int SwitchCount = -1;
 
 struct Link
 {
@@ -37,15 +37,15 @@ struct Link
 
 struct Switch
 {
-    short nWaitTimer;
-    short nWait;
+    int16_t nWaitTimer;
+    int16_t nWait;
     int nChannel;
     int nLink;
-    short nRunPtr;
+    int16_t nRunPtr;
     int nSector;
-    short nRun2;
+    int16_t nRun2;
     int nWall;
-    short nRun3;
+    int16_t nRun3;
     uint16_t nKeyMask;
 };
 

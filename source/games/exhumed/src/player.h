@@ -106,7 +106,7 @@ struct Player
     int16_t nPlayerPushSound;
     int16_t nTauntTimer;
     uint16_t nPlayerWeapons; // each set bit represents a weapon the player has
-    short nPlayerViewSect;
+    int nPlayerViewSect;
     PlayerSave sPlayerSave;
     int ototalvel;
     int totalvel;
@@ -117,15 +117,15 @@ struct Player
 
 };
 
-extern short PlayerCount;
+extern int PlayerCount;
 
 extern Player PlayerList[kMaxPlayers];
 
-extern short obobangle, bobangle;
+extern int obobangle, bobangle;
 
 extern DExhumedActor* nNetStartSprite[kMaxPlayers];
-extern short nNetStartSprites;
-extern short nCurStartSprite;
+extern int nNetStartSprites;
+extern int nCurStartSprite;
 
 int GetPlayerFromActor(DExhumedActor* actor);
 void SetPlayerMummified(int nPlayer, int bIsMummified);

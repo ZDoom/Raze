@@ -33,14 +33,14 @@ enum
 
 
 DExhumedActor* pRadialActor;
-short nStackCount = 0;
-short word_966BE = 0;
-short ChannelList = -1;
-short ChannelLast = -1;
+int nStackCount = 0;
+int word_966BE = 0;
+int ChannelList = -1;
+int ChannelLast = -1;
 
 int nDamageRadius;
 int nRadialDamage;
-short RunChain;
+int RunChain;
 int NewRun;
 
 int sRunStack[kMaxRunStack];
@@ -359,7 +359,7 @@ void runlist_SendMessage(int nRun, int nObject, void(ExhumedAI::* func)(RunListE
 
 void runlist_ExplodeSignalRun()
 {
-    short nextPtr = RunChain;
+    int nextPtr = RunChain;
 
     if (nextPtr >= 0)
     {
@@ -491,11 +491,11 @@ void runlist_ReadyChannel(int eax)
 void runlist_ProcessChannels()
 {
 #if 1
-    short v0;
-    short v1;
+    int v0;
+    int v1;
     int v5;
-    short b;
-    short d;
+    int b;
+    int d;
 
     do
     {
@@ -548,7 +548,7 @@ void runlist_ProcessChannels()
 
     while (1)
     {
-        short nChannel = ChannelList;
+        int nChannel = ChannelList;
         if (nChannel < 0)
         {
             ChannelList = esi;
@@ -563,8 +563,8 @@ void runlist_ProcessChannels()
             }
         }
 
-        short b = sRunChannels[nChannel].b;
-        short d = sRunChannels[nChannel].d;
+        int b = sRunChannels[nChannel].b;
+        int d = sRunChannels[nChannel].d;
 
         if (d & 2)
         {
@@ -1596,7 +1596,7 @@ void runlist_ProcessWallTag(int nWall, int nLotag, int nHitag)
             int nLastWall = 0;
             int n2ndLastWall = 0;
 
-            short nStart = nWall;
+            int nStart = nWall;
 
             while (1)
             {

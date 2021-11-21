@@ -177,7 +177,7 @@ void AISet::RadialDamage(RunListEvent* ev)
 {
 	auto pActor = ev->pObjActor;
 	if (!pActor) return;
-    short nAction = pActor->nAction;
+    int nAction = pActor->nAction;
 
     if (nAction == 5)
     {
@@ -192,7 +192,7 @@ void AISet::Damage(RunListEvent* ev)
 	auto pActor = ev->pObjActor;
 	if (!pActor) return;
 
-	short nAction = pActor->nAction;
+	int nAction = pActor->nAction;
     auto pSprite = &pActor->s();
 
     if (ev->nDamage && pActor->nHealth > 0)
@@ -231,7 +231,7 @@ void AISet::Draw(RunListEvent* ev)
 {
 	auto pActor = ev->pObjActor;
 	if (!pActor) return;
-    short nAction = pActor->nAction;
+    int nAction = pActor->nAction;
 
     seq_PlotSequence(ev->nParam, SeqOffsets[kSeqSet] + SetSeq[nAction].a, pActor->nFrame, SetSeq[nAction].b);
     return;
@@ -242,14 +242,14 @@ void AISet::Tick(RunListEvent* ev)
 	auto pActor = ev->pObjActor;
 	if (!pActor) return;
 
-	short nAction = pActor->nAction;
+	int nAction = pActor->nAction;
     auto pSprite = &pActor->s();
 
     bool bVal = false;
 
     Gravity(pActor);
 
-    short nSeq = SeqOffsets[kSeqSet] + SetSeq[pActor->nAction].a;
+    int nSeq = SeqOffsets[kSeqSet] + SetSeq[pActor->nAction].a;
     pSprite->picnum = seq_GetSeqPicnum2(nSeq, pActor->nFrame);
     seq_MoveSequence(pActor, nSeq, pActor->nFrame);
 
@@ -267,7 +267,7 @@ void AISet::Tick(RunListEvent* ev)
         bVal = true;
     }
 
-    short nFlag = FrameFlag[SeqBase[nSeq] + pActor->nFrame];
+    int nFlag = FrameFlag[SeqBase[nSeq] + pActor->nFrame];
     auto pTarget = pActor->pTarget;
 
     if (pTarget && nAction < 10)

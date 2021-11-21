@@ -98,7 +98,7 @@ void AISpider::Tick(RunListEvent* ev)
     if (!spp) return;
 
     auto sp = &spp->s();
-    short nAction = spp->nAction;
+    int nAction = spp->nAction;
 
     int nVel = 6;
 
@@ -345,7 +345,7 @@ void AISpider::Draw(RunListEvent* ev)
     auto spp = ev->pObjActor;
     if (!spp) return;
 
-    short nAction = spp->nAction;
+    int nAction = spp->nAction;
 
     seq_PlotSequence(ev->nParam, SeqOffsets[kSeqSpider] + SpiderSeq[nAction].a, spp->nFrame, SpiderSeq[nAction].b);
 }

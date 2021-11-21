@@ -40,11 +40,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-extern short nStatusSeqOffset;
+extern int nStatusSeqOffset;
 
 int lPlayerXVel = 0;
 int lPlayerYVel = 0;
-short obobangle = 0, bobangle  = 0;
+int obobangle = 0, bobangle  = 0;
 
 static actionSeq PlayerSeq[] = {
     {18,  0}, {0,   0}, {9,   0}, {27,  0}, {63,  0},
@@ -79,13 +79,13 @@ Player PlayerList[kMaxPlayers];
 
 DExhumedActor* nNetStartSprite[kMaxPlayers] = { };
 
-short nStandHeight;
+int nStandHeight;
 
 
 
-short PlayerCount;
-short nNetStartSprites;
-short nCurStartSprite;
+int PlayerCount;
+int nNetStartSprites;
+int nCurStartSprite;
 
 void RestoreSavePoint(int nPlayer, int *x, int *y, int *z, int *nSector, int16_t *nAngle)
 {

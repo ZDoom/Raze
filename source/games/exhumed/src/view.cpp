@@ -40,28 +40,28 @@ bool bSubTitles = true;
 
 int zbob;
 
-short dVertPan[kMaxPlayers];
+int16_t dVertPan[kMaxPlayers];
 int nCamerax;
 int nCameray;
 int nCameraz;
 
 
-short bTouchFloor;
+bool bTouchFloor;
 
-short nQuake[kMaxPlayers] = { 0 };
+int16_t nQuake[kMaxPlayers] = { 0 };
 
-short nChunkTotal = 0;
+int nChunkTotal = 0;
 
 binangle nCameraa;
 fixedhoriz nCamerapan;
-short nViewTop;
+int nViewTop;
 bool bCamera = false;
 
 int viewz;
 
 DExhumedActor* pEnemy;
 
-short nEnemyPal = 0;
+int nEnemyPal = 0;
 
 // We cannot drag these through the entire event system... :(
 spritetype* mytsprite;

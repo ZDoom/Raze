@@ -43,7 +43,7 @@ BEGIN_PS_NS
 
 
 // All this must be moved into the status bar once it is made persistent!
-short nStatusSeqOffset;
+int nStatusSeqOffset;
 
 void InitStatus()
 {

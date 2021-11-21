@@ -100,7 +100,7 @@ void AIRex::RadialDamage(RunListEvent* ev)
     auto pActor = ev->pObjActor;
     if (!pActor) return;
 
-    short nAction = pActor->nAction;
+    int nAction = pActor->nAction;
 
     if (nAction == 5)
     {
@@ -114,7 +114,7 @@ void AIRex::Damage(RunListEvent* ev)
     auto pActor = ev->pObjActor;
     if (!pActor) return;
 
-    short nAction = pActor->nAction;
+    int nAction = pActor->nAction;
     auto pSprite = &pActor->s();
 
     if (ev->nDamage)
@@ -155,7 +155,7 @@ void AIRex::Draw(RunListEvent* ev)
     auto pActor = ev->pObjActor;
     if (!pActor) return;
 
-    short nAction = pActor->nAction;
+    int nAction = pActor->nAction;
 
     seq_PlotSequence(ev->nParam, SeqOffsets[kSeqRex] + RexSeq[nAction].a, pActor->nFrame, RexSeq[nAction].b);
     return;
@@ -166,7 +166,7 @@ void AIRex::Tick(RunListEvent* ev)
     auto pActor = ev->pObjActor;
     if (!pActor) return;
 
-    short nAction = pActor->nAction;
+    int nAction = pActor->nAction;
     auto pSprite = &pActor->s();
 
     bool bVal = false;

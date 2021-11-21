@@ -31,13 +31,13 @@ void ResetView();
 void NoClip();
 void Clip();
 
-extern short dVertPan[];
-extern short nQuake[];
+extern int16_t dVertPan[];
+extern int16_t nQuake[];
 extern int nCamerax;
 extern int nCameray;
 extern int nCameraz;
-extern short bTouchFloor;
-extern short nChunkTotal;
+extern bool bTouchFloor;
+extern int nChunkTotal;
 extern int gFov;
 
 extern spritetype* mytsprite;

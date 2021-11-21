@@ -60,7 +60,7 @@ struct Bob
 {
     int nSector;
     int z;
-    uint8_t field_2;
+    uint8_t nPhase;
     uint8_t field_3;
     uint16_t sBobID;
 };
@@ -116,10 +116,10 @@ struct slideData
     int16_t nRunRec;
     int16_t nRunC;
 
-    int field_0;
-    int field_4;
-    int field_8;
-    int field_C;
+    int nStartWall;
+    int nWall1;
+    int nWall2;
+    int nWall3;
     int x1;
     int y1;
     int x2;
@@ -137,27 +137,20 @@ struct slideData
 struct Point
 {
     int nSector;
-    short field_2;
-    short field_4;
-    short field_6;
-    short field_8;
-    short field_A;
-    short field_C;
-    short nNext;
+    int16_t nNext;
 };
 
 struct Trap
 {
     DExhumedActor* pActor;
 
-    short field_0;
-    short nType;
-    int field_6;
-    int field_8; // wallnum
-    short field_A;
-    short field_C;
-    short field_E;
-    short nTrapInterval;
+    int16_t nState;
+    int16_t nType;
+    int nWallNum2;
+    int nWallNum;
+    int16_t nPicnum2;
+    int16_t nPicnum;
+    int16_t nTrapInterval;
 
 };
 
@@ -212,7 +205,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Bob& w, Bob* def)
     if (arc.BeginObject(keyname))
     {
         arc("sector", w.nSector)
-            ("at2", w.field_2)
+            ("at2", w.nPhase)
             ("at3", w.field_3)
             ("z", w.z)
             ("id", w.sBobID)
@@ -281,10 +274,10 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, slideData& w, slid
 {
     if (arc.BeginObject(keyname))
     {
-        arc("at0", w.field_0)
-            ("at4", w.field_4)
-            ("at8", w.field_8)
-            ("atc", w.field_C)
+        arc("at0", w.nStartWall)
+            ("at4", w.nWall1)
+            ("at8", w.nWall2)
+            ("atc", w.nWall3)
             ("x1", w.x1)
             ("y1", w.y1)
             ("x2", w.x2)
@@ -311,12 +304,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Point& w, Point* d
     if (arc.BeginObject(keyname))
     {
         arc("at0", w.nSector)
-            ("at2", w.field_2)
-            ("at4", w.field_4)
-            ("at6", w.field_6)
-            ("at8", w.field_8)
-            ("ata", w.field_A)
-            ("atc", w.field_C)
             ("ate", w.nNext)
             .EndObject();
     }
@@ -326,14 +313,13 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Trap& w, Trap* def
 {
     if (arc.BeginObject(keyname))
     {
-        arc("at0", w.field_0)
+        arc("at0", w.nState)
             ("sprite", w.pActor)
             ("type", w.nType)
-            ("at6", w.field_6)
-            ("at8", w.field_8)
-            ("ata", w.field_A)
-            ("atc", w.field_C)
-            ("ate", w.field_E)
+            ("at6", w.nWallNum2)
+            ("at8", w.nWallNum)
+            ("ata", w.nPicnum2)
+            ("atc", w.nPicnum)
             ("interval", w.nTrapInterval)
             .EndObject();
     }
@@ -660,7 +646,7 @@ void MoveSectorSprites(int nSector, int z)
 
 void StartElevSound(DExhumedActor* pActor, int nVal)
 {
-    short nSound;
+    int nSound;
 
     if (nVal & 2) {
         nSound = nElevSound;
@@ -675,7 +661,7 @@ void StartElevSound(DExhumedActor* pActor, int nVal)
 void AIElev::ProcessChannel(RunListEvent* ev)
 {
     int nRun = ev->nRun;
-    short nElev = RunData[nRun].nObjIndex;
+    int nElev = RunData[nRun].nObjIndex;
     assert(nElev >= 0 && nElev < (int)Elevator.Size());
 
     int nChannel = Elevator[nElev].nChannel;
@@ -683,8 +669,8 @@ void AIElev::ProcessChannel(RunListEvent* ev)
 
     assert(nChannel >= 0 && nChannel < kMaxChannels);
 
-    //			short ax = var_18 & 8;
-    short dx = sRunChannels[nChannel].c;
+    //			int ax = var_18 & 8;
+    int dx = sRunChannels[nChannel].c;
 
     int edi = 999; // FIXME CHECKME - this isn't default set to anything in the ASM that I can see - if ax is 0 and var_24 is 0, this will never be set to a known value otherwise!
 
@@ -756,11 +742,11 @@ void AIElev::ProcessChannel(RunListEvent* ev)
 void AIElev::Tick(RunListEvent* ev)
 {
     int nRun = ev->nRun;
-    short nElev = RunData[nRun].nObjIndex;
+    int nElev = RunData[nRun].nObjIndex;
     assert(nElev >= 0 && nElev < (int)Elevator.Size());
 
-    short nChannel = Elevator[nElev].nChannel;
-    short var_18 = Elevator[nElev].nFlags;
+    int nChannel = Elevator[nElev].nChannel;
+    int var_18 = Elevator[nElev].nFlags;
 
     assert(nChannel >= 0 && nChannel < kMaxChannels);
 
@@ -774,7 +760,7 @@ void AIElev::Tick(RunListEvent* ev)
         int nZOffset = Elevator[nElev].nCurZOffset;
         int nZVal = Elevator[nElev].zOffsets[nZOffset];
 
-        short nSectorB = nSector;
+        int nSectorB = nSector;
 
         StartInterpolation(nSector, Interp_Sect_Floorz);
         int nVal = LongSeek((int*)&sector[nSector].floorz, nZVal, Elevator[nElev].nParam1, Elevator[nElev].nParam2);
@@ -991,7 +977,7 @@ int BuildSlide(int nChannel, int nStartWall, int nWall1, int ecx, int nWall2, in
 
     for (int nWall = startwall; nWall < endwall; nWall++)
     {
-        short ax = SlideData[nSlide].nStart;
+        int ax = SlideData[nSlide].nStart;
 
         if (ax >= 0)
         {
@@ -1018,10 +1004,10 @@ int BuildSlide(int nChannel, int nStartWall, int nWall1, int ecx, int nWall2, in
         }
     }
 
-    SlideData[nSlide].field_0 = nStartWall;
-    SlideData[nSlide].field_4 = nWall1;
-    SlideData[nSlide].field_8 = nWall2;
-    SlideData[nSlide].field_C = nWall3;
+    SlideData[nSlide].nStartWall = nStartWall;
+    SlideData[nSlide].nWall1 = nWall1;
+    SlideData[nSlide].nWall2 = nWall2;
+    SlideData[nSlide].nWall3 = nWall3;
 
     SlideData[nSlide].x1 = wall[nStartWall].x;
     SlideData[nSlide].y1 = wall[nStartWall].y;
@@ -1075,7 +1061,7 @@ void AISlide::ProcessChannel(RunListEvent* ev)
     int nSlide = RunData[nRun].nObjIndex;
     assert(nSlide >= 0 && nSlide < (int)SlideData.Size());
 
-    short nChannel = SlideData[nSlide].nChannel;
+    int nChannel = SlideData[nSlide].nChannel;
 
     if (SlideData[nSlide].nRunRec >= 0)
     {
@@ -1102,16 +1088,16 @@ void AISlide::Tick(RunListEvent* ev)
     int nSlide = RunData[nRun].nObjIndex;
     assert(nSlide >= 0 && nSlide < (int)SlideData.Size());
 
-    short nChannel = SlideData[nSlide].nChannel;
+    int nChannel = SlideData[nSlide].nChannel;
     int ebp = 0;
 
-    short cx = sRunChannels[nChannel].c;
+    int cx = sRunChannels[nChannel].c;
 
     int clipmask = ebp + 1; // RENAME
 
     if (cx == 1)
     {
-        int nWall = SlideData[nSlide].field_4;
+        int nWall = SlideData[nSlide].nWall1;
         int x = wall[nWall].x;
         int y = wall[nWall].y;
 
@@ -1123,7 +1109,7 @@ void AISlide::Tick(RunListEvent* ev)
         int var_2C = nSeekB;
         int var_24 = nSeekB;
 
-        dragpoint(SlideData[nSlide].field_4, x, y);
+        dragpoint(SlideData[nSlide].nWall1, x, y);
         movesprite(SlideData[nSlide].pActor, var_34 << 14, var_2C << 14, 0, 0, 0, CLIPMASK1);
 
         if (var_34 == 0)
@@ -1134,14 +1120,14 @@ void AISlide::Tick(RunListEvent* ev)
             }
         }
 
-        nWall = SlideData[nSlide].field_0;
+        nWall = SlideData[nSlide].nStartWall;
 
         y = wall[nWall].y + var_24;
         x = wall[nWall].x + var_20;
 
-        dragpoint(SlideData[nSlide].field_0, x, y);
+        dragpoint(SlideData[nSlide].nStartWall, x, y);
 
-        nWall = SlideData[nSlide].field_C;
+        nWall = SlideData[nSlide].nWall3;
 
         x = wall[nWall].x;
         y = wall[nWall].y;
@@ -1154,22 +1140,22 @@ void AISlide::Tick(RunListEvent* ev)
         int edi = nSeekD;
         var_24 = nSeekD;
 
-        dragpoint(SlideData[nSlide].field_C, x, y);
+        dragpoint(SlideData[nSlide].nWall3, x, y);
 
         if (var_30 == 0 && edi == 0) {
             ebp++;
         }
 
-        nWall = SlideData[nSlide].field_8;
+        nWall = SlideData[nSlide].nWall2;
 
         x = wall[nWall].x + var_20;
         y = wall[nWall].y + var_24;
 
-        dragpoint(SlideData[nSlide].field_8, x, y);
+        dragpoint(SlideData[nSlide].nWall2, x, y);
     }
     else if (cx == 0) // right branch
     {
-        int nWall = SlideData[nSlide].field_0;
+        int nWall = SlideData[nSlide].nStartWall;
         int x = wall[nWall].x;
         int y = wall[nWall].y;
 
@@ -1181,20 +1167,20 @@ void AISlide::Tick(RunListEvent* ev)
         int ecx = nSeekB;
         int var_28 = nSeekB;
 
-        dragpoint(SlideData[nSlide].field_0, x, y);
+        dragpoint(SlideData[nSlide].nStartWall, x, y);
 
         if (edi == 0 && ecx == 0) {
             ebp = clipmask;
         }
 
-        nWall = SlideData[nSlide].field_4;
+        nWall = SlideData[nSlide].nWall1;
 
         y = wall[nWall].y + var_28;
         x = wall[nWall].x + var_1C;
 
-        dragpoint(SlideData[nSlide].field_4, x, y);
+        dragpoint(SlideData[nSlide].nWall1, x, y);
 
-        nWall = SlideData[nSlide].field_8;
+        nWall = SlideData[nSlide].nWall2;
 
         x = wall[nWall].x;
         y = wall[nWall].y;
@@ -1207,18 +1193,18 @@ void AISlide::Tick(RunListEvent* ev)
         ecx = nSeekD;
         var_28 = nSeekD;
 
-        dragpoint(SlideData[nSlide].field_8, x, y);
+        dragpoint(SlideData[nSlide].nWall2, x, y);
 
         if (edi == 0 && ecx == 0) {
             ebp++;
         }
 
-        nWall = SlideData[nSlide].field_C;
+        nWall = SlideData[nSlide].nWall3;
 
         y = wall[nWall].y + var_28;
         x = wall[nWall].x + var_1C;
 
-        dragpoint(SlideData[nSlide].field_C, x, y);
+        dragpoint(SlideData[nSlide].nWall3, x, y);
     }
 
     // loc_21A51:
@@ -1258,22 +1244,22 @@ int BuildTrap(DExhumedActor* pActor, int edx, int ebx, int ecx)
 
     sTrap[nTrap].pActor = pActor;
     sTrap[nTrap].nType = (var_14 == 0) + 14;
-    sTrap[nTrap].field_0 = -1;
+    sTrap[nTrap].nState = -1;
 
     sTrap[nTrap].nTrapInterval = 64 - (2 * var_10);
     if (sTrap[nTrap].nTrapInterval < 5) {
         sTrap[nTrap].nTrapInterval = 5;
     }
 
-    sTrap[nTrap].field_C = 0;
-    sTrap[nTrap].field_A = 0;
+    sTrap[nTrap].nPicnum = 0;
+    sTrap[nTrap].nPicnum2 = 0;
 
     if (var_18 == -1) {
         return nTrap;
     }
 
-    sTrap[nTrap].field_6 = -1;
-    sTrap[nTrap].field_8 = -1;
+    sTrap[nTrap].nWallNum2 = -1;
+    sTrap[nTrap].nWallNum = -1;
 
     int nSector =pSprite->sectnum;
     int nWall = sector[nSector].wallptr;
@@ -1288,16 +1274,16 @@ int BuildTrap(DExhumedActor* pActor, int edx, int ebx, int ecx)
 
         if (var_18 == wall[nWall].hitag)
         {
-            if (sTrap[nTrap].field_6 != -1)
+            if (sTrap[nTrap].nWallNum2 != -1)
             {
-                sTrap[nTrap].field_8 = nWall;
-                sTrap[nTrap].field_C = wall[nWall].picnum;
+                sTrap[nTrap].nWallNum = nWall;
+                sTrap[nTrap].nPicnum = wall[nWall].picnum;
                 break;
             }
             else
             {
-                sTrap[nTrap].field_6 = nWall;
-                sTrap[nTrap].field_A = wall[nWall].picnum;
+                sTrap[nTrap].nWallNum2 = nWall;
+                sTrap[nTrap].nPicnum2 = wall[nWall].picnum;
             }
         }
 
@@ -1310,57 +1296,57 @@ int BuildTrap(DExhumedActor* pActor, int edx, int ebx, int ecx)
 
 void AITrap::ProcessChannel(RunListEvent* ev)
 {
-    short nChannel = ev->nParam & 0x3FFF;
-    short nTrap = RunData[ev->nRun].nObjIndex;
+    int nChannel = ev->nParam & 0x3FFF;
+    int nTrap = RunData[ev->nRun].nObjIndex;
 
     if (sRunChannels[nChannel].c > 0)
     {
-        sTrap[nTrap].field_0 = 12;
+        sTrap[nTrap].nState = 12;
     }
     else
     {
-        sTrap[nTrap].field_0 = -1;
+        sTrap[nTrap].nState = -1;
     }
 }
 
 void AITrap::Tick(RunListEvent* ev)
 {
-    short nTrap = RunData[ev->nRun].nObjIndex;
+    int nTrap = RunData[ev->nRun].nObjIndex;
     auto pActor = sTrap[nTrap].pActor;
     auto pSprite = &pActor->s();
 
-    if (sTrap[nTrap].field_0 >= 0)
+    if (sTrap[nTrap].nState >= 0)
     {
-        sTrap[nTrap].field_0--;
-        if (sTrap[nTrap].field_0 > 10) {
+        sTrap[nTrap].nState--;
+        if (sTrap[nTrap].nState > 10) {
             return;
         }
 
-        short nType = sTrap[nTrap].nType;
+        int nType = sTrap[nTrap].nType;
 
-        if (sTrap[nTrap].field_0 == 0)
+        if (sTrap[nTrap].nState == 0)
         {
-            sTrap[nTrap].field_0 = sTrap[nTrap].nTrapInterval;
+            sTrap[nTrap].nState = sTrap[nTrap].nTrapInterval;
 
             if (nType == 14)
             {
-                int nWall = sTrap[nTrap].field_6;
+                int nWall = sTrap[nTrap].nWallNum2;
                 if (nWall > -1)
                 {
-                    wall[nWall].picnum = sTrap[nTrap].field_A;
+                    wall[nWall].picnum = sTrap[nTrap].nPicnum2;
                 }
 
-                nWall = sTrap[nTrap].field_8;
+                nWall = sTrap[nTrap].nWallNum;
                 if (nWall > -1)
                 {
-                    wall[nWall].picnum = sTrap[nTrap].field_C;
+                    wall[nWall].picnum = sTrap[nTrap].nPicnum;
                 }
             }
         }
         else
         {
             // loc_21D92:
-            if (sTrap[nTrap].field_0 != 5) {
+            if (sTrap[nTrap].nState != 5) {
                 return;
             }
 
@@ -1376,16 +1362,16 @@ void AITrap::Tick(RunListEvent* ev)
                 {
                     pBullet->s().clipdist = 50;
 
-                    int nWall = sTrap[nTrap].field_6;
+                    int nWall = sTrap[nTrap].nWallNum2;
                     if (nWall > -1)
                     {
-                        wall[nWall].picnum = sTrap[nTrap].field_A + 1;
+                        wall[nWall].picnum = sTrap[nTrap].nPicnum2 + 1;
                     }
 
-                    nWall = sTrap[nTrap].field_8;
+                    nWall = sTrap[nTrap].nWallNum;
                     if (nWall > -1)
                     {
-                        wall[nWall].picnum = sTrap[nTrap].field_C + 1;
+                        wall[nWall].picnum = sTrap[nTrap].nPicnum + 1;
                     }
 
                     D3PlayFX(StaticSound[kSound36], pBullet);
@@ -1524,7 +1510,7 @@ void AISpark::Tick(RunListEvent* ev)
 
 void DimLights()
 {
-    static short word_96786 = 0;
+    static int word_96786 = 0;
 
     word_96786 = word_96786 == 0;
     if (word_96786 == 0)
@@ -1641,7 +1627,7 @@ DExhumedActor* BuildEnergyBlock(int nSector)
     auto spr = &pActor->s();
 
 
-    short nextsector = wall[startwall].nextsector;
+    int nextsector = wall[startwall].nextsector;
 
     spr->x = xAvg;
     spr->y = yAvg;
@@ -1713,7 +1699,7 @@ void ExplodeEnergyBlock(DExhumedActor* pActor)
 
     for (i = 0; i < nWalls; i++)
     {
-        short nextwall = wall[startwall + i].nextwall;
+        int nextwall = wall[startwall + i].nextwall;
 
         if (wall[nextwall].pal >= 4) {
             wall[nextwall].pal = 7;
@@ -1894,7 +1880,7 @@ DExhumedActor* BuildObject(DExhumedActor* pActor, int nOjectType, int nHitag)
 
     pActor->nRun = runlist_AddRunRec(NewRun, pActor, 0x170000);
 
-    short nSeq = ObjectSeq[nOjectType];
+    int nSeq = ObjectSeq[nOjectType];
 
     if (nSeq > -1)
     {
@@ -1951,7 +1937,7 @@ void AIObject::Tick(RunListEvent* ev)
     auto pActor = ev->pObjActor;
     if (!pActor) return;
     auto pSprite = &pActor->s();
-    short nStat = pSprite->statnum;
+    int nStat = pSprite->statnum;
     int bx = pActor->nIndex;
 
     if (nStat == 97 || (!(pSprite->cstat & 0x101))) {
@@ -2114,7 +2100,7 @@ void AIObject::RadialDamage(RunListEvent* ev)
     if (!pActor) return;
 
     auto pSprite = &pActor->s();
-    short nStat = pSprite->statnum;
+    int nStat = pSprite->statnum;
 
     if (pActor->nHealth > 0 && pSprite->cstat & 0x101
         && (nStat != kStatExplodeTarget
@@ -2151,7 +2137,7 @@ void AIObject::RadialDamage(RunListEvent* ev)
         if (pSprite->statnum == kStatExplodeTarget)
         {
             pActor->nHealth = -1;
-            short ax = pActor->nIndex2;
+            int ax = pActor->nIndex2;
 
             if (ax < 0 || ObjectList[ax]->nHealth <= 0) {
                 return;
@@ -2191,7 +2177,7 @@ void DoDrips()
             auto pActor = sDrip[i].pActor;
             auto pSprite = &pActor->s();
 
-            short nSeqOffset = SeqOffsets[kSeqDrips];
+            int nSeqOffset = SeqOffsets[kSeqDrips];
 
             if (!(pSprite->sector()->Flag & kSectLava)) {
                 nSeqOffset++;
@@ -2205,9 +2191,9 @@ void DoDrips()
 
     for (unsigned i = 0; i < sBob.Size(); i++)
     {
-        sBob[i].field_2 += 4;
+        sBob[i].nPhase += 4;
 
-        int edx = bsin(sBob[i].field_2 << 3, -4);
+        int edx = bsin(sBob[i].nPhase << 3, -4);
         int nSector =sBob[i].nSector;
 
         if (sBob[i].field_3)
@@ -2263,7 +2249,7 @@ void SnapBobs(int nSectorA, int nSectorB)
         return;
     }
 
-    sBob[ecx].field_2 = sBob[ebx].field_2;
+    sBob[ecx].nPhase = sBob[ebx].nPhase;
 }
 
 void AddSectorBob(int nSector, int nHitag, int bx)
@@ -2281,7 +2267,7 @@ void AddSectorBob(int nSector, int nHitag, int bx)
     }
 
     sBob[nBobs].z = z;
-    sBob[nBobs].field_2 = nHitag << 4;
+    sBob[nBobs].nPhase = nHitag << 4;
     sBob[nBobs].sBobID = nHitag;
 
     sBob[nBobs].nSector = nSector;
@@ -2371,7 +2357,7 @@ void AddMovingSector(int nSector, int edx, int ebx, int ecx)
     CreatePushBlock(nSector);
     setsectinterpolate(nSector);
 
-    short nTrail = FindTrail(ebx);
+    int nTrail = FindTrail(ebx);
 
 
     auto nMoveSects = sMoveSect.Reserve(1);
@@ -2410,7 +2396,7 @@ void DoMovingSects()
         }
 
         int nSector =sMoveSect[i].nSector;
-        short nBlock = sector[nSector].extra;
+        int nBlock = sector[nSector].extra;
 
         BlockInfo* pBlockInfo = &sBlockInfo[nBlock];
 
@@ -2421,7 +2407,7 @@ void DoMovingSects()
                 runlist_ChangeChannel(sMoveSect[i].nChannel, 0);
             }
 
-            short ax;
+            int ax;
 
             if (sMoveSect[i].nFlags & 0x10)
             {
@@ -2443,7 +2429,7 @@ void DoMovingSects()
             sMoveSect[i].nTrailPoint = ax;
         }
 
-        short nTrail = sMoveSect[i].nTrailPoint;
+        int nTrail = sMoveSect[i].nTrailPoint;
         //		TrailPoint *pTrail = &sTrailPoint[nTrail];
 
                 // loc_23872:
