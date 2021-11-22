@@ -241,7 +241,7 @@ void ResetSwordSeqs()
     WeaponInfo[kWeaponSword].b[3] = 7;
 }
 
-Collision CheckCloseRange(int nPlayer, int *x, int *y, int *z, int *nSector)
+Collision CheckCloseRange(int nPlayer, int *x, int *y, int *z, sectortype* *nSector)
 {
     int hitSect, hitWall, hitSprite;
     int hitX, hitY, hitZ;
@@ -254,7 +254,7 @@ Collision CheckCloseRange(int nPlayer, int *x, int *y, int *z, int *nSector)
 
     vec3_t startPos = { *x, *y, *z };
     hitdata_t hitData;
-    hitscan(&startPos, *nSector, xVect, yVect, 0, &hitData, CLIPMASK1);
+    hitscan(&startPos, sectnum(*nSector), xVect, yVect, 0, &hitData, CLIPMASK1);
     hitX = hitData.pos.x;
     hitY = hitData.pos.y;
     hitZ = hitData.pos.z;
@@ -282,7 +282,7 @@ Collision CheckCloseRange(int nPlayer, int *x, int *y, int *z, int *nSector)
     *x = hitX;
     *y = hitY;
     *z = hitZ;
-    *nSector = hitSect;
+    *nSector = &sector[hitSect];
 
     if (hitSprite > -1) {
         c.setSprite(&exhumedActors[hitSprite]);
@@ -697,7 +697,7 @@ loc_flag:
                 }
             }
 
-            int nSectorB = pPlayerSprite->sectnum;
+            auto pSectorB = pPlayerSprite->sector();
 
             switch (nWeapon)
             {
@@ -717,8 +717,7 @@ loc_flag:
                         var_28 = 9;
                     }
 
-                    auto cRange = CheckCloseRange(nPlayer, &theX, &theY, &theZ, &nSectorB);
-                    auto pSectorB = &sector[nSectorB];
+                    auto cRange = CheckCloseRange(nPlayer, &theX, &theY, &theZ, &pSectorB);
 
                     if (cRange.type != kHitNone)
                     {
@@ -820,7 +819,7 @@ loc_flag:
                         auto t = sPlayerInput[nPlayer].pTarget;
                         // only autoaim if target is in front of the player.
                         auto pTargetSprite = &t->s();
-						assert(validSectorIndex(pTargetSprite->sectnum));
+						assert(pTargetSprite->sector());
                         int angletotarget = bvectangbam(pTargetSprite->x - pPlayerSprite->x, pTargetSprite->y - pPlayerSprite->y).asbuild();
                         int anglediff = (pPlayerSprite->ang - angletotarget) & 2047;
                         if (anglediff < 512 || anglediff > 1536)

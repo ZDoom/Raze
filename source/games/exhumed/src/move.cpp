@@ -298,12 +298,11 @@ int BelowNear(DExhumedActor* pActor, int x, int y, int walldist, int _nSector)
 Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdist)
 {
     spritetype* pSprite = &pActor->s();
-    int nSector =pSprite->sectnum;
     auto pSector = pSprite->sector();
-    assert(validSectorIndex(nSector));
+    assert(pSector);
 
-    overridesect = nSector;
-    int edi = nSector;
+    overridesect = sectnum(pSector);
+    auto pSect2 = pSector;
 
     // backup cstat
     uint16_t cstat = pSprite->cstat;
@@ -312,17 +311,17 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
 
     Collision nRet(0);
 
-    int nSectFlags = sector[nSector].Flag;
+    int nSectFlags = pSector->Flag;
 
     if (nSectFlags & kSectUnderwater) {
         z >>= 1;
     }
 
     int spriteZ = pSprite->z;
-    int floorZ = sector[nSector].floorz;
+    int floorZ = pSector->floorz;
 
     int ebp = spriteZ + z;
-    int eax = sector[nSector].ceilingz + (height >> 1);
+    int eax = pSector->ceilingz + (height >> 1);
 
     if ((nSectFlags & kSectUnderwater) && ebp < eax) {
         ebp = eax;
@@ -334,11 +333,11 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
         ChangeActorSect(pActor, pSprite->sector()->pBelow);
     }
 
-    if (edi != nSector)
+    if (pSect2 != pSector)
     {
         pSprite->z = ebp;
 
-        if (sector[edi].Flag & kSectUnderwater)
+        if (pSect2->Flag & kSectUnderwater)
         {
             if (pActor == PlayerList[nLocalPlayer].Actor()) {
                 D3PlayFX(StaticSound[kSound2], pActor);
@@ -451,9 +450,8 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
 
     if (spriteZ <= floorZ && ebp > floorZ)
     {
-        if ((sector[nSector].Depth != 0) || (edi != nSector && (sector[edi].Flag & kSectUnderwater)))
+        if ((pSector->Depth != 0) || (pSect2 != pSector && (pSect2->Flag & kSectUnderwater)))
         {
-            assert(validSectorIndex(nSector));
             BuildSplash(pActor, pSector);
         }
     }

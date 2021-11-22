@@ -40,9 +40,8 @@ static actionSeq LavadudeSeq[] = {
 DExhumedActor* BuildLavaLimb(DExhumedActor* pActor, int move, int ebx)
 {
     auto pSprite = &pActor->s();
-    int nSector =pSprite->sectnum;
 
-    auto pLimbActor = insertActor(nSector, 118);
+    auto pLimbActor = insertActor(pSprite->sector(), 118);
 	auto pLimbSprite = &pLimbActor->s();
 
     pLimbSprite->x = pSprite->x;
@@ -104,18 +103,18 @@ void AILavaDudeLimb::Draw(RunListEvent* ev)
 }
 
 
-void BuildLava(DExhumedActor* pActor, int x, int y, int, int nSector, int nAngle, int nChannel)
+void BuildLava(DExhumedActor* pActor, int x, int y, int, sectortype* pSector, int nAngle, int nChannel)
 {
     spritetype* pSprite;
     if (pActor == nullptr)
     {
-        pActor = insertActor(nSector, 118);
+        pActor = insertActor(pSector, 118);
         pSprite = &pActor->s();
     }
     else
     {
         pSprite = &pActor->s();
-        nSector = pSprite->sectnum;
+        pSector = pSprite->sector();
         nAngle = pSprite->ang;
         x = pSprite->x;
         y = pSprite->y;
@@ -125,7 +124,7 @@ void BuildLava(DExhumedActor* pActor, int x, int y, int, int nSector, int nAngle
 
     pSprite->x = x;
     pSprite->y = y;
-    pSprite->z = sector[nSector].floorz;
+    pSprite->z = pSector->floorz;
     pSprite->cstat = 0x8000;
     pSprite->xrepeat = 200;
     pSprite->yrepeat = 200;
@@ -296,13 +295,13 @@ void AILavaDude::Tick(RunListEvent* ev)
         int x = pSprite->x;
         int y = pSprite->y;
         int z = pSprite->z;
-        int nSector =pSprite->sectnum;
+        auto pSector =pSprite->sector();
 
         auto coll = movesprite(pActor, pSprite->xvel << 8, pSprite->yvel << 8, 0, 0, 0, CLIPMASK0);
 
-        if (nSector != pSprite->sectnum)
+        if (pSector != pSprite->sector())
         {
-            ChangeActorSect(pActor, nSector);
+            ChangeActorSect(pActor, pSector);
             pSprite->x = x;
             pSprite->y = y;
             pSprite->z = z;

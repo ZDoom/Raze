@@ -437,14 +437,14 @@ void AIFish::Tick(RunListEvent* ev)
     int x = pSprite->x;
     int y = pSprite->y;
     int z = pSprite->z;
-    int nSector =pSprite->sectnum;
+    auto pSector =pSprite->sector();
 
     // loc_2EF54
     Collision coll = movesprite(pActor, pSprite->xvel << 13, pSprite->yvel << 13, pSprite->zvel << 2, 0, 0, CLIPMASK0);
 
     if (!(pSprite->sector()->Flag & kSectUnderwater))
     {
-        ChangeActorSect(pActor, nSector);
+        ChangeActorSect(pActor, pSector);
         pSprite->x = x;
         pSprite->y = y;
         pSprite->z = z;

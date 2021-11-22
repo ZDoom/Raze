@@ -460,7 +460,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
                     return;
                 }
 
-                BuildLava(pActor, 0, 0, 0, 0, 0, nChannel);
+                BuildLava(pActor, 0, 0, 0, nullptr, 0, nChannel);
                 return;
             }
             case 107:
