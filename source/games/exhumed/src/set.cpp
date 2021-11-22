@@ -421,14 +421,13 @@ void AISet::Tick(RunListEvent* ev)
 
             if (nMov.type == kHitWall)
             {
-                int nWall = nMov.index;
-                int nSector = wall[nWall].nextsector;
+                auto pSector = nMov.wall()->nextSector();
 
-                if (nSector >= 0)
+                if (pSector)
                 {
-                    if ((pSprite->z - sector[nSector].floorz) < 55000)
+                    if ((pSprite->z - pSector->floorz) < 55000)
                     {
-                        if (pSprite->z > sector[nSector].ceilingz)
+                        if (pSprite->z > pSector->ceilingz)
                         {
                             pActor->nIndex = 1;
                             pActor->nAction = 7;

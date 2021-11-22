@@ -105,22 +105,22 @@ void SetSavePoint(int nPlayer, int x, int y, int z, int nSector, int nAngle)
     PlayerList[nPlayer].sPlayerSave.nAngle = nAngle;
 }
 
-void feebtag(int x, int y, int z, int nSector, DExhumedActor **nSprite, int nVal2, int nVal3)
+void feebtag(int x, int y, int z, sectortype* pSector, DExhumedActor **nSprite, int nVal2, int nVal3)
 {
     *nSprite = nullptr;
 
-    int startwall = sector[nSector].wallptr;
+    auto startwall = pSector->firstWall();
 
-    int nWalls = sector[nSector].wallnum;
+    int nWalls = pSector->wallnum;
 
     int var_20 = nVal2 & 2;
     int var_14 = nVal2 & 1;
 
     while (1)
     {
-        if (nSector != -1)
+        if (pSector != nullptr)
         {
-            ExhumedSectIterator it(nSector);
+            ExhumedSectIterator it(pSector);
             while (auto pActor = it.Next())
             {
                 auto pSprite = &pActor->s();
@@ -158,7 +158,7 @@ void feebtag(int x, int y, int z, int nSector, DExhumedActor **nSprite, int nVal
         if (nWalls < -1)
             return;
 
-        nSector = wall[startwall].nextsector;
+        pSector = startwall->nextSector();
         startwall++;
     }
 }
@@ -1019,23 +1019,22 @@ void AIPlayer::Tick(RunListEvent* ev)
 
         if (nMove.type == kHitSector || nMove.type == kHitWall)
         {
-            int sectnum = 0;
+            sectortype* sect;
             int nNormal = 0;
 
             if (nMove.type == kHitSector)
             {
-                sectnum = nMove.index;
+                sect = nMove.sector();
                 // Hm... Normal calculation here was broken.
             }
-            else if (nMove.type == kHitWall)
+            else //if (nMove.type == kHitWall)
             {
-                sectnum = wall[nMove.index].nextsector;
-                nNormal = GetWallNormal(nMove.index);
+                sect = nMove.wall()->nextSector();
+                nNormal = GetWallNormal(nMove.wall());
             }
 
-            if (sectnum >= 0)
+            if (sect != nullptr)
             {
-                auto sect = &sector[sectnum];
                 if ((sect->hitag == 45) && bTouchFloor)
                 {
                     int nDiff = AngleDiff(nNormal, (pPlayerSprite->ang + 1024) & kAngleMask);
@@ -1321,7 +1320,7 @@ sectdone:
             &nearTagSector, &nearTagWall, &nearTagSprite, (int32_t*)&nearHitDist, 1024, 2, nullptr);
 
         DExhumedActor* pActorB;
-        feebtag(pPlayerSprite->x, pPlayerSprite->y, pPlayerSprite->z, pPlayerSprite->sectnum, &pActorB, var_30, 768);
+        feebtag(pPlayerSprite->x, pPlayerSprite->y, pPlayerSprite->z, pPlayerSprite->sector(), &pActorB, var_30, 768);
 
         // Item pickup code
         if (pActorB != nullptr && pActorB->s().statnum >= 900)
@@ -2264,14 +2263,15 @@ sectdone:
             {
                 ClearSpaceBar(nPlayer);
 
-                if (nearTagWall >= 0 && wall[nearTagWall].lotag > 0)
+                int tag;
+                if (nearTagWall >= 0 && (tag = wall[nearTagWall].lotag) > 0)
                 {
-                    runlist_SignalRun(wall[nearTagWall].lotag - 1, nPlayer, &ExhumedAI::Use);
+                    runlist_SignalRun(tag - 1, nPlayer, &ExhumedAI::Use);
                 }
 
-                if (nearTagSector >= 0 && sector[nearTagSector].lotag > 0)
+                if (nearTagSector >= 0 && (tag = sector[nearTagSector].lotag) > 0)
                 {
-                    runlist_SignalRun(sector[nearTagSector].lotag - 1, nPlayer, &ExhumedAI::Use);
+                    runlist_SignalRun(tag - 1, nPlayer, &ExhumedAI::Use);
                 }
             }
 

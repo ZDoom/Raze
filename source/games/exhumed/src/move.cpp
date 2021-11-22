@@ -1245,9 +1245,9 @@ Collision AngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int ebx, int
     return movesprite(pActor, x >> 2, y >> 2, (z >> 13) + bsin(ecx, -5), 0, 0, nClipType);
 }
 
-int GetWallNormal(int nWall)
+int GetWallNormal(walltype* pWall)
 {
-	auto delta = wall[nWall].delta();
+	auto delta = pWall->delta();
 
     int nAngle = GetMyAngle(delta.x, delta.y);
     return (nAngle + 512) & kAngleMask;
@@ -1473,7 +1473,7 @@ void AICreatureChunk::Tick(RunListEvent* ev)
             }
             else if (nVal.type == kHitWall)
             {
-                nAngle = GetWallNormal(nVal.index);
+                nAngle = GetWallNormal(nVal.wall());
             }
             else
             {

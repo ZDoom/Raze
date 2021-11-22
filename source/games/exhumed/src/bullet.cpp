@@ -484,10 +484,11 @@ HITSPRITE:
         }
         else if (hitwall > -1)
         {
-HITWALL:
-            if (wall[hitwall].picnum == kEnergy1)
+        HITWALL:
+            auto pWall = &wall[hitwall];
+            if (pWall->picnum == kEnergy1)
             {
-                int nSector =wall[hitwall].nextsector;
+                int nSector = pWall->nextsector;
                 if (nSector > -1)
                 {
                     int nDamage = BulletInfo[pBullet->nType].nDamage;

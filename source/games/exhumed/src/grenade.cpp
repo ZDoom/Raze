@@ -82,7 +82,7 @@ void ThrowGrenade(int nPlayer, int, int, int ecx, int push1)
         auto nMov = movesprite(pActor, bcos(nAngle) * (pPlayerSprite->clipdist << 3), bsin(nAngle) * (pPlayerSprite->clipdist << 3), ecx, 0, 0, CLIPMASK1);
         if (nMov.type == kHitWall)
         {
-            nAngle = GetWallNormal(nMov.index);
+            nAngle = GetWallNormal(nMov.wall());
             BounceGrenade(pActor, nAngle);
         }
     }
@@ -330,7 +330,7 @@ void AIGrenade::Tick(RunListEvent* ev)
         // loc_2CF60:
         if (nMov.type == kHitWall)
         {
-            BounceGrenade(pActor, GetWallNormal(nMov.index));
+            BounceGrenade(pActor, GetWallNormal(nMov.wall()));
         }
         else if (nMov.type == kHitSprite)
         {

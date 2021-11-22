@@ -450,7 +450,7 @@ void AILion::Tick(RunListEvent* ev)
         if (nMov.type == kHitWall)
         {
             pActor->nAction = 7;
-            pSprite->ang = (GetWallNormal(nMov.index) + 1024) & kAngleMask;
+            pSprite->ang = (GetWallNormal(nMov.wall()) + 1024) & kAngleMask;
             pActor->nCount = RandomSize(4);
             return;
         }

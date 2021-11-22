@@ -75,6 +75,16 @@ struct Collision
 		else { index = -1; actor = Actor(value & kHitIndexMask); }
 		return type;
 	}
+
+	walltype* wall()
+	{
+		return &::wall[index];
+	}
+
+	sectortype* sector()
+	{
+		return &::sector[index];
+	}
 };
 
 class DExhumedActor
