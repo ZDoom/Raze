@@ -115,7 +115,7 @@ const char *SoundFiles[kMaxSoundFiles] =
 int nStopSound;
 int nStoneSound;
 int nSwitchSound;
-int nLocalEyeSect;
+sectortype* pLocalEyeSect;
 int nElevSound;
 int nCreepyTimer;
 
@@ -668,10 +668,9 @@ void PlayFXAtXYZ(unsigned int ax, int x, int y, int z, EChanFlags chanflags, int
 //
 //==========================================================================
 
-void CheckAmbience(int nSector)
+void CheckAmbience(sectortype* sect)
 {
     if (!SoundEnabled()) return;
-    auto sect = &sector[nSector];
     if (sect->Sound != -1)
     {
         auto pSector2 = sect->pSoundSect;

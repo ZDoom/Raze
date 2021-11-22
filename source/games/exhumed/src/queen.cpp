@@ -641,7 +641,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
         pEgg->nCounter--;
         if (pEgg->nCounter <= 0)
         {
-            auto pWaspSprite = BuildWasp(nullptr, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, pSprite->ang, true);
+            auto pWaspSprite = BuildWasp(nullptr, pSprite->x, pSprite->y, pSprite->z, pSprite->sector(), pSprite->ang, true);
             pSprite->z = pWaspSprite->s().z;
 
             DestroyEgg(nEgg);
@@ -1100,7 +1100,7 @@ void AIQueenHead::Draw(RunListEvent* ev)
     seq_PlotSequence(ev->nParam, nSeq, QueenHead.nFrame, edx);
 }
 
-void BuildQueen(DExhumedActor* pActor, int x, int y, int z, int nSector, int nAngle, int nChannel)
+void BuildQueen(DExhumedActor* pActor, int x, int y, int z, sectortype* nSector, int nAngle, int nChannel)
 {
     QueenCount--;
 

@@ -2497,8 +2497,8 @@ sectdone:
     // loc_1C201:
     if (nLocalPlayer == nPlayer)
     {
-        nLocalEyeSect = sectnum(PlayerList[nLocalPlayer].pPlayerViewSect);
-        CheckAmbience(nLocalEyeSect);
+        pLocalEyeSect = PlayerList[nLocalPlayer].pPlayerViewSect;
+        CheckAmbience(pLocalEyeSect);
     }
 
     int var_AC = SeqOffsets[PlayerList[nPlayer].nSeq] + PlayerSeq[nAction].a;

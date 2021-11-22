@@ -43,12 +43,12 @@ static const actionSeq AnubisSeq[] = {
     { 43, 1 },
 };
 
-void BuildAnubis(DExhumedActor* ap, int x, int y, int z, int nSector, int nAngle, uint8_t bIsDrummer)
+void BuildAnubis(DExhumedActor* ap, int x, int y, int z, sectortype* pSector, int nAngle, uint8_t bIsDrummer)
 {
     spritetype* sp;
     if (ap == nullptr)
     {
-        ap = insertActor(nSector, 101);
+        ap = insertActor(pSector, 101);
         sp = &ap->s();
     }
     else

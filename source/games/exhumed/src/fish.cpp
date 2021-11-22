@@ -145,7 +145,7 @@ void AIFishLimb::Draw(RunListEvent* ev)
 }
 
 
-void BuildFish(DExhumedActor* pActor, int x, int y, int z, int nSector, int nAngle)
+void BuildFish(DExhumedActor* pActor, int x, int y, int z, sectortype* nSector, int nAngle)
 {
 	spritetype* pSprite;
 

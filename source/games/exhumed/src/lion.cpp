@@ -41,7 +41,7 @@ static actionSeq LionSeq[] = {
 };
 
 
-void BuildLion(DExhumedActor* pActor, int x, int y, int z, int nSector, int nAngle)
+void BuildLion(DExhumedActor* pActor, int x, int y, int z, sectortype* nSector, int nAngle)
 {
     spritetype* pSprite;
     if (pActor == nullptr)

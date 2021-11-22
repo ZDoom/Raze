@@ -36,12 +36,12 @@ static actionSeq SpiderSeq[] = {
 };
 
 
-DExhumedActor* BuildSpider(DExhumedActor* spp, int x, int y, int z, int nSector, int nAngle)
+DExhumedActor* BuildSpider(DExhumedActor* spp, int x, int y, int z, sectortype* pSector, int nAngle)
 {
     spritetype* sp;
     if (spp == nullptr)
     {
-        spp = insertActor(nSector, 99);
+        spp = insertActor(pSector, 99);
         sp = &spp->s();
     }
     else

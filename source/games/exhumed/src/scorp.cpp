@@ -38,7 +38,7 @@ static actionSeq ScorpSeq[] = {
     {53, 1}
 };
 
-void BuildScorp(DExhumedActor* pActor, int x, int y, int z, int nSector, int nAngle, int nChannel)
+void BuildScorp(DExhumedActor* pActor, int x, int y, int z, sectortype* nSector, int nAngle, int nChannel)
 {
     spritetype* pSprite;
 
@@ -379,7 +379,7 @@ void AIScorp::Tick(RunListEvent* ev)
             return;
         }
 
-        auto pSpiderActor = BuildSpider(nullptr, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, pSprite->ang);
+        auto pSpiderActor = BuildSpider(nullptr, pSprite->x, pSprite->y, pSprite->z, pSprite->sector(), pSprite->ang);
         if (pSpiderActor)
         {
 			auto pSpiderSprite = &pSpiderActor->s();
