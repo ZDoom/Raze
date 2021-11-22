@@ -159,7 +159,7 @@ void InitLevel(MapRecord* map)
 
     for (int i = 0; i < nTotalPlayers; i++)
     {
-        SetSavePoint(i, initx, inity, initz, initsect, inita);
+        SetSavePoint(i, initx, inity, initz, &sector[initsect], inita);
         RestartPlayer(i);
         InitPlayerKeys(i);
     }

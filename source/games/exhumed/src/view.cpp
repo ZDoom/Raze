@@ -202,7 +202,7 @@ void DrawView(double smoothRatio, bool sceneonly)
     int playerX;
     int playerY;
     int playerZ;
-    int nSector;
+    sectortype* pSector = nullptr;
     binangle nAngle, rotscrnang;
     fixedhoriz pan = {};
 
@@ -225,7 +225,7 @@ void DrawView(double smoothRatio, bool sceneonly)
         playerX = pSprite->x;
         playerY = pSprite->y;
         playerZ = pSprite->z;
-        nSector = pSprite->sectnum;
+        pSector = pSprite->sector();
         nAngle = buildang(pSprite->ang);
         rotscrnang = buildang(0);
 
@@ -249,9 +249,9 @@ void DrawView(double smoothRatio, bool sceneonly)
         playerY = pPlayerSprite->interpolatedy(smoothRatio);
         playerZ = pPlayerSprite->interpolatedz(smoothRatio) + interpolatedvalue(PlayerList[nLocalPlayer].oeyelevel, PlayerList[nLocalPlayer].eyelevel, smoothRatio);
 
-        nSector = PlayerList[nLocalPlayer].nPlayerViewSect;
-        updatesector(playerX, playerY, &nSector);
-        if (nSector == -1) PlayerList[nLocalPlayer].nPlayerViewSect;
+        pSector = PlayerList[nLocalPlayer].pPlayerViewSect;
+        updatesector(playerX, playerY, &pSector);
+        if (pSector == nullptr) pSector = PlayerList[nLocalPlayer].pPlayerViewSect;
 
         if (!SyncInput())
         {
@@ -299,21 +299,21 @@ void DrawView(double smoothRatio, bool sceneonly)
         if (bCamera)
         {
             viewz -= 2560;
+            /* needs fixing.
             if (!calcChaseCamPos(&playerX, &playerY, &viewz, pPlayerSprite, &nSector, nAngle, pan, smoothRatio))
             {
                 viewz += 2560;
                 calcChaseCamPos(&playerX, &playerY, &viewz, pPlayerSprite, &nSector, nAngle, pan, smoothRatio);
             }
+            */
         }
     }
     nCamerax = playerX;
     nCameray = playerY;
     nCameraz = playerZ;
 
-    if (nSector != -1)
+    if (pSector != nullptr)
     {
-        auto pSector = &sector[nSector];
-
         int Z = pSector->ceilingz + 256;
         if (Z <= viewz)
         {
@@ -369,13 +369,13 @@ void DrawView(double smoothRatio, bool sceneonly)
         if (!testnewrenderer)
         {
             renderSetRollAngle((float)rotscrnang.asbuildf());
-            renderDrawRoomsQ16(nCamerax, nCameray, viewz, nCameraa.asq16(), nCamerapan.asq16(), nSector, false);
+            renderDrawRoomsQ16(nCamerax, nCameray, viewz, nCameraa.asq16(), nCamerapan.asq16(), sectnum(pSector), false);
             analyzesprites(pm_tsprite, pm_spritesortcnt, nCamerax, nCameray, viewz, smoothRatio);
             renderDrawMasks();
         }
         else
         {
-            render_drawrooms(nullptr, { nCamerax, nCameray, viewz }, nSector, nCameraa, nCamerapan, rotscrnang, smoothRatio);
+            render_drawrooms(nullptr, { nCamerax, nCameray, viewz }, sectnum(pSector), nCameraa, nCamerapan, rotscrnang, smoothRatio);
         }
 
         if (HavePLURemap())

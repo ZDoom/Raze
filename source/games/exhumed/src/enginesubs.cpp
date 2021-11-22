@@ -38,20 +38,17 @@ void precache()
 {
     if (!r_precache) return;
 
-    int i;
-
-    for (i = 0; i < numsectors; i++)
+    for (auto& sect: sectors())
     {
-        auto sectp = &sector[i];
-        int j = sectp->ceilingpicnum;
-        markTileForPrecache(j, sectp->ceilingpal);
+        int j = sect.ceilingpicnum;
+        markTileForPrecache(j, sect.ceilingpal);
         if (picanm[j].sf & PICANM_ANIMTYPE_MASK)
-            for (int k = 1; k <= picanm[j].num; k++)  markTileForPrecache(j + k, sectp->ceilingpal);
+            for (int k = 1; k <= picanm[j].num; k++)  markTileForPrecache(j + k, sect.ceilingpal);
 
-        j = sectp->floorpicnum;
-        markTileForPrecache(j, sectp->floorpal);
+        j = sect.floorpicnum;
+        markTileForPrecache(j, sect.floorpal);
         if (picanm[j].sf & PICANM_ANIMTYPE_MASK)
-            for (int k = 1; k <= picanm[j].num; k++)  markTileForPrecache(j + k, sectp->floorpal);
+            for (int k = 1; k <= picanm[j].num; k++)  markTileForPrecache(j + k, sect.floorpal);
     }
 
     for(auto& wal : walls())

@@ -33,7 +33,7 @@ BEGIN_PS_NS
 int nPushBlocks;
 
 // TODO - moveme?
-int overridesect;
+sectortype* overridesect;
 
 DExhumedActor* nBodySprite[50];
 
@@ -282,7 +282,7 @@ int BelowNear(DExhumedActor* pActor, int x, int y, int walldist, int _nSector)
     if (z2 < pSprite->z)
     {
         pSprite->z = z2;
-        overridesect = sectnum(pSector);
+        overridesect = pSector;
         pSprite->zvel = 0;
 
         bTouchFloor = true;
@@ -301,7 +301,7 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
     auto pSector = pSprite->sector();
     assert(pSector);
 
-    overridesect = sectnum(pSector);
+    overridesect = pSector;
     auto pSect2 = pSector;
 
     // backup cstat
@@ -742,9 +742,8 @@ DExhumedActor* FindPlayer(DExhumedActor* pActor, int nDistance, bool dontengage)
     return pPlayerActor;
 }
 
-void CheckSectorFloor(int nSector, int z, int *x, int *y)
+void CheckSectorFloor(sectortype* pSector, int z, int *x, int *y)
 {
-    auto pSector = &sector[nSector];
     int nSpeed = pSector->Speed;
 
     if (!nSpeed) {
@@ -754,7 +753,7 @@ void CheckSectorFloor(int nSector, int z, int *x, int *y)
     int nFlag = pSector->Flag;
     int nAng = nFlag & kAngleMask;
 
-    if (z >= sector[nSector].floorz)
+    if (z >= pSector->floorz)
     {
         *x += bcos(nAng, 3) * nSpeed;
         *y += bsin(nAng, 3) * nSpeed;

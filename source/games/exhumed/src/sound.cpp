@@ -237,8 +237,8 @@ void InitFX(void)
 
 void GetSpriteSoundPitch(int* pVolume, int* pPitch)
 {
-    int nSoundSect = PlayerList[nLocalPlayer].nPlayerViewSect;
-    int nLocalSectFlags = sector[nSoundSect].Flag;
+    auto pSoundSect = PlayerList[nLocalPlayer].pPlayerViewSect;
+    int nLocalSectFlags = pSoundSect->Flag;
     if (nLocalSectFlags & kSectUnderwater)
     {
 		if (*pVolume == 255)
@@ -724,7 +724,7 @@ void UpdateCreepySounds()
     nCreepyTimer--;
     if (nCreepyTimer <= 0)
     {
-        if (nCreaturesKilled < nCreaturesTotal && !(sector[PlayerList[nLocalPlayer].nPlayerViewSect].Flag & 0x2000))
+        if (nCreaturesKilled < nCreaturesTotal && !(PlayerList[nLocalPlayer].pPlayerViewSect->Flag & 0x2000))
         {
             int vsi = seq_GetFrameSound(SeqOffsets[kSeqCreepy], totalmoves % SeqSize[SeqOffsets[kSeqCreepy]]);
             if (vsi >= 0 && (vsi & 0x1ff) < kMaxSounds)

@@ -23,8 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-void RestoreSavePoint(int nPlayer, int *x, int *y, int *z, int *nSector, int16_t *nAngle);
-void SetSavePoint(int nPlayer, int x, int y, int z, int nSector, int nAngle);
+void SetSavePoint(int nPlayer, int x, int y, int z, sectortype* nSector, int nAngle);
 void InitPlayer();
 void InitPlayerKeys(int nPlayer);
 int GrabPlayer();
@@ -48,10 +47,10 @@ extern int lPlayerYVel;
 
 struct PlayerSave
 {
+    sectortype* pSector;
     int x;
     int y;
     int z;
-    int nSector;
     int16_t nAngle;
 };
 
@@ -90,6 +89,7 @@ struct Player
     PlayerHorizon horizon;
     PlayerAngle angle;
     sectortype* pPlayerPushSect;
+    sectortype* pPlayerViewSect;
 
     int16_t nBreathTimer;
     int16_t nPlayerSwear;
@@ -106,7 +106,6 @@ struct Player
     int16_t nPlayerPushSound;
     int16_t nTauntTimer;
     uint16_t nPlayerWeapons; // each set bit represents a weapon the player has
-    int nPlayerViewSect;
     PlayerSave sPlayerSave;
     int ototalvel;
     int totalvel;

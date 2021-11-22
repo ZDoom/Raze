@@ -87,21 +87,12 @@ int PlayerCount;
 int nNetStartSprites;
 int nCurStartSprite;
 
-void RestoreSavePoint(int nPlayer, int *x, int *y, int *z, int *nSector, int16_t *nAngle)
-{
-    *x = PlayerList[nPlayer].sPlayerSave.x;
-    *y = PlayerList[nPlayer].sPlayerSave.y;
-    *z = PlayerList[nPlayer].sPlayerSave.z;
-    *nSector = PlayerList[nPlayer].sPlayerSave.nSector;
-    *nAngle  = PlayerList[nPlayer].sPlayerSave.nAngle;
-}
-
-void SetSavePoint(int nPlayer, int x, int y, int z, int nSector, int nAngle)
+void SetSavePoint(int nPlayer, int x, int y, int z, sectortype* pSector, int nAngle)
 {
     PlayerList[nPlayer].sPlayerSave.x = x;
     PlayerList[nPlayer].sPlayerSave.y = y;
     PlayerList[nPlayer].sPlayerSave.z = z;
-    PlayerList[nPlayer].sPlayerSave.nSector = nSector;
+    PlayerList[nPlayer].sPlayerSave.pSector = pSector;
     PlayerList[nPlayer].sPlayerSave.nAngle = nAngle;
 }
 
@@ -246,7 +237,7 @@ void RestartPlayer(int nPlayer)
     pActor = GrabBody();
 	auto nSpr = &pActor->s();
 
-	ChangeActorSect(pActor, plr->sPlayerSave.nSector);
+	ChangeActorSect(pActor, plr->sPlayerSave.pSector);
 	ChangeActorStat(pActor, 100);
 
 	auto pDActor = insertActor(nSpr->sectnum, 100);
@@ -284,7 +275,7 @@ void RestartPlayer(int nPlayer)
 	{
 		nSpr->x = plr->sPlayerSave.x;
 		nSpr->y = plr->sPlayerSave.y;
-		nSpr->z = sector[plr->sPlayerSave.nSector].floorz;
+		nSpr->z = plr->sPlayerSave.pSector->floorz;
 		plr->angle.ang = buildang(plr->sPlayerSave.nAngle&kAngleMask);
 		nSpr->ang = plr->angle.ang.asbuild();
 
@@ -355,7 +346,7 @@ void RestartPlayer(int nPlayer)
 
 	plr->bIsFiring = 0;
 	plr->nSeqSize2 = 0;
-	plr->nPlayerViewSect = plr->sPlayerSave.nSector;
+	plr->pPlayerViewSect = plr->sPlayerSave.pSector;
 	plr->nState = 0;
 
 	plr->nDouble = 0;
@@ -863,7 +854,7 @@ void AIPlayer::Tick(RunListEvent* ev)
 
     // loc_1A4E6
     int nSector =pPlayerSprite->sectnum;
-    int nSectFlag = sector[PlayerList[nPlayer].nPlayerViewSect].Flag;
+    int nSectFlag = PlayerList[nPlayer].pPlayerViewSect->Flag;
 
     int playerX = pPlayerSprite->x;
     int playerY = pPlayerSprite->y;
@@ -1165,7 +1156,7 @@ sectdone:
     }
 
     // loc_1ADAF
-    PlayerList[nPlayer].nPlayerViewSect = sectnum(pViewSect);
+    PlayerList[nPlayer].pPlayerViewSect = pViewSect;
 
     PlayerList[nPlayer].nPlayerDX = pPlayerSprite->x - spr_x;
     PlayerList[nPlayer].nPlayerDY = pPlayerSprite->y - spr_y;
@@ -2215,7 +2206,7 @@ sectdone:
                         ChangeActorStat(pActorB, 899);
                     }
 
-                    SetSavePoint(nPlayer, pPlayerSprite->x, pPlayerSprite->y, pPlayerSprite->z, pPlayerSprite->sectnum, pPlayerSprite->ang);
+                    SetSavePoint(nPlayer, pPlayerSprite->x, pPlayerSprite->y, pPlayerSprite->z, pPlayerSprite->sector(), pPlayerSprite->ang);
                     break;
                 }
 
@@ -2506,7 +2497,7 @@ sectdone:
     // loc_1C201:
     if (nLocalPlayer == nPlayer)
     {
-        nLocalEyeSect = PlayerList[nLocalPlayer].nPlayerViewSect;
+        nLocalEyeSect = sectnum(PlayerList[nLocalPlayer].pPlayerViewSect);
         CheckAmbience(nLocalEyeSect);
     }
 
@@ -2670,7 +2661,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Player& w, Player*
             ("pushsound", w.nPlayerPushSound)
             ("taunttimer", w.nTauntTimer)
             ("weapons", w.nPlayerWeapons)
-            ("viewsect", w.nPlayerViewSect)
+            ("viewsect", w.pPlayerViewSect)
             ("floorspr", w.pPlayerFloorSprite)
             ("save", w.sPlayerSave)
             ("totalvel", w.totalvel)
@@ -2689,7 +2680,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PlayerSave& w, Pla
         arc("x", w.x)
             ("y", w.y)
             ("z", w.z)
-            ("sector", w.nSector)
+            ("sector", w.pSector)
             ("angle", w.nAngle)
             .EndObject();
     }
@@ -2764,7 +2755,7 @@ DEFINE_ACTION_FUNCTION(_ExhumedPlayer, IsUnderwater)
 {
     PARAM_SELF_STRUCT_PROLOGUE(Player);
     auto nLocalPlayer = self - PlayerList;
-    ACTION_RETURN_BOOL(sector[PlayerList[nLocalPlayer].nPlayerViewSect].Flag & kSectUnderwater);
+    ACTION_RETURN_BOOL(PlayerList[nLocalPlayer].pPlayerViewSect->Flag & kSectUnderwater);
 }
 
 DEFINE_ACTION_FUNCTION(_ExhumedPlayer, GetAngle)

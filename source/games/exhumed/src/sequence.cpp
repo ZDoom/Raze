@@ -361,9 +361,9 @@ int16_t seq_GetFrameFlag(int16_t val, int16_t nFrame)
 
 void seq_DrawPilotLightSeq(double xOffset, double yOffset)
 {
-    int16_t nSect = PlayerList[nLocalPlayer].nPlayerViewSect;
+    auto pSect = PlayerList[nLocalPlayer].pPlayerViewSect;
 
-    if (!(sector[nSect].Flag & kSectUnderwater))
+    if (!(pSect->Flag & kSectUnderwater))
     {
         int16_t nFrame = nPilotLightBase + nPilotLightFrame;
         int16_t nFrameBase = FrameBase[nFrame];

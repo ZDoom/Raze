@@ -609,18 +609,18 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int n
         return nullptr;
     }
 
-    int nSector;
+    sectortype* pSector;
 
     if (pSprite->statnum == 100)
     {
-        nSector = PlayerList[GetPlayerFromActor(pActor)].nPlayerViewSect;
+        pSector = PlayerList[GetPlayerFromActor(pActor)].pPlayerViewSect;
     }
     else
     {
-        nSector = pSprite->sectnum;
+        pSector = pSprite->sector();
     }
 
-    auto pBulletActor = insertActor(nSector, 200);
+    auto pBulletActor = insertActor(pSector, 200);
 	auto pBulletSprite = &pBulletActor->s();
     int nHeight = GetActorHeight(pActor);
     nHeight = nHeight - (nHeight >> 2);
@@ -706,7 +706,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int n
 
     int var_18 = 0;
 
-    auto pSector = pBulletSprite->sector();
+    pSector = pBulletSprite->sector();
 
     while (pBulletSprite->z < pSector->ceilingz)
     {

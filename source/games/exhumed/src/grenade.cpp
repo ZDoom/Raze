@@ -59,7 +59,7 @@ void ThrowGrenade(int nPlayer, int, int, int ecx, int push1)
 
     int nAngle = pPlayerSprite->ang;
 
-    ChangeActorSect(pActor, PlayerList[nPlayer].nPlayerViewSect);
+    ChangeActorSect(pActor, PlayerList[nPlayer].pPlayerViewSect);
 
     pGrenadeSprite->x = pPlayerSprite->x;
     pGrenadeSprite->y = pPlayerSprite->y;
@@ -102,7 +102,7 @@ void ThrowGrenade(int nPlayer, int, int, int ecx, int push1)
 
 void BuildGrenade(int nPlayer)
 {
-    auto pActor = insertActor(PlayerList[nPlayer].nPlayerViewSect, 201);
+    auto pActor = insertActor(PlayerList[nPlayer].pPlayerViewSect, 201);
 	auto pSprite = &pActor->s();
 
 	auto pPlayerSprite = &PlayerList[nPlayer].Actor()->s();

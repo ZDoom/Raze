@@ -122,7 +122,7 @@ void BuildSnake(int nPlayer, int zVal)
 
     auto pPlayerActor = PlayerList[nPlayer].Actor();
     auto pPlayerSprite = &pPlayerActor->s();
-    int nViewSect = PlayerList[nPlayer].nPlayerViewSect;
+    auto pViewSect = PlayerList[nPlayer].pPlayerViewSect;
     int nPic = seq_GetSeqPicnum(kSeqSnakBody, 0, 0);
 
     int x = pPlayerSprite->x;
@@ -191,7 +191,7 @@ void BuildSnake(int nPlayer, int zVal)
 
         for (int i = 0; i < kSnakeSprites; i++)
         {
-            auto pActor = insertActor(nViewSect, 202);
+            auto pActor = insertActor(pViewSect, 202);
             auto pSprite = &pActor->s();
 
 			pActor->pTarget = pPlayerActor;
@@ -205,7 +205,7 @@ void BuildSnake(int nPlayer, int zVal)
                 pSprite->z = pPlayerSprite->z + zVal;
                 pSprite->xrepeat = 32;
                 pSprite->yrepeat = 32;
-                nViewSect = pSprite->sectnum;
+                pViewSect = pSprite->sector();
                 sprt = pActor;
             }
             else
