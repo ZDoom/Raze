@@ -143,13 +143,13 @@ struct Point
 struct Trap
 {
     DExhumedActor* pActor;
+    walltype* pWall1;
+    walltype* pWall2;
 
     int16_t nState;
     int16_t nType;
-    int nWallNum2;
-    int nWallNum;
+    int16_t nPicnum1;
     int16_t nPicnum2;
-    int16_t nPicnum;
     int16_t nTrapInterval;
 
 };
@@ -316,10 +316,10 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Trap& w, Trap* def
         arc("at0", w.nState)
             ("sprite", w.pActor)
             ("type", w.nType)
-            ("at6", w.nWallNum2)
-            ("at8", w.nWallNum)
-            ("ata", w.nPicnum2)
-            ("atc", w.nPicnum)
+            ("wall1", w.pWall1)
+            ("wall2", w.pWall2)
+            ("pic1", w.nPicnum1)
+            ("pic2", w.nPicnum2)
             ("interval", w.nTrapInterval)
             .EndObject();
     }
@@ -1227,44 +1227,34 @@ int BuildTrap(DExhumedActor* pActor, int edx, int ebx, int ecx)
         sTrap[nTrap].nTrapInterval = 5;
     }
 
-    sTrap[nTrap].nPicnum = 0;
     sTrap[nTrap].nPicnum2 = 0;
+    sTrap[nTrap].nPicnum1 = 0;
 
     if (var_18 == -1) {
         return nTrap;
     }
 
-    sTrap[nTrap].nWallNum2 = -1;
-    sTrap[nTrap].nWallNum = -1;
+    sTrap[nTrap].pWall1 = nullptr;
+    sTrap[nTrap].pWall2 = nullptr;
 
-    int nSector =pSprite->sectnum;
-    int nWall = sector[nSector].wallptr;
+    auto pSector = pSprite->sector();
 
-    int i = 0;
-
-    while (1)
+    for(auto wal : wallsofsector(pSector))
     {
-        if (sector[nSector].wallnum >= i) {
-            break;
-        }
-
-        if (var_18 == wall[nWall].hitag)
+        if (var_18 == wal.hitag)
         {
-            if (sTrap[nTrap].nWallNum2 != -1)
+            if (sTrap[nTrap].pWall1 != nullptr)
             {
-                sTrap[nTrap].nWallNum = nWall;
-                sTrap[nTrap].nPicnum = wall[nWall].picnum;
+                sTrap[nTrap].pWall2 = &wal;
+                sTrap[nTrap].nPicnum2 = wal.picnum;
                 break;
             }
             else
             {
-                sTrap[nTrap].nWallNum2 = nWall;
-                sTrap[nTrap].nPicnum2 = wall[nWall].picnum;
+                sTrap[nTrap].pWall1 = &wal;
+                sTrap[nTrap].nPicnum1 = wal.picnum;
             }
         }
-
-        ecx++;
-        nWall++;
     }
     pSprite->backuppos();
     return nTrap;
@@ -1306,16 +1296,16 @@ void AITrap::Tick(RunListEvent* ev)
 
             if (nType == 14)
             {
-                int nWall = sTrap[nTrap].nWallNum2;
-                if (nWall > -1)
+                auto pWall = sTrap[nTrap].pWall1;
+                if (pWall)
                 {
-                    wall[nWall].picnum = sTrap[nTrap].nPicnum2;
+                    pWall->picnum = sTrap[nTrap].nPicnum1;
                 }
 
-                nWall = sTrap[nTrap].nWallNum;
-                if (nWall > -1)
+                pWall = sTrap[nTrap].pWall1;
+                if (pWall)
                 {
-                    wall[nWall].picnum = sTrap[nTrap].nPicnum;
+                    pWall->picnum = sTrap[nTrap].nPicnum2;
                 }
             }
         }
@@ -1338,16 +1328,16 @@ void AITrap::Tick(RunListEvent* ev)
                 {
                     pBullet->s().clipdist = 50;
 
-                    int nWall = sTrap[nTrap].nWallNum2;
-                    if (nWall > -1)
+                    auto pWall = sTrap[nTrap].pWall1;
+                    if (pWall)
                     {
-                        wall[nWall].picnum = sTrap[nTrap].nPicnum2 + 1;
+                        pWall->picnum = sTrap[nTrap].nPicnum1 + 1;
                     }
 
-                    nWall = sTrap[nTrap].nWallNum;
-                    if (nWall > -1)
+                    pWall = sTrap[nTrap].pWall2;
+                    if (pWall)
                     {
-                        wall[nWall].picnum = sTrap[nTrap].nPicnum + 1;
+                        pWall->picnum = sTrap[nTrap].nPicnum2;
                     }
 
                     D3PlayFX(StaticSound[kSound36], pBullet);
