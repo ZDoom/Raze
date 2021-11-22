@@ -1774,21 +1774,21 @@ void AIEnergyBlock::RadialDamage(RunListEvent* ev)
     if (!pActor) return;
     auto spr = &pActor->s();
 
-    int nSector =spr->sectnum;
+    auto pSector =spr->sector();
 
-    if (sector[nSector].extra == -1) {
+    if (pSector->extra == -1) {
         return;
     }
 
-    int nFloorZ = sector[nSector].floorz;
+    int nFloorZ = pSector->floorz;
 
-    sector[nSector].floorz = spr->z;
+    pSector->floorz = spr->z;
     spr->z -= 256;
 
     ev->nDamage = runlist_CheckRadialDamage(pActor);
 
     // restore previous values
-    sector[nSector].floorz = nFloorZ;
+    pSector->floorz = nFloorZ;
     spr->z += 256;
 
     if (ev->nDamage <= 0) {

@@ -159,21 +159,21 @@ void InitSpiritHead()
     nTalkTime = 1;
 }
 
-void DimSector(int nSector)
+void DimSector(sectortype* pSector)
 {
-	for(auto& wal : wallsofsector(nSector))
+	for(auto& wal : wallsofsector(pSector))
     {
         if (wal.shade < 40) {
             wal.shade++;
         }
     }
 
-    if (sector[nSector].floorshade < 40) {
-        sector[nSector].floorshade++;
+    if (pSector->floorshade < 40) {
+        pSector->floorshade++;
     }
 
-    if (sector[nSector].ceilingshade < 40) {
-        sector[nSector].ceilingshade++;
+    if (pSector->ceilingshade < 40) {
+        pSector->ceilingshade++;
     }
 }
 
@@ -299,7 +299,7 @@ void DoSpiritHead()
             pSpiritSpr->shade--;
         if (--dimSectCount < 0) 
         {
-            DimSector(pSpiritSpr->sectnum);
+            DimSector(pSpiritSpr->sector());
             dimSectCount = 5;
         }
 
