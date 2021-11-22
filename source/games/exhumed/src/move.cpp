@@ -264,7 +264,7 @@ int BelowNear(DExhumedActor* pActor, int x, int y, int walldist, int _nSector)
             while (pSect2)
             {
                 pTempSect = pSect2;
-                pSect2 = pSect2->Below>=0? &sector[pSect2->Below] : nullptr;
+                pSect2 = pSect2->pBelow;
             }
 
             int ecx = pTempSect->floorz + pTempSect->Depth;
@@ -329,9 +329,9 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
     }
 
     // loc_151E7:
-    while (ebp > pSprite->sector()->floorz && pSprite->sector()->Below >= 0)
+    while (ebp > pSprite->sector()->floorz && pSprite->sector()->pBelow != nullptr)
     {
-        ChangeActorSect(pActor, pSprite->sector()->Below);
+        ChangeActorSect(pActor, pSprite->sector()->pBelow);
     }
 
     if (edi != nSector)
@@ -351,11 +351,9 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
     }
     else
     {
-        while ((ebp < pSprite->sector()->ceilingz) && (pSprite->sector()->Above >= 0))
+        while ((ebp < pSprite->sector()->ceilingz) && (pSprite->sector()->pAbove != nullptr))
         {
-            edi = pSprite->sector()->Above;
-
-            ChangeActorSect(pActor, edi);
+            ChangeActorSect(pActor, pSprite->sector()->pAbove);
         }
     }
 
@@ -413,7 +411,7 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
             else
             {
                 // Path B
-                if (pSprite->sector()->Below == -1)
+                if (pSprite->sector()->pBelow == nullptr)
                 {
                     nRet.exbits |= kHitAux2;
 
@@ -444,7 +442,7 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
     }
     else
     {
-        if ((ebp - height) < sprceiling && (hiHit.type == kHitSprite || pSprite->sector()->Above == -1))
+        if ((ebp - height) < sprceiling && (hiHit.type == kHitSprite || pSprite->sector()->pAbove == nullptr))
         {
             ebp = sprceiling + height;
             nRet.exbits |= kHitAux1;
@@ -639,7 +637,7 @@ Collision MoveCreatureWithCaution(DExhumedActor* pActor)
             zDiff = -zDiff;
         }
 
-        if (zDiff > 15360 || (pSector->Flag & kSectUnderwater) || (pSector->Below > -1 && sector[pSector->Below].Flag) || pSector->Damage)
+        if (zDiff > 15360 || (pSector->Flag & kSectUnderwater) || (pSector->pBelow != nullptr && pSector->pBelow->Flag) || pSector->Damage)
         {
             pSprite->x = x;
             pSprite->y = y;

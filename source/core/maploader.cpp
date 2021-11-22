@@ -470,13 +470,10 @@ void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang,
 		case 6: ReadSectorV6(fr, sector[i]); break;
 		default: ReadSectorV7(fr, sector[i]); break;
 		}
-		// If we do not do this here, we need to do a lot more contortions to exclude these defaults from getting written out to savegames.
-		// This way they just get copied to the sector backup array. These 4 are the only values in all games needing such treatment.
+		// If we do not do this here, we need to do a lot more contortions to exclude this default from getting written out to savegames.
 		if (isExhumed())
 		{
 			sector[i].Sound = -1;
-			sector[i].Above = -1;
-			sector[i].Below = -1;
 		}
 	}
 

@@ -93,14 +93,14 @@ void AIBubble::Tick(RunListEvent* ev)
 
     pSprite->z += pSprite->zvel;
 
-    int nSector = pSprite->sectnum;
+    auto pSector = pSprite->sector();
 
-    if (pSprite->z <= sector[nSector].ceilingz)
+    if (pSprite->z <= pSector->ceilingz)
     {
-        int nSectAbove = sector[nSector].Above;
+        auto pSectAbove = pSector->pAbove;
 
-        if (pSprite->hitag > -1 && nSectAbove != -1) {
-            BuildAnim(nullptr, 70, 0, pSprite->x, pSprite->y, sector[nSectAbove].floorz, nSectAbove, 64, 0);
+        if (pSprite->hitag > -1 && pSectAbove != nullptr) {
+            BuildAnim(nullptr, 70, 0, pSprite->x, pSprite->y, pSectAbove->floorz, sectnum(pSectAbove), 64, 0);
         }
 
         DestroyBubble(pActor);

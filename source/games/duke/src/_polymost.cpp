@@ -73,16 +73,16 @@ void SE40_Draw(int tag, spritetype *spr, int x, int y, int z, binangle a, fixedh
 			// repurpose otherwise unused fields in sectortype as temporary storage.
 			if (k == tag + 0)
 			{
-				sect->Above = sect->floorz;
+				sect->Flag = sect->floorz;
 				sect->floorz += (((z - sect->floorz) / 32768) + 1) * 32768;
-				sect->Below = sect->floorpicnum;
+				sect->Damage = sect->floorpicnum;
 				sect->floorpicnum = 13;
 			}
 			if (k == tag + 1)
 			{
-				sect->Above = sect->ceilingz;
+				sect->Flag = sect->ceilingz;
 				sect->ceilingz += (((z - sect->ceilingz) / 32768) - 1) * 32768;
-				sect->Below = sect->ceilingpicnum;
+				sect->Damage = sect->ceilingpicnum;
 				sect->ceilingpicnum = 13;
 			}
 		}
@@ -107,13 +107,13 @@ void SE40_Draw(int tag, spritetype *spr, int x, int y, int z, binangle a, fixedh
 			auto sect = spr->sector();
 			if (k == tag + 0)
 			{
-				sect->floorz = sect->Above;
-				sect->floorpicnum = sect->Below;
+				sect->floorz = sect->Flag;
+				sect->floorpicnum = sect->Damage;
 			}
 			if (k == tag + 1)
 			{
-				sect->ceilingz = sect->Above;
-				sect->ceilingpicnum = sect->Below;
+				sect->ceilingz = sect->Flag;
+				sect->ceilingpicnum = sect->Damage;
 			}
 		}// end if
 	}// end for

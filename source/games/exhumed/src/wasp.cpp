@@ -344,7 +344,7 @@ void AIWasp::Tick(RunListEvent* ev)
 
         if (pSprite->z >= pSector->floorz)
         {
-            if (pSector->Below > -1)
+            if (pSector->pBelow != nullptr)
             {
                 BuildSplash(pActor, pSector);
                 pSprite->cstat |= 0x8000;

@@ -104,10 +104,9 @@ struct sectortype
         };
         struct // Exhumed
         {
-            sectortype*   pSoundSect;
+            sectortype* pSoundSect;
+            sectortype* pAbove, * pBelow;
             int   Depth;
-            int   Above;
-            int   Below;
             short Sound;
             short Flag;
             short Damage;

@@ -505,7 +505,7 @@ HITSPRITE:
             if (hitactor == nullptr && hitwall < 0)
             {
                 auto pHitSect = &sector[hitsect];
-                if ((pHitSect->Below >= 0 && (sector[pHitSect->Below].Flag & kSectUnderwater)) || pHitSect->Depth)
+                if ((pHitSect->pBelow != nullptr && (pHitSect->pBelow->Flag & kSectUnderwater)) || pHitSect->Depth)
                 {
                     pSprite->x = x2;
                     pSprite->y = y2;
@@ -708,18 +708,18 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int n
 
     int var_18 = 0;
 
-    nSector = pBulletSprite->sectnum;
+    auto pSector = pBulletSprite->sector();
 
-    while (pBulletSprite->z < sector[nSector].ceilingz)
+    while (pBulletSprite->z < pSector->ceilingz)
     {
-        if (sector[nSector].Above == -1)
+        if (pSector->pAbove == nullptr)
         {
-            pBulletSprite->z = sector[nSector].ceilingz;
+            pBulletSprite->z = pSector->ceilingz;
             break;
         }
 
-        nSector = sector[nSector].Above;
-        ChangeActorSect(pBulletActor, nSector);
+        pSector = pSector->pAbove;
+        ChangeActorSect(pBulletActor, pSector);
     }
 
     if (pTarget == nullptr)

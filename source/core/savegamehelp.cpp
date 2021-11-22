@@ -575,8 +575,8 @@ FSerializer &Serialize(FSerializer &arc, const char *key, sectortype &c, sectort
 		{
 			arc("SoundSect", c.pSoundSect, def->pSoundSect)
 				("Depth", c.Depth, def->Depth)
-				("Above", c.Above, def->Above)
-				("Below", c.Below, def->Below)
+				("Above", c.pAbove, def->pAbove)
+				("Below", c.pBelow, def->pBelow)
 				("Sound", c.Sound, def->Sound)
 				("Flag", c.Flag, def->Flag)
 				("Damage", c.Damage, def->Damage)

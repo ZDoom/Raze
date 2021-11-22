@@ -194,16 +194,6 @@ void InitNewGame()
     }
 }
 
-void SetBelow(int nCurSector, int nBelowSector)
-{
-    sector[nCurSector].Below = nBelowSector;
-}
-
-void SetAbove(int nCurSector, int nAboveSector)
-{
-    sector[nCurSector].Above = nAboveSector;
-}
-
 void SnapSectors(int nSectorA, int nSectorB, int b)
 {
 	for(auto& wal1 : wallsofsector(nSectorA))
@@ -555,18 +545,18 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
             }
             case 99: // underwater type 2
             {
-                int nSector =pSprite->sectnum;
-                SetAbove(nSector, nHitag);
-                sector[nSector].Flag |= kSectUnderwater;
+                auto pSector =pSprite->sector();
+                pSector->pAbove = &sector[nHitag];
+                pSector->Flag |= kSectUnderwater;
 
                 DeleteActor(pActor);
                 return;
             }
             case 98:
             {
-                int nSector =pSprite->sectnum;
-                SetBelow(nSector, nHitag);
-                SnapSectors(nSector, nHitag, 1);
+                auto pSector = pSprite->sector();
+                pSector->pBelow = &sector[nHitag];
+                SnapSectors(sectnum(pSector), nHitag, 1);
 
                 DeleteActor(pActor);
                 return;

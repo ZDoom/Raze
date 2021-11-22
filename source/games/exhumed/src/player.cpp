@@ -456,19 +456,18 @@ void StartDeathSeq(int nPlayer, int nVal)
 
             if (nWeapon > kWeaponSword && nWeapon <= kWeaponRing)
             {
-                int nSector =pSprite->sectnum;
                 auto pSector = pSprite->sector();
-                if (pSector->Below > -1) {
-                    nSector = pSector->Below;
+                if (pSector->pBelow != nullptr) {
+                    pSector = pSector->pBelow;
                 }
 
                 auto pGunActor = GrabBodyGunSprite();
-                ChangeActorSect(pGunActor, nSector);
+                ChangeActorSect(pGunActor, pSector);
 				auto pGunSprite = &pGunActor->s();
 
                 pGunSprite->x = pSprite->x;
                 pGunSprite->y = pSprite->y;
-                pGunSprite->z = sector[nSector].floorz - 512;
+                pGunSprite->z = pSector->floorz - 512;
 
                 ChangeActorStat(pGunActor, nGunLotag[nWeapon] + 900);
 
@@ -1110,27 +1109,27 @@ sectdone:
     PlayerList[nPlayer].ototalvel = PlayerList[nPlayer].totalvel;
     PlayerList[nPlayer].totalvel = ksqrt(sqrtNum);
 
-    int nViewSect = pPlayerSprite->sectnum;
+    auto pViewSect = pPlayerSprite->sector();
 
     int EyeZ = PlayerList[nPlayer].eyelevel + pPlayerSprite->z + nQuake[nPlayer];
 
     while (1)
     {
-        int nCeilZ = sector[nViewSect].ceilingz;
+        int nCeilZ = pViewSect->ceilingz;
 
         if (EyeZ >= nCeilZ)
             break;
 
-        if (sector[nViewSect].Above <= -1)
+        if (pViewSect->pAbove == nullptr)
             break;
 
-        nViewSect = sector[nViewSect].Above;
+        pViewSect = pViewSect->pAbove;
     }
 
     // Do underwater sector check
     if (bUnderwater)
     {
-        if (nViewSect != pPlayerSprite->sectnum)
+        if (pViewSect != pPlayerSprite->sector())
         {
             if (nMove.type == kHitWall)
             {
@@ -1138,19 +1137,19 @@ sectdone:
                 int var_D4 = pPlayerSprite->y;
                 int var_C8 = pPlayerSprite->z;
 
-                ChangeActorSect(pPlayerActor, nViewSect);
+                ChangeActorSect(pPlayerActor, pViewSect);
 
                 pPlayerSprite->x = spr_x;
                 pPlayerSprite->y = spr_y;
 
-                int var_FC = sector[nViewSect].floorz + (-5120);
+                int var_FC = pViewSect->floorz + (-5120);
 
                 pPlayerSprite->z = var_FC;
 
                 auto coll = movesprite(pPlayerActor, x, y, 0, 5120, 0, CLIPMASK0);
                 if (coll.type == kHitWall)
                 {
-                    ChangeActorSect(pPlayerActor, pPlayerSprite->sectnum);
+                    ChangeActorSect(pPlayerActor, pPlayerSprite->sector());
 
                     pPlayerSprite->x = var_C4;
                     pPlayerSprite->y = var_D4;
@@ -1166,12 +1165,12 @@ sectdone:
     }
 
     // loc_1ADAF
-    PlayerList[nPlayer].nPlayerViewSect = nViewSect;
+    PlayerList[nPlayer].nPlayerViewSect = sectnum(pViewSect);
 
     PlayerList[nPlayer].nPlayerDX = pPlayerSprite->x - spr_x;
     PlayerList[nPlayer].nPlayerDY = pPlayerSprite->y - spr_y;
 
-    int var_5C = sector[nViewSect].Flag & kSectUnderwater;
+    int var_5C = pViewSect->Flag & kSectUnderwater;
 
     auto actions = sPlayerInput[nPlayer].actions;
 
@@ -2608,10 +2607,10 @@ sectdone:
     // loc_1C4E1
     pDopple->s().pos = pPlayerSprite->pos;
 
-    if (pPlayerSprite->sector()->Above > -1)
+    if (pPlayerSprite->sector()->pAbove != nullptr)
     {
         pDopple->s().ang = pPlayerSprite->ang;
-        ChangeActorSect(pDopple, pPlayerSprite->sector()->Above);
+        ChangeActorSect(pDopple, pPlayerSprite->sector()->pAbove);
         pDopple->s().cstat = 0x101;
     }
     else
