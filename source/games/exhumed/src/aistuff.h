@@ -221,6 +221,10 @@ Collision MoveCreatureWithCaution(DExhumedActor* actor);
 void WheresMyMouth(int nPlayer, vec3_t* pos, int *sectnum);
 int GetActorHeight(DExhumedActor* nSprite);
 DExhumedActor* insertActor(int, int);
+inline DExhumedActor* insertActor(sectortype* s, int st)
+{
+    return insertActor(sector.IndexOf(s), st);
+}
 DExhumedActor* GrabBody();
 DExhumedActor* GrabBodyGunSprite();
 void CreatePushBlock(int nSector);
@@ -294,7 +298,7 @@ DExhumedActor* BuildEnergyBlock(int nSector);
 int BuildElevC(int arg1, int nChannel, int nSector, DExhumedActor* nWallSprite, int arg5, int arg6, int nCount, ...);
 int BuildElevF(int nChannel, int nSector, DExhumedActor* nWallSprite, int arg_4, int arg_5, int nCount, ...);
 int BuildWallFace(int nChannel, walltype* pWall, int nCount, ...);
-int BuildSlide(int nChannel, int edx, int ebx, int ecx, int arg1, int arg2, int arg3);
+int BuildSlide(int nChannel, walltype* edx, walltype* ebx, walltype* ecx, walltype* arg1, walltype* arg2, walltype* arg3);
 
 // queen
 

@@ -116,10 +116,10 @@ struct slideData
     int16_t nRunRec;
     int16_t nRunC;
 
-    int nStartWall;
-    int nWall1;
-    int nWall2;
-    int nWall3;
+    walltype* pStartWall;
+    walltype* pWall1;
+    walltype* pWall2;
+    walltype* pWall3;
     int x1;
     int y1;
     int x2;
@@ -136,7 +136,7 @@ struct slideData
 
 struct Point
 {
-    int nSector;
+    sectortype* pSector;
     int16_t nNext;
 };
 
@@ -274,10 +274,10 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, slideData& w, slid
 {
     if (arc.BeginObject(keyname))
     {
-        arc("at0", w.nStartWall)
-            ("at4", w.nWall1)
-            ("at8", w.nWall2)
-            ("atc", w.nWall3)
+        arc("at0", w.pStartWall)
+            ("at4", w.pWall1)
+            ("at8", w.pWall2)
+            ("atc", w.pWall3)
             ("x1", w.x1)
             ("y1", w.y1)
             ("x2", w.x2)
@@ -303,7 +303,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Point& w, Point* d
 {
     if (arc.BeginObject(keyname))
     {
-        arc("at0", w.nSector)
+        arc("at0", w.pSector)
             ("ate", w.nNext)
             .EndObject();
     }
@@ -934,11 +934,11 @@ void InitSlide()
     SlideData.Clear();
 }
 
-int BuildSlide(int nChannel, int nStartWall, int nWall1, int ecx, int nWall2, int nWall3, int nWall4)
+int BuildSlide(int nChannel, walltype* pStartWall, walltype* pWall1, walltype* p2ndLastWall, walltype* pWall2, walltype* pWall3, walltype* pWall4)
 {
     auto nSlide = SlideData.Reserve(1);
 
-    int nSector = wall[nStartWall].sector;
+    auto pSector = pStartWall->sectorp();
 
     SlideData[nSlide].nRunRec = -1;
     SlideData[nSlide].nChannel = nChannel;
@@ -949,12 +949,9 @@ int BuildSlide(int nChannel, int nStartWall, int nWall1, int ecx, int nWall2, in
     SlideData[nSlide].nStart = nPoint;
 
     PointList[nPoint].nNext = -1;
-    PointList[nPoint].nSector = nSector;
+    PointList[nPoint].pSector = pSector;
 
-    int startwall = sector[nSector].wallptr;
-    int endwall = startwall + sector[nSector].wallnum;
-
-    for (int nWall = startwall; nWall < endwall; nWall++)
+    for(auto& wal : wallsofsector(pSector))
     {
         int ax = SlideData[nSlide].nStart;
 
@@ -962,7 +959,7 @@ int BuildSlide(int nChannel, int nStartWall, int nWall1, int ecx, int nWall2, in
         {
             while (ax >= 0)
             {
-                if (wall[nWall].nextsector == PointList[ax].nSector) {
+                if (wal.nextSector() == PointList[ax].pSector) {
                     break;
                 }
 
@@ -971,62 +968,62 @@ int BuildSlide(int nChannel, int nStartWall, int nWall1, int ecx, int nWall2, in
         }
         else
         {
-            if (wall[nWall].twoSided())
+            if (wal.twoSided())
             {
                 nPoint = GrabPoint();
 
                 PointList[nPoint].nNext = SlideData[nSlide].nStart;
-                PointList[nPoint].nSector = wall[nWall].nextsector;
+                PointList[nPoint].pSector = wal.nextSector();
 
                 SlideData[nSlide].nStart = nPoint;
             }
         }
     }
 
-    SlideData[nSlide].nStartWall = nStartWall;
-    SlideData[nSlide].nWall1 = nWall1;
-    SlideData[nSlide].nWall2 = nWall2;
-    SlideData[nSlide].nWall3 = nWall3;
+    SlideData[nSlide].pStartWall = pStartWall;
+    SlideData[nSlide].pWall1 = pWall1;
+    SlideData[nSlide].pWall2 = pWall2;
+    SlideData[nSlide].pWall3 = pWall3;
 
-    SlideData[nSlide].x1 = wall[nStartWall].x;
-    SlideData[nSlide].y1 = wall[nStartWall].y;
+    SlideData[nSlide].x1 = pStartWall->x;
+    SlideData[nSlide].y1 = pStartWall->y;
 
-    SlideData[nSlide].x2 = wall[nWall2].x;
-    SlideData[nSlide].y2 = wall[nWall2].y;
+    SlideData[nSlide].x2 = pWall2->x;
+    SlideData[nSlide].y2 = pWall2->y;
 
-    SlideData[nSlide].x3 = wall[nWall1].x;
-    SlideData[nSlide].y3 = wall[nWall1].y;
+    SlideData[nSlide].x3 = pWall1->x;
+    SlideData[nSlide].y3 = pWall1->y;
 
-    SlideData[nSlide].x4 = wall[nWall3].x;
-    SlideData[nSlide].y4 = wall[nWall3].y;
+    SlideData[nSlide].x4 = pWall3->x;
+    SlideData[nSlide].y4 = pWall3->y;
 
-    SlideData[nSlide].x5 = wall[ecx].x;
-    SlideData[nSlide].y5 = wall[ecx].y;
+    SlideData[nSlide].x5 = p2ndLastWall->x;
+    SlideData[nSlide].y5 = p2ndLastWall->y;
 
-    SlideData[nSlide].x6 = wall[nWall4].x;
-    SlideData[nSlide].y6 = wall[nWall4].y;
+    SlideData[nSlide].x6 = pWall4->x;
+    SlideData[nSlide].y6 = pWall4->y;
 
-    StartInterpolation(nStartWall, Interp_Wall_X);
-    StartInterpolation(nStartWall, Interp_Wall_Y);
+    StartInterpolation(pStartWall, Interp_Wall_X);
+    StartInterpolation(pStartWall, Interp_Wall_Y);
 
-    StartInterpolation(nWall1, Interp_Wall_X);
-    StartInterpolation(nWall1, Interp_Wall_Y);
+    StartInterpolation(pWall1, Interp_Wall_X);
+    StartInterpolation(pWall1, Interp_Wall_Y);
 
-    StartInterpolation(nWall2, Interp_Wall_X);
-    StartInterpolation(nWall2, Interp_Wall_Y);
+    StartInterpolation(pWall2, Interp_Wall_X);
+    StartInterpolation(pWall2, Interp_Wall_Y);
 
-    StartInterpolation(nWall3, Interp_Wall_X);
-    StartInterpolation(nWall3, Interp_Wall_Y);
+    StartInterpolation(pWall3, Interp_Wall_X);
+    StartInterpolation(pWall3, Interp_Wall_Y);
 
 
-    auto pActor = insertActor(nSector, 899);
+    auto pActor = insertActor(pSector, 899);
     auto pSprite = &pActor->s();
 
     SlideData[nSlide].pActor = pActor;
     pSprite->cstat = 0x8000;
-    pSprite->x = wall[nStartWall].x;
-    pSprite->y = wall[nStartWall].y;
-    pSprite->z = sector[nSector].floorz;
+    pSprite->x = pStartWall->x;
+    pSprite->y = pStartWall->y;
+    pSprite->z = pSector->floorz;
     pSprite->backuppos();
 
     SlideData[nSlide].nRunC = 0;
@@ -1076,9 +1073,9 @@ void AISlide::Tick(RunListEvent* ev)
 
     if (cx == 1)
     {
-        int nWall = SlideData[nSlide].nWall1;
-        int x = wall[nWall].x;
-        int y = wall[nWall].y;
+        auto pWall = SlideData[nSlide].pWall1;
+        int x = pWall->x;
+        int y = pWall->y;
 
         int nSeekA = LongSeek(&x, SlideData[nSlide].x5, 20, 20);
         int var_34 = nSeekA;
@@ -1088,7 +1085,7 @@ void AISlide::Tick(RunListEvent* ev)
         int var_2C = nSeekB;
         int var_24 = nSeekB;
 
-        dragpoint(SlideData[nSlide].nWall1, x, y);
+        dragpoint(SlideData[nSlide].pWall1, x, y);
         movesprite(SlideData[nSlide].pActor, var_34 << 14, var_2C << 14, 0, 0, 0, CLIPMASK1);
 
         if (var_34 == 0)
@@ -1099,17 +1096,17 @@ void AISlide::Tick(RunListEvent* ev)
             }
         }
 
-        nWall = SlideData[nSlide].nStartWall;
+        pWall = SlideData[nSlide].pStartWall;
 
-        y = wall[nWall].y + var_24;
-        x = wall[nWall].x + var_20;
+        y = pWall->y + var_24;
+        x = pWall->x + var_20;
 
-        dragpoint(SlideData[nSlide].nStartWall, x, y);
+        dragpoint(SlideData[nSlide].pStartWall, x, y);
 
-        nWall = SlideData[nSlide].nWall3;
+        pWall = SlideData[nSlide].pWall3;
 
-        x = wall[nWall].x;
-        y = wall[nWall].y;
+        x = pWall->x;
+        y = pWall->y;
 
         int nSeekC = LongSeek(&x, SlideData[nSlide].x6, 20, 20);
         int var_30 = nSeekC;
@@ -1119,24 +1116,24 @@ void AISlide::Tick(RunListEvent* ev)
         int edi = nSeekD;
         var_24 = nSeekD;
 
-        dragpoint(SlideData[nSlide].nWall3, x, y);
+        dragpoint(SlideData[nSlide].pWall3, x, y);
 
         if (var_30 == 0 && edi == 0) {
             ebp++;
         }
 
-        nWall = SlideData[nSlide].nWall2;
+        pWall = SlideData[nSlide].pWall2;
 
-        x = wall[nWall].x + var_20;
-        y = wall[nWall].y + var_24;
+        x = pWall->x + var_20;
+        y = pWall->y + var_24;
 
-        dragpoint(SlideData[nSlide].nWall2, x, y);
+        dragpoint(SlideData[nSlide].pWall2, x, y);
     }
     else if (cx == 0) // right branch
     {
-        int nWall = SlideData[nSlide].nStartWall;
-        int x = wall[nWall].x;
-        int y = wall[nWall].y;
+        auto pWall = SlideData[nSlide].pStartWall;
+        int x = pWall->x;
+        int y = pWall->y;
 
         int nSeekA = LongSeek(&x, SlideData[nSlide].x1, 20, 20);
         int edi = nSeekA;
@@ -1146,23 +1143,23 @@ void AISlide::Tick(RunListEvent* ev)
         int ecx = nSeekB;
         int var_28 = nSeekB;
 
-        dragpoint(SlideData[nSlide].nStartWall, x, y);
+        dragpoint(SlideData[nSlide].pStartWall, x, y);
 
         if (edi == 0 && ecx == 0) {
             ebp = clipmask;
         }
 
-        nWall = SlideData[nSlide].nWall1;
+        pWall = SlideData[nSlide].pWall1;
 
-        y = wall[nWall].y + var_28;
-        x = wall[nWall].x + var_1C;
+        y = pWall->y + var_28;
+        x = pWall->x + var_1C;
 
-        dragpoint(SlideData[nSlide].nWall1, x, y);
+        dragpoint(SlideData[nSlide].pWall1, x, y);
 
-        nWall = SlideData[nSlide].nWall2;
+        pWall = SlideData[nSlide].pWall2;
 
-        x = wall[nWall].x;
-        y = wall[nWall].y;
+        x = pWall->x;
+        y = pWall->y;
 
         int nSeekC = LongSeek(&x, SlideData[nSlide].x2, 20, 20);
         edi = nSeekC;
@@ -1172,18 +1169,18 @@ void AISlide::Tick(RunListEvent* ev)
         ecx = nSeekD;
         var_28 = nSeekD;
 
-        dragpoint(SlideData[nSlide].nWall2, x, y);
+        dragpoint(SlideData[nSlide].pWall2, x, y);
 
         if (edi == 0 && ecx == 0) {
             ebp++;
         }
 
-        nWall = SlideData[nSlide].nWall3;
+        pWall = SlideData[nSlide].pWall3;
 
-        y = wall[nWall].y + var_28;
-        x = wall[nWall].x + var_1C;
+        y = pWall->y + var_28;
+        x = pWall->x + var_1C;
 
-        dragpoint(SlideData[nSlide].nWall3, x, y);
+        dragpoint(SlideData[nSlide].pWall3, x, y);
     }
 
     // loc_21A51:

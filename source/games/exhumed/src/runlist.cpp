@@ -1594,29 +1594,28 @@ void runlist_ProcessWallTag(walltype* pWall, int nLotag, int nHitag)
         case 19:
         case 20:
         {
-            int nLastWall = 0;
-            int n2ndLastWall = 0;
+            walltype* pLastWall = nullptr;
+            walltype* p2ndLastWall = nullptr;
 
-            int nStart = wallnum(pWall);
-            int nWall = nStart;
+            auto pStart = pWall;
 
             while (1)
             {
-                nWall = wall[nWall].point2; // get the next (right side) wall point
+                pWall = pWall->point2Wall(); // get the next (right side) wall point
 
-                if (nStart == nWall) { // we've looped back around
+                if (pStart == pWall) { // we've looped back around
                     break;
                 }
 
-                n2ndLastWall = nLastWall;
-                nLastWall = nWall;
+                p2ndLastWall = pLastWall;
+                pLastWall = pWall;
             }
 
-            int nWall2 = wall[nStart].point2;
-            int nWall3 = wall[nWall2].point2;
-            int nWall4 = wall[nWall3].point2;
+            auto pWall2 = pStart->point2Wall();
+            auto pWall3 = pWall2->point2Wall();
+            auto pWall4 = pWall3->point2Wall();
 
-            int nSlide = BuildSlide(nChannel, nStart, nLastWall, n2ndLastWall, nWall2, nWall3, nWall4);
+            int nSlide = BuildSlide(nChannel, pStart, pLastWall, p2ndLastWall, pWall2, pWall3, pWall4);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nSlide, 0x80000);
             return;
