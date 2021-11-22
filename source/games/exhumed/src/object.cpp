@@ -75,9 +75,9 @@ struct Drip
 struct Elev
 {
     DExhumedActor* pActor;
+    sectortype* pSector;
     int16_t nFlags;
     int16_t nChannel;
-    int nSector;
     int nParam1;
     int nParam2;
     int16_t nCountZOffsets; // count of items in zOffsets
@@ -229,7 +229,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Elev& w, Elev* def
     {
         arc("at0", w.nFlags)
             ("channel", w.nChannel)
-            ("sector", w.nSector)
+            ("sector", w.pSector)
             ("at6", w.nParam1)
             ("ata", w.nParam2)
             ("countz", w.nCountZOffsets)
@@ -376,15 +376,15 @@ void InitElev()
 }
 
 // done
-DExhumedActor* BuildWallSprite(int nSector)
+DExhumedActor* BuildWallSprite(sectortype* pSector)
 {
-    auto wal = sector[nSector].firstWall();
+    auto wal = pSector->firstWall();
 
-    auto pActor = insertActor(nSector, 401);
+    auto pActor = insertActor(pSector, 401);
     auto pSprite = &pActor->s();
 
 	pSprite->pos.vec2 = wal->center();
-    pSprite->z = (sector[nSector].floorz + sector[nSector].ceilingz) / 2;
+    pSprite->z = (pSector->floorz + pSector->ceilingz) / 2;
     pSprite->cstat = 0x8000;
 
     return pActor;
@@ -447,12 +447,12 @@ DExhumedActor* FindWallSprites(int nSector)
 
     if (pAct == nullptr)
     {
-        pAct = insertActor(nSector, 401);
+        pAct = insertActor(pSector, 401);
         auto pSprite = &pAct->s();
 
         pSprite->x = (var_24 + esi) / 2;
         pSprite->y = (ecx + edi) / 2;
-        pSprite->z = sector[nSector].floorz;
+        pSprite->z = pSector->floorz;
         pSprite->cstat = 0x8000;
         pSprite->owner = -1;
         pSprite->lotag = 0;
@@ -462,7 +462,7 @@ DExhumedActor* FindWallSprites(int nSector)
     return pAct;
 }
 
-int BuildElevF(int nChannel, int nSector, DExhumedActor* nWallSprite, int arg_4, int arg_5, int nCount, ...)
+int BuildElevF(int nChannel, sectortype* pSector, DExhumedActor* nWallSprite, int arg_4, int arg_5, int nCount, ...)
 {
     auto ElevCount = Elevator.Reserve(1);
 
@@ -471,12 +471,12 @@ int BuildElevF(int nChannel, int nSector, DExhumedActor* nWallSprite, int arg_4,
     Elevator[ElevCount].nRunRec = -1;
     Elevator[ElevCount].nParam2 = arg_5;
     Elevator[ElevCount].nChannel = nChannel;
-    Elevator[ElevCount].nSector = nSector;
+    Elevator[ElevCount].pSector = pSector;
     Elevator[ElevCount].nCountZOffsets = 0;
     Elevator[ElevCount].nCurZOffset = 0;
 
     if (nWallSprite == nullptr) {
-        nWallSprite = BuildWallSprite(nSector);
+        nWallSprite = BuildWallSprite(pSector);
     }
 
     Elevator[ElevCount].pActor = nWallSprite;
@@ -501,7 +501,7 @@ int BuildElevF(int nChannel, int nSector, DExhumedActor* nWallSprite, int arg_4,
     return ElevCount;
 }
 
-int BuildElevC(int arg1, int nChannel, int nSector, DExhumedActor* nWallSprite, int arg5, int arg6, int nCount, ...)
+int BuildElevC(int arg1, int nChannel, sectortype* pSector, DExhumedActor* nWallSprite, int arg5, int arg6, int nCount, ...)
 {
     int edi = arg5;
 
@@ -520,10 +520,10 @@ int BuildElevC(int arg1, int nChannel, int nSector, DExhumedActor* nWallSprite, 
     Elevator[ElevCount].nParam2 = arg6;
     Elevator[ElevCount].nRunRec = -1;
     Elevator[ElevCount].nChannel = nChannel;
-    Elevator[ElevCount].nSector = nSector;
+    Elevator[ElevCount].pSector = pSector;
 
     if (nWallSprite == nullptr) {
-        nWallSprite = BuildWallSprite(nSector);
+        nWallSprite = BuildWallSprite(pSector);
     }
 
     Elevator[ElevCount].pActor = nWallSprite;
@@ -577,15 +577,15 @@ int LongSeek(int* pZVal, int a2, int a3, int a4)
 }
 
 // done
-int CheckSectorSprites(int nSector, int nVal)
+int CheckSectorSprites(sectortype* pSector, int nVal)
 {
     int b = 0;
 
     if (nVal)
     {
-        int nZDiff = sector[nSector].floorz - sector[nSector].ceilingz;
+        int nZDiff = pSector->floorz - pSector->ceilingz;
 
-        ExhumedSectIterator it(nSector);
+        ExhumedSectIterator it(pSector);
         while (auto pActor= it.Next())
         {
             auto pSprite = &pActor->s();
@@ -612,7 +612,7 @@ int CheckSectorSprites(int nSector, int nVal)
     }
     else
     {
-        ExhumedSectIterator it(nSector);
+        ExhumedSectIterator it(pSector);
         while (auto pActor = it.Next())
         {
             if (pActor->s().cstat & 0x101) {
@@ -750,7 +750,7 @@ void AIElev::Tick(RunListEvent* ev)
 
     assert(nChannel >= 0 && nChannel < kMaxChannels);
 
-    int nSector =Elevator[nElev].nSector;
+    auto pSector =Elevator[nElev].pSector;
     auto pElevSpr = Elevator[nElev].pActor;
 
     int ebp = 0; // initialise to *something*
@@ -760,10 +760,8 @@ void AIElev::Tick(RunListEvent* ev)
         int nZOffset = Elevator[nElev].nCurZOffset;
         int nZVal = Elevator[nElev].zOffsets[nZOffset];
 
-        int nSectorB = nSector;
-
-        StartInterpolation(nSector, Interp_Sect_Floorz);
-        int nVal = LongSeek((int*)&sector[nSector].floorz, nZVal, Elevator[nElev].nParam1, Elevator[nElev].nParam2);
+        StartInterpolation(pSector, Interp_Sect_Floorz);
+        int nVal = LongSeek((int*)&pSector->floorz, nZVal, Elevator[nElev].nParam1, Elevator[nElev].nParam2);
         ebp = nVal;
 
         if (!nVal)
@@ -785,10 +783,9 @@ void AIElev::Tick(RunListEvent* ev)
         }
         else
         {
-            assert(nSector == nSectorB);
-            MoveSectorSprites(&sector[nSector], nVal);
+            MoveSectorSprites(pSector, nVal);
 
-            if (nVal < 0 && CheckSectorSprites(nSector, 2))
+            if (nVal < 0 && CheckSectorSprites(pSector, 2))
             {
                 runlist_ChangeChannel(nChannel, sRunChannels[nChannel].c == 0);
                 return;
@@ -798,13 +795,12 @@ void AIElev::Tick(RunListEvent* ev)
     else
     {
         // loc_20FC3:
-        int ceilZ = sector[nSector].ceilingz;
-        sectortype* cursect = &sector[nSector];
+        int ceilZ = pSector->ceilingz;
 
         int nZOffset = Elevator[nElev].nCurZOffset;
         int zVal = Elevator[nElev].zOffsets[nZOffset];
 
-        StartInterpolation(nSector, Interp_Sect_Ceilingz);
+        StartInterpolation(pSector, Interp_Sect_Ceilingz);
         int nVal = LongSeek(&ceilZ, zVal, Elevator[nElev].nParam1, Elevator[nElev].nParam2);
         ebp = nVal;
 
@@ -841,13 +837,13 @@ void AIElev::Tick(RunListEvent* ev)
 
             if (var_18 & 0x4)
             {
-                if (CheckSectorSprites(nSector, 1)) {
+                if (CheckSectorSprites(pSector, 1)) {
                     return;
                 }
             }
             else
             {
-                if (CheckSectorSprites(nSector, 0))
+                if (CheckSectorSprites(pSector, 0))
                 {
                     runlist_ChangeChannel(nChannel, sRunChannels[nChannel].c == 0);
                     return;
@@ -855,8 +851,8 @@ void AIElev::Tick(RunListEvent* ev)
             }
         }
 
-        StartInterpolation(nSector, Interp_Sect_Ceilingz);
-        cursect->ceilingz = ceilZ;
+        StartInterpolation(pSector, Interp_Sect_Ceilingz);
+        pSector->ceilingz = ceilZ;
     }
 
     // maybe this doesn't go here?
