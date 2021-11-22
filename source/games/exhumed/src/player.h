@@ -89,10 +89,10 @@ struct Player
 
     PlayerHorizon horizon;
     PlayerAngle angle;
+    sectortype* pPlayerPushSect;
 
     int16_t nBreathTimer;
     int16_t nPlayerSwear;
-    int nPlayerPushSect;
     int16_t nDeathType;
     int16_t nPlayerScore;
     int16_t nPlayerColor;

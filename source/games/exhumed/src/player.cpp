@@ -1046,7 +1046,7 @@ void AIPlayer::Tick(RunListEvent* ev)
 
                     if (nDiff <= 256)
                     {
-                        PlayerList[nPlayer].nPlayerPushSect = sectnum;
+                        PlayerList[nPlayer].pPlayerPushSect = sect;
 
                         int xvel = sPlayerInput[nPlayer].xVel;
                         int yvel = sPlayerInput[nPlayer].yVel;
@@ -1058,7 +1058,7 @@ void AIPlayer::Tick(RunListEvent* ev)
                         if (PlayerList[nPlayer].nPlayerPushSound <= -1)
                         {
                             PlayerList[nPlayer].nPlayerPushSound = 1;
-                            int nBlock = sector[PlayerList[nPlayer].nPlayerPushSect].extra;
+                            int nBlock = PlayerList[nPlayer].pPlayerPushSect->extra;
                             auto pBlockActor = sBlockInfo[nBlock].pActor;
 
                             D3PlayFX(StaticSound[kSound23], pBlockActor, 0x4000);
@@ -1083,9 +1083,9 @@ void AIPlayer::Tick(RunListEvent* ev)
     // loc_1AB46:
     if (PlayerList[nPlayer].nPlayerPushSound > -1)
     {
-        if (PlayerList[nPlayer].nPlayerPushSect > -1)
+        if (PlayerList[nPlayer].pPlayerPushSect != nullptr)
         {
-            StopActorSound(sBlockInfo[sector[PlayerList[nPlayer].nPlayerPushSect].extra].pActor);
+            StopActorSound(sBlockInfo[PlayerList[nPlayer].pPlayerPushSect->extra].pActor);
         }
 
         PlayerList[nPlayer].nPlayerPushSound = -1;
@@ -2656,7 +2656,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Player& w, Player*
             ("torch", w.nTorch)
             ("breathtimer", w.nBreathTimer)
             ("playerswear", w.nPlayerSwear)
-            ("pushsect", w.nPlayerPushSect)
+            ("pushsect", w.pPlayerPushSect)
             ("deathtype", w.nDeathType)
             ("score", w.nPlayerScore)
             ("color", w.nPlayerColor)
