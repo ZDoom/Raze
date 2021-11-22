@@ -791,7 +791,7 @@ void AIPlayer::Tick(RunListEvent* ev)
             if (nPlayer != nLocalPlayer)
             {
                 nFlashDepth = 5;
-                AddFlash(pPlayerSprite->sectnum,
+                AddFlash(pPlayerSprite->sector(),
                     pPlayerSprite->x,
                     pPlayerSprite->y,
                     pPlayerSprite->z, 0);

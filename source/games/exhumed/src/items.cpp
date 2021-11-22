@@ -346,7 +346,7 @@ void DropMagic(DExhumedActor* pActor)
 
         if (pAnimActor)
         {
-            AddFlash(pAnimActor->s().sectnum, pAnimActor->s().x, pAnimActor->s().y, pAnimActor->s().z, 128);
+            AddFlash(pAnimActor->s().sector(), pAnimActor->s().x, pAnimActor->s().y, pAnimActor->s().z, 128);
             ChangeActorStat(pAnimActor, 950);
         }
         nMagicCount = RandomSize(2);

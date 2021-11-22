@@ -158,6 +158,10 @@ public:
 	{
 	}
 
+	ExhumedSectIterator(sectortype* stat) : SectIterator(stat)
+	{
+	}
+
 	DExhumedActor* Next()
 	{
 		int n = NextIndex();

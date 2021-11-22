@@ -54,20 +54,19 @@ void precache()
             for (int k = 1; k <= picanm[j].num; k++)  markTileForPrecache(j + k, sectp->floorpal);
     }
 
-    for (i = 0; i < numwalls; i++)
+    for(auto& wal : walls())
     {
-        auto wallp = &wall[i];
-        int j = wallp->picnum;
-        markTileForPrecache(j, wallp->pal);
+        int j = wal.picnum;
+        markTileForPrecache(j, wal.pal);
         if (picanm[j].sf & PICANM_ANIMTYPE_MASK)
-            for (int k = 1; k <= picanm[j].num; k++)  markTileForPrecache(j + k, wallp->pal);
+            for (int k = 1; k <= picanm[j].num; k++)  markTileForPrecache(j + k, wal.pal);
 
-        if (wallp->twoSided())
+        if (wal.twoSided())
         {
-            int j = wallp->overpicnum;
-            markTileForPrecache(j, wallp->pal);
+            int j = wal.overpicnum;
+            markTileForPrecache(j, wal.pal);
             if (picanm[j].sf & PICANM_ANIMTYPE_MASK)
-                for (int k = 1; k <= picanm[j].num; k++)  markTileForPrecache(j + k, wallp->pal);
+                for (int k = 1; k <= picanm[j].num; k++)  markTileForPrecache(j + k, wal.pal);
 
         }
     }

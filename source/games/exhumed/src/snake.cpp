@@ -110,7 +110,7 @@ void ExplodeSnakeSprite(DExhumedActor* pActor, int nPlayer)
 
     BuildAnim(nullptr, 23, 0, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, 40, 4);
 
-    AddFlash(pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 128);
+    AddFlash(pSprite->sector(), pSprite->x, pSprite->y, pSprite->z, 128);
 
     StopActorSound(pActor);
 }

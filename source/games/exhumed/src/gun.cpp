@@ -623,7 +623,7 @@ loc_flag:
         {
             BuildFlash(nPlayer, 512);
             AddFlash(
-                pPlayerSprite->sectnum,
+                pPlayerSprite->sector(),
                 pPlayerSprite->x,
                 pPlayerSprite->y,
                 pPlayerSprite->z,

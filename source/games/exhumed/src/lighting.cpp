@@ -38,11 +38,15 @@ enum
 
 struct Flash
 {
+    union
+    {
+        walltype* pWall;
+        sectortype* pSector;
+        DExhumedActor* pActor;
+    };
+    int next;
     int8_t nType;
     int8_t shade;
-    DExhumedActor* pActor;
-    int nIndex;
-    int next;
 };
 
 struct Glow
@@ -100,11 +104,14 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Flash& w, Flash* d
 {
     if (arc.BeginObject(keyname))
     {
-        arc("at0", w.nType)
+        arc("type", w.nType)
             ("shade", w.shade)
-            ("at1", w.nIndex)
-            ("next", w.next)
-            .EndObject();
+            ("next", w.next);
+
+        if (w.nType & 4) arc("index", w.pActor);
+        else if (w.nType & 1) arc("index", w.pSector);
+        else arc("index", w.pWall);
+        arc.EndObject();
     }
     return arc;
 }
@@ -217,11 +224,8 @@ void InitLights()
     nLastFlash  = -1;
 }
 
-void AddFlash(int nSector, int x, int y, int z, int val)
+void AddFlash(sectortype* pSector, int x, int y, int z, int val)
 {
-    assert(validSectorIndex(nSector));
-    auto sectp = &sector[nSector];
-
     int var_28 = 0;
     int var_1C = val >> 8;
 
@@ -236,7 +240,7 @@ void AddFlash(int nSector, int x, int y, int z, int val)
 
     int var_14 = 0;
 
-	for (auto& wal : wallsofsector(sectp))
+	for (auto& wal : wallsofsector(pSector))
     {
 		auto average = wal.center();
 
@@ -270,7 +274,7 @@ void AddFlash(int nSector, int x, int y, int z, int val)
 
             if (wal.pal < 5)
             {
-                if (!pNextSector || pNextSector->floorz < sectp->floorz)
+                if (!pNextSector || pNextSector->floorz < pSector->floorz)
                 {
                     int nFlash = GrabFlash();
                     if (nFlash < 0) {
@@ -279,7 +283,7 @@ void AddFlash(int nSector, int x, int y, int z, int val)
 
                     sFlash[nFlash].nType = var_20 | 2;
                     sFlash[nFlash].shade = wal.shade;
-					sFlash[nFlash].nIndex = wallnum(&wal);
+					sFlash[nFlash].pWall = &wal;
 
                     wal.pal += 7;
 
@@ -294,14 +298,14 @@ void AddFlash(int nSector, int x, int y, int z, int val)
 
                     if (!var_1C && !wal.overpicnum && pNextSector)
                     {
-                        AddFlash(wal.nextsector, x, y, z, val);
+                        AddFlash(pNextSector, x, y, z, val);
                     }
                 }
             }
         }
     }
 
-    if (var_14 && sectp->floorpal < 4)
+    if (var_14 && pSector->floorpal < 4)
     {
         int nFlash = GrabFlash();
         if (nFlash < 0) {
@@ -309,46 +313,46 @@ void AddFlash(int nSector, int x, int y, int z, int val)
         }
 
         sFlash[nFlash].nType = var_20 | 1;
-        sFlash[nFlash].nIndex = nSector;
-        sFlash[nFlash].shade = sectp->floorshade;
+        sFlash[nFlash].pSector = pSector;;
+        sFlash[nFlash].shade = pSector->floorshade;
 
-        sectp->floorpal += 7;
+        pSector->floorpal += 7;
 
-        int edx = sectp->floorshade + var_28;
+        int edx = pSector->floorshade + var_28;
         int eax = edx;
 
         if (edx < -127) {
             eax = -127;
         }
 
-        sectp->floorshade = eax;
+        pSector->floorshade = eax;
 
-        if (!(sectp->ceilingstat & 1))
+        if (!(pSector->ceilingstat & 1))
         {
-            if (sectp->ceilingpal < 4)
+            if (pSector->ceilingpal < 4)
             {
                 int nFlash2 = GrabFlash();
                 if (nFlash2 >= 0)
                 {
                     sFlash[nFlash2].nType = var_20 | 3;
-                    sFlash[nFlash2].nIndex = nSector;
-                    sFlash[nFlash2].shade = sectp->ceilingshade;
+                    sFlash[nFlash2].pSector = pSector;
+                    sFlash[nFlash2].shade = pSector->ceilingshade;
 
-                    sectp->ceilingpal += 7;
+                    pSector->ceilingpal += 7;
 
-                    int edx = sectp->ceilingshade + var_28;
+                    int edx = pSector->ceilingshade + var_28;
                     int eax = edx;
 
                     if (edx < -127) {
                         eax = -127;
                     }
 
-                    sectp->ceilingshade = eax;
+                    pSector->ceilingshade = eax;
                 }
             }
         }
 
-        ExhumedSectIterator it(nSector);
+        ExhumedSectIterator it(pSector);
         while (auto pActor = it.Next())
         {
 			auto pSprite = &pActor->s();
@@ -359,7 +363,6 @@ void AddFlash(int nSector, int x, int y, int z, int val)
                 {
                     sFlash[nFlash3].nType = var_20 | 4;
                     sFlash[nFlash3].shade = pSprite->shade;
-                    sFlash[nFlash3].nIndex = -1;
                     sFlash[nFlash3].pActor = pActor;
 
                     pSprite->pal += 7;
@@ -405,11 +408,11 @@ void UndoFlashes()
     for (int nFlash = nFirstFlash; nFlash >= 0; nFlash = sFlash[nFlash].next)
     {
         assert(nFlash < 2000 && nFlash >= 0);
+        auto pFlash = &sFlash[nFlash];
 
-        uint8_t type = sFlash[nFlash].nType & 0x3F;
-        int nIndex = sFlash[nFlash].nIndex;
+        uint8_t type = pFlash->nType & 0x3F;
 
-        if (sFlash[nFlash].nType & 0x80)
+        if (pFlash->nType & 0x80)
         {
             int flashtype = type - 1;
             assert(flashtype >= 0);
@@ -420,31 +423,25 @@ void UndoFlashes()
             {
                 case 0:
                 {
-					assert(validSectorIndex(nIndex));
-
-                    pShade = &sector[nIndex].floorshade;
+                    pShade = &pFlash->pSector->floorshade;
                     break;
                 }
 
                 case 1:
                 {
-                    assert(validWallIndex(nIndex));
-
-                    pShade = &wall[nIndex].shade;
+                    pShade = &pFlash->pWall->shade;
                     break;
                 }
 
                 case 2:
                 {
-					assert(validSectorIndex(nIndex));
-
-                    pShade = &sector[nIndex].ceilingshade;
+                    pShade = &pFlash->pSector->ceilingshade;
                     break;
                 }
 
                 case 3:
                 {
-                    auto ac = sFlash[nFlash].pActor;
+                    auto ac = pFlash->pActor;
                     if (!ac) continue;
                     auto sp = &ac->s();
                     if (sp->pal >= 7)
@@ -465,7 +462,7 @@ void UndoFlashes()
             assert(pShade != NULL);
 
             int thisshade = (*pShade) + 6;
-            int maxshade = sFlash[nFlash].shade;
+            int maxshade = pFlash->shade;
 
             if (thisshade < maxshade)
             {
@@ -486,33 +483,33 @@ void UndoFlashes()
 
             case 0:
             {
-                sector[nIndex].floorpal -= 7;
-                sector[nIndex].floorshade = sFlash[nFlash].shade;
+                pFlash->pSector->floorpal -= 7;
+                pFlash->pSector->floorshade = pFlash->shade;
                 break;
             }
 
             case 1:
             {
-                wall[nIndex].pal -= 7;
-                wall[nIndex].shade = sFlash[nFlash].shade;
+                pFlash->pWall->pal -= 7;
+                pFlash->pWall->shade = pFlash->shade;
                 break;
             }
 
             case 2:
             {
-                sector[nIndex].ceilingpal -= 7;
-                sector[nIndex].ceilingshade = sFlash[nFlash].shade;
+                pFlash->pSector->ceilingpal -= 7;
+                pFlash->pSector->ceilingshade = pFlash->shade;
                 break;
             }
 
             case 3:
             {
-                auto ac = sFlash[nFlash].pActor;
+                auto ac = pFlash->pActor;
                 auto sp = &ac->s();
                 if (sp->pal >= 7)
                 {
                     sp->pal -= 7;
-                    sp->shade = sFlash[nFlash].shade;
+                    sp->shade = pFlash->shade;
                 }
 
                 break;
@@ -523,7 +520,7 @@ loc_1868A:
 
         if (edi != -1)
         {
-            sFlash[edi].next = sFlash[nFlash].next;
+            sFlash[edi].next = pFlash->next;
         }
 
         if (nFlash == nFirstFlash)
