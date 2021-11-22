@@ -85,7 +85,7 @@ enum ECounter
 };
 extern int Counters[kNumCounters];
 
-void SnapSectors(int nSectorA, int nSectorB, int b);
+void SnapSectors(sectortype* nSectorA, sectortype* nSectorB, int b);
 
 void LoadObjects();
 

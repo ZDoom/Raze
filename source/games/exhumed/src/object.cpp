@@ -58,7 +58,7 @@ struct TrailPoint
 
 struct Bob
 {
-    int nSector;
+    sectortype* pSector;
     int z;
     uint8_t nPhase;
     uint8_t field_3;
@@ -204,7 +204,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Bob& w, Bob* def)
 {
     if (arc.BeginObject(keyname))
     {
-        arc("sector", w.nSector)
+        arc("sector", w.pSector)
             ("at2", w.nPhase)
             ("at3", w.field_3)
             ("z", w.z)
@@ -626,13 +626,13 @@ int CheckSectorSprites(int nSector, int nVal)
 }
 
 // done
-void MoveSectorSprites(int nSector, int z)
+void MoveSectorSprites(sectortype* pSector, int z)
 {
-    int newz = sector[nSector].floorz;
+    int newz = pSector->floorz;
     int oldz = newz - z;
     int minz = min(newz, oldz);
     int maxz = max(newz, oldz);
-    ExhumedSectIterator it(nSector);
+    ExhumedSectIterator it(pSector);
     while (auto pActor = it.Next())
     {
         auto pSprite = &pActor->s();
@@ -786,7 +786,7 @@ void AIElev::Tick(RunListEvent* ev)
         else
         {
             assert(nSector == nSectorB);
-            MoveSectorSprites(nSector, nVal);
+            MoveSectorSprites(&sector[nSector], nVal);
 
             if (nVal < 0 && CheckSectorSprites(nSector, 2))
             {
@@ -2147,46 +2147,45 @@ void DoDrips()
         sBob[i].nPhase += 4;
 
         int edx = bsin(sBob[i].nPhase << 3, -4);
-        int nSector =sBob[i].nSector;
+        auto pSector =sBob[i].pSector;
 
         if (sBob[i].field_3)
         {
-            sector[nSector].ceilingz = edx + sBob[i].z;
+            pSector->ceilingz = edx + sBob[i].z;
         }
         else
         {
-            int nFloorZ = sector[nSector].floorz;
+            int nFloorZ = pSector->floorz;
 
-            sector[nSector].floorz = edx + sBob[i].z;
+            pSector->floorz = edx + sBob[i].z;
 
-            MoveSectorSprites(nSector, sector[nSector].floorz - nFloorZ);
+            MoveSectorSprites(pSector, pSector->floorz - nFloorZ);
         }
     }
 }
 
-void SnapBobs(int nSectorA, int nSectorB)
+void SnapBobs(sectortype* pSectorA, sectortype* pSectorB)
 {
-    int ecx = -1;
-    int ebx = ecx;
-    //	int var_14 = nSector;
-    //	int edi = edx;
+    int select1 = -1;
+    int select2 = select1;
+    int esi;
 
     for (unsigned i = 0; i < sBob.Size(); i++)
     {
-        int esi = sBob[i].nSector;
+        auto pSector = sBob[i].pSector;
 
-        if (esi != nSectorA)
+        if (pSector != pSectorA)
         {
-            if (nSectorB != esi)
+            if (pSectorB != pSector)
                 continue;
 
-            esi = ebx;
-            ecx = i;
+            esi = select2;
+            select1 = i;
         }
         else
         {
-            esi = ecx;
-            ebx = i;
+            esi = select1;
+            select2 = i;
         }
 
         if (esi != -1) {
@@ -2194,18 +2193,18 @@ void SnapBobs(int nSectorA, int nSectorB)
         }
     }
 
-    if (ecx <= -1) {
+    if (select1 <= -1) {
         return;
     }
 
-    if (ebx <= -1) {
+    if (select2 <= -1) {
         return;
     }
 
-    sBob[ecx].nPhase = sBob[ebx].nPhase;
+    sBob[select1].nPhase = sBob[select2].nPhase;
 }
 
-void AddSectorBob(int nSector, int nHitag, int bx)
+void AddSectorBob(sectortype* pSector, int nHitag, int bx)
 {
     auto nBobs = sBob.Reserve(1);
     sBob[nBobs].field_3 = bx;
@@ -2213,20 +2212,20 @@ void AddSectorBob(int nSector, int nHitag, int bx)
     int z;
 
     if (bx == 0) {
-        z = sector[nSector].floorz;
+        z = pSector->floorz;
     }
     else {
-        z = sector[nSector].ceilingz;
+        z = pSector->ceilingz;
     }
 
     sBob[nBobs].z = z;
     sBob[nBobs].nPhase = nHitag << 4;
     sBob[nBobs].sBobID = nHitag;
 
-    sBob[nBobs].nSector = nSector;
-    StartInterpolation(nSector, bx == 0 ? Interp_Sect_Floorz : Interp_Sect_Ceilingz);
+    sBob[nBobs].pSector = pSector;
+    StartInterpolation(pSector, bx == 0 ? Interp_Sect_Floorz : Interp_Sect_Ceilingz);
 
-    sector[nSector].Flag |= 0x0010;
+    pSector->Flag |= 0x0010;
 }
 
 int FindTrail(int nVal)
@@ -2498,7 +2497,7 @@ void PostProcess()
                 {
                     sMoveSect[j].pCurSector = sMoveSect[i].pSector;
 
-                    SnapSectors(sectnum(sMoveSect[j].pSector), sectnum(sMoveSect[i].pSector), 0);
+                    SnapSectors(sMoveSect[j].pSector, sMoveSect[i].pSector, 0);
                     sMoveSect[i].pSector = nullptr;
                 }
             }
@@ -2516,7 +2515,7 @@ void PostProcess()
                 if (j != i)
                 {
                     if (sBob[i].field_3 != 0 && sBob[j].sBobID == bobID) {
-                        SnapSectors(i, j, 0);
+                        SnapSectors(sBob[i].pSector, sBob[j].pSector, 0);
                     }
                 }
             }

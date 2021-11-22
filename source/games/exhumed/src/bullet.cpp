@@ -54,7 +54,7 @@ struct Bullet
 
 FreeListArray<Bullet, kMaxBullets> BulletList;
 int lasthitz, lasthitx, lasthity;
-int lasthitsect;
+sectortype* lasthitsect;
 
 int nRadialBullet = 0;
 
@@ -172,10 +172,9 @@ void IgniteSprite(DExhumedActor* pActor)
     }
 }
 
-void BulletHitsSprite(Bullet *pBullet, DExhumedActor* pBulletActor, DExhumedActor* pHitActor, int x, int y, int z, int nSector)
+void BulletHitsSprite(Bullet *pBullet, DExhumedActor* pBulletActor, DExhumedActor* pHitActor, int x, int y, int z, sectortype* pSector)
 {
-    assert(validSectorIndex(nSector));
-    auto pSector = &sector[nSector];
+    assert(pSector != nullptr);
 
     bulletInfo *pBulletInfo = &BulletInfo[pBullet->nType];
 
@@ -300,9 +299,9 @@ void BackUpBullet(int *x, int *y, int nAngle)
 
 int MoveBullet(int nBullet)
 {
-    int hitsect = -1;
-    int hitwall = -1;
     DExhumedActor* hitactor = nullptr;
+    sectortype* pHitSect = nullptr;
+    walltype* pHitWall = nullptr;
 
     Bullet *pBullet = &BulletList[nBullet];
     int nType = pBullet->nType;
@@ -373,7 +372,7 @@ MOVEEND:
             x2 = pSprite->x;
             y2 = pSprite->y;
             z2 = pSprite->z;
-            hitsect = pSprite->sectnum;
+            pHitSect = pSprite->sector();
 
 #if 0
             // Original code. This was producing some beautiful undefined behavior in the first case because the index can be anything, not just a wall.
@@ -398,7 +397,7 @@ MOVEEND:
             switch (coll.type)
             {
             case kHitWall:
-                hitwall = coll.index;
+                pHitWall = coll.wall();
                 goto HITWALL;
             case 0xc000:
                 if (!coll.exbits)
@@ -440,7 +439,7 @@ MOVEEND:
             x2 = hitsprite->x;
             y2 = hitsprite->y;
             z2 = hitsprite->z - (GetActorHeight(hitactor) >> 1);
-            hitsect = hitsprite->sectnum;
+            pHitSect = hitsprite->sector();
         }
         else
         {
@@ -456,14 +455,14 @@ MOVEEND:
             y2 = hitData.pos.y;
             z2 = hitData.pos.z;
             hitactor = GetActor(hitData);
-            hitsect = hitData.sect;
-            hitwall = hitData.wall;
+            pHitSect = hitData.sect >= 0? &sector[hitData.sect] : nullptr;
+            pHitWall = hitData.wall >= 0? &wall[hitData.wall] : nullptr;
         }
 
         lasthitx = x2;
         lasthity = y2;
         lasthitz = z2;
-        lasthitsect = hitsect;
+        lasthitsect = pHitSect;
 
         if (hitactor)
         {
@@ -480,31 +479,29 @@ HITSPRITE:
             }
             else
             {
-                BulletHitsSprite(pBullet, pActor->pTarget, hitactor, x2, y2, z2, hitsect);
+                BulletHitsSprite(pBullet, pActor->pTarget, hitactor, x2, y2, z2, pHitSect);
             }
         }
-        else if (hitwall > -1)
+        else if (pHitWall != nullptr)
         {
         HITWALL:
-            auto pWall = &wall[hitwall];
-            if (pWall->picnum == kEnergy1)
+            if (pHitWall->picnum == kEnergy1)
             {
-                if (pWall->twoSided())
+                if (pHitWall->twoSided())
                 {
                     int nDamage = BulletInfo[pBullet->nType].nDamage;
                     if (pBullet->nDoubleDamage > 1) {
                         nDamage *= 2;
                     }
 
-                    runlist_DamageEnemy(EnergyBlocks[pWall->nextSector()->extra], pActor, nDamage);
+                    runlist_DamageEnemy(EnergyBlocks[pHitWall->nextSector()->extra], pActor, nDamage);
                 }
             }
         }
 
-        if (hitsect > -1) // NOTE: hitsect can be -1. this check wasn't in original code. TODO: demo compatiblity?
+        if (pHitSect != nullptr) // NOTE: hitsect can be -1. this check wasn't in original code. TODO: demo compatiblity?
         {
-            auto pHitSect = &sector[hitsect];
-            if (hitactor == nullptr && hitwall < 0)
+            if (hitactor == nullptr && pHitWall == nullptr)
             {
                 if ((pHitSect->pBelow != nullptr && (pHitSect->pBelow->Flag & kSectUnderwater)) || pHitSect->Depth)
                 {
@@ -520,7 +517,7 @@ HITSPRITE:
             }
             else
             {
-                if (hitwall >= 0)
+                if (pHitWall != nullptr)
                 {
                     BackUpBullet(&x2, &y2, pSprite->ang);
 
@@ -542,7 +539,7 @@ HITSPRITE:
                     pSprite->y = y2;
                     pSprite->z = z2;
 
-                    ChangeActorSect(pActor, hitsect);
+                    ChangeActorSect(pActor, pHitSect);
                 }
 
                 if (BulletInfo[nType].nRadius)
@@ -596,7 +593,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int n
 
 				assert(pTargetSprite->sector());
 
-                BulletHitsSprite(&sBullet, pActor, pTarget, pTargetSprite->x, pTargetSprite->y, pTargetSprite->z - (nHeight >> 1), pTargetSprite->sectnum);
+                BulletHitsSprite(&sBullet, pActor, pTarget, pTargetSprite->x, pTargetSprite->y, pTargetSprite->z - (nHeight >> 1), pTargetSprite->sector());
                 DeleteActor(sBullet.pActor);
                 return nullptr;
             }

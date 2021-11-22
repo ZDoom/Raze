@@ -194,9 +194,9 @@ void InitNewGame()
     }
 }
 
-void SnapSectors(int nSectorA, int nSectorB, int b)
+void SnapSectors(sectortype* pSectorA, sectortype* pSectorB, int b)
 {
-	for(auto& wal1 : wallsofsector(nSectorA))
+	for(auto& wal1 : wallsofsector(pSectorA))
     {
 		int bestx = 0x7FFFFFF;
         int besty = bestx;
@@ -206,7 +206,7 @@ void SnapSectors(int nSectorA, int nSectorB, int b)
 
         walltype* bestwall = nullptr;
 
-        for(auto& wal2 : wallsofsector(nSectorB))
+        for(auto& wal2 : wallsofsector(pSectorB))
         {
             int thisx = x - wal2.x;
             int thisy = y - wal2.y;
@@ -225,11 +225,11 @@ void SnapSectors(int nSectorA, int nSectorB, int b)
     }
 
     if (b) {
-        sector[nSectorB].ceilingz = sector[nSectorA].floorz;
+        pSectorB->ceilingz = pSectorA->floorz;
     }
 
-    if (sector[nSectorA].Flag & 0x1000) {
-        SnapBobs(nSectorA, nSectorB);
+    if (pSectorA->Flag & 0x1000) {
+        SnapBobs(pSectorA, pSectorB);
     }
 }
 
@@ -556,14 +556,14 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
             {
                 auto pSector = pSprite->sector();
                 pSector->pBelow = &sector[nHitag];
-                SnapSectors(sectnum(pSector), nHitag, 1);
+                SnapSectors(pSector, pSector->pBelow, 1);
 
                 DeleteActor(pActor);
                 return;
             }
             case 97:
             {
-                AddSectorBob(pSprite->sectnum, nHitag, 1);
+                AddSectorBob(pSprite->sector(), nHitag, 1);
 
                 DeleteActor(pActor);
                 return;
@@ -585,7 +585,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
             }
             case 95:
             {
-                AddSectorBob(pSprite->sectnum, nHitag, 0);
+                AddSectorBob(pSprite->sector(), nHitag, 0);
 
                 DeleteActor(pActor);
                 return;
