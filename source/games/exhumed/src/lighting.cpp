@@ -60,8 +60,8 @@ struct Glow
 
 struct Flicker
 {
+    sectortype* pSector;
     int16_t nShade;
-    int nSector;
     unsigned int nMask;
 };
 
@@ -121,10 +121,10 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Glow& w, Glow* def
 {
     if (arc.BeginObject(keyname))
     {
-        arc("at0", w.nShade)
-            ("at2", w.nCounter)
+        arc("shade", w.nShade)
+            ("counter", w.nCounter)
             ("sector", w.pSector)
-            ("at6", w.nThreshold)
+            ("threshold", w.nThreshold)
             .EndObject();
     }
     return arc;
@@ -134,9 +134,9 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Flicker& w, Flicke
 {
     if (arc.BeginObject(keyname))
     {
-        arc("at0", w.nShade)
-            ("sector", w.nSector)
-            ("at4", w.nMask)
+        arc("shade", w.nShade)
+            ("sector", w.pSector)
+            ("mask", w.nMask)
             .EndObject();
     }
     return arc;
@@ -149,8 +149,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Flow& w, Flow* def
         arc("type", w.type)
             ("xdelta", w.xdelta)
             ("ydelta", w.ydelta)
-            ("atc", w.angcos)
-            ("at10", w.angsin)
+            ("angcos", w.angcos)
+            ("angsin", w.angsin)
             ("xacc", w.xacc)
             ("yacc", w.yacc);
         if (w.type < 2) arc("index", w.pSector);
@@ -552,14 +552,14 @@ void AddGlow(sectortype* pSector, int nVal)
 }
 
 // ok
-void AddFlicker(int nSector, int nVal)
+void AddFlicker(sectortype* pSector, int nVal)
 {
     if (nFlickerCount >= kMaxFlickers) {
         return;
     }
 
     sFlicker[nFlickerCount].nShade = nVal;
-    sFlicker[nFlickerCount].nSector = nSector;
+    sFlicker[nFlickerCount].pSector = pSector;
 
     if (nVal >= 25) {
         nVal = 24;
@@ -612,8 +612,7 @@ void DoFlickers()
 
     for (int i = 0; i < nFlickerCount; i++)
     {
-        int nSector =sFlicker[i].nSector;
-        auto sectp = &sector[nSector];
+        auto pSector = sFlicker[i].pSector;
  
         unsigned int eax = (sFlicker[i].nMask & 1);
         unsigned int edx = (sFlicker[i].nMask & 1) << 31;
@@ -637,10 +636,10 @@ void DoFlickers()
                 shade = -sFlicker[i].nShade;
             }
 
-            sectp->ceilingshade += shade;
-            sectp->floorshade += shade;
+            pSector->ceilingshade += shade;
+            pSector->floorshade += shade;
 
-			for(auto& wal : wallsofsector(sectp))
+			for(auto& wal : wallsofsector(pSector))
             {
                 wal.shade += shade;
             }

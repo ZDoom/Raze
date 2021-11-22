@@ -416,7 +416,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
         {
             case 999:
             {
-                AddFlicker(pSprite->sectnum, nSpeed);
+                AddFlicker(pSprite->sector(), nSpeed);
                 break;
             }
             case 998:
