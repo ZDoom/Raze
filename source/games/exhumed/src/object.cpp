@@ -971,7 +971,7 @@ int BuildSlide(int nChannel, int nStartWall, int nWall1, int ecx, int nWall2, in
         }
         else
         {
-            if (wall[nWall].nextsector >= 0)
+            if (wall[nWall].twoSided())
             {
                 nPoint = GrabPoint();
 

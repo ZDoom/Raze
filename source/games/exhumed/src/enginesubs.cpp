@@ -62,7 +62,7 @@ void precache()
         if (picanm[j].sf & PICANM_ANIMTYPE_MASK)
             for (int k = 1; k <= picanm[j].num; k++)  markTileForPrecache(j + k, wallp->pal);
 
-        if (wallp->nextsector != -1)
+        if (wallp->twoSided())
         {
             int j = wallp->overpicnum;
             markTileForPrecache(j, wallp->pal);

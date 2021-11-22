@@ -236,7 +236,7 @@ void AddFlash(int nSector, int x, int y, int z, int val)
 		auto average = wal.center();
 
         sectortype *pNextSector = NULL;
-        if (wal.nextsector > -1)
+        if (wal.twoSided())
             pNextSector = wal.nextSector();
 
         int ebx = -255;
