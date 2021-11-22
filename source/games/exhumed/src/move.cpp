@@ -223,10 +223,10 @@ void clipwall()
 
 }
 
-int BelowNear(DExhumedActor* pActor, int x, int y, int walldist, int nSector)
+int BelowNear(DExhumedActor* pActor, int x, int y, int walldist, int _nSector)
 {
     auto pSprite = &pActor->s();
-    nSector = pSprite->sectnum;
+    auto pSector = pSprite->sector();
     int z = pSprite->z;
 
     int z2;
@@ -237,44 +237,43 @@ int BelowNear(DExhumedActor* pActor, int x, int y, int walldist, int nSector)
     }
     else
     {
-        z2 = sector[nSector].floorz + sector[nSector].Depth;
+        z2 = pSector->floorz + pSector->Depth;
 
-        BFSSearch search(numsectors, nSector);
+        BFSSectorSearch search(pSector);
 
-        int edx = 0;
-        for (unsigned nCurSector; (nCurSector = search.GetNext()) != BFSSearch::EOL;)
+        sectortype* pTempSect = nullptr;
+        while (auto pCurSector = search.GetNext())
         {
-            for (auto& wal : wallsofsector(nCurSector))
+            for (auto& wal : wallsofsector(pCurSector))
             {
-                int nNextSector = wal.nextsector;
-                if (nNextSector >= 0)
+                if (wal.twoSided())
                 {
-                    if (!search.Check(nNextSector))
+                    if (!search.Check(wal.nextSector()))
                     {
                         vec2_t pos = { x, y };
                         if (clipinsidebox(&pos, wallnum(&wal), walldist))
                         {
-                            search.Add(nNextSector);
+                            search.Add(wal.nextSector());
                         }
                     }
                 }
             }
 
-            int nSect2 = nCurSector;
+            auto pSect2 = pCurSector;
 
-            while (nSect2 >= 0)
+            while (pSect2)
             {
-                edx = nSect2;
-                nSect2 = sector[nSect2].Below;
+                pTempSect = pSect2;
+                pSect2 = pSect2->Below>=0? &sector[pSect2->Below] : nullptr;
             }
 
-            int ecx = sector[edx].floorz + sector[edx].Depth;
+            int ecx = pTempSect->floorz + pTempSect->Depth;
             int eax = ecx - z;
 
             if (eax < 0 && eax >= -5120)
             {
                 z2 = ecx;
-                nSector = edx;
+                pSector = pTempSect;
             }
         }
     }
@@ -283,7 +282,7 @@ int BelowNear(DExhumedActor* pActor, int x, int y, int walldist, int nSector)
     if (z2 < pSprite->z)
     {
         pSprite->z = z2;
-        overridesect = nSector;
+        overridesect = sectnum(pSector);
         pSprite->zvel = 0;
 
         bTouchFloor = true;
@@ -300,6 +299,7 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
 {
     spritetype* pSprite = &pActor->s();
     int nSector =pSprite->sectnum;
+    auto pSector = pSprite->sector();
     assert(validSectorIndex(nSector));
 
     overridesect = nSector;
@@ -456,7 +456,7 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
         if ((sector[nSector].Depth != 0) || (edi != nSector && (sector[edi].Flag & kSectUnderwater)))
         {
             assert(validSectorIndex(nSector));
-            BuildSplash(pActor, nSector);
+            BuildSplash(pActor, pSector);
         }
     }
 

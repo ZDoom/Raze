@@ -129,12 +129,12 @@ void BuildRat(DExhumedActor* pActor, int x, int y, int z, int nSector, int nAngl
 DExhumedActor* FindFood(DExhumedActor* pActor)
 {
     auto pSprite = &pActor->s();
-    int nSector = pSprite->sectnum;
+    auto pSector = pSprite->sector();
     int x = pSprite->x;
     int y = pSprite->y;
     int z = pSprite->z;
 
-    int z2 = (z + sector[nSector].ceilingz) / 2;
+    int z2 = (z + pSector->ceilingz) / 2;
 
     if (nChunkTotal)
     {
@@ -142,7 +142,7 @@ DExhumedActor* FindFood(DExhumedActor* pActor)
 		if (pActor2 != nullptr)
 		{
 			auto pSprite2 = &pActor2->s();
-            if (cansee(x, y, z2, nSector, pSprite2->x, pSprite2->y, pSprite2->z, pSprite2->sectnum)) {
+            if (cansee(x, y, z2, pSector, pSprite2->x, pSprite2->y, pSprite2->z, pSprite2->sector())) {
                 return pActor2;
             }
         }
@@ -158,7 +158,7 @@ DExhumedActor* FindFood(DExhumedActor* pActor)
 		auto pSprite2 = &pActor2->s();
         if (nPlayerPic == pSprite2->picnum)
         {
-            if (cansee(x, y, z, nSector, pSprite2->x, pSprite2->y, pSprite2->z, pSprite2->sectnum)) {
+            if (cansee(x, y, z, pSector, pSprite2->x, pSprite2->y, pSprite2->z, pSprite2->sector())) {
                 return pActor2;
             }
         }

@@ -338,15 +338,15 @@ void AIWasp::Tick(RunListEvent* ev)
     }
     case 5:
     {
-        int nSector =pSprite->sectnum;
+        auto pSector =pSprite->sector();
 
         pSprite->z += pSprite->zvel;
 
-        if (pSprite->z >= sector[nSector].floorz)
+        if (pSprite->z >= pSector->floorz)
         {
-            if (sector[nSector].Below > -1)
+            if (pSector->Below > -1)
             {
-                BuildSplash(pActor, nSector);
+                BuildSplash(pActor, pSector);
                 pSprite->cstat |= 0x8000;
             }
 

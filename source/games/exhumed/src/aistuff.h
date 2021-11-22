@@ -33,7 +33,7 @@ DExhumedActor* BuildAnim(DExhumedActor* actor, int val, int val2, int x, int y, 
 
 void FuncAnim(int, int, int, int);
 void BuildExplosion(DExhumedActor* actor);
-void BuildSplash(DExhumedActor* actor, int nSector);
+void BuildSplash(DExhumedActor* actor, sectortype* nSector);
 
 
 // anubis

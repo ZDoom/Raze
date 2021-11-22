@@ -255,7 +255,7 @@ void BuildExplosion(DExhumedActor* pActor)
     BuildAnim(nullptr, edx, 0, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, pSprite->xrepeat, 4);
 }
 
-void BuildSplash(DExhumedActor* actor, int nSector)
+void BuildSplash(DExhumedActor* actor, sectortype* pSector)
 {
     auto pSprite = &actor->s();
     int nRepeat, nSound;
@@ -271,7 +271,7 @@ void BuildSplash(DExhumedActor* actor, int nSector)
         nSound = kSound1;
     }
 
-    int bIsLava = sector[nSector].Flag & kSectLava;
+    int bIsLava = pSector->Flag & kSectLava;
 
     int edx, nFlag;
 
@@ -286,7 +286,7 @@ void BuildSplash(DExhumedActor* actor, int nSector)
         nFlag = 0;
     }
 
-    auto pActor = BuildAnim(nullptr, edx, 0, pSprite->x, pSprite->y, sector[nSector].floorz, nSector, nRepeat, nFlag);
+    auto pActor = BuildAnim(nullptr, edx, 0, pSprite->x, pSprite->y, pSector->floorz, sectnum(pSector), nRepeat, nFlag);
 
     if (!bIsLava)
     {

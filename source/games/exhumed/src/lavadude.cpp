@@ -260,7 +260,7 @@ void AILavaDude::Tick(RunListEvent* ev)
 
     if (pTarget && nAction < 4)
     {
-        if (!(pTarget->s().cstat & 0x101) || pTarget->s().sectnum >= 1024)
+        if (!(pTarget->s().cstat & 0x101) || pTarget->s().statnum == MAXSTATUS)
         {
             pTarget = nullptr;
             pActor->pTarget = nullptr;

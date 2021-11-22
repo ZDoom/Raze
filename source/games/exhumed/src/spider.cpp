@@ -178,14 +178,14 @@ void AISpider::Tick(RunListEvent* ev)
         case 3:
         {
         case_3:
-            int nSector =sp->sectnum;
+            auto pSector =sp->sector();
 
             if (sp->cstat & 8)
             {
                 sp->zvel = 0;
-                sp->z = sector[nSector].ceilingz + (tileHeight(sp->picnum) << 5);
+                sp->z = pSector->ceilingz + (tileHeight(sp->picnum) << 5);
 
-                if (sector[nSector].ceilingstat & 1)
+                if (pSector->ceilingstat & 1)
                 {
                     sp->cstat ^= 8;
                     sp->zvel = 1;
@@ -216,7 +216,7 @@ void AISpider::Tick(RunListEvent* ev)
                     {
                         sp->cstat ^= 8;
                         sp->zvel = 1;
-                        sp->z = sector[nSector].ceilingz + GetActorHeight(spp);
+                        sp->z = pSector->ceilingz + GetActorHeight(spp);
                     }
                     else
                     {

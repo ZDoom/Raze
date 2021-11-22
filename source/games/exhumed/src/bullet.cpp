@@ -488,15 +488,14 @@ HITSPRITE:
             auto pWall = &wall[hitwall];
             if (pWall->picnum == kEnergy1)
             {
-                int nSector = pWall->nextsector;
-                if (nSector > -1)
+                if (pWall->twoSided())
                 {
                     int nDamage = BulletInfo[pBullet->nType].nDamage;
                     if (pBullet->nDoubleDamage > 1) {
                         nDamage *= 2;
                     }
 
-                    runlist_DamageEnemy(EnergyBlocks[sector[nSector].extra], pActor, nDamage);
+                    runlist_DamageEnemy(EnergyBlocks[pWall->nextSector()->extra], pActor, nDamage);
                 }
             }
         }
@@ -511,7 +510,7 @@ HITSPRITE:
                     pSprite->x = x2;
                     pSprite->y = y2;
                     pSprite->z = z2;
-                    BuildSplash(pActor, hitsect);
+                    BuildSplash(pActor, pHitSect);
                 }
                 else
                 {

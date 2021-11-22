@@ -1783,9 +1783,9 @@ void runlist_DamageEnemy(DExhumedActor* pActor, DExhumedActor* pActor2, int nDam
         {
             // Do a taunt
             auto pPlayerActor = PlayerList[nPlayer].Actor();
-            int nSector = pPlayerActor->s().sectnum;
+            auto pSector = pPlayerActor->s().sector();
 
-            if (!(sector[nSector].Flag & kSectUnderwater))
+            if (!(pSector->Flag & kSectUnderwater))
             {
                 int ebx = 0x4000;
 

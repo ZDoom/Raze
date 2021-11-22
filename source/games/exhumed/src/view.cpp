@@ -111,7 +111,7 @@ static void analyzesprites(spritetype* tsprite, int& spritesortcnt, int x, int y
 
         if (pTSprite->sectnum >= 0)
         {
-            sectortype *pSector = &sector[pTSprite->sectnum];
+            sectortype *pSector = pTSprite->sector();
             int nSectShade = (pSector->ceilingstat & 1) ? pSector->ceilingshade : pSector->floorshade;
             int nShade = pTSprite->shade + nSectShade + 6;
             pTSprite->shade = clamp(nShade, -128, 127);
@@ -305,15 +305,15 @@ void DrawView(double smoothRatio, bool sceneonly)
             }
         }
     }
-
+    auto pSector = &sector[nSector];
     nCamerax = playerX;
     nCameray = playerY;
     nCameraz = playerZ;
 
-    int Z = sector[nSector].ceilingz + 256;
+    int Z = pSector->ceilingz + 256;
     if (Z <= viewz)
     {
-        Z = sector[nSector].floorz - 256;
+        Z = pSector->floorz - 256;
 
         if (Z < viewz)
             viewz = Z;
