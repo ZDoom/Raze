@@ -29,7 +29,7 @@ BEGIN_PS_NS
 
 void InitAnims();
 void DestroyAnim(DExhumedActor* nAnim);
-DExhumedActor* BuildAnim(DExhumedActor* actor, int val, int val2, int x, int y, int z, int nSector, int nRepeat, int nFlag);
+DExhumedActor* BuildAnim(DExhumedActor* actor, int val, int val2, int x, int y, int z, sectortype* pSector, int nRepeat, int nFlag);
 
 void FuncAnim(int, int, int, int);
 void BuildExplosion(DExhumedActor* actor);
@@ -218,7 +218,7 @@ void Gravity(DExhumedActor* actor);
 DExhumedActor* UpdateEnemy(DExhumedActor** ppEnemy);
 Collision MoveCreature(DExhumedActor* nSprite);
 Collision MoveCreatureWithCaution(DExhumedActor* actor);
-void WheresMyMouth(int nPlayer, vec3_t* pos, int *sectnum);
+void WheresMyMouth(int nPlayer, vec3_t* pos, sectortype** sectnum);
 int GetActorHeight(DExhumedActor* nSprite);
 DExhumedActor* insertActor(int, int);
 inline DExhumedActor* insertActor(sectortype* s, int st)

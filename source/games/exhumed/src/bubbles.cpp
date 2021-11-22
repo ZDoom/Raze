@@ -35,14 +35,14 @@ void DestroyBubble(DExhumedActor* pActor)
     DeleteActor(pActor);
 }
 
-DExhumedActor* BuildBubble(vec3_t pos, int nSector)
+DExhumedActor* BuildBubble(vec3_t pos, sectortype* pSector)
 {
     int nSize = RandomSize(3);
     if (nSize > 4) {
         nSize -= 4;
     }
 
-    auto pActor = insertActor(nSector, 402);
+    auto pActor = insertActor(pSector, 402);
 	auto pSprite = &pActor->s();
 
     pSprite->pos = pos;
@@ -100,7 +100,7 @@ void AIBubble::Tick(RunListEvent* ev)
         auto pSectAbove = pSector->pAbove;
 
         if (pSprite->hitag > -1 && pSectAbove != nullptr) {
-            BuildAnim(nullptr, 70, 0, pSprite->x, pSprite->y, pSectAbove->floorz, sectnum(pSectAbove), 64, 0);
+            BuildAnim(nullptr, 70, 0, pSprite->x, pSprite->y, pSectAbove->floorz, pSectAbove, 64, 0);
         }
 
         DestroyBubble(pActor);
@@ -129,7 +129,7 @@ void DoBubbleMachines()
             pActor->nCount = (RandomWord() % pActor->nFrame) + 30;
 
 			auto pSprite = &pActor->s();
-            BuildBubble(pSprite->pos, pSprite->sectnum);
+            BuildBubble(pSprite->pos, pSprite->sector());
         }
     }
 }
@@ -147,11 +147,11 @@ void BuildBubbleMachine(DExhumedActor* pActor)
 void DoBubbles(int nPlayer)
 {
     vec3_t pos;
-    int nSector;
+    sectortype* pSector;
 
-    WheresMyMouth(nPlayer, &pos, &nSector);
+    WheresMyMouth(nPlayer, &pos, &pSector);
 
-    auto pActor = BuildBubble(pos, nSector);
+    auto pActor = BuildBubble(pos, pSector);
     pActor->s().hitag = nPlayer;
 }
 END_PS_NS

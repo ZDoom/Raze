@@ -718,6 +718,7 @@ loc_flag:
                     }
 
                     auto cRange = CheckCloseRange(nPlayer, &theX, &theY, &theZ, &nSectorB);
+                    auto pSectorB = &sector[nSectorB];
 
                     if (cRange.type != kHitNone)
                     {
@@ -753,7 +754,7 @@ loc_flag:
                                     else if (pSprite2->statnum == 102)
                                     {
                                         // loc_27370:
-                                        BuildAnim(nullptr, 12, 0, theX, theY, theZ, nSectorB, 30, 0);
+                                        BuildAnim(nullptr, 12, 0, theX, theY, theZ, pSectorB, 30, 0);
                                     }
                                     else if (pSprite2->statnum == kStatExplodeTrigger) {
                                         var_28 += 2;
@@ -765,7 +766,7 @@ loc_flag:
                                 else
                                 {
                                     // loc_27370:
-                                    BuildAnim(nullptr, 12, 0, theX, theY, theZ, nSectorB, 30, 0);
+                                    BuildAnim(nullptr, 12, 0, theX, theY, theZ, pSectorB, 30, 0);
                                 }
                             }
                         }

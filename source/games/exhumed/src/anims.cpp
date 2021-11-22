@@ -62,10 +62,10 @@ void DestroyAnim(DExhumedActor* pActor)
     }
 }
 
-DExhumedActor* BuildAnim(DExhumedActor* pActor, int val, int val2, int x, int y, int z, int nSector, int nRepeat, int nFlag)
+DExhumedActor* BuildAnim(DExhumedActor* pActor, int val, int val2, int x, int y, int z, sectortype* pSector, int nRepeat, int nFlag)
 {
     if (pActor == nullptr) {
-        pActor = insertActor(nSector, 500);
+        pActor = insertActor(pSector, 500);
     }
 	auto pSprite = &pActor->s();
 
@@ -252,7 +252,7 @@ void BuildExplosion(DExhumedActor* pActor)
         edx = 34;
     }
 
-    BuildAnim(nullptr, edx, 0, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, pSprite->xrepeat, 4);
+    BuildAnim(nullptr, edx, 0, pSprite->x, pSprite->y, pSprite->z, pSprite->sector(), pSprite->xrepeat, 4);
 }
 
 void BuildSplash(DExhumedActor* actor, sectortype* pSector)
@@ -286,7 +286,7 @@ void BuildSplash(DExhumedActor* actor, sectortype* pSector)
         nFlag = 0;
     }
 
-    auto pActor = BuildAnim(nullptr, edx, 0, pSprite->x, pSprite->y, pSector->floorz, sectnum(pSector), nRepeat, nFlag);
+    auto pActor = BuildAnim(nullptr, edx, 0, pSprite->x, pSprite->y, pSector->floorz, pSector, nRepeat, nFlag);
 
     if (!bIsLava)
     {

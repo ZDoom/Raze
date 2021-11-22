@@ -643,7 +643,7 @@ Collision MoveCreatureWithCaution(DExhumedActor* pActor)
             pSprite->y = y;
             pSprite->z = z;
 
-            ChangeActorSect(pActor, sectnum(pSectorPre));
+            ChangeActorSect(pActor, pSectorPre);
 
             pSprite->ang = (pSprite->ang + 256) & kAngleMask;
             pSprite->xvel = bcos(pSprite->ang, -2);
@@ -1251,14 +1251,14 @@ int GetWallNormal(walltype* pWall)
     return (nAngle + 512) & kAngleMask;
 }
 
-void WheresMyMouth(int nPlayer, vec3_t* pos, int *sectnum)
+void WheresMyMouth(int nPlayer, vec3_t* pos, sectortype **sectnum)
 {
     auto pActor = PlayerList[nPlayer].Actor();
 	auto pSprite = &pActor->s();
 
     int height = GetActorHeight(pActor) >> 1;
 
-    *sectnum = pSprite->sectnum;
+    *sectnum = pSprite->sector();
     *pos = pSprite->pos;
     pos->z -= height;
 
