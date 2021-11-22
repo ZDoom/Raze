@@ -116,14 +116,7 @@ extern int cameradist, cameraclock;
 
 void loaddefinitionsfile(const char* fn, bool cumulative = false, bool maingrp = false);
 
-bool calcChaseCamPos(int* px, int* py, int* pz, spritetype* pspr, int *psectnum, binangle ang, fixedhoriz horiz, double const smoothratio);
-inline bool calcChaseCamPos(int* px, int* py, int* pz, spritetype* pspr, sectortype** psectnum, binangle ang, fixedhoriz horiz, double const smoothratio)
-{
-	int sectnum;
-	bool res = calcChaseCamPos(px, py, pz, pspr, &sectnum, ang, horiz, smoothratio);
-	*psectnum = &sector[sectnum];
-	return res;
-}
+bool calcChaseCamPos(int* px, int* py, int* pz, spritetype* pspr, sectortype** psectnum, binangle ang, fixedhoriz horiz, double const smoothratio);
 
 void PlanesAtPoint(const sectortype* sec, int dax, int day, float* ceilz, float* florz);
 inline void PlanesAtPoint(const sectortype* sec, float dax, float day, float* ceilz, float* florz) // this is just for warning evasion.

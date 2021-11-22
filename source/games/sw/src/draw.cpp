@@ -1542,11 +1542,13 @@ drawscreen(PLAYERp pp, double smoothratio)
     {
         tz -= 8448;
         
-        if (!calcChaseCamPos(&tx, &ty, &tz, &pp->Actor()->s(), &tsectnum, tang, thoriz, smoothratio))
+        auto pSect = &sector[tsectnum];
+        if (!calcChaseCamPos(&tx, &ty, &tz, &pp->Actor()->s(), &pSect, tang, thoriz, smoothratio))
         {
             tz += 8448;
-            calcChaseCamPos(&tx, &ty, &tz, &pp->Actor()->s(), &tsectnum, tang, thoriz, smoothratio);
+            calcChaseCamPos(&tx, &ty, &tz, &pp->Actor()->s(), &pSect, tang, thoriz, smoothratio);
         }
+        tsectnum = sectnum(pSect);
     }
     else
     {

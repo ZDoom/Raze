@@ -472,7 +472,9 @@ void SetupView(int &cX, int& cY, int& cZ, binangle& cA, fixedhoriz& cH, int& nSe
     }
     else
     {
-        calcChaseCamPos((int*)&cX, (int*)&cY, (int*)&cZ, gView->pSprite, &nSectnum, cA, cH, gInterpolate);
+        auto pSect = &sector[nSectnum];
+        calcChaseCamPos((int*)&cX, (int*)&cY, (int*)&cZ, gView->pSprite, &pSect, cA, cH, gInterpolate);
+        nSectnum = sectnum(pSect);
     }
     CheckLink((int*)&cX, (int*)&cY, (int*)&cZ, &nSectnum);
 }

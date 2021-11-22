@@ -32,15 +32,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 int cameradist, cameraclock;
 
-bool calcChaseCamPos(int* px, int* py, int* pz, spritetype* pspr, int *psectnum, binangle ang, fixedhoriz horiz, double const smoothratio)
+bool calcChaseCamPos(int* px, int* py, int* pz, spritetype* pspr, sectortype** psect, binangle ang, fixedhoriz horiz, double const smoothratio)
 {
 	hitdata_t hitinfo;
 	binangle daang;
 	short bakcstat;
 	int newdist;
 
-	assert(validSectorIndex(*psectnum));
-
+	if (!*psect) return false;
 	// Calculate new pos to shoot backwards, using averaged values from the big three.
 	int nx = gi->chaseCamX(ang);
 	int ny = gi->chaseCamY(ang);
@@ -49,19 +48,17 @@ bool calcChaseCamPos(int* px, int* py, int* pz, spritetype* pspr, int *psectnum,
 	vec3_t pvect = { *px, *py, *pz };
 	bakcstat = pspr->cstat;
 	pspr->cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-	updatesectorz(*px, *py, *pz, psectnum);
-	hitscan(&pvect, *psectnum, nx, ny, nz, &hitinfo, CLIPMASK1);
+	updatesectorz(*px, *py, *pz, psect);
+	hitscan(&pvect, sectnum(*psect), nx, ny, nz, &hitinfo, CLIPMASK1);
 	pspr->cstat = bakcstat;
 
 	int hx = hitinfo.pos.x - *px;
 	int hy = hitinfo.pos.y - *py;
 
-	if (*psectnum < 0)
+	if (*psect == nullptr)
 	{
 		return false;
 	}
-
-	assert(validSectorIndex(*psectnum));
 
 	// If something is in the way, make pp->camera_dist lower if necessary
 	if (abs(nx) + abs(ny) > abs(hx) + abs(hy))
@@ -69,7 +66,7 @@ bool calcChaseCamPos(int* px, int* py, int* pz, spritetype* pspr, int *psectnum,
 		if (hitinfo.wall >= 0)
 		{
 			// Push you a little bit off the wall
-			*psectnum = hitinfo.sect;
+			*psect = &sector[hitinfo.sect];
 			daang = bvectangbam(wall[wall[hitinfo.wall].point2].x - wall[hitinfo.wall].x,
 								wall[wall[hitinfo.wall].point2].y - wall[hitinfo.wall].y);
 			newdist = nx * daang.bsin() + ny * -daang.bcos();
@@ -82,7 +79,7 @@ bool calcChaseCamPos(int* px, int* py, int* pz, spritetype* pspr, int *psectnum,
 		else if (hitinfo.sprite < 0)		
 		{
 			// Push you off the ceiling/floor
-			*psectnum = hitinfo.sect;
+			*psect = &sector[hitinfo.sect];
 
 			if (abs(nx) > abs(ny))
 				hx -= (nx >> 5);
@@ -98,7 +95,7 @@ bool calcChaseCamPos(int* px, int* py, int* pz, spritetype* pspr, int *psectnum,
 			{
 				bakcstat = hspr->cstat;
 				hspr->cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-				calcChaseCamPos(px, py, pz, pspr, psectnum, ang, horiz, smoothratio);
+				calcChaseCamPos(px, py, pz, pspr, psect, ang, horiz, smoothratio);
 				hspr->cstat = bakcstat;
 				return false;
 			}
@@ -142,7 +139,7 @@ bool calcChaseCamPos(int* px, int* py, int* pz, spritetype* pspr, int *psectnum,
 	cameraclock = myclock;
 
 	// Make sure psectnum is correct.
-	updatesectorz(*px, *py, *pz, psectnum);
+	updatesectorz(*px, *py, *pz, psect);
 
 	return true;
 }

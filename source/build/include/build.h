@@ -418,8 +418,17 @@ inline void updatesector(int const x, int const y, sectortype** const sectp)
 }
 void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int * const sectnum) ATTRIBUTE((nonnull(4)));
 
+inline void updatesectorz(int32_t const x, int32_t const y, int32_t const z, sectortype** const sectp)
+{
+    int sectno = *sectp ? sector.IndexOf(*sectp) : -1;
+    updatesectorz(x, y, z, &sectno);
+    *sectp = sectno == -1 ? nullptr : &sector[sectno];
+}
+
+
+
 void updatesectorneighbor(int32_t const x, int32_t const y, int * const sectnum, int32_t maxDistance = MAXUPDATESECTORDIST) ATTRIBUTE((nonnull(3)));
-void updatesectorneighborz(int32_t const x, int32_t const y, int32_t const z, int * const sectnum, int32_t maxDistance = MAXUPDATESECTORDIST) ATTRIBUTE((nonnull(4)));
+
 
 int findwallbetweensectors(int sect1, int sect2);
 
