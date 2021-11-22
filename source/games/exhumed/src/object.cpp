@@ -2298,10 +2298,9 @@ void ProcessTrailSprite(DExhumedActor* pActor, int nLotag, int nHitag)
 }
 
 // ok?
-void AddMovingSector(int nSector, int edx, int ebx, int ecx)
+void AddMovingSector(sectortype* pSector, int edx, int ebx, int ecx)
 {
-    auto pSector = &sector[nSector];
-    CreatePushBlock(nSector);
+    CreatePushBlock(pSector);
     setsectinterpolate(pSector);
 
     int nTrail = FindTrail(ebx);

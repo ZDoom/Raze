@@ -1168,37 +1168,37 @@ void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
 
         case 40: // Moving sector(follows waypoints)
         {
-            AddMovingSector(sectnum(pSector), nLotag, nHitag % 1000, 2);
+            AddMovingSector(pSector, nLotag, nHitag % 1000, 2);
             return;
         }
 
         case 41: // Moving sector(follows waypoints)
         {
-            AddMovingSector(sectnum(pSector), nLotag, nHitag % 1000, 18);
+            AddMovingSector(pSector, nLotag, nHitag % 1000, 18);
             return;
         }
 
         case 42: // Moving sector(follows waypoints)
         {
-            AddMovingSector(sectnum(pSector), nLotag, nHitag % 1000, 58);
+            AddMovingSector(pSector, nLotag, nHitag % 1000, 58);
             return;
         }
 
         case 43: // Moving sector(follows waypoints)
         {
-            AddMovingSector(sectnum(pSector), nLotag, nHitag % 1000, 122);
+            AddMovingSector(pSector, nLotag, nHitag % 1000, 122);
             return;
         }
 
         case 44: // Moving sector(follows waypoints)
         {
-            AddMovingSector(sectnum(pSector), nLotag, nHitag % 1000, 90);
+            AddMovingSector(pSector, nLotag, nHitag % 1000, 90);
             return;
         }
 
         case 45: // Pushbox sector
         {
-            CreatePushBlock(sectnum(pSector));
+            CreatePushBlock(pSector);
             return;
         }
 

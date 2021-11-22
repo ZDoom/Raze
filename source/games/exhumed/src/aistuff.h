@@ -227,7 +227,7 @@ inline DExhumedActor* insertActor(sectortype* s, int st)
 }
 DExhumedActor* GrabBody();
 DExhumedActor* GrabBodyGunSprite();
-void CreatePushBlock(int nSector);
+void CreatePushBlock(sectortype* pSector);
 void FuncCreatureChunk(int a, int, int nRun);
 DExhumedActor* FindPlayer(DExhumedActor* nSprite, int nDistance, bool dontengage = false);
 
@@ -286,15 +286,15 @@ void FuncTrap(int, int, int, int);
 void FuncEnergyBlock(int, int, int, int);
 void FuncSpark(int, int, int, int);
 void SnapBobs(sectortype* nSectorA, sectortype* nSectorB);
-DExhumedActor* FindWallSprites(int nSector);
-void AddMovingSector(int nSector, int edx, int ebx, int ecx);
+DExhumedActor* FindWallSprites(sectortype* nSector);
+void AddMovingSector(sectortype* nSector, int edx, int ebx, int ecx);
 void ProcessTrailSprite(DExhumedActor* nSprite, int nLotag, int nHitag);
 void AddSectorBob(sectortype* nSector, int nHitag, int bx);
 DExhumedActor* BuildObject(DExhumedActor* nSprite, int nOjectType, int nHitag);
 int BuildArrow(DExhumedActor* nSprite, int nVal);
 int BuildFireBall(DExhumedActor*, int a, int b);
 void BuildDrip(DExhumedActor* nSprite);
-DExhumedActor* BuildEnergyBlock(int nSector);
+DExhumedActor* BuildEnergyBlock(sectortype* nSector);
 int BuildElevC(int arg1, int nChannel, sectortype* nSector, DExhumedActor* nWallSprite, int arg5, int arg6, int nCount, ...);
 int BuildElevF(int nChannel, sectortype* nSector, DExhumedActor* nWallSprite, int arg_4, int arg_5, int nCount, ...);
 int BuildWallFace(int nChannel, walltype* pWall, int nCount, ...);

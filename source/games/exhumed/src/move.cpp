@@ -804,39 +804,38 @@ int GrabPushBlock()
     return nPushBlocks++;
 }
 
-void CreatePushBlock(int nSector)
+void CreatePushBlock(sectortype* pSector)
 {
-    auto sectp = &sector[nSector];
     int nBlock = GrabPushBlock();
 
     int xSum = 0;
     int ySum = 0;
 
-    for (auto& wal : wallsofsector(sectp))
+    for (auto& wal : wallsofsector(pSector))
     {
         xSum += wal.x;
         ySum += wal.y;
     }
 
-    int xAvg = xSum / sectp->wallnum;
-    int yAvg = ySum / sectp->wallnum;
+    int xAvg = xSum / pSector->wallnum;
+    int yAvg = ySum / pSector->wallnum;
 
     sBlockInfo[nBlock].x = xAvg;
     sBlockInfo[nBlock].y = yAvg;
 
-    auto pActor = insertActor(nSector, 0);
+    auto pActor = insertActor(pSector, 0);
     auto pSprite = &pActor->s();
 
     sBlockInfo[nBlock].pActor = pActor;
 
     pSprite->x = xAvg;
     pSprite->y = yAvg;
-    pSprite->z = sectp->floorz - 256;
+    pSprite->z = pSector->floorz - 256;
     pSprite->cstat = 0x8000;
 
     int var_28 = 0;
 
-	for (auto& wal : wallsofsector(sectp))
+	for (auto& wal : wallsofsector(pSector))
     {
         uint32_t xDiff = abs(xAvg - wal.x);
         uint32_t yDiff = abs(yAvg - wal.y);
@@ -858,7 +857,7 @@ void CreatePushBlock(int nSector)
     sBlockInfo[nBlock].field_8 = var_28;
 
     pSprite->clipdist = (var_28 & 0xFF) << 2;
-    sectp->extra = nBlock;
+    pSector->extra = nBlock;
 }
 
 void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
