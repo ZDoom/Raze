@@ -474,7 +474,6 @@ void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang,
 		// This way they just get copied to the sector backup array. These 4 are the only values in all games needing such treatment.
 		if (isExhumed())
 		{
-			sector[i].SoundSect = -1;
 			sector[i].Sound = -1;
 			sector[i].Above = -1;
 			sector[i].Below = -1;

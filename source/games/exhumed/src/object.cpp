@@ -1482,21 +1482,18 @@ void DimLights()
     if (word_96786 == 0)
         return;
 
-    for (int i = 0; i < numsectors; i++)
+    for (auto&sect : sectors())
     {
-        if (sector[i].ceilingshade < 100)
-            sector[i].ceilingshade++;
+        if (sect.ceilingshade < 100)
+            sect.ceilingshade++;
 
-        if (sector[i].floorshade < 100)
-            sector[i].floorshade++;
+        if (sect.floorshade < 100)
+            sect.floorshade++;
 
-        int startwall = sector[i].wallptr;
-        int endwall = startwall + sector[i].wallnum;
-
-        for (int nWall = startwall; nWall < endwall; nWall++)
+        for (auto& wal : wallsofsector(&sect))
         {
-            if (wall[nWall].shade < 100)
-                wall[nWall].shade++;
+            if (wal.shade < 100)
+                wal.shade++;
         }
     }
 }
@@ -2478,8 +2475,6 @@ void DoMovingSects()
 
 void PostProcess()
 {
-    int i, j;
-
     for (unsigned i = 0; i < sMoveSect.Size(); i++)
     {
         int nTrail = sMoveSect[i].nTrail;
@@ -2529,35 +2524,31 @@ void PostProcess()
 
     if (!(currentLevel->gameflags & LEVEL_EX_COUNTDOWN))
     {
-        // esi is i
-        for (i = 0; i < numsectors; i++)
+        for (auto& sect : sectors())
         {
-            auto secti = &sector[i];
             int var_20 = 30000;
 
-            if (secti->Speed && secti->Depth && !(secti->Flag & kSectLava))
+            if (sect.Speed && sect.Depth && !(sect.Flag & kSectLava))
             {
-                secti->SoundSect = i;
-                secti->Sound = StaticSound[kSound43];
+                sect.pSoundSect = &sect;
+                sect.Sound = StaticSound[kSound43];
             }
             else
             {
-                // ebp and ecx are j
-                for (j = 0; j < numsectors; j++)
+                for (auto& sectj : sectors())
                 {
-                    auto sectj = &sector[j];
                     // loc_23CA6:
 
-                    if (i != j && sectj->Speed && !(secti->Flag & kSectLava))
+                    if (&sect != &sectj && sectj.Speed && !(sect.Flag & kSectLava))
                     {
-						int xVal = abs(secti->firstWall()->x - sectj->firstWall()->x);
-						int yVal = abs(secti->firstWall()->y - sectj->firstWall()->y);
+						int xVal = abs(sect.firstWall()->x - sectj.firstWall()->x);
+						int yVal = abs(sect.firstWall()->y - sectj.firstWall()->y);
 
                         if (xVal < 15000 && yVal < 15000 && (xVal + yVal < var_20))
                         {
                             var_20 = xVal + yVal;
-                            secti->SoundSect = j;
-                            secti->Sound = StaticSound[kSound43];
+                            sect.pSoundSect = &sectj;
+                            sect.Sound = StaticSound[kSound43];
                         }
                     }
                 }
@@ -2566,30 +2557,19 @@ void PostProcess()
     }
     else // nMap == kMap20)
     {
-        //		int var_24 = 0;
-        int ebp = 0;
-
-        for (i = 0; i < numsectors; i++)
+        for(auto& sect : sectors())
         {
-            auto secti = &sector[i];
-            secti->SoundSect = i;
-            secti->Sound = StaticSound[kSound62];
+            sect.pSoundSect = &sect;
+            sect.Sound = StaticSound[kSound62];
 
-            int startwall = sector[ebp].wallptr;
-            int endwall = sector[ebp].wallptr + sector[ebp].wallnum;
-
-            int nWall = startwall;
-
-            while (nWall < endwall)
+            for(auto& wal : wallsofsector(&sect))
             {
-                if (wall[nWall].picnum == kTile3603)
+                if (wal.picnum == kTile3603)
                 {
-                    wall[nWall].pal = 1;
-                    auto pActor = insertActor(i, 407);
+                    wal.pal = 1;
+                    auto pActor = insertActor(&sect, 407);
                     pActor->s().cstat = 0x8000;
                 }
-
-                nWall++;
             }
         }
 

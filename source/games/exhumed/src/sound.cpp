@@ -676,11 +676,11 @@ void CheckAmbience(int nSector)
     auto sect = &sector[nSector];
     if (sect->Sound != -1)
     {
-        int nSector2 = sect->SoundSect;
-        walltype* pWall = sector[nSector2].firstWall();
+        auto pSector2 = sect->pSoundSect;
+        walltype* pWall = pSector2->firstWall();
         if (!soundEngine->IsSourcePlayingSomething(SOURCE_Ambient, &amb, 0))
         {
-            vec3_t v = { pWall->x, pWall->y, sector[nSector2].floorz };
+            vec3_t v = { pWall->x, pWall->y, pSector2->floorz };
             amb = GetSoundPos(&v);
             soundEngine->StartSound(SOURCE_Ambient, &amb, nullptr, CHAN_BODY, CHANF_TRANSIENT, sect->Sound + 1, 1.f, ATTN_NORM);
             return;
@@ -689,14 +689,14 @@ void CheckAmbience(int nSector)
             {
                 if (chan->SourceType == SOURCE_Ambient)
                 {
-                    if (nSector == nSector2)
+                    if (sect == pSector2)
                     {
                         spritetype* pSprite = &PlayerList[0].Actor()->s();
                         amb = GetSoundPos(&pSprite->pos);
                     }
                     else
                     {
-                        vec3_t v = { pWall->x, pWall->y, sector[nSector2].floorz };
+                        vec3_t v = { pWall->x, pWall->y, pSector2->floorz };
                         amb = GetSoundPos(&v);
                     }
                     return 1;

@@ -243,17 +243,6 @@ void SnapSectors(int nSectorA, int nSectorB, int b)
     }
 }
 
-void InitSectFlag()
-{
-    for(auto& Sect : sectors())
-    {
-        Sect.SoundSect = -1;
-        Sect.Sound = -1;
-        Sect.Above = -1;
-        Sect.Below = -1;
-    }
-}
-
 void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
 {
 	auto pSprite = &pActor->s();
@@ -778,7 +767,6 @@ void LoadObjects()
     InitSwitch();
     InitElev();
     InitWallFace();
-    InitSectFlag();
 
 	for (auto& sect : sectors())
     {
