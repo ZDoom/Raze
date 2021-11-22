@@ -238,7 +238,7 @@ void CheckSectorFloor(int nSector, int z, int *x, int *y);
 int GetAngleToSprite(DExhumedActor* nSprite1, DExhumedActor* nSprite2);
 int GetWallNormal(int nWall);
 int GetUpAngle(DExhumedActor* nSprite1, int nVal, DExhumedActor* nSprite2, int ecx);
-void MoveSector(int nSector, int nAngle, int *nXVel, int *nYVel);
+void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel);
 Collision AngleChase(DExhumedActor* nSprite, DExhumedActor* nSprite2, int ebx, int ecx, int push1);
 void SetQuake(DExhumedActor* nSprite, int nVal);
 

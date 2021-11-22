@@ -1064,7 +1064,7 @@ void spawneffector(DDukeActor* actor)
 		case SE_15_SLIDING_DOOR:
 		case SE_16_REACTOR:
 		case SE_26:
-			setsectinterpolate(actor->s->sectnum);
+			setsectinterpolate(actor->s->sector());
 			break;
 
 		case SE_29_WAVES:

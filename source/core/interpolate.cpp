@@ -178,9 +178,9 @@ void ClearMovementInterpolations()
 	}
 }
 
-void setsectinterpolate(int sectnum)
+void setsectinterpolate(sectortype* sect)
 {
-	for (auto&wal : wallsofsector(sectnum))
+	for (auto&wal : wallsofsector(sect))
 	{
 		StartInterpolation(&wal, Interp_Wall_X);
 		StartInterpolation(&wal, Interp_Wall_Y);
@@ -196,11 +196,9 @@ void setsectinterpolate(int sectnum)
 	}
 }
 
-void clearsectinterpolate(int sectnum)
+void clearsectinterpolate(sectortype* sect)
 {
-	auto sect = &sector[sectnum];
-
-	for (auto& wal : wallsofsector(sectnum))
+	for (auto& wal : wallsofsector(sect))
 	{
 		StopInterpolation(&wal, Interp_Wall_X);
 		StopInterpolation(&wal, Interp_Wall_Y);

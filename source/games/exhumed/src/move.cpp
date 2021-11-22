@@ -863,9 +863,9 @@ void CreatePushBlock(int nSector)
     sectp->extra = nBlock;
 }
 
-void MoveSector(int nSector, int nAngle, int *nXVel, int *nYVel)
+void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
 {
-    if (nSector == -1) {
+    if (pSector == nullptr) {
         return;
     }
 
@@ -882,11 +882,9 @@ void MoveSector(int nSector, int nAngle, int *nXVel, int *nYVel)
         nXVect = bcos(nAngle, 6);
         nYVect = bsin(nAngle, 6);
     }
-    sectortype *pSector = &sector[nSector];
- 
 
     int nBlock = pSector->extra;
-    int nSectFlag = sector[nSector].Flag;
+    int nSectFlag = pSector->Flag;
 
     int nFloorZ = pSector->floorz;
 
@@ -903,7 +901,6 @@ void MoveSector(int nSector, int nAngle, int *nXVel, int *nYVel)
     pos.y = sBlockInfo[nBlock].y;
     int y_b = sBlockInfo[nBlock].y;
 
-    auto nSectorB = nSector;
 
     int nZVal;
 
@@ -924,12 +921,13 @@ void MoveSector(int nSector, int nAngle, int *nXVel, int *nYVel)
         pSector->floorz = pNextSector->floorz;
     }
 
-    clipmove(&pos, &nSectorB, nXVect, nYVect, pBlockInfo->field_8, 0, 0, CLIPMASK1);
+    auto pSectorB = pSector;
+    clipmove(&pos, &pSectorB, nXVect, nYVect, pBlockInfo->field_8, 0, 0, CLIPMASK1);
 
     int yvect = pos.y - y_b;
     int xvect = pos.x - x_b;
 
-    if (&sector[nSectorB] != pNextSector && nSectorB != nSector)
+    if (pSectorB != pNextSector && pSectorB != pSector)
     {
         yvect = 0;
         xvect = 0;
@@ -940,7 +938,7 @@ void MoveSector(int nSector, int nAngle, int *nXVel, int *nYVel)
         {
             pos = { x_b, y_b, nZVal };
 
-            clipmove(&pos, &nSectorB, nXVect, nYVect, pBlockInfo->field_8, 0, 0, CLIPMASK1);
+            clipmove(&pos, &pSectorB, nXVect, nYVect, pBlockInfo->field_8, 0, 0, CLIPMASK1);
 
             int ebx = pos.x;
             int ecx = x_b;
@@ -987,7 +985,7 @@ void MoveSector(int nSector, int nAngle, int *nXVel, int *nYVel)
     // GREEN
     if (yvect || xvect)
     {
-        ExhumedSectIterator it(nSector);
+        ExhumedSectIterator it(pSector);
         while (auto pActor = it.Next())
         {
             auto sp = &pActor->s();
@@ -1004,12 +1002,12 @@ void MoveSector(int nSector, int nAngle, int *nXVel, int *nYVel)
                 {
                     pos.x = sp->x;
                     pos.y = sp->y;
-                    nSectorB = nSector;
+                    pSectorB = pSector;
 
-                    clipmove(&pos, &nSectorB, -xvect, -yvect, 4 * sp->clipdist, 0, 0, CLIPMASK0);
+                    clipmove(&pos, &pSectorB, -xvect, -yvect, 4 * sp->clipdist, 0, 0, CLIPMASK0);
 
-                    if (validSectorIndex(nSectorB)) {
-                        ChangeActorSect(pActor, nSectorB);
+                    if (pSectorB) {
+                        ChangeActorSect(pActor, pSectorB);
                     }
                 }
             }
@@ -1022,20 +1020,20 @@ void MoveSector(int nSector, int nAngle, int *nXVel, int *nYVel)
             if (pSprite->statnum >= 99)
             {
                 pos = pSprite->pos;
-                nSectorB = nNextSector;
+                pSectorB = pNextSector;
 
-                clipmove(&pos, &nSectorB,
+                clipmove(&pos, &pSectorB,
                     -xvect - (bcos(nAngle) * (4 * pSprite->clipdist)),
                     -yvect - (bsin(nAngle) * (4 * pSprite->clipdist)),
                     4 * pSprite->clipdist, 0, 0, CLIPMASK0);
 
 
-                if (nSectorB != nNextSector && (nSectorB == nSector || nNextSector == nSector))
+                if (pSectorB != pNextSector && (pSectorB == pSector || pNextSector == pSector))
                 {
-                    if (nSectorB != nSector || nFloorZ >= pSprite->z)
+                    if (pSectorB != pSector || nFloorZ >= pSprite->z)
                     {
-                        if (validSectorIndex(nSectorB)) {
-                            ChangeActorSect(pActor, nSectorB);
+                        if (pSectorB) {
+                            ChangeActorSect(pActor, pSectorB);
                         }
                     }
                     else
@@ -1064,14 +1062,14 @@ void MoveSector(int nSector, int nAngle, int *nXVel, int *nYVel)
 
     if (!(nSectFlag & kSectUnderwater))
     {
-        ExhumedSectIterator it(nSector);
+        ExhumedSectIterator it(pSector);
         while (auto pActor = it.Next())
         {
             auto pSprite = &pActor->s();
             if (pSprite->statnum >= 99 && nZVal == pSprite->z && !(pSprite->cstat & 0x8000))
             {
-                nSectorB = nSector;
-                clipmove(&pSprite->pos, &nSectorB, xvect, yvect, 4 * pSprite->clipdist, 5120, -5120, CLIPMASK0);
+                pSectorB = pSector;
+                clipmove(&pSprite->pos, &pSectorB, xvect, yvect, 4 * pSprite->clipdist, 5120, -5120, CLIPMASK0);
             }
         }
     }

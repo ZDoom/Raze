@@ -1035,7 +1035,8 @@ void AIPlayer::Tick(RunListEvent* ev)
 
             if (sectnum >= 0)
             {
-                if ((sector[sectnum].hitag == 45) && bTouchFloor)
+                auto sect = &sector[sectnum];
+                if ((sect->hitag == 45) && bTouchFloor)
                 {
                     int nDiff = AngleDiff(nNormal, (pPlayerSprite->ang + 1024) & kAngleMask);
 
@@ -1051,8 +1052,8 @@ void AIPlayer::Tick(RunListEvent* ev)
                         int yvel = sPlayerInput[nPlayer].yVel;
                         int nMyAngle = GetMyAngle(xvel, yvel);
 
-                        setsectinterpolate(sectnum);
-                        MoveSector(sectnum, nMyAngle, &xvel, &yvel);
+                        setsectinterpolate(sect);
+                        MoveSector(sect, nMyAngle, &xvel, &yvel);
 
                         if (PlayerList[nPlayer].nPlayerPushSound <= -1)
                         {

@@ -31,8 +31,8 @@ void ClearMovementInterpolations();
 void DoInterpolations(double smoothratio);
 void RestoreInterpolations();
 void SerializeInterpolations(FSerializer& arc);
-void clearsectinterpolate(int sectnum);
-void setsectinterpolate(int sectnum);
+void clearsectinterpolate(sectortype* sectnum);
+void setsectinterpolate(sectortype* sectnum);
 
 inline void StartInterpolation(walltype* wall, int type)
 {

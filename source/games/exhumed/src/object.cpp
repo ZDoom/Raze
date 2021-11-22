@@ -89,8 +89,8 @@ struct Elev
 // 16 bytes
 struct MoveSect
 {
-    int nSector;
-    int nCurSector;
+    sectortype* pSector;
+    sectortype* pCurSector;
     int field_10;
     int16_t nTrail;
     int16_t nTrailPoint;
@@ -245,11 +245,11 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, MoveSect& w, MoveS
 {
     if (arc.BeginObject(keyname))
     {
-        arc("sector", w.nSector)
+        arc("sector", w.pSector)
             ("trail", w.nTrail)
             ("trailpoint", w.nTrailPoint)
             ("at6", w.nFlags)
-            ("at8", w.nCurSector)
+            ("at8", w.pCurSector)
             ("at10", w.field_10)
             ("at14", w.nChannel)
             ("movedir", w.sMoveDir)
@@ -2307,8 +2307,9 @@ void ProcessTrailSprite(DExhumedActor* pActor, int nLotag, int nHitag)
 // ok?
 void AddMovingSector(int nSector, int edx, int ebx, int ecx)
 {
+    auto pSector = &sector[nSector];
     CreatePushBlock(nSector);
-    setsectinterpolate(nSector);
+    setsectinterpolate(pSector);
 
     int nTrail = FindTrail(ebx);
 
@@ -2319,10 +2320,10 @@ void AddMovingSector(int nSector, int edx, int ebx, int ecx)
     pMoveSect->sMoveDir = 1;
     pMoveSect->nTrail = nTrail;
     pMoveSect->nTrailPoint = -1;
-    pMoveSect->nCurSector = -1;
+    pMoveSect->pCurSector = nullptr;
     pMoveSect->nFlags = ecx;
     pMoveSect->field_10 = (edx / 1000) + 1;
-    pMoveSect->nSector = nSector;
+    pMoveSect->pSector = pSector;
 
     if (ecx & 8)
     {
@@ -2333,14 +2334,14 @@ void AddMovingSector(int nSector, int edx, int ebx, int ecx)
         pMoveSect->nChannel = -1;
     }
 
-    sector[nSector].floorstat |= 0x40;
+    pSector->floorstat |= 0x40;
 }
 
 void DoMovingSects()
 {
     for (unsigned i = 0; i < sMoveSect.Size(); i++)
     {
-        if (sMoveSect[i].nSector == -1) {
+        if (sMoveSect[i].pSector == nullptr) {
             continue;
         }
 
@@ -2348,8 +2349,8 @@ void DoMovingSects()
             continue;
         }
 
-        int nSector =sMoveSect[i].nSector;
-        int nBlock = sector[nSector].extra;
+        auto pSector =sMoveSect[i].pSector;
+        int nBlock = pSector->extra;
 
         BlockInfo* pBlockInfo = &sBlockInfo[nBlock];
 
@@ -2455,20 +2456,20 @@ void DoMovingSects()
         }
 
         // loc_2393A:
-        if (sMoveSect[i].nCurSector != -1)
+        if (sMoveSect[i].pCurSector != nullptr)
         {
-            MoveSector(sMoveSect[i].nCurSector, -1, &nXVel, &nYVel);
+            MoveSector(sMoveSect[i].pCurSector, -1, &nXVel, &nYVel);
         }
 
         int var_2C = nXVel;
         int var_30 = nYVel;
 
-        MoveSector(nSector, -1, &nXVel, &nYVel);
+        MoveSector(pSector, -1, &nXVel, &nYVel);
 
         if (nXVel != var_2C || nYVel != var_30)
         {
-            MoveSector(sMoveSect[i].nCurSector, -1, &var_2C, &var_30);
-            MoveSector(sMoveSect[i].nCurSector, -1, &nXVel, &nYVel);
+            MoveSector(sMoveSect[i].pCurSector, -1, &var_2C, &var_30);
+            MoveSector(sMoveSect[i].pCurSector, -1, &nXVel, &nYVel);
         }
     }
 }
@@ -2484,21 +2485,21 @@ void PostProcess()
             runlist_ChangeChannel(sMoveSect[i].nChannel, 1);
         }
 
-        int nSector =sMoveSect[i].nSector;
+        auto pSector =sMoveSect[i].pSector;
 
-        if (sector[nSector].Flag & kSectUnderwater)
+        if (pSector->Flag & kSectUnderwater)
         {
-            sector[nSector].ceilingstat |= 0x40;
-            sector[nSector].floorstat &= 0xBFFF;
+            pSector->ceilingstat |= 0x40;
+            pSector->floorstat &= 0xBFFF;
 
             for (unsigned j = 0; j < sMoveSect.Size(); j++)
             {
                 if (j != i && sMoveSect[i].nTrail == sMoveSect[j].nTrail)
                 {
-                    sMoveSect[j].nCurSector = sMoveSect[i].nSector;
+                    sMoveSect[j].pCurSector = sMoveSect[i].pSector;
 
-                    SnapSectors(sMoveSect[j].nSector, sMoveSect[i].nSector, 0);
-                    sMoveSect[i].nSector = -1;
+                    SnapSectors(sectnum(sMoveSect[j].pSector), sectnum(sMoveSect[i].pSector), 0);
+                    sMoveSect[i].pSector = nullptr;
                 }
             }
         }
