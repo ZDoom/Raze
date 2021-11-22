@@ -391,7 +391,7 @@ DExhumedActor* BuildWallSprite(sectortype* pSector)
  }
 
 // done
-DExhumedActor* FindWallSprites(int nSector)
+DExhumedActor* FindWallSprites(sectortype* pSector)
 {
     int var_24 = 0x7FFFFFFF;
     int ecx = 0x7FFFFFFF;
@@ -399,7 +399,7 @@ DExhumedActor* FindWallSprites(int nSector)
     int esi = 0x80000002;
     int edi = 0x80000002;
 
-	for (auto& wal : wallsofsector(nSector))
+	for (auto& wal : wallsofsector(pSector))
     {
         if (wal.x < var_24) {
             var_24 = wal.x;
