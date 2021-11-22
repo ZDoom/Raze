@@ -335,9 +335,6 @@ void DrawView(double smoothRatio, bool sceneonly)
     if (nFreeze != 3)
     {
         TArray<uint8_t> paldata(numsectors * 2 + numwalls, true);
-        uint8_t* sectorFloorPal = &paldata[0];
-        uint8_t* sectorCeilingPal = &paldata[numsectors];
-        uint8_t* wallPal = &paldata[2*numsectors];
         int const viewingRange = viewingrange;
         int const vr = xs_CRoundToInt(65536. * tan(r_fov * (pi::pi() / 360.)));
 
@@ -347,17 +344,20 @@ void DrawView(double smoothRatio, bool sceneonly)
 
         if (HavePLURemap())
         {
-            for (int i = 0; i < numsectors; i++)
+            auto p = paldata.Data();
+            for (auto& sect : sectors())
             {
-                sectorFloorPal[i] = sector[i].floorpal;
-                sectorCeilingPal[i] = sector[i].ceilingpal;
-                sector[i].floorpal = RemapPLU(sectorFloorPal[i]);
-                sector[i].ceilingpal = RemapPLU(sectorCeilingPal[i]);
+                uint8_t v;
+                v = *p++ = sect.floorpal;
+                sect.floorpal = RemapPLU(v);
+                v = *p++ = sect.ceilingpal;
+                sect.ceilingpal = RemapPLU(v);
             }
-            for (int i = 0; i < numwalls; i++)
+            for (auto& wal : walls())
             {
-                wallPal[i] = wall[i].pal;
-                wall[i].pal = RemapPLU(wallPal[i]);
+                uint8_t v;
+                v = *p++ = wal.pal;
+                wal.pal = RemapPLU(v);
             }
         }
 
@@ -375,14 +375,15 @@ void DrawView(double smoothRatio, bool sceneonly)
 
         if (HavePLURemap())
         {
-            for (int i = 0; i < numsectors; i++)
+            auto p = paldata.Data();
+            for (auto& sect : sectors())
             {
-                sector[i].floorpal = sectorFloorPal[i];
-                sector[i].ceilingpal = sectorCeilingPal[i];
+                sect.floorpal = *p++;
+                sect.ceilingpal = *p++;
             }
-            for (int i = 0; i < numwalls; i++)
+            for (auto& wal : walls())
             {
-                wall[i].pal = wallPal[i];
+                wal.pal = *p++;
             }
         }
 
