@@ -57,7 +57,7 @@ extern int initx;
 extern int inity;
 extern int initz;
 extern int16_t inita;
-extern int initsect;
+extern sectortype* initsectp;
 
 extern int nCurChunkNum;
 extern DExhumedActor* nBodyGunSprite[50];

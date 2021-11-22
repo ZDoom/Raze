@@ -1090,7 +1090,7 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
     inity = pSprite->y;
     initz = pSprite->z;
     inita = pSprite->ang;
-    initsect = pSprite->sectnum;
+    initsectp = pSprite->sector();
 }
 
 void SetQuake(DExhumedActor* pActor, int nVal)

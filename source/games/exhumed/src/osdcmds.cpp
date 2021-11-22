@@ -72,7 +72,7 @@ static int osdcmd_spawn(CCmdFuncPtr parm)
 {
     if (parm->numparms != 1) return CCMD_SHOWHELP;
     auto c = parm->parms[0];
-	auto sectp = &sector[initsect];
+	auto sectp = initsectp;
     if (!stricmp(c, "anubis")) BuildAnubis(nullptr, initx, inity, sectp->floorz, sectp, inita, false);
     else if (!stricmp(c, "spider")) BuildSpider(nullptr, initx, inity, sectp->floorz, sectp, inita);
     else if (!stricmp(c, "mummy")) BuildMummy(nullptr, initx, inity, sectp->floorz, sectp, inita);

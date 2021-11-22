@@ -913,7 +913,7 @@ void DrawWeapons(double smooth)
 
     int var_28 = var_30 + WeaponInfo[nWeapon].b[var_34];
 
-    int8_t nShade = sector[initsect].ceilingshade;
+    int8_t nShade = initsectp->ceilingshade;
 
     int nDouble = PlayerList[nLocalPlayer].nDouble;
     int nPal = kPalNormal;

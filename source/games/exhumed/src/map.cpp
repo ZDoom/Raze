@@ -40,8 +40,8 @@ void GrabMap()
 
 void UpdateMap()
 {
-    if (sector[initsect].ceilingpal != 3 || (PlayerList[nLocalPlayer].nTorch != 0)) {
-        MarkSectorSeen(initsect);
+    if (initsectp->ceilingpal != 3 || (PlayerList[nLocalPlayer].nTorch != 0)) {
+        MarkSectorSeen(sectnum(initsectp));
     }
 }
 

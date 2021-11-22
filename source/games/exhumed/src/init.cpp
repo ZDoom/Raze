@@ -41,7 +41,7 @@ enum
 
 int initx, inity, initz;
 int16_t inita;
-int initsect;
+sectortype* initsectp;
 
 int nCurChunkNum = 0;
 
@@ -117,10 +117,12 @@ uint8_t LoadLevel(MapRecord* map)
     }
 
     vec3_t startPos;
+    int initsect;
     engineLoadBoard(currentLevel->fileName, 0, &startPos, &inita, &initsect);
     initx = startPos.x;
     inity = startPos.y;
     initz = startPos.z;
+    initsectp = &sector[initsect];
 
     int i;
 
@@ -159,7 +161,7 @@ void InitLevel(MapRecord* map)
 
     for (int i = 0; i < nTotalPlayers; i++)
     {
-        SetSavePoint(i, initx, inity, initz, &sector[initsect], inita);
+        SetSavePoint(i, initx, inity, initz, initsectp, inita);
         RestartPlayer(i);
         InitPlayerKeys(i);
     }
@@ -735,7 +737,7 @@ void ExamineSprites()
 
     if (nNetPlayerCount)
     {
-        auto pActor = insertActor(initsect, 0);
+        auto pActor = insertActor(initsectp, 0);
 		auto pSprite = &pActor->s();
 
         pSprite->x = initx;
@@ -816,7 +818,7 @@ void SerializeInit(FSerializer& arc)
             ("inity", inity)
             ("initz", initz)
             ("inita", inita)
-            ("initsect", initsect)
+            ("initsect", initsectp)
             ("curchunk", nCurChunkNum)
             .Array("bodygunsprite", nBodyGunSprite, countof(nBodyGunSprite))
             ("curbodygun", nCurBodyGunNum)

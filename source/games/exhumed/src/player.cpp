@@ -2553,7 +2553,7 @@ sectdone:
         initx = pPlayerSprite->x;
         inity = pPlayerSprite->y;
         initz = pPlayerSprite->z;
-        initsect = pPlayerSprite->sectnum;
+        initsectp = pPlayerSprite->sector();
         inita = pPlayerSprite->ang;
     }
 
