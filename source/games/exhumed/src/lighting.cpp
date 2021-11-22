@@ -51,9 +51,10 @@ struct Flash
 
 struct Glow
 {
+    sectortype* pSector;
+
     int16_t nShade;
     int16_t nCounter;
-    int nSector;
     int16_t nThreshold;
 };
 
@@ -122,7 +123,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Glow& w, Glow* def
     {
         arc("at0", w.nShade)
             ("at2", w.nCounter)
-            ("sector", w.nSector)
+            ("sector", w.pSector)
             ("at6", w.nThreshold)
             .EndObject();
     }
@@ -536,14 +537,14 @@ loc_1868A:
     }
 }
 
-void AddGlow(int nSector, int nVal)
+void AddGlow(sectortype* pSector, int nVal)
 {
     if (nGlowCount >= kMaxGlows) {
         return;
     }
 
     sGlow[nGlowCount].nThreshold = nVal;
-    sGlow[nGlowCount].nSector = nSector;
+    sGlow[nGlowCount].pSector = pSector;
     sGlow[nGlowCount].nShade = -1;
     sGlow[nGlowCount].nCounter = 0;
 
@@ -583,8 +584,7 @@ void DoGlows()
     {
         sGlow[i].nCounter++;
 
-        int nSector =sGlow[i].nSector;
-        auto sectp = &sector[nSector];
+        auto pSector = sGlow[i].pSector;
         int nShade = sGlow[i].nShade;
 
         if (sGlow[i].nCounter >= sGlow[i].nThreshold)
@@ -593,10 +593,10 @@ void DoGlows()
             sGlow[i].nShade = -sGlow[i].nShade;
         }
 
-        sectp->ceilingshade += nShade;
-        sectp->floorshade   += nShade;
+        pSector->ceilingshade += nShade;
+        pSector->floorshade   += nShade;
 
-		for(auto& wal : wallsofsector(sectp))
+		for(auto& wal : wallsofsector(pSector))
         {
             wal.shade += nShade;
         }

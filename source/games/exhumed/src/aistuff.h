@@ -184,7 +184,7 @@ void DoLights();
 void AddFlow(sectortype* pSect, int nSpeed, int b, int ang = -1);
 void AddFlow(walltype* pWall, int nSpeed, int b, int ang = -1);
 void BuildFlash(int nPlayer, int nVal);
-void AddGlow(int nSector, int nVal);
+void AddGlow(sectortype* nSector, int nVal);
 void AddFlicker(int nSector, int nVal);
 
 

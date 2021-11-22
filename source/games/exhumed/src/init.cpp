@@ -421,7 +421,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
             }
             case 998:
             {
-                AddGlow(pSprite->sectnum, nSpeed);
+                AddGlow(pSprite->sector(), nSpeed);
                 break;
             }
             case 118: // Anubis with drum
