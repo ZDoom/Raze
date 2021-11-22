@@ -1561,13 +1561,11 @@ void DoFinale()
     }
 }
 
-DExhumedActor* BuildEnergyBlock(int nSector)
+DExhumedActor* BuildEnergyBlock(sectortype* pSector)
 {
     int x = 0;
     int y = 0;
 	
-	auto pSector = &sector[nSector];
-
 	for(auto& wal : wallsofsector(pSector))
     {
         x += wal.x;
@@ -1581,13 +1579,13 @@ DExhumedActor* BuildEnergyBlock(int nSector)
     int xAvg = x / pSector->wallnum;
     int yAvg = y / pSector->wallnum;
 
-    auto pActor = insertActor(nSector, 406);
+    auto pActor = insertActor(pSector, 406);
     auto spr = &pActor->s();
 
 	spr->x = xAvg;
     spr->y = yAvg;
 
-    sector[nSector].extra = (int16_t)EnergyBlocks.Push(pActor);
+    pSector->extra = (int16_t)EnergyBlocks.Push(pActor);
 
     //	GrabTimeSlot(3);
 

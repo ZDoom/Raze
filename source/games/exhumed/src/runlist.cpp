@@ -636,9 +636,8 @@ void runlist_ExecObjects()
     runlist_SignalRun(RunChain, 0, &ExhumedAI::Tick);
 }
 
-void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
+void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag)
 {
-    auto pSector = &sector[nSector];
     int zListA[8];
     int zListB[8];
 
@@ -664,7 +663,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
                 This function searches z-coordinates of neighboring sectors to find the
                 closest (next) ceiling starting at the given z-coordinate (thez).
             */
-            auto nextSectorP = nextsectorneighborzptr(nSector, pSector->ceilingz, -1, -1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->ceilingz, -1, -1);
             
 
             int nElev = BuildElevC(0, nChannel, pSector, FindWallSprites(pSector), nSpeed * 100, nSpeed * 100, 2, pSector->floorz, nextSectorP->ceilingz);
@@ -683,7 +682,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 2: // Floor Doom door
         {
-            auto nextSectorP = nextsectorneighborzptr(nSector, pSector->floorz, 1, 1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, 1, 1);
             
 
             int nElev = BuildElevF(nChannel, pSector, FindWallSprites(pSector), nSpeed * 100, nSpeed * 100, 2, pSector->ceilingz, nextSectorP->floorz);
@@ -732,7 +731,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 5: // Permanent floor raise
         {
-            auto nextSectorP = nextsectorneighborzptr(nSector, pSector->floorz + 1, -1, -1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz + 1, -1, -1);
 			if (nextSectorP == nullptr) break;
 
             int nElev = BuildElevF(nChannel, pSector, FindWallSprites(pSector), nSpeed * 100, nSpeed * 100, 2, pSector->floorz, nextSectorP->ceilingz);
@@ -743,7 +742,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 6: // Touchplate floor lower, single
         {
-            auto nextSectorP = nextsectorneighborzptr(nSector, pSector->floorz, 1, -1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, 1, -1);
 			if (nextSectorP == nullptr) break;
 
 
@@ -761,7 +760,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 7: // Touchplate floor lower, multiple
         {
-            auto nextSectorP = nextsectorneighborzptr(nSector, pSector->floorz, 1, 1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, 1, 1);
 			if (nextSectorP == nullptr) break;
 
 
@@ -781,7 +780,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 8: // Permanent floor lower
         {
-            auto nextSectorP = nextsectorneighborzptr(nSector, pSector->floorz, 1, 1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, 1, 1);
 			if (nextSectorP == nullptr) break;
 
 
@@ -793,7 +792,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 9: // Switch activated lift down
         {
-            auto nextSectorP = nextsectorneighborzptr(nSector, pSector->floorz, 1, 1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, 1, 1);
 			if (nextSectorP == nullptr) break;
 
 
@@ -809,7 +808,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 10: // Touchplate Floor Raise
         {
-            auto nextSectorP = nextsectorneighborzptr(nSector, pSector->floorz, 1, -1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, 1, -1);
 			if (nextSectorP == nullptr) break;
 
 
@@ -838,7 +837,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
             */
             int zVal = 0;
 
-            auto nextSectorP = nextsectorneighborzptr(nSector, pSector->floorz, 1, -1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, 1, -1);
             if (nextSectorP != nullptr) {
                 zVal = nextSectorP->floorz;
             }
@@ -858,7 +857,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
             */
             int zVal = 0;
 
-            auto nextSectorP = nextsectorneighborzptr(nSector, pSector->floorz, 1, -1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, 1, -1);
             if (nextSectorP != nullptr) {
                 zVal = nextSectorP->floorz;
             }
@@ -882,7 +881,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
             */
             int zVal = 0;
 
-            auto nextSectorP = nextsectorneighborzptr(nSector, pSector->floorz, 1, 1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, 1, 1);
             if (nextSectorP != nullptr) {
                 zVal = nextSectorP->floorz;
             }
@@ -899,7 +898,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 15: // Sector raise/lower
         {
-            auto nextSectorP = nextsectorneighborzptr(nSector, pSector->floorz, 1, -1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, 1, -1);
 			if (nextSectorP == nullptr) break;
 
 
@@ -974,7 +973,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
             */
             int zVal = 0;
 
-            auto nextSectorP = nextsectorneighborzptr(nSector, pSector->floorz, 1, 1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, 1, 1);
             if (nextSectorP) {
                 zVal = nextSectorP->floorz;
             }
@@ -991,7 +990,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 24: // Ceiling door, channel trigger only
         {
-            auto nextSectorP = nextsectorneighborzptr(nSector, pSector->ceilingz, -1, -1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->ceilingz, -1, -1);
 			if (nextSectorP == nullptr) break;
 
 
@@ -1007,7 +1006,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 25:
         {
-            auto nextSectorP = nextsectorneighborzptr(nSector, pSector->floorz, 1, 1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, 1, 1);
 			if (nextSectorP == nullptr) break;
 
 
@@ -1023,7 +1022,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 26:
         {
-            auto nextSectorP = nextsectorneighborzptr(nSector, pSector->floorz, 1, 1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, 1, 1);
 			if (nextSectorP == nullptr) break;
 
 
@@ -1039,7 +1038,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 27:
         {
-            auto nextSectorP = nextsectorneighborzptr(nSector, pSector->floorz, 1, 1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, 1, 1);
 			if (nextSectorP == nullptr) break;
 
 
@@ -1055,7 +1054,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 28:
         {
-            auto nextSectorP = nextsectorneighborzptr(nSector, pSector->floorz, 1, 1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, 1, 1);
 			if (nextSectorP == nullptr) break;
 
 
@@ -1071,7 +1070,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 31: // Touchplate
         {
-            auto nextSectorP = nextsectorneighborzptr(nSector, pSector->floorz, 1, 1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, 1, 1);
 			if (nextSectorP == nullptr) break;
 
 
@@ -1087,7 +1086,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 32:
         {
-            auto nextSectorP = nextsectorneighborzptr(nSector, pSector->floorz, 1, 1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, 1, 1);
 			if (nextSectorP == nullptr) break;
 
 
@@ -1099,7 +1098,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 33: // Ceiling Crusher
         {
-            auto nextSectorP = nextsectorneighborzptr(nSector, pSector->ceilingz, -1, -1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->ceilingz, -1, -1);
 			if (nextSectorP == nullptr) break;
 
 
@@ -1111,7 +1110,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 34: // Triggerable Ceiling Crusher(Inactive)
         {
-            auto nextSectorP = nextsectorneighborzptr(nSector, pSector->ceilingz, -1, -1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->ceilingz, -1, -1);
 			if (nextSectorP == nullptr) break;
 
 
@@ -1126,7 +1125,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
         {
             nEnergyTowers++;
 
-            auto nEnergyBlock = BuildEnergyBlock(nSector);
+            auto nEnergyBlock = BuildEnergyBlock(pSector);
 
             if (nLotag == 36) {
                 pFinaleSpr = nEnergyBlock;
@@ -1137,7 +1136,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 37:
         {
-            auto nextSectorP = nextsectorneighborzptr(nSector, pSector->floorz, 1, 1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, 1, 1);
 			if (nextSectorP == nullptr) break;
 
 
@@ -1149,7 +1148,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 39: // Touchplate
         {
-            auto nextSectorP = nextsectorneighborzptr(nSector, pSector->floorz, 1, 1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, 1, 1);
 			if (nextSectorP == nullptr) break;
 
 
@@ -1169,37 +1168,37 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 40: // Moving sector(follows waypoints)
         {
-            AddMovingSector(nSector, nLotag, nHitag % 1000, 2);
+            AddMovingSector(sectnum(pSector), nLotag, nHitag % 1000, 2);
             return;
         }
 
         case 41: // Moving sector(follows waypoints)
         {
-            AddMovingSector(nSector, nLotag, nHitag % 1000, 18);
+            AddMovingSector(sectnum(pSector), nLotag, nHitag % 1000, 18);
             return;
         }
 
         case 42: // Moving sector(follows waypoints)
         {
-            AddMovingSector(nSector, nLotag, nHitag % 1000, 58);
+            AddMovingSector(sectnum(pSector), nLotag, nHitag % 1000, 58);
             return;
         }
 
         case 43: // Moving sector(follows waypoints)
         {
-            AddMovingSector(nSector, nLotag, nHitag % 1000, 122);
+            AddMovingSector(sectnum(pSector), nLotag, nHitag % 1000, 122);
             return;
         }
 
         case 44: // Moving sector(follows waypoints)
         {
-            AddMovingSector(nSector, nLotag, nHitag % 1000, 90);
+            AddMovingSector(sectnum(pSector), nLotag, nHitag % 1000, 90);
             return;
         }
 
         case 45: // Pushbox sector
         {
-            CreatePushBlock(nSector);
+            CreatePushBlock(sectnum(pSector));
             return;
         }
 
@@ -1212,7 +1211,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
             */
             int zVal = 0;
 
-            auto nextSectorP = nextsectorneighborzptr(nSector, pSector->ceilingz, -1, 1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->ceilingz, -1, 1);
             if (nextSectorP != nullptr) {
                 zVal = nextSectorP->ceilingz;
             }
@@ -1225,7 +1224,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 49:
         {
-            auto nextSectorP = nextsectorneighborzptr(nSector, pSector->ceilingz, -1, -1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->ceilingz, -1, -1);
 			if (nextSectorP == nullptr) break;
 
 
@@ -1237,7 +1236,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 50: // Floor lower / raise
         {
-            auto nextSectorP = nextsectorneighborzptr(nSector, pSector->ceilingz, 1, 1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->ceilingz, 1, 1);
 			if (nextSectorP == nullptr) break;
 
 
@@ -1313,7 +1312,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 54:
         {
-            auto nextSectorP = nextsectorneighborzptr(nSector, pSector->ceilingz, -1, -1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->ceilingz, -1, -1);
 			if (nextSectorP == nullptr) break;
 
 
@@ -1329,7 +1328,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 55:
         {
-            auto nextSectorP = nextsectorneighborzptr(nSector, pSector->ceilingz, -1, -1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->ceilingz, -1, -1);
 			if (nextSectorP == nullptr) break;
 
 
@@ -1345,7 +1344,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 56:
         {
-            auto nextSectorP = nextsectorneighborzptr(nSector, pSector->ceilingz, -1, -1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->ceilingz, -1, -1);
 			if (nextSectorP == nullptr) break;
 
 
@@ -1357,7 +1356,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 57:
         {
-            auto nextSectorP = nextsectorneighborzptr(nSector, pSector->floorz, 1, 1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, 1, 1);
 			if (nextSectorP == nullptr) break;
 
 
@@ -1382,7 +1381,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
                 nEnergyChan = nChannel;
             }
 
-            auto nextSectorP = nextsectorneighborzptr(nSector, pSector->ceilingz, -1, -1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->ceilingz, -1, -1);
             
 
             int nElev = BuildElevC(0, nChannel, pSector, FindWallSprites(pSector), nSpeed * 100, nSpeed * 100, 2, pSector->floorz, nextSectorP->ceilingz);
@@ -1393,7 +1392,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 59:
         {
-            auto nextSectorP = nextsectorneighborzptr(nSector, pSector->floorz, 1, 1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, 1, 1);
 			if (nextSectorP == nullptr) break;
 
 
@@ -1418,7 +1417,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
             while (1)
             {
-                auto nextSectorP = nextsectorneighborzptr(nSector, pSector->floorz, 1, -1);
+                auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, 1, -1);
                 if (nextSectorP == nullptr || var_1C >= 8) {
                     break;
                 }
@@ -1442,7 +1441,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
             while (1)
             {
-                auto nextSectorP = nextsectorneighborzptr(nSector, pSector->floorz, 1, 1);
+                auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, 1, 1);
                 if (nextSectorP == nullptr || var_20 >= 8) {
                     break;
                 }
@@ -1468,7 +1467,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 68:
         {
-            auto nextSectorP = nextsectorneighborzptr(nSector, pSector->floorz, 1, 1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->floorz, 1, 1);
 			if (nextSectorP == nullptr) break;
 
 
@@ -1481,7 +1480,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
         case 70:
         case 71:
         {
-            auto nextSectorP = nextsectorneighborzptr(nSector, pSector->ceilingz, -1, -1);
+            auto nextSectorP = nextsectorneighborzptr(pSector, pSector->ceilingz, -1, -1);
 			if (nextSectorP == nullptr) break;
 
 
@@ -1509,7 +1508,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 80:
         {
-            sector[nSector].Flag |= 0x8000;
+            pSector->Flag |= 0x8000;
             return;
         }
     }

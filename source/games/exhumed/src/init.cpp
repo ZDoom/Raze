@@ -772,7 +772,7 @@ void LoadObjects()
             sect.lotag = runlist_HeadRun() + 1;
             sect.hitag = lotag;
 
-            runlist_ProcessSectorTag(sectnum(&sect), lotag, hitag);
+            runlist_ProcessSectorTag(&sect, lotag, hitag);
         }
     }
 

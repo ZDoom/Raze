@@ -691,7 +691,7 @@ int runlist_HeadRun();
 void runlist_InitChan();
 void runlist_ChangeChannel(int eax, int dx);
 void runlist_ReadyChannel(int eax);
-void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag);
+void runlist_ProcessSectorTag(sectortype* pSector, int nLotag, int nHitag);
 int runlist_AllocChannel(int a);
 void runlist_DoSubRunRec(int RunPtr);
 void runlist_SubRunRec(int RunPtr);
