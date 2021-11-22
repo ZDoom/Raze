@@ -588,12 +588,12 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int n
                 sBullet.nType = nType;
                 sBullet.nDoubleDamage = nDoubleDamage;
 
-                sBullet.pActor = insertActor(pSprite->sectnum, 200);
+                sBullet.pActor = insertActor(pSprite->sector(), 200);
                 sBullet.pActor->s().ang = nAngle;
 
                 int nHeight = GetActorHeight(pTarget);
 
-				assert(validSectorIndex(pTargetSprite->sectnum));
+				assert(pTargetSprite->sector());
 
                 BulletHitsSprite(&sBullet, pActor, pTarget, pTargetSprite->x, pTargetSprite->y, pTargetSprite->z - (nHeight >> 1), pTargetSprite->sectnum);
                 DeleteActor(sBullet.pActor);

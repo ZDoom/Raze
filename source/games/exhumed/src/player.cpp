@@ -1290,9 +1290,9 @@ sectdone:
             pFloorSprite->x = pPlayerSprite->x;
             pFloorSprite->y = pPlayerSprite->y;
 
-            if (pFloorSprite->sectnum != pPlayerSprite->sectnum)
+            if (pFloorSprite->sector() != pPlayerSprite->sector())
             {
-                ChangeActorSect(pFloorActor, pPlayerSprite->sectnum);
+                ChangeActorSect(pFloorActor, pPlayerSprite->sector());
             }
 
             pFloorSprite->z = pPlayerSprite->sector()->floorz;

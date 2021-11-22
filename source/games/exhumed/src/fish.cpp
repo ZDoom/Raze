@@ -44,7 +44,7 @@ void BuildFishLimb(DExhumedActor* pActor, int anim)
 {
 	auto pSprite = &pActor->s();
 
-    auto pChunkActor = insertActor(pSprite->sectnum, 99);
+    auto pChunkActor = insertActor(pSprite->sector(), 99);
 	auto pSprite2 = &pChunkActor->s();
 
     pChunkActor->nCount = anim + 40;

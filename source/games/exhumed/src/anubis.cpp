@@ -401,7 +401,7 @@ void AIAnubis::Damage(RunListEvent* ev)
             {
                 if (nAction >= 6 && nAction <= 10)
                 {
-                    auto pDrumActor = insertActor(sp->sectnum, kStatAnubisDrum);
+                    auto pDrumActor = insertActor(sp->sector(), kStatAnubisDrum);
                     auto pDrumSprite = &pDrumActor->s();
 
                     pDrumSprite->x = sp->x;

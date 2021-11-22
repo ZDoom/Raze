@@ -147,16 +147,16 @@ void AIAnim::Tick(RunListEvent* ev)
             pSprite->y = pSpriteB->y;
             pSprite->z = pSpriteB->z;
 
-            if (pSpriteB->sectnum != pSprite->sectnum)
+            if (pSpriteB->sector() != pSprite->sector())
             {
-                if (!validSectorIndex(pSpriteB->sectnum))
+                if (!pSpriteB->sector())
                 {
                     DestroyAnim(pActor);
                     return;
                 }
                 else
                 {
-                    ChangeActorSect(pActor, pSpriteB->sectnum);
+                    ChangeActorSect(pActor, pSpriteB->sector());
                 }
             }
 
@@ -239,11 +239,11 @@ void BuildExplosion(DExhumedActor* pActor)
 {
     auto pSprite = &pActor->s();
  
-    int nSector = pSprite->sectnum;
+    auto pSector = pSprite->sector();
 
     int edx = 36;
 
-    if (sector[nSector].Flag & kSectUnderwater)
+    if (pSector->Flag & kSectUnderwater)
     {
         edx = 75;
     }

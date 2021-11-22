@@ -1360,7 +1360,7 @@ int BuildFireBall(DExhumedActor* nSprite, int a, int b)
 DExhumedActor* BuildSpark(DExhumedActor* pActor, int nVal)
 {
     auto pSprite = &pActor->s();
-    auto pSpark = insertActor(pSprite->sectnum, 0);
+    auto pSpark = insertActor(pSprite->sector(), 0);
 
     auto spr = &pSpark->s();
 

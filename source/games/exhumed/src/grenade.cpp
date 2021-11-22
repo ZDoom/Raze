@@ -149,18 +149,18 @@ void ExplodeGrenade(DExhumedActor* pActor)
 
     auto pGrenadeSprite = &pActor->s();
     int nPlayer = pGrenadeSprite->owner;
-    int nGrenadeSect = pGrenadeSprite->sectnum;
+    auto pGrenadeSect = pGrenadeSprite->sector();
 
     pActor->nFrame = 1;
 
-    if (sector[nGrenadeSect].Flag & kSectUnderwater)
+    if (pGrenadeSect->Flag & kSectUnderwater)
     {
         var_28 = 75;
         var_20 = 60;
     }
     else
     {
-        if (pGrenadeSprite->z < sector[nGrenadeSect].floorz)
+        if (pGrenadeSprite->z < pGrenadeSect->floorz)
         {
             var_20 = 200;
             var_28 = 36;
@@ -186,7 +186,7 @@ void ExplodeGrenade(DExhumedActor* pActor)
         pGrenadeSprite->x = bcos(nAngle, -5) + pPlayerSprite->x;
         pGrenadeSprite->y = bsin(nAngle, -5) + pPlayerSprite->y;
 
-        ChangeActorSect(pActor, pPlayerSprite->sectnum);
+        ChangeActorSect(pActor, pPlayerSprite->sector());
 
         if (!PlayerList[nPlayer].invincibility) {
             PlayerList[nPlayer].nHealth = 1;
