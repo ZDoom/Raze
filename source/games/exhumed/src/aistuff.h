@@ -181,7 +181,8 @@ void AddFlash(int nSector, int x, int y, int z, int val);
 void SetTorch(int nPlayer, int bTorchOnOff);
 void UndoFlashes();
 void DoLights();
-void AddFlow(int nSprite, int nSpeed, int b, int ang = -1);
+void AddFlow(sectortype* pSect, int nSpeed, int b, int ang = -1);
+void AddFlow(walltype* pWall, int nSpeed, int b, int ang = -1);
 void BuildFlash(int nPlayer, int nVal);
 void AddGlow(int nSector, int nVal);
 void AddFlicker(int nSector, int nVal);
@@ -292,7 +293,7 @@ void BuildDrip(DExhumedActor* nSprite);
 DExhumedActor* BuildEnergyBlock(int nSector);
 int BuildElevC(int arg1, int nChannel, int nSector, DExhumedActor* nWallSprite, int arg5, int arg6, int nCount, ...);
 int BuildElevF(int nChannel, int nSector, DExhumedActor* nWallSprite, int arg_4, int arg_5, int nCount, ...);
-int BuildWallFace(int nChannel, int nWall, int nCount, ...);
+int BuildWallFace(int nChannel, walltype* pWall, int nCount, ...);
 int BuildSlide(int nChannel, int edx, int ebx, int ecx, int arg1, int arg2, int arg3);
 
 // queen
@@ -690,7 +691,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag);
 int runlist_AllocChannel(int a);
 void runlist_DoSubRunRec(int RunPtr);
 void runlist_SubRunRec(int RunPtr);
-void runlist_ProcessWallTag(int nWall, int nLotag, int nHitag);
+void runlist_ProcessWallTag(walltype* pWall, int nLotag, int nHitag);
 int runlist_CheckRadialDamage(DExhumedActor* actor);
 void runlist_RadialDamageEnemy(DExhumedActor* pActor, int nDamage, int nRadius);
 void runlist_DamageEnemy(DExhumedActor* nSprite, DExhumedActor* nSprite2, int nDamage);
@@ -761,7 +762,7 @@ std::pair<int, int> BuildSwPressSector(int nChannel, int nLink, int nSector, int
 std::pair<int, int> BuildSwStepOn(int nChannel, int nLink, int nSector);
 std::pair<int, int> BuildSwReady(int nChannel, int nLink);
 
-std::pair<int, int> BuildSwPressWall(int nChannel, int nLink, int nWall);
+std::pair<int, int> BuildSwPressWall(int nChannel, int nLink, walltype* pWall);
 
 // wasp
 

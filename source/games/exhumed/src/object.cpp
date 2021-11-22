@@ -102,7 +102,7 @@ struct MoveSect
 
 struct wallFace
 {
-    int nWall;
+    walltype* pWall;
     int16_t nChannel;
     int16_t count;
     int16_t piclist[8];
@@ -263,7 +263,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, wallFace& w, wallF
     if (arc.BeginObject(keyname))
     {
         arc("channel", w.nChannel)
-            ("wall", w.nWall)
+            ("wall", w.pWall)
             ("at4", w.count)
             .Array("at6", w.piclist, 8)
             .EndObject();
@@ -874,12 +874,12 @@ void InitWallFace()
     WallFace.Clear();
 }
 
-int BuildWallFace(int nChannel, int nWall, int nCount, ...)
+int BuildWallFace(int nChannel, walltype* pWall, int nCount, ...)
 {
     auto WallFaceCount = WallFace.Reserve(1);
 
     WallFace[WallFaceCount].count = 0;
-    WallFace[WallFaceCount].nWall = nWall;
+    WallFace[WallFaceCount].pWall = pWall;
     WallFace[WallFaceCount].nChannel = nChannel;
 
     if (nCount > 8) {
@@ -912,7 +912,7 @@ void AIWallFace::ProcessChannel(RunListEvent* ev)
 
     if ((si <= WallFace[nWallFace].count) && (si >= 0))
     {
-        wall[WallFace[nWallFace].nWall].picnum = WallFace[nWallFace].piclist[si];
+        WallFace[nWallFace].pWall->picnum = WallFace[nWallFace].piclist[si];
     }
 }
 

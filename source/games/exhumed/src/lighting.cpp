@@ -62,7 +62,11 @@ struct Flicker
 
 struct Flow
 {
-    int objindex;
+    union
+    {
+        walltype* pWall;
+        sectortype* pSector;
+    };
     int type;
     int xdelta;
     int ydelta;
@@ -134,15 +138,16 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Flow& w, Flow* def
 {
     if (arc.BeginObject(keyname))
     {
-        arc("objindex", w.objindex)
-            ("type", w.type)
+        arc("type", w.type)
             ("xdelta", w.xdelta)
             ("ydelta", w.ydelta)
             ("atc", w.angcos)
             ("at10", w.angsin)
             ("xacc", w.xacc)
-            ("yacc", w.yacc)
-            .EndObject();
+            ("yacc", w.yacc);
+        if (w.type < 2) arc("index", w.pSector);
+        else arc("index", w.pWall);
+        arc.EndObject();
     }
     return arc;
 }
@@ -646,51 +651,57 @@ void DoFlickers()
     }
 }
 
-// nWall can also be passed in here via nSprite parameter - TODO - rename nSprite parameter :)
-void AddFlow(int nIndex, int nSpeed, int b, int nAngle)
+void AddFlow(sectortype* pSector, int nSpeed, int b, int nAngle)
 {
-    if (nFlowCount >= kMaxFlows)
+    if (nFlowCount >= kMaxFlows || b >= 2)
+        return;
+
+    int nFlow = nFlowCount;
+    nFlowCount++;
+
+    int nPic = pSector->floorpicnum;
+
+    sFlowInfo[nFlow].xacc = (tileWidth(nPic) << 14) - 1;
+    sFlowInfo[nFlow].yacc = (tileHeight(nPic) << 14) - 1;
+    sFlowInfo[nFlow].angcos  = -bcos(nAngle) * nSpeed;
+    sFlowInfo[nFlow].angsin = bsin(nAngle) * nSpeed;
+    sFlowInfo[nFlow].pSector = pSector;
+
+    StartInterpolation(pSector, b ? Interp_Sect_CeilingPanX : Interp_Sect_FloorPanX);
+    StartInterpolation(pSector, b ? Interp_Sect_CeilingPanY : Interp_Sect_FloorPanY);
+
+    sFlowInfo[nFlow].ydelta = 0;
+    sFlowInfo[nFlow].xdelta = 0;
+    sFlowInfo[nFlow].type = b;
+}
+
+
+void AddFlow(walltype* pWall, int nSpeed, int b, int nAngle)
+{
+    if (nFlowCount >= kMaxFlows || b < 2)
         return;
 
     int nFlow = nFlowCount;
     nFlowCount++;
 
 
-    if (b < 2)
-    {
-        int nPic = sector[nIndex].floorpicnum;
+    StartInterpolation(pWall, Interp_Wall_PanX);
+    StartInterpolation(pWall, Interp_Wall_PanY);
 
-        sFlowInfo[nFlow].xacc = (tileWidth(nPic) << 14) - 1;
-        sFlowInfo[nFlow].yacc = (tileHeight(nPic) << 14) - 1;
-        sFlowInfo[nFlow].angcos  = -bcos(nAngle) * nSpeed;
-        sFlowInfo[nFlow].angsin = bsin(nAngle) * nSpeed;
-        sFlowInfo[nFlow].objindex = nIndex;
-
-        StartInterpolation(nIndex, b ? Interp_Sect_CeilingPanX : Interp_Sect_FloorPanX);
-        StartInterpolation(nIndex, b ? Interp_Sect_CeilingPanY : Interp_Sect_FloorPanY);
+    if (b == 2) {
+        nAngle = 512;
     }
-    else
-    {
-        StartInterpolation(nIndex, Interp_Wall_PanX);
-        StartInterpolation(nIndex, Interp_Wall_PanY);
-
-        int nAngle;
-
-        if (b == 2) {
-            nAngle = 512;
-        }
-        else {
-            nAngle = 1536;
-        }
-
-        int nPic = wall[nIndex].picnum;
-
-        sFlowInfo[nFlow].xacc = (tileWidth(nPic) * wall[nIndex].xrepeat) << 8;
-        sFlowInfo[nFlow].yacc = (tileHeight(nPic) * wall[nIndex].yrepeat) << 8;
-        sFlowInfo[nFlow].angcos = -bcos(nAngle) * nSpeed;
-        sFlowInfo[nFlow].angsin = bsin(nAngle) * nSpeed;
-        sFlowInfo[nFlow].objindex = nIndex;
+    else {
+        nAngle = 1536;
     }
+
+    int nPic = pWall->picnum;
+
+    sFlowInfo[nFlow].xacc = (tileWidth(nPic) * pWall->xrepeat) << 8;
+    sFlowInfo[nFlow].yacc = (tileHeight(nPic) * pWall->yrepeat) << 8;
+    sFlowInfo[nFlow].angcos = -bcos(nAngle) * nSpeed;
+    sFlowInfo[nFlow].angsin = bsin(nAngle) * nSpeed;
+    sFlowInfo[nFlow].pWall = pWall;
 
     sFlowInfo[nFlow].ydelta = 0;
     sFlowInfo[nFlow].xdelta = 0;
@@ -711,18 +722,18 @@ void DoFlows()
                 sFlowInfo[i].xdelta &= sFlowInfo[i].xacc;
                 sFlowInfo[i].ydelta &= sFlowInfo[i].yacc;
 
-                int nSector =sFlowInfo[i].objindex;
-                sector[nSector].setfloorxpan(sFlowInfo[i].xdelta / 16384.f);
-                sector[nSector].setfloorypan(sFlowInfo[i].ydelta / 16384.f);
+                auto pSector =sFlowInfo[i].pSector;
+                pSector->setfloorxpan(sFlowInfo[i].xdelta / 16384.f);
+                pSector->setfloorypan(sFlowInfo[i].ydelta / 16384.f);
                 break;
             }
 
             case 1:
             {
-                int nSector =sFlowInfo[i].objindex;
+                auto pSector = sFlowInfo[i].pSector;
 
-                sector[nSector].setceilingxpan(sFlowInfo[i].xdelta / 16384.f);
-                sector[nSector].setceilingypan(sFlowInfo[i].ydelta / 16384.f);
+                pSector->setceilingxpan(sFlowInfo[i].xdelta / 16384.f);
+                pSector->setceilingypan(sFlowInfo[i].ydelta / 16384.f);
 
                 sFlowInfo[i].xdelta &= sFlowInfo[i].xacc;
                 sFlowInfo[i].ydelta &= sFlowInfo[i].yacc;
@@ -731,10 +742,10 @@ void DoFlows()
 
             case 2:
             {
-                int nWall = sFlowInfo[i].objindex;
+                auto pWall = sFlowInfo[i].pWall;
 
-                wall[nWall].setxpan(sFlowInfo[i].xdelta / 16384.f);
-                wall[nWall].setypan(sFlowInfo[i].ydelta / 16384.f);
+                pWall->setxpan(sFlowInfo[i].xdelta / 16384.f);
+                pWall->setypan(sFlowInfo[i].ydelta / 16384.f);
 
                 if (sFlowInfo[i].xdelta < 0)
                 {
@@ -751,10 +762,10 @@ void DoFlows()
 
             case 3:
             {
-                int nWall = sFlowInfo[i].objindex;
+                auto pWall = sFlowInfo[i].pWall;
 
-                wall[nWall].setxpan(sFlowInfo[i].xdelta / 16384.f);
-                wall[nWall].setypan(sFlowInfo[i].ydelta / 16384.f);
+                pWall->setxpan(sFlowInfo[i].xdelta / 16384.f);
+                pWall->setypan(sFlowInfo[i].ydelta / 16384.f);
 
                 if (sFlowInfo[i].xdelta >= sFlowInfo[i].xacc)
                 {

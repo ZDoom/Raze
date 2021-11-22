@@ -1515,9 +1515,9 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
     }
 }
 
-void runlist_ProcessWallTag(int nWall, int nLotag, int nHitag)
+void runlist_ProcessWallTag(walltype* pWall, int nLotag, int nHitag)
 {
-	auto& wal = wall[nWall];
+	auto& wal = *pWall;
     int nChannel = runlist_AllocChannel(nHitag % 1000);
     assert(nChannel >= 0 && nChannel < kMaxChannels);
 
@@ -1537,10 +1537,10 @@ void runlist_ProcessWallTag(int nWall, int nLotag, int nHitag)
 
         case 1:
         {
-            int nWallFace = BuildWallFace(nChannel, nWall, 2, wal.picnum, wal.picnum + 1);
+            int nWallFace = BuildWallFace(nChannel, pWall, 2, pWall->picnum, pWall->picnum + 1);
             runlist_AddRunRec(sRunChannels[nChannel].a, nWallFace,  0x70000);
 
-            auto nSwitch = BuildSwPressWall(nChannel, BuildLink(2, nEffectTag, 0), nWall);
+            auto nSwitch = BuildSwPressWall(nChannel, BuildLink(2, nEffectTag, 0), pWall);
 
             runlist_AddRunRec(sRunChannels[nChannel].a,nSwitch.first, nSwitch.second);
             return;
@@ -1548,27 +1548,27 @@ void runlist_ProcessWallTag(int nWall, int nLotag, int nHitag)
 
         case 6:
         {
-            auto nSwitch = BuildSwPressWall(nChannel, BuildLink(2, 1, 0), nWall);
+            auto nSwitch = BuildSwPressWall(nChannel, BuildLink(2, 1, 0), pWall);
             runlist_AddRunRec(sRunChannels[nChannel].a,nSwitch.first, nSwitch.second);
             return;
         }
 
         case 7: // Regular switch
         {
-            int nWallFace = BuildWallFace(nChannel, nWall, 2, wal.picnum, wal.picnum + 1);
+            int nWallFace = BuildWallFace(nChannel, pWall, 2, pWall->picnum, pWall->picnum + 1);
             runlist_AddRunRec(sRunChannels[nChannel].a, nWallFace,  0x70000);
 
-            auto nSwitch = BuildSwPressWall(nChannel, BuildLink(1, 1), nWall);
+            auto nSwitch = BuildSwPressWall(nChannel, BuildLink(1, 1), pWall);
             runlist_AddRunRec(sRunChannels[nChannel].a,nSwitch.first, nSwitch.second);
             return;
         }
 
         case 8: // Reverse switch
         {
-            int nWallFace = BuildWallFace(nChannel, nWall, 2, wal.picnum, wal.picnum + 1);
+            int nWallFace = BuildWallFace(nChannel, pWall, 2, pWall->picnum, pWall->picnum + 1);
             runlist_AddRunRec(sRunChannels[nChannel].a, nWallFace,  0x70000);
 
-            auto nSwitch = BuildSwPressWall(nChannel, BuildLink(2, -1, 0), nWall);
+            auto nSwitch = BuildSwPressWall(nChannel, BuildLink(2, -1, 0), pWall);
 
             runlist_AddRunRec(sRunChannels[nChannel].a,nSwitch.first, nSwitch.second);
             return;
@@ -1576,14 +1576,14 @@ void runlist_ProcessWallTag(int nWall, int nLotag, int nHitag)
 
         case 9: // Invisible switch
         {
-            auto nSwitch = BuildSwPressWall(nChannel, BuildLink(2, 1, 1), nWall);
+            auto nSwitch = BuildSwPressWall(nChannel, BuildLink(2, 1, 1), pWall);
             runlist_AddRunRec(sRunChannels[nChannel].a,nSwitch.first, nSwitch.second);
             return;
         }
 
         case 10:
         {
-            auto nSwitch = BuildSwPressWall(nChannel, BuildLink(2, -1, 0), nWall);
+            auto nSwitch = BuildSwPressWall(nChannel, BuildLink(2, -1, 0), pWall);
             runlist_AddRunRec(sRunChannels[nChannel].a,nSwitch.first, nSwitch.second);
             return;
         }
@@ -1597,7 +1597,8 @@ void runlist_ProcessWallTag(int nWall, int nLotag, int nHitag)
             int nLastWall = 0;
             int n2ndLastWall = 0;
 
-            int nStart = nWall;
+            int nStart = wallnum(pWall);
+            int nWall = nStart;
 
             while (1)
             {
@@ -1623,13 +1624,13 @@ void runlist_ProcessWallTag(int nWall, int nLotag, int nHitag)
 
         case 24: // Waterfall
         {
-            AddFlow(nWall, nPanSpeed, 3);
+            AddFlow(pWall, nPanSpeed, 3);
             return;
         }
 
         case 25: // Inverse waterfall
         {
-            AddFlow(nWall, nPanSpeed, 2);
+            AddFlow(pWall, nPanSpeed, 2);
             return;
         }
     }

@@ -641,7 +641,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
             }
             case 88:
             {
-                AddFlow(pSprite->sectnum, nSpeed, 0, pSprite->ang);
+                AddFlow(pSprite->sector(), nSpeed, 0, pSprite->ang);
 
                 DeleteActor(pActor);
                 return;
@@ -656,7 +656,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
             }
             case 78:
             {
-                AddFlow(pSprite->sectnum, nSpeed, 1, pSprite->ang);
+                AddFlow(pSprite->sector(), nSpeed, 1, pSprite->ang);
 
                 auto pSector = pSprite->sector();
                 pSector->Flag |= 0x8000;
@@ -810,7 +810,7 @@ void LoadObjects()
         if (hitag || lotag)
         {
             wal.lotag = runlist_HeadRun() + 1;
-            runlist_ProcessWallTag(wallnum(&wal), lotag, hitag);
+            runlist_ProcessWallTag(&wal, lotag, hitag);
         }
     }
 

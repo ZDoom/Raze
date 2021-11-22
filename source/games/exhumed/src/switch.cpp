@@ -37,14 +37,15 @@ struct Link
 
 struct Switch
 {
-    int16_t nWaitTimer;
-    int16_t nWait;
+    walltype* pWall;
     int nChannel;
     int nLink;
-    int16_t nRunPtr;
     int nSector;
+    int16_t nWaitTimer;
+    int16_t nWait;
+    int16_t nRunPtr;
     int16_t nRun2;
-    int nWall;
+    
     int16_t nRun3;
     uint16_t nKeyMask;
 };
@@ -69,7 +70,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Switch& w, Switch*
             ("runptr", w.nRunPtr)
             ("sector", w.nSector)
             ("run2", w.nRun2)
-            ("wall", w.nWall)
+            ("wall", w.pWall)
             ("run3", w.nRun3)
             ("keymask", w.nKeyMask)
             .EndObject();
@@ -450,9 +451,9 @@ void AISWPressSector::Use(RunListEvent* ev)
 
 }
 
-std::pair<int, int> BuildSwPressWall(int nChannel, int nLink, int nWall)
+std::pair<int, int> BuildSwPressWall(int nChannel, int nLink, walltype* pWall)
 {
-    if (SwitchCount <= 0 || nLink < 0 || nWall < 0) {
+    if (SwitchCount <= 0 || nLink < 0 || !pWall) {
         I_Error("Too many switches!\n");
     }
 
@@ -460,7 +461,7 @@ std::pair<int, int> BuildSwPressWall(int nChannel, int nLink, int nWall)
 
     SwitchData[SwitchCount].nChannel = nChannel;
     SwitchData[SwitchCount].nLink = nLink;
-    SwitchData[SwitchCount].nWall = nWall;
+    SwitchData[SwitchCount].pWall = pWall;
     SwitchData[SwitchCount].nRun3 = -1;
 
     return { SwitchCount, 0x60000 };
@@ -482,8 +483,8 @@ void AISWPressWall::Process(RunListEvent* ev)
 
     if (LinkMap[nLink].v[sRunChannels[nChannel].c] >= 0)
     {
-        int nWall = SwitchData[nSwitch].nWall;
-        SwitchData[nSwitch].nRun3 = runlist_AddRunRec(wall[nWall].lotag - 1, &RunData[ev->nRun]);
+        auto pWall = SwitchData[nSwitch].pWall;
+        SwitchData[nSwitch].nRun3 = runlist_AddRunRec(pWall->lotag - 1, &RunData[ev->nRun]);
     }
 }
 
@@ -505,10 +506,10 @@ void AISWPressWall::Use(RunListEvent* ev)
         SwitchData[nSwitch].nRun3 = -1;
     }
 
-    int nWall = SwitchData[nSwitch].nWall;
+    auto pWall = SwitchData[nSwitch].pWall;
     int nSector =SwitchData[nSwitch].nSector; // CHECKME - where is this set??
 
-    PlayFXAtXYZ(StaticSound[nSwitchSound], wall[nWall].x, wall[nWall].y, 0, nSector, CHANF_LISTENERZ);
+    PlayFXAtXYZ(StaticSound[nSwitchSound], pWall->x, pWall->y, 0, nSector, CHANF_LISTENERZ);
 }
 
 END_PS_NS
