@@ -492,12 +492,12 @@ Collision movesprite(DExhumedActor* pActor, int dx, int dy, int dz, int ceildist
 
     int nClipDist = (int8_t)pSprite->clipdist << 2;
 
-    int nSector = pSprite->sectnum;
-    assert(validSectorIndex(nSector));
+    auto pSector = pSprite->sector();
+    assert(pSector);
 
-    int floorZ = sector[nSector].floorz;
+    int floorZ = pSector->floorz;
 
-    if ((sector[nSector].Flag & kSectUnderwater) || (floorZ < z))
+    if ((pSector->Flag & kSectUnderwater) || (floorZ < z))
     {
         dx >>= 1;
         dy >>= 1;
@@ -505,7 +505,7 @@ Collision movesprite(DExhumedActor* pActor, int dx, int dy, int dz, int ceildist
 
     Collision nRet = movespritez(pActor, dz, nSpriteHeight, flordist, nClipDist);
 
-    nSector = pSprite->sectnum; // modified in movespritez so re-grab this variable
+    pSector = pSprite->sector(); // modified in movespritez so re-grab this variable
 
     if (pSprite->statnum == 100)
     {
@@ -530,7 +530,7 @@ Collision movesprite(DExhumedActor* pActor, int dx, int dy, int dz, int ceildist
         CheckSectorFloor(overridesect, pSprite->z, &dx, &dy);
     }
 
-    int colv = clipmove(&pSprite->pos, &nSector, dx, dy, nClipDist, nSpriteHeight, flordist, clipmask);
+    int colv = clipmove(&pSprite->pos, &pSector, dx, dy, nClipDist, nSpriteHeight, flordist, clipmask);
     Collision coll(colv);
     if (coll.type != kHitNone) // originally this or'ed the two values which can create unpredictable bad values in some edge cases.
     {
@@ -538,20 +538,20 @@ Collision movesprite(DExhumedActor* pActor, int dx, int dy, int dz, int ceildist
         nRet = coll;
     }
 
-    if ((nSector != pSprite->sectnum) && nSector >= 0)
+    if ((pSector != pSprite->sector()) && pSector != nullptr)
     {
         if (nRet.exbits & kHitAux2) {
             dz = 0;
         }
 
-        if ((sector[nSector].floorz - z) < (dz + flordist))
+        if ((pSector->floorz - z) < (dz + flordist))
         {
             pSprite->x = x;
             pSprite->y = y;
         }
         else
         {
-            ChangeActorSect(pActor, nSector);
+            ChangeActorSect(pActor, pSector);
 
             if (pSprite->pal < 5 && !pSprite->hitag)
             {
@@ -566,9 +566,8 @@ Collision movesprite(DExhumedActor* pActor, int dx, int dy, int dz, int ceildist
 void Gravity(DExhumedActor* actor)
 {
     auto pSprite = &actor->s();
-    int nSector =pSprite->sectnum;
 
-    if (sector[nSector].Flag & kSectUnderwater)
+    if (pSprite->sector()->Flag & kSectUnderwater)
     {
         if (pSprite->statnum != 100)
         {
@@ -1426,20 +1425,20 @@ void AICreatureChunk::Tick(RunListEvent* ev)
 
     Gravity(pActor);
 
-    int nSector = pSprite->sectnum;
-    pSprite->pal = sector[nSector].ceilingpal;
+    auto pSector = pSprite->sector();
+    pSprite->pal = pSector->ceilingpal;
 
     auto nVal = movesprite(pActor, pSprite->xvel << 10, pSprite->yvel << 10, pSprite->zvel, 2560, -2560, CLIPMASK1);
 
-    if (pSprite->z >= sector[nSector].floorz)
+    if (pSprite->z >= pSector->floorz)
     {
         // re-grab this variable as it may have changed in movesprite(). Note the check above is against the value *before* movesprite so don't change it.
-        nSector = pSprite->sectnum;
+        pSector = pSprite->sector();
 
         pSprite->xvel = 0;
         pSprite->yvel = 0;
         pSprite->zvel = 0;
-        pSprite->z = sector[nSector].floorz;
+        pSprite->z = pSector->floorz;
     }
     else
     {
