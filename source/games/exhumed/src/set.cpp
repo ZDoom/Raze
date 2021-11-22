@@ -121,7 +121,7 @@ void BuildSoul(DExhumedActor* pSet)
     pSprite->y = pSetSprite->y;
 
     int nSector =pSprite->sectnum;
-    pSprite->z = (RandomSize(8) << 8) + 8192 + sector[nSector].ceilingz - GetActorHeight(pActor);
+    pSprite->z = (RandomSize(8) << 8) + 8192 + pSprite->sector()->ceilingz - GetActorHeight(pActor);
 
     //pSprite->hitag = nSet;
 	pActor->pTarget = pSet;

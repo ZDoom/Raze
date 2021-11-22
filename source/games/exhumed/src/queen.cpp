@@ -435,11 +435,11 @@ void BuildQueenEgg(int nQueen, int nVal)
 
     int x = pSprite->x;
     int y = pSprite->y;
-    int nSector =pSprite->sectnum;
-    int nFloorZ = sector[nSector].floorz;
+    auto pSector =pSprite->sector();
+    int nFloorZ = pSector->floorz;
     int nAngle = pSprite->ang;
 
-    auto pActor2 = insertActor(nSector, 121);
+    auto pActor2 = insertActor(pSector, 121);
     auto pSprite2 = &pActor2->s();
 
     pSprite2->x = x;
@@ -696,10 +696,10 @@ void BuildQueenHead(int nQueen)
     int x = pSprite->x;
     int y = pSprite->y;
     int nAngle = pSprite->ang;
-    int nSector =pSprite->sectnum;
-    int z = sector[nSector].floorz;
+    auto pSector = pSprite->sector();
+    int z = pSector->floorz;
 
-    auto pActor2 = insertActor(nSector, 121);
+    auto pActor2 = insertActor(pSector, 121);
     auto pSprite2 = &pActor2->s();
 
     pSprite2->x = x;

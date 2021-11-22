@@ -853,7 +853,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     }
 
     // loc_1A4E6
-    int nSector =pPlayerSprite->sectnum;
+    auto pSector = pPlayerSprite->sector();
     int nSectFlag = PlayerList[nPlayer].pPlayerViewSect->Flag;
 
     int playerX = pPlayerSprite->x;
@@ -2234,11 +2234,11 @@ sectdone:
             }
         }
 
-        if (nSector != pPlayerSprite->sectnum)
+        if (pSector != pPlayerSprite->sector())
         {
-            if (sector[nSector].lotag > 0)
+            if (pSector->lotag > 0)
             {
-                runlist_SignalRun(sector[nSector].lotag - 1, nPlayer, &ExhumedAI::EnterSector);
+                runlist_SignalRun(pSector->lotag - 1, nPlayer, &ExhumedAI::EnterSector);
             }
 
             if (pPlayerSprite->sector()->lotag > 0)

@@ -608,8 +608,8 @@ int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
     }
     else
     {
-        int nSector =pTSprite->sectnum;
-        int nFloorZ = sector[nSector].floorz;
+        auto pSector =pTSprite->sector();
+        int nFloorZ = pSector->floorz;
 
         if (nFloorZ <= PlayerList[nLocalPlayer].eyelevel + initz) {
             pTSprite->owner = -1;
