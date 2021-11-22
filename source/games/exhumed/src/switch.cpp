@@ -38,9 +38,9 @@ struct Link
 struct Switch
 {
     walltype* pWall;
+    sectortype* pSector;
     int nChannel;
     int nLink;
-    int nSector;
     int16_t nWaitTimer;
     int16_t nWait;
     int16_t nRunPtr;
@@ -68,7 +68,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Switch& w, Switch*
             ("channel", w.nChannel)
             ("link", w.nLink)
             ("runptr", w.nRunPtr)
-            ("sector", w.nSector)
+            ("sector", w.pSector)
             ("run2", w.nRun2)
             ("wall", w.pWall)
             ("run3", w.nRun3)
@@ -234,16 +234,16 @@ void AISWPause::Process(RunListEvent* ev)
     SwitchData[nSwitch].nWaitTimer = eax;
 }
 
-std::pair<int, int> BuildSwStepOn(int nChannel, int nLink, int nSector)
+std::pair<int, int> BuildSwStepOn(int nChannel, int nLink, sectortype* pSector)
 {
-    if (SwitchCount <= 0 || nLink < 0 || nSector < 0)
+    if (SwitchCount <= 0 || nLink < 0 || pSector == nullptr)
         I_Error("Too many switches!\n");
 
     int nSwitch = --SwitchCount;
 
     SwitchData[nSwitch].nChannel = nChannel;
     SwitchData[nSwitch].nLink = nLink;
-    SwitchData[nSwitch].nSector = nSector;
+    SwitchData[nSwitch].pSector = pSector;
     SwitchData[nSwitch].nRun2 = -1;
 
     return { nSwitch , 0x30000 };
@@ -256,7 +256,7 @@ void AISWStepOn::ProcessChannel(RunListEvent* ev)
 
     int nLink = SwitchData[nSwitch].nLink;
     int nChannel = SwitchData[nSwitch].nChannel;
-    int nSector =SwitchData[nSwitch].nSector;
+    auto pSector =SwitchData[nSwitch].pSector;
 
     assert(sRunChannels[nChannel].c < 8);
 
@@ -270,7 +270,7 @@ void AISWStepOn::ProcessChannel(RunListEvent* ev)
 
     if (var_14 >= 0)
     {
-        SwitchData[nSwitch].nRun2 = runlist_AddRunRec(sector[nSector].lotag - 1, &RunData[ev->nRun]);
+        SwitchData[nSwitch].nRun2 = runlist_AddRunRec(pSector->lotag - 1, &RunData[ev->nRun]);
     }
 }
 
@@ -281,7 +281,7 @@ void AISWStepOn::TouchFloor(RunListEvent* ev)
 
     int nLink = SwitchData[nSwitch].nLink;
     int nChannel = SwitchData[nSwitch].nChannel;
-    int nSector =SwitchData[nSwitch].nSector;
+    auto pSector = SwitchData[nSwitch].pSector;
 
     assert(sRunChannels[nChannel].c < 8);
 
@@ -289,8 +289,8 @@ void AISWStepOn::TouchFloor(RunListEvent* ev)
 
     if (var_14 != sRunChannels[nChannel].c)
     {
-        int nWall = sector[nSector].wallptr;
-        PlayFXAtXYZ(StaticSound[nSwitchSound], wall[nWall].x, wall[nWall].y, sector[nSector].floorz, nSector);
+        auto pWall = pSector->firstWall();
+        PlayFXAtXYZ(StaticSound[nSwitchSound], pWall->x, pWall->y, pSector->floorz);
 
         assert(sRunChannels[nChannel].c < 8);
 
@@ -298,9 +298,9 @@ void AISWStepOn::TouchFloor(RunListEvent* ev)
     }
 }
 
-std::pair<int, int> BuildSwNotOnPause(int nChannel, int nLink, int nSector, int ecx)
+std::pair<int, int> BuildSwNotOnPause(int nChannel, int nLink, sectortype* pSector, int ecx)
 {
-    if (SwitchCount <= 0 || nLink < 0 || nSector < 0)
+    if (SwitchCount <= 0 || nLink < 0 || pSector == nullptr)
         I_Error("Too many switches!\n");
 
     int nSwitch = --SwitchCount;
@@ -308,7 +308,7 @@ std::pair<int, int> BuildSwNotOnPause(int nChannel, int nLink, int nSector, int 
     SwitchData[nSwitch].nChannel = nChannel;
     SwitchData[nSwitch].nLink = nLink;
     SwitchData[nSwitch].nWait = ecx;
-    SwitchData[nSwitch].nSector = nSector;
+    SwitchData[nSwitch].pSector = pSector;
     SwitchData[nSwitch].nRunPtr = -1;
     SwitchData[nSwitch].nRun2 = -1;
 
@@ -368,10 +368,10 @@ void AISWNotOnPause::Process(RunListEvent* ev)
         {
             SwitchData[nSwitch].nRunPtr = runlist_AddRunRec(NewRun, &RunData[ev->nRun]);
 
-            int nSector =SwitchData[nSwitch].nSector;
+            auto pSector = SwitchData[nSwitch].pSector;
 
             SwitchData[nSwitch].nWaitTimer = SwitchData[nSwitch].nWait;
-            SwitchData[nSwitch].nRun2 = runlist_AddRunRec(sector[nSector].lotag - 1, &RunData[ev->nRun]);
+            SwitchData[nSwitch].nRun2 = runlist_AddRunRec(pSector->lotag - 1, &RunData[ev->nRun]);
         }
     }
 }
@@ -384,16 +384,16 @@ void AISWNotOnPause::TouchFloor(RunListEvent* ev)
     return;
 }
 
-std::pair<int, int> BuildSwPressSector(int nChannel, int nLink, int nSector, int keyMask)
+std::pair<int, int> BuildSwPressSector(int nChannel, int nLink, sectortype* pSector, int keyMask)
 {
-    if (SwitchCount <= 0 || nLink < 0 || nSector < 0)
+    if (SwitchCount <= 0 || nLink < 0 || pSector == nullptr)
         I_Error("Too many switches!\n");
 
     int nSwitch = --SwitchCount;
 
     SwitchData[nSwitch].nChannel = nChannel;
     SwitchData[nSwitch].nLink = nLink;
-    SwitchData[nSwitch].nSector = nSector;
+    SwitchData[nSwitch].pSector = pSector;
     SwitchData[nSwitch].nKeyMask = keyMask;
     SwitchData[nSwitch].nRun2 = -1;
 
@@ -420,9 +420,9 @@ void AISWPressSector::ProcessChannel(RunListEvent* ev)
         return;
     }
 
-    int nSector =SwitchData[nSwitch].nSector;
+    auto pSector = SwitchData[nSwitch].pSector;
 
-    SwitchData[nSwitch].nRun2 = runlist_AddRunRec(sector[nSector].lotag - 1, &RunData[ev->nRun]);
+    SwitchData[nSwitch].nRun2 = runlist_AddRunRec(pSector->lotag - 1, &RunData[ev->nRun]);
 }
 
 void AISWPressSector::Use(RunListEvent* ev)
@@ -443,7 +443,7 @@ void AISWPressSector::Use(RunListEvent* ev)
         if (SwitchData[nSwitch].nKeyMask)
         {
             auto pSprite = &PlayerList[nPlayer].Actor()->s();
-            PlayFXAtXYZ(StaticSound[nSwitchSound], pSprite->x, pSprite->y, 0, pSprite->sectnum, CHANF_LISTENERZ);
+            PlayFXAtXYZ(StaticSound[nSwitchSound], pSprite->x, pSprite->y, 0, CHANF_LISTENERZ);
 
             StatusMessage(300, "YOU NEED THE KEY FOR THIS DOOR");
         }
@@ -463,6 +463,7 @@ std::pair<int, int> BuildSwPressWall(int nChannel, int nLink, walltype* pWall)
     SwitchData[SwitchCount].nLink = nLink;
     SwitchData[SwitchCount].pWall = pWall;
     SwitchData[SwitchCount].nRun3 = -1;
+    SwitchData[SwitchCount].pSector = nullptr;
 
     return { SwitchCount, 0x60000 };
 }
@@ -507,9 +508,9 @@ void AISWPressWall::Use(RunListEvent* ev)
     }
 
     auto pWall = SwitchData[nSwitch].pWall;
-    int nSector =SwitchData[nSwitch].nSector; // CHECKME - where is this set??
+    auto pSector = SwitchData[nSwitch].pSector;
 
-    PlayFXAtXYZ(StaticSound[nSwitchSound], pWall->x, pWall->y, 0, nSector, CHANF_LISTENERZ);
+    PlayFXAtXYZ(StaticSound[nSwitchSound], pWall->x, pWall->y, 0, CHANF_LISTENERZ);
 }
 
 END_PS_NS

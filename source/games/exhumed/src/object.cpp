@@ -605,7 +605,7 @@ int CheckSectorSprites(int nSector, int nVal)
                         pSprite->x,
                         pSprite->y,
                         pSprite->z,
-                        pSprite->sectnum, CHANF_NONE, 0x4000);
+                        CHANF_NONE, 0x4000);
                 }
             }
         }
@@ -836,7 +836,7 @@ void AIElev::Tick(RunListEvent* ev)
                 }
 
                 auto sp = &pElevSpr->s();
-                PlayFXAtXYZ(StaticSound[kSound26], sp->x, sp->y, sp->z, sp->sectnum);
+                PlayFXAtXYZ(StaticSound[kSound26], sp->x, sp->y, sp->z);
             }
 
             if (var_18 & 0x4)

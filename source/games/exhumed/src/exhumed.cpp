@@ -174,7 +174,7 @@ void DoRedAlert(int nVal)
         if (nVal)
         {
 			auto spri = &ac->s();
-            PlayFXAtXYZ(StaticSound[kSoundAlarm], spri->x, spri->y, spri->z, spri->sectnum);
+            PlayFXAtXYZ(StaticSound[kSoundAlarm], spri->x, spri->y, spri->z);
             AddFlash(spri->sector(), spri->x, spri->y, spri->z, 192);
         }
     }

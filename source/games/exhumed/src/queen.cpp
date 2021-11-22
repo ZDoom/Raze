@@ -1412,8 +1412,7 @@ void AIQueen::Tick(RunListEvent* ev)
                         StaticSound[kSound40],
                         pSprite->x,
                         pSprite->y,
-                        pSprite->z,
-                        pSprite->sectnum);
+                        pSprite->z);
 
                     BuildQueenHead(nQueen);
 

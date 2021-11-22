@@ -760,10 +760,10 @@ void FuncSwPressSector(int, int, int, int);
 void FuncSwPressWall(int, int, int, int);
 
 std::pair<int, int> BuildSwPause(int nChannel, int nLink, int ebx);
-std::pair<int, int> BuildSwNotOnPause(int nChannel, int nLink, int nSector, int ecx);
+std::pair<int, int> BuildSwNotOnPause(int nChannel, int nLink, sectortype* nSector, int ecx);
 int BuildLink(int nCount, ...);
-std::pair<int, int> BuildSwPressSector(int nChannel, int nLink, int nSector, int ecx);
-std::pair<int, int> BuildSwStepOn(int nChannel, int nLink, int nSector);
+std::pair<int, int> BuildSwPressSector(int nChannel, int nLink, sectortype* nSector, int ecx);
+std::pair<int, int> BuildSwStepOn(int nChannel, int nLink, sectortype* nSector);
 std::pair<int, int> BuildSwReady(int nChannel, int nLink);
 
 std::pair<int, int> BuildSwPressWall(int nChannel, int nLink, walltype* pWall);

@@ -1008,7 +1008,7 @@ void AIPlayer::Tick(RunListEvent* ev)
                     pPlayerSprite->yvel = 0;
 
                     StopActorSound(pPlayerActor);
-                    PlayFXAtXYZ(StaticSound[kSoundJonFDie], pPlayerSprite->x, pPlayerSprite->y, pPlayerSprite->z, pPlayerSprite->sectnum, CHANF_NONE, 1); // CHECKME
+                    PlayFXAtXYZ(StaticSound[kSoundJonFDie], pPlayerSprite->x, pPlayerSprite->y, pPlayerSprite->z, CHANF_NONE, 1); // CHECKME
                 }
                 else
                 {

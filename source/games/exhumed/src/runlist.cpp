@@ -671,7 +671,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
 
-            auto nSwPress = BuildSwPressSector(nChannel, BuildLink(1, 1), nSector, keyMask);
+            auto nSwPress = BuildSwPressSector(nChannel, BuildLink(1, 1), sectp, keyMask);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nSwPress.first, nSwPress.second);
 
@@ -690,7 +690,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
 
-            auto nSwPress = BuildSwPressSector(nChannel, BuildLink(1, 1), nSector, keyMask);
+            auto nSwPress = BuildSwPressSector(nChannel, BuildLink(1, 1), sectp, keyMask);
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nSwPress.first, nSwPress.second);
 
@@ -751,7 +751,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
 
-            auto nSwitch = BuildSwStepOn(nChannel, BuildLink(2, 1, 1), nSector);
+            auto nSwitch = BuildSwStepOn(nChannel, BuildLink(2, 1, 1), sectp);
 
             runlist_AddRunRec(sRunChannels[nChannel].a,nSwitch.first, nSwitch.second);
 
@@ -769,11 +769,11 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
 
-            auto nSwitch = BuildSwStepOn(nChannel, BuildLink(1, 1), nSector);
+            auto nSwitch = BuildSwStepOn(nChannel, BuildLink(1, 1), sectp);
 
             runlist_AddRunRec(sRunChannels[nChannel].a,nSwitch.first, nSwitch.second);
 
-            auto nSwitch2 = BuildSwNotOnPause(nChannel, BuildLink(2, -1, 0), nSector, 8);
+            auto nSwitch2 = BuildSwNotOnPause(nChannel, BuildLink(2, -1, 0), sectp, 8);
 
             runlist_AddRunRec(sRunChannels[nChannel].a,nSwitch2.first, nSwitch2.second);
             return;
@@ -817,11 +817,11 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
 
-            auto nSwitch = BuildSwStepOn(nChannel, BuildLink(1, 1), nSector);
+            auto nSwitch = BuildSwStepOn(nChannel, BuildLink(1, 1), sectp);
 
             runlist_AddRunRec(sRunChannels[nChannel].a,nSwitch.first, nSwitch.second);
 
-            auto nSwitch2 = BuildSwNotOnPause(nChannel, BuildLink(2, -1, 0), nSector, 8);
+            auto nSwitch2 = BuildSwNotOnPause(nChannel, BuildLink(2, -1, 0), sectp, 8);
 
             runlist_AddRunRec(sRunChannels[nChannel].a,nSwitch2.first, nSwitch2.second);
             return;
@@ -915,7 +915,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
 
-            auto nSwitch = BuildSwStepOn(nChannel, BuildLink(1, 1), nSector);
+            auto nSwitch = BuildSwStepOn(nChannel, BuildLink(1, 1), sectp);
 
             runlist_AddRunRec(sRunChannels[nChannel].a,nSwitch.first, nSwitch.second);
 
@@ -951,7 +951,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev2, 0);
 
-            auto nSwitch = BuildSwStepOn(nChannel, BuildLink(1, 1), nSector);
+            auto nSwitch = BuildSwStepOn(nChannel, BuildLink(1, 1), sectp);
 
             runlist_AddRunRec(sRunChannels[nChannel].a,nSwitch.first, nSwitch.second);
             return;
@@ -959,7 +959,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 21: // Touchplate
         {
-            auto nSwitch = BuildSwStepOn(nChannel, BuildLink(2, 1, 1), nSector);
+            auto nSwitch = BuildSwStepOn(nChannel, BuildLink(2, 1, 1), sectp);
 
             runlist_AddRunRec(sRunChannels[nChannel].a,nSwitch.first, nSwitch.second);
             return;
@@ -1079,7 +1079,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
 
-            auto nSwitch = BuildSwStepOn(nChannel, BuildLink(1, 1), nSector);
+            auto nSwitch = BuildSwStepOn(nChannel, BuildLink(1, 1), sectp);
 
             runlist_AddRunRec(sRunChannels[nChannel].a,nSwitch.first, nSwitch.second);
             return;
@@ -1157,11 +1157,11 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
 
-            auto nSwitch = BuildSwStepOn(nChannel, BuildLink(1, 1), nSector);
+            auto nSwitch = BuildSwStepOn(nChannel, BuildLink(1, 1), sectp);
 
             runlist_AddRunRec(sRunChannels[nChannel].a,nSwitch.first, nSwitch.second);
 
-            auto nSwitch2 = BuildSwNotOnPause(nChannel, BuildLink(2, -1, 0), nSector, 8);
+            auto nSwitch2 = BuildSwNotOnPause(nChannel, BuildLink(2, -1, 0), sectp, 8);
 
             runlist_AddRunRec(sRunChannels[nChannel].a,nSwitch2.first, nSwitch2.second);
             return;
@@ -1281,7 +1281,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
 
-            auto nSwitch = BuildSwPressSector(nChannel, BuildLink(1, 1), nSector, keyMask);
+            auto nSwitch = BuildSwPressSector(nChannel, BuildLink(1, 1), sectp, keyMask);
 
             runlist_AddRunRec(sRunChannels[nChannel].a,nSwitch.first, nSwitch.second);
 
@@ -1321,7 +1321,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
 
-            auto nSwitch = BuildSwPressSector(nChannel, BuildLink(1, 1), nSector, keyMask);
+            auto nSwitch = BuildSwPressSector(nChannel, BuildLink(1, 1), sectp, keyMask);
 
             runlist_AddRunRec(sRunChannels[nChannel].a,nSwitch.first, nSwitch.second);
             return;
@@ -1337,7 +1337,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
 
-            auto nSwitch = BuildSwPressSector(nChannel, BuildLink(1, 1), nSector, keyMask);
+            auto nSwitch = BuildSwPressSector(nChannel, BuildLink(1, 1), sectp, keyMask);
 
             runlist_AddRunRec(sRunChannels[nChannel].a,nSwitch.first, nSwitch.second);
             return;
@@ -1369,7 +1369,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 58:
         {
-            auto nSwitch = BuildSwPressSector(nChannel, BuildLink(1, 1), nSector, keyMask);
+            auto nSwitch = BuildSwPressSector(nChannel, BuildLink(1, 1), sectp, keyMask);
 
             runlist_AddRunRec(sRunChannels[nChannel].a,nSwitch.first, nSwitch.second);
 
@@ -1401,11 +1401,11 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
 
-            auto nSwitch = BuildSwStepOn(nChannel, BuildLink(1, 1), nSector);
+            auto nSwitch = BuildSwStepOn(nChannel, BuildLink(1, 1), sectp);
 
             runlist_AddRunRec(sRunChannels[nChannel].a,nSwitch.first, nSwitch.second);
 
-            auto nSwitch2 = BuildSwNotOnPause(nChannel, BuildLink(1, 1), nSector, 60);
+            auto nSwitch2 = BuildSwNotOnPause(nChannel, BuildLink(1, 1), sectp, 60);
 
             runlist_AddRunRec(sRunChannels[nChannel].a,nSwitch2.first, nSwitch2.second);
             return;
@@ -1461,7 +1461,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
         case 64:
         {
-            auto nSwitch = BuildSwStepOn(nChannel, BuildLink(2, 0, 0), nSector);
+            auto nSwitch = BuildSwStepOn(nChannel, BuildLink(2, 0, 0), sectp);
             runlist_AddRunRec(sRunChannels[nChannel].a,nSwitch.first, nSwitch.second);
             return;
         }
@@ -1489,7 +1489,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
 
             runlist_AddRunRec(sRunChannels[nChannel].a, nElev, 0);
 
-            auto nSwitch = BuildSwPressSector(nChannel, BuildLink(1, 1), nSector, keyMask);
+            auto nSwitch = BuildSwPressSector(nChannel, BuildLink(1, 1), sectp, keyMask);
 
             runlist_AddRunRec(sRunChannels[nChannel].a,nSwitch.first, nSwitch.second);
 

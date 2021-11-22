@@ -552,7 +552,6 @@ void GameInterface::UpdateSounds()
 //==========================================================================
 
 int soundx, soundy, soundz;
-int soundsect;
 
 void PlayFX2(unsigned int nSound, DExhumedActor* pActor, int sectf, EChanFlags chanflags, int sprflags)
 {
@@ -655,12 +654,11 @@ void PlayFX2(unsigned int nSound, DExhumedActor* pActor, int sectf, EChanFlags c
 //
 //==========================================================================
 
-void PlayFXAtXYZ(unsigned int ax, int x, int y, int z, int nSector, EChanFlags chanflags, int sectf)
+void PlayFXAtXYZ(unsigned int ax, int x, int y, int z, EChanFlags chanflags, int sectf)
 {
     soundx = x;
     soundy = y;
     soundz = z;
-    soundsect = nSector;
     PlayFX2(ax, nullptr, sectf, chanflags);
 }
 
