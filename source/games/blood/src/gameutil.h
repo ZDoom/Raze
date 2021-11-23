@@ -68,6 +68,12 @@ inline bool FindSector(int nX, int nY, sectortype** ppSector)
     *ppSector = &sector[n];
     return res;
 }
+
+[[deprecated]]
+bool FindSector(int nX, int nY, int nZ, int* nSector);
+[[deprecated]]
+bool FindSector(int nX, int nY, int* nSector);
+
 bool CheckProximity(DBloodActor *pSprite, int nX, int nY, int nZ, int nSector, int nDist);
 bool CheckProximityPoint(int nX1, int nY1, int nZ1, int nX2, int nY2, int nZ2, int nDist);
 bool CheckProximityWall(walltype* pWall, int x, int y, int nDist);
