@@ -240,7 +240,7 @@ void RestartPlayer(int nPlayer)
 	ChangeActorSect(pActor, plr->sPlayerSave.pSector);
 	ChangeActorStat(pActor, 100);
 
-	auto pDActor = insertActor(nSpr->sectnum, 100);
+	auto pDActor = insertActor(nSpr->sector(), 100);
 	plr->pDoppleSprite = pDActor;
 
 	if (nTotalPlayers > 1)
@@ -256,11 +256,11 @@ void RestartPlayer(int nPlayer)
 		nSpr->x = nstspr->x;
 		nSpr->y = nstspr->y;
 		nSpr->z = nstspr->z;
-		ChangeActorSect(pActor, nstspr->sectnum);
+		ChangeActorSect(pActor, nstspr->sector());
 		plr->angle.ang = buildang(nstspr->ang&kAngleMask);
 		nSpr->ang = plr->angle.ang.asbuild();
 
-		floorsprt = insertActor(nSpr->sectnum, 0);
+		floorsprt = insertActor(nSpr->sector(), 0);
 		auto fspr = &floorsprt->s();
 
 		fspr->x = nSpr->x;
@@ -875,7 +875,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     int spr_x = pPlayerSprite->x;
     int spr_y = pPlayerSprite->y;
     int spr_z = pPlayerSprite->z;
-    int spr_sectnum = pPlayerSprite->sectnum;
+    auto spr_sect = pPlayerSprite->sector();
 
     // TODO
     // nSectFlag & kSectUnderwater;
@@ -897,18 +897,18 @@ void AIPlayer::Tick(RunListEvent* ev)
     {
         nMove = movesprite(pPlayerActor, x, y, z, 5120, -5120, CLIPMASK0);
 
-        int var_54 = pPlayerSprite->sectnum;
+        auto pPlayerSect = pPlayerSprite->sector();
 
-        pushmove(&pPlayerSprite->pos, &var_54, pPlayerSprite->clipdist << 2, 5120, -5120, CLIPMASK0);
-        if (var_54 != pPlayerSprite->sectnum) {
-            ChangeActorSect(pPlayerActor, var_54);
+        pushmove(&pPlayerSprite->pos, &pPlayerSect, pPlayerSprite->clipdist << 2, 5120, -5120, CLIPMASK0);
+        if (pPlayerSect != pPlayerSprite->sector()) {
+            ChangeActorSect(pPlayerActor, pPlayerSect);
         }
     }
 
     // loc_1A6E4
-    if (inside(pPlayerSprite->x, pPlayerSprite->y, pPlayerSprite->sectnum) != 1)
+    if (inside(pPlayerSprite->x, pPlayerSprite->y, pPlayerSprite->sector()) != 1)
     {
-        ChangeActorSect(pPlayerActor, spr_sectnum);
+        ChangeActorSect(pPlayerActor, spr_sect);
 
         pPlayerSprite->x = spr_x;
         pPlayerSprite->y = spr_y;
@@ -1058,7 +1058,7 @@ void AIPlayer::Tick(RunListEvent* ev)
                             pPlayerSprite->y = spr_y;
                             pPlayerSprite->z = spr_z;
 
-                            ChangeActorSect(pPlayerActor, spr_sectnum);
+                            ChangeActorSect(pPlayerActor, spr_sect);
                         }
 
                         movesprite(pPlayerActor, xvel, yvel, z, 5120, -5120, CLIPMASK0);

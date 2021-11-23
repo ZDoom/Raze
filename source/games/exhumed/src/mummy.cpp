@@ -111,8 +111,8 @@ void CheckMummyRevive(DExhumedActor* pActor)
 
             if (x <= 20 && y <= 20)
             {
-                if (cansee(pSprite->x, pSprite->y, pSprite->z - 8192, pSprite->sectnum,
-                          pSprite2->x, pSprite2->y, pSprite2->z - 8192, pSprite2->sectnum))
+                if (cansee(pSprite->x, pSprite->y, pSprite->z - 8192, pSprite->sector(),
+                          pSprite2->x, pSprite2->y, pSprite2->z - 8192, pSprite2->sector()))
                 {
                     pSprite2->cstat = 0;
                     pOther->nAction = 6;

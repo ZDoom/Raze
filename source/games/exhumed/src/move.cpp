@@ -223,7 +223,7 @@ void clipwall()
 
 }
 
-int BelowNear(DExhumedActor* pActor, int x, int y, int walldist, int _nSector)
+int BelowNear(DExhumedActor* pActor, int x, int y, int walldist)
 {
     auto pSprite = &pActor->s();
     auto pSector = pSprite->sector();
@@ -461,7 +461,7 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
 
     if (pSprite->statnum == 100)
     {
-        nRet.exbits |= BelowNear(pActor, pSprite->x, pSprite->y, clipdist + (clipdist / 2), pSprite->sectnum);
+        nRet.exbits |= BelowNear(pActor, pSprite->x, pSprite->y, clipdist + (clipdist / 2));
     }
 
     return nRet;
@@ -699,7 +699,7 @@ DExhumedActor* FindPlayer(DExhumedActor* pActor, int nDistance, bool dontengage)
 
     int x = pSprite->x;
     int y = pSprite->y;
-    int nSector =pSprite->sectnum;
+    auto pSector =pSprite->sector();
 
     int z = pSprite->z - GetActorHeight(pActor);
 
@@ -724,7 +724,7 @@ DExhumedActor* FindPlayer(DExhumedActor* pActor, int nDistance, bool dontengage)
             {
                 int v10 = abs(pPlayerSprite->y - y);
 
-                if (v10 < nDistance && cansee(pPlayerSprite->x, pPlayerSprite->y, pPlayerSprite->z - 7680, pPlayerSprite->sectnum, x, y, z, nSector))
+                if (v10 < nDistance && cansee(pPlayerSprite->x, pPlayerSprite->y, pPlayerSprite->z - 7680, pPlayerSprite->sector(), x, y, z, pSector))
                 {
                     break;
                 }
@@ -1383,7 +1383,7 @@ DExhumedActor* BuildCreatureChunk(DExhumedActor* pSrc, int nPic, bool bSpecial)
     pSprite->y = pSrcSpr->y;
     pSprite->z = pSrcSpr->z;
 
-    ChangeActorSect(actor, pSrcSpr->sectnum);
+    ChangeActorSect(actor, pSrcSpr->sector());
 
     pSprite->cstat = 0x80;
     pSprite->shade = -12;

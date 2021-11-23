@@ -1695,11 +1695,11 @@ int runlist_CheckRadialDamage(DExhumedActor* pActor)
             cansee(pRadialSpr->x,
                 pRadialSpr->y,
                 pRadialSpr->z - 512,
-                pRadialSpr->sectnum,
+                pRadialSpr->sector(),
                 pSprite->x,
                 pSprite->y,
                 pSprite->z - 8192,
-                pSprite->sectnum))
+                pSprite->sector()))
         {
             edi = (nRadialDamage * (nDamageRadius - nDist)) / nDamageRadius;
 

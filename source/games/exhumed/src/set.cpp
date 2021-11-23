@@ -101,7 +101,7 @@ void BuildSet(DExhumedActor* pActor, int x, int y, int z, sectortype* nSector, i
 void BuildSoul(DExhumedActor* pSet)
 {
     auto pSetSprite = &pSet->s();
-    auto pActor = insertActor(pSetSprite->sectnum, 0);
+    auto pActor = insertActor(pSetSprite->sector(), 0);
     auto pSprite = &pActor->s();
 
     pSprite->cstat = 0x8000;
@@ -120,7 +120,6 @@ void BuildSoul(DExhumedActor* pSet)
     pSprite->x = pSetSprite->x;
     pSprite->y = pSetSprite->y;
 
-    int nSector =pSprite->sectnum;
     pSprite->z = (RandomSize(8) << 8) + 8192 + pSprite->sector()->ceilingz - GetActorHeight(pActor);
 
     //pSprite->hitag = nSet;

@@ -95,7 +95,7 @@ static void analyzesprites(spritetype* tsprite, int& spritesortcnt, int x, int y
 
     bestTarget = nullptr;
 
-    int nSector =pPlayerSprite->sectnum;
+    auto pSector =pPlayerSprite->sector();
 
     int nAngle = (2048 - pPlayerSprite->ang) & kAngleMask;
 
@@ -109,7 +109,7 @@ static void analyzesprites(spritetype* tsprite, int& spritesortcnt, int x, int y
         auto pActor = &exhumedActors[nSprite];
         spritetype *pSprite = &pActor->s();
 
-        if (pTSprite->sectnum >= 0)
+        if (pTSprite->sector() != nullptr)
         {
             sectortype *pSector = pTSprite->sector();
             int nSectShade = (pSector->ceilingstat & 1) ? pSector->ceilingshade : pSector->floorshade;
@@ -176,7 +176,7 @@ static void analyzesprites(spritetype* tsprite, int& spritesortcnt, int x, int y
 
         nCreepyTimer = kCreepyCount;
 
-        if (!cansee(x, y, z, nSector, pTarget->x, pTarget->y, pTarget->z - GetActorHeight(bestTarget), pTarget->sectnum))
+        if (!cansee(x, y, z, pSector, pTarget->x, pTarget->y, pTarget->z - GetActorHeight(bestTarget), pTarget->sector()))
         {
             bestTarget = nullptr;
         }

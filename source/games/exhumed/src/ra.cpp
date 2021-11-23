@@ -77,7 +77,7 @@ void BuildRa(int nPlayer)
     auto pPlayerActor = PlayerList[nPlayer].Actor();
     auto pPlayerSprite = &pPlayerActor->s();
 
-    auto pActor = insertActor(pPlayerSprite->sectnum, 203);
+    auto pActor = insertActor(pPlayerSprite->sector(), 203);
 	auto pSprite = &pActor->s();
 
     pSprite->cstat = 0x8000;
@@ -133,8 +133,8 @@ void MoveRaToEnemy(int nPlayer)
         }
         else
         {
-            if (pSprite->sectnum != pTargSprite->sectnum) {
-                ChangeActorSect(pActor, pTargSprite->sectnum);
+            if (pSprite->sector() != pTargSprite->sector()) {
+                ChangeActorSect(pActor, pTargSprite->sector());
             }
         }
     }
@@ -160,8 +160,8 @@ void MoveRaToEnemy(int nPlayer)
     pSprite->y = pTargSprite->y;
     pSprite->z = pTargSprite->z - GetActorHeight(pTarget);
 
-    if (pSprite->sectnum != pTargSprite->sectnum) {
-        ChangeActorSect(pActor, pTargSprite->sectnum);
+    if (pSprite->sector() != pTargSprite->sector()) {
+        ChangeActorSect(pActor, pTargSprite->sector());
     }
 }
 

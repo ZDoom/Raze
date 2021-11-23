@@ -1643,7 +1643,6 @@ void ExplodeEnergyBlock(DExhumedActor* pActor)
 {
     auto pSprite = &pActor->s();
 
-    int nSector =pSprite->sectnum;
 	auto pSector = pSprite->sector();
 
 	for(auto& wal : wallsofsector(pSector))
@@ -1838,7 +1837,7 @@ DExhumedActor* BuildObject(DExhumedActor* pActor, int nOjectType, int nHitag)
             pActor->nFrame = RandomSize(4) % (SeqSize[pActor->nIndex] - 1);
         }
 
-        auto  pActor2 = insertActor(spr->sectnum, 0);
+        auto  pActor2 = insertActor(spr->sector(), 0);
         auto pSprite2 = &pActor2->s();
         pActor->pTarget = pActor2;
         pActor->nIndex2 = -1;
@@ -1990,7 +1989,7 @@ void AIObject::Tick(RunListEvent* ev)
             pSprite->y = pTargSpr->y;
             pSprite->z = pTargSpr->z;
 
-            ChangeActorSect(pActor, pTargSpr->sectnum);
+            ChangeActorSect(pActor, pTargSpr->sector());
             return;
         }
     }
