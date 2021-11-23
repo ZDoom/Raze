@@ -4980,7 +4980,7 @@ DBloodActor* aiFightGetMateTargets(DBloodActor* actor)
 
     for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) 
     {
-        if (rxBucket[i].type == OBJ_SPRITE) 
+        if (rxBucket[i].isActor()) 
         {
             auto mate = rxBucket[i].actor();
             if (!mate || !mate->hasX() || mate == actor || !mate->IsDudeActor())
@@ -5009,9 +5009,9 @@ bool aiFightMatesHaveSameTarget(DBloodActor* leaderactor, DBloodActor* targetact
 
     for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) 
     {
-        if (rxBucket[i].type != OBJ_SPRITE) continue;
+        if (!rxBucket[i].isActor()) continue;
+        auto mate = rxBucket[i].actor();
 
-        auto mate = rxBucket[i].rxactor;
         if (!mate || !mate->hasX() || mate == leaderactor || !mate->IsDudeActor())
             continue;
 
@@ -5067,8 +5067,9 @@ void aiFightActivateDudes(int rx)
 {
     for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) 
     {
-        if (rxBucket[i].type != OBJ_SPRITE) continue;
+        if (!rxBucket[i].isActor()) continue;
         auto dudeactor = rxBucket[i].actor();
+
         if (!dudeactor || !dudeactor->hasX() || !dudeactor->IsDudeActor() || dudeactor->x().aiState->stateType != kAiStateGenIdle) continue;
         aiInitSprite(dudeactor);
     }
@@ -5103,8 +5104,11 @@ void aiFightFreeAllTargets(DBloodActor* sourceactor)
     if (txID <= 0) return;
     for (int i = bucketHead[txID]; i < bucketHead[txID + 1]; i++) 
     {
-        if (rxBucket[i].type == OBJ_SPRITE && rxBucket[i].rxactor && rxBucket[i].rxactor->hasX())
-            aiFightFreeTargets(rxBucket[i].rxactor);
+        if (!rxBucket[i].isActor()) continue;
+        auto actor = rxBucket[i].actor();
+
+        if (actor && actor->hasX())
+            aiFightFreeTargets(actor);
     }
 }
 
@@ -5126,9 +5130,9 @@ bool aiFightDudeIsAffected(DBloodActor* dudeactor)
         if (pXSprite->txID <= 0 || pXSprite->state != 1) continue;
         for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++) 
         {
-            if (rxBucket[i].type != OBJ_SPRITE) continue;
+            if (!rxBucket[i].isActor()) continue;
+            auto rxactor = rxBucket[i].actor();
 
-            auto rxactor = rxBucket[i].rxactor;
             if (!rxactor || !rxactor->hasX() || !rxactor->IsDudeActor()) continue;
             else if (rxactor == dudeactor) return true;
         }
@@ -5147,7 +5151,7 @@ bool aiFightGetDudesForBattle(DBloodActor* actor)
     auto txID = actor->x().txID;
     for (int i = bucketHead[txID]; i < bucketHead[txID + 1]; i++) 
     {
-        if (rxBucket[i].type != OBJ_SPRITE) continue;
+        if (!rxBucket[i].isActor()) continue;
         auto actor = rxBucket[i].actor();
         if (!actor || !actor->hasX() || !actor->IsDudeActor()) continue;
         if (actor->x().health > 0) return true;
@@ -5160,8 +5164,8 @@ bool aiFightGetDudesForBattle(DBloodActor* actor)
     {
         for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) 
         {
-	        if (rxBucket[i].type != OBJ_SPRITE) continue;
-	        auto actor = rxBucket[i].actor();
+            if (!rxBucket[i].isActor()) continue;
+            auto actor = rxBucket[i].actor();
 	        if (!actor || !actor->hasX() || !actor->IsDudeActor()) continue;
 	        if (actor->x().health > 0) return true;
         }
