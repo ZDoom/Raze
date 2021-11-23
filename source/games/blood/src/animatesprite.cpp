@@ -380,7 +380,7 @@ static tspritetype *viewAddEffect(spritetype* tsprite, int& spritesortcnt, int n
             if (!pNSprite)
                 break;
 
-            pNSprite->z = getflorzofslope(pTSprite->sectnum, pNSprite->x, pNSprite->y);
+            pNSprite->z = getflorzofslopeptr(pTSprite->sector(), pNSprite->x, pNSprite->y);
             pNSprite->shade = 127;
             pNSprite->cstat |= 2;
             pNSprite->xrepeat = pTSprite->xrepeat;
@@ -613,7 +613,7 @@ void viewProcessSprites(spritetype* tsprite, int& spritesortcnt, int32_t cX, int
                 {
                     int top, bottom;
                     GetSpriteExtents(pTSprite, &top, &bottom);
-                    if (getflorzofslope(pTSprite->sectnum, pTSprite->x, pTSprite->y) > bottom)
+                    if (getflorzofslopeptr(pTSprite->sector(), pTSprite->x, pTSprite->y) > bottom)
                         nAnim = 1;
                 }
                 break;
@@ -893,7 +893,7 @@ void viewProcessSprites(spritetype* tsprite, int& spritesortcnt, int32_t cX, int
             }
             
             if (pTSprite->owner != gView->actor->GetSpriteIndex() || gViewPos != VIEWPOS_0) {
-                if (getflorzofslope(pTSprite->sectnum, pTSprite->x, pTSprite->y) >= cZ)
+                if (getflorzofslopeptr(pTSprite->sector(), pTSprite->x, pTSprite->y) >= cZ)
                 {
                     viewAddEffect(tsprite, spritesortcnt, nTSprite, kViewEffectShadow);
                 }
@@ -925,7 +925,7 @@ void viewProcessSprites(spritetype* tsprite, int& spritesortcnt, int32_t cX, int
 
             if (pTSprite->type < kThingBase || pTSprite->type >= kThingMax || owneractor->hit.florhit.type == kHitNone)
             {
-                if ((pTSprite->flags & kPhysMove) && getflorzofslope(pTSprite->sectnum, pTSprite->x, pTSprite->y) >= cZ)
+                if ((pTSprite->flags & kPhysMove) && getflorzofslopeptr(pTSprite->sector(), pTSprite->x, pTSprite->y) >= cZ)
                     viewAddEffect(tsprite, spritesortcnt, nTSprite, kViewEffectShadow);
             }
         }
