@@ -4769,9 +4769,11 @@ void modernTypeSendCommand(DBloodActor* actor, int destChannel, COMMAND_ID comma
 
 void modernTypeTrigger(int destObjType, int destObjIndex, DBloodActor* destactor, const EVENT& event) 
 {
-    if (event.type != OBJ_SPRITE || !event.actor || !event.actor->hasX()) return;
-    spritetype* pSource = &event.actor->s();
-    XSPRITE* pXSource = &event.actor->x();
+    if (!event.isActor()) return;
+    auto pActor = event.getActor();
+    if (!pActor || !pActor->hasX()) return;
+    spritetype* pSource = &pActor->s();
+    XSPRITE* pXSource = &pActor->x();
 
     switch (destObjType) {
         case OBJ_SECTOR:
@@ -4803,14 +4805,14 @@ void modernTypeTrigger(int destObjType, int destObjIndex, DBloodActor* destactor
                         case kModernSequentialTX:
                     if (pSpr->flags & kModernTypeFlag1) 
                     {
-                        seqTxSendCmdAll(destactor, event.actor, (COMMAND_ID)pXSource->command, true);
+                        seqTxSendCmdAll(destactor, pActor, (COMMAND_ID)pXSource->command, true);
                                 return;
                             }
                     useSequentialTx(destactor, (COMMAND_ID)pXSource->command, false); // set next TX id
                             break;
                     }
                     if (pXSpr->txID <= 0 || pXSpr->txID >= kChannelUserMax) return;
-                    modernTypeSendCommand(event.actor, pXSpr->txID, (COMMAND_ID)pXSource->command);
+                    modernTypeSendCommand(pActor, pXSpr->txID, (COMMAND_ID)pXSource->command);
                     return;
             }
             break;
@@ -4824,7 +4826,7 @@ void modernTypeTrigger(int destObjType, int destObjIndex, DBloodActor* destactor
         // allows teleport any sprite from any location to the source destination
         case kMarkerWarpDest:
             if (destObjType != OBJ_SPRITE) break;
-            useTeleportTarget(event.actor, destactor);
+            useTeleportTarget(pActor, destactor);
             break;
         // changes slope of sprite or sector
         case kModernSlopeChanger:
@@ -4832,7 +4834,7 @@ void modernTypeTrigger(int destObjType, int destObjIndex, DBloodActor* destactor
             {
                 case OBJ_SPRITE:
                 case OBJ_SECTOR:
-                    useSlopeChanger(event.actor, destObjType, destObjIndex, destactor);
+                    useSlopeChanger(pActor, destObjType, destObjIndex, destactor);
                     break;
             }
             break;
@@ -4842,73 +4844,73 @@ void modernTypeTrigger(int destObjType, int destObjIndex, DBloodActor* destactor
             {
                 case OBJ_SPRITE:
                 case OBJ_SECTOR:
-                    useSpriteDamager(event.actor, destObjType, destObjIndex, destactor);
+                    useSpriteDamager(pActor, destObjType, destObjIndex, destactor);
             break;
             }
             break;
         // can spawn any effect passed in data2 on it's or txID sprite
         case kModernEffectSpawner:
             if (destObjType != OBJ_SPRITE) break;
-            useEffectGen(event.actor, destactor);
+            useEffectGen(pActor, destactor);
             break;
         // takes data2 as SEQ ID and spawns it on it's or TX ID object
         case kModernSeqSpawner:
-            useSeqSpawnerGen(event.actor, destObjType, destObjIndex, destactor);
+            useSeqSpawnerGen(pActor, destObjType, destObjIndex, destactor);
             break;
         // creates wind on TX ID sector
         case kModernWindGenerator:
             if (destObjType != OBJ_SECTOR || pXSource->data2 < 0) break;
-            useSectorWindGen(event.actor, &sector[destObjIndex]);
+            useSectorWindGen(pActor, &sector[destObjIndex]);
             break;
         // size and pan changer of sprite/wall/sector via TX ID
         case kModernObjSizeChanger:
-            useObjResizer(event.actor, destObjType, destObjIndex, destactor);
+            useObjResizer(pActor, destObjType, destObjIndex, destactor);
             break;
         // iterate data filed value of destination object
         case kModernObjDataAccumulator:
-            useIncDecGen(event.actor, destObjType, destObjIndex, destactor);
+            useIncDecGen(pActor, destObjType, destObjIndex, destactor);
             break;
         // change data field value of destination object
         case kModernObjDataChanger:
-            useDataChanger(event.actor, destObjType, destObjIndex, destactor);
+            useDataChanger(pActor, destObjType, destObjIndex, destactor);
             break;
         // change sector lighting dynamically
         case kModernSectorFXChanger:
             if (destObjType != OBJ_SECTOR) break;
-            useSectorLightChanger(event.actor, &sector[destObjIndex]);
+            useSectorLightChanger(pActor, &sector[destObjIndex]);
             break;
         // change target of dudes and make it fight
         case kModernDudeTargetChanger:
             if (destObjType != OBJ_SPRITE) break;
-            useTargetChanger(event.actor, destactor);
+            useTargetChanger(pActor, destactor);
             break;
         // change picture and palette of TX ID object
         case kModernObjPicnumChanger:
-            usePictureChanger(event.actor, destObjType, destObjIndex, destactor);
+            usePictureChanger(pActor, destObjType, destObjIndex, destactor);
             break;
         // change various properties
         case kModernObjPropertiesChanger:
-            usePropertiesChanger(event.actor, destObjType, destObjIndex, destactor);
+            usePropertiesChanger(pActor, destObjType, destObjIndex, destactor);
             break;
         // updated vanilla sound gen that now allows to play sounds on TX ID sprites
         case kGenModernSound:
             if (destObjType != OBJ_SPRITE) break;
-            useSoundGen(event.actor, destactor);
+            useSoundGen(pActor, destactor);
             break;
         // updated ecto skull gen that allows to fire missile from TX ID sprites
         case kGenModernMissileUniversal:
             if (destObjType != OBJ_SPRITE) break;
-            useUniMissileGen(event.actor, destactor);
+            useUniMissileGen(pActor, destactor);
             break;
         // spawn enemies on TX ID sprites
         case kMarkerDudeSpawn:
             if (destObjType != OBJ_SPRITE) break;
-            useDudeSpawn(event.actor, destactor);
+            useDudeSpawn(pActor, destactor);
             break;
          // spawn custom dude on TX ID sprites
         case kModernCustomDudeSpawn:
             if (destObjType != OBJ_SPRITE) break;
-            useCustomDudeSpawn(event.actor, destactor);
+            useCustomDudeSpawn(pActor, destactor);
             break;
     }
 }
@@ -5301,11 +5303,12 @@ void sectorKillSounds(int nSector)
 
 void sectorPauseMotion(int nSector) 
 {
-    if (!sector[nSector].hasX()) return;
-    XSECTOR* pXSector = &sector[nSector].xs();
+    auto pSector = &sector[nSector];
+    if (!pSector->hasX()) return;
+    XSECTOR* pXSector = &pSector->xs();
     pXSector->unused1 = 1;
     
-    evKillSector(nSector);
+    evKillSector(pSector);
 
     sectorKillSounds(nSector);
     if ((pXSector->busy == 0 && !pXSector->state) || (pXSector->busy == 65536 && pXSector->state))
@@ -5500,7 +5503,7 @@ void useDudeSpawn(DBloodActor* pSource, DBloodActor* pSprite)
 //
 //---------------------------------------------------------------------------
 
-bool modernTypeOperateSprite(DBloodActor* actor, EVENT event) 
+bool modernTypeOperateSprite(DBloodActor* actor, const EVENT& event) 
 {
     auto pSprite = &actor->s();
     auto pXSprite = &actor->x();
@@ -5533,21 +5536,24 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT event)
     }
     else if (event.cmd == kCmdDudeFlagsSet)
     {
-        if (event.type != OBJ_SPRITE) 
+        if (!event.isActor())
         {
             viewSetSystemMessage("Only sprites can use command #%d", event.cmd);
             return true;
 
         } 
-		else if (event.actor && event.actor->hasX()) 
-		{
-           
-            // copy dude flags from the source to destination sprite
-            aiPatrolFlagsMgr(event.actor, actor, true, false);
-    }
+        else
+        {
+            auto pEvActor = event.getActor();
+            if (pEvActor && pEvActor->hasX())
+            {
 
-    }
+                // copy dude flags from the source to destination sprite
+                aiPatrolFlagsMgr(pEvActor, actor, true, false);
+            }
 
+        }
+    }
     if (pSprite->statnum == kStatDude && actor->IsDudeActor()) 
     {
         switch (event.cmd) 
@@ -5571,8 +5577,12 @@ bool modernTypeOperateSprite(DBloodActor* actor, EVENT event)
                 break;
 
             case kCmdDudeFlagsSet:
-                if (!event.actor || !event.actor->hasX()) break;
-                else aiPatrolFlagsMgr(event.actor, actor, false, true); // initialize patrol dude with possible new flags
+                if (event.isActor())
+                {
+                    auto pEvActor = event.getActor();
+                    if (!pEvActor || !pEvActor->hasX()) break;
+                    else aiPatrolFlagsMgr(pEvActor, actor, false, true); // initialize patrol dude with possible new flags
+                }
                 break;
 
             default:
@@ -6204,24 +6214,28 @@ int useCondition(DBloodActor* sourceactor, const EVENT& event)
     spritetype* pSource = &sourceactor->s();
     auto pXSource = &sourceactor->x();
 
-    int objType = event.type;
-    int objIndex = event.index_;
     bool srcIsCondition = false;
-    if (objType == OBJ_SPRITE && event.actor == nullptr) return -1;
-    if (objType == OBJ_SPRITE && event.actor != sourceactor)
-        srcIsCondition = (event.actor->s().type == kModernCondition || event.actor->s().type == kModernConditionFalse);
+
+    int objType = event.isActor() ? SS_SPRITE : event.isSector() ? SS_SECTOR : SS_WALL;
+    int objIndex = event.isActor() ? -1 : event.isSector() ? sectnum(event.getSector()) : wallnum(event.getWall());
+    auto pActor = event.isActor() ? event.getActor() : nullptr;
+
+
+    if (event.isActor() && pActor == nullptr) return -1;
+    if (event.isActor() && pActor != sourceactor)
+        srcIsCondition = (pActor->s().type == kModernCondition || pActor->s().type == kModernConditionFalse);
 
     // if it's a tracking condition, it must ignore all the commands sent from objects
     if (pXSource->busyTime > 0 && event.funcID != kCallbackMax) return -1;
     else if (!srcIsCondition) // save object serials in the stack and make copy of initial object
     {
-        condPush(sourceactor, objType, objIndex, event.actor);
+        condPush(sourceactor, objType, objIndex, pActor);
         condBackup(sourceactor);
     } 
     else  // or grab serials of objects from previous conditions
     {
-        sourceactor->condition[0] = event.actor->condition[0];
-        sourceactor->condition[1] = event.actor->condition[1];
+        sourceactor->condition[0] = pActor->condition[0];
+        sourceactor->condition[1] = pActor->condition[1];
 
     }
     
@@ -6279,7 +6293,7 @@ int useCondition(DBloodActor* sourceactor, const EVENT& event)
             // send it for object currently in the focus
             if (pSource->flags & kModernTypeFlag1)
             {
-                nnExtTriggerObject(objType, objIndex, event.actor, pXSource->command);
+                nnExtTriggerObject(objType, objIndex, pActor, pXSource->command);
             }
 
             // send it for initial object

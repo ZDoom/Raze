@@ -198,6 +198,39 @@ struct EVENT
 	{
 		return (this->type == type && (this->type != SS_SPRITE ? (this->index_ == index) : (this->actor == actor)));
 	}
+
+	bool isActor() const
+	{
+		return type == SS_SPRITE;
+	}
+
+	bool isSector() const
+	{
+		return type == SS_SECTOR;
+	}
+
+	bool isWall() const
+	{
+		return type == SS_WALL;
+	}
+
+	DBloodActor* getActor() const
+	{
+		assert(isActor());
+		return actor;
+	}
+
+	sectortype* getSector() const
+	{
+		assert(isSector());
+		return &sector[index_];
+	}
+
+	walltype* getWall() const
+	{
+		assert(isWall());
+		return &wall[index_];
+	}
 };
 
 void evInit(void);

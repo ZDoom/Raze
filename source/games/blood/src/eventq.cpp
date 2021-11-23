@@ -577,14 +577,14 @@ void evKillActor(DBloodActor* actor, CALLBACK_ID cb)
 	evKill_(actor, 0, SS_SPRITE, cb);
 }
 
-void evKillWall(int wal)
+void evKillWall(walltype* wal)
 {
-	evKill_(nullptr, wal, SS_WALL);
+	evKill_(nullptr, wallnum(wal), SS_WALL);
 }
 
-void evKillSector(int sec)
+void evKillSector(sectortype* sec)
 {
-	evKill_(nullptr, sec, SS_SECTOR);
+	evKill_(nullptr, sectnum(sec), SS_SECTOR);
 }
 
 // these have no target.

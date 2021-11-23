@@ -82,7 +82,7 @@ bool SetWallState(walltype* pWall, int nState)
         return 0;
     pXWall->busy  = IntToFixed(nState);
     pXWall->state = nState;
-    evKillWall(wallnum(pWall));
+    evKillWall(pWall);
     if (pXWall->restState != nState && pXWall->waitTime > 0)
         evPostWall(pWall, (pXWall->waitTime*120) / 10, pXWall->restState ? kCmdOn : kCmdOff);
     if (pXWall->txID)
@@ -102,7 +102,7 @@ bool SetSectorState(int nSector, XSECTOR *pXSector, int nState)
         return 0;
     pXSector->busy = IntToFixed(nState);
     pXSector->state = nState;
-    evKillSector(nSector);
+    evKillSector(pSector);
     if (nState == 1)
     {
         if (pXSector->command != kCmdLink && pXSector->triggerOn && pXSector->txID)
@@ -167,25 +167,22 @@ void ReverseBusy(int a1, BUSYID a2)
     }
 }
 
-unsigned int GetSourceBusy(EVENT a1)
+unsigned int GetSourceBusy(const EVENT& a1)
 {
-    int nIndex = a1.index_;
-    switch (a1.type)
+    if (a1.isSector())
     {
-    case 6:
-    {
-        auto sect = &sector[nIndex];
+        auto sect = a1.getSector();
         return sect->hasX()? sect->xs().busy : 0;
     }
-    case 0:
+    else if (a1.isWall())
     {
-        auto wal = &wall[nIndex];
+        auto wal = a1.getWall();
         return wal->hasX()? wal->xw().busy : 0;
     }
-    case 3:
+    else if (a1.isActor())
     {
-        return a1.actor && a1.actor->hasX() ? a1.actor->x().busy : false;
-    }
+        auto pActor = a1.getActor();
+        return pActor && pActor->hasX() ? pActor->x().busy : false;
     }
     return 0;
 }
@@ -1686,9 +1683,9 @@ void LinkSprite(DBloodActor* actor, EVENT event)
     switch (pSprite->type)  {
         case kSwitchCombo:
         {
-            if (event.type == OBJ_SPRITE)
+            if (event.isActor())
             {
-                auto actor2 = event.actor;
+                auto actor2 = event.getActor();
 
                 pXSprite->data1 = actor2 && actor2->hasX()? actor2->x().data1 : 0;
                 if (pXSprite->data1 == pXSprite->data2)

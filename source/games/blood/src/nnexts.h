@@ -335,7 +335,7 @@ void trPlayerCtrlStopScene(PLAYER* pPlayer);
 //  -------------------------------------------------------------------------   //
 void modernTypeTrigger(int type, int nDest, DBloodActor* actor, const EVENT& event);
 bool modernTypeOperateSector(int nSector, sectortype* pSector, XSECTOR* pXSector, const EVENT& event);
-bool modernTypeOperateSprite(DBloodActor*, EVENT event);
+bool modernTypeOperateSprite(DBloodActor*, const EVENT& event);
 bool modernTypeOperateWall(int nWall, walltype* pWall, XWALL* pXWall, EVENT event);
 void modernTypeSendCommand(DBloodActor* nSprite, int channel, COMMAND_ID command);
 //  -------------------------------------------------------------------------   //
