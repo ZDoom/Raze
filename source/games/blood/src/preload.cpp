@@ -246,18 +246,18 @@ void PreloadCache()
     if (!r_precache) return;
     int skyTile = -1;
     // Fonts
-    for (int i = 0; i < numsectors; i++)
+    for(auto& sect : sectors())
     {
-        tilePrecacheTile(sector[i].floorpicnum, 0, sector[i].floorpal);
-        tilePrecacheTile(sector[i].ceilingpicnum, 0, sector[i].ceilingpal);
-        if ((sector[i].ceilingstat&1) != 0 && skyTile == -1)
-            skyTile = sector[i].ceilingpicnum;
+        tilePrecacheTile(sect.floorpicnum, 0, sect.floorpal);
+        tilePrecacheTile(sect.ceilingpicnum, 0, sect.ceilingpal);
+        if ((sect.ceilingstat&1) != 0 && skyTile == -1)
+            skyTile = sect.ceilingpicnum;
     }
-    for (int i = 0; i < numwalls; i++)
+    for(auto& wal : walls())
     {
-        tilePrecacheTile(wall[i].picnum, 0, wall[i].pal);
-        if (wall[i].overpicnum >= 0)
-            tilePrecacheTile(wall[i].overpicnum, 0, wall[i].pal);
+        tilePrecacheTile(wal.picnum, 0, wal.pal);
+        if (wal.overpicnum >= 0)
+            tilePrecacheTile(wal.overpicnum, 0, wal.pal);
     }
     BloodSpriteIterator it;
     while (auto actor = it.Next())

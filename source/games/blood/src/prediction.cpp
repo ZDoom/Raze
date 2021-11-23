@@ -401,7 +401,7 @@ static void fakeMoveDude(spritetype *pSprite)
         case kHitSprite:
         {
             int nHitWall = predict.at75.hit.index;
-            walltype *pHitWall = &wall[nHitWall];
+            walltype *pHitWall = &wall [nHitWall];
             if (pHitWall->twoSided())
             {
                 sectortype *pHitSector = &pHitWall->nextSector();

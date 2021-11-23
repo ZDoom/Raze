@@ -1996,10 +1996,11 @@ void InitGenerator(DBloodActor*);
 void trInit(void)
 {
     gBusyCount = 0;
+    for(auto& wal : walls())
     for (int i = 0; i < numwalls; i++)
     {
-        wall[i].baseWall.x = wall[i].x;
-        wall[i].baseWall.y = wall[i].y;
+        wal.baseWall.x = wal.x;
+        wal.baseWall.y = wal.y;
     }
     BloodLinearSpriteIterator it;
     while (auto actor = it.Next())

@@ -82,9 +82,9 @@ int tileGetSurfType(Collision& hit)
     default:
         return 0;
     case kHitSector:
-        return surfType[sector[hit.index].floorpicnum];
+        return surfType[hit.sector()->floorpicnum];
     case kHitWall:
-        return surfType[wall[hit.index].picnum];
+        return surfType[hit.wall()->picnum];
     case kHitSprite:
         return surfType[hit.actor->s().picnum];
     }
