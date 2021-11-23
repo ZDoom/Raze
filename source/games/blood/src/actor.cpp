@@ -4821,10 +4821,10 @@ void MoveDude(DBloodActor* actor)
 	int bz = (bottom - pSprite->z) / 4;
 	int tz = (pSprite->z - top) / 4;
 	int wd = pSprite->clipdist << 2;
-	int nSector = pSprite->sectnum;
+	auto pSector = pSprite->sector();
 	int nAiStateType = (pXSprite->aiState) ? pXSprite->aiState->stateType : -1;
 
-	assert(validSectorIndex(nSector));
+	assert(pSector);
 
 	if (actor->xvel || actor->yvel)
 	{
@@ -4832,30 +4832,30 @@ void MoveDude(DBloodActor* actor)
 		{
 			pSprite->x += actor->xvel >> 12;
 			pSprite->y += actor->yvel >> 12;
-			if (!FindSector(pSprite->x, pSprite->y, &nSector))
-				nSector = pSprite->sectnum;
+			if (!FindSector(pSprite->x, pSprite->y, &pSector))
+				pSector = pSprite->sector();
 		}
 		else
 		{
 			auto bakCstat = pSprite->cstat;
 			pSprite->cstat &= ~257;
-			actor->hit.hit = ClipMove(&pSprite->pos, &nSector, actor->xvel >> 12, actor->yvel >> 12, wd, tz, bz, CLIPMASK0);
-			if (nSector == -1)
+			actor->hit.hit = ClipMove(&pSprite->pos, &pSector, actor->xvel >> 12, actor->yvel >> 12, wd, tz, bz, CLIPMASK0);
+			if (pSector == nullptr)
 			{
-				nSector = pSprite->sectnum;
+				pSector = pSprite->sector();
 				if (pSprite->statnum == kStatDude || pSprite->statnum == kStatThing)
 					actDamageSprite(actor, actor, kDamageFall, 1000 << 4);
 			}
 
-			if (sector[nSector].type >= kSectorPath && sector[nSector].type <= kSectorRotate)
+			if (pSector->type >= kSectorPath && pSector->type <= kSectorRotate)
 			{
-				int nSector2 = nSector;
-				if (pushmove(&pSprite->pos, &nSector2, wd, tz, bz, CLIPMASK0) == -1)
+				auto pSector2 = pSector;
+				if (pushmove(&pSprite->pos, &pSector2, wd, tz, bz, CLIPMASK0) == -1)
 					actDamageSprite(actor, actor, kDamageFall, 1000 << 4);
-				if (nSector2 != -1)
-					nSector = nSector2;
+				if (pSector2 != nullptr)
+					pSector = pSector2;
 			}
-			assert(nSector >= 0);
+			assert(pSector);
 			pSprite->cstat = bakCstat;
 		}
 		const Collision& coll = actor->hit.hit;
@@ -4917,14 +4917,13 @@ void MoveDude(DBloodActor* actor)
 	}
 	else
 	{
-		assert(validSectorIndex(nSector));
-		FindSector(pSprite->x, pSprite->y, pSprite->z, &nSector);
+		assert(pSector);
+		FindSector(pSprite->x, pSprite->y, pSprite->z, &pSector);
 	}
 
-	auto pSector = &sector[nSector];
 	XSECTOR* pXSector = pSector->hasX() ? &pSector->xs() : nullptr;
 
-	if (pSprite->sectnum != nSector)
+	if (pSprite->sector() != pSector)
 	{
 		assert(validSectorIndex(pSprite->sectnum));
 		auto pOldSector = pSprite->sector();
@@ -4932,7 +4931,7 @@ void MoveDude(DBloodActor* actor)
 
 		if (pXOldSector && pXOldSector->Exit && (pPlayer || !pXOldSector->dudeLockout))
 			trTriggerSector(pOldSector, kCmdSectorExit);
-		ChangeActorSect(actor, nSector);
+		ChangeActorSect(actor, pSector);
 
 		if (pXSector && pXSector->Enter && (pPlayer || !pXSector->dudeLockout))
 		{
@@ -4941,7 +4940,7 @@ void MoveDude(DBloodActor* actor)
 			trTriggerSector(pSector, kCmdSectorEnter);
 		}
 
-		nSector = pSprite->sectnum;
+		pSector = pSprite->sector();
 	}
 	int bUnderwater = 0;
 	int bDepth = 0;
@@ -4950,8 +4949,8 @@ void MoveDude(DBloodActor* actor)
 		if (pXSector->Underwater) bUnderwater = 1;
 		if (pXSector->Depth) bDepth = 1;
 	}
-	auto pUpperLink = getUpperLink(nSector);
-	auto pLowerLink = getLowerLink(nSector);
+	auto pUpperLink = pSector->upperLink;
+	auto pLowerLink = pSector->lowerLink;
 	if (pUpperLink && (pUpperLink->s().type == kMarkerUpWater || pUpperLink->s().type == kMarkerUpGoo)) bDepth = 1;
 	if (pLowerLink && (pLowerLink->s().type == kMarkerLowWater || pLowerLink->s().type == kMarkerLowGoo)) bDepth = 1;
 	if (pPlayer) wd += 16;
@@ -4969,7 +4968,7 @@ void MoveDude(DBloodActor* actor)
 		{
 			if (bUnderwater)
 			{
-				int cz = getceilzofslope(nSector, pSprite->x, pSprite->y);
+				int cz = getceilzofslopeptr(pSector, pSprite->x, pSprite->y);
 				if (cz > top)
 					vc += ((bottom - cz) * -80099) / (bottom - top);
 				else
@@ -4977,7 +4976,7 @@ void MoveDude(DBloodActor* actor)
 			}
 			else
 			{
-				int fz = getflorzofslope(nSector, pSprite->x, pSprite->y);
+				int fz = getflorzofslopeptr(pSector, pSprite->x, pSprite->y);
 				if (fz < bottom)
 					vc += ((bottom - fz) * -80099) / (bottom - top);
 			}
@@ -5076,7 +5075,7 @@ void MoveDude(DBloodActor* actor)
 				if (gModernMap)
 				{
 					pPlayer->nWaterPal = 0;
-					auto pUpper = getUpperLink(nSector);
+					auto pUpper = pSector->upperLink;
 					if (pUpper && pUpper->hasX()) pPlayer->nWaterPal = pUpper->x().data2;
 				}
 #endif

@@ -53,7 +53,21 @@ enum {
 
 struct Collision;
 bool FindSector(int nX, int nY, int nZ, int *nSector);
+inline bool FindSector(int nX, int nY, int nZ, sectortype** ppSector)
+{
+    int n = sectnum(*ppSector);
+    bool res = FindSector(nX, nY, nZ, &n);
+    *ppSector = &sector[n];
+    return res;
+}
 bool FindSector(int nX, int nY, int *nSector);
+inline bool FindSector(int nX, int nY, sectortype** ppSector)
+{
+    int n = sectnum(*ppSector);
+    bool res = FindSector(nX, nY, &n);
+    *ppSector = &sector[n];
+    return res;
+}
 bool CheckProximity(DBloodActor *pSprite, int nX, int nY, int nZ, int nSector, int nDist);
 bool CheckProximityPoint(int nX1, int nY1, int nZ1, int nX2, int nY2, int nZ2, int nDist);
 bool CheckProximityWall(walltype* pWall, int x, int y, int nDist);
@@ -65,7 +79,8 @@ int VectorScan(DBloodActor *pSprite, int nOffset, int nZOffset, int dx, int dy, 
 void GetZRange(DBloodActor *pSprite, int *ceilZ, Collision *ceilHit, int *floorZ, Collision *floorHit, int nDist, unsigned int nMask, unsigned int nClipParallax = 0);
 void GetZRangeAtXYZ(int x, int y, int z, int nSector, int *ceilZ, Collision *ceilHit, int *floorZ, Collision *floorHit, int nDist, unsigned int nMask, unsigned int nClipParallax = 0);
 int GetDistToLine(int x1, int y1, int x2, int y2, int x3, int y3);
-unsigned int ClipMove(vec3_t* pos, int *nSector, int xv, int yv, int wd, int cd, int fd, unsigned int nMask, int tracecount = 3);
+[[deprecated]] unsigned int ClipMove(vec3_t* pos, int *nSector, int xv, int yv, int wd, int cd, int fd, unsigned int nMask, int tracecount = 3);
+unsigned int ClipMove(vec3_t* pos, sectortype** pSector, int xv, int yv, int wd, int cd, int fd, unsigned int nMask, int tracecount = 3);
 BitArray GetClosestSpriteSectors(int nSector, int x, int y, int nDist, TArray<walltype*>* pWalls, bool newSectCheckMethod = false);
 int picWidth(int nPic, int repeat);
 int picHeight(int nPic, int repeat);

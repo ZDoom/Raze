@@ -377,6 +377,11 @@ inline void ChangeActorSect(DBloodActor* actor, int stat)
 	ChangeSpriteSect(actor->GetSpriteIndex(), stat);
 }
 
+inline void ChangeActorSect(DBloodActor* actor, sectortype* stat)
+{
+	ChangeSpriteSect(actor->GetSpriteIndex(), sectnum(stat));
+}
+
 inline int Collision::actorIndex(DBloodActor* actor)
 {
 	return int(actor - bloodActors);

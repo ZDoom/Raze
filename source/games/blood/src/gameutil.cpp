@@ -712,6 +712,22 @@ unsigned int ClipMove(vec3_t *pos, int *nSector, int xv, int yv, int wd, int cd,
     return nRes;
 }
 
+unsigned int ClipMove(vec3_t* pos, sectortype** pSector, int xv, int yv, int wd, int cd, int fd, unsigned int nMask, int tracecount)
+{
+    auto opos = *pos;
+    sectortype* bakSect = *pSector;
+    unsigned int nRes = clipmove(pos, &bakSect, xv << 14, yv << 14, wd, cd, fd, nMask, tracecount);
+    if (bakSect == nullptr)
+    {
+        *pos = opos;
+    }
+    else
+    {
+        *pSector = bakSect;
+    }
+    return nRes;
+}
+
 BitArray GetClosestSpriteSectors(int nSector, int x, int y, int nDist, TArray<walltype*>* pWalls, bool newSectCheckMethod)
 {
     // by default this function fails with sectors that linked with wide spans, or there was more than one link to the same sector. for example...
