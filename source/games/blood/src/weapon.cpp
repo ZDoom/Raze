@@ -2680,7 +2680,7 @@ void teslaHit(DBloodActor *missileactor, int a2)
             spritetype *pHitSprite = &hitactor->s();
             if (pHitSprite->flags&32)
                 continue;
-            if (CheckSector(sectorMap, pHitSprite) && CheckProximity(hitactor, x, y, z, nSector, nDist))
+            if (CheckSector(sectorMap, pHitSprite) && CheckProximity(hitactor, x, y, z, pSector, nDist))
             {
                 int dx = pMissile->x-pHitSprite->x;
                 int dy = pMissile->y-pHitSprite->y;
@@ -2697,7 +2697,7 @@ void teslaHit(DBloodActor *missileactor, int a2)
         spritetype *pHitSprite = &hitactor->s();
         if (pHitSprite->flags&32)
             continue;
-        if (CheckSector(sectorMap, pHitSprite) && CheckProximity(hitactor, x, y, z, nSector, nDist))
+        if (CheckSector(sectorMap, pHitSprite) && CheckProximity(hitactor, x, y, z, pSector, nDist))
         {
             XSPRITE *pXSprite = &hitactor->x();
             if (!pXSprite->locked)

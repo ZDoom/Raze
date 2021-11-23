@@ -111,7 +111,7 @@ void StompSeqCallback(int, DBloodActor* actor1)
 					continue;
 				if (pSprite2->flags & 32)
 					continue;
-                if (CheckSector(sectorMap, pSprite2) && CheckProximity(actor2, x, y, z, nSector, vc))
+                if (CheckSector(sectorMap, pSprite2) && CheckProximity(actor2, x, y, z, pSector, vc))
 				{
 					int top, bottom;
 					GetActorExtents(actor1, &top, &bottom);
@@ -142,7 +142,7 @@ void StompSeqCallback(int, DBloodActor* actor1)
 		spritetype* pSprite2 = &actor2->s();
 		if (pSprite2->flags & 32)
 			continue;
-		if (CheckSector(sectorMap, pSprite2) && CheckProximity(actor2, x, y, z, nSector, vc))
+		if (CheckSector(sectorMap, pSprite2) && CheckProximity(actor2, x, y, z, pSector, vc))
 		{
 			XSPRITE* pXSprite = &actor2->x();
 			if (pXSprite->locked)

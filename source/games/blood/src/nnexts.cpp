@@ -1196,7 +1196,7 @@ void nnExtProcessSuperSprites()
             int x = pProxSpr->x;
             int y = pProxSpr->y;
             int z = pProxSpr->z;	
-            int sectnum = pProxSpr->sectnum;
+            auto pSect = pProxSpr->sector();
 
             if (!pXProxSpr->DudeLockout)
             {
@@ -1204,7 +1204,7 @@ void nnExtProcessSuperSprites()
                 while (auto affected = it.Next())
                 {
                     if (!affected->hasX() || affected->x().health <= 0) continue;
-                    else if (CheckProximity(affected, x, y, z, sectnum, okDist))
+                    else if (CheckProximity(affected, x, y, z, pSect, okDist))
                     {
                         trTriggerSprite(gProxySpritesList[i], kCmdSpriteProximity);
                         break;
@@ -1219,7 +1219,7 @@ void nnExtProcessSuperSprites()
                     if (!pPlayer || !pPlayer->actor->hasX() || pPlayer->pXSprite->health <= 0)
                         continue;
 
-                    if (pPlayer->pXSprite->health > 0 && CheckProximity(gPlayer->actor, x, y, z, sectnum, okDist))
+                    if (pPlayer->pXSprite->health > 0 && CheckProximity(gPlayer->actor, x, y, z, pSect, okDist))
                     {
                         trTriggerSprite(gProxySpritesList[i], kCmdSpriteProximity);
                         break;

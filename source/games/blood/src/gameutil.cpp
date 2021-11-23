@@ -102,7 +102,7 @@ bool FindSector(int nX, int nY, int *nSector)
     return 0;
 }
 
-bool CheckProximity(DBloodActor *actor, int nX, int nY, int nZ, int nSector, int nDist)
+bool CheckProximity(DBloodActor *actor, int nX, int nY, int nZ, sectortype* pSector, int nDist)
 {
     assert(actor != NULL);
     auto pSprite = &actor->s();
@@ -119,11 +119,11 @@ bool CheckProximity(DBloodActor *actor, int nX, int nY, int nZ, int nSector, int
 
     int bottom, top;
     GetActorExtents(actor, &top, &bottom);
-    if (cansee(pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, nX, nY, nZ, nSector))
+    if (cansee(pSprite->x, pSprite->y, pSprite->z, pSprite->sector(), nX, nY, nZ, pSector))
         return 1;
-    if (cansee(pSprite->x, pSprite->y, bottom, pSprite->sectnum, nX, nY, nZ, nSector))
+    if (cansee(pSprite->x, pSprite->y, bottom, pSprite->sector(), nX, nY, nZ, pSector))
         return 1;
-    if (cansee(pSprite->x, pSprite->y, top, pSprite->sectnum, nX, nY, nZ, nSector))
+    if (cansee(pSprite->x, pSprite->y, top, pSprite->sector(), nX, nY, nZ, pSector))
         return 1;
     return 0;
 }
