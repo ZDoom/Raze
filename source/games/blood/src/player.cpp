@@ -1236,10 +1236,9 @@ void CheckPickUp(PLAYER *pPlayer)
     }
 }
 
-int ActionScan(PLAYER *pPlayer, int *pIndex, DBloodActor** pAct)
+int ActionScan(PLAYER *pPlayer, HITINFO* out)
 {
-    *pIndex = 0;
-    *pAct = nullptr;
+    *out = {};
     spritetype *pSprite = pPlayer->pSprite;
     int x = bcos(pSprite->ang);
     int y = bsin(pSprite->ang);
@@ -1253,7 +1252,7 @@ int ActionScan(PLAYER *pPlayer, int *pIndex, DBloodActor** pAct)
         case 3:
             {
             if (!gHitInfo.hitactor || !gHitInfo.hitactor->hasX()) return -1;
-            *pAct = gHitInfo.hitactor;
+            out->hitactor = gHitInfo.hitactor;
             spritetype* pSprite = &gHitInfo.hitactor->s();
             XSPRITE* pXSprite = &gHitInfo.hitactor->x();
             if (pSprite->statnum == kStatThing)
@@ -1287,13 +1286,14 @@ int ActionScan(PLAYER *pPlayer, int *pIndex, DBloodActor** pAct)
         case 4:
         {
             auto pWall = gHitInfo.hitWall;
-            *pIndex = wallnum(gHitInfo.hitWall);
+            out->hitWall = gHitInfo.hitWall;
             if (pWall->hasX() && pWall->xw().triggerPush)
                 return 0;
             if (pWall->twoSided())
             {
                 auto sect = pWall->nextSector();
-                *pIndex = sectnum(sect);
+                out->hitWall = nullptr;
+                out->hitSect = sect;
                 if (sect->hasX() && sect->xs().Wallpush)
                     return 6;
             }
@@ -1303,14 +1303,14 @@ int ActionScan(PLAYER *pPlayer, int *pIndex, DBloodActor** pAct)
         case 2:
         {
             auto pSector = gHitInfo.hitSect;
-            *pIndex = sectnum(gHitInfo.hitSect);
+            out->hitSect = gHitInfo.hitSect;
             if (pSector->hasX() && pSector->xs().Push)
                 return 6;
             break;
         }
         }
     }
-    *pIndex = pSprite->sectnum;
+    out->hitSect = pSprite->sector();
     if (pSprite->sector()->hasX() && pSprite->sector()->xs().Push)
         return 6;
     return -1;
@@ -1501,14 +1501,14 @@ void ProcessInput(PLAYER *pPlayer)
     }
     if (pInput->actions & SB_OPEN)
     {
-        int a2;
-        DBloodActor* act;
-        int hit = ActionScan(pPlayer, &a2, &act);
+        HITINFO result;
+
+        int hit = ActionScan(pPlayer, &result);
         switch (hit)
         {
         case 6:
         {
-            auto pSector = &sector[a2];
+            auto pSector = result.hitSect;
             auto pXSector = &pSector->xs();
             int key = pXSector->Key;
             if (pXSector->locked && pPlayer == gMe)
@@ -1533,7 +1533,7 @@ void ProcessInput(PLAYER *pPlayer)
         }
         case 0:
         {
-            auto pWall = &wall[a2];
+            auto pWall = result.hitWall;
             auto pXWall = &pWall->xw();
             int key = pXWall->key;
             if (pXWall->locked && pPlayer == gMe)
@@ -1558,6 +1558,7 @@ void ProcessInput(PLAYER *pPlayer)
         }
         case 3:
         {
+            auto act = result.hitactor;
             XSPRITE *pXSprite = &act->x();
             int key = pXSprite->key;
             if (pXSprite->locked && pPlayer == gMe && pXSprite->lockMsg)
