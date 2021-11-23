@@ -670,21 +670,21 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, EventObject& w, Ev
 		{
 			DBloodActor* a = arc.isWriting()? w.actor() : nullptr;
 			arc("actor", a);
-			if (arc.isReading()) w = a;
+			if (arc.isReading()) w = EventObject(a);
 			break;
 		}
 		case 1:
 		{
 			auto s = arc.isWriting()? w.sector() : nullptr;
 			arc("sector", s);
-			if (arc.isReading()) w = s;
+			if (arc.isReading()) w = EventObject(s);
 			break;
 		}
 		case 2:
 		{
 			auto s = arc.isWriting()? w.wall() : nullptr;
 			arc("wall", s);
-			if (arc.isReading()) w = s;
+			if (arc.isReading()) w = EventObject(s);
 			break;
 		}
 		}

@@ -47,10 +47,6 @@ public:
 	explicit EventObject(sectortype *sect) { index = (sectnum(sect) << 8) | Sector; }
 	explicit EventObject(walltype* wall) { index = (wallnum(wall) << 8) | Wall; }
 
-	EventObject& operator=(DBloodActor* actor_) { ActorP = actor_; assert(isActor()); /* GC:WriteBarrier(actor);*/ return *this; }
-	EventObject& operator=(sectortype *sect) { index = (sectnum(sect) << 8) | Sector; return *this; }
-	EventObject& operator=(walltype* wall) { index = (wallnum(wall) << 8) | Wall; return *this; }
-
 	bool isActor() const { return (index&7) == Actor; }
 	bool isSector() const { return (index&7) == Sector; }
 	bool isWall() const { return (index&7) == Wall; }
@@ -66,6 +62,7 @@ public:
 	FString description() const;
 
 	// refactoring helper
+	/*
 	[[deprecated]] void fromElements(int type, int index, DBloodActor* act)
 	{
 		if (type == 0) *this = &::wall[index];
@@ -73,6 +70,7 @@ public:
 		else if (type == 3) *this = act;
 		else assert(false);
 	}
+	*/
 };
 
 

@@ -495,9 +495,7 @@ void nnExtResetGlobals()
         TRCONDITION* pCond = &gCondition[i];
         for (unsigned k = 0; k < kMaxTracedObjects; k++)
         {
-            pCond->obj[k].actor = nullptr;
-            pCond->obj[k].index_ = pCond->obj[k].cmd = 0;
-            pCond->obj[k].type = -1;
+            pCond->obj[k].obj = EventObject(nullptr);
         }
         pCond->actor = nullptr;
         pCond->length = 0;
@@ -839,9 +837,7 @@ void nnExtInitModernStuff()
             if (count >= kMaxTracedObjects)
                 condError(iactor, "Max(%d) objects to track reached for condition #%d, RXID: %d!");
 
-            pCond->obj[count].type = OBJ_SPRITE;
-            pCond->obj[count].index_ = 0;
-            pCond->obj[count].actor = iactor2;
+            pCond->obj[count].obj = EventObject(iactor2);
             pCond->obj[count++].cmd = (uint8_t)pXSpr->command;
         }
 
@@ -851,9 +847,7 @@ void nnExtInitModernStuff()
             else if (count >= kMaxTracedObjects)
                 condError(iactor, "Max(%d) objects to track reached for condition #%d, RXID: %d!");
 
-            pCond->obj[count].type = OBJ_SECTOR;
-            pCond->obj[count].actor = nullptr;
-            pCond->obj[count].index_ = sectnum(&sect);
+            pCond->obj[count].obj = EventObject(&sect);
             pCond->obj[count++].cmd = sect.xs().command;
         }
 
@@ -871,9 +865,7 @@ void nnExtInitModernStuff()
             if (count >= kMaxTracedObjects)
                 condError(iactor, "Max(%d) objects to track reached for condition #%d, RXID: %d!");
                 
-            pCond->obj[count].type = OBJ_WALL;
-            pCond->obj[count].index_ = wallnum(&wal);
-            pCond->obj[count].actor = nullptr;
+            pCond->obj[count].obj = EventObject(&wal);
             pCond->obj[count++].cmd = wal.xw().command;
         }
 
@@ -1114,7 +1106,7 @@ void nnExtProcessSuperSprites()
             if (pXCond->data1 >= kCondGameBase && pXCond->data1 < kCondGameMax)
             {
                 EVENT evn;
-                evn.target = pCond->actor;
+                evn.target = EventObject(pCond->actor);
                 evn.cmd = (int8_t)pXCond->command;
                 evn.funcID = kCallbackMax;
                 useCondition(pCond->actor, evn);
@@ -1125,7 +1117,7 @@ void nnExtProcessSuperSprites()
                 for (unsigned k = 0; k < pCond->length; k++)
                 {
                     EVENT evn;
-                    evn.target.fromElements(pCond->obj[k].type, pCond->obj[k].index_, pCond->obj[k].actor);
+                    evn.target = pCond->obj[k].obj;
                     evn.cmd    = pCond->obj[k].cmd;
                     evn.funcID = kCallbackMax;
                     useCondition(pCond->actor, evn);
@@ -2129,9 +2121,8 @@ void trPlayerCtrlLink(DBloodActor* sourceactor, PLAYER* pPlayer, bool checkCondi
             // search for player control sprite and replace it with actual player sprite
             for (unsigned k = 0; k < pCond->length; k++) 
             {
-                if (pCond->obj[k].type != OBJ_SPRITE || pCond->obj[k].actor != sourceactor) continue;
-                pCond->obj[k].actor = pPlayer->actor;
-                pCond->obj[k].index_ = 0;
+                if (!pCond->obj[k].obj.isActor() || pCond->obj[k].obj.actor() != sourceactor) continue;
+                pCond->obj[k].obj = EventObject(pPlayer->actor);
                 pCond->obj[k].cmd = (uint8_t)pPlayer->pXSprite->command;
                 break;
             }
@@ -4649,8 +4640,8 @@ void condUpdateObjectIndex(DBloodActor* oldActor, DBloodActor* newActor)
         TRCONDITION* pCond = &gCondition[i];
         for (unsigned k = 0; k < pCond->length; k++) 
         {
-            if (pCond->obj[k].type != OBJ_SPRITE || pCond->obj[k].actor != oldActor) continue;
-            pCond->obj[k].actor = newActor;
+            if (!pCond->obj[k].obj.isActor() || pCond->obj[k].obj.actor() != oldActor) continue;
+            pCond->obj[k].obj = EventObject(newActor);
             break;
         }
     }
@@ -9219,9 +9210,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, OBJECTS_TO_TRACK& 
     if (arc.isReading()) w = {};
     if (arc.BeginObject(keyname))
     {
-        arc("type", w.type, &nul.type)
-            ("index", w.index_, &nul.index_)
-            ("xrepeat", w.cmd, &nul.cmd)
+        arc("obj", w.obj, &nul.obj)
+            ("cmd", w.cmd, &nul.cmd)
             .EndObject();
     }
     return arc;
