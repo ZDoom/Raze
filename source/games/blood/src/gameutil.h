@@ -79,7 +79,6 @@ int VectorScan(DBloodActor *pSprite, int nOffset, int nZOffset, int dx, int dy, 
 void GetZRange(DBloodActor *pSprite, int *ceilZ, Collision *ceilHit, int *floorZ, Collision *floorHit, int nDist, unsigned int nMask, unsigned int nClipParallax = 0);
 void GetZRangeAtXYZ(int x, int y, int z, sectortype* pSector, int *ceilZ, Collision *ceilHit, int *floorZ, Collision *floorHit, int nDist, unsigned int nMask, unsigned int nClipParallax = 0);
 int GetDistToLine(int x1, int y1, int x2, int y2, int x3, int y3);
-[[deprecated]] unsigned int ClipMove(vec3_t* pos, int *nSector, int xv, int yv, int wd, int cd, int fd, unsigned int nMask, int tracecount = 3);
 unsigned int ClipMove(vec3_t* pos, sectortype** pSector, int xv, int yv, int wd, int cd, int fd, unsigned int nMask, int tracecount = 3);
 BitArray GetClosestSpriteSectors(int nSector, int x, int y, int nDist, TArray<walltype*>* pWalls, bool newSectCheckMethod = false);
 int picWidth(int nPic, int repeat);

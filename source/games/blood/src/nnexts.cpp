@@ -1672,9 +1672,9 @@ void debrisMove(int listIndex)
     auto actor = gPhysSpritesList[listIndex];
     XSPRITE* pXSprite = &actor->x();
     spritetype* pSprite = &actor->s();   
-    int nSector = pSprite->sectnum;
+    auto pSector = pSprite->sector();
 
-    if (!actor->hasX() || !validSectorIndex(pSprite->sectnum))
+    if (!actor->hasX() || !pSector)
     {
         gPhysSpritesList[listIndex] = nullptr;
         return;
@@ -1692,7 +1692,7 @@ void debrisMove(int listIndex)
 
     bool uwater = false;
     int tmpFraction = actor->spriteMass.fraction;
-    if (sector[nSector].hasX() && sector[nSector].xs().Underwater) 
+    if (pSector->hasX() && pSector->xs().Underwater) 
     {
         tmpFraction >>= 1;
         uwater = true;
@@ -1704,21 +1704,21 @@ void debrisMove(int listIndex)
         auto oldcstat = pSprite->cstat;
         pSprite->cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
-        moveHit = actor->hit.hit = ClipMove(&pSprite->pos, &nSector, actor->xvel >> 12,
+        moveHit = actor->hit.hit = ClipMove(&pSprite->pos, &pSector, actor->xvel >> 12,
             actor->yvel >> 12, clipDist, ceilDist, floorDist, CLIPMASK0);
 
         pSprite->cstat = oldcstat;
-        if (pSprite->sectnum != nSector) 
+        if (pSprite->sector() != pSector) 
         {
-            if (!validSectorIndex(nSector)) return;
-            else ChangeActorSect(actor, nSector);
+            if (!pSector) return;
+            else ChangeActorSect(actor, pSector);
         }
 
-        if (sector[nSector].type >= kSectorPath && sector[nSector].type <= kSectorRotate) 
+        if (pSector->type >= kSectorPath && pSector->type <= kSectorRotate) 
         {
-            int nSector2 = nSector;
-            if (pushmove(&pSprite->pos, &nSector2, clipDist, ceilDist, floorDist, CLIPMASK0) != -1)
-                nSector = nSector2;
+            auto pSector2 = pSector;
+            if (pushmove(&pSprite->pos, &pSector2, clipDist, ceilDist, floorDist, CLIPMASK0) != -1)
+                pSector = pSector2;
         }
 
         if (actor->hit.hit.type == kHitWall)
@@ -1728,20 +1728,20 @@ void debrisMove(int listIndex)
         }
 
     } 
-    else if (!FindSector(pSprite->x, pSprite->y, pSprite->z, &nSector)) 
+    else if (!FindSector(pSprite->x, pSprite->y, pSprite->z, &pSector)) 
     {
         return;
     }
 
-    if (pSprite->sectnum != nSector)
+    if (pSprite->sector() != pSector)
     {
-            assert(validSectorIndex(nSector));
-        ChangeActorSect(actor, nSector);
-        nSector = pSprite->sectnum;
-        }
+        assert(pSector);
+        ChangeActorSect(actor, pSector);
+        pSector = pSprite->sector();
+    }
 
-    if (sector[nSector].hasX())
-        uwater = sector[nSector].xs().Underwater;
+    if (pSector->hasX())
+        uwater = pSector->xs().Underwater;
 
     if (actor->zvel)
         pSprite->z += actor->zvel >> 8;
@@ -1754,11 +1754,11 @@ void debrisMove(int listIndex)
     if ((pXSprite->physAttr & kPhysDebrisSwim) && uwater) 
     {
         int vc = 0;
-        int cz = getceilzofslope(nSector, pSprite->x, pSprite->y);
-        int fz = getflorzofslope(nSector, pSprite->x, pSprite->y);
+        int cz = getceilzofslopeptr(pSector, pSprite->x, pSprite->y);
+        int fz = getflorzofslopeptr(pSector, pSprite->x, pSprite->y);
         int div = ClipLow(bottom - top, 1);
 
-        if (getLowerLink(nSector)) cz += (cz < 0) ? 0x500 : -0x500;
+        if (pSector->lowerLink) cz += (cz < 0) ? 0x500 : -0x500;
         if (top > cz && (!(pXSprite->physAttr & kPhysDebrisFloat) || fz <= bottom << 2))
             actor->zvel -= DivScale((bottom - ceilZ) >> 6, mass, 8);
 
