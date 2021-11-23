@@ -598,9 +598,9 @@ void evSendActor(DBloodActor* actor, int rxId, COMMAND_ID command)
 	evSend(actor, 0, SS_SPRITE, rxId, command);
 }
 
-void evSendSector(int index, int rxId, COMMAND_ID command)
+void evSendSector(sectortype* sect, int rxId, COMMAND_ID command)
 {
-	evSend(nullptr, index, SS_SECTOR, rxId, command);
+	evSend(nullptr, sectnum(sect), SS_SECTOR, rxId, command);
 }
 
 void evSendWall(walltype* wal, int rxId, COMMAND_ID command)

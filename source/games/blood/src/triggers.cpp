@@ -106,7 +106,7 @@ bool SetSectorState(int nSector, XSECTOR *pXSector, int nState)
     if (nState == 1)
     {
         if (pXSector->command != kCmdLink && pXSector->triggerOn && pXSector->txID)
-            evSendSector(nSector,pXSector->txID, (COMMAND_ID)pXSector->command);
+            evSendSector(pSector,pXSector->txID, (COMMAND_ID)pXSector->command);
         if (pXSector->stopOn)
         {
             pXSector->stopOn = 0;
@@ -118,7 +118,7 @@ bool SetSectorState(int nSector, XSECTOR *pXSector, int nState)
     else
     {
         if (pXSector->command != kCmdLink && pXSector->triggerOff && pXSector->txID)
-            evSendSector(nSector,pXSector->txID, (COMMAND_ID)pXSector->command);
+            evSendSector(pSector,pXSector->txID, (COMMAND_ID)pXSector->command);
         if (pXSector->stopOff)
         {
             pXSector->stopOn = 0;
@@ -1065,7 +1065,7 @@ int VCrushBusy(unsigned int nSector, unsigned int a2)
         pSector->floorz = v10;
     pXSector->busy = a2;
     if (pXSector->command == kCmdLink && pXSector->txID)
-        evSendSector(nSector,pXSector->txID, kCmdLink);
+        evSendSector(pSector,pXSector->txID, kCmdLink);
     if ((a2&0xffff) == 0)
     {
         SetSectorState(nSector, pXSector, FixedToInt(a2));
@@ -1116,7 +1116,7 @@ int VSpriteBusy(unsigned int nSector, unsigned int a2)
     }
     pXSector->busy = a2;
     if (pXSector->command == kCmdLink && pXSector->txID)
-        evSendSector(nSector,pXSector->txID, kCmdLink);
+        evSendSector(pSector,pXSector->txID, kCmdLink);
     if ((a2&0xffff) == 0)
     {
         SetSectorState(nSector, pXSector, FixedToInt(a2));
@@ -1213,7 +1213,7 @@ int VDoorBusy(unsigned int nSector, unsigned int a2)
     ZTranslateSector(nSector, pXSector, a2, nWave);
     pXSector->busy = a2;
     if (pXSector->command == kCmdLink && pXSector->txID)
-        evSendSector(nSector,pXSector->txID, kCmdLink);
+        evSendSector(pSector,pXSector->txID, kCmdLink);
     if ((a2&0xffff) == 0)
     {
         SetSectorState(nSector, pXSector, FixedToInt(a2));
@@ -1241,7 +1241,7 @@ int HDoorBusy(unsigned int nSector, unsigned int a2)
     ZTranslateSector(nSector, pXSector, a2, nWave);
     pXSector->busy = a2;
     if (pXSector->command == kCmdLink && pXSector->txID)
-        evSendSector(nSector,pXSector->txID, kCmdLink);
+        evSendSector(pSector, pXSector->txID, kCmdLink);
     if ((a2&0xffff) == 0)
     {
         SetSectorState(nSector, pXSector, FixedToInt(a2));
@@ -1268,7 +1268,7 @@ int RDoorBusy(unsigned int nSector, unsigned int a2)
     ZTranslateSector(nSector, pXSector, a2, nWave);
     pXSector->busy = a2;
     if (pXSector->command == kCmdLink && pXSector->txID)
-        evSendSector(nSector,pXSector->txID, kCmdLink);
+        evSendSector(pSector, pXSector->txID, kCmdLink);
     if ((a2&0xffff) == 0)
     {
         SetSectorState(nSector, pXSector, FixedToInt(a2));
@@ -1301,7 +1301,7 @@ int StepRotateBusy(unsigned int nSector, unsigned int a2)
     }
     pXSector->busy = a2;
     if (pXSector->command == kCmdLink && pXSector->txID)
-        evSendSector(nSector,pXSector->txID, kCmdLink);
+        evSendSector(pSector, pXSector->txID, kCmdLink);
     if ((a2&0xffff) == 0)
     {
         SetSectorState(nSector, pXSector, FixedToInt(a2));
@@ -1320,7 +1320,7 @@ int GenSectorBusy(unsigned int nSector, unsigned int a2)
     XSECTOR* pXSector = &pSector->xs();
     pXSector->busy = a2;
     if (pXSector->command == kCmdLink && pXSector->txID)
-        evSendSector(nSector,pXSector->txID, kCmdLink);
+        evSendSector(pSector, pXSector->txID, kCmdLink);
     if ((a2&0xffff) == 0)
     {
         SetSectorState(nSector, pXSector, FixedToInt(a2));
@@ -1725,7 +1725,7 @@ void trTriggerSector(sectortype* pSector, int command)
             pXSector->isTriggered = 1;
         
         if (pXSector->decoupled && pXSector->txID > 0)
-            evSendSector(sectnum(pSector),pXSector->txID, (COMMAND_ID)pXSector->command);
+            evSendSector(pSector, pXSector->txID, (COMMAND_ID)pXSector->command);
         
         else {
             EVENT event;
