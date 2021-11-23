@@ -1492,7 +1492,7 @@ DBloodActor* getNextIncarnation(DBloodActor* actor)
     XSPRITE* pXSprite = &actor->x();
     for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++)
     {
-        if (rxBucket[i].type != SS_SPRITE) continue;
+        if (!rxBucket[i].isActor()) continue;
 		auto rxactor = rxBucket[i].actor();
         if (actor != rxactor && rxactor->s().statnum == kStatInactive) return rxactor;
     }

@@ -1157,13 +1157,12 @@ void nnExtProcessSuperSprites()
             rx = pXWind->txID;
             for (j = bucketHead[rx]; j < bucketHead[rx + 1]; j++)
             {
-                if (rxBucket[j].type != OBJ_SECTOR)
-                    continue;
+                if (!rxBucket[j].isSector()) continue;
+                auto pSector = rxBucket[j].sector();
+                XSECTOR* pXSector = &pSector->xs();
 
-                int index = rxBucket[j].rxindex;
-                XSECTOR* pXSector = &sector[index].xs();
                 if ((!pXSector->locked) && (fWindAlways || pXSector->windAlways || pXSector->busy))
-                    windGenDoVerticalWind(pXWind->sysData2, index);
+                    windGenDoVerticalWind(pXWind->sysData2, sectnum(pSector));
             }
 
             DBloodActor* pXRedir = nullptr; // check redirected TX buckets
@@ -1171,13 +1170,12 @@ void nnExtProcessSuperSprites()
             {
                 for (j = bucketHead[rx]; j < bucketHead[rx + 1]; j++)
                 {
-                    if (rxBucket[j].type != OBJ_SECTOR)
-                        continue;
+                    if (!rxBucket[j].isSector()) continue;
+                    auto pSector = rxBucket[j].sector();
+                    XSECTOR* pXSector = &pSector->xs();
 
-                    int index = rxBucket[j].rxindex;
-                    XSECTOR* pXSector = &sector[index].xs();
                     if ((!pXSector->locked) && (fWindAlways || pXSector->windAlways || pXSector->busy))
-                        windGenDoVerticalWind(pXWind->sysData2, index);
+                        windGenDoVerticalWind(pXWind->sysData2, sectnum(pSector));
                 }
             }
 
@@ -1976,8 +1974,10 @@ void windGenStopWindOnSectors(DBloodActor* sourceactor)
 
     for (int i = bucketHead[pXSource->txID]; i < bucketHead[pXSource->txID + 1]; i++) 
     {
-        if (rxBucket[i].type != OBJ_SECTOR) continue;
-        XSECTOR* pXSector = &sector[rxBucket[i].rxindex].xs();
+        if (!rxBucket[i].isSector()) continue;
+        auto pSector = rxBucket[i].sector();
+        XSECTOR* pXSector = &pSector->xs();
+
         if ((pXSector->state == 1 && !pXSector->windAlways)
             || ((pSource->flags & kModernTypeFlag1) && !(pSource->flags & kModernTypeFlag2))) 
         {
@@ -1992,8 +1992,10 @@ void windGenStopWindOnSectors(DBloodActor* sourceactor)
     {
         for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) 
         {
-            if (rxBucket[i].type != OBJ_SECTOR) continue;
-            XSECTOR* pXSector = &sector[rxBucket[i].rxindex].xs();
+            if (!rxBucket[i].isSector()) continue;
+            auto pSector = rxBucket[i].sector();
+            XSECTOR* pXSector = &pSector->xs();
+
             if ((pXSector->state == 1 && !pXSector->windAlways) || (pSource->flags & kModernTypeFlag2))
                 pXSector->windVel = 0;
         }
