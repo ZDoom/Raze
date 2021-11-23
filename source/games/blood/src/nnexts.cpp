@@ -4541,8 +4541,8 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
                     if (!PUSH) return retn;
                 switch (var)
                 {
-                case 0: case 4: condPush(aCond, OBJ_WALL, gHitInfo.hitwall, nullptr);       break;
-                case 1: case 2: condPush(aCond, OBJ_SECTOR, gHitInfo.hitsect, nullptr);     break;
+                case 0: case 4: condPush(aCond, OBJ_WALL, wallnum(gHitInfo.hitWall), nullptr);       break;
+                case 1: case 2: condPush(aCond, OBJ_SECTOR, sectnum(gHitInfo.hitSect), nullptr);     break;
                 case 3:         condPush(aCond, OBJ_SPRITE, 0, gHitInfo.hitactor);   break;
                     }
 

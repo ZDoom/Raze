@@ -803,7 +803,7 @@ static void unicultThinkChase(DBloodActor* actor)
                             break;
                         case 0:
                         case 4:
-                            pHWall = &wall[gHitInfo.hitwall];
+                            pHWall = gHitInfo.hitWall;
                             if (pHWall->hasX()) pXHWall = &pHWall->xw();
                             hscn = (pHWall->cstat & CSTAT_WALL_BLOCK_HITSCAN); blck = (pHWall->cstat & CSTAT_WALL_BLOCK);
                             break;
@@ -811,13 +811,8 @@ static void unicultThinkChase(DBloodActor* actor)
 
                         switch (hit) {
                         case 0:
-                            //if (hit == 0) viewSetSystemMessage("WALL HIT %d", gHitInfo.hitwall);
-                            [[fallthrough]];
                         case 1:
-                            //if (hit == 1) viewSetSystemMessage("CEIL HIT %d", gHitInfo.hitsect);
-                            [[fallthrough]];
                         case 2:
-                            //if (hit == 2) viewSetSystemMessage("FLOOR HIT %d", gHitInfo.hitsect);
                             if (weaponType != kGenDudeWeaponMissile && genDudeAdjustSlope(actor, dist, weaponType) 
                                 && dist < (int)(6000 + Random(2000)) && pExtra->baseDispersion < kGenDudeMaxDispersion >> 1) break;
 
@@ -955,7 +950,6 @@ static void unicultThinkChase(DBloodActor* actor)
                                 bool masked = (pHWall->cstat & CSTAT_WALL_MASKED);
                                 if (masked) VectorScan(actor, 0, 0, bcos(pSprite->ang), bsin(pSprite->ang), actor->dudeSlope, dist, 1);
 
-                                //viewSetSystemMessage("WALL VHIT: %d", gHitInfo.hitwall);
                                 if ((actor != gHitInfo.hitactor) && (pHWall->type != kWallGib || !masked || pXHWall == NULL || !pXHWall->triggerVector || pXHWall->locked)) 
                                 {
                                     if (spriteIsUnderwater(actor)) aiGenDudeNewState(actor, &genDudeChaseW);

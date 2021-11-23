@@ -28,15 +28,16 @@ BEGIN_BLD_NS
 
 struct HITINFO {
     DBloodActor* hitactor;
-    int hitsect;
-    int hitwall;
+    sectortype* hitSect;
+    walltype* hitWall;
     int hitx;
     int hity;
     int hitz;
 
     void clearObj()
     {
-        hitsect = hitwall = -1;
+        hitSect = nullptr;
+        hitWall = nullptr;
         hitactor = nullptr;
     }
     void set(hitdata_t* hit);

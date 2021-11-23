@@ -1286,8 +1286,8 @@ int ActionScan(PLAYER *pPlayer, int *pIndex, DBloodActor** pAct)
         case 0:
         case 4:
         {
-            auto pWall = &wall[gHitInfo.hitwall];
-            *pIndex = gHitInfo.hitwall;
+            auto pWall = gHitInfo.hitWall;
+            *pIndex = wallnum(gHitInfo.hitWall);
             if (pWall->hasX() && pWall->xw().triggerPush)
                 return 0;
             if (pWall->twoSided())
@@ -1302,8 +1302,8 @@ int ActionScan(PLAYER *pPlayer, int *pIndex, DBloodActor** pAct)
         case 1:
         case 2:
         {
-            auto pSector = &sector[gHitInfo.hitsect];
-            *pIndex = gHitInfo.hitsect;
+            auto pSector = gHitInfo.hitSect;
+            *pIndex = sectnum(gHitInfo.hitSect);
             if (pSector->hasX() && pSector->xs().Push)
                 return 6;
             break;

@@ -362,21 +362,21 @@ int HitScan(DBloodActor *actor, int z, int dx, int dy, int dz, unsigned int nMas
     gHitInfo.set(&hitData);
     hitscangoal.x = hitscangoal.y = 0x1ffffff;
     pSprite->cstat = bakCstat;
-    if (gHitInfo.hitwall >= numwalls || gHitInfo.hitsect >= numsectors)
-        return -1;
     if (gHitInfo.hitactor != nullptr)
         return 3;
-    if (gHitInfo.hitwall >= 0)
+    if (gHitInfo.hitWall != nullptr)
     {
-        if (wall[gHitInfo.hitwall].nextsector == -1)
+        auto pWall = gHitInfo.hitWall;
+
+        if (pWall->nextsector == -1)
             return 0;
         int nZCeil, nZFloor;
-        getzsofslope(wall[gHitInfo.hitwall].nextsector, gHitInfo.hitx, gHitInfo.hity, &nZCeil, &nZFloor);
+        getzsofslopeptr(pWall->nextSector(), gHitInfo.hitx, gHitInfo.hity, &nZCeil, &nZFloor);
         if (gHitInfo.hitz <= nZCeil || gHitInfo.hitz >= nZFloor)
             return 0;
         return 4;
     }
-    if (gHitInfo.hitsect >= 0)
+    if (gHitInfo.hitSect != nullptr)
         return 1 + (z < gHitInfo.hitz);
     return -1;
 }
@@ -413,8 +413,6 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
     pSprite->cstat = bakCstat;
     while (nNum--)
     {
-        if (gHitInfo.hitwall >= numwalls || gHitInfo.hitsect >= numsectors)
-            return -1;
         if (nRange && approxDist(gHitInfo.hitx - pSprite->x, gHitInfo.hity - pSprite->y) > nRange)
             return -1;
         if (gHitInfo.hitactor != nullptr)
@@ -467,15 +465,15 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
             pOther->cstat = bakCstat;
             continue;
         }
-        if (gHitInfo.hitwall >= 0)
+        if (gHitInfo.hitWall != nullptr)
         {
-            walltype *pWall = &wall[gHitInfo.hitwall];
-            if (pWall->nextsector == -1)
+            walltype *pWall = gHitInfo.hitWall;
+            if (!pWall->twoSided())
                 return 0;
-            sectortype *pSector = &sector[gHitInfo.hitsect];
+            sectortype *pSector = gHitInfo.hitSect;
             sectortype *pSectorNext = pWall->nextSector();
             int nZCeil, nZFloor;
-            getzsofslope(pWall->nextsector, gHitInfo.hitx, gHitInfo.hity, &nZCeil, &nZFloor);
+            getzsofslopeptr(pWall->nextSector(), gHitInfo.hitx, gHitInfo.hity, &nZCeil, &nZFloor);
             if (gHitInfo.hitz <= nZCeil)
                 return 0;
             if (gHitInfo.hitz >= nZFloor)
@@ -538,11 +536,11 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
             }
             return 4;
         }
-        if (gHitInfo.hitsect >= 0)
+        if (gHitInfo.hitSect != nullptr)
         {
             if (dz > 0)
             {
-                auto actor = getUpperLink(gHitInfo.hitsect);
+                auto actor = gHitInfo.hitSect->upperLink;
                 if (!actor) return 2;
                 auto link = actor->GetOwner();
                 gHitInfo.clearObj();
@@ -557,7 +555,7 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
             }
             else
             {
-                auto actor = getLowerLink(gHitInfo.hitsect);
+                auto actor = gHitInfo.hitSect->lowerLink;
                 if (!actor) return 1;
                 auto link = actor->GetOwner();
                 gHitInfo.clearObj();

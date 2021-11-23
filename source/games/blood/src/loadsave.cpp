@@ -662,9 +662,9 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, HITINFO& w, HITINF
 {
 	if (arc.BeginObject(keyname))
 	{
-		arc("sect", w.hitsect)
+		arc("sect", w.hitSect)
 			("sprite", w.hitactor)
-			("wall", w.hitwall)
+			("wall", w.hitWall)
 			("x", w.hitx)
 			("y", w.hity)
 			("z", w.hitz)

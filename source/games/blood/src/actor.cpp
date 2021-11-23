@@ -3850,8 +3850,7 @@ void actHitcodeToData(int a1, HITINFO* pHitInfo, DBloodActor** pActor, walltype*
 		break;
 	case 0:
 	case 4:
-		nWall = pHitInfo->hitwall;
-		if (validWallIndex(nWall)) pWall = &wall[nWall];
+		pWall = pHitInfo->hitWall;
 		break;
 	default:
 		break;
@@ -5367,8 +5366,8 @@ int MoveMissile(DBloodActor* actor)
 		}
 		else if (clipmoveresult.type == kHitWall)
 		{
-			gHitInfo.hitwall = clipmoveresult.index;
-			if (clipmoveresult.wall()->nextsector == -1) cliptype = 0;
+			gHitInfo.hitWall = clipmoveresult.wall();
+			if (!gHitInfo.hitWall->twoSided()) cliptype = 0;
 			else
 			{
 				int32_t fz, cz;
@@ -5434,7 +5433,7 @@ int MoveMissile(DBloodActor* actor)
 			ChangeActorSect(actor, nSector);
 		}
 		CheckLink(actor);
-		gHitInfo.hitsect = pSprite->sectnum;
+		gHitInfo.hitSect = pSprite->sector();
 		gHitInfo.hitx = pSprite->x;
 		gHitInfo.hity = pSprite->y;
 		gHitInfo.hitz = pSprite->z;
@@ -6864,7 +6863,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 	int x = gHitInfo.hitx - MulScale(a4, 16, 14);
 	int y = gHitInfo.hity - MulScale(a5, 16, 14);
 	int z = gHitInfo.hitz - MulScale(a6, 256, 14);
-	int nSector = gHitInfo.hitsect;
+	auto pSector = gHitInfo.hitSect;
 	uint8_t nSurf = kSurfNone;
 	if (nRange == 0 || approxDist(gHitInfo.hitx - pShooter->x, gHitInfo.hity - pShooter->y) < nRange)
 	{
@@ -6872,27 +6871,23 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 		{
 		case 1:
 		{
-			int nSector = gHitInfo.hitsect;
-			if (sector[nSector].ceilingstat & 1)
+			if (pSector->ceilingstat & 1)
 				nSurf = kSurfNone;
 			else
-				nSurf = surfType[sector[nSector].ceilingpicnum];
+				nSurf = surfType[pSector->ceilingpicnum];
 			break;
 		}
 		case 2:
 		{
-			int nSector = gHitInfo.hitsect;
-			if (sector[nSector].floorstat & 1)
+			if (pSector->floorstat & 1)
 				nSurf = kSurfNone;
 			else
-				nSurf = surfType[sector[nSector].floorpicnum];
+				nSurf = surfType[pSector->floorpicnum];
 			break;
 		}
 		case 0:
 		{
-			int nWall = gHitInfo.hitwall;
-			assert(validWallIndex(nWall));
-			auto pWall = &wall[nWall];
+			auto pWall = gHitInfo.hitWall;
 			nSurf = surfType[pWall->picnum];
 			if (actCanSplatWall(pWall))
 			{
@@ -6903,7 +6898,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 				assert(nSurf < kSurfMax);
 				if (pVectorData->surfHit[nSurf].fx1 >= 0)
 				{
-					auto pFX = gFX.fxSpawnActor(pVectorData->surfHit[nSurf].fx1, nSector, x, y, z, 0);
+					auto pFX = gFX.fxSpawnActor(pVectorData->surfHit[nSurf].fx1, pSector, x, y, z, 0);
 					if (pFX)
 					{
 						pFX->s().ang = (GetWallAngle(pWall) + 512) & 2047;
@@ -6915,9 +6910,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 		}
 		case 4:
 		{
-			int nWall = gHitInfo.hitwall;
-			assert(validWallIndex(nWall));
-			auto pWall = &wall[nWall];
+			auto pWall = gHitInfo.hitWall;
 			nSurf = surfType[pWall->overpicnum];
 			if (pWall->hasX())
 			{
@@ -6995,25 +6988,25 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 					{
 						if (approxDist(gHitInfo.hitx - pSprite->x, gHitInfo.hity - pSprite->y) <= t)
 						{
-							int nWall = gHitInfo.hitwall;
-							int nSector = gHitInfo.hitsect;
-							if (actCanSplatWall(&wall[nWall]))
+							auto pWall = gHitInfo.hitWall;
+							auto pSector = gHitInfo.hitSect;
+							if (actCanSplatWall(pWall))
 							{
 								int x = gHitInfo.hitx - MulScale(a4, 16, 14);
 								int y = gHitInfo.hity - MulScale(a5, 16, 14);
 								int z = gHitInfo.hitz - MulScale(a6, 16 << 4, 14);
-								int nSurf = surfType[wall[nWall].picnum];
+								int nSurf = surfType[pWall->picnum];
 								const VECTORDATA* pVectorData = &gVectorData[19];
 								FX_ID t2 = pVectorData->surfHit[nSurf].fx2;
 								FX_ID t3 = pVectorData->surfHit[nSurf].fx3;
 
 								DBloodActor* pFX = nullptr;
-								if (t2 > FX_NONE && (t3 == FX_NONE || Chance(0x4000))) pFX = gFX.fxSpawnActor(t2, nSector, x, y, z, 0);
-								else if (t3 > FX_NONE) pFX = gFX.fxSpawnActor(t3, nSector, x, y, z, 0);
+								if (t2 > FX_NONE && (t3 == FX_NONE || Chance(0x4000))) pFX = gFX.fxSpawnActor(t2, pSector, x, y, z, 0);
+								else if (t3 > FX_NONE) pFX = gFX.fxSpawnActor(t3, pSector, x, y, z, 0);
 								if (pFX)
 								{
 									pFX->zvel = 0x2222;
-									pFX->s().ang = (GetWallAngle(&wall[nWall]) + 512) & 2047;
+									pFX->s().ang = (GetWallAngle(pWall) + 512) & 2047;
 									pFX->s().cstat |= 16;
 								}
 							}
@@ -7069,14 +7062,14 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 
 	if (pVectorData->surfHit[nSurf].fx2 >= 0) {
 
-        auto pFX2 = gFX.fxSpawnActor(pVectorData->surfHit[nSurf].fx2, nSector, x, y, z, 0);
+        auto pFX2 = gFX.fxSpawnActor(pVectorData->surfHit[nSurf].fx2, pSector, x, y, z, 0);
 		if (pFX2 && gModernMap)
 			pFX2->SetOwner(shooter);
 	}
 
 	if (pVectorData->surfHit[nSurf].fx3 >= 0) {
 
-        auto pFX3 = gFX.fxSpawnActor(pVectorData->surfHit[nSurf].fx3, nSector, x, y, z, 0);
+        auto pFX3 = gFX.fxSpawnActor(pVectorData->surfHit[nSurf].fx3, pSector, x, y, z, 0);
 		if (pFX3 && gModernMap)
 			pFX3->SetOwner(shooter);
 
@@ -7084,13 +7077,13 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 
 #else
 	if (pVectorData->surfHit[nSurf].fx2 >= 0)
-        gFX.fxSpawnActor(pVectorData->surfHit[nSurf].fx2, nSector, x, y, z, 0);
+        gFX.fxSpawnActor(pVectorData->surfHit[nSurf].fx2, pSector, x, y, z, 0);
 	if (pVectorData->surfHit[nSurf].fx3 >= 0)
-        gFX.fxSpawnActor(pVectorData->surfHit[nSurf].fx3, nSector, x, y, z, 0);
+        gFX.fxSpawnActor(pVectorData->surfHit[nSurf].fx3, pSector, x, y, z, 0);
 #endif
 
 	if (pVectorData->surfHit[nSurf].fxSnd >= 0)
-		sfxPlay3DSound(x, y, z, pVectorData->surfHit[nSurf].fxSnd, nSector);
+		sfxPlay3DSound(x, y, z, pVectorData->surfHit[nSurf].fxSnd, pSector);
 }
 
 //---------------------------------------------------------------------------
@@ -7342,8 +7335,8 @@ void SerializeActor(FSerializer& arc)
 
 void HITINFO::set(hitdata_t* hit)
 {
-	hitsect = hit->sect;
-	hitwall = hit->wall;
+	hitSect = validSectorIndex(hit->sect)? &sector[hit->sect] : nullptr;
+	hitWall = validWallIndex(hit->wall)? &wall[hit->wall] : nullptr;
 	hitactor = hit->sprite >= 0 ? &bloodActors[hit->sprite] : nullptr;
 	hitx = hit->pos.x;
 	hity = hit->pos.y;
