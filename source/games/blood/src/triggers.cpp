@@ -2199,7 +2199,7 @@ void ActivateGenerator(DBloodActor* actor)
         case kGenDripBlood: {
             int top, bottom;
             GetActorExtents(actor, &top, &bottom);
-            actSpawnThing(pSprite->sectnum, pSprite->x, pSprite->y, bottom, (pSprite->type == kGenDripWater) ? kThingDripWater : kThingDripBlood);
+            actSpawnThing(pSprite->sector(), pSprite->x, pSprite->y, bottom, (pSprite->type == kGenDripWater) ? kThingDripWater : kThingDripBlood);
             break;
         }
         case kGenSound:

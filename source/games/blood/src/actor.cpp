@@ -6443,10 +6443,10 @@ DBloodActor* actSpawnDude(DBloodActor* source, int nType, int a3, int a4)
 //
 //---------------------------------------------------------------------------
 
-DBloodActor* actSpawnThing(int nSector, int x, int y, int z, int nThingType)
+DBloodActor* actSpawnThing(sectortype* pSector, int x, int y, int z, int nThingType)
 {
 	assert(nThingType >= kThingBase && nThingType < kThingMax);
-	auto actor = actSpawnSprite(&sector[nSector], x, y, z, 4, 1);
+	auto actor = actSpawnSprite(pSector, x, y, z, 4, 1);
 	spritetype* pSprite = &actor->s();
 	int nType = nThingType - kThingBase;
 	pSprite->type = nThingType;
@@ -6551,7 +6551,7 @@ DBloodActor* actFireThing(DBloodActor* actor, int a2, int a3, int a4, int thingT
 		x = gHitInfo.hitx - MulScale(pSprite->clipdist << 1, Cos(pSprite->ang), 28);
 		y = gHitInfo.hity - MulScale(pSprite->clipdist << 1, Sin(pSprite->ang), 28);
 	}
-	auto fired = actSpawnThing(pSprite->sectnum, x, y, z, thingType);
+	auto fired = actSpawnThing(pSprite->sector(), x, y, z, thingType);
 	spritetype* pThing = &fired->s();
 	fired->SetOwner(actor);
 	pThing->ang = pSprite->ang;

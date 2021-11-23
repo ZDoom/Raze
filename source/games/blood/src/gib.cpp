@@ -343,7 +343,7 @@ void GibThing(DBloodActor* actor, GIBTHING *pGThing, CGibPosition *pPos, CGibVel
 
     if (pGThing->chance == 65536 || Chance(pGThing->chance))
     {
-        int nSector = pSprite->sectnum;
+        auto pSector = pSprite->sector();
         int top, bottom;
         GetActorExtents(actor, &top, &bottom);
         int x, y, z;
@@ -361,10 +361,10 @@ void GibThing(DBloodActor* actor, GIBTHING *pGThing, CGibPosition *pPos, CGibVel
             z = pPos->z;
         }
         int32_t ceilZ, floorZ;
-        getzsofslope(nSector, x, y, &ceilZ, &floorZ);
+        getzsofslopeptr(pSector, x, y, &ceilZ, &floorZ);
         int dz1 = floorZ-z;
         int dz2 = z-ceilZ;
-        auto gibactor = actSpawnThing(nSector, x, y, z, pGThing->type);
+        auto gibactor = actSpawnThing(pSector, x, y, z, pGThing->type);
         if (!gibactor) return;
         spritetype *pGib = &gibactor->s();
         assert(pGib != NULL);
