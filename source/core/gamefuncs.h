@@ -217,12 +217,6 @@ inline double PointOnLineSide(const TVector2<T>& pos, const TVector2<T>& linesta
     return (pos.X - linestart.X) * (lineend.Y - linestart.Y) - (pos.Y - linestart.Y) * (lineend.X - linestart.X);
 }
 
-inline int sectorofwall(int wallNum)
-{
-    if ((unsigned)wallNum < (unsigned)numwalls) return wall[wallNum].sector;
-    return -1;
-}
-
 extern int numshades;
 
 // Return type is int because this gets passed to variadic functions where structs may produce undefined behavior.

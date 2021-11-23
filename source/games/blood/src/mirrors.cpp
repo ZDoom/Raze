@@ -33,7 +33,7 @@ BEGIN_BLD_NS
 
 int mirrorcnt, mirrorsector, mirrorwall[4];
 
-MIRROR mirror[16];
+MIRROR mirror[16]; // only needed by Polymost.
 
 void InitMirrors(void)
 {
@@ -74,7 +74,7 @@ void InitMirrors(void)
                     {
                         if (tmp != pWallj->xw().data)
                             continue;
-                        pWalli->hitag = j;
+                        pWalli->hitag = j; // hitag is only used by Polymost, the new renderer uses external links.
                         pWallj->hitag = i;
                         mirror[mirrorcnt].link = j;
                         break;
@@ -118,8 +118,11 @@ void InitMirrors(void)
             auto link2 = link->GetOwner();
             if (link2 == nullptr)
                 continue;
+
+            auto secti = &sector[i];
             int j = link2->s().sectnum;
-            if (sector[j].ceilingpicnum != 504)
+            auto sectj = link2->s().sector();
+            if (sectj->ceilingpicnum != 504)
                 I_Error("Lower link sector %d doesn't have mirror picnum\n", j);
             mirror[mirrorcnt].type = 2;
             mirror[mirrorcnt].dx = link2->s().x - link->s().x;
@@ -127,9 +130,9 @@ void InitMirrors(void)
             mirror[mirrorcnt].dz = link2->s().z - link->s().z;
             mirror[mirrorcnt].wallnum = i;
             mirror[mirrorcnt].link = j;
-            sector[i].floorpicnum = 4080 + mirrorcnt;
-            sector[i].portalflags = PORTAL_SECTOR_FLOOR;
-            sector[i].portalnum = portalAdd(PORTAL_SECTOR_FLOOR, j, mirror[mirrorcnt].dx, mirror[mirrorcnt].dy, mirror[mirrorcnt].dz);
+            secti->floorpicnum = 4080 + mirrorcnt;
+            secti->portalflags = PORTAL_SECTOR_FLOOR;
+            secti->portalnum = portalAdd(PORTAL_SECTOR_FLOOR, j, mirror[mirrorcnt].dx, mirror[mirrorcnt].dy, mirror[mirrorcnt].dz);
             mirrorcnt++;
             mirror[mirrorcnt].type = 1;
             mirror[mirrorcnt].dx = link->s().x - link2->s().x;
@@ -137,9 +140,9 @@ void InitMirrors(void)
             mirror[mirrorcnt].dz = link->s().z - link2->s().z;
             mirror[mirrorcnt].wallnum = j;
             mirror[mirrorcnt].link = i;
-            sector[j].ceilingpicnum = 4080 + mirrorcnt;
-            sector[j].portalflags = PORTAL_SECTOR_CEILING;
-            sector[j].portalnum = portalAdd(PORTAL_SECTOR_CEILING, i, mirror[mirrorcnt].dx, mirror[mirrorcnt].dy, mirror[mirrorcnt].dz);
+            sectj->ceilingpicnum = 4080 + mirrorcnt;
+            sectj->portalflags = PORTAL_SECTOR_CEILING;
+            sectj->portalnum = portalAdd(PORTAL_SECTOR_CEILING, i, mirror[mirrorcnt].dx, mirror[mirrorcnt].dy, mirror[mirrorcnt].dz);
             mirrorcnt++;
         }
     }

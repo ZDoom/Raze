@@ -2469,24 +2469,25 @@ void trPlayerCtrlUsePowerup(DBloodActor* sourceactor, PLAYER* pPlayer, int evCmd
 //
 //---------------------------------------------------------------------------
 
-void useObjResizer(DBloodActor* sourceactor, int targType, int targIndex, DBloodActor* targetactor) 
+void useObjResizer(DBloodActor* sourceactor, int targType, sectortype* targSect, walltype* targWall, DBloodActor* targetactor) 
 {
     auto pXSource = &sourceactor->x();
     switch (targType) 
     {
     // for sectors
     case OBJ_SECTOR:
+        if (!targSect) return;
         if (valueIsBetween(pXSource->data1, -1, 32767))
-            sector[targIndex].floorxpan_ = (float)ClipRange(pXSource->data1, 0, 255);
+            targSect->floorxpan_ = (float)ClipRange(pXSource->data1, 0, 255);
 
         if (valueIsBetween(pXSource->data2, -1, 32767))
-            sector[targIndex].floorypan_ = (float)ClipRange(pXSource->data2, 0, 255);
+            targSect->floorypan_ = (float)ClipRange(pXSource->data2, 0, 255);
 
         if (valueIsBetween(pXSource->data3, -1, 32767))
-            sector[targIndex].ceilingxpan_ = (float)ClipRange(pXSource->data3, 0, 255);
+            targSect->ceilingxpan_ = (float)ClipRange(pXSource->data3, 0, 255);
 
         if (valueIsBetween(pXSource->data4, -1, 65535))
-            sector[targIndex].ceilingypan_ = (float)ClipRange(pXSource->data4, 0, 255);
+            targSect->ceilingypan_ = (float)ClipRange(pXSource->data4, 0, 255);
         break;
     // for sprites
     case OBJ_SPRITE: 
@@ -2542,18 +2543,18 @@ void useObjResizer(DBloodActor* sourceactor, int targType, int targIndex, DBlood
         break;
     }
     case OBJ_WALL:
-        auto pWall = &wall[targIndex];
+        if (!targWall) return;
         if (valueIsBetween(pXSource->data1, -1, 32767))
-            pWall->xrepeat = ClipRange(pXSource->data1, 0, 255);
+            targWall->xrepeat = ClipRange(pXSource->data1, 0, 255);
 
         if (valueIsBetween(pXSource->data2, -1, 32767))
-            pWall->yrepeat = ClipRange(pXSource->data2, 0, 255);
+            targWall->yrepeat = ClipRange(pXSource->data2, 0, 255);
 
         if (valueIsBetween(pXSource->data3, -1, 32767))
-            pWall->xpan_ = (float)ClipRange(pXSource->data3, 0, 255);
+            targWall->xpan_ = (float)ClipRange(pXSource->data3, 0, 255);
 
         if (valueIsBetween(pXSource->data4, -1, 65535))
-            pWall->ypan_ = (float)ClipRange(pXSource->data4, 0, 255);
+            targWall->ypan_ = (float)ClipRange(pXSource->data4, 0, 255);
         break;
     }
 }
@@ -2564,7 +2565,7 @@ void useObjResizer(DBloodActor* sourceactor, int targType, int targIndex, DBlood
 //
 //---------------------------------------------------------------------------
 
-void usePropertiesChanger(DBloodActor* sourceactor, int objType, int objIndex, DBloodActor* targetactor)
+void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSector, walltype* pWall, DBloodActor* targetactor)
 {
     auto pXSource = &sourceactor->x();
     spritetype* pSource = &sourceactor->s();
@@ -2573,7 +2574,8 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, int objIndex, D
     {
         case OBJ_WALL: 
         {
-            walltype* pWall = &wall[objIndex]; int old = -1;
+            if (!pWall) return;
+            int old = -1;
 
             // data3 = set wall hitag
             if (valueIsBetween(pXSource->data3, -1, 32767)) 
@@ -2843,7 +2845,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, int objIndex, D
         break;
         case OBJ_SECTOR: 
         {
-            sectortype* pSector = &sector[objIndex];
+            if (!pSector) return;
             XSECTOR* pXSector = &pSector->xs();
 
             // data1 = sector underwater status and depth level
@@ -2854,7 +2856,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, int objIndex, D
                 
                 spritetype* pUpper = NULL; XSPRITE* pXUpper = NULL;
                     
-                auto aLower = getLowerLink(objIndex);
+                auto aLower = pSector->lowerLink;
                 spritetype* pLower = nullptr;
                 XSPRITE* pXLower = nullptr;
                 if (aLower)
@@ -2863,9 +2865,9 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, int objIndex, D
                     pXLower = &aLower->x();
 
                     // must be sure we found exact same upper link
-                    for (int i = 0; i < numsectors; i++) 
+                    for (auto& sec : sectors())
                     {
-                        auto aUpper = getUpperLink(i);
+                        auto aUpper = sec.upperLink;
                         if (aUpper == nullptr || aUpper->x().data1 != pXLower->data1) continue;
                         pUpper = &aUpper->s();
                         pXUpper = &aUpper->x();
@@ -2919,7 +2921,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, int objIndex, D
                 }
 
                 // search for dudes in this sector and change their underwater status
-                BloodSectIterator it(objIndex);
+                BloodSectIterator it(pSector);
                 while (auto iactor = it.Next())
                 {
                     spritetype* pSpr = &iactor->s();
@@ -2965,18 +2967,18 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, int objIndex, D
 
             // data2 = sector visibility
             if (valueIsBetween(pXSource->data2, -1, 32767))
-                sector[objIndex].visibility = ClipRange(pXSource->data2, 0 , 234);
+                pSector->visibility = ClipRange(pXSource->data2, 0 , 234);
 
             // data3 = sector ceil cstat
             if (valueIsBetween(pXSource->data3, -1, 32767)) {
-                if ((pSource->flags & kModernTypeFlag1)) sector[objIndex].ceilingstat |= pXSource->data3;
-                else sector[objIndex].ceilingstat = pXSource->data3;
+                if ((pSource->flags & kModernTypeFlag1)) pSector->ceilingstat |= pXSource->data3;
+                else pSector->ceilingstat = pXSource->data3;
             }
 
             // data4 = sector floor cstat
             if (valueIsBetween(pXSource->data4, -1, 65535)) {
-                if ((pSource->flags & kModernTypeFlag1)) sector[objIndex].floorstat |= pXSource->data4;
-                else sector[objIndex].floorstat = pXSource->data4;
+                if ((pSource->flags & kModernTypeFlag1)) pSector->floorstat |= pXSource->data4;
+                else pSector->floorstat = pXSource->data4;
             }
         }
         break;
@@ -3317,12 +3319,12 @@ void useSectorWindGen(DBloodActor* sourceactor, sectortype* pSector)
 //
 //---------------------------------------------------------------------------
 
-void useSpriteDamager(DBloodActor* sourceactor, int objType, int objIndex, DBloodActor* targetactor) 
+void useSpriteDamager(DBloodActor* sourceactor, int objType, sectortype* targSect, DBloodActor* targetactor)
 {
     auto pSource = &sourceactor->s();
     auto pXSource = &sourceactor->x();
 
-    sectortype* pSector = &sector[pSource->sectnum];
+    sectortype* pSector = pSource->sector();
 
     int top, bottom;
     bool floor, ceil, wall, enter;
@@ -3339,7 +3341,7 @@ void useSpriteDamager(DBloodActor* sourceactor, int objType, int objIndex, DBloo
             ceil = (top <= pSector->ceilingz);
             wall = (pSource->cstat & 0x10);        
             enter = (!floor && !ceil && !wall);
-            BloodSectIterator it(objIndex);
+            BloodSectIterator it(targSect);
             while (auto iactor = it.Next())
             {
                 auto& hit = iactor->hit;
@@ -3348,11 +3350,11 @@ void useSpriteDamager(DBloodActor* sourceactor, int objType, int objIndex, DBloo
                     continue;
                 else if (enter)
                     damageSprites(sourceactor, iactor);
-                else if (floor && hit.florhit.type == kHitSector && hit.florhit.index == objIndex)
+                else if (floor && hit.florhit.type == kHitSector && hit.florhit.sector() == targSect)
                     damageSprites(sourceactor, iactor);
-                else if (ceil && hit.ceilhit.type == kHitSector && hit.ceilhit.index == objIndex)
+                else if (ceil && hit.ceilhit.type == kHitSector && hit.ceilhit.sector() == targSect)
                     damageSprites(sourceactor, iactor);
-                else if (wall && hit.hit.type == kHitWall && sectorofwall(hit.hit.index) == objIndex)
+                else if (wall && hit.hit.type == kHitWall && hit.hit.wall()->sectorp() == targSect)
                     damageSprites(sourceactor, iactor);
             }
             break;
@@ -3501,7 +3503,7 @@ void damageSprites(DBloodActor* sourceactor, DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, int index, DBloodActor* iactor) 
+void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector, walltype* pWall, DBloodActor* iactor) 
 {
     auto pXSource = &sourceactor->x();
     if (pXSource->data2 > 0 && !getSequence(pXSource->data2)) 
@@ -3516,7 +3518,6 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, int index, DBloodAc
     {
         case OBJ_SECTOR:
         {            
-            auto pSector = &sector[index];
             if (pXSource->data2 <= 0) 
             {
                 if (pXSource->data3 == 3 || pXSource->data3 == 1)
@@ -3535,7 +3536,6 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, int index, DBloodAc
         }
         case OBJ_WALL:
         {
-            auto pWall = &wall[index];
             if (pXSource->data2 <= 0)
             {
                 if (pXSource->data3 == 3 || pXSource->data3 == 1)
@@ -3568,16 +3568,16 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, int index, DBloodAc
                     int cx, cy, cz;
                     cx = (pWall->x + pWall->point2Wall()->x) >> 1;
                     cy = (pWall->y + pWall->point2Wall()->y) >> 1;
-                    int nSector = sectorofwall(index);
+                    auto pMySector = pWall->sectorp();
                     int32_t ceilZ, floorZ;
-                    getzsofslope(nSector, cx, cy, &ceilZ, &floorZ);
+                    getzsofslopeptr(pSector, cx, cy, &ceilZ, &floorZ);
                     int32_t ceilZ2, floorZ2;
-                    getzsofslope(pWall->nextsector, cx, cy, &ceilZ2, &floorZ2);
+                    getzsofslopeptr(pWall->nextSector(), cx, cy, &ceilZ2, &floorZ2);
                     ceilZ = ClipLow(ceilZ, ceilZ2);
                     floorZ = ClipHigh(floorZ, floorZ2);
                     cz = (ceilZ + floorZ) >> 1;
 
-                    sfxPlay3DSound(cx, cy, cz, pXSource->data4, nSector);
+                    sfxPlay3DSound(cx, cy, cz, pXSource->data4, pSector);
                 }
             }
             return;
@@ -4798,7 +4798,7 @@ void modernTypeTrigger(int destObjType, sectortype* destSect, walltype* destWall
             {
                 case OBJ_SPRITE:
                 case OBJ_SECTOR:
-                    useSpriteDamager(pActor, destObjType, destObjIndex, destactor);
+                    useSpriteDamager(pActor, destObjType, destSect, destactor);
             break;
             }
             break;
@@ -4809,7 +4809,7 @@ void modernTypeTrigger(int destObjType, sectortype* destSect, walltype* destWall
             break;
         // takes data2 as SEQ ID and spawns it on it's or TX ID object
         case kModernSeqSpawner:
-            useSeqSpawnerGen(pActor, destObjType, destObjIndex, destactor);
+            useSeqSpawnerGen(pActor, destObjType, destSect, destWall, destactor);
             break;
         // creates wind on TX ID sector
         case kModernWindGenerator:
@@ -4818,7 +4818,7 @@ void modernTypeTrigger(int destObjType, sectortype* destSect, walltype* destWall
             break;
         // size and pan changer of sprite/wall/sector via TX ID
         case kModernObjSizeChanger:
-            useObjResizer(pActor, destObjType, destObjIndex, destactor);
+            useObjResizer(pActor, destObjType, destSect, destWall, destactor);
             break;
         // iterate data filed value of destination object
         case kModernObjDataAccumulator:
@@ -4844,7 +4844,7 @@ void modernTypeTrigger(int destObjType, sectortype* destSect, walltype* destWall
             break;
         // change various properties
         case kModernObjPropertiesChanger:
-            usePropertiesChanger(pActor, destObjType, destObjIndex, destactor);
+            usePropertiesChanger(pActor, destObjType, destSect, destWall, destactor);
             break;
         // updated vanilla sound gen that now allows to play sounds on TX ID sprites
         case kGenModernSound:
@@ -5611,8 +5611,8 @@ bool modernTypeOperateSprite(DBloodActor* actor, const EVENT& event)
                     [[fallthrough]];
                 case kCmdRepeat:
                     if (pXSprite->txID > 0) modernTypeSendCommand(actor, pXSprite->txID, (COMMAND_ID)pXSprite->command);
-                    else if (pXSprite->data1 == 0 && validSectorIndex(pSprite->sectnum)) useSpriteDamager(actor, OBJ_SECTOR, pSprite->sectnum, nullptr);
-                    else if (pXSprite->data1 >= 666 && pXSprite->data1 < 669) useSpriteDamager(actor, -1, -1, nullptr);
+                    else if (pXSprite->data1 == 0 && validSectorIndex(pSprite->sectnum)) useSpriteDamager(actor, OBJ_SECTOR, pSprite->sector(), nullptr);
+                    else if (pXSprite->data1 >= 666 && pXSprite->data1 < 669) useSpriteDamager(actor, -1, nullptr, nullptr);
                     else
                     {
                 PLAYER* pPlayer = getPlayerById(pXSprite->data1);
@@ -5644,7 +5644,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, const EVENT& event)
             if (pXSprite->txID <= 0) 
             {
                 if (SetSpriteState(actor, pXSprite->state ^ 1) == 1)
-                    usePropertiesChanger(actor, -1, -1, nullptr);
+                    usePropertiesChanger(actor, -1, nullptr, nullptr, nullptr);
                 return true;
             }
             [[fallthrough]];
@@ -5670,7 +5670,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, const EVENT& event)
                     [[fallthrough]];
                 case kCmdRepeat:
                     if (pXSprite->txID > 0) modernTypeSendCommand(actor, pXSprite->txID, (COMMAND_ID)pXSprite->command);
-                    else if (pSprite->type == kModernSeqSpawner) useSeqSpawnerGen(actor, 3, 0, actor);
+                    else if (pSprite->type == kModernSeqSpawner) useSeqSpawnerGen(actor, OBJ_SPRITE, nullptr, nullptr, actor);
                     else useEffectGen(actor, nullptr);
             
                     if (pXSprite->busyTime > 0)

@@ -212,8 +212,8 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
                 numwalls += 4; // hack alert. Blood adds some dummy walls and sectors that must not be among the counter, but here they have to be valid.
                 numsectors++;
                 int nWall = mirror[i].link;
-                int nSector = sectorofwall(nWall);
                 walltype* pWall = &wall[nWall];
+                int nSector = pWall->sector;
                 int nNextWall = pWall->nextwall;
                 int nNextSector = pWall->nextsector;
                 pWall->nextwall = mirrorwall[0];
