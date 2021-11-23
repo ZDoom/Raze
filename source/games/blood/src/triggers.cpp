@@ -685,7 +685,7 @@ void OperateWall(walltype* pWall, EVENT event) {
                     CGibVelocity vel(100, 100, 250);
                     int nType = ClipRange(pXWall->data, 0, 31);
                     if (nType > 0)
-                        GibWall(wallnum(pWall), (GIBTYPE)nType, &vel);
+                        GibWall(pWall, (GIBTYPE)nType, &vel);
                 }
             }
             return;

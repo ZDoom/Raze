@@ -519,8 +519,8 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
             {
                 int bakCstat = pWall->cstat;
                 pWall->cstat &= ~64;
-                int bakCstat2 = wall[pWall->nextwall].cstat;
-                wall[pWall->nextwall].cstat &= ~64;
+                int bakCstat2 = pWall->nextWall()->cstat;
+                pWall->nextWall()->cstat &= ~64;
                 gHitInfo.clearObj();
                 x1 = gHitInfo.hitx;
                 y1 = gHitInfo.hity;
@@ -531,7 +531,7 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
                     dx, dy, dz << 4, &hitData, CLIPMASK1);
                 gHitInfo.set(&hitData);
                 pWall->cstat = bakCstat;
-                wall[pWall->nextwall].cstat = bakCstat2;
+                pWall->nextWall()->cstat = bakCstat2;
                 continue;
             }
             return 4;

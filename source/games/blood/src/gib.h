@@ -72,5 +72,5 @@ public:
 };
 
 void GibSprite(DBloodActor *pSprite, GIBTYPE nGibType, CGibPosition *pPos, CGibVelocity *pVel);
-void GibWall(int nWall, GIBTYPE nGibType, CGibVelocity *pVel);
+void GibWall(walltype* pWall, GIBTYPE nGibType, CGibVelocity *pVel);
 END_BLD_NS
