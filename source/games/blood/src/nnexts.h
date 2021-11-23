@@ -334,7 +334,7 @@ void trPlayerCtrlStopScene(PLAYER* pPlayer);
 void modernTypeTrigger(int type, sectortype*sect, walltype* wal, DBloodActor* actor, const EVENT& event);
 bool modernTypeOperateSector(int nSector, sectortype* pSector, XSECTOR* pXSector, const EVENT& event);
 bool modernTypeOperateSprite(DBloodActor*, const EVENT& event);
-bool modernTypeOperateWall(int nWall, walltype* pWall, XWALL* pXWall, EVENT event);
+bool modernTypeOperateWall(walltype* pWall, const EVENT& event);
 void modernTypeSendCommand(DBloodActor* nSprite, int channel, COMMAND_ID command);
 //  -------------------------------------------------------------------------   //
 bool playerSizeShrink(PLAYER* pPlayer, int divider);

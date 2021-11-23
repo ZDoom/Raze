@@ -3840,7 +3840,6 @@ void actHitcodeToData(int a1, HITINFO* pHitInfo, DBloodActor** pActor, walltype*
 {
 	assert(pHitInfo != nullptr);
 	DBloodActor* actor = nullptr;
-	int nWall = -1;
 	walltype* pWall = nullptr;
 	switch (a1)
 	{
@@ -4899,7 +4898,7 @@ void MoveDude(DBloodActor* actor)
 			if (pDudeInfo->lockOut && pHitXWall && pHitXWall->triggerPush && !pHitXWall->key && !pHitXWall->dudeLockout && !pHitXWall->state && !pHitXWall->busy && !pPlayer)
 				trTriggerWall(pHitWall, kCmdWallPush);
 
-			if (pHitWall->nextsector != -1)
+			if (pHitWall->twoSided())
 			{
 				sectortype* pHitSector = pHitWall->nextSector();
 				XSECTOR* pHitXSector = pHitSector->hasX()? &pHitSector->xs() : nullptr;
@@ -6821,7 +6820,7 @@ bool actCanSplatWall(walltype* pWall)
 	int nType = pWall->type;
 	if (nType >= kWallBase && nType < kWallMax) return 0;
 
-	if (pWall->nextsector != -1)
+	if (pWall->twoSided())
 	{
 		sectortype* pSector = pWall->nextSector();
 		if (pSector->type >= kSectorBase && pSector->type < kSectorMax) return 0;

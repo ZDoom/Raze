@@ -3550,7 +3550,7 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector
 
                 if (pXSource->data3 == 3 || pXSource->data3 == 2) {
 
-                    if (pWall->nextwall < 0) {
+                    if (!pWall->twoSided()) {
                         if (pXSource->data3 == 3)
                             seqSpawn(pXSource->data2, SS_WALL, pWall, -1);
 
@@ -4122,7 +4122,7 @@ bool condCheckWall(DBloodActor* aCond, int cmpOp, bool PUSH)
                 else if (PUSH) condPush(aCond, pWall->nextSector());
                 return true;
             case 20:
-                if (!validWallIndex(pWall->nextwall)) return false;
+                if (!pWall->twoSided()) return false;
                 else if (PUSH) condPush(aCond, pWall->nextWall());
                 return true;
             case 25: // next wall belongs to sector? (Note: This was 'sector of next wall' which is same as case 15 because we do not allow bad links!)
@@ -5974,9 +5974,8 @@ bool modernTypeOperateSprite(DBloodActor* actor, const EVENT& event)
 //
 //---------------------------------------------------------------------------
 
-bool modernTypeOperateWall(int nWall, walltype* pWall, XWALL* pXWall, EVENT event) 
+bool modernTypeOperateWall(walltype* pWall, const EVENT& event) 
 {
-    
     switch (pWall->type) 
     {
         case kSwitchOneWay:
@@ -5988,7 +5987,7 @@ bool modernTypeOperateWall(int nWall, walltype* pWall, XWALL* pXWall, EVENT even
                     SetWallState(pWall, 1);
                     break;
                 default:
-                    SetWallState(pWall, pXWall->restState ^ 1);
+                    SetWallState(pWall, pWall->xw().restState ^ 1);
                     break;
             }
             return true;

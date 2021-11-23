@@ -56,7 +56,7 @@ bool FindSector(int nX, int nY, int nZ, int *nSector);
 bool FindSector(int nX, int nY, int *nSector);
 bool CheckProximity(DBloodActor *pSprite, int nX, int nY, int nZ, int nSector, int nDist);
 bool CheckProximityPoint(int nX1, int nY1, int nZ1, int nX2, int nY2, int nZ2, int nDist);
-bool CheckProximityWall(walltype* nWall, int x, int y, int nDist);
+bool CheckProximityWall(walltype* pWall, int x, int y, int nDist);
 int GetWallAngle(walltype* pWall);
 void GetWallNormal(walltype* pWall, int *pX, int *pY);
 bool IntersectRay(int wx, int wy, int wdx, int wdy, int x1, int y1, int z1, int x2, int y2, int z2, int *ix, int *iy, int *iz);

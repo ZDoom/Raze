@@ -402,9 +402,9 @@ static void fakeMoveDude(spritetype *pSprite)
         {
             int nHitWall = predict.at75.hit.index;
             walltype *pHitWall = &wall[nHitWall];
-            if (pHitWall->nextsector != -1)
+            if (pHitWall->twoSided())
             {
-                sectortype *pHitSector = &sector[pHitWall->nextsector];
+                sectortype *pHitSector = &pHitWall->nextSector();
                 if (top < pHitSector->ceilingz || bottom > pHitSector->floorz)
                 {
                     // ???

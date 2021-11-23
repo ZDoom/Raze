@@ -49,13 +49,13 @@ bool FindSector(int nX, int nY, int nZ, int *nSector)
     }
     for (auto& wal : wallsofsector(*nSector))
     {
-        int nOSector = wal.nextsector;
-        if (nOSector >= 0 && inside(nX, nY, nOSector))
+        auto pOSector = wal.nextSector();
+        if (pOSector != nullptr && inside(nX, nY, pOSector))
         {
-            getzsofslope(nOSector, nX, nY, &nZCeil, &nZFloor);
+            getzsofslopeptr(pOSector, nX, nY, &nZCeil, &nZFloor);
             if (nZ >= nZCeil && nZ <= nZFloor)
             {
-                *nSector = nOSector;
+                *nSector = sectnum(pOSector);
                 return 1;
             }
         }
@@ -84,10 +84,10 @@ bool FindSector(int nX, int nY, int *nSector)
     }
     for (auto& wal : wallsofsector(*nSector))
     {
-        int nOSector = wal.nextsector;
-        if (nOSector >= 0 && inside(nX, nY, nOSector))
+        auto pOSector = wal.nextSector();
+        if (pOSector != nullptr && inside(nX, nY, pOSector))
         {
-            *nSector = nOSector;
+            *nSector = sectnum(pOSector);
             return 1;
         }
     }
@@ -368,7 +368,7 @@ int HitScan(DBloodActor *actor, int z, int dx, int dy, int dz, unsigned int nMas
     {
         auto pWall = gHitInfo.hitWall;
 
-        if (pWall->nextsector == -1)
+        if (!pWall->twoSided())
             return 0;
         int nZCeil, nZFloor;
         getzsofslopeptr(pWall->nextSector(), gHitInfo.hitx, gHitInfo.hity, &nZCeil, &nZFloor);
@@ -724,19 +724,19 @@ BitArray GetClosestSpriteSectors(int nSector, int x, int y, int nDist, TArray<wa
     sectorMap.Set(nSector);
     double nDist4sq = 256. * nDist * nDist;    // (nDist * 16)^2 - * 16 to account for Build's 28.4 fixed point format.
 
-    BFSSearch search(numsectors, nSector);
+    BFSSectorSearch search(&sector[nSector]);
 
-    for (unsigned nCurSector; (nCurSector = search.GetNext()) != BFSSearch::EOL;)
+    while (auto pCurSector = search.GetNext())
     {
-        for (auto& wal : wallsofsector(nCurSector))
+        for (auto& wal : wallsofsector(pCurSector))
         {
-            const int nNextSector = wal.nextsector;
-            if (nNextSector < 0) // if next wall isn't linked to a sector, skip
-                continue;
+            if (!wal.twoSided()) continue;
+            const auto pNextSector = wal.nextSector();
+
             bool withinRange = false;
             if (!newSectCheckMethod) // original method
             {
-                if (search.Check(nNextSector)) // if we've already checked this sector, skip. This is bad, therefore only in compat mode.
+                if (search.Check(pNextSector)) // if we've already checked this sector, skip. This is bad, therefore only in compat mode.
                     continue;
                 withinRange = CheckProximityWall(wal.point2Wall(), x, y, nDist);
             }
@@ -747,8 +747,8 @@ BitArray GetClosestSpriteSectors(int nSector, int x, int y, int nDist, TArray<wa
             }
             if (withinRange) // if new sector is within range, add it to the processing queue
             {
-                sectorMap.Set(nNextSector);
-                search.Add(nNextSector);
+                sectorMap.Set(sectnum(pNextSector));
+                search.Add(pNextSector);
                 if (pWalls && wal.hasX())
                 {
                     XWALL* pXWall = &wal.xw();

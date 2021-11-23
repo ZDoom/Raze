@@ -616,8 +616,8 @@ void OperateSprite(DBloodActor* actor, EVENT event)
 void SetupGibWallState(walltype *pWall, XWALL *pXWall)
 {
     walltype *pWall2 = NULL;
-    if (pWall->nextwall >= 0)
-        pWall2 = &wall[pWall->nextwall];
+    if (pWall->twoSided())
+        pWall2 = pWall->nextWall();
     if (pXWall->state)
     {
         pWall->cstat &= ~65;
@@ -659,7 +659,7 @@ void OperateWall(walltype* pWall, EVENT event) {
     }
     
     #ifdef NOONE_EXTENSIONS
-    if (gModernMap && modernTypeOperateWall(wallnum(pWall), pWall, pXWall, event))
+    if (gModernMap && modernTypeOperateWall(pWall, event))
         return;
     #endif
 
@@ -775,7 +775,7 @@ void DragPoint(walltype* pWall, int x, int y)
     auto prevWall = pWall;
     do
     {
-        if (prevWall->nextwall >= 0)
+        if (prevWall->twoSided())
         {
             prevWall = prevWall->nextWall()->point2Wall();
             prevWall->sectorp()->dirty = 255;
@@ -789,7 +789,7 @@ void DragPoint(walltype* pWall, int x, int y)
             do
             {
                 auto lw = lastwall(prevWall);
-                if (lw->nextwall >= 0)
+                if (lw->twoSided())
                 {
                     prevWall = lw->nextWall();
                     prevWall->sectorp()->dirty = 255;
@@ -1704,12 +1704,12 @@ void LinkSprite(DBloodActor* actor, EVENT event)
     }
 }
 
-void LinkWall(int nWall, XWALL *pXWall, EVENT event)
+void LinkWall(walltype* pWall, const EVENT& event)
 {
     int nBusy = GetSourceBusy(event);
-    pXWall->busy = nBusy;
-    if ((pXWall->busy & 0xffff) == 0)
-        SetWallState(&wall[nWall], FixedToInt(nBusy));
+    pWall->xw().busy = nBusy;
+    if ((pWall->xw().busy & 0xffff) == 0)
+        SetWallState(pWall, FixedToInt(nBusy));
 }
 
 void trTriggerSector(sectortype* pSector, int command) 
@@ -1806,7 +1806,7 @@ void trMessageWall(walltype* pWall, const EVENT& event)
     {
         switch (event.cmd) {
             case kCmdLink:
-                LinkWall(wallnum(pWall), pXWall, event);
+                LinkWall(pWall, event);
                 break;
             #ifdef NOONE_EXTENSIONS
             case kCmdModernUse:
@@ -1925,22 +1925,21 @@ void ProcessMotion(void)
 
 void AlignSlopes(void)
 {
-    sectortype *pSector;
-    int nSector;
-    for (pSector = &sector[0], nSector = 0; nSector < numsectors; nSector++, pSector++)
+    for(auto& sect : sectors())
     {
-        if (pSector->slopewallofs)
+        if (sect.slopewallofs)
         {
-            walltype *pWall = &wall[pSector->wallptr+pSector->slopewallofs];
-            walltype *pWall2 = &wall[pWall->point2];
-            int nNextSector = pWall->nextsector;
-            if (nNextSector >= 0)
+            walltype *pWall = sect.firstWall() + sect.slopewallofs;
+            walltype *pWall2 = pWall->point2Wall();
+            if (pWall->twoSided())
             {
+                auto pNextSector = pWall->nextSector();
+
                 int x = (pWall->x+pWall2->x)/2;
                 int y = (pWall->y+pWall2->y)/2;
-                viewInterpolateSector(pSector);
-                alignflorslope(nSector, x, y, getflorzofslope(nNextSector, x, y));
-                alignceilslope(nSector, x, y, getceilzofslope(nNextSector, x, y));
+                viewInterpolateSector(&sect);
+                alignflorslope(&sect, x, y, getflorzofslopeptr(pNextSector, x, y));
+                alignceilslope(&sect, x, y, getceilzofslopeptr(pNextSector, x, y));
             }
         }
     }
