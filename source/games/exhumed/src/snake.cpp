@@ -377,7 +377,7 @@ void AISnake::Tick(RunListEvent* ev)
         SnakeList[nSnake].nAngle = (SnakeList[nSnake].nAngle + 64) & 0x7FF;
 
         int var_28 = (nAngle + 512) & kAngleMask;
-        int nSector =pSprite->sectnum;
+        auto pSector = pSprite->sector();
 
         int x = pSprite->x;
         int y = pSprite->y;
@@ -393,7 +393,7 @@ void AISnake::Tick(RunListEvent* ev)
             pSprite2->y = y;
             pSprite2->z = z;
 
-            ChangeActorSect(pActor2, nSector);
+            ChangeActorSect(pActor2, pSector);
 
             int eax = (bsin(var_20) * SnakeList[nSnake].c[i]) >> 9;
 

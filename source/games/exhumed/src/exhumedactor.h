@@ -244,11 +244,6 @@ inline void ChangeActorStat(DExhumedActor* actor, int stat)
 	changespritestat(actor->GetSpriteIndex(), stat);
 }
 
-inline void ChangeActorSect(DExhumedActor* actor, int stat)
-{
-	changespritesect(actor->GetSpriteIndex(), stat);
-}
-
 inline void ChangeActorSect(DExhumedActor* actor, sectortype* stat)
 {
 	changespritesect(actor->GetSpriteIndex(), sector.IndexOf(stat));

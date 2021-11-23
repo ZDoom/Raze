@@ -166,7 +166,7 @@ void AISoul::Tick(RunListEvent* ev)
         pSprite->x = pSetSprite->x;
         pSprite->y = pSetSprite->y;
         pSprite->z = pSetSprite->z - (GetActorHeight(pSet) >> 1);
-        ChangeActorSect(pActor, pSetSprite->sectnum);
+        ChangeActorSect(pActor, pSetSprite->sector());
         return;
     }
 }

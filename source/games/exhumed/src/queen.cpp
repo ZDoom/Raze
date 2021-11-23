@@ -121,7 +121,7 @@ Head QueenHead;
 int MoveQX[25];
 int MoveQY[25];
 int MoveQZ[25];
-int MoveQS[25];
+sectortype* MoveQS[25];
 int16_t MoveQA[25];
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, Queen& w, Queen* def)
@@ -382,13 +382,13 @@ void BuildTail()
     int x = pSprite->x;
     int y = pSprite->x;
     int z = pSprite->x;
-    int nSector =pSprite->sectnum;
+    auto pSector =pSprite->sector();
 
     int i;
 
     for (i = 0; i < kMaxTails; i++)
     {
-        auto pTailActor = insertActor(nSector, 121);
+        auto pTailActor = insertActor(pSector, 121);
         auto pTailSprite = &pTailActor->s();
         tailspr[i] = pTailActor;
 
@@ -415,8 +415,8 @@ void BuildTail()
         MoveQX[i] = x;
         MoveQZ[i] = z;
         MoveQY[i] = y;
-        assert(validSectorIndex(nSector));
-        MoveQS[i] = nSector;
+        assert(pSector);
+        MoveQS[i] = pSector;
     }
 
     nQHead = 0;
@@ -918,8 +918,8 @@ void AIQueenHead::Tick(RunListEvent* ev)
         MoveQX[nQHead] = pSprite->x;
         MoveQY[nQHead] = pSprite->y;
         MoveQZ[nQHead] = pSprite->z;
-        assert(validSectorIndex(pSprite->sectnum));
-        MoveQS[nQHead] = pSprite->sectnum;
+        assert(pSprite->sector());
+        MoveQS[nQHead] = pSprite->sector();
         MoveQA[nQHead] = pSprite->ang;
 
         nHd = nQHead;
@@ -932,15 +932,15 @@ void AIQueenHead::Tick(RunListEvent* ev)
                 //assert(nHd < 24 && nHd >= 0);
             }
 
-            int var_20 = MoveQS[nHd];
+            auto headSect = MoveQS[nHd];
             auto pTActor = tailspr[i];
             if (pTActor)
             {
                 auto pTSprite = &pTActor->s();
-                if (var_20 != pTSprite->sectnum)
+                if (headSect != pTSprite->sector())
                 {
-                    assert(validSectorIndex(var_20));
-                    ChangeActorSect(pTActor, var_20);
+                    assert(headSect);
+                    ChangeActorSect(pTActor, headSect);
                 }
 
                 pTSprite->x = MoveQX[nHd];
@@ -971,7 +971,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
                     int x = pSprite->x;
                     int y = pSprite->y;
                     int z = pSprite->z;
-                    int nSector =pSprite->sectnum;
+                    auto pSector =pSprite->sector();
                     int nAngle = RandomSize(11) & kAngleMask;
 
                     pSprite->xrepeat = 127 - QueenHead.nIndex2;
@@ -990,7 +990,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
                     BlowChunks(pActor);
                     BuildExplosion(pActor);
 
-                    ChangeActorSect(pActor, nSector);
+                    ChangeActorSect(pActor, pSector);
 
                     pSprite->x = x;
                     pSprite->y = y;
