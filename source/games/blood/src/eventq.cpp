@@ -488,25 +488,23 @@ void evSend(const EventObject& eob, int rxId, COMMAND_ID command)
 		eo.fromElements(rxBucket[i].type, rxBucket[i].rxindex, rxBucket[i].rxactor);
 		if (!event.event_isObject(eo))
 		{
-			switch (rxBucket[i].type) 
+			if (eo.isSector())
 			{
-			case 6:
-				trMessageSector(rxBucket[i].rxindex, event);
-				break;
-			case 0:
-				trMessageWall(rxBucket[i].rxindex, event);
-				break;
-			case 3:
+				trMessageSector(sectnum(eo.sector()), event);
+			}
+			else if (eo.isWall())
 			{
-				auto actor = rxBucket[i].actor();
+				trMessageWall(wallnum(eo.wall()), event);
+			}
+			else if (eo.isActor())
+			{
+				auto actor = eo.actor();
 
 				if (actor && actor->hasX() && !(actor->s().flags & 32))
 				{
 					if (actor->x().rxID > 0)
 						trMessageSprite(actor, event);
 				}
-				break;
-			}
 			}
 		}
 	}
