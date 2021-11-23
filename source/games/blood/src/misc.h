@@ -58,7 +58,7 @@ void WeaponPrecache();
 
 struct ZONE {
     int x, y, z;
-	int sectnum;
+	sectortype* sector;
 	short ang;
 };
 extern ZONE gStartZone[8];

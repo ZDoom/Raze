@@ -61,7 +61,7 @@ PLAYER gPlayerTemp[kMaxPlayers];
 int gHealthTemp[kMaxPlayers];
 vec3_t startpos;
 int16_t startang;
-int startsectnum;
+sectortype* startsector;
 
 
 void QuitGame(void)
@@ -111,7 +111,7 @@ void StartLevel(MapRecord* level, bool newgame)
 		}
 	}
 	//drawLoadingScreen();
-	dbLoadMap(currentLevel->fileName, (int*)&startpos.x, (int*)&startpos.y, (int*)&startpos.z, &startang, &startsectnum, nullptr);
+	dbLoadMap(currentLevel->fileName, (int*)&startpos.x, (int*)&startpos.y, (int*)&startpos.z, &startang, &startsector, nullptr);
 	SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
 	STAT_NewLevel(currentLevel->fileName);
 	wsrand(dbReadMapCRC(currentLevel->LabelName()));
@@ -149,12 +149,12 @@ void StartLevel(MapRecord* level, bool newgame)
 		Printf(PRINT_NONOTIFY, "> Modern types erased: %d.\n", modernTypesErased);
 #endif
 
-	startpos.z = getflorzofslope(startsectnum, startpos.x, startpos.y);
+	startpos.z = getflorzofslopeptr(startsector, startpos.x, startpos.y);
 	for (int i = 0; i < kMaxPlayers; i++) {
 		gStartZone[i].x = startpos.x;
 		gStartZone[i].y = startpos.y;
 		gStartZone[i].z = startpos.z;
-		gStartZone[i].sectnum = startsectnum;
+		gStartZone[i].sector = startsector;
 		gStartZone[i].ang = startang;
 
 #ifdef NOONE_EXTENSIONS
@@ -163,13 +163,13 @@ void StartLevel(MapRecord* level, bool newgame)
 			gStartZoneTeam1[i].x = startpos.x;
 			gStartZoneTeam1[i].y = startpos.y;
 			gStartZoneTeam1[i].z = startpos.z;
-			gStartZoneTeam1[i].sectnum = startsectnum;
+			gStartZoneTeam1[i].sector = startsector;
 			gStartZoneTeam1[i].ang = startang;
 
 			gStartZoneTeam2[i].x = startpos.x;
 			gStartZoneTeam2[i].y = startpos.y;
 			gStartZoneTeam2[i].z = startpos.z;
-			gStartZoneTeam2[i].sectnum = startsectnum;
+			gStartZoneTeam2[i].sector = startsector;
 			gStartZoneTeam2[i].ang = startang;
 		}
 #endif

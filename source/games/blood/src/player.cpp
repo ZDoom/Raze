@@ -637,7 +637,7 @@ void playerStart(int nPlayer, int bNewLevel)
 
             if (maxRetries != 0) {
                 // check if there is no spawned player in selected zone
-                BloodSectIterator it(pStartZone->sectnum);
+                BloodSectIterator it(pStartZone->sector);
                 while (auto act = it.Next())
                 {
                     spritetype* pSprite = &act->s();
@@ -658,7 +658,7 @@ void playerStart(int nPlayer, int bNewLevel)
         pStartZone = &gStartZone[Random(8)];
     }
 
-    auto actor = actSpawnSprite(pStartZone->sectnum, pStartZone->x, pStartZone->y, pStartZone->z, 6, 1);
+    auto actor = actSpawnSprite(pStartZone->sector, pStartZone->x, pStartZone->y, pStartZone->z, 6, 1);
     spritetype* pSprite = &actor->s();
     assert(actor->hasX());
     XSPRITE *pXSprite = &actor->x();

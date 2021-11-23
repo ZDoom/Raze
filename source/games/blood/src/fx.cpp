@@ -161,7 +161,7 @@ DBloodActor* CFX::fxSpawnActor(FX_ID nFx, int nSector, int x, int y, int z, unsi
             return nullptr;
         destroy(iactor);
     }
-    auto actor = actSpawnSprite(nSector, x, y, z, 1, 0);
+    auto actor = actSpawnSprite(&sector[nSector], x, y, z, 1, 0);
     spritetype* pSprite = &actor->s();
     pSprite->type = nFx;
     pSprite->picnum = pFX->picnum;

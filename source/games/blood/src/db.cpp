@@ -162,7 +162,7 @@ void qinitspritelists(void) // Replace
     Numsprites = 0;
 }
 
-DBloodActor* InsertSprite(int nSector, int nStat)
+DBloodActor* InsertSprite(sectortype* pSector, int nStat)
 {
     int nSprite = headspritestat[kMaxStatus];
     assert(nSprite < kMaxSprites);
@@ -177,7 +177,7 @@ DBloodActor* InsertSprite(int nSector, int nStat)
     spritetype *pSprite = &actor->s();
     memset(pSprite, 0, sizeof(spritetype));
     InsertSpriteStat(nSprite, nStat);
-    InsertSpriteSect(nSprite, nSector);
+    InsertSpriteSect(nSprite, sectnum(pSector));
     pSprite->cstat = 128;
     pSprite->clipdist = 32;
     pSprite->xrepeat = pSprite->yrepeat = 64;
@@ -393,7 +393,7 @@ struct walltypedisk
 #pragma pack(pop)
 
 
-void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, int* pSector, unsigned int* pCRC)
+void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sectortype** pSector, unsigned int* pCRC)
 {
     int16_t tpskyoff[256];
     ClearAutomap();
@@ -463,7 +463,6 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, int*
     *pY = mapHeader.y;
     *pZ = mapHeader.z;
     *pAngle = mapHeader.ang;
-    *pSector = mapHeader.sect;
     gVisibility = g_visibility = mapHeader.visibility;
     gMattId = mapHeader.mattid;
     if (encrypted)
@@ -493,6 +492,7 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, int*
 #if 1 // bad, bad hack, just for making Polymost happy...
 	PolymostAllocFakeSector();
 #endif
+    * pSector = &sector[mapHeader.sect];
 
     dbInit();
     if (encrypted)
@@ -970,9 +970,10 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, int*
 END_BLD_NS
 
 // only used by the backup loader.
-void qloadboard(const char* filename, char flags, vec3_t* dapos, int16_t* daang, int* dacursectnum)
+void qloadboard(const char* filename, char flags, vec3_t* dapos, int16_t* daang)
 {
-    Blood::dbLoadMap(filename, &dapos->x, &dapos->y, &dapos->z, daang, dacursectnum, NULL);
+    sectortype* sp;
+    Blood::dbLoadMap(filename, &dapos->x, &dapos->y, &dapos->z, daang, &sp, NULL);
     Blood::dbInit();    // clean up immediately.
 }
     

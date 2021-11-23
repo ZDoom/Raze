@@ -1887,7 +1887,7 @@ bool doExplosion(DBloodActor* actor, int nType)
 {
     auto const pSprite = &actor->s();
 
-    auto actExplosion = actSpawnSprite(pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, kStatExplosion, true);
+    auto actExplosion = actSpawnSprite(pSprite->sector(), pSprite->x, pSprite->y, pSprite->z, kStatExplosion, true);
     auto const pExplosion = &actExplosion->s();
     auto const pXExplosion = &actExplosion->x();
     if (!actExplosion->hasX())

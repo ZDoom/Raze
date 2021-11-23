@@ -117,7 +117,7 @@ void RemoveSpriteSect(int nSprite);
 void InsertSpriteStat(int nSprite, int nStat);
 void RemoveSpriteStat(int nSprite);
 void qinitspritelists(void);
-DBloodActor* InsertSprite(int nSector, int nStat);
+DBloodActor* InsertSprite(sectortype* pSector, int nStat);
 int DeleteSprite(int nSprite);
 int ChangeSpriteSect(int nSprite, int nSector);
 int qchangespritesect(short nSprite, short nSector);
@@ -126,7 +126,7 @@ void InitFreeList(unsigned short *pList, int nCount);
 void dbInit(void);
 void PropagateMarkerReferences(void);
 unsigned int dbReadMapCRC(const char *pPath);
-void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, int* pSector, unsigned int* pCRC);
+void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sectortype** pSector, unsigned int* pCRC);
 
 
 END_BLD_NS

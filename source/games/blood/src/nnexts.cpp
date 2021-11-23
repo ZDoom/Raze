@@ -3590,7 +3590,7 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector
             {
                 if (pXSource->data3 > 0)
                 {
-                    auto spawned = InsertSprite(pSprite->sectnum, kStatDecoration);
+                    auto spawned = InsertSprite(pSprite->sector(), kStatDecoration);
                     auto pSpawned = &spawned->s();
                     int top, bottom; GetActorExtents(spawned, &top, &bottom);
                     pSpawned->x = pSprite->x;

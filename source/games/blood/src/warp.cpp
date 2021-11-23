@@ -73,7 +73,7 @@ void warpInit(void)
                             pZone->x = pSprite->x;
                             pZone->y = pSprite->y;
                             pZone->z = pSprite->z;
-                            pZone->sectnum = pSprite->sectnum;
+                            pZone->sector = pSprite->sector();
                             pZone->ang = pSprite->ang;
                         }
                         DeleteSprite(actor);
@@ -86,7 +86,7 @@ void warpInit(void)
                                 pZone->x = pSprite->x;
                                 pZone->y = pSprite->y;
                                 pZone->z = pSprite->z;
-                                pZone->sectnum = pSprite->sectnum;
+                                pZone->sector = pSprite->sector();
                                 pZone->ang = pSprite->ang;
                             
                                 #ifdef NOONE_EXTENSIONS
@@ -97,7 +97,7 @@ void warpInit(void)
                                             pZone->x = pSprite->x;
                                             pZone->y = pSprite->y;
                                             pZone->z = pSprite->z;
-                                            pZone->sectnum = pSprite->sectnum;
+                                            pZone->sector = pSprite->sector();
                                             pZone->ang = pSprite->ang;
                                             team1++;
 
@@ -106,7 +106,7 @@ void warpInit(void)
                                             pZone->x = pSprite->x;
                                             pZone->y = pSprite->y;
                                             pZone->z = pSprite->z;
-                                            pZone->sectnum = pSprite->sectnum;
+                                            pZone->sector = pSprite->sector();
                                             pZone->ang = pSprite->ang;
                                             team2++;
                                         }
@@ -320,7 +320,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, ZONE& w, ZONE* def
 		arc("x", w.x)
 			("y", w.y)
 			("z", w.z)
-			("sector", w.sectnum)
+			("sector", w.sector)
 			("angle", w.ang)
 			.EndObject();
 	}

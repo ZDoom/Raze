@@ -524,7 +524,7 @@ void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang,
 }
 
 
-void qloadboard(const char* filename, char flags, vec3_t* dapos, int16_t* daang, int* dacursectnum);
+void qloadboard(const char* filename, char flags, vec3_t* dapos, int16_t* daang);
 
 
 // loads a map into the backup buffer.
@@ -536,7 +536,7 @@ void loadMapBackup(const char* filename)
 
 	if (isBlood())
 	{
-		qloadboard(filename, 0, &pos, &scratch, &scratch2);
+		qloadboard(filename, 0, &pos, &scratch);
 	}
 	else
 	{
