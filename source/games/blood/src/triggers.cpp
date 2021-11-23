@@ -1445,7 +1445,7 @@ void OperateTeleport(unsigned int nSector, XSECTOR *pXSector)
                 pSprite->y = pDest->y;
                 pSprite->z += sector[pDest->sectnum].floorz-sector[nSector].floorz;
                 pSprite->ang = pDest->ang;
-                ChangeActorSect(actor, pDest->sectnum);
+                ChangeActorSect(actor, pDest->sector());
                 sfxPlay3DSound(pDest, 201, -1, 0);
                 actor->xvel = actor->yvel = actor->zvel = 0;
                 actor->interpolated = false;
@@ -2224,7 +2224,7 @@ void ActivateGenerator(DBloodActor* actor)
         case kGenBubbleMulti: {
             int top, bottom;
             GetActorExtents(actor, &top, &bottom);
-            gFX.fxSpawnActor((pSprite->type == kGenBubble) ? FX_23 : FX_26, pSprite->sectnum, pSprite->x, pSprite->y, top, 0);
+            gFX.fxSpawnActor((pSprite->type == kGenBubble) ? FX_23 : FX_26, pSprite->sector(), pSprite->x, pSprite->y, top, 0);
             break;
         }
     }

@@ -583,7 +583,7 @@ void GetZRange(DBloodActor *actor, int *ceilZ, Collision *ceilColl, int *floorZ,
     int bakCstat = pSprite->cstat;
     int32_t nTemp1, nTemp2;
     pSprite->cstat &= ~257;
-    getzrange(&pSprite->pos, pSprite->sectnum, (int32_t*)ceilZ, &ceilHit, (int32_t*)floorZ, &floorHit, nDist, nMask);
+    getzrange(&pSprite->pos, pSprite->sector(), (int32_t*)ceilZ, &ceilHit, (int32_t*)floorZ, &floorHit, nDist, nMask);
     ceilColl->setFromEngine(ceilHit);
     floorColl->setFromEngine(floorHit);
     if (floorColl->type == kHitSector)

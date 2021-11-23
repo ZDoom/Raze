@@ -396,7 +396,7 @@ void UpdateAimVector(PLAYER * pPlayer)
             int angle = getangle(x2-x,y2-y);
             if (abs(((angle-pPSprite->ang+1024)&2047)-1024) > pWeaponTrack->angleRange)
                 continue;
-            if (pPlayer->aimTargetsCount < 16 && cansee(x,y,z,pPSprite->sectnum,x2,y2,z2,pSprite->sectnum))
+            if (pPlayer->aimTargetsCount < 16 && cansee(x,y,z,pPSprite->sector(),x2,y2,z2,pSprite->sector()))
                 pPlayer->aimTargets[pPlayer->aimTargetsCount++] = actor;
             // Inlined?
             int dz = (lz-z2)>>8;
@@ -408,7 +408,7 @@ void UpdateAimVector(PLAYER * pPlayer)
             DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
             int center = (pSprite->yrepeat*pDudeInfo->aimHeight)<<2;
             int dzCenter = (z2-center)-z;
-            if (cansee(x, y, z, pPSprite->sectnum, x2, y2, z2, pSprite->sectnum))
+            if (cansee(x, y, z, pPSprite->sector(), x2, y2, z2, pSprite->sector()))
             {
                 nClosest = nDist2;
                 aim.dx = bcos(angle);
@@ -447,7 +447,7 @@ void UpdateAimVector(PLAYER * pPlayer)
                 int angle = getangle(dx,dy);
                 if (abs(((angle-pPSprite->ang+1024)&2047)-1024) > pWeaponTrack->thingAngle)
                     continue;
-                if (pPlayer->aimTargetsCount < 16 && cansee(x,y,z,pPSprite->sectnum,pSprite->x,pSprite->y,pSprite->z,pSprite->sectnum))
+                if (pPlayer->aimTargetsCount < 16 && cansee(x,y,z,pPSprite->sector(),pSprite->x,pSprite->y,pSprite->z,pSprite->sector()))
                     pPlayer->aimTargets[pPlayer->aimTargetsCount++] = actor;
                 // Inlined?
                 int dz2 = (lz-z2)>>8;
@@ -456,7 +456,7 @@ void UpdateAimVector(PLAYER * pPlayer)
                 int nDist2 = ksqrt(dx2*dx2+dy2*dy2+dz2*dz2);
                 if (nDist2 >= nClosest)
                     continue;
-                if (cansee(x, y, z, pPSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum))
+                if (cansee(x, y, z, pPSprite->sector(), pSprite->x, pSprite->y, pSprite->z, pSprite->sector()))
                 {
                     nClosest = nDist2;
                     aim.dx = bcos(angle);

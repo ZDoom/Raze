@@ -1648,7 +1648,7 @@ void debrisBubble(DBloodActor* actor)
         int x = pSprite->x + MulScale(nDist, Cos(nAngle), 30);
         int y = pSprite->y + MulScale(nDist, Sin(nAngle), 30);
         int z = bottom - Random(bottom - top);
-        auto pFX = gFX.fxSpawnActor((FX_ID)(FX_23 + Random(3)), pSprite->sectnum, x, y, z, 0);
+        auto pFX = gFX.fxSpawnActor((FX_ID)(FX_23 + Random(3)), pSprite->sector(), x, y, z, 0);
         if (pFX) {
             pFX->xvel = actor->xvel + Random2(0x1aaaa);
             pFX->yvel = actor->yvel + Random2(0x1aaaa);
@@ -1843,7 +1843,7 @@ void debrisMove(int listIndex)
                 }
                 break;
             case kSurfWater:
-                gFX.fxSpawnActor(FX_9, pSprite->sectnum, pSprite->x, pSprite->y, floorZ, 0);
+                gFX.fxSpawnActor(FX_9, pSprite->sector(), pSprite->x, pSprite->y, floorZ, 0);
                 break;
             }
 
@@ -3008,8 +3008,8 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
     XSECTOR* pXSector = (pSource->sector()->hasX()) ? &pSource->sector()->xs() : nullptr;
     bool isDude = (!pPlayer && actor->IsDudeActor());
 
-    if (pSprite->sectnum != pSource->sectnum)
-        ChangeActorSect(actor, pSource->sectnum);
+    if (pSprite->sector() != pSource->sector())
+        ChangeActorSect(actor, pSource->sector());
 
     pSprite->x = pSource->x; pSprite->y = pSource->y;
     int zTop, zBot; 
@@ -3175,7 +3175,7 @@ void useEffectGen(DBloodActor* sourceactor, DBloodActor* actor)
                 break;
         }
 
-        if ((pEffect = gFX.fxSpawnActor((FX_ID)fxId, pSprite->sectnum, pSprite->x, pSprite->y, pos, 0)) != NULL) 
+        if ((pEffect = gFX.fxSpawnActor((FX_ID)fxId, pSprite->sector(), pSprite->x, pSprite->y, pos, 0)) != NULL)
         {
             auto pEffectSpr = &pEffect->s();
             pEffect->SetOwner(sourceactor);
@@ -4996,7 +4996,7 @@ bool aiFightDudeCanSeeTarget(DBloodActor* dudeactor, DUDEINFO* pDudeInfo, DBlood
         int eyeAboveZ = pDudeInfo->eyeHeight * pDude->yrepeat << 2;
 
         // is there a line of sight to the target?
-        if (cansee(pDude->x, pDude->y, pDude->z, pDude->sectnum, pTarget->x, pTarget->y, pTarget->z - eyeAboveZ, pTarget->sectnum)) 
+        if (cansee(pDude->x, pDude->y, pDude->z, pDude->sector(), pTarget->x, pTarget->y, pTarget->z - eyeAboveZ, pTarget->sector()))
         {
             /*int nAngle = getangle(dx, dy);
             int losAngle = ((1024 + nAngle - pDude->ang) & 2047) - 1024;
@@ -7843,7 +7843,7 @@ void aiPatrolSetMarker(DBloodActor* actor)
                 continue;
 
             GetActorExtents(nextactor, &zt1, &zb1); 
-            if (cansee(pNext->x, pNext->y, zt1, pNext->sectnum, pSprite->x, pSprite->y, zt2, pSprite->sectnum)) 
+            if (cansee(pNext->x, pNext->y, zt1, pNext->sector(), pSprite->x, pSprite->y, zt2, pSprite->sector()))
             {
                 closest = dist;
                 selected = nextactor;
@@ -8314,7 +8314,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
         {
             eyeAboveZ = (pDudeInfo->eyeHeight * pSprite->yrepeat) << 2;
             if (nDist < seeDist >> 3) GetActorExtents(pPlayer->actor, &z, &j); //use ztop of the target sprite
-            if (!cansee(x, y, z, pSpr->sectnum, pSprite->x, pSprite->y, pSprite->z - eyeAboveZ, pSprite->sectnum))
+            if (!cansee(x, y, z, pSpr->sector(), pSprite->x, pSprite->y, pSprite->z - eyeAboveZ, pSprite->sector()))
                 continue;
         }
         else 

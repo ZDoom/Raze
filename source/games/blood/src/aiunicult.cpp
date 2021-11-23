@@ -1442,7 +1442,7 @@ void removeLeech(DBloodActor* actLeech, bool delSprite)
     if (actLeech != NULL) 
     {
         auto const pLeech = &actLeech->s();
-        auto effectactor = gFX.fxSpawnActor((FX_ID)52, pLeech->sectnum, pLeech->x, pLeech->y, pLeech->z, pLeech->ang);
+        auto effectactor = gFX.fxSpawnActor((FX_ID)52, pLeech->sector(), pLeech->x, pLeech->y, pLeech->z, pLeech->ang);
         if (effectactor != NULL) 
         {
             spritetype* pEffect = &effectactor->s();

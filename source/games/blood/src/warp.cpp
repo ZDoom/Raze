@@ -205,7 +205,7 @@ int CheckLink(DBloodActor *actor)
             assert(aLower);
             spritetype *pLower = &aLower->s();
             assert(validSectorIndex(pLower->sectnum));
-            ChangeActorSect(actor, pLower->sectnum);
+            ChangeActorSect(actor, pLower->sector());
             pSprite->x += pLower->x-pUpper->x;
             pSprite->y += pLower->y-pUpper->y;
             int z2;
@@ -232,7 +232,7 @@ int CheckLink(DBloodActor *actor)
             assert(aUpper);
             spritetype *pUpper = &aUpper->s();
 			assert(validSectorIndex(pUpper->sectnum));
-            ChangeActorSect(actor, pUpper->sectnum);
+            ChangeActorSect(actor, pUpper->sector());
             pSprite->x += pUpper->x-pLower->x;
             pSprite->y += pUpper->y-pLower->y;
             int z2;

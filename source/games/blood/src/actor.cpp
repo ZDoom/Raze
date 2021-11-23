@@ -2917,7 +2917,7 @@ bool actHealDude(DBloodActor* actor, int add, int threshold)
 	if (pXDude->health < (unsigned)threshold)
 	{
 		spritetype* pSprite = &actor->s();
-		if (actor->IsPlayerActor()) sfxPlay3DSound(pSprite->x, pSprite->y, pSprite->z, 780, pSprite->sectnum);
+		if (actor->IsPlayerActor()) sfxPlay3DSound(pSprite->x, pSprite->y, pSprite->z, 780, pSprite->sector());
 		pXDude->health = min<uint32_t>(pXDude->health + add, threshold);
 		return true;
 	}
@@ -2992,7 +2992,7 @@ static bool actKillModernDude(DBloodActor* actor, DAMAGE_TYPE damageType)
 		else
 		{
 			seqKill(actor);
-			DBloodActor* pEffectA = gFX.fxSpawnActor((FX_ID)52, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, pSprite->ang);
+			DBloodActor* pEffectA = gFX.fxSpawnActor((FX_ID)52, pSprite->sector(), pSprite->x, pSprite->y, pSprite->z, pSprite->ang);
 			if (pEffectA != nullptr)
 			{
 				auto pEffect = &pEffectA->s();
@@ -3932,7 +3932,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 		case 4:
 			if (pWallHit)
 			{
-				auto pFX = gFX.fxSpawnActor(FX_52, pMissile->sectnum, pMissile->x, pMissile->y, pMissile->z, 0);
+				auto pFX = gFX.fxSpawnActor(FX_52, pMissile->sector(), pMissile->x, pMissile->y, pMissile->z, 0);
 				if (pFX) pFX->s().ang = (GetWallAngle(pWallHit) + 512) & 2047;
 			}
 			break;
@@ -4662,7 +4662,7 @@ static Collision MoveThing(DBloodActor* actor)
 		actor->zvel += 58254;
 		if (pSprite->type == kThingZombieHead)
 		{
-			auto* fxActor = gFX.fxSpawnActor(FX_27, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
+			auto* fxActor = gFX.fxSpawnActor(FX_27, pSprite->sector(), pSprite->x, pSprite->y, pSprite->z, 0);
 			if (fxActor)
 			{
 				int v34 = (PlayClock * 3) & 2047;
@@ -5211,17 +5211,17 @@ void MoveDude(DBloodActor* actor)
 			switch (tileGetSurfType(floorColl))
 			{
 			case kSurfWater:
-				gFX.fxSpawnActor(FX_9, pSprite->sectnum, pSprite->x, pSprite->y, floorZ, 0);
+				gFX.fxSpawnActor(FX_9, pSprite->sector(), pSprite->x, pSprite->y, floorZ, 0);
 				break;
 			case kSurfLava:
 			{
-				auto pFX = gFX.fxSpawnActor(FX_10, pSprite->sectnum, pSprite->x, pSprite->y, floorZ, 0);
+				auto pFX = gFX.fxSpawnActor(FX_10, pSprite->sector(), pSprite->x, pSprite->y, floorZ, 0);
 				if (pFX)
 				{
 					auto pFXs = &pFX->s();
 					for (int i = 0; i < 7; i++)
 					{
-						auto pFX2 = gFX.fxSpawnActor(FX_14, pFXs->sectnum, pFXs->x, pFXs->y, pFXs->z, 0);
+						auto pFX2 = gFX.fxSpawnActor(FX_14, pFXs->sector(), pFXs->x, pFXs->y, pFXs->z, 0);
 						if (pFX2)
 						{
 							pFX2->xvel = Random2(0x6aaaa);
@@ -6068,7 +6068,7 @@ static void actCheckTraps()
 				int dy = MulScale(t, Sin(pSprite->ang), 30);
 				for (int i = 0; i < 2; i++)
 				{
-					auto pFX = gFX.fxSpawnActor(FX_32, pSprite->sectnum, x, y, z, 0);
+					auto pFX = gFX.fxSpawnActor(FX_32, pSprite->sector(), x, y, z, 0);
 					if (pFX)
 					{
 						pFX->xvel = dx + Random2(0x8888);
@@ -7092,7 +7092,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 void FireballSeqCallback(int, DBloodActor* actor)
 {
 	auto pSprite = &actor->s();
-	auto pFX = gFX.fxSpawnActor(FX_11, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
+	auto pFX = gFX.fxSpawnActor(FX_11, pSprite->sector(), pSprite->x, pSprite->y, pSprite->z, 0);
 	if (pFX)
 	{
 		pFX->xvel = actor->xvel;
@@ -7104,7 +7104,7 @@ void FireballSeqCallback(int, DBloodActor* actor)
 void NapalmSeqCallback(int, DBloodActor* actor)
 {
 	auto pSprite = &actor->s();
-	auto pFX = gFX.fxSpawnActor(FX_12, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
+	auto pFX = gFX.fxSpawnActor(FX_12, pSprite->sector(), pSprite->x, pSprite->y, pSprite->z, 0);
 	if (pFX)
 	{
 		pFX->xvel = actor->xvel;
@@ -7116,7 +7116,7 @@ void NapalmSeqCallback(int, DBloodActor* actor)
 void Fx32Callback(int, DBloodActor* actor)
 {
 	auto pSprite = &actor->s();
-	auto pFX = gFX.fxSpawnActor(FX_32, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
+	auto pFX = gFX.fxSpawnActor(FX_32, pSprite->sector(), pSprite->x, pSprite->y, pSprite->z, 0);
 	if (pFX)
 	{
 		pFX->xvel = actor->xvel;
@@ -7128,7 +7128,7 @@ void Fx32Callback(int, DBloodActor* actor)
 void Fx33Callback(int, DBloodActor* actor)
 {
 	auto pSprite = &actor->s();
-	auto pFX = gFX.fxSpawnActor(FX_33, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
+	auto pFX = gFX.fxSpawnActor(FX_33, pSprite->sector(), pSprite->x, pSprite->y, pSprite->z, 0);
 	if (pFX)
 	{
 		pFX->xvel = actor->xvel;

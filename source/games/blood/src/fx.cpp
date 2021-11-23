@@ -265,7 +265,7 @@ void fxSpawnBlood(DBloodActor *actor, int )
         return;
     if (adult_lockout && gGameOptions.nGameType <= 0)
         return;
-    auto bloodactor = gFX.fxSpawnActor(FX_27, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
+    auto bloodactor = gFX.fxSpawnActor(FX_27, pSprite->sector(), pSprite->x, pSprite->y, pSprite->z, 0);
     if (bloodactor)
     {
         bloodactor->s().ang = 1024;
@@ -288,9 +288,9 @@ void fxSpawnPodStuff(DBloodActor* actor, int )
         return;
     DBloodActor *spawnactor;
     if (pSprite->type == kDudePodGreen)
-        spawnactor = gFX.fxSpawnActor(FX_53, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
+        spawnactor = gFX.fxSpawnActor(FX_53, pSprite->sector(), pSprite->x, pSprite->y, pSprite->z, 0);
     else
-        spawnactor = gFX.fxSpawnActor(FX_54, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
+        spawnactor = gFX.fxSpawnActor(FX_54, pSprite->sector(), pSprite->x, pSprite->y, pSprite->z, 0);
     if (spawnactor)
     {
         spawnactor->s().ang = 1024;
@@ -308,7 +308,7 @@ void fxSpawnEjectingBrass(DBloodActor* actor, int z, int a3, int a4)
     int y = pSprite->y + MulScale(pSprite->clipdist - 4, Sin(pSprite->ang), 28);
     x += MulScale(a3, Cos(pSprite->ang + 512), 30);
     y += MulScale(a3, Sin(pSprite->ang + 512), 30);
-    auto pBrass = gFX.fxSpawnActor((FX_ID)(FX_37 + Random(3)), pSprite->sectnum, x, y, z, 0);
+    auto pBrass = gFX.fxSpawnActor((FX_ID)(FX_37 + Random(3)), pSprite->sector(), x, y, z, 0);
     if (pBrass)
     {
         if (!VanillaMode())
@@ -328,7 +328,7 @@ void fxSpawnEjectingShell(DBloodActor* actor, int z, int a3, int a4)
     int y = pSprite->y + MulScale(pSprite->clipdist - 4, Sin(pSprite->ang), 28);
     x += MulScale(a3, Cos(pSprite->ang + 512), 30);
     y += MulScale(a3, Sin(pSprite->ang + 512), 30);
-    auto pShell = gFX.fxSpawnActor((FX_ID)(FX_40 + Random(3)), pSprite->sectnum, x, y, z, 0);
+    auto pShell = gFX.fxSpawnActor((FX_ID)(FX_40 + Random(3)), pSprite->sector(), x, y, z, 0);
     if (pShell)
     {
         if (!VanillaMode())
