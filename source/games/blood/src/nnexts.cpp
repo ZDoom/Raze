@@ -3831,40 +3831,30 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
     int objType = -1; int objIndex = -1;
     DBloodActor* objActor = nullptr;
     condUnserialize(aCond, &objType, &objIndex, &objActor);
+	EventObject eob; eob.fromElements(objType, objIndex, objActor);
 
     switch (cond) 
     {
-        case 0:  return (objType == OBJ_SECTOR && validSectorIndex(objIndex)); // is a sector?
-        case 5:  return (objType == OBJ_WALL && validWallIndex(objIndex));   // is a wall?
-        case 10: return (objType == OBJ_SPRITE && objActor != nullptr); // is a sprite?
+        case 0:  return (eob.isSector());
+        case 5:  return (eob.isWall());
+        case 10: return (eob.isActor() && eob.actor());
         case 15: // x-index is fine?
-            switch (objType) 
-			{
-                case OBJ_WALL: return wall[objIndex].hasX();
-                case OBJ_SPRITE: return objActor && objActor->hasX();
-                case OBJ_SECTOR: return sector[objIndex].hasX();
-            }
+            if (eob.isWall()) return eob.wall()->hasX();
+            if (eob.isSector()) return eob.sector()->hasX();
+            if (eob.isActor()) return eob.actor() && eob.actor()->hasX();
             break;
         case 20: // type in a range?
-            switch (objType) 
-			{
-                case OBJ_WALL:
-                    return condCmp(wall[objIndex].type, arg1, arg2, cmpOp);
-                case OBJ_SPRITE:
-                    return condCmp(objActor->s().type, arg1, arg2, cmpOp);
-                case OBJ_SECTOR:
-                    return condCmp(sector[objIndex].type, arg1, arg2, cmpOp);
-            }
+            if (eob.isWall()) return condCmp(eob.wall()->type, arg1, arg2, cmpOp);
+            if (eob.isSector())  return condCmp(eob.sector()->type, arg1, arg2, cmpOp);
+            if (eob.isActor()) return eob.actor() && condCmp(eob.actor()->s().type, arg1, arg2, cmpOp);
             break;
         case 24:
         case 25: case 26: case 27:
         case 28: case 29: case 30:
         case 31: case 32: case 33:
-            switch (objType)
+                if (eob.isWall())
             {
-                case OBJ_WALL: 
-                {
-                    walltype* pObj = &wall[objIndex];
+                    walltype* pObj = eob.wall();
                     switch (cond) 
                     {
                         case 24: return condCmp(surfType[pObj->picnum], arg1, arg2, cmpOp);
@@ -3878,11 +3868,11 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
                         case 32: return condCmp(pObj->yrepeat, arg1, arg2, cmpOp);
                         case 33: return condCmp(pObj->ypan(), arg1, arg2, cmpOp);
                     }
-                    break;
                 }
-                case OBJ_SPRITE: 
+                else if (eob.isActor())
                 {
-                    spritetype* pObj = &objActor->s();
+                    if (!eob.actor()) break;
+                    spritetype* pObj = &eob.actor()->s();
                     switch (cond) 
                     {
                         case 24: return condCmp(surfType[pObj->picnum], arg1, arg2, cmpOp);
@@ -3896,11 +3886,10 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
                         case 32: return condCmp(pObj->yrepeat, arg1, arg2, cmpOp);
                         case 33: return condCmp(pObj->yoffset, arg1, arg2, cmpOp);
                     }
-                    break;
                 }
-                case OBJ_SECTOR: 
+                else if (eob.sector())
                 {
-                    sectortype* pObj = &sector[objIndex];
+                    sectortype* pObj = eob.sector();
                     switch (cond) 
                     {
                         case 24:
@@ -3949,9 +3938,7 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
                         case 32: return condCmp(pObj->floorypan(), arg1, arg2, cmpOp);
                         case 33: return condCmp(pObj->ceilingypan(), arg1, arg2, cmpOp);
                     }
-                    break;
                 }
-            }
             break;
         case 41:  case 42:  case 43:
         case 44:  case 50:  case 51:
@@ -3959,14 +3946,12 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
         case 55:  case 56:  case 57:
         case 58:  case 59:  case 70:
         case 71:
-            switch (objType)
+                if (eob.isWall())
             {
-                case OBJ_WALL: 
-                {
-                    if (!wall[objIndex].hasX())
+                    auto pObj = eob.wall();
+                    if (!pObj->hasX())
                         return condCmp(0, arg1, arg2, cmpOp);
                     
-                    auto pObj = &wall[objIndex];
                     XWALL* pXObj =  &pObj->xw();
                     switch (cond) 
                     {
@@ -3998,9 +3983,11 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
                             }
                             break;
                     }
-                    break;
                 }
-                case OBJ_SPRITE: {
+                else if (eob.isActor())
+                {
+                    auto objActor = eob.actor();
+                    if (!objActor) break;
                     if (!objActor->hasX())
                         return condCmp(0, arg1, arg2, cmpOp);
                     
@@ -4009,7 +3996,7 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
                     {
                         case 41: case 42:
                         case 43: case 44:
-                            return condCmp(getDataFieldOfObject(OBJ_SPRITE, objIndex, objActor, 1 + cond - 41), arg1, arg2, cmpOp);
+                            return condCmp(getDataFieldOfObject(eob, 1 + cond - 41), arg1, arg2, cmpOp);
                         case 50: return condCmp(pXObj->rxID, arg1, arg2, cmpOp);
                         case 51: return condCmp(pXObj->txID, arg1, arg2, cmpOp);
                         case 52: return pXObj->locked;
@@ -4023,15 +4010,14 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
                         case 70: return condCmp(seqGetID(objActor), arg1, arg2, cmpOp);
                         case 71: return condCmp(seqGetStatus(objActor), arg1, arg2, cmpOp);
                     }
-                    break;
                 }
-                case OBJ_SECTOR: 
+                else if (eob.isSector())
                 {
-                    if (!sector[objIndex].hasX())
+                    auto pObj = eob.sector();
+                    if (!pObj->hasX())
                         return condCmp(0, arg1, arg2, cmpOp);
                     
-                    auto pObj = &sector[objIndex];
-                    XSECTOR* pXObj = &sector[objIndex].xs();
+                    XSECTOR* pXObj = &pObj->xs();
                     switch (cond) {
                         case 41: return condCmp(pXObj->data, arg1, arg2, cmpOp);
                         case 50: return condCmp(pXObj->rxID, arg1, arg2, cmpOp);
@@ -4062,9 +4048,7 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
                             }
                             break;
                     }
-                    break;
                 }
-            }
             break;
         case 99: return condCmp(event.cmd, arg1, arg2, cmpOp);  // this codition received specified command?
     }
