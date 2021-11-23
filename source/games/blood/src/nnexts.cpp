@@ -7173,7 +7173,7 @@ void playerQavSceneProcess(PLAYER* pPlayer, QAVSCENE* pQavScene)
             {
                 for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++) 
                 {
-                    if (rxBucket[i].type == OBJ_SPRITE) 
+                    if (rxBucket[i].isActor()) 
                     {
                         auto rxactor = rxBucket[i].actor();
                         if (!rxactor || !rxactor->hasX() || rxactor == initiator) continue;
@@ -8979,8 +8979,10 @@ DBloodActor* evrListRedirectors(int objType, int objIndex, DBloodActor* objActor
     bool prevFound = false;
     for (int i = bucketHead[id]; i < bucketHead[id + 1]; i++) 
     {
-        if (rxBucket[i].type != OBJ_SPRITE) continue;
-        auto pXSpr = evrIsRedirector(rxBucket[i].rxactor);
+        if (!rxBucket[i].isActor()) continue;
+        auto rxactor = rxBucket[i].actor();
+
+        auto pXSpr = evrIsRedirector(rxactor);
         if (!pXSpr) continue;
         else if (prevFound || pXRedir == nullptr) 
         {
@@ -9012,7 +9014,10 @@ bool incDecGoalValueIsReached(DBloodActor* actor)
 
     for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++) 
     {
-        if (rxBucket[i].type == OBJ_SPRITE && evrIsRedirector(rxBucket[i].rxactor)) continue;
+        if (!rxBucket[i].isActor()) continue;
+        auto rxactor = rxBucket[i].actor();
+
+        if (evrIsRedirector(rxactor)) continue;
         for (int a = 0; a < len; a++) 
         {
             if (getDataFieldOfObject(rxBucket[i].type, rxBucket[i].rxindex, rxBucket[i].rxactor, (buffer[a] - 52) + 4) != pXSprite->data3)
