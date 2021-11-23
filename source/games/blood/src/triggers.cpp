@@ -84,7 +84,7 @@ bool SetWallState(walltype* pWall, int nState)
     pXWall->state = nState;
     evKillWall(wallnum(pWall));
     if (pXWall->restState != nState && pXWall->waitTime > 0)
-        evPostWall(wallnum(pWall), (pXWall->waitTime*120) / 10, pXWall->restState ? kCmdOn : kCmdOff);
+        evPostWall(pWall, (pXWall->waitTime*120) / 10, pXWall->restState ? kCmdOn : kCmdOff);
     if (pXWall->txID)
     {
         if (pXWall->command != kCmdLink && pXWall->triggerOn && pXWall->state)
