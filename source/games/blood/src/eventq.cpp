@@ -73,7 +73,7 @@ static int GetBucketChannel(const RXBUCKET* pBucket)
 	}
 
 	case SS_SPRITE:
-		return pBucket->GetActor()? pBucket->GetActor()->x().rxID : 0;
+		return pBucket->actor()? pBucket->actor()->x().rxID : 0;
 	}
 
 	Printf(PRINT_HIGH, "Unexpected rxBucket type %d", pBucket->type);
@@ -311,7 +311,7 @@ void evInit()
 				assert(nCount < kChannelMax);
 				rxBucket[nCount].type = SS_SPRITE;
 				rxBucket[nCount].rxindex = 0;
-				rxBucket[nCount].actor = actor;
+				rxBucket[nCount].rxactor = actor;
 				nCount++;
 			}
 		}
@@ -486,7 +486,7 @@ void evSend(const EventObject& eob, int rxId, COMMAND_ID command)
 	for (int i = bucketHead[rxId]; i < bucketHead[rxId + 1]; i++) 
 	{
 		EventObject eo;
-		eo.fromElements(rxBucket[i].type, rxBucket[i].rxindex, rxBucket[i].actor);
+		eo.fromElements(rxBucket[i].type, rxBucket[i].rxindex, rxBucket[i].rxactor);
 		if (!event.event_isObject(eo))
 		{
 			switch (rxBucket[i].type) 
@@ -499,7 +499,7 @@ void evSend(const EventObject& eob, int rxId, COMMAND_ID command)
 				break;
 			case 3:
 			{
-				auto actor = rxBucket[i].GetActor();
+				auto actor = rxBucket[i].actor();
 
 				if (actor && actor->hasX() && !(actor->s().flags & 32))
 				{
@@ -721,7 +721,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, RXBUCKET& w, RXBUC
 	{
 		arc("type", w.type);
 		if (w.type != SS_SPRITE) arc("index", w.rxindex);
-		else arc("index", w.actor);
+		else arc("index", w.rxactor);
 		arc.EndObject();
 	}
 	return arc;

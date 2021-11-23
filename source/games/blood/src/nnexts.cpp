@@ -4980,7 +4980,7 @@ DBloodActor* aiFightGetMateTargets(DBloodActor* actor)
     {
         if (rxBucket[i].type == OBJ_SPRITE) 
         {
-            auto mate = rxBucket[i].GetActor();
+            auto mate = rxBucket[i].actor();
             if (!mate || !mate->hasX() || mate == actor || !mate->IsDudeActor())
                 continue;
 
@@ -5009,7 +5009,7 @@ bool aiFightMatesHaveSameTarget(DBloodActor* leaderactor, DBloodActor* targetact
     {
         if (rxBucket[i].type != OBJ_SPRITE) continue;
 
-        auto mate = rxBucket[i].actor;
+        auto mate = rxBucket[i].rxactor;
         if (!mate || !mate->hasX() || mate == leaderactor || !mate->IsDudeActor())
             continue;
 
@@ -5066,7 +5066,7 @@ void aiFightActivateDudes(int rx)
     for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) 
     {
         if (rxBucket[i].type != OBJ_SPRITE) continue;
-        auto dudeactor = rxBucket[i].GetActor();
+        auto dudeactor = rxBucket[i].actor();
         if (!dudeactor || !dudeactor->hasX() || !dudeactor->IsDudeActor() || dudeactor->x().aiState->stateType != kAiStateGenIdle) continue;
         aiInitSprite(dudeactor);
     }
@@ -5101,8 +5101,8 @@ void aiFightFreeAllTargets(DBloodActor* sourceactor)
     if (txID <= 0) return;
     for (int i = bucketHead[txID]; i < bucketHead[txID + 1]; i++) 
     {
-        if (rxBucket[i].type == OBJ_SPRITE && rxBucket[i].actor && rxBucket[i].actor->hasX())
-            aiFightFreeTargets(rxBucket[i].actor);
+        if (rxBucket[i].type == OBJ_SPRITE && rxBucket[i].rxactor && rxBucket[i].rxactor->hasX())
+            aiFightFreeTargets(rxBucket[i].rxactor);
     }
 }
 
@@ -5126,7 +5126,7 @@ bool aiFightDudeIsAffected(DBloodActor* dudeactor)
         {
             if (rxBucket[i].type != OBJ_SPRITE) continue;
 
-            auto rxactor = rxBucket[i].actor;
+            auto rxactor = rxBucket[i].rxactor;
             if (!rxactor || !rxactor->hasX() || !rxactor->IsDudeActor()) continue;
             else if (rxactor == dudeactor) return true;
         }
@@ -5146,7 +5146,7 @@ bool aiFightGetDudesForBattle(DBloodActor* actor)
     for (int i = bucketHead[txID]; i < bucketHead[txID + 1]; i++) 
     {
         if (rxBucket[i].type != OBJ_SPRITE) continue;
-        auto actor = rxBucket[i].GetActor();
+        auto actor = rxBucket[i].actor();
         if (!actor || !actor->hasX() || !actor->IsDudeActor()) continue;
         if (actor->x().health > 0) return true;
     }
@@ -5159,7 +5159,7 @@ bool aiFightGetDudesForBattle(DBloodActor* actor)
         for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) 
         {
 	        if (rxBucket[i].type != OBJ_SPRITE) continue;
-	        auto actor = rxBucket[i].GetActor();
+	        auto actor = rxBucket[i].actor();
 	        if (!actor || !actor->hasX() || !actor->IsDudeActor()) continue;
 	        if (actor->x().health > 0) return true;
         }
@@ -7169,7 +7169,7 @@ void playerQavSceneProcess(PLAYER* pPlayer, QAVSCENE* pQavScene)
                 {
                     if (rxBucket[i].type == OBJ_SPRITE) 
                     {
-                        auto rxactor = rxBucket[i].GetActor();
+                        auto rxactor = rxBucket[i].actor();
                         if (!rxactor || !rxactor->hasX() || rxactor == initiator) continue;
 
                         spritetype* pSpr = &rxactor->s();
@@ -7182,7 +7182,7 @@ void playerQavSceneProcess(PLAYER* pPlayer, QAVSCENE* pQavScene)
                         }
 
                     }
-                    nnExtTriggerObject(rxBucket[i].type, rxBucket[i].rxindex, rxBucket[i].actor, pXSprite->command);
+                    nnExtTriggerObject(rxBucket[i].type, rxBucket[i].rxindex, rxBucket[i].rxactor, pXSprite->command);
 
                 }
             }
@@ -8974,7 +8974,7 @@ DBloodActor* evrListRedirectors(int objType, int objIndex, DBloodActor* objActor
     for (int i = bucketHead[id]; i < bucketHead[id + 1]; i++) 
     {
         if (rxBucket[i].type != OBJ_SPRITE) continue;
-        auto pXSpr = evrIsRedirector(rxBucket[i].actor);
+        auto pXSpr = evrIsRedirector(rxBucket[i].rxactor);
         if (!pXSpr) continue;
         else if (prevFound || pXRedir == nullptr) 
         {
@@ -9006,10 +9006,10 @@ bool incDecGoalValueIsReached(DBloodActor* actor)
 
     for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++) 
     {
-        if (rxBucket[i].type == OBJ_SPRITE && evrIsRedirector(rxBucket[i].actor)) continue;
+        if (rxBucket[i].type == OBJ_SPRITE && evrIsRedirector(rxBucket[i].rxactor)) continue;
         for (int a = 0; a < len; a++) 
         {
-            if (getDataFieldOfObject(rxBucket[i].type, rxBucket[i].rxindex, rxBucket[i].actor, (buffer[a] - 52) + 4) != pXSprite->data3)
+            if (getDataFieldOfObject(rxBucket[i].type, rxBucket[i].rxindex, rxBucket[i].rxactor, (buffer[a] - 52) + 4) != pXSprite->data3)
                 return false;
         }
     }
@@ -9021,7 +9021,7 @@ bool incDecGoalValueIsReached(DBloodActor* actor)
         {
             for (int a = 0; a < len; a++) 
             {
-                if (getDataFieldOfObject(rxBucket[i].type, rxBucket[i].rxindex, rxBucket[i].actor, (buffer[a] - 52) + 4) != pXSprite->data3)
+                if (getDataFieldOfObject(rxBucket[i].type, rxBucket[i].rxindex, rxBucket[i].rxactor, (buffer[a] - 52) + 4) != pXSprite->data3)
                     return false;
             }
         }
