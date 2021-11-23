@@ -82,27 +82,6 @@ struct SPRITEHIT
 	Collision hit, ceilhit, florhit;
 };
 
-struct ConditionElement
-{
-	int type;
-	int index;
-	DBloodActor* actor;
-
-	bool operator==(const ConditionElement& other) const
-	{
-		if (type != other.type) return false;
-		if (type == kCondSerialSprite && actor != other.actor) return false;
-		if (type != kCondSerialSprite && index != other.index) return false;
-		return true;
-	}
-
-	bool operator!=(const ConditionElement& other) const
-	{
-		return !(operator==(other));
-	}
-
-};
-
 // Due to the messed up array storage of all the game data we cannot do any direct references here yet. We have to access everything via wrapper functions for now.
 // Note that the indexing is very inconsistent - partially by sprite index, partially by xsprite index.
 class DBloodActor
@@ -122,7 +101,7 @@ public:
 	DBloodActor* prevmarker;	// needed by the nnext marker code. This originally hijacked targetX in XSPRITE
 	DBloodActor* ownerActor;	// was previously stored in the sprite's owner field.
 	POINT3D basePoint;
-	ConditionElement condition[2];
+	EventObject condition[2];
 	bool explosionhackflag; // this originally hijacked the target field which is not safe when working with pointers.
 
 	// transient data (not written to savegame)

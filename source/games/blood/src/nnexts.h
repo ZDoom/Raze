@@ -360,6 +360,7 @@ bool isShrinked(DBloodActor* pSprite);
 bool IsBurningDude(DBloodActor* pSprite);
 bool IsKillableDude(DBloodActor* pSprite);
 bool isActive(DBloodActor* nSprite);
+int getDataFieldOfObject(const EventObject& eob, int dataIndex);
 int getDataFieldOfObject(int objType, int objIndex, DBloodActor* objActor, int dataIndex);
 bool setDataValueOfObject(int objType, int objIndex, DBloodActor* objActor, int dataIndex, int value);
 bool incDecGoalValueIsReached(DBloodActor* actor);

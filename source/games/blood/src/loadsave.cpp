@@ -456,22 +456,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, DUDEEXTRA& w, DUDE
 	return arc;
 }
 
-FSerializer& Serialize(FSerializer& arc, const char* keyname, ConditionElement& w, ConditionElement* def)
-{
-	int empty = 0;
-	DBloodActor* empty2 = nullptr;
-	if (arc.isReading()) w = {};
-
-	if (arc.BeginObject(keyname))
-	{
-		arc("type", w.type, &empty)
-			("index", w.index, &empty)
-			("actor", w.actor, &empty2)
-			.EndObject();
-	}
-	return arc;
-}
-
 FSerializer& Serialize(FSerializer& arc, const char* keyname, DBloodActor*& w, DBloodActor** def)
 {
 	int index = w? int(w - bloodActors) : -1;

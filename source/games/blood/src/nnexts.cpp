@@ -470,26 +470,6 @@ void nnExtTriggerObject(const EventObject& eob, int command)
     }
 }
 
-[[deprecated]]
-void nnExtTriggerObject(int objType, int objIndex, DBloodActor* objActor, int command) 
-{
-    switch (objType) 
-    {
-        case OBJ_SECTOR:
-            trTriggerSector(&sector[objIndex], command);
-            break;
-        case OBJ_WALL:
-            trTriggerWall(&wall[objIndex], command);
-            break;
-        case OBJ_SPRITE:
-            if (!objActor || !objActor->hasX()) break;
-            trTriggerSprite(objActor, command);
-            break;
-    }
-
-    return;
-}
-
 //---------------------------------------------------------------------------
 //
 //
@@ -3686,44 +3666,11 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, int index, DBloodAc
 //
 //---------------------------------------------------------------------------
 
-ConditionElement condSerialize(DBloodActor* objActor) 
-{
-    // this one only gets used for players
-    return { kCondSerialSprite, -1, objActor };
-}
-
-
-bool condPush(DBloodActor* actor, int type, int index, DBloodActor* iactor)
-{
-    actor->condition[0] = { type, index, actor };
-    return true;
-}
-
-bool condPush(DBloodActor* actor, DBloodActor* iactor)
-{
-    actor->condition[0] = { OBJ_SPRITE, -1, iactor };
-    return true;
-}
-
-bool condPush(DBloodActor* actor, sectortype* sec)
-{
-    actor->condition[0] = { OBJ_SECTOR, sectnum(sec), nullptr };
-    return true;
-}
-
-bool condPush(DBloodActor* actor, walltype* wal)
-{
-    actor->condition[0] = { OBJ_WALL, wallnum(wal), nullptr };
-    return true;
-}
-
-
-void condUnserialize(DBloodActor* actor, int* objType, int* objIndex, DBloodActor** objActor) 
-{
-	*objType = actor->condition[0].type;
-	*objIndex = actor->condition[0].index;
-	*objActor = actor->condition[0].actor;
-}
+void condPush(DBloodActor* actor, const EventObject& iactor) { actor->condition[0] = iactor; }
+void condPush(DBloodActor* actor, DBloodActor* iactor) { actor->condition[0] = EventObject(iactor); }
+void condPush(DBloodActor* actor, walltype* iactor) { actor->condition[0] = EventObject(iactor); }
+void condPush(DBloodActor* actor, sectortype* iactor) { actor->condition[0] = EventObject(iactor); }
+EventObject condGet(DBloodActor* actor) { return actor->condition[0]; }
 
 void condBackup(DBloodActor* actor)
 {
@@ -3828,10 +3775,7 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
     int cond = pXCond->data1 - kCondMixedBase; int arg1 = pXCond->data2;
     int arg2 = pXCond->data3; int arg3 = pXCond->data4;
     
-    int objType = -1; int objIndex = -1;
-    DBloodActor* objActor = nullptr;
-    condUnserialize(aCond, &objType, &objIndex, &objActor);
-	EventObject eob; eob.fromElements(objType, objIndex, objActor);
+    auto eob = condGet(aCond);
 
     switch (cond) 
     {
@@ -4071,14 +4015,12 @@ bool condCheckSector(DBloodActor* aCond, int cmpOp, bool PUSH)
     int arg1 = pXCond->data2;
     int arg2 = pXCond->data3; //int arg3 = pXCond->data4;
     
-    int objType = -1, objIndex = -1;
-    DBloodActor* objActor = nullptr;
-    condUnserialize(aCond, &objType, &objIndex, &objActor);
+    auto eob = condGet(aCond);
 
-    if (objType != OBJ_SECTOR || !validSectorIndex(objIndex))
-        condError(aCond, "Object #%d (objType: %d) is not a sector!", objIndex, objType);
+    if (!eob.isSector())
+        condError(aCond, "Sector expected, got %s", eob.description().GetChars());
 
-    sectortype* pSect = &sector[objIndex];
+    sectortype* pSect = eob.sector();
     XSECTOR* pXSect = pSect->hasX()? &pSect->xs() : nullptr;
 
     if (cond < (kCondRange >> 1)) 
@@ -4163,15 +4105,12 @@ bool condCheckWall(DBloodActor* aCond, int cmpOp, bool PUSH)
     int var = -1;
     int cond = pXCond->data1 - kCondWallBase; int arg1 = pXCond->data2;
     int arg2 = pXCond->data3; //int arg3 = pXCond->data4;
-    
-    int objType = -1, objIndex = -1;
-    DBloodActor* objActor = nullptr;
-    condUnserialize(aCond, &objType, &objIndex, &objActor);
 
-    if (objType != OBJ_WALL || !validWallIndex(objIndex))
-        condError(aCond, "Object #%d (objType: %d) is not a wall!", objIndex, objType);
+    auto eob = condGet(aCond);
+    if (!eob.isWall())
+        condError(aCond, "Wall expected, got %s", eob.description().GetChars());
         
-    walltype* pWall = &wall[objIndex];
+    walltype* pWall = eob.wall();
     
     if (cond < (kCondRange >> 1)) 
     {
@@ -4221,13 +4160,12 @@ bool condCheckPlayer(DBloodActor* aCond, int cmpOp, bool PUSH)
     int arg2 = pXCond->data3; 
     int arg3 = pXCond->data4;
 
-    int objType = -1, objIndex = -1;
-    DBloodActor* objActor = nullptr;
-    condUnserialize(aCond, &objType, &objIndex, &objActor);
+    auto eob = condGet(aCond);
 
-    if (objType != OBJ_SPRITE || !objActor)
-        condError(aCond, "Object #%d (objType: %d) is not a sprite!", objActor->GetIndex(), objType);
+    if (!eob.isActor() || !eob.actor())
+        condError(aCond, "Sprite expected, got %s", eob.description().GetChars());
 
+    auto objActor = eob.actor();
     for (int i = 0; i < kMaxPlayers; i++) 
     {
         if (objActor != gPlayer[i].actor) continue;
@@ -4237,7 +4175,7 @@ bool condCheckPlayer(DBloodActor* aCond, int cmpOp, bool PUSH)
     
     if (!pPlayer) 
     {
-        condError(aCond, "Object #%d (objType: %d) is not a player!", objActor->GetIndex(), objType);
+        condError(aCond, "Player expected, got %s", eob.description().GetChars());
         return false;
     }
 
@@ -4308,19 +4246,19 @@ bool condCheckDude(DBloodActor* aCond, int cmpOp, bool PUSH)
     int cond = pXCond->data1 - kCondDudeBase; int arg1 = pXCond->data2;
     int arg2 = pXCond->data3; int arg3 = pXCond->data4;
     
-    int objType = -1, objIndex = -1;
-    DBloodActor* objActor = nullptr;
-    condUnserialize(aCond, &objType, &objIndex, &objActor);
+    auto eob = condGet(aCond);
 
-    if (objType != OBJ_SPRITE || !objActor)
-        condError(aCond, "Object #%d (objType: %d) is not a sprite!", objActor->GetIndex(), objType);
+    if (!eob.isActor() || !eob.actor())
+        condError(aCond, "Sprite expected, got %s", eob.description().GetChars());
+
+    auto objActor = eob.actor();
 
     spritetype* pSpr = &objActor->s();
     if (!objActor->hasX() || pSpr->type == kThingBloodChunks)
-        condError(aCond, "Object #%d (objType: %d) is dead!", objActor->GetIndex(), objType);
+        condError(aCond, "Sprite #%d is dead!", objActor->GetIndex());
     
     if (!objActor->IsDudeActor() || objActor->IsPlayerActor())
-        condError(aCond, "Object #%d (objType: %d) is not an enemy!", objActor->GetIndex(), objType);
+        condError(aCond, "Object #%d is not an enemy!", objActor->GetIndex());
 
     XSPRITE* pXSpr = &objActor->x();
     auto targ = objActor->GetTarget();
@@ -4470,12 +4408,12 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
     int cond = pXCond->data1 - kCondSpriteBase; int arg1 = pXCond->data2;
     int arg2 = pXCond->data3; int arg3 = pXCond->data4;
     
-    int objType = -1, objIndex = -1;
-    DBloodActor* objActor = nullptr;
-    condUnserialize(aCond, &objType, &objIndex, &objActor);
+    auto eob = condGet(aCond);
 
-    if (objType != OBJ_SPRITE || !objActor)
-        condError(aCond, "Object #%d (objType: %d) is not a sprite!", cond, objActor->GetIndex(), objType);
+    if (!eob.isActor() || !eob.actor())
+        condError(aCond, "Sprite expected, got %s", eob.description().GetChars());
+
+    auto objActor = eob.actor();
 
     spritetype* pSpr = &objActor->s();
     XSPRITE* pXSpr = objActor->hasX()? &objActor->x() : nullptr;
@@ -4718,8 +4656,8 @@ void condUpdateObjectIndex(DBloodActor* oldActor, DBloodActor* newActor)
     }
 
     // puke...
-    auto oldSerial = condSerialize(oldActor);
-    auto newSerial = condSerialize(newActor);
+    auto oldSerial = EventObject(oldActor);
+    auto newSerial = EventObject(newActor);
 
     // then update serials
     BloodStatIterator it(kStatModernCondition);
@@ -6253,7 +6191,7 @@ int useCondition(DBloodActor* sourceactor, const EVENT& event)
     if (pXSource->busyTime > 0 && event.funcID != kCallbackMax) return -1;
     else if (!srcIsCondition) // save object serials in the stack and make copy of initial object
     {
-        condPush(sourceactor, objType, objIndex, pActor);
+        condPush(sourceactor, event.target);
         condBackup(sourceactor);
     } 
     else  // or grab serials of objects from previous conditions
@@ -6322,10 +6260,7 @@ int useCondition(DBloodActor* sourceactor, const EVENT& event)
 
             // send it for initial object
             if ((pSource->flags & kModernTypeFlag2) && (sourceactor->condition[0] != sourceactor->condition[1] || !(pSource->hitag & kModernTypeFlag1))) {
-                DBloodActor* objActor = nullptr;
-                int objType, objIndex;
-                condUnserialize(sourceactor, &objType, &objIndex, &objActor);
-                nnExtTriggerObject(objType, objIndex, objActor, pXSource->command);
+                nnExtTriggerObject(condGet(sourceactor), pXSource->command);
             }
         }
     }
