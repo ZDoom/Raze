@@ -764,46 +764,47 @@ void PathSound(int nSector, int nSound)
     }
 }
 
-void DragPoint(int nWall, int x, int y)
+void DragPoint(walltype* pWall, int x, int y)
 {
-    sector[wall[nWall].sector].dirty = 255; 
-    viewInterpolateWall(nWall, &wall[nWall]);
-    wall[nWall].x = x;
-    wall[nWall].y = y;
+    sector[pWall->sector].dirty = 255; 
+    viewInterpolateWall(pWall);
+    pWall->x = x;
+    pWall->y = y;
 
     int vsi = numwalls;
-    int vb = nWall;
+    auto prevWall = pWall;
     do
     {
-        if (wall[vb].nextwall >= 0)
+        if (prevWall->nextwall >= 0)
         {
-            vb = wall[wall[vb].nextwall].point2;
-            sector[wall[vb].sector].dirty = 255;
-            viewInterpolateWall(vb, &wall[vb]);
-            wall[vb].x = x;
-            wall[vb].y = y;
+            prevWall = prevWall->nextWall()->point2Wall();
+            prevWall->sectorp()->dirty = 255;
+            viewInterpolateWall(prevWall);
+            prevWall->x = x;
+            prevWall->y = y;
         }
         else
         {
-            vb = nWall;
+            prevWall = pWall;
             do
             {
-                if (wall[lastwall(vb)].nextwall >= 0)
+                auto lw = lastwall(prevWall);
+                if (lw->nextwall >= 0)
                 {
-                    vb = wall[lastwall(vb)].nextwall;
-                    sector[wall[vb].sector].dirty = 255;
-                    viewInterpolateWall(vb, &wall[vb]);
-                    wall[vb].x = x;
-                    wall[vb].y = y;
+                    prevWall = lw->nextWall();
+                    prevWall->sectorp()->dirty = 255;
+                    viewInterpolateWall(prevWall);
+                    prevWall->x = x;
+                    prevWall->y = y;
                 }
                 else
                     break;
                 vsi--;
-            } while (vb != nWall && vsi > 0);
+            } while (prevWall != pWall && vsi > 0);
             break;
         }
         vsi--;
-    } while (vb != nWall && vsi > 0);
+    } while (prevWall != pWall && vsi > 0);
 }
 
 void TranslateSector(int nSector, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, int a10, int a11, char a12)
@@ -820,54 +821,51 @@ void TranslateSector(int nSector, int a2, int a3, int a4, int a5, int a6, int a7
     int v44 = interpolatedvalue(a8, a11, a2);
     int vbp = interpolatedvalue(a8, a11, a3);
     int v14 = vbp - v44;
-    int nWall = pSector->wallptr;
     if (a12)
     {
-        for (int i = 0; i < pSector->wallnum; nWall++, i++)
+        for (auto& wal : wallsofsector(pSector))
         {
-            x = wall[nWall].baseWall.x;
-            y = wall[nWall].baseWall.y;
+            x = wal.baseWall.x;
+            y = wal.baseWall.y;
             if (vbp)
                 RotatePoint((int*)&x, (int*)&y, vbp, a4, a5);
-            DragPoint(nWall, x+vc-a4, y+v8-a5);
+            DragPoint(&wal, x+vc-a4, y+v8-a5);
         }
     }
     else
     {
-        for (int i = 0; i < pSector->wallnum; nWall++, i++)
+        for (auto& wal : wallsofsector(pSector))
         {
-            auto pWall = &wall[nWall];
-            int v10 = pWall->point2;
-            auto p2Wall = pWall->point2Wall();
-            x = pWall->baseWall.x;
-            y = pWall->baseWall.y;
-            if (pWall->cstat&16384)
+            auto p2Wall = wal.point2Wall();
+            x = wal.baseWall.x;
+            y = wal.baseWall.y;
+            if (wal.cstat&16384)
             {
                 if (vbp)
                     RotatePoint((int*)&x, (int*)&y, vbp, a4, a5);
-                DragPoint(nWall, x+vc-a4, y+v8-a5);
+                DragPoint(&wal, x+vc-a4, y+v8-a5);
                 if ((p2Wall->cstat&49152) == 0)
                 {
                     x = p2Wall->baseWall.x;
                     y = p2Wall->baseWall.y;
                     if (vbp)
                         RotatePoint((int*)&x, (int*)&y, vbp, a4, a5);
-                    DragPoint(v10, x+vc-a4, y+v8-a5);
+                    DragPoint(p2Wall, x+vc-a4, y+v8-a5);
                 }
                 continue;
             }
-            if (pWall->cstat&32768)
+            if (wal.cstat&32768)
             {
                 if (vbp)
                     RotatePoint((int*)&x, (int*)&y, -vbp, a4, a5);
-                DragPoint(nWall, x-(vc-a4), y-(v8-a5));
+                DragPoint(&wal, x-(vc-a4), y-(v8-a5));
                 if ((p2Wall->cstat&49152) == 0)
                 {
                     x = p2Wall->baseWall.x;
                     y = p2Wall->baseWall.y;
                     if (vbp)
                         RotatePoint((int*)&x, (int*)&y, -vbp, a4, a5);
-                    DragPoint(v10, x-(vc-a4), y-(v8-a5));
+                    DragPoint(p2Wall, x-(vc-a4), y-(v8-a5));
                 }
                 continue;
             }
@@ -930,7 +928,7 @@ void TranslateSector(int nSector, int a2, int a3, int a4, int a5, int a6, int a7
 void ZTranslateSector(int nSector, XSECTOR *pXSector, int a3, int a4)
 {
     sectortype *pSector = &sector[nSector];
-    viewInterpolateSector(nSector, pSector);
+    viewInterpolateSector(pSector);
     int dz = pXSector->onFloorZ-pXSector->offFloorZ;
     if (dz != 0)
     {
@@ -1055,7 +1053,7 @@ int VCrushBusy(unsigned int nSector, unsigned int a2)
     int v18;
     if (GetHighestSprite(nSector, 6, &v18) && vc >= v18)
         return 1;
-    viewInterpolateSector(nSector, &sector[nSector]);
+    viewInterpolateSector(&sector[nSector]);
     if (dz1 != 0)
         pSector->ceilingz = vc;
     if (dz2 != 0)
@@ -1881,7 +1879,7 @@ void ProcessMotion(void)
             if (pXSector->bobFloor)
             {
                 int floorZ = pSector->floorz;
-                viewInterpolateSector(nSector, pSector);
+                viewInterpolateSector(pSector);
                 pSector->floorz = pSector->baseFloor + vdi;
 
                 BloodSectIterator it(nSector);
@@ -1905,7 +1903,7 @@ void ProcessMotion(void)
             if (pXSector->bobCeiling)
             {
                 int ceilZ = pSector->ceilingz;
-                viewInterpolateSector(nSector, pSector);
+                viewInterpolateSector(pSector);
                 pSector->ceilingz = pSector->baseCeil + vdi;
 
                 BloodSectIterator it(nSector);
@@ -1940,7 +1938,7 @@ void AlignSlopes(void)
             {
                 int x = (pWall->x+pWall2->x)/2;
                 int y = (pWall->y+pWall2->y)/2;
-                viewInterpolateSector(nSector, pSector);
+                viewInterpolateSector(pSector);
                 alignflorslope(nSector, x, y, getflorzofslope(nNextSector, x, y));
                 alignceilslope(nSector, x, y, getceilzofslope(nNextSector, x, y));
             }

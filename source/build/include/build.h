@@ -465,6 +465,11 @@ inline void rotatepoint(int px, int py, int ptx, int pty, int daang, int* resx, 
 }
 
 int32_t   lastwall(int16_t point);
+inline walltype* lastwall(walltype* point)
+{
+    return &wall[lastwall(wall.IndexOf(point))];
+}
+
 int32_t   nextsectorneighborz(int16_t sectnum, int32_t refz, int16_t topbottom, int16_t direction);
 inline sectortype* nextsectorneighborzptr(int16_t sectnum, int32_t refz, int16_t topbottom, int16_t direction)
 {

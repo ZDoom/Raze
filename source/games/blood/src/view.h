@@ -158,17 +158,17 @@ void viewDrawScreen(bool sceneonly = false);
 void viewUpdateDelirium(void);
 void viewSetSystemMessage(const char* pMessage, ...);
 
-inline void viewInterpolateSector(int nSector, sectortype *pSector)
+inline void viewInterpolateSector(sectortype *pSector)
 {
-    StartInterpolation(nSector, Interp_Sect_Floorz);
-    StartInterpolation(nSector, Interp_Sect_Ceilingz);
-    StartInterpolation(nSector, Interp_Sect_Floorheinum);
+    StartInterpolation(pSector, Interp_Sect_Floorz);
+    StartInterpolation(pSector, Interp_Sect_Ceilingz);
+    StartInterpolation(pSector, Interp_Sect_Floorheinum);
 }
 
-inline void viewInterpolateWall(int nWall, walltype *pWall)
+inline void viewInterpolateWall(walltype *pWall)
 {
-    StartInterpolation(nWall, Interp_Wall_X);
-    StartInterpolation(nWall, Interp_Wall_Y);
+    StartInterpolation(pWall, Interp_Wall_X);
+    StartInterpolation(pWall, Interp_Wall_Y);
 }
 
 inline void viewBackupSpriteLoc(DBloodActor* actor)
