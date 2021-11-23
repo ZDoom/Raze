@@ -5872,7 +5872,7 @@ static void actCheckProjectiles()
 //
 //
 //---------------------------------------------------------------------------
-static TArray<int> affectedXWalls; // keep this outside the function so that it only needs to be allocated once
+static TArray<walltype*> affectedXWalls; // keep this outside the function so that it only needs to be allocated once
 
 static void actCheckExplosion()
 {
@@ -5912,9 +5912,9 @@ static void actCheckExplosion()
 		const bool newSectCheckMethod = !cl_bloodvanillaexplosions && Owner && Owner->IsDudeActor() && !VanillaMode(); // use new sector checking logic
 		auto sectorMap = GetClosestSpriteSectors(nSector, x, y, radius, &affectedXWalls, newSectCheckMethod);
 
-		for (auto& nWall : affectedXWalls)
+		for (auto pWall : affectedXWalls)
 		{
-			trTriggerWall(&wall[nWall], kCmdWallImpact);
+			trTriggerWall(pWall, kCmdWallImpact);
 		}
 
 		BloodStatIterator it1(kStatDude);

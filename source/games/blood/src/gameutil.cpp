@@ -712,7 +712,7 @@ unsigned int ClipMove(vec3_t *pos, int *nSector, int xv, int yv, int wd, int cd,
     return nRes;
 }
 
-BitArray GetClosestSpriteSectors(int nSector, int x, int y, int nDist, TArray<int>* pWalls, bool newSectCheckMethod)
+BitArray GetClosestSpriteSectors(int nSector, int x, int y, int nDist, TArray<walltype*>* pWalls, bool newSectCheckMethod)
 {
     // by default this function fails with sectors that linked with wide spans, or there was more than one link to the same sector. for example...
     // E6M1: throwing TNT on the stone footpath while standing on the brown road will fail due to the start/end points of the span being too far away. it'll only do damage at one end of the road
@@ -753,7 +753,7 @@ BitArray GetClosestSpriteSectors(int nSector, int x, int y, int nDist, TArray<in
                 {
                     XWALL* pXWall = &wal.xw();
                     if (pXWall->triggerVector && !pXWall->isTriggered && !pXWall->state)
-                        pWalls->Push(wallnum(&wal));
+                        pWalls->Push(&wal);
                 }
             }
         }
