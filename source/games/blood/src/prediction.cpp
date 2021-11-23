@@ -48,6 +48,7 @@ static VIEW predictFifo[256];
 
 void viewInitializePrediction(void)
 {
+#if 0
 	predict.angle = gMe->angle.ang;
 	predict.horiz = gMe->horizon.horiz;
 	predict.horizoff = gMe->horizon.horizoff;
@@ -59,7 +60,7 @@ void viewInitializePrediction(void)
 	predict.x = gMe->pSprite->x;
 	predict.y = gMe->pSprite->y;
 	predict.z = gMe->pSprite->z;
-	predict.sectnum = gMe->pSprite->sectnum;
+	predict.sector = gMe->pSprite->sector;
 	predict.at73 = gMe->pSprite->flags;
 	predict.xvel = gMe->actor->xvel;
 	predict.yvel = gMe->actor->yvel;
@@ -83,6 +84,7 @@ void viewInitializePrediction(void)
 	predict.at40 = gMe->zWeapon;
 	predict.at44 = gMe->zWeaponVel;
     predictOld = predict;
+#endif
 }
 
 void viewUpdatePrediction(InputPacket *pInput)
@@ -105,6 +107,7 @@ static void sub_158B4(PLAYER *pPlayer)
 
 static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
 {
+#if 0
     POSTURE *pPosture = &pPlayer->pPosture[pPlayer->lifeMode][predict.at48];
 
     predict.at70 = !!(gMe->input.actions & SB_RUN);
@@ -254,6 +257,7 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
             predict.horizoff = q16horiz(0);
     }
     predict.at2c = -predict.horiz.asq16() >> 9;
+#endif
 }
 
 void fakePlayerProcess(PLAYER *pPlayer, InputPacket *pInput)

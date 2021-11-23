@@ -1836,7 +1836,7 @@ void debrisMove(int listIndex)
                 if ((pFX = gFX.fxSpawnActor(FX_10, pSprite->sectnum, pSprite->x, pSprite->y, floorZ, 0)) == NULL) break;
                 for (i = 0; i < 7; i++) 
                 {
-                    if ((pFX2 = gFX.fxSpawnActor(FX_14, pFX->s().sectnum, pFX->s().x, pFX->s().y, pFX->s().z, 0)) == NULL) continue;
+                    if ((pFX2 = gFX.fxSpawnActor(FX_14, pFX->s().sector(), pFX->s().x, pFX->s().y, pFX->s().z, 0)) == NULL) continue;
                     pFX2->xvel = Random2(0x6aaaa);
                     pFX2->yvel = Random2(0x6aaaa);
                     pFX2->zvel = -(int)Random(0xd5555);
@@ -1917,7 +1917,7 @@ bool ceilIsTooLow(DBloodActor* actor)
 {
     if (actor != nullptr) 
     {
-        sectortype* pSector = &sector[actor->s().sectnum];
+        sectortype* pSector = actor->s().sector();
         int a = pSector->ceilingz - pSector->floorz;
         int top, bottom;
         GetActorExtents(actor, &top, &bottom);

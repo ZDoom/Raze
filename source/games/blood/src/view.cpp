@@ -402,9 +402,10 @@ void SetupView(int &cX, int& cY, int& cZ, binangle& cA, fixedhoriz& cH, int& nSe
     int bobWidth, bobHeight;
     
     nSectnum = gView->pSprite->sectnum;
+#if 0
     if (numplayers > 1 && gView == gMe && gPrediction && gMe->pXSprite->health > 0)
     {
-        nSectnum = predict.sectnum;
+        nSectnum = predict. sectnum;
         cX = interpolatedvalue(predictOld.x, predict.x, gInterpolate);
         cY = interpolatedvalue(predictOld.y, predict.y, gInterpolate);
         cZ = interpolatedvalue(predictOld.viewz, predict.viewz, gInterpolate);
@@ -428,6 +429,7 @@ void SetupView(int &cX, int& cY, int& cZ, binangle& cA, fixedhoriz& cH, int& nSe
         }
     }
     else
+#endif
     {
         VIEW* pView = &gPrevView[gViewIndex];
         cX = interpolatedvalue(pView->x, gView->pSprite->x, gInterpolate);
