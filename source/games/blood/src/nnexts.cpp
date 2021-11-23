@@ -1157,7 +1157,7 @@ void nnExtProcessSuperSprites()
             }
 
             DBloodActor* pXRedir = nullptr; // check redirected TX buckets
-            while ((pXRedir = evrListRedirectors(OBJ_SPRITE, 0, windactor, pXRedir, &rx)) != nullptr)
+            while ((pXRedir = evrListRedirectors(OBJ_SPRITE, nullptr, nullptr, windactor, pXRedir, &rx)) != nullptr)
             {
                 for (j = bucketHead[rx]; j < bucketHead[rx + 1]; j++)
                 {
@@ -1979,7 +1979,7 @@ void windGenStopWindOnSectors(DBloodActor* sourceactor)
     // check redirected TX buckets
     int rx = -1; 
     DBloodActor* pXRedir = nullptr;
-    while ((pXRedir = evrListRedirectors(OBJ_SPRITE, 0, sourceactor, pXRedir, &rx)) != nullptr) 
+    while ((pXRedir = evrListRedirectors(OBJ_SPRITE, nullptr, nullptr, sourceactor, pXRedir, &rx)) != nullptr)
     {
         for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) 
         {
@@ -4822,7 +4822,7 @@ void modernTypeTrigger(int destObjType, sectortype* destSect, walltype* destWall
             break;
         // iterate data filed value of destination object
         case kModernObjDataAccumulator:
-            useIncDecGen(pActor, destObjType, destObjIndex, destactor);
+            useIncDecGen(pActor, destObjType, destSect, destWall, destactor);
             break;
         // change data field value of destination object
         case kModernObjDataChanger:
@@ -4840,7 +4840,7 @@ void modernTypeTrigger(int destObjType, sectortype* destSect, walltype* destWall
             break;
         // change picture and palette of TX ID object
         case kModernObjPicnumChanger:
-            usePictureChanger(pActor, destObjType, destObjIndex, destactor);
+            usePictureChanger(pActor, destObjType, destSect, destWall, destactor);
             break;
         // change various properties
         case kModernObjPropertiesChanger:
@@ -5116,7 +5116,7 @@ bool aiFightGetDudesForBattle(DBloodActor* actor)
     // check redirected TX buckets
     int rx = -1; 
     DBloodActor* pXRedir = nullptr;
-    while ((pXRedir = evrListRedirectors(OBJ_SPRITE, 0, actor, pXRedir, &rx)) != nullptr) 
+    while ((pXRedir = evrListRedirectors(OBJ_SPRITE, nullptr, nullptr, actor, pXRedir, &rx)) != nullptr)
     {
         for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) 
         {
@@ -6420,7 +6420,7 @@ void useSoundGen(DBloodActor* sourceactor, DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void useIncDecGen(DBloodActor* sourceactor, int objType, int objIndex, DBloodActor* objactor) 
+void useIncDecGen(DBloodActor* sourceactor, int objType, sectortype* destSect, walltype* destWall, DBloodActor* objactor) 
 {
     auto pXSource = &sourceactor->x();
     spritetype* pSource = &sourceactor->s();
@@ -6435,9 +6435,9 @@ void useIncDecGen(DBloodActor* sourceactor, int objType, int objIndex, DBloodAct
     for (int i = 0; i < len; i++) 
     {
         dataIndex = (buffer[i] - 52) + 4;
-        if ((data = getDataFieldOfObject(objType, objIndex, objactor, dataIndex)) == -65535) 
+        if ((data = getDataFieldOfObject(objType, destSect, destWall, objactor, dataIndex)) == -65535) 
         {
-            Printf(PRINT_HIGH, "\nWrong index of data (%c) for IncDec Gen #%d! Only 1, 2, 3 and 4 indexes allowed!\n", buffer[i], objIndex);
+            Printf(PRINT_HIGH, "\nWrong index of data (%c) for IncDec Gen! Only 1, 2, 3 and 4 indexes allowed!\n", buffer[i]);
             continue;
         }
         
@@ -6491,7 +6491,7 @@ void useIncDecGen(DBloodActor* sourceactor, int objType, int objIndex, DBloodAct
             }
         }
         pXSource->sysData1 = data;
-        setDataValueOfObject(objType, objIndex, objactor, dataIndex, data);
+        setDataValueOfObject(objType, destWall? wallnum(destWall) : destSect? sectnum(destSect) : 0, objactor, dataIndex, data);
     }
 }
 
@@ -7054,23 +7054,23 @@ void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void usePictureChanger(DBloodActor* sourceactor, int objType, int objIndex, DBloodActor* objActor)
+void usePictureChanger(DBloodActor* sourceactor, int objType, sectortype* targSect, walltype* targWall, DBloodActor* objActor)
 {
     auto pXSource = &sourceactor->x();
     
     switch (objType) {
         case OBJ_SECTOR:
             if (valueIsBetween(pXSource->data1, -1, 32767))
-                sector[objIndex].floorpicnum = pXSource->data1;
+                targSect->floorpicnum = pXSource->data1;
 
             if (valueIsBetween(pXSource->data2, -1, 32767))
-                sector[objIndex].ceilingpicnum = pXSource->data2;
+                targSect->ceilingpicnum = pXSource->data2;
 
             if (valueIsBetween(pXSource->data3, -1, 32767))
-                sector[objIndex].floorpal = uint8_t(pXSource->data3);
+                targSect->floorpal = uint8_t(pXSource->data3);
 
             if (valueIsBetween(pXSource->data4, -1, 65535))
-                sector[objIndex].ceilingpal = uint8_t(pXSource->data4);
+                targSect->ceilingpal = uint8_t(pXSource->data4);
             break;
         case OBJ_SPRITE:
             if (valueIsBetween(pXSource->data1, -1, 32767))
@@ -7084,13 +7084,13 @@ void usePictureChanger(DBloodActor* sourceactor, int objType, int objIndex, DBlo
             break;
         case OBJ_WALL:
             if (valueIsBetween(pXSource->data1, -1, 32767))
-                wall[objIndex].picnum = pXSource->data1;
+                targWall->picnum = pXSource->data1;
 
             if (valueIsBetween(pXSource->data2, -1, 32767))
-                wall[objIndex].overpicnum = pXSource->data2;
+                targWall->overpicnum = pXSource->data2;
 
             if (valueIsBetween(pXSource->data3, -1, 32767))
-                wall[objIndex].pal = uint8_t(pXSource->data3);
+                targWall->pal = uint8_t(pXSource->data3);
             break;
     }
 }
@@ -7409,8 +7409,7 @@ int getDataFieldOfObject(const EventObject &eob, int dataIndex)
     return data;
 }
 
-[[deprecated]]
-int getDataFieldOfObject(int objType, int objIndex, DBloodActor* actor, int dataIndex)
+int getDataFieldOfObject(int objType, sectortype* sect, walltype* wal, DBloodActor* actor, int dataIndex)
 {
     int data = -65535;
     switch (objType)
@@ -7429,8 +7428,8 @@ int getDataFieldOfObject(int objType, int objIndex, DBloodActor* actor, int data
         case 4: return actor->x().data4;
         default: return data;
         }
-        case OBJ_SECTOR: return sector[objIndex].xs().data;
-        case OBJ_WALL: return wall[objIndex].xw().data;
+    case OBJ_SECTOR: return sect->xs().data;
+    case OBJ_WALL: return wal->xw().data;
         default: return data;
     }
 }
@@ -8934,7 +8933,7 @@ DBloodActor* evrIsRedirector(DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-DBloodActor* evrListRedirectors(int objType, int objIndex, DBloodActor* objActor, DBloodActor* pXRedir, int* tx) 
+DBloodActor* evrListRedirectors(int objType, sectortype* pSector, walltype* pWall, DBloodActor* objActor, DBloodActor* pXRedir, int* tx) 
 {
     if (!gEventRedirectsUsed) return nullptr;
     else if (pXRedir && (*tx = listTx(pXRedir, *tx)) != -1)
@@ -8945,9 +8944,8 @@ DBloodActor* evrListRedirectors(int objType, int objIndex, DBloodActor* objActor
     {
         case OBJ_SECTOR:
         {
-            auto pSector = &sector[objIndex];
             if (!pSector->hasX()) return nullptr;
-            id = sector[objIndex].xs().txID;
+            id = pSector->xs().txID;
             break;
         }
         case OBJ_SPRITE:
@@ -8956,9 +8954,8 @@ DBloodActor* evrListRedirectors(int objType, int objIndex, DBloodActor* objActor
             break;
         case OBJ_WALL:
         {
-            auto pWall = &wall[objIndex];
             if (!pWall->hasX()) return nullptr;
-            id = wall[objIndex].xw().txID;
+            id = pWall->xw().txID;
             break;
         }
         default:
@@ -9015,7 +9012,7 @@ bool incDecGoalValueIsReached(DBloodActor* actor)
     }
 
     DBloodActor* pXRedir = nullptr; // check redirected TX buckets
-    while ((pXRedir = evrListRedirectors(OBJ_SPRITE, 0, actor, pXRedir, &rx)) != nullptr) 
+    while ((pXRedir = evrListRedirectors(OBJ_SPRITE, nullptr, nullptr, actor, pXRedir, &rx)) != nullptr)
     {
         for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) 
         {
