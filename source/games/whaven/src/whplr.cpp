@@ -222,12 +222,11 @@ void updateviewmap(PLAYER& plr) {
 		show2dsector.Set(i);
 		for (int j = sector[i].wallnum; j > 0; j--) {
 			WALL& wal = wall[wallid++];
+			if (!wal.twoSided()) continue;
 			i = wal.nextsector;
-			if (i < 0)
-				continue;
 			if ((wal.cstat & 0x0071) != 0)
 				continue;
-			if ((wall[wal.nextwall].cstat & 0x0071) != 0)
+			if ((wal.nextWall()->cstat & 0x0071) != 0)
 				continue;
 			if (sector[i].ceilingz >= sector[i].floorz)
 				continue;

@@ -498,7 +498,7 @@ void warp(int x, int y, int z, int daang, int dasector) {
 	for (int s = startwall; s <= endwall; s++) {
 		dax += wall[s].x;
 		day += wall[s].y;
-		if (wall[s].nextsector >= 0) {
+		if (wall[s].twoSided()) {
 			i = s;
 		}
 	}

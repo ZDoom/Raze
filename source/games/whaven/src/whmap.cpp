@@ -65,7 +65,7 @@ void preparesectors() {
 			revolveang[revolvecnt] = 0;
 
 			revolveclip[revolvecnt] = 1;
-			if (sector[i].ceilingz == sector[wall[startwall].nextsector].ceilingz)
+			if (sector[i].ceilingz == wall[startwall].nextSector()->ceilingz)
 				revolveclip[revolvecnt] = 0;
 
 			revolvecnt++;
@@ -142,22 +142,21 @@ void preparesectors() {
 			if (wall[k].y == day2)
 				dragydir[dragsectorcnt] = 16;
 
-			dasector = wall[startwall].nextsector;
 			dragx1[dragsectorcnt] = 0x7fffffff;
 			dragy1[dragsectorcnt] = 0x7fffffff;
 			dragx2[dragsectorcnt] = 0x80000000;
 			dragy2[dragsectorcnt] = 0x80000000;
-			startwall = sector[dasector].wallptr;
-			endwall = startwall + sector[dasector].wallnum - 1;
-			for (j = startwall; j <= endwall; j++) {
-				if (wall[j].x < dragx1[dragsectorcnt])
-					dragx1[dragsectorcnt] = wall[j].x;
-				if (wall[j].y < dragy1[dragsectorcnt])
-					dragy1[dragsectorcnt] = wall[j].y;
-				if (wall[j].x > dragx2[dragsectorcnt])
-					dragx2[dragsectorcnt] = wall[j].x;
-				if (wall[j].y > dragy2[dragsectorcnt])
-					dragy2[dragsectorcnt] = wall[j].y;
+			dasector = wall[startwall].nextsector;
+			for(auto& wallj : wallsofsector(dasector))
+			{
+				if (wallj.x < dragx1[dragsectorcnt])
+					dragx1[dragsectorcnt] = wallj.x;
+				if (wallj.y < dragy1[dragsectorcnt])
+					dragy1[dragsectorcnt] = wallj.y;
+				if (wallj.x > dragx2[dragsectorcnt])
+					dragx2[dragsectorcnt] = wallj.x;
+				if (wallj.y > dragy2[dragsectorcnt])
+					dragy2[dragsectorcnt] = wallj.y;
 			}
 
 			dragx1[dragsectorcnt] += (wall[sector[i].wallptr].x - dax);
