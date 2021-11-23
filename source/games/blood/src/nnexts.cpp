@@ -4718,7 +4718,7 @@ void modernTypeSendCommand(DBloodActor* actor, int destChannel, COMMAND_ID comma
 //
 //---------------------------------------------------------------------------
 
-void modernTypeTrigger(int destObjType, int destObjIndex, DBloodActor* destactor, const EVENT& event) 
+void modernTypeTrigger(int destObjType, sectortype* destSect, walltype* destWall, DBloodActor* destactor, const EVENT& event) 
 {
     if (!event.isActor()) return;
     auto pActor = event.getActor();
@@ -4726,12 +4726,15 @@ void modernTypeTrigger(int destObjType, int destObjIndex, DBloodActor* destactor
     spritetype* pSource = &pActor->s();
     XSPRITE* pXSource = &pActor->x();
 
+    int destObjIndex = -1;
     switch (destObjType) {
         case OBJ_SECTOR:
-            if (!sector[destObjIndex].hasX()) return;
+            if (!destSect || !destSect->hasX()) return;
+            destObjIndex = sectnum(destSect);
             break;
         case OBJ_WALL:
-            if (!wall[destObjIndex].hasX()) return;
+            if (!destWall || !destWall->hasX()) return;
+            destObjIndex = wallnum(destWall);
             break;
         case OBJ_SPRITE:
         {

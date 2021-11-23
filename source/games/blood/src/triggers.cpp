@@ -1512,15 +1512,16 @@ void OperatePath(unsigned int nSector, XSECTOR *pXSector, EVENT event)
     }
 }
 
-void OperateSector(unsigned int nSector, XSECTOR *pXSector, EVENT event)
+void OperateSector(sectortype* pSector, EVENT event)
 {
-    assert(nSector < (unsigned int)numsectors);
-    sectortype *pSector = &sector[nSector];
-    
+    if (!pSector->hasX()) return;
+    auto pXSector = &pSector->xs();
     #ifdef NOONE_EXTENSIONS
-    if (gModernMap && modernTypeOperateSector(nSector, pSector, pXSector, event))
+    if (gModernMap && modernTypeOperateSector(sectnum(pSector), pSector, pXSector, event))
         return;
     #endif
+
+    int nSector = sectnum(pSector);
 
     switch (event.cmd) {
         case kCmdLock:
@@ -1727,7 +1728,7 @@ void trTriggerSector(sectortype* pSector, int command)
         else {
             EVENT event;
             event.cmd = command;
-            OperateSector(sectnum(pSector), pXSector, event);
+            OperateSector(pSector, event);
         }
 
     }
@@ -1775,47 +1776,47 @@ void trTriggerSprite(DBloodActor* actor, int command)
     }
 }
 
-void trMessageSector(unsigned int nSector, EVENT event) 
+void trMessageSector(sectortype* pSector, EVENT event) 
 {
-    assert(validSectorIndex(nSector));
-    assert(sector[nSector].hasX());
-    XSECTOR *pXSector = &sector[nSector].xs();
-    if (!pXSector->locked || event.cmd == kCmdUnlock || event.cmd == kCmdToggleLock) {
-        switch (event.cmd) {
+    if (!pSector->hasX()) return;
+    XSECTOR *pXSector = &pSector->xs();
+    if (!pXSector->locked || event.cmd == kCmdUnlock || event.cmd == kCmdToggleLock) 
+    {
+        switch (event.cmd) 
+        {
             case kCmdLink:
-                LinkSector(nSector, pXSector, event);
+                LinkSector(sectnum(pSector), pXSector, event);
                 break;
             #ifdef NOONE_EXTENSIONS
             case kCmdModernUse:
-                modernTypeTrigger(6, nSector, nullptr, event);
+                modernTypeTrigger(OBJ_SECTOR, pSector, nullptr, nullptr, event);
                 break;
             #endif
             default:
-                OperateSector(nSector, pXSector, event);
+                OperateSector(pSector, event);
                 break;
         }
     }
 }
 
-void trMessageWall(unsigned int nWall, EVENT event) 
+void trMessageWall(walltype* pWall, const EVENT& event) 
 {
-    assert(validWallIndex(nWall));
-    auto pWall = &wall[nWall];
     assert(pWall->hasX());
     
     XWALL *pXWall = &pWall->xw();
-    if (!pXWall->locked || event.cmd == kCmdUnlock || event.cmd == kCmdToggleLock) {
+    if (!pXWall->locked || event.cmd == kCmdUnlock || event.cmd == kCmdToggleLock) 
+    {
         switch (event.cmd) {
             case kCmdLink:
-                LinkWall(nWall, pXWall, event);
+                LinkWall(wallnum(pWall), pXWall, event);
                 break;
             #ifdef NOONE_EXTENSIONS
             case kCmdModernUse:
-                modernTypeTrigger(0, nWall, nullptr, event);
+                modernTypeTrigger(OBJ_WALL, nullptr, pWall, nullptr, event);
                 break;
             #endif
             default:
-                OperateWall(&wall[nWall], event);
+                OperateWall(pWall, event);
                 break;
         }
     }
@@ -1827,14 +1828,16 @@ void trMessageSprite(DBloodActor* actor, EVENT event)
     auto pXSprite = &actor->x();
     if (pSprite->statnum != kStatFree) {
 
-        if (!pXSprite->locked || event.cmd == kCmdUnlock || event.cmd == kCmdToggleLock) {
-            switch (event.cmd) {
+        if (!pXSprite->locked || event.cmd == kCmdUnlock || event.cmd == kCmdToggleLock) 
+        {
+            switch (event.cmd) 
+            {
                 case kCmdLink:
                     LinkSprite(actor, event);
                     break;
                 #ifdef NOONE_EXTENSIONS
                 case kCmdModernUse:
-                    modernTypeTrigger(OBJ_SPRITE, 0, actor, event);
+                    modernTypeTrigger(OBJ_SPRITE, 0, 0, actor, event);
                     break;
                 #endif
                 default:

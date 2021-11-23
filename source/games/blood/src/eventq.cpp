@@ -484,11 +484,11 @@ void evSend(const EventObject& eob, int rxId, COMMAND_ID command)
 		{
 			if (eo.isSector())
 			{
-				trMessageSector(sectnum(eo.sector()), event);
+				trMessageSector(eo.sector(), event);
 			}
 			else if (eo.isWall())
 			{
-				trMessageWall(wallnum(eo.wall()), event);
+				trMessageWall(eo.wall(), event);
 			}
 			else if (eo.isActor())
 			{
@@ -646,8 +646,8 @@ void evProcess(unsigned int time)
 		else
 		{
 			if (event.target.isActor()) trMessageSprite(event.target.actor(), event);
-			else if (event.target.isSector()) trMessageSector(sectnum(event.target.sector()), event);
-			else if (event.target.isWall()) trMessageWall(wallnum(event.target.wall()), event);
+			else if (event.target.isSector()) trMessageSector(event.target.sector(), event);
+			else if (event.target.isWall()) trMessageWall(event.target.wall(), event);
 			}
 		}
 }

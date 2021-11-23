@@ -54,9 +54,9 @@ extern BUSY gBusy[kMaxBusyCount];
 extern int gBusyCount;
 
 void trTriggerSector(sectortype *pSector, int command);
-void trMessageSector(unsigned int nSector, EVENT event);
+void trMessageSector(sectortype* pSector, EVENT event);
 void trTriggerWall(walltype*, int command);
-void trMessageWall(unsigned int nWall, EVENT event);
+void trMessageWall(walltype* pWall, const EVENT& event);
 void trTriggerSprite(DBloodActor* actor, int command);
 void trMessageSprite(DBloodActor* actor, EVENT event);
 void trProcessBusy(void);
