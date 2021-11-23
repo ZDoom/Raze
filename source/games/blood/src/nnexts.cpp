@@ -1819,7 +1819,7 @@ void debrisMove(int listIndex)
         if (v30 > 0) 
         {
             pXSprite->physAttr |= kPhysFalling;
-            actFloorBounceVector(&actor->xvel, &actor->yvel, &v30, pSprite->sectnum, tmpFraction);
+            actFloorBounceVector(&actor->xvel, &actor->yvel, &v30, pSprite->sector(), tmpFraction);
             actor->zvel = v30;
 
             if (abs(actor->zvel) < 0x10000)

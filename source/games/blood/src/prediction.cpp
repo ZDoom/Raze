@@ -509,7 +509,7 @@ static void fakeMoveDude(spritetype *pSprite)
         int var44 = predict.zvel-predict.sector()->velFloor;
         if (var44 > 0)
         {
-            actFloorBounceVector(&predict.xvel, &predict.yvel, &var44, predict.sectnum, 0);
+            actFloorBounceVector(&predict.xvel, &predict.yvel, &var44, predict.sector, 0);
             predict.zvel = var44;
             if (abs(predict.zvel) < 0x10000)
             {

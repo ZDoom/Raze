@@ -449,7 +449,7 @@ void fxBouncingSleeve(DBloodActor* actor, int) // 16
     
     if (actor->zvel == 0) sleeveStopBouncing(actor);
     else if (zv > 0) {
-        actFloorBounceVector((int*)& actor->xvel, (int*)& actor->yvel, &zv, pSprite->sectnum, 0x9000);
+        actFloorBounceVector((int*)& actor->xvel, (int*)& actor->yvel, &zv, pSprite->sector(), 0x9000);
         actor->zvel = zv;
         if (pSprite->sector()->velFloor == 0 && abs(actor->zvel) < 0x20000)  {
             sleeveStopBouncing(actor);

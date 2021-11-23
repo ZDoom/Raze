@@ -2613,10 +2613,9 @@ int actWallBounceVector(int* x, int* y, walltype* pWall, int a4)
 //
 //---------------------------------------------------------------------------
 
-int actFloorBounceVector(int* x, int* y, int* z, int nSector, int a5)
+int actFloorBounceVector(int* x, int* y, int* z, sectortype* pSector, int a5)
 {
 	int t = 0x10000 - a5;
-	auto pSector = &sector[nSector];
 	if (pSector->floorheinum == 0)
 	{
 		int t2 = MulScale(*z, t, 16);
@@ -4695,7 +4694,7 @@ static Collision MoveThing(DBloodActor* actor)
 		{
 
 			pSprite->flags |= 4;
-			int vax = actFloorBounceVector(&actor->xvel, &actor->yvel, (int*)&v20, pSprite->sectnum, pThingInfo->elastic);
+			int vax = actFloorBounceVector(&actor->xvel, &actor->yvel, (int*)&v20, pSprite->sector(), pThingInfo->elastic);
 			int nDamage = MulScale(vax, vax, 30) - pThingInfo->dmgResist;
 			if (nDamage > 0) actDamageSprite(actor, actor, kDamageFall, nDamage);
 
@@ -5187,7 +5186,7 @@ void MoveDude(DBloodActor* actor)
 		int v30 = actor->zvel - pSprite->sector()->velFloor;
 		if (v30 > 0)
 		{
-			int vax = actFloorBounceVector((int*)&actor->xvel, (int*)&actor->yvel, (int*)&v30, pSprite->sectnum, 0);
+			int vax = actFloorBounceVector((int*)&actor->xvel, (int*)&actor->yvel, (int*)&v30, pSprite->sector(), 0);
 			int nDamage = MulScale(vax, vax, 30);
 			if (pPlayer)
 			{

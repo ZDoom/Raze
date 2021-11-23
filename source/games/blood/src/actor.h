@@ -214,7 +214,7 @@ bool IsUnderwaterSector(sectortype* pSector);
 void actInit();
 int actWallBounceVector(int *x, int *y, walltype* pWall, int a4);
 int actFloorBounceVector(int *x, int *y, int *z, int nSector, int a5);
-void actRadiusDamage(DBloodActor* source, int x, int y, int z, int nSector, int nDist, int a7, int a8, DAMAGE_TYPE a9, int a10, int a11);
+void actRadiusDamage(DBloodActor* source, int x, int y, int z, sectortype* pSector, int nDist, int a7, int a8, DAMAGE_TYPE a9, int a10, int a11);
 DBloodActor *actDropObject(DBloodActor *pSprite, int nType);
 bool actHealDude(DBloodActor* pXDude, int a2, int a3);
 void actKillDude(DBloodActor* a1, DBloodActor* pSprite, DAMAGE_TYPE a3, int a4);
