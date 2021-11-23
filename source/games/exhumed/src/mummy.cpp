@@ -37,12 +37,12 @@ static actionSeq MummySeq[] = {
 };
 
 
-void BuildMummy(DExhumedActor* pActor, int x, int y, int z, sectortype* nSector, int nAngle)
+void BuildMummy(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, int nAngle)
 {
     spritetype* pSprite;
     if (pActor == nullptr)
     {
-        pActor = insertActor(nSector, 102);
+        pActor = insertActor(pSector, 102);
         pSprite = &pActor->s();
     }
     else

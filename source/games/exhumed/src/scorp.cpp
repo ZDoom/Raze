@@ -38,13 +38,13 @@ static actionSeq ScorpSeq[] = {
     {53, 1}
 };
 
-void BuildScorp(DExhumedActor* pActor, int x, int y, int z, sectortype* nSector, int nAngle, int nChannel)
+void BuildScorp(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, int nAngle, int nChannel)
 {
     spritetype* pSprite;
 
     if (pActor == nullptr)
     {
-        pActor = insertActor(nSector, 122);
+        pActor = insertActor(pSector, 122);
         pSprite = &pActor->s();
     }
     else

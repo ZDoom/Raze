@@ -33,12 +33,12 @@ DExhumedActor* BuildAnim(DExhumedActor* actor, int val, int val2, int x, int y, 
 
 void FuncAnim(int, int, int, int);
 void BuildExplosion(DExhumedActor* actor);
-void BuildSplash(DExhumedActor* actor, sectortype* nSector);
+void BuildSplash(DExhumedActor* actor, sectortype* pSector);
 
 
 // anubis
 
-void BuildAnubis(DExhumedActor* nSprite, int x, int y, int z, sectortype* nSector, int nAngle, uint8_t bIsDrummer);
+void BuildAnubis(DExhumedActor* nSprite, int x, int y, int z, sectortype* pSector, int nAngle, uint8_t bIsDrummer);
 void FuncAnubis(int, int a, int b, int c);
 
 // bubbles
@@ -86,7 +86,7 @@ void BackUpBullet(int *x, int *y, int nAngle);
 
 // fish
 
-void BuildFish(DExhumedActor* nSprite, int x, int y, int z, sectortype* nSector, int nAngle);
+void BuildFish(DExhumedActor* nSprite, int x, int y, int z, sectortype* pSector, int nAngle);
 void FuncFish(int, int, int, int);
 void FuncFishLimb(int a, int b, int c);
 
@@ -168,7 +168,7 @@ void DoRegenerates();
 
 // lavadude
 
-void BuildLava(DExhumedActor* nSprite, int x, int y, int z, sectortype* nSector, int nAngle, int nChannel);
+void BuildLava(DExhumedActor* nSprite, int x, int y, int z, sectortype* pSector, int nAngle, int nChannel);
 DExhumedActor* BuildLavaLimb(DExhumedActor* nSprite, int edx, int ebx);
 void FuncLavaLimb(int, int, int, int);
 void FuncLava(int, int, int, int);
@@ -184,13 +184,13 @@ void DoLights();
 void AddFlow(sectortype* pSect, int nSpeed, int b, int ang = -1);
 void AddFlow(walltype* pWall, int nSpeed, int b, int ang = -1);
 void BuildFlash(int nPlayer, int nVal);
-void AddGlow(sectortype* nSector, int nVal);
-void AddFlicker(sectortype* nSector, int nVal);
+void AddGlow(sectortype* pSector, int nVal);
+void AddFlicker(sectortype* pSector, int nVal);
 
 
 // lion
 
-void BuildLion(DExhumedActor* nSprite, int x, int y, int z, sectortype* nSector, int nAngle);
+void BuildLion(DExhumedActor* nSprite, int x, int y, int z, sectortype* pSector, int nAngle);
 void FuncLion(int, int, int, int);
 
 // move
@@ -234,7 +234,7 @@ DExhumedActor* FindPlayer(DExhumedActor* nSprite, int nDistance, bool dontengage
 DExhumedActor* BuildCreatureChunk(DExhumedActor* pSrc, int nPic, bool bSpecial = false);
 void BuildNear(int x, int y, int walldist, int nSector);
 int PlotCourseToSprite(DExhumedActor* nSprite1, DExhumedActor* nSprite2);
-void CheckSectorFloor(sectortype* nSector, int z, int *x, int *y);
+void CheckSectorFloor(sectortype* pSector, int z, int *x, int *y);
 int GetAngleToSprite(DExhumedActor* nSprite1, DExhumedActor* nSprite2);
 int GetWallNormal(walltype* nWall);
 int GetUpAngle(DExhumedActor* nSprite1, int nVal, DExhumedActor* nSprite2, int ecx);
@@ -246,7 +246,7 @@ void SetQuake(DExhumedActor* nSprite, int nVal);
 
 enum { kMaxMummies = 150 };
 
-void BuildMummy(DExhumedActor* val, int x, int y, int z, sectortype* nSector, int nAngle);
+void BuildMummy(DExhumedActor* val, int x, int y, int z, sectortype* pSector, int nAngle);
 void FuncMummy(int nSector, int edx, int nRun);
 
 // object
@@ -285,25 +285,25 @@ void FuncObject(int, int, int, int);
 void FuncTrap(int, int, int, int);
 void FuncEnergyBlock(int, int, int, int);
 void FuncSpark(int, int, int, int);
-void SnapBobs(sectortype* nSectorA, sectortype* nSectorB);
-DExhumedActor* FindWallSprites(sectortype* nSector);
-void AddMovingSector(sectortype* nSector, int edx, int ebx, int ecx);
+void SnapBobs(sectortype* pSectorA, sectortype* pSectorB);
+DExhumedActor* FindWallSprites(sectortype* pSector);
+void AddMovingSector(sectortype* pSector, int edx, int ebx, int ecx);
 void ProcessTrailSprite(DExhumedActor* nSprite, int nLotag, int nHitag);
-void AddSectorBob(sectortype* nSector, int nHitag, int bx);
+void AddSectorBob(sectortype* pSector, int nHitag, int bx);
 DExhumedActor* BuildObject(DExhumedActor* nSprite, int nOjectType, int nHitag);
 int BuildArrow(DExhumedActor* nSprite, int nVal);
 int BuildFireBall(DExhumedActor*, int a, int b);
 void BuildDrip(DExhumedActor* nSprite);
-DExhumedActor* BuildEnergyBlock(sectortype* nSector);
-int BuildElevC(int arg1, int nChannel, sectortype* nSector, DExhumedActor* nWallSprite, int arg5, int arg6, int nCount, ...);
-int BuildElevF(int nChannel, sectortype* nSector, DExhumedActor* nWallSprite, int arg_4, int arg_5, int nCount, ...);
+DExhumedActor* BuildEnergyBlock(sectortype* pSector);
+int BuildElevC(int arg1, int nChannel, sectortype* pSector, DExhumedActor* nWallSprite, int arg5, int arg6, int nCount, ...);
+int BuildElevF(int nChannel, sectortype* pSector, DExhumedActor* nWallSprite, int arg_4, int arg_5, int nCount, ...);
 int BuildWallFace(int nChannel, walltype* pWall, int nCount, ...);
 int BuildSlide(int nChannel, walltype* edx, walltype* ebx, walltype* ecx, walltype* arg1, walltype* arg2, walltype* arg3);
 
 // queen
 
 void InitQueens();
-void BuildQueen(DExhumedActor* nSprite, int x, int y, int z, sectortype* nSector, int nAngle, int nVal);
+void BuildQueen(DExhumedActor* nSprite, int x, int y, int z, sectortype* pSector, int nAngle, int nVal);
 void FuncQueenEgg(int, int, int, int);
 void FuncQueenHead(int, int, int, int);
 void FuncQueen(int, int, int, int);
@@ -334,17 +334,17 @@ void FuncRa(int, int, int, int);
 // rat
 
 void InitRats();
-void BuildRat(DExhumedActor* nSprite, int x, int y, int z, sectortype* nSector, int nAngle);
+void BuildRat(DExhumedActor* nSprite, int x, int y, int z, sectortype* pSector, int nAngle);
 void FuncRat(int a, int, int b, int nRun);
 
 // rex
 
-void BuildRex(DExhumedActor* nSprite, int x, int y, int z, sectortype* nSector, int nAngle, int nChannel);
+void BuildRex(DExhumedActor* nSprite, int x, int y, int z, sectortype* pSector, int nAngle, int nChannel);
 void FuncRex(int, int, int, int);
 
 // roach
 
-void BuildRoach(int nType, DExhumedActor* nSprite, int x, int y, int z, sectortype* nSector, int angle);
+void BuildRoach(int nType, DExhumedActor* nSprite, int x, int y, int z, sectortype* pSector, int angle);
 void FuncRoach(int a, int, int nDamage, int nRun);
 
 // runlist
@@ -706,12 +706,12 @@ void runlist_ExecObjects();
 
 // scorp
 
-void BuildScorp(DExhumedActor* nSprite, int x, int y, int z, sectortype* nSector, int nAngle, int nChannel);
+void BuildScorp(DExhumedActor* nSprite, int x, int y, int z, sectortype* pSector, int nAngle, int nChannel);
 void FuncScorp(int, int, int, int);
 
 // set
 
-void BuildSet(DExhumedActor* nSprite, int x, int y, int z, sectortype* nSector, int nAngle, int nChannel);
+void BuildSet(DExhumedActor* nSprite, int x, int y, int z, sectortype* pSector, int nAngle, int nChannel);
 void FuncSoul(int, int, int, int);
 void FuncSet(int, int, int, int);
 
@@ -744,7 +744,7 @@ void FuncSnake(int, int, int, int);
 
 // spider
 
-DExhumedActor* BuildSpider(DExhumedActor* nSprite, int x, int y, int z, sectortype* nSector, int nAngle);
+DExhumedActor* BuildSpider(DExhumedActor* nSprite, int x, int y, int z, sectortype* pSector, int nAngle);
 void FuncSpider(int a, int, int b, int nRun);
 
 // switch
@@ -760,17 +760,17 @@ void FuncSwPressSector(int, int, int, int);
 void FuncSwPressWall(int, int, int, int);
 
 std::pair<int, int> BuildSwPause(int nChannel, int nLink, int ebx);
-std::pair<int, int> BuildSwNotOnPause(int nChannel, int nLink, sectortype* nSector, int ecx);
+std::pair<int, int> BuildSwNotOnPause(int nChannel, int nLink, sectortype* pSector, int ecx);
 int BuildLink(int nCount, ...);
-std::pair<int, int> BuildSwPressSector(int nChannel, int nLink, sectortype* nSector, int ecx);
-std::pair<int, int> BuildSwStepOn(int nChannel, int nLink, sectortype* nSector);
+std::pair<int, int> BuildSwPressSector(int nChannel, int nLink, sectortype* pSector, int ecx);
+std::pair<int, int> BuildSwStepOn(int nChannel, int nLink, sectortype* pSector);
 std::pair<int, int> BuildSwReady(int nChannel, int nLink);
 
 std::pair<int, int> BuildSwPressWall(int nChannel, int nLink, walltype* pWall);
 
 // wasp
 
-DExhumedActor* BuildWasp(DExhumedActor* nSprite, int x, int y, int z, sectortype* nSector, int nAngle, bool bEggWasp);
+DExhumedActor* BuildWasp(DExhumedActor* nSprite, int x, int y, int z, sectortype* pSector, int nAngle, bool bEggWasp);
 void FuncWasp(int eax, int, int edx, int nRun);
 
 

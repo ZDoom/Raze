@@ -35,12 +35,12 @@ static actionSeq RoachSeq[] = {
 };
 
 // TODO - make nType a bool?
-void BuildRoach(int nType, DExhumedActor* pActor, int x, int y, int z, sectortype* nSector, int angle)
+void BuildRoach(int nType, DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, int angle)
 {
     spritetype* pSprite;
     if (pActor == nullptr)
     {
-        pActor = insertActor(nSector, 105);
+        pActor = insertActor(pSector, 105);
         pSprite = &pActor->s();
     }
     else

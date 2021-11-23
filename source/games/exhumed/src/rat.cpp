@@ -73,12 +73,12 @@ void SetRatVel(spritetype* pSprite)
     pSprite->yvel = bsin(pSprite->ang, -2);
 }
 
-void BuildRat(DExhumedActor* pActor, int x, int y, int z, sectortype* nSector, int nAngle)
+void BuildRat(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, int nAngle)
 {
     spritetype* pSprite;
     if (pActor == nullptr)
     {
-        pActor = insertActor(nSector, 108);
+        pActor = insertActor(pSector, 108);
         pSprite = &pActor->s();
     }
     else

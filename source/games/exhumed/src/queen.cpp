@@ -1100,7 +1100,7 @@ void AIQueenHead::Draw(RunListEvent* ev)
     seq_PlotSequence(ev->nParam, nSeq, QueenHead.nFrame, edx);
 }
 
-void BuildQueen(DExhumedActor* pActor, int x, int y, int z, sectortype* nSector, int nAngle, int nChannel)
+void BuildQueen(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, int nAngle, int nChannel)
 {
     QueenCount--;
 
@@ -1112,7 +1112,7 @@ void BuildQueen(DExhumedActor* pActor, int x, int y, int z, sectortype* nSector,
 
     if (pActor == nullptr)
     {
-        pActor = insertActor(nSector, 121);
+        pActor = insertActor(pSector, 121);
         pSprite = &pActor->s();
     }
     else

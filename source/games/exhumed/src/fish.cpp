@@ -145,13 +145,13 @@ void AIFishLimb::Draw(RunListEvent* ev)
 }
 
 
-void BuildFish(DExhumedActor* pActor, int x, int y, int z, sectortype* nSector, int nAngle)
+void BuildFish(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, int nAngle)
 {
 	spritetype* pSprite;
 
     if (pActor == nullptr)
     {
-        pActor = insertActor(nSector, 103);
+        pActor = insertActor(pSector, 103);
         pSprite = &pActor->s();
     }
     else

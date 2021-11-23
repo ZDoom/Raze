@@ -40,12 +40,12 @@ void SetWaspVel(spritetype* pSprite)
     pSprite->yvel = bsin(pSprite->ang);
 }
 
-DExhumedActor* BuildWasp(DExhumedActor* pActor, int x, int y, int z, sectortype* nSector, int nAngle, bool bEggWasp)
+DExhumedActor* BuildWasp(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, int nAngle, bool bEggWasp)
 {
     spritetype* pSprite;
     if (pActor == nullptr)
     {
-        pActor = insertActor(nSector, 107);
+        pActor = insertActor(pSector, 107);
         pSprite = &pActor->s();
 
         pSprite->x = x;

@@ -41,12 +41,12 @@ static actionSeq LionSeq[] = {
 };
 
 
-void BuildLion(DExhumedActor* pActor, int x, int y, int z, sectortype* nSector, int nAngle)
+void BuildLion(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, int nAngle)
 {
     spritetype* pSprite;
     if (pActor == nullptr)
     {
-        pActor = insertActor(nSector, 104);
+        pActor = insertActor(pSector, 104);
 		pSprite = &pActor->s();
     }
     else

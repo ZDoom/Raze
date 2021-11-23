@@ -128,7 +128,7 @@ void PlayLocalSound(int nSound, int val, bool unattached = false, EChanFlags cfl
 int LoadSound(const char* sound);
 
 void BendAmbientSound();
-void CheckAmbience(sectortype* nSector);
+void CheckAmbience(sectortype* pSector);
 
 void PlayFX2(unsigned int nSound, DExhumedActor* nSprite, int sectf = 0, EChanFlags chanflags = CHANF_NONE, int sprflags = 0);
 
