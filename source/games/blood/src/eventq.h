@@ -204,8 +204,10 @@ void evInit(void);
 void evPostActor(DBloodActor*, unsigned int nDelta, COMMAND_ID command);
 void evPostActor(DBloodActor*, unsigned int nDelta, CALLBACK_ID callback);
 
-void evPostSector(int index, unsigned int nDelta, COMMAND_ID command);
-void evPostSector(int index, unsigned int nDelta, CALLBACK_ID callback);
+void evPostSector(sectortype* index, unsigned int nDelta, COMMAND_ID command);
+void evPostSector(sectortype* index, unsigned int nDelta, CALLBACK_ID callback);
+
+void evPostWall(int index, unsigned int nDelta, COMMAND_ID command);
 
 void evProcess(unsigned int nTime);
 void evKillActor(DBloodActor*);

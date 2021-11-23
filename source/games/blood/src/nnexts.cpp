@@ -5360,7 +5360,7 @@ void sectorContinueMotion(int nSector, EVENT event)
         case kCmdOff:
             if (pXSector->busy == 0) 
             {
-                if (pXSector->reTriggerB && waitTimeB) evPostSector(nSector, (waitTimeB * 120) / 10, kCmdOff);
+                if (pXSector->reTriggerB && waitTimeB) evPostSector(pSector, (waitTimeB * 120) / 10, kCmdOff);
                 return;
             }
             pXSector->state = 1;
@@ -5370,7 +5370,7 @@ void sectorContinueMotion(int nSector, EVENT event)
         case kCmdOn:
             if (pXSector->busy == 65536) 
             {
-                if (pXSector->reTriggerA && waitTimeA) evPostSector(nSector, (waitTimeA * 120) / 10, kCmdOn);
+                if (pXSector->reTriggerA && waitTimeA) evPostSector(pSector, (waitTimeA * 120) / 10, kCmdOn);
                 return;
             }
             pXSector->state = 0;
@@ -5448,7 +5448,7 @@ bool modernTypeOperateSector(int nSector, sectortype* pSector, XSECTOR* pXSector
             case kSectorCounter:
                 if (pXSector->locked != 1) break;
                 SetSectorState(nSector, pXSector, 0);
-                evPostSector(nSector, 0, kCallbackCounterCheck);
+                evPostSector(pSector, 0, kCallbackCounterCheck);
                 break;
         }
         return true;

@@ -527,14 +527,14 @@ void evPostActor(DBloodActor* actor, unsigned int nDelta, CALLBACK_ID callback)
 	evPost_(actor, 0, SS_SPRITE, nDelta, callback);
 }
 
-void evPostSector(int index, unsigned int nDelta, COMMAND_ID command)
+void evPostSector(sectortype* sect, unsigned int nDelta, COMMAND_ID command)
 {
-	evPost_(nullptr, index, SS_SECTOR, nDelta, command);
+	evPost_(nullptr, sectnum(sect), SS_SECTOR, nDelta, command);
 }
 
-void evPostSector(int index, unsigned int nDelta, CALLBACK_ID callback)
+void evPostSector(sectortype* sect, unsigned int nDelta, CALLBACK_ID callback)
 {
-	evPost_(nullptr, index, SS_SECTOR, nDelta, callback);
+	evPost_(nullptr, sectnum(sect), SS_SECTOR, nDelta, callback);
 }
 
 void evPostWall(int index, unsigned int nDelta, COMMAND_ID command)

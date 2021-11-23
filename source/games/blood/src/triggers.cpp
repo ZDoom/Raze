@@ -97,6 +97,7 @@ bool SetWallState(walltype* pWall, int nState)
 
 bool SetSectorState(int nSector, XSECTOR *pXSector, int nState)
 {
+    auto pSector = &sector[nSector];
     if ((pXSector->busy&0xffff) == 0 && pXSector->state == nState)
         return 0;
     pXSector->busy = IntToFixed(nState);
@@ -112,7 +113,7 @@ bool SetSectorState(int nSector, XSECTOR *pXSector, int nState)
             pXSector->stopOff = 0;
         }
         else if (pXSector->reTriggerA)
-            evPostSector(nSector, (pXSector->waitTimeA * 120) / 10, kCmdOff);
+            evPostSector(pSector, (pXSector->waitTimeA * 120) / 10, kCmdOff);
     }
     else
     {
@@ -124,7 +125,7 @@ bool SetSectorState(int nSector, XSECTOR *pXSector, int nState)
             pXSector->stopOff = 0;
         }
         else if (pXSector->reTriggerB)
-            evPostSector(nSector, (pXSector->waitTimeB * 120) / 10, kCmdOn);
+            evPostSector(pSector, (pXSector->waitTimeB * 120) / 10, kCmdOn);
     }
     return 1;
 }
@@ -1349,7 +1350,7 @@ int PathBusy(unsigned int nSector, unsigned int a2)
     pXSector->busy = a2;
     if ((a2&0xffff) == 0)
     {
-        evPostSector(nSector, (120*pXSprite2->waitTime)/10, kCmdOn);
+        evPostSector(pSector, (120*pXSprite2->waitTime)/10, kCmdOn);
         pXSector->state = 0;
         pXSector->busy = 0;
         if (pXSprite1->data4)
@@ -1616,6 +1617,7 @@ void OperateSector(unsigned int nSector, XSECTOR *pXSector, EVENT event)
 
 void InitPath(unsigned int nSector, XSECTOR *pXSector)
 {
+    sectortype* pSector = &sector[nSector];
     DBloodActor* actor = nullptr;
     spritetype *pSprite = nullptr;
     XSPRITE *pXSprite;
@@ -1643,7 +1645,7 @@ void InitPath(unsigned int nSector, XSECTOR *pXSector)
 
     pXSector->basePath = pXSector->marker0 = actor;
     if (pXSector->state)
-        evPostSector(nSector, 0, kCmdOn);
+        evPostSector(pSector, 0, kCmdOn);
 }
 
 void LinkSector(int nSector, XSECTOR *pXSector, EVENT event)
@@ -2041,7 +2043,7 @@ void trInit(void)
                 else
                 #endif
                 pXSector->triggerOnce = 1;
-                evPostSector(i, 0, kCallbackCounterCheck);
+                evPostSector(pSector, 0, kCallbackCounterCheck);
                 break;
             case kSectorZMotion:
             case kSectorZMotionSprite:

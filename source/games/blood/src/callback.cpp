@@ -368,7 +368,7 @@ void CounterCheck(DBloodActor*, int nSector) // 12
     }
         
     if (nCount < nReq) {
-        evPostSector(nSector, 5, kCallbackCounterCheck);
+        evPostSector(pSector, 5, kCallbackCounterCheck);
         return;
     } else {
         //pXSector->waitTimeA = 0; //do not reset necessary objects counter to zero
