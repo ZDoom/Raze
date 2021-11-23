@@ -3699,6 +3699,25 @@ bool condPush(DBloodActor* actor, int type, int index, DBloodActor* iactor)
     return true;
 }
 
+bool condPush(DBloodActor* actor, DBloodActor* iactor)
+{
+    actor->condition[0] = { OBJ_SPRITE, -1, iactor };
+    return true;
+}
+
+bool condPush(DBloodActor* actor, sectortype* sec)
+{
+    actor->condition[0] = { OBJ_SECTOR, sectnum(sec), nullptr };
+    return true;
+}
+
+bool condPush(DBloodActor* actor, walltype* wal)
+{
+    actor->condition[0] = { OBJ_WALL, wallnum(wal), nullptr };
+    return true;
+}
+
+
 void condUnserialize(DBloodActor* actor, int* objType, int* objIndex, DBloodActor** objActor) 
 {
 	*objType = actor->condition[0].type;
@@ -3848,7 +3867,7 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
                     walltype* pObj = &wall[objIndex];
                     switch (cond) 
                     {
-                        case 24: return condCmp(surfType[wall[objIndex].picnum], arg1, arg2, cmpOp);
+                        case 24: return condCmp(surfType[pObj->picnum], arg1, arg2, cmpOp);
                         case 25: return condCmp(pObj->picnum, arg1, arg2, cmpOp);
                         case 26: return condCmp(pObj->pal, arg1, arg2, cmpOp);
                         case 27: return condCmp(pObj->shade, arg1, arg2, cmpOp);
@@ -3965,17 +3984,17 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
                         case 70:
                             switch (arg3) 
                             {
-                                default: return (condCmp(seqGetID(0, objIndex), arg1, arg2, cmpOp) || condCmp(seqGetID(4, objIndex), arg1, arg2, cmpOp));
-                                case 1:  return condCmp(seqGetID(0, objIndex), arg1, arg2, cmpOp);
-                                case 2:  return condCmp(seqGetID(4, objIndex), arg1, arg2, cmpOp);
+                                default: return (condCmp(seqGetID(0, wallnum(pObj)), arg1, arg2, cmpOp) || condCmp(seqGetID(4, wallnum(pObj)), arg1, arg2, cmpOp));
+                                case 1:  return condCmp(seqGetID(0, wallnum(pObj)), arg1, arg2, cmpOp);
+                                case 2:  return condCmp(seqGetID(4, wallnum(pObj)), arg1, arg2, cmpOp);
                             }
                             break;
                         case 71:
                             switch (arg3) 
                             {
-                                default: return (condCmp(seqGetStatus(0, objIndex), arg1, arg2, cmpOp) || condCmp(seqGetStatus(4, objIndex), arg1, arg2, cmpOp));
-                                case 1:  return condCmp(seqGetStatus(0, objIndex), arg1, arg2, cmpOp);
-                                case 2:  return condCmp(seqGetStatus(4, objIndex), arg1, arg2, cmpOp);
+                                default: return (condCmp(seqGetStatus(0, wallnum(pObj)), arg1, arg2, cmpOp) || condCmp(seqGetStatus(4, wallnum(pObj)), arg1, arg2, cmpOp));
+                                case 1:  return condCmp(seqGetStatus(0, wallnum(pObj)), arg1, arg2, cmpOp);
+                                case 2:  return condCmp(seqGetStatus(4, wallnum(pObj)), arg1, arg2, cmpOp);
                             }
                             break;
                     }
@@ -4011,6 +4030,7 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
                     if (!sector[objIndex].hasX())
                         return condCmp(0, arg1, arg2, cmpOp);
                     
+                    auto pObj = &sector[objIndex];
                     XSECTOR* pXObj = &sector[objIndex].xs();
                     switch (cond) {
                         case 41: return condCmp(pXObj->data, arg1, arg2, cmpOp);
@@ -4028,17 +4048,17 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
                             // wall???
                             switch (arg3) 
                             {
-                                default: return (condCmp(seqGetID(1, objIndex), arg1, arg2, cmpOp) || condCmp(seqGetID(2, objIndex), arg1, arg2, cmpOp));
-                                case 1:  return condCmp(seqGetID(1, objIndex), arg1, arg2, cmpOp);
-                                case 2:  return condCmp(seqGetID(2, objIndex), arg1, arg2, cmpOp);
+                                default: return (condCmp(seqGetID(1, sectnum(pObj)), arg1, arg2, cmpOp) || condCmp(seqGetID(2, sectnum(pObj)), arg1, arg2, cmpOp));
+                                case 1:  return condCmp(seqGetID(1, sectnum(pObj)), arg1, arg2, cmpOp);
+                                case 2:  return condCmp(seqGetID(2, sectnum(pObj)), arg1, arg2, cmpOp);
                             }
                             break;
                         case 71:
                             switch (arg3) 
                             {
-                                default: return (condCmp(seqGetStatus(1, objIndex), arg1, arg2, cmpOp) || condCmp(seqGetStatus(2, objIndex), arg1, arg2, cmpOp));
-                                case 1:  return condCmp(seqGetStatus(1, objIndex), arg1, arg2, cmpOp);
-                                case 2:  return condCmp(seqGetStatus(2, objIndex), arg1, arg2, cmpOp);
+                                default: return (condCmp(seqGetStatus(1, sectnum(pObj)), arg1, arg2, cmpOp) || condCmp(seqGetStatus(2, sectnum(pObj)), arg1, arg2, cmpOp));
+                                case 1:  return condCmp(seqGetStatus(1, sectnum(pObj)), arg1, arg2, cmpOp);
+                                case 2:  return condCmp(seqGetStatus(2, sectnum(pObj)), arg1, arg2, cmpOp);
                             }
                             break;
                     }
@@ -4086,11 +4106,11 @@ bool condCheckSector(DBloodActor* aCond, int cmpOp, bool PUSH)
         case 5: return condCmp(pSect->floorheinum, arg1, arg2, cmpOp);
         case 6: return condCmp(pSect->ceilingheinum, arg1, arg2, cmpOp);
         case 10: // required sprite type is in current sector?
-            BloodSectIterator it(objIndex);
+            BloodSectIterator it(pSect);
             while (auto iactor = it.Next())
             {
                 if (!condCmp(iactor->s().type, arg1, arg2, cmpOp)) continue;
-                else if (PUSH) condPush(aCond, OBJ_SPRITE, 0, iactor);
+                else if (PUSH) condPush(aCond, iactor);
                 return true;
             }
             return false;
@@ -4177,22 +4197,21 @@ bool condCheckWall(DBloodActor* aCond, int cmpOp, bool PUSH)
             case 0:
                 return condCmp(pWall->overpicnum, arg1, arg2, cmpOp);
             case 5:
-                if (!validSectorIndex((var = sectorofwall(objIndex)))) return false;
-                else if (PUSH) condPush(aCond, OBJ_SECTOR, var, nullptr);
+                if (PUSH) condPush(aCond, pWall->sectorp());
                 return true;
             case 10: // this wall is a mirror?                          // must be as constants here
                 return (pWall->type != kWallStack && condCmp(pWall->picnum, 4080, (4080 + 16) - 1, 0));
             case 15:
-                if (!validSectorIndex(pWall->nextsector)) return false;
-                else if (PUSH) condPush(aCond, OBJ_SECTOR, pWall->nextsector, nullptr);
+                if (!pWall->twoSided()) return false;
+                else if (PUSH) condPush(aCond, pWall->nextSector());
                 return true;
             case 20:
                 if (!validWallIndex(pWall->nextwall)) return false;
-                else if (PUSH) condPush(aCond, OBJ_WALL, pWall->nextwall, nullptr);
+                else if (PUSH) condPush(aCond, pWall->nextWall());
                 return true;
-            case 25: // next wall belongs to sector?
-                if (!validSectorIndex(var = sectorofwall(pWall->nextwall))) return false;
-                else if (PUSH) condPush(aCond, OBJ_SECTOR, var, nullptr);
+            case 25: // next wall belongs to sector? (Note: This was 'sector of next wall' which is same as case 15 because we do not allow bad links!)
+                if (!pWall->twoSided()) return false;
+                else if (PUSH) condPush(aCond, pWall->nextSector());
                 return true;
         }
     }
@@ -4241,7 +4260,7 @@ bool condCheckPlayer(DBloodActor* aCond, int cmpOp, bool PUSH)
     switch (cond) {
         case 0: // check if this player is connected
             if (!condCmp(pPlayer->nPlayer + 1, arg1, arg2, cmpOp) || pPlayer->actor == nullptr) return false;
-            else if (PUSH) condPush(aCond, OBJ_SPRITE, 0,  pPlayer->actor);
+            else if (PUSH) condPush(aCond, pPlayer->actor);
             return (pPlayer->nPlayer >= 0);
         case 1: return condCmp((gGameOptions.nGameType != 3) ? 0 : pPlayer->teamId + 1, arg1, arg2, cmpOp); // compare team
         case 2: return (arg1 > 0 && arg1 < 8 && pPlayer->hasKey[arg1 - 1]);
@@ -4259,7 +4278,7 @@ bool condCheckPlayer(DBloodActor* aCond, int cmpOp, bool PUSH)
             return false;
         case 9:
             if (!pPlayer->fragger) return false;
-            else if (PUSH) condPush(aCond, OBJ_SPRITE, 0, pPlayer->fragger);
+            else if (PUSH) condPush(aCond, pPlayer->fragger);
             return true;
         case 10: // check keys pressed
             switch (arg1) {
@@ -4327,7 +4346,7 @@ bool condCheckDude(DBloodActor* aCond, int cmpOp, bool PUSH)
         case 0: // dude have any targets?
             if (!targ) return false;
             else if (!targ->IsDudeActor() && targ->s().type != kMarkerPath) return false;
-            else if (PUSH) condPush(aCond, OBJ_SPRITE, 0, targ);
+            else if (PUSH) condPush(aCond, targ);
             return true;
         case 1: return aiFightDudeIsAffected(objActor); // dude affected by ai fight?
         case 2: // distance to the target in a range?
@@ -4361,7 +4380,7 @@ bool condCheckDude(DBloodActor* aCond, int cmpOp, bool PUSH)
             }
 
             if (var <= 0) return false;
-            else if (PUSH) condPush(aCond, OBJ_SPRITE, 0, targ);
+            else if (PUSH) condPush(aCond, targ);
             return true;
 
         }
@@ -4378,12 +4397,12 @@ bool condCheckDude(DBloodActor* aCond, int cmpOp, bool PUSH)
                 {
                     auto var = aiPatrolMarkerBusy(objActor, targ);
                     if (!var) return false;
-                    else if (PUSH) condPush(aCond, OBJ_SPRITE, 0, var);
+                    else if (PUSH) condPush(aCond, var);
                     break;
                 }
                 case 11:
                     if (!aiPatrolMarkerReached(objActor)) return false;
-                    else if (PUSH) condPush(aCond, OBJ_SPRITE, 0, targ);
+                    else if (PUSH) condPush(aCond, targ);
                     break;
             }
             return true;
@@ -4409,7 +4428,7 @@ bool condCheckDude(DBloodActor* aCond, int cmpOp, bool PUSH)
                         {
                         auto act = objActor->genDudeExtra.pLifeLeech;
                             if (!act) return false;
-                        else if (PUSH) condPush(aCond, OBJ_SPRITE, 0, act);
+                        else if (PUSH) condPush(aCond, act);
                         return true;
                         }
 
@@ -4418,7 +4437,7 @@ bool condCheckDude(DBloodActor* aCond, int cmpOp, bool PUSH)
                         auto act = objActor->genDudeExtra.pLifeLeech;
                             if (!act) return false;
                             if (objActor->GetSpecialOwner()) return true;
-                        else if (PUSH) condPush(aCond, OBJ_SPRITE, 0, act);
+                        else if (PUSH) condPush(aCond, act);
                         return false;
                         }
 
@@ -4489,11 +4508,11 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
             case 10: return condCmp(pSpr->clipdist, arg1, arg2, cmpOp);
             case 15:
             if (!objActor->GetOwner()) return false;
-            else if (PUSH) condPush(aCond, OBJ_SPRITE, 0, objActor->GetOwner());
+            else if (PUSH) condPush(aCond, objActor->GetOwner());
                 return true;
             case 20: // stays in a sector?
                 if (!validSectorIndex(pSpr->sectnum)) return false;
-            else if (PUSH) condPush(aCond, OBJ_SECTOR, pSpr->sectnum, nullptr);
+            else if (PUSH) condPush(aCond, pSpr->sector());
                 return true;
             case 25:
             switch (arg1)
@@ -4506,7 +4525,7 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
                 break;
             case 30:
                 if (!spriteIsUnderwater(objActor) && !spriteIsUnderwater(objActor, true)) return false;
-            else if (PUSH) condPush(aCond, OBJ_SECTOR, pSpr->sectnum, nullptr);
+            else if (PUSH) condPush(aCond, pSpr->sector());
                 return true;
         case 31:
             if (arg1 == -1)
@@ -4558,9 +4577,9 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
                     if (!PUSH) return retn;
                 switch (var)
                 {
-                case 0: case 4: condPush(aCond, OBJ_WALL, wallnum(gHitInfo.hitWall), nullptr);       break;
-                case 1: case 2: condPush(aCond, OBJ_SECTOR, sectnum(gHitInfo.hitSect), nullptr);     break;
-                case 3:         condPush(aCond, OBJ_SPRITE, 0, gHitInfo.hitactor);   break;
+                case 0: case 4: condPush(aCond, gHitInfo.hitWall);    break;
+                case 1: case 2: condPush(aCond, gHitInfo.hitSect);    break;
+                case 3:         condPush(aCond, gHitInfo.hitactor);   break;
                     }
 
                 }
@@ -4576,7 +4595,7 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
                 {
                     XSPRITE* pXDude = &iactor->x();
                     if (pXDude->health <= 0 || iactor->GetTarget() != objActor) continue;
-                    else if (PUSH) condPush(aCond, OBJ_SPRITE, 0, iactor);
+                    else if (PUSH) condPush(aCond, iactor);
                         return true;
                     }
                 }
@@ -4595,15 +4614,15 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
                 return condCmp((kPercFull * pXSpr->health) / ClipLow(var, 1), arg1, arg2, cmpOp);
             case 55: // touching ceil of sector?
                 if (objActor->hit.ceilhit.type != kHitSector) return false;
-                else if (PUSH) condPush(aCond, OBJ_SECTOR, objActor->hit.ceilhit.index, nullptr);
+                else if (PUSH) condPush(aCond, objActor->hit.ceilhit.sector());
                 return true;
             case 56: // touching floor of sector?
                 if (objActor->hit.florhit.type != kHitSector) return false;
-                else if (PUSH) condPush(aCond, OBJ_SECTOR, objActor->hit.florhit.index, nullptr);
+                else if (PUSH) condPush(aCond, objActor->hit.florhit.sector());
                 return true;
             case 57: // touching walls of sector?
                 if (objActor->hit.hit.type != kHitWall) return false;
-                else if (PUSH) condPush(aCond, OBJ_WALL, objActor->hit.hit.index, nullptr);
+                else if (PUSH) condPush(aCond, objActor->hit.hit.wall());
                 return true;
             case 58: // touching another sprite?
             {
@@ -4649,14 +4668,14 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
                     }
                 }
                 if (actorvar == nullptr) return false;
-                else if (PUSH) condPush(aCond, OBJ_SPRITE, 0, actorvar);
+                else if (PUSH) condPush(aCond, actorvar);
                 return true;
             }
 
             case 65: // compare burn time (in %)
                 var = (objActor->IsDudeActor()) ? 2400 : 1200;
                 if (!condCmp((kPercFull * pXSpr->burnTime) / var, arg1, arg2, cmpOp)) return false;
-                else if (PUSH && objActor->GetBurnSource()) condPush(aCond, OBJ_SPRITE, 0, objActor->GetBurnSource());
+                else if (PUSH && objActor->GetBurnSource()) condPush(aCond, objActor->GetBurnSource());
                 return true;
 
             case 66: // any flares stuck in this sprite?
@@ -4668,7 +4687,7 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
                         continue;
 
                     if (flareactor->GetTarget() != objActor) continue;
-                    else if (PUSH) condPush(aCond, OBJ_SPRITE, 0, flareactor);
+                    else if (PUSH) condPush(aCond, flareactor);
                     return true;
                 }
                 return false;

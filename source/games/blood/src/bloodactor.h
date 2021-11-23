@@ -289,6 +289,10 @@ public:
 	{
 	}
 
+	BloodSectIterator(sectortype* stat) : SectIterator(stat)
+	{
+	}
+
 	DBloodActor* Next()
 	{
 		int n = NextIndex();
