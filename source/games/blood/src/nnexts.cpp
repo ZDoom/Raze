@@ -4826,7 +4826,7 @@ void modernTypeTrigger(int destObjType, sectortype* destSect, walltype* destWall
             break;
         // change data field value of destination object
         case kModernObjDataChanger:
-            useDataChanger(pActor, destObjType, destObjIndex, destactor);
+            useDataChanger(pActor, destObjType, destSect, destWall, destactor);
             break;
         // change sector lighting dynamically
         case kModernSectorFXChanger:
@@ -6491,7 +6491,7 @@ void useIncDecGen(DBloodActor* sourceactor, int objType, sectortype* destSect, w
             }
         }
         pXSource->sysData1 = data;
-        setDataValueOfObject(objType, destWall? wallnum(destWall) : destSect? sectnum(destSect) : 0, objactor, dataIndex, data);
+        setDataValueOfObject(objType, destSect, destWall, objactor, dataIndex, data);
     }
 }
 
@@ -6681,7 +6681,7 @@ void useSlopeChanger(DBloodActor* sourceactor, int objType, int objIndex, DBlood
 //
 //---------------------------------------------------------------------------
 
-void useDataChanger(DBloodActor* sourceactor, int objType, int objIndex, DBloodActor* objActor)
+void useDataChanger(DBloodActor* sourceactor, int objType, sectortype* pSector, walltype* pWall, DBloodActor* objActor)
 {
     auto pXSource = &sourceactor->x();
     spritetype* pSource = &sourceactor->s();
@@ -6690,24 +6690,24 @@ void useDataChanger(DBloodActor* sourceactor, int objType, int objIndex, DBloodA
     {
         case OBJ_SECTOR:
             if ((pSource->flags & kModernTypeFlag1) || (pXSource->data1 != -1 && pXSource->data1 != 32767))
-                setDataValueOfObject(objType, objIndex, nullptr, 1, pXSource->data1);
+                setDataValueOfObject(objType, pSector, pWall, nullptr, 1, pXSource->data1);
             break;
         case OBJ_SPRITE:
             if ((pSource->flags & kModernTypeFlag1) || (pXSource->data1 != -1 && pXSource->data1 != 32767))
-                setDataValueOfObject(objType, objIndex, objActor, 1, pXSource->data1);
+                setDataValueOfObject(objType, pSector, pWall, objActor, 1, pXSource->data1);
 
             if ((pSource->flags & kModernTypeFlag1) || (pXSource->data2 != -1 && pXSource->data2 != 32767))
-                setDataValueOfObject(objType, objIndex, objActor, 2, pXSource->data2);
+                setDataValueOfObject(objType, pSector, pWall, objActor, 2, pXSource->data2);
 
             if ((pSource->flags & kModernTypeFlag1) || (pXSource->data3 != -1 && pXSource->data3 != 32767))
-                setDataValueOfObject(objType, objIndex, objActor, 3, pXSource->data3);
+                setDataValueOfObject(objType, pSector, pWall, objActor, 3, pXSource->data3);
 
             if ((pSource->flags & kModernTypeFlag1) || pXSource->data4 != 65535)
-                setDataValueOfObject(objType, objIndex, objActor, 4, pXSource->data4);
+                setDataValueOfObject(objType, pSector, pWall, objActor, 4, pXSource->data4);
             break;
         case OBJ_WALL:
             if ((pSource->flags & kModernTypeFlag1) || (pXSource->data1 != -1 && pXSource->data1 != 32767))
-                setDataValueOfObject(objType, objIndex, nullptr, 1, pXSource->data1);
+                setDataValueOfObject(objType, pSector, pWall, nullptr, 1, pXSource->data1);
             break;
     }
 }
@@ -7440,7 +7440,7 @@ int getDataFieldOfObject(int objType, sectortype* sect, walltype* wal, DBloodAct
 //
 //---------------------------------------------------------------------------
 
-bool setDataValueOfObject(int objType, int objIndex, DBloodActor* objActor, int dataIndex, int value)
+bool setDataValueOfObject(int objType, sectortype* sect, walltype* wal, DBloodActor* objActor, int dataIndex, int value)
 {
     switch (objType) 
     {
@@ -7511,10 +7511,10 @@ bool setDataValueOfObject(int objType, int objIndex, DBloodActor* objActor, int 
             }
         }
         case OBJ_SECTOR:
-            sector[objIndex].xs().data = value;
+            sect->xs().data = value;
             return true;
         case OBJ_WALL:
-            wall[objIndex].xw().data = value;
+            wal->xw().data = value;
             return true;
         default:
             return false;
