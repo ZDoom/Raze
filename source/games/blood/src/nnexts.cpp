@@ -452,7 +452,7 @@ bool nnExtEraseModernStuff(DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void nnExtTriggerObject(const RXBUCKET& eob, int command)
+void nnExtTriggerObject(const EventObject& eob, int command)
 {
     if (eob.isSector())
     {
@@ -6314,12 +6314,13 @@ int useCondition(DBloodActor* sourceactor, const EVENT& event)
             // send it for object currently in the focus
             if (pSource->flags & kModernTypeFlag1)
             {
-                nnExtTriggerObject(objType, objIndex, pActor, pXSource->command);
+                nnExtTriggerObject(event.target, pXSource->command);
             }
 
             // send it for initial object
             if ((pSource->flags & kModernTypeFlag2) && (sourceactor->condition[0] != sourceactor->condition[1] || !(pSource->hitag & kModernTypeFlag1))) {
                 DBloodActor* objActor = nullptr;
+                int objType, objIndex;
                 condUnserialize(sourceactor, &objType, &objIndex, &objActor);
                 nnExtTriggerObject(objType, objIndex, objActor, pXSource->command);
             }
@@ -7440,7 +7441,7 @@ bool isActive(DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-int getDataFieldOfObject(const RXBUCKET &eob, int dataIndex)
+int getDataFieldOfObject(const EventObject &eob, int dataIndex)
 {
     int data = -65535;
 

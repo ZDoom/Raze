@@ -35,7 +35,7 @@ BEGIN_BLD_NS
 
 
 const int kMaxID = 1024;
-RXBUCKET rxBucket[kChannelMax];
+EventObject rxBucket[kChannelMax];
 unsigned short bucketHead[kMaxID + 1];
 static int bucketCount;
 static std::multiset<EVENT> queue;
@@ -55,7 +55,7 @@ FString EventObject::description() const
 //
 //---------------------------------------------------------------------------
 
-static int GetBucketChannel(const RXBUCKET* pBucket)
+static int GetBucketChannel(const EventObject* pBucket)
 {
 	if (pBucket->isSector())
 	{
@@ -85,7 +85,7 @@ static int GetBucketChannel(const RXBUCKET* pBucket)
 //
 //---------------------------------------------------------------------------
 
-static int CompareChannels(const RXBUCKET* ref1, const RXBUCKET* ref2)
+static int CompareChannels(const EventObject* ref1, const EventObject* ref2)
 {
 	return GetBucketChannel(ref1) - GetBucketChannel(ref2);
 }
@@ -96,7 +96,7 @@ static int CompareChannels(const RXBUCKET* ref1, const RXBUCKET* ref2)
 //
 //---------------------------------------------------------------------------
 
-static RXBUCKET* SortGetMiddle(RXBUCKET* a1, RXBUCKET* a2, RXBUCKET* a3)
+static EventObject* SortGetMiddle(EventObject* a1, EventObject* a2, EventObject* a3)
 {
 	if (CompareChannels(a1, a2) > 0)
 	{
@@ -120,9 +120,9 @@ static RXBUCKET* SortGetMiddle(RXBUCKET* a1, RXBUCKET* a2, RXBUCKET* a3)
 	}
 }
 
-static void SortSwap(RXBUCKET* a, RXBUCKET* b)
+static void SortSwap(EventObject* a, EventObject* b)
 {
-	RXBUCKET t = *a;
+	EventObject t = *a;
 	*a = *b;
 	*b = t;
 }
@@ -135,10 +135,10 @@ static void SortSwap(RXBUCKET* a, RXBUCKET* b)
 
 static void SortRXBucket(int nCount)
 {
-	RXBUCKET* v144[32];
+	EventObject* v144[32];
 	int vc4[32];
 	int v14 = 0;
-	RXBUCKET* pArray = rxBucket;
+	EventObject* pArray = rxBucket;
 	while (true)
 	{
 		while (nCount > 1)
@@ -147,9 +147,9 @@ static void SortRXBucket(int nCount)
 			{
 				for (int nDist = 3; nDist > 0; nDist -= 2)
 				{
-					for (RXBUCKET* pI = pArray + nDist; pI < pArray + nCount; pI += nDist)
+					for (EventObject* pI = pArray + nDist; pI < pArray + nCount; pI += nDist)
 					{
-						for (RXBUCKET* pJ = pI; pJ > pArray && CompareChannels(pJ - nDist, pJ) > 0; pJ -= nDist)
+						for (EventObject* pJ = pI; pJ > pArray && CompareChannels(pJ - nDist, pJ) > 0; pJ -= nDist)
 						{
 							SortSwap(pJ, pJ - nDist);
 						}
@@ -157,11 +157,11 @@ static void SortRXBucket(int nCount)
 				}
 				break;
 			}
-			RXBUCKET * middle = pArray + nCount / 2;
+			EventObject * middle = pArray + nCount / 2;
 			if (nCount > 29)
 			{
-				RXBUCKET* first = pArray;
-				RXBUCKET* last = pArray + nCount - 1;
+				EventObject* first = pArray;
+				EventObject* last = pArray + nCount - 1;
 				if (nCount > 42)
 				{
 					int eighth = nCount / 8;
@@ -171,11 +171,11 @@ static void SortRXBucket(int nCount)
 				}
 				middle = SortGetMiddle(first, middle, last);
 			}
-			RXBUCKET pivot = *middle;
-			RXBUCKET* first = pArray;
-			RXBUCKET* last = pArray + nCount - 1;
-			RXBUCKET* vbx = first;
-			RXBUCKET* v4 = last;
+			EventObject pivot = *middle;
+			EventObject* first = pArray;
+			EventObject* last = pArray + nCount - 1;
+			EventObject* vbx = first;
+			EventObject* v4 = last;
 			while (true)
 			{
 				while (vbx <= v4)
@@ -208,7 +208,7 @@ static void SortRXBucket(int nCount)
 				v4--;
 				vbx++;
 			}
-			RXBUCKET* v2c = pArray + nCount;
+			EventObject* v2c = pArray + nCount;
 			int vt = int(min(vbx - first, first - pArray));
 			for (int i = 0; i < vt; i++)
 			{

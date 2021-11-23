@@ -121,7 +121,6 @@ enum {
 	kChannelMax = 4096,
 };
 
-using RXBUCKET = EventObject;
 extern EventObject rxBucket[];
 extern unsigned short bucketHead[];
 
