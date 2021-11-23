@@ -2649,7 +2649,7 @@ void actRadiusDamage(DBloodActor* source, int x, int y, int z, int nSector, int 
 {
 	auto pOwner = source->GetOwner();
 	const bool newSectCheckMethod = !cl_bloodvanillaexplosions && pOwner && pOwner->IsDudeActor() && !VanillaMode(); // use new sector checking logic
-	auto sectorMap = GetClosestSpriteSectors(nSector, x, y, nDist, nullptr, newSectCheckMethod);
+	auto sectorMap = GetClosestSpriteSectors(&sector[nSector], x, y, nDist, nullptr, newSectCheckMethod);
 	nDist <<= 4;
 	if (flags & 2)
 	{
@@ -5893,6 +5893,7 @@ static void actCheckExplosion()
 		int y = pSprite->y;
 		int z = pSprite->z;
 		int nSector = pSprite->sectnum;
+		auto pSector = pSprite->sector();
 		int radius = pExplodeInfo->radius;
 
 #ifdef NOONE_EXTENSIONS
@@ -5907,7 +5908,7 @@ static void actCheckExplosion()
 		// so only allow this new checking method for dude spawned explosions
 		affectedXWalls.Clear();
 		const bool newSectCheckMethod = !cl_bloodvanillaexplosions && Owner && Owner->IsDudeActor() && !VanillaMode(); // use new sector checking logic
-		auto sectorMap = GetClosestSpriteSectors(nSector, x, y, radius, &affectedXWalls, newSectCheckMethod);
+		auto sectorMap = GetClosestSpriteSectors(pSector, x, y, radius, &affectedXWalls, newSectCheckMethod);
 
 		for (auto pWall : affectedXWalls)
 		{

@@ -712,7 +712,7 @@ unsigned int ClipMove(vec3_t* pos, sectortype** pSector, int xv, int yv, int wd,
     return nRes;
 }
 
-BitArray GetClosestSpriteSectors(int nSector, int x, int y, int nDist, TArray<walltype*>* pWalls, bool newSectCheckMethod)
+BitArray GetClosestSpriteSectors(sectortype* pSector, int x, int y, int nDist, TArray<walltype*>* pWalls, bool newSectCheckMethod)
 {
     // by default this function fails with sectors that linked with wide spans, or there was more than one link to the same sector. for example...
     // E6M1: throwing TNT on the stone footpath while standing on the brown road will fail due to the start/end points of the span being too far away. it'll only do damage at one end of the road
@@ -721,10 +721,10 @@ BitArray GetClosestSpriteSectors(int nSector, int x, int y, int nDist, TArray<wa
 
     BitArray sectorMap(numsectors); // this gets returned to the caller.
     sectorMap.Zero();
-    sectorMap.Set(nSector);
+    sectorMap.Set(sectnum(pSector));
     double nDist4sq = 256. * nDist * nDist;    // (nDist * 16)^2 - * 16 to account for Build's 28.4 fixed point format.
 
-    BFSSectorSearch search(&sector[nSector]);
+    BFSSectorSearch search(pSector);
 
     while (auto pCurSector = search.GetNext())
     {
