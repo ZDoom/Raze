@@ -285,8 +285,7 @@ void evInit()
 		if (sect.hasX() && sect.xs().rxID > 0)
 		{
 			assert(nCount < kChannelMax);
-			rxBucket[nCount].type = SS_SECTOR;
-			rxBucket[nCount].rxindex = sectnum(&sect);
+			rxBucket[nCount] = EventObject(&sect);
 			nCount++;
 		}
 	}
@@ -296,8 +295,7 @@ void evInit()
 		if (wal.hasX() && wal.xw().rxID > 0)
 		{
 			assert(nCount < kChannelMax);
-			rxBucket[nCount].type = SS_WALL;
-			rxBucket[nCount].rxindex = wallnum(&wal);
+			rxBucket[nCount] = EventObject(&wal);
 			nCount++;
 		}
 	}
@@ -308,13 +306,10 @@ void evInit()
 		if (actor->hasX() && actor->x().rxID > 0)
 		{
 				assert(nCount < kChannelMax);
-				rxBucket[nCount].type = SS_SPRITE;
-				rxBucket[nCount].rxindex = 0;
-				rxBucket[nCount].rxactor = actor;
+			rxBucket[nCount] = EventObject(actor);
 				nCount++;
 			}
 		}
-
 	SortRXBucket(nCount);
 	bucketCount = nCount;
 	createBucketHeads();
@@ -484,8 +479,7 @@ void evSend(const EventObject& eob, int rxId, COMMAND_ID command)
 #endif
 	for (int i = bucketHead[rxId]; i < bucketHead[rxId + 1]; i++) 
 	{
-		EventObject eo;
-		eo.fromElements(rxBucket[i].type, rxBucket[i].rxindex, rxBucket[i].rxactor);
+		auto eo = rxBucket[i];
 		if (!event.event_isObject(eo))
 		{
 			if (eo.isSector())
@@ -708,18 +702,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, EVENT& w, EVENT* d
 			("func", w.funcID)
 			("prio", w.priority)
 			.EndObject();
-	}
-	return arc;
-}
-
-FSerializer& Serialize(FSerializer& arc, const char* keyname, RXBUCKET& w, RXBUCKET* def)
-{
-	if (arc.BeginObject(keyname))
-	{
-		arc("type", w.type);
-		if (w.type != SS_SPRITE) arc("index", w.rxindex);
-		else arc("index", w.rxactor);
-		arc.EndObject();
 	}
 	return arc;
 }

@@ -121,23 +121,8 @@ enum {
 	kChannelMax = 4096,
 };
 
-struct RXBUCKET
-{
-	DBloodActor* actor() const { return rxactor; }
-	DBloodActor* rxactor;
-    int rxindex;
-    uint8_t type;
-
-	bool isActor() const { return type == 3/*OBJ_SPRITE*/; }
-	bool isSector() const { return type == 6/*OBJ_SECTOR*/; }
-	bool isWall() const { return type == 0/*OBJ_WALL*/; }
-
-	sectortype* sector() const { assert(isSector()); return &::sector[rxindex]; }
-	walltype* wall() const { assert(isWall()); return &::wall[rxindex]; }
-	FString description() const { return "placeholder"; }	// Just to have the method. No need to implement it.
-
-};
-extern RXBUCKET rxBucket[];
+using RXBUCKET = EventObject;
+extern EventObject rxBucket[];
 extern unsigned short bucketHead[];
 
 enum COMMAND_ID {
