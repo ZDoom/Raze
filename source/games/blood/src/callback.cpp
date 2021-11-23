@@ -742,9 +742,7 @@ void callbackCondition(DBloodActor* actor, int)
     TRCONDITION const* pCond = &gCondition[pXSprite->sysData1];
     for (unsigned i = 0; i < pCond->length; i++) {
         EVENT evn;  
-        evn.type = pCond->obj[i].type;
-        evn.actor = pCond->obj[i].actor;
-        evn.index_ = pCond->obj[i].index_;
+        evn.target.fromElements(pCond->obj[i].type, pCond->obj[i].index_, pCond->obj[i].actor);
         evn.cmd = pCond->obj[i].cmd; 
         evn.funcID = kCallbackCondition;
         useCondition(actor, evn);

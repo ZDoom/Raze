@@ -40,10 +40,12 @@ class EventObject
 		uint64_t index;
 	};
 	
+public:
 	EventObject() = default;
-	EventObject(DBloodActor* actor_) { ActorP = actor_; assert(isActor()); /* GC:WriteBarrier(actor);*/ }
-	EventObject(sectortype *sect) { index = (sectnum(sect) << 8) | Sector; }
-	EventObject(walltype* wall) { index = (wallnum(wall) << 8) | Wall; }
+	explicit EventObject(std::nullptr_t) { index = -1; }
+	explicit EventObject(DBloodActor* actor_) { ActorP = actor_; assert(isActor()); /* GC:WriteBarrier(actor);*/ }
+	explicit EventObject(sectortype *sect) { index = (sectnum(sect) << 8) | Sector; }
+	explicit EventObject(walltype* wall) { index = (wallnum(wall) << 8) | Wall; }
 
 	EventObject& operator=(DBloodActor* actor_) { ActorP = actor_; assert(isActor()); /* GC:WriteBarrier(actor);*/ return *this; }
 	EventObject& operator=(sectortype *sect) { index = (sectnum(sect) << 8) | Sector; return *this; }
@@ -56,6 +58,21 @@ class EventObject
 	DBloodActor* actor() const { assert(isActor()); return /*GC::ReadBarrier*/(ActorP); }
 	sectortype* sector() const { assert(isSector()); return &::sector[index >> 8]; }
 	walltype* wall() const { assert(isWall()); return &::wall[index >> 8]; }
+	int rawindex() const { return index >> 8; }
+
+	bool operator==(const EventObject& other) const { return index == other.index; }
+	bool operator!=(const EventObject& other) const { return index != other.index; }
+
+	FString description() const;
+
+	// refactoring helper
+	[[deprecated]] void fromElements(int type, int index, DBloodActor* act)
+	{
+		if (type == 0) *this = &::wall[index];
+		else if (type == 6) *this = &::sector[index];
+		else if (type == 3) *this = act;
+		else assert(false);
+	}
 };
 
 
@@ -182,9 +199,7 @@ inline bool channelRangeIsFine(int channel) {
 
 struct EVENT
 {
-	DBloodActor* actor;
-	int index_;
-	int8_t type;
+	EventObject target;
 	int8_t cmd;
 	int16_t funcID;
 	int priority;
@@ -194,42 +209,42 @@ struct EVENT
 		return priority < other.priority;
 	}
 
-	bool isObject(int type, DBloodActor* actor, int index) const
+	bool event_isObject(const EventObject& obj) const
 	{
-		return (this->type == type && (this->type != SS_SPRITE ? (this->index_ == index) : (this->actor == actor)));
+		return (this->target == obj);
 	}
 
 	bool isActor() const
 	{
-		return type == SS_SPRITE;
+		return target.isActor();
 	}
 
 	bool isSector() const
 	{
-		return type == SS_SECTOR;
+		return target.isSector();
 	}
 
 	bool isWall() const
 	{
-		return type == SS_WALL;
+		return target.isWall();
 	}
 
 	DBloodActor* getActor() const
 	{
 		assert(isActor());
-		return actor;
+		return target.actor();
 	}
 
 	sectortype* getSector() const
 	{
 		assert(isSector());
-		return &sector[index_];
+		return target.sector();
 	}
 
 	walltype* getWall() const
 	{
 		assert(isWall());
-		return &wall[index_];
+		return target.wall();
 	}
 };
 

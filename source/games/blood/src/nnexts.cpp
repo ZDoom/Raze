@@ -1115,10 +1115,8 @@ void nnExtProcessSuperSprites()
             if (pXCond->data1 >= kCondGameBase && pXCond->data1 < kCondGameMax)
             {
                 EVENT evn;
-                evn.index_ = 0; 
-                evn.actor = pCond->actor;
+                evn.target = pCond->actor;
                 evn.cmd = (int8_t)pXCond->command;
-                evn.type = OBJ_SPRITE;            
                 evn.funcID = kCallbackMax;
                 useCondition(pCond->actor, evn);
             }
@@ -1128,10 +1126,8 @@ void nnExtProcessSuperSprites()
                 for (unsigned k = 0; k < pCond->length; k++)
                 {
                     EVENT evn;
-                    evn.actor = pCond->obj[k].actor;
-                    evn.index_ = pCond->obj[k].index_;
+                    evn.target.fromElements(pCond->obj[k].type, pCond->obj[k].index_, pCond->obj[k].actor);
                     evn.cmd    = pCond->obj[k].cmd;
-                    evn.type = pCond->obj[k].type;
                     evn.funcID = kCallbackMax;
                     useCondition(pCond->actor, evn);
                 }
