@@ -133,7 +133,7 @@ void warpInit(void)
                         pSprite->sector()->upperLink = actor;
                         pSprite->cstat |= 32768;
                         pSprite->cstat &= ~257;
-                        pSprite->z = getflorzofslope(pSprite->sectnum, pSprite->x, pSprite->y);
+                        pSprite->z = getflorzofslopeptr(pSprite->sector(), pSprite->x, pSprite->y);
                         break;
                     case kMarkerLowWater:
                     case kMarkerLowStack:
@@ -141,7 +141,7 @@ void warpInit(void)
                         pSprite->sector()->lowerLink = actor;
                         pSprite->cstat |= 32768;
                         pSprite->cstat &= ~257;
-                        pSprite->z = getceilzofslope(pSprite->sectnum, pSprite->x, pSprite->y);
+                        pSprite->z = getceilzofslopeptr(pSprite->sector(), pSprite->x, pSprite->y);
                         break;
                 }
             }
@@ -198,7 +198,7 @@ int CheckLink(DBloodActor *actor)
         if (pUpper->type == kMarkerUpLink)
             z = pUpper->z;
         else
-            z = getflorzofslope(pSprite->sectnum, pSprite->x, pSprite->y);
+            z = getflorzofslopeptr(pSprite->sector(), pSprite->x, pSprite->y);
         if (z <= pSprite->z)
         {
             aLower = aUpper->GetOwner();
@@ -212,7 +212,7 @@ int CheckLink(DBloodActor *actor)
             if (pLower->type == kMarkerLowLink)
                 z2 = pLower->z;
             else
-                z2 = getceilzofslope(pSprite->sectnum, pSprite->x, pSprite->y);
+                z2 = getceilzofslopeptr(pSprite->sector(), pSprite->x, pSprite->y);
             pSprite->z += z2-z;
             actor->interpolated = false;
             return pUpper->type;
@@ -225,7 +225,7 @@ int CheckLink(DBloodActor *actor)
         if (pLower->type == kMarkerLowLink)
             z = pLower->z;
         else
-            z = getceilzofslope(pSprite->sectnum, pSprite->x, pSprite->y);
+            z = getceilzofslopeptr(pSprite->sector(), pSprite->x, pSprite->y);
         if (z >= pSprite->z)
         {
             aUpper = aLower->GetOwner();
@@ -239,7 +239,7 @@ int CheckLink(DBloodActor *actor)
             if (pUpper->type == kMarkerUpLink)
                 z2 = pUpper->z;
             else
-                z2 = getflorzofslope(pSprite->sectnum, pSprite->x, pSprite->y);
+                z2 = getflorzofslopeptr(pSprite->sector(), pSprite->x, pSprite->y);
             pSprite->z += z2-z;
             actor->interpolated = false;
             return pLower->type;

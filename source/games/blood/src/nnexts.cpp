@@ -6507,12 +6507,12 @@ void sprite2sectorSlope(DBloodActor* actor, sectortype* pSector, char rel, bool 
     int slope = 0, z = 0;
     switch (rel) {
         default:
-            z = getflorzofslope(pSprite->sectnum, pSprite->x, pSprite->y);
+            z = getflorzofslopeptr(pSprite->sector(), pSprite->x, pSprite->y);
             if ((pSprite->cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR) && actor->hasX() && actor->x().Touch) z--;
             slope = pSector->floorheinum;
             break;
         case 1:
-            z = getceilzofslope(pSprite->sectnum, pSprite->x, pSprite->y);
+            z = getceilzofslopeptr(pSprite->sector(), pSprite->x, pSprite->y);
             if ((pSprite->cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR) && actor->hasX() && actor->x().Touch) z++;
             slope = pSector->ceilingheinum;
             break;
@@ -9149,9 +9149,9 @@ void clampSprite(DBloodActor* actor, int which)
     {
         GetSpriteExtents(pSprite, &zTop, &zBot);
         if (which & 0x01)
-            pSprite->z += ClipHigh(getflorzofslope(pSprite->sectnum, pSprite->x, pSprite->y) - zBot, 0);
+            pSprite->z += ClipHigh(getflorzofslopeptr(pSprite->sector(), pSprite->x, pSprite->y) - zBot, 0);
         if (which & 0x02)
-            pSprite->z += ClipLow(getceilzofslope(pSprite->sectnum, pSprite->x, pSprite->y) - zTop, 0);
+            pSprite->z += ClipLow(getceilzofslopeptr(pSprite->sector(), pSprite->x, pSprite->y) - zTop, 0);
 
     }
 

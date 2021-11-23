@@ -3773,7 +3773,7 @@ static int actDamageThing(DBloodActor* source, DBloodActor* actor, int damage, D
 			{
 			case -1:
 				GibSprite(actor, GIBTYPE_14, nullptr, nullptr);
-				sfxPlay3DSound(pSprite->x, pSprite->y, pSprite->z, 312, pSprite->sectnum);
+				sfxPlay3DSound(pSprite->x, pSprite->y, pSprite->z, 312, pSprite->sector());
 				actPostSprite(actor, kStatFree);
 				break;
 
@@ -3953,7 +3953,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 
 	case kMissileArcGargoyle:
 		sfxKill3DSound(pMissile, -1, -1);
-		sfxPlay3DSound(pMissile->x, pMissile->y, pMissile->z, 306, pMissile->sectnum);
+		sfxPlay3DSound(pMissile->x, pMissile->y, pMissile->z, 306, pMissile->sector());
 		GibSprite(missileActor, GIBTYPE_6, NULL, NULL);
 
 		if (hitCode == 3 && pSpriteHit && (pThingInfo || pDudeInfo))
@@ -3967,7 +3967,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 	case kMissileLifeLeechAltNormal:
 	case kMissileLifeLeechAltSmall:
 		sfxKill3DSound(pMissile, -1, -1);
-		sfxPlay3DSound(pMissile->x, pMissile->y, pMissile->z, 306, pMissile->sectnum);
+		sfxPlay3DSound(pMissile->x, pMissile->y, pMissile->z, 306, pMissile->sector());
 
 		if (hitCode == 3 && pSpriteHit && (pThingInfo || pDudeInfo))
 		{
@@ -4081,7 +4081,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 
 	case kMissileEctoSkull:
 		sfxKill3DSound(pMissile, -1, -1);
-		sfxPlay3DSound(pMissile->x, pMissile->y, pMissile->z, 522, pMissile->sectnum);
+		sfxPlay3DSound(pMissile->x, pMissile->y, pMissile->z, 522, pMissile->sector());
 		actPostSprite(missileActor, kStatDebris);
 		seqSpawn(20, missileActor, -1);
 		if (hitCode == 3 && actorHit && actorHit->hasX())
@@ -4114,7 +4114,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 
 	case kMissileTeslaRegular:
 		sfxKill3DSound(pMissile, -1, -1);
-		sfxPlay3DSound(pMissile->x, pMissile->y, pMissile->z, 518, pMissile->sectnum);
+		sfxPlay3DSound(pMissile->x, pMissile->y, pMissile->z, 518, pMissile->sector());
 		GibSprite(missileActor, (hitCode == 2) ? GIBTYPE_23 : GIBTYPE_22, NULL, NULL);
 		evKillActor(missileActor);
 		seqKill(missileActor);
@@ -4357,7 +4357,7 @@ static void checkHit(DBloodActor* actor)
 				break;
 
 			case kThingZombieHead:
-				sfxPlay3DSound(pSprite->x, pSprite->y, pSprite->z, 357, pSprite->sectnum);
+				sfxPlay3DSound(pSprite->x, pSprite->y, pSprite->z, 357, pSprite->sector());
 				actKickObject(actor, actor2);
 				actDamageSprite(nullptr, actor2, kDamageFall, 80);
 				break;
@@ -4439,7 +4439,7 @@ static void checkFloorHit(DBloodActor* actor)
 					pPlayer->kickPower = PlayClock + 60;
 				}
 				actKickObject(actor, actor2);
-				sfxPlay3DSound(pSprite->x, pSprite->y, pSprite->z, 357, pSprite->sectnum);
+				sfxPlay3DSound(pSprite->x, pSprite->y, pSprite->z, 357, pSprite->sector());
 				sfxPlay3DSound(actor, 374, 0, 0);
 				break;
 			case kThingZombieHead:
@@ -4449,7 +4449,7 @@ static void checkFloorHit(DBloodActor* actor)
 					pPlayer->kickPower = PlayClock + 60;
 				}
 				actKickObject(actor, actor2);
-				sfxPlay3DSound(pSprite->x, pSprite->y, pSprite->z, 357, pSprite->sectnum);
+				sfxPlay3DSound(pSprite->x, pSprite->y, pSprite->z, 357, pSprite->sector());
 				actDamageSprite(nullptr, actor2, kDamageFall, 80);
 				break;
 			case kTrapSawCircular:
@@ -4572,7 +4572,7 @@ void actAirDrag(DBloodActor* actor, int a2)
 
 	int wind_x = 0;
 	int wind_y = 0;
-	assert(validSectorIndex(pSprite->sectnum));
+	assert(pSprite->sector());
 	sectortype* pSector = pSprite->sector();
 	if (pSector->hasX())
 	{
@@ -4925,7 +4925,7 @@ void MoveDude(DBloodActor* actor)
 
 	if (pSprite->sector() != pSector)
 	{
-		assert(validSectorIndex(pSprite->sectnum));
+		assert(pSprite->sector());
 		auto pOldSector = pSprite->sector();
 		XSECTOR* pXOldSector = pOldSector->hasX()? &pOldSector->xs() : nullptr;
 
@@ -5619,7 +5619,7 @@ void actActivateGibObject(DBloodActor* actor)
 	if (gib1 > 0) GibSprite(actor, (GIBTYPE)(gib1 - 1), nullptr, nullptr);
 	if (gib2 > 0) GibSprite(actor, (GIBTYPE)(gib2 - 1), nullptr, nullptr);
 	if (gib3 > 0 && pXSprite->burnTime > 0) GibSprite(actor, (GIBTYPE)(gib3 - 1), nullptr, nullptr);
-	if (sound > 0) sfxPlay3DSound(pSprite->x, pSprite->y, pSprite->z, sound, pSprite->sectnum);
+	if (sound > 0) sfxPlay3DSound(pSprite->x, pSprite->y, pSprite->z, sound, pSprite->sector());
 	if (dropmsg > 0) actDropObject(actor, dropmsg);
 
 	if (!(pSprite->cstat & 32768) && !(pSprite->flags & kHitagRespawn))

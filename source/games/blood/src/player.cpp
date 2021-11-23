@@ -1090,7 +1090,7 @@ bool PickupItem(PLAYER *pPlayer, DBloodActor* itemactor)
             return 1;
     }
     
-    sfxPlay3DSound(pSprite->x, pSprite->y, pSprite->z, pickupSnd, pSprite->sectnum);
+    sfxPlay3DSound(pSprite->x, pSprite->y, pSprite->z, pickupSnd, pSprite->sector());
     return 1;
 }
 
