@@ -241,7 +241,7 @@ void ResetSwordSeqs()
     WeaponInfo[kWeaponSword].b[3] = 7;
 }
 
-Collision CheckCloseRange(int nPlayer, int *x, int *y, int *z, sectortype* *nSector)
+Collision CheckCloseRange(int nPlayer, int *x, int *y, int *z, sectortype* *ppSector)
 {
     int hitSect, hitWall, hitSprite;
     int hitX, hitY, hitZ;
@@ -254,7 +254,7 @@ Collision CheckCloseRange(int nPlayer, int *x, int *y, int *z, sectortype* *nSec
 
     vec3_t startPos = { *x, *y, *z };
     hitdata_t hitData;
-    hitscan(&startPos, sectnum(*nSector), xVect, yVect, 0, &hitData, CLIPMASK1);
+    hitscan(&startPos, sectnum(*ppSector), xVect, yVect, 0, &hitData, CLIPMASK1);
     hitX = hitData.pos.x;
     hitY = hitData.pos.y;
     hitZ = hitData.pos.z;
@@ -282,7 +282,7 @@ Collision CheckCloseRange(int nPlayer, int *x, int *y, int *z, sectortype* *nSec
     *x = hitX;
     *y = hitY;
     *z = hitZ;
-    *nSector = &sector[hitSect];
+    *ppSector = &sector[hitSect];
 
     if (hitSprite > -1) {
         c.setSprite(&exhumedActors[hitSprite]);

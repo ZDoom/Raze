@@ -227,12 +227,10 @@ inline DExhumedActor* insertActor(sectortype* s, int st)
 }
 DExhumedActor* GrabBody();
 DExhumedActor* GrabBodyGunSprite();
-void CreatePushBlock(sectortype* pSector);
 void FuncCreatureChunk(int a, int, int nRun);
 DExhumedActor* FindPlayer(DExhumedActor* nSprite, int nDistance, bool dontengage = false);
 
 DExhumedActor* BuildCreatureChunk(DExhumedActor* pSrc, int nPic, bool bSpecial = false);
-void BuildNear(int x, int y, int walldist, int nSector);
 int PlotCourseToSprite(DExhumedActor* nSprite1, DExhumedActor* nSprite2);
 void CheckSectorFloor(sectortype* pSector, int z, int *x, int *y);
 int GetAngleToSprite(DExhumedActor* nSprite1, DExhumedActor* nSprite2);
@@ -247,7 +245,6 @@ void SetQuake(DExhumedActor* nSprite, int nVal);
 enum { kMaxMummies = 150 };
 
 void BuildMummy(DExhumedActor* val, int x, int y, int z, sectortype* pSector, int nAngle);
-void FuncMummy(int nSector, int edx, int nRun);
 
 // object
 

@@ -745,9 +745,6 @@ void AIQueenHead::Tick(RunListEvent* ev)
     auto pActor = QueenHead.pActor;
     auto pSprite = &pActor->s();
 
-    int nSector = pSprite->sectnum;
-    assert(validSectorIndex(nSector));
-
     int nAction = QueenHead.nAction;
     int nHd;
     int var_14 = 0;

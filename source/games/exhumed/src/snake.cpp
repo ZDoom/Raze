@@ -271,13 +271,13 @@ DExhumedActor* FindSnakeEnemy(int nSnake)
     auto pSprite = &pActor->s();
 
     int nAngle = pSprite->ang;
-    int nSector =pSprite->sectnum;
+    auto pSector =pSprite->sector();
 
     int esi = 2048;
 
 	DExhumedActor* pEnemy = nullptr;
 
-    ExhumedSectIterator it(nSector);
+    ExhumedSectIterator it(pSector);
     while (auto pAct2 = it.Next())
     {
 		auto pSpr2 = &pAct2->s();

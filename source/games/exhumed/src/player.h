@@ -30,8 +30,6 @@ int GrabPlayer();
 void InitPlayerInventory(int nPlayer);
 void RestartPlayer(int nPlayer);
 
-void FuncPlayer(int, int nSector, int nSprite, int nRun);
-
 enum
 {
 	kMaxPlayers			= 8,
