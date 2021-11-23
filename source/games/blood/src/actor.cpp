@@ -5340,18 +5340,18 @@ int MoveMissile(DBloodActor* actor)
 	while (1)
 	{
 		vec3_t pos = pSprite->pos;
-		int nSector2 = pSprite->sectnum;
+		auto pSector2 = pSprite->sector();
 		const auto bakSpriteCstat = pSprite->cstat;
 		if (pOwner && !isFlameSprite && !cl_bloodvanillaexplosions && !VanillaMode())
 		{
 			enginecompatibility_mode = ENGINECOMPATIBILITY_NONE; // improved clipmove accuracy
 			pSprite->cstat &= ~257; // remove self collisions for accurate clipmove
 		}
-		Collision clipmoveresult = ClipMove(&pos, &nSector2, vx, vy, pSprite->clipdist << 2, (pos.z - top) / 4, (bottom - pos.z) / 4, CLIPMASK0, 1);
+		Collision clipmoveresult = ClipMove(&pos, &pSector2, vx, vy, pSprite->clipdist << 2, (pos.z - top) / 4, (bottom - pos.z) / 4, CLIPMASK0, 1);
 		enginecompatibility_mode = bakCompat; // restore
 		pSprite->cstat = bakSpriteCstat;
-		int nSector = nSector2;
-		if (nSector2 < 0)
+		auto pSector = pSector2;
+		if (pSector2 == nullptr)
 		{
 			cliptype = -1;
 			break;
@@ -5368,7 +5368,7 @@ int MoveMissile(DBloodActor* actor)
 			else
 			{
 				int32_t fz, cz;
-				getzsofslope(clipmoveresult.wall()->nextsector, pos.x, pos.y, &cz, &fz);
+				getzsofslopeptr(clipmoveresult.wall()->nextSector(), pos.x, pos.y, &cz, &fz);
 				if (pos.z <= cz || pos.z >= fz) cliptype = 0;
 				else cliptype = 4;
 			}
@@ -5400,12 +5400,12 @@ int MoveMissile(DBloodActor* actor)
 			pos.y -= MulScale(Sin(nAngle), 16, 30);
 			int nVel = approxDist(actor->xvel, actor->yvel);
 			vz -= scale(0x100, actor->zvel, nVel);
-			updatesector(pos.x, pos.y, &nSector);
-			nSector2 = nSector;
+			updatesector(pos.x, pos.y, &pSector);
+			pSector2 = pSector;
 		}
 		int ceilZ, floorZ;
 		Collision ceilColl, floorColl;
-		GetZRangeAtXYZ(pos.x, pos.y, pos.z, nSector2, &ceilZ, &ceilColl, &floorZ, &floorColl, pSprite->clipdist << 2, CLIPMASK0);
+		GetZRangeAtXYZ(pos.x, pos.y, pos.z, pSector2, &ceilZ, &ceilColl, &floorZ, &floorColl, pSprite->clipdist << 2, CLIPMASK0);
 		GetActorExtents(actor, &top, &bottom);
 		top += vz;
 		bottom += vz;
@@ -5423,11 +5423,11 @@ int MoveMissile(DBloodActor* actor)
 		}
 		pSprite->pos = pos;
 		pSprite->z += vz;
-		updatesector(pos.x, pos.y, &nSector);
-		if (nSector >= 0 && nSector != pSprite->sectnum)
+		updatesector(pos.x, pos.y, &pSector);
+		if (pSector != nullptr && pSector != pSprite->sector())
 		{
-			assert(validSectorIndex(nSector));
-			ChangeActorSect(actor, nSector);
+			assert(pSector);
+			ChangeActorSect(actor, pSector);
 		}
 		CheckLink(actor);
 		gHitInfo.hitSect = pSprite->sector();

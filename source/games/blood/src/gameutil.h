@@ -77,7 +77,7 @@ bool IntersectRay(int wx, int wy, int wdx, int wdy, int x1, int y1, int z1, int 
 int HitScan(DBloodActor *pSprite, int z, int dx, int dy, int dz, unsigned int nMask, int a8);
 int VectorScan(DBloodActor *pSprite, int nOffset, int nZOffset, int dx, int dy, int dz, int nRange, int ac);
 void GetZRange(DBloodActor *pSprite, int *ceilZ, Collision *ceilHit, int *floorZ, Collision *floorHit, int nDist, unsigned int nMask, unsigned int nClipParallax = 0);
-void GetZRangeAtXYZ(int x, int y, int z, int nSector, int *ceilZ, Collision *ceilHit, int *floorZ, Collision *floorHit, int nDist, unsigned int nMask, unsigned int nClipParallax = 0);
+void GetZRangeAtXYZ(int x, int y, int z, sectortype* pSector, int *ceilZ, Collision *ceilHit, int *floorZ, Collision *floorHit, int nDist, unsigned int nMask, unsigned int nClipParallax = 0);
 int GetDistToLine(int x1, int y1, int x2, int y2, int x3, int y3);
 [[deprecated]] unsigned int ClipMove(vec3_t* pos, int *nSector, int xv, int yv, int wd, int cd, int fd, unsigned int nMask, int tracecount = 3);
 unsigned int ClipMove(vec3_t* pos, sectortype** pSector, int xv, int yv, int wd, int cd, int fd, unsigned int nMask, int tracecount = 3);
