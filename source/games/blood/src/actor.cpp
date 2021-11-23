@@ -2663,7 +2663,7 @@ void actRadiusDamage(DBloodActor* source, int x, int y, int z, int nSector, int 
 				if (act2->hasX())
 				{
 					if (pSprite2->flags & 0x20) continue;
-					if (!sectorMap[pSprite2->sectnum]) continue;
+					if (!CheckSector(sectorMap, pSprite2)) continue;
 					if (!CheckProximity(act2, x, y, z, nSector, nDist)) continue;
 
 					int dx = abs(x - pSprite2->x);
@@ -2690,7 +2690,7 @@ void actRadiusDamage(DBloodActor* source, int x, int y, int z, int nSector, int 
 			auto pSprite2 = &act2->s();
 
 			if (pSprite2->flags & 0x20) continue;
-			if (!sectorMap[pSprite2->sectnum]) continue;
+			if (!CheckSector(sectorMap, pSprite2)) continue;
 			if (!CheckProximity(act2, x, y, z, nSector, nDist)) continue;
 
 			XSPRITE* pXSprite2 = &act2->x();
@@ -5923,7 +5923,7 @@ static void actCheckExplosion()
 
 			if (pDude->flags & 32) continue;
 
-			if (sectorMap[pDude->sectnum])
+			if (CheckSector(sectorMap, pDude))
 			{
 				if (pXSprite->data1 && CheckProximity(dudeactor, x, y, z, nSector, radius))
 				{
@@ -5952,7 +5952,7 @@ static void actCheckExplosion()
 
 			if (pThing->flags & 32) continue;
 
-			if (sectorMap[pThing->sectnum])
+			if (CheckSector(sectorMap, pThing))
 			{
 				if (pXSprite->data1 && CheckProximity(thingactor, x, y, z, nSector, radius) && thingactor->hasX())
 				{
@@ -5996,7 +5996,7 @@ static void actCheckExplosion()
 					spritetype* pDebris = &physactor->s();
 					if (pDebris->sectnum < 0 || (pDebris->flags & kHitagFree) != 0) continue;
 
-					if (!sectorMap[pDebris->sectnum] || !CheckProximity(physactor, x, y, z, nSector, radius)) continue;
+					if (!CheckSector(sectorMap, pDebris) || !CheckProximity(physactor, x, y, z, nSector, radius)) continue;
 					else debrisConcuss(Owner, i, x, y, z, pExplodeInfo->dmgType);
 				}
 			}
@@ -6008,9 +6008,9 @@ static void actCheckExplosion()
 					if (gImpactSpritesList[i] == nullptr) continue;
 
 					auto impactactor = gImpactSpritesList[i];
-					if (!impactactor->hasX() || impactactor->s().sectnum < 0 || (impactactor->s().flags & kHitagFree) != 0)	continue;
+					if (!impactactor->hasX() || !impactactor->s().insector() || (impactactor->s().flags & kHitagFree) != 0)	continue;
 
-					if (/*pXImpact->state == pXImpact->restState ||*/ !sectorMap[impactactor->s().sectnum] || !CheckProximity(impactactor, x, y, z, nSector, radius))
+					if (!CheckSector(sectorMap, &impactactor->s()) || !CheckProximity(impactactor, x, y, z, nSector, radius))
 						continue;
 
 					trTriggerSprite(impactactor, kCmdSpriteImpact);
