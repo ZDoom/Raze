@@ -2645,11 +2645,11 @@ int actFloorBounceVector(int* x, int* y, int* z, sectortype* pSector, int a5)
 //
 //---------------------------------------------------------------------------
 
-void actRadiusDamage(DBloodActor* source, int x, int y, int z, int nSector, int nDist, int baseDmg, int distDmg, DAMAGE_TYPE dmgType, int flags, int burn)
+void actRadiusDamage(DBloodActor* source, int x, int y, int z, sectortype* pSector, int nDist, int baseDmg, int distDmg, DAMAGE_TYPE dmgType, int flags, int burn)
 {
 	auto pOwner = source->GetOwner();
 	const bool newSectCheckMethod = !cl_bloodvanillaexplosions && pOwner && pOwner->IsDudeActor() && !VanillaMode(); // use new sector checking logic
-	auto sectorMap = GetClosestSpriteSectors(&sector[nSector], x, y, nDist, nullptr, newSectCheckMethod);
+	auto sectorMap = GetClosestSpriteSectors(pSector, x, y, nDist, nullptr, newSectCheckMethod);
 	nDist <<= 4;
 	if (flags & 2)
 	{
@@ -2663,7 +2663,7 @@ void actRadiusDamage(DBloodActor* source, int x, int y, int z, int nSector, int 
 				{
 					if (pSprite2->flags & 0x20) continue;
 					if (!CheckSector(sectorMap, pSprite2)) continue;
-					if (!CheckProximity(act2, x, y, z, nSector, nDist)) continue;
+					if (!CheckProximity(act2, x, y, z, sectnum(pSector), nDist)) continue;
 
 					int dx = abs(x - pSprite2->x);
 					int dy = abs(y - pSprite2->y);
@@ -2690,7 +2690,7 @@ void actRadiusDamage(DBloodActor* source, int x, int y, int z, int nSector, int 
 
 			if (pSprite2->flags & 0x20) continue;
 			if (!CheckSector(sectorMap, pSprite2)) continue;
-			if (!CheckProximity(act2, x, y, z, nSector, nDist)) continue;
+			if (!CheckProximity(act2, x, y, z, sectnum(pSector), nDist)) continue;
 
 			XSPRITE* pXSprite2 = &act2->x();
 			if (pXSprite2->locked) continue;
@@ -2727,7 +2727,7 @@ static void actNapalmMove(DBloodActor* actor)
 	if (Chance(0x8000)) pSprite->cstat |= 4;
 
 	sfxPlay3DSound(actor, 303, 24 + (pSprite->flags & 3), 1);
-	actRadiusDamage(pOwner, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, 128, 0, 60, kDamageExplode, 15, 120);
+	actRadiusDamage(pOwner, pSprite->x, pSprite->y, pSprite->z, pSprite->sector(), 128, 0, 60, kDamageExplode, 15, 120);
 
 	if (pXSprite->data4 > 1)
 	{
@@ -4006,7 +4006,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 					evPostActor(actorHit, 0, kCallbackFXFlameLick);
 
 				actBurnSprite(missileOwner, actorHit, 480);
-				actRadiusDamage(missileOwner, pMissile->x, pMissile->y, pMissile->z, pMissile->sectnum, 16, 20, 10, kDamageBullet, 6, 480);
+				actRadiusDamage(missileOwner, pMissile->x, pMissile->y, pMissile->z, pMissile->sector(), 16, 20, 10, kDamageBullet, 6, 480);
 
 				// by NoOne: allow additional bullet damage for Flare Gun
 				if (gGameOptions.weaponsV10x && !VanillaMode())
@@ -5823,7 +5823,7 @@ static void actCheckThings()
 					case kThingPodGreenBall:
 						if (hit.type == kHitSector)
 						{
-							actRadiusDamage(actor->GetOwner(), pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, 200, 1, 20, kDamageExplode, 6, 0);
+							actRadiusDamage(actor->GetOwner(), pSprite->x, pSprite->y, pSprite->z, pSprite->sector(), 200, 1, 20, kDamageExplode, 6, 0);
 							evPostActor(actor, 0, kCallbackFXPodBloodSplat);
 						}
 						else if (hit.type == kHitSprite)

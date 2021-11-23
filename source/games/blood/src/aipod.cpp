@@ -125,7 +125,7 @@ void sub_70284(int, DBloodActor* actor)
 		nDist = 75;
 		break;
 	}
-	actRadiusDamage(actor, pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, nDist, 1, 5 * (1 + gGameOptions.nDifficulty), dmgType, 2, nBurn);
+	actRadiusDamage(actor, pSprite->x, pSprite->y, pSprite->z, pSprite->sector(), nDist, 1, 5 * (1 + gGameOptions.nDifficulty), dmgType, 2, nBurn);
 }
 
 static void aiPodSearch(DBloodActor* actor)
