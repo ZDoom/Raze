@@ -76,8 +76,8 @@ class DBloodActor;
 struct SEQINST
 {
 	Seq* pSequence;
-	DBloodActor* actor;
-	int seqindex, type;
+	EventObject target;
+	int type;
 
 	int nSeqID;
 	int callback;
@@ -93,18 +93,22 @@ inline int seqGetTile(SEQFRAME* pFrame)
 
 int seqRegisterClient(void(*pClient)(int, int));
 void seqPrecacheId(int id, int palette);
-SEQINST* GetInstance(int a1, int a2);
+SEQINST* GetInstance(int a1, EventObject& a2);
 SEQINST* GetInstance(DBloodActor* actor);
 void UnlockInstance(SEQINST* pInst);
-void seqSpawn(int a1, int a2, int a3, int a4 = -1);
+void seqSpawn(int a1, int ty, walltype* a2, int a4 = -1);
+void seqSpawn(int a1, int ty, sectortype* a2, int a4 = -1);
 void seqSpawn(int a1, DBloodActor* actor, int a4 = -1);
 
-void seqKill(int a1, int a2);
+void seqKill(int a1, walltype* a2);
+void seqKill(int a1, sectortype* a2);
 void seqKill(DBloodActor* actor);
 void seqKillAll(void);
-int seqGetStatus(int a1, int a2);
+int seqGetStatus(int a1, walltype* a2);
+int seqGetStatus(int a1, sectortype* a2);
 int seqGetStatus(DBloodActor*);
-int seqGetID(int a1, int a2);
+int seqGetID(int a1, walltype* a2);
+int seqGetID(int a1, sectortype* a2);
 int seqGetID(DBloodActor*);
 void seqProcess(int a1);
 

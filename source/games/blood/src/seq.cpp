@@ -126,10 +126,8 @@ void seqPrecacheId(int id, int palette)
 //
 //---------------------------------------------------------------------------
 
-void UpdateCeiling(int nSector, SEQFRAME* pFrame)
+void UpdateCeiling(sectortype* pSector, SEQFRAME* pFrame)
 {
-	assert(validSectorIndex(nSector));
-	sectortype* pSector = &sector[nSector];
 	pSector->ceilingpicnum = seqGetTile(pFrame);
 	pSector->ceilingshade = pFrame->shade;
 	if (pFrame->palette)
@@ -142,10 +140,8 @@ void UpdateCeiling(int nSector, SEQFRAME* pFrame)
 //
 //---------------------------------------------------------------------------
 
-void UpdateFloor(int nSector, SEQFRAME* pFrame)
+void UpdateFloor(sectortype* pSector, SEQFRAME* pFrame)
 {
-	assert(validSectorIndex(nSector));
-	sectortype* pSector = &sector[nSector];
 	pSector->floorpicnum = seqGetTile(pFrame);
 	pSector->floorshade = pFrame->shade;
 	if (pFrame->palette)
@@ -158,10 +154,8 @@ void UpdateFloor(int nSector, SEQFRAME* pFrame)
 //
 //---------------------------------------------------------------------------
 
-void UpdateWall(int nWall, SEQFRAME* pFrame)
+void UpdateWall(walltype* pWall, SEQFRAME* pFrame)
 {
-	assert(validWallIndex(nWall));
-	walltype* pWall = &wall[nWall];
 	assert(pWall->hasX());
 	pWall->picnum = seqGetTile(pFrame);
 	if (pFrame->palette)
@@ -190,10 +184,8 @@ void UpdateWall(int nWall, SEQFRAME* pFrame)
 //
 //---------------------------------------------------------------------------
 
-void UpdateMasked(int nWall, SEQFRAME* pFrame)
+void UpdateMasked(walltype* pWall, SEQFRAME* pFrame)
 {
-	assert(validWallIndex(nWall));
-	walltype* pWall = &wall[nWall];
 	assert(pWall->hasX());
 	walltype* pWallNext = pWall->nextWall();
 	pWall->overpicnum = pWallNext->overpicnum = seqGetTile(pFrame);
@@ -326,17 +318,22 @@ void SEQINST::Update()
 	assert(frameIndex < pSequence->nFrames);
 	switch (type)
 	{
-	case 0:
-		UpdateWall(seqindex, &pSequence->frames[frameIndex]);
+	case SS_WALL:
+		assert(target.isWall());
+		UpdateWall(target.wall(), &pSequence->frames[frameIndex]);
 		break;
-	case 1:
-		UpdateCeiling(seqindex, &pSequence->frames[frameIndex]);
+	case SS_CEILING:
+		assert(target.isSector());
+		UpdateCeiling(target.sector(), &pSequence->frames[frameIndex]);
 		break;
-	case 2:
-		UpdateFloor(seqindex, &pSequence->frames[frameIndex]);
+	case SS_FLOOR:
+		assert(target.isSector());
+		UpdateFloor(target.sector(), &pSequence->frames[frameIndex]);
 		break;
-	case 3:
+	case SS_SPRITE:
 	{
+		assert(target.isActor());
+		auto actor = target.actor();
 		if (!actor) break;
 		UpdateSprite(actor, &pSequence->frames[frameIndex]);
 		if (pSequence->frames[frameIndex].playsound) {
@@ -388,16 +385,17 @@ void SEQINST::Update()
 		}
 		break;
 	}
-	case 4:
-		UpdateMasked(seqindex, &pSequence->frames[frameIndex]);
+	case SS_MASKED:
+		assert(target.isWall());
+		UpdateMasked(target.wall(), &pSequence->frames[frameIndex]);
 		break;
 	}
 
 	// all seq callbacks are for sprites, but there's no sanity checks here that what gets passed is meant to be for a sprite...
 	if (pSequence->frames[frameIndex].trigger && callback != -1)
 	{
-		assert(type == 3);
-		if (type == 3) seqClientCallback[callback](type, actor);
+		assert(type == SS_SPRITE);
+		if (target.isActor()) seqClientCallback[callback](type, target.actor());
 	}
 
 }
@@ -415,8 +413,8 @@ struct ActiveList
 	void clear() { list.Clear(); }
 	int getSize() { return list.Size(); }
 	SEQINST* getInst(int num) { return &list[num]; }
-	int getIndex(int num) { return list[num].seqindex; }
-	DBloodActor* getActor(int num) { return list[num].actor; }
+	EventObject getElement(int num) { return list[num].target; }
+	//DBloodActor* getActor(int num) { return list[num].actor; }
 	int getType(int num) { return list[num].type; }
 
 	void remove(int num)
@@ -431,30 +429,26 @@ struct ActiveList
 		return &list.Last();
 	}
 
-	SEQINST* get(int type, int index)
+	SEQINST* get(int type, const EventObject& eob)
 	{
 		for (auto& n : list)
 		{
-			if (n.type == type && n.seqindex == index) return &n;
+			if (n.type == type && n.target == eob) return &n;
 		}
 		return nullptr;
 	}
 
 	SEQINST* get(DBloodActor* actor)
 	{
-		for (auto& n : list)
-		{
-			if (n.type == 3 && n.actor == actor) return &n;
-		}
-		return nullptr;
+		return get(SS_SPRITE, EventObject(actor));
 	}
 
-	void remove(int type, int index)
+	void remove(int type, const EventObject& eob)
 	{
 		for (unsigned i = 0; i < list.Size(); i++)
 		{
 			auto& n = list[i];
-			if (n.type == type && n.seqindex == index)
+			if (n.type == type && n.target == eob)
 			{
 				remove(i);
 				return;
@@ -464,15 +458,7 @@ struct ActiveList
 
 	void remove(DBloodActor* actor)
 	{
-		for (unsigned i = 0; i < list.Size(); i++)
-		{
-			auto& n = list[i];
-			if (n.type == 3 && n.actor == actor)
-			{
-				remove(i);
-				return;
-			}
-		}
+		remove(SS_SPRITE, EventObject(actor));
 	}
 
 };
@@ -485,9 +471,9 @@ static ActiveList activeList;
 //
 //---------------------------------------------------------------------------
 
-SEQINST* GetInstance(int type, int nIndex)
+SEQINST* GetInstance(int type, const EventObject& eob)
 {
-	return activeList.get(type, nIndex);
+	return activeList.get(type, eob);
 }
 
 SEQINST* GetInstance(DBloodActor* actor)
@@ -495,29 +481,24 @@ SEQINST* GetInstance(DBloodActor* actor)
 	return activeList.get(actor);
 }
 
-int seqGetStatus(DBloodActor* actor)
+void seqKill(int type, const EventObject& nIndex)
 {
-	SEQINST* pInst = activeList.get(actor);
-	if (pInst) return pInst->frameIndex;
-	return -1;
-}
-
-int seqGetID(DBloodActor* actor)
-{
-	SEQINST* pInst = activeList.get(actor);
-	if (pInst) return pInst->nSeqID;
-	return -1;
-}
-
-void seqKill(int type, int nIndex)
-{
-	assert(type != SS_SPRITE);
 	activeList.remove(type, nIndex);
 }
 
 void seqKillAll()
 {
 	activeList.clear();
+}
+
+void seqKill(int type, sectortype* actor)
+{
+	activeList.remove(type, EventObject(actor));
+}
+
+void seqKill(int type, walltype* actor)
+{
+	activeList.remove(type, EventObject(actor));
 }
 
 void seqKill(DBloodActor* actor)
@@ -595,14 +576,13 @@ Seq* getSequence(int res_id)
 //
 //---------------------------------------------------------------------------
 
-void seqSpawn(int nSeqID, int type, int nIndex, int callback)
+void seqSpawn_(int nSeqID, int type, const EventObject& eob, int callback)
 {
-	assert(type != SS_SPRITE);
 	Seq* pSequence = getSequence(nSeqID);
 
 	if (pSequence == nullptr) return;
 
-	SEQINST* pInst = activeList.get(type, nIndex);
+	SEQINST* pInst = activeList.get(type, eob);
 	if (!pInst)
 	{
 		pInst = activeList.getNew();
@@ -620,38 +600,25 @@ void seqSpawn(int nSeqID, int type, int nIndex, int callback)
 	pInst->timeCounter = (short)pSequence->ticksPerFrame;
 	pInst->frameIndex = 0;
 	pInst->type = type;
-	pInst->seqindex = nIndex;
-	pInst->actor = nullptr;
+	pInst->target = eob;
 	pInst->Update();
 }
 
 void seqSpawn(int nSeqID, DBloodActor* actor, int callback)
 {
-	Seq* pSequence = getSequence(nSeqID);
+	seqSpawn_(nSeqID, SS_SPRITE, EventObject(actor), callback);
+}
 
-	if (pSequence == nullptr) return;
+void seqSpawn(int nSeqID, int type, sectortype* sect, int callback)
+{
+	assert(type == SS_FLOOR || type == SS_CEILING);
+	seqSpawn_(nSeqID, type, EventObject(sect), callback);
+}
 
-	SEQINST* pInst = activeList.get(actor);
-	if (!pInst)
-	{
-		pInst = activeList.getNew();
-	}
-	else
-	{
-		// already playing this sequence?
-		if (pInst->nSeqID == nSeqID)
-			return;
-	}
-
-	pInst->pSequence = pSequence;
-	pInst->nSeqID = nSeqID;
-	pInst->callback = callback;
-	pInst->timeCounter = (short)pSequence->ticksPerFrame;
-	pInst->frameIndex = 0;
-	pInst->type = SS_SPRITE;
-	pInst->seqindex = 0;
-	pInst->actor = actor;
-	pInst->Update();
+void seqSpawn(int nSeqID, int type, walltype* wal, int callback)
+{
+	assert(type == SS_WALL || type == SS_MASKED);
+	seqSpawn_(nSeqID, type, EventObject(wal), callback);
 }
 
 //---------------------------------------------------------------------------
@@ -660,19 +627,48 @@ void seqSpawn(int nSeqID, DBloodActor* actor, int callback)
 //
 //---------------------------------------------------------------------------
 
-int seqGetStatus(int type, int nIndex)
+int seqGetStatus(int type, sectortype* nIndex)
 {
-	SEQINST* pInst = activeList.get(type, nIndex);
+	SEQINST* pInst = activeList.get(type, EventObject(nIndex));
 	if (pInst) return pInst->frameIndex;
 	return -1;
 }
 
-int seqGetID(int type, int nIndex)
+int seqGetID(int type, sectortype* nIndex)
 {
-	SEQINST* pInst = activeList.get(type, nIndex);
+	SEQINST* pInst = activeList.get(type, EventObject(nIndex));
 	if (pInst) return pInst->nSeqID;
 	return -1;
 }
+
+int seqGetStatus(int type, walltype* nIndex)
+{
+	SEQINST* pInst = activeList.get(type, EventObject(nIndex));
+	if (pInst) return pInst->frameIndex;
+	return -1;
+}
+
+int seqGetID(int type, walltype* nIndex)
+{
+	SEQINST* pInst = activeList.get(type, EventObject(nIndex));
+	if (pInst) return pInst->nSeqID;
+	return -1;
+}
+
+int seqGetStatus(DBloodActor* actor)
+{
+	SEQINST* pInst = activeList.get(actor);
+	if (pInst) return pInst->frameIndex;
+	return -1;
+}
+
+int seqGetID(DBloodActor* actor)
+{
+	SEQINST* pInst = activeList.get(actor);
+	if (pInst) return pInst->nSeqID;
+	return -1;
+}
+
 
 //---------------------------------------------------------------------------
 //
@@ -686,8 +682,7 @@ void seqProcess(int nTicks)
 	{
 		SEQINST* pInst = activeList.getInst(i);
 		Seq* pSeq = pInst->pSequence;
-		int index = pInst->seqindex;
-		auto actor = pInst->actor;
+		auto target = pInst->target;
 
 		assert(pInst->frameIndex < pSeq->nFrames);
 
@@ -705,6 +700,8 @@ void seqProcess(int nTicks)
 					{
 						if (pInst->type == SS_SPRITE)
 						{
+							assert(target.isActor());
+							auto actor = target.actor();
 							if (actor)
 							{
 								evKillActor(actor);
@@ -716,8 +713,8 @@ void seqProcess(int nTicks)
 
 						else if (pInst->type == SS_MASKED)
 						{
-							assert(validWallIndex(index));
-							auto pWall = &wall[index];
+							assert(target.isWall());
+							auto pWall = target.wall();
 							pWall->cstat &= ~(8 + 16 + 32);
 							if (pWall->twoSided())
 								pWall->nextWall()->cstat &= ~(8 + 16 + 32);
@@ -746,13 +743,12 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, SEQINST& w, SEQINS
 {
 	if (arc.BeginObject(keyname))
 	{
-		arc	("type", w.type)
+		arc("type", w.type)
 			("callback", w.callback)
 			("seqid", w.nSeqID)
 			("timecounter", w.timeCounter)
 			("frameindex", w.frameIndex)
-			("index", w.seqindex)
-			("actor", w.actor);
+			("target", w.target);
 			
 			arc.EndObject();
 	}

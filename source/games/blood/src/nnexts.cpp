@@ -3515,49 +3515,51 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, int index, DBloodAc
     switch (objType) 
     {
         case OBJ_SECTOR:
+        {            
+            auto pSector = &sector[index];
             if (pXSource->data2 <= 0) 
             {
                 if (pXSource->data3 == 3 || pXSource->data3 == 1)
-                    seqKill(2, index);
+                    seqKill(SS_FLOOR, pSector);
                 if (pXSource->data3 == 3 || pXSource->data3 == 2)
-                    seqKill(1, index);
+                    seqKill(SS_CEILING, pSector);
             }
             else 
             {
                 if (pXSource->data3 == 3 || pXSource->data3 == 1)
-                    seqSpawn(pXSource->data2, SS_FLOOR, index, -1);
+                    seqSpawn(pXSource->data2, SS_FLOOR, pSector, -1);
                 if (pXSource->data3 == 3 || pXSource->data3 == 2)
-                    seqSpawn(pXSource->data2, SS_CEILING, index, -1);
+                    seqSpawn(pXSource->data2, SS_CEILING, pSector, -1);
             }
             return;
-
+        }
         case OBJ_WALL:
         {
             auto pWall = &wall[index];
             if (pXSource->data2 <= 0)
             {
                 if (pXSource->data3 == 3 || pXSource->data3 == 1)
-                    seqKill(0, index);
+                    seqKill(SS_WALL, pWall);
                 if ((pXSource->data3 == 3 || pXSource->data3 == 2) && (pWall->cstat & CSTAT_WALL_MASKED))
-                    seqKill(4, index);
+                    seqKill(SS_MASKED, pWall);
             }
             else
             {
                 if (pXSource->data3 == 3 || pXSource->data3 == 1)
-                    seqSpawn(pXSource->data2, SS_WALL, index, -1);
+                    seqSpawn(pXSource->data2, SS_WALL, pWall, -1);
 
                 if (pXSource->data3 == 3 || pXSource->data3 == 2) {
 
                     if (pWall->nextwall < 0) {
                         if (pXSource->data3 == 3)
-                            seqSpawn(pXSource->data2, SS_WALL, index, -1);
+                            seqSpawn(pXSource->data2, SS_WALL, pWall, -1);
 
                     }
                     else {
                         if (!(pWall->cstat & CSTAT_WALL_MASKED))
                             pWall->cstat |= CSTAT_WALL_MASKED;
 
-                        seqSpawn(pXSource->data2, SS_MASKED, index, -1);
+                        seqSpawn(pXSource->data2, SS_MASKED, pWall, -1);
                     }
                 }
 
@@ -3904,17 +3906,17 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
                         case 70:
                             switch (arg3) 
                             {
-                                default: return (condCmp(seqGetID(0, wallnum(pObj)), arg1, arg2, cmpOp) || condCmp(seqGetID(4, wallnum(pObj)), arg1, arg2, cmpOp));
-                                case 1:  return condCmp(seqGetID(0, wallnum(pObj)), arg1, arg2, cmpOp);
-                                case 2:  return condCmp(seqGetID(4, wallnum(pObj)), arg1, arg2, cmpOp);
+                                default: return (condCmp(seqGetID(SS_WALL, pObj), arg1, arg2, cmpOp) || condCmp(seqGetID(SS_MASKED, pObj), arg1, arg2, cmpOp));
+                                case 1:  return condCmp(seqGetID(SS_WALL, pObj), arg1, arg2, cmpOp);
+                                case 2:  return condCmp(seqGetID(SS_MASKED, pObj), arg1, arg2, cmpOp);
                             }
                             break;
                         case 71:
                             switch (arg3) 
                             {
-                                default: return (condCmp(seqGetStatus(0, wallnum(pObj)), arg1, arg2, cmpOp) || condCmp(seqGetStatus(4, wallnum(pObj)), arg1, arg2, cmpOp));
-                                case 1:  return condCmp(seqGetStatus(0, wallnum(pObj)), arg1, arg2, cmpOp);
-                                case 2:  return condCmp(seqGetStatus(4, wallnum(pObj)), arg1, arg2, cmpOp);
+                                default: return (condCmp(seqGetStatus(SS_WALL, pObj), arg1, arg2, cmpOp) || condCmp(seqGetStatus(SS_MASKED, pObj), arg1, arg2, cmpOp));
+                                case 1:  return condCmp(seqGetStatus(SS_WALL, pObj), arg1, arg2, cmpOp);
+                                case 2:  return condCmp(seqGetStatus(SS_MASKED, pObj), arg1, arg2, cmpOp);
                             }
                             break;
                     }
@@ -3969,17 +3971,17 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
                             // wall???
                             switch (arg3) 
                             {
-                                default: return (condCmp(seqGetID(1, sectnum(pObj)), arg1, arg2, cmpOp) || condCmp(seqGetID(2, sectnum(pObj)), arg1, arg2, cmpOp));
-                                case 1:  return condCmp(seqGetID(1, sectnum(pObj)), arg1, arg2, cmpOp);
-                                case 2:  return condCmp(seqGetID(2, sectnum(pObj)), arg1, arg2, cmpOp);
+                                default: return (condCmp(seqGetID(SS_CEILING, pObj), arg1, arg2, cmpOp) || condCmp(seqGetID(SS_FLOOR, pObj), arg1, arg2, cmpOp));
+                                case 1:  return condCmp(seqGetID(SS_CEILING, pObj), arg1, arg2, cmpOp);
+                                case 2:  return condCmp(seqGetID(SS_FLOOR, pObj), arg1, arg2, cmpOp);
                             }
                             break;
                         case 71:
                             switch (arg3) 
                             {
-                                default: return (condCmp(seqGetStatus(1, sectnum(pObj)), arg1, arg2, cmpOp) || condCmp(seqGetStatus(2, sectnum(pObj)), arg1, arg2, cmpOp));
-                                case 1:  return condCmp(seqGetStatus(1, sectnum(pObj)), arg1, arg2, cmpOp);
-                                case 2:  return condCmp(seqGetStatus(2, sectnum(pObj)), arg1, arg2, cmpOp);
+                                default: return (condCmp(seqGetStatus(SS_CEILING, pObj), arg1, arg2, cmpOp) || condCmp(seqGetStatus(SS_FLOOR, pObj), arg1, arg2, cmpOp));
+                                case 1:  return condCmp(seqGetStatus(SS_CEILING, pObj), arg1, arg2, cmpOp);
+                                case 2:  return condCmp(seqGetStatus(SS_FLOOR, pObj), arg1, arg2, cmpOp);
                             }
                             break;
                     }

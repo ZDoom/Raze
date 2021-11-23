@@ -195,7 +195,7 @@ void setPortalFlags(int mode)
     }
 }
 
-// Note: wall range checks on wall[] need to be disabled because this writes beyond the regular part.
+// Note: debug range checks on wall [] need to be disabled because this deliberately writes beyond the regular part.
 
 void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int viewPlayer)
 {

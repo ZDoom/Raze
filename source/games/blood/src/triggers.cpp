@@ -1834,7 +1834,7 @@ void trMessageSprite(DBloodActor* actor, EVENT event)
                     break;
                 #ifdef NOONE_EXTENSIONS
                 case kCmdModernUse:
-                    modernTypeTrigger(SS_SPRITE, 0, actor, event);
+                    modernTypeTrigger(OBJ_SPRITE, 0, actor, event);
                     break;
                 #endif
                 default:
