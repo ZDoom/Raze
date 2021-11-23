@@ -4602,8 +4602,8 @@ static Collision MoveThing(DBloodActor* actor)
 	assert(actor->hasX());
 	assert(pSprite->type >= kThingBase && pSprite->type < kThingMax);
 	const THINGINFO* pThingInfo = &thingInfo[pSprite->type - kThingBase];
-	int nSector = pSprite->sectnum;
-	assert(validSectorIndex(nSector));
+	auto pSector = pSprite->sector();
+	assert(pSector);
 	int top, bottom;
 	Collision lhit;
 
@@ -4616,14 +4616,14 @@ static Collision MoveThing(DBloodActor* actor)
 		pSprite->cstat &= ~257;
 		if ((actor->GetOwner()) && !cl_bloodvanillaexplosions && !VanillaMode())
 			enginecompatibility_mode = ENGINECOMPATIBILITY_NONE; // improved clipmove accuracy
-		lhit = actor->hit.hit = ClipMove(&pSprite->pos, &nSector, actor->xvel >> 12, actor->yvel >> 12, pSprite->clipdist << 2, (pSprite->z - top) / 4, (bottom - pSprite->z) / 4, CLIPMASK0);
+		lhit = actor->hit.hit = ClipMove(&pSprite->pos, &pSector, actor->xvel >> 12, actor->yvel >> 12, pSprite->clipdist << 2, (pSprite->z - top) / 4, (bottom - pSprite->z) / 4, CLIPMASK0);
 		enginecompatibility_mode = bakCompat; // restore
 		pSprite->cstat = bakCstat;
-		assert(nSector >= 0);
-		if (pSprite->sectnum != nSector)
+		assert(pSector);
+		if (pSprite->sector() != pSector)
 		{
-			assert(validSectorIndex(nSector));
-			ChangeActorSect(actor, nSector);
+			assert(pSector);
+			ChangeActorSect(actor, pSector);
 		}
 
 		Collision &coll = actor->hit.hit;
@@ -4645,8 +4645,8 @@ static Collision MoveThing(DBloodActor* actor)
 	}
 	else
 	{
-		assert(validSectorIndex(nSector));
-		FindSector(pSprite->x, pSprite->y, pSprite->z, &nSector);
+		assert(pSector);
+		FindSector(pSprite->x, pSprite->y, pSprite->z, &pSector);
 	}
 
 	pSprite->z += actor->zvel >> 8;
@@ -4725,7 +4725,7 @@ static Collision MoveThing(DBloodActor* actor)
 				break;
 			}
 
-			lhit = kHitSector | nSector;
+			lhit.setSector(pSector);
 		}
 		else if (actor->zvel == 0)
 
