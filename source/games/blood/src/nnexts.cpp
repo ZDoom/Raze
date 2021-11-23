@@ -452,6 +452,25 @@ bool nnExtEraseModernStuff(DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
+void nnExtTriggerObject(const RXBUCKET& eob, int command)
+{
+    if (eob.isSector())
+    {
+        trTriggerSector(eob.sector(), command);
+    }
+    else if (eob.isWall())
+    {
+        trTriggerWall(eob.wall(), command);
+    }
+    else if (eob.isActor())
+    {
+        auto objActor = eob.actor();
+        if (!objActor || !objActor->hasX()) return;
+        trTriggerSprite(objActor, command);
+    }
+}
+
+[[deprecated]]
 void nnExtTriggerObject(int objType, int objIndex, DBloodActor* objActor, int command) 
 {
     switch (objType) 
@@ -7188,7 +7207,7 @@ void playerQavSceneProcess(PLAYER* pPlayer, QAVSCENE* pQavScene)
                         }
 
                     }
-                    nnExtTriggerObject(rxBucket[i].type, rxBucket[i].rxindex, rxBucket[i].rxactor, pXSprite->command);
+                    nnExtTriggerObject(rxBucket[i], pXSprite->command);
 
                 }
             }
@@ -7421,12 +7440,15 @@ bool isActive(DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-int getDataFieldOfObject(int objType, int objIndex, DBloodActor* actor, int dataIndex)
+int getDataFieldOfObject(const RXBUCKET &eob, int dataIndex)
 {
     int data = -65535;
-    switch (objType) 
+
+    if (eob.isActor())
     {
-        case OBJ_SPRITE:
+        auto actor = eob.actor();
+        if (actor)
+        {
             switch (dataIndex) 
             {
                 case 1: return actor->x().data1;
@@ -7440,6 +7462,39 @@ int getDataFieldOfObject(int objType, int objIndex, DBloodActor* actor, int data
                 case 4: return actor->x().data4;
                 default: return data;
             }
+        }
+    }
+    else if (eob.isSector())
+    {
+        return eob.sector()->xs().data;
+    }
+    else if (eob.isWall())
+    {
+        return eob.wall()->xw().data;
+    }
+    return data;
+}
+
+[[deprecated]]
+int getDataFieldOfObject(int objType, int objIndex, DBloodActor* actor, int dataIndex)
+{
+    int data = -65535;
+    switch (objType)
+    {
+    case OBJ_SPRITE:
+        switch (dataIndex)
+        {
+        case 1: return actor->x().data1;
+        case 2: return actor->x().data2;
+        case 3:
+            switch (actor->s().type)
+            {
+            case kDudeModernCustom: return actor->x().sysData1;
+            default: return actor->x().data3;
+            }
+        case 4: return actor->x().data4;
+        default: return data;
+        }
         case OBJ_SECTOR: return sector[objIndex].xs().data;
         case OBJ_WALL: return wall[objIndex].xw().data;
         default: return data;
@@ -9020,7 +9075,7 @@ bool incDecGoalValueIsReached(DBloodActor* actor)
         if (evrIsRedirector(rxactor)) continue;
         for (int a = 0; a < len; a++) 
         {
-            if (getDataFieldOfObject(rxBucket[i].type, rxBucket[i].rxindex, rxBucket[i].rxactor, (buffer[a] - 52) + 4) != pXSprite->data3)
+            if (getDataFieldOfObject(rxBucket[i], (buffer[a] - 52) + 4) != pXSprite->data3)
                 return false;
         }
     }
@@ -9032,7 +9087,7 @@ bool incDecGoalValueIsReached(DBloodActor* actor)
         {
             for (int a = 0; a < len; a++) 
             {
-                if (getDataFieldOfObject(rxBucket[i].type, rxBucket[i].rxindex, rxBucket[i].rxactor, (buffer[a] - 52) + 4) != pXSprite->data3)
+                if (getDataFieldOfObject(rxBucket[i], (buffer[a] - 52) + 4) != pXSprite->data3)
                     return false;
             }
         }
