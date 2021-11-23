@@ -544,8 +544,8 @@ static void unicultThinkChase(DBloodActor* actor)
     int losAngle = ((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024;
     int eyeAboveZ = (pDudeInfo->eyeHeight * pSprite->yrepeat) << 2;
 
-    if (dist > pDudeInfo->seeDist || !cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum,
-        pSprite->x, pSprite->y, pSprite->z - eyeAboveZ, pSprite->sectnum)) 
+    if (dist > pDudeInfo->seeDist || !cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sector(),
+        pSprite->x, pSprite->y, pSprite->z - eyeAboveZ, pSprite->sector()))
     {
         if (spriteIsUnderwater(actor, false)) aiGenDudeNewState(actor, &genDudeSearchW);
         else aiGenDudeNewState(actor, &genDudeSearchL);
@@ -606,8 +606,8 @@ static void unicultThinkChase(DBloodActor* actor)
                             }
 
                             int ldist = aiFightGetTargetDist(targetactor, pDudeInfo, actLeech);
-                            if (ldist > 3 || !cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum,
-                                pLeech->x, pLeech->y, pLeech->z, pLeech->sectnum) || actLeech->GetTarget() == nullptr) 
+                            if (ldist > 3 || !cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sector(),
+                                pLeech->x, pLeech->y, pLeech->z, pLeech->sector()) || actLeech->GetTarget() == nullptr)
                             {
                                 aiGenDudeNewState(actor, &genDudeThrow2);
                                 genDudeThrow2.nextState = &genDudeDodgeShortL;
@@ -1845,7 +1845,7 @@ void dudeLeechOperate(DBloodActor* actor, const EVENT& event)
             int x = pTarget->x; int y = pTarget->y; int z = pTarget->z;
             int nDist = approxDist(x - pSprite->x, y - pSprite->y);
             
-            if (nDist != 0 && cansee(pSprite->x, pSprite->y, top, pSprite->sectnum, x, y, z, pTarget->sectnum)) 
+            if (nDist != 0 && cansee(pSprite->x, pSprite->y, top, pSprite->sector(), x, y, z, pTarget->sector()))
             {
                 int t = DivScale(nDist, 0x1aaaaa, 12);
                 x += (actTarget->xvel * t) >> 12;

@@ -142,7 +142,7 @@ void ghostBlastSeqCallback(int, DBloodActor* actor)
 			if (abs(nDeltaAngle) <= tt.at8)
 			{
 				int tz = pSprite2->z - pSprite->z;
-				if (cansee(x, y, z, pSprite->sectnum, x2, y2, z2, pSprite2->sectnum))
+				if (cansee(x, y, z, pSprite->sector(), x2, y2, z2, pSprite2->sector()))
 				{
 					nClosest = nDist2;
 					aim.dx = bcos(nAngle);
@@ -209,13 +209,13 @@ static void ghostThinkTarget(DBloodActor* actor)
 			int x = pPlayer->pSprite->x;
 			int y = pPlayer->pSprite->y;
 			int z = pPlayer->pSprite->z;
-			int nSector = pPlayer->pSprite->sectnum;
+			auto pSector = pPlayer->pSprite->sector();
 			int dx = x - pSprite->x;
 			int dy = y - pSprite->y;
 			int nDist = approxDist(dx, dy);
 			if (nDist > pDudeInfo->seeDist && nDist > pDudeInfo->hearDist)
 				continue;
-			if (!cansee(x, y, z, nSector, pSprite->x, pSprite->y, pSprite->z - ((pDudeInfo->eyeHeight * pSprite->yrepeat) << 2), pSprite->sectnum))
+			if (!cansee(x, y, z, pSector, pSprite->x, pSprite->y, pSprite->z - ((pDudeInfo->eyeHeight * pSprite->yrepeat) << 2), pSprite->sector()))
 				continue;
 			int nDeltaAngle = ((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024;
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
@@ -362,7 +362,7 @@ static void ghostThinkChase(DBloodActor* actor)
 		int height2 = (pDudeInfo->eyeHeight * pTarget->yrepeat) << 2;
 		int top, bottom;
 		GetActorExtents(actor, &top, &bottom);
-		if (cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum, pSprite->x, pSprite->y, pSprite->z - height, pSprite->sectnum))
+		if (cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sector(), pSprite->x, pSprite->y, pSprite->z - height, pSprite->sector()))
 		{
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{

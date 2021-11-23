@@ -148,12 +148,12 @@ bool CanMove(DBloodActor* actor, DBloodActor* target, int nAngle, int nRange)
 	}
 	x += MulScale(nRange, Cos(nAngle), 30);
 	y += MulScale(nRange, Sin(nAngle), 30);
-	int nSector = pSprite->sectnum;
-	assert(validSectorIndex(nSector));
-	if (!FindSector(x, y, z, &nSector))
+	auto pSector = pSprite->sector();
+	assert(pSector);
+	if (!FindSector(x, y, z, &pSector))
 		return false;
-	int floorZ = getflorzofslope(nSector, x, y);
-	auto pXSector = sector[nSector].hasX()? &sector[nSector].xs() : nullptr;
+	int floorZ = getflorzofslopeptr(pSector, x, y);
+	auto pXSector = pSector->hasX()? &pSector->xs() : nullptr;
     bool Underwater = 0; 
     bool Water = 0; 
     bool Depth = 0; 
@@ -164,11 +164,11 @@ bool CanMove(DBloodActor* actor, DBloodActor* target, int nAngle, int nRange)
 			Underwater = 1;
 		if (pXSector->Depth)
 			Depth = 1;
-		if (sector[nSector].type == kSectorDamage || pXSector->damageType > 0)
+		if (pSector->type == kSectorDamage || pXSector->damageType > 0)
 			Crusher = 1;
 	}
-	auto Upper = getUpperLink(nSector);
-	auto Lower = getLowerLink(nSector);
+	auto Upper = pSector->upperLink;
+	auto Lower = pSector->lowerLink;
 	if (Upper != nullptr)
 	{
 		if (Upper->s().type == kMarkerUpWater || Upper->s().type == kMarkerUpGoo)
@@ -1536,13 +1536,13 @@ void aiThinkTarget(DBloodActor* actor)
 			int x = pPlayer->pSprite->x;
 			int y = pPlayer->pSprite->y;
 			int z = pPlayer->pSprite->z;
-			int nSector = pPlayer->pSprite->sectnum;
+			auto pSector = pPlayer->pSprite->sector();
 			int dx = x - pSprite->x;
 			int dy = y - pSprite->y;
 			int nDist = approxDist(dx, dy);
 			if (nDist > pDudeInfo->seeDist && nDist > pDudeInfo->hearDist)
 				continue;
-			if (!cansee(x, y, z, nSector, pSprite->x, pSprite->y, pSprite->z - ((pDudeInfo->eyeHeight * pSprite->yrepeat) << 2), pSprite->sectnum))
+			if (!cansee(x, y, z, pSector, pSprite->x, pSprite->y, pSprite->z - ((pDudeInfo->eyeHeight * pSprite->yrepeat) << 2), pSprite->sector()))
 				continue;
 
 			int nDeltaAngle = ((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024;
@@ -1584,13 +1584,13 @@ void aiLookForTarget(DBloodActor* actor)
 			int x = pPlayer->pSprite->x;
 			int y = pPlayer->pSprite->y;
 			int z = pPlayer->pSprite->z;
-			int nSector = pPlayer->pSprite->sectnum;
+			auto pSector = pPlayer->pSprite->sector();
 			int dx = x - pSprite->x;
 			int dy = y - pSprite->y;
 			int nDist = approxDist(dx, dy);
 			if (nDist > pDudeInfo->seeDist && nDist > pDudeInfo->hearDist)
 				continue;
-			if (!cansee(x, y, z, nSector, pSprite->x, pSprite->y, pSprite->z - ((pDudeInfo->eyeHeight * pSprite->yrepeat) << 2), pSprite->sectnum))
+			if (!cansee(x, y, z, pSector, pSprite->x, pSprite->y, pSprite->z - ((pDudeInfo->eyeHeight * pSprite->yrepeat) << 2), pSprite->sector()))
 				continue;
 			int nDeltaAngle = ((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024;
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)

@@ -88,7 +88,7 @@ void StompSeqCallback(int, DBloodActor* actor1)
 	int y = pSprite->y;
 	int z = pSprite->z;
 	int vc = 400;
-	int nSector = pSprite->sectnum;
+	auto nSector = pSprite->sectnum;
 	int v1c = 5 + 2 * gGameOptions.nDifficulty;
 	int v10 = 25 + 30 * gGameOptions.nDifficulty;
 	const bool newSectCheckMethod = !cl_bloodvanillaenemies && !VanillaMode(); // use new sector checking logic
@@ -250,7 +250,7 @@ static void beastThinkChase(DBloodActor* actor)
 	{
 		int nDeltaAngle = ((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024;
 		int height = (pDudeInfo->eyeHeight * pSprite->yrepeat) << 2;
-		if (cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum, pSprite->x, pSprite->y, pSprite->z - height, pSprite->sectnum))
+		if (cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sector(), pSprite->x, pSprite->y, pSprite->z - height, pSprite->sector()))
 		{
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{
@@ -385,7 +385,7 @@ static void beastThinkSwimChase(DBloodActor* actor)
 		int height = pDudeInfo->eyeHeight + pSprite->z;
 		int top, bottom;
 		GetActorExtents(actor, &top, &bottom);
-		if (cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sectnum, pSprite->x, pSprite->y, pSprite->z - height, pSprite->sectnum))
+		if (cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sector(), pSprite->x, pSprite->y, pSprite->z - height, pSprite->sector()))
 		{
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{

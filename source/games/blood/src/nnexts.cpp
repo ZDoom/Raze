@@ -8123,10 +8123,10 @@ void aiPatrolAlarmLite(DBloodActor* actor, DBloodActor* targetactor)
 
         int eaz2 = (getDudeInfo(pTarget->type)->eyeHeight * pTarget->yrepeat) << 2;
         int nDist = approxDist(pDude->x - pSprite->x, pDude->y - pSprite->y);
-        if (nDist >= kPatrolAlarmSeeDist || !cansee(pSprite->x, pSprite->y, zt1, pSprite->sectnum, pDude->x, pDude->y, pDude->z - eaz2, pDude->sectnum)) 
+        if (nDist >= kPatrolAlarmSeeDist || !cansee(pSprite->x, pSprite->y, zt1, pSprite->sector(), pDude->x, pDude->y, pDude->z - eaz2, pDude->sector()))
         {
             nDist = approxDist(pDude->x - pTarget->x, pDude->y - pTarget->y);
-            if (nDist >= kPatrolAlarmSeeDist || !cansee(pTarget->x, pTarget->y, zt2, pTarget->sectnum, pDude->x, pDude->y, pDude->z - eaz2, pDude->sectnum))
+            if (nDist >= kPatrolAlarmSeeDist || !cansee(pTarget->x, pTarget->y, zt2, pTarget->sector(), pDude->x, pDude->y, pDude->z - eaz2, pDude->sector()))
                 continue;
         }
 
