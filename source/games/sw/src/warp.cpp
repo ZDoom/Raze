@@ -206,11 +206,11 @@ DSWActor* WarpToArea(DSWActor* sp_from, int32_t* x, int32_t* y, int32_t* z, int*
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-bool WarpSectorInfo(short sectnum, DSWActor** sp_warp)
+bool WarpSectorInfo(sectortype* sect, DSWActor** sp_warp)
 {
     *sp_warp = nullptr;
 
-    if (!TEST(sector[sectnum].extra, SECTFX_WARP_SECTOR))
+    if (!TEST(sect->extra, SECTFX_WARP_SECTOR))
         return false;
 
     SWStatIterator it(STAT_WARP);
@@ -218,7 +218,7 @@ bool WarpSectorInfo(short sectnum, DSWActor** sp_warp)
     {
         auto sp = &actor->s();
 
-        if (sp->sectnum == sectnum)
+        if (sp->sector() == sect)
         {
             // skip - don't teleport
             if (SP_TAG10(sp) == 1)
@@ -241,7 +241,7 @@ DSWActor* Warp(int32_t* x, int32_t* y, int32_t* z, int* sectnum)
     if (Prediction)
         return nullptr;
 
-    if (!WarpSectorInfo(*sectnum, &sp_warp))
+    if (!WarpSectorInfo(&sector[*sectnum], &sp_warp))
         return nullptr;
 
     if (sp_warp)

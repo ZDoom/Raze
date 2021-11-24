@@ -119,17 +119,17 @@ bool FAF_Sector(sectortype* sectnum)
     return false;
 }
 
-void SetWallWarpHitscan(short sectnum)
+void SetWallWarpHitscan(sectortype* sect)
 {
     DSWActor* sp_warp;
 
-    if (!WarpSectorInfo(sectnum, &sp_warp))
+    if (!WarpSectorInfo(sect, &sp_warp))
         return;
 
     if (!sp_warp)
         return;
 
-    auto start_wall = sector[sectnum].firstWall();
+    auto start_wall = sect->firstWall();
     auto wall_num = start_wall;
 
     // Travel all the way around loop setting wall bits
@@ -142,9 +142,9 @@ void SetWallWarpHitscan(short sectnum)
     while (wall_num != start_wall);
 }
 
-void ResetWallWarpHitscan(short sectnum)
+void ResetWallWarpHitscan(sectortype* sect)
 {
-    auto start_wall = sector[sectnum].firstWall();
+    auto start_wall = sect->firstWall();
     auto wall_num = start_wall;
 
     // Travel all the way around loop setting wall bits
@@ -192,8 +192,6 @@ FAFhitscan(int32_t x, int32_t y, int32_t z, int16_t sectnum,
         // hitscan warping
         if (TEST(wall[hitinfo->wall].cstat, CSTAT_WALL_WARP_HITSCAN))
         {
-            short dest_sect;
-
             MONO_PRINT(ds);
 
             // back it up a bit to get a correct warp location
@@ -205,7 +203,7 @@ FAFhitscan(int32_t x, int32_t y, int32_t z, int16_t sectnum,
             {
                 vec3_t pos = hitinfo->pos;
 
-                dest_sect = hitinfo->sect;
+                auto dest_sect = &sector[hitinfo->sect];
 
                 // hitscan needs to pass through dest sect
                 ResetWallWarpHitscan(dest_sect);

@@ -19,7 +19,7 @@ void MapColors(short num,COLOR_MAP cm,short create);
 int32_t CONFIG_ReadSetup(void);
 
 DSWActor* WarpPlane(int32_t* x, int32_t* y, int32_t* z, int* sectnum);
-bool WarpSectorInfo(short sectnum, DSWActor** sp_warp);
+bool WarpSectorInfo(sectortype* sect, DSWActor** sp_warp);
 DSWActor* Warp(int32_t* x, int32_t* y, int32_t* z, int* sectnum);
 
 [[deprecated]]
