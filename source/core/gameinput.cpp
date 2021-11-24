@@ -445,9 +445,9 @@ enum
 	BLOODVIEWPITCH = (0x4000 >> SINSHIFTDELTA) - (DEFVIEWPITCH << (SINSHIFTDELTA - 1)), // 1408.
 };
 
-void PlayerHorizon::calcviewpitch(vec2_t const pos, binangle const ang, bool const aimmode, bool const canslopetilt, int const cursectnum, double const scaleAdjust, bool const climbing)
+void PlayerHorizon::calcviewpitch(vec2_t const pos, binangle const ang, bool const aimmode, bool const canslopetilt, sectortype* const cursectnum, double const scaleAdjust, bool const climbing)
 {
-	if (cl_slopetilting && cursectnum >= 0)
+	if (cl_slopetilting && cursectnum != nullptr)
 	{
 		if (aimmode && canslopetilt) // If the floor is sloped
 		{
@@ -455,22 +455,22 @@ void PlayerHorizon::calcviewpitch(vec2_t const pos, binangle const ang, bool con
 			int const shift = -(isBlood() ? BLOODSINSHIFT : DEFSINSHIFT);
 			int const x = pos.x + ang.bcos(shift);
 			int const y = pos.y + ang.bsin(shift);
-			int tempsect = cursectnum;
+			auto tempsect = cursectnum;
 			updatesector(x, y, &tempsect);
 
-			if (tempsect >= 0) // If the new point is inside a valid sector...
+			if (tempsect != nullptr) // If the new point is inside a valid sector...
 			{
 				// Get the floorz as if the new (x,y) point was still in
 				// your sector
-				int const j = getflorzofslope(cursectnum, pos.x, pos.y);
-				int const k = getflorzofslope(tempsect, x, y);
+				int const j = getflorzofslopeptr(cursectnum, pos.x, pos.y);
+				int const k = getflorzofslopeptr(tempsect, x, y);
 
 				// If extended point is in same sector as you or the slopes
 				// of the sector of the extended point and your sector match
 				// closely (to avoid accidently looking straight out when
 				// you're at the edge of a sector line) then adjust horizon
 				// accordingly
-				if (cursectnum == tempsect || (!isBlood() && abs(getflorzofslope(tempsect, x, y) - k) <= (4 << 8)))
+				if (cursectnum == tempsect || (!isBlood() && abs(getflorzofslopeptr(tempsect, x, y) - k) <= (4 << 8)))
 				{
 					horizoff += q16horiz(xs_CRoundToInt(scaleAdjust * ((j - k) * (!isBlood() ? DEFVIEWPITCH : BLOODVIEWPITCH))));
 				}

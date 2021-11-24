@@ -1618,7 +1618,7 @@ void SlipSlope(PLAYERp pp)
 void DoPlayerHorizon(PLAYERp pp, float const horz, double const scaleAdjust)
 {
     bool const canslopetilt = !TEST(pp->Flags, PF_FLYING|PF_SWIMMING|PF_DIVING|PF_CLIMBING|PF_JUMPING|PF_FALLING) && TEST(pp->cursector()->floorstat, FLOOR_STAT_SLOPE);
-    pp->horizon.calcviewpitch(pp->pos.vec2, pp->angle.ang, pp->input.actions & SB_AIMMODE, canslopetilt, pp->cursectnum, scaleAdjust, TEST(pp->Flags, PF_CLIMBING));
+    pp->horizon.calcviewpitch(pp->pos.vec2, pp->angle.ang, pp->input.actions & SB_AIMMODE, canslopetilt, &sector[pp->cursectnum], scaleAdjust, TEST(pp->Flags, PF_CLIMBING));
     pp->horizon.applyinput(horz, &pp->input.actions, scaleAdjust);
 }
 

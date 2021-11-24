@@ -35,7 +35,7 @@ struct PlayerHorizon
 
 	// Prototypes for functions in gameinput.cpp.
 	void applyinput(float const horz, ESyncBits* actions, double const scaleAdjust = 1);
-	void calcviewpitch(vec2_t const pos, binangle const ang, bool const aimmode, bool const canslopetilt, int const cursectnum, double const scaleAdjust = 1, bool const climbing = false);
+	void calcviewpitch(vec2_t const pos, binangle const ang, bool const aimmode, bool const canslopetilt, sectortype* const cursectnum, double const scaleAdjust = 1, bool const climbing = false);
 
 	// Interpolation helpers.
 	void backup()
