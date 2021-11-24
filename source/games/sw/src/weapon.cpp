@@ -12615,11 +12615,11 @@ int InitSwordAttack(PLAYERp pp)
 
             if (hitinfo.hitwall >= 0)
             {
-                if (hitinfo.wall()->nextsector >= 0)
+                if (hitinfo.wall()->twoSided())
                 {
-                    if (TEST(sector[hitinfo.wall()->nextsector].ceilingstat, CEILING_STAT_PLAX))
+                    if (TEST(hitinfo.wall()->nextSector()->ceilingstat, CEILING_STAT_PLAX))
                     {
-                        if (hitinfo.pos.z < sector[hitinfo.wall()->nextsector].ceilingz)
+                        if (hitinfo.pos.z < hitinfo.wall()->nextSector()->ceilingz)
                         {
                             return 0;
                         }
@@ -12818,11 +12818,11 @@ int InitFistAttack(PLAYERp pp)
 
             if (hitinfo.hitwall >= 0)
             {
-                if (hitinfo.wall()->nextsector >= 0)
+                if (hitinfo.wall()->twoSided())
                 {
-                    if (TEST(sector[hitinfo.wall()->nextsector].ceilingstat, CEILING_STAT_PLAX))
+                    if (TEST(hitinfo.wall()->nextSector()->ceilingstat, CEILING_STAT_PLAX))
                     {
-                        if (hitinfo.pos.z < sector[hitinfo.wall()->nextsector].ceilingz)
+                        if (hitinfo.pos.z < hitinfo.wall()->nextSector()->ceilingz)
                         {
                             return 0;
                         }
@@ -13530,11 +13530,11 @@ int ContinueHitscan(PLAYERp pp, short sectnum, int x, int y, int z, short ang, i
 
     if (hitinfo.hitwall >= 0)
     {
-        if (hitinfo.wall()->nextsector >= 0)
+        if (hitinfo.wall()->twoSided())
         {
-            if (TEST(sector[hitinfo.wall()->nextsector].ceilingstat, CEILING_STAT_PLAX))
+            if (TEST(hitinfo.wall()->nextSector()->ceilingstat, CEILING_STAT_PLAX))
             {
-                if (hitinfo.pos.z < sector[hitinfo.wall()->nextsector].ceilingz)
+                if (hitinfo.pos.z < hitinfo.wall()->nextSector()->ceilingz)
                 {
                     return 0;
                 }
@@ -13687,11 +13687,11 @@ int InitShotgun(PLAYERp pp)
 
         if (hitinfo.hitwall >= 0)
         {
-            if (hitinfo.wall()->nextsector >= 0)
+            if (hitinfo.wall()->twoSided())
             {
-                if (TEST(sector[hitinfo.wall()->nextsector].ceilingstat, CEILING_STAT_PLAX))
+                if (TEST(hitinfo.wall()->nextSector()->ceilingstat, CEILING_STAT_PLAX))
                 {
-                    if (hitinfo.pos.z < sector[hitinfo.wall()->nextsector].ceilingz)
+                    if (hitinfo.pos.z < hitinfo.wall()->nextSector()->ceilingz)
                     {
                         continue;
                     }
@@ -16250,11 +16250,11 @@ int InitUzi(PLAYERp pp)
 
     if (hitinfo.hitwall >= 0)
     {
-        if (hitinfo.wall()->nextsector >= 0)
+        if (hitinfo.wall()->twoSided())
         {
-            if (TEST(sector[hitinfo.wall()->nextsector].ceilingstat, CEILING_STAT_PLAX))
+            if (TEST(hitinfo.wall()->nextSector()->ceilingstat, CEILING_STAT_PLAX))
             {
-                if (hitinfo.pos.z < sector[hitinfo.wall()->nextsector].ceilingz)
+                if (hitinfo.pos.z < hitinfo.wall()->nextSector()->ceilingz)
                 {
                     return 0;
                 }
@@ -17188,11 +17188,11 @@ int InitTurretMgun(SECTOR_OBJECTp sop)
 
             if (hitinfo.hitwall >= 0)
             {
-                if (hitinfo.wall()->nextsector >= 0)
+                if (hitinfo.wall()->twoSided())
                 {
-                    if (TEST(sector[hitinfo.wall()->nextsector].ceilingstat, CEILING_STAT_PLAX))
+                    if (TEST(hitinfo.wall()->nextSector()->ceilingstat, CEILING_STAT_PLAX))
                     {
-                        if (hitinfo.pos.z < sector[hitinfo.wall()->nextsector].ceilingz)
+                        if (hitinfo.pos.z < hitinfo.wall()->nextSector()->ceilingz)
                         {
                             return 0;
                         }
@@ -17324,11 +17324,11 @@ int InitEnemyUzi(DSWActor* actor)
 
     if (hitinfo.hitwall >= 0)
     {
-        if (hitinfo.wall()->nextsector >= 0)
+        if (hitinfo.wall()->twoSided())
         {
-            if (TEST(sector[hitinfo.wall()->nextsector].ceilingstat, CEILING_STAT_PLAX))
+            if (TEST(hitinfo.wall()->nextSector()->ceilingstat, CEILING_STAT_PLAX))
             {
-                if (hitinfo.pos.z < sector[hitinfo.wall()->nextsector].ceilingz)
+                if (hitinfo.pos.z < hitinfo.wall()->nextSector()->ceilingz)
                 {
                     return 0;
                 }
