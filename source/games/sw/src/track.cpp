@@ -3512,7 +3512,7 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
             auto wal = &wall[hit_wall];
 
 #if DEBUG
-            if (wal->nextsector < 0)
+            if (!wal->twoSided())
             {
                 I_Error("Take out white wall ladder x = %d, y = %d",wal->x, wal->y);
             }

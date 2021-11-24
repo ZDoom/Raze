@@ -227,7 +227,7 @@ struct SWPlayer native
 
     native int16 pnum; // carry along the player number
 
-    native int16 LadderSector;
+    //native int16 LadderSector;
     native int lx,ly; // ladder x and y
     native int16 JumpDuration;
     native int16 WadeDepth;

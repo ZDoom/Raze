@@ -3284,9 +3284,8 @@ void DoPlayerClimb(PLAYERp pp)
 
     DoPlayerZrange(pp);
 
-    if (!validSectorIndex(pp->LadderSector))
+    if (!pp->LadderSector)
 	{
-		Printf("Bad ladder sector %d!\n", pp->LadderSector);
 		return;
 	}
 
@@ -3312,14 +3311,14 @@ void DoPlayerClimb(PLAYERp pp)
         if (PlayerCeilingHit(pp, pp->hiz + Z(4)))
         {
             // put player at the ceiling
-            pp->posz = sector[pp->LadderSector].ceilingz + Z(4);
+            pp->posz = pp->LadderSector->ceilingz + Z(4);
             NewStateGroup(pp->Actor(), sg_PlayerNinjaClimb);
         }
 
         // if floor is ABOVE you && your head goes above it, do a jump up to
         // terrace
 
-        if (pp->posz < sector[pp->LadderSector].floorz - Z(6))
+        if (pp->posz < pp->LadderSector->floorz - Z(6))
         {
             pp->jump_speed = PLAYER_CLIMB_JUMP_AMT;
             RESET(pp->Flags, PF_CLIMBING|PF_WEAPON_DOWN);
@@ -3410,7 +3409,7 @@ void DoPlayerClimb(PLAYERp pp)
             ny = MOVEy(100, lsp->ang);
 
             // set ladder sector
-            pp->LadderSector = wp->twoSided()? wp->nextsector : wp->sector;
+            pp->LadderSector = wp->twoSided()? wp->nextSector() : wp->sectorp();
 
             // set players "view" distance from the ladder - needs to be farther than
             // the sprite
@@ -3804,8 +3803,9 @@ bool PlayerOnLadder(PLAYERp pp)
     nx = MOVEx(100, lsp->ang);
     ny = MOVEy(100, lsp->ang);
 
-    pp->LadderSector = wall[wal].twoSided() ? wall[wal].nextsector : wall[wal].sector;
-    MONO_PRINT(ds);
+    auto wp = &wall[wal];
+
+    pp->LadderSector = wp->twoSided() ? wp->nextSector() : wp->sectorp();
 
     // set players "view" distance from the ladder - needs to be farther than
     // the sprite

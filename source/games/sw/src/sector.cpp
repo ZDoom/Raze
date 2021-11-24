@@ -653,22 +653,15 @@ void DoSpringBoardDown(void)
     return;
 }
 
-short FindNextSectorByTag(short sectnum, int tag)
+short FindNextSectorByTag(short sect, int tag)
 {
-    short next_sectnum, startwall, endwall, j;
-
-    startwall = sector[sectnum].wallptr;
-    endwall = startwall + sector[sectnum].wallnum - 1;
-
-    for (j = startwall; j <= endwall; j++)
+    for(auto& wal : wallsofsector(sect))
     {
-        next_sectnum = wall[j].nextsector;
-
-        if (next_sectnum >= 0)
+        if (wal.twoSided())
         {
-            if (sector[next_sectnum].lotag == tag)
+            if (wal.nextSector()->lotag == tag)
             {
-                return next_sectnum;
+                return sectnum(wal.nextSector());
             }
         }
     }
