@@ -108,6 +108,7 @@ void drawscreen(int num, double dasmoothratio, bool sceneonly)
 
 	if (!sceneonly)
 	{
+		applyflash();
 		if (!plr.over_shoulder_on)
 		{
 			DrawHud(dasmoothratio);

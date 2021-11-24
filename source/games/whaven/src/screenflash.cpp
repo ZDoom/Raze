@@ -51,11 +51,13 @@ void resetflash()
 
 void applyflash()
 {
-	// no idea if this is righz. Needs to be tested.
-	if (redcount) videoTintBlood(5*redcount/2, -5*redcount/2, -5*redcount/2);
-	else if (greencount) videoTintBlood(-5*redcount/2, 5*redcount/2, -5*redcount/2);
-	else if (bluecount) videoTintBlood(-5*redcount/2, -5*redcount/2, 5*redcount/2);
-	else if (whitecount) videoTintBlood(5*redcount/2, 5*redcount/2, 5*redcount/2);
+	const int factor = 2;
+	const int factor2 = 5;
+
+	if (redcount) videoTintBlood(factor * redcount / 2, -factor2 * redcount / 2, -factor2 * redcount / 2);
+	else if (greencount) videoTintBlood(-factor2 * greencount / 2, factor * greencount / 2, -factor2 * greencount / 2);
+	else if (bluecount) videoTintBlood(-factor2 * bluecount / 2, -factor2 * bluecount / 2, factor * bluecount / 2);
+	else if (whitecount) videoTintBlood(factor * whitecount / 2, factor * whitecount / 2, factor * whitecount / 2);
 	else videoTintBlood(0, 0, 0);
 }
 
