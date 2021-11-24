@@ -5224,22 +5224,6 @@ int aiFightGetFineTargetDist(DBloodActor* actor, DBloodActor* target)
 //
 //---------------------------------------------------------------------------
 
-int sectorInMotion(int nSector) 
-{
- 
-    for (int i = 0; i < kMaxBusyCount; i++) 
-    {
-        if (gBusy->sect == &sector[nSector]) return i;
-    }
-    return -1;
-}
-
-//---------------------------------------------------------------------------
-//
-// 
-//
-//---------------------------------------------------------------------------
-
 void sectorKillSounds(sectortype* pSector)
 {
     BloodSectIterator it(pSector);
@@ -5278,11 +5262,6 @@ void sectorPauseMotion(sectortype* pSector)
 void sectorContinueMotion(sectortype* pSector, EVENT event) 
 {
     if (!pSector->hasX()) return;
-    else if (gBusyCount >= kMaxBusyCount)
-    {
-        Printf(PRINT_HIGH, "Failed to continue motion for sector. Max (%d) busy objects count reached!", kMaxBusyCount);
-        return;
-    }
 
     XSECTOR* pXSector = &pSector->xs();
     pXSector->unused1 = 0;
@@ -5367,11 +5346,8 @@ void sectorContinueMotion(sectortype* pSector, EVENT event)
 
     SectorStartSound(pSector, pXSector->state);
     nDelta = (pXSector->state) ? -nDelta : nDelta;
-    gBusy[gBusyCount].sect = pSector;
-    gBusy[gBusyCount].delta = nDelta;
-    gBusy[gBusyCount].busy = pXSector->busy;
-    gBusy[gBusyCount].type = (BUSYID)busyFunc;
-    gBusyCount++;
+    BUSY b = { pSector, nDelta, (int)pXSector->busy, (BUSYID)busyFunc };
+    gBusy.Push(b);
 }
 
 //---------------------------------------------------------------------------

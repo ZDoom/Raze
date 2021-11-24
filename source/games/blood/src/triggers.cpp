@@ -130,38 +130,30 @@ bool SetSectorState(int nSector, XSECTOR *pXSector, int nState)
     return 1;
 }
 
-int gBusyCount = 0;
-BUSY gBusy[];
+TArray<BUSY> gBusy;
 
 void AddBusy(sectortype* pSector, BUSYID a2, int nDelta)
 {
     assert(nDelta != 0);
-    int i;
-    for (i = 0; i < gBusyCount; i++)
+    for (auto& b : gBusy)
     {
-        if (gBusy[i].sect == pSector && gBusy[i].type == a2)
-            break;
-    }
-    if (i == gBusyCount)
-    {
-        if (gBusyCount == kMaxBusyCount)
+        if (b.sect == pSector && b.type == a2)
+        {
+            b.delta = nDelta;
             return;
-        gBusy[i].sect = pSector;
-        gBusy[i].type = a2;
-        gBusy[i].busy = nDelta > 0 ? 0 : 65536;
-        gBusyCount++;
+        }
     }
-    gBusy[i].delta = nDelta;
+    BUSY b = { pSector, nDelta, nDelta > 0 ? 0 : 65536, a2 };
+    gBusy.Push(b);
 }
 
 void ReverseBusy(sectortype* pSector, BUSYID a2)
 {
-    int i;
-    for (i = 0; i < gBusyCount; i++)
+    for (auto& b : gBusy)
     {
-        if (gBusy[i].sect == pSector && gBusy[i].type == a2)
+        if (b.sect == pSector && b.type == a2)
         {
-            gBusy[i].delta = -gBusy[i].delta;
+            b.delta = -b.delta;
             break;
         }
     }
@@ -1949,27 +1941,28 @@ void trProcessBusy(void)
     {
         sect.velCeil = sect.velFloor = 0;
     }
-    for (int i = gBusyCount-1; i >= 0; i--)
+    for (auto& b : backwards(gBusy))
     {
         int nStatus;
-        int oldBusy = gBusy[i].busy;
-        gBusy[i].busy = ClipRange(oldBusy+gBusy[i].delta*4, 0, 65536);
+        int oldBusy = b.busy;
+        b.busy = ClipRange(oldBusy+b.delta*4, 0, 65536);
         #ifdef NOONE_EXTENSIONS
-            if (!gModernMap || !gBusy[i].sect->xs().unused1) nStatus = gBusyProc[gBusy[i].type](gBusy[i].sect, gBusy[i].busy);
+            if (!gModernMap || !b.sect->xs().unused1) nStatus = gBusyProc[b.type](b.sect, b.busy);
             else nStatus = 3; // allow to pause/continue motion for sectors any time by sending special command
         #else
-            nStatus = gBusyProc[gBusy[i].type](gBusy[i].at0, gBusy[i].at8);
+            nStatus = gBusyProc[b.type](b.at0, b.at8);
         #endif
         switch (nStatus) {
             case 1:
-                gBusy[i].busy = oldBusy;
+                b.busy = oldBusy;
                 break;
             case 2:
-                gBusy[i].busy = oldBusy;
-                gBusy[i].delta = -gBusy[i].delta;
+                b.busy = oldBusy;
+                b.delta = -b.delta;
                 break;
             case 3:
-                gBusy[i] = gBusy[--gBusyCount];
+                b = gBusy.Last();
+                gBusy.Pop();
                 break;
         }
     }
@@ -1981,7 +1974,7 @@ void InitGenerator(DBloodActor*);
 
 void trInit(void)
 {
-    gBusyCount = 0;
+    gBusy.Clear();
     for(auto& wal : walls())
     for (int i = 0; i < numwalls; i++)
     {
@@ -2275,8 +2268,7 @@ void SerializeTriggers(FSerializer& arc)
 {
 	if (arc.BeginObject("triggers"))
 	{
-		arc("busycount", gBusyCount)
-			.Array("busy", gBusy, gBusyCount)
+		arc("busy", gBusy)
 			.EndObject();
 	}
 }

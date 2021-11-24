@@ -411,7 +411,6 @@ inline bool aiInPatrolState(int nAiStateType) {
 }
 //  -------------------------------------------------------------------------   //
 bool readyForCrit(DBloodActor* pHunter, DBloodActor* pVictim);
-int sectorInMotion(int nSector);
 void clampSprite(DBloodActor* actor, int which = 3);
 #endif
 

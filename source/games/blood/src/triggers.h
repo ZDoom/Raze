@@ -42,7 +42,6 @@ enum BUSYID {
     BUSYID_7,
 };
 
-#define kMaxBusyCount 128
 struct BUSY {
     sectortype* sect;
     int delta;
@@ -50,8 +49,7 @@ struct BUSY {
     int/*BUSYID*/ type;
 };
 
-extern BUSY gBusy[kMaxBusyCount];
-extern int gBusyCount;
+extern TArray<BUSY> gBusy;
 
 void trTriggerSector(sectortype *pSector, int command);
 void trMessageSector(sectortype* pSector, EVENT event);
