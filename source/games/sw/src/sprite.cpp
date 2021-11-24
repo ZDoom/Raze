@@ -917,17 +917,17 @@ USERp SpawnUser(DSWActor* actor, short id, STATEp state)
     return u;
 }
 
-DSWActor* SpawnActor(short stat, short id, STATEp state, short sectnum, int x, int y, int z, int init_ang, int vel)
+DSWActor* SpawnActor(int stat, int id, STATEp state, sectortype* sect, int x, int y, int z, int init_ang, int vel)
 {
     SPRITEp sp;
     USERp u;
 
-    if (sectnum < 0)
+    if (sect == nullptr)
         return nullptr;
 
     ASSERT(!Prediction);
 
-    auto spawnedActor = InsertActor(sectnum, stat);
+    auto spawnedActor = InsertActor(sect, stat);
 
     sp = &spawnedActor->s();
 
