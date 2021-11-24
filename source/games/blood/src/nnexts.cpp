@@ -5356,8 +5356,9 @@ void sectorContinueMotion(sectortype* pSector, EVENT event)
 //
 //---------------------------------------------------------------------------
 
-bool modernTypeOperateSector(int nSector, sectortype* pSector, XSECTOR* pXSector, const EVENT& event) 
+bool modernTypeOperateSector(sectortype* pSector, const EVENT& event) 
 {
+    auto pXSector = &pSector->xs();
     if (event.cmd >= kCmdLock && event.cmd <= kCmdToggleLock) 
     {
         switch (event.cmd) 

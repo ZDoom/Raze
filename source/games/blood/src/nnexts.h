@@ -332,7 +332,7 @@ void trPlayerCtrlLink(DBloodActor* pXSource, PLAYER* pPlayer, bool checkConditio
 void trPlayerCtrlStopScene(PLAYER* pPlayer);
 //  -------------------------------------------------------------------------   //
 void modernTypeTrigger(int type, sectortype*sect, walltype* wal, DBloodActor* actor, const EVENT& event);
-bool modernTypeOperateSector(int nSector, sectortype* pSector, XSECTOR* pXSector, const EVENT& event);
+bool modernTypeOperateSector(sectortype* pSector, const EVENT& event);
 bool modernTypeOperateSprite(DBloodActor*, const EVENT& event);
 bool modernTypeOperateWall(walltype* pWall, const EVENT& event);
 void modernTypeSendCommand(DBloodActor* nSprite, int channel, COMMAND_ID command);

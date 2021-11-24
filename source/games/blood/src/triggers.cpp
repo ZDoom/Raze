@@ -746,9 +746,9 @@ void SectorEndSound(sectortype* pSector, int nState)
     }
 }
 
-void PathSound(int nSector, int nSound)
+void PathSound(sectortype* pSector, int nSound)
 {
-    BloodSectIterator it(nSector);
+    BloodSectIterator it(pSector);
     while (auto actor = it.Next())
     {
         spritetype* pSprite = &actor->s();
@@ -759,7 +759,7 @@ void PathSound(int nSector, int nSound)
 
 void DragPoint(walltype* pWall, int x, int y)
 {
-    sector[pWall->sector].dirty = 255; 
+    pWall->sectorp()->dirty = 255; 
     viewInterpolateWall(pWall);
     pWall->x = x;
     pWall->y = y;
@@ -1323,7 +1323,7 @@ int PathBusy(sectortype* pSector, unsigned int a2)
         pXSector->state = 0;
         pXSector->busy = 0;
         if (pXSprite1->data4)
-            PathSound(sectnum(pSector), pXSprite1->data4);
+            PathSound(pSector, pXSprite1->data4);
         pXSector->marker0 = pXSector->marker1;
         pXSector->data = pXSprite2->data1;
         return 3;
@@ -1331,9 +1331,9 @@ int PathBusy(sectortype* pSector, unsigned int a2)
     return 0;
 }
 
-void OperateDoor(unsigned int nSector, XSECTOR *pXSector, EVENT event, BUSYID busyWave) 
+void OperateDoor(sectortype* pSector, EVENT event, BUSYID busyWave) 
 {
-    auto pSector = &sector[nSector];
+    auto pXSector = &pSector->xs();
     switch (event.cmd) {
         case kCmdOff:
             if (!pXSector->busy) break;
@@ -1389,16 +1389,17 @@ void TeleFrag(DBloodActor* killer, sectortype* pSector)
     }
 }
 
-void OperateTeleport(unsigned int nSector, XSECTOR *pXSector)
+void OperateTeleport(sectortype* pSector)
 {
-    assert(nSector < (unsigned int)numsectors);
+    assert(pSector);
+    auto pXSector = &pSector->xs();
     auto nDest = pXSector->marker0;
     assert(nDest != nullptr);
     spritetype *pDest = &nDest->s();
     assert(pDest->statnum == kStatMarker);
     assert(pDest->type == kMarkerWarpDest);
     assert(validSectorIndex(pDest->sectnum));
-    BloodSectIterator it(nSector);
+    BloodSectIterator it(pSector);
     while (auto actor = it.Next())
     {
         spritetype *pSprite = &actor->s();
@@ -1418,7 +1419,7 @@ void OperateTeleport(unsigned int nSector, XSECTOR *pXSector)
                 }
                 pSprite->x = pDest->x;
                 pSprite->y = pDest->y;
-                pSprite->z += sector[pDest->sectnum].floorz-sector[nSector].floorz;
+                pSprite->z += pDest->sector()->floorz - pSector->floorz;
                 pSprite->ang = pDest->ang;
                 ChangeActorSect(actor, pDest->sector());
                 sfxPlay3DSound(pDest, 201, -1, 0);
@@ -1436,13 +1437,13 @@ void OperateTeleport(unsigned int nSector, XSECTOR *pXSector)
     }
 }
 
-void OperatePath(unsigned int nSector, XSECTOR *pXSector, EVENT event)
+void OperatePath(sectortype* pSector, EVENT event)
 {
     DBloodActor* actor;
     spritetype *pSprite = NULL;
     XSPRITE *pXSprite;
-    assert(nSector < (unsigned int)numsectors);
-    auto pSector = &sector[nSector];
+    assert(pSector);
+    auto pXSector = &pSector->xs();
     if (!pXSector->marker0) return;
     spritetype* pSprite2 = &pXSector->marker0->s();
     XSPRITE *pXSprite2 = &pXSector->marker0->x();
@@ -1467,7 +1468,7 @@ void OperatePath(unsigned int nSector, XSECTOR *pXSector, EVENT event)
     #endif
 
     if (actor == nullptr) {
-        viewSetSystemMessage("Unable to find path marker with id #%d for path sector #%d", nId, nSector);
+        viewSetSystemMessage("Unable to find path marker with id #%d for path sector", nId);
         pXSector->state = 0;
         pXSector->busy = 0;
         return;
@@ -1481,7 +1482,7 @@ void OperatePath(unsigned int nSector, XSECTOR *pXSector, EVENT event)
             pXSector->state = 0;
             pXSector->busy = 0;
             AddBusy(pSector, BUSYID_7, 65536/ClipLow((120*pXSprite2->busyTime)/10,1));
-            if (pXSprite2->data3) PathSound(nSector, pXSprite2->data3);
+            if (pXSprite2->data3) PathSound(pSector, pXSprite2->data3);
             break;
     }
 }
@@ -1491,7 +1492,7 @@ void OperateSector(sectortype* pSector, EVENT event)
     if (!pSector->hasX()) return;
     auto pXSector = &pSector->xs();
     #ifdef NOONE_EXTENSIONS
-    if (gModernMap && modernTypeOperateSector(sectnum(pSector), pSector, pXSector, event))
+    if (gModernMap && modernTypeOperateSector(pSector, event))
         return;
     #endif
 
@@ -1525,18 +1526,18 @@ void OperateSector(sectortype* pSector, EVENT event)
         #endif
             switch (pSector->type) {
                 case kSectorZMotionSprite:
-                    OperateDoor(nSector, pXSector, event, BUSYID_1);
+                    OperateDoor(pSector,event, BUSYID_1);
                     break;
                 case kSectorZMotion:
-                    OperateDoor(nSector, pXSector, event, BUSYID_2);
+                    OperateDoor(pSector,event, BUSYID_2);
                     break;
                 case kSectorSlideMarked:
                 case kSectorSlide:
-                    OperateDoor(nSector, pXSector, event, BUSYID_3);
+                    OperateDoor(pSector,event, BUSYID_3);
                     break;
                 case kSectorRotateMarked:
                 case kSectorRotate:
-                    OperateDoor(nSector, pXSector, event, BUSYID_4);
+                    OperateDoor(pSector,event, BUSYID_4);
                     break;
                 case kSectorRotateStep:
                     switch (event.cmd) {
@@ -1555,10 +1556,10 @@ void OperateSector(sectortype* pSector, EVENT event)
                     }
                     break;
                 case kSectorTeleport:
-                    OperateTeleport(nSector, pXSector);
+                    OperateTeleport(pSector);
                     break;
                 case kSectorPath:
-                    OperatePath(nSector, pXSector, event);
+                    OperatePath(pSector, event);
                     break;
                 default:
                     if (!pXSector->busyTimeA && !pXSector->busyTimeB) {
@@ -1577,7 +1578,7 @@ void OperateSector(sectortype* pSector, EVENT event)
 
                     } else {
                         
-                        OperateDoor(nSector, pXSector, event, BUSYID_6);
+                        OperateDoor(pSector,event, BUSYID_6);
 
                     }
 
