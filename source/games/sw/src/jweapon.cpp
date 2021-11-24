@@ -382,7 +382,7 @@ int DoBloodSpray(DSWActor* actor)
         // special stuff for blood worm
         sp->z += (u->zchange >> 1);
 
-        getzsofslope(sp->sectnum, sp->x, sp->y, &cz, &fz);
+        getzsofslopeptr(sp->sector(), sp->x, sp->y, &cz, &fz);
         // pretend like we hit a sector
         if (sp->z >= fz)
         {

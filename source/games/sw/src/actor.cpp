@@ -416,7 +416,7 @@ int DoActorDebris(DSWActor* actor)
         KillActor(actor);
         return 0;
     case ZILLA_RUN_R0:
-        getzsofslope(sp->sectnum, sp->x, sp->y, &u->hiz, &u->loz);
+        getzsofslopeptr(sp->sector(), sp->x, sp->y, &u->hiz, &u->loz);
         u->lo_sectp = sp->sector();
         u->hi_sectp = sp->sector();
         u->lowActor = nullptr;

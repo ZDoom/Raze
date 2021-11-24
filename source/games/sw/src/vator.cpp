@@ -103,9 +103,9 @@ void SetVatorActive(DSWActor* actor)
     SECTORp sectp = sp->sector();
 
     if (TEST(sp->cstat, CSTAT_SPRITE_YFLIP))
-        StartInterpolation(sp->sectnum, Interp_Sect_Ceilingz);
+        StartInterpolation(sp->sector(), Interp_Sect_Ceilingz);
     else
-        StartInterpolation(sp->sectnum, Interp_Sect_Floorz);
+        StartInterpolation(sp->sector(), Interp_Sect_Floorz);
 
     InterpSectorSprites(sp->sectnum, true);
 
@@ -131,9 +131,9 @@ void SetVatorInactive(DSWActor* actor)
     SECTORp sectp = sp->sector();
 
     if (TEST(sp->cstat, CSTAT_SPRITE_YFLIP))
-        StopInterpolation(sp->sectnum, Interp_Sect_Ceilingz);
+        StopInterpolation(sp->sector(), Interp_Sect_Ceilingz);
     else
-        StopInterpolation(sp->sectnum, Interp_Sect_Floorz);
+        StopInterpolation(sp->sector(), Interp_Sect_Floorz);
 
     InterpSectorSprites(sp->sectnum, false);
 
@@ -492,7 +492,7 @@ int DoVator(DSWActor* actor)
             USERp bu;
             bool found = false;
 
-            SWSectIterator it(sp->sectnum);
+            SWSectIterator it(sp->sector());
             while (auto itActor = it.Next())
             {
                 bsp = &itActor->s();
@@ -543,7 +543,7 @@ int DoVator(DSWActor* actor)
         {
             SPRITEp bsp;
 
-            SWSectIterator it(sp->sectnum);
+            SWSectIterator it(sp->sector());
             while (auto itActor = it.Next())
             {
                 bsp = &itActor->s();

@@ -493,7 +493,7 @@ void WarpCopySprite(spritetype* tsprite, int& spritesortcnt)
                     newTSpr->x = sp2->x - xoff;
                     newTSpr->y = sp2->y - yoff;
                     newTSpr->z = sp2->z - zoff;
-                    newTSpr->sectnum = sp2->sectnum;
+                    newTSpr->setsector(sp2->sector());
                 }
 
                 it.Reset(sect2);
@@ -617,7 +617,7 @@ void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int view
             if (tsp->picnum == BETTY_R0 || tsp->picnum == FLOORBLOOD1)
             {
                 auto sp = &tActor->s();
-                int32_t const floorz = getflorzofslope(sp->sectnum, sp->x, sp->y);
+                int32_t const floorz = getflorzofslopeptr(sp->sector(), sp->x, sp->y);
                 if (sp->z > floorz)
                     tsp->z = floorz;
             }

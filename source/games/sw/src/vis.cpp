@@ -135,10 +135,10 @@ void SpawnVis(DSWActor* parentActor, short sectnum, int x, int y, int z, int amt
         auto psp = &parentActor->s();
         auto pu = parentActor->u();
 
-        if (sector[psp->sectnum].floorpal == PALETTE_FOG)
+        if (psp->sector()->floorpal == PALETTE_FOG)
             return;
 
-        if (sector[psp->sectnum].floorpal == PALETTE_DIVE_LAVA)
+        if (psp->sector()->floorpal == PALETTE_DIVE_LAVA)
             return;
 
         // kill any others with the same parent
@@ -151,7 +151,7 @@ void SpawnVis(DSWActor* parentActor, short sectnum, int x, int y, int z, int amt
             }
         }
 
-        auto actorNew = InsertActor(psp->sectnum, STAT_VIS_ON);
+        auto actorNew = InsertActor(psp->sector(), STAT_VIS_ON);
         sp = &actorNew->s();
         SetOwner(parentActor, actorNew);
 

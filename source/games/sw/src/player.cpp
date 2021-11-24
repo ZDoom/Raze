@@ -1287,7 +1287,7 @@ void DoPlayerTeleportToSprite(PLAYERp pp, vec3_t* sp, int ang)
     pp->posx = pp->oposx = pp->oldposx = sp->x;
     pp->posy = pp->oposy = pp->oldposy = sp->y;
 
-    //getzsofslope(sp->sectnum, pp->posx, pp->posy, &cz, &fz);
+    //getzsofslopeptr(sp->sector(), pp->posx, pp->posy, &cz, &fz);
     //pp->posz = pp->oposz = fz - PLAYER_HEIGHT;
 
     pp->posz = pp->oposz = sp->z - PLAYER_HEIGHT;

@@ -524,7 +524,7 @@ int DoSlidor(DSWActor* actor)
             USERp bu;
             bool found = false;
 
-            SWSectIterator it(sp->sectnum);
+            SWSectIterator it(sp->sector());
             while (auto itActor = it.Next())
             {
                 bsp = &itActor->s();

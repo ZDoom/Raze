@@ -98,9 +98,9 @@ void SetSpikeActive(DSWActor* actor)
     SECTORp sectp = sp->sector();
 
     if (TEST(sp->cstat, CSTAT_SPRITE_YFLIP))
-        StartInterpolation(sp->sectnum, Interp_Sect_Ceilingheinum);
+        StartInterpolation(sp->sector(), Interp_Sect_Ceilingheinum);
     else
-        StartInterpolation(sp->sectnum, Interp_Sect_Floorheinum);
+        StartInterpolation(sp->sector(), Interp_Sect_Floorheinum);
 
     InterpSectorSprites(sp->sectnum, true);
 
@@ -126,9 +126,9 @@ void SetSpikeInactive(DSWActor* actor)
     SECTORp sectp = sp->sector();
 
     if (TEST(sp->cstat, CSTAT_SPRITE_YFLIP))
-        StopInterpolation(sp->sectnum, Interp_Sect_Ceilingheinum);
+        StopInterpolation(sp->sector(), Interp_Sect_Ceilingheinum);
     else
-        StopInterpolation(sp->sectnum, Interp_Sect_Floorheinum);
+        StopInterpolation(sp->sector(), Interp_Sect_Floorheinum);
 
     InterpSectorSprites(sp->sectnum, false);
 
@@ -381,7 +381,7 @@ int DoSpike(DSWActor* actor)
             USERp bu;
             bool found = false;
 
-            SWSectIterator it(sp->sectnum);
+            SWSectIterator it(sp->sector());
             while (auto itActor = it.Next())
             {
                 bsp = &actor->s();

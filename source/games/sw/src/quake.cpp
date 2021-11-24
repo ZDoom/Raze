@@ -59,8 +59,7 @@ void CopyQuakeSpotToOn(SPRITEp sp)
 
     memcpy(np, sp, sizeof(SPRITE));
 
-    np->sectnum = sp->sectnum;
-    np->statnum = sp->statnum;
+    np->setsector(sp->sector());
 
     np->cstat = 0;
     np->extra = 0;

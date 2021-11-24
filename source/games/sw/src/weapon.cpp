@@ -11802,9 +11802,9 @@ int DoRing(DSWActor* actor)
 
     SetActor(actor, &sp->pos);
 
-    ASSERT(sp->sectnum >= 0);
+    ASSERT(sp->insector());
 
-    getzsofslope(sp->sectnum, sp->x, sp->y, &cz, &fz);
+    getzsofslopeptr(sp->sector(), sp->x, sp->y, &cz, &fz);
 
     // bound the sprite by the sectors ceiling and floor
     if (sp->z > fz)
@@ -11941,9 +11941,9 @@ int DoSerpRing(DSWActor* actor)
 
     SetActor(actor, &sp->pos);
 
-    ASSERT(sp->sectnum >= 0);
+    ASSERT(sp->insector());
 
-    getzsofslope(sp->sectnum, sp->x, sp->y, &cz, &fz);
+    getzsofslopeptr(sp->sector(), sp->x, sp->y, &cz, &fz);
 
     // bound the sprite by the sectors ceiling and floor
     if (sp->z > fz)

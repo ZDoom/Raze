@@ -1158,7 +1158,7 @@ void BunnyHatch(DSWActor* actor)
         auto actorNew = InsertActor(sp->sector(), STAT_DEFAULT);
         np = &actorNew->s();
         np->clear();
-        np->sectnum = sp->sectnum;
+        np->setsector(sp->sector());
         np->statnum = STAT_DEFAULT;
         np->x = sp->x;
         np->y = sp->y;
@@ -1223,7 +1223,7 @@ DSWActor* BunnyHatch2(DSWActor* actor)
     auto actorNew = InsertActor(wp->sector(), STAT_DEFAULT);
     auto np = &actorNew->s();
     np->clear();
-    np->sectnum = wp->sectnum;
+    np->setsector(wp->sector());
     np->statnum = STAT_DEFAULT;
     np->x = wp->x;
     np->y = wp->y;

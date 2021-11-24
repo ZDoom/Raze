@@ -1700,7 +1700,7 @@ void SpriteSetup(void)
         SPRITEp sp = &actor->s();
 
         // not used yetv
-        getzsofslope(sp->sectnum, sp->x, sp->y, &cz, &fz);
+        getzsofslopeptr(sp->sector(), sp->x, sp->y, &cz, &fz);
         if (sp->z > DIV2(cz + fz))
         {
             // closer to a floor
@@ -1974,8 +1974,8 @@ void SpriteSetup(void)
                     else
                         sp->xvel = sp->lotag;
 
-                    StartInterpolation(sp->sectnum, Interp_Sect_FloorPanX);
-                    StartInterpolation(sp->sectnum, Interp_Sect_FloorPanY);
+                    StartInterpolation(sp->sector(), Interp_Sect_FloorPanX);
+                    StartInterpolation(sp->sector(), Interp_Sect_FloorPanY);
                     change_actor_stat(actor, STAT_FLOOR_PAN);
                     break;
                 }
@@ -1987,8 +1987,8 @@ void SpriteSetup(void)
                         sp->xvel = 0;
                     else
                         sp->xvel = sp->lotag;
-                    StartInterpolation(sp->sectnum, Interp_Sect_CeilingPanX);
-                    StartInterpolation(sp->sectnum, Interp_Sect_CeilingPanY);
+                    StartInterpolation(sp->sector(), Interp_Sect_CeilingPanX);
+                    StartInterpolation(sp->sector(), Interp_Sect_CeilingPanY);
                     change_actor_stat(actor, STAT_CEILING_PAN);
                     break;
                 }
@@ -3705,7 +3705,7 @@ int ActorCoughItem(DSWActor* actor)
     switch (u->ID)
     {
     case SAILORGIRL_R0:
-        ASSERT(sp->sectnum >= 0);
+        ASSERT(sp->insector());
         actorNew = InsertActor(sp->sector(), STAT_SPAWN_ITEMS);
         np = &actorNew->s();
         np->cstat = np->extra = 0;
@@ -3746,7 +3746,7 @@ int ActorCoughItem(DSWActor* actor)
         if (RANDOM_P2(1024) < 700)
             return 0;
 
-        ASSERT(sp->sectnum >= 0);
+        ASSERT(sp->insector());
         actorNew = InsertActor(sp->sector(), STAT_SPAWN_ITEMS);
         np = &actorNew->s();
         np->cstat = np->extra = 0;
@@ -3774,7 +3774,7 @@ int ActorCoughItem(DSWActor* actor)
         if (RANDOM_P2(1024) < 700)
             return 0;
 
-        ASSERT(sp->sectnum >= 0);
+        ASSERT(sp->insector());
         actorNew = InsertActor(sp->sector(), STAT_SPAWN_ITEMS);
         np = &actorNew->s();
         np->cstat = np->extra = 0;
@@ -3805,7 +3805,7 @@ int ActorCoughItem(DSWActor* actor)
             if (RANDOM_P2(1024) > 200)
                 return 0;
 
-            ASSERT(sp->sectnum >= 0);
+            ASSERT(sp->insector());
             actorNew = InsertActor(sp->sector(), STAT_SPAWN_ITEMS);
             np = &actorNew->s();
             np->cstat = 0;
@@ -3868,7 +3868,7 @@ int ActorCoughItem(DSWActor* actor)
         if (RANDOM_P2(1024) < 512)
             return 0;
 
-        ASSERT(sp->sectnum >= 0);
+        ASSERT(sp->insector());
         actorNew = InsertActor(sp->sector(), STAT_SPAWN_ITEMS);
         np = &actorNew->s();
         np->cstat = np->extra = 0;
@@ -3926,7 +3926,7 @@ int ActorCoughItem(DSWActor* actor)
     case PACHINKO3:
     case PACHINKO4:
 
-        ASSERT(sp->sectnum >= 0);
+        ASSERT(sp->insector());
         actorNew = InsertActor(sp->sector(), STAT_SPAWN_ITEMS);
         np = &actorNew->s();
         np->cstat = np->extra = 0;
@@ -4876,7 +4876,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
     u->coll = move_sprite(actor, xchange, ychange, zchange,
                          u->ceiling_dist, u->floor_dist, cliptype, ACTORMOVETICS);
 
-    ASSERT(sp->sectnum >= 0);
+    ASSERT(sp->insector());
 
     // try and determine whether you moved > lo_step in the z direction
     if (!TEST(u->Flags, SPR_NO_SCAREDZ | SPR_JUMPING | SPR_CLIMBING | SPR_FALLING | SPR_DEAD | SPR_SWIMMING))
@@ -6946,7 +6946,7 @@ Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int cei
         ChangeActorSect(actor, dasectnum);
     }
 
-    getzsofslope(sp->sectnum, sp->x, sp->y, &u->hiz, &u->loz);
+    getzsofslopeptr(sp->sector(), sp->x, sp->y, &u->hiz, &u->loz);
 
     u->hi_sectp = u->lo_sectp = sp->sector();
     u->highActor = nullptr; u->lowActor = nullptr;
