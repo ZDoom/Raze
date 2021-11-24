@@ -526,7 +526,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 // Sine wave wall effect - max 5 per level
 //
 // EXP - Tag the first wall with 300, last with 302.
-//       Use point2 to see which direction the wall goes.
+//       Use point 2 to see which direction the wall goes.
 //
 // 1st Sector High Tag = range
 // 2nd Sector High Tag = speed

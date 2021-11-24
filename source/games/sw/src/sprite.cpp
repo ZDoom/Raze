@@ -2799,9 +2799,6 @@ void SpriteSetup(void)
 
                 case WARP_TELEPORTER:
                 {
-                    short start_wall, wall_num;
-                    short sectnum = sp->sectnum;
-
                     SET(sp->cstat, CSTAT_SPRITE_INVISIBLE);
                     SET(sp->sector()->extra, SECTFX_WARP_SECTOR);
                     change_actor_stat(actor, STAT_WARP);
@@ -2812,18 +2809,19 @@ void SpriteSetup(void)
                         break;
 
                     // move the the next wall
-                    wall_num = start_wall = sector[sectnum].wallptr;
+                    auto start_wall = sp->sector()->firstWall();
+                    auto wall_num = start_wall;
 
                     // Travel all the way around loop setting wall bits
                     do
                     {
                         // DO NOT TAG WHITE WALLS!
-                        if (validWallIndex(wall[wall_num].nextwall))
+                        if (validWallIndex(wall_num->nextwall))
                         {
-                            SET(wall[wall_num].cstat, CSTAT_WALL_WARP_HITSCAN);
+                            SET(wall_num->cstat, CSTAT_WALL_WARP_HITSCAN);
                         }
 
-                        wall_num = wall[wall_num].point2;
+                        wall_num = wall_num->point2Wall();
                     }
                     while (wall_num != start_wall);
 
@@ -2923,20 +2921,18 @@ void SpriteSetup(void)
 
                 case SECT_ACTOR_BLOCK:
                 {
-                    short start_wall, wall_num;
-                    short sectnum = sp->sectnum;
-
                     // move the the next wall
-                    wall_num = start_wall = sector[sectnum].wallptr;
+                    auto start_wall = sp->sector()->firstWall();
+                    auto wall_num = start_wall;
 
                     // Travel all the way around loop setting wall bits
                     do
                     {
-                        SET(wall[wall_num].cstat, CSTAT_WALL_BLOCK_ACTOR);
-                        uint16_t const nextwall = wall[wall_num].nextwall;
+                        SET(wall_num->cstat, CSTAT_WALL_BLOCK_ACTOR);
+                        uint16_t const nextwall = wall_num->nextwall;
                         if (validWallIndex(nextwall))
                             SET(wall[nextwall].cstat, CSTAT_WALL_BLOCK_ACTOR);
-                        wall_num = wall[wall_num].point2;
+                        wall_num = wall_num->point2Wall();
                     }
                     while (wall_num != start_wall);
 

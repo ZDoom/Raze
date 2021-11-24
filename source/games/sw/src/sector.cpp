@@ -256,9 +256,10 @@ void WallSetup(void)
         case TAG_WALL_SINE_Y_BEGIN:
         case TAG_WALL_SINE_X_BEGIN:
         {
-            short wall_num, cnt, num_points, type, tag_end;
+            walltype* wall_num;
+            int cnt, num_points, type, tag_end;
             SINE_WALLp sw;
-            short range = 250, speed = 3, peak = 0;
+            int range = 250, speed = 3, peak = 0;
 
             tag_end = wp->lotag + 2;
 
@@ -266,49 +267,49 @@ void WallSetup(void)
 
 
             // count up num_points
-            for (wall_num = wallnum(wp), num_points = 0;
-                 num_points < MAX_SINE_WALL_POINTS && wall[wall_num].lotag != tag_end;
-                 wall_num = wall[wall_num].point2, num_points++)
+            for (wall_num = wp, num_points = 0;
+                 num_points < MAX_SINE_WALL_POINTS && wall_num->lotag != tag_end;
+                 wall_num = wall_num->point2Wall(), num_points++)
             {
                 if (num_points == 0)
                 {
-                    if (wall[wall_num].hitag)
-                        range = wall[wall_num].hitag;
+                    if (wall_num->hitag)
+                        range = wall_num->hitag;
                 }
                 else if (num_points == 1)
                 {
-                    if (wall[wall_num].hitag)
-                        speed = wall[wall_num].hitag;
+                    if (wall_num->hitag)
+                        speed = wall_num->hitag;
                 }
                 else if (num_points == 2)
                 {
-                    if (wall[wall_num].hitag)
-                        peak = wall[wall_num].hitag;
+                    if (wall_num->hitag)
+                        peak = wall_num->hitag;
                 }
             }
 
             if (peak)
                 num_points = peak;
 
-            for (wall_num = wallnum(wp), cnt = 0;
-                 cnt < MAX_SINE_WALL_POINTS && wall[wall_num].lotag != tag_end;
-                 wall_num = wall[wall_num].point2, cnt++)
+            for (wall_num = wp, cnt = 0;
+                 cnt < MAX_SINE_WALL_POINTS && wall_num->lotag != tag_end;
+                 wall_num = wall_num->point2Wall(), cnt++)
             {
                 // set the first on up
                 sw = &SineWall[NextSineWall][cnt];
 
                 sw->type = type;
-                sw->wall = wall_num;
+                sw->wall = wallnum(wall_num);
                 sw->speed_shift = speed;
                 sw->range = range;
 
                 // don't allow bullet holes/stars
-                SET(wall[wall_num].extra, WALLFX_DONT_STICK);
+                SET(wall_num->extra, WALLFX_DONT_STICK);
 
                 if (!sw->type)
-                    sw->orig_xy = wall[wall_num].y - (sw->range >> 2);
+                    sw->orig_xy = wall_num->y - (sw->range >> 2);
                 else
-                    sw->orig_xy = wall[wall_num].x - (sw->range >> 2);
+                    sw->orig_xy = wall_num->x - (sw->range >> 2);
 
                 sw->sintable_ndx = cnt * (2048 / num_points);
             }
