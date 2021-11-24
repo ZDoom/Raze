@@ -165,7 +165,7 @@ void WallSetup(void)
 
     WallSetupDontMove();
 
-    memset(SineWall, -1, sizeof(SineWall));
+    memset(SineWall, 0, sizeof(SineWall));
 
     extern int x_min_bound, y_min_bound, x_max_bound, y_max_bound;
 
@@ -296,7 +296,7 @@ void WallSetup(void)
                 sw = &SineWall[NextSineWall][cnt];
 
                 sw->type = type;
-                sw->wall = wallnum(wall_num);
+                sw->wallp = wall_num;
                 sw->speed_shift = speed;
                 sw->range = range;
 
@@ -2545,9 +2545,9 @@ void DoSineWaveWall(void)
 
     for (sw_num = 0; sw_num < MAX_SINE_WAVE; sw_num++)
     {
-        for (sw = &SineWall[sw_num][0]; sw->wall >= 0 && sw < &SineWall[sw_num][MAX_SINE_WALL_POINTS]; sw++)
+        for (sw = &SineWall[sw_num][0]; sw->wallp != nullptr && sw < &SineWall[sw_num][MAX_SINE_WALL_POINTS]; sw++)
         {
-            auto wal = &wall[sw->wall];
+            auto wal = sw->wallp;
             // move through the sintable
             sw->sintable_ndx = NORM_ANGLE(sw->sintable_ndx + (synctics << sw->speed_shift));
 

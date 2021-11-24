@@ -1523,7 +1523,7 @@ typedef struct
 {
     int origx[17], origy[17];
     int sector;
-    int16_t angopen, angclosed, angopendir, sang, anginc, wall[17];
+    int16_t angopen, angclosed, angopendir, sang, anginc;
 } SWING;
 
 typedef struct SINE_WAVE_FLOOR
@@ -1538,7 +1538,8 @@ extern SINE_WAVE_FLOOR SineWaveFloor[MAX_SINE_WAVE][21];
 
 typedef struct SINE_WALL
 {
-    int orig_xy, range, wall;
+    walltype* wallp;
+    int orig_xy, range;
     int16_t sintable_ndx, speed_shift, type;
 } *SINE_WALLp;
 

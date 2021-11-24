@@ -909,7 +909,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, SINE_WAVE_FLOOR& w
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, SINE_WALL& w, SINE_WALL* def)
 {
-	static SINE_WALL nul = { -1,-1,-1,-1,-1,-1 };
+	static SINE_WALL nul = { nullptr,-1,-1,-1,-1,-1 };
 	if (!def)
 	{
 		def = &nul;
@@ -920,7 +920,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, SINE_WALL& w, SINE
 	{
 		arc("orig_xy", w.orig_xy, def->orig_xy)
 			("range", w.range, def->range)
-			("sector", w.wall, def->wall)
+			("sector", w.wallp, def->wallp)
 			("sintable_ndx", w.sintable_ndx, def->sintable_ndx)
 			("speed_shift", w.speed_shift, def->speed_shift)
 			("flags", w.type, def->type)
