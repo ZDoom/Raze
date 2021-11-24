@@ -672,7 +672,7 @@ OptionMenu "WeaponsControlMenu" protected
 	StaticText ""
 	Control    "$CNTRLMNU_NEXTWEAPON"     , "weapnext"
 	Control    "$CNTRLMNU_PREVIOUSWEAPON" , "weapprev"
-	ifnotgame(Exhumed)
+	ifnotgame(Exhumed, Witchaven, Witchaven2)
 	{
 		Control    "$CNTRLMNU_ALTWEAPON"        , "weapalt"
 	}
