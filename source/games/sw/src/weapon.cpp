@@ -7302,7 +7302,6 @@ void TraverseBreakableWalls(short start_sect, int x, int y, int z, short ang, in
     int dist;
     int break_count;
 
-	int sectnum;
 	int wall_ang;
     int hit_x,hit_y,hit_z;
     
@@ -7331,9 +7330,10 @@ void TraverseBreakableWalls(short start_sect, int x, int y, int z, short ang, in
                 if (dist > radius)
                     continue;
 
-                if (WallBreakPosition(&wal, &sectnum, &hit_x, &hit_y, &hit_z, &wall_ang))
+                sectortype* sectp = nullptr;
+                if (WallBreakPosition(&wal, &sectp, &hit_x, &hit_y, &hit_z, &wall_ang))
                 {
-                    if (hit_x != INT32_MAX && sectnum >= 0 && FAFcansee(x, y, z, &sector[start_sect], hit_x, hit_y, hit_z, &sector[sectnum]))
+                    if (hit_x != INT32_MAX && sectp != nullptr && FAFcansee(x, y, z, &sector[start_sect], hit_x, hit_y, hit_z, sectp))
                     {
                         HitBreakWall(&wal, INT32_MAX, INT32_MAX, INT32_MAX, ang, 0);
 

@@ -729,15 +729,15 @@ bool UserBreakWall(WALLp wp)
     return false;
 }
 
-int WallBreakPosition(walltype* wp, int *sectnum, int *x, int *y, int *z, int *ang)
+int WallBreakPosition(walltype* wp, sectortype** sectp, int *x, int *y, int *z, int *ang)
 {
     int nx,ny;
     int wall_ang;
 
     wall_ang = NORM_ANGLE(getangle(wp->delta())+512);
 
-    *sectnum = wp->sector;
-    ASSERT(*sectnum >= 0);
+    *sectp = wp->sectorp();
+    ASSERT(*sectp);
 
     // midpoint of wall
     *x = (wp->x + wp->x) >> 1;
@@ -746,7 +746,7 @@ int WallBreakPosition(walltype* wp, int *sectnum, int *x, int *y, int *z, int *a
     if (!wp->twoSided())
     {
         // white wall
-        *z = (sector[*sectnum].floorz + sector[*sectnum].ceilingz) >> 1;
+        *z = ((*sectp)->floorz + (*sectp)->ceilingz) >> 1;
     }
     else
     {
@@ -757,15 +757,15 @@ int WallBreakPosition(walltype* wp, int *sectnum, int *x, int *y, int *z, int *a
 
         // floor and ceiling meet
         if (next_sect->floorz == next_sect->ceilingz)
-            *z = (sector[*sectnum].floorz + sector[*sectnum].ceilingz) >> 1;
+            *z = ((*sectp)->floorz + (*sectp)->ceilingz) >> 1;
         else
         // floor is above other sector
-        if (next_sect->floorz < sector[*sectnum].floorz)
-            *z = (next_sect->floorz + sector[*sectnum].floorz) >> 1;
+        if (next_sect->floorz < (*sectp)->floorz)
+            *z = (next_sect->floorz + (*sectp)->floorz) >> 1;
         else
         // ceiling is below other sector
-        if (next_sect->ceilingz > sector[*sectnum].ceilingz)
-            *z = (next_sect->ceilingz + sector[*sectnum].ceilingz) >> 1;
+        if (next_sect->ceilingz > (*sectp)->ceilingz)
+            *z = (next_sect->ceilingz + (*sectp)->ceilingz) >> 1;
     }
 
     *ang = wall_ang;
@@ -776,8 +776,8 @@ int WallBreakPosition(walltype* wp, int *sectnum, int *x, int *y, int *z, int *a
     *x += nx;
     *y += ny;
 
-    updatesectorz(*x,*y,*z,sectnum);
-    if (*sectnum < 0)
+    updatesectorz(*x,*y,*z,sectp);
+    if (*sectp == nullptr)
     {
         *x = INT32_MAX;  // don't spawn shrap, just change wall
         return false;
@@ -799,7 +799,7 @@ bool HitBreakWall(WALLp wp, int hit_x, int hit_y, int hit_z, int ang, int type)
 
     //if (hit_x == INT32_MAX)
     {
-        int sectnum;
+        sectortype* sectnum = nullptr;
         WallBreakPosition(wp, &sectnum, &hit_x, &hit_y, &hit_z, &ang);
     }
 
@@ -1030,7 +1030,7 @@ int HitBreakSprite(DSWActor* breakActor, int type)
 
 void DoWallBreakMatch(int match)
 {
-    int sectnum;
+    sectortype* sectnum = nullptr;
     int x,y,z;
     int wall_ang;
 
