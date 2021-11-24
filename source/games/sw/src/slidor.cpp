@@ -394,39 +394,39 @@ int DoSlidorMoveWalls(DSWActor* actor, int amt)
 int DoSlidorInstantClose(DSWActor* actor)
 {
     SPRITEp sp = &actor->s();
-    short w, startwall;
     int diff;
 
-    w = startwall = sp->sector()->wallptr;
+    auto startwall = sp->sector()->firstWall();
+    auto wal = startwall;
 
     do
     {
-        switch (wall[w].lotag)
+        switch (wal->lotag)
         {
         case TAG_WALL_SLIDOR_LEFT:
-            diff = wall[w].x - sp->x;
+            diff = wal->x - sp->x;
             DoSlidorMoveWalls(actor, diff);
             break;
 
         case TAG_WALL_SLIDOR_RIGHT:
-            diff = wall[w].x - sp->x;
+            diff = wal->x - sp->x;
             DoSlidorMoveWalls(actor, -diff);
             break;
 
         case TAG_WALL_SLIDOR_UP:
-            diff = wall[w].y - sp->y;
+            diff = wal->y - sp->y;
             DoSlidorMoveWalls(actor, diff);
             break;
 
         case TAG_WALL_SLIDOR_DOWN:
-            diff = wall[w].y - sp->y;
+            diff = wal->y - sp->y;
             DoSlidorMoveWalls(actor, -diff);
             break;
         }
 
-        w = wall[w].point2;
+        wal = wal->point2Wall();
     }
-    while (w != startwall);
+    while (wal != startwall);
 
     return 0;
 }
