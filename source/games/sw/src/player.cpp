@@ -2249,7 +2249,7 @@ void DoPlayerSectorUpdatePostMove(PLAYERp pp)
 
 }
 
-void PlaySOsound(short sectnum, short sound_num)
+void PlaySOsound(sectortype* sectnum, short sound_num)
 {
     // play idle sound - sound 1
     SWSectIterator it(sectnum);
@@ -2264,7 +2264,7 @@ void PlaySOsound(short sectnum, short sound_num)
     }
 }
 
-void StopSOsound(short sectnum)
+void StopSOsound(sectortype* sectnum)
 {
     // play idle sound - sound 1
     SWSectIterator it(sectnum);

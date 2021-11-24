@@ -383,6 +383,7 @@ void SectorSetup(void)
         SectorObject[ndx].Animator = nullptr;
         SectorObject[ndx].controller = nullptr;
         SectorObject[ndx].sp_child = nullptr;
+        SectorObject[ndx].mid_sector = nullptr;
         SectorObject[ndx].xmid = INT32_MAX;
     }
 

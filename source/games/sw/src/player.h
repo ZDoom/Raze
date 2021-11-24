@@ -136,7 +136,7 @@ void DoPlayerSpriteThrow(PLAYERp pp);
 int DoPlayerWadeSuperJump(PLAYERp pp);
 void DoPlayerWarpTeleporter(PLAYERp pp);
 void UpdatePlayerSprite(PLAYERp pp);
-void PlaySOsound(short sectnum,short sound_num);
+void PlaySOsound(sectortype* sectnum,short sound_num);
 void DoSpawnTeleporterEffectPlace(SPRITEp sp);
 void FindMainSector(SECTOR_OBJECTp sop);
 

@@ -931,7 +931,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
 
                 u->sx = sop->xmid - sp->x;
                 u->sy = sop->ymid - sp->y;
-                u->sz = sector[sop->mid_sector].floorz - sp->z;
+                u->sz = sop->mid_sector->floorz - sp->z;
 
                 SET(u->Flags, SPR_SO_ATTACHED);
 
@@ -1090,7 +1090,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
     {
     case TAG_OBJECT_CENTER - 500:
 
-        sop->mid_sector = sectnum(sectp);
+        sop->mid_sector = sectp;
         SectorMidPoint(sectp, &sop->xmid, &sop->ymid, &sop->zmid);
         //sop->zmid = sector[sectnum].floorz;
         //sop->zmid = DIV2(sector[sectnum].floorz + sector[sectnum].ceilingz);
@@ -1681,7 +1681,7 @@ void MovePoints(SECTOR_OBJECTp sop, short delta_ang, int nx, int ny)
     // setting floorz if need be
     //if (!TEST(sop->flags, SOBJ_SPRITE_OBJ))
     if (TEST(sop->flags, SOBJ_ZMID_FLOOR))
-        sop->zmid = sector[sop->mid_sector].floorz;
+        sop->zmid = sop->mid_sector->floorz;
 
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
     {
@@ -1797,7 +1797,7 @@ PlayerPart:
             else
             {
                 // move with the mid sector
-                sp->z = sector[sop->mid_sector].floorz - u->sz;
+                sp->z = sop->mid_sector->floorz - u->sz;
             }
         }
 
@@ -2145,7 +2145,7 @@ void MoveZ(SECTOR_OBJECTp sop)
     {
         for (i = 0, sectp = &sop->sectp[0]; *sectp; sectp++, i++)
         {
-            AnimSet(ANIM_Floorz, sectnum(*sectp), nullptr, sop->zorig_floor[i] + sop->z_tgt, sop->z_rate);
+            AnimSet(ANIM_Floorz, *sectp, sop->zorig_floor[i] + sop->z_tgt, sop->z_rate);
         }
 
         RESET(sop->flags, SOBJ_ZDOWN);
@@ -2154,7 +2154,7 @@ void MoveZ(SECTOR_OBJECTp sop)
     {
         for (i = 0, sectp = &sop->sectp[0]; *sectp; sectp++, i++)
         {
-            AnimSet(ANIM_Floorz, sectnum(*sectp), nullptr, sop->zorig_floor[i] + sop->z_tgt, sop->z_rate);
+            AnimSet(ANIM_Floorz, *sectp, sop->zorig_floor[i] + sop->z_tgt, sop->z_rate);
         }
 
         RESET(sop->flags, SOBJ_ZUP);
@@ -2483,7 +2483,7 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
                 if (sop->sectp[i]->hasU() && TEST(sop->sectp[i]->flags, SECTFU_SO_DONT_SINK))
                     continue;
 
-                ndx = AnimSet(ANIM_Floorz, sectnum(*sectp), nullptr, sector[dest_sector].floorz, tpoint->tag_high);
+                ndx = AnimSet(ANIM_Floorz, *sectp, sector[dest_sector].floorz, tpoint->tag_high);
                 AnimSetCallback(ndx, CallbackSOsink, sop);
                 AnimSetVelAdj(ndx, 6);
             }
@@ -2503,7 +2503,7 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
                 {
                     if ((*sectp) && (*sectp)->stag == SECT_SO_FORM_WHIRLPOOL)
                     {
-                        AnimSet(ANIM_Floorz, sectnum(*sectp), nullptr, (*sectp)->floorz + Z((*sectp)->height), 128);
+                        AnimSet(ANIM_Floorz, *sectp, (*sectp)->floorz + Z((*sectp)->height), 128);
                         (*sectp)->floorshade += (*sectp)->height / 6;
 
                         RESET((*sectp)->extra, SECTFX_NO_RIDE);
@@ -2632,7 +2632,7 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
                 // churn through sectors setting their new z values
                 for (i = 0; sop->sector[i] != -1; i++)
                 {
-                    AnimSet(ANIM_Floorz, sop->sector[i], nullptr, dz - (sector[sop->mid_sector].floorz - sector[sop->sector[i]].floorz), sop->z_rate);
+                    AnimSet(ANIM_Floorz, sop->sector[i], nullptr, dz - (sop->mid_sector->floorz - sector[sop->sector[i]].floorz), sop->z_rate);
                 }
             }
         }

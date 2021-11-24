@@ -1649,6 +1649,10 @@ struct SECTOR_OBJECTstruct
 	DSWActor* so_actors[MAX_SO_SPRITE];    // hold the actors of the object
 	DSWActor* match_event_actor; // spritenum of the match event sprite
 
+    sectortype*
+        mid_sector;     // middle sector
+
+
     int    vel,            // velocity
            vel_tgt,        // target velocity
            player_xoff,    // player x offset from the xmid
@@ -1676,8 +1680,7 @@ struct SECTOR_OBJECTstruct
            crush_z,
            op_main_sector, // main sector operational SO moves in - for speed purposes
            flags,
-           sector[MAX_SO_SECTOR],     // hold the sector numbers of the sector object
-            mid_sector;     // middle sector
+           sector[MAX_SO_SECTOR];     // hold the sector numbers of the sector object
 
     int16_t xorig[MAX_SO_POINTS],   // save the original x & y location of each wall so it can be
             yorig[MAX_SO_POINTS],   // refreshed
@@ -1866,6 +1869,10 @@ void DoAnim(int numtics);
 void AnimDelete(int animtype, int animindex, DSWActor*);
 short AnimGetGoal(int animtype, int animindex, DSWActor*);
 int AnimSet(int animtype, int animindex, DSWActor* animactor, int thegoal, int thevel);
+int AnimSet(int animtype, sectortype* animindex, int thegoal, int thevel)
+{
+    return AnimSet(animtype, sectnum(animindex), nullptr, thegoal, thevel);
+}
 short AnimSetCallback(short anim_ndx, ANIM_CALLBACKp call, SECTOR_OBJECTp data);
 short AnimSetVelAdj(short anim_ndx, short vel_adj);
 

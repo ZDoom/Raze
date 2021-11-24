@@ -10685,7 +10685,7 @@ void AddSpriteToSectorObject(DSWActor* actor, SECTOR_OBJECTp sop)
 
     u->sx = sop->xmid - sp->x;
     u->sy = sop->ymid - sp->y;
-    u->sz = sector[sop->mid_sector].floorz - sp->z;
+    u->sz = sop->mid_sector->floorz - sp->z;
 
     u->sang = sp->ang;
 }
@@ -10750,7 +10750,7 @@ void SpawnBigGunFlames(DSWActor* actor, DSWActor* Operator, SECTOR_OBJECTp sop, 
     else
     {
         // move with the mid sector
-        exp->z = sector[sop->mid_sector].floorz - u->sz;
+        exp->z = sop->mid_sector->floorz - u->sz;
         exp->backupz();
     }
 
