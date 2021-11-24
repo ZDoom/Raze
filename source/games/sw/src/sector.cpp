@@ -393,7 +393,8 @@ void SectorSetup(void)
 
     for (i = 0; i < numsectors; i++)
     {
-        tag = sector[i].lotag;
+        auto sectp = &sector[i];
+        tag = sectp->lotag;
 
         // ///////////////////////////////////
         //
@@ -407,26 +408,26 @@ void SectorSetup(void)
         //
         // ///////////////////////////////////
 
-        if (TEST(sector[i].extra, SECTFX_SINK))
+        if (TEST(sectp->extra, SECTFX_SINK))
         {
             SectorLiquidSet(i);
         }
 
-        if (TEST(sector[i].floorstat, FLOOR_STAT_PLAX))
+        if (TEST(sectp->floorstat, FLOOR_STAT_PLAX))
         {
             // don't do a z adjust for FAF area
-            if (sector[i].floorpicnum != FAF_PLACE_MIRROR_PIC)
+            if (sectp->floorpicnum != FAF_PLACE_MIRROR_PIC)
             {
-                SET(sector[i].extra, SECTFX_Z_ADJUST);
+                SET(sectp->extra, SECTFX_Z_ADJUST);
             }
         }
 
-        if (TEST(sector[i].ceilingstat, CEILING_STAT_PLAX))
+        if (TEST(sectp->ceilingstat, CEILING_STAT_PLAX))
         {
             // don't do a z adjust for FAF area
-            if (sector[i].ceilingpicnum != FAF_PLACE_MIRROR_PIC)
+            if (sectp->ceilingpicnum != FAF_PLACE_MIRROR_PIC)
             {
-                SET(sector[i].extra, SECTFX_Z_ADJUST);
+                SET(sectp->extra, SECTFX_Z_ADJUST);
             }
         }
 
@@ -438,7 +439,7 @@ void SectorSetup(void)
 
         if (tag >= TAG_OBJECT_CENTER && tag < TAG_OBJECT_CENTER + 100)
         {
-            SetupSectorObject(i, tag);
+            SetupSectorObject(sectp, tag);
         }
 
         // ///////////////////////////////////
@@ -680,17 +681,6 @@ int SectorDistance(short sect1, int sect2)
 }
 
 
-int SectorDistanceByMid(short sect1, int sect2)
-{
-    int sx1, sy1, sx2, sy2, trash;
-
-    SectorMidPoint(&sector[sect1], &sx1, &sy1, &trash);
-    SectorMidPoint(&sector[sect2], &sx2, &sy2, &trash);
-
-    // return the distance between the two sectors.
-    return Distance(sx1, sy1, sx2, sy2);
-}
-
 short DoSpawnActorTrigger(short match)
 {
     short spawn_count = 0;
@@ -870,7 +860,7 @@ short AnimateSwitch(SPRITEp sp, short tgt_value)
 }
 
 
-void SectorExp(DSWActor* actor, short sectnum, short orig_ang, int zh)
+void SectorExp(DSWActor* actor, sectortype* sectp, short orig_ang, int zh)
 {
     SPRITEp sp = &actor->s();
     USERp u = actor->u();
@@ -879,7 +869,7 @@ void SectorExp(DSWActor* actor, short sectnum, short orig_ang, int zh)
     int x,y,z;
 
     RESET(sp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL|CSTAT_SPRITE_ALIGNMENT_FLOOR);
-    SectorMidPoint(&sector[sectnum], &x, &y, &z);
+    SectorMidPoint(sectp, &x, &y, &z);
     sp->ang = orig_ang;
     sp->x = x;
     sp->y = y;
@@ -892,7 +882,7 @@ void SectorExp(DSWActor* actor, short sectnum, short orig_ang, int zh)
     sp->z = zh;
 
     // setup vars needed by SectorExp
-    ChangeActorSect(actor, sectnum);
+    ChangeActorSect(actor, sectp);
     getzsofslopeptr(sp->sector(), sp->x, sp->y, &u->hiz, &u->loz);
 
     // spawn explosion
@@ -946,7 +936,7 @@ void DoExplodeSector(short match)
 
         for (zh = sectp->ceilingz; zh < sectp->floorz; zh += Z(60))
         {
-            SectorExp(actor, esp->sectnum, orig_ang, zh + Z(RANDOM_P2(64)) - Z(32));
+            SectorExp(actor, esp->sector(), orig_ang, zh + Z(RANDOM_P2(64)) - Z(32));
         }
 
         // don't need it any more

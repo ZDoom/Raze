@@ -1008,7 +1008,7 @@ cont:
 }
 
 
-void SetupSectorObject(short sectnum, short tag)
+void SetupSectorObject(sectortype* sectp, short tag)
 {
     SPRITEp sp;
     SECTOR_OBJECTp sop;
@@ -1090,16 +1090,16 @@ void SetupSectorObject(short sectnum, short tag)
     {
     case TAG_OBJECT_CENTER - 500:
 
-        sop->mid_sector = sectnum;
-        SectorMidPoint(&sector[sectnum], &sop->xmid, &sop->ymid, &sop->zmid);
+        sop->mid_sector = sectnum(sectp);
+        SectorMidPoint(sectp, &sop->xmid, &sop->ymid, &sop->zmid);
         //sop->zmid = sector[sectnum].floorz;
         //sop->zmid = DIV2(sector[sectnum].floorz + sector[sectnum].ceilingz);
 
         sop->dir = 1;
-        sop->track = sector[sectnum].hitag;
+        sop->track = sectp->hitag;
 
         // spawn a sprite to make it easier to integrate with sprite routines
-        auto actorNew = SpawnActor(STAT_SO_SP_CHILD, 0, nullptr, sectnum,
+        auto actorNew = SpawnActor(STAT_SO_SP_CHILD, 0, nullptr, sectp,
                           sop->xmid, sop->ymid, sop->zmid, 0, 0);
         sop->sp_child = actorNew;
         u = actorNew->u();
@@ -1107,7 +1107,7 @@ void SetupSectorObject(short sectnum, short tag)
         SET(u->Flags2, SPR2_SPRITE_FAKE_BLOCK); // for damage test
 
         // check for any ST1 sprites laying on the center sector
-        SWSectIterator it(sectnum);
+        SWSectIterator it(sectp);
         while (auto actor = it.Next())
         {
             SPRITEp sp = &actor->s();
@@ -1385,8 +1385,8 @@ void SetupSectorObject(short sectnum, short tag)
             }
         }
 
-        sector[sectnum].lotag = 0;
-        sector[sectnum].hitag = 0;
+        sectp->lotag = 0;
+        sectp->hitag = 0;
 
         if (sop->max_damage <= 0)
             VehicleSetSmoke(sop, SpawnVehicleSmoke);
