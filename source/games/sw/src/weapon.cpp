@@ -19265,15 +19265,7 @@ int DoShrapVelocity(DSWActor* actor)
 
         case kHitWall:
         {
-            short hit_wall,nw,wall_ang;
-            WALLp wph;
-
-
-            hit_wall = u->coll.index;
-            wph = &wall[hit_wall];
-
-            nw = wall[hit_wall].point2;
-            wall_ang = NORM_ANGLE(getangle(wall[nw].x - wph->x, wall[nw].y - wph->y)+512);
+            int wall_ang = NORM_ANGLE(getangle(u->coll.wall()->delta())+512);
 
             WallBounce(actor, wall_ang);
             ScaleSpriteVector(actor, 32000);
