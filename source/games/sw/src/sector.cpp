@@ -2164,9 +2164,10 @@ void NearTagList(NEAR_TAG_INFOp ntip, PLAYERp pp, int z, int dist, int type, int
 
     if (neartagsector >= 0)
     {
+        auto ntsec = &sector[neartagsector];
         // save off values
-        save_lotag = sector[neartagsector].lotag;
-        save_hitag = sector[neartagsector].hitag;
+        save_lotag = ntsec->lotag;
+        save_hitag = ntsec->hitag;
 
         ntip->dist = neartaghitdist;
         ntip->sectnum = neartagsector;
@@ -2179,20 +2180,21 @@ void NearTagList(NEAR_TAG_INFOp ntip, PLAYERp pp, int z, int dist, int type, int
             return;
 
         // remove them
-        sector[neartagsector].lotag = 0;
-        sector[neartagsector].hitag = 0;
+        ntsec->lotag = 0;
+        ntsec->hitag = 0;
 
         NearTagList(ntip, pp, z, dist, type, count);
 
         // reset off values
-        sector[neartagsector].lotag = save_lotag;
-        sector[neartagsector].hitag = save_hitag;
+        ntsec->lotag = save_lotag;
+        ntsec->hitag = save_hitag;
     }
     else if (neartagwall >= 0)
     {
+        auto ntwall = &wall[neartagwall];
         // save off values
-        save_lotag = wall[neartagwall].lotag;
-        save_hitag = wall[neartagwall].hitag;
+        save_lotag = ntwall->lotag;
+        save_hitag = ntwall->hitag;
 
         ntip->dist = neartaghitdist;
         ntip->sectnum = -1;
@@ -2205,14 +2207,14 @@ void NearTagList(NEAR_TAG_INFOp ntip, PLAYERp pp, int z, int dist, int type, int
             return;
 
         // remove them
-        wall[neartagwall].lotag = 0;
-        wall[neartagwall].hitag = 0;
+        ntwall->lotag = 0;
+        ntwall->hitag = 0;
 
         NearTagList(ntip, pp, z, dist, type, count);
 
         // reset off values
-        wall[neartagwall].lotag = save_lotag;
-        wall[neartagwall].hitag = save_hitag;
+        ntwall->lotag = save_lotag;
+        ntwall->hitag = save_hitag;
     }
     else if (neartagsprite >= 0)
     {

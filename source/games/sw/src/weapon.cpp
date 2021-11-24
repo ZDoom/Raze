@@ -4267,8 +4267,7 @@ bool VehicleMoveHit(DSWActor* actor)
 
     case kHitWall:
     {
-        short hit_wall = u->coll.index;
-        WALLp wph = &wall[hit_wall];
+        auto wph = u->coll.wall();
 
         if (TEST(wph->extra, WALLFX_SECTOR_OBJECT))
         {
@@ -4457,8 +4456,7 @@ bool WeaponMoveHit(DSWActor* actor)
 
     case kHitWall:
     {
-        int wal = u->coll.index;
-        WALLp wph = &wall[wal];
+        auto wph = u->coll.wall();
         SECTOR_OBJECTp sop;
 
         ASSERT(wph->extra != -1);
@@ -4475,7 +4473,7 @@ bool WeaponMoveHit(DSWActor* actor)
 
         if (wph->lotag == TAG_WALL_BREAK)
         {
-            HitBreakWall(&wall[wal], sp->x, sp->y, sp->z, sp->ang, u->ID);
+            HitBreakWall(wph, sp->x, sp->y, sp->z, sp->ang, u->ID);
             u->coll.setNone();
             return true;
         }
@@ -7612,16 +7610,14 @@ int DoStar(DSWActor* actor)
 
         case kHitWall:
         {
-            short hit_wall,nw,wall_ang;
+            short nw,wall_ang;
             WALLp wph;
 
-            hit_wall = u->coll.index;
-            wph = &wall[hit_wall];
-
+            wph = u->coll.wall();
 
             if (wph->lotag == TAG_WALL_BREAK)
             {
-                HitBreakWall(&wall[hit_wall], sp->x, sp->y, sp->z, sp->ang, u->ID);
+                HitBreakWall(wph, sp->x, sp->y, sp->z, sp->ang, u->ID);
                 u->coll.setNone();
                 break;
             }
@@ -8533,11 +8529,10 @@ int DoGrenade(DSWActor* actor)
 
         case kHitWall:
         {
-            short hit_wall,nw,wall_ang;
+            short nw,wall_ang;
             WALLp wph;
 
-            hit_wall = u->coll.index;
-            wph = &wall[hit_wall];
+            wph = u->coll.wall();
 
             if (wph->lotag == TAG_WALL_BREAK)
             {
@@ -8747,11 +8742,10 @@ int DoVulcanBoulder(DSWActor* actor)
 
         case kHitWall:
         {
-            short hit_wall,nw,wall_ang;
+            short nw,wall_ang;
             WALLp wph;
 
-            hit_wall = u->coll.index;
-            wph = &wall[hit_wall];
+            wph = u->coll.wall();
 
             if (wph->lotag == TAG_WALL_BREAK)
             {
@@ -9177,11 +9171,11 @@ int DoMine(DSWActor* actor)
 
         case kHitWall:
         {
-            short hit_wall = u->coll.index;
+            auto hit_wall = u->coll.wall();
 
-            if (wall[hit_wall].lotag == TAG_WALL_BREAK)
+            if (hit_wall->lotag == TAG_WALL_BREAK)
             {
-                HitBreakWall(&wall[hit_wall], sp->x, sp->y, sp->z, sp->ang, u->ID);
+                HitBreakWall(hit_wall, sp->x, sp->y, sp->z, sp->ang, u->ID);
                 u->coll.setNone();
                 break;
             }
@@ -9190,11 +9184,11 @@ int DoMine(DSWActor* actor)
 
             SET(u->Flags2, SPR2_ATTACH_WALL);
 
-            if (TEST(wall[hit_wall].extra, WALLFX_SECTOR_OBJECT))
+            if (TEST(hit_wall->extra, WALLFX_SECTOR_OBJECT))
             {
             }
 
-            if (TEST(wall[hit_wall].extra, WALLFX_DONT_STICK))
+            if (TEST(hit_wall->extra, WALLFX_DONT_STICK))
             {
                 SpawnMineExp(actor);
                 KillActor(actor);
@@ -9206,7 +9200,7 @@ int DoMine(DSWActor* actor)
 
         case kHitSector:
         {
-            short hit_sect = u->coll.index;
+            auto hit_sect = u->coll.sector();
 
             SetMineStuck(actor);
 
@@ -9217,7 +9211,7 @@ int DoMine(DSWActor* actor)
                 SET(u->Flags2, SPR2_ATTACH_CEILING);
 
 
-            if (TEST(sector[hit_sect].extra, SECTFX_SECTOR_OBJECT))
+            if (TEST(hit_sect->extra, SECTFX_SECTOR_OBJECT))
             {
                 SpawnMineExp(actor);
                 KillActor(actor);
