@@ -126,11 +126,11 @@ void WallSetupDontMove(void)
 
             if (spu->lotag == spl->lotag)
             {
-                for (wallp = &wall[0]; wallp < &wall[numwalls]; wallp++)
+                for(auto& wal : walls())
                 {
-                    if (wallp->x < spl->x && wallp->x > spu->x && wallp->y < spl->y && wallp->y > spu->y)
+                    if (wal.x < spl->x && wal.x > spu->x && wal.y < spl->y && wal.y > spu->y)
                     {
-                        SET(wallp->extra, WALLFX_DONT_MOVE);
+                        SET(wal.extra, WALLFX_DONT_MOVE);
                     }
                 }
             }
@@ -162,7 +162,6 @@ static void WallSetupLoop(WALLp wp, int16_t lotag, int16_t extra)
 void WallSetup(void)
 {
     short NextSineWall = 0;
-    WALLp wp;
 
     WallSetupDontMove();
 
@@ -170,8 +169,9 @@ void WallSetup(void)
 
     extern int x_min_bound, y_min_bound, x_max_bound, y_max_bound;
 
-    for (wp = &wall[0]; wp < &wall[numwalls]; wp++)
+    for (auto& wal : walls())
     {
+        auto wp = &wal;
         if (wp->picnum == FAF_PLACE_MIRROR_PIC)
             wp->picnum = FAF_MIRROR_PIC;
 
@@ -593,23 +593,19 @@ void SectorSetup(void)
 
 void SectorMidPoint(short sectnum, int *xmid, int *ymid, int *zmid)
 {
-    short startwall, endwall, j;
+    auto sectp = &sector[sectnum];
     int xsum = 0, ysum = 0;
-    WALLp wp;
 
-    startwall = sector[sectnum].wallptr;
-    endwall = startwall + sector[sectnum].wallnum - 1;
-
-    for (wp = &wall[startwall], j = startwall; j <= endwall; wp++, j++)
+    for(auto& wal : wallsofsector(sectnum))
     {
-        xsum += wp->x;
-        ysum += wp->y;
+        xsum += wal.x;
+        ysum += wal.y;
     }
 
-    *xmid = xsum / (endwall - startwall + 1);
-    *ymid = ysum / (endwall - startwall + 1);
+    *xmid = xsum / (sectp->wallnum);
+    *ymid = ysum / (sectp->wallnum);
 
-    *zmid = DIV2(sector[sectnum].floorz + sector[sectnum].ceilingz);
+    *zmid = DIV2(sectp->floorz + sectp->ceilingz);
 }
 
 
@@ -673,16 +669,15 @@ short FindNextSectorByTag(short sect, int tag)
 
 int SectorDistance(short sect1, int sect2)
 {
-    short wallnum1, wallnum2;
 
     if (sect1 < 0 || sect2 < 0)
         return 9999999;
 
-    wallnum1 = sector[sect1].wallptr;
-    wallnum2 = sector[sect2].wallptr;
+    auto wall1 = sector[sect1].firstWall();
+    auto wall2 = sector[sect2].firstWall();
 
     // return the distance between the two sectors.
-    return Distance(wall[wallnum1].x, wall[wallnum1].y, wall[wallnum2].x, wall[wallnum2].y);
+    return Distance(wall1->x, wall1->y, wall2->x, wall2->y);
 }
 
 
@@ -2084,11 +2079,12 @@ bool NearThings(PLAYERp pp)
 
     if (neartagwall >= 0)
     {
+        auto ntwall = &wall[neartagwall];
         // Check player's current sector for triggered sound
-        if (wall[neartagwall].hitag == PLAYER_SOUNDEVENT_TAG)
+        if (ntwall->hitag == PLAYER_SOUNDEVENT_TAG)
         {
             if (pp == Player+myconnectindex)
-                PlayerSound(wall[neartagwall].lotag, v3df_follow|v3df_dontpan,pp);
+                PlayerSound(ntwall->lotag, v3df_follow|v3df_dontpan,pp);
             return false;   // We are playing a sound so don't return true
         }
         return true;
@@ -2520,19 +2516,20 @@ void DoSineWaveFloor(void)
     {
         for (swf = &SineWaveFloor[wave][0], flags = swf->flags; swf->sector >= 0 && swf < &SineWaveFloor[wave][SIZ(SineWaveFloor[wave])]; swf++)
         {
-            if (!TEST(sector[swf->sector].floorstat, FLOOR_STAT_SLOPE))
+            auto sect = &sector[swf->sector];
+            if (!TEST(sect->floorstat, FLOOR_STAT_SLOPE))
                 continue;
 
             if (TEST(flags, SINE_SLOPED))
             {
                 WALLp wal;
-                if (sector[swf->sector].wallnum == 4)
+                if (sect->wallnum == 4)
                 {
                     //Set wal to the wall on the opposite side of the sector
-                    wal = &wall[sector[swf->sector].wallptr+2];
+                    wal = sect->firstWall() + 2;
 
                     //Pass (Sector, x, y, z)
-                    alignflorslope(swf->sector,wal->x,wal->y, wal->nextSector()->floorz);
+                    alignflorslope(sect,wal->x,wal->y, wal->nextSector()->floorz);
                 }
             }
         }
@@ -2550,20 +2547,19 @@ void DoSineWaveWall(void)
     {
         for (sw = &SineWall[sw_num][0]; sw->wall >= 0 && sw < &SineWall[sw_num][MAX_SINE_WALL_POINTS]; sw++)
         {
+            auto wal = &wall[sw->wall];
             // move through the sintable
             sw->sintable_ndx = NORM_ANGLE(sw->sintable_ndx + (synctics << sw->speed_shift));
 
             if (!sw->type)
             {
                 New = sw->orig_xy + MulScale(sw->range, bsin(sw->sintable_ndx), 14);
-                // wall[sw->wall].y = New;
-                dragpoint(sw->wall, wall[sw->wall].x, New);
+                dragpoint(wal, wal->x, New);
             }
             else
             {
                 New = sw->orig_xy + MulScale(sw->range, bsin(sw->sintable_ndx), 14);
-                // wall[sw->wall].x = New;
-                dragpoint(sw->wall, New, wall[sw->wall].y);
+                dragpoint(wal, New, wal->y);
             }
         }
     }
