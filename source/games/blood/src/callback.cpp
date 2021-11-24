@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 
-void fxFlameLick(DBloodActor* actor, int) // 0
+void fxFlameLick(DBloodActor* actor, sectortype*) // 0
 {
     if (!actor) return;
     spritetype *pSprite = &actor->s();
@@ -58,7 +58,7 @@ void fxFlameLick(DBloodActor* actor, int) // 0
         evPostActor(actor, 5, kCallbackFXFlameLick);
 }
 
-void Remove(DBloodActor* actor, int) // 1
+void Remove(DBloodActor* actor, sectortype*) // 1
 {
     if (!actor) return;
     evKillActor(actor, kCallbackFXFlareSpark);
@@ -68,7 +68,7 @@ void Remove(DBloodActor* actor, int) // 1
     DeleteSprite(actor);
 }
 
-void FlareBurst(DBloodActor* actor, int) // 2
+void FlareBurst(DBloodActor* actor, sectortype*) // 2
 {
     if (!actor) return;
     int nAngle = getangle(actor->xvel, actor->yvel);
@@ -101,7 +101,7 @@ void FlareBurst(DBloodActor* actor, int) // 2
     evPostActor(actor, 0, kCallbackRemove);
 }
 
-void fxFlareSpark(DBloodActor* actor, int) // 3
+void fxFlareSpark(DBloodActor* actor, sectortype*) // 3
 {
     if (!actor) return;
     spritetype *pSprite = &actor->s();
@@ -115,7 +115,7 @@ void fxFlareSpark(DBloodActor* actor, int) // 3
     evPostActor(actor, 4, kCallbackFXFlareSpark);
 }
 
-void fxFlareSparkLite(DBloodActor* actor, int) // 4
+void fxFlareSparkLite(DBloodActor* actor, sectortype*) // 4
 {
     if (!actor) return;
     spritetype *pSprite = &actor->s();
@@ -129,7 +129,7 @@ void fxFlareSparkLite(DBloodActor* actor, int) // 4
     evPostActor(actor, 12, kCallbackFXFlareSparkLite);
 }
 
-void fxZombieBloodSpurt(DBloodActor* actor, int) // 5
+void fxZombieBloodSpurt(DBloodActor* actor, sectortype*) // 5
 {
     if (!actor) return;
     spritetype *pSprite = &actor->s();
@@ -157,7 +157,7 @@ void fxZombieBloodSpurt(DBloodActor* actor, int) // 5
     }
 }
 
-void fxBloodSpurt(DBloodActor* actor, int) // 6
+void fxBloodSpurt(DBloodActor* actor, sectortype*) // 6
 {
     if (!actor) return;
     spritetype *pSprite = &actor->s();
@@ -173,7 +173,7 @@ void fxBloodSpurt(DBloodActor* actor, int) // 6
 }
 
 
-void fxArcSpark(DBloodActor* actor, int) // 7
+void fxArcSpark(DBloodActor* actor, sectortype*) // 7
 {
     if (!actor) return;
     spritetype* pSprite = &actor->s();
@@ -188,7 +188,7 @@ void fxArcSpark(DBloodActor* actor, int) // 7
 }
 
 
-void fxDynPuff(DBloodActor* actor, int) // 8
+void fxDynPuff(DBloodActor* actor, sectortype*) // 8
 {
     if (!actor) return;
     spritetype *pSprite = &actor->s();
@@ -209,7 +209,7 @@ void fxDynPuff(DBloodActor* actor, int) // 8
     evPostActor(actor, 12, kCallbackFXDynPuff);
 }
 
-void Respawn(DBloodActor* actor, int) // 9
+void Respawn(DBloodActor* actor, sectortype*) // 9
 {
     if (!actor) return;
     spritetype *pSprite = &actor->s();
@@ -293,7 +293,7 @@ void Respawn(DBloodActor* actor, int) // 9
     }
 }
 
-void PlayerBubble(DBloodActor* actor, int) // 10
+void PlayerBubble(DBloodActor* actor, sectortype*) // 10
 {
     if (!actor) return;
     spritetype *pSprite = &actor->s();
@@ -324,7 +324,7 @@ void PlayerBubble(DBloodActor* actor, int) // 10
     }
 }
 
-void EnemyBubble(DBloodActor* actor, int) // 11
+void EnemyBubble(DBloodActor* actor, sectortype*) // 11
 {
     if (!actor) return;
     spritetype *pSprite = &actor->s();
@@ -348,11 +348,9 @@ void EnemyBubble(DBloodActor* actor, int) // 11
     evPostActor(actor, 4, kCallbackEnemeyBubble);
 }
 
-void CounterCheck(DBloodActor*, int nSector) // 12
+void CounterCheck(DBloodActor*, sectortype* pSector) // 12
 {
-    if (!validSectorIndex(nSector)) return;
-    auto pSector = &sector[nSector];
-    if (pSector->type != kSectorCounter) return;
+    if (!pSector || pSector->type != kSectorCounter) return;
     if (!pSector->hasX()) return;
     
     XSECTOR* pXSector = &pSector->xs();
@@ -361,7 +359,7 @@ void CounterCheck(DBloodActor*, int nSector) // 12
     int nCount = 0;
     if (!nType || !nReq) return;
     
-    BloodSectIterator it(nSector);
+    BloodSectIterator it(pSector);
     while (auto actor = it.Next())
     {
         if (actor->s().type == nType) nCount++;
@@ -378,7 +376,7 @@ void CounterCheck(DBloodActor*, int nSector) // 12
 }
 
 
-void FinishHim(DBloodActor* actor, int) // 13
+void FinishHim(DBloodActor* actor, sectortype*) // 13
 {
     if (!actor) return;
     spritetype* pSprite = &actor->s();
@@ -386,7 +384,7 @@ void FinishHim(DBloodActor* actor, int) // 13
         sndStartSample(3313, -1, 1, 0);
 }
 
-void fxBloodBits(DBloodActor* actor, int) // 14
+void fxBloodBits(DBloodActor* actor, sectortype*) // 14
 {
     if (!actor) return;
     spritetype *pSprite = &actor->s();
@@ -416,7 +414,7 @@ void fxBloodBits(DBloodActor* actor, int) // 14
 }
 
 
-void fxTeslaAlt(DBloodActor* actor, int) // 15
+void fxTeslaAlt(DBloodActor* actor, sectortype*) // 15
 {
     if (!actor) return;
     spritetype* pSprite = &actor->s();
@@ -434,7 +432,7 @@ void fxTeslaAlt(DBloodActor* actor, int) // 15
 int tommySleeveSnd[] = { 608, 609, 611 }; // unused?
 int sawedOffSleeveSnd[] = { 610, 612 };
 
-void fxBouncingSleeve(DBloodActor* actor, int) // 16
+void fxBouncingSleeve(DBloodActor* actor, sectortype*) // 16
 {
     if (!actor) return;
     spritetype* pSprite = &actor->s(); 
@@ -497,7 +495,7 @@ void sleeveStopBouncing(DBloodActor* actor)
 }
 
 
-void returnFlagToBase(DBloodActor* actor, int) // 17
+void returnFlagToBase(DBloodActor* actor, sectortype*) // 17
 {
     if (!actor) return;
     spritetype* pSprite = &actor->s();
@@ -523,7 +521,7 @@ void returnFlagToBase(DBloodActor* actor, int) // 17
     evPostActor(actor, 0, kCallbackRemove);
 }
 
-void fxPodBloodSpray(DBloodActor* actor, int) // 18
+void fxPodBloodSpray(DBloodActor* actor, sectortype*) // 18
 {
     if (!actor) return;
     spritetype* pSprite = &actor->s();
@@ -542,7 +540,7 @@ void fxPodBloodSpray(DBloodActor* actor, int) // 18
     evPostActor(actor, 6, kCallbackFXPodBloodSpray);
 }
 
-void fxPodBloodSplat(DBloodActor* actor, int) // 19
+void fxPodBloodSplat(DBloodActor* actor, sectortype*) // 19
 {
     if (!actor) return;
     spritetype *pSprite = &actor->s();
@@ -582,7 +580,7 @@ void fxPodBloodSplat(DBloodActor* actor, int) // 19
 
 
 
-void LeechStateTimer(DBloodActor* actor, int) // 20
+void LeechStateTimer(DBloodActor* actor, sectortype*) // 20
 {
     if (!actor) return;
     spritetype *pSprite = &actor->s();
@@ -618,7 +616,7 @@ void sub_76A08(DBloodActor *actor, spritetype *pSprite2, PLAYER *pPlayer) // ???
     }
 }
 
-void DropVoodooCb(DBloodActor* actor, int) // unused
+void DropVoodooCb(DBloodActor* actor, sectortype*) // unused
 {
     if (!actor) return;
     spritetype *pSprite = &actor->s();
@@ -734,7 +732,7 @@ void DropVoodooCb(DBloodActor* actor, int) // unused
     }
 }
 
-void callbackCondition(DBloodActor* actor, int)
+void callbackCondition(DBloodActor* actor, sectortype*)
 {
     XSPRITE* pXSprite = &actor->x();
     if (pXSprite->isTriggered) return;
@@ -752,7 +750,7 @@ void callbackCondition(DBloodActor* actor, int)
     return;
 }
 
-void(*gCallback[kCallbackMax])(DBloodActor*, int) =
+void(*gCallback[kCallbackMax])(DBloodActor*, sectortype*) =
 {
     fxFlameLick,
     Remove,

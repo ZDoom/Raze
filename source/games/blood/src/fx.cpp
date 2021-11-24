@@ -220,8 +220,7 @@ void CFX::fxProcess(void)
                     remove(actor);
                     continue;
                 }
-                assert(gCallback[pFXData->funcID] != nullptr);
-                gCallback[pFXData->funcID](actor, 0);
+                gCallback[pFXData->funcID](actor, nullptr);
                 continue;
             }
             if (nSector != pSprite->sectnum)
@@ -246,8 +245,7 @@ void CFX::fxProcess(void)
                     remove(actor);
                     continue;
                 }
-                assert(gCallback[pFXData->funcID] != nullptr);
-                gCallback[pFXData->funcID](actor, 0);
+                gCallback[pFXData->funcID](actor, nullptr);
                 continue;
             }
         }

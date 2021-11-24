@@ -88,7 +88,6 @@ void StompSeqCallback(int, DBloodActor* actor1)
 	int y = pSprite->y;
 	int z = pSprite->z;
 	int vc = 400;
-	auto nSector = pSprite->sectnum;
 	auto pSector = pSprite->sector();
 	int v1c = 5 + 2 * gGameOptions.nDifficulty;
 	int v10 = 25 + 30 * gGameOptions.nDifficulty;
@@ -115,7 +114,7 @@ void StompSeqCallback(int, DBloodActor* actor1)
 				{
 					int top, bottom;
 					GetActorExtents(actor1, &top, &bottom);
-					if (abs(bottom - sector[nSector].floorz) == 0)
+					if (abs(bottom - pSector->floorz) == 0)
 					{
 						int dx = abs(pSprite->x - pSprite2->x);
 						int dy = abs(pSprite->y - pSprite2->y);

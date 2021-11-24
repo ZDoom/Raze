@@ -638,9 +638,8 @@ void evProcess(unsigned int time)
 		if (event.cmd == kCmdCallback)
 		{
 			assert(event.funcID < kCallbackMax);
-			assert(gCallback[event.funcID] != nullptr);
-			if (event.target.isActor()) gCallback[event.funcID](event.target.actor(), -1);
-			else if (event.target.isSector()) gCallback[event.funcID](nullptr, sectnum(event.target.sector()));
+			if (event.target.isActor()) gCallback[event.funcID](event.target.actor(), nullptr);
+			else if (event.target.isSector()) gCallback[event.funcID](nullptr, event.target.sector());
 			// no case for walls defined here.
 		}
 		else

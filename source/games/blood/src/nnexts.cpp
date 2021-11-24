@@ -9068,7 +9068,7 @@ void levelEndLevelCustom(int nLevel)
 //
 //---------------------------------------------------------------------------
 
-void callbackUniMissileBurst(DBloodActor* actor, int) // 22
+void callbackUniMissileBurst(DBloodActor* actor, sectortype*) // 22
 {
     if (!actor) return;
     spritetype* pSprite = &actor->s();
@@ -9129,13 +9129,13 @@ void callbackUniMissileBurst(DBloodActor* actor, int) // 22
 //
 //---------------------------------------------------------------------------
 
-void callbackMakeMissileBlocking(DBloodActor* actor, int) // 23
+void callbackMakeMissileBlocking(DBloodActor* actor, sectortype*) // 23
 {
     if (!actor || actor->s().statnum != kStatProjectile) return;
     actor->s().cstat |= CSTAT_SPRITE_BLOCK;
 }
 
-void callbackGenDudeUpdate(DBloodActor* actor, int) // 24
+void callbackGenDudeUpdate(DBloodActor* actor, sectortype*) // 24
 {
     if (actor)
         genDudeUpdate(actor);
