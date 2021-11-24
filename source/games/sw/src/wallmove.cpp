@@ -52,14 +52,12 @@ void SOwallmove(SECTOR_OBJECTp sop, DSWActor* actor, WALLp find_wallp, int dist,
     wallcount = 0;
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
     {
-        startwall = (*sectp)->wallptr;
-        endwall = startwall + (*sectp)->wallnum - 1;
 
         // move all walls in sectors back to the original position
-        for (wp = &wall[startwall], k = startwall; k <= endwall; wp++, k++)
+        for (auto& wal : wallsofsector(*sectp))
         {
             // find the one wall we want to adjust
-            if (wp == find_wallp)
+            if (&wal == find_wallp)
             {
                 short ang;
                 // move orig x and y in saved angle
@@ -84,7 +82,6 @@ int DoWallMove(DSWActor* actor)
 {
     int dist,nx,ny;
     short shade1,shade2,ang,picnum1,picnum2;
-    WALLp wallp;
     bool found = false;
     short dang;
     bool SOsprite = false;
@@ -105,35 +102,35 @@ int DoWallMove(DSWActor* actor)
     nx = MulScale(dist, bcos(ang), 14);
     ny = MulScale(dist, bsin(ang), 14);
 
-    for (wallp = &wall[0]; wallp < &wall[numwalls]; wallp++)
+    for(auto& wal : walls())
     {
-        if (wallp->x == sp->x && wallp->y == sp->y)
+        if (wal.x == sp->x && wal.y == sp->y)
         {
             found = true;
 
-            if (TEST(wallp->extra, WALLFX_SECTOR_OBJECT))
+            if (TEST(wal.extra, WALLFX_SECTOR_OBJECT))
             {
                 SECTOR_OBJECTp sop;
-                sop = DetectSectorObjectByWall(wallp);
+                sop = DetectSectorObjectByWall(&wal);
                 ASSERT(sop);
-                SOwallmove(sop, actor, wallp, dist, &nx, &ny);
+                SOwallmove(sop, actor, &wal, dist, &nx, &ny);
 
                 SOsprite = true;
             }
             else
             {
-                wallp->x = sp->x + nx;
-                wallp->y = sp->y + ny;
-                sector[wallp->sector].dirty = 255;
+                wal.x = sp->x + nx;
+                wal.y = sp->y + ny;
+                sector[wal.sector].dirty = 255;
             }
 
             if (shade1)
-                wallp->shade = int8_t(shade1);
+                wal.shade = int8_t(shade1);
             if (picnum1)
-                wallp->picnum = picnum1;
+                wal.picnum = picnum1;
 
             // find the previous wall
-            auto prev_wall = PrevWall(wallp);
+            auto prev_wall = PrevWall(&wal);
             if (shade2)
                 prev_wall->shade = int8_t(shade2);
             if (picnum2)
