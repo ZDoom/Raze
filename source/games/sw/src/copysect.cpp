@@ -115,7 +115,7 @@ void CopySectorMatch(int match)
     while (auto dActor = it.Next())
     {
         dest_sp = &dActor->s();
-        dsectp = &sector[dest_sp->sectnum];
+        dsectp = dest_sp->sector();
 
         if (match != dest_sp->lotag)
             continue;
@@ -128,7 +128,7 @@ void CopySectorMatch(int match)
             if (SP_TAG2(src_sp) == SP_TAG2(dest_sp) &&
                 SP_TAG3(src_sp) == SP_TAG3(dest_sp))
             {
-                ssectp = &sector[src_sp->sectnum];
+                ssectp = src_sp->sector();
 
                 // !!!!!AAAAAAAAAAAAAAAAAAAAAAHHHHHHHHHHHHHHHHHHHHHH
                 // Don't kill anything you don't have to
@@ -137,7 +137,7 @@ void CopySectorMatch(int match)
 
 #if 1
                 // kill all sprites in the dest sector that need to be
-                SWSectIterator itsec(dest_sp->sectnum);
+                SWSectIterator itsec(dsectp);
                 while (auto itActor = itsec.Next())
                 {
                     k = &itActor->s();
@@ -159,9 +159,9 @@ void CopySectorMatch(int match)
                 }
 #endif
 
-                CopySectorWalls(dest_sp->sector(), src_sp->sector());
+                CopySectorWalls(dsectp, ssectp);
 
-                itsec.Reset(src_sp->sectnum);
+                itsec.Reset(ssectp);
                 while (auto itActor = itsec.Next())
                 {
                     auto sp = &itActor->s();
@@ -185,10 +185,10 @@ void CopySectorMatch(int match)
                         sp->y = dy - src_yoff;
 
                         // change sector
-                        ChangeActorSect(itActor, dest_sp->sectnum);
+                        ChangeActorSect(itActor, dsectp);
 
                         // check to see if it moved on to a sector object
-                        if (TEST(sector[dest_sp->sectnum].extra, SECTFX_SECTOR_OBJECT))
+                        if (TEST(dsectp->extra, SECTFX_SECTOR_OBJECT))
                         {
                             SECTOR_OBJECTp sop;
 
