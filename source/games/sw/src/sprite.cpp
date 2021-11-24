@@ -1956,7 +1956,7 @@ void SpriteSetup(void)
                         break;
                     }
 
-                    sp->owner = hitinfo.wall;
+                    actor->tempwall = &wall[hitinfo.wall];
                     // if moves with SO
                     if (TEST_BOOL1(sp))
                         sp->xvel = 0;

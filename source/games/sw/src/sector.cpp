@@ -2774,7 +2774,7 @@ void DoPanning(void)
     while (auto actor = it.Next())
     {
         sp = &actor->s();
-        wallp = &wall[sp->owner];
+        wallp = actor->tempwall;
 
         nx = MulScale(sp->xvel, bcos(sp->ang), 20);
         ny = MulScale(sp->xvel, bsin(sp->ang), 20);
