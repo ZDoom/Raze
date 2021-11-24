@@ -298,30 +298,30 @@ void JS_InitMirrors(void)
         mirror[i].ismagic = false;
     }
 
-    for (i = 0; i < numwalls; i++)
+    for(auto& wal : walls())
     {
-        s = wall[i].nextsector;
-        if ((s >= 0) && (wall[i].overpicnum == MIRROR) && (wall[i].cstat & 32))
+        if (wal.twoSided() && (wal.overpicnum == MIRROR) && (wal.cstat & 32))
         {
-            if ((sector[s].floorstat & 1) == 0)
+            auto sec = wal.nextSector();
+            if ((sec->floorstat & 1) == 0)
             {
                 if (mirrorcnt >= MAXMIRRORS)
                 {
                     Printf("MAXMIRRORS reached! Skipping mirror wall[%d]\n", i);
-                    wall[i].overpicnum = sector[s].ceilingpicnum;
+                    wal.overpicnum = sec->ceilingpicnum;
                     continue;
                 }
 
-                wall[i].overpicnum = MIRRORLABEL + mirrorcnt;
-                wall[i].picnum = MIRRORLABEL + mirrorcnt;
-                sector[s].ceilingpicnum = MIRRORLABEL + mirrorcnt;
-                sector[s].floorpicnum = MIRRORLABEL + mirrorcnt;
-                sector[s].floorstat |= 1;
-                mirror[mirrorcnt].mirrorwall = i;
-                mirror[mirrorcnt].mirrorsector = s;
+                wal.overpicnum = MIRRORLABEL + mirrorcnt;
+                wal.picnum = MIRRORLABEL + mirrorcnt;
+                sec->ceilingpicnum = MIRRORLABEL + mirrorcnt;
+                sec->floorpicnum = MIRRORLABEL + mirrorcnt;
+                sec->floorstat |= 1;
+                mirror[mirrorcnt].mirrorWall = &wal;
+                mirror[mirrorcnt].mirrorSector = sec;
                 mirror[mirrorcnt].numspawnspots = 0;
                 mirror[mirrorcnt].ismagic = false;
-                do if (wall[i].lotag == TAG_WALL_MAGIC_MIRROR)
+                do if (wal.lotag == TAG_WALL_MAGIC_MIRROR)
                 {
                     int ii;
                     SPRITEp sp;
@@ -333,7 +333,7 @@ void JS_InitMirrors(void)
                     {
                         sp = &itActor->s();
                         // if correct type and matches
-                        if (sp->hitag == MIRROR_CAM && sp->lotag == wall[i].hitag)
+                        if (sp->hitag == MIRROR_CAM && sp->lotag == wal.hitag)
                         {
                             mirror[mirrorcnt].cameraActor = itActor;
                             // Set up camera variables
@@ -349,7 +349,7 @@ void JS_InitMirrors(void)
                         sp = &itActor->s();
 
                         // if correct type and matches
-                        if (sp->hitag == MIRROR_CAM && sp->lotag == wall[i].hitag)
+                        if (sp->hitag == MIRROR_CAM && sp->lotag == wal.hitag)
                         {
                             mirror[mirrorcnt].cameraActor = itActor;
                             // Set up camera variables
@@ -361,8 +361,8 @@ void JS_InitMirrors(void)
 
                     if (!Found_Cam)
                     {
-                        Printf("Cound not find the camera view sprite for match %d\n", wall[i].hitag);
-                        Printf("Map Coordinates: x = %d, y = %d\n", wall[i].x, wall[i].y);
+                        Printf("Cound not find the camera view sprite for match %d\n", wal.hitag);
+                        Printf("Map Coordinates: x = %d, y = %d\n", wal.x, wal.y);
                         break;
                     }
 
@@ -376,7 +376,7 @@ void JS_InitMirrors(void)
                         {
                             sp = &itActor->s();
                             if (sp->picnum >= CAMSPRITE && sp->picnum < CAMSPRITE + 8 &&
-                                sp->hitag == wall[i].hitag)
+                                sp->hitag == wal.hitag)
                             {
                                 mirror[mirrorcnt].campic = sp->picnum;
                                 mirror[mirrorcnt].camspriteActor = itActor;
@@ -391,8 +391,8 @@ void JS_InitMirrors(void)
                         if (!Found_Cam)
                         {
                             Printf("Did not find drawtotile for camera number %d\n", mirrorcnt);
-                            Printf("wall[%d].hitag == %d\n", i, wall[i].hitag);
-                            Printf("Map Coordinates: x = %d, y = %d\n", wall[i].x, wall[i].y);
+                            Printf("wall[%d].hitag == %d\n", i, wal.hitag);
+                            Printf("Map Coordinates: x = %d, y = %d\n", wal.x, wal.y);
                             RESET_BOOL1(&mirror[mirrorcnt].cameraActor->s());
                         }
                     }
@@ -414,19 +414,17 @@ void JS_InitMirrors(void)
                 mirrorcnt++;
             }
             else
-                wall[i].overpicnum = sector[s].ceilingpicnum;
+                wal.overpicnum = sec->ceilingpicnum;
         }
     }
 
     // Invalidate textures in sector behind mirror
     for (i = 0; i < mirrorcnt; i++)
     {
-        startwall = sector[mirror[i].mirrorsector].wallptr;
-        endwall = startwall + sector[mirror[i].mirrorsector].wallnum;
-        for (j = startwall; j < endwall; j++)
+        for (auto& wal : wallsofsector(mirror[i].mirrorSector))
         {
-            wall[j].picnum = MIRROR;
-            wall[j].overpicnum = MIRROR;
+            wal.picnum = MIRROR;
+            wal.overpicnum = MIRROR;
         }
     }
 
@@ -546,8 +544,8 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz, double smoothratio)
 
                 if (bIsWallMirror)
                 {
-                    j = abs(wall[mirror[cnt].mirrorwall].x - tx);
-                    j += abs(wall[mirror[cnt].mirrorwall].y - ty);
+                    j = abs(mirror[cnt].mirrorWall->x - tx);
+                    j += abs(mirror[cnt].mirrorWall->y - ty);
                     if (j < dist)
                         dist = j;
                 }
@@ -570,17 +568,14 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz, double smoothratio)
 
 
                 ASSERT(mirror[cnt].cameraActor != nullptr);
-
                 sp = &mirror[cnt].cameraActor->s();
 
-                ASSERT(sp);
-
                 // Calculate the angle of the mirror wall
-                w = mirror[cnt].mirrorwall;
+                auto wal = mirror[cnt].mirrorWall;
 
                 // Get wall midpoint for offset in mirror view
-                midx = (wall[w].x + wall[w].point2Wall()->x) / 2;
-                midy = (wall[w].y + wall[w].point2Wall()->y) / 2;
+                midx = (wal->x + wal->point2Wall()->x) / 2;
+                midy = (wal->y + wal->point2Wall()->y) / 2;
 
                 // Finish finding offsets
                 tdx = abs(midx - tx);

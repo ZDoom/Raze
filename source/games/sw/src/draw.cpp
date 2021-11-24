@@ -1349,10 +1349,10 @@ void UpdateWallPortalState()
     // This is too obtuse to be maintained statically, but with 8 mirrors at most easy to be kept up to date.
     for (int i = 0; i < mirrorcnt; i++)
     {
-        if (mirror[i].mirrorwall < 0) {
+        if (mirror[i].mirrorWall == nullptr) {
             continue;
         }
-        walltype* wal = &wall[mirror[i].mirrorwall];
+         walltype* wal = mirror[i].mirrorWall;
         if (wal->picnum != MIRRORLABEL + i)
         {
             wal->portalflags = 0;

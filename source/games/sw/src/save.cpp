@@ -969,8 +969,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, MIRRORTYPE& w, MIR
 	}
 	if (arc.BeginObject(keyname))
 	{
-		arc("mirrorwall", w.mirrorwall, def->mirrorwall)
-			("mirrorsector", w.mirrorsector, def->mirrorsector)
+		arc("mirrorwall", w.mirrorWall, def->mirrorWall)
+			("mirrorsector", w.mirrorSector, def->mirrorSector)
 			("camera", w.cameraActor, def->cameraActor)
 			("camsprite", w.camspriteActor, def->camspriteActor)
 			("campic", w.campic, def->campic)

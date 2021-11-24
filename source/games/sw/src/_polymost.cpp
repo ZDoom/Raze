@@ -213,8 +213,8 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fixed_t tpq16ang, fixed
 
                 if (bIsWallMirror)
                 {
-                    j = abs(wall[mirror[cnt].mirrorwall].x - tx);
-                    j += abs(wall[mirror[cnt].mirrorwall].y - ty);
+                    j = abs(mirror[cnt].mirrorWall->x - tx);
+                    j += abs(mirror[cnt].mirrorWall->y - ty);
                     if (j < dist)
                         dist = j;
                 }
@@ -243,11 +243,11 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fixed_t tpq16ang, fixed
                     sp = &mirror[cnt].cameraActor->s();
 
                     // Calculate the angle of the mirror wall
-                    w = mirror[cnt].mirrorwall;
+                    auto wal = mirror[cnt].mirrorWall;
 
                     // Get wall midpoint for offset in mirror view
-                    midx = (wall[w].x + wall[w].point2Wall()->x) / 2;
-                    midy = (wall[w].y + wall[w].point2Wall()->y) / 2;
+                    midx = (wal->x + wal->point2Wall()->x) / 2;
+                    midy = (wal->y + wal->point2Wall()->y) / 2;
 
                     // Finish finding offsets
                     tdx = abs(midx - tx);
@@ -302,9 +302,9 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fixed_t tpq16ang, fixed
                     // completemirror after drawrooms
 					display_mirror = true;
                     renderPrepareMirror(tx, ty, tz, tpq16ang, tpq16horiz,
-                                  mirror[cnt].mirrorwall, /*mirror[cnt].mirrorsector,*/ &tposx, &tposy, &tang);
+                                  wallnum(mirror[cnt].mirrorWall), /*mirror[cnt].mirrorsector,*/ &tposx, &tposy, &tang);
 
-                    renderDrawRoomsQ16(tposx, tposy, tz, (tang), tpq16horiz, mirror[cnt].mirrorsector, true);
+                    renderDrawRoomsQ16(tposx, tposy, tz, (tang), tpq16horiz, sectnum(mirror[cnt].mirrorSector), true);
 
                     analyzesprites(pm_tsprite, pm_spritesortcnt, tposx, tposy, tz, tang >> 16);
                     renderDrawMasks();
@@ -313,14 +313,9 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fixed_t tpq16ang, fixed
 					display_mirror = false;
                 }
 
-
-                // g_visibility = tvisibility;
-                // g_visibility = NormalVisibility;
-
-                // renderDrawRoomsQ16(tx, ty, tz, tpq16ang, tpq16horiz, pp->cursectnum);
                 // Clean up anything that the camera view might have done
 				tileDelete(MIRROR);
-                wall[mirror[cnt].mirrorwall].overpicnum = MIRRORLABEL + cnt;
+                mirror[cnt].mirrorWall->overpicnum = MIRRORLABEL + cnt;
             }
             else
                 mirrorinview = false;
