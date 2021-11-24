@@ -804,8 +804,8 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
         if (SectorInBounds)
         {
             auto sect = &sector[k];
-            sop->sector[sop->num_sectors] = k;
             sop->sectp[sop->num_sectors] = sect;
+            sop->sectp[sop->num_sectors+1] = nullptr;
 
             // all sectors in sector object have this flag set - for colision
             // detection and recognition
@@ -827,7 +827,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
             sop->num_sectors++;
         }
 
-        ASSERT((uint16_t)sop->num_sectors < SIZ(SectorObject[0].sector));
+        ASSERT((uint16_t)sop->num_sectors < SIZ(SectorObject[0].sectp));
     }
 
     //
@@ -959,7 +959,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
                     // true
                     for (j = 0; j < sop->num_sectors; j++)
                     {
-                        if (sop->sector[j] == sp->sectnum)
+                        if (sop->sectp[j] == sp->sector())
                         {
                             SET(u->Flags, SPR_ON_SO_SECTOR);
                             u->sz = sp->sector()->floorz - sp->z;
@@ -1416,6 +1416,7 @@ SECTOR_OBJECTp PlayerOnObject(short sectnum_match)
 {
     short i, j;
     SECTOR_OBJECTp sop;
+    auto match = &sector[sectnum_match];
 
     // place each sector object on the track
     //for (i = 0; !SO_EMPTY(&SectorObject[i]) && (i < MAX_SECTOR_OBJECTS); i++)
@@ -1428,7 +1429,7 @@ SECTOR_OBJECTp PlayerOnObject(short sectnum_match)
 
         for (j = 0; j < sop->num_sectors; j++)
         {
-            if (sop->sector[j] == sectnum_match && TEST(sector[sectnum_match].extra, SECTFX_OPERATIONAL))
+            if (sop->sectp[j] == match && TEST(match->extra, SECTFX_OPERATIONAL))
             {
                 return sop;
             }
@@ -1457,11 +1458,11 @@ void PlaceSectorObjectsOnTracks(void)
 
         // save off the original x and y locations of the walls AND sprites
         sop->num_walls = 0;
-        for (j = 0; sop->sector[j] != -1; j++)
+        for (j = 0; sop->sectp[j] != nullptr; j++)
         {
 
             // move all walls in sectors
-            for (auto& wal : wallsofsector(sop->sector[j]))
+            for (auto& wal : wallsofsector(sop->sectp[j]))
             {
                 sop->xorig[sop->num_walls] = sop->xmid - wal.x;
                 sop->yorig[sop->num_walls] = sop->ymid - wal.y;
@@ -1747,7 +1748,7 @@ PlayerPart:
             }
 
             // move the player
-            if (sectnum(pp->lo_sectp) == sop->sector[j])
+            if (pp->lo_sectp == sop->sectp[j])
             {
                 if (PlayerMove)
                     MovePlayer(pp, sop, nx, ny);
@@ -2166,38 +2167,35 @@ void CallbackSOsink(ANIMp ap, void *data)
     SECTOR_OBJECTp sop;
     SPRITEp sp;
     USERp u;
-    int dest_sector = -1;
-    int src_sector = -1;
     int i, ndx;
     bool found = false;
     int tgt_depth;
+    sectortype* srcsect = nullptr;
+    sectortype* destsect = nullptr;
 
     sop = (SECTOR_OBJECTp)data;
 
-    for (i = 0; sop->sector[i] != -1; i++)
+    for (i = 0; sop->sectp[i] != nullptr; i++)
     {
         if (sop->sectp[i]->hasU() && TEST(sop->sectp[i]->flags, SECTFU_SO_SINK_DEST))
         {
-            src_sector = sop->sector[i];
+            srcsect = sop->sectp[i];
             break;
         }
     }
 
-    ASSERT(src_sector != -1);
+    ASSERT(srcsect != nullptr);
 
-    for (i = 0; sop->sector[i] != -1; i++)
+    for (i = 0; sop->sectp[i] != nullptr; i++)
     {
-        if (ap->animtype == ANIM_Floorz && ap->animindex == sop->sector[i])
+        if (ap->animtype == ANIM_Floorz && ap->animindex == sectnum(sop->sectp[i]))
         {
-            dest_sector = sop->sector[i];
+            destsect = sop->sectp[i];
             break;
         }
     }
 
-    ASSERT(dest_sector != -1);
-
-    auto srcsect = &sector[src_sector];
-    auto destsect = &sector[dest_sector];
+    ASSERT(destsect != nullptr);
 
     destsect->floorpicnum = srcsect->floorpicnum;
     destsect->floorshade = srcsect->floorshade;
@@ -2208,11 +2206,11 @@ void CallbackSOsink(ANIMp ap, void *data)
 
     tgt_depth = FixedToInt(srcsect->depth_fixed);
 
-    for (int sectnum = 0; sectnum < numsectors; sectnum++)
+    for(auto& sect : sectors())
     {
-        if (sectnum == dest_sector)
+        if (&sect == destsect)
         {
-            ndx = AnimSet(ANIM_SUdepth, dest_sector, nullptr, IntToFixed(tgt_depth), (ap->vel << 8) >> 8);
+            ndx = AnimSet(ANIM_SUdepth, destsect, IntToFixed(tgt_depth), (ap->vel << 8) >> 8);
             AnimSetVelAdj(ndx, ap->vel_adj);
             found = true;
             break;
@@ -2221,7 +2219,7 @@ void CallbackSOsink(ANIMp ap, void *data)
 
     ASSERT(found);
 
-    SWSectIterator it(dest_sector);
+    SWSectIterator it(destsect);
     while (auto actor = it.Next())
     {
         sp = &actor->s();
@@ -2457,19 +2455,19 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
         case TRACK_SO_SINK:
         {
             SECTORp *sectp;
-            short dest_sector = -1;
+            sectortype* dest_sector = nullptr;
             short i,ndx;
 
-            for (i = 0; sop->sector[i] != -1; i++)
+            for (i = 0; sop->sectp[i] != nullptr; i++)
             {
                 if (sop->sectp[i]->hasU() && TEST(sop->sectp[i]->flags, SECTFU_SO_SINK_DEST))
                 {
-                    dest_sector = sop->sector[i];
+                    dest_sector = sop->sectp[i];
                     break;
                 }
             }
 
-            ASSERT(dest_sector != -1);
+            ASSERT(dest_sector != nullptr);
 
             sop->bob_speed = 0;
             sop->bob_sine_ndx = 0;
@@ -2483,7 +2481,7 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
                 if (sop->sectp[i]->hasU() && TEST(sop->sectp[i]->flags, SECTFU_SO_DONT_SINK))
                     continue;
 
-                ndx = AnimSet(ANIM_Floorz, *sectp, sector[dest_sector].floorz, tpoint->tag_high);
+                ndx = AnimSet(ANIM_Floorz, *sectp, dest_sector->floorz, tpoint->tag_high);
                 AnimSetCallback(ndx, CallbackSOsink, sop);
                 AnimSetVelAdj(ndx, 6);
             }
@@ -2630,9 +2628,9 @@ void DoTrack(SECTOR_OBJECTp sop, short locktics, int *nx, int *ny)
             else
             {
                 // churn through sectors setting their new z values
-                for (i = 0; sop->sector[i] != -1; i++)
+                for (i = 0; sop->sectp[i] != nullptr; i++)
                 {
-                    AnimSet(ANIM_Floorz, sop->sector[i], nullptr, dz - (sop->mid_sector->floorz - sector[sop->sector[i]].floorz), sop->z_rate);
+                    AnimSet(ANIM_Floorz, sop->sectp[i], dz - (sop->mid_sector->floorz - sop->sectp[i]->floorz), sop->z_rate);
                 }
             }
         }

@@ -1633,7 +1633,6 @@ struct SECTOR_OBJECTstruct
 #define MAX_SO_SPRITE 60
 #define MAX_CLIPBOX 32
 
-    SECTORp sectp[MAX_SO_SECTOR];
     soANIMATORp PreMoveAnimator;
     soANIMATORp PostMoveAnimator;
     soANIMATORp Animator;
@@ -1651,7 +1650,9 @@ struct SECTOR_OBJECTstruct
 	DSWActor* match_event_actor; // spritenum of the match event sprite
 
     sectortype*
-        mid_sector;     // middle sector
+        sectp[MAX_SO_SECTOR],
+        *scratch,           // Just a filler to account for shitty loop tests.
+        *mid_sector;     // middle sector
 
 
     int    vel,            // velocity
@@ -1680,8 +1681,7 @@ struct SECTOR_OBJECTstruct
            drive_slide,
            crush_z,
            op_main_sector, // main sector operational SO moves in - for speed purposes
-           flags,
-           sector[MAX_SO_SECTOR];     // hold the sector numbers of the sector object
+           flags;
 
     int16_t xorig[MAX_SO_POINTS],   // save the original x & y location of each wall so it can be
             yorig[MAX_SO_POINTS],   // refreshed
