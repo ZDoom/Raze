@@ -72,10 +72,6 @@ void pWeaponForceRest(PLAYERp pp);
 
 extern bool NoMeters;
 
-#define TEST_UNDERWATER(pp) (TEST(sector[(pp)->cursectnum].extra, SECTFX_UNDERWATER))
-
-//#define PLAYER_MIN_HEIGHT (Z(30))
-//#define PLAYER_MIN_HEIGHT_JUMP (Z(20))
 #define PLAYER_MIN_HEIGHT (Z(20))
 #define PLAYER_CRAWL_WADE_DEPTH (30)
 
@@ -1597,7 +1593,7 @@ void SlipSlope(PLAYERp pp)
 {
     short ang;
 
-    if (pp->cursectnum < 0 || !pp->cursector()->hasU())
+    if (!pp->insector() || !pp->cursector()->hasU())
         return;
 
     auto sectu = pp->cursector();
@@ -1784,7 +1780,7 @@ void UpdatePlayerSprite(PLAYERp pp)
     // there are multiple death functions
     if (TEST(pp->Flags, PF_DEAD))
     {
-        ChangeActorSect(pp->Actor(), pp->cursectnum);
+        ChangeActorSect(pp->Actor(), pp->cursector());
         sp->ang = pp->angle.ang.asbuild();
         UpdatePlayerUnderSprite(pp);
         return;
@@ -1793,24 +1789,24 @@ void UpdatePlayerSprite(PLAYERp pp)
     if (pp->sop_control)
     {
         sp->z = pp->cursector()->floorz;
-        ChangeActorSect(pp->Actor(), pp->cursectnum);
+        ChangeActorSect(pp->Actor(), pp->cursector());
     }
     else if (pp->DoPlayerAction == DoPlayerCrawl)
     {
         sp->z = pp->posz + PLAYER_CRAWL_HEIGHT;
-        ChangeActorSect(pp->Actor(), pp->cursectnum);
+        ChangeActorSect(pp->Actor(), pp->cursector());
     }
 #if 0
     else if (pp->DoPlayerAction == DoPlayerSwim)
     {
         sp->z = pp->loz - Z(pp->WadeDepth) + Z(1);
-        ChangeActorSect(pp->Actor(), pp->cursectnum);
+        ChangeActorSect(pp->Actor(), pp->cursector());
     }
 #endif
     else if (pp->DoPlayerAction == DoPlayerWade)
     {
         sp->z = pp->posz + PLAYER_HEIGHT;
-        ChangeActorSect(pp->Actor(), pp->cursectnum);
+        ChangeActorSect(pp->Actor(), pp->cursector());
 
         if (pp->WadeDepth > Z(29))
         {
@@ -1821,7 +1817,7 @@ void UpdatePlayerSprite(PLAYERp pp)
     {
         // bobbing and sprite position taken care of in DoPlayerDive
         sp->z = pp->posz + Z(10);
-        ChangeActorSect(pp->Actor(), pp->cursectnum);
+        ChangeActorSect(pp->Actor(), pp->cursector());
     }
     else if (pp->DoPlayerAction == DoPlayerClimb)
     {
@@ -1831,7 +1827,7 @@ void UpdatePlayerSprite(PLAYERp pp)
         //sp->x += MOVEx(256+64, sp->ang);
         //sp->y += MOVEy(256+64, sp->ang);
 
-        ChangeActorSect(pp->Actor(), pp->cursectnum);
+        ChangeActorSect(pp->Actor(), pp->cursector());
     }
     else if (pp->DoPlayerAction == DoPlayerFly)
     {
@@ -1840,22 +1836,22 @@ void UpdatePlayerSprite(PLAYERp pp)
         //sp->z = pp->posz + PLAYER_HEIGHT;
         //DoPlayerSpriteBob(pp, PLAYER_HEIGHT, PLAYER_FLY_BOB_AMT, 3);
         DoPlayerSpriteBob(pp, PLAYER_HEIGHT, Z(6), 3);
-        ChangeActorSect(pp->Actor(), pp->cursectnum);
+        ChangeActorSect(pp->Actor(), pp->cursector());
     }
     else if (pp->DoPlayerAction == DoPlayerJump || pp->DoPlayerAction == DoPlayerFall || pp->DoPlayerAction == DoPlayerForceJump)
     {
         sp->z = pp->posz + PLAYER_HEIGHT;
-        ChangeActorSect(pp->Actor(), pp->cursectnum);
+        ChangeActorSect(pp->Actor(), pp->cursector());
     }
     else if (pp->DoPlayerAction == DoPlayerTeleportPause)
     {
         sp->z = pp->posz + PLAYER_HEIGHT;
-        ChangeActorSect(pp->Actor(), pp->cursectnum);
+        ChangeActorSect(pp->Actor(), pp->cursector());
     }
     else
     {
         sp->z = pp->loz;
-        ChangeActorSect(pp->Actor(), pp->cursectnum);
+        ChangeActorSect(pp->Actor(), pp->cursector());
     }
 
     UpdatePlayerUnderSprite(pp);
@@ -1968,7 +1964,7 @@ void DoPlayerSlide(PLAYERp pp)
 
 void PlayerCheckValidMove(PLAYERp pp)
 {
-    if (pp->cursectnum == -1)
+    if (!pp->insector())
     {
         static int count = 0;
 
@@ -1987,7 +1983,7 @@ void PlayerCheckValidMove(PLAYERp pp)
 
 void PlayerSectorBound(PLAYERp pp, int amt)
 {
-    if (pp->cursectnum < 9)
+    if (!pp->insector())
         return;
 
     int cz,fz;
@@ -2229,7 +2225,7 @@ void DoPlayerSectorUpdatePostMove(PLAYERp pp)
         updatesectorz(pp->posx, pp->posy, pp->posz, &pp->cursectnum);
 
         // can mess up if below
-        if (pp->cursectnum < 0)
+        if (!pp->insector())
         {
             pp->cursectnum = sectnum;
 
@@ -3362,7 +3358,7 @@ void DoPlayerClimb(PLAYERp pp)
 
     // setsprite to players location
     sp->z = pp->posz + PLAYER_HEIGHT;
-    ChangeActorSect(pp->Actor(), pp->cursectnum);
+    ChangeActorSect(pp->Actor(), pp->cursector());
 
     if (!SyncInput())
     {
@@ -4301,7 +4297,7 @@ void DoPlayerBeginDiveNoWarp(PLAYERp pp)
     if (Prediction)
         return;
 
-    if (pp->cursectnum < 0 || !SectorIsUnderwaterArea(pp->cursectnum))
+    if (!pp->insector() || !SectorIsUnderwaterArea(pp->cursectnum))
         return;
 
     if (pp->Bloody) pp->Bloody = false; // Water washes away the blood
@@ -4443,7 +4439,7 @@ void DoPlayerDive(PLAYERp pp)
     auto sectu = pp->cursector();
 
     // whenever your view is not in a water area
-    if (pp->cursectnum < 0 || !SectorIsUnderwaterArea(pp->cursectnum))
+    if (!pp->insector() || !SectorIsUnderwaterArea(pp->cursectnum))
     {
         DoPlayerStopDiveNoWarp(pp);
         DoPlayerBeginRun(pp);
@@ -6265,12 +6261,10 @@ void DoPlayerDeathExplode(PLAYERp pp)
     else
     {
         // special line for amoeba
-        //updatesector(pp->posx, pp->posy, &pp->cursectnum);
 
         DoPlayerDeathCheckKick(pp);
         DoPlayerDeathHurl(pp);
         DoPlayerDeathFollowKiller(pp);
-        //pp->posz = pp->loz - PLAYER_DEATH_HEIGHT;
     }
 
     DoPlayerDeathCheckKeys(pp);
@@ -6855,8 +6849,6 @@ void InitAllPlayers(void)
     extern bool NewGame;
     //int fz,cz;
 
-    //getzsofslope(pfirst->cursectnum, pfirst->posx, pfirst->posy, &cz, &fz);
-    //pfirst->posz = fz - PLAYER_HEIGHT;
     pfirst->horizon.horiz = q16horiz(0);
 
     // Initialize all [MAX_SW_PLAYERS] arrays here!

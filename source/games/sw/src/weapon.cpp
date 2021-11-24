@@ -11838,7 +11838,7 @@ void InitSpellRing(PLAYERp pp)
     if (!SW_SHAREWARE)
         PlaySound(DIGI_RFWIZ, pp, v3df_none);
 
-    if (pp->cursectnum < 0)
+    if (!pp->insector())
         return;
 
     for (missiles = 0, ang = ang_start; missiles < max_missiles; ang += ang_diff, missiles++)
@@ -12219,7 +12219,7 @@ void InitSpellNapalm(PLAYERp pp)
 
     PlaySound(DIGI_NAPFIRE, pp, v3df_none);
 
-    if (pp->cursectnum < 0)
+    if (!pp->insector())
         return;
 
     for (i = 0; i < SIZ(mp); i++)
@@ -12373,7 +12373,7 @@ int InitSpellMirv(PLAYERp pp)
 
     PlaySound(DIGI_MIRVFIRE, pp, v3df_none);
 
-    if (pp->cursectnum < 0)
+    if (!pp->insector())
         return 0;
 
     auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL1, s_Mirv, pp->cursector(),
@@ -13341,7 +13341,7 @@ int InitStar(PLAYERp pp)
 
     PlaySound(DIGI_STAR, pp, v3df_dontpan|v3df_doppler);
 
-    if (pp->cursectnum < 0)
+    if (!pp->insector())
         return 0;
 
     nx = pp->posx;
@@ -13458,7 +13458,7 @@ void InitHeartAttack(PLAYERp pp)
 
     PlayerUpdateAmmo(pp, WPN_HEART, -1);
 
-    if (pp->cursectnum < 0)
+    if (!pp->insector())
         return;
 
     auto actorNew = SpawnActor(STAT_MISSILE_SKIP4, BLOOD_WORM, s_BloodWorm, pp->cursector(),
@@ -13764,7 +13764,7 @@ int InitLaser(PLAYERp pp)
     PlayerUpdateAmmo(pp, u->WeaponNum, -1);
     PlaySound(DIGI_RIOTFIRE, pp, v3df_dontpan|v3df_doppler);
 
-    if (pp->cursectnum < 0)
+    if (!pp->insector())
         return 0;
 
     nx = pp->posx;
@@ -13873,7 +13873,7 @@ int InitRail(PLAYERp pp)
     // Make sprite shade brighter
     u->Vis = 128;
 
-    if (pp->cursectnum < 0)
+    if (!pp->insector())
         return 0;
 
     nx = pp->posx;
@@ -14054,7 +14054,7 @@ int InitRocket(PLAYERp pp)
     // Make sprite shade brighter
     u->Vis = 128;
 
-    if (pp->cursectnum < 0)
+    if (!pp->insector())
         return 0;
 
     nx = pp->posx;
@@ -14167,7 +14167,7 @@ int InitBunnyRocket(PLAYERp pp)
 
     PlaySound(DIGI_BUNNYATTACK, pp, v3df_dontpan|v3df_doppler);
 
-    if (pp->cursectnum < 0)
+    if (!pp->insector())
         return 0;
 
     nx = pp->posx;
@@ -14276,7 +14276,7 @@ int InitNuke(PLAYERp pp)
     // Make sprite shade brighter
     u->Vis = 128;
 
-    if (pp->cursectnum < 0)
+    if (!pp->insector())
         return 0;
 
     nx = pp->posx;
@@ -14457,7 +14457,7 @@ int InitMicro(PLAYERp pp)
     if (TargetSortCount > MAX_MICRO)
         TargetSortCount = MAX_MICRO;
 
-    if (pp->cursectnum < 0)
+    if (!pp->insector())
         return 0;
 
     for (i = 0; i < MAX_MICRO; i++)
@@ -15810,7 +15810,7 @@ int DoDefaultStat(DSWActor* actor)
 
 int InitTracerUzi(PLAYERp pp)
 {
-    if (pp->cursectnum < 0)
+    if (!pp->insector())
         return 0;
 
     USERp u = pp->Actor()->u();
@@ -16604,7 +16604,7 @@ int InitTurretRail(DSWActor* actor, PLAYERp pp)
 
     if (SW_SHAREWARE) return false; // JBF: verify
 
-    if (pp->cursectnum < 0)
+    if (!pp->insector())
         return 0;
 
     nx = sp->x;
@@ -16660,7 +16660,7 @@ int InitTurretLaser(DSWActor* actor, PLAYERp pp)
 
     if (SW_SHAREWARE) return false; // JBF: verify
 
-    if (pp->cursectnum < 0)
+    if (!pp->insector())
         return 0;
 
     nx = sp->x;
@@ -17418,7 +17418,7 @@ int InitGrenade(PLAYERp pp)
     // Make sprite shade brighter
     u->Vis = 128;
 
-    if (pp->cursectnum < 0)
+    if (!pp->insector())
         return 0;
 
     nx = pp->posx;
@@ -17576,7 +17576,7 @@ int InitMine(PLAYERp pp)
 
     PlaySound(DIGI_MINETHROW, pp, v3df_dontpan|v3df_doppler);
 
-    if (pp->cursectnum < 0)
+    if (!pp->insector())
         return 0;
 
     nx = pp->posx;
@@ -17723,7 +17723,7 @@ int InitFireball(PLAYERp pp)
     // Make sprite shade brighter
     u->Vis = 128;
 
-    if (pp->cursectnum < 0)
+    if (!pp->insector())
         return 0;
 
     nx += pp->posx;

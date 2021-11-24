@@ -1878,7 +1878,7 @@ void OperateTripTrigger(PLAYERp pp)
     if (Prediction)
         return;
 
-    if (pp->cursectnum < 0)
+    if (!pp->insector())
         return;
 
     SECTORp sectp = pp->cursector();
@@ -2014,7 +2014,7 @@ void OperateContinuousTrigger(PLAYERp pp)
     if (Prediction)
         return;
 
-    if (pp->cursectnum < 0)
+    if (!pp->insector())
         return;
 
     switch (pp->cursector()->lotag)

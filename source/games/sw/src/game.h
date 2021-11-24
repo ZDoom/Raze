@@ -787,6 +787,7 @@ struct PLAYERstruct
 
     int cursectnum,lastcursectnum;
     sectortype* cursector() { return cursectnum < 0? nullptr : &sector[cursectnum]; }
+    bool insector() const { return cursectnum >= 0; }
     fixed_t turn180_target; // 180 degree turn
 
     // variables that do not fit into sprite structure

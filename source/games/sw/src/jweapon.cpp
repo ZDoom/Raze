@@ -1306,7 +1306,7 @@ int PlayerInitChemBomb(PLAYERp pp)
 
     PlaySound(DIGI_THROW, pp, v3df_dontpan | v3df_doppler);
 
-    if (pp->cursectnum < 0)
+    if (!pp->insector())
         return 0;
 
     nx = pp->posx;
@@ -1731,7 +1731,7 @@ int PlayerInitCaltrops(PLAYERp pp)
 
     PlaySound(DIGI_THROW, pp, v3df_dontpan | v3df_doppler);
 
-    if (pp->cursectnum < 0)
+    if (!pp->insector())
         return 0;
 
     nx = pp->posx;
