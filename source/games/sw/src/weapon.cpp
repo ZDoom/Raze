@@ -8417,8 +8417,8 @@ bool SlopeBounce(DSWActor* actor, bool *hit_wall)
         *hit_wall = false;
 
     // get angle of the first wall of the sector
-    k = sector[hit_sector].wallptr;
-    daang = getangle(wall[k].delta());
+    auto wallp = sector[hit_sector].firstWall();
+    daang = getangle(wallp->delta());
 
     // k is now the slope of the ceiling or floor
 

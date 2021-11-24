@@ -1567,58 +1567,6 @@ void PreMapCombineFloors(void)
     }
 }
 
-#if 0
-// example of way to traverse through sectors from closest to farthest
-void TraverseSectors(short start_sect)
-{
-    int i, j, k;
-    short sectlist[M AXSECTORS];
-    short sectlistplc, sectlistend, sect, startwall, endwall, nextSector;
-
-    sectlist[0] = start_sect;
-    sectlistplc = 0; sectlistend = 1;
-    while (sectlistplc < sectlistend)
-    {
-        sect = sectlist[sectlistplc++];
-
-        startwall = sector[sect].wallptr;
-        endwall = startwall + sector[sect].wallnum;
-
-        for (j=startwall; j<endwall; j++)
-        {
-            nextSector = wall[j].nextSector;
-
-            if (nextSector < 0)
-                continue;
-
-            // make sure its not on the list
-            for (k = sectlistend-1; k >= 0; k--)
-            {
-                if (sectlist[k] == nextSector)
-                    break;
-            }
-
-            // if its not on the list add it to the end
-            if (k < 0)
-                sectlist[sectlistend++] = nextSector;
-        }
-
-    }
-
-    // list is finished - can now traverse it
-#if 0
-    sect = pp->cursectnum;
-    for (j=0; j<sectlistend; j++)
-    {
-        if (sectlist[j] == sect)
-        {
-            break;
-        }
-    }
-#endif
-}
-#endif
-
 
 void SpriteSetupPost(void)
 {
@@ -2259,27 +2207,21 @@ void SpriteSetup(void)
                     u->WaitTics = time*15; // 1/8 of a sec
                     u->Tics = 0;
 
-                    startwall = sp->sector()->wallptr;
-                    endwall = startwall + sp->sector()->wallnum - 1;
-
-                    // count walls of sector
-                    for (w = startwall, wallcount = 0; w <= endwall; w++)
-                        wallcount++;
-
                     u->rotator.Alloc();
                     u->rotator->open_dest = SP_TAG5(sp);
                     u->rotator->speed = SP_TAG7(sp);
                     u->rotator->vel = SP_TAG8(sp);
                     u->rotator->pos = 0; // closed
                     u->rotator->tgt = u->rotator->open_dest; // closed
-                    u->rotator->SetNumWalls(wallcount);
+                    u->rotator->SetNumWalls(sp->sector()->wallnum);
 
                     u->rotator->orig_speed = u->rotator->speed;
 
-                    for (w = startwall, wallcount = 0; w <= endwall; w++)
+                    wallcount = 0;
+                    for(auto& wal : wallsofsector(sp->sector()))
                     {
-                        u->rotator->origX[wallcount] = wall[w].x;
-                        u->rotator->origY[wallcount] = wall[w].y;
+                        u->rotator->origX[wallcount] = wal.x;
+                        u->rotator->origY[wallcount] = wal.y;
                         wallcount++;
                     }
 
