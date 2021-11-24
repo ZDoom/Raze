@@ -232,10 +232,6 @@ void DoSlidorInterp(DSWActor* actor, INTERP_FUNC interp_func)
     auto wal = startWall;
     do
     {
-        auto pwal = wal - 1;
-        if (wal < startWall)
-            pwal = endWall;
-
         EInterpolationType type = Interp_Invalid;;
         switch (wal->lotag)
         {
@@ -250,6 +246,10 @@ void DoSlidorInterp(DSWActor* actor, INTERP_FUNC interp_func)
         }
         if (type != Interp_Invalid)
         {
+            auto pwal = wal - 1;
+            if (wal < startWall) // original code - this makes no sense as in a correctly formed sector this condition is never true.
+                pwal = endWall;
+
             // prev wall
             if (!wal->twoSided())
             {
@@ -277,12 +277,13 @@ void DoSlidorInterp(DSWActor* actor, INTERP_FUNC interp_func)
 
 int DoSlidorMoveWalls(DSWActor* actor, int amt)
 {
-    auto sp = &actor->s();
-    short w, pw, startwall, endwall;
+    auto sp = actor->s().sector();
 
-    w = startwall = sp->sector()->wallptr;
-    endwall = startwall + sp->sector()->wallnum - 1;
-    auto wal = &wall[w];
+    // this code is just weird.
+    auto startWall = sp->firstWall();
+    auto endWall = sp->lastWall();
+    auto wal = startWall;
+    walltype* pwal;
 
     do
     {
@@ -291,23 +292,23 @@ int DoSlidorMoveWalls(DSWActor* actor, int amt)
         case TAG_WALL_SLIDOR_LEFT:
 
             // prev wall
-            pw = w - 1;
-            if (w < startwall)
-                pw = endwall;
+            pwal = wal - 1;
+            if (wal < startWall) // original code - this makes no sense as in a correctly formed sector this condition is never true.
+                pwal = endWall;
 
             if (!wal->twoSided())
             {
                 // white wall - move 4 points
                 wal->x -= amt;
-                wall[pw].x -= amt;
+                pwal->x -= amt;
                 wal->point2Wall()->x -= amt;
                 wal->point2Wall()->point2Wall()->x -= amt;
             }
             else
             {
                 // red wall - move 2 points
-                dragpoint(w, wal->x - amt, wal->y);
-                dragpoint(wal->point2, wal->point2Wall()->x - amt, wal->point2Wall()->y);
+                dragpoint(wal, wal->x - amt, wal->y);
+                dragpoint(wal->point2Wall(), wal->point2Wall()->x - amt, wal->point2Wall()->y);
             }
 
             break;
@@ -315,23 +316,23 @@ int DoSlidorMoveWalls(DSWActor* actor, int amt)
         case TAG_WALL_SLIDOR_RIGHT:
 
             // prev wall
-            pw = w - 1;
-            if (w < startwall)
-                pw = endwall;
+            pwal = wal - 1;
+            if (wal < startWall) // original code - this makes no sense as in a correctly formed sector this condition is never true.
+                pwal = endWall;
 
             if (!wal->twoSided())
             {
                 // white wall - move 4 points
                 wal->x += amt;
-                wall[pw].x += amt;
+                pwal->x += amt;
                 wal->point2Wall()->x += amt;
                 wal->point2Wall()->point2Wall()->x += amt;
             }
             else
             {
                 // red wall - move 2 points
-                dragpoint(w, wal->x + amt, wal->y);
-                dragpoint(wal->point2, wal->point2Wall()->x + amt, wal->point2Wall()->y);
+                dragpoint(wal, wal->x + amt, wal->y);
+                dragpoint(wal->point2Wall(), wal->point2Wall()->x + amt, wal->point2Wall()->y);
             }
 
             break;
@@ -339,21 +340,21 @@ int DoSlidorMoveWalls(DSWActor* actor, int amt)
         case TAG_WALL_SLIDOR_UP:
 
             // prev wall
-            pw = w - 1;
-            if (w < startwall)
-                pw = endwall;
+            pwal = wal - 1;
+            if (wal < startWall) // original code - this makes no sense as in a correctly formed sector this condition is never true.
+                pwal = endWall;
 
             if (!wal->twoSided())
             {
                 wal->y -= amt;
-                wall[pw].y -= amt;
+                pwal->y -= amt;
                 wal->point2Wall()->y -= amt;
                 wal->point2Wall()->point2Wall()->y -= amt;
             }
             else
             {
-                dragpoint(w, wal->x, wal->y - amt);
-                dragpoint(wal->point2, wal->point2Wall()->x, wal->point2Wall()->y - amt);
+                dragpoint(wal, wal->x, wal->y - amt);
+                dragpoint(wal->point2Wall(), wal->point2Wall()->x, wal->point2Wall()->y - amt);
             }
 
             break;
@@ -361,31 +362,31 @@ int DoSlidorMoveWalls(DSWActor* actor, int amt)
         case TAG_WALL_SLIDOR_DOWN:
 
             // prev wall
-            pw = w - 1;
-            if (w < startwall)
-                pw = endwall;
+            pwal = wal - 1;
+            if (wal < startWall) // original code - this makes no sense as in a correctly formed sector this condition is never true.
+                pwal = endWall;
 
             if (!wal->twoSided())
             {
                 wal->y += amt;
-                wall[pw].y += amt;
+                pwal->y += amt;
                 wal->point2Wall()->y += amt;
                 wal->point2Wall()->point2Wall()->y += amt;
             }
             else
             {
-                dragpoint(w, wal->x, wal->y + amt);
-                dragpoint(wal->point2, wal->point2Wall()->x, wal->point2Wall()->y + amt);
+                dragpoint(wal, wal->x, wal->y + amt);
+                dragpoint(wal->point2Wall(), wal->point2Wall()->x, wal->point2Wall()->y + amt);
             }
 
 
             break;
         }
 
-        w = wal->point2;
+
         wal = wal->point2Wall();
     }
-    while (w != startwall);
+    while (wal != startWall);
 
     return 0;
 }
