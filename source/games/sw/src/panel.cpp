@@ -6717,7 +6717,7 @@ pDisplaySprites(PLAYERp pp, double smoothratio)
         {
             sectortype* sectp = nullptr;
             int16_t floorshade = 0;
-            if (pp->cursectnum >= 0)
+            if (pp->insector())
             {
                 sectp = pp->cursector();
                 pal = sectp->floorpal;

@@ -13543,7 +13543,7 @@ int ContinueHitscan(PLAYERp pp, short sectnum, int x, int y, int z, short ang, i
             return 0;
         }
 
-        QueueHole(hitinfo.hitsect,hitinfo.hitwall,hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z);
+        QueueHole(hitinfo.sector(), hitinfo.wall(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z);
     }
 
     // hit a sprite?
@@ -13700,7 +13700,7 @@ int InitShotgun(PLAYERp pp)
                 continue;
             }
 
-            QueueHole(hitinfo.hitsect,hitinfo.hitwall,hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z);
+            QueueHole(hitinfo.sector(), hitinfo.wall(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z);
         }
 
         // hit a sprite?
@@ -16264,7 +16264,7 @@ int InitUzi(PLAYERp pp)
             return 0;
         }
 
-        QueueHole(hitinfo.hitsect,hitinfo.hitwall,hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z);
+        QueueHole(hitinfo.sector(), hitinfo.wall(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z);
     }
 
     // hit a sprite?
@@ -17201,7 +17201,7 @@ int InitTurretMgun(SECTOR_OBJECTp sop)
                     continue;
                 }
 
-                QueueHole(hitinfo.hitsect,hitinfo.hitwall,hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z);
+                QueueHole(hitinfo.sector(), hitinfo.wall(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z);
             }
 
             // hit a sprite?
@@ -17337,7 +17337,7 @@ int InitEnemyUzi(DSWActor* actor)
             return 0;
         }
 
-        QueueHole(hitinfo.hitsect,hitinfo.hitwall,hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z);
+        QueueHole(hitinfo.sector(), hitinfo.wall(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z);
     }
 
     if (hitinfo.hitactor != nullptr)
@@ -18546,19 +18546,19 @@ void QueueReset(void)
         LoWangsQueue[i] = nullptr;
 }
 
-bool TestDontStick(DSWActor* actor, short hit_wall)
+bool TestDontStick(DSWActor* actor, walltype* hit_wall)
 {
     WALLp wp;
 
-    if (hit_wall < 0)
+    if (hit_wall == nullptr)
     {
         ASSERT(actor != nullptr);
         USERp u = actor->u();
         if (u->coll.type != kHitWall) return true; // ain't got a wall here.
-        hit_wall = u->coll.index;
+        hit_wall = u->coll.wall();
     }
 
-    wp = &wall[hit_wall];
+    wp = hit_wall;
 
     if (TEST(wp->extra, WALLFX_DONT_STICK))
         return true;
@@ -18583,7 +18583,7 @@ int QueueStar(DSWActor* actor)
     SPRITEp sp = &actor->s();
     SPRITEp osp;
 
-    if (TestDontStick(actor, -1))
+    if (TestDontStick(actor, nullptr))
     {
         KillActor(actor);
         return -1;
@@ -18612,7 +18612,7 @@ int QueueStar(DSWActor* actor)
     return 0;
 }
 
-void QueueHole(short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z)
+void QueueHole(sectortype* hit_sect, walltype* hit_wall, int hit_x, int hit_y, int hit_z)
 {
     short w,nw,wall_ang;
     DSWActor* spawnedActor;
@@ -18651,7 +18651,7 @@ void QueueHole(short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z)
     SET(sp->cstat, CSTAT_SPRITE_ONE_SIDED);
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
-    wall_ang = NORM_ANGLE(getangle(wall[hit_wall].delta())+512);
+    wall_ang = NORM_ANGLE(getangle(hit_wall->delta())+512);
     sp->ang = wall_ang;
 
     // move it back some
@@ -18927,7 +18927,7 @@ DSWActor* QueueWallBlood(DSWActor* actor, short ang)
 
     if (hitinfo.hitwall >= 0)   // Don't check if blood didn't hit a wall, otherwise the ASSERT fails!
     {
-        if (TestDontStick(nullptr, hitinfo.hitwall))
+        if (TestDontStick(nullptr, hitinfo.wall()))
             return nullptr;
     }
     else
