@@ -50,11 +50,7 @@ void sndProcess(void);
 void sndTerm(void);
 void sndInit(void);
 
-void sfxPlay3DSound(int x, int y, int z, int soundId, int nSector);
-void sfxPlay3DSound(int x, int y, int z, int soundId, sectortype* pSector)
-{
-    sfxPlay3DSound(x, y, z, soundId, sectnum(pSector));
-}
+void sfxPlay3DSound(int x, int y, int z, int soundId, sectortype* pSector);
 void sfxPlay3DSound(spritetype *pSprite, int soundId, int a3 = -1, int a4 = 0);
 void sfxPlay3DSoundCP(spritetype* pSprite, int soundId, int a3 = -1, int a4 = 0, int pitch = 0, int volume = 0);
 void sfxKill3DSound(spritetype *pSprite, int a2 = -1, int a3 = -1);

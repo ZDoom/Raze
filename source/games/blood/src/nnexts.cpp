@@ -6143,10 +6143,7 @@ int useCondition(DBloodActor* sourceactor, const EVENT& event)
 
     bool srcIsCondition = false;
 
-    int objType = event.isActor() ? SS_SPRITE : event.isSector() ? SS_SECTOR : SS_WALL;
-    int objIndex = event.isActor() ? -1 : event.isSector() ? sectnum(event.getSector()) : wallnum(event.getWall());
-    auto pActor = event.isActor() ? event.getActor() : nullptr;
-
+    auto const pActor = event.isActor() ? event.getActor() : nullptr;
 
     if (event.isActor() && pActor == nullptr) return -1;
     if (event.isActor() && pActor != sourceactor)

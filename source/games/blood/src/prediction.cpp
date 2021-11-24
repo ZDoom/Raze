@@ -452,7 +452,7 @@ static void fakeMoveDude(spritetype *pSprite)
     pTempSprite->x = predict.x;
     pTempSprite->y = predict.y;
     pTempSprite->z = predict.z;
-    pTempSprite->sectnum = predict.sectnum;
+    pTempSprite-> sectnum = predict. sectnum;
     int ceilZ, floorZ;
     Collision ceilColl, floorColl;
     GetZRange(pTempSprite, &ceilZ, &ceilColl, &floorZ, &floorColl, wd, CLIPMASK0);

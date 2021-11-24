@@ -357,8 +357,7 @@ int HitScan(DBloodActor *actor, int z, int dx, int dy, int dz, unsigned int nMas
     vec3_t pos = { x, y, z };
     hitdata_t hitData;
     hitData.pos.z = gHitInfo.hitz;
-    int nSector = pSprite->sectnum;
-    hitscan(&pos, nSector, dx, dy, dz << 4, &hitData, nMask);
+    hitscan(&pos, pSprite->sectnum, dx, dy, dz << 4, &hitData, nMask);
     gHitInfo.set(&hitData);
     hitscangoal.x = hitscangoal.y = 0x1ffffff;
     pSprite->cstat = bakCstat;
@@ -406,8 +405,7 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
     vec3_t pos = { x1, y1, z1 };
     hitdata_t hitData;
     hitData.pos.z = gHitInfo.hitz;
-    int nSector = pSprite->sectnum;
-    hitscan(&pos, nSector, dx, dy, dz << 4, &hitData, CLIPMASK1);
+    hitscan(&pos, pSprite->sectnum, dx, dy, dz << 4, &hitData, CLIPMASK1);
     gHitInfo.set(&hitData);
     hitscangoal.x = hitscangoal.y = 0x1ffffff;
     pSprite->cstat = bakCstat;

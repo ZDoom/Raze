@@ -1672,18 +1672,18 @@ void playerProcess(PLAYER *pPlayer)
     int dw = pSprite->clipdist<<2;
     if (!gNoClip)
     {
-        int nSector = pSprite->sectnum;
-        if (pushmove(&pSprite->pos, &nSector, dw, dzt, dzb, CLIPMASK0) == -1)
+        auto pSector = pSprite->sector();
+        if (pushmove(&pSprite->pos, &pSector, dw, dzt, dzb, CLIPMASK0) == -1)
             actDamageSprite(actor, actor, kDamageFall, 500<<4);
-        if (pSprite->sectnum != nSector)
+        if (pSprite->sector() != pSector)
         {
-            if (nSector == -1)
+            if (pSector == nullptr)
             {
-                nSector = pSprite->sectnum;
+                pSector = pSprite->sector();
                 actDamageSprite(actor, actor, kDamageFall, 500<<4);
             }
-            assert(validSectorIndex(nSector));
-            ChangeActorSect(actor, nSector);
+            else
+                ChangeActorSect(actor, pSector);
         }
     }
     ProcessInput(pPlayer);
@@ -1751,11 +1751,10 @@ void playerProcess(PLAYER *pPlayer)
     if (pPlayer->posture == 1)
     {
         pPlayer->isUnderwater = 1;
-        int nSector = pSprite->sectnum;
-        auto link = getLowerLink(nSector);
+        auto link = pSprite->sector()->lowerLink;
         if (link && (link->s().type == kMarkerLowGoo || link->s().type == kMarkerLowWater))
         {
-            if (getceilzofslope(nSector, pSprite->x, pSprite->y) > pPlayer->zView)
+            if (getceilzofslopeptr(pSprite->sector(), pSprite->x, pSprite->y) > pPlayer->zView)
                 pPlayer->isUnderwater = 0;
         }
     }

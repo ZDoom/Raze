@@ -188,9 +188,9 @@ void warpInit(void)
 int CheckLink(DBloodActor *actor)
 {
     auto pSprite = &actor->s();
-    int nSector = pSprite->sectnum;
-    auto aUpper = getUpperLink(nSector);
-    auto aLower = getLowerLink(nSector);
+    auto pSector = pSprite->sector();
+    auto aUpper = pSector->upperLink;
+    auto aLower = pSector->lowerLink;
     if (aUpper)
     {
         spritetype* pUpper = &aUpper->s();
@@ -204,7 +204,7 @@ int CheckLink(DBloodActor *actor)
             aLower = aUpper->GetOwner();
             assert(aLower);
             spritetype *pLower = &aLower->s();
-            assert(validSectorIndex(pLower->sectnum));
+            assert(pLower->insector());
             ChangeActorSect(actor, pLower->sector());
             pSprite->x += pLower->x-pUpper->x;
             pSprite->y += pLower->y-pUpper->y;
@@ -231,7 +231,7 @@ int CheckLink(DBloodActor *actor)
             aUpper = aLower->GetOwner();
             assert(aUpper);
             spritetype *pUpper = &aUpper->s();
-			assert(validSectorIndex(pUpper->sectnum));
+            assert(pUpper->insector());
             ChangeActorSect(actor, pUpper->sector());
             pSprite->x += pUpper->x-pLower->x;
             pSprite->y += pUpper->y-pLower->y;
@@ -265,7 +265,7 @@ int CheckLink(int *x, int *y, int *z, sectortype** pSector)
             lower = upper->GetOwner();
             assert(lower);
             spritetype *pLower = &lower->s();
-			assert(validSectorIndex(pLower->sectnum));
+            assert(pLower->insector());
             *pSector = pLower->sector();
             *x += pLower->x-pUpper->x;
             *y += pLower->y-pUpper->y;

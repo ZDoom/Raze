@@ -506,7 +506,7 @@ void renderCrystalBall()
     int vd8 = pOther->pSprite->x;
     int vd4 = pOther->pSprite->y;
     int vd0 = pOther->zView;
-    int vcc = pOther->pSprite->sectnum;
+    int vcc = pOther->pSprite-> sectnum;
     int v50 = pOther->pSprite->ang;
     int v54 = 0;
     if (pOther->flickerEffect)

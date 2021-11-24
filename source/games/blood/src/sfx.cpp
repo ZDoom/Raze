@@ -148,7 +148,7 @@ FSoundID getSfx(FSoundID soundId, float &attenuation, int &pitch, int &relvol)
     return soundId;
 }
 
-void sfxPlay3DSound(int x, int y, int z, int soundId, int nSector)
+void sfxPlay3DSound(int x, int y, int z, int soundId, sectortype* pSector)
 {
     if (!SoundEnabled() || soundId < 0) return;
     auto sid = soundEngine->FindSoundByResID(soundId);
@@ -166,7 +166,7 @@ void sfxPlay3DSound(int x, int y, int z, int soundId, int nSector)
     if (sfx && sfx->LoopStart >= 0) flags |= CHANF_LOOP;
   
     auto chan = soundEngine->StartSound(SOURCE_Unattached, nullptr, &svec, -1, flags, sid, (0.8f / 80.f) * relvol, attenuation, nullptr, pitch / 65536.f);
-    if (chan) chan->UserData = nSector;
+    if (chan) chan->UserData = sectnum(pSector);
 }
 
 void sfxPlay3DSoundCP(spritetype* pSprite, int soundId, int playchannel, int playflags, int pitch, int volume)

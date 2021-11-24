@@ -226,7 +226,7 @@ void LifeLeechOperate(DBloodActor* actor, EVENT event)
                     int y = pTarget->y;
                     int z = pTarget->z;
                     int nDist = approxDist(x - pSprite->x, y - pSprite->y);
-                    if (nDist != 0 && cansee(pSprite->x, pSprite->y, top, pSprite->sectnum, x, y, z, pTarget->sectnum))
+                    if (nDist != 0 && cansee(pSprite->x, pSprite->y, top, pSprite->sector(), x, y, z, pTarget->sector()))
                     {
                         int t = DivScale(nDist, 0x1aaaaa, 12);
                         x += (target->xvel*t)>>12;
@@ -1364,9 +1364,9 @@ void OperateDoor(sectortype* pSector, EVENT event, BUSYID busyWave)
     }
 }
 
-bool SectorContainsDudes(int nSector)
+bool SectorContainsDudes(sectortype * pSector)
 {
-    BloodSectIterator it(nSector);
+    BloodSectIterator it(pSector);
     while (auto actor = it.Next())
     {
         spritetype* pSprite = &actor->s();
@@ -1398,7 +1398,7 @@ void OperateTeleport(sectortype* pSector)
     spritetype *pDest = &nDest->s();
     assert(pDest->statnum == kStatMarker);
     assert(pDest->type == kMarkerWarpDest);
-    assert(validSectorIndex(pDest->sectnum));
+    assert(pDest->insector());
     BloodSectIterator it(pSector);
     while (auto actor = it.Next())
     {
@@ -1411,7 +1411,7 @@ void OperateTeleport(sectortype* pSector)
                 pPlayer = &gPlayer[pSprite->type-kDudePlayer1];
             else
                 pPlayer = NULL;
-            if (bPlayer || !SectorContainsDudes(pDest->sectnum))
+            if (bPlayer || !SectorContainsDudes(pDest->sector()))
             {
                 if (!(gGameOptions.uNetGameFlags & 2))
                 {
@@ -1495,8 +1495,6 @@ void OperateSector(sectortype* pSector, EVENT event)
     if (gModernMap && modernTypeOperateSector(pSector, event))
         return;
     #endif
-
-    int nSector = sectnum(pSector);
 
     switch (event.cmd) {
         case kCmdLock:

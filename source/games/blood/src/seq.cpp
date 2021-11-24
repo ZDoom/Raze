@@ -352,7 +352,7 @@ void SEQINST::Update()
 		spritetype* pSprite = &actor->s();
 		if (!VanillaMode() && pSequence->frames[frameIndex].surfaceSound && actor->zvel == 0 && actor->xvel != 0) {
 
-			if (getUpperLink(pSprite->sectnum)) break; // don't play surface sound for stacked sectors
+			if (pSprite->sector()->upperLink) break; // don't play surface sound for stacked sectors
 			int surf = tileGetSurfType(pSprite->sector()->floorpicnum); 
 			if (!surf) break;
 			static int surfSfxMove[15][4] = {

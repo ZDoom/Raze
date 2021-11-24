@@ -2662,7 +2662,6 @@ void teslaHit(DBloodActor *missileactor, int a2)
     int y = pMissile->y;
     int z = pMissile->z;
     int nDist = 300;
-    int nSector = pMissile->sectnum;
     auto pSector = pMissile->sector();
     auto owneractor = missileactor->GetOwner();
     const bool newSectCheckMethod = !cl_bloodvanillaexplosions && !VanillaMode(); // use new sector checking logic
