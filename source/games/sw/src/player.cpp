@@ -1614,7 +1614,7 @@ void SlipSlope(PLAYERp pp)
 void DoPlayerHorizon(PLAYERp pp, float const horz, double const scaleAdjust)
 {
     bool const canslopetilt = !TEST(pp->Flags, PF_FLYING|PF_SWIMMING|PF_DIVING|PF_CLIMBING|PF_JUMPING|PF_FALLING) && TEST(pp->cursector()->floorstat, FLOOR_STAT_SLOPE);
-    pp->horizon.calcviewpitch(pp->pos.vec2, pp->angle.ang, pp->input.actions & SB_AIMMODE, canslopetilt, &sector[pp->cursectnum], scaleAdjust, TEST(pp->Flags, PF_CLIMBING));
+    pp->horizon.calcviewpitch(pp->pos.vec2, pp->angle.ang, pp->input.actions & SB_AIMMODE, canslopetilt, pp->cursector(), scaleAdjust, TEST(pp->Flags, PF_CLIMBING));
     pp->horizon.applyinput(horz, &pp->input.actions, scaleAdjust);
 }
 
@@ -1892,7 +1892,7 @@ void DoPlayerZrange(PLAYERp pp)
     }
     else
     {
-        pp->hi_sectp = &sector[ceilColl.index];
+        pp->hi_sectp = ceilColl.sector();
     }
 
     if (floorColl.type == kHitSprite)
@@ -1903,14 +1903,14 @@ void DoPlayerZrange(PLAYERp pp)
         auto fsp = &floorColl.actor->s();
         if (fsp->statnum == STAT_ENEMY && floorColl.actor->u()->ID == ZOMBIE_RUN_R0)
         {
-            pp->lo_sectp = &sector[fsp->sectnum];
+            pp->lo_sectp = fsp->sector();
             pp->loz = fsp->z;
             pp->lowActor = nullptr;
         }
     }
     else
     {
-        pp->lo_sectp = &sector[floorColl.index];
+        pp->lo_sectp = floorColl.sector();
     }
 }
 
@@ -3440,7 +3440,7 @@ int DoPlayerWadeSuperJump(PLAYERp pp)
         {
             hitinfo.hitsect = hitinfo.wall()->nextsector;
 
-            if (hitinfo.hitsect >= 0 && labs(sector[hitinfo.hitsect].floorz - pp->posz) < Z(50))
+            if (hitinfo.hitsect >= 0 && labs(hitinfo.sector()->floorz - pp->posz) < Z(50))
             {
                 if (Distance(pp->posx, pp->posy, hitinfo.pos.x, hitinfo.pos.y) < ((((int)pp->Actor()->s().clipdist)<<2) + 256))
                     return true;
@@ -3490,7 +3490,7 @@ bool PlayerFallTest(PLAYERp pp, int player_height)
         if (pp->lo_sectp &&
             labs(pp->lo_sectp->floorheinum) > 3000 &&
             TEST(pp->lo_sectp->floorstat, FLOOR_STAT_SLOPE) &&
-            pp->lo_sectp == &sector[pp->lastcursectnum])
+            pp->lo_sectp == pp->lastcursector())
         {
             return false;
         }

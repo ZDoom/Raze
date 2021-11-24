@@ -505,7 +505,7 @@ void WaterAdjust(const Collision& florhit, int32_t* loz)
 {
     if (florhit.type == kHitSector)
     {
-        auto sect = &sector[florhit.index];
+        auto sect = florhit.sector();
         if (!sect->hasU()) return;
 
         if (sect->hasU() && FixedToInt(sect->depth_fixed))

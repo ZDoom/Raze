@@ -328,10 +328,11 @@ void InitLevel(MapRecord *maprec)
     STAT_NewLevel(currentLevel->fileName);
     Player[0].angle.ang = buildang(ang);
 
-    if (sector[0].extra != -1)
+    auto vissect = &sector[0]; // hack alert!
+    if (vissect->extra != -1)
     {
-        NormalVisibility = g_visibility = sector[0].extra;
-        sector[0].extra = 0;
+        NormalVisibility = g_visibility = vissect->extra;
+        vissect->extra = 0;
     }
     else
         NormalVisibility = g_visibility;

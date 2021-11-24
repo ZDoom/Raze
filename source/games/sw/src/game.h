@@ -787,6 +787,7 @@ struct PLAYERstruct
 
     int cursectnum,lastcursectnum;
     sectortype* cursector() { return cursectnum < 0? nullptr : &sector[cursectnum]; }
+    sectortype* lastcursector() { return lastcursectnum < 0 ? nullptr : &sector[lastcursectnum]; }
     void setcursector(sectortype* s) { cursectnum = sectnum(s); }
     bool insector() const { return cursectnum >= 0; }
     fixed_t turn180_target; // 180 degree turn
