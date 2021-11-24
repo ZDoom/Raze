@@ -233,7 +233,7 @@ FAFhitscan(int32_t x, int32_t y, int32_t z, int16_t sectnum,
     {
         if (TEST(sector[hitinfo->sect].extra, SECTFX_WARP_SECTOR))
         {
-            if (TEST(wall[sector[hitinfo->sect].wallptr].cstat, CSTAT_WALL_WARP_HITSCAN))
+            if (TEST(sector[hitinfo->sect].firstWall()->cstat, CSTAT_WALL_WARP_HITSCAN))
             {
                 // hit the floor of a sector that is a warping sector
                 if (Warp(&hitinfo->pos.x, &hitinfo->pos.y, &hitinfo->pos.z, &hitinfo->sect))

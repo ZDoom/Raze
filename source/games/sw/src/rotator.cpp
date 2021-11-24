@@ -368,16 +368,14 @@ int DoRotator(DSWActor* actor)
     if (!pivot)
         return 0;
 
-    startwall = sp->sector()->wallptr;
-    endwall = startwall + sp->sector()->wallnum - 1;
-
     // move points
-    for (w = startwall, ndx = 0; w <= endwall; w++)
+    ndx = 0;
+    for(auto& wal : wallsofsector(sp->sector()))
     {
         vec2_t const orig = { r->origX[ndx], r->origY[ndx] };
         rotatepoint(pivot->pos.vec2, orig, r->pos, &nxy);
 
-        dragpoint(w, nxy.x, nxy.y);
+        dragpoint(&wal, nxy.x, nxy.y);
         ndx++;
     }
 
