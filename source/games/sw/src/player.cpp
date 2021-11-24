@@ -3431,7 +3431,7 @@ int DoPlayerWadeSuperJump(PLAYERp pp)
 
     for (i = 0; i < SIZ(angs); i++)
     {
-        FAFhitscan(pp->posx, pp->posy, zh, pp->cursectnum,    // Start position
+        FAFhitscan(pp->posx, pp->posy, zh, pp->cursector(),    // Start position
                    bcos(pp->angle.ang.asbuild() + angs[i]),   // X vector of 3D ang
                    bsin(pp->angle.ang.asbuild() + angs[i]),   // Y vector of 3D ang
                    0, &hitinfo, CLIPMASK_MISSILE);            // Z vector of 3D ang
@@ -3760,7 +3760,7 @@ bool PlayerOnLadder(PLAYERp pp)
         if (wal < 0 || dist < 100 || wall[wal].lotag != TAG_WALL_CLIMB)
             return false;
 
-        FAFhitscan(pp->posx, pp->posy, pp->posz, pp->cursectnum,
+        FAFhitscan(pp->posx, pp->posy, pp->posz, pp->cursector(),
                    bcos(pp->angle.ang.asbuild() + angles[i]),
                    bsin(pp->angle.ang.asbuild() + angles[i]),
                    0,

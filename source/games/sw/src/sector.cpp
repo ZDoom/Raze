@@ -2083,7 +2083,7 @@ bool NearThings(PLAYERp pp)
         HITINFO hitinfo;
         short dang = pp->angle.ang.asbuild();
 
-        FAFhitscan(pp->posx, pp->posy, pp->posz - Z(30), pp->cursectnum,    // Start position
+        FAFhitscan(pp->posx, pp->posy, pp->posz - Z(30), pp->cursector(),    // Start position
                    bcos(dang),  // X vector of 3D ang
                    bsin(dang),  // Y vector of 3D ang
                    0,           // Z vector of 3D ang

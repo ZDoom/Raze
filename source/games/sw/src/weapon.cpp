@@ -12542,7 +12542,7 @@ int InitSwordAttack(PLAYERp pp)
         daang = pp->angle.ang.asbuild();
         daz = -MulScale(pp->horizon.horiz.asq16(), 2000, 16) + (RandomRange(24000) - 12000);
 
-        FAFhitscan(pp->posx, pp->posy, pp->posz, pp->cursectnum,       // Start position
+        FAFhitscan(pp->posx, pp->posy, pp->posz, pp->cursector(),       // Start position
             bcos(daang),      // X vector of 3D ang
             bsin(daang),      // Y vector of 3D ang
             daz,              // Z vector of 3D ang
@@ -12732,7 +12732,7 @@ int InitFistAttack(PLAYERp pp)
         daang = pp->angle.ang.asbuild();
         daz = -MulScale(pp->horizon.horiz.asq16(), 2000, 16) + (RandomRange(24000) - 12000);
 
-        FAFhitscan(pp->posx, pp->posy, pp->posz, pp->cursectnum,       // Start position
+        FAFhitscan(pp->posx, pp->posy, pp->posz, pp->cursector(),       // Start position
                    bcos(daang),      // X vector of 3D ang
                    bsin(daang),      // Y vector of 3D ang
                    daz,              // Z vector of 3D ang
@@ -13504,7 +13504,7 @@ int ContinueHitscan(PLAYERp pp, sectortype* sect, int x, int y, int z, short ang
     HITINFO hitinfo;
     USERp u = pp->Actor()->u();
 
-    FAFhitscan(x, y, z, sectnum(sect),
+    FAFhitscan(x, y, z, sect,
                xvect, yvect, zvect,
                &hitinfo, CLIPMASK_MISSILE);
 
@@ -13585,7 +13585,6 @@ int InitShotgun(PLAYERp pp)
     auto sp = &pp->Actor()->s();
     short daang,ndaang, i;
     HITINFO hitinfo;
-    short nsect;
     int daz, ndaz;
     int nx,ny,nz;
     int xvect,yvect,zvect;
@@ -13610,7 +13609,6 @@ int InitShotgun(PLAYERp pp)
     nx = pp->posx;
     ny = pp->posy;
     daz = nz = pp->posz + pp->bob_z;
-    nsect = pp->cursectnum;
 
     daang = 64;
     if (WeaponAutoAimHitscan(pp->Actor(), &daz, &daang, false) != nullptr)
@@ -13638,7 +13636,7 @@ int InitShotgun(PLAYERp pp)
         xvect = bcos(ndaang);
         yvect = bsin(ndaang);
         zvect = ndaz;
-        FAFhitscan(nx, ny, nz, nsect,               // Start position
+        FAFhitscan(nx, ny, nz, pp->cursector(),               // Start position
                    xvect, yvect, zvect,
                    &hitinfo, CLIPMASK_MISSILE);
 
@@ -16197,7 +16195,7 @@ int InitUzi(PLAYERp pp)
     xvect = bcos(daang);
     yvect = bsin(daang);
     zvect = daz;
-    FAFhitscan(pp->posx, pp->posy, nz, pp->cursectnum,       // Start position
+    FAFhitscan(pp->posx, pp->posy, nz, pp->cursector(),       // Start position
                xvect,yvect,zvect,
                &hitinfo, CLIPMASK_MISSILE);
 
@@ -16710,7 +16708,6 @@ int InitSobjMachineGun(DSWActor* actor, PLAYERp pp)
     SPRITEp sp = &actor->s();
     short daang;
     HITINFO hitinfo;
-    short nsect;
     int daz;
     int nx,ny,nz;
     short cstat = 0;
@@ -16721,7 +16718,6 @@ int InitSobjMachineGun(DSWActor* actor, PLAYERp pp)
     nx = sp->x;
     ny = sp->y;
     daz = nz = sp->z;
-    nsect = sp->sectnum;
 
     if (RANDOM_P2(1024) < 200)
         InitTracerTurret(actor, pp->Actor(), pp->horizon.horiz.asq16());
@@ -16743,7 +16739,7 @@ int InitSobjMachineGun(DSWActor* actor, PLAYERp pp)
         daang = sp->ang;
     }
 
-    FAFhitscan(nx, ny, nz, nsect,       // Start position
+    FAFhitscan(nx, ny, nz, sp->sector(),       // Start position
                bcos(daang),      // X vector of 3D ang
                bsin(daang),      // Y vector of 3D ang
                daz,              // Z vector of 3D ang
@@ -17080,7 +17076,6 @@ int InitTurretMgun(SECTOR_OBJECTp sop)
     SPRITEp hsp;
     short daang, i;
     HITINFO hitinfo;
-    short nsect;
     int daz;
     int nx,ny,nz;
     short cstat = 0;
@@ -17099,7 +17094,6 @@ int InitTurretMgun(SECTOR_OBJECTp sop)
             nx = sp->x;
             ny = sp->y;
             daz = nz = sp->z;
-            nsect = sp->sectnum;
 
             // if its not operated by a player
             if (sop->Animator)
@@ -17148,7 +17142,7 @@ int InitTurretMgun(SECTOR_OBJECTp sop)
             yvect = bsin(daang);
             zvect = daz;
 
-            FAFhitscan(nx, ny, nz, nsect,       // Start position
+            FAFhitscan(nx, ny, nz, sp->sector(),       // Start position
                        xvect, yvect, zvect,
                        &hitinfo, CLIPMASK_MISSILE);
 
@@ -17291,7 +17285,7 @@ int InitEnemyUzi(DSWActor* actor)
         daang = NORM_ANGLE(sp->ang + (RANDOM_P2(128)) - 64);
     }
 
-    FAFhitscan(sp->x, sp->y, sp->z - zh, sp->sectnum,      // Start position
+    FAFhitscan(sp->x, sp->y, sp->z - zh, sp->sector(),      // Start position
                bcos(daang),      // X vector of 3D ang
                bsin(daang),      // Y vector of 3D ang
                daz,              // Z vector of 3D ang
@@ -18901,7 +18895,7 @@ DSWActor* QueueWallBlood(DSWActor* actor, short ang)
     daz -= DIV2(Z(128)<<3);
     dang = (ang+(RANDOM_P2(128<<5) >> 5)) - DIV2(128);
 
-    FAFhitscan(hsp->x, hsp->y, hsp->z - Z(30), hsp->sectnum,    // Start position
+    FAFhitscan(hsp->x, hsp->y, hsp->z - Z(30), hsp->sector(),    // Start position
                bcos(dang),      // X vector of 3D ang
                bsin(dang),      // Y vector of 3D ang
                daz,              // Z vector of 3D ang

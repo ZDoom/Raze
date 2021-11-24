@@ -279,7 +279,7 @@ int CanHitPlayer(DSWActor* actor)
 //    if (labs(zvect / FindDistance2D(hp->x - sp->x, hp->y - sp->y)) > 200)
 //       return(false);
 
-    FAFhitscan(sp->x, sp->y, zhs, sp->sectnum,
+    FAFhitscan(sp->x, sp->y, zhs, sp->sector(),
                xvect,
                yvect,
                zvect,

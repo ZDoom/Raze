@@ -944,7 +944,7 @@ int InitRipperHang(DSWActor* actor)
     {
         tang = NORM_ANGLE(sp->ang + dang);
 
-        FAFhitscan(sp->x, sp->y, sp->z - SPRITEp_SIZE_Z(sp), sp->sectnum,  // Start position
+        FAFhitscan(sp->x, sp->y, sp->z - SPRITEp_SIZE_Z(sp), sp->sector(),  // Start position
                    bcos(tang),   // X vector of 3D ang
                    bsin(tang),   // Y vector of 3D ang
                    0,            // Z vector of 3D ang

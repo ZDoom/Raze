@@ -3134,7 +3134,7 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
             {
                 RESET(sp->cstat, CSTAT_SPRITE_BLOCK);
 
-                FAFhitscan(sp->x, sp->y, sp->z - Z(24), sp->sectnum,      // Start position
+                FAFhitscan(sp->x, sp->y, sp->z - Z(24), sp->sector(),      // Start position
                            bcos(sp->ang),    // X vector of 3D ang
                            bsin(sp->ang),    // Y vector of 3D ang
                            0,                // Z vector of 3D ang

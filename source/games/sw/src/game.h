@@ -1924,7 +1924,7 @@ void FAFhitscan(int32_t x, int32_t y, int32_t z, int16_t sectnum,
                 int32_t xvect, int32_t yvect, int32_t zvect,
                 hitdata_t* hitinfo, int32_t clipmask);
 
-void FAFhitscan(int32_t x, int32_t y, int32_t z, int16_t sectnum,
+void FAFhitscan(int32_t x, int32_t y, int32_t z, sectortype* sectnum,
     int32_t xvect, int32_t yvect, int32_t zvect,
     HITINFO* hitinfo, int32_t clipmask);
 

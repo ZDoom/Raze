@@ -157,12 +157,12 @@ void ResetWallWarpHitscan(sectortype* sect)
 }
 
 void
-FAFhitscan(int32_t x, int32_t y, int32_t z, int16_t sectnum,
+FAFhitscan(int32_t x, int32_t y, int32_t z, sectortype* sect,
     int32_t xvect, int32_t yvect, int32_t zvect,
     HITINFO* hitinfo, int32_t clipmask)
 {
     hitdata_t hitdata;
-    FAFhitscan(x, y, z, sectnum, xvect, yvect, zvect, &hitdata, clipmask);
+    FAFhitscan(x, y, z, sectnum(sect), xvect, yvect, zvect, &hitdata, clipmask);
     hitinfo->set(&hitdata);
 }
 
