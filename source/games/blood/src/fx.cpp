@@ -196,8 +196,8 @@ void CFX::fxProcess(void)
     {
         spritetype *pSprite = &actor->s();
         viewBackupSpriteLoc(actor);
-        int nSector = pSprite->sectnum;
-        assert(validSectorIndex(nSector));
+        auto pSector = pSprite->sector();
+        assert(pSector);
         assert(pSprite->type < kFXMax);
         FXDATA *pFXData = &gFXData[pSprite->type];
         actAirDrag(actor, pFXData->drag);
@@ -207,8 +207,8 @@ void CFX::fxProcess(void)
         // Weird...
         if (actor->xvel || (actor->yvel && pSprite->z >= pSprite->sector()->floorz))
         {
-            updatesector(pSprite->x, pSprite->y, &nSector);
-            if (nSector == -1)
+            updatesector(pSprite->x, pSprite->y, &pSector);
+            if (pSector == nullptr)
             {
                 remove(actor);
                 continue;
@@ -223,17 +223,17 @@ void CFX::fxProcess(void)
                 gCallback[pFXData->funcID](actor, nullptr);
                 continue;
             }
-            if (nSector != pSprite->sectnum)
+            if (pSector != pSprite->sector())
             {
-                assert(validSectorIndex(nSector));
-                ChangeActorSect(actor, nSector);
+                assert(pSector);
+                ChangeActorSect(actor, pSector);
             }
         }
         if (actor->xvel || actor->yvel || actor->zvel)
         {
             int32_t floorZ, ceilZ;
-            getzsofslope(nSector, pSprite->x, pSprite->y, &ceilZ, &floorZ);
-            if (ceilZ > pSprite->z && !(sector[nSector].ceilingstat&1))
+            getzsofslopeptr(pSector, pSprite->x, pSprite->y, &ceilZ, &floorZ);
+            if (ceilZ > pSprite->z && !(pSector->ceilingstat&1))
             {
                 remove(actor);
                 continue;

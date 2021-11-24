@@ -603,7 +603,7 @@ void sub_76A08(DBloodActor *actor, spritetype *pSprite2, PLAYER *pPlayer) // ???
     GetSpriteExtents(pSprite, &top, &bottom);
     pSprite->x = pSprite2->x;
     pSprite->y = pSprite2->y;
-    pSprite->z = sector[pSprite2->sectnum].floorz-(bottom-pSprite->z);
+    pSprite->z = pSprite2->sector()->floorz-(bottom-pSprite->z);
     pSprite->ang = pSprite2->ang;
     ChangeActorSect(actor, pSprite2->sectnum);
     sfxPlay3DSound(pSprite2, 201, -1, 0);
