@@ -53,9 +53,9 @@ void DrawOverlapRoom(int tx, int ty, int tz, fixed_t tq16ang, fixed_t tq16horiz,
         // reset Z's
         for (int i = 0; i < save.zcount; i++)
         {
-            sector[save.sectnum[i]].floorz = save.zval[i];
-            sector[save.sectnum[i]].floorpicnum = save.pic[i];
-            sector[save.sectnum[i]].floorheinum = save.slope[i];
+            save.sector[i]->floorz = save.zval[i];
+            save.sector[i]->floorpicnum = save.pic[i];
+            save.sector[i]->floorheinum = save.slope[i];
         }
 
         analyzesprites(pm_tsprite, pm_spritesortcnt, tx, ty, tz, false);
@@ -78,9 +78,9 @@ void DrawOverlapRoom(int tx, int ty, int tz, fixed_t tq16ang, fixed_t tq16horiz,
             // reset Z's
             for (int i = 0; i < save.zcount; i++)
             {
-                sector[save.sectnum[i]].ceilingz = save.zval[i];
-                sector[save.sectnum[i]].ceilingpicnum = save.pic[i];
-                sector[save.sectnum[i]].ceilingheinum = save.slope[i];
+                save.sector[i]->ceilingz = save.zval[i];
+                save.sector[i]->ceilingpicnum = save.pic[i];
+                save.sector[i]->ceilingheinum = save.slope[i];
             }
 
             analyzesprites(pm_tsprite, pm_spritesortcnt, tx, ty, tz, false);
