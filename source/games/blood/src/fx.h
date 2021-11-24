@@ -93,11 +93,7 @@ class CFX {
 public:
     void destroy(DBloodActor*);
     void remove(DBloodActor*);
-    DBloodActor* fxSpawnActor(FX_ID, int, int, int, int, unsigned int);
-    DBloodActor* fxSpawnActor(FX_ID a, sectortype* b, int c, int d, int e, unsigned int f)
-    {
-        return fxSpawnActor(a, sectnum(b), c, d, e, f);
-    }
+    DBloodActor* fxSpawnActor(FX_ID a, sectortype* b, int c, int d, int e, unsigned int f);
     void fxProcess(void);
 };
 

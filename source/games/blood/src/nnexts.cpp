@@ -1833,7 +1833,7 @@ void debrisMove(int listIndex)
             switch (tileGetSurfType(floorColl)) 
             {
             case kSurfLava:
-                if ((pFX = gFX.fxSpawnActor(FX_10, pSprite->sectnum, pSprite->x, pSprite->y, floorZ, 0)) == NULL) break;
+                if ((pFX = gFX.fxSpawnActor(FX_10, pSprite->sector(), pSprite->x, pSprite->y, floorZ, 0)) == NULL) break;
                 for (i = 0; i < 7; i++) 
                 {
                     if ((pFX2 = gFX.fxSpawnActor(FX_14, pFX->s().sector(), pFX->s().x, pFX->s().y, pFX->s().z, 0)) == NULL) continue;
@@ -6282,7 +6282,7 @@ void useRandomItemGen(DBloodActor* actor)
             spritetype* pItem = &iactor->s();
             if ((unsigned int)pItem->type == pXSource->dropMsg && pItem->x == pSource->x && pItem->y == pSource->y && pItem->z == pSource->z) 
             {
-                gFX.fxSpawnActor((FX_ID)29, pSource->sectnum, pSource->x, pSource->y, pSource->z, 0);
+                gFX.fxSpawnActor((FX_ID)29, pSource->sector(), pSource->x, pSource->y, pSource->z, 0);
                 pItem->type = kSpriteDecoration;
                 actPostSprite(iactor, kStatFree);
                 break;

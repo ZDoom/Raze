@@ -124,12 +124,12 @@ void CFX::remove(DBloodActor* actor)
         actPostSprite(actor, kStatFree);
 }
 
-DBloodActor* CFX::fxSpawnActor(FX_ID nFx, int nSector, int x, int y, int z, unsigned int a6)
+DBloodActor* CFX::fxSpawnActor(FX_ID nFx, sectortype* pSector, int x, int y, int z, unsigned int a6)
 {
-    if (nSector < 0 || nSector >= numsectors)
+    if (pSector == nullptr)
         return nullptr;
-    int nSector2 = nSector;
-    if (!FindSector(x, y, z, &nSector2))
+    auto pSector2 = pSector;
+    if (!FindSector(x, y, z, &pSector2))
         return nullptr;
     if (adult_lockout && gGameOptions.nGameType <= 0)
     {
@@ -161,7 +161,7 @@ DBloodActor* CFX::fxSpawnActor(FX_ID nFx, int nSector, int x, int y, int z, unsi
             return nullptr;
         destroy(iactor);
     }
-    auto actor = actSpawnSprite(&sector[nSector], x, y, z, 1, 0);
+    auto actor = actSpawnSprite(pSector, x, y, z, 1, 0);
     spritetype* pSprite = &actor->s();
     pSprite->type = nFx;
     pSprite->picnum = pFX->picnum;

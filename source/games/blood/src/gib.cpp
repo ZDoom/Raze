@@ -266,14 +266,14 @@ int ChanceToCount(int a1, int a2)
 void GibFX(DBloodActor* actor, GIBFX *pGFX, CGibPosition *pPos, CGibVelocity *pVel)
 {
     spritetype* pSprite = &actor->s();
-    int nSector = pSprite->sectnum;
+    auto pSector = pSprite->sector();
     if (adult_lockout && gGameOptions.nGameType == 0 && pGFX->fxId == FX_13)
         return;
     CGibPosition gPos(pSprite->x, pSprite->y, pSprite->z);
     if (pPos)
         gPos = *pPos;
     int32_t ceilZ, floorZ;
-    getzsofslope(nSector, gPos.x, gPos.y, &ceilZ, &floorZ);
+    getzsofslopeptr(pSector, gPos.x, gPos.y, &ceilZ, &floorZ);
     int nCount = ChanceToCount(pGFX->chance, pGFX->at9);
     int dz1 = floorZ-gPos.z;
     int dz2 = gPos.z-ceilZ;
@@ -288,7 +288,7 @@ void GibFX(DBloodActor* actor, GIBFX *pGFX, CGibPosition *pPos, CGibVelocity *pV
             gPos.y = pSprite->y+MulScale(pSprite->clipdist<<2, Sin(nAngle), 30);
             gPos.z = bottom-Random(bottom-top);
         }
-        auto pFX = gFX.fxSpawnActor(pGFX->fxId, nSector, gPos.x, gPos.y, gPos.z, 0);
+        auto pFX = gFX.fxSpawnActor(pGFX->fxId, pSector, gPos.x, gPos.y, gPos.z, 0);
         if (pFX)
         {
             if (pGFX->at1 < 0)
