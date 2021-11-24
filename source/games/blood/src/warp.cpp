@@ -248,10 +248,10 @@ int CheckLink(DBloodActor *actor)
     return 0;
 }
 
-int CheckLink(int *x, int *y, int *z, int *nSector)
+int CheckLink(int *x, int *y, int *z, sectortype** pSector)
 {
-    auto upper = getUpperLink(*nSector);
-    auto lower = getLowerLink(*nSector);
+    auto upper = (*pSector)->upperLink;
+    auto lower = (*pSector)->lowerLink;
     if (upper)
     {
         spritetype *pUpper = &upper->s();
@@ -259,21 +259,21 @@ int CheckLink(int *x, int *y, int *z, int *nSector)
         if (pUpper->type == kMarkerUpLink)
             z1 = pUpper->z;
         else
-            z1 = getflorzofslope(*nSector, *x, *y);
+            z1 = getflorzofslopeptr(*pSector, *x, *y);
         if (z1 <= *z)
         {
             lower = upper->GetOwner();
             assert(lower);
             spritetype *pLower = &lower->s();
 			assert(validSectorIndex(pLower->sectnum));
-            *nSector = pLower->sectnum;
+            *pSector = pLower->sector();
             *x += pLower->x-pUpper->x;
             *y += pLower->y-pUpper->y;
             int z2;
             if (pUpper->type == kMarkerLowLink)
                 z2 = pLower->z;
             else
-                z2 = getceilzofslope(*nSector, *x, *y);
+                z2 = getceilzofslopeptr(*pSector, *x, *y);
             *z += z2-z1;
             return pUpper->type;
         }
@@ -285,21 +285,21 @@ int CheckLink(int *x, int *y, int *z, int *nSector)
         if (pLower->type == kMarkerLowLink)
             z1 = pLower->z;
         else
-            z1 = getceilzofslope(*nSector, *x, *y);
+            z1 = getceilzofslopeptr(*pSector, *x, *y);
         if (z1 >= *z)
         {
             upper = lower->GetOwner();
             assert(upper);
             spritetype *pUpper = &upper->s();
-			assert(validSectorIndex(pUpper->sectnum));
-            *nSector = pUpper->sectnum;
+			assert(pUpper);
+            *pSector = pUpper->sector();
             *x += pUpper->x-pLower->x;
             *y += pUpper->y-pLower->y;
             int z2;
             if (pLower->type == kMarkerUpLink)
                 z2 = pUpper->z;
             else
-                z2 = getflorzofslope(*nSector, *x, *y);
+                z2 = getflorzofslopeptr(*pSector, *x, *y);
             *z += z2-z1;
             return pLower->type;
         }

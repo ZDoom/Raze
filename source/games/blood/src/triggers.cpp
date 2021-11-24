@@ -1619,9 +1619,9 @@ void InitPath(sectortype* pSector, XSECTOR *pXSector)
         evPostSector(pSector, 0, kCmdOn);
 }
 
-void LinkSector(int nSector, XSECTOR *pXSector, EVENT event)
+void LinkSector(sectortype* pSector, EVENT event)
 {
-    sectortype *pSector = &sector[nSector];
+    auto pXSector = &pSector->xs();
     int nBusy = GetSourceBusy(event);
     switch (pSector->type) {
         case kSectorZMotionSprite:
@@ -1758,7 +1758,7 @@ void trMessageSector(sectortype* pSector, EVENT event)
         switch (event.cmd) 
         {
             case kCmdLink:
-                LinkSector(sectnum(pSector), pXSector, event);
+                LinkSector(pSector, event);
                 break;
             #ifdef NOONE_EXTENSIONS
             case kCmdModernUse:
@@ -1825,10 +1825,10 @@ void trMessageSprite(DBloodActor* actor, EVENT event)
 
 void ProcessMotion(void)
 {
-    sectortype *pSector;
-    int nSector;
-    for (pSector = &sector[0], nSector = 0; nSector < numsectors; nSector++, pSector++)
+    for(auto& sect : sectors())
     {
+        sectortype* pSector = &sect;
+
         if (!pSector->hasX()) continue;
         XSECTOR* pXSector = &pSector->xs();
         if (pXSector->bobSpeed != 0)
@@ -1841,7 +1841,7 @@ void ProcessMotion(void)
                 pXSector->bobTheta += MulScale(pXSector->bobSpeed, pXSector->busy, 16);
             int vdi = MulScale(Sin(pXSector->bobTheta), pXSector->bobZRange<<8, 30);
 
-            BloodSectIterator it(nSector);
+            BloodSectIterator it(pSector);
             while (auto actor = it.Next())
             {
                 auto pSprite = &actor->s();
@@ -1857,7 +1857,7 @@ void ProcessMotion(void)
                 viewInterpolateSector(pSector);
                 pSector->floorz = pSector->baseFloor + vdi;
 
-                BloodSectIterator it(nSector);
+                BloodSectIterator it(pSector);
                 while (auto actor = it.Next())
                 {
                     auto pSprite = &actor->s();
@@ -1881,7 +1881,7 @@ void ProcessMotion(void)
                 viewInterpolateSector(pSector);
                 pSector->ceilingz = pSector->baseCeil + vdi;
 
-                BloodSectIterator it(nSector);
+                BloodSectIterator it(pSector);
                 while (auto actor = it.Next())
                 {
                     auto pSprite = &actor->s();

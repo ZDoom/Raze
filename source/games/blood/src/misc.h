@@ -65,7 +65,7 @@ extern ZONE gStartZone[8];
 
 void warpInit(void);
 int CheckLink(DBloodActor *pSprite);
-int CheckLink(int *x, int *y, int *z, int *nSector);
+int CheckLink(int *x, int *y, int *z, sectortype** pSector);
 
 int GetOctant(int x, int y);
 void RotateVector(int *dx, int *dy, int nAngle);

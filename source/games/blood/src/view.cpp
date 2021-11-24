@@ -399,11 +399,11 @@ static void DrawMap(spritetype* pSprite)
         setViewport(hud_size);
 }
 
-void SetupView(int &cX, int& cY, int& cZ, binangle& cA, fixedhoriz& cH, int& nSectnum, double& zDelta, double& shakeX, double& shakeY, binangle& rotscrnang)
+void SetupView(int &cX, int& cY, int& cZ, binangle& cA, fixedhoriz& cH, sectortype*& pSector, double& zDelta, double& shakeX, double& shakeY, binangle& rotscrnang)
 {
     int bobWidth, bobHeight;
     
-    nSectnum = gView->pSprite->sectnum;
+    pSector = gView->pSprite->sector();
 #if 0
     if (numplayers > 1 && gView == gMe && gPrediction && gMe->pXSprite->health > 0)
     {
@@ -476,11 +476,9 @@ void SetupView(int &cX, int& cY, int& cZ, binangle& cA, fixedhoriz& cH, int& nSe
     }
     else
     {
-        auto pSect = &sector[nSectnum];
-        calcChaseCamPos((int*)&cX, (int*)&cY, (int*)&cZ, gView->pSprite, &pSect, cA, cH, gInterpolate);
-        nSectnum = sectnum(pSect);
+        calcChaseCamPos((int*)&cX, (int*)&cY, (int*)&cZ, gView->pSprite, &pSector, cA, cH, gInterpolate);
     }
-    CheckLink((int*)&cX, (int*)&cY, (int*)&cZ, &nSectnum);
+    CheckLink((int*)&cX, (int*)&cY, (int*)&cZ, &pSector);
 }
 
 void renderCrystalBall()
@@ -587,11 +585,11 @@ void viewDrawScreen(bool sceneonly)
         int cX, cY, cZ;
         binangle cA;
         fixedhoriz cH;
-        int nSectnum;
+        sectortype* pSector;
         double zDelta;
         double shakeX, shakeY;
         binangle rotscrnang;
-        SetupView(cX, cY, cZ, cA, cH, nSectnum, zDelta, shakeX, shakeY, rotscrnang);
+        SetupView(cX, cY, cZ, cA, cH, pSector, zDelta, shakeX, shakeY, rotscrnang);
 
         binangle tilt = interpolatedangle(buildang(gScreenTiltO), buildang(gScreenTilt), gInterpolate);
         bool bDelirium = powerupCheck(gView, kPwUpDeliriumShroom) > 0;
@@ -646,12 +644,12 @@ void viewDrawScreen(bool sceneonly)
         cA += interpolatedangle(buildang(deliriumTurnO), buildang(deliriumTurn), gInterpolate);
 
         int ceilingZ, floorZ;
-        getzsofslope(nSectnum, cX, cY, &ceilingZ, &floorZ);
-        if ((cZ > floorZ - (1 << 8)) && (getLowerLink(nSectnum) == nullptr)) // clamp to floor
+        getzsofslopeptr(pSector, cX, cY, &ceilingZ, &floorZ);
+        if ((cZ > floorZ - (1 << 8)) && (pSector->upperLink == nullptr)) // clamp to floor
         {
             cZ = floorZ - (1 << 8);
         }
-        if ((cZ < ceilingZ + (1 << 8)) && (getLowerLink(nSectnum) == nullptr)) // clamp to ceiling
+        if ((cZ < ceilingZ + (1 << 8)) && (pSector->lowerLink == nullptr)) // clamp to ceiling
         {
             cZ = ceilingZ + (1 << 8);
         }
@@ -674,13 +672,13 @@ void viewDrawScreen(bool sceneonly)
             fixedhoriz deliriumPitchI = q16horiz(interpolatedvalue(IntToFixed(deliriumPitchO), IntToFixed(deliriumPitch), gInterpolate));
             int bakCstat = gView->pSprite->cstat;
             gView->pSprite->cstat |= (gViewPos == 0) ? CSTAT_SPRITE_INVISIBLE : CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANSLUCENT_INVERT;
-            render_drawrooms(gView->pSprite, { cX, cY, cZ }, nSectnum, cA, cH + deliriumPitchI, rotscrnang, gInterpolate);
+            render_drawrooms(gView->pSprite, { cX, cY, cZ }, sectnum(pSector), cA, cH + deliriumPitchI, rotscrnang, gInterpolate);
             gView->pSprite->cstat = bakCstat;
         }
         else
         {
             renderSetRollAngle((float)rotscrnang.asbuildf());
-            render3DViewPolymost(nSectnum, cX, cY, cZ, cA, cH);
+            render3DViewPolymost(sectnum(pSector), cX, cY, cZ, cA, cH);
         }
         bDeliriumOld = bDelirium && gDeliriumBlur;
 
@@ -695,7 +693,7 @@ void viewDrawScreen(bool sceneonly)
         {
             tmpSect = vf0 & (kMaxWalls - 1);
         }
-        int v8 = byte_1CE5C2 > 0 && (sector[tmpSect].ceilingstat & 1);
+        int v8 = byte_1CE5C2 > 0 && (sector [tmpSect].ceilingstat & 1);
         if (gWeather.at12d8 > 0 || v8)
         {
             gWeather.Draw(cX, cY, cZ, cA.asq16(), cH.asq16() + deliriumPitch, gWeather.at12d8);
@@ -709,7 +707,7 @@ void viewDrawScreen(bool sceneonly)
             }
         }
 #endif
-        hudDraw(gView, nSectnum, shakeX, shakeY, zDelta, basepal, gInterpolate);
+        hudDraw(gView, pSector, shakeX, shakeY, zDelta, basepal, gInterpolate);
     }
     UpdateDacs(0, true);    // keep the view palette active only for the actual 3D view and its overlays.
     if (automapMode != am_off)

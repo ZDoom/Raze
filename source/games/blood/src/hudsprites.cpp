@@ -87,7 +87,7 @@ static void viewBurnTime(int gScale)
 }
 
 
-void hudDraw(PLAYER *gView, int nSectnum, double bobx, double boby, double zDelta, int basepal, double smoothratio)
+void hudDraw(PLAYER *gView, sectortype* pSector, double bobx, double boby, double zDelta, int basepal, double smoothratio)
 {
 	double look_anghalf = gView->angle.look_anghalf(smoothratio);
 
@@ -116,7 +116,7 @@ void hudDraw(PLAYER *gView, int nSectnum, double bobx, double boby, double zDelt
 		{
 			cY += (-2048. / 128.);
 		}
-		int nShade = sector[nSectnum].floorshade; 
+		int nShade = pSector->floorshade; 
 		int nPalette = 0;
 		if (gView->pSprite->sector()->hasX()) {
 			sectortype* pSector = gView->pSprite->sector();
