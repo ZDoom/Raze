@@ -800,10 +800,9 @@ void DragPoint(walltype* pWall, int x, int y)
     } while (prevWall != pWall && vsi > 0);
 }
 
-void TranslateSector(int nSector, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, int a10, int a11, char a12)
+void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, int a10, int a11, char a12)
 {
     int x, y;
-    auto pSector = &sector[nSector];
     XSECTOR *pXSector = &pSector->xs();
     int v20 = interpolatedvalue(a6, a9, a2);
     int vc = interpolatedvalue(a6, a9, a3);
@@ -864,7 +863,7 @@ void TranslateSector(int nSector, int a2, int a3, int a4, int a5, int a6, int a7
             }
         }
     }
-    BloodSectIterator it(nSector);
+    BloodSectIterator it(pSector);
     while (auto actor = it.Next())
     {
         spritetype *pSprite = &actor->s();
@@ -904,7 +903,7 @@ void TranslateSector(int nSector, int a2, int a3, int a4, int a5, int a6, int a7
         {
             int top, bottom;
             GetSpriteExtents(pSprite, &top, &bottom);
-            int floorZ = getflorzofslope(nSector, pSprite->x, pSprite->y);
+            int floorZ = getflorzofslopeptr(pSector, pSprite->x, pSprite->y);
             if (!(pSprite->cstat&48) && floorZ <= bottom)
             {
                 if (v14)
@@ -918,9 +917,8 @@ void TranslateSector(int nSector, int a2, int a3, int a4, int a5, int a6, int a7
     }
 }
 
-void ZTranslateSector(int nSector, XSECTOR *pXSector, int a3, int a4)
+void ZTranslateSector(sectortype* pSector, XSECTOR *pXSector, int a3, int a4)
 {
-    sectortype *pSector = &sector[nSector];
     viewInterpolateSector(pSector);
     int dz = pXSector->onFloorZ-pXSector->offFloorZ;
     if (dz != 0)
@@ -929,7 +927,7 @@ void ZTranslateSector(int nSector, XSECTOR *pXSector, int a3, int a4)
         pSector->baseFloor = pSector->floorz = pXSector->offFloorZ + MulScale(dz, GetWaveValue(a3, a4), 16);
         pSector->velFloor += (pSector->floorz-oldZ)<<8;
 
-        BloodSectIterator it(nSector);
+        BloodSectIterator it(pSector);
         while (auto actor = it.Next())
         {
             spritetype* pSprite = &actor->s();
@@ -958,7 +956,7 @@ void ZTranslateSector(int nSector, XSECTOR *pXSector, int a3, int a4)
         pSector->baseCeil = pSector->ceilingz = pXSector->offCeilZ + MulScale(dz, GetWaveValue(a3, a4), 16);
         pSector->velCeil += (pSector->ceilingz-oldZ)<<8;
 
-        BloodSectIterator it(nSector);
+        BloodSectIterator it(pSector);
         while (auto actor = it.Next())
         {
             spritetype* pSprite = &actor->s();
@@ -973,12 +971,12 @@ void ZTranslateSector(int nSector, XSECTOR *pXSector, int a3, int a4)
     }
 }
 
-DBloodActor* GetHighestSprite(int nSector, int nStatus, int *z)
+DBloodActor* GetHighestSprite(sectortype* pSector, int nStatus, int *z)
 {
-    *z = sector[nSector].floorz;
+    *z = pSector->floorz;
     DBloodActor* found = nullptr;
 
-    BloodSectIterator it(nSector);
+    BloodSectIterator it(pSector);
     while (auto actor = it.Next())
     {
         spritetype* pSprite = &actor->s();
@@ -996,15 +994,14 @@ DBloodActor* GetHighestSprite(int nSector, int nStatus, int *z)
     return found;
 }
 
-DBloodActor* GetCrushedSpriteExtents(unsigned int nSector, int *pzTop, int *pzBot)
+DBloodActor* GetCrushedSpriteExtents(sectortype* pSector, int *pzTop, int *pzBot)
 {
     assert(pzTop != NULL && pzBot != NULL);
-    assert(nSector < (unsigned int)numsectors);
+    assert(pSector);
     DBloodActor* found = nullptr;
-    sectortype *pSector = &sector[nSector];
     int foundz = pSector->ceilingz;
 
-    BloodSectIterator it(nSector);
+    BloodSectIterator it(pSector);
     while (auto actor = it.Next())
     {
         spritetype* pSprite = &actor->s();
@@ -1042,7 +1039,7 @@ int VCrushBusy(sectortype *pSector, unsigned int a2)
     if (dz2 != 0)
         v10 += MulScale(dz2, GetWaveValue(a2, nWave), 16);
     int v18;
-    if (GetHighestSprite(sectnum(pSector), 6, &v18) && vc >= v18)
+    if (GetHighestSprite(pSector, 6, &v18) && vc >= v18)
         return 1;
     viewInterpolateSector(pSector);
     if (dz1 != 0)
@@ -1120,7 +1117,7 @@ int VDoorBusy(sectortype* pSector, unsigned int a2)
     else
         vbp = -65536/ClipLow((120*pXSector->busyTimeB)/10, 1);
     int top, bottom;
-    auto actor = GetCrushedSpriteExtents(sectnum(pSector),&top,&bottom);
+    auto actor = GetCrushedSpriteExtents(pSector, &top, &bottom);
     if (actor && a2 > pXSector->busy)
     {
         assert(actor->hasX());
@@ -1192,7 +1189,7 @@ int VDoorBusy(sectortype* pSector, unsigned int a2)
         nWave = pXSector->busyWaveA;
     else
         nWave = pXSector->busyWaveB;
-    ZTranslateSector(sectnum(pSector), pXSector, a2, nWave);
+    ZTranslateSector(pSector, pXSector, a2, nWave);
     pXSector->busy = a2;
     if (pXSector->command == kCmdLink && pXSector->txID)
         evSendSector(pSector,pXSector->txID, kCmdLink);
@@ -1217,8 +1214,8 @@ int HDoorBusy(sectortype* pSector, unsigned int a2)
     if (!pXSector->marker0 || !pXSector->marker1) return 0;
     spritetype *pSprite1 = &pXSector->marker0->s();
     spritetype *pSprite2 = &pXSector->marker1->s();
-    TranslateSector(sectnum(pSector), GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), pSprite1->x, pSprite1->y, pSprite1->x, pSprite1->y, pSprite1->ang, pSprite2->x, pSprite2->y, pSprite2->ang, pSector->type == kSectorSlide);
-    ZTranslateSector(sectnum(pSector), pXSector, a2, nWave);
+    TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), pSprite1->x, pSprite1->y, pSprite1->x, pSprite1->y, pSprite1->ang, pSprite2->x, pSprite2->y, pSprite2->ang, pSector->type == kSectorSlide);
+    ZTranslateSector(pSector, pXSector, a2, nWave);
     pXSector->busy = a2;
     if (pXSector->command == kCmdLink && pXSector->txID)
         evSendSector(pSector, pXSector->txID, kCmdLink);
@@ -1242,8 +1239,8 @@ int RDoorBusy(sectortype* pSector, unsigned int a2)
         nWave = pXSector->busyWaveB;
     if (!pXSector->marker0) return 0;
     spritetype* pSprite = &pXSector->marker0->s();
-    TranslateSector(sectnum(pSector), GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), pSprite->x, pSprite->y, pSprite->x, pSprite->y, 0, pSprite->x, pSprite->y, pSprite->ang, pSector->type == kSectorRotate);
-    ZTranslateSector(sectnum(pSector), pXSector, a2, nWave);
+    TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), pSprite->x, pSprite->y, pSprite->x, pSprite->y, 0, pSprite->x, pSprite->y, pSprite->ang, pSector->type == kSectorRotate);
+    ZTranslateSector(pSector, pXSector, a2, nWave);
     pXSector->busy = a2;
     if (pXSector->command == kCmdLink && pXSector->txID)
         evSendSector(pSector, pXSector->txID, kCmdLink);
@@ -1267,13 +1264,13 @@ int StepRotateBusy(sectortype* pSector, unsigned int a2)
     {
         vbp = pXSector->data+pSprite->ang;
         int nWave = pXSector->busyWaveA;
-        TranslateSector(sectnum(pSector), GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), pSprite->x, pSprite->y, pSprite->x, pSprite->y, pXSector->data, pSprite->x, pSprite->y, vbp, 1);
+        TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), pSprite->x, pSprite->y, pSprite->x, pSprite->y, pXSector->data, pSprite->x, pSprite->y, vbp, 1);
     }
     else
     {
         vbp = pXSector->data-pSprite->ang;
         int nWave = pXSector->busyWaveB;
-        TranslateSector(sectnum(pSector), GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), pSprite->x, pSprite->y, pSprite->x, pSprite->y, vbp, pSprite->x, pSprite->y, pXSector->data, 1);
+        TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), pSprite->x, pSprite->y, pSprite->x, pSprite->y, vbp, pSprite->x, pSprite->y, pXSector->data, 1);
     }
     pXSector->busy = a2;
     if (pXSector->command == kCmdLink && pXSector->txID)
@@ -1317,8 +1314,8 @@ int PathBusy(sectortype* pSector, unsigned int a2)
     XSPRITE *pXSprite2 = &pXSector->marker1->x();
 
     int nWave = pXSprite1->wave;
-    TranslateSector(sectnum(pSector), GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), pSprite->x, pSprite->y, pSprite1->x, pSprite1->y, pSprite1->ang, pSprite2->x, pSprite2->y, pSprite2->ang, 1);
-    ZTranslateSector(sectnum(pSector), pXSector, a2, nWave);
+    TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), pSprite->x, pSprite->y, pSprite1->x, pSprite1->y, pSprite1->ang, pSprite2->x, pSprite2->y, pSprite2->ang, 1);
+    ZTranslateSector(pSector, pXSector, a2, nWave);
     pXSector->busy = a2;
     if ((a2&0xffff) == 0)
     {
@@ -2025,14 +2022,14 @@ void trInit(void)
                 break;
             case kSectorZMotion:
             case kSectorZMotionSprite:
-                ZTranslateSector(i, pXSector, pXSector->busy, 1);
+                ZTranslateSector(pSector, pXSector, pXSector->busy, 1);
                 break;
             case kSectorSlideMarked:
             case kSectorSlide:
             {
                 spritetype* pSprite1 = &pXSector->marker0->s();
                 spritetype* pSprite2 = &pXSector->marker1->s();
-                TranslateSector(i, 0, -65536, pSprite1->x, pSprite1->y, pSprite1->x, pSprite1->y, pSprite1->ang, pSprite2->x, pSprite2->y, pSprite2->ang, pSector->type == kSectorSlide);
+                TranslateSector(pSector, 0, -65536, pSprite1->x, pSprite1->y, pSprite1->x, pSprite1->y, pSprite1->ang, pSprite2->x, pSprite2->y, pSprite2->ang, pSector->type == kSectorSlide);
                 for(auto& wal : wallsofsector(pSector))
                 {
                     wal.baseWall.x = wal.x;
@@ -2043,15 +2040,15 @@ void trInit(void)
                 {
                     actor->basePoint = actor->s().pos;
                 }
-                TranslateSector(i, 0, pXSector->busy, pSprite1->x, pSprite1->y, pSprite1->x, pSprite1->y, pSprite1->ang, pSprite2->x, pSprite2->y, pSprite2->ang, pSector->type == kSectorSlide);
-                ZTranslateSector(i, pXSector, pXSector->busy, 1);
+                TranslateSector(pSector, 0, pXSector->busy, pSprite1->x, pSprite1->y, pSprite1->x, pSprite1->y, pSprite1->ang, pSprite2->x, pSprite2->y, pSprite2->ang, pSector->type == kSectorSlide);
+                ZTranslateSector(pSector, pXSector, pXSector->busy, 1);
                 break;
             }
             case kSectorRotateMarked:
             case kSectorRotate:
             {
                 spritetype* pSprite1 = &pXSector->marker0->s();
-                TranslateSector(i, 0, -65536, pSprite1->x, pSprite1->y, pSprite1->x, pSprite1->y, 0, pSprite1->x, pSprite1->y, pSprite1->ang, pSector->type == kSectorRotate);
+                TranslateSector(pSector, 0, -65536, pSprite1->x, pSprite1->y, pSprite1->x, pSprite1->y, 0, pSprite1->x, pSprite1->y, pSprite1->ang, pSector->type == kSectorRotate);
                 for (auto& wal : wallsofsector(pSector))
                 {
                     wal.baseWall.x = wal.x;
@@ -2062,8 +2059,8 @@ void trInit(void)
                 {
                     actor->basePoint = actor->s().pos;
                 }
-                TranslateSector(i, 0, pXSector->busy, pSprite1->x, pSprite1->y, pSprite1->x, pSprite1->y, 0, pSprite1->x, pSprite1->y, pSprite1->ang, pSector->type == kSectorRotate);
-                ZTranslateSector(i, pXSector, pXSector->busy, 1);
+                TranslateSector(pSector, 0, pXSector->busy, pSprite1->x, pSprite1->y, pSprite1->x, pSprite1->y, 0, pSprite1->x, pSprite1->y, pSprite1->ang, pSector->type == kSectorRotate);
+                ZTranslateSector(pSector, pXSector, pXSector->busy, 1);
                 break;
             }
             case kSectorPath:
