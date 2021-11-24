@@ -707,9 +707,9 @@ void OperateWall(walltype* pWall, EVENT event) {
 
 }
 
-void SectorStartSound(int nSector, int nState)
+void SectorStartSound(sectortype* pSector, int nState)
 {
-    BloodSectIterator it(nSector);
+    BloodSectIterator it(pSector);
     while (auto actor = it.Next())
     {
         spritetype *pSprite = &actor->s();
@@ -730,9 +730,9 @@ void SectorStartSound(int nSector, int nState)
     }
 }
 
-void SectorEndSound(int nSector, int nState)
+void SectorEndSound(sectortype* pSector, int nState)
 {
-    BloodSectIterator it(nSector);
+    BloodSectIterator it(pSector);
     while (auto actor = it.Next())
     {
         spritetype* pSprite = &actor->s();
@@ -1064,7 +1064,7 @@ int VCrushBusy(unsigned int nSector, unsigned int a2)
     if ((a2&0xffff) == 0)
     {
         SetSectorState(nSector, pXSector, FixedToInt(a2));
-        SectorEndSound(nSector, FixedToInt(a2));
+        SectorEndSound(pSector, FixedToInt(a2));
         return 3;
     }
     return 0;
@@ -1115,7 +1115,7 @@ int VSpriteBusy(unsigned int nSector, unsigned int a2)
     if ((a2&0xffff) == 0)
     {
         SetSectorState(nSector, pXSector, FixedToInt(a2));
-        SectorEndSound(nSector, FixedToInt(a2));
+        SectorEndSound(pSector, FixedToInt(a2));
         return 3;
     }
     return 0;
@@ -1212,7 +1212,7 @@ int VDoorBusy(unsigned int nSector, unsigned int a2)
     if ((a2&0xffff) == 0)
     {
         SetSectorState(nSector, pXSector, FixedToInt(a2));
-        SectorEndSound(nSector, FixedToInt(a2));
+        SectorEndSound(pSector, FixedToInt(a2));
         return 3;
     }
     return 0;
@@ -1240,7 +1240,7 @@ int HDoorBusy(unsigned int nSector, unsigned int a2)
     if ((a2&0xffff) == 0)
     {
         SetSectorState(nSector, pXSector, FixedToInt(a2));
-        SectorEndSound(nSector, FixedToInt(a2));
+        SectorEndSound(pSector, FixedToInt(a2));
         return 3;
     }
     return 0;
@@ -1267,7 +1267,7 @@ int RDoorBusy(unsigned int nSector, unsigned int a2)
     if ((a2&0xffff) == 0)
     {
         SetSectorState(nSector, pXSector, FixedToInt(a2));
-        SectorEndSound(nSector, FixedToInt(a2));
+        SectorEndSound(pSector, FixedToInt(a2));
         return 3;
     }
     return 0;
@@ -1300,7 +1300,7 @@ int StepRotateBusy(unsigned int nSector, unsigned int a2)
     if ((a2&0xffff) == 0)
     {
         SetSectorState(nSector, pXSector, FixedToInt(a2));
-        SectorEndSound(nSector, FixedToInt(a2));
+        SectorEndSound(pSector, FixedToInt(a2));
         pXSector->data = vbp&2047;
         return 3;
     }
@@ -1319,7 +1319,7 @@ int GenSectorBusy(unsigned int nSector, unsigned int a2)
     if ((a2&0xffff) == 0)
     {
         SetSectorState(nSector, pXSector, FixedToInt(a2));
-        SectorEndSound(nSector, FixedToInt(a2));
+        SectorEndSound(pSector, FixedToInt(a2));
         return 3;
     }
     return 0;
@@ -1359,16 +1359,17 @@ int PathBusy(unsigned int nSector, unsigned int a2)
 
 void OperateDoor(unsigned int nSector, XSECTOR *pXSector, EVENT event, BUSYID busyWave) 
 {
+    auto pSector = &sector[nSector];
     switch (event.cmd) {
         case kCmdOff:
             if (!pXSector->busy) break;
             AddBusy(nSector, busyWave, -65536/ClipLow((pXSector->busyTimeB*120)/10, 1));
-            SectorStartSound(nSector, 1);
+            SectorStartSound(pSector, 1);
             break;
         case kCmdOn:
             if (pXSector->busy == 0x10000) break;
             AddBusy(nSector, busyWave, 65536/ClipLow((pXSector->busyTimeA*120)/10, 1));
-            SectorStartSound(nSector, 0);
+            SectorStartSound(pSector, 0);
             break;
         default:
             if (pXSector->busy & 0xffff)  {
@@ -1383,7 +1384,7 @@ void OperateDoor(unsigned int nSector, XSECTOR *pXSector, EVENT event, BUSYID bu
                 else nDelta = -65536/ClipLow((pXSector->busyTimeB*120)/10, 1);
             
                 AddBusy(nSector, busyWave, nDelta);
-                SectorStartSound(nSector, pXSector->state);
+                SectorStartSound(pSector, pXSector->state);
             }
             break;
     }
@@ -1568,13 +1569,13 @@ void OperateSector(sectortype* pSector, EVENT event)
                             pXSector->state = 0;
                             pXSector->busy = 0;
                             AddBusy(nSector, BUSYID_5, 65536/ClipLow((120*pXSector->busyTimeA)/10, 1));
-                            SectorStartSound(nSector, 0);
+                            SectorStartSound(pSector, 0);
                             break;
                         case kCmdOff:
                             pXSector->state = 1;
                             pXSector->busy = 65536;
                             AddBusy(nSector, BUSYID_5, -65536/ClipLow((120*pXSector->busyTimeB)/10, 1));
-                            SectorStartSound(nSector, 1);
+                            SectorStartSound(pSector, 1);
                             break;
                     }
                     break;

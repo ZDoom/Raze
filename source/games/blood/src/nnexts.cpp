@@ -5240,9 +5240,9 @@ int sectorInMotion(int nSector)
 //
 //---------------------------------------------------------------------------
 
-void sectorKillSounds(int nSector)
+void sectorKillSounds(sectortype* pSector)
 {
-    BloodSectIterator it(nSector);
+    BloodSectIterator it(pSector);
     while (auto actor = it.Next())
     {
         if (actor->s().type != kSoundSector) continue;
@@ -5256,18 +5256,17 @@ void sectorKillSounds(int nSector)
 //
 //---------------------------------------------------------------------------
 
-void sectorPauseMotion(int nSector) 
+void sectorPauseMotion(sectortype* pSector) 
 {
-    auto pSector = &sector[nSector];
     if (!pSector->hasX()) return;
     XSECTOR* pXSector = &pSector->xs();
     pXSector->unused1 = 1;
     
     evKillSector(pSector);
 
-    sectorKillSounds(nSector);
+    sectorKillSounds(pSector);
     if ((pXSector->busy == 0 && !pXSector->state) || (pXSector->busy == 65536 && pXSector->state))
-    SectorEndSound(nSector, pXSector->state);
+    SectorEndSound(pSector, pXSector->state);
 }
 
 //---------------------------------------------------------------------------
@@ -5276,13 +5275,12 @@ void sectorPauseMotion(int nSector)
 //
 //---------------------------------------------------------------------------
 
-void sectorContinueMotion(int nSector, EVENT event) 
+void sectorContinueMotion(sectortype* pSector, EVENT event) 
 {
-    auto pSector = &sector[nSector];
     if (!pSector->hasX()) return;
     else if (gBusyCount >= kMaxBusyCount)
     {
-        Printf(PRINT_HIGH, "Failed to continue motion for sector #%d. Max (%d) busy objects count reached!", nSector, kMaxBusyCount);
+        Printf(PRINT_HIGH, "Failed to continue motion for sector. Max (%d) busy objects count reached!", kMaxBusyCount);
         return;
     }
 
@@ -5309,8 +5307,6 @@ void sectorContinueMotion(int nSector, EVENT event)
     {
         event.cmd = (pXSector->state) ? kCmdOn : kCmdOff;
     }
-
-    //viewSetSystemMessage("%d / %d", pXSector->busy, pXSector->state);
 
     int nDelta = 1;
     switch (event.cmd) 
@@ -5369,9 +5365,9 @@ void sectorContinueMotion(int nSector, EVENT event)
             break;
     }
 
-    SectorStartSound(nSector, pXSector->state);
+    SectorStartSound(pSector, pXSector->state);
     nDelta = (pXSector->state) ? -nDelta : nDelta;
-    gBusy[gBusyCount].index = nSector;
+    gBusy[gBusyCount].index = sectnum(pSector);
     gBusy[gBusyCount].delta = nDelta;
     gBusy[gBusyCount].busy = pXSector->busy;
     gBusy[gBusyCount].type = (BUSYID)busyFunc;
@@ -5421,7 +5417,7 @@ bool modernTypeOperateSector(int nSector, sectortype* pSector, XSECTOR* pXSector
             case kCmdOn:
             case kCmdToggle:
             case kCmdSectorMotionContinue:
-                sectorContinueMotion(nSector, event);
+                sectorContinueMotion(pSector, event);
                 return true;
         }
     
@@ -5429,7 +5425,7 @@ bool modernTypeOperateSector(int nSector, sectortype* pSector, XSECTOR* pXSector
     }
     else if (event.cmd == kCmdSectorMotionPause) 
     {
-        sectorPauseMotion(nSector);
+        sectorPauseMotion(pSector);
         return true;
     }
     return false;

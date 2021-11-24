@@ -66,7 +66,7 @@ bool SetSpriteState(DBloodActor* actor, int nState);
 bool SetWallState(walltype* pWall, int nState);
 bool SetSectorState(int nSector, XSECTOR* pXSector, int nState);
 void TeleFrag(DBloodActor* killer, int nSector);
-void SectorStartSound(int nSector, int nState);
-void SectorEndSound(int nSector, int nState);
+void SectorStartSound(sectortype* pSector, int nState);
+void SectorEndSound(sectortype* pSector, int nState);
 
 END_BLD_NS
