@@ -5992,7 +5992,7 @@ static void actCheckExplosion()
 					if (gPhysSpritesList[i] == nullptr) continue;
 					auto physactor = gPhysSpritesList[i];
 					spritetype* pDebris = &physactor->s();
-					if (pDebris->sectnum < 0 || (pDebris->flags & kHitagFree) != 0) continue;
+					if (!pDebris->insector() || (pDebris->flags & kHitagFree) != 0) continue;
 
 					if (!CheckSector(sectorMap, pDebris) || !CheckProximity(physactor, x, y, z, pSector, radius)) continue;
 					else debrisConcuss(Owner, i, x, y, z, pExplodeInfo->dmgType);

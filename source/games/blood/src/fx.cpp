@@ -256,7 +256,7 @@ void CFX::fxProcess(void)
 void fxSpawnBlood(DBloodActor *actor, int )
 {
     spritetype* pSprite = &actor->s();
-    if (pSprite->sectnum < 0 || pSprite->sectnum >= numsectors)
+    if (!pSprite->insector())
         return;
     auto pSector = pSprite->sector();
     if (!FindSector(pSprite->x, pSprite->y, pSprite->z, &pSector))
@@ -277,7 +277,7 @@ void fxSpawnBlood(DBloodActor *actor, int )
 void fxSpawnPodStuff(DBloodActor* actor, int )
 {
     auto pSprite = &actor->s();
-    if (pSprite->sectnum < 0 || pSprite->sectnum >= numsectors)
+    if (!pSprite->insector())
         return;
     auto pSector = pSprite->sector();
     if (!FindSector(pSprite->x, pSprite->y, pSprite->z, &pSector))

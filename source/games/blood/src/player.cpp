@@ -1204,7 +1204,7 @@ void CheckPickUp(PLAYER *pPlayer)
     int x = pSprite->x;
     int y = pSprite->y;
     int z = pSprite->z;
-    int nSector = pSprite->sectnum;
+    auto pSector = pSprite->sector();
     BloodStatIterator it(kStatItem);
     while (auto itemactor = it.Next())
     {
@@ -1229,9 +1229,9 @@ void CheckPickUp(PLAYER *pPlayer)
         if (approxDist(dx,dy) > 48)
             continue;
         GetSpriteExtents(pItem, &top, &bottom);
-        if (cansee(x, y, z, nSector, pItem->x, pItem->y, pItem->z, pItem->sectnum)
-         || cansee(x, y, z, nSector, pItem->x, pItem->y, top, pItem->sectnum)
-         || cansee(x, y, z, nSector, pItem->x, pItem->y, bottom, pItem->sectnum))
+        if (cansee(x, y, z, pSector, pItem->x, pItem->y, pItem->z, pItem->sector())
+         || cansee(x, y, z, pSector, pItem->x, pItem->y, top, pItem->sector())
+         || cansee(x, y, z, pSector, pItem->x, pItem->y, bottom, pItem->sector()))
             PickUp(pPlayer, itemactor);
     }
 }
