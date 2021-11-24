@@ -1402,9 +1402,9 @@ bool SectorContainsDudes(int nSector)
     return 0;
 }
 
-void TeleFrag(DBloodActor* killer, int nSector)
+void TeleFrag(DBloodActor* killer, sectortype* pSector)
 {
-    BloodSectIterator it(nSector);
+    BloodSectIterator it(pSector);
     while (auto victim = it.Next())
     {
         spritetype *pSprite = &victim->s();
@@ -1440,7 +1440,7 @@ void OperateTeleport(unsigned int nSector, XSECTOR *pXSector)
             {
                 if (!(gGameOptions.uNetGameFlags & 2))
                 {
-                    TeleFrag(pXSector->actordata, pDest->sectnum);
+                    TeleFrag(pXSector->actordata, pDest->sector());
                 }
                 pSprite->x = pDest->x;
                 pSprite->y = pDest->y;

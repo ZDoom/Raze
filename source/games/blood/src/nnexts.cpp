@@ -742,7 +742,7 @@ void nnExtInitModernStuff()
                 pXSprite->Proximity = false;
             
             // very quick fix for floor sprites with Touch trigger flag if their Z is equals sector floorz / ceilgz
-            if (pSprite->sectnum >= 0 && pXSprite->Touch && (pSprite->cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)) {
+            if (pSprite->insector() && pXSprite->Touch && (pSprite->cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)) {
                 if (pSprite->z == pSprite->sector()->floorz) pSprite->z--;
                 else if (pSprite->z == pSprite->sector()->ceilingz) pSprite->z++;
             }
@@ -1030,12 +1030,12 @@ DBloodActor* randomSpawnDude(DBloodActor* sourceactor, DBloodActor* origin, int 
 //
 //---------------------------------------------------------------------------
 
-static void windGenDoVerticalWind(int factor, int nSector) 
+static void windGenDoVerticalWind(int factor, sectortype* pSector) 
 {
     int val, maxZ = 0, zdiff; bool maxZfound = false;
    
     // find maxz marker first
-    BloodSectIterator it(nSector);
+    BloodSectIterator it(pSector);
     while (auto actor = it.Next())
     {
         auto sp = &actor->s();
@@ -1047,7 +1047,7 @@ static void windGenDoVerticalWind(int factor, int nSector)
         }
     }
 
-    it.Reset(nSector);
+    it.Reset(pSector);
     while (auto actor = it.Next())
     {
         auto pSpr = &actor->s();
@@ -1153,7 +1153,7 @@ void nnExtProcessSuperSprites()
                 XSECTOR* pXSector = &pSector->xs();
 
                 if ((!pXSector->locked) && (fWindAlways || pXSector->windAlways || pXSector->busy))
-                    windGenDoVerticalWind(pXWind->sysData2, sectnum(pSector));
+                    windGenDoVerticalWind(pXWind->sysData2, pSector);
             }
 
             DBloodActor* pXRedir = nullptr; // check redirected TX buckets
@@ -1166,17 +1166,17 @@ void nnExtProcessSuperSprites()
                     XSECTOR* pXSector = &pSector->xs();
 
                     if ((!pXSector->locked) && (fWindAlways || pXSector->windAlways || pXSector->busy))
-                        windGenDoVerticalWind(pXWind->sysData2, sectnum(pSector));
+                        windGenDoVerticalWind(pXWind->sysData2, pSector);
                 }
             }
 
         }
-        else if (validSectorIndex(pWind->sectnum))
+        else if (pWind->insector())
         {
             sectortype* pSect = pWind->sector();
             XSECTOR* pXSector = (pSect->hasX()) ? &pSect->xs() : nullptr;
             if ((fWindAlways) || (pXSector && !pXSector->locked && (pXSector->windAlways || pXSector->busy)))
-                windGenDoVerticalWind(pXWind->sysData2, pWind->sectnum);
+                windGenDoVerticalWind(pXWind->sysData2, pWind->sector());
         }
     }
 
@@ -1253,7 +1253,7 @@ void nnExtProcessSuperSprites()
             int x = pSightSpr->x;	
             int y = pSightSpr->y;
             int z = pSightSpr->z; 
-            int sectnum = pSightSpr->sectnum;
+            auto pSightSect = pSightSpr->sector();
             int ztop2, zbot2;
             
             for (int a = connecthead; a >= 0; a = connectpoint2[a])
@@ -1264,7 +1264,7 @@ void nnExtProcessSuperSprites()
 
                 spritetype* pPlaySprite = pPlayer->pSprite;
                 GetSpriteExtents(pPlaySprite, &ztop2, &zbot2);
-                if (cansee(x, y, z, sectnum, pPlaySprite->x, pPlaySprite->y, ztop2, pPlaySprite->sectnum))
+                if (cansee(x, y, z, pSightSect, pPlaySprite->x, pPlaySprite->y, ztop2, pPlaySprite->sector()))
                 {
                     if (pXSightSpr->Sight)
                     {
@@ -1331,7 +1331,7 @@ void nnExtProcessSuperSprites()
             if (pXSector != nullptr)
             {
                 if ((uwater = pXSector->Underwater) != 0) airVel <<= 6;
-                if (pXSector->panVel != 0 && getflorzofslope(pDebris->sectnum, pDebris->x, pDebris->y) <= bottom)
+                if (pXSector->panVel != 0 && getflorzofslopeptr(pDebris->sector(), pDebris->x, pDebris->y) <= bottom)
                 {
                     int angle = pXSector->panAngle; int speed = 0;
                     if (pXSector->panAlways || pXSector->state || pXSector->busy)
@@ -3019,7 +3019,7 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
     clampSprite(actor, 0x01);
 
     if (pSource->flags & kModernTypeFlag1) // force telefrag
-        TeleFrag(actor, pSource->sectnum);
+        TeleFrag(actor, pSource->sector());
 
     if (pSprite->flags & kPhysGravity)
         pSprite->flags |= kPhysFalling;
@@ -3032,14 +3032,14 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
 
         if (pXSector->Underwater) 
         {
-            auto aLink = getLowerLink(pSource->sectnum);
+            auto aLink = pSource->sector()->lowerLink;
             spritetype* pLink = nullptr;
             if (aLink) 
             {
                 // must be sure we found exact same upper link
-                for (int i = 0; i < numsectors; i++) 
+                for(auto& sec : sectors())
                 {
-                    auto aUpper = getUpperLink(i);
+                    auto aUpper = sec.upperLink;
                     if (aUpper == nullptr || aUpper->x().data1 != aLink->x().data1) continue;
                     pLink = &aLink->s();
                     break;
@@ -3167,7 +3167,7 @@ void useEffectGen(DBloodActor* sourceactor, DBloodActor* actor)
                 break;
             case 3:
             case 4:
-                if (!validSectorIndex(pSprite->sectnum)) pos = top;
+                if (!pSprite->insector()) pos = top;
                 else pos = (pXSource->data4 == 3) ? pSprite->sector()->floorz : pSprite->sector()->ceilingz;
                 break;
             default:
@@ -3586,7 +3586,7 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector
         {
             auto pSprite = &iactor->s();
             if (pXSource->data2 <= 0) seqKill(iactor);
-            else if (validSectorIndex(pSprite->sectnum))
+            else if (pSprite->insector())
             {
                 if (pXSource->data3 > 0)
                 {
@@ -3611,7 +3611,7 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector
                         break;
                     case 5:
                     case 6:
-                        if (!validSectorIndex(pSprite->sectnum)) pSpawned->z = top;
+                        if (!pSprite->insector()) pSpawned->z = top;
                         else pSpawned->z = (pXSource->data3 == 5) ? spawned->sector()->floorz : spawned->sector()->ceilingz;
                         break;
                     }
@@ -4285,7 +4285,7 @@ bool condCheckDude(DBloodActor* aCond, int cmpOp, bool PUSH)
                     break;
                 case 3:
                 case 4:
-                    var = cansee(pSpr->x, pSpr->y, pSpr->z, pSpr->sectnum, pTrgt->x, pTrgt->y, pTrgt->z - eyeAboveZ, pTrgt->sectnum);
+                    var = cansee(pSpr->x, pSpr->y, pSpr->z, pSpr->sector(), pTrgt->x, pTrgt->y, pTrgt->z - eyeAboveZ, pTrgt->sector());
                 if (cond == 4 && var > 0) 
                 {
                         var = ((1024 + getangle(dx, dy) - pSpr->ang) & 2047) - 1024;
@@ -4426,7 +4426,7 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
             else if (PUSH) condPush(aCond, objActor->GetOwner());
                 return true;
             case 20: // stays in a sector?
-                if (!validSectorIndex(pSpr->sectnum)) return false;
+                if (!pSpr->insector()) return false;
             else if (PUSH) condPush(aCond, pSpr->sector());
                 return true;
             case 25:
@@ -5604,7 +5604,7 @@ bool modernTypeOperateSprite(DBloodActor* actor, const EVENT& event)
                     [[fallthrough]];
                 case kCmdRepeat:
                     if (pXSprite->txID > 0) modernTypeSendCommand(actor, pXSprite->txID, (COMMAND_ID)pXSprite->command);
-                    else if (pXSprite->data1 == 0 && validSectorIndex(pSprite->sectnum)) useSpriteDamager(actor, OBJ_SECTOR, pSprite->sector(), nullptr);
+                    else if (pXSprite->data1 == 0 && pSprite->insector()) useSpriteDamager(actor, OBJ_SECTOR, pSprite->sector(), nullptr);
                     else if (pXSprite->data1 >= 666 && pXSprite->data1 < 669) useSpriteDamager(actor, -1, nullptr, nullptr);
                     else
                     {
@@ -6648,14 +6648,14 @@ void useSlopeChanger(DBloodActor* sourceactor, int objType, sectortype* pSect, D
             case 1:
             case 2:
             case 3:
-                if (!validSectorIndex(pSpr->sectnum)) break;
+                if (!pSpr->insector()) break;
                 switch (pXSource->data4) 
                 {
                     case 1: sprite2sectorSlope(objActor, pSpr->sector(), 0, flag2); break;
                     case 2: sprite2sectorSlope(objActor, pSpr->sector(), 1, flag2); break;
                     case 3:
-                        if (getflorzofslope(pSpr->sectnum, pSpr->x, pSpr->y) - kSlopeDist <= pSpr->z) sprite2sectorSlope(objActor, pSpr->sector(), 0, flag2);
-                        if (getceilzofslope(pSpr->sectnum, pSpr->x, pSpr->y) + kSlopeDist >= pSpr->z) sprite2sectorSlope(objActor, pSpr->sector(), 1, flag2);
+                        if (getflorzofslopeptr(pSpr->sector(), pSpr->x, pSpr->y) - kSlopeDist <= pSpr->z) sprite2sectorSlope(objActor, pSpr->sector(), 0, flag2);
+                        if (getceilzofslopeptr(pSpr->sector(), pSpr->x, pSpr->y) + kSlopeDist >= pSpr->z) sprite2sectorSlope(objActor, pSpr->sector(), 1, flag2);
                         break;
                 }
                 break;
@@ -7521,7 +7521,8 @@ bool setDataValueOfObject(int objType, sectortype* sect, walltype* wal, DBloodAc
 bool nnExtCanMove(DBloodActor* actor, DBloodActor* target, int nAngle, int nRange) 
 {
     auto pSprite = &actor->s();
-    int x = pSprite->x, y = pSprite->y, z = pSprite->z, nSector = pSprite->sectnum;
+    int x = pSprite->x, y = pSprite->y, z = pSprite->z;
+    auto pSector = pSprite->sector();
     HitScan(actor, z, Cos(nAngle) >> 16, Sin(nAngle) >> 16, 0, CLIPMASK0, nRange);
     int nDist = approxDist(x - gHitInfo.hitx, y - gHitInfo.hity);
     if (target != nullptr && nDist - (pSprite->clipdist << 2) < nRange)
@@ -7529,13 +7530,13 @@ bool nnExtCanMove(DBloodActor* actor, DBloodActor* target, int nAngle, int nRang
 
     x += MulScale(nRange, Cos(nAngle), 30);
     y += MulScale(nRange, Sin(nAngle), 30);
-    if (!FindSector(x, y, z, &nSector))
+    if (!FindSector(x, y, z, &pSector))
         return false;
 
-    if (sector[nSector].hasX()) {
+    if (pSector->hasX()) {
 
-        XSECTOR* pXSector = &sector[nSector].xs();
-        return !((sector[nSector].type == kSectorDamage || pXSector->damageType > 0) && pXSector->state && !nnExtIsImmune(actor, pXSector->damageType, 16));
+        XSECTOR* pXSector = &pSector->xs();
+        return !((pSector->type == kSectorDamage || pXSector->damageType > 0) && pXSector->state && !nnExtIsImmune(actor, pXSector->damageType, 16));
 
     }
 
@@ -8149,11 +8150,15 @@ void aiPatrolAlarmFull(DBloodActor* actor, DBloodActor* targetactor, bool chain)
         return;
 
     int eaz2 = (getDudeInfo(pSprite->type)->eyeHeight * pSprite->yrepeat) << 2;
-    int x2 = pSprite->x, y2 = pSprite->y, z2 = pSprite->z - eaz2, sect2 = pSprite->sectnum;
+    int x2 = pSprite->x, y2 = pSprite->y, z2 = pSprite->z - eaz2;
+    
+    auto pSect2 = pSprite->sector();
     
     int tzt, tzb; 
     GetActorExtents(targetactor, &tzt, &tzb);
-    int x3 = pTarget->x, y3 = pTarget->y, z3 = tzt, sect3 = pTarget->sectnum;
+    int x3 = pTarget->x, y3 = pTarget->y, z3 = tzt;
+    
+    auto pSect3 = pTarget->sector();
 
     BloodStatIterator it(kStatDude);
     while (auto dudeactor = it.Next())
@@ -8167,7 +8172,9 @@ void aiPatrolAlarmFull(DBloodActor* actor, DBloodActor* targetactor, bool chain)
             continue;
 
         int eaz1 = (getDudeInfo(pDude->type)->eyeHeight * pDude->yrepeat) << 2;
-        int x1 = pDude->x, y1 = pDude->y, z1 = pDude->z - eaz1, sect1 = pDude->sectnum;
+        int x1 = pDude->x, y1 = pDude->y, z1 = pDude->z - eaz1;
+        
+        auto pSect1 = pDude->sector();
 
         int nDist1 = approxDist(x1 - x2, y1 - y2);
         int nDist2 = approxDist(x1 - x3, y1 - y3);
@@ -8175,7 +8182,7 @@ void aiPatrolAlarmFull(DBloodActor* actor, DBloodActor* targetactor, bool chain)
         int sdist = (pXDude->dudeGuard) ? 0 : getDudeInfo(pDude->type)->seeDist / 2;
 
         if (//(nDist1 < hdist || nDist2 < hdist) ||
-            ((nDist1 < sdist && cansee(x1, y1, z1, sect1, x2, y2, z2, sect2)) || (nDist2 < sdist && cansee(x1, y1, z1, sect1, x3, y3, z3, sect3)))) {
+            ((nDist1 < sdist && cansee(x1, y1, z1, pSect1, x2, y2, z2, pSect2)) || (nDist2 < sdist && cansee(x1, y1, z1, pSect1, x3, y3, z3, pSect3)))) {
 
             if (aiInPatrolState(pXDude->aiState)) aiPatrolStop(dudeactor, dudeactor->GetTarget());
             if (dudeactor->GetTarget() && dudeactor->GetTarget() == actor->GetTarget())
@@ -8326,7 +8333,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
             soundEngine->EnumerateChannels([&](FSoundChan* chan)
                 {
                     int sndx = 0, sndy = 0;
-                    int searchsect = -1;
+                    sectortype* searchsect = nullptr;
                     if (chan->SourceType == SOURCE_Actor)
                     {
                         auto emitter = (spritetype*)chan->Source;
@@ -8339,8 +8346,8 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
                         if (pSpr != emitter && emitterActor->GetOwner() != actor)
                         {
 
-                            if (!validSectorIndex(emitter->sectnum)) return false;
-                            searchsect = emitter->sectnum;
+                            if (!emitter->insector()) return false;
+                            searchsect = emitter->sector();
                         }
                     }
                     else if (chan->SourceType == SOURCE_Unattached)
@@ -8348,9 +8355,9 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
                         if (chan->UserData < 0 || chan->UserData >= numsectors) return false; // not a vaild sector sound.
                         sndx = int(chan->Point[0] * 16);
                         sndy = int(chan->Point[1] * -16);
-                        searchsect = chan->UserData;
+                        searchsect = &sector[chan->UserData];
                     }
-                    if (searchsect == -1) return false;
+                    if (searchsect == nullptr) return false;
                     int nDist = approxDist(sndx - pSprite->x, sndy - pSprite->y);
                     if (nDist > hearDist) return false;
 
@@ -8492,7 +8499,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
                                 continue;
 
                         } 
-                        else if (pSpr->sectnum != pSteal->sectnum)
+                        else if (pSpr->sector() != pSteal->sector())
                             continue;
 
                         if (crouch && pPlayer->posture == kPostureStand)
@@ -8507,7 +8514,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
                                 continue;
 
                         } 
-                        else if (pSprite->sectnum != pSteal->sectnum)
+                        else if (pSpr->sector() != pSteal->sector())
                             continue;
                     }
 
@@ -9136,7 +9143,7 @@ void clampSprite(DBloodActor* actor, int which)
 {
     auto pSprite = &actor->s();
     int zTop, zBot;
-    if (validSectorIndex(pSprite->sectnum))
+    if (pSprite->insector())
     {
         GetSpriteExtents(pSprite, &zTop, &zBot);
         if (which & 0x01)
