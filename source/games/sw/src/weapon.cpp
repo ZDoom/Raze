@@ -12634,7 +12634,7 @@ int InitSwordAttack(PLAYERp pp)
 
                 if (hitinfo.wall()->lotag == TAG_WALL_BREAK)
                 {
-                    HitBreakWall(&wall[hitinfo.hitwall], hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, u->ID);
+                    HitBreakWall(hitinfo.wall(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, u->ID);
                 }
                 // hit non breakable wall - do sound and puff
                 else
@@ -12837,7 +12837,7 @@ int InitFistAttack(PLAYERp pp)
 
                 if (hitinfo.wall()->lotag == TAG_WALL_BREAK)
                 {
-                    HitBreakWall(&wall[hitinfo.hitwall], hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, u->ID);
+                    HitBreakWall(hitinfo.wall(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, u->ID);
                 }
                 // hit non breakable wall - do sound and puff
                 else
@@ -13549,7 +13549,7 @@ int ContinueHitscan(PLAYERp pp, short sectnum, int x, int y, int z, short ang, i
 
         if (hitinfo.wall()->lotag == TAG_WALL_BREAK)
         {
-            HitBreakWall(&wall[hitinfo.hitwall], hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ang, u->ID);
+            HitBreakWall(hitinfo.wall(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ang, u->ID);
             return 0;
         }
 
@@ -13706,7 +13706,7 @@ int InitShotgun(PLAYERp pp)
 
             if (hitinfo.wall()->lotag == TAG_WALL_BREAK)
             {
-                HitBreakWall(&wall[hitinfo.hitwall], hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ndaang, u->ID);
+                HitBreakWall(hitinfo.wall(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ndaang, u->ID);
                 continue;
             }
 
@@ -16270,7 +16270,7 @@ int InitUzi(PLAYERp pp)
 
         if (hitinfo.wall()->lotag == TAG_WALL_BREAK)
         {
-            HitBreakWall(&wall[hitinfo.hitwall], hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, u->ID);
+            HitBreakWall(hitinfo.wall(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, u->ID);
             return 0;
         }
 
@@ -17207,7 +17207,7 @@ int InitTurretMgun(SECTOR_OBJECTp sop)
 
                 if (hitinfo.wall()->lotag == TAG_WALL_BREAK)
                 {
-                    HitBreakWall(&wall[hitinfo.hitwall], hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, 0);
+                    HitBreakWall(hitinfo.wall(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, 0);
                     continue;
                 }
 
@@ -17343,7 +17343,7 @@ int InitEnemyUzi(DSWActor* actor)
 
         if (hitinfo.wall()->lotag == TAG_WALL_BREAK)
         {
-            HitBreakWall(&wall[hitinfo.hitwall], hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, u->ID);
+            HitBreakWall(hitinfo.wall(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, u->ID);
             return 0;
         }
 

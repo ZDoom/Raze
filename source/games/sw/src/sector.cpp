@@ -2130,7 +2130,7 @@ bool NearThings(PLAYERp pp)
         {
             WALLp wp;
 
-            wp =  &wall[hitinfo.hitwall];
+            wp =  hitinfo.wall();
 
             // Near a plain old vanilla wall.  Can't do anything but grunt.
             if (!TEST(wp->extra, WALLFX_DONT_STICK) && pp == Player+myconnectindex)
