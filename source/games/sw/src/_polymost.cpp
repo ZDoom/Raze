@@ -103,7 +103,6 @@ void FAF_DrawRooms(int x, int y, int z, fixed_t q16ang, fixed_t q16horiz, int se
             SP_TAG5(sp) = sp->sector()->ceilingpicnum;
             sp->sector()->ceilingpicnum = SP_TAG2(sp);
             SP_TAG4(sp) = sp->sector()->ceilingstat;
-            //SET(sp->sectnum].ceilingstat, ((int)SP_TAG7(sp))<<7);
             SET(sp->sector()->ceilingstat, SP_TAG6(sp));
             RESET(sp->sector()->ceilingstat, CEILING_STAT_PLAX);
         }
@@ -112,7 +111,6 @@ void FAF_DrawRooms(int x, int y, int z, fixed_t q16ang, fixed_t q16horiz, int se
             SP_TAG5(sp) = sp->sector()->floorpicnum;
             sp->sector()->floorpicnum = SP_TAG2(sp);
             SP_TAG4(sp) = sp->sector()->floorstat;
-            //SET(sp->sector()->floorstat, ((int)SP_TAG7(sp))<<7);
             SET(sp->sector()->floorstat, SP_TAG6(sp));
             RESET(sp->sector()->floorstat, FLOOR_STAT_PLAX);
         }

@@ -17900,7 +17900,7 @@ bool WarpToUnderwater(int *sectnum, int *x, int *y, int *z)
     {
         over_sp = &itActor->s();
 
-        if (TEST(sector[over_sp->sectnum].extra, SECTFX_DIVE_AREA) &&
+        if (TEST(over_sp->sector()->extra, SECTFX_DIVE_AREA) &&
             over_sp->sector()->hasU() && sectu->hasU() &&
             over_sp->sector()->number == sectu->number)
         {
@@ -17918,7 +17918,7 @@ bool WarpToUnderwater(int *sectnum, int *x, int *y, int *z)
     {
         under_sp = &itActor->s();
 
-        if (TEST(sector[under_sp->sectnum].extra, SECTFX_UNDERWATER) &&
+        if (TEST(under_sp->sector()->extra, SECTFX_UNDERWATER) &&
             under_sp->sector()->hasU() &&
             under_sp->sector()->number == sectu->number)
         {
@@ -17949,7 +17949,7 @@ bool WarpToUnderwater(int *sectnum, int *x, int *y, int *z)
         *sectnum = under;
     }
 
-    *z = sector[under_sp->sectnum].ceilingz + Z(1);
+    *z = under_sp->sector()->ceilingz + Z(1);
 
     return true;
 }
@@ -17974,7 +17974,7 @@ bool WarpToSurface(int *sectnum, int *x, int *y, int *z)
     {
         under_sp = &itActor->s();
 
-        if (TEST(sector[under_sp->sectnum].extra, SECTFX_UNDERWATER) &&
+        if (TEST(under_sp->sector()->extra, SECTFX_UNDERWATER) &&
             under_sp->sector()->hasU() && sectu->hasU() &&
             under_sp->sector()->number == sectu->number)
         {
@@ -17992,7 +17992,7 @@ bool WarpToSurface(int *sectnum, int *x, int *y, int *z)
     {
         over_sp = &itActor->s();
 
-        if (TEST(sector[over_sp->sectnum].extra, SECTFX_DIVE_AREA) &&
+        if (TEST(over_sp->sector()->extra, SECTFX_DIVE_AREA) &&
             over_sp->sector()->hasU() &&
             over_sp->sector()->number == sectu->number)
         {
@@ -18019,7 +18019,7 @@ bool WarpToSurface(int *sectnum, int *x, int *y, int *z)
         *sectnum = over;
     }
 
-    *z = sector[over_sp->sectnum].floorz - Z(2);
+    *z = over_sp->sector()->floorz - Z(2);
 
     return true;
 }
@@ -18046,7 +18046,7 @@ bool SpriteWarpToUnderwater(DSWActor* actor)
     {
         over_sp = &itActor->s();
 
-        if (TEST(sector[over_sp->sectnum].extra, SECTFX_DIVE_AREA) &&
+        if (TEST(over_sp->sector()->extra, SECTFX_DIVE_AREA) &&
             over_sp->sector()->hasU() &&
             over_sp->sector()->number == sectu->number)
         {
@@ -18064,7 +18064,7 @@ bool SpriteWarpToUnderwater(DSWActor* actor)
     {
         under_sp = &itActor->s();
 
-        if (TEST(sector[under_sp->sectnum].extra, SECTFX_UNDERWATER) &&
+        if (TEST(under_sp->sector()->extra, SECTFX_UNDERWATER) &&
             under_sp->sector()->hasU() &&
             under_sp->sector()->number == sectu->number)
         {
@@ -18095,8 +18095,7 @@ bool SpriteWarpToUnderwater(DSWActor* actor)
         ChangeActorSect(actor, over);
     }
 
-    //sp->z = sector[under_sp->sectnum].ceilingz + Z(6);
-    sp->z = sector[under_sp->sectnum].ceilingz + u->ceiling_dist+Z(1);
+    sp->z = under_sp->sector()->ceilingz + u->ceiling_dist+Z(1);
 
     sp->backuppos();
 
@@ -18124,7 +18123,7 @@ bool SpriteWarpToSurface(DSWActor* actor)
     {
         under_sp = &itActor->s();
 
-        if (TEST(sector[under_sp->sectnum].extra, SECTFX_UNDERWATER) &&
+        if (TEST(under_sp->sector()->extra, SECTFX_UNDERWATER) &&
             under_sp->sector()->hasU() &&
             under_sp->sector()->number == sectu->number)
         {
@@ -18146,7 +18145,7 @@ bool SpriteWarpToSurface(DSWActor* actor)
     {
         over_sp = &itActor->s();
 
-        if (TEST(sector[over_sp->sectnum].extra, SECTFX_DIVE_AREA) &&
+        if (TEST(over_sp->sector()->extra, SECTFX_DIVE_AREA) &&
             over_sp->sector()->hasU() &&
             over_sp->sector()->number == sectu->number)
         {
@@ -18173,7 +18172,7 @@ bool SpriteWarpToSurface(DSWActor* actor)
         ChangeActorSect(actor, over);
     }
 
-    sp->z = sector[over_sp->sectnum].floorz - Z(2);
+    sp->z = over_sp->sector()->floorz - Z(2);
 
     // set z range and wade depth so we know how high to set view
     DoActorZrange(actor);

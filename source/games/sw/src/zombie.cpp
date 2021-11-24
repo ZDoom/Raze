@@ -824,9 +824,6 @@ void SpawnZombie2(DSWActor* actor)
     if (SectorIsUnderwaterArea(sp->sectnum))
         return;
 
-    //if (FAF_ConnectArea(sp->sectnum))
-    //    return(-1);
-
     if (FAF_ConnectArea(sp->sectnum))
     {
         int sectnum = sp->sectnum;

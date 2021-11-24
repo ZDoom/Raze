@@ -1719,8 +1719,7 @@ void UpdatePlayerUnderSprite(PLAYERp pp)
     ASSERT(over_u);
 
     // dont bother spawning if you ain't really in the water
-    //water_level_z = sector[over_sp->sectnum].floorz - Z(pp->WadeDepth);
-    water_level_z = sector[over_sp->sectnum].floorz; // - Z(pp->WadeDepth);
+    water_level_z = over_sp->sector()->floorz; // - Z(pp->WadeDepth);
 
     // if not below water
     above_water = (SPRITEp_BOS(over_sp) <= water_level_z);
@@ -4100,7 +4099,7 @@ void DoPlayerWarpToUnderwater(PLAYERp pp)
     {
         over_sp = &actor->s();
 
-        if (TEST(sector[over_sp->sectnum].extra, SECTFX_DIVE_AREA) &&
+        if (TEST(over_sp->sector()->extra, SECTFX_DIVE_AREA) &&
             over_sp->sector()->hasU() &&
             over_sp->sector()->number == sectu->number)
         {
@@ -4118,7 +4117,7 @@ void DoPlayerWarpToUnderwater(PLAYERp pp)
     {
         under_sp = &actor->s();
 
-        if (TEST(sector[under_sp->sectnum].extra, SECTFX_UNDERWATER) &&
+        if (TEST(under_sp->sector()->extra, SECTFX_UNDERWATER) &&
             under_sp->sector()->hasU() &&
             under_sp->sector()->number == sectu->number)
         {
@@ -4147,7 +4146,7 @@ void DoPlayerWarpToUnderwater(PLAYERp pp)
     else
         pp->cursectnum = over;
 
-    pp->posz = sector[under_sp->sectnum].ceilingz + Z(6);
+    pp->posz = under_sp->sector()->ceilingz + Z(6);
 
     pp->oposx = pp->posx;
     pp->oposy = pp->posy;
@@ -4175,7 +4174,7 @@ void DoPlayerWarpToSurface(PLAYERp pp)
     {
         under_sp = &actor->s();
 
-        if (TEST(sector[under_sp->sectnum].extra, SECTFX_UNDERWATER) &&
+        if (TEST(under_sp->sector()->extra, SECTFX_UNDERWATER) &&
             under_sp->sector()->hasU() &&
             under_sp->sector()->number == sectu->number)
         {
@@ -4193,7 +4192,7 @@ void DoPlayerWarpToSurface(PLAYERp pp)
     {
         over_sp = &actor->s();
 
-        if (TEST(sector[over_sp->sectnum].extra, SECTFX_DIVE_AREA) &&
+        if (TEST(over_sp->sector()->extra, SECTFX_DIVE_AREA) &&
             over_sp->sector()->hasU() &&
             over_sp->sector()->number == sectu->number)
         {
@@ -4220,7 +4219,7 @@ void DoPlayerWarpToSurface(PLAYERp pp)
         pp->cursectnum = over;
     }
 
-    pp->posz = sector[over_sp->sectnum].floorz - Z(2);
+    pp->posz = over_sp->sector()->floorz - Z(2);
 
     // set z range and wade depth so we know how high to set view
     DoPlayerZrange(pp);
