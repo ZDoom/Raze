@@ -999,11 +999,12 @@ void CollectPortals()
             floordone.Set(i);
             for (unsigned ii = 0; ii < fp.sectors.Size(); ii++)
             {
-                auto sec = &sector[fp.sectors[ii]];
-                for (int w = 0; w < sec->wallnum; w++)
+                for (auto& wal : wallsofsector(fp.sectors[ii]))
                 {
-                    auto ns = wall[sec->wallptr + w].nextsector;
-                    if (ns < 0 || floordone[ns] || sector[ns].floorpicnum != FAF_MIRROR_PIC) continue;
+                    if (!wal.twoSided()) continue;
+                    auto nsec = wal.nextSector();
+                    auto ns = sectnum(nsec);
+                    if (floordone[ns] || nsec->floorpicnum != FAF_MIRROR_PIC) continue;
                     fp.sectors.Push(ns);
                     floordone.Set(ns);
                 }
@@ -1016,11 +1017,12 @@ void CollectPortals()
             ceilingdone.Set(i);
             for (unsigned ii = 0; ii < fp.sectors.Size(); ii++)
             {
-                auto sec = &sector[fp.sectors[ii]];
-                for (int w = 0; w < sec->wallnum; w++)
+                for (auto& wal : wallsofsector(fp.sectors[ii]))
                 {
-                    auto ns = wall[sec->wallptr + w].nextsector;
-                    if (ns < 0 || ceilingdone[ns] || sector[ns].ceilingpicnum != FAF_MIRROR_PIC) continue;
+                    if (!wal.twoSided()) continue;
+                    auto nsec = wal.nextSector();
+                    auto ns = sectnum(nsec);
+                    if (ceilingdone[ns] || nsec->ceilingpicnum != FAF_MIRROR_PIC) continue;
                     fp.sectors.Push(ns);
                     ceilingdone.Set(ns);
                 }
