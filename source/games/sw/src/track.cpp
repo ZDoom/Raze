@@ -3509,16 +3509,20 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
                 ActorLeaveTrack(actor);
                 return false;
             }
+            auto wal = &wall[hit_wall];
 
 #if DEBUG
-            if (wall[hit_wall].nextsector < 0)
+            if (wal->nextsector < 0)
             {
-                I_Error("Take out white wall ladder x = %d, y = %d",wall[hit_wall].x, wall[hit_wall].y);
+                I_Error("Take out white wall ladder x = %d, y = %d",wal->x, wal->y);
             }
 #endif
 
             // destination z for climbing
-            u->sz = sector[wall[hit_wall].nextsector].floorz;
+            if (wal->twoSided())
+                u->sz = wal->nextSector()->floorz;
+            else
+                u->sz = wal->sectorp()->ceilingz; // don't crash on bad setups.
 
             DoActorZrange(actor);
 

@@ -2539,8 +2539,7 @@ void DoSineWaveFloor(void)
                     wal = &wall[sector[swf->sector].wallptr+2];
 
                     //Pass (Sector, x, y, z)
-                    alignflorslope(swf->sector,wal->x,wal->y,
-                                   sector[wal->nextsector].floorz);
+                    alignflorslope(swf->sector,wal->x,wal->y, wal->nextSector()->floorz);
                 }
             }
         }

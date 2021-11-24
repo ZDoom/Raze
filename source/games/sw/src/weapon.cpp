@@ -7298,10 +7298,9 @@ short StatBreakList[] =
 void TraverseBreakableWalls(short start_sect, int x, int y, int z, short ang, int radius)
 {
     int k;
-    int sect, startwall, endwall, nextsector;
     int xmid,ymid;
     int dist;
-    short break_count;
+    int break_count;
 
 	int sectnum;
 	int wall_ang;
@@ -7314,9 +7313,8 @@ void TraverseBreakableWalls(short start_sect, int x, int y, int z, short ang, in
 
     break_count = 0;
 
-
-    BFSSearch search(numsectors, start_sect);
-    for (unsigned sect; (sect = search.GetNext()) != BFSSearch::EOL;)
+    BFSSectorSearch search(&sector[start_sect]);
+    while (auto sect = search.GetNext())
     {
         for(auto& wal : wallsofsector(sect))
         {
@@ -7348,10 +7346,8 @@ void TraverseBreakableWalls(short start_sect, int x, int y, int z, short ang, in
                 }
             }
 
-            nextsector = wal.nextsector;
-
-            if (nextsector >= 0)
-                search.Add(nextsector);
+            if (wal.twoSided())
+                search.Add(wal.nextSector());
         }
 
     }

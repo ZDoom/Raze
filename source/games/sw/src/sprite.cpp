@@ -1476,7 +1476,6 @@ void PreMapCombineFloors(void)
     int i, j, k;
     int base_offset;
     int dx, dy;
-    int startwall, endwall, nextsector;
     short pnum;
 
     typedef struct
@@ -1520,8 +1519,8 @@ void PreMapCombineFloors(void)
         dx = BoundList[base_offset].offset->x - BoundList[i].offset->x;
         dy = BoundList[base_offset].offset->y - BoundList[i].offset->y;
 
-        BFSSearch search(numsectors, BoundList[i].offset->sectnum);
-        for (unsigned dasect; (dasect = search.GetNext()) != BFSSearch::EOL;)
+        BFSSectorSearch search(&sector[BoundList[i].offset->sectnum]);
+        while (auto dasect = search.GetNext())
         {
             SWSectIterator it(dasect);
             while (auto jActor = it.Next())
@@ -1535,18 +1534,17 @@ void PreMapCombineFloors(void)
                 wal.x += dx;
                 wal.y += dy;
 
-                nextsector = wal.nextsector;
-                if (nextsector >= 0)
-                    search.Add(nextsector);
+                if (wal.twoSided())
+                    search.Add(wal.nextSector());
             }
         }
 
         TRAVERSE_CONNECT(pnum)
         {
             PLAYERp pp = &Player[pnum];
-            unsigned dasect = pp->cursectnum;
+            auto dasect = pp->cursector();
             search.Rewind();
-            for (unsigned itsect; (itsect = search.GetNext()) != BFSSearch::EOL;)
+            while (auto itsect = search.GetNext())
             {
                 if (itsect == dasect)
                 {
@@ -1575,7 +1573,7 @@ void TraverseSectors(short start_sect)
 {
     int i, j, k;
     short sectlist[M AXSECTORS];
-    short sectlistplc, sectlistend, sect, startwall, endwall, nextsector;
+    short sectlistplc, sectlistend, sect, startwall, endwall, nextSector;
 
     sectlist[0] = start_sect;
     sectlistplc = 0; sectlistend = 1;
@@ -1588,21 +1586,21 @@ void TraverseSectors(short start_sect)
 
         for (j=startwall; j<endwall; j++)
         {
-            nextsector = wall[j].nextsector;
+            nextSector = wall[j].nextSector;
 
-            if (nextsector < 0)
+            if (nextSector < 0)
                 continue;
 
             // make sure its not on the list
             for (k = sectlistend-1; k >= 0; k--)
             {
-                if (sectlist[k] == nextsector)
+                if (sectlist[k] == nextSector)
                     break;
             }
 
             // if its not on the list add it to the end
             if (k < 0)
-                sectlist[sectlistend++] = nextsector;
+                sectlist[sectlistend++] = nextSector;
         }
 
     }

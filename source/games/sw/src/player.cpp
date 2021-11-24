@@ -3410,7 +3410,7 @@ void DoPlayerClimb(PLAYERp pp)
             ny = MOVEy(100, lsp->ang);
 
             // set ladder sector
-            pp->LadderSector = wp->nextsector >= 0? wp->nextsector : wp->sector;
+            pp->LadderSector = wp->twoSided()? wp->nextsector : wp->sector;
 
             // set players "view" distance from the ladder - needs to be farther than
             // the sprite
@@ -3804,15 +3804,7 @@ bool PlayerOnLadder(PLAYERp pp)
     nx = MOVEx(100, lsp->ang);
     ny = MOVEy(100, lsp->ang);
 
-#if DEBUG
-    if (wall[wal].nextsector < 0)
-    {
-        I_Error("Take out white wall ladder x = %d, y = %d",wall[wal].x, wall[wal].y);
-    }
-#endif
-
-    pp->LadderSector = wall[wal].nextsector >= 0 ? wall[wal].nextsector : wall[wal].sector;
-    //DSPRINTF(ds, "Ladder Sector %d", pp->LadderSector);
+    pp->LadderSector = wall[wal].twoSided() ? wall[wal].nextsector : wall[wal].sector;
     MONO_PRINT(ds);
 
     // set players "view" distance from the ladder - needs to be farther than

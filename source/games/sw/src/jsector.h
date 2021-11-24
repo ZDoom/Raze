@@ -43,7 +43,7 @@ typedef struct
 	DSWActor* cameraActor;                       // Contains number of ST1 sprite used as a camera
 	DSWActor* camspriteActor;                    // sprite pointing to campic
 	walltype* mirrorWall;                   // Wall number containing the mirror tile
-    sectortype* mirrorSector;                 // nextsector used internally to draw mirror rooms
+    sectortype* mirrorSector;                 // used internally to draw mirror rooms
     short campic;                       // Editart tile number to draw a screen to
     short numspawnspots;                // Number of spawnspots used
     short spawnspots[MAXMIRRORMONSTERS]; // One spot for each possible skill level for a max of up to 4 coolie ghosts to spawn.
