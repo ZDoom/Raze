@@ -183,9 +183,9 @@ void so_addinterpolation(SECTOR_OBJECTp sop)
 
             if (wal.twoSided())
             {
-                auto nextWall = wal.nextWall();
-                so_setpointinterpolation(interp, nextWall->point2 | soi_wallx);
-                so_setpointinterpolation(interp, nextWall->point2 | soi_wally);
+                auto nextWall = wal.nextWall()->point2Wall();
+                so_setpointinterpolation(interp, wallnum(nextWall) | soi_wallx);
+                so_setpointinterpolation(interp, wallnum(nextWall) | soi_wally);
             }
         }
 

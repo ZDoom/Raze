@@ -121,7 +121,6 @@ bool FAF_Sector(sectortype* sectnum)
 
 void SetWallWarpHitscan(short sectnum)
 {
-    short start_wall, wall_num;
     DSWActor* sp_warp;
 
     if (!WarpSectorInfo(sectnum, &sp_warp))
@@ -130,31 +129,29 @@ void SetWallWarpHitscan(short sectnum)
     if (!sp_warp)
         return;
 
-    // move the the next wall
-    wall_num = start_wall = sector[sectnum].wallptr;
+    auto start_wall = sector[sectnum].firstWall();
+    auto wall_num = start_wall;
 
     // Travel all the way around loop setting wall bits
     do
     {
-        if (validWallIndex(wall[wall_num].nextwall))
-            SET(wall[wall_num].cstat, CSTAT_WALL_WARP_HITSCAN);
-        wall_num = wall[wall_num].point2;
+        if (validWallIndex(wall_num->nextwall))
+            SET(wall_num->cstat, CSTAT_WALL_WARP_HITSCAN);
+        wall_num = wall_num->point2Wall();
     }
     while (wall_num != start_wall);
 }
 
 void ResetWallWarpHitscan(short sectnum)
 {
-    short start_wall, wall_num;
-
-    // move the the next wall
-    wall_num = start_wall = sector[sectnum].wallptr;
+    auto start_wall = sector[sectnum].firstWall();
+    auto wall_num = start_wall;
 
     // Travel all the way around loop setting wall bits
     do
     {
-        RESET(wall[wall_num].cstat, CSTAT_WALL_WARP_HITSCAN);
-        wall_num = wall[wall_num].point2;
+        RESET(wall_num->cstat, CSTAT_WALL_WARP_HITSCAN);
+        wall_num = wall_num->point2Wall();
     }
     while (wall_num != start_wall);
 }

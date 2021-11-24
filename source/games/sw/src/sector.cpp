@@ -90,23 +90,22 @@ SPRING_BOARD SpringBoard[20];
 
 void SetSectorWallBits(short sectnum, int bit_mask, bool set_sectwall, bool set_nextwall)
 {
-    short wall_num, start_wall;
-
-    wall_num = start_wall = sector[sectnum].wallptr;
+    auto start_wall = sector[sectnum].firstWall();
+    auto wall_num = start_wall;
 
     do
     {
         if (set_sectwall)
-            SET(wall[wall_num].extra, bit_mask);
+            SET(wall_num->extra, bit_mask);
 
         if (set_nextwall)
         {
-            uint16_t const nextwall = wall[wall_num].nextwall;
+            uint16_t const nextwall = wall_num->nextwall;
             if (validWallIndex(nextwall))
                 SET(wall[nextwall].extra, bit_mask);
         }
 
-        wall_num = wall[wall_num].point2;
+        wall_num = wall_num->point2Wall();
     }
     while (wall_num != start_wall);
 
@@ -151,12 +150,12 @@ static void WallSetupLoop(WALLp wp, int16_t lotag, int16_t extra)
     }
 
     // Travel all the way around loop setting wall bits
-    for (uint16_t wall_num = wp->point2;
-         wall[wall_num].lotag != lotag;
-         wall_num = wall[wall_num].point2)
+    for (auto wall_num = wp->point2Wall();
+         wall_num->lotag != lotag;
+         wall_num = wall_num->point2Wall())
     {
-        SET(wall[wall_num].extra, extra);
-        uint16_t const nextwall = wall[wall_num].nextwall;
+        SET(wall_num->extra, extra);
+        uint16_t const nextwall = wall_num->nextwall;
         if (validWallIndex(nextwall))
             SET(wall[nextwall].extra, extra);
     }
