@@ -1588,13 +1588,12 @@ void OperateSector(sectortype* pSector, EVENT event)
     }
 }
 
-void InitPath(unsigned int nSector, XSECTOR *pXSector)
+void InitPath(sectortype* pSector, XSECTOR *pXSector)
 {
-    sectortype* pSector = &sector[nSector];
     DBloodActor* actor = nullptr;
     spritetype *pSprite = nullptr;
     XSPRITE *pXSprite;
-    assert(nSector < (unsigned int)numsectors);
+    assert(pSector);
     int nId = pXSector->data;
 
     BloodStatIterator it(kStatPathMarker);
@@ -1610,8 +1609,7 @@ void InitPath(unsigned int nSector, XSECTOR *pXSector)
     }
     
     if (pSprite == nullptr) {
-        //I_Error("Unable to find path marker with id #%d", nId);
-        viewSetSystemMessage("Unable to find path marker with id #%d for path sector #%d", nId, nSector);
+        viewSetSystemMessage("Unable to find path marker with id #%d for path sector", nId);
         return;
         
     }
@@ -2000,9 +1998,9 @@ void trInit(void)
         }
     }
 
-    for (int i = 0; i < numsectors; i++)
+    for(auto& sect : sectors())
     {
-        sectortype *pSector = &sector[i];
+        sectortype *pSector = &sect;
         pSector->baseFloor = pSector->floorz;
         pSector->baseCeil = pSector->ceilingz;
         if (pSector->hasX())
@@ -2036,7 +2034,7 @@ void trInit(void)
                     wal.baseWall.x = wal.x;
                     wal.baseWall.y = wal.y;
                 }
-                BloodSectIterator it(i);
+                BloodSectIterator it(pSector);
                 while (auto actor = it.Next())
                 {
                     actor->basePoint = actor->s().pos;
@@ -2055,7 +2053,7 @@ void trInit(void)
                     wal.baseWall.x = wal.x;
                     wal.baseWall.y = wal.y;
                 }
-                BloodSectIterator it(i);
+                BloodSectIterator it(pSector);
                 while (auto actor = it.Next())
                 {
                     actor->basePoint = actor->s().pos;
@@ -2065,7 +2063,7 @@ void trInit(void)
                 break;
             }
             case kSectorPath:
-                InitPath(i, pXSector);
+                InitPath(pSector, pXSector);
                 break;
             default:
                 break;
