@@ -5377,7 +5377,7 @@ bool modernTypeOperateSector(int nSector, sectortype* pSector, XSECTOR* pXSector
         {
             case kSectorCounter:
                 if (pXSector->locked != 1) break;
-                SetSectorState(nSector, pXSector, 0);
+                SetSectorState(pSector, 0);
                 evPostSector(pSector, 0, kCallbackCounterCheck);
                 break;
         }

@@ -62,7 +62,7 @@ void trInit(void);
 void trTextOver(int nId);
 bool SetSpriteState(DBloodActor* actor, int nState);
 bool SetWallState(walltype* pWall, int nState);
-bool SetSectorState(int nSector, XSECTOR* pXSector, int nState);
+bool SetSectorState(sectortype* pSector, int nState);
 void TeleFrag(DBloodActor* killer, sectortype* pSector);
 void SectorStartSound(sectortype* pSector, int nState);
 void SectorEndSound(sectortype* pSector, int nState);

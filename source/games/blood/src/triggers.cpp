@@ -95,9 +95,10 @@ bool SetWallState(walltype* pWall, int nState)
     return 1;
 }
 
-bool SetSectorState(int nSector, XSECTOR *pXSector, int nState)
+bool SetSectorState(sectortype *pSector, int nState)
 {
-    auto pSector = &sector[nSector];
+    assert(pSector->hasX());
+    auto pXSector = &pSector->xs();
     if ((pXSector->busy&0xffff) == 0 && pXSector->state == nState)
         return 0;
     pXSector->busy = IntToFixed(nState);
@@ -1053,7 +1054,7 @@ int VCrushBusy(sectortype *pSector, unsigned int a2)
         evSendSector(pSector,pXSector->txID, kCmdLink);
     if ((a2&0xffff) == 0)
     {
-        SetSectorState(sectnum(pSector), pXSector, FixedToInt(a2));
+        SetSectorState(pSector, FixedToInt(a2));
         SectorEndSound(pSector, FixedToInt(a2));
         return 3;
     }
@@ -1102,7 +1103,7 @@ int VSpriteBusy(sectortype* pSector, unsigned int a2)
         evSendSector(pSector,pXSector->txID, kCmdLink);
     if ((a2&0xffff) == 0)
     {
-        SetSectorState(sectnum(pSector), pXSector, FixedToInt(a2));
+        SetSectorState(pSector, FixedToInt(a2));
         SectorEndSound(pSector, FixedToInt(a2));
         return 3;
     }
@@ -1197,7 +1198,7 @@ int VDoorBusy(sectortype* pSector, unsigned int a2)
         evSendSector(pSector,pXSector->txID, kCmdLink);
     if ((a2&0xffff) == 0)
     {
-        SetSectorState(sectnum(pSector), pXSector, FixedToInt(a2));
+        SetSectorState(pSector, FixedToInt(a2));
         SectorEndSound(pSector, FixedToInt(a2));
         return 3;
     }
@@ -1223,7 +1224,7 @@ int HDoorBusy(sectortype* pSector, unsigned int a2)
         evSendSector(pSector, pXSector->txID, kCmdLink);
     if ((a2&0xffff) == 0)
     {
-        SetSectorState(sectnum(pSector), pXSector, FixedToInt(a2));
+        SetSectorState(pSector, FixedToInt(a2));
         SectorEndSound(pSector, FixedToInt(a2));
         return 3;
     }
@@ -1248,7 +1249,7 @@ int RDoorBusy(sectortype* pSector, unsigned int a2)
         evSendSector(pSector, pXSector->txID, kCmdLink);
     if ((a2&0xffff) == 0)
     {
-        SetSectorState(sectnum(pSector), pXSector, FixedToInt(a2));
+        SetSectorState(pSector, FixedToInt(a2));
         SectorEndSound(pSector, FixedToInt(a2));
         return 3;
     }
@@ -1279,7 +1280,7 @@ int StepRotateBusy(sectortype* pSector, unsigned int a2)
         evSendSector(pSector, pXSector->txID, kCmdLink);
     if ((a2&0xffff) == 0)
     {
-        SetSectorState(sectnum(pSector), pXSector, FixedToInt(a2));
+        SetSectorState(pSector, FixedToInt(a2));
         SectorEndSound(pSector, FixedToInt(a2));
         pXSector->data = vbp&2047;
         return 3;
@@ -1296,7 +1297,7 @@ int GenSectorBusy(sectortype* pSector, unsigned int a2)
         evSendSector(pSector, pXSector->txID, kCmdLink);
     if ((a2&0xffff) == 0)
     {
-        SetSectorState(sectnum(pSector), pXSector, FixedToInt(a2));
+        SetSectorState(pSector, FixedToInt(a2));
         SectorEndSound(pSector, FixedToInt(a2));
         return 3;
     }
@@ -1567,13 +1568,13 @@ void OperateSector(sectortype* pSector, EVENT event)
                         
                         switch (event.cmd) {
                             case kCmdOff:
-                                SetSectorState(nSector, pXSector, 0);
+                                SetSectorState(pSector, 0);
                                 break;
                             case kCmdOn:
-                                SetSectorState(nSector, pXSector, 1);
+                                SetSectorState(pSector, 1);
                                 break;
                             default:
-                                SetSectorState(nSector, pXSector, pXSector->state ^ 1);
+                                SetSectorState(pSector, pXSector->state ^ 1);
                                 break;
                         }
 
@@ -1646,7 +1647,7 @@ void LinkSector(int nSector, XSECTOR *pXSector, EVENT event)
         default:
             pXSector->busy = nBusy;
             if ((pXSector->busy&0xffff) == 0)
-                SetSectorState(nSector, pXSector, FixedToInt(nBusy));
+                SetSectorState(pSector, FixedToInt(nBusy));
             break;
     }
 }
