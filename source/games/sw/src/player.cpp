@@ -62,7 +62,7 @@ BEGIN_SW_NS
 void pSpriteControl(PLAYERp pp);
 int WeaponOperate(PLAYERp pp);
 SECTOR_OBJECTp PlayerOnObject(short sectnum_match);
-void PlayerRemoteReset(PLAYERp pp, short sectnum);
+void PlayerRemoteReset(PLAYERp pp, sectortype* sect);
 void KillAllPanelInv(PLAYERp pp);
 void DoPlayerDeathDrown(PLAYERp pp);
 void pWeaponForceRest(PLAYERp pp);
@@ -1265,7 +1265,7 @@ void DoPlayerTeleportPause(PLAYERp pp)
     USERp u = pp->Actor()->u();
 
     // set this so we don't get stuck in teleporting loop
-    pp->lastcursectnum = pp->cursectnum;
+    pp->backupcursector();
 
     if ((u->WaitTics-=synctics) <= 0)
     {
@@ -1289,7 +1289,6 @@ void DoPlayerTeleportToSprite(PLAYERp pp, vec3_t* sp, int ang)
     pp->posz = pp->oposz = sp->z - PLAYER_HEIGHT;
 
     updatesector(pp->posx, pp->posy, &pp->cursectnum);
-    //pp->lastcursectnum = pp->cursectnum;
     SET(pp->Flags2, PF2_TELEPORTED);
 }
 
@@ -1299,7 +1298,6 @@ void DoPlayerTeleportToOffset(PLAYERp pp)
     pp->oposy = pp->oldposy = pp->posy;
 
     updatesector(pp->posx, pp->posy, &pp->cursectnum);
-    //pp->lastcursectnum = pp->cursectnum;
     SET(pp->Flags2, PF2_TELEPORTED);
 }
 
@@ -2037,7 +2035,7 @@ void DoPlayerMove(PLAYERp pp)
     pp->oldposx = pp->posx;
     pp->oldposy = pp->posy;
     pp->oldposz = pp->posz;
-    pp->lastcursectnum = pp->cursectnum;
+    pp->backupcursector();
 
     if (PLAYER_MOVING(pp) == 0)
         RESET(pp->Flags, PF_PLAYER_MOVED);
@@ -2618,7 +2616,7 @@ void DoPlayerMoveVehicle(PLAYERp pp)
     if (labs(pp->xvect) < 12800 && labs(pp->yvect) < 12800)
         pp->xvect = pp->yvect = 0;
 
-    pp->lastcursectnum = pp->cursectnum;
+    pp->backupcursector();
     z = pp->posz + Z(10);
 
     if (RectClip)
@@ -5063,7 +5061,6 @@ void DoPlayerBeginRemoteOperate(PLAYERp pp, SECTOR_OBJECTp sop)
 {
     int cz, fz;
     int i;
-    short save_sectnum;
 
     pp->sop_remote = pp->sop = pp->sop_control = sop;
     sop->controller = pp->Actor();
@@ -5085,7 +5082,7 @@ void DoPlayerBeginRemoteOperate(PLAYERp pp, SECTOR_OBJECTp sop)
         }
     }
 
-    save_sectnum = pp->cursectnum;
+    auto save_sect = pp->cursector();
 
     pp->angle.oang = pp->angle.ang = buildang(sop->ang);
     pp->posx = sop->xmid;
@@ -5132,21 +5129,11 @@ void DoPlayerBeginRemoteOperate(PLAYERp pp, SECTOR_OBJECTp sop)
         pp->posz = fz - PLAYER_HEIGHT;
         DoPlayerBeginOperateTurret(pp);
         break;
-#if 0
-    case SO_SPEED_BOAT:
-        if (pp->input.fvel|pp->input.svel)
-            PlaySOsound(pp->sop->mid_sector, SO_DRIVE_SOUND);
-        else
-            PlaySOsound(pp->sop->mid_sector, SO_IDLE_SOUND);
-        pp->posz = fz - PLAYER_HEIGHT;
-        DoPlayerBeginOperateBoat(pp);
-        break;
-#endif
     default:
         return;
     }
 
-    PlayerRemoteReset(pp, save_sectnum);
+    PlayerRemoteReset(pp, save_sect);
 }
 
 void PlayerToRemote(PLAYERp pp)
@@ -5183,14 +5170,15 @@ void RemoteToPlayer(PLAYERp pp)
     pp->slide_yvect = pp->remote.slide_yvect;
 }
 
-void PlayerRemoteReset(PLAYERp pp, short sectnum)
+void PlayerRemoteReset(PLAYERp pp, sectortype* sect)
 {
-    pp->cursectnum = pp->lastcursectnum = sectnum;
+    pp->setcursector(sect);
+    pp->backupcursector();
 
     auto rsp = &pp->remoteActor->s();
     pp->posx = rsp->x;
     pp->posy = rsp->y;
-    pp->posz = sector[sectnum].floorz - PLAYER_HEIGHT;
+    pp->posz = sect->floorz - PLAYER_HEIGHT;
 
     pp->xvect = pp->yvect = pp->oxvect = pp->oyvect = pp->slide_xvect = pp->slide_yvect = 0;
 
@@ -5237,8 +5225,6 @@ void DoPlayerStopOperate(PLAYERp pp)
 
 void DoPlayerOperateTurret(PLAYERp pp)
 {
-    short save_sectnum;
-
     if (pp->input.actions & SB_OPEN)
     {
         if (pp->KeyPressBits & SB_OPEN)
@@ -5259,7 +5245,7 @@ void DoPlayerOperateTurret(PLAYERp pp)
         return;
     }
 
-    save_sectnum = pp->cursectnum;
+    auto save_sect = pp->cursector();
 
     if (pp->sop_remote)
         RemoteToPlayer(pp);
@@ -5269,7 +5255,7 @@ void DoPlayerOperateTurret(PLAYERp pp)
     if (pp->sop_remote)
     {
         PlayerToRemote(pp);
-        PlayerRemoteReset(pp, save_sectnum);
+        PlayerRemoteReset(pp, save_sect);
     }
 }
 
@@ -5277,8 +5263,6 @@ void DoPlayerOperateTurret(PLAYERp pp)
 
 void DoPlayerOperateVehicle(PLAYERp pp)
 {
-    short save_sectnum;
-
     if (pp->input.actions & SB_OPEN)
     {
         if (pp->KeyPressBits & SB_OPEN)
@@ -5299,7 +5283,7 @@ void DoPlayerOperateVehicle(PLAYERp pp)
         return;
     }
 
-    save_sectnum = pp->cursectnum;
+    auto save_sect = pp->cursector();
 
     if (pp->sop_remote)
         RemoteToPlayer(pp);
@@ -5309,7 +5293,7 @@ void DoPlayerOperateVehicle(PLAYERp pp)
     if (pp->sop_remote)
     {
         PlayerToRemote(pp);
-        PlayerRemoteReset(pp, save_sectnum);
+        PlayerRemoteReset(pp, save_sect);
     }
 }
 

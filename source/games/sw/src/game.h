@@ -790,6 +790,7 @@ struct PLAYERstruct
     sectortype* lastcursector() { return lastcursectnum < 0 ? nullptr : &sector[lastcursectnum]; }
     void setcursector(sectortype* s) { cursectnum = sectnum(s); }
     bool insector() const { return cursectnum >= 0; }
+    void backupcursector() { lastcursectnum = cursectnum;  }
     fixed_t turn180_target; // 180 degree turn
 
     // variables that do not fit into sprite structure
