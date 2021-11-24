@@ -3051,7 +3051,7 @@ void DoPlayerFall(PLAYERp pp)
 
 
 
-        depth = GetZadjustment(pp->cursectnum, FLOOR_Z_ADJUST)>>8;
+        depth = GetZadjustment(pp->cursector(), FLOOR_Z_ADJUST)>>8;
         if (depth == 0)
             depth = pp->WadeDepth;
 

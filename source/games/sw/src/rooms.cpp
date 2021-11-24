@@ -353,25 +353,25 @@ bool FAFcansee(int32_t xs, int32_t ys, int32_t zs, sectortype* sects,
 }
 
 
-int GetZadjustment(short sectnum, short hitag)
+int GetZadjustment(sectortype* sect, short hitag)
 {
     SPRITEp sp;
 
-    if (sectnum < 0 || !TEST(sector[sectnum].extra, SECTFX_Z_ADJUST))
-        return 0L;
+    if (sect == nullptr || !TEST(sect->extra, SECTFX_Z_ADJUST))
+        return 0;
 
     SWStatIterator it(STAT_ST1);
     while (auto itActor = it.Next())
     {
         sp = &itActor->s();
 
-        if (sp->hitag == hitag && sp->sectnum == sectnum)
+        if (sp->hitag == hitag && sp->sector() == sect)
         {
             return Z(sp->lotag);
         }
     }
 
-    return 0L;
+    return 0;
 }
 
 bool SectorZadjust(const Collision& ceilhit, int32_t* hiz, const Collision& florhit, int32_t* loz)
@@ -387,16 +387,16 @@ bool SectorZadjust(const Collision& ceilhit, int32_t* hiz, const Collision& flor
         {
         case kHitSector:
         {
-            short hit_sector = florhit.index;
+            auto hit_sector = florhit.sector();
 
             // don't jack with connect sectors
-            if (FAF_ConnectFloor(hit_sector))
+            if (FAF_ConnectFloor(sectnum(hit_sector)))
             {
                 // rippers were dying through the floor in $rock
-                if (TEST(sector[hit_sector].floorstat, CEILING_STAT_FAF_BLOCK_HITSCAN))
+                if (TEST(hit_sector->floorstat, CEILING_STAT_FAF_BLOCK_HITSCAN))
                     break;
 
-                if (TEST(sector[hit_sector].extra, SECTFX_Z_ADJUST))
+                if (TEST(hit_sector->extra, SECTFX_Z_ADJUST))
                 {
                     // see if a z adjust ST1 is around
                     z_amt = GetZadjustment(hit_sector, FLOOR_Z_ADJUST);
@@ -412,7 +412,7 @@ bool SectorZadjust(const Collision& ceilhit, int32_t* hiz, const Collision& flor
                 break;
             }
 
-            if (!TEST(sector[hit_sector].extra, SECTFX_Z_ADJUST))
+            if (!TEST(hit_sector->extra, SECTFX_Z_ADJUST))
                 break;
 
             // see if a z adjust ST1 is around
@@ -425,7 +425,7 @@ bool SectorZadjust(const Collision& ceilhit, int32_t* hiz, const Collision& flor
             }
             else
             // default adjustment for plax
-            if (TEST(sector[hit_sector].floorstat, FLOOR_STAT_PLAX))
+            if (TEST(hit_sector->floorstat, FLOOR_STAT_PLAX))
             {
                 *loz += PlaxFloorGlobZadjust;
             }
@@ -441,12 +441,12 @@ bool SectorZadjust(const Collision& ceilhit, int32_t* hiz, const Collision& flor
         {
         case kHitSector:
         {
-            short hit_sector = ceilhit.index;
+            auto hit_sector = ceilhit.sector();
 
             // don't jack with connect sectors
-            if (FAF_ConnectCeiling(hit_sector))
+            if (FAF_ConnectCeiling(sectnum(hit_sector)))
             {
-                if (TEST(sector[hit_sector].extra, SECTFX_Z_ADJUST))
+                if (TEST(hit_sector->extra, SECTFX_Z_ADJUST))
                 {
                     // see if a z adjust ST1 is around
                     z_amt = GetZadjustment(hit_sector, CEILING_Z_ADJUST);
@@ -462,7 +462,7 @@ bool SectorZadjust(const Collision& ceilhit, int32_t* hiz, const Collision& flor
                 break;
             }
 
-            if (!TEST(sector[hit_sector].extra, SECTFX_Z_ADJUST))
+            if (!TEST(hit_sector->extra, SECTFX_Z_ADJUST))
                 break;
 
             // see if a z adjust ST1 is around
@@ -475,7 +475,7 @@ bool SectorZadjust(const Collision& ceilhit, int32_t* hiz, const Collision& flor
             }
             else
             // default adjustment for plax
-            if (TEST(sector[hit_sector].ceilingstat, CEILING_STAT_PLAX))
+            if (TEST(hit_sector->ceilingstat, CEILING_STAT_PLAX))
             {
                 *hiz -= PlaxCeilGlobZadjust;
             }
