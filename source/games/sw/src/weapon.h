@@ -248,7 +248,7 @@ void SpawnGoroFireballExp(DSWActor* Weapon);
 bool MissileHitMatch(DSWActor* weapActor, int WeaponNum, DSWActor* hitActor);
 int DoItemFly(DSWActor*);
 int SpawnVehicleSmoke(DSWActor* actor);
-short PrevWall(short wall_num);
+walltype* PrevWall(walltype* wall_num);
 int DoDamage(DSWActor*, DSWActor*);
 
 END_SW_NS

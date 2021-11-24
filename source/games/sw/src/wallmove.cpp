@@ -85,7 +85,6 @@ int DoWallMove(DSWActor* actor)
     int dist,nx,ny;
     short shade1,shade2,ang,picnum1,picnum2;
     WALLp wallp;
-    short prev_wall;
     bool found = false;
     short dang;
     bool SOsprite = false;
@@ -134,11 +133,11 @@ int DoWallMove(DSWActor* actor)
                 wallp->picnum = picnum1;
 
             // find the previous wall
-            prev_wall = PrevWall(wallnum(wallp));
+            auto prev_wall = PrevWall(wallp);
             if (shade2)
-                wall[prev_wall].shade = int8_t(shade2);
+                prev_wall->shade = int8_t(shade2);
             if (picnum2)
-                wall[prev_wall].picnum = picnum2;
+                prev_wall->picnum = picnum2;
         }
     }
 

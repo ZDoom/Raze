@@ -1634,7 +1634,7 @@ void SpriteSetupPost(void)
     SWStatIterator it(STAT_FLOOR_PAN);
     while (auto iActor = it.Next())
     {
-        SWSectIterator it2(iActor->s().sectnum);
+        SWSectIterator it2(iActor->s().sector());
         while (auto jActor = it.Next())
         {
             ds = &jActor->s();
@@ -4938,7 +4938,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
 
 int DoStayOnFloor(DSWActor* actor)
 {
-    actor->s().z = sector[actor->s().sectnum].floorz;
+    actor->s().z = actor->s().sector()->floorz;
     return 0;
 }
 

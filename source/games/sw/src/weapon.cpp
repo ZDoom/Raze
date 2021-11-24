@@ -5293,7 +5293,7 @@ int ActorStdMissile(DSWActor* actor, DSWActor* weapActor)
     if (goal != nullptr)
     {
         // attempt to see if it was killed
-        ASSERT(goal->s().sectnum >= 0);
+        ASSERT(goal->s().insector());
         if (goal->hasU())
 	        RESET(goal->u()->Flags, SPR_TARGETED);
     }
@@ -7279,20 +7279,13 @@ int DoFlamesDamageTest(DSWActor* actor)
     return 0;
 }
 
-short PrevWall(short wall_num)
+walltype* PrevWall(walltype* wall_num)
 {
-    short start_wall,prev_wall;
-
-    start_wall = wall_num;
-
-    do
+    for(auto&wal : wallsofsector(wall_num->sectorp()))
     {
-        prev_wall = wall_num;
-        wall_num = wall[wall_num].point2;
+        if (wal.point2Wall() == wall_num) return &wal;
     }
-    while (wall_num != start_wall);
-
-    return prev_wall;
+    return wall_num; // should never happen unless the sector is malformed.
 }
 
 
