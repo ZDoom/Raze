@@ -73,7 +73,7 @@ void DoSlidorMatch(PLAYERp pp, short match, bool);
 bool TestSlidorMatchActive(short match);
 void InterpSectorSprites(short sectnum, bool state);
 
-using INTERP_FUNC = void(*)(int, int);
+using INTERP_FUNC = void(*)(walltype*, int);
 
 void SetSlidorActive(DSWActor*);
 void DoSlidorInterp(DSWActor*, INTERP_FUNC);

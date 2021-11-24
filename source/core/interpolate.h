@@ -4,7 +4,8 @@
 
 enum EInterpolationType
 {
-	Interp_Sect_Floorz,
+	Interp_Invalid = -1,
+	Interp_Sect_Floorz = 0,
 	Interp_Sect_Ceilingz,
 	Interp_Sect_Floorheinum,
 	Interp_Sect_Ceilingheinum,

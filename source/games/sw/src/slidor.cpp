@@ -224,128 +224,55 @@ bool TestSlidorMatchActive(short match)
 
 void DoSlidorInterp(DSWActor* actor, INTERP_FUNC interp_func)
 {
-    auto sp = &actor->s();
-    short w, pw, startwall, endwall;
+    auto sp = actor->s().sector();
 
-    w = startwall = sp->sector()->wallptr;
-    endwall = startwall + sp->sector()->wallnum - 1;
-
+    // this code is just weird.
+    auto startWall = sp->firstWall();
+    auto endWall = sp->lastWall();
+    auto wal = startWall;
     do
     {
-        switch (wall[w].lotag)
+        auto pwal = wal - 1;
+        if (pwal < startWall)
+            pwal = endWall;
+
+        EInterpolationType type = Interp_Invalid;;
+        switch (wal->lotag)
         {
         case TAG_WALL_SLIDOR_LEFT:
-        {
-            // prev wall
-            pw = w - 1;
-            if (w < startwall)
-                pw = endwall;
-
-            uint16_t const nextwall = wall[w].nextwall;
-            if (!validWallIndex(nextwall))
-            {
-                // white wall - move 4 points
-                interp_func(w, Interp_Wall_X);
-                interp_func(pw, Interp_Wall_X);
-                interp_func(wall[w].point2, Interp_Wall_X);
-                interp_func(wall[wall[w].point2].point2, Interp_Wall_X);
-            }
-            else
-            {
-                // red wall - move 2 points
-                interp_func(w, Interp_Wall_X);
-                interp_func(wall[nextwall].point2, Interp_Wall_X);
-                interp_func(wall[w].point2, Interp_Wall_X);
-                interp_func(wall[wall[wall[w].point2].nextwall].point2, Interp_Wall_X);
-            }
-
-            break;
-        }
-
         case TAG_WALL_SLIDOR_RIGHT:
+            type = Interp_Wall_X;
+            break;
+        case TAG_WALL_SLIDOR_UP:
+        case TAG_WALL_SLIDOR_DOWN:
+            type = Interp_Wall_Y;
+            break;
+        }
+        if (type != Interp_Invalid)
         {
             // prev wall
-            pw = w - 1;
-            if (w < startwall)
-                pw = endwall;
-
-            uint16_t const nextwall = wall[w].nextwall;
-            if (!validWallIndex(nextwall))
+            if (!wal->twoSided())
             {
                 // white wall - move 4 points
-                interp_func(w, Interp_Wall_X);
-                interp_func(pw, Interp_Wall_X);
-                interp_func(wall[w].point2, Interp_Wall_X);
-                interp_func(wall[wall[w].point2].point2, Interp_Wall_X);
+                interp_func(wal, type);
+                interp_func(pwal, type);
+                interp_func(wal->point2Wall(), type);
+                interp_func(wal->point2Wall()->point2Wall(), type);
             }
             else
             {
+                auto nextwall = wal->nextWall();
                 // red wall - move 2 points
-                interp_func(w, Interp_Wall_X);
-                interp_func(wall[nextwall].point2, Interp_Wall_X);
-                interp_func(wall[w].point2, Interp_Wall_X);
-                interp_func(wall[wall[wall[w].point2].nextwall].point2, Interp_Wall_X);
+                interp_func(wal, type);
+                interp_func(wal->nextWall()->point2Wall(), type);
+                interp_func(wal->point2Wall(), type);
+                if (wal->point2Wall()->twoSided())
+                    interp_func(wal->point2Wall()->nextWall()->point2Wall(), type);
             }
-
-            break;
         }
-
-        case TAG_WALL_SLIDOR_UP:
-        {
-            // prev wall
-            pw = w - 1;
-            if (w < startwall)
-                pw = endwall;
-
-            uint16_t const nextwall = wall[w].nextwall;
-            if (!validWallIndex(nextwall))
-            {
-                interp_func(w, Interp_Wall_Y);
-                interp_func(pw, Interp_Wall_Y);
-                interp_func(wall[w].point2, Interp_Wall_Y);
-                interp_func(wall[wall[w].point2].point2, Interp_Wall_Y);
-            }
-            else
-            {
-                interp_func(w, Interp_Wall_Y);
-                interp_func(wall[nextwall].point2, Interp_Wall_Y);
-                interp_func(wall[w].point2, Interp_Wall_Y);
-                interp_func(wall[wall[wall[w].point2].nextwall].point2, Interp_Wall_Y);
-            }
-
-            break;
-        }
-
-        case TAG_WALL_SLIDOR_DOWN:
-        {
-            // prev wall
-            pw = w - 1;
-            if (w < startwall)
-                pw = endwall;
-
-            uint16_t const nextwall = wall[w].nextwall;
-            if (!validWallIndex(nextwall))
-            {
-                interp_func(w, Interp_Wall_Y);
-                interp_func(pw, Interp_Wall_Y);
-                interp_func(wall[w].point2, Interp_Wall_Y);
-                interp_func(wall[wall[w].point2].point2, Interp_Wall_Y);
-            }
-            else
-            {
-                interp_func(w, Interp_Wall_Y);
-                interp_func(wall[nextwall].point2, Interp_Wall_Y);
-                interp_func(wall[w].point2, Interp_Wall_Y);
-                interp_func(wall[wall[wall[w].point2].nextwall].point2, Interp_Wall_Y);
-            }
-
-            break;
-        }
-        }
-
-        w = wall[w].point2;
+        wal = wal->point2Wall();
     }
-    while (w != startwall);
+    while (wal != startWall);
 }
 
 int DoSlidorMoveWalls(DSWActor* actor, int amt)
