@@ -7182,7 +7182,7 @@ int DoDamageTest(DSWActor* actor)
             // For speed's sake, try limiting check only to radius weapons!
             if (wu->Radius > 200)
             {
-                if (!FAFcansee(sp->x,sp->y, SPRITEp_UPPER(sp), sp->sectnum,wp->x,wp->y,wp->z,wp->sectnum))
+                if (!FAFcansee(sp->x,sp->y, SPRITEp_UPPER(sp), sp->sector(),wp->x,wp->y,wp->z,wp->sector()))
                     continue;
             }
 
@@ -7263,7 +7263,7 @@ int DoFlamesDamageTest(DSWActor* actor)
 
             if (wu->Radius > 200) // Note: No weaps have bigger radius than 200 cept explosion stuff
             {
-                if (FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,wp->x,wp->y,SPRITEp_MID(wp),wp->sectnum))
+                if (FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sector(),wp->x,wp->y,SPRITEp_MID(wp),wp->sector()))
                 {
                     DoDamage(itActor, actor);
                 }
@@ -7344,7 +7344,7 @@ void TraverseBreakableWalls(short start_sect, int x, int y, int z, short ang, in
 
                 if (WallBreakPosition(&wal, &sectnum, &hit_x, &hit_y, &hit_z, &wall_ang))
                 {
-                    if (hit_x != INT32_MAX && sectnum >= 0 && FAFcansee(x, y, z, start_sect, hit_x, hit_y, hit_z, sectnum))
+                    if (hit_x != INT32_MAX && sectnum >= 0 && FAFcansee(x, y, z, &sector[start_sect], hit_x, hit_y, hit_z, &sector[sectnum]))
                     {
                         HitBreakWall(&wal, INT32_MAX, INT32_MAX, INT32_MAX, ang, 0);
 
@@ -7426,8 +7426,8 @@ int DoExpDamageTest(DSWActor* actor)
 
                 // Second parameter MUST have blocking bits set or cansee won't work
                 // added second check for FAF water - hitscans were hitting ceiling
-                if (!FAFcansee(wp->x, wp->y, wp->z, wp->sectnum, sp->x, sp->y, SPRITEp_UPPER(sp), sp->sectnum) &&
-                    !FAFcansee(wp->x, wp->y, wp->z, wp->sectnum, sp->x, sp->y, SPRITEp_LOWER(sp), sp->sectnum))
+                if (!FAFcansee(wp->x, wp->y, wp->z, wp->sector(), sp->x, sp->y, SPRITEp_UPPER(sp), sp->sector()) &&
+                    !FAFcansee(wp->x, wp->y, wp->z, wp->sector(), sp->x, sp->y, SPRITEp_LOWER(sp), sp->sector()))
                     continue;
 
                 DoDamage(itActor, actor);
@@ -7459,7 +7459,7 @@ int DoExpDamageTest(DSWActor* actor)
             if ((unsigned)dist > wu->Radius)
                 continue;
 
-            if (!FAFcansee(sp->x, sp->y, SPRITEp_MID(sp), sp->sectnum, wp->x, wp->y, wp->z, wp->sectnum))
+            if (!FAFcansee(sp->x, sp->y, SPRITEp_MID(sp), sp->sector(), wp->x, wp->y, wp->z, wp->sector()))
                 continue;
 
             if (TEST(sp->extra, SPRX_BREAKABLE))
@@ -8894,7 +8894,7 @@ int DoMineRangeTest(DSWActor* actor, int range)
             if (dist > range)
                 continue;
 
-            if (!FAFcansee(sp->x,sp->y,SPRITEp_UPPER(sp),sp->sectnum,wp->x,wp->y,wp->z,wp->sectnum))
+            if (!FAFcansee(sp->x,sp->y,SPRITEp_UPPER(sp),sp->sector(),wp->x,wp->y,wp->z,wp->sector()))
                 continue;
 
             return true;
@@ -12543,7 +12543,7 @@ int InitSwordAttack(PLAYERp pp)
             {
                 if (SpriteOverlapZ(pp->Actor(), itActor, Z(20)))
                 {
-                    if (FAFcansee(sp->x, sp->y, SPRITEp_MID(sp), sp->sectnum, psp->x, psp->y, SPRITEp_MID(psp), psp->sectnum))
+                    if (FAFcansee(sp->x, sp->y, SPRITEp_MID(sp), sp->sector(), psp->x, psp->y, SPRITEp_MID(psp), psp->sector()))
                         DoDamage(itActor, pp->Actor());
                 }
             }
@@ -12728,7 +12728,7 @@ int InitFistAttack(PLAYERp pp)
             {
                 if (SpriteOverlapZ(pp->Actor(), itActor, Z(20)) || face == 190)
                 {
-                    if (FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,psp->x,psp->y,SPRITEp_MID(psp),psp->sectnum))
+                    if (FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sector(),psp->x,psp->y,SPRITEp_MID(psp),psp->sector()))
                         DoDamage(itActor, pp->Actor());
                     if (face == 190)
                     {
@@ -13029,7 +13029,7 @@ int InitSumoStompAttack(DSWActor* actor)
 
             if (dist < CLOSE_RANGE_DIST_FUDGE(tsp, sp, reach))
             {
-                if (FAFcansee(tsp->x,tsp->y,SPRITEp_MID(tsp),tsp->sectnum,sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum))
+                if (FAFcansee(tsp->x,tsp->y,SPRITEp_MID(tsp),tsp->sector(),sp->x,sp->y,SPRITEp_MID(sp),sp->sector()))
                     DoDamage(itActor, actor);
             }
         }
@@ -13058,7 +13058,7 @@ int InitMiniSumoClap(DSWActor* actor)
     {
         if (SpriteOverlapZ(actor, u->targetActor, Z(20)))
         {
-            if (FAFcansee(tsp->x, tsp->y, ActorMid(u->targetActor), tsp->sectnum, sp->x, sp->y, SPRITEp_MID(sp), sp->sectnum))
+            if (FAFcansee(tsp->x, tsp->y, ActorMid(u->targetActor), tsp->sector(), sp->x, sp->y, SPRITEp_MID(sp), sp->sector()))
             {
                 PlaySound(DIGI_CGTHIGHBONE, actor, v3df_follow | v3df_dontpan);
                 DoDamage(u->targetActor, actor);
@@ -13067,7 +13067,7 @@ int InitMiniSumoClap(DSWActor* actor)
     }
     else if (dist < CLOSE_RANGE_DIST_FUDGE(tsp, sp, reach))
     {
-        if (FAFcansee(tsp->x, tsp->y, ActorMid(u->targetActor), tsp->sectnum, sp->x, sp->y, SPRITEp_MID(sp), sp->sectnum))
+        if (FAFcansee(tsp->x, tsp->y, ActorMid(u->targetActor), tsp->sector(), sp->x, sp->y, SPRITEp_MID(sp), sp->sector()))
         {
             PlaySound(DIGI_30MMEXPLODE, actor, v3df_none);
             SpawnFireballFlames(actor, u->targetActor);
@@ -14803,7 +14803,7 @@ int DoStaticFlamesDamage(DSWActor* actor)
                 DoDamage(itActor, actor);
             else if (u->Radius > 200)
             {
-                if (FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sectnum,hp->x,hp->y,SPRITEp_MID(hp),hp->sectnum))
+                if (FAFcansee(sp->x,sp->y,SPRITEp_MID(sp),sp->sector(),hp->x,hp->y,SPRITEp_MID(hp),hp->sector()))
                     DoDamage(itActor, actor);
             }
         }

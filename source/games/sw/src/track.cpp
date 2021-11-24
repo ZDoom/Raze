@@ -257,7 +257,7 @@ short ActorFindTrack(DSWActor* actor, int8_t player_dir, int track_type, int *tr
         updatesector(near_tp->x, near_tp->y, &track_sect);
 
         // if can see the point, return the track number
-        if (FAFcansee(sp->x, sp->y, sp->z - Z(16), sp->sectnum, near_tp->x, near_tp->y, sector[track_sect].floorz - Z(32), track_sect))
+        if (FAFcansee(sp->x, sp->y, sp->z - Z(16), sp->sector(), near_tp->x, near_tp->y, sector[track_sect].floorz - Z(32), &sector[track_sect]))
         {
             //DSPRINTF(ds,"Found track point in sector %d\n",track_sect);
             MONO_PRINT(ds);
@@ -2907,8 +2907,8 @@ void DoAutoTurretObject(SECTOR_OBJECTp sop)
 
 			if (shootp->statnum == STAT_SO_SHOOT_POINT)
             {
-                if (!FAFcansee(shootp->x, shootp->y, shootp->z-Z(4), shootp->sectnum,
-                               u->targetActor->s().x, u->targetActor->s().y, ActorUpper(u->targetActor), u->targetActor->s().sectnum))
+                if (!FAFcansee(shootp->x, shootp->y, shootp->z-Z(4), shootp->sector(),
+                               u->targetActor->s().x, u->targetActor->s().y, ActorUpper(u->targetActor), u->targetActor->s().sector()))
                 {
                     return;
                 }

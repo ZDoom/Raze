@@ -1208,9 +1208,9 @@ DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets
             ezhl = SPRITEp_BOS(ep) - (SPRITEp_SIZE_Z(ep) >> 2);
 
             // If you can't see 'em you can't shoot 'em
-            if (!FAFcansee(sp->x, sp->y, zh, sp->sectnum, ep->x, ep->y, ezh, ep->sectnum) &&
-                !FAFcansee(sp->x, sp->y, zh, sp->sectnum, ep->x, ep->y, ezhm, ep->sectnum) &&
-                !FAFcansee(sp->x, sp->y, zh, sp->sectnum, ep->x, ep->y, ezhl, ep->sectnum)
+            if (!FAFcansee(sp->x, sp->y, zh, sp->sector(), ep->x, ep->y, ezh, ep->sector()) &&
+                !FAFcansee(sp->x, sp->y, zh, sp->sector(), ep->x, ep->y, ezhm, ep->sector()) &&
+                !FAFcansee(sp->x, sp->y, zh, sp->sector(), ep->x, ep->y, ezhl, ep->sector())
                 )
                 continue;
 
@@ -5840,7 +5840,7 @@ void DoPlayerDeathFollowKiller(PLAYERp pp)
     {
         SPRITEp kp = &pp->KillerActor->s();
 
-        if (FAFcansee(kp->x, kp->y, SPRITEp_TOS(kp), kp->sectnum, pp->posx, pp->posy, pp->posz, pp->cursectnum))
+        if (FAFcansee(kp->x, kp->y, SPRITEp_TOS(kp), kp->sector(), pp->posx, pp->posy, pp->posz, pp->cursector()))
         {
             pp->angle.addadjustment(getincanglebam(pp->angle.ang, bvectangbam(kp->x - pp->posx, kp->y - pp->posy)) >> 4);
         }

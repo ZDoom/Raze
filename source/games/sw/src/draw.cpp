@@ -1097,8 +1097,8 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, int *tsectnum, binangle *
             ang_test = getincangle(ang.asbuild(), sp->ang) < sp->lotag;
 
             FAFcansee_test =
-                (FAFcansee(sp->x, sp->y, sp->z, sp->sectnum, *tx, *ty, *tz, pp->cursectnum) ||
-                 FAFcansee(sp->x, sp->y, sp->z, sp->sectnum, *tx, *ty, *tz + SPRITEp_SIZE_Z(&pp->Actor()->s()), pp->cursectnum));
+                (FAFcansee(sp->x, sp->y, sp->z, sp->sector(), *tx, *ty, *tz, pp->cursector()) ||
+                 FAFcansee(sp->x, sp->y, sp->z, sp->sector(), *tx, *ty, *tz + SPRITEp_SIZE_Z(&pp->Actor()->s()), pp->cursector()));
 
             player_in_camera = ang_test && FAFcansee_test;
 

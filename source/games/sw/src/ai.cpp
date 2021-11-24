@@ -236,7 +236,7 @@ bool CanSeePlayer(DSWActor* actor)
     //if (FAF_Sector(sp->sectnum))
     //    return(true);
 
-    if (u->targetActor && FAFcansee(sp->x, sp->y, look_height, sp->sectnum, u->targetActor->s().x, u->targetActor->s().y, ActorUpper(u->targetActor), u->targetActor->s().sectnum))
+    if (u->targetActor && FAFcansee(sp->x, sp->y, look_height, sp->sector(), u->targetActor->s().x, u->targetActor->s().y, ActorUpper(u->targetActor), u->targetActor->s().sector()))
         return true;
     else
         return false;
@@ -384,7 +384,7 @@ int DoActorPickClosePlayer(DSWActor* actor)
         DISTANCE(sp->x, sp->y, pp->posx, pp->posy, dist, a, b, c);
 
         auto psp = &pp->Actor()->s();
-        if (dist < near_dist && FAFcansee(sp->x, sp->y, look_height, sp->sectnum, psp->x, psp->y, SPRITEp_UPPER(psp), psp->sectnum))
+        if (dist < near_dist && FAFcansee(sp->x, sp->y, look_height, sp->sector(), psp->x, psp->y, SPRITEp_UPPER(psp), psp->sector()))
         {
             near_dist = dist;
             u->targetActor = pp->Actor();
@@ -411,7 +411,7 @@ TARGETACTOR:
             auto itSp = &itActor->s();
             DISTANCE(sp->x, sp->y, itSp->x, itSp->y, dist, a, b, c);
 
-            if (dist < near_dist && FAFcansee(sp->x, sp->y, look_height, sp->sectnum, itSp->x, itSp->y, SPRITEp_UPPER(itSp), itSp->sectnum))
+            if (dist < near_dist && FAFcansee(sp->x, sp->y, look_height, sp->sector(), itSp->x, itSp->y, SPRITEp_UPPER(itSp), itSp->sector()))
             {
                 near_dist = dist;
                 u->targetActor = itActor;

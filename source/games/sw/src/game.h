@@ -786,6 +786,7 @@ struct PLAYERstruct
     int16_t camera_check_time_delay;
 
     int cursectnum,lastcursectnum;
+    sectortype* cursector() { return cursectnum < 0? nullptr : &sector[cursectnum]; }
     fixed_t turn180_target; // 180 degree turn
 
     // variables that do not fit into sprite structure
@@ -1916,7 +1917,7 @@ void FAFhitscan(int32_t x, int32_t y, int32_t z, int16_t sectnum,
     int32_t xvect, int32_t yvect, int32_t zvect,
     HITINFO* hitinfo, int32_t clipmask);
 
-bool FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects, int32_t xe, int32_t ye, int32_t ze, int16_t secte);
+bool FAFcansee(int32_t xs, int32_t ys, int32_t zs, sectortype* sects, int32_t xe, int32_t ye, int32_t ze, sectortype* secte);
 
 void FAFgetzrange(vec3_t pos, int16_t sectnum,
                   int32_t* hiz, Collision* ceilhit,
@@ -2055,6 +2056,7 @@ void computergetinput(int snum,InputPacket *syn); // jplayer.c
 void DrawOverlapRoom(int tx,int ty,int tz,fixed_t tq16ang,fixed_t tq16horiz,short tsectnum);    // rooms.c
 void SetupMirrorTiles(void);    // rooms.c
 bool FAF_Sector(int sectnum); // rooms.c
+bool FAF_Sector(sectortype* sectnum); // rooms.c
 int GetZadjustment(short sectnum,short hitag);  // rooms.c
 
 void InitSetup(void);   // setup.c

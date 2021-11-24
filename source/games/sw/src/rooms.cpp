@@ -100,6 +100,25 @@ bool FAF_Sector(int sectnum)
     return false;
 }
 
+bool FAF_Sector(sectortype* sectnum)
+{
+    SPRITEp sp;
+
+    SWSectIterator it(sectnum);
+    while (auto actor = it.Next())
+    {
+        sp = &actor->s();
+
+        if (sp->statnum == STAT_FAF &&
+            (sp->hitag >= VIEW_LEVEL1 && sp->hitag <= VIEW_LEVEL6))
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void SetWallWarpHitscan(short sectnum)
 {
     short start_wall, wall_num;
@@ -269,11 +288,11 @@ FAFhitscan(int32_t x, int32_t y, int32_t z, int16_t sectnum,
     }
 }
 
-bool FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects,
-          int32_t xe, int32_t ye, int32_t ze, int16_t secte)
+bool FAFcansee(int32_t xs, int32_t ys, int32_t zs, sectortype* sects,
+          int32_t xe, int32_t ye, int32_t ze, sectortype* secte)
 {
     int loz, hiz;
-    int newsectnum = sects;
+    auto newsect = sects;
     int xvect, yvect, zvect;
     short ang;
     hitdata_t hitinfo;
@@ -284,7 +303,7 @@ bool FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects,
     // ASSERT(sects >= 0 && secte >= 0);
 
     // early out to regular routine
-    if ((sects < 0 || !FAF_Sector(sects)) && (secte < 0 || !FAF_Sector(secte)))
+    if ((!sects || !FAF_Sector(sects)) && (!secte || !FAF_Sector(secte)))
     {
         return !!cansee(xs,ys,zs,sects,xe,ye,ze,secte);
     }
@@ -311,7 +330,7 @@ bool FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects,
     else
         zvect = 0;
 
-    hitscan(&s, sects, xvect, yvect, zvect,
+    hitscan(&s, sectnum(sects), xvect, yvect, zvect,
             &hitinfo, CLIPMASK_MISSILE);
 
     if (hitinfo.sect < 0)
@@ -325,7 +344,7 @@ bool FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects,
         {
             if (FAF_ConnectFloor(hitinfo.sect))
             {
-                updatesectorz(hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z + Z(12), &newsectnum);
+                updatesectorz(hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z + Z(12), &newsect);
                 plax_found = true;
             }
         }
@@ -333,7 +352,7 @@ bool FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects,
         {
             if (FAF_ConnectCeiling(hitinfo.sect))
             {
-                updatesectorz(hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z - Z(12), &newsectnum);
+                updatesectorz(hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z - Z(12), &newsect);
                 plax_found = true;
             }
         }
@@ -344,7 +363,7 @@ bool FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects,
     }
 
     if (plax_found)
-        return !!cansee(hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z,newsectnum,xe,ye,ze,secte);
+        return !!cansee(hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z,newsect,xe,ye,ze,secte);
 
     return false;
 }

@@ -89,7 +89,7 @@ void VisViewChange(PLAYERp pp, int *vis)
     SPRITEp sp;
     short BrightestVis = NormalVisibility;
     int x,y,z;
-    short sectnum;
+    sectortype* sectp;
 
     if (paused)
         return;
@@ -106,18 +106,18 @@ void VisViewChange(PLAYERp pp, int *vis)
             x = own->s().x;
             y = own->s().y;
             z = own->s().z;
-            sectnum = own->s().sectnum;
+            sectp = own->s().sector();
         }
         else
         {
             x = sp->x;
             y = sp->y;
             z = sp->z;
-            sectnum = sp->sectnum;
+            sectp = sp->sector();
         }
 
         // save off the brightest vis that you can see
-        if (FAFcansee(pp->posx, pp->posy, pp->posz, pp->cursectnum, x, y, z, sectnum))
+        if (FAFcansee(pp->posx, pp->posy, pp->posz, pp->cursector(), x, y, z, sectp))
         {
             if (VIS_VisCur(sp) < BrightestVis)
                 BrightestVis = VIS_VisCur(sp);
