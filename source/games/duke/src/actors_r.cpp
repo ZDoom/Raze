@@ -1215,8 +1215,7 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const vec3_t& oldpos)
 
 	if (s->picnum != RPG && (!isRRRA() || s->picnum != RPG2) && s->picnum != FREEZEBLAST && s->picnum != SPIT && s->picnum != SHRINKSPARK && (wal->overpicnum == MIRROR || wal->picnum == MIRROR))
 	{
-		auto delta = wal->delta();
-		int k = getangle(delta.x, delta.y);
+		int k = getangle(wal->delta());
 		s->ang = ((k << 1) - s->ang) & 2047;
 		proj->SetOwner(proj);
 		spawn(proj, TRANSPORTERSTAR);
@@ -1239,8 +1238,7 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const vec3_t& oldpos)
 				s->yvel--;
 			}
 
-			auto delta = wal->delta();
-			int k = getangle(delta.x, delta.y);
+			int k = getangle(wal->delta());
 			s->ang = ((k << 1) - s->ang) & 2047;
 			return true;
 		}
@@ -1276,8 +1274,7 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const vec3_t& oldpos)
 				s->yvel--;
 			}
 
-			auto delta = wal->delta();
-			int k = getangle(delta.x, delta.y);
+			int k = getangle(wal->delta());
 			s->ang = ((k << 1) - s->ang) & 2047;
 			return true;
 		}
@@ -2625,8 +2622,7 @@ static void heavyhbomb(DDukeActor *actor)
 		auto wal = coll.wall();
 		fi.checkhitwall(actor, wal, s->x, s->y, s->z, s->picnum);
 
-		auto delta = wal->delta();
-		int k = getangle(delta.x, delta.y);
+		int k = getangle(wal->delta());
 
 		if (s->picnum == CHEERBOMB)
 		{
@@ -2768,9 +2764,7 @@ static int henstand(DDukeActor *actor)
 		{
 			if (coll.type == kHitWall)
 			{
-				auto wal = coll.wall();
-				auto delta = wal->delta();
-				int k = getangle(delta.x, delta.y);
+				int k = getangle(coll.wall()->delta());
 				s->ang = ((k << 1) - s->ang) & 2047;
 			}
 			else if (coll.type == kHitSprite)

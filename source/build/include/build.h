@@ -454,6 +454,10 @@ inline int32_t ksqrt(uint64_t num)
 }
 
 int32_t   getangle(int32_t xvect, int32_t yvect);
+inline int32_t   getangle(const vec2_t& vec)
+{
+    return getangle(vec.x, vec.y);
+}
 
 inline constexpr uint32_t uhypsq(int32_t const dx, int32_t const dy)
 {

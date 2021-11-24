@@ -2388,8 +2388,7 @@ void onMotorcycleMove(int snum, walltype* wal)
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
 	auto s = pact->s;
-	auto delta = wal->delta();
-	int angleDelta = abs(p->angle.ang.asbuild() - getangle(delta.x, delta.y));
+	int angleDelta = abs(p->angle.ang.asbuild() - getangle(wal->delta()));
 	int damageAmount;
 
 	p->angle.addadjustment(p->MotoSpeed / (krand() & 1 ? -2 : 2));
@@ -2444,7 +2443,7 @@ void onBoatMove(int snum, int psectlotag, walltype* wal)
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
 	auto delta = wal->delta();
-	int angleDelta = abs(p->angle.ang.asbuild() - getangle(delta.x, delta.y));
+	int angleDelta = abs(p->angle.ang.asbuild() - getangle(wal->delta()));
 
 	p->angle.addadjustment(p->MotoSpeed / (krand() & 1 ? -4 : 4));
 
