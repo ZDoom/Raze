@@ -3612,7 +3612,7 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector
                     case 5:
                     case 6:
                         if (!validSectorIndex(pSprite->sectnum)) pSpawned->z = top;
-                        else pSpawned->z = (pXSource->data3 == 5) ? sector[pSpawned->sectnum].floorz : sector[pSpawned->sectnum].ceilingz;
+                        else pSpawned->z = (pXSource->data3 == 5) ? spawned->sector()->floorz : spawned->sector()->ceilingz;
                         break;
                     }
 
@@ -4726,15 +4726,12 @@ void modernTypeTrigger(int destObjType, sectortype* destSect, walltype* destWall
     spritetype* pSource = &pActor->s();
     XSPRITE* pXSource = &pActor->x();
 
-    int destObjIndex = -1;
     switch (destObjType) {
         case OBJ_SECTOR:
             if (!destSect || !destSect->hasX()) return;
-            destObjIndex = sectnum(destSect);
             break;
         case OBJ_WALL:
             if (!destWall || !destWall->hasX()) return;
-            destObjIndex = wallnum(destWall);
             break;
         case OBJ_SPRITE:
         {
@@ -4788,7 +4785,7 @@ void modernTypeTrigger(int destObjType, sectortype* destSect, walltype* destWall
             {
                 case OBJ_SPRITE:
                 case OBJ_SECTOR:
-                    useSlopeChanger(pActor, destObjType, destObjIndex, destactor);
+                    useSlopeChanger(pActor, destObjType, destSect, destactor);
                     break;
             }
             break;
@@ -4814,7 +4811,7 @@ void modernTypeTrigger(int destObjType, sectortype* destSect, walltype* destWall
         // creates wind on TX ID sector
         case kModernWindGenerator:
             if (destObjType != OBJ_SECTOR || pXSource->data2 < 0) break;
-            useSectorWindGen(pActor, &sector[destObjIndex]);
+            useSectorWindGen(pActor, destSect);
             break;
         // size and pan changer of sprite/wall/sector via TX ID
         case kModernObjSizeChanger:
@@ -4831,7 +4828,7 @@ void modernTypeTrigger(int destObjType, sectortype* destSect, walltype* destWall
         // change sector lighting dynamically
         case kModernSectorFXChanger:
             if (destObjType != OBJ_SECTOR) break;
-            useSectorLightChanger(pActor, &sector[destObjIndex]);
+            useSectorLightChanger(pActor, destSect);
             break;
         // change target of dudes and make it fight
         case kModernDudeTargetChanger:
@@ -6528,7 +6525,7 @@ void sprite2sectorSlope(DBloodActor* actor, sectortype* pSector, char rel, bool 
 //
 //---------------------------------------------------------------------------
 
-void useSlopeChanger(DBloodActor* sourceactor, int objType, int objIndex, DBloodActor* objActor) 
+void useSlopeChanger(DBloodActor* sourceactor, int objType, sectortype* pSect, DBloodActor* objActor) 
 {
     auto pXSource = &sourceactor->x();
     spritetype* pSource = &sourceactor->s();
@@ -6541,8 +6538,6 @@ void useSlopeChanger(DBloodActor* sourceactor, int objType, int objIndex, DBlood
 
     if (objType == OBJ_SECTOR) 
     {
-        sectortype* pSect = &sector[objIndex];
-
         switch (pXSource->data1)
         {
             case 2:
@@ -6560,20 +6555,20 @@ void useSlopeChanger(DBloodActor* sourceactor, int objType, int objIndex, DBlood
             {
                 // force closest floor aligned sprites to inherit slope of the sector's floor
                 oslope = pSect->floorheinum;
-                BloodSectIterator it(objIndex);
+                BloodSectIterator it(pSect);
                 while (auto iactor = it.Next())
                 {
                     auto spr = &iactor->s();
                     if (!(spr->cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)) continue;
-                    else if (getflorzofslope(objIndex, spr->x, spr->y) - kSlopeDist <= spr->z)
+                    else if (getflorzofslopeptr(pSect, spr->x, spr->y) - kSlopeDist <= spr->z)
                     {
-                        sprite2sectorSlope(iactor, &sector[objIndex], 0, true);
+                        sprite2sectorSlope(iactor, pSect, 0, true);
 
                         // set new slope of floor
                         pSect->floorheinum = slope;
 
                         // force sloped sprites to be on floor slope z
-                        sprite2sectorSlope(iactor, &sector[objIndex], 0, true);
+                        sprite2sectorSlope(iactor, pSect, 0, true);
 
                         // restore old slope for next sprite
                         pSect->floorheinum = oslope;
@@ -6600,20 +6595,20 @@ void useSlopeChanger(DBloodActor* sourceactor, int objType, int objIndex, DBlood
             else
             { 
                 oslope = pSect->ceilingheinum;
-                BloodSectIterator it(objIndex);
+                BloodSectIterator it(pSect);
                 while (auto iactor = it.Next())
                 {
                     auto spr = &iactor->s();
                     if (!(spr->cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)) continue;
-                    else if (getceilzofslope(objIndex, spr->x, spr->y) + kSlopeDist >= spr->z)
+                    else if (getceilzofslopeptr(pSect, spr->x, spr->y) + kSlopeDist >= spr->z)
                     {
-                        sprite2sectorSlope(iactor, &sector[objIndex], 1, true);
+                        sprite2sectorSlope(iactor, pSect, 1, true);
 
                         // set new slope of ceiling
                         pSect->ceilingheinum = slope;
 
                         // force sloped sprites to be on ceiling slope z
-                        sprite2sectorSlope(iactor, &sector[objIndex], 1, true);
+                        sprite2sectorSlope(iactor, pSect, 1, true);
 
                         // restore old slope for next sprite
                         pSect->ceilingheinum = oslope;
@@ -6628,7 +6623,7 @@ void useSlopeChanger(DBloodActor* sourceactor, int objType, int objIndex, DBlood
         }
 
         // let's give a little impulse to the physics sprites...
-        BloodSectIterator it(objIndex);
+        BloodSectIterator it(pSect);
         while (auto iactor = it.Next())
         {
             auto spr = &iactor->s();
@@ -6660,11 +6655,11 @@ void useSlopeChanger(DBloodActor* sourceactor, int objType, int objIndex, DBlood
                 if (!validSectorIndex(pSpr->sectnum)) break;
                 switch (pXSource->data4) 
                 {
-                    case 1: sprite2sectorSlope(objActor, &sector[pSpr->sectnum], 0, flag2); break;
-                    case 2: sprite2sectorSlope(objActor, &sector[pSpr->sectnum], 1, flag2); break;
+                    case 1: sprite2sectorSlope(objActor, pSpr->sector(), 0, flag2); break;
+                    case 2: sprite2sectorSlope(objActor, pSpr->sector(), 1, flag2); break;
                     case 3:
-                        if (getflorzofslope(pSpr->sectnum, pSpr->x, pSpr->y) - kSlopeDist <= pSpr->z) sprite2sectorSlope(objActor, &sector[pSpr->sectnum], 0, flag2);
-                        if (getceilzofslope(pSpr->sectnum, pSpr->x, pSpr->y) + kSlopeDist >= pSpr->z) sprite2sectorSlope(objActor, &sector[pSpr->sectnum], 1, flag2);
+                        if (getflorzofslope(pSpr->sectnum, pSpr->x, pSpr->y) - kSlopeDist <= pSpr->z) sprite2sectorSlope(objActor, pSpr->sector(), 0, flag2);
+                        if (getceilzofslope(pSpr->sectnum, pSpr->x, pSpr->y) + kSlopeDist >= pSpr->z) sprite2sectorSlope(objActor, pSpr->sector(), 1, flag2);
                         break;
                 }
                 break;
