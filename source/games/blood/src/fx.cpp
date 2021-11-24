@@ -258,8 +258,8 @@ void fxSpawnBlood(DBloodActor *actor, int )
     spritetype* pSprite = &actor->s();
     if (pSprite->sectnum < 0 || pSprite->sectnum >= numsectors)
         return;
-    int nSector = pSprite->sectnum;
-    if (!FindSector(pSprite->x, pSprite->y, pSprite->z, &nSector))
+    auto pSector = pSprite->sector();
+    if (!FindSector(pSprite->x, pSprite->y, pSprite->z, &pSector))
         return;
     if (adult_lockout && gGameOptions.nGameType <= 0)
         return;
@@ -279,8 +279,8 @@ void fxSpawnPodStuff(DBloodActor* actor, int )
     auto pSprite = &actor->s();
     if (pSprite->sectnum < 0 || pSprite->sectnum >= numsectors)
         return;
-    int nSector = pSprite->sectnum;
-    if (!FindSector(pSprite->x, pSprite->y, pSprite->z, &nSector))
+    auto pSector = pSprite->sector();
+    if (!FindSector(pSprite->x, pSprite->y, pSprite->z, &pSector))
         return;
     if (adult_lockout && gGameOptions.nGameType <= 0)
         return;
