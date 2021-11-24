@@ -3147,7 +3147,7 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
                 if (hitinfo.hitactor != nullptr)
                     return false;
 
-                if (hitinfo.hitwall < 0)
+                if (hitinfo.wall() == nullptr)
                     return false;
 
                 zdiff = labs(sp->z - hitinfo.wall()->nextSector()->floorz) >> 8;

@@ -3436,9 +3436,9 @@ int DoPlayerWadeSuperJump(PLAYERp pp)
                    bsin(pp->angle.ang.asbuild() + angs[i]),   // Y vector of 3D ang
                    0, &hitinfo, CLIPMASK_MISSILE);            // Z vector of 3D ang
 
-        if (hitinfo.hitwall >= 0 && hitinfo.sector() != nullptr)
+        if (hitinfo.wall() != nullptr && hitinfo.sector() != nullptr)
         {
-            hitinfo.setSector(hitinfo.wall()->nextSector());
+            hitinfo.hitSector = hitinfo.wall()->nextSector();
 
             if (hitinfo.sector() != nullptr && labs(hitinfo.sector()->floorz - pp->posz) < Z(50))
             {
@@ -3782,7 +3782,7 @@ bool PlayerOnLadder(PLAYERp pp)
         else
         {
             // if you hit a wall and it is not a climb wall - forget it
-            if (hitinfo.hitwall >= 0 && hitinfo.wall()->lotag != TAG_WALL_CLIMB)
+            if (hitinfo.wall() != nullptr && hitinfo.wall()->lotag != TAG_WALL_CLIMB)
                 return false;
         }
     }

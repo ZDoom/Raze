@@ -12609,7 +12609,7 @@ int InitSwordAttack(PLAYERp pp)
 
             }
 
-            if (hitinfo.hitwall >= 0)
+            if (hitinfo.wall() != nullptr)
             {
                 if (hitinfo.wall()->twoSided())
                 {
@@ -12812,7 +12812,7 @@ int InitFistAttack(PLAYERp pp)
             }
 
 
-            if (hitinfo.hitwall >= 0)
+            if (hitinfo.wall() != nullptr)
             {
                 if (hitinfo.wall()->twoSided())
                 {
@@ -13511,7 +13511,7 @@ int ContinueHitscan(PLAYERp pp, sectortype* sect, int x, int y, int z, short ang
     if (hitinfo.sector() == nullptr)
         return 0;
 
-    if (hitinfo.hitactor == nullptr && hitinfo.hitwall < 0)
+    if (hitinfo.hitactor == nullptr && hitinfo.wall() == nullptr)
     {
         if (labs(hitinfo.pos.z - hitinfo.sector()->ceilingz) <= Z(1))
         {
@@ -13524,7 +13524,7 @@ int ContinueHitscan(PLAYERp pp, sectortype* sect, int x, int y, int z, short ang
         }
     }
 
-    if (hitinfo.hitwall >= 0)
+    if (hitinfo.wall() != nullptr)
     {
         if (hitinfo.wall()->twoSided())
         {
@@ -13647,7 +13647,7 @@ int InitShotgun(PLAYERp pp)
             continue;
         }
 
-        if (hitinfo.hitactor == nullptr && hitinfo.hitwall < 0)
+        if (hitinfo.hitactor == nullptr && hitinfo.wall() == nullptr)
         {
             if (labs(hitinfo.pos.z - hitinfo.sector()->ceilingz) <= Z(1))
             {
@@ -13681,7 +13681,7 @@ int InitShotgun(PLAYERp pp)
             }
         }
 
-        if (hitinfo.hitwall >= 0)
+        if (hitinfo.wall() != nullptr)
         {
             if (hitinfo.wall()->twoSided())
             {
@@ -16209,7 +16209,7 @@ int InitUzi(PLAYERp pp)
     SetVisHigh();
 
     // check to see what you hit
-    if (hitinfo.hitactor == nullptr && hitinfo.hitwall < 0)
+    if (hitinfo.hitactor == nullptr && hitinfo.wall() == nullptr)
     {
         if (labs(hitinfo.pos.z - hitinfo.sector()->ceilingz) <= Z(1))
         {
@@ -16244,7 +16244,7 @@ int InitUzi(PLAYERp pp)
         }
     }
 
-    if (hitinfo.hitwall >= 0)
+    if (hitinfo.wall() != nullptr)
     {
         if (hitinfo.wall()->twoSided())
         {
@@ -16754,7 +16754,7 @@ int InitSobjMachineGun(DSWActor* actor, PLAYERp pp)
         return 0;
     }
 
-    if (hitinfo.hitactor == nullptr && hitinfo.hitwall < 0)
+    if (hitinfo.hitactor == nullptr && hitinfo.wall() == nullptr)
     {
         if (labs(hitinfo.pos.z - hitinfo.sector()->ceilingz) <= Z(1))
         {
@@ -17161,7 +17161,7 @@ int InitTurretMgun(SECTOR_OBJECTp sop)
             if (hitinfo.sector() == nullptr)
                 continue;
 
-            if (hitinfo.hitactor == nullptr && hitinfo.hitwall < 0)
+            if (hitinfo.hitactor == nullptr && hitinfo.wall() == nullptr)
             {
                 if (labs(hitinfo.pos.z - hitinfo.sector()->ceilingz) <= Z(1))
                 {
@@ -17182,7 +17182,7 @@ int InitTurretMgun(SECTOR_OBJECTp sop)
 
             }
 
-            if (hitinfo.hitwall >= 0)
+            if (hitinfo.wall() != nullptr)
             {
                 if (hitinfo.wall()->twoSided())
                 {
@@ -17318,7 +17318,7 @@ int InitEnemyUzi(DSWActor* actor)
             PlaySound(DIGI_NINJAUZIATTACK, actor, v3df_none);
     }
 
-    if (hitinfo.hitwall >= 0)
+    if (hitinfo.wall() != nullptr)
     {
         if (hitinfo.wall()->twoSided())
         {
@@ -18918,7 +18918,7 @@ DSWActor* QueueWallBlood(DSWActor* actor, short ang)
     if (hitinfo.hitactor != nullptr)
         return nullptr;   // Don't try to put blood on a sprite
 
-    if (hitinfo.hitwall >= 0)   // Don't check if blood didn't hit a wall, otherwise the ASSERT fails!
+    if (hitinfo.wall() != nullptr)   // Don't check if blood didn't hit a wall, otherwise the ASSERT fails!
     {
         if (TestDontStick(nullptr, hitinfo.wall()))
             return nullptr;

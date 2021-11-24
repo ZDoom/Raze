@@ -2102,7 +2102,7 @@ bool NearThings(PLAYERp pp)
         if (neartagsect >= 0)
             return true;
 
-        if (hitinfo.hitwall >= 0)
+        if (hitinfo.wall() != nullptr)
         {
             WALLp wp;
 
