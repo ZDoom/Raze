@@ -98,8 +98,8 @@ ANIMATOR DoShrapJumpFall;
 ANIMATOR DoFastShrapJumpFall;
 
 int SpawnSmokePuff(DSWActor* actor);
-bool WarpToUnderwater(int *sectnum, int *x, int *y, int *z);
-bool WarpToSurface(int *sectnum, int *x, int *y, int *z);
+bool WarpToUnderwater(sectortype** sectnum, int *x, int *y, int *z);
+bool WarpToSurface(sectortype** sectnum, int *x, int *y, int *z);
 int InitElectroJump(SPRITEp wp, SPRITEp sp);
 bool TestDontStickSector(short hit_sect);
 ANIMATOR SpawnShrapX;
@@ -115,7 +115,7 @@ void SpawnTankShellExp(DSWActor*);
 void SpawnMicroExp(DSWActor*);
 void SpawnExpZadjust(DSWActor* actor, DSWActor* expActor, int upper_zsize, int lower_zsize);
 int BulletHitSprite(DSWActor* actor, DSWActor* hitActor, int hit_x, int hit_y, int hit_z, short ID);
-int SpawnSplashXY(int hit_x,int hit_y,int hit_z,int);
+int SpawnSplashXY(int hit_x,int hit_y,int hit_z,sectortype*);
 DSWActor* SpawnBoatSparks(PLAYERp pp, sectortype* hit_sect, walltype* hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang);
 
 short StatDamageList[STAT_DAMAGE_LIST_SIZE] =
@@ -13499,12 +13499,12 @@ void InitHeartAttack(PLAYERp pp)
     u->WaitTics = 0;
 }
 
-int ContinueHitscan(PLAYERp pp, short sectnum, int x, int y, int z, short ang, int xvect, int yvect, int zvect)
+int ContinueHitscan(PLAYERp pp, sectortype* sect, int x, int y, int z, short ang, int xvect, int yvect, int zvect)
 {
     HITINFO hitinfo;
     USERp u = pp->Actor()->u();
 
-    FAFhitscan(x, y, z, sectnum,
+    FAFhitscan(x, y, z, sectnum(sect),
                xvect, yvect, zvect,
                &hitinfo, CLIPMASK_MISSILE);
 
@@ -13659,8 +13659,8 @@ int InitShotgun(PLAYERp pp)
 
                 if (SectorIsUnderwaterArea(hitinfo.sector()))
                 {
-                    WarpToSurface(&hitinfo.hitsect, &hitinfo.pos.x, &hitinfo.pos.y, &hitinfo.pos.z);
-                    ContinueHitscan(pp, hitinfo.hitsect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ndaang, xvect, yvect, zvect);
+                    WarpToSurface(&hitinfo.hitSector, &hitinfo.pos.x, &hitinfo.pos.y, &hitinfo.pos.z);
+                    ContinueHitscan(pp, hitinfo.sector(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ndaang, xvect, yvect, zvect);
                     continue;
                 }
             }
@@ -13668,12 +13668,12 @@ int InitShotgun(PLAYERp pp)
             {
                 if (TEST(hitinfo.sector()->extra, SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
                 {
-                    SpawnSplashXY(hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z,hitinfo.hitsect);
+                    SpawnSplashXY(hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z,hitinfo.sector());
 
-                    if (SectorIsDiveArea(hitinfo.hitsect))
+                    if (SectorIsDiveArea(hitinfo.sector()))
                     {
-                        WarpToUnderwater(&hitinfo.hitsect, &hitinfo.pos.x, &hitinfo.pos.y, &hitinfo.pos.z);
-                        ContinueHitscan(pp, hitinfo.hitsect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ndaang, xvect, yvect, zvect);
+                        WarpToUnderwater(&hitinfo.hitSector, &hitinfo.pos.x, &hitinfo.pos.y, &hitinfo.pos.z);
+                        ContinueHitscan(pp, hitinfo.sector(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ndaang, xvect, yvect, zvect);
                     }
 
                     continue;
@@ -16221,8 +16221,8 @@ int InitUzi(PLAYERp pp)
 
             if (SectorIsUnderwaterArea(hitinfo.sector()))
             {
-                WarpToSurface(&hitinfo.hitsect, &hitinfo.pos.x, &hitinfo.pos.y, &hitinfo.pos.z);
-                ContinueHitscan(pp, hitinfo.hitsect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, xvect, yvect, zvect);
+                WarpToSurface(&hitinfo.hitSector, &hitinfo.pos.x, &hitinfo.pos.y, &hitinfo.pos.z);
+                ContinueHitscan(pp, hitinfo.sector(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, xvect, yvect, zvect);
                 return 0;
             }
         }
@@ -16230,12 +16230,12 @@ int InitUzi(PLAYERp pp)
         {
             if (TEST(hitinfo.sector()->extra, SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
             {
-                SpawnSplashXY(hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z,hitinfo.hitsect);
+                SpawnSplashXY(hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z,hitinfo.sector());
 
-                if (SectorIsDiveArea(hitinfo.hitsect))
+                if (SectorIsDiveArea(hitinfo.sector()))
                 {
-                    WarpToUnderwater(&hitinfo.hitsect, &hitinfo.pos.x, &hitinfo.pos.y, &hitinfo.pos.z);
-                    ContinueHitscan(pp, hitinfo.hitsect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, xvect, yvect, zvect);
+                    WarpToUnderwater(&hitinfo.hitSector, &hitinfo.pos.x, &hitinfo.pos.y, &hitinfo.pos.z);
+                    ContinueHitscan(pp, hitinfo.sector(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, xvect, yvect, zvect);
                     return 0;
                 }
 
@@ -16768,7 +16768,7 @@ int InitSobjMachineGun(DSWActor* actor, PLAYERp pp)
         {
             if (TEST(hitinfo.sector()->extra, SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
             {
-                SpawnSplashXY(hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z,hitinfo.hitsect);
+                SpawnSplashXY(hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z,hitinfo.sector());
                 return 0;
             }
         }
@@ -17175,7 +17175,7 @@ int InitTurretMgun(SECTOR_OBJECTp sop)
                 {
                     if (TEST(hitinfo.sector()->extra, SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
                     {
-                        SpawnSplashXY(hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z,hitinfo.hitsect);
+                        SpawnSplashXY(hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z,hitinfo.sector());
                         continue;
                     }
                 }
@@ -17871,13 +17871,12 @@ int InitEnemyFireball(DSWActor* actor)
 // for hitscans or other uses
 ///////////////////////////////////////////////////////////////////////////////
 
-bool WarpToUnderwater(int *sectnum, int *x, int *y, int *z)
+bool WarpToUnderwater(sectortype** psectu, int *x, int *y, int *z)
 {
     int i;
-    auto sectu = &sector[*sectnum];
+    auto sectu = *psectu;
     SPRITEp under_sp = nullptr, over_sp = nullptr;
     bool Found = false;
-    short over, under;
     int sx, sy;
 
     // 0 not valid for water match tags
@@ -17927,16 +17926,16 @@ bool WarpToUnderwater(int *sectnum, int *x, int *y, int *z)
     *x = under_sp->x - sx;
     *y = under_sp->y - sy;
 
-    over = over_sp->sectnum;
-    under = under_sp->sectnum;
+    auto over = over_sp->sector();
+    auto under = under_sp->sector();
 
     if (GetOverlapSector(*x, *y, &over, &under) == 2)
     {
-        *sectnum = under;
+        *psectu = under;
     }
     else
     {
-        *sectnum = under;
+        *psectu = under;
     }
 
     *z = under_sp->sector()->ceilingz + Z(1);
@@ -17944,11 +17943,10 @@ bool WarpToUnderwater(int *sectnum, int *x, int *y, int *z)
     return true;
 }
 
-bool WarpToSurface(int *sectnum, int *x, int *y, int *z)
+bool WarpToSurface(sectortype** psectu, int *x, int *y, int *z)
 {
     int i;
-    auto sectu = &sector[*sectnum];
-    short over, under;
+    auto sectu = *psectu;
     int sx, sy;
 
     SPRITEp under_sp = nullptr, over_sp = nullptr;
@@ -18001,12 +17999,12 @@ bool WarpToSurface(int *sectnum, int *x, int *y, int *z)
     *x = over_sp->x - sx;
     *y = over_sp->y - sy;
 
-    over = over_sp->sectnum;
-    under = under_sp->sectnum;
+    auto over = over_sp->sector();
+    auto under = under_sp->sector();
 
     if (GetOverlapSector(*x, *y, &over, &under))
     {
-        *sectnum = over;
+        *psectu = over;
     }
 
     *z = over_sp->sector()->floorz - Z(2);
@@ -18209,16 +18207,13 @@ int SpawnSplash(DSWActor* actor)
     return 0;
 }
 
-int SpawnSplashXY(int hit_x, int hit_y, int hit_z, int sectnum)
+int SpawnSplashXY(int hit_x, int hit_y, int hit_z, sectortype* sectp)
 {
     USERp wu;
     SPRITEp wp;
-    SECTORp sectp;
 
     if (Prediction)
         return 0;
-
-    sectp = &sector[sectnum];
 
     if (sectp->hasU() && (TEST(sectp->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_NONE))
         return 0;

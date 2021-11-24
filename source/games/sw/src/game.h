@@ -2212,9 +2212,9 @@ inline bool SpriteInUnderwaterArea(SPRITEp sp)
     return (TEST(sp->sector()->extra, SECTFX_UNDERWATER | SECTFX_UNDERWATER2) ? true : false);
 }
 
-inline bool SectorIsDiveArea(int sect)
+inline bool SectorIsDiveArea(sectortype* sect)
 {
-    return (TEST(sector[sect].extra, SECTFX_DIVE_AREA) ? true : false);
+    return (TEST(sect->extra, SECTFX_DIVE_AREA) ? true : false);
 }
 
 inline bool SectorIsUnderwaterArea(sectortype* sect)

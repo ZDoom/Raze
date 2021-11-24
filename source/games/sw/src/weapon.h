@@ -170,16 +170,6 @@ bool SpriteOverlap(short, short);
 DSWActor* SpawnShotgunSparks(PLAYERp pp, sectortype* hit_sect, walltype* hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang);
 int DoActorBeginSlide(DSWActor* actor, int ang, int vel, int dec);
 int GetOverlapSector(int x, int y, sectortype** over, sectortype** under);
-[[deprecated]]
-inline int GetOverlapSector(int x, int y, short* over, short* under)
-{
-    auto o = &sector[*over];
-    auto u = &sector[*under];
-    int res = GetOverlapSector(x, y, &o, &u);
-    *over = sectnum(o);
-    *under = sectnum(u);
-    return res;
-}
 
 bool MissileHitDiveArea(DSWActor*);
 
