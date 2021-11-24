@@ -4073,7 +4073,6 @@ void DoPlayerWarpToUnderwater(PLAYERp pp)
     auto sectu = pp->cursector();
     SPRITEp under_sp = nullptr, over_sp = nullptr;
     bool Found = false;
-    short over, under;
 
     if (Prediction)
         return;
@@ -4122,15 +4121,15 @@ void DoPlayerWarpToUnderwater(PLAYERp pp)
     pp->posx = under_sp->x - u->sx;
     pp->posy = under_sp->y - u->sy;
 
-    over  = over_sp->sectnum;
-    under = under_sp->sectnum;
+    auto over  = over_sp->sector();
+    auto under = under_sp->sector();
 
     if (GetOverlapSector(pp->posx, pp->posy, &over, &under) == 2)
     {
-        pp->cursectnum = under;
+        pp->setcursector(under);
     }
     else
-        pp->cursectnum = over;
+        pp->setcursector(over);
 
     pp->posz = under_sp->sector()->ceilingz + Z(6);
 
@@ -4146,7 +4145,6 @@ void DoPlayerWarpToSurface(PLAYERp pp)
 {
     USERp u = pp->Actor()->u();
     auto sectu = pp->cursector();
-    short over, under;
 
     SPRITEp under_sp = nullptr, over_sp = nullptr;
     bool Found = false;
@@ -4197,12 +4195,12 @@ void DoPlayerWarpToSurface(PLAYERp pp)
     pp->posx = over_sp->x - u->sx;
     pp->posy = over_sp->y - u->sy;
 
-    over = over_sp->sectnum;
-    under = under_sp->sectnum;
+    auto over = over_sp->sector();
+    auto under = under_sp->sector();
 
     if (GetOverlapSector(pp->posx, pp->posy, &over, &under))
     {
-        pp->cursectnum = over;
+        pp->setcursector(over);
     }
 
     pp->posz = over_sp->sector()->floorz - Z(2);

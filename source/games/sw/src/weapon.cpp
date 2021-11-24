@@ -18023,7 +18023,6 @@ bool SpriteWarpToUnderwater(DSWActor* actor)
     auto sectu = sp->sector();
     SPRITEp under_sp = nullptr, over_sp = nullptr;
     bool Found = false;
-    short over, under;
     int sx, sy;
 
     // 0 not valid for water match tags
@@ -18073,8 +18072,8 @@ bool SpriteWarpToUnderwater(DSWActor* actor)
     sp->x = under_sp->x - sx;
     sp->y = under_sp->y - sy;
 
-    over = over_sp->sectnum;
-    under = under_sp->sectnum;
+    auto over = over_sp->sector();
+    auto under = under_sp->sector();
 
     if (GetOverlapSector(sp->x, sp->y, &over, &under) == 2)
     {
@@ -18097,7 +18096,6 @@ bool SpriteWarpToSurface(DSWActor* actor)
     USERp u = actor->u();
     auto sp = &actor->s();
     auto sectu = sp->sector();
-    short over, under;
     int sx, sy;
 
     SPRITEp under_sp = nullptr, over_sp = nullptr;
@@ -18154,8 +18152,8 @@ bool SpriteWarpToSurface(DSWActor* actor)
     sp->x = over_sp->x - sx;
     sp->y = over_sp->y - sy;
 
-    over = over_sp->sectnum;
-    under = under_sp->sectnum;
+    auto over = over_sp->sector();
+    auto under = under_sp->sector();
 
     if (GetOverlapSector(sp->x, sp->y, &over, &under))
     {
