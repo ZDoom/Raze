@@ -1805,7 +1805,7 @@ ANIMATOR NullAnimator;
 int Distance(int x1, int y1, int x2, int y2);
 
 int NewStateGroup(DSWActor* actor, STATEp SpriteGroup[]);
-void SectorMidPoint(short sectnum, int *xmid, int *ymid, int *zmid);
+void SectorMidPoint(sectortype* sectnum, int *xmid, int *ymid, int *zmid);
 USERp SpawnUser(DSWActor* actor, short id, STATEp state);
 
 short ActorFindTrack(DSWActor* actor, int8_t player_dir, int track_type, int *track_point_num, int *track_dir);

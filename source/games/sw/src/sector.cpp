@@ -591,12 +591,11 @@ void SectorSetup(void)
     }
 }
 
-void SectorMidPoint(short sectnum, int *xmid, int *ymid, int *zmid)
+void SectorMidPoint(sectortype* sectp, int *xmid, int *ymid, int *zmid)
 {
-    auto sectp = &sector[sectnum];
     int xsum = 0, ysum = 0;
 
-    for(auto& wal : wallsofsector(sectnum))
+    for(auto& wal : wallsofsector(sectp))
     {
         xsum += wal.x;
         ysum += wal.y;
@@ -685,8 +684,8 @@ int SectorDistanceByMid(short sect1, int sect2)
 {
     int sx1, sy1, sx2, sy2, trash;
 
-    SectorMidPoint(sect1, &sx1, &sy1, &trash);
-    SectorMidPoint(sect2, &sx2, &sy2, &trash);
+    SectorMidPoint(&sector[sect1], &sx1, &sy1, &trash);
+    SectorMidPoint(&sector[sect2], &sx2, &sy2, &trash);
 
     // return the distance between the two sectors.
     return Distance(sx1, sy1, sx2, sy2);
@@ -880,7 +879,7 @@ void SectorExp(DSWActor* actor, short sectnum, short orig_ang, int zh)
     int x,y,z;
 
     RESET(sp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL|CSTAT_SPRITE_ALIGNMENT_FLOOR);
-    SectorMidPoint(sectnum, &x, &y, &z);
+    SectorMidPoint(&sector[sectnum], &x, &y, &z);
     sp->ang = orig_ang;
     sp->x = x;
     sp->y = y;

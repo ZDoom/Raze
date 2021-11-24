@@ -173,8 +173,8 @@ void CopySectorMatch(int match)
                         // move sprites from source to dest - use center offset
 
                         // get center of src and dest sect
-                        SectorMidPoint(src_sp->sectnum, &sx, &sy, &trash);
-                        SectorMidPoint(dest_sp->sectnum, &dx, &dy, &trash);
+                        SectorMidPoint(src_sp->sector(), &sx, &sy, &trash);
+                        SectorMidPoint(dest_sp->sector(), &dx, &dy, &trash);
 
                         // get offset
                         src_xoff = sx - sp->x;

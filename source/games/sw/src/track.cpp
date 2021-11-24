@@ -1091,7 +1091,7 @@ void SetupSectorObject(short sectnum, short tag)
     case TAG_OBJECT_CENTER - 500:
 
         sop->mid_sector = sectnum;
-        SectorMidPoint(sectnum, &sop->xmid, &sop->ymid, &sop->zmid);
+        SectorMidPoint(&sector[sectnum], &sop->xmid, &sop->ymid, &sop->zmid);
         //sop->zmid = sector[sectnum].floorz;
         //sop->zmid = DIV2(sector[sectnum].floorz + sector[sectnum].ceilingz);
 
