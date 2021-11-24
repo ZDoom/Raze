@@ -716,17 +716,17 @@ OptionMenu "WeaponsControlMenu" protected
 	ifgame(Witchaven, Witchaven2)
 	{
 		StaticText "CNTRLMNU_SPELLS"
-		Control    "$CNTRLMNU_SPELL0"          , "spell 0"
-		Control    "$CNTRLMNU_SPELL1"          , "spell 1"
-		Control    "$CNTRLMNU_SPELL2"          , "spell 2"
-		Control    "$CNTRLMNU_SPELL3"          , "spell 3"
-		Control    "$CNTRLMNU_SPELL4"          , "spell 4"
-		Control    "$CNTRLMNU_SPELL5"          , "spell 5"
-		Control    "$CNTRLMNU_SPELL6"          , "spell 6"
-		Control    "$CNTRLMNU_SPELL7"          , "spell 7"
+		Control    "$CNTRLMNU_SPELL0"          , "cast_spell 0"
+		Control    "$CNTRLMNU_SPELL1"          , "cast_spell 1"
+		Control    "$CNTRLMNU_SPELL2"          , "cast_spell 2"
+		Control    "$CNTRLMNU_SPELL3"          , "cast_spell 3"
+		Control    "$CNTRLMNU_SPELL4"          , "cast_spell 4"
+		Control    "$CNTRLMNU_SPELL5"          , "cast_spell 5"
+		Control    "$CNTRLMNU_SPELL6"          , "cast_spell 6"
+		Control    "$CNTRLMNU_SPELL7"          , "cast_spell 7"
 		StaticText ""
-		Control    "$CNTRLMNU_SPELL8"          , "spell 8"
-		Control    "$CNTRLMNU_SPELL9"          , "spell 9"
+		Control    "$CNTRLMNU_SPELL8"          , "cast_spell 8"
+		Control    "$CNTRLMNU_SPELL9"          , "cast_spell 9"
 	}
 
 }

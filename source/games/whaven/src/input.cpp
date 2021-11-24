@@ -15,29 +15,6 @@ int runningtime;
 double oldhoriz;
 
 
-static int osdcmd_third_person_view(CCmdFuncPtr parm)
-{
-	if (gamestate != GS_LEVEL) return CCMD_OK;
-	/*	if (gViewPos > VIEWPOS_0)
-		gViewPos = VIEWPOS_0;
-	else
-		gViewPos = VIEWPOS_1;
-		*/
-	return CCMD_OK;
-}
-
-static int osdcmd_coop_view(CCmdFuncPtr parm)
-{
-	if (gamestate != GS_LEVEL) return CCMD_OK;
-
-	if (numplayers > 1)
-	{
-		pyrn = connectpoint2[pyrn];
-		if (pyrn < 0) pyrn = connecthead;
-	}
-	return CCMD_OK;
-}
-
 static int osdcmd_cast_spell(CCmdFuncPtr parm)
 {
 	// There's no more space in the packet so this gets sent as a separate network message.
@@ -66,8 +43,6 @@ void cast_spell(int plr, uint8_t** stream, bool skip)
 int32_t registerosdcommands(void)
 {
 	//C_RegisterFunction("warptocoords", "warptocoords [x] [y] [z] [ang] (optional) [horiz] (optional): warps the player to the specified coordinates", osdcmd_warptocoords);
-	C_RegisterFunction("third_person_view", "Switch to third person view", osdcmd_third_person_view);
-	C_RegisterFunction("coop_view", "Switch player to view from in coop", osdcmd_coop_view);
 	C_RegisterFunction("cast_spell", "castspell <spellnum> Cast a spell", osdcmd_cast_spell);
 	//C_RegisterFunction("show_weapon", "Show opponents' weapons", osdcmd_show_weapon);
 	Net_SetCommandHandler(DEM_SPELL, cast_spell);

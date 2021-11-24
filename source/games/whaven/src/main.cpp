@@ -578,6 +578,7 @@ void GameInterface::app_init()
 	C_SetNotifyFontScale(isWh2()? 1 : 0.6);
 	GameTicRate = TIMERRATE / TICSPERFRAME;
 	engineInit();
+	registerosdcommands();
 
 	TileFiles.tileMakeWritable(ANILAVA);
 	TileFiles.tileMakeWritable(HEALTHWATER);
