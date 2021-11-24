@@ -12628,18 +12628,18 @@ int InitSwordAttack(PLAYERp pp)
 
             if (hitinfo.hitwall >= 0)
             {
-                if (wall[hitinfo.hitwall].nextsector >= 0)
+                if (hitinfo.wall()->nextsector >= 0)
                 {
-                    if (TEST(sector[wall[hitinfo.hitwall].nextsector].ceilingstat, CEILING_STAT_PLAX))
+                    if (TEST(sector[hitinfo.wall()->nextsector].ceilingstat, CEILING_STAT_PLAX))
                     {
-                        if (hitinfo.pos.z < sector[wall[hitinfo.hitwall].nextsector].ceilingz)
+                        if (hitinfo.pos.z < sector[hitinfo.wall()->nextsector].ceilingz)
                         {
                             return 0;
                         }
                     }
                 }
 
-                if (wall[hitinfo.hitwall].lotag == TAG_WALL_BREAK)
+                if (hitinfo.wall()->lotag == TAG_WALL_BREAK)
                 {
                     HitBreakWall(&wall[hitinfo.hitwall], hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, u->ID);
                 }
@@ -12831,18 +12831,18 @@ int InitFistAttack(PLAYERp pp)
 
             if (hitinfo.hitwall >= 0)
             {
-                if (wall[hitinfo.hitwall].nextsector >= 0)
+                if (hitinfo.wall()->nextsector >= 0)
                 {
-                    if (TEST(sector[wall[hitinfo.hitwall].nextsector].ceilingstat, CEILING_STAT_PLAX))
+                    if (TEST(sector[hitinfo.wall()->nextsector].ceilingstat, CEILING_STAT_PLAX))
                     {
-                        if (hitinfo.pos.z < sector[wall[hitinfo.hitwall].nextsector].ceilingz)
+                        if (hitinfo.pos.z < sector[hitinfo.wall()->nextsector].ceilingz)
                         {
                             return 0;
                         }
                     }
                 }
 
-                if (wall[hitinfo.hitwall].lotag == TAG_WALL_BREAK)
+                if (hitinfo.wall()->lotag == TAG_WALL_BREAK)
                 {
                     HitBreakWall(&wall[hitinfo.hitwall], hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, u->ID);
                 }
@@ -13543,18 +13543,18 @@ int ContinueHitscan(PLAYERp pp, short sectnum, int x, int y, int z, short ang, i
 
     if (hitinfo.hitwall >= 0)
     {
-        if (wall[hitinfo.hitwall].nextsector >= 0)
+        if (hitinfo.wall()->nextsector >= 0)
         {
-            if (TEST(sector[wall[hitinfo.hitwall].nextsector].ceilingstat, CEILING_STAT_PLAX))
+            if (TEST(sector[hitinfo.wall()->nextsector].ceilingstat, CEILING_STAT_PLAX))
             {
-                if (hitinfo.pos.z < sector[wall[hitinfo.hitwall].nextsector].ceilingz)
+                if (hitinfo.pos.z < sector[hitinfo.wall()->nextsector].ceilingz)
                 {
                     return 0;
                 }
             }
         }
 
-        if (wall[hitinfo.hitwall].lotag == TAG_WALL_BREAK)
+        if (hitinfo.wall()->lotag == TAG_WALL_BREAK)
         {
             HitBreakWall(&wall[hitinfo.hitwall], hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ang, u->ID);
             return 0;
@@ -13700,18 +13700,18 @@ int InitShotgun(PLAYERp pp)
 
         if (hitinfo.hitwall >= 0)
         {
-            if (wall[hitinfo.hitwall].nextsector >= 0)
+            if (hitinfo.wall()->nextsector >= 0)
             {
-                if (TEST(sector[wall[hitinfo.hitwall].nextsector].ceilingstat, CEILING_STAT_PLAX))
+                if (TEST(sector[hitinfo.wall()->nextsector].ceilingstat, CEILING_STAT_PLAX))
                 {
-                    if (hitinfo.pos.z < sector[wall[hitinfo.hitwall].nextsector].ceilingz)
+                    if (hitinfo.pos.z < sector[hitinfo.wall()->nextsector].ceilingz)
                     {
                         continue;
                     }
                 }
             }
 
-            if (wall[hitinfo.hitwall].lotag == TAG_WALL_BREAK)
+            if (hitinfo.wall()->lotag == TAG_WALL_BREAK)
             {
                 HitBreakWall(&wall[hitinfo.hitwall], hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ndaang, u->ID);
                 continue;
@@ -16263,11 +16263,11 @@ int InitUzi(PLAYERp pp)
 
     if (hitinfo.hitwall >= 0)
     {
-        if (wall[hitinfo.hitwall].nextsector >= 0)
+        if (hitinfo.wall()->nextsector >= 0)
         {
-            if (TEST(sector[wall[hitinfo.hitwall].nextsector].ceilingstat, CEILING_STAT_PLAX))
+            if (TEST(sector[hitinfo.wall()->nextsector].ceilingstat, CEILING_STAT_PLAX))
             {
-                if (hitinfo.pos.z < sector[wall[hitinfo.hitwall].nextsector].ceilingz)
+                if (hitinfo.pos.z < sector[hitinfo.wall()->nextsector].ceilingz)
                 {
                     return 0;
                 }
@@ -16275,7 +16275,7 @@ int InitUzi(PLAYERp pp)
         }
 
 
-        if (wall[hitinfo.hitwall].lotag == TAG_WALL_BREAK)
+        if (hitinfo.wall()->lotag == TAG_WALL_BREAK)
         {
             HitBreakWall(&wall[hitinfo.hitwall], hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, u->ID);
             return 0;
@@ -17201,18 +17201,18 @@ int InitTurretMgun(SECTOR_OBJECTp sop)
 
             if (hitinfo.hitwall >= 0)
             {
-                if (wall[hitinfo.hitwall].nextsector >= 0)
+                if (hitinfo.wall()->nextsector >= 0)
                 {
-                    if (TEST(sector[wall[hitinfo.hitwall].nextsector].ceilingstat, CEILING_STAT_PLAX))
+                    if (TEST(sector[hitinfo.wall()->nextsector].ceilingstat, CEILING_STAT_PLAX))
                     {
-                        if (hitinfo.pos.z < sector[wall[hitinfo.hitwall].nextsector].ceilingz)
+                        if (hitinfo.pos.z < sector[hitinfo.wall()->nextsector].ceilingz)
                         {
                             return 0;
                         }
                     }
                 }
 
-                if (wall[hitinfo.hitwall].lotag == TAG_WALL_BREAK)
+                if (hitinfo.wall()->lotag == TAG_WALL_BREAK)
                 {
                     HitBreakWall(&wall[hitinfo.hitwall], hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, 0);
                     continue;
@@ -17337,18 +17337,18 @@ int InitEnemyUzi(DSWActor* actor)
 
     if (hitinfo.hitwall >= 0)
     {
-        if (wall[hitinfo.hitwall].nextsector >= 0)
+        if (hitinfo.wall()->nextsector >= 0)
         {
-            if (TEST(sector[wall[hitinfo.hitwall].nextsector].ceilingstat, CEILING_STAT_PLAX))
+            if (TEST(sector[hitinfo.wall()->nextsector].ceilingstat, CEILING_STAT_PLAX))
             {
-                if (hitinfo.pos.z < sector[wall[hitinfo.hitwall].nextsector].ceilingz)
+                if (hitinfo.pos.z < sector[hitinfo.wall()->nextsector].ceilingz)
                 {
                     return 0;
                 }
             }
         }
 
-        if (wall[hitinfo.hitwall].lotag == TAG_WALL_BREAK)
+        if (hitinfo.wall()->lotag == TAG_WALL_BREAK)
         {
             HitBreakWall(&wall[hitinfo.hitwall], hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, u->ID);
             return 0;
@@ -18582,7 +18582,7 @@ bool TestDontStick(DSWActor* actor, short hit_wall)
         return true;
 
     // if blocking red wallo
-    if (TEST(wp->cstat, CSTAT_WALL_BLOCK) && validWallIndex(wp->nextwall))
+    if (TEST(wp->cstat, CSTAT_WALL_BLOCK) && wp->twoSided())
         return true;
 
     return false;

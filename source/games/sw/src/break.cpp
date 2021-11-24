@@ -557,9 +557,9 @@ int AutoBreakWall(WALLp wallp, int hit_x, int hit_y, int hit_z, int ang, int typ
     WALLp nwp;
 
     wallp->lotag = 0;
-    if (wallp->nextwall >= 0)
+    if (wallp->twoSided())
     {
-        nwp = &wall[wallp->nextwall];
+        nwp = wallp->nextWall();
 
         // get rid of both sides
         // only break ONE of the walls
@@ -608,9 +608,9 @@ int AutoBreakWall(WALLp wallp, int hit_x, int hit_y, int hit_z, int ang, int typ
         {
             RESET(wallp->cstat, CSTAT_WALL_MASKED|CSTAT_WALL_1WAY|CSTAT_WALL_BLOCK_HITSCAN|CSTAT_WALL_BLOCK);
             wallp->overpicnum = 0;
-            if (wallp->nextwall >= 0)
+            if (wallp->twoSided())
             {
-                nwp = &wall[wallp->nextwall];
+                nwp = wallp->nextWall();
                 RESET(nwp->cstat, CSTAT_WALL_MASKED|CSTAT_WALL_1WAY|CSTAT_WALL_BLOCK_HITSCAN|CSTAT_WALL_BLOCK);
                 nwp->overpicnum = 0;
             }
@@ -619,9 +619,9 @@ int AutoBreakWall(WALLp wallp, int hit_x, int hit_y, int hit_z, int ang, int typ
         {
             RESET(wallp->cstat, CSTAT_WALL_BLOCK_HITSCAN|CSTAT_WALL_BLOCK);
             wallp->overpicnum = break_info->breaknum;
-            if (wallp->nextwall >= 0)
+            if (wallp->twoSided())
             {
-                nwp = &wall[wallp->nextwall];
+                nwp = wallp->nextWall();
                 RESET(nwp->cstat, CSTAT_WALL_BLOCK_HITSCAN|CSTAT_WALL_BLOCK);
                 nwp->overpicnum = break_info->breaknum;
             }
@@ -656,12 +656,12 @@ bool UserBreakWall(WALLp wp)
         // do it the old way and get rid of wall - assumed to be masked
         DoSpawnSpotsForKill(match);
         RESET(wp->cstat, flags);
-        if (wp->nextwall >= 0)
+        if (wp->twoSided())
             RESET(wp->nextWall()->cstat, flags);
 
         // clear tags
         wp->hitag = wp->lotag = 0;
-        if (wp->nextwall >= 0)
+        if (wp->twoSided())
             wp->nextWall()->hitag = wp->nextWall()->lotag = 0;
         return true;
     }
@@ -682,7 +682,7 @@ bool UserBreakWall(WALLp wp)
             wp->picnum = SP_TAG5(sp);
             // clear tags
             wp->hitag = wp->lotag = 0;
-            if (wp->nextwall >= 0)
+            if (wp->twoSided())
                 wp->nextWall()->hitag = wp->nextWall()->lotag = 0;
             ret = false;
         }
@@ -690,11 +690,11 @@ bool UserBreakWall(WALLp wp)
         {
             // clear flags
             RESET(wp->cstat, flags);
-            if (wp->nextwall >= 0)
+            if (wp->twoSided())
                 RESET(wp->nextWall()->cstat, flags);
             // clear tags
             wp->hitag = wp->lotag = 0;
-            if (wp->nextwall >= 0)
+            if (wp->twoSided())
                 wp->nextWall()->hitag = wp->nextWall()->lotag = 0;
 
             ret = true;
@@ -706,12 +706,12 @@ bool UserBreakWall(WALLp wp)
 
             // clear flags
             RESET(wp->cstat, block_flags);
-            if (wp->nextwall >= 0)
+            if (wp->twoSided())
                 RESET(wp->nextWall()->cstat, block_flags);
 
             // clear tags
             wp->hitag = wp->lotag = 0;
-            if (wp->nextwall >= 0)
+            if (wp->twoSided())
                 wp->nextWall()->hitag = wp->nextWall()->lotag = 0;
 
             ret = false;

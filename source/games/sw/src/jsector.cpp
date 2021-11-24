@@ -579,8 +579,8 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz, double smoothratio)
                 w = mirror[cnt].mirrorwall;
 
                 // Get wall midpoint for offset in mirror view
-                midx = (wall[w].x + wall[wall[w].point2].x) / 2;
-                midy = (wall[w].y + wall[wall[w].point2].y) / 2;
+                midx = (wall[w].x + wall[w].point2Wall()->x) / 2;
+                midy = (wall[w].y + wall[w].point2Wall()->y) / 2;
 
                 // Finish finding offsets
                 tdx = abs(midx - tx);

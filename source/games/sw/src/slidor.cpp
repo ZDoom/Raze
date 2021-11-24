@@ -282,10 +282,11 @@ int DoSlidorMoveWalls(DSWActor* actor, int amt)
 
     w = startwall = sp->sector()->wallptr;
     endwall = startwall + sp->sector()->wallnum - 1;
+    auto wal = &wall[w];
 
     do
     {
-        switch (wall[w].lotag)
+        switch (wal->lotag)
         {
         case TAG_WALL_SLIDOR_LEFT:
 
@@ -294,19 +295,19 @@ int DoSlidorMoveWalls(DSWActor* actor, int amt)
             if (w < startwall)
                 pw = endwall;
 
-            if (!validWallIndex(wall[w].nextwall))
+            if (!wal->twoSided())
             {
                 // white wall - move 4 points
-                wall[w].x -= amt;
+                wal->x -= amt;
                 wall[pw].x -= amt;
-                wall[wall[w].point2].x -= amt;
-                wall[wall[wall[w].point2].point2].x -= amt;
+                wal->point2Wall()->x -= amt;
+                wal->point2Wall()->point2Wall()->x -= amt;
             }
             else
             {
                 // red wall - move 2 points
-                dragpoint(w, wall[w].x - amt, wall[w].y);
-                dragpoint(wall[w].point2, wall[wall[w].point2].x - amt, wall[wall[w].point2].y);
+                dragpoint(w, wal->x - amt, wal->y);
+                dragpoint(wal->point2, wal->point2Wall()->x - amt, wal->point2Wall()->y);
             }
 
             break;
@@ -318,19 +319,19 @@ int DoSlidorMoveWalls(DSWActor* actor, int amt)
             if (w < startwall)
                 pw = endwall;
 
-            if (!validWallIndex(wall[w].nextwall))
+            if (!wal->twoSided())
             {
                 // white wall - move 4 points
-                wall[w].x += amt;
+                wal->x += amt;
                 wall[pw].x += amt;
-                wall[wall[w].point2].x += amt;
-                wall[wall[wall[w].point2].point2].x += amt;
+                wal->point2Wall()->x += amt;
+                wal->point2Wall()->point2Wall()->x += amt;
             }
             else
             {
                 // red wall - move 2 points
-                dragpoint(w, wall[w].x + amt, wall[w].y);
-                dragpoint(wall[w].point2, wall[wall[w].point2].x + amt, wall[wall[w].point2].y);
+                dragpoint(w, wal->x + amt, wal->y);
+                dragpoint(wal->point2, wal->point2Wall()->x + amt, wal->point2Wall()->y);
             }
 
             break;
@@ -342,17 +343,17 @@ int DoSlidorMoveWalls(DSWActor* actor, int amt)
             if (w < startwall)
                 pw = endwall;
 
-            if (!validWallIndex(wall[w].nextwall))
+            if (!wal->twoSided())
             {
-                wall[w].y -= amt;
+                wal->y -= amt;
                 wall[pw].y -= amt;
-                wall[wall[w].point2].y -= amt;
-                wall[wall[wall[w].point2].point2].y -= amt;
+                wal->point2Wall()->y -= amt;
+                wal->point2Wall()->point2Wall()->y -= amt;
             }
             else
             {
-                dragpoint(w, wall[w].x, wall[w].y - amt);
-                dragpoint(wall[w].point2, wall[wall[w].point2].x, wall[wall[w].point2].y - amt);
+                dragpoint(w, wal->x, wal->y - amt);
+                dragpoint(wal->point2, wal->point2Wall()->x, wal->point2Wall()->y - amt);
             }
 
             break;
@@ -364,24 +365,25 @@ int DoSlidorMoveWalls(DSWActor* actor, int amt)
             if (w < startwall)
                 pw = endwall;
 
-            if (!validWallIndex(wall[w].nextwall))
+            if (!wal->twoSided())
             {
-                wall[w].y += amt;
+                wal->y += amt;
                 wall[pw].y += amt;
-                wall[wall[w].point2].y += amt;
-                wall[wall[wall[w].point2].point2].y += amt;
+                wal->point2Wall()->y += amt;
+                wal->point2Wall()->point2Wall()->y += amt;
             }
             else
             {
-                dragpoint(w, wall[w].x, wall[w].y + amt);
-                dragpoint(wall[w].point2, wall[wall[w].point2].x, wall[wall[w].point2].y + amt);
+                dragpoint(w, wal->x, wal->y + amt);
+                dragpoint(wal->point2, wal->point2Wall()->x, wal->point2Wall()->y + amt);
             }
 
 
             break;
         }
 
-        w = wall[w].point2;
+        w = wal->point2;
+        wal = wal->point2Wall();
     }
     while (w != startwall);
 

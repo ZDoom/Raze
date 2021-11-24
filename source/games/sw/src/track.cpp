@@ -3181,7 +3181,7 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
                 if (hitinfo.hitwall < 0)
                     return false;
 
-                zdiff = labs(sp->z - sector[wall[hitinfo.hitwall].nextsector].floorz) >> 8;
+                zdiff = labs(sp->z - sector[hitinfo.wall()->nextsector].floorz) >> 8;
 
                 u->jump_speed = PickJumpSpeed(actor, zdiff);
             }

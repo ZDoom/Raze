@@ -3446,7 +3446,7 @@ int DoPlayerWadeSuperJump(PLAYERp pp)
 
         if (hitinfo.hitwall >= 0 && hitinfo.hitsect >= 0)
         {
-            hitinfo.hitsect = wall[hitinfo.hitwall].nextsector;
+            hitinfo.hitsect = hitinfo.wall()->nextsector;
 
             if (hitinfo.hitsect >= 0 && labs(sector[hitinfo.hitsect].floorz - pp->posz) < Z(50))
             {
@@ -3790,7 +3790,7 @@ bool PlayerOnLadder(PLAYERp pp)
         else
         {
             // if you hit a wall and it is not a climb wall - forget it
-            if (hitinfo.hitwall >= 0 && wall[hitinfo.hitwall].lotag != TAG_WALL_CLIMB)
+            if (hitinfo.hitwall >= 0 && hitinfo.wall()->lotag != TAG_WALL_CLIMB)
                 return false;
         }
     }

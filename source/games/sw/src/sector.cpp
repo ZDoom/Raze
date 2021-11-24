@@ -202,7 +202,7 @@ void WallSetup(void)
         case TAG_WALL_LOOP_OUTER_SECONDARY:
         {
             // make sure it's a red wall
-            if (validWallIndex(wp->nextwall))
+            if (wp->twoSided())
             {
                 WallSetupLoop(wp, TAG_WALL_LOOP_OUTER_SECONDARY, WALLFX_LOOP_OUTER | WALLFX_LOOP_OUTER_SECONDARY);
             }
@@ -216,7 +216,7 @@ void WallSetup(void)
         case TAG_WALL_LOOP_OUTER:
         {
             // make sure it's a red wall
-            if (validWallIndex(wp->nextwall))
+            if (wp->twoSided())
             {
                 WallSetupLoop(wp, TAG_WALL_LOOP_OUTER, WALLFX_LOOP_OUTER);
             }
