@@ -2647,7 +2647,7 @@ void DoPlayerMoveVehicle(PLAYERp pp)
 
     save_sectnum = pp->cursectnum;
     OperateSectorObject(pp->sop, pp->angle.ang.asbuild(), MAXSO, MAXSO);
-    pp->cursectnum = pp->sop->op_main_sector; // for speed
+    pp->setcursector(pp->sop->op_main_sector); // for speed
 
     floor_dist = labs(z - pp->sop->floor_loz);
 
@@ -4917,7 +4917,7 @@ void DoPlayerBeginOperateTurret(PLAYERp pp)
 void FindMainSector(SECTOR_OBJECTp sop)
 {
     // find the main sector - only do this once for each sector object
-    if (sop->op_main_sector < 0)
+    if (sop->op_main_sector == nullptr)
     {
         int sx = sop->xmid;
         int sy = sop->ymid;
@@ -4925,7 +4925,7 @@ void FindMainSector(SECTOR_OBJECTp sop)
         PlaceSectorObject(sop, MAXSO, MAXSO);
 
         // set it to something valid
-        sop->op_main_sector = 0;
+        sop->op_main_sector = &sector[0];
 
         updatesectorz(sx, sy, sop->zmid, &sop->op_main_sector);
 

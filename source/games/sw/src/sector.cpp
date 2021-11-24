@@ -384,6 +384,7 @@ void SectorSetup(void)
         SectorObject[ndx].controller = nullptr;
         SectorObject[ndx].sp_child = nullptr;
         SectorObject[ndx].mid_sector = nullptr;
+        SectorObject[ndx].op_main_sector = nullptr;
         SectorObject[ndx].xmid = INT32_MAX;
     }
 

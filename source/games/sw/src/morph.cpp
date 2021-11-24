@@ -307,7 +307,7 @@ MorphTornado(SECTOR_OBJECTp sop)
     int x,y,sx,sy;
 
     // z direction
-    ASSERT(sop->op_main_sector >= 0);
+    ASSERT(sop->op_main_sector != nullptr);
     sop->morph_z += Z(sop->morph_z_speed);
 
     // move vector
@@ -352,8 +352,8 @@ MorphTornado(SECTOR_OBJECTp sop)
     dragpoint(sop->morph_wall_point, mx, my);
 
     // bound the Z
-    ceilingz = sector[sop->op_main_sector].ceilingz;
-    floorz = sector[sop->op_main_sector].floorz;
+    ceilingz = sop->op_main_sector->ceilingz;
+    floorz = sop->op_main_sector->floorz;
 
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
     {
@@ -388,7 +388,7 @@ MorphFloor(SECTOR_OBJECTp sop)
     int x,y;
 
     // z direction
-    ASSERT(sop->op_main_sector >= 0);
+    ASSERT(sop->op_main_sector != nullptr);
     sop->morph_z -= Z(sop->morph_z_speed);
 
     // move vector
@@ -431,7 +431,7 @@ MorphFloor(SECTOR_OBJECTp sop)
     dragpoint(sop->morph_wall_point, mx, my);
 
     // bound the Z
-    floorz = sector[sop->op_main_sector].floorz;
+    floorz = sop->op_main_sector->floorz;
 
 #define MORPH_FLOOR_ZRANGE Z(300)
 
@@ -516,7 +516,7 @@ SpikeFloor(SECTOR_OBJECTp sop)
     int x,y;
 
     // z direction
-    ASSERT(sop->op_main_sector >= 0);
+    ASSERT(sop->op_main_sector != nullptr);
     sop->morph_z -= Z(sop->morph_z_speed);
 
     // move vector
@@ -532,7 +532,7 @@ SpikeFloor(SECTOR_OBJECTp sop)
     my = y;
 
     // bound the Z
-    floorz = sector[sop->op_main_sector].floorz;
+    floorz = sop->op_main_sector->floorz;
 
 #define MORPH_FLOOR_ZRANGE Z(300)
 

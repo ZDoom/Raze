@@ -1652,6 +1652,7 @@ struct SECTOR_OBJECTstruct
     sectortype*
         sectp[MAX_SO_SECTOR],
         *scratch,           // Just a filler to account for shitty loop tests.
+        *op_main_sector, // main sector operational SO moves in - for speed purposes
         *mid_sector;     // middle sector
 
 
@@ -1680,7 +1681,6 @@ struct SECTOR_OBJECTstruct
            drive_speed,
            drive_slide,
            crush_z,
-           op_main_sector, // main sector operational SO moves in - for speed purposes
            flags;
 
     int16_t xorig[MAX_SO_POINTS],   // save the original x & y location of each wall so it can be

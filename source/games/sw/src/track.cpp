@@ -1033,6 +1033,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
 
         memset(sop->sectp, 0, sizeof(sop->sectp));
         memset(sop->so_actors, 0, sizeof(sop->so_actors));
+        sop->scratch = nullptr; // this is a guard field for sectp, because several loops do not test the end properly.
         sop->match_event_actor = nullptr;
         sop->crush_z = 0;
         sop->drive_angspeed = 0;
@@ -1058,7 +1059,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
         sop->floor_hiz = 9999999;
         sop->player_xoff = sop->player_yoff = 0;
         sop->ang_tgt = sop->ang = sop->ang_moving = 0;
-        sop->op_main_sector = -1;
+        sop->op_main_sector = nullptr;
         sop->ram_damage = 0;
         sop->max_damage = -9999;
 
@@ -2816,7 +2817,6 @@ void TornadoSpin(SECTOR_OBJECTp sop)
 void DoTornadoObject(SECTOR_OBJECTp sop)
 {
     int xvect,yvect;
-    int cursect;
     // this made them move together more or less - cool!
     //static short ang = 1024;
     int floor_dist;
@@ -2827,8 +2827,8 @@ void DoTornadoObject(SECTOR_OBJECTp sop)
     xvect = sop->vel * bcos(*ang);
     yvect = sop->vel * bcos(*ang);
 
-    cursect = sop->op_main_sector; // for sop->vel
-    floor_dist = (labs(sector[cursect].ceilingz - sector[cursect].floorz)) >> 2;
+    auto cursect = sop->op_main_sector; // for sop->vel
+    floor_dist = (abs(cursect->ceilingz - cursect->floorz)) >> 2;
     pos.x = sop->xmid;
     pos.y = sop->ymid;
     pos.z = floor_dist;
