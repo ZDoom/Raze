@@ -664,7 +664,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, SECTOR_OBJECTstruc
 			("drive_slide", w.drive_slide, def->drive_slide)
 			("crush_z", w.crush_z, def->crush_z)
 			("flags", w.flags, def->flags)
-			("sectnum", w.sectnum, def->sectnum)
 			("mid_sector", w.mid_sector, def->mid_sector)
 			("max_damage", w.max_damage, def->max_damage)
 			("ram_damage", w.ram_damage, def->ram_damage)

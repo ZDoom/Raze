@@ -1200,7 +1200,7 @@ PreDraw(void)
     SWStatIterator it(STAT_FLOOR_SLOPE_DONT_DRAW);
     while (auto actor = it.Next())
     {
-        RESET(sector[actor->s().sectnum].floorstat, FLOOR_STAT_SLOPE);
+        RESET(actor->s().sector()->floorstat, FLOOR_STAT_SLOPE);
     }
 }
 
@@ -1211,7 +1211,7 @@ PostDraw(void)
     SWStatIterator it(STAT_FLOOR_SLOPE_DONT_DRAW);
     while (auto actor = it.Next())
     {
-        SET(sector[actor->s().sectnum].floorstat, FLOOR_STAT_SLOPE);
+        SET(actor->s().sector()->floorstat, FLOOR_STAT_SLOPE);
     }
 
     it.Reset(STAT_FAF_COPY);
@@ -1292,7 +1292,7 @@ void PreDrawStackedWater(void)
     SWStatIterator it(STAT_CEILING_FLOOR_PIC_OVERRIDE);
     while (auto itActor = it.Next())
     {
-        SWSectIterator it2(itActor->s().sectnum);
+        SWSectIterator it2(itActor->s().sector());
         while (auto itActor2 = it2.Next())
         {
             if (itActor2->hasU())

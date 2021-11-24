@@ -1741,7 +1741,7 @@ PlayerPart:
             if (!pp->lo_sectp)
                 continue;
 
-            if (TEST(sector[sectnum(pp->lo_sectp)].extra, SECTFX_NO_RIDE))
+            if (TEST(pp->lo_sectp->extra, SECTFX_NO_RIDE))
             {
                 continue;
             }

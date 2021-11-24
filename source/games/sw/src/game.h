@@ -1677,7 +1677,6 @@ struct SECTOR_OBJECTstruct
            op_main_sector, // main sector operational SO moves in - for speed purposes
            flags,
            sector[MAX_SO_SECTOR],     // hold the sector numbers of the sector object
-            sectnum,        // current secnum of midpoint
             mid_sector;     // middle sector
 
     int16_t xorig[MAX_SO_POINTS],   // save the original x & y location of each wall so it can be
@@ -1866,7 +1865,7 @@ void RefreshInfoLine(PLAYERp pp);
 void DoAnim(int numtics);
 void AnimDelete(int animtype, int animindex, DSWActor*);
 short AnimGetGoal(int animtype, int animindex, DSWActor*);
-short AnimSet(int animtype, int animindex, DSWActor* animactor, int thegoal, int thevel);
+int AnimSet(int animtype, int animindex, DSWActor* animactor, int thegoal, int thevel);
 short AnimSetCallback(short anim_ndx, ANIM_CALLBACKp call, SECTOR_OBJECTp data);
 short AnimSetVelAdj(short anim_ndx, short vel_adj);
 
