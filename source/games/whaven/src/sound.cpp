@@ -138,6 +138,9 @@ void GameInterface::UpdateSounds()
 			return false;
 		});
 
+	listener.underwater = false;
+	listener.Environment = 0;
+
 	if (player[pyrn].actor() != nullptr)
 	{
 		listener.angle = float(-FixedToFloat(player[pyrn].angle.ang.asq16()) * pi::pi() / 1024); // Build uses a period of 2048.
@@ -145,16 +148,14 @@ void GameInterface::UpdateSounds()
 		vec3_t ppos{ player[pyrn].x, player[pyrn].y, player[pyrn].z };
 		listener.position = GetSoundPos(&ppos);
 		listener.valid = true;
+		listener.ListenerObject = &player[pyrn].actor()->s();
 	}
 	else
 	{
 		listener.position.Zero();
 		listener.valid = false;
 	}
-	listener.underwater = false;
-	listener.Environment = 0;
 
-	listener.ListenerObject = &player[pyrn].actor()->s();
 	soundEngine->SetListener(listener);
 	soundEngine->UpdateSounds(I_GetTime());
 }

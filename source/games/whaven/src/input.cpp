@@ -114,7 +114,8 @@ void GameInterface::clearlocalinputstate()
 
 static void UpdatePlayerSpriteAngle(PLAYER& plr)
 {
-	plr.actor()->s().ang = plr.angle.ang.asbuild();
+	if (plr.actor())
+		plr.actor()->s().ang = plr.angle.ang.asbuild();
 }
 
 void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
