@@ -175,7 +175,7 @@ void PlayerWarpUpdatePos(PLAYERp pp);
 void DoPlayerBeginDiveNoWarp(PLAYERp pp);
 int PlayerCanDiveNoWarp(PLAYERp pp);
 void DoPlayerCurrent(PLAYERp pp);
-int GetOverlapSector2(int x, int y, short *over, short *under);
+int GetOverlapSector2(int x, int y, sectortype** over, sectortype** under);
 void PlayerToRemote(PLAYERp pp);
 void PlayerRemoteInit(PLAYERp pp);
 void PlayerSpawnPosition(PLAYERp pp);
@@ -3906,12 +3906,12 @@ int PlayerCanDiveNoWarp(PLAYERp pp)
 }
 
 
-int GetOverlapSector(int x, int y, short *over, short *under)
+int GetOverlapSector(int x, int y, sectortype** over, sectortype** under)
 {
     int i, found = 0;
-    short sf[2]= {0,0};                       // sectors found
-    auto secto = &sector[*over];
-    auto sectu = &sector[*under];
+    sectortype* sf[2]= {nullptr,nullptr};                       // sectors found
+    auto secto = *over;
+    auto sectu = *under;
 
     if ((sectu->hasU() && sectu->number >= 30000) || (secto->hasU() && secto->number >= 30000))
         return GetOverlapSector2(x,y,over,under);
@@ -3932,11 +3932,11 @@ int GetOverlapSector(int x, int y, short *over, short *under)
     // if nothing was found, check them all
     if (found == 0)
     {
-        for (found = 0, i = 0; i < numsectors; i++)
+        for (auto& sect : sectors())
         {
-            if (inside(x, y, i))
+            if (inside(x, y, &sect))
             {
-                sf[found] = i;
+                sf[found] = &sect;
                 found++;
                 PRODUCTION_ASSERT(found <= 2);
             }
@@ -3945,7 +3945,7 @@ int GetOverlapSector(int x, int y, short *over, short *under)
 
     if (!found)
     {
-        I_Error("GetOverlapSector x = %d, y = %d, over %d, under %d", x, y, *over, *under);
+        I_Error("GetOverlapSector x = %d, y = %d, over %d, under %d", x, y, sectnum(*over), sectnum(*under));
     }
 
     PRODUCTION_ASSERT(found != 0);
@@ -3954,7 +3954,7 @@ int GetOverlapSector(int x, int y, short *over, short *under)
     // the are overlaping - check the z coord
     if (found == 2)
     {
-        if (sector[sf[0]].floorz > sector[sf[1]].floorz)
+        if (sf[0]->floorz > sf[1]->floorz)
         {
             *under = sf[0];
             *over = sf[1];
@@ -3969,16 +3969,16 @@ int GetOverlapSector(int x, int y, short *over, short *under)
     // the are NOT overlaping
     {
         *over = sf[0];
-        *under = -1;
+        *under = nullptr;
     }
 
     return found;
 }
 
-int GetOverlapSector2(int x, int y, short *over, short *under)
+int GetOverlapSector2(int x, int y, sectortype** over, sectortype** under)
 {
     int found = 0;
-    short sf[2]= {0,0};                       // sectors found
+    sectortype* sf[2]= {nullptr, nullptr};                       // sectors found
 
     unsigned stat;
     static short UnderStatList[] = {STAT_UNDERWATER, STAT_UNDERWATER2};
@@ -4006,9 +4006,9 @@ int GetOverlapSector2(int x, int y, short *over, short *under)
         while (auto actor = it.Next())
         {
             auto sp = &actor->s();
-            if (inside(x, y, sp->sectnum))
+            if (inside(x, y, sp->sector()))
             {
-                sf[found] = sp->sectnum;
+                sf[found] = sp->sector();
                 found++;
                 PRODUCTION_ASSERT(found <= 2);
             }
@@ -4024,9 +4024,9 @@ int GetOverlapSector2(int x, int y, short *over, short *under)
                 if (sp->lotag == 0)
                     continue;
 
-                if (inside(x, y, sp->sectnum))
+                if (inside(x, y, sp->sector()))
                 {
-                    sf[found] = sp->sectnum;
+                    sf[found] = sp->sector();
                     found++;
                     PRODUCTION_ASSERT(found <= 2);
                 }
@@ -4036,7 +4036,7 @@ int GetOverlapSector2(int x, int y, short *over, short *under)
 
     if (!found)
     {
-        I_Error("GetOverlapSector x = %d, y = %d, over %d, under %d", x, y, *over, *under);
+        I_Error("GetOverlapSector x = %d, y = %d, over %d, under %d", x, y, sectnum(*over), sectnum(*under));
     }
 
     PRODUCTION_ASSERT(found != 0);
@@ -4045,7 +4045,7 @@ int GetOverlapSector2(int x, int y, short *over, short *under)
     // the are overlaping - check the z coord
     if (found == 2)
     {
-        if (sector[sf[0]].floorz > sector[sf[1]].floorz)
+        if (sf[0]->floorz > sf[1]->floorz)
         {
             *under = sf[0];
             *over = sf[1];
@@ -4060,7 +4060,7 @@ int GetOverlapSector2(int x, int y, short *over, short *under)
     // the are NOT overlaping
     {
         *over = sf[0];
-        *under = -1;
+        *under = nullptr;
     }
 
     return found;
