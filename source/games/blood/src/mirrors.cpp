@@ -110,7 +110,8 @@ void InitMirrors(void)
         if (mirrorcnt >= 15)
             break;
 
-        if (sector[i].floorpicnum == 504)
+        auto secti = &sector[i];
+        if (secti->floorpicnum == 504)
         {
             auto link = getUpperLink(i);
             if (link == nullptr)
@@ -119,7 +120,6 @@ void InitMirrors(void)
             if (link2 == nullptr)
                 continue;
 
-            auto secti = &sector[i];
             int j = link2->s().sectnum;
             auto sectj = link2->s().sector();
             if (sectj->ceilingpicnum != 504)

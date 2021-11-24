@@ -1318,7 +1318,7 @@ void nnExtProcessSuperSprites()
                 continue;
             }
 
-            XSECTOR* pXSector = (sector[pDebris->sectnum].hasX()) ? &sector[pDebris->sectnum].xs() : nullptr;
+            XSECTOR* pXSector = (pDebris->sector()->hasX()) ? &pDebris->sector()->xs() : nullptr;
             viewBackupSpriteLoc(debrisactor);
 
             bool uwater = false;
@@ -1340,8 +1340,8 @@ void nnExtProcessSuperSprites()
                         if (!pXSector->panAlways && pXSector->busy)
                             speed = MulScale(speed, pXSector->busy, 16);
                     }
-                    if (sector[pDebris->sectnum].floorstat & 64)
-                        angle = (angle + GetWallAngle(sector[pDebris->sectnum].firstWall()) + 512) & 2047;
+                    if (pDebris->sector()->floorstat & 64)
+                        angle = (angle + GetWallAngle(pDebris->sector()->firstWall()) + 512) & 2047;
                     int dx = MulScale(speed, Cos(angle), 30);
                     int dy = MulScale(speed, Sin(angle), 30);
                     debrisactor->xvel += dx;
@@ -1395,13 +1395,13 @@ void nnExtProcessSuperSprites()
             if (ang < pXDebris->goalAng) pDebris->ang = ClipHigh(ang + angStep, pXDebris->goalAng);
             else if (ang > pXDebris->goalAng) pDebris->ang = ClipLow(ang - angStep, pXDebris->goalAng);
 
-            int nSector = pDebris->sectnum;
-            int cz = getceilzofslope(nSector, pDebris->x, pDebris->y);
-            int fz = getflorzofslope(nSector, pDebris->x, pDebris->y);
+            auto pSector = pDebris->sector();
+            int cz = getceilzofslopeptr(pSector, pDebris->x, pDebris->y);
+            int fz = getflorzofslopeptr(pSector, pDebris->x, pDebris->y);
 
             GetActorExtents(debrisactor, &top, &bottom);
-            if (fz >= bottom && getLowerLink(nSector) == nullptr && !(sector[nSector].ceilingstat & 0x1)) pDebris->z += ClipLow(cz - top, 0);
-            if (cz <= top && getUpperLink(nSector) == nullptr && !(sector[nSector].floorstat & 0x1)) pDebris->z += ClipHigh(fz - bottom, 0);
+            if (fz >= bottom && pSector->lowerLink == nullptr && !(pSector->ceilingstat & 0x1)) pDebris->z += ClipLow(cz - top, 0);
+            if (cz <= top && pSector->upperLink == nullptr && !(pSector->floorstat & 0x1)) pDebris->z += ClipHigh(fz - bottom, 0);
         }
     }
 }

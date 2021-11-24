@@ -588,15 +588,15 @@ void GetZRange(DBloodActor *actor, int *ceilZ, Collision *ceilColl, int *floorZ,
     floorColl->setFromEngine(floorHit);
     if (floorColl->type == kHitSector)
     {
-        int nSector = floorColl->index;
-        if ((nClipParallax & PARALLAXCLIP_FLOOR) == 0 && (sector[nSector].floorstat & 1))
+        auto pSector = floorColl->sector();
+        if ((nClipParallax & PARALLAXCLIP_FLOOR) == 0 && (pSector->floorstat & 1))
             *floorZ = 0x7fffffff;
-        if (sector[nSector].hasX())
+        if (pSector->hasX())
         {
-            XSECTOR *pXSector = &sector[nSector].xs();
+            XSECTOR *pXSector = &pSector->xs();
             *floorZ += pXSector->Depth << 10;
         }
-        auto actor = getUpperLink(nSector);
+        auto actor = pSector->upperLink;
         if (actor)
         {
             auto link = actor->GetOwner();
@@ -608,10 +608,10 @@ void GetZRange(DBloodActor *actor, int *ceilZ, Collision *ceilColl, int *floorZ,
     }
     if (ceilColl->type == kHitSector)
     {
-        int nSector = ceilColl->index;
-        if ((nClipParallax & PARALLAXCLIP_CEILING) == 0 && (sector[nSector].ceilingstat & 1))
+        auto pSector = ceilColl->sector();
+        if ((nClipParallax & PARALLAXCLIP_CEILING) == 0 && (pSector->ceilingstat & 1))
             *ceilZ = 0x80000000;
-        auto actor = getLowerLink(nSector);
+        auto actor = pSector->lowerLink;
         if (actor)
         {
             auto link = actor->GetOwner();
