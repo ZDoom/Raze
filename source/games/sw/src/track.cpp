@@ -841,24 +841,20 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
 
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
     {
-        startwall = (*sectp)->wallptr;
-        endwall = startwall + (*sectp)->wallnum - 1;
-
         // move all walls in sectors
-        for (k = startwall; k <= endwall; k++)
+        for(auto& wal : wallsofsector(*sectp))
         {
             // for morph point - tornado style
-            if (wall[k].lotag == TAG_WALL_ALIGN_SLOPE_TO_POINT)
+            if (wal.lotag == TAG_WALL_ALIGN_SLOPE_TO_POINT)
                 sop->morph_wall_point = k;
 
-            if (wall[k].extra && TEST(wall[k].extra, WALLFX_LOOP_OUTER))
+            if (wal.extra && TEST(wal.extra, WALLFX_LOOP_OUTER))
                 FoundOutsideLoop = true;
 
             // each wall has this set - for collision detection
-            SET(wall[k].extra, WALLFX_SECTOR_OBJECT|WALLFX_DONT_STICK);
-            uint16_t const nextwall = wall[k].nextwall;
-            if (validWallIndex(nextwall))
-                SET(wall[nextwall].extra, WALLFX_SECTOR_OBJECT|WALLFX_DONT_STICK);
+            SET(wal.extra, WALLFX_SECTOR_OBJECT|WALLFX_DONT_STICK);
+            if (wal.twoSided())
+                SET(wal.nextWall()->extra, WALLFX_SECTOR_OBJECT|WALLFX_DONT_STICK);
         }
     }
 
@@ -2082,8 +2078,7 @@ SECTOR_OBJECTp DetectSectorObjectByWall(WALLp wph)
                 // if outer wall check the NEXTWALL also
                 if (TEST(wp->extra, WALLFX_LOOP_OUTER))
                 {
-                    uint16_t const nextwall = wp->nextwall;
-                    if (validWallIndex(nextwall) && wph == &wall[nextwall])
+                    if (wp->twoSided() && wph == wp->nextWall())
                         return sop;
                 }
 

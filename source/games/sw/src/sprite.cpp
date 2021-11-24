@@ -2445,8 +2445,7 @@ void SpriteSetup(void)
 
                 case LIGHTING:
                 {
-                    short w, startwall, endwall;
-                    short wallcount;
+                    int wallcount = 0;
                     int8_t* wall_shade;
                     USERp u;
 
@@ -2459,35 +2458,32 @@ void SpriteSetup(void)
                     LIGHT_FloorShade(sp) = sp->sector()->floorshade;
                     LIGHT_CeilingShade(sp) = sp->sector()->ceilingshade;
 
-                    startwall = sp->sector()->wallptr;
-                    endwall = startwall + sp->sector()->wallnum - 1;
-
                     // count walls of sector
-                    for (w = startwall, wallcount = 0; w <= endwall; w++)
+                    for(auto& wal : wallsofsector(sp->sector()))
                     {
                         wallcount++;
                         if (TEST_BOOL5(sp))
                         {
-                            if (wall[w].nextwall >= 0)
+                            if (wal.twoSided())
                                 wallcount++;
                         }
                     }
 
                     u = SpawnUser(actor, 0, nullptr);
                     u->WallShade.Resize(wallcount);
+                    wallcount = 0;
                     wall_shade = u->WallShade.Data();
 
                     // save off original wall shades
-                    for (w = startwall, wallcount = 0; w <= endwall; w++)
+                    for(auto& wal : wallsofsector(sp->sector()))
                     {
-                        wall_shade[wallcount] =  wall[w].shade;
+                        wall_shade[wallcount] =  wal.shade;
                         wallcount++;
                         if (TEST_BOOL5(sp))
                         {
-                            uint16_t const nextwall = wall[w].nextwall;
-                            if (validWallIndex(nextwall))
+                            if (wal.twoSided())
                             {
-                                wall_shade[wallcount] = wall[wall[w].nextwall].shade;
+                                wall_shade[wallcount] = wal.nextWall()->shade;
                                 wallcount++;
                             }
                         }
@@ -2502,8 +2498,7 @@ void SpriteSetup(void)
 
                 case LIGHTING_DIFFUSE:
                 {
-                    short w, startwall, endwall;
-                    short wallcount;
+                    int wallcount = 0;
                     int8_t* wall_shade;
                     USERp u;
 
@@ -2513,16 +2508,13 @@ void SpriteSetup(void)
                     LIGHT_FloorShade(sp) = sp->sector()->floorshade;
                     LIGHT_CeilingShade(sp) = sp->sector()->ceilingshade;
 
-                    startwall = sp->sector()->wallptr;
-                    endwall = startwall + sp->sector()->wallnum - 1;
-
                     // count walls of sector
-                    for (w = startwall, wallcount = 0; w <= endwall; w++)
+                    for (auto& wal : wallsofsector(sp->sector()))
                     {
                         wallcount++;
                         if (TEST_BOOL5(sp))
                         {
-                            if (wall[w].nextwall >= 0)
+                            if (wal.twoSided())
                                 wallcount++;
                         }
                     }
@@ -2531,19 +2523,19 @@ void SpriteSetup(void)
                     // make an wall_shade array and put it in User
                     u = SpawnUser(actor, 0, nullptr);
                     u->WallShade.Resize(wallcount);
+                    wallcount = 0;
                     wall_shade = u->WallShade.Data();
 
                     // save off original wall shades
-                    for (w = startwall, wallcount = 0; w <= endwall; w++)
+                    for (auto& wal : wallsofsector(sp->sector()))
                     {
-                        wall_shade[wallcount] = wall[w].shade;
+                        wall_shade[wallcount] = wal.shade;
                         wallcount++;
                         if (TEST_BOOL5(sp))
                         {
-                            uint16_t const nextwall = wall[w].nextwall;
-                            if (validWallIndex(nextwall))
+                            if (wal.twoSided())
                             {
-                                wall_shade[wallcount] = wall[wall[w].nextwall].shade;
+                                wall_shade[wallcount] = wal.nextWall()->shade;
                                 wallcount++;
                             }
                         }
@@ -2816,7 +2808,7 @@ void SpriteSetup(void)
                     do
                     {
                         // DO NOT TAG WHITE WALLS!
-                        if (validWallIndex(wall_num->nextwall))
+                        if (wall_num->twoSided())
                         {
                             SET(wall_num->cstat, CSTAT_WALL_WARP_HITSCAN);
                         }
@@ -2929,9 +2921,8 @@ void SpriteSetup(void)
                     do
                     {
                         SET(wall_num->cstat, CSTAT_WALL_BLOCK_ACTOR);
-                        uint16_t const nextwall = wall_num->nextwall;
-                        if (validWallIndex(nextwall))
-                            SET(wall[nextwall].cstat, CSTAT_WALL_BLOCK_ACTOR);
+                        if (wall_num->twoSided())
+                            SET(wall_num->nextWall()->cstat, CSTAT_WALL_BLOCK_ACTOR);
                         wall_num = wall_num->point2Wall();
                     }
                     while (wall_num != start_wall);

@@ -100,9 +100,8 @@ void SetSectorWallBits(short sectnum, int bit_mask, bool set_sectwall, bool set_
 
         if (set_nextwall)
         {
-            uint16_t const nextwall = wall_num->nextwall;
-            if (validWallIndex(nextwall))
-                SET(wall[nextwall].extra, bit_mask);
+            if (wall_num->twoSided())
+                SET(wall_num->nextWall()->extra, bit_mask);
         }
 
         wall_num = wall_num->point2Wall();
@@ -144,9 +143,9 @@ static void WallSetupLoop(WALLp wp, int16_t lotag, int16_t extra)
     // set first wall
     {
         SET(wp->extra, extra);
-        uint16_t const nextwall = wp->nextwall;
-        if (validWallIndex(nextwall))
-            SET(wall[nextwall].extra, extra);
+
+        if (wp->twoSided())
+            SET(wp->nextWall()->extra, extra);
     }
 
     // Travel all the way around loop setting wall bits
@@ -155,9 +154,8 @@ static void WallSetupLoop(WALLp wp, int16_t lotag, int16_t extra)
          wall_num = wall_num->point2Wall())
     {
         SET(wall_num->extra, extra);
-        uint16_t const nextwall = wall_num->nextwall;
-        if (validWallIndex(nextwall))
-            SET(wall[nextwall].extra, extra);
+        if (wall_num->twoSided())
+            SET(wall_num->nextWall()->extra, extra);
     }
 }
 

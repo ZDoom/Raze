@@ -66,7 +66,7 @@ void CopySectorWalls(sectortype* dest_sect, sectortype* src_sect)
         dwall->lotag =         swall->lotag;
         dwall->extra =         swall->extra;
 
-        if (validWallIndex(dwall->nextwall) && validWallIndex(swall->nextwall))
+        if (dwall->twoSided() && swall->twoSided())
         {
             auto const dest_nextwall = dwall->nextWall();
             auto const src_nextwall = swall->nextWall();

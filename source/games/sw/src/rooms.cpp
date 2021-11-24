@@ -135,7 +135,7 @@ void SetWallWarpHitscan(short sectnum)
     // Travel all the way around loop setting wall bits
     do
     {
-        if (validWallIndex(wall_num->nextwall))
+        if (wall_num->twoSided())
             SET(wall_num->cstat, CSTAT_WALL_WARP_HITSCAN);
         wall_num = wall_num->point2Wall();
     }
