@@ -35,19 +35,19 @@ BEGIN_BLD_NS
 
 HITINFO gHitInfo;
 
-bool FindSector(int nX, int nY, int nZ, int *nSector)
+bool FindSector(int nX, int nY, int nZ, sectortype** pSector)
 {
     int32_t nZFloor, nZCeil;
-	assert(validSectorIndex(*nSector));
-    if (inside(nX, nY, *nSector))
+	assert(pSector);
+    if (inside(nX, nY, *pSector))
     {
-        getzsofslope(*nSector, nX, nY, &nZCeil, &nZFloor);
+        getzsofslopeptr(*pSector, nX, nY, &nZCeil, &nZFloor);
         if (nZ >= nZCeil && nZ <= nZFloor)
         {
             return 1;
         }
     }
-    for (auto& wal : wallsofsector(*nSector))
+    for (auto& wal : wallsofsector(*pSector))
     {
         auto pOSector = wal.nextSector();
         if (pOSector != nullptr && inside(nX, nY, pOSector))
@@ -55,19 +55,19 @@ bool FindSector(int nX, int nY, int nZ, int *nSector)
             getzsofslopeptr(pOSector, nX, nY, &nZCeil, &nZFloor);
             if (nZ >= nZCeil && nZ <= nZFloor)
             {
-                *nSector = sectnum(pOSector);
+                *pSector = pOSector;
                 return 1;
             }
         }
     }
-    for (int i = 0; i < numsectors; i++)
+    for(auto& sec : sectors())
     {
-        if (inside(nX, nY, i))
+        if (inside(nX, nY, &sec))
         {
-            getzsofslope(i, nX, nY, &nZCeil, &nZFloor);
+            getzsofslopeptr(&sec, nX, nY, &nZCeil, &nZFloor);
             if (nZ >= nZCeil && nZ <= nZFloor)
             {
-                *nSector = i;
+                *pSector = &sec;
                 return 1;
             }
         }
@@ -75,27 +75,27 @@ bool FindSector(int nX, int nY, int nZ, int *nSector)
     return 0;
 }
 
-bool FindSector(int nX, int nY, int *nSector)
+bool FindSector(int nX, int nY, sectortype** pSector)
 {
-	assert(validSectorIndex(*nSector));
-    if (inside(nX, nY, *nSector))
+	assert(*pSector);
+    if (inside(nX, nY, *pSector))
     {
         return 1;
     }
-    for (auto& wal : wallsofsector(*nSector))
+    for (auto& wal : wallsofsector(*pSector))
     {
         auto pOSector = wal.nextSector();
         if (pOSector != nullptr && inside(nX, nY, pOSector))
         {
-            *nSector = sectnum(pOSector);
+            *pSector = pOSector;
             return 1;
         }
     }
-    for (int i = 0; i < numsectors; i++)
+    for (auto& sec : sectors())
     {
-        if (inside(nX, nY, i))
+        if (inside(nX, nY, &sec))
         {
-            *nSector = i;
+            *pSector = &sec;
             return 1;
         }
     }

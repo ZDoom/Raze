@@ -163,7 +163,8 @@ void viewInit(void)
 int othercameradist = 1280;
 int othercameraclock;
 
-void CalcOtherPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsectnum, int nAng, fixed_t zm, int smoothratio)
+#if 0
+void CalcOtherPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, sectortype** vsectnum, int nAng, fixed_t zm, int smoothratio) // currently unused
 {
     int vX = MulScale(-Cos(nAng), 1280, 30);
     int vY = MulScale(-Sin(nAng), 1280, 30);
@@ -208,6 +209,7 @@ void CalcOtherPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, int *vsec
     FindSector(*pX, *pY, *pZ, vsectnum);
     pSprite->cstat = bakCstat;
 }
+#endif
 
 // by NoOne: show warning msgs in game instead of throwing errors (in some cases)
 void viewSetSystemMessage(const char* pMessage, ...) {
