@@ -475,13 +475,11 @@ int DoBloodSpray(DSWActor* actor)
 
                 // !FRANK! bit of a hack
                 // yvel is the hit_wall
-                if (bsp->yvel >= 0)
+                if (bldActor->tempwall)
                 {
-                    short wallnum = bsp->yvel;
-
                     // sy & sz are the ceiling and floor of the sector you are sliding down
-                    if (wall[wallnum].nextsector >= 0)
-                        getzsofslope(wall[wallnum].nextsector, sp->x, sp->y, &u->sy, &u->sz);
+                    if (bldActor->tempwall->twoSided())
+                        getzsofslopeptr(bldActor->tempwall->nextSector(), sp->x, sp->y, &u->sy, &u->sz);
                     else
                         u->sy = u->sz; // ceiling and floor are equal - white wall
                 }

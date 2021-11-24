@@ -75,19 +75,6 @@ extern ParentalStruct aVoxelArray[MAXTILES];
 // F U N C T I O N S //////////////////////////////////////////////////////////////////////////////
 
 
-/////////////////////////////////////////////////////
-//  SpawnWallSound
-/////////////////////////////////////////////////////
-void SpawnWallSound(short sndnum, short i)
-{
-    vec3_t mid;
-
-    // Get wall midpoint for offset in mirror view
-    mid.vec2 = wall[i].center();
-    mid.z = (sector[wall[i].nextsector].ceilingz + sector[wall[i].nextsector].floorz) / 2;
-
-    PlaySound(sndnum, &mid, v3df_dontpan | v3df_doppler);
-}
 
 short
 CheckTileSound(short picnum)
@@ -162,7 +149,6 @@ JS_SpriteSetup(void)
 {
     SPRITEp sp;
     USERp u;
-    short i;
 
     SWStatIterator it(STAT_DEFAULT);
     while (auto actor = it.Next())
@@ -240,12 +226,9 @@ JS_SpriteSetup(void)
         }
     }
     // Check for certain walls to make sounds
-    for (i = 0; i < numwalls; i++)
+    for(auto& wal : walls())
     {
-        short picnum;
-
-
-        picnum = wall[i].picnum;
+        int picnum = wal.picnum;
 
         // Set the don't stick bit for liquid tiles
         switch (picnum)
@@ -261,7 +244,7 @@ JS_SpriteSetup(void)
         case 2608:
         case 2616:
             //case 3834:
-            SET(wall[i].extra, WALLFX_DONT_STICK);
+            SET(wal.extra, WALLFX_DONT_STICK);
             break;
         }
     }
@@ -307,7 +290,7 @@ void JS_InitMirrors(void)
             {
                 if (mirrorcnt >= MAXMIRRORS)
                 {
-                    Printf("MAXMIRRORS reached! Skipping mirror wall[%d]\n", i);
+                    Printf("MAXMIRRORS reached! Skipping mirror wall\n");
                     wal.overpicnum = sec->ceilingpicnum;
                     continue;
                 }
@@ -391,7 +374,7 @@ void JS_InitMirrors(void)
                         if (!Found_Cam)
                         {
                             Printf("Did not find drawtotile for camera number %d\n", mirrorcnt);
-                            Printf("wall[%d].hitag == %d\n", i, wal.hitag);
+                            Printf("wall(%d).hitag == %d\n", wallnum(&wal), wal.hitag);
                             Printf("Map Coordinates: x = %d, y = %d\n", wal.x, wal.y);
                             RESET_BOOL1(&mirror[mirrorcnt].cameraActor->s());
                         }

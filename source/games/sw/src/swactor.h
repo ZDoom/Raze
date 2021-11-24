@@ -14,6 +14,7 @@ public:
 
 	bool hasUser;
 	USER user;
+	walltype* tempwall;	// transient, to replace a hack using a 16 bit sprite field.
 
 	DSWActor() :index(int(this - base())) { /*assert(index >= 0 && index < kMaxSprites);*/ }
 	DSWActor& operator=(const DSWActor& other) = default;

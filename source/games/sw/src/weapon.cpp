@@ -18985,7 +18985,7 @@ DSWActor* QueueWallBlood(DSWActor* actor, short ang)
     sp->y = hitinfo.pos.y;
     sp->z = hitinfo.pos.z;
     sp->shade -= 5;  // Brighten it up just a bit
-    sp->yvel = hitinfo.hitwall; // pass hitinfo.wall in yvel
+    spawnedActor->tempwall = hitinfo.wall(); // pass hitinfo.wall
 
     SET(sp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
     SET(sp->cstat, CSTAT_SPRITE_ONE_SIDED);

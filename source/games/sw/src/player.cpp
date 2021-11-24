@@ -2629,15 +2629,12 @@ void DoPlayerMoveVehicle(PLAYERp pp)
     {
         for (sectp = sop->sectp, wallcount = 0, j = 0; *sectp; sectp++, j++)
         {
-            startwall = (*sectp)->wallptr;
-            endwall = startwall + (*sectp)->wallnum - 1;
-
-            for (wp = &wall[startwall], k = startwall; k <= endwall; wp++, k++)
+            for(auto& wal : wallsofsector(*sectp))
             {
-                if (wp->extra && TEST(wp->extra, WALLFX_LOOP_OUTER|WALLFX_LOOP_OUTER_SECONDARY) == WALLFX_LOOP_OUTER)
+                if (wal.extra && TEST(wal.extra, WALLFX_LOOP_OUTER|WALLFX_LOOP_OUTER_SECONDARY) == WALLFX_LOOP_OUTER)
                 {
-                    x[count] = wp->x;
-                    y[count] = wp->y;
+                    x[count] = wal.x;
+                    y[count] = wal.y;
 
                     ox[count] = sop->xmid - sop->xorig[wallcount];
                     oy[count] = sop->ymid - sop->yorig[wallcount];
@@ -3402,6 +3399,7 @@ void DoPlayerClimb(PLAYERp pp)
 
         if (wal >= 0)
         {
+            auto wp = &wall[wal];
             auto lActor = FindNearSprite(pp->Actor(), STAT_CLIMB_MARKER);
             if (!lActor) return;
             auto lsp = &lActor->s();
@@ -3412,7 +3410,7 @@ void DoPlayerClimb(PLAYERp pp)
             ny = MOVEy(100, lsp->ang);
 
             // set ladder sector
-            pp->LadderSector = wall[wal].nextsector >= 0? wall[wal].nextsector : wall[wal].sector;
+            pp->LadderSector = wp->nextsector >= 0? wp->nextsector : wp->sector;
 
             // set players "view" distance from the ladder - needs to be farther than
             // the sprite

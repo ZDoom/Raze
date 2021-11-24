@@ -55,7 +55,6 @@ void SectorLightShade(DSWActor* actor, short intensity)
 {
 	auto u = actor->hasU()? actor->u() : nullptr;
     auto sp = &actor->s();
-    short w, startwall, endwall;
     int8_t* wall_shade;
     short base_shade;
     short wallcount;
@@ -82,27 +81,25 @@ void SectorLightShade(DSWActor* actor, short intensity)
     {
         ASSERT(u && u->WallShade.Data());
         wall_shade = u->WallShade.Data();
+        int wallcount = 0;
 
-        startwall = sp->sector()->wallptr;
-        endwall = startwall + sp->sector()->wallnum - 1;
-
-        for (w = startwall, wallcount = 0; w <= endwall; w++)
+        for(auto &wal : wallsofsector(sp->sector()))
         {
             base_shade = wall_shade[wallcount];
-            wall[w].shade = base_shade + intensity;
+            wal.shade = base_shade + intensity;
             if (!TEST_BOOL6(sp))
-                wall[w].pal = sp->pal;
+                wal.pal = sp->pal;
             wallcount++;
 
             if (TEST(sp->extra, SPRX_BOOL5))
             {
-                uint16_t const nextwall = wall[w].nextwall;
-                if (validWallIndex(nextwall))
+                if (wal.twoSided())
                 {
+                    auto nextWall = wal.nextWall();
                     base_shade = wall_shade[wallcount];
-                    wall[nextwall].shade = base_shade + intensity;
+                    nextWall->shade = base_shade + intensity;
                     if (!TEST_BOOL6(sp))
-                        wall[nextwall].pal = sp->pal;
+                        nextWall->pal = sp->pal;
                     wallcount++;
                 }
             }
