@@ -1217,7 +1217,7 @@ void RipperHatch(DSWActor* actor)
 
     for (int i = 0; i < MAX_RIPPERS; i++)
     {
-        auto actorNew = InsertActor(wp->sectnum, STAT_DEFAULT);
+        auto actorNew = InsertActor(wp->sector(), STAT_DEFAULT);
         np = &actorNew->s();
 		np->clear();
         ClearOwner(actorNew);

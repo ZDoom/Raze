@@ -54,7 +54,7 @@ BEGIN_SW_NS
 
 void CopyQuakeSpotToOn(SPRITEp sp)
 {
-    auto actorNew = InsertActor(sp->sectnum, STAT_QUAKE_SPOT);
+    auto actorNew = InsertActor(sp->sector(), STAT_QUAKE_SPOT);
     auto np = &actorNew->s();
 
     memcpy(np, sp, sizeof(SPRITE));

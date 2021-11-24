@@ -2107,6 +2107,10 @@ void SetSpikeActive(DSWActor*);   // spike.c
 #define NTAG_SEARCH_LO_HI 3
 
 DSWActor* InsertActor(int sectnum, int statnum);
+inline DSWActor* InsertActor(sectortype* sect, int statnum)
+{
+    return InsertActor(sectnum(sect), statnum);
+}
 
 void AudioUpdate(void); // stupid
 

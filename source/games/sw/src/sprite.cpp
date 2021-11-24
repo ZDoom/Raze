@@ -992,7 +992,7 @@ bool ActorTestSpawn(DSWActor* actor)
     auto sp = &actor->s();
     if (sp->statnum == STAT_DEFAULT && sp->lotag == TAG_SPAWN_ACTOR)
     {
-        auto actorNew = InsertActor(sp->sectnum, STAT_DEFAULT);
+        auto actorNew = InsertActor(sp->sector(), STAT_DEFAULT);
         int t = actorNew->s().time;  // must be preserved!
         actorNew->s() = *sp;
         actorNew->s().time = t;
@@ -2653,7 +2653,7 @@ void SpriteSetup(void)
                     change_actor_stat(actor, STAT_CLIMB_MARKER);
 
                     // make a QUICK_LADDER sprite automatically
-                    auto ns = InsertActor(sp->sectnum, STAT_QUICK_LADDER);
+                    auto ns = InsertActor(sp->sector(), STAT_QUICK_LADDER);
                     auto np = &ns->s();
 
                     np->cstat = 0;
@@ -3706,7 +3706,7 @@ int ActorCoughItem(DSWActor* actor)
     {
     case SAILORGIRL_R0:
         ASSERT(sp->sectnum >= 0);
-        actorNew = InsertActor(sp->sectnum, STAT_SPAWN_ITEMS);
+        actorNew = InsertActor(sp->sector(), STAT_SPAWN_ITEMS);
         np = &actorNew->s();
         np->cstat = np->extra = 0;
         np->x = sp->x;
@@ -3747,7 +3747,7 @@ int ActorCoughItem(DSWActor* actor)
             return 0;
 
         ASSERT(sp->sectnum >= 0);
-        actorNew = InsertActor(sp->sectnum, STAT_SPAWN_ITEMS);
+        actorNew = InsertActor(sp->sector(), STAT_SPAWN_ITEMS);
         np = &actorNew->s();
         np->cstat = np->extra = 0;
         np->x = sp->x;
@@ -3775,7 +3775,7 @@ int ActorCoughItem(DSWActor* actor)
             return 0;
 
         ASSERT(sp->sectnum >= 0);
-        actorNew = InsertActor(sp->sectnum, STAT_SPAWN_ITEMS);
+        actorNew = InsertActor(sp->sector(), STAT_SPAWN_ITEMS);
         np = &actorNew->s();
         np->cstat = np->extra = 0;
         np->x = sp->x;
@@ -3806,7 +3806,7 @@ int ActorCoughItem(DSWActor* actor)
                 return 0;
 
             ASSERT(sp->sectnum >= 0);
-            actorNew = InsertActor(sp->sectnum, STAT_SPAWN_ITEMS);
+            actorNew = InsertActor(sp->sector(), STAT_SPAWN_ITEMS);
             np = &actorNew->s();
             np->cstat = 0;
             np->extra = 0;
@@ -3869,7 +3869,7 @@ int ActorCoughItem(DSWActor* actor)
             return 0;
 
         ASSERT(sp->sectnum >= 0);
-        actorNew = InsertActor(sp->sectnum, STAT_SPAWN_ITEMS);
+        actorNew = InsertActor(sp->sector(), STAT_SPAWN_ITEMS);
         np = &actorNew->s();
         np->cstat = np->extra = 0;
         np->x = sp->x;
@@ -3927,7 +3927,7 @@ int ActorCoughItem(DSWActor* actor)
     case PACHINKO4:
 
         ASSERT(sp->sectnum >= 0);
-        actorNew = InsertActor(sp->sectnum, STAT_SPAWN_ITEMS);
+        actorNew = InsertActor(sp->sector(), STAT_SPAWN_ITEMS);
         np = &actorNew->s();
         np->cstat = np->extra = 0;
         np->x = sp->x;
