@@ -2089,7 +2089,7 @@ bool NearThings(PLAYERp pp)
                    0,           // Z vector of 3D ang
                    &hitinfo, CLIPMASK_MISSILE);
 
-        if (hitinfo.hitsect < 0)
+        if (hitinfo.sector() == nullptr)
             return false;
 
         if (Distance(hitinfo.pos.x, hitinfo.pos.y, pp->posx, pp->posy) > 1500)

@@ -12548,7 +12548,7 @@ int InitSwordAttack(PLAYERp pp)
             daz,              // Z vector of 3D ang
             &hitinfo, CLIPMASK_MISSILE);
 
-        if (hitinfo.hitsect < 0)
+        if (hitinfo.sector() == nullptr)
             return 0;
 
         if (FindDistance3D(pp->posx - hitinfo.pos.x, pp->posy - hitinfo.pos.y, pp->posz - hitinfo.pos.z) < 700)
@@ -12738,7 +12738,7 @@ int InitFistAttack(PLAYERp pp)
                    daz,              // Z vector of 3D ang
                    &hitinfo, CLIPMASK_MISSILE);
 
-        if (hitinfo.hitsect < 0)
+        if (hitinfo.sector() == nullptr)
             return 0;
 
         if (FindDistance3D(pp->posx - hitinfo.pos.x, pp->posy - hitinfo.pos.y, pp->posz - hitinfo.pos.z) < 700)
@@ -13508,18 +13508,18 @@ int ContinueHitscan(PLAYERp pp, short sectnum, int x, int y, int z, short ang, i
                xvect, yvect, zvect,
                &hitinfo, CLIPMASK_MISSILE);
 
-    if (hitinfo.hitsect < 0)
+    if (hitinfo.sector() == nullptr)
         return 0;
 
     if (hitinfo.hitactor == nullptr && hitinfo.hitwall < 0)
     {
-        if (labs(hitinfo.pos.z - sector[hitinfo.hitsect].ceilingz) <= Z(1))
+        if (labs(hitinfo.pos.z - hitinfo.sector()->ceilingz) <= Z(1))
         {
             hitinfo.pos.z += Z(16);
-            if (TEST(sector[hitinfo.hitsect].ceilingstat, CEILING_STAT_PLAX))
+            if (TEST(hitinfo.sector()->ceilingstat, CEILING_STAT_PLAX))
                 return 0;
         }
-        else if (labs(hitinfo.pos.z - sector[hitinfo.hitsect].floorz) <= Z(1))
+        else if (labs(hitinfo.pos.z - hitinfo.sector()->floorz) <= Z(1))
         {
         }
     }
@@ -13642,19 +13642,19 @@ int InitShotgun(PLAYERp pp)
                    xvect, yvect, zvect,
                    &hitinfo, CLIPMASK_MISSILE);
 
-        if (hitinfo.hitsect < 0)
+        if (hitinfo.sector() == nullptr)
         {
             continue;
         }
 
         if (hitinfo.hitactor == nullptr && hitinfo.hitwall < 0)
         {
-            if (labs(hitinfo.pos.z - sector[hitinfo.hitsect].ceilingz) <= Z(1))
+            if (labs(hitinfo.pos.z - hitinfo.sector()->ceilingz) <= Z(1))
             {
                 hitinfo.pos.z += Z(16);
                 SET(cstat, CSTAT_SPRITE_YFLIP);
 
-                if (TEST(sector[hitinfo.hitsect].ceilingstat, CEILING_STAT_PLAX))
+                if (TEST(hitinfo.sector()->ceilingstat, CEILING_STAT_PLAX))
                     continue;
 
                 if (SectorIsUnderwaterArea(hitinfo.sector()))
@@ -13664,9 +13664,9 @@ int InitShotgun(PLAYERp pp)
                     continue;
                 }
             }
-            else if (labs(hitinfo.pos.z - sector[hitinfo.hitsect].floorz) <= Z(1))
+            else if (labs(hitinfo.pos.z - hitinfo.sector()->floorz) <= Z(1))
             {
-                if (TEST(sector[hitinfo.hitsect].extra, SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
+                if (TEST(hitinfo.sector()->extra, SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
                 {
                     SpawnSplashXY(hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z,hitinfo.hitsect);
 
@@ -16201,7 +16201,7 @@ int InitUzi(PLAYERp pp)
                xvect,yvect,zvect,
                &hitinfo, CLIPMASK_MISSILE);
 
-    if (hitinfo.hitsect < 0)
+    if (hitinfo.sector() == nullptr)
     {
         return 0;
     }
@@ -16211,12 +16211,12 @@ int InitUzi(PLAYERp pp)
     // check to see what you hit
     if (hitinfo.hitactor == nullptr && hitinfo.hitwall < 0)
     {
-        if (labs(hitinfo.pos.z - sector[hitinfo.hitsect].ceilingz) <= Z(1))
+        if (labs(hitinfo.pos.z - hitinfo.sector()->ceilingz) <= Z(1))
         {
             hitinfo.pos.z += Z(16);
             SET(cstat, CSTAT_SPRITE_YFLIP);
 
-            if (TEST(sector[hitinfo.hitsect].ceilingstat, CEILING_STAT_PLAX))
+            if (TEST(hitinfo.sector()->ceilingstat, CEILING_STAT_PLAX))
                 return 0;
 
             if (SectorIsUnderwaterArea(hitinfo.sector()))
@@ -16226,9 +16226,9 @@ int InitUzi(PLAYERp pp)
                 return 0;
             }
         }
-        else if (labs(hitinfo.pos.z - sector[hitinfo.hitsect].floorz) <= Z(1))
+        else if (labs(hitinfo.pos.z - hitinfo.sector()->floorz) <= Z(1))
         {
-            if (TEST(sector[hitinfo.hitsect].extra, SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
+            if (TEST(hitinfo.sector()->extra, SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
             {
                 SpawnSplashXY(hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z,hitinfo.hitsect);
 
@@ -16749,24 +16749,24 @@ int InitSobjMachineGun(DSWActor* actor, PLAYERp pp)
                daz,              // Z vector of 3D ang
                &hitinfo, CLIPMASK_MISSILE);
 
-    if (hitinfo.hitsect < 0)
+    if (hitinfo.sector() == nullptr)
     {
         return 0;
     }
 
     if (hitinfo.hitactor == nullptr && hitinfo.hitwall < 0)
     {
-        if (labs(hitinfo.pos.z - sector[hitinfo.hitsect].ceilingz) <= Z(1))
+        if (labs(hitinfo.pos.z - hitinfo.sector()->ceilingz) <= Z(1))
         {
             hitinfo.pos.z += Z(16);
             SET(cstat, CSTAT_SPRITE_YFLIP);
 
-            if (TEST(sector[hitinfo.hitsect].ceilingstat, CEILING_STAT_PLAX))
+            if (TEST(hitinfo.sector()->ceilingstat, CEILING_STAT_PLAX))
                 return 0;
         }
-        else if (labs(hitinfo.pos.z - sector[hitinfo.hitsect].floorz) <= Z(1))
+        else if (labs(hitinfo.pos.z - hitinfo.sector()->floorz) <= Z(1))
         {
-            if (TEST(sector[hitinfo.hitsect].extra, SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
+            if (TEST(hitinfo.sector()->extra, SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
             {
                 SpawnSplashXY(hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z,hitinfo.hitsect);
                 return 0;
@@ -17158,22 +17158,22 @@ int InitTurretMgun(SECTOR_OBJECTp sop)
                                      xvect>>4, yvect>>4, zvect>>4);
             }
 
-            if (hitinfo.hitsect < 0)
+            if (hitinfo.sector() == nullptr)
                 continue;
 
             if (hitinfo.hitactor == nullptr && hitinfo.hitwall < 0)
             {
-                if (labs(hitinfo.pos.z - sector[hitinfo.hitsect].ceilingz) <= Z(1))
+                if (labs(hitinfo.pos.z - hitinfo.sector()->ceilingz) <= Z(1))
                 {
                     hitinfo.pos.z += Z(16);
                     SET(cstat, CSTAT_SPRITE_YFLIP);
 
-                    if (TEST(sector[hitinfo.hitsect].ceilingstat, CEILING_STAT_PLAX))
+                    if (TEST(hitinfo.sector()->ceilingstat, CEILING_STAT_PLAX))
                         continue;
                 }
-                else if (labs(hitinfo.pos.z - sector[hitinfo.hitsect].floorz) <= Z(1))
+                else if (labs(hitinfo.pos.z - hitinfo.sector()->floorz) <= Z(1))
                 {
-                    if (TEST(sector[hitinfo.hitsect].extra, SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
+                    if (TEST(hitinfo.sector()->extra, SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
                     {
                         SpawnSplashXY(hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z,hitinfo.hitsect);
                         continue;
@@ -17297,7 +17297,7 @@ int InitEnemyUzi(DSWActor* actor)
                daz,              // Z vector of 3D ang
                &hitinfo, CLIPMASK_MISSILE);
 
-    if (hitinfo.hitsect < 0)
+    if (hitinfo.sector() == nullptr)
         return 0;
 
     if (RANDOM_P2(1024<<4)>>4 > 700)
@@ -18912,7 +18912,7 @@ DSWActor* QueueWallBlood(DSWActor* actor, short ang)
                daz,              // Z vector of 3D ang
                &hitinfo, CLIPMASK_MISSILE);
 
-    if (hitinfo.hitsect < 0)
+    if (hitinfo.sector() == nullptr)
         return nullptr;
 
     const int WALLBLOOD_DIST_MAX = 2500;

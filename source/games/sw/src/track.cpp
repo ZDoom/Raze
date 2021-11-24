@@ -3142,7 +3142,7 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
 
                 SET(sp->cstat, CSTAT_SPRITE_BLOCK);
 
-                ASSERT(hitinfo.hitsect >= 0);
+                ASSERT(hitinfo.sector() != nullptr);
 
                 if (hitinfo.hitactor != nullptr)
                     return false;

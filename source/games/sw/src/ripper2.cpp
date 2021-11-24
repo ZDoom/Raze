@@ -953,7 +953,7 @@ int InitRipper2Hang(DSWActor* actor)
                    0,            // Z vector of 3D ang
                    &hitinfo, CLIPMASK_MISSILE);
 
-        if (hitinfo.hitsect < 0)
+        if (hitinfo.sector() == nullptr)
             continue;
 
         dist = Distance(sp->x, sp->y, hitinfo.pos.x, hitinfo.pos.y);
