@@ -77,10 +77,10 @@ static int &getvalue(so_interp::interp_data& element, bool write)
     switch (type)
     {
     case soi_wallx:
-        if (write) sector[wall[index].sector].dirty = 255;
+        if (write) wall[index].sectorp()->dirty = 255;
         return wall[index].x;
     case soi_wally:
-        if (write) sector[wall[index].sector].dirty = 255;
+        if (write) wall[index].sectorp()->dirty = 255;
         return wall[index].y;
     case soi_ceil:
         return sector[index].ceilingz;
@@ -176,20 +176,16 @@ void so_addinterpolation(SECTOR_OBJECTp sop)
 
     for (sectp = sop->sectp; *sectp; sectp++)
     {
-        startwall = (*sectp)->wallptr;
-        endwall = startwall + (*sectp)->wallnum - 1;
-
-        for (i = startwall; i <= endwall; i++)
+        for (auto& wal : wallsofsector(*sectp))
         {
-            int32_t nextwall = wall[i].nextwall;
+            so_setpointinterpolation(interp, wallnum(&wal) | soi_wallx);
+            so_setpointinterpolation(interp, wallnum(&wal) | soi_wally);
 
-            so_setpointinterpolation(interp, i|soi_wallx);
-            so_setpointinterpolation(interp, i|soi_wally);
-
-            if (nextwall >= 0)
+            if (wal.twoSided())
             {
-                so_setpointinterpolation(interp, wall[nextwall].point2|soi_wallx);
-                so_setpointinterpolation(interp, wall[nextwall].point2|soi_wally);
+                auto nextWall = wal.nextWall();
+                so_setpointinterpolation(interp, nextWall->point2 | soi_wallx);
+                so_setpointinterpolation(interp, nextWall->point2 | soi_wally);
             }
         }
 
