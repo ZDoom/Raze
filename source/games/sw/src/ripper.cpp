@@ -951,12 +951,12 @@ int InitRipperHang(DSWActor* actor)
                    &hitinfo, CLIPMASK_MISSILE);
 
         //ASSERT(hitinfo.sect >= 0);
-        if (hitinfo.sect < 0)
+        if (hitinfo.hitsect < 0)
             continue;
 
         dist = Distance(sp->x, sp->y, hitinfo.pos.x, hitinfo.pos.y);
 
-        if (hitinfo.wall < 0 || dist < 2000 || dist > 7000)
+        if (hitinfo.hitwall < 0 || dist < 2000 || dist > 7000)
         {
             continue;
         }

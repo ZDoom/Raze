@@ -285,7 +285,7 @@ int CanHitPlayer(DSWActor* actor)
                zvect,
                &hitinfo, CLIPMASK_MISSILE);
 
-    if (hitinfo.sect < 0)
+    if (hitinfo.hitsect < 0)
         return false;
 
     if (hitinfo.hitactor == u->targetActor)

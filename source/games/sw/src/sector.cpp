@@ -2113,7 +2113,7 @@ bool NearThings(PLAYERp pp)
                    0,           // Z vector of 3D ang
                    &hitinfo, CLIPMASK_MISSILE);
 
-        if (hitinfo.sect < 0)
+        if (hitinfo.hitsect < 0)
             return false;
 
         if (Distance(hitinfo.pos.x, hitinfo.pos.y, pp->posx, pp->posy) > 1500)
@@ -2126,11 +2126,11 @@ bool NearThings(PLAYERp pp)
         if (neartagsect >= 0)
             return true;
 
-        if (hitinfo.wall >= 0)
+        if (hitinfo.hitwall >= 0)
         {
             WALLp wp;
 
-            wp =  &wall[hitinfo.wall];
+            wp =  &wall[hitinfo.hitwall];
 
             // Near a plain old vanilla wall.  Can't do anything but grunt.
             if (!TEST(wp->extra, WALLFX_DONT_STICK) && pp == Player+myconnectindex)

@@ -3173,15 +3173,15 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
 
                 SET(sp->cstat, CSTAT_SPRITE_BLOCK);
 
-                ASSERT(hitinfo.sect >= 0);
+                ASSERT(hitinfo.hitsect >= 0);
 
                 if (hitinfo.hitactor != nullptr)
                     return false;
 
-                if (hitinfo.wall < 0)
+                if (hitinfo.hitwall < 0)
                     return false;
 
-                zdiff = labs(sp->z - sector[wall[hitinfo.wall].nextsector].floorz) >> 8;
+                zdiff = labs(sp->z - sector[wall[hitinfo.hitwall].nextsector].floorz) >> 8;
 
                 u->jump_speed = PickJumpSpeed(actor, zdiff);
             }
