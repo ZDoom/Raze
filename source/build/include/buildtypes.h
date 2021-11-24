@@ -142,7 +142,8 @@ struct sectortype
     void addfloorypan(float add) { floorypan_ = fmodf(floorypan_ + add + 512, 256); } // +512 is for handling negative offsets
     void addceilingxpan(float add) { ceilingxpan_ = fmodf(ceilingxpan_ + add + 512, 256); } // +512 is for handling negative offsets
     void addceilingypan(float add) { ceilingypan_ = fmodf(ceilingypan_ + add + 512, 256); } // +512 is for handling negative offsets
-    walltype *firstWall() const;
+    walltype* firstWall() const;
+    walltype* lastWall() const;
 
 
     // These will unfortunately have to be within the base struct to refactor Blood properly. They can later be removed again, once everything is done.

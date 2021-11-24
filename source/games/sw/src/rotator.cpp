@@ -234,22 +234,17 @@ bool TestRotatorMatchActive(short match)
 void DoRotatorSetInterp(DSWActor* actor)
 {
     SPRITEp sp = &actor->s();
-    short w,startwall,endwall;
 
-    startwall = sp->sector()->wallptr;
-    endwall = startwall + sp->sector()->wallnum - 1;
-
-    // move points
-    for (w = startwall; w <= endwall; w++)
+    for(auto& wal : wallsofsector(sp->sector()))
     {
-        StartInterpolation(w, Interp_Wall_X);
-        StartInterpolation(w, Interp_Wall_Y);
+        StartInterpolation(&wal, Interp_Wall_X);
+        StartInterpolation(&wal, Interp_Wall_Y);
 
-        uint16_t const nextwall = wall[w].nextwall;
-        if (validWallIndex(nextwall))
+        if (wal.twoSided())
         {
-            StartInterpolation(wall[nextwall].point2, Interp_Wall_X);
-            StartInterpolation(wall[nextwall].point2, Interp_Wall_Y);
+            auto w2 = wal.nextWall()->point2Wall();
+            StartInterpolation(w2, Interp_Wall_X);
+            StartInterpolation(w2, Interp_Wall_Y);
         }
     }
 }
@@ -257,22 +252,16 @@ void DoRotatorSetInterp(DSWActor* actor)
 void DoRotatorStopInterp(DSWActor* actor)
 {
     SPRITEp sp = &actor->s();
-    short w,startwall,endwall;
-
-    startwall = sp->sector()->wallptr;
-    endwall = startwall + sp->sector()->wallnum - 1;
-
-    // move points
-    for (w = startwall; w <= endwall; w++)
+    for (auto& wal : wallsofsector(sp->sector()))
     {
-        StopInterpolation(w, Interp_Wall_X);
-        StopInterpolation(w, Interp_Wall_Y);
+        StopInterpolation(&wal, Interp_Wall_X);
+        StopInterpolation(&wal, Interp_Wall_Y);
 
-        uint16_t const nextwall = wall[w].nextwall;
-        if (validWallIndex(nextwall))
+        if (wal.twoSided())
         {
-            StopInterpolation(wall[nextwall].point2, Interp_Wall_X);
-            StopInterpolation(wall[nextwall].point2, Interp_Wall_Y);
+            auto w2 = wal.nextWall()->point2Wall();
+            StopInterpolation(w2, Interp_Wall_X);
+            StopInterpolation(w2, Interp_Wall_Y);
         }
     }
 }

@@ -76,6 +76,9 @@ struct Collision
     int setSprite(DSWActor* num);
     int setSky();
     int setFromEngine(int value);
+
+    walltype* wall() const { assert(type == kHitWall); return &::wall[index]; }
+    sectortype* sector() const { assert(type == kHitSector); return &::sector[index]; }
 };
 
 typedef struct
