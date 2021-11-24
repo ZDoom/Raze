@@ -715,7 +715,7 @@ OptionMenu "WeaponsControlMenu" protected
 	}
 	ifgame(Witchaven, Witchaven2)
 	{
-		StaticText "CNTRLMNU_SPELLS"
+		StaticText "$CNTRLMNU_SPELLS"
 		Control    "$CNTRLMNU_SPELL0"          , "cast_spell 0"
 		Control    "$CNTRLMNU_SPELL1"          , "cast_spell 1"
 		Control    "$CNTRLMNU_SPELL2"          , "cast_spell 2"
