@@ -2183,52 +2183,52 @@ void DoPlayerMove(PLAYERp pp)
 
 void DoPlayerSectorUpdatePreMove(PLAYERp pp)
 {
-    int sectnum = pp->cursectnum;
+    auto sect = pp->cursector();
 
-    if (sectnum < 0)
+    if (sect == nullptr)
         return;
 
     if (TEST(pp->cursector()->extra, SECTFX_DYNAMIC_AREA))
     {
-        updatesectorz(pp->posx, pp->posy, pp->posz, &sectnum);
-        if (sectnum < 0)
+        updatesectorz(pp->posx, pp->posy, pp->posz, &sect);
+        if (sect == nullptr)
         {
-            sectnum = pp->cursectnum;
-            updatesector(pp->posx, pp->posy, &sectnum);
+            sect = pp->cursector();
+            updatesector(pp->posx, pp->posy, &sect);
         }
-        ASSERT(sectnum >= 0);
+        ASSERT(sect);
     }
-    else if (FAF_ConnectArea(sectnum))
+    else if (FAF_ConnectArea(sect))
     {
-        updatesectorz(pp->posx, pp->posy, pp->posz, &sectnum);
-        if (sectnum < 0)
+        updatesectorz(pp->posx, pp->posy, pp->posz, &sect);
+        if (sect == nullptr)
         {
-            sectnum = pp->cursectnum;
-            updatesector(pp->posx, pp->posy, &sectnum);
+            sect = pp->cursector();
+            updatesector(pp->posx, pp->posy, &sect);
         }
-        ASSERT(sectnum >= 0);
+        ASSERT(sect);
     }
 
-    pp->cursectnum = sectnum;
+    pp->setcursector(sect);
 }
 
 void DoPlayerSectorUpdatePostMove(PLAYERp pp)
 {
-    short sectnum = pp->cursectnum;
+    auto sect = pp->cursector();
     int fz,cz;
 
     // need to do updatesectorz if in connect area
-    if (sectnum >= 0 && FAF_ConnectArea(sectnum))
+    if (sect != nullptr && FAF_ConnectArea(sect))
     {
         updatesectorz(pp->posx, pp->posy, pp->posz, &pp->cursectnum);
 
         // can mess up if below
         if (!pp->insector())
         {
-            pp->cursectnum = sectnum;
+            pp->setcursector(sect);
 
             // adjust the posz to be in a sector
-            getzsofslope(pp->cursectnum, pp->posx, pp->posy, &cz, &fz);
+            getzsofslopeptr(pp->cursector(), pp->posx, pp->posy, &cz, &fz);
             if (pp->posz > fz)
                 pp->posz = fz;
 
@@ -2237,7 +2237,6 @@ void DoPlayerSectorUpdatePostMove(PLAYERp pp)
 
             // try again
             updatesectorz(pp->posx, pp->posy, pp->posz, &pp->cursectnum);
-            // ASSERT(pp->cursectnum >= 0);
         }
     }
     else
@@ -2994,7 +2993,7 @@ void DoPlayerBeginFall(PLAYERp pp)
 
 void StackedWaterSplash(PLAYERp pp)
 {
-    if (FAF_ConnectArea(pp->cursectnum))
+    if (FAF_ConnectArea(pp->cursector()))
     {
         auto sectnum = pp->cursector();
 
@@ -3367,7 +3366,7 @@ void DoPlayerClimb(PLAYERp pp)
         DoPlayerHorizon(pp, pp->input.horz, 1);
     }
 
-    if (FAF_ConnectArea(pp->cursectnum))
+    if (FAF_ConnectArea(pp->cursector()))
     {
         updatesectorz(pp->posx, pp->posy, pp->posz, &pp->cursectnum);
         LadderUpdate = true;
@@ -3510,7 +3509,7 @@ void DoPlayerCrawl(PLAYERp pp)
     if (SectorIsUnderwaterArea(pp->cursector()))
     {
         // if stacked water - which it should be
-        if (FAF_ConnectArea(pp->cursectnum))
+        if (FAF_ConnectArea(pp->cursector()))
         {
             // adjust the z
             pp->posz = pp->cursector()->ceilingz + Z(12);
@@ -3878,7 +3877,7 @@ int PlayerCanDiveNoWarp(PLAYERp pp)
     // check for diving
     if (pp->jump_speed > 1400)
     {
-        if (FAF_ConnectArea(pp->cursectnum))
+        if (FAF_ConnectArea(pp->cursector()))
         {
             auto sect = pp->cursector();
 
@@ -4497,7 +4496,7 @@ void DoPlayerDive(PLAYERp pp)
 
     pp->posz += pp->z_speed;
 
-    if (pp->z_speed < 0 && FAF_ConnectArea(pp->cursectnum))
+    if (pp->z_speed < 0 && FAF_ConnectArea(pp->cursector()))
     {
         if (pp->posz < pp->cursector()->ceilingz + Z(10))
         {
@@ -7098,7 +7097,7 @@ int DoFootPrints(DSWActor* actor)
         if (u->PlayerP->cursectnum < 0)
             return 0;
 
-        if (FAF_ConnectArea(u->PlayerP->cursectnum))
+        if (FAF_ConnectArea(u->PlayerP->cursector()))
             return 0;
 
         if (u->PlayerP->NumFootPrints > 0)

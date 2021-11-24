@@ -1901,19 +1901,19 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, i
 #define FAF_PLACE_MIRROR_PIC 341
 #define FAF_MIRROR_PIC 2356
 
-inline bool FAF_ConnectCeiling(int sectnum)
+inline bool FAF_ConnectCeiling(sectortype* sect)
 {
-    return (sector[(sectnum)].ceilingpicnum == FAF_MIRROR_PIC);
+    return (sect->ceilingpicnum == FAF_MIRROR_PIC);
 }
 
-inline bool FAF_ConnectFloor(int sectnum)
+inline bool FAF_ConnectFloor(sectortype* sect)
 {
-    return (sector[(sectnum)].floorpicnum == FAF_MIRROR_PIC);
+    return (sect->floorpicnum == FAF_MIRROR_PIC);
 }
 
-inline bool FAF_ConnectArea(int sectnum)
+inline bool FAF_ConnectArea(sectortype* sect)
 {
-    return (FAF_ConnectCeiling(sectnum) || FAF_ConnectFloor(sectnum));
+    return (FAF_ConnectCeiling(sect) || FAF_ConnectFloor(sect));
 }
 
 bool PlayerCeilingHit(PLAYERp pp, int zlimit);

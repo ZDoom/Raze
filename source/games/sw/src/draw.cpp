@@ -770,7 +770,7 @@ void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int view
             }
         }
 
-        if (OverlapDraw && FAF_ConnectArea(tsp->sectnum) && tsp->owner >= 0)
+        if (OverlapDraw && FAF_ConnectArea(tsp->sector()) && tsp->owner >= 0)
         {
             ConnectCopySprite(tsp);
         }
@@ -1255,7 +1255,7 @@ DSWActor* ConnectCopySprite(spritetype const * tsp)
     int newsector;
     int testz;
 
-    if (FAF_ConnectCeiling(tsp->sectnum))
+    if (FAF_ConnectCeiling(tsp->sector()))
     {
         newsector = tsp->sectnum;
         testz = SPRITEp_TOS(tsp) - Z(10);
@@ -1269,7 +1269,7 @@ DSWActor* ConnectCopySprite(spritetype const * tsp)
         }
     }
 
-    if (FAF_ConnectFloor(tsp->sectnum))
+    if (FAF_ConnectFloor(tsp->sector()))
     {
         newsector = tsp->sectnum;
         testz = SPRITEp_BOS(tsp) + Z(10);

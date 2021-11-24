@@ -6546,7 +6546,7 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
     }
 
     // extra processing for Stacks and warping
-    if (FAF_ConnectArea(spr->sectnum))
+    if (FAF_ConnectArea(spr->sector()))
         SetActorZ(actor, &spr->pos);
 
     if (TEST(sector[spr->sectnum].extra, SECTFX_WARP_SECTOR))
@@ -6749,7 +6749,7 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
         sp->z = clippos.z;
     }
 
-    if (FAF_ConnectArea(sp->sectnum))
+    if (FAF_ConnectArea(sp->sector()))
         SetActorZ(actor, &sp->pos);
 
     if (TEST(sp->sector()->extra, SECTFX_WARP_SECTOR))

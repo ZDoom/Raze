@@ -824,7 +824,7 @@ void SpawnZombie2(DSWActor* actor)
     if (SectorIsUnderwaterArea(sp->sector()))
         return;
 
-    if (FAF_ConnectArea(sp->sectnum))
+    if (FAF_ConnectArea(sp->sector()))
     {
         auto newsect = sp->sector();
         updatesectorz(sp->x, sp->y, sp->z + Z(10), &newsect);

@@ -18236,7 +18236,7 @@ bool MissileHitDiveArea(DSWActor* actor)
 
     // correctly set underwater bit for missiles
     // in Stacked water areas.
-    if (FAF_ConnectArea(sp->sectnum))
+    if (FAF_ConnectArea(sp->sector()))
     {
         if (SectorIsUnderwaterArea(sp->sector()))
             SET(u->Flags, SPR_UNDERWATER);

@@ -435,7 +435,7 @@ int DoEelMatchPlayerZ(DSWActor* actor)
 
     int bound;
 
-    if (FAF_ConnectArea(sp->sectnum))
+    if (FAF_ConnectArea(sp->sector()))
     {
         if (u->hi_sectp)
         {

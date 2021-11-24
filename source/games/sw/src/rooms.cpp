@@ -248,7 +248,7 @@ FAFhitscan(int32_t x, int32_t y, int32_t z, sectortype* sect,
         getzsofslopeptr(hitinfo->sector(), hitinfo->pos.x, hitinfo->pos.y, &hiz, &loz);
         if (abs(hitinfo->pos.z - loz) < Z(4))
         {
-            if (FAF_ConnectFloor(sectnum(hitinfo->sector())) && !TEST(hitinfo->sector()->floorstat, FLOOR_STAT_FAF_BLOCK_HITSCAN))
+            if (FAF_ConnectFloor(hitinfo->sector()) && !TEST(hitinfo->sector()->floorstat, FLOOR_STAT_FAF_BLOCK_HITSCAN))
             {
                 updatesectorz(e_hitinfo.pos.x, e_hitinfo.pos.y, e_hitinfo.pos.z + Z(12), &newsector);
                 plax_found = true;
@@ -256,7 +256,7 @@ FAFhitscan(int32_t x, int32_t y, int32_t z, sectortype* sect,
         }
         else if (labs(e_hitinfo.pos.z - hiz) < Z(4))
         {
-            if (FAF_ConnectCeiling(sectnum(hitinfo->sector())) && !TEST(sector[e_hitinfo.sect].floorstat, CEILING_STAT_FAF_BLOCK_HITSCAN))
+            if (FAF_ConnectCeiling(hitinfo->sector()) && !TEST(hitinfo->sector()->floorstat, CEILING_STAT_FAF_BLOCK_HITSCAN))
             {
                 updatesectorz(hitinfo->pos.x, hitinfo->pos.y, hitinfo->pos.z - Z(12), &newsector);
                 plax_found = true;
@@ -279,7 +279,6 @@ bool FAFcansee(int32_t xs, int32_t ys, int32_t zs, sectortype* sects,
     auto newsect = sects;
     int xvect, yvect, zvect;
     short ang;
-    hitdata_t hitinfo;
     int dist;
     bool plax_found = false;
     vec3_t s = { xs, ys, zs };
@@ -314,19 +313,21 @@ bool FAFcansee(int32_t xs, int32_t ys, int32_t zs, sectortype* sects,
     else
         zvect = 0;
 
-    hitscan(&s, sectnum(sects), xvect, yvect, zvect,
-            &hitinfo, CLIPMASK_MISSILE);
+    hitdata_t e_hitinfo;
+    hitscan(&s, sectnum(sects), xvect, yvect, zvect, &e_hitinfo, CLIPMASK_MISSILE);
+    HITINFO hitinfo;
+    hitinfo.set(&e_hitinfo);
 
-    if (hitinfo.sect < 0)
+    if (hitinfo.sector() == nullptr)
         return false;
 
     // make sure it hit JUST a sector before doing a check
-    if (hitinfo.wall < 0 && hitinfo.sprite < 0)
+    if (hitinfo.wall() == nullptr && hitinfo.hitactor == nullptr)
     {
-        getzsofslope(hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, &hiz, &loz);
+        getzsofslopeptr(hitinfo.sector(), hitinfo.pos.x, hitinfo.pos.y, &hiz, &loz);
         if (labs(hitinfo.pos.z - loz) < Z(4))
         {
-            if (FAF_ConnectFloor(hitinfo.sect))
+            if (FAF_ConnectFloor(hitinfo.sector()))
             {
                 updatesectorz(hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z + Z(12), &newsect);
                 plax_found = true;
@@ -334,7 +335,7 @@ bool FAFcansee(int32_t xs, int32_t ys, int32_t zs, sectortype* sects,
         }
         else if (labs(hitinfo.pos.z - hiz) < Z(4))
         {
-            if (FAF_ConnectCeiling(hitinfo.sect))
+            if (FAF_ConnectCeiling(hitinfo.sector()))
             {
                 updatesectorz(hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z - Z(12), &newsect);
                 plax_found = true;
@@ -390,7 +391,7 @@ bool SectorZadjust(const Collision& ceilhit, int32_t* hiz, const Collision& flor
             auto hit_sector = florhit.sector();
 
             // don't jack with connect sectors
-            if (FAF_ConnectFloor(sectnum(hit_sector)))
+            if (FAF_ConnectFloor(hit_sector))
             {
                 // rippers were dying through the floor in $rock
                 if (TEST(hit_sector->floorstat, CEILING_STAT_FAF_BLOCK_HITSCAN))
@@ -444,7 +445,7 @@ bool SectorZadjust(const Collision& ceilhit, int32_t* hiz, const Collision& flor
             auto hit_sector = ceilhit.sector();
 
             // don't jack with connect sectors
-            if (FAF_ConnectCeiling(sectnum(hit_sector)))
+            if (FAF_ConnectCeiling(hit_sector))
             {
                 if (TEST(hit_sector->extra, SECTFX_Z_ADJUST))
                 {
@@ -510,6 +511,7 @@ static void getzrange(vec3_t* pos, int16_t sectnum, int32_t* hiz, Collision* cei
 
 void FAFgetzrange(vec3_t pos, int16_t sectnum, int32_t* hiz, Collision* ceilhit, int32_t* loz, Collision* florhit, int32_t clipdist, int32_t clipmask)
 {
+    sectortype* sect = &sector[sectnum];
     int foo1;
     Collision foo2;
     bool SkipFAFcheck;
@@ -520,7 +522,7 @@ void FAFgetzrange(vec3_t pos, int16_t sectnum, int32_t* hiz, Collision* ceilhit,
     // because the ceiling and floors get moved out of the way for drawing.
 
     // early out to regular routine
-    if (sectnum < 0 || !FAF_ConnectArea(sectnum))
+    if (sectnum < 0 || !FAF_ConnectArea(sect))
     {
         getzrange(&pos, sectnum, hiz,  ceilhit, loz,  florhit, clipdist, clipmask);
         SectorZadjust(*ceilhit, hiz, *florhit, loz);
@@ -535,7 +537,7 @@ void FAFgetzrange(vec3_t pos, int16_t sectnum, int32_t* hiz, Collision* ceilhit,
     if (SkipFAFcheck)
         return;
 
-    if (FAF_ConnectCeiling(sectnum))
+    if (FAF_ConnectCeiling(sect))
     {
         int uppersect = sectnum;
         int newz = *hiz - Z(2);
@@ -550,7 +552,7 @@ void FAFgetzrange(vec3_t pos, int16_t sectnum, int32_t* hiz, Collision* ceilhit,
         getzrange(&npos, uppersect, hiz,  ceilhit, &foo1,  &foo2, clipdist, clipmask);
         SectorZadjust(*ceilhit, hiz, trash, nullptr);
     }
-    else if (FAF_ConnectFloor(sectnum) && !TEST(sector[sectnum].floorstat, FLOOR_STAT_FAF_BLOCK_HITSCAN))
+    else if (FAF_ConnectFloor(sect) && !TEST(sect->floorstat, FLOOR_STAT_FAF_BLOCK_HITSCAN))
     {
         int lowersect = sectnum;
         int newz = *loz + Z(2);
@@ -568,10 +570,11 @@ void FAFgetzrange(vec3_t pos, int16_t sectnum, int32_t* hiz, Collision* ceilhit,
     }
 }
 
-void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, int16_t sectnum,
+void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, int16_t const sectnum,
                        int32_t* hiz, Collision* ceilhit,
                        int32_t* loz, Collision* florhit)
 {
+    auto sect = &sector[sectnum];
     int foo1;
     Collision foo2;
     bool SkipFAFcheck;
@@ -582,7 +585,7 @@ void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, int16_t sectnum,
     // because the ceiling and floors get moved out of the way for drawing.
 
     // early out to regular routine
-    if (!FAF_ConnectArea(sectnum))
+    if (!FAF_ConnectArea(sect))
     {
         getzrangepoint(x, y, z, sectnum, hiz,  ceilhit, loz,  florhit);
         SectorZadjust(*ceilhit, hiz, *florhit, loz);
@@ -597,7 +600,7 @@ void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, int16_t sectnum,
     if (SkipFAFcheck)
         return;
 
-    if (FAF_ConnectCeiling(sectnum))
+    if (FAF_ConnectCeiling(sect))
     {
         int uppersect = sectnum;
         int newz = *hiz - Z(2);
@@ -610,8 +613,7 @@ void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, int16_t sectnum,
         getzrangepoint(x, y, newz, uppersect, hiz,  ceilhit, &foo1,  &foo2);
         SectorZadjust(*ceilhit, hiz, trash, nullptr);
     }
-    else if (FAF_ConnectFloor(sectnum) && !TEST(sector[sectnum].floorstat, FLOOR_STAT_FAF_BLOCK_HITSCAN))
-    //if (FAF_ConnectFloor(sectnum))
+    else if (FAF_ConnectFloor(sect) && !TEST(sect->floorstat, FLOOR_STAT_FAF_BLOCK_HITSCAN))
     {
         int lowersect = sectnum;
         int newz = *loz + Z(2);
