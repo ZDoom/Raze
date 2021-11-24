@@ -233,7 +233,7 @@ void DoSlidorInterp(DSWActor* actor, INTERP_FUNC interp_func)
     do
     {
         auto pwal = wal - 1;
-        if (pwal < startWall)
+        if (wal < startWall)
             pwal = endWall;
 
         EInterpolationType type = Interp_Invalid;;

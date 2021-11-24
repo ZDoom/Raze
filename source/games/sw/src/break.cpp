@@ -740,15 +740,15 @@ int WallBreakPosition(int hit_wall, int *sectnum, int *x, int *y, int *z, int *a
     w = hit_wall;
     wp = &wall[w];
 
-    nw = wall[w].point2;
-    wall_ang = NORM_ANGLE(getangle(wall[nw].x - wall[w].x, wall[nw].y - wall[w].y)+512);
+    nw = wp->point2;
+    wall_ang = NORM_ANGLE(getangle(wp->delta())+512);
 
     *sectnum = SectorOfWall(w);
     ASSERT(*sectnum >= 0);
 
     // midpoint of wall
-    *x = DIV2(wall[w].x + wall[w].x);
-    *y = DIV2(wall[w].y + wall[w].y);
+    *x = DIV2(wp->x + wp->x);
+    *y = DIV2(wp->y + wp->y);
 
     //getzsofsector(*sectnum, *x, *y, cz, fz);
 

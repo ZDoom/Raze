@@ -220,7 +220,8 @@ struct HITINFO {
 		pos = hit->pos;
 	}
 
-	//walltype* Wall() const { return wall == -1? nullptr : &::wall[wall]; }
+	walltype* wall() const { return hitwall == -1? nullptr : &::wall[hitwall]; }
+	sectortype* sector() const { return hitsect == -1 ? nullptr : &::sector[hitsect]; }
 };
 
 

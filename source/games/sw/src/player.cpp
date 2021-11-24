@@ -1605,9 +1605,9 @@ void SlipSlope(PLAYERp pp)
     if (!TEST(sectu->flags, SECTFU_SLIDE_SECTOR) || !TEST(pp->cursector()->floorstat, FLOOR_STAT_SLOPE))
         return;
 
-    short wallptr = pp->cursector()->wallptr;
+    auto wallptr = pp->cursector()->firstWall();
 
-    ang = getangle(wall[wall[wallptr].point2].x - wall[wallptr].x, wall[wall[wallptr].point2].y - wall[wallptr].y);
+    ang = getangle(wallptr->delta());
 
     ang = NORM_ANGLE(ang + 512);
 
@@ -6043,16 +6043,9 @@ void DoPlayerDeathMoveHead(PLAYERp pp)
         }
         case kHitWall:
         {
-            short w,nw,wall_ang,dang;
+            int wall_ang = NORM_ANGLE(getangle(u->coll.wall()->delta())-512);
 
-            //PlaySound(DIGI_DHCLUNK, pp, v3df_dontpan);
-
-            w = u->coll.index;
-
-            nw = wall[w].point2;
-            wall_ang = NORM_ANGLE(getangle(wall[nw].x - wall[w].x, wall[nw].y - wall[w].y)-512);
-
-            dang = getincangle(wall_ang, u->slide_ang);
+            int dang = getincangle(wall_ang, u->slide_ang);
             u->slide_ang = NORM_ANGLE(wall_ang + 1024 - dang);
 
             SpawnShrap(pp->Actor(), nullptr);

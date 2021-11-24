@@ -440,8 +440,7 @@ int DoBloodSpray(DSWActor* actor)
             WALLp wph;
             short wb;
 
-            hit_wall = u->coll.index;
-            wph = &wall[hit_wall];
+            wph = u->coll.wall();
 
             if (wph->lotag == TAG_WALL_BREAK)
             {
@@ -450,9 +449,7 @@ int DoBloodSpray(DSWActor* actor)
                 break;
             }
 
-
-            nw = wall[hit_wall].point2;
-            wall_ang = NORM_ANGLE(getangle(wall[nw].x - wph->x, wall[nw].y - wph->y) + 512);
+            wall_ang = NORM_ANGLE(getangle(wph->delta()) + 512);
 
             SpawnMidSplash(actor);
             auto bldActor = QueueWallBlood(actor, NORM_ANGLE(wall_ang+1024));
@@ -653,8 +650,7 @@ int DoPhosphorus(DSWActor* actor)
             short hit_wall, nw, wall_ang;
             WALLp wph;
 
-            hit_wall = u->coll.index;
-            wph = &wall[hit_wall];
+            wph = u->coll.wall();
 
             if (wph->lotag == TAG_WALL_BREAK)
             {
@@ -663,9 +659,7 @@ int DoPhosphorus(DSWActor* actor)
                 break;
             }
 
-
-            nw = wall[hit_wall].point2;
-            wall_ang = NORM_ANGLE(getangle(wall[nw].x - wph->x, wall[nw].y - wph->y) + 512);
+            wall_ang = NORM_ANGLE(getangle(wph->delta()) + 512);
 
             WallBounce(actor, wall_ang);
             ScaleSpriteVector(actor, 32000);
@@ -866,11 +860,7 @@ int DoChemBomb(DSWActor* actor)
 
         case kHitWall:
         {
-            short hit_wall, nw, wall_ang;
-            WALLp wph;
-
-            hit_wall = u->coll.index;
-            wph = &wall[hit_wall];
+            auto wph = u->coll.wall();
 
             if (wph->lotag == TAG_WALL_BREAK)
             {
@@ -882,8 +872,7 @@ int DoChemBomb(DSWActor* actor)
             if (!TEST(sp->cstat, CSTAT_SPRITE_INVISIBLE))
                 PlaySound(DIGI_CHEMBOUNCE, actor, v3df_dontpan);
 
-            nw = wall[hit_wall].point2;
-            wall_ang = NORM_ANGLE(getangle(wall[nw].x - wph->x, wall[nw].y - wph->y) + 512);
+            int wall_ang = NORM_ANGLE(getangle(wph->delta()) + 512);
 
             WallBounce(actor, wall_ang);
             ScaleSpriteVector(actor, 32000);
@@ -1096,8 +1085,7 @@ int DoCaltrops(DSWActor* actor)
 
         case kHitWall:
         {
-            int hit_wall = u->coll.index;
-            auto wph = &wall[hit_wall];
+            auto wph = u->coll.wall();
 
             if (wph->lotag == TAG_WALL_BREAK)
             {
@@ -1108,8 +1096,7 @@ int DoCaltrops(DSWActor* actor)
 
             PlaySound(DIGI_CALTROPS, actor, v3df_dontpan);
 
-            int nw = wall[hit_wall].point2;
-            int wall_ang = NORM_ANGLE(getangle(wall[nw].x - wph->x, wall[nw].y - wph->y) + 512);
+            int wall_ang = NORM_ANGLE(getangle(wph->delta()) + 512);
 
             WallBounce(actor, wall_ang);
             ScaleSpriteVector(actor, 1000);

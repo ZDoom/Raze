@@ -1018,18 +1018,11 @@ int DoRipperMoveHang(DSWActor* actor)
     {
         if (u->coll.type == kHitWall)
         {
-            short hit_wall;
-            short w, nw;
-
-            hit_wall = u->coll.index;
-
             NewStateGroup(actor, u->ActorActionSet->Special[1]);
             u->WaitTics = 2 + ((RANDOM_P2(4 << 8) >> 8) * 120);
 
             // hang flush with the wall
-            w = hit_wall;
-            nw = wall[w].point2;
-            sp->ang = NORM_ANGLE(getangle(wall[nw].x - wall[w].x, wall[nw].y - wall[w].y) - 512);
+            sp->ang = NORM_ANGLE(getangle(u->coll.wall()->delta()) - 512);
 
             return 0;
         }

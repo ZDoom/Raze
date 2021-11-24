@@ -1028,8 +1028,6 @@ int DoRipper2MoveHang(DSWActor* actor)
             if (abs(sp->z - u->targetActor->s().z) > (4000<<4))
                 return 0;
 
-            hit_wall = u->coll.index;
-
             NewStateGroup(actor, u->ActorActionSet->Special[1]);
             if (RANDOM_P2(1024<<8)>>8 > 500)
                 u->WaitTics = ((RANDOM_P2(2 << 8) >> 8) * 120);
@@ -1037,9 +1035,7 @@ int DoRipper2MoveHang(DSWActor* actor)
                 u->WaitTics = 0; // Double jump
 
             // hang flush with the wall
-            w = hit_wall;
-            nw = wall[w].point2;
-            sp->ang = NORM_ANGLE(getangle(wall[nw].x - wall[w].x, wall[nw].y - wall[w].y) - 512);
+            sp->ang = NORM_ANGLE(getangle(u->coll.wall()->delta()) - 512);
 
             return 0;
         }

@@ -83,8 +83,7 @@ void SpawnWallSound(short sndnum, short i)
     vec3_t mid;
 
     // Get wall midpoint for offset in mirror view
-    mid.x = (wall[i].x + wall[wall[i].point2].x) / 2;
-    mid.y = (wall[i].y + wall[wall[i].point2].y) / 2;
+    mid.vec2 = wall[i].center();
     mid.z = (sector[wall[i].nextsector].ceilingz + sector[wall[i].nextsector].floorz) / 2;
 
     PlaySound(sndnum, &mid, v3df_dontpan | v3df_doppler);
