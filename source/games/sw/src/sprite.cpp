@@ -4017,7 +4017,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_REPAIR_KIT))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_REPAIR_KIT, s_RepairKit, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_REPAIR_KIT, s_RepairKit, sip->sector(), sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4028,7 +4028,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_STAR))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_STAR, s_IconStar, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_STAR, s_IconStar, sip->sector(), sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4039,7 +4039,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_LG_MINE))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_LG_MINE, s_IconLgMine, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_LG_MINE, s_IconLgMine, sip->sector(), sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4050,7 +4050,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_MICRO_GUN))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_MICRO_GUN, s_IconMicroGun, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_MICRO_GUN, s_IconMicroGun, sip->sector(), sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4061,7 +4061,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_MICRO_BATTERY))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_MICRO_BATTERY, s_IconMicroBattery, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_MICRO_BATTERY, s_IconMicroBattery, sip->sector(), sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4072,7 +4072,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_GRENADE_LAUNCHER))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_GRENADE_LAUNCHER, s_IconGrenadeLauncher, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_GRENADE_LAUNCHER, s_IconGrenadeLauncher, sip->sector(), sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4083,7 +4083,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_LG_GRENADE))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_LG_GRENADE, s_IconLgGrenade, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_LG_GRENADE, s_IconLgGrenade, sip->sector(), sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4094,7 +4094,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_RAIL_GUN))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_RAIL_GUN, s_IconRailGun, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_RAIL_GUN, s_IconRailGun, sip->sector(), sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4105,7 +4105,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_RAIL_AMMO))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_RAIL_AMMO, s_IconRailAmmo, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_RAIL_AMMO, s_IconRailAmmo, sip->sector(), sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4116,7 +4116,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_ROCKET))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_ROCKET, s_IconRocket, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_ROCKET, s_IconRocket, sip->sector(), sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4127,7 +4127,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_SHOTGUN))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_SHOTGUN, s_IconShotgun, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_SHOTGUN, s_IconShotgun, sip->sector(), sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4138,7 +4138,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_LG_SHOTSHELL))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_LG_SHOTSHELL, s_IconLgShotshell, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_LG_SHOTSHELL, s_IconLgShotshell, sip->sector(), sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4149,7 +4149,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_GUARD_HEAD))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_GUARD_HEAD, s_IconGuardHead, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_GUARD_HEAD, s_IconGuardHead, sip->sector(), sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4160,7 +4160,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_FIREBALL_LG_AMMO))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_FIREBALL_LG_AMMO, s_IconFireballLgAmmo, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_FIREBALL_LG_AMMO, s_IconFireballLgAmmo, sip->sector(), sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4171,7 +4171,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_HEART))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_HEART, s_IconHeart, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_HEART, s_IconHeart, sip->sector(), sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4182,7 +4182,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_HEART_LG_AMMO))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_HEART_LG_AMMO, s_IconHeartLgAmmo, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_HEART_LG_AMMO, s_IconHeartLgAmmo, sip->sector(), sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4195,7 +4195,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_ARMOR))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_ARMOR, s_IconArmor, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_ARMOR, s_IconArmor, sip->sector(), sip->x, sip->y, sip->z, sip->ang, 0);
             sp = &spawnedActor->s();
             u = spawnedActor->u();
             SET(u->Flags2, SPR2_NEVER_RESPAWN);
@@ -4214,7 +4214,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_MEDKIT))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_MEDKIT, s_IconMedkit, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_MEDKIT, s_IconMedkit, sip->sector(), sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4225,7 +4225,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_SM_MEDKIT))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_SM_MEDKIT, s_IconSmMedkit, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_SM_MEDKIT, s_IconSmMedkit, sip->sector(), sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4236,7 +4236,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_CHEMBOMB))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_CHEMBOMB, s_IconChemBomb, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_CHEMBOMB, s_IconChemBomb, sip->sector(), sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4247,7 +4247,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_FLASHBOMB))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_FLASHBOMB, s_IconFlashBomb, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_FLASHBOMB, s_IconFlashBomb, sip->sector(), sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4258,7 +4258,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_NUKE))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_NUKE, s_IconNuke, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_NUKE, s_IconNuke, sip->sector(), sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4269,7 +4269,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_CALTROPS))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_CALTROPS, s_IconCaltrops, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_CALTROPS, s_IconCaltrops, sip->sector(), sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4280,7 +4280,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_BOOSTER))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_BOOSTER, s_IconBooster, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_BOOSTER, s_IconBooster, sip->sector(), sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4291,7 +4291,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_HEAT_CARD))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_HEAT_CARD, s_IconHeatCard, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_HEAT_CARD, s_IconHeatCard, sip->sector(), sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4302,7 +4302,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_CLOAK))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_CLOAK, s_IconCloak, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_CLOAK, s_IconCloak, sip->sector(), sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4313,7 +4313,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_NIGHT_VISION))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_NIGHT_VISION, s_IconNightVision, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_NIGHT_VISION, s_IconNightVision, sip->sector(), sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4325,7 +4325,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_LG_UZI_AMMO))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_LG_UZI_AMMO, s_IconLgUziAmmo, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_LG_UZI_AMMO, s_IconLgUziAmmo, sip->sector(), sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4336,7 +4336,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_GUARD_HEAD))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_GUARD_HEAD, s_IconGuardHead, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_GUARD_HEAD, s_IconGuardHead, sip->sector(), sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4347,7 +4347,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_HEART))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_HEART, s_IconHeart, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_HEART, s_IconHeart, sip->sector(), sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4359,7 +4359,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_UZIFLOOR))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_UZIFLOOR, s_IconUziFloor, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_UZIFLOOR, s_IconUziFloor, sip->sector(), sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4373,7 +4373,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_UZI))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_UZI, s_IconUzi, sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_UZI, s_IconUzi, sip->sector(), sip->x, sip->y, sip->z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4420,7 +4420,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, s_Key[num]->Pic))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, s_Key[num]->Pic, s_Key[num], sip->sectnum, sip->x, sip->y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, s_Key[num]->Pic, s_Key[num], sip->sector(), sip->x, sip->y, sip->z, sip->ang, 0);
             u = spawnedActor->u();
             sp = &spawnedActor->s();
 
@@ -5059,7 +5059,7 @@ int KillGet(DSWActor* actor)
         if (!gNet.SpawnMarkers || sp->hitag == TAG_NORESPAWN_FLAG)  // No coin if it's a special flag
             break;
 
-        auto actorNew = SpawnActor(STAT_ITEM, Red_COIN, s_RedCoin, sp->sectnum,
+        auto actorNew = SpawnActor(STAT_ITEM, Red_COIN, s_RedCoin, sp->sector(),
                           sp->x, sp->y, sp->z, 0, 0);
 
         np = &actorNew->s();
@@ -5111,7 +5111,7 @@ int KillGetAmmo(DSWActor* actor)
         if (!gNet.SpawnMarkers)
             break;
 
-        auto actorNew = SpawnActor(STAT_ITEM, Red_COIN, s_RedCoin, sp->sectnum,
+        auto actorNew = SpawnActor(STAT_ITEM, Red_COIN, s_RedCoin, sp->sector(),
                           sp->x, sp->y, sp->z, 0, 0);
 
         np = &actorNew->s();
@@ -5171,7 +5171,7 @@ int KillGetWeapon(DSWActor* actor)
         if (!gNet.SpawnMarkers)
             break;
 
-        auto actorNew = SpawnActor(STAT_ITEM, Red_COIN, s_RedCoin, sp->sectnum,
+        auto actorNew = SpawnActor(STAT_ITEM, Red_COIN, s_RedCoin, sp->sector(),
                           sp->x, sp->y, sp->z, 0, 0);
 
         np = &actorNew->s();
@@ -5191,7 +5191,7 @@ DoSpawnItemTeleporterEffect(SPRITEp sp)
     extern STATE s_TeleportEffect[];
     SPRITEp ep;
 
-    auto effect = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, sp->sectnum,
+    auto effect = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, sp->sector(),
                          sp->x, sp->y, sp->z - Z(12),
                          sp->ang, 0);
 
@@ -6120,10 +6120,10 @@ KeyMain:
 
             DSWActor* actorNew;
             if (sp->hitag == TAG_NORESPAWN_FLAG)
-                actorNew = SpawnActor(STAT_ITEM, ICON_FLAG, s_CarryFlagNoDet, sp->sectnum,
+                actorNew = SpawnActor(STAT_ITEM, ICON_FLAG, s_CarryFlagNoDet, sp->sector(),
                                   sp->x, sp->y, sp->z, 0, 0);
             else
-                actorNew = SpawnActor(STAT_ITEM, ICON_FLAG, s_CarryFlag, sp->sectnum,
+                actorNew = SpawnActor(STAT_ITEM, ICON_FLAG, s_CarryFlag, sp->sector(),
                                   sp->x, sp->y, sp->z, 0, 0);
 
             np = &actorNew->s();

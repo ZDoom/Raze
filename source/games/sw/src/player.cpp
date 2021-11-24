@@ -1320,7 +1320,7 @@ void DoSpawnTeleporterEffect(DSWActor* actor)
     nx += sp->x;
     ny += sp->y;
 
-    auto effectActor = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, sp->sectnum,
+    auto effectActor = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, sp->sector(),
                          nx, ny, SPRITEp_TOS(sp) + Z(16),
                          sp->ang, 0);
 
@@ -1342,7 +1342,7 @@ void DoSpawnTeleporterEffectPlace(DSWActor* actor)
     extern STATE s_TeleportEffect[];
     SPRITEp ep;
 
-    auto effectActor = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, sp->sectnum,
+    auto effectActor = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, sp->sector(),
                          sp->x, sp->y, SPRITEp_TOS(sp) + Z(16),
                          sp->ang, 0);
 
@@ -7093,7 +7093,7 @@ void InitMultiPlayerInfo(void)
                 continue;
         }
 
-        auto start0 = SpawnActor(MultiStatList[stat], ST1, nullptr, pp->cursectnum, pp->posx, pp->posy, pp->posz, pp->angle.ang.asbuild(), 0);
+        auto start0 = SpawnActor(MultiStatList[stat], ST1, nullptr, pp->cursector(), pp->posx, pp->posy, pp->posz, pp->angle.ang.asbuild(), 0);
         start0->clearUser();
         start0->s().picnum = ST1;
     }

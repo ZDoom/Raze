@@ -302,7 +302,7 @@ void SpawnMidSplash(DSWActor* actor)
     SPRITEp np;
     USERp nu;
 
-    auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_GoreSplash, sp->sectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_GoreSplash, sp->sector(),
                       sp->x, sp->y, SPRITEp_MID(sp), sp->ang, 0);
 
     np = &actorNew->s();
@@ -333,7 +333,7 @@ void SpawnFloorSplash(DSWActor* actor)
     SPRITEp np;
     USERp nu;
 
-    auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_GoreFloorSplash, sp->sectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_GoreFloorSplash, sp->sector(),
                       sp->x, sp->y, sp->z, sp->ang, 0);
 
     np = &actorNew->s();
@@ -543,7 +543,7 @@ int DoBloodSpray(DSWActor* actor)
     if (!TEST(u->Flags, SPR_BOUNCE | SPR_UNDERWATER))
     {
 
-        auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_BloodSpray, sp->sectnum,
+        auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_BloodSpray, sp->sector(),
                           sp->x, sp->y, sp->z, sp->ang, 100);
 
         auto np = &actorNew->s();
@@ -756,7 +756,7 @@ int DoPhosphorus(DSWActor* actor)
     if (!TEST(u->Flags, SPR_BOUNCE | SPR_UNDERWATER) && !TEST(sp->cstat, CSTAT_SPRITE_INVISIBLE))
     {
 
-        auto actorNew = SpawnActor(STAT_SKIP4, PUFF, s_PhosphorExp, sp->sectnum,
+        auto actorNew = SpawnActor(STAT_SKIP4, PUFF, s_PhosphorExp, sp->sector(),
                           sp->x, sp->y, sp->z, sp->ang, 100);
 
         auto np = &actorNew->s();
@@ -986,7 +986,7 @@ int DoChemBomb(DSWActor* actor)
     // if you haven't bounced or your going slow do some puffs
     if (!TEST(u->Flags, SPR_BOUNCE | SPR_UNDERWATER) && !TEST(sp->cstat, CSTAT_SPRITE_INVISIBLE))
     {
-        auto actorNew = SpawnActor(STAT_MISSILE, PUFF, s_Puff, sp->sectnum,
+        auto actorNew = SpawnActor(STAT_MISSILE, PUFF, s_Puff, sp->sector(),
                           sp->x, sp->y, sp->z, sp->ang, 100);
 
         auto np = &actorNew->s();
@@ -1227,7 +1227,7 @@ int SpawnRadiationCloud(DSWActor* actor)
     if (TEST(u->Flags, SPR_UNDERWATER))
         return -1;
 
-    auto actorNew = SpawnActor(STAT_MISSILE, RADIATION_CLOUD, s_RadiationCloud, sp->sectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, RADIATION_CLOUD, s_RadiationCloud, sp->sector(),
                       sp->x, sp->y, sp->z - RANDOM_P2(Z(8)), sp->ang, 0);
 
     np = &actorNew->s();
@@ -1317,7 +1317,7 @@ int PlayerInitChemBomb(PLAYERp pp)
 
     // Spawn a shot
     // Inserting and setting up variables
-    auto actorNew = SpawnActor(STAT_MISSILE, CHEMBOMB, s_ChemBomb, pp->cursectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, CHEMBOMB, s_ChemBomb, pp->cursector(),
                     nx, ny, nz, pp->angle.ang.asbuild(), CHEMBOMB_VELOCITY);
 
     wp = &actorNew->s();
@@ -1397,7 +1397,7 @@ int InitSpriteChemBomb(DSWActor* actor)
 
     // Spawn a shot
     // Inserting and setting up variables
-    auto actorNew = SpawnActor(STAT_MISSILE, CHEMBOMB, s_ChemBomb, sp->sectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, CHEMBOMB, s_ChemBomb, sp->sector(),
                     nx, ny, nz, sp->ang, CHEMBOMB_VELOCITY);
 
     wp = &actorNew->s();
@@ -1450,7 +1450,7 @@ int InitChemBomb(DSWActor* actor)
 
     // Spawn a shot
     // Inserting and setting up variables
-    auto actorNew = SpawnActor(STAT_MISSILE, MUSHROOM_CLOUD, s_ChemBomb, sp->sectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, MUSHROOM_CLOUD, s_ChemBomb, sp->sector(),
                     nx, ny, nz, sp->ang, CHEMBOMB_VELOCITY);
 
     wp = &actorNew->s();
@@ -1684,7 +1684,7 @@ void SpawnFlashBombOnActor(DSWActor* actor)
         }
     }
 
-    auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL_FLAMES, s_FireballFlames, sp->sectnum,
+    auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL_FLAMES, s_FireballFlames, sp->sector(),
                       sp->x, sp->y, sp->z, sp->ang, 0);
     auto np = &actorNew->s();
     auto nu = actorNew->u();
@@ -1740,7 +1740,7 @@ int PlayerInitCaltrops(PLAYERp pp)
     ny = pp->posy;
     nz = pp->posz + pp->bob_z + Z(8);
 
-    auto spawnedActor = SpawnActor(STAT_DEAD_ACTOR, CALTROPS, s_Caltrops, pp->cursectnum,
+    auto spawnedActor = SpawnActor(STAT_DEAD_ACTOR, CALTROPS, s_Caltrops, pp->cursector(),
                     nx, ny, nz, pp->angle.ang.asbuild(), (CHEMBOMB_VELOCITY + RandomRange(CHEMBOMB_VELOCITY)) / 2);
 
     wp = &spawnedActor->s();
@@ -1812,7 +1812,7 @@ int InitCaltrops(DSWActor* actor)
 
     // Spawn a shot
     // Inserting and setting up variables
-    auto spawnedActor = SpawnActor(STAT_DEAD_ACTOR, CALTROPS, s_Caltrops, sp->sectnum,
+    auto spawnedActor = SpawnActor(STAT_DEAD_ACTOR, CALTROPS, s_Caltrops, sp->sector(),
                     nx, ny, nz, sp->ang, CHEMBOMB_VELOCITY / 2);
 
     wp = &spawnedActor->s();
@@ -1864,7 +1864,7 @@ int InitPhosphorus(DSWActor* actor)
 
     // Spawn a shot
     // Inserting and setting up variables
-    auto actorNew = SpawnActor(STAT_SKIP4, FIREBALL1, s_Phosphorus, sp->sectnum,
+    auto actorNew = SpawnActor(STAT_SKIP4, FIREBALL1, s_Phosphorus, sp->sector(),
                     nx, ny, nz, daang, CHEMBOMB_VELOCITY/3);
 
     wp = &actorNew->s();
@@ -1947,7 +1947,7 @@ int InitBloodSpray(DSWActor* actor, bool dogib, short velocity)
         nz = SPRITEp_TOS(sp)-20;
 
         // Spawn a shot
-        auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_BloodSprayChunk, sp->sectnum,
+        auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_BloodSprayChunk, sp->sector(),
                         nx, ny, nz, ang, vel*2);
 
         wp = &actorNew->s();
@@ -2366,7 +2366,7 @@ int SpawnShell(DSWActor* actor, int ShellNum)
         break;
     }
 
-    auto actorNew = SpawnActor(STAT_SKIP4, id, p, sp->sectnum, nx, ny, nz, sp->ang, 64);
+    auto actorNew = SpawnActor(STAT_SKIP4, id, p, sp->sector(), nx, ny, nz, sp->ang, 64);
 
     wp = &actorNew->s();
     wu = actorNew->u();
