@@ -1530,7 +1530,8 @@ typedef struct
 
 typedef struct SINE_WAVE_FLOOR
 {
-    int floor_origz, ceiling_origz, range, sector;
+    sectortype* sectp;
+    int floor_origz, ceiling_origz, range;
     int16_t sintable_ndx, speed_shift;
     uint8_t flags;
 } *SINE_WAVE_FLOORp;

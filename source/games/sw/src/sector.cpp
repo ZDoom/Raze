@@ -61,7 +61,7 @@ enum
 ANIMATOR DoGrating;
 void DoPlayerBeginForceJump(PLAYERp);
 
-short FindNextSectorByTag(short sectnum, int tag);
+sectortype* FindNextSectorByTag(sectortype* sectnum, int tag);
 short LevelSecrets;
 bool TestVatorMatchActive(short match);
 bool TestSpikeMatchActive(short match);
@@ -388,14 +388,14 @@ void SectorSetup(void)
         SectorObject[ndx].xmid = INT32_MAX;
     }
 
-    memset(SineWaveFloor, -1, sizeof(SineWaveFloor));
+    memset(SineWaveFloor, 0, sizeof(SineWaveFloor));
     memset(SpringBoard, -1, sizeof(SpringBoard));
 
     LevelSecrets = 0;
 
     for (i = 0; i < numsectors; i++)
     {
-        auto sectp = &sector[i];
+        auto const sectp = &sector[i];
         tag = sectp->lotag;
 
         // ///////////////////////////////////
@@ -465,7 +465,6 @@ void SectorSetup(void)
         case TAG_SINE_WAVE_BOTH:
         {
             SINE_WAVE_FLOOR *swf;
-            short near_sect = i, base_sect = i;
             uint16_t swf_ndx = 0;
             short cnt = 0, sector_cnt;
             int range;
@@ -486,7 +485,7 @@ void SectorSetup(void)
             {
             case 0:
                 SET(swf->flags, SINE_FLOOR);
-                if (TEST(sector[base_sect].floorstat, FLOOR_STAT_SLOPE))
+                if (TEST(sectp->floorstat, FLOOR_STAT_SLOPE))
                 {
                     SET(swf->flags, SINE_SLOPED);
                 }
@@ -500,37 +499,36 @@ void SectorSetup(void)
             }
 
 
-            swf->sector = near_sect;
-            ASSERT(sector[swf->sector].hitag != 0);
-            swf->range = range = Z(sector[swf->sector].hitag);
-            swf->floor_origz = sector[swf->sector].floorz - (range >> 2);
-            swf->ceiling_origz = sector[swf->sector].ceilingz - (range >> 2);
+            swf->sectp = sectp;
+            ASSERT(swf->sectp->hitag != 0);
+            swf->range = range = Z(swf->sectp->hitag);
+            swf->floor_origz = swf->sectp->floorz - (range >> 2);
+            swf->ceiling_origz = swf->sectp->ceilingz - (range >> 2);
 
             // look for the rest by distance
+            auto near_sectp = sectp, base_sectp = sectp;
             for (swf_ndx = 1, sector_cnt = 1; true; swf_ndx++)
             {
-                // near_sect = FindNextSectorByTag(base_sect,
-                // TAG_SINE_WAVE_FLOOR + swf_ndx);
-                near_sect = FindNextSectorByTag(base_sect, tag + swf_ndx);
+                near_sectp = FindNextSectorByTag(base_sectp, tag + swf_ndx);
 
-                if (near_sect >= 0)
+                if (near_sectp != nullptr)
                 {
                     swf = &SineWaveFloor[NextSineWave][swf_ndx];
 
-                    if (swf_ndx == 1 && sector[near_sect].hitag)
-                        range_diff = sector[near_sect].hitag;
-                    else if (swf_ndx == 2 && sector[near_sect].hitag)
-                        speed_shift = sector[near_sect].hitag;
-                    else if (swf_ndx == 3 && sector[near_sect].hitag)
-                        peak_dist = sector[near_sect].hitag;
+                    if (swf_ndx == 1 && near_sectp->hitag)
+                        range_diff = near_sectp->hitag;
+                    else if (swf_ndx == 2 && near_sectp->hitag)
+                        speed_shift = near_sectp->hitag;
+                    else if (swf_ndx == 3 && near_sectp->hitag)
+                        peak_dist = near_sectp->hitag;
 
-                    swf->sector = near_sect;
-                    swf->floor_origz = sector[swf->sector].floorz - (range >> 2);
-                    swf->ceiling_origz = sector[swf->sector].ceilingz - (range >> 2);
+                    swf->sectp = near_sectp;
+                    swf->floor_origz = swf->sectp->floorz - (range >> 2);
+                    swf->ceiling_origz = swf->sectp->ceilingz - (range >> 2);
                     range -= range_diff;
                     swf->range = range;
 
-                    base_sect = swf->sector;
+                    base_sectp = swf->sectp;
                     sector_cnt++;
                 }
                 else
@@ -542,14 +540,14 @@ void SectorSetup(void)
 
             // more than 6 waves and something in high tag - set up wave
             // dissapate
-            if (sector_cnt > 8 && sector[base_sect].hitag)
+            if (sector_cnt > 8 && base_sectp->hitag)
             {
-                wave_diff = sector[base_sect].hitag;
+                wave_diff = base_sectp->hitag;
             }
 
             // setup the sintable_ndx based on the actual number of
             // sectors (swf_ndx)
-            for (swf = &SineWaveFloor[NextSineWave][0], cnt = 0; swf->sector >= 0 && swf < (SINE_WAVE_FLOORp)&SineWaveFloor[SIZ(SineWaveFloor)]; swf++, cnt++)
+            for (swf = &SineWaveFloor[NextSineWave][0], cnt = 0; swf->sectp != 0 && swf < (SINE_WAVE_FLOORp)&SineWaveFloor[SIZ(SineWaveFloor)]; swf++, cnt++)
             {
                 if (peak_dist)
                     swf->sintable_ndx = cnt * (2048 / peak_dist);
@@ -579,8 +577,8 @@ void SectorSetup(void)
                         swf->range = Z(4);
 
                     // reset origz's based on new range
-                    swf->floor_origz = sector[swf->sector].floorz - (swf->range >> 2);
-                    swf->ceiling_origz = sector[swf->sector].ceilingz - (swf->range >> 2);
+                    swf->floor_origz = swf->sectp->floorz - (swf->range >> 2);
+                    swf->ceiling_origz = swf->sectp->ceilingz - (swf->range >> 2);
                 }
             }
 
@@ -651,7 +649,7 @@ void DoSpringBoardDown(void)
     return;
 }
 
-short FindNextSectorByTag(short sect, int tag)
+sectortype* FindNextSectorByTag(sectortype* sect, int tag)
 {
     for(auto& wal : wallsofsector(sect))
     {
@@ -659,12 +657,12 @@ short FindNextSectorByTag(short sect, int tag)
         {
             if (wal.nextSector()->lotag == tag)
             {
-                return sectnum(wal.nextSector());
+                return wal.nextSector();
             }
         }
     }
 
-    return -1;
+    return nullptr;
 
 }
 
@@ -2473,7 +2471,7 @@ void DoSineWaveFloor(void)
 
     for (wave = 0; wave < MAX_SINE_WAVE; wave++)
     {
-        for (swf = &SineWaveFloor[wave][0], flags = swf->flags; swf->sector >= 0 && swf < &SineWaveFloor[wave][SIZ(SineWaveFloor[wave])]; swf++)
+        for (swf = &SineWaveFloor[wave][0], flags = swf->flags; swf->sectp != nullptr && swf < &SineWaveFloor[wave][SIZ(SineWaveFloor[wave])]; swf++)
         {
 
             swf->sintable_ndx = NORM_ANGLE(swf->sintable_ndx + (synctics << swf->speed_shift));
@@ -2481,13 +2479,13 @@ void DoSineWaveFloor(void)
             if (TEST(flags, SINE_FLOOR))
             {
                 newz = swf->floor_origz + MulScale(swf->range, bsin(swf->sintable_ndx), 14);
-                sector[swf->sector].floorz = newz;
+                swf->sectp->floorz = newz;
             }
 
             if (TEST(flags, SINE_CEILING))
             {
                 newz = swf->ceiling_origz + MulScale(swf->range, bsin(swf->sintable_ndx), 14);
-                sector[swf->sector].ceilingz = newz;
+                swf->sectp->ceilingz = newz;
             }
 
         }
@@ -2505,9 +2503,9 @@ void DoSineWaveFloor(void)
 
     for (wave = 0; wave < MAX_SINE_WAVE; wave++)
     {
-        for (swf = &SineWaveFloor[wave][0], flags = swf->flags; swf->sector >= 0 && swf < &SineWaveFloor[wave][SIZ(SineWaveFloor[wave])]; swf++)
+        for (swf = &SineWaveFloor[wave][0], flags = swf->flags; swf->sectp != nullptr && swf < &SineWaveFloor[wave][SIZ(SineWaveFloor[wave])]; swf++)
         {
-            auto sect = &sector[swf->sector];
+            auto sect = swf->sectp;
             if (!TEST(sect->floorstat, FLOOR_STAT_SLOPE))
                 continue;
 

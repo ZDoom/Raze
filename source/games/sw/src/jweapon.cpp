@@ -2117,7 +2117,7 @@ int DoCarryFlag(DSWActor* actor)
                 u->WaitTics = SEC(1) / 2;
             }
             // if in score box, score.
-            if (sector[ap->sectnum].hitag == 9000 && sector[ap->sectnum].lotag == ap->pal
+            if (ap->sector()->hitag == 9000 && ap->sector()->lotag == ap->pal
                 && ap->pal != sp->pal)
             {
                 if (fown != nullptr)
@@ -2256,7 +2256,7 @@ int DoCarryFlagNoDet(DSWActor* actor)
     }
 
     // if in score box, score.
-    if (sector[ap->sectnum].hitag == 9000 && sector[ap->sectnum].lotag == ap->pal
+    if (ap->sector()->hitag == 9000 && ap->sector()->lotag == ap->pal
         && ap->pal != sp->pal)
     {
         if (u->flagOwnerActor != nullptr)

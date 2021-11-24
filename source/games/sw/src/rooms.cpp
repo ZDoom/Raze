@@ -43,7 +43,7 @@ BEGIN_SW_NS
 #define ZMAX 400
 typedef struct
 {
-    sectortype* sector[ZMAX];
+    sectortype* sect[ZMAX];
     int32_t zval[ZMAX];
     int16_t pic[ZMAX];
     int16_t zcount;
@@ -818,7 +818,7 @@ bool FindCeilingView(int match, int* x, int* y, int z, int* sectnum)
                 if (sp->hitag == VIEW_LEVEL2)
                 {
                     // save it off
-                    save.sector[save.zcount] = sp->sector();
+                    save.sect[save.zcount] = sp->sector();
                     save.zval[save.zcount] = sp->sector()->floorz;
                     save.pic[save.zcount] = sp->sector()->floorpicnum;
                     save.slope[save.zcount] = sp->sector()->floorheinum;
@@ -914,7 +914,7 @@ bool FindFloorView(int match, int* x, int* y, int z, int* sectnum)
                 if (sp->hitag == VIEW_LEVEL1)
                 {
                     // save it off
-                    save.sector[save.zcount] = sp->sector();
+                    save.sect[save.zcount] = sp->sector();
                     save.zval[save.zcount] = sp->sector()->ceilingz;
                     save.pic[save.zcount] = sp->sector()->ceilingpicnum;
                     save.slope[save.zcount] = sp->sector()->ceilingheinum;

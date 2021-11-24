@@ -878,7 +878,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, USER& w, USER* def
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, SINE_WAVE_FLOOR& w, SINE_WAVE_FLOOR* def)
 {
-	static SINE_WAVE_FLOOR nul = { -1,-1,-1,-1,-1,-1,255 };
+	static SINE_WAVE_FLOOR nul = { nullptr,-1,-1,-1,-1,-1,255 };
 	if (!def)
 	{
 		def = &nul;
@@ -890,7 +890,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, SINE_WAVE_FLOOR& w
 		arc("floor_origz", w.floor_origz, def->floor_origz)
 			("ceiling_origz", w.ceiling_origz, def->ceiling_origz)
 			("range", w.range, def->range)
-			("sector", w.sector, def->sector)
+			("sector", w.sectp, def->sectp)
 			("sintable_ndx", w.sintable_ndx, def->sintable_ndx)
 			("speed_shift", w.speed_shift, def->speed_shift)
 			("flags", w.flags, def->flags)
