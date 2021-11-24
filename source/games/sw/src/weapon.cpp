@@ -7342,7 +7342,7 @@ void TraverseBreakableWalls(short start_sect, int x, int y, int z, short ang, in
                 if (dist > radius)
                     continue;
 
-                if (WallBreakPosition(wallnum(&wal), &sectnum, &hit_x, &hit_y, &hit_z, &wall_ang))
+                if (WallBreakPosition(&wal, &sectnum, &hit_x, &hit_y, &hit_z, &wall_ang))
                 {
                     if (hit_x != INT32_MAX && sectnum >= 0 && FAFcansee(x, y, z, start_sect, hit_x, hit_y, hit_z, sectnum))
                     {

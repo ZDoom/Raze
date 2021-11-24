@@ -39,7 +39,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-static int SectorOfWall(int theline);
 static void DoWallBreakSpriteMatch(int match);
 
 BREAK_INFO WallBreakInfo[] =
@@ -730,39 +729,31 @@ bool UserBreakWall(WALLp wp)
     return false;
 }
 
-int WallBreakPosition(int hit_wall, int *sectnum, int *x, int *y, int *z, int *ang)
+int WallBreakPosition(walltype* wp, int *sectnum, int *x, int *y, int *z, int *ang)
 {
-    int w,nw;
-    WALLp wp;
     int nx,ny;
     int wall_ang;
 
-    w = hit_wall;
-    wp = &wall[w];
-
-    nw = wp->point2;
     wall_ang = NORM_ANGLE(getangle(wp->delta())+512);
 
-    *sectnum = SectorOfWall(w);
+    *sectnum = wp->sector;
     ASSERT(*sectnum >= 0);
 
     // midpoint of wall
-    *x = DIV2(wp->x + wp->x);
-    *y = DIV2(wp->y + wp->y);
-
-    //getzsofsector(*sectnum, *x, *y, cz, fz);
+    *x = (wp->x + wp->x) >> 1;
+    *y = (wp->y + wp->y) >> 1;
 
     if (!wp->twoSided())
     {
         // white wall
-        *z = DIV2(sector[*sectnum].floorz + sector[*sectnum].ceilingz);
+        *z = (sector[*sectnum].floorz + sector[*sectnum].ceilingz) >> 1;
     }
     else
     {
         auto next_sect = wp->nextSector();
 
         // red wall
-        ASSERT(wp->nextsector >= 0);
+        ASSERT(wp->twoSided());
 
         // floor and ceiling meet
         if (next_sect->floorz == next_sect->ceilingz)
@@ -809,7 +800,7 @@ bool HitBreakWall(WALLp wp, int hit_x, int hit_y, int hit_z, int ang, int type)
     //if (hit_x == INT32_MAX)
     {
         int sectnum;
-        WallBreakPosition(wallnum(wp), &sectnum, &hit_x, &hit_y, &hit_z, &ang);
+        WallBreakPosition(wp, &sectnum, &hit_x, &hit_y, &hit_z, &ang);
     }
 
     AutoBreakWall(wp, hit_x, hit_y, hit_z, ang, type);
@@ -1037,27 +1028,20 @@ int HitBreakSprite(DSWActor* breakActor, int type)
     return AutoBreakSprite(breakActor, type);
 }
 
-static int SectorOfWall(int theline)
-{
-	return wall[theline].sector;
-}
-
 void DoWallBreakMatch(int match)
 {
-    int i,sectnum;
+    int sectnum;
     int x,y,z;
-    WALLp wp;
     int wall_ang;
 
-    for (i=0; i<=numwalls; i++)
+    for(auto& wal : walls())
     {
-        if (wall[i].hitag == match)
+        if (wal.hitag == match)
         {
-            WallBreakPosition(i, &sectnum, &x, &y, &z, &wall_ang);
+            WallBreakPosition(&wal, &sectnum, &x, &y, &z, &wall_ang);
 
-			wp = &wall[i];
-            wp->hitag = 0; // Reset the hitag
-            AutoBreakWall(wp, x, y, z, wall_ang, 0);
+            wal.hitag = 0; // Reset the hitag
+            AutoBreakWall(&wal, x, y, z, wall_ang, 0);
         }
     }
 }

@@ -52,7 +52,7 @@ BREAK_INFOp SetupWallForBreak(WALLp wallp);
 BREAK_INFOp SetupSpriteForBreak(DSWActor* actor);
 bool HitBreakWall(WALLp wp, int, int, int, int ang, int type);
 bool CheckBreakToughness(BREAK_INFOp break_info, int ID);
-int WallBreakPosition(int hit_wall, int *sectnum, int *x, int *y, int *z, int *ang);
+int WallBreakPosition(walltype* hit_wall, int *sectnum, int *x, int *y, int *z, int *ang);
 void SortBreakInfo(void);
 void DoWallBreakMatch(int match);
 
