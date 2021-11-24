@@ -789,15 +789,12 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
     // look through all sectors for whole sectors that are IN bounds
     for (k = 0; k < numsectors; k++)
     {
-        startwall = sector[k].wallptr;
-        endwall = startwall + sector[k].wallnum - 1;
-
         SectorInBounds = true;
 
-        for (j = startwall; j <= endwall; j++)
+        for(auto& wal : wallsofsector(&sector[k]))
         {
             // all walls have to be in bounds to be in sector object
-            if (!(wall[j].x > xlow && wall[j].x < xhigh && wall[j].y > ylow && wall[j].y < yhigh))
+            if (!(wal.x > xlow && wal.x < xhigh && wal.y > ylow && wal.y < yhigh))
             {
                 SectorInBounds = false;
                 break;
@@ -1462,14 +1459,12 @@ void PlaceSectorObjectsOnTracks(void)
         sop->num_walls = 0;
         for (j = 0; sop->sector[j] != -1; j++)
         {
-            startwall = sector[sop->sector[j]].wallptr;
-            endwall = startwall + sector[sop->sector[j]].wallnum - 1;
 
             // move all walls in sectors
-            for (k = startwall; k <= endwall; k++)
+            for (auto& wal : wallsofsector(sop->sector[j]))
             {
-                sop->xorig[sop->num_walls] = sop->xmid - wall[k].x;
-                sop->yorig[sop->num_walls] = sop->ymid - wall[k].y;
+                sop->xorig[sop->num_walls] = sop->xmid - wal.x;
+                sop->yorig[sop->num_walls] = sop->ymid - wal.y;
                 sop->num_walls++;
             }
         }
@@ -1657,15 +1652,14 @@ void MovePlayer(PLAYERp pp, SECTOR_OBJECTp sop, int nx, int ny)
 
 void MovePoints(SECTOR_OBJECTp sop, short delta_ang, int nx, int ny)
 {
-    int j, k;
+    int j;
     vec2_t rxy;
-    short startwall, endwall, pnum;
+    int pnum;
     PLAYERp pp;
     SECTORp *sectp;
     SPRITEp sp;
-    WALLp wp;
     USERp u;
-    short i, rot_ang;
+    int i, rot_ang;
     bool PlayerMove = true;
 
     if (sop->xmid >= MAXSO)
@@ -1694,46 +1688,43 @@ void MovePoints(SECTOR_OBJECTp sop, short delta_ang, int nx, int ny)
         if (TEST(sop->flags, SOBJ_SPRITE_OBJ | SOBJ_DONT_ROTATE))
             goto PlayerPart;
 
-        startwall = (*sectp)->wallptr;
-        endwall = startwall + (*sectp)->wallnum - 1;
-
         // move all walls in sectors
-        for (wp = &wall[startwall], k = startwall; k <= endwall; wp++, k++)
+        for(auto& wal : wallsofsector(*sectp))
         {
-            if (TEST(wp->extra, WALLFX_LOOP_DONT_SPIN | WALLFX_DONT_MOVE))
+            if (TEST(wal.extra, WALLFX_LOOP_DONT_SPIN | WALLFX_DONT_MOVE))
                 continue;
 
-            if (wp->extra && TEST(wp->extra, WALLFX_LOOP_OUTER))
+            if (wal.extra && TEST(wal.extra, WALLFX_LOOP_OUTER))
             {
-                dragpoint(k, wp->x += nx, wp->y += ny);
+                dragpoint(&wal, wal.x += nx, wal.y += ny);
             }
             else
             {
-                wp->x += nx;
-                wp->y += ny;
+                wal.x += nx;
+                wal.y += ny;
             }
 
             rot_ang = delta_ang;
 
-            if (TEST(wp->extra, WALLFX_LOOP_REVERSE_SPIN))
+            if (TEST(wal.extra, WALLFX_LOOP_REVERSE_SPIN))
                 rot_ang = -delta_ang;
 
-            if (TEST(wp->extra, WALLFX_LOOP_SPIN_2X))
+            if (TEST(wal.extra, WALLFX_LOOP_SPIN_2X))
                 rot_ang = NORM_ANGLE(rot_ang * 2);
 
-            if (TEST(wp->extra, WALLFX_LOOP_SPIN_4X))
+            if (TEST(wal.extra, WALLFX_LOOP_SPIN_4X))
                 rot_ang = NORM_ANGLE(rot_ang * 4);
 
-            rotatepoint(sop->pmid.vec2, wp->pos, rot_ang, &rxy);
+            rotatepoint(sop->pmid.vec2, wal.pos, rot_ang, &rxy);
 
-            if (wp->extra && TEST(wp->extra, WALLFX_LOOP_OUTER))
+            if (wal.extra && TEST(wal.extra, WALLFX_LOOP_OUTER))
             {
-                dragpoint(k, rxy.x, rxy.y);
+                dragpoint(&wal, rxy.x, rxy.y);
             }
             else
             {
-                wp->x = rxy.x;
-                wp->y = rxy.y;
+                wal.x = rxy.x;
+                wal.y = rxy.y;
             }
         }
 
@@ -1820,10 +1811,10 @@ PlayerPart:
 
             // IS part of a sector, sprite can do things based on the
             // current sector it is in
-            if (TEST(wall[sp->sector()->wallptr].extra, WALLFX_LOOP_DONT_SPIN))
+            if (TEST(sp->sector()->firstWall()->extra, WALLFX_LOOP_DONT_SPIN))
                 continue;
 
-            if (TEST(wall[sp->sector()->wallptr].extra, WALLFX_LOOP_REVERSE_SPIN))
+            if (TEST(sp->sector()->firstWall()->extra, WALLFX_LOOP_REVERSE_SPIN))
             {
                 rotatepoint(sop->pmid.vec2, sp->pos.vec2, -delta_ang, &sp->pos.vec2);
                 sp->ang = NORM_ANGLE(sp->ang - delta_ang);
@@ -1904,9 +1895,7 @@ PlayerPart:
 
 void RefreshPoints(SECTOR_OBJECTp sop, int nx, int ny, bool dynamic)
 {
-    short wallcount = 0, j, k, startwall, endwall, delta_ang_from_orig;
-    SECTORp *sectp;
-    WALLp wp;
+    short wallcount = 0, delta_ang_from_orig;
     short ang;
     int dx,dy,x,y;
 
@@ -1914,24 +1903,23 @@ void RefreshPoints(SECTOR_OBJECTp sop, int nx, int ny, bool dynamic)
     if (dynamic && sop->PreMoveAnimator)
         (*sop->PreMoveAnimator)(sop);
 
+    SECTORp* sectp;
+    int j;
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
     {
         if (!TEST(sop->flags, SOBJ_SPRITE_OBJ))
         {
-            startwall = (*sectp)->wallptr;
-            endwall = startwall + (*sectp)->wallnum - 1;
-
             // move all walls in sectors back to the original position
-            for (wp = &wall[startwall], k = startwall; k <= endwall; wp++, k++)
+            for (auto& wal : wallsofsector(*sectp))
             {
-                if (!(wp->extra && TEST(wp->extra, WALLFX_DONT_MOVE)))
+                if (!(wal.extra && TEST(wal.extra, WALLFX_DONT_MOVE)))
                 {
                     dx = x = sop->xmid - sop->xorig[wallcount];
                     dy = y = sop->ymid - sop->yorig[wallcount];
 
                     if (dynamic && sop->scale_type)
                     {
-                        if (!TEST(wp->extra, WALLFX_DONT_SCALE))
+                        if (!TEST(wal.extra, WALLFX_DONT_SCALE))
                         {
                             ang = NORM_ANGLE(getangle(x - sop->xmid, y - sop->ymid));
 
@@ -1952,14 +1940,14 @@ void RefreshPoints(SECTOR_OBJECTp sop, int nx, int ny, bool dynamic)
                         }
                     }
 
-                    if (wp->extra && TEST(wp->extra, WALLFX_LOOP_OUTER))
+                    if (wal.extra && TEST(wal.extra, WALLFX_LOOP_OUTER))
                     {
-                        dragpoint(k, dx, dy);
+                        dragpoint(&wal, dx, dy);
                     }
                     else
                     {
-                        wp->x = dx;
-                        wp->y = dy;
+                        wal.x = dx;
+                        wal.y = dy;
                     }
                 }
 
@@ -2056,9 +2044,6 @@ SECTOR_OBJECTp DetectSectorObject(SECTORp sectph)
 
 SECTOR_OBJECTp DetectSectorObjectByWall(WALLp wph)
 {
-    short j, k, startwall, endwall;
-    SECTORp *sectp;
-    WALLp wp;
     SECTOR_OBJECTp sop;
 
     // collapse the SO to a single point
@@ -2068,21 +2053,20 @@ SECTOR_OBJECTp DetectSectorObjectByWall(WALLp wph)
         if (SO_EMPTY(sop))
             continue;
 
+        SECTORp* sectp;
+        int j;
         for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
         {
-            startwall = (*sectp)->wallptr;
-            endwall = startwall + (*sectp)->wallnum - 1;
-
-            for (wp = &wall[startwall], k = startwall; k <= endwall; wp++, k++)
+            for (auto& wal : wallsofsector(*sectp))
             {
                 // if outer wall check the NEXTWALL also
-                if (TEST(wp->extra, WALLFX_LOOP_OUTER))
+                if (TEST(wal.extra, WALLFX_LOOP_OUTER))
                 {
-                    if (wp->twoSided() && wph == wp->nextWall())
+                    if (wal.twoSided() && wph == wal.nextWall())
                         return sop;
                 }
 
-                if (wph == wp)
+                if (wph == &wal)
                     return sop;
             }
         }
@@ -2094,9 +2078,8 @@ SECTOR_OBJECTp DetectSectorObjectByWall(WALLp wph)
 
 void CollapseSectorObject(SECTOR_OBJECTp sop, int nx, int ny)
 {
-    short j, k, startwall, endwall;
+    int j;
     SECTORp *sectp;
-    WALLp wp;
 
     // collapse the SO to a single point
     // move all points to nx,ny
@@ -2104,23 +2087,20 @@ void CollapseSectorObject(SECTOR_OBJECTp sop, int nx, int ny)
     {
         if (!TEST(sop->flags, SOBJ_SPRITE_OBJ))
         {
-            startwall = (*sectp)->wallptr;
-            endwall = startwall + (*sectp)->wallnum - 1;
-
             // move all walls in sectors back to the original position
-            for (wp = &wall[startwall], k = startwall; k <= endwall; wp++, k++)
+            for (auto& wal : wallsofsector(*sectp))
             {
-                if (TEST(wp->extra, WALLFX_DONT_MOVE))
+                if (TEST(wal.extra, WALLFX_DONT_MOVE))
                     continue;
 
-                if (wp->extra && TEST(wp->extra, WALLFX_LOOP_OUTER))
+                if (wal.extra && TEST(wal.extra, WALLFX_LOOP_OUTER))
                 {
-                    dragpoint(k, nx, ny);
+                    dragpoint(&wal, nx, ny);
                 }
                 else
                 {
-                    wp->x = nx;
-                    wp->y = ny;
+                    wal.x = nx;
+                    wal.y = ny;
                 }
             }
         }
@@ -2186,7 +2166,6 @@ void CallbackSOsink(ANIMp ap, void *data)
     SECTOR_OBJECTp sop;
     SPRITEp sp;
     USERp u;
-    int startwall, endwall, j;
     int dest_sector = -1;
     int src_sector = -1;
     int i, ndx;
@@ -2217,18 +2196,17 @@ void CallbackSOsink(ANIMp ap, void *data)
 
     ASSERT(dest_sector != -1);
 
+    auto srcsect = &sector[src_sector];
+    auto destsect = &sector[dest_sector];
 
-    sector[dest_sector].floorpicnum = sector[src_sector].floorpicnum;
-    sector[dest_sector].floorshade = sector[src_sector].floorshade;
-//    sector[dest_sector].floorz = sector[src_sector].floorz;
+    destsect->floorpicnum = srcsect->floorpicnum;
+    destsect->floorshade = srcsect->floorshade;
+//    destsect->floorz = srcsect->floorz;
 
-    RESET(sector[dest_sector].floorstat, FLOOR_STAT_RELATIVE);
+    RESET(destsect->floorstat, FLOOR_STAT_RELATIVE);
+    ASSERT(destsect->hasU() && srcsect->hasU());
 
-    auto su = &sector[dest_sector];
-
-    ASSERT(su->hasU() && sector[src_sector].hasU());
-
-    tgt_depth = FixedToInt(sector[src_sector].depth_fixed);
+    tgt_depth = FixedToInt(srcsect->depth_fixed);
 
     for (int sectnum = 0; sectnum < numsectors; sectnum++)
     {
@@ -2259,11 +2237,9 @@ void CallbackSOsink(ANIMp ap, void *data)
 
 
     // Take out any blocking walls
-    startwall = sector[dest_sector].wallptr;
-    endwall = startwall + sector[dest_sector].wallnum - 1;
-    for (j = startwall; j <= endwall; j++)
+    for(auto& wal : wallsofsector(destsect))
     {
-        RESET(wall[j].cstat, CSTAT_WALL_BLOCK);
+        RESET(wal.cstat, CSTAT_WALL_BLOCK);
     }
 
     return;
