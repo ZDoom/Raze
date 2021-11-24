@@ -40,21 +40,18 @@ BEGIN_SW_NS
 
 extern int GlobSpeedSO;
 
-void CopySectorWalls(int dest_sectnum, int src_sectnum)
+void CopySectorWalls(sectortype* dest_sect, sectortype* src_sect)
 {
-    int dest_wall_num, src_wall_num, start_wall;
     SECTOR_OBJECTp sop;
     SECTORp *sectp;
 
-    dest_wall_num = sector[dest_sectnum].wallptr;
-    src_wall_num = sector[src_sectnum].wallptr;
+    auto dwall = dest_sect->firstWall();
+    auto swall = src_sect->firstWall();
+    auto firstwall = dwall;
 
-    start_wall = dest_wall_num;
-
+    // this looks broken.
     do
     {
-        auto dwall = &wall[dest_wall_num];
-        auto swall = &wall[src_wall_num];
         dwall->picnum = swall->picnum;
 
         dwall->xrepeat =       swall->xrepeat;
@@ -87,10 +84,10 @@ void CopySectorWalls(int dest_sectnum, int src_sectnum)
             dest_nextwall->extra = src_nextwall->extra;
         }
 
-        dest_wall_num = dwall->point2;
-        src_wall_num = swall->point2;
+        dwall = dwall->point2Wall();
+        swall = swall->point2Wall();
     }
-    while (dest_wall_num != start_wall);
+    while (dwall != firstwall);
 
     // TODO: Mapping a sector to the sector object to which it belongs is better
     for (sop = SectorObject; sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++)
@@ -99,7 +96,7 @@ void CopySectorWalls(int dest_sectnum, int src_sectnum)
             continue;
 
         for (sectp = sop->sectp; *sectp; sectp++)
-            if (sectnum(*sectp) == dest_sectnum)
+            if (*sectp == dest_sect)
             {
                 so_setinterpolationtics(sop, 0);
                 break;
@@ -162,7 +159,7 @@ void CopySectorMatch(int match)
                 }
 #endif
 
-                CopySectorWalls(dest_sp->sectnum, src_sp->sectnum);
+                CopySectorWalls(dest_sp->sector(), src_sp->sector());
 
                 itsec.Reset(src_sp->sectnum);
                 while (auto itActor = itsec.Next())
