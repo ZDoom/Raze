@@ -904,7 +904,7 @@ post_analyzesprites(spritetype* tsprite, int& spritesortcnt)
 #endif
 
 void
-CircleCamera(int *nx, int *ny, int *nz, int *vsect, binangle *nang, fixed_t q16horiz)
+CircleCamera(int *nx, int *ny, int *nz, sectortype** vsect, binangle *nang, fixed_t q16horiz)
 {
     vec3_t n = { *nx, *ny, *nz };
     SPRITEp sp;
@@ -935,7 +935,7 @@ CircleCamera(int *nx, int *ny, int *nz, int *vsect, binangle *nang, fixed_t q16h
     // Make sure sector passed to hitscan is correct
     //updatesector(*nx, *ny, vsect);
 
-    hitscan(&n, *vsect, vx, vy, vz, &hit_info, CLIPMASK_MISSILE);
+    hitscan(&n, sectnum(*vsect), vx, vy, vz, &hit_info, CLIPMASK_MISSILE);
     HITINFO hitinfo; hitinfo.set(&hit_info);
 
     sp->cstat = bakcstat;              // Restore cstat
@@ -949,7 +949,7 @@ CircleCamera(int *nx, int *ny, int *nz, int *vsect, binangle *nang, fixed_t q16h
     {
         if (hitinfo.wall())               // Push you a little bit off the wall
         {
-            *vsect = hitinfo.hitsect;
+            *vsect = hitinfo.sector();
 
             daang = getangle(hitinfo.wall()->delta());
 
@@ -961,7 +961,7 @@ CircleCamera(int *nx, int *ny, int *nz, int *vsect, binangle *nang, fixed_t q16h
         }
         else if (hitinfo.hitactor == nullptr)        // Push you off the ceiling/floor
         {
-            *vsect = hitinfo.hitsect;
+            *vsect = hitinfo.sector();
 
             if (abs(vx) > abs(vy))
                 hx -= (vx >> 5);
@@ -1077,7 +1077,7 @@ void DrawCrosshair(PLAYERp pp)
     }
 }
 
-void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, int *tsectnum, binangle *tang, fixedhoriz *thoriz)
+void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, sectortype** tsect, binangle *tang, fixedhoriz *thoriz)
 {
     binangle ang;
     SPRITEp sp;
@@ -1118,7 +1118,7 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, int *tsectnum, binangle *
                 {
                 case 1:
                     pp->last_camera_sp = sp;
-                    CircleCamera(tx, ty, tz, tsectnum, tang, 0);
+                    CircleCamera(tx, ty, tz, tsect, tang, 0);
                     found_camera = true;
                     break;
 
@@ -1153,7 +1153,7 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, int *tsectnum, binangle *
                     *tx = sp->x;
                     *ty = sp->y;
                     *tz = sp->z;
-                    *tsectnum = sp->sectnum;
+                    *tsect = sp->sector();
 
                     found_camera = true;
                     break;
@@ -1537,17 +1537,16 @@ drawscreen(PLAYERp pp, double smoothratio)
             tang = bvectangbam(pp->sop_remote->xmid - tx, pp->sop_remote->ymid - ty);
     }
 
+    auto pSect = &sector[tsectnum];
     if (TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE))
     {
         tz -= 8448;
         
-        auto pSect = &sector[tsectnum];
         if (!calcChaseCamPos(&tx, &ty, &tz, &pp->Actor()->s(), &pSect, tang, thoriz, smoothratio))
         {
             tz += 8448;
             calcChaseCamPos(&tx, &ty, &tz, &pp->Actor()->s(), &pSect, tang, thoriz, smoothratio);
         }
-        tsectnum = sectnum(pSect);
     }
     else
     {
@@ -1555,9 +1554,10 @@ drawscreen(PLAYERp pp, double smoothratio)
 
         if (CameraTestMode)
         {
-            CameraView(camerapp, &tx, &ty, &tz, &tsectnum, &tang, &thoriz);
+            CameraView(camerapp, &tx, &ty, &tz, &pSect, &tang, &thoriz);
         }
     }
+    tsectnum = sectnum(pSect);
 
     if (!TEST(pp->Flags, PF_VIEW_FROM_CAMERA|PF_VIEW_FROM_OUTSIDE))
     {

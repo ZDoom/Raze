@@ -201,7 +201,6 @@ inline int Collision::setFromEngine(int value)
 struct HITINFO {
 	DSWActor* hitactor;
 	sectortype* hitSector;
-	int hitsect;
 	int hitwall;
 	short hitsprite;
 	vec3_t pos;
@@ -209,14 +208,13 @@ struct HITINFO {
 	void clearObj()
 	{
 		pos = {};
-		hitsect = hitwall = -1;
+		hitwall = -1;
 		hitsprite = -1;
 		hitactor = nullptr;
 		hitSector = nullptr;
 	}
 	void set(hitdata_t* hit)
 	{
-		hitsect = hit->sect;
 		hitSector = &::sector[hit->sect];
 		hitwall = hit->wall;
 		hitsprite = hit->sprite;
@@ -227,7 +225,6 @@ struct HITINFO {
 	void setSector(sectortype* sect)
 	{
 		hitSector = sect;
-		hitsect = sectnum(sect);
 	}
 
 	walltype* wall() const { return hitwall == -1? nullptr : &::wall[hitwall]; }
