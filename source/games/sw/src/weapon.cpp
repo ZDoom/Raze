@@ -13657,7 +13657,7 @@ int InitShotgun(PLAYERp pp)
                 if (TEST(sector[hitinfo.hitsect].ceilingstat, CEILING_STAT_PLAX))
                     continue;
 
-                if (SectorIsUnderwaterArea(hitinfo.hitsect))
+                if (SectorIsUnderwaterArea(hitinfo.sector()))
                 {
                     WarpToSurface(&hitinfo.hitsect, &hitinfo.pos.x, &hitinfo.pos.y, &hitinfo.pos.z);
                     ContinueHitscan(pp, hitinfo.hitsect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ndaang, xvect, yvect, zvect);
@@ -16219,7 +16219,7 @@ int InitUzi(PLAYERp pp)
             if (TEST(sector[hitinfo.hitsect].ceilingstat, CEILING_STAT_PLAX))
                 return 0;
 
-            if (SectorIsUnderwaterArea(hitinfo.hitsect))
+            if (SectorIsUnderwaterArea(hitinfo.sector()))
             {
                 WarpToSurface(&hitinfo.hitsect, &hitinfo.pos.x, &hitinfo.pos.y, &hitinfo.pos.z);
                 ContinueHitscan(pp, hitinfo.hitsect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, xvect, yvect, zvect);
@@ -18251,7 +18251,7 @@ bool MissileHitDiveArea(DSWActor* actor)
     // in Stacked water areas.
     if (FAF_ConnectArea(sp->sectnum))
     {
-        if (SectorIsUnderwaterArea(sp->sectnum))
+        if (SectorIsUnderwaterArea(sp->sector()))
             SET(u->Flags, SPR_UNDERWATER);
         else
             RESET(u->Flags, SPR_UNDERWATER);
@@ -18443,7 +18443,7 @@ int DoBubble(DSWActor* actor)
 
     if (sp->z < sp->sector()->ceilingz)
     {
-        if (SectorIsUnderwaterArea(sectnum(u->hi_sectp)))
+        if (SectorIsUnderwaterArea(u->hi_sectp))
         {
             if (!SpriteWarpToSurface(actor))
             {

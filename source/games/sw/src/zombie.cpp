@@ -821,14 +821,14 @@ void SpawnZombie2(DSWActor* actor)
     if (sectu && (TEST(sectp->extra, SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE))
         return;
 
-    if (SectorIsUnderwaterArea(sp->sectnum))
+    if (SectorIsUnderwaterArea(sp->sector()))
         return;
 
     if (FAF_ConnectArea(sp->sectnum))
     {
-        int sectnum = sp->sectnum;
-        updatesectorz(sp->x, sp->y, sp->z + Z(10), &sectnum);
-        if (sectnum >= 0 && SectorIsUnderwaterArea(sectnum))
+        auto newsect = sp->sector();
+        updatesectorz(sp->x, sp->y, sp->z + Z(10), &newsect);
+        if (SectorIsUnderwaterArea(newsect))
             return;
     }
 

@@ -787,6 +787,7 @@ struct PLAYERstruct
 
     int cursectnum,lastcursectnum;
     sectortype* cursector() { return cursectnum < 0? nullptr : &sector[cursectnum]; }
+    void setcursector(sectortype* s) { cursectnum = sectnum(s); }
     bool insector() const { return cursectnum >= 0; }
     fixed_t turn180_target; // 180 degree turn
 
@@ -2214,9 +2215,10 @@ inline bool SectorIsDiveArea(int sect)
     return (TEST(sector[sect].extra, SECTFX_DIVE_AREA) ? true : false);
 }
 
-inline bool SectorIsUnderwaterArea(int sect)
+inline bool SectorIsUnderwaterArea(sectortype* sect)
 {
-    return (TEST(sector[sect].extra, SECTFX_UNDERWATER | SECTFX_UNDERWATER2) ? true : false);
+    if (!sect) return false;
+    return (TEST(sect->extra, SECTFX_UNDERWATER | SECTFX_UNDERWATER2) ? true : false);
 }
 
 END_SW_NS

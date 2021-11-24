@@ -2998,12 +2998,12 @@ void StackedWaterSplash(PLAYERp pp)
 {
     if (FAF_ConnectArea(pp->cursectnum))
     {
-        int sectnum = pp->cursectnum;
+        auto sectnum = pp->cursector();
 
         auto psp = &pp->Actor()->s();
         updatesectorz(pp->posx, pp->posy, SPRITEp_BOS(psp), &sectnum);
 
-        if (sectnum >= 0 && SectorIsUnderwaterArea(sectnum))
+        if (SectorIsUnderwaterArea(sectnum))
         {
             PlaySound(DIGI_SPLASH1, pp, v3df_dontpan);
         }
@@ -3022,7 +3022,7 @@ void DoPlayerFall(PLAYERp pp)
         pp->KeyPressBits |= SB_JUMP;
     }
 
-    if (pp->cursectnum >= 0 && SectorIsUnderwaterArea(pp->cursectnum))
+    if (SectorIsUnderwaterArea(pp->cursector()))
     {
         StackedWaterSplash(pp);
         DoPlayerBeginDiveNoWarp(pp);
@@ -3509,7 +3509,7 @@ void DoPlayerCrawl(PLAYERp pp)
 {
     USERp u = pp->Actor()->u();
 
-    if (pp->cursectnum >= 0 && SectorIsUnderwaterArea(pp->cursectnum))
+    if (SectorIsUnderwaterArea(pp->cursector()))
     {
         // if stacked water - which it should be
         if (FAF_ConnectArea(pp->cursectnum))
@@ -3637,7 +3637,7 @@ bool PlayerFloorHit(PLAYERp pp, int zlimit)
 
 void DoPlayerFly(PLAYERp pp)
 {
-    if (pp->cursectnum >= 0 && SectorIsUnderwaterArea(pp->cursectnum))
+    if (SectorIsUnderwaterArea(pp->cursector()))
     {
         DoPlayerBeginDiveNoWarp(pp);
         return;
@@ -3882,14 +3882,14 @@ int PlayerCanDiveNoWarp(PLAYERp pp)
     {
         if (FAF_ConnectArea(pp->cursectnum))
         {
-            int sectnum = pp->cursectnum;
+            auto sect = pp->cursector();
 
-            updatesectorz(pp->posx, pp->posy, SPRITEp_BOS(&pp->Actor()->s()), &sectnum);
+            updatesectorz(pp->posx, pp->posy, SPRITEp_BOS(&pp->Actor()->s()), &sect);
 
-            if (sectnum >= 0 && SectorIsUnderwaterArea(sectnum))
+            if (SectorIsUnderwaterArea(sect))
             {
-                pp->cursectnum = sectnum;
-                pp->posz = sector[sectnum].ceilingz;
+                pp->setcursector(sect);
+                pp->posz = sect->ceilingz;
 
                 pp->posz += Z(20);
                 pp->z_speed = Z(20);
@@ -4297,7 +4297,7 @@ void DoPlayerBeginDiveNoWarp(PLAYERp pp)
     if (Prediction)
         return;
 
-    if (!pp->insector() || !SectorIsUnderwaterArea(pp->cursectnum))
+    if (!SectorIsUnderwaterArea(pp->cursector()))
         return;
 
     if (pp->Bloody) pp->Bloody = false; // Water washes away the blood
@@ -4439,7 +4439,7 @@ void DoPlayerDive(PLAYERp pp)
     auto sectu = pp->cursector();
 
     // whenever your view is not in a water area
-    if (!pp->insector() || !SectorIsUnderwaterArea(pp->cursectnum))
+    if (!SectorIsUnderwaterArea(pp->cursector()))
     {
         DoPlayerStopDiveNoWarp(pp);
         DoPlayerBeginRun(pp);
@@ -4505,17 +4505,17 @@ void DoPlayerDive(PLAYERp pp)
     {
         if (pp->posz < pp->cursector()->ceilingz + Z(10))
         {
-            int sectnum = pp->cursectnum;
+            auto sect = pp->cursector();
 
             // check for sector above to see if it is an underwater sector also
-            updatesectorz(pp->posx, pp->posy, pp->cursector()->ceilingz - Z(8), &sectnum);
+            updatesectorz(pp->posx, pp->posy, pp->cursector()->ceilingz - Z(8), &sect);
 
-            if (sectnum >= 0 && !SectorIsUnderwaterArea(sectnum))
+            if (!SectorIsUnderwaterArea(sect))
             {
                 // if not underwater sector we must surface
                 // force into above sector
                 pp->posz = pp->cursector()->ceilingz - Z(8);
-                pp->cursectnum = sectnum;
+                pp->setcursector(sect);
                 DoPlayerStopDiveNoWarp(pp);
                 DoPlayerBeginRun(pp);
                 return;
@@ -6310,7 +6310,7 @@ void DoPlayerRun(PLAYERp pp)
 {
     USERp u = pp->Actor()->u();
 
-    if (pp->cursectnum >= 0 && SectorIsUnderwaterArea(pp->cursectnum))
+    if (SectorIsUnderwaterArea(pp->cursector()))
     {
         DoPlayerBeginDiveNoWarp(pp);
         return;
