@@ -2059,7 +2059,6 @@ void computergetinput(int snum,InputPacket *syn); // jplayer.c
 
 void DrawOverlapRoom(int tx,int ty,int tz,fixed_t tq16ang,fixed_t tq16horiz,short tsectnum);    // rooms.c
 void SetupMirrorTiles(void);    // rooms.c
-bool FAF_Sector(int sectnum); // rooms.c
 bool FAF_Sector(sectortype* sectnum); // rooms.c
 int GetZadjustment(sectortype* sectnum,short hitag);  // rooms.c
 

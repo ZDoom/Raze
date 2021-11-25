@@ -462,7 +462,7 @@ int DoBloodSpray(DSWActor* actor)
             else
             {
 				auto bsp = &bldActor->s();
-                if (FAF_Sector(bsp->sectnum) || FAF_ConnectArea(bsp->sector()))
+                if (FAF_Sector(bsp->sector()) || FAF_ConnectArea(bsp->sector()))
                 {
                     KillActor(actor);
                     return 0;

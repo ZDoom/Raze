@@ -41,7 +41,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 BEGIN_SW_NS
 
 ANIMATOR InitActorRunToward;
-bool FAF_Sector(int sectnum);
 bool DropAhead(DSWActor* actor, int  min_height);
 
 ANIMATORp ChooseAction(DECISION decision[]);

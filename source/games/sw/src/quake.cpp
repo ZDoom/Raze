@@ -233,11 +233,11 @@ void QuakeViewChange(PLAYERp pp, int *z_diff, int *x_diff, int *y_diff, short *a
     }
 }
 
-void SpawnQuake(short sectnum, int x, int y, int z,
+void SpawnQuake(sectortype* sect, int x, int y, int z,
                short tics, short amt, int radius)
 {
 
-    auto actorNew = InsertActor(sectnum, STAT_QUAKE_ON);
+    auto actorNew = InsertActor(sect, STAT_QUAKE_ON);
     auto sp = &actorNew->s();
 
     sp->x = x;
@@ -259,7 +259,7 @@ void SpawnQuake(short sectnum, int x, int y, int z,
 bool
 SetQuake(PLAYERp pp, short tics, short amt)
 {
-    SpawnQuake(pp->cursectnum, pp->posx, pp->posy, pp->posz,  tics, amt, 30000);
+    SpawnQuake(pp->cursector(), pp->posx, pp->posy, pp->posz,  tics, amt, 30000);
     return false;
 }
 
@@ -268,7 +268,7 @@ SetExpQuake(DSWActor* actor)
 {
     SPRITEp sp = &actor->s();
 
-    SpawnQuake(sp->sectnum, sp->x, sp->y, sp->z,  40, 4, 20000); // !JIM! was 8, 40000
+    SpawnQuake(sp->sector(), sp->x, sp->y, sp->z,  40, 4, 20000); // !JIM! was 8, 40000
     return 0;
 }
 
@@ -277,7 +277,7 @@ SetGunQuake(DSWActor* actor)
 {
     SPRITEp sp = &actor->s();
 
-    SpawnQuake(sp->sectnum, sp->x, sp->y, sp->z,  40, 8, 40000);
+    SpawnQuake(sp->sector(), sp->x, sp->y, sp->z,  40, 8, 40000);
 
     return 0;
 }
@@ -285,7 +285,7 @@ SetGunQuake(DSWActor* actor)
 int
 SetPlayerQuake(PLAYERp pp)
 {
-    SpawnQuake(pp->cursectnum, pp->posx, pp->posy, pp->posz,  40, 8, 40000);
+    SpawnQuake(pp->cursector(), pp->posx, pp->posy, pp->posz,  40, 8, 40000);
 
     return 0;
 }
@@ -295,7 +295,7 @@ SetNuclearQuake(DSWActor* actor)
 {
     SPRITEp sp = &actor->s();
 
-    SpawnQuake(sp->sectnum, sp->x, sp->y, sp->z, 400, 8, 64000);
+    SpawnQuake(sp->sector(), sp->x, sp->y, sp->z, 400, 8, 64000);
     return 0;
 }
 
@@ -303,7 +303,7 @@ int SetSumoQuake(DSWActor* actor)
 {
     SPRITEp sp = &actor->s();
 
-    SpawnQuake(sp->sectnum, sp->x, sp->y, sp->z,  120, 4, 20000);
+    SpawnQuake(sp->sector(), sp->x, sp->y, sp->z,  120, 4, 20000);
     return 0;
 }
 
@@ -311,7 +311,7 @@ int SetSumoFartQuake(DSWActor* actor)
 {
     SPRITEp sp = &actor->s();
 
-    SpawnQuake(sp->sectnum, sp->x, sp->y, sp->z,  60, 4, 4000);
+    SpawnQuake(sp->sector(), sp->x, sp->y, sp->z,  60, 4, 4000);
     return 0;
 }
 

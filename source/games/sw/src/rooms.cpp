@@ -81,25 +81,6 @@ DSWActor* InsertActor(int sectnum, int stat)
     return pActor;
 }
 
-bool FAF_Sector(int sectnum)
-{
-    SPRITEp sp;
-
-    SWSectIterator it(sectnum);
-    while (auto actor = it.Next())
-    {
-        sp = &actor->s();
-
-        if (sp->statnum == STAT_FAF &&
-            (sp->hitag >= VIEW_LEVEL1 && sp->hitag <= VIEW_LEVEL6))
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
 bool FAF_Sector(sectortype* sectnum)
 {
     SPRITEp sp;
