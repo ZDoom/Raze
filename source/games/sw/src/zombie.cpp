@@ -784,7 +784,7 @@ void SpawnZombie(PLAYERp pp, DSWActor* weaponActor)
     auto actorNew = SpawnActor(STAT_ENEMY, ZOMBIE_RUN_R0, s_ZombieRun[0], pp->cursector(), pp->posx, pp->posy, pp->posz, pp->angle.ang.asbuild(), 0);
     np = &actorNew->s();
     nu = actorNew->u();
-    np->sectnum = pp->cursectnum;
+    np->setsector(pp->cursector());
     SetOwner(actorNew, ownerActor);
     np->pal = nu->spal = ownerActor->u()->spal;
     np->ang = RANDOM_P2(2048);

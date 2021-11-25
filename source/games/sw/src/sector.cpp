@@ -2363,7 +2363,7 @@ void PlayerOperateEnv(PLAYERp pp)
                 DoSlidorOperate(pp, pp->cursector());
                 break;
             case TAG_SPRING_BOARD:
-                DoSpringBoard(pp/*, pp->cursectnum*/);
+                DoSpringBoard(pp);
                 pp->KeyPressBits &= ~SB_OPEN;
                 break;
             case TAG_DOOR_ROTATE:
@@ -2386,7 +2386,7 @@ void PlayerOperateEnv(PLAYERp pp)
     // ////////////////////////////
 
     SECTORp sectp = pp->cursector();
-    if (pp->cursectnum >= 0 && sectp->hasU() && sectp->damage)
+    if (pp->insector() && sectp->hasU() && sectp->damage)
     {
         if (TEST(sectp->flags, SECTFU_DAMAGE_ABOVE_SECTOR))
         {
@@ -2413,11 +2413,11 @@ void PlayerOperateEnv(PLAYERp pp)
     OperateContinuousTrigger(pp);
 
     // just changed sectors
-    if (pp->lastcursectnum != pp->cursectnum)
+    if (pp->lastcursector() != pp->cursector())
     {
         OperateTripTrigger(pp);
 
-        if (pp->cursectnum >= 0 && TEST(pp->cursector()->extra, SECTFX_WARP_SECTOR))
+        if (pp->insector() && TEST(pp->cursector()->extra, SECTFX_WARP_SECTOR))
         {
             if (!TEST(pp->Flags2, PF2_TELEPORTED))
             {

@@ -2760,9 +2760,9 @@ int DoLavaErupt(DSWActor* actor)
         TRAVERSE_CONNECT(pnum)
         {
             pp = Player + pnum;
-            if (pp->cursectnum >= 0 && TEST(pp->cursector()->extra, SECTFX_TRIGGER))
+            if (pp->insector() && TEST(pp->cursector()->extra, SECTFX_TRIGGER))
             {
-                SWSectIterator it(pp->cursectnum);
+                SWSectIterator it(pp->cursector());
                 while (auto itActor = it.Next())
                 {
                     tsp = &itActor->s();

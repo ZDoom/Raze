@@ -1635,7 +1635,6 @@ void MovePlayer(PLAYERp pp, SECTOR_OBJECTp sop, int nx, int ny)
 
     // THIS WAS CAUSING PROLEMS!!!!
     // Sectors are still being manipulated so you can end up in a void (-1) sector
-    //updatesector(pp->posx, pp->posy, &pp->cursectnum);
 
     // New angle is formed by taking last known angle and
     // adjusting by the delta angle
