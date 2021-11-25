@@ -1746,7 +1746,7 @@ void UpdatePlayerUnderSprite(PLAYERp pp)
     sp->x = over_sp->x;
     sp->y = over_sp->y;
     sp->z = over_sp->z;
-    ChangeActorSect(pp->PlayerUnderActor, over_sp->sectnum);
+    ChangeActorSect(pp->PlayerUnderActor, over_sp->sector());
 
     SpriteWarpToUnderwater(pp->PlayerUnderActor);
 
@@ -6022,7 +6022,7 @@ void DoPlayerDeathMoveHead(PLAYERp pp)
 
     pp->posx = sp->x;
     pp->posy = sp->y;
-    pp->cursectnum = sp->sectnum;
+    pp->setcursector(sp->sector());
 
     // try to stay in valid area - death sometimes throws you out of the map
     sectnum = pp->cursectnum;
@@ -6996,7 +6996,7 @@ void PlayerSpawnPosition(PLAYERp pp)
     pp->posy = pp->oposy = sp->y;
     pp->posz = pp->oposz = sp->z;
     pp->angle.ang = pp->angle.oang = buildang(sp->ang);
-    pp->cursectnum = sp->sectnum;
+    pp->setcursector(sp->sector());
 
     getzsofslope(pp->cursectnum, pp->posx, pp->posy, &cz, &fz);
     // if too close to the floor - stand up

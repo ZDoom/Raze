@@ -710,7 +710,7 @@ void GetUpperLowerSector(short match, int x, int y, sectortype** upper, sectorty
     }
 }
 
-bool FindCeilingView(int match, int* x, int* y, int z, int* sectnum)
+bool FindCeilingView(int match, int* x, int* y, int z, sectortype** sect)
 {
     int xoff = 0;
     int yoff = 0;
@@ -752,18 +752,18 @@ bool FindCeilingView(int match, int* x, int* y, int z, int* sectnum)
 
                 // get new sector
                 GetUpperLowerSector(match, *x, *y, &upper, &lower);
-                *sectnum = ::sectnum(upper);
+                *sect = upper;
                 break;
             }
         }
     }
 
-    if (*sectnum == -1)
+    if (*sect == nullptr)
         return false;
 
     if (!sp || sp->hitag != VIEW_THRU_FLOOR)
     {
-        *sectnum = -1;
+        *sect = nullptr;
         return false;
     }
 
@@ -805,7 +805,7 @@ bool FindCeilingView(int match, int* x, int* y, int z, int* sectnum)
     return true;
 }
 
-bool FindFloorView(int match, int* x, int* y, int z, int* sectnum)
+bool FindFloorView(int match, int* x, int* y, int z, sectortype** sect)
 {
     int xoff = 0;
     int yoff = 0;
@@ -848,18 +848,18 @@ bool FindFloorView(int match, int* x, int* y, int z, int* sectnum)
 
                 // get new sector
                 GetUpperLowerSector(match, *x, *y, &upper, &lower);
-                *sectnum = ::sectnum(lower);
+                *sect = lower;
                 break;
             }
         }
     }
 
-    if (*sectnum < 0)
+    if (*sect == nullptr)
         return false;
 
     if (!sp || sp->hitag != VIEW_THRU_CEILING)
     {
-        *sectnum = 0;
+        *sect = nullptr;
         return false;
     }
 
@@ -901,7 +901,7 @@ bool FindFloorView(int match, int* x, int* y, int z, int* sectnum)
     return true;
 }
 
-short FindViewSectorInScene(short cursectnum, short level)
+short FindViewSectorInScene(sectortype* cursect, short level)
 {
     SPRITEp sp;
     short match;
@@ -913,7 +913,7 @@ short FindViewSectorInScene(short cursectnum, short level)
 
         if (sp->hitag == level)
         {
-            if (cursectnum == sp->sectnum)
+            if (cursect == sp->sector())
             {
                 // ignore case if sprite is pointing up
                 if (sp->ang == 1536)
@@ -1007,16 +1007,16 @@ void CollectPortals()
                 int tx = actor->s().x;
                 int ty = actor->s().y;
                 int tz = actor->s().z;
-                int tsectnum = sec;
+                auto tsect = &sector[sec];
 
-                int match = FindViewSectorInScene(tsectnum, VIEW_LEVEL1);
+                int match = FindViewSectorInScene(tsect, VIEW_LEVEL1);
                 if (match != -1)
                 {
-                    FindCeilingView(match, &tx, &ty, tz, &tsectnum);
-                    if (tsectnum >= 0 && sector[tsectnum].floorpicnum == FAF_MIRROR_PIC)
+                    FindCeilingView(match, &tx, &ty, tz, &tsect);
+                    if (tsect != nullptr &&tsect->floorpicnum == FAF_MIRROR_PIC)
                     {
                         // got something!
-                        fp.othersector = tsectnum;
+                        fp.othersector = sectnum(tsect);
                         fp.offset = { tx, ty, tz };
                         fp.offset -= actor->s().pos;
                         goto nextfg;
@@ -1037,16 +1037,16 @@ void CollectPortals()
                 int tx = actor->s().x;
                 int ty = actor->s().y;
                 int tz = actor->s().z;
-                int tsectnum = sec;
+                auto tsect = &sector[sec];
 
-                int match = FindViewSectorInScene(tsectnum, VIEW_LEVEL2);
+                int match = FindViewSectorInScene(tsect, VIEW_LEVEL2);
                 if (match != -1)
                 {
-                    FindFloorView(match, &tx, &ty, tz, &tsectnum);
-                    if (tsectnum >= 0 && sector[tsectnum].ceilingpicnum == FAF_MIRROR_PIC)
+                    FindFloorView(match, &tx, &ty, tz, &tsect);
+                    if (tsect != nullptr && tsect->ceilingpicnum == FAF_MIRROR_PIC)
                     {
                         // got something!
-                        fp.othersector = tsectnum;
+                        fp.othersector = sectnum(tsect);
                         fp.offset = { tx, ty, tz };
                         fp.offset -= actor->s().pos;
                         goto nextcg;

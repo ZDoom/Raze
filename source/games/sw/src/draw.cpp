@@ -1338,7 +1338,7 @@ short ScreenSavePic = false;
 
 void DoPlayerDiveMeter(PLAYERp pp);
 
-void polymost_drawscreen(PLAYERp pp, int tx, int ty, int tz, binangle tang, fixedhoriz thoriz, int tsectnum);
+void polymost_drawscreen(PLAYERp pp, int tx, int ty, int tz, binangle tang, fixedhoriz thoriz, sectortype* tsect);
 
 
 void UpdateWallPortalState()
@@ -1578,7 +1578,7 @@ drawscreen(PLAYERp pp, double smoothratio)
     if (!testnewrenderer)
     {
         renderSetRollAngle((float)trotscrnang.asbuildf());
-        polymost_drawscreen(pp, tx, ty, tz, tang, thoriz, tsectnum);
+        polymost_drawscreen(pp, tx, ty, tz, tang, thoriz, pSect);
     }
     else
     {

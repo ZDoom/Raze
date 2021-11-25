@@ -1,7 +1,7 @@
 BEGIN_SW_NS
 
-bool FindCeilingView(int match, int* x, int* y, int z, int* sectnum);
-bool FindFloorView(int match, int* x, int* y, int z, int* sectnum);
+bool FindCeilingView(int match, int* x, int* y, int z, sectortype** sectnum);
+bool FindFloorView(int match, int* x, int* y, int z, sectortype** sectnum);
 
 
 int ViewSectorInScene(int cursectnum, int level)
@@ -36,19 +36,19 @@ int ViewSectorInScene(int cursectnum, int level)
 
 
 
-void DrawOverlapRoom(int tx, int ty, int tz, fixed_t tq16ang, fixed_t tq16horiz, int tsectnum)
+void DrawOverlapRoom(int tx, int ty, int tz, fixed_t tq16ang, fixed_t tq16horiz, sectortype* tsect)
 {
     save.zcount = 0;
 
-    int match = ViewSectorInScene(tsectnum, VIEW_LEVEL1);
+    int match = ViewSectorInScene(sectnum(tsect), VIEW_LEVEL1);
     if (match != -1)
     {
-        FindCeilingView(match, &tx, &ty, tz, &tsectnum);
+        FindCeilingView(match, &tx, &ty, tz, &tsect);
 
-        if (tsectnum < 0)
+        if (tsect == nullptr)
             return;
 
-        renderDrawRoomsQ16(tx, ty, tz, tq16ang, tq16horiz, tsectnum, false);
+        renderDrawRoomsQ16(tx, ty, tz, tq16ang, tq16horiz, sectnum(tsect), false);
 
         // reset Z's
         for (int i = 0; i < save.zcount; i++)
@@ -65,15 +65,15 @@ void DrawOverlapRoom(int tx, int ty, int tz, fixed_t tq16ang, fixed_t tq16horiz,
     }
     else
     {
-        int match = ViewSectorInScene(tsectnum, VIEW_LEVEL2);
+        int match = ViewSectorInScene(sectnum(tsect), VIEW_LEVEL2);
         if (match != -1)
         {
-            FindFloorView(match, &tx, &ty, tz, &tsectnum);
+            FindFloorView(match, &tx, &ty, tz, &tsect);
 
-            if (tsectnum < 0)
+            if (tsect == nullptr)
                 return;
 
-            renderDrawRoomsQ16(tx, ty, tz, tq16ang, tq16horiz, tsectnum, false);
+            renderDrawRoomsQ16(tx, ty, tz, tq16ang, tq16horiz, sectnum(tsect), false);
 
             // reset Z's
             for (int i = 0; i < save.zcount; i++)
@@ -146,12 +146,12 @@ void FAF_DrawRooms(int x, int y, int z, fixed_t q16ang, fixed_t q16horiz, int se
     }
 }
 
-void polymost_drawscreen(PLAYERp pp, int tx, int ty, int tz, binangle tang, fixedhoriz thoriz, int tsectnum)
+void polymost_drawscreen(PLAYERp pp, int tx, int ty, int tz, binangle tang, fixedhoriz thoriz, sectortype* tsect)
 {
     videoSetCorrectedAspect();
     renderSetAspect(xs_CRoundToInt(double(viewingrange) * tan(r_fov * (pi::pi() / 360.))), yxaspect);
     OverlapDraw = true;
-    DrawOverlapRoom(tx, ty, tz, tang.asq16(), thoriz.asq16(), tsectnum);
+    DrawOverlapRoom(tx, ty, tz, tang.asq16(), thoriz.asq16(), tsect);
     OverlapDraw = false;
 
     if (automapMode != am_full)// && !ScreenSavePic)
@@ -164,7 +164,7 @@ void polymost_drawscreen(PLAYERp pp, int tx, int ty, int tz, binangle tang, fixe
     // TODO: This call is redundant if the tiled overhead map is shown, but the
     // HUD elements should be properly outputted with hardware rendering first.
     if (!FAF_DebugView)
-        FAF_DrawRooms(tx, ty, tz, tang.asq16(), thoriz.asq16(), tsectnum);
+        FAF_DrawRooms(tx, ty, tz, tang.asq16(), thoriz.asq16(), sectnum(tsect));
 
     analyzesprites(pm_tsprite, pm_spritesortcnt, tx, ty, tz, tang.asbuild());
     post_analyzesprites(pm_tsprite, pm_spritesortcnt);
