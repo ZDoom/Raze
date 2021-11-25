@@ -1280,14 +1280,12 @@ void nnExtProcessSuperSprites()
 
                         HitScan(pPlayer->actor, pPlayer->zWeapon, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, CLIPMASK0 | CLIPMASK1, 0);
 
-                        //VectorScan(pPlayer->actor, 0, pPlayer->zWeapon, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, 0, 1);
-
                         if (!vector)
                             pSightSpr->cstat &= ~CSTAT_SPRITE_BLOCK_HITSCAN;
 
-                        if (gHitInfo.hitactor == gSightSpritesList[i])
+                        if (gHitInfo.hitActor == gSightSpritesList[i])
                         {
-                            trTriggerSprite(gHitInfo.hitactor, kCmdSpriteSight);
+                            trTriggerSprite(gHitInfo.actor(), kCmdSpriteSight);
                             break;
                         }
                     }
@@ -4493,8 +4491,8 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
                 switch (var)
                 {
                 case 0: case 4: condPush(aCond, gHitInfo.hitWall);    break;
-                case 1: case 2: condPush(aCond, gHitInfo.hitSect);    break;
-                case 3:         condPush(aCond, gHitInfo.hitactor);   break;
+                case 1: case 2: condPush(aCond, gHitInfo.hitSector);    break;
+                case 3:         condPush(aCond, gHitInfo.actor());   break;
                     }
 
                 }
@@ -7498,9 +7496,9 @@ bool nnExtCanMove(DBloodActor* actor, DBloodActor* target, int nAngle, int nRang
     int x = pSprite->x, y = pSprite->y, z = pSprite->z;
     auto pSector = pSprite->sector();
     HitScan(actor, z, Cos(nAngle) >> 16, Sin(nAngle) >> 16, 0, CLIPMASK0, nRange);
-    int nDist = approxDist(x - gHitInfo.hitx, y - gHitInfo.hity);
+    int nDist = approxDist(x - gHitInfo.hitpos.x, y - gHitInfo.hitpos.y);
     if (target != nullptr && nDist - (pSprite->clipdist << 2) < nRange)
-        return (target == gHitInfo.hitactor);
+        return (target == gHitInfo.hitActor);
 
     x += MulScale(nRange, Cos(nAngle), 30);
     y += MulScale(nRange, Sin(nAngle), 30);

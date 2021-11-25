@@ -3835,7 +3835,7 @@ int actDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE damageT
 //
 //---------------------------------------------------------------------------
 
-void actHitcodeToData(int a1, HITINFO* pHitInfo, DBloodActor** pActor, walltype** ppWall)
+void actHitcodeToData(int a1, HitInfo* pHitInfo, DBloodActor** pActor, walltype** ppWall)
 {
 	assert(pHitInfo != nullptr);
 	DBloodActor* actor = nullptr;
@@ -3844,7 +3844,7 @@ void actHitcodeToData(int a1, HITINFO* pHitInfo, DBloodActor** pActor, walltype*
 	{
 	case 3:
 	case 5:
-		actor = pHitInfo->hitactor;
+		actor = pHitInfo->actor();
 		break;
 	case 0:
 	case 4:
@@ -4870,8 +4870,8 @@ void MoveDude(DBloodActor* actor)
 
 			if (pHitSprite->statnum == kStatProjectile && !(pHitSprite->flags & 32) && actor != Owner)
 			{
-				HITINFO hitInfo = gHitInfo;
-				gHitInfo.hitactor = actor;
+				auto hitInfo = gHitInfo;
+				gHitInfo.hitActor = actor;
 				actImpactMissile(coll.actor, 3);
 				gHitInfo = hitInfo;
 			}
@@ -5358,7 +5358,7 @@ int MoveMissile(DBloodActor* actor)
 		}
 		if (clipmoveresult.type == kHitSprite)
 		{
-			gHitInfo.hitactor = clipmoveresult.actor;
+			gHitInfo.hitActor = clipmoveresult.actor;
 			cliptype = 3;
 		}
 		else if (clipmoveresult.type == kHitWall)
@@ -5430,10 +5430,10 @@ int MoveMissile(DBloodActor* actor)
 			ChangeActorSect(actor, pSector);
 		}
 		CheckLink(actor);
-		gHitInfo.hitSect = pSprite->sector();
-		gHitInfo.hitx = pSprite->x;
-		gHitInfo.hity = pSprite->y;
-		gHitInfo.hitz = pSprite->z;
+		gHitInfo.hitSector = pSprite->sector();
+		gHitInfo.hitpos.x = pSprite->x;
+		gHitInfo.hitpos.y = pSprite->y;
+		gHitInfo.hitpos.z = pSprite->z;
 		break;
 	}
 	if (pOwner) pOwner->cstat = bakCstat;
@@ -6548,8 +6548,8 @@ DBloodActor* actFireThing(DBloodActor* actor, int a2, int a3, int a4, int thingT
 	y += MulScale(pSprite->clipdist, Sin(pSprite->ang), 28);
 	if (HitScan(actor, z, x - pSprite->x, y - pSprite->y, 0, CLIPMASK0, pSprite->clipdist) != -1)
 	{
-		x = gHitInfo.hitx - MulScale(pSprite->clipdist << 1, Cos(pSprite->ang), 28);
-		y = gHitInfo.hity - MulScale(pSprite->clipdist << 1, Sin(pSprite->ang), 28);
+		x = gHitInfo.hitpos.x - MulScale(pSprite->clipdist << 1, Cos(pSprite->ang), 28);
+		y = gHitInfo.hitpos.y - MulScale(pSprite->clipdist << 1, Sin(pSprite->ang), 28);
 	}
 	auto fired = actSpawnThing(pSprite->sector(), x, y, z, thingType);
 	spritetype* pThing = &fired->s();
@@ -6668,13 +6668,13 @@ DBloodActor* actFireMissile(DBloodActor* actor, int a2, int a3, int a4, int a5, 
 		if (hit == 3 || hit == 0)
 		{
 			impact = true;
-			x = gHitInfo.hitx - MulScale(Cos(pSprite->ang), 16, 30);
-			y = gHitInfo.hity - MulScale(Sin(pSprite->ang), 16, 30);
+			x = gHitInfo.hitpos.x - MulScale(Cos(pSprite->ang), 16, 30);
+			y = gHitInfo.hitpos.y - MulScale(Sin(pSprite->ang), 16, 30);
 		}
 		else
 		{
-			x = gHitInfo.hitx - MulScale(pMissileInfo->clipDist << 1, Cos(pSprite->ang), 28);
-			y = gHitInfo.hity - MulScale(pMissileInfo->clipDist << 1, Sin(pSprite->ang), 28);
+			x = gHitInfo.hitpos.x - MulScale(pMissileInfo->clipDist << 1, Cos(pSprite->ang), 28);
+			y = gHitInfo.hitpos.y - MulScale(pMissileInfo->clipDist << 1, Sin(pSprite->ang), 28);
 		}
 	}
 	auto spawned = actSpawnSprite(pSprite->sector(), x, y, z, 5, 1);
@@ -6841,7 +6841,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
     int hit = VectorScan(shooter, a2, a3, a4, a5, a6, nRange, 1);
 	if (hit == 3)
 	{
-		auto hitactor = gHitInfo.hitactor;
+		auto hitactor = gHitInfo.actor();
 		assert(hitactor != nullptr);
 		spritetype* pSprite = &hitactor->s();
 		if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pShooter, pSprite)) return;
@@ -6850,19 +6850,19 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 			PLAYER* pPlayer = &gPlayer[pSprite->type - kDudePlayer1];
 			if (powerupCheck(pPlayer, kPwUpReflectShots))
 			{
-				gHitInfo.hitactor = shooter;
-				gHitInfo.hitx = pShooter->x;
-				gHitInfo.hity = pShooter->y;
-				gHitInfo.hitz = pShooter->z;
+				gHitInfo.hitActor = shooter;
+				gHitInfo.hitpos.x = pShooter->x;
+				gHitInfo.hitpos.y = pShooter->y;
+				gHitInfo.hitpos.z = pShooter->z;
 			}
 		}
 	}
-	int x = gHitInfo.hitx - MulScale(a4, 16, 14);
-	int y = gHitInfo.hity - MulScale(a5, 16, 14);
-	int z = gHitInfo.hitz - MulScale(a6, 256, 14);
-	auto pSector = gHitInfo.hitSect;
+	int x = gHitInfo.hitpos.x - MulScale(a4, 16, 14);
+	int y = gHitInfo.hitpos.y - MulScale(a5, 16, 14);
+	int z = gHitInfo.hitpos.z - MulScale(a6, 256, 14);
+	auto pSector = gHitInfo.hitSector;
 	uint8_t nSurf = kSurfNone;
-	if (nRange == 0 || approxDist(gHitInfo.hitx - pShooter->x, gHitInfo.hity - pShooter->y) < nRange)
+	if (nRange == 0 || approxDist(gHitInfo.hitpos.x - pShooter->x, gHitInfo.hitpos.y - pShooter->y) < nRange)
 	{
 		switch (hit)
 		{
@@ -6888,9 +6888,9 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 			nSurf = surfType[pWall->picnum];
 			if (actCanSplatWall(pWall))
 			{
-				int x = gHitInfo.hitx - MulScale(a4, 16, 14);
-				int y = gHitInfo.hity - MulScale(a5, 16, 14);
-				int z = gHitInfo.hitz - MulScale(a6, 256, 14);
+				int x = gHitInfo.hitpos.x - MulScale(a4, 16, 14);
+				int y = gHitInfo.hitpos.y - MulScale(a5, 16, 14);
+				int z = gHitInfo.hitpos.z - MulScale(a6, 256, 14);
 				int nSurf = surfType[pWall->picnum];
 				assert(nSurf < kSurfMax);
 				if (pVectorData->surfHit[nSurf].fx1 >= 0)
@@ -6918,7 +6918,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 		}
 		case 3:
 		{
-			auto actor = gHitInfo.hitactor;
+			auto actor = gHitInfo.actor();
 			spritetype* pSprite = &actor->s();
 			nSurf = surfType[pSprite->picnum];
 			x -= MulScale(a4, 112, 14);
@@ -6981,17 +6981,17 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 					a4 += Random3(4000);
 					a5 += Random3(4000);
 					a6 += Random3(4000);
-					if (HitScan(actor, gHitInfo.hitz, a4, a5, a6, CLIPMASK1, t) == 0)
+					if (HitScan(actor, gHitInfo.hitpos.z, a4, a5, a6, CLIPMASK1, t) == 0)
 					{
-						if (approxDist(gHitInfo.hitx - pSprite->x, gHitInfo.hity - pSprite->y) <= t)
+						if (approxDist(gHitInfo.hitpos.x - pSprite->x, gHitInfo.hitpos.y - pSprite->y) <= t)
 						{
 							auto pWall = gHitInfo.hitWall;
-							auto pSector = gHitInfo.hitSect;
+							auto pSector = gHitInfo.hitSector;
 							if (actCanSplatWall(pWall))
 							{
-								int x = gHitInfo.hitx - MulScale(a4, 16, 14);
-								int y = gHitInfo.hity - MulScale(a5, 16, 14);
-								int z = gHitInfo.hitz - MulScale(a6, 16 << 4, 14);
+								int x = gHitInfo.hitpos.x - MulScale(a4, 16, 14);
+								int y = gHitInfo.hitpos.y - MulScale(a5, 16, 14);
+								int z = gHitInfo.hitpos.z - MulScale(a6, 16 << 4, 14);
 								int nSurf = surfType[pWall->picnum];
 								const VECTORDATA* pVectorData = &gVectorData[19];
 								FX_ID t2 = pVectorData->surfHit[nSurf].fx2;
@@ -7326,18 +7326,6 @@ void SerializeActor(FSerializer& arc)
 					dudeInfo[i].damageVal[j] = MulScale(DudeDifficulty[gGameOptions.nDifficulty], dudeInfo[i].startDamage[j], 8);
 		}
 	}
-}
-
-// dumping ground for temporary wrappers.
-
-void HITINFO::set(hitdata_t* hit)
-{
-	hitSect = validSectorIndex(hit->sect)? &sector[hit->sect] : nullptr;
-	hitWall = validWallIndex(hit->wall)? &wall[hit->wall] : nullptr;
-	hitactor = hit->sprite >= 0 ? &bloodActors[hit->sprite] : nullptr;
-	hitx = hit->pos.x;
-	hity = hit->pos.y;
-	hitz = hit->pos.z;
 }
 
 END_BLD_NS

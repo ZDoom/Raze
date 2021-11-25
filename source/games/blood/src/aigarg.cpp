@@ -404,7 +404,7 @@ static void gargThinkChase(DBloodActor* actor)
 						case 4:
 							break;
 						case 3:
-							if (pSprite->type != gHitInfo.hitactor->s().type && gHitInfo.hitactor->s().type != kDudeGargoyleStone)
+							if (pSprite->type != gHitInfo.actor()->s().type && gHitInfo.actor()->s().type != kDudeGargoyleStone)
 							{
 								sfxPlay3DSound(actor, 1408, 0, 0);
 								aiNewState(actor, &gargoyleFThrow);
@@ -429,7 +429,7 @@ static void gargThinkChase(DBloodActor* actor)
 						case 4:
 							break;
 						case 3:
-							if (pSprite->type != gHitInfo.hitactor->s().type && gHitInfo.hitactor->s().type != kDudeGargoyleStone)
+							if (pSprite->type != gHitInfo.actor()->s().type && gHitInfo.actor()->s().type != kDudeGargoyleStone)
 							{
 								sfxPlay3DSound(actor, 1406, 0, 0);
 								aiNewState(actor, &gargoyleFSlash);
@@ -463,7 +463,7 @@ static void gargThinkChase(DBloodActor* actor)
 						case 4:
 							break;
 						case 3:
-							if (pSprite->type != gHitInfo.hitactor->s().type && gHitInfo.hitactor->s().type != kDudeGargoyleFlesh)
+							if (pSprite->type != gHitInfo.actor()->s().type && gHitInfo.actor()->s().type != kDudeGargoyleFlesh)
 							{
 								sfxPlay3DSound(actor, 1457, 0, 0);
 								aiNewState(actor, &gargoyleSBlast);
@@ -487,7 +487,7 @@ static void gargThinkChase(DBloodActor* actor)
 						case 4:
 							break;
 						case 3:
-							if (pSprite->type != gHitInfo.hitactor->s().type && gHitInfo.hitactor->s().type != kDudeGargoyleFlesh)
+							if (pSprite->type != gHitInfo.actor()->s().type && gHitInfo.actor()->s().type != kDudeGargoyleFlesh)
 								aiNewState(actor, &gargoyleFSlash);
 							break;
 						default:

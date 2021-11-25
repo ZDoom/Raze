@@ -1236,7 +1236,7 @@ void CheckPickUp(PLAYER *pPlayer)
     }
 }
 
-int ActionScan(PLAYER *pPlayer, HITINFO* out)
+int ActionScan(PLAYER *pPlayer, HitInfo* out)
 {
     *out = {};
     spritetype *pSprite = pPlayer->pSprite;
@@ -1244,22 +1244,22 @@ int ActionScan(PLAYER *pPlayer, HITINFO* out)
     int y = bsin(pSprite->ang);
     int z = pPlayer->slope;
     int hit = HitScan(pPlayer->actor, pPlayer->zView, x, y, z, 0x10000040, 128);
-    int hitDist = approxDist(pSprite->x-gHitInfo.hitx, pSprite->y-gHitInfo.hity)>>4;
+    int hitDist = approxDist(pSprite->x-gHitInfo.hitpos.x, pSprite->y-gHitInfo.hitpos.y)>>4;
     if (hitDist < 64)
     {
         switch (hit)
         {
         case 3:
             {
-            if (!gHitInfo.hitactor || !gHitInfo.hitactor->hasX()) return -1;
-            out->hitactor = gHitInfo.hitactor;
-            spritetype* pSprite = &gHitInfo.hitactor->s();
-            XSPRITE* pXSprite = &gHitInfo.hitactor->x();
+            if (!gHitInfo.hitActor || !gHitInfo.actor()->hasX()) return -1;
+            out->hitActor = gHitInfo.actor();
+            spritetype* pSprite = &gHitInfo.actor()->s();
+            XSPRITE* pXSprite = &gHitInfo.actor()->x();
             if (pSprite->statnum == kStatThing)
             {
                 if (pSprite->type == kThingDroppedLifeLeech)
                 {
-                    if (gGameOptions.nGameType > 1 && findDroppedLeech(pPlayer, gHitInfo.hitactor))
+                    if (gGameOptions.nGameType > 1 && findDroppedLeech(pPlayer, gHitInfo.actor()))
                         return -1;
                     pXSprite->data4 = pPlayer->nPlayer;
                     pXSprite->isTriggered = 0;
@@ -1273,12 +1273,12 @@ int ActionScan(PLAYER *pPlayer, HITINFO* out)
                 if (nMass)
                 {
                     int t2 = DivScale(0xccccc, nMass, 8);
-                    gHitInfo.hitactor->xvel += MulScale(x, t2, 16);
-                    gHitInfo.hitactor->yvel += MulScale(y, t2, 16);
-                    gHitInfo.hitactor->zvel += MulScale(z, t2, 16);
+                    gHitInfo.actor()->xvel += MulScale(x, t2, 16);
+                    gHitInfo.actor()->yvel += MulScale(y, t2, 16);
+                    gHitInfo.actor()->zvel += MulScale(z, t2, 16);
                 }
                 if (pXSprite->Push && !pXSprite->state && !pXSprite->isTriggered)
-                    trTriggerSprite(gHitInfo.hitactor, kCmdSpritePush);
+                    trTriggerSprite(gHitInfo.actor(), kCmdSpritePush);
             }
             break;
         }
@@ -1293,7 +1293,7 @@ int ActionScan(PLAYER *pPlayer, HITINFO* out)
             {
                 auto sect = pWall->nextSector();
                 out->hitWall = nullptr;
-                out->hitSect = sect;
+                out->hitSector = sect;
                 if (sect->hasX() && sect->xs().Wallpush)
                     return 6;
             }
@@ -1302,15 +1302,15 @@ int ActionScan(PLAYER *pPlayer, HITINFO* out)
         case 1:
         case 2:
         {
-            auto pSector = gHitInfo.hitSect;
-            out->hitSect = gHitInfo.hitSect;
+            auto pSector = gHitInfo.hitSector;
+            out->hitSector = gHitInfo.hitSector;
             if (pSector->hasX() && pSector->xs().Push)
                 return 6;
             break;
         }
         }
     }
-    out->hitSect = pSprite->sector();
+    out->hitSector = pSprite->sector();
     if (pSprite->sector()->hasX() && pSprite->sector()->xs().Push)
         return 6;
     return -1;
@@ -1501,14 +1501,14 @@ void ProcessInput(PLAYER *pPlayer)
     }
     if (pInput->actions & SB_OPEN)
     {
-        HITINFO result;
+        HitInfo result;
 
         int hit = ActionScan(pPlayer, &result);
         switch (hit)
         {
         case 6:
         {
-            auto pSector = result.hitSect;
+            auto pSector = result.hitSector;
             auto pXSector = &pSector->xs();
             int key = pXSector->Key;
             if (pXSector->locked && pPlayer == gMe)
@@ -1558,7 +1558,7 @@ void ProcessInput(PLAYER *pPlayer)
         }
         case 3:
         {
-            auto act = result.hitactor;
+            auto act = result.actor();
             XSPRITE *pXSprite = &act->x();
             int key = pXSprite->key;
             if (pXSprite->locked && pPlayer == gMe && pXSprite->lockMsg)

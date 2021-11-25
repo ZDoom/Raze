@@ -252,6 +252,9 @@ struct HitInfo : public HitInfoBase
 	}
 };
 
+extern HitInfo gHitInfo;
+
+
 // Iterator wrappers that return an actor pointer, not an index.
 class BloodStatIterator : public StatIterator
 {

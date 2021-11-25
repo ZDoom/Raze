@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include "build.h"
 #include "iterators.h"
+#include "serializer.h"
 
 class DCoreActor
 {
@@ -64,6 +65,14 @@ enum EHitBits
 
 
 };
+
+inline FSerializer& Serialize(FSerializer& arc, const char* keyname, DCoreActor*& w, DCoreActor** def)
+{
+	int index = w ? w->GetSpriteIndex() : -1;
+	Serialize(arc, keyname, index, nullptr);
+	if (arc.isReading()) w = index == -1 ? nullptr : actorArray[index];
+	return arc;
+}
 
 // This serves as input/output for all functions dealing with collisions, hits, etc.
 // Not all utilities use all variables.
@@ -138,6 +147,13 @@ struct HitInfoBase
 		else if (type == kHitSprite) setSprite(value & kHitIndexMask);
 		else setNone();
 		return type;
+	}
+
+	void clearObj()
+	{
+		hitSector = nullptr;
+		hitWall = nullptr;
+		hitActor = nullptr;
 	}
 };
 
@@ -261,6 +277,7 @@ inline int hitscan(int x, int y, int z, int sectnum, int vx, int vy, int vz,
 inline int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& direction, HitInfoBase& hitinfo, unsigned cliptype)
 {
 	hitdata_t hd{};
+	hd.pos.z = hitinfo.hitpos.z;	// this can pass through unaltered.
 	int res = hitscan_(&start, sector.IndexOf(startsect), direction.x, direction.y, direction.z, &hd, cliptype);
 	hitinfo.hitpos = hd.pos;
 	hitinfo.hitSector = hd.sect == -1? nullptr : &sector[hd.sect];

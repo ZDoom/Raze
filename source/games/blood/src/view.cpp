@@ -119,9 +119,9 @@ void viewDrawAimedPlayerName(void)
     int hit = HitScan(gView->actor, gView->zView, gView->aim.dx, gView->aim.dy, gView->aim.dz, CLIPMASK0, 512);
     if (hit == 3)
     {
-        if (gHitInfo.hitactor && gHitInfo.hitactor->IsPlayerActor())
+        if (gHitInfo.actor() && gHitInfo.actor()->IsPlayerActor())
         {
-            spritetype* pSprite = &gHitInfo.hitactor->s();
+            spritetype* pSprite = &gHitInfo.actor()->s();
             int nPlayer = pSprite->type-kDudePlayer1;
             const char* szName = PlayerName(nPlayer);
             int nPalette = (gPlayer[nPlayer].teamId&3)+11;

@@ -146,8 +146,8 @@ static bool genDudeAdjustSlope(DBloodActor* actor, int dist, int weaponType, int
         for (int i = -8191; i < 8192; i += by) 
         {
             HitScan(actor, pSprite->z, bcos(pSprite->ang), bsin(pSprite->ang), i, clipMask, dist);
-            if (!fStart && actor->GetTarget() == gHitInfo.hitactor) fStart = i;
-            else if (fStart && actor->GetTarget() != gHitInfo.hitactor) 
+            if (!fStart && actor->GetTarget() == gHitInfo.hitActor) fStart = i;
+            else if (fStart && actor->GetTarget() != gHitInfo.hitActor) 
             { 
                 fEnd = i; 
                 break; 
@@ -776,10 +776,10 @@ static void unicultThinkChase(DBloodActor* actor)
                     if (hit >= 0) 
                     {
                         targetDist = dist - (pTarget->clipdist << 2);
-                        objDist = approxDist(gHitInfo.hitx - pSprite->x, gHitInfo.hity - pSprite->y);
+                        objDist = approxDist(gHitInfo.hitpos.x - pSprite->x, gHitInfo.hitpos.y - pSprite->y);
                     }
 
-                    if (actor != gHitInfo.hitactor && targetDist > objDist) 
+                    if (actor != gHitInfo.hitActor && targetDist > objDist) 
                     {
                         DBloodActor* hitactor = nullptr;
                         walltype* pHWall = NULL; 
@@ -793,7 +793,7 @@ static void unicultThinkChase(DBloodActor* actor)
                         switch (hit) 
                         {
                         case 3:
-                            hitactor = gHitInfo.hitactor;
+                            hitactor = gHitInfo.actor();
                             if (hitactor)
                             {
                                 pHSprite = &hitactor->s();
@@ -889,12 +889,12 @@ static void unicultThinkChase(DBloodActor* actor)
                             {
                                 if (genDudeAdjustSlope(actor, dist, weaponType)) break;
                                 VectorScan(actor, 0, 0, bcos(pSprite->ang), bsin(pSprite->ang), actor->dudeSlope, dist, 1);
-                                if (actor == gHitInfo.hitactor) break;
+                                if (actor == gHitInfo.hitActor) break;
                                 
                                 bool immune = nnExtIsImmune(hitactor, gVectorData[curWeapon].dmgType);
                                 if (!(pXHSprite != NULL && (!immune || (immune && pHSprite->statnum == kStatThing && pXHSprite->Vector)) && !pXHSprite->locked)) 
                                 {
-                                    if ((approxDist(gHitInfo.hitx - pSprite->x, gHitInfo.hity - pSprite->y) <= 1500 && !blck)
+                                    if ((approxDist(gHitInfo.hitpos.x - pSprite->x, gHitInfo.hitpos.y - pSprite->y) <= 1500 && !blck)
                                         || (dist <= (int)(pExtra->fireDist / ClipLow(Random(4), 1)))) 
                                     {
                                         //viewSetSystemMessage("GO CHASE");
@@ -950,7 +950,7 @@ static void unicultThinkChase(DBloodActor* actor)
                                 bool masked = (pHWall->cstat & CSTAT_WALL_MASKED);
                                 if (masked) VectorScan(actor, 0, 0, bcos(pSprite->ang), bsin(pSprite->ang), actor->dudeSlope, dist, 1);
 
-                                if ((actor != gHitInfo.hitactor) && (pHWall->type != kWallGib || !masked || pXHWall == NULL || !pXHWall->triggerVector || pXHWall->locked)) 
+                                if ((actor != gHitInfo.hitActor) && (pHWall->type != kWallGib || !masked || pXHWall == NULL || !pXHWall->triggerVector || pXHWall->locked)) 
                                 {
                                     if (spriteIsUnderwater(actor)) aiGenDudeNewState(actor, &genDudeChaseW);
                                     else aiGenDudeNewState(actor, &genDudeChaseL);
@@ -969,8 +969,8 @@ static void unicultThinkChase(DBloodActor* actor)
                                 case kMissileFireballTchernobog: 
                                 {
                                     // allow attack if dude is far from object, but target is close to it
-                                    int dudeDist = approxDist(gHitInfo.hitx - pSprite->x, gHitInfo.hity - pSprite->y);
-                                    int targetDist = approxDist(gHitInfo.hitx - pTarget->x, gHitInfo.hity - pTarget->y);
+                                    int dudeDist = approxDist(gHitInfo.hitpos.x - pSprite->x, gHitInfo.hitpos.y - pSprite->y);
+                                    int targetDist = approxDist(gHitInfo.hitpos.x - pTarget->x, gHitInfo.hitpos.y - pTarget->y);
                                     if (dudeDist < mdist) 
                                     {
                                         //viewSetSystemMessage("DUDE CLOSE TO OBJ: %d, MDIST: %d", dudeDist, mdist);

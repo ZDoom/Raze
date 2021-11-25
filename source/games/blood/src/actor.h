@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 class DBloodActor;
+struct HitInfo;
 
 enum DAMAGE_TYPE {
     kDamageFall = 0,
@@ -219,7 +220,7 @@ DBloodActor *actDropObject(DBloodActor *pSprite, int nType);
 bool actHealDude(DBloodActor* pXDude, int a2, int a3);
 void actKillDude(DBloodActor* a1, DBloodActor* pSprite, DAMAGE_TYPE a3, int a4);
 int actDamageSprite(DBloodActor* pSource, DBloodActor* pTarget, DAMAGE_TYPE damageType, int damage);
-void actHitcodeToData(int a1, HITINFO *pHitInfo, DBloodActor **actor, walltype **a7 = nullptr);
+void actHitcodeToData(int a1, HitInfo *pHitInfo, DBloodActor **actor, walltype **a7 = nullptr);
 void actAirDrag(DBloodActor *pSprite, int a2);
 void actExplodeSprite(DBloodActor *pSprite);
 void actActivateGibObject(DBloodActor *actor);

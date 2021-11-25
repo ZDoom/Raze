@@ -642,16 +642,16 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, XSPRITE& w, XSPRIT
 	return arc;
 }
 
-FSerializer& Serialize(FSerializer& arc, const char* keyname, HITINFO& w, HITINFO* def)
+FSerializer& Serialize(FSerializer& arc, const char* keyname, HitInfo& w, HitInfo* def)
 {
 	if (arc.BeginObject(keyname))
 	{
-		arc("sect", w.hitSect)
-			("sprite", w.hitactor)
+		arc("sect", w.hitSector)
+			("sprite", w.hitActor)
 			("wall", w.hitWall)
-			("x", w.hitx)
-			("y", w.hity)
-			("z", w.hitz)
+			("x", w.hitpos.x)
+			("y", w.hitpos.y)
+			("z", w.hitpos.z)
 			.EndObject();
 	}
 	return arc;

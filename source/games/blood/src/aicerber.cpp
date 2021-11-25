@@ -424,7 +424,7 @@ static void cerberusThinkChase(DBloodActor* actor)
 							aiNewState(actor, &cerberusBite);
 							break;
 						case 3:
-							if (pSprite->type != gHitInfo.hitactor->s().type && gHitInfo.hitactor->s().type != kDudeHellHound)
+							if (pSprite->type != gHitInfo.actor()->s().type && gHitInfo.actor()->s().type != kDudeHellHound)
 								aiNewState(actor, &cerberusBite);
 							break;
 						case 0:
@@ -441,7 +441,7 @@ static void cerberusThinkChase(DBloodActor* actor)
 							aiNewState(actor, &cerberus2Bite);
 							break;
 						case 3:
-							if (pSprite->type != gHitInfo.hitactor->s().type && gHitInfo.hitactor->s().type != kDudeHellHound)
+							if (pSprite->type != gHitInfo.actor()->s().type && gHitInfo.actor()->s().type != kDudeHellHound)
 								aiNewState(actor, &cerberus2Bite);
 							break;
 						case 0:

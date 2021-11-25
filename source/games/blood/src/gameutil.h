@@ -26,25 +26,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-struct HITINFO {
-    DBloodActor* hitactor;
-    sectortype* hitSect;
-    walltype* hitWall;
-    int hitx;
-    int hity;
-    int hitz;
-
-    void clearObj()
-    {
-        hitSect = nullptr;
-        hitWall = nullptr;
-        hitactor = nullptr;
-    }
-    void set(hitdata_t* hit);
-};
-
-extern HITINFO gHitInfo;
-
 enum {
     PARALLAXCLIP_CEILING = 1,
     PARALLAXCLIP_FLOOR = 2,

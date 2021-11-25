@@ -35,7 +35,7 @@ int cameradist, cameraclock;
 
 bool calcChaseCamPos(int* px, int* py, int* pz, spritetype* pspr, sectortype** psect, binangle ang, fixedhoriz horiz, double const smoothratio)
 {
-	hitdata_t hitinfo;
+	HitInfoBase hitinfo;
 	binangle daang;
 	short bakcstat;
 	int newdist;
@@ -46,15 +46,14 @@ bool calcChaseCamPos(int* px, int* py, int* pz, spritetype* pspr, sectortype** p
 	int ny = gi->chaseCamY(ang);
 	int nz = gi->chaseCamZ(horiz);
 
-	vec3_t pvect = { *px, *py, *pz };
 	bakcstat = pspr->cstat;
 	pspr->cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 	updatesectorz(*px, *py, *pz, psect);
-	hitscan(&pvect, sectnum(*psect), nx, ny, nz, &hitinfo, CLIPMASK1);
+	hitscan({ *px, *py, *pz }, *psect, { nx, ny, nz }, hitinfo, CLIPMASK1);
 	pspr->cstat = bakcstat;
 
-	int hx = hitinfo.pos.x - *px;
-	int hy = hitinfo.pos.y - *py;
+	int hx = hitinfo.hitpos.x - *px;
+	int hy = hitinfo.hitpos.y - *py;
 
 	if (*psect == nullptr)
 	{
@@ -64,12 +63,12 @@ bool calcChaseCamPos(int* px, int* py, int* pz, spritetype* pspr, sectortype** p
 	// If something is in the way, make pp->camera_dist lower if necessary
 	if (abs(nx) + abs(ny) > abs(hx) + abs(hy))
 	{
-		if (hitinfo.wall >= 0)
+		if (hitinfo.hitWall != nullptr)
 		{
 			// Push you a little bit off the wall
-			*psect = &sector[hitinfo.sect];
-			daang = bvectangbam(wall[wall[hitinfo.wall].point2].x - wall[hitinfo.wall].x,
-								wall[wall[hitinfo.wall].point2].y - wall[hitinfo.wall].y);
+			*psect = hitinfo.hitSector;
+			daang = bvectangbam(hitinfo.hitWall->point2Wall()->x - hitinfo.hitWall->x,
+								hitinfo.hitWall->point2Wall()->y - hitinfo.hitWall->y);
 			newdist = nx * daang.bsin() + ny * -daang.bcos();
 
 			if (abs(nx) > abs(ny))
@@ -77,10 +76,10 @@ bool calcChaseCamPos(int* px, int* py, int* pz, spritetype* pspr, sectortype** p
 			else
 				hy -= MulScale(ny, newdist, 28);
 		}
-		else if (hitinfo.sprite < 0)		
+		else if (hitinfo.hitActor == nullptr)		
 		{
 			// Push you off the ceiling/floor
-			*psect = &sector[hitinfo.sect];
+			*psect = hitinfo.hitSector;
 
 			if (abs(nx) > abs(ny))
 				hx -= (nx >> 5);
@@ -90,7 +89,7 @@ bool calcChaseCamPos(int* px, int* py, int* pz, spritetype* pspr, sectortype** p
 		else
 		{
 			// If you hit a sprite that's not a wall sprite - try again.
-			spritetype* hspr = &sprite[hitinfo.sprite];
+			spritetype* hspr = &hitinfo.hitActor->s();
 
 			if (!(hspr->cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
 			{

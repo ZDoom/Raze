@@ -74,7 +74,7 @@ void SpidBiteSeqCallback(int, DBloodActor* actor)
 	if (IsPlayerSprite(pTarget))
 	{
         int hit = HitScan(actor, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
-		if (hit == 3 && gHitInfo.hitactor->IsPlayerActor())
+		if (hit == 3 && gHitInfo.actor()->IsPlayerActor())
 		{
 			dz += pTarget->z - pSprite->z;
 			PLAYER* pPlayer = &gPlayer[pTarget->type - kDudePlayer1];
