@@ -22,23 +22,6 @@ DSWActor* WarpPlane(int32_t* x, int32_t* y, int32_t* z, int* sectnum);
 bool WarpSectorInfo(sectortype* sect, DSWActor** sp_warp);
 DSWActor* Warp(int32_t* x, int32_t* y, int32_t* z, int* sectnum);
 
-[[deprecated]]
-DSWActor* Warp(int32_t* x, int32_t* y, int32_t* z, int16_t* sectnum)
-{
-	int sect16 = *sectnum;
-	auto p= Warp(x, y, z, &sect16);
-	*sectnum = sect16;
-	return p;
-}
-
-[[deprecated]]
-DSWActor* WarpPlane(int32_t* x, int32_t* y, int32_t* z, int16_t* sectnum)
-{
-	int sect16 = *sectnum;
-	auto p= WarpPlane(x, y, z, &sect16);
-	*sectnum = sect16;
-	return p;
-}
 
 
 void ProcessVisOn(void);
