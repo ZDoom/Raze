@@ -268,24 +268,22 @@ DoShadows(spritetype* tsprite, int& spritesortcnt, tspriteptr_t tsp, int viewz, 
     int loz;
     int xrepeat;
     int yrepeat;
-    int sectnum;
 
-    sectnum = tsp->sectnum;
+    auto sect = tsp->sector();
     // make sure its the correct sector
     // DoShadowFindGroundPoint calls FAFgetzrangepoint and this is sensitive
-    //updatesectorz(tsp->x, tsp->y, tsp->z, &sectnum);
-    updatesector(tsp->x, tsp->y, &sectnum);
+    updatesector(tsp->x, tsp->y, &sect);
 
-    if (sectnum < 0)
+    if (sect == nullptr)
     {
         return;
     }
 
-    tsp->sectnum = sectnum;
+    tsp->setsector(sect);
     *tSpr = *tsp;
     // shadow is ALWAYS draw last - status is priority
     tSpr->statnum = MAXSTATUS;
-    tSpr->sectnum = sectnum;
+    tSpr->setsector(sect);
 
     if ((tsp->yrepeat >> 2) > 4)
     {
@@ -452,7 +450,6 @@ void WarpCopySprite(spritetype* tsprite, int& spritesortcnt)
     int spnum;
     int xoff,yoff,zoff;
     int match;
-    int sect1, sect2;
 
     // look for the first one
     SWStatIterator it(STAT_WARP_COPY_SPRITE1);
@@ -470,8 +467,8 @@ void WarpCopySprite(spritetype* tsprite, int& spritesortcnt)
             if (sp->lotag == match)
             {
                 sp2 = sp;
-                sect1 = sp1->sectnum;
-                sect2 = sp2->sectnum;
+                auto sect1 = sp1->sector();
+                auto sect2 = sp2->sector();
 
                 SWSectIterator it2(sect1);
                 while (auto itActor2 = it.Next())
@@ -496,8 +493,8 @@ void WarpCopySprite(spritetype* tsprite, int& spritesortcnt)
                     newTSpr->setsector(sp2->sector());
                 }
 
-                it.Reset(sect2);
-                while (auto itActor2 = it.Next())
+                it2.Reset(sect2);
+                while (auto itActor2 = it2.Next())
                 {
                     auto spit = &itActor2->s();
                     if (spit == sp2)
@@ -516,7 +513,7 @@ void WarpCopySprite(spritetype* tsprite, int& spritesortcnt)
                     newTSpr->x = sp1->x - xoff;
                     newTSpr->y = sp1->y - yoff;
                     newTSpr->z = sp1->z - zoff;
-                    newTSpr->sectnum = sp1->sectnum;
+                    newTSpr->setsector(sp1->sector());
                 }
             }
         }
@@ -1222,7 +1219,7 @@ PostDraw(void)
     }
 }
 
-DSWActor* CopySprite(spritetype const * tsp, int newsector)
+DSWActor* CopySprite(spritetype const * tsp, sectortype* newsector)
 {
     SPRITEp sp;
 
@@ -1252,18 +1249,18 @@ DSWActor* CopySprite(spritetype const * tsp, int newsector)
 
 DSWActor* ConnectCopySprite(spritetype const * tsp)
 {
-    int newsector;
+    sectortype* newsector;
     int testz;
 
     if (FAF_ConnectCeiling(tsp->sector()))
     {
-        newsector = tsp->sectnum;
+        newsector = tsp->sector();
         testz = SPRITEp_TOS(tsp) - Z(10);
 
         if (testz < tsp->sector()->ceilingz)
             updatesectorz(tsp->x, tsp->y, testz, &newsector);
 
-        if (newsector >= 0 && newsector != tsp->sectnum)
+        if (newsector != nullptr && newsector != tsp->sector())
         {
             return CopySprite(tsp, newsector);
         }
@@ -1271,13 +1268,13 @@ DSWActor* ConnectCopySprite(spritetype const * tsp)
 
     if (FAF_ConnectFloor(tsp->sector()))
     {
-        newsector = tsp->sectnum;
+        newsector = tsp->sector();
         testz = SPRITEp_BOS(tsp) + Z(10);
 
         if (testz > tsp->sector()->floorz)
             updatesectorz(tsp->x, tsp->y, testz, &newsector);
 
-        if (newsector >= 0 && newsector != tsp->sectnum)
+        if (newsector != nullptr && newsector != tsp->sector())
         {
             return CopySprite(tsp, newsector);
         }

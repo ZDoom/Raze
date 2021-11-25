@@ -233,9 +233,6 @@ bool CanSeePlayer(DSWActor* actor)
     // if actor can still see the player
     int look_height = SPRITEp_TOS(sp);
 
-    //if (FAF_Sector(sp->sectnum))
-    //    return(true);
-
     if (u->targetActor && FAFcansee(sp->x, sp->y, look_height, sp->sector(), u->targetActor->s().x, u->targetActor->s().y, ActorUpper(u->targetActor), u->targetActor->s().sector()))
         return true;
     else
@@ -468,9 +465,6 @@ int DoActorOperate(DSWActor* actor)
 
     if ((u->WaitTics -= ACTORMOVETICS) > 0)
         return false;
-
-    //DSPRINTF(ds,"sp->x = %ld, sp->y = %ld, sp->sector = %d, tp->x = %ld, tp->y = %ld, tp->ang = %d\n",sp->x,sp->y,sp->sectnum,tpoint->x,tpoint->y,tpoint->ang);
-    //MONO_PRINT(ds);
 
     z[0] = sp->z - SPRITEp_SIZE_Z(sp) + Z(5);
     z[1] = sp->z - DIV2(SPRITEp_SIZE_Z(sp));
@@ -1469,7 +1463,7 @@ int DoActorMoveJump(DSWActor* actor)
 }
 
 
-Collision move_scan(DSWActor* actor, int ang, int dist, int *stopx, int *stopy, int *stopz, int *stopsect)
+Collision move_scan(DSWActor* actor, int ang, int dist, int *stopx, int *stopy, int *stopz)
 {
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
@@ -1477,11 +1471,11 @@ Collision move_scan(DSWActor* actor, int ang, int dist, int *stopx, int *stopy, 
     int nx,ny;
     uint32_t cliptype = CLIPMASK_ACTOR;
 
-    int sang,ss;
+    int sang;
     int x, y, z, loz, hiz;
     DSWActor* highActor;
     DSWActor* lowActor;
-    SECTORp lo_sectp, hi_sectp;
+    sectortype* lo_sectp,* hi_sectp, *ssp;
 
 
     // moves out a bit but keeps the sprites original postion/sector.
@@ -1497,7 +1491,7 @@ Collision move_scan(DSWActor* actor, int ang, int dist, int *stopx, int *stopy, 
     highActor = u->highActor;
     lo_sectp = u->lo_sectp;
     hi_sectp = u->hi_sectp;
-    ss = sp->sectnum;
+    ssp = sp->sector();
 
     // do the move
     sp->ang = ang;
@@ -1513,7 +1507,6 @@ Collision move_scan(DSWActor* actor, int ang, int dist, int *stopx, int *stopy, 
     *stopx = sp->x;
     *stopy = sp->y;
     *stopz = sp->z;
-    *stopsect = sp->sectnum;
 
     // reset position information
     sp->x = x;
@@ -1526,7 +1519,7 @@ Collision move_scan(DSWActor* actor, int ang, int dist, int *stopx, int *stopy, 
     u->highActor = highActor;
     u->lo_sectp = lo_sectp;
     u->hi_sectp = hi_sectp;
-    ChangeActorSect(actor, ss);
+    ChangeActorSect(actor, ssp);
 
     return ret;
 }
@@ -1566,7 +1559,6 @@ int FindNewAngle(DSWActor* actor, int dir, int DistToMove)
     int set;
 
     int dist, stopx, stopy, stopz;
-    int stopsect;
     // start out with mininum distance that will be accepted as a move
     int save_dist = 500;
 
@@ -1619,7 +1611,7 @@ int FindNewAngle(DSWActor* actor, int dir, int DistToMove)
 #endif
 
         // check to see how far we can move
-        auto ret = move_scan(actor, new_ang, DistToMove, &stopx, &stopy, &stopz, &stopsect);
+        auto ret = move_scan(actor, new_ang, DistToMove, &stopx, &stopy, &stopz);
 
         if (ret.type == kHitNone)
         {
