@@ -658,20 +658,20 @@ SetupMirrorTiles(void)
     }
 }
 
-void GetUpperLowerSector(short match, int x, int y, short *upper, short *lower)
+void GetUpperLowerSector(short match, int x, int y, sectortype** upper, sectortype** lower)
 {
     int i;
-    int sectorlist[16];
+    sectortype* sectorlist[16];
     int sln = 0;
     SPRITEp sp;
 
-    for (i = 0; i < numsectors; i++)// - 1; i >= 0; i--)
+    for(auto& sect : sectors())
     {
-        if (inside(x, y, (short) i) == 1)
+        if (inside(x, y, &sect) == 1)
         {
             bool found = false;
 
-            SWSectIterator it(i);
+            SWSectIterator it(&sect);
             while (auto actor = it.Next())
             {
                 sp = &actor->s();
@@ -687,7 +687,7 @@ void GetUpperLowerSector(short match, int x, int y, short *upper, short *lower)
             if (!found)
                 continue;
             if (sln < (int)SIZ(sectorlist))
-                sectorlist[sln] = i;
+                sectorlist[sln] = &sect;
             sln++;
         }
     }
@@ -695,8 +695,8 @@ void GetUpperLowerSector(short match, int x, int y, short *upper, short *lower)
     // might not find ANYTHING if not tagged right
     if (sln == 0)
     {
-        *upper = -1;
-        *lower = -1;
+        *upper = nullptr;
+        *lower = nullptr;
         return;
     }
     // Map rooms have NOT been dragged on top of each other
@@ -717,15 +717,11 @@ void GetUpperLowerSector(short match, int x, int y, short *upper, short *lower)
 
     if (sln == 2)
     {
-        if (sector[sectorlist[0]].floorz < sector[sectorlist[1]].floorz)
+        if (sectorlist[0]->floorz < sectorlist[1]->floorz)
         {
             // swap
             // make sectorlist[0] the LOW sector
-            short hold;
-
-            hold = sectorlist[0];
-            sectorlist[0] = sectorlist[1];
-            sectorlist[1] = hold;
+            std::swap(sectorlist[0],sectorlist[1]);
         }
 
         *lower = sectorlist[0];
@@ -768,25 +764,25 @@ bool FindCeilingView(int match, int* x, int* y, int z, int* sectnum)
             // determine x,y position
             if (sp->hitag == VIEW_THRU_FLOOR)
             {
-                short upper, lower;
+                sectortype* upper,* lower;
 
                 *x = sp->x + xoff;
                 *y = sp->y + yoff;
 
                 // get new sector
                 GetUpperLowerSector(match, *x, *y, &upper, &lower);
-                *sectnum = upper;
+                *sectnum = ::sectnum(upper);
                 break;
             }
         }
     }
 
-    if (*sectnum < 0)
+    if (*sectnum == -1)
         return false;
 
     if (!sp || sp->hitag != VIEW_THRU_FLOOR)
     {
-        *sectnum = 0;
+        *sectnum = -1;
         return false;
     }
 
@@ -864,14 +860,14 @@ bool FindFloorView(int match, int* x, int* y, int z, int* sectnum)
             // determine x,y position
             if (sp->hitag == VIEW_THRU_CEILING)
             {
-                short upper, lower;
+                sectortype* upper,* lower;
 
                 *x = sp->x + xoff;
                 *y = sp->y + yoff;
 
                 // get new sector
                 GetUpperLowerSector(match, *x, *y, &upper, &lower);
-                *sectnum = lower;
+                *sectnum = ::sectnum(lower);
                 break;
             }
         }
