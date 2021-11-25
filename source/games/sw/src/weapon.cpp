@@ -101,7 +101,7 @@ int SpawnSmokePuff(DSWActor* actor);
 bool WarpToUnderwater(sectortype** sectnum, int *x, int *y, int *z);
 bool WarpToSurface(sectortype** sectnum, int *x, int *y, int *z);
 int InitElectroJump(SPRITEp wp, SPRITEp sp);
-bool TestDontStickSector(short hit_sect);
+bool TestDontStickSector(sectortype* hit_sect);
 ANIMATOR SpawnShrapX;
 bool WeaponMoveHit(DSWActor* actor);
 void SpawnMidSplash(DSWActor* actor);
@@ -4592,7 +4592,7 @@ int DoFireballFlames(DSWActor* actor)
                 }
             }
 
-            if (TestDontStickSector(sp->sectnum))
+            if (TestDontStickSector(sp->sector()))
             {
                 KillActor(actor);
                 return 0;
@@ -4667,7 +4667,7 @@ int DoBreakFlames(DSWActor* actor)
             }
         }
 
-        if (TestDontStickSector(sp->sectnum))
+        if (TestDontStickSector(sp->sector()))
         {
             KillActor(actor);
             return 0;
@@ -7292,7 +7292,7 @@ short StatBreakList[] =
     STAT_DEAD_ACTOR,
 };
 
-void TraverseBreakableWalls(short start_sect, int x, int y, int z, short ang, int radius)
+void TraverseBreakableWalls(sectortype* start_sect, int x, int y, int z, short ang, int radius)
 {
     int k;
     int xmid,ymid;
@@ -7309,7 +7309,7 @@ void TraverseBreakableWalls(short start_sect, int x, int y, int z, short ang, in
 
     break_count = 0;
 
-    BFSSectorSearch search(&sector[start_sect]);
+    BFSSectorSearch search(start_sect);
     while (auto sect = search.GetNext())
     {
         for(auto& wal : wallsofsector(sect))
@@ -7330,7 +7330,7 @@ void TraverseBreakableWalls(short start_sect, int x, int y, int z, short ang, in
                 sectortype* sectp = nullptr;
                 if (WallBreakPosition(&wal, &sectp, &hit_x, &hit_y, &hit_z, &wall_ang))
                 {
-                    if (hit_x != INT32_MAX && sectp != nullptr && FAFcansee(x, y, z, &sector[start_sect], hit_x, hit_y, hit_z, sectp))
+                    if (hit_x != INT32_MAX && sectp != nullptr && FAFcansee(x, y, z, start_sect, hit_x, hit_y, hit_z, sectp))
                     {
                         HitBreakWall(&wal, INT32_MAX, INT32_MAX, INT32_MAX, ang, 0);
 
@@ -7422,7 +7422,7 @@ int DoExpDamageTest(DSWActor* actor)
     if (wu->ID == MUSHROOM_CLOUD) return 0;   // Central Nuke doesn't break stuff
     // Only secondaries do that
 
-    TraverseBreakableWalls(wp->sectnum, wp->x, wp->y, wp->z, wp->ang, wu->Radius);
+    TraverseBreakableWalls(wp->sector(), wp->x, wp->y, wp->z, wp->ang, wu->Radius);
 
     break_count = 0;
     max_stat = SIZ(StatBreakList);
@@ -10185,7 +10185,7 @@ void SpawnFireballFlames(DSWActor* actor, DSWActor* enemyActor)
     }
     else
     {
-        if (TestDontStickSector(np->sectnum))
+        if (TestDontStickSector(np->sector()))
         {
             KillActor(actorNew);
             return;
@@ -18553,9 +18553,9 @@ bool TestDontStick(DSWActor* actor, walltype* hit_wall)
     return false;
 }
 
-bool TestDontStickSector(short hit_sect)
+bool TestDontStickSector(sectortype* hit_sect)
 {
-    if (TEST(sector[hit_sect].extra, SECTFX_DYNAMIC_AREA|SECTFX_SECTOR_OBJECT))
+    if (TEST(hit_sect->extra, SECTFX_DYNAMIC_AREA|SECTFX_SECTOR_OBJECT))
         return true;
 
     return false;
@@ -18679,7 +18679,7 @@ int QueueFloorBlood(DSWActor* actor)
     if (TEST(hsp->sector()->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
         return -1;   // Not in lave either
 
-    if (TestDontStickSector(hsp->sectnum))
+    if (TestDontStickSector(hsp->sector()))
         return -1;   // Not on special sectors you don't
 
     if (FloorBloodQueue[FloorBloodQueueHead] != nullptr)
@@ -18775,7 +18775,7 @@ int QueueFootPrint(DSWActor* actor)
     if (TEST(hsp->sector()->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
         return -1;   // Not in lave either
 
-    if (TestDontStickSector(hsp->sectnum))
+    if (TestDontStickSector(hsp->sector()))
         return -1;   // Not on special sectors you don't
 
     // So, are we like, done checking now!?
@@ -19081,7 +19081,7 @@ void QueueGeneric(DSWActor* actor, short pic)
         return;
     }
 
-    if (TestDontStickSector(sp->sectnum))
+    if (TestDontStickSector(sp->sector()))
     {
         KillActor(actor);
         return;
@@ -19595,7 +19595,7 @@ void QueueLoWangs(DSWActor* actor)
         return;
     }
 
-    if (TestDontStickSector(sp->sectnum))
+    if (TestDontStickSector(sp->sector()))
     {
         return;
     }
