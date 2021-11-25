@@ -159,7 +159,7 @@ short MultiClipTurn(PLAYERp pp, short new_ang, int z, int floor_dist)
     return true;
 }
 
-int testquadinsect(int *point_num, vec2_t const * q, short sectnum)
+int testquadinsect(int *point_num, vec2_t const * q, sectortype* sect)
 {
     int i,next_i;
 
@@ -167,7 +167,7 @@ int testquadinsect(int *point_num, vec2_t const * q, short sectnum)
 
     for (i=0; i < 4; i++)
     {
-        if (!inside(q[i].x, q[i].y, sectnum))
+        if (!inside(q[i].x, q[i].y, sect))
         {
             *point_num = i;
 
@@ -178,8 +178,8 @@ int testquadinsect(int *point_num, vec2_t const * q, short sectnum)
     for (i=0; i<4; i++)
     {
         next_i = (i+1) & 3;
-        if (!cansee(q[i].x, q[i].y,0x3fffffff, sectnum,
-                    q[next_i].x, q[next_i].y,0x3fffffff, sectnum))
+        if (!cansee(q[i].x, q[i].y,0x3fffffff, sect,
+                    q[next_i].x, q[next_i].y,0x3fffffff, sect))
         {
             return false;
         }
@@ -203,7 +203,7 @@ int RectClipMove(PLAYERp pp, int *qx, int *qy)
     }
 
     //Given the 4 points: x[4], y[4]
-    if (testquadinsect(&point_num, xy, pp->cursectnum))
+    if (testquadinsect(&point_num, xy, pp->cursector()))
     {
         pp->posx += (pp->xvect>>14);
         pp->posy += (pp->yvect>>14);
@@ -220,7 +220,7 @@ int RectClipMove(PLAYERp pp, int *qx, int *qy)
             xy[i].x = qx[i] - (pp->yvect>>15);
             xy[i].y = qy[i] + (pp->xvect>>15);
         }
-        if (testquadinsect(&point_num, xy, pp->cursectnum))
+        if (testquadinsect(&point_num, xy, pp->cursector()))
         {
             pp->posx -= (pp->yvect>>15);
             pp->posy += (pp->xvect>>15);
@@ -236,7 +236,7 @@ int RectClipMove(PLAYERp pp, int *qx, int *qy)
             xy[i].x = qx[i] + (pp->yvect>>15);
             xy[i].y = qy[i] - (pp->xvect>>15);
         }
-        if (testquadinsect(&point_num, xy, pp->cursectnum))
+        if (testquadinsect(&point_num, xy, pp->cursector()))
         {
             pp->posx += (pp->yvect>>15);
             pp->posy -= (pp->xvect>>15);
@@ -287,7 +287,7 @@ short RectClipTurn(PLAYERp pp, short new_ang, int *qx, int *qy, int *ox, int *oy
     }
 
     //Given the 4 points: x[4], y[4]
-    if (testquadinsect(&point_num, xy, pp->cursectnum))
+    if (testquadinsect(&point_num, xy, pp->cursector()))
     {
         // move to new pos
         for (i = 0; i < 4; i++)

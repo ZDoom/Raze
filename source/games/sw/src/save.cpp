@@ -389,8 +389,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, REMOTE_CONTROL& w,
 
 	if (arc.BeginObject(keyname))
 	{
-		arc("cursectnum", w.cursectnum)
-			("lastcursectnum", w.lastcursectnum)
+		arc("cursectnum", w.cursectp)
+			("lastcursectnum", w.lastcursectp)
 			("pang", w.pang)
 			("xvect", w.xvect)
 			("yvect", w.yvect)

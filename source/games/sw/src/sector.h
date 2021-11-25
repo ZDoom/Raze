@@ -42,7 +42,6 @@ void PlayerOperateEnv(PLAYERp pp);
 int TeleportToSector(PLAYERp pp, int newsector);
 int OperateSector(sectortype* sect,short player_is_operating);
 int OperateSprite(DSWActor*, short player_is_operating);
-int OperateWall(short wallnum, short player_is_operating);
 void OperateTripTrigger(PLAYERp pp);
 
 enum SO_SCALE_TYPE

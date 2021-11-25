@@ -5137,8 +5137,8 @@ void DoPlayerBeginRemoteOperate(PLAYERp pp, SECTOR_OBJECTp sop)
 
 void PlayerToRemote(PLAYERp pp)
 {
-    pp->remote.cursectnum = pp->cursectnum;
-    pp->remote.lastcursectnum = pp->lastcursectnum;
+    pp->remote.cursectp = pp->cursector();
+    pp->remote.lastcursectp = pp->lastcursector();
 
     pp->remote.posx = pp->posx;
     pp->remote.posy = pp->posy;
@@ -5154,8 +5154,8 @@ void PlayerToRemote(PLAYERp pp)
 
 void RemoteToPlayer(PLAYERp pp)
 {
-    pp->cursectnum = pp->remote.cursectnum;
-    pp->lastcursectnum = pp->remote.lastcursectnum;
+    pp->setcursector(pp->remote.cursectp);
+    pp->lastcursectnum = sectnum(pp->remote.lastcursectp);
 
     pp->posx = pp->remote.posx;
     pp->posy = pp->remote.posy;
