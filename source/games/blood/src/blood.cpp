@@ -425,6 +425,10 @@ void GameInterface::loadPalette(void)
 
 void GameInterface::app_init()
 {
+	for (int i = 0; i < MAXSPRITES; i++)
+	{
+		actorArray[i] = &bloodActors[i];
+	}
 	InitCheats();
 	memcpy(&gGameOptions, &gSingleGameOptions, sizeof(GAMEOPTIONS));
 	gGameOptions.nMonsterSettings = !userConfig.nomonsters;

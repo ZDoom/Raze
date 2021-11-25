@@ -4300,7 +4300,7 @@ bool WeaponMoveHit(DSWActor* actor)
     default:
         break;
 
-    case kHitSky:
+    case kHitVoid:
         SetSuicide(actor);
         return true;
 
@@ -8474,7 +8474,7 @@ int DoGrenade(DSWActor* actor)
     {
         switch (u->coll.type)
         {
-        case kHitSky:
+        case kHitVoid:
             KillActor(actor);
             return true;
         case kHitSprite:
@@ -8705,7 +8705,7 @@ int DoVulcanBoulder(DSWActor* actor)
     {
         switch (u->coll.type)
         {
-        case kHitSky:
+        case kHitVoid:
             KillActor(actor);
             return true;
         case kHitSprite:
@@ -9090,7 +9090,7 @@ int DoMine(DSWActor* actor)
         // check to see if you hit a sprite
         switch (u->coll.type)
         {
-        case kHitSky:
+        case kHitVoid:
             KillActor(actor);
             return 0;
         case kHitSprite:
@@ -19197,7 +19197,7 @@ int DoShrapVelocity(DSWActor* actor)
     {
         switch (u->coll.type)
         {
-        case kHitSky:
+        case kHitVoid:
             KillActor(actor);
             return true;
         case kHitSprite:

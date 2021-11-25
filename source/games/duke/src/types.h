@@ -1,4 +1,5 @@
 #pragma once
+#include "coreactor.h"
 #include "names.h"
 #include "packet.h"
 #include "d_net.h"

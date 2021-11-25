@@ -1,5 +1,7 @@
 #pragma once
 
+#include "coreactor.h"
+
 BEGIN_BLD_NS
 
 class DBloodActor;
@@ -90,11 +92,8 @@ struct SPRITEHIT
 	Collision hit, ceilhit, florhit;
 };
 
-// Due to the messed up array storage of all the game data we cannot do any direct references here yet. We have to access everything via wrapper functions for now.
-// Note that the indexing is very inconsistent - partially by sprite index, partially by xsprite index.
-class DBloodActor
+class DBloodActor : public DCoreActor
 {
-	int index;
 	DBloodActor* base();
 
 public:
@@ -116,7 +115,11 @@ public:
 	int cumulDamage;
 	bool interpolated;
 
-	DBloodActor() :index(int(this - base())) {}
+	DBloodActor()
+	{
+		index = (int(this - base()));
+	}
+
 	DBloodActor& operator=(const DBloodActor& other) = default;
 
 	void Clear()
@@ -138,10 +141,7 @@ public:
 	bool hasX() { return hasx; }
 	void addX() { hasx = true; }
 
-	spritetype& s() { return sprite[index]; }
 	XSPRITE& x() { return xsprite; }	// calling this does not validate the xsprite!
-	int GetIndex() { return s().time; }	// For error printing only! This is only identical with the sprite index for items spawned at map start.
-	int GetSpriteIndex() { return index; }	// this is only here to mark places that need changing later!
 
 	void SetOwner(DBloodActor* own)
 	{
@@ -236,11 +236,6 @@ public:
 		default:
 			return true;
 		}
-	}
-
-	sectortype* sector()
-	{
-		return s().sector();
 	}
 };
 

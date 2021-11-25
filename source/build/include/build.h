@@ -90,7 +90,6 @@ enum {
     RS_CENTERORIGIN = (1<<30),
 };
 
-
 #include "buildtypes.h"
 
 using uspriteptr_t = spritetype const *;
@@ -693,18 +692,6 @@ extern int32_t(*animateoffs_replace)(int const tilenum, int fakevar);
 extern void(*initspritelists_replace)(void);
 extern int32_t(*changespritesect_replace)(int16_t spritenum, int16_t newsectnum);
 
-// Masking these into the object index to keep it in 16 bit was probably the single most dumbest and pointless thing Build ever did.
-// Gonna be fun to globally replace these to finally lift the limit this imposes on map size.
-// Names taken from DukeGDX
-enum EHitBits
-{
-    kHitNone = 0,
-    kHitTypeMask = 0xC000,
-    kHitIndexMask = 0x3FFF,
-    kHitSector = 0x4000,
-    kHitWall = 0x8000,
-    kHitSprite = 0xC000,
-};
 
 void updateModelInterpolation();
 

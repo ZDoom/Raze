@@ -145,12 +145,6 @@ public:
 };
 
 
-enum EHitBitsSW
-{
-	kHitTypeMaskSW = 0x1C000,
-	kHitSky = 0x10000,      // SW only
-};
-
 
 inline int Collision::setNone()
 {
@@ -186,7 +180,7 @@ inline int Collision::setSprite(DSWActor* num)
 	return kHitSprite;
 }
 
-int Collision::setSky() { setNone(); type = kHitSky; return kHitSky; }
+int Collision::setSky() { setNone(); type = kHitVoid; return kHitVoid; }
 
 inline int Collision::setFromEngine(int value)
 {

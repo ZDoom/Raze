@@ -1,5 +1,7 @@
 #pragma once
 
+#include "coreactor.h"
+
 BEGIN_PS_NS
 
 class DExhumedActor;

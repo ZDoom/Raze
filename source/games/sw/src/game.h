@@ -39,6 +39,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "build.h"
 #include "d_net.h"
 #include "gamefuncs.h"
+#include "coreactor.h"
 
 #include "mytypes.h"
 #include "sounds.h"

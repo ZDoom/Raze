@@ -404,7 +404,7 @@ int DoBloodSpray(DSWActor* actor)
     {
         switch (u->coll.type)
         {
-        case kHitSky:
+        case kHitVoid:
             KillActor(actor);
             return true;
         case kHitSprite:
@@ -603,7 +603,7 @@ int DoPhosphorus(DSWActor* actor)
     {
         switch (u->coll.type)
         {
-        case kHitSky:
+        case kHitVoid:
             KillActor(actor);
             return true;
         case kHitSprite:
@@ -818,7 +818,7 @@ int DoChemBomb(DSWActor* actor)
     {
         switch (u->coll.type)
         {
-        case kHitSky:
+        case kHitVoid:
             KillActor(actor);
             return true;
         case kHitSprite:
@@ -1053,7 +1053,7 @@ int DoCaltrops(DSWActor* actor)
     {
         switch (u->coll.type)
         {
-        case kHitSky:
+        case kHitVoid:
             KillActor(actor);
             return true;
         case kHitSprite:
