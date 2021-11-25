@@ -324,9 +324,8 @@ void WallSetup(void)
 }
 
 
-void SectorLiquidSet(int i)
+void SectorLiquidSet(sectortype* sectp)
 {
-    auto sectp = &sector[i];
     // ///////////////////////////////////
     //
     // CHECK for pics that mean something
@@ -364,10 +363,9 @@ void SectorLiquidSet(int i)
 
 void SectorSetup(void)
 {
-    short i = 0, tag;
-    short NextSineWave = 0;
-
-    short ndx;
+    int tag;
+    int NextSineWave = 0;
+    int ndx;
 
     WallSetup();
 
@@ -393,9 +391,9 @@ void SectorSetup(void)
 
     LevelSecrets = 0;
 
-    for (i = 0; i < numsectors; i++)
+    for(auto&sect : sectors())
     {
-        auto const sectp = &sector[i];
+        auto const sectp = &sect;
         tag = sectp->lotag;
 
         // ///////////////////////////////////
@@ -412,7 +410,7 @@ void SectorSetup(void)
 
         if (TEST(sectp->extra, SECTFX_SINK))
         {
-            SectorLiquidSet(i);
+            SectorLiquidSet(sectp);
         }
 
         if (TEST(sectp->floorstat, FLOOR_STAT_PLAX))
@@ -634,7 +632,7 @@ void DoSpringBoardDown(void)
             {
                 int destz;
 
-                destz = sector[nextsectorneighborz(sbp->Sector, sector[sbp->Sector].floorz, 1, 1)].floorz;
+                destz = nextsectorneighborzptr(sbp->Sector, sector[sbp->Sector].floorz, 1, 1)->floorz;
 
                 AnimSet(ANIM_Floorz, sbp->Sector, nullptr, destz, 256);
 
