@@ -444,19 +444,19 @@ MOVEEND:
         else
         {
             vec3_t startPos = { x, y, z };
-            hitdata_t hitData;
+            HitInfo hit;
             int dz;
             if (bVanilla)
                 dz = -bsin(pBullet->nPitch, 3);
             else
                 dz = -pBullet->nPitch * 512;
-            hitscan(&startPos, pSprite->sectnum, bcos(pSprite->ang), bsin(pSprite->ang), dz, &hitData, CLIPMASK1);
-            x2 = hitData.pos.x;
-            y2 = hitData.pos.y;
-            z2 = hitData.pos.z;
-            hitactor = GetActor(hitData);
-            pHitSect = hitData.sect >= 0? &sector[hitData.sect] : nullptr;
-            pHitWall = hitData.wall >= 0? &wall[hitData.wall] : nullptr;
+            hitscan(startPos, pSprite->sector(), { bcos(pSprite->ang), bsin(pSprite->ang), dz }, hit, CLIPMASK1);
+            x2 = hit.hitpos.x;
+            y2 = hit.hitpos.y;
+            z2 = hit.hitpos.z;
+            hitactor = hit.actor();
+            pHitSect = hit.hitSector;
+            pHitWall = hit.hitWall;
         }
 
         lasthitx = x2;

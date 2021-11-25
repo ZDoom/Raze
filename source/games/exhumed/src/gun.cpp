@@ -243,29 +243,19 @@ void ResetSwordSeqs()
 
 Collision CheckCloseRange(int nPlayer, int *x, int *y, int *z, sectortype* *ppSector)
 {
-    int hitSect, hitWall, hitSprite;
-    int hitX, hitY, hitZ;
-
     auto pActor = PlayerList[nPlayer].Actor();
 
     int ang = pActor->s().ang;
     int xVect = bcos(ang);
     int yVect = bsin(ang);
 
-    vec3_t startPos = { *x, *y, *z };
-    hitdata_t hitData;
-    hitscan(&startPos, sectnum(*ppSector), xVect, yVect, 0, &hitData, CLIPMASK1);
-    hitX = hitData.pos.x;
-    hitY = hitData.pos.y;
-    hitZ = hitData.pos.z;
-    hitSprite = hitData.sprite;
-    hitSect = hitData.sect;
-    hitWall = hitData.wall;
+    HitInfo hit;
+    hitscan({ *x, *y, *z }, *ppSector, { xVect, yVect, 0 }, hit, CLIPMASK1);
 
     int ecx = bsin(150, -3);
 
-    uint32_t xDiff = abs(hitX - *x);
-    uint32_t yDiff = abs(hitY - *y);
+    uint32_t yDiff = abs(hit.hitpos.y - *y);
+    uint32_t xDiff = abs(hit.hitpos.x - *x);
 
     uint32_t sqrtNum = xDiff * xDiff + yDiff * yDiff;
 
@@ -279,16 +269,16 @@ Collision CheckCloseRange(int nPlayer, int *x, int *y, int *z, sectortype* *ppSe
     if (ksqrt(sqrtNum) >= ecx)
         return c;
 
-    *x = hitX;
-    *y = hitY;
-    *z = hitZ;
-    *ppSector = &sector[hitSect];
+    *x = hit.hitpos.x;
+    *y = hit.hitpos.y;
+    *z = hit.hitpos.z;
+    *ppSector = hit.hitSector;
 
-    if (hitSprite > -1) {
-        c.setSprite(&exhumedActors[hitSprite]);
+    if (hit.actor()) {
+        c.setSprite(hit.actor());
     }
-    if (hitWall > -1) {
-        c.setWall(hitWall);
+    if (hit.hitWall) {
+        c.setWall(wallnum(hit.hitWall));
     }
 
     return c;

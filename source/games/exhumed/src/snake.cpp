@@ -130,22 +130,11 @@ void BuildSnake(int nPlayer, int zVal)
     int z = (pPlayerSprite->z + zVal) - 2560;
     int nAngle = pPlayerSprite->ang;
 
-    int hitsect;
-    int hitx, hity, hitz;
-	DExhumedActor* hitactor;
+    HitInfo hit;
+    hitscan({ x, y, z }, pPlayerSprite->sector(), { bcos(nAngle), bsin(nAngle), 0 }, hit, CLIPMASK1);
 
-    vec3_t pos = { x, y, z };
-    hitdata_t hitData;
-    hitscan(&pos, pPlayerSprite->sectnum, bcos(nAngle), bsin(nAngle), 0, &hitData, CLIPMASK1);
-
-    hitx = hitData.pos.x;
-    hity = hitData.pos.y;
-    hitz = hitData.pos.z;
-    hitsect = hitData.sect;
-    hitactor = hitData.sprite == -1? nullptr : &exhumedActors[hitData.sprite];
-
-    uint32_t xDiff = abs(hitx - x);
-    uint32_t yDiff = abs(hity - y);
+    uint32_t yDiff = abs(hit.hitpos.y - y);
+    uint32_t xDiff = abs(hit.hitpos.x - x);
 
     uint32_t sqrtNum = xDiff * xDiff + yDiff * yDiff;
 
@@ -159,12 +148,12 @@ void BuildSnake(int nPlayer, int zVal)
 
     if (nSqrt < bsin(512, -4))
     {
-        BackUpBullet(&hitx, &hity, nAngle);
-        auto pActor = insertActor(hitsect, 202);
+        BackUpBullet(&hit.hitpos.x, &hit.hitpos.y, nAngle);
+        auto pActor = insertActor(hit.hitSector, 202);
 		auto pSprite = &pActor->s();
-        pSprite->x = hitx;
-        pSprite->y = hity;
-        pSprite->z = hitz;
+        pSprite->x = hit.hitpos.x;
+        pSprite->y = hit.hitpos.y;
+        pSprite->z = hit.hitpos.z;
 
         ExplodeSnakeSprite(pActor, nPlayer);
         DeleteActor(pActor);
@@ -173,7 +162,7 @@ void BuildSnake(int nPlayer, int zVal)
     else
     {
         DExhumedActor* pTarget = nullptr;
-
+        auto hitactor = hit.actor();
         if (hitactor && hitactor->s().statnum >= 90 && hitactor->s().statnum <= 199) {
             pTarget = hitactor;
         }

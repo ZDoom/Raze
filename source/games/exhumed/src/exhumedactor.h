@@ -140,6 +140,15 @@ inline int Collision::actorIndex(DExhumedActor* a)
 
 inline DExhumedActor* DExhumedActor::base() { return exhumedActors; }
 
+// subclassed to add a game specific actor() method
+struct HitInfo : public HitInfoBase
+{
+	DExhumedActor* actor() const
+	{
+		return static_cast<DExhumedActor*>(hitActor);
+	}
+};
+
 // Iterator wrappers that return an actor pointer, not an index.
 class ExhumedStatIterator : public StatIterator
 {
@@ -252,11 +261,6 @@ inline void ChangeActorSect(DExhumedActor* actor, sectortype* stat)
 inline void setActorPos(DExhumedActor* actor, vec3_t* pos)
 {
 	setsprite(actor->GetSpriteIndex(), pos);
-}
-
-inline DExhumedActor* GetActor(const hitdata_t& hitData)
-{
-	return hitData.sprite < 0? nullptr : &exhumedActors[hitData.sprite];
 }
 
 END_BLD_NS

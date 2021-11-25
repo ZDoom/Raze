@@ -400,21 +400,14 @@ void AILion::Tick(RunListEvent* ev)
 
             for (int i = 0; i < 5; i++)
             {
-                int hitwall;
-                int hitx, hity;
-                vec3_t startPos = { x, y, z };
-                hitdata_t hitData;
+                HitInfo hit;
 
-                hitscan(&startPos, pSprite->sectnum, bcos(nScanAngle), bsin(nScanAngle), 0, &hitData, CLIPMASK1);
+                hitscan({ x, y, z }, pSprite->sector(), { bcos(nScanAngle), bsin(nScanAngle), 0 }, hit, CLIPMASK1);
 
-                hitx = hitData.pos.x;
-                hity = hitData.pos.y;
-                hitwall = hitData.wall;
-
-                if (hitwall > -1)
+                if (hit.hitWall)
                 {
-                    int theX = abs(hitx - x);
-                    int theY = abs(hity - y);
+                    int theX = abs(hit.hitpos.x - x);
+                    int theY = abs(hit.hitpos.y - y);
 
                     if ((theX + theY) < nCheckDist)
                     {
