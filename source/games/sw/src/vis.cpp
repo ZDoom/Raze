@@ -127,7 +127,7 @@ void VisViewChange(PLAYERp pp, int *vis)
     *vis = BrightestVis;
 }
 
-void SpawnVis(DSWActor* parentActor, short sectnum, int x, int y, int z, int amt)
+void SpawnVis(DSWActor* parentActor, sectortype* sect, int x, int y, int z, int amt)
 {
     SPRITEp sp;
     if (parentActor != nullptr)
@@ -167,10 +167,10 @@ void SpawnVis(DSWActor* parentActor, short sectnum, int x, int y, int z, int amt
     }
     else
     {
-        if (sector[sectnum].floorpal == PALETTE_FOG)
+        if (sect->floorpal == PALETTE_FOG)
             return;
 
-        auto actorNew = InsertActor(sectnum, STAT_VIS_ON);
+        auto actorNew = InsertActor(sect, STAT_VIS_ON);
         sp = &actorNew->s();
 
         sp->x = x;
