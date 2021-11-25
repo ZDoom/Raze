@@ -464,6 +464,11 @@ static void SetTileNames()
 
 void GameInterface::app_init()
 {
+    for (int i = 0; i < MAXSPRITES; i++)
+    {
+        actorArray[i] = &exhumedActors[i];
+}
+
 #if 0
     help_disabled = true;
 #endif

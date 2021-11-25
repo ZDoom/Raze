@@ -243,6 +243,15 @@ extern DBloodActor bloodActors[kMaxSprites];
 
 inline DBloodActor* DBloodActor::base() { return bloodActors; }
 
+// subclasses to add a game specific actor() method
+struct HitInfo : public HitInfoBase
+{
+	DBloodActor* actor() const
+	{
+		return static_cast<DBloodActor*>(hitActor);
+	}
+};
+
 // Iterator wrappers that return an actor pointer, not an index.
 class BloodStatIterator : public StatIterator
 {

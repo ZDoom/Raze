@@ -89,9 +89,8 @@ struct Collision
 	}
 };
 
-class DExhumedActor
+class DExhumedActor : public DCoreActor
 {
-	int index;
 	DExhumedActor* base();
 
 public:
@@ -115,16 +114,15 @@ public:
 	int y;
 
 
-	DExhumedActor() :index(int(this - base())) {}
+	DExhumedActor() 
+	{
+		index = (int(this - base()));
+	}
 	DExhumedActor& operator=(const DExhumedActor& other) = default;
 
 	void Clear()
 	{
 	}
-
-	spritetype& s() { return sprite[index]; }
-	int GetIndex() { return index; }	// should only be for error reporting or for masking to a slot index
-	int GetSpriteIndex() { return index; }	// this is only here to mark places that need changing later!
 };
 
 extern DExhumedActor exhumedActors[MAXSPRITES];

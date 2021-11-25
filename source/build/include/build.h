@@ -383,22 +383,9 @@ inline void getzrange(int x, int y, int z, int16_t sectnum, int32_t* ceilz, int3
     getzrange(&v, sectnum, ceilz, ceilhit, florz, florhit, walldist, cliptype);
 }
 extern vec2_t hitscangoal;
-int32_t   hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32_t vz,
-                  hitdata_t *hitinfo, uint32_t cliptype) ATTRIBUTE((nonnull(1,6)));
-inline int hitscan(int x, int y, int z, int16_t sectnum, int32_t vx, int32_t vy, int32_t vz,
-    short* hitsect, short* hitwall, short* hitspr, int* hitx, int* hity, int* hitz, uint32_t cliptype)
-{
-    vec3_t v{ x,y,z };
-    hitdata_t hd{};
-    int res = hitscan(&v, sectnum, vx, vy, vz, &hd, cliptype);
-    if (hitsect) *hitsect = hd.sect;
-    if (hitwall) *hitwall = hd.wall;
-    if (hitspr) *hitspr = hd.sprite;
-    *hitx = hd.pos.x;
-    *hity = hd.pos.y;
-    *hitz = hd.pos.z   ;
-    return res;
-}
+
+int32_t   hitscan_(const vec3_t* sv, int16_t sectnum, int32_t vx, int32_t vy, int32_t vz,
+    hitdata_t* hitinfo, uint32_t cliptype) ATTRIBUTE((nonnull(1, 6)));
 
 void   neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange,
                int16_t *neartagsector, int16_t *neartagwall, int16_t *neartagsprite,
@@ -560,8 +547,6 @@ int32_t lintersect(int32_t originX, int32_t originY, int32_t originZ,
                    int32_t lineStartX, int32_t lineStartY, int32_t lineEndX, int32_t lineEndY,
                    int32_t *intersectionX, int32_t *intersectionY, int32_t *intersectionZ);
 
-int32_t rayintersect(int32_t x1, int32_t y1, int32_t z1, int32_t vx, int32_t vy, int32_t vz, int32_t x3,
-                     int32_t y3, int32_t x4, int32_t y4, int32_t *intx, int32_t *inty, int32_t *intz);
 int32_t insertsprite(int16_t sectnum, int16_t statnum);
 int32_t deletesprite(int16_t spritenum);
 

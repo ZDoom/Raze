@@ -354,6 +354,8 @@ int HitScan(DBloodActor *actor, int z, int dx, int dy, int dz, unsigned int nMas
     {
         hitscangoal.x = hitscangoal.y = 0x1ffffff;
     }
+//    HitInfo hitData;
+//    hitscan({ x, y, z }, pSprite->sector(), { dx, dy, dz << 4 }, hitData, nMask);
     vec3_t pos = { x, y, z };
     hitdata_t hitData;
     hitData.pos.z = gHitInfo.hitz;

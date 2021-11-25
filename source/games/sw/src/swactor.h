@@ -5,9 +5,8 @@
 BEGIN_SW_NS
 
 
-class DSWActor
+class DSWActor : public DCoreActor
 {
-	int index;
 	DSWActor* base();
 
 public:
@@ -16,7 +15,10 @@ public:
 	USER user;
 	walltype* tempwall;	// transient, to replace a hack using a 16 bit sprite field.
 
-	DSWActor() :index(int(this - base())) { /*assert(index >= 0 && index < kMaxSprites);*/ }
+	DSWActor()
+	{
+		index = (int(this - base()));
+	}
 	DSWActor& operator=(const DSWActor& other) = default;
 
 	void Clear()
@@ -26,7 +28,6 @@ public:
 	bool hasU() { return hasUser; }
 
 
-	spritetype& s() { return sprite[index]; }
 	USER* u() { return &user; }
 	USER* allocUser() 
 	{ 
@@ -38,16 +39,6 @@ public:
 	{
 		hasUser = false;
 		user.Clear();
-	}
-
-	int GetIndex() 
-	{
-		return s().time;
-	}
-
-	int GetSpriteIndex() const
-	{
-		return index;
 	}
 };
 

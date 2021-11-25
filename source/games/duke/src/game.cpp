@@ -285,6 +285,11 @@ int GameInterface::GetCurrentSkill()
 
 void GameInterface::app_init()
 {
+	for (int i = 0; i < MAXSPRITES; i++)
+	{
+		actorArray[i] = &hittype[i];
+	}
+
 	if (isRR()) C_SetNotifyFontScale(0.5);
 	ud.god = 0;
 	ud.m_respawn_items = 0;

@@ -21,7 +21,7 @@ struct STATUSBARTYPE
 	bool gotweapon[MAX_WEAPONS];
 };
 
-struct DDukeActor
+struct DDukeActor : public DCoreActor
 {
 	uint8_t cgg;
 	uint8_t spriteextra;	// moved here for easier maintenance. This was originally a hacked in field in the sprite structure called 'filler'.
@@ -45,7 +45,10 @@ struct DDukeActor
 
 	static DDukeActor* array();	// this is necessary to allow define inline functions referencing the global array inside the definition itself.
 
-	DDukeActor() : s(&sprite[this - array()]) {}
+	DDukeActor() : s(&sprite[this - array()]) 
+	{
+		index = int(this - array());
+	}
 	DDukeActor(const DDukeActor& other) = delete;				// we also do not want to allow copies.
 	DDukeActor& operator=(const DDukeActor& other) = delete;
 	void clear()
@@ -58,7 +61,6 @@ struct DDukeActor
 		floorz = ceilingz = lastvx = lastvy = aflags = saved_ammo = 0;
 		memset(temp_data, 0, sizeof(temp_data));
 	}
-	int GetSpriteIndex() const { return int(this - array()); }
 
 	// This once was stored in the owner field of the sprite
 	inline DDukeActor* GetOwner()
@@ -96,18 +98,6 @@ struct DDukeActor
 		// only valid for real players - just here to abstract yvel.
 		return s->yvel;
 	}
-
-	sectortype* sector() const
-	{
-		return s->sector();
-	}
-
-	bool insector() const
-	{
-		return s->insector();
-	}
-
-
 };
 extern DDukeActor hittype[MAXSPRITES + 1];
 inline DDukeActor* DDukeActor::array() { return hittype; }

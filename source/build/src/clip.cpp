@@ -1259,7 +1259,7 @@ static int32_t hitscan_trysector(const vec3_t *sv, usectorptr_t sec, hitdata_t *
 //
 // hitscan
 //
-int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32_t vz,
+int32_t hitscan_(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32_t vz,
                 hitdata_t *hit, uint32_t cliptype)
 {
     int32_t x1, y1=0, z1=0, x2, y2, intx, inty, intz;

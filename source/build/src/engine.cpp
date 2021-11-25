@@ -564,12 +564,6 @@ int32_t rintersect(int32_t x1, int32_t y1, int32_t z1,
     return t;
 }
 
-int32_t rayintersect(int32_t x1, int32_t y1, int32_t z1, int32_t vx, int32_t vy, int32_t vz, int32_t x3,
-                     int32_t y3, int32_t x4, int32_t y4, int32_t *intx, int32_t *inty, int32_t *intz)
-{
-    return (rintersect(x1, y1, z1, vx, vy, vz, x3, y3, x4, y4, intx, inty, intz) != -1);
-}
-
 //
 // multi-pskies
 //

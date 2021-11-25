@@ -1,7 +1,8 @@
 #pragma once
 
 #include <stdint.h>
-#include "buildtypes.h"
+#include "build.h"
+#include "iterators.h"
 
 class DCoreActor
 {
@@ -11,30 +12,32 @@ protected:
 
 public:
 
-	spritetype& s() 
+	spritetype& s() const
 	{ 
 		return sprite[index]; 
 	}
 
-	int GetIndex() 
+	int GetIndex() const
 	{ 
 		// For error printing only! This is only identical with the sprite index for items spawned at map start.
 		return s().time; 
 	}	
 
-	int GetSpriteIndex() 
+	int GetSpriteIndex() const 
 	{ 
 		// this is only here to mark places that need changing later! It will be removed once the sprite array goes.
 		return index; 
 	}	
 	
-
-
-	sectortype* sector()
+	sectortype* sector() const
 	{
 		return s().sector();
 	}
 
+	bool insector() const
+	{
+		return s().insector();
+	}
 
 };
 
@@ -50,6 +53,7 @@ extern TArray<walltype> wall;
 enum EHitBits
 {
     kHitNone = 0,
+	kHitTypeHitscan = 1,	// hitscan results are not exclusive
     kHitTypeMask = 0xC000,
     kHitTypeMaskSW = 0x1C000, // SW has one more relevant bit
     kHitIndexMask = 0x3FFF,
@@ -63,16 +67,13 @@ enum EHitBits
 
 // This serves as input/output for all functions dealing with collisions, hits, etc.
 // Not all utilities use all variables.
-template<class TActor>
 struct HitInfoBase
 {
-	static_assert(std::is_convertible_v<TActor*, DCoreActor*>, "Actor class for Collision needs to inherit from DCoreActor");
-
     int type;
 	vec3_t hitpos;
 	sectortype* hitSector;
 	walltype* hitWall;
-    TActor* hitActor;
+    DCoreActor* hitActor;
 
 	HitInfoBase() = default;
     explicit HitInfoBase(int legacyval) { setFromEngine(legacyval); }
@@ -109,11 +110,11 @@ struct HitInfoBase
 	{
 		*this = {};
 		type = kHitSprite;
-		hitActor = static_cast<TActor*>(actorArray[num]);
+		hitActor = actorArray[num];
 		return kHitSprite;
 	}
 
-	int setSprite(TActor* num)
+	int setSprite(DCoreActor* num)
 	{
 		*this = {};
 		type = kHitSprite;
@@ -139,3 +140,132 @@ struct HitInfoBase
 		return type;
 	}
 };
+
+
+// Iterator wrappers that return an actor pointer, not an index.
+template<class TActor>
+class TStatIterator : public StatIterator
+{
+public:
+	TStatIterator(int stat) : StatIterator(stat)
+	{
+	}
+
+	TActor* Next()
+	{
+		int n = NextIndex();
+		return n >= 0 ? static_cast<TActor*>(actorArray[n]) : nullptr;
+	}
+
+	TActor* Peek()
+	{
+		int n = PeekIndex();
+		return n >= 0 ? static_cast<TActor*>(actorArray[n]) : nullptr;
+	}
+};
+
+template<class TActor>
+class TSectIterator : public SectIterator
+{
+public:
+	TSectIterator(int stat) : SectIterator(stat)
+	{
+	}
+
+	TSectIterator(sectortype* stat) : SectIterator(stat)
+	{
+	}
+
+	TActor* Next()
+	{
+		int n = NextIndex();
+		return n >= 0 ? static_cast<TActor*>(actorArray[n]) : nullptr;
+	}
+
+	TActor* Peek()
+	{
+		int n = PeekIndex();
+		return n >= 0 ? static_cast<TActor*>(actorArray[n]) : nullptr;
+	}
+};
+
+// An iterator to iterate over all sprites.
+template<class TActor>
+class TSpriteIterator
+{
+	TStatIterator<TActor> it;
+	int stat = 0;
+
+public:
+	TSpriteIterator() : it(0) {}
+
+	TActor* Next()
+	{
+		while (stat < MAXSTATUS)
+		{
+			auto ac = it.Next();
+			if (ac) return ac;
+			stat++;
+			if (stat < MAXSTATUS) it.Reset(stat);
+		}
+		return nullptr;
+	}
+};
+
+// For iterating linearly over map spawned sprites. Will later only be valid on map load
+template<class TActor>
+class TLinearSpriteIterator
+{
+	int index = 0;
+public:
+
+	void Reset()
+	{
+		index = 0;
+	}
+
+	TActor* Next()
+	{
+		while (index < MAXSPRITES)
+		{
+			auto p = static_cast<TActor*>(actorArray[index++]);
+			if (p->s().statnum != MAXSTATUS) return p;
+		}
+		return nullptr;
+	}
+};
+
+
+[[deprecated]]
+inline int hitscan(const vec3_t* sv, int sectnum, int vx, int vy, int vz, hitdata_t* hitinfo, unsigned cliptype)
+{
+	return hitscan_(sv, sectnum, vx, vy, vz, hitinfo, cliptype);
+}
+
+[[deprecated]]
+inline int hitscan(int x, int y, int z, int sectnum, int vx, int vy, int vz,
+	short* hitsect, short* hitwall, short* hitspr, int* hitx, int* hity, int* hitz, uint32_t cliptype)
+{
+	vec3_t v{ x,y,z };
+	hitdata_t hd{};
+	int res = hitscan_(&v, sectnum, vx, vy, vz, &hd, cliptype);
+	if (hitsect) *hitsect = hd.sect;
+	if (hitwall) *hitwall = hd.wall;
+	if (hitspr) *hitspr = hd.sprite;
+	*hitx = hd.pos.x;
+	*hity = hd.pos.y;
+	*hitz = hd.pos.z;
+	return res;
+}
+
+inline int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& direction, HitInfoBase& hitinfo, unsigned cliptype)
+{
+	hitdata_t hd{};
+	int res = hitscan_(&start, sector.IndexOf(startsect), direction.x, direction.y, direction.z, &hd, cliptype);
+	hitinfo.hitpos = hd.pos;
+	hitinfo.hitSector = hd.sect == -1? nullptr : &sector[hd.sect];
+	hitinfo.hitWall = hd.wall == -1? nullptr : &wall[hd.wall];
+	hitinfo.hitActor = hd.sprite == -1? nullptr : actorArray[hd.sprite];
+	hitinfo.type = kHitTypeHitscan;
+	return res;
+}
