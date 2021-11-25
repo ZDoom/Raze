@@ -243,7 +243,7 @@ extern DBloodActor bloodActors[kMaxSprites];
 
 inline DBloodActor* DBloodActor::base() { return bloodActors; }
 
-// subclasses to add a game specific actor() method
+// subclassed to add a game specific actor() method
 struct HitInfo : public HitInfoBase
 {
 	DBloodActor* actor() const

@@ -5074,7 +5074,8 @@ int furthestangle(DDukeActor *actor, int angs)
 {
 	auto s = actor->s;
 	int j, furthest_angle = 0, angincs;
-	int hx, hy, hz, d, greatestd;
+	int d, greatestd;
+	HitInfo hit;
 
 	greatestd = -(1 << 30);
 	angincs = 2048 / angs;
@@ -5084,9 +5085,9 @@ int furthestangle(DDukeActor *actor, int angs)
 
 	for (j = s->ang; j < (2048 + s->ang); j += angincs)
 	{
-		hitscan(s->x, s->y, s->z - (8 << 8), s->sector(), bcos(j), bsin(j), 0, nullptr, nullptr, nullptr, &hx, &hy, &hz, CLIPMASK1);
+		hitscan({ s->x, s->y, s->z - (8 << 8) }, s->sector(), { bcos(j), bsin(j), 0 }, hit, CLIPMASK1);
 
-		d = abs(hx - s->x) + abs(hy - s->y);
+		d = abs(hit.hitpos.x - s->x) + abs(hit.hitpos.y - s->y);
 
 		if (d > greatestd)
 		{
@@ -5107,9 +5108,8 @@ int furthestcanseepoint(DDukeActor *actor, DDukeActor* tosee, int* dax, int* day
 {
 	auto s = actor->s;
 	int j, angincs;
-	int hx, hy, hz, d, da;//, d, cd, ca,tempx,tempy,cx,cy;
-	DDukeActor* dd;
-	sectortype* hitsect;
+	int d, da;//, d, cd, ca,tempx,tempy,cx,cy;
+	HitInfo hit;
 
 	if ((actor->temp_data[0] & 63)) return -1;
 
@@ -5120,17 +5120,16 @@ int furthestcanseepoint(DDukeActor *actor, DDukeActor* tosee, int* dax, int* day
 	auto ts = tosee->s;
 	for (j = ts->ang; j < (2048 + ts->ang); j += (angincs - (krand() & 511)))
 	{
-		hitscan(ts->x, ts->y, ts->z - (16 << 8), ts->sector(), bcos(j), bsin(j), 16384 - (krand() & 32767), 
-			&hitsect, nullptr, &dd, &hx, &hy, &hz, CLIPMASK1);
+		hitscan({ ts->x, ts->y, ts->z - (16 << 8) }, ts->sector(), { bcos(j), bsin(j), 16384 - (krand() & 32767) }, hit, CLIPMASK1);
 
-		d = abs(hx - ts->x) + abs(hy - ts->y);
-		da = abs(hx - s->x) + abs(hy - s->y);
+		d = abs(hit.hitpos.x - ts->x) + abs(hit.hitpos.y - ts->y);
+		da = abs(hit.hitpos.x - s->x) + abs(hit.hitpos.y - s->y);
 
-		if (d < da && hitsect)
-			if (cansee(hx, hy, hz, hitsect, s->x, s->y, s->z - (16 << 8), s->sector()))
+		if (d < da && hit.hitSector)
+			if (cansee(hit.hitpos.x, hit.hitpos.y, hit.hitpos.z, hit.hitSector, s->x, s->y, s->z - (16 << 8), s->sector()))
 			{
-				*dax = hx;
-				*day = hy;
+				*dax = hit.hitpos.x;
+				*day = hit.hitpos.y;
 				return 1;
 			}
 	}
