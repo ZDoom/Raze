@@ -88,9 +88,9 @@ SINE_WAVE_FLOOR SineWaveFloor[MAX_SINE_WAVE][21];
 SINE_WALL SineWall[MAX_SINE_WALL][MAX_SINE_WALL_POINTS];
 SPRING_BOARD SpringBoard[20];
 
-void SetSectorWallBits(short sectnum, int bit_mask, bool set_sectwall, bool set_nextwall)
+void SetSectorWallBits(sectortype* sect, int bit_mask, bool set_sectwall, bool set_nextwall)
 {
-    auto start_wall = sector[sectnum].firstWall();
+    auto start_wall = sect->firstWall();
     auto wall_num = start_wall;
 
     do
@@ -457,7 +457,7 @@ void SectorSetup(void)
             break;
 
         case TAG_DOOR_SLIDING:
-            SetSectorWallBits(i, WALLFX_DONT_STICK, true, true);
+            SetSectorWallBits(sectp, WALLFX_DONT_STICK, true, true);
             break;
 
         case TAG_SINE_WAVE_FLOOR:

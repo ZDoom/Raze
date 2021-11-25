@@ -104,7 +104,7 @@ static Collision globhihit, globlohit;
 
 short wait_active_check_offset;
 int PlaxCeilGlobZadjust, PlaxFloorGlobZadjust;
-void SetSectorWallBits(short sectnum, int bit_mask, bool set_sectwall, bool set_nextwall);
+void SetSectorWallBits(sectortype* sect, int bit_mask, bool set_sectwall, bool set_nextwall);
 int DoActorDebris(DSWActor* actor);
 void ActorWarpUpdatePos(DSWActor*,short sectnum);
 void ActorWarpType(DSWActor* sp, DSWActor* act_warp);
@@ -2092,7 +2092,7 @@ void SpriteSetup(void)
                         SET(sectp->flags, SECTFU_VATOR_BOTH);
                     }
                     SET(sectp->extra, SECTFX_VATOR);
-                    SetSectorWallBits(sp->sectnum, WALLFX_DONT_STICK, true, true);
+                    SetSectorWallBits(sp->sector(), WALLFX_DONT_STICK, true, true);
                     SET(sp->sector()->extra, SECTFX_DYNAMIC_AREA);
 
                     // don't step on toes of other sector settings
@@ -2195,7 +2195,7 @@ void SpriteSetup(void)
                     short wallcount,startwall,endwall,w;
                     u = SpawnUser(actor, 0, nullptr);
 
-                    SetSectorWallBits(sp->sectnum, WALLFX_DONT_STICK, true, true);
+                    SetSectorWallBits(sp->sector(), WALLFX_DONT_STICK, true, true);
 
                     // need something for this
                     sectp->lotag = TAG_ROTATOR;
@@ -2250,7 +2250,7 @@ void SpriteSetup(void)
 
                     u = SpawnUser(actor, 0, nullptr);
 
-                    SetSectorWallBits(sp->sectnum, WALLFX_DONT_STICK, true, true);
+                    SetSectorWallBits(sp->sector(), WALLFX_DONT_STICK, true, true);
 
                     // need something for this
                     sectp->lotag = TAG_SLIDOR;
@@ -2302,7 +2302,7 @@ void SpriteSetup(void)
                     Collision trash;
                     u = SpawnUser(actor, 0, nullptr);
 
-                    SetSectorWallBits(sp->sectnum, WALLFX_DONT_STICK, false, true);
+                    SetSectorWallBits(sp->sector(), WALLFX_DONT_STICK, false, true);
                     SET(sp->sector()->extra, SECTFX_DYNAMIC_AREA);
 
                     type = SP_TAG3(sp);
@@ -2536,7 +2536,7 @@ void SpriteSetup(void)
                 {
                     SECTORp sectp = sp->sector();
 
-                    SetSectorWallBits(sp->sectnum, WALLFX_DONT_STICK, false, true);
+                    SetSectorWallBits(sp->sector(), WALLFX_DONT_STICK, false, true);
 
                     if (TEST(sectp->floorstat, FLOOR_STAT_SLOPE))
                     {
@@ -2566,7 +2566,7 @@ void SpriteSetup(void)
 
                 case SECT_COPY_DEST:
                 {
-                    SetSectorWallBits(sp->sectnum, WALLFX_DONT_STICK, false, true);
+                    SetSectorWallBits(sp->sector(), WALLFX_DONT_STICK, false, true);
                     change_actor_stat(actor, STAT_COPY_DEST);
                     break;
                 }
