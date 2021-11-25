@@ -902,7 +902,7 @@ void DoExplodeSector(short match)
         if (!actor->hasU())
             /*u = */SpawnUser(actor, 0, nullptr);
 
-        sectp = &sector[esp->sectnum];
+        sectp = esp->sector();
 
         sectp->ceilingz -= Z(SP_TAG4(esp));
 

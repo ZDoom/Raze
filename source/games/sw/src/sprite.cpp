@@ -1519,7 +1519,7 @@ void PreMapCombineFloors(void)
         dx = BoundList[base_offset].offset->x - BoundList[i].offset->x;
         dy = BoundList[base_offset].offset->y - BoundList[i].offset->y;
 
-        BFSSectorSearch search(&sector[BoundList[i].offset->sectnum]);
+        BFSSectorSearch search(BoundList[i].offset->sector());
         while (auto dasect = search.GetNext())
         {
             SWSectIterator it(dasect);
@@ -1625,9 +1625,9 @@ void SpriteSetup(void)
     // Clear Sprite Extension structure
 
     // Clear all extra bits - they are set by sprites
-    for (int i = 0; i < numsectors; i++)
+    for(auto& sect : sectors())
     {
-        sector[i].extra = 0;
+        sect.extra = 0;
     }
 
     // Clear PARALLAX_LEVEL overrides
@@ -4624,7 +4624,7 @@ void DoActorZrange(DSWActor* actor)
         u->highActor = ceilhit.actor;
         break;
     case kHitSector:
-        u->hi_sectp = &sector[ceilhit.index];
+        u->hi_sectp = ceilhit.sector();
         break;
     default:
         ASSERT(true==false);
@@ -4637,7 +4637,7 @@ void DoActorZrange(DSWActor* actor)
         u->lowActor = florhit.actor;
         break;
     case kHitSector:
-        u->lo_sectp = &sector[florhit.index];
+        u->lo_sectp = florhit.sector();
         break;
     default:
         ASSERT(true==false);
@@ -4665,7 +4665,7 @@ int DoActorGlobZ(DSWActor* actor)
         u->highActor = globhihit.actor;
         break;
     default:
-        u->hi_sectp = &sector[globhihit.index];
+        u->hi_sectp = globhihit.sector();
         break;
     }
 
@@ -4675,7 +4675,7 @@ int DoActorGlobZ(DSWActor* actor)
         u->lowActor = globlohit.actor;
         break;
     default:
-        u->lo_sectp = &sector[globlohit.index];
+        u->lo_sectp = globlohit.sector();
         break;
     }
 
@@ -6548,7 +6548,7 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
     if (FAF_ConnectArea(spr->sector()))
         SetActorZ(actor, &spr->pos);
 
-    if (TEST(sector[spr->sectnum].extra, SECTFX_WARP_SECTOR))
+    if (TEST(spr->sector()->extra, SECTFX_WARP_SECTOR))
     {
         DSWActor* sp_warp;
         if ((sp_warp = WarpPlane(&spr->x, &spr->y, &spr->z, &dasectnum)))

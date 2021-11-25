@@ -787,11 +787,13 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
 
 
     // look through all sectors for whole sectors that are IN bounds
-    for (k = 0; k < numsectors; k++)
+    for (auto&sec : sectors())
     {
+        auto sect = &sec;
+
         SectorInBounds = true;
 
-        for(auto& wal : wallsofsector(&sector[k]))
+        for(auto& wal : wallsofsector(sect))
         {
             // all walls have to be in bounds to be in sector object
             if (!(wal.x > xlow && wal.x < xhigh && wal.y > ylow && wal.y < yhigh))
@@ -803,7 +805,6 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
 
         if (SectorInBounds)
         {
-            auto sect = &sector[k];
             sop->sectp[sop->num_sectors] = sect;
             sop->sectp[sop->num_sectors+1] = nullptr;
 
@@ -1017,7 +1018,6 @@ void SetupSectorObject(sectortype* sectp, short tag)
     USERp u;
 
     tag -= (TAG_OBJECT_CENTER - 1);
-    // sector[sectnum].lotag = tag;
 
     object_num = tag / 5;
     sop = &SectorObject[object_num];
@@ -1093,8 +1093,6 @@ void SetupSectorObject(sectortype* sectp, short tag)
 
         sop->mid_sector = sectp;
         SectorMidPoint(sectp, &sop->xmid, &sop->ymid, &sop->zmid);
-        //sop->zmid = sector[sectnum].floorz;
-        //sop->zmid = DIV2(sector[sectnum].floorz + sector[sectnum].ceilingz);
 
         sop->dir = 1;
         sop->track = sectp->hitag;

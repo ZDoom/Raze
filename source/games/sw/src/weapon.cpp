@@ -4223,8 +4223,7 @@ bool VehicleMoveHit(DSWActor* actor)
     {
     case kHitSector:
     {
-        short hit_sect = u->coll.index;
-        SECTORp sectp = &sector[hit_sect];
+        SECTORp sectp = u->coll.sector();
 
         if (TEST(sectp->extra, SECTFX_SECTOR_OBJECT))
         {
@@ -4307,12 +4306,10 @@ bool WeaponMoveHit(DSWActor* actor)
 
     case kHitSector:
     {
-        int hit_sect;
         SECTORp sectp;
         SECTOR_OBJECTp sop;
 
-        hit_sect = u->coll.index;
-        sectp = &sector[hit_sect];
+        sectp = u->coll.sector();
 
         ASSERT(sectp->extra != -1);
 
@@ -4332,7 +4329,7 @@ bool WeaponMoveHit(DSWActor* actor)
                 return true;
             }
 
-            if (sector[hit_sect].hasU() && FixedToInt(sector[hit_sect].depth_fixed) > 0)
+            if (sectp->hasU() && FixedToInt(sectp->depth_fixed) > 0)
             {
                 SpawnSplash(actor);
                 return true;
@@ -7656,11 +7653,11 @@ int DoStar(DSWActor* actor)
         case kHitSector:
         {
             bool did_hit_wall;
-            short hit_sect = u->coll.index;
+            auto hit_sect = u->coll.sector();
 
             if (sp->z > ((u->hiz + u->loz) >> 1))
             {
-                if (sector[hit_sect].hasU() && FixedToInt(sector[hit_sect].depth_fixed) > 0)
+                if (hit_sect->hasU() && FixedToInt(hit_sect->depth_fixed) > 0)
                 {
                     SpawnSplash(actor);
                     KillActor(actor);
@@ -8384,27 +8381,26 @@ bool SlopeBounce(DSWActor* actor, bool *hit_wall)
     int hiz,loz;
     int slope;
     int dax,day,daz;
-    short hit_sector;
     short daang;
 
-    hit_sector = u->coll.index;
+    auto hit_sector = u->coll.sector();
 
-    getzsofslope(hit_sector, sp->x, sp->y, &hiz, &loz);
+    getzsofslopeptr(hit_sector, sp->x, sp->y, &hiz, &loz);
 
     // detect the ceiling and the hit_wall
     if (sp->z < DIV2(hiz+loz))
     {
-        if (!TEST(sector[hit_sector].ceilingstat, CEILING_STAT_SLOPE))
+        if (!TEST(hit_sector->ceilingstat, CEILING_STAT_SLOPE))
             slope = 0;
         else
-            slope = sector[hit_sector].ceilingheinum;
+            slope = hit_sector->ceilingheinum;
     }
     else
     {
-        if (!TEST(sector[hit_sector].floorstat, FLOOR_STAT_SLOPE))
+        if (!TEST(hit_sector->floorstat, FLOOR_STAT_SLOPE))
             slope = 0;
         else
-            slope = sector[hit_sector].floorheinum;
+            slope = hit_sector->floorheinum;
     }
 
     if (!slope)
@@ -8417,7 +8413,7 @@ bool SlopeBounce(DSWActor* actor, bool *hit_wall)
         *hit_wall = false;
 
     // get angle of the first wall of the sector
-    auto wallp = sector[hit_sector].firstWall();
+    auto wallp = hit_sector->firstWall();
     daang = getangle(wallp->delta());
 
     // k is now the slope of the ceiling or floor
@@ -11223,7 +11219,7 @@ int DoFindGround(DSWActor* actor)
     }
     case kHitSector:
     {
-        u->lo_sectp = &sector[florhit.index];
+        u->lo_sectp = florhit.sector();
         u->lowActor = nullptr;
         return true;
     }
@@ -11280,7 +11276,7 @@ int DoFindGroundPoint(DSWActor* actor)
     }
     case kHitSector:
     {
-        u->lo_sectp = &sector[florhit.index];
+        u->lo_sectp = florhit.sector();
         u->lowActor = nullptr;
         return true;
     }
@@ -18246,7 +18242,7 @@ bool MissileHitDiveArea(DSWActor* actor)
 
     if (u->coll.type == kHitSector)
     {
-        short hit_sect = u->coll.index;
+        auto hit_sect = u->coll.sector();
 
         if (SpriteInDiveArea(sp))
         {
@@ -18255,7 +18251,7 @@ bool MissileHitDiveArea(DSWActor* actor)
                 return false;
 
             // Check added by Jim because of sprite bridge over water
-            if (sp->z < (sector[hit_sect].floorz-Z(20)))
+            if (sp->z < (hit_sect->floorz-Z(20)))
                 return false;
 
             SET(u->Flags, SPR_UNDERWATER);
@@ -18667,7 +18663,7 @@ int QueueFloorBlood(DSWActor* actor)
     USER* u = actor->u();
     SPRITEp hsp = &actor->s();
     SPRITEp sp;
-    SECTORp sectp = &sector[hsp->sectnum];
+    SECTORp sectp = hsp->sector();
     DSWActor* spawnedActor = nullptr;
 
 
@@ -18677,10 +18673,10 @@ int QueueFloorBlood(DSWActor* actor)
     if (TEST(u->Flags, SPR_UNDERWATER) || SpriteInUnderwaterArea(hsp) || SpriteInDiveArea(hsp))
         return -1;   // No blood underwater!
 
-    if (TEST(sector[hsp->sectnum].extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_WATER)
+    if (TEST(hsp->sector()->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_WATER)
         return -1;   // No prints liquid areas!
 
-    if (TEST(sector[hsp->sectnum].extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
+    if (TEST(hsp->sector()->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
         return -1;   // Not in lave either
 
     if (TestDontStickSector(hsp->sectnum))
@@ -18752,7 +18748,7 @@ int QueueFootPrint(DSWActor* actor)
     USERp nu;
     short rnd_num=0;
     bool Found=false;
-    SECTORp sectp = &sector[hsp->sectnum];
+    SECTORp sectp = hsp->sector();
 
 
     if (TEST(sectp->extra, SECTFX_SINK)||TEST(sectp->extra, SECTFX_CURRENT))
@@ -18764,19 +18760,19 @@ int QueueFootPrint(DSWActor* actor)
             Found = true;
 
         // Stupid masked floor stuff!  Damn your weirdness!
-        if (TEST(sector[u->PlayerP->cursectnum].ceilingstat, CEILING_STAT_PLAX))
+        if (TEST(u->PlayerP->cursector()->ceilingstat, CEILING_STAT_PLAX))
             Found = true;
-        if (TEST(sector[u->PlayerP->cursectnum].floorstat, CEILING_STAT_PLAX))
+        if (TEST(u->PlayerP->cursector()->floorstat, CEILING_STAT_PLAX))
             Found = true;
     }
 
     if (TEST(u->Flags, SPR_UNDERWATER) || SpriteInUnderwaterArea(hsp) || Found || SpriteInDiveArea(hsp))
         return -1;   // No prints underwater!
 
-    if (TEST(sector[hsp->sectnum].extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_WATER)
+    if (TEST(hsp->sector()->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_WATER)
         return -1;   // No prints liquid areas!
 
-    if (TEST(sector[hsp->sectnum].extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
+    if (TEST(hsp->sector()->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_LAVA)
         return -1;   // Not in lave either
 
     if (TestDontStickSector(hsp->sectnum))
