@@ -665,20 +665,6 @@ sectortype* FindNextSectorByTag(sectortype* sect, int tag)
 }
 
 
-int SectorDistance(short sect1, int sect2)
-{
-
-    if (sect1 < 0 || sect2 < 0)
-        return 9999999;
-
-    auto wall1 = sector[sect1].firstWall();
-    auto wall2 = sector[sect2].firstWall();
-
-    // return the distance between the two sectors.
-    return Distance(wall1->x, wall1->y, wall2->x, wall2->y);
-}
-
-
 short DoSpawnActorTrigger(short match)
 {
     short spawn_count = 0;

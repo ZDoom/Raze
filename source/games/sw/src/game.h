@@ -1926,7 +1926,7 @@ void FAFgetzrange(vec3_t pos, int16_t sectnum,
                   int32_t* loz, Collision* florhit,
                   int32_t clipdist, int32_t clipmask);
 
-void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, int16_t sectnum,
+void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, sectortype* sect,
                        int32_t* hiz, Collision* ceilhit,
                        int32_t* loz, Collision* florhit);
 

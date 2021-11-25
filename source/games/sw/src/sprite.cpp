@@ -4683,7 +4683,7 @@ int DoActorGlobZ(DSWActor* actor)
 }
 
 
-bool ActorDrop(DSWActor* actor, int x, int y, int z, short new_sector, short min_height)
+bool ActorDrop(DSWActor* actor, int x, int y, int z, sectortype* new_sector, short min_height)
 {
     SPRITEp sp = &actor->s();
     int hiz, loz;
@@ -4739,7 +4739,6 @@ bool DropAhead(DSWActor* actor, int  min_height)
 {
     SPRITEp sp = &actor->s();
     int dax, day;
-    int newsector;
 
     // dax = sp->x + MOVEx(128, sp->ang);
     // day = sp->y + MOVEy(128, sp->ang);
@@ -4747,7 +4746,7 @@ bool DropAhead(DSWActor* actor, int  min_height)
     dax = sp->x + MOVEx(256, sp->ang);
     day = sp->y + MOVEy(256, sp->ang);
 
-    newsector = sp->sectnum;
+    auto newsector = sp->sector();
     updatesector(dax, day, &newsector);
 
     // look straight down for a drop
@@ -4826,7 +4825,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
             return false;
         }
 
-        if (ActorDrop(actor, sp->x, sp->y, sp->z, sp->sectnum, u->lo_step))
+        if (ActorDrop(actor, sp->x, sp->y, sp->z, sp->sector(), u->lo_step))
         {
             // cancel move
             sp->x = x;
@@ -6655,7 +6654,7 @@ MissileZrange(DSWActor* actor)
     tempshort = sp->cstat;
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK);
 
-    FAFgetzrangepoint(sp->x, sp->y, sp->z - 1, sp->sectnum,
+    FAFgetzrangepoint(sp->x, sp->y, sp->z - 1, sp->sector(),
                       &globhiz, &globhihit, &globloz, &globlohit);
 
     sp->cstat = tempshort;
@@ -6714,7 +6713,7 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
     tempshort = sp->cstat;
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK);
 
-    FAFgetzrangepoint(sp->x, sp->y, sp->z - 1, sp->sectnum,
+    FAFgetzrangepoint(sp->x, sp->y, sp->z - 1, sp->sector(),
                       &globhiz, &globhihit, &globloz, &globlohit);
 
     sp->cstat = tempshort;

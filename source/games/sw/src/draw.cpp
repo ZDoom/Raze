@@ -221,7 +221,7 @@ int DoShadowFindGroundPoint(tspriteptr_t sp)
 
     save_cstat = sp->cstat;
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-    FAFgetzrangepoint(sp->x, sp->y, sp->z, sp->sectnum, &hiz, &ceilhit, &loz, &florhit);
+    FAFgetzrangepoint(sp->x, sp->y, sp->z, sp->sector(), &hiz, &ceilhit, &loz, &florhit);
     sp->cstat = save_cstat;
 
     switch (florhit.type)

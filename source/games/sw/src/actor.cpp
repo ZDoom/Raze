@@ -592,7 +592,7 @@ void KeepActorOnFloor(DSWActor* actor)
     {
         int ceilz, florz;
         Collision ctrash, ftrash;
-        FAFgetzrangepoint(sp->x, sp->y, sp->z, sp->sectnum,
+        FAFgetzrangepoint(sp->x, sp->y, sp->z, sp->sector(),
                           &ceilz, &ctrash, &florz, &ftrash);
 
         u->oz = sp->z = florz;

@@ -570,11 +570,11 @@ void FAFgetzrange(vec3_t pos, int16_t sectnum, int32_t* hiz, Collision* ceilhit,
     }
 }
 
-void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, int16_t const sectnum,
+void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, sectortype* const sect,
                        int32_t* hiz, Collision* ceilhit,
                        int32_t* loz, Collision* florhit)
 {
-    auto sect = &sector[sectnum];
+    int sectnum = ::sectnum(sect);
     int foo1;
     Collision foo2;
     bool SkipFAFcheck;

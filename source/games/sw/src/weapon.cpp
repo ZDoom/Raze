@@ -11249,7 +11249,7 @@ int DoFindGroundPoint(DSWActor* actor)
 
     save_cstat = sp->cstat;
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-    FAFgetzrangepoint(sp->x, sp->y, sp->z, sp->sectnum, &u->hiz, &ceilhit, &u->loz, &florhit);
+    FAFgetzrangepoint(sp->x, sp->y, sp->z, sp->sector(), &u->hiz, &ceilhit, &u->loz, &florhit);
     sp->cstat = save_cstat;
 
     switch (florhit.type)
