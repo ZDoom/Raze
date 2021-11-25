@@ -40,7 +40,6 @@ BEGIN_SW_NS
 
 void DoRotatorMatch(PLAYERp pp, short match, bool);
 bool TestRotatorMatchActive(short match);
-void InterpSectorSprites(short sectnum, bool state);
 void DoMatchEverything(PLAYERp pp, short match, short state);
 void DoRotatorSetInterp(DSWActor*);
 void DoRotatorStopInterp(DSWActor*);

@@ -54,7 +54,7 @@ void PutStringInfo(PLAYERp pp, const char* string);
 
 void DoSlidorMatch(PLAYERp pp, short match, bool);
 bool TestSlidorMatchActive(short match);
-void InterpSectorSprites(short sectnum, bool state);
+void InterpSectorSprites(sectortype* sect, bool state);
 
 using INTERP_FUNC = void(*)(walltype*, int);
 

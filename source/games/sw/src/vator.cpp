@@ -42,7 +42,6 @@ BEGIN_SW_NS
 
 void DoVatorMatch(PLAYERp pp, short match);
 bool TestVatorMatchActive(short match);
-void InterpSectorSprites(short sectnum, bool state);
 
 void ReverseVator(DSWActor* actor)
 {
@@ -107,7 +106,7 @@ void SetVatorActive(DSWActor* actor)
     else
         StartInterpolation(sp->sector(), Interp_Sect_Floorz);
 
-    InterpSectorSprites(sp->sectnum, true);
+    InterpSectorSprites(sp->sector(), true);
 
     // play activate sound
     DoSoundSpotMatch(SP_TAG2(sp), 1, SOUND_OBJECT_TYPE);
@@ -135,7 +134,7 @@ void SetVatorInactive(DSWActor* actor)
     else
         StopInterpolation(sp->sector(), Interp_Sect_Floorz);
 
-    InterpSectorSprites(sp->sectnum, false);
+    InterpSectorSprites(sp->sector(), false);
 
     // play inactivate sound
     DoSoundSpotMatch(SP_TAG2(sp), 2, SOUND_OBJECT_TYPE);
@@ -269,11 +268,11 @@ bool TestVatorMatchActive(short match)
     return false;
 }
 
-void InterpSectorSprites(short sectnum, bool state)
+void InterpSectorSprites(sectortype* sect, bool state)
 {
     SPRITEp sp;
 
-    SWSectIterator it(sectnum);
+    SWSectIterator it(sect);
     while (auto actor = it.Next())
     {
         sp = &actor->s();

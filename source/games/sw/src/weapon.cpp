@@ -3173,7 +3173,7 @@ int SpawnShrap(DSWActor* parentActor, DSWActor* secondaryActor, int means, BREAK
         return 0;
 
     // Don't spawn shrapnel in invalid sectors gosh dern it!
-    if (!validSectorIndex(parent->sectnum))
+    if (!parent->insector())
     {
         return 0;
     }

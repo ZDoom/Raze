@@ -2373,7 +2373,7 @@ void PlayerOperateEnv(PLAYERp pp)
             {
             case TAG_VATOR:
                 DoVatorOperate(pp, pp->cursector());
-                DoSpikeOperate(pp->cursectnum);
+                DoSpikeOperate(pp->cursector());
                 DoRotatorOperate(pp, pp->cursector());
                 DoSlidorOperate(pp, pp->cursector());
                 break;

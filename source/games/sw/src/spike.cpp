@@ -37,7 +37,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 BEGIN_SW_NS
 
 bool TestSpikeMatchActive(short match);
-void InterpSectorSprites(short sectnum, bool state);
 
 void ReverseSpike(DSWActor* actor)
 {
@@ -102,7 +101,7 @@ void SetSpikeActive(DSWActor* actor)
     else
         StartInterpolation(sp->sector(), Interp_Sect_Floorheinum);
 
-    InterpSectorSprites(sp->sectnum, true);
+    InterpSectorSprites(sp->sector(), true);
 
     // play activate sound
     DoSoundSpotMatch(SP_TAG2(sp), 1, SOUND_OBJECT_TYPE);
@@ -130,7 +129,7 @@ void SetSpikeInactive(DSWActor* actor)
     else
         StopInterpolation(sp->sector(), Interp_Sect_Floorheinum);
 
-    InterpSectorSprites(sp->sectnum, false);
+    InterpSectorSprites(sp->sector(), false);
 
     // play activate sound
     DoSoundSpotMatch(SP_TAG2(sp), 2, SOUND_OBJECT_TYPE);
@@ -139,20 +138,18 @@ void SetSpikeInactive(DSWActor* actor)
 }
 
 // called for operation from the space bar
-void DoSpikeOperate(short sectnum)
+void DoSpikeOperate(sectortype* sect)
 {
     SPRITEp fsp;
     short match;
 
-    SWSectIterator it(sectnum);
+    SWSectIterator it(sect);
     while (auto actor = it.Next())
     {
         fsp = &actor->s();
 
         if (fsp->statnum == STAT_SPIKE && SP_TAG1(fsp) == SECT_SPIKE && SP_TAG3(fsp) == 0)
         {
-            sectnum = fsp->sectnum;
-
             match = SP_TAG2(fsp);
             if (match > 0)
             {
@@ -267,9 +264,9 @@ void SpikeAlign(DSWActor* actor)
     if ((int8_t)SP_TAG7(sp) < 0)
     {
         if (TEST(sp->cstat, CSTAT_SPRITE_YFLIP))
-            alignceilslope(sp->sectnum, sp->x, sp->y, u->zclip);
+            alignceilslope(sp->sector(), sp->x, sp->y, u->zclip);
         else
-            alignflorslope(sp->sectnum, sp->x, sp->y, u->zclip);
+            alignflorslope(sp->sector(), sp->x, sp->y, u->zclip);
     }
     else
     {
@@ -280,12 +277,12 @@ void SpikeAlign(DSWActor* actor)
     }
 }
 
-void MoveSpritesWithSpike(short sectnum)
+void MoveSpritesWithSpike(sectortype* sect)
 {
     SPRITEp sp;
     int cz,fz;
 
-    SWSectIterator it(sectnum);
+    SWSectIterator it(sect);
     while (auto actor = it.Next())
     {
         sp = &actor->s();
@@ -296,7 +293,7 @@ void MoveSpritesWithSpike(short sectnum)
         if (TEST(sp->extra, SPRX_STAY_PUT_VATOR))
             continue;
 
-        getzsofslope(sectnum, sp->x, sp->y, &cz, &fz);
+        getzsofslopeptr(sect, sp->x, sp->y, &cz, &fz);
         sp->z = fz;
     }
 }
@@ -315,7 +312,7 @@ int DoSpike(DSWActor* actor)
     lptr = &u->zclip;
 
     DoSpikeMove(actor, lptr);
-    MoveSpritesWithSpike(sp->sectnum);
+    MoveSpritesWithSpike(sp->sector());
     SpikeAlign(actor);
 
     // EQUAL this entry has finished
@@ -427,7 +424,7 @@ int DoSpikeAuto(DSWActor* actor)
     lptr = &u->zclip;
 
     DoSpikeMove(actor, lptr);
-    MoveSpritesWithSpike(sp->sectnum);
+    MoveSpritesWithSpike(sp->sector());
     SpikeAlign(actor);
 
     // EQUAL this entry has finished
