@@ -387,7 +387,7 @@ void SectorSetup(void)
     }
 
     memset(SineWaveFloor, 0, sizeof(SineWaveFloor));
-    memset(SpringBoard, -1, sizeof(SpringBoard));
+    memset(SpringBoard, 0, sizeof(SpringBoard));
 
     LevelSecrets = 0;
 
@@ -626,19 +626,19 @@ void DoSpringBoardDown(void)
         sbp = &SpringBoard[sb];
 
         // if empty set up an entry to close the sb later
-        if (sbp->Sector != -1)
+        if (sbp->sectp != nullptr)
         {
             if ((sbp->TimeOut -= synctics) <= 0)
             {
                 int destz;
 
-                destz = nextsectorneighborzptr(sbp->Sector, sector[sbp->Sector].floorz, 1, 1)->floorz;
+                destz = nextsectorneighborzptr(sbp->sectp, sbp->sectp->floorz, 1, 1)->floorz;
 
-                AnimSet(ANIM_Floorz, sbp->Sector, nullptr, destz, 256);
+                AnimSet(ANIM_Floorz, sbp->sectp, destz, 256);
 
-                sector[sbp->Sector].lotag = TAG_SPRING_BOARD;
+                sbp->sectp->lotag = TAG_SPRING_BOARD;
 
-                sbp->Sector = -1;
+                sbp->sectp = nullptr;
             }
         }
     }

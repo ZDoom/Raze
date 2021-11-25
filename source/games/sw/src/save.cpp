@@ -935,7 +935,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, SINE_WALL& w, SINE
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, SPRING_BOARD& w, SPRING_BOARD* def)
 {
-	static SPRING_BOARD nul = { -1,-1 };
+	static SPRING_BOARD nul = { nullptr,-1 };
 	if (!def)
 	{
 		def = &nul;
@@ -944,7 +944,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, SPRING_BOARD& w, S
 
 	if (arc.BeginObject(keyname))
 	{
-		arc("sector", w.Sector, def->Sector)
+		arc("sector", w.sectp, def->sectp)
 			("timeout", w.TimeOut, def->TimeOut)
 			.EndObject();
 	}

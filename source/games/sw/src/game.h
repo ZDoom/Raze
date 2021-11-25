@@ -1553,19 +1553,13 @@ extern SINE_WALL SineWall[MAX_SINE_WALL][MAX_SINE_WALL_POINTS];
 
 struct SPRING_BOARD
 {
-    int Sector, TimeOut;
+    sectortype* sectp;
+    int TimeOut;
 };
 
 extern SPRING_BOARD SpringBoard[20];
 extern SWING Rotate[17];
 
-typedef struct
-{
-    int sector, speed;
-    int xmid, ymid;
-} SPIN;
-
-extern SPIN Spin[17];
 extern DOOR_AUTO_CLOSE DoorAutoClose[MAX_DOOR_AUTO_CLOSE];
 
 #define MAXANIM 256
