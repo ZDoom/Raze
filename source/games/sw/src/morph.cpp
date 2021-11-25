@@ -311,7 +311,7 @@ MorphTornado(SECTOR_OBJECTp sop)
     sop->morph_z += Z(sop->morph_z_speed);
 
     // move vector
-    if (sop->morph_wall_point < 0)
+    if (sop->morph_wall_point == nullptr)
         return;
 
     // place at correct x,y offset from center
@@ -392,7 +392,7 @@ MorphFloor(SECTOR_OBJECTp sop)
     sop->morph_z -= Z(sop->morph_z_speed);
 
     // move vector
-    if (sop->morph_wall_point < 0)
+    if (sop->morph_wall_point == nullptr)
         return;
 
     // place at correct x,y offset from center
@@ -520,7 +520,7 @@ SpikeFloor(SECTOR_OBJECTp sop)
     sop->morph_z -= Z(sop->morph_z_speed);
 
     // move vector
-    if (sop->morph_wall_point < 0)
+    if (sop->morph_wall_point == nullptr)
         return;
 
     // place at correct x,y offset from center

@@ -486,7 +486,7 @@ int DoActorOperate(DSWActor* actor)
 
     if (nearsector >= 0 && nearhitdist < 1024)
     {
-        if (OperateSector(nearsector, false))
+        if (OperateSector(&sector[nearsector], false))
         {
             u->WaitTics = 2 * 120;
 

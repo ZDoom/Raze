@@ -40,7 +40,7 @@ void DoDoorsClose(void);
 short Switch(short SwitchSector);
 void PlayerOperateEnv(PLAYERp pp);
 int TeleportToSector(PLAYERp pp, int newsector);
-int OperateSector(short sectnum,short player_is_operating);
+int OperateSector(sectortype* sect,short player_is_operating);
 int OperateSprite(DSWActor*, short player_is_operating);
 int OperateWall(short wallnum, short player_is_operating);
 void OperateTripTrigger(PLAYERp pp);

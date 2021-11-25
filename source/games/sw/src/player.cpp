@@ -61,7 +61,7 @@ BEGIN_SW_NS
 
 void pSpriteControl(PLAYERp pp);
 int WeaponOperate(PLAYERp pp);
-SECTOR_OBJECTp PlayerOnObject(short sectnum_match);
+SECTOR_OBJECTp PlayerOnObject(sectortype* sect_match);
 void PlayerRemoteReset(PLAYERp pp, sectortype* sect);
 void KillAllPanelInv(PLAYERp pp);
 void DoPlayerDeathDrown(PLAYERp pp);
@@ -4963,7 +4963,7 @@ void DoPlayerBeginOperate(PLAYERp pp)
     int cz, fz;
     int i;
 
-    sop = PlayerOnObject(pp->cursectnum);
+    sop = PlayerOnObject(pp->cursector());
 
     // if someone already controlling it
     if (sop->controller)

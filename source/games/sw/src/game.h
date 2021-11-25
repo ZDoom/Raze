@@ -1646,11 +1646,14 @@ struct SECTOR_OBJECTstruct
 	DSWActor* so_actors[MAX_SO_SPRITE];    // hold the actors of the object
 	DSWActor* match_event_actor; // spritenum of the match event sprite
 
-    sectortype*
-        sectp[MAX_SO_SECTOR],
+    sectortype
+        *sectp[MAX_SO_SECTOR],
         *scratch,           // Just a filler to account for shitty loop tests.
         *op_main_sector, // main sector operational SO moves in - for speed purposes
         *mid_sector;     // middle sector
+
+    walltype
+        * morph_wall_point;       // actual wall point to drag
 
 
     int    vel,            // velocity
@@ -1735,7 +1738,6 @@ struct SECTOR_OBJECTstruct
             scale_y_mult,           // y multiplyer for scaling
 
     // Used for center point movement
-            morph_wall_point,       // actual wall point to drag
             morph_ang,              // angle moving from CENTER
             morph_speed,            // speed of movement
             morph_dist_max,         // radius boundry
@@ -2080,7 +2082,7 @@ void LoadGameDescr(short save_num, char *descr);    // save.c
 void SetRotatorActive(DSWActor* actor); // rotator.c
 
 bool VatorSwitch(short match, short setting); // vator.c
-void MoveSpritesWithSector(int sectnum,int z_amt,bool type);  // vator.c
+void MoveSpritesWithSector(sectortype* sect,int z_amt,bool type);  // vator.c
 void SetVatorActive(DSWActor*);   // vator.c
 
 void DoSpikeMatch(short match); // spike.c

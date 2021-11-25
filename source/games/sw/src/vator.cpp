@@ -295,15 +295,14 @@ void InterpSectorSprites(short sectnum, bool state)
     }
 }
 
-void MoveSpritesWithSector(int sectnum, int z_amt, bool type)
+void MoveSpritesWithSector(sectortype* sect, int z_amt, bool type)
 {
     SPRITEp sp;
     bool both = false;
-    auto sect = &sector[sectnum];
     if ( sect->hasU())
         both = !!TEST(sect->flags, SECTFU_VATOR_BOTH);
 
-    SWSectIterator it(sectnum);
+    SWSectIterator it(sect);
     while (auto actor = it.Next())
     {
         sp = &actor->s();
@@ -417,13 +416,13 @@ int DoVator(DSWActor* actor)
     {
         lptr = &sectp->ceilingz;
         amt = DoVatorMove(actor, lptr);
-        MoveSpritesWithSector(sp->sectnum, amt, true); // ceiling
+        MoveSpritesWithSector(sp->sector(), amt, true); // ceiling
     }
     else
     {
         lptr = &sectp->floorz;
         amt = DoVatorMove(actor, lptr);
-        MoveSpritesWithSector(sp->sectnum, amt, false); // floor
+        MoveSpritesWithSector(sp->sector(), amt, false); // floor
     }
 
     // EQUAL this entry has finished
@@ -579,13 +578,13 @@ int DoVatorAuto(DSWActor* actor)
     {
         lptr = &sectp->ceilingz;
         amt = DoVatorMove(actor, lptr);
-        MoveSpritesWithSector(sp->sectnum, amt, true); // ceiling
+        MoveSpritesWithSector(sp->sector(), amt, true); // ceiling
     }
     else
     {
         lptr = &sectp->floorz;
         amt = DoVatorMove(actor, lptr);
-        MoveSpritesWithSector(sp->sectnum, amt, false); // floor
+        MoveSpritesWithSector(sp->sector(), amt, false); // floor
     }
 
     // EQUAL this entry has finished

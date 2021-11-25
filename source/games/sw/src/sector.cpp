@@ -383,6 +383,7 @@ void SectorSetup(void)
         SectorObject[ndx].sp_child = nullptr;
         SectorObject[ndx].mid_sector = nullptr;
         SectorObject[ndx].op_main_sector = nullptr;
+        SectorObject[ndx].morph_wall_point = nullptr;
         SectorObject[ndx].xmid = INT32_MAX;
     }
 
@@ -689,10 +690,9 @@ short DoSpawnActorTrigger(short match)
     return spawn_count;
 }
 
-int OperateSector(short sectnum, short player_is_operating)
+int OperateSector(sectortype* sect, short player_is_operating)
 {
     PLAYERp pp = GlobPlayerP;
-    auto sect = &sector[sectnum];
 
     // Don't let actors operate locked or secret doors
     if (!player_is_operating)
@@ -2349,7 +2349,7 @@ void PlayerOperateEnv(PLAYERp pp)
 
                 if (neartagsector >= 0 && neartaghitdist < 1024)
                 {
-                    if (OperateSector(neartagsector, true))
+                    if (OperateSector(&sector[neartagsector], true))
                     {
                         // Release the key
                         pp->KeyPressBits &= ~SB_OPEN;
@@ -2382,7 +2382,7 @@ void PlayerOperateEnv(PLAYERp pp)
                 pp->KeyPressBits &= ~SB_OPEN;
                 break;
             case TAG_DOOR_ROTATE:
-                if (OperateSector(pp->cursectnum, true))
+                if (OperateSector(pp->cursector(), true))
                     pp->KeyPressBits &= ~SB_OPEN;
                 break;
             }

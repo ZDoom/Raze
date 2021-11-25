@@ -2149,7 +2149,7 @@ void SpriteSetup(void)
                             sectp->floorz += amt;
                             u->z_tgt = u->sz;
 
-                            MoveSpritesWithSector(sp->sectnum, amt, false); // floor
+                            MoveSpritesWithSector(sp->sector(), amt, false); // floor
                         }
 
                         // set orig z
@@ -2170,7 +2170,7 @@ void SpriteSetup(void)
                             sectp->ceilingz += amt;
                             u->z_tgt = u->sz;
 
-                            MoveSpritesWithSector(sp->sectnum, amt, true); // ceiling
+                            MoveSpritesWithSector(sp->sector(), amt, true); // ceiling
                         }
 
                         // set orig z

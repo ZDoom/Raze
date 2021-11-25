@@ -116,16 +116,15 @@ point to the sprite.
 
 */
 
-short ActorFindTrack(DSWActor* actor, int8_t player_dir, int track_type, int *track_point_num, int *track_dir)
+short ActorFindTrack(DSWActor* actor, int8_t player_dir, int track_type, int* track_point_num, int* track_dir)
 {
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
 
     int dist, near_dist = 999999, zdiff;
-    int track_sect=0;
 
     int i;
-    short end_point[2] = {0,0};
+    short end_point[2] = { 0,0 };
 
     TRACKp t, near_track = nullptr;
     TRACK_POINTp tp, near_tp = nullptr;
@@ -251,25 +250,19 @@ short ActorFindTrack(DSWActor* actor, int8_t player_dir, int track_type, int *tr
 
     }
 
+    auto track_sect = &sector[0];
     if (near_dist < 15000)
     {
         // get the sector number of the point
         updatesector(near_tp->x, near_tp->y, &track_sect);
 
         // if can see the point, return the track number
-        if (FAFcansee(sp->x, sp->y, sp->z - Z(16), sp->sector(), near_tp->x, near_tp->y, sector[track_sect].floorz - Z(32), &sector[track_sect]))
+        if (track_sect && FAFcansee(sp->x, sp->y, sp->z - Z(16), sp->sector(), near_tp->x, near_tp->y, track_sect->floorz - Z(32), track_sect))
         {
-            //DSPRINTF(ds,"Found track point in sector %d\n",track_sect);
-            MONO_PRINT(ds);
             return short(near_track - &Track[0]);
         }
-
-        return -1;
     }
-    else
-    {
-        return -1;
-    }
+    return -1;
 }
 
 
@@ -844,7 +837,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
         {
             // for morph point - tornado style
             if (wal.lotag == TAG_WALL_ALIGN_SLOPE_TO_POINT)
-                sop->morph_wall_point = k;
+                sop->morph_wall_point = &wal;
 
             if (wal.extra && TEST(wal.extra, WALLFX_LOOP_OUTER))
                 FoundOutsideLoop = true;
@@ -1033,6 +1026,8 @@ void SetupSectorObject(sectortype* sectp, short tag)
 
         memset(sop->sectp, 0, sizeof(sop->sectp));
         memset(sop->so_actors, 0, sizeof(sop->so_actors));
+        sop->morph_wall_point = nullptr;
+        sop->op_main_sector = nullptr;
         sop->scratch = nullptr; // this is a guard field for sectp, because several loops do not test the end properly.
         sop->match_event_actor = nullptr;
         sop->crush_z = 0;
@@ -1411,11 +1406,10 @@ void PostSetupSectorObject(void)
 }
 
 
-SECTOR_OBJECTp PlayerOnObject(short sectnum_match)
+SECTOR_OBJECTp PlayerOnObject(sectortype* match)
 {
     short i, j;
     SECTOR_OBJECTp sop;
-    auto match = &sector[sectnum_match];
 
     // place each sector object on the track
     //for (i = 0; !SO_EMPTY(&SectorObject[i]) && (i < MAX_SECTOR_OBJECTS); i++)
@@ -3256,7 +3250,7 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
 
         if (nearsector >= 0 && nearhitdist < 1024)
         {
-            if (OperateSector(nearsector, false))
+            if (OperateSector(&sector[nearsector], false))
             {
                 if (!tpoint->tag_high)
                     u->WaitTics = 2 * 120;
