@@ -487,15 +487,6 @@ int DoActorOperate(DSWActor* actor)
         }
     }
 
-    if (nearwall >= 0 && nearhitdist < 1024)
-    {
-        if (OperateWall(nearwall, false))
-        {
-            u->WaitTics = 2 * 120;
-
-            NewStateGroup(actor, u->ActorActionSet->Stand);
-        }
-    }
     return true;
 
 }

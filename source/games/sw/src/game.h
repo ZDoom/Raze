@@ -2101,7 +2101,7 @@ int DoWallMoveMatch(short match);   // wallmove.c
 int DoWallMove(DSWActor* sp); // wallmove.c
 bool CanSeeWallMove(SPRITEp wp,short match);    // wallmove.c
 
-void DoSpikeOperate(short sectnum); // spike.c
+void DoSpikeOperate(sectortype* sect); // spike.c
 void SetSpikeActive(DSWActor*);   // spike.c
 
 #define NTAG_SEARCH_LO 1

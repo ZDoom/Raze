@@ -1592,7 +1592,7 @@ void SpriteSetupPost(void)
             if (jActor->hasU())
                 continue;
 
-            getzsofslope(ds->sectnum, ds->x, ds->y, &cz, &fz);
+            getzsofslopeptr(ds->sector(), ds->x, ds->y, &cz, &fz);
             if (labs(ds->z - fz) > Z(4))
                 continue;
 
@@ -3581,7 +3581,7 @@ bool ItemSpotClear(DSWActor* actor, short statnum, short id)
 
     if (TEST_BOOL2(sip))
     {
-        SWSectIterator it(sip->sectnum);
+        SWSectIterator it(sip->sector());
         while (auto itActor = it.Next())
         {
             if (itActor->s().statnum == statnum && itActor->u()->ID == id)

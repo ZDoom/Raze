@@ -18585,7 +18585,7 @@ int QueueStar(DSWActor* actor)
         // move old star to new stars place
         osp = &StarQueue[StarQueueHead]->s();
         osp->pos = sp->pos;
-        ChangeActorSect(StarQueue[StarQueueHead], sp->sectnum);
+        ChangeActorSect(StarQueue[StarQueueHead], sp->sector());
         KillActor(actor);
         actor = StarQueue[StarQueueHead];
     }
@@ -19101,11 +19101,10 @@ void QueueGeneric(DSWActor* actor, short pic)
     {
         // move old sprite to new sprite's place
         osp = &GenericQueue[GenericQueueHead]->s();
-        //setspritez(GenericQueue[GenericQueueHead], &sp->pos);
         osp->x = sp->x;
         osp->y = sp->y;
         osp->z = sp->z;
-        ChangeActorSect(GenericQueue[GenericQueueHead], sp->sectnum);
+        ChangeActorSect(GenericQueue[GenericQueueHead], sp->sector());
         KillActor(actor);
         actor = GenericQueue[GenericQueueHead];
         ASSERT(actor->s().statnum != MAXSTATUS);

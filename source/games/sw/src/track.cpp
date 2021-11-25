@@ -1670,10 +1670,8 @@ void MovePoints(SECTOR_OBJECTp sop, short delta_ang, int nx, int ny)
     sop->sp_child->s().x = sop->xmid;
     sop->sp_child->s().y = sop->ymid;
 
-    //updatesector(sop->xmid, sop->ymid, &sop->sectnum);
 
     // setting floorz if need be
-    //if (!TEST(sop->flags, SOBJ_SPRITE_OBJ))
     if (TEST(sop->flags, SOBJ_ZMID_FLOOR))
         sop->zmid = sop->mid_sector->floorz;
 
@@ -3222,9 +3220,6 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
 
         sp->ang = tpoint->ang;
 
-//          //DSPRINTF(ds,"sp->x = %ld, sp->y = %ld, sp->sector = %d, tp->x = %ld, tp->y = %ld, tp->ang = %d\n",sp->x,sp->y,sp->sectnum,tpoint->x,tpoint->y,tpoint->ang);
-//          MONO_PRINT(ds);
-
         z[0] = sp->z - SPRITEp_SIZE_Z(sp) + Z(5);
         z[1] = sp->z - DIV2(SPRITEp_SIZE_Z(sp));
 
@@ -3258,19 +3253,6 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
                     u->WaitTics = tpoint->tag_high * 128;
 
                 NewStateGroup(actor, u->ActorActionSet->Sit);
-            }
-        }
-
-        if (nearwall >= 0 && nearhitdist < 1024)
-        {
-            if (OperateWall(nearwall, false))
-            {
-                if (!tpoint->tag_high)
-                    u->WaitTics = 2 * 120;
-                else
-                    u->WaitTics = tpoint->tag_high * 128;
-
-                NewStateGroup(actor, u->ActorActionSet->Stand);
             }
         }
 

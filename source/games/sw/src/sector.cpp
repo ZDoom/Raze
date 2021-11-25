@@ -740,12 +740,6 @@ int OperateSector(sectortype* sect, short player_is_operating)
     return false;
 }
 
-int 
-OperateWall(short wallnum, short player_is_operating)
-{
-    return false;
-}
-
 enum
 {
     SWITCH_LEVER = 581,
@@ -2130,8 +2124,8 @@ void NearTagList(NEAR_TAG_INFOp ntip, PLAYERp pp, int z, int dist, int type, int
         save_hitag = ntsec->hitag;
 
         ntip->dist = neartaghitdist;
-        ntip->sectnum = neartagsector;
-        ntip->wallnum = -1;
+        ntip->sectp = ntsec;
+        ntip->wallp = nullptr;
         ntip->actor = nullptr;
         nti_cnt++;
         ntip++;
@@ -2157,8 +2151,8 @@ void NearTagList(NEAR_TAG_INFOp ntip, PLAYERp pp, int z, int dist, int type, int
         save_hitag = ntwall->hitag;
 
         ntip->dist = neartaghitdist;
-        ntip->sectnum = -1;
-        ntip->wallnum = neartagwall;
+        ntip->sectp = nullptr;
+        ntip->wallp = ntwall;
         ntip->actor = nullptr;
         nti_cnt++;
         ntip++;
@@ -2185,8 +2179,8 @@ void NearTagList(NEAR_TAG_INFOp ntip, PLAYERp pp, int z, int dist, int type, int
         save_hitag = sp->hitag;
 
         ntip->dist = neartaghitdist;
-        ntip->sectnum = -1;
-        ntip->wallnum = -1;
+        ntip->sectp = nullptr;
+        ntip->wallp = nullptr;
         ntip->actor = actor;
         nti_cnt++;
         ntip++;
@@ -2207,8 +2201,8 @@ void NearTagList(NEAR_TAG_INFOp ntip, PLAYERp pp, int z, int dist, int type, int
     else
     {
         ntip->dist = -1;
-        ntip->sectnum = -1;
-        ntip->wallnum = -1;
+        ntip->sectp = nullptr;
+        ntip->wallp = nullptr;
         ntip->actor = nullptr;
         nti_cnt++;
         ntip++;
@@ -2341,25 +2335,16 @@ void PlayerOperateEnv(PLAYERp pp)
 
             {
                 int neartaghitdist;
-                short neartagsector, neartagwall;
+                sectortype* neartagsector;
 
                 neartaghitdist = nti[0].dist;
-                neartagsector = nti[0].sectnum;
-                neartagwall = nti[0].wallnum;
+                neartagsector = nti[0].sectp;
 
-                if (neartagsector >= 0 && neartaghitdist < 1024)
+                if (neartagsector != nullptr && neartaghitdist < 1024)
                 {
-                    if (OperateSector(&sector[neartagsector], true))
+                    if (OperateSector(neartagsector, true))
                     {
                         // Release the key
-                        pp->KeyPressBits &= ~SB_OPEN;
-                    }
-                }
-
-                if (neartagwall >= 0 && neartaghitdist < 1024)
-                {
-                    if (OperateWall(neartagwall, true))
-                    {
                         pp->KeyPressBits &= ~SB_OPEN;
                     }
                 }
