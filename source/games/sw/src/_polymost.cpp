@@ -4,7 +4,7 @@ bool FindCeilingView(int match, int* x, int* y, int z, sectortype** sectnum);
 bool FindFloorView(int match, int* x, int* y, int z, sectortype** sectnum);
 
 
-int ViewSectorInScene(int cursectnum, int level)
+int ViewSectorInScene(sectortype* cursect, int level)
 {
     SWStatIterator it(STAT_FAF);
     while (auto actor = it.Next())
@@ -13,7 +13,7 @@ int ViewSectorInScene(int cursectnum, int level)
 
         if (sp->hitag == level)
         {
-            if (cursectnum == sp->sectnum)
+            if (cursect == sp->sector())
             {
                 // ignore case if sprite is pointing up
                 if (sp->ang == 1536)
@@ -40,7 +40,7 @@ void DrawOverlapRoom(int tx, int ty, int tz, fixed_t tq16ang, fixed_t tq16horiz,
 {
     save.zcount = 0;
 
-    int match = ViewSectorInScene(sectnum(tsect), VIEW_LEVEL1);
+    int match = ViewSectorInScene(tsect, VIEW_LEVEL1);
     if (match != -1)
     {
         FindCeilingView(match, &tx, &ty, tz, &tsect);
@@ -65,7 +65,7 @@ void DrawOverlapRoom(int tx, int ty, int tz, fixed_t tq16ang, fixed_t tq16horiz,
     }
     else
     {
-        int match = ViewSectorInScene(sectnum(tsect), VIEW_LEVEL2);
+        int match = ViewSectorInScene(tsect, VIEW_LEVEL2);
         if (match != -1)
         {
             FindFloorView(match, &tx, &ty, tz, &tsect);

@@ -1995,7 +1995,7 @@ void PlayerSectorBound(PLAYERp pp, int amt)
     // called from DoPlayerMove() but can be called
     // from anywhere it is needed
 
-    getzsofslope(pp->cursectnum, pp->posx, pp->posy, &cz, &fz);
+    getzsofslopeptr(pp->cursector(), pp->posx, pp->posy, &cz, &fz);
 
     if (pp->posz > fz - amt)
         pp->posz = fz - amt;
@@ -2160,7 +2160,7 @@ void DoPlayerMove(PLAYERp pp)
         DoPlayerHorizon(pp, pp->input.horz, 1);
     }
 
-    if (pp->cursectnum >= 0 && TEST(pp->cursector()->extra, SECTFX_DYNAMIC_AREA))
+    if (pp->insector() && TEST(pp->cursector()->extra, SECTFX_DYNAMIC_AREA))
     {
         if (TEST(pp->Flags, PF_FLYING|PF_JUMPING|PF_FALLING))
         {
@@ -3564,7 +3564,7 @@ void DoPlayerCrawl(PLAYERp pp)
         return;
     }
 
-    if (pp->cursectnum >= 0 && TEST(pp->cursector()->extra, SECTFX_DYNAMIC_AREA))
+    if (pp->insector() && TEST(pp->cursector()->extra, SECTFX_DYNAMIC_AREA))
     {
         pp->posz = pp->loz - PLAYER_CRAWL_HEIGHT;
     }
@@ -5002,7 +5002,7 @@ void DoPlayerBeginOperate(PLAYERp pp)
     pp->posx = sop->xmid;
     pp->posy = sop->ymid;
     updatesector(pp->posx, pp->posy, &pp->cursectnum);
-    getzsofslope(pp->cursectnum, pp->posx, pp->posy, &cz, &fz);
+    getzsofslopeptr(pp->cursector(), pp->posx, pp->posy, &cz, &fz);
     pp->posz = fz - PLAYER_HEIGHT;
 
     RESET(pp->Flags, PF_CRAWLING|PF_JUMPING|PF_FALLING|PF_LOCK_CRAWL);
@@ -5087,7 +5087,7 @@ void DoPlayerBeginRemoteOperate(PLAYERp pp, SECTOR_OBJECTp sop)
     pp->posx = sop->xmid;
     pp->posy = sop->ymid;
     updatesector(pp->posx, pp->posy, &pp->cursectnum);
-    getzsofslope(pp->cursectnum, pp->posx, pp->posy, &cz, &fz);
+    getzsofslopeptr(pp->cursector(), pp->posx, pp->posy, &cz, &fz);
     pp->posz = fz - PLAYER_HEIGHT;
 
     RESET(pp->Flags, PF_CRAWLING|PF_JUMPING|PF_FALLING|PF_LOCK_CRAWL);
@@ -6345,7 +6345,7 @@ void DoPlayerRun(PLAYERp pp)
         {
             if (pp->input.actions & SB_OPEN)
             {
-                if ((pp->KeyPressBits & SB_OPEN) && pp->cursectnum >= 0)
+                if ((pp->KeyPressBits & SB_OPEN) && pp->insector())
                 {
                     if (TEST(pp->cursector()->extra, SECTFX_OPERATIONAL))
                     {
@@ -6998,7 +6998,7 @@ void PlayerSpawnPosition(PLAYERp pp)
     pp->angle.ang = pp->angle.oang = buildang(sp->ang);
     pp->setcursector(sp->sector());
 
-    getzsofslope(pp->cursectnum, pp->posx, pp->posy, &cz, &fz);
+    getzsofslopeptr(pp->cursector(), pp->posx, pp->posy, &cz, &fz);
     // if too close to the floor - stand up
     if (pp->posz > fz - PLAYER_HEIGHT)
     {
@@ -7094,7 +7094,7 @@ int DoFootPrints(DSWActor* actor)
 
     if (u->PlayerP)
     {
-        if (u->PlayerP->cursectnum < 0)
+        if (!u->PlayerP->insector())
             return 0;
 
         if (FAF_ConnectArea(u->PlayerP->cursector()))
