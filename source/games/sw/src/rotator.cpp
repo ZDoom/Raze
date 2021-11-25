@@ -130,9 +130,9 @@ void SetRotatorInactive(DSWActor* actor)
 }
 
 // called for operation from the space bar
-void DoRotatorOperate(PLAYERp pp, short sectnum)
+void DoRotatorOperate(PLAYERp pp, sectortype* sect)
 {
-    short match = sector[sectnum].hitag;
+    short match = sect->hitag;
 
     if (match > 0)
     {

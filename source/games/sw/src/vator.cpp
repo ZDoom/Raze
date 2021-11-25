@@ -144,12 +144,12 @@ void SetVatorInactive(DSWActor* actor)
 }
 
 // called for operation from the space bar
-void DoVatorOperate(PLAYERp pp, short sectnum)
+void DoVatorOperate(PLAYERp pp, sectortype* sect)
 {
     SPRITEp fsp;
     short match;
 
-    SWSectIterator it(sectnum);
+    SWSectIterator it(sect);
     while (auto actor = it.Next())
     {
         fsp = &actor->s();

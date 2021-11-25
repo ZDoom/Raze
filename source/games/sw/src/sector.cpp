@@ -68,11 +68,11 @@ bool TestSpikeMatchActive(short match);
 bool TestRotatorMatchActive(short match);
 bool TestSlidorMatchActive(short match);
 int PlayerCheckDeath(PLAYERp, DSWActor*);
-void DoVatorOperate(PLAYERp, short);
+void DoVatorOperate(PLAYERp, sectortype*);
 void DoVatorMatch(PLAYERp pp, short match);
-void DoRotatorOperate(PLAYERp, short);
+void DoRotatorOperate(PLAYERp, sectortype*);
 void DoRotatorMatch(PLAYERp pp, short match, bool);
-void DoSlidorOperate(PLAYERp, short);
+void DoSlidorOperate(PLAYERp, sectortype*);
 void DoSlidorMatch(PLAYERp pp, short match, bool);
 
 void KillMatchingCrackSprites(short match);
@@ -708,17 +708,17 @@ short DoSpawnActorTrigger(short match)
 int OperateSector(short sectnum, short player_is_operating)
 {
     PLAYERp pp = GlobPlayerP;
+    auto sect = &sector[sectnum];
 
     // Don't let actors operate locked or secret doors
     if (!player_is_operating)
     {
         SPRITEp fsp;
-        auto sect = &sector[sectnum];
 
         if (sect->hasU() && sect->stag == SECT_LOCK_DOOR)
             return false;
 
-        SWSectIterator it(sectnum);
+        SWSectIterator it(sect);
         while (auto actor = it.Next())
         {
             fsp = &actor->s();
@@ -737,19 +737,19 @@ int OperateSector(short sectnum, short player_is_operating)
         }
     }
 
-    switch (sector[sectnum].lotag)
+    switch (sect->lotag)
     {
 
     case TAG_VATOR:
-        DoVatorOperate(pp, sectnum);
+        DoVatorOperate(pp, sect);
         return true;
 
     case TAG_ROTATOR:
-        DoRotatorOperate(pp, sectnum);
+        DoRotatorOperate(pp, sect);
         return true;
 
     case TAG_SLIDOR:
-        DoSlidorOperate(pp, sectnum);
+        DoSlidorOperate(pp, sect);
         return true;
     }
 
@@ -2388,10 +2388,10 @@ void PlayerOperateEnv(PLAYERp pp)
 			switch (pp->cursector()->lotag)
             {
             case TAG_VATOR:
-                DoVatorOperate(pp, pp->cursectnum);
+                DoVatorOperate(pp, pp->cursector());
                 DoSpikeOperate(pp->cursectnum);
-                DoRotatorOperate(pp, pp->cursectnum);
-                DoSlidorOperate(pp, pp->cursectnum);
+                DoRotatorOperate(pp, pp->cursector());
+                DoSlidorOperate(pp, pp->cursector());
                 break;
             case TAG_SPRING_BOARD:
                 DoSpringBoard(pp/*, pp->cursectnum*/);

@@ -125,11 +125,11 @@ void SetSlidorInactive(DSWActor* actor)
 }
 
 // called for operation from the space bar
-void DoSlidorOperate(PLAYERp pp, short sectnum)
+void DoSlidorOperate(PLAYERp pp, sectortype* sect)
 {
     short match;
 
-    match = sector[sectnum].hitag;
+    match = sect->hitag;
 
 
     if (match > 0)
