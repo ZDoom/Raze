@@ -109,7 +109,7 @@ static int GetClosestPointOnWall(spritetype* spr, walltype* wal, vec2_t* const n
 static int IsOnWall(spritetype* tspr, int height)
 {
 	int dist = 3, closest = -1;
-	auto sect = &sector[tspr->sectnum];
+	auto sect = tspr->sector();
 	vec2_t n;
 
 	int topz = (tspr->z - ((height * tspr->yrepeat) << 2));

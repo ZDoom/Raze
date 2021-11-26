@@ -2633,7 +2633,7 @@ void polymost_deletesprite(int num)
 static inline int32_t polymost_findwall(tspritetype const * const tspr, vec2_t const * const tsiz, int32_t * rd)
 {
     int32_t dist = 4, closest = -1;
-    auto const sect = &sector[tspr->sectnum];
+    auto const sect = tspr->sector();
     vec2_t n;
 
     for (intptr_t i=sect->wallptr; i<sect->wallptr + sect->wallnum; i++)
@@ -2716,7 +2716,7 @@ void polymost_drawsprite(int32_t snum)
     globalpicnum = tspr->picnum;
     globalshade = tspr->shade;
     globalpal = tspr->pal;
-    globalfloorpal = sector[tspr->sectnum].floorpal;
+    globalfloorpal = tspr->sector()->floorpal;
     globalorientation = tspr->cstat;
 
     GLInterface.SetVisibility(sectorVisibility(tspr->sectnum));
@@ -2740,7 +2740,7 @@ void polymost_drawsprite(int32_t snum)
     drawpoly_alpha = spriteext[spritenum].alpha;
     drawpoly_blend = tspr->blend;
 
-    sec = (usectorptr_t)&sector[tspr->sectnum];
+    sec = (usectorptr_t)tspr->sector();
 
     while (!(spriteext[spritenum].flags & SPREXT_NOTMD))
     {
@@ -2881,16 +2881,16 @@ void polymost_drawsprite(int32_t snum)
             }
 
             // Clip sprites to ceilings/floors when no parallaxing and not sloped
-            if (!(sector[tspr->sectnum].ceilingstat & 3))
+            if (!(tspr->sector()->ceilingstat & 3))
             {
-                s0.Y = ((float) (sector[tspr->sectnum].ceilingz - globalposz)) * gyxscale * ryp0 + ghoriz;
+                s0.Y = ((float) (tspr->sector()->ceilingz - globalposz)) * gyxscale * ryp0 + ghoriz;
                 if (pxy[0].Y < s0.Y)
                     pxy[0].Y = pxy[1].Y = s0.Y;
             }
 
-            if (!(sector[tspr->sectnum].floorstat & 3))
+            if (!(tspr->sector()->floorstat & 3))
             {
-                s0.Y = ((float) (sector[tspr->sectnum].floorz - globalposz)) * gyxscale * ryp0 + ghoriz;
+                s0.Y = ((float) (tspr->sector()->floorz - globalposz)) * gyxscale * ryp0 + ghoriz;
                 if (pxy[2].Y > s0.Y)
                     pxy[2].Y = pxy[3].Y = s0.Y;
             }
@@ -3054,20 +3054,20 @@ void polymost_drawsprite(int32_t snum)
             }
 
             // Clip sprites to ceilings/floors when no parallaxing
-            if (!(sector[tspr->sectnum].ceilingstat & 1))
+            if (!(tspr->sector()->ceilingstat & 1))
             {
-                if (sector[tspr->sectnum].ceilingz > pos.z - (float)((tspr->yrepeat * tsiz.y) << 2))
+                if (tspr->sector()->ceilingz > pos.z - (float)((tspr->yrepeat * tsiz.y) << 2))
                 {
-                    sc0 = (float)(sector[tspr->sectnum].ceilingz - globalposz) * ryp0 + ghoriz;
-                    sc1 = (float)(sector[tspr->sectnum].ceilingz - globalposz) * ryp1 + ghoriz;
+                    sc0 = (float)(tspr->sector()->ceilingz - globalposz) * ryp0 + ghoriz;
+                    sc1 = (float)(tspr->sector()->ceilingz - globalposz) * ryp1 + ghoriz;
                 }
             }
-            if (!(sector[tspr->sectnum].floorstat & 1))
+            if (!(tspr->sector()->floorstat & 1))
             {
-                if (sector[tspr->sectnum].floorz < pos.z)
+                if (tspr->sector()->floorz < pos.z)
                 {
-                    sf0 = (float)(sector[tspr->sectnum].floorz - globalposz) * ryp0 + ghoriz;
-                    sf1 = (float)(sector[tspr->sectnum].floorz - globalposz) * ryp1 + ghoriz;
+                    sf0 = (float)(tspr->sector()->floorz - globalposz) * ryp0 + ghoriz;
+                    sf1 = (float)(tspr->sector()->floorz - globalposz) * ryp1 + ghoriz;
                 }
             }
 
@@ -3924,7 +3924,7 @@ int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr, bool rotate)
     GLInterface.SetMatrix(Matrix_Model, mat);
 
     GLInterface.SetPalswap(globalpal);
-    GLInterface.SetFade(sector[tspr->sectnum].floorpal);
+    GLInterface.SetFade(tspr->sector()->floorpal);
 
     auto tex = TexMan.GetGameTexture(m->model->GetPaletteTexture());
     GLInterface.SetTexture(tex, TRANSLATION(Translation_Remap + curbasepal, globalpal), CLAMP_NOFILTER_XY, true);

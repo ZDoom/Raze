@@ -309,7 +309,7 @@ void HWDrawInfo::DispatchSprites()
 				{
 					HWSprite hwsprite;
 					int num = tilenum;
-					hwsprite.ProcessVoxel(this, voxmodels[tspr->picnum], tspr, &sector[tspr->sectnum], voxrotate[num]);
+					hwsprite.ProcessVoxel(this, voxmodels[tspr->picnum], tspr, tspr->sector(), voxrotate[num]);
 					continue;
 				}
 			}
@@ -331,21 +331,21 @@ void HWDrawInfo::DispatchSprites()
 		case CSTAT_SPRITE_ALIGNMENT_FACING:
 		{
 			HWSprite sprite;
-			sprite.Process(this, tspr, &sector[tspr->sectnum], false);
+			sprite.Process(this, tspr, tspr->sector(), false);
 			break;
 		}
 
 		case CSTAT_SPRITE_ALIGNMENT_WALL:
 		{
 			HWWall wall;
-			wall.ProcessWallSprite(this, tspr, &sector[tspr->sectnum]);
+			wall.ProcessWallSprite(this, tspr, tspr->sector());
 			break;
 		}
 
 		case CSTAT_SPRITE_ALIGNMENT_FLOOR:
 		{
 			HWFlat flat;
-			flat.ProcessFlatSprite(this, tspr, &sector[tspr->sectnum]);
+			flat.ProcessFlatSprite(this, tspr, tspr->sector());
 			break;
 		}
 
