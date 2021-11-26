@@ -10264,7 +10264,7 @@ void SpawnBreakStaticFlames(DSWActor* actor)
 
     nu->Radius = 200;
     nu->floor_dist = nu->ceiling_dist = 0;
-    np->z = getflorzofslope(np->sectnum,np->x,np->y);
+    np->z = getflorzofslopeptr(np->sector(), np->x, np->y);
 
     PlaySound(DIGI_FIRE1,actorNew,v3df_dontpan|v3df_doppler);
 }
@@ -10892,7 +10892,7 @@ void SpawnExpZadjust(DSWActor* actor, DSWActor* expActor, int upper_zsize, int l
     {
         int cz,fz;
 
-        getzsofslope(exp->sectnum, exp->x, exp->y, &cz, &fz);
+        getzsofslopeptr(exp->sector(), exp->x, exp->y, &cz, &fz);
 
         tos_z = exp->z - upper_zsize;
         bos_z = exp->z + lower_zsize;
@@ -11397,7 +11397,6 @@ int DoBloodWorm(DSWActor* actor)
     int xvect,yvect;
     int bx,by;
     int amt;
-    int sectnum;
 
     u->coll = move_ground_missile(actor, u->xchange, u->ychange, u->ceiling_dist, u->floor_dist, CLIPMASK_MISSILE, MISSILEMOVETICS);
 
@@ -11460,9 +11459,9 @@ int DoBloodWorm(DSWActor* actor)
     sp->x += MulScale(amt,xvect, 15);
     sp->y += MulScale(amt,yvect, 15);
 
-    sectnum = sp->sectnum;
-    updatesectorz(sp->x, sp->y, sp->z, &sectnum);
-    if (sectnum >= 0)
+    auto sect = sp->sector();
+    updatesectorz(sp->x, sp->y, sp->z, &sect);
+    if (sect)
     {
         GlobalSkipZrange = true;
         InitBloodSpray(actor, false, 1);

@@ -4767,7 +4767,6 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
     DSWActor* highActor;
     DSWActor* lowActor;
     SECTORp lo_sectp, hi_sectp;
-    short sectnum;
     short dist;
     int cliptype = CLIPMASK_ACTOR;
 
@@ -4789,7 +4788,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
     highActor = u->highActor;
     lo_sectp = u->lo_sectp;
     hi_sectp = u->hi_sectp;
-    sectnum = sp->sectnum;
+    auto sect = sp->sector();
 
     u->coll = move_sprite(actor, xchange, ychange, zchange,
                          u->ceiling_dist, u->floor_dist, cliptype, ACTORMOVETICS);

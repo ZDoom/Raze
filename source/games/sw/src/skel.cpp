@@ -570,7 +570,7 @@ int DoSkelTeleport(DSWActor* actor)
 
         SetActorZ(actor, &sp->pos);
 
-        if (sp->sectnum != -1)
+        if (sp->insector())
             break;
     }
 
