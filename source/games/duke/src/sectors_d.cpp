@@ -899,7 +899,7 @@ void checkplayerhurt_d(struct player_struct* p, const Collision& coll)
 {
 	if (coll.type == kHitSprite)
 	{
-		switch (coll.actor->s->picnum)
+		switch (coll.actor()->s->picnum)
 		{
 		case CACTUS:
 			if (p->hurt_delay < 8)
@@ -915,7 +915,7 @@ void checkplayerhurt_d(struct player_struct* p, const Collision& coll)
 	}
 
 	if (coll.type != kHitWall) return;
-	auto wal = coll.wall();
+	auto wal = coll.hitWall;
 
 	if (p->hurt_delay > 0) p->hurt_delay--;
 	else if (wal->cstat & 85) switch (wal->overpicnum)

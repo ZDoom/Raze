@@ -1504,7 +1504,7 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 
 		Collision coll;
 		auto sect = s->sector();
-		int j = clipmove_ex(&s->pos, &sect,
+		int j = clipmove(s->pos, &sect,
 			(MulScale(s->xvel, bcos(s->ang), 14) * TICSPERFRAME) << 11,
 			(MulScale(s->xvel, bsin(s->ang), 14) * TICSPERFRAME) << 11,
 			24L, (4 << 8), (4 << 8), CLIPMASK1, coll);
@@ -1512,12 +1512,12 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 
 		if (j == kHitWall)
 		{
-			int k = getangle(coll.wall()->delta());
+			int k = getangle(coll.hitWall->delta());
 			s->ang = ((k << 1) - s->ang) & 2047;
 		}
 		else if (j == kHitSprite)
 		{
-			fi.checkhitsprite(actor, coll.actor);
+			fi.checkhitsprite(actor, coll.actor());
 		}
 
 		s->xvel--;
@@ -4939,9 +4939,9 @@ void getglobalz(DDukeActor* actor)
 		getzrange_ex(s->x, s->y, s->z - (FOURSLEIGHT), s->sector(), &actor->ceilingz, hz, &actor->floorz, lz, zr, CLIPMASK0);
 		s->cstat2 = cc;
 
-		if( lz.type == kHitSprite && (lz.actor->s->cstat&48) == 0 )
+		if( lz.type == kHitSprite && (lz.actor()->s->cstat&48) == 0 )
 		{
-			if( badguy(lz.actor) && lz.actor->s->pal != 1)
+			if( badguy(lz.actor()) && lz.actor()->s->pal != 1)
 			{
 				if( s->statnum != STAT_PROJECTILE)
 				{
@@ -4951,14 +4951,14 @@ void getglobalz(DDukeActor* actor)
 					ssp(actor, CLIPMASK0);
 				}
 			}
-			else if(lz.actor->s->picnum == TILE_APLAYER && badguy(actor) )
+			else if(lz.actor()->s->picnum == TILE_APLAYER && badguy(actor) )
 			{
 				actor->aflags |= SFLAG_NOFLOORSHADOW; 
 				//actor->dispicnum = -4; // No shadows on actors
 				s->xvel = -256;
 				ssp(actor, CLIPMASK0);
 			}
-			else if(s->statnum == STAT_PROJECTILE && lz.actor->s->picnum == TILE_APLAYER && actor->GetOwner() == actor)
+			else if(s->statnum == STAT_PROJECTILE && lz.actor()->s->picnum == TILE_APLAYER && actor->GetOwner() == actor)
 			{
 				actor->ceilingz = s->sector()->ceilingz;
 				actor->floorz	= s->sector()->floorz;

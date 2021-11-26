@@ -76,20 +76,41 @@ inline FSerializer& Serialize(FSerializer& arc, const char* keyname, DCoreActor*
 // Not all utilities use all variables.
 struct HitInfoBase
 {
-    //int type;
 	vec3_t hitpos;
 	sectortype* hitSector;
 	walltype* hitWall;
     DCoreActor* hitActor;
 
-	//HitInfoBase() = default;
-    //explicit HitInfoBase(int legacyval) { setFromEngine(legacyval); }
+	void clearObj()
+	{
+		hitSector = nullptr;
+		hitWall = nullptr;
+		hitActor = nullptr;
+	}
+};
 
-#if 0
+template<class T>
+struct THitInfo : public HitInfoBase
+{
+	T* actor() const { return static_cast<T*>(hitActor); }
+};
+
+
+struct CollisionBase
+{
+	int type;
+	union
+	{
+		// can only have one at a time
+		sectortype* hitSector;
+		walltype* hitWall;
+		DCoreActor* hitActor;
+	};
+
 	void invalidate()
 	{
-		*this = {};
 		type = -1; // something invalid that's not a valid hit type.
+		hitSector = nullptr;
 	}
 
 	int setNone()
@@ -146,38 +167,32 @@ struct HitInfoBase
 		return kHitSprite;
 	}
 
-	int setVoid() 
-	{ 
-		*this = {};
+	int setVoid()
+	{
+		hitSector = nullptr;
 		type = kHitVoid;
-		return kHitVoid; 
+		return kHitVoid;
 	}
 
 	// this hack job needs to go. We still need it for the time being.
 	int setFromEngine(int value)
 	{
-		type = value & kHitTypeMaskSW;
+		int type = value & kHitTypeMaskSW;
 		if (type == kHitSector) setSector(value & kHitIndexMask);
 		else if (type == kHitWall) setWall(value & kHitIndexMask);
 		else if (type == kHitSprite) setSprite(value & kHitIndexMask);
 		else setNone();
 		return type;
 	}
-#endif
-
-	void clearObj()
-	{
-		hitSector = nullptr;
-		hitWall = nullptr;
-		hitActor = nullptr;
-	}
 };
 
 template<class T>
-struct THitInfo : public HitInfoBase
+struct TCollision : public CollisionBase
 {
-	T* actor() { return static_cast<T*>(hitActor); }
+	T* actor() const { return static_cast<T*>(hitActor); }
 };
+
+
 
 // Iterator wrappers that return an actor pointer, not an index.
 template<class TActor>
@@ -295,6 +310,25 @@ inline int hitscan(int x, int y, int z, int sectnum, int vx, int vy, int vz,
 	return res;
 }
 
+[[deprecated]]
+inline int clipmove(vec3_t* const pos, int* const sectnum, int xvect, int yvect,
+	int const walldist, int const ceildist, int const flordist, uint32_t const cliptype, int clipmoveboxtracenum = 3)
+{
+	return clipmove_(pos, sectnum, xvect, yvect, walldist, ceildist, flordist, cliptype, clipmoveboxtracenum);
+}
+
+[[deprecated]]
+inline int32_t clipmove(vec3_t* const pos, sectortype** const sect, int32_t xvect, int32_t yvect,
+	int32_t const walldist, int32_t const ceildist, int32_t const flordist, uint32_t const cliptype, int clipmoveboxtracenum = 3)
+{
+	int sectno = *sect ? sector.IndexOf(*sect) : -1;
+	int res = clipmove_(pos, &sectno, xvect, yvect, walldist, ceildist, flordist, cliptype, clipmoveboxtracenum);
+	*sect = sectno == -1 ? nullptr : &sector[sectno];
+	return res;
+}
+
+
+
 inline int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& direction, HitInfoBase& hitinfo, unsigned cliptype)
 {
 	hitdata_t hd{};
@@ -305,4 +339,13 @@ inline int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_
 	hitinfo.hitWall = hd.wall == -1? nullptr : &wall[hd.wall];
 	hitinfo.hitActor = hd.sprite == -1? nullptr : actorArray[hd.sprite];
 	return res;
+}
+
+inline int clipmove(vec3_t& pos, sectortype** const sect, int xvect, int yvect,
+	int const walldist, int const ceildist, int const flordist, unsigned const cliptype, CollisionBase& result, int clipmoveboxtracenum = 3)
+{
+	int sectno = *sect ? sector.IndexOf(*sect) : -1;
+	int res = clipmove_(&pos, &sectno, xvect, yvect, walldist, ceildist, flordist, cliptype, clipmoveboxtracenum);
+	*sect = sectno == -1 ? nullptr : &sector[sectno];
+	return result.setFromEngine(res);
 }

@@ -391,11 +391,11 @@ int movesprite_ex_r(DDukeActor* actor, int xchange, int ychange, int zchange, un
 	if (bg)
 	{
 		if (spri->xrepeat > 60)
-			clipmove_ex(&pos, &dasectp, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 1024, (4 << 8), (4 << 8), cliptype, result);
+			clipmove(pos, &dasectp, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 1024, (4 << 8), (4 << 8), cliptype, result);
 		else
 		{
 			clipdist = 192;
-			clipmove_ex(&pos, &dasectp, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), clipdist, (4 << 8), (4 << 8), cliptype, result);
+			clipmove(pos, &dasectp, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), clipdist, (4 << 8), (4 << 8), cliptype, result);
 		}
 
 		if (dasectp == nullptr || (dasectp != nullptr && actor->actorstayput != nullptr && actor->actorstayput != dasectp))
@@ -413,9 +413,9 @@ int movesprite_ex_r(DDukeActor* actor, int xchange, int ychange, int zchange, un
 	else
 	{
 		if (spri->statnum == STAT_PROJECTILE)
-			clipmove_ex(&pos, &dasectp, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 8, (4 << 8), (4 << 8), cliptype, result);
+			clipmove(pos, &dasectp, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 8, (4 << 8), (4 << 8), cliptype, result);
 		else
-			clipmove_ex(&pos, &dasectp, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 128, (4 << 8), (4 << 8), cliptype, result);
+			clipmove(pos, &dasectp, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 128, (4 << 8), (4 << 8), cliptype, result);
 	}
 	spri->x = pos.x;
 	spri->y = pos.y;
@@ -1446,11 +1446,11 @@ static void weaponcommon_r(DDukeActor *proj)
 	{
 		if (coll.type == kHitSprite)
 		{
-			if (weaponhitsprite(proj, coll.actor, oldpos)) return;
+			if (weaponhitsprite(proj, coll.actor(), oldpos)) return;
 		}
 		else if (coll.type == kHitWall)
 		{
-			if (weaponhitwall(proj, coll.wall(), oldpos)) return;
+			if (weaponhitwall(proj, coll.hitWall, oldpos)) return;
 		}
 		else if (coll.type == kHitSector)
 		{
@@ -2619,7 +2619,7 @@ static void heavyhbomb(DDukeActor *actor)
 
 	if (coll.type == kHitWall)
 	{
-		auto wal = coll.wall();
+		auto wal = coll.hitWall;
 		fi.checkhitwall(actor, wal, s->x, s->y, s->z, s->picnum);
 
 		int k = getangle(wal->delta());
@@ -2764,12 +2764,12 @@ static int henstand(DDukeActor *actor)
 		{
 			if (coll.type == kHitWall)
 			{
-				int k = getangle(coll.wall()->delta());
+				int k = getangle(coll.hitWall->delta());
 				s->ang = ((k << 1) - s->ang) & 2047;
 			}
 			else if (coll.type == kHitSprite)
 			{
-				auto hitact = coll.actor;
+				auto hitact = coll.actor();
 				fi.checkhitsprite(actor, hitact);
 				if (hitact->s->picnum == HEN)
 				{

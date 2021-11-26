@@ -181,20 +181,6 @@ inline int movesprite_ex(DDukeActor* actor, int xchange, int ychange, int zchang
 	return f(actor, xchange, ychange, zchange, cliptype, result);
 }
 
-inline int clipmove_ex(vec3_t* pos, int* sect, int xv, int yv, int wal, int ceil, int flor, int ct, Collision& result)
-{
-	int res = clipmove(pos, sect, xv, yv, wal, ceil, flor, ct);
-	return result.setFromEngine(res);
-}
-
-inline int clipmove_ex(vec3_t* pos, sectortype** sect, int xv, int yv, int wal, int ceil, int flor, int ct, Collision& result)
-{
-	int sectno = *sect? sectnum(*sect) : -1;
-	int res = clipmove(pos, &sectno, xv, yv, wal, ceil, flor, ct);
-	*sect = sectno == -1? nullptr : &sector[sectno];
-	return result.setFromEngine(res);
-}
-
 inline void getzrange_ex(int x, int y, int z, int sectnum, int32_t* ceilz, Collision& ceilhit, int32_t* florz, Collision& florhit, int32_t walldist, uint32_t cliptype)
 {
 	int ch, fh;

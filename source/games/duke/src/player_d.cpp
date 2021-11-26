@@ -2781,25 +2781,24 @@ void processinput_d(int snum)
 
 	if (chz.type == kHitSprite)
 	{
-		if (chz.actor->s->statnum == 1 && chz.actor->s->extra >= 0)
+		if (chz.actor()->s->statnum == 1 && chz.actor()->s->extra >= 0)
 		{
-			chz.type = kHitNone;
-			chz.actor = nullptr;
+			chz.setNone();
 			cz = p->truecz;
 		}
 	}
 
 	if (clz.type == kHitSprite)
 	{
-		if ((clz.actor->s->cstat & 33) == 33)
+		if ((clz.actor()->s->cstat & 33) == 33)
 		{
 			psectlotag = 0;
 			p->footprintcount = 0;
 			p->spritebridge = 1;
 		}
-		else if (badguy(clz.actor) && clz.actor->s->xrepeat > 24 && abs(s->z - clz.actor->s->z) < (84 << 8))
+		else if (badguy(clz.actor()) && clz.actor()->s->xrepeat > 24 && abs(s->z - clz.actor()->s->z) < (84 << 8))
 		{
-			j = getangle(clz.actor->s->x - p->pos.x, clz.actor->s->y - p->pos.y);
+			j = getangle(clz.actor()->s->x - p->pos.x, clz.actor()->s->y - p->pos.y);
 			p->posxv -= bcos(j, 4);
 			p->posyv -= bsin(j, 4);
 		}
@@ -2960,7 +2959,7 @@ void processinput_d(int snum)
 				case 0:
 
 					if (clz.type == kHitSprite)
-						j = clz.actor->s->picnum;
+						j = clz.actor()->s->picnum;
 					else
 						j = psectp->floorpicnum;
 
@@ -3042,7 +3041,7 @@ HORIZONLY:
 		changeactorsect(pact, p->cursector);
 	}
 	else
-		clipmove_ex(&p->pos, &p->cursector, p->posxv, p->posyv, 164, (4 << 8), ii, CLIPMASK0, clip);
+		clipmove(p->pos, &p->cursector, p->posxv, p->posyv, 164, (4 << 8), ii, CLIPMASK0, clip);
 
 	if (p->jetpack_on == 0 && psectlotag != 2 && psectlotag != 1 && shrunk)
 		p->pos.z += 32 << 8;

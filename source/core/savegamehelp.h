@@ -64,3 +64,17 @@ inline FSerializer& Serialize(FSerializer& arc, const char* keyname, THitInfo<T>
 	return arc;
 }
 
+template<class T>
+inline FSerializer& Serialize(FSerializer& arc, const char* keyname, TCollision<T>& w, TCollision<T>* def)
+{
+	if (arc.BeginObject(keyname))
+	{
+		arc("type", w.type);
+		if (w.type == kHitWall) arc("index", w.hitWall);
+		else if (w.type == kHitSprite) arc("index", w.hitActor);
+		else if (w.type == kHitSector) arc("index", w.hitSector);
+		else if (arc.isReading()) w.hitSector = nullptr;
+		arc.EndObject();
+	}
+	return arc;
+}

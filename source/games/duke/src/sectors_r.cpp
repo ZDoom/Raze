@@ -1382,7 +1382,7 @@ void checkplayerhurt_r(struct player_struct* p, const Collision &coll)
 {
 	if (coll.type == kHitSprite)
 	{
-		switch (coll.actor->s->picnum)
+		switch (coll.actor()->s->picnum)
 		{
 		case RRTILE2430:
 		case RRTILE2431:
@@ -1413,7 +1413,7 @@ void checkplayerhurt_r(struct player_struct* p, const Collision &coll)
 	}
 
 	if (coll.type != kHitWall) return;
-	auto wal = coll.wall();
+	auto wal = coll.hitWall;
 
 	if (p->hurt_delay > 0) p->hurt_delay--;
 	else if (wal->cstat & 85) switch (wal->overpicnum)

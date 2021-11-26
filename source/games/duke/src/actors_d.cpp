@@ -547,7 +547,7 @@ int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, un
 	if (bg)
 	{
 		if (spri->xrepeat > 60)
-			clipmove_ex(&pos, &dasectp, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 1024, (4 << 8), (4 << 8), cliptype, result);
+			clipmove(pos, &dasectp, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 1024, (4 << 8), (4 << 8), cliptype, result);
 		else 
 		{
 			if (spri->picnum == LIZMAN)
@@ -557,7 +557,7 @@ int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, un
 			else
 				clipdist = 192;
 
-			clipmove_ex(&pos, &dasectp, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), clipdist, (4 << 8), (4 << 8), cliptype, result);
+			clipmove(pos, &dasectp, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), clipdist, (4 << 8), (4 << 8), cliptype, result);
 		}
 
 		// conditional code from hell...
@@ -582,9 +582,9 @@ int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, un
 	else
 	{
 		if (spri->statnum == STAT_PROJECTILE)
-			clipmove_ex(&pos, &dasectp, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 8, (4 << 8), (4 << 8), cliptype, result);
+			clipmove(pos, &dasectp, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 8, (4 << 8), (4 << 8), cliptype, result);
 		else
-			clipmove_ex(&pos, &dasectp, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), (int)(spri->clipdist << 2), (4 << 8), (4 << 8), cliptype, result);
+			clipmove(pos, &dasectp, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), (int)(spri->clipdist << 2), (4 << 8), (4 << 8), cliptype, result);
 	}
 	spri->x = pos.x;
 	spri->y = pos.y;
@@ -1833,7 +1833,7 @@ static void weaponcommon_d(DDukeActor* proj)
 	{
 		if (s->picnum == COOLEXPLOSION1)
 		{
-			if (coll.type == kHitSprite && coll.actor->s->picnum != APLAYER)
+			if (coll.type == kHitSprite && coll.actor()->s->picnum != APLAYER)
 			{
 				return;
 			}
@@ -1845,11 +1845,11 @@ static void weaponcommon_d(DDukeActor* proj)
 
 		if (coll.type == kHitSprite)
 		{
-			if (weaponhitsprite(proj, coll.actor, fireball)) return;
+			if (weaponhitsprite(proj, coll.actor(), fireball)) return;
 		}
 		else if (coll.type == kHitWall)
 		{
-			if (weaponhitwall(proj, coll.wall(), oldpos)) return;
+			if (weaponhitwall(proj, coll.hitWall, oldpos)) return;
 		}
 		else if (coll.type == kHitSector)
 		{
@@ -2776,14 +2776,14 @@ static void flamethrowerflame(DDukeActor *actor)
 		s->xvel = s->yvel = s->zvel = 0;
 		if (coll.type == kHitSprite)
 		{
-			fi.checkhitsprite(coll.actor, actor);
-			if (coll.actor->s->picnum == APLAYER)
-				S_PlayActorSound(PISTOL_BODYHIT, coll.actor);
+			fi.checkhitsprite(coll.actor(), actor);
+			if (coll.actor()->s->picnum == APLAYER)
+				S_PlayActorSound(PISTOL_BODYHIT, coll.actor());
 		}
 		else if (coll.type == kHitWall)
 		{
 			setsprite(actor, dax, day, daz);
-			fi.checkhitwall(actor, coll.wall(), s->x, s->y, s->z, s->picnum);
+			fi.checkhitwall(actor, coll.hitWall, s->x, s->y, s->z, s->picnum);
 		}
 		else if (coll.type == kHitSector)
 		{
@@ -2912,7 +2912,7 @@ static void heavyhbomb(DDukeActor *actor)
 
 	if (coll.type== kHitWall)
 	{
-		auto wal = coll.wall();
+		auto wal = coll.hitWall;
 		fi.checkhitwall(actor, wal, s->x, s->y, s->z, s->picnum);
 
 		int k = getangle(wal->delta());

@@ -104,6 +104,7 @@ inline DDukeActor* DDukeActor::array() { return hittype; }
 
 // subclassed to add a game specific actor() method
 using HitInfo = THitInfo<DDukeActor>;
+using Collision = TCollision<DDukeActor>;
 
 struct animwalltype
 {
@@ -331,86 +332,6 @@ struct Cycler
 	int16_t shade2;
 	bool state;
 };
-
-// Wrapper around the insane collision info mess from Build.
-struct Collision
-{
-	int type;
-	int index;
-	int legacyVal;	// should be removed later, but needed for converting back for unadjusted code.
-	DDukeActor* actor;
-
-	Collision() = default;
-	explicit Collision(int v)
-	{
-		setFromEngine(v);
-	}
-	int setNone()
-	{
-		type = kHitNone;
-		index = -1;
-		legacyVal = 0;
-		actor = nullptr;
-		return kHitNone;
-	}
-
-	int setSector(int num)
-	{
-		type = kHitSector;
-		index = num;
-		legacyVal = type | index;
-		actor = nullptr;
-		return kHitSector;
-	}
-	int setSector(sectortype* sec)
-	{
-		type = kHitSector;
-		index = ::sector.IndexOf(sec);
-		legacyVal = type | index;
-		actor = nullptr;
-		return kHitSector;
-	}
-	int setWall(int num)
-	{
-		type = kHitWall;
-		index = num;
-		legacyVal = type | index;
-		actor = nullptr;
-		return kHitWall;
-	}
-	int setSprite(DDukeActor* num)
-	{
-		type = kHitSprite;
-		index = -1;
-		legacyVal = type | int(num - hittype);
-		actor = num;
-		return kHitSprite;
-	}
-
-	int setFromEngine(int value)
-	{
-		legacyVal = value;
-		type = value & kHitTypeMask;
-		if (type == 0) { index = -1; actor = nullptr; }
-		else if (type != kHitSprite) { index = value & kHitIndexMask; actor = nullptr; }
-		else { index = -1; actor = &hittype[value & kHitIndexMask]; }
-		return type;
-	}
-
-	walltype* wall() const
-	{
-		assert(type == kHitWall);
-		return &::wall[index];
-	}
-
-	sectortype* sector() const
-	{
-		assert(type == kHitSector);
-		return &::sector[index];
-	}
-
-};
-
 
 
 END_DUKE_NS

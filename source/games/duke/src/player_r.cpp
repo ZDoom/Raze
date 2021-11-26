@@ -3440,21 +3440,19 @@ void processinput_r(int snum)
 
 	if (chz.type == kHitSprite)
 	{
-		if (chz.actor->s->statnum == 1 && chz.actor->s->extra >= 0)
+		if (chz.actor()->s->statnum == 1 && chz.actor()->s->extra >= 0)
 		{
-			chz.type = kHitNone;
-			chz.actor = nullptr;
+			chz.setNone();
 			cz = p->truecz;
 		}
-		else if (chz.actor->s->picnum == LADDER)
+		else if (chz.actor()->s->picnum == LADDER)
 		{
 			if (!p->stairs)
 			{
 				p->stairs = 10;
 				if ((actions & SB_JUMP) && !p->OnMotorcycle)
 				{
-					chz.type = kHitNone;
-					chz.actor = nullptr;
+					chz.setNone();
 					cz = p->truecz;
 				}
 			}
@@ -3465,51 +3463,50 @@ void processinput_r(int snum)
 
 	if (clz.type == kHitSprite)
 	{
-		if ((clz.actor->s->cstat & 33) == 33)
+		if ((clz.actor()->s->cstat & 33) == 33)
 		{
 			psectlotag = 0;
 			p->footprintcount = 0;
 			p->spritebridge = 1;
 		}
 		if (p->OnMotorcycle)
-			if (badguy(clz.actor))
+			if (badguy(clz.actor()))
 			{
-				clz.actor->picnum = MOTOHIT;
-				clz.actor->extra = xs_CRoundToInt(2 + (p->MotoSpeed / 2.));
+				clz.actor()->picnum = MOTOHIT;
+				clz.actor()->extra = xs_CRoundToInt(2 + (p->MotoSpeed / 2.));
 				p->MotoSpeed -= p->MotoSpeed / 16.;
 			}
 		if (p->OnBoat)
 		{
-			if (badguy(clz.actor))
+			if (badguy(clz.actor()))
 			{
-				clz.actor->picnum = MOTOHIT;
-				clz.actor->extra = xs_CRoundToInt(2 + (p->MotoSpeed / 2.));
+				clz.actor()->picnum = MOTOHIT;
+				clz.actor()->extra = xs_CRoundToInt(2 + (p->MotoSpeed / 2.));
 				p->MotoSpeed -= p->MotoSpeed / 16.;
 			}
 		}
-		else if (badguy(clz.actor) && clz.actor->s->xrepeat > 24 && abs(s->z - clz.actor->s->z) < (84 << 8))
+		else if (badguy(clz.actor()) && clz.actor()->s->xrepeat > 24 && abs(s->z - clz.actor()->s->z) < (84 << 8))
 		{
-			int j = getangle(clz.actor->s->x - p->pos.x, clz.actor->s->y - p->pos.y);
+			int j = getangle(clz.actor()->s->x - p->pos.x, clz.actor()->s->y - p->pos.y);
 			p->posxv -= bcos(j, 4);
 			p->posyv -= bsin(j, 4);
 		}
-		if (clz.actor->s->picnum == LADDER)
+		if (clz.actor()->s->picnum == LADDER)
 		{
 			if (!p->stairs)
 			{
 				p->stairs = 10;
 				if ((actions & SB_CROUCH) && !p->OnMotorcycle)
 				{
-					cz = clz.actor->s->z;
-					chz.type = kHitNone;
-					chz.actor = nullptr;
-					fz = clz.actor->s->z + (4 << 8);
+					cz = clz.actor()->s->z;
+					chz.setNone();
+					fz = clz.actor()->s->z + (4 << 8);
 				}
 			}
 			else
 				p->stairs--;
 		}
-		else if (clz.actor->s->picnum == TOILET || clz.actor->s->picnum == RRTILE2121)
+		else if (clz.actor()->s->picnum == TOILET || clz.actor()->s->picnum == RRTILE2121)
 		{
 			if ((actions & SB_CROUCH) && !p->OnMotorcycle)
 				//if (Sound[436].num == 0)
@@ -3689,7 +3686,7 @@ void processinput_r(int snum)
 				case 0:
 
 					if (clz.type == kHitSprite)
-						j = clz.actor->s->picnum;
+						j = clz.actor()->s->picnum;
 					else j = psectp->floorpicnum;
 					break;
 				case 1:
@@ -3801,7 +3798,7 @@ HORIZONLY:
 		changeactorsect(pact, p->cursector);
 	}
 	else
-		clipmove_ex(&p->pos, &p->cursector, p->posxv, p->posyv, 164, (4 << 8), i, CLIPMASK0, clip);
+		clipmove(p->pos, &p->cursector, p->posxv, p->posyv, 164, (4 << 8), i, CLIPMASK0, clip);
 
 	if (p->jetpack_on == 0 && psectlotag != 2 && psectlotag != 1 && shrunk)
 		p->pos.z += 32 << 8;
@@ -3814,7 +3811,7 @@ HORIZONLY:
 
 	if (clip.type == kHitWall)
 	{
-		auto wal = clip.wall();
+		auto wal = clip.hitWall;
 		if (p->OnMotorcycle)
 		{
 			onMotorcycleMove(snum, wal);
@@ -3829,7 +3826,7 @@ HORIZONLY:
 			{
 				if (wal->lotag < 44)
 				{
-					dofurniture(clip.wall(), p->cursector, snum);
+					dofurniture(clip.hitWall, p->cursector, snum);
 					pushmove(&p->pos, &p->cursector, 172L, (4L << 8), (4L << 8), CLIPMASK0);
 				}
 				else
@@ -3842,39 +3839,39 @@ HORIZONLY:
 	{
 		if (p->OnMotorcycle)
 		{
-			onMotorcycleHit(snum, clip.actor);
+			onMotorcycleHit(snum, clip.actor());
 		}
 		else if (p->OnBoat)
 		{
-			onBoatHit(snum, clip.actor);
+			onBoatHit(snum, clip.actor());
 		}
-		else if (badguy(clip.actor))
+		else if (badguy(clip.actor()))
 		{
-			if (clip.actor->s->statnum != 1)
+			if (clip.actor()->s->statnum != 1)
 			{
-				clip.actor->timetosleep = 0;
-				if (clip.actor->s->picnum == BILLYRAY)
-					S_PlayActorSound(404, clip.actor);
+				clip.actor()->timetosleep = 0;
+				if (clip.actor()->s->picnum == BILLYRAY)
+					S_PlayActorSound(404, clip.actor());
 				else
-					check_fta_sounds_r(clip.actor);
-				changeactorstat(clip.actor, 1);
+					check_fta_sounds_r(clip.actor());
+				changeactorstat(clip.actor(), 1);
 			}
 		}
-		else if (!isRRRA() && clip.actor->s->picnum == RRTILE3410)
+		else if (!isRRRA() && clip.actor()->s->picnum == RRTILE3410)
 		{
 			quickkill(p);
 			S_PlayActorSound(446, pact);
 		}
 		if (isRRRA())
 		{
-			if (clip.actor->s->picnum == RRTILE3410)
+			if (clip.actor()->s->picnum == RRTILE3410)
 			{
 				quickkill(p);
 				S_PlayActorSound(446, pact);
 			}
-			else if (clip.actor->s->picnum == RRTILE2443 && clip.actor->s->pal == 19)
+			else if (clip.actor()->s->picnum == RRTILE2443 && clip.actor()->s->pal == 19)
 			{
-				clip.actor->s->pal = 0;
+				clip.actor()->s->pal = 0;
 				p->DrugMode = 5;
 				ps[snum].GetActor()->s->extra = gs.max_player_health;
 			}

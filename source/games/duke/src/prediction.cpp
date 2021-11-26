@@ -165,7 +165,7 @@ void fakedomovethings(void)
 
 		if(chz.type == kHitSprite)
 		{
-				if (chz.actor->s.statnum == 1 && chz.actor->s.extra >= 0)
+				if (chz.actor()->s.statnum == 1 && chz.actor()->s.extra >= 0)
 				{
 					chz.type = kHitNone;
 					cz = getceilzofslope(psect,myx,myy);
@@ -174,14 +174,14 @@ void fakedomovethings(void)
 
 		if (clz.type == kHitSprite)
 		{
-				 if ((clz.actor->s.cstat&33) == 33)
+				 if ((clz.actor()->s.cstat&33) == 33)
 				 {
 						psectlotag = 0;
 						spritebridge = 1;
 				 }
-				 if(badguy(chz.actor) && chz.actor->s.xrepeat > 24 && abs(p->GetActor()->s.z- chz.actor->s.z) < (84<<8) )
+				 if(badguy(chz.actor) && chz.actor()->s.xrepeat > 24 && abs(p->GetActor()->s.z- chz.actor()->s.z) < (84<<8) )
 				 {
-					j = getangle(chz.actor->s.x-myx, chz.actor->s.y-myy);
+					j = getangle(chz.actor()->s.x-myx, chz.actor()->s.y-myy);
 					myxvel -= bcos(j, 4);
 					myyvel -= bsin(j, 4);
 				}

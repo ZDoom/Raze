@@ -323,15 +323,6 @@ inline void   dragpoint(walltype* pointhighlight, int32_t dax, int32_t day)
 	dragpoint(wallnum(pointhighlight), dax, day);
 }
 
-inline int32_t clipmove(vec3_t* const pos, sectortype** const sect, int32_t xvect, int32_t yvect,
-	int32_t const walldist, int32_t const ceildist, int32_t const flordist, uint32_t const cliptype, int clipmoveboxtracenum = 3)
-{
-	int sectno = *sect ? sector.IndexOf(*sect) : -1;
-	int res = clipmove(pos, &sectno, xvect, yvect, walldist, ceildist, flordist, cliptype, clipmoveboxtracenum);
-	*sect = sectno == -1 ? nullptr : &sector[sectno];
-	return res;
-}
-
 inline int pushmove(vec3_t *const vect, sectortype**const sect, int32_t const walldist, int32_t const ceildist, int32_t const flordist,
 				 uint32_t const cliptype, bool clear = true)
 {

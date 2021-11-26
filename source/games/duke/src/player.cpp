@@ -606,7 +606,7 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 		}
 
 		Collision coll;
-		clipmove_ex(&p->pos, &p->cursector, 0, 0, 164, (4 << 8), (4 << 8), CLIPMASK0, coll);
+		clipmove(p->pos, &p->cursector, 0, 0, 164, (4 << 8), (4 << 8), CLIPMASK0, coll);
 	}
 
 	backupplayer(p);
