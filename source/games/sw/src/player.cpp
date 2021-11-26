@@ -3002,12 +3002,12 @@ void StackedWaterSplash(PLAYERp pp)
 {
     if (FAF_ConnectArea(pp->cursector))
     {
-        auto sectnum = pp->cursector;
+        auto sect = pp->cursector;
 
         auto psp = &pp->Actor()->s();
-        updatesectorz(pp->posx, pp->posy, SPRITEp_BOS(psp), &sectnum);
+        updatesectorz(pp->posx, pp->posy, SPRITEp_BOS(psp), &sect);
 
-        if (SectorIsUnderwaterArea(sectnum))
+        if (SectorIsUnderwaterArea(sect))
         {
             PlaySound(DIGI_SPLASH1, pp, v3df_dontpan);
         }

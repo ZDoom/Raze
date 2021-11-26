@@ -619,7 +619,6 @@ void KillActor(DSWActor* actor)
     USERp u = actor->u();
     int i;
     unsigned stat;
-    short statnum,sectnum;
     //extern short Zombies;
 
     ASSERT(!Prediction);
@@ -2332,7 +2331,7 @@ void SpriteSetup(void)
                         break;
                     }
 
-                    getzrangepoint(sp->x, sp->y, sp->z, sp->sectnum, &ceilingz, &trash, &floorz, &trash);
+                    getzrangepoint(sp->x, sp->y, sp->z, sp->sector(), &ceilingz, &trash, &floorz, &trash);
 
                     if (floor_vator)
                     {
@@ -4467,7 +4466,7 @@ bool SpriteOverlapZ(DSWActor* actor_a, DSWActor* actor_b, int z_overlap)
 
 }
 
-void getzrangepoint(int x, int y, int z, short sectnum,
+void getzrangepoint(int x, int y, int z, sectortype* sect,
                int32_t* ceilz, Collision* ceilhit, int32_t* florz, Collision* florhit)
 {
     spritetype *spr;
@@ -4476,7 +4475,7 @@ void getzrangepoint(int x, int y, int z, short sectnum,
     short cstat;
     char clipyou;
 
-    if (sectnum < 0)
+    if (sect == nullptr)
     {
         *ceilz = 0x80000000;
         
@@ -4486,12 +4485,12 @@ void getzrangepoint(int x, int y, int z, short sectnum,
     }
 
     // Initialize z's and hits to the current sector's top&bottom
-    getzsofslope(sectnum, x, y, ceilz, florz);
-    ceilhit->setSector(sectnum);
-    florhit->setSector(sectnum);
+    getzsofslopeptr(sect, x, y, ceilz, florz);
+    ceilhit->setSector(sect);
+    florhit->setSector(sect);
 
     // Go through sprites of only the current sector
-    SWSectIterator it(sectnum);
+    SWSectIterator it(sect);
     while (auto itActor = it.Next())
     {
         spr = &itActor->s();

@@ -532,7 +532,6 @@ void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, sectortype* const sect,
                        int32_t* hiz, Collision* ceilhit,
                        int32_t* loz, Collision* florhit)
 {
-    int sectnum = ::sectnum(sect);
     int foo1;
     Collision foo2;
     bool SkipFAFcheck;
@@ -545,13 +544,13 @@ void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, sectortype* const sect,
     // early out to regular routine
     if (!FAF_ConnectArea(sect))
     {
-        getzrangepoint(x, y, z, sectnum, hiz,  ceilhit, loz,  florhit);
+        getzrangepoint(x, y, z, sect, hiz,  ceilhit, loz,  florhit);
         SectorZadjust(*ceilhit, hiz, *florhit, loz);
         WaterAdjust(*florhit, loz);
         return;
     }
 
-    getzrangepoint(x, y, z, sectnum, hiz,  ceilhit, loz,  florhit);
+    getzrangepoint(x, y, z, sect, hiz,  ceilhit, loz,  florhit);
     SkipFAFcheck = SectorZadjust(*ceilhit, hiz, *florhit, loz);
     WaterAdjust(*florhit, loz);
 
@@ -560,25 +559,25 @@ void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, sectortype* const sect,
 
     if (FAF_ConnectCeiling(sect))
     {
-        int uppersect = sectnum;
+        auto uppersect = sect;
         int newz = *hiz - Z(2);
         if (ceilhit->type == kHitSprite)
             return;
 
         updatesectorz(x, y, newz, &uppersect);
-        if (uppersect < 0)
+        if (uppersect == nullptr)
             return;
         getzrangepoint(x, y, newz, uppersect, hiz,  ceilhit, &foo1,  &foo2);
         SectorZadjust(*ceilhit, hiz, trash, nullptr);
     }
     else if (FAF_ConnectFloor(sect) && !TEST(sect->floorstat, FLOOR_STAT_FAF_BLOCK_HITSCAN))
     {
-        int lowersect = sectnum;
+        auto lowersect = sect;
         int newz = *loz + Z(2);
         if (florhit->type == kHitSprite)
             return;
         updatesectorz(x, y, newz, &lowersect);
-        if (lowersect < 0)
+        if (lowersect == nullptr)
             return;
         getzrangepoint(x, y, newz, lowersect, &foo1,  &foo2, loz,  florhit);
         SectorZadjust(trash, nullptr, *florhit, loz);

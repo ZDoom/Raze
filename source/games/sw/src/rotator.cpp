@@ -146,7 +146,6 @@ void DoRotatorMatch(PLAYERp pp, short match, bool manual)
 {
     USERp fu;
     SPRITEp fsp;
-    short sectnum;
     DSWActor* firstVator = nullptr;
 
     //RotatorSwitch(match, ON);

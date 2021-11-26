@@ -608,7 +608,7 @@ void SectorMidPoint(sectortype* sectp, int *xmid, int *ymid, int *zmid)
 }
 
 
-void DoSpringBoard(PLAYERp pp/*, short sectnum*/)
+void DoSpringBoard(PLAYERp pp)
 {
 
     pp->jump_speed = -pp->cursector->hitag;

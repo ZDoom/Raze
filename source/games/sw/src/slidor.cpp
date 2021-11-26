@@ -145,7 +145,6 @@ void DoSlidorMatch(PLAYERp pp, short match, bool manual)
 {
     USERp fu;
     SPRITEp fsp;
-    short sectnum;
 
     SWStatIterator it(STAT_SLIDOR);
     while (auto actor = it.Next())
