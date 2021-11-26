@@ -138,54 +138,6 @@ public:
 };
 
 
-
-inline int Collision::setNone()
-{
-	type = kHitNone;
-	index = -1;
-	legacyVal = 0;
-	actor = nullptr;
-	return kHitNone;
-}
-
-inline int Collision::setSector(int num)
-{
-	type = kHitSector;
-	index = num;
-	legacyVal = type | index;
-	actor = nullptr;
-	return kHitSector;
-}
-inline int Collision::setWall(int num)
-{
-	type = kHitWall;
-	index = num;
-	legacyVal = type | index;
-	actor = nullptr;
-	return kHitWall;
-}
-inline int Collision::setSprite(DSWActor* num)
-{
-	type = kHitSprite;
-	index = -1;
-	legacyVal = type | int(num - swActors);
-	actor = num;
-	return kHitSprite;
-}
-
-int Collision::setSky() { setNone(); type = kHitVoid; return kHitVoid; }
-
-inline int Collision::setFromEngine(int value)
-{
-	legacyVal = value;
-	type = value & kHitTypeMaskSW;
-	if (type == 0) { index = -1; actor = nullptr; }
-	else if (type != kHitSprite) { index = value & kHitIndexMask; actor = nullptr; }
-	else { index = -1; actor = &swActors[value & kHitIndexMask]; }
-	return type;
-}
-
-
 inline FSerializer& Serialize(FSerializer& arc, const char* keyname, DSWActor*& w, DSWActor** def)
 {
 	int index = w? int(w - swActors) : -1;

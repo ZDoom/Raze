@@ -410,7 +410,7 @@ int DoBloodSpray(DSWActor* actor)
         case kHitSprite:
         {
             short wall_ang;
-            auto hitActor = u->coll.actor;
+            auto hitActor = u->coll.actor();
             SPRITEp hsp = &hitActor->s();
 
             if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
@@ -440,7 +440,7 @@ int DoBloodSpray(DSWActor* actor)
             WALLp wph;
             short wb;
 
-            wph = u->coll.wall();
+            wph = u->coll.hitWall;
 
             if (wph->lotag == TAG_WALL_BREAK)
             {
@@ -613,7 +613,7 @@ int DoPhosphorus(DSWActor* actor)
             USERp hu;
 
 
-            auto hitActor = u->coll.actor;
+            auto hitActor = u->coll.actor();
             hsp = &hitActor->s();
             hu = hitActor->u();
 
@@ -648,7 +648,7 @@ int DoPhosphorus(DSWActor* actor)
             short hit_wall, nw, wall_ang;
             WALLp wph;
 
-            wph = u->coll.wall();
+            wph = u->coll.hitWall;
 
             if (wph->lotag == TAG_WALL_BREAK)
             {
@@ -858,7 +858,7 @@ int DoChemBomb(DSWActor* actor)
 
         case kHitWall:
         {
-            auto wph = u->coll.wall();
+            auto wph = u->coll.hitWall;
 
             if (wph->lotag == TAG_WALL_BREAK)
             {
@@ -1062,7 +1062,7 @@ int DoCaltrops(DSWActor* actor)
 
             PlaySound(DIGI_CALTROPS, actor, v3df_dontpan);
 
-            auto hitActor = u->coll.actor;
+            auto hitActor = u->coll.actor();
             auto hsp = &hitActor->s();
 
             if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
@@ -1083,7 +1083,7 @@ int DoCaltrops(DSWActor* actor)
 
         case kHitWall:
         {
-            auto wph = u->coll.wall();
+            auto wph = u->coll.hitWall;
 
             if (wph->lotag == TAG_WALL_BREAK)
             {

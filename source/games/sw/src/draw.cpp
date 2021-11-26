@@ -228,7 +228,7 @@ int DoShadowFindGroundPoint(tspriteptr_t sp)
     {
     case kHitSprite:
     {
-        hsp = &florhit.actor->s();
+        hsp = &florhit.actor()->s();
 
         if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR))
         {

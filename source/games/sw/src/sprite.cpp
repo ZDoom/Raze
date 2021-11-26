@@ -4613,10 +4613,10 @@ void DoActorZrange(DSWActor* actor)
     switch (ceilhit.type)
     {
     case kHitSprite:
-        u->highActor = ceilhit.actor;
+        u->highActor = ceilhit.actor();
         break;
     case kHitSector:
-        u->hi_sectp = ceilhit.sector();
+        u->hi_sectp = ceilhit.hitSector;
         break;
     default:
         ASSERT(true==false);
@@ -4626,10 +4626,10 @@ void DoActorZrange(DSWActor* actor)
     switch (florhit.type)
     {
     case kHitSprite:
-        u->lowActor = florhit.actor;
+        u->lowActor = florhit.actor();
         break;
     case kHitSector:
-        u->lo_sectp = florhit.sector();
+        u->lo_sectp = florhit.hitSector;
         break;
     default:
         ASSERT(true==false);
@@ -4654,20 +4654,20 @@ int DoActorGlobZ(DSWActor* actor)
     switch (globhihit.type)
     {
     case kHitSprite:
-        u->highActor = globhihit.actor;
+        u->highActor = globhihit.actor();
         break;
     default:
-        u->hi_sectp = globhihit.sector();
+        u->hi_sectp = globhihit.hitSector;
         break;
     }
 
     switch (globlohit.type)
     {
     case kHitSprite:
-        u->lowActor = globlohit.actor;
+        u->lowActor = globlohit.actor();
         break;
     default:
-        u->lo_sectp = globlohit.sector();
+        u->lo_sectp = globlohit.hitSector;
         break;
     }
 
@@ -4697,7 +4697,7 @@ bool ActorDrop(DSWActor* actor, int x, int y, int z, sectortype* new_sector, sho
     {
     case kHitSprite:
     {
-        SPRITEp hsp = &florhit.actor->s();
+        SPRITEp hsp = &florhit.actor()->s();
 
         // if its a floor sprite and not too far down
         if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR) &&
@@ -6449,7 +6449,7 @@ void SpriteControl(void)
 
 Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics)
 {
-    Collision retval(0);
+    Collision retval{};
     int zh;
 	int dasectnum;
 	short tempshort;
@@ -6660,7 +6660,7 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
 {
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
-    Collision retval(0);
+    Collision retval{};
     int zh;
     int dasectnum, tempshort;
     short lastsectnum;
@@ -6692,7 +6692,7 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
     if (dasectnum < 0)
     {
         // we've gone beyond a white wall - kill it
-        retval.setSky();
+        retval.setVoid();
         return retval;
     }
     retval.setFromEngine(cmret);
@@ -6767,7 +6767,7 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
     {
         if (sp->z < sp->sector()->ceilingz)
         {
-            retval.setSky();
+            retval.setVoid();
         }
     }
 
@@ -6775,7 +6775,7 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
     {
         if (sp->z > sp->sector()->floorz)
         {
-            retval.setSky();
+            retval.setVoid();
         }
     }
 
@@ -6788,7 +6788,7 @@ Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int cei
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
     int daz;
-    Collision retval(0);
+    Collision retval{};
     int dasectnum;
     short lastsectnum;
     int ox,oy;
@@ -6843,7 +6843,7 @@ Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int cei
     if (dasectnum < 0)
     {
         // we've gone beyond a white wall - kill it
-        retval.setSky();
+        retval.setVoid();
         return retval;
     }
 
@@ -6873,7 +6873,7 @@ Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int cei
     if (labs(u->hiz - u->loz) < Z(12))
     {
         // we've gone into a very small place - kill it
-        retval.setSky();
+        retval.setVoid();
         return retval;
     }
 

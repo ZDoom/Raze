@@ -78,7 +78,7 @@ bool ActorMoveHitReact(DSWActor* actor)
     auto coll = u->coll;
     if (coll.type == kHitSprite)
     {
-        auto hitActor = coll.actor;
+        auto hitActor = coll.actor();
         if (hitActor->hasU() && hitActor->u()->PlayerP)
         {
             // if you ran into a player - call close range functions

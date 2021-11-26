@@ -58,29 +58,10 @@ EXTERN_CVAR(Bool, sw_bunnyrockets)
 
 BEGIN_SW_NS
 
-// Wrapper around the insane collision info mess from Build.
 class DSWActor;
-struct Collision
-{
-    int type;
-    int index;
-    int legacyVal;	// should be removed later, but needed for converting back for unadjusted code.
-    DSWActor* actor;
+using HitInfo = THitInfo<DSWActor>;
+using Collision = TCollision<DSWActor>;
 
-    Collision() = default;
-    explicit Collision(int legacyval) { setFromEngine(legacyval); }
-
-    void invalidate() { type = -1; } // something invalid that's not a valid hit type.
-    int setNone();
-    int setSector(int num);
-    int setWall(int num);
-    int setSprite(DSWActor* num);
-    int setSky();
-    int setFromEngine(int value);
-
-    walltype* wall() const { assert(type == kHitWall); return &::wall[index]; }
-    sectortype* sector() const { assert(type == kHitSector); return &::sector[index]; }
-};
 
 typedef struct
 {
@@ -1059,7 +1040,6 @@ struct ROTATOR
 };
 
 using ROTATORp = ROTATOR*;
-struct Collision;
 
 //
 // User Extension record
@@ -1917,9 +1897,6 @@ inline bool FAF_ConnectArea(sectortype* sect)
 bool PlayerCeilingHit(PLAYERp pp, int zlimit);
 bool PlayerFloorHit(PLAYERp pp, int zlimit);
 
-class DSWActor;
-using HitInfo = THitInfo<DSWActor>;
-
 void FAFhitscan(int32_t x, int32_t y, int32_t z, sectortype* sectnum,
     int32_t xvect, int32_t yvect, int32_t zvect,
     HitInfo& hit, int32_t clipmask);
@@ -1935,12 +1912,6 @@ void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, sectortype* sect,
                        int32_t* hiz, Collision* ceilhit,
                        int32_t* loz, Collision* florhit);
 
-
-void short_setinterpolation(short *posptr);
-void short_stopinterpolation(short *posptr);
-void short_updateinterpolations(void);
-void short_dointerpolations(int smoothratio);
-void short_restoreinterpolations(void);
 
 enum SoundType
 {

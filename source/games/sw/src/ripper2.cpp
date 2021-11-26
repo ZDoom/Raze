@@ -1035,7 +1035,7 @@ int DoRipper2MoveHang(DSWActor* actor)
                 u->WaitTics = 0; // Double jump
 
             // hang flush with the wall
-            sp->ang = NORM_ANGLE(getangle(u->coll.wall()->delta()) - 512);
+            sp->ang = NORM_ANGLE(getangle(u->coll.hitWall->delta()) - 512);
 
             return 0;
         }

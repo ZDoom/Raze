@@ -3834,9 +3834,9 @@ int DoVomit(DSWActor* actor)
 
     if (u->coll.type == kHitSprite)
     {
-        if (TEST(u->coll.actor->s().extra, SPRX_PLAYER_OR_ENEMY))
+        if (TEST(u->coll.actor()->s().extra, SPRX_PLAYER_OR_ENEMY))
         {
-            DoDamage(u->coll.actor, actor);
+            DoDamage(u->coll.actor(), actor);
         }
     }
     return 0;
@@ -4223,7 +4223,7 @@ bool VehicleMoveHit(DSWActor* actor)
     {
     case kHitSector:
     {
-        SECTORp sectp = u->coll.sector();
+        SECTORp sectp = u->coll.hitSector;
 
         if (TEST(sectp->extra, SECTFX_SECTOR_OBJECT))
         {
@@ -4235,7 +4235,7 @@ bool VehicleMoveHit(DSWActor* actor)
 
     case kHitSprite:
     {
-        auto hitActor = u->coll.actor;
+        auto hitActor = u->coll.actor();
         SPRITEp hsp = &hitActor->s();
 
         if (TEST(hsp->extra, SPRX_BREAKABLE))
@@ -4266,7 +4266,7 @@ bool VehicleMoveHit(DSWActor* actor)
 
     case kHitWall:
     {
-        auto wph = u->coll.wall();
+        auto wph = u->coll.hitWall;
 
         if (TEST(wph->extra, WALLFX_SECTOR_OBJECT))
         {
@@ -4309,7 +4309,7 @@ bool WeaponMoveHit(DSWActor* actor)
         SECTORp sectp;
         SECTOR_OBJECTp sop;
 
-        sectp = u->coll.sector();
+        sectp = u->coll.hitSector;
 
         ASSERT(sectp->extra != -1);
 
@@ -4377,7 +4377,7 @@ bool WeaponMoveHit(DSWActor* actor)
         SPRITEp hsp;
         USERp hu;
 
-        auto hitActor = u->coll.actor;
+        auto hitActor = u->coll.actor();
         hsp = &hitActor->s();
         hu = hitActor->u();
 
@@ -4453,7 +4453,7 @@ bool WeaponMoveHit(DSWActor* actor)
 
     case kHitWall:
     {
-        auto wph = u->coll.wall();
+        auto wph = u->coll.hitWall;
         SECTOR_OBJECTp sop;
 
         ASSERT(wph->extra != -1);
@@ -7602,7 +7602,7 @@ int DoStar(DSWActor* actor)
             short nw,wall_ang;
             WALLp wph;
 
-            wph = u->coll.wall();
+            wph = u->coll.hitWall;
 
             if (wph->lotag == TAG_WALL_BREAK)
             {
@@ -7649,7 +7649,7 @@ int DoStar(DSWActor* actor)
         case kHitSector:
         {
             bool did_hit_wall;
-            auto hit_sect = u->coll.sector();
+            auto hit_sect = u->coll.hitSector;
 
             if (sp->z > ((u->hiz + u->loz) >> 1))
             {
@@ -7735,9 +7735,9 @@ int DoStar(DSWActor* actor)
 
     if (u->coll.type != kHitNone)
     {
-        if (u->coll.type == kHitSprite && u->coll.actor->hasU())
+        if (u->coll.type == kHitSprite && u->coll.actor()->hasU())
         {
-            su = u->coll.actor->u();
+            su = u->coll.actor()->u();
             if (su->ID == TRASHCAN || su->ID == ZILLA_RUN_R0)
                 PlaySound(DIGI_STARCLINK, actor, v3df_none);
         }
@@ -8239,7 +8239,7 @@ int DoPlasma(DSWActor* actor)
         // if hit a player/enemy back up and do it again with blocking reset
         if (u->coll.type == kHitSprite)
         {
-            auto hitActor = u->coll.actor;
+            auto hitActor = u->coll.actor();
             SPRITEp hsp = &hitActor->s();
             USERp hu = hitActor->u();
 
@@ -8379,7 +8379,7 @@ bool SlopeBounce(DSWActor* actor, bool *hit_wall)
     int dax,day,daz;
     short daang;
 
-    auto hit_sector = u->coll.sector();
+    auto hit_sector = u->coll.hitSector;
 
     getzsofslopeptr(hit_sector, sp->x, sp->y, &hiz, &loz);
 
@@ -8480,7 +8480,7 @@ int DoGrenade(DSWActor* actor)
 
             PlaySound(DIGI_40MMBNCE, actor, v3df_dontpan);
 
-            auto hitActor = u->coll.actor;
+            auto hitActor = u->coll.actor();
             hsp = &hitActor->s();
 
             // special case so grenade can ring gong
@@ -8520,7 +8520,7 @@ int DoGrenade(DSWActor* actor)
             short nw,wall_ang;
             WALLp wph;
 
-            wph = u->coll.wall();
+            wph = u->coll.hitWall;
 
             if (wph->lotag == TAG_WALL_BREAK)
             {
@@ -8709,7 +8709,7 @@ int DoVulcanBoulder(DSWActor* actor)
             short wall_ang;
             SPRITEp hsp;
 
-            auto hitActor = u->coll.actor;
+            auto hitActor = u->coll.actor();
             hsp = &hitActor->s();
 
             if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
@@ -8733,7 +8733,7 @@ int DoVulcanBoulder(DSWActor* actor)
             short nw,wall_ang;
             WALLp wph;
 
-            wph = u->coll.wall();
+            wph = u->coll.hitWall;
 
             if (wph->lotag == TAG_WALL_BREAK)
             {
@@ -9091,7 +9091,7 @@ int DoMine(DSWActor* actor)
             return 0;
         case kHitSprite:
         {
-            auto hitActor = u->coll.actor;
+            auto hitActor = u->coll.actor();
             SPRITEp hsp = &hitActor->s();
             USERp hu = hitActor->u();
 
@@ -9159,7 +9159,7 @@ int DoMine(DSWActor* actor)
 
         case kHitWall:
         {
-            auto hit_wall = u->coll.wall();
+            auto hit_wall = u->coll.hitWall;
 
             if (hit_wall->lotag == TAG_WALL_BREAK)
             {
@@ -9188,7 +9188,7 @@ int DoMine(DSWActor* actor)
 
         case kHitSector:
         {
-            auto hit_sect = u->coll.sector();
+            auto hit_sect = u->coll.hitSector;
 
             SetMineStuck(actor);
 
@@ -9525,7 +9525,7 @@ int DoRail(DSWActor* actor)
             {
                 if (u->coll.type == kHitSprite)
                 {
-                    auto hitActor = u->coll.actor;
+                    auto hitActor = u->coll.actor();
                     auto hs = &hitActor->s();
  
                     if (hs->extra & SPRX_PLAYER_OR_ENEMY)
@@ -9967,7 +9967,7 @@ int DoElectro(DSWActor* actor)
             {
             case kHitSprite:
             {
-                auto hitActor = u->coll.actor;
+                auto hitActor = u->coll.actor();
                 SPRITEp hsp = &hitActor->s();
                 USERp hu = hitActor->u();
 
@@ -11147,8 +11147,8 @@ int DoFireball(DSWActor* actor)
                 if (TEST(hsp->extra, SPRX_BURNABLE))
                 {
                     if (!hu)
-                        hu = SpawnUser(u->coll.actor, hsp->picnum, nullptr);
-                    SpawnFireballFlames(actor, u->coll.actor);
+                        hu = SpawnUser(u->coll.actor(), hsp->picnum, nullptr);
+                    SpawnFireballFlames(actor, u->coll.actor());
                     hit_burn = true;
                 }
 
@@ -11191,7 +11191,7 @@ int DoFindGround(DSWActor* actor)
     {
     case kHitSprite:
     {
-        auto florActor = florhit.actor;
+        auto florActor = florhit.actor();
         hsp = &florActor->s();
 
         if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR))
@@ -11215,7 +11215,7 @@ int DoFindGround(DSWActor* actor)
     }
     case kHitSector:
     {
-        u->lo_sectp = florhit.sector();
+        u->lo_sectp = florhit.hitSector;
         u->lowActor = nullptr;
         return true;
     }
@@ -11248,7 +11248,7 @@ int DoFindGroundPoint(DSWActor* actor)
     {
     case kHitSprite:
     {
-        auto florActor = florhit.actor;
+        auto florActor = florhit.actor();
         hsp = &florActor->s();
 
         if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR))
@@ -11272,7 +11272,7 @@ int DoFindGroundPoint(DSWActor* actor)
     }
     case kHitSector:
     {
-        u->lo_sectp = florhit.sector();
+        u->lo_sectp = florhit.hitSector;
         u->lowActor = nullptr;
         return true;
     }
@@ -11321,7 +11321,7 @@ int DoNapalm(DSWActor* actor)
         // if hit a player/enemy back up and do it again with blocking reset
         if (u->coll.type == kHitSprite)
         {
-            SPRITEp hsp = &u->coll.actor->s();
+            SPRITEp hsp = &u->coll.actor()->s();
 
             if (TEST(hsp->cstat, CSTAT_SPRITE_BLOCK) && !TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
@@ -11503,8 +11503,8 @@ int DoSerpMeteor(DSWActor* actor)
         // if hit a player/enemy back up and do it again with blocking reset
         if (u->coll.type == kHitSprite)
         {
-            SPRITEp hsp = &u->coll.actor->s();
-            USERp hu = u->coll.actor->u();
+            SPRITEp hsp = &u->coll.actor()->s();
+            USERp hu = u->coll.actor()->u();
 
             if (hu && hu->ID >= SKULL_R0 && hu->ID <= SKULL_SERP)
             {
@@ -14891,7 +14891,7 @@ int InitGoroChop(DSWActor* actor)
 
 int InitHornetSting(DSWActor* actor)
 {
-    DoDamage(actor->u()->coll.actor, actor);
+    DoDamage(actor->u()->coll.actor(), actor);
     InitActorReposition(actor);
     return 0;
 }
@@ -18238,7 +18238,7 @@ bool MissileHitDiveArea(DSWActor* actor)
 
     if (u->coll.type == kHitSector)
     {
-        auto hit_sect = u->coll.sector();
+        auto hit_sect = u->coll.hitSector;
 
         if (SpriteInDiveArea(sp))
         {
@@ -18534,7 +18534,7 @@ bool TestDontStick(DSWActor* actor, walltype* hit_wall)
         ASSERT(actor != nullptr);
         USERp u = actor->u();
         if (u->coll.type != kHitWall) return true; // ain't got a wall here.
-        hit_wall = u->coll.wall();
+        hit_wall = u->coll.hitWall;
     }
 
     wp = hit_wall;
@@ -19201,7 +19201,7 @@ int DoShrapVelocity(DSWActor* actor)
             short wall_ang;
             SPRITEp hsp;
 
-            auto hit_sprite = u->coll.actor;
+            auto hit_sprite = u->coll.actor();
             hsp = &hit_sprite->s();
 
             wall_ang = NORM_ANGLE(hsp->ang);
@@ -19213,7 +19213,7 @@ int DoShrapVelocity(DSWActor* actor)
 
         case kHitWall:
         {
-            int wall_ang = NORM_ANGLE(getangle(u->coll.wall()->delta())+512);
+            int wall_ang = NORM_ANGLE(getangle(u->coll.hitWall->delta())+512);
 
             WallBounce(actor, wall_ang);
             ScaleSpriteVector(actor, 32000);
@@ -19519,7 +19519,7 @@ int DoItemFly(DSWActor* actor)
         case kHitSprite:
         {
             short wall_ang;
-            auto hit_sprite = u->coll.actor;
+            auto hit_sprite = u->coll.actor();
             SPRITEp hsp;
 
             hsp = &hit_sprite->s();
@@ -19541,7 +19541,7 @@ int DoItemFly(DSWActor* actor)
 
         case kHitWall:
         {
-            int wall_ang = NORM_ANGLE(getangle(u->coll.wall()->delta())+512);
+            int wall_ang = NORM_ANGLE(getangle(u->coll.hitWall->delta())+512);
             WallBounce(actor, wall_ang);
             ScaleSpriteVector(actor, 32000);
             break;

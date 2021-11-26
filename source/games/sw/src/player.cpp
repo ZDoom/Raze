@@ -1886,20 +1886,20 @@ void DoPlayerZrange(PLAYERp pp)
 
     if (ceilColl.type == kHitSprite)
     {
-        pp->highActor = ceilColl.actor;
+        pp->highActor = ceilColl.actor();
     }
     else
     {
-        pp->hi_sectp = ceilColl.sector();
+        pp->hi_sectp = ceilColl.hitSector;
     }
 
     if (floorColl.type == kHitSprite)
     {
-        pp->lowActor = floorColl.actor;
+        pp->lowActor = floorColl.actor();
 
         // prevent player from standing on Zombies
-        auto fsp = &floorColl.actor->s();
-        if (fsp->statnum == STAT_ENEMY && floorColl.actor->u()->ID == ZOMBIE_RUN_R0)
+        auto fsp = &floorColl.actor()->s();
+        if (fsp->statnum == STAT_ENEMY && floorColl.actor()->u()->ID == ZOMBIE_RUN_R0)
         {
             pp->lo_sectp = fsp->sector();
             pp->loz = fsp->z;
@@ -1908,7 +1908,7 @@ void DoPlayerZrange(PLAYERp pp)
     }
     else
     {
-        pp->lo_sectp = floorColl.sector();
+        pp->lo_sectp = floorColl.hitSector;
     }
 }
 
@@ -5992,7 +5992,7 @@ void DoPlayerDeathMoveHead(PLAYERp pp)
 
             //PlaySound(DIGI_DHCLUNK, pp, v3df_dontpan);
 
-            auto hit_sprite = u->coll.actor;
+            auto hit_sprite = u->coll.actor();
             hsp = &hit_sprite->s();
 
             if (!TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
@@ -6008,7 +6008,7 @@ void DoPlayerDeathMoveHead(PLAYERp pp)
         }
         case kHitWall:
         {
-            int wall_ang = NORM_ANGLE(getangle(u->coll.wall()->delta())-512);
+            int wall_ang = NORM_ANGLE(getangle(u->coll.hitWall->delta())-512);
 
             int dang = getincangle(wall_ang, u->slide_ang);
             u->slide_ang = NORM_ANGLE(wall_ang + 1024 - dang);

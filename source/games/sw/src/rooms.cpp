@@ -355,7 +355,7 @@ bool SectorZadjust(const Collision& ceilhit, int32_t* hiz, const Collision& flor
         {
         case kHitSector:
         {
-            auto hit_sector = florhit.sector();
+            auto hit_sector = florhit.hitSector;
 
             // don't jack with connect sectors
             if (FAF_ConnectFloor(hit_sector))
@@ -409,7 +409,7 @@ bool SectorZadjust(const Collision& ceilhit, int32_t* hiz, const Collision& flor
         {
         case kHitSector:
         {
-            auto hit_sector = ceilhit.sector();
+            auto hit_sector = ceilhit.hitSector;
 
             // don't jack with connect sectors
             if (FAF_ConnectCeiling(hit_sector))
@@ -460,7 +460,7 @@ void WaterAdjust(const Collision& florhit, int32_t* loz)
 {
     if (florhit.type == kHitSector)
     {
-        auto sect = florhit.sector();
+        auto sect = florhit.hitSector;
         if (!sect->hasU()) return;
 
         if (sect->hasU() && FixedToInt(sect->depth_fixed))
