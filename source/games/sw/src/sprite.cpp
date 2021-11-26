@@ -106,7 +106,7 @@ short wait_active_check_offset;
 int PlaxCeilGlobZadjust, PlaxFloorGlobZadjust;
 void SetSectorWallBits(sectortype* sect, int bit_mask, bool set_sectwall, bool set_nextwall);
 int DoActorDebris(DSWActor* actor);
-void ActorWarpUpdatePos(DSWActor*,short sectnum);
+void ActorWarpUpdatePos(DSWActor*,sectortype* sect);
 void ActorWarpType(DSWActor* sp, DSWActor* act_warp);
 int MissileZrange(DSWActor*);
 
@@ -6451,11 +6451,9 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
 {
     Collision retval{};
     int zh;
-	int dasectnum;
 	short tempshort;
     SPRITEp spr = &actor->s();
     USERp u = actor->u();
-    short lastsectnum;
 
     ASSERT(actor->hasU());
 
@@ -6463,7 +6461,8 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
 
     // Can't modify sprite sectors
     // directly becuase of linked lists
-    dasectnum = lastsectnum = spr->sectnum;
+    auto dasect = spr->sector();
+    auto lastsect = dasect;
 
     if (TEST(spr->cstat, CSTAT_SPRITE_YCENTER))
     {
@@ -6479,21 +6478,20 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
 
 //    ASSERT(inside(spr->x,spr->y,dasectnum));
 
-    int cmret = clipmove(&clippos, &dasectnum,
+    clipmove(clippos, &dasect,
                       ((xchange * numtics) << 11), ((ychange * numtics) << 11),
-                      (((int) spr->clipdist) << 2), ceildist, flordist, cliptype, 1);
+                      (((int) spr->clipdist) << 2), ceildist, flordist, cliptype, retval, 1);
 
     spr->pos.vec2 = clippos.vec2;
 
-    if (dasectnum < 0)
+    if (dasect == nullptr)
     {
         retval.setWall(0); // this is wrong but what the original code did.
         return retval;
     }
-    retval.setFromEngine(cmret);
 
-    if ((dasectnum != spr->sectnum) && (dasectnum >= 0))
-        ChangeActorSect(actor, dasectnum);
+    if ((dasect != spr->sector()) && (dasect != nullptr))
+        ChangeActorSect(actor, dasect);
 
     // Set the blocking bit to 0 temporarly so FAFgetzrange doesn't pick
     // up its own sprite
@@ -6528,7 +6526,7 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
                 return retval;
             }
 
-            retval.setSector(dasectnum);
+            retval.setSector(dasect);
         }
     }
     else
@@ -6543,17 +6541,17 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
     if (TEST(spr->sector()->extra, SECTFX_WARP_SECTOR))
     {
         DSWActor* sp_warp;
-        if ((sp_warp = WarpPlane(&spr->x, &spr->y, &spr->z, &dasectnum)))
+        if ((sp_warp = WarpPlane(&spr->x, &spr->y, &spr->z, &dasect)))
         {
-            ActorWarpUpdatePos(actor, dasectnum);
+            ActorWarpUpdatePos(actor, dasect);
             ActorWarpType(actor, sp_warp);
         }
 
-        if (spr->sectnum != lastsectnum)
+        if (spr->sector() != lastsect)
         {
-            if ((sp_warp = Warp(&spr->x, &spr->y, &spr->z, &dasectnum)))
+            if ((sp_warp = Warp(&spr->x, &spr->y, &spr->z, &dasect)))
             {
-                ActorWarpUpdatePos(actor, dasectnum);
+                ActorWarpUpdatePos(actor, dasect);
                 ActorWarpType(actor, sp_warp);
             }
         }
@@ -6562,23 +6560,23 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
     return retval;
 }
 
-void MissileWarpUpdatePos(DSWActor* actor, short sectnum)
+void MissileWarpUpdatePos(DSWActor* actor, sectortype* sect)
 {
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
     sp->backuppos();
     u->oz = sp->oz;
-    ChangeActorSect(actor, sectnum);
+    ChangeActorSect(actor, sect);
     MissileZrange(actor);
 }
 
-void ActorWarpUpdatePos(DSWActor* actor, short sectnum)
+void ActorWarpUpdatePos(DSWActor* actor, sectortype* sect)
 {
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
     sp->backuppos();
     u->oz = sp->oz;
-    ChangeActorSect(actor, sectnum);
+    ChangeActorSect(actor, sect);
     DoActorZrange(actor);
 }
 
@@ -6662,8 +6660,7 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
     SPRITEp sp = &actor->s();
     Collision retval{};
     int zh;
-    int dasectnum, tempshort;
-    short lastsectnum;
+    int tempshort;
 
     ASSERT(actor->hasU());
 
@@ -6671,7 +6668,8 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
 
     // Can't modify sprite sectors
     // directly becuase of linked lists
-    dasectnum = lastsectnum = sp->sectnum;
+    auto dasect = sp->sector();
+    auto lastsect = dasect;
 
     if (TEST(sp->cstat, CSTAT_SPRITE_YCENTER))
     {
@@ -6684,21 +6682,20 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
     }
 
 
-    int cmret = clipmove(&clippos, &dasectnum,
+    clipmove(clippos, &dasect,
                       ((xchange * numtics) << 11), ((ychange * numtics) << 11),
-                      (((int) sp->clipdist) << 2), ceildist, flordist, cliptype, 1);
+                      (((int) sp->clipdist) << 2), ceildist, flordist, cliptype, retval, 1);
     sp->pos.vec2 = clippos.vec2;
 
-    if (dasectnum < 0)
+    if (dasect == nullptr)
     {
         // we've gone beyond a white wall - kill it
         retval.setVoid();
         return retval;
     }
-    retval.setFromEngine(cmret);
 
-    if ((dasectnum != sp->sectnum) && (dasectnum >= 0))
-        ChangeActorSect(actor, dasectnum);
+    if ((dasect != sp->sector()) && (dasect != nullptr))
+        ChangeActorSect(actor, dasect);
 
     // Set the blocking bit to 0 temporarly so FAFgetzrange doesn't pick
     // up its own sprite
@@ -6727,13 +6724,13 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
         // normal code
         sp->z = u->hiz + zh + ceildist;
         if (retval.type == kHitNone)
-            retval.setSector(dasectnum);
+            retval.setSector(dasect);
     }
     else if (clippos.z - zh > u->loz - flordist)
     {
         sp->z = u->loz + zh - flordist;
         if (retval.type == kHitNone)
-            retval.setSector(dasectnum);
+            retval.setSector(dasect);
     }
     else
     {
@@ -6747,17 +6744,17 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
     {
         DSWActor* sp_warp;
 
-        if ((sp_warp = WarpPlane(&sp->x, &sp->y, &sp->z, &dasectnum)))
+        if ((sp_warp = WarpPlane(&sp->x, &sp->y, &sp->z, &dasect)))
         {
-            MissileWarpUpdatePos(actor, dasectnum);
+            MissileWarpUpdatePos(actor, dasect);
             MissileWarpType(actor, sp_warp);
         }
 
-        if (sp->sectnum != lastsectnum)
+        if (sp->sector() != lastsect)
         {
-            if ((sp_warp = Warp(&sp->x, &sp->y, &sp->z, &dasectnum)))
+            if ((sp_warp = Warp(&sp->x, &sp->y, &sp->z, &dasect)))
             {
-                MissileWarpUpdatePos(actor, dasectnum);
+                MissileWarpUpdatePos(actor, dasect);
                 MissileWarpType(actor, sp_warp);
             }
         }
@@ -6789,15 +6786,14 @@ Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int cei
     SPRITEp sp = &actor->s();
     int daz;
     Collision retval{};
-    int dasectnum;
-    short lastsectnum;
     int ox,oy;
 
     ASSERT(actor->hasU());
 
     // Can't modify sprite sectors
     // directly becuase of linked lists
-    dasectnum = lastsectnum = sp->sectnum;
+    auto dasect = sp->sector();
+    auto lastsect = dasect;
 
     vec3_t opos = sp->pos;
     daz = sp->z;
@@ -6825,22 +6821,22 @@ Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int cei
     sp->x += xchange/2;
     sp->y += ychange/2;
 
-    updatesector(sp->x, sp->y, &dasectnum);
+    updatesector(sp->x, sp->y, &dasect);
 
-    if (dasectnum < 0)
+    if (dasect == nullptr)
     {
         // back up and try again
-        dasectnum = lastsectnum = sp->sectnum;
+        dasect = sp->sector();
+        lastsect = dasect;
         opos = sp->pos;
         opos.z = daz;
-        auto cmret = clipmove(&opos, &dasectnum,
+        clipmove(opos, &dasect,
                           ((xchange * numtics) << 11), ((ychange * numtics) << 11),
-                          (((int) sp->clipdist) << 2), ceildist, flordist, cliptype, 1);
+                          (((int) sp->clipdist) << 2), ceildist, flordist, cliptype, retval, 1);
         sp->pos.vec2 = opos.vec2;
-        retval.setFromEngine(cmret);
     }
 
-    if (dasectnum < 0)
+    if (dasect == nullptr)
     {
         // we've gone beyond a white wall - kill it
         retval.setVoid();
@@ -6855,13 +6851,13 @@ Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int cei
 
 
     u->z_tgt = 0;
-    if ((dasectnum != sp->sectnum) && (dasectnum >= 0))
+    if ((dasect != sp->sector()) && (dasect != nullptr))
     {
         int new_loz,new_hiz;
-        getzsofslope(dasectnum, sp->x, sp->y, &new_hiz, &new_loz);
+        getzsofslopeptr(dasect, sp->x, sp->y, &new_hiz, &new_loz);
 
         sp->z = new_loz;
-        ChangeActorSect(actor, dasectnum);
+        ChangeActorSect(actor, dasect);
     }
 
     getzsofslopeptr(sp->sector(), sp->x, sp->y, &u->hiz, &u->loz);
@@ -6881,17 +6877,17 @@ Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int cei
     {
         DSWActor* sp_warp;
 
-        if ((sp_warp = WarpPlane(&sp->x, &sp->y, &sp->z, &dasectnum)))
+        if ((sp_warp = WarpPlane(&sp->x, &sp->y, &sp->z, &dasect)))
         {
-            MissileWarpUpdatePos(actor, dasectnum);
+            MissileWarpUpdatePos(actor, dasect);
             MissileWarpType(actor, sp_warp);
         }
 
-        if (sp->sectnum != lastsectnum)
+        if (sp->sector() != lastsect)
         {
-            if ((sp_warp = Warp(&sp->x, &sp->y, &sp->z, &dasectnum)))
+            if ((sp_warp = Warp(&sp->x, &sp->y, &sp->z, &dasect)))
             {
-                MissileWarpUpdatePos(actor, dasectnum);
+                MissileWarpUpdatePos(actor, dasect);
                 MissileWarpType(actor, sp_warp);
             }
         }
