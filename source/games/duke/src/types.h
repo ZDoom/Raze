@@ -103,13 +103,7 @@ extern DDukeActor hittype[MAXSPRITES + 1];
 inline DDukeActor* DDukeActor::array() { return hittype; }
 
 // subclassed to add a game specific actor() method
-struct HitInfo : public HitInfoBase
-{
-	DDukeActor* actor() const
-	{
-		return static_cast<DDukeActor*>(hitActor);
-	}
-};
+using HitInfo = THitInfo<DDukeActor>;
 
 struct animwalltype
 {

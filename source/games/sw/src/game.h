@@ -1917,7 +1917,8 @@ inline bool FAF_ConnectArea(sectortype* sect)
 bool PlayerCeilingHit(PLAYERp pp, int zlimit);
 bool PlayerFloorHit(PLAYERp pp, int zlimit);
 
-struct HitInfo;
+class DSWActor;
+using HitInfo = THitInfo<DSWActor>;
 
 void FAFhitscan(int32_t x, int32_t y, int32_t z, sectortype* sectnum,
     int32_t xvect, int32_t yvect, int32_t zvect,

@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 class DBloodActor;
-struct HitInfo;
+using HitInfo = THitInfo<DBloodActor>;
 
 enum DAMAGE_TYPE {
     kDamageFall = 0,

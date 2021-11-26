@@ -3,6 +3,7 @@
 #include "resourcefile.h"
 #include "build.h"
 #include "gamefuncs.h"
+#include "coreactor.h"
 
 extern FixedBitArray<MAXSPRITES> activeSprites;
 
@@ -23,7 +24,7 @@ void M_Autosave();
 #define SAVEGAME_EXT ".dsave"
 
 
-inline FSerializer& Serialize(FSerializer& arc, const char* keyname, spritetype*& w, spritetype** def)
+template<> inline FSerializer& Serialize(FSerializer& arc, const char* keyname, spritetype*& w, spritetype** def)
 {
 	int ndx = w ? int(w - sprite) : -1;
 	arc(keyname, ndx);
@@ -31,7 +32,7 @@ inline FSerializer& Serialize(FSerializer& arc, const char* keyname, spritetype*
 	return arc;
 }
 
-inline FSerializer& Serialize(FSerializer& arc, const char* keyname, sectortype*& w, sectortype** def)
+template<> inline FSerializer& Serialize(FSerializer& arc, const char* keyname, sectortype*& w, sectortype** def)
 {
 	int ndx = w ? sectnum(w) : -1;
 	arc(keyname, ndx);
@@ -39,11 +40,27 @@ inline FSerializer& Serialize(FSerializer& arc, const char* keyname, sectortype*
 	return arc;
 }
 
-inline FSerializer& Serialize(FSerializer& arc, const char* keyname, walltype*& w, walltype** def)
+template<> inline FSerializer& Serialize(FSerializer& arc, const char* keyname, walltype*& w, walltype** def)
 {
 	int ndx = w ? wallnum(w) : -1;
 	arc(keyname, ndx);
 	w = ndx == -1 ? nullptr : &wall[ndx];
+	return arc;
+}
+
+template<class T>
+inline FSerializer& Serialize(FSerializer& arc, const char* keyname, THitInfo<T>& w, THitInfo<T>* def)
+{
+	if (arc.BeginObject(keyname))
+	{
+		arc("sect", w.hitSector)
+			("sprite", w.hitActor)
+			("wall", w.hitWall)
+			("x", w.hitpos.x)
+			("y", w.hitpos.y)
+			("z", w.hitpos.z)
+			.EndObject();
+	}
 	return arc;
 }
 

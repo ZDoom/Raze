@@ -141,13 +141,7 @@ inline int Collision::actorIndex(DExhumedActor* a)
 inline DExhumedActor* DExhumedActor::base() { return exhumedActors; }
 
 // subclassed to add a game specific actor() method
-struct HitInfo : public HitInfoBase
-{
-	DExhumedActor* actor() const
-	{
-		return static_cast<DExhumedActor*>(hitActor);
-	}
-};
+using HitInfo = THitInfo<DExhumedActor>;
 
 // Iterator wrappers that return an actor pointer, not an index.
 class ExhumedStatIterator : public StatIterator

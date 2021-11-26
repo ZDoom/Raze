@@ -3,7 +3,6 @@
 #include <stdint.h>
 #include "build.h"
 #include "iterators.h"
-#include "serializer.h"
 
 class DCoreActor
 {
@@ -54,7 +53,6 @@ extern TArray<walltype> wall;
 enum EHitBits
 {
     kHitNone = 0,
-	kHitTypeHitscan = 1,	// hitscan results are not exclusive
     kHitTypeMask = 0xC000,
     kHitTypeMaskSW = 0x1C000, // SW has one more relevant bit
     kHitIndexMask = 0x3FFF,
@@ -78,15 +76,16 @@ inline FSerializer& Serialize(FSerializer& arc, const char* keyname, DCoreActor*
 // Not all utilities use all variables.
 struct HitInfoBase
 {
-    int type;
+    //int type;
 	vec3_t hitpos;
 	sectortype* hitSector;
 	walltype* hitWall;
     DCoreActor* hitActor;
 
-	HitInfoBase() = default;
-    explicit HitInfoBase(int legacyval) { setFromEngine(legacyval); }
+	//HitInfoBase() = default;
+    //explicit HitInfoBase(int legacyval) { setFromEngine(legacyval); }
 
+#if 0
 	void invalidate()
 	{
 		*this = {};
@@ -164,6 +163,7 @@ struct HitInfoBase
 		else setNone();
 		return type;
 	}
+#endif
 
 	void clearObj()
 	{
@@ -173,6 +173,11 @@ struct HitInfoBase
 	}
 };
 
+template<class T>
+struct THitInfo : public HitInfoBase
+{
+	T* actor() { return static_cast<T*>(hitActor); }
+};
 
 // Iterator wrappers that return an actor pointer, not an index.
 template<class TActor>
@@ -299,6 +304,5 @@ inline int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_
 	hitinfo.hitSector = hd.sect == -1? nullptr : &sector[hd.sect];
 	hitinfo.hitWall = hd.wall == -1? nullptr : &wall[hd.wall];
 	hitinfo.hitActor = hd.sprite == -1? nullptr : actorArray[hd.sprite];
-	hitinfo.type = kHitTypeHitscan;
 	return res;
 }

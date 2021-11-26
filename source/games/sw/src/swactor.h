@@ -47,13 +47,6 @@ extern DSWActor swActors[MAXSPRITES];
 inline DSWActor* DSWActor::base() { return swActors; }
 
 // subclassed to add a game specific actor() method
-struct HitInfo : public HitInfoBase
-{
-	DSWActor* actor() const
-	{
-		return static_cast<DSWActor*>(hitActor);
-	}
-};
 
 // Iterator wrappers that return an actor pointer, not an index.
 class SWStatIterator : public StatIterator
