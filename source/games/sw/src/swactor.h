@@ -49,93 +49,10 @@ inline DSWActor* DSWActor::base() { return swActors; }
 // subclassed to add a game specific actor() method
 
 // Iterator wrappers that return an actor pointer, not an index.
-class SWStatIterator : public StatIterator
-{
-public:
-	SWStatIterator(int stat) : StatIterator(stat)
-	{
-	}
-
-	DSWActor* Next()
-	{
-		int n = NextIndex();
-		return n >= 0 ? &swActors[n] : nullptr;
-	}
-
-	DSWActor* Peek()
-	{
-		int n = PeekIndex();
-		return n >= 0 ? &swActors[n] : nullptr;
-	}
-};
-
-class SWSectIterator : public SectIterator
-{
-public:
-	SWSectIterator(int stat) : SectIterator(stat)
-	{
-	}
-
-	SWSectIterator(sectortype* stat) : SectIterator(stat)
-	{
-	}
-
-	DSWActor* Next()
-	{
-		int n = NextIndex();
-		return n >= 0 ? &swActors[n] : nullptr;
-	}
-
-	DSWActor* Peek()
-	{
-		int n = PeekIndex();
-		return n >= 0 ? &swActors[n] : nullptr;
-	}
-};
-
-// An iterator to iterate over all sprites.
-class SWSpriteIterator
-{
-	SWStatIterator it;
-	int stat = 0;
-
-public:
-	SWSpriteIterator() : it(0) {}
-
-	DSWActor* Next()
-	{
-		while (stat < MAXSTATUS)
-		{
-			auto ac = it.Next();
-			if (ac) return ac;
-			stat++;
-			if (stat < MAXSTATUS) it.Reset(stat);
-		}
-		return nullptr;
-	}
-};
-
-// For iterating linearly over map spawned sprites.
-class SWLinearSpriteIterator
-{
-	int index = 0;
-public:
-
-	void Reset()
-	{
-		index = 0;
-	}
-
-	DSWActor* Next()
-	{
-		while (index < MAXSPRITES)
-		{
-			auto p = &swActors[index++];
-			if (p->s().statnum != MAXSTATUS) return p;
-		}
-		return nullptr;
-	}
-};
+using SWStatIterator = TStatIterator<DSWActor>;
+using SWSectIterator = TSectIterator<DSWActor>;
+using SWSpriteIterator = TSpriteIterator<DSWActor>;
+using SWLinearSpriteIterator = TLinearSpriteIterator<DSWActor>;
 
 
 inline FSerializer& Serialize(FSerializer& arc, const char* keyname, DSWActor*& w, DSWActor** def)

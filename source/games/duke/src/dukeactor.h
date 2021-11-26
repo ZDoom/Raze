@@ -5,88 +5,10 @@
 BEGIN_DUKE_NS
 
 
-// Iterator wrappers that return an actor pointer, not an index.
-class DukeStatIterator : public StatIterator
-{
-public:
-	DukeStatIterator(int stat) : StatIterator(stat)
-	{
-	}
-	
-	DDukeActor *Next()
-	{
-		int n = NextIndex();
-		return n >= 0? &hittype[n] : nullptr;
-	}
-
-	DDukeActor *Peek()
-	{
-		int n = PeekIndex();
-		return n >= 0? &hittype[n] : nullptr;
-	}
-};
-
-class DukeSectIterator : public SectIterator
-{
-public:
-	DukeSectIterator(int stat) : SectIterator(stat)
-	{
-	}
-	
-	DukeSectIterator(sectortype* stat) : SectIterator(stat)
-	{
-	}
-	
-	DDukeActor *Next()
-	{
-		int n = NextIndex();
-		return n >= 0? &hittype[n] : nullptr;
-	}
-
-	DDukeActor *Peek()
-	{
-		int n = PeekIndex();
-		return n >= 0? &hittype[n] : nullptr;
-	}
-};
-
-// An interator to iterate over all sprites.
-class DukeSpriteIterator
-{
-	DukeStatIterator it;
-	int stat = STAT_DEFAULT;
-
-public:
-	DukeSpriteIterator() : it(STAT_DEFAULT) {}
-
-	DDukeActor* Next()
-	{
-		while (stat < MAXSTATUS)
-		{
-			auto ac = it.Next();
-			if (ac) return ac;
-			stat++;
-			if (stat < MAXSTATUS) it.Reset(stat);
-		}
-		return nullptr;
-	}
-};
-
-class DukeLinearSpriteIterator
-{
-	int index = 0;
-public:
-
-	DDukeActor* Next()
-	{
-		while (index < MAXSPRITES)
-		{
-			auto p = &hittype[index++];
-			if (p->s->statnum != MAXSTATUS) return p;
-		}
-		return nullptr;
-	}
-};
+using DukeStatIterator = TStatIterator<DDukeActor>;
+using DukeSectIterator = TSectIterator<DDukeActor>;
+using DukeSpriteIterator = TSpriteIterator<DDukeActor>;
+using DukeLinearSpriteIterator = TLinearSpriteIterator<DDukeActor>;
 
 inline DDukeActor* player_struct::GetActor()
 {

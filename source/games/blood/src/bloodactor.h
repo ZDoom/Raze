@@ -168,95 +168,11 @@ extern HitInfo gHitInfo;
 
 
 // Iterator wrappers that return an actor pointer, not an index.
-class BloodStatIterator : public StatIterator
-{
-public:
-	BloodStatIterator(int stat) : StatIterator(stat)
-	{
-	}
 
-	DBloodActor* Next()
-	{
-		int n = NextIndex();
-		return n >= 0 ? &bloodActors[n] : nullptr;
-	}
-
-	DBloodActor* Peek()
-	{
-		int n = PeekIndex();
-		return n >= 0 ? &bloodActors[n] : nullptr;
-	}
-};
-
-class BloodSectIterator : public SectIterator
-{
-public:
-	BloodSectIterator(int stat) : SectIterator(stat)
-	{
-	}
-
-	BloodSectIterator(sectortype* stat) : SectIterator(stat)
-	{
-	}
-
-	DBloodActor* Next()
-	{
-		int n = NextIndex();
-		return n >= 0 ? &bloodActors[n] : nullptr;
-	}
-
-	DBloodActor* Peek()
-	{
-		int n = PeekIndex();
-		return n >= 0 ? &bloodActors[n] : nullptr;
-	}
-};
-
-// An iterator to iterate over all sprites.
-class BloodSpriteIterator
-{
-	BloodStatIterator it;
-	int stat = kStatDecoration;
-
-public:
-	BloodSpriteIterator() : it(kStatDecoration) {}
-
-	DBloodActor* Next()
-	{
-		while (stat < kStatFree)
-		{
-			auto ac = it.Next();
-			if (ac) return ac;
-			stat++;
-			if (stat < kStatFree) it.Reset(stat);
-		}
-		return nullptr;
-	}
-};
-
-// For iterating linearly over map spawned sprites.
-class BloodLinearSpriteIterator
-{
-	int index = 0;
-public:
-
-	void Reset()
-	{
-		index = 0;
-	}
-
-	DBloodActor* Next()
-	{
-		while (index < MAXSPRITES)
-		{
-			auto p = &bloodActors[index++];
-			if (p->s().statnum != kStatFree) return p;
-		}
-		return nullptr;
-	}
-};
-
-
+using BloodStatIterator = TStatIterator<DBloodActor>;
+using BloodSectIterator = TSectIterator<DBloodActor>;
+using BloodSpriteIterator = TSpriteIterator<DBloodActor>;
+using BloodLinearSpriteIterator = TLinearSpriteIterator<DBloodActor>;
 
 inline int DeleteSprite(DBloodActor* nSprite)
 {

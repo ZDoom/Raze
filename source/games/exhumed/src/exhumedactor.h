@@ -58,95 +58,10 @@ inline DExhumedActor* DExhumedActor::base() { return exhumedActors; }
 using HitInfo = THitInfo<DExhumedActor>;
 using Collision = TCollision<DExhumedActor>;
 
-// Iterator wrappers that return an actor pointer, not an index.
-class ExhumedStatIterator : public StatIterator
-{
-public:
-	ExhumedStatIterator(int stat) : StatIterator(stat)
-	{
-	}
-
-	DExhumedActor* Next()
-	{
-		int n = NextIndex();
-		return n >= 0 ? &exhumedActors[n] : nullptr;
-	}
-
-	DExhumedActor* Peek()
-	{
-		int n = PeekIndex();
-		return n >= 0 ? &exhumedActors[n] : nullptr;
-	}
-};
-
-class ExhumedSectIterator : public SectIterator
-{
-public:
-	ExhumedSectIterator(int stat) : SectIterator(stat)
-	{
-	}
-
-	ExhumedSectIterator(sectortype* stat) : SectIterator(stat)
-	{
-	}
-
-	DExhumedActor* Next()
-	{
-		int n = NextIndex();
-		return n >= 0 ? &exhumedActors[n] : nullptr;
-	}
-
-	DExhumedActor* Peek()
-	{
-		int n = PeekIndex();
-		return n >= 0 ? &exhumedActors[n] : nullptr;
-	}
-};
-
-// An iterator to iterate over all sprites.
-class ExhumedSpriteIterator
-{
-	ExhumedStatIterator it;
-	int stat = 0;
-
-public:
-	ExhumedSpriteIterator() : it(0) {}
-
-	DExhumedActor* Next()
-	{
-		while (stat < MAXSTATUS)
-		{
-			auto ac = it.Next();
-			if (ac) return ac;
-			stat++;
-			if (stat < MAXSTATUS) it.Reset(stat);
-		}
-		return nullptr;
-	}
-};
-
-// For iterating linearly over map spawned sprites.
-class ExhumedLinearSpriteIterator
-{
-	int index = 0;
-public:
-
-	void Reset()
-	{
-		index = 0;
-	}
-
-	DExhumedActor* Next()
-	{
-		while (index < MAXSPRITES)
-		{
-			auto p = &exhumedActors[index++];
-			if (p->s().statnum != MAXSTATUS) return p;
-		}
-		return nullptr;
-	}
-};
-
+using ExhumedStatIterator = TStatIterator<DExhumedActor>;
+using ExhumedSectIterator = TSectIterator<DExhumedActor>;
+using ExhumedSpriteIterator = TSpriteIterator<DExhumedActor>;
+using ExhumedLinearSpriteIterator = TLinearSpriteIterator<DExhumedActor>;
 
 
 inline FSerializer& Serialize(FSerializer& arc, const char* keyname, DExhumedActor*& w, DExhumedActor** def)

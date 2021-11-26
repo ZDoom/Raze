@@ -281,8 +281,8 @@ public:
 	{
 		while (index < MAXSPRITES)
 		{
-			auto p = static_cast<TActor*>(actorArray[index++]);
-			if (p->s().statnum != MAXSTATUS) return p;
+			auto p = actorArray[index++];
+			if (p->s().statnum != MAXSTATUS) return static_cast<TActor*>(p);
 		}
 		return nullptr;
 	}
