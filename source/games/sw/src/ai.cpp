@@ -451,8 +451,7 @@ int DoActorOperate(DSWActor* actor)
 {
     SPRITEp sp = &actor->s();
     USERp u = actor->u();
-    short nearsector = 0, nearwall = 0, nearsprite = 0;
-    int nearhitdist = 0;
+    HitInfo near{};
     int z[2];
     unsigned int i;
 
@@ -470,16 +469,12 @@ int DoActorOperate(DSWActor* actor)
 
     for (i = 0; i < SIZ(z); i++)
     {
-        neartag(sp->x, sp->y, z[i], sp->sectnum, sp->ang,
-                &nearsector, &nearwall, &nearsprite,
-                &nearhitdist, 1024L, NTAG_SEARCH_LO_HI);
-
-
+        neartag({ sp->x, sp->y, z[i] }, sp->sector(), sp->ang, near, 1024, NTAG_SEARCH_LO_HI);
     }
 
-    if (nearsector >= 0 && nearhitdist < 1024)
+    if (near.hitSector != nullptr && near.hitpos.x < 1024)
     {
-        if (OperateSector(&sector[nearsector], false))
+        if (OperateSector(near.hitSector, false))
         {
             u->WaitTics = 2 * 120;
 

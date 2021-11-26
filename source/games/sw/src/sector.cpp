@@ -2012,9 +2012,7 @@ short PlayerTakeSectorDamage(PLAYERp pp)
 enum { PLAYER_SOUNDEVENT_TAG = 900 };
 bool NearThings(PLAYERp pp)
 {
-    short neartagsect, neartagwall, neartagsprite;
-    int neartaghitdist;
-
+    HitInfo near;
 
     // Check player's current sector for triggered sound
     if (pp->cursector->hitag == PLAYER_SOUNDEVENT_TAG)
@@ -2024,16 +2022,14 @@ bool NearThings(PLAYERp pp)
         return false;
     }
 
-    neartag(pp->posx, pp->posy, pp->posz, sectnum(pp->cursector), pp->angle.ang.asbuild(),
-            &neartagsect, &neartagwall, &neartagsprite,
-            &neartaghitdist, 1024L, NTAG_SEARCH_LO_HI);
+    neartag(pp->pos, pp->cursector, pp->angle.ang.asbuild(), near, 1024, NTAG_SEARCH_LO_HI);
 
 
     // hit a sprite? Check to see if it has sound info in it!
     // This can work with any sprite!
-    if (neartagsprite >= 0)
+    if (near.actor() != nullptr)
     {
-        SPRITEp sp = &sprite[neartagsprite];
+        SPRITEp sp = &near.actor()->s();
 
         // Go through list of cases
         if (sp->hitag == PLAYER_SOUNDEVENT_TAG)
@@ -2044,14 +2040,13 @@ bool NearThings(PLAYERp pp)
         return false;   // Return false so he doesn't grunt
     }
 
-    if (neartagwall >= 0)
+    if (near.hitWall != nullptr)
     {
-        auto ntwall = &wall[neartagwall];
         // Check player's current sector for triggered sound
-        if (ntwall->hitag == PLAYER_SOUNDEVENT_TAG)
+        if (near.hitWall->hitag == PLAYER_SOUNDEVENT_TAG)
         {
             if (pp == Player+myconnectindex)
-                PlayerSound(ntwall->lotag, v3df_follow|v3df_dontpan,pp);
+                PlayerSound(near.hitWall->lotag, v3df_follow|v3df_dontpan,pp);
             return false;   // We are playing a sound so don't return true
         }
         return true;
@@ -2077,7 +2072,7 @@ bool NearThings(PLAYERp pp)
         if (hit.actor() != nullptr)
             return false;
 
-        if (neartagsect >= 0)
+        if (near.hitSector != nullptr)
             return true;
 
         if (hit.hitWall != nullptr)
@@ -2108,22 +2103,19 @@ short nti_cnt;
 void NearTagList(NEAR_TAG_INFOp ntip, PLAYERp pp, int z, int dist, int type, int count)
 {
     short save_lotag, save_hitag;
-    short neartagsector, neartagwall, neartagsprite;
-    int neartaghitdist;
+    HitInfo near;
 
 
-    neartag(pp->posx, pp->posy, z, sectnum(pp->cursector), pp->angle.ang.asbuild(),
-            &neartagsector, &neartagwall, &neartagsprite,
-            &neartaghitdist, dist, type);
+    neartag({ pp->posx, pp->posy, z }, pp->cursector, pp->angle.ang.asbuild(), near, dist, type);
 
-    if (neartagsector >= 0)
+    if (near.hitSector != nullptr)
     {
-        auto ntsec = &sector[neartagsector];
+        auto ntsec = near.hitSector;
         // save off values
         save_lotag = ntsec->lotag;
         save_hitag = ntsec->hitag;
 
-        ntip->dist = neartaghitdist;
+        ntip->dist = near.hitpos.x;
         ntip->sectp = ntsec;
         ntip->wallp = nullptr;
         ntip->actor = nullptr;
@@ -2143,14 +2135,14 @@ void NearTagList(NEAR_TAG_INFOp ntip, PLAYERp pp, int z, int dist, int type, int
         ntsec->lotag = save_lotag;
         ntsec->hitag = save_hitag;
     }
-    else if (neartagwall >= 0)
+    else if (near.hitWall != nullptr)
     {
-        auto ntwall = &wall[neartagwall];
+        auto ntwall = near.hitWall;
         // save off values
         save_lotag = ntwall->lotag;
         save_hitag = ntwall->hitag;
 
-        ntip->dist = neartaghitdist;
+        ntip->dist = near.hitpos.x;
         ntip->sectp = nullptr;
         ntip->wallp = ntwall;
         ntip->actor = nullptr;
@@ -2170,15 +2162,15 @@ void NearTagList(NEAR_TAG_INFOp ntip, PLAYERp pp, int z, int dist, int type, int
         ntwall->lotag = save_lotag;
         ntwall->hitag = save_hitag;
     }
-    else if (neartagsprite >= 0)
+    else if (near.actor() != nullptr)
     {
-        auto actor = &swActors[neartagsprite];
+        auto actor = near.actor();
         auto sp = &actor->s();
         // save off values
         save_lotag = sp->lotag;
         save_hitag = sp->hitag;
 
-        ntip->dist = neartaghitdist;
+        ntip->dist = near.hitpos.x;
         ntip->sectp = nullptr;
         ntip->wallp = nullptr;
         ntip->actor = actor;

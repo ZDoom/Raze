@@ -3197,8 +3197,6 @@ void DoPlayerClimb(PLAYERp pp)
     SPRITEp sp = &pp->Actor()->s();
     int climbvel;
     int dot;
-    short sec,wal,spr;
-    int dist;
     bool LadderUpdate = false;
 
     if (Prediction)
@@ -3389,16 +3387,13 @@ void DoPlayerClimb(PLAYERp pp)
     {
         SPRITEp lsp;
         int nx,ny;
+        HitInfo near;
 
         // constantly look for new ladder sector because of warping at any time
-        neartag(pp->posx, pp->posy, pp->posz,
-                sectnum(pp->cursector), pp->angle.ang.asbuild(),
-                &sec, &wal, &spr,
-                &dist, 800L, NTAG_SEARCH_LO_HI);
+        neartag(pp->pos, pp->cursector, pp->angle.ang.asbuild(), near, 800, NTAG_SEARCH_LO_HI);
 
-        if (wal >= 0)
+        if (near.hitWall)
         {
-            auto wp = &wall[wal];
             auto lActor = FindNearSprite(pp->Actor(), STAT_CLIMB_MARKER);
             if (!lActor) return;
             auto lsp = &lActor->s();
@@ -3409,7 +3404,7 @@ void DoPlayerClimb(PLAYERp pp)
             ny = MOVEy(100, lsp->ang);
 
             // set ladder sector
-            pp->LadderSector = wp->twoSided()? wp->nextSector() : wp->sectorp();
+            pp->LadderSector = near.hitWall->twoSided()? near.hitWall->nextSector() : near.hitWall->sectorp();
 
             // set players "view" distance from the ladder - needs to be farther than
             // the sprite
@@ -3725,15 +3720,12 @@ DSWActor* FindNearSprite(DSWActor* actor, short stat)
 
 bool PlayerOnLadder(PLAYERp pp)
 {
-    short sec, wal = 0, spr;
-    int dist, nx, ny;
+    int nx, ny;
     unsigned i;
     SPRITEp lsp;
-    HitInfo hit;
-    int dir;
+    HitInfo hit, near;
+    int dir, dist;
 
-    int neartaghitdist;
-    short neartagsector, neartagwall, neartagsprite;
 
     static short angles[] =
     {
@@ -3743,25 +3735,21 @@ bool PlayerOnLadder(PLAYERp pp)
     if (Prediction)
         return false;
 
-    neartag(pp->posx, pp->posy, pp->posz, sectnum(pp->cursector), pp->angle.ang.asbuild(),
-            &neartagsector, &neartagwall, &neartagsprite,
-            &neartaghitdist, 1024L+768L, NTAG_SEARCH_LO_HI);
+    neartag(pp->pos, pp->cursector, pp->angle.ang.asbuild(), near, 1024 + 768, NTAG_SEARCH_LO_HI);
 
     dir = DOT_PRODUCT_2D(pp->xvect, pp->yvect, pp->angle.ang.bcos(), pp->angle.ang.bsin());
 
     if (dir < 0)
         return false;
 
-    if (neartagwall < 0 || wall[neartagwall].lotag != TAG_WALL_CLIMB)
+    if (near.hitWall == nullptr || near.hitWall->lotag != TAG_WALL_CLIMB)
         return false;
 
     for (i = 0; i < SIZ(angles); i++)
     {
-        neartag(pp->posx, pp->posy, pp->posz, sectnum(pp->cursector), NORM_ANGLE(pp->angle.ang.asbuild() + angles[i]),
-                &sec, &wal, &spr,
-                &dist, 600L, NTAG_SEARCH_LO_HI);
+        neartag(pp->pos, pp->cursector, NORM_ANGLE(pp->angle.ang.asbuild() + angles[i]), near, 600, NTAG_SEARCH_LO_HI);
 
-        if (wal < 0 || dist < 100 || wall[wal].lotag != TAG_WALL_CLIMB)
+        if (near.hitWall == nullptr || near.hitpos.x < 100 || near.hitWall->lotag != TAG_WALL_CLIMB)
             return false;
 
         FAFhitscan(pp->posx, pp->posy, pp->posz, pp->cursector,
@@ -3803,9 +3791,7 @@ bool PlayerOnLadder(PLAYERp pp)
     nx = MOVEx(100, lsp->ang);
     ny = MOVEy(100, lsp->ang);
 
-    auto wp = &wall[wal];
-
-    pp->LadderSector = wp->twoSided() ? wp->nextSector() : wp->sectorp();
+    pp->LadderSector = near.hitWall->twoSided() ? near.hitWall->nextSector() : near.hitWall->sectorp();
 
     // set players "view" distance from the ladder - needs to be farther than
     // the sprite

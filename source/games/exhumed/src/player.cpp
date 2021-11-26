@@ -1303,12 +1303,10 @@ sectdone:
         }
 
         // code to handle item pickup?
-        short nearTagSector, nearTagWall, nearTagSprite;
-        int nearHitDist;
+        HitInfo near;
 
         // neartag finds the nearest sector, wall, and sprite which has its hitag and/or lotag set to a value.
-        neartag(pPlayerSprite->x, pPlayerSprite->y, pPlayerSprite->z, pPlayerSprite->sectnum, pPlayerSprite->ang,
-            &nearTagSector, &nearTagWall, &nearTagSprite, (int32_t*)&nearHitDist, 1024, 2);
+        neartag(pPlayerSprite->pos, pPlayerSprite->sector(), pPlayerSprite->ang, near, 1024, 2);
 
         DExhumedActor* pActorB;
         feebtag(pPlayerSprite->x, pPlayerSprite->y, pPlayerSprite->z, pPlayerSprite->sector(), &pActorB, var_30, 768);
@@ -2255,12 +2253,12 @@ sectdone:
                 ClearSpaceBar(nPlayer);
 
                 int tag;
-                if (nearTagWall >= 0 && (tag = wall[nearTagWall].lotag) > 0)
+                if (near.hitWall != nullptr && (tag = near.hitWall->lotag) > 0)
                 {
                     runlist_SignalRun(tag - 1, nPlayer, &ExhumedAI::Use);
                 }
 
-                if (nearTagSector >= 0 && (tag = sector[nearTagSector].lotag) > 0)
+                if (near.hitSector != nullptr && (tag = near.hitSector->lotag) > 0)
                 {
                     runlist_SignalRun(tag - 1, nPlayer, &ExhumedAI::Use);
                 }

@@ -3210,8 +3210,7 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
     case TRACK_ACTOR_OPERATE:
     case TRACK_ACTOR_QUICK_OPERATE:
     {
-        short nearsector, nearwall, nearsprite;
-        int nearhitdist;
+        HitInfo near;
         int z[2];
         int i;
 
@@ -3225,13 +3224,11 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
 
         for (i = 0; i < (int)SIZ(z); i++)
         {
-            neartag(sp->x, sp->y, z[i], sp->sectnum, sp->ang,
-                    &nearsector, &nearwall, &nearsprite,
-                    &nearhitdist, 1024, NTAG_SEARCH_LO_HI);
+            neartag({ sp->x, sp->y, z[i] }, sp->sector(), sp->ang, near, 1024, NTAG_SEARCH_LO_HI);
 
-            if (nearsprite >= 0 && nearhitdist < 1024)
+            if (near.actor() != nullptr && near.hitpos.x < 1024)
             {
-                if (OperateSprite(&swActors[nearsprite], false))
+                if (OperateSprite(near.actor(), false))
                 {
                     if (!tpoint->tag_high)
                         u->WaitTics = 2 * 120;
@@ -3243,9 +3240,9 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
             }
         }
 
-        if (nearsector >= 0 && nearhitdist < 1024)
+        if (near.hitSector != nullptr && near.hitpos.x < 1024)
         {
-            if (OperateSector(&sector[nearsector], false))
+            if (OperateSector(near.hitSector, false))
             {
                 if (!tpoint->tag_high)
                     u->WaitTics = 2 * 120;
@@ -3416,10 +3413,9 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
 
         if (u->ActorActionSet->Jump)
         {
-            short hit_sect, hit_wall, hit_sprite;
             int bos_z,nx,ny;
-            int dist;
             SPRITEp lsp;
+            HitInfo near;
 
             //
             // Get angle and x,y pos from CLIMB_MARKER
@@ -3447,17 +3443,14 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
             // Get the z height to climb
             //
 
-            neartag(sp->x, sp->y, SPRITEp_TOS(sp) - DIV2(SPRITEp_SIZE_Z(sp)), sp->sectnum,
-                    sp->ang,
-                    &hit_sect, &hit_wall, &hit_sprite,
-                    &dist, 600L, NTAG_SEARCH_LO_HI);
+            neartag({ sp->x, sp->y, SPRITEp_TOS(sp) - DIV2(SPRITEp_SIZE_Z(sp)) }, sp->sector(), sp->ang, near, 600, NTAG_SEARCH_LO_HI);
 
-            if (hit_wall < 0)
+            if (near.hitWall == nullptr)
             {
                 ActorLeaveTrack(actor);
                 return false;
             }
-            auto wal = &wall[hit_wall];
+            auto wal = near.hitWall;
 
 #if DEBUG
             if (!wal->twoSided())
