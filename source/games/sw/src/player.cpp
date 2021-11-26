@@ -1943,7 +1943,12 @@ void DoPlayerSlide(PLAYERp pp)
         }
         return;
     }
-    clipmove(&pp->pos, &pp->cursectnum, pp->slide_xvect, pp->slide_yvect, ((int)sp->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
+    Collision coll;
+#pragma message(__FILE__ "remove workaround");
+    sectortype* cursect = pp->cursector();
+    clipmove(pp->pos, &cursect, pp->slide_xvect, pp->slide_yvect, ((int)sp->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER, coll);
+    pp->setcursector(cursect);
+
     PlayerCheckValidMove(pp);
     push_ret = pushmove(&pp->pos, &pp->cursectnum, ((int)sp->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
@@ -2115,8 +2120,13 @@ void DoPlayerMove(PLAYERp pp)
 
         save_cstat = sp->cstat;
         RESET(sp->cstat, CSTAT_SPRITE_BLOCK);
-        updatesector(pp->posx, pp->posy, &pp->cursectnum);
-        clipmove(&pp->pos, &pp->cursectnum, pp->xvect, pp->yvect, ((int)sp->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
+        Collision coll;
+#pragma message(__FILE__ "remove workaround");
+        sectortype* cursect = pp->cursector();
+        updatesector(pp->posx, pp->posy, &cursect);
+        clipmove(pp->pos, &cursect, pp->xvect, pp->yvect, ((int)sp->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER, coll);
+        pp->setcursector(cursect);
+
         sp->cstat = save_cstat;
         PlayerCheckValidMove(pp);
 
@@ -2715,8 +2725,10 @@ void DoPlayerMoveVehicle(PLAYERp pp)
         if (pp->sop->clipdist)
         {
             vec3_t clippos = { pp->posx, pp->posy, z };
-            int cm= clipmove(&clippos, &pp->cursectnum, pp->xvect, pp->yvect, (int)pp->sop->clipdist, Z(4), floor_dist, CLIPMASK_PLAYER);
-            u->coll.setFromEngine(cm);
+            Collision coll;
+#pragma message(__FILE__ "remove workaround");
+            sectortype* cursect = pp->cursector();
+            clipmove(clippos, &cursect, pp->xvect, pp->yvect, (int)pp->sop->clipdist, Z(4), floor_dist, CLIPMASK_PLAYER, u->coll);
             pp->pos.vec2 = clippos.vec2;
         }
         else
@@ -4651,7 +4663,12 @@ void DoPlayerCurrent(PLAYERp pp)
         }
         return;
     }
-    clipmove(&pp->pos, &pp->cursectnum, xvect, yvect, ((int)pp->Actor()->s().clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
+    Collision coll;
+#pragma message(__FILE__ "remove workaround");
+    sectortype* cursect = pp->cursector();
+    clipmove(pp->pos, &cursect, xvect, yvect, ((int)pp->Actor()->s().clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER, coll);
+    pp->setcursector(cursect);
+
     PlayerCheckValidMove(pp);
     pushmove(&pp->pos, &pp->cursectnum, ((int)pp->Actor()->s().clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)

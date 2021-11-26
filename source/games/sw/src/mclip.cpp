@@ -132,7 +132,7 @@ short MultiClipTurn(PLAYERp pp, short new_ang, int z, int floor_dist)
     int x,y;
     short ang;
     int xvect, yvect;
-    int cursectnum = pp->cursectnum;
+    auto cursect = pp->cursector();
 
     for (i = 0; i < sop->clipbox_num; i++)
     {
@@ -144,11 +144,12 @@ short MultiClipTurn(PLAYERp pp, short new_ang, int z, int floor_dist)
         yvect = sop->clipbox_vdist[i] * bsin(ang);
 
         // move the box
-        ret = clipmove(&pos, &cursectnum, xvect, yvect, (int)sop->clipbox_dist[i], Z(4), floor_dist, CLIPMASK_PLAYER);
+        Collision coll;
+        clipmove(pos, &cursect, xvect, yvect, (int)sop->clipbox_dist[i], Z(4), floor_dist, CLIPMASK_PLAYER, coll);
 
-        ASSERT(cursectnum >= 0);
+        ASSERT(cursect);
 
-        if (ret)
+        if (coll.type != kHitNone)
         {
             // attempt to move a bit when turning against a wall
             //ang = NORM_ANGLE(ang + 1024);
