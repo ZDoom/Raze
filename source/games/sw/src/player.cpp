@@ -3394,7 +3394,7 @@ void DoPlayerClimb(PLAYERp pp)
         neartag(pp->posx, pp->posy, pp->posz,
                 sectnum(pp->cursector), pp->angle.ang.asbuild(),
                 &sec, &wal, &spr,
-                &dist, 800L, NTAG_SEARCH_LO_HI, nullptr);
+                &dist, 800L, NTAG_SEARCH_LO_HI);
 
         if (wal >= 0)
         {
@@ -3745,7 +3745,7 @@ bool PlayerOnLadder(PLAYERp pp)
 
     neartag(pp->posx, pp->posy, pp->posz, sectnum(pp->cursector), pp->angle.ang.asbuild(),
             &neartagsector, &neartagwall, &neartagsprite,
-            &neartaghitdist, 1024L+768L, NTAG_SEARCH_LO_HI, nullptr);
+            &neartaghitdist, 1024L+768L, NTAG_SEARCH_LO_HI);
 
     dir = DOT_PRODUCT_2D(pp->xvect, pp->yvect, pp->angle.ang.bcos(), pp->angle.ang.bsin());
 
@@ -3759,7 +3759,7 @@ bool PlayerOnLadder(PLAYERp pp)
     {
         neartag(pp->posx, pp->posy, pp->posz, sectnum(pp->cursector), NORM_ANGLE(pp->angle.ang.asbuild() + angles[i]),
                 &sec, &wal, &spr,
-                &dist, 600L, NTAG_SEARCH_LO_HI, nullptr);
+                &dist, 600L, NTAG_SEARCH_LO_HI);
 
         if (wal < 0 || dist < 100 || wall[wal].lotag != TAG_WALL_CLIMB)
             return false;

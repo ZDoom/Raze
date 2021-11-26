@@ -328,6 +328,14 @@ inline int32_t clipmove(vec3_t* const pos, sectortype** const sect, int32_t xvec
 	return res;
 }
 
+[[deprecated]]
+inline void   neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange,
+	int16_t* neartagsector, int16_t* neartagwall, int16_t* neartagsprite,
+	int32_t* neartaghitdist, int32_t neartagrange, uint8_t tagsearch)
+{
+	neartag_(xs, ys, zs, sectnum, ange, neartagsector, neartagwall, neartagsprite, neartaghitdist, neartagrange, tagsearch);
+}
+
 
 
 inline int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& direction, HitInfoBase& hitinfo, unsigned cliptype)
@@ -349,4 +357,15 @@ inline int clipmove(vec3_t& pos, sectortype** const sect, int xvect, int yvect,
 	int res = clipmove_(&pos, &sectno, xvect, yvect, walldist, ceildist, flordist, cliptype, clipmoveboxtracenum);
 	*sect = sectno == -1 ? nullptr : &sector[sectno];
 	return result.setFromEngine(res);
+}
+
+inline void neartag(const vec3_t& pos, sectortype* sect, int angle, HitInfoBase& result, int neartagrange, int tagsearch)
+{
+	short ntsect, ntwal, ntsprt;
+	int ntdist;
+	neartag_(pos.x, pos.y, pos.z, sect == nullptr ? -1 : sector.IndexOf(sect), angle, &ntsect, &ntwal, &ntsprt, &ntdist, neartagrange, tagsearch);
+	result.hitpos.x = ntdist;
+	result.hitSector = ntsect == -1 ? nullptr : &sector[ntsect];
+	result.hitWall = ntwal == -1 ? nullptr : &wall[ntwal];
+	result.hitActor = ntsprt == -1 ? nullptr : actorArray[ntsprt];
 }

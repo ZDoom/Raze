@@ -197,30 +197,6 @@ inline void getzrange_ex(int x, int y, int z, sectortype* sect, int32_t* ceilz, 
 	florhit.setFromEngine(fh);
 }
 
-inline void   neartag(int32_t xs, int32_t ys, int32_t zs, int sectnum, int ange,
-	sectortype** neartagsector, walltype** neartagwall, DDukeActor** neartagsprite,
-	int32_t* neartaghitdist, int32_t neartagrange, uint8_t tagsearch)
-{
-	int16_t nts;
-	int16_t ntsec, ntwal;
-	::neartag(xs, ys, zs, sectnum, ange, &ntsec, &ntwal, &nts, neartaghitdist, neartagrange, tagsearch);
-	*neartagsprite = nts == -1 ? nullptr : &hittype[nts];
-	*neartagsector = ntsec == -1? nullptr : &sector[ntsec];
-	*neartagwall = ntwal == -1? nullptr : &wall[ntwal];
-}
-
-inline void   neartag(int32_t xs, int32_t ys, int32_t zs, sectortype* sect, int ange,
-	sectortype** neartagsector, walltype** neartagwall, DDukeActor** neartagsprite,
-	int32_t* neartaghitdist, int32_t neartagrange, uint8_t tagsearch)
-{
-	int16_t nts;
-	int16_t ntsec, ntwal;
-	::neartag(xs, ys, zs, sectnum(sect), ange, &ntsec, &ntwal, &nts, neartaghitdist, neartagrange, tagsearch);
-	*neartagsprite = nts == -1 ? nullptr : &hittype[nts];
-	*neartagsector = ntsec == -1 ? nullptr : &sector[ntsec];
-	*neartagwall = ntwal == -1 ? nullptr : &wall[ntwal];
-}
-
 
 
 END_DUKE_NS

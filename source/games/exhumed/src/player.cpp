@@ -1308,7 +1308,7 @@ sectdone:
 
         // neartag finds the nearest sector, wall, and sprite which has its hitag and/or lotag set to a value.
         neartag(pPlayerSprite->x, pPlayerSprite->y, pPlayerSprite->z, pPlayerSprite->sectnum, pPlayerSprite->ang,
-            &nearTagSector, &nearTagWall, &nearTagSprite, (int32_t*)&nearHitDist, 1024, 2, nullptr);
+            &nearTagSector, &nearTagWall, &nearTagSprite, (int32_t*)&nearHitDist, 1024, 2);
 
         DExhumedActor* pActorB;
         feebtag(pPlayerSprite->x, pPlayerSprite->y, pPlayerSprite->z, pPlayerSprite->sector(), &pActorB, var_30, 768);

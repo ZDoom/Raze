@@ -2465,11 +2465,9 @@ int ParseState::parse(void)
 		insptr++;
 		if( g_sp->sector()->lotag == 0 )
 		{
-			sectortype* sectp;
-			walltype* neartagwall;
-			DDukeActor* neartagsprite;
-			int32_t neartaghitdist;
-			neartag(g_sp->x, g_sp->y, g_sp->z - (32 << 8), g_sp->sector(), g_sp->ang, &sectp, &neartagwall, &neartagsprite, &neartaghitdist, 768L, 1);
+			HitInfo hit;
+			neartag({ g_sp->x, g_sp->y, g_sp->z - (32 << 8) }, g_sp->sector(), g_sp->ang, hit, 768, 1);
+			auto sectp = hit.hitSector;
 			if (sectp)
 			{
 				if (isanearoperator(sectp->lotag))

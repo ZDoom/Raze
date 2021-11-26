@@ -4812,7 +4812,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
             u->lo_sectp = lo_sectp;
             u->hi_sectp = hi_sectp;
             u->coll.invalidate();
-            ChangeActorSect(actor, sectnum);
+            ChangeActorSect(actor, sect);
             return false;
         }
 
@@ -4830,7 +4830,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
             u->lo_sectp = lo_sectp;
             u->hi_sectp = hi_sectp;
             u->coll.invalidate();
-            ChangeActorSect(actor, sectnum);
+            ChangeActorSect(actor, sect);
             return false;
         }
     }

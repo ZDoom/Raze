@@ -2026,7 +2026,7 @@ bool NearThings(PLAYERp pp)
 
     neartag(pp->posx, pp->posy, pp->posz, sectnum(pp->cursector), pp->angle.ang.asbuild(),
             &neartagsect, &neartagwall, &neartagsprite,
-            &neartaghitdist, 1024L, NTAG_SEARCH_LO_HI, nullptr);
+            &neartaghitdist, 1024L, NTAG_SEARCH_LO_HI);
 
 
     // hit a sprite? Check to see if it has sound info in it!
@@ -2114,7 +2114,7 @@ void NearTagList(NEAR_TAG_INFOp ntip, PLAYERp pp, int z, int dist, int type, int
 
     neartag(pp->posx, pp->posy, z, sectnum(pp->cursector), pp->angle.ang.asbuild(),
             &neartagsector, &neartagwall, &neartagsprite,
-            &neartaghitdist, dist, type, nullptr);
+            &neartaghitdist, dist, type);
 
     if (neartagsector >= 0)
     {

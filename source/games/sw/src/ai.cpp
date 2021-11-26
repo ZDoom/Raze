@@ -472,7 +472,7 @@ int DoActorOperate(DSWActor* actor)
     {
         neartag(sp->x, sp->y, z[i], sp->sectnum, sp->ang,
                 &nearsector, &nearwall, &nearsprite,
-                &nearhitdist, 1024L, NTAG_SEARCH_LO_HI, nullptr);
+                &nearhitdist, 1024L, NTAG_SEARCH_LO_HI);
 
 
     }

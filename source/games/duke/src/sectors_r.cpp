@@ -2450,10 +2450,7 @@ void checksectors_r(int snum)
 	int oldz;
 	struct player_struct* p;
 	walltype* hitscanwall;
-	sectortype* ntsector = nullptr;
-	walltype* ntwall = nullptr;
-	DDukeActor* neartagsprite = nullptr;
-	int neartaghitdist = 0;
+	HitInfo near;
 
 	p = &ps[snum];
 	auto pact = p->GetActor();
@@ -2506,7 +2503,7 @@ void checksectors_r(int snum)
 
 	else if (!p->toggle_key_flag)
 	{
-		neartagsprite = nullptr;
+		near.hitActor = nullptr;
 		p->toggle_key_flag = 1;
 		hitscanwall = nullptr;
 
@@ -2572,24 +2569,24 @@ void checksectors_r(int snum)
 				}
 				return;
 			}
-			neartag(p->pos.x, p->pos.y, p->pos.z, p->GetActor()->sector(), p->angle.oang.asbuild(), &ntsector, &ntwall, &neartagsprite, &neartaghitdist, 1280L, 3);
+			neartag(p->pos, p->GetActor()->sector(), p->angle.oang.asbuild(), near , 1280, 3);
 		}
 
 		if (p->newOwner != nullptr)
-			neartag(p->oposx, p->oposy, p->oposz, p->GetActor()->sector(), p->angle.oang.asbuild(), &ntsector, &ntwall, &neartagsprite, &neartaghitdist, 1280L, 1);
+			neartag({ p->oposx, p->oposy, p->oposz }, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280L, 1);
 		else
 		{
-			neartag(p->pos.x, p->pos.y, p->pos.z, p->GetActor()->sector(), p->angle.oang.asbuild(), &ntsector, &ntwall, &neartagsprite, &neartaghitdist, 1280L, 1);
-			if (neartagsprite == nullptr && ntwall == nullptr && ntsector == nullptr)
-				neartag(p->pos.x, p->pos.y, p->pos.z + (8 << 8), p->GetActor()->sector(), p->angle.oang.asbuild(), &ntsector, &ntwall, &neartagsprite, &neartaghitdist, 1280L, 1);
-			if (neartagsprite == nullptr && ntwall == nullptr && ntsector == nullptr)
-				neartag(p->pos.x, p->pos.y, p->pos.z + (16 << 8), p->GetActor()->sector(), p->angle.oang.asbuild(), &ntsector, &ntwall, &neartagsprite, &neartaghitdist, 1280L, 1);
-			if (neartagsprite == nullptr && ntwall == nullptr && ntsector == nullptr)
+			neartag(p->pos, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280, 1);
+			if (near.actor() == nullptr && near.hitWall == nullptr && near.hitSector == nullptr)
+				neartag({ p->pos.x, p->pos.y, p->pos.z + (8 << 8) }, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280, 1);
+			if (near.actor() == nullptr && near.hitWall == nullptr && near.hitSector == nullptr)
+				neartag({ p->pos.x, p->pos.y, p->pos.z + (16 << 8) }, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280, 1);
+			if (near.actor() == nullptr && near.hitWall == nullptr && near.hitSector == nullptr)
 			{
-				neartag(p->pos.x, p->pos.y, p->pos.z + (16 << 8), p->GetActor()->sector(), p->angle.oang.asbuild(), &ntsector, &ntwall, &neartagsprite, &neartaghitdist, 1280L, 3);
-				if (neartagsprite != nullptr)
+				neartag({ p->pos.x, p->pos.y, p->pos.z + (16 << 8) }, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280, 3);
+				if (near.actor() != nullptr)
 				{
-					switch (neartagsprite->s->picnum)
+					switch (near.actor()->s->picnum)
 					{
 					case FEM10:
 					case NAKED1:
@@ -2597,33 +2594,33 @@ void checksectors_r(int snum)
 					case TOUGHGAL:
 						return;
 					case COW:
-						neartagsprite->spriteextra = 1;
+						near.actor()->spriteextra = 1;
 						return;
 					}
 				}
 
-				neartagsprite = nullptr;
-				ntwall = nullptr;
-				ntsector = nullptr;
+				near.clearObj();
 			}
 		}
 
-		if (p->newOwner == nullptr && neartagsprite == nullptr && ntsector == nullptr && ntwall == nullptr)
+		if (p->newOwner == nullptr && near.actor() == nullptr && near.hitWall == nullptr && near.hitSector == nullptr)
 			if (isanunderoperator(p->GetActor()->sector()->lotag))
-				ntsector = p->GetActor()->s->sector();
+				near.hitSector = p->GetActor()->s->sector();
 
-		if (ntsector && (ntsector->lotag & 16384))
+		if (near.hitSector && (near.hitSector->lotag & 16384))
 			return;
 
-		if (neartagsprite == nullptr && ntwall == nullptr)
+		if (near.actor() == nullptr && near.hitWall == nullptr)
 			if (p->cursector->lotag == 2)
 			{
 				DDukeActor* hit;
 				oldz = hitasprite(p->GetActor(), &hit);
-				if (hit) neartagsprite = hit;
-				if (oldz > 1280) neartagsprite = nullptr;
+				if (hit) near.hitActor = hit;
+				if (oldz > 1280) near.hitActor = nullptr;
+
 			}
 
+		auto const neartagsprite = near.actor();
 		if (neartagsprite != nullptr)
 		{
 			if (fi.checkhitswitch(snum, nullptr, neartagsprite)) return;
@@ -2730,7 +2727,7 @@ void checksectors_r(int snum)
 
 		if (!PlayerInput(snum, SB_OPEN)) return;
 
-		if (ntwall == nullptr && ntsector == nullptr && neartagsprite == nullptr)
+		if (near.hitWall == nullptr && near.hitSector == nullptr && near.actor() == nullptr)
 			if (abs(hits(p->GetActor())) < 512)
 			{
 				if ((krand() & 255) < 16)
@@ -2739,26 +2736,26 @@ void checksectors_r(int snum)
 				return;
 			}
 
-		if (ntwall != nullptr)
+		if (near.hitWall)
 		{
-			if (ntwall->lotag > 0 && fi.isadoorwall(ntwall->picnum))
+			if (near.hitWall->lotag > 0 && fi.isadoorwall(near.hitWall->picnum))
 			{
-				if (hitscanwall == ntwall || hitscanwall == nullptr)
-					fi.checkhitswitch(snum, ntwall, nullptr);
+				if (hitscanwall == near.hitWall || hitscanwall == nullptr)
+					fi.checkhitswitch(snum, near.hitWall, nullptr);
 				return;
 			}
 		}
 
-		if (ntsector && (ntsector->lotag & 16384) == 0 && isanearoperator(ntsector->lotag))
+		if (near.hitSector && (near.hitSector->lotag & 16384) == 0 && isanearoperator(near.hitSector->lotag))
 		{
-			DukeSectIterator it(ntsector);
+			DukeSectIterator it(near.hitSector);
 			while (auto act = it.Next())
 			{
 				if (act->s->picnum == ACTIVATOR || act->s->picnum == MASTERSWITCH)
 					return;
 			}
-			if (haskey(ntsector, snum))
-				operatesectors(ntsector, p->GetActor());
+			if (haskey(near.hitSector, snum))
+				operatesectors(near.hitSector, p->GetActor());
 			else
 			{
 				if (neartagsprite && neartagsprite->spriteextra > 3)
@@ -2778,7 +2775,7 @@ void checksectors_r(int snum)
 					if (act->s->picnum == ACTIVATOR || act->s->picnum == MASTERSWITCH)
 						return;
 				}
-				if (haskey(ntsector, snum))
+				if (haskey(near.hitSector, snum))
 					operatesectors(p->GetActor()->s->sector(), p->GetActor());
 				else
 				{
@@ -2789,7 +2786,7 @@ void checksectors_r(int snum)
 					FTA(41, p);
 				}
 			}
-			else fi.checkhitswitch(snum, ntwall, nullptr);
+			else fi.checkhitswitch(snum, near.hitWall, nullptr);
 		}
 	}
 }

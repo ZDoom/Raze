@@ -3227,7 +3227,7 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
         {
             neartag(sp->x, sp->y, z[i], sp->sectnum, sp->ang,
                     &nearsector, &nearwall, &nearsprite,
-                    &nearhitdist, 1024, NTAG_SEARCH_LO_HI, nullptr);
+                    &nearhitdist, 1024, NTAG_SEARCH_LO_HI);
 
             if (nearsprite >= 0 && nearhitdist < 1024)
             {
@@ -3450,7 +3450,7 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
             neartag(sp->x, sp->y, SPRITEp_TOS(sp) - DIV2(SPRITEp_SIZE_Z(sp)), sp->sectnum,
                     sp->ang,
                     &hit_sect, &hit_wall, &hit_sprite,
-                    &dist, 600L, NTAG_SEARCH_LO_HI, nullptr);
+                    &dist, 600L, NTAG_SEARCH_LO_HI);
 
             if (hit_wall < 0)
             {

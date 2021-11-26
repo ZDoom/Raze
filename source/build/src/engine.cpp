@@ -911,10 +911,9 @@ int32_t cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1, int32_t x2, in
 //
 // neartag
 //
-void neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange,
+void neartag_(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange,
              int16_t *neartagsector, int16_t *neartagwall, int16_t *neartagsprite, int32_t *neartaghitdist,  /* out */
-             int32_t neartagrange, uint8_t tagsearch,
-             int32_t (*blacklist_sprite_func)(int32_t))
+             int32_t neartagrange, uint8_t tagsearch)
 {
     int16_t tempshortcnt, tempshortnum;
 
@@ -926,7 +925,7 @@ void neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange,
     *neartagsector = -1; *neartagwall = -1; *neartagsprite = -1;
     *neartaghitdist = 0;
 
-    if (sectnum < 0 || (tagsearch & 3) == 0)
+    if (!validSectorIndex(sectnum) || (tagsearch & 3) == 0)
         return;
 
     clipsectorlist[0] = sectnum;
@@ -992,8 +991,6 @@ void neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange,
             auto const spr = (uspriteptr_t)&sprite[z];
 
             if (spr->cstat2 & CSTAT2_SPRITE_NOFIND)
-                continue;
-            if (blacklist_sprite_func && blacklist_sprite_func(z))
                 continue;
 
             if (((tagsearch&1) && spr->lotag) || ((tagsearch&2) && spr->hitag))
