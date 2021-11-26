@@ -107,11 +107,27 @@ struct HitInfoBase
 		return kHitSector;
 	}
 
+	int setSector(sectortype* num)
+	{
+		*this = {};
+		type = kHitSector;
+		hitSector = num;
+		return kHitSector;
+	}
+
 	int setWall(int num)
 	{
 		*this = {};
 		type = kHitWall;
 		hitWall = &wall[num];
+		return kHitWall;
+	}
+
+	int setWall(walltype* num)
+	{
+		*this = {};
+		type = kHitWall;
+		hitWall = num;
 		return kHitWall;
 	}
 

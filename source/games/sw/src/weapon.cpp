@@ -4478,21 +4478,17 @@ bool WeaponMoveHit(DSWActor* actor)
         // clipmove does not correctly return the sprite for WALL sprites
         // on walls, so look with hitscan
 
-        hitdata_t hitinfo;
-        hitscan(&sp->pos, sp->sectnum,   // Start position
-                bcos(sp->ang),    // X vector of 3D ang
-                bsin(sp->ang),    // Y vector of 3D ang
-                sp->zvel,         // Z vector of 3D ang
-                &hitinfo, CLIPMASK_MISSILE);
+        HitInfo hit;
+        hitscan(sp->pos, sp->sector(), { bcos(sp->ang), bsin(sp->ang), sp->zvel }, hit, CLIPMASK_MISSILE);
 
-        if (hitinfo.sect < 0)
+        if (!hit.hitSector)
         {
             return false;
         }
 
-        if (hitinfo.sprite >= 0)
+        if (hit.actor())
         {
-            auto hitActor = &swActors[hitinfo.sprite];
+            auto hitActor = hit.actor();
             SPRITEp hsp = &hitActor->s();
 
             if (hsp->lotag == TAG_SPRITE_HIT_MATCH)

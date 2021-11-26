@@ -903,9 +903,8 @@ post_analyzesprites(spritetype* tsprite, int& spritesortcnt)
 void
 CircleCamera(int *nx, int *ny, int *nz, sectortype** vsect, binangle *nang, fixed_t q16horiz)
 {
-    vec3_t n = { *nx, *ny, *nz };
     SPRITEp sp;
-    hitdata_t hit_info;
+    HitInfo hit;
     int i, vx, vy, vz, hx, hy;
     int bakcstat, daang;
     PLAYERp pp = &Player[screenpeek];
@@ -932,23 +931,22 @@ CircleCamera(int *nx, int *ny, int *nz, sectortype** vsect, binangle *nang, fixe
     // Make sure sector passed to hitscan is correct
     //updatesector(*nx, *ny, vsect);
 
-    hitscan(&n, sectnum(*vsect), vx, vy, vz, &hit_info, CLIPMASK_MISSILE);
-    HITINFO hitinfo; hitinfo.set(&hit_info);
+    hitscan({ *nx, *ny, *nz }, *vsect, { vx, vy, vz }, hit, CLIPMASK_MISSILE);
 
     sp->cstat = bakcstat;              // Restore cstat
     //ASSERT(hitinfo.sect >= 0);
 
-    hx = hitinfo.pos.x - (*nx);
-    hy = hitinfo.pos.y - (*ny);
+    hx = hit.hitpos.x - (*nx);
+    hy = hit.hitpos.y - (*ny);
 
     // If something is in the way, make pp->circle_camera_dist lower if necessary
     if (abs(vx) + abs(vy) > abs(hx) + abs(hy))
     {
-        if (hitinfo.wall())               // Push you a little bit off the wall
+        if (hit.hitWall)               // Push you a little bit off the wall
         {
-            *vsect = hitinfo.sector();
+            *vsect = hit.hitSector;
 
-            daang = getangle(hitinfo.wall()->delta());
+            daang = getangle(hit.hitWall->delta());
 
             i = vx * bsin(daang) + vy * -bcos(daang);
             if (abs(vx) > abs(vy))
@@ -956,9 +954,9 @@ CircleCamera(int *nx, int *ny, int *nz, sectortype** vsect, binangle *nang, fixe
             else
                 hy -= MulScale(vy, i, 28);
         }
-        else if (hitinfo.hitactor == nullptr)        // Push you off the ceiling/floor
+        else if (hit.actor() == nullptr)        // Push you off the ceiling/floor
         {
-            *vsect = hitinfo.sector();
+            *vsect = hit.hitSector;
 
             if (abs(vx) > abs(vy))
                 hx -= (vx >> 5);
@@ -967,7 +965,7 @@ CircleCamera(int *nx, int *ny, int *nz, sectortype** vsect, binangle *nang, fixe
         }
         else
         {
-            SPRITEp hsp = &hitinfo.hitactor->s();
+            SPRITEp hsp = &hit.actor()->s();
             int flag_backup;
 
             // if you hit a sprite that's not a wall sprite - try again

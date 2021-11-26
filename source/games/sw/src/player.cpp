@@ -2651,7 +2651,7 @@ void DoPlayerMoveVehicle(PLAYERp pp)
 
     if (RectClip)
     {
-        hitdata_t hitinfo;
+        HitInfo hit;
         int vel;
         int ret;
 
@@ -2671,17 +2671,16 @@ void DoPlayerMoveVehicle(PLAYERp pp)
             {
                 vec3_t hit_pos = { DIV2(x[0] + x[1]), DIV2(y[0] + y[1]), pp->cursector()->floorz - Z(10) };
 
-                hitscan(&hit_pos, pp->cursectnum,
-                        //pp->xvect, pp->yvect, 0,
-                        MOVEx(256, pp->angle.ang.asbuild()), MOVEy(256, pp->angle.ang.asbuild()), 0,
-                        &hitinfo, CLIPMASK_PLAYER);
+                hitscan(hit_pos, pp->cursector(),
+                    { MOVEx(256, pp->angle.ang.asbuild()), MOVEy(256, pp->angle.ang.asbuild()), 0 },
+                    hit, CLIPMASK_PLAYER);
 
-                if (FindDistance2D(hitinfo.pos.x - hit_pos.x, hitinfo.pos.y - hit_pos.y) < 800)
+                if (FindDistance2D(hit.hitpos.x - hit_pos.x, hit.hitpos.y - hit_pos.y) < 800)
                 {
-                    if (hitinfo.wall >= 0)
-                        u->coll.setWall(hitinfo.wall);
-                    else if (hitinfo.sprite >= 0)
-                        u->coll.setSprite(&swActors[hitinfo.sprite]);
+                    if (hit.hitWall)
+                        u->coll.setWall(wallnum(hit.hitWall));
+                    else if (hit.actor())
+                        u->coll.setSprite(hit.actor());
                     else
                         u->coll.setNone();
 

@@ -294,31 +294,29 @@ bool FAFcansee(int32_t xs, int32_t ys, int32_t zs, sectortype* sects,
     else
         zvect = 0;
 
-    hitdata_t e_hitinfo;
-    hitscan(&s, sectnum(sects), xvect, yvect, zvect, &e_hitinfo, CLIPMASK_MISSILE);
-    HITINFO hitinfo;
-    hitinfo.set(&e_hitinfo);
+    HitInfo hit;
+    hitscan(s, sects, { xvect, yvect, zvect }, hit, CLIPMASK_MISSILE);
 
-    if (hitinfo.sector() == nullptr)
+    if (hit.hitSector == nullptr)
         return false;
 
     // make sure it hit JUST a sector before doing a check
-    if (hitinfo.wall() == nullptr && hitinfo.hitactor == nullptr)
+    if (hit.hitWall == nullptr && hit.actor() == nullptr)
     {
-        getzsofslopeptr(hitinfo.sector(), hitinfo.pos.x, hitinfo.pos.y, &hiz, &loz);
-        if (labs(hitinfo.pos.z - loz) < Z(4))
+        getzsofslopeptr(hit.hitSector, hit.hitpos.x, hit.hitpos.y, &hiz, &loz);
+        if (labs(hit.hitpos.z - loz) < Z(4))
         {
-            if (FAF_ConnectFloor(hitinfo.sector()))
+            if (FAF_ConnectFloor(hit.hitSector))
             {
-                updatesectorz(hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z + Z(12), &newsect);
+                updatesectorz(hit.hitpos.x, hit.hitpos.y, hit.hitpos.z + Z(12), &newsect);
                 plax_found = true;
             }
         }
-        else if (labs(hitinfo.pos.z - hiz) < Z(4))
+        else if (labs(hit.hitpos.z - hiz) < Z(4))
         {
-            if (FAF_ConnectCeiling(hitinfo.sector()))
+            if (FAF_ConnectCeiling(hit.hitSector))
             {
-                updatesectorz(hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z - Z(12), &newsect);
+                updatesectorz(hit.hitpos.x, hit.hitpos.y, hit.hitpos.z - Z(12), &newsect);
                 plax_found = true;
             }
         }
@@ -329,7 +327,7 @@ bool FAFcansee(int32_t xs, int32_t ys, int32_t zs, sectortype* sects,
     }
 
     if (plax_found)
-        return !!cansee(hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z,newsect,xe,ye,ze,secte);
+        return !!cansee(hit.hitpos.x, hit.hitpos.y, hit.hitpos.z, newsect, xe, ye, ze, secte);
 
     return false;
 }

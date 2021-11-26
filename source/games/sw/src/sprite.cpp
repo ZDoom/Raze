@@ -1940,21 +1940,18 @@ void SpriteSetup(void)
                 case SECT_WALL_PAN_SPEED:
                 {
                     vec3_t hit_pos = { sp->x, sp->y, sp->z - Z(8) };
-                    hitdata_t hitinfo;
+                    HitInfo hit;
 
-                    hitscan(&hit_pos, sp->sectnum,    // Start position
-                            bcos(sp->ang),    // X vector of 3D ang
-                            bsin(sp->ang),    // Y vector of 3D ang
-                            0,                // Z vector of 3D ang
-                            &hitinfo, CLIPMASK_MISSILE);
+                    hitscan(hit_pos, sp->sector(),    // Start position
+                        { bcos(sp->ang), bsin(sp->ang), 0 }, hit, CLIPMASK_MISSILE);
 
-                    if (hitinfo.wall == -1)
+                    if (hit.hitWall == nullptr)
                     {
                         KillActor(actor);
                         break;
                     }
 
-                    actor->tempwall = &wall[hitinfo.wall];
+                    actor->tempwall = hit.hitWall;
                     // if moves with SO
                     if (TEST_BOOL1(sp))
                         sp->xvel = 0;
@@ -1962,9 +1959,9 @@ void SpriteSetup(void)
                         sp->xvel = sp->lotag;
                     sp->ang = SP_TAG6(sp);
                     // attach to the sector that contains the wall
-                    ChangeActorSect(actor, hitinfo.sect);
-                    StartInterpolation(hitinfo.wall, Interp_Wall_PanX);
-                    StartInterpolation(hitinfo.wall, Interp_Wall_PanY);
+                    ChangeActorSect(actor, hit.hitSector);
+                    StartInterpolation(hit.hitWall, Interp_Wall_PanX);
+                    StartInterpolation(hit.hitWall, Interp_Wall_PanY);
                     change_actor_stat(actor, STAT_WALL_PAN);
                     break;
                 }
@@ -1972,21 +1969,18 @@ void SpriteSetup(void)
                 case WALL_DONT_STICK:
                 {
                     vec3_t hit_pos = { sp->x, sp->y, sp->z - Z(8) };
-                    hitdata_t hitinfo;
+                    HitInfo hit;
 
-                    hitscan(&hit_pos, sp->sectnum,    // Start position
-                            bcos(sp->ang),    // X vector of 3D ang
-                            bcos(sp->ang),    // Y vector of 3D ang
-                            0,                // Z vector of 3D ang
-                            &hitinfo, CLIPMASK_MISSILE);
+                    hitscan(hit_pos, sp->sector(),    // Start position
+                        { bcos(sp->ang), bsin(sp->ang), 0 }, hit, CLIPMASK_MISSILE);
 
-                    if (hitinfo.wall == -1)
+                    if (hit.hitWall == nullptr)
                     {
                         KillActor(actor);
                         break;
                     }
 
-                    SET(wall[hitinfo.wall].extra, WALLFX_DONT_STICK);
+                    SET(hit.hitWall->extra, WALLFX_DONT_STICK);
                     KillActor(actor);
                     break;
                 }
