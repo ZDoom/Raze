@@ -1370,9 +1370,14 @@ void DoPlayerWarpTeleporter(PLAYERp pp)
             TAG 5 to 8 = random match locations
 #endif
 
-
-    if ((act_warp = Warp(&pp->posx, &pp->posy, &pp->posz, &pp->cursectnum)) == nullptr)
+#pragma message(__FILE__ "remove workaround");
+    auto cursect = pp->cursector();
+    if ((act_warp = Warp(&pp->posx, &pp->posy, &pp->posz, &cursect)) == nullptr)
+    {
+        pp->setcursector(cursect);
         return;
+    }
+    pp->setcursector(cursect);
 
     sp_warp = &act_warp->s();
     switch (SP_TAG3(sp_warp))
@@ -2152,8 +2157,14 @@ void DoPlayerMove(PLAYERp pp)
     }
 
     // check for warp - probably can remove from CeilingHit
-    if (WarpPlane(&pp->posx, &pp->posy, &pp->posz, &pp->cursectnum))
+#pragma message(__FILE__ "remove workaround");
+    sectortype* cursect = pp->cursector();
+    if (WarpPlane(&pp->posx, &pp->posy, &pp->posz, &cursect))
+    {
+        pp->setcursector(cursect);
         PlayerWarpUpdatePos(pp);
+    }
+    pp->setcursector(cursect);
 
     DoPlayerZrange(pp);
 
@@ -2729,6 +2740,8 @@ void DoPlayerMoveVehicle(PLAYERp pp)
 #pragma message(__FILE__ "remove workaround");
             sectortype* cursect = pp->cursector();
             clipmove(clippos, &cursect, pp->xvect, pp->yvect, (int)pp->sop->clipdist, Z(4), floor_dist, CLIPMASK_PLAYER, u->coll);
+            pp->setcursector(cursect);
+
             pp->pos.vec2 = clippos.vec2;
         }
         else
@@ -3384,11 +3397,15 @@ void DoPlayerClimb(PLAYERp pp)
         LadderUpdate = true;
     }
 
-    if (WarpPlane(&pp->posx, &pp->posy, &pp->posz, &pp->cursectnum))
+#pragma message(__FILE__ "remove workaround");
+    sectortype* cursect = pp->cursector();
+    if (WarpPlane(&pp->posx, &pp->posy, &pp->posz, &cursect))
     {
+        pp->setcursector(cursect);
         PlayerWarpUpdatePos(pp);
         LadderUpdate = true;
     }
+    pp->setcursector(cursect);
 
     if (LadderUpdate)
     {

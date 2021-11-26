@@ -39,9 +39,9 @@ BEGIN_SW_NS
 ////////////////////////////////////////////////////////////////////////////////
 
 extern bool Prediction;
-DSWActor* WarpToArea(DSWActor* sp_from, int32_t* x, int32_t* y, int32_t* z, int* sect);
+DSWActor* WarpToArea(DSWActor* sp_from, int32_t* x, int32_t* y, int32_t* z, sectortype** sect);
 
-bool WarpPlaneSectorInfo(short sectnum, DSWActor** sp_ceiling, DSWActor** sp_floor)
+bool WarpPlaneSectorInfo(sectortype* sect, DSWActor** sp_ceiling, DSWActor** sp_floor)
 {
     *sp_floor = nullptr;
     *sp_ceiling = nullptr;
@@ -49,7 +49,7 @@ bool WarpPlaneSectorInfo(short sectnum, DSWActor** sp_ceiling, DSWActor** sp_flo
     if (Prediction)
         return false;
 
-    if (sectnum < 0 || !TEST(sector[sectnum].extra, SECTFX_WARP_SECTOR))
+    if (sect== nullptr || !TEST(sect->extra, SECTFX_WARP_SECTOR))
         return false;
 
     SWStatIterator it(STAT_WARP);
@@ -57,7 +57,7 @@ bool WarpPlaneSectorInfo(short sectnum, DSWActor** sp_ceiling, DSWActor** sp_flo
     {
         auto sp = &actor->s();
 
-        if (sp->sectnum == sectnum)
+        if (sp->sector() == sect)
         {
             // skip - don't teleport
             if (SP_TAG10(sp) == 1)
@@ -77,7 +77,7 @@ bool WarpPlaneSectorInfo(short sectnum, DSWActor** sp_ceiling, DSWActor** sp_flo
     return true;
 }
 
-DSWActor* WarpPlane(int32_t* x, int32_t* y, int32_t* z, int* sect)
+DSWActor* WarpPlane(int32_t* x, int32_t* y, int32_t* z, sectortype** sect)
 {
     DSWActor* sp_floor,* sp_ceiling;
 
@@ -106,7 +106,7 @@ DSWActor* WarpPlane(int32_t* x, int32_t* y, int32_t* z, int* sect)
     return nullptr;
 }
 
-DSWActor* WarpToArea(DSWActor* sp_from, int32_t* x, int32_t* y, int32_t* z, int* sectnum)
+DSWActor* WarpToArea(DSWActor* sp_from, int32_t* x, int32_t* y, int32_t* z, sectortype** sect)
 {
     int xoff;
     int yoff;
@@ -189,8 +189,8 @@ DSWActor* WarpToArea(DSWActor* sp_from, int32_t* x, int32_t* y, int32_t* z, int*
                 *z += z_adj;
 
                 // get new sector
-                *sectnum = spi->sectnum;
-                updatesector(*x, *y, sectnum);
+                *sect = spi->sector();
+                updatesector(*x, *y, sect);
 
                 return actor;
             }
@@ -234,19 +234,19 @@ bool WarpSectorInfo(sectortype* sect, DSWActor** sp_warp)
     return true;
 }
 
-DSWActor* Warp(int32_t* x, int32_t* y, int32_t* z, int* sectnum)
+DSWActor* Warp(int32_t* x, int32_t* y, int32_t* z, sectortype** sect)
 {
     DSWActor* sp_warp;
 
     if (Prediction)
         return nullptr;
 
-    if (!WarpSectorInfo(&sector[*sectnum], &sp_warp))
+    if (!WarpSectorInfo(*sect, &sp_warp))
         return nullptr;
 
     if (sp_warp)
     {
-        return WarpToArea(sp_warp, x, y, z, sectnum);
+        return WarpToArea(sp_warp, x, y, z, sect);
     }
 
     return nullptr;

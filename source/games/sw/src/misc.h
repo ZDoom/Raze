@@ -18,24 +18,9 @@ void InitCheats();
 void MapColors(short num,COLOR_MAP cm,short create);
 int32_t CONFIG_ReadSetup(void);
 
-DSWActor* WarpPlane(int32_t* x, int32_t* y, int32_t* z, int* sect);
 bool WarpSectorInfo(sectortype* sect, DSWActor** sp_warp);
-DSWActor* Warp(int32_t* x, int32_t* y, int32_t* z, int* sect);
-inline DSWActor* Warp(int32_t* x, int32_t* y, int32_t* z, sectortype** sect)
-{
-	int sn = sectnum(*sect);
-	auto res = Warp(x, y, z, &sn);
-	*sect = sn == -1? nullptr : &sector[sn];
-	return res;
-}
-
-inline DSWActor* WarpPlane(int32_t* x, int32_t* y, int32_t* z, sectortype** sect)
-{
-	int sn = sectnum(*sect);
-	auto res = WarpPlane(x, y, z, &sn);
-	*sect = sn == -1 ? nullptr : &sector[sn];
-	return res;
-}
+DSWActor* Warp(int32_t* x, int32_t* y, int32_t* z, sectortype** sect);
+DSWActor* WarpPlane(int32_t* x, int32_t* y, int32_t* z, sectortype** sect);
 
 
 void ProcessVisOn(void);
