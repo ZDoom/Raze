@@ -813,7 +813,7 @@ void ChangeState(DSWActor* actor, STATEp statep)
 void change_actor_stat(DSWActor* actor, int stat, bool quick)
 {
 
-    changespritestat(actor->GetSpriteIndex(), stat);
+    ChangeActorStat(actor, stat);
 
     if (actor->hasU() && !quick)
     {

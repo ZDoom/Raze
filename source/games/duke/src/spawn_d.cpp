@@ -90,7 +90,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
 			if ((sp->lotag > ud.player_skill) || ud.monsters_off)
 			{
 				sp->xrepeat = sp->yrepeat = 0;
-				changeactorstat(act, STAT_MISC);
+				ChangeActorStat(act, STAT_MISC);
 				break;
 			}
 			else
@@ -103,15 +103,15 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
 				if (spj) {
 					act->timetosleep = 0;
 					check_fta_sounds_d(act);
-					changeactorstat(act, 1);
+					ChangeActorStat(act, 1);
 				}
 				else
-					changeactorstat(act, 2);
+					ChangeActorStat(act, 2);
 			}
 			return act;
 		case FIREFLYFLYINGEFFECT:
 			act->SetOwner(actj);
-			changeactorstat(act, STAT_MISC);
+			ChangeActorStat(act, STAT_MISC);
 			sp->xrepeat = 16;
 			sp->yrepeat = 16;
 			return act;
@@ -119,21 +119,21 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
 			if (spj->xrepeat < 30)
 				return act;
 			act->SetOwner(actj);
-			changeactorstat(act, STAT_MISC);
+			ChangeActorStat(act, STAT_MISC);
 			sp->x += krand() % 512 - 256;
 			sp->y += krand() % 512 - 256;
 			sp->xrepeat = 16;
 			sp->yrepeat = 16;
 			return act;
 		case WHISPYSMOKE:
-			changeactorstat(act, STAT_MISC);
+			ChangeActorStat(act, STAT_MISC);
 			sp->x += krand() % 256 - 128;
 			sp->y += krand() % 256 - 128;
 			sp->xrepeat = 20;
 			sp->yrepeat = 20;
 			return act;
 		case SERIOUSSAM:
-			changeactorstat(act, 2);
+			ChangeActorStat(act, 2);
 			sp->cstat = 257;
 			sp->extra = 150;
 			return act;
@@ -147,12 +147,12 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
 		break;
 	case FOF:
 		sp->xrepeat = sp->yrepeat = 0;
-		changeactorstat(act, STAT_MISC);
+		ChangeActorStat(act, STAT_MISC);
 		break;
 	case WATERSPLASH2:
 		if (spj)
 		{
-			setsprite(act, spj->x, spj->y, spj->z);
+			SetActor(act, spj->pos);
 			sp->xrepeat = sp->yrepeat = 8 + (krand() & 7);
 		}
 		else sp->xrepeat = sp->yrepeat = 16 + (krand() & 15);
@@ -203,7 +203,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
 	case DUKETORSO:
 	case DUKEGUN:
 	case DUKELEG:
-		changeactorstat(act, STAT_MISC);
+		ChangeActorStat(act, STAT_MISC);
 		break;
 	case TONGUE:
 		if (spj)
@@ -211,7 +211,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
 		sp->z -= PHEIGHT_DUKE;
 		sp->zvel = 256 - (krand() & 511);
 		sp->xvel = 64 - (krand() & 127);
-		changeactorstat(act, 4);
+		ChangeActorStat(act, 4);
 		break;
 	case NATURALLIGHTNING:
 		sp->cstat &= ~257;
@@ -231,7 +231,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
 		}
 		else sp->xrepeat = sp->yrepeat = 0;
 
-		changeactorstat(act, STAT_MISC);
+		ChangeActorStat(act, STAT_MISC);
 
 		break;
 
@@ -250,19 +250,19 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
 		}
 
 		if (spj) sp->ang = actj->temp_data[5] + 512;
-		changeactorstat(act, STAT_MISC);
+		ChangeActorStat(act, STAT_MISC);
 		break;
 
 	case FORCESPHERE:
 		if (!spj)
 		{
 			sp->cstat = 32768;
-			changeactorstat(act, 2);
+			ChangeActorStat(act, 2);
 		}
 		else
 		{
 			sp->xrepeat = sp->yrepeat = 1;
-			changeactorstat(act, STAT_MISC);
+			ChangeActorStat(act, STAT_MISC);
 		}
 		break;
 
@@ -271,7 +271,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
 		sp->z -= (26 << 8);
 		if (spj && spj->pal == 6)
 			sp->pal = 6;
-		changeactorstat(act, STAT_MISC);
+		ChangeActorStat(act, STAT_MISC);
 		break;
 	case LAVAPOOL:
 		if (!isWorldTour()) // Twentieth Anniversary World Tour
@@ -310,7 +310,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
 	case FECES:
 		if (spj)
 			sp->xrepeat = sp->yrepeat = 1;
-		changeactorstat(act, STAT_MISC);
+		ChangeActorStat(act, STAT_MISC);
 		break;
 
 	case BLOODSPLAT1:
@@ -324,14 +324,14 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
 		if (spj && spj->pal == 6)
 			sp->pal = 6;
 		insertspriteq(act);
-		changeactorstat(act, STAT_MISC);
+		ChangeActorStat(act, STAT_MISC);
 		break;
 
 	case TRIPBOMB:
 		if (sp->lotag > ud.player_skill)
 		{
 			sp->xrepeat = sp->yrepeat = 0;
-			changeactorstat(act, STAT_MISC);
+			ChangeActorStat(act, STAT_MISC);
 			break;
 		}
 
@@ -355,7 +355,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
 			sp->extra = 20;
 			sp->cstat |= 257;
 		}
-		changeactorstat(act, 2);
+		ChangeActorStat(act, 2);
 		break;
 
 	case HYDRENT:
@@ -427,12 +427,12 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
 		sp->cstat |= 257;
 		[[fallthrough]];
 	case OCEANSPRITE4:
-		changeactorstat(act, 0);
+		ChangeActorStat(act, 0);
 		break;
 	case FEMMAG1:
 	case FEMMAG2:
 		sp->cstat &= ~257;
-		changeactorstat(act, 0);
+		ChangeActorStat(act, 0);
 		break;
 	case DUKETAG:
 	case SIGN1:
@@ -440,7 +440,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
 		if (ud.multimode < 2 && sp->pal)
 		{
 			sp->xrepeat = sp->yrepeat = 0;
-			changeactorstat(act, STAT_MISC);
+			ChangeActorStat(act, STAT_MISC);
 		}
 		else sp->pal = 0;
 		break;
@@ -462,7 +462,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
 	{
 		int j = sp->cstat & 60;
 		sp->cstat = j | 1;
-		changeactorstat(act, 0);
+		ChangeActorStat(act, 0);
 		break;
 	}
 	case FOOTPRINTS:
@@ -507,7 +507,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
 			sp->clipdist = 32;
 		}
 
-		changeactorstat(act, 2);
+		ChangeActorStat(act, 2);
 		break;
 
 	case DUKELYINGDEAD:
@@ -546,7 +546,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
 			sp->yvel = sp->hitag;
 		[[fallthrough]];
 	case WEATHERWARN:
-		changeactorstat(act, 1);
+		ChangeActorStat(act, 1);
 		break;
 
 	case SPOTLITE:
@@ -568,7 +568,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
 			sp->xrepeat = sp->yrepeat = 8;
 			sp->ang = krand() & 2047;
 		}
-		changeactorstat(act, STAT_MISC);
+		ChangeActorStat(act, STAT_MISC);
 		break;
 
 	case VIEWSCREEN:
@@ -576,7 +576,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
 		act->SetOwner(act);
 		sp->lotag = 1;
 		sp->extra = 1;
-		changeactorstat(act, 6);
+		ChangeActorStat(act, 6);
 		break;
 
 	case SHELL: //From the player
@@ -591,11 +591,11 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
 		if (ud.multimode < 2 && sp->pal == 1)
 		{
 			sp->xrepeat = sp->yrepeat = 0;
-			changeactorstat(act, STAT_MISC);
+			ChangeActorStat(act, STAT_MISC);
 			break;
 		}
 		sp->cstat = 32768;
-		changeactorstat(act, 11);
+		ChangeActorStat(act, 11);
 		break;
 
 	case ONFIRE:
@@ -657,7 +657,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
 			sp->cstat |= 0x80;
 		}
 
-		changeactorstat(act, STAT_MISC);
+		ChangeActorStat(act, STAT_MISC);
 
 		break;
 
@@ -670,7 +670,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
 			if (sp->sector()->lotag != 2)
 				sp->cstat |= 32768;
 		}
-		changeactorstat(act, STAT_DUMMYPLAYER);
+		ChangeActorStat(act, STAT_DUMMYPLAYER);
 		break;
 
 	case APLAYER:
@@ -680,9 +680,9 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
 		if (j == 2) j = 0;
 
 		if (ud.multimode < 2 || (ud.multimode > 1 && j != sp->lotag))
-			changeactorstat(act, STAT_MISC);
+			ChangeActorStat(act, STAT_MISC);
 		else
-			changeactorstat(act, STAT_PLAYER);
+			ChangeActorStat(act, STAT_PLAYER);
 		break;
 	}
 	case WATERBUBBLE:
@@ -696,7 +696,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
 		}
 		else sp->xrepeat = sp->yrepeat = 32;
 
-		changeactorstat(act, STAT_MISC);
+		ChangeActorStat(act, STAT_MISC);
 		break;
 
 	case CRANE:
@@ -718,12 +718,12 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
 		sp->yrepeat = 24;
 
 
-		changeactorstat(act, 6);
+		ChangeActorStat(act, 6);
 		break;
 
 	case PLUG:
 		sp->lotag = 9999;
-		changeactorstat(act, 6);
+		ChangeActorStat(act, 6);
 		break;
 	case TOUCHPLATE:
 		t[2] = sectp->floorz;
@@ -734,7 +734,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
 			if (sp->pal && ud.multimode > 1)
 			{
 				sp->xrepeat = sp->yrepeat = 0;
-				changeactorstat(act, STAT_MISC);
+				ChangeActorStat(act, STAT_MISC);
 				break;
 			}
 		}
@@ -744,7 +744,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
 				|| (sp->pal == 3 && (ud.multimode == 1 || (ud.multimode > 1 && ud.coop == 1)))) // Dukematch Only
 			{
 				sp->xrepeat = sp->yrepeat = 0;
-				changeactorstat(act, STAT_MISC);
+				ChangeActorStat(act, STAT_MISC);
 				break;
 			}
 		}
@@ -756,7 +756,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
 			sp->hitag = 0;
 		}
 		sp->cstat |= 32768;
-		changeactorstat(act, 6);
+		ChangeActorStat(act, 6);
 		break;
 	case BOLT1:
 	case BOLT1 + 1:
@@ -773,14 +773,14 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
 		if (sp->picnum == MASTERSWITCH)
 			sp->cstat |= 32768;
 		sp->yvel = 0;
-		changeactorstat(act, 6);
+		ChangeActorStat(act, 6);
 		break;
 	case TARGET:
 	case DUCK:
 	case LETTER:
 		sp->extra = 1;
 		sp->cstat |= 257;
-		changeactorstat(act, 1);
+		ChangeActorStat(act, 1);
 		break;
 	case OCTABRAINSTAYPUT:
 	case LIZTROOPSTAYPUT:
@@ -875,7 +875,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
 		if ((sp->lotag > ud.player_skill) || ud.monsters_off == 1)
 		{
 			sp->xrepeat = sp->yrepeat = 0;
-			changeactorstat(act, STAT_MISC);
+			ChangeActorStat(act, STAT_MISC);
 			break;
 		}
 		else
@@ -902,9 +902,9 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
 			{
 				act->timetosleep = 0;
 				check_fta_sounds_d(act);
-				changeactorstat(act, 1);
+				ChangeActorStat(act, 1);
 			}
-			else changeactorstat(act, 2);
+			else ChangeActorStat(act, 2);
 		}
 
 		if (sp->picnum == ROTATEGUN)
@@ -914,7 +914,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
 
 	case LOCATORS:
 		sp->cstat |= 32768;
-		changeactorstat(act, 7);
+		ChangeActorStat(act, 7);
 		break;
 
 	case ACTIVATORLOCKED:
@@ -922,13 +922,13 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
 		sp->cstat = 32768;
 		if (sp->picnum == ACTIVATORLOCKED)
 			sp->sector()->lotag |= 16384;
-		changeactorstat(act, 8);
+		ChangeActorStat(act, 8);
 		break;
 
 	case DOORSHOCK:
 		sp->cstat |= 1 + 256;
 		sp->shade = -12;
-		changeactorstat(act, 6);
+		ChangeActorStat(act, 6);
 		break;
 
 	case OOZ:
@@ -943,7 +943,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
 			insertspriteq(act);
 		}
 
-		changeactorstat(act, 1);
+		ChangeActorStat(act, 1);
 
 		getglobalz(act);
 
@@ -1022,7 +1022,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
 		if ((ud.multimode < 2 && sp->pal != 0) || (sp->lotag > ud.player_skill))
 		{
 			sp->xrepeat = sp->yrepeat = 0;
-			changeactorstat(act, STAT_MISC);
+			ChangeActorStat(act, STAT_MISC);
 			break;
 		}
 
@@ -1037,7 +1037,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
 		if (ud.multimode > 1 && ud.coop != 1 && sp->picnum == ACCESSCARD)
 		{
 			sp->xrepeat = sp->yrepeat = 0;
-			changeactorstat(act, STAT_MISC);
+			ChangeActorStat(act, STAT_MISC);
 			break;
 		}
 		else
@@ -1049,10 +1049,10 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
 
 		sp->shade = -17;
 
-		if (spj) changeactorstat(act, STAT_ACTOR);
+		if (spj) ChangeActorStat(act, STAT_ACTOR);
 		else
 		{
-			changeactorstat(act, STAT_ZOMBIEACTOR);
+			ChangeActorStat(act, STAT_ZOMBIEACTOR);
 			makeitfall(act);
 		}
 		break;
@@ -1068,12 +1068,12 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
 	case BOX:
 		sp->cstat = 257; // Make it hitable
 		sp->extra = 1;
-		changeactorstat(act, STAT_STANDABLE);
+		ChangeActorStat(act, STAT_STANDABLE);
 		break;
 
 	case FLOORFLAME:
 		sp->shade = -127;
-		changeactorstat(act, STAT_STANDABLE);
+		ChangeActorStat(act, STAT_STANDABLE);
 		break;
 
 	case BOUNCEMINE:
@@ -1082,7 +1082,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
 		sp->xrepeat = sp->yrepeat = 24;
 		sp->shade = -127;
 		sp->extra = gs.impact_damage << 2;
-		changeactorstat(act, STAT_ZOMBIEACTOR);
+		ChangeActorStat(act, STAT_ZOMBIEACTOR);
 		break;
 
 	case CAMERA1:
@@ -1102,13 +1102,13 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
 		if (ud.multimode < 2 && sp->pal != 0)
 		{
 			sp->xrepeat = sp->yrepeat = 0;
-			changeactorstat(act, STAT_MISC);
+			ChangeActorStat(act, STAT_MISC);
 			break;
 		}
 		else sp->pal = 0;
 		if (sp->picnum == CAMERAPOLE || sp->picnum == GENERICPOLE) break;
 		sp->picnum = CAMERA1;
-		changeactorstat(act, 1);
+		ChangeActorStat(act, 1);
 		break;
 	case STEAM:
 		if (spj)
@@ -1121,7 +1121,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
 		}
 		[[fallthrough]];
 	case CEILINGSTEAM:
-		changeactorstat(act, STAT_STANDABLE);
+		ChangeActorStat(act, STAT_STANDABLE);
 		break;
 
 	case SECTOREFFECTOR:
@@ -1142,7 +1142,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
 		else sp->cstat = 1 + 256;
 		sp->extra = gs.impact_damage << 2;
 		act->SetOwner(act);
-		changeactorstat(act, STAT_STANDABLE);
+		ChangeActorStat(act, STAT_STANDABLE);
 		break;
 
 	case CRACK1:
@@ -1164,13 +1164,13 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
 		if (ud.multimode < 2 && sp->pal != 0)
 		{
 			sp->xrepeat = sp->yrepeat = 0;
-			changeactorstat(act, STAT_MISC);
+			ChangeActorStat(act, STAT_MISC);
 			break;
 		}
 
 		sp->pal = 0;
 		act->SetOwner(act);
-		changeactorstat(act, STAT_STANDABLE);
+		ChangeActorStat(act, STAT_STANDABLE);
 		sp->xvel = 8;
 		ssp(act, CLIPMASK0);
 		break;
@@ -1210,7 +1210,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
 		if (ud.monsters_off == 1 && sp->picnum == EGG)
 		{
 			sp->xrepeat = sp->yrepeat = 0;
-			changeactorstat(act, STAT_MISC);
+			ChangeActorStat(act, STAT_MISC);
 		}
 		else
 		{
@@ -1220,12 +1220,12 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
 				ps[connecthead].max_actors_killed++;
 			}
 			sp->cstat = 257 | (krand() & 4);
-			changeactorstat(act, STAT_ZOMBIEACTOR);
+			ChangeActorStat(act, STAT_ZOMBIEACTOR);
 		}
 		break;
 	case TOILETWATER:
 		sp->shade = -16;
-		changeactorstat(act, STAT_STANDABLE);
+		ChangeActorStat(act, STAT_STANDABLE);
 		break;
 	}
 	return act;

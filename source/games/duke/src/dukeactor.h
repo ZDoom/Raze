@@ -20,38 +20,6 @@ inline int player_struct::GetPlayerNum()
 	return GetActor()->s->yvel;
 }
 
-// Refactoring helpers/intermediates
-inline void changeactorstat(DDukeActor* a, int newstat)
-{
-	::changespritestat(a->GetSpriteIndex(), newstat);
-}
-
-inline void changeactorsect(DDukeActor* a, int newsect)
-{
-	::changespritesect(a->GetSpriteIndex(), newsect);
-}
-
-inline void changeactorsect(DDukeActor* a, sectortype* newsect)
-{
-	::changespritesect(a->GetSpriteIndex(), sectnum(newsect));
-}
-
-inline int setsprite(DDukeActor* a, int x, int y, int z)
-{
-	return ::setsprite(a->GetSpriteIndex(), x, y, z);
-}
-
-inline int setsprite(DDukeActor* a, const vec3_t& pos)
-{
-	return ::setsprite(a->GetSpriteIndex(), pos.x, pos.y, pos.z);
-}
-
-// see comment for changespritestat.
-inline int setsprite(int i, int x, int y, int z)
-{
-	return ::setsprite(i, x, y, z);
-}
-
 inline int ActorToScriptIndex(DDukeActor* a)
 {
 	if (!a) return -1;

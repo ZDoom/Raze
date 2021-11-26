@@ -248,7 +248,7 @@ void spawninitdefault(DDukeActor* actj, DDukeActor *act)
 		{
 			// make it go away...
 			sp->xrepeat = sp->yrepeat = 0;
-			changeactorstat(act, STAT_MISC);
+			ChangeActorStat(act, STAT_MISC);
 			return;
 		}
 
@@ -261,7 +261,7 @@ void spawninitdefault(DDukeActor* actj, DDukeActor *act)
 			if (ud.monsters_off == 1)
 			{
 				sp->xrepeat = sp->yrepeat = 0;
-				changeactorstat(act, STAT_MISC);
+				ChangeActorStat(act, STAT_MISC);
 				return;
 			}
 
@@ -278,15 +278,15 @@ void spawninitdefault(DDukeActor* actj, DDukeActor *act)
 			{
 				if (actj->s->picnum == RESPAWN)
 					act->tempang = sp->pal = actj->s->pal;
-				changeactorstat(act, STAT_ACTOR);
+				ChangeActorStat(act, STAT_ACTOR);
 			}
-			else changeactorstat(act, STAT_ZOMBIEACTOR);
+			else ChangeActorStat(act, STAT_ZOMBIEACTOR);
 		}
 		else
 		{
 			sp->clipdist = 40;
 			act->SetOwner(act);
-			changeactorstat(act, STAT_ACTOR);
+			ChangeActorStat(act, STAT_ACTOR);
 		}
 
 		act->timetosleep = 0;
@@ -334,9 +334,9 @@ void spawntransporter(DDukeActor *actj, DDukeActor* acti, bool beam)
 	sp->ang = spj->ang;
 
 	sp->xvel = 128;
-	changeactorstat(acti, STAT_MISC);
+	ChangeActorStat(acti, STAT_MISC);
 	ssp(acti, CLIPMASK0);
-	setsprite(acti, sp->x, sp->y, sp->z);
+	SetActor(acti, sp->pos);
 }
 
 //---------------------------------------------------------------------------
@@ -362,18 +362,18 @@ int spawnbloodpoolpart1(DDukeActor* acti)
 				updatesector(sp->x - 108, sp->y + 108, &s1);
 				if (s1 && s1->floorz != sp->sector()->floorz)
 				{
-					sp->xrepeat = sp->yrepeat = 0; changeactorstat(acti, STAT_MISC); return true;
+					sp->xrepeat = sp->yrepeat = 0; ChangeActorStat(acti, STAT_MISC); return true;
 				}
 			}
-			else { sp->xrepeat = sp->yrepeat = 0; changeactorstat(acti, STAT_MISC); return true; }
+			else { sp->xrepeat = sp->yrepeat = 0; ChangeActorStat(acti, STAT_MISC); return true; }
 		}
-		else { sp->xrepeat = sp->yrepeat = 0; changeactorstat(acti, STAT_MISC); return true; }
+		else { sp->xrepeat = sp->yrepeat = 0; ChangeActorStat(acti, STAT_MISC); return true; }
 	}
-	else { sp->xrepeat = sp->yrepeat = 0; changeactorstat(acti, STAT_MISC); return true; }
+	else { sp->xrepeat = sp->yrepeat = 0; ChangeActorStat(acti, STAT_MISC); return true; }
 
 	if (sp->sector()->lotag == 1)
 	{
-		changeactorstat(acti, STAT_MISC);
+		ChangeActorStat(acti, STAT_MISC);
 		return true;
 	}
 	return false;
@@ -405,7 +405,7 @@ void initfootprint(DDukeActor* actj, DDukeActor* acti)
 					updatesector(sp->x - 84, sp->y + 84, &s1);
 					if (s1 && s1->floorz != sp->sector()->floorz)
 					{
-						sp->xrepeat = sp->yrepeat = 0; changeactorstat(acti, STAT_MISC); return;
+						sp->xrepeat = sp->yrepeat = 0; ChangeActorStat(acti, STAT_MISC); return;
 					}
 				}
 				else { sp->xrepeat = sp->yrepeat = 0; return; }
@@ -423,7 +423,7 @@ void initfootprint(DDukeActor* actj, DDukeActor* acti)
 		sp->xrepeat = sp->yrepeat = 32;
 
 	insertspriteq(acti);
-	changeactorstat(acti, STAT_MISC);
+	ChangeActorStat(acti, STAT_MISC);
 }
 
 //---------------------------------------------------------------------------
@@ -475,7 +475,7 @@ void initshell(DDukeActor* actj, DDukeActor* acti, bool isshell)
 
 		sp->xrepeat = sp->yrepeat = isRR() && isshell? 2 : 4;
 
-		changeactorstat(acti, STAT_MISC);
+		ChangeActorStat(acti, STAT_MISC);
 	}
 }
 
@@ -522,14 +522,14 @@ void initcrane(DDukeActor* actj, DDukeActor* acti, int CRANEPOLE)
 			ss->z = sp->z;
 			ss->shade = sp->shade;
 
-			setsprite(act, ss->pos);
+			SetActor(act, ss->pos);
 			break;
 		}
 	}
 
 	acti->SetOwner(nullptr);
 	sp->extra = 8;
-	changeactorstat(acti, STAT_STANDABLE);
+	ChangeActorStat(acti, STAT_STANDABLE);
 }
 
 //---------------------------------------------------------------------------
@@ -563,7 +563,7 @@ void initwaterdrip(DDukeActor* actj, DDukeActor* actor)
 	}
 	sp->xrepeat = 24;
 	sp->yrepeat = 24;
-	changeactorstat(actor, STAT_STANDABLE);
+	ChangeActorStat(actor, STAT_STANDABLE);
 }
 
 
@@ -581,7 +581,7 @@ int initreactor(DDukeActor* actj, DDukeActor* actor, bool isrecon)
 		if (sp->lotag > ud.player_skill)
 		{
 			sp->xrepeat = sp->yrepeat = 0;
-			changeactorstat(actor, STAT_MISC);
+			ChangeActorStat(actor, STAT_MISC);
 			return true;
 		}
 		if (!isRR() || actorflag(actor, SFLAG_KILLCOUNT))	// Duke is just like Doom - Bad guys always count as kill.
@@ -590,7 +590,7 @@ int initreactor(DDukeActor* actj, DDukeActor* actor, bool isrecon)
 		if (ud.monsters_off == 1)
 		{
 			sp->xrepeat = sp->yrepeat = 0;
-			changeactorstat(actor, STAT_MISC);
+			ChangeActorStat(actor, STAT_MISC);
 			return false;
 		}
 		sp->extra = 130;
@@ -603,13 +603,13 @@ int initreactor(DDukeActor* actj, DDukeActor* actor, bool isrecon)
 	if (ud.multimode < 2 && sp->pal != 0)
 	{
 		sp->xrepeat = sp->yrepeat = 0;
-		changeactorstat(actor, STAT_MISC);
+		ChangeActorStat(actor, STAT_MISC);
 		return false;
 	}
 	sp->pal = 0;
 	sp->shade = -17;
 
-	changeactorstat(actor, 2);
+	ChangeActorStat(actor, 2);
 	return false;
 }
 
@@ -654,7 +654,7 @@ void spawneffector(DDukeActor* actor)
 
 			t[4] = sectp->floorz == sp->z;
 			sp->cstat = 0;
-			changeactorstat(actor, STAT_TRANSPORT);
+			ChangeActorStat(actor, STAT_TRANSPORT);
 			return;
 		case SE_1_PIVOT:
 			actor->SetOwner(nullptr);
@@ -968,7 +968,7 @@ void spawneffector(DDukeActor* actor)
 					sp->picnum = 0;
 					sp->cstat2 = CSTAT2_SPRITE_NOFIND;
 					sp->cstat = CSTAT_SPRITE_INVISIBLE;
-					changeactorsect(actor, STAT_REMOVED);
+					ChangeActorStat(actor, STAT_REMOVED);
 					Printf("Found lonely Sector Effector (lotag 0) at (%d,%d)\n", sp->x, sp->y);
 					return;
 				}
@@ -1075,9 +1075,9 @@ void spawneffector(DDukeActor* actor)
 
 	if ((!isRR() && actor->s->lotag >= 40 && actor->s->lotag <= 45) ||
 		(isRRRA() && actor->s->lotag >= 150 && actor->s->lotag <= 155))
-		changeactorstat(actor, STAT_RAROR);
+		ChangeActorStat(actor, STAT_RAROR);
 	else
-		changeactorstat(actor, STAT_EFFECTOR);
+		ChangeActorStat(actor, STAT_EFFECTOR);
 }
 
 

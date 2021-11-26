@@ -3038,7 +3038,7 @@ HORIZONLY:
 		p->pos.x += p->posxv >> 14;
 		p->pos.y += p->posyv >> 14;
 		updatesector(p->pos.x, p->pos.y, &p->cursector);
-		changeactorsect(pact, p->cursector);
+		ChangeActorSect(pact, p->cursector);
 	}
 	else
 		clipmove(p->pos, &p->cursector, p->posxv, p->posyv, 164, (4 << 8), ii, CLIPMASK0, clip);
@@ -3065,7 +3065,7 @@ HORIZONLY:
 	}
 
 	// RBG***
-	setsprite(pact, p->pos.x, p->pos.y, p->pos.z + gs.playerheight);
+	SetActor(pact, { p->pos.x, p->pos.y, p->pos.z + gs.playerheight });
 
 	if (psectlotag < 3)
 	{
@@ -3086,7 +3086,7 @@ HORIZONLY:
 			S_PlayActorSound(DUKE_ONWATER, pact);
 
 	if (p->cursector != s->sector())
-		changeactorsect(pact, p->cursector);
+		ChangeActorSect(pact, p->cursector);
 
 	if (ud.clipping == 0)
 		j = (pushmove(&p->pos, &p->cursector, 164L, (4L << 8), (4L << 8), CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < 512);

@@ -320,7 +320,7 @@ void operaterespawns_r(int low)
 		}
 		case RRTILE7424:
 			if (isRRRA() && !ud.monsters_off)
-				changeactorstat(act, 119);
+				ChangeActorStat(act, 119);
 			break;
 
 		}
@@ -1723,7 +1723,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 	case RRTILE8166:
 	case RRTILE8167:
 	case RRTILE8168:
-		changeactorstat(targ, STAT_MISC);
+		ChangeActorStat(targ, STAT_MISC);
 		s->picnum = RRTILE5063;
 		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
@@ -1734,7 +1734,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 	case RRTILE8593:
 	case RRTILE8594:
 	case RRTILE8595:
-		changeactorstat(targ, STAT_MISC);
+		ChangeActorStat(targ, STAT_MISC);
 		s->picnum = RRTILE8588;
 		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
@@ -2393,7 +2393,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 
 				if (s->statnum == 2)
 				{
-					changeactorstat(targ, 1);
+					ChangeActorStat(targ, 1);
 					targ->timetosleep = SLEEPTIME;
 				}
 			}

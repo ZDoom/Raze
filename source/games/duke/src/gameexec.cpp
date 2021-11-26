@@ -1197,14 +1197,6 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		if (bSet) spr->yoffset = lValue;
 		else SetGameVarID(lVar2, spr->yoffset, sActor, sPlayer);
 		break;
-	case ACTOR_SECTNUM:
-		if (bSet) changespritesect(iActor, lValue);
-		else SetGameVarID(lVar2, spr->sectnum, sActor, sPlayer);
-		break;
-	case ACTOR_STATNUM: 
-		if (bSet) changespritestat(iActor, lValue);
-		else SetGameVarID(lVar2, spr->statnum, sActor, sPlayer);
-		break;
 	case ACTOR_ANG:
 		if (bSet) spr->ang = lValue;
 		else SetGameVarID(lVar2, spr->ang, sActor, sPlayer);
@@ -2210,7 +2202,7 @@ int ParseState::parse(void)
 			g_sp->z = ps[g_p].oposz = ps[g_p].pos.z;
 			g_sp->backuppos();
 			updatesector(ps[g_p].pos.x, ps[g_p].pos.y, &ps[g_p].cursector);
-			setsprite(ps[g_p].GetActor(), ps[g_p].pos.x, ps[g_p].pos.y, ps[g_p].pos.z + gs.playerheight);
+			SetActor(ps[g_p].GetActor(), { ps[g_p].pos.x, ps[g_p].pos.y, ps[g_p].pos.z + gs.playerheight });
 			g_sp->cstat = 257;
 
 			g_sp->shade = -12;
@@ -3694,7 +3686,7 @@ void LoadActor(DDukeActor *actor, int p, int x)
 			if (actor->timetosleep > 1)
 				actor->timetosleep--;
 			else if (actor->timetosleep == 1)
-				changeactorstat(actor, STAT_ZOMBIEACTOR);
+				ChangeActorStat(actor, STAT_ZOMBIEACTOR);
 		}
 
 		else if (actor->s->statnum == 6)
@@ -3802,7 +3794,7 @@ void execute(DDukeActor *actor,int p,int x)
 			if (actor->timetosleep > 1)
 				actor->timetosleep--;
 			else if (actor->timetosleep == 1)
-				changeactorstat(actor, STAT_ZOMBIEACTOR);
+				ChangeActorStat(actor, STAT_ZOMBIEACTOR);
 		}
 
 		else if (actor->s->statnum == STAT_STANDABLE)

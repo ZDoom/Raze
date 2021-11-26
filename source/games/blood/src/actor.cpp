@@ -6278,7 +6278,7 @@ void actCheckFlares()
 			int y = pTarget->y + mulscale30r(Sin(pXSprite->goalAng + pTarget->ang), pTarget->clipdist * 2);
 			int z = pTarget->z + pXSprite->targetZ;
 			vec3_t pos = { x, y, z };
-			setActorPos(actor, &pos);
+			SetActor(actor, &pos);
 			actor->xvel = target->xvel;
 			actor->yvel = target->yvel;
 			actor->zvel = target->zvel;
@@ -6325,7 +6325,7 @@ DBloodActor* actSpawnSprite(sectortype* pSector, int x, int y, int z, int nStat,
 	DBloodActor* actor = InsertSprite(pSector, nStat);
 
 	vec3_t pos = { x, y, z };
-	setActorPos(actor, &pos);
+	SetActor(actor, &pos);
 	spritetype* pSprite = &actor->s();
 	pSprite->type = kSpriteDecoration;
 	if (setextra && !actor->hasX())
@@ -6395,7 +6395,7 @@ DBloodActor* actSpawnDude(DBloodActor* source, int nType, int a3, int a4)
 	pSprite2->type = nType;
 	pSprite2->ang = angle;
 	vec3_t pos = { x, y, z };
-    setActorPos(spawned, &pos);
+    SetActor(spawned, &pos);
 	pSprite2->cstat |= 0x1101;
 	pSprite2->clipdist = getDudeInfo(nDude + kDudeBase)->clipdist;
 	pXSprite2->health = getDudeInfo(nDude + kDudeBase)->startHealth << 4;

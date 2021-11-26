@@ -185,18 +185,6 @@ inline void GetActorExtents(DBloodActor* actor, int* top, int* bottom)
 	GetSpriteExtents(&actor->s(), top, bottom);
 }
 
-inline DBloodActor* getUpperLink(int sect)
-{
-	auto pSect = &sector[sect];
-	return pSect->upperLink;
-}
-
-inline DBloodActor* getLowerLink(int sect)
-{
-	auto pSect = &sector[sect];
-	return pSect->lowerLink;
-}
-
 inline void sfxPlay3DSound(DBloodActor* pSprite, int soundId, int a3 = -1, int a4 = 0)
 {
 	sfxPlay3DSound(&pSprite->s(), soundId, a3, a4);
@@ -215,19 +203,9 @@ inline void ChangeActorStat(DBloodActor* actor, int stat)
 	ChangeSpriteStat(actor->GetSpriteIndex(), stat);
 }
 
-inline void ChangeActorSect(DBloodActor* actor, int stat)
-{
-	ChangeSpriteSect(actor->GetSpriteIndex(), stat);
-}
-
 inline void ChangeActorSect(DBloodActor* actor, sectortype* stat)
 {
 	ChangeSpriteSect(actor->GetSpriteIndex(), sectnum(stat));
-}
-
-inline void setActorPos(DBloodActor* actor, vec3_t* pos)
-{
-	setsprite(actor->GetSpriteIndex(), pos);
 }
 
 END_BLD_NS

@@ -3795,7 +3795,7 @@ HORIZONLY:
 		p->pos.x += p->posxv >> 14;
 		p->pos.y += p->posyv >> 14;
 		updatesector(p->pos.x, p->pos.y, &p->cursector);
-		changeactorsect(pact, p->cursector);
+		ChangeActorSect(pact, p->cursector);
 	}
 	else
 		clipmove(p->pos, &p->cursector, p->posxv, p->posyv, 164, (4 << 8), i, CLIPMASK0, clip);
@@ -3854,7 +3854,7 @@ HORIZONLY:
 					S_PlayActorSound(404, clip.actor());
 				else
 					check_fta_sounds_r(clip.actor());
-				changeactorstat(clip.actor(), 1);
+				ChangeActorStat(clip.actor(), 1);
 			}
 		}
 		else if (!isRRRA() && clip.actor()->s->picnum == RRTILE3410)
@@ -3895,7 +3895,7 @@ HORIZONLY:
 	}
 
 	// RBG***
-	setsprite(pact, p->pos.x, p->pos.y, p->pos.z + gs.playerheight);
+	SetActor(pact, { p->pos.x, p->pos.y, p->pos.z + gs.playerheight });
 
 	if (psectlotag == 800 && (!isRRRA() || !p->lotag800kill))
 	{
@@ -3924,7 +3924,7 @@ HORIZONLY:
 				S_PlayActorSound(DUKE_ONWATER, pact);
 
 	if (p->cursector != s->sector())
-		changeactorsect(pact, p->cursector);
+		ChangeActorSect(pact, p->cursector);
 
 	int j;
 	if (ud.clipping == 0)

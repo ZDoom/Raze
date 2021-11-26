@@ -386,7 +386,7 @@ void movedummyplayers(void)
 
 		spri->x += (ps[p].pos.x - ps[p].oposx);
 		spri->y += (ps[p].pos.y - ps[p].oposy);
-		setsprite(act, spri->pos);
+		SetActor(act, spri->pos);
 	}
 }
 
@@ -416,7 +416,7 @@ void moveplayers(void)
 				spri->z = p->oposz + gs.playerheight;
 				spri->backupz();
 				spri->ang = p->angle.oang.asbuild();
-				setsprite(act, spri->pos);
+				SetActor(act, spri->pos);
 			}
 			else
 			{
@@ -522,7 +522,7 @@ void moveplayers(void)
 			else
 			{
 				spri->ang = 2047 - (p->angle.ang.asbuild());
-				setsprite(act, spri->pos);
+				SetActor(act, spri->pos);
 			}
 		}
 
@@ -662,7 +662,7 @@ void movecrane(DDukeActor *actor, int crane)
 			case STAT_STANDABLE:
 			case STAT_PLAYER:
 				spri->ang = getangle(cpt.polex - spri->x, cpt.poley - spri->y);
-				setsprite(a2, cpt.polex, cpt.poley, a2->s->z);
+				SetActor(a2, { cpt.polex, cpt.poley, a2->s->z });
 				t[0]++;
 				return;
 			}
@@ -779,7 +779,7 @@ void movecrane(DDukeActor *actor, int crane)
 	else if (t[0] == 9)
 		t[0] = 0;
 
-	setsprite(cpt.poleactor, spri->x, spri->y, spri->z - (34 << 8));
+	SetActor(cpt.poleactor, { spri->x, spri->y, spri->z - (34 << 8) });
 
 	auto Owner = actor->GetOwner();
 	if (Owner != nullptr || actor->IsActiveCrane())
@@ -799,7 +799,7 @@ void movecrane(DDukeActor *actor, int crane)
 
 		if (Owner != nullptr)
 		{
-			setsprite(Owner, spri->pos);
+			SetActor(Owner, spri->pos);
 
 			Owner->s->opos = spri->pos;
 
@@ -814,7 +814,7 @@ void movecrane(DDukeActor *actor, int crane)
 			ps[p].pos.x = spri->x - bcos(ang, -6);
 			ps[p].pos.y = spri->y - bsin(ang, -6);
 			ps[p].pos.z = spri->z + (2 << 8);
-			setsprite(ps[p].GetActor(), ps[p].pos.x, ps[p].pos.y, ps[p].pos.z);
+			SetActor(ps[p].GetActor(), ps[p].pos);
 			ps[p].setCursector(ps[p].GetActor()->s->sector());
 		}
 	}
@@ -1012,7 +1012,7 @@ void movemasterswitch(DDukeActor *actor, int spectype1, int spectype2)
 			spri->picnum = 0;	// give it a picnum without any behavior attached, just in case
 			spri->cstat |= CSTAT_SPRITE_INVISIBLE;
 			spri->cstat2 |= CSTAT2_SPRITE_NOFIND;
-			changeactorstat(actor, STAT_REMOVED);
+			ChangeActorStat(actor, STAT_REMOVED);
 		}
 	}
 }
@@ -2187,7 +2187,7 @@ bool money(DDukeActor* actor, int BLOODPOOL)
 	ssp(actor, CLIPMASK0);
 
 	if ((krand() & 3) == 0)
-		setsprite(actor, s->pos);
+		SetActor(actor, s->pos);
 
 	if (!s->insector())
 	{
@@ -2245,11 +2245,11 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 
 	if (s->zvel > 1024 && s->zvel < 1280)
 	{
-		setsprite(actor, s->pos);
+		SetActor(actor, s->pos);
 		sectp = s->sector();
 	}
 
-	if (callsetsprite) setsprite(actor, s->pos);
+	if (callsetsprite) SetActor(actor, s->pos);
 
 	// this was after the slope calls, but we should avoid calling that for invalid sectors.
 	if (!s->insector())
@@ -2517,7 +2517,7 @@ void glasspieces(DDukeActor* actor)
 		s->xrepeat >>= 1;
 		s->yrepeat >>= 1;
 		if (rnd(96))
-			setsprite(actor, s->pos);
+			SetActor(actor, s->pos);
 		t[0]++;//Number of bounces
 	}
 	else if (t[0] == 3)
@@ -2554,7 +2554,7 @@ void scrap(DDukeActor* actor, int SCRAP1, int SCRAP6)
 
 	if (s->zvel > 1024 && s->zvel < 1280)
 	{
-		setsprite(actor, s->pos);
+		SetActor(actor, s->pos);
 		sectp = s->sector();
 	}
 
@@ -2590,7 +2590,7 @@ void scrap(DDukeActor* actor, int SCRAP1, int SCRAP6)
 			auto spawned = spawn(actor, s->yvel);
 			if (spawned)
 			{
-				setsprite(spawned, s->pos);
+				SetActor(spawned, s->pos);
 				getglobalz(spawned);
 				spawned->s->hitag = spawned->s->lotag = 0;
 			}
@@ -2910,7 +2910,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 							ps[p].pos.y = s->y;
 							ps[p].setCursector(s->sector());
 
-							setsprite(ps[p].GetActor(), s->pos);
+							SetActor(ps[p].GetActor(), s->pos);
 							quickkill(&ps[p]);
 						}
 					}
@@ -2977,7 +2977,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 		}
 
 		ms(actor);
-		setsprite(actor, s->pos);
+		SetActor(actor, s->pos);
 
 		if ((sc->floorz - sc->ceilingz) < (108 << 8))
 		{
@@ -2994,7 +2994,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 							ps[p].oposy = ps[p].pos.y = s->y;
 							ps[p].setCursector(s->sector());
 
-							setsprite(ps[p].GetActor(), s->pos);
+							SetActor(ps[p].GetActor(), s->pos);
 							quickkill(&ps[p]);
 						}
 					}
@@ -3097,7 +3097,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 							ps[p].pos.y = s->y;
 							ps[p].setCursector(s->sector());
 
-							setsprite(ps[p].GetActor(), s->pos);
+							SetActor(ps[p].GetActor(), s->pos);
 							quickkill(&ps[p]);
 						}
 					}
@@ -3144,7 +3144,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 		}
 
 		ms(actor);
-		setsprite(actor, s->pos);
+		SetActor(actor, s->pos);
 
 		if ((sc->floorz - sc->ceilingz) < (108 << 8))
 		{
@@ -3164,7 +3164,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 
 							ps[p].setCursector(s->sector());
 
-							setsprite(ps[p].GetActor(), s->pos);
+							SetActor(ps[p].GetActor(), s->pos);
 							quickkill(&ps[p]);
 						}
 					}
@@ -3262,11 +3262,11 @@ void handle_se02(DDukeActor* actor)
 			{
 				sj->x += m;
 				sj->y += x;
-				setsprite(a2, sj->pos);
+				SetActor(a2, sj->pos);
 			}
 		}
 		ms(actor);
-		setsprite(actor, s->pos);
+		SetActor(actor, s->pos);
 	}
 }
 
@@ -3480,7 +3480,7 @@ void handle_se05(DDukeActor* actor, int FIRELASER)
 	sc->ceilingz += s->zvel;
 	actor->temp_sect->ceilingz += s->zvel;
 	ms(actor);
-	setsprite(actor, s->pos);
+	SetActor(actor, s->pos);
 }
 
 //---------------------------------------------------------------------------
@@ -3644,7 +3644,7 @@ void handle_se11(DDukeActor *actor)
 		t[2] += k;
 		t[4] += k;
 		ms(actor);
-		setsprite(actor, s->pos);
+		SetActor(actor, s->pos);
 
 		for(auto& wal : wallsofsector(sc))
 		{
@@ -3658,7 +3658,7 @@ void handle_se11(DDukeActor *actor)
 					t[2] -= k;
 					t[4] -= k;
 					ms(actor);
-					setsprite(actor, s->pos);
+					SetActor(actor, s->pos);
 					return;
 				}
 			}
@@ -3669,7 +3669,7 @@ void handle_se11(DDukeActor *actor)
 			t[4] = 0;
 			t[2] &= 0xffffff00;
 			ms(actor);
-			setsprite(actor, s->pos);
+			SetActor(actor, s->pos);
 		}
 	}
 }
@@ -3865,7 +3865,7 @@ void handle_se15(DDukeActor* actor)
 		}
 
 		ms(actor);
-		setsprite(actor, s->pos);
+		SetActor(actor, s->pos);
 	}
 }
 
@@ -3911,7 +3911,7 @@ void handle_se16(DDukeActor* actor, int REACTOR, int REACTOR2)
 	else sc->ceilingz -= 512;
 
 	ms(actor);
-	setsprite(actor, s->pos);
+	SetActor(actor, s->pos);
 }
 
 //---------------------------------------------------------------------------
@@ -4007,7 +4007,7 @@ void handle_se17(DDukeActor* actor)
 				ps[p].truecz = act3->ceilingz;
 				ps[p].bobcounter = 0;
 
-				changeactorsect(act3, spr2->sector());
+				ChangeActorSect(act3, spr2->sector());
 				ps[p].setCursector(spr2->sector());
 			}
 			else if (spr3->statnum != STAT_EFFECTOR)
@@ -4018,8 +4018,8 @@ void handle_se17(DDukeActor* actor)
 
 				spr3->backupz();
 
-				changeactorsect(act3, spr2->sector());
-				setsprite(act3, spr3->pos);
+				ChangeActorSect(act3, spr2->sector());
+				SetActor(act3, spr3->pos);
 
 				act3->floorz = spr2->sector()->floorz;
 				act3->ceilingz = spr2->sector()->ceilingz;
@@ -4264,7 +4264,7 @@ void handle_se20(DDukeActor* actor)
 			{
 				a2->s->x += x;
 				a2->s->y += l;
-				setsprite(a2, a2->s->pos);
+				SetActor(a2, a2->s->pos);
 				if (a2->sector()->floorstat & 2)
 					if (a2->s->statnum == 2)
 						makeitfall(a2);
@@ -4284,7 +4284,7 @@ void handle_se20(DDukeActor* actor)
 				ps[p].oposx = ps[p].pos.x;
 				ps[p].oposy = ps[p].pos.y;
 
-				setsprite(ps[p].GetActor(), ps[p].pos.x, ps[p].pos.y, ps[p].pos.z + gs.playerheight);
+				SetActor(ps[p].GetActor(), { ps[p].pos.x, ps[p].pos.y, ps[p].pos.z + gs.playerheight });
 			}
 
 		sc->addfloorxpan(-x / 8.f);
@@ -4388,7 +4388,7 @@ void handle_se26(DDukeActor* actor)
 			a2->s->x += l;
 			a2->s->y += x;
 			a2->s->z += s->zvel;
-			setsprite(a2, a2->s->pos);
+			SetActor(a2, a2->s->pos);
 		}
 	}
 
@@ -4401,7 +4401,7 @@ void handle_se26(DDukeActor* actor)
 		}
 
 	ms(actor);
-	setsprite(actor, s->pos);
+	SetActor(actor, s->pos);
 }
 
 //---------------------------------------------------------------------------
@@ -4519,7 +4519,7 @@ void handle_se24(DDukeActor *actor, const int16_t *list1, const int16_t *list2, 
 						s2->x += x >> shift;
 						s2->y += l >> shift;
 
-						setsprite(a2, s2->pos);
+						SetActor(a2, s2->pos);
 
 						if (s2->sector()->floorstat & 2)
 							if (s2->statnum == 2)
@@ -4672,7 +4672,7 @@ void handle_se35(DDukeActor *actor, int SMALLSMOKE, int EXPLOSION2)
 			{
 				spawned->s->xvel = 96 + (krand() & 127);
 				ssp(spawned, CLIPMASK0);
-				setsprite(spawned, spawned->s->pos);
+				SetActor(spawned, spawned->s->pos);
 				if (rnd(16))
 					spawn(actor, EXPLOSION2);
 			}
@@ -5294,7 +5294,7 @@ void fall_common(DDukeActor *actor, int playernum, int JIBS6, int DRONE, int BLO
 					auto sect = s->sector();
 					pushmove(&s->pos, &sect, 128, (4 << 8), (4 << 8), CLIPMASK0);
 					if (sect != s->sector() && sect != nullptr)
-						changeactorsect(actor, sect);
+						ChangeActorSect(actor, sect);
 
 					S_PlayActorSound(thud, actor);
 				}

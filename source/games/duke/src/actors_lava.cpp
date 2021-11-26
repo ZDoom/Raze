@@ -519,7 +519,7 @@ void moveminecart(void)
 		{
 			auto sj = a2->s;
 			if (badguy(sj))
-				setsprite(a2, cx, cy, sj->z);
+				SetActor(a2, { cx, cy, sj->z });
 		}
 	}
 }

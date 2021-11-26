@@ -1427,12 +1427,12 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 					auto sp = s->sector();
 					pushmove(&s->pos, &sp, 128L, (4 << 8), (4 << 8), CLIPMASK0);
 					if (sp != s->sector() && sp != nullptr)
-						changeactorsect(targ, sp);
+						ChangeActorSect(targ, sp);
 				}
 
 				if (s->statnum == 2)
 				{
-					changeactorstat(targ, 1);
+					ChangeActorStat(targ, 1);
 					targ->timetosleep = SLEEPTIME;
 				}
 				if ((s->xrepeat < 24 || s->picnum == SHARK) && pspr->picnum == SHRINKSPARK) return;

@@ -1955,7 +1955,7 @@ DBloodActor* genDudeSpawn(DBloodActor* source, DBloodActor* actor, int nDist)
 
     pDude->type = nType; pDude->ang = nAngle;
     vec3_t pos = { x, y, z }; 
-    setActorPos(spawned, &pos);
+    SetActor(spawned, &pos);
     pDude->cstat |= 0x1101; pDude->clipdist = dudeInfo[nType - kDudeBase].clipdist;
 
     // inherit weapon, seq and sound settings.

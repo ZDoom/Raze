@@ -158,17 +158,17 @@ void warpInit(void)
     }
     #endif
 
-    for (int i = 0; i < numsectors; i++)
+    for(auto& sect : sectors())
     {
-        auto actor = getUpperLink(i);
+        auto actor = sect.upperLink;
         if (actor && actor->hasX())
         {
             spritetype *pSprite = &actor->s();
             XSPRITE *pXSprite = &actor->x();
             int nLink = pXSprite->data1;
-            for (int j = 0; j < numsectors; j++)
+            for(auto& sect : sectors())
             {
-                auto actor2 = getLowerLink(j);
+                auto actor2 = sect.lowerLink;
                 if (actor2 && actor2->hasX())
                 {
                     spritetype *pSprite2 = &actor2->s();

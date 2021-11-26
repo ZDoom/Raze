@@ -535,7 +535,7 @@ int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, un
 		spri->y += (ychange * TICSPERFRAME) >> 2;
 		spri->z += (zchange * TICSPERFRAME) >> 2;
 		if (bg)
-			setsprite(actor, spri->x, spri->y, spri->z);
+			SetActor(actor, spri->pos);
 		return result.setNone();
 	}
 
@@ -573,7 +573,7 @@ int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, un
 				spri->ang = (krand()&2047);
 			else if ((actor->temp_data[0]&3) == 1 && spri->picnum != COMMANDER)
 				spri->ang = (krand()&2047);
-			setsprite(actor,spri->pos);
+			SetActor(actor,spri->pos);
 			if (dasectp == nullptr) dasectp = &sector[0];
 			return result.setSector(dasectp);
 		}
@@ -591,7 +591,7 @@ int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, un
 
 	if (dasectp != nullptr)
 		if (dasectp != spri->sector())
-			changeactorsect(actor, dasectp);
+			ChangeActorSect(actor, dasectp);
 	int daz = spri->z + ((zchange * TICSPERFRAME) >> 3);
 	if ((daz > actor->ceilingz) && (daz <= actor->floorz))
 		spri->z = daz;
@@ -758,13 +758,13 @@ void movefta_d(void)
 							else s->shade = s->sector()->floorshade;
 
 							act->timetosleep = 0;
-							changeactorstat(act, STAT_STANDABLE);
+							ChangeActorStat(act, STAT_STANDABLE);
 							break;
 
 						default:
 							act->timetosleep = 0;
 							check_fta_sounds_d(act);
-							changeactorstat(act, STAT_ACTOR);
+							ChangeActorStat(act, STAT_ACTOR);
 							break;
 					}
 					else act->timetosleep = 0;
@@ -1104,7 +1104,7 @@ static void movetripbomb(DDukeActor *actor)
 		auto       curSect = s->sector();
 
 		updatesectorneighbor(s->x, s->y, &curSect, 2048);
-		changeactorsect(actor, curSect);
+		ChangeActorSect(actor, curSect);
 
 		DDukeActor* hit;
 		x = hitasprite(actor, &hit);
@@ -1121,7 +1121,7 @@ static void movetripbomb(DDukeActor *actor)
 				auto spawned = spawn(actor, LASERLINE);
 				if (spawned)
 				{
-					setsprite(spawned, spawned->s->pos);
+					SetActor(spawned, spawned->s->pos);
 					spawned->s->hitag = s->hitag;
 					spawned->temp_data[1] = spawned->s->z;
 
@@ -1139,10 +1139,10 @@ static void movetripbomb(DDukeActor *actor)
 					if (curSect == nullptr)
 						break;
 
-					changeactorsect(actor, curSect);
+					ChangeActorSect(actor, curSect);
 
 					// this is a hack to work around the LASERLINE sprite's art tile offset
-					changeactorsect(spawned, curSect);
+					ChangeActorSect(spawned, curSect);
 				}
 			}
 		}
@@ -1150,7 +1150,7 @@ static void movetripbomb(DDukeActor *actor)
 		actor->temp_data[0]++;
 		s->x = actor->temp_data[3]; s->y = actor->temp_data[4];
 		s->z += (3 << 8);
-		changeactorsect(actor, oldSect);
+		ChangeActorSect(actor, oldSect);
 		actor->temp_data[3] = 0;
 		if (hit && lTripBombControl & TRIPBOMB_TRIPWIRE)
 		{
@@ -1168,13 +1168,13 @@ static void movetripbomb(DDukeActor *actor)
 		s->x += bcos(actor->temp_data[5], -9);
 		s->y += bsin(actor->temp_data[5], -9);
 		s->z -= (3 << 8);
-		setsprite(actor, s->pos);
+		SetActor(actor, s->pos);
 
 		x = hitasprite(actor, nullptr);
 
 		s->x = actor->temp_data[3]; s->y = actor->temp_data[4];
 		s->z += (3 << 8);
-		setsprite(actor, s->x, s->y, s->z);
+		SetActor(actor, s->pos);
 
 		if (actor->lastvx != x && lTripBombControl & TRIPBOMB_TRIPWIRE)
 		{
@@ -1571,7 +1571,7 @@ static bool movefireball(DDukeActor* actor)
 				FireProj proj = { spr->x, spr->y, spr->z, spr->xvel, spr->yvel, spr->zvel };
 
 				fire.Insert(ball->GetSpriteIndex(), proj);
-				changeactorstat(ball, STAT_PROJECTILE);
+				ChangeActorStat(ball, STAT_PROJECTILE);
 			}
 		}
 		actor->temp_data[0]++;
@@ -1665,7 +1665,7 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const vec3_t &oldpos)
 	}
 	else
 	{
-		setsprite(proj, oldpos);
+		SetActor(proj, oldpos);
 		fi.checkhitwall(proj, wal, s->x, s->y, s->z, s->picnum);
 
 		if (s->picnum == FREEZEBLAST)
@@ -1693,7 +1693,7 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const vec3_t &oldpos)
 static bool weaponhitsector(DDukeActor* proj, const vec3_t& oldpos, bool fireball)
 {
 	auto s = proj->s;
-	setsprite(proj, oldpos);
+	SetActor(proj, oldpos);
 
 	if (s->zvel < 0)
 	{
@@ -2046,7 +2046,7 @@ void movetransports_d(void)
 							ps[p].bobposy = ps[p].oposy = ps[p].pos.y = Owner->s->y;
 							ps[p].oposz = ps[p].pos.z = Owner->s->z - gs.playerheight;
 							
-							changeactorsect(act2, Owner->sector());
+							ChangeActorSect(act2, Owner->sector());
 							ps[p].setCursector(spr2->sector());
 							
 							if (spr->pal == 0)
@@ -2075,7 +2075,7 @@ void movetransports_d(void)
 							auto pa = ps[p].GetActor();
 							pa->s->opos = ps[p].pos;
 							
-							changeactorsect(act2, Owner->sector());
+							ChangeActorSect(act2, Owner->sector());
 							ps[p].setCursector(Owner->sector());
 							
 							break;
@@ -2127,8 +2127,8 @@ void movetransports_d(void)
 							ps[p].transporter_hold = -2;
 						ps[p].setCursector(Owner->sector());
 
-						changeactorsect(act2, Owner->sector());
-						setsprite(ps[p].GetActor(), ps[p].pos.x, ps[p].pos.y, ps[p].pos.z + gs.playerheight);
+						ChangeActorSect(act2, Owner->sector());
+						SetActor(ps[p].GetActor(), { ps[p].pos.x, ps[p].pos.y, ps[p].pos.z + gs.playerheight });
 						
 						if ((krand() & 255) < 32)
 							spawn(act2, WATERSPLASH2);
@@ -2256,7 +2256,7 @@ void movetransports_d(void)
 										Owner->temp_data[0] = 13;
 									}
 									
-									changeactorsect(act2, Owner->sector());
+									ChangeActorSect(act2, Owner->sector());
 								}
 							}
 							else
@@ -2267,7 +2267,7 @@ void movetransports_d(void)
 								
 								spr2->backupz();
 								
-								changeactorsect(act2, Owner->sector());
+								ChangeActorSect(act2, Owner->sector());
 							}
 							break;
 						case 1:
@@ -2277,7 +2277,7 @@ void movetransports_d(void)
 							
 							spr2->backupz();
 							
-							changeactorsect(act2, Owner->sector());
+							ChangeActorSect(act2, Owner->sector());
 							
 							break;
 						case 2:
@@ -2287,7 +2287,7 @@ void movetransports_d(void)
 							
 							spr2->backupz();
 							
-							changeactorsect(act2, Owner->sector());
+							ChangeActorSect(act2, Owner->sector());
 							
 							break;
 						}
@@ -2345,7 +2345,7 @@ static void greenslime(DDukeActor *actor)
 		if (actor->timetosleep > SLEEPTIME)
 		{
 			actor->timetosleep = 0;
-			changeactorstat(actor, 2);
+			ChangeActorStat(actor, 2);
 			return;
 		}
 	}
@@ -2400,7 +2400,7 @@ static void greenslime(DDukeActor *actor)
 			return;
 		}
 
-		setsprite(actor, s->pos);
+		SetActor(actor, s->pos);
 
 		s->ang = ps[p].angle.ang.asbuild();
 
@@ -2782,12 +2782,12 @@ static void flamethrowerflame(DDukeActor *actor)
 		}
 		else if (coll.type == kHitWall)
 		{
-			setsprite(actor, dax, day, daz);
+			SetActor(actor, { dax, day, daz });
 			fi.checkhitwall(actor, coll.hitWall, s->x, s->y, s->z, s->picnum);
 		}
 		else if (coll.type == kHitSector)
 		{
-			setsprite(actor, dax, day, daz);
+			SetActor(actor, { dax, day, daz });
 			if (s->zvel < 0)
 				fi.checkhitceiling(s->sector());
 		}
@@ -3841,7 +3841,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 		if ((badguy(actor) && spr->extra <= 0) || (spr->ox != spr->x) || (spr->oy != spr->y))
 		{
 			spr->backupvec2();
-			setsprite(actor, spr->pos);
+			SetActor(actor, spr->pos);
 		}
 		return;
 	}
@@ -4037,7 +4037,7 @@ void checktimetosleep_d(DDukeActor *actor)
 			if (actor->timetosleep > 1)
 				actor->timetosleep--;
 			else if (actor->timetosleep == 1)
-				changeactorstat(actor, STAT_ZOMBIEACTOR);
+				ChangeActorStat(actor, STAT_ZOMBIEACTOR);
 			break;
 		}
 	}

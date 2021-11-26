@@ -1041,7 +1041,7 @@ void shootbloodsplat(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 					spawned->s->z = hit.hitpos.z;
 					spawned->s->cstat |= (krand() & 4);
 					ssp(spawned, CLIPMASK0);
-					setsprite(spawned, spawned->s->pos);
+					SetActor(spawned, spawned->s->pos);
 					if (s->picnum == OOZFILTER || s->picnum == NEWBEAST)
 						spawned->s->pal = 6;
 				}

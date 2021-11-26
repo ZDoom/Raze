@@ -72,19 +72,4 @@ inline FSerializer& Serialize(FSerializer& arc, const char* keyname, DExhumedAct
 	return arc;
 }
 
-inline void ChangeActorStat(DExhumedActor* actor, int stat)
-{
-	changespritestat(actor->GetSpriteIndex(), stat);
-}
-
-inline void ChangeActorSect(DExhumedActor* actor, sectortype* stat)
-{
-	changespritesect(actor->GetSpriteIndex(), sector.IndexOf(stat));
-}
-
-inline void setActorPos(DExhumedActor* actor, vec3_t* pos)
-{
-	setsprite(actor->GetSpriteIndex(), pos);
-}
-
 END_BLD_NS

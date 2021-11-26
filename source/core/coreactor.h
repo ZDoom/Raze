@@ -288,6 +288,34 @@ public:
 	}
 };
 
+using CoreSectIterator = TSectIterator<DCoreActor>;
+
+
+inline void ChangeActorStat(DCoreActor* actor, int stat)
+{
+	changespritestat(actor->GetSpriteIndex(), stat);
+}
+
+inline void ChangeActorSect(DCoreActor* actor, sectortype* sect)
+{
+	changespritesect(actor->GetSpriteIndex(), sector.IndexOf(sect));
+}
+
+inline int SetActorZ(DCoreActor* actor, const vec3_t* newpos)
+{
+	return setspritez(actor->GetSpriteIndex(), newpos);
+}
+
+inline int SetActor(DCoreActor* actor, const vec3_t* newpos)
+{
+	return setsprite(actor->GetSpriteIndex(), newpos);
+}
+
+inline int SetActor(DCoreActor* actor, const vec3_t& newpos)
+{
+	return setsprite(actor->GetSpriteIndex(), &newpos);
+}
+
 
 [[deprecated]]
 inline int hitscan(const vec3_t* sv, int sectnum, int vx, int vy, int vz, hitdata_t* hitinfo, unsigned cliptype)

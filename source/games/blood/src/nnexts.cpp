@@ -288,7 +288,7 @@ static DBloodActor* nnExtSpawnDude(DBloodActor* sourceActor, DBloodActor* origin
     }
 
     vec3_t pos = { x, y, z };
-    setActorPos(pDudeActor, &pos);
+    SetActor(pDudeActor, &pos);
 
     pDude->type = nType;
     pDude->ang = angle;

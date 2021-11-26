@@ -379,7 +379,7 @@ int movesprite_ex_r(DDukeActor* actor, int xchange, int ychange, int zchange, un
 		spri->y += (ychange * TICSPERFRAME) >> 2;
 		spri->z += (zchange * TICSPERFRAME) >> 2;
 		if (bg)
-			setsprite(actor, spri->x, spri->y, spri->z);
+			SetActor(actor, spri->pos);
 		return result.setNone();
 	}
 
@@ -404,7 +404,7 @@ int movesprite_ex_r(DDukeActor* actor, int xchange, int ychange, int zchange, un
 				spri->ang = (krand() & 2047);
 			else if ((actor->temp_data[0] & 3) == 1)
 				spri->ang = (krand() & 2047);
-			setsprite(actor, spri->pos);
+			SetActor(actor, spri->pos);
 			if (dasectp == nullptr) dasectp = &sector[0];
 			return result.setSector(dasectp);
 		}
@@ -422,7 +422,7 @@ int movesprite_ex_r(DDukeActor* actor, int xchange, int ychange, int zchange, un
 
 	if (dasectp)
 		if ((dasectp != spri->sector()))
-			changeactorsect(actor, dasectp);
+			ChangeActorSect(actor, dasectp);
 	int daz = spri->z + ((zchange * TICSPERFRAME) >> 3);
 	if ((daz > actor->ceilingz) && (daz <= actor->floorz))
 		spri->z = daz;
@@ -579,7 +579,7 @@ void movefta_r(void)
 						else s->shade = s->sector()->floorshade;
 
 						act->timetosleep = 0;
-						changeactorstat(act, STAT_STANDABLE);
+						ChangeActorStat(act, STAT_STANDABLE);
 						break;
 					default:
 #if 0
@@ -588,7 +588,7 @@ void movefta_r(void)
 #endif
 						act->timetosleep = 0;
 						check_fta_sounds_r(act);
-						changeactorstat(act, STAT_ACTOR);
+						ChangeActorStat(act, STAT_ACTOR);
 						break;
 					}
 					else act->timetosleep = 0;
@@ -606,7 +606,7 @@ void movefta_r(void)
 					{
 						act->timetosleep = 0;
 						check_fta_sounds_r(act);
-						changeactorstat(act, STAT_ACTOR);
+						ChangeActorStat(act, STAT_ACTOR);
 					}
 				}
 			}
@@ -1223,7 +1223,7 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const vec3_t& oldpos)
 	}
 	else
 	{
-		setsprite(proj, oldpos);
+		SetActor(proj, oldpos);
 		fi.checkhitwall(proj, wal, s->x, s->y, s->z, s->picnum);
 
 		if (!isRRRA() && s->picnum == FREEZEBLAST)
@@ -1292,7 +1292,7 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const vec3_t& oldpos)
 bool weaponhitsector(DDukeActor *proj, const vec3_t& oldpos)
 {
 	auto s = proj->s;
-	setsprite(proj, oldpos);
+	SetActor(proj, oldpos);
 
 	if (isRRRA() && proj->GetOwner() && proj->GetOwner()->s->picnum == MAMA)
 	{
@@ -1626,7 +1626,7 @@ void movetransports_r(void)
 							ps[p].bobposy = ps[p].oposy = ps[p].pos.y = Owner->s->y;
 							ps[p].oposz = ps[p].pos.z = Owner->s->z - (gs.playerheight - (4 << 8));
 
-							changeactorsect(act2, Owner->sector());
+							ChangeActorSect(act2, Owner->sector());
 							ps[p].setCursector(spr2->sector());
 
 							auto beam = spawn(Owner, TRANSPORTERBEAM);
@@ -1649,7 +1649,7 @@ void movetransports_r(void)
 							else ps[p].pos.z = Owner->s->z + 6144;
 							ps[p].oposz = ps[p].pos.z;
 
-							changeactorsect(act2, Owner->sector());
+							ChangeActorSect(act2, Owner->sector());
 							ps[p].setCursector(Owner->sector());
 
 							break;
@@ -1714,7 +1714,7 @@ void movetransports_r(void)
 							ps[p].transporter_hold = -2;
 						ps[p].setCursector(Owner->sector());
 
-						changeactorsect(act2, Owner->sector());
+						ChangeActorSect(act2, Owner->sector());
 
 						if ((krand() & 255) < 32)
 							spawn(ps[p].GetActor(), WATERSPLASH2);
@@ -1728,7 +1728,7 @@ void movetransports_r(void)
 							ps[p].transporter_hold = -2;
 						ps[p].setCursector(Owner->sector());
 
-						changeactorsect(act2, Owner->sector());
+						ChangeActorSect(act2, Owner->sector());
 					}
 				}
 				break;
@@ -1857,7 +1857,7 @@ void movetransports_r(void)
 										Owner->temp_data[0] = 13;
 									}
 
-									changeactorsect(act2, Owner->sector());
+									ChangeActorSect(act2, Owner->sector());
 								}
 							}
 							else
@@ -1868,7 +1868,7 @@ void movetransports_r(void)
 
 								spr2->backupz();
 
-								changeactorsect(act2, Owner->sector());
+								ChangeActorSect(act2, Owner->sector());
 							}
 							break;
 						case ST_1_ABOVE_WATER:
@@ -1878,7 +1878,7 @@ void movetransports_r(void)
 
 							spr2->backupz();
 
-							changeactorsect(act2, Owner->sector());
+							ChangeActorSect(act2, Owner->sector());
 
 							break;
 						case ST_2_UNDERWATER:
@@ -1888,7 +1888,7 @@ void movetransports_r(void)
 
 							spr2->backupz();
 
-							changeactorsect(act2, Owner->sector());
+							ChangeActorSect(act2, Owner->sector());
 
 							break;
 
@@ -1900,7 +1900,7 @@ void movetransports_r(void)
 
 							spr2->backupz();
 
-							changeactorsect(act2, Owner->sector());
+							ChangeActorSect(act2, Owner->sector());
 
 							movesprite_ex(act2, MulScale(spr2->xvel, bcos(spr2->ang), 14),
 								MulScale(spr2->xvel, bsin(spr2->ang), 14), 0, CLIPMASK1, coll);
@@ -1914,7 +1914,7 @@ void movetransports_r(void)
 
 							spr2->backupz();
 
-							changeactorsect(act2, Owner->sector());
+							ChangeActorSect(act2, Owner->sector());
 
 							movesprite_ex(act2, MulScale(spr2->xvel, bcos(spr2->ang), 14),
 								MulScale(spr2->xvel, bsin(spr2->ang), 14), 0, CLIPMASK1, coll);
@@ -2094,7 +2094,7 @@ static void rrra_specialstats()
 		}
 		else if (s->extra == 200)
 		{
-			setsprite(act, s->x, s->y, s->sector()->floorz - 10);
+			SetActor(act, { s->x, s->y, s->sector()->floorz - 10 });
 			s->extra = 1;
 			s->picnum = PIG + 11;
 			spawn(act, TRANSPORTERSTAR);
@@ -2483,7 +2483,7 @@ void rr_specialstats()
 						ps[p].bobposy = ps[p].oposy = ps[p].pos.y = act2->s->y;
 						ps[p].oposz = ps[p].pos.z = act2->s->z - (36 << 8);
 						auto pact = ps[p].GetActor();
-						changeactorsect(pact, act2->sector());
+						ChangeActorSect(pact, act2->sector());
 						ps[p].setCursector(pact->sector());
 						S_PlayActorSound(70, act2);
 						deletesprite(act2);
@@ -3031,7 +3031,7 @@ void moveactors_r(void)
 				getglobalz(act);
 				if (sectp->lotag == 1)
 				{
-					setsprite(act,s->x,s->y,act->floorz+(16<<8));
+					SetActor(act, { s->x,s->y,act->floorz + (16 << 8) });
 				}
 				break;
 
@@ -3804,7 +3804,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 		if ((badguy(actor) && spr->extra <= 0) || (spr->ox != spr->x) || (spr->oy != spr->y))
 		{
 			spr->backupvec2();
-			setsprite(actor, spr->pos);
+			SetActor(actor, spr->pos);
 		}
 		if (badguy(actor) && spr->extra <= 0)
 		{
@@ -4248,7 +4248,7 @@ void checktimetosleep_r(DDukeActor *actor)
 			if (actor->timetosleep > 1)
 				actor->timetosleep--;
 			else if (actor->timetosleep == 1)
-				changeactorstat(actor, STAT_ZOMBIEACTOR);
+				ChangeActorStat(actor, STAT_ZOMBIEACTOR);
 			break;
 		}
 	}
