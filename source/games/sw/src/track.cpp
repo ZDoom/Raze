@@ -2823,9 +2823,10 @@ void DoTornadoObject(SECTOR_OBJECTp sop)
     pos.z = floor_dist;
 
     PlaceSectorObject(sop, MAXSO, MAXSO);
-    ret = clipmove(&pos, &cursect, xvect, yvect, (int)sop->clipdist, Z(0), floor_dist, CLIPMASK_ACTOR);
+    Collision coll;
+    clipmove(pos, &cursect, xvect, yvect, (int)sop->clipdist, Z(0), floor_dist, CLIPMASK_ACTOR, coll);
 
-    if (ret)
+    if (coll.type != kHitNone)
     {
         *ang = NORM_ANGLE(*ang + 1024 + RANDOM_P2(512) - 256);
     }

@@ -11951,11 +11951,11 @@ int DoSerpRing(DSWActor* actor)
             // if ((dist ok and random ok) OR very few skulls left)
             if ((dist < 18000 && (RANDOM_P2(2048<<5)>>5) < 16) || ou->Counter < 4)
             {
-                int sectnum = sp->sectnum;
-                updatesector(sp->x,sp->y,&sectnum);
+                auto sect = sp->sector();
+                updatesector(sp->x, sp->y, &sect);
 
                 // if (valid sector and can see target)
-                if (sectnum != -1 && CanSeePlayer(actor))
+                if (sect != nullptr && CanSeePlayer(actor))
                 {
                     extern STATEp sg_SkullJump[];
                     u->ID = SKULL_R0;
@@ -16100,7 +16100,6 @@ bool HitscanSpriteAdjust(DSWActor* actor, walltype* hit_wall)
     SPRITEp sp = &actor->s();
     int16_t ang;
     int xvect,yvect;
-    int sectnum;
 
     if (hit_wall)
     {
@@ -16114,11 +16113,13 @@ bool HitscanSpriteAdjust(DSWActor* actor, walltype* hit_wall)
     yvect = bsin(ang, 4);
 
     // must have this
-    sectnum = sp->sectnum;
-    clipmove(&sp->pos, &sectnum, xvect, yvect, 4, 4<<8, 4L<<8, CLIPMASK_MISSILE);
+    auto sect = sp->sector();
 
-    if (sp->sectnum != sectnum)
-        ChangeActorSect(actor, sectnum);
+    Collision coll;
+    clipmove(sp->pos, &sect, xvect, yvect, 4, 4 << 8, 4 << 8, CLIPMASK_MISSILE, coll);
+
+    if (sp->sector() != sect)
+        ChangeActorSect(actor, sect);
 
     return true;
 }
@@ -18597,8 +18598,6 @@ void QueueHole(sectortype* hit_sect, walltype* hit_wall, int hit_x, int hit_y, i
     DSWActor* spawnedActor;
     int nx,ny;
     SPRITEp sp;
-    int sectnum;
-
 
     if (TestDontStick(nullptr, hit_wall))
         return;
@@ -18637,12 +18636,13 @@ void QueueHole(sectortype* hit_sect, walltype* hit_wall, int hit_x, int hit_y, i
     nx = bcos(sp->ang, 4);
     ny = bsin(sp->ang, 4);
 
-    sectnum = sp->sectnum;
+    auto sect = sp->sector();
 
-    clipmove(&sp->pos, &sectnum, nx, ny, 0L, 0L, 0L, CLIPMASK_MISSILE, 1);
+    Collision coll;
+    clipmove(sp->pos, &sect, nx, ny, 0, 0, 0, CLIPMASK_MISSILE, coll, 1);
 
-    if (sp->sectnum != sectnum)
-        ChangeActorSect(spawnedActor, sectnum);
+    if (sp->sector() != sect)
+        ChangeActorSect(spawnedActor, sect);
 
 }
 
@@ -18873,7 +18873,6 @@ DSWActor* QueueWallBlood(DSWActor* actor, short ang)
     DSWActor* spawnedActor;
     int nx,ny;
     SPRITEp sp;
-    int sectnum;
     short rndnum;
     int daz;
     HitInfo hit;
@@ -18968,12 +18967,13 @@ DSWActor* QueueWallBlood(DSWActor* actor, short ang)
     nx = bcos(sp->ang, 4);
     ny = bsin(sp->ang, 4);
 
-    sectnum = sp->sectnum;
+    auto sect = sp->sector();
 
-    clipmove(&sp->pos, &sectnum, nx, ny, 0L, 0L, 0L, CLIPMASK_MISSILE, 1);
+    Collision coll;
+    clipmove(sp->pos, &sect, nx, ny, 0, 0, 0, CLIPMASK_MISSILE, coll, 1);
 
-    if (sp->sectnum != sectnum)
-        ChangeActorSect(spawnedActor, sectnum);
+    if (sp->sector() != sect)
+        ChangeActorSect(spawnedActor, sect);
 
     return spawnedActor;
 }

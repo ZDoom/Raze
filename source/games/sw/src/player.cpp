@@ -2715,12 +2715,13 @@ void DoPlayerMoveVehicle(PLAYERp pp)
         if (pp->sop->clipdist)
         {
             vec3_t clippos = { pp->posx, pp->posy, z };
-            SetCollision(u, clipmove(&clippos, &pp->cursectnum, pp->xvect, pp->yvect, (int)pp->sop->clipdist, Z(4), floor_dist, CLIPMASK_PLAYER));
+            int cm= clipmove(&clippos, &pp->cursectnum, pp->xvect, pp->yvect, (int)pp->sop->clipdist, Z(4), floor_dist, CLIPMASK_PLAYER);
+            u->coll.setFromEngine(cm);
             pp->pos.vec2 = clippos.vec2;
         }
         else
         {
-            SetCollision(u, MultiClipMove(pp, z, floor_dist));
+            u->coll = MultiClipMove(pp, z, floor_dist);
         }
         psp->cstat = save_cstat;
 
@@ -5976,7 +5977,6 @@ void DoPlayerDeathMoveHead(PLAYERp pp)
     SPRITEp sp = &pp->Actor()->s();
     USERp u = pp->Actor()->u();
     int dax,day;
-    int sectnum;
 
     dax = MOVEx(u->slide_vel, u->slide_ang);
     day = MOVEy(u->slide_vel, u->slide_ang);
@@ -6024,7 +6024,7 @@ void DoPlayerDeathMoveHead(PLAYERp pp)
     pp->setcursector(sp->sector());
 
     // try to stay in valid area - death sometimes throws you out of the map
-    sectnum = pp->cursectnum;
+    int sectnum = pp->cursectnum;
     updatesector(pp->posx, pp->posy, &sectnum);
     if (sectnum < 0)
     {

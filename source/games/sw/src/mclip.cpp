@@ -38,7 +38,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 BEGIN_SW_NS
 
 
-int MultiClipMove(PLAYERp pp, int z, int floor_dist)
+Collision MultiClipMove(PLAYERp pp, int z, int floor_dist)
 {
     int i;
     vec3_t opos[MAX_CLIPBOX], pos[MAX_CLIPBOX];
@@ -48,9 +48,8 @@ int MultiClipMove(PLAYERp pp, int z, int floor_dist)
     int min_dist = 999999;
     int dist;
 
-    int ret_start;
     int ret;
-    int min_ret=0;
+    Collision min_ret{};
 
     int xvect,yvect;
 
@@ -64,9 +63,13 @@ int MultiClipMove(PLAYERp pp, int z, int floor_dist)
 
         xvect = sop->clipbox_vdist[i] * bcos(ang);
         yvect = sop->clipbox_vdist[i] * bsin(ang);
-        ret_start = clipmove(&spos, &pp->cursectnum, xvect, yvect, (int)sop->clipbox_dist[i], Z(4), floor_dist, CLIPMASK_PLAYER, 1);
+        Collision coll;
+#pragma message(__FILE__ "remove workaround");
+        sectortype* cursect = pp->cursector();
+        clipmove(spos, &cursect, xvect, yvect, (int)sop->clipbox_dist[i], Z(4), floor_dist, CLIPMASK_PLAYER, coll, 1);
+        pp->setcursector(cursect);
 
-        if (ret_start)
+        if (coll.type != kHitNone)
         {
             // hit something moving into start position
             min_dist = 0;
@@ -87,7 +90,7 @@ int MultiClipMove(PLAYERp pp, int z, int floor_dist)
             {
                 min_dist = dist;
                 min_ndx = i;
-                min_ret = ret_start;
+                min_ret = coll;
             }
         }
         else
@@ -97,20 +100,19 @@ int MultiClipMove(PLAYERp pp, int z, int floor_dist)
             pos[i].z = z;
 
             // move the box
-            ret = clipmove(&pos[i], &pp->cursectnum, pp->xvect, pp->yvect, (int)sop->clipbox_dist[i], Z(4), floor_dist, CLIPMASK_PLAYER);
+#pragma message(__FILE__ "remove workaround");
+            sectortype* cursect = pp->cursector();
+            clipmove(pos[i], &cursect, pp->xvect, pp->yvect, (int)sop->clipbox_dist[i], Z(4), floor_dist, CLIPMASK_PLAYER, coll);
+            pp->setcursector(cursect);
 
             // save the dist moved
             dist = ksqrt(SQ(pos[i].x - opos[i].x) + SQ(pos[i].y - opos[i].y));
-
-            if (ret)
-            {
-            }
 
             if (dist < min_dist)
             {
                 min_dist = dist;
                 min_ndx = i;
-                min_ret = ret;
+                min_ret = coll;
             }
         }
     }

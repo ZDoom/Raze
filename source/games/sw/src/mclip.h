@@ -27,7 +27,7 @@ BEGIN_SW_NS
 
 #define RECT_CLIP 1
 
-int MultiClipMove(PLAYERp pp, int z, int floor_dist);
+Collision MultiClipMove(PLAYERp pp, int z, int floor_dist);
 short MultiClipTurn(PLAYERp pp, short new_ang, int z, int floor_dist);
 int RectClipMove(PLAYERp pp, int *qx, int *qy);
 int testpointinquad(int x, int y, int *qx, int *qy);
