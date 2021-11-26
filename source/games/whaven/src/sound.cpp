@@ -160,7 +160,7 @@ void GameInterface::UpdateSounds()
 	soundEngine->UpdateSounds(I_GetTime());
 }
 
-int playsound_internal(int sn, spritetype *spr, int x, int y, int loop, int chan) 
+int playsound_internal(int sn, spritetype *spr, int x, int y, int loop, int chan, int flags) 
 {
 	sn++;
 	if (!soundEngine->isValidSoundId(sn)) return -1;
@@ -168,7 +168,7 @@ int playsound_internal(int sn, spritetype *spr, int x, int y, int loop, int chan
 	vec3_t pos = { x, y, 0 };	
 	auto spos = GetSoundPos(&pos);
 	float attn = sourcetype == SOURCE_None ? ATTN_NONE : ATTN_NORM;
-	int flags = sourcetype == SOURCE_Unattached ? CHANF_LISTENERZ : CHANF_NONE;
+	flags |= sourcetype == SOURCE_Unattached ? CHANF_LISTENERZ : CHANF_NONE;
 	if (loop != 0) flags |= CHANF_LOOP;
 	auto sfx = soundEngine->StartSound(sourcetype, spr, &spos, chan, EChanFlags::FromInt(flags), sn, 1.f, attn);
 	if (!sfx) return -1;

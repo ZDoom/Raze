@@ -13,6 +13,7 @@
 #include "cheathandler.h"
 #include "screenjob_.h"
 #include "vm.h"
+#include "razemenu.h"
 
 BEGIN_WH_NS
 
@@ -783,19 +784,18 @@ void GameInterface::NewGame(MapRecord* map, int skill, bool)
 
 void GameInterface::MenuSound(EMenuSounds snd)
 {
-	if (!isWh2()) SND_Sound(85);
-	else SND_Sound(59);
+	if (!isWh2()) SND_Sound(85, CHAN_AUTO, CHANF_UI | CHANF_NOPAUSE);
+	else SND_Sound(59, CHAN_AUTO, CHANF_UI | CHANF_NOPAUSE);
 }
 
 void GameInterface::MenuOpened()
 {
-	if (!isWh2()) SND_Sound(85);
-	else SND_Sound(59);
+	MenuSound(ActivateSound);
 }
 
 FSavegameInfo GameInterface::GetSaveSig()
 {
-	return { SAVESIG_DN3D, MINSAVEVER_DN3D, SAVEVER_DN3D };
+	return { SAVESIG_WH, MINSAVEVER_WH, SAVEVER_WH };
 }
 
 void GameInterface::ToggleThirdPerson()

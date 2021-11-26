@@ -468,14 +468,14 @@ void resetflash();
 void applyflash();
 
 
-int playsound_internal(int sn, spritetype* spr, int x, int y, int loop, int chan);
+int playsound_internal(int sn, spritetype* spr, int x, int y, int loop, int chan, int flags = 0);
 
-inline int playsound(int sn, int x, int y, int loop = 0, int channel = CHAN_AUTO) {
-	return playsound_internal(sn, nullptr, x, y, loop, channel);
+inline int playsound(int sn, int x, int y, int loop = 0, int channel = CHAN_AUTO, int flags = 0) {
+	return playsound_internal(sn, nullptr, x, y, loop, channel, flags);
 }
 
-inline int SND_Sound(int sn) {
-	return playsound(sn, 0, 0);
+inline int SND_Sound(int sn, int chan = CHAN_AUTO, int flags = 0) {
+	return playsound(sn, 0, 0, 0, chan, flags);
 }
 
 /*
