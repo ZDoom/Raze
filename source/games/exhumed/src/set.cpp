@@ -420,7 +420,7 @@ void AISet::Tick(RunListEvent* ev)
 
             if (nMov.type == kHitWall)
             {
-                auto pSector = nMov.wall()->nextSector();
+                auto pSector = nMov.hitWall->nextSector();
 
                 if (pSector)
                 {
@@ -445,7 +445,7 @@ void AISet::Tick(RunListEvent* ev)
             }
             else if (nMov.type == kHitSprite)
             {
-                if (pTarget == nMov.actor)
+                if (pTarget == nMov.actor())
                 {
                     int nAng = getangle(pTarget->s().x - pSprite->x, pTarget->s().y - pSprite->y);
                     if (AngleDiff(pSprite->ang, nAng) < 64)

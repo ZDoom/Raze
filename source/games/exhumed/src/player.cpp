@@ -882,7 +882,8 @@ void AIPlayer::Tick(RunListEvent* ev)
 
     zVel = pPlayerSprite->zvel;
 
-    Collision nMove(0);
+    Collision nMove;
+    nMove.setNone();
     if (bSlipMode)
     {
         pPlayerSprite->x += (x >> 14);
@@ -1014,13 +1015,13 @@ void AIPlayer::Tick(RunListEvent* ev)
 
             if (nMove.type == kHitSector)
             {
-                sect = nMove.sector();
+                sect = nMove.hitSector;
                 // Hm... Normal calculation here was broken.
             }
             else //if (nMove.type == kHitWall)
             {
-                sect = nMove.wall()->nextSector();
-                nNormal = GetWallNormal(nMove.wall());
+                sect = nMove.hitWall->nextSector();
+                nNormal = GetWallNormal(nMove.hitWall);
             }
 
             if (sect != nullptr)

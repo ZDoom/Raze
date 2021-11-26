@@ -307,7 +307,7 @@ void AILion::Tick(RunListEvent* ev)
         }
         else if (nMov.type == kHitSprite)
         {
-            if (nMov.actor == pTarget)
+            if (nMov.actor() == pTarget)
             {
                 if (pSprite->cstat & 0x8000)
                 {
@@ -443,13 +443,13 @@ void AILion::Tick(RunListEvent* ev)
         if (nMov.type == kHitWall)
         {
             pActor->nAction = 7;
-            pSprite->ang = (GetWallNormal(nMov.wall()) + 1024) & kAngleMask;
+            pSprite->ang = (GetWallNormal(nMov.hitWall) + 1024) & kAngleMask;
             pActor->nCount = RandomSize(4);
             return;
         }
         else if (nMov.type == kHitSprite)
         {
-            if (nMov.actor == pTarget)
+            if (nMov.actor() == pTarget)
             {
                 int nAng = getangle(pTarget->s().x - pSprite->x, pTarget->s().y - pSprite->y);
                 if (AngleDiff(pSprite->ang, nAng) < 64)

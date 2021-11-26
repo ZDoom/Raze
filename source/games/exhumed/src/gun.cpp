@@ -264,7 +264,8 @@ Collision CheckCloseRange(int nPlayer, int *x, int *y, int *z, sectortype* *ppSe
         DPrintf(DMSG_WARNING, "%s %d: overflow\n", __func__, __LINE__);
         sqrtNum = INT_MAX;
     }
-    Collision c(0);
+    Collision c;
+    c.setNone();
 
     if (ksqrt(sqrtNum) >= ecx)
         return c;
@@ -726,7 +727,7 @@ loc_flag:
                             }
                             else if (cRange.type == kHitSprite)
                             {
-                                auto pActor2 = cRange.actor;
+                                auto pActor2 = cRange.actor();
                                 auto pSprite2 = &pActor2->s();
 
                                 if (pSprite2->cstat & 0x50)

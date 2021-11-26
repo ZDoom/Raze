@@ -314,7 +314,7 @@ void AISpider::Tick(RunListEvent* ev)
         }
         case kHitSprite:
         {
-            if (nMov.actor == pTarget)
+            if (nMov.actor() == pTarget)
             {
                 int nAng = getangle(pTarget->s().x - sp->x, pTarget->s().y - sp->y);
                 if (AngleDiff(sp->ang, nAng) < 64)

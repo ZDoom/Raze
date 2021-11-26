@@ -99,6 +99,7 @@ struct THitInfo : public HitInfoBase
 struct CollisionBase
 {
 	int type;
+	int exbits;	// extended game-side info (only used by Exhumed)
 	union
 	{
 		// can only have one at a time

@@ -13,81 +13,6 @@ enum
 	kHitAux2 = 0x20000,
 };
 
-// Wrapper around the insane collision info mess from Build.
-struct Collision
-{
-	int type;
-	int index;
-	int exbits;
-	int legacyVal;	// should be removed later, but needed for converting back for unadjusted code.
-	DExhumedActor* actor;
-
-	Collision() = default;
-	explicit Collision(int legacyval) { setFromEngine(legacyval); }
-
-	// need forward declarations of these.
-	int actorIndex(DExhumedActor*);
-	DExhumedActor* Actor(int);
-
-	int setNone()
-	{
-		type = kHitNone;
-		index = -1;
-		exbits = 0;
-		legacyVal = 0;
-		actor = nullptr;
-		return kHitNone;
-	}
-
-	int setSector(int num)
-	{
-		type = kHitSector;
-		index = num;
-		exbits = 0;
-		legacyVal = type | index;
-		actor = nullptr;
-		return kHitSector;
-	}
-	int setWall(int num)
-	{
-		type = kHitWall;
-		index = num;
-		exbits = 0;
-		legacyVal = type | index;
-		actor = nullptr;
-		return kHitWall;
-	}
-	int setSprite(DExhumedActor* num)
-	{
-		type = kHitSprite;
-		index = -1;
-		exbits = 0;
-		legacyVal = type | actorIndex(num);
-		actor = num;
-		return kHitSprite;
-	}
-
-	int setFromEngine(int value)
-	{
-		legacyVal = value;
-		type = value & kHitTypeMask;
-		exbits = value & kHitAuxMask;
-		if (type == 0) { index = -1; actor = nullptr; }
-		else if (type != kHitSprite) { index = value & kHitIndexMask; actor = nullptr; }
-		else { index = -1; actor = Actor(value & kHitIndexMask); }
-		return type;
-	}
-
-	walltype* wall()
-	{
-		return &::wall[index];
-	}
-
-	sectortype* sector()
-	{
-		return &::sector[index];
-	}
-};
 
 class DExhumedActor : public DCoreActor
 {
@@ -127,21 +52,11 @@ public:
 
 extern DExhumedActor exhumedActors[MAXSPRITES];
 
-inline DExhumedActor* Collision::Actor(int i)
-{
-	return &exhumedActors[i];
-}
-
-inline int Collision::actorIndex(DExhumedActor* a)
-{
-	return a->GetSpriteIndex();
-}
-
-
 inline DExhumedActor* DExhumedActor::base() { return exhumedActors; }
 
 // subclassed to add a game specific actor() method
 using HitInfo = THitInfo<DExhumedActor>;
+using Collision = TCollision<DExhumedActor>;
 
 // Iterator wrappers that return an actor pointer, not an index.
 class ExhumedStatIterator : public StatIterator

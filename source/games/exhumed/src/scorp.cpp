@@ -258,7 +258,7 @@ void AIScorp::Tick(RunListEvent* ev)
             auto nMov = MoveCreatureWithCaution(pActor);
             if (nMov.type == kHitSprite)
             {
-                if (pTarget == nMov.actor)
+                if (pTarget == nMov.actor())
                 {
                     int nAngle = getangle(pTarget->s().x - pSprite->x, pTarget->s().y - pSprite->y);
                     if (AngleDiff(pSprite->ang, nAngle) < 64)

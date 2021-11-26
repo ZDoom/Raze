@@ -274,7 +274,7 @@ void AIRoach::Tick(RunListEvent* ev)
 
         if (nMov.type == kHitSprite)
         {
-            if (nMov.actor == pTarget)
+            if (nMov.actor() == pTarget)
             {
                 // repeated below
                 pActor->nIndex = RandomSize(2) + 1;

@@ -141,7 +141,8 @@ void AIAnubis::Tick(RunListEvent* ev)
     int nFrame = SeqBase[nSeq] + ap->nFrame;
     int nFlag = FrameFlag[nFrame];
 
-    Collision move(0);
+    Collision move;
+    move.setNone();
 
     if (nAction > 0 && nAction < 11) {
         move = MoveCreatureWithCaution(ap);
@@ -185,7 +186,7 @@ void AIAnubis::Tick(RunListEvent* ev)
         {
         case kHitSprite:
         {
-            if (move.actor == pTarget)
+            if (move.actor() == pTarget)
             {
                 int nAng = getangle(pTarget->s().x - sp->x, pTarget->s().y - sp->y);
                 int nAngDiff = AngleDiff(sp->ang, nAng);

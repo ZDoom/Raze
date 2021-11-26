@@ -477,10 +477,10 @@ void AIFish::Tick(RunListEvent* ev)
             else if (coll.type == kHitSprite)
             {
 
-                auto pHitSpr = &coll.actor->s();
+                auto pHitSpr = &coll.actor()->s();
                 if (pHitSpr->statnum == 100)
                 {
-                    pActor->pTarget = coll.actor;
+                    pActor->pTarget = coll.actor();
                     pSprite->ang = GetMyAngle(pHitSpr->x - pSprite->x, pHitSpr->y - pSprite->y);
 
                     if (nAction != 3)
@@ -491,7 +491,7 @@ void AIFish::Tick(RunListEvent* ev)
 
                     if (!pActor->nFrame)
                     {
-                        runlist_DamageEnemy(coll.actor, pActor, 2);
+                        runlist_DamageEnemy(coll.actor(), pActor, 2);
                     }
                 }
             }

@@ -233,7 +233,7 @@ int BelowNear(DExhumedActor* pActor, int x, int y, int walldist)
 
     if (loHit.type == kHitSprite)
     {
-        z2 = loHit.actor->s().z;
+        z2 = loHit.actor()->s().z;
     }
     else
     {
@@ -309,7 +309,8 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
 
     pSprite->cstat &= ~CSTAT_SPRITE_BLOCK;
 
-    Collision nRet(0);
+    Collision nRet;
+    nRet.setNone();
 
     int nSectFlags = pSector->Flag;
 
@@ -381,14 +382,14 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
             if (loHit.type == kHitSprite)
             {
                 // Path A
-                auto pFloorSprite = &loHit.actor->s();
+                auto pFloorSprite = &loHit.actor()->s();
 
                 if (pSprite->statnum == 100 && pFloorSprite->statnum != 0 && pFloorSprite->statnum < 100)
                 {
                     int nDamage = (z >> 9);
                     if (nDamage)
                     {
-                        runlist_DamageEnemy(loHit.actor, pActor, nDamage << 1);
+                        runlist_DamageEnemy(loHit.actor(), pActor, nDamage << 1);
                     }
 
                     pSprite->zvel = -z;
@@ -530,8 +531,8 @@ Collision movesprite(DExhumedActor* pActor, int dx, int dy, int dz, int ceildist
         CheckSectorFloor(overridesect, pSprite->z, &dx, &dy);
     }
 
-    int colv = clipmove(&pSprite->pos, &pSector, dx, dy, nClipDist, nSpriteHeight, flordist, clipmask);
-    Collision coll(colv);
+    Collision coll;
+    clipmove(pSprite->pos, &pSector, dx, dy, nClipDist, nSpriteHeight, flordist, clipmask, coll);
     if (coll.type != kHitNone) // originally this or'ed the two values which can create unpredictable bad values in some edge cases.
     {
         coll.exbits = nRet.exbits;
@@ -645,7 +646,9 @@ Collision MoveCreatureWithCaution(DExhumedActor* pActor)
             pSprite->ang = (pSprite->ang + 256) & kAngleMask;
             pSprite->xvel = bcos(pSprite->ang, -2);
             pSprite->yvel = bsin(pSprite->ang, -2);
-            return Collision(0);
+            Collision c;
+            c.setNone();
+            return c;
         }
     }
 
@@ -915,7 +918,8 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
     }
 
     auto pSectorB = pSector;
-    clipmove(&pos, &pSectorB, nXVect, nYVect, pBlockInfo->field_8, 0, 0, CLIPMASK1);
+    Collision scratch;
+    clipmove(pos, &pSectorB, nXVect, nYVect, pBlockInfo->field_8, 0, 0, CLIPMASK1, scratch);
 
     int yvect = pos.y - y_b;
     int xvect = pos.x - x_b;
@@ -931,7 +935,8 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
         {
             pos = { x_b, y_b, nZVal };
 
-            clipmove(&pos, &pSectorB, nXVect, nYVect, pBlockInfo->field_8, 0, 0, CLIPMASK1);
+            Collision scratch;
+            clipmove(pos, &pSectorB, nXVect, nYVect, pBlockInfo->field_8, 0, 0, CLIPMASK1, scratch);
 
             int ebx = pos.x;
             int ecx = x_b;
@@ -997,7 +1002,8 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
                     pos.y = sp->y;
                     pSectorB = pSector;
 
-                    clipmove(&pos, &pSectorB, -xvect, -yvect, 4 * sp->clipdist, 0, 0, CLIPMASK0);
+                    Collision scratch;
+                    clipmove(pos, &pSectorB, -xvect, -yvect, 4 * sp->clipdist, 0, 0, CLIPMASK0, scratch);
 
                     if (pSectorB) {
                         ChangeActorSect(pActor, pSectorB);
@@ -1015,10 +1021,11 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
                 pos = pSprite->pos;
                 pSectorB = pNextSector;
 
-                clipmove(&pos, &pSectorB,
+                Collision scratch;
+                clipmove(pos, &pSectorB,
                     -xvect - (bcos(nAngle) * (4 * pSprite->clipdist)),
                     -yvect - (bsin(nAngle) * (4 * pSprite->clipdist)),
-                    4 * pSprite->clipdist, 0, 0, CLIPMASK0);
+                    4 * pSprite->clipdist, 0, 0, CLIPMASK0, scratch);
 
 
                 if (pSectorB != pNextSector && (pSectorB == pSector || pNextSector == pSector))
@@ -1062,7 +1069,8 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
             if (pSprite->statnum >= 99 && nZVal == pSprite->z && !(pSprite->cstat & 0x8000))
             {
                 pSectorB = pSector;
-                clipmove(&pSprite->pos, &pSectorB, xvect, yvect, 4 * pSprite->clipdist, 5120, -5120, CLIPMASK0);
+                Collision scratch;
+                clipmove(pSprite->pos, &pSectorB, xvect, yvect, 4 * pSprite->clipdist, 5120, -5120, CLIPMASK0, scratch);
             }
         }
     }
@@ -1257,10 +1265,11 @@ void WheresMyMouth(int nPlayer, vec3_t* pos, sectortype **sectnum)
     *pos = pSprite->pos;
     pos->z -= height;
 
-    clipmove(pos, sectnum,
+    Collision scratch;
+    clipmove(*pos, sectnum,
         bcos(pSprite->ang, 7),
         bsin(pSprite->ang, 7),
-        5120, 1280, 1280, CLIPMASK1);
+        5120, 1280, 1280, CLIPMASK1, scratch);
 }
 
 void InitChunks()
@@ -1462,11 +1471,11 @@ void AICreatureChunk::Tick(RunListEvent* ev)
             }
             else if (nVal.type == kHitSprite)
             {
-                nAngle = nVal.actor->s().ang;
+                nAngle = nVal.actor()->s().ang;
             }
             else if (nVal.type == kHitWall)
             {
-                nAngle = GetWallNormal(nVal.wall());
+                nAngle = GetWallNormal(nVal.hitWall);
             }
             else
             {

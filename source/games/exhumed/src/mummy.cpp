@@ -280,7 +280,7 @@ void AIMummy::Tick(RunListEvent* ev)
 
         case kHitSprite:
         {
-            if (nMov.actor == pTarget)
+            if (nMov.actor() == pTarget)
             {
                 int nAngle = getangle(pTarget->s().x - pSprite->x, pTarget->s().y - pSprite->y);
                 if (AngleDiff(pSprite->ang, nAngle) < 64)

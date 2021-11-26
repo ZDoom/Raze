@@ -575,10 +575,10 @@ void AIQueenEgg::Tick(RunListEvent* ev)
             default:
                 return;
             case kHitWall:
-                nAngle = GetWallNormal(nMov.wall());
+                nAngle = GetWallNormal(nMov.hitWall);
                 break;
             case kHitSprite:
-                nAngle = nMov.actor->s().ang;
+                nAngle = nMov.actor()->s().ang;
                 break;
             }
 
@@ -608,9 +608,9 @@ void AIQueenEgg::Tick(RunListEvent* ev)
         switch (nMov.type)
         {
         case kHitSprite:
-            if (nMov.actor->s().statnum != 121)
+            if (nMov.actor()->s().statnum != 121)
             {
-                runlist_DamageEnemy(nMov.actor, pActor, 5);
+                runlist_DamageEnemy(nMov.actor(), pActor, 5);
             }
             [[fallthrough]];
         case kHitWall:
@@ -810,8 +810,8 @@ void AIQueenHead::Tick(RunListEvent* ev)
 
             if (nMov.exbits == 0)
             {
-                if (nMov.type == kHitSprite) nNewAng = nMov.actor->s().ang;
-                else if (nMov.type == kHitWall) nNewAng = GetWallNormal(nMov.wall());
+                if (nMov.type == kHitSprite) nNewAng = nMov.actor()->s().ang;
+                else if (nMov.type == kHitWall) nNewAng = GetWallNormal(nMov.hitWall);
             }
             else if (nMov.exbits == kHitAux2)
             {
@@ -895,7 +895,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
 
             if (nMov.type == kHitSprite)
             {
-                if (nMov.actor == pTarget)
+                if (nMov.actor() == pTarget)
                 {
                     runlist_DamageEnemy(pTarget, pActor, 10);
                     D3PlayFX(StaticSound[kSoundQTail] | 0x2000, pActor);
@@ -1305,7 +1305,7 @@ void AIQueen::Tick(RunListEvent* ev)
         switch (nMov.type)
         {
         case kHitSprite:
-            if ((si == 2) && (nMov.actor == pTarget))
+            if ((si == 2) && (nMov.actor() == pTarget))
             {
                 runlist_DamageEnemy(pTarget, pActor, 5);
                 break;

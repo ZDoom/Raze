@@ -285,7 +285,7 @@ void AIRex::Tick(RunListEvent* ev)
         {
         case kHitSprite:
         {
-            if (nMov.actor == pTarget)
+            if (nMov.actor() == pTarget)
             {
                 PlotCourseToSprite(pActor, pTarget);
                 pActor->nAction = 4;
@@ -341,20 +341,20 @@ void AIRex::Tick(RunListEvent* ev)
                 pActor->nAction = 3;
                 pActor->nFrame = 0;
 
-                auto pSprite2 = &nMov.actor->s();
+                auto pSprite2 = &nMov.actor()->s();
 
                 if (pSprite2->statnum && pSprite2->statnum < 107)
                 {
                     int nAngle = pSprite->ang;
 
-                    runlist_DamageEnemy(nMov.actor, pActor, 15);
+                    runlist_DamageEnemy(nMov.actor(), pActor, 15);
 
                     int xVel = bcos(nAngle) * 15;
                     int yVel = bsin(nAngle) * 15;
 
                     if (pSprite2->statnum == 100)
                     {
-                        auto nPlayer = GetPlayerFromActor(nMov.actor);
+                        auto nPlayer = GetPlayerFromActor(nMov.actor());
                         PlayerList[nPlayer].nXDamage += (xVel << 4);
                         PlayerList[nPlayer].nYDamage += (yVel << 4);
                         pSprite2->zvel = -3584;

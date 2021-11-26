@@ -325,7 +325,7 @@ void AILavaDude::Tick(RunListEvent* ev)
         }
         else if (coll.type == kHitSprite)
         {
-            if (coll.actor == pTarget)
+            if (coll.actor() == pTarget)
             {
                 int nAng = getangle(pTarget->s().x - pSprite->x, pTarget->s().y - pSprite->y);
                 if (AngleDiff(pSprite->ang, nAng) < 64)

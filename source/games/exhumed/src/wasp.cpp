@@ -292,7 +292,7 @@ void AIWasp::Tick(RunListEvent* ev)
 
         case kHitSprite:
         {
-            if (nChaseVal.actor == pTarget)
+            if (nChaseVal.actor() == pTarget)
             {
                 pSprite->xvel = 0;
                 pSprite->yvel = 0;

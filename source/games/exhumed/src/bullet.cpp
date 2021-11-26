@@ -397,12 +397,12 @@ MOVEEND:
             switch (coll.type)
             {
             case kHitWall:
-                pHitWall = coll.wall();
+                pHitWall = coll.hitWall;
                 goto HITWALL;
             case 0xc000:
                 if (!coll.exbits)
                 {
-                    hitactor = coll.actor;
+                    hitactor = coll.actor();
                     goto HITSPRITE;
                 }
             }
