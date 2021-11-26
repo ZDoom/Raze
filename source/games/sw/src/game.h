@@ -2181,7 +2181,7 @@ struct GameInterface : public ::GameInterface
 	void LevelCompleted(MapRecord *map, int skill) override;
 	void NextLevel(MapRecord *map, int skill) override;
 	void NewGame(MapRecord *map, int skill, bool) override;
-    bool DrawAutomapPlayer(int x, int y, int z, int a, double const smoothratio) override;
+    bool DrawAutomapPlayer(int mx, int my, int x, int y, int z, int a, double const smoothratio) override;
     int playerKeyMove() override { return 35; }
     void WarpToCoords(int x, int y, int z, int a, int h) override;
     void ToggleThirdPerson() override;

@@ -753,14 +753,22 @@ FString GameInterface::GetCoordString()
 }
 
 
-bool GameInterface::DrawAutomapPlayer(int x, int y, int z, int a, double const smoothratio)
+bool GameInterface::DrawAutomapPlayer(int mx, int my, int x, int y, int z, int a, double const smoothratio)
 {
     for (int i = connecthead; i >= 0; i = connectpoint2[i])
     {
         PLAYER* pPlayer = &gPlayer[i];
         spritetype* pSprite = pPlayer->pSprite;
-        int x1 = pSprite->x - x;
-        int y1 = pSprite->y - y;
+
+        int xvect = -bsin(a) * z;
+        int yvect = -bcos(a) * z;
+        int ox = mx - x;
+        int oy = my - y;
+        int x1 = DMulScale(ox, xvect, -oy, yvect, 16);
+        int y1 = DMulScale(oy, xvect, ox, yvect, 16);
+        int xx = xdim / 2. + x1 / 4096.;
+        int yy = ydim / 2. + y1 / 4096.;
+
         if (i == gView->nPlayer || gGameOptions.nGameType == 1)
         {
             int nTile = pSprite->picnum;
@@ -775,7 +783,7 @@ bool GameInterface::DrawAutomapPlayer(int x, int y, int z, int a, double const s
             double x = xdim / 2. + x1 / double(1 << 12);
             double y = ydim / 2. + y1 / double(1 << 12);
             // This very likely needs fixing later
-            DrawTexture(twod, tileGetTexture(nTile, true), x, y, DTA_ClipLeft, windowxy1.x, DTA_ClipTop, windowxy1.y, DTA_ScaleX, z/1536., DTA_ScaleY, z/1536., DTA_CenterOffset, true,
+            DrawTexture(twod, tileGetTexture(nTile, true), xx, yy, DTA_ClipLeft, windowxy1.x, DTA_ClipTop, windowxy1.y, DTA_ScaleX, z/1536., DTA_ScaleY, z/1536., DTA_CenterOffset, true,
                 DTA_ClipRight, windowxy2.x + 1, DTA_ClipBottom, windowxy2.y + 1, DTA_Alpha, (pSprite->cstat & 2 ? 0.5 : 1.), TAG_DONE);
         }
     }

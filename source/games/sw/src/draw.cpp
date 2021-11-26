@@ -1686,7 +1686,7 @@ bool GameInterface::GenerateSavePic()
 
 
 
-bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang, double const smoothratio)
+bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int czoom, int cang, double const smoothratio)
 {
     int i, k, l, x1, y1, x2, y2, x3, y3, x4, y4, ox, oy, xoff, yoff;
     int dax, day, cosang, sinang, xspan, yspan, sprx, spry;
@@ -1747,8 +1747,12 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
                 case 0:  // Regular sprite
                     if (Player[p].Actor() == actor)
                     {
-                        x1 = sprx - cposx;
-                        y1 = spry - cposy;
+                        ox = mx - cposx;
+                        oy = my - cposy;
+                        x1 = DMulScale(ox, xvect, -oy, yvect, 16);
+                        y1 = DMulScale(oy, xvect, ox, yvect, 16);
+                        int xx = xdim / 2. + x1 / 4096.;
+                        int yy = ydim / 2. + y1 / 4096.;
 
                         if (czoom > 192)
                         {
@@ -1765,12 +1769,10 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
                             }
                             else spnum = spr->picnum;
 
-                            double xd = ((x1 << 4) + (xdim << 15)) / 65536.;
-                            double yd = ((y1 << 4) + (ydim << 15)) / 65536.;
                             double sc = czoom * (spr->yrepeat) / 32768.;
                             if (spnum >= 0)
                             {
-                                DrawTexture(twod, tileGetTexture(1196 + pspr_ndx[myconnectindex], true), xd, yd, DTA_ScaleX, sc, DTA_ScaleY, sc, DTA_Rotate, daang * -BAngToDegree,
+                                DrawTexture(twod, tileGetTexture(1196 + pspr_ndx[myconnectindex], true), xx, yy, DTA_ScaleX, sc, DTA_ScaleY, sc, DTA_Rotate, daang * -BAngToDegree,
                                     DTA_CenterOffsetRel, true, DTA_TranslationIndex, TRANSLATION(Translation_Remap, spr->pal), DTA_Color, shadeToLight(spr->shade),
                                     DTA_Alpha, (spr->cstat & 2) ? 0.33 : 1., TAG_DONE);
                             }
