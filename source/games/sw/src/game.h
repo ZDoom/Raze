@@ -1789,7 +1789,7 @@ ANIMATOR NullAnimator;
 int Distance(int x1, int y1, int x2, int y2);
 
 int NewStateGroup(DSWActor* actor, STATEp SpriteGroup[]);
-void SectorMidPoint(sectortype* sectnum, int *xmid, int *ymid, int *zmid);
+void SectorMidPoint(sectortype* sect, int *xmid, int *ymid, int *zmid);
 USERp SpawnUser(DSWActor* actor, short id, STATEp state);
 
 short ActorFindTrack(DSWActor* actor, int8_t player_dir, int track_type, int *track_point_num, int *track_dir);
@@ -1897,7 +1897,7 @@ inline bool FAF_ConnectArea(sectortype* sect)
 bool PlayerCeilingHit(PLAYERp pp, int zlimit);
 bool PlayerFloorHit(PLAYERp pp, int zlimit);
 
-void FAFhitscan(int32_t x, int32_t y, int32_t z, sectortype* sectnum,
+void FAFhitscan(int32_t x, int32_t y, int32_t z, sectortype* sect,
     int32_t xvect, int32_t yvect, int32_t zvect,
     HitInfo& hit, int32_t clipmask);
 
@@ -2032,8 +2032,8 @@ void ScreenCaptureKeys(void);   // draw.c
 void computergetinput(int snum,InputPacket *syn); // jplayer.c
 
 void SetupMirrorTiles(void);    // rooms.c
-bool FAF_Sector(sectortype* sectnum); // rooms.c
-int GetZadjustment(sectortype* sectnum,short hitag);  // rooms.c
+bool FAF_Sector(sectortype* sect); // rooms.c
+int GetZadjustment(sectortype* sect,short hitag);  // rooms.c
 
 void InitSetup(void);   // setup.c
 

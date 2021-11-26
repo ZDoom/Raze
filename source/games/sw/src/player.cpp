@@ -2256,10 +2256,10 @@ void DoPlayerSectorUpdatePostMove(PLAYERp pp)
 
 }
 
-void PlaySOsound(sectortype* sectnum, short sound_num)
+void PlaySOsound(sectortype* sect, short sound_num)
 {
     // play idle sound - sound 1
-    SWSectIterator it(sectnum);
+    SWSectIterator it(sect);
     while (auto actor = it.Next())
     {
         auto sp = &actor->s();
@@ -2271,10 +2271,10 @@ void PlaySOsound(sectortype* sectnum, short sound_num)
     }
 }
 
-void StopSOsound(sectortype* sectnum)
+void StopSOsound(sectortype* sect)
 {
     // play idle sound - sound 1
-    SWSectIterator it(sectnum);
+    SWSectIterator it(sect);
     while (auto actor = it.Next())
     {
         auto sp = &actor->s();

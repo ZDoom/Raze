@@ -61,7 +61,7 @@ enum
 ANIMATOR DoGrating;
 void DoPlayerBeginForceJump(PLAYERp);
 
-sectortype* FindNextSectorByTag(sectortype* sectnum, int tag);
+sectortype* FindNextSectorByTag(sectortype* sect, int tag);
 short LevelSecrets;
 bool TestVatorMatchActive(short match);
 bool TestSpikeMatchActive(short match);

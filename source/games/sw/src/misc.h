@@ -18,9 +18,9 @@ void InitCheats();
 void MapColors(short num,COLOR_MAP cm,short create);
 int32_t CONFIG_ReadSetup(void);
 
-DSWActor* WarpPlane(int32_t* x, int32_t* y, int32_t* z, int* sectnum);
+DSWActor* WarpPlane(int32_t* x, int32_t* y, int32_t* z, int* sect);
 bool WarpSectorInfo(sectortype* sect, DSWActor** sp_warp);
-DSWActor* Warp(int32_t* x, int32_t* y, int32_t* z, int* sectnum);
+DSWActor* Warp(int32_t* x, int32_t* y, int32_t* z, int* sect);
 inline DSWActor* Warp(int32_t* x, int32_t* y, int32_t* z, sectortype** sect)
 {
 	int sn = sectnum(*sect);
@@ -51,7 +51,7 @@ void TrackSetup(void);
 void PlaceSectorObject(SECTOR_OBJECTp sop, int newx, int newy);
 void PlaceSectorObjectsOnTracks(void);
 void PlaceActorsOnTracks(void);
-void SetupSectorObject(sectortype* sectnum, short tag);
+void SetupSectorObject(sectortype* sect, short tag);
 void PostSetupSectorObject(void);
 void VehicleSetSmoke(SECTOR_OBJECTp sop, ANIMATORp animator);
 void CollapseSectorObject(SECTOR_OBJECTp sop, int nx, int ny);

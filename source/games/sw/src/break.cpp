@@ -799,8 +799,8 @@ bool HitBreakWall(WALLp wp, int hit_x, int hit_y, int hit_z, int ang, int type)
 
     //if (hit_x == INT32_MAX)
     {
-        sectortype* sectnum = nullptr;
-        WallBreakPosition(wp, &sectnum, &hit_x, &hit_y, &hit_z, &ang);
+        sectortype* sect = nullptr;
+        WallBreakPosition(wp, &sect, &hit_x, &hit_y, &hit_z, &ang);
     }
 
     AutoBreakWall(wp, hit_x, hit_y, hit_z, ang, type);
@@ -1030,7 +1030,7 @@ int HitBreakSprite(DSWActor* breakActor, int type)
 
 void DoWallBreakMatch(int match)
 {
-    sectortype* sectnum = nullptr;
+    sectortype* sect = nullptr;
     int x,y,z;
     int wall_ang;
 
@@ -1038,7 +1038,7 @@ void DoWallBreakMatch(int match)
     {
         if (wal.hitag == match)
         {
-            WallBreakPosition(&wal, &sectnum, &x, &y, &z, &wall_ang);
+            WallBreakPosition(&wal, &sect, &x, &y, &z, &wall_ang);
 
             wal.hitag = 0; // Reset the hitag
             AutoBreakWall(&wal, x, y, z, wall_ang, 0);

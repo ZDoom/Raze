@@ -1,7 +1,7 @@
 BEGIN_SW_NS
 
-bool FindCeilingView(int match, int* x, int* y, int z, sectortype** sectnum);
-bool FindFloorView(int match, int* x, int* y, int z, sectortype** sectnum);
+bool FindCeilingView(int match, int* x, int* y, int z, sectortype** sect);
+bool FindFloorView(int match, int* x, int* y, int z, sectortype** sect);
 
 
 int ViewSectorInScene(sectortype* cursect, int level)

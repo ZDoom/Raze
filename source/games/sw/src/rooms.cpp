@@ -81,11 +81,11 @@ DSWActor* InsertActor(int sectnum, int stat)
     return pActor;
 }
 
-bool FAF_Sector(sectortype* sectnum)
+bool FAF_Sector(sectortype* sect)
 {
     SPRITEp sp;
 
-    SWSectIterator it(sectnum);
+    SWSectIterator it(sect);
     while (auto actor = it.Next())
     {
         sp = &actor->s();

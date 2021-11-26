@@ -98,8 +98,8 @@ ANIMATOR DoShrapJumpFall;
 ANIMATOR DoFastShrapJumpFall;
 
 int SpawnSmokePuff(DSWActor* actor);
-bool WarpToUnderwater(sectortype** sectnum, int *x, int *y, int *z);
-bool WarpToSurface(sectortype** sectnum, int *x, int *y, int *z);
+bool WarpToUnderwater(sectortype** sect, int *x, int *y, int *z);
+bool WarpToSurface(sectortype** sect, int *x, int *y, int *z);
 int InitElectroJump(SPRITEp wp, SPRITEp sp);
 bool TestDontStickSector(sectortype* hit_sect);
 ANIMATOR SpawnShrapX;

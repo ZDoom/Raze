@@ -39,7 +39,7 @@ BEGIN_SW_NS
 ////////////////////////////////////////////////////////////////////////////////
 
 extern bool Prediction;
-DSWActor* WarpToArea(DSWActor* sp_from, int32_t* x, int32_t* y, int32_t* z, int* sectnum);
+DSWActor* WarpToArea(DSWActor* sp_from, int32_t* x, int32_t* y, int32_t* z, int* sect);
 
 bool WarpPlaneSectorInfo(short sectnum, DSWActor** sp_ceiling, DSWActor** sp_floor)
 {
@@ -77,21 +77,21 @@ bool WarpPlaneSectorInfo(short sectnum, DSWActor** sp_ceiling, DSWActor** sp_flo
     return true;
 }
 
-DSWActor* WarpPlane(int32_t* x, int32_t* y, int32_t* z, int* sectnum)
+DSWActor* WarpPlane(int32_t* x, int32_t* y, int32_t* z, int* sect)
 {
     DSWActor* sp_floor,* sp_ceiling;
 
     if (Prediction)
         return nullptr;
 
-    if (!WarpPlaneSectorInfo(*sectnum, &sp_ceiling, &sp_floor))
+    if (!WarpPlaneSectorInfo(*sect, &sp_ceiling, &sp_floor))
         return nullptr;
 
     if (sp_ceiling)
     {
         if (*z <= sp_ceiling->s().z)
         {
-            return WarpToArea(sp_ceiling, x, y, z, sectnum);
+            return WarpToArea(sp_ceiling, x, y, z, sect);
         }
     }
 
@@ -99,7 +99,7 @@ DSWActor* WarpPlane(int32_t* x, int32_t* y, int32_t* z, int* sectnum)
     {
         if (*z >= sp_floor->s().z)
         {
-            return WarpToArea(sp_floor, x, y, z, sectnum);
+            return WarpToArea(sp_floor, x, y, z, sect);
         }
     }
 
