@@ -21,7 +21,21 @@ int32_t CONFIG_ReadSetup(void);
 DSWActor* WarpPlane(int32_t* x, int32_t* y, int32_t* z, int* sectnum);
 bool WarpSectorInfo(sectortype* sect, DSWActor** sp_warp);
 DSWActor* Warp(int32_t* x, int32_t* y, int32_t* z, int* sectnum);
+inline DSWActor* Warp(int32_t* x, int32_t* y, int32_t* z, sectortype** sect)
+{
+	int sn = sectnum(*sect);
+	auto res = Warp(x, y, z, &sn);
+	*sect = sn == -1? nullptr : &sector[sn];
+	return res;
+}
 
+inline DSWActor* WarpPlane(int32_t* x, int32_t* y, int32_t* z, sectortype** sect)
+{
+	int sn = sectnum(*sect);
+	auto res = WarpPlane(x, y, z, &sn);
+	*sect = sn == -1 ? nullptr : &sector[sn];
+	return res;
+}
 
 
 void ProcessVisOn(void);

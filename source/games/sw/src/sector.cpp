@@ -2058,33 +2058,33 @@ bool NearThings(PLAYERp pp)
     }
     // This only gets called if nothing else worked, check for nearness to a wall
     {
-        HITINFO hitinfo;
+        HitInfo hit;
         short dang = pp->angle.ang.asbuild();
 
         FAFhitscan(pp->posx, pp->posy, pp->posz - Z(30), pp->cursector(),    // Start position
                    bcos(dang),  // X vector of 3D ang
                    bsin(dang),  // Y vector of 3D ang
                    0,           // Z vector of 3D ang
-                   &hitinfo, CLIPMASK_MISSILE);
+                   hit, CLIPMASK_MISSILE);
 
-        if (hitinfo.sector() == nullptr)
+        if (hit.hitSector == nullptr)
             return false;
 
-        if (Distance(hitinfo.pos.x, hitinfo.pos.y, pp->posx, pp->posy) > 1500)
+        if (Distance(hit.hitpos.x, hit.hitpos.y, pp->posx, pp->posy) > 1500)
             return false;
 
         // hit a sprite?
-        if (hitinfo.hitactor != nullptr)
+        if (hit.actor() != nullptr)
             return false;
 
         if (neartagsect >= 0)
             return true;
 
-        if (hitinfo.wall() != nullptr)
+        if (hit.hitWall != nullptr)
         {
             WALLp wp;
 
-            wp =  hitinfo.wall();
+            wp =  hit.hitWall;
 
             // Near a plain old vanilla wall.  Can't do anything but grunt.
             if (!TEST(wp->extra, WALLFX_DONT_STICK) && pp == Player+myconnectindex)

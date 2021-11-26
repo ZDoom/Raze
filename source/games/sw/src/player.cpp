@@ -3417,7 +3417,7 @@ void DoPlayerClimb(PLAYERp pp)
 
 int DoPlayerWadeSuperJump(PLAYERp pp)
 {
-    HITINFO hitinfo;
+    HitInfo hit;
     unsigned i;
     //short angs[3];
     static short angs[3] = {0, 0, 0};
@@ -3430,15 +3430,15 @@ int DoPlayerWadeSuperJump(PLAYERp pp)
         FAFhitscan(pp->posx, pp->posy, zh, pp->cursector(),    // Start position
                    bcos(pp->angle.ang.asbuild() + angs[i]),   // X vector of 3D ang
                    bsin(pp->angle.ang.asbuild() + angs[i]),   // Y vector of 3D ang
-                   0, &hitinfo, CLIPMASK_MISSILE);            // Z vector of 3D ang
+                   0, hit, CLIPMASK_MISSILE);            // Z vector of 3D ang
 
-        if (hitinfo.wall() != nullptr && hitinfo.sector() != nullptr)
+        if (hit.hitWall != nullptr && hit.hitSector != nullptr)
         {
-            hitinfo.hitSector = hitinfo.wall()->nextSector();
+            hit.hitSector = hit.hitWall->nextSector();
 
-            if (hitinfo.sector() != nullptr && labs(hitinfo.sector()->floorz - pp->posz) < Z(50))
+            if (hit.hitSector != nullptr && labs(hit.hitSector->floorz - pp->posz) < Z(50))
             {
-                if (Distance(pp->posx, pp->posy, hitinfo.pos.x, hitinfo.pos.y) < ((((int)pp->Actor()->s().clipdist)<<2) + 256))
+                if (Distance(pp->posx, pp->posy, hit.hitpos.x, hit.hitpos.y) < ((((int)pp->Actor()->s().clipdist)<<2) + 256))
                     return true;
             }
         }
@@ -3721,7 +3721,7 @@ bool PlayerOnLadder(PLAYERp pp)
     int dist, nx, ny;
     unsigned i;
     SPRITEp lsp;
-    HITINFO hitinfo;
+    HitInfo hit;
     int dir;
 
     int neartaghitdist;
@@ -3760,13 +3760,13 @@ bool PlayerOnLadder(PLAYERp pp)
                    bcos(pp->angle.ang.asbuild() + angles[i]),
                    bsin(pp->angle.ang.asbuild() + angles[i]),
                    0,
-                   &hitinfo, CLIPMASK_MISSILE);
+                   hit, CLIPMASK_MISSILE);
 
-        dist = DIST(pp->posx, pp->posy, hitinfo.pos.x, hitinfo.pos.y);
+        dist = DIST(pp->posx, pp->posy, hit.hitpos.x, hit.hitpos.y);
 
-        if (hitinfo.hitactor != nullptr)
+        if (hit.actor() != nullptr)
         {
-            int cstat = hitinfo.hitactor->s().cstat;
+            int cstat = hit.actor()->s().cstat;
             // if the sprite blocking you hit is not a wall sprite there is something between
             // you and the ladder
             if (TEST(cstat, CSTAT_SPRITE_BLOCK) &&
@@ -3778,7 +3778,7 @@ bool PlayerOnLadder(PLAYERp pp)
         else
         {
             // if you hit a wall and it is not a climb wall - forget it
-            if (hitinfo.wall() != nullptr && hitinfo.wall()->lotag != TAG_WALL_CLIMB)
+            if (hit.hitWall != nullptr && hit.hitWall->lotag != TAG_WALL_CLIMB)
                 return false;
         }
     }

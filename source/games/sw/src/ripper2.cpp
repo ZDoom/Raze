@@ -938,7 +938,7 @@ int InitRipper2Hang(DSWActor* actor)
     SPRITEp sp = &actor->s();
     int dist;
 
-    HITINFO hitinfo;
+    HitInfo hit;
 
     bool Found = false;
     short dang, tang;
@@ -951,14 +951,14 @@ int InitRipper2Hang(DSWActor* actor)
                    bcos(tang),   // X vector of 3D ang
                    bsin(tang),   // Y vector of 3D ang
                    0,            // Z vector of 3D ang
-                   &hitinfo, CLIPMASK_MISSILE);
+                   hit, CLIPMASK_MISSILE);
 
-        if (hitinfo.sector() == nullptr)
+        if (hit.hitSector == nullptr)
             continue;
 
-        dist = Distance(sp->x, sp->y, hitinfo.pos.x, hitinfo.pos.y);
+        dist = Distance(sp->x, sp->y, hit.hitpos.x, hit.hitpos.y);
 
-        if (hitinfo.wall() == nullptr || dist < 2000 || dist > 7000)
+        if (hit.hitWall == nullptr || dist < 2000 || dist > 7000)
         {
             continue;
         }

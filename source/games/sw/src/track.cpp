@@ -3108,7 +3108,7 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
         if (u->ActorActionSet->Jump)
         {
             int zdiff;
-            HITINFO hitinfo;
+            HitInfo hit;
 
             sp->ang = tpoint->ang;
 
@@ -3127,19 +3127,19 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
                            bcos(sp->ang),    // X vector of 3D ang
                            bsin(sp->ang),    // Y vector of 3D ang
                            0,                // Z vector of 3D ang
-                           &hitinfo, CLIPMASK_MISSILE);
+                           hit, CLIPMASK_MISSILE);
 
                 SET(sp->cstat, CSTAT_SPRITE_BLOCK);
 
-                ASSERT(hitinfo.sector() != nullptr);
+                ASSERT(hit.hitSector != nullptr);
 
-                if (hitinfo.hitactor != nullptr)
+                if (hit.actor() != nullptr)
                     return false;
 
-                if (hitinfo.wall() == nullptr)
+                if (hit.hitWall == nullptr)
                     return false;
 
-                zdiff = labs(sp->z - hitinfo.wall()->nextSector()->floorz) >> 8;
+                zdiff = labs(sp->z - hit.hitWall->nextSector()->floorz) >> 8;
 
                 u->jump_speed = PickJumpSpeed(actor, zdiff);
             }

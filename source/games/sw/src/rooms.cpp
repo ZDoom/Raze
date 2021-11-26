@@ -140,9 +140,8 @@ void ResetWallWarpHitscan(sectortype* sect)
 void
 FAFhitscan(int32_t x, int32_t y, int32_t z, sectortype* sect,
     int32_t xvect, int32_t yvect, int32_t zvect,
-    HITINFO* hitinfo, int32_t clipmask)
+    HitInfo& hit, int32_t clipmask)
 {
-    vec3_t firstpos = { x, y, z };
     int loz, hiz;
     auto newsector = sect;
     int startclipmask = 0;
@@ -151,95 +150,85 @@ FAFhitscan(int32_t x, int32_t y, int32_t z, sectortype* sect,
     if (clipmask == CLIPMASK_MISSILE)
         startclipmask = CLIPMASK_WARP_HITSCAN;
 
-    hitdata_t e_hitinfo;
-    hitscan(&firstpos, sectnum(sect), xvect, yvect, zvect, &e_hitinfo, startclipmask);
-    hitinfo->set(&e_hitinfo);
+    hitscan({ x, y, z }, sect, { xvect, yvect, zvect }, hit, startclipmask);
 
-    if (hitinfo->sector() == nullptr)
+    if (hit.hitSector == nullptr)
         return;
 
-    if (hitinfo->wall() != nullptr)
+    if (hit.hitWall != nullptr)
     {
         // hitscan warping
-        if (TEST(hitinfo->wall()->cstat, CSTAT_WALL_WARP_HITSCAN))
+        if (TEST(hit.hitWall->cstat, CSTAT_WALL_WARP_HITSCAN))
         {
-            MONO_PRINT(ds);
-
             // back it up a bit to get a correct warp location
-            hitinfo->pos.x -= xvect>>9;
-            hitinfo->pos.y -= yvect>>9;
+            hit.hitpos.x -= xvect>>9;
+            hit.hitpos.y -= yvect>>9;
 
             // warp to new x,y,z, sectnum
-            int newsect;
-            if (Warp(&hitinfo->pos.x, &hitinfo->pos.y, &hitinfo->pos.z, &newsect))
+            sectortype* newsect;
+            if (Warp(&hit.hitpos.x, &hit.hitpos.y, &hit.hitpos.z, &newsect))
             {
-                auto dest_sect = &sector[newsect];
-
                 // hitscan needs to pass through dest sect
-                ResetWallWarpHitscan(dest_sect);
+                ResetWallWarpHitscan(newsect);
 
                 // NOTE: This could be recursive I think if need be
-                hitscan(&hitinfo->pos, newsect, xvect, yvect, zvect, &e_hitinfo, startclipmask);
-                hitinfo->set(&e_hitinfo);
+                auto pos = hit.hitpos;
+                hitscan(pos, newsect, { xvect, yvect, zvect }, hit, startclipmask);
 
                 // reset hitscan block for dest sect
-                SetWallWarpHitscan(dest_sect);
+                SetWallWarpHitscan(newsect);
 
                 return;
             }
             else
             {
-                //DSPRINTF(ds,"hitinfo->pos.x %d, hitinfo->pos.y %d, hitinfo->pos.z %d",hitinfo->pos.x, hitinfo->pos.y, hitinfo->pos.z);
-                MONO_PRINT(ds);
                 ASSERT(true == false);
             }
         }
     }
 
     // make sure it hit JUST a sector before doing a check
-    if (hitinfo->wall() == nullptr && hitinfo->hitactor == nullptr)
+    if (hit.hitWall == nullptr && hit.actor() == nullptr)
     {
-        if (TEST(hitinfo->sector()->extra, SECTFX_WARP_SECTOR))
+        if (TEST(hit.hitSector->extra, SECTFX_WARP_SECTOR))
         {
-            if (TEST(hitinfo->sector()->firstWall()->cstat, CSTAT_WALL_WARP_HITSCAN))
+            if (TEST(hit.hitSector->firstWall()->cstat, CSTAT_WALL_WARP_HITSCAN))
             {
                 // hit the floor of a sector that is a warping sector
-                int newsect;
-                if (Warp(&hitinfo->pos.x, &hitinfo->pos.y, &hitinfo->pos.z, &newsect))
+                sectortype* newsect;
+                if (Warp(&hit.hitpos.x, &hit.hitpos.y, &hit.hitpos.z, &newsect))
                 {
-                    vec3_t pos = e_hitinfo.pos;
-                    hitscan(&hitinfo->pos, newsect, xvect, yvect, zvect, &e_hitinfo, clipmask);
-                    hitinfo->set(&e_hitinfo);
+                    auto pos = hit.hitpos;
+                    hitscan(pos, newsect, { xvect, yvect, zvect }, hit, clipmask);
                     return;
                 }
             }
             else
             {
-                int newsect;
-                if (WarpPlane(&hitinfo->pos.x, &hitinfo->pos.y, &hitinfo->pos.z, &newsect))
+                sectortype* newsect;
+                if (WarpPlane(&hit.hitpos.x, &hit.hitpos.y, &hit.hitpos.z, &newsect))
                 {
-                    vec3_t pos = e_hitinfo.pos;
-                    hitscan(&hitinfo->pos, newsect, xvect, yvect, zvect, &e_hitinfo, clipmask);
-                    hitinfo->set(&e_hitinfo);
+                    auto pos = hit.hitpos;
+                    hitscan(pos, newsect, { xvect, yvect, zvect }, hit, clipmask);
                     return;
                 }
             }
         }
 
-        getzsofslopeptr(hitinfo->sector(), hitinfo->pos.x, hitinfo->pos.y, &hiz, &loz);
-        if (abs(hitinfo->pos.z - loz) < Z(4))
+        getzsofslopeptr(hit.hitSector, hit.hitpos.x, hit.hitpos.y, &hiz, &loz);
+        if (abs(hit.hitpos.z - loz) < Z(4))
         {
-            if (FAF_ConnectFloor(hitinfo->sector()) && !TEST(hitinfo->sector()->floorstat, FLOOR_STAT_FAF_BLOCK_HITSCAN))
+            if (FAF_ConnectFloor(hit.hitSector) && !TEST(hit.hitSector->floorstat, FLOOR_STAT_FAF_BLOCK_HITSCAN))
             {
-                updatesectorz(e_hitinfo.pos.x, e_hitinfo.pos.y, e_hitinfo.pos.z + Z(12), &newsector);
+                updatesectorz(hit.hitpos.x, hit.hitpos.y, hit.hitpos.z + Z(12), &newsector);
                 plax_found = true;
             }
         }
-        else if (labs(e_hitinfo.pos.z - hiz) < Z(4))
+        else if (labs(hit.hitpos.z - hiz) < Z(4))
         {
-            if (FAF_ConnectCeiling(hitinfo->sector()) && !TEST(hitinfo->sector()->floorstat, CEILING_STAT_FAF_BLOCK_HITSCAN))
+            if (FAF_ConnectCeiling(hit.hitSector) && !TEST(hit.hitSector->floorstat, CEILING_STAT_FAF_BLOCK_HITSCAN))
             {
-                updatesectorz(hitinfo->pos.x, hitinfo->pos.y, hitinfo->pos.z - Z(12), &newsector);
+                updatesectorz(hit.hitpos.x, hit.hitpos.y, hit.hitpos.z - Z(12), &newsector);
                 plax_found = true;
             }
         }
@@ -247,9 +236,8 @@ FAFhitscan(int32_t x, int32_t y, int32_t z, sectortype* sect,
 
     if (plax_found)
     {
-        vec3_t pos = e_hitinfo.pos;
-        hitscan(&pos, sectnum(newsector), xvect, yvect, zvect, &e_hitinfo, clipmask);
-        hitinfo->set(&e_hitinfo);
+        auto pos = hit.hitpos;
+        hitscan(pos, newsector, { xvect, yvect, zvect }, hit, clipmask);
     }
 }
 

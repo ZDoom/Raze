@@ -12527,7 +12527,7 @@ int InitSwordAttack(PLAYERp pp)
 
     // all this is to break glass
     {
-        HITINFO hitinfo;
+        HitInfo hit;
         short daang;
         int daz;
 
@@ -12538,18 +12538,18 @@ int InitSwordAttack(PLAYERp pp)
             bcos(daang),      // X vector of 3D ang
             bsin(daang),      // Y vector of 3D ang
             daz,              // Z vector of 3D ang
-            &hitinfo, CLIPMASK_MISSILE);
+            hit, CLIPMASK_MISSILE);
 
-        if (hitinfo.sector() == nullptr)
+        if (hit.hitSector == nullptr)
             return 0;
 
-        if (FindDistance3D(pp->posx - hitinfo.pos.x, pp->posy - hitinfo.pos.y, pp->posz - hitinfo.pos.z) < 700)
+        if (FindDistance3D(pp->posx - hit.hitpos.x, pp->posy - hit.hitpos.y, pp->posz - hit.hitpos.z) < 700)
         {
 
-            if (hitinfo.hitactor != nullptr)
+            if (hit.actor() != nullptr)
             {
                 extern STATE s_TrashCanPain[];
-                auto hitActor = hitinfo.hitactor;
+                auto hitActor = hit.actor();
                 SPRITEp hsp = &hitActor->s();
 
                 if (hitActor->hasU())     // JBF: added null check
@@ -12558,8 +12558,8 @@ int InitSwordAttack(PLAYERp pp)
                     switch (tu->ID)
                     {
                     case ZILLA_RUN_R0:
-                        SpawnSwordSparks(pp, hitinfo.sector(), nullptr, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
-                        PlaySound(DIGI_SWORDCLANK, &hitinfo.pos, v3df_none);
+                        SpawnSwordSparks(pp, hit.hitSector, nullptr, hit.hitpos.x, hit.hitpos.y, hit.hitpos.z, daang);
+                        PlaySound(DIGI_SWORDCLANK, &hit.hitpos, v3df_none);
                         break;
                     case TRASHCAN:
                         if (tu->WaitTics <= 0)
@@ -12567,8 +12567,8 @@ int InitSwordAttack(PLAYERp pp)
                             tu->WaitTics = SEC(2);
                             ChangeState(hitActor, s_TrashCanPain);
                         }
-                        SpawnSwordSparks(pp, hitinfo.sector(), nullptr, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
-                        PlaySound(DIGI_SWORDCLANK, &hitinfo.pos, v3df_none);
+                        SpawnSwordSparks(pp, hit.hitSector, nullptr, hit.hitpos.x, hit.hitpos.y, hit.hitpos.z, daang);
+                        PlaySound(DIGI_SWORDCLANK, &hit.hitpos, v3df_none);
                         PlaySound(DIGI_TRASHLID, hitActor, v3df_none);
                         break;
                     case PACHINKO1:
@@ -12576,8 +12576,8 @@ int InitSwordAttack(PLAYERp pp)
                     case PACHINKO3:
                     case PACHINKO4:
                     case 623:
-                        SpawnSwordSparks(pp, hitinfo.sector(), nullptr, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
-                        PlaySound(DIGI_SWORDCLANK, &hitinfo.pos, v3df_none);
+                        SpawnSwordSparks(pp, hit.hitSector, nullptr, hit.hitpos.x, hit.hitpos.y, hit.hitpos.z, daang);
+                        PlaySound(DIGI_SWORDCLANK, &hit.hitpos, v3df_none);
                         break;
                     }
                 }
@@ -12601,28 +12601,28 @@ int InitSwordAttack(PLAYERp pp)
 
             }
 
-            if (hitinfo.wall() != nullptr)
+            if (hit.hitWall != nullptr)
             {
-                if (hitinfo.wall()->twoSided())
+                if (hit.hitWall->twoSided())
                 {
-                    if (TEST(hitinfo.wall()->nextSector()->ceilingstat, CEILING_STAT_PLAX))
+                    if (TEST(hit.hitWall->nextSector()->ceilingstat, CEILING_STAT_PLAX))
                     {
-                        if (hitinfo.pos.z < hitinfo.wall()->nextSector()->ceilingz)
+                        if (hit.hitpos.z < hit.hitWall->nextSector()->ceilingz)
                         {
                             return 0;
                         }
                     }
                 }
 
-                if (hitinfo.wall()->lotag == TAG_WALL_BREAK)
+                if (hit.hitWall->lotag == TAG_WALL_BREAK)
                 {
-                    HitBreakWall(hitinfo.wall(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, u->ID);
+                    HitBreakWall(hit.hitWall, hit.hitpos.x, hit.hitpos.y, hit.hitpos.z, daang, u->ID);
                 }
                 // hit non breakable wall - do sound and puff
                 else
                 {
-                    SpawnSwordSparks(pp, hitinfo.sector(), hitinfo.wall(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
-                    PlaySound(DIGI_SWORDCLANK, &hitinfo.pos, v3df_none);
+                    SpawnSwordSparks(pp, hit.hitSector, hit.hitWall, hit.hitpos.x, hit.hitpos.y, hit.hitpos.z, daang);
+                    PlaySound(DIGI_SWORDCLANK, &hit.hitpos, v3df_none);
                 }
             }
         }
@@ -12717,7 +12717,7 @@ int InitFistAttack(PLAYERp pp)
 
     // all this is to break glass
     {
-        HITINFO hitinfo;
+        HitInfo hit;
         short daang;
         int daz;
 
@@ -12728,18 +12728,18 @@ int InitFistAttack(PLAYERp pp)
                    bcos(daang),      // X vector of 3D ang
                    bsin(daang),      // Y vector of 3D ang
                    daz,              // Z vector of 3D ang
-                   &hitinfo, CLIPMASK_MISSILE);
+                   hit, CLIPMASK_MISSILE);
 
-        if (hitinfo.sector() == nullptr)
+        if (hit.hitSector == nullptr)
             return 0;
 
-        if (FindDistance3D(pp->posx - hitinfo.pos.x, pp->posy - hitinfo.pos.y, pp->posz - hitinfo.pos.z) < 700)
+        if (FindDistance3D(pp->posx - hit.hitpos.x, pp->posy - hit.hitpos.y, pp->posz - hit.hitpos.z) < 700)
         {
 
-            if (hitinfo.hitactor != nullptr)
+            if (hit.actor() != nullptr)
             {
                 extern STATE s_TrashCanPain[];
-                auto hitActor = hitinfo.hitactor;
+                auto hitActor = hit.actor();
                 SPRITEp hsp = &hitActor->s();
 
                 if (hitActor->hasU())     // JBF: added null check
@@ -12748,17 +12748,17 @@ int InitFistAttack(PLAYERp pp)
                     switch (tu->ID)
                     {
                     case ZILLA_RUN_R0:
-                        SpawnSwordSparks(pp, hitinfo.sector(), nullptr, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
-                        PlaySound(DIGI_ARMORHIT, &hitinfo.pos, v3df_none);
+                        SpawnSwordSparks(pp, hit.hitSector, nullptr, hit.hitpos.x, hit.hitpos.y, hit.hitpos.z, daang);
+                        PlaySound(DIGI_ARMORHIT, &hit.hitpos, v3df_none);
                         break;
                     case TRASHCAN:
-                        if (tu->WaitTics <= 0)
+                        if (tu->WaitTics <= 0)  
                         {
                             tu->WaitTics = SEC(2);
                             ChangeState(hitActor, s_TrashCanPain);
                         }
-                        SpawnSwordSparks(pp, hitinfo.sector(), nullptr, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
-                        PlaySound(DIGI_ARMORHIT, &hitinfo.pos, v3df_none);
+                        SpawnSwordSparks(pp, hit.hitSector, nullptr, hit.hitpos.x, hit.hitpos.y, hit.hitpos.z, daang);
+                        PlaySound(DIGI_ARMORHIT, &hit.hitpos, v3df_none);
                         PlaySound(DIGI_TRASHLID, hitActor, v3df_none);
                         break;
                     case PACHINKO1:
@@ -12766,8 +12766,8 @@ int InitFistAttack(PLAYERp pp)
                     case PACHINKO3:
                     case PACHINKO4:
                     case 623:
-                        SpawnSwordSparks(pp, hitinfo.sector(), nullptr, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
-                        PlaySound(DIGI_ARMORHIT, &hitinfo.pos, v3df_none);
+                        SpawnSwordSparks(pp, hit.hitSector, nullptr, hit.hitpos.x, hit.hitpos.y, hit.hitpos.z, daang);
+                        PlaySound(DIGI_ARMORHIT, &hit.hitpos, v3df_none);
                         break;
                     }
                 }
@@ -12794,8 +12794,8 @@ int InitFistAttack(PLAYERp pp)
                 case 5062:
                 case 5063:
                 case 4947:
-                    SpawnSwordSparks(pp, hitinfo.sector(), nullptr, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
-                    PlaySound(DIGI_ARMORHIT, &hitinfo.pos, v3df_none);
+                    SpawnSwordSparks(pp, hit.hitSector, nullptr, hit.hitpos.x, hit.hitpos.y, hit.hitpos.z, daang);
+                    PlaySound(DIGI_ARMORHIT, &hit.hitpos, v3df_none);
                     if (RandomRange(1000) > 700)
                         PlayerUpdateHealth(pp,1); // Give some health
                     SET(hsp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -12804,28 +12804,28 @@ int InitFistAttack(PLAYERp pp)
             }
 
 
-            if (hitinfo.wall() != nullptr)
+            if (hit.hitWall != nullptr)
             {
-                if (hitinfo.wall()->twoSided())
+                if (hit.hitWall->twoSided())
                 {
-                    if (TEST(hitinfo.wall()->nextSector()->ceilingstat, CEILING_STAT_PLAX))
+                    if (TEST(hit.hitWall->nextSector()->ceilingstat, CEILING_STAT_PLAX))
                     {
-                        if (hitinfo.pos.z < hitinfo.wall()->nextSector()->ceilingz)
+                        if (hit.hitpos.z < hit.hitWall->nextSector()->ceilingz)
                         {
                             return 0;
                         }
                     }
                 }
 
-                if (hitinfo.wall()->lotag == TAG_WALL_BREAK)
+                if (hit.hitWall->lotag == TAG_WALL_BREAK)
                 {
-                    HitBreakWall(hitinfo.wall(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, u->ID);
+                    HitBreakWall(hit.hitWall, hit.hitpos.x, hit.hitpos.y, hit.hitpos.z, daang, u->ID);
                 }
                 // hit non breakable wall - do sound and puff
                 else
                 {
-                    SpawnSwordSparks(pp, hitinfo.sector(), hitinfo.wall(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
-                    PlaySound(DIGI_ARMORHIT, &hitinfo.pos, v3df_none);
+                    SpawnSwordSparks(pp, hit.hitSector, hit.hitWall, hit.hitpos.x, hit.hitpos.y, hit.hitpos.z, daang);
+                    PlaySound(DIGI_ARMORHIT, &hit.hitpos, v3df_none);
                     if (PlayerTakeDamage(pp, nullptr))
                     {
                         PlayerUpdateHealth(pp, -(RandomRange(2<<8)>>8));
@@ -13493,80 +13493,80 @@ void InitHeartAttack(PLAYERp pp)
 
 int ContinueHitscan(PLAYERp pp, sectortype* sect, int x, int y, int z, short ang, int xvect, int yvect, int zvect)
 {
-    HITINFO hitinfo;
+    HitInfo hit;
     USERp u = pp->Actor()->u();
 
     FAFhitscan(x, y, z, sect,
                xvect, yvect, zvect,
-               &hitinfo, CLIPMASK_MISSILE);
+               hit, CLIPMASK_MISSILE);
 
-    if (hitinfo.sector() == nullptr)
+    if (hit.hitSector == nullptr)
         return 0;
 
-    if (hitinfo.hitactor == nullptr && hitinfo.wall() == nullptr)
+    if (hit.actor() == nullptr && hit.hitWall == nullptr)
     {
-        if (labs(hitinfo.pos.z - hitinfo.sector()->ceilingz) <= Z(1))
+        if (labs(hit.hitpos.z - hit.hitSector->ceilingz) <= Z(1))
         {
-            hitinfo.pos.z += Z(16);
-            if (TEST(hitinfo.sector()->ceilingstat, CEILING_STAT_PLAX))
+            hit.hitpos.z += Z(16);
+            if (TEST(hit.hitSector->ceilingstat, CEILING_STAT_PLAX))
                 return 0;
         }
-        else if (labs(hitinfo.pos.z - hitinfo.sector()->floorz) <= Z(1))
+        else if (labs(hit.hitpos.z - hit.hitSector->floorz) <= Z(1))
         {
         }
     }
 
-    if (hitinfo.wall() != nullptr)
+    if (hit.hitWall != nullptr)
     {
-        if (hitinfo.wall()->twoSided())
+        if (hit.hitWall->twoSided())
         {
-            if (TEST(hitinfo.wall()->nextSector()->ceilingstat, CEILING_STAT_PLAX))
+            if (TEST(hit.hitWall->nextSector()->ceilingstat, CEILING_STAT_PLAX))
             {
-                if (hitinfo.pos.z < hitinfo.wall()->nextSector()->ceilingz)
+                if (hit.hitpos.z < hit.hitWall->nextSector()->ceilingz)
                 {
                     return 0;
                 }
             }
         }
 
-        if (hitinfo.wall()->lotag == TAG_WALL_BREAK)
+        if (hit.hitWall->lotag == TAG_WALL_BREAK)
         {
-            HitBreakWall(hitinfo.wall(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ang, u->ID);
+            HitBreakWall(hit.hitWall, hit.hitpos.x, hit.hitpos.y, hit.hitpos.z, ang, u->ID);
             return 0;
         }
 
-        QueueHole(hitinfo.sector(), hitinfo.wall(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z);
+        QueueHole(hit.hitSector, hit.hitWall, hit.hitpos.x, hit.hitpos.y, hit.hitpos.z);
     }
 
     // hit a sprite?
-    if (hitinfo.hitactor != nullptr)
+    if (hit.actor() != nullptr)
     {
-        SPRITEp hsp = &hitinfo.hitactor->s();
+        SPRITEp hsp = &hit.actor()->s();
 
         if (hsp->lotag == TAG_SPRITE_HIT_MATCH)
         {
-            if (MissileHitMatch(nullptr, WPN_SHOTGUN, hitinfo.hitactor))
+            if (MissileHitMatch(nullptr, WPN_SHOTGUN, hit.actor()))
                 return 0;
         }
 
         if (TEST(hsp->extra, SPRX_BREAKABLE))
         {
-            HitBreakSprite(hitinfo.hitactor,0);
+            HitBreakSprite(hit.actor(),0);
             return 0;
         }
 
-        if (BulletHitSprite(pp->Actor(), hitinfo.hitactor, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, 0))
+        if (BulletHitSprite(pp->Actor(), hit.actor(), hit.hitpos.x, hit.hitpos.y, hit.hitpos.z, 0))
             return 0;
 
         // hit a switch?
         if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hsp->lotag || hsp->hitag))
         {
-            ShootableSwitch(hitinfo.hitactor);
+            ShootableSwitch(hit.actor());
         }
     }
 
-    auto j = SpawnShotgunSparks(pp, hitinfo.sector(), hitinfo.wall(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ang);
-    DoHitscanDamage(j, hitinfo.hitactor);
+    auto j = SpawnShotgunSparks(pp, hit.hitSector, hit.hitWall, hit.hitpos.x, hit.hitpos.y, hit.hitpos.z, ang);
+    DoHitscanDamage(j, hit.actor());
 
     return 0;
 }
@@ -13576,7 +13576,7 @@ int InitShotgun(PLAYERp pp)
     USERp u = pp->Actor()->u();
     auto sp = &pp->Actor()->s();
     short daang,ndaang, i;
-    HITINFO hitinfo;
+    HitInfo hit;
     int daz, ndaz;
     int nx,ny,nz;
     int xvect,yvect,zvect;
@@ -13630,40 +13630,40 @@ int InitShotgun(PLAYERp pp)
         zvect = ndaz;
         FAFhitscan(nx, ny, nz, pp->cursector(),               // Start position
                    xvect, yvect, zvect,
-                   &hitinfo, CLIPMASK_MISSILE);
+                   hit, CLIPMASK_MISSILE);
 
-        if (hitinfo.sector() == nullptr)
+        if (hit.hitSector == nullptr)
         {
             continue;
         }
 
-        if (hitinfo.hitactor == nullptr && hitinfo.wall() == nullptr)
+        if (hit.actor() == nullptr && hit.hitWall == nullptr)
         {
-            if (labs(hitinfo.pos.z - hitinfo.sector()->ceilingz) <= Z(1))
+            if (labs(hit.hitpos.z - hit.hitSector->ceilingz) <= Z(1))
             {
-                hitinfo.pos.z += Z(16);
+                hit.hitpos.z += Z(16);
                 SET(cstat, CSTAT_SPRITE_YFLIP);
 
-                if (TEST(hitinfo.sector()->ceilingstat, CEILING_STAT_PLAX))
+                if (TEST(hit.hitSector->ceilingstat, CEILING_STAT_PLAX))
                     continue;
 
-                if (SectorIsUnderwaterArea(hitinfo.sector()))
+                if (SectorIsUnderwaterArea(hit.hitSector))
                 {
-                    WarpToSurface(&hitinfo.hitSector, &hitinfo.pos.x, &hitinfo.pos.y, &hitinfo.pos.z);
-                    ContinueHitscan(pp, hitinfo.sector(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ndaang, xvect, yvect, zvect);
+                    WarpToSurface(&hit.hitSector, &hit.hitpos.x, &hit.hitpos.y, &hit.hitpos.z);
+                    ContinueHitscan(pp, hit.hitSector, hit.hitpos.x, hit.hitpos.y, hit.hitpos.z, ndaang, xvect, yvect, zvect);
                     continue;
                 }
             }
-            else if (labs(hitinfo.pos.z - hitinfo.sector()->floorz) <= Z(1))
+            else if (labs(hit.hitpos.z - hit.hitSector->floorz) <= Z(1))
             {
-                if (TEST(hitinfo.sector()->extra, SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
+                if (TEST(hit.hitSector->extra, SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
                 {
-                    SpawnSplashXY(hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z,hitinfo.sector());
+                    SpawnSplashXY(hit.hitpos.x,hit.hitpos.y,hit.hitpos.z,hit.hitSector);
 
-                    if (SectorIsDiveArea(hitinfo.sector()))
+                    if (SectorIsDiveArea(hit.hitSector))
                     {
-                        WarpToUnderwater(&hitinfo.hitSector, &hitinfo.pos.x, &hitinfo.pos.y, &hitinfo.pos.z);
-                        ContinueHitscan(pp, hitinfo.sector(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ndaang, xvect, yvect, zvect);
+                        WarpToUnderwater(&hit.hitSector, &hit.hitpos.x, &hit.hitpos.y, &hit.hitpos.z);
+                        ContinueHitscan(pp, hit.hitSector, hit.hitpos.x, hit.hitpos.y, hit.hitpos.z, ndaang, xvect, yvect, zvect);
                     }
 
                     continue;
@@ -13671,32 +13671,32 @@ int InitShotgun(PLAYERp pp)
             }
         }
 
-        if (hitinfo.wall() != nullptr)
+        if (hit.hitWall != nullptr)
         {
-            if (hitinfo.wall()->twoSided())
+            if (hit.hitWall->twoSided())
             {
-                if (TEST(hitinfo.wall()->nextSector()->ceilingstat, CEILING_STAT_PLAX))
+                if (TEST(hit.hitWall->nextSector()->ceilingstat, CEILING_STAT_PLAX))
                 {
-                    if (hitinfo.pos.z < hitinfo.wall()->nextSector()->ceilingz)
+                    if (hit.hitpos.z < hit.hitWall->nextSector()->ceilingz)
                     {
                         continue;
                     }
                 }
             }
 
-            if (hitinfo.wall()->lotag == TAG_WALL_BREAK)
+            if (hit.hitWall->lotag == TAG_WALL_BREAK)
             {
-                HitBreakWall(hitinfo.wall(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ndaang, u->ID);
+                HitBreakWall(hit.hitWall, hit.hitpos.x, hit.hitpos.y, hit.hitpos.z, ndaang, u->ID);
                 continue;
             }
 
-            QueueHole(hitinfo.sector(), hitinfo.wall(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z);
+            QueueHole(hit.hitSector, hit.hitWall, hit.hitpos.x, hit.hitpos.y, hit.hitpos.z);
         }
 
         // hit a sprite?
-        if (hitinfo.hitactor != nullptr)
+        if (hit.actor() != nullptr)
         {
-            auto hitActor = hitinfo.hitactor;
+            auto hitActor = hit.actor();
             SPRITEp hsp = &hitActor->s();
             auto hu = hitActor->u();
 
@@ -13724,7 +13724,7 @@ int InitShotgun(PLAYERp pp)
                 continue;
             }
 
-            if (BulletHitSprite(pp->Actor(), hitActor, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, SHOTGUN_SMOKE))
+            if (BulletHitSprite(pp->Actor(), hitActor, hit.hitpos.x, hit.hitpos.y, hit.hitpos.z, SHOTGUN_SMOKE))
                 continue;
 
             // hit a switch?
@@ -13734,8 +13734,8 @@ int InitShotgun(PLAYERp pp)
             }
         }
 
-        auto j = SpawnShotgunSparks(pp, hitinfo.sector(), hitinfo.wall(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ndaang);
-        DoHitscanDamage(j, hitinfo.hitactor);
+        auto j = SpawnShotgunSparks(pp, hit.hitSector, hit.hitWall, hit.hitpos.x, hit.hitpos.y, hit.hitpos.z, ndaang);
+        DoHitscanDamage(j, hit.actor());
     }
 
     DoPlayerBeginRecoil(pp, SHOTGUN_RECOIL_AMT);
@@ -16129,7 +16129,7 @@ int InitUzi(PLAYERp pp)
     SPRITEp wp, hsp;
     USERp wu;
     short daang;
-    HITINFO hitinfo;
+    HitInfo hit;
     int daz, nz;
     int xvect,yvect,zvect;
     short cstat = 0;
@@ -16189,9 +16189,9 @@ int InitUzi(PLAYERp pp)
     zvect = daz;
     FAFhitscan(pp->posx, pp->posy, nz, pp->cursector(),       // Start position
                xvect,yvect,zvect,
-               &hitinfo, CLIPMASK_MISSILE);
+               hit, CLIPMASK_MISSILE);
 
-    if (hitinfo.sector() == nullptr)
+    if (hit.hitSector == nullptr)
     {
         return 0;
     }
@@ -16199,33 +16199,33 @@ int InitUzi(PLAYERp pp)
     SetVisHigh();
 
     // check to see what you hit
-    if (hitinfo.hitactor == nullptr && hitinfo.wall() == nullptr)
+    if (hit.actor() == nullptr && hit.hitWall == nullptr)
     {
-        if (labs(hitinfo.pos.z - hitinfo.sector()->ceilingz) <= Z(1))
+        if (labs(hit.hitpos.z - hit.hitSector->ceilingz) <= Z(1))
         {
-            hitinfo.pos.z += Z(16);
+            hit.hitpos.z += Z(16);
             SET(cstat, CSTAT_SPRITE_YFLIP);
 
-            if (TEST(hitinfo.sector()->ceilingstat, CEILING_STAT_PLAX))
+            if (TEST(hit.hitSector->ceilingstat, CEILING_STAT_PLAX))
                 return 0;
 
-            if (SectorIsUnderwaterArea(hitinfo.sector()))
+            if (SectorIsUnderwaterArea(hit.hitSector))
             {
-                WarpToSurface(&hitinfo.hitSector, &hitinfo.pos.x, &hitinfo.pos.y, &hitinfo.pos.z);
-                ContinueHitscan(pp, hitinfo.sector(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, xvect, yvect, zvect);
+                WarpToSurface(&hit.hitSector, &hit.hitpos.x, &hit.hitpos.y, &hit.hitpos.z);
+                ContinueHitscan(pp, hit.hitSector, hit.hitpos.x, hit.hitpos.y, hit.hitpos.z, daang, xvect, yvect, zvect);
                 return 0;
             }
         }
-        else if (labs(hitinfo.pos.z - hitinfo.sector()->floorz) <= Z(1))
+        else if (labs(hit.hitpos.z - hit.hitSector->floorz) <= Z(1))
         {
-            if (TEST(hitinfo.sector()->extra, SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
+            if (TEST(hit.hitSector->extra, SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
             {
-                SpawnSplashXY(hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z,hitinfo.sector());
+                SpawnSplashXY(hit.hitpos.x,hit.hitpos.y,hit.hitpos.z,hit.hitSector);
 
-                if (SectorIsDiveArea(hitinfo.sector()))
+                if (SectorIsDiveArea(hit.hitSector))
                 {
-                    WarpToUnderwater(&hitinfo.hitSector, &hitinfo.pos.x, &hitinfo.pos.y, &hitinfo.pos.z);
-                    ContinueHitscan(pp, hitinfo.sector(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, xvect, yvect, zvect);
+                    WarpToUnderwater(&hit.hitSector, &hit.hitpos.x, &hit.hitpos.y, &hit.hitpos.z);
+                    ContinueHitscan(pp, hit.hitSector, hit.hitpos.x, hit.hitpos.y, hit.hitpos.z, daang, xvect, yvect, zvect);
                     return 0;
                 }
 
@@ -16234,13 +16234,13 @@ int InitUzi(PLAYERp pp)
         }
     }
 
-    if (hitinfo.wall() != nullptr)
+    if (hit.hitWall != nullptr)
     {
-        if (hitinfo.wall()->twoSided())
+        if (hit.hitWall->twoSided())
         {
-            if (TEST(hitinfo.wall()->nextSector()->ceilingstat, CEILING_STAT_PLAX))
+            if (TEST(hit.hitWall->nextSector()->ceilingstat, CEILING_STAT_PLAX))
             {
-                if (hitinfo.pos.z < hitinfo.wall()->nextSector()->ceilingz)
+                if (hit.hitpos.z < hit.hitWall->nextSector()->ceilingz)
                 {
                     return 0;
                 }
@@ -16248,19 +16248,19 @@ int InitUzi(PLAYERp pp)
         }
 
 
-        if (hitinfo.wall()->lotag == TAG_WALL_BREAK)
+        if (hit.hitWall->lotag == TAG_WALL_BREAK)
         {
-            HitBreakWall(hitinfo.wall(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, u->ID);
+            HitBreakWall(hit.hitWall, hit.hitpos.x, hit.hitpos.y, hit.hitpos.z, daang, u->ID);
             return 0;
         }
 
-        QueueHole(hitinfo.sector(), hitinfo.wall(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z);
+        QueueHole(hit.hitSector, hit.hitWall, hit.hitpos.x, hit.hitpos.y, hit.hitpos.z);
     }
 
     // hit a sprite?
-    if (hitinfo.hitactor != nullptr)
+    if (hit.actor() != nullptr)
     {
-        auto hitActor = hitinfo.hitactor;
+        auto hitActor = hit.actor();
         SPRITEp hsp = &hitActor->s();
         auto hu = hitActor->u();
 
@@ -16288,7 +16288,7 @@ int InitUzi(PLAYERp pp)
             return 0;
         }
 
-        if (BulletHitSprite(pp->Actor(), hitActor, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, 0))
+        if (BulletHitSprite(pp->Actor(), hitActor, hit.hitpos.x, hit.hitpos.y, hit.hitpos.z, 0))
             return 0;
 
         // hit a switch?
@@ -16299,7 +16299,7 @@ int InitUzi(PLAYERp pp)
     }
 
 
-    auto actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hitinfo.sector(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, 0);
+    auto actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hit.hitSector, hit.hitpos.x, hit.hitpos.y, hit.hitpos.z, daang, 0);
     wp = &actorNew->s();
     wp->shade = -40;
     wp->xrepeat = UZI_SMOKE_REPEAT;
@@ -16308,10 +16308,10 @@ int InitUzi(PLAYERp pp)
     SET(wp->cstat, cstat | CSTAT_SPRITE_YCENTER);
     wp->clipdist = 8 >> 2;
 
-    HitscanSpriteAdjust(actorNew, hitinfo.wall());
-    DoHitscanDamage(actorNew, hitinfo.hitactor);
+    HitscanSpriteAdjust(actorNew, hit.hitWall);
+    DoHitscanDamage(actorNew, hit.actor());
 
-    actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hitinfo.sector(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, 0);
+    actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit.hitSector, hit.hitpos.x, hit.hitpos.y, hit.hitpos.z, daang, 0);
     wp = &actorNew->s();
     wu = actorNew->u();
     wp->shade = -40;
@@ -16322,7 +16322,7 @@ int InitUzi(PLAYERp pp)
     SET(wp->cstat, cstat | CSTAT_SPRITE_YCENTER);
     wp->clipdist = 8 >> 2;
 
-    HitscanSpriteAdjust(actorNew, hitinfo.wall());
+    HitscanSpriteAdjust(actorNew, hit.hitWall);
 
     if (RANDOM_P2(1024) < 100)
     {
@@ -16699,7 +16699,7 @@ int InitSobjMachineGun(DSWActor* actor, PLAYERp pp)
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
     short daang;
-    HITINFO hitinfo;
+    HitInfo hit;
     int daz;
     int nx,ny,nz;
     short cstat = 0;
@@ -16735,28 +16735,28 @@ int InitSobjMachineGun(DSWActor* actor, PLAYERp pp)
                bcos(daang),      // X vector of 3D ang
                bsin(daang),      // Y vector of 3D ang
                daz,              // Z vector of 3D ang
-               &hitinfo, CLIPMASK_MISSILE);
+               hit, CLIPMASK_MISSILE);
 
-    if (hitinfo.sector() == nullptr)
+    if (hit.hitSector == nullptr)
     {
         return 0;
     }
 
-    if (hitinfo.hitactor == nullptr && hitinfo.wall() == nullptr)
+    if (hit.actor() == nullptr && hit.hitWall == nullptr)
     {
-        if (labs(hitinfo.pos.z - hitinfo.sector()->ceilingz) <= Z(1))
+        if (labs(hit.hitpos.z - hit.hitSector->ceilingz) <= Z(1))
         {
-            hitinfo.pos.z += Z(16);
+            hit.hitpos.z += Z(16);
             SET(cstat, CSTAT_SPRITE_YFLIP);
 
-            if (TEST(hitinfo.sector()->ceilingstat, CEILING_STAT_PLAX))
+            if (TEST(hit.hitSector->ceilingstat, CEILING_STAT_PLAX))
                 return 0;
         }
-        else if (labs(hitinfo.pos.z - hitinfo.sector()->floorz) <= Z(1))
+        else if (labs(hit.hitpos.z - hit.hitSector->floorz) <= Z(1))
         {
-            if (TEST(hitinfo.sector()->extra, SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
+            if (TEST(hit.hitSector->extra, SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
             {
-                SpawnSplashXY(hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z,hitinfo.sector());
+                SpawnSplashXY(hit.hitpos.x,hit.hitpos.y,hit.hitpos.z,hit.hitSector);
                 return 0;
             }
         }
@@ -16764,38 +16764,38 @@ int InitSobjMachineGun(DSWActor* actor, PLAYERp pp)
     }
 
     // hit a sprite?
-    if (hitinfo.hitactor != nullptr)
+    if (hit.actor() != nullptr)
     {
-        SPRITEp hsp = &hitinfo.hitactor->s();
+        SPRITEp hsp = &hit.actor()->s();
 
         if (hsp->lotag == TAG_SPRITE_HIT_MATCH)
         {
             // spawn sparks here and pass the sprite as SO_MISSILE
-            spark = SpawnBoatSparks(pp, hitinfo.sector(), hitinfo.wall(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
+            spark = SpawnBoatSparks(pp, hit.hitSector, hit.hitWall, hit.hitpos.x, hit.hitpos.y, hit.hitpos.z, daang);
             SET(spark->u()->Flags2, SPR2_SO_MISSILE);
-            if (MissileHitMatch(spark, -1, hitinfo.hitactor))
+            if (MissileHitMatch(spark, -1, hit.actor()))
                 return 0;
             return 0;
         }
 
         if (TEST(hsp->extra, SPRX_BREAKABLE))
         {
-            HitBreakSprite(hitinfo.hitactor, 0);
+            HitBreakSprite(hit.actor(), 0);
             return 0;
         }
 
-        if (BulletHitSprite(pp->Actor(), hitinfo.hitactor, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, 0))
+        if (BulletHitSprite(pp->Actor(), hit.actor(), hit.hitpos.x, hit.hitpos.y, hit.hitpos.z, 0))
             return 0;
 
         // hit a switch?
         if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hsp->lotag || hsp->hitag))
         {
-            ShootableSwitch(hitinfo.hitactor);
+            ShootableSwitch(hit.actor());
         }
     }
 
-    spark = SpawnBoatSparks(pp, hitinfo.sector(), hitinfo.wall(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
-    DoHitscanDamage(spark, hitinfo.hitactor);
+    spark = SpawnBoatSparks(pp, hit.hitSector, hit.hitWall, hit.hitpos.x, hit.hitpos.y, hit.hitpos.z, daang);
+    DoHitscanDamage(spark, hit.actor());
 
     return 0;
 }
@@ -17067,7 +17067,7 @@ int InitTurretMgun(SECTOR_OBJECTp sop)
 {
     SPRITEp hsp;
     short daang, i;
-    HITINFO hitinfo;
+    HitInfo hit;
     int daz;
     int nx,ny,nz;
     short cstat = 0;
@@ -17092,9 +17092,9 @@ int InitTurretMgun(SECTOR_OBJECTp sop)
             {
                 // only auto aim for Z
                 daang = 512;
-                auto hit = WeaponAutoAimHitscan(actor, &daz, &daang, false);
-                hitinfo.hitactor = hit;
-                if (hit != nullptr)
+                auto hitt = WeaponAutoAimHitscan(actor, &daz, &daang, false);
+                hit.hitActor = hitt;
+                if (hitt != nullptr)
                 {
                     delta = short(abs(getincangle(sp->ang, daang)));
                     if (delta > 128)
@@ -17106,7 +17106,7 @@ int InitTurretMgun(SECTOR_OBJECTp sop)
                     {
                         // always shoot the ground when tracking
                         // and not close
-                        WeaponHitscanShootFeet(actor, hit, &daz);
+                        WeaponHitscanShootFeet(actor, hitt, &daz);
 
                         daang = sp->ang;
                         daang = NORM_ANGLE(daang + RANDOM_P2(32) - 16);
@@ -17136,7 +17136,7 @@ int InitTurretMgun(SECTOR_OBJECTp sop)
 
             FAFhitscan(nx, ny, nz, sp->sector(),       // Start position
                        xvect, yvect, zvect,
-                       &hitinfo, CLIPMASK_MISSILE);
+                       hit, CLIPMASK_MISSILE);
 
             if (RANDOM_P2(1024) < 400)
             {
@@ -17144,82 +17144,82 @@ int InitTurretMgun(SECTOR_OBJECTp sop)
                                      xvect>>4, yvect>>4, zvect>>4);
             }
 
-            if (hitinfo.sector() == nullptr)
+            if (hit.hitSector == nullptr)
                 continue;
 
-            if (hitinfo.hitactor == nullptr && hitinfo.wall() == nullptr)
+            if (hit.actor() == nullptr && hit.hitWall == nullptr)
             {
-                if (labs(hitinfo.pos.z - hitinfo.sector()->ceilingz) <= Z(1))
+                if (labs(hit.hitpos.z - hit.hitSector->ceilingz) <= Z(1))
                 {
-                    hitinfo.pos.z += Z(16);
+                    hit.hitpos.z += Z(16);
                     SET(cstat, CSTAT_SPRITE_YFLIP);
 
-                    if (TEST(hitinfo.sector()->ceilingstat, CEILING_STAT_PLAX))
+                    if (TEST(hit.hitSector->ceilingstat, CEILING_STAT_PLAX))
                         continue;
                 }
-                else if (labs(hitinfo.pos.z - hitinfo.sector()->floorz) <= Z(1))
+                else if (labs(hit.hitpos.z - hit.hitSector->floorz) <= Z(1))
                 {
-                    if (TEST(hitinfo.sector()->extra, SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
+                    if (TEST(hit.hitSector->extra, SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
                     {
-                        SpawnSplashXY(hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z,hitinfo.sector());
+                        SpawnSplashXY(hit.hitpos.x,hit.hitpos.y,hit.hitpos.z,hit.hitSector);
                         continue;
                     }
                 }
 
             }
 
-            if (hitinfo.wall() != nullptr)
+            if (hit.hitWall != nullptr)
             {
-                if (hitinfo.wall()->twoSided())
+                if (hit.hitWall->twoSided())
                 {
-                    if (TEST(hitinfo.wall()->nextSector()->ceilingstat, CEILING_STAT_PLAX))
+                    if (TEST(hit.hitWall->nextSector()->ceilingstat, CEILING_STAT_PLAX))
                     {
-                        if (hitinfo.pos.z < hitinfo.wall()->nextSector()->ceilingz)
+                        if (hit.hitpos.z < hit.hitWall->nextSector()->ceilingz)
                         {
                             return 0;
                         }
                     }
                 }
 
-                if (hitinfo.wall()->lotag == TAG_WALL_BREAK)
+                if (hit.hitWall->lotag == TAG_WALL_BREAK)
                 {
-                    HitBreakWall(hitinfo.wall(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, 0);
+                    HitBreakWall(hit.hitWall, hit.hitpos.x, hit.hitpos.y, hit.hitpos.z, daang, 0);
                     continue;
                 }
 
-                QueueHole(hitinfo.sector(), hitinfo.wall(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z);
+                QueueHole(hit.hitSector, hit.hitWall, hit.hitpos.x, hit.hitpos.y, hit.hitpos.z);
             }
 
             // hit a sprite?
-            if (hitinfo.hitactor != nullptr)
+            if (hit.actor() != nullptr)
             {
-                hsp = &hitinfo.hitactor->s();
+                hsp = &hit.actor()->s();
 
                 if (hsp->lotag == TAG_SPRITE_HIT_MATCH)
                 {
-                    if (MissileHitMatch(nullptr, WPN_UZI, hitinfo.hitactor))
+                    if (MissileHitMatch(nullptr, WPN_UZI, hit.actor()))
                         continue;
                 }
 
                 if (TEST(hsp->extra, SPRX_BREAKABLE))
                 {
-                    HitBreakSprite(hitinfo.hitactor, 0);
+                    HitBreakSprite(hit.actor(), 0);
                     continue;
                 }
 
-                if (BulletHitSprite(actor, hitinfo.hitactor, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, 0))
+                if (BulletHitSprite(actor, hit.actor(), hit.hitpos.x, hit.hitpos.y, hit.hitpos.z, 0))
                     continue;
 
                 // hit a switch?
                 if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hsp->lotag || hsp->hitag))
                 {
-                    ShootableSwitch(hitinfo.hitactor);
+                    ShootableSwitch(hit.actor());
                 }
             }
 
 
-            auto j = SpawnTurretSparks(hitinfo.sector(), hitinfo.wall(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
-            DoHitscanDamage(j, hitinfo.hitactor);
+            auto j = SpawnTurretSparks(hit.hitSector, hit.hitWall, hit.hitpos.x, hit.hitpos.y, hit.hitpos.z, daang);
+            DoHitscanDamage(j, hit.actor());
         }
     }
 
@@ -17233,7 +17233,7 @@ int InitEnemyUzi(DSWActor* actor)
     SPRITEp sp = &actor->s(), wp;
     USERp wu;
     short daang;
-    HITINFO hitinfo;
+    HitInfo hit;
     int daz;
     int zh;
     void InitUziShell(PLAYERp);
@@ -17281,9 +17281,9 @@ int InitEnemyUzi(DSWActor* actor)
                bcos(daang),      // X vector of 3D ang
                bsin(daang),      // Y vector of 3D ang
                daz,              // Z vector of 3D ang
-               &hitinfo, CLIPMASK_MISSILE);
+               hit, CLIPMASK_MISSILE);
 
-    if (hitinfo.sector() == nullptr)
+    if (hit.hitSector == nullptr)
         return 0;
 
     if (RANDOM_P2(1024<<4)>>4 > 700)
@@ -17304,35 +17304,35 @@ int InitEnemyUzi(DSWActor* actor)
             PlaySound(DIGI_NINJAUZIATTACK, actor, v3df_none);
     }
 
-    if (hitinfo.wall() != nullptr)
+    if (hit.hitWall != nullptr)
     {
-        if (hitinfo.wall()->twoSided())
+        if (hit.hitWall->twoSided())
         {
-            if (TEST(hitinfo.wall()->nextSector()->ceilingstat, CEILING_STAT_PLAX))
+            if (TEST(hit.hitWall->nextSector()->ceilingstat, CEILING_STAT_PLAX))
             {
-                if (hitinfo.pos.z < hitinfo.wall()->nextSector()->ceilingz)
+                if (hit.hitpos.z < hit.hitWall->nextSector()->ceilingz)
                 {
                     return 0;
                 }
             }
         }
 
-        if (hitinfo.wall()->lotag == TAG_WALL_BREAK)
+        if (hit.hitWall->lotag == TAG_WALL_BREAK)
         {
-            HitBreakWall(hitinfo.wall(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, u->ID);
+            HitBreakWall(hit.hitWall, hit.hitpos.x, hit.hitpos.y, hit.hitpos.z, daang, u->ID);
             return 0;
         }
 
-        QueueHole(hitinfo.sector(), hitinfo.wall(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z);
+        QueueHole(hit.hitSector, hit.hitWall, hit.hitpos.x, hit.hitpos.y, hit.hitpos.z);
     }
 
-    if (hitinfo.hitactor != nullptr)
+    if (hit.actor() != nullptr)
     {
-        if (BulletHitSprite(actor, hitinfo.hitactor, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, 0))
+        if (BulletHitSprite(actor, hit.actor(), hit.hitpos.x, hit.hitpos.y, hit.hitpos.z, 0))
             return 0;
     }
 
-    auto actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE+2, s_UziSmoke, hitinfo.sector(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, 0);
+    auto actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE+2, s_UziSmoke, hit.hitSector, hit.hitpos.x, hit.hitpos.y, hit.hitpos.z, daang, 0);
     wu = actorNew->u();
     wp = &actorNew->s();
     wp->shade = -40;
@@ -17349,7 +17349,7 @@ int InitEnemyUzi(DSWActor* actor)
 
     wp->clipdist = 32L >> 2;
 
-    actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hitinfo.sector(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, 0);
+    actorNew = SpawnActor(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hit.hitSector, hit.hitpos.x, hit.hitpos.y, hit.hitpos.z, daang, 0);
     wp = &actorNew->s();
     wp->shade = -40;
     wp->xrepeat = UZI_SMOKE_REPEAT;
@@ -17358,10 +17358,10 @@ int InitEnemyUzi(DSWActor* actor)
     SET(wp->cstat, CSTAT_SPRITE_YCENTER);
     wp->clipdist = 8 >> 2;
 
-    HitscanSpriteAdjust(actorNew, hitinfo.wall());
-    DoHitscanDamage(actorNew, hitinfo.hitactor);
+    HitscanSpriteAdjust(actorNew, hit.hitWall);
+    DoHitscanDamage(actorNew, hit.actor());
 
-    actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hitinfo.sector(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, 0);
+    actorNew = SpawnActor(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit.hitSector, hit.hitpos.x, hit.hitpos.y, hit.hitpos.z, daang, 0);
     wu = actorNew->u();
     wp = &actorNew->s();
     wp->shade = -40;
@@ -17372,7 +17372,7 @@ int InitEnemyUzi(DSWActor* actor)
     SET(wp->cstat, CSTAT_SPRITE_YCENTER);
     wp->clipdist = 8 >> 2;
 
-    HitscanSpriteAdjust(actorNew, hitinfo.wall());
+    HitscanSpriteAdjust(actorNew, hit.hitWall);
 
     if (RANDOM_P2(1024) < 100)
     {
@@ -18876,7 +18876,7 @@ DSWActor* QueueWallBlood(DSWActor* actor, short ang)
     int sectnum;
     short rndnum;
     int daz;
-    HITINFO hitinfo;
+    HitInfo hit;
     USERp u = actor->u();
 
 
@@ -18891,22 +18891,22 @@ DSWActor* QueueWallBlood(DSWActor* actor, short ang)
                bcos(dang),      // X vector of 3D ang
                bsin(dang),      // Y vector of 3D ang
                daz,              // Z vector of 3D ang
-               &hitinfo, CLIPMASK_MISSILE);
+               hit, CLIPMASK_MISSILE);
 
-    if (hitinfo.sector() == nullptr)
+    if (hit.hitSector == nullptr)
         return nullptr;
 
     const int WALLBLOOD_DIST_MAX = 2500;
-    if (Distance(hitinfo.pos.x, hitinfo.pos.y, hsp->x, hsp->y) > WALLBLOOD_DIST_MAX)
+    if (Distance(hit.hitpos.x, hit.hitpos.y, hsp->x, hsp->y) > WALLBLOOD_DIST_MAX)
         return nullptr;
 
     // hit a sprite?
-    if (hitinfo.hitactor != nullptr)
+    if (hit.actor() != nullptr)
         return nullptr;   // Don't try to put blood on a sprite
 
-    if (hitinfo.wall() != nullptr)   // Don't check if blood didn't hit a wall, otherwise the ASSERT fails!
+    if (hit.hitWall != nullptr)   // Don't check if blood didn't hit a wall, otherwise the ASSERT fails!
     {
-        if (TestDontStick(nullptr, hitinfo.wall()))
+        if (TestDontStick(nullptr, hit.hitWall))
             return nullptr;
     }
     else
@@ -18921,22 +18921,22 @@ DSWActor* QueueWallBlood(DSWActor* actor, short ang)
     if (rndnum > 768)
     {
         WallBloodQueue[WallBloodQueueHead] = spawnedActor =
-                                                 SpawnActor(STAT_WALLBLOOD_QUEUE, WALLBLOOD1, s_WallBlood1, hitinfo.sector(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ang, 0);
+                                                 SpawnActor(STAT_WALLBLOOD_QUEUE, WALLBLOOD1, s_WallBlood1, hit.hitSector, hit.hitpos.x, hit.hitpos.y, hit.hitpos.z, ang, 0);
     }
     else if (rndnum > 512)
     {
         WallBloodQueue[WallBloodQueueHead] = spawnedActor =
-                                                 SpawnActor(STAT_WALLBLOOD_QUEUE, WALLBLOOD2, s_WallBlood2, hitinfo.sector(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ang, 0);
+                                                 SpawnActor(STAT_WALLBLOOD_QUEUE, WALLBLOOD2, s_WallBlood2, hit.hitSector, hit.hitpos.x, hit.hitpos.y, hit.hitpos.z, ang, 0);
     }
     else if (rndnum > 128)
     {
         WallBloodQueue[WallBloodQueueHead] = spawnedActor =
-                                                 SpawnActor(STAT_WALLBLOOD_QUEUE, WALLBLOOD3, s_WallBlood3, hitinfo.sector(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ang, 0);
+                                                 SpawnActor(STAT_WALLBLOOD_QUEUE, WALLBLOOD3, s_WallBlood3, hit.hitSector, hit.hitpos.x, hit.hitpos.y, hit.hitpos.z, ang, 0);
     }
     else
     {
         WallBloodQueue[WallBloodQueueHead] = spawnedActor =
-                                                 SpawnActor(STAT_WALLBLOOD_QUEUE, WALLBLOOD4, s_WallBlood4, hitinfo.sector(), hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ang, 0);
+                                                 SpawnActor(STAT_WALLBLOOD_QUEUE, WALLBLOOD4, s_WallBlood4, hit.hitSector, hit.hitpos.x, hit.hitpos.y, hit.hitpos.z, ang, 0);
     }
 
     WallBloodQueueHead = (WallBloodQueueHead+1) & (MAX_WALLBLOOD_QUEUE-1);
@@ -18950,18 +18950,18 @@ DSWActor* QueueWallBlood(DSWActor* actor, short ang)
     sp->extra = 0;
     sp->clipdist = 0;
     sp->xoffset = sp->yoffset = 0;
-    sp->x = hitinfo.pos.x;
-    sp->y = hitinfo.pos.y;
-    sp->z = hitinfo.pos.z;
+    sp->x = hit.hitpos.x;
+    sp->y = hit.hitpos.y;
+    sp->z = hit.hitpos.z;
     sp->shade -= 5;  // Brighten it up just a bit
-    spawnedActor->tempwall = hitinfo.wall(); // pass hitinfo.wall
+    spawnedActor->tempwall = hit.hitWall; // pass hitinfo.wall
 
     SET(sp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
     SET(sp->cstat, CSTAT_SPRITE_ONE_SIDED);
     SET(sp->cstat, CSTAT_SPRITE_YCENTER);
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
-    wall_ang = NORM_ANGLE(getangle(hitinfo.wall()->delta()) + 512);
+    wall_ang = NORM_ANGLE(getangle(hit.hitWall->delta()) + 512);
     sp->ang = wall_ang;
 
     // move it back some

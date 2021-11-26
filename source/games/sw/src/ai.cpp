@@ -242,7 +242,7 @@ int CanHitPlayer(DSWActor* actor)
 {
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
-    HITINFO hitinfo;
+    HitInfo hit;
     int xvect,yvect,zvect;
     int ang;
     // if actor can still see the player
@@ -279,12 +279,12 @@ int CanHitPlayer(DSWActor* actor)
                xvect,
                yvect,
                zvect,
-               &hitinfo, CLIPMASK_MISSILE);
+               hit, CLIPMASK_MISSILE);
 
-    if (hitinfo.sector() == nullptr)
+    if (hit.hitSector == nullptr)
         return false;
 
-    if (hitinfo.hitactor == u->targetActor)
+    if (hit.actor() == u->targetActor)
         return true;
 
     return false;

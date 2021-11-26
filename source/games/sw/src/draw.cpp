@@ -934,7 +934,6 @@ CircleCamera(int *nx, int *ny, int *nz, sectortype** vsect, binangle *nang, fixe
     hitscan({ *nx, *ny, *nz }, *vsect, { vx, vy, vz }, hit, CLIPMASK_MISSILE);
 
     sp->cstat = bakcstat;              // Restore cstat
-    //ASSERT(hitinfo.sect >= 0);
 
     hx = hit.hitpos.x - (*nx);
     hy = hit.hitpos.y - (*ny);
