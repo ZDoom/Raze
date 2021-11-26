@@ -1854,6 +1854,7 @@ int AnimSet(int animtype, sectortype* animindex, int thegoal, int thevel)
 {
     return AnimSet(animtype, sectnum(animindex), nullptr, thegoal, thevel);
 }
+
 short AnimSetCallback(short anim_ndx, ANIM_CALLBACKp call, SECTOR_OBJECTp data);
 short AnimSetVelAdj(short anim_ndx, short vel_adj);
 
@@ -1902,7 +1903,7 @@ void FAFhitscan(int32_t x, int32_t y, int32_t z, sectortype* sect,
 
 bool FAFcansee(int32_t xs, int32_t ys, int32_t zs, sectortype* sects, int32_t xe, int32_t ye, int32_t ze, sectortype* secte);
 
-void FAFgetzrange(vec3_t pos, int16_t sectnum,
+void FAFgetzrange(vec3_t pos, sectortype* sect,
                   int32_t* hiz, Collision* ceilhit,
                   int32_t* loz, Collision* florhit,
                   int32_t clipdist, int32_t clipmask);

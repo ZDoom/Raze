@@ -4603,7 +4603,7 @@ void DoActorZrange(DSWActor* actor)
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK);
     vec3_t pos = sp->pos;
     pos.z -= DIV2(SPRITEp_SIZE_Z(sp));
-    FAFgetzrange(pos, sp->sectnum, &u->hiz, &ceilhit, &u->loz, &florhit, (((int) sp->clipdist) << 2) - GETZRANGE_CLIP_ADJ, CLIPMASK_ACTOR);
+    FAFgetzrange(pos, sp->sector(), &u->hiz, &ceilhit, &u->loz, &florhit, (((int) sp->clipdist) << 2) - GETZRANGE_CLIP_ADJ, CLIPMASK_ACTOR);
     SET(sp->cstat, save_cstat);
 
     u->lo_sectp = u->hi_sectp = nullptr;
@@ -6502,7 +6502,7 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
     // player. Seems to work ok!
     vec3_t pos = spr->pos;
     pos.z -= zh + 1;
-    FAFgetzrange(pos, spr->sectnum,
+    FAFgetzrange(pos, spr->sector(),
                  &globhiz, &globhihit, &globloz, &globlohit,
                  (((int) spr->clipdist) << 2) - GETZRANGE_CLIP_ADJ, cliptype);
 

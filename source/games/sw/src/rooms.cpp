@@ -468,9 +468,8 @@ void WaterAdjust(const Collision& florhit, int32_t* loz)
     }
 }
 
-void FAFgetzrange(vec3_t pos, int16_t sectnum, int32_t* hiz, Collision* ceilhit, int32_t* loz, Collision* florhit, int32_t clipdist, int32_t clipmask)
+void FAFgetzrange(vec3_t pos, sectortype* sect, int32_t* hiz, Collision* ceilhit, int32_t* loz, Collision* florhit, int32_t clipdist, int32_t clipmask)
 {
-    sectortype* sect = &sector[sectnum];
     int foo1;
     Collision foo2;
     bool SkipFAFcheck;
@@ -481,7 +480,7 @@ void FAFgetzrange(vec3_t pos, int16_t sectnum, int32_t* hiz, Collision* ceilhit,
     // because the ceiling and floors get moved out of the way for drawing.
 
     // early out to regular routine
-    if (sectnum < 0 || !FAF_ConnectArea(sect))
+    if (sect == nullptr || !FAF_ConnectArea(sect))
     {
         getzrange(pos, sect, hiz,  *ceilhit, loz,  *florhit, clipdist, clipmask);
         SectorZadjust(*ceilhit, hiz, *florhit, loz);
@@ -568,7 +567,7 @@ void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, sectortype* const sect,
 
         updatesectorz(x, y, newz, &uppersect);
         if (uppersect < 0)
-            return; // _ErrMsg(ERR_STD_ARG, "Did not find a sector at %d, %d, %d, sectnum %d", x, y, newz, sectnum);
+            return;
         getzrangepoint(x, y, newz, uppersect, hiz,  ceilhit, &foo1,  &foo2);
         SectorZadjust(*ceilhit, hiz, trash, nullptr);
     }
@@ -580,7 +579,7 @@ void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, sectortype* const sect,
             return;
         updatesectorz(x, y, newz, &lowersect);
         if (lowersect < 0)
-            return; // _ErrMsg(ERR_STD_ARG, "Did not find a sector at %d, %d, %d, sectnum %d", x, y, newz, sectnum);
+            return;
         getzrangepoint(x, y, newz, lowersect, &foo1,  &foo2, loz,  florhit);
         SectorZadjust(trash, nullptr, *florhit, loz);
         WaterAdjust(*florhit, loz);

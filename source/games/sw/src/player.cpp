@@ -1872,7 +1872,7 @@ void DoPlayerZrange(PLAYERp pp)
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK);
     vec3_t pos = pp->pos;
     pos.z += Z(8);
-    FAFgetzrange(pos, sectnum(pp->cursector), &pp->hiz, &ceilhit, &pp->loz, &florhit, ((int)sp->clipdist<<2) - GETZRANGE_CLIP_ADJ, CLIPMASK_PLAYER);
+    FAFgetzrange(pos, pp->cursector, &pp->hiz, &ceilhit, &pp->loz, &florhit, ((int)sp->clipdist<<2) - GETZRANGE_CLIP_ADJ, CLIPMASK_PLAYER);
     sp->cstat = bakcstat;
 
     Collision ceilColl(ceilhit);
