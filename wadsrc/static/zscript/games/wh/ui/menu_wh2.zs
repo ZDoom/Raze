@@ -31,6 +31,17 @@ class WH2MenuDelegate : RazeMenuDelegate
 }
 
 
+class WH2MainMenu : ListMenu
+{
+	override void Init(Menu parent, ListMenuDescriptor desc)
+	{
+		Super.Init(parent, desc);
+		Witchaven.PlayMenuMusic();
+	}
+
+}
+
+
 //=============================================================================
 //
 // text item

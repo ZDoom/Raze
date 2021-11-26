@@ -491,6 +491,7 @@ inline int spritesound(int sn, DWHActor* s, int loop = 0, int channel = CHAN_AUT
 void startmusic(int);
 void startsong(int);
 void setupmidi();
+void SND_MenuMusic();
 
 extern int attacktheme;
 
@@ -517,6 +518,7 @@ struct GameInterface : public ::GameInterface
 	bool GenerateSavePic() override;
 	GameStats getStats() override;
 	void MenuOpened() override;
+	//void MenuClosed() override;
 	void MenuSound(EMenuSounds snd) override;
 	bool CanSave() override;
 	void LoadGameTextures() override;

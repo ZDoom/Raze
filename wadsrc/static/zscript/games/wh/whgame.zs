@@ -208,6 +208,7 @@ struct Witchaven native
 
 	native static void PlaySound(int s);
 	native static WhPlayer GetViewPlayer();
+	native static void PlayMenuMusic();
 }
 
 struct WhWeaponInf native {

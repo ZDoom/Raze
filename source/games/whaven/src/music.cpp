@@ -45,7 +45,7 @@ void startsong(int which) // 0, 1, 2 or 3
 void startmusic(int level) 
 {
 	// allow music override from MAPINFO.
-	if (currentLevel->music.IsNotEmpty())
+	if (currentLevel && currentLevel->music.IsNotEmpty())
 	{
 		Mus_Play(currentLevel->music, true);
 		oldsong = -1;

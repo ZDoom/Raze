@@ -924,4 +924,11 @@ DEFINE_ACTION_FUNCTION(_Witchaven, GetViewPlayer)
 {
 	ACTION_RETURN_POINTER(&player[myconnectindex]);
 }
+
+DEFINE_ACTION_FUNCTION_NATIVE(_Witchaven, PlayMenuMusic, SND_MenuMusic)
+{
+	SND_MenuMusic();
+	return 0;
+}
+
 END_WH_NS

@@ -89,6 +89,7 @@ LISTMENU "MainMenu"
 	}
 	ifgame(Witchaven2)
 	{
+		class "WH2MainMenu"
 		position 160, 35
 		Linespacing 22
 		WH2TextItem "$MNU_NEWGAME", "n", "SkillMenu"
