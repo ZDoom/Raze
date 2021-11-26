@@ -358,7 +358,7 @@ int HitScan(DBloodActor *actor, int z, int dx, int dy, int dz, unsigned int nMas
 
     hitscangoal.x = hitscangoal.y = 0x1ffffff;
     pSprite->cstat = bakCstat;
-    if (gHitInfo.hitActor != nullptr)
+    if (gHitInfo.actor() != nullptr)
         return 3;
     if (gHitInfo.hitWall != nullptr)
     {
@@ -568,7 +568,7 @@ void GetZRange(DBloodActor *actor, int *ceilZ, Collision *ceilColl, int *floorZ,
     floorColl->setFromEngine(floorHit);
     if (floorColl->type == kHitSector)
     {
-        auto pSector = floorColl->sector();
+        auto pSector = floorColl->hitSector;
         if ((nClipParallax & PARALLAXCLIP_FLOOR) == 0 && (pSector->floorstat & 1))
             *floorZ = 0x7fffffff;
         if (pSector->hasX())
@@ -588,7 +588,7 @@ void GetZRange(DBloodActor *actor, int *ceilZ, Collision *ceilColl, int *floorZ,
     }
     if (ceilColl->type == kHitSector)
     {
-        auto pSector = ceilColl->sector();
+        auto pSector = ceilColl->hitSector;
         if ((nClipParallax & PARALLAXCLIP_CEILING) == 0 && (pSector->ceilingstat & 1))
             *ceilZ = 0x80000000;
         auto actor = pSector->lowerLink;
@@ -614,7 +614,7 @@ void GetZRangeAtXYZ(int x, int y, int z, sectortype* pSector, int *ceilZ, Collis
     floorColl->setFromEngine(floorHit);
     if (floorColl->type == kHitSector)
     {
-        auto pSector = floorColl->sector();
+        auto pSector = floorColl->hitSector;
         if ((nClipParallax & PARALLAXCLIP_FLOOR) == 0 && (pSector->floorstat & 1))
             *floorZ = 0x7fffffff;
         if (pSector->hasX())
@@ -634,7 +634,7 @@ void GetZRangeAtXYZ(int x, int y, int z, sectortype* pSector, int *ceilZ, Collis
     }
     if (ceilColl->type == kHitSector)
     {
-        auto pSector = ceilColl->sector();
+        auto pSector = ceilColl->hitSector;
         if ((nClipParallax & PARALLAXCLIP_CEILING) == 0 && (pSector->ceilingstat & 1))
             *ceilZ = 0x80000000;
         auto actor = pSector->lowerLink;
@@ -676,20 +676,19 @@ int GetDistToLine(int x1, int y1, int x2, int y2, int x3, int y3)
     return approxDist(t1-x1, t2-y1);
 }
 
-unsigned int ClipMove(vec3_t* pos, sectortype** pSector, int xv, int yv, int wd, int cd, int fd, unsigned int nMask, int tracecount)
+void ClipMove(vec3_t& pos, sectortype** pSector, int xv, int yv, int wd, int cd, int fd, unsigned int nMask, Collision& hit, int tracecount)
 {
-    auto opos = *pos;
+    auto opos = pos;
     sectortype* bakSect = *pSector;
-    unsigned int nRes = clipmove(pos, &bakSect, xv << 14, yv << 14, wd, cd, fd, nMask, tracecount);
+    clipmove(pos, &bakSect, xv << 14, yv << 14, wd, cd, fd, nMask, hit, tracecount);
     if (bakSect == nullptr)
     {
-        *pos = opos;
+        pos = opos;
     }
     else
     {
         *pSector = bakSect;
     }
-    return nRes;
 }
 
 BitArray GetClosestSpriteSectors(sectortype* pSector, int x, int y, int nDist, TArray<walltype*>* pWalls, bool newSectCheckMethod)

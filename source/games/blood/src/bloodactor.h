@@ -6,87 +6,6 @@ BEGIN_BLD_NS
 
 class DBloodActor;
 
-// Wrapper around the insane collision info mess from Build.
-struct Collision
-{
-	int type;
-	int index;
-	int legacyVal;	// should be removed later, but needed for converting back for unadjusted code.
-	DBloodActor* actor;
-
-	Collision() = default;
-	Collision(int legacyval) { setFromEngine(legacyval); }
-
-	// need forward declarations of these.
-	int actorIndex(DBloodActor*);
-	DBloodActor* Actor(int);
-
-	int setNone()
-	{
-		type = kHitNone;
-		index = -1;
-		legacyVal = 0;
-		actor = nullptr;
-		return kHitNone;
-	}
-
-	int setSector(int num)
-	{
-		type = kHitSector;
-		index = num;
-		legacyVal = type | index;
-		actor = nullptr;
-		return kHitSector;
-	}
-	int setSector(sectortype* num)
-	{
-		type = kHitSector;
-		index = sectnum(num);
-		legacyVal = type | index;
-		actor = nullptr;
-		return kHitSector;
-	}
-	int setWall(int num)
-	{
-		type = kHitWall;
-		index = num;
-		legacyVal = type | index;
-		actor = nullptr;
-		return kHitWall;
-	}
-	int setSprite(DBloodActor* num)
-	{
-		type = kHitSprite;
-		index = -1;
-		legacyVal = type | actorIndex(num);
-		actor = num;
-		return kHitSprite;
-	}
-
-	int setFromEngine(int value)
-	{
-		legacyVal = value;
-		type = value & kHitTypeMask;
-		if (type == 0) { index = -1; actor = nullptr; }
-		else if (type != kHitSprite) { index = value & kHitIndexMask; actor = nullptr; }
-		else { index = -1; actor = Actor(value & kHitIndexMask); }
-		return type;
-	}
-
-	walltype* wall() const
-	{
-		assert(type == kHitWall);
-		return &::wall[index];
-	}
-
-	sectortype* sector() const
-	{
-		assert(type == kHitSector);
-		return &::sector[index];
-	}
-
-};
-
 struct SPRITEHIT
 {
 	Collision hit, ceilhit, florhit;
@@ -388,16 +307,6 @@ inline void ChangeActorSect(DBloodActor* actor, int stat)
 inline void ChangeActorSect(DBloodActor* actor, sectortype* stat)
 {
 	ChangeSpriteSect(actor->GetSpriteIndex(), sectnum(stat));
-}
-
-inline int Collision::actorIndex(DBloodActor* actor)
-{
-	return int(actor - bloodActors);
-}
-
-inline DBloodActor* Collision::Actor(int a)
-{
-	return &bloodActors[a];
 }
 
 inline void setActorPos(DBloodActor* actor, vec3_t* pos)

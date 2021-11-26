@@ -146,8 +146,8 @@ static bool genDudeAdjustSlope(DBloodActor* actor, int dist, int weaponType, int
         for (int i = -8191; i < 8192; i += by) 
         {
             HitScan(actor, pSprite->z, bcos(pSprite->ang), bsin(pSprite->ang), i, clipMask, dist);
-            if (!fStart && actor->GetTarget() == gHitInfo.hitActor) fStart = i;
-            else if (fStart && actor->GetTarget() != gHitInfo.hitActor) 
+            if (!fStart && actor->GetTarget() == gHitInfo.actor()) fStart = i;
+            else if (fStart && actor->GetTarget() != gHitInfo.actor()) 
             { 
                 fEnd = i; 
                 break; 
@@ -779,7 +779,7 @@ static void unicultThinkChase(DBloodActor* actor)
                         objDist = approxDist(gHitInfo.hitpos.x - pSprite->x, gHitInfo.hitpos.y - pSprite->y);
                     }
 
-                    if (actor != gHitInfo.hitActor && targetDist > objDist) 
+                    if (actor != gHitInfo.actor() && targetDist > objDist) 
                     {
                         DBloodActor* hitactor = nullptr;
                         walltype* pHWall = NULL; 
@@ -889,7 +889,7 @@ static void unicultThinkChase(DBloodActor* actor)
                             {
                                 if (genDudeAdjustSlope(actor, dist, weaponType)) break;
                                 VectorScan(actor, 0, 0, bcos(pSprite->ang), bsin(pSprite->ang), actor->dudeSlope, dist, 1);
-                                if (actor == gHitInfo.hitActor) break;
+                                if (actor == gHitInfo.actor()) break;
                                 
                                 bool immune = nnExtIsImmune(hitactor, gVectorData[curWeapon].dmgType);
                                 if (!(pXHSprite != NULL && (!immune || (immune && pHSprite->statnum == kStatThing && pXHSprite->Vector)) && !pXHSprite->locked)) 
@@ -950,7 +950,7 @@ static void unicultThinkChase(DBloodActor* actor)
                                 bool masked = (pHWall->cstat & CSTAT_WALL_MASKED);
                                 if (masked) VectorScan(actor, 0, 0, bcos(pSprite->ang), bsin(pSprite->ang), actor->dudeSlope, dist, 1);
 
-                                if ((actor != gHitInfo.hitActor) && (pHWall->type != kWallGib || !masked || pXHWall == NULL || !pXHWall->triggerVector || pXHWall->locked)) 
+                                if ((actor != gHitInfo.actor()) && (pHWall->type != kWallGib || !masked || pXHWall == NULL || !pXHWall->triggerVector || pXHWall->locked)) 
                                 {
                                     if (spriteIsUnderwater(actor)) aiGenDudeNewState(actor, &genDudeChaseW);
                                     else aiGenDudeNewState(actor, &genDudeChaseL);

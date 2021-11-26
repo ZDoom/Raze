@@ -28,6 +28,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 class DBloodActor;
+using HitInfo = THitInfo<DBloodActor>;
+using Collision = TCollision<DBloodActor>;
 
 void playlogos();
 unsigned int qrand(void);
@@ -110,7 +112,6 @@ extern int nPrecacheCount;
 
 void tilePrecacheTile(int nTile, int nType, int palette);
 
-struct Collision;
 int tileGetSurfType(int hit);
 int tileGetSurfType(Collision& hit);
 

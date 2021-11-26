@@ -2845,8 +2845,8 @@ static DBloodActor* actDropKey(DBloodActor* actor, int nType)
 		{
 			act2->addX();
 			act2->x().respawn = 3;
-			act2->hit.florhit = 0;
-			act2->hit.ceilhit = 0;
+			act2->hit.florhit.setNone();
+			act2->hit.ceilhit.setNone();
 		}
 		return act2;
 	}
@@ -4205,15 +4205,15 @@ static void checkCeilHit(DBloodActor* actor)
 	auto pSprite = &actor->s();
 	auto pXSprite = actor->hasX() ? &actor->x() : nullptr;
 
-	Collision coll(actor->hit.ceilhit);
+	const auto& coll = actor->hit.ceilhit;
 	switch (coll.type)
 	{
 	case kHitWall:
 		break;
 	case kHitSprite:
-		if (coll.actor->hasX())
+		if (coll.actor()->hasX())
 		{
-			auto actor2 = coll.actor;
+			auto actor2 = coll.actor();
 			spritetype* pSprite2 = &actor2->s();
 			XSPRITE* pXSprite2 = &actor2->x();
 			if ((pSprite2->statnum == kStatThing || pSprite2->statnum == kStatDude) && (actor->xvel != 0 || actor->yvel != 0 || actor->zvel != 0))
@@ -4313,15 +4313,15 @@ static void checkHit(DBloodActor* actor)
 	auto pSprite = &actor->s();
 	auto pXSprite = actor->hasX() ? &actor->x() : nullptr;
 
-	Collision coll(actor->hit.hit);
+	const auto& coll = actor->hit.ceilhit;
 	switch (coll.type)
 	{
 	case kHitWall:
 		break;
 	case kHitSprite:
-		if (coll.actor->hasX())
+		if (coll.actor()->hasX())
 		{
-			auto actor2 = coll.actor;
+			auto actor2 = coll.actor();
 			spritetype* pSprite2 = &actor2->s();
 
 #ifdef NOONE_EXTENSIONS
@@ -4386,18 +4386,18 @@ static void checkFloorHit(DBloodActor* actor)
 {
 	auto pSprite = &actor->s();
 
-	Collision coll(actor->hit.florhit);
+	const auto& coll = actor->hit.ceilhit;
 	switch (coll.type)
 	{
 	case kHitWall:
 		break;
 	case kHitSector:
-		actTouchFloor(actor, coll.sector());
+		actTouchFloor(actor, coll.hitSector);
 		break;
 	case kHitSprite:
-		if (coll.actor->hasX())
+		if (coll.actor()->hasX())
 		{
-			auto actor2 = coll.actor;
+			auto actor2 = coll.actor();
 			spritetype* pSprite2 = &actor2->s();
 			XSPRITE* pXSprite2 = &actor2->x();
 
@@ -4528,7 +4528,7 @@ static void ProcessTouchObjects(DBloodActor* actor)
 		{
 			if (coll->type == kHitSprite)
 			{
-				actor2 = coll->actor;
+				actor2 = coll->actor();
 				break;
 			}
 		}
@@ -4541,11 +4541,11 @@ static void ProcessTouchObjects(DBloodActor* actor)
 		}
 
 		// Touch walls
-		Collision coll = actor->hit.hit;
+		const auto& coll = actor->hit.ceilhit;
 		walltype* pHWall = nullptr;
 		if (coll.type == kHitWall)
 		{
-			pHWall = coll.wall();
+			pHWall = coll.hitWall;
 			if (pHWall && pHWall->hasX())
 			{
 				if (pHWall->xw().triggerTouch && !pHWall->xw().isTriggered && (!pHWall->xw().dudeLockout || actor->IsPlayerActor()))
@@ -4616,7 +4616,8 @@ static Collision MoveThing(DBloodActor* actor)
 		pSprite->cstat &= ~257;
 		if ((actor->GetOwner()) && !cl_bloodvanillaexplosions && !VanillaMode())
 			enginecompatibility_mode = ENGINECOMPATIBILITY_NONE; // improved clipmove accuracy
-		lhit = actor->hit.hit = ClipMove(&pSprite->pos, &pSector, actor->xvel >> 12, actor->yvel >> 12, pSprite->clipdist << 2, (pSprite->z - top) / 4, (bottom - pSprite->z) / 4, CLIPMASK0);
+		ClipMove(pSprite->pos, &pSector, actor->xvel >> 12, actor->yvel >> 12, pSprite->clipdist << 2, (pSprite->z - top) / 4, (bottom - pSprite->z) / 4, CLIPMASK0, lhit);
+		actor->hit.hit = lhit;
 		enginecompatibility_mode = bakCompat; // restore
 		pSprite->cstat = bakCstat;
 		assert(pSector);
@@ -4629,7 +4630,7 @@ static Collision MoveThing(DBloodActor* actor)
 		Collision &coll = actor->hit.hit;
 		if (coll.type == kHitWall)
 		{
-			actWallBounceVector(&actor->xvel, &actor->yvel, coll.wall(), pThingInfo->elastic);
+			actWallBounceVector(&actor->xvel, &actor->yvel, coll.hitWall, pThingInfo->elastic);
 			switch (pSprite->type)
 			{
 			case kThingZombieHead:
@@ -4733,7 +4734,7 @@ static Collision MoveThing(DBloodActor* actor)
 	}
 	else
 	{
-		actor->hit.florhit = 0;
+		actor->hit.florhit.setNone();
 
 		if (pSprite->flags & 2)
 			pSprite->flags |= 4;
@@ -4766,7 +4767,7 @@ static Collision MoveThing(DBloodActor* actor)
 			}
 		}
 	}
-	else actor->hit.ceilhit = 0;
+	else actor->hit.ceilhit.setNone();
 
 	if (bottom >= floorZ)
 	{
@@ -4776,7 +4777,7 @@ static Collision MoveThing(DBloodActor* actor)
 
 		if (coll.type == kHitSprite)
 		{
-			auto hitActor = coll.actor;
+			auto hitActor = coll.actor();
 			auto hitSpr = &hitActor->s();
 			if ((hitSpr->cstat & 0x30) == 0)
 			{
@@ -4839,7 +4840,7 @@ void MoveDude(DBloodActor* actor)
 		{
 			auto bakCstat = pSprite->cstat;
 			pSprite->cstat &= ~257;
-			actor->hit.hit = ClipMove(&pSprite->pos, &pSector, actor->xvel >> 12, actor->yvel >> 12, wd, tz, bz, CLIPMASK0);
+			ClipMove(pSprite->pos, &pSector, actor->xvel >> 12, actor->yvel >> 12, wd, tz, bz, CLIPMASK0, actor->hit.hit);
 			if (pSector == nullptr)
 			{
 				pSector = pSprite->sector();
@@ -4863,34 +4864,34 @@ void MoveDude(DBloodActor* actor)
 		{
 		case kHitSprite:
 		{
-			spritetype* pHitSprite = &coll.actor->s();
-			XSPRITE* pHitXSprite = coll.actor->hasX() ? &coll.actor->x() : nullptr;;
+			spritetype* pHitSprite = &coll.actor()->s();
+			XSPRITE* pHitXSprite = coll.actor()->hasX() ? &coll.actor()->x() : nullptr;;
 
-			auto Owner = coll.actor->GetOwner();
+			auto Owner = coll.actor()->GetOwner();
 
 			if (pHitSprite->statnum == kStatProjectile && !(pHitSprite->flags & 32) && actor != Owner)
 			{
 				auto hitInfo = gHitInfo;
 				gHitInfo.hitActor = actor;
-				actImpactMissile(coll.actor, 3);
+				actImpactMissile(coll.actor(), 3);
 				gHitInfo = hitInfo;
 			}
 #ifdef NOONE_EXTENSIONS
 			if (!gModernMap && pHitXSprite && pHitXSprite->Touch && !pHitXSprite->state && !pHitXSprite->isTriggered)
-				trTriggerSprite(coll.actor, kCmdSpriteTouch);
+				trTriggerSprite(coll.actor(), kCmdSpriteTouch);
 #else
 			if (pHitXSprite && pHitXSprite->Touch && !pHitXSprite->state && !pHitXSprite->isTriggered)
 				trTriggerSprite(coll.actor, kCmdSpriteTouch);
 #endif
 
 			if (pDudeInfo->lockOut && pHitXSprite && pHitXSprite->Push && !pHitXSprite->key && !pHitXSprite->DudeLockout && !pHitXSprite->state && !pHitXSprite->busy && !pPlayer)
-				trTriggerSprite(coll.actor, kCmdSpritePush);
+				trTriggerSprite(coll.actor(), kCmdSpritePush);
 
 			break;
 		}
 		case kHitWall:
 		{
-			walltype* pHitWall = coll.wall();
+			walltype* pHitWall = coll.hitWall;
 			XWALL* pHitXWall = nullptr;
 			if (pHitWall->hasX()) pHitXWall = &pHitWall->xw();
 
@@ -5240,7 +5241,7 @@ void MoveDude(DBloodActor* actor)
 	}
 	else
 	{
-		actor->hit.florhit = 0;
+		actor->hit.florhit.setNone();
 
 		if (pSprite->flags & 2)
 			pSprite->flags |= 4;
@@ -5254,7 +5255,7 @@ void MoveDude(DBloodActor* actor)
 			actor->zvel = MulScale(-actor->zvel, 0x2000, 16);
 	}
 	else
-		actor->hit.ceilhit = 0;
+		actor->hit.ceilhit.setNone();
 
 	GetActorExtents(actor, &top, &bottom);
 
@@ -5263,7 +5264,7 @@ void MoveDude(DBloodActor* actor)
 	{
 		if (floorColl.type == kHitSprite)
 		{
-			auto hitAct = floorColl.actor;
+			auto hitAct = floorColl.actor();
 			if ((hitAct->s().cstat & 0x30) == 0)
 			{
 				actor->xvel += MulScale(4, pSprite->x - hitAct->s().x, 2);
@@ -5347,7 +5348,8 @@ int MoveMissile(DBloodActor* actor)
 			enginecompatibility_mode = ENGINECOMPATIBILITY_NONE; // improved clipmove accuracy
 			pSprite->cstat &= ~257; // remove self collisions for accurate clipmove
 		}
-		Collision clipmoveresult = ClipMove(&pos, &pSector2, vx, vy, pSprite->clipdist << 2, (pos.z - top) / 4, (bottom - pos.z) / 4, CLIPMASK0, 1);
+		Collision clipmoveresult;
+		ClipMove(pos, &pSector2, vx, vy, pSprite->clipdist << 2, (pos.z - top) / 4, (bottom - pos.z) / 4, CLIPMASK0, clipmoveresult, 1);
 		enginecompatibility_mode = bakCompat; // restore
 		pSprite->cstat = bakSpriteCstat;
 		auto pSector = pSector2;
@@ -5358,24 +5360,24 @@ int MoveMissile(DBloodActor* actor)
 		}
 		if (clipmoveresult.type == kHitSprite)
 		{
-			gHitInfo.hitActor = clipmoveresult.actor;
+			gHitInfo.hitActor = clipmoveresult.actor();
 			cliptype = 3;
 		}
 		else if (clipmoveresult.type == kHitWall)
 		{
-			gHitInfo.hitWall = clipmoveresult.wall();
+			gHitInfo.hitWall = clipmoveresult.hitWall;
 			if (!gHitInfo.hitWall->twoSided()) cliptype = 0;
 			else
 			{
 				int32_t fz, cz;
-				getzsofslopeptr(clipmoveresult.wall()->nextSector(), pos.x, pos.y, &cz, &fz);
+				getzsofslopeptr(clipmoveresult.hitWall->nextSector(), pos.x, pos.y, &cz, &fz);
 				if (pos.z <= cz || pos.z >= fz) cliptype = 0;
 				else cliptype = 4;
 			}
 		}
 		if (cliptype == 4)
 		{
-			walltype* pWall = clipmoveresult.wall();
+			walltype* pWall = clipmoveresult.hitWall;
 			if (pWall->hasX())
 			{
 				XWALL* pXWall = &pWall->xw();
@@ -5808,7 +5810,7 @@ static void actCheckThings()
 						{
 							pSprite->xrepeat = 32;
 							pSprite->yrepeat = 32;
-							actDamageSprite(actor->GetOwner(), hit.actor, kDamageFall, pXSprite->data1);
+							actDamageSprite(actor->GetOwner(), hit.actor(), kDamageFall, pXSprite->data1);
 						}
 						break;
 #endif
@@ -5816,7 +5818,7 @@ static void actCheckThings()
 						seqSpawn(24, actor, -1);
 						if (hit.type == kHitSprite)
 						{
-							actDamageSprite(actor->GetOwner(), hit.actor, kDamageFall, 12);
+							actDamageSprite(actor->GetOwner(), hit.actor(), kDamageFall, 12);
 						}
 						break;
 
@@ -5828,7 +5830,7 @@ static void actCheckThings()
 						}
 						else if (hit.type == kHitSprite)
 						{
-							actDamageSprite(actor->GetOwner(), hit.actor, kDamageFall, 12);
+							actDamageSprite(actor->GetOwner(), hit.actor(), kDamageFall, 12);
 							evPostActor(actor, 0, kCallbackFXPodBloodSplat);
 						}
 						break;
@@ -6329,8 +6331,8 @@ DBloodActor* actSpawnSprite(sectortype* pSector, int x, int y, int z, int nStat,
 	if (setextra && !actor->hasX())
 	{
 		actor->addX();
-		actor->hit.florhit = 0;
-		actor->hit.ceilhit = 0;
+		actor->hit.florhit.setNone();
+		actor->hit.ceilhit.setNone();
 		if (!VanillaMode()) actor->SetTarget(nullptr);
 	}
 	return actor;
@@ -6356,8 +6358,8 @@ DBloodActor* actSpawnSprite(DBloodActor* source, int nStat)
 	actor->zvel = source->zvel;
 	pSprite->flags = 0;
 	actor->addX();
-	actor->hit.florhit = 0;
-	actor->hit.ceilhit = 0;
+	actor->hit.florhit.setNone();
+	actor->hit.ceilhit.setNone();
 	if (!VanillaMode()) actor->SetTarget(nullptr);
 	return actor;
 }
@@ -7284,21 +7286,6 @@ void actBurnSprite(DBloodActor* pSource, DBloodActor* pTarget, int nTime)
 //
 //
 //---------------------------------------------------------------------------
-
-FSerializer& Serialize(FSerializer& arc, const char* keyname, Collision& w, Collision* def)
-{
-	int empty = 0;
-	if (arc.isReading()) w = {};
-	if (arc.BeginObject(keyname))
-	{
-		arc("type", w.type, &empty)
-			("index", w.index, &empty)
-			("legacyval", w.legacyVal, &empty)
-			("actor", w.actor)
-			.EndObject();
-	}
-	return arc;
-}
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, SPRITEHIT& w, SPRITEHIT* def)
 {

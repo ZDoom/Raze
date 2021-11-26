@@ -1283,7 +1283,7 @@ void nnExtProcessSuperSprites()
                         if (!vector)
                             pSightSpr->cstat &= ~CSTAT_SPRITE_BLOCK_HITSCAN;
 
-                        if (gHitInfo.hitActor == gSightSpritesList[i])
+                        if (gHitInfo.actor() == gSightSpritesList[i])
                         {
                             trTriggerSprite(gHitInfo.actor(), kCmdSpriteSight);
                             break;
@@ -1357,7 +1357,7 @@ void nnExtProcessSuperSprites()
                     pPlayer = &gPlayer[a];
                     auto pact = pPlayer->actor;
 
-                    if (pact->hit.hit.type == kHitSprite && pact->hit.hit.actor == debrisactor) 
+                    if (pact->hit.hit.type == kHitSprite && pact->hit.hit.actor() == debrisactor) 
                     {
                         int nSpeed = approxDist(pact->xvel, pact->yvel);
                             nSpeed = ClipLow(nSpeed - MulScale(nSpeed, mass, 6), 0x9000 - (mass << 3));
@@ -1702,8 +1702,9 @@ void debrisMove(int listIndex)
         auto oldcstat = pSprite->cstat;
         pSprite->cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
-        moveHit = actor->hit.hit = ClipMove(&pSprite->pos, &pSector, actor->xvel >> 12,
-            actor->yvel >> 12, clipDist, ceilDist, floorDist, CLIPMASK0);
+        ClipMove(pSprite->pos, &pSector, actor->xvel >> 12,
+            actor->yvel >> 12, clipDist, ceilDist, floorDist, CLIPMASK0, moveHit);
+        actor->hit.hit = moveHit;
 
         pSprite->cstat = oldcstat;
         if (pSprite->sector() != pSector) 
@@ -1722,7 +1723,7 @@ void debrisMove(int listIndex)
         if (actor->hit.hit.type == kHitWall)
         {
             moveHit = actor->hit.hit;
-            actWallBounceVector(&actor->xvel, &actor->yvel, moveHit.wall(), tmpFraction);
+            actWallBounceVector(&actor->xvel, &actor->yvel, moveHit.hitWall, tmpFraction);
         }
 
     } 
@@ -1883,10 +1884,10 @@ void debrisMove(int listIndex)
     else if (floorColl.type == kHitSprite)
     {
 
-        if ((floorColl.actor->s().cstat & 0x30) == 0)
+        if ((floorColl.actor()->s().cstat & 0x30) == 0)
         {
-            actor->xvel += MulScale(4, pSprite->x - floorColl.actor->s().x, 2);
-            actor->yvel += MulScale(4, pSprite->y - floorColl.actor->s().y, 2);
+            actor->xvel += MulScale(4, pSprite->x - floorColl.actor()->s().x, 2);
+            actor->yvel += MulScale(4, pSprite->y - floorColl.actor()->s().y, 2);
             return;
         }
     }
@@ -3348,11 +3349,11 @@ void useSpriteDamager(DBloodActor* sourceactor, int objType, sectortype* targSec
                     continue;
                 else if (enter)
                     damageSprites(sourceactor, iactor);
-                else if (floor && hit.florhit.type == kHitSector && hit.florhit.sector() == targSect)
+                else if (floor && hit.florhit.type == kHitSector && hit.florhit.hitSector == targSect)
                     damageSprites(sourceactor, iactor);
-                else if (ceil && hit.ceilhit.type == kHitSector && hit.ceilhit.sector() == targSect)
+                else if (ceil && hit.ceilhit.type == kHitSector && hit.ceilhit.hitSector == targSect)
                     damageSprites(sourceactor, iactor);
-                else if (wall && hit.hit.type == kHitWall && hit.hit.wall()->sectorp() == targSect)
+                else if (wall && hit.hit.type == kHitWall && hit.hit.hitWall->sectorp() == targSect)
                     damageSprites(sourceactor, iactor);
             }
             break;
@@ -4527,15 +4528,15 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
                 return condCmp((kPercFull * pXSpr->health) / ClipLow(var, 1), arg1, arg2, cmpOp);
             case 55: // touching ceil of sector?
                 if (objActor->hit.ceilhit.type != kHitSector) return false;
-                else if (PUSH) condPush(aCond, objActor->hit.ceilhit.sector());
+                else if (PUSH) condPush(aCond, objActor->hit.ceilhit.hitSector);
                 return true;
             case 56: // touching floor of sector?
                 if (objActor->hit.florhit.type != kHitSector) return false;
-                else if (PUSH) condPush(aCond, objActor->hit.florhit.sector());
+                else if (PUSH) condPush(aCond, objActor->hit.florhit.hitSector);
                 return true;
             case 57: // touching walls of sector?
                 if (objActor->hit.hit.type != kHitWall) return false;
-                else if (PUSH) condPush(aCond, objActor->hit.hit.wall());
+                else if (PUSH) condPush(aCond, objActor->hit.hit.hitWall);
                 return true;
             case 58: // touching another sprite?
             {
@@ -4544,15 +4545,15 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
                 {
                     case 0:
                     case 1:
-                    if (objActor->hit.florhit.type == kHitSprite) actorvar = objActor->hit.florhit.actor;
+                    if (objActor->hit.florhit.type == kHitSprite) actorvar = objActor->hit.florhit.actor();
                         if (arg3 || var >= 0) break;
                     [[fallthrough]];
                     case 2:
-                    if (objActor->hit.hit.type == kHitSprite) actorvar = objActor->hit.hit.actor;
+                    if (objActor->hit.hit.type == kHitSprite) actorvar = objActor->hit.hit.actor();
                         if (arg3 || var >= 0) break;
                     [[fallthrough]];
                     case 3:
-                    if (objActor->hit.ceilhit.type == kHitSprite) actorvar = objActor->hit.ceilhit.actor;
+                    if (objActor->hit.ceilhit.type == kHitSprite) actorvar = objActor->hit.ceilhit.actor();
                         break;
                 }
                 if (actorvar == nullptr) 
@@ -4567,15 +4568,15 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
                         {
                             case 0:
                             case 1:
-                            if (hit.ceilhit.type == kHitSprite && hit.ceilhit.actor == objActor) actorvar = iactor;
+                            if (hit.ceilhit.type == kHitSprite && hit.ceilhit.actor() == objActor) actorvar = iactor;
                             if (arg3 || actorvar) break;
                             [[fallthrough]];
                             case 2:
-                            if (hit.hit.type == kHitSprite && hit.hit.actor == objActor) actorvar = iactor;
+                            if (hit.hit.type == kHitSprite && hit.hit.actor() == objActor) actorvar = iactor;
                             if (arg3 || actorvar) break;
                             [[fallthrough]];
                             case 3:
-                            if (hit.florhit.type == kHitSprite && hit.florhit.actor == objActor) actorvar = iactor;
+                            if (hit.florhit.type == kHitSprite && hit.florhit.actor() == objActor) actorvar = iactor;
                                 break;
                         }
                     }
@@ -7498,7 +7499,7 @@ bool nnExtCanMove(DBloodActor* actor, DBloodActor* target, int nAngle, int nRang
     HitScan(actor, z, Cos(nAngle) >> 16, Sin(nAngle) >> 16, 0, CLIPMASK0, nRange);
     int nDist = approxDist(x - gHitInfo.hitpos.x, y - gHitInfo.hitpos.y);
     if (target != nullptr && nDist - (pSprite->clipdist << 2) < nRange)
-        return (target == gHitInfo.hitActor);
+        return (target == gHitInfo.actor());
 
     x += MulScale(nRange, Cos(nAngle), 30);
     y += MulScale(nRange, Sin(nAngle), 30);
@@ -8034,7 +8035,7 @@ void aiPatrolMove(DBloodActor* actor)
    
     if (actor->hit.hit.type == kHitSprite)
     {
-        auto hitactor = actor->hit.hit.actor;
+        auto hitactor = actor->hit.hit.actor();
         hitactor->x().dodgeDir =  -1;
         pXSprite->dodgeDir  =   1;
         aiMoveDodge(hitactor);
@@ -8184,9 +8185,9 @@ bool spritesTouching(DBloodActor *actor1, DBloodActor* actor2)
 
     auto hit = &actor1->hit;
     DBloodActor* hitactor = nullptr;
-    if (hit->hit.type == kHitSprite) hitactor = hit->hit.actor;
-    else if (hit->florhit.type == kHitSprite) hitactor = hit->florhit.actor;
-    else if (hit->ceilhit.type == kHitSprite) hitactor = hit->ceilhit.actor;
+    if (hit->hit.type == kHitSprite) hitactor = hit->hit.actor();
+    else if (hit->florhit.type == kHitSprite) hitactor = hit->florhit.actor();
+    else if (hit->ceilhit.type == kHitSprite) hitactor = hit->ceilhit.actor();
     else return false;
     return hitactor->hasX() && hitactor == actor2;
 }

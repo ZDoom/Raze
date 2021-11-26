@@ -1251,7 +1251,7 @@ int ActionScan(PLAYER *pPlayer, HitInfo* out)
         {
         case 3:
             {
-            if (!gHitInfo.hitActor || !gHitInfo.actor()->hasX()) return -1;
+            if (!gHitInfo.actor() || !gHitInfo.actor()->hasX()) return -1;
             out->hitActor = gHitInfo.actor();
             spritetype* pSprite = &gHitInfo.actor()->s();
             XSPRITE* pXSprite = &gHitInfo.actor()->x();
@@ -2145,7 +2145,7 @@ void playerLandingSound(PLAYER *pPlayer)
     SPRITEHIT* pHit = &pPlayer->actor->hit;
     if (pHit->florhit.type != kHitNone)
     {
-        if (!gGameOptions.bFriendlyFire && pHit->florhit.type == kHitSprite && IsTargetTeammate(pPlayer, &pHit->florhit.actor->s()))
+        if (!gGameOptions.bFriendlyFire && pHit->florhit.type == kHitSprite && IsTargetTeammate(pPlayer, &pHit->florhit.actor()->s()))
             return;
         int nSurf = tileGetSurfType(pHit->florhit);
         if (nSurf)

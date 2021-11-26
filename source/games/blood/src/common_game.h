@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "printf.h"
 #include "v_text.h"
 #include "seqcb.h"
+#include "coreactor.h"
 
 BEGIN_BLD_NS
 

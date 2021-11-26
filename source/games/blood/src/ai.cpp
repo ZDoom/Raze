@@ -142,7 +142,7 @@ bool CanMove(DBloodActor* actor, DBloodActor* target, int nAngle, int nRange)
 	int nDist = approxDist(x - gHitInfo.hitpos.x, y - gHitInfo.hitpos.y);
 	if (nDist - (pSprite->clipdist << 2) < nRange)
 	{
-		if (gHitInfo.hitActor == nullptr || target == nullptr || target != gHitInfo.hitActor)
+		if (gHitInfo.actor() == nullptr || target == nullptr || target != gHitInfo.actor())
 			return false;
 		return true;
 	}
