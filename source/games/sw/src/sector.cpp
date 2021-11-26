@@ -611,7 +611,7 @@ void SectorMidPoint(sectortype* sectp, int *xmid, int *ymid, int *zmid)
 void DoSpringBoard(PLAYERp pp/*, short sectnum*/)
 {
 
-    pp->jump_speed = -pp->cursector()->hitag;
+    pp->jump_speed = -pp->cursector->hitag;
     DoPlayerBeginForceJump(pp);
     return;
 }
@@ -1453,7 +1453,7 @@ int OperateSprite(DSWActor* actor, short player_is_operating)
     {
         pp = GlobPlayerP;
 
-        if (!FAFcansee(pp->posx, pp->posy, pp->posz, pp->cursector(), sp->x, sp->y, sp->z - DIV2(SPRITEp_SIZE_Z(sp)), sp->sector()))
+        if (!FAFcansee(pp->posx, pp->posy, pp->posz, pp->cursector, sp->x, sp->y, sp->z - DIV2(SPRITEp_SIZE_Z(sp)), sp->sector()))
             return false;
     }
 
@@ -1843,10 +1843,10 @@ void OperateTripTrigger(PLAYERp pp)
     if (!pp->insector())
         return;
 
-    SECTORp sectp = pp->cursector();
+    SECTORp sectp = pp->cursector;
 
     // old method
-    switch (pp->cursector()->lotag)
+    switch (pp->cursector->lotag)
     {
     // same tag for sector as for switch
     case TAG_LEVEL_EXIT_SWITCH:
@@ -1864,7 +1864,7 @@ void OperateTripTrigger(PLAYERp pp)
         if (pp == Player+myconnectindex)
             PlayerSound(DIGI_ANCIENTSECRET, v3df_dontpan|v3df_doppler|v3df_follow,pp);
 
-        SECRET_Trigger(pp->cursectnum);
+        SECRET_Trigger(sectnum(pp->cursector));
 
         PutStringInfo(pp, GStrings("TXTS_SECRET"));
         // always give to the first player
@@ -1939,31 +1939,31 @@ void OperateTripTrigger(PLAYERp pp)
     case TAG_TRIGGER_MISSILE_TRAP:
     {
         // reset traps so they fire immediately
-        DoTrapReset(pp->cursector()->hitag);
+        DoTrapReset(pp->cursector->hitag);
         break;
     }
 
     case TAG_TRIGGER_EXPLODING_SECTOR:
     {
-        DoMatchEverything(nullptr, pp->cursector()->hitag, -1);
+        DoMatchEverything(nullptr, pp->cursector->hitag, -1);
         break;
     }
 
     case TAG_SPAWN_ACTOR_TRIGGER:
     {
-        DoMatchEverything(nullptr, pp->cursector()->hitag, -1);
+        DoMatchEverything(nullptr, pp->cursector->hitag, -1);
 
-        pp->cursector()->hitag = 0;
-        pp->cursector()->lotag = 0;
+        pp->cursector->hitag = 0;
+        pp->cursector->lotag = 0;
         break;
     }
 
     case TAG_SO_EVENT_TRIGGER:
     {
-        DoMatchEverything(nullptr, pp->cursector()->hitag, -1);
+        DoMatchEverything(nullptr, pp->cursector->hitag, -1);
 
-        pp->cursector()->hitag = 0;
-        pp->cursector()->lotag = 0;
+        pp->cursector->hitag = 0;
+        pp->cursector->lotag = 0;
 
         PlaySound(DIGI_REGULARSWITCH, pp, v3df_none);
         break;
@@ -1979,11 +1979,11 @@ void OperateContinuousTrigger(PLAYERp pp)
     if (!pp->insector())
         return;
 
-    switch (pp->cursector()->lotag)
+    switch (pp->cursector->lotag)
     {
     case TAG_TRIGGER_MISSILE_TRAP:
     {
-        DoTrapMatch(pp->cursector()->hitag);
+        DoTrapMatch(pp->cursector->hitag);
 
         break;
     }
@@ -1993,7 +1993,7 @@ void OperateContinuousTrigger(PLAYERp pp)
 
 short PlayerTakeSectorDamage(PLAYERp pp)
 {
-    auto sectu = pp->cursector();
+    auto sectu = pp->cursector;
     USERp u = pp->Actor()->u();
 
     // the calling routine must make sure sectu exists
@@ -2017,14 +2017,14 @@ bool NearThings(PLAYERp pp)
 
 
     // Check player's current sector for triggered sound
-    if (pp->cursector()->hitag == PLAYER_SOUNDEVENT_TAG)
+    if (pp->cursector->hitag == PLAYER_SOUNDEVENT_TAG)
     {
         if (pp == Player+myconnectindex)
-            PlayerSound(pp->cursector()->lotag, v3df_follow|v3df_dontpan,pp);
+            PlayerSound(pp->cursector->lotag, v3df_follow|v3df_dontpan,pp);
         return false;
     }
 
-    neartag(pp->posx, pp->posy, pp->posz, pp->cursectnum, pp->angle.ang.asbuild(),
+    neartag(pp->posx, pp->posy, pp->posz, sectnum(pp->cursector), pp->angle.ang.asbuild(),
             &neartagsect, &neartagwall, &neartagsprite,
             &neartaghitdist, 1024L, NTAG_SEARCH_LO_HI, nullptr);
 
@@ -2061,7 +2061,7 @@ bool NearThings(PLAYERp pp)
         HitInfo hit;
         short dang = pp->angle.ang.asbuild();
 
-        FAFhitscan(pp->posx, pp->posy, pp->posz - Z(30), pp->cursector(),    // Start position
+        FAFhitscan(pp->posx, pp->posy, pp->posz - Z(30), pp->cursector,    // Start position
                    bcos(dang),  // X vector of 3D ang
                    bsin(dang),  // Y vector of 3D ang
                    0,           // Z vector of 3D ang
@@ -2112,7 +2112,7 @@ void NearTagList(NEAR_TAG_INFOp ntip, PLAYERp pp, int z, int dist, int type, int
     int neartaghitdist;
 
 
-    neartag(pp->posx, pp->posy, z, pp->cursectnum, pp->angle.ang.asbuild(),
+    neartag(pp->posx, pp->posy, z, sectnum(pp->cursector), pp->angle.ang.asbuild(),
             &neartagsector, &neartagwall, &neartagsprite,
             &neartaghitdist, dist, type, nullptr);
 
@@ -2354,20 +2354,20 @@ void PlayerOperateEnv(PLAYERp pp)
             // Trigger operations
             //
 
-			switch (pp->cursector()->lotag)
+			switch (pp->cursector->lotag)
             {
             case TAG_VATOR:
-                DoVatorOperate(pp, pp->cursector());
-                DoSpikeOperate(pp->cursector());
-                DoRotatorOperate(pp, pp->cursector());
-                DoSlidorOperate(pp, pp->cursector());
+                DoVatorOperate(pp, pp->cursector);
+                DoSpikeOperate(pp->cursector);
+                DoRotatorOperate(pp, pp->cursector);
+                DoSlidorOperate(pp, pp->cursector);
                 break;
             case TAG_SPRING_BOARD:
                 DoSpringBoard(pp);
                 pp->KeyPressBits &= ~SB_OPEN;
                 break;
             case TAG_DOOR_ROTATE:
-                if (OperateSector(pp->cursector(), true))
+                if (OperateSector(pp->cursector, true))
                     pp->KeyPressBits &= ~SB_OPEN;
                 break;
             }
@@ -2385,7 +2385,7 @@ void PlayerOperateEnv(PLAYERp pp)
     //
     // ////////////////////////////
 
-    SECTORp sectp = pp->cursector();
+    SECTORp sectp = pp->cursector;
     if (pp->insector() && sectp->hasU() && sectp->damage)
     {
         if (TEST(sectp->flags, SECTFU_DAMAGE_ABOVE_SECTOR))
@@ -2413,11 +2413,11 @@ void PlayerOperateEnv(PLAYERp pp)
     OperateContinuousTrigger(pp);
 
     // just changed sectors
-    if (pp->lastcursector() != pp->cursector())
+    if (pp->lastcursector != pp->cursector)
     {
         OperateTripTrigger(pp);
 
-        if (pp->insector() && TEST(pp->cursector()->extra, SECTFX_WARP_SECTOR))
+        if (pp->insector() && TEST(pp->cursector->extra, SECTFX_WARP_SECTOR))
         {
             if (!TEST(pp->Flags2, PF2_TELEPORTED))
             {

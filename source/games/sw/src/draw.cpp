@@ -1091,8 +1091,8 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, sectortype** tsect, binan
             ang_test = getincangle(ang.asbuild(), sp->ang) < sp->lotag;
 
             FAFcansee_test =
-                (FAFcansee(sp->x, sp->y, sp->z, sp->sector(), *tx, *ty, *tz, pp->cursector()) ||
-                 FAFcansee(sp->x, sp->y, sp->z, sp->sector(), *tx, *ty, *tz + SPRITEp_SIZE_Z(&pp->Actor()->s()), pp->cursector()));
+                (FAFcansee(sp->x, sp->y, sp->z, sp->sector(), *tx, *ty, *tz, pp->cursector) ||
+                 FAFcansee(sp->x, sp->y, sp->z, sp->sector(), *tx, *ty, *tz + SPRITEp_SIZE_Z(&pp->Actor()->s()), pp->cursector));
 
             player_in_camera = ang_test && FAFcansee_test;
 
@@ -1429,17 +1429,13 @@ drawscreen(PLAYERp pp, double smoothratio)
     int tx, ty, tz;
     binangle tang, trotscrnang;
     fixedhoriz thoriz;
-    int tsectnum;
+    sectortype* tsect;
     short i,j;
     int bob_amt = 0;
     int quake_z, quake_x, quake_y;
     short quake_ang;
     extern bool FAF_DebugView;
     PLAYERp camerapp;                       // prediction player if prediction is on, else regular player
-
-    // last valid stuff
-    static short lv_sectnum = -1;
-    static int lv_x, lv_y, lv_z;
 
     int const viewingRange = viewingrange;
 
@@ -1482,18 +1478,9 @@ drawscreen(PLAYERp pp, double smoothratio)
         thoriz = pp->horizon.sum();
         trotscrnang = pp->angle.rotscrnang;
     }
-    tsectnum = camerapp->cursectnum;
+    tsect = camerapp->cursector;
 
-    updatesector(tx, ty, &tsectnum);
-
-    if (tsectnum >= 0)
-    {
-        // last valid stuff
-        lv_sectnum = tsectnum;
-        lv_x = tx;
-        lv_y = ty;
-        lv_z = tz;
-    }
+    updatesector(tx, ty, &tsect);
 
     if (pp->sop_riding || pp->sop_control)
     {
@@ -1505,8 +1492,8 @@ drawscreen(PLAYERp pp, double smoothratio)
             tz = pp->posz;
             tang = pp->angle.ang;
         }
-        tsectnum = pp->cursectnum;
-        updatesectorz(tx, ty, tz, &tsectnum);
+        tsect = pp->cursector;
+        updatesectorz(tx, ty, tz, &tsect);
     }
 
     pp->six = tx;
@@ -1531,15 +1518,14 @@ drawscreen(PLAYERp pp, double smoothratio)
             tang = bvectangbam(pp->sop_remote->xmid - tx, pp->sop_remote->ymid - ty);
     }
 
-    auto pSect = &sector[tsectnum];
     if (TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE))
     {
         tz -= 8448;
         
-        if (!calcChaseCamPos(&tx, &ty, &tz, &pp->Actor()->s(), &pSect, tang, thoriz, smoothratio))
+        if (!calcChaseCamPos(&tx, &ty, &tz, &pp->Actor()->s(), &tsect, tang, thoriz, smoothratio))
         {
             tz += 8448;
-            calcChaseCamPos(&tx, &ty, &tz, &pp->Actor()->s(), &pSect, tang, thoriz, smoothratio);
+            calcChaseCamPos(&tx, &ty, &tz, &pp->Actor()->s(), &tsect, tang, thoriz, smoothratio);
         }
     }
     else
@@ -1548,10 +1534,9 @@ drawscreen(PLAYERp pp, double smoothratio)
 
         if (CameraTestMode)
         {
-            CameraView(camerapp, &tx, &ty, &tz, &pSect, &tang, &thoriz);
+            CameraView(camerapp, &tx, &ty, &tz, &tsect, &tang, &thoriz);
         }
     }
-    tsectnum = sectnum(pSect);
 
     if (!TEST(pp->Flags, PF_VIEW_FROM_CAMERA|PF_VIEW_FROM_OUTSIDE))
     {
@@ -1575,12 +1560,12 @@ drawscreen(PLAYERp pp, double smoothratio)
     if (!testnewrenderer)
     {
         renderSetRollAngle((float)trotscrnang.asbuildf());
-        polymost_drawscreen(pp, tx, ty, tz, tang, thoriz, pSect);
+        polymost_drawscreen(pp, tx, ty, tz, tang, thoriz, tsect);
     }
     else
     {
         UpdateWallPortalState();
-        render_drawrooms(&pp->Actor()->s(), { tx, ty, tz }, tsectnum, tang, thoriz, trotscrnang, smoothratio);
+        render_drawrooms(&pp->Actor()->s(), { tx, ty, tz }, sectnum(tsect), tang, thoriz, trotscrnang, smoothratio);
         RestorePortalState();
     }
 
@@ -1595,7 +1580,7 @@ drawscreen(PLAYERp pp, double smoothratio)
     }
 
 
-    MarkSectorSeen(pp->cursectnum);
+    MarkSectorSeen(sectnum(pp->cursector));
 
     if ((automapMode != am_off) && pp == Player+myconnectindex)
     {

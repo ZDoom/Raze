@@ -736,7 +736,6 @@ struct PLAYERstruct
     int oposx, oposy, oposz;
 
     // holds last valid move position
-    int lv_sectnum;
     int lv_x,lv_y,lv_z;
 
     REMOTE_CONTROL remote;
@@ -768,12 +767,14 @@ struct PLAYERstruct
     int16_t circle_camera_ang;
     int16_t camera_check_time_delay;
 
-    int cursectnum,lastcursectnum;
-    sectortype* cursector() { return cursectnum < 0? nullptr : &sector[cursectnum]; }
-    sectortype* lastcursector() { return lastcursectnum < 0 ? nullptr : &sector[lastcursectnum]; }
-    void setcursector(sectortype* s) { cursectnum = sectnum(s); }
-    bool insector() const { return cursectnum >= 0; }
-    void backupcursector() { lastcursectnum = cursectnum;  }
+    
+    sectortype
+        * cursector,
+        * lastcursector,
+        * lv_sector;
+
+    void setcursector(sectortype* s) { cursector = s; }
+    bool insector() const { return cursector != nullptr; }
     fixed_t turn180_target; // 180 degree turn
 
     // variables that do not fit into sprite structure
@@ -904,8 +905,6 @@ struct PLAYERstruct
     int cookieTime;
 
     uint8_t WpnReloadState;
-
-    sectortype* cursector() const { return &sector[cursectnum]; }
 };
 
 extern PLAYER Player[MAX_SW_PLAYERS_REG+1];

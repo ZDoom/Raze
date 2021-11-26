@@ -259,7 +259,7 @@ void SpawnQuake(sectortype* sect, int x, int y, int z,
 bool
 SetQuake(PLAYERp pp, short tics, short amt)
 {
-    SpawnQuake(pp->cursector(), pp->posx, pp->posy, pp->posz,  tics, amt, 30000);
+    SpawnQuake(pp->cursector, pp->posx, pp->posy, pp->posz,  tics, amt, 30000);
     return false;
 }
 
@@ -285,7 +285,7 @@ SetGunQuake(DSWActor* actor)
 int
 SetPlayerQuake(PLAYERp pp)
 {
-    SpawnQuake(pp->cursector(), pp->posx, pp->posy, pp->posz,  40, 8, 40000);
+    SpawnQuake(pp->cursector, pp->posx, pp->posy, pp->posz,  40, 8, 40000);
 
     return 0;
 }

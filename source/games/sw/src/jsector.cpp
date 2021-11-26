@@ -417,7 +417,7 @@ void JS_InitMirrors(void)
 //  Draw a 3d screen to a specific tile
 /////////////////////////////////////////////////////
 void drawroomstotile(int daposx, int daposy, int daposz,
-                     binangle ang, fixedhoriz horiz, short dacursectnum, short tilenume, double smoothratio)
+                     binangle ang, fixedhoriz horiz, sectortype* dacursect, short tilenume, double smoothratio)
 {
     auto canvas = renderSetTarget(tilenume);
     if (!canvas) return;
@@ -426,13 +426,13 @@ void drawroomstotile(int daposx, int daposy, int daposz,
         {
             if (!testnewrenderer)
             {
-                renderDrawRoomsQ16(daposx, daposy, daposz, ang.asq16(), horiz.asq16(), dacursectnum, false);
+                renderDrawRoomsQ16(daposx, daposy, daposz, ang.asq16(), horiz.asq16(), sectnum(dacursect), false);
                 analyzesprites(pm_tsprite, pm_spritesortcnt, daposx, daposy, daposz, ang.asbuild());
                 renderDrawMasks();
             }
             else
             {
-                render_camtex(nullptr, { daposx, daposy, daposz }, dacursectnum, ang, horiz, buildang(0), tileGetTexture(tilenume), rect, smoothratio);
+                render_camtex(nullptr, { daposx, daposy, daposz }, sectnum(dacursect), ang, horiz, buildang(0), tileGetTexture(tilenume), rect, smoothratio);
             }
         });
 
@@ -657,11 +657,11 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz, double smoothratio)
 
                             if (TEST_BOOL11(sp) && numplayers > 1)
                             {
-                                drawroomstotile(cp->posx, cp->posy, cp->posz, cp->angle.ang, cp->horizon.horiz, cp->cursectnum, mirror[cnt].campic, smoothratio);
+                                drawroomstotile(cp->posx, cp->posy, cp->posz, cp->angle.ang, cp->horizon.horiz, cp->cursector, mirror[cnt].campic, smoothratio);
                             }
                             else
                             {
-                                drawroomstotile(sp->x, sp->y, sp->z, buildang(SP_TAG5(sp)), camhoriz, sp->sectnum, mirror[cnt].campic, smoothratio);
+                                drawroomstotile(sp->x, sp->y, sp->z, buildang(SP_TAG5(sp)), camhoriz, sp->sector(), mirror[cnt].campic, smoothratio);
                             }
                         }
                     }

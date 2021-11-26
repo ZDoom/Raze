@@ -6719,7 +6719,7 @@ pDisplaySprites(PLAYERp pp, double smoothratio)
             int16_t floorshade = 0;
             if (pp->insector())
             {
-                sectp = pp->cursector();
+                sectp = pp->cursector;
                 pal = sectp->floorpal;
                 floorshade = sectp->floorshade;
 
@@ -6740,7 +6740,7 @@ pDisplaySprites(PLAYERp pp, double smoothratio)
                 SET(flags, RS_TRANS1);
             }
 
-            //shade = overlay_shade = DIV2(pp->cursector()->floorshade + pp->cursector()->ceilingshade);
+            //shade = overlay_shade = DIV2(pp->cursector->floorshade + pp->cursector->ceilingshade);
             shade = overlay_shade = floorshade - 10;
 
             if (TEST(psp->PlayerP->Flags, PF_VIEW_FROM_OUTSIDE))

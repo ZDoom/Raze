@@ -2760,9 +2760,9 @@ int DoLavaErupt(DSWActor* actor)
         TRAVERSE_CONNECT(pnum)
         {
             pp = Player + pnum;
-            if (pp->insector() && TEST(pp->cursector()->extra, SECTFX_TRIGGER))
+            if (pp->insector() && TEST(pp->cursector->extra, SECTFX_TRIGGER))
             {
-                SWSectIterator it(pp->cursector());
+                SWSectIterator it(pp->cursector);
                 while (auto itActor = it.Next())
                 {
                     tsp = &itActor->s();
@@ -11835,7 +11835,7 @@ void InitSpellRing(PLAYERp pp)
 
     for (missiles = 0, ang = ang_start; missiles < max_missiles; ang += ang_diff, missiles++)
     {
-        auto actorNew = SpawnActor(STAT_MISSILE_SKIP4, FIREBALL1, s_Ring, pp->cursector(), pp->posx, pp->posy, pp->posz, ang, 0);
+        auto actorNew = SpawnActor(STAT_MISSILE_SKIP4, FIREBALL1, s_Ring, pp->cursector, pp->posx, pp->posy, pp->posz, ang, 0);
 
         sp = &actorNew->s();
 
@@ -12216,7 +12216,7 @@ void InitSpellNapalm(PLAYERp pp)
 
     for (i = 0; i < SIZ(mp); i++)
     {
-        auto actor = SpawnActor(STAT_MISSILE, FIREBALL1, s_Napalm, pp->cursector(),
+        auto actor = SpawnActor(STAT_MISSILE, FIREBALL1, s_Napalm, pp->cursector,
                                 pp->posx, pp->posy, pp->posz + Z(12), pp->angle.ang.asbuild(), NAPALM_VELOCITY*2);
 
         sp = &actor->s();
@@ -12368,7 +12368,7 @@ int InitSpellMirv(PLAYERp pp)
     if (!pp->insector())
         return 0;
 
-    auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL1, s_Mirv, pp->cursector(),
+    auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL1, s_Mirv, pp->cursector,
                             pp->posx, pp->posy, pp->posz + Z(12), pp->angle.ang.asbuild(), MIRV_VELOCITY);
 
     sp = &actorNew->s();
@@ -12534,7 +12534,7 @@ int InitSwordAttack(PLAYERp pp)
         daang = pp->angle.ang.asbuild();
         daz = -MulScale(pp->horizon.horiz.asq16(), 2000, 16) + (RandomRange(24000) - 12000);
 
-        FAFhitscan(pp->posx, pp->posy, pp->posz, pp->cursector(),       // Start position
+        FAFhitscan(pp->posx, pp->posy, pp->posz, pp->cursector,       // Start position
             bcos(daang),      // X vector of 3D ang
             bsin(daang),      // Y vector of 3D ang
             daz,              // Z vector of 3D ang
@@ -12724,7 +12724,7 @@ int InitFistAttack(PLAYERp pp)
         daang = pp->angle.ang.asbuild();
         daz = -MulScale(pp->horizon.horiz.asq16(), 2000, 16) + (RandomRange(24000) - 12000);
 
-        FAFhitscan(pp->posx, pp->posy, pp->posz, pp->cursector(),       // Start position
+        FAFhitscan(pp->posx, pp->posy, pp->posz, pp->cursector,       // Start position
                    bcos(daang),      // X vector of 3D ang
                    bsin(daang),      // Y vector of 3D ang
                    daz,              // Z vector of 3D ang
@@ -13344,7 +13344,7 @@ int InitStar(PLAYERp pp)
     // Spawn a shot
     // Inserting and setting up variables
 
-    auto actorNew = SpawnActor(STAT_MISSILE, STAR1, s_Star, pp->cursector(), nx, ny, nz, pp->angle.ang.asbuild(), STAR_VELOCITY);
+    auto actorNew = SpawnActor(STAT_MISSILE, STAR1, s_Star, pp->cursector, nx, ny, nz, pp->angle.ang.asbuild(), STAR_VELOCITY);
     wp = &actorNew->s();
     wu = actorNew->u();
 
@@ -13389,7 +13389,7 @@ int InitStar(PLAYERp pp)
 
     for (i = 0; i < (int)SIZ(dang); i++)
     {
-        auto actorNew2 = SpawnActor(STAT_MISSILE, STAR1, s_Star, pp->cursector(), nx, ny, nz, NORM_ANGLE(wp->ang + dang[i]), wp->xvel);
+        auto actorNew2 = SpawnActor(STAT_MISSILE, STAR1, s_Star, pp->cursector, nx, ny, nz, NORM_ANGLE(wp->ang + dang[i]), wp->xvel);
         np = &actorNew2->s();
         nu = actorNew2->u();
 
@@ -13453,7 +13453,7 @@ void InitHeartAttack(PLAYERp pp)
     if (!pp->insector())
         return;
 
-    auto actorNew = SpawnActor(STAT_MISSILE_SKIP4, BLOOD_WORM, s_BloodWorm, pp->cursector(),
+    auto actorNew = SpawnActor(STAT_MISSILE_SKIP4, BLOOD_WORM, s_BloodWorm, pp->cursector,
                             pp->posx, pp->posy, pp->posz + Z(12), pp->angle.ang.asbuild(), BLOOD_WORM_VELOCITY*2);
 
     sp = &actorNew->s();
@@ -13628,7 +13628,7 @@ int InitShotgun(PLAYERp pp)
         xvect = bcos(ndaang);
         yvect = bsin(ndaang);
         zvect = ndaz;
-        FAFhitscan(nx, ny, nz, pp->cursector(),               // Start position
+        FAFhitscan(nx, ny, nz, pp->cursector,               // Start position
                    xvect, yvect, zvect,
                    hit, CLIPMASK_MISSILE);
 
@@ -13765,7 +13765,7 @@ int InitLaser(PLAYERp pp)
     // Spawn a shot
     // Inserting and setting up variables
 
-    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, s_Laser, pp->cursector(),
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, s_Laser, pp->cursector,
                     nx, ny, nz, pp->angle.ang.asbuild(), 300);
 
     wp = &actorNew->s();
@@ -13874,7 +13874,7 @@ int InitRail(PLAYERp pp)
     // Spawn a shot
     // Inserting and setting up variables
 
-    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R1, &s_Rail[0][0], pp->cursector(),
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R1, &s_Rail[0][0], pp->cursector,
                     nx, ny, nz, pp->angle.ang.asbuild(), 1200);
 
     wp = &actorNew->s();
@@ -14054,7 +14054,7 @@ int InitRocket(PLAYERp pp)
     // Inserting and setting up variables
 
     nz = pp->posz + pp->bob_z + Z(8);
-    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], pp->cursector(),
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], pp->cursector,
                     nx, ny, nz, pp->angle.ang.asbuild(), ROCKET_VELOCITY);
 
     wp = &actorNew->s();
@@ -14168,7 +14168,7 @@ int InitBunnyRocket(PLAYERp pp)
 
     //nz = pp->posz + pp->bob_z + Z(12);
     nz = pp->posz + pp->bob_z + Z(8);
-    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R4, &s_BunnyRocket[0][0], pp->cursector(),
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R4, &s_BunnyRocket[0][0], pp->cursector,
                     nx, ny, nz, pp->angle.ang.asbuild(), ROCKET_VELOCITY);
 
     wp = &actorNew->s();
@@ -14276,7 +14276,7 @@ int InitNuke(PLAYERp pp)
     // Inserting and setting up variables
 
     nz = pp->posz + pp->bob_z + Z(8);
-    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], pp->cursector(),
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Rocket[0][0], pp->cursector,
                     nx, ny, nz, pp->angle.ang.asbuild(), 700);
 
     wp = &actorNew->s();
@@ -14474,7 +14474,7 @@ int InitMicro(PLAYERp pp)
         // Spawn a shot
         // Inserting and setting up variables
 
-        auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Micro[0][0], pp->cursector(),
+        auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, &s_Micro[0][0], pp->cursector,
                         nx, ny, nz, ang, 1200);
 
         wp = &actorNew->s();
@@ -15819,7 +15819,7 @@ int InitTracerUzi(PLAYERp pp)
     // Spawn a shot
     // Inserting and setting up variables
 
-    auto actorNew = SpawnActor(STAT_MISSILE, 0, s_Tracer, pp->cursector(),
+    auto actorNew = SpawnActor(STAT_MISSILE, 0, s_Tracer, pp->cursector,
                     nx, ny, nz, pp->angle.ang.asbuild(), TRACER_VELOCITY);
 
     wp = &actorNew->s();
@@ -16188,7 +16188,7 @@ int InitUzi(PLAYERp pp)
     xvect = bcos(daang);
     yvect = bsin(daang);
     zvect = daz;
-    FAFhitscan(pp->posx, pp->posy, nz, pp->cursector(),       // Start position
+    FAFhitscan(pp->posx, pp->posy, nz, pp->cursector,       // Start position
                xvect,yvect,zvect,
                hit, CLIPMASK_MISSILE);
 
@@ -16605,7 +16605,7 @@ int InitTurretRail(DSWActor* actor, PLAYERp pp)
     // Spawn a shot
     // Inserting and setting up variables
 
-    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R1, &s_Rail[0][0], pp->cursector(),
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R1, &s_Rail[0][0], pp->cursector,
                     nx, ny, nz, sp->ang, 1200);
 
     wu = actorNew->u();
@@ -16661,7 +16661,7 @@ int InitTurretLaser(DSWActor* actor, PLAYERp pp)
     // Spawn a shot
     // Inserting and setting up variables
 
-    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, s_Laser, pp->cursector(),
+    auto actorNew = SpawnActor(STAT_MISSILE, BOLT_THINMAN_R0, s_Laser, pp->cursector,
                     nx, ny, nz, sp->ang, 300);
 
     wu = actorNew->u();
@@ -17415,7 +17415,7 @@ int InitGrenade(PLAYERp pp)
     // Spawn a shot
     // Inserting and setting up variables
 
-    auto actorNew = SpawnActor(STAT_MISSILE, GRENADE, &s_Grenade[0][0], pp->cursector(),
+    auto actorNew = SpawnActor(STAT_MISSILE, GRENADE, &s_Grenade[0][0], pp->cursector,
                     nx, ny, nz, pp->angle.ang.asbuild(), GRENADE_VELOCITY);
 
     wp = &actorNew->s();
@@ -17573,7 +17573,7 @@ int InitMine(PLAYERp pp)
     // Spawn a shot
     // Inserting and setting up variables
 
-    auto actorNew = SpawnActor(STAT_MISSILE, MINE, s_Mine, pp->cursector(),
+    auto actorNew = SpawnActor(STAT_MISSILE, MINE, s_Mine, pp->cursector,
                     nx, ny, nz, pp->angle.ang.asbuild(), MINE_VELOCITY);
 
     wp = &actorNew->s();
@@ -17718,7 +17718,7 @@ int InitFireball(PLAYERp pp)
 
     nz = pp->posz + pp->bob_z + Z(15);
 
-    auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL1, s_Fireball, pp->cursector(), nx, ny, nz, pp->angle.ang.asbuild(), FIREBALL_VELOCITY);
+    auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL1, s_Fireball, pp->cursector, nx, ny, nz, pp->angle.ang.asbuild(), FIREBALL_VELOCITY);
     wp = &actorNew->s();
     wu = actorNew->u();
 
@@ -18756,9 +18756,9 @@ int QueueFootPrint(DSWActor* actor)
             Found = true;
 
         // Stupid masked floor stuff!  Damn your weirdness!
-        if (TEST(u->PlayerP->cursector()->ceilingstat, CEILING_STAT_PLAX))
+        if (TEST(u->PlayerP->cursector->ceilingstat, CEILING_STAT_PLAX))
             Found = true;
-        if (TEST(u->PlayerP->cursector()->floorstat, CEILING_STAT_PLAX))
+        if (TEST(u->PlayerP->cursector->floorstat, CEILING_STAT_PLAX))
             Found = true;
     }
 

@@ -1540,7 +1540,7 @@ void PreMapCombineFloors(void)
         TRAVERSE_CONNECT(pnum)
         {
             PLAYERp pp = &Player[pnum];
-            auto dasect = pp->cursector();
+            auto dasect = pp->cursector;
             search.Rewind();
             while (auto itsect = search.GetNext())
             {
@@ -5250,7 +5250,7 @@ int DoGet(DSWActor* actor)
         cstat_bak = sp->cstat;
         SET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         can_see = FAFcansee(sp->x, sp->y, sp->z, sp->sector(),
-                            pp->posx, pp->posy, pp->posz, pp->cursector());
+                            pp->posx, pp->posy, pp->posz, pp->cursector);
         sp->cstat = cstat_bak;
 
         if (!can_see)
