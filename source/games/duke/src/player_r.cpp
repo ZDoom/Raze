@@ -3413,12 +3413,12 @@ void processinput_r(int snum)
 	int tempfz;
 	if (s->clipdist == 64)
 	{
-		getzrange_ex(p->pos.x, p->pos.y, p->pos.z, psectp, &cz, chz, &fz, clz, 163L, CLIPMASK0);
+		getzrange(p->pos, psectp, &cz, chz, &fz, clz, 163L, CLIPMASK0);
 		tempfz = getflorzofslopeptr(psectp, p->pos.x, p->pos.y);
 	}
 	else
 	{
-		getzrange_ex(p->pos.x, p->pos.y, p->pos.z, psectp, &cz, chz, &fz, clz, 4L, CLIPMASK0);
+		getzrange(p->pos, psectp, &cz, chz, &fz, clz, 4L, CLIPMASK0);
 		tempfz = getflorzofslopeptr(psectp, p->pos.x, p->pos.y);
 	}
 

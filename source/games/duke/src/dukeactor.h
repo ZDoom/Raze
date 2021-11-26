@@ -181,22 +181,6 @@ inline int movesprite_ex(DDukeActor* actor, int xchange, int ychange, int zchang
 	return f(actor, xchange, ychange, zchange, cliptype, result);
 }
 
-inline void getzrange_ex(int x, int y, int z, int sectnum, int32_t* ceilz, Collision& ceilhit, int32_t* florz, Collision& florhit, int32_t walldist, uint32_t cliptype)
-{
-	int ch, fh;
-	getzrange(x, y, z, sectnum, ceilz, &ch, florz, &fh, walldist, cliptype);
-	ceilhit.setFromEngine(ch);
-	florhit.setFromEngine(fh);
-}
-
-inline void getzrange_ex(int x, int y, int z, sectortype* sect, int32_t* ceilz, Collision& ceilhit, int32_t* florz, Collision& florhit, int32_t walldist, uint32_t cliptype)
-{
-	int ch, fh;
-	getzrange(x, y, z, sectnum(sect), ceilz, &ch, florz, &fh, walldist, cliptype);
-	ceilhit.setFromEngine(ch);
-	florhit.setFromEngine(fh);
-}
-
 
 
 END_DUKE_NS

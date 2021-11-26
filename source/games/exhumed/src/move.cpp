@@ -359,13 +359,9 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
 
     // This function will keep the player from falling off cliffs when you're too close to the edge.
     // This function finds the highest and lowest z coordinates that your clipping BOX can get to.
-    int hihit, lohit;
     vec3_t pos = pSprite->pos;
     pos.z -= 256;
-    getzrange(&pos, pSprite->sectnum,
-        &sprceiling, &hihit, &sprfloor, &lohit, 128, CLIPMASK0);
-    hiHit.setFromEngine(hihit);
-    loHit.setFromEngine(lohit);
+    getzrange(pos, pSprite->sector(), &sprceiling, hiHit, &sprfloor, loHit, 128, CLIPMASK0);
 
     int mySprfloor = sprfloor;
 

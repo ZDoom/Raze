@@ -336,6 +336,28 @@ inline void   neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16
 	neartag_(xs, ys, zs, sectnum, ange, neartagsector, neartagwall, neartagsprite, neartaghitdist, neartagrange, tagsearch);
 }
 
+[[deprecated]]
+inline void   getzrange(const vec3_t* pos, int16_t sectnum, int32_t* ceilz, int32_t* ceilhit, int32_t* florz,
+	int32_t* florhit, int32_t walldist, uint32_t cliptype)
+{
+	getzrange(pos, sectnum, ceilz, ceilhit, florz, florhit, walldist, cliptype);
+}
+
+[[deprecated]]
+inline void   getzrange(const vec3_t* pos, sectortype* sect, int32_t* ceilz, int32_t* ceilhit, int32_t* florz,
+	int32_t* florhit, int32_t walldist, uint32_t cliptype)
+{
+	getzrange_(pos, sector.IndexOf(sect), ceilz, ceilhit, florz, florhit, walldist, cliptype);
+}
+
+[[deprecated]]
+inline void getzrange(int x, int y, int z, int16_t sectnum, int32_t* ceilz, int32_t* ceilhit, int32_t* florz,
+	int32_t* florhit, int32_t walldist, uint32_t cliptype)
+{
+	vec3_t v = { x, y, z };
+	getzrange_(&v, sectnum, ceilz, ceilhit, florz, florhit, walldist, cliptype);
+}
+
 
 
 inline int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& direction, HitInfoBase& hitinfo, unsigned cliptype)
@@ -368,4 +390,13 @@ inline void neartag(const vec3_t& pos, sectortype* sect, int angle, HitInfoBase&
 	result.hitSector = ntsect == -1 ? nullptr : &sector[ntsect];
 	result.hitWall = ntwal == -1 ? nullptr : &wall[ntwal];
 	result.hitActor = ntsprt == -1 ? nullptr : actorArray[ntsprt];
+}
+
+inline void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBase& ceilhit, int32_t* florz,
+	CollisionBase& florhit, int32_t walldist, uint32_t cliptype)
+{
+	int fh, ch;
+	getzrange_(&pos, sector.IndexOf(sect), ceilz, &ch, florz, &fh, walldist, cliptype);
+	ceilhit.setFromEngine(ch);
+	florhit.setFromEngine(fh);
 }

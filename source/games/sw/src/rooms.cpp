@@ -468,14 +468,6 @@ void WaterAdjust(const Collision& florhit, int32_t* loz)
     }
 }
 
-static void getzrange(vec3_t* pos, int16_t sectnum, int32_t* hiz, Collision* ceilhit, int32_t* loz, Collision* florhit, int32_t clipdist, int32_t clipmask)
-{
-    int f, c;
-    ::getzrange(pos, sectnum, hiz, &c, loz, &f, clipdist, clipmask);
-    ceilhit->setFromEngine(c);
-    florhit->setFromEngine(f);
-}
-
 void FAFgetzrange(vec3_t pos, int16_t sectnum, int32_t* hiz, Collision* ceilhit, int32_t* loz, Collision* florhit, int32_t clipdist, int32_t clipmask)
 {
     sectortype* sect = &sector[sectnum];
@@ -491,13 +483,13 @@ void FAFgetzrange(vec3_t pos, int16_t sectnum, int32_t* hiz, Collision* ceilhit,
     // early out to regular routine
     if (sectnum < 0 || !FAF_ConnectArea(sect))
     {
-        getzrange(&pos, sectnum, hiz,  ceilhit, loz,  florhit, clipdist, clipmask);
+        getzrange(pos, sect, hiz,  *ceilhit, loz,  *florhit, clipdist, clipmask);
         SectorZadjust(*ceilhit, hiz, *florhit, loz);
         WaterAdjust(*florhit, loz);
         return;
     }
 
-    getzrange(&pos, sectnum, hiz,  ceilhit, loz,  florhit, clipdist, clipmask);
+    getzrange(pos, sect, hiz,  *ceilhit, loz,  *florhit, clipdist, clipmask);
     SkipFAFcheck = SectorZadjust(*ceilhit, hiz, *florhit, loz);
     WaterAdjust(*florhit, loz);
 
@@ -506,32 +498,32 @@ void FAFgetzrange(vec3_t pos, int16_t sectnum, int32_t* hiz, Collision* ceilhit,
 
     if (FAF_ConnectCeiling(sect))
     {
-        int uppersect = sectnum;
+        auto uppersect = sect;
         int newz = *hiz - Z(2);
 
         if (ceilhit->type == kHitSprite) return;
 
         updatesectorz(pos.x, pos.y, newz, &uppersect);
-        if (uppersect < 0)
-            return; // _ErrMsg(ERR_STD_ARG, "Did not find a sector at %d, %d, %d", x, y, newz);
+        if (uppersect == nullptr)
+            return;
         vec3_t npos = pos;
         npos.z = newz;
-        getzrange(&npos, uppersect, hiz,  ceilhit, &foo1,  &foo2, clipdist, clipmask);
+        getzrange(npos, uppersect, hiz,  *ceilhit, &foo1, foo2, clipdist, clipmask);
         SectorZadjust(*ceilhit, hiz, trash, nullptr);
     }
     else if (FAF_ConnectFloor(sect) && !TEST(sect->floorstat, FLOOR_STAT_FAF_BLOCK_HITSCAN))
     {
-        int lowersect = sectnum;
+        auto lowersect = sect;
         int newz = *loz + Z(2);
 
         if (florhit->type == kHitSprite) return;
 
         updatesectorz(pos.x, pos.y, newz, &lowersect);
-        if (lowersect < 0)
+        if (lowersect == nullptr)
             return; // _ErrMsg(ERR_STD_ARG, "Did not find a sector at %d, %d, %d", x, y, newz);
         vec3_t npos = pos;
         npos.z = newz;
-        getzrange(&npos, lowersect, &foo1,  &foo2, loz,  florhit, clipdist, clipmask);
+        getzrange(npos, lowersect, &foo1, foo2, loz,  *florhit, clipdist, clipmask);
         SectorZadjust(trash, nullptr, *florhit, loz);
         WaterAdjust(*florhit, loz);
     }

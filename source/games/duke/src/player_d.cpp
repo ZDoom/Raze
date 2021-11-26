@@ -2759,7 +2759,7 @@ void processinput_d(int snum)
 	p->spritebridge = 0;
 
 	shrunk = (s->yrepeat < 32);
-	getzrange_ex(p->pos.x, p->pos.y, p->pos.z, psectp, &cz, chz, &fz, clz, 163, CLIPMASK0);
+	getzrange(p->pos, psectp, &cz, chz, &fz, clz, 163, CLIPMASK0);
 
 	j = getflorzofslopeptr(psectp, p->pos.x, p->pos.y);
 

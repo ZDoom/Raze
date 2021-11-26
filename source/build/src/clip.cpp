@@ -935,7 +935,7 @@ int pushmove(vec3_t *const vect, int *const sectnum,
 //
 // getzrange
 //
-void getzrange(const vec3_t *pos, int16_t sectnum,
+void getzrange_(const vec3_t *pos, int16_t sectnum,
                int32_t *ceilz, int32_t *ceilhit, int32_t *florz, int32_t *florhit,
                int32_t walldist, uint32_t cliptype)
 {

@@ -367,21 +367,9 @@ void setVideoMode();
 class F2DDrawer;
 
 
-void   getzrange(const vec3_t *pos, int16_t sectnum, int32_t *ceilz, int32_t *ceilhit, int32_t *florz,
+void   getzrange_(const vec3_t *pos, int16_t sectnum, int32_t *ceilz, int32_t *ceilhit, int32_t *florz,
                  int32_t *florhit, int32_t walldist, uint32_t cliptype) ATTRIBUTE((nonnull(1,3,4,5,6)));
 
-inline void   getzrange(const vec3_t* pos, sectortype* sect, int32_t* ceilz, int32_t* ceilhit, int32_t* florz,
-    int32_t* florhit, int32_t walldist, uint32_t cliptype)
-{
-    getzrange(pos, sector.IndexOf(sect), ceilz, ceilhit, florz, florhit, walldist, cliptype);
-}
-
-inline void getzrange(int x, int y, int z, int16_t sectnum, int32_t* ceilz, int32_t* ceilhit, int32_t* florz,
-    int32_t* florhit, int32_t walldist, uint32_t cliptype)
-{
-    vec3_t v = { x, y, z };
-    getzrange(&v, sectnum, ceilz, ceilhit, florz, florhit, walldist, cliptype);
-}
 extern vec2_t hitscangoal;
 
 int32_t   hitscan_(const vec3_t* sv, int16_t sectnum, int32_t vx, int32_t vy, int32_t vz,
@@ -484,9 +472,6 @@ int32_t   getflorzofslopeptr(usectorptr_t sec, int32_t dax, int32_t day) ATTRIBU
 void   getzsofslopeptr(usectorptr_t sec, int32_t dax, int32_t day,
                        int32_t *ceilz, int32_t *florz) ATTRIBUTE((nonnull(1,4,5)));
 void yax_getzsofslope(int sectNum, int playerX, int playerY, int32_t* pCeilZ, int32_t* pFloorZ);
-
-int32_t yax_getceilzofslope(int const sectnum, vec2_t const vect);
-int32_t yax_getflorzofslope(int const sectnum, vec2_t const vect);
 
 inline int32_t getceilzofslope(int sectnum, int32_t dax, int32_t day)
 {

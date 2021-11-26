@@ -4936,7 +4936,7 @@ void getglobalz(DDukeActor* actor)
 
 		auto cc = s->cstat2;
 		s->cstat2 |= CSTAT2_SPRITE_NOFIND; // don't clip against self. getzrange cannot detect this because it only receives a coordinate.
-		getzrange_ex(s->x, s->y, s->z - (FOURSLEIGHT), s->sector(), &actor->ceilingz, hz, &actor->floorz, lz, zr, CLIPMASK0);
+		getzrange({ s->x, s->y, s->z - (FOURSLEIGHT) }, s->sector(), &actor->ceilingz, hz, &actor->floorz, lz, zr, CLIPMASK0);
 		s->cstat2 = cc;
 
 		if( lz.type == kHitSprite && (lz.actor()->s->cstat&48) == 0 )
@@ -5000,7 +5000,7 @@ void makeitfall(DDukeActor* actor)
 	if ((s->statnum == STAT_ACTOR || s->statnum == STAT_PLAYER || s->statnum == STAT_ZOMBIEACTOR || s->statnum == STAT_STANDABLE))
 	{
 		Collision c;
-		getzrange_ex(s->x, s->y, s->z - (FOURSLEIGHT), s->sector(), &actor->ceilingz, c, &actor->floorz, c, 127, CLIPMASK0);
+		getzrange({ s->x, s->y, s->z - (FOURSLEIGHT) }, s->sector(), &actor->ceilingz, c, &actor->floorz, c, 127, CLIPMASK0);
 	}
 	else
 	{

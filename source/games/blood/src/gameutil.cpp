@@ -558,14 +558,12 @@ void GetZRange(DBloodActor *actor, int *ceilZ, Collision *ceilColl, int *floorZ,
 {
     assert(actor != NULL);
     auto pSprite = &actor->s();
+    Collision scratch;
 
-    int floorHit, ceilHit;
     int bakCstat = pSprite->cstat;
-    int32_t nTemp1, nTemp2;
+    int32_t nTemp1;
     pSprite->cstat &= ~257;
-    getzrange(&pSprite->pos, pSprite->sector(), (int32_t*)ceilZ, &ceilHit, (int32_t*)floorZ, &floorHit, nDist, nMask);
-    ceilColl->setFromEngine(ceilHit);
-    floorColl->setFromEngine(floorHit);
+    getzrange(pSprite->pos, pSprite->sector(), (int32_t*)ceilZ, *ceilColl, (int32_t*)floorZ, *floorColl, nDist, nMask);
     if (floorColl->type == kHitSector)
     {
         auto pSector = floorColl->hitSector;
@@ -581,9 +579,8 @@ void GetZRange(DBloodActor *actor, int *ceilZ, Collision *ceilColl, int *floorZ,
         {
             auto link = actor->GetOwner();
             vec3_t lpos = pSprite->pos + link->s().pos - actor->s().pos;
-            getzrange(&lpos, link->s().sectnum, &nTemp1, &nTemp2, (int32_t*)floorZ, &floorHit, nDist, nMask);
+            getzrange(lpos, link->s().sector(), &nTemp1, scratch, (int32_t*)floorZ, *floorColl, nDist, nMask);
             *floorZ -= link->s().z - actor->s().z;
-            floorColl->setFromEngine(floorHit);
         }
     }
     if (ceilColl->type == kHitSector)
@@ -596,9 +593,8 @@ void GetZRange(DBloodActor *actor, int *ceilZ, Collision *ceilColl, int *floorZ,
         {
             auto link = actor->GetOwner();
             vec3_t lpos = pSprite->pos + link->s().pos - actor->s().pos;
-            getzrange(&lpos, link->s().sectnum, (int32_t*)ceilZ, &ceilHit, &nTemp1, &nTemp2, nDist, nMask);
+            getzrange(lpos, link->s().sector(), (int32_t*)ceilZ, *ceilColl, &nTemp1, scratch, nDist, nMask);
             *ceilZ -= link->s().z - actor->s().z;
-            ceilColl->setFromEngine(ceilHit);
         }
     }
     pSprite->cstat = bakCstat;
@@ -606,12 +602,10 @@ void GetZRange(DBloodActor *actor, int *ceilZ, Collision *ceilColl, int *floorZ,
 
 void GetZRangeAtXYZ(int x, int y, int z, sectortype* pSector, int *ceilZ, Collision* ceilColl, int* floorZ, Collision* floorColl, int nDist, unsigned int nMask, unsigned int nClipParallax)
 {
-    int ceilHit, floorHit;
-    int32_t nTemp1, nTemp2;
+    Collision scratch;
+    int32_t nTemp1;
     vec3_t lpos = { x, y, z };
-    getzrange(&lpos, pSector, (int32_t*)ceilZ, &ceilHit, (int32_t*)floorZ, &floorHit, nDist, nMask);
-    ceilColl->setFromEngine(ceilHit);
-    floorColl->setFromEngine(floorHit);
+    getzrange(lpos, pSector, (int32_t*)ceilZ, *ceilColl, (int32_t*)floorZ, *floorColl, nDist, nMask);
     if (floorColl->type == kHitSector)
     {
         auto pSector = floorColl->hitSector;
@@ -627,8 +621,7 @@ void GetZRangeAtXYZ(int x, int y, int z, sectortype* pSector, int *ceilZ, Collis
         {
             auto link = actor->GetOwner();
             vec3_t newpos = lpos + link->s().pos - actor->s().pos;
-            getzrange(&newpos, link->s().sector(), &nTemp1, &nTemp2, (int32_t*)floorZ, &floorHit, nDist, nMask);
-            floorColl->setFromEngine(floorHit);
+            getzrange(newpos, link->s().sector(), &nTemp1, scratch, (int32_t*)floorZ, *floorColl, nDist, nMask);
             *floorZ -= link->s().z - actor->s().z;
         }
     }
@@ -642,8 +635,7 @@ void GetZRangeAtXYZ(int x, int y, int z, sectortype* pSector, int *ceilZ, Collis
         {
             auto link = actor->GetOwner();
             vec3_t newpos = lpos + link->s().pos - actor->s().pos;
-            getzrange(&newpos, link->s().sectnum, (int32_t*)ceilZ, &ceilHit, &nTemp1, &nTemp2, nDist, nMask);
-            ceilColl->setFromEngine(ceilHit);
+            getzrange(newpos, link->s().sector(), (int32_t*)ceilZ, *ceilColl, &nTemp1, scratch, nDist, nMask);
             *ceilZ -= link->s().z - actor->s().z;
         }
     }

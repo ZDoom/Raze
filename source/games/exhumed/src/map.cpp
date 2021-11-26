@@ -90,8 +90,9 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int x, int y, int z, int a
         if (i == nLocalPlayer)// || gGameOptions.nGameType == 1)
         {
             int nTile = pSprite->picnum;
-            int ceilZ, ceilHit, floorZ, floorHit;
-            getzrange(&pSprite->pos, pSprite->sectnum, &ceilZ, &ceilHit, &floorZ, &floorHit, (pSprite->clipdist << 2) + 16, CLIPMASK0);
+            int ceilZ, floorZ;
+            Collision ceilHit, floorHit;
+            getzrange(pSprite->pos, pSprite->sector(), &ceilZ, ceilHit, &floorZ, floorHit, (pSprite->clipdist << 2) + 16, CLIPMASK0);
             int nTop, nBottom;
             GetSpriteExtents(pSprite, &nTop, &nBottom);
             int nScale = (pSprite->yrepeat + ((floorZ - nBottom) >> 8)) * z;
