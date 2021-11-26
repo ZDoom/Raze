@@ -49,7 +49,7 @@
 static int GetClosestPointOnWall(spritetype* spr, walltype* wal, vec2_t* const n)
 {
 	auto w = wal->pos;
-	auto d = wall[wal->point2].pos - w;
+	auto d = wal->point2Wall()->pos - w;
 	auto pos = spr->pos;
 
 	// avoid the math below for orthogonal walls. Here we allow only sprites that exactly match the line's coordinate and orientation
@@ -116,8 +116,8 @@ static int IsOnWall(spritetype* tspr, int height)
 	for (int i = sect->wallptr; i < sect->wallptr + sect->wallnum; i++)
 	{
 		auto wal = &wall[i];
-		if ((wal->nextsector == -1 || ((sector[wal->nextsector].ceilingz > topz) ||
-			sector[wal->nextsector].floorz < tspr->z)) && !GetClosestPointOnWall(tspr, wal, &n))
+		if ((wal->nextsector == -1 || ((wal->nextSector()->ceilingz > topz) ||
+			wal->nextSector()->floorz < tspr->z)) && !GetClosestPointOnWall(tspr, wal, &n))
 		{
 			int const dst = abs(tspr->x - n.x) + abs(tspr->y - n.y);
 
@@ -850,7 +850,7 @@ void HWWall::DoOneSidedTexture(HWDrawInfo* di, walltype* wal, sectortype* fronts
 	if ((wal->cstat & CSTAT_WALL_1WAY) && backsector)
 	{
 		if ((!(wal->cstat & CSTAT_WALL_BOTTOM_SWAP) && (wal->cstat & CSTAT_WALL_1WAY)) ||
-			((wal->cstat & CSTAT_WALL_BOTTOM_SWAP) && (wall[wal->nextwall].cstat & CSTAT_WALL_ALIGN_BOTTOM)))
+			((wal->cstat & CSTAT_WALL_BOTTOM_SWAP) && (wal->nextWall()->cstat & CSTAT_WALL_ALIGN_BOTTOM)))
 			refheight = frontsector->ceilingz;
 		else
 			refheight = backsector->floorz;
@@ -891,7 +891,7 @@ void HWWall::DoLowerTexture(HWDrawInfo* di, walltype* wal, sectortype* frontsect
 {
 	// get the alignment reference position.
 	int refheight;
-	auto refwall = (wal->cstat & CSTAT_WALL_BOTTOM_SWAP) ? &wall[wal->nextwall] : wal;
+	auto refwall = (wal->cstat & CSTAT_WALL_BOTTOM_SWAP) ? wal->nextWall() : wal;
 	refheight = (refwall->cstat & CSTAT_WALL_ALIGN_BOTTOM) ? frontsector->ceilingz : backsector->floorz;
 
 	shade = refwall->shade;
@@ -952,8 +952,8 @@ void HWWall::DoMidTexture(HWDrawInfo* di, walltype* wal,
 //==========================================================================
 void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sectortype* backsector)
 {
-	auto backwall = wal->nextwall >= 0 && wal->nextwall < numwalls ? &wall[wal->nextwall] : nullptr;
-	auto p2wall = &wall[wal->point2];
+	auto backwall = wal->twoSided()? wal->nextWall() : nullptr;
+	auto p2wall = wal->point2Wall();
 
 	float fch1;
 	float ffh1;

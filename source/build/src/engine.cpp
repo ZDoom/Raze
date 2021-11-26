@@ -689,7 +689,7 @@ int32_t inside(int32_t x, int32_t y, int sectnum)
 	if (validSectorIndex(sectnum))
     {
         uint32_t cnt = 0;
-        auto wal       = (uwallptr_t)&wall[sector[sectnum].wallptr];
+        auto wal       = (uwallptr_t)sector[sectnum].firstWall();
         int  wallsleft = sector[sectnum].wallnum;
 
         do
@@ -697,7 +697,7 @@ int32_t inside(int32_t x, int32_t y, int sectnum)
             // Get the x and y components of the [tested point]-->[wall
             // point{1,2}] vectors.
             vec2_t v1 = { wal->x - x, wal->y - y };
-            auto const &wal2 = *(uwallptr_t)&wall[wal->point2];
+            auto const &wal2 = *(uwallptr_t)wal->point2Wall();
             vec2_t v2 = { wal2.x - x, wal2.y - y };
 
             // If their signs differ[*], ...
@@ -812,7 +812,7 @@ int32_t nextsectorneighborz(int16_t sectnum, int32_t refz, int16_t topbottom, in
     int32_t nextz = (direction==1) ? INT32_MAX : INT32_MIN;
     int32_t sectortouse = -1;
 
-    auto wal = (uwallptr_t)&wall[sector[sectnum].wallptr];
+    auto wal = (uwallptr_t)sector[sectnum].firstWall();
     int32_t i = sector[sectnum].wallnum;
 
     do
@@ -862,9 +862,9 @@ int32_t cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1, int32_t x2, in
         auto const sec = (usectorptr_t)&sector[dasectnum];
         uwallptr_t wal;
         int cnt;
-        for (cnt=sec->wallnum,wal=(uwallptr_t)&wall[sec->wallptr]; cnt>0; cnt--,wal++)
+        for (cnt=sec->wallnum,wal=(uwallptr_t)sec->firstWall(); cnt>0; cnt--,wal++)
         {
-            auto const wal2 = (uwallptr_t)&wall[wal->point2];
+            auto const wal2 = (uwallptr_t)wal->point2Wall();
             const int32_t x31 = wal->x-x1, x34 = wal->x-wal2->x;
             const int32_t y31 = wal->y-y1, y34 = wal->y-wal2->y;
 
@@ -942,7 +942,7 @@ void neartag_(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange,
 
         for (z=startwall,wal=(uwallptr_t)&wall[startwall]; z<=endwall; z++,wal++)
         {
-            auto const wal2 = (uwallptr_t)&wall[wal->point2];
+            auto const wal2 = (uwallptr_t)wal->point2Wall();
             const int32_t nextsector = wal->nextsector;
 
             const int32_t x1=wal->x, y1=wal->y, x2=wal2->x, y2=wal2->y;
@@ -1019,15 +1019,16 @@ void dragpoint(int w, int32_t dax, int32_t day)
 
     while (1)
     {
-        sector[wall[w].sector].dirty = 255;
-        wall[w].x = dax;
-        wall[w].y = day;
+        auto wal = &wall[w];
+        sector[wal->sector].dirty = 255;
+        wal->x = dax;
+        wal->y = day;
         walbitmap.Set(w);
 
         if (!clockwise)  //search points CCW
         {
-            if (wall[w].nextwall >= 0)
-                w = wall[wall[w].nextwall].point2;
+            if (wal->nextwall >= 0)
+                w = wall[wal->nextwall].point2;
             else
             {
                 w = tmpstartwall;
@@ -1339,8 +1340,8 @@ int32_t getceilzofslopeptr(usectorptr_t sec, int32_t dax, int32_t day)
     if (!(sec->ceilingstat&2))
         return sec->ceilingz;
 
-    auto const wal  = (uwallptr_t)&wall[sec->wallptr];
-    auto const wal2 = (uwallptr_t)&wall[wal->point2];
+    auto const wal  = (uwallptr_t)sec->firstWall();
+    auto const wal2 = (uwallptr_t)wal->point2Wall();
 
     vec2_t const w = *(vec2_t const *)wal;
     vec2_t const d = { wal2->x - w.x, wal2->y - w.y };
@@ -1358,8 +1359,8 @@ int32_t getflorzofslopeptr(usectorptr_t sec, int32_t dax, int32_t day)
     if (!(sec->floorstat&2))
         return sec->floorz;
 
-    auto const wal  = (uwallptr_t)&wall[sec->wallptr];
-    auto const wal2 = (uwallptr_t)&wall[wal->point2];
+    auto const wal  = (uwallptr_t)sec->firstWall();
+    auto const wal2 = (uwallptr_t)wal->point2Wall();
 
     vec2_t const w = *(vec2_t const *)wal;
     vec2_t const d = { wal2->x - w.x, wal2->y - w.y };
@@ -1379,8 +1380,8 @@ void getzsofslopeptr(usectorptr_t sec, int32_t dax, int32_t day, int32_t *ceilz,
     if (((sec->ceilingstat|sec->floorstat)&2) != 2)
         return;
 
-    auto const wal  = (uwallptr_t)&wall[sec->wallptr];
-    auto const wal2 = (uwallptr_t)&wall[wal->point2];
+    auto const wal  = (uwallptr_t)sec->firstWall();
+    auto const wal2 = (uwallptr_t)wal->point2Wall();
 
     vec2_t const d = { wal2->x - wal->x, wal2->y - wal->y };
 
@@ -1401,8 +1402,8 @@ void getzsofslopeptr(usectorptr_t sec, int32_t dax, int32_t day, int32_t *ceilz,
 void alignceilslope(int16_t dasect, int32_t x, int32_t y, int32_t z)
 {
     auto const wal = (uwallptr_t)&wall[sector[dasect].wallptr];
-    const int32_t dax = wall[wal->point2].x-wal->x;
-    const int32_t day = wall[wal->point2].y-wal->y;
+    const int32_t dax = wal->point2Wall()->x-wal->x;
+    const int32_t day = wal->point2Wall()->y-wal->y;
 
     const int32_t i = (y-wal->y)*dax - (x-wal->x)*day;
     if (i == 0)
@@ -1422,8 +1423,8 @@ void alignceilslope(int16_t dasect, int32_t x, int32_t y, int32_t z)
 void alignflorslope(int16_t dasect, int32_t x, int32_t y, int32_t z)
 {
     auto const wal = (uwallptr_t)&wall[sector[dasect].wallptr];
-    const int32_t dax = wall[wal->point2].x-wal->x;
-    const int32_t day = wall[wal->point2].y-wal->y;
+    const int32_t dax = wal->point2Wall()->x-wal->x;
+    const int32_t day = wal->point2Wall()->y-wal->y;
 
     const int32_t i = (y-wal->y)*dax - (x-wal->x)*day;
     if (i == 0)

@@ -494,7 +494,7 @@ int32_t clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, int32_
 
         for (int j=startwall; j<endwall; j++, wal++)
         {
-            auto const wal2 = (uwallptr_t)&wall[wal->point2];
+            auto const wal2 = (uwallptr_t)wal->point2Wall();
 
             if ((wal->x < clipMin.x && wal2->x < clipMin.x) || (wal->x > clipMax.x && wal2->x > clipMax.x) ||
                 (wal->y < clipMin.y && wal2->y < clipMin.y) || (wal->y > clipMax.y && wal2->y > clipMax.y))
@@ -884,8 +884,8 @@ int pushmove_(vec3_t *const vect, int *const sectnum,
                         else
                         {
                             //Find closest point on wall (dax, day) to (vect->x, vect->y)
-                            int32_t dax = wall[wal->point2].x-wal->x;
-                            int32_t day = wall[wal->point2].y-wal->y;
+                            int32_t dax = wal->point2Wall()->x-wal->x;
+                            int32_t day = wal->point2Wall()->y-wal->y;
                             int32_t daz = dax*((vect->x)-wal->x) + day*((vect->y)-wal->y);
                             int32_t t;
                             if (daz <= 0)
@@ -906,7 +906,7 @@ int pushmove_(vec3_t *const vect, int *const sectnum,
 
                     if (j != 0)
                     {
-                        j = getangle(wall[wal->point2].x-wal->x, wall[wal->point2].y-wal->y);
+                        j = getangle(wal->point2Wall()->x-wal->x, wal->point2Wall()->y-wal->y);
                         int32_t dx = -bsin(j, -11);
                         int32_t dy = bcos(j, -11);
                         int bad2 = 16;
@@ -1051,24 +1051,25 @@ void getzrange_(const vec3_t *pos, int16_t sectnum,
         SectIterator it(clipsectorlist[i]);
         while ((j = it.NextIndex()) >= 0)
         {
-            const int32_t cstat = sprite[j].cstat;
+            auto spr = &sprite[j];
+            const int32_t cstat = spr->cstat;
             int32_t daz = 0, daz2 = 0;
 
-            if (sprite[j].cstat2 & CSTAT2_SPRITE_NOFIND) continue;
+            if (spr->cstat2 & CSTAT2_SPRITE_NOFIND) continue;
             if (cstat&dasprclipmask)
             {
                 int32_t clipyou = 0;
 
-                vec2_t v1 = sprite[j].pos.vec2;
+                vec2_t v1 = spr->pos.vec2;
 
                 switch (cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
                 {
                     case CSTAT_SPRITE_ALIGNMENT_FACING:
                     {
-                        int32_t k = walldist+(sprite[j].clipdist<<2)+1;
+                        int32_t k = walldist+(spr->clipdist<<2)+1;
                         if ((abs(v1.x-pos->x) <= k) && (abs(v1.y-pos->y) <= k))
                         {
-                            daz = sprite[j].z + spriteheightofs(j, &k, 1);
+                            daz = spr->z + spriteheightofs(j, &k, 1);
                             daz2 = daz - k;
                             clipyou = 1;
                         }
@@ -1083,7 +1084,7 @@ void getzrange_(const vec3_t *pos, int16_t sectnum,
                         if (clipinsideboxline(pos->x,pos->y,v1.x,v1.y,v2.x,v2.y,walldist+1) != 0)
                         {
                             int32_t k;
-                            daz = sprite[j].z + spriteheightofs(j, &k, 1);
+                            daz = spr->z + spriteheightofs(j, &k, 1);
                             daz2 = daz-k;
                             clipyou = 1;
                         }
@@ -1092,7 +1093,7 @@ void getzrange_(const vec3_t *pos, int16_t sectnum,
 
                     case CSTAT_SPRITE_ALIGNMENT_FLOOR:
                     {
-                        daz = sprite[j].z; daz2 = daz;
+                        daz = spr->z; daz2 = daz;
 
                         if ((cstat&64) != 0 && (pos->z > daz) == ((cstat&8)==0))
                             continue;
@@ -1101,8 +1102,8 @@ void getzrange_(const vec3_t *pos, int16_t sectnum,
                         get_floorspr_points((uspriteptr_t) &sprite[j], pos->x, pos->y, &v1.x, &v2.x, &v3.x, &v4.x,
                                             &v1.y, &v2.y, &v3.y, &v4.y);
 
-                        vec2_t const da = { MulScale(bcos(sprite[j].ang - 256), walldist + 4, 14),
-                                            MulScale(bsin(sprite[j].ang - 256), walldist + 4, 14) };
+                        vec2_t const da = { MulScale(bcos(spr->ang - 256), walldist + 4, 14),
+                                            MulScale(bsin(spr->ang - 256), walldist + 4, 14) };
 
                         v1.x += da.x; v2.x -= da.y; v3.x -= da.x; v4.x += da.y;
                         v1.y += da.y; v2.y += da.x; v3.y -= da.y; v4.y -= da.x;
@@ -1197,8 +1198,8 @@ static int32_t hitscan_trysector(const vec3_t *sv, usectorptr_t sec, hitdata_t *
 
     if (stat&2)
     {
-        auto const wal  = (uwallptr_t)&wall[sec->wallptr];
-        auto const wal2 = (uwallptr_t)&wall[wal->point2];
+        auto const wal  = (uwallptr_t)sec->firstWall();
+        auto const wal2 = (uwallptr_t)wal->point2Wall();
         int32_t j, dax=wal2->x-wal->x, day=wal2->y-wal->y;
 
         i = ksqrt(compat_maybe_truncate_to_int32(uhypsq(dax,day))); if (i == 0) return 1; //continue;
@@ -1306,7 +1307,7 @@ int32_t hitscan_(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int3
         for (z=startwall; z<endwall; z++)
         {
             auto const wal  = (uwallptr_t)&wall[z];
-            auto const wal2 = (uwallptr_t)&wall[wal->point2];
+            auto const wal2 = (uwallptr_t)wal->point2Wall();
 
             int const  nextsector = wal->nextsector;
 

@@ -145,9 +145,9 @@ void BunchDrawer::DeleteBunch(int index)
 
 bool BunchDrawer::CheckClip(walltype* wal)
 {
-	auto pt2 = &wall[wal->point2];
-	sectortype* backsector = &sector[wal->nextsector];
-	sectortype* frontsector = &sector[wall[wal->nextwall].nextsector];
+	auto pt2 = wal->point2Wall();
+	sectortype* backsector = wal->nextSector();
+	sectortype* frontsector = wal->sectorp();
 
 	// if one plane is sky on both sides, the line must not clip.
 	if (frontsector->ceilingstat & backsector->ceilingstat & CSTAT_SECTOR_SKY) return false;

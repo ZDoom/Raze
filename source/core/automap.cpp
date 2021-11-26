@@ -167,13 +167,13 @@ static void CalcMapBounds()
 	y_max_bound = INT_MIN;
 
 
-	for (int i = 0; i < numwalls; i++)
+	for(auto& wal : walls())
 	{
 		// get map min and max coordinates
-		if (wall[i].x < x_min_bound) x_min_bound = wall[i].x;
-		if (wall[i].y < y_min_bound) y_min_bound = wall[i].y;
-		if (wall[i].x > x_max_bound) x_max_bound = wall[i].x;
-		if (wall[i].y > y_max_bound) y_max_bound = wall[i].y;
+		if (wal.x < x_min_bound) x_min_bound = wal.x;
+		if (wal.y < y_min_bound) y_min_bound = wal.y;
+		if (wal.x > x_max_bound) x_max_bound = wal.x;
+		if (wal.y > y_max_bound) y_max_bound = wal.y;
 	}
 }
 
@@ -304,7 +304,7 @@ void MarkSectorSeen(int i)
 			i = wal->nextsector;
 			if (i < 0) continue;
 			if (wal->cstat & 0x0071) continue;
-			if (wall[wal->nextwall].cstat & 0x0071) continue;
+			if (wal->nextWall()->cstat & 0x0071) continue;
 			if (sector[i].lotag == 32767) continue;
 			if (sector[i].ceilingz >= sector[i].floorz) continue;
 			show2dsector.Set(i);
@@ -390,13 +390,13 @@ bool ShowRedLine(int j, int i)
 		if (automapMode == am_full)
 		{
 			if (sector[i].floorz != sector[i].ceilingz)
-				if (sector[wal->nextsector].floorz != sector[wal->nextsector].ceilingz)
-					if (((wal->cstat | wall[wal->nextwall].cstat) & (16 + 32)) == 0)
-						if (sector[i].floorz == sector[wal->nextsector].floorz)
+				if (wal->nextSector()->floorz != wal->nextSector()->ceilingz)
+					if (((wal->cstat | wal->nextWall()->cstat) & (16 + 32)) == 0)
+						if (sector[i].floorz == wal->nextSector()->floorz)
 							return false;
-			if (sector[i].floorpicnum != sector[wal->nextsector].floorpicnum)
+			if (sector[i].floorpicnum != wal->nextSector()->floorpicnum)
 				return false;
-			if (sector[i].floorshade != sector[wal->nextsector].floorshade)
+			if (sector[i].floorshade != wal->nextSector()->floorshade)
 				return false;
 		}
 		return true;
@@ -437,7 +437,7 @@ void drawredlines(int cposx, int cposy, int czoom, int cang)
 			if (s < 0 || s >= numsectors) continue;
 
 			if (sector[s].ceilingz == z1 && sector[s].floorz == z2)
-				if (((wal->cstat | wall[wal->nextwall].cstat) & (16 + 32)) == 0) continue;
+				if (((wal->cstat | wal->nextWall()->cstat) & (16 + 32)) == 0) continue;
 
 			if (ShowRedLine(j, i))
 			{
@@ -446,7 +446,7 @@ void drawredlines(int cposx, int cposy, int czoom, int cang)
 				int x1 = DMulScale(ox, xvect, -oy, yvect, 16) + (width << 11);
 				int y1 = DMulScale(oy, xvect, ox, yvect, 16) + (height << 11);
 
-				auto wal2 = &wall[wal->point2];
+				auto wal2 = wal->point2Wall();
 				ox = wal2->x - cposx;
 				oy = wal2->y - cposy;
 				int x2 = DMulScale(ox, xvect, -oy, yvect, 16) + (width << 11);
@@ -578,12 +578,13 @@ void renderDrawMapView(int cposx, int cposy, int czoom, int cang)
 		int s;
 		while ((s = it.NextIndex()) >= 0)
 		{
-			if (sprite[s].cstat & CSTAT_SPRITE_INVISIBLE)
+			auto spr = &sprite[s];
+			if (spr->cstat & CSTAT_SPRITE_INVISIBLE)
 				continue;
 
-			if ((sprite[s].cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FLOOR)
+			if ((spr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FLOOR)
 			{
-				if ((sprite[s].cstat & (CSTAT_SPRITE_ONE_SIDED | CSTAT_SPRITE_YFLIP)) == (CSTAT_SPRITE_ONE_SIDED | CSTAT_SPRITE_YFLIP))
+				if ((spr->cstat & (CSTAT_SPRITE_ONE_SIDED | CSTAT_SPRITE_YFLIP)) == (CSTAT_SPRITE_ONE_SIDED | CSTAT_SPRITE_YFLIP))
 					continue; // upside down
 				floorsprites.Push(s);
 			}
@@ -640,8 +641,8 @@ void renderDrawMapView(int cposx, int cposy, int czoom, int cang)
 			vertices[j] = { x1 / 4096.f, y1 / 4096.f, j == 1 || j == 2 ? 1.f : 0.f, j == 2 || j == 3 ? 1.f : 0.f };
 		}
 		int shade;
-		if ((sector[spr->sectnum].ceilingstat & CSTAT_SECTOR_SKY)) shade = sector[spr->sectnum].ceilingshade;
-		else shade = sector[spr->sectnum].floorshade;
+		if ((spr->sector()->ceilingstat & CSTAT_SECTOR_SKY)) shade = spr->sector()->ceilingshade;
+		else shade = spr->sector()->floorshade;
 		shade += spr->shade;
 		PalEntry color = shadeToLight(shade);
 		FRenderStyle rs = LegacyRenderStyles[STYLE_Translucent];

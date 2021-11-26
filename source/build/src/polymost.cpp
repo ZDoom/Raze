@@ -999,8 +999,8 @@ static void polymost_internal_nonparallaxed(FVector2 n0, FVector2 n1, float ryp0
     if (globalorientation & 64)
     {
         //relative alignment
-        vec2_t const xy = { wall[wall[sec->wallptr].point2].x - wall[sec->wallptr].x,
-                            wall[wall[sec->wallptr].point2].y - wall[sec->wallptr].y };
+        vec2_t const xy = { wall[sec->firstWall()->point2].x - sec->firstWall()->x,
+                            wall[sec->firstWall()->point2].y - sec->firstWall()->y };
         float r;
 
         int length = ksqrt(uhypsq(xy.x, xy.y));
@@ -1016,8 +1016,8 @@ static void polymost_internal_nonparallaxed(FVector2 n0, FVector2 n1, float ryp0
 
         FVector2 const fxy = { xy.x*r, xy.y*r };
 
-        ft[0] = ((float)(globalposx - wall[sec->wallptr].x)) * fxy.X + ((float)(globalposy - wall[sec->wallptr].y)) * fxy.Y;
-        ft[1] = ((float)(globalposy - wall[sec->wallptr].y)) * fxy.X - ((float)(globalposx - wall[sec->wallptr].x)) * fxy.Y;
+        ft[0] = ((float)(globalposx - sec->firstWall()->x)) * fxy.X + ((float)(globalposy - sec->firstWall()->y)) * fxy.Y;
+        ft[1] = ((float)(globalposy - sec->firstWall()->y)) * fxy.X - ((float)(globalposx - sec->firstWall()->x)) * fxy.Y;
         ft[2] = fcosglobalang * fxy.X + fsinglobalang * fxy.Y;
         ft[3] = fsinglobalang * fxy.X - fcosglobalang * fxy.Y;
 
@@ -1247,8 +1247,8 @@ static float fgetceilzofslope(usectorptr_t sec, float dax, float day)
     if (!(sec->ceilingstat&2))
         return float(sec->ceilingz);
 
-    auto const wal  = (uwallptr_t)&wall[sec->wallptr];
-    auto const wal2 = (uwallptr_t)&wall[wal->point2];
+    auto const wal  = (uwallptr_t)sec->firstWall();
+    auto const wal2 = (uwallptr_t)wal->point2Wall();
 
     vec2_t const w = *(vec2_t const *)wal;
     vec2_t const d = { wal2->x - w.x, wal2->y - w.y };
@@ -1265,8 +1265,8 @@ static float fgetflorzofslope(usectorptr_t sec, float dax, float day)
     if (!(sec->floorstat&2))
         return float(sec->floorz);
 
-    auto const wal  = (uwallptr_t)&wall[sec->wallptr];
-    auto const wal2 = (uwallptr_t)&wall[wal->point2];
+    auto const wal  = (uwallptr_t)sec->firstWall();
+    auto const wal2 = (uwallptr_t)wal->point2Wall();
 
     vec2_t const w = *(vec2_t const *)wal;
     vec2_t const d = { wal2->x - w.x, wal2->y - w.y };
@@ -1285,8 +1285,8 @@ static void fgetzsofslope(usectorptr_t sec, float dax, float day, float* ceilz, 
     if (((sec->ceilingstat|sec->floorstat)&2) != 2)
         return;
 
-    auto const wal  = (uwallptr_t)&wall[sec->wallptr];
-    auto const wal2 = (uwallptr_t)&wall[wal->point2];
+    auto const wal  = (uwallptr_t)sec->firstWall();
+    auto const wal2 = (uwallptr_t)wal->point2Wall();
 
     vec2_t const d = { wal2->x - wal->x, wal2->y - wal->y };
 
@@ -1515,7 +1515,7 @@ static void polymost_drawalls(int32_t const bunch)
         int32_t const wallnum = thewall[z];
 
         auto const wal = (uwallptr_t)&wall[wallnum];
-        auto const wal2 = (uwallptr_t)&wall[wal->point2];
+        auto const wal2 = (uwallptr_t)wal->point2Wall();
         int32_t const nextsectnum = wal->nextsector;
         auto const nextsec = nextsectnum>=0 ? (usectorptr_t)&sector[nextsectnum] : NULL;
 
@@ -1949,7 +1949,7 @@ void polymost_scansector(int32_t sectnum)
 
         for (z=startwall,wal=(uwallptr_t)&wall[z]; z<endwall; z++,wal++)
         {
-            auto const wal2 = (uwallptr_t)&wall[wal->point2];
+            auto const wal2 = (uwallptr_t)wal->point2Wall();
 
             DVector2 const fp1 = { double(wal->x - globalposx), double(wal->y - globalposy) };
             DVector2 const fp2 = { double(wal2->x - globalposx), double(wal2->y - globalposy) };
@@ -2332,16 +2332,16 @@ void polymost_drawrooms()
 static void polymost_drawmaskwallinternal(int32_t wallIndex)
 {
     auto const wal = (uwallptr_t)&wall[wallIndex];
-    auto const wal2 = (uwallptr_t)&wall[wal->point2];
+    auto const wal2 = (uwallptr_t)wal->point2Wall();
     if (wal->nextwall == -1) return;
-    int32_t const sectnum = wall[wal->nextwall].nextsector;
+    int32_t const sectnum = wal->nextWall()->nextsector;
     auto const sec = (usectorptr_t)&sector[sectnum];
 
 //    if (wal->nextsector < 0) return;
     // Without MASKWALL_BAD_ACCESS fix:
     // wal->nextsector is -1, WGR2 SVN Lochwood Hollow (Til' Death L1)  (or trueror1.map)
 
-    auto const nsec = (usectorptr_t)&sector[wal->nextsector];
+    auto const nsec = (usectorptr_t)wal->nextSector();
 
     polymost_outputGLDebugMessage(3, "polymost_drawmaskwallinternal(wallIndex:%d)", wallIndex);
 

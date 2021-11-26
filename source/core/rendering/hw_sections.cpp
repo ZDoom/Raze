@@ -77,12 +77,13 @@ void hw_BuildSections()
 	numsections = numsectors;
 	for (int i = 0; i < numwalls; i++)
 	{
+		auto& wal = wall[i];
 		sectionLines[i].startpoint = sectionLines[i].wall = i;
-		sectionLines[i].endpoint = wall[i].point2;
-		sectionLines[i].partner = wall[i].nextwall;
-		sectionLines[i].section = wall[i].sector;
-		sectionLines[i].partnersection = wall[i].nextsector;
-		sectionLines[i].point2index = wall[i].point2 - sector[wall[i].sector].wallptr;
+		sectionLines[i].endpoint = wal.point2;
+		sectionLines[i].partner = wal.nextwall;
+		sectionLines[i].section = wal.sector;
+		sectionLines[i].partnersection = wal.nextsector;
+		sectionLines[i].point2index = wal.point2 - wal.sectorp()->wallptr;
 	}
 
 	for (unsigned i = 0; i < splits.Size(); i += 3)

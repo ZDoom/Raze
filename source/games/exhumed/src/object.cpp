@@ -1648,16 +1648,16 @@ void ExplodeEnergyBlock(DExhumedActor* pActor)
 	for(auto& wal : wallsofsector(pSector))
     {
 		if (!wal.twoSided()) continue;
-		auto nextwall = wal.nextWall();
+		auto nextwal = wal.nextWall();
 
-        if (nextwall->pal >= 4) {
-            nextwall->pal = 7;
+        if (nextwal->pal >= 4) {
+            nextwal->pal = 7;
         }
         else {
-            nextwall->pal = 0;
+            nextwal->pal = 0;
         }
 
-        nextwall->shade = 50;
+        nextwal->shade = 50;
     }
 
     if (pSector->floorpal >= 4) {

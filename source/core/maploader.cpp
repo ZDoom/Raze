@@ -349,11 +349,11 @@ static void ReadSpriteV5(FileReader& fr, spritetype& spr)
 	spr.hitag = fr.ReadInt16();
 	spr.extra = fr.ReadInt16();
 
-	int sec = spr.sectnum;
-	if ((sector[sec].ceilingstat & 1) > 0)
-		spr.pal = sector[sec].ceilingpal;
+	auto sec = spr.sector();
+	if ((sec->ceilingstat & 1) > 0)
+		spr.pal = sec->ceilingpal;
 	else
-		spr.pal = sector[sec].floorpal;
+		spr.pal = sec->floorpal;
 
 	spr.blend = 0;
 	spr.clipdist = 32;

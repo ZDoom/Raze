@@ -157,8 +157,8 @@ void PlanesAtPoint(const sectortype* sec, int dax, int day, float* pceilz, float
 
 	if (((sec->ceilingstat | sec->floorstat) & CSTAT_SECTOR_SLOPE) == CSTAT_SECTOR_SLOPE)
 	{
-		auto wal = &wall[sec->wallptr];
-		auto wal2 = &wall[wal->point2];
+		auto wal = sec->firstWall();
+		auto wal2 = wal->point2Wall();
 
 		float dx = float(wal2->x - wal->x);
 		float dy = float(wal2->y - wal->y);

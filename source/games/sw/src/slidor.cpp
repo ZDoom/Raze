@@ -260,7 +260,6 @@ void DoSlidorInterp(DSWActor* actor, INTERP_FUNC interp_func)
             }
             else
             {
-                auto nextwall = wal->nextWall();
                 // red wall - move 2 points
                 interp_func(wal, type);
                 interp_func(wal->nextWall()->point2Wall(), type);
