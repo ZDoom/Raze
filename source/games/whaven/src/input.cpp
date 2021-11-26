@@ -199,6 +199,12 @@ void processinput(int num) {
 		if (plr.dead) {
 			if (plr.horizon.horiz.asq16() < gi->playerHorizMax())
 				plr.horizon.addadjustment(TICSPERFRAME << 1);
+
+			if (bits & (SB_FIRE | SB_OPEN))
+			{
+				// restart;
+				gameaction = ga_autoloadgame;
+			}
 		}
 		return;
 	}
