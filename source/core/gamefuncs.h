@@ -323,15 +323,6 @@ inline void   dragpoint(walltype* pointhighlight, int32_t dax, int32_t day)
 	dragpoint(wallnum(pointhighlight), dax, day);
 }
 
-inline int pushmove(vec3_t *const vect, sectortype**const sect, int32_t const walldist, int32_t const ceildist, int32_t const flordist,
-				 uint32_t const cliptype, bool clear = true)
-{
-	int sectno = *sect? sector.IndexOf(*sect) : -1;
-	int res = pushmove(vect, &sectno, walldist, ceildist, flordist, cliptype, clear);
-	*sect = sectno == -1? nullptr : &sector[sectno];
-	return res;
-}
-
 inline void   alignceilslope(sectortype* dasect, int32_t x, int32_t y, int32_t z)
 {
 	alignceilslope(sector.IndexOf(dasect), x, y, z);

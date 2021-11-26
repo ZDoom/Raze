@@ -5291,10 +5291,10 @@ void fall_common(DDukeActor *actor, int playernum, int JIBS6, int DRONE, int BLO
 				else if (s->zvel > 2048 && s->sector()->lotag != 1)
 				{
 
-					auto j = s->sector();
-					pushmove(&s->pos, &j, 128, (4 << 8), (4 << 8), CLIPMASK0);
-					if (j != s->sector() && j != nullptr)
-						changeactorsect(actor, j);
+					auto sect = s->sector();
+					pushmove(&s->pos, &sect, 128, (4 << 8), (4 << 8), CLIPMASK0);
+					if (sect != s->sector() && sect != nullptr)
+						changeactorsect(actor, sect);
 
 					S_PlayActorSound(thud, actor);
 				}

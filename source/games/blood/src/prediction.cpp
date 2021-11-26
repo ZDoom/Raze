@@ -262,6 +262,7 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
 
 void fakePlayerProcess(PLAYER *pPlayer, InputPacket *pInput)
 {
+#if 0
     spritetype *pSprite = pPlayer->pSprite;
     XSPRITE *pXSprite = pPlayer->pXSprite;
     POSTURE* pPosture = &pPlayer->pPosture[pPlayer->lifeMode][predict.at48];
@@ -353,6 +354,7 @@ void fakePlayerProcess(PLAYER *pPlayer, InputPacket *pInput)
 				predict.at72 = 0;
 		}
 	}
+#endif
 }
 
 static void fakeMoveDude(spritetype *pSprite)

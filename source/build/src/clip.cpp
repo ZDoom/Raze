@@ -825,7 +825,7 @@ int32_t clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, int32_
 //
 // pushmove
 //
-int pushmove(vec3_t *const vect, int *const sectnum,
+int pushmove_(vec3_t *const vect, int *const sectnum,
     int32_t const walldist, int32_t const ceildist, int32_t const flordist, uint32_t const cliptype, bool clear /*= true*/)
 {
     int bad;

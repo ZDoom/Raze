@@ -358,6 +358,14 @@ inline void getzrange(int x, int y, int z, int16_t sectnum, int32_t* ceilz, int3
 	getzrange_(&v, sectnum, ceilz, ceilhit, florz, florhit, walldist, cliptype);
 }
 
+[[deprecated]]
+inline int pushmove(vec3_t* const vect, int* const sectnum, int32_t const walldist, int32_t const ceildist, int32_t const flordist,
+	uint32_t const cliptype, bool clear = true)
+{
+	return pushmove_(vect, sectnum, walldist, ceildist, flordist, cliptype, clear);
+}
+
+
 
 
 inline int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& direction, HitInfoBase& hitinfo, unsigned cliptype)
@@ -399,4 +407,13 @@ inline void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, Colli
 	getzrange_(&pos, sector.IndexOf(sect), ceilz, &ch, florz, &fh, walldist, cliptype);
 	ceilhit.setFromEngine(ch);
 	florhit.setFromEngine(fh);
+}
+
+inline int pushmove(vec3_t* const vect, sectortype** const sect, int32_t const walldist, int32_t const ceildist, int32_t const flordist,
+	uint32_t const cliptype, bool clear = true)
+{
+	int sectno = *sect ? sector.IndexOf(*sect) : -1;
+	int res = pushmove_(vect, &sectno, walldist, ceildist, flordist, cliptype, clear);
+	*sect = sectno == -1 ? nullptr : &sector[sectno];
+	return res;
 }
