@@ -398,7 +398,6 @@ void PlayerAngle::applyinput(float const avel, ESyncBits* actions, double const 
 		{
 			// add player's input
 			ang += degang(avel);
-			spin = 0;
 		}
 
 		if (spin < 0)
