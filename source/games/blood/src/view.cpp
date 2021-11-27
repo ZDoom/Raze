@@ -642,13 +642,13 @@ void viewDrawScreen(bool sceneonly)
 
         int ceilingZ, floorZ;
         getzsofslope(nSectnum, cX, cY, &ceilingZ, &floorZ);
-        if (cZ >= floorZ)
+        if ((cZ > floorZ - (1 << 8)) && (getLowerLink(nSectnum) == nullptr)) // clamp to floor
         {
-            cZ = floorZ - (getUpperLink(nSectnum) ? 0 : (8 << 8));
+            cZ = floorZ - (1 << 8);
         }
-        if (cZ <= ceilingZ)
+        if ((cZ < ceilingZ + (1 << 8)) && (getLowerLink(nSectnum) == nullptr)) // clamp to ceiling
         {
-            cZ = ceilingZ + (getLowerLink(nSectnum) ? 0 : (8 << 8));
+            cZ = ceilingZ + (1 << 8);
         }
         cH = q16horiz(ClipRange(cH.asq16(), gi->playerHorizMin(), gi->playerHorizMax()));
 
