@@ -1785,11 +1785,16 @@ Collision movesprite(DWHActor* actor, int dx, int dy, int dz, int ceildist, int 
 	int daz = spr.z + zoffs + dz;
 	if ((daz <= zr_ceilz) || (daz > zr_florz)) {
 		if (retval != 0)
-			return Collision(retval);
-		return coll.setSector(dasectnum);
+		{
+			coll.setFromEngine(retval);
+			return coll;
+		}
+		coll.setSector(dasectnum);
+		return coll;
 	}
 	spr.z = (daz - zoffs);
-	return Collision(retval);
+	coll.setFromEngine(retval);
+	return coll;
 }
 
 void trowajavlin(DWHActor* actor) {

@@ -22,14 +22,15 @@ public:
 
 	void SetOwner(DWHActor* own)
 	{
-		s().owner = own ? own->s().index : -1;
+		s().owner = own ? own->GetSpriteIndex() : -1;
 	}
 
 	DWHActor* GetOwner()
 	{
-		if (s().owner >= 4096) return nullptr; // player index hackery
-		if (s().owner == -1 || s().owner == MAXSPRITES - 1) return nullptr;
-		return base() + s().owner;
+		auto owner = s().owner;
+		if (owner >= 4096) return nullptr; // player index hackery
+		if (owner == -1 || owner == MAXSPRITES - 1) return nullptr;
+		return base() + owner;
 	}
 
 	void SetPlayerOwner(int num)
