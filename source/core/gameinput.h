@@ -79,11 +79,11 @@ struct PlayerHorizon
 	void scaletozero(fixedhoriz& object, double const value, double const scaleAdjust, double const push = 0.)
 	{
 		if (object.asq16())
-	{
+		{
 			auto sgn = Sgn(object.asq16());
 			object  -= getscaledhoriz(value, scaleAdjust, &object, push == 0 ? sgn * (1. / 3.) : push);
 			if (sgn != Sgn(object.asq16())) object = q16horiz(0);
-	}
+		}
 	}
 
 	// Ticrate playsim adjustment processor.
@@ -199,11 +199,11 @@ struct PlayerAngle
 	void scaletozero(binangle& object, double const value, double const scaleAdjust, double const push = 0.)
 	{
 		if (object.asbam())
-	{
+		{
 			auto sgn = Sgn(object.signedbam());
 			object  -= getscaledangle(value, scaleAdjust, &object, push == 0 ? sgn * (1. / 3.) : push);
 			if (sgn != Sgn(object.signedbam())) object = bamang(0);
-	}
+		}
 	}
 
 	// Ticrate playsim adjustment processor.

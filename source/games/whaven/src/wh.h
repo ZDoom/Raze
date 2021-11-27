@@ -527,7 +527,7 @@ struct GameInterface : public ::GameInterface
 	FString GetCoordString() override;
 	//void ExitFromMenu() override;
 	//void DrawPlayerSprite(const DVector2& origin, bool onteam) override;
-	void GetInput(InputPacket* packet, ControlInfo* const hidInput) override;
+	void GetInput(ControlInfo* const hidInput, double const scaleAdjust, InputPacket* packet) override;
 	void UpdateSounds() override;
 	void Startup() override;
 	void DrawBackground() override;

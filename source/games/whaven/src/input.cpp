@@ -93,7 +93,7 @@ static void UpdatePlayerSpriteAngle(PLAYER& plr)
 		plr.actor()->s().ang = plr.angle.ang.asbuild();
 }
 
-void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
+void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdjust, InputPacket* packet)
 {
 	if (paused || M_Active())
 	{
@@ -112,7 +112,6 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 		if (plr.dead) localInput.actions &= SB_OPEN;
 	}
 
-	double const scaleAdjust = InputScale();
 	InputPacket input{};
 
 	if (!plr.dead)
