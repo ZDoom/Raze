@@ -45,6 +45,7 @@
 #include "sectorgeometry.h"
 #include "render.h"
 #include "hw_sections.h"
+#include "interpolate.h"
 
 // needed for skipping over to get the map size first.
 enum
@@ -390,6 +391,7 @@ void addBlockingPairs();
 // allocates global map storage. Blood will also call this.
 void allocateMapArrays(int numsprites)
 {
+	ClearInterpolations();
 
 	memset(sector, 0, sizeof(*sector) * MAXSECTORS);
 	memset(wall, 0, sizeof(*wall) * MAXWALLS);
