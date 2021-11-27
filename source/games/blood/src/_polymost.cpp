@@ -130,18 +130,6 @@ void render3DViewPolymost(int nSectnum, int cX, int cY, int cZ, binangle cA, fix
 
     renderSetAspect(v1, yxaspect);
 
-
-    int ceilingZ, floorZ;
-    getzsofslope(nSectnum, cX, cY, &ceilingZ, &floorZ);
-    if (cZ >= floorZ)
-    {
-        cZ = floorZ - (getUpperLink(nSectnum) ? 0 : (8 << 8));
-    }
-    if (cZ <= ceilingZ)
-    {
-        cZ = ceilingZ + (getLowerLink(nSectnum) ? 0 : (8 << 8));
-    }
-    cH = q16horiz(ClipRange(cH.asq16(), gi->playerHorizMin(), gi->playerHorizMax()));
 RORHACK:
     bool ror_status[16];
     for (int i = 0; i < 16; i++)
