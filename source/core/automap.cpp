@@ -46,7 +46,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "sectorgeometry.h"
 #include "gamefuncs.h"
 #include "hw_sections.h"
-
+#include "coreactor.h"
 CVAR(Bool, am_followplayer, true, CVAR_ARCHIVE)
 CVAR(Bool, am_rotate, true, CVAR_ARCHIVE)
 CVAR(Float, am_linealpha, 1.0f, CVAR_ARCHIVE)
@@ -566,19 +566,19 @@ void renderDrawMapView(int cposx, int cposy, int czoom, int cang)
 	int width = screen->GetWidth();
 	int height = screen->GetHeight();
 	TArray<FVector4> vertices;
-	TArray<int> floorsprites;
+	TArray<spritetype*> floorsprites;
 
 
 	for (int i = numsectors - 1; i >= 0; i--)
 	{
+		auto sect = &sector[i];
 		if (!gFullMap && !show2dsector[i]) continue;
 
 		//Collect floor sprites to draw
-		SectIterator it(i);
-		int s;
-		while ((s = it.NextIndex()) >= 0)
+		TSectIterator<DCoreActor> it(sect);
+		while (auto act = it.Next())
 		{
-			auto spr = &sprite[s];
+			auto spr = &act->s();
 			if (spr->cstat & CSTAT_SPRITE_INVISIBLE)
 				continue;
 
@@ -586,13 +586,13 @@ void renderDrawMapView(int cposx, int cposy, int czoom, int cang)
 			{
 				if ((spr->cstat & (CSTAT_SPRITE_ONE_SIDED | CSTAT_SPRITE_YFLIP)) == (CSTAT_SPRITE_ONE_SIDED | CSTAT_SPRITE_YFLIP))
 					continue; // upside down
-				floorsprites.Push(s);
+				floorsprites.Push(spr);
 			}
 		}
 
-		if (sector[i].floorstat & CSTAT_SECTOR_SKY) continue;
+		if (sect->floorstat & CSTAT_SECTOR_SKY) continue;
 
-		int picnum = sector[i].floorpicnum;
+		int picnum = sect->floorpicnum;
 		if ((unsigned)picnum >= (unsigned)MAXTILES) continue;
 
 		for (auto ii : sectionspersector[i])
@@ -616,19 +616,18 @@ void renderDrawMapView(int cposx, int cposy, int czoom, int cang)
 
 
 	}
-	qsort(floorsprites.Data(), floorsprites.Size(), sizeof(int), [](const void* a, const void* b)
+	qsort(floorsprites.Data(), floorsprites.Size(), sizeof(spritetype*), [](const void* a, const void* b)
 		{
-			int A = *(int*)a;
-			int B = *(int*)b;
-			if (sprite[A].z != sprite[B].z) return sprite[B].z - sprite[A].z;
-			return A - B; // ensures stable sort.
+			auto A = *(spritetype**)a;
+			auto B = *(spritetype**)b;
+			if (A->z != B->z) return B->z - A->z;
+			return A->time - B->time; // ensures stable sort.
 		});
 
 	vertices.Resize(4);
-	for (auto sn : floorsprites)
+	for (auto spr : floorsprites)
 	{
-		if (!gFullMap && !(sprite[sn].cstat2 & CSTAT2_SPRITE_MAPPED)) continue;
-		auto spr = &sprite[sn];
+		if (!gFullMap && !(spr->cstat2 & CSTAT2_SPRITE_MAPPED)) continue;
 		vec2_t pp[4];
 		GetFlatSpritePosition(spr, spr->pos.vec2, pp, true);
 

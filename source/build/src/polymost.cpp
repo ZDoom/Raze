@@ -1928,7 +1928,7 @@ void polymost_scansector(int32_t sectnum)
                     (r_voxels && tiletovox[spr->picnum] >= 0 && voxmodels[tiletovox[spr->picnum]]) ||
                     (r_voxels && gi->Voxelize(spr->picnum) > -1) ||
                     DMulScale(bcos(spr->ang), -s.x, bsin(spr->ang), -s.y, 6) > 0)
-                    if (renderAddTsprite(pm_tsprite, pm_spritesortcnt, z, sectnum))
+                    if (renderAddTsprite(pm_tsprite, pm_spritesortcnt, act->GetSpriteIndex(), sectnum))
                         break;
             }
         }
@@ -1946,6 +1946,7 @@ void polymost_scansector(int32_t sectnum)
 
         uwallptr_t wal;
 
+        int z;
         for (z=startwall,wal=(uwallptr_t)&wall[z]; z<endwall; z++,wal++)
         {
             auto const wal2 = (uwallptr_t)wal->point2Wall();
