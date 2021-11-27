@@ -417,7 +417,7 @@ static void updateanimation(md2model_t *m, tspriteptr_t tspr, uint8_t lpal)
 
     int32_t const smoothdurationp = (hw_animsmoothing && (tile2model[tile].smoothduration != 0));
     spritesmooth_t * const smooth = &spritesmooth[((unsigned)tspr->owner < MAXSPRITES+MAXUNIQHUDID) ? tspr->owner : MAXSPRITES+MAXUNIQHUDID-1];
-    spriteext_t * const sprext = &spriteext[((unsigned)tspr->owner < MAXSPRITES+MAXUNIQHUDID) ? tspr->owner : MAXSPRITES+MAXUNIQHUDID-1];
+    spriteext_t * const sprext = &spriteext[((unsigned)tspr->owner < MAXSPRITES) ? tspr->owner : MAXSPRITES-1];
 
     const mdanim_t *anim;
     for (anim = m->animations; anim && anim->startframe != m->cframe; anim = anim->next)
@@ -1146,7 +1146,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
  //   int32_t texunits = GL_TEXTURE0;
 
     const int32_t owner = tspr->owner;
-    const spriteext_t *const sext = &spriteext[((unsigned)owner < MAXSPRITES+MAXUNIQHUDID) ? owner : MAXSPRITES+MAXUNIQHUDID-1];
+    const spriteext_t *const sext = &spriteext[((unsigned)owner < MAXSPRITES) ? owner : MAXSPRITES-1];
     const uint8_t lpal = ((unsigned)owner < MAXSPRITES) ? sprite[tspr->owner].pal : tspr->pal;
     const int32_t sizyrep = tileHeight(tspr->picnum) * tspr->yrepeat;
 
