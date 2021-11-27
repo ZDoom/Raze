@@ -557,7 +557,7 @@ void weaponsprocess(int snum) {
 						plr.hasshot = 0;
 						plr.currweaponflip = 1;
 					}
-					if (plr.ammo[3] > 0) {
+					else if (plr.ammo[3] > 0) {
 						plr.currweapon = 3;
 						plr.currweapontics = 6;
 						plr.currweaponanim = 0;
