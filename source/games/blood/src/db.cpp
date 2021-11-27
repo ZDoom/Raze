@@ -191,12 +191,13 @@ DBloodActor* InsertSprite(sectortype* pSector, int nStat)
 
 int DeleteSprite(int nSprite)
 {
-    FVector3 pos = GetSoundPos(&sprite[nSprite].pos);
+    auto sp = &sprite[nSprite];
+    FVector3 pos = GetSoundPos(&sp->pos);
     soundEngine->RelinkSound(SOURCE_Actor, &sprite[nSprite], nullptr, &pos);
 
-    assert(sprite[nSprite].statnum >= 0 && sprite[nSprite].statnum < kMaxStatus);
+    assert(sp->statnum >= 0 && sp->statnum < kMaxStatus);
     RemoveSpriteStat(nSprite);
-    assert(validSectorIndex(sprite[nSprite].sectnum));
+    assert(sp->insector());
     RemoveSpriteSect(nSprite);
     InsertSpriteStat(nSprite, kMaxStatus);
 #ifdef NOONE_EXTENSIONS
@@ -211,7 +212,7 @@ int ChangeSpriteSect(int nSprite, int nSector)
 {
     assert(nSprite >= 0 && nSprite < kMaxSprites);
     assert(validSectorIndex(nSector));
-	assert(validSectorIndex(sprite[nSprite].sectnum));
+	assert(sprite[nSprite].insector());
     RemoveSpriteSect(nSprite);
     InsertSpriteSect(nSprite, nSector);
     return 0;
@@ -227,7 +228,7 @@ int ChangeSpriteStat(int nSprite, int nStatus)
     assert(nSprite >= 0 && nSprite < kMaxSprites);
     assert(nStatus >= 0 && nStatus < kMaxStatus);
     assert(sprite[nSprite].statnum >= 0 && sprite[nSprite].statnum < kMaxStatus);
-    assert(validSectorIndex(sprite[nSprite].sectnum));
+    assert(sprite[nSprite].insector());
     RemoveSpriteStat(nSprite);
     InsertSpriteStat(nSprite, nStatus);
     return 0;

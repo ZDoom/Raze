@@ -27,6 +27,7 @@ Ken Silverman's official web site: http://www.advsys.net/ken
 #include "gamestruct.h"
 #include "gamestruct.h"
 #include "hw_voxels.h"
+#include "coreactor.h"
 
 #ifdef _MSC_VER
 // just make it shut up. Most of this file will go down the drain anyway soon.
@@ -1910,12 +1911,10 @@ void polymost_scansector(int32_t sectnum)
     {
         sectnum = sectorborder[--sectorbordercnt];
 
-        int z;
-        SectIterator it(sectnum);
-        while ((z = it.NextIndex()) >= 0)
+        TSectIterator<DCoreActor> it(sectnum);
+        while (auto act = it.Next())
         {
-            auto const spr = (uspriteptr_t)&sprite[z];
-
+            auto spr = &act->s();
             if ((spr->cstat & 0x8000) || spr->xrepeat == 0 || spr->yrepeat == 0)
                 continue;
 
