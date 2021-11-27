@@ -2150,6 +2150,9 @@ OptionMenu "EngineCredits2a"
 	StaticText "PCExhumed", 1
 	StaticText "Alexey \"Nuke.YKT\" Skrybykin", 0
 	StaticText "sirlemonhead", 0
+	StaticText ""
+	StaticText "Build GDX", 1
+	StaticText "M210", 0
 }
 	
 OptionMenu "EngineCredits2b"
