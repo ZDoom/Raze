@@ -51,7 +51,7 @@ CVARD(Bool, cl_crosshair, true, CVAR_ARCHIVE, "enable/disable crosshair");
 CVARD(Bool, cl_automsg, false, CVAR_ARCHIVE, "enable/disable automatically sending messages to all players") // Not implemented for Blood
 CVARD(Bool, cl_autorun, true, CVAR_ARCHIVE, "enable/disable autorun")
 
-CVARD(Bool, cl_runmode, true, CVAR_ARCHIVE, "enable/disable modernized run key operation")
+CVARD(Bool, cl_runmode, false, CVAR_ARCHIVE, "enable/disable modernized run key operation")
 
 bool G_CheckAutorun(bool button)
 {
