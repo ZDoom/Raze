@@ -299,7 +299,7 @@ bool powerupActivate(PLAYER *pPlayer, int nPowerUp)
             WeaponRaise(pPlayer);
             break;
     }
-    sfxPlay3DSound(pPlayer->pSprite, 776, -1, 0);
+    sfxPlay3DSound(pPlayer->actor, 776, -1, 0);
     return 1;
 }
 
@@ -1109,7 +1109,7 @@ bool PickupAmmo(PLAYER* pPlayer, DBloodActor* ammoactor)
         pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType]+pAmmoItemData->count, gAmmoInfo[nAmmoType].max);
 
     if (pAmmoItemData->weaponType)  pPlayer->hasWeapon[pAmmoItemData->weaponType] = 1;
-    sfxPlay3DSound(pPlayer->pSprite, 782, -1, 0);
+    sfxPlay3DSound(pPlayer->actor, 782, -1, 0);
     return 1;
 }
 
@@ -1137,7 +1137,7 @@ bool PickupWeapon(PLAYER *pPlayer, DBloodActor* weaponactor)
             pPlayer->weaponState = 0;
             pPlayer->nextWeapon = nNewWeapon;
         }
-        sfxPlay3DSound(pPlayer->pSprite, 777, -1, 0);
+        sfxPlay3DSound(pPlayer->actor, 777, -1, 0);
         return 1;
     }
     
@@ -1149,7 +1149,7 @@ bool PickupWeapon(PLAYER *pPlayer, DBloodActor* weaponactor)
     else
         pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType]+pWeaponItemData->count, gAmmoInfo[nAmmoType].max);
 
-    sfxPlay3DSound(pPlayer->pSprite, 777, -1, 0);
+    sfxPlay3DSound(pPlayer->actor, 777, -1, 0);
     return 1;
 }
 
@@ -1488,7 +1488,7 @@ void ProcessInput(PLAYER *pPlayer)
             #ifdef NOONE_EXTENSIONS
             if ((packItemActive(pPlayer, 4) && pPosture->pwupJumpZ != 0) || pPosture->normalJumpZ != 0)
             #endif
-                sfxPlay3DSound(pSprite, 700, 0, 0);
+                sfxPlay3DSound(actor, 700, 0, 0);
 
             if (packItemActive(pPlayer, 4)) actor->zvel = pPosture->pwupJumpZ; //-0x175555;
             else actor->zvel = pPosture->normalJumpZ; //-0xbaaaa;
@@ -1951,7 +1951,7 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
             {
             case kDamageSpirit:
                 nDeathSeqID = 18;
-                sfxPlay3DSound(pSprite, 716, 0, 0);
+                sfxPlay3DSound(pPlayer->actor, 716, 0, 0);
                 break;
             case kDamageExplode:
                 GibSprite(pActor, GIBTYPE_7, NULL, NULL);
@@ -1995,10 +1995,10 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
                 nSound = pDamageInfo->Kills[Random(3)];
             if (nDamageType == kDamageDrown && pXSprite->medium == kMediumWater && !pPlayer->hand)
                 nSound = 714;
-            sfxPlay3DSound(pSprite, nSound, 0, 6);
+            sfxPlay3DSound(pPlayer->actor, nSound, 0, 6);
             return nDamage;
         }
-        sfxKill3DSound(pPlayer->pSprite, -1, 441);
+        sfxKill3DSound(pPlayer->actor, -1, 441);
         if (gGameOptions.nGameType == 3 && pPlayer->hasFlag) {
             if (pPlayer->hasFlag&1) flagDropped(pPlayer, kItemFlagA);
             if (pPlayer->hasFlag&2) flagDropped(pPlayer, kItemFlagB);
@@ -2013,14 +2013,14 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
         switch (nDamageType)
         {
         case kDamageExplode:
-            sfxPlay3DSound(pSprite, 717, 0, 0);
+            sfxPlay3DSound(pPlayer->actor, 717, 0, 0);
             GibSprite(pActor, GIBTYPE_7, NULL, NULL);
             GibSprite(pActor, GIBTYPE_15, NULL, NULL);
             pPlayer->pSprite->cstat |= 32768;
             nDeathSeqID = 2;
             break;
         case kDamageBurn:
-            sfxPlay3DSound(pSprite, 718, 0, 0);
+            sfxPlay3DSound(pPlayer->actor, 718, 0, 0);
             nDeathSeqID = 3;
             break;
         case kDamageDrown:
@@ -2030,7 +2030,7 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
             if (nHealth < -20 && gGameOptions.nGameType >= 2 && Chance(0x4000))
             {
                 DAMAGEINFO *pDamageInfo = &damageInfo[nDamageType];
-                sfxPlay3DSound(pSprite, pDamageInfo->at10[0], 0, 2);
+                sfxPlay3DSound(pPlayer->actor, pDamageInfo->at10[0], 0, 2);
                 nDeathSeqID = 16;
                 nKneelingPlayer = nPlayerKneelClient;
                 powerupActivate(pPlayer, kPwUpDeliriumShroom);
@@ -2039,7 +2039,7 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
             }
             else
             {
-                sfxPlay3DSound(pSprite, 716, 0, 0);
+                sfxPlay3DSound(pPlayer->actor, 716, 0, 0);
                 nDeathSeqID = 1;
             }
             break;
@@ -2149,7 +2149,7 @@ void playerLandingSound(PLAYER *pPlayer)
             return;
         int nSurf = tileGetSurfType(pHit->florhit);
         if (nSurf)
-            sfxPlay3DSound(pSprite, surfaceSound[nSurf], -1, 0);
+            sfxPlay3DSound(pPlayer->actor, surfaceSound[nSurf], -1, 0);
     }
 }
 
@@ -2160,7 +2160,7 @@ void PlayerSurvive(int, DBloodActor* actor)
     actHealDude(actor, 1, 2);
     if (gGameOptions.nGameType > 0 && numplayers > 1)
     {
-        sfxPlay3DSound(pSprite, 3009, 0, 6);
+        sfxPlay3DSound(actor, 3009, 0, 6);
         if (IsPlayerSprite(pSprite))
         {
             PLAYER *pPlayer = &gPlayer[pSprite->type-kDudePlayer1];

@@ -74,7 +74,7 @@ void PukeSeqCallback(int, DBloodActor* actor)
 	int nAngle = getangle(tx, ty);
 	int dx = bcos(nAngle);
 	int dy = bsin(nAngle);
-	sfxPlay3DSound(pSprite, 1203, 1, 0);
+	sfxPlay3DSound(actor, 1203, 1, 0);
 	actFireMissile(actor, 0, -(height - height2), dx, dy, 0, kMissilePukeGreen);
 }
 

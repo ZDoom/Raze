@@ -1453,7 +1453,7 @@ void removeLeech(DBloodActor* actLeech, bool delSprite)
             pEffect->yrepeat = repeat;
         }
         
-        sfxPlay3DSoundCP(pLeech, 490, -1, 0,60000);
+        sfxPlay3DSoundCP(actLeech, 490, -1, 0,60000);
         
         if (actLeech->GetOwner())
             actLeech->GetOwner()->genDudeExtra.pLifeLeech = nullptr;

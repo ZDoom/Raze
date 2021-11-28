@@ -3746,7 +3746,7 @@ static int actDamageThing(DBloodActor* source, DBloodActor* actor, int damage, D
 		case kThingZombieHead:
 			if (damageType == 3 && pSourcePlayer && PlayClock > pSourcePlayer->laughCount && Chance(0x4000))
 			{
-				sfxPlay3DSound(pSourcePlayer->pSprite, gPlayerGibThingComments[Random(10)], 0, 2);
+				sfxPlay3DSound(pSourcePlayer->actor, gPlayerGibThingComments[Random(10)], 0, 2);
 				pSourcePlayer->laughCount = PlayClock + 3600;
 			}
 			break;
@@ -3914,7 +3914,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 		if (missileActor->hasX())
 		{
 			actPostSprite(missileActor, kStatDecoration);
-			if (pMissile->ang == 1024) sfxPlay3DSound(pMissile, 307, -1, 0);
+			if (pMissile->ang == 1024) sfxPlay3DSound(missileActor, 307, -1, 0);
 			pMissile->type = kSpriteDecoration;
 			seqSpawn(9, missileActor, -1);
 		}
@@ -3952,7 +3952,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 		break;
 
 	case kMissileArcGargoyle:
-		sfxKill3DSound(pMissile, -1, -1);
+		sfxKill3DSound(missileActor, -1, -1);
 		sfxPlay3DSound(pMissile->x, pMissile->y, pMissile->z, 306, pMissile->sector());
 		GibSprite(missileActor, GIBTYPE_6, NULL, NULL);
 
@@ -3966,7 +3966,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 
 	case kMissileLifeLeechAltNormal:
 	case kMissileLifeLeechAltSmall:
-		sfxKill3DSound(pMissile, -1, -1);
+		sfxKill3DSound(missileActor, -1, -1);
 		sfxPlay3DSound(pMissile->x, pMissile->y, pMissile->z, 306, pMissile->sector());
 
 		if (hitCode == 3 && pSpriteHit && (pThingInfo || pDudeInfo))
@@ -3992,12 +3992,12 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 		break;
 
 	case kMissileFlareAlt:
-		sfxKill3DSound(pMissile, -1, -1);
+		sfxKill3DSound(missileActor, -1, -1);
 		actExplodeSprite(missileActor);
 		break;
 
 	case kMissileFlareRegular:
-		sfxKill3DSound(pMissile, -1, -1);
+		sfxKill3DSound(missileActor, -1, -1);
 		if ((hitCode == 3 && pSpriteHit) && (pThingInfo || pDudeInfo))
 		{
 			if ((pThingInfo && pThingInfo->dmgControl[kDamageBurn] != 0) || (pDudeInfo && pDudeInfo->damageVal[kDamageBurn] != 0))
@@ -4080,7 +4080,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 		break;
 
 	case kMissileEctoSkull:
-		sfxKill3DSound(pMissile, -1, -1);
+		sfxKill3DSound(missileActor, -1, -1);
 		sfxPlay3DSound(pMissile->x, pMissile->y, pMissile->z, 522, pMissile->sector());
 		actPostSprite(missileActor, kStatDebris);
 		seqSpawn(20, missileActor, -1);
@@ -4113,7 +4113,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 		break;
 
 	case kMissileTeslaRegular:
-		sfxKill3DSound(pMissile, -1, -1);
+		sfxKill3DSound(missileActor, -1, -1);
 		sfxPlay3DSound(pMissile->x, pMissile->y, pMissile->z, 518, pMissile->sector());
 		GibSprite(missileActor, (hitCode == 2) ? GIBTYPE_23 : GIBTYPE_22, NULL, NULL);
 		evKillActor(missileActor);
@@ -5457,7 +5457,7 @@ void actExplodeSprite(DBloodActor* actor)
 	//auto Owner = actor->GetOwner();
 
 	if (pSprite->statnum == kStatExplosion) return;
-	sfxKill3DSound(pSprite, -1, -1);
+	sfxKill3DSound(actor, -1, -1);
 	evKillActor(actor);
 
 	int nType = kExplosionStandard;
@@ -6590,19 +6590,19 @@ void actBuildMissile(DBloodActor* spawned, DBloodActor* actor)
 		pMissile->cstat |= 16;
 		break;
 	case kMissileTeslaRegular:
-		sfxPlay3DSound(pMissile, 251, 0, 0);
+		sfxPlay3DSound(spawned, 251, 0, 0);
 		break;
 	case kMissileEctoSkull:
 		seqSpawn(2, spawned, -1);
-		sfxPlay3DSound(pMissile, 493, 0, 0);
+		sfxPlay3DSound(spawned, 493, 0, 0);
 		break;
 	case kMissileFireballNapalm:
 		seqSpawn(61, spawned, nNapalmClient);
-		sfxPlay3DSound(pMissile, 441, 0, 0);
+		sfxPlay3DSound(spawned, 441, 0, 0);
 		break;
 	case kMissileFireball:
 		seqSpawn(22, spawned, nFireballClient);
-		sfxPlay3DSound(pMissile, 441, 0, 0);
+		sfxPlay3DSound(spawned, 441, 0, 0);
 		break;
 	case kMissileFlameHound:
 		seqSpawn(27, spawned, -1);
@@ -6612,7 +6612,7 @@ void actBuildMissile(DBloodActor* spawned, DBloodActor* actor)
 		break;
 	case kMissileFireballCerberus:
 		seqSpawn(61, spawned, dword_2192E0);
-		sfxPlay3DSound(pMissile, 441, 0, 0);
+		sfxPlay3DSound(spawned, 441, 0, 0);
 		break;
 	case kMissileFireballTchernobog:
 		seqSpawn(23, spawned, dword_2192D8);
@@ -6630,17 +6630,17 @@ void actBuildMissile(DBloodActor* spawned, DBloodActor* actor)
 	case kMissileFlareAlt:
 		evPostActor(spawned, 30, kCallbackFXFlareBurst);
 		evPostActor(spawned, 0, kCallbackFXFlareSpark);
-		sfxPlay3DSound(pMissile, 422, 0, 0);
+		sfxPlay3DSound(spawned, 422, 0, 0);
 		break;
 	case kMissileFlareRegular:
 		evPostActor(spawned, 0, kCallbackFXFlareSpark);
-		sfxPlay3DSound(pMissile, 422, 0, 0);
+		sfxPlay3DSound(spawned, 422, 0, 0);
 		break;
 	case kMissileLifeLeechAltSmall:
 		evPostActor(spawned, 0, kCallbackFXArcSpark);
 		break;
 	case kMissileArcGargoyle:
-		sfxPlay3DSound(pMissile, 252, 0, 0);
+		sfxPlay3DSound(spawned, 252, 0, 0);
 		break;
 	}
 }

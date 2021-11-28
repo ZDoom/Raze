@@ -1789,7 +1789,7 @@ void debrisMove(int listIndex)
             case kMarkerUpWater:
             case kMarkerUpGoo:
                 int pitch = (150000 - (actor->spriteMass.mass << 9)) + Random3(8192);
-                sfxPlay3DSoundCP(pSprite, 720, -1, 0, pitch, 75 - Random(40));
+                sfxPlay3DSoundCP(actor, 720, -1, 0, pitch, 75 - Random(40));
                 if (!spriteIsUnderwater(actor))
                 {
                     evKillActor(actor, kCallbackEnemeyBubble);
@@ -3111,7 +3111,7 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
     viewBackupSpriteLoc(actor);
 
     if (pXSource->data4 > 0)
-        sfxPlay3DSound(pSource, pXSource->data4, -1, 0);
+        sfxPlay3DSound(sourceactor, pXSource->data4, -1, 0);
 
     if (pPlayer) 
     {
@@ -5770,12 +5770,12 @@ bool modernTypeOperateSprite(DBloodActor* actor, const EVENT& event)
                 {
                 case kCmdSpriteProximity:
                     if (pXSprite->state) break;
-                    sfxPlay3DSound(pSprite, 452, 0, 0);
+                    sfxPlay3DSound(actor, 452, 0, 0);
                     evPostActor(actor, 30, kCmdOff);
                     pXSprite->state = 1;
                     [[fallthrough]];
                 case kCmdOn:
-                    sfxPlay3DSound(pSprite, 451, 0, 0);
+                    sfxPlay3DSound(actor, 451, 0, 0);
                     pXSprite->Proximity = 1;
                     break;
                 default:
@@ -8309,18 +8309,17 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
                     sectortype* searchsect = nullptr;
                     if (chan->SourceType == SOURCE_Actor)
                     {
-                        auto emitter = (spritetype*)chan->Source;
-                        if (emitter < sprite || emitter >= sprite + MAXSPRITES || emitter->statnum == kStatFree) return false; // not a valid source.
-                        sndx = emitter->x;
-                        sndy = emitter->y;
+                        auto emitterActor = (DBloodActor*)chan->Source;
+                        if (emitterActor == nullptr) return false; // not a valid source.
+                        sndx = emitterActor->s().x;
+                        sndy = emitterActor->s().y;
 
                         // sound attached to the sprite
-                        auto emitterActor = &bloodActors[emitter - sprite];
-                        if (pSpr != emitter && emitterActor->GetOwner() != actor)
+                        if (pPlayer->actor != emitterActor && emitterActor->GetOwner() != actor)
                         {
 
-                            if (!emitter->insector()) return false;
-                            searchsect = emitter->sector();
+                            if (!emitterActor->s().insector()) return false;
+                            searchsect = emitterActor->s().sector();
                         }
                     }
                     else if (chan->SourceType == SOURCE_Unattached)

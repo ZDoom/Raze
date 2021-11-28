@@ -287,7 +287,7 @@ void Respawn(DBloodActor* actor, sectortype*) // 9
             }
 
             gFX.fxSpawnActor(FX_29, pSprite->sector(), pSprite->x, pSprite->y, pSprite->z, 0);
-            sfxPlay3DSound(pSprite, 350, -1, 0);
+            sfxPlay3DSound(actor, 350, -1, 0);
             break;
         }
     }
@@ -402,7 +402,7 @@ void fxBloodBits(DBloodActor* actor, sectortype*) // 14
     if (pSprite->ang == 1024)
     {
         int nChannel = 28 + (actor->GetIndex() & 2);    // this is a little stupid...
-        sfxPlay3DSound(pSprite, 385, nChannel, 1);
+        sfxPlay3DSound(actor, 385, nChannel, 1);
     }
     if (Chance(0x5000))
     {
@@ -459,11 +459,11 @@ void fxBouncingSleeve(DBloodActor* actor, sectortype*) // 16
         // tommy sleeve
         if (pSprite->type >= 37 && pSprite->type <= 39) {
             Random(3); 
-            sfxPlay3DSound(pSprite, 608 + Random(2), nChannel, 1);
+            sfxPlay3DSound(actor, 608 + Random(2), nChannel, 1);
         
         // sawed-off sleeve
         } else {
-            sfxPlay3DSound(pSprite, sawedOffSleeveSnd[Random(2)], nChannel, 1);
+            sfxPlay3DSound(actor, sawedOffSleeveSnd[Random(2)], nChannel, 1);
         }
     }   
 
@@ -475,7 +475,7 @@ void sleeveStopBouncing(DBloodActor* actor)
     auto pSprite = &actor->s();
     actor->xvel = actor->yvel = actor->zvel = 0;
     if (actor->hasX()) seqKill(actor);
-    sfxKill3DSound(pSprite, -1, -1);
+    sfxKill3DSound(actor, -1, -1);
 
     switch (pSprite->type) {
     case 37:
@@ -559,7 +559,7 @@ void fxPodBloodSplat(DBloodActor* actor, sectortype*) // 19
     {
         int nChannel = 28 + (actor->GetIndex() & 2);
         assert(nChannel < 32);
-        sfxPlay3DSound(pSprite, 385, nChannel, 1);
+        sfxPlay3DSound(actor, 385, nChannel, 1);
     }
     DBloodActor *pFX = NULL;
     if (pSprite->type == 53 || pSprite->type == kThingPodGreenBall)
@@ -596,17 +596,18 @@ void LeechStateTimer(DBloodActor* actor, sectortype*) // 20
     }
 }
 
-void sub_76A08(DBloodActor *actor, spritetype *pSprite2, PLAYER *pPlayer) // ???
+void sub_76A08(DBloodActor *actor, DBloodActor *actor2, PLAYER *pPlayer) // ???
 {
     int top, bottom;
     auto pSprite = &actor->s();
+    auto pSprite2 = &actor2->s();
     GetSpriteExtents(pSprite, &top, &bottom);
     pSprite->x = pSprite2->x;
     pSprite->y = pSprite2->y;
     pSprite->z = pSprite2->sector()->floorz-(bottom-pSprite->z);
     pSprite->ang = pSprite2->ang;
     ChangeActorSect(actor, pSprite2->sector());
-    sfxPlay3DSound(pSprite2, 201, -1, 0);
+    sfxPlay3DSound(actor2, 201, -1, 0);
     actor->xvel = actor->yvel = actor->zvel = 0;
     viewBackupSpriteLoc(actor);
     if (pPlayer)
@@ -678,7 +679,7 @@ void DropVoodooCb(DBloodActor* actor, sectortype*) // unused
                         {
                             int nDmg = actDamageSprite(actor, actor2, kDamageSpirit, pXSprite->data1<<4);
                             pXSprite->data1 = ClipLow(pXSprite->data1-nDmg, 0);
-                            sub_76A08(actor2, pSprite, pPlayer2);
+                            sub_76A08(actor2, actor, pPlayer2);
                             evPostActor(actor, 0, kCallbackRemove);
                             return;
                         }
@@ -719,7 +720,7 @@ void DropVoodooCb(DBloodActor* actor, sectortype*) // unused
                         }
                         if (vd && (Chance(vd) || nextactor == nullptr))
                         {
-                            sub_76A08(actor2, pSprite, NULL);
+                            sub_76A08(actor2, actor, NULL);
                             evPostActor(actor, 0, kCallbackRemove);
                             return;
                         }

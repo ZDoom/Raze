@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-class BloodSoundEngine : public SoundEngine
+class BloodSoundEngine : public RazeSoundEngine
 {
     // client specific parts of the sound engine go in this class.
     void CalcPosVel(int type, const void* source, const float pt[3], int channum, int chanflags, FSoundID chanSound, FVector3* pos, FVector3* vel, FSoundChan *channel) override;
@@ -45,9 +45,9 @@ public:
 
     void StopChannel(FSoundChan* chan) override
     {
-        if (chan && chan->SysChannel != NULL && !(chan->ChanFlags & CHANF_EVICTED) && chan->SourceType == SOURCE_Actor)
+        if (chan && chan->SysChannel != nullptr && !(chan->ChanFlags & CHANF_EVICTED) && chan->SourceType == SOURCE_Actor)
         {
-            chan->Source = NULL;
+            chan->Source = nullptr;
             chan->SourceType = SOURCE_Unattached;
         }
         SoundEngine::StopChannel(chan);
@@ -88,13 +88,12 @@ void BloodSoundEngine::CalcPosVel(int type, const void* source, const float pt[3
         }
         else if (type == SOURCE_Actor)
         {
-            auto sprt = (spritetype*)source;
-            assert(sprt != nullptr);
-            auto actor = &bloodActors[sprt - sprite];
+            assert(source != nullptr);
+            auto actor = (DBloodActor*)source;
 
             // Engine expects velocity in units per second, not units per tic.
             if (vel) *vel = { actor->xvel * (30 / 65536.f), actor->zvel * (-30 / 65536.f), actor->yvel * (-30 / 65536.f) };
-            *pos = GetSoundPos(&sprt->pos);
+            *pos = GetSoundPos(&actor->s().pos);
         }
         else if (type == SOURCE_Ambient)
         {
@@ -169,13 +168,13 @@ void sfxPlay3DSound(int x, int y, int z, int soundId, sectortype* pSector)
     if (chan) chan->UserData = sectnum(pSector);
 }
 
-void sfxPlay3DSoundCP(spritetype* pSprite, int soundId, int playchannel, int playflags, int pitch, int volume)
+void sfxPlay3DSoundCP(DBloodActor* pActor, int soundId, int playchannel, int playflags, int pitch, int volume)
 {
-    if (!SoundEnabled() || soundId < 0 || !pSprite) return;
+    if (!SoundEnabled() || soundId < 0 || !pActor) return;
     auto sid = soundEngine->FindSoundByResID(soundId);
     if (sid == 0) return;
 
-    auto svec = GetSoundPos(&pSprite->pos);
+    auto svec = GetSoundPos(&pActor->s().pos);
 
     float attenuation;
     sid = getSfx(sid, attenuation, pitch, volume);
@@ -187,7 +186,7 @@ void sfxPlay3DSoundCP(spritetype* pSprite, int soundId, int playchannel, int pla
         if (soundEngine->EnumerateChannels([=](FSoundChan* chan) -> int
             {
                 if (chan->SourceType != SOURCE_Actor) return false; // other source types are not our business.
-                if (chan->EntChannel == playchannel && (chan->Source == pSprite || (playflags & FX_GlobalChannel) != 0))
+                if (chan->EntChannel == playchannel && (chan->Source == pActor || (playflags & FX_GlobalChannel) != 0))
                 {
                     if ((playflags & FX_ChannelMatch) != 0 && chan->EntChannel == playchannel)
                         return true;
@@ -209,25 +208,25 @@ void sfxPlay3DSoundCP(spritetype* pSprite, int soundId, int playchannel, int pla
         flags &= ~CHANF_OVERLAP;
     }
 
-    soundEngine->StartSound(SOURCE_Actor, pSprite, &svec, playchannel, flags, sid, volume * (0.8f / 80.f), attenuation, nullptr, pitch / 65536.f);
+    soundEngine->StartSound(SOURCE_Actor, pActor, &svec, playchannel, flags, sid, volume * (0.8f / 80.f), attenuation, nullptr, pitch / 65536.f);
 }
 
-void sfxPlay3DSound(spritetype* pSprite, int soundId, int a3, int a4)
+void sfxPlay3DSound(DBloodActor* pActor, int soundId, int a3, int a4)
 {
-    sfxPlay3DSoundCP(pSprite, soundId, a3, a4, -1);
+    sfxPlay3DSoundCP(pActor, soundId, a3, a4, -1);
 }
 
 
-void sfxKill3DSound(spritetype *pSprite, int a2, int a3)
+void sfxKill3DSound(DBloodActor *pActor, int a2, int a3)
 {
-    if (!pSprite)
+    if (!pActor)
         return;
 
     if (a2 >= 0) a2++;
     auto sid = soundEngine->FindSoundByResID(a3);
     soundEngine->EnumerateChannels([=](FSoundChan* channel)
         {
-            if (channel->SourceType == SOURCE_Actor && channel->Source == pSprite && (a2 < 0 || a2 == channel->EntChannel) && (a3 < 0 || sid == channel->OrgID))
+            if (channel->SourceType == SOURCE_Actor && channel->Source == pActor && (a2 < 0 || a2 == channel->EntChannel) && (a3 < 0 || sid == channel->OrgID))
             {
                 soundEngine->StopChannel(channel);
             }

@@ -361,12 +361,12 @@ void OperateSprite(DBloodActor* actor, EVENT event)
             case kCmdOff:
                 if (!SetSpriteState(actor, 0)) break;
                 seqSpawn(40, actor, -1);
-                sfxKill3DSound(pSprite, 0, -1);
+                sfxKill3DSound(actor, 0, -1);
                 break;
             case kCmdOn:
                 if (!SetSpriteState(actor, 1)) break;
                 seqSpawn(38, actor, -1);
-                sfxPlay3DSound(pSprite, 441, 0, 0);
+                sfxPlay3DSound(actor, 441, 0, 0);
                 break;
         }
         break;
@@ -389,16 +389,16 @@ void OperateSprite(DBloodActor* actor, EVENT event)
         switch (event.cmd) {
             case kCmdOff:
                 if (!SetSpriteState(actor, 0)) break;
-                sfxPlay3DSound(pSprite, pXSprite->data2, 0, 0);
+                sfxPlay3DSound(actor, pXSprite->data2, 0, 0);
                 break;
             case kCmdOn:
                 if (!SetSpriteState(actor, 1)) break;
-                sfxPlay3DSound(pSprite, pXSprite->data1, 0, 0);
+                sfxPlay3DSound(actor, pXSprite->data1, 0, 0);
                 break;
             default:
                 if (!SetSpriteState(actor, pXSprite->state ^ 1)) break;
-                if (pXSprite->state) sfxPlay3DSound(pSprite, pXSprite->data1, 0, 0);
-                else sfxPlay3DSound(pSprite, pXSprite->data2, 0, 0);
+                if (pXSprite->state) sfxPlay3DSound(actor, pXSprite->data1, 0, 0);
+                else sfxPlay3DSound(actor, pXSprite->data2, 0, 0);
                 break;
         }
         break;
@@ -406,16 +406,16 @@ void OperateSprite(DBloodActor* actor, EVENT event)
         switch (event.cmd) {
             case kCmdOff:
                 if (!SetSpriteState(actor, 0)) break;
-                sfxPlay3DSound(pSprite, pXSprite->data2, 0, 0);
+                sfxPlay3DSound(actor, pXSprite->data2, 0, 0);
                 break;
             case kCmdOn:
                 if (!SetSpriteState(actor, 1)) break;
-                sfxPlay3DSound(pSprite, pXSprite->data1, 0, 0);
+                sfxPlay3DSound(actor, pXSprite->data1, 0, 0);
                 break;
             default:
                 if (!SetSpriteState(actor, pXSprite->restState ^ 1)) break;
-                if (pXSprite->state) sfxPlay3DSound(pSprite, pXSprite->data1, 0, 0);
-                else sfxPlay3DSound(pSprite, pXSprite->data2, 0, 0);
+                if (pXSprite->state) sfxPlay3DSound(actor, pXSprite->data1, 0, 0);
+                else sfxPlay3DSound(actor, pXSprite->data2, 0, 0);
                 break;
         }
         break;
@@ -433,7 +433,7 @@ void OperateSprite(DBloodActor* actor, EVENT event)
                 break;
         }
         
-        sfxPlay3DSound(pSprite, pXSprite->data4, -1, 0);
+        sfxPlay3DSound(actor, pXSprite->data4, -1, 0);
         
         if (pXSprite->command == kCmdLink && pXSprite->txID > 0)
             evSendActor(actor, pXSprite->txID, kCmdLink);
@@ -505,7 +505,7 @@ void OperateSprite(DBloodActor* actor, EVENT event)
         if (pSprite->statnum != kStatRespawn) {
             if (event.cmd != kCmdOn) actExplodeSprite(actor);
             else {
-                sfxPlay3DSound(pSprite, 454, 0, 0);
+                sfxPlay3DSound(actor, 454, 0, 0);
                 evPostActor(actor, 18, kCmdOff);
             }
         }
@@ -515,12 +515,12 @@ void OperateSprite(DBloodActor* actor, EVENT event)
             switch (event.cmd) {
                 case kCmdSpriteProximity:
                     if (pXSprite->state) break;
-                    sfxPlay3DSound(pSprite, 452, 0, 0);
+                    sfxPlay3DSound(actor, 452, 0, 0);
                     evPostActor(actor, 30, kCmdOff);
                     pXSprite->state = 1;
                     [[fallthrough]];
                 case kCmdOn:
-                    sfxPlay3DSound(pSprite, 451, 0, 0);
+                    sfxPlay3DSound(actor, 451, 0, 0);
                     pXSprite->Proximity = 1;
                     break;
                 default:
@@ -712,12 +712,12 @@ void SectorStartSound(sectortype* pSector, int nState)
             if (nState)
             {
                 if (pXSprite->data3)
-                    sfxPlay3DSound(pSprite, pXSprite->data3, 0, 0);
+                    sfxPlay3DSound(actor, pXSprite->data3, 0, 0);
             }
             else
             {
                 if (pXSprite->data1)
-                    sfxPlay3DSound(pSprite, pXSprite->data1, 0, 0);
+                    sfxPlay3DSound(actor, pXSprite->data1, 0, 0);
             }
         }
     }
@@ -735,12 +735,12 @@ void SectorEndSound(sectortype* pSector, int nState)
             if (nState)
             {
                 if (pXSprite->data2)
-                    sfxPlay3DSound(pSprite, pXSprite->data2, 0, 0);
+                    sfxPlay3DSound(actor, pXSprite->data2, 0, 0);
             }
             else
             {
                 if (pXSprite->data4)
-                    sfxPlay3DSound(pSprite, pXSprite->data4, 0, 0);
+                    sfxPlay3DSound(actor, pXSprite->data4, 0, 0);
             }
         }
     }
@@ -1393,9 +1393,9 @@ void OperateTeleport(sectortype* pSector)
 {
     assert(pSector);
     auto pXSector = &pSector->xs();
-    auto nDest = pXSector->marker0;
-    assert(nDest != nullptr);
-    spritetype *pDest = &nDest->s();
+    auto destactor = pXSector->marker0;
+    assert(destactor != nullptr);
+    spritetype *pDest = &destactor->s();
     assert(pDest->statnum == kStatMarker);
     assert(pDest->type == kMarkerWarpDest);
     assert(pDest->insector());
@@ -1422,7 +1422,7 @@ void OperateTeleport(sectortype* pSector)
                 pSprite->z += pDest->sector()->floorz - pSector->floorz;
                 pSprite->ang = pDest->ang;
                 ChangeActorSect(actor, pDest->sector());
-                sfxPlay3DSound(pDest, 201, -1, 0);
+                sfxPlay3DSound(destactor, 201, -1, 0);
                 actor->xvel = actor->yvel = actor->zvel = 0;
                 actor->interpolated = false;
                 viewBackupSpriteLoc(actor);
@@ -2177,7 +2177,7 @@ void ActivateGenerator(DBloodActor* actor)
             break;
         }
         case kGenSound:
-            sfxPlay3DSound(pSprite, pXSprite->data2, -1, 0);
+            sfxPlay3DSound(actor, pXSprite->data2, -1, 0);
             break;
         case kGenMissileFireball:
             switch (pXSprite->data2) {
@@ -2230,7 +2230,7 @@ void MGunFireSeqCallback(int, DBloodActor* actor)
         int dy = bsin(pSprite->ang)+Random2(1000);
         int dz = Random2(1000);
         actFireVector(actor, 0, 0, dx, dy, dz, kVectorBullet);
-        sfxPlay3DSound(pSprite, 359, -1, 0);
+        sfxPlay3DSound(actor, 359, -1, 0);
     }
 }
 

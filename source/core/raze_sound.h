@@ -38,3 +38,11 @@ inline void FX_SetReverbDelay(int delay)
 int S_LookupSound(const char* fn);
 class FSerializer;
 void S_SerializeSounds(FSerializer& arc);
+
+class RazeSoundEngine : public SoundEngine
+{
+public:
+	virtual bool SourceIsActor(FSoundChan* chan) { return chan->SourceType == SOURCE_Actor; }
+	virtual int SoundSourceIndex(FSoundChan* chan) { return 0; }
+	virtual void SetSource(FSoundChan* chan, int index) {}
+};

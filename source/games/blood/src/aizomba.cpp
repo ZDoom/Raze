@@ -74,7 +74,7 @@ void HackSeqCallback(int, DBloodActor* actor)
 	int dz = height - height2;
 	int dx = bcos(nAngle);
 	int dy = bsin(nAngle);
-	sfxPlay3DSound(pSprite, 1101, 1, 0);
+	sfxPlay3DSound(actor, 1101, 1, 0);
 	actFireVector(actor, 0, 0, dx, dy, dz, kVectorAxe);
 }
 
@@ -197,7 +197,7 @@ static void zombaThinkPonder(DBloodActor* actor)
 				{
 					if (abs(nDeltaAngle) < 85)
 					{
-						sfxPlay3DSound(pSprite, 1101, 1, 0);
+						sfxPlay3DSound(actor, 1101, 1, 0);
 						aiNewState(actor, &zombieAHack);
 					}
 					return;
@@ -277,7 +277,7 @@ static void entryEStand(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
 	auto pSprite = &actor->s();
-	sfxPlay3DSound(pSprite, 1100, -1, 0);
+	sfxPlay3DSound(actor, 1100, -1, 0);
 	pSprite->ang = getangle(pXSprite->targetX - pSprite->x, pXSprite->targetY - pSprite->y);
 }
 

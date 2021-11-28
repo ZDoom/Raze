@@ -666,7 +666,7 @@ void WeaponLower(PLAYER *pPlayer)
         StartQAV(pPlayer, kQAVFORKDOWN);
         break;
     case kWeapSpraycan:
-        sfxKill3DSound(pPlayer->pSprite, -1, 441);
+        sfxKill3DSound(pPlayer->actor, -1, 441);
         switch (prevState)
         {
         case 1:
@@ -886,7 +886,7 @@ void WeaponUpdateState(PLAYER *pPlayer)
                 pPlayer->weaponState = 1;
                 StartQAV(pPlayer, kQAVCANDOWN);
             }
-            sfxKill3DSound(pPlayer->pSprite, -1, 441);
+            sfxKill3DSound(pPlayer->actor, -1, 441);
             break;
         }
         break;
@@ -965,7 +965,7 @@ void WeaponUpdateState(PLAYER *pPlayer)
         case 1:
             if (CheckAmmo(pPlayer, 2, 1))
             {
-                sfxPlay3DSound(pPlayer->pSprite, 410, 3, 2);
+                sfxPlay3DSound(pPlayer->actor, 410, 3, 2);
                 StartQAV(pPlayer, kQAVSHOTL1, nClientEjectShell);
                 if (gInfiniteAmmo || pPlayer->ammoCount[2] > 1)
                     pPlayer->weaponState = 3;
@@ -1073,16 +1073,16 @@ void FireSpray(int, PLAYER *pPlayer)
     playerFireMissile(pPlayer, 0, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, kMissileFlameSpray);
     UseAmmo(pPlayer, 6, 4);
     if (CheckAmmo(pPlayer, 6, 1))
-        sfxPlay3DSound(pPlayer->pSprite, 441, 1, 2);
+        sfxPlay3DSound(pPlayer->actor, 441, 1, 2);
     else
-        sfxKill3DSound(pPlayer->pSprite, -1, 441);
+        sfxKill3DSound(pPlayer->actor, -1, 441);
 }
 
 void ThrowCan(int, PLAYER *pPlayer)
 {
-    sfxKill3DSound(pPlayer->pSprite, -1, 441);
+    sfxKill3DSound(pPlayer->actor, -1, 441);
     int nSpeed = MulScale(pPlayer->throwPower, 0x177777, 16)+0x66666;
-    sfxPlay3DSound(pPlayer->pSprite, 455, 1, 0);
+    sfxPlay3DSound(pPlayer->actor, 455, 1, 0);
     auto spawned = playerFireThing(pPlayer, 0, -9460, kThingArmedSpray, nSpeed);
     if (spawned)
     {
@@ -1096,7 +1096,7 @@ void ThrowCan(int, PLAYER *pPlayer)
 
 void DropCan(int, PLAYER *pPlayer)
 {
-    sfxKill3DSound(pPlayer->pSprite, -1, 441);
+    sfxKill3DSound(pPlayer->actor, -1, 441);
     auto spawned = playerFireThing(pPlayer, 0, 0, kThingArmedSpray, 0);
     if (spawned)
     {
@@ -1107,7 +1107,7 @@ void DropCan(int, PLAYER *pPlayer)
 
 void ExplodeCan(int, PLAYER *pPlayer)
 {
-    sfxKill3DSound(pPlayer->pSprite, -1, 441);
+    sfxKill3DSound(pPlayer->actor, -1, 441);
     auto spawned = playerFireThing(pPlayer, 0, 0, kThingArmedSpray, 0);
     if (spawned)
     {
@@ -1121,9 +1121,9 @@ void ExplodeCan(int, PLAYER *pPlayer)
 
 void ThrowBundle(int, PLAYER *pPlayer)
 {
-    sfxKill3DSound(pPlayer->pSprite, 16, -1);
+    sfxKill3DSound(pPlayer->actor, 16, -1);
     int nSpeed = MulScale(pPlayer->throwPower, 0x177777, 16)+0x66666;
-    sfxPlay3DSound(pPlayer->pSprite, 455, 1, 0);
+    sfxPlay3DSound(pPlayer->actor, 455, 1, 0);
     auto spawned = playerFireThing(pPlayer, 0, -9460, kThingArmedTNTBundle, nSpeed);
     if (spawned)
     {
@@ -1138,7 +1138,7 @@ void ThrowBundle(int, PLAYER *pPlayer)
 
 void DropBundle(int, PLAYER *pPlayer)
 {
-    sfxKill3DSound(pPlayer->pSprite, 16, -1);
+    sfxKill3DSound(pPlayer->actor, 16, -1);
     auto spawned = playerFireThing(pPlayer, 0, 0, kThingArmedTNTBundle, 0);
     if (spawned)
     {
@@ -1149,7 +1149,7 @@ void DropBundle(int, PLAYER *pPlayer)
 
 void ExplodeBundle(int, PLAYER *pPlayer)
 {
-    sfxKill3DSound(pPlayer->pSprite, 16, -1);
+    sfxKill3DSound(pPlayer->actor, 16, -1);
     auto spawned = playerFireThing(pPlayer, 0, 0, kThingArmedTNTBundle, 0);
     if (spawned)
     {
@@ -1164,7 +1164,7 @@ void ExplodeBundle(int, PLAYER *pPlayer)
 void ThrowProx(int, PLAYER *pPlayer)
 {
     int nSpeed = MulScale(pPlayer->throwPower, 0x177777, 16)+0x66666;
-    sfxPlay3DSound(pPlayer->pSprite, 455, 1, 0);
+    sfxPlay3DSound(pPlayer->actor, 455, 1, 0);
     auto spawned = playerFireThing(pPlayer, 0, -9460, kThingArmedProxBomb, nSpeed);
     if (spawned)
     {
@@ -1187,7 +1187,7 @@ void DropProx(int, PLAYER *pPlayer)
 void ThrowRemote(int, PLAYER *pPlayer)
 {
     int nSpeed = MulScale(pPlayer->throwPower, 0x177777, 16)+0x66666;
-    sfxPlay3DSound(pPlayer->pSprite, 455, 1, 0);
+    sfxPlay3DSound(pPlayer->actor, 455, 1, 0);
     auto spawned = playerFireThing(pPlayer, 0, -9460, kThingArmedRemoteBomb, nSpeed);
     if (spawned)
     {
@@ -1220,13 +1220,13 @@ void FireShotgun(int nTrigger, PLAYER *pPlayer)
     assert(nTrigger > 0 && nTrigger <= kMaxShotgunBarrels);
     if (nTrigger == 1)
     {
-        sfxPlay3DSound(pPlayer->pSprite, 411, 2, 0);
+        sfxPlay3DSound(pPlayer->actor, 411, 2, 0);
         pPlayer->tiltEffect = 30;
         pPlayer->visibility = 20;
     }
     else
     {
-        sfxPlay3DSound(pPlayer->pSprite, 412, 2, 0);
+        sfxPlay3DSound(pPlayer->actor, 412, 2, 0);
         pPlayer->tiltEffect = 50;
         pPlayer->visibility = 40;
     }
@@ -1265,7 +1265,7 @@ void FireTommy(int nTrigger, PLAYER *pPlayer)
 {
     auto actor = pPlayer->actor;
     Aim *aim = &pPlayer->aim;
-    sfxPlay3DSound(pPlayer->pSprite, 431, -1, 0);
+    sfxPlay3DSound(pPlayer->actor, 431, -1, 0);
     switch (nTrigger)
     {
     case 1:
@@ -1308,7 +1308,7 @@ void FireSpread(int nTrigger, PLAYER *pPlayer)
     int angle = (getangle(aim->dx, aim->dy)+((112*(nTrigger-1))/14-56))&2047;
     int dx = bcos(angle);
     int dy = bsin(angle);
-    sfxPlay3DSound(pPlayer->pSprite, 431, -1, 0);
+    sfxPlay3DSound(pPlayer->actor, 431, -1, 0);
     int r1, r2, r3;
     r1 = Random3(300);
     r2 = Random3(600);
@@ -1330,7 +1330,7 @@ void AltFireSpread(int nTrigger, PLAYER *pPlayer)
     int angle = (getangle(aim->dx, aim->dy)+((112*(nTrigger-1))/14-56))&2047;
     int dx = bcos(angle);
     int dy = bsin(angle);
-    sfxPlay3DSound(pPlayer->pSprite, 431, -1, 0);
+    sfxPlay3DSound(pPlayer->actor, 431, -1, 0);
     int r1, r2, r3;
     r1 = Random3(300);
     r2 = Random3(600);
@@ -1360,7 +1360,7 @@ void AltFireSpread2(int nTrigger, PLAYER *pPlayer)
     int angle = (getangle(aim->dx, aim->dy)+((112*(nTrigger-1))/14-56))&2047;
     int dx = bcos(angle);
     int dy = bsin(angle);
-    sfxPlay3DSound(pPlayer->pSprite, 431, -1, 0);
+    sfxPlay3DSound(pPlayer->actor, 431, -1, 0);
     if (powerupCheck(pPlayer, kPwUpTwoGuns) && checkAmmo2(pPlayer, 3, 2))
     {
         int r1, r2, r3;
@@ -1419,7 +1419,7 @@ void FireFlare(int nTrigger, PLAYER *pPlayer)
     }
     playerFireMissile(pPlayer, offset, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, kMissileFlareRegular);
     UseAmmo(pPlayer, 1, 1);
-    sfxPlay3DSound(pSprite, 420, 2, 0);
+    sfxPlay3DSound(pPlayer->actor, 420, 2, 0);
     pPlayer->visibility = 30;
     pPlayer->flashEffect = 1;
 }
@@ -1439,7 +1439,7 @@ void AltFireFlare(int nTrigger, PLAYER *pPlayer)
     }
     playerFireMissile(pPlayer, offset, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, kMissileFlareAlt);
     UseAmmo(pPlayer, 1, 8);
-    sfxPlay3DSound(pSprite, 420, 2, 0);
+    sfxPlay3DSound(pPlayer->actor, 420, 2, 0);
     pPlayer->visibility = 45;
     pPlayer->flashEffect = 1;
 }
@@ -1463,7 +1463,7 @@ void FireVoodoo(int nTrigger, PLAYER *pPlayer)
     {
     case 0:
     {
-        sfxPlay3DSound(pSprite, 460, 2, 0);
+        sfxPlay3DSound(actor, 460, 2, 0);
         fxSpawnBlood(targetactor, 17<<4);
         int nDamage = actDamageSprite(actor, targetactor, kDamageSpirit, 17<<4);
         UseAmmo(pPlayer, 9, nDamage/4);
@@ -1471,7 +1471,7 @@ void FireVoodoo(int nTrigger, PLAYER *pPlayer)
     }
     case 1:
     {
-        sfxPlay3DSound(pSprite, 460, 2, 0);
+        sfxPlay3DSound(actor, 460, 2, 0);
         fxSpawnBlood(targetactor, 17<<4);
         int nDamage = actDamageSprite(actor, targetactor, kDamageSpirit, 9<<4);
         if (IsPlayerSprite(pTarget))
@@ -1481,7 +1481,7 @@ void FireVoodoo(int nTrigger, PLAYER *pPlayer)
     }
     case 3:
     {
-        sfxPlay3DSound(pSprite, 463, 2, 0);
+        sfxPlay3DSound(actor, 463, 2, 0);
         fxSpawnBlood(targetactor, 17<<4);
         int nDamage = actDamageSprite(actor, targetactor, kDamageSpirit, 49<<4);
         UseAmmo(pPlayer, 9, nDamage/4);
@@ -1489,7 +1489,7 @@ void FireVoodoo(int nTrigger, PLAYER *pPlayer)
     }
     case 2:
     {
-        sfxPlay3DSound(pSprite, 460, 2, 0);
+        sfxPlay3DSound(actor, 460, 2, 0);
         fxSpawnBlood(targetactor, 17<<4);
         int nDamage = actDamageSprite(actor, targetactor, kDamageSpirit, 11<<4);
         if (IsPlayerSprite(pTarget))
@@ -1585,7 +1585,7 @@ void AltFireVoodoo(int nTrigger, PLAYER *pPlayer)
 
 void DropVoodoo(int , PLAYER *pPlayer)
 {
-    sfxPlay3DSound(pPlayer->pSprite, 455, 2, 0);
+    sfxPlay3DSound(pPlayer->actor, 455, 2, 0);
     auto spawned = playerFireThing(pPlayer, 0, -4730, kThingVoodooHead, 0xccccc);
     if (spawned)
     {
@@ -1636,7 +1636,7 @@ void FireTesla(int nTrigger, PLAYER *pPlayer)
         }
         playerFireMissile(pPlayer, pMissile->offset, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, pMissile->id);
         UseAmmo(pPlayer, 7, pMissile->ammouse);
-        sfxPlay3DSound(pSprite, pMissile->sound, 1, 0);
+        sfxPlay3DSound(pPlayer->actor, pMissile->sound, 1, 0);
         pPlayer->visibility = pMissile->light;
         pPlayer->flashEffect = pMissile->flash;
     }
@@ -1647,7 +1647,7 @@ void AltFireTesla(int , PLAYER *pPlayer)
     spritetype *pSprite = pPlayer->pSprite;
     playerFireMissile(pPlayer, 0, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, kMissileTeslaAlt);
     UseAmmo(pPlayer, pPlayer->weaponAmmo, 35);
-    sfxPlay3DSound(pSprite, 471, 2, 0);
+    sfxPlay3DSound(pPlayer->actor, 471, 2, 0);
     pPlayer->visibility = 40;
     pPlayer->flashEffect = 1;
 }
@@ -1666,7 +1666,7 @@ void FireNapalm(int nTrigger, PLAYER *pPlayer)
         break;
     }
     playerFireMissile(pPlayer, offset, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, kMissileFireballNapalm);
-    sfxPlay3DSound(pSprite, 480, 2, 0);
+    sfxPlay3DSound(pPlayer->actor, 480, 2, 0);
     UseAmmo(pPlayer, 4, 1);
     pPlayer->flashEffect = 1;
 }
@@ -1676,7 +1676,7 @@ void FireNapalm2(int , PLAYER *pPlayer)
     spritetype *pSprite = pPlayer->pSprite;
     playerFireMissile(pPlayer, -120, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, kMissileFireballNapalm);
     playerFireMissile(pPlayer, 120, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, kMissileFireballNapalm);
-    sfxPlay3DSound(pSprite, 480, 2, 0);
+    sfxPlay3DSound(pPlayer->actor, 480, 2, 0);
     UseAmmo(pPlayer, 4, 2);
     pPlayer->flashEffect = 1;
 }
@@ -1723,7 +1723,7 @@ void FireLifeLeech(int nTrigger, PLAYER *pPlayer)
 void AltFireLifeLeech(int , PLAYER *pPlayer)
 {
     auto actor = pPlayer->actor;
-    sfxPlay3DSound(pPlayer->pSprite, 455, 2, 0);
+    sfxPlay3DSound(pPlayer->actor, 455, 2, 0);
     auto missile = playerFireThing(pPlayer, 0, -4730, kThingDroppedLifeLeech, 0x19999);
     if (missile)
     {
@@ -2048,7 +2048,7 @@ void WeaponProcess(PLAYER *pPlayer) {
     if (pPlayer->pXSprite->health == 0)
     {
         pPlayer->qavLoop = 0;
-        sfxKill3DSound(pPlayer->pSprite, 1, -1);
+        sfxKill3DSound(pPlayer->actor, 1, -1);
     }
     if (pPlayer->isUnderwater && BannedUnderwater(pPlayer->curWeapon))
     {
@@ -2135,7 +2135,7 @@ void WeaponProcess(PLAYER *pPlayer) {
     {
         if (pPlayer->nextWeapon)
         {
-            sfxKill3DSound(pPlayer->pSprite, -1, 441);
+            sfxKill3DSound(pPlayer->actor, -1, 441);
             pPlayer->weaponState = 0;
             pPlayer->newWeapon = pPlayer->nextWeapon;
             pPlayer->nextWeapon = kWeapNone;
@@ -2221,7 +2221,7 @@ void WeaponProcess(PLAYER *pPlayer) {
     {
         if (pPlayer->nextWeapon)
         {
-            sfxKill3DSound(pPlayer->pSprite, -1, 441);
+            sfxKill3DSound(pPlayer->actor, -1, 441);
             pPlayer->newWeapon = pPlayer->nextWeapon;
             pPlayer->nextWeapon = kWeapNone;
         }
@@ -2489,7 +2489,7 @@ void WeaponProcess(PLAYER *pPlayer) {
                 StartQAV(pPlayer, kQAVNAPFIRE, nClientFireNapalm);
             return;
         case kWeapLifeLeech:
-            sfxPlay3DSound(pPlayer->pSprite, 494, 2, 0);
+            sfxPlay3DSound(pPlayer->actor, 494, 2, 0);
             StartQAV(pPlayer, kQAVSTAFIRE4, nClientFireLifeLeech);
             return;
         case kWeapBeast:
@@ -2586,7 +2586,7 @@ void WeaponProcess(PLAYER *pPlayer) {
                 StartQAV(pPlayer, kQAVTOMSPRED, nClientAltFireSpread2);
             return;
         case kWeapVoodooDoll:
-            sfxPlay3DSound(pPlayer->pSprite, 461, 2, 0);
+            sfxPlay3DSound(pPlayer->actor, 461, 2, 0);
             StartQAV(pPlayer, kQAVVDSPEL1, nClientAltFireVoodoo);
             return;
 #if 0
@@ -2640,7 +2640,7 @@ void WeaponProcess(PLAYER *pPlayer) {
         case kWeapLifeLeech:
             if (gGameOptions.nGameType <= 1 && !checkAmmo2(pPlayer, 8, 1) && pPlayer->pXSprite->health < (25 << 4))
             {
-                sfxPlay3DSound(pPlayer->pSprite, 494, 2, 0);
+                sfxPlay3DSound(pPlayer->actor, 494, 2, 0);
                 StartQAV(pPlayer, kQAVSTAFIRE4, nClientFireLifeLeech);
             }
             else

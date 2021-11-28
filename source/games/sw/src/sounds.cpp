@@ -416,7 +416,7 @@ static void UpdateAmbients()
 //
 //==========================================================================
 
-class SWSoundEngine : public SoundEngine
+class SWSoundEngine : public RazeSoundEngine
 {
     // client specific parts of the sound engine go in this class.
     void CalcPosVel(int type, const void* source, const float pt[3], int channum, int chanflags, FSoundID chanSound, FVector3* pos, FVector3* vel, FSoundChan* chan) override;
@@ -430,10 +430,14 @@ public:
         S_Rolloff.MaxDistance = 1187;
     }
 
+    bool SourceIsActor(FSoundChan* chan) override 
+    { 
+        return chan->SourceType == SOURCE_Actor || chan->SourceType == SOURCE_Unattached; 
+    }
+
     int SoundSourceIndex(FSoundChan* chan) override
     {
         if (chan->SourceType == SOURCE_Player) return int(PLAYERp(chan->Source) - Player);
-        if (chan->SourceType == SOURCE_Unattached && chan->Source) return int(SPRITEp(chan->Source) - sprite);
         return 0;
     }
 
@@ -443,10 +447,6 @@ public:
         {
             if (index < 0 || index >= MAX_SW_PLAYERS_REG) index = 0;
             chan->Source = &Player[index];
-        }
-        else if (chan->SourceType == SOURCE_Unattached && index >= 0)
-        {
-            chan->Source = &sprite[index];
         }
         else chan->Source = nullptr;
     }

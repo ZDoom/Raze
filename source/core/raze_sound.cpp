@@ -44,6 +44,7 @@
 #include "cmdlib.h"
 #include "gamecontrol.h"
 #include "build.h"
+#include "coreactor.h"
 
 extern ReverbContainer* ForcedEnvironment;
 static int LastReverb;
@@ -181,18 +182,25 @@ static FSerializer& Serialize(FSerializer& arc, const char* key, FSoundChan& cha
 			("userdata", chan.UserData)
 			.Array("point", chan.Point, 3);
 
-		int SourceIndex = 0;
-		if (arc.isWriting())
+		assert(dynamic_cast<RazeSoundEngine*>(soundEngine));
+
+		auto eng = static_cast<RazeSoundEngine*>(soundEngine);
+		// Let's handle actor sources here becaue they are the same for all games.
+		if (eng->SourceIsActor(&chan))
 		{
-			if (chan.SourceType == SOURCE_Actor) SourceIndex = int((spritetype*)(chan.Source) - sprite);
-			else SourceIndex = soundEngine->SoundSourceIndex(&chan);
+			DCoreActor* SourceIndex = nullptr;
+			if (arc.isWriting()) SourceIndex = const_cast<DCoreActor*>(reinterpret_cast<const DCoreActor*>(chan.Source));
+			arc("Source", SourceIndex);
+			if (arc.isReading()) chan.Source = SourceIndex;
 		}
-		arc("Source", SourceIndex);
-		if (arc.isReading())
+		else
 		{
-			if (chan.SourceType == SOURCE_Actor) chan.Source = &sprite[SourceIndex];
-			else soundEngine->SetSource(&chan, SourceIndex);
+			int SourceIndex = 0;
+			if (arc.isWriting()) SourceIndex = eng->SoundSourceIndex(&chan);
+			arc("Source", SourceIndex);
+			if (arc.isReading()) eng->SetSource(&chan, SourceIndex);
 		}
+
 		arc.EndObject();
 	}
 	return arc;
