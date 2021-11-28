@@ -479,6 +479,7 @@ class WHStatusBar : RazeStatusBar
 		stats.spacing = stats.fontScale * SmallFont.GetHeight() + 1;
 		stats.screenbottomspace = bottomy;
 		stats.statfont = SmallFont;
+		stats.altspacing = stats.spacing;
 
 		if (automapMode == am_full)
 		{

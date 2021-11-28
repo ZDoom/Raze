@@ -299,8 +299,8 @@ void HWDrawInfo::DispatchSprites()
 				if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT) != CSTAT_SPRITE_ALIGNMENT_SLAB && tiletovox[tspr->picnum] >= 0 && voxmodels[tiletovox[tspr->picnum]])
 				{
 					HWSprite hwsprite;
-					int num = tiletovox[tspr->picnum];
-					if (hwsprite.ProcessVoxel(this, voxmodels[tiletovox[tspr->picnum]], tspr, &sector[tspr->sectnum], voxrotate[num])) 
+					int num = tiletovox[tilenum];
+					if (hwsprite.ProcessVoxel(this, voxmodels[num], tspr, &sector[tspr->sectnum], voxrotate[num])) 
 						continue;
 				}
 				else if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT) == CSTAT_SPRITE_ALIGNMENT_SLAB && tspr->picnum < MAXVOXELS && voxmodels[tspr->picnum])

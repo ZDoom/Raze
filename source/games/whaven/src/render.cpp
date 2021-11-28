@@ -108,16 +108,17 @@ void drawscreen(int num, double dasmoothratio, bool sceneonly)
 
 	if (!sceneonly)
 	{
+		if (automapMode != am_off)
+		{
+			DrawOverheadMap(cposx, cposy, cang.asbuild(), dasmoothratio);
+		}
+
 		applyflash();
 		if (!plr.over_shoulder_on)
 		{
 			DrawHud(dasmoothratio);
 		}
 
-		if (automapMode != am_off)
-		{
-			DrawOverheadMap(cposx, cposy, cang.asbuild(), dasmoothratio);
-		}
 	}
 	RestoreInterpolations();
 }
