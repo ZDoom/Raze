@@ -76,7 +76,7 @@ bool GLInstance::SetTexture(FGameTexture* tex, int paletteid, int sampler, bool 
 	auto &mat = renderState.mMaterial;
 	assert(tex->isValid());
 	mat.mTexture = tex;
-	mat.uFlags = UF_None;
+	mat.uFlags = UF_Texture;
 	mat.mScaleFlags = 0;
 	mat.mClampMode = sampler;
 	mat.mTranslation = paletteid;
