@@ -91,6 +91,7 @@ static void CallCreateMapFunction(const char* qname, DObject* runner, MapRecord*
 
 void CallCreateSummaryFunction(const char* qname, DObject* runner, MapRecord* map, SummaryInfo* info, MapRecord* map2)
 {
+	if (qname == nullptr || *qname == 0) return;	// no level summary defined.
 	auto func = LookupFunction(qname);
 	auto s = func->Proto->ArgumentTypes.Size();
 	auto at = func->Proto->ArgumentTypes.Data();

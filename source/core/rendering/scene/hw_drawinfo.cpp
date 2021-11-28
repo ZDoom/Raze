@@ -302,7 +302,6 @@ void HWDrawInfo::DispatchSprites()
 				{
 					HWSprite hwsprite;
 					int num = tiletovox[tilenum];
-					if (num != 435) Printf("%d - %d\n", tilenum, num);
 					if (hwsprite.ProcessVoxel(this, voxmodels[num], tspr, &sector[tspr->sectnum], voxrotate[num])) 
 						continue;
 				}

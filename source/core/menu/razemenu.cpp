@@ -456,7 +456,8 @@ static void BuildEpisodeMenu()
 	// Build skill menu
 	int addedSkills = 0;
 	desc = MenuDescriptors.CheckKey(NAME_Skillmenu);
-	if (desc != nullptr && (*desc)->IsKindOf(RUNTIME_CLASS(DListMenuDescriptor)))
+	// If the skill names list ios empty, a predefined menu is assumed
+	if (desc != nullptr && gSkillNames[0].IsNotEmpty() && (*desc)->IsKindOf(RUNTIME_CLASS(DListMenuDescriptor)))
 	{
 		DListMenuDescriptor* ld = static_cast<DListMenuDescriptor*>(*desc);
 		DMenuItemBase* popped = nullptr;

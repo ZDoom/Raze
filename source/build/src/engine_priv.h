@@ -28,8 +28,6 @@ extern int16_t globalpicnum;
 
 extern int32_t globalorientation;
 
-extern char inpreparemirror;
-
 extern int32_t hitallsprites;
 
 int32_t animateoffs(int tilenum, int fakevar);

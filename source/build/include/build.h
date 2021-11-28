@@ -186,6 +186,7 @@ inline walltype* sectortype::firstWall() const
 extern sectortype sectorbackup[MAXSECTORS];
 extern walltype wallbackup[MAXWALLS];
 
+extern bool inpreparemirror;
 
 inline tspriteptr_t renderAddTSpriteFromSprite(spritetype* tsprite, int& spritesortcnt, uint16_t const spritenum)
 {

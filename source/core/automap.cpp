@@ -540,9 +540,9 @@ void DrawPlayerArrow(int cposx, int cposy, int cang, int pl_x, int pl_y, int zoo
 		int py2 = DMulScale(arrow[i + 3], pxvect, arrow[i+2], pyvect, 16) + (height << 11);
 
 		int ox1 = px1 - cposx;
-		int oy1 = py1 - cposx;
+		int oy1 = py1 - cposy;
 		int ox2 = px2 - cposx;
-		int oy2 = py2 - cposx;
+		int oy2 = py2 - cposy;
 
 		int sx1 = DMulScale(ox1, xvect, -oy1, yvect, 16) + (width << 11);
 		int sy1 = DMulScale(oy1, xvect, ox1, yvect, 16) + (height << 11);

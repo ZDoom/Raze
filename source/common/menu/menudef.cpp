@@ -340,6 +340,10 @@ static void DoParseListMenuBody(FScanner &sc, DListMenuDescriptor *desc, bool &s
 		{
 			desc->mCenter = true;
 		}
+		else if (sc.Compare("Selecteditem"))
+		{
+			desc->mSelectedItem = desc->mItems.Size() - 1;
+		}
 		else if (sc.Compare("animatedtransition"))
 		{
 			desc->mAnimatedTransition = true;
