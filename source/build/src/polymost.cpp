@@ -400,7 +400,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
     int palid = TRANSLATION(Translation_Remap + curbasepal, globalpal);
     GLInterface.SetFade(globalfloorpal);
-	bool success = GLInterface.SetTexture(globalskytex? globalskytex : tileGetTexture(globalpicnum), globalskytex? 0 : palid, sampleroverride);
+	bool success = GLInterface.SetTexture(globalskytex? globalskytex : tileGetTexture(globalpicnum), !hw_int_useindexedcolortextures && globalskytex ? 0 : palid, sampleroverride);
 	if (!success)
 	{
 		tsiz.x = tsiz.y = 1;
