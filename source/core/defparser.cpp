@@ -828,6 +828,7 @@ void parseMapinfo(FScanner& sc, FScriptPosition& pos)
 {
 	usermaphack_t mhk;
 	FScanner::SavedPos blockend;
+	TArray<FString> md4s;
 
 	if (sc.StartBraces(&blockend)) return;
 	while (!sc.FoundEndBrace(blockend))
@@ -839,14 +840,18 @@ void parseMapinfo(FScanner& sc, FScriptPosition& pos)
 		else if (sc.Compare("mapmd4"))
 		{
 			sc.GetString();
-			for (int i = 0; i < 16; i++)
-			{
-				char smallbuf[3] = { sc.String[2 * i], sc.String[2 * i + 1], 0 };
-				mhk.md4[i] = (uint8_t)strtol(smallbuf, nullptr, 16);
-			}
+			md4s.Push(sc.String);
 		}
 	}
-	AddUserMapHack(mhk);
+	for (auto& md4 : md4s)
+	{
+		for (int i = 0; i < 16; i++)
+		{
+			char smallbuf[3] = { md4[2 * i], md4[2 * i + 1], 0 };
+			mhk.md4[i] = (uint8_t)strtol(smallbuf, nullptr, 16);
+		}
+		AddUserMapHack(mhk);
+	}
 }
 
 //===========================================================================
