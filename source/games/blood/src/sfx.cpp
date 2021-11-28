@@ -204,7 +204,11 @@ void sfxPlay3DSoundCP(spritetype* pSprite, int soundId, int playchannel, int pla
 
     auto sfx = soundEngine->GetSfx(sid);
     EChanFlags flags = playchannel == -1 ? CHANF_OVERLAP : CHANF_NONE;
-    if (sfx && sfx->LoopStart >= 0) flags |= CHANF_LOOP;
+    if (sfx && sfx->LoopStart >= 0)
+    {
+        flags |= CHANF_LOOP;
+        flags &= ~CHANF_OVERLAP;
+    }
 
     soundEngine->StartSound(SOURCE_Actor, pSprite, &svec, playchannel, flags, sid, volume * (0.8f / 80.f), attenuation, nullptr, pitch / 65536.f);
 }

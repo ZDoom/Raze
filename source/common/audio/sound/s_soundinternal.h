@@ -303,7 +303,7 @@ public:
 	bool IsSourcePlayingSomething(int sourcetype, const void* actor, int channel, int sound_id = -1);
 
 	// Stop and resume music, during game PAUSE.
-	int GetSoundPlayingInfo(int sourcetype, const void* source, int sound_id);
+	int GetSoundPlayingInfo(int sourcetype, const void* source, int sound_id, int chan = -1);
 	void UnloadAllSounds();
 	void Reset();
 	void MarkUsed(int num);
