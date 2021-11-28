@@ -422,7 +422,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, AISTATE*& w, AISTA
 		}
 		else if (i >= 1000 && i < 1000 + kPatrolStateSize)
 		{
-			w = genPatrolStates + i;
+			w = genPatrolStates + (i - 1000);
 		}
 		else
 		{
