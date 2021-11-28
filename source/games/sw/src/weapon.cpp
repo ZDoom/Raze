@@ -4856,7 +4856,6 @@ int ActorChooseDeath(DSWActor* actor, DSWActor* weapActor)
         break;
     case BUNNY_RUN_R0:
     {
-        extern short Bunny_Count;
         Bunny_Count--;  // Bunny died, decrease the population
     }
     break;

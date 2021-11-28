@@ -2145,7 +2145,7 @@ extern bool left_foot;
 extern bool bosswasseen[3];
 extern DSWActor* BossSpriteNum[3];
 extern int ChopTics;
-extern short Bunny_Count;
+extern int Bunny_Count;
 
 
 #define ANIM_SERP 1

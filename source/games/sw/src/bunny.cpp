@@ -38,7 +38,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-short Bunny_Count = 0;
+int Bunny_Count = 0;
 ANIMATOR DoActorMoveJump;
 ANIMATOR DoBunnyMoveJump;
 ANIMATOR DoBunnyQuickJump;
@@ -740,18 +740,10 @@ int SetupBunny(DSWActor* actor)
     }
 
     Bunny_Count++;
-    //if(Bunny_Count > 20)
-    //    {
-    //    KillActor(actor);
-    //    Bunny_Count--;
-    //    return(0);
-    //    }
 
     ChangeState(actor, s_BunnyRun[0]);
     u->StateEnd = s_BunnyDie;
     u->Rot = sg_BunnyRun;
-    //sp->xrepeat = 64;
-    //sp->yrepeat = 64;
     u->ShellNum = 0; // Not Pregnant right now
     u->FlagOwner = 0;
 
