@@ -174,12 +174,6 @@ using BloodSectIterator = TSectIterator<DBloodActor>;
 using BloodSpriteIterator = TSpriteIterator<DBloodActor>;
 using BloodLinearSpriteIterator = TLinearSpriteIterator<DBloodActor>;
 
-inline int DeleteSprite(DBloodActor* nSprite)
-{
-	if (nSprite) return DeleteSprite(nSprite->GetSpriteIndex());
-	return 0;
-}
-
 inline void GetActorExtents(DBloodActor* actor, int* top, int* bottom)
 {
 	GetSpriteExtents(&actor->s(), top, bottom);

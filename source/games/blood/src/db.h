@@ -118,7 +118,7 @@ void InsertSpriteStat(int nSprite, int nStat);
 void RemoveSpriteStat(int nSprite);
 void qinitspritelists(void);
 DBloodActor* InsertSprite(sectortype* pSector, int nStat);
-int DeleteSprite(int nSprite);
+int DeleteSprite(DBloodActor* actor);
 int ChangeSpriteSect(int nSprite, int nSector);
 int qchangespritesect(short nSprite, short nSector);
 int ChangeSpriteStat(int nSprite, int nStatus);

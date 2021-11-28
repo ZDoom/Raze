@@ -189,23 +189,24 @@ DBloodActor* InsertSprite(sectortype* pSector, int nStat)
     return actor;
 }
 
-int DeleteSprite(int nSprite)
+
+inline int DeleteSprite(DBloodActor* actor)
 {
-    auto sp = &sprite[nSprite];
-    FVector3 pos = GetSoundPos(&sp->pos);
-    soundEngine->RelinkSound(SOURCE_Actor, &sprite[nSprite], nullptr, &pos);
+    auto sp = &actor->s();
+    FVector3 pos = GetSoundPos(&actor->s().pos);
+    soundEngine->RelinkSound(SOURCE_Actor, actor, nullptr, &pos);
 
     assert(sp->statnum >= 0 && sp->statnum < kMaxStatus);
-    RemoveSpriteStat(nSprite);
+    RemoveSpriteStat(actor->GetSpriteIndex());
     assert(sp->insector());
-    RemoveSpriteSect(nSprite);
-    InsertSpriteStat(nSprite, kMaxStatus);
+    RemoveSpriteSect(actor->GetSpriteIndex());
+    InsertSpriteStat(actor->GetSpriteIndex(), kMaxStatus);
 #ifdef NOONE_EXTENSIONS
-    for (auto& ctrl : gPlayerCtrl) if (ctrl.qavScene.initiator == &bloodActors[nSprite]) ctrl.qavScene.initiator = nullptr;
+    for (auto& ctrl : gPlayerCtrl) if (ctrl.qavScene.initiator == actor) ctrl.qavScene.initiator = nullptr;
 #endif
     Numsprites--;
 
-    return nSprite;
+    return 0;
 }
 
 int ChangeSpriteSect(int nSprite, int nSector)
