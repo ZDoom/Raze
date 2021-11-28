@@ -509,19 +509,6 @@ inline int32_t getcorrectflorzofslope(int sectnum, int32_t dax, int32_t day)
     return getflorzofslopeptr((usectorptr_t)&sector[sectnum], closest.x, closest.y);
 }
 
-// Is <wal> a red wall in a safe fashion, i.e. only if consistency invariant
-// ".nextsector >= 0 iff .nextwall >= 0" holds.
-inline int32_t redwallp(uwallptr_t wal)
-{
-    return (wal->nextwall >= 0 && wal->nextsector >= 0);
-}
-
-inline int32_t E_SpriteIsValid(const int32_t i)
-{
-    return ((unsigned)i < MAXSPRITES && sprite[i].statnum != MAXSTATUS);
-}
-
-
 void   alignceilslope(int16_t dasect, int32_t x, int32_t y, int32_t z);
 void   alignflorslope(int16_t dasect, int32_t x, int32_t y, int32_t z);
 void setslope(int32_t sectnum, int32_t cf, int16_t slope);

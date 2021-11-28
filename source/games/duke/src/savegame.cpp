@@ -41,7 +41,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 
 template<> FSerializer& Serialize(FSerializer& arc, const char* key, Duke3d::DDukeActor*& ht, Duke3d::DDukeActor** def)
 {
-	int index = ht? int(ht - Duke3d::hittype) : -1;
+	int index = ht? ht->GetSpriteIndex() : -1;
 	assert(index >= -1 && index < MAXSPRITES);
 	Serialize(arc, key, index, nullptr);
 	ht = index < 0? nullptr : &Duke3d::hittype[index];
