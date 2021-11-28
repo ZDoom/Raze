@@ -1211,7 +1211,7 @@ int DoRipper2StandHeart(DSWActor* actor)
 
     NullRipper2(actor);
 
-    if (!SoundValidAndActive(sp, CHAN_RipHeart))
+    if (!SoundValidAndActive(actor, CHAN_RipHeart))
         PlaySound(DIGI_RIPPER2HEARTOUT, actor, v3df_none, CHAN_RipHeart);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)

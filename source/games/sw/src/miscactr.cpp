@@ -165,7 +165,7 @@ int DoToiletGirl(DSWActor* actor)
 
             choose_snd = RANDOM_P2(1024<<4)>>4;
 
-            if (!SoundValidAndActive(sp, CHAN_ToiletFart))
+            if (!SoundValidAndActive(actor, CHAN_ToiletFart))
             {
                 if (choose_snd > 750)
                     PlaySound(DIGI_TOILETGIRLFART1, actor, v3df_dontpan, CHAN_ToiletFart);
@@ -178,7 +178,7 @@ int DoToiletGirl(DSWActor* actor)
     }
     else if ((u->WaitTics -= ACTORMOVETICS) <= 0 && ICanSee)
     {
-        if (!SoundValidAndActive(sp, CHAN_AnimeMad))
+        if (!SoundValidAndActive(actor, CHAN_AnimeMad))
         {
             if (RandomRange(1000<<8)>>8 > 500)
                 PlaySound(DIGI_ANIMEMAD1, actor, v3df_dontpan, CHAN_AnimeMad);
@@ -220,7 +220,7 @@ int NullToiletGirl(DSWActor* actor)
     }
     else if ((u->WaitTics -= ACTORMOVETICS) <= 0 && ICanSee)
     {
-        if (!SoundValidAndActive(sp, CHAN_AnimeMad))
+        if (!SoundValidAndActive(actor, CHAN_AnimeMad))
         {
             if (RandomRange(1000<<8)>>8 > 500)
                 PlaySound(DIGI_ANIMEMAD1, actor, v3df_dontpan, CHAN_AnimeMad);
@@ -394,7 +394,7 @@ int DoWashGirl(DSWActor* actor)
 
     if (RandomRange(1000) > 980 && u->ShellNum <= 0)
     {
-        if (!SoundValidAndActive(sp, CHAN_AnimeSing))
+        if (!SoundValidAndActive(actor, CHAN_AnimeSing))
         {
             if (RANDOM_P2(1024<<4)>>4 > 500)
                 PlaySound(DIGI_ANIMESING1, actor, v3df_dontpan, CHAN_AnimeSing);
@@ -422,7 +422,7 @@ int DoWashGirl(DSWActor* actor)
     }
     else if ((u->WaitTics -= ACTORMOVETICS) <= 0 && ICanSee)
     {
-        if (!SoundValidAndActive(sp, CHAN_AnimeMad))
+        if (!SoundValidAndActive(actor, CHAN_AnimeMad))
         {
             if (RandomRange(1000<<8)>>8 > 500)
                 PlaySound(DIGI_ANIMEMAD1, actor, v3df_dontpan, CHAN_AnimeMad);
@@ -464,7 +464,7 @@ int NullWashGirl(DSWActor* actor)
     }
     else if ((u->WaitTics -= ACTORMOVETICS) <= 0 && ICanSee)
     {
-        if (!SoundValidAndActive(sp, CHAN_AnimeMad))
+        if (!SoundValidAndActive(actor, CHAN_AnimeMad))
         {
             if (RandomRange(1000<<8)>>8 > 500)
                 PlaySound(DIGI_ANIMEMAD1, actor, v3df_dontpan, CHAN_AnimeMad);
@@ -1265,7 +1265,7 @@ int DoCarGirl(DSWActor* actor)
     {
         if ((u->WaitTics -= ACTORMOVETICS) <= 0 && ICanSee)
         {
-            if (!SoundValidAndActive(sp, CHAN_AnimeMad))
+            if (!SoundValidAndActive(actor, CHAN_AnimeMad))
             {
                 short choose;
                 choose = RandomRange(1000);
@@ -1315,7 +1315,7 @@ int NullCarGirl(DSWActor* actor)
     }
     else if ((u->WaitTics -= ACTORMOVETICS) <= 0 && ICanSee)
     {
-        if (!SoundValidAndActive(sp, CHAN_AnimeMad))
+        if (!SoundValidAndActive(actor, CHAN_AnimeMad))
         {
             short choose;
             choose = RandomRange(1000);
@@ -1480,7 +1480,7 @@ int DoMechanicGirl(DSWActor* actor)
     {
         if ((u->WaitTics -= ACTORMOVETICS) <= 0 && ICanSee)
         {
-            if (!SoundValidAndActive(sp, CHAN_AnimeMad))
+            if (!SoundValidAndActive(actor, CHAN_AnimeMad))
             {
                 short choose;
                 choose = RandomRange(1000);
@@ -1530,7 +1530,7 @@ int NullMechanicGirl(DSWActor* actor)
     }
     else if ((u->WaitTics -= ACTORMOVETICS) <= 0 && ICanSee)
     {
-        if (!SoundValidAndActive(sp, CHAN_AnimeMad))
+        if (!SoundValidAndActive(actor, CHAN_AnimeMad))
         {
             short choose;
             choose = RandomRange(1000);
@@ -1696,7 +1696,7 @@ int DoSailorGirl(DSWActor* actor)
     {
         if ((u->WaitTics -= ACTORMOVETICS) <= 0 && ICanSee)
         {
-            if (!SoundValidAndActive(sp, CHAN_AnimeMad))
+            if (!SoundValidAndActive(actor, CHAN_AnimeMad))
             {
                 short choose;
                 choose = RandomRange(1000);
@@ -1751,7 +1751,7 @@ int NullSailorGirl(DSWActor* actor)
     }
     else if ((u->WaitTics -= ACTORMOVETICS) <= 0 && ICanSee)
     {
-        if (!SoundValidAndActive(sp, CHAN_AnimeMad))
+        if (!SoundValidAndActive(actor, CHAN_AnimeMad))
         {
             short choose;
             choose = RandomRange(1000);
@@ -1904,7 +1904,7 @@ int DoPruneGirl(DSWActor* actor)
     {
         if ((u->WaitTics -= ACTORMOVETICS) <= 0 && ICanSee)
         {
-            if (!SoundValidAndActive(sp, CHAN_AnimeMad))
+            if (!SoundValidAndActive(actor, CHAN_AnimeMad))
             {
                 short choose;
                 choose = STD_RANDOM_RANGE(1000);
@@ -1924,7 +1924,7 @@ int DoPruneGirl(DSWActor* actor)
     }
     else
     {
-        if (!SoundValidAndActive(sp, CHAN_CoyHandle))
+        if (!SoundValidAndActive(actor, CHAN_CoyHandle))
         {
             short choose;
             choose = STD_RANDOM_RANGE(1000);
@@ -1970,7 +1970,7 @@ int NullPruneGirl(DSWActor* actor)
     }
     else if ((u->WaitTics -= ACTORMOVETICS) <= 0 && ICanSee)
     {
-        if (!SoundValidAndActive(sp, CHAN_AnimeMad))
+        if (!SoundValidAndActive(actor, CHAN_AnimeMad))
         {
             short choose;
             choose = RandomRange(1000);

@@ -707,7 +707,7 @@ int DoZillaMove(DSWActor* actor)
     short choose;
 
     // Random Zilla taunts
-    if (!SoundValidAndActive(sp, CHAN_AnimeMad))
+    if (!SoundValidAndActive(actor, CHAN_AnimeMad))
     {
         choose = STD_RANDOM_RANGE(1000);
         if (choose > 990)

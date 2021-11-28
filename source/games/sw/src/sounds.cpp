@@ -323,7 +323,7 @@ static void RestartAmbient(AmbientSound* amb)
 static int RandomizeAmbientSpecials(int handle)
 {
 #define MAXRNDAMB 12
-    static int ambrand[] =
+    static const  uint8_t ambrand[] =
     {
         56,57,58,59,60,61,62,63,64,65,66,67
     };
@@ -534,7 +534,7 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
         }
         else if (type == SOURCE_Actor || type == SOURCE_Player)
         {
-            vpos = type == SOURCE_Actor ? &((SPRITEp)source)->pos : &((PLAYERp)source)->pos;
+            vpos = type == SOURCE_Actor ? &((DSWActor*)source)->s().pos : &((PLAYERp)source)->pos;
             FVector3 npos = GetSoundPos(vpos);
 
             *pos = npos;
@@ -629,12 +629,12 @@ void GameInterface::UpdateSounds(void)
 //
 //==========================================================================
 
-int _PlaySound(int num, SPRITEp sp, PLAYERp pp, vec3_t* pos, Voc3D_Flags flags, int channel, EChanFlags cflags)
+int _PlaySound(int num, DSWActor* actor, PLAYERp pp, vec3_t* pos, Voc3D_Flags flags, int channel, EChanFlags cflags)
 {
     if (Prediction || !SoundEnabled() || !soundEngine->isValidSoundId(num))
         return -1;
 
-    SPRITEp sps = sp;
+    auto sps = actor;
 
     auto vp = &voc[num];
     int sourcetype = SOURCE_None;
@@ -643,10 +643,10 @@ int _PlaySound(int num, SPRITEp sp, PLAYERp pp, vec3_t* pos, Voc3D_Flags flags, 
     // If the sound is not supposd to be positioned, it may not be linked to the launching actor.
     if (!(flags & v3df_follow))
     {
-        if (sp && !pos)
+        if (actor && !pos)
         {
-            pos = &sp->pos;
-            sp = nullptr;
+            pos = &actor->s().pos;
+            actor = nullptr;
         }
         else if (pp && !pos)
         {
@@ -659,9 +659,9 @@ int _PlaySound(int num, SPRITEp sp, PLAYERp pp, vec3_t* pos, Voc3D_Flags flags, 
     {
         sourcetype = SOURCE_Unattached;
     }
-    else if (sp != nullptr)
+    else if (actor != nullptr)
     {
-        source = sp;
+        source = actor;
         sourcetype = SOURCE_Actor;
     }
     else if (pp != nullptr)
@@ -836,7 +836,7 @@ void StopPlayerSound(PLAYERp pp, int which)
     soundEngine->StopSound(SOURCE_Player, pp, CHAN_VOICE, which);
 }
 
-bool SoundValidAndActive(SPRITEp spr, int channel)
+bool SoundValidAndActive(DSWActor* spr, int channel)
 {
     return soundEngine->IsSourcePlayingSomething(SOURCE_Actor, spr, channel);
 }
