@@ -77,57 +77,57 @@ void precacheMap(void)
 	WALLp wp;
 	SPRITEp sp;
 
-	for (sectp = &sector[0]; sectp < &sector[numsectors]; sectp++)
+	for(auto& sec : sectors())
 	{
-		j = sectp->ceilingpicnum;
-		markTileForPrecache(j, sectp->ceilingpal);
+		j = sec.ceilingpicnum;
+		markTileForPrecache(j, sec.ceilingpal);
 
 		if (TEST(picanm[j].sf, PICANM_ANIMTYPE_MASK) >> PICANM_ANIMTYPE_SHIFT)
 		{
 			for (i = 1; i <= picanm[j].num; i++)
 			{
-				markTileForPrecache(j + i, sectp->ceilingpal);
+				markTileForPrecache(j + i, sec.ceilingpal);
 			}
 		}
 
-		j = sectp->floorpicnum;
+		j = sec.floorpicnum;
 
-		markTileForPrecache(j, sectp->floorpal);
+		markTileForPrecache(j, sec.floorpal);
 
 		if (TEST(picanm[j].sf, PICANM_ANIMTYPE_MASK) >> PICANM_ANIMTYPE_SHIFT)
 		{
 			for (i = 1; i <= picanm[j].num; i++)
 			{
-				markTileForPrecache(j + i, sectp->floorpal);
+				markTileForPrecache(j + i, sec.floorpal);
 			}
 		}
 
 	}
 
-	for (wp = &wall[0]; wp < &wall[numwalls]; wp++)
+	for (auto& wal : walls())
 	{
-		j = wp->picnum;
+		j = wal.picnum;
 
-		markTileForPrecache(j, wp->pal);
+		markTileForPrecache(j, wal.pal);
 
 		if (TEST(picanm[j].sf, PICANM_ANIMTYPE_MASK) >> PICANM_ANIMTYPE_SHIFT)
 		{
 			for (i = 1; i <= picanm[j].num; i++)
 			{
-				markTileForPrecache(j + i, wp->pal);
+				markTileForPrecache(j + i, wal.pal);
 			}
 		}
 
-		if (wp->overpicnum > 0 && wp->overpicnum < MAXTILES)
+		if (wal.overpicnum > 0 && wal.overpicnum < MAXTILES)
 		{
-			j = wp->overpicnum;
-			markTileForPrecache(j, wp->pal);
+			j = wal.overpicnum;
+			markTileForPrecache(j, wal.pal);
 
 			if (TEST(picanm[j].sf, PICANM_ANIMTYPE_MASK) >> PICANM_ANIMTYPE_SHIFT)
 			{
 				for (i = 1; i <= picanm[j].num; i++)
 				{
-					markTileForPrecache(j + i, wp->pal);
+					markTileForPrecache(j + i, wal.pal);
 				}
 			}
 		}
