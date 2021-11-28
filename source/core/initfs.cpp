@@ -52,7 +52,7 @@
 #define PATH_MAX 260
 #endif
 
-static const char* validexts[] = { "*.grp", "*.zip", "*.pk3", "*.pk4", "*.7z", "*.pk7", "*.dat", "*.rff" };
+static const char* validexts[] = { "*.grp", "*.zip", "*.pk3", "*.pk4", "*.7z", "*.pk7", "*.dat", "*.rff", "*.ssi" };
 
 //==========================================================================
 //
