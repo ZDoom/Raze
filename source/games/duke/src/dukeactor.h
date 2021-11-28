@@ -12,12 +12,12 @@ using DukeLinearSpriteIterator = TLinearSpriteIterator<DDukeActor>;
 
 inline DDukeActor* player_struct::GetActor()
 {
-	return &hittype[i];
+	return actor;
 }
 
 inline int player_struct::GetPlayerNum()
 {
-	return GetActor()->s->yvel;
+	return actor->s->yvel;
 }
 
 inline int ActorToScriptIndex(DDukeActor* a)

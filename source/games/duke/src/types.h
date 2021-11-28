@@ -216,6 +216,7 @@ struct player_struct
 	sectortype* cursector;
 	sectortype* one_parallax_sectnum; // wall + sector references. Make them pointers later?
 	walltype* access_wall;
+	DDukeActor* actor;
 
 	short last_extra, subweapon;
 	short ammo_amount[MAX_WEAPONS], frag, fraggedself;
@@ -225,7 +226,6 @@ struct player_struct
 	short jumping_counter, airleft, knee_incs, access_incs;
 	short ftq;
 	short got_access, weapon_ang, firstaid_amount;
-	short i;
 	short over_shoulder_on, fist_incs;
 	short cheat_phase;
 	short extra_extra8, quick_kick, last_quick_kick;

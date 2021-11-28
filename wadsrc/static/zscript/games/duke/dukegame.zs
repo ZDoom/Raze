@@ -170,12 +170,11 @@ struct DukePlayer
 	native int16 jumping_counter, airleft, knee_incs, access_incs;
 	native int16 ftq;
 	native int16 got_access, weapon_ang, firstaid_amount;
-	native int16 i;
 	native int16 over_shoulder_on, fist_incs;
 	native int16 cheat_phase;
 	native int16 extra_extra8, quick_kick, last_quick_kick;
 	native int16 heat_amount, timebeforeexit, customexitsound;
-	//DDukeActor* actorsqu, *wackedbyactor, *on_crane, *holoduke_on, *somethingonplayer, *access_spritenum, *dummyplayersprite, *newOwner; // later
+	//DDukeActor* actor, actorsqu, *wackedbyactor, *on_crane, *holoduke_on, *somethingonplayer, *access_spritenum, *dummyplayersprite, *newOwner; // later
 	native voidptr holoduke_on; // cannot do it as a proper actor pointer yet - but the status bar needs it.
 
 	native int16 weaprecs[256], weapreccnt;

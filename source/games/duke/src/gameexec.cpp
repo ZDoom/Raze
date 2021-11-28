@@ -591,11 +591,6 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		else SetGameVarID(lVar2, ActorToScriptIndex(ps[iPlayer].on_crane), sActor, sPlayer);
 		break;
 
-	case PLAYER_I:	// This is dangerous!!!
-		if (bSet) ps[iPlayer].i = lValue;
-		else SetGameVarID(lVar2, ps[iPlayer].i, sActor, sPlayer);
-		break;
-
 	case PLAYER_OVER_SHOULDER_ON:
 		if (bSet) ps[iPlayer].over_shoulder_on = lValue;
 		else SetGameVarID(lVar2, ps[iPlayer].over_shoulder_on, sActor, sPlayer);

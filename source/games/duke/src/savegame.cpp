@@ -159,7 +159,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 			("firstaid_amount", w.firstaid_amount)
 			("somethingonplayer", w.somethingonplayer)
 			("on_crane", w.on_crane)
-			("i", w.i)
+			("i", w.actor)
 			("one_parallax_sectnum", w.one_parallax_sectnum)
 			("over_shoulder_on", w.over_shoulder_on)
 			("random_club_frame", w.random_club_frame)

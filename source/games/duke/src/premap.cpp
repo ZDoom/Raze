@@ -624,7 +624,7 @@ void resetpspritevars(int g)
 			else
 				s->pal = ps[j].palookup = ud.user_pals[j];
 
-			ps[j].i = act->GetSpriteIndex();
+			ps[j].actor = act;
 			ps[j].frag_ps = j;
 			act->SetOwner(act);
 
