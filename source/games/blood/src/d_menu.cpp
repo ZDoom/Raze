@@ -82,7 +82,7 @@ void CGameMenuItemQAV::Draw(void)
 			duration = data->duration;
 		}
 		auto currentDuration = data->duration - duration;
-		auto smoothratio = I_GetTimeFrac(data->ticrate) * MaxSmoothRatio;
+		auto smoothratio = !cl_interpolate || cl_capfps? MaxSmoothRatio : I_GetTimeFrac(data->ticrate) * MaxSmoothRatio;
 
 		data->Play(currentDuration - data->ticksPerFrame, currentDuration, -1, NULL);
 

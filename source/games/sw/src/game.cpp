@@ -178,7 +178,7 @@ void GameInterface::LoadGameTextures()
 
 void GameInterface::app_init()
 {
-    GameTicRate = 40;
+    GameTicRate = TICS_PER_SEC / synctics;
     InitCheats();
     automapping = 1;
 
@@ -613,7 +613,7 @@ void GameInterface::Render()
     }
     else
     {
-        smoothratio = I_GetTimeFrac() * MaxSmoothRatio;
+        smoothratio = !cl_interpolate || cl_capfps ? MaxSmoothRatio : I_GetTimeFrac() * MaxSmoothRatio;
     }
 
     drawtime.Reset();

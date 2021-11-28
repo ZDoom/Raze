@@ -308,7 +308,7 @@ void qavProcessTimer(PLAYER* const pPlayer, QAV* const pQAV, int* duration, doub
         {
             // Apply normal values.
             *duration = pQAV->duration - pPlayer->qavTimer;
-            *smoothratio = I_GetTimeFrac(pQAV->ticrate) * MaxSmoothRatio;
+            *smoothratio = !cl_interpolate || cl_capfps ? MaxSmoothRatio : I_GetTimeFrac(pQAV->ticrate) * MaxSmoothRatio;
         }
     }
     else

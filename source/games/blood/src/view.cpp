@@ -549,7 +549,7 @@ void viewDrawScreen(bool sceneonly)
 
     if (!paused && (!M_Active() || gGameOptions.nGameType != 0))
     {
-        gInterpolate = I_GetTimeFrac() * MaxSmoothRatio;
+        gInterpolate = !cl_interpolate || cl_capfps ? MaxSmoothRatio : I_GetTimeFrac() * MaxSmoothRatio;
     }
     else gInterpolate = MaxSmoothRatio;
     pm_smoothratio = (int)gInterpolate;
