@@ -474,11 +474,11 @@ void EXSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
         }
         else if (type == SOURCE_Actor)
         {
-            auto actor = (spritetype*)source;
+            auto actor = (DExhumedActor*)source;
             assert(actor != nullptr);
             if (actor != nullptr)
             {
-                *pos = GetSoundPos(&actor->pos);
+                *pos = GetSoundPos(&actor->s().pos);
             }
         }
         if ((chanflags & CHANF_LISTENERZ) && type != SOURCE_None)
@@ -631,7 +631,7 @@ void PlayFX2(unsigned int nSound, DExhumedActor* pActor, int sectf, EChanFlags c
     FSoundChan* chan = nullptr;
     if (pActor != nullptr)
     {
-        chan = soundEngine->StartSound(SOURCE_Actor, &pActor->s(), nullptr, CHAN_BODY, chanflags| CHANF_OVERLAP, nSound+1, nVolume / 255.f,fullvol? 0.5f : ATTN_NORM, nullptr, (11025 + nPitch) / 11025.f);
+        chan = soundEngine->StartSound(SOURCE_Actor, pActor, nullptr, CHAN_BODY, chanflags| CHANF_OVERLAP, nSound+1, nVolume / 255.f,fullvol? 0.5f : ATTN_NORM, nullptr, (11025 + nPitch) / 11025.f);
     }
     else
     {
