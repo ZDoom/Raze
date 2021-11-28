@@ -47,6 +47,7 @@ struct XSPRITE {
     };
 
     DBloodActor* target;           // target sprite
+    DBloodActor* burnSource;
 
     int32_t targetX;          // target x
     int32_t targetY;          // target y
@@ -61,7 +62,6 @@ struct XSPRITE {
     int16_t data1;            // Data 1
     int16_t data2;            // Data 2
     int16_t data3;            // Data 3
-    int16_t burnSource;
     uint16_t txID;             // TX ID
     uint16_t rxID;             // RX ID
     uint16_t command;           // Cmd

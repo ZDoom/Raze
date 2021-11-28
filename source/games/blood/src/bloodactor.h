@@ -94,13 +94,12 @@ public:
 
 	void SetBurnSource(DBloodActor* own)
 	{
-		x().burnSource = own ? own->GetSpriteIndex() : -1;
+		x().burnSource = own;
 	}
 
 	DBloodActor* GetBurnSource()
 	{
-		if (x().burnSource == -1 || x().burnSource == kMaxSprites - 1) return nullptr;
-		return base() + x().burnSource;
+		return x().burnSource;
 	}
 
 	void SetSpecialOwner() // nnext hackery
