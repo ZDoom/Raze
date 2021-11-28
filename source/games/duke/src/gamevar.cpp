@@ -284,7 +284,7 @@ int GetGameVarID(int id, DDukeActor* sActor, int sPlayer)
 	}
 	if (id == g_iThisActorID)
 	{
-		return sActor->GetSpriteIndex();
+		return ActorToScriptIndex(sActor);
 	}
 	if( aGameVars[id].dwFlags & GAMEVAR_FLAG_PERPLAYER )
 	{
