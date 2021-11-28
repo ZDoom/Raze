@@ -284,11 +284,13 @@ void HWDrawInfo::DispatchSprites()
 		if ((unsigned)spritenum < MAXSPRITES)
 			sprite[spritenum].cstat2 |= CSTAT2_SPRITE_MAPPED;
 
+		tileUpdatePicnum(&tilenum, sprite->owner + 32768, 0);
+		tspr->picnum = tilenum;
 		setgotpic(tilenum);
 
 		if (!(spriteext[spritenum].flags & SPREXT_NOTMD))
 		{
-			int pt = Ptile2tile(tspr->picnum, tspr->pal);
+			int pt = Ptile2tile(tilenum, tspr->pal);
 			if (hw_models && tile2model[pt].modelid >= 0 && tile2model[pt].framenum >= 0)
 			{
 				//HWSprite hwsprite;
@@ -296,17 +298,18 @@ void HWDrawInfo::DispatchSprites()
 			}
 			if (r_voxels)
 			{
-				if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT) != CSTAT_SPRITE_ALIGNMENT_SLAB && tiletovox[tspr->picnum] >= 0 && voxmodels[tiletovox[tspr->picnum]])
+				if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT) != CSTAT_SPRITE_ALIGNMENT_SLAB && tiletovox[tilenum] >= 0 && voxmodels[tiletovox[tilenum]])
 				{
 					HWSprite hwsprite;
-					int num = tiletovox[tspr->picnum];
-					if (hwsprite.ProcessVoxel(this, voxmodels[tiletovox[tspr->picnum]], tspr, &sector[tspr->sectnum], voxrotate[num])) 
+					int num = tiletovox[tilenum];
+					if (num != 435) Printf("%d - %d\n", tilenum, num);
+					if (hwsprite.ProcessVoxel(this, voxmodels[num], tspr, &sector[tspr->sectnum], voxrotate[num])) 
 						continue;
 				}
-				else if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT) == CSTAT_SPRITE_ALIGNMENT_SLAB && tspr->picnum < MAXVOXELS && voxmodels[tspr->picnum])
+				else if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT) == CSTAT_SPRITE_ALIGNMENT_SLAB && tspr->picnum < MAXVOXELS && voxmodels[tilenum])
 				{
 					HWSprite hwsprite;
-					int num = tspr->picnum;
+					int num = tilenum;
 					hwsprite.ProcessVoxel(this, voxmodels[tspr->picnum], tspr, &sector[tspr->sectnum], voxrotate[num]);
 					continue;
 				}
@@ -323,9 +326,6 @@ void HWDrawInfo::DispatchSprites()
 			tspr->pos.x -= bcos(tspr->ang, -13);
 			tspr->pos.y -= bsin(tspr->ang, -13);
 		}
-
-		tileUpdatePicnum(&tilenum, sprite->owner + 32768, 0);
-		tspr->picnum = tilenum;
 
 		switch (tspr->cstat & CSTAT_SPRITE_ALIGNMENT)
 		{
