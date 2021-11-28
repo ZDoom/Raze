@@ -68,7 +68,7 @@ void hud_drawsprite(double sx, double sy, double sz, double a, int picnum, int d
 		DTA_ViewportX, windowxy1.x, DTA_ViewportY, windowxy1.y,
 		DTA_ViewportWidth, windowxy2.x - windowxy1.x + 1, DTA_ViewportHeight, windowxy2.y - windowxy1.y + 1,
 		DTA_FullscreenScale, (dastat & RS_STRETCH)? FSMode_ScaleToScreen: FSMode_ScaleToHeight, DTA_VirtualWidth, 320, DTA_VirtualHeight, 200,
-		DTA_CenterOffsetRel, !(dastat & (RS_TOPLEFT | RS_CENTER)),
+		DTA_CenterOffsetRel, (dastat & (RS_TOPLEFT | RS_CENTER))? 0:2,
 		DTA_TopLeft, !!(dastat & RS_TOPLEFT),
 		DTA_CenterOffset, !!(dastat & RS_CENTER),
 		DTA_FlipX, !!(dastat & RS_XFLIPHUD),

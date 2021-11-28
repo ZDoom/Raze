@@ -1015,10 +1015,16 @@ bool ParseDrawTextureTags(F2DDrawer *drawer, FGameTexture *img, double x, double
 		case DTA_CenterOffsetRel:
 			assert(fortext == false);
 			if (fortext) return false;
-			if (ListGetInt(tags))
+			intval = ListGetInt(tags);
+			if (intval == 1)
 			{
-				parms->left = img->GetDisplayLeftOffset() + img->GetDisplayWidth() * 0.5;
-				parms->top = img->GetDisplayTopOffset() + img->GetDisplayHeight() * 0.5;
+				parms->left = img->GetDisplayLeftOffset() + (img->GetDisplayWidth() * 0.5);
+				parms->top = img->GetDisplayTopOffset() + (img->GetDisplayHeight() * 0.5);
+			}
+			else if (intval == 2)
+			{
+				parms->left = img->GetDisplayLeftOffset() + floor(img->GetDisplayWidth() * 0.5);
+				parms->top = img->GetDisplayTopOffset() + floor(img->GetDisplayHeight() * 0.5);
 			}
 			break;
 
