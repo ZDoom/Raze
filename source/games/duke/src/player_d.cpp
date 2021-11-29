@@ -3103,6 +3103,7 @@ HORIZONLY:
 	if (psectlotag < 3)
 	{
 		psect = s->sectnum;
+		psectp = s->sector(); //
 		if (ud.clipping == 0 && psectp->lotag == 31)
 		{
 			auto secact = ScriptIndexToActor(psectp->hitag);
