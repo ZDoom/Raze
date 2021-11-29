@@ -359,7 +359,7 @@ FString StripExtension(const char* path)
 	src = path + strlen(path) - 1;
 
 	//
-	// back up until a . and abort on a \
+	// back up until a . and abort on a '/'
 	//
 	while (src != path && !IsSeperator(*(src - 1)))
 	{
@@ -866,6 +866,10 @@ FString ExpandEnvVars(const char *searchpathstring)
 FString NicePath(const char *path)
 {
 #ifdef _WIN32
+	if (*path == '\0')
+	{
+		return FString(".");
+	}
 	return ExpandEnvVars(path);
 #else
 	if (path == NULL || *path == '\0')

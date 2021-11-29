@@ -233,29 +233,27 @@ static void cachegoodsprites(void)
 void cacheit_d(void)
 {
 	if (!r_precache) return;
-	int i;
 
 	cachegoodsprites();
 
-	for (i = 0; i < numwalls; i++)
+	for (auto& wal : walls())
 	{
-		tloadtile(wall[i].picnum, wall[i].pal);
-		if (wall[i].overpicnum >= 0)
-			tloadtile(wall[i].overpicnum, wall[i].pal);
+		tloadtile(wal.picnum, wal.pal);
+		if (wal.overpicnum >= 0)
+			tloadtile(wal.overpicnum, wal.pal);
 	}
 
-	for (i = 0; i < numsectors; i++)
+	for (auto& sect : sectors())
 	{
-		auto sectp = &sector[i];
-		tloadtile(sectp->floorpicnum, sectp->floorpal);
-		tloadtile(sectp->ceilingpicnum, sectp->ceilingpal);
-		if (sectp->ceilingpicnum == LA)
+		tloadtile(sect.floorpicnum, sect.floorpal);
+		tloadtile(sect.ceilingpicnum, sect.ceilingpal);
+		if (sect.ceilingpicnum == LA)
 		{
 			tloadtile(LA + 1);
 			tloadtile(LA + 2);
 		}
 
-		DukeSectIterator it(i);
+		DukeSectIterator it(&sect);
 		while (auto j = it.Next())
 		{
 			if (j->s->xrepeat != 0 && j->s->yrepeat != 0 && (j->s->cstat & 32768) == 0)
@@ -271,10 +269,15 @@ void cacheit_d(void)
 //
 //
 //---------------------------------------------------------------------------
+void spriteinit_d(int i)
+{
+	i = initspriteforspawn(i, { CRACK1, CRACK2, CRACK3, CRACK4, SPEAKER, LETTER, DUCK, TARGET, TRIPBOMB, VIEWSCREEN, VIEWSCREEN2 });
+	if ((i & 0x1000000)) spawninit_d(nullptr, &hittype[i&0xffffff]);
+}
 
 void prelevel_d(int g)
 {
-	int i, j, startwall, endwall, lotaglist;
+	int i, j, lotaglist;
 	short lotags[65];
 
 	prelevel_common(g);
@@ -300,7 +303,7 @@ void prelevel_d(int g)
 		case CYCLER:
 			if (numcyclers >= MAXCYCLERS)
 				I_Error("Too many cycling sectors.");
-			cyclers[numcyclers].sectnum = si->sectnum;
+			cyclers[numcyclers].sector = si->sector();
 			cyclers[numcyclers].lotag = si->lotag;
 			cyclers[numcyclers].shade1 = si->shade;
 			cyclers[numcyclers].shade2 = si->sector()->floorshade;
@@ -320,7 +323,7 @@ void prelevel_d(int g)
 		{
 			if (spr->picnum == SECTOREFFECTOR && spr->lotag == SE_14_SUBWAY_CAR)
 				continue;
-			spawn(nullptr, i);
+			spriteinit_d(i);
 		}
 	}
 
@@ -330,7 +333,7 @@ void prelevel_d(int g)
 		if (spr->statnum < MAXSTATUS)
 		{
 			if (spr->picnum == SECTOREFFECTOR && spr->lotag == SE_14_SUBWAY_CAR)
-				spawn(nullptr, i);
+				spriteinit_d(i);
 		}
 	}
 	lotaglist = 0;
@@ -378,24 +381,21 @@ void prelevel_d(int g)
 
 	mirrorcnt = 0;
 
-	for (i = 0; i < numwalls; i++)
+	for (auto& wal : walls())
 	{
-		walltype* wal;
-		wal = &wall[i];
-
-		if (wal->overpicnum == MIRROR && (wal->cstat & 32) != 0)
+		if (wal.overpicnum == MIRROR && (wal.cstat & 32) != 0)
 		{
-			j = wal->nextsector;
-			auto sectp = &sector[j];
+			auto sectp = wal.nextSector();
 
 			if (mirrorcnt > 63)
 				I_Error("Too many mirrors (64 max.)");
-			if ((j >= 0) && sectp->ceilingpicnum != MIRROR)
+			if (sectp->ceilingpicnum != MIRROR)
 			{
+				assert(wallnum(&wal) > 0);
 				sectp->ceilingpicnum = MIRROR;
 				sectp->floorpicnum = MIRROR;
-				mirrorwall[mirrorcnt] = i;
-				mirrorsector[mirrorcnt] = j;
+				mirrorwall[mirrorcnt] = &wal;
+				mirrorsector[mirrorcnt] = sectp;
 				mirrorcnt++;
 				continue;
 			}
@@ -405,55 +405,57 @@ void prelevel_d(int g)
 			I_Error("Too many 'anim' walls (max 512.)");
 
 		animwall[numanimwalls].tag = 0;
-		animwall[numanimwalls].wallnum = 0;
+		animwall[numanimwalls].wall = nullptr;
 
-		switch (wal->overpicnum)
+		switch (wal.overpicnum)
 		{
 		case FANSHADOW:
 		case FANSPRITE:
-			wal->cstat |= 65;
-			animwall[numanimwalls].wallnum = i;
+			wal.cstat |= 65;
+			animwall[numanimwalls].wall = &wal;
 			numanimwalls++;
 			break;
 
 		case W_FORCEFIELD:
-			for (j = 0; j < 3; j++)
+			for (int j = 0; j < 3; j++)
 				tloadtile(W_FORCEFIELD + j);
+			[[fallthrough]];
 		case W_FORCEFIELD + 1:
 		case W_FORCEFIELD + 2:
-			if (wal->shade > 31)
-				wal->cstat = 0;
-			else wal->cstat |= 85 + 256;
+			if (wal.shade > 31)
+				wal.cstat = 0;
+			else wal.cstat |= 85 + 256;
 
-			if (wal->lotag && wal->nextwall >= 0)
-				wal->nextWall()->lotag = wal->lotag;
+			if (wal.lotag && wal.nextwall >= 0)
+				wal.nextWall()->lotag = wal.lotag;
+			[[fallthrough]];
 
 		case BIGFORCE:
 
-			animwall[numanimwalls].wallnum = i;
+			animwall[numanimwalls].wall = &wal;
 			numanimwalls++;
 
 			continue;
 		}
 
-		wal->extra = -1;
+		wal.extra = -1;
 
-		switch (wal->picnum)
+		switch (wal.picnum)
 		{
 		case W_TECHWALL1:
 		case W_TECHWALL2:
 		case W_TECHWALL3:
 		case W_TECHWALL4:
-			animwall[numanimwalls].wallnum = i;
+			animwall[numanimwalls].wall = &wal;
 			//                animwall[numanimwalls].tag = -1;
 			numanimwalls++;
 			break;
 		case SCREENBREAK6:
 		case SCREENBREAK7:
 		case SCREENBREAK8:
-			for (j = SCREENBREAK6; j < SCREENBREAK9; j++)
+			for (int j = SCREENBREAK6; j < SCREENBREAK9; j++)
 				tloadtile(j);
-			animwall[numanimwalls].wallnum = i;
+			animwall[numanimwalls].wall = &wal;
 			animwall[numanimwalls].tag = -1;
 			numanimwalls++;
 			break;
@@ -462,11 +464,11 @@ void prelevel_d(int g)
 		case FEMPIC2:
 		case FEMPIC3:
 
-			wal->extra = wal->picnum;
+			wal.extra = wal.picnum;
 			animwall[numanimwalls].tag = -1;
 
-			animwall[numanimwalls].wallnum = i;
-			animwall[numanimwalls].tag = wal->picnum;
+			animwall[numanimwalls].wall = &wal;
+			animwall[numanimwalls].tag = wal.picnum;
 			numanimwalls++;
 			break;
 
@@ -488,8 +490,8 @@ void prelevel_d(int g)
 		case SCREENBREAK18:
 		case SCREENBREAK19:
 
-			animwall[numanimwalls].wallnum = i;
-			animwall[numanimwalls].tag = wal->picnum;
+			animwall[numanimwalls].wall = &wal;
+			animwall[numanimwalls].tag = wal.picnum;
 			numanimwalls++;
 			break;
 		}
@@ -498,12 +500,10 @@ void prelevel_d(int g)
 	//Invalidate textures in sector behind mirror
 	for (i = 0; i < mirrorcnt; i++)
 	{
-		startwall = sector[mirrorsector[i]].wallptr;
-		endwall = startwall + sector[mirrorsector[i]].wallnum;
-		for (j = startwall; j < endwall; j++)
+		for (auto& wal : wallsofsector(mirrorsector[i]))
 		{
-			wall[j].picnum = MIRROR;
-			wall[j].overpicnum = MIRROR;
+			wal.picnum = MIRROR;
+			wal.overpicnum = MIRROR;
 		}
 	}
 }

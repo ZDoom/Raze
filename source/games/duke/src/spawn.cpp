@@ -49,9 +49,11 @@ BEGIN_DUKE_NS
 //
 //---------------------------------------------------------------------------
 
-DDukeActor* EGS(int whatsect, int s_x, int s_y, int s_z, int s_pn, int8_t s_s, int8_t s_xr, int8_t s_yr, int s_a, int s_ve, int s_zv, DDukeActor* s_ow, int8_t s_ss) 
+DDukeActor* EGS(sectortype* whatsectp, int s_x, int s_y, int s_z, int s_pn, int8_t s_s, int8_t s_xr, int8_t s_yr, int s_a, int s_ve, int s_zv, DDukeActor* s_ow, int8_t s_ss) 
 {
-	int const i = insertsprite(whatsect, s_ss);
+	// sector pointer must be strictly validated here or the engine will crash.
+	if (whatsectp == nullptr || !validSectorIndex(sectnum(whatsectp))) return nullptr;
+	int const i = insertsprite(sectnum(whatsectp), s_ss);
 
 	if (i < 0)
 		I_Error(" Too many sprites spawned.");
@@ -84,7 +86,7 @@ DDukeActor* EGS(int whatsect, int s_x, int s_y, int s_z, int s_pn, int8_t s_s, i
 	act->lastvy = 0;
 
 	act->timetosleep = 0;
-	act->actorstayput = -1;
+	act->actorstayput = nullptr;
 	act->extra = -1;
 	act->cgg = 0;
 	act->movflag = 0;
@@ -135,95 +137,99 @@ DDukeActor* EGS(int whatsect, int s_x, int s_y, int s_z, int s_pn, int8_t s_s, i
 //
 //---------------------------------------------------------------------------
 
-int initspriteforspawn(DDukeActor* actj, int pn, const std::initializer_list<int> &excludes)
+int initspriteforspawn(int i, const std::initializer_list<int> &excludes)
 {
-	spritetype* sp;
-	int* t;
-	int i;
+	auto act = &hittype[i];
+	auto sp = act->s;
+	auto t = act->temp_data;
 
-	if (actj)
-	{
-		auto spawned = EGS(actj->s->sectnum, actj->s->x, actj->s->y, actj->s->z, pn, 0, 0, 0, 0, 0, 0, actj, 0);
-		spawned->picnum = actj->s->picnum;
-		sp = spawned->s;
-		t = spawned->temp_data;
-		i = spawned->GetSpriteIndex();
-	}
-	else
-	{
-		i = pn;
-		auto act = &hittype[i];
-		sp = act->s;
-		t = act->temp_data;
+	act->picnum = sp->picnum;
+	act->timetosleep = 0;
+	act->extra = -1;
 
-		act->picnum = sp->picnum;
-		act->timetosleep = 0;
-		act->extra = -1;
+	sp->backuppos();
 
-		sp->backuppos();
+	act->SetOwner(act);
+	act->SetHitOwner(act);
+	act->cgg = 0;
+	act->movflag = 0;
+	act->tempang = 0;
+	act->dispicnum = 0;
+	act->floorz = sp->sector()->floorz;
+	act->ceilingz = sp->sector()->ceilingz;
 
-		act->SetOwner(act);
-		act->SetHitOwner(act);
-		act->cgg = 0;
-		act->movflag = 0;
-		act->tempang = 0;
-		act->dispicnum = 0;
-		act->floorz = sp->sector()->floorz;
-		act->ceilingz = sp->sector()->ceilingz;
+	act->lastvx = 0;
+	act->lastvy = 0;
+	act->actorstayput = nullptr;
 
-		act->lastvx = 0;
-		act->lastvy = 0;
-		act->actorstayput = -1;
+	t[0] = t[1] = t[2] = t[3] = t[4] = t[5] = 0;
+	act->temp_actor = nullptr;
 
-		t[0] = t[1] = t[2] = t[3] = t[4] = t[5] = 0;
-		act->temp_actor = nullptr;
-
-		if (sp->cstat & 48)
-			if (!isIn(sp->picnum, excludes) && (sp->cstat & 48))
+	if (sp->cstat & 48)
+		if (!isIn(sp->picnum, excludes) && (sp->cstat & 48))
+		{
+			if (sp->shade == 127) return i;
+			if (wallswitchcheck(act) && (sp->cstat & 16))
 			{
-				if (sp->shade == 127) return i;
-				if (wallswitchcheck(act) && (sp->cstat & 16))
+				if (sp->picnum != TILE_ACCESSSWITCH && sp->picnum != TILE_ACCESSSWITCH2 && sp->pal)
 				{
-					if (sp->picnum != TILE_ACCESSSWITCH && sp->picnum != TILE_ACCESSSWITCH2 && sp->pal)
+					if ((ud.multimode < 2) || (ud.multimode > 1 && ud.coop == 1))
 					{
-						if ((ud.multimode < 2) || (ud.multimode > 1 && ud.coop == 1))
-						{
-							sp->xrepeat = sp->yrepeat = 0;
-							sp->cstat = sp->lotag = sp->hitag = 0;
-							return i;
-						}
+						sp->xrepeat = sp->yrepeat = 0;
+						sp->cstat = sp->lotag = sp->hitag = 0;
+						return i;
 					}
-					sp->cstat |= 257;
-					if (sp->pal && sp->picnum != TILE_ACCESSSWITCH && sp->picnum != TILE_ACCESSSWITCH2)
-						sp->pal = 0;
-					return i;
 				}
-
-				if (sp->hitag)
-				{
-					changespritestat(i, 12);
-					sp->cstat |= 257;
-					sp->extra = gs.impact_damage;
-					return i;
-				}
+				sp->cstat |= 257;
+				if (sp->pal && sp->picnum != TILE_ACCESSSWITCH && sp->picnum != TILE_ACCESSSWITCH2)
+					sp->pal = 0;
+				return i;
 			}
 
-		int s = sp->picnum;
-
-		if (sp->cstat & 1) sp->cstat |= 256;
-
-		if (gs.actorinfo[s].scriptaddress)
-		{
-			sp->extra = ScriptCode[gs.actorinfo[s].scriptaddress];
-			t[4] = ScriptCode[gs.actorinfo[s].scriptaddress+1];
-			t[1] = ScriptCode[gs.actorinfo[s].scriptaddress+2];
-			int s3 = ScriptCode[gs.actorinfo[s].scriptaddress+3];
-			if (s3 && sp->hitag == 0)
-				sp->hitag = s3;
+			if (sp->hitag)
+			{
+				changespritestat(i, 12);
+				sp->cstat |= 257;
+				sp->extra = gs.impact_damage;
+				return i;
+			}
 		}
-		else t[1] = t[4] = 0;
+
+	int s = sp->picnum;
+
+	if (sp->cstat & 1) sp->cstat |= 256;
+
+	if (gs.actorinfo[s].scriptaddress)
+	{
+		sp->extra = ScriptCode[gs.actorinfo[s].scriptaddress];
+		t[4] = ScriptCode[gs.actorinfo[s].scriptaddress+1];
+		t[1] = ScriptCode[gs.actorinfo[s].scriptaddress+2];
+		int s3 = ScriptCode[gs.actorinfo[s].scriptaddress+3];
+		if (s3 && sp->hitag == 0)
+			sp->hitag = s3;
 	}
+	else t[1] = t[4] = 0;
 	return i | 0x1000000;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+DDukeActor* spawn(DDukeActor* actj, int pn)
+{
+	if (actj)
+	{
+		auto spawned = EGS(actj->s->sector(), actj->s->x, actj->s->y, actj->s->z, pn, 0, 0, 0, 0, 0, 0, actj, 0);
+		if (spawned)
+		{
+			spawned->picnum = actj->s->picnum;
+			return fi.spawninit(actj, spawned);
+		}
+	}
+	return nullptr;
 }
 
 //---------------------------------------------------------------------------
@@ -235,7 +241,6 @@ int initspriteforspawn(DDukeActor* actj, int pn, const std::initializer_list<int
 void spawninitdefault(DDukeActor* actj, DDukeActor *act)
 {
 	auto sp = act->s;
-	auto sect = sp->sectnum;
 
 	if (gs.actorinfo[sp->picnum].scriptaddress)
 	{
@@ -263,7 +268,7 @@ void spawninitdefault(DDukeActor* actj, DDukeActor *act)
 			makeitfall(act);
 
 			if (actorflag(act, SFLAG_BADGUYSTAYPUT))
-				act->actorstayput = sp->sectnum;
+				act->actorstayput = sp->sector();
 
 			if (!isRR() || actorflag(act, SFLAG_KILLCOUNT))	// Duke is just like Doom - Bad guys always count as kill.
 				ps[myconnectindex].max_actors_killed++;
@@ -340,22 +345,22 @@ void spawntransporter(DDukeActor *actj, DDukeActor* acti, bool beam)
 //
 //---------------------------------------------------------------------------
 
-int spawnbloodpoolpart1(DDukeActor *actj, DDukeActor* acti)
+int spawnbloodpoolpart1(DDukeActor* acti)
 {
 	auto sp = acti->s;
-	int s1 = sp->sectnum;
+	auto s1 = sp->sector();
 
 	updatesector(sp->x + 108, sp->y + 108, &s1);
-	if (s1 >= 0 && sector[s1].floorz == sp->sector()->floorz)
+	if (s1 && s1->floorz == sp->sector()->floorz)
 	{
 		updatesector(sp->x - 108, sp->y - 108, &s1);
-		if (s1 >= 0 && sector[s1].floorz == sp->sector()->floorz)
+		if (s1 && s1->floorz == sp->sector()->floorz)
 		{
 			updatesector(sp->x + 108, sp->y - 108, &s1);
-			if (s1 >= 0 && sector[s1].floorz == sp->sector()->floorz)
+			if (s1 && s1->floorz == sp->sector()->floorz)
 			{
 				updatesector(sp->x - 108, sp->y + 108, &s1);
-				if (s1 >= 0 && sector[s1].floorz != sp->sector()->floorz)
+				if (s1 && s1->floorz != sp->sector()->floorz)
 				{
 					sp->xrepeat = sp->yrepeat = 0; changeactorstat(acti, STAT_MISC); return true;
 				}
@@ -383,22 +388,22 @@ int spawnbloodpoolpart1(DDukeActor *actj, DDukeActor* acti)
 void initfootprint(DDukeActor* actj, DDukeActor* acti)
 {
 	auto sp = acti->s;
-	int sect = sp->sectnum;
+	auto sect = sp->sector();
 	if (actj)
 	{
-		int s1 = sp->sectnum;
+		auto s1 = sp->sector();
 
 		updatesector(sp->x + 84, sp->y + 84, &s1);
-		if (s1 >= 0 && sector[s1].floorz == sp->sector()->floorz)
+		if (s1 && s1->floorz == sp->sector()->floorz)
 		{
 			updatesector(sp->x - 84, sp->y - 84, &s1);
-			if (s1 >= 0 && sector[s1].floorz == sp->sector()->floorz)
+			if (s1 && s1->floorz == sp->sector()->floorz)
 			{
 				updatesector(sp->x + 84, sp->y - 84, &s1);
-				if (s1 >= 0 && sector[s1].floorz == sp->sector()->floorz)
+				if (s1 && s1->floorz == sp->sector()->floorz)
 				{
 					updatesector(sp->x - 84, sp->y + 84, &s1);
-					if (s1 >= 0 && sector[s1].floorz != sp->sector()->floorz)
+					if (s1 && s1->floorz != sp->sector()->floorz)
 					{
 						sp->xrepeat = sp->yrepeat = 0; changeactorstat(acti, STAT_MISC); return;
 					}
@@ -413,8 +418,8 @@ void initfootprint(DDukeActor* actj, DDukeActor* acti)
 		sp->ang = actj->s->ang;
 	}
 
-	sp->z = sector[sect].floorz;
-	if (sector[sect].lotag != 1 && sector[sect].lotag != 2)
+	sp->z = sect->floorz;
+	if (sect->lotag != 1 && sect->lotag != 2)
 		sp->xrepeat = sp->yrepeat = 32;
 
 	insertspriteq(acti);
@@ -430,7 +435,6 @@ void initfootprint(DDukeActor* actj, DDukeActor* acti)
 void initshell(DDukeActor* actj, DDukeActor* acti, bool isshell)
 {
 	auto sp = acti->s;
-	int sect = sp->sectnum;
 	auto t = acti->temp_data;
 	if (actj)
 	{
@@ -484,17 +488,18 @@ void initshell(DDukeActor* actj, DDukeActor* acti, bool isshell)
 void initcrane(DDukeActor* actj, DDukeActor* acti, int CRANEPOLE)
 {
 	auto sp = acti->s;
-	int sect = sp->sectnum;
+	auto sect = sp->sector();
 	auto t = acti->temp_data;
 	sp->cstat |= 64 | 257;
 
 	sp->picnum += 2;
-	sp->z = sector[sect].ceilingz + (48 << 8);
-	t[4] = tempwallptr;
+	sp->z = sect->ceilingz + (48 << 8);
+	t[4] = cranes.Reserve(1);
 
-	msx[tempwallptr] = sp->x;
-	msy[tempwallptr] = sp->y;
-	msx[tempwallptr + 2] = sp->z;
+	auto& apt = cranes[t[4]];
+	apt.x = sp->x;
+	apt.y = sp->y;
+	apt.z = sp->z;
 
 	DukeStatIterator it(STAT_DEFAULT);
 	while (auto act = it.Next())
@@ -502,15 +507,15 @@ void initcrane(DDukeActor* actj, DDukeActor* acti, int CRANEPOLE)
 		auto ss = act->s;
 		if (ss->picnum == CRANEPOLE && sp->hitag == (ss->hitag))
 		{
-			msy[tempwallptr + 2] = ActorToScriptIndex(act);
+			apt.poleactor = act;
 
 			t[1] = ss->sectnum;
 
 			ss->xrepeat = 48;
 			ss->yrepeat = 128;
 
-			msx[tempwallptr + 1] = ss->x;
-			msy[tempwallptr + 1] = ss->y;
+			apt.polex = ss->x;
+			apt.poley = ss->y;
 
 			ss->x = sp->x;
 			ss->y = sp->y;
@@ -522,7 +527,6 @@ void initcrane(DDukeActor* actj, DDukeActor* acti, int CRANEPOLE)
 		}
 	}
 
-	tempwallptr += 3;
 	acti->SetOwner(nullptr);
 	sp->extra = 8;
 	changeactorstat(acti, STAT_STANDABLE);
@@ -537,7 +541,6 @@ void initcrane(DDukeActor* actj, DDukeActor* acti, int CRANEPOLE)
 void initwaterdrip(DDukeActor* actj, DDukeActor* actor)
 {
 	auto sp = actor->s;
-	int sect = sp->sectnum;
 	auto t = actor->temp_data;
 	if (actj && (actj->s->statnum == 10 || actj->s->statnum == 1))
 	{
@@ -573,8 +576,6 @@ void initwaterdrip(DDukeActor* actj, DDukeActor* actor)
 int initreactor(DDukeActor* actj, DDukeActor* actor, bool isrecon)
 {
 	auto sp = actor->s;
-	int sect = sp->sectnum;
-	auto t = actor->temp_data;
 	if (isrecon)
 	{
 		if (sp->lotag > ud.player_skill)
@@ -624,7 +625,7 @@ void spawneffector(DDukeActor* actor)
 	auto sectp = sp->sector();
 	int sect = sp->sectnum;
 	auto t = actor->temp_data;
-	int startwall, endwall, x, y, d, s, clostest;
+	int d, clostest = 0;
 
 	sp->yvel = sectp->extra;
 	sp->cstat |= 32768;
@@ -691,7 +692,7 @@ void spawneffector(DDukeActor* actor)
 				t[4] = sectp->ceilingz;
 
 			sectp->ceilingz = sp->z;
-			StartInterpolation(sect, Interp_Sect_Ceilingz);
+			StartInterpolation(sectp, Interp_Sect_Ceilingz);
 			break;
 		case SE_35:
 			sectp->ceilingz = sp->z;
@@ -706,6 +707,7 @@ void spawneffector(DDukeActor* actor)
 		case SE_47_LIGHT_SWITCH:
 		case SE_48_LIGHT_SWITCH:
 			if (!isRRRA()) break;
+			[[fallthrough]];
 		case SE_12_LIGHT_SWITCH:
 
 			t[1] = sectp->floorshade;
@@ -746,20 +748,18 @@ void spawneffector(DDukeActor* actor)
 
 				if (sp->ang == 512)
 				{
-					startwall = sectp->wallptr;
-					endwall = startwall + sectp->wallnum;
-					for (int j = startwall; j < endwall; j++)
+					for (auto& wl : wallsofsector(sectp))
 					{
-						int x = wall[j].nextsector;
-						if (x >= 0)
-							if (!(sector[x].ceilingstat & 1))
+						if (wl.nextsector >= 0)
+						{
+							auto nsec = wl.nextSector();
+							if (!(nsec->ceilingstat & 1))
 							{
-								sectp->ceilingpicnum =
-									sector[x].ceilingpicnum;
-								sectp->ceilingshade =
-									sector[x].ceilingshade;
-								break; //Leave earily
+								sectp->ceilingpicnum = nsec->ceilingpicnum;
+								sectp->ceilingshade = nsec->ceilingshade;
+								break; //Leave early
 							}
+						}
 					}
 				}
 			}
@@ -769,17 +769,13 @@ void spawneffector(DDukeActor* actor)
 		case SE_17_WARP_ELEVATOR:
 		{
 			t[2] = sectp->floorz; //Stopping loc
-
-			int j = nextsectorneighborz(sect, sectp->floorz, -1, -1);
-			t[3] = sector[j].ceilingz;
-
-			j = nextsectorneighborz(sect, sectp->ceilingz, 1, 1);
-			t[4] = sector[j].floorz;
+			t[3] = nextsectorneighborzptr(sect, sectp->floorz, -1, -1)->ceilingz;
+			t[4] = nextsectorneighborzptr(sect, sectp->ceilingz, 1, 1)->floorz;
 
 			if (numplayers < 2)
 			{
-				StartInterpolation(sect, Interp_Sect_Floorz);
-				StartInterpolation(sect, Interp_Sect_Ceilingz);
+				StartInterpolation(sectp, Interp_Sect_Floorz);
+				StartInterpolation(sectp, Interp_Sect_Ceilingz);
 			}
 
 			break;
@@ -788,11 +784,11 @@ void spawneffector(DDukeActor* actor)
 			break;
 
 		case 34:
-			StartInterpolation(sect, Interp_Sect_FloorPanX);
+			StartInterpolation(sectp, Interp_Sect_FloorPanX);
 			break;
 
 		case SE_24_CONVEYOR:
-			StartInterpolation(sect, Interp_Sect_FloorPanX);
+			StartInterpolation(sectp, Interp_Sect_FloorPanX);
 			sp->yvel <<= 1;
 		case SE_36_PROJ_SHOOTER:
 			break;
@@ -800,46 +796,38 @@ void spawneffector(DDukeActor* actor)
 		case SE_20_STRETCH_BRIDGE:
 		{
 			int q;
-
-			startwall = sectp->wallptr;
-			endwall = startwall + sectp->wallnum;
+			walltype* closewall = nullptr;
 
 			//find the two most clostest wall x's and y's
 			q = 0x7fffffff;
 
-			for (s = startwall; s < endwall; s++)
+			for (auto& wal : wallsofsector(sectp))
 			{
-				x = wall[s].x;
-				y = wall[s].y;
-
-				d = FindDistance2D(sp->x - x, sp->y - y);
+				d = FindDistance2D(sp->x - wal.x, sp->y - wal.y);
 				if (d < q)
 				{
 					q = d;
-					clostest = s;
+					closewall = &wal;
 				}
 			}
 
-			t[1] = clostest;
+			actor->temp_walls[0] = closewall;
 
 			q = 0x7fffffff;
 
-			for (s = startwall; s < endwall; s++)
+			for (auto& wal : wallsofsector(sectp))
 			{
-				x = wall[s].x;
-				y = wall[s].y;
-
-				d = FindDistance2D(sp->x - x, sp->y - y);
-				if (d < q && s != t[1])
+				d = FindDistance2D(sp->x - wal.x, sp->y - wal.y);
+				if (d < q && &wal != actor->temp_walls[0])
 				{
 					q = d;
-					clostest = s;
+					closewall = &wal;
 				}
 			}
 
-			t[2] = clostest;
-			StartInterpolation(sect, Interp_Sect_FloorPanX);
-			StartInterpolation(sect, Interp_Sect_FloorPanY);
+			actor->temp_walls[1] = closewall;
+			StartInterpolation(sectp, Interp_Sect_FloorPanX);
+			StartInterpolation(sectp, Interp_Sect_FloorPanY);
 			break;
 		}
 
@@ -855,15 +843,12 @@ void spawneffector(DDukeActor* actor)
 
 			//fix all the walls;
 
-			startwall = sectp->wallptr;
-			endwall = startwall + sectp->wallnum;
-
-			for (s = startwall; s < endwall; s++)
+			for (auto& wal : wallsofsector(sectp))
 			{
-				if (!(wall[s].hitag & 1))
-					wall[s].shade = sp->shade;
-				if ((wall[s].cstat & 2) && wall[s].nextwall >= 0)
-					wall[wall[s].nextwall].shade = sp->shade;
+				if (!(wal.hitag & 1))
+					wal.shade = sp->shade;
+				if ((wal.cstat & 2) && wal.nextwall >= 0)
+					wal.nextWall()->shade = sp->shade;
 			}
 			break;
 
@@ -872,13 +857,10 @@ void spawneffector(DDukeActor* actor)
 			//	t[2] = sp->hitag;
 			if (sp->ang != 1536) sectp->floorz = sp->z;
 
-			startwall = sectp->wallptr;
-			endwall = startwall + sectp->wallnum;
+			for (auto& wal : wallsofsector(sectp))
+				if (wal.hitag == 0) wal.hitag = 9999;
 
-			for (s = startwall; s < endwall; s++)
-				if (wall[s].hitag == 0) wall[s].hitag = 9999;
-
-			StartInterpolation(sect, Interp_Sect_Floorz);
+			StartInterpolation(sectp, Interp_Sect_Floorz);
 
 			break;
 		case SE_32_CEILING_RISE_FALL:
@@ -886,13 +868,10 @@ void spawneffector(DDukeActor* actor)
 			t[2] = sp->hitag;
 			if (sp->ang != 1536) sectp->ceilingz = sp->z;
 
-			startwall = sectp->wallptr;
-			endwall = startwall + sectp->wallnum;
+			for (auto& wal : wallsofsector(sectp))
+				if (wal.hitag == 0) wal.hitag = 9999;
 
-			for (s = startwall; s < endwall; s++)
-				if (wall[s].hitag == 0) wall[s].hitag = 9999;
-
-			StartInterpolation(sect, Interp_Sect_Ceilingz);
+			StartInterpolation(sectp, Interp_Sect_Ceilingz);
 
 			break;
 
@@ -900,14 +879,11 @@ void spawneffector(DDukeActor* actor)
 
 			t[2] = sectp->floorshade;
 
-			startwall = sectp->wallptr;
-			endwall = startwall + sectp->wallnum;
-
 			actor->palvals = (sectp->ceilingpal << 8) | sectp->floorpal;
 
-			for (s = startwall; s < endwall; s++)
-				if (wall[s].shade > t[3])
-					t[3] = wall[s].shade;
+			for (auto& wal : wallsofsector(sectp))
+				if (wal.shade > t[3])
+					t[3] = wal.shade;
 
 			break;
 
@@ -915,18 +891,16 @@ void spawneffector(DDukeActor* actor)
 			if (sectp->lotag &&
 				labs(sectp->ceilingz - sp->z) > 1024)
 				sectp->lotag |= 32768; //If its open
+			[[fallthrough]];
 		case SE_8_UP_OPEN_DOOR_LIGHTS:
 			//First, get the ceiling-floor shade
 
 			t[0] = sectp->floorshade;
 			t[1] = sectp->ceilingshade;
 
-			startwall = sectp->wallptr;
-			endwall = startwall + sectp->wallnum;
-
-			for (s = startwall; s < endwall; s++)
-				if (wall[s].shade > t[2])
-					t[2] = wall[s].shade;
+			for (auto& wal : wallsofsector(sectp))
+				if (wal.shade > t[2])
+					t[2] = wal.shade;
 
 			t[3] = 1; //Take Out;
 
@@ -939,12 +913,9 @@ void spawneffector(DDukeActor* actor)
 			t[0] = sectp->floorshade;
 			t[1] = sectp->ceilingshade;
 
-			startwall = sectp->wallptr;
-			endwall = startwall + sectp->wallnum;
-
-			for (s = startwall; s < endwall; s++)
-				if (wall[s].shade > t[2])
-					t[2] = wall[s].shade;
+			for (auto& wal : wallsofsector(sectp))
+				if (wal.shade > t[2])
+					t[2] = wal.shade;
 
 			t[3] = 1; //Take Out;
 			break;
@@ -952,6 +923,7 @@ void spawneffector(DDukeActor* actor)
 		case SE_11_SWINGING_DOOR://Pivitor rotater
 			if (sp->ang > 1024) t[3] = 2;
 			else t[3] = -2;
+			[[fallthrough]];
 		case SE_0_ROTATING_SECTOR:
 		case SE_2_EARTHQUAKE://Earthquakemakers
 		case SE_5_BOSS://Boss Creature
@@ -1003,25 +975,19 @@ void spawneffector(DDukeActor* actor)
 				}
 			}
 
-			startwall = sectp->wallptr;
-			endwall = startwall + sectp->wallnum;
-
 			t[1] = tempwallptr;
-			for (s = startwall; s < endwall; s++)
+			for (auto& wal : wallsofsector(sectp))
 			{
-				msx[tempwallptr] = wall[s].x - sp->x;
-				msy[tempwallptr] = wall[s].y - sp->y;
+				msx[tempwallptr] = wal.x - sp->x;
+				msy[tempwallptr] = wal.y - sp->y;
 				tempwallptr++;
 				if (tempwallptr > 2047)
 				{
-					I_Error("Too many moving sectors at (%d,%d).\n", wall[s].x, wall[s].y);
+					I_Error("Too many moving sectors at (%d,%d).\n", wal.x, wal.y);
 				}
 			}
 			if (sp->lotag == SE_30_TWO_WAY_TRAIN || sp->lotag == SE_6_SUBWAY || sp->lotag == SE_14_SUBWAY_CAR || sp->lotag == SE_5_BOSS)
 			{
-
-				startwall = sectp->wallptr;
-				endwall = startwall + sectp->wallnum;
 
 				if (sectp->hitag == -1)
 					sp->extra = 0;
@@ -1029,21 +995,19 @@ void spawneffector(DDukeActor* actor)
 
 				sectp->hitag = ActorToScriptIndex(actor);
 
-				int j = 0;
-
-				for (s = startwall; s < endwall; s++)
+				int s = -1;
+				for (auto& wal : wallsofsector(sectp))
 				{
-					if (wall[s].nextsector >= 0 &&
-						sector[wall[s].nextsector].hitag == 0 &&
-						(sector[wall[s].nextsector].lotag < 3 || (isRRRA() && sector[wall[s].nextsector].lotag == 160)))
+					if (wal.nextsector >= 0 &&
+						wal.nextSector()->hitag == 0 &&
+						(wal.nextSector()->lotag < 3 || (isRRRA() && wal.nextSector()->lotag == 160)))
 					{
-						s = wall[s].nextsector;
-						j = 1;
+						s = wal.nextsector;
 						break;
 					}
 				}
 
-				if (j == 0)
+				if (s == -1)
 				{
 					I_Error("Subway found no zero'd sectors with locators\nat (%d,%d).\n", sp->x, sp->y);
 				}
@@ -1090,8 +1054,10 @@ void spawneffector(DDukeActor* actor)
 			}
 			actor->lastvx = j;
 		}
+		[[fallthrough]];
 		case SE_30_TWO_WAY_TRAIN:
 			if (numplayers > 1) break;
+			[[fallthrough]];
 		case SE_0_ROTATING_SECTOR:
 		case SE_1_PIVOT:
 		case SE_5_BOSS:
@@ -1103,8 +1069,8 @@ void spawneffector(DDukeActor* actor)
 			break;
 
 		case SE_29_WAVES:
-			StartInterpolation(actor->s->sectnum, Interp_Sect_Floorheinum);
-			StartInterpolation(actor->s->sectnum, Interp_Sect_Floorz);
+			StartInterpolation(actor->s->sector(), Interp_Sect_Floorheinum);
+			StartInterpolation(actor->s->sector(), Interp_Sect_Floorz);
 			break;
 	}
 
@@ -1122,51 +1088,43 @@ void spawneffector(DDukeActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void lotsofglass(DDukeActor *actor, int wallnum, int n)
+void lotsofglass(DDukeActor *actor, walltype* wal, int n)
 {
-	int j, xv, yv, z, x1, y1, a;
-	int sect;
+	int j, z, a;
+	sectortype* sect = nullptr;
 	auto sp = actor->s;
 
-	sect = -1;
-
-	if (wallnum < 0)
+	if (wal == nullptr)
 	{
 		for (j = n - 1; j >= 0; j--)
 		{
 			a = sp->ang - 256 + (krand() & 511) + 1024;
-			EGS(sp->sectnum, sp->x, sp->y, sp->z, TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), 1024 - (krand() & 1023), &hittype[j], 5);
+			EGS(sp->sector(), sp->x, sp->y, sp->z, TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), 1024 - (krand() & 1023), &hittype[j], 5);
 		}
 		return;
 	}
 
-	j = n + 1;
+	int x1 = wal->x;
+	int y1 = wal->y;
+	auto delta = wal->delta() / (n + 1);
 
-	x1 = wall[wallnum].x;
-	y1 = wall[wallnum].y;
+	x1 -= Sgn(delta.y);
+	y1 += Sgn(delta.x);
 
-	xv = wall[wall[wallnum].point2].x - x1;
-	yv = wall[wall[wallnum].point2].y - y1;
-
-	x1 -= Sgn(yv);
-	y1 += Sgn(xv);
-
-	xv /= j;
-	yv /= j;
 
 	for (j = n; j > 0; j--)
 	{
-		x1 += xv;
-		y1 += yv;
+		x1 += delta.x;
+		y1 += delta.y;
 
 		updatesector(x1, y1, &sect);
-		if (sect >= 0)
+		if (sect)
 		{
-			z = sector[sect].floorz - (krand() & (abs(sector[sect].ceilingz - sector[sect].floorz)));
+			z = sect->floorz - (krand() & (abs(sect->ceilingz - sect->floorz)));
 			if (z < -(32 << 8) || z >(32 << 8))
 				z = sp->z - (32 << 8) + (krand() & ((64 << 8) - 1));
 			a = sp->ang - 1024;
-			EGS(sp->sectnum, x1, y1, z, TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), -(krand() & 1023), actor, 5);
+			EGS(sp->sector(), x1, y1, z, TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), -(krand() & 1023), actor, 5);
 		}
 	}
 }
@@ -1185,8 +1143,8 @@ void spriteglass(DDukeActor* actor, int n)
 	{
 		int a = krand() & 2047;
 		int z = sp->z - ((krand() & 16) << 8);
-		auto k = EGS(sp->sectnum, sp->x, sp->y, z, TILE_GLASSPIECES + (j % 3), krand() & 15, 36, 36, a, 32 + (krand() & 63), -512 - (krand() & 2047), actor, 5);
-		k->s->pal = sp->pal;
+		auto k = EGS(sp->sector(), sp->x, sp->y, z, TILE_GLASSPIECES + (j % 3), krand() & 15, 36, 36, a, 32 + (krand() & 63), -512 - (krand() & 2047), actor, 5);
+		if (k) k->s->pal = sp->pal;
 	}
 }
 
@@ -1196,30 +1154,25 @@ void spriteglass(DDukeActor* actor, int n)
 //
 //---------------------------------------------------------------------------
 
-void ceilingglass(DDukeActor* actor, int sectnum, int n)
+void ceilingglass(DDukeActor* actor, sectortype* sectp, int n)
 {
-	int j, xv, yv, z, x1, y1;
-	int a, s, startwall, endwall;
-	auto sp = actor->s;
+	int j, z;
+	int a;
 
-	startwall = sector[sectnum].wallptr;
-	endwall = startwall + sector[sectnum].wallnum;
-
-	for (s = startwall; s < (endwall - 1); s++)
+	for (auto& wal : wallsofsector(sectp))
 	{
-		x1 = wall[s].x;
-		y1 = wall[s].y;
+		int x1 = wal.x;
+		int y1 = wal.y;
 
-		xv = (wall[s + 1].x - x1) / (n + 1);
-		yv = (wall[s + 1].y - y1) / (n + 1);
+		auto delta = wal.delta() / (n + 1);
 
 		for (j = n; j > 0; j--)
 		{
-			x1 += xv;
-			y1 += yv;
+			x1 += delta.x;
+			y1 += delta.y;
 			a = krand() & 2047;
-			z = sector[sectnum].ceilingz + ((krand() & 15) << 8);
-			EGS(sectnum, x1, y1, z, TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, (krand() & 31), 0, actor, 5);
+			z = sectp->ceilingz + ((krand() & 15) << 8);
+			EGS(sectp, x1, y1, z, TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, (krand() & 31), 0, actor, 5);
 		}
 	}
 }
@@ -1230,43 +1183,41 @@ void ceilingglass(DDukeActor* actor, int sectnum, int n)
 //
 //---------------------------------------------------------------------------
 
-void lotsofcolourglass(DDukeActor* actor, int wallnum, int n)
+void lotsofcolourglass(DDukeActor* actor, walltype* wal, int n)
 {
-	int j, xv, yv, z, x1, y1;
-	int sect = -1;
+	int j, z;
+	sectortype* sect = nullptr;
 	int a;;
 	auto sp = actor->s;
 
-	if (wallnum < 0)
+	if (wal == nullptr)
 	{
 		for (j = n - 1; j >= 0; j--)
 		{
 			a = krand() & 2047;
-			auto k = EGS(sp->sectnum, sp->x, sp->y, sp->z - (krand() & (63 << 8)), TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), 1024 - (krand() & 2047), actor, 5);
-			k->s->pal = krand() & 15;
+			auto k = EGS(sp->sector(), sp->x, sp->y, sp->z - (krand() & (63 << 8)), TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), 1024 - (krand() & 2047), actor, 5);
+			if (k) k->s->pal = krand() & 15;
 		}
 		return;
 	}
+	
+	int x1 = wal->x;
+	int y1 = wal->y;
 
-	j = n + 1;
-	x1 = wall[wallnum].x;
-	y1 = wall[wallnum].y;
-
-	xv = (wall[wall[wallnum].point2].x - wall[wallnum].x) / j;
-	yv = (wall[wall[wallnum].point2].y - wall[wallnum].y) / j;
+	auto delta = wal->delta() / (n + 1);
 
 	for (j = n; j > 0; j--)
 	{
-		x1 += xv;
-		y1 += yv;
+		x1 += delta.x;
+		y1 += delta.y;
 
 		updatesector(x1, y1, &sect);
-		z = sector[sect].floorz - (krand() & (abs(sector[sect].ceilingz - sector[sect].floorz)));
+		z = sect->floorz - (krand() & (abs(sect->ceilingz - sect->floorz)));
 		if (z < -(32 << 8) || z >(32 << 8))
 			z = sp->z - (32 << 8) + (krand() & ((64 << 8) - 1));
 		a = sp->ang - 1024;
-		auto k = EGS(sp->sectnum, x1, y1, z, TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), -(krand() & 2047), actor, 5);
-		k->s->pal = krand() & 7;
+		auto k = EGS(sp->sector(), x1, y1, z, TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), -(krand() & 2047), actor, 5);
+		if (k) k->s->pal = krand() & 7;
 	}
 }
 

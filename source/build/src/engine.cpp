@@ -62,8 +62,6 @@ int16_t pskybits_override = -1;
 
 static int32_t beforedrawrooms = 1;
 
-static int8_t tempbuf[MAXWALLS];
-
 static int32_t no_radarang2 = 0;
 static int16_t radarang[1280];
 
@@ -314,11 +312,8 @@ static void do_deletespritestat(int16_t deleteme)
 //
 // insertsprite
 //
-int32_t(*insertsprite_replace)(int16_t sectnum, int16_t statnum) = NULL;
 int32_t insertsprite(int16_t sectnum, int16_t statnum)
 {
-    if (insertsprite_replace)
-        return insertsprite_replace(sectnum, statnum);
     // TODO: guard against bad sectnum?
     int32_t const newspritenum = insertspritestat(statnum);
 
@@ -338,12 +333,9 @@ int32_t insertsprite(int16_t sectnum, int16_t statnum)
 //
 // deletesprite
 //
-int32_t (*deletesprite_replace)(int16_t spritenum) = NULL;
 int32_t deletesprite(int16_t spritenum)
 {
     Polymost::polymost_deletesprite(spritenum);
-    if (deletesprite_replace)
-        return deletesprite_replace(spritenum);
     assert((sprite[spritenum].statnum == MAXSTATUS)
             == (sprite[spritenum].sectnum == MAXSECTORS));
 
@@ -401,11 +393,8 @@ int32_t changespritesect(int16_t spritenum, int16_t newsectnum)
 //
 // changespritestat
 //
-int32_t (*changespritestat_replace)(int16_t spritenum, int16_t newstatnum) = NULL;
 int32_t changespritestat(int16_t spritenum, int16_t newstatnum)
 {
-    if (changespritestat_replace)
-        return changespritestat_replace(spritenum, newstatnum);
     // XXX: NOTE: MAXSTATUS is allowed
     if ((newstatnum < 0 || newstatnum > MAXSTATUS) || (sprite[spritenum].statnum == MAXSTATUS))
         return -1;  // can't set the statnum of a sprite not in the world
@@ -866,62 +855,18 @@ int32_t nextsectorneighborz(int16_t sectnum, int32_t refz, int16_t topbottom, in
 //
 // cansee
 //
-int32_t cansee_old(int32_t xs, int32_t ys, int32_t zs, int16_t sectnums, int32_t xe, int32_t ye, int32_t ze, int16_t sectnume)
-{
-    sectortype *sec, *nsec;
-    walltype *wal, *wal2;
-    int32_t intx, inty, intz, i, cnt, nextsector, dasectnum, dacnt, danum;
-
-    if ((xs == xe) && (ys == ye) && (sectnums == sectnume)) return 1;
-    
-    clipsectorlist[0] = sectnums; danum = 1;
-    for(dacnt=0;dacnt<danum;dacnt++)
-    {
-        dasectnum = clipsectorlist[dacnt]; sec = &sector[dasectnum];
-        
-        for(cnt=sec->wallnum,wal=&wall[sec->wallptr];cnt>0;cnt--,wal++)
-        {
-            wal2 = &wall[wal->point2];
-            if (lintersect(xs,ys,zs,xe,ye,ze,wal->x,wal->y,wal2->x,wal2->y,&intx,&inty,&intz) != 0)
-            {
-                nextsector = wal->nextsector; if (nextsector < 0) return 0;
-
-                if (intz <= sec->ceilingz) return 0;
-                if (intz >= sec->floorz) return 0;
-                nsec = &sector[nextsector];
-                if (intz <= nsec->ceilingz) return 0;
-                if (intz >= nsec->floorz) return 0;
-
-                for(i=danum-1;i>=0;i--)
-                    if (clipsectorlist[i] == nextsector) break;
-                if (i < 0) clipsectorlist[danum++] = nextsector;
-            }
-        }
-
-        if (clipsectorlist[dacnt] == sectnume)
-            return 1;
-    }
-    return 0;
-}
 
 int32_t cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1, int32_t x2, int32_t y2, int32_t z2, int16_t sect2)
 {
-    if (enginecompatibility_mode == ENGINECOMPATIBILITY_19950829)
-        return cansee_old(x1, y1, z1, sect1, x2, y2, z2, sect2);
-    int32_t dacnt, danum;
     const int32_t x21 = x2-x1, y21 = y2-y1, z21 = z2-z1;
 
-    static uint8_t sectbitmap[(MAXSECTORS+7)>>3];
-    memset(sectbitmap, 0, sizeof(sectbitmap));
     if (x1 == x2 && y1 == y2)
         return (sect1 == sect2);
 
-    sectbitmap[sect1>>3] |= (1 << (sect1&7));
-    clipsectorlist[0] = sect1; danum = 1;
+    BFSSearch search(numsectors, sect1);
 
-    for (dacnt=0; dacnt<danum; dacnt++)
+    for (int dasectnum; (dasectnum = search.GetNext()) != BFSSearch::EOL;)
     {
-        const int32_t dasectnum = clipsectorlist[dacnt];
         auto const sec = (usectorptr_t)&sector[dasectnum];
         uwallptr_t wal;
         bssize_t cnt;
@@ -964,19 +909,11 @@ int32_t cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1, int32_t x2, in
             if (z <= cfz[0] || z >= cfz[1])
                 return 0;
 
-            if (!(sectbitmap[nexts>>3] & (1 << (nexts&7))))
-            {
-                sectbitmap[nexts>>3] |= (1 << (nexts&7));
-                clipsectorlist[danum++] = nexts;
-            }
+            search.Add(nexts);
         }
 
     }
-
-    if (sectbitmap[sect2>>3] & (1<<(sect2&7)))
-        return 1;
-
-    return 0;
+    return search.Check(sect2);
 }
 
 //
@@ -1084,72 +1021,55 @@ void neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange,
 //
 // dragpoint
 //
-// flags:
-//  1: don't reset walbitmap[] (the bitmap of already dragged vertices)
-//  2: In the editor, do wall[].cstat |= (1<<14) also for the lastwall().
-void dragpoint(int pointhighlight, int32_t dax, int32_t day, uint8_t flags)
+void dragpoint(int w, int32_t dax, int32_t day)
 {
-    int32_t i, numyaxwalls=0;
-    static int16_t yaxwalls[MAXWALLS];
+    BFSSearch walbitmap(numwalls);
+    int clockwise = 0;
+    const int tmpstartwall = w;
+    int cnt = 16384; // limit the number of iterations.
 
-    uint8_t *const walbitmap = (uint8_t *)tempbuf;
-
-    if ((flags&1)==0)
-        memset(walbitmap, 0, (numwalls+7)>>3);
-    yaxwalls[numyaxwalls++] = pointhighlight;
-
-    for (i=0; i<numyaxwalls; i++)
+    while (1)
     {
-        int32_t clockwise = 0;
-        int32_t w = yaxwalls[i];
-        const int32_t tmpstartwall = w;
+        sector[wall[w].sector].dirty = 255;
+        wall[w].x = dax;
+        wall[w].y = day;
+        walbitmap.Set(w);
 
-        bssize_t cnt = MAXWALLS;
-
-        while (1)
+        if (!clockwise)  //search points CCW
         {
-            sector[wall[w].sector].dirty = 255;
-            wall[w].x = dax;
-            wall[w].y = day;
-            walbitmap[w>>3] |= (1<<(w&7));
-
-            if (!clockwise)  //search points CCW
+            if (wall[w].nextwall >= 0)
+                w = wall[wall[w].nextwall].point2;
+            else
             {
-                if (wall[w].nextwall >= 0)
-                    w = wall[wall[w].nextwall].point2;
-                else
-                {
-                    w = tmpstartwall;
-                    clockwise = 1;
-                }
-            }
-
-            cnt--;
-            if (cnt==0)
-            {
-                Printf("dragpoint %d: infloop!\n", pointhighlight);
-                i = numyaxwalls;
-                break;
-            }
-
-            if (clockwise)
-            {
-                int32_t thelastwall = lastwall(w);
-                if (wall[thelastwall].nextwall >= 0)
-                    w = wall[thelastwall].nextwall;
-                else
-                    break;
-            }
-
-            if ((walbitmap[w>>3] & (1<<(w&7))))
-            {
-                if (clockwise)
-                    break;
-
                 w = tmpstartwall;
                 clockwise = 1;
-                continue;
             }
+        }
+
+        cnt--;
+        if (cnt==0)
+        {
+            Printf("dragpoint %d: infinite loop!\n", w);
+            break;
+        }
+
+        if (clockwise)
+        {
+            int32_t thelastwall = lastwall(w);
+            if (wall[thelastwall].nextwall >= 0)
+                w = wall[thelastwall].nextwall;
+            else
+                break;
+        }
+
+        if (walbitmap.Check(w))
+        {
+            if (clockwise)
+                break;
+
+            w = tmpstartwall;
+            clockwise = 1;
+            continue;
         }
     }
 }
@@ -1185,11 +1105,6 @@ int32_t lastwall(int16_t point)
 /* Different "is inside" predicates.
  * NOTE: The redundant bound checks are expected to be optimized away in the
  * inlined code. */
-
-static inline int inside_exclude_p(int32_t const x, int32_t const y, int const sectnum, const uint8_t *excludesectbitmap)
-{
-    return (sectnum>=0 && !bitmap_test(excludesectbitmap, sectnum) && inside_p(x, y, sectnum));
-}
 
 /* NOTE: no bound check */
 static inline int inside_z_p(int32_t const x, int32_t const y, int32_t const z, int const sectnum)
@@ -1317,27 +1232,21 @@ void updatesectorneighbor(int32_t const x, int32_t const y, int * const sectnum,
         if (inside_p(x, y, initialsectnum))
             return;
 
-        static int16_t sectlist[MAXSECTORS];
-        static uint8_t sectbitmap[(MAXSECTORS+7)>>3];
-        int16_t nsecs;
+        BFSSearch search(numsectors, *sectnum);
 
-        bfirst_search_init(sectlist, sectbitmap, &nsecs, MAXSECTORS, initialsectnum);
-
-        for (int sectcnt=0; sectcnt<nsecs; sectcnt++)
+        for (unsigned listsectnum; (listsectnum = search.GetNext()) != BFSSearch::EOL;)
         {
-            int const listsectnum = sectlist[sectcnt];
-
             if (inside_p(x, y, listsectnum))
-                SET_AND_RETURN(*sectnum, listsectnum);
+            {
+                *sectnum = listsectnum;
+                return;
+            }
 
-            auto const sec       = &sector[listsectnum];
-            int const  startwall = sec->wallptr;
-            int const  endwall   = sec->wallptr + sec->wallnum;
-            auto       uwal      = (uwallptr_t)&wall[startwall];
-
-            for (int j=startwall; j<endwall; j++, uwal++)
-                if (uwal->nextsector >= 0 && getsectordist({x, y}, uwal->nextsector) <= maxDistance)
-                    bfirst_search_try(sectlist, sectbitmap, &nsecs, uwal->nextsector);
+            for (auto& wal : wallsofsector(listsectnum))
+            {
+                if (wal.nextsector >= 0 && getsectordist({ x, y }, wal.nextsector) <= maxDistance)
+                    search.Add(wal.nextsector);
+            }
         }
     }
 

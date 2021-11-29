@@ -189,12 +189,12 @@ kPatrolMoveBackward                 = 1,
 // - STRUCTS ------------------------------------------------------------------
 struct SPRITEMASS { // sprite mass info for getSpriteMassBySize();
     int seqId;
-    short picnum; // mainly needs for moving debris
-    short xrepeat;
-    short yrepeat;
-    short clipdist; // mass multiplier
+    int16_t picnum; // mainly needs for moving debris
+    int16_t xrepeat;
+    int16_t yrepeat;
+    int16_t clipdist; // mass multiplier
     int mass;
-    short airVel; // mainly needs for moving debris
+    int16_t airVel; // mainly needs for moving debris
     int fraction; // mainly needs for moving debris
 };
 
@@ -279,26 +279,21 @@ extern DBloodActor* gProxySpritesList[kMaxSuperXSprites];
 extern DBloodActor* gSightSpritesList[kMaxSuperXSprites];
 extern DBloodActor* gPhysSpritesList[kMaxSuperXSprites];
 extern DBloodActor* gImpactSpritesList[kMaxSuperXSprites];
-extern short gProxySpritesCount;
-extern short gSightSpritesCount;
-extern short gPhysSpritesCount;
-extern short gImpactSpritesCount;
-extern short gTrackingCondsCount;
+extern int gProxySpritesCount;
+extern int gSightSpritesCount;
+extern int gPhysSpritesCount;
+extern int gImpactSpritesCount;
+extern int gTrackingCondsCount;
 extern AISTATE genPatrolStates[kPatrolStateSize];
 
 
-// - INLINES -------------------------------------------------------------------
-inline bool xsprIsFine(spritetype* pSpr) {
-    return (pSpr && xspriRangeIsFine(pSpr->extra) && !(pSpr->flags & kHitagFree) && !(pSpr->flags & kHitagRespawn));
-}
 // - FUNCTIONS ------------------------------------------------------------------
 bool nnExtEraseModernStuff(DBloodActor* actor);
-void nnExtInitModernStuff(bool bSaveLoad);
+void nnExtInitModernStuff();
 void nnExtProcessSuperSprites(void);
 bool nnExtIsImmune(DBloodActor* pSprite, int dmgType, int minScale = 16);
 int nnExtRandom(int a, int b);
 void nnExtResetGlobals();
-void nnExtTriggerObject(int objType, int objIndex, int command);
 //  -------------------------------------------------------------------------   //
 void sfxPlayMissileSound(DBloodActor* pSprite, int missileId);
 void sfxPlayVectorSound(DBloodActor* pSprite, int vectorId);
@@ -312,63 +307,37 @@ void aiSetGenIdleState(DBloodActor*);
 
 // triggers related
 //  -------------------------------------------------------------------------   //
-int aiFightGetTargetDist(spritetype* pSprite, DUDEINFO* pDudeInfo, spritetype* pTarget);
-int aiFightGetFineTargetDist(spritetype* pSprite, spritetype* pTarget);
-bool aiFightDudeCanSeeTarget(XSPRITE* pXDude, DUDEINFO* pDudeInfo, spritetype* pTarget);
-bool aiFightUnitCanFly(spritetype* pDude);
-bool aiFightIsMeleeUnit(spritetype* pDude);
-bool aiFightDudeIsAffected(XSPRITE* pXDude);
-bool aiFightMatesHaveSameTarget(XSPRITE* pXLeader, spritetype* pTarget, int allow);
-bool aiFightGetDudesForBattle(XSPRITE* pXSprite);
-bool aiFightIsMateOf(XSPRITE* pXDude, XSPRITE* pXSprite);
-void aiFightAlarmDudesInSight(spritetype* pSprite, int max);
+int aiFightGetTargetDist(DBloodActor* pSprite, DUDEINFO* pDudeInfo, DBloodActor* pTarget);
+int aiFightGetFineTargetDist(DBloodActor* actor, DBloodActor* target);
+bool aiFightDudeCanSeeTarget(DBloodActor* pXDude, DUDEINFO* pDudeInfo, DBloodActor* pTarget);
+bool aiFightDudeIsAffected(DBloodActor* pXDude);
+bool aiFightMatesHaveSameTarget(DBloodActor* leaderactor, DBloodActor* targetactor, int allow);
 void aiFightActivateDudes(int rx);
-void aiFightFreeTargets(int nSprite);
-void aiFightFreeAllTargets(XSPRITE* pXSource);
-spritetype* aiFightGetTargetInRange(spritetype* pSprite, int minDist, int maxDist, short data, short teamMode);
-spritetype* aiFightTargetIsPlayer(XSPRITE* pXSprite);
-spritetype* aiFightGetMateTargets(XSPRITE* pXSprite);
 //  -------------------------------------------------------------------------   //
-void useSlopeChanger(XSPRITE* pXSource, int objType, int objIndex);
-void useSectorWindGen(XSPRITE* pXSource, sectortype* pSector);
-void useEffectGen(XSPRITE* pXSource, spritetype* pSprite);
-void useSeqSpawnerGen(XSPRITE* pXSource, int objType, int index);
-void damageSprites(XSPRITE* pXSource, spritetype* pSprite);
-void useTeleportTarget(XSPRITE* pXSource, spritetype* pSprite);
-void useObjResizer(XSPRITE* pXSource, short objType, int objIndex);
-void useRandomItemGen(spritetype* pSource, XSPRITE* pXSource);
-void useUniMissileGen(XSPRITE* pXSource, spritetype* pSprite);
-void useSoundGen(XSPRITE* pXSource, spritetype* pSprite);
-void useIncDecGen(XSPRITE* pXSource, short objType, int objIndex);
-void useDataChanger(XSPRITE* pXSource, int objType, int objIndex);
-void useSectorLigthChanger(XSPRITE* pXSource, XSECTOR* pXSector);
-void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite);
-void usePictureChanger(XSPRITE* pXSource, int objType, int objIndex);
-void usePropertiesChanger(XSPRITE* pXSource, short objType, int objIndex);
-void useSequentialTx(XSPRITE* pXSource, COMMAND_ID cmd, bool setState);
-void useRandomTx(XSPRITE* pXSource, COMMAND_ID cmd, bool setState);
-void useDudeSpawn(XSPRITE* pXSource, spritetype* pSprite);
+void useSlopeChanger(DBloodActor* sourceactor, int objType, int objIndex, DBloodActor* objActor);
+void damageSprites(DBloodActor* pXSource, DBloodActor* pSprite);
+void useRandomItemGen(DBloodActor* pSource);
+void useUniMissileGen(DBloodActor* sourceactor, DBloodActor* actor);
+void useSoundGen(DBloodActor* sourceactor, DBloodActor* actor);
+void useIncDecGen(DBloodActor* sourceactor, short objType, int objIndex, DBloodActor* objactor);
+void useDataChanger(DBloodActor* sourceactor, int objType, int objIndex, DBloodActor* objActor);
+void useSectorLigthChanger(DBloodActor* pXSource, XSECTOR* pXSector);
+void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor);
+void usePictureChanger(DBloodActor* sourceactor, int objType, int objIndex, DBloodActor* objActor);
+void useSequentialTx(DBloodActor* pXSource, COMMAND_ID cmd, bool setState);
+void useRandomTx(DBloodActor* sourceactor, COMMAND_ID cmd, bool setState);
+void useDudeSpawn(DBloodActor* pXSource, DBloodActor* pSprite);
 void useCustomDudeSpawn(DBloodActor* pXSource, DBloodActor* pSprite);
-bool txIsRanged(XSPRITE* pXSource);
-void seqTxSendCmdAll(XSPRITE* pXSource, int nIndex, COMMAND_ID cmd, bool modernSend);
+void seqTxSendCmdAll(DBloodActor* pXSource, DBloodActor* nIndex, COMMAND_ID cmd, bool modernSend);
 //  -------------------------------------------------------------------------   //
-void trPlayerCtrlLink(XSPRITE* pXSource, PLAYER* pPlayer, bool checkCondition);
-void trPlayerCtrlSetRace(XSPRITE* pXSource, PLAYER* pPlayer);
+void trPlayerCtrlLink(DBloodActor* pXSource, PLAYER* pPlayer, bool checkCondition);
 void trPlayerCtrlStopScene(PLAYER* pPlayer);
-void trPlayerCtrlSetMoveSpeed(XSPRITE* pXSource, PLAYER* pPlayer);
-void trPlayerCtrlSetJumpHeight(XSPRITE* pXSource, PLAYER* pPlayer);
-void trPlayerCtrlSetScreenEffect(XSPRITE* pXSource, PLAYER* pPlayer);
-void trPlayerCtrlSetLookAngle(XSPRITE* pXSource, PLAYER* pPlayer);
-void trPlayerCtrlEraseStuff(XSPRITE* pXSource, PLAYER* pPlayer);
-void trPlayerCtrlGiveStuff(XSPRITE* pXSource, PLAYER* pPlayer, TRPLAYERCTRL* pCtrl);
-void trPlayerCtrlUsePackItem(XSPRITE* pXSource, PLAYER* pPlayer, int evCmd);
 //  -------------------------------------------------------------------------   //
-void modernTypeTrigger(int type, int nDest, EVENT event);
-char modernTypeSetSpriteState(int nSprite, XSPRITE* pXSprite, int nState);
-bool modernTypeOperateSector(int nSector, sectortype* pSector, XSECTOR* pXSector, EVENT event);
-bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite, EVENT event);
+void modernTypeTrigger(int type, int nDest, DBloodActor* actor, const EVENT& event);
+bool modernTypeOperateSector(int nSector, sectortype* pSector, XSECTOR* pXSector, const EVENT& event);
+bool modernTypeOperateSprite(DBloodActor*, EVENT event);
 bool modernTypeOperateWall(int nWall, walltype* pWall, XWALL* pXWall, EVENT event);
-void modernTypeSendCommand(int nSprite, int channel, COMMAND_ID command);
+void modernTypeSendCommand(DBloodActor* nSprite, int channel, COMMAND_ID command);
 //  -------------------------------------------------------------------------   //
 bool playerSizeShrink(PLAYER* pPlayer, int divider);
 bool playerSizeGrow(PLAYER* pPlayer, int multiplier);
@@ -385,47 +354,37 @@ void callbackUniMissileBurst(DBloodActor*actor, int nSprite);
 void callbackMakeMissileBlocking(DBloodActor* actor, int nSprite);
 void callbackGenDudeUpdate(DBloodActor* actor, int nSprite);
 //  -------------------------------------------------------------------------   //
-PLAYER* getPlayerById(short id);
-bool isGrown(spritetype* pSprite);
-bool isShrinked(spritetype* pSprite);
-bool valueIsBetween(int val, int min, int max);
-bool IsBurningDude(spritetype* pSprite);
-bool IsKillableDude(spritetype* pSprite);
-bool isActive(int nSprite);
+PLAYER* getPlayerById(int id);
+bool isGrown(DBloodActor* pSprite);
+bool isShrinked(DBloodActor* pSprite);
+bool IsBurningDude(DBloodActor* pSprite);
+bool IsKillableDude(DBloodActor* pSprite);
+bool isActive(DBloodActor* nSprite);
 int getDataFieldOfObject(int objType, int objIndex, DBloodActor* objActor, int dataIndex);
-bool setDataValueOfObject(int objType, int objIndex, int dataIndex, int value);
-bool incDecGoalValueIsReached(XSPRITE* pXSprite);
+bool setDataValueOfObject(int objType, int objIndex, DBloodActor* objActor, int dataIndex, int value);
+bool incDecGoalValueIsReached(DBloodActor* actor);
 int getSpriteMassBySize(DBloodActor* pSprite);
 bool ceilIsTooLow(DBloodActor* pSprite);
 void levelEndLevelCustom(int nLevel);
-int useCondition(spritetype* pSource, XSPRITE* pXSource, EVENT event);
-bool condPush(XSPRITE* pXSprite, int objType, int objIndex);
-bool condRestore(XSPRITE* pXSprite);
+int useCondition(DBloodActor*, const EVENT& event);
 bool condCmp(int val, int arg1, int arg2, int comOp);
 bool condCmpne(int arg1, int arg2, int comOp);
-void condError(XSPRITE* pXCond, const char* pzFormat, ...);
-bool condCheckMixed(XSPRITE* pXCond, EVENT event, int cmpOp, bool PUSH);
-bool condCheckSector(XSPRITE* pXCond, int cmpOp, bool PUSH);
-bool condCheckWall(XSPRITE* pXCond, int cmpOp, bool PUSH);
-bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH);
-bool condCheckPlayer(XSPRITE* pXCond, int cmpOp, bool PUSH);
-bool condCheckDude(XSPRITE* pXCond, int cmpOp, bool PUSH);
-void condUpdateObjectIndex(int objType, int oldIndex, int newIndex);
-XSPRITE* evrListRedirectors(int objType, int objXIndex, XSPRITE* pXRedir, int* tx);
-int listTx(XSPRITE* pXRedir, int tx);
-void seqSpawnerOffSameTx(XSPRITE* pXSource);
+void condError(DBloodActor* pXCond, const char* pzFormat, ...);
+void condUpdateObjectIndex(DBloodActor* oldplayer, DBloodActor* newplayer);
+DBloodActor* evrListRedirectors(int objType, int objXIndex, DBloodActor* objActor, DBloodActor* pXRedir, int* tx);
+void seqSpawnerOffSameTx(DBloodActor* actor);
 //  -------------------------------------------------------------------------   //
-void aiPatrolSetMarker(spritetype* pSprite, XSPRITE* pXSprite);
+void aiPatrolSetMarker(DBloodActor* actor);
 void aiPatrolThink(DBloodActor* actor);
-void aiPatrolStop(spritetype* pSprite, int target, bool alarm = false);
-void aiPatrolAlarmFull(spritetype* pSprite, XSPRITE* pXTarget, bool chain);
-void aiPatrolAlarmLite(spritetype* pSprite, XSPRITE* pXTarget);
-void aiPatrolState(spritetype* pSprite, int state);
+void aiPatrolStop(DBloodActor* actor, DBloodActor* targetactor, bool alarm = false);
+void aiPatrolAlarmFull(DBloodActor* actor, DBloodActor* targetactor, bool chain);
+void aiPatrolAlarmLite(DBloodActor* actor, DBloodActor* targetactor);
+void aiPatrolState(DBloodActor* pSprite, int state);
 void aiPatrolMove(DBloodActor* actor);
-int aiPatrolMarkerBusy(int nExcept, int nMarker);
-bool aiPatrolMarkerReached(spritetype* pSprite, XSPRITE* pXSprite);
-bool aiPatrolGetPathDir(XSPRITE* pXSprite, XSPRITE* pXMarker);
-void aiPatrolFlagsMgr(spritetype* pSource, XSPRITE* pXSource, spritetype* pDest, XSPRITE* pXDest, bool copy, bool init);
+DBloodActor* aiPatrolMarkerBusy(DBloodActor* except, DBloodActor* marker);
+bool aiPatrolMarkerReached(DBloodActor*);
+bool aiPatrolGetPathDir(DBloodActor* actor, DBloodActor* marker);
+void aiPatrolFlagsMgr(DBloodActor* sourceactor, DBloodActor* destactor, bool copy, bool init);
 void aiPatrolRandGoalAng(DBloodActor* actor);
 void aiPatrolTurn(DBloodActor* actor);
 inline int aiPatrolGetVelocity(int speed, int value) {
@@ -452,10 +411,16 @@ inline bool aiInPatrolState(int nAiStateType) {
     return (nAiStateType >= kAiStatePatrolBase && nAiStateType < kAiStatePatrolMax);
 }
 //  -------------------------------------------------------------------------   //
-bool readyForCrit(spritetype* pHunter, spritetype* pVictim);
+bool readyForCrit(DBloodActor* pHunter, DBloodActor* pVictim);
 int sectorInMotion(int nSector);
-void clampSprite(spritetype* pSprite, int which = 0x03);
+void clampSprite(DBloodActor* actor, int which = 3);
 #endif
+
+inline bool valueIsBetween(int val, int min, int max)
+{
+    return (val > min && val < max);
+}
+
 
 ////////////////////////////////////////////////////////////////////////
 // This file provides modern features for mappers.

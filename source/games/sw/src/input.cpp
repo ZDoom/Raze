@@ -80,8 +80,8 @@ enum
 
 static void processWeapon(PLAYERp const pp)
 {
-    if (pp->PlayerSprite < 0) return;
-    USERp u = User[pp->PlayerSprite].Data();
+    if (pp->Actor() == nullptr) return;
+    USERp u = pp->Actor()->u();
     int i;
 
     if (loc.getNewWeapon() == WeaponSel_Next)
@@ -121,7 +121,6 @@ static void processWeapon(PLAYERp const pp)
     }
     else if (loc.getNewWeapon() == WeaponSel_Prev)
     {
-        USERp u = User[pp->PlayerSprite].Data();
         short prev_weapon = u->WeaponNum - 1;
         short start_weapon;
 
@@ -154,23 +153,21 @@ static void processWeapon(PLAYERp const pp)
     }
     else if (loc.getNewWeapon() == WeaponSel_Alt)
     {
-        USERp u = User[pp->PlayerSprite].Data();
         short const which_weapon = u->WeaponNum + 1;
         loc.setNewWeapon(which_weapon);
     }
 }
 
-void GameInterface::GetInput(InputPacket *packet, ControlInfo* const hidInput)
+void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdjust, InputPacket *packet)
 {
     PLAYERp pp = &Player[myconnectindex];
 
-    if (paused || M_Active() || pp->PlayerSprite <= -1)
+    if (paused || M_Active() || pp->Actor() == nullptr)
     {
         loc = {};
         return;
     }
 
-    double const scaleAdjust = InputScale();
     InputPacket input {};
 
     ApplyGlobalInput(loc, hidInput);

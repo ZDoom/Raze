@@ -43,14 +43,14 @@ void operaterespawns_d(int low);
 void operaterespawns_r(int low);
 void operateforcefields_r(DDukeActor* act, int low);
 void operateforcefields_d(DDukeActor* act, int low);
-bool checkhitswitch_d(int snum, int w, DDukeActor *act);
-bool checkhitswitch_r(int snum, int w, DDukeActor* act);
-void activatebysector_d(int sect, DDukeActor* j);
-void activatebysector_r(int sect, DDukeActor* j);
-void checkhitwall_d(DDukeActor* spr, int dawallnum, int x, int y, int z, int atwith);
-void checkhitwall_r(DDukeActor* spr, int dawallnum, int x, int y, int z, int atwith);
-bool checkhitceiling_d(int sn);
-bool checkhitceiling_r(int sn);
+bool checkhitswitch_d(int snum, walltype* w, DDukeActor *act);
+bool checkhitswitch_r(int snum, walltype* w, DDukeActor* act);
+void activatebysector_d(sectortype* sect, DDukeActor* j);
+void activatebysector_r(sectortype* sect, DDukeActor* j);
+void checkhitwall_d(DDukeActor* spr, walltype* dawall, int x, int y, int z, int atwith);
+void checkhitwall_r(DDukeActor* spr, walltype* dawall, int x, int y, int z, int atwith);
+bool checkhitceiling_d(sectortype* sn);
+bool checkhitceiling_r(sectortype* sn);
 void checkhitsprite_d(DDukeActor* i, DDukeActor* sn);
 void checkhitsprite_r(DDukeActor* i, DDukeActor* sn);
 void checksectors_d(int snum);
@@ -124,6 +124,7 @@ void SetDispatcher()
 		checkhitceiling_d,
 		checkhitsprite_d,
 		checksectors_d,
+		spawninit_d,
 
 		ceilingspace_d,
 		floorspace_d,
@@ -167,6 +168,7 @@ void SetDispatcher()
 		checkhitceiling_r,
 		checkhitsprite_r,
 		checksectors_r,
+		spawninit_r,
 
 		ceilingspace_r,
 		floorspace_r,

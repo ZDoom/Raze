@@ -48,14 +48,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #define DIV2(x)  ((x) >> 1)
 #define DIV4(x)  ((x) >> 2)
 #define DIV8(x)  ((x) >> 3)
-#define DIV16(x) ((x) >> 4)
-#define DIV32(x) ((x) >> 5)
 #define DIV256(x) ((x) >> 8)
-
-// Fast mods of select 2 power numbers
-
-#define MOD2(x) ((x) & 1)
-#define MOD4(x) ((x) & 3)
 
 // Fast mods of any power of 2
 
@@ -78,7 +71,10 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 // mask definitions
 
-#define BIT(shift)     (1<<(shift))
+constexpr int BIT(int shift)
+{
+	return 1 << shift;
+}
 
 #endif
 

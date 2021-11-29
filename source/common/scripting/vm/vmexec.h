@@ -1302,12 +1302,10 @@ static int ExecScriptFunc(VMFrameStack *stack, VMReturn *ret, int numret)
 		ASSERTF(a); ASSERTF(B); ASSERTKF(C);
 		fb = reg.f[B]; fc = konstf[C];
 		goto Do_MODF;
-		NEXTOP;
 	OP(MODF_KR):
 		ASSERTF(a); ASSERTKF(B); ASSERTF(C);
 		fb = konstf[B]; fc = reg.f[C];
 		goto Do_MODF;
-		NEXTOP;
 
 	OP(POWF_RR):
 		ASSERTF(a); ASSERTF(B); ASSERTF(C);
@@ -1712,7 +1710,6 @@ static int ExecScriptFunc(VMFrameStack *stack, VMReturn *ret, int numret)
 		// PrintParameters(reg.param + f->NumParam - B, B);
 		throw;
 	}
-	return 0;
 }
 
 static double DoFLOP(int flop, double v)

@@ -500,31 +500,30 @@ ACTOR_ACTION_SET SkelActionSet =
     nullptr
 };
 
-int
-SetupSkel(short SpriteNum)
+int SetupSkel(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum].Data();
+        u = actor->u();
         ASSERT(u);
     }
     else
     {
-        u = SpawnUser(SpriteNum,SKEL_RUN_R0,s_SkelRun[0]);
+        u = SpawnUser(actor,SKEL_RUN_R0,s_SkelRun[0]);
         u->Health = HEALTH_SKEL_PRIEST;
     }
 
-    ChangeState(SpriteNum, s_SkelRun[0]);
+    ChangeState(actor, s_SkelRun[0]);
     u->Attrib = &SkelAttrib;
-    DoActorSetSpeed(SpriteNum, NORM_SPEED);
+    DoActorSetSpeed(actor, NORM_SPEED);
     u->StateEnd = s_SkelDie;
     u->Rot = sg_SkelRun;
 
-    EnemyDefaults(SpriteNum, &SkelActionSet, &SkelPersonality);
+    EnemyDefaults(actor, &SkelActionSet, &SkelPersonality);
 
     // 256 is default
     //sp->clipdist = 256 >> 2;
@@ -536,12 +535,11 @@ SetupSkel(short SpriteNum)
 int DoSkelInitTeleport(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
 
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
-    PlaySpriteSound(SpriteNum,attr_extra3,v3df_follow);
+    PlaySpriteSound(actor,attr_extra3,v3df_follow);
 
     return 0;
 }
@@ -549,8 +547,7 @@ int DoSkelInitTeleport(DSWActor* actor)
 int DoSkelTeleport(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
     int x,y;
 
     x = sp->x;
@@ -571,8 +568,7 @@ int DoSkelTeleport(DSWActor* actor)
         else
             sp->y -= 512 + RANDOM_P2(1024);
 
-        setspritez(SpriteNum, &sp->pos);
-        //updatesector(sp->x, sp->y, &sp->sectnum);
+        SetActorZ(actor, &sp->pos);
 
         if (sp->sectnum != -1)
             break;
@@ -584,8 +580,7 @@ int DoSkelTeleport(DSWActor* actor)
 int DoSkelTermTeleport(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
 
     SET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
@@ -595,11 +590,10 @@ int DoSkelTermTeleport(DSWActor* actor)
 int NullSkel(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
     if (TEST(u->Flags,SPR_SLIDING))
         DoActorSlide(actor);
 
-    KeepActorOnFloor(SpriteNum);
+    KeepActorOnFloor(actor);
     DoActorSectorDamage(actor);
 
     return 0;
@@ -608,7 +602,6 @@ int NullSkel(DSWActor* actor)
 int DoSkelPain(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     NullSkel(actor);
 
@@ -621,17 +614,16 @@ int DoSkelPain(DSWActor* actor)
 int DoSkelMove(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags,SPR_SLIDING))
         DoActorSlide(actor);
 
     if (u->track >= 0)
-        ActorFollowTrack(SpriteNum, ACTORMOVETICS);
+        ActorFollowTrack(actor, ACTORMOVETICS);
     else
         (*u->ActorActionFunc)(actor);
 
-    KeepActorOnFloor(SpriteNum);
+    KeepActorOnFloor(actor);
 
     DoActorSectorDamage(actor);
 

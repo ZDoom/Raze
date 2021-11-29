@@ -37,8 +37,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-extern short BossSpriteNum[3];
-
 DECISION SerpBattle[] =
 {
     {670,   InitActorMoveCloser         },
@@ -695,34 +693,33 @@ ACTOR_ACTION_SET SerpActionSet =
     nullptr
 };
 
-int
-SetupSerp(short SpriteNum)
+int SetupSerp(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum].Data();
+        u = actor->u();
         ASSERT(u);
     }
     else
     {
-        u = SpawnUser(SpriteNum,SERP_RUN_R0,s_SerpRun[0]);
+        u = SpawnUser(actor,SERP_RUN_R0,s_SerpRun[0]);
         u->Health = HEALTH_SERP_GOD;
     }
 
     if (Skill == 0) u->Health = 1100;
     if (Skill == 1) u->Health = 2200;
 
-    ChangeState(SpriteNum, s_SerpRun[0]);
+    ChangeState(actor, s_SerpRun[0]);
     u->Attrib = &SerpAttrib;
-    DoActorSetSpeed(SpriteNum, NORM_SPEED);
+    DoActorSetSpeed(actor, NORM_SPEED);
     u->StateEnd = s_SerpDie;
     u->Rot = sg_SerpRun;
 
-    EnemyDefaults(SpriteNum, &SerpActionSet, &SerpPersonality);
+    EnemyDefaults(actor, &SerpActionSet, &SerpPersonality);
 
     // Mini-Boss Serp
     if (sp->pal == 16)
@@ -756,12 +753,11 @@ SetupSerp(short SpriteNum)
 int NullSerp(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags,SPR_SLIDING))
         DoActorSlide(actor);
 
-    KeepActorOnFloor(SpriteNum);
+    KeepActorOnFloor(actor);
 
     //DoActorSectorDamage(actor);
     return 0;
@@ -770,14 +766,13 @@ int NullSerp(DSWActor* actor)
 int DoSerpMove(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
 
     if (TEST(u->Flags,SPR_SLIDING))
         DoActorSlide(actor);
 
     if (u->track >= 0)
-        ActorFollowTrack(SpriteNum, ACTORMOVETICS);
+        ActorFollowTrack(actor, ACTORMOVETICS);
     else
         (*u->ActorActionFunc)(actor);
 
@@ -789,7 +784,7 @@ int DoSerpMove(DSWActor* actor)
         case 0:
             if (u->Health != u->MaxHealth)
             {
-                NewStateGroup(SpriteNum, sg_SerpSkullSpell);
+                NewStateGroup(actor, sg_SerpSkullSpell);
                 u->Counter2++;
             }
             break;
@@ -798,13 +793,13 @@ int DoSerpMove(DSWActor* actor)
             //if (u->Health <= DIV2(u->MaxHealth))
         {
             if (u->Counter <= 0)
-                NewStateGroup(SpriteNum, sg_SerpSkullSpell);
+                NewStateGroup(actor, sg_SerpSkullSpell);
         }
         break;
         }
     }
 
-    KeepActorOnFloor(SpriteNum);
+    KeepActorOnFloor(actor);
 
     //DoActorSectorDamage(actor);
     return 0;
@@ -813,8 +808,7 @@ int DoSerpMove(DSWActor* actor)
 int DoDeathSpecial(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
 
     DoMatchEverything(nullptr, sp->lotag, ON);
 
@@ -824,7 +818,7 @@ int DoDeathSpecial(DSWActor* actor)
         PlaySong(currentLevel->music, currentLevel->cdSongId);
     }
 
-    BossSpriteNum[0] = -2;
+    BossSpriteNum[0] = nullptr;
     return 0;
 }
 

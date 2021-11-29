@@ -29,25 +29,27 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-#define BF_TOUGH (BIT(0))
-#define BF_KILL  (BIT(1))
-#define BF_BURN  (BIT(2))
-#define BF_OVERRIDE_BLOCK  (BIT(3))
-#define BF_FIRE_FALL (BIT(4))
-#define BF_LEAVE_BREAK (BIT(5))
+enum
+{
+    BF_TOUGH = BIT(0),
+    BF_KILL = BIT(1),
+    BF_BURN = BIT(2),
+    BF_OVERRIDE_BLOCK = BIT(3),
+    BF_FIRE_FALL = BIT(4),
+    BF_LEAVE_BREAK = BIT(5),
+};
 
-typedef struct
+typedef struct BREAK_INFO
 {
     short picnum, breaknum, shrap_type;
     short flags, shrap_amt;
-} BREAK_INFO, *BREAK_INFOp;
+} *BREAK_INFOp;
 
 BREAK_INFOp FindWallBreakInfo(short picnum);
 BREAK_INFOp FindSpriteBreakInfo(short picnum);
 void SortBreakInfo(void);
 BREAK_INFOp SetupWallForBreak(WALLp wallp);
-BREAK_INFOp SetupSpriteForBreak(SPRITEp sp);
-short FindBreakSpriteMatch(short match);
+BREAK_INFOp SetupSpriteForBreak(DSWActor* actor);
 bool HitBreakWall(WALLp wp, int, int, int, short ang, short type);
 int HitBreakSprite(short BreakSprite, short type);
 bool CheckBreakToughness(BREAK_INFOp break_info, short ID);

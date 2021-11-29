@@ -45,13 +45,12 @@ extern short NormalVisibility;  // player.c
 
 void ProcessVisOn(void)
 {
-    int i;
     SPRITEp sp;
 
-    StatIterator it(STAT_VIS_ON);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_VIS_ON);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
+        sp = &actor->s();
 
         if (VIS_VisDir(sp))
         {
@@ -73,12 +72,13 @@ void ProcessVisOn(void)
             if (VIS_VisCur(sp) >= NormalVisibility)
             {
                 VIS_VisCur(sp) = NormalVisibility;
-                if (sp->owner >= 0)
+                auto own = GetOwner(actor);
+                if (own != nullptr)
                 {
-                    ASSERT(User[sp->owner].Data());
-                    RESET(User[sp->owner]->Flags2, SPR2_VIS_SHADING);
+                    ASSERT(own->hasU());
+                    RESET(own->u()->Flags2, SPR2_VIS_SHADING);
                 }
-                KillSprite(i);
+                KillActor(actor);
             }
         }
     }
@@ -86,7 +86,6 @@ void ProcessVisOn(void)
 
 void VisViewChange(PLAYERp pp, int *vis)
 {
-    int i;
     SPRITEp sp;
     short BrightestVis = NormalVisibility;
     int x,y,z;
@@ -96,17 +95,18 @@ void VisViewChange(PLAYERp pp, int *vis)
         return;
 
     // find the closest quake - should be a strength value
-    StatIterator it(STAT_VIS_ON);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_VIS_ON);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
+        sp = &actor->s();
 
-        if (sp->owner >= 0)
+        auto own = GetOwner(actor);
+        if (own != nullptr)
         {
-            x = sprite[sp->owner].x;
-            y = sprite[sp->owner].y;
-            z = sprite[sp->owner].z;
-            sectnum = sprite[sp->owner].sectnum;
+            x = own->s().x;
+            y = own->s().y;
+            z = own->s().z;
+            sectnum = own->s().sectnum;
         }
         else
         {
@@ -127,57 +127,55 @@ void VisViewChange(PLAYERp pp, int *vis)
     *vis = BrightestVis;
 }
 
-int SpawnVis(short Parent, short sectnum, int x, int y, int z, int amt)
+void SpawnVis(DSWActor* parentActor, short sectnum, int x, int y, int z, int amt)
 {
-    short SpriteNum;
     SPRITEp sp;
-    int i;
-
-    if (Parent >= 0)
+    if (parentActor != nullptr)
     {
-        if (sector[sprite[Parent].sectnum].floorpal == PALETTE_FOG)
-            return -1;
+        auto psp = &parentActor->s();
+        auto pu = parentActor->u();
 
-        if (sector[sprite[Parent].sectnum].floorpal == PALETTE_DIVE_LAVA)
-            return -1;
+        if (sector[psp->sectnum].floorpal == PALETTE_FOG)
+            return;
+
+        if (sector[psp->sectnum].floorpal == PALETTE_DIVE_LAVA)
+            return;
 
         // kill any others with the same parent
-        StatIterator it(STAT_VIS_ON);
-        while ((i = it.NextIndex()) >= 0)
+        SWStatIterator it(STAT_VIS_ON);
+        while (auto itActor = it.Next())
         {
-            sp = &sprite[i];
-            if (sp->owner == Parent)
+            if (GetOwner(itActor) == parentActor)
             {
-                KillSprite(i);
+                KillActor(itActor);
             }
         }
 
-        SpriteNum = COVERinsertsprite(sprite[Parent].sectnum, STAT_VIS_ON);
-        sp = &sprite[SpriteNum];
+        auto actorNew = InsertActor(psp->sectnum, STAT_VIS_ON);
+        sp = &actorNew->s();
+        SetOwner(parentActor, actorNew);
 
-        sp->owner = Parent;
 
-        ASSERT(User[Parent].Data());
-        SET(User[Parent]->Flags2, SPR2_CHILDREN);
+        ASSERT(parentActor->hasU());
+        SET(pu->Flags2, SPR2_CHILDREN);
 
-        sp->x = sprite[Parent].x;
-        sp->y = sprite[Parent].y;
-        sp->z = sprite[Parent].z;
+        sp->x = psp->x;
+        sp->y = psp->y;
+        sp->z = psp->z;
 
-        SET(User[Parent]->Flags2, SPR2_VIS_SHADING);
+        SET(pu->Flags2, SPR2_VIS_SHADING);
     }
     else
     {
         if (sector[sectnum].floorpal == PALETTE_FOG)
-            return -1;
+            return;
 
-        SpriteNum = COVERinsertsprite(sectnum, STAT_VIS_ON);
-        sp = &sprite[SpriteNum];
+        auto actorNew = InsertActor(sectnum, STAT_VIS_ON);
+        sp = &actorNew->s();
 
         sp->x = x;
         sp->y = y;
         sp->z = z - Z(20);
-        sp->owner = -1;
     }
 
     sp->cstat = 0;
@@ -186,8 +184,6 @@ int SpawnVis(short Parent, short sectnum, int x, int y, int z, int amt)
     VIS_VisDir(sp) = 1;
     VIS_VisCur(sp) = NormalVisibility;
     VIS_VisGoal(sp) = amt;
-
-    return SpriteNum;
 }
 
 END_SW_NS

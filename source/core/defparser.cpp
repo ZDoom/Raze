@@ -318,7 +318,7 @@ void parseCopyTile(FScanner& sc, FScriptPosition& pos)
 	FScanner::SavedPos blockend;
 	int tile = -1, source = -1;
 	int havetile = 0, xoffset = -1024, yoffset = -1024;
-	int flags = 0, tsiz = 0, temppal = -1, tempsource = -1;
+	int flags = 0, temppal = -1, tempsource = -1;
 
 	if (!sc.GetNumber(tile, true)) return;
 
@@ -828,6 +828,7 @@ void parseMapinfo(FScanner& sc, FScriptPosition& pos)
 {
 	usermaphack_t mhk;
 	FScanner::SavedPos blockend;
+	TArray<FString> md4s;
 
 	if (sc.StartBraces(&blockend)) return;
 	while (!sc.FoundEndBrace(blockend))
@@ -839,14 +840,18 @@ void parseMapinfo(FScanner& sc, FScriptPosition& pos)
 		else if (sc.Compare("mapmd4"))
 		{
 			sc.GetString();
-			for (int i = 0; i < 16; i++)
-			{
-				char smallbuf[3] = { sc.String[2 * i], sc.String[2 * i + 1], 0 };
-				mhk.md4[i] = (uint8_t)strtol(smallbuf, nullptr, 16);
-			}
+			md4s.Push(sc.String);
 		}
 	}
-	AddUserMapHack(mhk);
+	for (auto& md4 : md4s)
+	{
+		for (int i = 0; i < 16; i++)
+		{
+			char smallbuf[3] = { md4[2 * i], md4[2 * i + 1], 0 };
+			mhk.md4[i] = (uint8_t)strtol(smallbuf, nullptr, 16);
+		}
+		AddUserMapHack(mhk);
+	}
 }
 
 //===========================================================================
@@ -1953,7 +1958,7 @@ void parseModel(FScanner& sc, FScriptPosition& pos)
 
 	FString modelfn;
 	double scale = 1.0, mzadd = 0.0, myoffset = 0.0;
-	int32_t shadeoffs = 0, pal = 0, flags = 0;
+	int32_t shadeoffs = 0, flags = 0;
 	FixedBitArray<1024> usedframes;
 
 	usedframes.Zero();
@@ -2016,7 +2021,7 @@ void parseModel(FScanner& sc, FScriptPosition& pos)
 //
 //===========================================================================
 
-static bool parseDefineQAVInterpolateIgnoreBlock(FScanner& sc, const int& res_id, TMap<int, TArray<int>>& ignoredata, const int& numframes)
+static bool parseDefineQAVInterpolateIgnoreBlock(FScanner& sc, const int res_id, TMap<int, TArray<int>>& ignoredata, const int numframes)
 {
 	FScanner::SavedPos blockend;
 	FScriptPosition pos = sc;
@@ -2043,7 +2048,7 @@ static bool parseDefineQAVInterpolateIgnoreBlock(FScanner& sc, const int& res_id
 		return false;
 	}
 
-	auto arraybuilder = [&](const FString& input, TArray<int>& output, const int& maxvalue) -> bool
+	auto arraybuilder = [&](const FString& input, TArray<int>& output, const int maxvalue) -> bool
 	{
 		if (input.CompareNoCase("all") == 0)
 		{
@@ -2091,7 +2096,7 @@ static bool parseDefineQAVInterpolateIgnoreBlock(FScanner& sc, const int& res_id
 	return true;
 }
 
-static bool parseDefineQAVInterpolateBlock(FScanner& sc, const int& res_id, const int& numframes)
+static bool parseDefineQAVInterpolateBlock(FScanner& sc, const int res_id, const int numframes)
 {
 	FScanner::SavedPos blockend;
 	FScriptPosition pos = sc;
@@ -2127,11 +2132,11 @@ static bool parseDefineQAVInterpolateBlock(FScanner& sc, const int& res_id, cons
 	}
 
 	// Add interpolation properties to game for processing while drawing.
-	gi->AddQAVInterpProps(res_id, interptype, loopable, ignoredata);
+	gi->AddQAVInterpProps(res_id, interptype, loopable, std::move(ignoredata));
 	return true;
 }
 
-void parseDefineQAV(FScanner& sc, FScriptPosition& pos)
+static void parseDefineQAV(FScanner& sc, FScriptPosition& pos)
 {
 	FScanner::SavedPos blockend;
 	FString fn;

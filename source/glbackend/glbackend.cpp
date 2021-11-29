@@ -335,7 +335,7 @@ void PM_WriteSavePic(FileWriter* file, int width, int height)
 
 	screen->SetViewportRects(&bounds);
 	twodpsp.Clear();
-	bool didit = gi->GenerateSavePic();
+	/*bool didit =*/ gi->GenerateSavePic();
 
 	float Brightness = 8.f / (r_scenebrightness + 8.f);
 	screen->PostProcessScene(false, 0, Brightness, []() {

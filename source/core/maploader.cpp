@@ -45,6 +45,19 @@
 #include "sectorgeometry.h"
 #include "render.h"
 #include "hw_sections.h"
+#include "interpolate.h"
+
+// needed for skipping over to get the map size first.
+enum
+{
+	sectorsize5 = 37,
+	sectorsize6 = 37,
+	sectorsize7 = 40,
+	wallsize5 = 35,
+	wallsize6 = 32,
+	wallsize7 = 32,
+};
+
 
 static void ReadSectorV7(FileReader& fr, sectortype& sect)
 {
@@ -375,12 +388,24 @@ static void insertAllSprites(const char* filename, const vec3_t* pos, int* curse
 
 void addBlockingPairs();
 
-void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang, int* cursectnum)
+// allocates global map storage. Blood will also call this.
+void allocateMapArrays(int numsprites)
 {
-	inputState.ClearAllInput();
+	ClearInterpolations();
+
 	memset(sector, 0, sizeof(*sector) * MAXSECTORS);
 	memset(wall, 0, sizeof(*wall) * MAXWALLS);
 	memset(sprite, 0, sizeof(*sector) * MAXSPRITES);
+	memset(spriteext, 0, sizeof(spriteext_t) * MAXSPRITES);
+	memset(spritesmooth, 0, sizeof(spritesmooth_t) * (MAXSPRITES + MAXUNIQHUDID));
+
+	ClearAutomap();
+	Polymost::Polymost_prepare_loadboard();
+}
+
+void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang, int* cursectnum)
+{
+	inputState.ClearAllInput();
 
 	FileReader fr = fileSystem.OpenFileReader(filename);
 	if (!fr.isOpen()) I_Error("Unable to open map %s", filename);
@@ -390,20 +415,31 @@ void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang,
 		I_Error("%s: Invalid map format, expcted 5-9, got %d", filename, mapversion);
 	}
 
-	memset(spriteext, 0, sizeof(spriteext_t) * MAXSPRITES);
-	memset(spritesmooth, 0, sizeof(spritesmooth_t) * (MAXSPRITES + MAXUNIQHUDID));
-	initspritelists();
-	ClearAutomap();
-	Polymost::Polymost_prepare_loadboard();
-
 	pos->x = fr.ReadInt32();
 	pos->y = fr.ReadInt32();
 	pos->z = fr.ReadInt32();
 	*ang = fr.ReadInt16() & 2047;
 	*cursectnum = fr.ReadUInt16();
 
+	// Get the basics out before loading the data so that we can set up the global storage.
 	numsectors = fr.ReadUInt16();
 	if ((unsigned)numsectors > MAXSECTORS) I_Error("%s: Invalid map, too many sectors", filename);
+	auto sectorpos = fr.Tell();
+	fr.Seek((mapversion == 5 ? sectorsize5 : mapversion == 6 ? sectorsize6 : sectorsize7) * numsectors, FileReader::SeekCur);
+	numwalls = fr.ReadUInt16();
+	if ((unsigned)numwalls > MAXWALLS) I_Error("%s: Invalid map, too many walls", filename);
+	auto wallpos = fr.Tell();
+	fr.Seek((mapversion == 5 ? wallsize5 : mapversion == 6 ? wallsize6 : wallsize7)* numwalls, FileReader::SeekCur);
+	int numsprites = fr.ReadUInt16();
+	if ((unsigned)numsprites > MAXSPRITES) I_Error("%s: Invalid map, too many sprites", filename);
+	auto spritepos = fr.Tell();
+
+	// Now that we know the map's size, set up the globals.
+	initspritelists(); // may not be used in Blood!
+	allocateMapArrays(numsprites);
+
+	// Now load the actual data.
+	fr.Seek(sectorpos, FileReader::SeekSet);
 	for (int i = 0; i < numsectors; i++)
 	{
 		switch (mapversion)
@@ -414,8 +450,7 @@ void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang,
 		}
 	}
 
-	numwalls = fr.ReadUInt16();
-	if ((unsigned)numwalls > MAXWALLS) I_Error("%s: Invalid map, too many walls", filename);
+	fr.Seek(wallpos, FileReader::SeekSet);
 	for (int i = 0; i < numwalls; i++)
 	{
 		switch (mapversion)
@@ -426,8 +461,7 @@ void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang,
 		}
 	}
 
-	int numsprites = fr.ReadUInt16();
-	if ((unsigned)numsprites > MAXSPRITES) I_Error("%s: Invalid map, too many sprites", filename);
+	fr.Seek(spritepos, FileReader::SeekSet);
 	for (int i = 0; i < numsprites; i++)
 	{
 		switch (mapversion)
@@ -463,7 +497,7 @@ void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang,
 }
 
 
-void qloadboard(const char* filename, char flags, vec3_t* dapos, int16_t* daang, int16_t* dacursectnum);
+void qloadboard(const char* filename, char flags, vec3_t* dapos, int16_t* daang, int* dacursectnum);
 
 
 // loads a map into the backup buffer.
@@ -475,7 +509,7 @@ void loadMapBackup(const char* filename)
 
 	if (isBlood())
 	{
-		qloadboard(filename, 0, &pos, &scratch, &scratch);
+		qloadboard(filename, 0, &pos, &scratch, &scratch2);
 	}
 	else
 	{

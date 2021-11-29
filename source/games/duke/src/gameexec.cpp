@@ -45,23 +45,23 @@ BEGIN_DUKE_NS
 
 // Player Actions - used by ifp instruction.
 enum playeraction_t {
-	pstanding                   = 0x00000001,
-	pwalking                    = 0x00000002,
-	prunning                    = 0x00000004,
-	pducking                    = 0x00000008,
-	pfalling                    = 0x00000010,
-	pjumping                    = 0x00000020,
-	phigher                     = 0x00000040,
-	pwalkingback                = 0x00000080,
-	prunningback                = 0x00000100,
-	pkicking                    = 0x00000200,
-	pshrunk                     = 0x00000400,
-	pjetpack                    = 0x00000800,
-	ponsteroids                 = 0x00001000,
-	ponground                   = 0x00002000,
-	palive                      = 0x00004000,
-	pdead                       = 0x00008000,
-	pfacing                     = 0x00010000
+	pstanding    = 0x00000001,
+	pwalking     = 0x00000002,
+	prunning     = 0x00000004,
+	pducking     = 0x00000008,
+	pfalling     = 0x00000010,
+	pjumping     = 0x00000020,
+	phigher      = 0x00000040,
+	pwalkingback = 0x00000080,
+	prunningback = 0x00000100,
+	pkicking     = 0x00000200,
+	pshrunk      = 0x00000400,
+	pjetpack     = 0x00000800,
+	ponsteroids  = 0x00001000,
+	ponground    = 0x00002000,
+	palive       = 0x00004000,
+	pdead        = 0x00008000,
+	pfacing      = 0x00010000
 };
 
 
@@ -566,16 +566,6 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		else SetGameVarID(lVar2, ps[iPlayer].access_incs, sActor, sPlayer);
 		break;
 
-	case PLAYER_ACCESS_WALLNUM:
-		if (bSet) ps[iPlayer].access_wallnum = lValue;
-		else SetGameVarID(lVar2, ps[iPlayer].access_wallnum, sActor, sPlayer);
-		break;
-
-	case PLAYER_ACCESS_SPRITENUM:
-		if (bSet) ps[iPlayer].access_spritenum = ScriptIndexToActor(lValue);
-		else SetGameVarID(lVar2, ActorToScriptIndex(ps[iPlayer].access_spritenum), sActor, sPlayer);
-		break;
-
 	case PLAYER_KICKBACK_PIC:
 		if (bSet) ps[iPlayer].kickback_pic = lValue;
 		else SetGameVarID(lVar2, ps[iPlayer].kickback_pic, sActor, sPlayer);
@@ -609,11 +599,6 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 	case PLAYER_I:	// This is dangerous!!!
 		if (bSet) ps[iPlayer].i = lValue;
 		else SetGameVarID(lVar2, ps[iPlayer].i, sActor, sPlayer);
-		break;
-
-	case PLAYER_ONE_PARALLAX_SECTNUM:
-		if (bSet) ps[iPlayer].one_parallax_sectnum = lValue;
-		else SetGameVarID(lVar2, ps[iPlayer].one_parallax_sectnum, sActor, sPlayer);
 		break;
 
 	case PLAYER_OVER_SHOULDER_ON:
@@ -855,7 +840,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_GOTWEAPON:
-		if (bSet) ps[iPlayer].gotweapon[lParm2, lValue] = true;
+		if (bSet) ps[iPlayer].gotweapon[lParm2] = !!lValue;
 		else SetGameVarID(lVar2, ps[iPlayer].gotweapon[lParm2], sActor, sPlayer);
 		break;
 
@@ -1286,10 +1271,6 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		if (bSet) act->tempang = lValue;
 		else SetGameVarID(lVar2, act->tempang, sActor, sPlayer);
 		break;
-	case ACTOR_HTACTORSTAYPUT:
-		if (bSet) act->actorstayput = lValue;
-		else SetGameVarID(lVar2, act->actorstayput, sActor, sPlayer);
-		break;
 	case ACTOR_HTDISPICNUM:
 		if (bSet) act->dispicnum = lValue;
 		else SetGameVarID(lVar2, act->dispicnum, sActor, sPlayer);
@@ -1483,7 +1464,7 @@ static bool ifcansee(DDukeActor* actor, int pnum)
 	{
 		// search around for target player
 		// also modifies 'target' x&y if found.
-		j = furthestcanseepoint(actor, tosee, &actor->lastvx, &actor->lastvy) != -1;
+		j = furthestcanseepoint(actor, tosee, &actor->lastvx, &actor->lastvy);
 	}
 	else
 	{
@@ -1540,7 +1521,7 @@ int ParseState::parse(void)
 		break;
 
 	case concmd_ifactornotstayput:
-		parseifelse(g_ac->actorstayput == -1);
+		parseifelse(g_ac->actorstayput == nullptr);
 		break;
 	case concmd_ifcansee:
 		parseifelse(ifcansee(g_ac, g_p));
@@ -1905,7 +1886,7 @@ int ParseState::parse(void)
 			}
 		}
 		else ps[g_p].actors_killed += *insptr;
-		g_ac->actorstayput = -1;
+		g_ac->actorstayput = nullptr;
 		insptr++;
 		break;
 	case concmd_lotsofglass:
@@ -2177,14 +2158,17 @@ int ParseState::parse(void)
 					s = 0;
 				else s = (krand()%3);
 
-				auto l = EGS(g_sp->sectnum,
+				auto l = EGS(g_sp->sector(),
 					g_sp->x + (krand() & 255) - 128, g_sp->y + (krand() & 255) - 128, g_sp->z - (8 << 8) - (krand() & 8191),
 					dnum + s, g_sp->shade, 32 + (krand() & 15), 32 + (krand() & 15),
 					krand() & 2047, (krand() & 127) + 32, -(krand() & 2047), g_ac, 5);
-				if(weap)
-					l->s->yvel = gs.weaponsandammosprites[j%14];
-				else l->s->yvel = -1;
-				l->s->pal = g_sp->pal;
+				if (l)
+				{
+					if (weap)
+						l->s->yvel = gs.weaponsandammosprites[j % 14];
+					else l->s->yvel = -1;
+					l->s->pal = g_sp->pal;
+				}
 			}
 			insptr++;
 		}
@@ -2271,7 +2255,7 @@ int ParseState::parse(void)
 			g_ac->cgg = 0;
 			g_ac->movflag = 0;
 			g_ac->tempang = 0;
-			g_ac->actorstayput = -1;
+			g_ac->actorstayput = nullptr;
 			g_ac->dispicnum = 0;
 			g_ac->SetHitOwner(ps[g_p].GetActor());
 			g_ac->temp_data[4] = 0;
@@ -2490,18 +2474,18 @@ int ParseState::parse(void)
 		insptr++;
 		if( g_sp->sector()->lotag == 0 )
 		{
-			int neartagsector, neartagwall;
+			sectortype* sectp;
+			walltype* neartagwall;
 			DDukeActor* neartagsprite;
 			int32_t neartaghitdist;
-			neartag(g_sp->x, g_sp->y, g_sp->z - (32 << 8), g_sp->sectnum, g_sp->ang, &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 768L, 1);
-			if (neartagsector >= 0)
+			neartag(g_sp->x, g_sp->y, g_sp->z - (32 << 8), g_sp->sectnum, g_sp->ang, &sectp, &neartagwall, &neartagsprite, &neartaghitdist, 768L, 1);
+			if (sectp)
 			{
-				auto sectp = &sector[neartagsector];
 				if (isanearoperator(sectp->lotag))
 					if ((sectp->lotag & 0xff) == ST_23_SWINGING_DOOR || sectp->floorz == sectp->ceilingz)
 						if ((sectp->lotag & 16384) == 0 && (sectp->lotag & 32768) == 0)
 						{
-							DukeSectIterator it(neartagsector);
+							DukeSectIterator it(sectp);
 							DDukeActor* a2;
 							while ((a2 = it.Next()))
 							{
@@ -2510,7 +2494,7 @@ int ParseState::parse(void)
 									break;
 							}
 							if (a2 == nullptr)
-								operatesectors(neartagsector, g_ac);
+								operatesectors(sectp, g_ac);
 						}
 			}
 		}
@@ -2732,41 +2716,67 @@ int ParseState::parse(void)
 			j = 0;
 			switch(*(insptr++))
 			{
-				case 0:if( ps[g_p].steroids_amount != *insptr)
+				case 0:
+					if( ps[g_p].steroids_amount != *insptr)
 						j = 1;
 					break;
-				case 1:if(ps[g_p].shield_amount != gs.max_player_health )
+				case 1:
+					if(ps[g_p].shield_amount != gs.max_player_health )
 						j = 1;
 					break;
-				case 2:if(ps[g_p].scuba_amount != *insptr) j = 1;break;
-				case 3:if(ps[g_p].holoduke_amount != *insptr) j = 1;break;
-				case 4:if(ps[g_p].jetpack_amount != *insptr) j = 1;break;
+				case 2:
+					if(ps[g_p].scuba_amount != *insptr) j = 1;
+					break;
+				case 3:
+					if(ps[g_p].holoduke_amount != *insptr) j = 1;
+					break;
+				case 4:
+					if(ps[g_p].jetpack_amount != *insptr) j = 1;
+					break;
 				case 6:
 					if (isRR())
 					{
 						switch (g_sp->lotag)
 						{
-						case 100: if (ps[g_p].keys[1]) j = 1; break;
-						case 101: if (ps[g_p].keys[2]) j = 1; break;
-						case 102: if (ps[g_p].keys[3]) j = 1; break;
-						case 103: if (ps[g_p].keys[4]) j = 1; break;
+						case 100: 
+							if (ps[g_p].keys[1]) j = 1; 
+							break;
+						case 101: 
+							if (ps[g_p].keys[2]) j = 1; 
+							break;
+						case 102: 
+							if (ps[g_p].keys[3]) j = 1; 
+							break;
+						case 103: 
+							if (ps[g_p].keys[4]) j = 1; 
+							break;
 						}
 					}
 					else
 					{
 						switch (g_sp->pal)
 						{
-						case  0: if (ps[g_p].got_access & 1) j = 1; break;
-						case 21: if (ps[g_p].got_access & 2) j = 1; break;
-						case 23: if (ps[g_p].got_access & 4) j = 1; break;
+						case  0: 
+							if (ps[g_p].got_access & 1) j = 1; 
+							break;
+						case 21: 
+							if (ps[g_p].got_access & 2) j = 1; 
+							break;
+						case 23: 
+							if (ps[g_p].got_access & 4) j = 1; 
+							break;
 						}
 					}
 					break;
-				case 7:if(ps[g_p].heat_amount != *insptr) j = 1;break;
+				case 7:
+					if(ps[g_p].heat_amount != *insptr) j = 1;
+					break;
 				case 9:
-					if(ps[g_p].firstaid_amount != *insptr) j = 1;break;
+					if(ps[g_p].firstaid_amount != *insptr) j = 1;
+					break;
 				case 10:
-					if(ps[g_p].boot_amount != *insptr) j = 1;break;
+					if(ps[g_p].boot_amount != *insptr) j = 1;
+					break;
 			}
 
 			parseifelse(j);
@@ -2963,7 +2973,7 @@ int ParseState::parse(void)
 		lMaxDistVar = *(insptr++);
 		lVarID = *(insptr++);
 		lMaxDist = GetGameVarID(lMaxDistVar, g_ac, g_p);
-		DDukeActor* lFound;
+		DDukeActor* lFound = nullptr;
 		lDist = 32767;	// big number
 
 		DukeStatIterator it(STAT_ACTOR);
@@ -3659,8 +3669,6 @@ void LoadActor(DDukeActor *actor, int p, int x)
 
 	auto addr = gs.tileinfo[actor->s->picnum].loadeventscriptptr;
 	if (addr == 0) return;
-
-	int *insptr = &ScriptCode[addr + 1];
 
 	s.killit_flag = 0;
 

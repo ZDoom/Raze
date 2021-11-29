@@ -63,7 +63,6 @@ void sub_6FF54(int, DBloodActor* actor)
 
 void podAttack(int, DBloodActor* actor)
 {
-	XSPRITE* pXSprite = &actor->x();
 	spritetype* pSprite = &actor->s();
 
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
@@ -133,7 +132,6 @@ void sub_70284(int, DBloodActor* actor)
 static void aiPodSearch(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
 	aiChooseDirection(actor, pXSprite->goalAng);
 	aiThinkTarget(actor);
 }
@@ -171,7 +169,6 @@ static void aiPodMove(DBloodActor* actor)
 
 static void aiPodChase(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
 	auto pSprite = &actor->s();
 	if (actor->GetTarget() == nullptr) {
 		switch (pSprite->type) {

@@ -160,7 +160,7 @@ bool WarpCheat(cheatseq_t* c)
     if (TEST(pp->Flags, PF_DEAD))
         return true;
 
-	DeferredStartGame(maprec, g_nextskill);
+    DeferredStartGame(maprec, g_nextskill);
     return true;
 }
 
@@ -196,7 +196,7 @@ static cheatseq_t swcheats[] = {
 static void WeaponCheat(int player)
 {
     auto p = &Player[player];
-    auto u = User[p->PlayerSprite].Data();
+    auto u = p->Actor()->u();
 
     if (!TEST(p->Flags, PF_TWO_UZI))
     {
@@ -266,9 +266,9 @@ static void cmd_Give(int player, uint8_t** stream, bool skip)
         break;
 
     case GIVE_HEALTH:
-        if (User[Player[player].PlayerSprite]->Health < Player[player].MaxHealth)
+        if (Player[player].Actor()->u()->Health < Player[player].MaxHealth)
         {
-            User[Player[player].PlayerSprite]->Health += 25;
+            Player[player].Actor()->u()->Health += 25;
             PutStringInfo(&Player[player], GStrings("TXTS_ADDEDHEALTH"));
         }
         break;
@@ -280,7 +280,7 @@ static void cmd_Give(int player, uint8_t** stream, bool skip)
     case GIVE_AMMO:
     {
         auto p = &Player[player];
-        auto u = User[p->PlayerSprite].Data();
+        auto u = p->Actor()->u();
 
         p->WpnShotgunAuto = 50;
         p->WpnRocketHeat = 5;
@@ -296,7 +296,7 @@ static void cmd_Give(int player, uint8_t** stream, bool skip)
     }
 
     case GIVE_ARMOR:
-        if (User[Player[player].PlayerSprite]->Health < Player[player].MaxHealth)
+        if (Player[player].Actor()->u()->Health < Player[player].MaxHealth)
         {
             Player[player].Armor = 100;
             PutStringInfo(&Player[player], GStrings("TXTB_FULLARM"));

@@ -112,6 +112,7 @@ void DoSpawn(struct player_struct *p, int snum)
 		return;
 		
 	auto j = spawn(p->GetActor(), aplWeaponSpawn[p->curr_weapon][snum]);
+	if (!j) return;
 	
 	if((aplWeaponFlags[p->curr_weapon][snum] & WEAPON_FLAG_SPAWNTYPE2 ) )
 	{
@@ -188,7 +189,7 @@ void fireweapon_ww(int snum)
 			case PISTOL_WEAPON:
 				if (p->ammo_amount[p->curr_weapon] > 0)
 				{
-					//                    p->ammo_amount[p->curr_weapon]--;
+					//p->ammo_amount[p->curr_weapon]--;
 					p->kickback_pic = 1;
 					if (aplWeaponInitialSound[p->curr_weapon][snum])
 					{
@@ -311,7 +312,6 @@ void operateweapon_ww(int snum, ESyncBits actions, int psect)
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
 	int i, k;
-	int psectlotag = sector[psect].lotag;
 
 	// already firing...
 	if (aplWeaponWorksLike[p->curr_weapon][snum] == HANDBOMB_WEAPON)
@@ -341,36 +341,39 @@ void operateweapon_ww(int snum, ESyncBits actions, int psect)
 				i = -512 - MulScale(p->horizon.sum().asq16(), 20, 16);
 			}
 
-			auto j = EGS(p->cursectnum,
+			auto j = EGS(p->cursector(),
 				p->pos.x + p->angle.ang.bcos(-6),
 				p->pos.y + p->angle.ang.bsin(-6),
 				p->pos.z, HEAVYHBOMB, -16, 9, 9,
 				p->angle.ang.asbuild(), (k + (p->hbomb_hold_delay << 5)), i, p->GetActor(), 1);
 
+			if (j)
 			{
-				int lGrenadeLifetime = GetGameVar("GRENADE_LIFETIME", NAM_GRENADE_LIFETIME, nullptr, snum);
-				int lGrenadeLifetimeVar = GetGameVar("GRENADE_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, nullptr, snum);
-				// set timer.  blows up when at zero....
-				j->s->extra = lGrenadeLifetime
-					+ MulScale(krand(), lGrenadeLifetimeVar, 14)
-					- lGrenadeLifetimeVar;
-			}
+				{
+					int lGrenadeLifetime = GetGameVar("GRENADE_LIFETIME", NAM_GRENADE_LIFETIME, nullptr, snum);
+					int lGrenadeLifetimeVar = GetGameVar("GRENADE_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, nullptr, snum);
+					// set timer.  blows up when at zero....
+					j->s->extra = lGrenadeLifetime
+						+ MulScale(krand(), lGrenadeLifetimeVar, 14)
+						- lGrenadeLifetimeVar;
+				}
 
-			if (k == 15)
-			{
-				j->s->yvel = 3;
-				j->s->z += (8 << 8);
-			}
+				if (k == 15)
+				{
+					j->s->yvel = 3;
+					j->s->z += (8 << 8);
+				}
 
-			k = hits(p->GetActor());
-			if (k < 512)
-			{
-				j->s->ang += 1024;
-				j->s->zvel /= 3;
-				j->s->xvel /= 3;
-			}
+				k = hits(p->GetActor());
+				if (k < 512)
+				{
+					j->s->ang += 1024;
+					j->s->zvel /= 3;
+					j->s->xvel /= 3;
+				}
 
-			p->hbomb_on = 1;
+				p->hbomb_on = 1;
+			}
 
 		}
 		else if (p->kickback_pic < aplWeaponHoldDelay[p->curr_weapon][snum] &&

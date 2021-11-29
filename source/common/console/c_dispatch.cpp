@@ -1014,7 +1014,6 @@ void FExecList::AddPullins(TArray<FString> &wads, FConfigFile *config) const
 FExecList *C_ParseExecFile(const char *file, FExecList *exec)
 {
 	char cmd[4096];
-	int retval = 0;
 
 	FileReader fr;
 

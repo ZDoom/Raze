@@ -59,11 +59,10 @@ void PreCacheRange(int start_pic, int end_pic, int pal = 0)
 
 void PreCacheOverride(void)
 {
-	int i;
-	StatIterator it(STAT_CEILING_FLOOR_PIC_OVERRIDE);
-	while ((i = it.NextIndex()) >= 0)
+	SWStatIterator it(STAT_CEILING_FLOOR_PIC_OVERRIDE);
+	while (auto actor = it.Next())
 	{
-		auto sp = &sprite[i];
+		auto sp = &actor->s();
 		int j = SP_TAG2(sp);
 		if(j >= 0 && j <= MAXTILES)
 			markTileForPrecache(j, 0);
@@ -78,57 +77,57 @@ void precacheMap(void)
 	WALLp wp;
 	SPRITEp sp;
 
-	for (sectp = sector; sectp < &sector[numsectors]; sectp++)
+	for(auto& sec : sectors())
 	{
-		j = sectp->ceilingpicnum;
-		markTileForPrecache(j, sectp->ceilingpal);
+		j = sec.ceilingpicnum;
+		markTileForPrecache(j, sec.ceilingpal);
 
 		if (TEST(picanm[j].sf, PICANM_ANIMTYPE_MASK) >> PICANM_ANIMTYPE_SHIFT)
 		{
 			for (i = 1; i <= picanm[j].num; i++)
 			{
-				markTileForPrecache(j + i, sectp->ceilingpal);
+				markTileForPrecache(j + i, sec.ceilingpal);
 			}
 		}
 
-		j = sectp->floorpicnum;
+		j = sec.floorpicnum;
 
-		markTileForPrecache(j, sectp->floorpal);
+		markTileForPrecache(j, sec.floorpal);
 
 		if (TEST(picanm[j].sf, PICANM_ANIMTYPE_MASK) >> PICANM_ANIMTYPE_SHIFT)
 		{
 			for (i = 1; i <= picanm[j].num; i++)
 			{
-				markTileForPrecache(j + i, sectp->floorpal);
+				markTileForPrecache(j + i, sec.floorpal);
 			}
 		}
 
 	}
 
-	for (wp = wall; wp < &wall[numwalls]; wp++)
+	for (auto& wal : walls())
 	{
-		j = wp->picnum;
+		j = wal.picnum;
 
-		markTileForPrecache(j, wp->pal);
+		markTileForPrecache(j, wal.pal);
 
 		if (TEST(picanm[j].sf, PICANM_ANIMTYPE_MASK) >> PICANM_ANIMTYPE_SHIFT)
 		{
 			for (i = 1; i <= picanm[j].num; i++)
 			{
-				markTileForPrecache(j + i, wp->pal);
+				markTileForPrecache(j + i, wal.pal);
 			}
 		}
 
-		if (wp->overpicnum > 0 && wp->overpicnum < MAXTILES)
+		if (wal.overpicnum > 0 && wal.overpicnum < MAXTILES)
 		{
-			j = wp->overpicnum;
-			markTileForPrecache(j, wp->pal);
+			j = wal.overpicnum;
+			markTileForPrecache(j, wal.pal);
 
 			if (TEST(picanm[j].sf, PICANM_ANIMTYPE_MASK) >> PICANM_ANIMTYPE_SHIFT)
 			{
 				for (i = 1; i <= picanm[j].num; i++)
 				{
-					markTileForPrecache(j + i, wp->pal);
+					markTileForPrecache(j + i, wal.pal);
 				}
 			}
 		}
@@ -349,13 +348,13 @@ void PreCachePachinko(int pal)
 void
 PreCacheActor(void)
 {
-	int i;
 	int pic;
 
-	for (i=0; i < MAXSPRITES; i++)
+	SWSpriteIterator it;
+	while (auto actor = it.Next())
 	{
-		auto pUsr = User[i].Data();
-		auto pSpr = &sprite[i];
+		auto pUsr = actor->u();
+		auto pSpr = &actor->s();
 		if (pSpr->statnum >= MAXSTATUS)
 			continue;
 

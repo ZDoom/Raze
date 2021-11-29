@@ -680,18 +680,15 @@ void DrawOverheadMap(int pl_x, int pl_y, int pl_angle, double const smoothratio)
 	int y = follow_y;
 	follow_a = am_rotate ? pl_angle : 0;
 	AutomapControl();
-	int width = screen->GetWidth();
 
 	if (automapMode == am_full)
 	{
 		twod->ClearScreen();
 		renderDrawMapView(x, y, gZoom, follow_a);
 	}
-	int32_t tmpydim = (width * 5) / 8;
-
 	drawredlines(x, y, gZoom, follow_a);
 	drawwhitelines(x, y, gZoom, follow_a);
-	if (!gi->DrawAutomapPlayer(x, y, gZoom, follow_a, smoothratio))
+	if (!gi->DrawAutomapPlayer(pl_x, pl_y, x, y, gZoom, follow_a, smoothratio))
 		DrawPlayerArrow(x, y, follow_a, pl_x, pl_y, gZoom, -pl_angle);
 
 }

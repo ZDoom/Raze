@@ -65,13 +65,12 @@ int display_mirror;
 static int OverlapDraw = false;
 extern bool QuitFlag, SpriteInfo;
 extern bool Voxel;
-extern char buffer[];
 bool DrawScreen;
 extern short f_c;
 
 extern ParentalStruct aVoxelArray[MAXTILES];
 
-int ConnectCopySprite(spritetype const * tsp);
+DSWActor* ConnectCopySprite(spritetype const * tsp);
 void PreDrawStackedWater(void);
 
 void SW_InitMultiPsky(void)
@@ -103,12 +102,12 @@ ShadeSprite(tspriteptr_t tsp)
 short
 GetRotation(spritetype* tsprite, int& spritesortcnt, short tSpriteNum, int viewx, int viewy)
 {
-    static short RotTable8[] = {0, 7, 6, 5, 4, 3, 2, 1};
-    static short RotTable5[] = {0, 1, 2, 3, 4, 3, 2, 1};
+    static const uint8_t RotTable8[] = {0, 7, 6, 5, 4, 3, 2, 1};
+    static const uint8_t RotTable5[] = {0, 1, 2, 3, 4, 3, 2, 1};
     short rotation;
 
     tspriteptr_t tsp = &tsprite[tSpriteNum];
-    USERp tu = User[tsp->owner].Data();
+    USERp tu = swActors[tsp->owner].u();
     short angle2;
 
     if (tu->RotNum == 0)
@@ -175,7 +174,7 @@ int
 SetActorRotation(spritetype* tsprite, int& spritesortcnt, short tSpriteNum, int viewx, int viewy)
 {
     tspriteptr_t tsp = &tsprite[tSpriteNum];
-    USERp tu = User[tsp->owner].Data();
+    USERp tu = swActors[tsp->owner].u();
     short StateOffset, Rotation;
 
     // don't modify ANY tu vars - back them up!
@@ -210,9 +209,9 @@ int
 DoShadowFindGroundPoint(tspriteptr_t sp)
 {
     // USES TSPRITE !!!!!
-    USERp u = User[sp->owner].Data();
+    USERp u = swActors[sp->owner].u();
     SPRITEp hsp;
-    int ceilhit, florhit;
+    Collision ceilhit, florhit;
     int hiz, loz = u->loz;
     short save_cstat, bak_cstat;
 
@@ -228,13 +227,11 @@ DoShadowFindGroundPoint(tspriteptr_t sp)
     FAFgetzrangepoint(sp->x, sp->y, sp->z, sp->sectnum, &hiz, &ceilhit, &loz, &florhit);
     sp->cstat = save_cstat;
 
-    ASSERT(TEST(florhit, HIT_SPRITE | HIT_SECTOR));
-
-    switch (TEST(florhit, HIT_MASK))
+    switch (florhit.type)
     {
-    case HIT_SPRITE:
+    case kHitSprite:
     {
-        hsp = &sprite[NORM_SPRITE(florhit)];
+        hsp = &florhit.actor->s();
 
         if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR))
         {
@@ -253,7 +250,7 @@ DoShadowFindGroundPoint(tspriteptr_t sp)
         break;
     }
 
-    case HIT_SECTOR:
+    case kHitSector:
         break;
 
     default:
@@ -267,8 +264,8 @@ DoShadowFindGroundPoint(tspriteptr_t sp)
 void
 DoShadows(spritetype* tsprite, int& spritesortcnt, tspriteptr_t tsp, int viewz, int camang)
 {
-    tspriteptr_t New = &tsprite[spritesortcnt];
-    USERp tu = User[tsp->owner].Data();
+    tspriteptr_t tSpr = &tsprite[spritesortcnt];
+    USERp tu = swActors[tsp->owner].u();
     int ground_dist = 0;
     int view_dist = 0;
     int loz;
@@ -288,36 +285,36 @@ DoShadows(spritetype* tsprite, int& spritesortcnt, tspriteptr_t tsp, int viewz, 
     }
 
     tsp->sectnum = sectnum;
-    *New = *tsp;
+    *tSpr = *tsp;
     // shadow is ALWAYS draw last - status is priority
-    New->statnum = MAXSTATUS;
-    New->sectnum = sectnum;
+    tSpr->statnum = MAXSTATUS;
+    tSpr->sectnum = sectnum;
 
     if ((tsp->yrepeat >> 2) > 4)
     {
         yrepeat = (tsp->yrepeat >> 2) - (SPRITEp_SIZE_Y(tsp) / 64) * 2;
-        xrepeat = New->xrepeat;
+        xrepeat = tSpr->xrepeat;
     }
     else
     {
-        yrepeat = New->yrepeat;
-        xrepeat = New->xrepeat;
+        yrepeat = tSpr->yrepeat;
+        xrepeat = tSpr->xrepeat;
     }
 
-    New->shade = 127;
-    SET(New->cstat, CSTAT_SPRITE_TRANSLUCENT);
+    tSpr->shade = 127;
+    SET(tSpr->cstat, CSTAT_SPRITE_TRANSLUCENT);
 
     loz = tu->loz;
-    if (tu->lo_sp)
+    if (tu->lowActor)
     {
-        if (!TEST(tu->lo_sp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_ALIGNMENT_FLOOR))
+        if (!TEST(tu->lowActor->s().cstat, CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_ALIGNMENT_FLOOR))
         {
             loz = DoShadowFindGroundPoint(tsp);
         }
     }
 
     // need to find the ground here
-    New->z = loz;
+    tSpr->z = loz;
 
     // if below or close to sprites z don't bother to draw it
     if ((viewz - loz) > -Z(8))
@@ -331,33 +328,32 @@ DoShadows(spritetype* tsprite, int& spritesortcnt, tspriteptr_t tsp, int viewz, 
         view_dist = 0;
 
     // make shadow smaller depending on height from ground
-    ground_dist = labs(loz - SPRITEp_BOS(tsp)) >> 8;
-    ground_dist = DIV16(ground_dist);
+    ground_dist = labs(loz - SPRITEp_BOS(tsp)) >> 12;
 
     xrepeat = max(xrepeat - ground_dist - view_dist, 4);
     yrepeat = max(yrepeat - ground_dist - view_dist, 4);
     xrepeat = min(xrepeat, short(255));
     yrepeat = min(yrepeat, short(255));
 
-    New->xrepeat = uint8_t(xrepeat);
-    New->yrepeat = uint8_t(yrepeat);
+    tSpr->xrepeat = uint8_t(xrepeat);
+    tSpr->yrepeat = uint8_t(yrepeat);
 
     if (tilehasmodelorvoxel(tsp->picnum,tsp->pal))
     {
-        New->yrepeat = 0;
+        tSpr->yrepeat = 0;
         // cstat:    trans reverse
         // clipdist: tell mdsprite.cpp to use Z-buffer hacks to hide overdraw issues
-        New->clipdist |= TSPR_FLAGS_MDHACK;
-        New->cstat |= 512;
+        tSpr->clipdist |= TSPR_FLAGS_MDHACK;
+        tSpr->cstat |= 512;
     }
     else if (!testnewrenderer)
     {
         // Alter the shadow's position so that it appears behind the sprite itself.
-        int look = getangle(New->x - Player[screenpeek].six, New->y - Player[screenpeek].siy);
-        New->x += bcos(look, -9);
-        New->y += bsin(look, -9);
+        int look = getangle(tSpr->x - Player[screenpeek].six, tSpr->y - Player[screenpeek].siy);
+        tSpr->x += bcos(look, -9);
+        tSpr->y += bsin(look, -9);
     }
-    else New->time = 1;
+    else tSpr->time = 1;
 
     // Check for voxel items and use a round generic pic if so
     //DoVoxelShadow(New);
@@ -368,7 +364,7 @@ DoShadows(spritetype* tsprite, int& spritesortcnt, tspriteptr_t tsp, int viewz, 
 void
 DoMotionBlur(spritetype* tsprite, int& spritesortcnt, tspritetype const * const tsp)
 {
-    USERp tu = User[tsp->owner].Data();
+    USERp tu = swActors[tsp->owner].u();
     int nx,ny,nz = 0,dx,dy,dz;
     short i, ang;
     short xrepeat, yrepeat, repeat_adj = 0;
@@ -424,20 +420,20 @@ DoMotionBlur(spritetype* tsprite, int& spritesortcnt, tspritetype const * const 
 
     for (i = 0; i < tu->motion_blur_num; i++)
     {
-        tspriteptr_t New = &tsprite[spritesortcnt];
-        *New = *tsp;
-        SET(New->cstat, CSTAT_SPRITE_TRANSLUCENT|CSTAT_SPRITE_TRANSLUCENT_INVERT);
+        tspriteptr_t tSpr = &tsprite[spritesortcnt];
+        *tSpr = *tsp;
+        SET(tSpr->cstat, CSTAT_SPRITE_TRANSLUCENT|CSTAT_SPRITE_TRANSLUCENT_INVERT);
 
-        New->x += dx;
-        New->y += dy;
+        tSpr->x += dx;
+        tSpr->y += dy;
         dx += nx;
         dy += ny;
 
-        New->z += dz;
+        tSpr->z += dz;
         dz += nz;
 
-        New->xrepeat = uint8_t(xrepeat);
-        New->yrepeat = uint8_t(yrepeat);
+        tSpr->xrepeat = uint8_t(xrepeat);
+        tSpr->yrepeat = uint8_t(yrepeat);
 
         xrepeat -= repeat_adj;
         yrepeat -= repeat_adj;
@@ -456,24 +452,23 @@ void SetVoxelSprite(SPRITEp sp, short pic)
 void WarpCopySprite(spritetype* tsprite, int& spritesortcnt)
 {
     SPRITEp sp1, sp2, sp;
-    int sn, sn2;
     int spnum;
     int xoff,yoff,zoff;
     short match;
     short sect1, sect2;
 
     // look for the first one
-    StatIterator it(STAT_WARP_COPY_SPRITE1);
-    while ((sn = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_WARP_COPY_SPRITE1);
+    while (auto itActor = it.Next())
     {
-        sp1 = &sprite[sn];
+        sp1 = &itActor->s();
         match = sp1->lotag;
 
         // look for the second one
-        StatIterator it1(STAT_WARP_COPY_SPRITE2);
-        while ((sn2 = it1.NextIndex()) >= 0)
+        SWStatIterator it1(STAT_WARP_COPY_SPRITE2);
+        while (auto itActor1 = it.Next())
         {
-            sp = &sprite[sn2];
+            sp = &itActor1->s();
 
             if (sp->lotag == match)
             {
@@ -481,48 +476,50 @@ void WarpCopySprite(spritetype* tsprite, int& spritesortcnt)
                 sect1 = sp1->sectnum;
                 sect2 = sp2->sectnum;
 
-                SectIterator it(sect1);
-                while ((spnum = it.NextIndex()) >= 0)
+                SWSectIterator it2(sect1);
+                while (auto itActor2 = it.Next())
                 {
-                    if (&sprite[spnum] == sp1)
+                    auto spit = &itActor2->s();
+                    if (spit == sp1)
                         continue;
 
-                    if (sprite[spnum].picnum == ST1)
+                    if (spit->picnum == ST1)
                         continue;
 
-                    tspriteptr_t New = renderAddTSpriteFromSprite(tsprite, spritesortcnt, spnum);
-                    New->statnum = 0;
+                    tspriteptr_t newTSpr = renderAddTSpriteFromSprite(tsprite, spritesortcnt, itActor2->GetSpriteIndex());
+                    newTSpr->statnum = 0;
 
-                    xoff = sp1->x - New->x;
-                    yoff = sp1->y - New->y;
-                    zoff = sp1->z - New->z;
+                    xoff = sp1->x - newTSpr->x;
+                    yoff = sp1->y - newTSpr->y;
+                    zoff = sp1->z - newTSpr->z;
 
-                    New->x = sp2->x - xoff;
-                    New->y = sp2->y - yoff;
-                    New->z = sp2->z - zoff;
-                    New->sectnum = sp2->sectnum;
+                    newTSpr->x = sp2->x - xoff;
+                    newTSpr->y = sp2->y - yoff;
+                    newTSpr->z = sp2->z - zoff;
+                    newTSpr->sectnum = sp2->sectnum;
                 }
 
                 it.Reset(sect2);
-                while ((spnum = it.NextIndex()) >= 0)
+                while (auto itActor2 = it.Next())
                 {
-                    if (&sprite[spnum] == sp2)
+                    auto spit = &itActor2->s();
+                    if (spit == sp2)
                         continue;
 
-                    if (sprite[spnum].picnum == ST1)
+                    if (spit->picnum == ST1)
                         continue;
 
-                    tspriteptr_t New = renderAddTSpriteFromSprite(tsprite, spritesortcnt, spnum);
-                    New->statnum = 0;
+                    tspriteptr_t newTSpr = renderAddTSpriteFromSprite(tsprite, spritesortcnt, itActor2->GetSpriteIndex());
+                    newTSpr->statnum = 0;
 
-                    xoff = sp2->x - New->x;
-                    yoff = sp2->y - New->y;
-                    zoff = sp2->z - New->z;
+                    xoff = sp2->x - newTSpr->x;
+                    yoff = sp2->y - newTSpr->y;
+                    zoff = sp2->z - newTSpr->z;
 
-                    New->x = sp1->x - xoff;
-                    New->y = sp1->y - yoff;
-                    New->z = sp1->z - zoff;
-                    New->sectnum = sp1->sectnum;
+                    newTSpr->x = sp1->x - xoff;
+                    newTSpr->y = sp1->y - yoff;
+                    newTSpr->z = sp1->z - zoff;
+                    newTSpr->sectnum = sp1->sectnum;
                 }
             }
         }
@@ -555,7 +552,6 @@ void DoStarView(tspriteptr_t tsp, USERp tu, int viewz)
 void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, int camang)
 {
     int tSpriteNum;
-    short SpriteNum;
     int smr4, smr2;
     USERp tu;
     static int ang = 0;
@@ -572,9 +568,10 @@ void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int view
 
     for (tSpriteNum = spritesortcnt - 1; tSpriteNum >= 0; tSpriteNum--)
     {
-        SpriteNum = tsprite[tSpriteNum].owner;
+        int SpriteNum = tsprite[tSpriteNum].owner;
+        auto tActor = &swActors[SpriteNum];
         tspriteptr_t tsp = &tsprite[tSpriteNum];
-        tu = User[SpriteNum].Data();
+        tu = tActor->u();
 
 #if 0
         // Brighten up the sprite if set somewhere else to do so
@@ -621,7 +618,7 @@ void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int view
             // workaround for mines and floor decals beneath the floor
             if (tsp->picnum == BETTY_R0 || tsp->picnum == FLOORBLOOD1)
             {
-                auto sp = (uspriteptr_t)&sprite[SpriteNum];
+                auto sp = &tActor->s();
                 int32_t const floorz = getflorzofslope(sp->sectnum, sp->x, sp->y);
                 if (sp->z > floorz)
                     tsp->z = floorz;
@@ -707,7 +704,7 @@ void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int view
             {
                 tsp->pal = PALETTE_RED_LIGHTING;
                 // Turn it off, it gets reset by PrintSpriteInfo
-                sprite[tu->SpriteNum].hitag = 0;
+                tActor->s().hitag = 0;
             }
         }
 
@@ -733,8 +730,7 @@ void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int view
                 ShadeSprite(tsp);
 
             // sw if its your playersprite
-            //if ((Player + screenpeek)->PlayerSprite == SpriteNum)
-            if ((Player + screenpeek)->PlayerSprite == tu->SpriteNum)
+            if (Player[screenpeek].Actor() == tActor)
             {
                 PLAYERp pp = Player + screenpeek;
                 if (display_mirror || TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE|PF_VIEW_FROM_CAMERA))
@@ -837,7 +833,7 @@ void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int view
         {
             if (TEST(tu->Flags2, SPR2_VIS_SHADING))
             {
-                if ((Player + screenpeek)->PlayerSprite != tu->SpriteNum)
+                if (Player[screenpeek].Actor() != tActor)
                 {
                     if (!TEST(tu->PlayerP->Flags, PF_VIEW_FROM_OUTSIDE))
                     {
@@ -873,26 +869,23 @@ void
 post_analyzesprites(spritetype* tsprite, int& spritesortcnt)
 {
     int tSpriteNum;
-    short SpriteNum;
     USERp tu;
 
     for (tSpriteNum = spritesortcnt - 1; tSpriteNum >= 0; tSpriteNum--)
     {
-        SpriteNum = tsprite[tSpriteNum].owner;
+        int SpriteNum = tsprite[tSpriteNum].owner;
         if (SpriteNum < 0) continue;    // JBF: verify this is safe
         tspriteptr_t tsp = &tsprite[tSpriteNum];
-        tu = User[SpriteNum].Data();
+        tu = swActors[SpriteNum].u();
 
         if (tu)
         {
-            if (tu->ID == FIREBALL_FLAMES && tu->Attach >= 0)
+            if (tu->ID == FIREBALL_FLAMES && tu->attachActor != nullptr)
             {
-                tspriteptr_t const atsp = get_tsprite(tsprite, spritesortcnt, tu->Attach);
+                tspriteptr_t const atsp = get_tsprite(tsprite, spritesortcnt, tu->attachActor->GetSpriteIndex());
 
                 if (!atsp)
                 {
-                    //DSPRINTF(ds,"Attach not found");
-                    MONO_PRINT(ds);
                     continue;
                 }
 
@@ -937,7 +930,7 @@ CircleCamera(int *nx, int *ny, int *nz, int *vsect, binangle *nang, fixed_t q16h
     vz = q16horiz >> 8;
 
     // Player sprite of current view
-    sp = &sprite[pp->PlayerSprite];
+    sp = &pp->Actor()->s();
 
     bakcstat = sp->cstat;
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -981,7 +974,7 @@ CircleCamera(int *nx, int *ny, int *nz, int *vsect, binangle *nang, fixed_t q16h
         }
         else
         {
-            SPRITEp hsp = &sprite[hitinfo.sprite];
+            SPRITEp hsp = &swActors[hitinfo.sprite].s();
             int flag_backup;
 
             // if you hit a sprite that's not a wall sprite - try again
@@ -1038,27 +1031,24 @@ FString GameInterface::GetCoordString()
 void PrintSpriteInfo(PLAYERp pp)
 {
     const int Y_STEP = 7;
-    int x = windowxy1.x+2;
-    int y = windowxy1.y+2;
     SPRITEp sp;
     USERp u;
 
     //if (SpriteInfo && !LocationInfo)
     {
-        short hit_sprite = DoPickTarget(pp->SpriteP, 32, 2);
-
-        sp = &sprite[hit_sprite];
-        u = User[hit_sprite].Data();
+        auto actor = DoPickTarget(pp->Actor(), 32, 2);
+        sp = &actor->s();
+        u = actor->u();
 
         sp->hitag = 9997; // Special tag to make the actor glow red for one frame
 
-        if (hit_sprite == -1)
+        if (actor == nullptr)
         {
             Printf("SPRITENUM: NONE TARGETED\n");
             return;
         }
         else
-            Printf("SPRITENUM:%d\n", hit_sprite);
+            Printf("SPRITENUM:%d\n", actor->GetIndex());
 
         if (u)
         {
@@ -1086,14 +1076,13 @@ void DrawCrosshair(PLAYERp pp)
 
     if (!(CameraTestMode))
     {
-        USERp u = User[pp->PlayerSprite].Data();
+        USERp u = pp->Actor()->u();
         ::DrawCrosshair(2326, u->Health, -pp->angle.look_anghalf(smoothratio), TEST(pp->Flags, PF_VIEW_FROM_OUTSIDE) ? 5 : 0, 2, shadeToLight(10));
     }
 }
 
 void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, int *tsectnum, binangle *tang, fixedhoriz *thoriz)
 {
-    int i;
     binangle ang;
     SPRITEp sp;
     bool found_camera = false;
@@ -1103,17 +1092,17 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, int *tsectnum, binangle *
 
     if (pp == &Player[screenpeek])
     {
-        StatIterator it(STAT_DEMO_CAMERA);
-        while ((i = it.NextIndex()) >= 0)
+        SWStatIterator it(STAT_DEMO_CAMERA);
+        while (auto actor = it.Next())
         {
-            sp = &sprite[i];
+            sp = &actor->s();
 
             ang = bvectangbam(*tx - sp->x, *ty - sp->y);
             ang_test = getincangle(ang.asbuild(), sp->ang) < sp->lotag;
 
             FAFcansee_test =
                 (FAFcansee(sp->x, sp->y, sp->z, sp->sectnum, *tx, *ty, *tz, pp->cursectnum) ||
-                 FAFcansee(sp->x, sp->y, sp->z, sp->sectnum, *tx, *ty, *tz + SPRITEp_SIZE_Z(pp->SpriteP), pp->cursectnum));
+                 FAFcansee(sp->x, sp->y, sp->z, sp->sectnum, *tx, *ty, *tz + SPRITEp_SIZE_Z(&pp->Actor()->s()), pp->cursectnum));
 
             player_in_camera = ang_test && FAFcansee_test;
 
@@ -1212,10 +1201,10 @@ PreDraw(void)
     int i;
     PreDrawStackedWater();
 
-    StatIterator it(STAT_FLOOR_SLOPE_DONT_DRAW);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_FLOOR_SLOPE_DONT_DRAW);
+    while (auto actor = it.Next())
     {
-        RESET(sector[sprite[i].sectnum].floorstat, FLOOR_STAT_SLOPE);
+        RESET(sector[actor->s().sectnum].floorstat, FLOOR_STAT_SLOPE);
     }
 }
 
@@ -1223,27 +1212,26 @@ void
 PostDraw(void)
 {
     int i;
-    StatIterator it(STAT_FLOOR_SLOPE_DONT_DRAW);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_FLOOR_SLOPE_DONT_DRAW);
+    while (auto actor = it.Next())
     {
-        SET(sector[sprite[i].sectnum].floorstat, FLOOR_STAT_SLOPE);
+        SET(sector[actor->s().sectnum].floorstat, FLOOR_STAT_SLOPE);
     }
 
     it.Reset(STAT_FAF_COPY);
-    while ((i = it.NextIndex()) >= 0)
+    while (auto actor = it.Next())
     {
-        User[i].Clear();
-        deletesprite(i);
+        actor->clearUser();
+        deletesprite(actor->GetSpriteIndex());
     }
 }
 
-int CopySprite(spritetype const * tsp, short newsector)
+DSWActor* CopySprite(spritetype const * tsp, short newsector)
 {
-    short New;
     SPRITEp sp;
 
-    New = COVERinsertsprite(newsector, STAT_FAF_COPY);
-    sp = &sprite[New];
+    auto actorNew = InsertActor(newsector, STAT_FAF_COPY);
+    sp = &actorNew->s();
 
     sp->x = tsp->x;
     sp->y = tsp->y;
@@ -1263,10 +1251,10 @@ int CopySprite(spritetype const * tsp, short newsector)
 
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
-    return New;
+    return actorNew;
 }
 
-int ConnectCopySprite(spritetype const * tsp)
+DSWActor* ConnectCopySprite(spritetype const * tsp)
 {
     int newsector;
     int testz;
@@ -1299,45 +1287,37 @@ int ConnectCopySprite(spritetype const * tsp)
         }
     }
 
-    return -1;
+    return nullptr;
 }
 
 
 void PreDrawStackedWater(void)
 {
-    int i, si;
-    SPRITEp sp;
-    USERp u,nu;
-    short New;
-
-    StatIterator it(STAT_CEILING_FLOOR_PIC_OVERRIDE);
-    while ((si = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_CEILING_FLOOR_PIC_OVERRIDE);
+    while (auto itActor = it.Next())
     {
-        SectIterator it(sprite[si].sectnum);
-        while ((i = it.NextIndex()) >= 0)
+        SWSectIterator it2(itActor->s().sectnum);
+        while (auto itActor2 = it2.Next())
         {
-            if (User[i].Data())
+            if (itActor2->hasU())
             {
-                if (sprite[i].statnum == STAT_ITEM)
+                auto sp = &itActor2->s();
+                auto u = itActor2->u();
+                if (sp->statnum == STAT_ITEM)
                     continue;
 
-                if (sprite[i].statnum <= STAT_DEFAULT || sprite[i].statnum > STAT_PLAYER0 + MAX_SW_PLAYERS)
+                if (sp->statnum <= STAT_DEFAULT || sp->statnum > STAT_PLAYER0 + MAX_SW_PLAYERS)
                     continue;
 
                 // code so that a copied sprite will not make another copy
-                if (User[i]->xchange == -989898)
+                if (u->xchange == -989898)
                     continue;
 
-                sp = &sprite[i];
-                u = User[i].Data();
-
-                New = ConnectCopySprite((spritetype const *)sp);
-                if (New >= 0)
+                auto actorNew = ConnectCopySprite((spritetype const *)sp);
+                if (actorNew != nullptr)
                 {
                     // spawn a user
-                    User[New].Alloc();
-                    nu = User[New].Data();
-                    ASSERT(nu != nullptr);
+                    auto nu = actorNew->allocUser();
 
                     nu->xchange = -989898;
 
@@ -1351,10 +1331,6 @@ void PreDrawStackedWater(void)
                     nu->Flags2 = u->Flags2;
                     nu->RotNum = u->RotNum;
                     nu->ID = u->ID;
-
-                    // set these to other sprite for players draw
-                    nu->SpriteNum = i;
-                    nu->SpriteP = sp;
 
                     nu->PlayerP = u->PlayerP;
                     nu->spal = u->spal;
@@ -1381,6 +1357,11 @@ void UpdateWallPortalState()
             continue;
         }
         walltype* wal = &wall[mirror[i].mirrorwall];
+        if (wal->picnum != MIRRORLABEL + i)
+        {
+            wal->portalflags = 0;
+            continue;
+        }
         wal->portalflags = 0;
         wal->portalnum = 0;
 
@@ -1391,20 +1372,19 @@ void UpdateWallPortalState()
         }
         else
         {
-            auto sp = &sprite[mirror[i].camera];
+            auto sp = &mirror[i].cameraActor->s();
             if (!TEST_BOOL1(sp))
             {
                 wal->portalflags = PORTAL_WALL_TO_SPRITE;
-                wal->portalnum = mirror[i].camera;
+                wal->portalnum = mirror[i].cameraActor->GetSpriteIndex();
             }
         }
     }
 
-    int i;
-    StatIterator it(STAT_CEILING_FLOOR_PIC_OVERRIDE);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_CEILING_FLOOR_PIC_OVERRIDE);
+    while (auto actor = it.Next())
     {
-        auto sp = &sprite[i];
+        auto sp = &actor->s();
         if (SP_TAG3(sp) == 0)
         {
             // back up ceilingpicnum and ceilingstat
@@ -1430,11 +1410,10 @@ void UpdateWallPortalState()
 
 void RestorePortalState()
 {
-    int i;
-    StatIterator it(STAT_CEILING_FLOOR_PIC_OVERRIDE);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_CEILING_FLOOR_PIC_OVERRIDE);
+    while (auto actor = it.Next())
     {
-        auto sp = &sprite[i];
+        auto sp = &actor->s();
         if (SP_TAG3(sp) == 0)
         {
             // restore ceilingpicnum and ceilingstat
@@ -1555,8 +1534,9 @@ drawscreen(PLAYERp pp, double smoothratio)
 
     if (pp->sop_remote)
     {
-        if (TEST_BOOL1(pp->remote_sprite))
-            tang = buildang(pp->remote_sprite->ang);
+        auto rsp = &pp->remoteActor->s();
+        if (TEST_BOOL1(rsp))
+            tang = buildang(rsp->ang);
         else
             tang = bvectangbam(pp->sop_remote->xmid - tx, pp->sop_remote->ymid - ty);
     }
@@ -1565,10 +1545,10 @@ drawscreen(PLAYERp pp, double smoothratio)
     {
         tz -= 8448;
         
-        if (!calcChaseCamPos(&tx, &ty, &tz, &sprite[pp->PlayerSprite], &tsectnum, tang, thoriz, smoothratio))
+        if (!calcChaseCamPos(&tx, &ty, &tz, &pp->Actor()->s(), &tsectnum, tang, thoriz, smoothratio))
         {
             tz += 8448;
-            calcChaseCamPos(&tx, &ty, &tz, &sprite[pp->PlayerSprite], &tsectnum, tang, thoriz, smoothratio);
+            calcChaseCamPos(&tx, &ty, &tz, &pp->Actor()->s(), &tsectnum, tang, thoriz, smoothratio);
         }
     }
     else
@@ -1608,7 +1588,7 @@ drawscreen(PLAYERp pp, double smoothratio)
     else
     {
         UpdateWallPortalState();
-        render_drawrooms(pp->SpriteP, { tx, ty, tz }, tsectnum, tang, thoriz, trotscrnang, smoothratio);
+        render_drawrooms(&pp->Actor()->s(), { tx, ty, tz }, tsectnum, tang, thoriz, trotscrnang, smoothratio);
         RestorePortalState();
     }
 
@@ -1627,31 +1607,34 @@ drawscreen(PLAYERp pp, double smoothratio)
 
     if ((automapMode != am_off) && pp == Player+myconnectindex)
     {
-        for (j = 0; j < MAXSPRITES; j++)
+        SWSpriteIterator it;
+        while (auto actor = it.Next())
         {
+            auto sp = &actor->s();
             // Don't show sprites tagged with 257
-            if (sprite[j].lotag == 257)
+            if (sp->lotag == 257)
             {
-                if (TEST(sprite[j].cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR))
+                if (TEST(sp->cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR))
                 {
-                    RESET(sprite[j].cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR);
-                    sprite[j].owner = -2;
+                    RESET(sp->cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR);
+                    sp->owner = -2;
                 }
             }
         }
         DrawOverheadMap(tx, ty, tang.asbuild(), smoothratio);
     }
 
-    for (j = 0; j < MAXSPRITES; j++)
+    SWSpriteIterator it;
+    while (auto actor = it.Next())
     {
+        auto sp = &actor->s();
         // Don't show sprites tagged with 257
-        if (sprite[j].lotag == 257 && sprite[j].owner == -2)
-            SET(sprite[j].cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR);
+        if (sp->lotag == 257 && sp->owner == -2)
+        {
+            SET(sp->cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR);
+            sp->owner = -1;
+        }
     }
-
-
-    //PrintLocationInfo(pp);
-    //PrintSpriteInfo(pp);
 
 #if SYNC_TEST
     SyncStatMessage();
@@ -1703,9 +1686,9 @@ bool GameInterface::GenerateSavePic()
 
 
 
-bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang, double const smoothratio)
+bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int czoom, int cang, double const smoothratio)
 {
-    int i, j, k, l, x1, y1, x2, y2, x3, y3, x4, y4, ox, oy, xoff, yoff;
+    int i, k, l, x1, y1, x2, y2, x3, y3, x4, y4, ox, oy, xoff, yoff;
     int dax, day, cosang, sinang, xspan, yspan, sprx, spry;
     int xrepeat, yrepeat, z1, z2, startwall, endwall, tilenum, daang;
     int xvect, yvect;
@@ -1721,32 +1704,32 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
 
 
     // Draw sprites
-    k = Player[screenpeek].PlayerSprite;
+    auto peekActor = Player[screenpeek].Actor();
     for (i = 0; i < numsectors; i++)
     {
-        SectIterator it(i);
-        while ((j = it.NextIndex()) >= 0)
+        SWSectIterator it(i);
+        while (auto actor = it.Next())
         {
+            spr = &actor->s();
             for (p = connecthead; p >= 0; p = connectpoint2[p])
             {
-                if (Player[p].PlayerSprite == j)
+                if (Player[p].Actor() == actor)
                 {
-                    if (sprite[Player[p].PlayerSprite].xvel > 16)
+                    if (spr->xvel > 16)
                         pspr_ndx[myconnectindex] = ((PlayClock >> 4) & 3);
                     sprisplayer = true;
 
                     goto SHOWSPRITE;
                 }
             }
-            if (gFullMap || (sprite[j].cstat2 & CSTAT2_SPRITE_MAPPED))
+            if (gFullMap || (spr->cstat2 & CSTAT2_SPRITE_MAPPED))
             {
             SHOWSPRITE:
-                spr = &sprite[j];
 
                 PalEntry col = GPalette.BaseColors[56]; // 1=white / 31=black / 44=green / 56=pink / 128=yellow / 210=blue / 248=orange / 255=purple
                 if ((spr->cstat & 1) > 0)
                     col = GPalette.BaseColors[248];
-                if (j == k)
+                if (actor == peekActor)
                     col = GPalette.BaseColors[31];
 
                 sprx = spr->x;
@@ -1762,10 +1745,14 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
                 switch (spr->cstat & 48)
                 {
                 case 0:  // Regular sprite
-                    if (Player[p].PlayerSprite == j)
+                    if (Player[p].Actor() == actor)
                     {
-                        x1 = sprx - cposx;
-                        y1 = spry - cposy;
+                        ox = mx - cposx;
+                        oy = my - cposy;
+                        x1 = DMulScale(ox, xvect, -oy, yvect, 16);
+                        y1 = DMulScale(oy, xvect, ox, yvect, 16);
+                        int xx = xdim / 2. + x1 / 4096.;
+                        int yy = ydim / 2. + y1 / 4096.;
 
                         if (czoom > 192)
                         {
@@ -1777,18 +1764,16 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
                             int spnum = -1;
                             if (sprisplayer)
                             {
-                                if (gNet.MultiGameType != MULTI_GAME_COMMBAT || j == Player[screenpeek].PlayerSprite)
+                                if (gNet.MultiGameType != MULTI_GAME_COMMBAT || actor == Player[screenpeek].Actor())
                                     spnum = 1196 + pspr_ndx[myconnectindex];
                             }
                             else spnum = spr->picnum;
 
-                            double xd = ((x1 << 4) + (xdim << 15)) / 65536.;
-                            double yd = ((y1 << 4) + (ydim << 15)) / 65536.;
                             double sc = czoom * (spr->yrepeat) / 32768.;
                             if (spnum >= 0)
                             {
-                                DrawTexture(twod, tileGetTexture(1196 + pspr_ndx[myconnectindex], true), xd, yd, DTA_ScaleX, sc, DTA_ScaleY, sc, DTA_Rotate, daang * -BAngToDegree,
-                                    DTA_CenterOffsetRel, true, DTA_TranslationIndex, TRANSLATION(Translation_Remap, spr->pal), DTA_Color, shadeToLight(spr->shade),
+                                DrawTexture(twod, tileGetTexture(1196 + pspr_ndx[myconnectindex], true), xx, yy, DTA_ScaleX, sc, DTA_ScaleY, sc, DTA_Rotate, daang * -BAngToDegree,
+                                    DTA_CenterOffsetRel, 2, DTA_TranslationIndex, TRANSLATION(Translation_Remap, spr->pal), DTA_Color, shadeToLight(spr->shade),
                                     DTA_Alpha, (spr->cstat & 2) ? 0.33 : 1., TAG_DONE);
                             }
                         }

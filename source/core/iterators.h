@@ -51,6 +51,12 @@ public:
         assert(stat >= 0 && stat < MAXSECTORS);
         next = headspritesect[stat];
     }
+	
+	SectIterator(sectortype* sect)
+	{
+		assert(sect);
+		next = headspritesect[sect - sector];
+	}
     
     void Reset(int stat)
     {
@@ -58,6 +64,12 @@ public:
         next = headspritesect[stat];
     }
     
+	void Reset(sectortype* sect)
+	{
+		assert(sect);
+		next = headspritesect[sect - sector];
+	}
+	
     int NextIndex()
     {
         int n = next;

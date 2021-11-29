@@ -49,9 +49,9 @@ void fxFlameLick(DBloodActor* actor, int) // 0
         auto pFX = gFX.fxSpawnActor(FX_32, pSprite->sectnum, x, y, z, 0);
         if (pFX)
         {
-            pFX->xvel() = actor->xvel() + Random2(-dx);
-            pFX->yvel() = actor->yvel() + Random2(-dy);
-            pFX->zvel() = actor->zvel() - Random(0x1aaaa);
+            pFX->xvel = actor->xvel + Random2(-dx);
+            pFX->yvel = actor->yvel + Random2(-dy);
+            pFX->zvel = actor->zvel - Random(0x1aaaa);
         }
     }
     if (pXSprite->burnTime > 0)
@@ -61,19 +61,17 @@ void fxFlameLick(DBloodActor* actor, int) // 0
 void Remove(DBloodActor* actor, int) // 1
 {
     if (!actor) return;
-    spritetype *pSprite = &actor->s();
     evKillActor(actor, kCallbackFXFlareSpark);
-    if (pSprite->extra > 0)
-        seqKill(3, pSprite->extra);
-    sfxKill3DSound(pSprite, 0, -1);
+    if (actor->hasX())
+        seqKill(actor);
+    sfxKill3DSound(actor, 0, -1);
     DeleteSprite(actor);
 }
 
 void FlareBurst(DBloodActor* actor, int) // 2
 {
     if (!actor) return;
-    spritetype *pSprite = &actor->s();
-    int nAngle = getangle(actor->xvel(), actor->yvel());
+    int nAngle = getangle(actor->xvel, actor->yvel);
     int nRadius = 0x55555;
     for (int i = 0; i < 8; i++)
     {
@@ -84,7 +82,7 @@ void FlareBurst(DBloodActor* actor, int) // 2
         pSpawn->xrepeat = pSpawn->yrepeat = 32;
         pSpawn->type = kMissileFlareAlt;
         pSpawn->clipdist = 2;
-        pSpawn->owner = pSprite->owner;
+        spawnedactor->SetOwner(actor);
         int nAngle2 = (i<<11)/8;
         int dx = 0;
         int dy = mulscale30r(nRadius, Sin(nAngle2));
@@ -95,9 +93,9 @@ void FlareBurst(DBloodActor* actor, int) // 2
             dz >>= 1;
         }
         RotateVector(&dx, &dy, nAngle);
-        spawnedactor->xvel() += dx;
-        spawnedactor->yvel() += dy;
-        spawnedactor->zvel() += dz;
+        spawnedactor->xvel += dx;
+        spawnedactor->yvel += dy;
+        spawnedactor->zvel += dz;
         evPostActor(spawnedactor, 960, kCallbackRemove);
     }
     evPostActor(actor, 0, kCallbackRemove);
@@ -110,9 +108,9 @@ void fxFlareSpark(DBloodActor* actor, int) // 3
     auto pFX = gFX.fxSpawnActor(FX_28, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
     if (pFX)
     {
-        pFX->xvel() = actor->xvel() + Random2(0x1aaaa);
-        pFX->yvel() = actor->yvel() + Random2(0x1aaaa);
-        pFX->zvel() = actor->zvel() - Random(0x1aaaa);
+        pFX->xvel = actor->xvel + Random2(0x1aaaa);
+        pFX->yvel = actor->yvel + Random2(0x1aaaa);
+        pFX->zvel = actor->zvel - Random(0x1aaaa);
     }
     evPostActor(actor, 4, kCallbackFXFlareSpark);
 }
@@ -124,9 +122,9 @@ void fxFlareSparkLite(DBloodActor* actor, int) // 4
     auto pFX = gFX.fxSpawnActor(FX_28, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
     if (pFX)
     {
-        pFX->xvel() = actor->xvel() + Random2(0x1aaaa);
-        pFX->yvel() = actor->yvel() + Random2(0x1aaaa);
-        pFX->zvel() = actor->zvel() - Random(0x1aaaa);
+        pFX->xvel = actor->xvel + Random2(0x1aaaa);
+        pFX->yvel = actor->yvel + Random2(0x1aaaa);
+        pFX->zvel = actor->zvel - Random(0x1aaaa);
     }
     evPostActor(actor, 12, kCallbackFXFlareSparkLite);
 }
@@ -135,17 +133,16 @@ void fxZombieBloodSpurt(DBloodActor* actor, int) // 5
 {
     if (!actor) return;
     spritetype *pSprite = &actor->s();
-    int nXSprite = pSprite->extra;
-    assert(nXSprite > 0 && nXSprite < kMaxXSprites);
+    assert(actor->hasX());
     XSPRITE *pXSprite = &actor->x();
     int top, bottom;
     GetSpriteExtents(pSprite, &top, &bottom);
     auto pFX = gFX.fxSpawnActor(FX_27, pSprite->sectnum, pSprite->x, pSprite->y, top, 0);
     if (pFX)
     {
-        pFX->xvel() = actor->xvel() + Random2(0x11111);
-        pFX->yvel() = actor->yvel() + Random2(0x11111);
-        pFX->zvel() = actor->zvel() - 0x6aaaa;
+        pFX->xvel = actor->xvel + Random2(0x11111);
+        pFX->yvel = actor->yvel + Random2(0x11111);
+        pFX->zvel = actor->zvel - 0x6aaaa;
     }
     if (pXSprite->data1 > 0)
     {
@@ -168,9 +165,9 @@ void fxBloodSpurt(DBloodActor* actor, int) // 6
     if (pFX)
     {
         pFX->s().ang = 0;
-        pFX->xvel() = actor->xvel()>>8;
-        pFX->yvel() = actor->yvel()>>8;
-        pFX->zvel() = actor->zvel()>>8;
+        pFX->xvel = actor->xvel>>8;
+        pFX->yvel = actor->yvel>>8;
+        pFX->zvel = actor->zvel>>8;
     }
     evPostActor(actor, 6, kCallbackFXBloodSpurt);
 }
@@ -183,9 +180,9 @@ void fxArcSpark(DBloodActor* actor, int) // 7
     auto pFX = gFX.fxSpawnActor(FX_15, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
     if (pFX)
     {
-        pFX->xvel() = actor->xvel() + Random2(0x10000);
-        pFX->yvel() = actor->yvel() + Random2(0x10000);
-        pFX->zvel() = actor->zvel() - Random(0x1aaaa);
+        pFX->xvel = actor->xvel + Random2(0x10000);
+        pFX->yvel = actor->yvel + Random2(0x10000);
+        pFX->zvel = actor->zvel - Random(0x1aaaa);
     }
     evPostActor(actor, 3, kCallbackFXArcSpark);
 }
@@ -195,7 +192,7 @@ void fxDynPuff(DBloodActor* actor, int) // 8
 {
     if (!actor) return;
     spritetype *pSprite = &actor->s();
-    if (actor->zvel())
+    if (actor->zvel)
     {
         int nDist = (pSprite->xrepeat*(tileWidth(pSprite->picnum)/2))>>2;
         int x = pSprite->x + MulScale(nDist, Cos(pSprite->ang-512), 30);
@@ -204,9 +201,9 @@ void fxDynPuff(DBloodActor* actor, int) // 8
         auto pFX = gFX.fxSpawnActor(FX_7, pSprite->sectnum, x, y, z, 0);
         if (pFX)
         {
-            pFX->xvel() = actor->xvel();
-            pFX->yvel() = actor->yvel();
-            pFX->zvel() = actor->zvel();
+            pFX->xvel = actor->xvel;
+            pFX->yvel = actor->yvel;
+            pFX->zvel = actor->zvel;
         }
     }
     evPostActor(actor, 12, kCallbackFXDynPuff);
@@ -216,8 +213,8 @@ void Respawn(DBloodActor* actor, int) // 9
 {
     if (!actor) return;
     spritetype *pSprite = &actor->s();
-    assert(pSprite->extra > 0 && pSprite->extra < kMaxXSprites);
-    XSPRITE *pXSprite = &xsprite[pSprite->extra];
+    assert(actor->hasX());
+    XSPRITE *pXSprite = &actor->x();
     
     if (pSprite->statnum != kStatRespawn && pSprite->statnum != kStatThing) {
         viewSetSystemMessage("Sprite #%d is not on Respawn or Thing list\n", actor->GetIndex());
@@ -243,19 +240,18 @@ void Respawn(DBloodActor* actor, int) // 9
         case 3: {
             assert(pSprite->owner != kStatRespawn);
             assert(pSprite->owner >= 0 && pSprite->owner < kMaxStatus);
-            ChangeSpriteStat(actor->s().index, pSprite->owner);
+            ChangeActorStat(actor, pSprite->owner);
             pSprite->type = pSprite->inittype;
-            pSprite->owner = -1;
+            actor->SetOwner(nullptr);
             pSprite->flags &= ~kHitagRespawn;
-            actor->xvel() = actor->yvel() = actor->zvel() = 0;
+            actor->xvel = actor->yvel = actor->zvel = 0;
             pXSprite->respawnPending = 0;
             pXSprite->burnTime = 0;
             pXSprite->isTriggered = 0;
-            if (IsDudeSprite(pSprite)) {
+            if (actor->IsDudeActor()) 
+            {
                 int nType = pSprite->type-kDudeBase;
-                pSprite->x = actor->basePoint().x;
-                pSprite->y = actor->basePoint().y;
-                pSprite->z = actor->basePoint().z;
+                pSprite->pos = actor->basePoint;
                 pSprite->cstat |= 0x1101;
                 #ifdef NOONE_EXTENSIONS
                 if (!gModernMap || pXSprite->sysData2 <= 0) pXSprite->health = dudeInfo[pSprite->type - kDudeBase].startHealth << 4;
@@ -265,10 +261,10 @@ void Respawn(DBloodActor* actor, int) // 9
                     default:
                         pSprite->clipdist = getDudeInfo(nType + kDudeBase)->clipdist;
                         if (getSequence(getDudeInfo(nType + kDudeBase)->seqStartID))
-                            seqSpawn(getDudeInfo(nType + kDudeBase)->seqStartID, 3, pSprite->extra, -1);
+                            seqSpawn(getDudeInfo(nType + kDudeBase)->seqStartID, actor, -1);
                         break;
                     case kDudeModernCustom:
-                        seqSpawn(genDudeSeqStartId(actor), 3, pSprite->extra, -1);
+                        seqSpawn(genDudeSeqStartId(actor), actor, -1);
                         break;
                 }
                 
@@ -281,7 +277,7 @@ void Respawn(DBloodActor* actor, int) // 9
                 pSprite->clipdist = getDudeInfo(nType + kDudeBase)->clipdist;
                 pXSprite->health = getDudeInfo(nType + kDudeBase)->startHealth << 4;
                 if (getSequence(getDudeInfo(nType + kDudeBase)->seqStartID))
-                    seqSpawn(getDudeInfo(nType + kDudeBase)->seqStartID, 3, pSprite->extra, -1);
+                    seqSpawn(getDudeInfo(nType + kDudeBase)->seqStartID, actor, -1);
                 #endif
                 aiInitSprite(actor);
                 pXSprite->key = 0;
@@ -319,9 +315,9 @@ void PlayerBubble(DBloodActor* actor, int) // 10
             auto pFX = gFX.fxSpawnActor((FX_ID)(FX_23+Random(3)), pSprite->sectnum, x, y, z, 0);
             if (pFX)
             {
-                pFX->xvel() = actor->xvel() + Random2(0x1aaaa);
-                pFX->yvel() = actor->yvel() + Random2(0x1aaaa);
-                pFX->zvel() = actor->zvel() + Random2(0x1aaaa);
+                pFX->xvel = actor->xvel + Random2(0x1aaaa);
+                pFX->yvel = actor->yvel + Random2(0x1aaaa);
+                pFX->zvel = actor->zvel + Random2(0x1aaaa);
             }
         }
         evPostActor(actor, 4, kCallbackPlayerBubble);
@@ -334,7 +330,7 @@ void EnemyBubble(DBloodActor* actor, int) // 11
     spritetype *pSprite = &actor->s();
     int top, bottom;
     GetSpriteExtents(pSprite, &top, &bottom);
-    for (int i = 0; i < (abs(actor->zvel())>>18); i++)
+    for (int i = 0; i < (abs(actor->zvel)>>18); i++)
     {
         int nDist = (pSprite->xrepeat*(tileWidth(pSprite->picnum)/2))>>2;
         int nAngle = Random(2048);
@@ -344,9 +340,9 @@ void EnemyBubble(DBloodActor* actor, int) // 11
         auto pFX = gFX.fxSpawnActor((FX_ID)(FX_23+Random(3)), pSprite->sectnum, x, y, z, 0);
         if (pFX)
         {
-            pFX->xvel() = actor->xvel() + Random2(0x1aaaa);
-            pFX->yvel() = actor->yvel() + Random2(0x1aaaa);
-            pFX->zvel() = actor->zvel() + Random2(0x1aaaa);
+            pFX->xvel = actor->xvel + Random2(0x1aaaa);
+            pFX->yvel = actor->yvel + Random2(0x1aaaa);
+            pFX->zvel = actor->zvel + Random2(0x1aaaa);
         }
     }
     evPostActor(actor, 4, kCallbackEnemeyBubble);
@@ -362,11 +358,10 @@ void CounterCheck(DBloodActor*, int nSector) // 12
     int nReq = pXSector->waitTimeA; int nType = pXSector->data; int nCount = 0;
     if (!nType || !nReq) return;
     
-    int nSprite;
-    SectIterator it(nSector);
-    while ((nSprite = it.NextIndex()) >= 0)
+    BloodSectIterator it(nSector);
+    while (auto actor = it.Next())
     {
-        if (sprite[nSprite].type == nType) nCount++;
+        if (actor->s().type == nType) nCount++;
     }
         
     if (nCount < nReq) {
@@ -384,9 +379,7 @@ void FinishHim(DBloodActor* actor, int) // 13
 {
     if (!actor) return;
     spritetype* pSprite = &actor->s();
-    int nXSprite = pSprite->extra;
-    XSPRITE* pXSprite = &actor->x();
-    if (IsPlayerSprite(pSprite) && playerSeqPlaying(&gPlayer[pSprite->type - kDudePlayer1], 16) && pXSprite->target_i == gMe->nSprite)
+    if (actor->IsPlayerActor() && playerSeqPlaying(&gPlayer[pSprite->type - kDudePlayer1], 16) && actor == gMe->actor)
         sndStartSample(3313, -1, 1, 0);
 }
 
@@ -396,7 +389,7 @@ void fxBloodBits(DBloodActor* actor, int) // 14
     spritetype *pSprite = &actor->s();
     int ceilZ, floorZ;
     Collision floorColl, ceilColl;
-    GetZRange(pSprite, &ceilZ, &ceilColl, &floorZ, &floorColl, pSprite->clipdist, CLIPMASK0);
+    GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, pSprite->clipdist, CLIPMASK0);
     int top, bottom;
     GetSpriteExtents(pSprite, &top, &bottom);
     pSprite->z += floorZ-bottom;
@@ -407,8 +400,7 @@ void fxBloodBits(DBloodActor* actor, int) // 14
     gFX.fxSpawnActor(FX_48, pSprite->sectnum, x, y, pSprite->z, 0);
     if (pSprite->ang == 1024)
     {
-        int nChannel = 28+(pSprite->index&2);
-        assert(nChannel < 32);
+        int nChannel = 28 + (actor->GetIndex() & 2);    // this is a little stupid...
         sfxPlay3DSound(pSprite, 385, nChannel, 1);
     }
     if (Chance(0x5000))
@@ -428,9 +420,9 @@ void fxTeslaAlt(DBloodActor* actor, int) // 15
     auto pFX = gFX.fxSpawnActor(FX_49, pSprite->sectnum, pSprite->x, pSprite->y, pSprite->z, 0);
     if (pFX)
     {
-        pFX->xvel() = actor->xvel() + Random2(0x1aaaa);
-        pFX->yvel() = actor->yvel() + Random2(0x1aaaa);
-        pFX->zvel() = actor->zvel() - Random(0x1aaaa);
+        pFX->xvel = actor->xvel + Random2(0x1aaaa);
+        pFX->yvel = actor->yvel + Random2(0x1aaaa);
+        pFX->zvel = actor->zvel - Random(0x1aaaa);
     }
     evPostActor(actor, 3, kCallbackFXTeslaAlt);
 }
@@ -446,23 +438,22 @@ void fxBouncingSleeve(DBloodActor* actor, int) // 16
     int ceilZ, floorZ;
     Collision floorColl, ceilColl;
 
-    GetZRange(pSprite, &ceilZ, &ceilColl, &floorZ, &floorColl, pSprite->clipdist, CLIPMASK0);
+    GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, pSprite->clipdist, CLIPMASK0);
     int top, bottom; GetSpriteExtents(pSprite, &top, &bottom);
     pSprite->z += floorZ - bottom;
     
-    int zv = actor->zvel() - velFloor[pSprite->sectnum];
+    int zv = actor->zvel - velFloor[pSprite->sectnum];
     
-    if (actor->zvel() == 0) sleeveStopBouncing(actor);
+    if (actor->zvel == 0) sleeveStopBouncing(actor);
     else if (zv > 0) {
-        actFloorBounceVector((int*)& actor->xvel(), (int*)& actor->yvel(), &zv, pSprite->sectnum, 0x9000);
-        actor->zvel() = zv;
-        if (velFloor[pSprite->sectnum] == 0 && abs(actor->zvel()) < 0x20000)  {
+        actFloorBounceVector((int*)& actor->xvel, (int*)& actor->yvel, &zv, pSprite->sectnum, 0x9000);
+        actor->zvel = zv;
+        if (velFloor[pSprite->sectnum] == 0 && abs(actor->zvel) < 0x20000)  {
             sleeveStopBouncing(actor);
             return;
         }
 
-        int nChannel = 28 + (pSprite->index & 2);
-        assert(nChannel < 32);
+        int nChannel = 28 + (actor->GetIndex() & 2);
         
         // tommy sleeve
         if (pSprite->type >= 37 && pSprite->type <= 39) {
@@ -481,8 +472,8 @@ void fxBouncingSleeve(DBloodActor* actor, int) // 16
 void sleeveStopBouncing(DBloodActor* actor) 
 {
     auto pSprite = &actor->s();
-    actor->xvel() = actor->yvel() = actor->zvel() = 0;
-    if (pSprite->extra > 0) seqKill(3, pSprite->extra);
+    actor->xvel = actor->yvel = actor->zvel = 0;
+    if (actor->hasX()) seqKill(actor);
     sfxKill3DSound(pSprite, -1, -1);
 
     switch (pSprite->type) {
@@ -507,21 +498,19 @@ void returnFlagToBase(DBloodActor* actor, int) // 17
 {
     if (!actor) return;
     spritetype* pSprite = &actor->s();
-    auto owner = actor->GetOwner();
-    if (owner)
+    auto aOwner = actor->GetOwner();
+    if (aOwner)
     {
-        spritetype* pOwner = &owner->s();
-        XSPRITE* pXOwner = &owner->x();
         switch (pSprite->type) 
         {
             case kItemFlagA:
-                trTriggerSprite(pOwner->index, pXOwner, kCmdOn);
+                trTriggerSprite(aOwner, kCmdOn);
                 sndStartSample(8003, 255, 2, 0);
                 gBlueFlagDropped = false;
                 viewSetMessage("Blue Flag returned to base.");
                 break;
             case kItemFlagB:
-                trTriggerSprite(pOwner->index, pXOwner, kCmdOn);
+                trTriggerSprite(aOwner, kCmdOn);
                 sndStartSample(8002, 255, 2, 0);
                 gRedFlagDropped = false;
                 viewSetMessage("Red Flag returned to base.");
@@ -543,9 +532,9 @@ void fxPodBloodSpray(DBloodActor* actor, int) // 18
     if (pFX)
     {
         pFX->s().ang = 0;
-        pFX->xvel() = actor->xvel() >> 8;
-        pFX->yvel() = actor->yvel() >> 8;
-        pFX->zvel() = actor->zvel() >> 8;
+        pFX->xvel = actor->xvel >> 8;
+        pFX->yvel = actor->yvel >> 8;
+        pFX->zvel = actor->zvel >> 8;
     }
     evPostActor(actor, 6, kCallbackFXPodBloodSpray);
 }
@@ -557,7 +546,7 @@ void fxPodBloodSplat(DBloodActor* actor, int) // 19
     int ceilZ, floorZ;
     Collision floorColl, ceilColl;
 
-    GetZRange(pSprite, &ceilZ, &ceilColl, &floorZ, &floorColl, pSprite->clipdist, CLIPMASK0);
+    GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, pSprite->clipdist, CLIPMASK0);
     int top, bottom;
     GetSpriteExtents(pSprite, &top, &bottom);
     pSprite->z += floorZ-bottom;
@@ -567,7 +556,7 @@ void fxPodBloodSplat(DBloodActor* actor, int) // 19
     int y = pSprite->y+MulScale(nDist, Sin(nAngle), 28);
     if (pSprite->ang == 1024)
     {
-        int nChannel = 28+(pSprite->index&2);
+        int nChannel = 28 + (actor->GetIndex() & 2);
         assert(nChannel < 32);
         sfxPlay3DSound(pSprite, 385, nChannel, 1);
     }
@@ -600,7 +589,7 @@ void LeechStateTimer(DBloodActor* actor, int) // 20
             #ifdef NOONE_EXTENSIONS
             case kModernThingEnemyLifeLeech:
             #endif
-                xsprite[pSprite->extra].stateTimer = 0;
+                actor->x().stateTimer = 0;
                 break;
         }
     }
@@ -617,8 +606,8 @@ void sub_76A08(DBloodActor *actor, spritetype *pSprite2, PLAYER *pPlayer) // ???
     pSprite->ang = pSprite2->ang;
     ChangeActorSect(actor, pSprite2->sectnum);
     sfxPlay3DSound(pSprite2, 201, -1, 0);
-    actor->xvel() = actor->yvel() = actor->zvel() = 0;
-    viewBackupSpriteLoc(pSprite->index, pSprite);
+    actor->xvel = actor->yvel = actor->zvel = 0;
+    viewBackupSpriteLoc(actor);
     if (pPlayer)
     {
         playerResetInertia(pPlayer);
@@ -630,13 +619,13 @@ void DropVoodooCb(DBloodActor* actor, int) // unused
 {
     if (!actor) return;
     spritetype *pSprite = &actor->s();
-    int nOwner = pSprite->owner;
-    if (nOwner < 0 || nOwner >= kMaxSprites)
+    auto Owner = actor->GetOwner();
+    if (Owner == nullptr)
     {
         evPostActor(actor, 0, kCallbackRemove);
         return;
     }
-    spritetype *pOwner = &sprite[nOwner];
+    spritetype *pOwner = &Owner->s();
     PLAYER *pPlayer;
     if (IsPlayerSprite(pOwner))
         pPlayer = &gPlayer[pOwner->type-kDudePlayer1];
@@ -648,8 +637,7 @@ void DropVoodooCb(DBloodActor* actor, int) // unused
         return;
     }
     pSprite->ang = getangle(pOwner->x-pSprite->x, pOwner->y-pSprite->y);
-    int nXSprite = pSprite->extra;
-    if (nXSprite > 0)
+    if (actor->hasX())
     {
         XSPRITE *pXSprite = &actor->x();
         if (pXSprite->data1 == 0)
@@ -657,24 +645,23 @@ void DropVoodooCb(DBloodActor* actor, int) // unused
             evPostActor(actor, 0, kCallbackRemove);
             return;
         }
-        int nSprite2;
-        StatIterator it(kStatDude);
-        while ((nSprite2 = it.NextIndex()) >= 0)
+
+        BloodStatIterator it(kStatDude);
+        while (auto actor2 = it.Next())
         {
-            int nNextSprite = it.PeekIndex();
-            if (nOwner == nSprite2)
+            auto nextactor = it.Peek();
+            if (Owner == actor2)
                 continue;
-            auto actor2 = &bloodActors[nSprite2];
-            spritetype *pSprite2 = &sprite[nSprite2];
-            int nXSprite2 = pSprite2->extra;
-            if (nXSprite2 > 0 && nXSprite2 < kMaxXSprites)
+            spritetype *pSprite2 = &actor2->s();
+            if (actor2->hasX())
             {
-                XSPRITE *pXSprite2 = &xsprite[nXSprite2];
+                XSPRITE *pXSprite2 = &actor2->x();
                 PLAYER *pPlayer2;
-                if (IsPlayerSprite(pSprite2))
+                if (actor2->IsPlayerActor())
                     pPlayer2 = &gPlayer[pSprite2->type-kDudePlayer1];
                 else
-                    pPlayer2 = NULL;
+                    pPlayer2 = nullptr;
+
                 if (pXSprite2->health > 0 && (pPlayer2 || pXSprite2->key == 0))
                 {
                     if (pPlayer2)
@@ -686,7 +673,7 @@ void DropVoodooCb(DBloodActor* actor, int) // unused
                         int t = 0x8000/ClipLow(gNetPlayers-1, 1);
                         if (!powerupCheck(pPlayer2, kPwUpDeathMask))
                             t += ((3200-pPlayer2->armor[2])<<15)/3200;
-                        if (Chance(t) || nNextSprite < 0)
+                        if (Chance(t) || nextactor == nullptr)
                         {
                             int nDmg = actDamageSprite(actor, actor2, kDamageSpirit, pXSprite->data1<<4);
                             pXSprite->data1 = ClipLow(pXSprite->data1-nDmg, 0);
@@ -729,7 +716,7 @@ void DropVoodooCb(DBloodActor* actor, int) // unused
                             vd = 0;
                             break;
                         }
-                        if (vd && (Chance(vd) || nNextSprite < 0))
+                        if (vd && (Chance(vd) || nextactor == nullptr))
                         {
                             sub_76A08(actor2, pSprite, NULL);
                             evPostActor(actor, 0, kCallbackRemove);
@@ -749,7 +736,7 @@ void callbackCondition(DBloodActor* actor, int)
     XSPRITE* pXSprite = &actor->x();
     if (pXSprite->isTriggered) return;
 
-    TRCONDITION* pCond = &gCondition[pXSprite->sysData1];
+    TRCONDITION const* pCond = &gCondition[pXSprite->sysData1];
     for (unsigned i = 0; i < pCond->length; i++) {
         EVENT evn;  
         evn.type = pCond->obj[i].type;
@@ -757,7 +744,7 @@ void callbackCondition(DBloodActor* actor, int)
         evn.index_ = pCond->obj[i].index_;
         evn.cmd = pCond->obj[i].cmd; 
         evn.funcID = kCallbackCondition;
-        useCondition(&sprite[pXSprite->reference], pXSprite, evn);
+        useCondition(actor, evn);
     }
 
     evPostActor(actor, pXSprite->busyTime, kCallbackCondition);

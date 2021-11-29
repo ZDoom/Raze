@@ -428,18 +428,19 @@ void FWadFile::SkinHack ()
 				namespc++;
 			}
 		}
+		// needless to say, this check is entirely useless these days as map names can be more diverse..
 		if ((lump->getName()[0] == 'M' &&
 			 lump->getName()[1] == 'A' &&
 			 lump->getName()[2] == 'P' &&
 			 lump->getName()[3] >= '0' && lump->getName()[3] <= '9' &&
 			 lump->getName()[4] >= '0' && lump->getName()[4] <= '9' &&
-			 lump->getName()[5] >= '\0')
+			 lump->getName()[5] == '\0')
 			||
 			(lump->getName()[0] == 'E' &&
 			 lump->getName()[1] >= '0' && lump->getName()[1] <= '9' &&
 			 lump->getName()[2] == 'M' &&
 			 lump->getName()[3] >= '0' && lump->getName()[3] <= '9' &&
-			 lump->getName()[4] >= '\0'))
+			 lump->getName()[4] == '\0'))
 		{
 			hasmap = true;
 		}

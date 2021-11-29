@@ -154,8 +154,8 @@ struct Trap
 
     short field_0;
     short nType;
-    short field_6;
-    short field_8;
+    int field_6;
+    int field_8; // wallnum
     short field_A;
     short field_C;
     short field_E;
@@ -395,19 +395,12 @@ void InitElev()
 // done
 DExhumedActor* BuildWallSprite(int nSector)
 {
-    int nWall = sector[nSector].wallptr;
-
-    int x = wall[nWall].x;
-    int y = wall[nWall].y;
-
-    int x2 = wall[nWall + 1].x;
-    int y2 = wall[nWall + 1].y;
+    auto wal = sector[nSector].firstWall();
 
     auto pActor = insertActor(nSector, 401);
     auto pSprite = &pActor->s();
 
-    pSprite->x = (x + x2) / 2;
-    pSprite->y = (y + y2) / 2;
+	pSprite->pos.vec2 = wal->center();
     pSprite->z = (sector[nSector].floorz + sector[nSector].ceilingz) / 2;
     pSprite->cstat = 0x8000;
 
@@ -420,33 +413,26 @@ DExhumedActor* FindWallSprites(int nSector)
     int var_24 = 0x7FFFFFFF;
     int ecx = 0x7FFFFFFF;
 
-    int nWall = sector[nSector].wallptr;
-    int nWallCount = sector[nSector].wallnum;
-
     int esi = 0x80000002;
     int edi = 0x80000002;
 
-    int i;
-
-    for (i = 0; i < nWallCount; i++)
+	for (auto& wal : wallsofsector(nSector))
     {
-        if (wall[nWall].x < var_24) {
-            var_24 = wall[nWall].x;
+        if (wal.x < var_24) {
+            var_24 = wal.x;
         }
 
-        if (esi < wall[nWall].x) {
-            esi = wall[nWall].x;
+        if (esi < wal.x) {
+            esi = wal.x;
         }
 
-        if (ecx > wall[nWall].y) {
-            ecx = wall[nWall].y;
+        if (ecx > wal.y) {
+            ecx = wal.y;
         }
 
-        if (edi < wall[nWall].y) {
-            edi = wall[nWall].y;
+        if (edi < wal.y) {
+            edi = wal.y;
         }
-
-        nWall++;
     }
 
     ecx -= 5;
@@ -1143,7 +1129,7 @@ void AISlide::Tick(RunListEvent* ev)
         int var_2C = nSeekB;
         int var_24 = nSeekB;
 
-        dragpoint(SlideData[nSlide].field_4, x, y, 0);
+        dragpoint(SlideData[nSlide].field_4, x, y);
         movesprite(SlideData[nSlide].pActor, var_34 << 14, var_2C << 14, 0, 0, 0, CLIPMASK1);
 
         if (var_34 == 0)
@@ -1159,7 +1145,7 @@ void AISlide::Tick(RunListEvent* ev)
         y = wall[nWall].y + var_24;
         x = wall[nWall].x + var_20;
 
-        dragpoint(SlideData[nSlide].field_0, x, y, 0);
+        dragpoint(SlideData[nSlide].field_0, x, y);
 
         nWall = SlideData[nSlide].field_C;
 
@@ -1174,7 +1160,7 @@ void AISlide::Tick(RunListEvent* ev)
         int edi = nSeekD;
         var_24 = nSeekD;
 
-        dragpoint(SlideData[nSlide].field_C, x, y, 0);
+        dragpoint(SlideData[nSlide].field_C, x, y);
 
         if (var_30 == 0 && edi == 0) {
             ebp++;
@@ -1185,7 +1171,7 @@ void AISlide::Tick(RunListEvent* ev)
         x = wall[nWall].x + var_20;
         y = wall[nWall].y + var_24;
 
-        dragpoint(SlideData[nSlide].field_8, x, y, 0);
+        dragpoint(SlideData[nSlide].field_8, x, y);
     }
     else if (cx == 0) // right branch
     {
@@ -1201,7 +1187,7 @@ void AISlide::Tick(RunListEvent* ev)
         int ecx = nSeekB;
         int var_28 = nSeekB;
 
-        dragpoint(SlideData[nSlide].field_0, x, y, 0);
+        dragpoint(SlideData[nSlide].field_0, x, y);
 
         if (edi == 0 && ecx == 0) {
             ebp = clipmask;
@@ -1212,7 +1198,7 @@ void AISlide::Tick(RunListEvent* ev)
         y = wall[nWall].y + var_28;
         x = wall[nWall].x + var_1C;
 
-        dragpoint(SlideData[nSlide].field_4, x, y, 0);
+        dragpoint(SlideData[nSlide].field_4, x, y);
 
         nWall = SlideData[nSlide].field_8;
 
@@ -1227,7 +1213,7 @@ void AISlide::Tick(RunListEvent* ev)
         ecx = nSeekD;
         var_28 = nSeekD;
 
-        dragpoint(SlideData[nSlide].field_8, x, y, 0);
+        dragpoint(SlideData[nSlide].field_8, x, y);
 
         if (edi == 0 && ecx == 0) {
             ebp++;
@@ -1238,7 +1224,7 @@ void AISlide::Tick(RunListEvent* ev)
         y = wall[nWall].y + var_28;
         x = wall[nWall].x + var_1C;
 
-        dragpoint(SlideData[nSlide].field_C, x, y, 0);
+        dragpoint(SlideData[nSlide].field_C, x, y);
     }
 
     // loc_21A51:
@@ -1972,7 +1958,7 @@ void AIObject::Tick(RunListEvent* ev)
     if (!pActor) return;
     auto pSprite = &pActor->s();
     short nStat = pSprite->statnum;
-    short bx = pActor->nIndex;
+    int bx = pActor->nIndex;
 
     if (nStat == 97 || (!(pSprite->cstat & 0x101))) {
         return;
@@ -2088,8 +2074,7 @@ void AIObject::Damage(RunListEvent* ev)
     auto pActor = ev->pObjActor;
     if (!pActor) return;
     auto pSprite = &pActor->s();
-    short nStat = pSprite->statnum;
-    short bx = pActor->nIndex;
+    int nStat = pSprite->statnum;
 
     if (nStat >= 150 || pActor->nHealth <= 0) {
         return;
@@ -2120,7 +2105,7 @@ void AIObject::Draw(RunListEvent* ev)
 {
     auto pActor = ev->pObjActor;
     if (!pActor) return;
-    short bx = pActor->nIndex;
+    int bx = pActor->nIndex;
 
     if (bx > -1)
     {
@@ -2627,15 +2612,8 @@ void PostProcess()
 
                     if (i != j && SectSpeed[j] && !(SectFlag[i] & kSectLava))
                     {
-                        int xVal = wall[sector[i].wallptr].x - wall[sector[j].wallptr].x;
-                        if (xVal < 0) {
-                            xVal = -xVal;
-                        }
-
-                        int yVal = wall[sector[i].wallptr].x - wall[sector[j].wallptr].x;
-                        if (yVal < 0) {
-                            yVal = -yVal;
-                        }
+						int xVal = abs(sector[i].firstWall()->x - sector[j].firstWall()->x);
+						int yVal = abs(sector[i].firstWall()->y - sector[j].firstWall()->y);
 
                         if (xVal < 15000 && yVal < 15000 && (xVal + yVal < var_20))
                         {

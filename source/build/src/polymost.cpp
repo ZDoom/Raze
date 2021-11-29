@@ -400,7 +400,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
     int palid = TRANSLATION(Translation_Remap + curbasepal, globalpal);
     GLInterface.SetFade(globalfloorpal);
-	bool success = GLInterface.SetTexture(globalskytex? globalskytex : tileGetTexture(globalpicnum), globalskytex? 0 : palid, sampleroverride);
+	bool success = GLInterface.SetTexture(globalskytex? globalskytex : tileGetTexture(globalpicnum), !hw_int_useindexedcolortextures && globalskytex ? 0 : palid, sampleroverride);
 	if (!success)
 	{
 		tsiz.x = tsiz.y = 1;
@@ -3921,13 +3921,35 @@ int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr, bool rotate)
 
     GLInterface.SetMatrix(Matrix_Model, mat);
 
-    int palId = TRANSLATION(Translation_Remap + curbasepal, globalpal);
     GLInterface.SetPalswap(globalpal);
     GLInterface.SetFade(sector[tspr->sectnum].floorpal);
 
     auto tex = TexMan.GetGameTexture(m->model->GetPaletteTexture());
     GLInterface.SetTexture(tex, TRANSLATION(Translation_Remap + curbasepal, globalpal), CLAMP_NOFILTER_XY, true);
     GLInterface.SetModel(m->model, 0, 0, 0);
+
+    // The shade rgb from the tint is ignored here.
+    pc[0] = (float)globalr * (1.f / 255.f);
+    pc[1] = (float)globalg * (1.f / 255.f);
+    pc[2] = (float)globalb * (1.f / 255.f);
+
+    bool trans = (tspr->cstat & CSTAT_SPRITE_TRANSLUCENT);
+    float alpha;
+    FRenderStyle RenderStyle;
+    if (trans)
+    {
+        RenderStyle = GetRenderStyle(0, !!(tspr->cstat & CSTAT_SPRITE_TRANSLUCENT_INVERT));
+        alpha = GetAlphaFromBlend((tspr->cstat & CSTAT_SPRITE_TRANSLUCENT_INVERT) ? DAMETH_TRANS2 : DAMETH_TRANS1, 0);
+    }
+    else
+    {
+        RenderStyle = LegacyRenderStyles[STYLE_Translucent];
+        alpha = 1.f;
+    }
+    alpha *= 1.f - spriteext[tspr->owner].alpha;
+    GLInterface.SetRenderStyle(RenderStyle);
+    GLInterface.SetColor(pc[0], pc[1], pc[2], alpha);
+
     GLInterface.Draw(DT_Triangles, 0, 0);
     GLInterface.SetModel(nullptr, 0, 0, 0);
     GLInterface.SetCull(Cull_None);

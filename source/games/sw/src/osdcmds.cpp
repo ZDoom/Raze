@@ -83,14 +83,14 @@ static int osdcmd_mirror(CCmdFuncPtr parm)
     }
 
     Printf("camera is the ST1 sprite used as the view spot");
-    Printf("camspite is the SpriteNum of the drawtotile tile in editart");
+    Printf("camspite is the sprite number of the drawtotile tile in editart");
     Printf("camspic is the tile number of the drawtotile in editart");
     Printf("iscamera is whether or not this mirror is a camera type");
     Printf(" ");
     Printf("mirror[%d].mirrorwall = %d", op1, mirror[op1].mirrorwall);
     Printf("mirror[%d].mirrorsector = %d", op1, mirror[op1].mirrorsector);
-    Printf("mirror[%d].camera = %d", op1, mirror[op1].camera);
-    Printf("mirror[%d].camsprite = %d", op1, mirror[op1].camsprite);
+    Printf("mirror[%d].camera = %d", op1, mirror[op1].cameraActor->GetIndex());
+    Printf("mirror[%d].camsprite = %d", op1, mirror[op1].camspriteActor->GetIndex());
     Printf("mirror[%d].campic = %d", op1, mirror[op1].campic);
     Printf("mirror[%d].iscamera = %d", op1, mirror[op1].ismagic);
     return CCMD_OK;

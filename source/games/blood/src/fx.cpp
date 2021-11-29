@@ -34,15 +34,15 @@ CFX gFX;
 struct FXDATA {
     CALLBACK_ID funcID; // callback
     uint8_t detail; // detail
-    short seq; // seq
-    short flags; // flags
-    int gravity; // gravity
-    int drag; // air drag
-    int ate;
-    short picnum; // picnum
+    int16_t seq; // seq
+    int16_t flags; // flags
+    int32_t gravity; // gravity
+    int32_t drag; // air drag
+    int32_t ate;
+    int16_t picnum; // picnum
     uint8_t xrepeat; // xrepeat
     uint8_t yrepeat; // yrepeat
-    short cstat; // cstat
+    int16_t cstat; // cstat
     int8_t shade; // shade
     uint8_t pal; // pal
 };
@@ -168,7 +168,7 @@ DBloodActor* CFX::fxSpawnActor(FX_ID nFx, int nSector, int x, int y, int z, unsi
     pSprite->cstat |= pFX->cstat;
     pSprite->shade = pFX->shade;
     pSprite->pal = pFX->pal;
-    sprite[pSprite->index].detail = pFX->detail;
+    pSprite->detail = pFX->detail;
     if (pFX->xrepeat > 0)
         pSprite->xrepeat = pFX->xrepeat;
     if (pFX->yrepeat > 0)
@@ -200,12 +200,12 @@ void CFX::fxProcess(void)
         assert(nSector >= 0 && nSector < kMaxSectors);
         assert(pSprite->type < kFXMax);
         FXDATA *pFXData = &gFXData[pSprite->type];
-        actAirDrag(&bloodActors[pSprite->index], pFXData->drag);
-        pSprite->x += actor->xvel()>>12;
-        pSprite->y += actor->yvel()>>12;
-        pSprite->z += actor->zvel()>>8;
+        actAirDrag(actor, pFXData->drag);
+        pSprite->x += actor->xvel>>12;
+        pSprite->y += actor->yvel>>12;
+        pSprite->z += actor->zvel>>8;
         // Weird...
-        if (actor->xvel() || (actor->yvel() && pSprite->z >= sector[pSprite->sectnum].floorz))
+        if (actor->xvel || (actor->yvel && pSprite->z >= sector[pSprite->sectnum].floorz))
         {
             updatesector(pSprite->x, pSprite->y, &nSector);
             if (nSector == -1)
@@ -230,7 +230,7 @@ void CFX::fxProcess(void)
                 ChangeActorSect(actor, nSector);
             }
         }
-        if (actor->xvel() || actor->yvel() || actor->zvel())
+        if (actor->xvel || actor->yvel || actor->zvel)
         {
             int32_t floorZ, ceilZ;
             getzsofslope(nSector, pSprite->x, pSprite->y, &ceilZ, &floorZ);
@@ -251,7 +251,7 @@ void CFX::fxProcess(void)
                 continue;
             }
         }
-        actor->zvel() += pFXData->gravity;
+        actor->zvel += pFXData->gravity;
     }
 }
 
@@ -269,9 +269,9 @@ void fxSpawnBlood(DBloodActor *actor, int )
     if (bloodactor)
     {
         bloodactor->s().ang = 1024;
-        bloodactor->xvel() = Random2(0x6aaaa);
-        bloodactor->yvel() = Random2(0x6aaaa);
-        bloodactor->zvel() = -(int)Random(0x10aaaa)-100;
+        bloodactor->xvel = Random2(0x6aaaa);
+        bloodactor->yvel = Random2(0x6aaaa);
+        bloodactor->zvel = -(int)Random(0x10aaaa)-100;
         evPostActor(bloodactor, 8, kCallbackFXBloodSpurt);
     }
 }
@@ -294,9 +294,9 @@ void fxSpawnPodStuff(DBloodActor* actor, int )
     if (spawnactor)
     {
         spawnactor->s().ang = 1024;
-        spawnactor->xvel() = Random2(0x6aaaa);
-        spawnactor->yvel() = Random2(0x6aaaa);
-        spawnactor->zvel() = -(int)Random(0x10aaaa)-100;
+        spawnactor->xvel = Random2(0x6aaaa);
+        spawnactor->yvel = Random2(0x6aaaa);
+        spawnactor->zvel = -(int)Random(0x10aaaa)-100;
         evPostActor(spawnactor, 8, kCallbackFXPodBloodSpray);
     }
 }
@@ -315,9 +315,9 @@ void fxSpawnEjectingBrass(DBloodActor* actor, int z, int a3, int a4)
             pBrass->s().ang = Random(2047);
         int nDist = (a4 << 18) / 120 + Random2(((a4 / 4) << 18) / 120);
         int nAngle = pSprite->ang + Random2(56) + 512;
-        pBrass->xvel() = MulScale(nDist, Cos(nAngle), 30);
-        pBrass->yvel() = MulScale(nDist, Sin(nAngle), 30);
-        pBrass->zvel() = actor->zvel() - (0x20000 + (Random2(40) << 18) / 120);
+        pBrass->xvel = MulScale(nDist, Cos(nAngle), 30);
+        pBrass->yvel = MulScale(nDist, Sin(nAngle), 30);
+        pBrass->zvel = actor->zvel - (0x20000 + (Random2(40) << 18) / 120);
     }
 }
 
@@ -335,9 +335,9 @@ void fxSpawnEjectingShell(DBloodActor* actor, int z, int a3, int a4)
             pShell->s().ang = Random(2047);
         int nDist = (a4 << 18) / 120 + Random2(((a4 / 4) << 18) / 120);
         int nAngle = pSprite->ang + Random2(56) + 512;
-        pShell->xvel() = MulScale(nDist, Cos(nAngle), 30);
-        pShell->yvel() = MulScale(nDist, Sin(nAngle), 30);
-        pShell->zvel() = actor->zvel() - (0x20000 + (Random2(20) << 18) / 120);
+        pShell->xvel = MulScale(nDist, Cos(nAngle), 30);
+        pShell->yvel = MulScale(nDist, Sin(nAngle), 30);
+        pShell->zvel = actor->zvel - (0x20000 + (Random2(20) << 18) / 120);
     }
 }
 

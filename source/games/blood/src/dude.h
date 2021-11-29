@@ -26,9 +26,9 @@ BEGIN_BLD_NS
 
 // By NoOne: renamed dude struct
 struct DUDEINFO {
-    short seqStartID; // seq
-    short startHealth; // health
-    unsigned short mass; // mass
+    int16_t seqStartID; // seq
+    int16_t startHealth; // health
+    uint16_t mass; // mass
     int at6; // unused?
     uint8_t clipdist; // clipdist
     int eyeHeight;
@@ -42,7 +42,7 @@ struct DUDEINFO {
     int changeTarget; // chance to change target when attacked someone else
     int changeTargetKin; // chance to change target when attacked by same type
     int alertChance;
-    char lockOut; // indicates if this dude can trigger something via trigger flags
+    uint8_t lockOut; // indicates if this dude can trigger something via trigger flags
     int frontSpeed; // acceleration
     int sideSpeed; // dodge
     int backSpeed; // backward speed (unused)

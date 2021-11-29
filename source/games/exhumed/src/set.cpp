@@ -39,7 +39,7 @@ static actionSeq SetSeq[] = {
     {74, 1}
 };
 
-void BuildSet(DExhumedActor* pActor, int x, int y, int z, int nSector, short nAngle, int nChannel)
+void BuildSet(DExhumedActor* pActor, int x, int y, int z, int nSector, int nAngle, int nChannel)
 {
 	spritetype* pSprite;
     if (pActor == nullptr)

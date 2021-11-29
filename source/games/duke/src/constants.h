@@ -87,6 +87,7 @@ enum
 	SE_48_LIGHT_SWITCH                 = 48,
 	SE_49_POINT_LIGHT                  = 49,
 	SE_50_SPOT_LIGHT                   = 50,
+	SE_128_GLASS_BREAKING              = 128,
 	SE_130                             = 130,
 	SE_131                             = 131,
 };
@@ -266,6 +267,7 @@ enum
 	MAXANIMATES     = 1024,
 	MAXANIMWALLS    = 512,
 	MAXANIMPOINTS   = 2048,
+	MAXCRANES		= 16,
 };
 
 enum amoveflags_t

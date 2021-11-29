@@ -144,13 +144,13 @@ void displayweapon_r(int snum, double smoothratio)
 	weapon_xoffset -= bcosf(weapon_sway * 0.5) * (1. / 1536.);
 	weapon_xoffset -= 58 + p->weapon_ang;
 
-	if (shadedsector[p->cursectnum] == 1)
+	if (p->insector() && shadedsector[p->cursectnum] == 1)
 		shade = 16;
 	else
 		shade = p->GetActor()->s->shade;
 	if(shade > 24) shade = 24;
 
-	pal = p->GetActor()->s->pal == 1 ? 1 : pal = p->cursector()->floorpal;
+	pal = !p->insector()? 0 : p->GetActor()->s->pal == 1? 1 : p->cursector()->floorpal;
 
 	if(p->newOwner != nullptr || ud.cameraactor != nullptr || p->over_shoulder_on > 0 || (p->GetActor()->s->pal != 1 && p->GetActor()->s->extra <= 0))
 		return;

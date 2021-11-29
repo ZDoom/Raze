@@ -39,13 +39,10 @@ BEGIN_SW_NS
 ////////////////////////////////////////////////////////////////////////////////
 
 extern bool Prediction;
+DSWActor* WarpToArea(DSWActor* sp_from, int32_t* x, int32_t* y, int32_t* z, int* sectnum);
 
-bool
-WarpPlaneSectorInfo(short sectnum, SPRITEp *sp_ceiling, SPRITEp *sp_floor)
+bool WarpPlaneSectorInfo(short sectnum, DSWActor** sp_ceiling, DSWActor** sp_floor)
 {
-    int i;
-    SPRITEp sp;
-
     *sp_floor = nullptr;
     *sp_ceiling = nullptr;
 
@@ -55,10 +52,10 @@ WarpPlaneSectorInfo(short sectnum, SPRITEp *sp_ceiling, SPRITEp *sp_floor)
     if (sectnum < 0 || !TEST(sector[sectnum].extra, SECTFX_WARP_SECTOR))
         return false;
 
-    StatIterator it(STAT_WARP);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_WARP);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
+        auto sp = &actor->s();
 
         if (sp->sectnum == sectnum)
         {
@@ -68,11 +65,11 @@ WarpPlaneSectorInfo(short sectnum, SPRITEp *sp_ceiling, SPRITEp *sp_floor)
 
             if (sp->hitag == WARP_CEILING_PLANE)
             {
-                *sp_ceiling = sp;
+                *sp_ceiling = actor;
             }
             else if (sp->hitag == WARP_FLOOR_PLANE)
             {
-                *sp_floor = sp;
+                *sp_floor = actor;
             }
         }
     }
@@ -80,10 +77,9 @@ WarpPlaneSectorInfo(short sectnum, SPRITEp *sp_ceiling, SPRITEp *sp_floor)
     return true;
 }
 
-SPRITEp
-WarpPlane(int32_t* x, int32_t* y, int32_t* z, int* sectnum)
+DSWActor* WarpPlane(int32_t* x, int32_t* y, int32_t* z, int* sectnum)
 {
-    SPRITEp sp_floor, sp_ceiling;
+    DSWActor* sp_floor,* sp_ceiling;
 
     if (Prediction)
         return nullptr;
@@ -93,7 +89,7 @@ WarpPlane(int32_t* x, int32_t* y, int32_t* z, int* sectnum)
 
     if (sp_ceiling)
     {
-        if (*z <= sp_ceiling->z)
+        if (*z <= sp_ceiling->s().z)
         {
             return WarpToArea(sp_ceiling, x, y, z, sectnum);
         }
@@ -101,7 +97,7 @@ WarpPlane(int32_t* x, int32_t* y, int32_t* z, int* sectnum)
 
     if (sp_floor)
     {
-        if (*z >= sp_floor->z)
+        if (*z >= sp_floor->s().z)
         {
             return WarpToArea(sp_floor, x, y, z, sectnum);
         }
@@ -110,14 +106,12 @@ WarpPlane(int32_t* x, int32_t* y, int32_t* z, int* sectnum)
     return nullptr;
 }
 
-SPRITEp
-WarpToArea(SPRITEp sp_from, int32_t* x, int32_t* y, int32_t* z, int* sectnum)
+DSWActor* WarpToArea(DSWActor* sp_from, int32_t* x, int32_t* y, int32_t* z, int* sectnum)
 {
     int xoff;
     int yoff;
     int zoff;
-    int i;
-    SPRITEp sp = sp_from;
+    SPRITEp const sp = &sp_from->s();
     short match;
     short to_tag = 0;
     short match_rand[16];
@@ -173,32 +167,32 @@ WarpToArea(SPRITEp sp_from, int32_t* x, int32_t* y, int32_t* z, int* sectnum)
         break;
     }
 
-    StatIterator it(STAT_WARP);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_WARP);
+    while (auto actor = it.Next())
     {
-        SPRITEp sp = &sprite[i];
+        auto spi = &actor->s();
 
-        if (sp->lotag == match && sp != sp_from)
+        if (spi->lotag == match && actor != sp_from)
         {
             // exp: WARP_CEILING or WARP_CEILING_PLANE
-            if (sp->hitag == to_tag)
+            if (spi->hitag == to_tag)
             {
-                if (!validSectorIndex(sp->sectnum))
+                if (!validSectorIndex(spi->sectnum))
                     return nullptr;
 
                 // determine new x,y,z position
-                *x = sp->x + xoff;
-                *y = sp->y + yoff;
-                *z = sp->z + zoff;
+                *x = spi->x + xoff;
+                *y = spi->y + yoff;
+                *z = spi->z + zoff;
 
                 // make sure you warp outside of warp plane
                 *z += z_adj;
 
                 // get new sector
-                *sectnum = sp->sectnum;
+                *sectnum = spi->sectnum;
                 updatesector(*x, *y, sectnum);
 
-                return sp;
+                return actor;
             }
         }
     }
@@ -212,21 +206,17 @@ WarpToArea(SPRITEp sp_from, int32_t* x, int32_t* y, int32_t* z, int* sectnum)
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-bool
-WarpSectorInfo(short sectnum, SPRITEp *sp_warp)
+bool WarpSectorInfo(short sectnum, DSWActor** sp_warp)
 {
-    int i;
-    SPRITEp sp;
-
     *sp_warp = nullptr;
 
     if (!TEST(sector[sectnum].extra, SECTFX_WARP_SECTOR))
         return false;
 
-    StatIterator it(STAT_WARP);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_WARP);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
+        auto sp = &actor->s();
 
         if (sp->sectnum == sectnum)
         {
@@ -236,7 +226,7 @@ WarpSectorInfo(short sectnum, SPRITEp *sp_warp)
 
             if (sp->hitag == WARP_TELEPORTER)
             {
-                *sp_warp = sp;
+                *sp_warp = actor;
             }
         }
     }
@@ -244,10 +234,9 @@ WarpSectorInfo(short sectnum, SPRITEp *sp_warp)
     return true;
 }
 
-SPRITEp
-Warp(int32_t* x, int32_t* y, int32_t* z, int* sectnum)
+DSWActor* Warp(int32_t* x, int32_t* y, int32_t* z, int* sectnum)
 {
-    SPRITEp sp_warp;
+    DSWActor* sp_warp;
 
     if (Prediction)
         return nullptr;

@@ -78,7 +78,6 @@ void BurnSeqCallback(int, DBloodActor*)
 static void burnThinkSearch(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
 	aiChooseDirection(actor, pXSprite->goalAng);
 	aiThinkTarget(actor);
 }
@@ -128,7 +127,6 @@ static void burnThinkGoto(DBloodActor* actor)
 
 static void burnThinkChase(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
 	auto pSprite = &actor->s();
 	if (actor->GetTarget() == nullptr)
 	{

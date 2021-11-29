@@ -61,7 +61,8 @@ int blood_globalflags;
 PLAYER gPlayerTemp[kMaxPlayers];
 int gHealthTemp[kMaxPlayers];
 vec3_t startpos;
-int16_t startang, startsectnum;
+int16_t startang;
+int startsectnum;
 
 
 void QuitGame(void)
@@ -107,7 +108,7 @@ void StartLevel(MapRecord* level, bool newgame)
 		for (int i = connecthead; i >= 0; i = connectpoint2[i])
 		{
 			memcpy(&gPlayerTemp[i], &gPlayer[i], sizeof(PLAYER));
-			gHealthTemp[i] = xsprite[gPlayer[i].pSprite->extra].health;
+			gHealthTemp[i] = gPlayer[i].actor->x().health;
 		}
 	}
 	memset(xsprite, 0, sizeof(xsprite));
@@ -121,9 +122,9 @@ void StartLevel(MapRecord* level, bool newgame)
 	automapping = 1;
 
 	int modernTypesErased = 0;
-	for (int i = 0; i < kMaxSprites; i++)
+	BloodLinearSpriteIterator it;
+	while (auto actor = it.Next())
 	{
-		DBloodActor* actor = &bloodActors[i];
 		spritetype* pSprite = &actor->s();
 		if (pSprite->statnum < kMaxStatus && actor->hasX()) 
 		{
@@ -133,7 +134,7 @@ void StartLevel(MapRecord* level, bool newgame)
 				|| (pXSprite->lB && gGameOptions.nGameType == 2) || (pXSprite->lT && gGameOptions.nGameType == 3)
 				|| (pXSprite->lC && gGameOptions.nGameType == 1)) {
 
-				DeleteSprite(i);
+				DeleteSprite(actor);
 				continue;
 			}
 
@@ -177,7 +178,7 @@ void StartLevel(MapRecord* level, bool newgame)
 	}
 	InitSectorFX();
 	warpInit();
-	actInit(false);
+	actInit();
 	evInit();
 	for (int i = connecthead; i >= 0; i = connectpoint2[i])
 	{
@@ -264,7 +265,9 @@ void GameInterface::Ticker()
 		if (newweap > 0 && newweap < WeaponSel_MaxBlood) gPlayer[i].newWeapon = newweap;
 	}
 
-	gInterpolateSprite.Zero();
+	BloodSpriteIterator it;
+	while (DBloodActor* act = it.Next()) act->interpolated = false;
+
 	ClearMovementInterpolations();
 	UpdateInterpolations();
 
@@ -312,7 +315,7 @@ void GameInterface::Ticker()
 
 		for (int i = 0; i < 8; i++)
 		{
-			team_ticker[i] = team_ticker[i] -= 4;
+			team_ticker[i] -= 4;
 			if (team_ticker[i] < 0)
 				team_ticker[i] = 0;
 		}

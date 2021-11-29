@@ -88,25 +88,13 @@ void displayloogie(player_struct* p)
 
 int animatefist(int gs, player_struct* p, double look_anghalf, double looking_arc, double plravel, int fistpal)
 {
-	int fisti;
-	double fistzoom;
-	double fistz;
-
-	fisti = p->fist_incs;
-	if (fisti > 32) fisti = 32;
+	int fisti = min(p->fist_incs, short(32));
 	if (fisti <= 0) return 0;
-
-	fistzoom = 65536 - bcosf(fisti << 6, 2);
-	if (fistzoom > 90612)
-		fistzoom = 90612;
-	if (fistzoom < 40920)
-		fistzoom = 40290;
-	fistz = 194 + bsinf((6 + fisti) << 7, -9);
 
 	hud_drawsprite(
 		(-fisti + 222 + plravel),
-		(looking_arc + fistz),
-		int(fistzoom), 0, FIST, gs, fistpal, 2);
+		(looking_arc + 194 + bsinf((6 + fisti) << 7, -9)),
+		clamp(65536. - bcosf(fisti << 6, 2), 40920., 90612.), 0, FIST, gs, fistpal, 2);
 
 	return 1;
 }
@@ -263,7 +251,7 @@ void displayweapon_d(int snum, double smoothratio)
 	shade = p->GetActor()->s->shade;
 	if(shade > 24) shade = 24;
 
-	pal = p->GetActor()->s->pal == 1 ? 1 : p->cursector()->floorpal;
+	pal = !p->insector() ? 0 : p->GetActor()->s->pal == 1 ? 1 : p->cursector()->floorpal;
 	if (pal == 0)
 		pal = p->palookup;
 
@@ -498,6 +486,7 @@ void displayweapon_d(int snum, double smoothratio)
 				case 1:
 				case 2:
 					hud_drawpal(weapon_xoffset + 168 - look_anghalf,looking_arc + 201 - gun_pos, SHOTGUN + 2,-128,o,pal);
+					[[fallthrough]];
 				case 0:
 				case 6:
 				case 7:
@@ -769,7 +758,7 @@ void displayweapon_d(int snum, double smoothratio)
 					if (*kb <= aplWeaponFireDelay[HANDBOMB_WEAPON][snum])
 					{
 						// it holds here
-						gun_pos -= 5 * kickback_pic;        //D
+						gun_pos -= 5 * kickback_pic; //D
 					}
 					else if (*kb <
 						(
@@ -932,10 +921,10 @@ void displayweapon_d(int snum, double smoothratio)
 					looking_arc += rand() & 3;
 				}
 				gun_pos -= 16;
-				hud_drawpal(weapon_xoffset + 210 - look_anghalf, looking_arc + 261 - gun_pos, /*isWorldTour() ? FREEZEFIREWIDE :*/ FREEZE + 2, -32, o|pin, pal);
-				hud_drawpal(weapon_xoffset + 210 - look_anghalf, looking_arc + 235 - gun_pos, FREEZE + 3 + cat_frames[*kb % 6], -32, o | pin, pal);
+				hud_drawpal(weapon_xoffset + 210 - look_anghalf, looking_arc + 261 - gun_pos, pic + 2, -32, o|pin, pal);
+				hud_drawpal(weapon_xoffset + 210 - look_anghalf, looking_arc + 235 - gun_pos, pic + 3 + cat_frames[*kb % 6], -32, o | pin, pal);
 			}
-			else hud_drawpal(weapon_xoffset + 210 - look_anghalf, looking_arc + 261 - gun_pos, /*isWorldTour() ? FREEZEWIDE :*/ FREEZE, shade, o | pin, pal);
+			else hud_drawpal(weapon_xoffset + 210 - look_anghalf, looking_arc + 261 - gun_pos, pic, shade, o | pin, pal);
 		};
 
 		//---------------------------------------------------------------------------

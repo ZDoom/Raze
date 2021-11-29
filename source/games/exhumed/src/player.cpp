@@ -98,7 +98,7 @@ void RestoreSavePoint(int nPlayer, int *x, int *y, int *z, short *nSector, short
     *nAngle  = PlayerList[nPlayer].sPlayerSave.nAngle;
 }
 
-void SetSavePoint(int nPlayer, int x, int y, int z, int nSector, short nAngle)
+void SetSavePoint(int nPlayer, int x, int y, int z, int nSector, int nAngle)
 {
     PlayerList[nPlayer].sPlayerSave.x = x;
     PlayerList[nPlayer].sPlayerSave.y = y;
@@ -172,12 +172,12 @@ void InitPlayer()
     }
 }
 
-void InitPlayerKeys(short nPlayer)
+void InitPlayerKeys(int nPlayer)
 {
     PlayerList[nPlayer].keys = 0;
 }
 
-void InitPlayerInventory(short nPlayer)
+void InitPlayerInventory(int nPlayer)
 {
     memset(&PlayerList[nPlayer], 0, sizeof(Player));
 
@@ -213,7 +213,7 @@ short GetPlayerFromActor(DExhumedActor* pActor)
     return RunData[pSprite->owner].nObjIndex;
 }
 
-void RestartPlayer(short nPlayer)
+void RestartPlayer(int nPlayer)
 {
 	auto plr = &PlayerList[nPlayer];
     auto pActor = plr->Actor();
@@ -614,7 +614,7 @@ void UpdatePlayerSpriteAngle(Player* pPlayer)
 
 void AIPlayer::Draw(RunListEvent* ev)
 {
-    short nPlayer = RunData[ev->nRun].nObjIndex;
+    int nPlayer = RunData[ev->nRun].nObjIndex;
     assert(nPlayer >= 0 && nPlayer < kMaxPlayers);
     short nAction = PlayerList[nPlayer].nAction;
 
@@ -623,7 +623,7 @@ void AIPlayer::Draw(RunListEvent* ev)
 
 void AIPlayer::RadialDamage(RunListEvent* ev)
 {
-    short nPlayer = RunData[ev->nRun].nObjIndex;
+    int nPlayer = RunData[ev->nRun].nObjIndex;
     assert(nPlayer >= 0 && nPlayer < kMaxPlayers);
 
     auto pPlayerActor = PlayerList[nPlayer].Actor();
@@ -640,7 +640,7 @@ void AIPlayer::RadialDamage(RunListEvent* ev)
 void AIPlayer::Damage(RunListEvent* ev)
 {
     int nDamage = ev->nDamage;
-    short nPlayer = RunData[ev->nRun].nObjIndex;
+    int nPlayer = RunData[ev->nRun].nObjIndex;
     auto pPlayerActor = PlayerList[nPlayer].Actor();
     short nAction = PlayerList[nPlayer].nAction;
     auto pPlayerSprite = &pPlayerActor->s();
@@ -749,7 +749,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     int var_40;
     bool mplevel = (currentLevel->gameflags & LEVEL_EX_MULTI);
 
-    short nPlayer = RunData[ev->nRun].nObjIndex;
+    int nPlayer = RunData[ev->nRun].nObjIndex;
     assert(nPlayer >= 0 && nPlayer < kMaxPlayers);
 
     auto pPlayerActor = PlayerList[nPlayer].Actor();
@@ -1174,7 +1174,6 @@ sectdone:
 
     int var_5C = SectFlag[nViewSect] & kSectUnderwater;
 
-    uint16_t buttons = sPlayerInput[nPlayer].buttons;
     auto actions = sPlayerInput[nPlayer].actions;
 
     // loc_1AEF5:

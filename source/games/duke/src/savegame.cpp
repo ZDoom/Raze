@@ -55,11 +55,26 @@ void lava_serialize(FSerializer& arc);
 void SerializeGameVars(FSerializer &arc);
 
 
+FSerializer& Serialize(FSerializer& arc, const char* keyname, CraneDef& w, CraneDef* def)
+{
+	if (arc.BeginObject(keyname))
+	{
+		arc("x", w.x)
+			("y", w.y)
+			("z", w.z)
+			("polex", w.polex)
+			("poley", w.poley)
+			("pole", w.poleactor)
+			.EndObject();
+	}
+	return arc;
+}
+
 FSerializer& Serialize(FSerializer& arc, const char* keyname, animwalltype& w, animwalltype* def)
 {
 	if (arc.BeginObject(keyname))
 	{
-	  arc("wallnum", w.wallnum)
+	  arc("wallnum", w.wall)
 		("tag", w.tag)
 		.EndObject();
 	}
@@ -136,7 +151,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 			("knee_incs", w.knee_incs)
 			("access_incs", w.access_incs)
 			("ftq", w.ftq)
-			("access_wallnum", w.access_wallnum)
+			("access_wallnum", w.access_wall)
 			("access_spritenum", w.access_spritenum)
 			("kickback_pic", w.kickback_pic)
 			("got_access", w.got_access)
@@ -293,7 +308,27 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, DDukeActor& w, DDu
 			("temp_actor", w.temp_actor, def->temp_actor)
 			("seek_actor", w.seek_actor, def->seek_actor)
 			.Array("temp_data", w.temp_data, def->temp_data, 6)
+			.Array("temo_wall", w.temp_walls, def->temp_walls,2)
+			("temp_sect", w.temp_sect, def->temp_sect)
 			.EndObject();
+
+#ifdef  OLD_SAVEGAME
+		// compat handling
+		if (SaveVersion < 12 && arc.isReading())
+		{
+			if (w.s->picnum == SECTOREFFECTOR)
+			{
+				if (w.s->lotag == SE_20_STRETCH_BRIDGE)
+				{
+					for (int i : {0, 1}) w.temp_walls[i] = &wall[w.temp_data[i+1]];
+				}
+				if (w.s->lotag == SE_128_GLASS_BREAKING)
+				{
+					w.temp_walls[0] = &wall[w.temp_data[2]];
+				}
+			}
+		}
+#endif
 	}
 	return arc;
 }
@@ -304,7 +339,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Cycler& w, Cycler*
 	if (!def) def = &nul;
 	if (arc.BeginObject(keyname))
 	{
-		arc("sector", w.sectnum, def->sectnum)
+		arc("sector", w.sector, def->sector)
 			("lotag", w.lotag, def->lotag)
 			("hitag", w.hitag, def->hitag)
 			("shade1", w.shade1, def->shade1)
@@ -353,6 +388,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 			.Array("sectorextra", sectorextra, numsectors)
 			("rtsplaying", rtsplaying)
 			("tempwallptr", tempwallptr)
+			("cranes", cranes)
 			("sound445done", sound445done)
 			.Array("players", ps, ud.multimode)
 			("spriteqamount", spriteqamount)

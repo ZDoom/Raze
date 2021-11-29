@@ -54,15 +54,15 @@ void FuncBubble(int, int, int, int);
 // 32 bytes
 struct bulletInfo
 {
-    short nDamage; // 0
-    short field_2; // 2
+    int16_t nDamage; // 0
+    int16_t field_2; // 2
     int field_4;   // 4
-    short field_8; // 8
-    short nSeq; // 10
-    short field_C; // 12
-    short nFlags;
-    short nRadius; // damage radius
-    short xyRepeat;
+    int16_t field_8; // 8
+    int16_t nSeq; // 10
+    int16_t field_C; // 12
+    int16_t nFlags;
+    int16_t nRadius; // damage radius
+    int16_t xyRepeat;
 };
 
 extern bulletInfo BulletInfo[];
@@ -83,7 +83,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int val1, int nAngl
 
 void IgniteSprite(DExhumedActor* nSprite);
 void FuncBullet(int, int, int, int);
-void BackUpBullet(int *x, int *y, short nAngle);
+void BackUpBullet(int *x, int *y, int nAngle);
 
 // fish
 
@@ -97,7 +97,7 @@ enum { kMaxGrenades = 50 };
 
 void BuildGrenade(int nPlayer);
 void DestroyGrenade(short nGrenade);
-void ThrowGrenade(short nPlayer, int edx, int ebx, int ecx, int push1);
+void ThrowGrenade(int nPlayer, int edx, int ebx, int ecx, int push1);
 void FuncGrenade(int, int, int, int);
 
 // gun
@@ -130,18 +130,18 @@ struct Weapon
 extern Weapon WeaponInfo[];
 extern short nTemperature[];
 
-void RestoreMinAmmo(short nPlayer);
-void FillWeapons(short nPlayer);
-void ResetPlayerWeapons(short nPlayer);
+void RestoreMinAmmo(int nPlayer);
+void FillWeapons(int nPlayer);
+void ResetPlayerWeapons(int nPlayer);
 void InitWeapons();
-void SetNewWeapon(short nPlayer, short nWeapon);
-void SetNewWeaponImmediate(short nPlayer, short nWeapon);
-void SetNewWeaponIfBetter(short nPlayer, short nWeapon);
-void SelectNewWeapon(short nPlayer);
-void StopFiringWeapon(short nPlayer);
-void FireWeapon(short nPlayer);
-void CheckClip(short nPlayer);
-void MoveWeapons(short nPlayer);
+void SetNewWeapon(int nPlayer, short nWeapon);
+void SetNewWeaponImmediate(int nPlayer, short nWeapon);
+void SetNewWeaponIfBetter(int nPlayer, short nWeapon);
+void SelectNewWeapon(int nPlayer);
+void StopFiringWeapon(int nPlayer);
+void FireWeapon(int nPlayer);
+void CheckClip(int nPlayer);
+void MoveWeapons(int nPlayer);
 void DrawWeapons(double smooth);
 
 // items
@@ -160,10 +160,10 @@ extern short nItemMagic[];
 
 void BuildItemAnim(DExhumedActor* nSprite);
 void ItemFlash();
-void FillItems(short nPlayer);
-void UseItem(short nPlayer, short nItem);
-void UseCurItem(short nPlayer);
-int GrabItem(short nPlayer, short nItem);
+void FillItems(int nPlayer);
+void UseItem(int nPlayer, int nItem);
+void UseCurItem(int nPlayer);
+int GrabItem(int nPlayer, int nItem);
 void DropMagic(DExhumedActor* actor);
 void InitItems();
 void StartRegenerate(DExhumedActor* nSprite);
@@ -171,7 +171,7 @@ void DoRegenerates();
 
 // lavadude
 
-void BuildLava(DExhumedActor* nSprite, int x, int y, int z, int nSector, short nAngle, int nChannel);
+void BuildLava(DExhumedActor* nSprite, int x, int y, int z, int nSector, int nAngle, int nChannel);
 DExhumedActor* BuildLavaLimb(DExhumedActor* nSprite, int edx, int ebx);
 void FuncLavaLimb(int, int, int, int);
 void FuncLava(int, int, int, int);
@@ -194,7 +194,7 @@ extern short bTorch;
 
 // lion
 
-void BuildLion(DExhumedActor* nSprite, int x, int y, int z, int nSector, short nAngle);
+void BuildLion(DExhumedActor* nSprite, int x, int y, int z, int nSector, int nAngle);
 void FuncLion(int, int, int, int);
 
 // move
@@ -318,29 +318,27 @@ struct RA
     short nRun;
     short field_A;
     short field_C;
-    short nPlayer;
+    int nPlayer;
 };
 
 // ra
 extern RA Ra[];
 
-void FreeRa(short nPlayer);
-void BuildRa(short nPlayer);
+void FreeRa(int nPlayer);
+void BuildRa(int nPlayer);
 void InitRa();
-void MoveRaToEnemy(short nPlayer);
+void MoveRaToEnemy(int nPlayer);
 void FuncRa(int, int, int, int);
 
 // rat
 
 void InitRats();
-void SetRatVel(short nSprite);
 void BuildRat(DExhumedActor* nSprite, int x, int y, int z, int nSector, int nAngle);
-int FindFood(short nSprite);
 void FuncRat(int a, int, int b, int nRun);
 
 // rex
 
-void BuildRex(DExhumedActor* nSprite, int x, int y, int z, int nSector, short nAngle, int nChannel);
+void BuildRex(DExhumedActor* nSprite, int x, int y, int z, int nSector, int nAngle, int nChannel);
 void FuncRex(int, int, int, int);
 
 // roach
@@ -698,7 +696,7 @@ void runlist_DoSubRunRec(int RunPtr);
 void runlist_SubRunRec(int RunPtr);
 void runlist_ProcessWallTag(int nWall, short nLotag, short nHitag);
 int runlist_CheckRadialDamage(DExhumedActor* actor);
-void runlist_RadialDamageEnemy(DExhumedActor* nSprite, short nSprite2, short nDamage);
+void runlist_RadialDamageEnemy(DExhumedActor* pActor, short nDamage, short nRadius);
 void runlist_DamageEnemy(DExhumedActor* nSprite, DExhumedActor* nSprite2, short nDamage);
 void runlist_SignalRun(int NxtPtr, int edx, void(ExhumedAI::* func)(RunListEvent*), RunListEvent* ev = nullptr);
 
@@ -707,12 +705,12 @@ void runlist_ExecObjects();
 
 // scorp
 
-void BuildScorp(DExhumedActor* nSprite, int x, int y, int z, int nSector, short nAngle, int nChannel);
+void BuildScorp(DExhumedActor* nSprite, int x, int y, int z, int nSector, int nAngle, int nChannel);
 void FuncScorp(int, int, int, int);
 
 // set
 
-void BuildSet(DExhumedActor* nSprite, int x, int y, int z, int nSector, short nAngle, int nChannel);
+void BuildSet(DExhumedActor* nSprite, int x, int y, int z, int nSector, int nAngle, int nChannel);
 void FuncSoul(int, int, int, int);
 void FuncSet(int, int, int, int);
 
@@ -741,7 +739,7 @@ extern FreeListArray<Snake, kMaxSnakes> SnakeList;
 
 void InitSnakes();
 short GrabSnake();
-void BuildSnake(short nPlayer, short zVal);
+void BuildSnake(int nPlayer, short zVal);
 void FuncSnake(int, int, int, int);
 
 // spider
@@ -766,13 +764,13 @@ std::pair<int, int> BuildSwNotOnPause(int nChannel, int nLink, int nSector, int 
 int BuildLink(int nCount, ...);
 std::pair<int, int> BuildSwPressSector(int nChannel, int nLink, int nSector, int ecx);
 std::pair<int, int> BuildSwStepOn(int nChannel, int nLink, int nSector);
-std::pair<int, int> BuildSwReady(int nChannel, short nLink);
+std::pair<int, int> BuildSwReady(int nChannel, int nLink);
 
-std::pair<int, int> BuildSwPressWall(short nChannel, short nLink, int nWall);
+std::pair<int, int> BuildSwPressWall(int nChannel, int nLink, int nWall);
 
 // wasp
 
-DExhumedActor* BuildWasp(DExhumedActor* nSprite, int x, int y, int z, int nSector, short nAngle, bool bEggWasp);
+DExhumedActor* BuildWasp(DExhumedActor* nSprite, int x, int y, int z, int nSector, int nAngle, bool bEggWasp);
 void FuncWasp(int eax, int, int edx, int nRun);
 
 

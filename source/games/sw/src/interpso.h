@@ -32,8 +32,8 @@ BEGIN_SW_NS
 extern int32_t so_numinterpolations;
 
 void so_addinterpolation(SECTOR_OBJECTp sop);
-void so_setspriteinterpolation(SECTOR_OBJECTp sop, spritetype *sp);
-void so_stopspriteinterpolation(SECTOR_OBJECTp sop, spritetype *sp);
+void so_setspriteinterpolation(SECTOR_OBJECTp sop, DSWActor *sp);
+void so_stopspriteinterpolation(SECTOR_OBJECTp sop, DSWActor *sp);
 void so_setinterpolationangdiff(SECTOR_OBJECTp sop, int16_t angdiff);
 void so_setinterpolationtics(SECTOR_OBJECTp sop, int16_t locktics);
 void so_updateinterpolations(void);

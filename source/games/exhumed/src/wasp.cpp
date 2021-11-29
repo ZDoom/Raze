@@ -40,7 +40,7 @@ void SetWaspVel(spritetype* pSprite)
     pSprite->yvel = bsin(pSprite->ang);
 }
 
-DExhumedActor* BuildWasp(DExhumedActor* pActor, int x, int y, int z, int nSector, short nAngle, bool bEggWasp)
+DExhumedActor* BuildWasp(DExhumedActor* pActor, int x, int y, int z, int nSector, int nAngle, bool bEggWasp)
 {
     spritetype* pSprite;
     if (pActor == nullptr)
@@ -145,7 +145,6 @@ void AIWasp::Damage(RunListEvent* ev)
     auto pActor = ev->pObjActor;
     if (!pActor) return;
     auto pSprite = &pActor->s();
-    short nAction = pActor->nAction;
 
     if (!ev->nDamage) {
         return;

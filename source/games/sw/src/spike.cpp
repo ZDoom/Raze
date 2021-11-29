@@ -36,21 +36,19 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-short DoSpikeMatch(short match);
 bool TestSpikeMatchActive(short match);
-int DoVatorMove(short SpriteNum, int *lptr);
 void InterpSectorSprites(short sectnum, bool state);
 
-void ReverseSpike(short SpriteNum)
+void ReverseSpike(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = u->SpriteP;
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
 
     // if paused go ahead and start it up again
     if (u->Tics)
     {
         u->Tics = 0;
-        SetSpikeActive(SpriteNum);
+        SetSpikeActive(actor);
         return;
     }
 
@@ -73,17 +71,15 @@ void ReverseSpike(short SpriteNum)
     u->vel_rate = -u->vel_rate;
 }
 
-bool
-SpikeSwitch(short match, short setting)
+bool SpikeSwitch(short match, short setting)
 {
     SPRITEp sp;
-    int i;
     bool found = false;
 
-    StatIterator it(STAT_DEFAULT);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_DEFAULT);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
+        sp = &actor->s();
 
         if (sp->lotag == TAG_SPRITE_SWITCH_VATOR && sp->hitag == match)
         {
@@ -95,10 +91,10 @@ SpikeSwitch(short match, short setting)
     return found;
 }
 
-void SetSpikeActive(short SpriteNum)
+void SetSpikeActive(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = u->SpriteP;
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
     SECTORp sectp = &sector[sp->sectnum];
 
     if (TEST(sp->cstat, CSTAT_SPRITE_YFLIP))
@@ -123,10 +119,10 @@ void SetSpikeActive(short SpriteNum)
         VatorSwitch(SP_TAG2(sp), OFF);
 }
 
-void SetSpikeInactive(short SpriteNum)
+void SetSpikeInactive(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = u->SpriteP;
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
     SECTORp sectp = &sector[sp->sectnum];
 
     if (TEST(sp->cstat, CSTAT_SPRITE_YFLIP))
@@ -143,16 +139,15 @@ void SetSpikeInactive(short SpriteNum)
 }
 
 // called for operation from the space bar
-short DoSpikeOperate(short sectnum)
+void DoSpikeOperate(short sectnum)
 {
     SPRITEp fsp;
     short match;
-    int i;
 
-    SectIterator it(sectnum);
-    while ((i = it.NextIndex()) >= 0)
+    SWSectIterator it(sectnum);
+    while (auto actor = it.Next())
     {
-        fsp = &sprite[i];
+        fsp = &actor->s();
 
         if (fsp->statnum == STAT_SPIKE && SP_TAG1(fsp) == SECT_SPIKE && SP_TAG3(fsp) == 0)
         {
@@ -161,75 +156,58 @@ short DoSpikeOperate(short sectnum)
             match = SP_TAG2(fsp);
             if (match > 0)
             {
-                if (TestSpikeMatchActive(match))
-                    return -1;
-                else
-                    return DoSpikeMatch(match);
+                if (!TestSpikeMatchActive(match))
+                    DoSpikeMatch(match);
+                return;
             }
 
-            SetSpikeActive(i);
+            SetSpikeActive(actor);
             break;
         }
     }
-
-    return i;
 }
 
 // called from switches and triggers
 // returns first spike found
-short
-DoSpikeMatch(short match)
+void DoSpikeMatch(short match)
 {
     USERp fu;
     SPRITEp fsp;
-    short first_spike = -1;
 
-    int i;
-
-    //SpikeSwitch(match, ON);
-
-    StatIterator it(STAT_SPIKE);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_SPIKE);
+    while (auto actor = it.Next())
     {
-        fsp = &sprite[i];
+        fsp = &actor->s();
 
         if (SP_TAG1(fsp) == SECT_SPIKE && SP_TAG2(fsp) == match)
         {
-            fu = User[i].Data();
-
-            if (first_spike == -1)
-                first_spike = i;
+            fu = actor->u();
 
             if (TEST(fu->Flags, SPR_ACTIVE))
             {
-                ReverseSpike(i);
+                ReverseSpike(actor);
                 continue;
             }
 
-            SetSpikeActive(i);
+            SetSpikeActive(actor);
         }
     }
-
-    return first_spike;
 }
 
 
-bool
-TestSpikeMatchActive(short match)
+bool TestSpikeMatchActive(short match)
 {
     USERp fu;
     SPRITEp fsp;
 
-    int i;
-
-    StatIterator it(STAT_SPIKE);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_SPIKE);
+    while (auto actor = it.Next())
     {
-        fsp = &sprite[i];
+        fsp = &actor->s();
 
         if (SP_TAG1(fsp) == SECT_SPIKE && SP_TAG2(fsp) == match)
         {
-            fu = User[i].Data();
+            fu = actor->u();
 
             // door war
             if (TEST_BOOL6(fsp))
@@ -243,9 +221,9 @@ TestSpikeMatchActive(short match)
     return false;
 }
 
-int DoSpikeMove(short SpriteNum, int *lptr)
+int DoSpikeMove(DSWActor* actor, int *lptr)
 {
-    USERp u = User[SpriteNum].Data();
+    USERp u = actor->u();
     int zval;
 
     zval = *lptr;
@@ -280,10 +258,10 @@ int DoSpikeMove(short SpriteNum, int *lptr)
     return 0;
 }
 
-void SpikeAlign(short SpriteNum)
+void SpikeAlign(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = u->SpriteP;
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
 
     // either work on single sector or all tagged in SOBJ
     if ((int8_t)SP_TAG7(sp) < 0)
@@ -305,15 +283,14 @@ void SpikeAlign(short SpriteNum)
 void MoveSpritesWithSpike(short sectnum)
 {
     SPRITEp sp;
-    int i;
     int cz,fz;
 
-    SectIterator it(sectnum);
-    while ((i = it.NextIndex()) >= 0)
+    SWSectIterator it(sectnum);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
+        sp = &actor->s();
 
-        if (User[i].Data())
+        if (actor->hasU())
             continue;
 
         if (TEST(sp->extra, SPRX_STAY_PUT_VATOR))
@@ -327,8 +304,7 @@ void MoveSpritesWithSpike(short sectnum)
 int DoSpike(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = u->SpriteP;
+    SPRITEp sp = &actor->s();
     int *lptr;
 
     // zclip = floor or ceiling z
@@ -338,9 +314,9 @@ int DoSpike(DSWActor* actor)
 
     lptr = &u->zclip;
 
-    DoSpikeMove(SpriteNum, lptr);
+    DoSpikeMove(actor, lptr);
     MoveSpritesWithSpike(sp->sectnum);
-    SpikeAlign(SpriteNum);
+    SpikeAlign(actor);
 
     // EQUAL this entry has finished
     if (*lptr == u->z_tgt)
@@ -352,7 +328,7 @@ int DoSpike(DSWActor* actor)
             u->z_tgt = u->sz;
             u->vel_rate = -u->vel_rate;
 
-            SetSpikeInactive(SpriteNum);
+            SetSpikeInactive(actor);
 
             if (SP_TAG6(sp))
                 DoMatchEverything(nullptr, SP_TAG6(sp), -1);
@@ -368,9 +344,9 @@ int DoSpike(DSWActor* actor)
             u->vel_rate = (short)abs(u->vel_rate);
             u->z_tgt = sp->z;
 
-            SetSpikeInactive(SpriteNum);
+            SetSpikeInactive(actor);
 
-            // set owner swith back to OFF
+            // set Owner swith back to OFF
             // only if ALL spikes are inactive
             if (!TestSpikeMatchActive(match))
             {
@@ -384,8 +360,8 @@ int DoSpike(DSWActor* actor)
         // operate only once
         if (TEST_BOOL2(sp))
         {
-            SetSpikeInactive(SpriteNum);
-            KillSprite(SpriteNum);
+            SetSpikeInactive(actor);
+            KillActor(actor);
             return 0;
         }
 
@@ -401,20 +377,19 @@ int DoSpike(DSWActor* actor)
         // if heading for the OFF (original) position and should NOT CRUSH
         if (TEST_BOOL3(sp) && u->z_tgt == u->oz)
         {
-            int i;
-            SPRITEp bsp;
+           SPRITEp bsp;
             USERp bu;
             bool found = false;
 
-            SectIterator it(sp->sectnum);
-            while ((i = it.NextIndex()) >= 0)
+            SWSectIterator it(sp->sectnum);
+            while (auto itActor = it.Next())
             {
-                bsp = &sprite[i];
-                bu = User[i].Data();
+                bsp = &actor->s();
+                bu = actor->u();
 
                 if (bu && TEST(bsp->cstat, CSTAT_SPRITE_BLOCK) && TEST(bsp->extra, SPRX_PLAYER_OR_ENEMY))
                 {
-                    ReverseSpike(SpriteNum);
+                    ReverseSpike(actor);
                     found = true;
                     break;
                 }
@@ -432,7 +407,7 @@ int DoSpike(DSWActor* actor)
                     if (pp->lo_sectp == &sector[sp->sectnum] ||
                         pp->hi_sectp == &sector[sp->sectnum])
                     {
-                        ReverseSpike(SpriteNum);
+                        ReverseSpike(actor);
                         found = true;
                     }
                 }
@@ -446,15 +421,14 @@ int DoSpike(DSWActor* actor)
 int DoSpikeAuto(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = u->SpriteP;
+    SPRITEp sp = &actor->s();
     int *lptr;
 
     lptr = &u->zclip;
 
-    DoSpikeMove(SpriteNum, lptr);
+    DoSpikeMove(actor, lptr);
     MoveSpritesWithSpike(sp->sectnum);
-    SpikeAlign(SpriteNum);
+    SpikeAlign(actor);
 
     // EQUAL this entry has finished
     if (*lptr == u->z_tgt)

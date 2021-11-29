@@ -35,12 +35,6 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 
 BEGIN_DUKE_NS 
 
-void addjaildoor(int p1, int p2, int iht, int jlt, int p3, int h);
-void addminecart(int p1, int p2, int i, int iht, int p3, int childsectnum);
-void addtorch(int i);
-void addlightning(int i);
-
-
 static inline void tloadtile(int tilenum, int palnum = 0)
 {
 	markTileForPrecache(tilenum, palnum);
@@ -377,29 +371,27 @@ static void cachegoodsprites(void)
 void cacheit_r(void)
 {
 	if (!r_precache) return;
-	int i;
 
 	cachegoodsprites();
 
-	for(i=0;i<numwalls;i++)
+	for (auto& wal : walls())
 	{
-			tloadtile(wall[i].picnum, wall[i].pal);
-		if(wall[i].overpicnum >= 0)
-			tloadtile(wall[i].overpicnum, wall[i].pal);
+			tloadtile(wal.picnum, wal.pal);
+		if(wal.overpicnum >= 0)
+			tloadtile(wal.overpicnum, wal.pal);
 	}
 
-	for (i = 0; i < numsectors; i++)
+	for (auto& sect : sectors())
 	{
-		auto sectp = &sector[i];
-		tloadtile(sectp->floorpicnum, sectp->floorpal);
-		tloadtile(sectp->ceilingpicnum, sectp->ceilingpal);
-		if (sectp->ceilingpicnum == LA)
+		tloadtile(sect.floorpicnum, sect.floorpal);
+		tloadtile(sect.ceilingpicnum, sect.ceilingpal);
+		if (sect.ceilingpicnum == LA)
 		{
 			tloadtile(LA + 1);
 			tloadtile(LA + 2);
 		}
 
-		DukeSectIterator it(i);
+		DukeSectIterator it(&sect);
 		while (auto j = it.Next())
 		{
 			if(j->s->xrepeat != 0 && j->s->yrepeat != 0 && (j->s->cstat&32768) == 0)
@@ -415,16 +407,20 @@ void cacheit_r(void)
 //
 //---------------------------------------------------------------------------
 
+void spriteinit_r(int i)
+{
+	i = initspriteforspawn(i, { CRACK1, CRACK2, CRACK3, CRACK4 });
+	if ((i & 0x1000000)) spawninit_r(nullptr, &hittype[i & 0xffffff]);
+}
+
 void prelevel_r(int g)
 {
 	struct player_struct* p;
 	int i;
 	int j;
-	int startwall;
-	int endwall;
 	int lotaglist;
 	short lotags[65];
-	int speed;
+	int speed = 0;
 	int dist;
 	int sound;
 	sound = 0;
@@ -458,9 +454,9 @@ void prelevel_r(int g)
 		}
 	}
 
-	for (i = 0; i < numsectors; i++)
+	for (auto&sect : sectors())
 	{
-		auto sectp = &sector[i];
+		auto sectp = &sect;
 		if (sectp->ceilingpicnum == RRTILE2577)
 			thunderon = 1;
 
@@ -468,7 +464,8 @@ void prelevel_r(int g)
 		{
 		case 41:
 		{
-			DukeSectIterator it(i);
+			DukeSectIterator it(sectp);
+			dist = 0;
 			while (auto act = it.Next())
 			{
 				auto spr = act->s;
@@ -484,13 +481,13 @@ void prelevel_r(int g)
 					deletesprite(act);
 				}
 			}
-			for (j = 0; j < numsectors; j++)
+			for(auto& osect : sectors())
 			{
-				if (sectp->hitag == sector[j].hitag && j != i)
+				if (sectp->hitag == osect.hitag && &osect != sectp)
 				{
 					// & 32767 to avoid some ordering issues here. 
 					// Other code assumes that the lotag is always a sector effector type and can mask the high bit in.
-					addjaildoor(dist, speed, sectp->hitag, sector[j].lotag & 32767, sound, j);
+					addjaildoor(dist, speed, sectp->hitag, osect.lotag & 32767, sound, &osect);
 				}
 			}
 			break;
@@ -498,8 +495,10 @@ void prelevel_r(int g)
 		case 42:
 		{
 			int ii;
-			int childsectnum = -1;
-			DukeSectIterator it(i);
+			sectortype* childsectnum = nullptr;
+			dist = 0;
+			speed = 0;
+			DukeSectIterator it(sectp);
 			while (auto act = it.Next())
 			{
 				auto sj = act->s;
@@ -513,7 +512,7 @@ void prelevel_r(int g)
 						if (spr->picnum == RRTILE66)
 							if (spr->lotag == sj->sectnum)
 							{
-								childsectnum = spr->sectnum;
+								childsectnum = spr->sector();
 								deletesprite(ii);
 							}
 					}
@@ -525,7 +524,7 @@ void prelevel_r(int g)
 					deletesprite(act);
 				}
 			}
-			addminecart(dist, speed, i, sectp->hitag, sound, childsectnum);
+			addminecart(dist, speed, sectp, sectp->hitag, sound, childsectnum);
 			break;
 		}
 		}
@@ -556,7 +555,7 @@ void prelevel_r(int g)
 		case CYCLER:
 			if (numcyclers >= MAXCYCLERS)
 				I_Error("Too many cycling sectors.");
-			cyclers[numcyclers].sectnum = si->sectnum;
+			cyclers[numcyclers].sector = si->sector();
 			cyclers[numcyclers].lotag = si->lotag;
 			cyclers[numcyclers].shade1 = si->shade;
 			cyclers[numcyclers].shade2 = si->sector()->floorshade;
@@ -642,9 +641,9 @@ void prelevel_r(int g)
 		auto spr = &sprite[i];
 		if (spr->statnum < MAXSTATUS)
 		{
-			if (spr->picnum == SECTOREFFECTOR && spr->lotag == 14)
+			if (spr->picnum == SECTOREFFECTOR && spr->lotag == SE_14_SUBWAY_CAR)
 				continue;
-			spawn(nullptr, i);
+			spriteinit_r(i);
 		}
 	}
 
@@ -653,8 +652,8 @@ void prelevel_r(int g)
 		auto spr = &sprite[i];
 		if (spr->statnum < MAXSTATUS)
 		{
-			if (spr->picnum == SECTOREFFECTOR && spr->lotag == 14)
-				spawn(nullptr, i);
+			if (spr->picnum == SECTOREFFECTOR && spr->lotag == SE_14_SUBWAY_CAR)
+				spriteinit_r(i);
 		}
 		if (spr->picnum == RRTILE19)
 			deletesprite(i);
@@ -675,6 +674,7 @@ void prelevel_r(int g)
 		{
 		case RRTILE8464 + 1:
 			if (!isRRRA()) break;
+			[[fallthrough]];
 		case DIPSWITCH + 1:
 		case DIPSWITCH2 + 1:
 		case PULLSWITCH + 1:
@@ -715,23 +715,23 @@ void prelevel_r(int g)
 
 	mirrorcnt = 0;
 
-	for (i = 0; i < numwalls; i++)
+	for (auto& wl : walls())
 	{
-		walltype* wal;
-		wal = &wall[i];
+		walltype* wal = &wl;
 
+		
 		if (wal->overpicnum == MIRROR && (wal->cstat & 32) != 0)
 		{
-			j = wal->nextsector;
+			auto sect = wal->nextSector();
 
 			if (mirrorcnt > 63)
 				I_Error("Too many mirrors (64 max.)");
-			if ((j >= 0) && sector[j].ceilingpicnum != MIRROR)
+			if (sect->ceilingpicnum != MIRROR)
 			{
-				sector[j].ceilingpicnum = MIRROR;
-				sector[j].floorpicnum = MIRROR;
-				mirrorwall[mirrorcnt] = i;
-				mirrorsector[mirrorcnt] = j;
+				sect->ceilingpicnum = MIRROR;
+				sect->floorpicnum = MIRROR;
+				mirrorwall[mirrorcnt] = wal;
+				mirrorsector[mirrorcnt] = sect;
 				mirrorcnt++;
 				continue;
 			}
@@ -741,17 +741,17 @@ void prelevel_r(int g)
 			I_Error("Too many 'anim' walls (max 512.)");
 
 		animwall[numanimwalls].tag = 0;
-		animwall[numanimwalls].wallnum = 0;
+		animwall[numanimwalls].wall = nullptr;
 
 		switch (wal->overpicnum)
 		{
 		case FANSPRITE:
 			wal->cstat |= 65;
-			animwall[numanimwalls].wallnum = i;
+			animwall[numanimwalls].wall = wal;
 			numanimwalls++;
 			break;
 		case BIGFORCE:
-			animwall[numanimwalls].wallnum = i;
+			animwall[numanimwalls].wall = wal;
 			numanimwalls++;
 			continue;
 		}
@@ -765,7 +765,7 @@ void prelevel_r(int g)
 		case SCREENBREAK8:
 			for (j = SCREENBREAK6; j <= SCREENBREAK8; j++)
 				tloadtile(j);
-			animwall[numanimwalls].wallnum = i;
+			animwall[numanimwalls].wall = wal;
 			animwall[numanimwalls].tag = -1;
 			numanimwalls++;
 			break;
@@ -775,12 +775,10 @@ void prelevel_r(int g)
 	//Invalidate textures in sector behind mirror
 	for (i = 0; i < mirrorcnt; i++)
 	{
-		startwall = sector[mirrorsector[i]].wallptr;
-		endwall = startwall + sector[mirrorsector[i]].wallnum;
-		for (j = startwall; j < endwall; j++)
+		for (auto& mwal : wallsofsector(mirrorsector[i]))
 		{
-			wall[j].picnum = MIRROR;
-			wall[j].overpicnum = MIRROR;
+			mwal.picnum = MIRROR;
+			mwal.overpicnum = MIRROR;
 		}
 	}
 	thunder_brightness = 0;

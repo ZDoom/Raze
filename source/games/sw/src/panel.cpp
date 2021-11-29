@@ -51,7 +51,6 @@ PANEL_SPRITEp InitWeaponUziSecondaryReload(PANEL_SPRITEp);
 PANEL_SPRITEp InitWeaponUzi2(PANEL_SPRITEp);
 int InitShotgun(PLAYERp pp);
 int InitRail(PLAYERp pp);
-int InitEMP(PLAYERp pp);
 int InitMicro(PLAYERp pp);
 int InitRocket(PLAYERp pp);
 int InitNuke(PLAYERp pp);
@@ -93,7 +92,7 @@ bool pWeaponUnHideKeys(PANEL_SPRITEp psp, PANEL_STATEp state);
 bool pWeaponHideKeys(PANEL_SPRITEp psp, PANEL_STATEp state);
 void pHotHeadOverlays(PANEL_SPRITEp psp, short mode);
 
-char UziRecoilYadj = 0;
+uint8_t UziRecoilYadj = 0;
 
 extern short screenpeek;
 
@@ -116,9 +115,10 @@ void pNullAnimator(PANEL_SPRITEp)
 
 PANEL_SPRITEp pFindMatchingSprite(PLAYERp pp, int x, int y, short pri)
 {
-    PANEL_SPRITEp psp=nullptr, next;
+    PANEL_SPRITEp next;
 
-    TRAVERSE(&pp->PanelSpriteList, psp, next)
+    auto list = pp->GetPanelSpriteList();
+    for (auto psp = list->Next; next = psp->Next, psp != list; psp = next)
     {
         // early out
         if (psp->priority > pri)
@@ -135,9 +135,10 @@ PANEL_SPRITEp pFindMatchingSprite(PLAYERp pp, int x, int y, short pri)
 
 PANEL_SPRITEp pFindMatchingSpriteID(PLAYERp pp, short id, int x, int y, short pri)
 {
-    PANEL_SPRITEp psp=nullptr, next;
+    PANEL_SPRITEp next;
 
-    TRAVERSE(&pp->PanelSpriteList, psp, next)
+    auto list = pp->GetPanelSpriteList();
+    for (auto psp = list->Next; next = psp->Next, psp != list; psp = next)
     {
         // early out
         if (psp->priority > pri)
@@ -154,11 +155,12 @@ PANEL_SPRITEp pFindMatchingSpriteID(PLAYERp pp, short id, int x, int y, short pr
 
 bool pKillScreenSpiteIDs(PLAYERp pp, short id)
 {
-    PANEL_SPRITEp psp=nullptr, next;
+    PANEL_SPRITEp next;
     bool found = false;
 
     // Kill ALL sprites with the correct id
-    TRAVERSE(&pp->PanelSpriteList, psp, next)
+    auto list = pp->GetPanelSpriteList();
+    for (auto psp = list->Next; next = psp->Next, psp != list; psp = next)
     {
         if (psp->ID == id)
         {
@@ -220,7 +222,7 @@ void ArmorCalc(int damage_amt, int *armor_damage, int *player_damage)
 
 void PlayerUpdateHealth(PLAYERp pp, short value)
 {
-    USERp u = User[pp->PlayerSprite].Data();
+    USERp u = pp->Actor()->u();
     short x,y;
 
     if (Prediction)
@@ -327,7 +329,6 @@ void PlayerUpdateHealth(PLAYERp pp, short value)
 
 void PlayerUpdateAmmo(PLAYERp pp, short UpdateWeaponNum, short value)
 {
-    USERp u = User[pp->PlayerSprite].Data();
     short x,y;
     short WeaponNum;
 
@@ -366,9 +367,9 @@ void PlayerUpdateAmmo(PLAYERp pp, short UpdateWeaponNum, short value)
 
 void PlayerUpdateWeapon(PLAYERp pp, short WeaponNum)
 {
-    USERp u = User[pp->PlayerSprite].Data();
+    USERp u = pp->Actor()->u();
 
-    // Weapon Change
+    // weapon Change
     if (Prediction)
         return;
 
@@ -394,7 +395,7 @@ void PlayerUpdateKills(PLAYERp pp, short value)
             opp = Player + pnum;
 
             // for everyone on the same team
-            if (opp != pp && User[opp->PlayerSprite]->spal == User[pp->PlayerSprite]->spal)
+            if (opp != pp && opp->Actor()->u()->spal == pp->Actor()->u()->spal)
             {
                 opp->Kills += value;
                 if (opp->Kills > 999)
@@ -432,7 +433,7 @@ void PlayerUpdateArmor(PLAYERp pp, short value)
 int WeaponOperate(PLAYERp pp)
 {
     short weapon;
-    USERp u = User[pp->PlayerSprite].Data();
+    USERp u = pp->Actor()->u();
 
 
     InventoryKeys(pp);
@@ -653,16 +654,16 @@ WeaponOK(PLAYERp pp)
 {
     USERp u;
     short min_ammo, WeaponNum, FindWeaponNum;
-    static char wpn_order[] = {2,3,4,5,6,7,8,9,1,0};
+    static const uint8_t wpn_order[] = {2,3,4,5,6,7,8,9,1,0};
     unsigned wpn_ndx=0;
 
-    if ((unsigned)pp->PlayerSprite >= MAXSPRITES)
+    if (!pp->Actor())
         return(false);
 
-    u = User[pp->PlayerSprite].Data();
-
-    if (u == nullptr)
+    if (!pp->Actor()->hasU())
         return(false);
+
+    u = pp->Actor()->u();
 
     // sword
     if (DamageData[u->WeaponNum].max_ammo == -1)
@@ -789,6 +790,8 @@ SwordBlur(PANEL_SPRITEp psp)
 void
 SpawnSwordBlur(PANEL_SPRITEp psp)
 {
+    if (cl_nomeleeblur) return;
+
     PANEL_SPRITEp nsp;
     //PICITEMp pip;
 
@@ -922,7 +925,8 @@ void RetractCurWpn(PLAYERp pp)
         else
         {
             // check for any outstanding siblings that need to go away also
-            TRAVERSE(&pp->PanelSpriteList, cur, nxt)
+            auto list = pp->GetPanelSpriteList();
+            for (auto cur = list->Next; nxt = cur->Next, cur != list; cur = nxt)
             {
                 if (cur->sibling && cur->sibling == pp->CurWpn)
                 {
@@ -978,7 +982,7 @@ InitWeaponSword(PLAYERp pp)
     pp->WpnUziType = 2; // Make uzi's go away!
     RetractCurWpn(pp);
 
-    // Set up the new Weapon variables
+    // Set up the new weapon variables
     psp = pp->CurWpn = pp->Wpn[WPN_SWORD];
     SET(psp->flags, PANF_WEAPON_SPRITE);
     psp->ActionState = ps_SwordSwing;
@@ -1030,10 +1034,7 @@ pSwordPresent(PANEL_SPRITEp psp)
 void
 pSwordSlide(PANEL_SPRITEp psp)
 {
-    if (!cl_nomeleeblur)
-    {
-        SpawnSwordBlur(psp);
-    }
+    SpawnSwordBlur(psp);
 
     psp->backupcoords();
 
@@ -1046,10 +1047,7 @@ pSwordSlide(PANEL_SPRITEp psp)
 void
 pSwordSlideDown(PANEL_SPRITEp psp)
 {
-    if (!cl_nomeleeblur)
-    {
-        SpawnSwordBlur(psp);
-    }
+    SpawnSwordBlur(psp);
 
     auto ang = SwordAng + psp->ang + psp->PlayerP->SwordAng;
 
@@ -1096,10 +1094,7 @@ pSwordSlideDown(PANEL_SPRITEp psp)
 void
 pSwordSlideR(PANEL_SPRITEp psp)
 {
-    if (!cl_nomeleeblur)
-    {
-        SpawnSwordBlur(psp);
-    }
+    SpawnSwordBlur(psp);
 
     psp->backupcoords();
 
@@ -1112,10 +1107,7 @@ pSwordSlideR(PANEL_SPRITEp psp)
 void
 pSwordSlideDownR(PANEL_SPRITEp psp)
 {
-    if (!cl_nomeleeblur)
-    {
-        SpawnSwordBlur(psp);
-    }
+    SpawnSwordBlur(psp);
 
     auto ang = SwordAng + psp->ang - psp->PlayerP->SwordAng;
 
@@ -1399,7 +1391,7 @@ InitWeaponStar(PLAYERp pp)
     pp->WpnUziType = 2; // Make uzi's go away!
     RetractCurWpn(pp);
 
-    // Set up the new Weapon variables
+    // Set up the new weapon variables
     pp->CurWpn = pp->Wpn[WPN_STAR];
     SET(psp->flags, PANF_WEAPON_SPRITE);
     psp->ActionState = ps_ThrowStar;
@@ -2049,7 +2041,7 @@ InitWeaponUzi(PLAYERp pp)
 
     RetractCurWpn(pp);
 
-    // Set up the new Weapon variables
+    // Set up the new weapon variables
     pp->CurWpn = pp->Wpn[WPN_UZI];
     SET(psp->flags, PANF_WEAPON_SPRITE);
     psp->ActionState = &ps_FireUzi[1];
@@ -2091,7 +2083,7 @@ InitWeaponUzi2(PANEL_SPRITEp uzi_orig)
     New->oy = New->y;
     uzi_orig->sibling = New;
 
-    // Set up the New Weapon variables
+    // Set up the New weapon variables
     SET(New->flags, PANF_WEAPON_SPRITE);
     New->ActionState = &ps_FireUzi2[1];
     New->RetractState = ps_RetractUzi2;
@@ -2118,7 +2110,7 @@ InitWeaponUziSecondaryReload(PANEL_SPRITEp uzi_orig)
 
     SET(New->flags, PANF_XFLIP);
 
-    // Set up the New Weapon variables
+    // Set up the New weapon variables
     SET(New->flags, PANF_WEAPON_SPRITE);
     New->ActionState = ps_UziEject;
     New->RetractState = ps_RetractUzi;
@@ -2294,10 +2286,9 @@ pUziRest(PANEL_SPRITEp psp)
 void
 pUziAction(PANEL_SPRITEp psp)
 {
-    char shooting;
     static int alternate = 0;
 
-    shooting = (psp->PlayerP->input.actions & SB_FIRE) && (psp->PlayerP->KeyPressBits & SB_FIRE);
+    bool shooting = (psp->PlayerP->input.actions & SB_FIRE) && (psp->PlayerP->KeyPressBits & SB_FIRE);
 
     if (shooting)
     {
@@ -2313,7 +2304,7 @@ pUziAction(PANEL_SPRITEp psp)
         // Only Recoil if shooting
         pUziBobSetup(psp);
         UziRecoilYadj = DIV256(RANDOM_P2(1024));        // global hack for
-        // Weapon Bob
+        // weapon Bob
         pWeaponBob(psp, PLAYER_MOVING(psp->PlayerP) || shooting);
         UziRecoilYadj = 0;              // reset my global hack
         if (RANDOM_P2(1024) > 990)
@@ -2354,7 +2345,7 @@ pUziFire(PANEL_SPRITEp psp)
     }
     else
     {
-        SpawnVis(psp->PlayerP->PlayerSprite, -1, -1, -1, -1, 32);
+        SpawnVis(psp->PlayerP->Actor(), -1, -1, -1, -1, 32);
 
         if (!WeaponOK(psp->PlayerP))
             return;
@@ -2461,14 +2452,14 @@ SpawnUziShell(PANEL_SPRITEp psp)
         // LEFT side
         pp->UziShellLeftAlt = !pp->UziShellLeftAlt;
         if (pp->UziShellLeftAlt)
-            SpawnShell(pp->PlayerSprite,-3);
+            SpawnShell(pp->Actor(),-3);
     }
     else
     {
         // RIGHT side
         pp->UziShellRightAlt = !pp->UziShellRightAlt;
         if (pp->UziShellRightAlt)
-            SpawnShell(pp->PlayerSprite,-2);
+            SpawnShell(pp->Actor(),-2);
     }
 }
 
@@ -2526,7 +2517,7 @@ void
 SpawnShotgunShell(PANEL_SPRITEp psp)
 {
     PLAYERp pp = psp->PlayerP;
-    SpawnShell(pp->PlayerSprite,-4);
+    SpawnShell(pp->Actor(),-4);
 }
 
 void
@@ -2700,7 +2691,7 @@ InitWeaponShotgun(PLAYERp pp)
     pp->WpnUziType = 2; // Make uzi's go away!
     RetractCurWpn(pp);
 
-    // Set up the new Weapon variables
+    // Set up the new weapon variables
     psp = pp->CurWpn = pp->Wpn[pp->WeaponType];
     SET(psp->flags, PANF_WEAPON_SPRITE);
     psp->ActionState = ps_ShotgunFire;
@@ -2925,8 +2916,8 @@ pShotgunRest(PANEL_SPRITEp psp)
 {
     bool force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
     //short ammo = psp->PlayerP->WpnAmmo[psp->PlayerP->WeaponType];
-    short ammo = psp->PlayerP->WpnAmmo[WPN_SHOTGUN];
-    char lastammo = psp->PlayerP->WpnShotgunLastShell;
+    int ammo = psp->PlayerP->WpnAmmo[WPN_SHOTGUN];
+    int lastammo = psp->PlayerP->WpnShotgunLastShell;
 
     if (pWeaponHideKeys(psp, ps_ShotgunHide))
         return;
@@ -3014,7 +3005,7 @@ pShotgunAction(PANEL_SPRITEp psp)
 void
 pShotgunFire(PANEL_SPRITEp psp)
 {
-    SpawnVis(psp->PlayerP->PlayerSprite, -1, -1, -1, -1, 32);
+    SpawnVis(psp->PlayerP->Actor(), -1, -1, -1, -1, 32);
     InitShotgun(psp->PlayerP);
     //SpawnShotgunShell(psp);
 }
@@ -3188,7 +3179,7 @@ InitWeaponRail(PLAYERp pp)
     pp->WpnUziType = 2; // Make uzi's go away!
     RetractCurWpn(pp);
 
-    // Set up the new Weapon variables
+    // Set up the new weapon variables
     psp = pp->CurWpn = pp->Wpn[pp->WeaponType];
     SET(psp->flags, PANF_WEAPON_SPRITE);
     psp->ActionState = ps_RailFire;
@@ -3199,7 +3190,6 @@ InitWeaponRail(PLAYERp pp)
 
     PlaySound(DIGI_RAIL_UP, pp, v3df_follow);
     PlaySound(DIGI_RAILREADY, pp, v3df_follow | v3df_dontpan, CHAN_ITEM); // this one needs to be on a dedicated channel to allow switching it off without too many checks.
-    Set3DSoundOwner(psp->PlayerP->PlayerSprite);
 
     psp->PlayerP->KeyPressBits |= SB_FIRE;
 }
@@ -3315,7 +3305,6 @@ pRailOkTest(PANEL_SPRITEp psp)
 void
 pRailRest(PANEL_SPRITEp psp)
 {
-    int InitLaserSight(PLAYERp pp);
     bool force = !!TEST(psp->flags, PANF_UNHIDE_SHOOT);
 
     if (SW_SHAREWARE) return;
@@ -3387,11 +3376,8 @@ pRailAction(PANEL_SPRITEp psp)
 void
 pRailFire(PANEL_SPRITEp psp)
 {
-    SpawnVis(psp->PlayerP->PlayerSprite, -1, -1, -1, -1, 16);
-    if (psp->PlayerP->WpnRailType == 0)
-        InitRail(psp->PlayerP);
-    else
-        InitEMP(psp->PlayerP);
+    SpawnVis(psp->PlayerP->Actor(), -1, -1, -1, -1, 16);
+    InitRail(psp->PlayerP);
 }
 
 void
@@ -3406,7 +3392,7 @@ pRailRetract(PANEL_SPRITEp psp)
     {
         RESET(psp->PlayerP->Flags, PF_WEAPON_RETRACT);
         psp->PlayerP->Wpn[psp->WeaponType] = nullptr;
-        DeleteNoSoundOwner(psp->PlayerP->PlayerSprite);
+        DeleteNoSoundOwner(psp->PlayerP->Actor());
         pKillSprite(psp);
     }
 }
@@ -3628,7 +3614,7 @@ InitWeaponHothead(PLAYERp pp)
     pp->WpnUziType = 2; // Make uzi's go away!
     RetractCurWpn(pp);
 
-    // Set up the new Weapon variables
+    // Set up the new weapon variables
     psp = pp->CurWpn = pp->Wpn[WPN_HOTHEAD];
     SET(psp->flags, PANF_WEAPON_SPRITE);
     psp->ActionState = ps_HotheadAttack;
@@ -3779,9 +3765,7 @@ pHotheadRest(PANEL_SPRITEp psp)
 void
 pHotheadAction(PANEL_SPRITEp psp)
 {
-    char shooting;
-
-    shooting = (psp->PlayerP->input.actions & SB_FIRE) && (psp->PlayerP->KeyPressBits & SB_FIRE);
+    bool shooting = (psp->PlayerP->input.actions & SB_FIRE) && (psp->PlayerP->KeyPressBits & SB_FIRE);
 
     if (shooting)
     {
@@ -3796,15 +3780,15 @@ pHotheadAttack(PANEL_SPRITEp psp)
     switch (psp->PlayerP->WpnFlameType)
     {
     case 0:
-        SpawnVis(psp->PlayerP->PlayerSprite, -1, -1, -1, -1, 32);
+        SpawnVis(psp->PlayerP->Actor(), -1, -1, -1, -1, 32);
         InitFireball(psp->PlayerP);
         break;
     case 1:
-        SpawnVis(psp->PlayerP->PlayerSprite, -1, -1, -1, -1, 20);
+        SpawnVis(psp->PlayerP->Actor(), -1, -1, -1, -1, 20);
         InitSpellRing(psp->PlayerP);
         break;
     case 2:
-        SpawnVis(psp->PlayerP->PlayerSprite, -1, -1, -1, -1, 16);
+        SpawnVis(psp->PlayerP->Actor(), -1, -1, -1, -1, 16);
         InitSpellNapalm(psp->PlayerP);
         break;
     }
@@ -3873,8 +3857,10 @@ SpawnOnFire(PLAYERp pp)
 void
 pOnFire(PANEL_SPRITEp psp)
 {
+    auto actor = psp->PlayerP->Actor();
+    auto u = actor->u();
     // Kill immediately - in case of death/water
-    if (User[psp->PlayerP->PlayerSprite]->flame <= -2)
+    if (u->flameActor == nullptr && u->Flags2 & SPR2_FLAMEDIE)
     {
         pKillSprite(psp);
         return;
@@ -3882,7 +3868,7 @@ pOnFire(PANEL_SPRITEp psp)
 
     psp->backupy();    
 
-    if (User[psp->PlayerP->PlayerSprite]->flame == -1)
+    if (u->flameActor == nullptr)
     {
         // take flames down and kill them
         psp->y += 1;
@@ -4054,7 +4040,7 @@ InitWeaponMicro(PLAYERp pp)
     pp->WpnUziType = 2; // Make uzi's go away!
     RetractCurWpn(pp);
 
-    // Set up the new Weapon variables
+    // Set up the new weapon variables
     psp = pp->CurWpn = pp->Wpn[WPN_MICRO];
     SET(psp->flags, PANF_WEAPON_SPRITE);
     psp->ActionState = ps_MicroFire;
@@ -4345,7 +4331,7 @@ pMicroAction(PANEL_SPRITEp psp)
 void
 pMicroFire(PANEL_SPRITEp psp)
 {
-    SpawnVis(psp->PlayerP->PlayerSprite, -1, -1, -1, -1, 20);
+    SpawnVis(psp->PlayerP->Actor(), -1, -1, -1, -1, 20);
     switch (psp->PlayerP->WpnRocketType)
     {
     case 0:
@@ -4532,7 +4518,7 @@ InitWeaponHeart(PLAYERp pp)
 
     PlaySound(DIGI_HEARTBEAT, pp, v3df_follow|v3df_dontpan|v3df_doppler);
 
-    // Set up the new Weapon variables
+    // Set up the new weapon variables
     psp = pp->CurWpn = pp->Wpn[WPN_HEART];
     SET(psp->flags, PANF_WEAPON_SPRITE);
     psp->ActionState = ps_HeartAttack;
@@ -5004,7 +4990,7 @@ InitWeaponGrenade(PLAYERp pp)
     pp->WpnUziType = 2; // Make uzi's go away!
     RetractCurWpn(pp);
 
-    // Set up the new Weapon variables
+    // Set up the new weapon variables
     psp = pp->CurWpn = pp->Wpn[WPN_GRENADE];
     psp = pp->CurWpn = pp->Wpn[WPN_GRENADE];
     SET(psp->flags, PANF_WEAPON_SPRITE);
@@ -5165,7 +5151,7 @@ pGrenadeAction(PANEL_SPRITEp psp)
 void
 pGrenadeFire(PANEL_SPRITEp psp)
 {
-    SpawnVis(psp->PlayerP->PlayerSprite, -1, -1, -1, -1, 32);
+    SpawnVis(psp->PlayerP->Actor(), -1, -1, -1, -1, 32);
     InitGrenade(psp->PlayerP);
 }
 
@@ -5276,7 +5262,7 @@ InitWeaponMine(PLAYERp pp)
     pp->WpnUziType = 2; // Make uzi's go away!
     RetractCurWpn(pp);
 
-    // Set up the new Weapon variables
+    // Set up the new weapon variables
     psp = pp->CurWpn = pp->Wpn[WPN_MINE];
     SET(psp->flags, PANF_WEAPON_SPRITE);
     psp->ActionState = ps_MineThrow;
@@ -5540,7 +5526,7 @@ InitChops(PLAYERp pp)
     if (Prediction)
         return;
 
-    // Set up the new Weapon variables
+    // Set up the new weapon variables
     psp = pp->Chops;
 
     SET(psp->flags, PANF_WEAPON_SPRITE);
@@ -5730,6 +5716,8 @@ FistBlur(PANEL_SPRITEp psp)
 void
 SpawnFistBlur(PANEL_SPRITEp psp)
 {
+    if (cl_nomeleeblur) return;
+
     PANEL_SPRITEp nsp;
     //PICITEMp pip;
 
@@ -5930,7 +5918,7 @@ InitWeaponFist(PLAYERp pp)
     pp->WpnUziType = 2; // Make uzi's go away!
     RetractCurWpn(pp);
 
-    // Set up the new Weapon variables
+    // Set up the new weapon variables
     psp = pp->CurWpn = pp->Wpn[WPN_FIST];
     SET(psp->flags, PANF_WEAPON_SPRITE);
     psp->ActionState = ps_FistSwing;
@@ -5991,10 +5979,7 @@ pFistPresent(PANEL_SPRITEp psp)
 void
 pFistSlide(PANEL_SPRITEp psp)
 {
-    if (!cl_nomeleeblur)
-    {
-        SpawnFistBlur(psp);
-    }
+    SpawnFistBlur(psp);
 
     //psp->backupx();
     psp->backupy();
@@ -6008,10 +5993,7 @@ pFistSlide(PANEL_SPRITEp psp)
 void
 pFistSlideDown(PANEL_SPRITEp psp)
 {
-    if (!cl_nomeleeblur)
-    {
-        SpawnFistBlur(psp);
-    }
+    SpawnFistBlur(psp);
 
     short vel = 3500;
     auto ang = FistAng + psp->ang + psp->PlayerP->FistAng;
@@ -6094,10 +6076,7 @@ pFistSlideDown(PANEL_SPRITEp psp)
 void
 pFistSlideR(PANEL_SPRITEp psp)
 {
-    if (!cl_nomeleeblur)
-    {
-        SpawnFistBlur(psp);
-    }
+    SpawnFistBlur(psp);
 
     //psp->backupx();
     psp->backupy();
@@ -6111,10 +6090,7 @@ pFistSlideR(PANEL_SPRITEp psp)
 void
 pFistSlideDownR(PANEL_SPRITEp psp)
 {
-    if (!cl_nomeleeblur)
-    {
-        SpawnFistBlur(psp);
-    }
+    SpawnFistBlur(psp);
 
     short vel = 3500;
     auto ang = FistAng + psp->ang + psp->PlayerP->FistAng;
@@ -6428,7 +6404,8 @@ InsertPanelSprite(PLAYERp pp, PANEL_SPRITEp psp)
     }
 
     // search for first pri in list thats less than the new pri
-    TRAVERSE(&pp->PanelSpriteList, cur, nxt)
+    auto list = pp->GetPanelSpriteList();
+    for (auto cur = list->Next; nxt = cur->Next, cur != list; cur = nxt)
     {
         // if the next pointer is the end of the list, insert it
         if ((LIST) cur->Next == (LIST) &pp->PanelSpriteList)
@@ -6585,8 +6562,8 @@ bool DrawBeforeView = false;
 void
 pDisplaySprites(PLAYERp pp, double smoothratio)
 {
-    USERp u = User[pp->PlayerSprite].Data();
-    PANEL_SPRITEp psp=nullptr, next=nullptr;
+    USERp u = pp->Actor()->u();
+    PANEL_SPRITEp next=nullptr;
     short shade, picnum, overlay_shade = 0;
     double x, y;
     unsigned i;
@@ -6598,7 +6575,8 @@ pDisplaySprites(PLAYERp pp, double smoothratio)
     double const look_anghalf = pp->angle.look_anghalf(smoothratio);
     double const looking_arc = pp->angle.looking_arc(smoothratio);
 
-    TRAVERSE(&pp->PanelSpriteList, psp, next)
+    auto list = pp->GetPanelSpriteList();
+    for (auto psp = list->Next; next = psp->Next, psp != list; psp = next)
     {
         ang = psp->rotate_ang;
         shade = 0;
@@ -6874,9 +6852,10 @@ pDisplaySprites(PLAYERp pp, double smoothratio)
 void
 pSpriteControl(PLAYERp pp)
 {
-    PANEL_SPRITEp psp=nullptr, next=nullptr;
+    PANEL_SPRITEp next=nullptr;
 
-    TRAVERSE(&pp->PanelSpriteList, psp, next)
+    auto list = pp->GetPanelSpriteList();
+    for (auto psp = list->Next; next = psp->Next, psp != list; psp = next)
     {
         // reminder - if these give an assertion look for pKillSprites
         // somewhere else other than by themselves

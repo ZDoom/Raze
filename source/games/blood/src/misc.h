@@ -27,6 +27,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
+class DBloodActor;
+
 void playlogos();
 unsigned int qrand(void);
 int wrand(void);
@@ -35,7 +37,7 @@ void FireInit(void);
 void FireProcess(void);
 void UpdateNetworkMenus(void); 
 void InitMirrors(void);
-void setPortalFlags(char mode);
+void setPortalFlags(int mode);
 void processSpritesOnOtherSideOfPortal(int x, int y, int interpolation);
 void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int viewPlayer);
 int qanimateoffs(int a1, int a2);
@@ -51,17 +53,18 @@ void WeaponLower(PLAYER *pPlayer);
 int WeaponUpgrade(PLAYER *pPlayer, int newWeapon);
 void WeaponProcess(PLAYER *pPlayer);
 void WeaponUpdateState(PLAYER* pPlayer);
-void teslaHit(spritetype *pMissile, int a2);
+void teslaHit(DBloodActor *pMissile, int a2);
 void WeaponPrecache();
 
 struct ZONE {
     int x, y, z;
-    short sectnum, ang;
+	int sectnum;
+	short ang;
 };
 extern ZONE gStartZone[8];
 
 void warpInit(void);
-int CheckLink(spritetype *pSprite);
+int CheckLink(DBloodActor *pSprite);
 int CheckLink(int *x, int *y, int *z, int *nSector);
 
 int GetOctant(int x, int y);
@@ -99,7 +102,7 @@ enum SurfaceType {
     kSurfMax
 };
 
-extern char surfType[MAXTILES];
+extern uint8_t surfType[MAXTILES];
 extern int8_t tileShade[MAXTILES];
 extern short voxelIndex[MAXTILES];
 

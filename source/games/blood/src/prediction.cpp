@@ -62,14 +62,14 @@ void viewInitializePrediction(void)
 	predict.z = gMe->pSprite->z;
 	predict.sectnum = gMe->pSprite->sectnum;
 	predict.at73 = gMe->pSprite->flags;
-	predict.xvel = xvel[gMe->pSprite->index];
-	predict.yvel = yvel[gMe->pSprite->index];
-	predict.zvel = zvel[gMe->pSprite->index];
+	predict.xvel = gMe->actor->xvel;
+	predict.yvel = gMe->actor->yvel;
+	predict.zvel = gMe->actor->zvel;
 	predict.floordist = gMe->pXSprite->height;
 	predict.at48 = gMe->posture;
 	predict.spin = gMe->angle.spin;
 	predict.at6e = !!(gMe->input.actions & SB_CENTERVIEW);
-	memcpy(&predict.at75,&gSpriteHit[gMe->pSprite->extra],sizeof(SPRITEHIT));
+	predict.at75 = gMe->actor->hit;
 	predict.bobPhase = gMe->bobPhase;
 	predict.Kills = gMe->bobAmp;
 	predict.bobHeight = gMe->bobHeight;
@@ -89,7 +89,7 @@ void viewInitializePrediction(void)
 void viewUpdatePrediction(InputPacket *pInput)
 {
     predictOld = predict;
-	short bakCstat = gMe->pSprite->cstat;
+	auto bakCstat = gMe->pSprite->cstat;
     gMe->pSprite->cstat = 0;
     fakePlayerProcess(gMe, pInput);
     fakeActProcessSprites();
@@ -233,11 +233,8 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
 
     int nSector = predict.sectnum;
     int florhit = predict.at75.florhit.type;
-    char va;
-    if (predict.floordist < 16 && (florhit == kHitSector || florhit == 0))
-        va = 1;
-    else
-        va = 0;
+	bool va = (predict.floordist < 16 && (florhit == kHitSector || florhit == 0));
+
     if (va && (sector[nSector].floorstat&2) != 0)
     {
         int z1 = getflorzofslope(nSector, predict.x, predict.y);
@@ -276,7 +273,7 @@ void fakePlayerProcess(PLAYER *pPlayer, InputPacket *pInput)
     int dzt = (predict.z-top)/4;
 
     int dw = pSprite->clipdist<<2;
-    short nSector = predict.sectnum;
+    int nSector = predict.sectnum;
     if (!gNoClip)
     {
         pushmove(&predict.pos, &predict.sectnum, dw, dzt, dzb, CLIPMASK0);
@@ -346,8 +343,8 @@ void fakePlayerProcess(PLAYER *pPlayer, InputPacket *pInput)
 	{
 		predict.at72 = 1;
         int nSector = predict.sectnum;
-        int nLink = gLowerLink[nSector];
-		if (nLink > 0 && (sprite[nLink].type == kMarkerLowGoo || sprite[nLink].type == kMarkerLowWater))
+        auto nLink = getLowerLink(nSector);
+		if (nLink && (nLink->s().type == kMarkerLowGoo || nLink->s().type == kMarkerLowWater))
 		{
 			if (getceilzofslope(nSector, predict.x, predict.y) > predict.viewz)
 				predict.at72 = 0;
@@ -357,6 +354,7 @@ void fakePlayerProcess(PLAYER *pPlayer, InputPacket *pInput)
 
 static void fakeMoveDude(spritetype *pSprite)
 {
+#if 0 // not needed for single player, temporarily disabled due to icompatibilities with the refactored API.
     PLAYER *pPlayer = NULL;
     int bottom, top;
     if (IsPlayerSprite(pSprite))
@@ -381,7 +379,7 @@ static void fakeMoveDude(spritetype *pSprite)
         }
         else
         {
-            short bakCstat = pSprite->cstat;
+            auto bakCstat = pSprite->cstat;
             pSprite->cstat &= ~257;
             predict.at75.hit = ClipMove(&predict.pos, &nSector, predict.xvel >> 12, predict.yvel >> 12, wd, tz, bz, CLIPMASK0);
             if (nSector == -1)
@@ -423,8 +421,8 @@ static void fakeMoveDude(spritetype *pSprite)
         assert(nSector >= 0 && nSector < kMaxSectors);
         predict.sectnum = nSector;
     }
-    char bUnderwater = 0;
-    char bDepth = 0;
+    bool bUnderwater = 0;
+    bool bDepth = 0;
     int nXSector = sector[nSector].extra;
     if (nXSector > 0)
     {
@@ -434,11 +432,11 @@ static void fakeMoveDude(spritetype *pSprite)
         if (pXSector->Depth)
             bDepth = 1;
     }
-    int nUpperLink = gUpperLink[nSector];
-    int nLowerLink = gLowerLink[nSector];
-    if (nUpperLink >= 0 && (sprite[nUpperLink].type == kMarkerUpWater || sprite[nUpperLink].type == kMarkerUpGoo))
+    auto nUpperLink = getUpperLink(nSector);
+    auto nLowerLink = getLowerLink(nSector);
+    if (nUpperLink >= 0 && (nUpperLink->s().type == kMarkerUpWater || nUpperLink->s().type == kMarkerUpGoo))
         bDepth = 1;
-    if (nLowerLink >= 0 && (sprite[nLowerLink].type == kMarkerLowWater || sprite[nLowerLink].type == kMarkerLowGoo))
+    if (nLowerLink >= 0 && (nLowerLink->s().type == kMarkerLowWater || nLowerLink->s().type == kMarkerLowGoo))
         bDepth = 1;
     if (pPlayer)
         wd += 16;
@@ -566,6 +564,7 @@ static void fakeMoveDude(spritetype *pSprite)
         if (approxDist(predict.xvel, predict.yvel) < 0x1000)
             predict.xvel = predict.yvel = 0;
     }
+#endif
 }
 
 static void fakeActAirDrag(spritetype *, int num)
@@ -599,8 +598,6 @@ void fakeActProcessSprites(void)
 	spritetype *pSprite = gMe->pSprite;
 	if (pSprite->statnum == kStatDude)
 	{
-		int nXSprite = pSprite->extra;
-		assert(nXSprite > 0 && nXSprite < kMaxXSprites);
 		int nSector = predict.sectnum;
 		int nXSector = sector[nSector].extra;
         XSECTOR *pXSector = NULL;

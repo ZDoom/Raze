@@ -157,6 +157,7 @@ bool ReadSavegame(const char* name)
 		// Load the savegame.
 		loadMapBackup(currentLevel->fileName);
 		SerializeSession(arc);
+		g_nextskill = gi->GetCurrentSkill();
 		arc.Close();
 		info->Unlock();
 		delete savereader;

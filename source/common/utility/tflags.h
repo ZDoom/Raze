@@ -59,19 +59,19 @@ public:
 	TFlags (ZeroDummy*) : Value (0) {}
 
 	// Relation operators
-	Self operator| (Self other) const { return Self::FromInt (Value | other.GetValue()); }
-	Self operator& (Self other) const { return Self::FromInt (Value & other.GetValue()); }
-	Self operator^ (Self other) const { return Self::FromInt (Value ^ other.GetValue()); }
+	Self operator| (const Self& other) const { return Self::FromInt (Value | other.GetValue()); }
+	Self operator& (const Self& other) const { return Self::FromInt (Value & other.GetValue()); }
+	Self operator^ (const Self& other) const { return Self::FromInt (Value ^ other.GetValue()); }
 	Self operator| (T value) const { return Self::FromInt (Value | value); }
 	Self operator& (T value) const { return Self::FromInt (Value & value); }
 	Self operator^ (T value) const { return Self::FromInt (Value ^ value); }
 	Self operator~() const { return Self::FromInt (~Value); }
 
 	// Assignment operators
-	Self& operator= (Self other) { Value = other.GetValue(); return *this; }
-	Self& operator|= (Self other) { Value |= other.GetValue(); return *this; }
-	Self& operator&= (Self other) { Value &= other.GetValue(); return *this; }
-	Self& operator^= (Self other) { Value ^= other.GetValue(); return *this; }
+	Self& operator= (const Self& other) = default;
+	Self& operator|= (const Self& other) { Value |= other.GetValue(); return *this; }
+	Self& operator&= (const Self& other) { Value &= other.GetValue(); return *this; }
+	Self& operator^= (const Self& other) { Value ^= other.GetValue(); return *this; }
 	Self& operator= (T value) { Value = value; return *this; }
 	Self& operator|= (T value) { Value |= value; return *this; }
 	Self& operator&= (T value) { Value &= value; return *this; }

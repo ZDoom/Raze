@@ -57,13 +57,13 @@ struct DUDEEXTRA_STATS
         int thinkTime;
         int birthCounter;
     };
-    char active;
+	uint8_t active;
 };
 
 struct DUDEEXTRA
 {
     int time;
-    char teslaHit;
+    uint8_t teslaHit;
     int prio;
     DUDEEXTRA_STATS stats;
 };
@@ -95,8 +95,5 @@ void aiProcessDudes(void);
 void aiInit(void);
 void aiInitSprite(DBloodActor* pSprite);
 bool CanMove(DBloodActor* pSprite, int a2, int nAngle, int nRange);
-
-void aiSetTarget_(XSPRITE* pXSprite, int x, int y, int z);
-void aiSetTarget_(XSPRITE* pXSprite, int nTarget);
 
 END_BLD_NS

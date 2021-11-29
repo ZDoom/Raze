@@ -126,17 +126,20 @@ static void shootfireball(DDukeActor *actor, int p, int sx, int sy, int sz, int 
 		sizy = 7;
 	}
 
-	auto spawned = EGS(s->sectnum, sx, sy, sz, FIREBALL, -127, sizx, sizy, sa, vel, zvel, actor, (short)4);
-	auto spr = spawned->s;
-	spr->extra += (krand() & 7);
-	if (s->picnum == BOSS5 || p >= 0)
+	auto spawned = EGS(s->sector(), sx, sy, sz, FIREBALL, -127, sizx, sizy, sa, vel, zvel, actor, (short)4);
+	if (spawned)
 	{
-		spr->xrepeat = 40;
-		spr->yrepeat = 40;
+		auto spr = spawned->s;
+		spr->extra += (krand() & 7);
+		if (s->picnum == BOSS5 || p >= 0)
+		{
+			spr->xrepeat = 40;
+			spr->yrepeat = 40;
+		}
+		spr->yvel = p;
+		spr->cstat = 128;
+		spr->clipdist = 4;
 	}
-	spr->yvel = p;
-	spr->cstat = 128;
-	spr->clipdist = 4;
 }
 
 //---------------------------------------------------------------------------
@@ -148,7 +151,7 @@ static void shootfireball(DDukeActor *actor, int p, int sx, int sy, int sz, int 
 static void shootflamethrowerflame(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 {
 	auto s = actor->s;
-	int vel, zvel;
+	int vel, zvel = 0;
 
 	if (s->extra >= 0)
 		s->shade = -96;
@@ -193,6 +196,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, int sx, int sy, int
 	if (spawned == nullptr)
 	{
 		spawned = spawn(actor, FLAMETHROWERFLAME);
+		if (!spawned) return;
 		spawned->s->xvel = (short)vel;
 		spawned->s->zvel = (short)zvel;
 	}
@@ -232,9 +236,10 @@ static void shootknee(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 	auto s = actor->s;
 	int sect = s->sectnum;
 	int zvel;
-	int hitsect, hitwall;
 	int hitx, hity, hitz;
 	DDukeActor* hitsprt;
+	sectortype* hitsectp;
+	walltype* hitwallp;
 
 	if (p >= 0)
 	{
@@ -253,56 +258,62 @@ static void shootknee(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 	hitscan(sx, sy, sz, sect,
 		bcos(sa),
 		bsin(sa), zvel << 6,
-		&hitsect, &hitwall, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
+		&hitsectp, &hitwallp, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
 
 
-	if (hitsect < 0) return;
+	if (hitsectp == nullptr) return;
 
 	if ((abs(sx - hitx) + abs(sy - hity)) < 1024)
 	{
-		if (hitwall >= 0 || hitsprt)
+		if (hitwallp || hitsprt)
 		{
-			auto knee = EGS(hitsect, hitx, hity, hitz, KNEE, -15, 0, 0, sa, 32, 0, actor, 4);
-			knee->s->extra += (krand() & 7);
-			if (p >= 0)
+			auto knee = EGS(hitsectp, hitx, hity, hitz, KNEE, -15, 0, 0, sa, 32, 0, actor, 4);
+			if (knee)
 			{
-				auto k = spawn(knee, SMALLSMOKE);
-				k->s->z -= (8 << 8);
-				S_PlayActorSound(KICK_HIT, knee);
+				knee->s->extra += (krand() & 7);
+				if (p >= 0)
+				{
+					auto k = spawn(knee, SMALLSMOKE);
+					if (k) k->s->z -= (8 << 8);
+					S_PlayActorSound(KICK_HIT, knee);
+				}
+
+				if (p >= 0 && ps[p].steroids_amount > 0 && ps[p].steroids_amount < 400)
+					knee->s->extra += (gs.max_player_health >> 2);
 			}
-
-			if (p >= 0 && ps[p].steroids_amount > 0 && ps[p].steroids_amount < 400)
-				knee->s->extra += (gs.max_player_health >> 2);
-
 			if (hitsprt && hitsprt->s->picnum != ACCESSSWITCH && hitsprt->s->picnum != ACCESSSWITCH2)
 			{
 				fi.checkhitsprite(hitsprt, knee);
-				if (p >= 0) fi.checkhitswitch(p, -1, hitsprt);
+				if (p >= 0) fi.checkhitswitch(p, nullptr, hitsprt);
 			}
 
-			else if (hitwall >= 0)
+			else if (hitwallp)
 			{
-				if (wall[hitwall].cstat & 2)
-					if (wall[hitwall].nextsector >= 0)
-						if (hitz >= (sector[wall[hitwall].nextsector].floorz))
-							hitwall = wall[hitwall].nextwall;
+				auto wal = hitwallp;
+				if (wal->cstat & 2)
+					if (wal->nextsector >= 0)
+						if (hitz >= (wal->nextSector()->floorz))
+							wal =wal->nextWall();
 
-				if (hitwall >= 0 && wall[hitwall].picnum != ACCESSSWITCH && wall[hitwall].picnum != ACCESSSWITCH2)
+				if (wal->picnum != ACCESSSWITCH && wal->picnum != ACCESSSWITCH2)
 				{
-					fi.checkhitwall(knee, hitwall, hitx, hity, hitz, KNEE);
-					if (p >= 0) fi.checkhitswitch(p, hitwall, nullptr);
+					fi.checkhitwall(knee, wal, hitx, hity, hitz, KNEE);
+					if (p >= 0) fi.checkhitswitch(p, wal, nullptr);
 				}
 			}
 		}
-		else if (p >= 0 && zvel > 0 && sector[hitsect].lotag == 1)
+		else if (p >= 0 && zvel > 0 && hitsectp->lotag == 1)
 		{
 			auto splash = spawn(ps[p].GetActor(), WATERSPLASH2);
-			splash->s->x = hitx;
-			splash->s->y = hity;
-			splash->s->ang = ps[p].angle.ang.asbuild(); // Total tweek
-			splash->s->xvel = 32;
-			ssp(actor, CLIPMASK0);
-			splash->s->xvel = 0;
+			if (splash)
+			{
+				splash->s->x = hitx;
+				splash->s->y = hity;
+				splash->s->ang = ps[p].angle.ang.asbuild(); // Total tweek
+				splash->s->xvel = 32;
+				ssp(actor, CLIPMASK0);
+				splash->s->xvel = 0;
+			}
 
 		}
 	}
@@ -318,10 +329,11 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 {
 	auto s = actor->s;
 	int sect = s->sectnum;
-	int zvel;
-	int hitsect, hitwall;
+	int zvel = 0;
 	int hitx, hity, hitz;
 	DDukeActor* hitact;
+	sectortype* hitsectp;
+	walltype* hitwallp;
 
 	if (s->extra >= 0) s->shade = -96;
 
@@ -406,34 +418,36 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 	hitscan(sx, sy, sz, sect,
 		bcos(sa),
 		bsin(sa),
-		zvel << 6, &hitsect, &hitwall, &hitact, &hitx, &hity, &hitz, CLIPMASK1);
+		zvel << 6, &hitsectp, &hitwallp, &hitact, &hitx, &hity, &hitz, CLIPMASK1);
 	s->cstat |= 257;
 
 
-	if (hitsect < 0) return;
+	if (hitsectp == nullptr) return;
 
-	if ((krand() & 15) == 0 && sector[hitsect].lotag == 2)
+	if ((krand() & 15) == 0 && hitsectp->lotag == 2)
 		tracers(hitx, hity, hitz, sx, sy, sz, 8 - (ud.multimode >> 1));
 
 	DDukeActor* spark;
 	if (p >= 0)
 	{
-		spark = EGS(hitsect, hitx, hity, hitz, SHOTSPARK1, -15, 10, 10, sa, 0, 0, actor, 4);
+		spark = EGS(hitsectp, hitx, hity, hitz, SHOTSPARK1, -15, 10, 10, sa, 0, 0, actor, 4);
+		if (!spark) return;
+
 		spark->s->extra = ScriptCode[gs.actorinfo[atwith].scriptaddress];
 		spark->s->extra += (krand() % 6);
 
-		if (hitwall == -1 && hitact == nullptr)
+		if (hitwallp == nullptr && hitact == nullptr)
 		{
 			if (zvel < 0)
 			{
-				if (sector[hitsect].ceilingstat & 1)
+				if (hitsectp->ceilingstat & 1)
 				{
 					spark->s->xrepeat = 0;
 					spark->s->yrepeat = 0;
 					return;
 				}
 				else
-					fi.checkhitceiling(hitsect);
+					fi.checkhitceiling(hitsectp);
 			}
 			spawn(spark, SMALLSMOKE);
 		}
@@ -443,12 +457,15 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 			fi.checkhitsprite(hitact, spark);
 			if (hitact->s->picnum == TILE_APLAYER && (ud.coop != 1 || ud.ffire == 1))
 			{
-				auto jib = spawn(spark, JIBS6);
 				spark->s->xrepeat = spark->s->yrepeat = 0;
-				jib->s->z += (4 << 8);
-				jib->s->xvel = 16;
-				jib->s->xrepeat = jib->s->yrepeat = 24;
-				jib->s->ang += 64 - (krand() & 127);
+				auto jib = spawn(spark, JIBS6);
+				if (jib)
+				{
+					jib->s->z += (4 << 8);
+					jib->s->xvel = 16;
+					jib->s->xrepeat = jib->s->yrepeat = 24;
+					jib->s->ang += 64 - (krand() & 127);
+				}
 			}
 			else spawn(spark, SMALLSMOKE);
 
@@ -462,14 +479,14 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 				hitact->s->picnum == HANDSWITCH ||
 				hitact->s->picnum == HANDSWITCH + 1))
 			{
-				fi.checkhitswitch(p, -1, hitact);
+				fi.checkhitswitch(p, nullptr, hitact);
 				return;
 			}
 		}
-		else if (hitwall >= 0)
+		else if (hitwallp)
 		{
 			spawn(spark, SMALLSMOKE);
-			auto wal = &wall[hitwall];
+			auto wal = hitwallp;
 
 			if (fi.isadoorwall(wal->picnum) == 1)
 				goto SKIPBULLETHOLE;
@@ -483,17 +500,17 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 				wal->picnum == HANDSWITCH ||
 				wal->picnum == HANDSWITCH + 1))
 			{
-				fi.checkhitswitch(p, hitwall, nullptr);
+				fi.checkhitswitch(p, wal, nullptr);
 				return;
 			}
 
 			if (wal->hitag != 0 || (wal->nextwall >= 0 && wal->nextWall()->hitag != 0))
 				goto SKIPBULLETHOLE;
 
-			if (hitsect >= 0 && sector[hitsect].lotag == 0)
+			if (hitsectp && hitsectp->lotag == 0)
 				if (wal->overpicnum != BIGFORCE)
 					if ((wal->nextsector >= 0 && wal->nextSector()->lotag == 0) ||
-						(wal->nextsector == -1 && sector[hitsect].lotag == 0))
+						(wal->nextsector == -1 && hitsectp->lotag == 0))
 						if ((wal->cstat & 16) == 0)
 						{
 							if (wal->nextsector >= 0)
@@ -514,10 +531,13 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 										goto SKIPBULLETHOLE;
 							}
 							auto hole = spawn(spark, BULLETHOLE);
-							hole->s->xvel = -1;
-							hole->s->ang = getangle(wal->x - wall[wal->point2].x,
-								wal->y - wall[wal->point2].y) + 512;
-							ssp(hole, CLIPMASK0);
+							if (hole)
+							{
+								hole->s->xvel = -1;
+								auto delta = wal->delta();
+								hole->s->ang = getangle(-delta.x, -delta.y) + 512;
+								ssp(hole, CLIPMASK0);
+							}
 						}
 
 		SKIPBULLETHOLE:
@@ -525,25 +545,28 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 			if (wal->cstat & 2)
 				if (wal->nextsector >= 0)
 					if (hitz >= (wal->nextSector()->floorz))
-						hitwall = wal->nextwall;
+						wal = wal->nextWall();
 
-			fi.checkhitwall(spark, hitwall, hitx, hity, hitz, SHOTSPARK1);
+			fi.checkhitwall(spark, wal, hitx, hity, hitz, SHOTSPARK1);
 		}
 	}
 	else
 	{
-		spark = EGS(hitsect, hitx, hity, hitz, SHOTSPARK1, -15, 24, 24, sa, 0, 0, actor, 4);
-		spark->s->extra = ScriptCode[gs.actorinfo[atwith].scriptaddress];
-
-		if (hitact)
+		spark = EGS(hitsectp, hitx, hity, hitz, SHOTSPARK1, -15, 24, 24, sa, 0, 0, actor, 4);
+		if (spark)
 		{
-			fi.checkhitsprite(hitact, spark);
-			if (hitact->s->picnum != TILE_APLAYER)
-				spawn(spark, SMALLSMOKE);
-			else spark->s->xrepeat = spark->s->yrepeat = 0;
+			spark->s->extra = ScriptCode[gs.actorinfo[atwith].scriptaddress];
+
+			if (hitact)
+			{
+				fi.checkhitsprite(hitact, spark);
+				if (hitact->s->picnum != TILE_APLAYER)
+					spawn(spark, SMALLSMOKE);
+				else spark->s->xrepeat = spark->s->yrepeat = 0;
+			}
+			else if (hitwallp)
+				fi.checkhitwall(spark, hitwallp, hitx, hity, hitz, SHOTSPARK1);
 		}
-		else if (hitwall >= 0)
-			fi.checkhitwall(spark, hitwall, hitx, hity, hitz, SHOTSPARK1);
 	}
 
 	if ((krand() & 255) < 4)
@@ -562,7 +585,7 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, int atwith)
 {
 	spritetype* const s = actor->s;
-	int sect = s->sectnum;
+	sectortype* sect = s->sector();
 	int vel, zvel;
 	int l, scount;
 
@@ -602,7 +625,7 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 	{
 		int x;
 		int j = findplayer(actor, &x);
-		//                sa = getangle(ps[j].oposx-sx,ps[j].oposy-sy);
+		// sa = getangle(ps[j].oposx-sx,ps[j].oposy-sy);
 		sa += 16 - (krand() & 31);
 		zvel = (((ps[j].oposz - sz + (3 << 8))) * vel) / ldist(ps[j].GetActor(), actor);
 	}
@@ -639,6 +662,7 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 	while (scount > 0)
 	{
 		auto spawned = EGS(sect, sx, sy, sz, atwith, -127, sizx, sizy, sa, vel, zvel, actor, 4);
+		if (!spawned) return;
 		spawned->s->extra += (krand() & 7);
 
 		if (atwith == COOLEXPLOSION1)
@@ -673,7 +697,7 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 static void shootrpg(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, int atwith)
 {
 	auto s = actor->s;
-	int sect = s->sectnum;
+	auto sect = s->sector();
 	int vel, zvel;
 	int l, scount;
 
@@ -733,6 +757,8 @@ static void shootrpg(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, i
 		sy + (bsin(sa + 348) / 448),
 		sz - (1 << 8), atwith, 0, 14, 14, sa, vel, zvel, actor, 4);
 
+	if (!spawned) return;
+		
 	auto spj = spawned->s;
 	spj->extra += (krand() & 7);
 	if (atwith != FREEZEBLAST)
@@ -841,9 +867,11 @@ static void shootlaser(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 	spritetype* const s = actor->s;
 	int sect = s->sectnum;
 	int zvel;
-	int hitsect, hitwall, j;
+	int j;
 	int hitx, hity, hitz;
 	DDukeActor* hitsprt;
+	sectortype* hitsectp;
+	walltype* wal;
 
 	if (p >= 0)
 		zvel = -ps[p].horizon.sum().asq16() >> 11;
@@ -852,52 +880,56 @@ static void shootlaser(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 	hitscan(sx, sy, sz - ps[p].pyoff, sect,
 		bcos(sa),
 		bsin(sa),
-		zvel << 6, &hitsect, &hitwall, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
+		zvel << 6, &hitsectp, &wal, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
 
 	j = 0;
 	if (hitsprt) return;
 
-	if (hitwall >= 0 && hitsect >= 0)
+	if (wal && hitsectp)
+	{
 		if (((hitx - sx) * (hitx - sx) + (hity - sy) * (hity - sy)) < (290 * 290))
 		{
-			if (wall[hitwall].nextsector >= 0)
+			if (wal->nextsector >= 0)
 			{
-				if (sector[wall[hitwall].nextsector].lotag <= 2 && sector[hitsect].lotag <= 2)
+				if (wal->nextSector()->lotag <= 2 && hitsectp->lotag <= 2)
 					j = 1;
 			}
-			else if (sector[hitsect].lotag <= 2)
+			else if (hitsectp->lotag <= 2)
 				j = 1;
 		}
 
-	if (j == 1)
-	{
-		auto bomb = EGS(hitsect, hitx, hity, hitz, TRIPBOMB, -16, 4, 5, sa, 0, 0, actor, 6);
-		if (isWW2GI())
+		if (j == 1)
 		{
-			int lTripBombControl = GetGameVar("TRIPBOMB_CONTROL", TRIPBOMB_TRIPWIRE, nullptr, -1);
-			if (lTripBombControl & TRIPBOMB_TIMER)
+			auto bomb = EGS(hitsectp, hitx, hity, hitz, TRIPBOMB, -16, 4, 5, sa, 0, 0, actor, 6);
+			if (!bomb) return;
+			if (isWW2GI())
 			{
-				int lLifetime = GetGameVar("STICKYBOMB_LIFETIME", NAM_GRENADE_LIFETIME, nullptr, p);
-				int lLifetimeVar = GetGameVar("STICKYBOMB_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, nullptr, p);
-				// set timer.  blows up when at zero....
-				bomb->s->extra = lLifetime
+				int lTripBombControl = GetGameVar("TRIPBOMB_CONTROL", TRIPBOMB_TRIPWIRE, nullptr, -1);
+				if (lTripBombControl & TRIPBOMB_TIMER)
+				{
+					int lLifetime = GetGameVar("STICKYBOMB_LIFETIME", NAM_GRENADE_LIFETIME, nullptr, p);
+					int lLifetimeVar = GetGameVar("STICKYBOMB_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, nullptr, p);
+					// set timer.  blows up when at zero....
+					bomb->s->extra = lLifetime
 					+ MulScale(krand(), lLifetimeVar, 14)
 					- lLifetimeVar;
+				}
 			}
+			
+			// this originally used the sprite index as tag to link the laser segments.
+			// This value is never used again to reference an actor by index. Decouple this for robustness.
+			ud.bomb_tag = (ud.bomb_tag + 1) & 32767;
+			bomb->s->hitag = ud.bomb_tag;
+			S_PlayActorSound(LASERTRIP_ONWALL, bomb);
+			bomb->s->xvel = -20;
+			ssp(bomb, CLIPMASK0);
+			bomb->s->cstat = 16;
+			auto delta = wal->delta();
+			bomb->temp_data[5] = bomb->s->ang = getangle(-delta.x, -delta.y) - 512;
+			
+			if (p >= 0)
+				ps[p].ammo_amount[TRIPBOMB_WEAPON]--;
 		}
-
-		// this originally used the sprite index as tag to link the laser segments.
-		// This value is never used again to reference an actor by index. Decouple this for robustness.
-		ud.bomb_tag = (ud.bomb_tag + 1) & 32767;
-		bomb->s->hitag = ud.bomb_tag;
-		S_PlayActorSound(LASERTRIP_ONWALL, bomb);
-		bomb->s->xvel = -20;
-		ssp(bomb, CLIPMASK0);
-		bomb->s->cstat = 16;
-		bomb->temp_data[5] = bomb->s->ang = getangle(wall[hitwall].x - wall[wall[hitwall].point2].x, wall[hitwall].y - wall[wall[hitwall].point2].y) - 512;
-
-		if (p >= 0)
-			ps[p].ammo_amount[TRIPBOMB_WEAPON]--;
 	}
 }
 
@@ -910,11 +942,13 @@ static void shootlaser(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 static void shootgrowspark(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 {
 	auto s = actor->s;
-	int sect = s->sectnum;
+	auto sect = s->sector();
 	int zvel;
-	int hitsect, hitwall, k;
+	int k;
 	int hitx, hity, hitz;
 	DDukeActor* hitsprt;
+	sectortype* hitsectp;
+	walltype* wal;
 
 	if (p >= 0)
 	{
@@ -960,29 +994,33 @@ static void shootgrowspark(DDukeActor* actor, int p, int sx, int sy, int sz, int
 
 	k = 0;
 
-	//            RESHOOTGROW:
+	//RESHOOTGROW:
 
 	s->cstat &= ~257;
-	hitscan(sx, sy, sz, sect, bcos(sa), bsin(sa),
-		zvel << 6, &hitsect, &hitwall, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
+	hitscan(sx, sy, sz, sectnum(sect), bcos(sa), bsin(sa),
+		zvel << 6, &hitsectp, &wal, &hitsprt, &hitx, &hity, &hitz, CLIPMASK1);
 
 	s->cstat |= 257;
 
 	auto spark = EGS(sect, hitx, hity, hitz, GROWSPARK, -16, 28, 28, sa, 0, 0, actor, 1);
+	if (!spark) return;
 
 	spark->s->pal = 2;
 	spark->s->cstat |= 130;
 	spark->s->xrepeat = spark->s->yrepeat = 1;
 
-	if (hitwall == -1 && hitsprt == nullptr && hitsect >= 0)
+	if (wal == nullptr && hitsprt == nullptr && hitsectp != nullptr)
 	{
-		if (zvel < 0 && (sector[hitsect].ceilingstat & 1) == 0)
-			fi.checkhitceiling(hitsect);
+		if (zvel < 0 && (hitsectp->ceilingstat & 1) == 0)
+			fi.checkhitceiling(hitsectp);
 	}
 	else if (hitsprt != nullptr) fi.checkhitsprite(hitsprt, spark);
-	else if (hitwall >= 0 && wall[hitwall].picnum != ACCESSSWITCH && wall[hitwall].picnum != ACCESSSWITCH2)
+	else if (wal != nullptr)
 	{
-		fi.checkhitwall(spark, hitwall, hitx, hity, hitz, GROWSPARK);
+		if (wal->picnum != ACCESSSWITCH && wal->picnum != ACCESSSWITCH2)
+		{
+			fi.checkhitwall(spark, wal, hitx, hity, hitz, GROWSPARK);
+		}
 	}
 }
 
@@ -996,7 +1034,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 {
 	spritetype* const s = actor->s;
 
-	int sect, l, j;
+	int l, j;
 	int sx, sy, sz, sa, p, vel, zvel, x, dal;
 	if (s->picnum == TILE_APLAYER)
 	{
@@ -1016,7 +1054,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 	}
 
 
-	sect = s->sectnum;
+	auto sect = s->sector();
 	zvel = 0;
 
 	if (s->picnum == TILE_APLAYER)
@@ -1061,13 +1099,16 @@ void shoot_d(DDukeActor* actor, int atwith)
 		case FIREFLY: // BOSS5 shot
 		{
 			auto k = spawn(actor, atwith);
-			k->s->sectnum = sect;
-			k->s->x = sx;
-			k->s->y = sy;
-			k->s->z = sz;
-			k->s->ang = sa;
-			k->s->xvel = 500;
-			k->s->zvel = 0;
+			if (k)
+			{
+				k->s->sectnum = sectnum(sect);
+				k->s->x = sx;
+				k->s->y = sy;
+				k->s->z = sz;
+				k->s->ang = sa;
+				k->s->xvel = 500;
+				k->s->zvel = 0;
+			}
 			return;
 		}
 		}
@@ -1100,6 +1141,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 
 	case FREEZEBLAST:
 		sz += (3 << 8);
+		[[fallthrough]];
 	case RPG:
 
 		shootrpg(actor, p, sx, sy, sz, sa, atwith);
@@ -1160,8 +1202,11 @@ void shoot_d(DDukeActor* actor, int atwith)
 			sy + bcos(sa, -12),
 			sz + (2 << 8), SHRINKSPARK, -16, 28, 28, sa, 768, zvel, actor, 4);
 
-		j->s->cstat = 128;
-		j->s->clipdist = 32;
+		if (j)
+		{
+			j->s->cstat = 128;
+			j->s->clipdist = 32;
+		}
 
 
 		return;
@@ -1258,11 +1303,12 @@ void selectweapon_d(int snum, int weap) // playernum, weaponnum
 					if (p->gotweapon[k] && p->ammo_amount[k] > 0)
 					{
 						if (isPlutoPak())	// JBF 20040116: so we don't select grower with v1.3d
+						{
 							if (k == SHRINKER_WEAPON && (p->subweapon & (1 << GROW_WEAPON)))
 								k = GROW_WEAPON;
 							if (isWorldTour() && k == FREEZE_WEAPON && (p->subweapon & (1 << FLAMETHROWER_WEAPON)) != 0)
 								k = FLAMETHROWER_WEAPON;
-
+						}
 						j = k;
 						break;
 					}
@@ -1532,7 +1578,7 @@ int doincrements_d(struct player_struct* p)
 		{
 			if (p->access_spritenum != nullptr)
 			{
-				fi.checkhitswitch(snum, -1, p->access_spritenum);
+				fi.checkhitswitch(snum, nullptr, p->access_spritenum);
 				switch (p->access_spritenum->s->pal)
 				{
 				case 0:p->got_access &= (0xffff - 0x1); break;
@@ -1543,8 +1589,8 @@ int doincrements_d(struct player_struct* p)
 			}
 			else
 			{
-				fi.checkhitswitch(snum, p->access_wallnum, nullptr);
-				switch (wall[p->access_wallnum].pal)
+				fi.checkhitswitch(snum, p->access_wall, nullptr);
+				switch (p->access_wall->pal)
 				{
 				case 0:p->got_access &= (0xffff - 0x1); break;
 				case 21:p->got_access &= (0xffff - 0x2); break;
@@ -1561,7 +1607,7 @@ int doincrements_d(struct player_struct* p)
 		}
 	}
 
-	if (p->scuba_on == 0 && p->cursector()->lotag == 2)
+	if (p->scuba_on == 0 && p->insector() && p->cursector()->lotag == 2)
 	{
 		if (p->scuba_amount > 0)
 		{
@@ -1733,7 +1779,7 @@ static void operateJetpack(int snum, ESyncBits actions, int psectlotag, int fz, 
 //
 //---------------------------------------------------------------------------
 
-static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int shrunk, int truefdist, int psectlotag)
+static void movement(int snum, ESyncBits actions, sectortype* psect, int fz, int cz, int shrunk, int truefdist, int psectlotag)
 {
 	int j;
 	auto p = &ps[snum];
@@ -1781,7 +1827,7 @@ static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int
 	{
 
 		// not jumping or crouching
-		if ((actions & (SB_JUMP|SB_CROUCH)) == 0 && p->on_ground && (sector[psect].floorstat & 2) && p->pos.z >= (fz - (i << 8) - (16 << 8)))
+		if ((actions & (SB_JUMP|SB_CROUCH)) == 0 && p->on_ground && (psect->floorstat & 2) && p->pos.z >= (fz - (i << 8) - (16 << 8)))
 			p->pos.z = fz - (i << 8);
 		else
 		{
@@ -1798,7 +1844,7 @@ static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int
 			if ((p->pos.z + p->poszv) >= (fz - (i << 8))) // hit the ground
 			{
 				S_StopSound(DUKE_SCREAM, pact);
-				if (p->cursector()->lotag != 1)
+				if (!p->insector() || p->cursector()->lotag != 1)
 				{
 					if (p->falling_counter > 62) quickkill(p);
 
@@ -1919,11 +1965,10 @@ static void movement(int snum, ESyncBits actions, int psect, int fz, int cz, int
 //
 //---------------------------------------------------------------------------
 
-static void underwater(int snum, ESyncBits actions, int psect, int fz, int cz)
+static void underwater(int snum, ESyncBits actions, int fz, int cz)
 {
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
-	int psectlotag = sector[psect].lotag;
 
 	// under water
 	p->jumping_counter = 0;
@@ -1983,11 +2028,14 @@ static void underwater(int snum, ESyncBits actions, int psect, int fz, int cz)
 	if (p->scuba_on && (krand() & 255) < 8)
 	{
 		auto j = spawn(pact, WATERBUBBLE);
-		j->s->x += bcos(p->angle.ang.asbuild() + 64 - (global_random & 128), -6);
-		j->s->y += bsin(p->angle.ang.asbuild() + 64 - (global_random & 128), -6);
-		j->s->xrepeat = 3;
-		j->s->yrepeat = 2;
-		j->s->z = p->pos.z + (8 << 8);
+		if (j)
+		{
+			j->s->x += bcos(p->angle.ang.asbuild() + 64 - (global_random & 128), -6);
+			j->s->y += bsin(p->angle.ang.asbuild() + 64 - (global_random & 128), -6);
+			j->s->xrepeat = 3;
+			j->s->yrepeat = 2;
+			j->s->z = p->pos.z + (8 << 8);
+		}
 	}
 }
 
@@ -2002,26 +2050,27 @@ int operateTripbomb(int snum)
 	auto p = &ps[snum];
 
 	int sx, sy, sz;
-	int sect, hw;
 	DDukeActor* hitsprt;
+	sectortype *hitsectp;
+	walltype* wal;
 
 	hitscan(p->pos.x, p->pos.y, p->pos.z,
 		p->cursectnum, p->angle.ang.bcos(),
 		p->angle.ang.bsin(), -p->horizon.sum().asq16() >> 11,
-		&sect, &hw, &hitsprt, &sx, &sy, &sz, CLIPMASK1);
+		&hitsectp, &wal, &hitsprt, &sx, &sy, &sz, CLIPMASK1);
 
-	if (sect < 0 || hitsprt)
+	if (hitsectp == nullptr || hitsprt)
 		return 0;
 
-	if (hw >= 0 && sector[sect].lotag > 2)
+	if (wal != nullptr && hitsectp->lotag > 2)
 		return 0;
 
-	if (hw >= 0 && wall[hw].overpicnum >= 0)
-		if (wall[hw].overpicnum == BIGFORCE)
+	if (wal != nullptr && wal->overpicnum >= 0)
+		if (wal->overpicnum == BIGFORCE)
 			return 0;
 
 	DDukeActor* j;
-	DukeSectIterator it(sect);
+	DukeSectIterator it(hitsectp);
 	while ((j = it.Next()))
 	{
 		auto sj = j->s;
@@ -2030,8 +2079,8 @@ int operateTripbomb(int snum)
 			return 0;
 	}
 
-	if (j == nullptr && hw >= 0 && (wall[hw].cstat & 16) == 0)
-		if ((wall[hw].nextsector >= 0 && sector[wall[hw].nextsector].lotag <= 2) || (wall[hw].nextsector == -1 && sector[sect].lotag <= 2))
+	if (j == nullptr && wal != nullptr && (wal->cstat & 16) == 0)
+		if ((wal->nextsector >= 0 && wal->nextSector()->lotag <= 2) || (wal->nextsector == -1 && hitsectp->lotag <= 2))
 			if (((sx - p->pos.x) * (sx - p->pos.x) + (sy - p->pos.y) * (sy - p->pos.y)) < (290 * 290))
 			{
 				p->pos.z = p->oposz;
@@ -2198,7 +2247,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 				i = -512 - MulScale(p->horizon.sum().asq16(), 20, 16);
 			}
 
-			auto spawned = EGS(p->cursectnum,
+			auto spawned = EGS(p->cursector(),
 				p->pos.x + p->angle.ang.bcos(-6),
 				p->pos.y + p->angle.ang.bsin(-6),
 				p->pos.z, HEAVYHBOMB, -16, 9, 9,
@@ -2294,7 +2343,7 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 					S_PlayActorSound(EJECT_CLIP, pact);
 					break;
 					//#ifdef NAM								
-					//                            case WEAPON2_RELOAD_TIME - 15:
+					//     case WEAPON2_RELOAD_TIME - 15:
 					//#else
 				case 8:
 					//#endif
@@ -2344,9 +2393,12 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 		case 24:
 		{
 			auto j = spawn(pact, SHOTGUNSHELL);
-			j->s->ang += 1024;
-			ssp(j, CLIPMASK0);
-			j->s->ang += 1024;
+			if (j)
+			{
+				j->s->ang += 1024;
+				ssp(j, CLIPMASK0);
+				j->s->ang += 1024;
+			}
 			p->kickback_pic++;
 			break;
 		}
@@ -2369,12 +2421,14 @@ static void operateweapon(int snum, ESyncBits actions, int psect)
 				if ((p->kickback_pic % 3) == 0)
 				{
 					auto j = spawn(pact, SHELL);
-
-					j->s->ang += 1024;
-					j->s->ang &= 2047;
-					j->s->xvel += 32;
-					j->s->z += (3 << 8);
-					ssp(j, CLIPMASK0);
+					if (j)
+					{
+						j->s->ang += 1024;
+						j->s->ang &= 2047;
+						j->s->xvel += 32;
+						j->s->z += (3 << 8);
+						ssp(j, CLIPMASK0);
+					}
 				}
 
 				S_PlayActorSound(CHAINGUN_FIRE, pact);
@@ -2732,7 +2786,8 @@ void processinput_d(int snum)
 		psect = 0;
 	}
 
-	psectlotag = sector[psect].lotag;
+	auto psectp = &sector[psect];
+	psectlotag = psectp->lotag;
 	p->spritebridge = 0;
 
 	shrunk = (s->yrepeat < 32);
@@ -2851,7 +2906,7 @@ void processinput_d(int snum)
 
 	if (psectlotag == ST_2_UNDERWATER)
 	{
-		underwater(snum, actions, psect, fz, cz);
+		underwater(snum, actions, fz, cz);
 	}
 
 	else if (p->jetpack_on)
@@ -2860,7 +2915,7 @@ void processinput_d(int snum)
 	}
 	else if (psectlotag != ST_2_UNDERWATER)
 	{
-		movement(snum, actions, psect, fz, cz, shrunk, truefdist, psectlotag);
+		movement(snum, actions, psectp, fz, cz, shrunk, truefdist, psectlotag);
 	}
 
 	p->psectlotag = psectlotag;
@@ -2939,7 +2994,7 @@ void processinput_d(int snum)
 					if (clz.type == kHitSprite)
 						j = clz.actor->s->picnum;
 					else
-						j = sector[psect].floorpicnum;
+						j = psectp->floorpicnum;
 
 					switch (j)
 					{
@@ -3007,7 +3062,7 @@ HORIZONLY:
 	if (psectlotag == 1 || p->spritebridge == 1) ii = (4L << 8);
 	else ii = (20L << 8);
 
-	if (p->cursector()->lotag == 2) k = 0;
+	if (p->insector() && p->cursector()->lotag == 2) k = 0;
 	else k = 1;
 
 	Collision clip{};
@@ -3048,9 +3103,9 @@ HORIZONLY:
 	if (psectlotag < 3)
 	{
 		psect = s->sectnum;
-		if (ud.clipping == 0 && sector[psect].lotag == 31)
+		if (ud.clipping == 0 && psectp->lotag == 31)
 		{
-			auto secact = ScriptIndexToActor(sector[psect].hitag);
+			auto secact = ScriptIndexToActor(psectp->hitag);
 			if (secact && secact->s->xvel && secact->temp_data[0] == 0)
 			{
 				quickkill(p);
@@ -3059,7 +3114,7 @@ HORIZONLY:
 		}
 	}
 
-	if (truefdist < gs.playerheight && p->on_ground && psectlotag != 1 && shrunk == 0 && p->cursector()->lotag == 1)
+	if (truefdist < gs.playerheight && p->on_ground && psectlotag != 1 && shrunk == 0 && p->insector() && p->cursector()->lotag == 1)
 		if (!S_CheckActorSoundPlaying(pact, DUKE_ONWATER))
 			S_PlayActorSound(DUKE_ONWATER, pact);
 
@@ -3076,15 +3131,15 @@ HORIZONLY:
 		{
 			if (!(s->sector()->lotag & 0x8000) && (isanunderoperator(s->sector()->lotag) ||
 				isanearoperator(s->sector()->lotag)))
-				fi.activatebysector(s->sectnum, pact);
+				fi.activatebysector(s->sector(), pact);
 			if (j)
 			{
 				quickkill(p);
 				return;
 			}
 		}
-		else if (abs(fz - cz) < (32 << 8) && isanunderoperator(sector[psect].lotag))
-			fi.activatebysector(psect, pact);
+		else if (abs(fz - cz) < (32 << 8) && isanunderoperator(psectp->lotag))
+			fi.activatebysector(psectp, pact);
 	}
 
 	// center_view
@@ -3143,7 +3198,7 @@ HORIZONLY:
 			if (p->last_weapon >= 0)
 			{
 				p->oweapon_pos = p->weapon_pos = 10;
-				//                if(p->curr_weapon == KNEE_WEAPON) p->kickback_pic = 1;
+				// if(p->curr_weapon == KNEE_WEAPON) p->kickback_pic = 1;
 				p->last_weapon = -1;
 			}
 			else if (p->holster_weapon == 0)
@@ -3156,22 +3211,4 @@ HORIZONLY:
 	processweapon(snum, actions, psect);
 }
 
-void processmove_d(int snum, ESyncBits actions, int psect, int fz, int cz, int shrunk, int truefdist)
-{
-	int psectlotag = sector[psect].lotag;
-	auto p = &ps[snum];
-	if (psectlotag == 2)
-	{
-		underwater(snum, actions, psect, fz, cz);
-	}
-
-	else if (p->jetpack_on)
-	{
-		operateJetpack(snum, actions, psectlotag, fz, cz, shrunk);
-	}
-	else if (psectlotag != 2)
-	{
-		movement(snum, actions, psect, fz, cz, shrunk, truefdist, psectlotag);
-	}
-}
 END_DUKE_NS

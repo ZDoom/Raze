@@ -26,7 +26,7 @@ struct DDukeActor
 	uint8_t spriteextra;	// moved here for easier maintenance. This was originally a hacked in field in the sprite structure called 'filler'.
 	short owner; // todo: make a pointer.
 	short picnum, ang, extra, movflag;
-	short tempang, actorstayput, dispicnum;
+	short tempang, dispicnum;
 	short timetosleep;
 	int floorz, ceilingz, lastvx, lastvy, aflags;
 	union
@@ -35,6 +35,10 @@ struct DDukeActor
 		int palvals;
 	};
 	int temp_data[6];
+	// Some SE's stored indices in temp_data. For purposes of clarity avoid that. These variables are meant to store these elements now
+	walltype* temp_walls[2]; // SE20 + SE128
+	sectortype* temp_sect, *actorstayput;
+	
 	DDukeActor* temp_actor, *seek_actor;
 	spritetype* s;	// direct reference to the corresponding sprite.
 
@@ -45,8 +49,9 @@ struct DDukeActor
 	DDukeActor& operator=(const DDukeActor& other) = delete;
 	void clear()
 	{
+		actorstayput = nullptr;
 		cgg = spriteextra = 0;
-		picnum = ang = extra = owner = movflag = tempang = actorstayput = dispicnum = timetosleep = 0;
+		picnum = ang = extra = owner = movflag = tempang = dispicnum = timetosleep = 0;
 		floorz = ceilingz = lastvx = lastvy = aflags = saved_ammo = 0;
 		memset(temp_data, 0, sizeof(temp_data));
 	}
@@ -93,7 +98,7 @@ struct DDukeActor
 
 	sectortype* getSector() const
 	{
-		return &sector[s->sectnum];
+		return s->sector();
 	}
 
 
@@ -103,7 +108,8 @@ inline DDukeActor* DDukeActor::array() { return hittype; }
 
 struct animwalltype
 {
-	int wallnum, tag;
+	walltype* wall;
+	int tag;
 };
 
 // Todo - put more state in here
@@ -153,7 +159,15 @@ struct user_defs
 struct player_orig
 {
 	int ox, oy, oz;
-	short oa, os;
+	short oa;
+	int os;
+};
+
+struct CraneDef
+{
+	int x, y, z;
+	int polex, poley;
+	DDukeActor* poleactor;
 };
 
 struct player_struct 
@@ -199,7 +213,9 @@ struct player_struct
 
 	int aim_mode, ftt;
 
-	int cursectnum, one_parallax_sectnum, access_wallnum; // wall + sector references. Make them pointers later?
+	int cursectnum;
+	sectortype* one_parallax_sectnum; // wall + sector references. Make them pointers later?
+	walltype* access_wall;
 
 	short last_extra, subweapon;
 	short ammo_amount[MAX_WEAPONS], frag, fraggedself;
@@ -296,26 +312,29 @@ struct player_struct
 
 	sectortype* cursector() const
 	{
+#ifdef _DEBUG	// this is an aid for detecting invalid sector access during development as it will cause the game to crash when sector -1 is being accessed.
+		return cursectnum < 0 ? nullptr : &::sector[cursectnum];
+#else
 		return &::sector[cursectnum];
-	}
-	sectortype* one_parallax_sector() const
-	{
-		return &::sector[one_parallax_sectnum];
+#endif
 	}
 
+	bool insector() const
+	{
+		assert(cursectnum >= -1 && cursectnum < numsectors);	// check for truly invalid values.
+		return validSectorIndex(cursectnum);
+	}
 
 };
 
 struct Cycler
 {
-	int sectnum;
+	sectortype* sector;
 	int16_t lotag;
 	int16_t hitag;
 	int16_t shade1;
 	int16_t shade2;
 	bool state;
-
-	sectortype* sector() const { return &::sector[sectnum]; }
 };
 
 // Wrapper around the insane collision info mess from Build.

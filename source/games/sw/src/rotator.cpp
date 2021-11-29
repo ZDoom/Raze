@@ -38,16 +38,16 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-short DoRotatorMatch(PLAYERp pp, short match, bool);
+void DoRotatorMatch(PLAYERp pp, short match, bool);
 bool TestRotatorMatchActive(short match);
 void InterpSectorSprites(short sectnum, bool state);
 void DoMatchEverything(PLAYERp pp, short match, short state);
-void DoRotatorSetInterp(short SpriteNum);
-void DoRotatorStopInterp(short SpriteNum);
+void DoRotatorSetInterp(DSWActor*);
+void DoRotatorStopInterp(DSWActor*);
 
-void ReverseRotator(short SpriteNum)
+void ReverseRotator(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
+    USERp u = actor->u();
     ROTATORp r;
 
     r = u->rotator.Data();
@@ -56,7 +56,7 @@ void ReverseRotator(short SpriteNum)
     if (u->Tics)
     {
         u->Tics = 0;
-        SetRotatorActive(SpriteNum);
+        SetRotatorActive(actor);
         return;
     }
 
@@ -73,17 +73,15 @@ void ReverseRotator(short SpriteNum)
     r->vel = -r->vel;
 }
 
-bool
-RotatorSwitch(short match, short setting)
+bool RotatorSwitch(short match, short setting)
 {
     SPRITEp sp;
-    int i;
     bool found = false;
 
-    StatIterator it(STAT_DEFAULT);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_DEFAULT);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
+        sp = &actor->s();
 
         if (sp->lotag == TAG_SPRITE_SWITCH_VATOR && sp->hitag == match)
         {
@@ -95,15 +93,15 @@ RotatorSwitch(short match, short setting)
     return found;
 }
 
-void SetRotatorActive(short SpriteNum)
+void SetRotatorActive(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = u->SpriteP;
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
     ROTATORp r;
 
     r = u->rotator.Data();
 
-    DoRotatorSetInterp(SpriteNum);
+    DoRotatorSetInterp(actor);
 
     // play activate sound
     DoSoundSpotMatch(SP_TAG2(sp), 1, SOUND_OBJECT_TYPE);
@@ -118,12 +116,12 @@ void SetRotatorActive(short SpriteNum)
         VatorSwitch(SP_TAG2(sp), ON);
 }
 
-void SetRotatorInactive(short SpriteNum)
+void SetRotatorInactive(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = u->SpriteP;
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
 
-    DoRotatorStopInterp(SpriteNum);
+    DoRotatorStopInterp(actor);
 
     // play inactivate sound
     DoSoundSpotMatch(SP_TAG2(sp), 2, SOUND_OBJECT_TYPE);
@@ -132,45 +130,36 @@ void SetRotatorInactive(short SpriteNum)
 }
 
 // called for operation from the space bar
-short DoRotatorOperate(PLAYERp pp, short sectnum)
+void DoRotatorOperate(PLAYERp pp, short sectnum)
 {
-    short match;
-
-    match = sector[sectnum].hitag;
+    short match = sector[sectnum].hitag;
 
     if (match > 0)
     {
-        if (TestRotatorMatchActive(match))
-            return -1;
-        else
-            return DoRotatorMatch(pp, match, true);
+        if (!TestRotatorMatchActive(match))
+            DoRotatorMatch(pp, match, true);
     }
-
-    return -1;
 }
 
 // called from switches and triggers
 // returns first vator found
-short
-DoRotatorMatch(PLAYERp pp, short match, bool manual)
+void DoRotatorMatch(PLAYERp pp, short match, bool manual)
 {
     USERp fu;
     SPRITEp fsp;
     short sectnum;
-    short first_vator = -1;
-
-    int i;
+    DSWActor* firstVator = nullptr;
 
     //RotatorSwitch(match, ON);
 
-    StatIterator it(STAT_ROTATOR);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_ROTATOR);
+    while (auto actor = it.Next())
     {
-        fsp = &sprite[i];
+        fsp = &actor->s();
 
         if (SP_TAG1(fsp) == SECT_ROTATOR && SP_TAG2(fsp) == match)
         {
-            fu = User[i].Data();
+            fu = actor->u();
 
             // single play only vator
             // bool 8 must be set for message to display
@@ -188,8 +177,8 @@ DoRotatorMatch(PLAYERp pp, short match, bool manual)
                     continue;
             }
 
-            if (first_vator == -1)
-                first_vator = i;
+            if (firstVator == nullptr)
+                firstVator = actor;
 
             sectnum = fsp->sectnum;
 
@@ -199,55 +188,37 @@ DoRotatorMatch(PLAYERp pp, short match, bool manual)
 
                 key_num = SectUser[sectnum]->number;
 
-#if 0
-                if (pp->HasKey[key_num - 1])
-                {
-                    int i;
-                    for (i=0; i<numsectors; i++)
-                    {
-                        if (SectUser[i] && SectUser[i]->stag == SECT_LOCK_DOOR && SectUser[i]->number == key_num)
-                            SectUser[i]->number = 0;  // unlock all doors of this type
-                    }
-                    UnlockKeyLock(key_num);
-                }
-                else
-#endif
                 {
                     PutStringInfo(pp, quoteMgr.GetQuote(QUOTE_DOORMSG + key_num - 1));
-                    return -1;
+                    return;
                 }
             }
 
             if (TEST(fu->Flags, SPR_ACTIVE))
             {
-                ReverseRotator(i);
+                ReverseRotator(actor);
                 continue;
             }
 
-            SetRotatorActive(i);
+            SetRotatorActive(actor);
         }
     }
-
-    return first_vator;
 }
 
 
-bool
-TestRotatorMatchActive(short match)
+bool TestRotatorMatchActive(short match)
 {
     USERp fu;
     SPRITEp fsp;
 
-    int i;
-
-    StatIterator it(STAT_ROTATOR);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_ROTATOR);
+    while (auto actor = it.Next())
     {
-        fsp = &sprite[i];
+        fsp = &actor->s();
 
         if (SP_TAG1(fsp) == SECT_ROTATOR && SP_TAG2(fsp) == match)
         {
-            fu = User[i].Data();
+            fu = actor->u();
 
             // Does not have to be inactive to be operated
             if (TEST_BOOL6(fsp))
@@ -262,9 +233,9 @@ TestRotatorMatchActive(short match)
 }
 
 
-void DoRotatorSetInterp(short SpriteNum)
+void DoRotatorSetInterp(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
     short w,startwall,endwall;
 
     startwall = sector[sp->sectnum].wallptr;
@@ -285,9 +256,9 @@ void DoRotatorSetInterp(short SpriteNum)
     }
 }
 
-void DoRotatorStopInterp(short SpriteNum)
+void DoRotatorStopInterp(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
     short w,startwall,endwall;
 
     startwall = sector[sp->sectnum].wallptr;
@@ -308,14 +279,13 @@ void DoRotatorStopInterp(short SpriteNum)
     }
 }
 
-int DoRotatorMove(short SpriteNum)
+int DoRotator(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = u->SpriteP;
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
     ROTATORp r;
     short ndx,w,startwall,endwall;
     SPRITEp pivot = nullptr;
-    int i;
     vec2_t nxy;
     int dist,closest;
     bool kill = false;
@@ -355,7 +325,7 @@ int DoRotatorMove(short SpriteNum)
             // new tgt is CLOSED (0)
             r->tgt = 0;
             r->vel = -r->vel;
-            SetRotatorInactive(SpriteNum);
+            SetRotatorInactive(actor);
 
             if (SP_TAG6(sp))
                 DoMatchEverything(nullptr, SP_TAG6(sp), -1);
@@ -375,9 +345,9 @@ int DoRotatorMove(short SpriteNum)
             r->speed = r->orig_speed;
             r->vel = labs(r->vel);
 
-            SetRotatorInactive(SpriteNum);
+            SetRotatorInactive(actor);
 
-            // set owner swith back to OFF
+            // set Owner swith back to OFF
             // only if ALL vators are inactive
             if (!TestRotatorMatchActive(match))
             {
@@ -393,16 +363,17 @@ int DoRotatorMove(short SpriteNum)
     }
 
     closest = 99999;
-    StatIterator it(STAT_ROTATOR_PIVOT);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_ROTATOR_PIVOT);
+    while (auto itActor = it.Next())
     {
-        if (sprite[i].lotag == sp->lotag)
+        auto itsp = &itActor->s();
+        if (itsp->lotag == sp->lotag)
         {
-            dist = Distance(sp->x, sp->y, sprite[i].x, sprite[i].y);
+            dist = Distance(sp->x, sp->y, itsp->x, itsp->y);
             if (dist < closest)
             {
                 closest = dist;
-                pivot = &sprite[i];
+                pivot = itsp;
             }
         }
     }
@@ -419,30 +390,20 @@ int DoRotatorMove(short SpriteNum)
         vec2_t const orig = { r->origX[ndx], r->origY[ndx] };
         rotatepoint(pivot->pos.vec2, orig, r->pos, &nxy);
 
-        dragpoint(w, nxy.x, nxy.y, 0);
+        dragpoint(w, nxy.x, nxy.y);
         ndx++;
     }
 
     if (kill)
     {
-        SetRotatorInactive(SpriteNum);
-        KillSprite(SpriteNum);
+        SetRotatorInactive(actor);
+        KillActor(actor);
         return 0;
     }
 
     return 0;
 }
 
-int DoRotator(DSWActor* actor)
-{
-    USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-
-    // could move this inside sprite control
-    DoRotatorMove(SpriteNum);
-
-    return 0;
-}
 
 #include "saveable.h"
 

@@ -38,6 +38,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "tags.h"
 #include "weapon.h"
 #include "sprite.h"
+#include "gamefuncs.h"
 
 BEGIN_SW_NS
 
@@ -45,7 +46,6 @@ DSWActor swActors[MAXSPRITES];
 
 extern int jump_grav;
 
-int SpawnBlood(short SpriteNum, short Weapon, short hit_ang, int hit_x, int hit_y, int hit_z);
 extern STATE s_DebrisNinja[];
 extern STATE s_DebrisRat[];
 extern STATE s_DebrisCrab[];
@@ -55,7 +55,6 @@ extern STATE s_NinjaDieSlicedHack[];
 
 extern STATEp sg_NinjaGrabThroat[];
 
-int DoActorStopFall(DSWActor* actor);
 
 
 int DoScaleSprite(DSWActor* actor)
@@ -90,15 +89,13 @@ int DoScaleSprite(DSWActor* actor)
     return 0;
 }
 
-int
-DoActorDie(short SpriteNum, short weapon)
+int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
 {
-    auto actor  = &swActors[SpriteNum];
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = &sprite[SpriteNum];
+    auto u = actor->u();
+    auto sp = &actor->s();
 
 
-    change_sprite_stat(SpriteNum, STAT_DEAD_ACTOR);
+    change_actor_stat(actor, STAT_DEAD_ACTOR);
     SET(u->Flags, SPR_DEAD);
     RESET(u->Flags, SPR_FALLING | SPR_JUMPING);
     u->floor_dist = Z(40);
@@ -107,18 +104,18 @@ DoActorDie(short SpriteNum, short weapon)
     SET(sp->extra, SPRX_BREAKABLE);
     SET(sp->cstat, CSTAT_SPRITE_BREAKABLE);
 
-    if (weapon < 0)
+    if (weapActor == nullptr)
     {
         // killed by one of these non-sprites
-        switch (weapon)
+        switch (meansofdeath)
         {
         case WPN_NM_LAVA:
-            ChangeState(SpriteNum, u->StateEnd);
+            ChangeState(actor, u->StateEnd);
             u->RotNum = 0;
             break;
 
         case WPN_NM_SECTOR_SQUISH:
-            ChangeState(SpriteNum, u->StateEnd);
+            ChangeState(actor, u->StateEnd);
             u->RotNum = 0;
             break;
         }
@@ -126,52 +123,52 @@ DoActorDie(short SpriteNum, short weapon)
         return 0;
     }
 
+    if (!weapActor->hasU()) return 0;
+    auto wu = weapActor->u();
+    auto wp = &weapActor->s();
 
     // killed by one of these sprites
-    switch (User[weapon]->ID)
+    switch (wu->ID)
     {
     // Coolie actually explodes himself
-    // he is the Sprite AND Weapon
+    // he is the Sprite AND weapon
     case COOLIE_RUN_R0:
-        ChangeState(SpriteNum, u->StateEnd);
+        ChangeState(actor, u->StateEnd);
         u->RotNum = 0;
         sp->xvel <<= 1;
         u->ActorActionFunc = nullptr;
-        sprite[SpriteNum].ang = NORM_ANGLE(sprite[SpriteNum].ang + 1024);
+        sp->ang = NORM_ANGLE(sp->ang + 1024);
         break;
 
     case NINJA_RUN_R0:
         if (u->ID == NINJA_RUN_R0) // Cut in half!
         {
-            SPRITEp wp = &sprite[weapon];
-
-            if (User[weapon]->WeaponNum != WPN_FIST)
+            if (wu->WeaponNum != WPN_FIST)
             {
                 if (sw_ninjahack)
-                    SpawnBlood(SpriteNum, SpriteNum, -1, -1, -1, -1);
-                InitPlasmaFountain(wp, sp);
-                InitPlasmaFountain(wp, sp);
-                PlaySound(DIGI_NINJAINHALF, sp, v3df_none);
+                    SpawnBlood(actor, actor, -1, -1, -1, -1);
+                InitPlasmaFountain(weapActor, actor);
+                InitPlasmaFountain(weapActor, actor);
+                PlaySound(DIGI_NINJAINHALF, actor, v3df_none);
                 if (sw_ninjahack)
-                    ChangeState(SpriteNum, &s_NinjaDieSlicedHack[5]);
+                    ChangeState(actor, &s_NinjaDieSlicedHack[5]);
                 else
-                    ChangeState(SpriteNum, &s_NinjaDieSliced[0]);
+                    ChangeState(actor, &s_NinjaDieSliced[0]);
             }
             else
             {
                 if (RandomRange(1000) > 500)
                 {
-                    SPRITEp wp = &sprite[weapon];
-                    InitPlasmaFountain(wp, sp);
+                    InitPlasmaFountain(weapActor, actor);
                 }
 
-                ChangeState(SpriteNum, u->StateEnd);
+                ChangeState(actor, u->StateEnd);
                 u->RotNum = 0;
                 u->ActorActionFunc = nullptr;
                 sp->xvel = 200 + RandomRange(200);
                 u->jump_speed = -200 - RandomRange(250);
                 DoActorBeginJump(actor);
-                sprite[SpriteNum].ang = sprite[weapon].ang;
+                sp->ang = wp->ang;
             }
         }
         else
@@ -179,7 +176,7 @@ DoActorDie(short SpriteNum, short weapon)
             // test for gibable dead bodies
             if (RandomRange(1000) > 500)
                 SET(sp->cstat, CSTAT_SPRITE_YFLIP);
-            ChangeState(SpriteNum, u->StateEnd);
+            ChangeState(actor, u->StateEnd);
             sp->xvel = 0;
             u->jump_speed = 0;
             DoActorBeginJump(actor);
@@ -190,7 +187,7 @@ DoActorDie(short SpriteNum, short weapon)
         u->ActorActionFunc = nullptr;
         //u->ActorActionFunc = NullAnimator;
         if (!sw_ninjahack)
-            sprite[SpriteNum].ang = sprite[weapon].ang;
+            sp->ang = wp->ang;
         break;
 
     case COOLG_RUN_R0:
@@ -200,14 +197,14 @@ DoActorDie(short SpriteNum, short weapon)
     case EEL_RUN_R0:
     case STAR1:
     case SUMO_RUN_R0:
-        ChangeState(SpriteNum, u->StateEnd);
+        ChangeState(actor, u->StateEnd);
         u->RotNum = 0;
         break;
 
     case UZI_SMOKE:
         if (RandomRange(1000) > 500)
             SET(sp->cstat, CSTAT_SPRITE_YFLIP);
-        ChangeState(SpriteNum, u->StateEnd);
+        ChangeState(actor, u->StateEnd);
         u->RotNum = 0;
         // Rippers still gotta jump or they fall off walls weird
         if (u->ID == RIPPER_RUN_R0 || u->ID == RIPPER2_RUN_R0)
@@ -224,13 +221,13 @@ DoActorDie(short SpriteNum, short weapon)
         }
         u->ActorActionFunc = nullptr;
         // Get angle to player
-        sp->ang = NORM_ANGLE(getangle(u->tgt_sp->x - sp->x, u->tgt_sp->y - sp->y) + 1024);
+        sp->ang = NORM_ANGLE(getangle(u->targetActor->s().x - sp->x, u->targetActor->s().y - sp->y) + 1024);
         break;
 
     case UZI_SMOKE+1: // Shotgun
         if (RandomRange(1000) > 500)
             SET(sp->cstat, CSTAT_SPRITE_YFLIP);
-        ChangeState(SpriteNum, u->StateEnd);
+        ChangeState(actor, u->StateEnd);
         u->RotNum = 0;
 
         // Rippers still gotta jump or they fall off walls weird
@@ -247,34 +244,32 @@ DoActorDie(short SpriteNum, short weapon)
         DoActorBeginJump(actor);
         u->ActorActionFunc = nullptr;
         // Get angle to player
-        sp->ang = NORM_ANGLE(getangle(u->tgt_sp->x - sp->x, u->tgt_sp->y - sp->y) + 1024);
+        sp->ang = NORM_ANGLE(getangle(u->targetActor->s().x - sp->x, u->targetActor->s().y - sp->y) + 1024);
         break;
 
     default:
-        ASSERT(weapon >= 0);
         switch (u->ID)
         {
         case SKULL_R0:
         case BETTY_R0:
-            ChangeState(SpriteNum, u->StateEnd);
+            ChangeState(actor, u->StateEnd);
             break;
 
         default:
             if (RandomRange(1000) > 700)
             {
-                SPRITEp wp = &sprite[weapon];
-                InitPlasmaFountain(wp, sp);
+                InitPlasmaFountain(weapActor, actor);
             }
 
             if (RandomRange(1000) > 500)
                 SET(sp->cstat, CSTAT_SPRITE_YFLIP);
-            ChangeState(SpriteNum, u->StateEnd);
+            ChangeState(actor, u->StateEnd);
             u->RotNum = 0;
             u->ActorActionFunc = nullptr;
             sp->xvel = 300 + RandomRange(400);
             u->jump_speed = -300 - RandomRange(350);
             DoActorBeginJump(actor);
-            sprite[SpriteNum].ang = sprite[weapon].ang;
+            sp->ang = wp->ang;
             break;
         }
         break;
@@ -296,12 +291,11 @@ DoActorDie(short SpriteNum, short weapon)
     return 0;
 }
 
-void
-DoDebrisCurrent(SPRITEp sp)
+void DoDebrisCurrent(DSWActor* actor)
 {
     int nx, ny;
-    int ret=0;
-    USERp u = User[sp - sprite].Data();
+    USERp u = actor->u();
+    auto sp = &actor->s();
     SECT_USERp sectu = SectUser[sp->sectnum].Data();
 
     //sp->clipdist = (256+128)>>2;
@@ -309,30 +303,26 @@ DoDebrisCurrent(SPRITEp sp)
     nx = MulScale(DIV4(sectu->speed), bcos(sectu->ang), 14);
     ny = MulScale(DIV4(sectu->speed), bsin(sectu->ang), 14);
 
-    // faster than move_sprite
-    //move_missile(sp-sprite, nx, ny, 0, Z(2), Z(0), 0, ACTORMOVETICS);
-    ret = move_sprite(int(sp-sprite), nx, ny, 0, u->ceiling_dist, u->floor_dist, 0, ACTORMOVETICS);
+    Collision ret = move_sprite(actor, nx, ny, 0, u->ceiling_dist, u->floor_dist, 0, ACTORMOVETICS);
 
     // attempt to move away from wall
-    if (ret)
+    if (ret.type != kHitNone)
     {
         short rang = RANDOM_P2(2048);
 
         nx = MulScale(DIV4(sectu->speed), bcos(sectu->ang + rang), 14);
         nx = MulScale(DIV4(sectu->speed), bsin(sectu->ang + rang), 14);
 
-        move_sprite(int(sp-sprite), nx, ny, 0, u->ceiling_dist, u->floor_dist, 0, ACTORMOVETICS);
+        move_sprite(actor, nx, ny, 0, u->ceiling_dist, u->floor_dist, 0, ACTORMOVETICS);
     }
 
     sp->z = u->loz;
 }
 
-int
-DoActorSectorDamage(DSWActor* actor)
+int DoActorSectorDamage(DSWActor* actor)
 {
     USER* u = actor->u();
-	int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
     SECT_USERp sectu = SectUser[sp->sectnum].Data();
     SECTORp sectp = &sector[sp->sectnum];
 
@@ -350,8 +340,8 @@ DoActorSectorDamage(DSWActor* actor)
 
                 if (u->Health <= 0)
                 {
-                    UpdateSinglePlayKills(SpriteNum);
-                    DoActorDie(SpriteNum, WPN_NM_LAVA);
+                    UpdateSinglePlayKills(actor);
+                    DoActorDie(actor, nullptr, WPN_NM_LAVA);
                     return true;
                 }
             }
@@ -365,8 +355,8 @@ DoActorSectorDamage(DSWActor* actor)
 
                 if (u->Health <= 0)
                 {
-                    UpdateSinglePlayKills(SpriteNum);
-                    DoActorDie(SpriteNum, WPN_NM_LAVA);
+                    UpdateSinglePlayKills(actor);
+                    DoActorDie(actor, nullptr, WPN_NM_LAVA);
                     return true;
                 }
             }
@@ -378,15 +368,15 @@ DoActorSectorDamage(DSWActor* actor)
     //if (u->lo_sectp && u->hi_sectp && labs(u->loz - u->hiz) < SPRITEp_SIZE_Z(sp))
     {
         u->Health = 0;
-        if (SpawnShrap(SpriteNum, WPN_NM_SECTOR_SQUISH))
+        if (SpawnShrap(actor, nullptr, WPN_NM_SECTOR_SQUISH))
         {
-            UpdateSinglePlayKills(SpriteNum);
-            SetSuicide(SpriteNum);
+            UpdateSinglePlayKills(actor);
+            SetSuicide(actor);
         }
         else
         {
             ASSERT(true == false);
-            //DoActorDie(SpriteNum, WPN_NM_SECTOR_SQUISH);
+            //DoActorDie(actor, nullptr, WPN_NM_SECTOR_SQUISH);
         }
 
         return true;
@@ -396,26 +386,23 @@ DoActorSectorDamage(DSWActor* actor)
 }
 
 
-int
-move_debris(short SpriteNum, int xchange, int ychange, int zchange)
+bool move_debris(DSWActor* actor, int xchange, int ychange, int zchange)
 {
-    USERp u = User[SpriteNum].Data();
+    USERp u = actor->u();
 
-    u->ret = move_sprite(SpriteNum, xchange, ychange, zchange,
+    u->coll = move_sprite(actor, xchange, ychange, zchange,
                          u->ceiling_dist, u->floor_dist, 0, ACTORMOVETICS);
 
-    return !u->ret;
+    return u->coll.type == kHitNone;
 }
 
 // !AIC - Supposed to allow floating of DEBRIS (dead bodies, flotsam, jetsam).  Or if water has
 // current move with the current.
 
-int
-DoActorDebris(DSWActor* actor)
+int DoActorDebris(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
     SECTORp sectp = &sector[sp->sectnum];
     int nx, ny;
 
@@ -427,14 +414,14 @@ DoActorDebris(DSWActor* actor)
     {
     case HORNET_RUN_R0:
     case BUNNY_RUN_R0:
-        KillSprite(SpriteNum);
+        KillActor(actor);
         return 0;
     case ZILLA_RUN_R0:
         getzsofslope(sp->sectnum, sp->x, sp->y, &u->hiz, &u->loz);
         u->lo_sectp = &sector[sp->sectnum];
         u->hi_sectp = &sector[sp->sectnum];
-        u->lo_sp = nullptr;
-        u->hi_sp = nullptr;
+        u->lowActor = nullptr;
+        u->highActor = nullptr;
         break;
     }
 
@@ -442,7 +429,7 @@ DoActorDebris(DSWActor* actor)
     {
         if (TEST(sectp->extra, SECTFX_CURRENT))
         {
-            DoDebrisCurrent(sp);
+            DoDebrisCurrent(actor);
         }
         else
         {
@@ -453,7 +440,7 @@ DoActorDebris(DSWActor* actor)
 
             //sp->clipdist = (256+128)>>2;
 
-            if (!move_debris(SpriteNum, nx, ny, 0L))
+            if (!move_debris(actor, nx, ny, 0L))
             {
                 sp->ang = RANDOM_P2(2048);
             }
@@ -475,19 +462,17 @@ DoActorDebris(DSWActor* actor)
 }
 
 
-int
-DoFireFly(DSWActor* actor)
+int DoFireFly(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
     int nx, ny;
 
     nx = 4 * ACTORMOVETICS * bcos(sp->ang) >> 14;
     ny = 4 * ACTORMOVETICS * bsin(sp->ang) >> 14;
 
     sp->clipdist = 256>>2;
-    if (!move_actor(SpriteNum, nx, ny, 0L))
+    if (!move_actor(actor, nx, ny, 0L))
     {
         sp->ang = NORM_ANGLE(sp->ang + 1024);
     }
@@ -498,12 +483,10 @@ DoFireFly(DSWActor* actor)
     return 0;
 }
 
-int
-DoGenerateSewerDebris(short SpriteNum)
+int DoGenerateSewerDebris(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
-    short n;
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
 
     static STATEp Debris[] =
     {
@@ -519,9 +502,9 @@ DoGenerateSewerDebris(short SpriteNum)
     {
         u->Tics = u->WaitTics;
 
-        n = SpawnSprite(STAT_DEAD_ACTOR, 0, Debris[RANDOM_P2(4<<8)>>8], sp->sectnum, sp->x, sp->y, sp->z, sp->ang, 200);
+        auto spawned = SpawnActor(STAT_DEAD_ACTOR, 0, Debris[RANDOM_P2(4<<8)>>8], sp->sectnum, sp->x, sp->y, sp->z, sp->ang, 200);
 
-        SetOwner(SpriteNum, n);
+        SetOwner(actor, spawned);
     }
 
     return 0;
@@ -529,11 +512,10 @@ DoGenerateSewerDebris(short SpriteNum)
 
 // !AIC - Tries to keep actors correctly on the floor.  More that a bit messy.
 
-void
-KeepActorOnFloor(short SpriteNum)
+void KeepActorOnFloor(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
     SECTORp sectp;
     int depth;
 
@@ -544,8 +526,8 @@ KeepActorOnFloor(short SpriteNum)
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
         return;
 
-    if (u->lo_sectp && SectUser[u->lo_sectp - sector].Data())
-        depth = FixedToInt(SectUser[u->lo_sectp - sector]->depth_fixed);
+    if (u->lo_sectp && SectUser[sectnum(u->lo_sectp)].Data())
+        depth = FixedToInt(SectUser[sectnum(u->lo_sectp)]->depth_fixed);
     else
         depth = 0;
 
@@ -567,7 +549,7 @@ KeepActorOnFloor(short SpriteNum)
 
             if (u->Rot == u->ActorActionSet->Run)
             {
-                NewStateGroup(SpriteNum, u->ActorActionSet->Swim);
+                NewStateGroup(actor, u->ActorActionSet->Swim);
             }
 
             // are swimming
@@ -579,7 +561,7 @@ KeepActorOnFloor(short SpriteNum)
             // only start swimming if you are running
             if (u->Rot == u->ActorActionSet->Run || u->Rot == u->ActorActionSet->Swim)
             {
-                NewStateGroup(SpriteNum, u->ActorActionSet->Swim);
+                NewStateGroup(actor, u->ActorActionSet->Swim);
                 u->oz = sp->z = u->loz - Z(depth);
                 sp->backupz();
                 SET(u->Flags, SPR_SWIMMING);
@@ -609,9 +591,10 @@ KeepActorOnFloor(short SpriteNum)
     }
     else
     {
-        int ceilz,ceilhit,florz,florhit;
+        int ceilz, florz;
+        Collision ctrash, ftrash;
         FAFgetzrangepoint(sp->x, sp->y, sp->z, sp->sectnum,
-                          &ceilz, &ceilhit, &florz, &florhit);
+                          &ceilz, &ctrash, &florz, &ftrash);
 
         u->oz = sp->z = florz;
         sp->backupz();
@@ -621,10 +604,9 @@ KeepActorOnFloor(short SpriteNum)
 
 }
 
-int
-DoActorBeginSlide(int SpriteNum, short ang, short vel, short dec)
+int DoActorBeginSlide(DSWActor* actor, short ang, short vel, short dec)
 {
-    USERp u = User[SpriteNum].Data();
+    USERp u = actor->u();
 
     SET(u->Flags, SPR_SLIDING);
 
@@ -640,17 +622,15 @@ DoActorBeginSlide(int SpriteNum, short ang, short vel, short dec)
 // !AIC - Sliding can occur in different directions from movement of the actor.
 // Has its own set of variables
 
-int
-DoActorSlide(DSWActor* actor)
+int DoActorSlide(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
     int nx, ny;
 
     nx = MulScale(u->slide_vel, bcos(u->slide_ang), 14);
     ny = MulScale(u->slide_vel, bsin(u->slide_ang), 14);
 
-    if (!move_actor(SpriteNum, nx, ny, 0L))
+    if (!move_actor(actor, nx, ny, 0L))
     {
         RESET(u->Flags, SPR_SLIDING);
         return false;
@@ -668,11 +648,9 @@ DoActorSlide(DSWActor* actor)
 
 // !AIC - Actor jumping and falling
 
-int
-DoActorBeginJump(DSWActor* actor)
+int DoActorBeginJump(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     SET(u->Flags, SPR_JUMPING);
     RESET(u->Flags, SPR_FALLING);
@@ -686,9 +664,9 @@ DoActorBeginJump(DSWActor* actor)
     if (u->ActorActionSet)
     {
         if (TEST(u->Flags, SPR_DEAD))
-            NewStateGroup(SpriteNum, u->ActorActionSet->DeathJump);
+            NewStateGroup(actor, u->ActorActionSet->DeathJump);
         else
-            NewStateGroup(SpriteNum, u->ActorActionSet->Jump);
+            NewStateGroup(actor, u->ActorActionSet->Jump);
     }
     u->StateFallOverride = nullptr;
 
@@ -699,12 +677,10 @@ DoActorBeginJump(DSWActor* actor)
     return 0;
 }
 
-int
-DoActorJump(DSWActor* actor)
+int DoActorJump(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    SPRITEp sp = &actor->s();
 
     int jump_adj;
 
@@ -715,9 +691,6 @@ DoActorJump(DSWActor* actor)
     // have started falling
     if ((u->jump_speed += jump_adj) > 0)
     {
-        //DSPRINTF(ds,"Actor Jump Height %d", labs(sp->z - sector[sp->sectnum].floorz)>>8 );
-        MONO_PRINT(ds);
-
         // Start falling
         DoActorBeginFall(actor);
         return 0;
@@ -727,16 +700,13 @@ DoActorJump(DSWActor* actor)
     sp->z += u->jump_speed * ACTORMOVETICS;
 
     // if player gets to close the ceiling while jumping
-    if (sp->z < u->hiz + Z(PIC_SIZY(SpriteNum)))
+    if (sp->z < u->hiz + Z(PIC_SIZY(sp)))
     {
         // put player at the ceiling
-        sp->z = u->hiz + Z(PIC_SIZY(SpriteNum));
+        sp->z = u->hiz + Z(PIC_SIZY(sp));
 
         // reverse your speed to falling
         u->jump_speed = -u->jump_speed;
-
-        //DSPRINTF(ds,"Jump: sp_num %d, hi_num %d, hi_sect %d",SpriteNum, u->hi_sp - sprite, u->hi_sectp - sector);
-        MONO_PRINT(ds);
 
         // Change sprites state to falling
         DoActorBeginFall(actor);
@@ -746,8 +716,7 @@ DoActorJump(DSWActor* actor)
 }
 
 
-int
-DoActorBeginFall(DSWActor* actor)
+int DoActorBeginFall(DSWActor* actor)
 {
     USER* u = actor->u();
     SET(u->Flags, SPR_FALLING);
@@ -760,14 +729,14 @@ DoActorBeginFall(DSWActor* actor)
     {
         if (TEST(u->Flags, SPR_DEAD))
         {
-            NewStateGroup(u, u->ActorActionSet->DeathFall);
+            NewStateGroup(actor, u->ActorActionSet->DeathFall);
         }
         else
-            NewStateGroup(u, u->ActorActionSet->Fall);
+            NewStateGroup(actor, u->ActorActionSet->Fall);
 
         if (u->StateFallOverride)
         {
-            NewStateGroup(u, u->StateFallOverride);
+            NewStateGroup(actor, u->StateFallOverride);
         }
     }
 
@@ -777,11 +746,10 @@ DoActorBeginFall(DSWActor* actor)
 }
 
 
-int
-DoActorFall(DSWActor* actor)
+int DoActorFall(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = u->s();
+    SPRITEp sp = &actor->s();
 
     // adjust jump speed by gravity
     u->jump_speed += u->jump_grav * ACTORMOVETICS;
@@ -798,12 +766,10 @@ DoActorFall(DSWActor* actor)
     return 0;
 }
 
-int
-DoActorStopFall(DSWActor* actor)
+int DoActorStopFall(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    SPRITEp sp = &actor->s();
 
     sp->z = u->loz;
 
@@ -812,14 +778,11 @@ DoActorStopFall(DSWActor* actor)
 
 
     // don't stand on face or wall sprites - jump again
-    if (u->lo_sp && !TEST(u->lo_sp->cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR))
+    if (u->lowActor && !TEST(u->lowActor->s().cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR))
     {
         //sp->ang = NORM_ANGLE(sp->ang + (RANDOM_P2(64<<8)>>8) - 32);
         sp->ang = NORM_ANGLE(sp->ang + 1024 + (RANDOM_P2(512<<8)>>8));
         u->jump_speed = -350;
-
-        //DSPRINTF(ds,"StopFall: sp_num %d, sp->picnum %d, lo_num %d, lo_sp->picnum %d",SpriteNum, sp->picnum, u->lo_sp - sprite, u->lo_sp->picnum);
-        MONO_PRINT(ds);
 
         DoActorBeginJump(actor);
         return 0;
@@ -830,19 +793,19 @@ DoActorStopFall(DSWActor* actor)
     {
         if (TEST(u->Flags, SPR_DEAD))
         {
-            NewStateGroup(SpriteNum, u->ActorActionSet->Dead);
-            PlaySound(DIGI_ACTORBODYFALL1, sp, v3df_none);
+            NewStateGroup(actor, u->ActorActionSet->Dead);
+            PlaySound(DIGI_ACTORBODYFALL1, actor, v3df_none);
         }
         else
         {
-            PlaySound(DIGI_ACTORHITGROUND, sp, v3df_none);
+            PlaySound(DIGI_ACTORHITGROUND, actor, v3df_none);
 
-            NewStateGroup(SpriteNum, u->ActorActionSet->Run);
+            NewStateGroup(actor, u->ActorActionSet->Run);
 
             if ((u->track >= 0) && (u->jump_speed) > 800 && (u->ActorActionSet->Sit))
             {
                 u->WaitTics = 80;
-                NewStateGroup(SpriteNum, u->ActorActionSet->Sit);
+                NewStateGroup(actor, u->ActorActionSet->Sit);
             }
         }
     }
@@ -850,13 +813,11 @@ DoActorStopFall(DSWActor* actor)
     return 0;
 }
 
-int
-DoActorDeathMove(DSWActor* actor)
+int DoActorDeathMove(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    SPRITEp sp = &actor->s();
     int nx, ny;
 
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
@@ -871,20 +832,19 @@ DoActorDeathMove(DSWActor* actor)
     ny = MulScale(sp->xvel, bsin(sp->ang), 14);
 
     sp->clipdist = (128+64)>>2;
-    move_actor(SpriteNum, nx, ny, 0);
+    move_actor(actor, nx, ny, 0);
 
     // only fall on top of floor sprite or sector
-    DoFindGroundPoint(SpriteNum);
+    DoFindGroundPoint(actor);
 
     return 0;
 }
 
 // !AIC - Jumping a falling for shrapnel and other stuff, not actors.
 
-int
-DoBeginJump(short SpriteNum)
+int DoBeginJump(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
+    USERp u = actor->u();
 
     SET(u->Flags, SPR_JUMPING);
     RESET(u->Flags, SPR_FALLING);
@@ -892,16 +852,15 @@ DoBeginJump(short SpriteNum)
     // set up individual actor jump gravity
     u->jump_grav = ACTOR_GRAVITY;
 
-    DoJump(SpriteNum);
+    DoJump(actor);
 
     return 0;
 }
 
-int
-DoJump(short SpriteNum)
+int DoJump(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
 
     int jump_adj;
 
@@ -913,7 +872,7 @@ DoJump(short SpriteNum)
     if ((u->jump_speed += jump_adj) > 0)
     {
         // Start falling
-        DoBeginFall(SpriteNum);
+        DoBeginFall(actor);
         return 0;
     }
 
@@ -921,65 +880,40 @@ DoJump(short SpriteNum)
     sp->z += u->jump_speed * ACTORMOVETICS;
 
     // if player gets to close the ceiling while jumping
-    if (sp->z < u->hiz + Z(PIC_SIZY(SpriteNum)))
+    if (sp->z < u->hiz + Z(PIC_SIZY(sp)))
     {
         // put player at the ceiling
-        sp->z = u->hiz + Z(PIC_SIZY(SpriteNum));
+        sp->z = u->hiz + Z(PIC_SIZY(sp));
 
         // reverse your speed to falling
         u->jump_speed = -u->jump_speed;
 
         // Change sprites state to falling
-        DoBeginFall(SpriteNum);
+        DoBeginFall(actor);
     }
 
     return 0;
 }
 
 
-int
-DoBeginFall(short SpriteNum)
+int DoBeginFall(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
+    USERp u = actor->u();
 
     SET(u->Flags, SPR_FALLING);
     RESET(u->Flags, SPR_JUMPING);
 
     u->jump_grav = ACTOR_GRAVITY;
 
-    DoFall(SpriteNum);
+    DoFall(actor);
 
     return 0;
 }
 
-#if 0
-int
-DoFall(short SpriteNum)
+int DoFall(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = User[SpriteNum]->SpriteP;
-
-    // adjust jump speed by gravity
-    u->jump_speed += u->jump_grav * ACTORMOVETICS;
-
-    // adjust player height by jump speed
-    sp->z += u->jump_speed * ACTORMOVETICS;
-
-    // Stick like glue when you hit the ground
-    if (sp->z > u->loz)
-    {
-        sp->z = u->loz;
-        RESET(u->Flags, SPR_FALLING);
-    }
-
-    return 0;
-}
-#else
-int
-DoFall(short SpriteNum)
-{
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
 
     // adjust jump speed by gravity
     u->jump_speed += u->jump_grav * ACTORMOVETICS;
@@ -996,7 +930,6 @@ DoFall(short SpriteNum)
 
     return 0;
 }
-#endif
 
 
 #include "saveable.h"

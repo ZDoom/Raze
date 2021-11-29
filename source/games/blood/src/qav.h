@@ -199,8 +199,8 @@ struct TILE_FRAME
     int z;
     int stat;
     int8_t shade;
-    char palnum;
-    unsigned short angle;
+    int8_t palnum;
+    uint16_t angle;
 };
 
 struct SOUNDINFO
@@ -209,7 +209,7 @@ struct SOUNDINFO
     uint8_t priority;
     uint8_t sndFlags; // (by NoOne) Various sound flags
     uint8_t sndRange; // (by NoOne) Random sound range
-    char reserved[1];
+    uint8_t reserved[1];
 };
 
 struct FRAMEINFO
@@ -227,14 +227,11 @@ struct QAV
     int duration; // 10
     int x; // 14
     int y; // 18
-    int nSprite; // 1c
-    //SPRITE *pSprite; // 1c
-    char pad3[2]; // 20
-    unsigned short res_id;
+    uint16_t res_id;
     FRAMEINFO frames[1]; // 24
     void Draw(double x, double y, int ticks, int stat, int shade, int palnum, bool to3dview, double const smoothratio = 65536);
     void Draw(int ticks, int stat, int shade, int palnum, bool to3dview, double const smoothratio = 65536) { Draw(x, y, ticks, stat, shade, palnum, to3dview, smoothratio); }
-    void Play(int, int, int, void *);
+    void Play(int, int, int, PLAYER *);
     void Precache(int palette = 0);
 };
 
@@ -242,13 +239,13 @@ QAV* getQAV(int res_id);
 void qavProcessTicker(QAV* const pQAV, int* duration, int* lastTick);
 void qavProcessTimer(PLAYER* const pPlayer, QAV* const pQAV, int* duration, double* smoothratio, bool const fixedduration = false, bool const ignoreWeaponTimer = false);
 
-inline bool qavIsOriginal(const int& res_id)
+inline bool qavIsOriginal(const int res_id)
 {
     auto const lump = fileSystem.FindResource(res_id, "QAV");
     return lump >= 0 && fileSystem.GetFileContainer(lump) < fileSystem.GetMaxIwadNum();
 }
 
-inline int qavGetCorrectID(const int& res_id)
+inline int qavGetCorrectID(const int res_id)
 {
     return cl_bloodweapinterp && qavIsOriginal(res_id) && fileSystem.FindResource(res_id + 10000, "QAV") != -1 ? res_id + 10000 : res_id;
 }

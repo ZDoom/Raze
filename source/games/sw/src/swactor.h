@@ -9,36 +9,37 @@ class DSWActor
 {
 	int index;
 	DSWActor* base();
+	auto& up() { return User[index]; }
 
 public:
-
-	int cumulDamage;
 
 	DSWActor() :index(int(this - base())) { /*assert(index >= 0 && index < kMaxSprites);*/ }
 	DSWActor& operator=(const DSWActor& other) = default;
 
 	void Clear()
 	{
+		clearUser();
 	}
-	bool hasU() { return User[index].Data() != nullptr; }
-	/*
-	void addU()
-	{
-		if (s().extra == -1) dbInsertXSprite(s().index);
-	}
-	*/
+	bool hasU() { return u() != nullptr; }
+
+
 	spritetype& s() { return sprite[index]; }
-	USER* u() { return User[index].Data(); }
-
-	void SetOwner(DSWActor* own)
-	{
-		s().owner = own ? own->s().index : -1;
+	USER* u() { return up().Data(); }
+	USER* allocUser() 
+	{ 
+		up().Alloc(); 
+		u()->SpriteNum = GetSpriteIndex();
+		return u(); 
 	}
 
-	DSWActor* GetOwner()
+	void clearUser()
 	{
-		if (s().owner == -1 || s().owner == MAXSPRITES - 1) return nullptr;
-		return base() + s().owner;
+		up().Clear();
+	}
+
+	int GetIndex() 
+	{
+		return s().time;
 	}
 
 	int GetSpriteIndex() const
@@ -76,6 +77,10 @@ class SWSectIterator : public SectIterator
 {
 public:
 	SWSectIterator(int stat) : SectIterator(stat)
+	{
+	}
+
+	SWSectIterator(sectortype* stat) : SectIterator(stat)
 	{
 	}
 
@@ -137,59 +142,80 @@ public:
 };
 
 
-// Wrapper around the insane collision info mess from Build.
-struct Collision
+enum EHitBitsSW
 {
-	int type;
-	int index;
-	int legacyVal;	// should be removed later, but needed for converting back for unadjusted code.
-	DSWActor* actor;
+	kHitTypeMaskSW = 0x1C000,
+	kHitSky = 0x10000,      // SW only
+};
 
-	Collision() = default;
-	Collision(int legacyval) { setFromEngine(legacyval); }
 
-	int setNone()
-	{
-		type = kHitNone;
-		index = -1;
-		legacyVal = 0;
-		actor = nullptr;
-		return kHitNone;
-	}
+inline int Collision::setNone()
+{
+	type = kHitNone;
+	index = -1;
+	legacyVal = 0;
+	actor = nullptr;
+	return kHitNone;
+}
 
-	int setSector(int num)
-	{
-		type = kHitSector;
-		index = num;
-		legacyVal = type | index;
-		actor = nullptr;
-		return kHitSector;
-	}
-	int setWall(int num)
-	{
-		type = kHitWall;
-		index = num;
-		legacyVal = type | index;
-		actor = nullptr;
-		return kHitWall;
-	}
-	int setSprite(DSWActor* num)
-	{
-		type = kHitSprite;
-		index = -1;
-		legacyVal = type | int(num - swActors);
-		actor = num;
-		return kHitSprite;
-	}
+inline int Collision::setSector(int num)
+{
+	type = kHitSector;
+	index = num;
+	legacyVal = type | index;
+	actor = nullptr;
+	return kHitSector;
+}
+inline int Collision::setWall(int num)
+{
+	type = kHitWall;
+	index = num;
+	legacyVal = type | index;
+	actor = nullptr;
+	return kHitWall;
+}
+inline int Collision::setSprite(DSWActor* num)
+{
+	type = kHitSprite;
+	index = -1;
+	legacyVal = type | int(num - swActors);
+	actor = num;
+	return kHitSprite;
+}
 
-	int setFromEngine(int value)
+int Collision::setSky() { setNone(); type = kHitSky; return kHitSky; }
+
+inline int Collision::setFromEngine(int value)
+{
+	legacyVal = value;
+	type = value & kHitTypeMaskSW;
+	if (type == 0) { index = -1; actor = nullptr; }
+	else if (type != kHitSprite) { index = value & kHitIndexMask; actor = nullptr; }
+	else { index = -1; actor = &swActors[value & kHitIndexMask]; }
+	return type;
+}
+
+struct HITINFO {
+	DSWActor* hitactor;
+	short sect;
+	short wall;
+	short hitsprite;
+	vec3_t pos;
+
+	void clearObj()
 	{
-		legacyVal = value;
-		type = value & kHitTypeMask;
-		if (type == 0) { index = -1; actor = nullptr; }
-		else if (type != kHitSprite) { index = value & kHitIndexMask; actor = nullptr; }
-		else { index = -1; actor = &swActors[value & kHitIndexMask]; }
-		return type;
+		pos = {};
+		sect = wall = -1;
+		hitsprite = -1;
+		hitactor = nullptr;
+	}
+	void set(hitdata_t* hit)
+	{
+		sect = hit->sect;
+		wall = hit->wall;
+		hitsprite = hit->sprite;
+		hitactor = hit->sprite >= 0 ? &swActors[hit->sprite] : nullptr;
+		pos = hit->pos;
 	}
 };
 
@@ -202,5 +228,19 @@ inline FSerializer& Serialize(FSerializer& arc, const char* keyname, DSWActor*& 
 	return arc;
 }
 
+inline void ChangeActorSect(DSWActor* actor, int sect)
+{
+	changespritesect(actor->GetSpriteIndex(), sect);
+}
+
+inline int SetActorZ(DSWActor* actor, const vec3_t* newpos)
+{
+	return setspritez(actor->GetSpriteIndex(), newpos);
+}
+
+inline int SetActor(DSWActor* actor, const vec3_t* newpos)
+{
+	return setsprite(actor->GetSpriteIndex(), newpos);
+}
 
 END_SW_NS

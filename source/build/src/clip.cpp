@@ -14,17 +14,19 @@
 
 enum { MAXCLIPDIST = 1024 };
 
-static int16_t clipnum;
+static int clipnum;
 static linetype clipit[MAXCLIPNUM];
 static int32_t clipsectnum, origclipsectnum, clipspritenum;
-int16_t clipsectorlist[MAXCLIPSECTORS];
-static int16_t origclipsectorlist[MAXCLIPSECTORS];
+int clipsectorlist[MAXCLIPSECTORS];
+static int origclipsectorlist[MAXCLIPSECTORS];
 static uint8_t clipsectormap[(MAXSECTORS+7)>>3];
 static uint8_t origclipsectormap[(MAXSECTORS+7)>>3];
 static int16_t clipobjectval[MAXCLIPNUM];
 static uint8_t clipignore[(MAXCLIPNUM+7)>>3];
 static int32_t rxi[8], ryi[8];
 
+inline void bitmap_set(uint8_t* const ptr, int const n) { ptr[n >> 3] |= 1 << (n & 7); }
+inline char bitmap_test(uint8_t const* const ptr, int const n) { return ptr[n >> 3] & (1 << (n & 7)); }
 
 
 int32_t quickloadboard=0;
@@ -397,52 +399,41 @@ static void clipupdatesector(vec2_t const pos, int * const sectnum, int walldist
         walldist = 0x7fff;
     }
 
-    static int16_t sectlist[MAXSECTORS];
-    static uint8_t sectbitmap[(MAXSECTORS+7)>>3];
-
-    bfirst_search_init(sectlist, sectbitmap, &nsecs, MAXSECTORS, *sectnum);
-
-    for (int sectcnt = 0; sectcnt < nsecs; sectcnt++)
     {
-        int const listsectnum = sectlist[sectcnt];
+        BFSSearch search(numsectors, *sectnum);
 
-        if (inside_p(pos.x, pos.y, listsectnum))
-            SET_AND_RETURN(*sectnum, listsectnum);
+        for (unsigned listsectnum; (listsectnum = search.GetNext()) != BFSSearch::EOL;)
+        {
+            if (inside_p(pos.x, pos.y, listsectnum))
+            {
+                *sectnum = listsectnum;
+                return;
+            }
 
-        auto const sec       = &sector[listsectnum];
-        int const  startwall = sec->wallptr;
-        int const  endwall   = sec->wallptr + sec->wallnum;
-        auto       uwal      = (uwallptr_t)&wall[startwall];
-
-        for (int j = startwall; j < endwall; j++, uwal++)
-            if (uwal->nextsector >= 0 && bitmap_test(clipsectormap, uwal->nextsector))
-                bfirst_search_try(sectlist, sectbitmap, &nsecs, uwal->nextsector);
+            for (auto& wal : wallsofsector(listsectnum))
+            {
+                if (wal.nextsector >= 0 && bitmap_test(clipsectormap, wal.nextsector))
+                    search.Add(wal.nextsector);
+            }
+        }
     }
 
-    bfirst_search_init(sectlist, sectbitmap, &nsecs, MAXSECTORS, *sectnum);
-
-    for (int sectcnt = 0; sectcnt < nsecs; sectcnt++)
     {
-        int const listsectnum = sectlist[sectcnt];
+        BFSSearch search(numsectors, *sectnum);
 
-        if (inside_p(pos.x, pos.y, listsectnum))
+        for (unsigned listsectnum; (listsectnum = search.GetNext()) != BFSSearch::EOL;)
         {
-            // add sector to clipping list so the next call to clipupdatesector()
-            // finishes in the loop above this one
-            addclipsect(listsectnum);
-            SET_AND_RETURN(*sectnum, listsectnum);
+            if (inside_p(pos.x, pos.y, listsectnum))
+            {
+                *sectnum = listsectnum;
+                return;
+            }
+            for (auto& wal : wallsofsector(listsectnum))
+            {
+                if (wal.nextsector >= 0 && getwalldist(pos, wallnum(&wal)) <= (walldist + 8))
+                    search.Add(wal.nextsector);
+            }
         }
-
-        auto const sec       = &sector[listsectnum];
-        int const  startwall = sec->wallptr;
-        int const  endwall   = sec->wallptr + sec->wallnum;
-        auto       uwal      = (uwallptr_t)&wall[startwall];
-
-        // check floor curbs here?
-
-        for (int j = startwall; j < endwall; j++, uwal++)
-            if (uwal->nextsector >= 0 && getwalldist(pos, j) <= (walldist + 8))
-                bfirst_search_try(sectlist, sectbitmap, &nsecs, uwal->nextsector);
     }
 
     *sectnum = -1;
@@ -474,7 +465,6 @@ int32_t clipmove(vec3_t * const pos, int * const sectnum, int32_t xvect, int32_t
     vec2_t const  clipMin = { cent.x - rad, cent.y - rad };
     vec2_t const  clipMax = { cent.x + rad, cent.y + rad };
 
-    int clipshapeidx  = -1;
     int clipsectcnt   = 0;
     int clipspritecnt = 0;
 
@@ -958,8 +948,7 @@ void getzrange(const vec3_t *pos, int16_t sectnum,
 
     int32_t clipsectcnt = 0;
 
-    uspriteptr_t curspr=NULL;  // non-NULL when handling sprite with sector-like clipping
-    int32_t curidx=-1, clipspritecnt = 0;
+    int32_t clipspritecnt = 0;
 
     //Extra walldist for sprites on sector lines
     const int32_t extradist = walldist+MAXCLIPDIST+1;
@@ -1058,12 +1047,12 @@ void getzrange(const vec3_t *pos, int16_t sectnum,
     for (bssize_t i=0; i<clipsectnum; i++)
     {
         int j;
-        if (clipsectorlist[i] == MAXSECTORS) continue;    // we got a deleted sprite in here somewhere. Skip this entry.
+        if (!validSectorIndex(clipsectorlist[i])) continue;    // we got a deleted sprite in here somewhere. Skip this entry.
         SectIterator it(clipsectorlist[i]);
         while ((j = it.NextIndex()) >= 0)
         {
             const int32_t cstat = sprite[j].cstat;
-            int32_t daz, daz2;
+            int32_t daz = 0, daz2 = 0;
 
             if (sprite[j].cstat2 & CSTAT2_SPRITE_NOFIND) continue;
             if (cstat&dasprclipmask)
@@ -1203,7 +1192,7 @@ static int32_t hitscan_trysector(const vec3_t *sv, usectorptr_t sec, hitdata_t *
                                  int32_t vx, int32_t vy, int32_t vz,
                                  uint16_t stat, int16_t heinum, int32_t z, int32_t how, const intptr_t *tmp)
 {
-    int32_t x1 = INT32_MAX, y1, z1;
+    int32_t x1 = INT32_MAX, y1 = 0, z1 = 0;
     int32_t i;
 
     if (stat&2)
@@ -1244,9 +1233,9 @@ static int32_t hitscan_trysector(const vec3_t *sv, usectorptr_t sec, hitdata_t *
     {
         if (tmp==NULL)
         {
-            if (inside(x1,y1,int(sec-sector)) == 1)
+            if (inside(x1,y1,sectnum(sec)) == 1)
             {
-                hit_set(hit, int(sec-sector), -1, -1, x1, y1, z1);
+                hit_set(hit, sectnum(sec), -1, -1, x1, y1, z1);
                 hitscan_hitsectcf = (how+1)>>1;
             }
         }
@@ -1258,7 +1247,7 @@ static int32_t hitscan_trysector(const vec3_t *sv, usectorptr_t sec, hitdata_t *
 
             if (!thislastsec)
             {
-                if (inside(x1,y1,int(sec-sector)) == 1)
+                if (inside(x1,y1,sectnum(sec)) == 1)
                     hit_set(hit, int(curspr->sectnum), -1, int(curspr-sprite), x1, y1, z1);
             }
         }
@@ -1278,7 +1267,7 @@ int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32
     int16_t tempshortcnt, tempshortnum;
 
     uspriteptr_t curspr = NULL;
-    int32_t clipspritecnt, curidx=-1;
+    int32_t clipspritecnt;
     // tmp: { (int32_t)curidx, (spritetype *)curspr, (!=0 if outer sector) }
     intptr_t *tmpptr=NULL;
     const int32_t dawalclipmask = (cliptype&65535);

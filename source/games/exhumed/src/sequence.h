@@ -141,8 +141,8 @@ void seq_DrawStatusSequence(short nSequence, uint16_t edx, short ebx);
 
 int seq_DrawGunSequence(int nSeqOffset, short dx, double xOffs, double yOffs, int nShade, int nPal);
 short seq_GetFrameFlag(short val, short nFrame);
-int seq_PlotSequence(short nSprite, short edx, short nFrame, short ecx);
-int seq_PlotArrowSequence(short nSprite, short nSeq, int nVal);
+int seq_PlotSequence(int nSprite, short edx, short nFrame, short ecx);
+int seq_PlotArrowSequence(int nSprite, short nSeq, int nVal);
 void seq_DrawPilotLightSeq(double xOffset, double yOffset);
 
 END_PS_NS

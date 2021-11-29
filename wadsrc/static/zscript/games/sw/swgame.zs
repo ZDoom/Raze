@@ -307,7 +307,7 @@ struct SWPlayer native
     native bool NukeInitialized;           // Nuke already has counted down
     native int16 FistAng;                  // KungFu attack angle
     native uint8 WpnKungFuMove;             // KungFu special moves
-    native int16 HitBy;                    // SpriteNum of whatever player was last hit by
+    //native int16 HitBy;                    // SpriteNum of whatever player was last hit by
     native int16 Reverb;                   // Player's current reverb setting
     native int16 Heads;                    // Number of Accursed Heads orbiting player
     native int PlayerVersion;

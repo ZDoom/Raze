@@ -333,6 +333,7 @@ UCVarValue FBaseCVar::FromBool (bool value, ECVarType type)
 		break;
 
 	default:
+		ret.Int = 0;
 		break;
 	}
 
@@ -363,6 +364,7 @@ UCVarValue FBaseCVar::FromInt (int value, ECVarType type)
 		break;
 
 	default:
+		ret.Int = 0;
 		break;
 	}
 
@@ -395,6 +397,7 @@ UCVarValue FBaseCVar::FromFloat (float value, ECVarType type)
 		break;
 
 	default:
+		ret.Int = 0;
 		break;
 	}
 
@@ -456,6 +459,7 @@ UCVarValue FBaseCVar::FromString (const char *value, ECVarType type)
 		break;
 
 	default:
+		ret.Int = 0;
 		break;
 	}
 
@@ -1643,7 +1647,6 @@ CCMD (archivecvar)
 void C_ListCVarsWithoutDescription()
 {
 	FBaseCVar* var = CVars;
-	int count = 0;
 
 	while (var)
 	{

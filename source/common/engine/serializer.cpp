@@ -619,7 +619,6 @@ void FSerializer::ReadObjects(bool hubtravel)
 				if (BeginObject(nullptr))
 				{
 					FString clsname;	// do not deserialize the class type directly so that we can print appropriate errors.
-					int pindex = -1;
 
 					Serialize(*this, "classtype", clsname, nullptr);
 					PClass *cls = PClass::FindClass(clsname);
@@ -652,7 +651,6 @@ void FSerializer::ReadObjects(bool hubtravel)
 					{
 						if (obj != nullptr)
 						{
-							int pindex = -1;
 							try
 							{
 								obj->SerializeUserVars(*this);

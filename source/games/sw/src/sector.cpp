@@ -51,7 +51,13 @@ BEGIN_SW_NS
 #define LAVAMAXDROPS 32
 #define DEFAULT_DOOR_SPEED 800
 
-int InitFireballTrap(DSWActor* actor);
+enum
+{
+    SINE_FLOOR = (1 << 0),
+    SINE_CEILING = (1 << 1),
+    SINE_SLOPED = BIT(3),
+};
+
 ANIMATOR DoGrating;
 void DoPlayerBeginForceJump(PLAYERp);
 
@@ -61,26 +67,19 @@ bool TestVatorMatchActive(short match);
 bool TestSpikeMatchActive(short match);
 bool TestRotatorMatchActive(short match);
 bool TestSlidorMatchActive(short match);
-int PlayerCheckDeath(PLAYERp, short);
-short DoVatorOperate(PLAYERp, short);
-short DoVatorMatch(PLAYERp pp, short match);
-short DoRotatorOperate(PLAYERp, short);
-short DoRotatorMatch(PLAYERp pp, short match, bool);
-short DoSlidorOperate(PLAYERp, short);
-short DoSlidorMatch(PLAYERp pp, short match, bool);
+int PlayerCheckDeath(PLAYERp, DSWActor*);
+void DoVatorOperate(PLAYERp, short);
+void DoVatorMatch(PLAYERp pp, short match);
+void DoRotatorOperate(PLAYERp, short);
+void DoRotatorMatch(PLAYERp pp, short match, bool);
+void DoSlidorOperate(PLAYERp, short);
+void DoSlidorMatch(PLAYERp pp, short match, bool);
 
 void KillMatchingCrackSprites(short match);
 int DoTrapReset(short match);
 int DoTrapMatch(short match);
 
 PLAYERp GlobPlayerP;
-#if 0
-char lavabakpic[(LAVASIZ + 2) * (LAVASIZ + 2)], lavainc[LAVASIZ];
-int lavanumdrops, lavanumframes;
-int lavadropx[LAVAMAXDROPS], lavadropy[LAVAMAXDROPS];
-int lavadropsiz[LAVAMAXDROPS], lavadropsizlookup[LAVAMAXDROPS];
-int lavaradx[32][128], lavarady[32][128], lavaradcnt[32];
-#endif
 
 TPointer<SECT_USER> SectUser[MAXSECTORS];
 TPointer<USER> User[MAXSPRITES];
@@ -118,22 +117,21 @@ void SetSectorWallBits(short sectnum, int bit_mask, bool set_sectwall, bool set_
 
 void WallSetupDontMove(void)
 {
-    int i,j;
     SPRITEp spu, spl;
     WALLp wallp;
 
-    StatIterator it(STAT_WALL_DONT_MOVE_UPPER);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_WALL_DONT_MOVE_UPPER);
+    while (auto iActor = it.Next())
     {
-        StatIterator it1(STAT_WALL_DONT_MOVE_LOWER);
-        while ((j = it1.NextIndex()) >= 0)
+        spu = &iActor->s();
+        SWStatIterator it1(STAT_WALL_DONT_MOVE_LOWER);
+        while (auto jActor = it1.Next())
         {
-            spu = &sprite[i];
-            spl = &sprite[j];
+            spl = &jActor->s();
 
             if (spu->lotag == spl->lotag)
             {
-                for (wallp = wall; wallp < &wall[numwalls]; wallp++)
+                for (wallp = &wall[0]; wallp < &wall[numwalls]; wallp++)
                 {
                     if (wallp->x < spl->x && wallp->x > spu->x && wallp->y < spl->y && wallp->y > spu->y)
                     {
@@ -167,8 +165,7 @@ static void WallSetupLoop(WALLp wp, int16_t lotag, int16_t extra)
     }
 }
 
-void
-WallSetup(void)
+void WallSetup(void)
 {
     short i = 0;
     short NextSineWall = 0;
@@ -180,7 +177,7 @@ WallSetup(void)
 
     extern int x_min_bound, y_min_bound, x_max_bound, y_max_bound;
 
-    for (wp = wall, i = 0; i < numwalls; i++, wp++)
+    for (wp = &wall[0]; wp < &wall[numwalls]; wp++)
     {
         if (wp->picnum == FAF_PLACE_MIRROR_PIC)
             wp->picnum = FAF_MIRROR_PIC;
@@ -333,8 +330,7 @@ WallSetup(void)
 }
 
 
-void
-SectorLiquidSet(short i)
+void SectorLiquidSet(short i)
 {
     SECT_USERp sectu;
 
@@ -378,8 +374,7 @@ SectorLiquidSet(short i)
     }
 }
 
-void
-SectorSetup(void)
+void SectorSetup(void)
 {
     short i = 0, tag;
     short NextSineWave = 0;
@@ -406,15 +401,9 @@ SectorSetup(void)
 
     LevelSecrets = 0;
 
-    //for (i = 0; i < MAX_SW_PLAYERS; i++)
-    //    memset((Player + i)->HasKey, 0, sizeof((Player + i)->HasKey));
-
     for (i = 0; i < numsectors; i++)
     {
-        tag = LOW_TAG(i);
-
-// DOH! NOT AGAIN! :(
-//ASSERT(wall[4568].lotag != 307);
+        tag = sector[i].lotag;
 
         // ///////////////////////////////////
         //
@@ -493,9 +482,6 @@ SectorSetup(void)
             short speed_shift = 3;
             short num;
 
-#define SINE_FLOOR (1<<0)
-#define SINE_CEILING (1<<1)
-
             num = (tag - TAG_SINE_WAVE_FLOOR) / 20;
 
             // set the first on up
@@ -507,7 +493,6 @@ SectorSetup(void)
             {
             case 0:
                 SET(swf->flags, SINE_FLOOR);
-#define SINE_SLOPED BIT(3)
                 if (TEST(sector[base_sect].floorstat, FLOOR_STAT_SLOPE))
                 {
                     SET(swf->flags, SINE_SLOPED);
@@ -616,8 +601,7 @@ SectorSetup(void)
     }
 }
 
-void
-SectorMidPoint(short sectnum, int *xmid, int *ymid, int *zmid)
+void SectorMidPoint(short sectnum, int *xmid, int *ymid, int *zmid)
 {
     short startwall, endwall, j;
     int xsum = 0, ysum = 0;
@@ -639,46 +623,16 @@ SectorMidPoint(short sectnum, int *xmid, int *ymid, int *zmid)
 }
 
 
-void
-DoSpringBoard(PLAYERp pp/*, short sectnum*/)
+void DoSpringBoard(PLAYERp pp/*, short sectnum*/)
 {
 
-#if 0
-    int sb;
-    int i;
-    i = AnimGetGoal(&sector[sectnum].floorz);
-
-    // if in motion return
-    if (i >= 0)
-        return;
-
-    AnimSet(&sector[sectnum].floorz, sector[sectnum].floorz - Z(32), 512);
-
-    for (sb = 0; sb < SIZ(SpringBoard); sb++)
-    {
-        // if empty set up an entry to close the sb later
-        if (SpringBoard[sb].Sector == -1)
-        {
-            pp->jump_speed = -sector[pp->cursectnum].hitag;
-            DoPlayerBeginForceJump(pp);
-
-            SpringBoard[sb].Sector = sectnum;
-            SpringBoard[sb].TimeOut = 1 * 120;
-
-            sector[sectnum].lotag = 0;
-        }
-    }
-#else
     pp->jump_speed = -sector[pp->cursectnum].hitag;
     DoPlayerBeginForceJump(pp);
-#endif
-
     return;
 }
 
 
-void
-DoSpringBoardDown(void)
+void DoSpringBoardDown(void)
 {
     unsigned sb;
     SPRING_BOARD *sbp;
@@ -696,7 +650,7 @@ DoSpringBoardDown(void)
 
                 destz = sector[nextsectorneighborz(sbp->Sector, sector[sbp->Sector].floorz, 1, 1)].floorz;
 
-                AnimSet(ANIM_Floorz, sbp->Sector, destz, 256);
+                AnimSet(ANIM_Floorz, sbp->Sector, nullptr, destz, 256);
 
                 sector[sbp->Sector].lotag = TAG_SPRING_BOARD;
 
@@ -709,86 +663,7 @@ DoSpringBoardDown(void)
     return;
 }
 
-short
-FindSectorByTag(int x, int y, int tag)
-{
-    short i = 0, near_sector = -1;
-    int diff, near_diff = 9999999;
-    short wallnum;
-
-    for (i = 0; i < numsectors; i++)
-    {
-        if (LOW_TAG(i) == tag)
-        {
-            // get the delta of the door/elevator
-            wallnum = sector[i].wallptr;
-
-            // diff = labs(wall[wallnum].x - x) + labs(wall[wallnum].y - y);
-            diff = Distance(wall[wallnum].x, wall[wallnum].y, x, y);
-
-            // if the door/elevator is closer than the last save it off
-            if (diff < near_diff)
-            {
-                near_diff = diff;
-                near_sector = i;
-            }
-        }
-    }
-
-    return near_sector;
-
-}
-
-short
-FindSectorByTag_Wall(short wallnum, int tag)
-{
-    return FindSectorByTag(wall[wallnum].x, wall[wallnum].y, tag);
-}
-
-short
-FindSectorByTag_Sprite(short SpriteNum, int tag)
-{
-    return FindSectorByTag(sprite[SpriteNum].x, sprite[SpriteNum].y, tag);
-}
-
-#if 1
-short
-FindSectorMidByTag(short sectnum, int tag)
-{
-    short i = 0, near_sector = -1;
-    int diff, near_diff = 9999999, x, y;
-    int trash, fx, fy;
-
-    // Get the mid x,y of the sector
-    SectorMidPoint(sectnum, &x, &y, &trash);
-
-    for (i = 0; i < numsectors; i++)
-    {
-        if (sector[i].lotag == tag)
-        {
-            // get the delta of the door/elevator
-            SectorMidPoint(i, &fx, &fy, &trash);
-
-            // diff = labs(wall[wallnum].x - x) + labs(wall[wallnum].y - y);
-            diff = Distance(fx, fy, x, y);
-
-            // if the door/elevator is closer than the last save it off
-            if (diff < near_diff)
-            {
-                near_diff = diff;
-                near_sector = i;
-            }
-        }
-    }
-
-    return near_sector;
-
-}
-
-#endif
-
-short
-FindNextSectorByTag(short sectnum, int tag)
+short FindNextSectorByTag(short sectnum, int tag)
 {
     short next_sectnum, startwall, endwall, j;
 
@@ -813,8 +688,7 @@ FindNextSectorByTag(short sectnum, int tag)
 }
 
 
-int
-SectorDistance(short sect1, int sect2)
+int SectorDistance(short sect1, int sect2)
 {
     short wallnum1, wallnum2;
 
@@ -829,8 +703,7 @@ SectorDistance(short sect1, int sect2)
 }
 
 
-int
-SectorDistanceByMid(short sect1, int sect2)
+int SectorDistanceByMid(short sect1, int sect2)
 {
     int sx1, sy1, sx2, sy2, trash;
 
@@ -841,24 +714,22 @@ SectorDistanceByMid(short sect1, int sect2)
     return Distance(sx1, sy1, sx2, sy2);
 }
 
-short
-DoSpawnActorTrigger(short match)
+short DoSpawnActorTrigger(short match)
 {
-    int i;
     short spawn_count = 0;
     SPRITEp sp;
 
-    StatIterator it(STAT_SPAWN_TRIGGER);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_SPAWN_TRIGGER);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
+        sp = &actor->s();
 
         if (sp->hitag == match)
         {
-            if (ActorSpawn(sp))
+            if (ActorSpawn(actor))
             {
-                DoSpawnTeleporterEffectPlace(sp);
-                PlaySound(DIGI_PLAYER_TELEPORT, sp, v3df_none);
+                DoSpawnTeleporterEffectPlace(actor);
+                PlaySound(DIGI_PLAYER_TELEPORT, actor, v3df_none);
                 spawn_count++;
             }
         }
@@ -867,8 +738,7 @@ DoSpawnActorTrigger(short match)
     return spawn_count;
 }
 
-int
-OperateSector(short sectnum, short player_is_operating)
+int OperateSector(short sectnum, short player_is_operating)
 {
     PLAYERp pp = GlobPlayerP;
 
@@ -876,15 +746,14 @@ OperateSector(short sectnum, short player_is_operating)
     if (!player_is_operating)
     {
         SPRITEp fsp;
-        int i;
 
         if (SectUser[sectnum].Data() && SectUser[sectnum]->stag == SECT_LOCK_DOOR)
             return false;
 
-        SectIterator it(sectnum);
-        while ((i = it.NextIndex()) >= 0)
+        SWSectIterator it(sectnum);
+        while (auto actor = it.Next())
         {
-            fsp = &sprite[i];
+            fsp = &actor->s();
 
             if (SectUser[fsp->sectnum].Data() && SectUser[fsp->sectnum]->stag == SECT_LOCK_DOOR)
                 return false;
@@ -902,7 +771,7 @@ OperateSector(short sectnum, short player_is_operating)
     //CON_Message("Operating sectnum %d",sectnum);
     //CON_Message("stag = %d, lock = %d",SectUser[sectnum]->stag,SECT_LOCK_DOOR);
 
-    switch (LOW_TAG(sectnum))
+    switch (sector[sectnum].lotag)
     {
 
     case TAG_VATOR:
@@ -921,43 +790,37 @@ OperateSector(short sectnum, short player_is_operating)
     return false;
 }
 
-int
+int 
 OperateWall(short wallnum, short player_is_operating)
 {
-    WALLp wallp = &wall[wallnum];
-
-	/*
-    switch (LOW_TAG_WALL(wallnum))
-    {
-    }
-	*/
-
     return false;
 }
 
-short
-AnimateSwitch(SPRITEp sp, short tgt_value)
+enum
 {
-#define SWITCH_LEVER        581
-#define SWITCH_FUSE         558
-#define SWITCH_FLIP         561
-#define SWITCH_RED_CHAIN    563
-#define SWITCH_GREEN_CHAIN  565
-#define SWITCH_TOUCH        567
-#define SWITCH_DRAGON       569
+    SWITCH_LEVER = 581,
+    SWITCH_FUSE = 558,
+    SWITCH_FLIP = 561,
+    SWITCH_RED_CHAIN = 563,
+    SWITCH_GREEN_CHAIN = 565,
+    SWITCH_TOUCH = 567,
+    SWITCH_DRAGON = 569,
 
-#define SWITCH_LIGHT        551
-#define SWITCH_1            575
-#define SWITCH_3            579
+    SWITCH_LIGHT = 551,
+    SWITCH_1 = 575,
+    SWITCH_3 = 579,
 
-#define SWITCH_SHOOTABLE_1  577
-#define SWITCH_4            571
-#define SWITCH_5            573
-#define SWITCH_6            583
-#define EXIT_SWITCH         2470
+    SWITCH_SHOOTABLE_1 = 577,
+    SWITCH_4 = 571,
+    SWITCH_5 = 573,
+    SWITCH_6 = 583,
+    EXIT_SWITCH = 2470,
 
-#define SWITCH_SKULL        553
+    SWITCH_SKULL = 553,
+};
 
+short AnimateSwitch(SPRITEp sp, short tgt_value)
+{
     // if the value is not ON or OFF
     // then it is a straight toggle
 
@@ -982,19 +845,19 @@ AnimateSwitch(SPRITEp sp, short tgt_value)
 
         // dont toggle - return the current state
         if (tgt_value == 999)
-            return OFF;
+            return false;
 
         sp->picnum += 1;
 
         // if the tgt_value should be true
         // flip it again - recursive but only once
-        if (tgt_value == OFF)
+        if (tgt_value == false)
         {
             AnimateSwitch(sp, tgt_value);
-            return OFF;
+            return false;
         }
 
-        return ON;
+        return true;
 
     // set to true
     case SWITCH_SKULL + 1:
@@ -1015,28 +878,26 @@ AnimateSwitch(SPRITEp sp, short tgt_value)
 
         // dont toggle - return the current state
         if (tgt_value == 999)
-            return ON;
+            return true;
 
         sp->picnum -= 1;
 
-        if (tgt_value == ON)
+        if (tgt_value == int(true))
         {
             AnimateSwitch(sp, tgt_value);
-            return ON;
+            return true;
         }
 
-        return OFF;
+        return false;
     }
-    return OFF;
+    return false;
 }
 
 
-void
-SectorExp(short SpriteNum, short sectnum, short orig_ang, int zh)
+void SectorExp(DSWActor* actor, short sectnum, short orig_ang, int zh)
 {
-    SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
-    short explosion;
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
     SPRITEp exp;
     USERp eu;
     int x,y,z;
@@ -1055,15 +916,14 @@ SectorExp(short SpriteNum, short sectnum, short orig_ang, int zh)
     sp->z = zh;
 
     // setup vars needed by SectorExp
-    changespritesect(SpriteNum, sectnum);
-    //setspritez(SpriteNum, &sp->pos);
+    ChangeActorSect(actor, sectnum);
     getzsofslope(sp->sectnum, sp->x, sp->y, &u->hiz, &u->loz);
 
     // spawn explosion
-    explosion = SpawnSectorExp(SpriteNum);
-    ASSERT(explosion >= 0);
-    exp = &sprite[explosion];
-    eu = User[explosion].Data();
+    auto explosion = SpawnSectorExp(actor);
+    if (!explosion) return;
+    exp = &explosion->s();
+    eu = explosion->u();
 
     exp->xrepeat += (RANDOM_P2(32<<8)>>8) - 16;
     exp->yrepeat += (RANDOM_P2(32<<8)>>8) - 16;
@@ -1072,28 +932,25 @@ SectorExp(short SpriteNum, short sectnum, short orig_ang, int zh)
 }
 
 
-void
-DoExplodeSector(short match)
+void DoExplodeSector(short match)
 {
     short orig_ang;
     int zh;
-    int cf;
 
-    SPRITEp esp;
     SECTORp sectp;
 
     orig_ang = 0; //sp->ang;
 
-    StatIterator it(STAT_EXPLODING_CEIL_FLOOR);
-    while ((cf = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_EXPLODING_CEIL_FLOOR);
+    while (auto actor = it.Next())
     {
-        esp = &sprite[cf];
+        auto esp = &actor->s();
 
         if (match != esp->lotag)
             continue;
 
-        if (!User[cf].Data())
-            /*u = */SpawnUser(cf, 0, nullptr);
+        if (!actor->hasU())
+            /*u = */SpawnUser(actor, 0, nullptr);
 
         sectp = &sector[esp->sectnum];
 
@@ -1113,11 +970,11 @@ DoExplodeSector(short match)
 
         for (zh = sectp->ceilingz; zh < sectp->floorz; zh += Z(60))
         {
-            SectorExp(cf, esp->sectnum, orig_ang, zh + Z(RANDOM_P2(64)) - Z(32));
+            SectorExp(actor, esp->sectnum, orig_ang, zh + Z(RANDOM_P2(64)) - Z(32));
         }
 
         // don't need it any more
-        KillSprite(cf);
+        KillActor(actor);
     }
 }
 
@@ -1125,16 +982,15 @@ DoExplodeSector(short match)
 int DoSpawnSpot(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     if ((u->WaitTics -= synctics) < 0)
     {
-        change_sprite_stat(SpriteNum, STAT_SPAWN_SPOT);
-        SpawnShrap(SpriteNum, -1);
+        change_actor_stat(actor, STAT_SPAWN_SPOT);
+        SpawnShrap(actor, nullptr);
 
         if (u->LastDamage == 1)
         {
-            KillSprite(SpriteNum);
+            KillActor(actor);
             return 0;
         }
     }
@@ -1143,29 +999,27 @@ int DoSpawnSpot(DSWActor* actor)
 }
 
 // spawns shrap when killing an object
-void
-DoSpawnSpotsForKill(short match)
+void DoSpawnSpotsForKill(short match)
 {
-    int sn;
     SPRITEp sp;
     USERp u;
 
     if (match < 0)
         return;
 
-    StatIterator it(STAT_SPAWN_SPOT);
-    while ((sn = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_SPAWN_SPOT);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[sn];
+        sp = &actor->s();
 
         // change the stat num and set the delay correctly to call SpawnShrap
         if (sp->hitag == SPAWN_SPOT && sp->lotag == match)
         {
-            u = User[sn].Data();
-            change_sprite_stat(sn, STAT_NO_STATE);
+            u = actor->u();
+            change_actor_stat(actor, STAT_NO_STATE);
             u->ActorActionFunc = DoSpawnSpot;
             u->WaitTics = SP_TAG5(sp) * 15;
-            setspritez(sn, &sp->pos);
+            SetActorZ(actor, &sp->pos);
             // setting for Killed
             u->LastDamage = 1;
         }
@@ -1173,27 +1027,25 @@ DoSpawnSpotsForKill(short match)
 }
 
 // spawns shrap when damaging an object
-void
-DoSpawnSpotsForDamage(short match)
+void DoSpawnSpotsForDamage(short match)
 {
-    int sn;
     SPRITEp sp;
     USERp u;
 
     if (match < 0)
         return;
 
-    StatIterator it(STAT_SPAWN_SPOT);
-    while ((sn = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_SPAWN_SPOT);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[sn];
+        sp = &actor->s();
 
         // change the stat num and set the delay correctly to call SpawnShrap
 
         if (sp->hitag == SPAWN_SPOT && sp->lotag == match)
         {
-            u = User[sn].Data();
-            change_sprite_stat(sn, STAT_NO_STATE);
+            u = actor->u();
+            change_actor_stat(actor, STAT_NO_STATE);
             u->ActorActionFunc = DoSpawnSpot;
             u->WaitTics = SP_TAG7(sp) * 15;
             // setting for Damaged
@@ -1202,10 +1054,8 @@ DoSpawnSpotsForDamage(short match)
     }
 }
 
-void
-DoSoundSpotMatch(short match, short sound_num, short sound_type)
+void DoSoundSpotMatch(short match, short sound_num, short sound_type)
 {
-    int sn;
     SPRITEp sp;
     int flags;
     short snd2play;
@@ -1216,10 +1066,10 @@ DoSoundSpotMatch(short match, short sound_num, short sound_type)
 
     ASSERT(sound_num >= 0);
 
-    StatIterator it(STAT_SOUND_SPOT);
-    while ((sn = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_SOUND_SPOT);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[sn];
+        sp = &actor->s();
 
         if (SP_TAG2(sp) == match && !TEST_BOOL6(sp))
         {
@@ -1269,10 +1119,6 @@ DoSoundSpotMatch(short match, short sound_num, short sound_type)
             {
                 PLAYERp pp = GlobPlayerP;
 
-                ////DSPRINTF(ds,"PlayerSound %d",pp-Player);
-                //MONO_PRINT(ds);
-                //ASSERT(pp >= Player && pp <= Player+numplayers);
-
                 if (pp)
                 {
                     if (pp == Player+myconnectindex)
@@ -1281,44 +1127,36 @@ DoSoundSpotMatch(short match, short sound_num, short sound_type)
             }
             else
             {
-                PlaySound(snd2play, sp, flags);
-
-                //if (TEST(flags, v3df_follow)) // Just set it anyway
-                Set3DSoundOwner(sn);
+                PlaySound(snd2play, actor, flags);
             }
         }
     }
 }
 
-void
-DoSoundSpotStopSound(short match)
+void DoSoundSpotStopSound(short match)
 {
-    int sn;
-    SPRITEp sp;
 
-    StatIterator it(STAT_SOUND_SPOT);
-    while ((sn = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_SOUND_SPOT);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[sn];
+        auto sp = &actor->s();
 
         // found match and is a follow type
         if (SP_TAG2(sp) == match && TEST_BOOL2(sp))
         {
-            DeleteNoSoundOwner(sn);
+            DeleteNoSoundOwner(actor);
         }
     }
 }
 
-void
-DoStopSoundSpotMatch(short match)
+void DoStopSoundSpotMatch(short match)
 {
-    int sn;
     SPRITEp sp;
 
-    StatIterator it(STAT_STOP_SOUND_SPOT);
-    while ((sn = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_STOP_SOUND_SPOT);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[sn];
+        sp = &actor->s();
 
         if (SP_TAG2(sp) == match)
         {
@@ -1343,8 +1181,7 @@ bool TestKillSectorObject(SECTOR_OBJECTp sop)
     return false;
 }
 
-short
-DoSectorObjectKillMatch(short match)
+short DoSectorObjectKillMatch(short match)
 {
     SECTOR_OBJECTp sop;
 
@@ -1361,16 +1198,13 @@ DoSectorObjectKillMatch(short match)
 }
 
 
-bool
-SearchExplodeSectorMatch(short match)
+bool SearchExplodeSectorMatch(short match)
 {
-    int i;
-
     // THIS IS ONLY CALLED FROM DoMatchEverything
-    StatIterator it(STAT_SPRITE_HIT_MATCH);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_SPRITE_HIT_MATCH);
+    while (auto actor = it.Next())
     {
-        SPRITEp sp = &sprite[i];
+        auto sp = &actor->s();
 
         if (sp->hitag == match)
         {
@@ -1383,41 +1217,37 @@ SearchExplodeSectorMatch(short match)
     return false;
 }
 
-void
-KillMatchingCrackSprites(short match)
+void KillMatchingCrackSprites(short match)
 {
-    int i;
     SPRITEp sp;
 
-    StatIterator it(STAT_SPRITE_HIT_MATCH);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_SPRITE_HIT_MATCH);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
+        sp = &actor->s();
 
         if (sp->hitag == match)
         {
             if (TEST(SP_TAG8(sp), BIT(2)))
                 continue;
 
-            KillSprite(i);
+            KillActor(actor);
         }
     }
 }
 
-void
-WeaponExplodeSectorInRange(short weapon)
+void WeaponExplodeSectorInRange(DSWActor* wActor)
 {
-    int i;
-    SPRITEp wp = &sprite[weapon];
-    USERp wu = User[weapon].Data();
+    SPRITEp wp = &wActor->s();
+    USERp wu = wActor->u();
     SPRITEp sp;
     int dist;
     int radius;
 
-    StatIterator it(STAT_SPRITE_HIT_MATCH);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_SPRITE_HIT_MATCH);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
+        sp = &actor->s();
 
         // test to see if explosion is close to crack sprite
         dist = FindDistance3D(wp->x - sp->x, wp->y - sp->y, wp->z - sp->z);
@@ -1433,40 +1263,28 @@ WeaponExplodeSectorInRange(short weapon)
         if (!FAFcansee(wp->x,wp->y,wp->z,wp->sectnum,sp->x,sp->y,sp->z,sp->sectnum))
             continue;
 
-#if 0
-//        short match;
-        match = sp->hitag;
-        // this and every other crack sprite of this type is now dead
-        // don't use them
-        KillMatchingCrackSprites(match);
-        DoExplodeSector(match);
-        DoMatchEverything(nullptr, match, -1);
-#else
-        // pass in explosion type
-        MissileHitMatch(weapon, WPN_ROCKET, i);
-#endif
 
-        return;
+        // pass in explosion type
+        MissileHitMatch(wActor, WPN_ROCKET, actor);
     }
 }
 
 
-void
-ShootableSwitch(short SpriteNum)
+void ShootableSwitch(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
 
     switch (sp->picnum)
     {
     case SWITCH_SHOOTABLE_1:
         //RESET(sp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-        OperateSprite(SpriteNum, false);
+        OperateSprite(actor, false);
         sp->picnum = SWITCH_SHOOTABLE_1 + 1;
         break;
     case SWITCH_FUSE:
     case SWITCH_FUSE + 1:
         RESET(sp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-        OperateSprite(SpriteNum, false);
+        OperateSprite(actor, false);
         sp->picnum = SWITCH_FUSE + 2;
         break;
     }
@@ -1488,36 +1306,35 @@ void DoDeleteSpriteMatch(short match)
     };
 
     int del_x = 0,del_y = 0;
-    int i;
     unsigned stat;
-    short found;
 
     while (true)
     {
-        found = -1;
+        DSWActor* found = nullptr;
 
         // search for a DELETE_SPRITE with same match tag
-        StatIterator it(STAT_DELETE_SPRITE);
-        while ((i = it.NextIndex()) >= 0)
+        SWStatIterator it(STAT_DELETE_SPRITE);
+        while (auto actor = it.Next())
         {
-            if (sprite[i].lotag == match)
+            auto sp = &actor->s();
+            if (sp->lotag == match)
             {
-                found = i;
-                del_x = sprite[i].x;
-                del_y = sprite[i].y;
+                found = actor;
+                del_x = sp->x;
+                del_y = sp->y;
                 break;
             }
         }
 
-        if (found == -1)
+        if (found == nullptr)
             return;
 
         for (stat = 0; stat < SIZ(StatList); stat++)
         {
-            StatIterator it(StatList[stat]);
-            while ((i = it.NextIndex()) >= 0)
+            SWStatIterator it(StatList[stat]);
+            while (auto actor = it.Next())
             {
-                auto sp = &sprite[i];
+                auto sp = &actor->s();
                 if (del_x == sp->x && del_y == sp->y)
                 {
                     // special case lighting delete of Fade On/off after fades
@@ -1526,34 +1343,30 @@ void DoDeleteSpriteMatch(short match)
                         // set shade to darkest and then kill it
                         sp->shade = int8_t(SP_TAG6(sp));
                         sp->pal = 0;
-                        SectorLightShade(&sprite[i], sp->shade);
-                        DiffuseLighting(&sprite[i]);
+                        SectorLightShade(actor, sp->shade);
+                        DiffuseLighting(actor);
                     }
 
-                    ////DSPRINTF(ds,"Delete Sprite stat %d, x %d, y %d",sp->statnum, sp->x, sp->y);
-                    //MONO_PRINT(ds);
-                    SpriteQueueDelete(i);
-                    KillSprite(i);
+                    SpriteQueueDelete(actor);
+                    KillActor(actor);
                 }
             }
         }
 
         // kill the DELETE_SPRITE
-        KillSprite(found);
+        KillActor(found);
     }
 }
 
-void
-DoChangorMatch(short match)
+void DoChangorMatch(short match)
 {
-    int sn;
     SPRITEp sp;
     SECTORp sectp;
 
-    StatIterator it(STAT_CHANGOR);
-    while ((sn = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_CHANGOR);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[sn];
+        auto sp = &actor->s();
         sectp = &sector[sp->sectnum];
 
         if (SP_TAG2(sp) != match)
@@ -1593,7 +1406,7 @@ DoChangorMatch(short match)
         // if not set then go ahead and kill it
         if (TEST_BOOL2(sp) == 0)
         {
-            KillSprite(sn);
+            KillActor(actor);
         }
     }
 }
@@ -1650,14 +1463,12 @@ void DoMatchEverything(PLAYERp pp, short match, short state)
 
 bool ComboSwitchTest(short combo_type, short match)
 {
-    int i;
-    SPRITEp sp;
     int state;
 
-    StatIterator it(STAT_DEFAULT);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_DEFAULT);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
+        auto sp = &actor->s();
 
         if (sp->lotag == combo_type && sp->hitag == match)
         {
@@ -1676,11 +1487,10 @@ bool ComboSwitchTest(short combo_type, short match)
 }
 
 // NOTE: switches are always wall sprites
-int
-OperateSprite(short SpriteNum, short player_is_operating)
+int OperateSprite(DSWActor* actor, short player_is_operating)
 {
-    SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
     PLAYERp pp = nullptr;
     short state;
     short key_num=0;
@@ -1711,8 +1521,6 @@ OperateSprite(short SpriteNum, short player_is_operating)
     case MECHANICGIRL_R0:
     case SAILORGIRL_R0:
     case PRUNEGIRL_R0:
-        //if(RandomRange(1000) < 500) return(true);
-        //if(u->FlagOwner == 0)
     {
         short choose_snd;
 
@@ -1796,9 +1604,9 @@ OperateSprite(short SpriteNum, short player_is_operating)
         // Don't mess with it if it's already going
         if (u->WaitTics > 0) return true;
 
-        PlaySound(DIGI_PFLIP, sp, v3df_none);
+        PlaySound(DIGI_PFLIP, actor, v3df_none);
         u->WaitTics = SEC(3) + SEC(RandomRange(10));
-        ChangeState(SpriteNum,s_Pachinko1Operate);
+        ChangeState(actor,s_Pachinko1Operate);
 
         return true;
 
@@ -1807,9 +1615,9 @@ OperateSprite(short SpriteNum, short player_is_operating)
         // Don't mess with it if it's already going
         if (u->WaitTics > 0) return true;
 
-        PlaySound(DIGI_PFLIP, sp, v3df_none);
+        PlaySound(DIGI_PFLIP, actor, v3df_none);
         u->WaitTics = SEC(3) + SEC(RandomRange(10));
-        ChangeState(SpriteNum,s_Pachinko2Operate);
+        ChangeState(actor,s_Pachinko2Operate);
 
         return true;
 
@@ -1818,9 +1626,9 @@ OperateSprite(short SpriteNum, short player_is_operating)
         // Don't mess with it if it's already going
         if (u->WaitTics > 0) return true;
 
-        PlaySound(DIGI_PFLIP, sp, v3df_none);
+        PlaySound(DIGI_PFLIP, actor, v3df_none);
         u->WaitTics = SEC(3) + SEC(RandomRange(10));
-        ChangeState(SpriteNum,s_Pachinko3Operate);
+        ChangeState(actor,s_Pachinko3Operate);
 
         return true;
 
@@ -1829,9 +1637,9 @@ OperateSprite(short SpriteNum, short player_is_operating)
         // Don't mess with it if it's already going
         if (u->WaitTics > 0) return true;
 
-        PlaySound(DIGI_PFLIP, sp, v3df_none);
+        PlaySound(DIGI_PFLIP, actor, v3df_none);
         u->WaitTics = SEC(3) + SEC(RandomRange(10));
-        ChangeState(SpriteNum,s_Pachinko4Operate);
+        ChangeState(actor,s_Pachinko4Operate);
 
         return true;
 
@@ -1845,7 +1653,7 @@ OperateSprite(short SpriteNum, short player_is_operating)
                 if (SectUser[i].Data() && SectUser[i]->stag == SECT_LOCK_DOOR && SectUser[i]->number == key_num)
                     SectUser[i]->number = 0;  // unlock all doors of this type
             }
-            UnlockKeyLock(key_num, SpriteNum);
+            UnlockKeyLock(key_num, actor);
         }
 
         return true;
@@ -1854,11 +1662,11 @@ OperateSprite(short SpriteNum, short player_is_operating)
 
         // change the switch state
         AnimateSwitch(sp, -1);
-        PlaySound(DIGI_REGULARSWITCH, sp, v3df_none);
+        PlaySound(DIGI_REGULARSWITCH, actor, v3df_none);
 
         if (ComboSwitchTest(TAG_COMBO_SWITCH_EVERYTHING, sp->hitag))
         {
-            DoMatchEverything(pp, sp->hitag, ON);
+            DoMatchEverything(pp, sp->hitag, true);
         }
 
         return true;
@@ -1867,11 +1675,11 @@ OperateSprite(short SpriteNum, short player_is_operating)
 
         // change the switch state
         AnimateSwitch(sp, -1);
-        PlaySound(DIGI_REGULARSWITCH, sp, v3df_none);
+        PlaySound(DIGI_REGULARSWITCH, actor, v3df_none);
 
         if (ComboSwitchTest(TAG_COMBO_SWITCH_EVERYTHING, sp->hitag))
         {
-            DoMatchEverything(pp, sp->hitag, ON);
+            DoMatchEverything(pp, sp->hitag, true);
         }
 
         sp->lotag = 0;
@@ -1919,7 +1727,7 @@ OperateSprite(short SpriteNum, short player_is_operating)
     {
         AnimateSwitch(sp, -1);
 
-        PlaySound(DIGI_BIGSWITCH, sp, v3df_none);
+        PlaySound(DIGI_BIGSWITCH, actor, v3df_none);
 
 		MapRecord *map;
         if (sp->hitag)
@@ -1935,9 +1743,9 @@ OperateSprite(short SpriteNum, short player_is_operating)
     {
         USERp u;
 
-        change_sprite_stat(SpriteNum, STAT_NO_STATE);
+        change_actor_stat(actor, STAT_NO_STATE);
 
-        u = SpawnUser(SpriteNum, 0, nullptr);
+        u = SpawnUser(actor, 0, nullptr);
 
         u->ActorActionFunc = DoGrating;
 
@@ -1968,7 +1776,7 @@ OperateSprite(short SpriteNum, short player_is_operating)
         sp->hitag = 0;
         sp->lotag = 0;
 
-        PlaySound(DIGI_REGULARSWITCH, sp, v3df_none);
+        PlaySound(DIGI_REGULARSWITCH, actor, v3df_none);
         break;
     }
 
@@ -1988,7 +1796,7 @@ OperateSprite(short SpriteNum, short player_is_operating)
 
         sop->ang_tgt = NORM_ANGLE(sop->ang_tgt + 512);
 
-        PlaySound(DIGI_BIGSWITCH, sp, v3df_none);
+        PlaySound(DIGI_BIGSWITCH, actor, v3df_none);
 
         return true;
 
@@ -2001,15 +1809,14 @@ OperateSprite(short SpriteNum, short player_is_operating)
 
 int DoTrapReset(short match)
 {
-    int i;
     SPRITEp sp;
     USERp u;
 
-    StatIterator it(STAT_TRAP);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_TRAP);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
-        u = User[i].Data();
+        sp = &actor->s();
+        u = actor->u();
 
         if (sp->lotag != match)
             continue;
@@ -2031,18 +1838,16 @@ int DoTrapReset(short match)
 
 int DoTrapMatch(short match)
 {
-    int i;
     SPRITEp sp;
     USERp u;
 
     // may need to be reset to fire immediately
 
-    StatIterator it(STAT_TRAP);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_TRAP);
+    while (auto actor = it.Next())
     {
-        auto actor = &swActors[i];
-        sp = &sprite[i];
-        u = User[i].Data();
+        sp = &actor->s();
+        u = actor->u();
 
         if (sp->lotag != match)
             continue;
@@ -2079,7 +1884,7 @@ int DoTrapMatch(short match)
             if (u->WaitTics <= 0)
             {
                 u->WaitTics = 1 * 120;
-                InitSpearTrap(i);
+                InitSpearTrap(actor);
             }
         }
     }
@@ -2087,8 +1892,7 @@ int DoTrapMatch(short match)
 }
 
 
-void
-OperateTripTrigger(PLAYERp pp)
+void OperateTripTrigger(PLAYERp pp)
 {
     if (Prediction)
         return;
@@ -2099,7 +1903,7 @@ OperateTripTrigger(PLAYERp pp)
     SECTORp sectp = &sector[pp->cursectnum];
 
     // old method
-    switch (LOW_TAG(pp->cursectnum))
+    switch (sector[pp->cursectnum].lotag)
     {
     // same tag for sector as for switch
     case TAG_LEVEL_EXIT_SWITCH:
@@ -2170,17 +1974,17 @@ OperateTripTrigger(PLAYERp pp)
 
         dist = sectp->hitag;
 
-        StatIterator it(STAT_ENEMY);
-        while ((i = it.NextIndex()) >= 0)
+        SWStatIterator it(STAT_ENEMY);
+        while (auto actor = it.Next())
         {
-            sp = &sprite[i];
-            u = User[i].Data();
+            sp = &actor->s();
+            u = actor->u();
 
             if (TEST(u->Flags, SPR_WAIT_FOR_TRIGGER))
             {
                 if (Distance(sp->x, sp->y, pp->posx, pp->posy) < dist)
                 {
-                    u->tgt_sp = pp->SpriteP;
+                    u->targetActor = pp->Actor();
                     RESET(u->Flags, SPR_WAIT_FOR_TRIGGER);
                 }
             }
@@ -2224,8 +2028,7 @@ OperateTripTrigger(PLAYERp pp)
     }
 }
 
-void
-OperateContinuousTrigger(PLAYERp pp)
+void OperateContinuousTrigger(PLAYERp pp)
 {
     if (Prediction)
         return;
@@ -2233,7 +2036,7 @@ OperateContinuousTrigger(PLAYERp pp)
     if (pp->cursectnum < 0)
         return;
 
-    switch (LOW_TAG(pp->cursectnum))
+    switch (sector[pp->cursectnum].lotag)
     {
     case TAG_TRIGGER_MISSILE_TRAP:
     {
@@ -2248,7 +2051,7 @@ OperateContinuousTrigger(PLAYERp pp)
 short PlayerTakeSectorDamage(PLAYERp pp)
 {
     SECT_USERp sectu = SectUser[pp->cursectnum].Data();
-    USERp u = User[pp->PlayerSprite].Data();
+    USERp u = pp->Actor()->u();
 
     // the calling routine must make sure sectu exists
     if ((u->DamageTics -= synctics) < 0)
@@ -2256,14 +2059,14 @@ short PlayerTakeSectorDamage(PLAYERp pp)
         u->DamageTics = DAMAGE_TIME;
 
         PlayerUpdateHealth(pp, -sectu->damage);
-        PlayerCheckDeath(pp, -1);
+        PlayerCheckDeath(pp, nullptr);
     }
     return 0;
 }
 
 // Needed in order to see if Player should grunt if he can't find a wall to operate on
 // If player is too far away, don't grunt
-#define PLAYER_SOUNDEVENT_TAG 900
+enum { PLAYER_SOUNDEVENT_TAG = 900 };
 bool NearThings(PLAYERp pp)
 {
     short neartagsect, neartagwall, neartagsprite;
@@ -2311,7 +2114,7 @@ bool NearThings(PLAYERp pp)
     }
     // This only gets called if nothing else worked, check for nearness to a wall
     {
-        hitdata_t hitinfo = { { 0, 0, 0 }, 0, 0, 0 };
+        HITINFO hitinfo;
         short dang = pp->angle.ang.asbuild();
 
         FAFhitscan(pp->posx, pp->posy, pp->posz - Z(30), pp->cursectnum,    // Start position
@@ -2327,7 +2130,7 @@ bool NearThings(PLAYERp pp)
             return false;
 
         // hit a sprite?
-        if (hitinfo.sprite >= 0)
+        if (hitinfo.hitactor != nullptr)
             return false;
 
         if (neartagsect >= 0)
@@ -2356,20 +2159,9 @@ bool NearThings(PLAYERp pp)
 
 }
 
-
-
-
-#if 0  // Move to sector.h file because .def files could not find declaration!
-typedef struct
-{
-    int dist;
-    short sectnum, wallnum, spritenum;
-} NEAR_TAG_INFO, *NEAR_TAG_INFOp;
-#endif
 short nti_cnt;
 
-void
-NearTagList(NEAR_TAG_INFOp ntip, PLAYERp pp, int z, int dist, int type, int count)
+void NearTagList(NEAR_TAG_INFOp ntip, PLAYERp pp, int z, int dist, int type, int count)
 {
     short save_lotag, save_hitag;
     short neartagsector, neartagwall, neartagsprite;
@@ -2389,7 +2181,7 @@ NearTagList(NEAR_TAG_INFOp ntip, PLAYERp pp, int z, int dist, int type, int coun
         ntip->dist = neartaghitdist;
         ntip->sectnum = neartagsector;
         ntip->wallnum = -1;
-        ntip->spritenum = -1;
+        ntip->actor = nullptr;
         nti_cnt++;
         ntip++;
 
@@ -2415,10 +2207,10 @@ NearTagList(NEAR_TAG_INFOp ntip, PLAYERp pp, int z, int dist, int type, int coun
         ntip->dist = neartaghitdist;
         ntip->sectnum = -1;
         ntip->wallnum = neartagwall;
-        ntip->spritenum = -1;
+        ntip->actor = nullptr;
         nti_cnt++;
         ntip++;
-
+        
         if (nti_cnt >= count)
             return;
 
@@ -2434,14 +2226,16 @@ NearTagList(NEAR_TAG_INFOp ntip, PLAYERp pp, int z, int dist, int type, int coun
     }
     else if (neartagsprite >= 0)
     {
+        auto actor = &swActors[neartagsprite];
+        auto sp = &actor->s();
         // save off values
-        save_lotag = sprite[neartagsprite].lotag;
-        save_hitag = sprite[neartagsprite].hitag;
+        save_lotag = sp->lotag;
+        save_hitag = sp->hitag;
 
         ntip->dist = neartaghitdist;
         ntip->sectnum = -1;
         ntip->wallnum = -1;
-        ntip->spritenum = neartagsprite;
+        ntip->actor = actor;
         nti_cnt++;
         ntip++;
 
@@ -2449,21 +2243,21 @@ NearTagList(NEAR_TAG_INFOp ntip, PLAYERp pp, int z, int dist, int type, int coun
             return;
 
         // remove them
-        sprite[neartagsprite].lotag = 0;
-        sprite[neartagsprite].hitag = 0;
+        sp->lotag = 0;
+        sp->hitag = 0;
 
         NearTagList(ntip, pp, z, dist, type, count);
 
         // reset off values
-        sprite[neartagsprite].lotag = save_lotag;
-        sprite[neartagsprite].hitag = save_hitag;
+        sp->lotag = save_lotag;
+        sp->hitag = save_hitag;
     }
     else
     {
         ntip->dist = -1;
         ntip->sectnum = -1;
         ntip->wallnum = -1;
-        ntip->spritenum = -1;
+        ntip->actor = nullptr;
         nti_cnt++;
         ntip++;
 
@@ -2471,8 +2265,7 @@ NearTagList(NEAR_TAG_INFOp ntip, PLAYERp pp, int z, int dist, int type, int coun
     }
 }
 
-void
-BuildNearTagList(NEAR_TAG_INFOp ntip, int size, PLAYERp pp, int z, int dist, int type, int count)
+void BuildNearTagList(NEAR_TAG_INFOp ntip, int size, PLAYERp pp, int z, int dist, int type, int count)
 {
     memset(ntip, -1, size);
     nti_cnt = 0;
@@ -2484,14 +2277,13 @@ int DoPlayerGrabStar(PLAYERp pp)
 {
     SPRITEp sp = nullptr;
     int i;
-    extern short StarQueue[MAX_STAR_QUEUE];
 
     // MUST check exact z's of each star or it will never work
     for (i = 0; i < MAX_STAR_QUEUE; i++)
     {
-        if (StarQueue[i] >= 0)
+        if (StarQueue[i] != nullptr)
         {
-            sp = &sprite[StarQueue[i]];
+            sp = &StarQueue[i]->s();
 
             if (FindDistance3D(sp->x - pp->posx, sp->y - pp->posy, sp->z - pp->posz + Z(12)) < 500)
             {
@@ -2504,9 +2296,9 @@ int DoPlayerGrabStar(PLAYERp pp)
     {
         // Pull a star out of wall and up your ammo
         PlayerUpdateAmmo(pp, WPN_STAR, 1);
-        PlaySound(DIGI_ITEM, sp, v3df_none);
-        KillSprite(StarQueue[i]);
-        StarQueue[i] = -1;
+        PlaySound(DIGI_ITEM, StarQueue[i], v3df_none);
+        KillActor(StarQueue[i]);
+        StarQueue[i] = nullptr;
         if (TEST(pp->WpnFlags, BIT(WPN_STAR)))
             return true;
         SET(pp->WpnFlags, BIT(WPN_STAR));
@@ -2519,16 +2311,12 @@ int DoPlayerGrabStar(PLAYERp pp)
 
 
 
-void
-PlayerOperateEnv(PLAYERp pp)
+void PlayerOperateEnv(PLAYERp pp)
 {
     bool found;
 
-    if (Prediction || !pp->SpriteP)
+    if (Prediction || !pp->Actor())
         return;
-
-    ////DSPRINTF(ds,"dist %d sectnum %d wallnum %d spritenum %d",nti[nt_ndx].dist, nti[nt_ndx].sectnum, nti[nt_ndx].wallnum, nti[nt_ndx].spritenum);
-    //MONO_PRINT(ds);
 
     //
     // Switch & door activations
@@ -2558,9 +2346,9 @@ PlayerOperateEnv(PLAYERp pp)
             // try and find a sprite
             for (nt_ndx = 0; nti[nt_ndx].dist >= 0; nt_ndx++)
             {
-                if (nti[nt_ndx].spritenum >= 0 && nti[nt_ndx].dist < 1024 + 768)
+                if (nti[nt_ndx].actor != nullptr && nti[nt_ndx].dist < 1024 + 768)
                 {
-                    if (OperateSprite(nti[nt_ndx].spritenum, true))
+                    if (OperateSprite(nti[nt_ndx].actor, true))
                     {
                         pp->KeyPressBits &= ~SB_OPEN;
                         found = true;
@@ -2575,10 +2363,10 @@ PlayerOperateEnv(PLAYERp pp)
                 unsigned i;
                 NEAR_TAG_INFO nti[16];
                 short nt_ndx;
+                auto psp = &pp->Actor()->s();
 
-
-                z[0] = pp->SpriteP->z - SPRITEp_SIZE_Z(pp->SpriteP) - Z(10);
-                z[1] = pp->SpriteP->z;
+                z[0] = psp->z - SPRITEp_SIZE_Z(psp) - Z(10);
+                z[1] = psp->z;
                 z[2] = DIV2(z[0] + z[1]);
 
                 for (i = 0; i < SIZ(z); i++)
@@ -2587,9 +2375,9 @@ PlayerOperateEnv(PLAYERp pp)
 
                     for (nt_ndx = 0; nti[nt_ndx].dist >= 0; nt_ndx++)
                     {
-                        if (nti[nt_ndx].spritenum >= 0 && nti[nt_ndx].dist < 1024 + 768)
+                        if (nti[nt_ndx].actor != nullptr && nti[nt_ndx].dist < 1024 + 768)
                         {
-                            if (OperateSprite(nti[nt_ndx].spritenum, true))
+                            if (OperateSprite(nti[nt_ndx].actor, true))
                             {
                                 pp->KeyPressBits &= ~SB_OPEN;
                                 break;
@@ -2629,7 +2417,7 @@ PlayerOperateEnv(PLAYERp pp)
             // Trigger operations
             //
 
-            switch (LOW_TAG(pp->cursectnum))
+			switch (sector[pp->cursectnum].lotag)
             {
             case TAG_VATOR:
                 DoVatorOperate(pp, pp->cursectnum);
@@ -2668,14 +2456,14 @@ PlayerOperateEnv(PLAYERp pp)
         {
             PlayerTakeSectorDamage(pp);
         }
-        else if ((SPRITEp_BOS(pp->SpriteP) >= sectp->floorz) && !TEST(pp->Flags, PF_DIVING))
+        else if ((SPRITEp_BOS(&pp->Actor()->s()) >= sectp->floorz) && !TEST(pp->Flags, PF_DIVING))
         {
             PlayerTakeSectorDamage(pp);
         }
     }
     else
     {
-        USERp u = User[pp->PlayerSprite].Data();
+        USERp u = pp->Actor()->u();
         u->DamageTics = 0;
     }
 
@@ -2707,13 +2495,12 @@ PlayerOperateEnv(PLAYERp pp)
 
 
 
-void
-DoSineWaveFloor(void)
+void DoSineWaveFloor(void)
 {
     SINE_WAVE_FLOOR *swf;
     int newz;
-    short wave;
-    char flags;
+    int wave;
+    int flags;
 
     for (wave = 0; wave < MAX_SINE_WAVE; wave++)
     {
@@ -2772,8 +2559,7 @@ DoSineWaveFloor(void)
 }
 
 
-void
-DoSineWaveWall(void)
+void DoSineWaveWall(void)
 {
     SINE_WALL *sw;
     int New;
@@ -2790,20 +2576,19 @@ DoSineWaveWall(void)
             {
                 New = sw->orig_xy + MulScale(sw->range, bsin(sw->sintable_ndx), 14);
                 // wall[sw->wall].y = New;
-                dragpoint(sw->wall, wall[sw->wall].x, New, 0);
+                dragpoint(sw->wall, wall[sw->wall].x, New);
             }
             else
             {
                 New = sw->orig_xy + MulScale(sw->range, bsin(sw->sintable_ndx), 14);
                 // wall[sw->wall].x = New;
-                dragpoint(sw->wall, New, wall[sw->wall].y, 0);
+                dragpoint(sw->wall, New, wall[sw->wall].y);
             }
         }
     }
 }
 
-void
-DoAnim(int numtics)
+void DoAnim(int numtics)
 {
     int i, animval;
 
@@ -2862,36 +2647,19 @@ DoAnim(int numtics)
     }
 }
 
-void
-AnimClear(void)
+void AnimClear(void)
 {
-#if 1
     AnimCnt = 0;
-#else
-    int i;
-
-    for (i = AnimCnt - 1; i >= 0; i--)
-    {
-        if (Anim[i].extra)
-        {
-            FreeMem(Anim[i].extra);
-            Anim[i].extra = 0;
-        }
-    }
-
-    AnimCnt = 0;
-#endif
 }
 
-short
-AnimGetGoal(int animtype, int animindex)
+short AnimGetGoal(int animtype, int animindex, DSWActor* animactor)
 {
     int i, j;
 
     j = -1;
     for (i = 0; i < AnimCnt; i++)
     {
-        if (animtype == Anim[i].animtype && animindex == Anim[i].index)
+		if (animtype == Anim[i].animtype && animindex == Anim[i].animindex && animactor == Anim[i].animactor )
         {
             j = i;
             break;
@@ -2901,15 +2669,14 @@ AnimGetGoal(int animtype, int animindex)
     return j;
 }
 
-void
-AnimDelete(int animtype, int animindex)
+void AnimDelete(int animtype, int animindex, DSWActor* animactor)
 {
     int i, j;
 
     j = -1;
     for (i = 0; i < AnimCnt; i++)
     {
-        if (animtype == Anim[i].animtype && animindex == Anim[i].index)
+		if (animtype == Anim[i].animtype && animindex == Anim[i].animindex && animactor == Anim[i].animactor )
         {
             j = i;
             break;
@@ -2931,8 +2698,7 @@ AnimDelete(int animtype, int animindex)
 }
 
 
-short
-AnimSet(int animtype, int animindex, fixed_t thegoal, int thevel)
+short AnimSet(int animtype, int animindex, DSWActor* animactor, fixed_t thegoal, int thevel)
 {
     int i, j;
 
@@ -2943,7 +2709,7 @@ AnimSet(int animtype, int animindex, fixed_t thegoal, int thevel)
     // look for existing animation and reset it
     for (i = 0; i < AnimCnt; i++)
     {
-        if (animtype == Anim[i].animtype && animindex == Anim[i].index)
+        if (animtype == Anim[i].animtype && animindex == Anim[i].animindex && animactor == Anim[i].animactor )
         {
             j = i;
             break;
@@ -2951,7 +2717,8 @@ AnimSet(int animtype, int animindex, fixed_t thegoal, int thevel)
     }
 
     Anim[j].animtype = animtype;
-    Anim[j].index = animindex;
+    Anim[j].animindex = animindex;
+	Anim[j].animactor = animactor;
     Anim[j].goal = thegoal;
     Anim[j].vel = Z(thevel);
     Anim[j].vel_adj = 0;
@@ -2964,8 +2731,7 @@ AnimSet(int animtype, int animindex, fixed_t thegoal, int thevel)
     return j;
 }
 
-short
-AnimSetCallback(short anim_ndx, ANIM_CALLBACKp call, SECTOR_OBJECTp data)
+short AnimSetCallback(short anim_ndx, ANIM_CALLBACKp call, SECTOR_OBJECTp data)
 {
     ASSERT(anim_ndx < AnimCnt);
 
@@ -2978,8 +2744,7 @@ AnimSetCallback(short anim_ndx, ANIM_CALLBACKp call, SECTOR_OBJECTp data)
     return anim_ndx;
 }
 
-short
-AnimSetVelAdj(short anim_ndx, short vel_adj)
+short AnimSetVelAdj(short anim_ndx, short vel_adj)
 {
     ASSERT(anim_ndx < AnimCnt);
 
@@ -2992,173 +2757,8 @@ AnimSetVelAdj(short anim_ndx, short vel_adj)
 }
 
 
-void initlava(void)
-{
-#if 0
-    int x, y, z, r;
-    int i;
 
-//char lavabakpic[(LAVASIZ + 2) * (LAVASIZ + 2)], lavainc[LAVASIZ];
-//int lavanumdrops, lavanumframes;
-//int lavadropx[LAVAMAXDROPS], lavadropy[LAVAMAXDROPS];
-//int lavadropsiz[LAVAMAXDROPS], lavadropsizlookup[LAVAMAXDROPS];
-//int lavaradx[32][128], lavarady[32][128], lavaradcnt[32];
-
-
-    UPDATE TO NEW CODE
-
-    static int lavaradx[24][96];
-    static int lavarady[24][96];
-
-    for
-    lavaradcnt[z] = 0;
-
-    for (x = -16; x <= 16; x++)
-        for (y = -16; y <= 16; y++)
-        {
-            // r should only be between 0 and 31
-            // lavaradcnt[r] should be less 127
-            r = ksqrt(x * x + y * y);
-            lavaradx[r][lavaradcnt[r]] = x;
-            lavarady[r][lavaradcnt[r]] = y;
-            // this was causing an overwrite in ElevatorAuto structure
-            lavaradcnt[r]++;
-        }
-
-//      for(z=0;z<16;z++)
-//              lavadropsizlookup[z] = 8 / (ksqrt(z)+1);
-
-    for (z = 0; z < 16; z++)
-    {
-        lavadropsizlookup[z] = 8 / (ksqrt(16 - z) + 1);
-    }
-
-    for (z = 0; z < LAVASIZ; z++)
-    {
-        lavainc[z] = abs((((z ^ 17) >> 4) & 7) - 4) + 12;
-    }
-
-    lavanumdrops = 0;
-    lavanumframes = 0;
-#endif
-}
-
-void movelava(char *dapic)
-{
-#if 0
-//    #define COLOR_OFFSET 192
-#define COLOR_OFFSET LT_BROWN
-
-    char dat, *ptr;
-    int x, y, z, zx, dalavadropsiz, dadropsizlookup;
-    intptr_t offs, offs2;
-    int dalavax, dalavay;
-
-    z = 3;
-    if (lavanumdrops + z >= LAVAMAXDROPS)
-        z = LAVAMAXDROPS - lavanumdrops - 1;
-    while (z >= 0)
-    {
-        lavadropx[lavanumdrops] = (rand() & (LAVASIZ - 1));
-        lavadropy[lavanumdrops] = (rand() & (LAVASIZ - 1));
-        lavadropsiz[lavanumdrops] = 1;
-        lavanumdrops++;
-        z--;
-    }
-
-    z = lavanumdrops - 1;
-    while (z >= 0)
-    {
-        dadropsizlookup = lavadropsizlookup[lavadropsiz[z]] * (((z & 1) << 1) - 1);
-        dalavadropsiz = lavadropsiz[z];
-        dalavax = lavadropx[z];
-        dalavay = lavadropy[z];
-        for (zx = lavaradcnt[lavadropsiz[z]] - 1; zx >= 0; zx--)
-        {
-            offs = (((lavaradx[dalavadropsiz][zx] + dalavax) & (LAVASIZ - 1)) << LAVALOGSIZ);
-            offs += ((lavarady[dalavadropsiz][zx] + dalavay) & (LAVASIZ - 1));
-
-            dapic[offs] += dadropsizlookup;
-
-            if (dapic[offs] < COLOR_OFFSET)
-                dapic[offs] = COLOR_OFFSET;
-        }
-
-        lavadropsiz[z]++;
-        if (lavadropsiz[z] > 10)
-        {
-            lavanumdrops--;
-            lavadropx[z] = lavadropx[lavanumdrops];
-            lavadropy[z] = lavadropy[lavanumdrops];
-            lavadropsiz[z] = lavadropsiz[lavanumdrops];
-        }
-        z--;
-    }
-
-    // Back up dapic with 1 pixel extra on each boundary
-    // (to prevent anding for wrap-around)
-    offs = ((intptr_t) dapic);
-    offs2 = (LAVASIZ + 2) + 1 + ((intptr_t) lavabakpic);
-    for (x = 0; x < LAVASIZ; x++)
-    {
-        memcpy(offs2, offs, LAVASIZ);
-        offs += LAVASIZ;
-        offs2 += LAVASIZ + 2;
-    }
-    for (y = 0; y < LAVASIZ; y++)
-    {
-        lavabakpic[y + 1] = dapic[y + ((LAVASIZ - 1) << LAVALOGSIZ)];
-        lavabakpic[y + 1 + (LAVASIZ + 1) * (LAVASIZ + 2)] = dapic[y];
-    }
-    for (x = 0; x < LAVASIZ; x++)
-    {
-        lavabakpic[(x + 1) * (LAVASIZ + 2)] = dapic[(x << LAVALOGSIZ) + (LAVASIZ - 1)];
-        lavabakpic[(x + 1) * (LAVASIZ + 2) + (LAVASIZ + 1)] = dapic[x << LAVALOGSIZ];
-    }
-    lavabakpic[0] = dapic[LAVASIZ * LAVASIZ - 1];
-    lavabakpic[LAVASIZ + 1] = dapic[LAVASIZ * (LAVASIZ - 1)];
-    lavabakpic[(LAVASIZ + 2) * (LAVASIZ + 1)] = dapic[LAVASIZ - 1];
-    lavabakpic[(LAVASIZ + 2) * (LAVASIZ + 2) - 1] = dapic[0];
-
-    for (z = (LAVASIZ + 2) * (LAVASIZ + 2) - 4; z >= 0; z -= 4)
-    {
-        lavabakpic[z + 0] &= 31;
-        lavabakpic[z + 1] &= 31;
-        lavabakpic[z + 2] &= 31;
-        lavabakpic[z + 3] &= 31;
-    }
-
-    for (x = LAVASIZ - 1; x >= 0; x--)
-    {
-        offs = (x + 1) * (LAVASIZ + 2) + 1;
-        ptr = (char *)((x << LAVALOGSIZ) + (intptr_t) dapic);
-
-        zx = ((x + lavanumframes) & (LAVASIZ - 1));
-
-        offs2 = LAVASIZ - 1;
-        for (y = offs; y < offs + LAVASIZ; y++)
-        {
-            dat = lavainc[(offs2--) & zx];
-
-            dat += lavabakpic[y - (LAVASIZ + 2) - 1];
-            dat += lavabakpic[y - (LAVASIZ + 2)];
-            dat += lavabakpic[y - (LAVASIZ + 2) + 1];
-            dat += lavabakpic[y - 1];
-            dat += lavabakpic[y + 1];
-            dat += lavabakpic[y + (LAVASIZ + 2)];
-            dat += lavabakpic[y + (LAVASIZ + 2) - 1];
-
-            *ptr++ = (dat >> 3) + COLOR_OFFSET;
-        }
-    }
-
-    lavanumframes++;
-#endif
-}
-
-
-void
-DoPanning(void)
+void DoPanning(void)
 {
     int nx, ny;
     int i;
@@ -3166,10 +2766,11 @@ DoPanning(void)
     SECTORp sectp;
     WALLp wallp;
 
-    StatIterator it(STAT_FLOOR_PAN);
-    while ((i = it.NextIndex()) >= 0)
+
+    SWStatIterator it(STAT_FLOOR_PAN);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
+        sp = &actor->s();
         sectp = &sector[sp->sectnum];
 
         nx = MulScale(sp->xvel, bcos(sp->ang), 20);
@@ -3180,9 +2781,9 @@ DoPanning(void)
     }
 
     it.Reset(STAT_CEILING_PAN);
-    while ((i = it.NextIndex()) >= 0)
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
+        sp = &actor->s();
         sectp = &sector[sp->sectnum];
 
         nx = MulScale(sp->xvel, bcos(sp->ang), 20);
@@ -3193,9 +2794,9 @@ DoPanning(void)
     }
 
     it.Reset(STAT_WALL_PAN);
-    while ((i = it.NextIndex()) >= 0)
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
+        sp = &actor->s();
         wallp = &wall[sp->owner];
 
         nx = MulScale(sp->xvel, bcos(sp->ang), 20);
@@ -3207,8 +2808,7 @@ DoPanning(void)
 }
 
 
-void
-DoSector(void)
+void DoSector(void)
 {
     SECTOR_OBJECTp sop;
     bool riding;
@@ -3217,7 +2817,6 @@ DoSector(void)
     int min_dist,dist,a,b,c;
     PLAYERp pp;
 
-#if 1
     for (sop = SectorObject; sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++)
     {
 
@@ -3288,7 +2887,6 @@ DoSector(void)
             }
         }
     }
-#endif
 
     DoPanning();
     DoLighting();
@@ -3297,38 +2895,6 @@ DoSector(void)
     DoSpringBoardDown();
 }
 
-#if 0
-int inside(int x, int y, short sectnum)
-{
-    WALLp wal;
-    int i, x1, y1, x2, y2;
-    char cnt;
-
-    if ((sectnum < 0) || (sectnum >= numsectors))
-        return -1;
-    cnt = 0;
-
-    wal = &wall[sector[sectnum].wallptr];
-    for (i = sector[sectnum].wallnum; i > 0; i--)
-    {
-        y1 = wal->y - y;
-        y2 = wall[wal->point2].y - y;
-        if ((y1 ^ y2) < 0)
-        {
-            x1 = wal->x - x;
-            x2 = wall[wal->point2].x - x;
-
-            if ((x1 ^ x2) < 0)
-                cnt ^= (x1 * y2 < x2 * y1) ^ (y1 < y2);
-            else if (x1 >= 0)
-                cnt ^= 1;
-        }
-        wal++;
-    }
-    return cnt;
-}
-}
-#endif
 
 #include "saveable.h"
 

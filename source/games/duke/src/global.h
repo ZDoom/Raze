@@ -84,21 +84,21 @@ enum animtype_t
 	anim_vertexx,
 	anim_vertexy,
 };
-extern int animatesect[MAXANIMATES];
+extern sectortype* animatesect[MAXANIMATES];
 extern int animatetarget[MAXANIMATES];
 extern int8_t animatetype[MAXANIMATES];
 extern int animategoal[MAXANIMATES];
 extern int animatevel[MAXANIMATES];
 
-extern int clouds[256];
+extern sectortype* clouds[256];
 extern float cloudx;
 extern float cloudy;
 extern int cloudclock;
 
 extern DDukeActor *spriteq[1024];
 extern Cycler cyclers[MAXCYCLERS];
-extern int mirrorsector[64];
-extern int mirrorwall[64];
+extern sectortype* mirrorsector[64];
+extern walltype* mirrorwall[64];
 
 extern int wupass;
 extern int chickenplant;
@@ -120,7 +120,8 @@ extern int geocnt;
 extern short ambientlotag[64];
 extern short ambienthitag[64];
 extern unsigned ambientfx;
-extern int msx[MAXANIMPOINTS], msy[MAXANIMPOINTS];
+extern int msx[MAXANIMPOINTS], msy[MAXANIMPOINTS]; // todo: unlimit
+extern TArray<CraneDef> cranes;
 extern int WindTime, WindDir;
 extern short fakebubba_spawn, mamaspawn_count, banjosound;
 extern short BellTime;

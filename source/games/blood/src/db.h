@@ -200,8 +200,10 @@ struct XSECTOR {
     uint16_t panAngle;         // Motion angle
     uint16_t busyTimeB;        // ON->OFF busyTime
     uint16_t waitTimeB;        // ON->OFF waitTime
-    uint16_t marker0;
-    uint16_t marker1;
+    DBloodActor* marker0;
+    DBloodActor* marker1;
+    DBloodActor* basePath;
+    DBloodActor* actordata;
     uint16_t windAng;          // Wind ang
     uint16_t bobTheta;         // Motion Theta
     int16_t bobSpeed;           // Motion speed
@@ -262,23 +264,23 @@ struct XWALL {
 
 struct MAPSIGNATURE {
     char signature[4];
-    short version;
+    int16_t version;
 };
 
 struct MAPHEADER  {
-    int x; // x
-    int y; // y
-    int z; // z
-    short ang; // ang
-    short sect; // sect
-    short pskybits; // pskybits
-    int visibility; // visibility
-    int mattid; // song id, Matt
-    char parallax; // parallaxtype
-    int revision; // map revision
-    short numsectors; // numsectors
-    short numwalls; // numwalls
-    short numsprites; // numsprites
+    int32_t x; // x
+    int32_t y; // y
+    int32_t z; // z
+    int16_t ang; // ang
+    int16_t sect; // sect
+    int16_t pskybits; // pskybits
+    int32_t visibility; // visibility
+    int32_t mattid; // song id, Matt
+    uint8_t parallax; // parallaxtype
+    int32_t revision; // map revision
+    int16_t numsectors; // numsectors
+    int16_t numwalls; // numwalls
+    int16_t numsprites; // numsprites
 };
 
 struct MAPHEADER2 {
@@ -286,7 +288,7 @@ struct MAPHEADER2 {
     int numxsprites; // xsprite size
     int numxwalls; // xwall size
     int numxsectors; // xsector size
-    char pad[52];
+    uint8_t pad[52];
 };
 
 #pragma pack(pop)
@@ -303,9 +305,7 @@ extern XWALL xwall[kMaxXWalls];
 extern FixedBitArray<MAXSPRITES> activeXSprites;
 
 
-extern char qsector_filler[kMaxSectors];
-
-extern int xvel[kMaxSprites], yvel[kMaxSprites], zvel[kMaxSprites];
+extern uint8_t qsector_filler[kMaxSectors];
 
 extern int gVisibility;
 extern int gMapRev, gMattId, gSkyCount;
@@ -354,13 +354,10 @@ void InsertSpriteStat(int nSprite, int nStat);
 void RemoveSpriteStat(int nSprite);
 void qinitspritelists(void);
 int InsertSprite(int nSector, int nStat);
-int qinsertsprite(short nSector, short nStat);
 int DeleteSprite(int nSprite);
-int qdeletesprite(short nSprite);
 int ChangeSpriteSect(int nSprite, int nSector);
 int qchangespritesect(short nSprite, short nSector);
 int ChangeSpriteStat(int nSprite, int nStatus);
-int qchangespritestat(short nSprite, short nStatus);
 void InitFreeList(unsigned short *pList, int nCount);
 void InitFreeList(unsigned short* pList, int nCount, FixedBitArray<MAXSPRITES>& activeXSprites);
 void InsertFree(unsigned short *pList, int nIndex);
@@ -371,6 +368,14 @@ unsigned short dbInsertXSector(int nSector);
 void dbInit(void);
 void PropagateMarkerReferences(void);
 unsigned int dbReadMapCRC(const char *pPath);
-void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short *pSector, unsigned int *pCRC);
+void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, int *pSector, unsigned int *pCRC);
 
+inline XSECTOR* getxsector(int index)
+{
+    return index <= 0? nullptr : &xsector[sector[index].extra];
+}
+inline XWALL* getxwall(int index)
+{
+    return index <= 0 ? nullptr : &xwall[sector[index].extra];
+}
 END_BLD_NS

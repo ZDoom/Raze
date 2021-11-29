@@ -136,10 +136,10 @@ DoSOevent(short match, short state)
                 }
             }
 
-            if (sop->match_event_sprite == -1)
+            if (sop->match_event_actor == nullptr)
                 continue;
 
-            me_sp = &sprite[sop->match_event_sprite];
+            me_sp = &sop->match_event_actor->s();
 
             // toggle
             if (state == -1)
@@ -349,7 +349,7 @@ MorphTornado(SECTOR_OBJECTp sop)
         sop->morph_ang = RANDOM_P2(2048);
 
     // move it x,y
-    dragpoint(sop->morph_wall_point, mx, my, 0);
+    dragpoint(sop->morph_wall_point, mx, my);
 
     // bound the Z
     ceilingz = sector[sop->op_main_sector].ceilingz;
@@ -357,8 +357,8 @@ MorphTornado(SECTOR_OBJECTp sop)
 
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
     {
-        if (SectUser[*sectp - sector].Data() &&
-            TEST(SectUser[*sectp - sector]->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT))
+        if (SectUser[sectnum(*sectp)].Data() &&
+            TEST(SectUser[sectnum(*sectp)]->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT))
         {
 #define TOR_LOW (floorz)
             if (sop->morph_z > TOR_LOW)
@@ -372,7 +372,7 @@ MorphTornado(SECTOR_OBJECTp sop)
                 sop->morph_z = ceilingz;
             }
 
-            alignceilslope(int16_t(*sectp - sector), mx, my, sop->morph_z);
+            alignceilslope(sectnum(*sectp), mx, my, sop->morph_z);
         }
     }
 }
@@ -428,7 +428,7 @@ MorphFloor(SECTOR_OBJECTp sop)
         sop->morph_ang = RANDOM_P2(2048);
 
     // move x,y point "just like in build"
-    dragpoint(sop->morph_wall_point, mx, my, 0);
+    dragpoint(sop->morph_wall_point, mx, my);
 
     // bound the Z
     floorz = sector[sop->op_main_sector].floorz;
@@ -450,10 +450,10 @@ MorphFloor(SECTOR_OBJECTp sop)
 
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
     {
-        if (SectUser[*sectp - sector].Data() &&
-            TEST(SectUser[*sectp - sector]->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT))
+        if (SectUser[sectnum(*sectp)].Data() &&
+            TEST(SectUser[sectnum(*sectp)]->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT))
         {
-            alignflorslope(int16_t(*sectp - sector), mx, my, floorz + sop->morph_z);
+            alignflorslope(sectnum(*sectp), mx, my, floorz + sop->morph_z);
         }
     }
 }
@@ -466,10 +466,10 @@ SOBJ_AlignFloorToPoint(SECTOR_OBJECTp sop, int x, int y, int z)
 
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
     {
-        if (SectUser[*sectp - sector].Data() &&
-            TEST(SectUser[*sectp - sector]->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT))
+        if (SectUser[sectnum(*sectp)].Data() &&
+            TEST(SectUser[sectnum(*sectp)]->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT))
         {
-            alignflorslope(int16_t(*sectp - sector), x, y, z);
+            alignflorslope(int16_t(sectnum(*sectp)), x, y, z);
         }
     }
 }
@@ -482,10 +482,10 @@ SOBJ_AlignCeilingToPoint(SECTOR_OBJECTp sop, int x, int y, int z)
 
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
     {
-        if (SectUser[*sectp - sector].Data() &&
-            TEST(SectUser[*sectp - sector]->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT))
+        if (SectUser[sectnum(*sectp)].Data() &&
+            TEST(SectUser[sectnum(*sectp)]->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT))
         {
-            alignceilslope(int16_t(*sectp - sector), x, y, z);
+            alignceilslope(int16_t(sectnum(*sectp)), x, y, z);
         }
     }
 }
@@ -498,11 +498,11 @@ SOBJ_AlignFloorCeilingToPoint(SECTOR_OBJECTp sop, int x, int y, int z)
 
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
     {
-        if (SectUser[*sectp - sector].Data() &&
-            TEST(SectUser[*sectp - sector]->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT))
+        if (SectUser[sectnum(*sectp)].Data() &&
+            TEST(SectUser[sectnum(*sectp)]->flags, SECTFU_SO_SLOPE_CEILING_TO_POINT))
         {
-            alignflorslope(int16_t(*sectp - sector), x, y, z);
-            alignceilslope(int16_t(*sectp - sector), x, y, z);
+            alignflorslope(sectnum(*sectp), x, y, z);
+            alignceilslope(sectnum(*sectp), x, y, z);
         }
     }
 }

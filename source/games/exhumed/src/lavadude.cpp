@@ -104,7 +104,7 @@ void AILavaDudeLimb::Draw(RunListEvent* ev)
 }
 
 
-void BuildLava(DExhumedActor* pActor, int x, int y, int, int nSector, short nAngle, int nChannel)
+void BuildLava(DExhumedActor* pActor, int x, int y, int, int nSector, int nAngle, int nChannel)
 {
     spritetype* pSprite;
     if (pActor == nullptr)
@@ -238,7 +238,7 @@ void AILavaDude::Tick(RunListEvent* ev)
 
     short nFlag = FrameFlag[SeqBase[nSeq] + var_38];
 
-    int var_1C;
+    int var_1C = 0;
 
     if (nAction)
     {

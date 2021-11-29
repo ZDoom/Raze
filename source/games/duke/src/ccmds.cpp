@@ -43,7 +43,8 @@ int getlabelvalue(const char* text);
 static int ccmd_spawn(CCmdFuncPtr parm)
 {
 	int x = 0, y = 0, z = 0;
-	unsigned int cstat = 0, picnum = 0;
+	unsigned int cstat = 0;
+	int picnum = 0;
 	unsigned int pal = 0;
 	int ang = 0;
 	int set = 0;
@@ -61,12 +62,16 @@ static int ccmd_spawn(CCmdFuncPtr parm)
 		y = atol(parm->parms[5]);
 		z = atol(parm->parms[6]);
 		set |= 8;
+		[[fallthrough]];
 	case 4: // ang
 		ang = atol(parm->parms[3]) & 2047; set |= 4;
+		[[fallthrough]];
 	case 3: // cstat
 		cstat = (unsigned short)atol(parm->parms[2]); set |= 2;
+		[[fallthrough]];
 	case 2: // pal
 		pal = (uint8_t)atol(parm->parms[1]); set |= 1;
+		[[fallthrough]];
 	case 1: // tile number
 		if (isdigit(parm->parms[0][0])) {
 			picnum = (unsigned short)atol(parm->parms[0]);
@@ -89,14 +94,17 @@ static int ccmd_spawn(CCmdFuncPtr parm)
 	}
 
 	auto spawned = spawn(ps[myconnectindex].GetActor(), picnum);
-	if (set & 1) spawned->s->pal = (uint8_t)pal;
-	if (set & 2) spawned->s->cstat = (uint16_t)cstat;
-	if (set & 4) spawned->s->ang = ang;
-	if (set & 8) {
-		if (setsprite(spawned, x, y, z) < 0) 
-		{
-			Printf("spawn: Sprite can't be spawned into null space\n");
-			deletesprite(spawned);
+	if (spawned)
+	{
+		if (set & 1) spawned->s->pal = (uint8_t)pal;
+		if (set & 2) spawned->s->cstat = (uint16_t)cstat;
+		if (set & 4) spawned->s->ang = ang;
+		if (set & 8) {
+			if (setsprite(spawned, x, y, z) < 0)
+			{
+				Printf("spawn: Sprite can't be spawned into null space\n");
+				deletesprite(spawned);
+			}
 		}
 	}
 
@@ -111,15 +119,15 @@ void GameInterface::WarpToCoords(int x, int y, int z, int ang, int horz)
 	p->oposy = p->pos.y = y;
 	p->oposz = p->pos.z = z;
 
-    if (ang != INT_MIN)
-    {
-        p->angle.oang = p->angle.ang = buildang(ang);
-    }
+	if (ang != INT_MIN)
+	{
+		p->angle.oang = p->angle.ang = buildang(ang);
+	}
 
-    if (horz != INT_MIN)
-    {
-        p->horizon.ohoriz = p->horizon.horiz = buildhoriz(horz);
-    }
+	if (horz != INT_MIN)
+	{
+		p->horizon.ohoriz = p->horizon.horiz = buildhoriz(horz);
+	}
 }
 
 void GameInterface::ToggleThirdPerson()

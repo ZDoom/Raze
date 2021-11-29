@@ -281,7 +281,7 @@ void hud_input(int plnum)
 							p->inven_icon = 3;
 
 							auto pactor =
-								EGS(p->cursectnum,
+								EGS(p->cursector(),
 									p->pos.x,
 									p->pos.y,
 									p->pos.z + (30 << 8), TILE_APLAYER, -64, 0, 0, p->angle.ang.asbuild(), 0, 0, nullptr, 10);
@@ -649,8 +649,8 @@ static double boatApplyTurn(player_struct *p, ControlInfo* const hidInput, bool 
 	{
 		if (kbdLeft || kbdRight || p->moto_drink || hidInput->mouseturnx || hidInput->dyaw)
 		{
-			double const velScale = 6. / 19.;
-			auto const baseVel = !p->NotOnWater ? VEHICLETURN : +VEHICLETURN * velScale;
+			double const velScale = !p->NotOnWater? 1. : 6. / 19.;
+			auto const baseVel = +VEHICLETURN * velScale;
 
 			if (kbdLeft || p->moto_drink < 0 || hidInput->mouseturnx < 0 || hidInput->dyaw < 0)
 			{
@@ -797,7 +797,7 @@ static void FinalizeInput(player_struct *p, InputPacket& input)
 //
 //---------------------------------------------------------------------------
 
-void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
+void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdjust, InputPacket* packet)
 {
 	if (paused || gamestate != GS_LEVEL)
 	{
@@ -806,13 +806,11 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
 	}
 
 	auto const p = &ps[myconnectindex];
-	bool const rrraVehicle = isRRRA() && (p->OnMotorcycle || p->OnBoat);
-	double const scaleAdjust = InputScale();
 	InputPacket input{};
 
 	processInputBits(p, hidInput);
 
-	if (rrraVehicle)
+	if (isRRRA() && (p->OnMotorcycle || p->OnBoat))
 	{
 		processVehicleInput(p, hidInput, input, scaleAdjust);
 	}

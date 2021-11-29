@@ -422,7 +422,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, AISTATE*& w, AISTA
 		}
 		else if (i >= 1000 && i < 1000 + kPatrolStateSize)
 		{
-			w = genPatrolStates + i;
+			w = genPatrolStates + (i - 1000);
 		}
 		else
 		{
@@ -441,7 +441,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, AISTATE*& w, AISTA
 FSerializer& Serialize(FSerializer& arc, const char* keyname, DUDEEXTRA& w, DUDEEXTRA* def)
 {
 	int empty = 0;
-	char empty2 = 0;
+	uint8_t empty2 = 0;
 	if (arc.isReading()) w = {};
 
 	if (arc.BeginObject(keyname))
@@ -478,16 +478,34 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, DBloodActor& w, DB
 
 	if (arc.BeginObject(keyname))
 	{
+#ifndef OLD_SAVEGAME
+		arc("xvel", w.xvel, def->xvel)
+			("yvel", w.yvel, def->yvel)
+			("zvel", w.zvel, def->zvel);
+#endif
+
 		// The rest is only relevant if the actor has an xsprite.
 		if (w.hasX())
 		{
 			arc("dudeslope", w.dudeSlope, def->dudeSlope)
-				("dudeextra", w.dudeExtra, def->dudeExtra);
+				("dudeextra", w.dudeExtra, def->dudeExtra)
+				("explosionflag", w.explosionhackflag, def->explosionhackflag)
+				("spritehit", w.hit, def->hit);
+#ifndef OLD_SAVEGAME
+			arc("basepoint", w.basePoint, def->basePoint);
+#endif
 
 			if (gModernMap)
 			{
+				arc("spritemass", w.spriteMass, def->spriteMass); // no treatment for old savegames. If this gets lost it is not critical
 #ifndef OLD_SAVEGAME
-				arc("spritemass", w.spriteMass, def->spriteMass);
+					("prevmarker", w.prevmarker, def->prevmarker);
+
+				// GenDudeExtra only contains valid info for kDudeModernCustom and kDudeModernCustomBurning so only save when needed as these are not small.
+				if (w.s().type == kDudeModernCustom || w.s().time == kDudeModernCustomBurning)
+				{
+					arc("gendudeextra", w.genDudeExtra);
+				}
 #endif
 			}
 		}
@@ -553,6 +571,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, XSECTOR& w, XSECTO
 			("panangle", w.panAngle, def->panAngle)
 			("marker0", w.marker0, def->marker0)
 			("marker1", w.marker1, def->marker1)
+			("basepath", w.basePath, def->basePath)
+			("actordata", w.actordata, def->actordata)
 			("windang", w.windAng, def->windAng)
 			("bobtheta", w.bobTheta, def->bobTheta)
 			("bobspeed", w.bobSpeed, def->bobSpeed)
@@ -681,7 +701,6 @@ void SerializeState(FSerializer& arc)
 			("frameclock", PlayClock)
 			("framecount", gFrameCount)
 			.Array("basewall", baseWall, numwalls)
-			.SparseArray("basesprite", baseSprite, kMaxSprites, activeSprites)
 			.Array("basefloor", baseFloor, numsectors)
 			.Array("baseceil", baseCeil, numsectors)
 			.Array("velfloor", velFloor, numsectors)
@@ -705,12 +724,32 @@ void SerializeState(FSerializer& arc)
 
 			.Array("xwall", xwall, XWallsUsed)  // todo
 			.Array("xsector", xsector, XSectorsUsed)
-			.SparseArray("xsprite", xsprite, kMaxXSprites, activeXSprites)
+			.SparseArray("actors", bloodActors, kMaxSprites, activeSprites)
+			.SparseArray("xsprite", xsprite, kMaxXSprites, activeXSprites);
+
+#ifdef OLD_SAVEGAME
+		POINT3D baseSprite[kMaxSprites];
+		int xvel[kMaxSprites], yvel[kMaxSprites], zvel[kMaxSprites];
+		for (int i = 0; i < kMaxSprites; i++)
+		{
+			baseSprite[i] = bloodActors[i].basePoint;
+			xvel[i] = bloodActors[i].xvel;
+			yvel[i] = bloodActors[i].yvel;
+			zvel[i] = bloodActors[i].zvel;
+		}
+		arc.SparseArray("basesprite", baseSprite, kMaxSprites, activeSprites)
 			.SparseArray("xvel", xvel, kMaxSprites, activeSprites)
 			.SparseArray("yvel", yvel, kMaxSprites, activeSprites)
-			.SparseArray("zvel", zvel, kMaxSprites, activeSprites)
-			.SparseArray("actors", bloodActors, kMaxSprites, activeSprites)
-			.EndObject();
+			.SparseArray("zvel", zvel, kMaxSprites, activeSprites);
+		if (arc.isReading()) for (int i = 0; i < kMaxSprites; i++) if (activeSprites[i])
+		{
+			bloodActors[i].basePoint = baseSprite[i];
+			bloodActors[i].xvel = xvel[i];
+			bloodActors[i].yvel = yvel[i];
+			bloodActors[i].zvel = zvel[i];
+		}
+#endif
+		arc.EndObject();
 	}
 }
 

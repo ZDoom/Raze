@@ -177,7 +177,7 @@ int testquadinsect(int *point_num, vec2_t const * q, short sectnum)
 
     for (i=0; i<4; i++)
     {
-        next_i = MOD4(i+1);
+        next_i = (i+1) & 3;
         if (!cansee(q[i].x, q[i].y,0x3fffffff, sectnum,
                     q[next_i].x, q[next_i].y,0x3fffffff, sectnum))
         {

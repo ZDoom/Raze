@@ -24,8 +24,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamestruct.h"
 #include "intvec.h"
 
-TArray<int> GlobalSectorList; //This is a shared list. Every client must leave it in the same state as it was when it started.
-
 //---------------------------------------------------------------------------
 //
 // Unified chasecam function for all games.

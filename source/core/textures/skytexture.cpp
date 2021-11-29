@@ -72,6 +72,7 @@ FGameTexture* GetSkyTexture(int basetile, int lognumtiles, const int16_t *tilema
 		build[i].Translation = GPalette.GetTranslation(GetTranslationType(remap), GetTranslationIndex(remap));
 	}
 	auto tt = MakeGameTexture(new FImageTexture(new FMultiPatchTexture(tilewidth*numtiles, tileHeight(basetile), build, false, false)), synthname, ETextureType::Override);
+	tt->SetUpscaleFlag(tileGetTexture(basetile)->GetUpscaleFlag(), true);
 	TexMan.AddGameTexture(tt, true);
 	return tt;
 }

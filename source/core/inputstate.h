@@ -104,9 +104,7 @@ enum GameFunction_t
 void SetupGameButtons();
 void ApplyGlobalInput(InputPacket& input, ControlInfo* const hidInput, bool const crouchable = true, bool const disableToggle = false);
 extern ESyncBits ActionsToSend;
-double InputScale();
 extern bool gamesetinput;
-extern double InputScalePercentage;
 
 inline bool SyncInput()
 {
@@ -127,14 +125,3 @@ inline void resetForcedSyncInput()
 {
 	gamesetinput = false;
 }
-
-inline bool specialKeyEvent(event_t* ev)
-{
-	if (ev->type == EV_KeyDown || ev->type == EV_KeyUp)
-	{
-		int key = ev->data1;
-		if (key == KEY_VOLUMEDOWN || key == KEY_VOLUMEUP || (key > KEY_LASTJOYBUTTON && key < KEY_PAD_LTHUMB_RIGHT)) return true;
-	}
-	return false;
-}
-

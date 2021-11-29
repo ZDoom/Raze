@@ -38,7 +38,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-short Bunny_Count = 0;
+int Bunny_Count = 0;
 ANIMATOR DoActorMoveJump;
 ANIMATOR DoBunnyMoveJump;
 ANIMATOR DoBunnyQuickJump;
@@ -722,37 +722,28 @@ ACTOR_ACTION_SET BunnyWhiteActionSet =
     nullptr
 };
 
-int
-SetupBunny(short SpriteNum)
+int SetupBunny(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum].Data();
+        u = actor->u();
         ASSERT(u);
     }
     else
     {
-        u = SpawnUser(SpriteNum, BUNNY_RUN_R0, s_BunnyRun[0]);
+        u = SpawnUser(actor, BUNNY_RUN_R0, s_BunnyRun[0]);
         u->Health = 10;
     }
 
     Bunny_Count++;
-    //if(Bunny_Count > 20)
-    //    {
-    //    KillSprite(SpriteNum);
-    //    Bunny_Count--;
-    //    return(0);
-    //    }
 
-    ChangeState(SpriteNum, s_BunnyRun[0]);
+    ChangeState(actor, s_BunnyRun[0]);
     u->StateEnd = s_BunnyDie;
     u->Rot = sg_BunnyRun;
-    //sp->xrepeat = 64;
-    //sp->yrepeat = 64;
     u->ShellNum = 0; // Not Pregnant right now
     u->FlagOwner = 0;
 
@@ -760,7 +751,7 @@ SetupBunny(short SpriteNum)
 
     if (sp->pal == PALETTE_PLAYER1)
     {
-        EnemyDefaults(SpriteNum, &BunnyWhiteActionSet, &WhiteBunnyPersonality);
+        EnemyDefaults(actor, &BunnyWhiteActionSet, &WhiteBunnyPersonality);
         u->Attrib = &WhiteBunnyAttrib;
         sp->xrepeat = 96;
         sp->yrepeat = 90;
@@ -772,7 +763,7 @@ SetupBunny(short SpriteNum)
     }
     else if (sp->pal == PALETTE_PLAYER8) // Male Rabbit
     {
-        EnemyDefaults(SpriteNum, &BunnyActionSet, &BunnyPersonality);
+        EnemyDefaults(actor, &BunnyActionSet, &BunnyPersonality);
         u->Attrib = &BunnyAttrib;
         //sp->xrepeat = 76;
         //sp->yrepeat = 70;
@@ -785,14 +776,14 @@ SetupBunny(short SpriteNum)
     else
     {
         // Female Rabbit
-        EnemyDefaults(SpriteNum, &BunnyActionSet, &BunnyPersonality);
+        EnemyDefaults(actor, &BunnyActionSet, &BunnyPersonality);
         u->Attrib = &BunnyAttrib;
         u->spal = sp->pal = PALETTE_PLAYER0;
         u->Flag1 = SEC(5);
         //sp->shade = 0; // darker
     }
 
-    DoActorSetSpeed(SpriteNum, FAST_SPEED);
+    DoActorSetSpeed(actor, FAST_SPEED);
 
     SET(u->Flags, SPR_XFLIP_TOGGLE);
 
@@ -805,8 +796,7 @@ SetupBunny(short SpriteNum)
     return 0;
 }
 
-int
-GetBunnyJumpHeight(int jump_speed, int jump_grav)
+int GetBunnyJumpHeight(int jump_speed, int jump_grav)
 {
     int jump_iterations;
     int height;
@@ -822,10 +812,9 @@ GetBunnyJumpHeight(int jump_speed, int jump_grav)
     return DIV2(height);
 }
 
-int
-PickBunnyJumpSpeed(short SpriteNum, int pix_height)
+int PickBunnyJumpSpeed(DSWActor* actor, int pix_height)
 {
-    USERp u = User[SpriteNum].Data();
+    USERp u = actor->u();
 
     ASSERT(pix_height < 128);
 
@@ -849,27 +838,27 @@ PickBunnyJumpSpeed(short SpriteNum, int pix_height)
 // JUMP ATTACK
 //
 
-int
-DoBunnyBeginJumpAttack(DSWActor* actor)
+int DoBunnyBeginJumpAttack(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
-    SPRITEp psp = User[SpriteNum]->tgt_sp;
+    SPRITEp sp = &actor->s();
+    SPRITEp psp = &u->targetActor->s();
     short tang;
 
     tang = getangle(psp->x - sp->x, psp->y - sp->y);
 
-    if (move_sprite(SpriteNum, bcos(tang, -7), bsin(tang, -7),
-                    0L, u->ceiling_dist, u->floor_dist, CLIPMASK_ACTOR, ACTORMOVETICS))
+    Collision coll = move_sprite(actor, bcos(tang, -7), bsin(tang, -7),
+        0L, u->ceiling_dist, u->floor_dist, CLIPMASK_ACTOR, ACTORMOVETICS);
+
+    if (coll.type != kHitNone)
         sp->ang = NORM_ANGLE(sp->ang + 1024) + (RANDOM_NEG(256, 6) >> 6);
     else
         sp->ang = NORM_ANGLE(tang + (RANDOM_NEG(256, 6) >> 6));
 
-    DoActorSetSpeed(SpriteNum, FAST_SPEED);
+    DoActorSetSpeed(actor, FAST_SPEED);
 
     //u->jump_speed = -800;
-    PickJumpMaxSpeed(SpriteNum, -400); // was -800
+    PickJumpMaxSpeed(actor, -400); // was -800
 
     SET(u->Flags, SPR_JUMPING);
     RESET(u->Flags, SPR_FALLING);
@@ -878,18 +867,17 @@ DoBunnyBeginJumpAttack(DSWActor* actor)
     u->jump_grav = 17; // was 8
 
     // if I didn't do this here they get stuck in the air sometimes
-    DoActorZrange(SpriteNum);
+    DoActorZrange(actor);
 
-    DoJump(SpriteNum);
+    DoJump(actor);
 
     return 0;
 }
 
-int
-DoBunnyMoveJump(DSWActor* actor)
+int DoBunnyMoveJump(DSWActor* actor)
 {
     USER* u = actor->u();
-    SPRITEp sp = u->s();
+    SPRITEp sp = &actor->s();
 
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
@@ -899,7 +887,7 @@ DoBunnyMoveJump(DSWActor* actor)
         nx = MulScale(sp->xvel, bcos(sp->ang), 14);
         ny = MulScale(sp->xvel, bsin(sp->ang), 14);
 
-        move_actor(u->SpriteNum, nx, ny, 0L);
+        move_actor(actor, nx, ny, 0L);
 
         if (TEST(u->Flags, SPR_JUMPING))
             DoActorJump(actor);
@@ -907,37 +895,31 @@ DoBunnyMoveJump(DSWActor* actor)
             DoActorFall(actor);
     }
 
-    DoActorZrange(u->SpriteNum);
+    DoActorZrange(actor);
 
     if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
-//        if (DoBunnyQuickJump(SpriteNum))
-//            return (0);
-
         InitActorDecide(actor);
     }
 
     return 0;
 }
 
-int
-DoPickCloseBunny(USERp u)
+void DoPickCloseBunny(DSWActor* actor)
 {
-	USERp tu;
-    SPRITEp sp = u->s(),tsp;
+    auto u = actor->u();
+    SPRITEp sp = &actor->s();
     int dist, near_dist = 1000, a,b,c;
-    int i;
-    //short BunnyCount=0, Bunny_Result = -1;
 
     // if actor can still see the player
     int look_height = SPRITEp_TOS(sp);
     bool ICanSee = false;
 
-    StatIterator it(STAT_ENEMY);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_ENEMY);
+    while (auto itActor = it.Next())
     {
-        tsp = &sprite[i];
-        tu = User[i].Data();
+        auto tsp = &itActor->s();
+        auto tu = itActor->u();
 
         if (sp == tsp) continue;
 
@@ -952,32 +934,30 @@ DoPickCloseBunny(USERp u)
         if (ICanSee && dist < near_dist && tu->ID == BUNNY_RUN_R0)
         {
             near_dist = dist;
-            u->tgt_sp = u->lo_sp = tsp;
+            u->targetActor = itActor;
+            u->lowActor = itActor;
             //Bunny_Result = i;
-            return i;
+            return;
         }
     }
-    return -1;
 }
 
-int
-DoBunnyQuickJump(DSWActor* actor)
+int DoBunnyQuickJump(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
 
     if (u->spal != PALETTE_PLAYER8) return false;
 
-    if (!u->lo_sp && u->spal == PALETTE_PLAYER8 && MoveSkip4)
-        DoPickCloseBunny(u);
+    if (!u->lowActor&& u->spal == PALETTE_PLAYER8 && MoveSkip4)
+        DoPickCloseBunny(actor);
 
     // Random Chance of like sexes fighting
-    if (u->lo_sp)
+    if (u->lowActor)
     {
-        short hit_sprite = short(u->lo_sp - sprite);
-        SPRITEp tsp = u->lo_sp;
-        USERp tu = User[hit_sprite].Data();
+        auto hitActor = u->lowActor;
+        SPRITEp tsp = &hitActor->s();
+        USERp tu = hitActor->u();
 
         if (!tu || tu->ID != BUNNY_RUN_R0) return false;
 
@@ -992,34 +972,34 @@ DoBunnyQuickJump(DSWActor* actor)
         {
             if (u->spal == PALETTE_PLAYER8 && tu->spal == PALETTE_PLAYER8)
             {
-                PlaySound(DIGI_BUNNYATTACK, sp, v3df_follow);
-                PlaySound(DIGI_BUNNYDIE2, tsp, v3df_follow);
+                PlaySound(DIGI_BUNNYATTACK, actor, v3df_follow);
+                PlaySound(DIGI_BUNNYDIE2, hitActor, v3df_follow);
                 tu->Health = 0;
 
                 // Blood fountains
-                InitBloodSpray(hit_sprite,true,-1);
+                InitBloodSpray(hitActor, true,-1);
 
-                if (SpawnShrap(hit_sprite, SpriteNum))
+                if (SpawnShrap(hitActor, actor))
                 {
-                    SetSuicide(hit_sprite);
+                    SetSuicide(hitActor);
                 }
                 else
-                    DoActorDie(hit_sprite, SpriteNum);
+                    DoActorDie(hitActor, actor, 0);
 
                 Bunny_Count--; // Bunny died
 
-                u->lo_sp = nullptr;
+                u->lowActor = nullptr;
                 return true;
             }
         }
     }
 
     // Get layed!
-    if (u->lo_sp && u->spal == PALETTE_PLAYER8) // Only males check this
+    if (u->lowActor && u->spal == PALETTE_PLAYER8) // Only males check this
     {
-        short hit_sprite = short(u->lo_sp - sprite);
-        SPRITEp tsp = u->lo_sp;
-        USERp tu = User[hit_sprite].Data();
+        auto hitActor = u->lowActor;
+        SPRITEp tsp = &hitActor->s();
+        USERp tu = hitActor->u();
 
 
         if (!tu || tu->ID != BUNNY_RUN_R0) return false;
@@ -1036,10 +1016,10 @@ DoBunnyQuickJump(DSWActor* actor)
 
                 if (RandomRange(1000) < 995 && tu->spal != PALETTE_PLAYER0) return false;
 
-                DoActorPickClosePlayer(SpriteNum);
+                DoActorPickClosePlayer(actor);
 
-                if (User[u->tgt_sp-sprite]->PlayerP)
-                    pp = User[u->tgt_sp-sprite]->PlayerP;
+                if (u->targetActor->u()->PlayerP)
+                    pp = u->targetActor->u()->PlayerP;
 
                 if (tu->spal != PALETTE_PLAYER0)
                 {
@@ -1048,13 +1028,13 @@ DoBunnyQuickJump(DSWActor* actor)
                     tu->Flag1 = SEC(10);
                     if (pp)
                     {
-                        short choose_snd;
-                        int fagsnds[] = {DIGI_FAGRABBIT1,DIGI_FAGRABBIT2,DIGI_FAGRABBIT3};
+                        int choose_snd;
+                        static const int fagsnds[] = {DIGI_FAGRABBIT1,DIGI_FAGRABBIT2,DIGI_FAGRABBIT3};
 
                         if (pp == Player+myconnectindex)
                         {
                             choose_snd = STD_RANDOM_RANGE(2<<8)>>8;
-                            if (FAFcansee(sp->x,sp->y,SPRITEp_TOS(sp),sp->sectnum,pp->posx, pp->posy, pp->posz, pp->cursectnum) && FACING(sp, u->tgt_sp))
+                            if (FAFcansee(sp->x,sp->y,SPRITEp_TOS(sp),sp->sectnum,pp->posx, pp->posy, pp->posz, pp->cursectnum) && Facing(actor, u->targetActor))
                                 PlayerSound(fagsnds[choose_snd], v3df_doppler|v3df_follow|v3df_dontpan,pp);
                         }
                     }
@@ -1063,14 +1043,13 @@ DoBunnyQuickJump(DSWActor* actor)
                 {
                     if (pp && RandomRange(1000) > 200)
                     {
-                        short choose_snd;
-                        int straightsnds[] = {DIGI_RABBITHUMP1,DIGI_RABBITHUMP2,
-                                              DIGI_RABBITHUMP3,DIGI_RABBITHUMP4};
+                        int choose_snd;
+                        static const int straightsnds[] = {DIGI_RABBITHUMP1,DIGI_RABBITHUMP2, DIGI_RABBITHUMP3,DIGI_RABBITHUMP4};
 
                         if (pp == Player+myconnectindex)
                         {
                             choose_snd = STD_RANDOM_RANGE(3<<8)>>8;
-                            if (FAFcansee(sp->x,sp->y,SPRITEp_TOS(sp),sp->sectnum,pp->posx, pp->posy, pp->posz, pp->cursectnum) && FACING(sp, u->tgt_sp))
+                            if (FAFcansee(sp->x,sp->y,SPRITEp_TOS(sp),sp->sectnum,pp->posx, pp->posy, pp->posz, pp->cursectnum) && Facing(actor, u->targetActor))
                                 PlayerSound(straightsnds[choose_snd], v3df_doppler|v3df_follow|v3df_dontpan,pp);
                         }
                     }
@@ -1080,13 +1059,13 @@ DoBunnyQuickJump(DSWActor* actor)
                 sp->y = tsp->y;
                 sp->ang = tsp->ang;
                 sp->ang = NORM_ANGLE(sp->ang + 1024);
-                HelpMissileLateral(SpriteNum, 2000L);
+                HelpMissileLateral(actor, 2000);
                 sp->ang = tsp->ang;
                 u->Vis = sp->ang;  // Remember angles for later
                 tu->Vis = tsp->ang;
 
-                NewStateGroup(SpriteNum, sg_BunnyScrew);
-                NewStateGroup(hit_sprite, sg_BunnyScrew);
+                NewStateGroup(actor, sg_BunnyScrew);
+                NewStateGroup(hitActor, sg_BunnyScrew);
                 u->WaitTics = tu->WaitTics = SEC(10);  // Mate for this long
                 return true;
             }
@@ -1097,11 +1076,9 @@ DoBunnyQuickJump(DSWActor* actor)
 }
 
 
-int
-NullBunny(DSWActor* actor)
+int NullBunny(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
@@ -1113,7 +1090,7 @@ NullBunny(DSWActor* actor)
 
     // stay on floor unless doing certain things
     if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
-        KeepActorOnFloor(SpriteNum);
+        KeepActorOnFloor(actor);
 
     if (TEST(u->Flags,SPR_SLIDING))
         DoActorSlide(actor);
@@ -1127,7 +1104,6 @@ NullBunny(DSWActor* actor)
 int DoBunnyPain(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     NullBunny(actor);
 
@@ -1139,12 +1115,11 @@ int DoBunnyPain(DSWActor* actor)
 int DoBunnyRipHeart(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
 
-    SPRITEp tsp = u->tgt_sp;
+    SPRITEp tsp = &u->targetActor->s();
 
-    NewStateGroup(SpriteNum, sg_BunnyHeart);
+    NewStateGroup(actor, sg_BunnyHeart);
     u->WaitTics = 6 * 120;
 
     // player face bunny
@@ -1155,52 +1130,48 @@ int DoBunnyRipHeart(DSWActor* actor)
 int DoBunnyStandKill(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
 
     NullBunny(actor);
 
     // Growl like the bad ass bunny you are!
     if (RandomRange(1000) > 800)
-        PlaySound(DIGI_BUNNYATTACK, sp, v3df_none);
+        PlaySound(DIGI_BUNNYATTACK, actor, v3df_none);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
-        NewStateGroup(SpriteNum, sg_BunnyRun);
+        NewStateGroup(actor, sg_BunnyRun);
     return 0;
 }
 
-void BunnyHatch(short Weapon)
-{
-    SPRITEp wp = &sprite[Weapon];
-    USERp wu = User[Weapon].Data();
 
-    short New,i;
+void BunnyHatch(DSWActor* actor)
+{
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
+
     SPRITEp np;
     USERp nu;
-#define MAX_BUNNYS 1
+    const int MAX_BUNNYS = 1;
     short rip_ang[MAX_BUNNYS];
 
     rip_ang[0] = RANDOM_P2(2048);
 
-    for (i = 0; i < MAX_BUNNYS; i++)
+    for (int i = 0; i < MAX_BUNNYS; i++)
     {
-        New = COVERinsertsprite(wp->sectnum, STAT_DEFAULT);
-        auto actorNew = &swActors[New];
-        np = &sprite[New];
-        memset(np,0,sizeof(SPRITE));
-        np->sectnum = wp->sectnum;
+        auto actorNew = InsertActor(sp->sectnum, STAT_DEFAULT);
+        np = &actorNew->s();
+        np->clear();
+        np->sectnum = sp->sectnum;
         np->statnum = STAT_DEFAULT;
-        np->x = wp->x;
-        np->y = wp->y;
-        np->z = wp->z;
-        np->owner = -1;
+        np->x = sp->x;
+        np->y = sp->y;
+        np->z = sp->z;
         np->xrepeat = 30;  // Baby size
         np->yrepeat = 24;
         np->ang = rip_ang[i];
         np->pal = 0;
-        SetupBunny(New);
-        nu = User[New].Data();
-        np->shade = wp->shade;
+        SetupBunny(actorNew);
+        nu = actorNew->u();
+        np->shade = sp->shade;
 
         // make immediately active
         SET(nu->Flags, SPR_ACTIVE);
@@ -1212,27 +1183,27 @@ void BunnyHatch(short Weapon)
             // Oops, mommy died giving birth to a boy
             if (RandomRange(1000) > 500)
             {
-                wu->Health = 0;
+                u->Health = 0;
                 Bunny_Count--; // Bunny died
 
                 // Blood fountains
-                InitBloodSpray(Weapon,true,-1);
+                InitBloodSpray(actor, true, -1);
 
-                if (SpawnShrap(Weapon, New))
+                if (SpawnShrap(actor, actorNew))
                 {
-                    SetSuicide(Weapon);
+                    SetSuicide(actor);
                 }
                 else
-                    DoActorDie(Weapon, New);
+                    DoActorDie(actor, actorNew, 0);
             }
         }
 
         nu->ShellNum = 0; // Not Pregnant right now
 
-        NewStateGroup(New, nu->ActorActionSet->Jump);
+        NewStateGroup(actorNew, nu->ActorActionSet->Jump);
         nu->ActorActionFunc = DoActorMoveJump;
-        DoActorSetSpeed(New, FAST_SPEED);
-        PickJumpMaxSpeed(New, -600);
+        DoActorSetSpeed(actorNew, FAST_SPEED);
+        PickJumpMaxSpeed(actorNew, -600);
 
         SET(nu->Flags, SPR_JUMPING);
         RESET(nu->Flags, SPR_FALLING);
@@ -1240,36 +1211,31 @@ void BunnyHatch(short Weapon)
         nu->jump_grav = 8;
 
         // if I didn't do this here they get stuck in the air sometimes
-        DoActorZrange(New);
+        DoActorZrange(actorNew);
 
         DoActorJump(actorNew);
     }
 }
 
-int BunnyHatch2(short Weapon)
+DSWActor* BunnyHatch2(DSWActor* actor)
 {
-    SPRITEp wp = &sprite[Weapon];
+    SPRITEp wp = &actor->s();
 
-    short New;
-    SPRITEp np;
-    USERp nu;
 
-    New = COVERinsertsprite(wp->sectnum, STAT_DEFAULT);
-    auto actorNew = &swActors[New];
-    np = &sprite[New];
-    memset(np,0,sizeof(SPRITE));
+    auto actorNew = InsertActor(wp->sectnum, STAT_DEFAULT);
+    auto np = &actorNew->s();
+    np->clear();
     np->sectnum = wp->sectnum;
     np->statnum = STAT_DEFAULT;
     np->x = wp->x;
     np->y = wp->y;
     np->z = wp->z;
-    np->owner = -1;
     np->xrepeat = 30;  // Baby size
     np->yrepeat = 24;
     np->ang = RANDOM_P2(2048);
     np->pal = 0;
-    SetupBunny(New);
-    nu = User[New].Data();
+    SetupBunny(actorNew);
+    auto nu = actorNew->u();
     np->shade = wp->shade;
 
     // make immediately active
@@ -1287,12 +1253,12 @@ int BunnyHatch2(short Weapon)
 
     nu->ShellNum = 0; // Not Pregnant right now
 
-    NewStateGroup(New, nu->ActorActionSet->Jump);
+    NewStateGroup(actorNew, nu->ActorActionSet->Jump);
     nu->ActorActionFunc = DoActorMoveJump;
-    DoActorSetSpeed(New, FAST_SPEED);
+    DoActorSetSpeed(actorNew, FAST_SPEED);
     if (TEST_BOOL3(wp))
     {
-        PickJumpMaxSpeed(New, -600-RandomRange(600));
+        PickJumpMaxSpeed(actorNew, -600-RandomRange(600));
         np->xrepeat = np->yrepeat = 64;
         np->xvel = 150 + RandomRange(1000);
         nu->Health = 1; // Easy to pop. Like shootn' skeet.
@@ -1300,7 +1266,7 @@ int BunnyHatch2(short Weapon)
         np->ang += RandomRange(128);
     }
     else
-        PickJumpMaxSpeed(New, -600);
+        PickJumpMaxSpeed(actorNew, -600);
 
     SET(nu->Flags, SPR_JUMPING);
     RESET(nu->Flags, SPR_FALLING);
@@ -1311,19 +1277,17 @@ int BunnyHatch2(short Weapon)
     nu->active_range = 75000; // Set it far
 
     // if I didn't do this here they get stuck in the air sometimes
-    DoActorZrange(New);
+    DoActorZrange(actorNew);
 
     DoActorJump(actorNew);
 
-    return New;
+    return actorNew;
 }
 
-int
-DoBunnyMove(DSWActor* actor)
+int DoBunnyMove(DSWActor* actor)
 {
     USER* u = actor->u();
-    auto sp = u->s();
-    int SpriteNum = u->SpriteNum;
+    auto sp = &actor->s();
 
     // Parental lock crap
     if (TEST(sp->cstat, CSTAT_SPRITE_INVISIBLE))
@@ -1331,7 +1295,7 @@ DoBunnyMove(DSWActor* actor)
 
     // Sometimes they just won't die!
     if (u->Health <= 0)
-        SetSuicide(SpriteNum);
+        SetSuicide(actor);
 
     if (u->scale_speed)
     {
@@ -1356,13 +1320,13 @@ DoBunnyMove(DSWActor* actor)
         DoActorSlide(actor);
 
     if (u->track >= 0)
-        ActorFollowTrack(SpriteNum, ACTORMOVETICS);
+        ActorFollowTrack(actor, ACTORMOVETICS);
     else
         (*u->ActorActionFunc)(actor);
 
     // stay on floor unless doing certain things
     if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
-        KeepActorOnFloor(SpriteNum);
+        KeepActorOnFloor(actor);
 
     DoActorSectorDamage(actor);
 
@@ -1380,7 +1344,7 @@ DoBunnyMove(DSWActor* actor)
         case 3562:
         case 3563:
         case 3564:
-            NewStateGroup(SpriteNum,sg_BunnyStand);
+            NewStateGroup(actor,sg_BunnyStand);
             break;
         default:
             sp->ang = NORM_ANGLE(RandomRange(2048 << 6) >> 6);
@@ -1394,22 +1358,16 @@ DoBunnyMove(DSWActor* actor)
     return 0;
 }
 
-int
-BunnySpew(DSWActor* actor)
+int BunnySpew(DSWActor* actor)
 {
-    USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    //InitBloodSpray(SpriteNum,true,-1);
-    InitBloodSpray(SpriteNum,true,-1);
+    InitBloodSpray(actor, true, -1);
     return 0;
 }
 
-int
-DoBunnyEat(DSWActor* actor)
+int DoBunnyEat(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
 
 
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
@@ -1431,7 +1389,7 @@ DoBunnyEat(DSWActor* actor)
 
     // stay on floor unless doing certain things
     if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
-        KeepActorOnFloor(SpriteNum);
+        KeepActorOnFloor(actor);
 
     DoActorSectorDamage(actor);
 
@@ -1448,21 +1406,19 @@ DoBunnyEat(DSWActor* actor)
     case 3563:
     case 3564:
         if (RandomRange(1000) > 970)
-            NewStateGroup(SpriteNum,sg_BunnyRun);
+            NewStateGroup(actor,sg_BunnyRun);
         break;
     default:
-        NewStateGroup(SpriteNum,sg_BunnyRun);
+        NewStateGroup(actor,sg_BunnyRun);
         break;
     }
     return 0;
 }
 
-int
-DoBunnyScrew(DSWActor* actor)
+int DoBunnyScrew(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
 
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
@@ -1477,19 +1433,19 @@ DoBunnyScrew(DSWActor* actor)
 
     // stay on floor unless doing certain things
     if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
-        KeepActorOnFloor(SpriteNum);
+        KeepActorOnFloor(actor);
 
     DoActorSectorDamage(actor);
 
     if (RandomRange(1000) > 990) // Bunny sex sounds
     {
-         PlaySound(DIGI_BUNNYATTACK, sp, v3df_follow);
+         PlaySound(DIGI_BUNNYATTACK, actor, v3df_follow);
     }
 
     u->WaitTics -= ACTORMOVETICS;
 
     if ((u->FlagOwner || u->spal == PALETTE_PLAYER0) && u->WaitTics > 0) // Keep Girl still
-        NewStateGroup(SpriteNum,sg_BunnyScrew);
+        NewStateGroup(actor,sg_BunnyScrew);
 
     if (u->spal == PALETTE_PLAYER0 && u->WaitTics <= 0) // Female has baby
     {
@@ -1501,18 +1457,16 @@ DoBunnyScrew(DSWActor* actor)
     {
         RESET(sp->cstat, CSTAT_SPRITE_INVISIBLE); // Turn em' back on
         u->FlagOwner = 0;
-        NewStateGroup(SpriteNum,sg_BunnyRun);
+        NewStateGroup(actor,sg_BunnyRun);
     }
 
     return 0;
 }
 
-int
-DoBunnyGrowUp(DSWActor* actor)
+int DoBunnyGrowUp(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
 
     if (sp->pal == PALETTE_PLAYER1) return 0;   // Don't bother white bunnies
 
@@ -1534,8 +1488,8 @@ DoBunnyGrowUp(DSWActor* actor)
         {
             if (Bunny_Count < 20)
             {
-                PlaySound(DIGI_BUNNYDIE2, sp, v3df_follow);
-                BunnyHatch(SpriteNum); // Baby time
+                PlaySound(DIGI_BUNNYDIE2, actor, v3df_follow);
+                BunnyHatch(actor); // Baby time
             }
             u->ShellNum = 0; // Not pregnent anymore
         }

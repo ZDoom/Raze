@@ -56,7 +56,6 @@ void HWSprite::DrawSprite(HWDrawInfo* di, FRenderState& state, bool translucent)
 {
 	bool additivefog = false;
 	bool foglayer = false;
-	auto& vp = di->Viewpoint;
 
 	if (translucent)
 	{
@@ -145,17 +144,19 @@ void HWSprite::DrawSprite(HWDrawInfo* di, FRenderState& state, bool translucent)
 	}
 	else
 	{
-		state.EnableModelMatrix(true);
-		state.mModelMatrix = rotmat;
 		FHWModelRenderer mr(state, dynlightindex);
 		if (modelframe < 0)
 		{
+			state.mModelMatrix = rotmat;
+
 			auto model = voxel->model;
 			state.SetDepthFunc(DF_LEqual);
 			state.EnableTexture(true);
 			model->BuildVertexBuffer(&mr);
+			mr.BeginDrawModel(RenderStyle, nullptr, rotmat, portalState.isMirrored());
 			mr.SetupFrame(model, 0, 0, 0);
 			model->RenderFrame(&mr, TexMan.GetGameTexture(model->GetPaletteTexture()), 0, 0, 0.f, TRANSLATION(Translation_Remap + curbasepal, palette));
+			mr.EndDrawModel(RenderStyle, nullptr);
 			state.SetDepthFunc(DF_Less);
 			state.SetVertexBuffer(screen->mVertexData);
 
@@ -166,7 +167,6 @@ void HWSprite::DrawSprite(HWDrawInfo* di, FRenderState& state, bool translucent)
 		}
 		state.SetObjectColor(0xffffffff);
 		state.SetVertexBuffer(screen->mVertexData);
-		state.EnableModelMatrix(false);
 	}
 
 	if (translucent)

@@ -144,7 +144,6 @@ DObject* CreateRunner(bool clearbefore)
 
 void AddGenericVideo(DObject* runner, const FString& fn, int soundid, int fps)
 {
-	auto obj = runnerclass->CreateNew();
 	auto func = LookupFunction("ScreenJobRunner.AddGenericVideo", false);
 	VMValue val[] = { runner, &fn, soundid, fps };
 	VMCall(func, val, 4, nullptr, 0);

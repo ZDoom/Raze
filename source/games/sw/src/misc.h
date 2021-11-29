@@ -18,14 +18,12 @@ void InitCheats();
 void MapColors(short num,COLOR_MAP cm,short create);
 int32_t CONFIG_ReadSetup(void);
 
-bool WarpPlaneSectorInfo(short sectnum, SPRITEp* sp_ceiling, SPRITEp* sp_floor);
-SPRITEp WarpPlane(int32_t* x, int32_t* y, int32_t* z, int* sectnum);
-SPRITEp WarpToArea(SPRITEp sp_from, int32_t* x, int32_t* y, int32_t* z, int* sectnum);
-bool WarpSectorInfo(short sectnum, SPRITEp* sp_warp);
-SPRITEp Warp(int32_t* x, int32_t* y, int32_t* z, int* sectnum);
+DSWActor* WarpPlane(int32_t* x, int32_t* y, int32_t* z, int* sectnum);
+bool WarpSectorInfo(short sectnum, DSWActor** sp_warp);
+DSWActor* Warp(int32_t* x, int32_t* y, int32_t* z, int* sectnum);
 
 [[deprecated]]
-SPRITEp Warp(int32_t* x, int32_t* y, int32_t* z, int16_t* sectnum)
+DSWActor* Warp(int32_t* x, int32_t* y, int32_t* z, int16_t* sectnum)
 {
 	int sect16 = *sectnum;
 	auto p= Warp(x, y, z, &sect16);
@@ -34,7 +32,7 @@ SPRITEp Warp(int32_t* x, int32_t* y, int32_t* z, int16_t* sectnum)
 }
 
 [[deprecated]]
-SPRITEp WarpPlane(int32_t* x, int32_t* y, int32_t* z, int16_t* sectnum)
+DSWActor* WarpPlane(int32_t* x, int32_t* y, int32_t* z, int16_t* sectnum)
 {
 	int sect16 = *sectnum;
 	auto p= WarpPlane(x, y, z, &sect16);
@@ -45,12 +43,12 @@ SPRITEp WarpPlane(int32_t* x, int32_t* y, int32_t* z, int16_t* sectnum)
 
 void ProcessVisOn(void);
 void VisViewChange(PLAYERp pp, int* vis);
-int SpawnVis(short Parent, short sectnum, int x, int y, int z, int amt);
+void SpawnVis(DSWActor* Parent, short sectnum, int x, int y, int z, int amt);
 
 enum TriggerType { TRIGGER_TYPE_REMOTE_SO };
 
-int ActorFollowTrack(short SpriteNum, short locktics);
-void ActorLeaveTrack(short SpriteNum);
+int ActorFollowTrack(DSWActor*, short locktics);
+void ActorLeaveTrack(DSWActor*);
 void RefreshPoints(SECTOR_OBJECTp sop, int nx, int ny, bool dynamic);
 void TrackSetup(void);
 void PlaceSectorObject(SECTOR_OBJECTp sop, int newx, int newy);
@@ -71,23 +69,24 @@ inline constexpr int TEXT_INFO_LINE(int line) { return (TEXT_INFO_Y + ((line)*TE
 void PutStringInfo(PLAYERp pp, const char* string);
 
 
-short DoSlidorMatch(PLAYERp pp, short match, bool);
+void DoSlidorMatch(PLAYERp pp, short match, bool);
 bool TestSlidorMatchActive(short match);
 void InterpSectorSprites(short sectnum, bool state);
 
 using INTERP_FUNC = void(*)(int, int);
 
-void SetSlidorActive(short SpriteNum);
-void DoSlidorInterp(short, INTERP_FUNC);
+void SetSlidorActive(DSWActor*);
+void DoSlidorInterp(DSWActor*, INTERP_FUNC);
 
-int DoBeginJump(short SpriteNum);
-int DoJump(short SpriteNum);
-int DoBeginFall(short SpriteNum);
-int DoFall(short SpriteNum);
-void KeepActorOnFloor(short SpriteNum);
+int DoBeginJump(DSWActor* actor);
+int DoJump(DSWActor* actor);
+int DoBeginFall(DSWActor* actor);
+int DoFall(DSWActor* actor);
+void KeepActorOnFloor(DSWActor* actor);
 int DoActorSlide(DSWActor* actor);
 int DoActorSectorDamage(DSWActor* actor);
 int DoScaleSprite(DSWActor* actor);
+int DoActorStopFall(DSWActor* actor);
 
 void InitPlayerSprite(PLAYERp pp);
 void InitAllPlayerSprites(void);
@@ -101,11 +100,11 @@ void ProcessQuakeSpot(void);
 void QuakeViewChange(PLAYERp pp, int* z_diff, int* x_diff, int* y_diff, short* ang_diff);
 void DoQuake(PLAYERp pp);
 bool SetQuake(PLAYERp pp, short tics, short amt);
-int SetExpQuake(int16_t Weapon);
-int SetGunQuake(int16_t SpriteNum);
+int SetExpQuake(DSWActor*);
+int SetGunQuake(DSWActor*);
 int SetPlayerQuake(PLAYERp mpp);
-int SetNuclearQuake(int16_t Weapon);
-int SetSumoQuake(int16_t SpriteNum);
-int SetSumoFartQuake(int16_t SpriteNum);
+int SetNuclearQuake(DSWActor*);
+int SetSumoQuake(DSWActor*);
+int SetSumoFartQuake(DSWActor*);
 
 END_SW_NS

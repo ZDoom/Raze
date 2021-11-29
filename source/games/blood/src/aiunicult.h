@@ -159,16 +159,15 @@ extern const GENDUDESND gCustomDudeSnd[];
 // temporary, until normal DUDEEXTRA gets refactored
 struct GENDUDEEXTRA 
 {
-    unsigned short initVals[3];             // xrepeat, yrepeat, clipdist
-    unsigned short availDeaths[kDamageMax]; // list of seqs with deaths for each damage type
-    unsigned int moveSpeed;
-    unsigned int fireDist;          // counts from sprite size
-    unsigned int throwDist;         // counts from sprite size
-    unsigned short curWeapon;       // data1 duplicate to avoid potential problems when changing data dynamically
-    unsigned short weaponType;
-    unsigned short baseDispersion;
-    unsigned short slaveCount;              // how many dudes is summoned
-    //unsigned short incarnationsCount;
+    uint16_t initVals[3];             // xrepeat, yrepeat, clipdist
+    uint16_t availDeaths[kDamageMax]; // list of seqs with deaths for each damage type
+    uint32_t moveSpeed;
+    uint32_t fireDist;          // counts from sprite size
+    uint32_t throwDist;         // counts from sprite size
+    uint16_t curWeapon;       // data1 duplicate to avoid potential problems when changing data dynamically
+    uint16_t weaponType;
+    uint16_t baseDispersion;
+    uint16_t slaveCount;              // how many dudes is summoned
     DBloodActor* pLifeLeech;        // spritenum of dropped dude's leech
     DBloodActor* slave[kGenDudeMaxSlaves];  // index of the ones dude is summon
     signed short dmgControl[kDamageMax];    // depends of current weapon, drop armor item, sprite yrepeat and surface type
@@ -193,8 +192,6 @@ struct GENDUDEEXTRA
     };
 };
 
-extern GENDUDEEXTRA gGenDudeExtra[kMaxSprites];
-
 DBloodActor* getNextIncarnation(DBloodActor* actor);
 void killDudeLeech(DBloodActor* pLeech);
 void removeLeech(DBloodActor* pLeech, bool delSprite = true);
@@ -218,13 +215,13 @@ void updateTargetOfLeech(DBloodActor* pSprite);
 bool canSwim(DBloodActor* actor);
 bool canDuck(DBloodActor* actor);
 bool canWalk(DBloodActor* actor);
-short inDodge(AISTATE* aiState);
+int inDodge(AISTATE* aiState);
 bool inIdle(AISTATE* aiState);
 bool inAttack(AISTATE* aiState);
-short inRecoil(AISTATE* aiState);
-short inSearch(AISTATE* aiState);
-short inChase(AISTATE* aiState);
-short inDuck(AISTATE* aiState);
+int inRecoil(AISTATE* aiState);
+bool inSearch(AISTATE* aiState);
+int inChase(AISTATE* aiState);
+int inDuck(AISTATE* aiState);
 int genDudeSeqStartId(DBloodActor* pXSprite);
 bool genDudePrepare(DBloodActor* pSprite, int propId);
 void genDudeUpdate(DBloodActor* pSprite);

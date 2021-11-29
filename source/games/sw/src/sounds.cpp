@@ -237,7 +237,7 @@ void StopAmbientSound(void)
 //
 //==========================================================================
 
-void InitAmbient(int num, SPRITEp sp)
+void InitAmbient(int num, DSWActor* actor)
 {
     VOC_INFOp vp;
     int pitch = 0;
@@ -265,7 +265,7 @@ void InitAmbient(int num, SPRITEp sp)
     }
 
     auto amb = new AmbientSound;
-    amb->sp = sp;
+    amb->sp = &actor->s();
     amb->ambIndex = num;
     amb->vocIndex = vnum;
     amb->ChanFlags = CHANF_TRANSIENT;
@@ -285,15 +285,13 @@ void InitAmbient(int num, SPRITEp sp)
 
 void StartAmbientSound(void)
 {
-    int i;
-    
     if (!SoundEnabled()) return;
 
-    StatIterator it(STAT_AMBIENT);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_AMBIENT);
+    while (auto actor = it.Next())
     {
-        SPRITEp sp = &sprite[i];
-        InitAmbient(sp->lotag, sp);
+        SPRITEp sp = &actor->s();
+        InitAmbient(sp->lotag, actor);
     }
 }
 
@@ -713,10 +711,10 @@ void COVER_SetReverb(int amt)
 //
 //==========================================================================
 
-void DeleteNoSoundOwner(short spritenum)
+void DeleteNoSoundOwner(DSWActor* actor)
 {
     if (!soundEngine) return;
-    SPRITEp sp = &sprite[spritenum];
+    SPRITEp sp = &actor->s();
 
     soundEngine->EnumerateChannels([=](FSoundChan* chan)
         {
@@ -730,14 +728,14 @@ void DeleteNoSoundOwner(short spritenum)
 
 //==========================================================================
 //
-// This is called from KillSprite to kill a follow sound with no valid sprite owner
+// This is called from KillSprite to kill a follow sound with no valid sprite Owner
 // Stops any active sound with the follow bit set, even play once sounds.
 //
 //==========================================================================
 
-void DeleteNoFollowSoundOwner(short spritenum)
+void DeleteNoFollowSoundOwner(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[spritenum];
+    SPRITEp sp = &actor->s();
     soundEngine->StopSound(SOURCE_Actor, sp, -1); // all non-follow sounds are SOURCE_Unattached
 }
 
@@ -763,29 +761,14 @@ void Terminate3DSounds(void)
 
 //==========================================================================
 //
-// no longer needed, only left to avoid changing the game code
-//
-//==========================================================================
-
-void Set3DSoundOwner(short spritenum)
-{
-    
-}
-
-//==========================================================================
-//
 // Play a sound using special sprite setup
 //
 //==========================================================================
 
-void PlaySpriteSound(short spritenum, int attrib_ndx, Voc3D_Flags flags)
+void PlaySpriteSound(DSWActor* actor, int attrib_ndx, Voc3D_Flags flags)
 {
-    SPRITEp sp = &sprite[spritenum];
-    USERp u = User[spritenum].Data();
-
-    ASSERT(u);
-
-    PlaySound(u->Attrib->Sounds[attrib_ndx], sp, flags);
+    if (actor->hasU())
+        PlaySound(actor->u()->Attrib->Sounds[attrib_ndx], actor, flags);
 }
 
 //==========================================================================

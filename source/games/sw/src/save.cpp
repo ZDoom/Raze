@@ -69,8 +69,6 @@ TO DO
 void InitLevelGlobals(void);
 
 extern int lastUpdate;
-extern char SaveGameDescr[10][80];
-extern short Bunny_Count;
 extern bool NewGame;
 extern int GodMode;
 extern int FinishTimer;
@@ -79,7 +77,6 @@ extern int GameVersion;
 //extern short Zombies;
 
 extern bool bosswasseen[3];
-extern short BossSpriteNum[3];
 
 #define ANIM_SAVE 1
 
@@ -444,7 +441,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYERstruct& w, P
 			("lv_x", w.lv_x)
 			("lv_y", w.lv_y)
 			("lv_z", w.lv_z)
-			("remote_sprite", w.remote_sprite)
+			("remote_sprite", w.remoteActor)
 			("remote", w.remote)
 			("sop_remote", w.sop_remote)
 			("sop", w.sop)
@@ -460,8 +457,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYERstruct& w, P
 			("floor_dist", w.floor_dist)
 			("hi_sectp", w.hi_sectp)
 			("lo_sectp", w.lo_sectp)
-			("hi_sp", w.hi_sp)
-			("lo_sp", w.lo_sp)
+			("hi_sp", w.highActor)
+			("lo_sp", w.lowActor)
 			("last_camera_sp", w.last_camera_sp)
 			("circle_camera_dist", w.circle_camera_dist)
 			("six", w.six)
@@ -499,10 +496,13 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYERstruct& w, P
 			("revolvey", w.RevolveY)
 			("RevolveDeltaAng", w.RevolveDeltaAng)
 			("RevolveAng", w.RevolveAng)
-			("PlayerSprite", w.PlayerSprite)
-			("PlayerUnderSprite", w.PlayerUnderSprite)
-			("SpriteP", w.SpriteP)
-			("UnderSpriteP", w.UnderSpriteP)
+			("PlayerSprite", w.actor)
+#ifdef OLD_SAVEGAME
+			; // need to write out UnderSpriteP so that older revisions still load it.
+			if (arc.isWriting()) arc("UnderSpriteP", w.PlayerUnderActor);
+			arc
+#endif
+			("PlayerUnderSprite", w.PlayerUnderActor)
 			("pnum", w.pnum)
 			("LadderSector", w.LadderSector)
 			("lx", w.lx)
@@ -546,7 +546,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYERstruct& w, P
 			("DiveDamageTics", w.DiveDamageTics)
 			("DeathType", w.DeathType)
 			("Kills", w.Kills)
-			("Killer", w.Killer)
+			("Killer", w.KillerActor)
 			.Array("KilledPlayer", w.KilledPlayer, countof(w.KilledPlayer))
 			("SecretsFound", w.SecretsFound)
 			("Armor", w.Armor)
@@ -578,6 +578,10 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYERstruct& w, P
 			("WpnReloadState", w.WpnReloadState)
 			("keypressbits", w.KeyPressBits)
 			("chops", w.Chops);
+
+			if (arc.isWriting())	// we need this for loading saves in older builds for debugging.
+			arc("SpriteP", w.actor);
+
 
 		SerializeCodePtr(arc, "DoPlayerAction", (void**)&w.DoPlayerAction);
 		arc.EndObject();
@@ -630,18 +634,14 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, SECTOR_OBJECTstruc
 	}
 	if (arc.BeginObject(keyname))
 	{
-		int sp_cnt;
-		for (sp_cnt = 0; w.sp_num[sp_cnt] != -1 && sp_cnt < (int)countof(w.sp_num); sp_cnt++) {}
-
 		arc("num_sectors", w.num_sectors, def->num_sectors)
 			("num_walls", w.num_walls, def->num_walls)
-			("num_sp", sp_cnt)
 			("clipbox_num", w.clipbox_num, def->clipbox_num)
 			.Array("sectp", w.sectp, def->sectp, w.num_sectors)
 			.Array("sector", w.sector, def->sector, w.num_sectors)  // is this really different from sectp?
 			.Array("zorig_floor", w.zorig_floor, def->zorig_floor, w.num_sectors)
 			.Array("zorig_ceiling", w.zorig_ceiling, def->zorig_ceiling, w.num_sectors)
-			.Array("sp_num", w.sp_num, def->sp_num, countof(w.sp_num))
+			.Array("sp_num", w.so_actors, def->so_actors, countof(w.so_actors))
 			.Array("xorig", w.xorig, def->xorig, w.num_walls)
 			.Array("yorig", w.yorig, def->yorig, w.num_walls)
 			("controller", w.controller, def->controller)
@@ -697,7 +697,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, SECTOR_OBJECTstruc
 			("save_vel", w.save_vel, def->save_vel)
 			("save_spin_speed", w.save_spin_speed, def->save_spin_speed)
 			("match_event", w.match_event, def->match_event)
-			("match_event_sprite", w.match_event_sprite, def->match_event_sprite)
+			("match_event_sprite", w.match_event_actor, def->match_event_actor)
 			("scale_type", w.scale_type, def->scale_type)
 			("scale_active_type", w.scale_active_type, def->scale_active_type)
 			("scale_dist", w.scale_dist, def->scale_dist)
@@ -866,12 +866,10 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, USER& w, USER* def
 			("zclip", w.zclip, def->zclip)
 			("hi_sectp", w.hi_sectp, def->hi_sectp)
 			("lo_sectp", w.lo_sectp, def->lo_sectp)
-			("hi_sp", w.hi_sp, def->hi_sp)
-			("lo_sp", w.lo_sp, def->lo_sp)
+			("hi_sp", w.highActor, def->highActor)
+			("lo_sp", w.lowActor, def->lowActor)
 			("active_range", w.active_range, def->active_range)
-			("SpriteNum", w.SpriteNum, def->SpriteNum)
-			("Attach", w.Attach, def->Attach)
-			("SpriteP", w.SpriteP, def->SpriteP)
+			("Attach", w.attachActor, def->attachActor)
 			("PlayerP", w.PlayerP, def->PlayerP)
 			("Sibling", w.Sibling, def->Sibling)
 			("xchange", w.xchange, def->xchange)
@@ -886,11 +884,11 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, USER& w, USER* def
 			("Counter3", w.Counter3, def->Counter3)
 			("DamageTics", w.DamageTics, def->DamageTics)
 			("BladeDamageTics", w.BladeDamageTics, def->BladeDamageTics)
-			("WpnGoal", w.WpnGoal, def->WpnGoal)
+			("WpnGoal", w.WpnGoalActor, def->WpnGoalActor)
 			("Radius", w.Radius, def->Radius)
 			("OverlapZ", w.OverlapZ, def->OverlapZ)
-			("flame", w.flame, def->flame)
-			("tgt_sp", w.tgt_sp, def->tgt_sp)
+			("flame", w.flameActor, def->flameActor)
+			("tgt_sp", w.targetActor, def->targetActor)
 			("scale_speed", w.scale_speed, def->scale_speed)
 			("scale_value", w.scale_value, def->scale_value)
 			("scale_tgt", w.scale_tgt, def->scale_tgt)
@@ -914,13 +912,14 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, USER& w, USER* def
 			("sz", w.sz, def->sz)
 			("sang", w.sang, def->sang)
 			("spal", w.spal, def->spal)
-			("ret", w.ret, def->ret)
+			("ret", w.coll.legacyVal, def->coll.legacyVal) // is this needed?
 			("Flag1", w.Flag1, def->Flag1)
 			("LastWeaponNum", w.LastWeaponNum, def->LastWeaponNum)
 			("WeaponNum", w.WeaponNum, def->WeaponNum)
 			("bounce", w.bounce, def->bounce)
 			("ShellNum", w.ShellNum, def->ShellNum)
 			("FlagOwner", w.FlagOwner, def->FlagOwner)
+			("FlagOwnerActor", w.flagOwnerActor, def->flagOwnerActor)
 			("Vis", w.Vis, def->Vis)
 			("DidAlert", w.DidAlert, def->DidAlert)
 			("filler", w.filler, def->filler)
@@ -928,12 +927,21 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, USER& w, USER* def
 			("rotator", w.rotator)
 			("oz", w.oz, def->oz);
 
+		if (arc.isWriting())	// we need this for loading saves in older builds for debugging.
+		{
+			arc("SpriteP", w.SpriteNum, def->SpriteNum)
+				("SpriteNum", w.SpriteNum, def->SpriteNum);
+		}
+
+
+
 		SerializeCodePtr(arc, "ActorActionFunc", (void**)&w.ActorActionFunc);
 		arc.EndObject();
 
 		if (arc.isReading())
 		{
 			w.oangdiff = 0;
+			SetCollision(&w, w.coll.legacyVal);
 		}
 	}
 	return arc;
@@ -953,14 +961,14 @@ void SerializeUser(FSerializer& arc)
 	{
 		for (int i = 0; i < MAXSPRITES; i++)
 		{
-			hitlist.Set(i, !!User[i].Data());
+			hitlist.Set(i, swActors[i].hasU());
 		}
 	}
 	else
 	{
 		for (int i = 0; i < MAXSPRITES; i++)
 		{
-			User[i].Clear();
+			swActors[i].clearUser();
 		}
 	}
 	arc("usermap", hitlist);
@@ -1067,8 +1075,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, MIRRORTYPE& w, MIR
 	{
 		arc("mirrorwall", w.mirrorwall, def->mirrorwall)
 			("mirrorsector", w.mirrorsector, def->mirrorsector)
-			("camera", w.camera, def->camera)
-			("camsprite", w.camsprite, def->camsprite)
+			("camera", w.cameraActor, def->cameraActor)
+			("camsprite", w.camspriteActor, def->camspriteActor)
 			("campic", w.campic, def->campic)
 			("numspawnspots", w.numspawnspots, def->numspawnspots)
 			.Array("spawnspots", w.spawnspots, def->spawnspots, w.numspawnspots)

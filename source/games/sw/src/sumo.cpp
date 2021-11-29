@@ -40,10 +40,15 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
+extern int InitSumoNapalm(DSWActor*);
+extern int InitSumoStompAttack(DSWActor*);
+extern int InitMiniSumoClap(DSWActor*);
+extern int InitSumoSkull(DSWActor*);
+
 extern uint8_t playTrack;
 bool bosswasseen[3];
 
-short BossSpriteNum[3] = {-1,-1,-1};
+DSWActor* BossSpriteNum[3];
 
 
 ANIMATOR InitSumoCharge;
@@ -627,34 +632,33 @@ ACTOR_ACTION_SET MiniSumoActionSet =
 };
 
 
-int
-SetupSumo(short SpriteNum)
+int SetupSumo(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum].Data();
+        u = actor->u();
         ASSERT(u);
     }
     else
     {
-        u = SpawnUser(SpriteNum,SUMO_RUN_R0,s_SumoRun[0]);
+        u = SpawnUser(actor,SUMO_RUN_R0,s_SumoRun[0]);
         u->Health = 6000;
     }
 
     if (Skill == 0) u->Health = 2000;
     if (Skill == 1) u->Health = 4000;
 
-    ChangeState(SpriteNum,s_SumoRun[0]);
+    ChangeState(actor,s_SumoRun[0]);
     u->Attrib = &SumoAttrib;
-    DoActorSetSpeed(SpriteNum, NORM_SPEED);
+    DoActorSetSpeed(actor, NORM_SPEED);
     u->StateEnd = s_SumoDie;
     u->Rot = sg_SumoRun;
 
-    EnemyDefaults(SpriteNum, &SumoActionSet, &SumoPersonality);
+    EnemyDefaults(actor, &SumoActionSet, &SumoPersonality);
 
     sp->clipdist = (512) >> 2;
     if (sp->pal == 16)
@@ -679,13 +683,9 @@ SetupSumo(short SpriteNum)
 int NullSumo(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-
-    //if (TEST(u->Flags,SPR_SLIDING))
-    //DoActorSlide(actor);
 
     if (!TEST(u->Flags,SPR_CLIMBING))
-        KeepActorOnFloor(SpriteNum);
+        KeepActorOnFloor(actor);
 
     DoActorSectorDamage(actor);
 
@@ -695,17 +695,13 @@ int NullSumo(DSWActor* actor)
 int DoSumoMove(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-
-    //if (TEST(u->Flags,SPR_SLIDING))
-    //DoActorSlide(actor);
 
     if (u->track >= 0)
-        ActorFollowTrack(SpriteNum, ACTORMOVETICS);
+        ActorFollowTrack(actor, ACTORMOVETICS);
     else
         (*u->ActorActionFunc)(actor);
 
-    KeepActorOnFloor(SpriteNum);
+    KeepActorOnFloor(actor);
 
     if (DoActorSectorDamage(actor))
     {
@@ -719,10 +715,9 @@ int DoSumoMove(DSWActor* actor)
 int DoSumoRumble(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
 
-    SetSumoQuake(SpriteNum);
+    SetSumoQuake(actor);
 
     return 0;
 }
@@ -730,16 +725,14 @@ int DoSumoRumble(DSWActor* actor)
 int InitSumoFart(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
-    extern int InitSumoNapalm(short SpriteNum);
+    SPRITEp sp = &actor->s();
 
-    PlaySound(DIGI_SUMOFART, sp, v3df_follow);
+    PlaySound(DIGI_SUMOFART, actor, v3df_follow);
 
-    InitChemBomb(SpriteNum);
+    InitChemBomb(actor);
 
-    SetSumoFartQuake(SpriteNum);
-    InitSumoNapalm(SpriteNum);
+    SetSumoFartQuake(actor);
+    InitSumoNapalm(actor);
 
     return 0;
 }
@@ -747,13 +740,11 @@ int InitSumoFart(DSWActor* actor)
 int InitSumoStomp(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
-    extern int InitSumoStompAttack(short SpriteNum);
+    SPRITEp sp = &actor->s();
 
-    PlaySound(DIGI_SUMOSTOMP, sp, v3df_none);
-    SetSumoQuake(SpriteNum);
-    InitSumoStompAttack(SpriteNum);
+    PlaySound(DIGI_SUMOSTOMP, actor, v3df_none);
+    SetSumoQuake(actor);
+    InitSumoStompAttack(actor);
 
     return 0;
 }
@@ -761,28 +752,24 @@ int InitSumoStomp(DSWActor* actor)
 int InitSumoClap(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
-    extern int InitMiniSumoClap(short SpriteNum);
-    extern int InitSumoSkull(short SpriteNum);
+    SPRITEp sp = &actor->s();
 
     if (sp->pal == 16 && RandomRange(1000) <= 800)
-        InitMiniSumoClap(SpriteNum);
+        InitMiniSumoClap(actor);
     else
-        InitSumoSkull(SpriteNum);
+        InitSumoSkull(actor);
     return 0;
 }
 
 int DoSumoDeathMelt(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
 
-    PlaySound(DIGI_SUMOFART, sp, v3df_follow);
+    PlaySound(DIGI_SUMOFART, actor, v3df_follow);
 
     u->ID = SUMO_RUN_R0;
-    InitChemBomb(SpriteNum);
+    InitChemBomb(actor);
     u->ID = 0;
 
     DoMatchEverything(nullptr, sp->lotag, ON);
@@ -792,20 +779,18 @@ int DoSumoDeathMelt(DSWActor* actor)
         PlaySong(currentLevel->music, currentLevel->cdSongId);
     }
 
-    BossSpriteNum[1] = -2; // Sprite is gone, set it back to keep it valid!
+    BossSpriteNum[1] = nullptr; // Sprite is gone, set it back to keep it valid!
 
     return 0;
 }
 
 
-void
-BossHealthMeter(void)
+void BossHealthMeter(void)
 {
     SPRITEp sp;
     USERp u;
     PLAYERp pp = Player + myconnectindex;
     short color=0,metertics,meterunit;
-    int i = 0;
     int y;
     extern bool NoMeters;
     short health;
@@ -821,37 +806,37 @@ BossHealthMeter(void)
 
     // all enemys
     if (currentLevel->gameflags & (LEVEL_SW_BOSSMETER_SERPENT|LEVEL_SW_BOSSMETER_SUMO|LEVEL_SW_BOSSMETER_ZILLA) &&
-        BossSpriteNum[0] <= -1 && BossSpriteNum[1] <= -1 && BossSpriteNum[2] <= -1)
+        BossSpriteNum[0] == nullptr && BossSpriteNum[1] == nullptr && BossSpriteNum[2] == nullptr)
     {
-        StatIterator it(STAT_ENEMY);
-        while ((i = it.NextIndex()) >= 0)
+        SWStatIterator it(STAT_ENEMY);
+        while (auto itActor = it.Next())
         {
-            sp = &sprite[i];
-            u = User[i].Data();
+            sp = &itActor->s();
+            u = itActor->u();
 
             if ((u->ID == SERP_RUN_R0 || u->ID == SUMO_RUN_R0 || u->ID == ZILLA_RUN_R0) && sp->pal != 16)
             {
                 if (u->ID == SERP_RUN_R0 && (currentLevel->gameflags & LEVEL_SW_BOSSMETER_SERPENT))
-                    BossSpriteNum[0] = i;
+                    BossSpriteNum[0] = itActor;
                 else if (u->ID == SUMO_RUN_R0 && (currentLevel->gameflags & LEVEL_SW_BOSSMETER_SUMO))
-                    BossSpriteNum[1] = i;
+                    BossSpriteNum[1] = itActor;
                 else if (u->ID == ZILLA_RUN_R0 && (currentLevel->gameflags & LEVEL_SW_BOSSMETER_ZILLA))
-                    BossSpriteNum[2] = i;
+                    BossSpriteNum[2] = itActor;
             }
         }
     }
 
-    if (BossSpriteNum[0] <= -1 && BossSpriteNum[1] <= -1 && BossSpriteNum[2] <= -1)
+    if (BossSpriteNum[0] == nullptr && BossSpriteNum[1] == nullptr && BossSpriteNum[2] == nullptr)
         return;
 
 
     // Only show the meter when you can see the boss
-    for (i=0; i<3; i++)
+    for (int i=0; i<3; i++)
     {
-        if (BossSpriteNum[i] >= 0 && !bosswasseen[i])
+        if (BossSpriteNum[i] != nullptr && !bosswasseen[i])
         {
-            sp = &sprite[BossSpriteNum[i]];
-            u = User[BossSpriteNum[i]].Data();
+            sp = &BossSpriteNum[i]->s();
+            u = BossSpriteNum[i]->u();
 
             if (cansee(sp->x, sp->y, SPRITEp_TOS(sp), sp->sectnum, pp->posx, pp->posy, pp->posz - Z(40), pp->cursectnum))
             {
@@ -884,18 +869,18 @@ BossHealthMeter(void)
     }
 
 
-    for (i=0; i<3; i++)
+    for (int i=0; i<3; i++)
     {
 
-        if (i == 0 && (!bosswasseen[0] || BossSpriteNum[0] < 0))
+        if (i == 0 && (!bosswasseen[0] || BossSpriteNum[0] == nullptr))
             continue;
-        if (i == 1 && (!bosswasseen[1] || BossSpriteNum[1] < 0))
+        if (i == 1 && (!bosswasseen[1] || BossSpriteNum[1] == nullptr))
             continue;
-        if (i == 2 && (!bosswasseen[2] || BossSpriteNum[2] < 0))
+        if (i == 2 && (!bosswasseen[2] || BossSpriteNum[2] == nullptr))
             continue;
 
-        sp = &sprite[BossSpriteNum[i]];
-        u = User[BossSpriteNum[i]].Data();
+        sp = &BossSpriteNum[i]->s();
+        u = BossSpriteNum[i]->u();
 
         if (u->ID == SERP_RUN_R0 && bosswasseen[0])
         {
@@ -958,10 +943,10 @@ BossHealthMeter(void)
             color = 22;
 
         DrawTexture(twod, tileGetTexture(5407, true), 85, y, DTA_FullscreenScale, FSMode_Fit320x200,
-            DTA_CenterOffsetRel, true, DTA_TranslationIndex, TRANSLATION(Translation_Remap, 1), TAG_DONE);
+            DTA_CenterOffsetRel, 2, DTA_TranslationIndex, TRANSLATION(Translation_Remap, 1), TAG_DONE);
 
         DrawTexture(twod, tileGetTexture(5406 - metertics, true), 147, y, DTA_FullscreenScale, FSMode_Fit320x200,
-            DTA_CenterOffsetRel, true, DTA_TranslationIndex, TRANSLATION(Translation_Remap, color), TAG_DONE);
+            DTA_CenterOffsetRel, 2, DTA_TranslationIndex, TRANSLATION(Translation_Remap, color), TAG_DONE);
     }
 
 }

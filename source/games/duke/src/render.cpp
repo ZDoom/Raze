@@ -141,9 +141,9 @@ void GameInterface::LeavePortal(spritetype* viewer, int type)
 	if (type == PORTAL_WALL_MIRROR) display_mirror--;
 }
 
-bool GameInterface::GetGeoEffect(GeoEffect* eff, int viewsector)
+bool GameInterface::GetGeoEffect(GeoEffect* eff, sectortype* viewsector)
 {
-	if (isRR() && sector[viewsector].lotag == 848)
+	if (isRR() && viewsector->lotag == 848)
 	{
 		eff->geocnt = geocnt;
 		eff->geosector = geosector;
@@ -252,11 +252,9 @@ static int getdrugmode(player_struct *p, int oyrepeat)
 void displayrooms(int snum, double smoothratio)
 {
 	int cposx, cposy, cposz, fz, cz;
-	int sect;
 	binangle cang, rotscrnang;
 	fixedhoriz choriz;
 	struct player_struct* p;
-	int tiltcs = 0; // JBF 20030807
 
 	p = &ps[snum];
 	pm_smoothratio = (int)smoothratio;
@@ -274,8 +272,8 @@ void displayrooms(int snum, double smoothratio)
 
 	videoSetCorrectedAspect();
 
-	sect = p->cursectnum;
-	if (sect < 0 || sect >= MAXSECTORS) return;
+	auto sect = p->cursector();
+	if (sect == nullptr) return;
 
 	GlobalMapFog = fogactive ? 0x999999 : 0;
 	GlobalFogDensity = fogactive ? 350.f : 0.f;
@@ -311,6 +309,7 @@ void displayrooms(int snum, double smoothratio)
 		// set screen rotation.
 		rotscrnang = !SyncInput() ? p->angle.rotscrnang : p->angle.interpolatedrotscrn(smoothratio);
 
+#if 0
 		if ((snum == myconnectindex) && (numplayers > 1))
 		{
 			cposx = interpolatedvalue(omyx, myx, smoothratio);
@@ -329,6 +328,7 @@ void displayrooms(int snum, double smoothratio)
 			sect = mycursectnum;
 		}
 		else
+#endif
 		{
 			cposx = interpolatedvalue(p->oposx, p->pos.x, smoothratio);
 			cposy = interpolatedvalue(p->oposy, p->pos.y, smoothratio);
@@ -356,7 +356,7 @@ void displayrooms(int snum, double smoothratio)
 			cposx = spr->pos.x;
 			cposy = spr->pos.y;
 			cposz = spr->pos.z;
-			sect = spr->sectnum;
+			sect = spr->sector();
 			rotscrnang = buildang(0);
 			smoothratio = MaxSmoothRatio;
 			viewer = spr;
@@ -395,23 +395,23 @@ void displayrooms(int snum, double smoothratio)
 			else if (cposz > (p->truefz - (4 << 8))) cposz = fz - (4 << 8);
 		}
 
-		if (sect >= 0)
+		if (sect)
 		{
-			getzsofslope(sect, cposx, cposy, &cz, &fz);
+			getzsofslopeptr(sect, cposx, cposy, &cz, &fz);
 			if (cposz < cz + (4 << 8)) cposz = cz + (4 << 8);
 			if (cposz > fz - (4 << 8)) cposz = fz - (4 << 8);
 		}
 
 		choriz = clamp(choriz, q16horiz(gi->playerHorizMin()), q16horiz(gi->playerHorizMax()));
 
-		if (isRR() && sector[sect].lotag == 848 && !testnewrenderer)
+		if (isRR() && sect->lotag == 848 && !testnewrenderer)
 		{
 			renderSetRollAngle((float)rotscrnang.asbuildf());
-			geometryEffect(cposx, cposy, cposz, cang, choriz, sect, (int)smoothratio);
+			geometryEffect(cposx, cposy, cposz, cang, choriz, sectnum(sect), (int)smoothratio);
 		}
 		else
 		{
-			renderView(viewer, sect, cposx, cposy, cposz, cang, choriz, rotscrnang, (int)smoothratio);
+			renderView(viewer, sectnum(sect), cposx, cposy, cposz, cang, choriz, rotscrnang, (int)smoothratio);
 		}
 	}
 	//GLInterface.SetMapFog(false);

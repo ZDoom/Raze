@@ -814,27 +814,26 @@ ACTOR_ACTION_SET RipperBrownActionSet =
     nullptr
 };
 
-int
-SetupRipper(short SpriteNum)
+int SetupRipper(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum].Data();
+        u = actor->u();
         ASSERT(u);
     }
     else
     {
-        u = SpawnUser(SpriteNum, RIPPER_RUN_R0, s_RipperRun[0]);
+        u = SpawnUser(actor, RIPPER_RUN_R0, s_RipperRun[0]);
         u->Health = HEALTH_RIPPER/2; // Baby rippers are weaker
     }
 
-    ChangeState(SpriteNum, s_RipperRun[0]);
+    ChangeState(actor, s_RipperRun[0]);
     u->Attrib = &RipperAttrib;
-    DoActorSetSpeed(SpriteNum, FAST_SPEED);
+    DoActorSetSpeed(actor, FAST_SPEED);
     u->StateEnd = s_RipperDie;
     u->Rot = sg_RipperRun;
     sp->xrepeat = 64;
@@ -842,7 +841,7 @@ SetupRipper(short SpriteNum)
 
     if (sp->pal == PALETTE_BROWN_RIPPER)
     {
-        EnemyDefaults(SpriteNum, &RipperBrownActionSet, &RipperPersonality);
+        EnemyDefaults(actor, &RipperBrownActionSet, &RipperPersonality);
         sp->xrepeat = 106;
         sp->yrepeat = 90;
 
@@ -853,7 +852,7 @@ SetupRipper(short SpriteNum)
     }
     else
     {
-        EnemyDefaults(SpriteNum, &RipperActionSet, &RipperPersonality);
+        EnemyDefaults(actor, &RipperActionSet, &RipperPersonality);
     }
 
     SET(u->Flags, SPR_XFLIP_TOGGLE);
@@ -861,8 +860,7 @@ SetupRipper(short SpriteNum)
     return 0;
 }
 
-int
-GetJumpHeight(int jump_speed, int jump_grav)
+int GetJumpHeight(int jump_speed, int jump_grav)
 {
     int jump_iterations;
     int height;
@@ -878,10 +876,9 @@ GetJumpHeight(int jump_speed, int jump_grav)
     return DIV2(height);
 }
 
-int
-PickJumpSpeed(short SpriteNum, int pix_height)
+int PickJumpSpeed(DSWActor* actor, int pix_height)
 {
-    USERp u = User[SpriteNum].Data();
+    USERp u = actor->u();
 
     //ASSERT(pix_height < 128);
 
@@ -902,11 +899,10 @@ PickJumpSpeed(short SpriteNum, int pix_height)
 }
 
 
-int
-PickJumpMaxSpeed(short SpriteNum, short max_speed)
+int PickJumpMaxSpeed(DSWActor* actor, short max_speed)
 {
-    SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
     int zh;
 
     ASSERT(max_speed < 0);
@@ -935,15 +931,13 @@ PickJumpMaxSpeed(short SpriteNum, short max_speed)
 // HANGING - Jumping/Falling/Stationary
 //
 
-int
-InitRipperHang(DSWActor* actor)
+int InitRipperHang(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
     int dist;
 
-    hitdata_t hitinfo = { { 0, 0, 0 }, -2, 0, -2 };
+    HITINFO hitinfo;
 
     bool Found = false;
     short dang, tang;
@@ -980,12 +974,12 @@ InitRipperHang(DSWActor* actor)
         return 0;
     }
 
-    NewStateGroup(SpriteNum, sg_RipperHangJump);
+    NewStateGroup(actor, sg_RipperHangJump);
     u->StateFallOverride = sg_RipperHangFall;
-    DoActorSetSpeed(SpriteNum, FAST_SPEED);
+    DoActorSetSpeed(actor, FAST_SPEED);
 
     //u->jump_speed = -800;
-    PickJumpMaxSpeed(SpriteNum, -800);
+    PickJumpMaxSpeed(actor, -800);
 
     SET(u->Flags, SPR_JUMPING);
     RESET(u->Flags, SPR_FALLING);
@@ -993,32 +987,28 @@ InitRipperHang(DSWActor* actor)
     // set up individual actor jump gravity
     u->jump_grav = 8;
 
-    DoJump(SpriteNum);
+    DoJump(actor);
 
     return 0;
 }
 
-int
-DoRipperHang(DSWActor* actor)
+int DoRipperHang(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     if ((u->WaitTics -= ACTORMOVETICS) > 0)
         return 0;
 
-    NewStateGroup(SpriteNum, sg_RipperJumpAttack);
+    NewStateGroup(actor, sg_RipperJumpAttack);
     // move to the 2nd frame - past the pause frame
     u->Tics += u->State->Tics;
     return 0;
 }
 
-int
-DoRipperMoveHang(DSWActor* actor)
+int DoRipperMoveHang(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
     int nx, ny;
 
     // Move while jumping
@@ -1026,18 +1016,16 @@ DoRipperMoveHang(DSWActor* actor)
     ny = MulScale(sp->xvel, bsin(sp->ang), 14);
 
     // if cannot move the sprite
-    if (!move_actor(SpriteNum, nx, ny, 0L))
+    if (!move_actor(actor, nx, ny, 0L))
     {
-        switch (TEST(u->ret, HIT_MASK))
-        {
-        case HIT_WALL:
+        if (u->coll.type == kHitWall)
         {
             short hit_wall;
             short w, nw;
 
-            hit_wall = NORM_WALL(u->ret);
+            hit_wall = u->coll.index;
 
-            NewStateGroup(SpriteNum, u->ActorActionSet->Special[1]);
+            NewStateGroup(actor, u->ActorActionSet->Special[1]);
             u->WaitTics = 2 + ((RANDOM_P2(4 << 8) >> 8) * 120);
 
             // hang flush with the wall
@@ -1047,25 +1035,22 @@ DoRipperMoveHang(DSWActor* actor)
 
             return 0;
         }
-        }
     }
 
     return 0;
 }
 
 
-int
-DoRipperHangJF(DSWActor* actor)
+int DoRipperHangJF(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
         if (TEST(u->Flags, SPR_JUMPING))
-            DoJump(SpriteNum);
+            DoJump(actor);
         else
-            DoFall(SpriteNum);
+            DoFall(actor);
     }
 
     if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
@@ -1086,27 +1071,27 @@ DoRipperHangJF(DSWActor* actor)
 // JUMP ATTACK
 //
 
-int
-DoRipperBeginJumpAttack(DSWActor* actor)
+int DoRipperBeginJumpAttack(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
-    SPRITEp psp = User[SpriteNum]->tgt_sp;
+    SPRITEp sp = &actor->s();
+    SPRITEp psp = &u->targetActor->s();
     short tang;
 
     tang = getangle(psp->x - sp->x, psp->y - sp->y);
 
-    if (move_sprite(SpriteNum, bcos(tang, -7), bsin(tang, -7),
-                    0L, u->ceiling_dist, u->floor_dist, CLIPMASK_ACTOR, ACTORMOVETICS))
+	Collision coll = move_sprite(actor, bcos(tang, -7), bsin(tang, -7),
+							   0L, u->ceiling_dist, u->floor_dist, CLIPMASK_ACTOR, ACTORMOVETICS);
+	
+    if (coll.type != kHitNone)
         sp->ang = NORM_ANGLE((sp->ang + 1024) + (RANDOM_NEG(256, 6) >> 6));
     else
         sp->ang = NORM_ANGLE(tang + (RANDOM_NEG(256, 6) >> 6));
 
-    DoActorSetSpeed(SpriteNum, FAST_SPEED);
+    DoActorSetSpeed(actor, FAST_SPEED);
 
     //u->jump_speed = -800;
-    PickJumpMaxSpeed(SpriteNum, -400); // was -800
+    PickJumpMaxSpeed(actor, -400); // was -800
 
     SET(u->Flags, SPR_JUMPING);
     RESET(u->Flags, SPR_FALLING);
@@ -1115,25 +1100,23 @@ DoRipperBeginJumpAttack(DSWActor* actor)
     u->jump_grav = 17; // was 8
 
     // if I didn't do this here they get stuck in the air sometimes
-    DoActorZrange(SpriteNum);
+    DoActorZrange(actor);
 
-    DoJump(SpriteNum);
+    DoJump(actor);
 
     return 0;
 }
 
-int
-DoRipperMoveJump(DSWActor* actor)
+int DoRipperMoveJump(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
         if (TEST(u->Flags, SPR_JUMPING))
-            DoJump(SpriteNum);
+            DoJump(actor);
         else
-            DoFall(SpriteNum);
+            DoFall(actor);
     }
 
     if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
@@ -1152,21 +1135,19 @@ DoRipperMoveJump(DSWActor* actor)
 // STD MOVEMENT
 //
 
-int
-DoRipperQuickJump(DSWActor* actor)
+int DoRipperQuickJump(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
     // Tests to see if ripper is on top of a player/enemy and then immediatly
     // does another jump
 
-    if (u->lo_sp)
+    if (u->lowActor)
     {
-        SPRITEp tsp = u->lo_sp;
+        SPRITEp tsp = &u->lowActor->s();
 
         if (TEST(tsp->extra, SPRX_PLAYER_OR_ENEMY))
         {
-            NewStateGroup(SpriteNum, sg_RipperJumpAttack);
+            NewStateGroup(actor, sg_RipperJumpAttack);
             // move past the first state
             u->Tics = 30;
             return true;
@@ -1177,11 +1158,9 @@ DoRipperQuickJump(DSWActor* actor)
 }
 
 
-int
-NullRipper(DSWActor* actor)
+int NullRipper(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags,SPR_SLIDING))
         DoActorSlide(actor);
@@ -1195,7 +1174,6 @@ NullRipper(DSWActor* actor)
 int DoRipperPain(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     NullRipper(actor);
 
@@ -1206,16 +1184,15 @@ int DoRipperPain(DSWActor* actor)
 
 
 // CTW MODIFICATION
-//int DoRipperRipHeart(SpriteNum)
-int DoRipperRipHeart(short SpriteNum)
+int DoRipperRipHeart(DSWActor* actor)
 // CTW MODIFICATION END
 {
-    SPRITEp sp = &sprite[SpriteNum];
-    USERp u = User[SpriteNum].Data();
+    SPRITEp sp = &actor->s();
+    USERp u = actor->u();
 
-    SPRITEp tsp = u->tgt_sp;
+    SPRITEp tsp = &u->targetActor->s();
 
-    NewStateGroup(SpriteNum, sg_RipperHeart);
+    NewStateGroup(actor, sg_RipperHeart);
     u->WaitTics = 6 * 120;
 
     // player face ripper
@@ -1224,57 +1201,53 @@ int DoRipperRipHeart(short SpriteNum)
 }
 
 
-//int DoRipperStandHeart(SpriteNum)
 int DoRipperStandHeart(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     NullRipper(actor);
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)
-        NewStateGroup(SpriteNum, sg_RipperRun);
+        NewStateGroup(actor, sg_RipperRun);
     return 0;
 }
 
-void RipperHatch(short Weapon)
+void RipperHatch(DSWActor* actor)
 {
-    SPRITEp wp = &sprite[Weapon];
+    SPRITEp wp = &actor->s();
 
-    short New,i;
     SPRITEp np;
     USERp nu;
-#define MAX_RIPPERS 1
+	const int MAX_RIPPERS = 1;
     short rip_ang[MAX_RIPPERS];
 
     rip_ang[0] = RANDOM_P2(2048);
     // rip_ang[1] = NORM_ANGLE(rip_ang[0] + 1024 + (RANDOM_P2(512) - 256));
 
-    for (i = 0; i < MAX_RIPPERS; i++)
+    for (int i = 0; i < MAX_RIPPERS; i++)
     {
-        New = COVERinsertsprite(wp->sectnum, STAT_DEFAULT);
-        np = &sprite[New];
-        memset(np,0,sizeof(SPRITE));
-        np->sectnum = wp->sectnum;
+        auto actorNew = InsertActor(wp->sectnum, STAT_DEFAULT);
+        np = &actorNew->s();
+		np->clear();
+        ClearOwner(actorNew);
+		np->sectnum = wp->sectnum;
         np->statnum = STAT_DEFAULT;
         np->x = wp->x;
         np->y = wp->y;
         np->z = wp->z;
-        np->owner = -1;
-        //np->xrepeat = np->yrepeat = 36;
         np->xrepeat = np->yrepeat = 64;
         np->ang = rip_ang[i];
         np->pal = 0;
-        SetupRipper(New);
-        nu = User[New].Data();
+        SetupRipper(actorNew);
+		nu = actorNew->u();
 
         // make immediately active
         SET(nu->Flags, SPR_ACTIVE);
 
-        NewStateGroup(New, nu->ActorActionSet->Jump);
+        NewStateGroup(actorNew, nu->ActorActionSet->Jump);
         nu->ActorActionFunc = DoActorMoveJump;
-        DoActorSetSpeed(New, FAST_SPEED);
-        PickJumpMaxSpeed(New, -600);
+        DoActorSetSpeed(actorNew, FAST_SPEED);
+        PickJumpMaxSpeed(actorNew, -600);
 
         SET(nu->Flags, SPR_JUMPING);
         RESET(nu->Flags, SPR_FALLING);
@@ -1282,17 +1255,15 @@ void RipperHatch(short Weapon)
         nu->jump_grav = 8;
 
         // if I didn't do this here they get stuck in the air sometimes
-        DoActorZrange(New);
+        DoActorZrange(actorNew);
 
-        DoJump(New);
+        DoJump(actorNew);
     }
 }
 
-int
-DoRipperMove(DSWActor* actor)
+int DoRipperMove(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     if (u->scale_speed)
     {
@@ -1302,9 +1273,9 @@ DoRipperMove(DSWActor* actor)
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING))
     {
         if (TEST(u->Flags, SPR_JUMPING))
-            DoJump(SpriteNum);
+            DoJump(actor);
         else
-            DoFall(SpriteNum);
+            DoFall(actor);
     }
 
     // if on a player/enemy sprite jump quickly
@@ -1313,14 +1284,14 @@ DoRipperMove(DSWActor* actor)
         if (DoRipperQuickJump(actor))
             return 0;
 
-        KeepActorOnFloor(SpriteNum);
+        KeepActorOnFloor(actor);
     }
 
     if (TEST(u->Flags, SPR_SLIDING))
         DoActorSlide(actor);
 
     if (u->track >= 0)
-        ActorFollowTrack(SpriteNum, ACTORMOVETICS);
+        ActorFollowTrack(actor, ACTORMOVETICS);
     else
         (*u->ActorActionFunc)(actor);
 

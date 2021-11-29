@@ -49,16 +49,12 @@ XSPRITE xsprite[kMaxXSprites];
 XSECTOR xsector[kMaxXSectors];
 XWALL xwall[kMaxXWalls];
 
-SPRITEHIT gSpriteHit[kMaxXSprites];
-
-int xvel[kMaxSprites], yvel[kMaxSprites], zvel[kMaxSprites];
-
 unsigned short nextXSprite[kMaxXSprites];
 int XWallsUsed, XSectorsUsed;
 
 
 
-char qsector_filler[kMaxSectors];
+uint8_t qsector_filler[kMaxSectors];
 
 int gVisibility;
 
@@ -161,16 +157,15 @@ void RemoveSpriteStat(int nSprite)
 
 void qinitspritelists(void) // Replace
 {
-    for (short i = 0; i <= kMaxSectors; i++)
+    for (int i = 0; i <= kMaxSectors; i++)
     {
         headspritesect[i] = -1;
     }
-    for (short i = 0; i <= kMaxStatus; i++)
+    for (int i = 0; i <= kMaxStatus; i++)
     {
         headspritestat[i] = -1;
     }
-    int const nMaxSprites = kMaxSprites;
-    for (short i = 0; i < nMaxSprites; i++)
+    for (int i = 0; i < kMaxSprites; i++)
     {
         sprite[i].sectnum = -1;
         sprite[i].index = -1;
@@ -190,6 +185,7 @@ int InsertSprite(int nSector, int nStat)
     }
     RemoveSpriteStat(nSprite);
     DBloodActor* actor = &bloodActors[nSprite];
+    actor->Clear();
     spritetype *pSprite = &actor->s();
     memset(pSprite, 0, sizeof(spritetype));
     InsertSpriteStat(nSprite, nStat);
@@ -197,20 +193,14 @@ int InsertSprite(int nSector, int nStat)
     pSprite->cstat = 128;
     pSprite->clipdist = 32;
     pSprite->xrepeat = pSprite->yrepeat = 64;
-    pSprite->owner = -1;
+    actor->SetOwner(nullptr);
     pSprite->extra = -1;
     pSprite->index = nSprite;
-    actor->xvel() = actor->yvel() = actor->zvel() = 0;
 
     Numsprites++;
 
     sprite[nSprite].time = leveltimer++;
     return nSprite;
-}
-
-int qinsertsprite(short nSector, short nStat) // Replace
-{
-    return InsertSprite(nSector, nStat);
 }
 
 int DeleteSprite(int nSprite)
@@ -233,11 +223,6 @@ int DeleteSprite(int nSprite)
     Numsprites--;
 
     return nSprite;
-}
-
-int qdeletesprite(short nSprite) // Replace
-{
-    return DeleteSprite(nSprite);
 }
 
 int ChangeSpriteSect(int nSprite, int nSector)
@@ -264,11 +249,6 @@ int ChangeSpriteStat(int nSprite, int nStatus)
     RemoveSpriteStat(nSprite);
     InsertSpriteStat(nSprite, nStatus);
     return 0;
-}
-
-int qchangespritestat(short nSprite, short nStatus)
-{
-    return ChangeSpriteStat(nSprite, nStatus);
 }
 
 void InitFreeList(unsigned short *pList, int nCount)
@@ -309,7 +289,7 @@ unsigned short dbInsertXSprite(int nSprite)
         I_Error("Out of free XSprites");
     }
     memset(&xsprite[nXSprite], 0, sizeof(XSPRITE));
-    memset(&gSpriteHit[nXSprite], 0, sizeof(SPRITEHIT));
+    bloodActors[nSprite].hit = {};
     xsprite[nXSprite].reference = nSprite;
     sprite[nSprite].extra = nXSprite;
     return nXSprite;
@@ -375,31 +355,36 @@ void dbInit(void)
 
 void PropagateMarkerReferences(void)
 {
-    int nSprite, nNextSprite;
-    for (nSprite = headspritestat[kStatMarker]; nSprite != -1; nSprite = nNextSprite) {
-        
-        nNextSprite = nextspritestat[nSprite];
-        
-        switch (sprite[nSprite].type)  {
+    BloodStatIterator it(kStatMarker);
+    while (auto actor = it.Next())
+    {
+        switch (actor->s().type)  
+        {
             case kMarkerOff:
             case kMarkerAxis:
-            case kMarkerWarpDest: {
-                int nOwner = sprite[nSprite].owner;
-                if (nOwner >= 0 && nOwner < numsectors) {
+            case kMarkerWarpDest: 
+            {
+                int nOwner = actor->s().owner;
+                if (nOwner >= 0 && nOwner < numsectors) 
+                {
                     int nXSector = sector[nOwner].extra;
-                    if (nXSector > 0 && nXSector < kMaxXSectors) {
-                        xsector[nXSector].marker0 = nSprite;
+                    if (nXSector > 0 && nXSector < kMaxXSectors) 
+                    {
+                        xsector[nXSector].marker0 = actor;
                         continue;
                     }
                 }
             }
             break;
-            case kMarkerOn: {
-                int nOwner = sprite[nSprite].owner;
-                if (nOwner >= 0 && nOwner < numsectors) {
+            case kMarkerOn: 
+            {
+                int nOwner = actor->s().owner;
+                if (nOwner >= 0 && nOwner < numsectors)
+                {
                     int nXSector = sector[nOwner].extra;
-                    if (nXSector > 0 && nXSector < kMaxXSectors) {
-                        xsector[nXSector].marker1 = nSprite;
+                    if (nXSector > 0 && nXSector < kMaxXSectors)
+                    {
+                        xsector[nXSector].marker1 = actor;
                         continue;
                     }
                 }
@@ -407,7 +392,7 @@ void PropagateMarkerReferences(void)
             break;
         }
         
-        DeleteSprite(nSprite);
+        DeleteSprite(actor);
     }
 }
 
@@ -511,16 +496,14 @@ struct walltypedisk
 #pragma pack(pop)
 
 
-void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, short *pSector, unsigned int *pCRC) {
+void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, int *pSector, unsigned int *pCRC) {
     int16_t tpskyoff[256];
     ClearAutomap();
     #ifdef NOONE_EXTENSIONS
     gModernMap = false;
     #endif
 
-    memset(sector, 0, sizeof(sector));
-    memset(wall, 0, sizeof(wall));
-    memset(sprite, 0, sizeof(sprite));
+    memset(xsprite, 0, sizeof(xsprite));
 
 #ifdef NOONE_EXTENSIONS
     for (auto& ctrl : gPlayerCtrl) ctrl.qavScene.initiator = nullptr;
@@ -609,6 +592,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
     gMapRev = mapHeader.revision;
     numsectors = mapHeader.numsectors;
     numwalls = mapHeader.numwalls;
+    allocateMapArrays(mapHeader.numsprites);
     dbInit();
     if (encrypted)
     {
@@ -748,8 +732,8 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
             pXSector->onCeilZ = bitReader.readSigned(32);
             pXSector->offFloorZ = bitReader.readSigned(32);
             pXSector->onFloorZ = bitReader.readSigned(32);
-            pXSector->marker0 = bitReader.readUnsigned(16);
-            pXSector->marker1 = bitReader.readUnsigned(16);
+            /*pXSector->marker0 =*/ bitReader.readUnsigned(16);
+            /*pXSector->marker1 =*/ bitReader.readUnsigned(16);
             pXSector->Crush = bitReader.readUnsigned(1);
             pSector->ceilingxpan_ += bitReader.readUnsigned(8) / 256.f;
             pSector->ceilingypan_ += bitReader.readUnsigned(8) / 256.f;
@@ -895,11 +879,11 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
         pSprite->time = i;
         ValidateSprite(*pSprite);
 
-        InsertSpriteSect(i, sprite[i].sectnum);
-        InsertSpriteStat(i, sprite[i].statnum);
+        InsertSpriteSect(i, pSprite->sectnum);
+        InsertSpriteStat(i, pSprite->statnum);
         Numsprites++;
-        sprite[i].index = i;
-        if (sprite[i].extra > 0)
+        pSprite->index = i;
+        if (pSprite->extra > 0)
         {
             char pBuffer[nXSpriteSize];
             int nXSprite = dbInsertXSprite(i);
@@ -995,6 +979,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
         {
             sprite[i].cstat &= ~0x30;
         }
+        bloodActors[i].Clear();
     }
     unsigned int nCRC =  fr.ReadUInt32();
 
@@ -1090,8 +1075,8 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, shor
 END_BLD_NS
 
 // only used by the backup loader.
-void qloadboard(const char* filename, char flags, vec3_t* dapos, int16_t* daang, int16_t* dacursectnum)
+void qloadboard(const char* filename, char flags, vec3_t* dapos, int16_t* daang, int* dacursectnum)
 {
-    Blood::dbLoadMap(filename, &dapos->x, &dapos->y, &dapos->z, (short*)daang, (short*)dacursectnum, NULL);
+    Blood::dbLoadMap(filename, &dapos->x, &dapos->y, &dapos->z, daang, dacursectnum, NULL);
     Blood::dbInit();    // clean up immediately.
 }

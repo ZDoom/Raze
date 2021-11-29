@@ -40,7 +40,7 @@ extern void (*qavClientCallback[])(int, void *);
 //
 //==========================================================================
 
-using QAVPrevTileFinder = TILE_FRAME* (*)(FRAMEINFO* const thisFrame, FRAMEINFO* const prevFrame, const int& i);
+using QAVPrevTileFinder = TILE_FRAME* (*)(FRAMEINFO* const thisFrame, FRAMEINFO* const prevFrame, const int i);
 
 struct QAVInterpProps
 {
@@ -48,7 +48,7 @@ struct QAVInterpProps
     bool loopable;
     TMap<int, TArray<int>> IgnoreData;
 
-    bool CanInterpFrameTile(const int& nFrame, const int& i)
+    bool CanInterpFrameTile(const int nFrame, const int i)
     {
         // Check whether the current frame's tile is skippable.
         auto thisFrame = IgnoreData.CheckKey(nFrame);
@@ -62,17 +62,17 @@ static TMap<int, QAVInterpProps> qavInterpProps;
 static void qavInitTileFinderMap()
 {
     // Interpolate between frames if the picnums match. This is safest but could miss interpolations between suitable picnums.
-    qavPrevTileFinders.Insert("picnum", [](FRAMEINFO* const thisFrame, FRAMEINFO* const prevFrame, const int& i) -> TILE_FRAME* {
+    qavPrevTileFinders.Insert("picnum", [](FRAMEINFO* const thisFrame, FRAMEINFO* const prevFrame, const int i) -> TILE_FRAME* {
         return prevFrame->tiles[i].picnum == thisFrame->tiles[i].picnum ? &prevFrame->tiles[i] : nullptr;
     });
 
     // Interpolate between frames if the picnum is valid. This can be problematic if tile indices change between frames.
-    qavPrevTileFinders.Insert("index", [](FRAMEINFO* const thisFrame, FRAMEINFO* const prevFrame, const int& i) -> TILE_FRAME* {
+    qavPrevTileFinders.Insert("index", [](FRAMEINFO* const thisFrame, FRAMEINFO* const prevFrame, const int i) -> TILE_FRAME* {
         return prevFrame->tiles[i].picnum > 0 ? &prevFrame->tiles[i] : nullptr;
     });
 
     // Find previous frame by iterating all previous frame's tiles and return on first matched x coordinate.
-    qavPrevTileFinders.Insert("x", [](FRAMEINFO* const thisFrame, FRAMEINFO* const prevFrame, const int& i) -> TILE_FRAME* {
+    qavPrevTileFinders.Insert("x", [](FRAMEINFO* const thisFrame, FRAMEINFO* const prevFrame, const int i) -> TILE_FRAME* {
         for (int j = 0; j < 8; j++) if (thisFrame->tiles[i].x == prevFrame->tiles[j].x)
         {
             return &prevFrame->tiles[j];
@@ -81,7 +81,7 @@ static void qavInitTileFinderMap()
     });
 
     // Find previous frame by iterating all previous frame's tiles and return on first matched y coordinate.
-    qavPrevTileFinders.Insert("y", [](FRAMEINFO* const thisFrame, FRAMEINFO* const prevFrame, const int& i) -> TILE_FRAME* {
+    qavPrevTileFinders.Insert("y", [](FRAMEINFO* const thisFrame, FRAMEINFO* const prevFrame, const int i) -> TILE_FRAME* {
         for (int j = 0; j < 8; j++) if (thisFrame->tiles[i].y == prevFrame->tiles[j].y)
         {
             return &prevFrame->tiles[j];
@@ -101,12 +101,12 @@ bool GameInterface::IsQAVInterpTypeValid(const FString& type)
     return qavGetInterpType(type) != nullptr;
 }
 
-void GameInterface::AddQAVInterpProps(const int& res_id, const FString& interptype, const bool& loopable, const TMap<int, TArray<int>>& ignoredata)
+void GameInterface::AddQAVInterpProps(const int res_id, const FString& interptype, const bool loopable, const TMap<int, TArray<int>>&& ignoredata)
 {
-    qavInterpProps.Insert(res_id, { qavGetInterpType(interptype), loopable, ignoredata });
+    qavInterpProps.Insert(res_id, { qavGetInterpType(interptype), loopable, std::move(ignoredata) });
 }
 
-void GameInterface::RemoveQAVInterpProps(const int& res_id)
+void GameInterface::RemoveQAVInterpProps(const int res_id)
 {
     qavInterpProps.Remove(res_id);
 }
@@ -129,7 +129,7 @@ void DrawFrame(double x, double y, double z, double a, double alpha, int picnum,
 		auto color = shadeToLight(shade);
 
 		DrawTexture(twod, tex, x, y, DTA_ScaleX, scale, DTA_ScaleY, scale, DTA_Rotate, angle, DTA_LegacyRenderStyle, renderstyle, DTA_Alpha, alpha, DTA_Pin, pin, DTA_TranslationIndex, translation,
-					DTA_TopLeft, topleft, DTA_CenterOffsetRel, !topleft, DTA_FullscreenScale, FSMode_Fit320x200, DTA_FlipOffsets, true, DTA_Color, color,
+					DTA_TopLeft, topleft, DTA_CenterOffsetRel, topleft? 0:2, DTA_FullscreenScale, FSMode_Fit320x200, DTA_FlipOffsets, true, DTA_Color, color,
 					DTA_FlipX, xflip, DTA_FlipY, yflip, TAG_DONE);
     }
     else
@@ -203,8 +203,9 @@ void QAV::Draw(double x, double y, int ticks, int stat, int shade, int palnum, b
 }
 
 
-void QAV::Play(int start, int end, int nCallback, void *pData)
+void QAV::Play(int start, int end, int nCallback, PLAYER *pData)
 {
+    auto pActor = pData ? pData->actor : nullptr;
     assert(ticksPerFrame > 0);
     int frame;
     int ticks;
@@ -227,10 +228,10 @@ void QAV::Play(int start, int end, int nCallback, void *pData)
                     SOUNDINFO* pSound2 = &pFrame2->sound;
                     if (pSound2->sound != 0) {
                         if (pSound->sndFlags != kFlagSoundKillAll && pSound2->priority != pSound->priority) continue;
-                        else if (nSprite >= 0) {
+                        else if (pActor) {
                             // We need stop all sounds in a range
                             for (int a = 0; a <= pSound2->sndRange; a++)
-                                sfxKill3DSound(&sprite[nSprite], -1, pSound2->sound + a);
+                                sfxKill3DSound(pActor, -1, pSound2->sound + a);
                         } else {
                             sndKillAllSounds();
                         }
@@ -245,8 +246,8 @@ void QAV::Play(int start, int end, int nCallback, void *pData)
                 if (pSound->sndRange > 0 && !VanillaMode()) 
                     sound += Random((pSound->sndRange == 1) ? 2 : pSound->sndRange);
                 
-                if (nSprite == -1) sndStartSample(sound, -1, -1, 0);
-                else sfxPlay3DSound(&sprite[nSprite], sound, 16+pSound->priority, 6);
+                if (pActor == nullptr) sndStartSample(sound, -1, -1, 0);
+                else sfxPlay3DSound(pActor, sound, 16+pSound->priority, 6);
             }
             
             if (pFrame->nCallbackId > 0 && nCallback != -1) {
@@ -345,7 +346,7 @@ QAV* getQAV(int res_id)
     qavdata->duration = fr.ReadInt32();
     qavdata->x = fr.ReadInt32();
     qavdata->y = fr.ReadInt32();
-    qavdata->nSprite = fr.ReadInt32();
+    /*qavdata->nSprite =*/ fr.ReadInt32(); 
     for (int i = 0; i < 4; i++) fr.ReadUInt8();
 
     // Read FRAMEINFO data.

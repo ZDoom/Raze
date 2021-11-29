@@ -73,7 +73,7 @@ void SerializeGun(FSerializer& arc)
     }
 }
 
-void RestoreMinAmmo(short nPlayer)
+void RestoreMinAmmo(int nPlayer)
 {
     for (int i = 0; i < kMaxWeapons; i++)
     {
@@ -92,7 +92,7 @@ void RestoreMinAmmo(short nPlayer)
     CheckClip(nPlayer);
 }
 
-void FillWeapons(short nPlayer)
+void FillWeapons(int nPlayer)
 {
     PlayerList[nPlayer].nPlayerWeapons = 0xFFFF; // turn on all bits
 
@@ -106,7 +106,7 @@ void FillWeapons(short nPlayer)
     CheckClip(nPlayer);
 }
 
-void ResetPlayerWeapons(short nPlayer)
+void ResetPlayerWeapons(int nPlayer)
 {
     for (int i = 0; i < kMaxWeapons; i++)
     {
@@ -126,7 +126,7 @@ void InitWeapons()
     for (auto& p : PlayerList) p.pPlayerGrenade = nullptr;
 }
 
-void SetNewWeapon(short nPlayer, short nWeapon)
+void SetNewWeapon(int nPlayer, short nWeapon)
 {
     if (nWeapon == kWeaponMummified)
     {
@@ -167,7 +167,7 @@ void SetNewWeapon(short nPlayer, short nWeapon)
     PlayerList[nPlayer].field_38 = nWeapon;
 }
 
-void SetNewWeaponImmediate(short nPlayer, short nWeapon)
+void SetNewWeaponImmediate(int nPlayer, short nWeapon)
 {
     SetNewWeapon(nPlayer, nWeapon);
 
@@ -177,14 +177,14 @@ void SetNewWeaponImmediate(short nPlayer, short nWeapon)
     PlayerList[nPlayer].field_3A = 0;
 }
 
-void SetNewWeaponIfBetter(short nPlayer, short nWeapon)
+void SetNewWeaponIfBetter(int nPlayer, short nWeapon)
 {
     if (nWeapon > PlayerList[nPlayer].nCurrentWeapon) {
         SetNewWeapon(nPlayer, nWeapon);
     }
 }
 
-void SelectNewWeapon(short nPlayer)
+void SelectNewWeapon(int nPlayer)
 {
     int nWeapon = kWeaponRing; // start at the highest weapon number
 
@@ -212,23 +212,23 @@ void SelectNewWeapon(short nPlayer)
     SetNewWeapon(nPlayer, nWeapon);
 }
 
-void StopFiringWeapon(short nPlayer)
+void StopFiringWeapon(int nPlayer)
 {
     PlayerList[nPlayer].bIsFiring = false;
 }
 
-void FireWeapon(short nPlayer)
+void FireWeapon(int nPlayer)
 {
     if (!PlayerList[nPlayer].bIsFiring) {
         PlayerList[nPlayer].bIsFiring = true;
     }
 }
 
-void SetWeaponStatus(short nPlayer)
+void SetWeaponStatus(int nPlayer)
 {
 }
 
-uint8_t WeaponCanFire(short nPlayer)
+uint8_t WeaponCanFire(int nPlayer)
 {
     short nWeapon = PlayerList[nPlayer].nCurrentWeapon;
     int nSector =PlayerList[nPlayer].nPlayerViewSect;
@@ -252,7 +252,7 @@ void ResetSwordSeqs()
     WeaponInfo[kWeaponSword].b[3] = 7;
 }
 
-Collision CheckCloseRange(short nPlayer, int *x, int *y, int *z, short *nSector)
+Collision CheckCloseRange(int nPlayer, int *x, int *y, int *z, short *nSector)
 {
     short hitSect, hitWall, hitSprite;
     int hitX, hitY, hitZ;
@@ -305,7 +305,7 @@ Collision CheckCloseRange(short nPlayer, int *x, int *y, int *z, short *nSector)
     return c;
 }
 
-void CheckClip(short nPlayer)
+void CheckClip(int nPlayer)
 {
     if (PlayerList[nPlayer].nPlayerClip <= 0)
     {
@@ -320,7 +320,7 @@ void CheckClip(short nPlayer)
     PlayerList[nPlayer].nPistolClip = PlayerList[nPlayer].nAmmo[kWeaponPistol] % 6;
 }
 
-void MoveWeapons(short nPlayer)
+void MoveWeapons(int nPlayer)
 {
     static int dword_96E22 = 0;
 
@@ -668,7 +668,7 @@ loc_flag:
             }
 
             short nAmmoType = WeaponInfo[nWeapon].nAmmoType;
-            short nAngle = pPlayerSprite->ang;
+            int nAngle = pPlayerSprite->ang;
             int theX = pPlayerSprite->x;
             int theY = pPlayerSprite->y;
             int theZ = pPlayerSprite->z;

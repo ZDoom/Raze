@@ -205,7 +205,6 @@ void FVoxelModel::AddFace(int x1, int y1, int z1, int x2, int y2, int z2, int x3
 	float PivotX = mVoxel->Mips[0].Pivot.X;
 	float PivotY = mVoxel->Mips[0].Pivot.Y;
 	float PivotZ = mVoxel->Mips[0].Pivot.Z;
-	int h = mVoxel->Mips[0].SizeZ;
 	FModelVertex vert;
 	unsigned int indx[4];
 

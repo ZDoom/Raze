@@ -41,7 +41,7 @@ short Switch(short SwitchSector);
 void PlayerOperateEnv(PLAYERp pp);
 int TeleportToSector(PLAYERp pp, int newsector);
 int OperateSector(short sectnum,short player_is_operating);
-int OperateSprite(short SpriteNum, short player_is_operating);
+int OperateSprite(DSWActor*, short player_is_operating);
 int OperateWall(short wallnum, short player_is_operating);
 void OperateTripTrigger(PLAYERp pp);
 
@@ -60,7 +60,8 @@ enum SO_SCALE_TYPE
 typedef struct
 {
     int dist;
-    short sectnum, wallnum, spritenum;
+    short sectnum, wallnum;
+    DSWActor* actor;
 } NEAR_TAG_INFO, *NEAR_TAG_INFOp;
 extern short nti_cnt;
 
@@ -71,12 +72,10 @@ bool ComboSwitchTest(short combo_type,short match);
 void DoSoundSpotStopSound(short match);
 void DoSector(void);
 short AnimateSwitch(SPRITEp sp,short tgt_value);
-void ShootableSwitch(short SpriteNum);
+void ShootableSwitch(DSWActor*);
 bool TestKillSectorObject(SECTOR_OBJECTp sop);
-void WeaponExplodeSectorInRange(short weapon);
+void WeaponExplodeSectorInRange(DSWActor*);
 
-void initlava(void);
-void movelava(char *dapic);
 
 END_SW_NS
 

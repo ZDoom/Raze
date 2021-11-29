@@ -44,7 +44,7 @@ AISTATE spidBite = { kAiStateChase, 6, nSpidBiteClient, 60, NULL, NULL, NULL, &s
 AISTATE spidJump = { kAiStateChase, 8, nSpidJumpClient, 60, NULL, aiMoveForward, NULL, &spidChase };
 AISTATE spidBirth = { kAiStateOther, 0, nSpidBirthClient, 60, NULL, NULL, NULL, &spidIdle };
 
-static char spidBlindEffect(DBloodActor* dudeactor, int nBlind, int max)
+static void spidBlindEffect(DBloodActor* dudeactor, int nBlind, int max)
 {
 	spritetype* pDude = &dudeactor->s();
 	if (IsPlayerSprite(pDude))
@@ -55,15 +55,12 @@ static char spidBlindEffect(DBloodActor* dudeactor, int nBlind, int max)
 		if (pPlayer->blindEffect < max)
 		{
 			pPlayer->blindEffect = ClipHigh(pPlayer->blindEffect + nBlind, max);
-			return 1;
 		}
 	}
-	return 0;
 }
 
 void SpidBiteSeqCallback(int, DBloodActor* actor)
 {
-	XSPRITE* pXSprite = &actor->x();
 	spritetype* pSprite = &actor->s();
 	int dx = bcos(pSprite->ang);
 	int dy = bsin(pSprite->ang);
@@ -75,10 +72,9 @@ void SpidBiteSeqCallback(int, DBloodActor* actor)
 
 	auto const target = actor->GetTarget();
 	spritetype* pTarget = &target->s();
-	XSPRITE* pXTarget = &target->x();
 	if (IsPlayerSprite(pTarget))
 	{
-		int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
+        int hit = HitScan(actor, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
 		if (hit == 3 && gHitInfo.hitactor->IsPlayerActor())
 		{
 			dz += pTarget->z - pSprite->z;
@@ -115,7 +111,6 @@ void SpidBiteSeqCallback(int, DBloodActor* actor)
 
 void SpidJumpSeqCallback(int, DBloodActor* actor)
 {
-	XSPRITE* pXSprite = &actor->x();
 	spritetype* pSprite = &actor->s();
 	int dx = bcos(pSprite->ang);
 	int dy = bsin(pSprite->ang);
@@ -131,9 +126,9 @@ void SpidJumpSeqCallback(int, DBloodActor* actor)
 		case kDudeSpiderBrown:
 		case kDudeSpiderRed:
 		case kDudeSpiderBlack:
-			actor->xvel() = IntToFixed(dx);
-			actor->yvel() = IntToFixed(dy);
-			actor->zvel() = IntToFixed(dz);
+                actor->xvel = IntToFixed(dx);
+                actor->yvel = IntToFixed(dy);
+                actor->zvel = IntToFixed(dz);
 			break;
 		}
 	}
@@ -176,7 +171,6 @@ void SpidBirthSeqCallback(int, DBloodActor* actor)
 static void spidThinkSearch(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
 	aiChooseDirection(actor, pXSprite->goalAng);
 	aiThinkTarget(actor);
 }
@@ -199,7 +193,6 @@ static void spidThinkGoto(DBloodActor* actor)
 
 static void spidThinkChase(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
 	auto pSprite = &actor->s();
 	if (actor->GetTarget() == nullptr)
 	{

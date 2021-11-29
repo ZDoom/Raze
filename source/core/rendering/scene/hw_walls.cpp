@@ -968,7 +968,7 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 
 
 #ifdef _DEBUG
-	if (wal - wall == 6468)
+	if (wallnum(wal) == 6468)
 	{
 		int a = 0;
 	}
@@ -1036,7 +1036,7 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 
 		int tilenum = ((wal->cstat & CSTAT_WALL_1WAY) && wal->nextwall != -1) ? wal->overpicnum : wal->picnum;
 		setgotpic(tilenum);
-		tileUpdatePicnum(&tilenum, int(wal-wall) + 16384, wal->cstat);
+		tileUpdatePicnum(&tilenum, wallnum(wal) + 16384, wal->cstat);
 		texture = tileGetTexture(tilenum);
 		if (texture && texture->isValid())
 		{
@@ -1051,8 +1051,6 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 		float bch2;
 		PlanesAtPoint(backsector, wal->x, wal->y, &bch1, &bfh1);
 		PlanesAtPoint(backsector, p2wall->x, p2wall->y, &bch2, &bfh2);
-
-		float zalign = 0.f;
 
 		SkyTop(di, wal, frontsector, backsector, v1, v2, fch1, fch2);
 		SkyBottom(di, wal, frontsector, backsector, v1, v2, ffh1, ffh2);
@@ -1076,7 +1074,7 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 			{
 				int tilenum = wal->picnum;
 				setgotpic(tilenum);
-				tileUpdatePicnum(&tilenum, int(wal - wall) + 16384, wal->cstat);
+				tileUpdatePicnum(&tilenum, wallnum(wal) + 16384, wal->cstat);
 				texture = tileGetTexture(tilenum);
 				if (texture && texture->isValid())
 				{
@@ -1089,7 +1087,7 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 		{
 			int tilenum = wal->overpicnum;
 			setgotpic(tilenum);
-			tileUpdatePicnum(&tilenum, int(wal - wall) + 16384, wal->cstat);
+			tileUpdatePicnum(&tilenum, wallnum(wal) + 16384, wal->cstat);
 			texture = tileGetTexture(tilenum);
 			if (texture && texture->isValid())
 			{
@@ -1115,7 +1113,7 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 				auto w = (wal->cstat & CSTAT_WALL_BOTTOM_SWAP) ? backwall : wal;
 				int tilenum = w->picnum;
 				setgotpic(tilenum);
-				tileUpdatePicnum(&tilenum, int(wal - wall) + 16384, w->cstat);
+				tileUpdatePicnum(&tilenum, wallnum(wal) + 16384, w->cstat);
 				texture = tileGetTexture(tilenum);
 				if (texture && texture->isValid())
 				{

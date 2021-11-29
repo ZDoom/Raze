@@ -215,8 +215,6 @@ void V_AddBlend (float r, float g, float b, float a, float v_blend[4])
 
 void drawoverlays(double smoothratio)
 {
-	uint8_t fader = 0, fadeg = 0, fadeb = 0, fadef = 0, tintr = 0, tintg = 0, tintb = 0, tintf = 0, dotint = 0;
-
 	struct player_struct* pp;
 	int cposx, cposy, cang;
 
@@ -252,7 +250,7 @@ void drawoverlays(double smoothratio)
 			{
 				fi.displayweapon(screenpeek, smoothratio);
 				if (pp->over_shoulder_on == 0)
-					fi.displaymasks(screenpeek, pp->GetActor()->s->pal == 1 ? 1 : pp->cursector()->floorpal, smoothratio);
+					fi.displaymasks(screenpeek, pp->GetActor()->s->pal == 1 || !pp->insector() ? 1 : pp->cursector()->floorpal, smoothratio);
 			}
 			if (!isRR())
 				moveclouds(smoothratio);
@@ -319,7 +317,7 @@ void cameratext(DDukeActor *cam)
 {
 	auto drawitem = [=](int tile, double x, double y, bool flipx, bool flipy)
 	{
-		DrawTexture(twod, tileGetTexture(tile), x, y, DTA_ViewportX, windowxy1.x, DTA_ViewportY, windowxy1.y, DTA_ViewportWidth, windowxy2.x - windowxy1.x + 1, DTA_CenterOffsetRel, true,
+		DrawTexture(twod, tileGetTexture(tile), x, y, DTA_ViewportX, windowxy1.x, DTA_ViewportY, windowxy1.y, DTA_ViewportWidth, windowxy2.x - windowxy1.x + 1, DTA_CenterOffsetRel, 2,
 			DTA_ViewportHeight, windowxy2.y - windowxy1.y + 1, DTA_FlipX, flipx, DTA_FlipY, flipy, DTA_FullscreenScale, FSMode_Fit320x200, TAG_DONE);
 	};
 	if (!cam->temp_data[0])
@@ -334,8 +332,6 @@ void cameratext(DDukeActor *cam)
 	}
 	else
 	{
-		int flipbits = (PlayClock << 1) & 48;
-
 		for (int x = -64; x < 394; x += 64)
 			for (int y = 0; y < 200; y += 64)
 				drawitem(TILE_STATIC, x, y, !!(PlayClock & 8), !!(PlayClock & 16));
@@ -387,7 +383,7 @@ ReservedSpace GameInterface::GetReservedScreenSpace(int viewsize)
 //
 //---------------------------------------------------------------------------
 
-bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang, double const smoothratio)
+bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int czoom, int cang, double const smoothratio)
 {
 	int i, j, k, l, x1, y1, x2, y2, x3, y3, x4, y4, ox, oy, xoff, yoff;
 	int dax, day, cosang, sinang, xspan, yspan, sprx, spry;
@@ -421,7 +417,7 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
 			if ((spr->cstat & 257) != 0) switch (spr->cstat & 48)
 			{
 			case 0:
-				//                    break;
+				//break;
 
 				ox = sprx - cposx;
 				oy = spry - cposy;
@@ -551,6 +547,14 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
 		auto act = ps[p].GetActor();
 		auto pspr = act->s;
 		auto spos = pspr->interpolatedvec2(smoothratio);
+
+		ox = mx - cposx;
+		oy = my - cposy;
+		x1 = DMulScale(ox, xvect, -oy, yvect, 16);
+		y1 = DMulScale(oy, xvect, ox, yvect, 16);
+		int xx = xdim / 2. + x1 / 4096.;
+		int yy = ydim / 2. + y1 / 4096.;
+
 		daang = ((!SyncInput() ? pspr->ang : pspr->interpolatedang(smoothratio)) - cang) & 2047;
 
 		if (p == screenpeek || ud.coop == 1)
@@ -567,7 +571,7 @@ bool GameInterface::DrawAutomapPlayer(int cposx, int cposy, int czoom, int cang,
 			if (j < 22000) j = 22000;
 			else if (j > (65536 << 1)) j = (65536 << 1);
 
-			DrawTexture(twod, tileGetTexture(i), xdim / 2. + spos.x / 4096., ydim / 2. + spos.y / 4096., DTA_TranslationIndex, TRANSLATION(Translation_Remap + setpal(&pp), pspr->pal), DTA_CenterOffset, true,
+			DrawTexture(twod, tileGetTexture(i), xx, yy, DTA_TranslationIndex, TRANSLATION(Translation_Remap + setpal(&pp), pspr->pal), DTA_CenterOffset, true,
 				DTA_Rotate, daang * -BAngToDegree, DTA_Color, shadeToLight(pspr->shade), DTA_ScaleX, j / 65536., DTA_ScaleY, j / 65536., TAG_DONE);
 		}
 	}

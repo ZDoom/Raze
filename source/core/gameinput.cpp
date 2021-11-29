@@ -188,16 +188,14 @@ void processMovement(InputPacket* const currInput, InputPacket* const inputBuffe
 
 		if (turnleft || turnright)
 		{
-			double const turnamount = hidspeed * turnscale;
-			double const preambleturn = turnamount * (double(PREAMBLEBASE) / double(NORMALTURNBASE));
-
 			updateTurnHeldAmt(scaleAdjust);
+			float const turnamount = float(scaleAdjust * hidspeed * turnscale * (isTurboTurnTime() ? 1. : double(PREAMBLEBASE) / double(NORMALTURNBASE)));
 
 			if (turnleft)
-				currInput->avel -= float(scaleAdjust * (isTurboTurnTime() ? turnamount : preambleturn));
+				currInput->avel -= turnamount;
 
 			if (turnright)
-				currInput->avel += float(scaleAdjust * (isTurboTurnTime() ? turnamount : preambleturn));
+				currInput->avel += turnamount;
 		}
 		else
 		{
@@ -400,7 +398,6 @@ void PlayerAngle::applyinput(float const avel, ESyncBits* actions, double const 
 		{
 			// add player's input
 			ang += degang(avel);
-			spin = 0;
 		}
 
 		if (spin < 0)
@@ -450,7 +447,7 @@ enum
 
 void PlayerHorizon::calcviewpitch(vec2_t const pos, binangle const ang, bool const aimmode, bool const canslopetilt, int const cursectnum, double const scaleAdjust, bool const climbing)
 {
-	if (cl_slopetilting)
+	if (cl_slopetilting && cursectnum >= 0)
 	{
 		if (aimmode && canslopetilt) // If the floor is sloped
 		{

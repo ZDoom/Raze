@@ -139,6 +139,10 @@ struct walltype
     sectortype* nextSector() const;
     walltype* nextWall() const;
     walltype* point2Wall() const;
+	vec2_t delta() const { return point2Wall()->pos - pos; }
+	vec2_t center() const { return(point2Wall()->pos + pos) / 2; }
+	int deltax() const { return point2Wall()->x - x; }
+	int deltay() const { return point2Wall()->y - y; }
     bool twoSided() const { return nextsector >= 0; }
 
 #if 0
@@ -291,7 +295,9 @@ struct spritetype
 #endif
     void clear()
     {
+        int save = time;    // this may not be cleared ever!!!
         memset(this, 0, sizeof(*this));
+        time = save;
     }
 
     void backupx()

@@ -57,6 +57,27 @@ EXTERN_CVAR(Bool, sw_bunnyrockets)
 
 BEGIN_SW_NS
 
+// Wrapper around the insane collision info mess from Build.
+class DSWActor;
+struct Collision
+{
+    int type;
+    int index;
+    int legacyVal;	// should be removed later, but needed for converting back for unadjusted code.
+    DSWActor* actor;
+
+    Collision() = default;
+    explicit Collision(int legacyval) { setFromEngine(legacyval); }
+
+    void invalidate() { type = -1; } // something invalid that's not a valid hit type.
+    int setNone();
+    int setSector(int num);
+    int setWall(int num);
+    int setSprite(DSWActor* num);
+    int setSky();
+    int setFromEngine(int value);
+};
+
 typedef struct
 {
     // Net Options from Menus
@@ -198,13 +219,6 @@ inline int32_t FIXED(int32_t msw, int32_t lsw)
 #define SET_SP_TAG13(sp,val) (*((short*)&(sp)->xoffset)) = LittleShort((short)val)
 #define SET_SP_TAG14(sp,val) (*((short*)&(sp)->xrepeat)) = LittleShort((short)val)
 
-// OVER and UNDER water macros
-#define SpriteInDiveArea(sp) (TEST(sector[(sp)->sectnum].extra, SECTFX_DIVE_AREA) ? true : false)
-#define SpriteInUnderwaterArea(sp) (TEST(sector[(sp)->sectnum].extra, SECTFX_UNDERWATER|SECTFX_UNDERWATER2) ? true : false)
-
-#define SectorIsDiveArea(sect) (TEST(sector[sect].extra, SECTFX_DIVE_AREA) ? true : false)
-#define SectorIsUnderwaterArea(sect) (TEST(sector[sect].extra, SECTFX_UNDERWATER|SECTFX_UNDERWATER2) ? true : false)
-
 #define TRAVERSE_CONNECT(i)   for (i = connecthead; i != -1; i = connectpoint2[i])
 
 
@@ -224,9 +238,9 @@ int StdRandomRange(int range);
 
 #define DIST(x1, y1, x2, y2) ksqrt( SQ((x1) - (x2)) + SQ((y1) - (y2)) )
 
-inline int PIC_SIZY(int sn) 
-{ 
-	return tileHeight(sprite[sn].picnum); 
+inline int PIC_SIZY(spritetype* sp)
+{
+    return tileHeight(sp->picnum);
 }
 
 // Distance macro - tx, ty, tmin are holding vars that must be declared in the routine
@@ -295,7 +309,6 @@ inline int SPRITEp_SIZE_BOS(const spritetype* sp)
 #define KENFACING_PLAYER(pp,sp) (bcos(sp->ang)*(pp->posy-sp->y) >= bsin(sp-ang)*(pp->posx-sp->x))
 #define FACING_PLAYER(pp,sp) (abs(getincangle(getangle((pp)->posx - (sp)->x, (pp)->posy - (sp)->y), (sp)->ang)) < 512)
 #define PLAYER_FACING(pp,sp) (abs(getincangle(getangle((sp)->x - (pp)->posx, (sp)->y - (pp)->posy), (pp)->angle.ang.asbuild())) < 320)
-#define FACING(sp1,sp2) (abs(getincangle(getangle((sp1)->x - (sp2)->x, (sp1)->y - (sp2)->y), (sp2)->ang)) < 512)
 
 #define FACING_PLAYER_RANGE(pp,sp,range) (abs(getincangle(getangle((pp)->posx - (sp)->x, (pp)->posy - (sp)->y), (sp)->ang)) < (range))
 #define PLAYER_FACING_RANGE(pp,sp,range) (abs(getincangle(getangle((sp)->x - (pp)->posx, (sp)->y - (pp)->posy), (pp)->angle.ang.asbuild())) < (range))
@@ -304,34 +317,15 @@ inline int SPRITEp_SIZE_BOS(const spritetype* sp)
 // two vectors
 // can determin direction
 #define DOT_PRODUCT_2D(x1,y1,x2,y2) (MulScale((x1), (x2), 16) + MulScale((y1), (y2), 16))
-#define DOT_PRODUCT_3D(x1,y1,z1,x2,y2,z2) (MulScale((x1), (x2), 16) + MulScale((y1), (y2), 16) + MulScale((z1), (z2), 16))
 
-// just determine if the player is moving
-#define PLAYER_MOVING(pp) ((pp)->xvect|(pp)->yvect)
-
-#define LOW_TAG(sectnum) ( sector[sectnum].lotag )
-#define HIGH_TAG(sectnum) ( sector[sectnum].hitag )
-
-#define LOW_TAG_SPRITE(spnum) ( sprite[(spnum)].lotag )
-#define HIGH_TAG_SPRITE(spnum) ( sprite[(spnum)].hitag )
-
-#define LOW_TAG_WALL(wallnum) ( wall[(wallnum)].lotag )
-#define HIGH_TAG_WALL(wallnum) ( wall[(wallnum)].hitag )
 
 #define SEC(value) ((value)*120)
 
 #define CEILING_DIST (Z(4))
 #define FLOOR_DIST (Z(4))
 
-// defines for move_sprite return value
-#define HIT_MASK (BIT(14)|BIT(15)|BIT(16))
-#define HIT_SPRITE (BIT(14)|BIT(15))
-#define HIT_WALL   BIT(15)
-#define HIT_SECTOR BIT(14)
-#define HIT_PLAX_WALL BIT(16)
-
 #define NORM_SPRITE(val) ((val) & (kHitIndexMask))
-#define NORM_WALL(val) ((val) & (kHitIndexMask))
+
 #define NORM_SECTOR(val) ((val) & (kHitIndexMask))
 
 // overwritesprite flags
@@ -447,8 +441,11 @@ inline int SPRITEp_SIZE_BOS(const spritetype* sp)
 // Directions
 //
 
-#define DEGREE_45 256
-#define DEGREE_90 512
+enum
+{
+    DEGREE_45 = 256,
+    DEGREE_90 = 512
+};
 
 ////
 //
@@ -568,11 +565,10 @@ typedef enum {WATER_FOOT, BLOOD_FOOT} FOOT_TYPE;
 
 extern FOOT_TYPE FootMode;
 ANIMATOR QueueFloorBlood;                // Weapon.c
-int QueueFootPrint(short hit_sprite);                 // Weapon.c
-int QueueGeneric(short SpriteNum, short pic);        // Weapon.c
-int QueueLoWangs(short SpriteNum);                   // Weapon.c
-int SpawnShell(short SpriteNum, short ShellNum);     // Weapon.c
-void UnlockKeyLock(short key_num, short hit_sprite);  // JSector.c
+int QueueFootPrint(DSWActor*);                 // Weapon.c
+void QueueLoWangs(DSWActor*);                   // Weapon.c
+int SpawnShell(DSWActor* actor, int ShellNum);     // JWeapon.c
+void UnlockKeyLock(short key_num, DSWActor* actor);  // JSector.c
 
 #define MAX_PAIN 5
 extern int PlayerPainVocs[MAX_PAIN];
@@ -590,19 +586,6 @@ extern int PlayerYellVocs[MAX_YELLSOUNDS];
 void BossHealthMeter(void);
 
 // Global variables used for modifying variouse things from the Console
-
-///////////////////////////////////////////////////////////////////////////////////////////
-//
-// CALLER - DLL handler
-//
-///////////////////////////////////////////////////////////////////////////////////////////
-extern unsigned char DLL_Loaded;
-extern int DLL_Handle; // Global DLL handle
-extern char *DLL_path; // DLL path name
-
-int DLL_Load(char *DLLpathname);
-bool DLL_Unload(int procHandle);
-bool DLL_ExecFunc(int procHandle, char *fName);
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -751,6 +734,18 @@ struct PLAYERstruct
         vec3_t pos;
     };
     
+    DSWActor* actor;
+    DSWActor* lowActor, * highActor;
+    DSWActor* remoteActor;
+    DSWActor* PlayerUnderActor;
+    DSWActor* KillerActor;  //who killed me
+    DSWActor* HitBy;                    // Sprite num of whatever player was last hit by
+
+    DSWActor* Actor() const
+    {
+        return actor;
+    }
+
     // interpolation
     int oposx, oposy, oposz;
 
@@ -758,7 +753,6 @@ struct PLAYERstruct
     short lv_sectnum;
     int lv_x,lv_y,lv_z;
 
-    SPRITEp remote_sprite;
     REMOTE_CONTROL remote;
     SECTOR_OBJECTp sop_remote;
     SECTOR_OBJECTp sop;  // will either be sop_remote or sop_control
@@ -770,7 +764,6 @@ struct PLAYERstruct
     int hiz,loz;
     int ceiling_dist,floor_dist;
     SECTORp hi_sectp, lo_sectp;
-    SPRITEp hi_sp, lo_sp;
 
     SPRITEp last_camera_sp;
     int circle_camera_dist;
@@ -806,11 +799,6 @@ struct PLAYERstruct
     short RevolveDeltaAng;
     binangle RevolveAng;
 
-    // under vars are for wading and swimming
-    short PlayerSprite, PlayerUnderSprite;
-    SPRITEp SpriteP, UnderSpriteP;
-
-
     short pnum; // carry along the player number
 
     short LadderSector;
@@ -841,8 +829,16 @@ struct PLAYERstruct
         PANEL_SPRITEp Next, Prev;
     } PanelSpriteList;
 
+    // hack stuff to get a working pointer to this list element without running into type punning warnings with GCC.
+    // The list uses itself as sentinel element despite the type mismatch.
+    PANEL_SPRITEp GetPanelSpriteList()
+    {
+        void* p = &PanelSpriteList;
+        return reinterpret_cast<PANEL_SPRITEp>(p);
+    }
+
     // Key stuff
-    unsigned char HasKey[8];
+    uint8_t HasKey[8];
 
     // Weapon stuff
     short SwordAng;
@@ -853,12 +849,12 @@ struct PLAYERstruct
     PANEL_SPRITEp CurWpn;
     PANEL_SPRITEp Wpn[MAX_WEAPONS];
     PANEL_SPRITEp Chops;
-    unsigned char WpnRocketType; // rocket type
-    unsigned char WpnRocketHeat; // 5 to 0 range
-    unsigned char WpnRocketNuke; // 1, you have it, or you don't
-    unsigned char WpnFlameType; // Guardian weapons fire
-    unsigned char WpnFirstType; // First weapon type - Sword/Shuriken
-    unsigned char WeaponType; // for weapons with secondary functions
+    uint8_t WpnRocketType; // rocket type
+    uint8_t WpnRocketHeat; // 5 to 0 range
+    uint8_t WpnRocketNuke; // 1, you have it, or you don't
+    uint8_t WpnFlameType; // Guardian weapons fire
+    uint8_t WpnFirstType; // First weapon type - Sword/Shuriken
+    uint8_t WeaponType; // for weapons with secondary functions
     short FirePause; // for sector objects - limits rapid firing
     //
     // Inventory Vars
@@ -876,7 +872,6 @@ struct PLAYERstruct
     // Death stuff
     uint16_t DeathType;
     short Kills;
-    short Killer;  //who killed me
     short KilledPlayer[MAX_SW_PLAYERS_REG];
     short SecretsFound;
 
@@ -884,34 +879,32 @@ struct PLAYERstruct
     short Armor;
     short MaxHealth;
 
-    //char RocketBarrel;
     char PlayerName[32];
 
-    unsigned char UziShellLeftAlt;
-    unsigned char UziShellRightAlt;
-    unsigned char TeamColor;  // used in team play and also used in regular mulit-play for show
+    uint8_t UziShellLeftAlt;
+    uint8_t UziShellRightAlt;
+    uint8_t TeamColor;  // used in team play and also used in regular mulit-play for show
 
     // palette fading up and down for player hit and get items
     short FadeTics;                 // Tics between each fade cycle
     short FadeAmt;                  // Current intensity of fade
     bool NightVision;               // Is player's night vision active?
-    unsigned char StartColor;       // Darkest color in color range being used
+    uint8_t StartColor;       // Darkest color in color range being used
     //short electro[64];
     bool IsAI;                      // Is this and AI character?
     short fta,ftq;                  // First time active and first time quote, for talking in multiplayer games
     short NumFootPrints;            // Number of foot prints left to lay down
-    unsigned char WpnUziType;                // Toggle between single or double uzi's if you own 2.
-    unsigned char WpnShotgunType;            // Shotgun has normal or fully automatic fire
-    unsigned char WpnShotgunAuto;            // 50-0 automatic shotgun rounds
-    unsigned char WpnShotgunLastShell;       // Number of last shell fired
-    unsigned char WpnRailType;               // Normal Rail Gun or EMP Burst Mode
+    uint8_t WpnUziType;                // Toggle between single or double uzi's if you own 2.
+    uint8_t WpnShotgunType;            // Shotgun has normal or fully automatic fire
+    uint8_t WpnShotgunAuto;            // 50-0 automatic shotgun rounds
+    uint8_t WpnShotgunLastShell;       // Number of last shell fired
+    uint8_t WpnRailType;               // Normal Rail Gun or EMP Burst Mode
     bool Bloody;                    // Is player gooey from the slaughter?
     bool InitingNuke;
     bool TestNukeInit;
     bool NukeInitialized;           // Nuke already has counted down
     short FistAng;                  // KungFu attack angle
-    unsigned char WpnKungFuMove;             // KungFu special moves
-    short HitBy;                    // SpriteNum of whatever player was last hit by
+    uint8_t WpnKungFuMove;             // KungFu special moves
     short Reverb;                   // Player's current reverb setting
     short Heads;                    // Number of Accursed Heads orbiting player
     int PlayerVersion;
@@ -1054,6 +1047,7 @@ struct ROTATOR
 };
 
 using ROTATORp = ROTATOR*;
+struct Collision;
 
 //
 // User Extension record
@@ -1096,6 +1090,15 @@ struct USER
     SECTOR_OBJECTp sop_parent;  // denotes that this sprite is a part of the
     // sector object - contains info for the SO
 
+    // referenced actors
+    DSWActor* lowActor, * highActor;
+    DSWActor* targetActor; // target player for the enemy - can only handle one player at at time
+    DSWActor* flameActor;
+    DSWActor* attachActor;  // attach to sprite if needed - electro snake
+    DSWActor* flagOwnerActor;
+    DSWActor* WpnGoalActor;
+    short   SpriteNum; // only needed for writing out to savegames that can be loaded by older builds.
+
     int Flags;
     int Flags2;
     int Tics;
@@ -1123,14 +1126,8 @@ struct USER
     int hiz,loz;
     int zclip; // z height to move up for clipmove
     SECTORp hi_sectp, lo_sectp;
-    SPRITEp hi_sp, lo_sp;
 
     int active_range;
-
-    short   SpriteNum;
-    short   Attach;  // attach to sprite if needed - electro snake
-    SPRITEp SpriteP;
-	SPRITEp s() { return SpriteP;}
 
     // if a player's sprite points to player structure
     PLAYERp PlayerP;
@@ -1157,7 +1154,6 @@ struct USER
     short DamageTics;
     short BladeDamageTics;
 
-    short WpnGoal;
     unsigned int Radius;    // for distance checking
     int  OverlapZ;  // for z overlap variable
 
@@ -1165,12 +1161,7 @@ struct USER
     // Only have a place for actors
     //
 
-    // For actors on fire
-    short flame;
-
-    // target player for the enemy - can only handle one player at at time
-    //PLAYERp tgt_player;
-    SPRITEp tgt_sp;
+    
 
     // scaling
     short scale_speed;
@@ -1207,7 +1198,7 @@ struct USER
     short sang;
     uint8_t spal;  // save off default palette number
 
-    int ret; //holder for move_sprite return value
+    Collision coll; // same thing broken up into useful components.
 
     // Need to get rid of these flags
     int  Flag1;
@@ -1219,7 +1210,7 @@ struct USER
     // !JIM! my extensions
     int ShellNum;          // This is shell no. 0 to whatever
     // Shell gets deleted when ShellNum < (ShellCount - MAXSHELLS)
-    short FlagOwner;        // The spritenum of the original flag
+    short FlagOwner;        // The spritenum of the original flag (abused to hell by other things)
     short Vis;              // Shading upgrade, for shooting, etc...
     bool DidAlert;          // Has actor done his alert noise before?
 
@@ -1252,31 +1243,35 @@ struct USERSAVE
 
 };
 
-// sprite->extra flags
-// BUILD AND GAME - DO NOT MOVE THESE
-#define SPRX_SKILL              (BIT(0) | BIT(1) | BIT(2))
+enum
+{
+    // sprite->extra flags
+    // BUILD AND GAME - DO NOT MOVE THESE
+    SPRX_SKILL = (BIT(0) | BIT(1) | BIT(2)),
 
-// BIT(4) ST1 BUILD AND GAME
-#define SPRX_STAY_PUT_VATOR     (BIT(5))    // BUILD AND GAME - will not move with vators etc
-// DO NOT MOVE THIS
+    // BIT(4) ST1 BUILD AND GAME
+    SPRX_STAY_PUT_VATOR = (BIT(5)),    // BUILD AND GAME - will not move with vators etc
+    // DO NOT MOVE THIS
 
-#define SPRX_STAG               (BIT(6))    // BUILD AND GAME - NON-ST1 sprite with ST1 type tagging
-// DO NOT MOVE
+    SPRX_STAG = (BIT(6)),    // BUILD AND GAME - NON-ST1 sprite with ST1 type tagging
+    // DO NOT MOVE
 
-#define SPRX_QUEUE_SPRITE       (BIT(7))    // Queue sprite -check queue when deleting
-#define SPRX_MULTI_ITEM         (BIT(9))    // BUILD AND GAME - multi player item
+    SPRX_QUEUE_SPRITE = (BIT(7)),    // Queue sprite -check queue when deleting
+    SPRX_MULTI_ITEM = (BIT(9)),    // BUILD AND GAME - multi player item
 
-// have users - could be moved
-#define SPRX_PLAYER_OR_ENEMY    (BIT(11))   // for checking quickly if sprite is a
-// player or actor
-// do not need Users
-#define SPRX_FOUND              (BIT(12))   // BUILD ONLY INTERNAL - used for finding sprites
-#define SPRX_BLADE              (BIT(12))   // blade sprite
-#define SPRX_BREAKABLE          (BIT(13))   // breakable items
-#define SPRX_BURNABLE           (BIT(14))   // used for burnable sprites in the game
+    // have users - could be moved
+    SPRX_PLAYER_OR_ENEMY = (BIT(11)),   // for checking quickly if sprite is a
+    // player or actor
+    // do not need Users
+    SPRX_FOUND = (BIT(12)),   // BUILD ONLY INTERNAL - used for finding sprites
+    SPRX_BLADE = (BIT(12)),   // blade sprite
+    SPRX_BREAKABLE = (BIT(13)),   // breakable items
+    SPRX_BURNABLE = (BIT(14)),   // used for burnable sprites in the game
 
-// temp use
-#define SPRX_BLOCK              (BIT(15))   // BUILD AND GAME
+    // temp use
+    SPRX_BLOCK = (BIT(15)),   // BUILD AND GAME
+};
+
 // BUILD - tell which actors should not spawn
 // GAME - used for internal game code
 // ALT-M debug mode
@@ -1335,61 +1330,64 @@ struct USERSAVE
 #define TEST_BOOL11(sp) TEST((sp)->extra, SPRX_BOOL11)
 
 // User->Flags flags
-#define SPR_MOVED               BIT(0) // Did actor move
-#define SPR_ATTACKED            BIT(1) // Is sprite being attacked?
-#define SPR_TARGETED            BIT(2) // Is sprite a target of a weapon?
-#define SPR_ACTIVE              BIT(3) // Is sprite aware of the player?
-#define SPR_ELECTRO_TOLERANT    BIT(4) // Electro spell does not slow actor
-#define SPR_JUMPING             BIT(5) // Actor is jumping
-#define SPR_FALLING             BIT(6) // Actor is falling
-#define SPR_CLIMBING            BIT(7) // Actor is falling
-#define SPR_DEAD               BIT(8) // Actor is dying
+enum
+{
+    SPR_MOVED               = BIT(0), // Did actor move
+    SPR_ATTACKED            = BIT(1), // Is sprite being attacked?
+    SPR_TARGETED            = BIT(2), // Is sprite a target of a weapon?
+    SPR_ACTIVE              = BIT(3), // Is sprite aware of the player?
+    SPR_ELECTRO_TOLERANT    = BIT(4), // Electro spell does not slow actor
+    SPR_JUMPING             = BIT(5), // Actor is jumping
+    SPR_FALLING             = BIT(6), // Actor is falling
+    SPR_CLIMBING            = BIT(7), // Actor is falling
+    SPR_DEAD               = BIT(8), // Actor is dying
+    
+    SPR_ZDIFF_MODE          = BIT(10), // For following tracks at different z heights
+    SPR_SPEED_UP            = BIT(11), // For following tracks at different speeds
+    SPR_SLOW_DOWN           = BIT(12), // For following tracks at different speeds
+    SPR_DONT_UPDATE_ANG     = BIT(13), // For tracks - don't update the angle for a while
+    
+    SPR_SO_ATTACHED         = BIT(14), // sprite is part of a sector object
+    SPR_SUICIDE             = BIT(15), // sprite is set to kill itself
+    
+    SPR_RUN_AWAY            = BIT(16), // sprite is in "Run Away" track mode.
+    SPR_FIND_PLAYER         = BIT(17), // sprite is in "Find Player" track mode.
+    
+    SPR_SWIMMING            = BIT(18), // Actor is swimming
+    SPR_WAIT_FOR_PLAYER     = BIT(19), // Track Mode - Actor is waiting for player to come close
+    SPR_WAIT_FOR_TRIGGER    = BIT(20), // Track Mode - Actor is waiting for player to trigger
+    SPR_SLIDING             = BIT(21), // Actor is sliding
+    SPR_ON_SO_SECTOR        = BIT(22), // sprite is on a sector object sector
+    
+    SPR_SHADE_DIR           = BIT(23), // sprite is on a sector object sector
+    SPR_XFLIP_TOGGLE        = BIT(24), // sprite rotation xflip bit
+    SPR_NO_SCAREDZ          = BIT(25), // not afraid of falling
+    
+    SPR_SET_POS_DONT_KILL   = BIT(26), // Don't kill sprites in MissileSetPos
+    SPR_SKIP2               = BIT(27), // 20 moves ps
+    SPR_SKIP4               = BIT(28), // 10 moves ps
+    
+    SPR_BOUNCE              = BIT(29), // For shrapnel types that can bounce once
+    SPR_UNDERWATER          = BIT(30), // For missiles etc
+    
+    SPR_SHADOW              = BIT(31), // Sprites that have shadows
 
-#define SPR_ZDIFF_MODE          BIT(10) // For following tracks at different z heights
-#define SPR_SPEED_UP            BIT(11) // For following tracks at different speeds
-#define SPR_SLOW_DOWN           BIT(12) // For following tracks at different speeds
-#define SPR_DONT_UPDATE_ANG     BIT(13) // For tracks - don't update the angle for a while
-
-#define SPR_SO_ATTACHED            BIT(14) // sprite is part of a sector object
-#define SPR_SUICIDE             BIT(15) // sprite is set to kill itself
-
-#define SPR_RUN_AWAY            BIT(16) // sprite is in "Run Away" track mode.
-#define SPR_FIND_PLAYER         BIT(17) // sprite is in "Find Player" track mode.
-
-#define SPR_SWIMMING            BIT(18) // Actor is swimming
-#define SPR_WAIT_FOR_PLAYER     BIT(19) // Track Mode - Actor is waiting for player to come close
-#define SPR_WAIT_FOR_TRIGGER    BIT(20) // Track Mode - Actor is waiting for player to trigger
-#define SPR_SLIDING             BIT(21) // Actor is sliding
-#define SPR_ON_SO_SECTOR        BIT(22) // sprite is on a sector object sector
-
-#define SPR_SHADE_DIR           BIT(23) // sprite is on a sector object sector
-#define SPR_XFLIP_TOGGLE        BIT(24) // sprite rotation xflip bit
-#define SPR_NO_SCAREDZ          BIT(25) // not afraid of falling
-
-#define SPR_SET_POS_DONT_KILL   BIT(26) // Don't kill sprites in MissileSetPos
-#define SPR_SKIP2               BIT(27) // 20 moves ps
-#define SPR_SKIP4               BIT(28) // 10 moves ps
-
-#define SPR_BOUNCE              BIT(29) // For shrapnel types that can bounce once
-#define SPR_UNDERWATER          BIT(30) // For missiles etc
-
-#define SPR_SHADOW              BIT(31) // Sprites that have shadows
-
-// User->Flags2 flags
-#define SPR2_BLUR_TAPER         (BIT(13)|BIT(14))   // taper type
-#define SPR2_BLUR_TAPER_FAST    (BIT(13))   // taper fast
-#define SPR2_BLUR_TAPER_SLOW    (BIT(14))   // taper slow
-#define SPR2_SPRITE_FAKE_BLOCK  (BIT(15))   // fake blocking bit for damage
-#define SPR2_NEVER_RESPAWN      (BIT(16))   // for item respawning
-#define SPR2_ATTACH_WALL        (BIT(17))
-#define SPR2_ATTACH_FLOOR       (BIT(18))
-#define SPR2_ATTACH_CEILING     (BIT(19))
-#define SPR2_CHILDREN           (BIT(20))   // sprite OWNS children
-#define SPR2_SO_MISSILE         (BIT(21))   // this is a missile from a SO
-#define SPR2_DYING              (BIT(22))   // Sprite is currently dying
-#define SPR2_VIS_SHADING        (BIT(23))   // Sprite shading to go along with vis adjustments
-#define SPR2_DONT_TARGET_OWNER  (BIT(24))
-
+    // User->Flags2 flags
+    SPR2_BLUR_TAPER         = BIT(13)|BIT(14),   // taper type
+    SPR2_BLUR_TAPER_FAST    = BIT(13),   // taper fast
+    SPR2_BLUR_TAPER_SLOW    = BIT(14),   // taper slow
+    SPR2_SPRITE_FAKE_BLOCK  = BIT(15),   // fake blocking bit for damage
+    SPR2_NEVER_RESPAWN      = BIT(16),   // for item respawning
+    SPR2_ATTACH_WALL        = BIT(17),
+    SPR2_ATTACH_FLOOR       = BIT(18),
+    SPR2_ATTACH_CEILING     = BIT(19),
+    SPR2_CHILDREN           = BIT(20),   // sprite OWNS children
+    SPR2_SO_MISSILE         = BIT(21),   // this is a missile from a SO
+    SPR2_DYING              = BIT(22),   // Sprite is currently dying
+    SPR2_VIS_SHADING        = BIT(23),   // Sprite shading to go along with vis adjustments
+    SPR2_DONT_TARGET_OWNER  = BIT(24),
+    SPR2_FLAMEDIE           = BIT(25),  // was previously 'flame == -2'
+};
 
 extern TPointer<USER> User[MAXSPRITES];
 
@@ -1501,23 +1499,18 @@ extern TPointer<SECT_USER> SectUser[MAXSECTORS];
 SECT_USERp SpawnSectUser(short sectnum);
 
 
-typedef struct
-{
-    unsigned int size, checksum;
-} MEM_HDR,*MEM_HDRp;
-
 # define CallocMem(size, num) M_Calloc(size, num)
 # define FreeMem(ptr) M_Free(ptr)
 
-typedef struct
+typedef struct TARGET_SORT
 {
-    short sprite_num;
+    DSWActor* actor;
     short dang;
     int dist;
     int weight;
-} TARGET_SORT, *TARGET_SORTp;
+} *TARGET_SORTp;
 
-#define MAX_TARGET_SORT 16
+enum { MAX_TARGET_SORT = 16 };
 extern TARGET_SORT TargetSort[MAX_TARGET_SORT];
 extern unsigned TargetSortCount;
 
@@ -1657,9 +1650,9 @@ struct SECTOR_OBJECTstruct
     soANIMATORp PreMoveAnimator;
     soANIMATORp PostMoveAnimator;
     soANIMATORp Animator;
-    SPRITEp controller;
+    DSWActor* controller;
 
-    SPRITEp sp_child;  // child sprite that holds info for the sector object
+    DSWActor* sp_child;  // child sprite that holds info for the sector object
 
     union
     {
@@ -1667,6 +1660,9 @@ struct SECTOR_OBJECTstruct
         vec3_t pmid;
     };
     
+	DSWActor* so_actors[MAX_SO_SPRITE];    // hold the actors of the object
+	DSWActor* match_event_actor; // spritenum of the match event sprite
+
     int    vel,            // velocity
            vel_tgt,        // target velocity
            player_xoff,    // player x offset from the xmid
@@ -1696,7 +1692,6 @@ struct SECTOR_OBJECTstruct
            flags;
 
     short   sector[MAX_SO_SECTOR],     // hold the sector numbers of the sector object
-            sp_num[MAX_SO_SPRITE],     // hold the sprite numbers of the object
             xorig[MAX_SO_POINTS],   // save the original x & y location of each wall so it can be
             yorig[MAX_SO_POINTS],   // refreshed
             sectnum,        // current secnum of midpoint
@@ -1731,7 +1726,6 @@ struct SECTOR_OBJECTstruct
             save_vel,       // save velocity
             save_spin_speed, // save spin speed
             match_event,    // match number
-            match_event_sprite, // spritenum of the match event sprite
     // SO Scaling Vector Info
             scale_type,         // type of scaling - enum controled
             scale_active_type,  // activated by a switch or trigger
@@ -1813,38 +1807,6 @@ struct SECTOR_OBJECTstruct
 extern SECTOR_OBJECT SectorObject[MAX_SECTOR_OBJECTS];
 
 
-struct ANIMstruct
-{
-    int animtype, index;
-    int goal;
-    int vel;
-    short vel_adj;
-    ANIM_CALLBACKp callback;
-    SECTOR_OBJECTp callbackdata;    // only gets used in one place for this so having a proper type makes serialization easier.
-
-    int& Addr()
-    {
-        switch (animtype)
-        {
-        case ANIM_Floorz:
-            return sector[index].floorz;
-        case ANIM_SopZ:
-            return SectorObject[index].zmid;
-        case ANIM_Spritez:
-            return sprite[index].z;
-        case ANIM_Userz:
-            return User[index]->sz;
-        case ANIM_SUdepth:
-            return SectUser[index]->depth_fixed;
-        default:
-            return index;
-        }
-    }
-};
-
-extern ANIM Anim[MAXANIM];
-extern short AnimCnt;
-
 ///////////////////////////////////////////////////////////////////////////////////////////
 //
 // Prototypes
@@ -1855,12 +1817,11 @@ ANIMATOR NullAnimator;
 
 int Distance(int x1, int y1, int x2, int y2);
 
-int NewStateGroup(short SpriteNum, STATEp SpriteGroup[]);
-int NewStateGroup(USERp user, STATEp SpriteGroup[]);
+int NewStateGroup(DSWActor* actor, STATEp SpriteGroup[]);
 void SectorMidPoint(short sectnum, int *xmid, int *ymid, int *zmid);
-USERp SpawnUser(short SpriteNum, short id, STATEp state);
+USERp SpawnUser(DSWActor* actor, short id, STATEp state);
 
-short ActorFindTrack(short SpriteNum, int8_t player_dir, int track_type, short *track_point_num, short *track_dir);
+short ActorFindTrack(DSWActor* actor, int8_t player_dir, int track_type, short *track_point_num, short *track_dir);
 
 SECT_USERp GetSectUser(short sectnum);
 
@@ -1885,11 +1846,8 @@ short SoundDist(int x, int y, int z, int basedist);
 short SoundAngle(int x, int  y);
 //void PlaySound(int num, short angle, short vol);
 int _PlaySound(int num, SPRITEp sprite, PLAYERp player, vec3_t *pos, Voc3D_Flags flags, int channel, EChanFlags sndflags);
-void InitAmbient(int num, SPRITEp sprite);
-inline void PlaySound(int num, SPRITEp sprite, Voc3D_Flags flags, int channel = 8, EChanFlags sndflags = CHANF_NONE)
-{
-    _PlaySound(num, sprite, nullptr, nullptr, flags, channel, sndflags);
-}
+void InitAmbient(int num, DSWActor* actor);
+
 inline void PlaySound(int num, PLAYERp player, Voc3D_Flags flags, int channel = 8, EChanFlags sndflags = CHANF_NONE)
 {
     _PlaySound(num, nullptr, player, nullptr, flags, channel, sndflags);
@@ -1911,7 +1869,8 @@ bool SoundValidAndActive(SPRITEp spr, int channel);
 
 ANIMATOR DoActorBeginJump,DoActorJump,DoActorBeginFall,DoActorFall,DoActorDeathMove;
 
-int SpawnShrap(short,short);
+struct BREAK_INFO;
+int SpawnShrap(DSWActor*, DSWActor*, int = -1, BREAK_INFO* breakinfo = nullptr);
 
 void PlayerUpdateHealth(PLAYERp pp, short value);
 void PlayerUpdateAmmo(PLAYERp pp, short WeaponNum, short value);
@@ -1920,49 +1879,71 @@ void PlayerUpdateKills(PLAYERp pp, short value);
 void RefreshInfoLine(PLAYERp pp);
 
 void DoAnim(int numtics);
-void AnimDelete(int animtype, int animindex);
-short AnimGetGoal(int animtype, int animindex);
-short AnimSet(int animtype, int animindex, int thegoal, int thevel);
+void AnimDelete(int animtype, int animindex, DSWActor*);
+short AnimGetGoal(int animtype, int animindex, DSWActor*);
+short AnimSet(int animtype, int animindex, DSWActor* animactor, int thegoal, int thevel);
 short AnimSetCallback(short anim_ndx, ANIM_CALLBACKp call, SECTOR_OBJECTp data);
 short AnimSetVelAdj(short anim_ndx, short vel_adj);
 
-void EnemyDefaults(short SpriteNum, ACTOR_ACTION_SETp action, PERSONALITYp person);
+void EnemyDefaults(DSWActor* actor, ACTOR_ACTION_SETp action, PERSONALITYp person);
 
-void getzrangepoint(int x, int y, int z, short sectnum, int32_t* ceilz, int32_t* ceilhit, int32_t* florz, int32_t* florhit);
-int move_sprite(int spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics);
-int move_missile(int spritenum, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics);
-int DoPickTarget(SPRITEp sp, uint32_t max_delta_ang, int skip_targets);
+void getzrangepoint(int x, int y, int z, short sectnum, int32_t* ceilz, Collision* ceilhit, int32_t* florz, Collision* florhit);
+Collision move_sprite(DSWActor* , int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics);
+Collision move_missile(DSWActor*, int xchange, int ychange, int zchange, int ceildist, int flordist, uint32_t cliptype, int numtics);
+DSWActor* DoPickTarget(DSWActor*, uint32_t max_delta_ang, int skip_targets);
 
-void change_sprite_stat(short, short);
-void SetOwner(short, short);
-void SetAttach(short, short);
+void change_actor_stat(DSWActor* actor, int stat, bool quick = false);
+void SetOwner(DSWActor*, DSWActor*, bool flag = true);
+void SetOwner(int a, int b); // we still need this...
+void ClearOwner(DSWActor* ownr);
+DSWActor* GetOwner(DSWActor* child);
+void SetAttach(DSWActor*, DSWActor*);
 void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, int camang);
-void ChangeState(short SpriteNum, STATEp statep);
 void CollectPortals();
+
+int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, int hit_y, int hit_z);
 
 #define FAF_PLACE_MIRROR_PIC 341
 #define FAF_MIRROR_PIC 2356
-#define FAF_ConnectCeiling(sectnum) (sector[(sectnum)].ceilingpicnum == FAF_MIRROR_PIC)
-#define FAF_ConnectFloor(sectnum) (sector[(sectnum)].floorpicnum == FAF_MIRROR_PIC)
-#define FAF_ConnectArea(sectnum) (FAF_ConnectCeiling(sectnum) || FAF_ConnectFloor(sectnum))
+
+inline bool FAF_ConnectCeiling(int sectnum)
+{
+    return (sector[(sectnum)].ceilingpicnum == FAF_MIRROR_PIC);
+}
+
+inline bool FAF_ConnectFloor(int sectnum)
+{
+    return (sector[(sectnum)].floorpicnum == FAF_MIRROR_PIC);
+}
+
+inline bool FAF_ConnectArea(int sectnum)
+{
+    return (FAF_ConnectCeiling(sectnum) || FAF_ConnectFloor(sectnum));
+}
 
 bool PlayerCeilingHit(PLAYERp pp, int zlimit);
 bool PlayerFloorHit(PLAYERp pp, int zlimit);
+
+struct HITINFO;
 
 void FAFhitscan(int32_t x, int32_t y, int32_t z, int16_t sectnum,
                 int32_t xvect, int32_t yvect, int32_t zvect,
                 hitdata_t* hitinfo, int32_t clipmask);
 
+void FAFhitscan(int32_t x, int32_t y, int32_t z, int16_t sectnum,
+    int32_t xvect, int32_t yvect, int32_t zvect,
+    HITINFO* hitinfo, int32_t clipmask);
+
 bool FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects, int32_t xe, int32_t ye, int32_t ze, int16_t secte);
 
 void FAFgetzrange(vec3_t pos, int16_t sectnum,
-                  int32_t* hiz, int32_t* ceilhit,
-                  int32_t* loz, int32_t* florhit,
+                  int32_t* hiz, Collision* ceilhit,
+                  int32_t* loz, Collision* florhit,
                   int32_t clipdist, int32_t clipmask);
 
 void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, int16_t sectnum,
-                       int32_t* hiz, int32_t* ceilhit,
-                       int32_t* loz, int32_t* florhit);
+                       int32_t* hiz, Collision* ceilhit,
+                       int32_t* loz, Collision* florhit);
 
 
 void short_setinterpolation(short *posptr);
@@ -1999,13 +1980,15 @@ extern bool ReloadPrompt;
 
 extern int lockspeed;
 
-#define synctics 3
-#define ACTORMOVETICS (synctics<<1)
-#define TICSPERMOVEMENT synctics
+enum
+{
+    synctics = 3,
+    ACTORMOVETICS = (synctics << 1),
+    TICSPERMOVEMENT = synctics,
+};
 
 // subtract value from clipdist on getzrange calls
 #define GETZRANGE_CLIP_ADJ 8
-//#define GETZRANGE_CLIP_ADJ 0
 
 // MULTIPLAYER
 // VARIABLES:  (You should extern these in your game.c)
@@ -2042,9 +2025,6 @@ extern int MinEnemySkill;
 
 #define MASTER_SWITCHING 1
 
-extern char option[];
-extern char keys[];
-
 extern short screenpeek;
 
 #define STAT_DAMAGE_LIST_SIZE 20
@@ -2057,7 +2037,7 @@ extern int16_t StatDamageList[STAT_DAMAGE_LIST_SIZE];
 ///////////////////////////////////////////////////////////////
 
 #define COLOR_PAIN  128  // Light red range
-extern void SetFadeAmt(PLAYERp pp, short damage, unsigned char startcolor);
+extern void SetFadeAmt(PLAYERp pp, short damage, uint8_t startcolor);
 extern void DoPaletteFlash(PLAYERp pp);
 extern bool NightVision;
 
@@ -2072,10 +2052,10 @@ extern bool NightVision;
 //
 ///////////////////////////////////////////////////////////////
 
-int PickJumpMaxSpeed(short SpriteNum, short max_speed); // ripper.c
-int DoRipperRipHeart(short SpriteNum);  // ripper.c
-int DoRipper2RipHeart(short SpriteNum); // ripper2.c
-int BunnyHatch2(short Weapon);  // bunny.c
+int PickJumpMaxSpeed(DSWActor*, short max_speed); // ripper.c
+int DoRipperRipHeart(DSWActor*);  // ripper.c
+int DoRipper2RipHeart(DSWActor*); // ripper2.c
+DSWActor* BunnyHatch2(DSWActor*);  // bunny.c
 
 void TerminateLevel(void);  // game.c
 void DrawMenuLevelScreen(void); // game.c
@@ -2103,22 +2083,22 @@ void LoadCustomInfoFromScript(const char *filename);  // scrip2.c
 int PlayerInitChemBomb(PLAYERp pp); // jweapon.c
 int PlayerInitFlashBomb(PLAYERp pp);    // jweapon.c
 int PlayerInitCaltrops(PLAYERp pp); // jweapon.c
-int InitPhosphorus(int16_t SpriteNum);    // jweapon.c
-void SpawnFloorSplash(short SpriteNum); // jweapon.c
+int InitPhosphorus(DSWActor*);    // jweapon.c
+void SpawnFloorSplash(DSWActor*); // jweapon.c
 
 int SaveGame(short save_num);   // save.c
 int LoadGame(short save_num);   // save.c
 int LoadGameFullHeader(short save_num, char *descr, short *level, short *skill);    // save,c
 void LoadGameDescr(short save_num, char *descr);    // save.c
 
-void SetRotatorActive(short SpriteNum); // rotator.c
+void SetRotatorActive(DSWActor* actor); // rotator.c
 
 bool VatorSwitch(short match, short setting); // vator.c
 void MoveSpritesWithSector(short sectnum,int z_amt,bool type);  // vator.c
-void SetVatorActive(short SpriteNum);   // vator.c
+void SetVatorActive(DSWActor*);   // vator.c
 
-short DoSpikeMatch(short match); // spike.c
-void SpikeAlign(short SpriteNum);   // spike.c
+void DoSpikeMatch(short match); // spike.c
+void SpikeAlign(DSWActor*);   // spike.c
 
 short DoSectorObjectSetScale(short match);  // morph.c
 short DoSOevent(short match,short state);   // morph.c
@@ -2132,17 +2112,17 @@ void ScaleRandomPoint(SECTOR_OBJECTp sop,short k,short ang,int x,int y,int *dx,i
 void CopySectorMatch(short match);  // copysect.c
 
 int DoWallMoveMatch(short match);   // wallmove.c
-int DoWallMove(SPRITEp sp); // wallmove.c
+int DoWallMove(DSWActor* sp); // wallmove.c
 bool CanSeeWallMove(SPRITEp wp,short match);    // wallmove.c
 
-short DoSpikeOperate(short sectnum); // spike.c
-void SetSpikeActive(short SpriteNum);   // spike.c
+void DoSpikeOperate(short sectnum); // spike.c
+void SetSpikeActive(DSWActor*);   // spike.c
 
 #define NTAG_SEARCH_LO 1
 #define NTAG_SEARCH_HI 2
 #define NTAG_SEARCH_LO_HI 3
 
-int COVERinsertsprite(short sectnum, short statnum);   //returns (short)spritenum;
+DSWActor* InsertActor(int sectnum, int statnum);
 
 void AudioUpdate(void); // stupid
 
@@ -2157,15 +2137,15 @@ extern short LevelSecrets;
 extern short TotalKillable;
 extern int OrigCommPlayers;
 
-extern char PlayerGravity;
+extern uint8_t PlayerGravity;
 extern short wait_active_check_offset;
 //extern short Zombies;
 extern int PlaxCeilGlobZadjust, PlaxFloorGlobZadjust;
 extern bool left_foot;
 extern bool bosswasseen[3];
-extern short BossSpriteNum[3];
+extern DSWActor* BossSpriteNum[3];
 extern int ChopTics;
-extern short Bunny_Count;
+extern int Bunny_Count;
 
 
 #define ANIM_SERP 1
@@ -2191,7 +2171,7 @@ struct GameInterface : public ::GameInterface
     ReservedSpace GetReservedScreenSpace(int viewsize) override;
     void UpdateSounds() override;
     void ErrorCleanup() override;
-    void GetInput(InputPacket* input, ControlInfo* const hidInput) override;
+    void GetInput(ControlInfo* const hidInput, double const scaleAdjust, InputPacket* input = nullptr) override;
     void DrawBackground(void) override;
     void Ticker(void) override;
     void Render() override;
@@ -2201,7 +2181,7 @@ struct GameInterface : public ::GameInterface
 	void LevelCompleted(MapRecord *map, int skill) override;
 	void NextLevel(MapRecord *map, int skill) override;
 	void NewGame(MapRecord *map, int skill, bool) override;
-    bool DrawAutomapPlayer(int x, int y, int z, int a, double const smoothratio) override;
+    bool DrawAutomapPlayer(int mx, int my, int x, int y, int z, int a, double const smoothratio) override;
     int playerKeyMove() override { return 35; }
     void WarpToCoords(int x, int y, int z, int a, int h) override;
     void ToggleThirdPerson() override;
@@ -2222,9 +2202,106 @@ struct GameInterface : public ::GameInterface
 };
 
 
+// OVER and UNDER water macros
+inline bool SpriteInDiveArea(SPRITEp sp)
+{
+    return (TEST(sector[(sp)->sectnum].extra, SECTFX_DIVE_AREA) ? true : false);
+}
+
+inline bool SpriteInUnderwaterArea(SPRITEp sp)
+{
+    return (TEST(sector[(sp)->sectnum].extra, SECTFX_UNDERWATER | SECTFX_UNDERWATER2) ? true : false);
+}
+
+inline bool SectorIsDiveArea(int sect)
+{
+    return (TEST(sector[sect].extra, SECTFX_DIVE_AREA) ? true : false);
+}
+
+inline bool SectorIsUnderwaterArea(int sect)
+{
+    return (TEST(sector[sect].extra, SECTFX_UNDERWATER | SECTFX_UNDERWATER2) ? true : false);
+}
+
 END_SW_NS
 
 #include "swactor.h"
 
+BEGIN_SW_NS
+
+inline int ActorUpper(DSWActor* actor)
+{
+    return SPRITEp_UPPER(&actor->s());
+}
+
+inline int ActorLower(DSWActor* actor)
+{
+    return SPRITEp_LOWER(&actor->s());
+}
+
+inline int ActorMid(DSWActor* actor)
+{
+    return SPRITEp_MID(&actor->s());
+}
+
+inline int Facing(DSWActor* actor1, DSWActor* actor2)
+{
+    auto sp1 = &actor1->s();
+    auto sp2 = &actor2->s();
+    return (abs(getincangle(getangle((sp1)->x - (sp2)->x, (sp1)->y - (sp2)->y), (sp2)->ang)) < 512);
+}
+
+// temporary helper.
+inline void SetCollision(USER* u, int coll)
+{
+    u->coll.setFromEngine(coll);
+}
+
+// just determine if the player is moving
+inline bool PLAYER_MOVING(PLAYERp pp)
+{
+	return (pp->xvect | pp->yvect);
+}
+
+inline void PlaySound(int num, DSWActor* actor, Voc3D_Flags flags, int channel = 8, EChanFlags sndflags = CHANF_NONE)
+{
+    _PlaySound(num, &actor->s(), nullptr, nullptr, flags, channel, sndflags);
+}
+
+struct ANIMstruct
+{
+	int animtype, animindex;
+	int goal;
+	int vel;
+	short vel_adj;
+	DSWActor* animactor;
+	ANIM_CALLBACKp callback;
+	SECTOR_OBJECTp callbackdata;    // only gets used in one place for this so having a proper type makes serialization easier.
+
+	int& Addr()
+	{
+		switch (animtype)
+		{
+		case ANIM_Floorz:
+			return sector[animindex].floorz;
+		case ANIM_SopZ:
+			return SectorObject[animindex].zmid;
+		case ANIM_Spritez:
+			return animactor->s().z;
+		case ANIM_Userz:
+			return animactor->u()->sz;
+		case ANIM_SUdepth:
+			return SectUser[animindex]->depth_fixed;
+		default:
+			return animindex;
+		}
+	}
+};
+
+extern ANIM Anim[MAXANIM];
+extern short AnimCnt;
+
+
+END_SW_NS
 #endif
 

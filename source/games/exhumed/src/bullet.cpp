@@ -228,7 +228,7 @@ void BulletHitsSprite(Bullet *pBullet, DExhumedActor* pBulletActor, DExhumedActo
 
             if (nStat == kStatAnubisDrum)
             {
-                short nAngle = (pSprite->ang + 256) - RandomSize(9);
+                int nAngle = (pSprite->ang + 256) - RandomSize(9);
 
                 pHitSprite->xvel = bcos(nAngle, 1);
                 pHitSprite->yvel = bsin(nAngle, 1);
@@ -291,7 +291,7 @@ void BulletHitsSprite(Bullet *pBullet, DExhumedActor* pBulletActor, DExhumedActo
 }
 
 
-void BackUpBullet(int *x, int *y, short nAngle)
+void BackUpBullet(int *x, int *y, int nAngle)
 {
     *x -= bcos(nAngle, -11);
     *y -= bsin(nAngle, -11);
@@ -470,7 +470,7 @@ HITSPRITE:
             auto hitsprite = &hitactor->s();
             if (pSprite->pal == 5 && hitsprite->statnum == 100)
             {
-                short nPlayer = GetPlayerFromActor(hitactor);
+                int nPlayer = GetPlayerFromActor(hitactor);
                 if (!PlayerList[nPlayer].bIsMummified)
                 {
                     PlayerList[nPlayer].bIsMummified = true;
@@ -865,7 +865,6 @@ void AIBullet::Draw(RunListEvent* ev)
 
     short nSeq = SeqOffsets[BulletList[nBullet].nSeq];
 
-    short nSprite2 = ev->nParam;
     ev->pTSprite->statnum = 1000;
 
     if (BulletList[nBullet].nType == 15)

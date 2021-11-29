@@ -40,8 +40,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-//int InitActorMoveCloser(short SpriteNum);
-
 DECISION GirlNinjaBattle[] =
 {
     {499, InitActorMoveCloser},
@@ -712,21 +710,20 @@ ACTOR_ACTION_SET GirlNinjaActionSet =
     nullptr
 };
 
-int
-SetupGirlNinja(short SpriteNum)
+int SetupGirlNinja(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum].Data();
+        u = actor->u();
         ASSERT(u);
     }
     else
     {
-        u = SpawnUser(SpriteNum, GIRLNINJA_RUN_R0, s_GirlNinjaRun[0]);
+        u = SpawnUser(actor, GIRLNINJA_RUN_R0, s_GirlNinjaRun[0]);
         u->Health = (Skill < MinEnemySkill - 1) ? 50 : 100;
     }
 
@@ -737,10 +734,10 @@ SetupGirlNinja(short SpriteNum)
 
     u->Attrib = &GirlNinjaAttrib;
     sp->pal = u->spal = 26;
-    EnemyDefaults(SpriteNum, &GirlNinjaActionSet, &GirlNinjaPersonality);
+    EnemyDefaults(actor, &GirlNinjaActionSet, &GirlNinjaPersonality);
 
-    ChangeState(SpriteNum, s_GirlNinjaRun[0]);
-    DoActorSetSpeed(SpriteNum, NORM_SPEED);
+    ChangeState(actor, s_GirlNinjaRun[0]);
+    DoActorSetSpeed(actor, NORM_SPEED);
 
     u->Radius = 280;
     RESET(u->Flags, SPR_XFLIP_TOGGLE);
@@ -749,11 +746,9 @@ SetupGirlNinja(short SpriteNum)
 }
 
 
-int
-DoGirlNinjaMove(DSWActor* actor)
+int DoGirlNinjaMove(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     // jumping and falling
     if (TEST(u->Flags, SPR_JUMPING | SPR_FALLING) && !TEST(u->Flags, SPR_CLIMBING))
@@ -770,7 +765,7 @@ DoGirlNinjaMove(DSWActor* actor)
 
     // !AIC - do track or call current action function - such as DoActorMoveCloser()
     if (u->track >= 0)
-        ActorFollowTrack(SpriteNum, ACTORMOVETICS);
+        ActorFollowTrack(actor, ACTORMOVETICS);
     else
     {
         (*u->ActorActionFunc)(actor);
@@ -779,7 +774,7 @@ DoGirlNinjaMove(DSWActor* actor)
     // stay on floor unless doing certain things
     if (!TEST(u->Flags, SPR_JUMPING | SPR_FALLING | SPR_CLIMBING))
     {
-        KeepActorOnFloor(SpriteNum);
+        KeepActorOnFloor(actor);
     }
 
     // take damage from environment
@@ -788,12 +783,10 @@ DoGirlNinjaMove(DSWActor* actor)
     return 0;
 }
 
-int
-GirlNinjaJumpActionFunc(DSWActor* actor)
+int GirlNinjaJumpActionFunc(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = User[SpriteNum]->SpriteP;
+    SPRITEp sp = &actor->s();
     int nx, ny;
 
     // Move while jumping
@@ -801,7 +794,7 @@ GirlNinjaJumpActionFunc(DSWActor* actor)
     ny = MulScale(sp->xvel, bsin(sp->ang), 14);
 
     // if cannot move the sprite
-    if (!move_actor(SpriteNum, nx, ny, 0L))
+    if (!move_actor(actor, nx, ny, 0L))
     {
         return 0;
     }
@@ -814,11 +807,9 @@ GirlNinjaJumpActionFunc(DSWActor* actor)
     return 0;
 }
 
-int
-NullGirlNinja(DSWActor* actor)
+int NullGirlNinja(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     if (u->WaitTics > 0) u->WaitTics -= ACTORMOVETICS;
 
@@ -826,7 +817,7 @@ NullGirlNinja(DSWActor* actor)
         DoActorSlide(actor);
 
     if (!TEST(u->Flags, SPR_CLIMBING) && !TEST(u->Flags, SPR_JUMPING|SPR_FALLING))
-        KeepActorOnFloor(SpriteNum);
+        KeepActorOnFloor(actor);
 
     DoActorSectorDamage(actor);
 
@@ -837,7 +828,6 @@ NullGirlNinja(DSWActor* actor)
 int DoGirlNinjaPain(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     NullGirlNinja(actor);
 
@@ -850,8 +840,7 @@ int DoGirlNinjaPain(DSWActor* actor)
 int DoGirlNinjaSpecial(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
 
     if (u->spal == PALETTE_PLAYER5)
     {

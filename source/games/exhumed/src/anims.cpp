@@ -126,7 +126,6 @@ void AIAnim::Tick(RunListEvent* ev)
     auto pActor = ev->pObjActor;
     if (!pActor) return;
 
-    //short nSprite = pActor->nSprite;
     short nIndex2 = pActor->nIndex2;
     auto pSprite = &pActor->s();
 

@@ -124,7 +124,7 @@ static void SplitSection(int section, int start, int end)
 
 	int firstnewline = numsectionlines;
 	int thisline = numsectionlines;
-	int splitline1, splitline2;
+	int splitline1 = 0, splitline2 = 0;
 	//numsectionlines += sect1->lines.Size() + 1;
 	for (unsigned i = 0; i < sect1->lines.Size(); i++)//  auto& sline : sect1->lines)
 	{

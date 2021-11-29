@@ -134,7 +134,7 @@ void forceplayerangle(int snum)
 void tracers(int x1, int y1, int z1, int x2, int y2, int z2, int n)
 {
 	int i, xv, yv, zv;
-	int sect = -1;
+	sectortype* sect = nullptr;
 
 	i = n + 1;
 	xv = (x2 - x1) / i;
@@ -150,9 +150,9 @@ void tracers(int x1, int y1, int z1, int x2, int y2, int z2, int n)
 		y1 += yv;
 		z1 += zv;
 		updatesector(x1, y1, &sect);
-		if (sect >= 0)
+		if (sect)
 		{
-			if (sector[sect].lotag == 2)
+			if (sect->lotag == 2)
 				EGS(sect, x1, y1, z1, TILE_WATERBUBBLE, -32, 4 + (krand() & 3), 4 + (krand() & 3), krand() & 2047, 0, 0, ps[0].GetActor(), 5);
 			else
 				EGS(sect, x1, y1, z1, TILE_SMALLSMOKE, -32, 14, 14, 0, 0, 0, ps[0].GetActor(), 5);
@@ -170,15 +170,12 @@ int hits(DDukeActor* actor)
 {
 	auto sp = actor->s;
 	int sx, sy, sz;
-	int sect;
-	int hw;
 	int zoff;
-	DDukeActor* d;
 
 	if (sp->picnum == TILE_APLAYER) zoff = isRR() ? PHEIGHT_RR : PHEIGHT_DUKE;
 	else zoff = 0;
 
-	hitscan(sp->x, sp->y, sp->z - zoff, sp->sectnum, bcos(sp->ang), bsin(sp->ang), 0, &sect, &hw, &d, &sx, &sy, &sz, CLIPMASK1);
+	hitscan(sp->x, sp->y, sp->z - zoff, sp->sectnum, bcos(sp->ang), bsin(sp->ang), 0, nullptr, nullptr, nullptr, &sx, &sy, &sz, CLIPMASK1);
 
 	return (FindDistance2D(sx - sp->x, sy - sp->y));
 }
@@ -193,16 +190,16 @@ int hitasprite(DDukeActor* actor, DDukeActor** hitsp)
 {
 	auto sp = actor->s;
 	int sx, sy, sz, zoff;
-	int sect, hw;
+	walltype* wal;
 
 	if (badguy(actor))
 		zoff = (42 << 8);
 	else if (sp->picnum == TILE_APLAYER) zoff = (39 << 8);
 	else zoff = 0;
 
-	hitscan(sp->x, sp->y, sp->z - zoff, sp->sectnum, bcos(sp->ang), bsin(sp->ang), 0, &sect, &hw, hitsp, &sx, &sy, &sz, CLIPMASK1);
+	hitscan(sp->x, sp->y, sp->z - zoff, sp->sectnum, bcos(sp->ang), bsin(sp->ang), 0, nullptr, &wal, hitsp, &sx, &sy, &sz, CLIPMASK1);
 
-	if (hw >= 0 && (wall[hw].cstat & 16) && badguy(actor))
+	if (wal != nullptr && (wal->cstat & 16) && badguy(actor))
 		return((1 << 30));
 
 	return (FindDistance2D(sx - sp->x, sy - sp->y));
@@ -214,15 +211,12 @@ int hitasprite(DDukeActor* actor, DDukeActor** hitsp)
 //
 //---------------------------------------------------------------------------
 
-int hitawall(struct player_struct* p, int* hitw)
+int hitawall(struct player_struct* p, walltype** hitw)
 {
 	int sx, sy, sz;
-	int sect, hitw1;
-	DDukeActor* d;
 
 	hitscan(p->pos.x, p->pos.y, p->pos.z, p->cursectnum,
-		p->angle.ang.bcos(), p->angle.ang.bsin(), 0, &sect, &hitw1, &d, &sx, &sy, &sz, CLIPMASK0);
-	*hitw = hitw1;
+		p->angle.ang.bcos(), p->angle.ang.bsin(), 0, nullptr, hitw, nullptr, &sx, &sy, &sz, CLIPMASK0);
 
 	return (FindDistance2D(sx - p->pos.x, sy - p->pos.y));
 }
@@ -521,8 +515,11 @@ void footprints(int snum)
 					case 2:	 fprint = spawn(actor, TILE_FOOTPRINTS3); break;
 					default: fprint = spawn(actor, TILE_FOOTPRINTS4); break;
 					}
-					fprint->s->pal = p->footprintpal;
-					fprint->s->shade = (int8_t)p->footprintshade;
+					if (fprint)
+					{
+						fprint->s->pal = p->footprintpal;
+						fprint->s->shade = (int8_t)p->footprintshade;
+					}
 				}
 			}
 		}
@@ -591,15 +588,6 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 
 			}
 			else p->fraggedself++;
-
-#if 0
-			if (myconnectindex == connecthead)
-			{
-				sprintf(tempbuf, "frag %d killed %d\n", p->frag_ps + 1, snum + 1);
-				sendscore(tempbuf);
-				//					  printf(tempbuf);
-			}
-#endif
 
 			p->frag_ps = snum;
 		}
@@ -975,8 +963,9 @@ bool movementBlocked(player_struct *p)
 //
 //---------------------------------------------------------------------------
 
-int haskey(int sect, int snum)
+int haskey(sectortype* sectp, int snum)
 {
+	int sect = sectnum(sectp);
 	auto p = &ps[snum];
 	if (!sectorextra[sect])
 		return 1;
@@ -1006,8 +995,9 @@ void shootbloodsplat(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 	spritetype* const s = actor->s;
 	int sect = s->sectnum;
 	int zvel;
-	int hitsect, hitwall;
 	int hitx, hity, hitz;
+	sectortype* hitsectp;
+	walltype* wal;
 	DDukeActor* d;
 
 	if (p >= 0)
@@ -1019,23 +1009,22 @@ void shootbloodsplat(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 	hitscan(sx, sy, sz, sect,
 		bcos(sa),
 		bsin(sa), zvel << 6,
-		&hitsect, &hitwall, &d, &hitx, &hity, &hitz, CLIPMASK1);
+		&hitsectp, &wal, &d, &hitx, &hity, &hitz, CLIPMASK1);
 
 	// oh my...
 	if (FindDistance2D(sx - hitx, sy - hity) < 1024 &&
-		(hitwall >= 0 && wall[hitwall].overpicnum != BIGFORCE) &&
-		((wall[hitwall].nextsector >= 0 && hitsect >= 0 &&
-			sector[wall[hitwall].nextsector].lotag == 0 &&
-			sector[hitsect].lotag == 0 &&
-			sector[wall[hitwall].nextsector].lotag == 0 &&
-			(sector[hitsect].floorz - sector[wall[hitwall].nextsector].floorz) > (16 << 8)) ||
-			(wall[hitwall].nextsector == -1 && sector[hitsect].lotag == 0)))
+		(wal != nullptr && wal->overpicnum != BIGFORCE) &&
+		((wal->nextsector >= 0 && hitsectp != nullptr &&
+			wal->nextSector()->lotag == 0 &&
+			hitsectp->lotag == 0 &&
+			(hitsectp->floorz - wal->nextSector()->floorz) > (16 << 8)) ||
+			(wal->nextsector == -1 && hitsectp->lotag == 0)))
 	{
-		if ((wall[hitwall].cstat & 16) == 0)
+		if ((wal->cstat & 16) == 0)
 		{
-			if (wall[hitwall].nextsector >= 0)
+			if (wal->nextsector >= 0)
 			{
-				DukeSectIterator it(wall[hitwall].nextsector);
+				DukeSectIterator it(wal->nextsector);
 				while (auto act2 = it.Next())
 				{
 					if (act2->s->statnum == STAT_EFFECTOR && act2->s->lotag == SE_13_EXPLOSIVE)
@@ -1043,23 +1032,27 @@ void shootbloodsplat(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 				}
 			}
 
-			if (wall[hitwall].nextwall >= 0 &&
-				wall[wall[hitwall].nextwall].hitag != 0)
+			if (wal->nextwall >= 0 &&
+				wal->nextWall()->hitag != 0)
 				return;
 
-			if (wall[hitwall].hitag == 0)
+			if (wal->hitag == 0)
 			{
 				auto spawned = spawn(actor, atwith);
-				spawned->s->xvel = -12;
-				spawned->s->ang = getangle(wall[hitwall].x - wall[wall[hitwall].point2].x, wall[hitwall].y - wall[wall[hitwall].point2].y) + 512;
-				spawned->s->x = hitx;
-				spawned->s->y = hity;
-				spawned->s->z = hitz;
-				spawned->s->cstat |= (krand() & 4);
-				ssp(spawned, CLIPMASK0);
-				setsprite(spawned, spawned->s->pos);
-				if (s->picnum == OOZFILTER || s->picnum == NEWBEAST)
-					spawned->s->pal = 6;
+				if (spawned)
+				{
+					spawned->s->xvel = -12;
+					auto delta = wal->delta();
+					spawned->s->ang = getangle(-delta.x, -delta.y) + 512; // note the '-' sign here!
+					spawned->s->x = hitx;
+					spawned->s->y = hity;
+					spawned->s->z = hitz;
+					spawned->s->cstat |= (krand() & 4);
+					ssp(spawned, CLIPMASK0);
+					setsprite(spawned, spawned->s->pos);
+					if (s->picnum == OOZFILTER || s->picnum == NEWBEAST)
+						spawned->s->pal = 6;
+				}
 			}
 		}
 	}
@@ -1124,7 +1117,7 @@ DEFINE_FIELD_X(DukePlayer, player_struct, airleft)
 DEFINE_FIELD_X(DukePlayer, player_struct, knee_incs)
 DEFINE_FIELD_X(DukePlayer, player_struct, access_incs)
 DEFINE_FIELD_X(DukePlayer, player_struct, ftq)
-DEFINE_FIELD_X(DukePlayer, player_struct, access_wallnum)
+DEFINE_FIELD_X(DukePlayer, player_struct, access_wall)
 DEFINE_FIELD_X(DukePlayer, player_struct, got_access)
 DEFINE_FIELD_X(DukePlayer, player_struct, weapon_ang)
 DEFINE_FIELD_X(DukePlayer, player_struct, firstaid_amount)

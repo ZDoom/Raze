@@ -853,7 +853,6 @@ void FMultipatchTextureBuilder::ResolveAllPatches()
 		ResolvePatches(bi);
 	}
 	// Now try to resolve the images. We only can do this at the end when all multipatch textures are set up.
-	int i = 0;
 
 	// reverse the list so that the Delete operation in the loop below deletes at the end.
 	// For normal sized lists this is of no real concern, but Total Chaos has over 250000 textures where this becomes a performance issue.

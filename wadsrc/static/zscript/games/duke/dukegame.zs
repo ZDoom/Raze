@@ -159,7 +159,8 @@ struct DukePlayer
 	native int randomflamex, crack_time;
 	native int aim_mode, ftt;
 
-	native int cursectnum, one_parallax_sectnum, access_wallnum;
+	//native int cursectnum;// , one_parallax_sectnum
+	//native walltype access_wall; // can't do yet.
 
 	native int16 last_extra, subweapon;
 	native int16 ammo_amount[DukeWpn.MAX_WEAPONS], frag, fraggedself;
@@ -175,7 +176,7 @@ struct DukePlayer
 	native int16 extra_extra8, quick_kick, last_quick_kick;
 	native int16 heat_amount, timebeforeexit, customexitsound;
 	//DDukeActor* actorsqu, *wackedbyactor, *on_crane, *holoduke_on, *somethingonplayer, *access_spritenum, *dummyplayersprite, *newOwner; // later
-	native voidptr holoduke_on; // cannot do it as a proper actor pointer - but the status bar needs it.
+	native voidptr holoduke_on; // cannot do it as a proper actor pointer yet - but the status bar needs it.
 
 	native int16 weaprecs[256], weapreccnt;
 	native uint interface_toggle_flag;

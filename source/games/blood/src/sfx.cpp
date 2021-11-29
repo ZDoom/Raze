@@ -89,12 +89,13 @@ void BloodSoundEngine::CalcPosVel(int type, const void* source, const float pt[3
         }
         else if (type == SOURCE_Actor)
         {
-            auto actor = (spritetype*)source;
-            assert(actor != nullptr);
-            size_t index = actor - sprite;
+            auto sprt = (spritetype*)source;
+            assert(sprt != nullptr);
+            auto actor = &bloodActors[sprt->index];
+
             // Engine expects velocity in units per second, not units per tic.
-            if (vel) *vel = { xvel[index] * (30 / 65536.f), zvel[index] * (-30 / 65536.f), yvel[index] * (-30 / 65536.f) };
-            *pos = GetSoundPos(&actor->pos);
+            if (vel) *vel = { actor->xvel * (30 / 65536.f), actor->zvel * (-30 / 65536.f), actor->yvel * (-30 / 65536.f) };
+            *pos = GetSoundPos(&sprt->pos);
         }
         else if (type == SOURCE_Ambient)
         {
@@ -203,7 +204,11 @@ void sfxPlay3DSoundCP(spritetype* pSprite, int soundId, int playchannel, int pla
 
     auto sfx = soundEngine->GetSfx(sid);
     EChanFlags flags = playchannel == -1 ? CHANF_OVERLAP : CHANF_NONE;
-    if (sfx && sfx->LoopStart >= 0) flags |= CHANF_LOOP;
+    if (sfx && sfx->LoopStart >= 0)
+    {
+        flags |= CHANF_LOOP;
+        flags &= ~CHANF_OVERLAP;
+    }
 
     soundEngine->StartSound(SOURCE_Actor, pSprite, &svec, playchannel, flags, sid, volume * (0.8f / 80.f), attenuation, nullptr, pitch / 65536.f);
 }

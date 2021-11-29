@@ -198,23 +198,23 @@ bool isablockdoor(int dapic)
 
 void animatewalls_r(void)
 {
-	int i, j, p, t;
+	int t;
 
 	if (isRRRA() &&ps[screenpeek].sea_sick_stat == 1)
 	{
-		for (i = 0; i < MAXWALLS; i++)
+		for (auto& wal : walls())
 		{
-			if (wall[i].picnum == RRTILE7873)
-				wall[i].addxpan(6);
-			else if (wall[i].picnum == RRTILE7870)
-				wall[i].addxpan(6);
+			if (wal.picnum == RRTILE7873)
+				wal.addxpan(6);
+			else if (wal.picnum == RRTILE7870)
+				wal.addxpan(6);
 		}
 	}
 
-	for (p = 0; p < numanimwalls; p++)
+	for (int p = 0; p < numanimwalls; p++)
 	{
-		i = animwall[p].wallnum;
-		j = wall[i].picnum;
+		auto wal = animwall[p].wall;
+		int j = wal->picnum;
 
 		switch (j)
 		{
@@ -232,8 +232,8 @@ void animatewalls_r(void)
 
 			if ((krand() & 255) < 16)
 			{
-				animwall[p].tag = wall[i].picnum;
-				wall[i].picnum = SCREENBREAK6;
+				animwall[p].tag = wal->picnum;
+				wal->picnum = SCREENBREAK6;
 			}
 
 			continue;
@@ -243,19 +243,19 @@ void animatewalls_r(void)
 		case SCREENBREAK8:
 
 			if (animwall[p].tag >= 0)
-				wall[i].picnum = animwall[p].tag;
+				wal->picnum = animwall[p].tag;
 			else
 			{
-				wall[i].picnum++;
-				if (wall[i].picnum == (SCREENBREAK6 + 3))
-					wall[i].picnum = SCREENBREAK6;
+				wal->picnum++;
+				if (wal->picnum == (SCREENBREAK6 + 3))
+					wal->picnum = SCREENBREAK6;
 			}
 			continue;
 
 		}
 
-		if (wall[i].cstat & 16)
-			switch (wall[i].overpicnum)
+		if (wal->cstat & 16)
+			switch (wal->overpicnum)
 			{
 			case W_FORCEFIELD:
 			case W_FORCEFIELD + 1:
@@ -263,14 +263,14 @@ void animatewalls_r(void)
 
 				t = animwall[p].tag;
 
-				if (wall[i].cstat & 254)
+				if (wal->cstat & 254)
 				{
-					wall[i].addxpan(-t / 4096.f); // bcos(t, -12);
-					wall[i].addypan(-t / 4096.f); // bsin(t, -12);
+					wal->addxpan(-t / 4096.f); // bcos(t, -12);
+					wal->addypan(-t / 4096.f); // bsin(t, -12);
 
-					if (wall[i].extra == 1)
+					if (wal->extra == 1)
 					{
-						wall[i].extra = 0;
+						wal->extra = 0;
 						animwall[p].tag = 0;
 					}
 					else
@@ -279,14 +279,14 @@ void animatewalls_r(void)
 					if (animwall[p].tag < (128 << 4))
 					{
 						if (animwall[p].tag & 128)
-							wall[i].overpicnum = W_FORCEFIELD;
-						else wall[i].overpicnum = W_FORCEFIELD + 1;
+							wal->overpicnum = W_FORCEFIELD;
+						else wal->overpicnum = W_FORCEFIELD + 1;
 					}
 					else
 					{
 						if ((krand() & 255) < 32)
 							animwall[p].tag = 128 << (krand() & 3);
-						else wall[i].overpicnum = W_FORCEFIELD + 1;
+						else wal->overpicnum = W_FORCEFIELD + 1;
 					}
 				}
 
@@ -313,7 +313,7 @@ void operaterespawns_r(int low)
 			if (badguypic(act->s->hitag) && ud.monsters_off) break;
 
 			auto star = spawn(act, TRANSPORTERSTAR);
-			star->s->z -= (32 << 8);
+			if (star) star->s->z -= (32 << 8);
 
 			act->s->extra = 66 - 12;   // Just a way to killit
 			break;
@@ -344,13 +344,13 @@ void operateforcefields_r(DDukeActor* act, int low)
 //
 //---------------------------------------------------------------------------
 
-bool checkhitswitch_r(int snum, int ww, DDukeActor* act)
+bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 {
 	uint8_t switchpal;
-	int i, x, lotag, hitag, picnum, correctdips, numdips;
+	int lotag, hitag, picnum, correctdips, numdips;
 	int sx, sy;
 
-	if (ww < 0 && act == nullptr) return 0;
+	if (wwal == nullptr && act == nullptr) return 0;
 	correctdips = 1;
 	numdips = 0;
 
@@ -366,14 +366,13 @@ bool checkhitswitch_r(int snum, int ww, DDukeActor* act)
 	}
 	else
 	{
-		auto wal = &wall[ww];
-		lotag = wal->lotag;
+		lotag = wwal->lotag;
 		if (lotag == 0) return 0;
-		hitag = wal->hitag;
-		sx = wal->x;
-		sy = wal->y;
-		picnum = wal->picnum;
-		switchpal = wal->pal;
+		hitag = wwal->hitag;
+		sx = wwal->x;
+		sy = wwal->y;
+		picnum = wwal->picnum;
+		switchpal = wwal->pal;
 	}
 
 	switch (picnum)
@@ -425,7 +424,7 @@ bool checkhitswitch_r(int snum, int ww, DDukeActor* act)
 			if (ps[snum].access_incs == 1)
 			{
 				if (!act)
-					ps[snum].access_wallnum = ww;
+					ps[snum].access_wall = wwal;
 				else
 					ps[snum].access_spritenum = act;
 			}
@@ -441,6 +440,7 @@ bool checkhitswitch_r(int snum, int ww, DDukeActor* act)
 	case RRTILE8464:
 	case RRTILE8660:
 		if (!isRRRA()) break;
+		[[fallthrough]];
 	case DIPSWITCH2:
 	case DIPSWITCH2 + 1:
 	case DIPSWITCH3:
@@ -530,6 +530,7 @@ bool checkhitswitch_r(int snum, int ww, DDukeActor* act)
 			break;
 		case RRTILE8660:
 			if (!isRRRA()) break;
+			[[fallthrough]];
 		case ACCESSSWITCH:
 		case ACCESSSWITCH2:
 		case SLOTDOOR:
@@ -600,45 +601,45 @@ bool checkhitswitch_r(int snum, int ww, DDukeActor* act)
 		}
 	}
 
-	for (i = 0; i < numwalls; i++)
+	for (auto& wal : walls())
 	{
-		x = i;
-		if (lotag == wall[x].lotag)
-			switch (wall[x].picnum)
+		if (lotag == wal.lotag)
+			switch (wal.picnum)
 			{
 			case DIPSWITCH:
 			case TECHSWITCH:
 			case ALIENSWITCH:
-				if (!act && i == ww) wall[x].picnum++;
-				else if (wall[x].hitag == 0) correctdips++;
+				if (!act && &wal == wwal) wal.picnum++;
+				else if (wal.hitag == 0) correctdips++;
 				numdips++;
 				break;
 			case DIPSWITCH + 1:
 			case TECHSWITCH + 1:
 			case ALIENSWITCH + 1:
-				if (!act && i == ww) wall[x].picnum--;
-				else if (wall[x].hitag == 1) correctdips++;
+				if (!act && &wal == wwal) wal.picnum--;
+				else if (wal.hitag == 1) correctdips++;
 				numdips++;
 				break;
 			case MULTISWITCH:
 			case MULTISWITCH + 1:
 			case MULTISWITCH + 2:
 			case MULTISWITCH + 3:
-				wall[x].picnum++;
-				if (wall[x].picnum > (MULTISWITCH + 3))
-					wall[x].picnum = MULTISWITCH;
+				wal.picnum++;
+				if (wal.picnum > (MULTISWITCH + 3))
+					wal.picnum = MULTISWITCH;
 				break;
 			case MULTISWITCH2:
 			case MULTISWITCH2 + 1:
 			case MULTISWITCH2 + 2:
 			case MULTISWITCH2 + 3:
 				if (!isRRRA()) break;
-				wall[x].picnum++;
-				if (wall[x].picnum > (MULTISWITCH2 + 3))
-					wall[x].picnum = MULTISWITCH2;
+				wal.picnum++;
+				if (wal.picnum > (MULTISWITCH2 + 3))
+					wal.picnum = MULTISWITCH2;
 				break;
 			case RRTILE8660:
 				if (!isRRRA()) break;
+				[[fallthrough]];
 			case ACCESSSWITCH:
 			case ACCESSSWITCH2:
 			case SLOTDOOR:
@@ -655,7 +656,7 @@ bool checkhitswitch_r(int snum, int ww, DDukeActor* act)
 			case DIPSWITCH3:
 			case RRTILE2697:
 			case RRTILE2707:
-				wall[x].picnum++;
+				wal.picnum++;
 				break;
 			case HANDSWITCH + 1:
 			case PULLSWITCH + 1:
@@ -671,12 +672,12 @@ bool checkhitswitch_r(int snum, int ww, DDukeActor* act)
 			case DIPSWITCH3 + 1:
 			case RRTILE2697 + 1:
 			case RRTILE2707 + 1:
-				wall[x].picnum--;
+				wal.picnum--;
 				break;
 			}
 	}
 
-	if (lotag == (short)65535)
+	if (lotag == -1)
 	{
 		setnextmap(false);
 	}
@@ -686,6 +687,7 @@ bool checkhitswitch_r(int snum, int ww, DDukeActor* act)
 	{
 	default:
 		if (fi.isadoorwall(picnum) == 0) break;
+		[[fallthrough]];
 	case DIPSWITCH:
 	case DIPSWITCH + 1:
 	case TECHSWITCH:
@@ -719,6 +721,7 @@ bool checkhitswitch_r(int snum, int ww, DDukeActor* act)
 	case RRTILE8464:
 	case RRTILE8660:
 		if (!isRRRA()) break;
+		[[fallthrough]];
 	case DIPSWITCH2:
 	case DIPSWITCH2 + 1:
 	case DIPSWITCH3:
@@ -811,7 +814,7 @@ bool checkhitswitch_r(int snum, int ww, DDukeActor* act)
 								switches[j]->s->picnum = MULTISWITCH2 + 3;
 							else
 								switches[j]->s->picnum = MULTISWITCH + 3;
-							checkhitswitch_r(snum, -1, switches[j]);
+							checkhitswitch_r(snum, nullptr, switches[j]);
 						}
 					}
 					return 1;
@@ -839,8 +842,9 @@ bool checkhitswitch_r(int snum, int ww, DDukeActor* act)
 				case SE_47_LIGHT_SWITCH:
 				case SE_48_LIGHT_SWITCH:
 					if (!isRRRA()) break;
+					[[fallthrough]];
 				case SE_12_LIGHT_SWITCH:
-					sector[other->s->sectnum].floorpal = 0;
+					other->getSector()->floorpal = 0;
 					other->temp_data[0]++;
 					if (other->temp_data[0] == 2)
 						other->temp_data[0]++;
@@ -896,7 +900,7 @@ bool checkhitswitch_r(int snum, int ww, DDukeActor* act)
 //
 //---------------------------------------------------------------------------
 
-void activatebysector_r(int sect, DDukeActor* activator)
+void activatebysector_r(sectortype* sect, DDukeActor* activator)
 {
 	DukeSectIterator it(sect);
 	while (auto act = it.Next())
@@ -908,7 +912,7 @@ void activatebysector_r(int sect, DDukeActor* activator)
 		}
 	}
 
-	if (sector[sect].lotag != 22)
+	if (sect->lotag != 22)
 		operatesectors(sect, activator);
 }
 
@@ -919,51 +923,50 @@ void activatebysector_r(int sect, DDukeActor* activator)
 //
 //---------------------------------------------------------------------------
 
-static void lotsofpopcorn(DDukeActor *actor, int wallnum, int n)
+static void lotsofpopcorn(DDukeActor *actor, walltype* wal, int n)
 {
-	int j, xv, yv, z, x1, y1;
-	int sect, a;
+	int j, z;
+	int a;
 
-	sect = -1;
+	sectortype* sect = nullptr;
 	auto sp = actor->s;
 
-	if (wallnum < 0)
+	if (wal == nullptr)
 	{
 		for (j = n - 1; j >= 0; j--)
 		{
 			a = sp->ang - 256 + (krand() & 511) + 1024;
-			EGS(sp->sectnum, sp->x, sp->y, sp->z, POPCORN, -32, 36, 36, a, 32 + (krand() & 63), 1024 - (krand() & 1023), actor, 5);
+			EGS(sp->sector(), sp->x, sp->y, sp->z, POPCORN, -32, 36, 36, a, 32 + (krand() & 63), 1024 - (krand() & 1023), actor, 5);
 		}
 		return;
 	}
 
 	j = n + 1;
 
-	x1 = wall[wallnum].x;
-	y1 = wall[wallnum].y;
+	int x1 = wal->x;
+	int y1 = wal->y;
 
-	xv = wall[wall[wallnum].point2].x - x1;
-	yv = wall[wall[wallnum].point2].y - y1;
+	auto delta = wal->delta();
 
-	x1 -= Sgn(yv);
-	y1 += Sgn(xv);
+	x1 -= Sgn(delta.x);
+	y1 += Sgn(delta.y);
 
-	xv /= j;
-	yv /= j;
+	delta.x /= j;
+	delta.y /= j;
 
 	for (j = n; j > 0; j--)
 	{
-		x1 += xv;
-		y1 += yv;
+		x1 += delta.x;
+		y1 += delta.y;
 
 		updatesector(x1, y1, &sect);
-		if (sect >= 0)
+		if (sect)
 		{
-			z = sector[sect].floorz - (krand() & (abs(sector[sect].ceilingz - sector[sect].floorz)));
+			z = sect->floorz - (krand() & (abs(sect->ceilingz - sect->floorz)));
 			if (z < -(32 << 8) || z >(32 << 8))
 				z = sp->z - (32 << 8) + (krand() & ((64 << 8) - 1));
 			a = sp->ang - 1024;
-			EGS(sp->sectnum, x1, y1, z, POPCORN, -32, 36, 36, a, 32 + (krand() & 63), -(krand() & 1023), actor, 5);
+			EGS(sp->sector(), x1, y1, z, POPCORN, -32, 36, 36, a, 32 + (krand() & 63), -(krand() & 1023), actor, 5);
 		}
 	}
 }
@@ -974,14 +977,11 @@ static void lotsofpopcorn(DDukeActor *actor, int wallnum, int n)
 //
 //---------------------------------------------------------------------------
 
-void checkhitwall_r(DDukeActor* spr, int dawallnum, int x, int y, int z, int atwith)
+void checkhitwall_r(DDukeActor* spr, walltype* wal, int x, int y, int z, int atwith)
 {
-	int j, i;
+	int j;
 	int sn = -1, darkestwall;
-	walltype* wal;
 	spritetype* s;
-
-	wal = &wall[dawallnum];
 
 	if (wal->overpicnum == MIRROR)
 	{
@@ -989,6 +989,7 @@ void checkhitwall_r(DDukeActor* spr, int dawallnum, int x, int y, int z, int atw
 		{
 		case RPG2:
 			if (!isRRRA()) break;
+			[[fallthrough]];
 		case HEAVYHBOMB:
 		case RADIUSEXPLOSION:
 		case RPG:
@@ -996,7 +997,7 @@ void checkhitwall_r(DDukeActor* spr, int dawallnum, int x, int y, int z, int atw
 		case SEENINE:
 		case OOZFILTER:
 		case EXPLODINGBARREL:
-			lotsofglass(spr, dawallnum, 70);
+			lotsofglass(spr, wal, 70);
 			wal->cstat &= ~16;
 			wal->overpicnum = MIRRORBROKE;
 			wal->portalflags = 0;
@@ -1024,41 +1025,50 @@ void checkhitwall_r(DDukeActor* spr, int dawallnum, int x, int y, int z, int atw
 
 				case RRTILE1973:
 				{
-					updatesector(x, y, &sn); if (sn < 0) return;
+					sectortype* sptr = nullptr;
+					updatesector(x, y, &sptr);
+					if (sptr == nullptr) return;
 					wal->overpicnum = GLASS2;
-					lotsofpopcorn(spr, dawallnum, 64);
+					lotsofpopcorn(spr, wal, 64);
 					wal->cstat = 0;
 
 					if (wal->nextwall >= 0)
 						wal->nextWall()->cstat = 0;
 
-					auto spawned = EGS(sn, x, y, z, SECTOREFFECTOR, 0, 0, 0, ps[0].angle.ang.asbuild(), 0, 0, spr, 3);
-					spawned->s->lotag = 128; 
-					spawned->temp_data[1] = 2; 
-					spawned->temp_data[2] = dawallnum;
-					S_PlayActorSound(GLASS_BREAKING, spawned);
+					auto spawned = EGS(sptr, x, y, z, SECTOREFFECTOR, 0, 0, 0, ps[0].angle.ang.asbuild(), 0, 0, spr, 3);
+					if (spawned)
+					{
+						spawned->s->lotag = 128;
+						spawned->temp_walls[0] = wal;
+						S_PlayActorSound(GLASS_BREAKING, spawned);
+					}
 					return;
 				}
 				case GLASS:
 				{
-					updatesector(x, y, &sn); if (sn < 0) return;
+					sectortype* sptr = nullptr;
+					updatesector(x, y, &sptr);
+					if (sptr == nullptr) return;
 					wal->overpicnum = GLASS2;
-					lotsofglass(spr, dawallnum, 10);
+					lotsofglass(spr, wal, 10);
 					wal->cstat = 0;
 
 					if (wal->nextwall >= 0)
 						wal->nextWall()->cstat = 0;
 
-					auto spawned = EGS(sn, x, y, z, SECTOREFFECTOR, 0, 0, 0, ps[0].angle.ang.asbuild(), 0, 0, spr, 3);
-					spawned->s->lotag = 128;
-					spawned->temp_data[1] = 2;
-					spawned->temp_data[2] = dawallnum;
-					S_PlayActorSound(GLASS_BREAKING, spawned);
+					auto spawned = EGS(sptr, x, y, z, SECTOREFFECTOR, 0, 0, 0, ps[0].angle.ang.asbuild(), 0, 0, spr, 3);
+					if (spawned)
+					{
+						spawned->s->lotag = 128;
+						spawned->temp_data[1] = 2;
+						spawned->temp_walls[0] = wal;
+						S_PlayActorSound(GLASS_BREAKING, spawned);
+					}
 					return;
 				}
 				case STAINGLASS1:
 					updatesector(x, y, &sn); if (sn < 0) return;
-					lotsofcolourglass(spr, dawallnum, 80);
+					lotsofcolourglass(spr, wal, 80);
 					wal->cstat = 0;
 					if (wal->nextwall >= 0)
 						wal->nextWall()->cstat = 0;
@@ -1078,8 +1088,6 @@ void checkhitwall_r(DDukeActor* spr, int dawallnum, int x, int y, int z, int atw
 	case RRTILE3643 + 3:
 	{
 		int sect;
-		int unk = 0;
-		int startwall, endwall;
 		sect = wal->nextWall()->nextsector;
 		DukeSectIterator it(sect);
 		while (auto act = it.Next())
@@ -1087,14 +1095,13 @@ void checkhitwall_r(DDukeActor* spr, int dawallnum, int x, int y, int z, int atw
 			s = act->s;
 			if (s->lotag == 6)
 			{
-				//for (j = 0; j < 16; j++) RANDOMSCRAP(s, -1); This never spawned anything due to the -1.
 				act->spriteextra++;
 				if (act->spriteextra == 25)
 				{
-					startwall = s->sector()->wallptr;
-					endwall = startwall + s->sector()->wallnum;
-					for (i = startwall; i < endwall; i++)
-						sector[wall[i].nextsector].lotag = 0;
+					for(auto& wl : wallsofsector(s->sectnum))
+					{
+						if (wl.nextsector >= 0) wl.nextSector()->lotag = 0;
+					}
 					s->sector()->lotag = 0;
 					S_StopSound(act->s->lotag);
 					S_PlayActorSound(400, act);
@@ -1239,7 +1246,7 @@ void checkhitwall_r(DDukeActor* spr, int dawallnum, int x, int y, int z, int atw
 
 	case COLAMACHINE:
 	case VENDMACHINE:
-		breakwall(wal->picnum + 2, spr, dawallnum);
+		breakwall(wal->picnum + 2, spr, wal);
 		S_PlayActorSound(GLASS_BREAKING, spr);
 		return;
 
@@ -1249,7 +1256,7 @@ void checkhitwall_r(DDukeActor* spr, int dawallnum, int x, int y, int z, int atw
 	case SCREENBREAK7:
 	case SCREENBREAK8:
 
-		lotsofglass(spr, dawallnum, 30);
+		lotsofglass(spr, wal, 30);
 		wal->picnum = W_SCREENBREAK + (krand() % (isRRRA() ? 2 : 3));
 		S_PlayActorSound(GLASS_HEAVYBREAK, spr);
 		return;
@@ -1283,7 +1290,7 @@ void checkhitwall_r(DDukeActor* spr, int dawallnum, int x, int y, int z, int atw
 		if (rnd(128))
 			S_PlayActorSound(GLASS_HEAVYBREAK, spr);
 		else S_PlayActorSound(GLASS_BREAKING, spr);
-		lotsofglass(spr, dawallnum, 30);
+		lotsofglass(spr, wal, 30);
 
 		if (wal->picnum == RRTILE1814)
 			wal->picnum = RRTILE1817;
@@ -1348,16 +1355,15 @@ void checkhitwall_r(DDukeActor* spr, int dawallnum, int x, int y, int z, int atw
 		if (sn < 0) return;
 		darkestwall = 0;
 
-		wal = &wall[sector[sn].wallptr];
-		for (i = sector[sn].wallnum; i > 0; i--, wal++)
-			if (wal->shade > darkestwall)
-				darkestwall = wal->shade;
+		for (auto& wl : wallsofsector(wal->nextsector))
+			if (wl.shade > darkestwall)
+				darkestwall = wl.shade;
 
 		j = krand() & 1;
 		DukeStatIterator it(STAT_EFFECTOR);
 		while (auto act = it.Next())
 		{
-			if (act->s->hitag == wall[dawallnum].lotag && act->s->lotag == 3)
+			if (act->s->hitag == wal->lotag && act->s->lotag == 3)
 			{
 				act->temp_data[2] = j;
 				act->temp_data[3] = darkestwall;
@@ -1409,14 +1415,14 @@ void checkplayerhurt_r(struct player_struct* p, const Collision &coll)
 	}
 
 	if (coll.type != kHitWall) return;
-	int j = coll.index;
+	auto wal = coll.wall();
 
 	if (p->hurt_delay > 0) p->hurt_delay--;
-	else if (wall[j].cstat & 85) switch (wall[j].overpicnum)
+	else if (wal->cstat & 85) switch (wal->overpicnum)
 	{
 	case BIGFORCE:
 		p->hurt_delay = 26;
-		fi.checkhitwall(p->GetActor(), j,
+		fi.checkhitwall(p->GetActor(), wal,
 			p->pos.x + p->angle.ang.bcos(-9),
 			p->pos.y + p->angle.ang.bsin(-9),
 			p->pos.z, -1);
@@ -1431,9 +1437,8 @@ void checkplayerhurt_r(struct player_struct* p, const Collision &coll)
 //
 //---------------------------------------------------------------------------
 
-bool checkhitceiling_r(int sn)
+bool checkhitceiling_r(sectortype* sectp)
 {
-	auto sectp = &sector[sn];
 	int j;
 
 	switch (sectp->ceilingpicnum)
@@ -1452,7 +1457,7 @@ bool checkhitceiling_r(int sn)
 	case RRTILE2898:
 
 
-		ceilingglass(ps[myconnectindex].GetActor(), sn, 10);
+		ceilingglass(ps[myconnectindex].GetActor(), sectp, 10);
 		S_PlayActorSound(GLASS_BREAKING, ps[screenpeek].GetActor());
 
 		if (sectp->ceilingpicnum == WALLLIGHT1)
@@ -1494,7 +1499,7 @@ bool checkhitceiling_r(int sn)
 
 		if (!sectp->hitag)
 		{
-			DukeSectIterator it(sn);
+			DukeSectIterator it(sectp);
 			while (auto act1 = it.Next())
 			{
 				auto spr1 = act1->s;
@@ -1891,12 +1896,12 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 	case RRTILE2123:
 		s->picnum = RRTILE2124;
 		S_PlayActorSound(GLASS_BREAKING, targ);
-		lotsofglass(targ, -1, 10);
+		lotsofglass(targ, nullptr, 10);
 		break;
 	case RRTILE3773:
 		s->picnum = RRTILE8651;
 		S_PlayActorSound(GLASS_BREAKING, targ);
-		lotsofglass(targ, -1, 10);
+		lotsofglass(targ, nullptr, 10);
 		break;
 	case RRTILE7533:
 		s->picnum = RRTILE5035;
@@ -2033,7 +2038,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 	case RRTILE2030:
 		s->picnum = RRTILE2034;
 		S_PlayActorSound(GLASS_BREAKING, targ);
-		lotsofglass(targ, -1, 10);
+		lotsofglass(targ, nullptr, 10);
 		break;
 	case RRTILE2893:
 	case RRTILE2915:
@@ -2055,7 +2060,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 			break;
 		}
 		S_PlayActorSound(GLASS_BREAKING, targ);
-		lotsofglass(targ, -1, 10);
+		lotsofglass(targ, nullptr, 10);
 		break;
 	case RRTILE2156:
 	case RRTILE2158:
@@ -2063,16 +2068,16 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 	case RRTILE2175:
 		s->picnum++;
 		S_PlayActorSound(GLASS_BREAKING, targ);
-		lotsofglass(targ, -1, 10);
+		lotsofglass(targ, nullptr, 10);
 		break;
 	case RRTILE2137:
 	case RRTILE2151:
 	case RRTILE2152:
 		S_PlayActorSound(GLASS_BREAKING, targ);
-		lotsofglass(targ, -1, 10);
+		lotsofglass(targ, nullptr, 10);
 		s->picnum++;
 		for (k = 0; k < 6; k++)
-			EGS(s->sectnum, s->x, s->y, s->z - (8 << 8), SCRAP6 + (krand() & 15), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (s->zvel >> 2), targ, 5);
+			EGS(s->sector(), s->x, s->y, s->z - (8 << 8), SCRAP6 + (krand() & 15), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (s->zvel >> 2), targ, 5);
 		break;
 	case BOWLINGBALL:
 		pspr->xvel = (s->xvel >> 1) + (s->xvel >> 2);
@@ -2126,6 +2131,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		{
 		case RPG2:
 			if (!isRRRA()) break;
+			[[fallthrough]];
 		case RADIUSEXPLOSION:
 		case RPG:
 		case FIRELASER:
@@ -2151,6 +2157,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		{
 		case RPG2:
 			if (!isRRRA()) break;
+			[[fallthrough]];
 		case RADIUSEXPLOSION:
 		case RPG:
 		case FIRELASER:
@@ -2162,7 +2169,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		case UWHIP:
 			for (k = 0; k < 64; k++)
 			{
-				auto j = EGS(s->sectnum, s->x, s->y, s->z - (krand() % (48 << 8)), SCRAP6 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (s->zvel >> 2), targ, 5);
+				auto j = EGS(s->sector(), s->x, s->y, s->z - (krand() % (48 << 8)), SCRAP6 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (s->zvel >> 2), targ, 5);
 				j->s->pal = 8;
 			}
 
@@ -2195,7 +2202,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		if (gs.actorinfo[SHOTSPARK1].scriptaddress && pspr->extra != ScriptCode[gs.actorinfo[SHOTSPARK1].scriptaddress])
 		{
 			for (j = 0; j < 15; j++)
-				EGS(s->sectnum, s->x, s->y, s->sector()->floorz - (12 << 8) - (j << 9), SCRAP1 + (krand() & 15), -8, 64, 64,
+				EGS(s->sector(), s->x, s->y, s->sector()->floorz - (12 << 8) - (j << 9), SCRAP1 + (krand() & 15), -8, 64, 64,
 					krand() & 2047, (krand() & 127) + 64, -(krand() & 511) - 256, targ, 5);
 			spawn(targ, EXPLOSION2);
 			deletesprite(targ);
@@ -2203,6 +2210,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		break;
 	case RRTILE1824:
 		if (!isRRRA()) break;
+		[[fallthrough]];
 	case BOTTLE1:
 	case BOTTLE2:
 	case BOTTLE3:
@@ -2234,24 +2242,25 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 			fi.lotsofmoney(targ, 4 + (krand() & 3));
 		else if (s->picnum == STATUE || s->picnum == STATUEFLASH)
 		{
-			lotsofcolourglass(targ, -1, 40);
+			lotsofcolourglass(targ, nullptr, 40);
 			S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		}
 		else if (s->picnum == VASE)
-			lotsofglass(targ, -1, 40);
+			lotsofglass(targ, nullptr, 40);
 
 		S_PlayActorSound(GLASS_BREAKING, targ);
 		s->ang = krand() & 2047;
-		lotsofglass(targ, -1, 8);
+		lotsofglass(targ, nullptr, 8);
 		deletesprite(targ);
 		break;
 	case RRTILE2654:
 	case RRTILE2656:
 	case RRTILE3172:
 		if (!isRRRA()) break;
+		[[fallthrough]];
 	case BOTTLE7:
 		S_PlayActorSound(GLASS_BREAKING, targ);
-		lotsofglass(targ, -1, 10);
+		lotsofglass(targ, nullptr, 10);
 		deletesprite(targ);
 		break;
 	case FORCESPHERE:
@@ -2319,7 +2328,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		}
 		{
 			auto j = spawn(targ, STEAM);
-			j->s->z = s->sector()->floorz - (32 << 8);
+			if (j) j->s->z = s->sector()->floorz - (32 << 8);
 		}
 		break;
 
@@ -2345,6 +2354,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		targ = targ->GetOwner();
 		if (!targ) break;
 		s = targ->s;
+		[[fallthrough]];
 	default:
 		if ((s->cstat & 16) && s->hitag == 0 && s->lotag == 0 && s->statnum == 0)
 			break;
@@ -2361,12 +2371,15 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 						//if (actortype[s->picnum] == 0) //TRANSITIONAL. Cannot be done right with EDuke mess backing the engine. 
 						{
 							auto spawned = spawn(proj, JIBS6);
-							if (pspr->pal == 6)
-								spawned->s->pal = 6;
-							spawned->s->z += (4 << 8);
-							spawned->s->xvel = 16;
-							spawned->s->xrepeat = spawned->s->yrepeat = 24;
-							spawned->s->ang += 32 - (krand() & 63);
+							if (spawned)
+							{
+								if (pspr->pal == 6)
+									spawned->s->pal = 6;
+								spawned->s->z += (4 << 8);
+								spawned->s->xvel = 16;
+								spawned->s->xrepeat = spawned->s->yrepeat = 24;
+								spawned->s->ang += 32 - (krand() & 63);
+							}
 						}
 
 				auto Owner = proj->GetOwner();
@@ -2436,15 +2449,18 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 
 void checksectors_r(int snum)
 {
-	int i = -1, oldz;
+	int oldz;
 	struct player_struct* p;
-	int hitscanwall;
-	int neartagsector, neartagwall;
-	DDukeActor* neartagsprite;
-	int neartaghitdist;
+	walltype* hitscanwall;
+	sectortype* ntsector = nullptr;
+	walltype* ntwall = nullptr;
+	DDukeActor* neartagsprite = nullptr;
+	int neartaghitdist = 0;
 
 	p = &ps[snum];
 	auto pact = p->GetActor();
+
+	if (!p->insector()) return;
 
 	switch (p->cursector()->lotag)
 	{
@@ -2494,47 +2510,50 @@ void checksectors_r(int snum)
 	{
 		neartagsprite = nullptr;
 		p->toggle_key_flag = 1;
-		hitscanwall = -1;
+		hitscanwall = nullptr;
 
 		hitawall(p, &hitscanwall);
 
-		if (isRRRA())
+		if (hitscanwall != nullptr)
 		{
-			if (hitscanwall >= 0 && wall[hitscanwall].overpicnum == MIRROR && snum == screenpeek)
-				if (numplayers == 1)
-				{
-					if (S_CheckActorSoundPlaying(pact, 27) == 0 && S_CheckActorSoundPlaying(pact, 28) == 0 && S_CheckActorSoundPlaying(pact, 29) == 0
-						&& S_CheckActorSoundPlaying(pact, 257) == 0 && S_CheckActorSoundPlaying(pact, 258) == 0)
+			if (isRRRA())
+			{
+				if (hitscanwall->overpicnum == MIRROR && snum == screenpeek)
+					if (numplayers == 1)
 					{
-						int snd = krand() % 5;
-						if (snd == 0)
-							S_PlayActorSound(27, pact);
-						else if (snd == 1)
-							S_PlayActorSound(28, pact);
-						else if (snd == 2)
-							S_PlayActorSound(29, pact);
-						else if (snd == 3)
-							S_PlayActorSound(257, pact);
-						else if (snd == 4)
-							S_PlayActorSound(258, pact);
+						if (S_CheckActorSoundPlaying(pact, 27) == 0 && S_CheckActorSoundPlaying(pact, 28) == 0 && S_CheckActorSoundPlaying(pact, 29) == 0
+							&& S_CheckActorSoundPlaying(pact, 257) == 0 && S_CheckActorSoundPlaying(pact, 258) == 0)
+						{
+							int snd = krand() % 5;
+							if (snd == 0)
+								S_PlayActorSound(27, pact);
+							else if (snd == 1)
+								S_PlayActorSound(28, pact);
+							else if (snd == 2)
+								S_PlayActorSound(29, pact);
+							else if (snd == 3)
+								S_PlayActorSound(257, pact);
+							else if (snd == 4)
+								S_PlayActorSound(258, pact);
+						}
+						return;
 					}
+			}
+			else
+			{
+				if (hitscanwall->overpicnum == MIRROR)
+					if (hitscanwall->lotag > 0 && S_CheckActorSoundPlaying(pact, hitscanwall->lotag) == 0 && snum == screenpeek)
+					{
+						S_PlayActorSound(hitscanwall->lotag, pact);
+						return;
+					}
+			}
+			
+			if ((hitscanwall->cstat & 16))
+				if (hitscanwall->lotag)
 					return;
-				}
+			
 		}
-		else
-		{
-			if (hitscanwall >= 0 && wall[hitscanwall].overpicnum == MIRROR)
-		  		if (wall[hitscanwall].lotag > 0 && S_CheckActorSoundPlaying(pact, wall[hitscanwall].lotag) == 0 && snum == screenpeek)
-				{
-					S_PlayActorSound(wall[hitscanwall].lotag, pact);
-					return;
-				}
-		}
-
-		if (hitscanwall >= 0 && (wall[hitscanwall].cstat & 16))
-			if (wall[hitscanwall].lotag)
-				return;
-
 		if (isRRRA())
 		{
 			if (p->OnMotorcycle)
@@ -2555,21 +2574,21 @@ void checksectors_r(int snum)
 				}
 				return;
 			}
-			neartag(p->pos.x, p->pos.y, p->pos.z, p->GetActor()->s->sectnum, p->angle.oang.asbuild(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 3);
+			neartag(p->pos.x, p->pos.y, p->pos.z, p->GetActor()->s->sectnum, p->angle.oang.asbuild(), &ntsector, &ntwall, &neartagsprite, &neartaghitdist, 1280L, 3);
 		}
 
 		if (p->newOwner != nullptr)
-			neartag(p->oposx, p->oposy, p->oposz, p->GetActor()->s->sectnum, p->angle.oang.asbuild(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 1);
+			neartag(p->oposx, p->oposy, p->oposz, p->GetActor()->s->sectnum, p->angle.oang.asbuild(), &ntsector, &ntwall, &neartagsprite, &neartaghitdist, 1280L, 1);
 		else
 		{
-			neartag(p->pos.x, p->pos.y, p->pos.z, p->GetActor()->s->sectnum, p->angle.oang.asbuild(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 1);
-			if (neartagsprite == nullptr && neartagwall == -1 && neartagsector == -1)
-				neartag(p->pos.x, p->pos.y, p->pos.z + (8 << 8), p->GetActor()->s->sectnum, p->angle.oang.asbuild(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 1);
-			if (neartagsprite == nullptr && neartagwall == -1 && neartagsector == -1)
-				neartag(p->pos.x, p->pos.y, p->pos.z + (16 << 8), p->GetActor()->s->sectnum, p->angle.oang.asbuild(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 1);
-			if (neartagsprite == nullptr && neartagwall == -1 && neartagsector == -1)
+			neartag(p->pos.x, p->pos.y, p->pos.z, p->GetActor()->s->sectnum, p->angle.oang.asbuild(), &ntsector, &ntwall, &neartagsprite, &neartaghitdist, 1280L, 1);
+			if (neartagsprite == nullptr && ntwall == nullptr && ntsector == nullptr)
+				neartag(p->pos.x, p->pos.y, p->pos.z + (8 << 8), p->GetActor()->s->sectnum, p->angle.oang.asbuild(), &ntsector, &ntwall, &neartagsprite, &neartaghitdist, 1280L, 1);
+			if (neartagsprite == nullptr && ntwall == nullptr && ntsector == nullptr)
+				neartag(p->pos.x, p->pos.y, p->pos.z + (16 << 8), p->GetActor()->s->sectnum, p->angle.oang.asbuild(), &ntsector, &ntwall, &neartagsprite, &neartaghitdist, 1280L, 1);
+			if (neartagsprite == nullptr && ntwall == nullptr && ntsector == nullptr)
 			{
-				neartag(p->pos.x, p->pos.y, p->pos.z + (16 << 8), p->GetActor()->s->sectnum, p->angle.oang.asbuild(), &neartagsector, &neartagwall, &neartagsprite, &neartaghitdist, 1280L, 3);
+				neartag(p->pos.x, p->pos.y, p->pos.z + (16 << 8), p->GetActor()->s->sectnum, p->angle.oang.asbuild(), &ntsector, &ntwall, &neartagsprite, &neartaghitdist, 1280L, 3);
 				if (neartagsprite != nullptr)
 				{
 					switch (neartagsprite->s->picnum)
@@ -2586,19 +2605,19 @@ void checksectors_r(int snum)
 				}
 
 				neartagsprite = nullptr;
-				neartagwall = -1;
-				neartagsector = -1;
+				ntwall = nullptr;
+				ntsector = nullptr;
 			}
 		}
 
-		if (p->newOwner == nullptr && neartagsprite == nullptr && neartagsector == -1 && neartagwall == -1)
+		if (p->newOwner == nullptr && neartagsprite == nullptr && ntsector == nullptr && ntwall == nullptr)
 			if (isanunderoperator(p->GetActor()->getSector()->lotag))
-				neartagsector = p->GetActor()->s->sectnum;
+				ntsector = p->GetActor()->s->sector();
 
-		if (neartagsector >= 0 && (sector[neartagsector].lotag & 16384))
+		if (ntsector && (ntsector->lotag & 16384))
 			return;
 
-		if (neartagsprite == nullptr && neartagwall == -1)
+		if (neartagsprite == nullptr && ntwall == nullptr)
 			if (p->cursector()->lotag == 2)
 			{
 				DDukeActor* hit;
@@ -2609,7 +2628,7 @@ void checksectors_r(int snum)
 
 		if (neartagsprite != nullptr)
 		{
-			if (fi.checkhitswitch(snum, -1,neartagsprite)) return;
+			if (fi.checkhitswitch(snum, nullptr, neartagsprite)) return;
 
 			switch (neartagsprite->s->picnum)
 			{
@@ -2713,7 +2732,7 @@ void checksectors_r(int snum)
 
 		if (!PlayerInput(snum, SB_OPEN)) return;
 
-		if (neartagwall == -1 && neartagsector == -1 && neartagsprite == nullptr)
+		if (ntwall == nullptr && ntsector == nullptr && neartagsprite == nullptr)
 			if (abs(hits(p->GetActor())) < 512)
 			{
 				if ((krand() & 255) < 16)
@@ -2722,26 +2741,26 @@ void checksectors_r(int snum)
 				return;
 			}
 
-		if (neartagwall >= 0)
+		if (ntwall != nullptr)
 		{
-			if (wall[neartagwall].lotag > 0 && fi.isadoorwall(wall[neartagwall].picnum))
+			if (ntwall->lotag > 0 && fi.isadoorwall(ntwall->picnum))
 			{
-				if (hitscanwall == neartagwall || hitscanwall == -1)
-					fi.checkhitswitch(snum, neartagwall, nullptr);
+				if (hitscanwall == ntwall || hitscanwall == nullptr)
+					fi.checkhitswitch(snum, ntwall, nullptr);
 				return;
 			}
 		}
 
-		if (neartagsector >= 0 && (sector[neartagsector].lotag & 16384) == 0 && isanearoperator(sector[neartagsector].lotag))
+		if (ntsector && (ntsector->lotag & 16384) == 0 && isanearoperator(ntsector->lotag))
 		{
-			DukeSectIterator it(neartagsector);
+			DukeSectIterator it(ntsector);
 			while (auto act = it.Next())
 			{
 				if (act->s->picnum == ACTIVATOR || act->s->picnum == MASTERSWITCH)
 					return;
 			}
-			if (haskey(neartagsector, snum))
-				operatesectors(neartagsector, p->GetActor());
+			if (haskey(ntsector, snum))
+				operatesectors(ntsector, p->GetActor());
 			else
 			{
 				if (neartagsprite && neartagsprite->spriteextra > 3)
@@ -2761,8 +2780,8 @@ void checksectors_r(int snum)
 					if (act->s->picnum == ACTIVATOR || act->s->picnum == MASTERSWITCH)
 						return;
 				}
-				if (haskey(neartagsector, snum))
-					operatesectors(p->GetActor()->s->sectnum, p->GetActor());
+				if (haskey(ntsector, snum))
+					operatesectors(p->GetActor()->s->sector(), p->GetActor());
 				else
 				{
 					if (neartagsprite && neartagsprite->spriteextra > 3)
@@ -2772,7 +2791,7 @@ void checksectors_r(int snum)
 					FTA(41, p);
 				}
 			}
-			else fi.checkhitswitch(snum, neartagwall, nullptr);
+			else fi.checkhitswitch(snum, ntwall, nullptr);
 		}
 	}
 }
@@ -2783,11 +2802,9 @@ void checksectors_r(int snum)
 //
 //---------------------------------------------------------------------------
 
-void dofurniture(int wl, int sect, int snum)
+void dofurniture(walltype* wlwal, sectortype* sectp, int snum)
 {
-	int startwall;
-	int endwall;
-	int i;
+	int nextsect = wlwal->nextsector;
 	int var_C;
 	int x;
 	int y;
@@ -2798,20 +2815,18 @@ void dofurniture(int wl, int sect, int snum)
 	int ins;
 	int var_cx;
 
-	startwall = sector[wall[wl].nextsector].wallptr;;
-	endwall = startwall + sector[wall[wl].nextsector].wallnum;
 	var_C = 1;
 	max_x = max_y = -0x20000;
 	min_x = min_y = 0x20000;
-	var_cx = sector[sect].hitag;
+	var_cx = sectp->hitag;
 	if (var_cx > 16)
 		var_cx = 16;
 	else if (var_cx == 0)
 		var_cx = 4;
-	for (i = startwall; i < endwall; i++)
+	for(auto& wal : wallsofsector(nextsect))
 	{
-		x = wall[i].x;
-		y = wall[i].y;
+		x = wal.x;
+		y = wal.y;
 		if (x > max_x)
 			max_x = x;
 		if (y > max_y)
@@ -2825,70 +2840,70 @@ void dofurniture(int wl, int sect, int snum)
 	max_y += var_cx + 1;
 	min_x -= var_cx + 1;
 	min_y -= var_cx + 1;
-	ins = inside(max_x, max_y, sect);
+	ins = inside(max_x, max_y, sectp);
 	if (!ins)
 		var_C = 0;
-	ins = inside(max_x, min_y, sect);
+	ins = inside(max_x, min_y, sectp);
 	if (!ins)
 		var_C = 0;
-	ins = inside(min_x, min_y, sect);
+	ins = inside(min_x, min_y, sectp);
 	if (!ins)
 		var_C = 0;
-	ins = inside(min_x, max_y, sect);
+	ins = inside(min_x, max_y, sectp);
 	if (!ins)
 		var_C = 0;
 	if (var_C)
 	{
 		if (S_CheckActorSoundPlaying(ps[snum].GetActor(), 389) == 0)
 			S_PlayActorSound(389, ps[snum].GetActor());
-		for (i = startwall; i < endwall; i++)
+		for(auto& wal : wallsofsector(nextsect))
 		{
-			x = wall[i].x;
-			y = wall[i].y;
-			switch (wall[wl].lotag)
+			x = wal.x;
+			y = wal.y;
+			switch (wlwal->lotag)
 			{
 			case 42:
-				y = wall[i].y + var_cx;
-				dragpoint(i, x, y);
+				y = wal.y + var_cx;
+				dragpoint(&wal, x, y);
 				break;
 			case 41:
-				x = wall[i].x - var_cx;
-				dragpoint(i, x, y);
+				x = wal.x - var_cx;
+				dragpoint(&wal, x, y);
 				break;
 			case 40:
-				y = wall[i].y - var_cx;
-				dragpoint(i, x, y);
+				y = wal.y - var_cx;
+				dragpoint(&wal, x, y);
 				break;
 			case 43:
-				x = wall[i].x + var_cx;
-				dragpoint(i, x, y);
+				x = wal.x + var_cx;
+				dragpoint(&wal, x, y);
 				break;
 			}
 		}
 	}
 	else
 	{
-		for (i = startwall; i < endwall; i++)
+		for(auto& wal : wallsofsector(nextsect))
 		{
-			x = wall[i].x;
-			y = wall[i].y;
-			switch (wall[wl].lotag)
+			x = wal.x;
+			y = wal.y;
+			switch (wlwal->lotag)
 			{
 			case 42:
-				y = wall[i].y - (var_cx - 2);
-				dragpoint(i, x, y);
+				y = wal.y - (var_cx - 2);
+				dragpoint(&wal, x, y);
 				break;
 			case 41:
-				x = wall[i].x + (var_cx - 2);
-				dragpoint(i, x, y);
+				x = wal.x + (var_cx - 2);
+				dragpoint(&wal, x, y);
 				break;
 			case 40:
-				y = wall[i].y + (var_cx - 2);
-				dragpoint(i, x, y);
+				y = wal.y + (var_cx - 2);
+				dragpoint(&wal, x, y);
 				break;
 			case 43:
-				x = wall[i].x - (var_cx - 2);
-				dragpoint(i, x, y);
+				x = wal.x - (var_cx - 2);
+				dragpoint(&wal, x, y);
 				break;
 			}
 		}

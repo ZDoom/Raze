@@ -57,7 +57,6 @@ typedef struct NODETREEstruct NODETREE, *NODETREEp;
 
 struct NODETREEstruct
 {
-    short SpriteNum;        // Sprite number in sprite array of goal item
     NODEp tree;             // This is the node tree used to navigate to goal
     bool Locked;            // If list is locked, a bot is using/modifying it and
     // other bots cannot modify it while it's locked
@@ -67,7 +66,7 @@ struct NODETREEstruct
 typedef struct BOT_BRAIN
 {
     short tgt_inv;      // Inventory item it wants to use
-    short tgt_weapon;   // Weapon in wants to activate and use
+    short tgt_weapon;   // weapon in wants to activate and use
     short tgt_enemy;    // Enemy it wants to kill
     short tgt_sprite;   // Sprite it wants to pickup or operate
     short tgt_sector;   // Sector it wants to get to

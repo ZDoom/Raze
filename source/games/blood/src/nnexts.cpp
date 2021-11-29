@@ -41,13 +41,13 @@ inline int mulscale8(int a, int b) { return MulScale(a, b, 8); }
 bool gAllowTrueRandom = false;
 bool gEventRedirectsUsed = false;
 DBloodActor* gProxySpritesList[];  // list of additional sprites which can be triggered by Proximity
-short gProxySpritesCount;   // current count
+int gProxySpritesCount;   // current count
 DBloodActor* gSightSpritesList[];  // list of additional sprites which can be triggered by Sight
-short gSightSpritesCount;   // current count
+int gSightSpritesCount;   // current count
 DBloodActor* gPhysSpritesList[];   // list of additional sprites which can be affected by physics
-short gPhysSpritesCount;    // current count
+int gPhysSpritesCount;    // current count
 DBloodActor* gImpactSpritesList[];
-short gImpactSpritesCount;
+int gImpactSpritesCount;
 
 
 
@@ -68,7 +68,7 @@ short gEffectGenCallbacks[] = {
 TRPLAYERCTRL gPlayerCtrl[kMaxPlayers];
 
 TRCONDITION gCondition[kMaxTrackingConditions];
-short gTrackingCondsCount;
+int gTrackingCondsCount;
 
 std::default_random_engine gStdRandom;
 
@@ -261,7 +261,7 @@ CONDITION_TYPE_NAMES gCondTypeNames[7] = {
 //
 //---------------------------------------------------------------------------
 
-static DBloodActor* nnExtSpawnDude(DBloodActor* sourceActor, DBloodActor* origin, short nType, int a3, int a4)
+static DBloodActor* nnExtSpawnDude(DBloodActor* sourceActor, DBloodActor* origin, int nType, int a3, int a4)
 {
     DBloodActor* pDudeActor = nullptr;
     auto pSource = &sourceActor->s();
@@ -288,7 +288,7 @@ static DBloodActor* nnExtSpawnDude(DBloodActor* sourceActor, DBloodActor* origin
     }
 
     vec3_t pos = { x, y, z };
-    setsprite(pDude->index, &pos);
+    setActorPos(pDudeActor, &pos);
 
     pDude->type = nType;
     pDude->ang = angle;
@@ -300,7 +300,7 @@ static DBloodActor* nnExtSpawnDude(DBloodActor* sourceActor, DBloodActor* origin
     pXDude->health = getDudeInfo(nType)->startHealth << 4;
 
     if (fileSystem.FindResource(getDudeInfo(nType)->seqStartID, "SEQ"))
-        seqSpawn(getDudeInfo(nType)->seqStartID, 3, pDude->extra, -1);
+        seqSpawn(getDudeInfo(nType)->seqStartID, pDudeActor, -1);
 
     // add a way to inherit some values of spawner by dude.
     if (pSource->flags & kModernTypeFlag1) {
@@ -331,7 +331,7 @@ static DBloodActor* nnExtSpawnDude(DBloodActor* sourceActor, DBloodActor* origin
 
     gKillMgr.AddNewKill(1);
 
-    bool burning = IsBurningDude(pDude);
+    bool burning = IsBurningDude(pDudeActor);
     if (burning) {
         pXDude->burnTime = 10;
         pDudeActor->SetTarget(nullptr);
@@ -361,7 +361,7 @@ bool nnExtIsImmune(DBloodActor* actor, int dmgType, int minScale)
         else if (actor->IsDudeActor()) 
         {
             if (actor->IsPlayerActor()) return (gPlayer[pSprite->type - kDudePlayer1].damageControl[dmgType]);
-            else if (pSprite->type == kDudeModernCustom) return (actor->genDudeExtra().dmgControl[dmgType] <= minScale);
+            else if (pSprite->type == kDudeModernCustom) return (actor->genDudeExtra.dmgControl[dmgType] <= minScale);
             else return (getDudeInfo(pSprite->type)->damageVal[dmgType] <= minScale);
         }
     }
@@ -383,6 +383,7 @@ bool nnExtEraseModernStuff(DBloodActor* actor)
     bool erased = false;
     switch (pSprite->type) {
         // erase all modern types if the map is not extended
+        case kModernSpriteDamager:
         case kModernCustomDudeSpawn:
         case kModernRandomTX:
         case kModernSequentialTX:
@@ -393,7 +394,6 @@ bool nnExtEraseModernStuff(DBloodActor* actor)
         case kModernDudeTargetChanger:
         case kModernSectorFXChanger:
         case kModernObjDataChanger:
-        case kModernSpriteDamager:
         case kModernObjDataAccumulator:
         case kModernEffectSpawner:
         case kModernWindGenerator:
@@ -448,11 +448,11 @@ bool nnExtEraseModernStuff(DBloodActor* actor)
 
 //---------------------------------------------------------------------------
 //
-// todo later. This depends on condSerialize.
+
 //
 //---------------------------------------------------------------------------
 
-void nnExtTriggerObject(int objType, int objIndex, int command) 
+void nnExtTriggerObject(int objType, int objIndex, DBloodActor* objActor, int command) 
 {
     switch (objType) 
     {
@@ -465,8 +465,8 @@ void nnExtTriggerObject(int objType, int objIndex, int command)
             trTriggerWall(objIndex, &xwall[wall[objIndex].extra], command);
             break;
         case OBJ_SPRITE:
-            if (!xspriRangeIsFine(sprite[objIndex].extra)) break;
-            trTriggerSprite(objIndex, &xsprite[sprite[objIndex].extra], command);
+            if (!objActor || !objActor->hasX()) break;
+            trTriggerSprite(objActor, command);
             break;
     }
 
@@ -493,23 +493,19 @@ void nnExtResetGlobals()
     memset(gImpactSpritesList, 0, sizeof(gImpactSpritesList));
 
     // reset tracking conditions, if any
-    if (gTrackingCondsCount > 0) 
+    for (size_t i = 0; i < countof(gCondition); i++) 
     {
-        for (int i = 0; i < gTrackingCondsCount; i++) 
+        TRCONDITION* pCond = &gCondition[i];
+        for (unsigned k = 0; k < kMaxTracedObjects; k++)
         {
-            TRCONDITION* pCond = &gCondition[i];
-            for (unsigned k = 0; k < pCond->length; k++) 
-            {
-                pCond->obj[k].actor = nullptr;
-                pCond->obj[k].index_ = pCond->obj[k].cmd = 0;
-                pCond->obj[k].type = -1;
-            }
-
-            pCond->length = 0;
+            pCond->obj[k].actor = nullptr;
+            pCond->obj[k].index_ = pCond->obj[k].cmd = 0;
+            pCond->obj[k].type = -1;
         }
-
-        gTrackingCondsCount = 0;
+        pCond->actor = nullptr;
+        pCond->length = 0;
     }
+    gTrackingCondsCount = 0;
 
     // clear sprite mass cache
     for (int i = 0; i < kMaxSprites; i++) 
@@ -525,7 +521,7 @@ void nnExtResetGlobals()
 //
 //---------------------------------------------------------------------------
 
-void nnExtInitModernStuff(bool bSaveLoad) 
+void nnExtInitModernStuff() 
 {
     nnExtResetGlobals();
 
@@ -545,9 +541,9 @@ void nnExtInitModernStuff(bool bSaveLoad)
         }
     }
     
-    for (int i = 0; i < kMaxXSprites; i++) 
+    BloodLinearSpriteIterator it;
+    while (auto actor = it.Next())
     {
-        auto actor = &bloodActors[i];
         if (!actor->hasX()) continue;
         XSPRITE* pXSprite = &actor->x();
         spritetype* pSprite = &actor->s();
@@ -563,43 +559,14 @@ void nnExtInitModernStuff(bool bSaveLoad)
                 break;
             case kModernCondition:
             case kModernConditionFalse:
-                if (bSaveLoad) break;
-                else if (!pXSprite->rxID && pXSprite->data1 > kCondGameMax) condError(pXSprite,"\nThe condition must have RX ID!\nSPRITE #%d", actor->GetIndex());
+                if (!pXSprite->rxID && pXSprite->data1 > kCondGameMax) condError(actor,"\nThe condition must have RX ID!\nSPRITE #%d", actor->GetIndex());
                 else if (!pXSprite->txID && !pSprite->flags) 
                 {
-                    Printf(PRINT_HIGH, "The condition must have TX ID or hitag to be set: RX ID %d, SPRITE #%d", pXSprite->rxID, pSprite->index);
+                    Printf(PRINT_HIGH, "The condition must have TX ID or hitag to be set: RX ID %d, SPRITE #%d", pXSprite->rxID, actor->GetIndex());
                 }
                 break;
         }
 
-        // init after loading save file
-        if (bSaveLoad) 
-        {
-            // add in list of physics affected sprites
-            if (pXSprite->physAttr != 0) 
-            {
-                gPhysSpritesList[gPhysSpritesCount++] = &bloodActors[pSprite->index]; // add sprite index
-                getSpriteMassBySize(actor); // create mass cache
-            }
-
-            if (pXSprite->data3 != pXSprite->sysData1) 
-            {
-                switch (pSprite->statnum) 
-                {
-                case kStatDude:
-                    switch (pSprite->type) 
-                    {
-                    case kDudeModernCustom:
-                    case kDudeModernCustomBurning:
-                        pXSprite->data3 = pXSprite->sysData1; // move sndStartId back from sysData1 to data3 
-                        break;
-                    }
-                    break;
-                }
-            }
-        } 
-        else 
-        {
             // auto set going On and going Off if both are empty
             if (pXSprite->txID && !pXSprite->triggerOn && !pXSprite->triggerOff)
                 pXSprite->triggerOn = pXSprite->triggerOff = true;
@@ -710,7 +677,7 @@ void nnExtInitModernStuff(bool bSaveLoad)
                                 I_Error("\nPlayer Control (SPRITE #%d):\nPlayer out of a range (data1 = %d)", actor->GetIndex(), pXSprite->data1);
 
                             //if (numplayers < pXSprite->data1)
-                                //I_Error("\nPlayer Control (SPRITE #%d):\n There is no player #%d", pSprite->index, pXSprite->data1);
+                            //I_Error("\nPlayer Control (SPRITE #%d):\n There is no player #%d", actor->GetIndex(), pXSprite->data1);
 
                             if (pXSprite->rxID && pXSprite->rxID != kChannelLevelStart)
                                 I_Error("\nPlayer Control (SPRITE #%d) with Link command should have no RX ID!", actor->GetIndex());
@@ -719,13 +686,12 @@ void nnExtInitModernStuff(bool bSaveLoad)
                                 I_Error("\nPlayer Control (SPRITE #%d):\nTX ID should be in range of %d and %d!", actor->GetIndex(), kChannelUser, kChannelMax);
 
                             // only one linker per player allowed
-                            int nSprite;
-                            StatIterator it(kStatModernPlayerLinker);
-                            while ((nSprite = it.NextIndex()) >= 0)
+                        BloodStatIterator it(kStatModernPlayerLinker);
+                        while (auto iactor = it.Next())
                             {
-                                XSPRITE* pXCtrl = &xsprite[sprite[nSprite].extra];
+                            XSPRITE* pXCtrl = &iactor->x();
                                 if (pXSprite->data1 == pXCtrl->data1)
-                                    I_Error("\nPlayer Control (SPRITE #%d):\nPlayer %d already linked with different player control sprite #%d!", actor->GetIndex(), pXSprite->data1, nSprite);
+                                I_Error("\nPlayer Control (SPRITE #%d):\nPlayer %d already linked with different player control sprite #%d!", actor->GetIndex(), pXSprite->data1, iactor->GetIndex());
                             }
                             pXSprite->sysData1 = -1;
                             pSprite->cstat &= ~CSTAT_SPRITE_BLOCK;
@@ -745,13 +711,13 @@ void nnExtInitModernStuff(bool bSaveLoad)
                         if (pXSprite->waitTime > 0) 
                         {
                             pXSprite->busyTime += ClipHigh(((pXSprite->waitTime * 120) / 10), 4095); pXSprite->waitTime = 0;
-                            Printf(PRINT_HIGH, "Summing busyTime and waitTime for tracking condition #%d, RX ID %d. Result = %d ticks", pSprite->index, pXSprite->rxID, pXSprite->busyTime);
+                        Printf(PRINT_HIGH, "Summing busyTime and waitTime for tracking condition #%d, RX ID %d. Result = %d ticks", actor->GetIndex(), pXSprite->rxID, pXSprite->busyTime);
                         }
                         pXSprite->busy = pXSprite->busyTime;
                     }
                     
                     if (pXSprite->waitTime && pXSprite->command >= kCmdNumberic)
-                        condError(pXSprite, "Delay is not available when using numberic commands (%d - %d)", kCmdNumberic, 255);
+                    condError(actor, "Delay is not available when using numberic commands (%d - %d)", kCmdNumberic, 255);
 
                     pXSprite->Decoupled = false; // must go through operateSprite always
                     pXSprite->Sight     = pXSprite->Impact  = pXSprite->Touch   = pXSprite->triggerOff     = false;
@@ -785,7 +751,6 @@ void nnExtInitModernStuff(bool bSaveLoad)
                 if (pSprite->z == sector[pSprite->sectnum].floorz) pSprite->z--;
                 else if (pSprite->z == sector[pSprite->sectnum].ceilingz) pSprite->z++;
             }
-        }
 
         // make Proximity flag work not just for dudes and things...
         if (pXSprite->Proximity && gProxySpritesCount < kMaxSuperXSprites) 
@@ -844,10 +809,9 @@ void nnExtInitModernStuff(bool bSaveLoad)
     }
 
     // collect objects for tracking conditions
-    BloodStatIterator it(kStatModernCondition);
-    while (auto iactor = it.Next())
+    BloodStatIterator it2(kStatModernCondition);
+    while (auto iactor = it2.Next())
     {
-        spritetype* pSprite = &iactor->s(); 
         XSPRITE* pXSprite = &iactor->x();
 
         if (pXSprite->busyTime <= 0 || pXSprite->isTriggered) continue;
@@ -857,42 +821,38 @@ void nnExtInitModernStuff(bool bSaveLoad)
         int count = 0;
         TRCONDITION* pCond = &gCondition[gTrackingCondsCount];
 
-        for (int i = 0; i < kMaxXSprites; i++) 
+        BloodLinearSpriteIterator it;
+        while (auto iactor2 = it.Next())
         {
-            if (!spriRangeIsFine(xsprite[i].reference) || xsprite[i].txID != pXSprite->rxID || xsprite[i].reference == pSprite->index)
+            if (!iactor2->hasX() || iactor2->x().txID != pXSprite->rxID || iactor2 == iactor)
                 continue;
 
-            XSPRITE* pXSpr = &xsprite[i]; spritetype* pSpr = &sprite[pXSpr->reference];
-            int index = pXSpr->reference; int cmd = pXSpr->command;
-            switch (pSpr->type) {
+            XSPRITE* pXSpr = &iactor2->x();
+            spritetype* pSpr = &iactor2->s();
+            switch (pSpr->type) 
+            {
                 case kSwitchToggle: // exceptions
                 case kSwitchOneWay: // exceptions
                     continue;
-                case kModernPlayerControl:
-                    if (pSpr->statnum != kStatModernPlayerLinker || !bSaveLoad) break;
-                    // assign player sprite after savegame loading
-                    index = pXSpr->sysData1;
-                    cmd = xsprite[sprite[index].extra].command;
-                    break;
             }
 
             if (pSpr->type == kModernCondition || pSpr->type == kModernConditionFalse)
-                condError(pXSprite, "Tracking condition always must be first in condition sequence!");
+                condError(iactor, "Tracking condition always must be first in condition sequence!");
 
             if (count >= kMaxTracedObjects)
-                condError(pXSprite, "Max(%d) objects to track reached for condition #%d, RXID: %d!");
+                condError(iactor, "Max(%d) objects to track reached for condition #%d, RXID: %d!");
 
             pCond->obj[count].type = OBJ_SPRITE;
             pCond->obj[count].index_ = 0;
-            pCond->obj[count].actor = &bloodActors[index];
-            pCond->obj[count++].cmd = cmd;
+            pCond->obj[count].actor = iactor2;
+            pCond->obj[count++].cmd = (uint8_t)pXSpr->command;
         }
 
         for (int i = 0; i < kMaxXSectors; i++) 
         {
             if (!sectRangeIsFine(xsector[i].reference) || xsector[i].txID != pXSprite->rxID) continue;
             else if (count >= kMaxTracedObjects)
-                condError(pXSprite, "Max(%d) objects to track reached for condition #%d, RXID: %d!");
+                condError(iactor, "Max(%d) objects to track reached for condition #%d, RXID: %d!");
 
             pCond->obj[count].type = OBJ_SECTOR;
             pCond->obj[count].actor = nullptr;
@@ -913,7 +873,7 @@ void nnExtInitModernStuff(bool bSaveLoad)
             }
 
             if (count >= kMaxTracedObjects)
-                condError(pXSprite, "Max(%d) objects to track reached for condition #%d, RXID: %d!");
+                condError(iactor, "Max(%d) objects to track reached for condition #%d, RXID: %d!");
                 
             pCond->obj[count].type = OBJ_WALL;
             pCond->obj[count].index_ = xwall[i].reference;
@@ -922,7 +882,7 @@ void nnExtInitModernStuff(bool bSaveLoad)
         }
 
         if (pXSprite->data1 > kCondGameMax && count == 0)
-            Printf(PRINT_HIGH, "No objects to track found for condition #%d, RXID: %d!", pSprite->index, pXSprite->rxID);
+            Printf(PRINT_HIGH, "No objects to track found for condition #%d, RXID: %d!", iactor->GetIndex(), pXSprite->rxID);
 
         pCond->length = count;
         pCond->actor = iactor;
@@ -1084,7 +1044,7 @@ DBloodActor* randomSpawnDude(DBloodActor* sourceactor, DBloodActor* origin, int 
 
 static void windGenDoVerticalWind(int factor, int nSector) 
 {
-    int val, maxZ, zdiff; bool maxZfound = false;
+    int val, maxZ = 0, zdiff; bool maxZfound = false;
    
     // find maxz marker first
     BloodSectIterator it(nSector);
@@ -1108,7 +1068,7 @@ static void windGenDoVerticalWind(int factor, int nSector)
             case kStatFree:
                 continue;
             case kStatFX:
-                if (actor->zvel()) break;
+                if (actor->zvel) break;
                 continue;
             case kStatThing:
             case kStatDude:
@@ -1122,16 +1082,16 @@ static void windGenDoVerticalWind(int factor, int nSector)
         if (maxZfound && pSpr->z <= maxZ) 
         {
             zdiff = pSpr->z - maxZ;
-            if (actor->zvel() < 0) actor->zvel() += MulScale(actor->zvel() >> 4, zdiff, 16);
+            if (actor->zvel < 0) actor->zvel += MulScale(actor->zvel >> 4, zdiff, 16);
             continue;
 
         }
 
         val = -MulScale(factor * 64, 0x10000, 16);
-        if (actor->zvel() >= 0) actor->zvel() += val;
-        else actor->zvel() = val;
+        if (actor->zvel >= 0) actor->zvel += val;
+        else actor->zvel = val;
 
-        pSpr->z += actor->zvel() >> 12;
+        pSpr->z += actor->zvel >> 12;
 
     }
 
@@ -1150,7 +1110,7 @@ void nnExtProcessSuperSprites()
     {
         for (int i = 0; i < gTrackingCondsCount; i++) 
         {
-            TRCONDITION* pCond = &gCondition[i];
+            TRCONDITION const* pCond = &gCondition[i];
             XSPRITE* pXCond = &pCond->actor->x();
             if (pXCond->locked || pXCond->isTriggered || ++pXCond->busy < pXCond->busyTime)
                 continue;
@@ -1163,7 +1123,7 @@ void nnExtProcessSuperSprites()
                 evn.cmd = (int8_t)pXCond->command;
                 evn.type = OBJ_SPRITE;            
                 evn.funcID = kCallbackMax;
-                useCondition(&pCond->actor->s(), pXCond, evn);
+                useCondition(pCond->actor, evn);
             }
             else if (pCond->length > 0)
             {
@@ -1176,7 +1136,7 @@ void nnExtProcessSuperSprites()
                     evn.cmd    = pCond->obj[k].cmd;
                     evn.type = pCond->obj[k].type;
                     evn.funcID = kCallbackMax;
-                    useCondition(&pCond->actor->s(), pXCond, evn);
+                    useCondition(pCond->actor, evn);
                 }
             }
             
@@ -1213,8 +1173,8 @@ void nnExtProcessSuperSprites()
                     windGenDoVerticalWind(pXWind->sysData2, index);
             }
 
-            XSPRITE* pXRedir = NULL; // check redirected TX buckets
-            while ((pXRedir = evrListRedirectors(OBJ_SPRITE, sprite[pXWind->reference].extra, pXRedir, &rx)) != NULL)
+            DBloodActor* pXRedir = nullptr; // check redirected TX buckets
+            while ((pXRedir = evrListRedirectors(OBJ_SPRITE, 0, windactor, pXRedir, &rx)) != nullptr)
             {
                 for (j = bucketHead[rx]; j < bucketHead[rx + 1]; j++)
                 {
@@ -1262,7 +1222,7 @@ void nnExtProcessSuperSprites()
                 while (auto affected = it.Next())
                 {
                     if (!affected->hasX() || affected->x().health <= 0) continue;
-                    else if (CheckProximity(&affected->s(), x, y, z, sectnum, okDist))
+                    else if (CheckProximity(affected, x, y, z, sectnum, okDist))
                     {
                         trTriggerSprite(gProxySpritesList[i], kCmdSpriteProximity);
                         break;
@@ -1274,10 +1234,10 @@ void nnExtProcessSuperSprites()
                 for (int a = connecthead; a >= 0; a = connectpoint2[a])
                 {
                     PLAYER* pPlayer = &gPlayer[a];
-                    if (!pPlayer || !pPlayer->actor()->hasX() || pPlayer->pXSprite->health <= 0)
+                    if (!pPlayer || !pPlayer->actor->hasX() || pPlayer->pXSprite->health <= 0)
                         continue;
 
-                    if (pPlayer->pXSprite->health > 0 && CheckProximity(gPlayer->pSprite, x, y, z, sectnum, okDist))
+                    if (pPlayer->pXSprite->health > 0 && CheckProximity(gPlayer->actor, x, y, z, sectnum, okDist))
                     {
                         trTriggerSprite(gProxySpritesList[i], kCmdSpriteProximity);
                         break;
@@ -1300,8 +1260,6 @@ void nnExtProcessSuperSprites()
             if ((!pXSightSpr->Interrutable && pXSightSpr->state != pXSightSpr->restState) || pXSightSpr->locked == 1 ||
                 pXSightSpr->isTriggered) continue; // don't process locked or triggered sprites
 
-            int index = pSightSpr->index;
-
             // sprite is drawn for one of players
             if ((pXSightSpr->unused3 & kTriggerSpriteScreen) && (gSightSpritesList[i]->s().cstat2 & CSTAT2_SPRITE_MAPPED))
             {
@@ -1319,7 +1277,7 @@ void nnExtProcessSuperSprites()
             for (int a = connecthead; a >= 0; a = connectpoint2[a])
             {
                 PLAYER* pPlayer = &gPlayer[a];
-                if (!pPlayer || !pPlayer->actor()->hasX() || pPlayer->pXSprite->health <= 0)
+                if (!pPlayer || !pPlayer->actor->hasX() || pPlayer->pXSprite->health <= 0)
                     continue;
 
                 spritetype* pPlaySprite = pPlayer->pSprite;
@@ -1334,20 +1292,20 @@ void nnExtProcessSuperSprites()
 
                     if (pXSightSpr->unused3 & kTriggerSpriteAim)
                     {
-                        bool vector = (sprite[index].cstat & CSTAT_SPRITE_BLOCK_HITSCAN);
+                        bool vector = (pSightSpr->cstat & CSTAT_SPRITE_BLOCK_HITSCAN);
                         if (!vector)
-                            sprite[index].cstat |= CSTAT_SPRITE_BLOCK_HITSCAN;
+                            pSightSpr->cstat |= CSTAT_SPRITE_BLOCK_HITSCAN;
 
-                        HitScan(pPlaySprite, pPlayer->zWeapon, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, CLIPMASK0 | CLIPMASK1, 0);
+                        HitScan(pPlayer->actor, pPlayer->zWeapon, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, CLIPMASK0 | CLIPMASK1, 0);
 
-                        //VectorScan(pPlaySprite, 0, pPlayer->zWeapon, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, 0, 1);
+                        //VectorScan(pPlayer->actor, 0, pPlayer->zWeapon, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, 0, 1);
 
                         if (!vector)
-                            sprite[index].cstat &= ~CSTAT_SPRITE_BLOCK_HITSCAN;
+                            pSightSpr->cstat &= ~CSTAT_SPRITE_BLOCK_HITSCAN;
 
-                        if (gHitInfo.hitsprite == index)
+                        if (gHitInfo.hitactor == gSightSpritesList[i])
                         {
-                            trTriggerSprite(index, pXSightSpr, kCmdSpriteSight);
+                            trTriggerSprite(gHitInfo.hitactor, kCmdSpriteSight);
                             break;
                         }
                     }
@@ -1378,10 +1336,8 @@ void nnExtProcessSuperSprites()
                 continue;
             }
 
-            int nDebris = pDebris->index;
-
             XSECTOR* pXSector = (sector[pDebris->sectnum].extra >= 0) ? &xsector[sector[pDebris->sectnum].extra] : nullptr;
-            viewBackupSpriteLoc(nDebris, pDebris);
+            viewBackupSpriteLoc(debrisactor);
 
             bool uwater = false;
             int mass = debrisactor->spriteMass.mass;
@@ -1406,12 +1362,12 @@ void nnExtProcessSuperSprites()
                         angle = (angle + GetWallAngle(sector[pDebris->sectnum].wallptr) + 512) & 2047;
                     int dx = MulScale(speed, Cos(angle), 30);
                     int dy = MulScale(speed, Sin(angle), 30);
-                    debrisactor->xvel() += dx;
-                    debrisactor->yvel() += dy;
+                    debrisactor->xvel += dx;
+                    debrisactor->yvel += dy;
                 }
             }
 
-            actAirDrag(&bloodActors[pDebris->index], airVel);
+            actAirDrag(debrisactor, airVel);
 
             if (pXDebris->physAttr & kPhysDebrisTouch) 
             {
@@ -1419,32 +1375,33 @@ void nnExtProcessSuperSprites()
                 for (int a = connecthead; a != -1; a = connectpoint2[a]) 
                 {
                     pPlayer = &gPlayer[a];
-                    auto pact = pPlayer->actor();
-                    if (pact->hit().hit.type == kHitSprite && pact->hit().hit.index == nDebris) 
+                    auto pact = pPlayer->actor;
+
+                    if (pact->hit.hit.type == kHitSprite && pact->hit.hit.actor == debrisactor) 
                     {
-                        int nSpeed = approxDist(pact->xvel(), pact->yvel());
+                        int nSpeed = approxDist(pact->xvel, pact->yvel);
                             nSpeed = ClipLow(nSpeed - MulScale(nSpeed, mass, 6), 0x9000 - (mass << 3));
 
-                            debrisactor->xvel() += MulScale(nSpeed, Cos(pPlayer->pSprite->ang), 30);
-                            debrisactor->yvel() += MulScale(nSpeed, Sin(pPlayer->pSprite->ang), 30);
+                            debrisactor->xvel += MulScale(nSpeed, Cos(pPlayer->pSprite->ang), 30);
+                            debrisactor->yvel += MulScale(nSpeed, Sin(pPlayer->pSprite->ang), 30);
 
-                        debrisactor->hit().hit = pPlayer->pSprite->index | 0xc000;
+                        debrisactor->hit.hit.setSprite(pPlayer->actor);
                     }
                 }
             }
             
             if (pXDebris->physAttr & kPhysGravity) pXDebris->physAttr |= kPhysFalling;
-            if ((pXDebris->physAttr & kPhysFalling) || debrisactor->xvel() || debrisactor->yvel() || debrisactor->zvel() || velFloor[pDebris->sectnum] || velCeil[pDebris->sectnum])
+            if ((pXDebris->physAttr & kPhysFalling) || debrisactor->xvel || debrisactor->yvel || debrisactor->zvel || velFloor[pDebris->sectnum] || velCeil[pDebris->sectnum])
             debrisMove(i);
 
-            if (debrisactor->xvel() || debrisactor->yvel())
-                pXDebris->goalAng = getangle(debrisactor->xvel(), debrisactor->yvel()) & 2047;
+            if (debrisactor->xvel || debrisactor->yvel)
+                pXDebris->goalAng = getangle(debrisactor->xvel, debrisactor->yvel) & 2047;
 
             int ang = pDebris->ang & 2047;
             if ((uwater = spriteIsUnderwater(debrisactor)) == false) evKillActor(debrisactor, kCallbackEnemeyBubble);
             else if (Chance(0x1000 - mass)) 
             {
-                if (debrisactor->zvel() > 0x100) debrisBubble(debrisactor);
+                if (debrisactor->zvel > 0x100) debrisBubble(debrisactor);
                 if (ang == pXDebris->goalAng) 
                 {
                    pXDebris->goalAng = (pDebris->ang + Random3(kAng60)) & 2047;
@@ -1452,7 +1409,7 @@ void nnExtProcessSuperSprites()
         }
     }
 
-            int angStep = ClipLow(mulscale8(1, ((abs(debrisactor->xvel()) + abs(debrisactor->yvel())) >> 5)), (uwater) ? 1 : 0);
+            int angStep = ClipLow(mulscale8(1, ((abs(debrisactor->xvel) + abs(debrisactor->yvel)) >> 5)), (uwater) ? 1 : 0);
             if (ang < pXDebris->goalAng) pDebris->ang = ClipHigh(ang + angStep, pXDebris->goalAng);
             else if (ang > pXDebris->goalAng) pDebris->ang = ClipLow(ang - angStep, pXDebris->goalAng);
 
@@ -1461,8 +1418,8 @@ void nnExtProcessSuperSprites()
             int fz = getflorzofslope(nSector, pDebris->x, pDebris->y);
 
             GetActorExtents(debrisactor, &top, &bottom);
-            if (fz >= bottom && gLowerLink[nSector] < 0 && !(sector[nSector].ceilingstat & 0x1)) pDebris->z += ClipLow(cz - top, 0);
-            if (cz <= top && gUpperLink[nSector] < 0 && !(sector[nSector].floorstat & 0x1)) pDebris->z += ClipHigh(fz - bottom, 0);
+            if (fz >= bottom && getLowerLink(nSector) == nullptr && !(sector[nSector].ceilingstat & 0x1)) pDebris->z += ClipLow(cz - top, 0);
+            if (cz <= top && getUpperLink(nSector) == nullptr && !(sector[nSector].floorstat & 0x1)) pDebris->z += ClipHigh(fz - bottom, 0);
         }
     }
 }
@@ -1500,7 +1457,7 @@ void sfxPlayVectorSound(DBloodActor* actor, int vectorId)
 int getSpriteMassBySize(DBloodActor* actor)
 {
     auto pSprite = &actor->s();
-    int mass = 0; int seqId = -1; int clipDist = pSprite->clipdist; Seq* pSeq = NULL;
+    int mass = 0; int seqId = -1; int clipDist = pSprite->clipdist;
     if (!actor->hasX())
     {
         I_Error("getSpriteMassBySize: pSprite->extra < 0");
@@ -1514,7 +1471,7 @@ int getSpriteMassBySize(DBloodActor* actor)
         case kDudeModernCustom:
         case kDudeModernCustomBurning:
             seqId = actor->x().data2;
-            clipDist = actor->genDudeExtra().initVals[2];
+            clipDist = actor->genDudeExtra.initVals[2];
             break;
         default:
             seqId = getDudeInfo(pSprite->type)->seqStartID;
@@ -1523,7 +1480,7 @@ int getSpriteMassBySize(DBloodActor* actor)
     } 
     else  
     {
-        seqId = seqGetID(3, pSprite->extra);
+        seqId = seqGetID(actor);
     }
 
     SPRITEMASS* cached = &actor->spriteMass;
@@ -1658,7 +1615,7 @@ int debrisGetFreeIndex(void)
 //
 //---------------------------------------------------------------------------
 
-void debrisConcuss(DBloodActor* owner, int listIndex, int x, int y, int z, int dmg)
+void debrisConcuss(DBloodActor* owneractor, int listIndex, int x, int y, int z, int dmg)
 {
     auto actor = gPhysSpritesList[listIndex];
     if (actor != nullptr && actor->hasX())
@@ -1668,22 +1625,22 @@ void debrisConcuss(DBloodActor* owner, int listIndex, int x, int y, int z, int d
         dmg = scale(0x40000, dmg, 0x40000 + dx * dx + dy * dy + dz * dz);
         bool thing = (pSprite->type >= kThingBase && pSprite->type < kThingMax);
         int size = (tileWidth(pSprite->picnum) * pSprite->xrepeat * tileHeight(pSprite->picnum) * pSprite->yrepeat) >> 1;
-        if (xsprite[pSprite->extra].physAttr & kPhysDebrisExplode) 
+        if (actor->x().physAttr & kPhysDebrisExplode) 
         {
             if (actor->spriteMass.mass > 0) 
             {
                 int t = scale(dmg, size, actor->spriteMass.mass);
 
-                actor->xvel() += MulScale(t, dx, 16);
-                actor->yvel() += MulScale(t, dy, 16);
-                actor->zvel() += MulScale(t, dz, 16);
+                actor->xvel += MulScale(t, dx, 16);
+                actor->yvel += MulScale(t, dy, 16);
+                actor->zvel += MulScale(t, dz, 16);
             }
 
             if (thing)
                 pSprite->statnum = kStatThing; // temporary change statnum property
         }
 
-        actDamageSprite(owner, actor, kDamageExplode, dmg);
+        actDamageSprite(owneractor, actor, kDamageExplode, dmg);
         
         if (thing)
             pSprite->statnum = kStatDecoration; // return statnum property back
@@ -1711,9 +1668,9 @@ void debrisBubble(DBloodActor* actor)
         int z = bottom - Random(bottom - top);
         auto pFX = gFX.fxSpawnActor((FX_ID)(FX_23 + Random(3)), pSprite->sectnum, x, y, z, 0);
         if (pFX) {
-            pFX->xvel() = actor->xvel() + Random2(0x1aaaa);
-            pFX->yvel() = actor->yvel() + Random2(0x1aaaa);
-            pFX->zvel() = actor->zvel() + Random2(0x1aaaa);
+            pFX->xvel = actor->xvel + Random2(0x1aaaa);
+            pFX->yvel = actor->yvel + Random2(0x1aaaa);
+            pFX->zvel = actor->zvel + Random2(0x1aaaa);
         }
 
     }
@@ -1765,14 +1722,14 @@ void debrisMove(int listIndex)
         uwater = true;
     }
 
-    if (actor->xvel() || actor->yvel()) 
+    if (actor->xvel || actor->yvel) 
     {
 
-        short oldcstat = pSprite->cstat;
+        auto oldcstat = pSprite->cstat;
         pSprite->cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
-        moveHit = actor->hit().hit = ClipMove(&pSprite->pos, &nSector, actor->xvel() >> 12,
-            actor->yvel() >> 12, clipDist, ceilDist, floorDist, CLIPMASK0);
+        moveHit = actor->hit.hit = ClipMove(&pSprite->pos, &nSector, actor->xvel >> 12,
+            actor->yvel >> 12, clipDist, ceilDist, floorDist, CLIPMASK0);
 
         pSprite->cstat = oldcstat;
         if (pSprite->sectnum != nSector) 
@@ -1788,11 +1745,11 @@ void debrisMove(int listIndex)
                 nSector = nSector2;
         }
 
-        if (actor->hit().hit.type == kHitWall)
+        if (actor->hit.hit.type == kHitWall)
         {
-            moveHit = actor->hit().hit;
+            moveHit = actor->hit.hit;
             i = moveHit.index;
-            actWallBounceVector(&actor->xvel(), &actor->yvel(), i, tmpFraction);
+            actWallBounceVector(&actor->xvel, &actor->yvel, i, tmpFraction);
         }
 
     } 
@@ -1811,12 +1768,12 @@ void debrisMove(int listIndex)
     if (sector[nSector].extra > 0)
         uwater = xsector[sector[nSector].extra].Underwater;
 
-    if (actor->zvel())
-        pSprite->z += actor->zvel() >> 8;
+    if (actor->zvel)
+        pSprite->z += actor->zvel >> 8;
 
     int ceilZ, floorZ;
     Collision ceilColl, floorColl;
-    GetZRange(pSprite, &ceilZ, &ceilColl, &floorZ, &floorColl, clipDist, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
+    GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, clipDist, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
     GetSpriteExtents(pSprite, &top, &bottom);
 
     if ((pXSprite->physAttr & kPhysDebrisSwim) && uwater) 
@@ -1826,9 +1783,9 @@ void debrisMove(int listIndex)
         int fz = getflorzofslope(nSector, pSprite->x, pSprite->y);
         int div = ClipLow(bottom - top, 1);
 
-        if (gLowerLink[nSector] >= 0) cz += (cz < 0) ? 0x500 : -0x500;
+        if (getLowerLink(nSector)) cz += (cz < 0) ? 0x500 : -0x500;
         if (top > cz && (!(pXSprite->physAttr & kPhysDebrisFloat) || fz <= bottom << 2))
-            actor->zvel() -= DivScale((bottom - ceilZ) >> 6, mass, 8);
+            actor->zvel -= DivScale((bottom - ceilZ) >> 6, mass, 8);
 
         if (fz < bottom)
             vc = 58254 + ((bottom - fz) * -80099) / div;
@@ -1836,20 +1793,20 @@ void debrisMove(int listIndex)
         if (vc) 
         {
             pSprite->z += ((vc << 2) >> 1) >> 8;
-            actor->zvel() += vc;
+            actor->zvel += vc;
         }
 
     }
     else if ((pXSprite->physAttr & kPhysGravity) && bottom < floorZ) 
     {
         pSprite->z += 455;
-        actor->zvel() += 58254;
+        actor->zvel += 58254;
 
     }
 
-    if ((i = CheckLink(pSprite)) != 0)
+    if ((i = CheckLink(actor)) != 0)
     {
-        GetZRange(pSprite, &ceilZ, &ceilColl, &floorZ, &floorColl, clipDist, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
+        GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, clipDist, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
         if (!(pSprite->cstat & CSTAT_SPRITE_INVISIBLE))
         {
             switch (i)
@@ -1880,18 +1837,18 @@ void debrisMove(int listIndex)
 
     if (floorZ <= bottom) {
 
-        actor->hit().florhit = floorColl;
-        int v30 = actor->zvel() - velFloor[pSprite->sectnum];
+        actor->hit.florhit = floorColl;
+        int v30 = actor->zvel - velFloor[pSprite->sectnum];
 
         if (v30 > 0) 
         {
             pXSprite->physAttr |= kPhysFalling;
-            actFloorBounceVector(&actor->xvel(), &actor->yvel(), &v30, pSprite->sectnum, tmpFraction);
-            actor->zvel() = v30;
+            actFloorBounceVector(&actor->xvel, &actor->yvel, &v30, pSprite->sectnum, tmpFraction);
+            actor->zvel = v30;
 
-            if (abs(actor->zvel()) < 0x10000)
+            if (abs(actor->zvel) < 0x10000)
             {
-                actor->zvel() = velFloor[pSprite->sectnum];
+                actor->zvel = velFloor[pSprite->sectnum];
                 pXSprite->physAttr &= ~kPhysFalling;
             }
 
@@ -1904,9 +1861,9 @@ void debrisMove(int listIndex)
                 for (i = 0; i < 7; i++) 
                 {
                     if ((pFX2 = gFX.fxSpawnActor(FX_14, pFX->s().sectnum, pFX->s().x, pFX->s().y, pFX->s().z, 0)) == NULL) continue;
-                    pFX2->xvel() = Random2(0x6aaaa);
-                    pFX2->yvel() = Random2(0x6aaaa);
-                    pFX2->zvel() = -(int)Random(0xd5555);
+                    pFX2->xvel = Random2(0x6aaaa);
+                    pFX2->yvel = Random2(0x6aaaa);
+                    pFX2->zvel = -(int)Random(0xd5555);
                 }
                 break;
             case kSurfWater:
@@ -1915,29 +1872,29 @@ void debrisMove(int listIndex)
             }
 
         }
-        else if (actor->zvel() == 0) 
+        else if (actor->zvel == 0) 
         {
             pXSprite->physAttr &= ~kPhysFalling;
         }
     }
     else 
     {
-        actor->hit().florhit.setNone();
+        actor->hit.florhit.setNone();
         if (pXSprite->physAttr & kPhysGravity)
             pXSprite->physAttr |= kPhysFalling;
     }
 
     if (top <= ceilZ) 
     {
-        actor->hit().ceilhit = moveHit = ceilColl;
+        actor->hit.ceilhit = moveHit = ceilColl;
         pSprite->z += ClipLow(ceilZ - top, 0);
-        if (actor->zvel() <= 0 && (pXSprite->physAttr & kPhysFalling))
-            actor->zvel() = MulScale(-actor->zvel(), 0x2000, 16);
+        if (actor->zvel <= 0 && (pXSprite->physAttr & kPhysFalling))
+            actor->zvel = MulScale(-actor->zvel, 0x2000, 16);
 
     }
     else 
     {
-        actor->hit().ceilhit.setNone();
+        actor->hit.ceilhit.setNone();
         GetActorExtents(actor, &top, &bottom);
     }
 
@@ -1948,14 +1905,14 @@ void debrisMove(int listIndex)
         trTriggerSprite(actor, kCmdToggle);
     }
 
-    if (!actor->xvel() && !actor->yvel()) return;
+    if (!actor->xvel && !actor->yvel) return;
     else if (floorColl.type == kHitSprite)
     {
 
         if ((floorColl.actor->s().cstat & 0x30) == 0)
         {
-            actor->xvel() += MulScale(4, pSprite->x - floorColl.actor->s().x, 2);
-            actor->yvel() += MulScale(4, pSprite->y - floorColl.actor->s().y, 2);
+            actor->xvel += MulScale(4, pSprite->x - floorColl.actor->s().x, 2);
+            actor->yvel += MulScale(4, pSprite->y - floorColl.actor->s().y, 2);
             return;
         }
     }
@@ -1968,10 +1925,10 @@ void debrisMove(int listIndex)
     if (pXSprite->height > 0)
         nDrag -= scale(nDrag, pXSprite->height, 0x100);
 
-    actor->xvel() -= mulscale16r(actor->xvel(), nDrag);
-    actor->yvel() -= mulscale16r(actor->yvel(), nDrag);
-    if (approxDist(actor->xvel(), actor->yvel()) < 0x1000)
-        actor->xvel() = actor->yvel() = 0;
+    actor->xvel -= mulscale16r(actor->xvel, nDrag);
+    actor->yvel -= mulscale16r(actor->yvel, nDrag);
+    if (approxDist(actor->xvel, actor->yvel) < 0x1000)
+        actor->xvel = actor->yvel = 0;
 }
 
 //---------------------------------------------------------------------------
@@ -2042,8 +1999,9 @@ void windGenStopWindOnSectors(DBloodActor* sourceactor)
     }
     
     // check redirected TX buckets
-    int rx = -1; XSPRITE* pXRedir = nullptr;
-    while ((pXRedir = evrListRedirectors(OBJ_SPRITE, sprite[pXSource->reference].extra, pXRedir, &rx)) != nullptr) 
+    int rx = -1; 
+    DBloodActor* pXRedir = nullptr;
+    while ((pXRedir = evrListRedirectors(OBJ_SPRITE, 0, sourceactor, pXRedir, &rx)) != nullptr) 
     {
         for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) 
         {
@@ -2138,11 +2096,11 @@ void trPlayerCtrlStopScene(PLAYER* pPlayer)
 //
 //---------------------------------------------------------------------------
 
-void trPlayerCtrlLink(XSPRITE* pXSource, PLAYER* pPlayer, bool checkCondition) {
-
-    auto sourceactor = &bloodActors[pXSource->reference];
+void trPlayerCtrlLink(DBloodActor* sourceactor, PLAYER* pPlayer, bool checkCondition) 
+{
+    auto pXSource = &sourceactor->x();
     // save player's sprite index to let the tracking condition know it after savegame loading...
-    pXSource->sysData1                  = pPlayer->nSprite;
+    sourceactor->prevmarker             = pPlayer->actor;
     
     pPlayer->pXSprite->txID             = pXSource->txID;
     pPlayer->pXSprite->command          = kCmdToggle;
@@ -2184,7 +2142,7 @@ void trPlayerCtrlLink(XSPRITE* pXSource, PLAYER* pPlayer, bool checkCondition) {
             for (unsigned k = 0; k < pCond->length; k++) 
             {
                 if (pCond->obj[k].type != OBJ_SPRITE || pCond->obj[k].actor != sourceactor) continue;
-                pCond->obj[k].actor = pPlayer->actor();
+                pCond->obj[k].actor = pPlayer->actor;
                 pCond->obj[k].index_ = 0;
                 pCond->obj[k].cmd = (uint8_t)pPlayer->pXSprite->command;
                 break;
@@ -2199,8 +2157,9 @@ void trPlayerCtrlLink(XSPRITE* pXSource, PLAYER* pPlayer, bool checkCondition) {
 //
 //---------------------------------------------------------------------------
 
-void trPlayerCtrlSetRace(XSPRITE* pXSource, PLAYER* pPlayer) {
-    playerSetRace(pPlayer, pXSource->data2);
+void trPlayerCtrlSetRace(int value, PLAYER* pPlayer) 
+{
+    playerSetRace(pPlayer, value);
     switch (pPlayer->lifeMode) 
     {
         case kModeHuman:
@@ -2222,10 +2181,10 @@ void trPlayerCtrlSetRace(XSPRITE* pXSource, PLAYER* pPlayer) {
 //
 //---------------------------------------------------------------------------
 
-void trPlayerCtrlSetMoveSpeed(XSPRITE* pXSource, PLAYER* pPlayer) {
-    
-    int speed = ClipRange(pXSource->data2, 0, 500);
-    for (int i = 0; i < kModeMax; i++)
+void trPlayerCtrlSetMoveSpeed(int value, PLAYER* pPlayer) 
+{
+    int speed = ClipRange(value, 0, 500);
+    for (int i = 0; i < kModeMax; i++) 
     {
         for (int a = 0; a < kPostureMax; a++) 
         {
@@ -2243,9 +2202,9 @@ void trPlayerCtrlSetMoveSpeed(XSPRITE* pXSource, PLAYER* pPlayer) {
 //
 //---------------------------------------------------------------------------
 
-void trPlayerCtrlSetJumpHeight(XSPRITE* pXSource, PLAYER* pPlayer) {
-    
-    int jump = ClipRange(pXSource->data3, 0, 500);
+void trPlayerCtrlSetJumpHeight(int value, PLAYER* pPlayer) 
+{
+    int jump = ClipRange(value, 0, 500);
     for (int i = 0; i < kModeMax; i++) 
     {
         POSTURE* curPosture = &pPlayer->pPosture[i][kPostureStand]; POSTURE* defPosture = &gPostureDefaults[i][kPostureStand];
@@ -2260,9 +2219,10 @@ void trPlayerCtrlSetJumpHeight(XSPRITE* pXSource, PLAYER* pPlayer) {
 //
 //---------------------------------------------------------------------------
 
-void trPlayerCtrlSetScreenEffect(XSPRITE* pXSource, PLAYER* pPlayer) {
-    
-    int eff = ClipLow(pXSource->data2, 0); int time = (eff > 0) ? pXSource->data3 : 0;
+void trPlayerCtrlSetScreenEffect(int value, int timeval, PLAYER* pPlayer) 
+{
+    int eff = ClipLow(value, 0); 
+    int time = (eff > 0) ? timeval : 0;
     switch (eff) {
         case 0: // clear all
         case 1: // tilting
@@ -2302,12 +2262,13 @@ void trPlayerCtrlSetScreenEffect(XSPRITE* pXSource, PLAYER* pPlayer) {
 //
 //---------------------------------------------------------------------------
 
-void trPlayerCtrlSetLookAngle(XSPRITE* pXSource, PLAYER* pPlayer)
+void trPlayerCtrlSetLookAngle(int value, PLAYER* pPlayer)
 {
-    double const upAngle = 289; double const downAngle = -347;
+    double const upAngle = 289; 
+    double const downAngle = -347;
     double const lookStepUp = 4.0 * upAngle / 60.0;
     double const lookStepDown = -4.0 * downAngle / 60.0;
-    double const look = pXSource->data2 << 5;
+    double const look = value << 5;
     double adjustment;
 
     if (look > 0) 
@@ -2333,9 +2294,10 @@ void trPlayerCtrlSetLookAngle(XSPRITE* pXSource, PLAYER* pPlayer)
 //
 //---------------------------------------------------------------------------
 
-void trPlayerCtrlEraseStuff(XSPRITE* pXSource, PLAYER* pPlayer) {
+void trPlayerCtrlEraseStuff(int value, PLAYER* pPlayer)
+{
     
-    switch (pXSource->data2)
+    switch (value) 
     {
         case 0: // erase all
             [[fallthrough]];
@@ -2353,11 +2315,11 @@ void trPlayerCtrlEraseStuff(XSPRITE* pXSource, PLAYER* pPlayer) {
             pPlayer->nextWeapon = kWeapPitchFork;
 
             WeaponRaise(pPlayer);
-            if (pXSource->data2) break;
+            if (value) break;
             [[fallthrough]];
         case 2: // erase all armor
             for (int i = 0; i < 3; i++) pPlayer->armor[i] = 0;
-            if (pXSource->data2) break;
+            if (value) break;
             [[fallthrough]];
         case 3: // erase all pack items
             for (int i = 0; i < 5; i++) {
@@ -2365,11 +2327,11 @@ void trPlayerCtrlEraseStuff(XSPRITE* pXSource, PLAYER* pPlayer) {
                 pPlayer->packSlots[i].curAmount = 0;
             }
             pPlayer->packItemId = -1;
-            if (pXSource->data2) break;
+            if (value) break;
             [[fallthrough]];
         case 4: // erase all keys
             for (int i = 0; i < 8; i++) pPlayer->hasKey[i] = false;
-            if (pXSource->data2) break;
+            if (value) break;
             [[fallthrough]];
         case 5: // erase powerups
             for (int i = 0; i < kMaxPowerUps; i++) pPlayer->pwUpTime[i] = 0;
@@ -2384,17 +2346,18 @@ void trPlayerCtrlEraseStuff(XSPRITE* pXSource, PLAYER* pPlayer) {
 //
 //---------------------------------------------------------------------------
 
-void trPlayerCtrlGiveStuff(XSPRITE* pXSource, PLAYER* pPlayer, TRPLAYERCTRL* pCtrl) {
-    
-    int weapon = pXSource->data3;
-    switch (pXSource->data2) {
+void trPlayerCtrlGiveStuff(int data2, int weapon, int data4, PLAYER* pPlayer, TRPLAYERCTRL* pCtrl) 
+{
+    switch (data2) 
+    {
         case 1: // give N weapon and default ammo for it
         case 2: // give just N ammo for selected weapon
             if (weapon <= 0 || weapon > 13) 
             {
                 Printf(PRINT_HIGH, "Weapon #%d is out of a weapons range!", weapon);
                 break;
-            } else if (pXSource->data2 == 2 && pXSource->data4 == 0) {
+            } else if (data2 == 2 && data4 == 0) 
+            {
                 Printf(PRINT_HIGH, "Zero ammo for weapon #%d is specified!", weapon);
                 break;
             }
@@ -2404,7 +2367,7 @@ void trPlayerCtrlGiveStuff(XSPRITE* pXSource, PLAYER* pPlayer, TRPLAYERCTRL* pCt
                 case kWeapRemote: // prox bomb
                     pPlayer->hasWeapon[weapon] = true;
                     weapon--;
-                    pPlayer->ammoCount[weapon] = ClipHigh(pPlayer->ammoCount[weapon] + ((pXSource->data2 == 2) ? pXSource->data4 : 1), gAmmoInfo[weapon].max);
+                    pPlayer->ammoCount[weapon] = ClipHigh(pPlayer->ammoCount[weapon] + ((data2 == 2) ? data4 : 1), gAmmoInfo[weapon].max);
                     weapon++;
                     break;
                 default:
@@ -2414,21 +2377,21 @@ void trPlayerCtrlGiveStuff(XSPRITE* pXSource, PLAYER* pPlayer, TRPLAYERCTRL* pCt
 
                         const WEAPONITEMDATA* pWeaponData = &gWeaponItemData[i]; 
                         int nAmmoType = pWeaponData->ammoType;
-                        switch (pXSource->data2) {
+                        switch (data2) {
                             case 1:
                                 pPlayer->hasWeapon[weapon] = true;
                                 if (pPlayer->ammoCount[nAmmoType] >= pWeaponData->count) break;
                                 pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType] + pWeaponData->count, gAmmoInfo[nAmmoType].max);
                                 break;
                             case 2:
-                                pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType] + pXSource->data4, gAmmoInfo[nAmmoType].max);
+                                pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType] + data4, gAmmoInfo[nAmmoType].max);
                                 break;
                         }
                         break;
                     }
                     break;
             }
-            if (pPlayer->hasWeapon[weapon] && pXSource->data4 == 0) // switch on it
+            if (pPlayer->hasWeapon[weapon] && data4 == 0) // switch on it
             {
                 pPlayer->nextWeapon = kWeapNone;
 
@@ -2452,8 +2415,9 @@ void trPlayerCtrlGiveStuff(XSPRITE* pXSource, PLAYER* pPlayer, TRPLAYERCTRL* pCt
 //
 //---------------------------------------------------------------------------
 
-void trPlayerCtrlUsePackItem(XSPRITE* pXSource, PLAYER* pPlayer, int evCmd) {
-    unsigned int invItem = pXSource->data2 - 1;
+void trPlayerCtrlUsePackItem(int data2, int data3, int data4, PLAYER* pPlayer, int evCmd)
+{
+    unsigned int invItem = data2 - 1;
     switch (evCmd) 
     {
         case kCmdOn:
@@ -2467,12 +2431,12 @@ void trPlayerCtrlUsePackItem(XSPRITE* pXSource, PLAYER* pPlayer, int evCmd) {
             break;
     }
 
-    switch (pXSource->data4)
+    switch (data4) 
     {
         case 2: // both
         case 0: // switch on it
             if (pPlayer->packSlots[invItem].curAmount > 0) pPlayer->packItemId = invItem;
-            if (!pXSource->data4) break;
+            if (!data4) break;
             [[fallthrough]];
         case 1: // force remove after use
             pPlayer->packSlots[invItem].isActive = false;
@@ -2487,14 +2451,14 @@ void trPlayerCtrlUsePackItem(XSPRITE* pXSource, PLAYER* pPlayer, int evCmd) {
 //
 //---------------------------------------------------------------------------
 
-void trPlayerCtrlUsePowerup(XSPRITE* pXSource, PLAYER* pPlayer, int evCmd) {
+void trPlayerCtrlUsePowerup(DBloodActor* sourceactor, PLAYER* pPlayer, int evCmd)
+{
 
-    spritetype* pSource = &sprite[pXSource->reference];
-    bool relative = (pSource->flags & kModernTypeFlag1);
+    bool relative = (sourceactor->s().flags & kModernTypeFlag1);
 
-    int nPower = (kMinAllowedPowerup + pXSource->data2) - 1;
-    int nTime = ClipRange(abs(pXSource->data3) * 100, -gPowerUpInfo[nPower].maxTime, gPowerUpInfo[nPower].maxTime);
-    if (pXSource->data3 < 0)
+    int nPower = (kMinAllowedPowerup + sourceactor->x().data2) - 1;
+    int nTime = ClipRange(abs(sourceactor->x().data3) * 100, -gPowerUpInfo[nPower].maxTime, gPowerUpInfo[nPower].maxTime);
+    if (sourceactor->x().data3 < 0)
         nTime = -nTime;
 
     if (pPlayer->pwUpTime[nPower]) 
@@ -2520,85 +2484,98 @@ void trPlayerCtrlUsePowerup(XSPRITE* pXSource, PLAYER* pPlayer, int evCmd) {
 
 }
 
-void useObjResizer(XSPRITE* pXSource, short objType, int objIndex) {
-    switch (objType) {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void useObjResizer(DBloodActor* sourceactor, int targType, int targIndex, DBloodActor* targetactor) 
+{
+    auto pXSource = &sourceactor->x();
+    switch (targType) 
+    {
     // for sectors
-    case 6:
+    case OBJ_SECTOR:
         if (valueIsBetween(pXSource->data1, -1, 32767))
-            sector[objIndex].floorxpan_ = (float)ClipRange(pXSource->data1, 0, 255);
+            sector[targIndex].floorxpan_ = (float)ClipRange(pXSource->data1, 0, 255);
 
         if (valueIsBetween(pXSource->data2, -1, 32767))
-            sector[objIndex].floorypan_ = (float)ClipRange(pXSource->data2, 0, 255);
+            sector[targIndex].floorypan_ = (float)ClipRange(pXSource->data2, 0, 255);
 
         if (valueIsBetween(pXSource->data3, -1, 32767))
-            sector[objIndex].ceilingxpan_ = (float)ClipRange(pXSource->data3, 0, 255);
+            sector[targIndex].ceilingxpan_ = (float)ClipRange(pXSource->data3, 0, 255);
 
         if (valueIsBetween(pXSource->data4, -1, 65535))
-            sector[objIndex].ceilingypan_ = (float)ClipRange(pXSource->data4, 0, 255);
+            sector[targIndex].ceilingypan_ = (float)ClipRange(pXSource->data4, 0, 255);
         break;
     // for sprites
-    case OBJ_SPRITE: {
-
+    case OBJ_SPRITE: 
+    {
         bool fit = false;
+        auto pTarget = &targetactor->s();
         // resize by seq scaling
-        if (sprite[pXSource->reference].flags & kModernTypeFlag1) {
-            
-            if (valueIsBetween(pXSource->data1, -255, 32767)) {
+        if (sourceactor->s().flags & kModernTypeFlag1) 
+        {
+            if (valueIsBetween(pXSource->data1, -255, 32767))
+            {
                 int mulDiv = (valueIsBetween(pXSource->data2, 0, 257)) ? pXSource->data2 : 256;
-                if (pXSource->data1 > 0) xsprite[sprite[objIndex].extra].scale = mulDiv * ClipHigh(pXSource->data1, 25);
-                else if (pXSource->data1 < 0) xsprite[sprite[objIndex].extra].scale = mulDiv / ClipHigh(abs(pXSource->data1), 25);
-                else xsprite[sprite[objIndex].extra].scale = 0;
+                if (pXSource->data1 > 0) targetactor->x().scale = mulDiv * ClipHigh(pXSource->data1, 25);
+                else if (pXSource->data1 < 0) targetactor->x().scale = mulDiv / ClipHigh(abs(pXSource->data1), 25);
+                else targetactor->x().scale = 0;
                 fit = true;
                 }
 
         // resize by repeats
-        } else {
-
-            if (valueIsBetween(pXSource->data1, -1, 32767)) {
-                sprite[objIndex].xrepeat = ClipRange(pXSource->data1, 0, 255);
+        }
+        else 
+        {
+            if (valueIsBetween(pXSource->data1, -1, 32767)) 
+            {
+                pTarget->xrepeat = ClipRange(pXSource->data1, 0, 255);
                 fit = true;
             }
             
-            if (valueIsBetween(pXSource->data2, -1, 32767)) {
-                sprite[objIndex].yrepeat = ClipRange(pXSource->data2, 0, 255);
+            if (valueIsBetween(pXSource->data2, -1, 32767)) 
+            {
+                pTarget->yrepeat = ClipRange(pXSource->data2, 0, 255);
                 fit = true;
             }
-
         }
 
-        if (fit && (sprite[objIndex].type == kDudeModernCustom || sprite[objIndex].type == kDudeModernCustomBurning)) {
-            
+        if (fit && (pTarget->type == kDudeModernCustom || pTarget->type == kDudeModernCustomBurning))
+        {
             // request properties update for custom dude
-            gGenDudeExtra[objIndex].updReq[kGenDudePropertySpriteSize] = true;
-            gGenDudeExtra[objIndex].updReq[kGenDudePropertyAttack] = true;
-            gGenDudeExtra[objIndex].updReq[kGenDudePropertyMass] = true;
-            gGenDudeExtra[objIndex].updReq[kGenDudePropertyDmgScale] = true;
-            evPostActor(&bloodActors[objIndex], kGenDudeUpdTimeRate, kCallbackGenDudeUpdate);
+            
+            targetactor->genDudeExtra.updReq[kGenDudePropertySpriteSize] = true;
+            targetactor->genDudeExtra.updReq[kGenDudePropertyAttack] = true;
+            targetactor->genDudeExtra.updReq[kGenDudePropertyMass] = true;
+            targetactor->genDudeExtra.updReq[kGenDudePropertyDmgScale] = true;
+            evPostActor(targetactor, kGenDudeUpdTimeRate, kCallbackGenDudeUpdate);
 
         }
 
         if (valueIsBetween(pXSource->data3, -1, 32767))
-            sprite[objIndex].xoffset = ClipRange(pXSource->data3, 0, 255);
+            pTarget->xoffset = ClipRange(pXSource->data3, 0, 255);
 
         if (valueIsBetween(pXSource->data4, -1, 65535))
-            sprite[objIndex].yoffset = ClipRange(pXSource->data4, 0, 255);
+            pTarget->yoffset = ClipRange(pXSource->data4, 0, 255);
         break;
     }
     case OBJ_WALL:
         if (valueIsBetween(pXSource->data1, -1, 32767))
-            wall[objIndex].xrepeat = ClipRange(pXSource->data1, 0, 255);
+            wall[targIndex].xrepeat = ClipRange(pXSource->data1, 0, 255);
 
         if (valueIsBetween(pXSource->data2, -1, 32767))
-            wall[objIndex].yrepeat = ClipRange(pXSource->data2, 0, 255);
+            wall[targIndex].yrepeat = ClipRange(pXSource->data2, 0, 255);
 
         if (valueIsBetween(pXSource->data3, -1, 32767))
-            wall[objIndex].xpan_ = (float)ClipRange(pXSource->data3, 0, 255);
+            wall[targIndex].xpan_ = (float)ClipRange(pXSource->data3, 0, 255);
 
         if (valueIsBetween(pXSource->data4, -1, 65535))
-            wall[objIndex].ypan_ = (float)ClipRange(pXSource->data4, 0, 255);
+            wall[targIndex].ypan_ = (float)ClipRange(pXSource->data4, 0, 255);
         break;
     }
-
 }
 
 //---------------------------------------------------------------------------
@@ -2607,9 +2584,10 @@ void useObjResizer(XSPRITE* pXSource, short objType, int objIndex) {
 //
 //---------------------------------------------------------------------------
 
-void usePropertiesChanger(XSPRITE* pXSource, short objType, int objIndex) {
-
-    spritetype* pSource = &sprite[pXSource->reference];
+void usePropertiesChanger(DBloodActor* sourceactor, int objType, int objIndex, DBloodActor* targetactor)
+{
+    auto pXSource = &sourceactor->x();
+    spritetype* pSource = &sourceactor->s();
 
     switch (objType) 
     {
@@ -2620,7 +2598,7 @@ void usePropertiesChanger(XSPRITE* pXSource, short objType, int objIndex) {
             // data3 = set wall hitag
             if (valueIsBetween(pXSource->data3, -1, 32767)) 
             {
-                if ((pSource->flags & kModernTypeFlag1)) pWall->hitag = pWall->hitag |= pXSource->data3;
+                if ((pSource->flags & kModernTypeFlag1)) pWall->hitag |= pXSource->data3;
                 else pWall->hitag = pXSource->data3;
             }
 
@@ -2630,7 +2608,7 @@ void usePropertiesChanger(XSPRITE* pXSource, short objType, int objIndex) {
                 old = pWall->cstat;
 
                 // set new cstat
-                if ((pSource->flags & kModernTypeFlag1)) pWall->cstat = pWall->cstat |= pXSource->data4; // relative
+                if ((pSource->flags & kModernTypeFlag1)) pWall->cstat |= pXSource->data4; // relative
                 else pWall->cstat = pXSource->data4; // absolute
 
                 // and hanlde exceptions
@@ -2651,10 +2629,12 @@ void usePropertiesChanger(XSPRITE* pXSource, short objType, int objIndex) {
             }
         }
         break;
-        case OBJ_SPRITE: {
-            auto actor = &bloodActors[objIndex];
-            spritetype* pSprite = &sprite[objIndex]; bool thing2debris = false;
-            XSPRITE* pXSprite = &xsprite[pSprite->extra]; int old = -1;
+        case OBJ_SPRITE: 
+        {
+            spritetype* pSprite = &targetactor->s(); 
+            XSPRITE* pXSprite = &targetactor->x();
+            bool thing2debris = false;
+            int old = -1;
 
             // data3 = set sprite hitag
             if (valueIsBetween(pXSource->data3, -1, 32767)) 
@@ -2699,7 +2679,7 @@ void usePropertiesChanger(XSPRITE* pXSource, short objType, int objIndex) {
                         else flags &= ~(kPhysGravity | kPhysFalling);
 
                         pSprite->flags &= ~(kPhysMove | kPhysGravity | kPhysFalling);
-                        xvel[objIndex] = yvel[objIndex] = zvel[objIndex] = 0;
+                        targetactor->xvel = targetactor->yvel = targetactor->zvel = 0;
                         pXSprite->restState = pXSprite->state;
 
                     } 
@@ -2805,14 +2785,14 @@ void usePropertiesChanger(XSPRITE* pXSource, short objType, int objIndex) {
                     }
                     }
 
-                    int nIndex = debrisGetIndex(&bloodActors[objIndex]); // check if there is no sprite in list
+                    int nIndex = debrisGetIndex(targetactor); // check if there is no sprite in list
 
                     // adding physics sprite in list
                     if ((flags & kPhysGravity) != 0 || (flags & kPhysMove) != 0) 
                     {
 
                         if (oldFlags == 0)
-                            xvel[objIndex] = yvel[objIndex] = zvel[objIndex] = 0;
+                            targetactor->xvel = targetactor->yvel = targetactor->zvel = 0;
 
                         if (nIndex != -1) 
                         {
@@ -2827,31 +2807,31 @@ void usePropertiesChanger(XSPRITE* pXSource, short objType, int objIndex) {
                             pXSprite->physAttr = flags; // update physics attributes
 
                             // allow things to became debris, so they use different physics...
-                            if (pSprite->statnum == kStatThing) changespritestat(objIndex, 0);
+                            if (pSprite->statnum == kStatThing) ChangeActorStat(targetactor, 0);
 
                             // set random goal ang for swimming so they start turning
-                            if ((flags & kPhysDebrisSwim) && !xvel[objIndex] && !yvel[objIndex] && !zvel[objIndex])
+                            if ((flags & kPhysDebrisSwim) && !targetactor->xvel && !targetactor->yvel && !targetactor->zvel)
                                 pXSprite->goalAng = (pSprite->ang + Random3(kAng45)) & 2047;
                             
                             if (pXSprite->physAttr & kPhysDebrisVector)
                                 pSprite->cstat |= CSTAT_SPRITE_BLOCK_HITSCAN;
 
-                            gPhysSpritesList[nIndex] = &bloodActors[objIndex];
+                            gPhysSpritesList[nIndex] = targetactor;
                             if (nIndex >= gPhysSpritesCount) gPhysSpritesCount++;
-                            getSpriteMassBySize(actor); // create physics cache
+                            getSpriteMassBySize(targetactor); // create physics cache
 
                         }
 
                     // removing physics from sprite in list (don't remove sprite from list)
-                    } else if (nIndex != -1) {
+                    }
+                    else if (nIndex != -1) 
+                    {
 
                         pXSprite->physAttr = flags;
-                        xvel[objIndex] = yvel[objIndex] = zvel[objIndex] = 0;
+                        targetactor->xvel = targetactor->yvel = targetactor->zvel = 0;
                         if (pSprite->lotag >= kThingBase && pSprite->lotag < kThingMax)
-                            changespritestat(objIndex, kStatThing);  // if it was a thing - restore statnum
-
+                            ChangeActorStat(targetactor, kStatThing);  // if it was a thing - restore statnum
                     }
-
                     break;
                 }
             }
@@ -2891,25 +2871,35 @@ void usePropertiesChanger(XSPRITE* pXSource, short objType, int objIndex) {
                 
                 pXSector->Underwater = (pXSource->data1) ? true : false;
 
-                spritetype* pLower = (gLowerLink[objIndex] >= 0) ? &sprite[gLowerLink[objIndex]] : NULL;
-                XSPRITE* pXLower = NULL; spritetype* pUpper = NULL; XSPRITE* pXUpper = NULL;
                 
-                if (pLower) {
+                spritetype* pUpper = NULL; XSPRITE* pXUpper = NULL;
                     
-                    pXLower = &xsprite[pLower->extra];
+                auto aLower = getLowerLink(objIndex);
+                spritetype* pLower = nullptr;
+                XSPRITE* pXLower = nullptr;
+                if (aLower)
+                {
+                    pLower = &aLower->s();
+                    pXLower = &aLower->x();
 
                     // must be sure we found exact same upper link
-                    for (int i = 0; i < kMaxSectors; i++) {
-                        if (gUpperLink[i] < 0 || xsprite[sprite[gUpperLink[i]].extra].data1 != pXLower->data1) continue;
-                        pUpper = &sprite[gUpperLink[i]]; pXUpper = &xsprite[pUpper->extra];
+                    for (int i = 0; i < kMaxSectors; i++) 
+                    {
+                        auto aUpper = getUpperLink(i);
+                        if (aUpper == nullptr || aUpper->x().data1 != pXLower->data1) continue;
+                        pUpper = &aUpper->s();
+                        pXUpper = &aUpper->x();
                         break;
                     }
                 }
                 
                 // treat sectors that have links, so warp can detect underwater status properly
-                if (pLower) {
-                    if (pXSector->Underwater) {
-                        switch (pLower->type) {
+                if (pLower) 
+                {
+                    if (pXSector->Underwater) 
+                    {
+                        switch (pLower->type) 
+                        {
                             case kMarkerLowStack:
                             case kMarkerLowLink:
                                 pXLower->sysData1 = pLower->type;
@@ -2926,9 +2916,12 @@ void usePropertiesChanger(XSPRITE* pXSource, short objType, int objIndex) {
                     else pLower->type = kMarkerLowStack;
                 }
 
-                if (pUpper) {
-                    if (pXSector->Underwater) {
-                        switch (pUpper->type) {
+                if (pUpper) 
+                {
+                    if (pXSector->Underwater) 
+                    {
+                        switch (pUpper->type) 
+                        {
                             case kMarkerUpStack:
                             case kMarkerUpLink:
                                 pXUpper->sysData1 = pUpper->type;
@@ -2946,22 +2939,24 @@ void usePropertiesChanger(XSPRITE* pXSource, short objType, int objIndex) {
                 }
 
                 // search for dudes in this sector and change their underwater status
-                int nSprite;
-                SectIterator it(objIndex);
-                while ((nSprite = it.NextIndex()) >= 0)
+                BloodSectIterator it(objIndex);
+                while (auto iactor = it.Next())
                 {
-                    spritetype* pSpr = &sprite[nSprite];
-                    if (pSpr->statnum != kStatDude || !IsDudeSprite(pSpr) || !xspriRangeIsFine(pSpr->extra))
+                    spritetype* pSpr = &iactor->s();
+                    if (pSpr->statnum != kStatDude || !iactor->IsDudeActor() || ! iactor->hasX())
                         continue;
 
                     PLAYER* pPlayer = getPlayerById(pSpr->type);
-                    if (pXSector->Underwater) {
+                    if (pXSector->Underwater) 
+                    {
                         if (pLower)
-                            xsprite[pSpr->extra].medium = (pLower->type == kMarkerUpGoo) ? kMediumGoo : kMediumWater;
+                            iactor->x().medium = (pLower->type == kMarkerUpGoo) ? kMediumGoo : kMediumWater;
 
-                        if (pPlayer) {
+                        if (pPlayer) 
+                        {
                             int waterPal = kMediumWater;
-                            if (pLower) {
+                            if (pLower) 
+                            {
                                 if (pXLower->data2 > 0) waterPal = pXLower->data2;
                                 else if (pLower->type == kMarkerUpGoo) waterPal = kMediumGoo;
                             }
@@ -2971,10 +2966,12 @@ void usePropertiesChanger(XSPRITE* pXSource, short objType, int objIndex) {
                             pPlayer->pXSprite->burnTime = 0;
                         }
 
-                    } else {
-
-                        xsprite[pSpr->extra].medium = kMediumNormal;
-                        if (pPlayer) {
+                    }
+                    else 
+                    {
+                        iactor->x().medium = kMediumNormal;
+                        if (pPlayer)
+                        {
                             pPlayer->posture = (!(pPlayer->input.actions & SB_CROUCH)) ? kPostureStand : kPostureCrouch;
                             pPlayer->nWaterPal = 0;
                         }
@@ -3019,24 +3016,28 @@ void usePropertiesChanger(XSPRITE* pXSource, short objType, int objIndex) {
 //
 //---------------------------------------------------------------------------
 
-void useTeleportTarget(XSPRITE* pXSource, spritetype* pSprite) {
-    auto actor = &bloodActors[pSprite->index];
-    spritetype* pSource = &sprite[pXSource->reference]; PLAYER* pPlayer = getPlayerById(pSprite->type);
+void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor) 
+{
+    auto pSprite = &actor->s();
+    auto pSource = &sourceactor->s();
+    auto pXSource = &sourceactor->x();
+
+    PLAYER* pPlayer = getPlayerById(pSprite->type);
     XSECTOR* pXSector = (sector[pSource->sectnum].extra >= 0) ? &xsector[sector[pSource->sectnum].extra] : NULL;
-    bool isDude = (!pPlayer && IsDudeSprite(pSprite));
+    bool isDude = (!pPlayer && actor->IsDudeActor());
 
     if (pSprite->sectnum != pSource->sectnum)
-        changespritesect(pSprite->index, pSource->sectnum);
+        ChangeActorSect(actor, pSource->sectnum);
 
     pSprite->x = pSource->x; pSprite->y = pSource->y;
-    int zTop, zBot; GetSpriteExtents(pSource, &zTop, &zBot);
+    int zTop, zBot; 
+    GetActorExtents(sourceactor, &zTop, &zBot);
     pSprite->z = zBot;
 
-    clampSprite(pSprite, 0x01);
+    clampSprite(actor, 0x01);
 
     if (pSource->flags & kModernTypeFlag1) // force telefrag
-        TeleFrag(pSprite->index, pSource->sectnum);
-
+        TeleFrag(actor, pSource->sectnum);
 
     if (pSprite->flags & kPhysGravity)
         pSprite->flags |= kPhysFalling;
@@ -3049,26 +3050,29 @@ void useTeleportTarget(XSPRITE* pXSource, spritetype* pSprite) {
 
         if (pXSector->Underwater) 
         {
-            spritetype* pLink = (gLowerLink[pSource->sectnum] >= 0) ? &sprite[gLowerLink[pSource->sectnum]] : NULL;
-            if (pLink) 
+            auto aLink = getLowerLink(pSource->sectnum);
+            spritetype* pLink = nullptr;
+            if (aLink) 
             {
                 // must be sure we found exact same upper link
-                for (int i = 0; i < kMaxSectors; i++) {
-                    if (gUpperLink[i] < 0 || xsprite[sprite[gUpperLink[i]].extra].data1 != xsprite[pLink->extra].data1) continue;
-                    pLink = &sprite[gUpperLink[i]];
+                for (int i = 0; i < kMaxSectors; i++) 
+                {
+                    auto aUpper = getUpperLink(i);
+                    if (aUpper == nullptr || aUpper->x().data1 != aLink->x().data1) continue;
+                    pLink = &aLink->s();
                     break;
                 }
             }
 
             if (pLink)
-                xsprite[pSprite->extra].medium = (pLink->type == kMarkerUpGoo) ? kMediumGoo : kMediumWater;
+                actor->x().medium = (pLink->type == kMarkerUpGoo) ? kMediumGoo : kMediumWater;
 
             if (pPlayer) 
             {
                 int waterPal = kMediumWater;
                 if (pLink) 
                 {
-                    if (xsprite[pLink->extra].data2 > 0) waterPal = xsprite[pLink->extra].data2;
+                    if (aLink->x().data2 > 0) waterPal = aLink->x().data2;
                     else if (pLink->type == kMarkerUpGoo) waterPal = kMediumGoo;
                 }
 
@@ -3076,11 +3080,10 @@ void useTeleportTarget(XSPRITE* pXSource, spritetype* pSprite) {
                 pPlayer->posture = kPostureSwim;
                 pPlayer->pXSprite->burnTime = 0;
             }
-
         } 
         else 
         {
-            xsprite[pSprite->extra].medium = kMediumNormal;
+            actor->x().medium = kMediumNormal;
             if (pPlayer) 
             {
                 pPlayer->posture = (!(pPlayer->input.actions & SB_CROUCH)) ? kPostureStand : kPostureCrouch;
@@ -3090,18 +3093,23 @@ void useTeleportTarget(XSPRITE* pXSource, spritetype* pSprite) {
         }
     }
 
-    if (pSprite->statnum == kStatDude && IsDudeSprite(pSprite) && !IsPlayerSprite(pSprite)) {
-        XSPRITE* pXDude = &xsprite[pSprite->extra];
-        int x = pXDude->targetX; int y = pXDude->targetY; int z = pXDude->targetZ;
+    if (pSprite->statnum == kStatDude && actor->IsDudeActor() && !actor->IsPlayerActor()) 
+    {
+        XSPRITE* pXDude = &actor->x();
+        int x = pXDude->targetX;
+        int y = pXDude->targetY; 
+        int z = pXDude->targetZ;
         auto target = actor->GetTarget();
         
         aiInitSprite(actor);
 
         if (target != nullptr) 
         {
-            pXDude->targetX = x; pXDude->targetY = y; pXDude->targetZ = z;
+            pXDude->targetX = x; 
+            pXDude->targetY = y; 
+            pXDude->targetZ = z;
             actor->SetTarget(target);
-            aiActivateDude(&bloodActors[pXDude->reference]);
+            aiActivateDude(actor);
         }
     }
 
@@ -3112,14 +3120,14 @@ void useTeleportTarget(XSPRITE* pXSource, spritetype* pSprite) {
             pPlayer->angle.settarget(pSource->ang);
             pPlayer->angle.lockinput();
         }
-        else if (isDude) xsprite[pSprite->extra].goalAng = pSprite->ang = pSource->ang;
+        else if (isDude) pXSource->goalAng = pSprite->ang = pSource->ang;
         else pSprite->ang = pSource->ang;
     }
 
     if (pXSource->data3 == 1)
-        xvel[pSprite->index] = yvel[pSprite->index] = zvel[pSprite->index] = 0;
+        actor->xvel = actor->yvel = actor->zvel = 0;
 
-    viewBackupSpriteLoc(pSprite->index, pSprite);
+    viewBackupSpriteLoc(actor);
 
     if (pXSource->data4 > 0)
         sfxPlay3DSound(pSource, pXSource->data4, -1, 0);
@@ -3132,17 +3140,23 @@ void useTeleportTarget(XSPRITE* pXSource, spritetype* pSprite) {
     }
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-void useEffectGen(XSPRITE* pXSource, spritetype* pSprite) {
-    
+void useEffectGen(DBloodActor* sourceactor, DBloodActor* actor)
+{
+    if (!actor) actor = sourceactor;
+    auto pSprite = &actor->s();
+    auto pSource = &sourceactor->s();
+    auto pXSource = &sourceactor->x();
+
     int fxId = (pXSource->data3 <= 0) ? pXSource->data2 : pXSource->data2 + Random(pXSource->data3 + 1);
-    spritetype* pSource = &sprite[pXSource->reference];
-    if (pSprite == NULL)
-        pSprite = pSource;
-    auto actor = &bloodActors[pSprite->index];
 
 
-    if (!xspriRangeIsFine(pSprite->extra)) return;
+    if (!actor->hasX()) return;
     else if (fxId >= kEffectGenCallbackBase) 
     {
         int length = sizeof(gEffectGenCallbacks) / sizeof(gEffectGenCallbacks[0]);
@@ -3156,7 +3170,8 @@ void useEffectGen(XSPRITE* pXSource, spritetype* pSprite) {
     } 
     else if (valueIsBetween(fxId, 0, kFXMax)) 
     {
-        int pos, top, bottom; GetSpriteExtents(pSprite, &top, &bottom);
+        int pos, top, bottom; 
+        GetActorExtents(actor, &top, &bottom);
         DBloodActor* pEffect = nullptr;
 
         // select where exactly effect should be spawned
@@ -3181,7 +3196,7 @@ void useEffectGen(XSPRITE* pXSource, spritetype* pSprite) {
         if ((pEffect = gFX.fxSpawnActor((FX_ID)fxId, pSprite->sectnum, pSprite->x, pSprite->y, pos, 0)) != NULL) 
         {
             auto pEffectSpr = &pEffect->s();
-            pEffectSpr->owner = pSource->index;
+            pEffect->SetOwner(sourceactor);
 
             if (pSource->flags & kModernTypeFlag1) 
             {
@@ -3212,10 +3227,13 @@ void useEffectGen(XSPRITE* pXSource, spritetype* pSprite) {
 //
 //---------------------------------------------------------------------------
 
-void useSectorWindGen(XSPRITE* pXSource, sectortype* pSector) {
+void useSectorWindGen(DBloodActor* sourceactor, sectortype* pSector) 
+{
+    auto pSource = &sourceactor->s();
+    auto pXSource = &sourceactor->x();
 
-    spritetype* pSource = &sprite[pXSource->reference];
-    XSECTOR* pXSector = NULL; int nXSector = 0;
+    XSECTOR* pXSector = nullptr;
+    int nXSector = 0;
     
     if (pSector != nullptr) 
     {
@@ -3300,7 +3318,7 @@ void useSectorWindGen(XSPRITE* pXSource, sectortype* pSector) {
             StartInterpolation(pXSector->reference, Interp_Sect_FloorPanY);
         }
 
-        short oldPan = pXSector->panVel;
+        int oldPan = pXSector->panVel;
         pXSector->panAngle = pXSector->windAng;
         pXSector->panVel = pXSector->windVel;
 
@@ -3328,61 +3346,69 @@ void useSectorWindGen(XSPRITE* pXSource, sectortype* pSector) {
 //
 //---------------------------------------------------------------------------
 
-void useSpriteDamager(XSPRITE* pXSource, int objType, int objIndex) {
+void useSpriteDamager(DBloodActor* sourceactor, int objType, int objIndex, DBloodActor* targetactor) 
+{
+    auto pSource = &sourceactor->s();
+    auto pXSource = &sourceactor->x();
 
-    spritetype* pSource = &sprite[pXSource->reference];
     sectortype* pSector = &sector[pSource->sectnum];
 
-    int top, bottom, i;
+    int top, bottom;
     bool floor, ceil, wall, enter;
 
     switch (objType) 
     {
         case OBJ_SPRITE:
-            damageSprites(pXSource, &sprite[objIndex]);
+            damageSprites(sourceactor, targetactor);
             break;
         case OBJ_SECTOR:
         {
-            GetSpriteExtents(pSource, &top, &bottom);
+            GetActorExtents(sourceactor, &top, &bottom);
             floor = (bottom >= pSector->floorz);    
             ceil = (top <= pSector->ceilingz);
             wall = (pSource->cstat & 0x10);        
             enter = (!floor && !ceil && !wall);
-            for (i = headspritesect[objIndex]; i != -1; i = nextspritesect[i]) 
+            BloodSectIterator it(objIndex);
+            while (auto iactor = it.Next())
             {
-                auto& hit = gSpriteHit[sprite[i].extra];
+                auto& hit = iactor->hit;
 
-                if (!IsDudeSprite(&sprite[i]) || !xspriRangeIsFine(sprite[i].extra))
+                if (!iactor->IsDudeActor() || !iactor->hasX())
                     continue;
                 else if (enter)
-                    damageSprites(pXSource, &sprite[i]);
+                    damageSprites(sourceactor, iactor);
                 else if (floor && hit.florhit.type == kHitSector && hit.florhit.index == objIndex)
-                    damageSprites(pXSource, &sprite[i]);
+                    damageSprites(sourceactor, iactor);
                 else if (ceil && hit.ceilhit.type == kHitSector && hit.ceilhit.index == objIndex)
-                    damageSprites(pXSource, &sprite[i]);
+                    damageSprites(sourceactor, iactor);
                 else if (wall && hit.hit.type == kHitWall && sectorofwall(hit.hit.index) == objIndex)
-                    damageSprites(pXSource, &sprite[i]);
+                    damageSprites(sourceactor, iactor);
             }
             break;
         }
         case -1:
-            for (i = headspritestat[kStatDude]; i != -1; i = nextspritestat[i]) {
-                if (sprite[i].statnum != kStatDude) continue;
-                switch (pXSource->data1) {
+        {
+            BloodStatIterator it(kStatDude);
+            while (auto iactor = it.Next())
+            {
+                if (iactor->s().statnum != kStatDude) continue;
+                switch (pXSource->data1) 
+                {
                     case 667:
-                        if (IsPlayerSprite(&sprite[i])) continue;
-                        damageSprites(pXSource, &sprite[i]);
+                    if (iactor->IsPlayerActor()) continue;
+                    damageSprites(sourceactor, iactor);
                         break;
                     case 668:
-                        if (!IsPlayerSprite(&sprite[i])) continue;
-                        damageSprites(pXSource, &sprite[i]);
+                    if (iactor->IsPlayerActor()) continue;
+                    damageSprites(sourceactor, iactor);
                         break;
                     default:
-                        damageSprites(pXSource, &sprite[i]);
+                    damageSprites(sourceactor, iactor);
                         break;
                 }
             }
             break;
+        }
     }
 }
 
@@ -3393,20 +3419,22 @@ void useSpriteDamager(XSPRITE* pXSource, int objType, int objIndex) {
 //---------------------------------------------------------------------------
 
 
-void damageSprites(XSPRITE* pXSource, spritetype* pSprite) 
+void damageSprites(DBloodActor* sourceactor, DBloodActor* actor) 
 {
-    auto actor = &bloodActors[pSprite->index];
-    auto sourceactor = &bloodActors[pXSource->reference];
     spritetype* pSource = &sourceactor->s();
-    if (!IsDudeSprite(pSprite) || !xspriRangeIsFine(pSprite->extra) || xsprite[pSprite->extra].health <= 0 || pXSource->data3 < 0)
+    if (!actor->IsDudeActor() || !actor->hasX() || actor->x().health <= 0 || sourceactor->x().data3 < 0)
         return;
     
 
     int health = 0;
-    XSPRITE* pXSprite = &xsprite[pSprite->extra];
+    auto pSprite = &actor->s();
+    auto pXSprite = &actor->x();
+    auto pXSource = &sourceactor->x();
+
     PLAYER* pPlayer = getPlayerById(pSprite->type);
     int dmgType = (pXSource->data2 >= kDmgFall) ? ClipHigh(pXSource->data2, kDmgElectric) : -1;
-    int dmg = pXSprite->health << 4; int armor[3];
+    int dmg = pXSprite->health << 4; 
+    int armor[3];
 
     bool godMode = (pPlayer && ((dmgType >= 0 && pPlayer->damageControl[dmgType]) || powerupCheck(pPlayer, kPwUpDeathMask) || pPlayer->godMode)); // kneeling
 
@@ -3444,12 +3472,12 @@ void damageSprites(XSPRITE* pXSource, spritetype* pSprite)
                 //Printf(PRINT_HIGH, "Dude type %d is immune to damage type %d!", pSprite->type, dmgType);
         }
         }
-        else if (!pPlayer) actKillDude(&bloodActors[pSource->index], &bloodActors[pSprite->index], (DAMAGE_TYPE)dmgType, dmg);
-        else playerDamageSprite(&bloodActors[pSource->index], pPlayer, (DAMAGE_TYPE)dmgType, dmg);
+        else if (!pPlayer) actKillDude(sourceactor, actor, (DAMAGE_TYPE)dmgType, dmg);
+        else playerDamageSprite(sourceactor, pPlayer, (DAMAGE_TYPE)dmgType, dmg);
     }
     else if ((pXSprite->health = ClipLow(health, 1)) > 16);
-    else if (!pPlayer) actKillDude(&bloodActors[pSource->index], &bloodActors[pSprite->index], kDamageBullet, dmg);
-    else playerDamageSprite(&bloodActors[pSource->index], pPlayer, kDamageBullet, dmg);
+    else if (!pPlayer) actKillDude(sourceactor, actor, kDamageBullet, dmg);
+    else playerDamageSprite(sourceactor, pPlayer, kDamageBullet, dmg);
 
     if (pXSprite->health > 0) 
     {
@@ -3465,7 +3493,7 @@ void damageSprites(XSPRITE* pXSource, spritetype* pSprite)
             {
                 case kDmgBurn:
                     if (pXSprite->burnTime > 0) break;
-                    actBurnSprite(pSource->index, pXSprite, ClipLow(dmg >> 1, 128));
+                    actBurnSprite(sourceactor, actor, ClipLow(dmg >> 1, 128));
                     evKillActor(actor, kCallbackFXFlameLick);
                     evPostActor(actor, 0, kCallbackFXFlameLick); // show flames
                     break;
@@ -3491,7 +3519,7 @@ void damageSprites(XSPRITE* pXSource, spritetype* pSprite)
             pXSprite->data3 = 32767;
             actor->dudeExtra.teslaHit = (dmgType == kDmgElectric) ? 1 : 0;
             if (pXSprite->aiState->stateType != kAiStateRecoil)
-                RecoilDude(&bloodActors[pXSprite->reference]);
+                RecoilDude(actor);
         }
     }
 }
@@ -3502,14 +3530,15 @@ void damageSprites(XSPRITE* pXSource, spritetype* pSprite)
 //
 //---------------------------------------------------------------------------
 
-void useSeqSpawnerGen(XSPRITE* pXSource, int objType, int index) {
-
-    if (pXSource->data2 > 0 && !getSequence(pXSource->data2)) {
+void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, int index, DBloodActor* iactor) 
+{
+    auto pXSource = &sourceactor->x();
+    if (pXSource->data2 > 0 && !getSequence(pXSource->data2)) 
+    {
         Printf(PRINT_HIGH, "Missing sequence #%d", pXSource->data2);
         return;
     }
 
-    auto sourceactor = &bloodActors[pXSource->reference];
     spritetype* pSource = &sourceactor->s();
 
     switch (objType) 
@@ -3578,19 +3607,23 @@ void useSeqSpawnerGen(XSPRITE* pXSource, int objType, int index) {
             return;
 
         case OBJ_SPRITE:
-            
-            if (pXSource->data2 <= 0) seqKill(3, sprite[index].extra);
-            else if (sectRangeIsFine(sprite[index].sectnum)) {
-                if (pXSource->data3 > 0) {
-                    int nSprite = InsertSprite(sprite[index].sectnum, kStatDecoration);
-                    auto spawned = &bloodActors[nSprite];
+        {
+            auto pSprite = &iactor->s();
+            if (pXSource->data2 <= 0) seqKill(iactor);
+            else if (sectRangeIsFine(pSprite->sectnum))
+            {
+                if (pXSource->data3 > 0)
+                {
+                    int nSpawned = InsertSprite(pSprite->sectnum, kStatDecoration);
+                    auto spawned = &bloodActors[nSpawned];
                     auto pSpawned = &spawned->s();
-                    int top, bottom; GetSpriteExtents(&sprite[index], &top, &bottom);
-                    pSpawned->x = sprite[index].x;
-                    pSpawned->y = sprite[index].y;
-                    switch (pXSource->data3) {
-                    default:
-                        pSpawned->z = sprite[index].z;
+                    int top, bottom; GetActorExtents(spawned, &top, &bottom);
+                    pSpawned->x = pSprite->x;
+                    pSpawned->y = pSprite->y;
+                    switch (pXSource->data3) 
+                    {                    
+					default:
+                        pSpawned->z = pSprite->z;
                         break;
                     case 2:
                         pSpawned->z = bottom;
@@ -3599,16 +3632,17 @@ void useSeqSpawnerGen(XSPRITE* pXSource, int objType, int index) {
                         pSpawned->z = top;
                         break;
                     case 4:
-                        pSpawned->z = sprite[index].z + tileHeight(sprite[index].picnum) / 2 + tileTopOffset(sprite[index].picnum);
+                        pSpawned->z = pSprite->z + tileHeight(pSprite->picnum) / 2 + tileTopOffset(pSprite->picnum);
                         break;
                     case 5:
                     case 6:
-                        if (!sectRangeIsFine(sprite[index].sectnum)) pSpawned->z = top;
+                        if (!sectRangeIsFine(pSprite->sectnum)) pSpawned->z = top;
                         else pSpawned->z = (pXSource->data3 == 5) ? sector[pSpawned->sectnum].floorz : sector[pSpawned->sectnum].ceilingz;
                         break;
                     }
 
-                    if (nSprite >= 0) {
+                    if (spawned != nullptr)
+                    {
 
                         spawned->addX();
                         seqSpawn(pXSource->data2, spawned, -1);
@@ -3633,13 +3667,14 @@ void useSeqSpawnerGen(XSPRITE* pXSource, int objType, int index) {
                 }
                 else 
                 {
-                    seqSpawn(pXSource->data2, 3, sprite[index].extra, -1);
+                    seqSpawn(pXSource->data2, iactor, -1);
                 }
 
                 if (pXSource->data4 > 0)
-                    sfxPlay3DSound(&sprite[index], pXSource->data4, -1, 0);
+                    sfxPlay3DSound(iactor, pXSource->data4, -1, 0);
             }
             return;
+    }
     }
 }
 
@@ -3649,31 +3684,45 @@ void useSeqSpawnerGen(XSPRITE* pXSource, int objType, int index) {
 //
 //---------------------------------------------------------------------------
 
-int condSerialize(int objType, int objIndex) {
-    switch (objType) {
-        case OBJ_SECTOR: return kCondSerialSector + objIndex;
-        case OBJ_WALL:   return kCondSerialWall + objIndex;
-        case OBJ_SPRITE: return kCondSerialSprite + objIndex;
-    }
-    I_Error("Unknown object type %d, index %d", objType, objIndex);
-    return -1;
+int condSerialize(DBloodActor* objActor) 
+{
+    // this one only gets used for players
+    return kCondSerialSprite + objActor->GetIndex();
 }
 
-void condUnserialize(int serial, int* objType, int* objIndex) {
+void condPush(DBloodActor* actor, int objType, int objIndex, DBloodActor* objActor) {
+    int r = -1;
+    switch (objType) {
+    case OBJ_SECTOR: r = kCondSerialSector + objIndex; break;
+    case OBJ_WALL:   r = kCondSerialWall + objIndex; break;
+    case OBJ_SPRITE: r = kCondSerialSprite + objActor->GetIndex(); break;
+    }
+    if (r == -1) I_Error("Unknown object type %d, index %d", objType, objIndex);
+    // condition-target
+    else actor->x().targetX = r;
+    
+}
+
+void condUnserialize(DBloodActor* serialActor, int* objType, int* objIndex, DBloodActor** objActor) {
+    // condition-target
+    int serial = serialActor->x().targetX;
     if (serial >= kCondSerialSector && serial < kCondSerialWall) {
         
         *objIndex = serial - kCondSerialSector;
         *objType = OBJ_SECTOR; 
+        *objActor = nullptr;
 
     } else if (serial >= kCondSerialWall && serial < kCondSerialSprite) {
         
         *objIndex = serial - kCondSerialWall;
         *objType = OBJ_WALL; 
+        *objActor = nullptr;
 
     } else if (serial >= kCondSerialSprite && serial < kCondSerialMax) {
         
         *objIndex = serial - kCondSerialSprite;
         *objType = OBJ_SPRITE; 
+        *objActor = &bloodActors[*objIndex];
 
     } else {
         
@@ -3682,31 +3731,45 @@ void condUnserialize(int serial, int* objType, int* objIndex) {
     }
 }
 
-bool condPush(XSPRITE* pXSprite, int objType, int objIndex) {
-    pXSprite->targetX = condSerialize(objType, objIndex);
-    return true;
+void condBackup(DBloodActor* actor)
+{
+    // condition-target
+    actor->x().targetY = actor->x().targetX;
 }
 
-bool condRestore(XSPRITE* pXSprite) {
-    pXSprite->targetX = pXSprite->targetY;
-    return true;
+void condRestore(DBloodActor* actor)
+{
+    // condition-target
+    actor->x().targetX = actor->x().targetY;
 }
 
 // normal comparison
-bool condCmp(int val, int arg1, int arg2, int comOp) {
+bool condCmp(int val, int arg1, int arg2, int comOp) 
+{
     if (comOp & 0x2000) return (comOp & CSTAT_SPRITE_BLOCK) ? (val > arg1) : (val >= arg1); // blue sprite
     else if (comOp & 0x4000) return (comOp & CSTAT_SPRITE_BLOCK) ? (val < arg1) : (val <= arg1); // green sprite
-    else if (comOp & CSTAT_SPRITE_BLOCK) {
+    else if (comOp & CSTAT_SPRITE_BLOCK) 
+    {
         if (arg1 > arg2) I_Error("Value of argument #1 (%d) must be less than value of argument #2 (%d)", arg1, arg2);
         return (val >= arg1 && val <= arg2);
     }
     else return (val == arg1);
 }
 
-void condError(XSPRITE* pXCond, const char* pzFormat, ...) {
-   
-    char buffer[256]; char buffer2[512]; FString condType = "Unknown";
-    for (int i = 0; i < 7; i++) {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void condError(DBloodActor* aCond, const char* pzFormat, ...)
+{
+    char buffer[256]; 
+    char buffer2[512]; 
+    FString condType = "Unknown";
+    auto pXCond = &aCond->x();
+    for (int i = 0; i < 7; i++) 
+    {
         if (pXCond->data1 < gCondTypeNames[i].rng1 || pXCond->data1 >= gCondTypeNames[i].rng2) continue;
         condType = gCondTypeNames[i].name;
         condType.ToUpper();
@@ -3720,11 +3783,21 @@ void condError(XSPRITE* pXCond, const char* pzFormat, ...) {
     I_Error("%s%s", buffer, buffer2);
 }
 
-bool condCheckGame(XSPRITE* pXCond, EVENT event, int cmpOp, bool PUSH) {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+bool condCheckGame(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH)
+{
+    auto pXCond = &aCond->x();
 
     //int var = -1;
-    int cond = pXCond->data1 - kCondGameBase; int arg1 = pXCond->data2;
-    int arg2 = pXCond->data3; int arg3 = pXCond->data4;
+    int cond = pXCond->data1 - kCondGameBase; 
+    int arg1 = pXCond->data2;
+    int arg2 = pXCond->data3; 
+    int arg3 = pXCond->data4;
 
     switch (cond) {
         case 1:  return condCmp(gFrameCount / (kTicsPerSec * 60), arg1, arg2, cmpOp);            // compare level minutes
@@ -3743,39 +3816,50 @@ bool condCheckGame(XSPRITE* pXCond, EVENT event, int cmpOp, bool PUSH) {
         /*----------------------------------------------------------------------------------------------------------------------------------*/
         case 47: return condCmp(gStatCount[ClipRange(arg3, 0, kMaxStatus)], arg1, arg2, cmpOp); // compare counter of specific statnum sprites
         case 48: return condCmp(Numsprites, arg1, arg2, cmpOp);                                 // compare counter of total sprites
-    
     }
 
-    condError(pXCond, "Unexpected condition id (%d)!", cond);
+    condError(aCond, "Unexpected condition id (%d)!", cond);
     return false;
 }
 
-bool condCheckMixed(XSPRITE* pXCond, EVENT event, int cmpOp, bool PUSH) {
-    
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH)
+{
+    auto pXCond = &aCond->x();
+
     //int var = -1;
     int cond = pXCond->data1 - kCondMixedBase; int arg1 = pXCond->data2;
     int arg2 = pXCond->data3; int arg3 = pXCond->data4;
     
     int objType = -1; int objIndex = -1;
-    condUnserialize(pXCond->targetX, &objType, &objIndex);
+    DBloodActor* objActor = nullptr;
+    condUnserialize(aCond, &objType, &objIndex, &objActor);
 
-    switch (cond) {
+    switch (cond) 
+    {
         case 0:  return (objType == OBJ_SECTOR && sectRangeIsFine(objIndex)); // is a sector?
         case 5:  return (objType == OBJ_WALL && wallRangeIsFine(objIndex));   // is a wall?
-        case 10: return (objType == OBJ_SPRITE && spriRangeIsFine(objIndex)); // is a sprite?
+        case 10: return (objType == OBJ_SPRITE && objActor != nullptr); // is a sprite?
         case 15: // x-index is fine?
-            switch (objType) {
+            switch (objType) 
+			{
                 case OBJ_WALL: return xwallRangeIsFine(wall[objIndex].extra);
-                case OBJ_SPRITE: return xspriRangeIsFine(sprite[objIndex].extra);
+                case OBJ_SPRITE: return objActor && objActor->hasX();
                 case OBJ_SECTOR: return xsectRangeIsFine(sector[objIndex].extra);
             }
             break;
         case 20: // type in a range?
-            switch (objType) {
+            switch (objType) 
+			{
                 case OBJ_WALL:
                     return condCmp(wall[objIndex].type, arg1, arg2, cmpOp);
                 case OBJ_SPRITE:
-                    return condCmp(sprite[objIndex].type, arg1, arg2, cmpOp);
+                    return condCmp(objActor->s().type, arg1, arg2, cmpOp);
                 case OBJ_SECTOR:
                     return condCmp(sector[objIndex].type, arg1, arg2, cmpOp);
             }
@@ -3784,10 +3868,13 @@ bool condCheckMixed(XSPRITE* pXCond, EVENT event, int cmpOp, bool PUSH) {
         case 25: case 26: case 27:
         case 28: case 29: case 30:
         case 31: case 32: case 33:
-            switch (objType) {
-                case OBJ_WALL: {
+            switch (objType)
+            {
+                case OBJ_WALL: 
+                {
                     walltype* pObj = &wall[objIndex];
-                    switch (cond) {
+                    switch (cond) 
+                    {
                         case 24: return condCmp(surfType[wall[objIndex].picnum], arg1, arg2, cmpOp);
                         case 25: return condCmp(pObj->picnum, arg1, arg2, cmpOp);
                         case 26: return condCmp(pObj->pal, arg1, arg2, cmpOp);
@@ -3801,10 +3888,12 @@ bool condCheckMixed(XSPRITE* pXCond, EVENT event, int cmpOp, bool PUSH) {
                     }
                     break;
                 }
-                case OBJ_SPRITE: {
-                    spritetype* pObj = &sprite[objIndex];
-                    switch (cond) {
-                        case 24: return condCmp(surfType[sprite[objIndex].picnum], arg1, arg2, cmpOp);
+                case OBJ_SPRITE: 
+                {
+                    spritetype* pObj = &objActor->s();
+                    switch (cond) 
+                    {
+                        case 24: return condCmp(surfType[pObj->picnum], arg1, arg2, cmpOp);
                         case 25: return condCmp(pObj->picnum, arg1, arg2, cmpOp);
                         case 26: return condCmp(pObj->pal, arg1, arg2, cmpOp);
                         case 27: return condCmp(pObj->shade, arg1, arg2, cmpOp);
@@ -3817,39 +3906,46 @@ bool condCheckMixed(XSPRITE* pXCond, EVENT event, int cmpOp, bool PUSH) {
                     }
                     break;
                 }
-                case OBJ_SECTOR: {
+                case OBJ_SECTOR: 
+                {
                     sectortype* pObj = &sector[objIndex];
-                    switch (cond) {
+                    switch (cond) 
+                    {
                         case 24:
-                            switch (arg3) {
-                                default: return (condCmp(surfType[sector[objIndex].floorpicnum], arg1, arg2, cmpOp) || condCmp(surfType[sector[objIndex].ceilingpicnum], arg1, arg2, cmpOp));
-                                case 1: return condCmp(surfType[sector[objIndex].floorpicnum], arg1, arg2, cmpOp);
-                                case 2: return condCmp(surfType[sector[objIndex].ceilingpicnum], arg1, arg2, cmpOp);
+                            switch (arg3) 
+                            {
+                                default: return (condCmp(surfType[pObj->floorpicnum], arg1, arg2, cmpOp) || condCmp(surfType[pObj->ceilingpicnum], arg1, arg2, cmpOp));
+                                case 1: return condCmp(surfType[pObj->floorpicnum], arg1, arg2, cmpOp);
+                                case 2: return condCmp(surfType[pObj->ceilingpicnum], arg1, arg2, cmpOp);
                             }
                             break;
                         case 25:
-                            switch (arg3) {
+                            switch (arg3) 
+                            {
                                 default: return (condCmp(pObj->floorpicnum, arg1, arg2, cmpOp) || condCmp(pObj->ceilingpicnum, arg1, arg2, cmpOp));
                                 case 1:  return condCmp(pObj->floorpicnum, arg1, arg2, cmpOp);
                                 case 2:  return condCmp(pObj->ceilingpicnum, arg1, arg2, cmpOp);
                             }
                             break;
                         case 26: 
-                            switch (arg3) {
+                            switch (arg3) 
+                            {
                                 default: return (condCmp(pObj->floorpal, arg1, arg2, cmpOp) || condCmp(pObj->ceilingpal, arg1, arg2, cmpOp));
                                 case 1:  return condCmp(pObj->floorpal, arg1, arg2, cmpOp);
                                 case 2:  return condCmp(pObj->ceilingpal, arg1, arg2, cmpOp);
                             }
                             break;
                         case 27:
-                            switch (arg3) {
+                            switch (arg3) 
+                            {
                                 default: return (condCmp(pObj->floorshade, arg1, arg2, cmpOp) || condCmp(pObj->ceilingshade, arg1, arg2, cmpOp));
                                 case 1:  return condCmp(pObj->floorshade, arg1, arg2, cmpOp);
                                 case 2:  return condCmp(pObj->ceilingshade, arg1, arg2, cmpOp);
                             }
                             break;
                         case 28:
-                            switch (arg3) {
+                            switch (arg3) 
+                            {
                                 default: return ((pObj->floorstat & arg1) || (pObj->ceilingshade & arg1));
                                 case 1:  return (pObj->floorstat & arg1);
                                 case 2:  return (pObj->ceilingshade & arg1);
@@ -3871,13 +3967,17 @@ bool condCheckMixed(XSPRITE* pXCond, EVENT event, int cmpOp, bool PUSH) {
         case 55:  case 56:  case 57:
         case 58:  case 59:  case 70:
         case 71:
-            switch (objType) {
-                case OBJ_WALL: {
+            switch (objType)
+            {
+                case OBJ_WALL: 
+                {
                     if (!xwallRangeIsFine(wall[objIndex].extra))
                         return condCmp(0, arg1, arg2, cmpOp);
                     
-                    XWALL* pXObj =  &xwall[wall[objIndex].extra];
-                    switch (cond) {
+                    auto pObj = &wall[objIndex];
+                    XWALL* pXObj =  &xwall[pObj->extra];
+                    switch (cond) 
+                    {
                         case 41: return condCmp(pXObj->data, arg1, arg2, cmpOp);
                         case 50: return condCmp(pXObj->rxID, arg1, arg2, cmpOp);
                         case 51: return condCmp(pXObj->txID, arg1, arg2, cmpOp);
@@ -3890,31 +3990,34 @@ bool condCheckMixed(XSPRITE* pXCond, EVENT event, int cmpOp, bool PUSH) {
                         case 58: return condCmp((kPercFull * pXObj->busy) / 65536, arg1, arg2, cmpOp);
                         case 59: return pXObj->dudeLockout;
                         case 70:
-                            switch (arg3) {
-                                default: return (condCmp(seqGetID(0, wall[objIndex].extra), arg1, arg2, cmpOp) || condCmp(seqGetID(4, wall[objIndex].extra), arg1, arg2, cmpOp));
-                                case 1:  return condCmp(seqGetID(0, wall[objIndex].extra), arg1, arg2, cmpOp);
-                                case 2:  return condCmp(seqGetID(4, wall[objIndex].extra), arg1, arg2, cmpOp);
+                            switch (arg3) 
+                            {
+                                default: return (condCmp(seqGetID(0, pObj->extra), arg1, arg2, cmpOp) || condCmp(seqGetID(4, pObj->extra), arg1, arg2, cmpOp));
+                                case 1:  return condCmp(seqGetID(0, pObj->extra), arg1, arg2, cmpOp);
+                                case 2:  return condCmp(seqGetID(4, pObj->extra), arg1, arg2, cmpOp);
                             }
                             break;
                         case 71:
-                            switch (arg3) {
-                                default: return (condCmp(seqGetStatus(0, wall[objIndex].extra), arg1, arg2, cmpOp) || condCmp(seqGetStatus(4, wall[objIndex].extra), arg1, arg2, cmpOp));
-                                case 1:  return condCmp(seqGetStatus(0, wall[objIndex].extra), arg1, arg2, cmpOp);
-                                case 2:  return condCmp(seqGetStatus(4, wall[objIndex].extra), arg1, arg2, cmpOp);
+                            switch (arg3) 
+                            {
+                                default: return (condCmp(seqGetStatus(0, pObj->extra), arg1, arg2, cmpOp) || condCmp(seqGetStatus(4, pObj->extra), arg1, arg2, cmpOp));
+                                case 1:  return condCmp(seqGetStatus(0, pObj->extra), arg1, arg2, cmpOp);
+                                case 2:  return condCmp(seqGetStatus(4, pObj->extra), arg1, arg2, cmpOp);
                             }
                             break;
                     }
                     break;
                 }
                 case OBJ_SPRITE: {
-                    if (!xspriRangeIsFine(sprite[objIndex].extra))
+                    if (!objActor->hasX())
                         return condCmp(0, arg1, arg2, cmpOp);
                     
-                    XSPRITE* pXObj = &xsprite[sprite[objIndex].extra];
-                    switch (cond) {
+                    XSPRITE* pXObj = &objActor->x();
+                    switch (cond) 
+                    {
                         case 41: case 42:
                         case 43: case 44:
-                            return condCmp(getDataFieldOfObject(OBJ_SPRITE, objIndex, &bloodActors[objIndex], 1 + cond - 41), arg1, arg2, cmpOp);
+                            return condCmp(getDataFieldOfObject(OBJ_SPRITE, objIndex, objActor, 1 + cond - 41), arg1, arg2, cmpOp);
                         case 50: return condCmp(pXObj->rxID, arg1, arg2, cmpOp);
                         case 51: return condCmp(pXObj->txID, arg1, arg2, cmpOp);
                         case 52: return pXObj->locked;
@@ -3925,12 +4028,13 @@ bool condCheckMixed(XSPRITE* pXCond, EVENT event, int cmpOp, bool PUSH) {
                         case 57: return pXObj->state;
                         case 58: return condCmp((kPercFull * pXObj->busy) / 65536, arg1, arg2, cmpOp);
                         case 59: return pXObj->DudeLockout;
-                        case 70: return condCmp(seqGetID(3, sprite[objIndex].extra), arg1, arg2, cmpOp);
-                        case 71: return condCmp(seqGetStatus(3, sprite[objIndex].extra), arg1, arg2, cmpOp);
+                        case 70: return condCmp(seqGetID(objActor), arg1, arg2, cmpOp);
+                        case 71: return condCmp(seqGetStatus(objActor), arg1, arg2, cmpOp);
                     }
                     break;
                 }
-                case OBJ_SECTOR: {
+                case OBJ_SECTOR: 
+                {
                     if (xsectRangeIsFine(sector[objIndex].extra))
                         return condCmp(0, arg1, arg2, cmpOp);
                     
@@ -3948,14 +4052,17 @@ bool condCheckMixed(XSPRITE* pXCond, EVENT event, int cmpOp, bool PUSH) {
                         case 58: return condCmp((kPercFull * pXObj->busy) / 65536, arg1, arg2, cmpOp);
                         case 59: return pXObj->dudeLockout;
                         case 70:
-                            switch (arg3) {
+                            // wall???
+                            switch (arg3) 
+                            {
                                 default: return (condCmp(seqGetID(1, wall[objIndex].extra), arg1, arg2, cmpOp) || condCmp(seqGetID(2, wall[objIndex].extra), arg1, arg2, cmpOp));
                                 case 1:  return condCmp(seqGetID(1, wall[objIndex].extra), arg1, arg2, cmpOp);
                                 case 2:  return condCmp(seqGetID(2, wall[objIndex].extra), arg1, arg2, cmpOp);
                             }
                             break;
                         case 71:
-                            switch (arg3) {
+                            switch (arg3) 
+                            {
                                 default: return (condCmp(seqGetStatus(1, wall[objIndex].extra), arg1, arg2, cmpOp) || condCmp(seqGetStatus(2, wall[objIndex].extra), arg1, arg2, cmpOp));
                                 case 1:  return condCmp(seqGetStatus(1, wall[objIndex].extra), arg1, arg2, cmpOp);
                                 case 2:  return condCmp(seqGetStatus(2, wall[objIndex].extra), arg1, arg2, cmpOp);
@@ -3969,72 +4076,92 @@ bool condCheckMixed(XSPRITE* pXCond, EVENT event, int cmpOp, bool PUSH) {
         case 99: return condCmp(event.cmd, arg1, arg2, cmpOp);  // this codition received specified command?
     }
 
-    condError(pXCond, "Unexpected condition id (%d)!", cond);
+    condError(aCond, "Unexpected condition id (%d)!", cond);
     return false;
 }
 
-bool condCheckSector(XSPRITE* pXCond, int cmpOp, bool PUSH) {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-    int var = -1;
-    int cond = pXCond->data1 - kCondSectorBase; int arg1 = pXCond->data2;
+bool condCheckSector(DBloodActor* aCond, int cmpOp, bool PUSH) 
+{
+    auto pXCond = &aCond->x();
+
+    int cond = pXCond->data1 - kCondSectorBase; 
+    int arg1 = pXCond->data2;
     int arg2 = pXCond->data3; //int arg3 = pXCond->data4;
     
-    int objType = -1; int objIndex = -1;
-    condUnserialize(pXCond->targetX, &objType, &objIndex);
+    int objType = -1, objIndex = -1;
+    DBloodActor* objActor = nullptr;
+    condUnserialize(aCond, &objType, &objIndex, &objActor);
 
     if (objType != OBJ_SECTOR || !sectRangeIsFine(objIndex))
-        condError(pXCond, "Object #%d (objType: %d) is not a sector!", objIndex, objType);
+        condError(aCond, "Object #%d (objType: %d) is not a sector!", objIndex, objType);
 
     sectortype* pSect = &sector[objIndex];
     XSECTOR* pXSect = (xsectRangeIsFine(pSect->extra)) ? &xsector[pSect->extra] : NULL;
 
-    if (cond < (kCondRange >> 1)) {
-        switch (cond) {
+    if (cond < (kCondRange >> 1)) 
+    {
+        switch (cond) 
+        {
         default: break;
         case 0: return condCmp(pSect->visibility, arg1, arg2, cmpOp);
         case 5: return condCmp(pSect->floorheinum, arg1, arg2, cmpOp);
         case 6: return condCmp(pSect->ceilingheinum, arg1, arg2, cmpOp);
         case 10: // required sprite type is in current sector?
-            int nSprite;
-            SectIterator it(objIndex);
-            while ((nSprite = it.NextIndex()) >= 0)
+            BloodSectIterator it(objIndex);
+            while (auto iactor = it.Next())
             {
-                if (!condCmp(sprite[nSprite].type, arg1, arg2, cmpOp)) continue;
-                else if (PUSH) condPush(pXCond, OBJ_SPRITE, nSprite);
+                if (!condCmp(iactor->s().type, arg1, arg2, cmpOp)) continue;
+                else if (PUSH) condPush(aCond, OBJ_SPRITE, 0, iactor);
                 return true;
             }
             return false;
         }
-    } else if (pXSect) {
-        switch (cond) {
+    } 
+    else if (pXSect) 
+    {
+        switch (cond) 
+        {
             default: break;
             case 50: return pXSect->Underwater;
             case 51: return condCmp(pXSect->Depth, arg1, arg2, cmpOp);
             case 55: // compare floor height (in %)
             case 56: { // compare ceil height (in %)
                 int h = 0; int curH = 0;
-                switch (pSect->type) {
+                switch (pSect->type) 
+                {
                 case kSectorZMotion:
                 case kSectorRotate:
                 case kSectorSlide:
-                    if (cond == 60) {
+                    if (cond == 60) 
+                    {
                         h = ClipLow(abs(pXSect->onFloorZ - pXSect->offFloorZ), 1);
                         curH = abs(pSect->floorz - pXSect->offFloorZ);
-                    } else {
+                    } 
+                    else 
+                    {
                         h = ClipLow(abs(pXSect->onCeilZ - pXSect->offCeilZ), 1);
                         curH = abs(pSect->ceilingz - pXSect->offCeilZ);
                     }
                     return condCmp((kPercFull * curH) / h, arg1, arg2, cmpOp);
                 default:
-                    condError(pXCond, "Usupported sector type %d", pSect->type);
+                    condError(aCond, "Usupported sector type %d", pSect->type);
                     return false;
                 }
             }
             case 57: // this sector in movement?
                 return !pXSect->unused1;
         }
-    } else {
-        switch (cond) {
+    } 
+    else 
+    {
+        switch (cond) 
+        {
             default: return false;
             case 55:
             case 56:
@@ -4042,84 +4169,107 @@ bool condCheckSector(XSPRITE* pXCond, int cmpOp, bool PUSH) {
         }
     }
     
-    condError(pXCond, "Unexpected condition id (%d)!", cond);
+    condError(aCond, "Unexpected condition id (%d)!", cond);
     return false;
 }
 
-bool condCheckWall(XSPRITE* pXCond, int cmpOp, bool PUSH) {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+bool condCheckWall(DBloodActor* aCond, int cmpOp, bool PUSH) 
+{
+    auto pXCond = &aCond->x();
 
     int var = -1;
     int cond = pXCond->data1 - kCondWallBase; int arg1 = pXCond->data2;
     int arg2 = pXCond->data3; //int arg3 = pXCond->data4;
     
-    int objType = -1; int objIndex = -1;
-    condUnserialize(pXCond->targetX, &objType, &objIndex);
+    int objType = -1, objIndex = -1;
+    DBloodActor* objActor = nullptr;
+    condUnserialize(aCond, &objType, &objIndex, &objActor);
 
     if (objType != OBJ_WALL || !wallRangeIsFine(objIndex))
-        condError(pXCond, "Object #%d (objType: %d) is not a wall!", objIndex, objType);
+        condError(aCond, "Object #%d (objType: %d) is not a wall!", objIndex, objType);
         
     walltype* pWall = &wall[objIndex];
     //XWALL* pXWall = (xwallRangeIsFine(pWall->extra)) ? &xwall[pWall->extra] : NULL;
     
-    if (cond < (kCondRange >> 1)) {
-        switch (cond) {
+    if (cond < (kCondRange >> 1)) 
+    {
+        switch (cond) 
+        {
             default: break;
             case 0:
                 return condCmp(pWall->overpicnum, arg1, arg2, cmpOp);
             case 5:
                 if (!sectRangeIsFine((var = sectorofwall(objIndex)))) return false;
-                else if (PUSH) condPush(pXCond, OBJ_SECTOR, var);
+                else if (PUSH) condPush(aCond, OBJ_SECTOR, var, nullptr);
                 return true;
             case 10: // this wall is a mirror?                          // must be as constants here
                 return (pWall->type != kWallStack && condCmp(pWall->picnum, 4080, (4080 + 16) - 1, 0));
             case 15:
                 if (!sectRangeIsFine(pWall->nextsector)) return false;
-                else if (PUSH) condPush(pXCond, OBJ_SECTOR, pWall->nextsector);
+                else if (PUSH) condPush(aCond, OBJ_SECTOR, pWall->nextsector, nullptr);
                 return true;
             case 20:
                 if (!wallRangeIsFine(pWall->nextwall)) return false;
-                else if (PUSH) condPush(pXCond, OBJ_WALL, pWall->nextwall);
+                else if (PUSH) condPush(aCond, OBJ_WALL, pWall->nextwall, nullptr);
                 return true;
             case 25: // next wall belongs to sector?
                 if (!sectRangeIsFine(var = sectorofwall(pWall->nextwall))) return false;
-                else if (PUSH) condPush(pXCond, OBJ_SECTOR, var);
+                else if (PUSH) condPush(aCond, OBJ_SECTOR, var, nullptr);
                 return true;
         }
     }
 
-    condError(pXCond, "Unexpected condition id (%d)!", cond);
+    condError(aCond, "Unexpected condition id (%d)!", cond);
     return false;
 }
 
-bool condCheckPlayer(XSPRITE* pXCond, int cmpOp, bool PUSH) {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-    int var = -1; PLAYER* pPlayer = NULL;
-    int cond = pXCond->data1 - kCondPlayerBase; int arg1 = pXCond->data2;
-    int arg2 = pXCond->data3; int arg3 = pXCond->data4;
+bool condCheckPlayer(DBloodActor* aCond, int cmpOp, bool PUSH) 
+{
+    auto pXCond = &aCond->x();
 
-    int objType = -1; int objIndex = -1;
-    condUnserialize(pXCond->targetX, &objType, &objIndex);
+    int var = -1;
+    PLAYER* pPlayer = NULL;
+    int cond = pXCond->data1 - kCondPlayerBase; 
+    int arg1 = pXCond->data2;
+    int arg2 = pXCond->data3; 
+    int arg3 = pXCond->data4;
 
-    if (objType != OBJ_SPRITE || !spriRangeIsFine(objIndex))
-        condError(pXCond, "Object #%d (objType: %d) is not a sprite!", objIndex, objType);
+    int objType = -1, objIndex = -1;
+    DBloodActor* objActor = nullptr;
+    condUnserialize(aCond, &objType, &objIndex, &objActor);
 
-    for (int i = 0; i < kMaxPlayers; i++) {
-        if (objIndex != gPlayer[i].nSprite) continue;
+    if (objType != OBJ_SPRITE || !objActor)
+        condError(aCond, "Object #%d (objType: %d) is not a sprite!", objActor->GetIndex(), objType);
+
+    for (int i = 0; i < kMaxPlayers; i++) 
+    {
+        if (objActor != gPlayer[i].actor) continue;
         pPlayer = &gPlayer[i];
         break;
     }
     
-    if (!pPlayer) {
-        condError(pXCond, "Object #%d (objType: %d) is not a player!", objIndex, objType);
+    if (!pPlayer) 
+    {
+        condError(aCond, "Object #%d (objType: %d) is not a player!", objActor->GetIndex(), objType);
         return false;
     }
 
-    spritetype* pSpr = pPlayer->pSprite;
-
     switch (cond) {
         case 0: // check if this player is connected
-            if (!condCmp(pPlayer->nPlayer + 1, arg1, arg2, cmpOp) || !spriRangeIsFine(pPlayer->nSprite)) return false;
-            else if (PUSH) condPush(pXCond, OBJ_SPRITE, pPlayer->nSprite);
+            if (!condCmp(pPlayer->nPlayer + 1, arg1, arg2, cmpOp) || pPlayer->actor == nullptr) return false;
+            else if (PUSH) condPush(aCond, OBJ_SPRITE, 0,  pPlayer->actor);
             return (pPlayer->nPlayer >= 0);
         case 1: return condCmp((gGameOptions.nGameType != 3) ? 0 : pPlayer->teamId + 1, arg1, arg2, cmpOp); // compare team
         case 2: return (arg1 > 0 && arg1 < 8 && pPlayer->hasKey[arg1 - 1]);
@@ -4133,11 +4283,11 @@ bool condCheckPlayer(XSPRITE* pXCond, int cmpOp, bool PUSH) {
                 var = (kMinAllowedPowerup + arg3) - 1; // allowable powerups
                 return condCmp(pPlayer->pwUpTime[var] / 100, arg1, arg2, cmpOp);
             }
-            condError(pXCond, "Unexpected powerup #%d", arg3);
+            condError(aCond, "Unexpected powerup #%d", arg3);
             return false;
         case 9:
-            if (!spriRangeIsFine(pPlayer->fraggerId)) return false;
-            else if (PUSH) condPush(pXCond, OBJ_SPRITE, pPlayer->fraggerId);
+            if (!pPlayer->fragger) return false;
+            else if (PUSH) condPush(aCond, OBJ_SPRITE, 0, pPlayer->fragger);
             return true;
         case 10: // check keys pressed
             switch (arg1) {
@@ -4151,7 +4301,7 @@ bool condCheckPlayer(XSPRITE* pXCond, int cmpOp, bool PUSH) {
             case 8:  return !!(pPlayer->input.actions & SB_ALTFIRE);     // alt fire weapon
             case 9:  return !!(pPlayer->input.actions & SB_OPEN);        // use
             default:
-                condError(pXCond, "Specify a correct key!");
+                condError(aCond, "Specify a correct key!");
                 break;
             }
             return false;
@@ -4161,63 +4311,77 @@ bool condCheckPlayer(XSPRITE* pXCond, int cmpOp, bool PUSH) {
         case 14: return condCmp(pPlayer->posture + 1, arg1, arg2, cmpOp);
         case 46: return condCmp(pPlayer->sceneQav, arg1, arg2, cmpOp);
         case 47: return (pPlayer->godMode || powerupCheck(pPlayer, kPwUpDeathMask));
-        case 48: return isShrinked(pSpr);
-        case 49: return isGrown(pSpr);
+        case 48: return isShrinked(pPlayer->actor);
+        case 49: return isGrown(pPlayer->actor);
     }
 
-    condError(pXCond, "Unexpected condition #%d!", cond);
+    condError(aCond, "Unexpected condition #%d!", cond);
     return false;
 }
 
-bool condCheckDude(XSPRITE* pXCond, int cmpOp, bool PUSH) {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+bool condCheckDude(DBloodActor* aCond, int cmpOp, bool PUSH) 
+{
+    auto pXCond = &aCond->x();
 
     int var = -1;
     int cond = pXCond->data1 - kCondDudeBase; int arg1 = pXCond->data2;
     int arg2 = pXCond->data3; int arg3 = pXCond->data4;
     
-    int objType = -1; int objIndex = -1;
-    condUnserialize(pXCond->targetX, &objType, &objIndex);
-    if (objType != OBJ_SPRITE || !spriRangeIsFine(objIndex))
-        condError(pXCond, "Object #%d (objType: %d) is not a sprite!", objIndex, objType);
+    int objType = -1, objIndex = -1;
+    DBloodActor* objActor = nullptr;
+    condUnserialize(aCond, &objType, &objIndex, &objActor);
 
-    auto actor = &bloodActors[objIndex];
-    spritetype* pSpr = &sprite[objIndex];
-    if (!xsprIsFine(pSpr) || pSpr->type == kThingBloodChunks)
-        condError(pXCond, "Object #%d (objType: %d) is dead!", objIndex, objType);
+    if (objType != OBJ_SPRITE || !objActor)
+        condError(aCond, "Object #%d (objType: %d) is not a sprite!", objActor->GetIndex(), objType);
+
+    spritetype* pSpr = &objActor->s();
+    if (!objActor->hasX() || pSpr->type == kThingBloodChunks)
+        condError(aCond, "Object #%d (objType: %d) is dead!", objActor->GetIndex(), objType);
     
-    if (!IsDudeSprite(pSpr) || IsPlayerSprite(pSpr))
-        condError(pXCond, "Object #%d (objType: %d) is not an enemy!", objIndex, objType);
+    if (!objActor->IsDudeActor() || objActor->IsPlayerActor())
+        condError(aCond, "Object #%d (objType: %d) is not an enemy!", objActor->GetIndex(), objType);
 
-    XSPRITE* pXSpr = &xsprite[pSpr->extra];
-    switch (cond) {
+    XSPRITE* pXSpr = &objActor->x();
+    auto targ = objActor->GetTarget();
+    switch (cond)
+    {
         default: break;
         case 0: // dude have any targets?
-            if (!spriRangeIsFine(pXSpr->target_i)) return false;
-            else if (!IsDudeSprite(&sprite[pXSpr->target_i]) && sprite[pXSpr->target_i].type != kMarkerPath) return false;
-            else if (PUSH) condPush(pXCond, OBJ_SPRITE, pXSpr->target_i);
+            if (!targ) return false;
+            else if (!targ->IsDudeActor() && targ->s().type != kMarkerPath) return false;
+            else if (PUSH) condPush(aCond, OBJ_SPRITE, 0, targ);
             return true;
-        case 1: return aiFightDudeIsAffected(pXSpr); // dude affected by ai fight?
+        case 1: return aiFightDudeIsAffected(objActor); // dude affected by ai fight?
         case 2: // distance to the target in a range?
         case 3: // is the target visible?
         case 4: // is the target visible with periphery?
         {
 
-            if (!spriRangeIsFine(pXSpr->target_i))
-                condError(pXCond, "Dude #%d have no target!", objIndex);
+            if (!targ)
+                condError(aCond, "Dude #%d has no target!", objActor->GetIndex());
 
-            spritetype* pTrgt = &sprite[pXSpr->target_i];
+            spritetype* pTrgt = &targ->s();
             DUDEINFO* pInfo = getDudeInfo(pSpr->type);
             int eyeAboveZ = pInfo->eyeHeight * pSpr->yrepeat << 2;
-            int dx = pTrgt->x - pSpr->x; int dy = pTrgt->y - pSpr->y;
+            int dx = pTrgt->x - pSpr->x; 
+            int dy = pTrgt->y - pSpr->y;
 
-            switch (cond) {
-                case 2: 
+            switch (cond) 
+            {
+            case 2:
                     var = condCmp(approxDist(dx, dy), arg1 * 512, arg2 * 512, cmpOp);
                     break;
                 case 3:
                 case 4:
                     var = cansee(pSpr->x, pSpr->y, pSpr->z, pSpr->sectnum, pTrgt->x, pTrgt->y, pTrgt->z - eyeAboveZ, pTrgt->sectnum);
-                    if (cond == 4 && var > 0) {
+                if (cond == 4 && var > 0) 
+                {
                         var = ((1024 + getangle(dx, dy) - pSpr->ang) & 2047) - 1024;
                         var = (abs(var) < ((arg1 <= 0) ? pInfo->periphery : ClipHigh(arg1, 2048)));
                     }
@@ -4225,7 +4389,7 @@ bool condCheckDude(XSPRITE* pXCond, int cmpOp, bool PUSH) {
             }
 
             if (var <= 0) return false;
-            else if (PUSH) condPush(pXCond, OBJ_SPRITE, pXSpr->target_i);
+            else if (PUSH) condPush(aCond, OBJ_SPRITE, 0, targ);
             return true;
 
         }
@@ -4236,21 +4400,23 @@ bool condCheckDude(XSPRITE* pXCond, int cmpOp, bool PUSH) {
         case 9: return (pXSpr->unused1 & kDudeFlagStealth);
         case 10: // check if the marker is busy with another dude
         case 11: // check if the marker is reached
-            if (!pXSpr->dudeFlag4 || !spriRangeIsFine(pXSpr->target_i) || sprite[pXSpr->target_i].type != kMarkerPath) return false;
+                if (!pXSpr->dudeFlag4 || !targ || targ->s().type != kMarkerPath) return false;
             switch (cond) {
                 case 10:
-                    var = aiPatrolMarkerBusy(pSpr->index, pXSpr->target_i);
-                    if (!spriRangeIsFine(var)) return false;
-                    else if (PUSH) condPush(pXCond, OBJ_SPRITE, var);
+                {
+                    auto var = aiPatrolMarkerBusy(objActor, targ);
+                    if (!var) return false;
+                    else if (PUSH) condPush(aCond, OBJ_SPRITE, 0, var);
                     break;
+                }
                 case 11:
-                    if (!aiPatrolMarkerReached(pSpr, pXSpr)) return false;
-                    else if (PUSH) condPush(pXCond, OBJ_SPRITE, pXSpr->target_i);
+                    if (!aiPatrolMarkerReached(objActor)) return false;
+                    else if (PUSH) condPush(aCond, OBJ_SPRITE, 0, targ);
                     break;
             }
             return true;
         case 12: // compare spot progress value in %
-            if (!pXSpr->dudeFlag4 || !spriRangeIsFine(pXSpr->target_i) || sprite[pXSpr->target_i].type != kMarkerPath) var = 0;
+            if (!pXSpr->dudeFlag4 || !targ || targ->s().type != kMarkerPath) var = 0;
             else if (!(pXSpr->unused1 & kDudeFlagStealth) || pXSpr->data3 < 0 || pXSpr->data3 > kMaxPatrolSpotValue) var = 0;
             else var = (kPercFull * pXSpr->data3) / kMaxPatrolSpotValue;
             return condCmp(var, arg1, arg2, cmpOp);
@@ -4262,137 +4428,155 @@ bool condCheckDude(XSPRITE* pXCond, int cmpOp, bool PUSH) {
         case 22:
         case 23:
         case 24:
-            switch (pSpr->type) {
+            switch (pSpr->type) 
+            {
             case kDudeModernCustom:
             case kDudeModernCustomBurning:
                 switch (cond) {
                     case 20: // life leech is thrown?
                         {
-                            auto act = actor->genDudeExtra().pLifeLeech;
+                        auto act = objActor->genDudeExtra.pLifeLeech;
                             if (!act) return false;
-                            else if (PUSH) condPush(pXCond, OBJ_SPRITE, act->s().index);
+                        else if (PUSH) condPush(aCond, OBJ_SPRITE, 0, act);
                         return true;
                         }
+
                     case 21: // life leech is destroyed?
                         {
-                            auto act = actor->genDudeExtra().pLifeLeech;
+                        auto act = objActor->genDudeExtra.pLifeLeech;
                             if (!act) return false;
-                            if (pSpr->owner == kMaxSprites - 1) return true;
-                            else if (PUSH) condPush(pXCond, OBJ_SPRITE, act->s().index);
+                            if (objActor->GetSpecialOwner()) return true;
+                        else if (PUSH) condPush(aCond, OBJ_SPRITE, 0, act);
                         return false;
                         }
+
                     case 22: // are required amount of dudes is summoned?
-                        return condCmp(gGenDudeExtra[pSpr->index].slaveCount, arg1, arg2, cmpOp);
+                        return condCmp(objActor->genDudeExtra.slaveCount, arg1, arg2, cmpOp);
+
                     case 23: // check if dude can...
-                        switch (arg3) {
-                            case 1: return actor->genDudeExtra().canAttack;
-                            case 2: return actor->genDudeExtra().canBurn;
-                            case 3: return actor->genDudeExtra().canDuck;
-                            case 4: return actor->genDudeExtra().canElectrocute;
-                            case 5: return actor->genDudeExtra().canFly;
-                            case 6: return actor->genDudeExtra().canRecoil;
-                            case 7: return actor->genDudeExtra().canSwim;
-                            case 8: return actor->genDudeExtra().canWalk;
-                            default: condError(pXCond, "Invalid argument %d", arg3); break;
+                        switch (arg3) 
+                        {
+                            case 1: return objActor->genDudeExtra.canAttack;
+                            case 2: return objActor->genDudeExtra.canBurn;
+                            case 3: return objActor->genDudeExtra.canDuck;
+                            case 4: return objActor->genDudeExtra.canElectrocute;
+                            case 5: return objActor->genDudeExtra.canFly;
+                            case 6: return objActor->genDudeExtra.canRecoil;
+                            case 7: return objActor->genDudeExtra.canSwim;
+                            case 8: return objActor->genDudeExtra.canWalk;
+                            default: condError(aCond, "Invalid argument %d", arg3); break;
                         }
                         break;
                     case 24: // compare weapon dispersion
-                        return condCmp(actor->genDudeExtra().baseDispersion, arg1, arg2, cmpOp);
+                        return condCmp(objActor->genDudeExtra.baseDispersion, arg1, arg2, cmpOp);
                 }
                 break;
             default:
-                condError(pXCond, "Dude #%d is not a Custom Dude!", objIndex);
+                condError(aCond, "Dude #%d is not a Custom Dude!", objActor->GetIndex());
                 return false;
             }
     }
 
-    condError(pXCond, "Unexpected condition #%d!", cond);
+    condError(aCond, "Unexpected condition #%d!", cond);
     return false;
 }
 
-bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH) {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-    auto actor = &bloodActors[pXCond->reference];
+bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
+{
+    auto pXCond = &aCond->x();
+
     int var = -1, var2 = -1, var3 = -1; PLAYER* pPlayer = NULL; bool retn = false;
     int cond = pXCond->data1 - kCondSpriteBase; int arg1 = pXCond->data2;
     int arg2 = pXCond->data3; int arg3 = pXCond->data4;
     
-    int objType = -1; int objIndex = -1;
-    condUnserialize(pXCond->targetX, &objType, &objIndex);
+    int objType = -1, objIndex = -1;
+    DBloodActor* objActor = nullptr;
+    condUnserialize(aCond, &objType, &objIndex, &objActor);
 
-    if (objType != OBJ_SPRITE || !spriRangeIsFine(objIndex))
-        condError(pXCond, "Object #%d (objType: %d) is not a sprite!", cond, objIndex, objType);
+    if (objType != OBJ_SPRITE || !objActor)
+        condError(aCond, "Object #%d (objType: %d) is not a sprite!", cond, objActor->GetIndex(), objType);
 
-    spritetype* pSpr = &sprite[objIndex];
-    XSPRITE* pXSpr = (xspriRangeIsFine(pSpr->extra)) ? &xsprite[pSpr->extra] : NULL;
-    DBloodActor* spractor = &bloodActors[pXSpr->reference];
+    spritetype* pSpr = &objActor->s();
+    XSPRITE* pXSpr = objActor->hasX()? &objActor->x() : nullptr;
     
-    if (cond < (kCondRange >> 1)) {
-        switch (cond) {
+    if (cond < (kCondRange >> 1)) 
+    {
+        switch (cond) 
+        {
             default: break;
             case 0: return condCmp((pSpr->ang & 2047), arg1, arg2, cmpOp);
             case 5: return condCmp(pSpr->statnum, arg1, arg2, cmpOp);
             case 6: return ((pSpr->flags & kHitagRespawn) || pSpr->statnum == kStatRespawn);
-            case 7: return condCmp(spriteGetSlope(pSpr->index), arg1, arg2, cmpOp);
+        case 7: return condCmp(spriteGetSlope(pSpr), arg1, arg2, cmpOp);
             case 10: return condCmp(pSpr->clipdist, arg1, arg2, cmpOp);
             case 15:
-                if (!spriRangeIsFine(pSpr->owner)) return false;
-                else if (PUSH) condPush(pXCond, OBJ_SPRITE, pSpr->owner);
+            if (!objActor->GetOwner()) return false;
+            else if (PUSH) condPush(aCond, OBJ_SPRITE, 0, objActor->GetOwner());
                 return true;
             case 20: // stays in a sector?
                 if (!sectRangeIsFine(pSpr->sectnum)) return false;
-                else if (PUSH) condPush(pXCond, OBJ_SECTOR, pSpr->sectnum);
+            else if (PUSH) condPush(aCond, OBJ_SECTOR, pSpr->sectnum, nullptr);
                 return true;
             case 25:
-                switch (arg1) {
-                    case 0: return (xvel[pSpr->index] || yvel[pSpr->index] || zvel[pSpr->index]);
-                    case 1: return (xvel[pSpr->index]);
-                    case 2: return (yvel[pSpr->index]);
-                    case 3: return (zvel[pSpr->index]);
+            switch (arg1)
+            {
+            case 0: return (objActor->xvel || objActor->yvel || objActor->zvel);
+            case 1: return (objActor->xvel);
+            case 2: return (objActor->yvel);
+            case 3: return (objActor->zvel);
                 }
                 break;
             case 30:
-                if (!spriteIsUnderwater(spractor) && !spriteIsUnderwater(spractor, true)) return false;
-                else if (PUSH) condPush(pXCond, OBJ_SECTOR, pSpr->sectnum);
+                if (!spriteIsUnderwater(objActor) && !spriteIsUnderwater(objActor, true)) return false;
+            else if (PUSH) condPush(aCond, OBJ_SECTOR, pSpr->sectnum, nullptr);
                 return true;
-            case 31: 
-                if (arg1 == -1) {
-                    for (var = 0; var < kDmgMax; var++) {
-                        if (!nnExtIsImmune(spractor, arg1, 0))
+        case 31:
+            if (arg1 == -1)
+            {
+                for (var = 0; var < kDmgMax; var++)
+                {
+                        if (!nnExtIsImmune(objActor, arg1, 0))
                             return false;
                     }
-
                     return true;
                 }
-                return nnExtIsImmune(spractor, arg1, 0);
+                return nnExtIsImmune(objActor, arg1, 0);
+
             case 35: // hitscan: ceil?
             case 36: // hitscan: floor?
             case 37: // hitscan: wall?
             case 38: // hitscan: sprite?
-                switch (arg1) {
+            switch (arg1)
+            {
                     case  0: arg1 = CLIPMASK0 | CLIPMASK1; break;
                     case  1: arg1 = CLIPMASK0; break;
                     case  2: arg1 = CLIPMASK1; break;
                 }
 
                 if ((pPlayer = getPlayerById(pSpr->type)) != NULL)
-                    var = HitScan(pSpr, pPlayer->zWeapon, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, arg1, arg3 << 1);
-                else if (IsDudeSprite(pSpr))
-                    var = HitScan(pSpr, pSpr->z, bcos(pSpr->ang), bsin(pSpr->ang), (!xspriRangeIsFine(pSpr->extra)) ? 0 : spractor->dudeSlope, arg1, arg3 << 1);
-                else if ((var2 & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FLOOR) {
-                    
+                    var = HitScan(objActor, pPlayer->zWeapon, pPlayer->aim.dx, pPlayer->aim.dy, pPlayer->aim.dz, arg1, arg3 << 1);
+            else if (objActor->IsDudeActor())
+                var = HitScan(objActor, pSpr->z, bcos(pSpr->ang), bsin(pSpr->ang), (!objActor->hasX()) ? 0 : objActor->dudeSlope, arg1, arg3 << 1);
+            else if ((var2 & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FLOOR)
+            {
                     var3 = (var2 & 0x0008) ? 0x10000 << 1 : -(0x10000 << 1);
-                    var = HitScan(pSpr, pSpr->z, Cos(pSpr->ang) >> 16, Sin(pSpr->ang) >> 16, var3, arg1, arg3 << 1);
-
-                } else {
-                    
-                    var = HitScan(pSpr, pSpr->z, bcos(pSpr->ang), bsin(pSpr->ang), 0, arg1, arg3 << 1);
-
+                    var = HitScan(objActor, pSpr->z, Cos(pSpr->ang) >> 16, Sin(pSpr->ang) >> 16, var3, arg1, arg3 << 1);
+            }
+            else
+            {
+                    var = HitScan(objActor, pSpr->z, bcos(pSpr->ang), bsin(pSpr->ang), 0, arg1, arg3 << 1);
                 }
 
-                if (var >= 0) {
-                    
-                    switch (cond) {
+            if (var >= 0)
+            {
+                switch (cond)
+                {
                         case 35: retn = (var == 1); break;
                         case 36: retn = (var == 2); break;
                         case 37: retn = (var == 0 || var == 4); break;
@@ -4400,124 +4584,131 @@ bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH) {
                     }
 
                     if (!PUSH) return retn;
-                    switch (var) {
-                        case 0: case 4: condPush(pXCond, OBJ_WALL, gHitInfo.hitwall);       break;
-                        case 1: case 2: condPush(pXCond, OBJ_SECTOR, gHitInfo.hitsect);     break;
-                    case 3:         condPush(pXCond, OBJ_SPRITE, gHitInfo.hitactor? gHitInfo.hitactor->s().index : -1);   break;
+                switch (var)
+                {
+                case 0: case 4: condPush(aCond, OBJ_WALL, gHitInfo.hitwall, nullptr);       break;
+                case 1: case 2: condPush(aCond, OBJ_SECTOR, gHitInfo.hitsect, nullptr);     break;
+                case 3:         condPush(aCond, OBJ_SPRITE, 0, gHitInfo.hitactor);   break;
                     }
 
                 }
                 return retn;
-            case 45: // this sprite is a target of some dude?
-                int nSprite;
-                StatIterator it(kStatDude);
-                while ((nSprite = it.NextIndex()) >= 0)
-                {
-                    if (pSpr->index == nSprite) continue;
 
-                    spritetype* pDude = &sprite[nSprite];
-                    if (IsDudeSprite(pDude) && xspriRangeIsFine(pDude->extra)) {
-                        XSPRITE* pXDude = &xsprite[pDude->extra];
-                        if (pXDude->health <= 0 || pXDude->target_i != pSpr->index) continue;
-                        else if (PUSH) condPush(pXCond, OBJ_SPRITE, nSprite);
+            case 45: // this sprite is a target of some dude?
+            BloodStatIterator it(kStatDude);
+            while (auto iactor = it.Next())
+                {
+                if (objActor == iactor) continue;
+
+                if (iactor->IsDudeActor() && iactor->hasX())
+                {
+                    XSPRITE* pXDude = &iactor->x();
+                    if (pXDude->health <= 0 || iactor->GetTarget() != objActor) continue;
+                    else if (PUSH) condPush(aCond, OBJ_SPRITE, 0, iactor);
                         return true;
                     }
                 }
                 return false;
         }
-    } else if (pXSpr) {
-        switch (cond) {
+    } 
+    else if (pXSpr) 
+    {
+        switch (cond) 
+        {
             default: break;
             case 50: // compare hp (in %)
-                if (IsDudeSprite(pSpr)) var = (pXSpr->sysData2 > 0) ? ClipRange(pXSpr->sysData2 << 4, 1, 65535) : getDudeInfo(pSpr->type)->startHealth << 4;
+                if (objActor->IsDudeActor()) var = (pXSpr->sysData2 > 0) ? ClipRange(pXSpr->sysData2 << 4, 1, 65535) : getDudeInfo(pSpr->type)->startHealth << 4;
                 else if (pSpr->type == kThingBloodChunks) return condCmp(0, arg1, arg2, cmpOp);
                 else if (pSpr->type >= kThingBase && pSpr->type < kThingMax) var = thingInfo[pSpr->type - kThingBase].startHealth << 4;
                 return condCmp((kPercFull * pXSpr->health) / ClipLow(var, 1), arg1, arg2, cmpOp);
             case 55: // touching ceil of sector?
-                if (gSpriteHit[pSpr->extra].ceilhit.type != kHitSector) return false;
-                else if (PUSH) condPush(pXCond, OBJ_SECTOR, gSpriteHit[pSpr->extra].ceilhit.index);
+                if (objActor->hit.ceilhit.type != kHitSector) return false;
+                else if (PUSH) condPush(aCond, OBJ_SECTOR, objActor->hit.ceilhit.index, nullptr);
                 return true;
             case 56: // touching floor of sector?
-                if (gSpriteHit[pSpr->extra].florhit.type != kHitSector) return false;
-                else if (PUSH) condPush(pXCond, OBJ_SECTOR, gSpriteHit[pSpr->extra].florhit.index);
+                if (objActor->hit.florhit.type != kHitSector) return false;
+                else if (PUSH) condPush(aCond, OBJ_SECTOR, objActor->hit.florhit.index, nullptr);
                 return true;
             case 57: // touching walls of sector?
-                if (gSpriteHit[pSpr->extra].hit.type != kHitWall) return false;
-                else if (PUSH) condPush(pXCond, OBJ_WALL, gSpriteHit[pSpr->extra].hit.index);
+                if (objActor->hit.hit.type != kHitWall) return false;
+                else if (PUSH) condPush(aCond, OBJ_WALL, objActor->hit.hit.index, nullptr);
                 return true;
             case 58: // touching another sprite?
             {
                 DBloodActor* actorvar = nullptr;
-                switch (arg3) {
+                switch (arg3) 
+                {
                     case 0:
                     case 1:
-                    if (gSpriteHit[pSpr->extra].florhit.type == kHitSprite) actorvar = gSpriteHit[pSpr->extra].florhit.actor;
+                    if (objActor->hit.florhit.type == kHitSprite) actorvar = objActor->hit.florhit.actor;
                         if (arg3 || var >= 0) break;
                     [[fallthrough]];
                     case 2:
-                    if (gSpriteHit[pSpr->extra].hit.type == kHitSprite) actorvar = gSpriteHit[pSpr->extra].hit.actor;
+                    if (objActor->hit.hit.type == kHitSprite) actorvar = objActor->hit.hit.actor;
                         if (arg3 || var >= 0) break;
                     [[fallthrough]];
                     case 3:
-                    if (gSpriteHit[pSpr->extra].ceilhit.type == kHitSprite) actorvar = gSpriteHit[pSpr->extra].ceilhit.actor;
+                    if (objActor->hit.ceilhit.type == kHitSprite) actorvar = objActor->hit.ceilhit.actor;
                         break;
                 }
                 if (actorvar == nullptr) 
                 { 
-                    // check if something touching this sprite
-                    for (int i = kMaxXSprites - 1, idx = i; i > 0; idx = xsprite[--i].reference) 
+                    // check if something is touching this sprite
+                    BloodSpriteIterator it;
+                    while (auto iactor = it.Next())
                     {
-                        if (idx < 0 || (sprite[idx].flags & kHitagRespawn)) continue;
-                        auto iactor = &bloodActors[idx];
-                        auto objactor = &bloodActors[objIndex];
-                        auto& hit = gSpriteHit[i];
-                        switch (arg3) {
+                        if (iactor->s().flags & kHitagRespawn) continue;
+                        auto& hit = iactor->hit;
+                        switch (arg3) 
+                        {
                             case 0:
                             case 1:
-                            if (hit.ceilhit.type == kHitSprite && hit.ceilhit.actor == objactor) actorvar = iactor;
+                            if (hit.ceilhit.type == kHitSprite && hit.ceilhit.actor == objActor) actorvar = iactor;
                             if (arg3 || actorvar) break;
                             [[fallthrough]];
                             case 2:
-                            if (hit.hit.type == kHitSprite && hit.hit.actor == objactor) actorvar = iactor;
+                            if (hit.hit.type == kHitSprite && hit.hit.actor == objActor) actorvar = iactor;
                             if (arg3 || actorvar) break;
                             [[fallthrough]];
                             case 3:
-                            if (hit.florhit.type == kHitSprite && hit.florhit.actor == objactor) actorvar = iactor;
+                            if (hit.florhit.type == kHitSprite && hit.florhit.actor == objActor) actorvar = iactor;
                                 break;
                         }
                     }
                 }
                 if (actorvar == nullptr) return false;
-                else if (PUSH) condPush(pXCond, OBJ_SPRITE, actorvar->s().index);
+                else if (PUSH) condPush(aCond, OBJ_SPRITE, 0, actorvar);
                 return true;
             }
+
             case 65: // compare burn time (in %)
-                var = (IsDudeSprite(pSpr)) ? 2400 : 1200;
+                var = (objActor->IsDudeActor()) ? 2400 : 1200;
                 if (!condCmp((kPercFull * pXSpr->burnTime) / var, arg1, arg2, cmpOp)) return false;
-                else if (PUSH && spriRangeIsFine(pXSpr->burnSource)) condPush(pXCond, OBJ_SPRITE, pXSpr->burnSource);
+                else if (PUSH && objActor->GetBurnSource()) condPush(aCond, OBJ_SPRITE, 0, objActor->GetBurnSource());
                 return true;
+
             case 66: // any flares stuck in this sprite?
             {
-                int nSprite;
-                StatIterator it(kStatFlare);
-                while ((nSprite = it.NextIndex()) >= 0)
+                BloodStatIterator it(kStatFlare);
+                while (auto flareactor = it.Next())
                 {
-                    spritetype* pFlare = &sprite[nSprite];
-                    if (!xspriRangeIsFine(pFlare->extra) || (pFlare->flags & kHitagFree))
+                    if (!flareactor->hasX() || (flareactor->s().flags & kHitagFree))
                         continue;
 
-                    XSPRITE* pXFlare = &xsprite[pFlare->extra];
-                    if (!spriRangeIsFine(pXFlare->target_i) || pXFlare->target_i != objIndex) continue;
-                    else if (PUSH) condPush(pXCond, OBJ_SPRITE, nSprite);
+                    if (flareactor->GetTarget() != objActor) continue;
+                    else if (PUSH) condPush(aCond, OBJ_SPRITE, 0, flareactor);
                     return true;
                 }
                 return false;
             }
             case 70:
-                return condCmp(getSpriteMassBySize(spractor), arg1, arg2, cmpOp); // mass of the sprite in a range?
+                return condCmp(getSpriteMassBySize(objActor), arg1, arg2, cmpOp); // mass of the sprite in a range?
         }
-    } else {
-        switch (cond) {
+    }
+    else 
+{
+        switch (cond) 
+        {
             default: return false;
             case 50:
             case 65:
@@ -4526,56 +4717,60 @@ bool condCheckSprite(XSPRITE* pXCond, int cmpOp, bool PUSH) {
         }
     }
 
-    condError(pXCond, "Unexpected condition id (%d)!", cond);
+    condError(aCond, "Unexpected condition id (%d)!", cond);
     return false;
 }
 
+//---------------------------------------------------------------------------
+//
 // this updates index of object in all conditions
-void condUpdateObjectIndex(int objType, int oldIndex, int newIndex) 
-{
-    // this only gets called for player respawns
-    auto oldActor = &bloodActors[oldIndex];
-    auto newActor = &bloodActors[newIndex];
+// only used when spawning players
+//
+//---------------------------------------------------------------------------
 
+void condUpdateObjectIndex(DBloodActor* oldActor, DBloodActor* newActor) 
+{
     // update index in tracking conditions first
     for (int i = 0; i < gTrackingCondsCount; i++) 
     {
-
         TRCONDITION* pCond = &gCondition[i];
         for (unsigned k = 0; k < pCond->length; k++) 
         {
-            if (pCond->obj[k].type != objType || pCond->obj[k].actor != oldActor) continue;
+            if (pCond->obj[k].type != OBJ_SPRITE || pCond->obj[k].actor != oldActor) continue;
             pCond->obj[k].actor = newActor;
             break;
         }
     }
 
     // puke...
-    int oldSerial = condSerialize(objType, oldIndex);
-    int newSerial = condSerialize(objType, newIndex);
+    int oldSerial = condSerialize(oldActor);
+    int newSerial = condSerialize(newActor);
 
     // then update serials
-    int nSpr;
-    StatIterator it(kStatModernCondition);
-    while ((nSpr = it.NextIndex()) >= 0)
+    BloodStatIterator it(kStatModernCondition);
+    while (auto iactor = it.Next())
     {
-        XSPRITE* pXCond = &xsprite[sprite[nSpr].extra];
+        XSPRITE* pXCond = &iactor->x();
+        // condition-target
+        // condition-target
         if (pXCond->targetX == oldSerial) pXCond->targetX = newSerial;
         if (pXCond->targetY == oldSerial) pXCond->targetY = newSerial;
 
     }
-
-    return;
 }
 
-bool valueIsBetween(int val, int min, int max) {
-    return (val > min && val < max);
-}
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-char modernTypeSetSpriteState(int nSprite, XSPRITE* pXSprite, int nState) {
-    auto actor = &bloodActors[nSprite];
+bool modernTypeSetSpriteState(DBloodActor* actor, int nState) 
+{
+    auto pXSprite = &actor->x();
+
     if ((pXSprite->busy & 0xffff) == 0 && pXSprite->state == nState)
-        return 0;
+        return false;
 
     pXSprite->busy  = IntToFixed(nState);
     pXSprite->state = nState;
@@ -4585,14 +4780,21 @@ char modernTypeSetSpriteState(int nSprite, XSPRITE* pXSprite, int nState) {
         evPostActor(actor, (pXSprite->waitTime * 120) / 10, pXSprite->restState ? kCmdOn : kCmdOff);
 
     if (pXSprite->txID != 0 && ((pXSprite->triggerOn && pXSprite->state) || (pXSprite->triggerOff && !pXSprite->state)))
-        modernTypeSendCommand(nSprite, pXSprite->txID, (COMMAND_ID)pXSprite->command);
+        modernTypeSendCommand(actor, pXSprite->txID, (COMMAND_ID)pXSprite->command);
 
-    return 1;
+    return true;
 }
 
-void modernTypeSendCommand(int nSprite, int destChannel, COMMAND_ID command) {
-    auto actor = &bloodActors[nSprite];
-    switch (command) {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void modernTypeSendCommand(DBloodActor* actor, int destChannel, COMMAND_ID command) 
+{
+    switch (command) 
+    {
     case kCmdLink:
         evSendActor(actor, destChannel, kCmdModernUse); // just send command to change properties
         return;
@@ -4607,9 +4809,14 @@ void modernTypeSendCommand(int nSprite, int destChannel, COMMAND_ID command) {
     }
 }
 
+//---------------------------------------------------------------------------
+//
 // this function used by various new modern types.
-void modernTypeTrigger(int destObjType, int destObjIndex, EVENT event) {
+//
+//---------------------------------------------------------------------------
 
+void modernTypeTrigger(int destObjType, int destObjIndex, DBloodActor* destactor, const EVENT& event) 
+{
     if (event.type != OBJ_SPRITE || !event.actor || !event.actor->hasX()) return;
     spritetype* pSource = &event.actor->s();
     XSPRITE* pXSource = &event.actor->x();
@@ -4622,175 +4829,201 @@ void modernTypeTrigger(int destObjType, int destObjIndex, EVENT event) {
             if (!xwallRangeIsFine(wall[destObjIndex].extra)) return;
             break;
         case OBJ_SPRITE:
-            if (!xspriRangeIsFine(sprite[destObjIndex].extra)) return;
-            else if (sprite[destObjIndex].flags & kHitagFree) return;
+        {
+            if (!destactor) return;
+            auto pSpr = &destactor->s();
+            if (pSpr->flags & kHitagFree) return;
 
             // allow redirect events received from some modern types.
             // example: it allows to spawn FX effect if event was received from kModernEffectGen
             // on many TX channels instead of just one.
-            switch (sprite[destObjIndex].type) {
+            switch (pSpr->type) 
+            {
                 case kModernRandomTX:
                 case kModernSequentialTX:
-                    spritetype* pSpr = &sprite[destObjIndex]; XSPRITE* pXSpr = &xsprite[pSpr->extra];
+                XSPRITE* pXSpr = &destactor->x();
                     if (pXSpr->command != kCmdLink || pXSpr->locked) break; // no redirect mode detected
-                    switch (pSpr->type) {
+                switch (pSpr->type) 
+                {
                         case kModernRandomTX:
-                            useRandomTx(pXSpr, (COMMAND_ID)pXSource->command, false); // set random TX id
+                    useRandomTx(destactor, (COMMAND_ID)pXSource->command, false); // set random TX id
                             break;
                         case kModernSequentialTX:
-                            if (pSpr->flags & kModernTypeFlag1) {
-                                seqTxSendCmdAll(pXSpr, pSource->index, (COMMAND_ID)pXSource->command, true);
+                    if (pSpr->flags & kModernTypeFlag1) 
+                    {
+                        seqTxSendCmdAll(destactor, event.actor, (COMMAND_ID)pXSource->command, true);
                                 return;
                             }
-                            useSequentialTx(pXSpr, (COMMAND_ID)pXSource->command, false); // set next TX id
+                    useSequentialTx(destactor, (COMMAND_ID)pXSource->command, false); // set next TX id
                             break;
                     }
                     if (pXSpr->txID <= 0 || pXSpr->txID >= kChannelUserMax) return;
-                    modernTypeSendCommand(pSource->index, pXSpr->txID, (COMMAND_ID)pXSource->command);
+                    modernTypeSendCommand(event.actor, pXSpr->txID, (COMMAND_ID)pXSource->command);
                     return;
             }
             break;
+        }
         default:
             return;
     }
 
-    switch (pSource->type) {
+    switch (pSource->type) 
+    {
         // allows teleport any sprite from any location to the source destination
         case kMarkerWarpDest:
             if (destObjType != OBJ_SPRITE) break;
-            useTeleportTarget(pXSource, &sprite[destObjIndex]);
+            useTeleportTarget(event.actor, destactor);
             break;
         // changes slope of sprite or sector
         case kModernSlopeChanger:
-            switch (destObjType) {
+            switch (destObjType) 
+            {
                 case OBJ_SPRITE:
                 case OBJ_SECTOR:
-                    useSlopeChanger(pXSource, destObjType, destObjIndex);
+                    useSlopeChanger(event.actor, destObjType, destObjIndex, destactor);
                     break;
             }
             break;
         case kModernSpriteDamager:
         // damages xsprite via TX ID or xsprites in a sector
-            switch (destObjType) {
+            switch (destObjType) 
+            {
                 case OBJ_SPRITE:
                 case OBJ_SECTOR:
-                    useSpriteDamager(pXSource, destObjType, destObjIndex);
+                    useSpriteDamager(event.actor, destObjType, destObjIndex, destactor);
             break;
             }
             break;
         // can spawn any effect passed in data2 on it's or txID sprite
         case kModernEffectSpawner:
             if (destObjType != OBJ_SPRITE) break;
-            useEffectGen(pXSource, &sprite[destObjIndex]);
+            useEffectGen(event.actor, destactor);
             break;
         // takes data2 as SEQ ID and spawns it on it's or TX ID object
         case kModernSeqSpawner:
-            useSeqSpawnerGen(pXSource, destObjType, destObjIndex);
+            useSeqSpawnerGen(event.actor, destObjType, destObjIndex, destactor);
             break;
         // creates wind on TX ID sector
         case kModernWindGenerator:
             if (destObjType != OBJ_SECTOR || pXSource->data2 < 0) break;
-            useSectorWindGen(pXSource, &sector[destObjIndex]);
+            useSectorWindGen(event.actor, &sector[destObjIndex]);
             break;
         // size and pan changer of sprite/wall/sector via TX ID
         case kModernObjSizeChanger:
-            useObjResizer(pXSource, destObjType, destObjIndex);
+            useObjResizer(event.actor, destObjType, destObjIndex, destactor);
             break;
         // iterate data filed value of destination object
         case kModernObjDataAccumulator:
-            useIncDecGen(pXSource, destObjType, destObjIndex);
+            useIncDecGen(event.actor, destObjType, destObjIndex, destactor);
             break;
         // change data field value of destination object
         case kModernObjDataChanger:
-            useDataChanger(pXSource, destObjType, destObjIndex);
+            useDataChanger(event.actor, destObjType, destObjIndex, destactor);
             break;
         // change sector lighting dynamically
         case kModernSectorFXChanger:
             if (destObjType != OBJ_SECTOR) break;
-            useSectorLigthChanger(pXSource, &xsector[sector[destObjIndex].extra]);
+            useSectorLigthChanger(event.actor, &xsector[sector[destObjIndex].extra]);
             break;
         // change target of dudes and make it fight
         case kModernDudeTargetChanger:
             if (destObjType != OBJ_SPRITE) break;
-            useTargetChanger(pXSource, &sprite[destObjIndex]);
+            useTargetChanger(event.actor, destactor);
             break;
         // change picture and palette of TX ID object
         case kModernObjPicnumChanger:
-            usePictureChanger(pXSource, destObjType, destObjIndex);
+            usePictureChanger(event.actor, destObjType, destObjIndex, destactor);
             break;
         // change various properties
         case kModernObjPropertiesChanger:
-            usePropertiesChanger(pXSource, destObjType, destObjIndex);
+            usePropertiesChanger(event.actor, destObjType, destObjIndex, destactor);
             break;
         // updated vanilla sound gen that now allows to play sounds on TX ID sprites
         case kGenModernSound:
             if (destObjType != OBJ_SPRITE) break;
-            useSoundGen(pXSource, &sprite[destObjIndex]);
+            useSoundGen(event.actor, destactor);
             break;
         // updated ecto skull gen that allows to fire missile from TX ID sprites
         case kGenModernMissileUniversal:
             if (destObjType != OBJ_SPRITE) break;
-            useUniMissileGen(pXSource, &sprite[destObjIndex]);
+            useUniMissileGen(event.actor, destactor);
             break;
         // spawn enemies on TX ID sprites
         case kMarkerDudeSpawn:
             if (destObjType != OBJ_SPRITE) break;
-            useDudeSpawn(pXSource, &sprite[destObjIndex]);
+            useDudeSpawn(event.actor, destactor);
             break;
          // spawn custom dude on TX ID sprites
         case kModernCustomDudeSpawn:
             if (destObjType != OBJ_SPRITE) break;
-            useCustomDudeSpawn(&bloodActors[pXSource->reference], &bloodActors[destObjIndex]);
+            useCustomDudeSpawn(event.actor, destactor);
             break;
     }
 }
 
+//---------------------------------------------------------------------------
+//
 // the following functions required for kModernDudeTargetChanger
-//---------------------------------------
-spritetype* aiFightGetTargetInRange(spritetype* pSprite, int minDist, int maxDist, short data, short teamMode) {
-    DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type); XSPRITE* pXSprite = &xsprite[pSprite->extra];
-    spritetype* pTarget = NULL; XSPRITE* pXTarget = NULL; spritetype* cTarget = NULL;
-    int nSprite;
-    StatIterator it(kStatDude);
-    while ((nSprite = it.NextIndex()) >= 0)
+//
+//---------------------------------------------------------------------------
+
+DBloodActor* aiFightGetTargetInRange(DBloodActor* actor, int minDist, int maxDist, int data, int teamMode) 
+{
+    auto pSprite = &actor->s();
+    XSPRITE* pXSprite = &actor->x();
+
+    DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
+    
+    BloodStatIterator it(kStatDude);
+    while (auto targactor = it.Next())
     {
-        pTarget = &sprite[nSprite];  pXTarget = &xsprite[pTarget->extra];
-        if (!aiFightDudeCanSeeTarget(pXSprite, pDudeInfo, pTarget)) continue;
+        if (!aiFightDudeCanSeeTarget(actor, pDudeInfo, targactor)) continue;
 
-        int dist = aiFightGetTargetDist(pSprite, pDudeInfo, pTarget);
+        auto pXTarget = &targactor->x();
+
+        int dist = aiFightGetTargetDist(actor, pDudeInfo, targactor);
         if (dist < minDist || dist > maxDist) continue;
-        else if (pXSprite->target_i == pTarget->index) return pTarget;
-        else if (!IsDudeSprite(pTarget) || pTarget->index == pSprite->index || IsPlayerSprite(pTarget)) continue;
-        else if (IsBurningDude(pTarget) || !IsKillableDude(pTarget) || pTarget->owner == pSprite->index) continue;
-        else if ((teamMode == 1 && aiFightIsMateOf(pXSprite, pXTarget)) || aiFightMatesHaveSameTarget(pXSprite, pTarget, 1)) continue;
-        else if (data == 666 || pXTarget->data1 == data) {
-
-            if (pXSprite->target_i > 0) {
-                cTarget = &sprite[pXSprite->target_i];
-                int fineDist1 = aiFightGetFineTargetDist(pSprite, cTarget);
-                int fineDist2 = aiFightGetFineTargetDist(pSprite, pTarget);
+        else if (actor->GetTarget() == targactor) return targactor;
+        else if (!targactor->IsDudeActor() || targactor == actor || targactor->IsPlayerActor()) continue;
+        else if (IsBurningDude(targactor) || !IsKillableDude(targactor) || targactor->GetOwner() == actor) continue;
+        else if ((teamMode == 1 && pXSprite->rxID == pXTarget->rxID) || aiFightMatesHaveSameTarget(actor, targactor, 1)) continue;
+        else if (data == 666 || pXTarget->data1 == data) 
+        {
+            if (actor->GetTarget())
+            {
+                int fineDist1 = aiFightGetFineTargetDist(actor, actor->GetTarget());
+                int fineDist2 = aiFightGetFineTargetDist(actor, targactor);
                 if (fineDist1 < fineDist2)
                     continue;
             }
-            return pTarget;
+            return targactor;
         }
     }
-
-    return NULL;
+    return nullptr;
 }
 
-spritetype* aiFightTargetIsPlayer(XSPRITE* pXSprite) {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-    if (pXSprite->target_i >= 0) {
-        if (IsPlayerSprite(&sprite[pXSprite->target_i]))
-            return &sprite[pXSprite->target_i];
-    }
-
-    return NULL;
-}
-spritetype* aiFightGetMateTargets(XSPRITE* pXSprite) 
+DBloodActor* aiFightTargetIsPlayer(DBloodActor* actor)
 {
-    auto actor = &bloodActors[pXSprite->reference];
+    auto targ = actor->GetTarget();
+    if (targ && targ->IsPlayerActor()) return targ;
+    return nullptr;
+}
+
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+DBloodActor* aiFightGetMateTargets(DBloodActor* actor)
+{
+    auto pXSprite = &actor->x();
     int rx = pXSprite->rxID; 
 
     for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) 
@@ -4804,46 +5037,59 @@ spritetype* aiFightGetMateTargets(XSPRITE* pXSprite)
             if (mate->GetTarget())
             {
                 if (!mate->GetTarget()->IsPlayerActor())
-                    return &mate->GetTarget()->s();
+                    return mate->GetTarget();
             }
-
         }
     }
-
-    return NULL;
+    return nullptr;
 }
 
-bool aiFightMatesHaveSameTarget(XSPRITE* pXLeader, spritetype* pTarget, int allow) {
-    auto actor = &bloodActors[pXLeader->reference];
-    int rx = pXLeader->rxID; spritetype* pMate = NULL; XSPRITE* pXMate = NULL;
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-    for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) {
+bool aiFightMatesHaveSameTarget(DBloodActor* leaderactor, DBloodActor* targetactor, int allow) 
+{
+    auto pXLeader = &leaderactor->x();
+    int rx = pXLeader->rxID; 
 
-        if (rxBucket[i].type != OBJ_SPRITE)
+    for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) 
+    {
+        if (rxBucket[i].type != OBJ_SPRITE) continue;
+
+        auto mate = rxBucket[i].actor;
+        if (!mate || !mate->hasX() || mate == leaderactor || !mate->IsDudeActor())
             continue;
 
-            auto mate = rxBucket[i].GetActor();
-            if (!mate || !mate->hasX() || mate == actor || !mate->IsDudeActor())
-                continue;
-
-        if (&(mate->GetTarget()->s()) == pTarget && allow-- <= 0)
+        if (mate->GetTarget() == targetactor && allow-- <= 0)
             return true;
     }
-
     return false;
-
 }
 
-bool aiFightDudeCanSeeTarget(XSPRITE* pXDude, DUDEINFO* pDudeInfo, spritetype* pTarget) {
-    spritetype* pDude = &sprite[pXDude->reference];
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+bool aiFightDudeCanSeeTarget(DBloodActor* dudeactor, DUDEINFO* pDudeInfo, DBloodActor* targetactor) 
+{
+    auto pDude = &dudeactor->s();
+    auto pTarget = &targetactor->s();
+
     int dx = pTarget->x - pDude->x; int dy = pTarget->y - pDude->y;
 
     // check target
-    if (approxDist(dx, dy) < pDudeInfo->seeDist) {
+    if (approxDist(dx, dy) < pDudeInfo->seeDist) 
+    {
         int eyeAboveZ = pDudeInfo->eyeHeight * pDude->yrepeat << 2;
 
         // is there a line of sight to the target?
-        if (cansee(pDude->x, pDude->y, pDude->z, pDude->sectnum, pTarget->x, pTarget->y, pTarget->z - eyeAboveZ, pTarget->sectnum)) {
+        if (cansee(pDude->x, pDude->y, pDude->z, pDude->sectnum, pTarget->x, pTarget->y, pTarget->z - eyeAboveZ, pTarget->sectnum)) 
+        {
             /*int nAngle = getangle(dx, dy);
             int losAngle = ((1024 + nAngle - pDude->ang) & 2047) - 1024;
 
@@ -4858,10 +5104,17 @@ bool aiFightDudeCanSeeTarget(XSPRITE* pXDude, DUDEINFO* pDudeInfo, spritetype* p
 
 }
 
+//---------------------------------------------------------------------------
+//
 // this function required if monsters in genIdle ai state. It wakes up monsters
 // when kModernDudeTargetChanger goes to off state, so they won't ignore the world.
-void aiFightActivateDudes(int rx) {
-    for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) {
+//
+//---------------------------------------------------------------------------
+
+void aiFightActivateDudes(int rx) 
+{
+    for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) 
+    {
         if (rxBucket[i].type != OBJ_SPRITE) continue;
         auto dudeactor = rxBucket[i].GetActor();
         if (!dudeactor || !dudeactor->hasX() || !dudeactor->IsDudeActor() || dudeactor->x().aiState->stateType != kAiStateGenIdle) continue;
@@ -4869,63 +5122,79 @@ void aiFightActivateDudes(int rx) {
     }
 }
 
-
+//---------------------------------------------------------------------------
+//
 // this function sets target to -1 for all dudes that hunting for nSprite
-void aiFightFreeTargets(int nSprite) {
-    int nTarget;
-    StatIterator it(kStatDude);
-    while ((nTarget = it.NextIndex()) >= 0)
-    {
-        if (!IsDudeSprite(&sprite[nTarget]) || sprite[nTarget].extra < 0) continue;
-        else if (xsprite[sprite[nTarget].extra].target_i == nSprite)
-            aiSetTarget_(&xsprite[sprite[nTarget].extra], sprite[nTarget].x, sprite[nTarget].y, sprite[nTarget].z);
-    }
+//
+//---------------------------------------------------------------------------
 
-    return;
+void aiFightFreeTargets(DBloodActor* actor) 
+{
+    BloodStatIterator it(kStatDude);
+    while (auto targetactor = it.Next())
+    {
+        if (!targetactor->IsDudeActor() || !targetactor->hasX()) continue;
+        else if (targetactor->GetTarget() == actor)
+            aiSetTarget(targetactor, targetactor->s().x, targetactor->s().y, targetactor->s().z);
+    }
 }
 
+//---------------------------------------------------------------------------
+//
 // this function sets target to -1 for all targets that hunting for dudes affected by selected kModernDudeTargetChanger
-void aiFightFreeAllTargets(XSPRITE* pXSource) {
-    if (pXSource->txID <= 0) return;
-    for (int i = bucketHead[pXSource->txID]; i < bucketHead[pXSource->txID + 1]; i++) 
-	{
-        if (rxBucket[i].type != OBJ_SPRITE) continue;
-		auto rxactor = rxBucket[i].GetActor();
-        if (rxactor && rxactor->hasX())
-            aiFightFreeTargets(rxactor->s().index);
-    }
+//
+//---------------------------------------------------------------------------
 
-    return;
+void aiFightFreeAllTargets(DBloodActor* sourceactor) 
+{
+    auto txID = sourceactor->x().txID;
+    if (txID <= 0) return;
+    for (int i = bucketHead[txID]; i < bucketHead[txID + 1]; i++) 
+    {
+        if (rxBucket[i].type == OBJ_SPRITE && rxBucket[i].actor && rxBucket[i].actor->hasX())
+            aiFightFreeTargets(rxBucket[i].actor);
+    }
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-bool aiFightDudeIsAffected(XSPRITE* pXDude) {
+bool aiFightDudeIsAffected(DBloodActor* dudeactor) 
+{
+    auto pXDude = &dudeactor->x();
     if (pXDude->rxID <= 0 || pXDude->locked == 1) return false;
-    int nSprite;
-    StatIterator it(kStatModernDudeTargetChanger);
-    while ((nSprite = it.NextIndex()) >= 0)
+    BloodStatIterator it(kStatModernDudeTargetChanger);
+    while (auto actor = it.Next())
     {
-        XSPRITE* pXSprite = (sprite[nSprite].extra >= 0) ? &xsprite[sprite[nSprite].extra] : NULL;
-        if (pXSprite == NULL || pXSprite->txID <= 0 || pXSprite->state != 1) continue;
-        for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++) {
+        if (!actor->hasX()) continue;
+        XSPRITE* pXSprite = &actor->x();
+        if (pXSprite->txID <= 0 || pXSprite->state != 1) continue;
+        for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++) 
+        {
             if (rxBucket[i].type != OBJ_SPRITE) continue;
 
-            auto actor = rxBucket[i].GetActor();
-            if (!actor || !actor->hasX() || !actor->IsDudeActor()) continue;
-            else if (actor->s().index == sprite[pXDude->reference].index) return true;
+            auto rxactor = rxBucket[i].actor;
+            if (!rxactor || !rxactor->hasX() || !rxactor->IsDudeActor()) continue;
+            else if (rxactor == dudeactor) return true;
         }
     }
     return false;
 }
 
-bool aiFightIsMateOf(XSPRITE* pXDude, XSPRITE* pXSprite) {
-    return (pXDude->rxID == pXSprite->rxID);
-}
-
+//---------------------------------------------------------------------------
+//
 // this function tells if there any dude found for kModernDudeTargetChanger
-bool aiFightGetDudesForBattle(XSPRITE* pXSprite) {
-    
-    for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++) {
+//
+//---------------------------------------------------------------------------
+
+bool aiFightGetDudesForBattle(DBloodActor* actor) 
+{
+    auto txID = actor->x().txID;
+    for (int i = bucketHead[txID]; i < bucketHead[txID + 1]; i++) 
+    {
         if (rxBucket[i].type != OBJ_SPRITE) continue;
         auto actor = rxBucket[i].GetActor();
         if (!actor || !actor->hasX() || !actor->IsDudeActor()) continue;
@@ -4933,9 +5202,12 @@ bool aiFightGetDudesForBattle(XSPRITE* pXSprite) {
     }
 
     // check redirected TX buckets
-    int rx = -1; XSPRITE* pXRedir = NULL;
-    while ((pXRedir = evrListRedirectors(OBJ_SPRITE, sprite[pXSprite->reference].extra, pXRedir, &rx)) != NULL) {
-        for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) {
+    int rx = -1; 
+    DBloodActor* pXRedir = nullptr;
+    while ((pXRedir = evrListRedirectors(OBJ_SPRITE, 0, actor, pXRedir, &rx)) != nullptr) 
+    {
+        for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) 
+        {
 	        if (rxBucket[i].type != OBJ_SPRITE) continue;
 	        auto actor = rxBucket[i].GetActor();
 	        if (!actor || !actor->hasX() || !actor->IsDudeActor()) continue;
@@ -4945,42 +5217,65 @@ bool aiFightGetDudesForBattle(XSPRITE* pXSprite) {
     return false;
 }
 
-void aiFightAlarmDudesInSight(spritetype* pSprite, int max) {
-    spritetype* pDude = NULL; XSPRITE* pXDude = NULL;
-    XSPRITE* pXSprite = &xsprite[pSprite->extra];
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void aiFightAlarmDudesInSight(DBloodActor* actor, int max) 
+{
+    auto pSprite = &actor->s();
+
     DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
-    int nSprite;
-    StatIterator it(kStatDude);
-    while ((nSprite = it.NextIndex()) >= 0)
+
+    BloodStatIterator it(kStatDude);
+    while (auto dudeactor = it.Next())
     {
-        pDude = &sprite[nSprite];
-        if (pDude->index == pSprite->index || !IsDudeSprite(pDude) || pDude->extra < 0)
+        if (dudeactor == actor || !dudeactor->IsDudeActor() || !dudeactor->hasX())
             continue;
-        pXDude = &xsprite[pDude->extra];
-        if (aiFightDudeCanSeeTarget(pXSprite, pDudeInfo, pDude)) {
-            if (pXDude->target_i != -1 || pXDude->rxID > 0)
+
+        if (aiFightDudeCanSeeTarget(actor, pDudeInfo, dudeactor)) 
+        {
+            if (dudeactor->GetTarget() != nullptr || dudeactor->x().rxID > 0)
                 continue;
 
-            aiSetTarget_(pXDude, pDude->x, pDude->y, pDude->z);
-            aiActivateDude(&bloodActors[pXDude->reference]);
+            auto pDude = &dudeactor->s();
+            aiSetTarget(dudeactor, pDude->x, pDude->y, pDude->z);
+            aiActivateDude(dudeactor);
             if (max-- < 1)
                 break;
         }
     }
 }
 
-bool aiFightUnitCanFly(spritetype* pDude) {
-    return (IsDudeSprite(pDude) && gDudeInfoExtra[pDude->type - kDudeBase].flying);
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+bool aiFightUnitCanFly(DBloodActor* dude) 
+{
+    return (dude->IsDudeActor() && gDudeInfoExtra[dude->s().type - kDudeBase].flying);
 }
 
-bool aiFightIsMeleeUnit(spritetype* pDude) {
-    if (pDude->type == kDudeModernCustom) return (pDude->extra >= 0 && dudeIsMelee(&bloodActors[pDude->index]));
-    else return (IsDudeSprite(pDude) && gDudeInfoExtra[pDude->type - kDudeBase].melee);
+bool aiFightIsMeleeUnit(DBloodActor* dude)
+{
+    if (dude->s().type == kDudeModernCustom) return (dude->hasX() && dudeIsMelee(dude));
+    else return (dude->IsDudeActor() && gDudeInfoExtra[dude->s().type - kDudeBase].melee);
 }
 
-int aiFightGetTargetDist(spritetype* pSprite, DUDEINFO* pDudeInfo, spritetype* pTarget) {
-    int x = pTarget->x; int y = pTarget->y;
-    int dx = x - pSprite->x; int dy = y - pSprite->y;
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+int aiFightGetTargetDist(DBloodActor* actor, DUDEINFO* pDudeInfo, DBloodActor* target) 
+{
+    int dx = target->s().x - actor->s().x;
+    int dy = target->s().y - actor->s().y;
 
     int dist = approxDist(dx, dy);
     if (dist <= pDudeInfo->meleeDist) return 0;
@@ -4999,32 +5294,61 @@ int aiFightGetTargetDist(spritetype* pSprite, DUDEINFO* pDudeInfo, spritetype* p
     return 12;
 }
 
-int aiFightGetFineTargetDist(spritetype* pSprite, spritetype* pTarget) {
-    int x = pTarget->x; int y = pTarget->y;
-    int dx = x - pSprite->x; int dy = y - pSprite->y;
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+int aiFightGetFineTargetDist(DBloodActor* actor, DBloodActor* target)
+{
+    int dx = target->s().x - actor->s().x;
+    int dy = target->s().y - actor->s().y;
 
     int dist = approxDist(dx, dy);
     return dist;
 }
 
-int sectorInMotion(int nSector) {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+int sectorInMotion(int nSector) 
+{
  
-    for (int i = 0; i < kMaxBusyCount; i++) {
+    for (int i = 0; i < kMaxBusyCount; i++) 
+    {
         if (gBusy->index == nSector) return i;
     }
-
     return -1;
 }
 
-void sectorKillSounds(int nSector) {
-    for (int nSprite = headspritesect[nSector]; nSprite >= 0; nSprite = nextspritesect[nSprite]) {
-        if (sprite[nSprite].type != kSoundSector) continue;
-        sfxKill3DSound(&sprite[nSprite]);
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void sectorKillSounds(int nSector)
+{
+    BloodSectIterator it(nSector);
+    while (auto actor = it.Next())
+    {
+        if (actor->s().type != kSoundSector) continue;
+        sfxKill3DSound(actor);
     }
 }
 
-void sectorPauseMotion(int nSector) {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
+void sectorPauseMotion(int nSector) 
+{
     if (!xsectRangeIsFine(sector[nSector].extra)) return;
     XSECTOR* pXSector = &xsector[sector[nSector].extra];
     pXSector->unused1 = 1;
@@ -5034,14 +5358,19 @@ void sectorPauseMotion(int nSector) {
     sectorKillSounds(nSector);
     if ((pXSector->busy == 0 && !pXSector->state) || (pXSector->busy == 65536 && pXSector->state))
     SectorEndSound(nSector, xsector[sector[nSector].extra].state);
-    
-    return;
 }
 
-void sectorContinueMotion(int nSector, EVENT event) {
-    
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void sectorContinueMotion(int nSector, EVENT event) 
+{
     if (!xsectRangeIsFine(sector[nSector].extra)) return;
-    else if (gBusyCount >= kMaxBusyCount) {
+    else if (gBusyCount >= kMaxBusyCount) 
+    {
         Printf(PRINT_HIGH, "Failed to continue motion for sector #%d. Max (%d) busy objects count reached!", nSector, kMaxBusyCount);
         return;
     }
@@ -5049,45 +5378,52 @@ void sectorContinueMotion(int nSector, EVENT event) {
     XSECTOR* pXSector = &xsector[sector[nSector].extra];
     pXSector->unused1 = 0;
     
-    int busyTimeA = pXSector->busyTimeA;    int waitTimeA = pXSector->waitTimeA;
-    int busyTimeB = pXSector->busyTimeB;    int waitTimeB = pXSector->waitTimeB;
-    if (sector[nSector].type == kSectorPath) {
-        if (!spriRangeIsFine(pXSector->marker0)) return;
-        busyTimeA = busyTimeB = xsprite[sprite[pXSector->marker0].extra].busyTime;
-        waitTimeA = waitTimeB = xsprite[sprite[pXSector->marker0].extra].waitTime;
+    int busyTimeA = pXSector->busyTimeA;   
+    int waitTimeA = pXSector->waitTimeA;
+    int busyTimeB = pXSector->busyTimeB;   
+    int waitTimeB = pXSector->waitTimeB;
+    if (sector[nSector].type == kSectorPath) 
+    {
+        if (!pXSector->marker0) return;
+        busyTimeA = busyTimeB = pXSector->marker0->x().busyTime;
+        waitTimeA = waitTimeB = pXSector->marker0->x().waitTime;
     }
     
     if (!pXSector->interruptable && event.cmd != kCmdSectorMotionContinue
-        && ((!pXSector->state && pXSector->busy) || (pXSector->state && pXSector->busy != 65536))) {
-            
+        && ((!pXSector->state && pXSector->busy) || (pXSector->state && pXSector->busy != 65536))) 
+    {
             event.cmd = kCmdSectorMotionContinue;
-
-    } else if (event.cmd == kCmdToggle) {
-        
+    } 
+    else if (event.cmd == kCmdToggle) 
+    {
         event.cmd = (pXSector->state) ? kCmdOn : kCmdOff;
-
     }
 
     //viewSetSystemMessage("%d / %d", pXSector->busy, pXSector->state);
 
     int nDelta = 1;
-    switch (event.cmd) {
+    switch (event.cmd) 
+    {
         case kCmdOff:
-            if (pXSector->busy == 0) {
+            if (pXSector->busy == 0) 
+            {
                 if (pXSector->reTriggerB && waitTimeB) evPostSector(nSector, (waitTimeB * 120) / 10, kCmdOff);
                 return;
             }
             pXSector->state = 1;
             nDelta = 65536 / ClipLow((busyTimeB * 120) / 10, 1);
             break;
+
         case kCmdOn:
-            if (pXSector->busy == 65536) {
+            if (pXSector->busy == 65536) 
+            {
                 if (pXSector->reTriggerA && waitTimeA) evPostSector(nSector, (waitTimeA * 120) / 10, kCmdOn);
                 return;
             }
             pXSector->state = 0;
             nDelta = 65536 / ClipLow((busyTimeA * 120) / 10, 1);
             break;
+
         case kCmdSectorMotionContinue:
             nDelta = 65536 / ClipLow((((pXSector->state) ? busyTimeB : busyTimeA) * 120) / 10, 1);
             break;
@@ -5095,7 +5431,8 @@ void sectorContinueMotion(int nSector, EVENT event) {
 
     //bool crush = pXSector->Crush;
     int busyFunc = BUSYID_0;
-    switch (sector[nSector].type) {
+    switch (sector[nSector].type) 
+    {
         case kSectorZMotion:
             busyFunc = BUSYID_2;
             break;
@@ -5128,15 +5465,20 @@ void sectorContinueMotion(int nSector, EVENT event) {
     gBusy[gBusyCount].busy = pXSector->busy;
     gBusy[gBusyCount].type = (BUSYID)busyFunc;
     gBusyCount++;
-    return;
-
 }
 
-bool modernTypeOperateSector(int nSector, sectortype* pSector, XSECTOR* pXSector, EVENT event) {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-    if (event.cmd >= kCmdLock && event.cmd <= kCmdToggleLock) {
-        
-        switch (event.cmd) {
+bool modernTypeOperateSector(int nSector, sectortype* pSector, XSECTOR* pXSector, const EVENT& event) 
+{
+    if (event.cmd >= kCmdLock && event.cmd <= kCmdToggleLock) 
+    {
+        switch (event.cmd) 
+        {
             case kCmdLock:
                 pXSector->locked = 1;
                 break;
@@ -5148,20 +5490,22 @@ bool modernTypeOperateSector(int nSector, sectortype* pSector, XSECTOR* pXSector
                 break;
         }
 
-        switch (pSector->type) {
+        switch (pSector->type) 
+        {
             case kSectorCounter:
                 if (pXSector->locked != 1) break;
                 SetSectorState(nSector, pXSector, 0);
                 evPostSector(nSector, 0, kCallbackCounterCheck);
                 break;
         }
-
         return true;
     
     // continue motion of the paused sector
-    } else if (pXSector->unused1) {
-        
-        switch (event.cmd) {
+    } 
+    else if (pXSector->unused1) 
+    {
+        switch (event.cmd) 
+        {
             case kCmdOff:
             case kCmdOn:
             case kCmdToggle:
@@ -5171,33 +5515,47 @@ bool modernTypeOperateSector(int nSector, sectortype* pSector, XSECTOR* pXSector
         }
     
     // pause motion of the sector
-    } else if (event.cmd == kCmdSectorMotionPause) {
-        
+    }
+    else if (event.cmd == kCmdSectorMotionPause) 
+    {
         sectorPauseMotion(nSector);
         return true;
-
     }
-
     return false;
-
 }
 
-void useCustomDudeSpawn(DBloodActor* pSource, DBloodActor* pSprite) 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+void useCustomDudeSpawn(DBloodActor* pSource, DBloodActor* pSprite)
 {
     genDudeSpawn(pSource, pSprite, pSprite->s().clipdist << 1);
 }
 
-void useDudeSpawn(XSPRITE* pXSource, spritetype* pSprite) {
-
-    if (randomSpawnDude(&bloodActors[pXSource->reference], &bloodActors[pSprite->index], pSprite->clipdist << 1, 0) == nullptr)
-        nnExtSpawnDude(&bloodActors[pXSource->reference], &bloodActors[pSprite->index], pXSource->data1, pSprite->clipdist << 1, 0);
+void useDudeSpawn(DBloodActor* pSource, DBloodActor* pSprite)
+{
+    if (randomSpawnDude(pSource, pSprite, pSprite->s().clipdist << 1, 0) == nullptr)
+        nnExtSpawnDude(pSource, pSprite, pSource->x().data1, pSprite->s().clipdist << 1, 0);
 }
 
-bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite, EVENT event) {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-    auto actor = &bloodActors[pSprite->index];
-    if (event.cmd >= kCmdLock && event.cmd <= kCmdToggleLock) {
-        switch (event.cmd) {
+bool modernTypeOperateSprite(DBloodActor* actor, EVENT event) 
+{
+    auto pSprite = &actor->s();
+    auto pXSprite = &actor->x();
+
+    if (event.cmd >= kCmdLock && event.cmd <= kCmdToggleLock) 
+    {
+        switch (event.cmd) 
+        {
             case kCmdLock:
                 pXSprite->locked = 1;
                 break;
@@ -5209,7 +5567,8 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                 break;
         }
 
-        switch (pSprite->type) {
+        switch (pSprite->type) 
+        {
             case kModernCondition:
             case kModernConditionFalse:
                 pXSprite->restState = 0;
@@ -5217,58 +5576,62 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                 else if (!pXSprite->locked) pXSprite->busy = 0;
                 break;
         }
-       
         return true;
-    } else if (event.cmd == kCmdDudeFlagsSet) {
-        
-        if (event.type != OBJ_SPRITE) {
-           
+    }
+    else if (event.cmd == kCmdDudeFlagsSet)
+    {
+        if (event.type != OBJ_SPRITE) 
+        {
             viewSetSystemMessage("Only sprites can use command #%d", event.cmd);
             return true;
 
-        } else if (event.actor && event.actor->hasX()) {
+        } 
+		else if (event.actor && event.actor->hasX()) 
+		{
            
             // copy dude flags from the source to destination sprite
-            aiPatrolFlagsMgr(&event.actor->s(), &event.actor->x(), pSprite, pXSprite, true, false);
-
+            aiPatrolFlagsMgr(event.actor, actor, true, false);
     }
 
     }
 
-    if (pSprite->statnum == kStatDude && IsDudeSprite(pSprite)) {
-
-        switch (event.cmd) {
+    if (pSprite->statnum == kStatDude && actor->IsDudeActor()) 
+    {
+        switch (event.cmd) 
+        {
             case kCmdOff:
-                if (pXSprite->state) SetSpriteState(nSprite, pXSprite, 0);
+                if (pXSprite->state) SetSpriteState(actor, 0);
                 break;
             case kCmdOn:
-                if (!pXSprite->state) SetSpriteState(nSprite, pXSprite, 1);
-                if (!IsDudeSprite(pSprite) || IsPlayerSprite(pSprite) || pXSprite->health <= 0) break;
+                if (!pXSprite->state) SetSpriteState(actor, 1);
+                if (!actor->IsDudeActor() || actor->IsPlayerActor() || pXSprite->health <= 0) break;
                 else if (pXSprite->aiState->stateType >= kAiStatePatrolBase && pXSprite->aiState->stateType < kAiStatePatrolMax)
                     break;
 
-                
-                switch (pXSprite->aiState->stateType) {
+                switch (pXSprite->aiState->stateType) 
+                {
                     case kAiStateIdle:
                     case kAiStateGenIdle:
                         aiActivateDude(actor);
                         break;
                 }
                 break;
+
             case kCmdDudeFlagsSet:
                 if (!event.actor || !event.actor->hasX()) break;
-                else aiPatrolFlagsMgr(&event.actor->s(), &event.actor->x(), pSprite, pXSprite, false, true); // initialize patrol dude with possible new flags
+                else aiPatrolFlagsMgr(event.actor, actor, false, true); // initialize patrol dude with possible new flags
                 break;
+
             default:
                 if (!pXSprite->state) evPostActor(actor, 0, kCmdOn);
                 else evPostActor(actor, 0, kCmdOff);
                 break;
         }
-
         return true;
     }
 
-    switch (pSprite->type) {
+    switch (pSprite->type) 
+    {
         default:
             return false; // no modern type found to work with, go normal OperateSprite();
         case kThingBloodBits:
@@ -5278,78 +5641,89 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
             // let's allow only specific commands here to avoid this.
             if (pSprite->inittype < kDudeBase || pSprite->inittype >= kDudeMax) return false;
             else if (event.cmd != kCmdToggle && event.cmd != kCmdOff && event.cmd != kCmdSpriteImpact) return true;
-            DudeToGibCallback1(nSprite, actor); // set proper gib type just in case DATAs was changed from the outside.
+            DudeToGibCallback1(0, actor); // set proper gib type just in case DATAs was changed from the outside.
             return false;
+
         case kModernCondition:
         case kModernConditionFalse:
-            if (!pXSprite->isTriggered) useCondition(pSprite, pXSprite, event);
+            if (!pXSprite->isTriggered) useCondition(actor, event);
             return true;
+
         // add spawn random dude feature - works only if at least 2 data fields are not empty.
         case kMarkerDudeSpawn:
             if (!gGameOptions.nMonsterSettings) return true;
-            else if (!(pSprite->flags & kModernTypeFlag4)) useDudeSpawn(pXSprite, pSprite);
+            else if (!(pSprite->flags & kModernTypeFlag4)) useDudeSpawn(actor, actor);
             else if (pXSprite->txID) evSendActor(actor, pXSprite->txID, kCmdModernUse);
             return true;
+
         case kModernCustomDudeSpawn:
             if (!gGameOptions.nMonsterSettings) return true;
             else if (!(pSprite->flags & kModernTypeFlag4)) useCustomDudeSpawn(actor, actor);
             else if (pXSprite->txID) evSendActor(actor, pXSprite->txID, kCmdModernUse);
             return true;
+
         case kModernRandomTX: // random Event Switch takes random data field and uses it as TX ID
         case kModernSequentialTX: // sequential Switch takes values from data fields starting from data1 and uses it as TX ID
             if (pXSprite->command == kCmdLink) return true; // work as event redirector
-            switch (pSprite->type) {
+            switch (pSprite->type) 
+            {
                 case kModernRandomTX:
-                    useRandomTx(pXSprite, (COMMAND_ID)pXSprite->command, true);
+                    useRandomTx(actor, (COMMAND_ID)pXSprite->command, true);
                     break;
+
                 case kModernSequentialTX:
-                    if (!(pSprite->flags & kModernTypeFlag1)) useSequentialTx(pXSprite, (COMMAND_ID)pXSprite->command, true);
-                    else seqTxSendCmdAll(pXSprite, pSprite->index, (COMMAND_ID)pXSprite->command, false);
+                    if (!(pSprite->flags & kModernTypeFlag1)) useSequentialTx(actor, (COMMAND_ID)pXSprite->command, true);
+                    else seqTxSendCmdAll(actor, actor, (COMMAND_ID)pXSprite->command, false);
                     break;
             }
             return true;
+
         case kModernSpriteDamager:
-            switch (event.cmd) {
+            switch (event.cmd) 
+            {
                 case kCmdOff:
-                    if (pXSprite->state == 1) SetSpriteState(nSprite, pXSprite, 0);
+                    if (pXSprite->state == 1) SetSpriteState(actor, 0);
                     break;
                 case kCmdOn:
                     evKillActor(actor); // queue overflow protect
-                    if (pXSprite->state == 0) SetSpriteState(nSprite, pXSprite, 1);
+                    if (pXSprite->state == 0) SetSpriteState(actor, 1);
                     [[fallthrough]];
                 case kCmdRepeat:
-                    if (pXSprite->txID > 0) modernTypeSendCommand(nSprite, pXSprite->txID, (COMMAND_ID)pXSprite->command);
-                    else if (pXSprite->data1 == 0 && sectRangeIsFine(pSprite->sectnum)) useSpriteDamager(pXSprite, OBJ_SECTOR, pSprite->sectnum);
-                    else if (pXSprite->data1 >= 666 && pXSprite->data1 < 669) useSpriteDamager(pXSprite, -1, -1);
-                    else {
-
+                    if (pXSprite->txID > 0) modernTypeSendCommand(actor, pXSprite->txID, (COMMAND_ID)pXSprite->command);
+                    else if (pXSprite->data1 == 0 && sectRangeIsFine(pSprite->sectnum)) useSpriteDamager(actor, OBJ_SECTOR, pSprite->sectnum, nullptr);
+                    else if (pXSprite->data1 >= 666 && pXSprite->data1 < 669) useSpriteDamager(actor, -1, -1, nullptr);
+                    else
+                    {
                 PLAYER* pPlayer = getPlayerById(pXSprite->data1);
                         if (pPlayer != NULL)
-                            useSpriteDamager(pXSprite, OBJ_SPRITE, pPlayer->pSprite->index);
+                            useSpriteDamager(actor, OBJ_SPRITE, 0, pPlayer->actor);
                     }
 
                     if (pXSprite->busyTime > 0)
                         evPostActor(actor, pXSprite->busyTime, kCmdRepeat);
                             break;
+
                 default:
                     if (pXSprite->state == 0) evPostActor(actor, 0, kCmdOn);
                     else evPostActor(actor, 0, kCmdOff);
                             break;
                     }
                 return true;
+
         case kMarkerWarpDest:
             if (pXSprite->txID <= 0) {
                
                 PLAYER* pPlayer = getPlayerById(pXSprite->data1);
-                if (pPlayer != NULL && SetSpriteState(nSprite, pXSprite, pXSprite->state ^ 1) == 1)
-                    useTeleportTarget(pXSprite, pPlayer->pSprite);
+                if (pPlayer != NULL && SetSpriteState(actor, pXSprite->state ^ 1) == 1)
+                    useTeleportTarget(actor, pPlayer->actor);
                 return true;
             }
             [[fallthrough]];
         case kModernObjPropertiesChanger:
-            if (pXSprite->txID <= 0) {
-                if (SetSpriteState(nSprite, pXSprite, pXSprite->state ^ 1) == 1)
-                    usePropertiesChanger(pXSprite, -1, -1);
+            if (pXSprite->txID <= 0) 
+            {
+                if (SetSpriteState(actor, pXSprite->state ^ 1) == 1)
+                    usePropertiesChanger(actor, -1, -1, nullptr);
                 return true;
             }
             [[fallthrough]];
@@ -5358,23 +5732,25 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
         case kModernObjPicnumChanger:
         case kModernSectorFXChanger:
         case kModernObjDataChanger:
-            modernTypeSetSpriteState(nSprite, pXSprite, pXSprite->state ^ 1);
+            modernTypeSetSpriteState(actor, pXSprite->state ^ 1);
             return true;
+
         case kModernSeqSpawner:
         case kModernEffectSpawner:
-            switch (event.cmd) {
+            switch (event.cmd) 
+            {
                 case kCmdOff:
-                    if (pXSprite->state == 1) SetSpriteState(nSprite, pXSprite, 0);
+                    if (pXSprite->state == 1) SetSpriteState(actor, 0);
                     break;
                 case kCmdOn:
                     evKillActor(actor); // queue overflow protect
-                    if (pXSprite->state == 0) SetSpriteState(nSprite, pXSprite, 1);
-                    if (pSprite->type == kModernSeqSpawner) seqSpawnerOffSameTx(pXSprite);
+                    if (pXSprite->state == 0) SetSpriteState(actor, 1);
+                    if (pSprite->type == kModernSeqSpawner) seqSpawnerOffSameTx(actor);
                     [[fallthrough]];
                 case kCmdRepeat:
-                    if (pXSprite->txID > 0) modernTypeSendCommand(nSprite, pXSprite->txID, (COMMAND_ID)pXSprite->command);
-                    else if (pSprite->type == kModernSeqSpawner) useSeqSpawnerGen(pXSprite, 3, pSprite->index);
-                    else useEffectGen(pXSprite, NULL);
+                    if (pXSprite->txID > 0) modernTypeSendCommand(actor, pXSprite->txID, (COMMAND_ID)pXSprite->command);
+                    else if (pSprite->type == kModernSeqSpawner) useSeqSpawnerGen(actor, 3, 0, actor);
+                    else useEffectGen(actor, nullptr);
             
                     if (pXSprite->busyTime > 0)
                         evPostActor(actor, ClipLow((int(pXSprite->busyTime) + Random2(pXSprite->data1)) * 120 / 10, 0), kCmdRepeat);
@@ -5385,19 +5761,21 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                     break;
             }
             return true;
+
         case kModernWindGenerator:
-            switch (event.cmd) {
+            switch (event.cmd) 
+            {
                 case kCmdOff:
                     windGenStopWindOnSectors(actor);
-                    if (pXSprite->state == 1) SetSpriteState(nSprite, pXSprite, 0);
+                    if (pXSprite->state == 1) SetSpriteState(actor, 0);
                     break;
                 case kCmdOn:
                     evKillActor(actor); // queue overflow protect
-                    if (pXSprite->state == 0) SetSpriteState(nSprite, pXSprite, 1);
+                    if (pXSprite->state == 0) SetSpriteState(actor, 1);
                     [[fallthrough]];
                 case kCmdRepeat:
-                    if (pXSprite->txID > 0) modernTypeSendCommand(nSprite, pXSprite->txID, (COMMAND_ID)pXSprite->command);
-                    else useSectorWindGen(pXSprite, NULL);
+                    if (pXSprite->txID > 0) modernTypeSendCommand(actor, pXSprite->txID, (COMMAND_ID)pXSprite->command);
+                    else useSectorWindGen(actor, nullptr);
 
                     if (pXSprite->busyTime > 0) evPostActor(actor, pXSprite->busyTime, kCmdRepeat);
                     break;
@@ -5414,22 +5792,26 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
             if (pXSprite->dropMsg == 3 && 3 != pXSprite->data4)
                 aiFightActivateDudes(pXSprite->txID);
 
-            switch (event.cmd) {
+            switch (event.cmd) 
+            {
                 case kCmdOff:
                     if (pXSprite->data4 == 3) aiFightActivateDudes(pXSprite->txID);
-                    if (pXSprite->state == 1) SetSpriteState(nSprite, pXSprite, 0);
+                    if (pXSprite->state == 1) SetSpriteState(actor, 0);
                     break;
                 case kCmdOn:
                     evKillActor(actor); // queue overflow protect
-                    if (pXSprite->state == 0) SetSpriteState(nSprite, pXSprite, 1);
+                    if (pXSprite->state == 0) SetSpriteState(actor, 1);
                     [[fallthrough]];
                 case kCmdRepeat:
-                    if (pXSprite->txID <= 0 || !aiFightGetDudesForBattle(pXSprite)) {
-                        aiFightFreeAllTargets(pXSprite);
+                    if (pXSprite->txID <= 0 || !aiFightGetDudesForBattle(actor)) 
+                    {
+                        aiFightFreeAllTargets(actor);
                         evPostActor(actor, 0, kCmdOff);
                         break;
-                    } else {
-                        modernTypeSendCommand(nSprite, pXSprite->txID, (COMMAND_ID)pXSprite->command);
+                    }
+                    else 
+                    {
+                        modernTypeSendCommand(actor, pXSprite->txID, (COMMAND_ID)pXSprite->command);
                     }
 
                     if (pXSprite->busyTime > 0) evPostActor(actor, pXSprite->busyTime, kCmdRepeat);
@@ -5441,23 +5823,25 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
             }
             pXSprite->dropMsg = uint8_t(pXSprite->data4);
             return true;
+
         case kModernObjDataAccumulator:
             switch (event.cmd) {
                 case kCmdOff:
-                    if (pXSprite->state == 1) SetSpriteState(nSprite, pXSprite, 0);
+                    if (pXSprite->state == 1) SetSpriteState(actor, 0);
                     break;
                 case kCmdOn:
                     evKillActor(actor); // queue overflow protect
-                    if (pXSprite->state == 0) SetSpriteState(nSprite, pXSprite, 1);
+                    if (pXSprite->state == 0) SetSpriteState(actor, 1);
                     [[fallthrough]];
                 case kCmdRepeat:
                     // force OFF after *all* TX objects reach the goal value
-                    if (pSprite->flags == kModernTypeFlag0 && incDecGoalValueIsReached(pXSprite)) {
+                    if (pSprite->flags == kModernTypeFlag0 && incDecGoalValueIsReached(actor)) 
+                    {
                         evPostActor(actor, 0, kCmdOff);
                         break;
                     }
                     
-                    modernTypeSendCommand(nSprite, pXSprite->txID, (COMMAND_ID)pXSprite->command);
+                    modernTypeSendCommand(actor, pXSprite->txID, (COMMAND_ID)pXSprite->command);
                     if (pXSprite->busyTime > 0) evPostActor(actor, pXSprite->busyTime, kCmdRepeat);
                     break;
                 default:
@@ -5468,16 +5852,17 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
             return true;
         case kModernRandom:
         case kModernRandom2:
-            switch (event.cmd) {
+            switch (event.cmd) 
+            {
                 case kCmdOff:
-                    if (pXSprite->state == 1) SetSpriteState(nSprite, pXSprite, 0);
+                    if (pXSprite->state == 1) SetSpriteState(actor, 0);
                     break;
                 case kCmdOn:
                     evKillActor(actor); // queue overflow protect
-                    if (pXSprite->state == 0) SetSpriteState(nSprite, pXSprite, 1);
+                    if (pXSprite->state == 0) SetSpriteState(actor, 1);
                     [[fallthrough]];
                 case kCmdRepeat:
-                    useRandomItemGen(pSprite, pXSprite);
+                    useRandomItemGen(actor);
                     if (pXSprite->busyTime > 0)
                         evPostActor(actor, (120 * pXSprite->busyTime) / 10, kCmdRepeat);
                     break;
@@ -5487,9 +5872,12 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                     break;
             }
             return true;
+
         case kModernThingTNTProx:
-            if (pSprite->statnum != kStatRespawn) {
-                switch (event.cmd) {
+            if (pSprite->statnum != kStatRespawn) 
+            {
+                switch (event.cmd) 
+                {
                 case kCmdSpriteProximity:
                     if (pXSprite->state) break;
                     sfxPlay3DSound(pSprite, 452, 0, 0);
@@ -5501,7 +5889,7 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                     pXSprite->Proximity = 1;
                     break;
                 default:
-                    actExplodeSprite(&bloodActors[pSprite->index]);
+                    actExplodeSprite(actor);
                     break;
                 }
             }
@@ -5512,43 +5900,43 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
         case kModernPlayerControl: { // WIP
             PLAYER* pPlayer = NULL; int cmd = (event.cmd >= kCmdNumberic) ? event.cmd : pXSprite->command;
             if ((pPlayer = getPlayerById(pXSprite->data1)) == NULL
-                    || ((cmd < 67 || cmd > 68) && !modernTypeSetSpriteState(nSprite, pXSprite, pXSprite->state ^ 1)))
+                    || ((cmd < 67 || cmd > 68) && !modernTypeSetSpriteState(actor, pXSprite->state ^ 1)))
                         return true;
 
             TRPLAYERCTRL* pCtrl = &gPlayerCtrl[pPlayer->nPlayer];
 
             /// !!! COMMANDS OF THE CURRENT SPRITE, NOT OF THE EVENT !!! ///
             if ((cmd -= kCmdNumberic) < 0) return true;
-            else if (pPlayer->pXSprite->health <= 0) {
+            else if (pPlayer->pXSprite->health <= 0) 
+            {
                         
                 switch (cmd) {
                     case 36:
-                        actHealDude(pPlayer->actor(), ((pXSprite->data2 > 0) ? ClipHigh(pXSprite->data2, 200) : getDudeInfo(pPlayer->pSprite->type)->startHealth), 200);
+                        actHealDude(pPlayer->actor, ((pXSprite->data2 > 0) ? ClipHigh(pXSprite->data2, 200) : getDudeInfo(pPlayer->pSprite->type)->startHealth), 200);
                         pPlayer->curWeapon = kWeapPitchFork;
                         break;
                 }
-                        
                 return true;
-
             }
 
-            switch (cmd) {
+            switch (cmd) 
+            {
                 case 0: // 64 (player life form)
                     if (pXSprite->data2 < kModeHuman || pXSprite->data2 > kModeHumanGrown) break;
-                    else trPlayerCtrlSetRace(pXSprite, pPlayer);
+                    else trPlayerCtrlSetRace(pXSprite->data2, pPlayer);
                     break;
                 case 1: // 65 (move speed and jump height)
                     // player movement speed (for all races and postures)
                     if (valueIsBetween(pXSprite->data2, -1, 32767))
-                        trPlayerCtrlSetMoveSpeed(pXSprite, pPlayer);
+                        trPlayerCtrlSetMoveSpeed(pXSprite->data2, pPlayer);
 
                     // player jump height (for all races and stand posture only)
                     if (valueIsBetween(pXSprite->data3, -1, 32767))
-                        trPlayerCtrlSetJumpHeight(pXSprite, pPlayer);
+                        trPlayerCtrlSetJumpHeight(pXSprite->data3, pPlayer);
                     break;
                 case 2: // 66 (player screen effects)
                     if (pXSprite->data3 < 0) break;
-                    else trPlayerCtrlSetScreenEffect(pXSprite, pPlayer);
+                    else trPlayerCtrlSetScreenEffect(pXSprite->data2, pXSprite->data3, pPlayer);
                     break;
                 case 3: // 67 (start playing qav scene)
                     trPlayerCtrlStartScene(actor, pPlayer, (pXSprite->data4 == 1) ? true : false);
@@ -5561,19 +5949,19 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                     //data4 is reserved
                     if (pXSprite->data4 != 0) break;
                     else if (valueIsBetween(pXSprite->data2, -128, 128))
-                        trPlayerCtrlSetLookAngle(pXSprite, pPlayer);
+                        trPlayerCtrlSetLookAngle(pXSprite->data2, pPlayer);
                     break;
                 case 6: // 70 (erase player stuff...)
                     if (pXSprite->data2 < 0) break;
-                    else trPlayerCtrlEraseStuff(pXSprite, pPlayer);
+                    else trPlayerCtrlEraseStuff(pXSprite->data2, pPlayer);
                     break;
                 case 7: // 71 (give something to player...)
                     if (pXSprite->data2 <= 0) break;
-                    else trPlayerCtrlGiveStuff(pXSprite, pPlayer, pCtrl);
+                    else trPlayerCtrlGiveStuff(pXSprite->data2, pXSprite->data3,pXSprite->data4, pPlayer, pCtrl);
                     break;
                 case 8: // 72 (use inventory item)
                     if (pXSprite->data2 < 1 || pXSprite->data2 > 5) break;
-                    else trPlayerCtrlUsePackItem(pXSprite, pPlayer, event.cmd);
+                    else trPlayerCtrlUsePackItem(pXSprite->data2, pXSprite->data3, pXSprite->data4, pPlayer, event.cmd);
                     break;
                 case 9: // 73 (set player's sprite angle, TO-DO: if tx > 0, take a look on TX ID sprite)
                     //data4 is reserved
@@ -5583,14 +5971,15 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                         pPlayer->angle.settarget(pSprite->ang);
                         pPlayer->angle.lockinput();
                     }
-                    else if (valueIsBetween(pXSprite->data2, -kAng360, kAng360)) {
+                    else if (valueIsBetween(pXSprite->data2, -kAng360, kAng360)) 
+                    {
                         pPlayer->angle.settarget(pXSprite->data2);
                         pPlayer->angle.lockinput();
                     }
                     break;
                 case 10: // 74 (de)activate powerup
                     if (pXSprite->data2 <= 0 || pXSprite->data2 > (kMaxAllowedPowerup - (kMinAllowedPowerup << 1) + 1)) break;
-                    trPlayerCtrlUsePowerup(pXSprite, pPlayer, event.cmd);
+                    trPlayerCtrlUsePowerup(actor, pPlayer, event.cmd);
                     break;
                // case 11: // 75 (print the book)
                     // data2: RFF TXT id
@@ -5608,18 +5997,19 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
             }
         }
         return true;
+
         case kGenModernSound:
             switch (event.cmd) {
                 case kCmdOff:
-                    if (pXSprite->state == 1) SetSpriteState(nSprite, pXSprite, 0);
+                    if (pXSprite->state == 1) SetSpriteState(actor, 0);
                     break;
                 case kCmdOn:
                     evKillActor(actor); // queue overflow protect
-                    if (pXSprite->state == 0) SetSpriteState(nSprite, pXSprite, 1);
+                    if (pXSprite->state == 0) SetSpriteState(actor, 1);
                     [[fallthrough]];
                 case kCmdRepeat:
-                if (pXSprite->txID)  modernTypeSendCommand(nSprite, pXSprite->txID, (COMMAND_ID)pXSprite->command);
-                else useSoundGen(pXSprite, pSprite);
+                if (pXSprite->txID)  modernTypeSendCommand(actor, pXSprite->txID, (COMMAND_ID)pXSprite->command);
+                else useSoundGen(actor, actor);
                 
                 if (pXSprite->busyTime > 0)
                     evPostActor(actor, (120 * pXSprite->busyTime) / 10, kCmdRepeat);
@@ -5631,17 +6021,18 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
                     }
             return true;
         case kGenModernMissileUniversal:
-            switch (event.cmd) {
+            switch (event.cmd) 
+            {
                 case kCmdOff:
-                    if (pXSprite->state == 1) SetSpriteState(nSprite, pXSprite, 0);
+                    if (pXSprite->state == 1) SetSpriteState(actor, 0);
                     break;
                 case kCmdOn:
                     evKillActor(actor); // queue overflow protect
-                    if (pXSprite->state == 0) SetSpriteState(nSprite, pXSprite, 1);
+                    if (pXSprite->state == 0) SetSpriteState(actor, 1);
                     [[fallthrough]];
                 case kCmdRepeat:
-                    if (pXSprite->txID)  modernTypeSendCommand(nSprite, pXSprite->txID, (COMMAND_ID)pXSprite->command);
-                    else useUniMissileGen(pXSprite, pSprite);
+                    if (pXSprite->txID)  modernTypeSendCommand(actor, pXSprite->txID, (COMMAND_ID)pXSprite->command);
+                    else useUniMissileGen(actor, actor);
                     
                     if (pXSprite->busyTime > 0)
                         evPostActor(actor, (120 * pXSprite->busyTime) / 10, kCmdRepeat);
@@ -5656,9 +6047,17 @@ bool modernTypeOperateSprite(int nSprite, spritetype* pSprite, XSPRITE* pXSprite
     }
 }
 
-bool modernTypeOperateWall(int nWall, walltype* pWall, XWALL* pXWall, EVENT event) {
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+bool modernTypeOperateWall(int nWall, walltype* pWall, XWALL* pXWall, EVENT event) 
+{
     
-    switch (pWall->type) {
+    switch (pWall->type) 
+    {
         case kSwitchOneWay:
             switch (event.cmd) {
                 case kCmdOff:
@@ -5675,12 +6074,22 @@ bool modernTypeOperateWall(int nWall, walltype* pWall, XWALL* pXWall, EVENT even
         default:
             return false; // no modern type found to work with, go normal OperateWall();
     }
-    
 }
 
-bool txIsRanged(XSPRITE* pXSource) {
-    if (pXSource->data1 > 0 && pXSource->data2 <= 0 && pXSource->data3 <= 0 && pXSource->data4 > 0) {
-        if (pXSource->data1 > pXSource->data4) {
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+bool txIsRanged(DBloodActor* source) 
+{
+    if (!source->hasX()) return false;
+    auto pXSource = &source->x();
+    if (pXSource->data1 > 0 && pXSource->data2 <= 0 && pXSource->data3 <= 0 && pXSource->data4 > 0) 
+    {
+        if (pXSource->data1 > pXSource->data4) 
+        {
             // data1 must be less than data4
             int tmp = pXSource->data1; pXSource->data1 = pXSource->data4;
             pXSource->data4 = tmp;
@@ -5690,41 +6099,61 @@ bool txIsRanged(XSPRITE* pXSource) {
     return false;
 }
 
-void seqTxSendCmdAll(XSPRITE* pXSource, int nIndex, COMMAND_ID cmd, bool modernSend) {
-    auto actor = &bloodActors[nIndex];
-    bool ranged = txIsRanged(pXSource);
-    if (ranged) {
-        for (pXSource->txID = pXSource->data1; pXSource->txID <= pXSource->data4; pXSource->txID++) {
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void seqTxSendCmdAll(DBloodActor* source, DBloodActor* actor, COMMAND_ID cmd, bool modernSend) 
+{
+    bool ranged = txIsRanged(source);
+    auto pXSource = &source->x();
+    if (ranged)
+    {
+        for (pXSource->txID = pXSource->data1; pXSource->txID <= pXSource->data4; pXSource->txID++) 
+        {
             if (pXSource->txID <= 0 || pXSource->txID >= kChannelUserMax) continue;
             else if (!modernSend) evSendActor(actor, pXSource->txID, cmd);
-            else modernTypeSendCommand(nIndex, pXSource->txID, cmd);
+            else modernTypeSendCommand(actor, pXSource->txID, cmd);
         }
-    } else {
-        for (int i = 0; i <= 3; i++) {
-            pXSource->txID = GetDataVal(&bloodActors[pXSource->reference], i);
+    } 
+    else 
+    {
+        for (int i = 0; i <= 3; i++) 
+        {
+            pXSource->txID = GetDataVal(source, i);
             if (pXSource->txID <= 0 || pXSource->txID >= kChannelUserMax) continue;
             else if (!modernSend) evSendActor(actor, pXSource->txID, cmd);
-            else modernTypeSendCommand(nIndex, pXSource->txID, cmd);
+            else modernTypeSendCommand(actor, pXSource->txID, cmd);
         }
     }
-    
     pXSource->txID = pXSource->sysData1 = 0;
-    return;
 }
 
-void useRandomTx(XSPRITE* pXSource, COMMAND_ID cmd, bool setState) {
-    
-    auto sourceactor = &bloodActors[pXSource->reference];
-    spritetype* pSource = &sourceactor->s();
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void useRandomTx(DBloodActor* sourceactor, COMMAND_ID cmd, bool setState) 
+{
+    auto pXSource = &sourceactor->x();
     int tx = 0; int maxRetries = kMaxRandomizeRetries;
     
-    if (txIsRanged(pXSource)) {
-        while (maxRetries-- >= 0) {
+    if (txIsRanged(sourceactor)) 
+    {
+        while (maxRetries-- >= 0) 
+        {
             if ((tx = nnExtRandom(pXSource->data1, pXSource->data4)) != pXSource->txID)
                 break;
         }
-    } else {
-        while (maxRetries-- >= 0) {
+    } 
+    else 
+    {
+        while (maxRetries-- >= 0) 
+        {
             if ((tx = randomGetDataValue(sourceactor, kRandomizeTX)) > 0 && tx != pXSource->txID)
                 break;
         }
@@ -5732,53 +6161,70 @@ void useRandomTx(XSPRITE* pXSource, COMMAND_ID cmd, bool setState) {
 
     pXSource->txID = (tx > 0 && tx < kChannelUserMax) ? tx : 0;
     if (setState)
-        SetSpriteState(pSource->index, pXSource, pXSource->state ^ 1);
+        SetSpriteState(sourceactor, pXSource->state ^ 1);
         //evSendActor(pSource->index, pXSource->txID, (COMMAND_ID)pXSource->command);
 }
 
-void useSequentialTx(XSPRITE* pXSource, COMMAND_ID cmd, bool setState) {
-    
-    auto sourceactor = &bloodActors[pXSource->reference];
-    spritetype* pSource = &sourceactor->s();
-    bool range = txIsRanged(pXSource); int cnt = 3; int tx = 0;
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
-    if (range) {
-        
+void useSequentialTx(DBloodActor* sourceactor, COMMAND_ID cmd, bool setState) 
+{
+    auto pXSource = &sourceactor->x();
+
+    bool range = txIsRanged(sourceactor); int cnt = 3; int tx = 0;
+
+    if (range) 
+    {
         // make sure sysData is correct as we store current index of TX ID here.
         if (pXSource->sysData1 < pXSource->data1) pXSource->sysData1 = pXSource->data1;
         else if (pXSource->sysData1 > pXSource->data4) pXSource->sysData1 = pXSource->data4;
 
-    } else {
-        
+    }
+    else 
+    {
         // make sure sysData is correct as we store current index of data field here.
         if (pXSource->sysData1 > 3) pXSource->sysData1 = 0;
         else if (pXSource->sysData1 < 0) pXSource->sysData1 = 3;
-
     }
 
-    switch (cmd) {
+    switch (cmd) 
+    {
         case kCmdOff:
-            if (!range) {
-                while (cnt-- >= 0) { // skip empty data fields
+            if (!range) 
+            {
+                while (cnt-- >= 0) // skip empty data fields
+                {
                     if (pXSource->sysData1-- < 0) pXSource->sysData1 = 3;
                     if ((tx = GetDataVal(sourceactor, pXSource->sysData1)) <= 0) continue;
                     else break;
                 }
-            } else {
+            } 
+            else 
+            {
                 if (--pXSource->sysData1 < pXSource->data1) pXSource->sysData1 = pXSource->data4;
                 tx = pXSource->sysData1;
             }
             break;
+
         default:
-            if (!range) {
-                while (cnt-- >= 0) { // skip empty data fields
+            if (!range) 
+            {
+                while (cnt-- >= 0) // skip empty data fields
+                {
                     if (pXSource->sysData1 > 3) pXSource->sysData1 = 0;
                     if ((tx = GetDataVal(sourceactor, pXSource->sysData1++)) <= 0) continue;
                     else break;
                 }
-            } else {
+            } 
+            else 
+            {
                 tx = pXSource->sysData1;
-                if (pXSource->sysData1 >= pXSource->data4) {
+                if (pXSource->sysData1 >= pXSource->data4) 
+                {
                     pXSource->sysData1 = pXSource->data1;
                     break;
                 }
@@ -5789,130 +6235,150 @@ void useSequentialTx(XSPRITE* pXSource, COMMAND_ID cmd, bool setState) {
 
     pXSource->txID = (tx > 0 && tx < kChannelUserMax) ? tx : 0;
     if (setState)
-        SetSpriteState(pSource->index, pXSource, pXSource->state ^ 1);
+        SetSpriteState(sourceactor, pXSource->state ^ 1);
         //evSendActor(pSource->index, pXSource->txID, (COMMAND_ID)pXSource->command);
 
 }
 
-int useCondition(spritetype* pSource, XSPRITE* pXSource, EVENT event) {
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
-    auto sourceactor = &bloodActors[pSource->index];
-    int objType = event.type; 
+int useCondition(DBloodActor* sourceactor, const EVENT& event)
+{
+    spritetype* pSource = &sourceactor->s();
+    auto pXSource = &sourceactor->x();
+
+    int objType = event.type;
     int objIndex = event.index_;
     bool srcIsCondition = false;
+    if (objType == OBJ_SPRITE && event.actor == nullptr) return -1;
     if (objType == OBJ_SPRITE && event.actor != sourceactor)
-        srcIsCondition = (sprite[objIndex].type == kModernCondition || sprite[objIndex].type == kModernConditionFalse);
+        srcIsCondition = (event.actor->s().type == kModernCondition || event.actor->s().type == kModernConditionFalse);
 
     // if it's a tracking condition, it must ignore all the commands sent from objects
     if (pXSource->busyTime > 0 && event.funcID != kCallbackMax) return -1;
-    else if (!srcIsCondition) { // save object serials in the stack and make copy of initial object
-
-        pXSource->targetX = pXSource->targetY = condSerialize(objType, objIndex);
-
-    } else { // or grab serials of objects from previous conditions
-
+    else if (!srcIsCondition) // save object serials in the stack and make copy of initial object
+    {
+        condPush(sourceactor, objType, objIndex, event.actor);
+        condBackup(sourceactor);
+    } 
+    else  // or grab serials of objects from previous conditions
+    {
+        // condition-target
         pXSource->targetX = event.actor->x().targetX;
         pXSource->targetY = event.actor->x().targetY;
 
     }
     
-    int cond = pXSource->data1; bool ok = false; bool RVRS = (pSource->type == kModernConditionFalse);
-    bool RSET = (pXSource->command == kCmdNumberic + 36); bool PUSH = (pXSource->command == kCmdNumberic);
+    int cond = pXSource->data1; 
+    bool ok = false; 
+    bool RVRS = (pSource->type == kModernConditionFalse);
+    bool RSET = (pXSource->command == kCmdNumberic + 36); 
+    bool PUSH = (pXSource->command == kCmdNumberic);
     int comOp = pSource->cstat; // comparison operator
 
-    if (pXSource->restState == 0) {
-
+    if (pXSource->restState == 0) 
+    {
         if (cond == 0) ok = true; // dummy
-        else if (cond >= kCondGameBase && cond < kCondGameMax) ok = condCheckGame(pXSource, event, comOp, PUSH);
-        else if (cond >= kCondMixedBase && cond < kCondMixedMax) ok = condCheckMixed(pXSource, event, comOp, PUSH);
-        else if (cond >= kCondWallBase && cond < kCondWallMax) ok = condCheckWall(pXSource, comOp, PUSH);
-        else if (cond >= kCondSectorBase && cond < kCondSectorMax) ok = condCheckSector(pXSource, comOp, PUSH);
-        else if (cond >= kCondPlayerBase && cond < kCondPlayerMax) ok = condCheckPlayer(pXSource, comOp, PUSH);
-        else if (cond >= kCondDudeBase && cond < kCondDudeMax) ok = condCheckDude(pXSource, comOp, PUSH);
-        else if (cond >= kCondSpriteBase && cond < kCondSpriteMax) ok = condCheckSprite(pXSource, comOp, PUSH);
-        else condError(pXSource,"Unexpected condition id %d!", cond);
+        else if (cond >= kCondGameBase && cond < kCondGameMax) ok = condCheckGame(sourceactor, event, comOp, PUSH);
+        else if (cond >= kCondMixedBase && cond < kCondMixedMax) ok = condCheckMixed(sourceactor, event, comOp, PUSH);
+        else if (cond >= kCondWallBase && cond < kCondWallMax) ok = condCheckWall(sourceactor, comOp, PUSH);
+        else if (cond >= kCondSectorBase && cond < kCondSectorMax) ok = condCheckSector(sourceactor, comOp, PUSH);
+        else if (cond >= kCondPlayerBase && cond < kCondPlayerMax) ok = condCheckPlayer(sourceactor, comOp, PUSH);
+        else if (cond >= kCondDudeBase && cond < kCondDudeMax) ok = condCheckDude(sourceactor, comOp, PUSH);
+        else if (cond >= kCondSpriteBase && cond < kCondSpriteMax) ok = condCheckSprite(sourceactor, comOp, PUSH);
+        else condError(sourceactor,"Unexpected condition id %d!", cond);
 
         pXSource->state = (ok ^ RVRS);
         
-        if (pXSource->waitTime > 0 && pXSource->state > 0) {
-
+        if (pXSource->waitTime > 0 && pXSource->state > 0) 
+        {
             pXSource->restState = 1;
             evKillActor(sourceactor);
             evPostActor(sourceactor, (pXSource->waitTime * 120) / 10, kCmdRepeat);
             return -1;
-
         }
-
-    } else if (event.cmd == kCmdRepeat) {
-
+    } 
+    else if (event.cmd == kCmdRepeat) 
+    {
         pXSource->restState = 0;
-
-    } else {
-    
+    }
+    else 
+    {
         return -1;
-
     }
 
-    if (pXSource->state) {
-
+    if (pXSource->state) 
+    {
         pXSource->isTriggered = pXSource->triggerOnce;
         
         if (RSET)
-            condRestore(pXSource); // reset focus to the initial object
+            condRestore(sourceactor); // reset focus to the initial object
 
         // send command to rx bucket
         if (pXSource->txID)
-            evSendActor(&bloodActors[pSource->index], pXSource->txID, (COMMAND_ID)pXSource->command);
+            evSendActor(sourceactor, pXSource->txID, (COMMAND_ID)pXSource->command);
 
         if (pSource->flags) {
         
             // send it for object currently in the focus
-            if (pSource->flags & kModernTypeFlag1) {
-                condUnserialize(pXSource->targetX, &objType, &objIndex);
-                nnExtTriggerObject(objType, objIndex, pXSource->command);
+            if (pSource->flags & kModernTypeFlag1)
+            {
+                nnExtTriggerObject(objType, objIndex, event.actor, pXSource->command);
             }
 
             // send it for initial object
+            // condition-target
             if ((pSource->flags & kModernTypeFlag2) && (pXSource->targetX != pXSource->targetY || !(pSource->hitag & kModernTypeFlag1))) {
-                condUnserialize(pXSource->targetY, &objType, &objIndex);
-                nnExtTriggerObject(objType, objIndex, pXSource->command);
+                DBloodActor* objActor = nullptr;
+                condUnserialize(sourceactor, &objType, &objIndex, &objActor);
+                nnExtTriggerObject(objType, objIndex, objActor, pXSource->command);
             }
-
         }
-
     }
-
     return pXSource->state;
 }
 
-void useRandomItemGen(spritetype* pSource, XSPRITE* pXSource) {
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void useRandomItemGen(DBloodActor* actor) 
+{
+    spritetype* pSource = &actor->s(); 
+    XSPRITE* pXSource = &actor->x();
+
     // let's first search for previously dropped items and remove it
-    if (pXSource->dropMsg > 0) {
-        int nItem;
-        StatIterator it(kStatItem);
-        while ((nItem = it.NextIndex()) >= 0)
+    if (pXSource->dropMsg > 0) 
+    {
+        BloodStatIterator it(kStatItem);
+        while (auto iactor = it.Next())
         {
-            spritetype* pItem = &sprite[nItem];
-            if ((unsigned int)pItem->type == pXSource->dropMsg && pItem->x == pSource->x && pItem->y == pSource->y && pItem->z == pSource->z) {
+            spritetype* pItem = &iactor->s();
+            if ((unsigned int)pItem->type == pXSource->dropMsg && pItem->x == pSource->x && pItem->y == pSource->y && pItem->z == pSource->z) 
+            {
                 gFX.fxSpawnActor((FX_ID)29, pSource->sectnum, pSource->x, pSource->y, pSource->z, 0);
                 pItem->type = kSpriteDecoration;
-                actPostSprite(nItem, kStatFree);
+                actPostSprite(iactor, kStatFree);
                 break;
             }
         }
     }
 
     // then drop item
-    auto dropactor = randomDropPickupObject(&bloodActors[pSource->index], pXSource->dropMsg);
-    
+    auto dropactor = randomDropPickupObject(actor, pXSource->dropMsg);
 
-    if (dropactor != NULL) 
+    if (dropactor != nullptr) 
     {
-        auto pDrop = &dropactor->s();
-        clampSprite(pDrop);
+        clampSprite(dropactor);
 
         // check if generator affected by physics
-        if (debrisGetIndex(&bloodActors[pSource->index]) != -1) 
+        if (debrisGetIndex(actor) != -1) 
         {
             dropactor->addX();
             int nIndex = debrisGetFreeIndex();
@@ -5925,29 +6391,35 @@ void useRandomItemGen(spritetype* pSource, XSPRITE* pXSource) {
                 if (nIndex >= gPhysSpritesCount) gPhysSpritesCount++;
                 getSpriteMassBySize(dropactor); // create mass cache
             }
-        
         }
-    
-    
     }
-
 }
 
-void useUniMissileGen(XSPRITE* pXSource, spritetype* pSprite) {
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void useUniMissileGen(DBloodActor* sourceactor, DBloodActor* actor) 
+{
+    if (actor == nullptr) actor = sourceactor;
+    XSPRITE* pXSource = &sourceactor->x();
+    spritetype* pSource = &sourceactor->s();
+    spritetype* pSprite = &actor->s();
 
     int dx = 0, dy = 0, dz = 0;
-    spritetype* pSource = &sprite[pXSource->reference];
-    if (pSprite == NULL)
-        pSprite = pSource;
-    auto actor = &bloodActors[pSprite->index];
 
     if (pXSource->data1 < kMissileBase || pXSource->data1 >= kMissileMax)
         return;
 
-    if (pSprite->cstat & 32) {
+    if (pSprite->cstat & 32) 
+    {
         if (pSprite->cstat & 8) dz = 0x4000;
         else dz = -0x4000;
-    } else {
+    }
+    else 
+    {
         dx = bcos(pSprite->ang);
         dy = bsin(pSprite->ang);
         dz = pXSource->data3 << 6; // add slope controlling
@@ -5955,30 +6427,30 @@ void useUniMissileGen(XSPRITE* pXSource, spritetype* pSprite) {
         else if (dz < -0x10000) dz = -0x10000;
     }
 
-    auto missile = actFireMissile(actor, 0, 0, dx, dy, dz, actor->x().data1);
-    if (missile != NULL) {
-        auto pMissile = &missile->s();
+    auto missileactor = actFireMissile(actor, 0, 0, dx, dy, dz, actor->x().data1);
+    if (missileactor) 
+    {
+        auto pMissile = &missileactor->s();
         int from; // inherit some properties of the generator
-        if ((from = (pSource->flags & kModernTypeFlag3)) > 0) {
-
-            
+        if ((from = (pSource->flags & kModernTypeFlag3)) > 0) 
+        {
             int canInherit = 0xF;
-            if (xspriRangeIsFine(pMissile->extra) && seqGetStatus(OBJ_SPRITE, pMissile->extra) >= 0) {
-                
+            if (missileactor->hasX() && seqGetStatus(missileactor) >= 0) 
+            {
                 canInherit &= ~0x8;
                
-                SEQINST* pInst = GetInstance(OBJ_SPRITE, pMissile->extra); Seq* pSeq = pInst->pSequence;
-                for (int i = 0; i < pSeq->nFrames; i++) {
+                SEQINST* pInst = GetInstance(missileactor); 
+                Seq* pSeq = pInst->pSequence;
+                for (int i = 0; i < pSeq->nFrames; i++) 
+                {
                     if ((canInherit & 0x4) && pSeq->frames[i].palette != 0) canInherit &= ~0x4;
                     if ((canInherit & 0x2) && pSeq->frames[i].xrepeat != 0) canInherit &= ~0x2;
                     if ((canInherit & 0x1) && pSeq->frames[i].yrepeat != 0) canInherit &= ~0x1;
                 }
-
-
             }
 
-            if (canInherit != 0) {
-                
+            if (canInherit != 0) 
+            {
                 if (canInherit & 0x2)
                     pMissile->xrepeat = (from == kModernTypeFlag1) ? pSource->xrepeat : pSprite->xrepeat;
                 
@@ -5990,59 +6462,79 @@ void useUniMissileGen(XSPRITE* pXSource, spritetype* pSprite) {
                 
                 if (canInherit & 0x8)
                     pMissile->shade = (from == kModernTypeFlag1) ? pSource->shade : pSprite->shade;
-
             }
-
         }
 
         // add velocity controlling
-        if (pXSource->data2 > 0) {
-
+        if (pXSource->data2 > 0) 
+        {
             int velocity = pXSource->data2 << 12;
-            xvel[pMissile->index] = MulScale(velocity, dx, 14);
-            yvel[pMissile->index] = MulScale(velocity, dy, 14);
-            zvel[pMissile->index] = MulScale(velocity, dz, 14);
-
+            missileactor->xvel = MulScale(velocity, dx, 14);
+            missileactor->yvel = MulScale(velocity, dy, 14);
+            missileactor->zvel = MulScale(velocity, dz, 14);
         }
 
         // add bursting for missiles
         if (pMissile->type != kMissileFlareAlt && pXSource->data4 > 0)
-            evPostActor(&bloodActors[pMissile->index], ClipHigh(pXSource->data4, 500), kCallbackMissileBurst);
-
+            evPostActor(missileactor, ClipHigh(pXSource->data4, 500), kCallbackMissileBurst);
     }
 
 }
 
-void useSoundGen(XSPRITE* pXSource, spritetype* pSprite) {
-    //spritetype* pSource = &sprite[pXSource->reference];
-    int pitch = pXSource->data4 << 1; if (pitch < 2000) pitch = 0;
-    sfxPlay3DSoundCP(pSprite, pXSource->data2, -1, 0, pitch, pXSource->data3);
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void useSoundGen(DBloodActor* sourceactor, DBloodActor* actor)
+{
+    int pitch = sourceactor->x().data4 << 1; 
+    if (pitch < 2000) pitch = 0;
+    sfxPlay3DSoundCP(actor, sourceactor->x().data2, -1, 0, pitch, sourceactor->x().data3);
 }
 
-void useIncDecGen(XSPRITE* pXSource, short objType, int objIndex) {
-    char buffer[5]; int data = -65535; short tmp = 0; int dataIndex = 0;
-    sprintf(buffer, "%d", abs(pXSource->data1)); int len = int(strlen(buffer));
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void useIncDecGen(DBloodActor* sourceactor, short objType, int objIndex, DBloodActor* objactor) 
+{
+    auto pXSource = &sourceactor->x();
+    spritetype* pSource = &sourceactor->s();
+
+    char buffer[7]; 
+    int data = -65535; 
+    short tmp = 0; 
+    int dataIndex = 0;
+    snprintf(buffer, 7, "%d", abs(pXSource->data1)); 
+    int len = int(strlen(buffer));
     
-    for (int i = 0; i < len; i++) {
+    for (int i = 0; i < len; i++) 
+    {
         dataIndex = (buffer[i] - 52) + 4;
-        if ((data = getDataFieldOfObject(objType, objIndex, &bloodActors[objIndex], dataIndex)) == -65535) {
+        if ((data = getDataFieldOfObject(objType, objIndex, objactor, dataIndex)) == -65535) 
+        {
             Printf(PRINT_HIGH, "\nWrong index of data (%c) for IncDec Gen #%d! Only 1, 2, 3 and 4 indexes allowed!\n", buffer[i], objIndex);
             continue;
         }
-        spritetype* pSource = &sprite[pXSource->reference];
         
-        if (pXSource->data2 < pXSource->data3) {
-
+        if (pXSource->data2 < pXSource->data3) 
+        {
             data = ClipRange(data, pXSource->data2, pXSource->data3);
-            if ((data += pXSource->data4) >= pXSource->data3) {
-                switch (pSource->flags) {
+            if ((data += pXSource->data4) >= pXSource->data3) 
+            {
+                switch (pSource->flags) 
+                {
                 case kModernTypeFlag0:
                 case kModernTypeFlag1:
                     if (data > pXSource->data3) data = pXSource->data3;
                     break;
                 case kModernTypeFlag2:
                     if (data > pXSource->data3) data = pXSource->data3;
-                    if (!incDecGoalValueIsReached(pXSource)) break;
+                    if (!incDecGoalValueIsReached(sourceactor)) break;
                     tmp = pXSource->data3;
                     pXSource->data3 = pXSource->data2;
                     pXSource->data2 = tmp;
@@ -6053,18 +6545,21 @@ void useIncDecGen(XSPRITE* pXSource, short objType, int objIndex) {
                 }
             }
 
-        } else if (pXSource->data2 > pXSource->data3) {
-
+        }
+        else if (pXSource->data2 > pXSource->data3) 
+        {
             data = ClipRange(data, pXSource->data3, pXSource->data2);
-            if ((data -= pXSource->data4) <= pXSource->data3) {
-                switch (pSource->flags) {
+            if ((data -= pXSource->data4) <= pXSource->data3) 
+            {
+                switch (pSource->flags) 
+                {
                 case kModernTypeFlag0:
                 case kModernTypeFlag1:
                     if (data < pXSource->data3) data = pXSource->data3;
                     break;
                 case kModernTypeFlag2:
                     if (data < pXSource->data3) data = pXSource->data3;
-                    if (!incDecGoalValueIsReached(pXSource)) break;
+                    if (!incDecGoalValueIsReached(sourceactor)) break;
                     tmp = pXSource->data3;
                     pXSource->data3 = pXSource->data2;
                     pXSource->data2 = tmp;
@@ -6075,48 +6570,61 @@ void useIncDecGen(XSPRITE* pXSource, short objType, int objIndex) {
                 }
             }
         }
-
         pXSource->sysData1 = data;
-        setDataValueOfObject(objType, objIndex, dataIndex, data);
+        setDataValueOfObject(objType, objIndex, objactor, dataIndex, data);
     }
-
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
-void sprite2sectorSlope(spritetype* pSprite, sectortype* pSector, char rel, bool forcez) {
-    
+void sprite2sectorSlope(DBloodActor* actor, sectortype* pSector, char rel, bool forcez) 
+{
+    auto pSprite = &actor->s();
     int slope = 0, z = 0;
     switch (rel) {
         default:
             z = getflorzofslope(pSprite->sectnum, pSprite->x, pSprite->y);
-            if ((pSprite->cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR) && pSprite->extra > 0 && xsprite[pSprite->extra].Touch) z--;
+            if ((pSprite->cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR) && actor->hasX() && actor->x().Touch) z--;
             slope = pSector->floorheinum;
             break;
         case 1:
             z = getceilzofslope(pSprite->sectnum, pSprite->x, pSprite->y);
-            if ((pSprite->cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR) && pSprite->extra > 0 && xsprite[pSprite->extra].Touch) z++;
+            if ((pSprite->cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR) && actor->hasX() && actor->x().Touch) z++;
             slope = pSector->ceilingheinum;
             break;
     }
 
-    spriteSetSlope(pSprite->index, slope);
+    spriteSetSlope(pSprite, slope);
     if (forcez) pSprite->z = z;
 }
 
-void useSlopeChanger(XSPRITE* pXSource, int objType, int objIndex) {
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
-    int slope, oslope, i;
-    spritetype* pSource = &sprite[pXSource->reference];
+void useSlopeChanger(DBloodActor* sourceactor, int objType, int objIndex, DBloodActor* objActor) 
+{
+    auto pXSource = &sourceactor->x();
+    spritetype* pSource = &sourceactor->s();
+
+    int slope, oslope;
     bool flag2 = (pSource->flags & kModernTypeFlag2);
 
     if (pSource->flags & kModernTypeFlag1) slope = ClipRange(pXSource->data2, -32767, 32767);
     else slope = (32767 / kPercFull) * ClipRange(pXSource->data2, -kPercFull, kPercFull);
 
-    if (objType == OBJ_SECTOR) {
-    
+    if (objType == OBJ_SECTOR) 
+    {
         sectortype* pSect = &sector[objIndex];
 
-        switch (pXSource->data1) {
+        switch (pXSource->data1)
+        {
             case 2:
             case 0:
             if (slope == 0) pSect->floorstat &= ~0x0002;
@@ -6124,28 +6632,31 @@ void useSlopeChanger(XSPRITE* pXSource, int objType, int objIndex) {
                     pSect->floorstat |= 0x0002;
 
             // just set floor slope
-            if (flag2) {
-
+            if (flag2)
+            {
                 pSect->floorheinum = slope;
-
-            } else {
-
+            }
+            else
+            {
                 // force closest floor aligned sprites to inherit slope of the sector's floor
-                for (i = headspritesect[objIndex], oslope = pSect->floorheinum; i != -1; i = nextspritesect[i]) {
-                    if (!(sprite[i].cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)) continue;
-                    else if (getflorzofslope(objIndex, sprite[i].x, sprite[i].y) - kSlopeDist <= sprite[i].z) {
-
-                        sprite2sectorSlope(&sprite[i], &sector[objIndex], 0, true);
+                oslope = pSect->floorheinum;
+                BloodSectIterator it(objIndex);
+                while (auto iactor = it.Next())
+                {
+                    auto spr = &iactor->s();
+                    if (!(spr->cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)) continue;
+                    else if (getflorzofslope(objIndex, spr->x, spr->y) - kSlopeDist <= spr->z)
+                    {
+                        sprite2sectorSlope(iactor, &sector[objIndex], 0, true);
 
                         // set new slope of floor
                         pSect->floorheinum = slope;
 
                         // force sloped sprites to be on floor slope z
-                        sprite2sectorSlope(&sprite[i], &sector[objIndex], 0, true);
+                        sprite2sectorSlope(iactor, &sector[objIndex], 0, true);
 
                         // restore old slope for next sprite
                         pSect->floorheinum = oslope;
-
                 }
                 }
 
@@ -6162,28 +6673,30 @@ void useSlopeChanger(XSPRITE* pXSource, int objType, int objIndex) {
                     pSect->ceilingstat |= 0x0002;
 
             // just set ceiling slope
-            if (flag2) {
-
+            if (flag2)
+            {
                 pSect->ceilingheinum = slope;
-
-            } else {
-
-                // force closest floor aligned sprites to inherit slope of the sector's ceiling
-                for (i = headspritesect[objIndex], oslope = pSect->ceilingheinum; i != -1; i = nextspritesect[i]) {
-                    if (!(sprite[i].cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)) continue;
-                    else if (getceilzofslope(objIndex, sprite[i].x, sprite[i].y) + kSlopeDist >= sprite[i].z) {
-
-                        sprite2sectorSlope(&sprite[i], &sector[objIndex], 1, true);
+            }
+            else
+            { 
+                oslope = pSect->ceilingheinum;
+                BloodSectIterator it(objIndex);
+                while (auto iactor = it.Next())
+                {
+                    auto spr = &iactor->s();
+                    if (!(spr->cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)) continue;
+                    else if (getceilzofslope(objIndex, spr->x, spr->y) + kSlopeDist >= spr->z)
+                    {
+                        sprite2sectorSlope(iactor, &sector[objIndex], 1, true);
 
                         // set new slope of ceiling
                         pSect->ceilingheinum = slope;
 
                         // force sloped sprites to be on ceiling slope z
-                        sprite2sectorSlope(&sprite[i], &sector[objIndex], 1, true);
+                        sprite2sectorSlope(iactor, &sector[objIndex], 1, true);
 
                         // restore old slope for next sprite
                         pSect->ceilingheinum = oslope;
-
                 }
                 }
 
@@ -6195,78 +6708,101 @@ void useSlopeChanger(XSPRITE* pXSource, int objType, int objIndex) {
         }
 
         // let's give a little impulse to the physics sprites...
-        for (i = headspritesect[objIndex]; i != -1; i = nextspritesect[i]) {
-
-                if (sprite[i].extra > 0 && xsprite[sprite[i].extra].physAttr > 0) {
-                xsprite[sprite[i].extra].physAttr |= kPhysFalling;
-                zvel[i]++;
-                
-            } else if ((sprite[i].statnum == kStatThing || sprite[i].statnum == kStatDude) && (sprite[i].flags & kPhysGravity)) {
-                sprite[i].flags |= kPhysFalling;
-                zvel[i]++;
+        BloodSectIterator it(objIndex);
+        while (auto iactor = it.Next())
+        {
+            auto spr = &iactor->s();
+            auto xspr = &iactor->x();
+            if (iactor->hasX() && xspr->physAttr > 0) 
+            {
+                xspr->physAttr |= kPhysFalling;
+                iactor->zvel++;
+            } 
+            else if ((spr->statnum == kStatThing || spr->statnum == kStatDude) && (spr->flags & kPhysGravity))
+            {
+                spr->flags |= kPhysFalling;
+                iactor->zvel++;
                 }
-
             }
-
-    } else if (objType == OBJ_SPRITE) {
-        
-        spritetype* pSpr = &sprite[objIndex];
+    } 
+    else if (objType == OBJ_SPRITE) 
+    {
+        spritetype* pSpr = &objActor->s();
         if (!(pSpr->cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)) pSpr->cstat |= CSTAT_SPRITE_ALIGNMENT_FLOOR;
         if ((pSpr->cstat & CSTAT_SPRITE_ALIGNMENT_SLOPE) != CSTAT_SPRITE_ALIGNMENT_SLOPE)
             pSpr->cstat |= CSTAT_SPRITE_ALIGNMENT_SLOPE;
 
-        switch (pXSource->data4) {
+        switch (pXSource->data4) 
+        {
             case 1:
             case 2:
             case 3:
                 if (!sectRangeIsFine(pSpr->sectnum)) break;
-                switch (pXSource->data4) {
-                    case 1: sprite2sectorSlope(pSpr, &sector[pSpr->sectnum], 0, flag2); break;
-                    case 2: sprite2sectorSlope(pSpr, &sector[pSpr->sectnum], 1, flag2); break;
+                switch (pXSource->data4) 
+                {
+                    case 1: sprite2sectorSlope(objActor, &sector[pSpr->sectnum], 0, flag2); break;
+                    case 2: sprite2sectorSlope(objActor, &sector[pSpr->sectnum], 1, flag2); break;
                     case 3:
-                        if (getflorzofslope(pSpr->sectnum, pSpr->x, pSpr->y) - kSlopeDist <= pSpr->z) sprite2sectorSlope(pSpr, &sector[pSpr->sectnum], 0, flag2);
-                        if (getceilzofslope(pSpr->sectnum, pSpr->x, pSpr->y) + kSlopeDist >= pSpr->z) sprite2sectorSlope(pSpr, &sector[pSpr->sectnum], 1, flag2);
+                        if (getflorzofslope(pSpr->sectnum, pSpr->x, pSpr->y) - kSlopeDist <= pSpr->z) sprite2sectorSlope(objActor, &sector[pSpr->sectnum], 0, flag2);
+                        if (getceilzofslope(pSpr->sectnum, pSpr->x, pSpr->y) + kSlopeDist >= pSpr->z) sprite2sectorSlope(objActor, &sector[pSpr->sectnum], 1, flag2);
                         break;
                 }
                 break;
             default:
-        spriteSetSlope(objIndex, slope);
+                spriteSetSlope(pSpr, slope);
                 break;
     }
     }
 }
 
-void useDataChanger(XSPRITE* pXSource, int objType, int objIndex) {
-    
-    spritetype* pSource = &sprite[pXSource->reference];
-    switch (objType) {
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void useDataChanger(DBloodActor* sourceactor, int objType, int objIndex, DBloodActor* objActor)
+{
+    auto pXSource = &sourceactor->x();
+    spritetype* pSource = &sourceactor->s();
+
+    switch (objType) 
+    {
         case OBJ_SECTOR:
             if ((pSource->flags & kModernTypeFlag1) || (pXSource->data1 != -1 && pXSource->data1 != 32767))
-                setDataValueOfObject(objType, objIndex, 1, pXSource->data1);
+                setDataValueOfObject(objType, objIndex, nullptr, 1, pXSource->data1);
             break;
         case OBJ_SPRITE:
             if ((pSource->flags & kModernTypeFlag1) || (pXSource->data1 != -1 && pXSource->data1 != 32767))
-                setDataValueOfObject(objType, objIndex, 1, pXSource->data1);
+                setDataValueOfObject(objType, objIndex, objActor, 1, pXSource->data1);
 
             if ((pSource->flags & kModernTypeFlag1) || (pXSource->data2 != -1 && pXSource->data2 != 32767))
-                setDataValueOfObject(objType, objIndex, 2, pXSource->data2);
+                setDataValueOfObject(objType, objIndex, objActor, 2, pXSource->data2);
 
             if ((pSource->flags & kModernTypeFlag1) || (pXSource->data3 != -1 && pXSource->data3 != 32767))
-                setDataValueOfObject(objType, objIndex, 3, pXSource->data3);
+                setDataValueOfObject(objType, objIndex, objActor, 3, pXSource->data3);
 
             if ((pSource->flags & kModernTypeFlag1) || pXSource->data4 != 65535)
-                setDataValueOfObject(objType, objIndex, 4, pXSource->data4);
+                setDataValueOfObject(objType, objIndex, objActor, 4, pXSource->data4);
             break;
         case OBJ_WALL:
             if ((pSource->flags & kModernTypeFlag1) || (pXSource->data1 != -1 && pXSource->data1 != 32767))
-                setDataValueOfObject(objType, objIndex, 1, pXSource->data1);
+                setDataValueOfObject(objType, objIndex, nullptr, 1, pXSource->data1);
             break;
     }
 }
 
-void useSectorLigthChanger(XSPRITE* pXSource, XSECTOR* pXSector) {
-    
-    spritetype* pSource = &sprite[pXSource->reference];
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void useSectorLigthChanger(DBloodActor* sourceactor, XSECTOR* pXSector) 
+{
+    auto pXSource = &sourceactor->x();
+    spritetype* pSource = &sourceactor->s();
+
     if (valueIsBetween(pXSource->data1, -1, 32767))
         pXSector->wave = ClipHigh(pXSource->data1, 11);
 
@@ -6280,26 +6816,27 @@ void useSectorLigthChanger(XSPRITE* pXSource, XSECTOR* pXSector) {
     if (valueIsBetween(pXSource->data4, -1, 65535))
         pXSector->phase = ClipHigh(pXSource->data4, 255);
 
-    if (pSource->flags) {
-        if (pSource->flags != kModernTypeFlag1) {
-            
+    if (pSource->flags) 
+    {
+        if (pSource->flags != kModernTypeFlag1) 
+        {
             pXSector->shadeAlways   = (pSource->flags & 0x0001) ? true : false;
             pXSector->shadeFloor    = (pSource->flags & 0x0002) ? true : false;
             pXSector->shadeCeiling  = (pSource->flags & 0x0004) ? true : false;
             pXSector->shadeWalls    = (pSource->flags & 0x0008) ? true : false;
-
-        } else {
-
+        }
+        else 
+        {
             pXSector->shadeAlways   = true;
-
         }
     }
 
     // add to shadeList if amplitude was set to 0 previously
-    if (oldAmplitude != pXSector->amplitude && shadeCount < kMaxXSectors) {
-
+    if (oldAmplitude != pXSector->amplitude && shadeCount < kMaxXSectors) 
+    {
         bool found = false;
-        for (int i = 0; i < shadeCount; i++) {
+        for (int i = 0; i < shadeCount; i++) 
+        {
             if (shadeList[i] != sector[pXSector->reference].extra) continue;
             found = true;
             break;
@@ -6310,15 +6847,24 @@ void useSectorLigthChanger(XSPRITE* pXSource, XSECTOR* pXSector) {
     }
 }
 
-void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
+{
+    spritetype* pSprite = &actor->s();
     
-    
-    if (!IsDudeSprite(pSprite) || pSprite->statnum != kStatDude) {
-        switch (pSprite->type) { // can be dead dude turned in gib
+    if (!actor->IsDudeActor() || pSprite->statnum != kStatDude) 
+    {
+        switch (pSprite->type) // can be dead dude turned in gib
+        {
             // make current target and all other dudes not attack this dude anymore
         case kThingBloodBits:
         case kThingBloodChunks:
-            aiFightFreeTargets(pSprite->index);
+            aiFightFreeTargets(actor);
             return;
         default:
             return;
@@ -6326,148 +6872,177 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
     }
     
     
-    //spritetype* pSource = &sprite[pXSource->reference];
-    
-    auto actor = &bloodActors[pSprite->index];
-    XSPRITE* pXSprite = &xsprite[pSprite->extra];
-    spritetype* pTarget = NULL; XSPRITE* pXTarget = NULL; int receiveHp = 33 + Random(33);
-    DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type); int matesPerEnemy = 1;
+    auto pXSource = &sourceactor->x();
+    XSPRITE* pXSprite = &actor->x();
+
+    int receiveHp = 33 + Random(33);
+    DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type); 
+    int matesPerEnemy = 1;
 
     // dude is burning?
-    if (pXSprite->burnTime > 0 && spriRangeIsFine(pXSprite->burnSource)) {
-
-        if (IsBurningDude(pSprite)) return;
-        else {
-            spritetype* pBurnSource = &sprite[pXSprite->burnSource];
-            if (pBurnSource->extra >= 0) {
-                if (pXSource->data2 == 1 && aiFightIsMateOf(pXSprite, &xsprite[pBurnSource->extra])) {
+    if (pXSprite->burnTime > 0 && actor->GetBurnSource())
+    {
+        if (IsBurningDude(actor)) return;
+        else 
+        {
+            auto burnactor = actor->GetBurnSource();
+            if (burnactor->hasX()) 
+            {
+                if (pXSource->data2 == 1 && pXSprite->rxID == burnactor->x().rxID) 
+                {
                     pXSprite->burnTime = 0;
                     
                     // heal dude a bit in case of friendly fire
                     int startHp = (pXSprite->sysData2 > 0) ? ClipRange(pXSprite->sysData2 << 4, 1, 65535) : pDudeInfo->startHealth << 4;
-                    if (pXSprite->health < (unsigned)startHp) actHealDude(&bloodActors[pXSprite->reference], receiveHp, startHp);
-                } else if (xsprite[pBurnSource->extra].health <= 0) {
+                    if (pXSprite->health < (unsigned)startHp) actHealDude(actor, receiveHp, startHp);
+                } 
+                else if (burnactor->x().health <= 0) 
+                {
                     pXSprite->burnTime = 0;
                 }
             }
         }
     }
 
-    spritetype* pPlayer = aiFightTargetIsPlayer(pXSprite);
+    auto playeractor = aiFightTargetIsPlayer(actor);
     // special handling for player(s) if target changer data4 > 2.
-    if (pPlayer != NULL) {
+    if (playeractor != nullptr)
+    {
+        auto pPlayer = &playeractor->s();
         auto actLeech = leechIsDropped(actor);
-        if (pXSource->data4 == 3) {
-            aiSetTarget_(pXSprite, pSprite->x, pSprite->y, pSprite->z);
-            aiSetGenIdleState(&bloodActors[pSprite->index]);
+        if (pXSource->data4 == 3) 
+        {
+            aiSetTarget(actor, pSprite->x, pSprite->y, pSprite->z);
+            aiSetGenIdleState(actor);
             if (pSprite->type == kDudeModernCustom && actLeech)
                 removeLeech(actLeech);
-        } else if (pXSource->data4 == 4) {
-            aiSetTarget_(pXSprite, pPlayer->x, pPlayer->y, pPlayer->z);
+        }
+        else if (pXSource->data4 == 4) 
+        {
+            aiSetTarget(actor, pPlayer->x, pPlayer->y, pPlayer->z);
             if (pSprite->type == kDudeModernCustom && actLeech)
                 removeLeech(actLeech);
         }
     }
 
     int maxAlarmDudes = 8 + Random(8);
-    if (pXSprite->target_i > -1 && sprite[pXSprite->target_i].extra > -1 && pPlayer == NULL) {
-        pTarget = &sprite[pXSprite->target_i]; pXTarget = &xsprite[pTarget->extra];
+    auto targetactor = actor->GetTarget();
+    if (targetactor && targetactor->hasX() && playeractor == nullptr) 
+    {
+        auto pTarget = &targetactor->s(); 
+        auto pXTarget = &targetactor->x();
 
-        if (aiFightUnitCanFly(pSprite) && aiFightIsMeleeUnit(pTarget) && !aiFightUnitCanFly(pTarget))
+        if (aiFightUnitCanFly(actor) && aiFightIsMeleeUnit(targetactor) && !aiFightUnitCanFly(targetactor))
             pSprite->flags |= 0x0002;
-        else if (aiFightUnitCanFly(pSprite))
+        else if (aiFightUnitCanFly(actor))
             pSprite->flags &= ~0x0002;
 
-        if (!IsDudeSprite(pTarget) || pXTarget->health < 1 || !aiFightDudeCanSeeTarget(pXSprite, pDudeInfo, pTarget)) {
-            aiSetTarget_(pXSprite, pSprite->x, pSprite->y, pSprite->z);
+        if (!targetactor->IsDudeActor() || pXTarget->health < 1 || !aiFightDudeCanSeeTarget(actor, pDudeInfo, targetactor))
+        {
+            aiSetTarget(actor, pSprite->x, pSprite->y, pSprite->z);
         }
         // dude attack or attacked by target that does not fit by data id?
-        else if (pXSource->data1 != 666 && pXTarget->data1 != pXSource->data1) {
-            if (aiFightDudeIsAffected(pXTarget)) {
-
+        else if (pXSource->data1 != 666 && pXTarget->data1 != pXSource->data1) 
+        {
+            if (aiFightDudeIsAffected(targetactor)) 
+            {
                 // force stop attack target
-                aiSetTarget_(pXSprite, pSprite->x, pSprite->y, pSprite->z);
-                if (pXSprite->burnSource == pTarget->index) {
+                aiSetTarget(actor, pSprite->x, pSprite->y, pSprite->z);
+                if (actor->GetBurnSource() == targetactor) 
+                {
                     pXSprite->burnTime = 0;
-                    pXSprite->burnSource = -1;
+                    actor->SetBurnSource(nullptr);
                 }
 
                 // force stop attack dude
-                aiSetTarget_(pXTarget, pTarget->x, pTarget->y, pTarget->z);
-                if (pXTarget->burnSource == pSprite->index) {
+                aiSetTarget(targetactor, pTarget->x, pTarget->y, pTarget->z);
+                if (targetactor->GetBurnSource() == actor) 
+                {
                     pXTarget->burnTime = 0;
-                    pXTarget->burnSource = -1;
+                    targetactor->SetBurnSource(nullptr);
                 }
             }
-
         }
-        else if (pXSource->data2 == 1 && aiFightIsMateOf(pXSprite, pXTarget)) {
-            spritetype* pMate = pTarget; XSPRITE* pXMate = pXTarget;
+        else if (pXSource->data2 == 1 && pXSprite->rxID == pXTarget->rxID) 
+        {
+            auto mateactor = targetactor;
+            spritetype* pMate = pTarget; 
+            XSPRITE* pXMate = pXTarget;
 
             // heal dude
             int startHp = (pXSprite->sysData2 > 0) ? ClipRange(pXSprite->sysData2 << 4, 1, 65535) : pDudeInfo->startHealth << 4;
-            if (pXSprite->health < (unsigned)startHp) actHealDude(&bloodActors[pXSprite->reference], receiveHp, startHp);
+            if (pXSprite->health < (unsigned)startHp) actHealDude(actor, receiveHp, startHp);
 
             // heal mate
             startHp = (pXMate->sysData2 > 0) ? ClipRange(pXMate->sysData2 << 4, 1, 65535) : getDudeInfo(pMate->type)->startHealth << 4;
-            if (pXMate->health < (unsigned)startHp) actHealDude(&bloodActors[pXMate->reference], receiveHp, startHp);
+            if (pXMate->health < (unsigned)startHp) actHealDude(mateactor, receiveHp, startHp);
 
-            if (pXMate->target_i > -1 && sprite[pXMate->target_i].extra >= 0) {
-                pTarget = &sprite[pXMate->target_i];
+            auto matetarget = mateactor->GetTarget();
+            if (matetarget != nullptr && matetarget->hasX())
+            {
                 // force mate stop attack dude, if he does
-                if (pXMate->target_i == pSprite->index) {
-                    aiSetTarget_(pXMate, pMate->x, pMate->y, pMate->z);
-                } else if (!aiFightIsMateOf(pXSprite, &xsprite[pTarget->extra])) {
+                if (matetarget == actor)
+                {
+                    aiSetTarget(mateactor, pMate->x, pMate->y, pMate->z);
+                }
+                else if (pXSprite->rxID != matetarget->x().rxID) 
+                {
                     // force dude to attack same target that mate have
-                    aiSetTarget_(pXSprite, pTarget->index);
+                    aiSetTarget(actor, matetarget);
                     return;
-
-                } else {
+                }
+                else 
+                {
                     // force mate to stop attack another mate
-                    aiSetTarget_(pXMate, pMate->x, pMate->y, pMate->z);
+                    aiSetTarget(mateactor, pMate->x, pMate->y, pMate->z);
                 }
             }
 
             // force dude stop attack mate, if target was not changed previously
-            if (pXSprite->target_i == pMate->index)
-                aiSetTarget_(pXSprite, pSprite->x, pSprite->y, pSprite->z);
+            if (actor == mateactor)
+                aiSetTarget(actor, pSprite->x, pSprite->y, pSprite->z);
 
 
         }
         // check if targets aims player then force this target to fight with dude
-        else if (aiFightTargetIsPlayer(pXTarget) != NULL) {
-            aiSetTarget_(pXTarget, pSprite->index);
+        else if (aiFightTargetIsPlayer(actor) != nullptr)
+        {
+            aiSetTarget(targetactor, actor);
         }
 
-        int mDist = 3; if (aiFightIsMeleeUnit(pSprite)) mDist = 2;
-        if (pXSprite->target_i >= 0 && aiFightGetTargetDist(pSprite, pDudeInfo, &sprite[pXSprite->target_i]) < mDist) {
-            if (!isActive(pSprite->index)) aiActivateDude(&bloodActors[pXSprite->reference]);
+        int mDist = 3; 
+        if (aiFightIsMeleeUnit(actor)) mDist = 2;
+
+        if (targetactor != nullptr && aiFightGetTargetDist(actor, pDudeInfo, targetactor) < mDist) 
+        {
+            if (!isActive(actor)) aiActivateDude(actor);
             return;
         }
         // lets try to look for target that fits better by distance
-        else if ((PlayClock & 256) != 0 && (pXSprite->target_i < 0 || aiFightGetTargetDist(pSprite, pDudeInfo, pTarget) >= mDist)) {
-            pTarget = aiFightGetTargetInRange(pSprite, 0, mDist, pXSource->data1, pXSource->data2);
-            if (pTarget != NULL) {
-                pXTarget = &xsprite[pTarget->extra];
-
+        else if ((PlayClock & 256) != 0 && (targetactor == nullptr || aiFightGetTargetDist(actor, pDudeInfo, targetactor) >= mDist)) 
+        {
+            auto newtargactor = aiFightGetTargetInRange(actor, 0, mDist, pXSource->data1, pXSource->data2);
+            if (newtargactor != nullptr)
+            {
                 // Make prev target not aim in dude
-                if (pXSprite->target_i > -1) {
-                    spritetype* prvTarget = &sprite[pXSprite->target_i];
-                    aiSetTarget_(&xsprite[prvTarget->extra], prvTarget->x, prvTarget->y, prvTarget->z);
-                    if (!isActive(pTarget->index))
-                        aiActivateDude(&bloodActors[pXTarget->reference]);
+                if (targetactor)
+                {
+                    aiSetTarget(targetactor, targetactor->s().x, targetactor->s().y, targetactor->s().z);
+                    if (!isActive(newtargactor))
+                        aiActivateDude(newtargactor);
                 }
 
                 // Change target for dude
-                aiSetTarget_(pXSprite, pTarget->index);
-                if (!isActive(pSprite->index))
-                    aiActivateDude(&bloodActors[pXSprite->reference]);
+                aiSetTarget(actor, newtargactor);
+                if (!isActive(actor))
+                    aiActivateDude(actor);
 
                 // ...and change target of target to dude to force it fight
-                if (pXSource->data3 > 0 && pXTarget->target_i != pSprite->index) {
-                    aiSetTarget_(pXTarget, pSprite->index);
-                    if (!isActive(pTarget->index))
-                        aiActivateDude(&bloodActors[pXTarget->reference]);
+                if (pXSource->data3 > 0 && newtargactor->GetTarget() != actor) 
+                {
+                    aiSetTarget(newtargactor, actor);
+                    if (!isActive(newtargactor))
+                        aiActivateDude(newtargactor);
                 }
 
                 return;
@@ -6475,88 +7050,100 @@ void useTargetChanger(XSPRITE* pXSource, spritetype* pSprite) {
         }
     }
     
-    if ((pXSprite->target_i < 0 || pPlayer != NULL) && (PlayClock & 32) != 0) {
+    if ((targetactor == nullptr || playeractor != nullptr) && (PlayClock & 32) != 0) 
+    {
         // try find first target that dude can see
-        int nSprite;
-        StatIterator it(kStatDude);
-        while ((nSprite = it.NextIndex()) >= 0)
+        BloodStatIterator it(kStatDude);
+        while (auto newtargactor = it.Next())
         {
-            pTarget = &sprite[nSprite]; pXTarget = &xsprite[pTarget->extra];
+            auto pXNewTarg = &newtargactor->x();
 
-            if (pXTarget->target_i == pSprite->index) {
-                aiSetTarget_(pXSprite, pTarget->index);
+            if (newtargactor->GetTarget() == actor)
+            {
+                aiSetTarget(actor, newtargactor);
                 return;
             }
 
             // skip non-dudes and players
-            if (!IsDudeSprite(pTarget) || (IsPlayerSprite(pTarget) && pXSource->data4 > 0) || pTarget->owner == pSprite->index) continue;
+            if (!newtargactor->IsDudeActor() || (newtargactor->IsPlayerActor() && pXSource->data4 > 0) || newtargactor->GetOwner() == actor) continue;
             // avoid self aiming, those who dude can't see, and those who dude own
-            else if (!aiFightDudeCanSeeTarget(pXSprite, pDudeInfo, pTarget) || pSprite->index == pTarget->index) continue;
+            else if (!aiFightDudeCanSeeTarget(actor, pDudeInfo, newtargactor) || actor == newtargactor) continue;
             // if Target Changer have data1 = 666, everyone can be target, except AI team mates.
-            else if (pXSource->data1 != 666 && pXSource->data1 != pXTarget->data1) continue;
+            else if (pXSource->data1 != 666 && pXSource->data1 != pXNewTarg->data1) continue;
             // don't attack immortal, burning dudes and mates
-            if (IsBurningDude(pTarget) || !IsKillableDude(pTarget) || (pXSource->data2 == 1 && aiFightIsMateOf(pXSprite, pXTarget)))
+            if (IsBurningDude(newtargactor) || !IsKillableDude(newtargactor) || (pXSource->data2 == 1 && pXSprite->rxID == pXNewTarg->rxID))
                 continue;
 
-            if (pXSource->data2 == 0 || (pXSource->data2 == 1 && !aiFightMatesHaveSameTarget(pXSprite, pTarget, matesPerEnemy))) {
-
+            if (pXSource->data2 == 0 || (pXSource->data2 == 1 && !aiFightMatesHaveSameTarget(actor, newtargactor, matesPerEnemy))) 
+            {
                 // Change target for dude
-                aiSetTarget_(pXSprite, pTarget->index);
-                if (!isActive(pSprite->index))
-                    aiActivateDude(&bloodActors[pXSprite->reference]);
+                aiSetTarget(actor, newtargactor);
+                if (!isActive(actor))
+                    aiActivateDude(actor);
 
                 // ...and change target of target to dude to force it fight
-                if (pXSource->data3 > 0 && pXTarget->target_i != pSprite->index) {
-                    aiSetTarget_(pXTarget, pSprite->index);
-                    if (pPlayer == NULL && !isActive(pTarget->index))
-                        aiActivateDude(&bloodActors[pXTarget->reference]);
+                if (pXSource->data3 > 0 && newtargactor->GetTarget() != actor) 
+                {
+                    aiSetTarget(newtargactor, actor);
+                    if (playeractor == nullptr && !isActive(newtargactor))
+                        aiActivateDude(newtargactor);
 
                     if (pXSource->data3 == 2)
-                        aiFightAlarmDudesInSight(pTarget, maxAlarmDudes);
+                        aiFightAlarmDudesInSight(newtargactor, maxAlarmDudes);
                 }
-                
                 return;
             }
-            
             break;
         }
     }
 
     // got no target - let's ask mates if they have targets
-    if ((pXSprite->target_i < 0 || pPlayer != NULL) && pXSource->data2 == 1 && (PlayClock & 64) != 0) {
-        spritetype* pMateTarget = NULL;
-        if ((pMateTarget = aiFightGetMateTargets(pXSprite)) != NULL && pMateTarget->extra > 0) {
-            XSPRITE* pXMateTarget = &xsprite[pMateTarget->extra];
-            if (aiFightDudeCanSeeTarget(pXSprite, pDudeInfo, pMateTarget)) {
-                if (pXMateTarget->target_i < 0) {
-                    aiSetTarget_(pXMateTarget, pSprite->index);
-                    if (IsDudeSprite(pMateTarget) && !isActive(pMateTarget->index))
-                        aiActivateDude(&bloodActors[pXMateTarget->reference]);
+    if ((actor->GetTarget() == nullptr || playeractor != nullptr) && pXSource->data2 == 1 && (PlayClock & 64) != 0) 
+    {
+        DBloodActor* pMateTargetActor = aiFightGetMateTargets(actor);
+        if (pMateTargetActor != nullptr && pMateTargetActor->hasX()) 
+        {
+
+            if (aiFightDudeCanSeeTarget(actor, pDudeInfo, pMateTargetActor)) 
+            {
+                if (pMateTargetActor->GetTarget() == nullptr) 
+                {
+                    aiSetTarget(pMateTargetActor, actor);
+                    if (pMateTargetActor->IsDudeActor() && !isActive(pMateTargetActor))
+                        aiActivateDude(pMateTargetActor);
                 }
 
-                aiSetTarget_(pXSprite, pMateTarget->index);
-                if (!isActive(pSprite->index))
-                    aiActivateDude(&bloodActors[pXSprite->reference]);
+                aiSetTarget(actor, pMateTargetActor);
+                if (!isActive(actor))
+                    aiActivateDude(actor);
                 return;
 
                 // try walk in mate direction in case if not see the target
-            } else if (pXMateTarget->target_i >= 0 && aiFightDudeCanSeeTarget(pXSprite, pDudeInfo, &sprite[pXMateTarget->target_i])) {
-                spritetype* pMate = &sprite[pXMateTarget->target_i];
-                pXSprite->target_i = pMateTarget->index;
+            } 
+            else if (pMateTargetActor->GetTarget() && aiFightDudeCanSeeTarget(actor, pDudeInfo, pMateTargetActor->GetTarget()))
+            {
+                actor->SetTarget(pMateTargetActor);
+                spritetype* pMate = &pMateTargetActor->GetTarget()->s();
                 pXSprite->targetX = pMate->x;
                 pXSprite->targetY = pMate->y;
                 pXSprite->targetZ = pMate->z;
-                if (!isActive(pSprite->index))
-                    aiActivateDude(&bloodActors[pXSprite->reference]);
+                if (!isActive(actor))
+                    aiActivateDude(actor);
                 return;
             }
         }
     }
 }
 
-void usePictureChanger(XSPRITE* pXSource, int objType, int objIndex) {
-    
-    //spritetype* pSource = &sprite[pXSource->reference];
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void usePictureChanger(DBloodActor* sourceactor, int objType, int objIndex, DBloodActor* objActor)
+{
+    auto pXSource = &sourceactor->x();
     
     switch (objType) {
         case OBJ_SECTOR:
@@ -6574,13 +7161,13 @@ void usePictureChanger(XSPRITE* pXSource, int objType, int objIndex) {
             break;
         case OBJ_SPRITE:
             if (valueIsBetween(pXSource->data1, -1, 32767))
-                sprite[objIndex].picnum = pXSource->data1;
+                objActor->s().picnum = pXSource->data1;
 
-            if (pXSource->data2 >= 0) sprite[objIndex].shade = (pXSource->data2 > 127) ? 127 : pXSource->data2;
-            else if (pXSource->data2 < -1) sprite[objIndex].shade = (pXSource->data2 < -127) ? -127 : pXSource->data2;
+            if (pXSource->data2 >= 0) objActor->s().shade = (pXSource->data2 > 127) ? 127 : pXSource->data2;
+            else if (pXSource->data2 < -1) objActor->s().shade = (pXSource->data2 < -127) ? -127 : pXSource->data2;
 
             if (valueIsBetween(pXSource->data3, -1, 32767))
-                sprite[objIndex].pal = uint8_t(pXSource->data3);
+                objActor->s().pal = uint8_t(pXSource->data3);
             break;
         case OBJ_WALL:
             if (valueIsBetween(pXSource->data1, -1, 32767))
@@ -6595,25 +7182,35 @@ void usePictureChanger(XSPRITE* pXSource, int objType, int objIndex) {
     }
 }
 
-//---------------------------------------
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
-// player related
-QAV* playerQavSceneLoad(int qavId) {
+QAV* playerQavSceneLoad(int qavId) 
+{
     QAV* pQav = getQAV(qavId);
-
     if (!pQav) viewSetSystemMessage("Failed to load QAV animation #%d", qavId);
     return pQav;
 }
 
-void playerQavSceneProcess(PLAYER* pPlayer, QAVSCENE* pQavScene) 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void playerQavSceneProcess(PLAYER* pPlayer, QAVSCENE* pQavScene)
 {
     auto initiator = pQavScene->initiator;
     if (initiator->hasX())
     {
         XSPRITE* pXSprite = &initiator->x();
-        if (pXSprite->waitTime > 0 && --pXSprite->sysData1 <= 0) {
-            if (pXSprite->txID >= kChannelUser) {
-                
+        if (pXSprite->waitTime > 0 && --pXSprite->sysData1 <= 0) 
+        {
+            if (pXSprite->txID >= kChannelUser) 
+            {
                 for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++) 
                 {
                     if (rxBucket[i].type == OBJ_SPRITE) 
@@ -6629,25 +7226,22 @@ void playerQavSceneProcess(PLAYER* pPlayer, QAVSCENE* pQavScene)
                             else trPlayerCtrlStartScene(rxactor, pPlayer, true);
                             return;
                         }
-                        nnExtTriggerObject(rxBucket[i].type, rxactor->s().index, pXSprite->command);
 
                     }
-                    else nnExtTriggerObject(rxBucket[i].type, rxBucket[i].rxindex, pXSprite->command);
+                    nnExtTriggerObject(rxBucket[i].type, rxBucket[i].rxindex, rxBucket[i].actor, pXSprite->command);
 
                 }
-            } //else {
-                
-                trPlayerCtrlStopScene(pPlayer);
-
-            //}
-
-        } else {
-            
+            }
+            trPlayerCtrlStopScene(pPlayer);
+        }
+        else 
+        {
             playerQavScenePlay(pPlayer);
             pPlayer->weaponTimer = ClipLow(pPlayer->weaponTimer -= 4, 0);
-
         }
-    } else {
+    }
+    else 
+    {
         
         pQavScene->initiator = nullptr;
         pPlayer->sceneQav = -1;
@@ -6655,14 +7249,21 @@ void playerQavSceneProcess(PLAYER* pPlayer, QAVSCENE* pQavScene)
     }
 }
 
-void playerQavSceneDraw(PLAYER* pPlayer, int a2, double a3, double a4, int a5) {
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void playerQavSceneDraw(PLAYER* pPlayer, int a2, double a3, double a4, int a5)
+{
     if (pPlayer == NULL || pPlayer->sceneQav == -1) return;
 
     QAVSCENE* pQavScene = &gPlayerCtrl[pPlayer->nPlayer].qavScene;
     spritetype* pSprite = &pQavScene->initiator->s();
 
-    if (pQavScene->qavResrc != NULL) {
-
+    if (pQavScene->qavResrc != NULL) 
+    {
         QAV* pQAV = pQavScene->qavResrc;
         int v4;
         double smoothratio;
@@ -6670,68 +7271,81 @@ void playerQavSceneDraw(PLAYER* pPlayer, int a2, double a3, double a4, int a5) {
         qavProcessTimer(pPlayer, pQAV, &v4, &smoothratio);
 
         int flags = 2; int nInv = powerupCheck(pPlayer, kPwUpShadowCloak);
-        if (nInv >= 120 * 8 || (nInv != 0 && (PlayClock & 32))) {
+        if (nInv >= 120 * 8 || (nInv != 0 && (PlayClock & 32))) 
+        {
             a2 = -128; flags |= 1;
         }
 
         // draw as weapon
-        if (!(pSprite->flags & kModernTypeFlag1)) {
-
+        if (!(pSprite->flags & kModernTypeFlag1)) 
+        {
             pQAV->x = int(a3); pQAV->y = int(a4);
             pQAV->Draw(a3, a4, v4, flags, a2, a5, true, smoothratio);
 
             // draw fullscreen (currently 4:3 only)
-        } else {
+        }
+        else 
+        {
             // What an awful hack. This throws proper ordering out of the window, but there is no way to reproduce this better with strict layering of elements.
 			// From the above commit it seems to be incomplete anyway...
             pQAV->Draw(v4, flags, a2, a5, false, smoothratio);
         }
-
     }
-
 }
 
-void playerQavScenePlay(PLAYER* pPlayer) {
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+void playerQavScenePlay(PLAYER* pPlayer)
+{
     if (pPlayer == NULL) return;
     
     QAVSCENE* pQavScene = &gPlayerCtrl[pPlayer->nPlayer].qavScene;
     if (pPlayer->sceneQav == -1 && pQavScene->initiator != nullptr)
         pPlayer->sceneQav = pQavScene->initiator->x().data2;
 
-    if (pQavScene->qavResrc != NULL) {
+    if (pQavScene->qavResrc != NULL) 
+    {
         QAV* pQAV = pQavScene->qavResrc;
-        pQAV->nSprite = pPlayer->pSprite->index;
         int nTicks = pQAV->duration - pPlayer->weaponTimer;
         pQAV->Play(nTicks - 4, nTicks, pPlayer->qavCallback, pPlayer);
     }
 }
 
-void playerQavSceneReset(PLAYER* pPlayer) {
+void playerQavSceneReset(PLAYER* pPlayer) 
+{
     QAVSCENE* pQavScene = &gPlayerCtrl[pPlayer->nPlayer].qavScene;
     pQavScene->initiator = nullptr;
     pQavScene->dummy = pPlayer->sceneQav = -1;
     pQavScene->qavResrc = NULL;
 }
 
-bool playerSizeShrink(PLAYER* pPlayer, int divider) {
+bool playerSizeShrink(PLAYER* pPlayer, int divider) 
+{
     pPlayer->pXSprite->scale = 256 / divider;
     playerSetRace(pPlayer, kModeHumanShrink);
     return true;
 }
 
-bool playerSizeGrow(PLAYER* pPlayer, int multiplier) {
+bool playerSizeGrow(PLAYER* pPlayer, int multiplier) 
+{
     pPlayer->pXSprite->scale = 256 * multiplier;
     playerSetRace(pPlayer, kModeHumanGrown);
     return true;
 }
 
-bool playerSizeReset(PLAYER* pPlayer) {
+bool playerSizeReset(PLAYER* pPlayer) 
+{
     playerSetRace(pPlayer, kModeHuman);
     pPlayer->pXSprite->scale = 0;
     return true;
 }
 
-void playerDeactivateShrooms(PLAYER* pPlayer) {
+void playerDeactivateShrooms(PLAYER* pPlayer) 
+{
     powerupDeactivate(pPlayer, kPwUpGrowShroom);
     pPlayer->pwUpTime[kPwUpGrowShroom] = 0;
 
@@ -6739,21 +7353,30 @@ void playerDeactivateShrooms(PLAYER* pPlayer) {
     pPlayer->pwUpTime[kPwUpShrinkShroom] = 0;
 }
 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
-
-PLAYER* getPlayerById(short id) {
-
+PLAYER* getPlayerById(int id) 
+{
     // relative to connected players
-    if (id >= 1 && id <= kMaxPlayers) {
+    if (id >= 1 && id <= kMaxPlayers) 
+    {
         id = id - 1;
-        for (int i = connecthead; i >= 0; i = connectpoint2[i]) {
+        for (int i = connecthead; i >= 0; i = connectpoint2[i]) 
+        {
             if (id == gPlayer[i].nPlayer)
                 return &gPlayer[i];
         }
 
     // absolute sprite type
-    } else if (id >= kDudePlayer1 && id <= kDudePlayer8) {
-        for (int i = connecthead; i >= 0; i = connectpoint2[i]) {
+    } 
+    else if (id >= kDudePlayer1 && id <= kDudePlayer8) 
+    {
+        for (int i = connecthead; i >= 0; i = connectpoint2[i]) 
+        {
             if (id == gPlayer[i].pSprite->type)
                 return &gPlayer[i];
         }
@@ -6763,10 +7386,17 @@ PLAYER* getPlayerById(short id) {
     return NULL;
 }
 
-// misc functions
-bool IsBurningDude(spritetype* pSprite) {
-    if (pSprite == NULL) return false;
-    switch (pSprite->type) {
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+bool IsBurningDude(DBloodActor* actor) 
+{
+    if (actor == NULL) return false;
+    switch (actor->s().type) 
+    {
     case kDudeBurningInnocent:
     case kDudeBurningCultist:
     case kDudeBurningZombieAxe:
@@ -6780,35 +7410,40 @@ bool IsBurningDude(spritetype* pSprite) {
     return false;
 }
 
-bool IsKillableDude(spritetype* pSprite) {
-    switch (pSprite->type) {
+bool IsKillableDude(DBloodActor* actor)
+{
+    switch (actor->s().type) 
+    {
     case kDudeGargoyleStatueFlesh:
     case kDudeGargoyleStatueStone:
         return false;
     default:
-        if (!IsDudeSprite(pSprite) || xsprite[pSprite->extra].locked == 1) return false;
+        if (!actor->IsDudeActor() || actor->x().locked == 1) return false;
         return true;
     }
 }
 
-bool isGrown(spritetype* pSprite) {
-    if (powerupCheck(&gPlayer[pSprite->type - kDudePlayer1], kPwUpGrowShroom) > 0) return true;
-    else if (pSprite->extra >= 0 && xsprite[pSprite->extra].scale >= 512) return true;
+bool isGrown(DBloodActor* actor)
+{
+    if (powerupCheck(&gPlayer[actor->s().type - kDudePlayer1], kPwUpGrowShroom) > 0) return true;
+    else if (actor->hasX() && actor->x().scale >= 512) return true;
     else return false;
 }
 
-bool isShrinked(spritetype* pSprite) {
-    if (powerupCheck(&gPlayer[pSprite->type - kDudePlayer1], kPwUpShrinkShroom) > 0) return true;
-    else if (pSprite->extra >= 0 && xsprite[pSprite->extra].scale > 0 && xsprite[pSprite->extra].scale <= 128) return true;
+bool isShrinked(DBloodActor* actor)
+{
+    if (powerupCheck(&gPlayer[actor->s().type - kDudePlayer1], kPwUpShrinkShroom) > 0) return true;
+    else if (actor->hasX() && actor->x().scale > 0 && actor->x().scale <= 128) return true;
     else return false;
 }
 
-bool isActive(int nSprite) {
-    if (sprite[nSprite].extra < 0 || sprite[nSprite].extra >= kMaxXSprites)
+bool isActive(DBloodActor* actor) 
+{
+    if (!actor->hasX())
         return false;
 
-    XSPRITE* pXDude = &xsprite[sprite[nSprite].extra];
-    switch (pXDude->aiState->stateType) {
+    switch (actor->x().aiState->stateType) 
+    {
     case kAiStateIdle:
     case kAiStateGenIdle:
     case kAiStateSearch:
@@ -6820,7 +7455,13 @@ bool isActive(int nSprite) {
     }
 }
 
-int getDataFieldOfObject(int objType, int objIndex, DBloodActor* actor, int dataIndex) 
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+int getDataFieldOfObject(int objType, int objIndex, DBloodActor* actor, int dataIndex)
 {
     int data = -65535;
     switch (objType) 
@@ -6845,14 +7486,25 @@ int getDataFieldOfObject(int objType, int objIndex, DBloodActor* actor, int data
     }
 }
 
-bool setDataValueOfObject(int objType, int objIndex, int dataIndex, int value) {
-    switch (objType) {
-        case OBJ_SPRITE: {
-            XSPRITE* pXSprite = &xsprite[sprite[objIndex].extra];
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+bool setDataValueOfObject(int objType, int objIndex, DBloodActor* objActor, int dataIndex, int value)
+{
+    switch (objType) 
+    {
+        case OBJ_SPRITE: 
+        {
+            XSPRITE* pXSprite = &objActor->x();
+            int type = objActor->s().type;
 
             // exceptions
-            if (IsDudeSprite(&sprite[objIndex]) && pXSprite->health <= 0) return true;
-            switch (sprite[objIndex].type) {
+            if (objActor->IsDudeActor() && pXSprite->health <= 0) return true;
+            switch (type)
+            {
                 case kThingBloodBits:
                 case kThingBloodChunks:
                 case kThingZombieHead:
@@ -6860,47 +7512,51 @@ bool setDataValueOfObject(int objType, int objIndex, int dataIndex, int value) {
                     break;
             }
 
-            switch (dataIndex) {
+            switch (dataIndex) 
+            {
                 case 1:
-                    xsprite[sprite[objIndex].extra].data1 = value;
-                    switch (sprite[objIndex].type) {
+                    pXSprite->data1 = value;
+                    switch (type) 
+                    {
                         case kSwitchCombo:
-                            if (value == xsprite[sprite[objIndex].extra].data2) SetSpriteState(objIndex, &xsprite[sprite[objIndex].extra], 1);
-                            else SetSpriteState(objIndex, &xsprite[sprite[objIndex].extra], 0);
+                            if (value == pXSprite->data2) SetSpriteState(objActor, 1);
+                            else SetSpriteState(objActor, 0);
                             break;
                         case kDudeModernCustom:
                         case kDudeModernCustomBurning:
-                            gGenDudeExtra[objIndex].updReq[kGenDudePropertyWeapon] = true;
-                            gGenDudeExtra[objIndex].updReq[kGenDudePropertyDmgScale] = true;
-                            evPostActor(&bloodActors[objIndex], kGenDudeUpdTimeRate, kCallbackGenDudeUpdate);
+                            objActor->genDudeExtra.updReq[kGenDudePropertyWeapon] = true;
+                            objActor->genDudeExtra.updReq[kGenDudePropertyDmgScale] = true;
+                            evPostActor(objActor, kGenDudeUpdTimeRate, kCallbackGenDudeUpdate);
                             break;
                     }
                     return true;
                 case 2:
-                    xsprite[sprite[objIndex].extra].data2 = value;
-                    switch (sprite[objIndex].type) {
+                    pXSprite->data2 = value;
+                    switch (type) 
+                    {
                         case kDudeModernCustom:
                         case kDudeModernCustomBurning:
-                            gGenDudeExtra[objIndex].updReq[kGenDudePropertySpriteSize] = true;
-                            gGenDudeExtra[objIndex].updReq[kGenDudePropertyMass] = true;
-                            gGenDudeExtra[objIndex].updReq[kGenDudePropertyDmgScale] = true;
-                            gGenDudeExtra[objIndex].updReq[kGenDudePropertyStates] = true;
-                            gGenDudeExtra[objIndex].updReq[kGenDudePropertyAttack] = true;
-                            evPostActor(&bloodActors[objIndex], kGenDudeUpdTimeRate, kCallbackGenDudeUpdate);
+                            objActor->genDudeExtra.updReq[kGenDudePropertySpriteSize] = true;
+                            objActor->genDudeExtra.updReq[kGenDudePropertyMass] = true;
+                            objActor->genDudeExtra.updReq[kGenDudePropertyDmgScale] = true;
+                            objActor->genDudeExtra.updReq[kGenDudePropertyStates] = true;
+                            objActor->genDudeExtra.updReq[kGenDudePropertyAttack] = true;
+                            evPostActor(objActor, kGenDudeUpdTimeRate, kCallbackGenDudeUpdate);
                             break;
                     }
                     return true;
                 case 3:
-                    xsprite[sprite[objIndex].extra].data3 = value;
-                    switch (sprite[objIndex].type) {
+                    pXSprite->data3 = value;
+                    switch (type)
+                    {
                         case kDudeModernCustom:
                         case kDudeModernCustomBurning:
-                            xsprite[sprite[objIndex].extra].sysData1 = value;
+                            pXSprite->sysData1 = value;
                             break;
                     }
                     return true;
                 case 4:
-                    xsprite[sprite[objIndex].extra].data4 = value;
+                    pXSprite->data4 = value;
                     return true;
                 default:
                     return false;
@@ -6917,15 +7573,20 @@ bool setDataValueOfObject(int objType, int objIndex, int dataIndex, int value) {
     }
 }
 
+//---------------------------------------------------------------------------
+//
 // a replacement of vanilla CanMove for patrol dudes
-bool nnExtCanMove(spritetype* pSprite, int nTarget, int nAngle, int nRange) {
+//
+//---------------------------------------------------------------------------
 
-    auto actor = &bloodActors[pSprite->index];
+bool nnExtCanMove(DBloodActor* actor, DBloodActor* target, int nAngle, int nRange) 
+{
+    auto pSprite = &actor->s();
     int x = pSprite->x, y = pSprite->y, z = pSprite->z, nSector = pSprite->sectnum;
-    HitScan(pSprite, z, Cos(nAngle) >> 16, Sin(nAngle) >> 16, 0, CLIPMASK0, nRange);
+    HitScan(actor, z, Cos(nAngle) >> 16, Sin(nAngle) >> 16, 0, CLIPMASK0, nRange);
     int nDist = approxDist(x - gHitInfo.hitx, y - gHitInfo.hity);
-    if (nTarget >= 0 && nDist - (pSprite->clipdist << 2) < nRange)
-        return (nTarget == gHitInfo.hitsprite);
+    if (target != nullptr && nDist - (pSprite->clipdist << 2) < nRange)
+        return (target == gHitInfo.hitactor);
 
     x += MulScale(nRange, Cos(nAngle), 30);
     y += MulScale(nRange, Sin(nAngle), 30);
@@ -6943,61 +7604,70 @@ bool nnExtCanMove(spritetype* pSprite, int nTarget, int nAngle, int nRange) {
 
 }
 
-
+//---------------------------------------------------------------------------
+//
 // a replacement of vanilla aiChooseDirection for patrol dudes
-void nnExtAiSetDirection(spritetype* pSprite, XSPRITE* pXSprite, int a3) {
-    
+//
+//---------------------------------------------------------------------------
+
+void nnExtAiSetDirection(DBloodActor* actor, int a3) 
+{
+    spritetype* pSprite = &actor->s();
+    XSPRITE* pXSprite = &actor->x();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     
-    int nSprite = pSprite->index;
     int vc = ((a3 + 1024 - pSprite->ang) & 2047) - 1024;
-    int t1 = DMulScale(xvel[nSprite], Cos(pSprite->ang), yvel[nSprite], Sin(pSprite->ang), 30);
+    int t1 = DMulScale(actor->xvel, Cos(pSprite->ang), actor->yvel, Sin(pSprite->ang), 30);
     int vsi = ((t1 * 15) >> 12) / 2;
     int v8 = 341;
     
     if (vc < 0)
         v8 = -341;
 
-    if (nnExtCanMove(pSprite, pXSprite->target_i, pSprite->ang + vc, vsi))
+    if (nnExtCanMove(actor, actor->GetTarget(), pSprite->ang + vc, vsi))
         pXSprite->goalAng = pSprite->ang + vc;
-    else if (nnExtCanMove(pSprite, pXSprite->target_i, pSprite->ang + vc / 2, vsi))
+    else if (nnExtCanMove(actor, actor->GetTarget(), pSprite->ang + vc / 2, vsi))
         pXSprite->goalAng = pSprite->ang + vc / 2;
-    else if (nnExtCanMove(pSprite, pXSprite->target_i, pSprite->ang - vc / 2, vsi))
+    else if (nnExtCanMove(actor, actor->GetTarget(), pSprite->ang - vc / 2, vsi))
         pXSprite->goalAng = pSprite->ang - vc / 2;
-    else if (nnExtCanMove(pSprite, pXSprite->target_i, pSprite->ang + v8, vsi))
+    else if (nnExtCanMove(actor, actor->GetTarget(), pSprite->ang + v8, vsi))
         pXSprite->goalAng = pSprite->ang + v8;
-    else if (nnExtCanMove(pSprite, pXSprite->target_i, pSprite->ang, vsi))
+    else if (nnExtCanMove(actor, actor->GetTarget(), pSprite->ang, vsi))
         pXSprite->goalAng = pSprite->ang;
-    else if (nnExtCanMove(pSprite, pXSprite->target_i, pSprite->ang - v8, vsi))
+    else if (nnExtCanMove(actor, actor->GetTarget(), pSprite->ang - v8, vsi))
         pXSprite->goalAng = pSprite->ang - v8;
     else
         pXSprite->goalAng = pSprite->ang + 341;
 
-    if (pXSprite->dodgeDir) {
-        
-        if (!nnExtCanMove(pSprite, pXSprite->target_i, pSprite->ang + pXSprite->dodgeDir * 512, 512))
+    if (pXSprite->dodgeDir) 
+        {
+        if (!nnExtCanMove(actor, actor->GetTarget(), pSprite->ang + pXSprite->dodgeDir * 512, 512))
         {
             pXSprite->dodgeDir = -pXSprite->dodgeDir;
-            if (!nnExtCanMove(pSprite, pXSprite->target_i, pSprite->ang + pXSprite->dodgeDir * 512, 512))
+            if (!nnExtCanMove(actor, actor->GetTarget(), pSprite->ang + pXSprite->dodgeDir * 512, 512))
                 pXSprite->dodgeDir = 0;
         }
-
     }
 }
 
 
+//---------------------------------------------------------------------------
+//
 /// patrol functions
-// ------------------------------------------------
-void aiPatrolState(spritetype* pSprite, int state) {
-    auto actor = &bloodActors[pSprite->index];
+//
+//---------------------------------------------------------------------------
 
-    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+void aiPatrolState(DBloodActor* actor, int state) 
+{
+    spritetype* pSprite = &actor->s();
+    assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax && actor->hasX());
+    assert(actor->GetTarget());
     
-    XSPRITE* pXSprite = &xsprite[pSprite->extra];
-    assert(pXSprite->target_i >= 0 && pXSprite->target_i < kMaxSprites);
+    XSPRITE* pXSprite = &actor->x();
     
-    spritetype* pMarker = &sprite[pXSprite->target_i];
-    XSPRITE* pXMarker = &xsprite[pMarker->extra];
+    auto markeractor = actor->GetTarget();
+    spritetype* pMarker = &markeractor->s();
+    XSPRITE* pXMarker = &markeractor->x();
     assert(pMarker->type == kMarkerPath);
 
     bool nSeqOverride = false, crouch = false;
@@ -7053,193 +7723,231 @@ void aiPatrolState(spritetype* pSprite, int state) {
         seq = 11537, nSeqOverride = true;  // these don't have idle crouch seq for some reason...
 
     if (seq < 0)
-        return aiPatrolStop(pSprite, -1);
+        return aiPatrolStop(actor, nullptr);
 
-    for (i = start; i < end; i++) {
-
+    for (i = start; i < end; i++) 
+    {
         AISTATE* newState = &genPatrolStates[i];
         if (newState->stateType != state || (!nSeqOverride && seq != newState->seqId))
             continue;
 
         if (pSprite->type == kDudeModernCustom) aiGenDudeNewState(actor, newState);
-        else aiNewState(&bloodActors[pXSprite->reference], newState);
+        else aiNewState(actor, newState);
 
         if (crouch) pXSprite->unused1 |= kDudeFlagCrouch;
         else pXSprite->unused1 &= ~kDudeFlagCrouch;
 
         if (nSeqOverride)
-            seqSpawn(seq, OBJ_SPRITE, pSprite->extra);
+            seqSpawn(seq, actor);
 
         return;
-
     }
 
-    if (i == end) {
-        viewSetSystemMessage("No patrol state #%d found for dude #%d (type = %d)", state, pSprite->index, pSprite->type);
-        aiPatrolStop(pSprite, -1);
+    if (i == end) 
+    {
+        viewSetSystemMessage("No patrol state #%d found for dude #%d (type = %d)", state, actor->GetIndex(), pSprite->type);
+        aiPatrolStop(actor, nullptr);
     }
 }
 
+//---------------------------------------------------------------------------
+//
 // check if some dude already follows the given marker
-int aiPatrolMarkerBusy(int nExcept, int nMarker) {
-    for (int i = headspritestat[kStatDude]; i != -1; i = nextspritestat[i]) {
-        if (!IsDudeSprite(&sprite[i]) || sprite[i].index == nExcept || !xspriRangeIsFine(sprite[i].extra))
+//
+//---------------------------------------------------------------------------
+
+DBloodActor* aiPatrolMarkerBusy(DBloodActor* except, DBloodActor* marker) 
+{
+    BloodStatIterator it(kStatDude);
+    while (auto actor = it.Next())
+    {
+        if (!actor->IsDudeActor() || actor == except || !actor->hasX())
             continue;
 
-        XSPRITE* pXDude = &xsprite[sprite[i].extra];
-        if (pXDude->health > 0 && pXDude->target_i >= 0 && sprite[pXDude->target_i].type == kMarkerPath && pXDude->target_i == nMarker)
-            return sprite[i].index;
+        auto targ = actor->GetTarget();
+        if (actor->x().health > 0 && targ != nullptr && targ->s().type == kMarkerPath && targ == marker)
+            return actor;
     }
-
-    return -1;
+    return nullptr;
 }
 
+//---------------------------------------------------------------------------
+//
+// check if some dude already follows the given marker
+//
+//---------------------------------------------------------------------------
 
-bool aiPatrolMarkerReached(spritetype* pSprite, XSPRITE* pXSprite) {
-
+bool aiPatrolMarkerReached(DBloodActor* actor) 
+{
+    spritetype* pSprite = &actor->s();
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
 
-        auto actor = &bloodActors[pSprite->index];
     const DUDEINFO_EXTRA* pExtra = &gDudeInfoExtra[pSprite->type - kDudeBase];
-    if (spriRangeIsFine(pXSprite->target_i) && sprite[pXSprite->target_i].type == kMarkerPath) {
-            
-        spritetype* pMarker = &sprite[pXSprite->target_i];
-        short okDist = ClipLow(pMarker->clipdist << 1, 4);
+    auto markeractor = actor->GetTarget();
+    if (markeractor && markeractor->s().type == kMarkerPath) 
+    {
+        spritetype* pMarker = &markeractor->s();
+        int okDist = ClipLow(pMarker->clipdist << 1, 4);
         int oX = abs(pMarker->x - pSprite->x) >> 4;
         int oY = abs(pMarker->y - pSprite->y) >> 4;
 
-        if (approxDist(oX, oY) <= okDist) {
-            
-            if (spriteIsUnderwater(actor) || pExtra->flying) {
-
+        if (approxDist(oX, oY) <= okDist) 
+        {
+            if (spriteIsUnderwater(actor) || pExtra->flying) 
+            {
                 okDist = pMarker->clipdist << 4;
                 int ztop, zbot, ztop2, zbot2;
-                GetSpriteExtents(pSprite, &ztop, &zbot);
-                GetSpriteExtents(pMarker, &ztop2, &zbot2);
+                GetActorExtents(actor, &ztop, &zbot);
+                GetActorExtents(markeractor, &ztop2, &zbot2);
 
                 int oZ1 = abs(zbot - ztop2) >> 6;
                 int oZ2 = abs(ztop - zbot2) >> 6;
                 if (oZ1 > okDist && oZ2 > okDist)
                     return false;
-
             }
-                
             return true;
         }
-
     }
-
     return false;
-
 }
 
-int findNextMarker(XSPRITE* pXMark, bool back) {
-    
-    XSPRITE* pXNext = NULL; int i;
-    for (i = headspritestat[kStatPathMarker]; i != -1; i = nextspritestat[i]) {
-        if (!xspriRangeIsFine(sprite[i].extra) || sprite[i].index == pXMark->reference)
-            continue;
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-        pXNext = &xsprite[sprite[i].extra];
+DBloodActor* findNextMarker(DBloodActor* mark, bool back) 
+{
+    auto pXMark = &mark->x();
+
+    BloodStatIterator it(kStatPathMarker);
+    while (auto next = it.Next())
+    {
+        if (!next->hasX() || next == mark) continue;
+
+        XSPRITE* pXNext = &next->x();
         if ((pXNext->locked || pXNext->isTriggered || pXNext->DudeLockout) || (back && pXNext->data2 != pXMark->data1) || (!back && pXNext->data1 != pXMark->data2))
             continue;
 
-        return sprite[i].index;
+        return next;
     }
-
-    return -1;
-
+    return nullptr;
 }
 
-bool markerIsNode(XSPRITE* pXMark, bool back) {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-    XSPRITE* pXNext = NULL; int i; int cnt = 0;
-    for (i = headspritestat[kStatPathMarker]; i != -1; i = nextspritestat[i]) {
-        if (!xspriRangeIsFine(sprite[i].extra) || sprite[i].index == pXMark->reference)
-            continue;
+bool markerIsNode(DBloodActor* mark, bool back) 
+{
+    auto pXMark = &mark->x();
+    int cnt = 0;
 
-        pXNext = &xsprite[sprite[i].extra];
+    BloodStatIterator it(kStatPathMarker);
+    while (auto next = it.Next())
+    {
+        if (!next->hasX() || next == mark) continue;
+
+        XSPRITE* pXNext = &next->x();
+
         if ((pXNext->locked || pXNext->isTriggered || pXNext->DudeLockout) || (back && pXNext->data2 != pXMark->data1) || (!back && pXNext->data1 != pXMark->data2))
             continue;
 
         if (++cnt > 1)
             return true;
     }
-
     return false;
-
 }
 
-void aiPatrolSetMarker(spritetype* pSprite, XSPRITE* pXSprite) {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-    
-    spritetype* pNext = NULL;   XSPRITE* pXNext = NULL;
-    spritetype* pCur = NULL;    XSPRITE* pXCur = NULL;
-    spritetype* pPrev = NULL;   XSPRITE* pXPrev = NULL;
+void aiPatrolSetMarker(DBloodActor* actor)
+{
+    auto pSprite = &actor->s();
+    auto pXSprite = &actor->x();
+    auto targetactor = actor->GetTarget();
 
-    bool back = false;
-    int path = -1; int firstFinePath = -1; int prev = -1, next, i, dist, zt1, zb1, zt2, zb2, closest = 200000;
+    DBloodActor* selected = nullptr;
+    int closest = 200000;
 
     // select closest marker that dude can see
-    if (pXSprite->target_i <= 0) {
+    if (targetactor == nullptr)
+    {
+        int zt1, zb1, zt2, zb2, dist;
+        GetActorExtents(actor, &zt2, &zb2);
 
-        for (i = headspritestat[kStatPathMarker]; i != -1; i = nextspritestat[i]) {
-            
-            if (!xspriRangeIsFine(sprite[i].extra))
-                continue;
+        BloodStatIterator it(kStatPathMarker);
+        while (auto nextactor = it.Next())
+        {
+            if (!nextactor->hasX()) continue;
 
-            pNext = &sprite[i]; pXNext = &xsprite[pNext->extra];
+            auto pNext = &nextactor->s();
+            auto pXNext = &nextactor->x();
+
             if (pXNext->locked || pXNext->isTriggered || pXNext->DudeLockout || (dist = approxDist(pNext->x - pSprite->x, pNext->y - pSprite->y)) > closest)
                 continue;
 
-            GetSpriteExtents(pNext, &zt1, &zb1); GetSpriteExtents(pSprite, &zt2, &zb2);
-            if (cansee(pNext->x, pNext->y, zt1, pNext->sectnum, pSprite->x, pSprite->y, zt2, pSprite->sectnum)) {
+            GetActorExtents(nextactor, &zt1, &zb1); 
+            if (cansee(pNext->x, pNext->y, zt1, pNext->sectnum, pSprite->x, pSprite->y, zt2, pSprite->sectnum)) 
+            {
                 closest = dist;
-                path = pNext->index;
+                selected = nextactor;
             }
-
         }
-
+    } 
     // set next marker
-    } else if (sprite[pXSprite->target_i].type == kMarkerPath && xspriRangeIsFine(sprite[pXSprite->target_i].extra)) {
-
+    else if (targetactor->s().type == kMarkerPath && targetactor->hasX())
+    {
         // idea: which one of next (allowed) markers are closer to the potential target?
         // idea: -3 select random next marker that dude can see in radius of reached marker
         // if reached marker is in radius of another marker with -3, but greater radius, use that marker
         // idea: for nodes only flag32 = specify if enemy must return back to node or allowed to select
         // another marker which belongs that node?
+        spritetype* pPrev = NULL;   XSPRITE* pXPrev = NULL;
+        DBloodActor* prevactor = nullptr;
+
+        DBloodActor* firstFinePath = nullptr;
+        int next;
 
         int breakChance = 0;
-        pCur  = &sprite[pXSprite->target_i];
-        pXCur = &xsprite[pCur->extra];
-        if (pXSprite->targetX >= 0)
+        auto pXCur = &targetactor->x();
+        if (actor->prevmarker)
         {
-            pPrev = &sprite[pXSprite->targetX];
-            pXPrev = &xsprite[pPrev->extra];
+            prevactor = actor->prevmarker;
+            pPrev = &prevactor->s();
+            pXPrev = &prevactor->x();
         }
-        prev = pCur->index;
 
-        bool node = markerIsNode(pXCur, false);
-        pXSprite->unused2 = aiPatrolGetPathDir(pXSprite, pXCur); // decide if it should go back or forward
+        bool node = markerIsNode(targetactor, false);
+        pXSprite->unused2 = aiPatrolGetPathDir(actor, targetactor); // decide if it should go back or forward
         if (pXSprite->unused2 == kPatrolMoveBackward && Chance(0x8000) && node)
             pXSprite->unused2 = kPatrolMoveForward;
 
-        back = (pXSprite->unused2 == kPatrolMoveBackward); next = (back) ? pXCur->data1 : pXCur->data2;
-        for (i = headspritestat[kStatPathMarker]; i != -1; i = nextspritestat[i]) {
-            
-            if (sprite[i].index == pXSprite->target_i || !xspriRangeIsFine(sprite[i].extra)) continue;
-            else if (pXSprite->targetX >= 0 && sprite[i].index == pPrev->index && node) {
+        bool back = (pXSprite->unused2 == kPatrolMoveBackward); next = (back) ? pXCur->data1 : pXCur->data2;
+        BloodStatIterator it(kStatPathMarker);
+        while(auto nextactor = it.Next())
+        {
+            if (nextactor == targetactor || !nextactor->hasX()) continue;
+            else if (pXSprite->targetX >= 0 && nextactor == prevactor && node) 
+            {
                 if (pXCur->data2 == pXPrev->data1)
                     continue;
             }
 
-            pXNext = &xsprite[sprite[i].extra];
+            auto pXNext = &nextactor->x();
             if ((pXNext->locked || pXNext->isTriggered || pXNext->DudeLockout) || (back && pXNext->data2 != next) || (!back && pXNext->data1 != next))
                 continue;
             
-            if (firstFinePath == -1) firstFinePath = pXNext->reference;
-            if (aiPatrolMarkerBusy(pSprite->index, pXNext->reference) >= 0 && !Chance(0x0010)) continue;
-            else path = pXNext->reference;
+            if (firstFinePath == nullptr) firstFinePath = nextactor;
+            if (aiPatrolMarkerBusy(actor, nextactor) && !Chance(0x0010)) continue;
+            else selected = nextactor;
             
             breakChance += nnExtRandom(1, 5);
             if (breakChance >= 5)
@@ -7247,77 +7955,84 @@ void aiPatrolSetMarker(spritetype* pSprite, XSPRITE* pXSprite) {
 
         }
 
-        if (firstFinePath == -1) {
-            
-            viewSetSystemMessage("No markers with id #%d found for dude #%d! (back = %d)", next, pSprite->index, back);
+        if (firstFinePath == nullptr) 
+        {
+            viewSetSystemMessage("No markers with id #%d found for dude #%d! (back = %d)", next, actor->GetIndex(), back);
             return;
-
         }
 
-        if (path == -1)
-            path = firstFinePath;
-
+        if (selected == nullptr)
+            selected = firstFinePath;
     }
 
-    if (!spriRangeIsFine(path))
+    if (!selected)
         return;
 
-    pXSprite->target_i  = path;
-    pXSprite->targetX = prev; // keep previous marker index here, use actual sprite coords when selecting direction
-    sprite[path].owner = pSprite->index;
-
+    actor->SetTarget(selected);
+    selected->SetOwner(actor);
+    actor->prevmarker = targetactor; // keep previous marker index here, use actual sprite coords when selecting direction
 }
 
-void aiPatrolStop(spritetype* pSprite, int target, bool alarm) 
-{
-    auto actor = &bloodActors[pSprite->index];
-    if (xspriRangeIsFine(pSprite->extra)) 
-    {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-        XSPRITE* pXSprite = &xsprite[pSprite->extra];
+void aiPatrolStop(DBloodActor* actor, DBloodActor* targetactor, bool alarm)
+{
+    auto pSprite = &actor->s();
+    if (actor->hasX()) 
+    {
+        XSPRITE* pXSprite = &actor->x();
         pXSprite->data3 = 0; // reset spot progress
         pXSprite->unused1 &= ~kDudeFlagCrouch; // reset the crouch status
         pXSprite->unused2 = kPatrolMoveForward; // reset path direction
+        actor->prevmarker = nullptr;
         pXSprite->targetX = -1; // reset the previous marker index
         if (pXSprite->health <= 0)
             return;
 
-        if (pXSprite->target_i >= 0 && sprite[pXSprite->target_i].type == kMarkerPath) {
-            if (target < 0) pSprite->ang = sprite[pXSprite->target_i].ang & 2047;
+        auto mytarget = actor->GetTarget();
+
+        if (mytarget && mytarget->s().type == kMarkerPath) 
+        {
+            if (targetactor == nullptr) pSprite->ang = mytarget->s().ang & 2047;
             actor->SetTarget(nullptr);
         }
 
-        bool patrol = pXSprite->dudeFlag4; pXSprite->dudeFlag4 = 0;
-        if (spriRangeIsFine(target) && IsDudeSprite(&sprite[target]) && xspriRangeIsFine(sprite[target].extra)) {
-
-            aiSetTarget_(pXSprite, target);
-            aiActivateDude(&bloodActors[pXSprite->reference]);
+        bool patrol = pXSprite->dudeFlag4; 
+        pXSprite->dudeFlag4 = 0;
+        if (targetactor && targetactor->hasX() && targetactor->IsDudeActor())
+        {
+            aiSetTarget(actor, targetactor);
+            aiActivateDude(actor);
             
             // alarm only when in non-recoil state?
             //if (((pXSprite->unused1 & kDudeFlagStealth) && stype != kAiStateRecoil) || !(pXSprite->unused1 & kDudeFlagStealth)) {
-                if (alarm) aiPatrolAlarmFull(pSprite, &xsprite[sprite[target].extra], Chance(0x0100));
-                else aiPatrolAlarmLite(pSprite, &xsprite[sprite[target].extra]);
+                if (alarm) aiPatrolAlarmFull(actor, targetactor, Chance(0x0100));
+                else aiPatrolAlarmLite(actor, targetactor);
             //}
 
-        } else {
-
-            
+        }
+        else 
+        {
             aiInitSprite(actor);
-            aiSetTarget_(pXSprite, pXSprite->targetX, pXSprite->targetY, pXSprite->targetZ);
-            
-
+            aiSetTarget(actor, pXSprite->targetX, pXSprite->targetY, pXSprite->targetZ);
         }
         
         pXSprite->dudeFlag4 = patrol; // this must be kept so enemy can patrol after respawn again
     }
-    return;
 }
 
-void aiPatrolRandGoalAng(DBloodActor* actor) {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-    auto pXSprite = &actor->x();
-    auto pSprite = &actor->s();
-    
+void aiPatrolRandGoalAng(DBloodActor* actor) 
+{
     int goal = kAng90;
     if (Chance(0x4000))
         goal = kAng120;
@@ -7328,11 +8043,17 @@ void aiPatrolRandGoalAng(DBloodActor* actor) {
     if (Chance(0x8000))
         goal = -goal;
 
-    pXSprite->goalAng = (pSprite->ang + goal) & 2047;
+    actor->x().goalAng = (actor->s().ang + goal) & 2047;
 }
 
-void aiPatrolTurn(DBloodActor* actor) {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
+void aiPatrolTurn(DBloodActor* actor)
+{
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
 
@@ -7342,23 +8063,31 @@ void aiPatrolTurn(DBloodActor* actor) {
 
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-void aiPatrolMove(DBloodActor* actor) {
+void aiPatrolMove(DBloodActor* actor) 
+{
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
+    auto targetactor = actor->GetTarget();
 
-    if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax) || !spriRangeIsFine(pXSprite->target_i))
+    if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax) || !targetactor)
         return;
 
 
     int dudeIdx = pSprite->type - kDudeBase;
-    switch (pSprite->type) {
+    switch (pSprite->type) 
+    {
         case kDudeCultistShotgunProne:  dudeIdx = kDudeCultistShotgun - kDudeBase;  break;
         case kDudeCultistTommyProne:    dudeIdx = kDudeCultistTommy - kDudeBase;    break;
     }
 
-    spritetype* pTarget = &sprite[pXSprite->target_i];
-    XSPRITE* pXTarget   = &xsprite[pTarget->extra];
+    spritetype* pTarget = &targetactor->s();
+    XSPRITE* pXTarget   = &targetactor->x();
     DUDEINFO* pDudeInfo = &dudeInfo[dudeIdx];
     const DUDEINFO_EXTRA* pExtra = &gDudeInfoExtra[dudeIdx];
     
@@ -7368,131 +8097,133 @@ void aiPatrolMove(DBloodActor* actor) {
     int vel = (pXSprite->unused1 & kDudeFlagCrouch) ? kMaxPatrolCrouchVelocity : kMaxPatrolVelocity;
     int goalAng = 341;
 
-    if (pExtra->flying || spriteIsUnderwater(actor)) {
-
+    if (pExtra->flying || spriteIsUnderwater(actor)) 
+    {
         goalAng >>= 1;
-        zvel[pSprite->index] = dz;
+        actor->zvel = dz;
         if (pSprite->flags & kPhysGravity)
             pSprite->flags &= ~kPhysGravity;
-
-
-    } else if (!pExtra->flying) {
-
+    } 
+    else if (!pExtra->flying) 
+    {
         pSprite->flags |= kPhysGravity | kPhysFalling;
-
     }
 
     int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
     int nAng = ((pXSprite->goalAng + 1024 - pSprite->ang) & 2047) - 1024;
     pSprite->ang = (pSprite->ang + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
     
-    if (abs(nAng) > goalAng || ((pXTarget->waitTime > 0 || pXTarget->data1 == pXTarget->data2) && aiPatrolMarkerReached(pSprite, pXSprite))) {
-
-       actor->xvel() = 0;
-       actor->yvel() = 0;
+    if (abs(nAng) > goalAng || ((pXTarget->waitTime > 0 || pXTarget->data1 == pXTarget->data2) && aiPatrolMarkerReached(actor))) 
+    {
+       actor->xvel = 0;
+       actor->yvel = 0;
         return;
-
     }
    
-    if (gSpriteHit[pSprite->extra].hit.type == kHitSprite)
+    if (actor->hit.hit.type == kHitSprite)
     {
-        auto hitactor = gSpriteHit[pSprite->extra].hit.actor;
-
+        auto hitactor = actor->hit.hit.actor;
         hitactor->x().dodgeDir =  -1;
         pXSprite->dodgeDir  =   1;
-
         aiMoveDodge(hitactor);
-
-    } else {
-
+    }
+    else 
+    {
         int frontSpeed = aiPatrolGetVelocity(pDudeInfo->frontSpeed, pXTarget->busyTime);
-        xvel[pSprite->index] += MulScale(frontSpeed, Cos(pSprite->ang), 30);
-        yvel[pSprite->index] += MulScale(frontSpeed, Sin(pSprite->ang), 30);
-
+        actor->xvel += MulScale(frontSpeed, Cos(pSprite->ang), 30);
+        actor->yvel += MulScale(frontSpeed, Sin(pSprite->ang), 30);
     }
 
     vel = MulScale(vel, approxDist(dx, dy) << 6, 16);
-    xvel[pSprite->index] = ClipRange(xvel[pSprite->index], -vel, vel);
-    yvel[pSprite->index] = ClipRange(yvel[pSprite->index], -vel, vel);
+    actor->xvel = ClipRange(actor->xvel, -vel, vel);
+    actor->yvel = ClipRange(actor->yvel, -vel, vel);
     return;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-void aiPatrolAlarmLite(spritetype* pSprite, XSPRITE* pXTarget) {
-    
-    if (!xsprIsFine(pSprite) || !IsDudeSprite(pSprite))
+void aiPatrolAlarmLite(DBloodActor* actor, DBloodActor* targetactor) 
+{
+    if (!actor->hasX() || !actor->IsDudeActor())
         return;
 
-    auto targetactor = &bloodActors[pXTarget->reference];
-    XSPRITE* pXSprite = &xsprite[pSprite->extra];
+    spritetype* pSprite = &actor->s();
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pTarget = &targetactor->s();
+
     if (pXSprite->health <= 0)
         return;
 
-    spritetype* pDude = NULL; XSPRITE* pXDude = NULL;
-    spritetype* pTarget = &sprite[pXTarget->reference];
-    
     int zt1, zb1, zt2, zb2; //int eaz1 = (getDudeInfo(pSprite->type)->eyeHeight * pSprite->yrepeat) << 2;
-    GetSpriteExtents(pSprite, &zt1, &zb1); GetSpriteExtents(pTarget, &zt2, &zb2);
+    GetActorExtents(actor, &zt1, &zb1); 
+    GetActorExtents(targetactor, &zt2, &zb2);
     
-    for (int nSprite = headspritestat[kStatDude]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
-
-        auto dudeactor = &bloodActors[nSprite];
-        pDude = &dudeactor->s();
-        if (pDude->index == pSprite->index || !IsDudeSprite(pDude) || IsPlayerSprite(pDude) || pDude->extra < 0)
+    BloodStatIterator it(kStatDude);
+    while (auto dudeactor = it.Next())
+    {
+        auto pDude = &dudeactor->s();
+        if (dudeactor == actor || !dudeactor->IsDudeActor() || dudeactor->IsPlayerActor() || !dudeactor->hasX())
             continue;
 
-        pXDude = &dudeactor->x();
+        auto pXDude = &dudeactor->x();
         if (pXDude->health <= 0)
             continue;
 
         int eaz2 = (getDudeInfo(pTarget->type)->eyeHeight * pTarget->yrepeat) << 2;
         int nDist = approxDist(pDude->x - pSprite->x, pDude->y - pSprite->y);
-        if (nDist >= kPatrolAlarmSeeDist || !cansee(pSprite->x, pSprite->y, zt1, pSprite->sectnum, pDude->x, pDude->y, pDude->z - eaz2, pDude->sectnum)) {
-            
+        if (nDist >= kPatrolAlarmSeeDist || !cansee(pSprite->x, pSprite->y, zt1, pSprite->sectnum, pDude->x, pDude->y, pDude->z - eaz2, pDude->sectnum)) 
+        {
             nDist = approxDist(pDude->x - pTarget->x, pDude->y - pTarget->y);
             if (nDist >= kPatrolAlarmSeeDist || !cansee(pTarget->x, pTarget->y, zt2, pTarget->sectnum, pDude->x, pDude->y, pDude->z - eaz2, pDude->sectnum))
                 continue;
-        
         }
 
-        if (aiInPatrolState(pXDude->aiState)) aiPatrolStop(pDude, pXDude->target_i);
-        if (pXDude->target_i >= 0 || pXDude->target_i == pXSprite->target_i)
+        if (aiInPatrolState(pXDude->aiState)) aiPatrolStop(dudeactor, dudeactor->GetTarget());
+        if (dudeactor->GetTarget() && dudeactor->GetTarget() == actor->GetTarget())
             continue;
 
         aiSetTarget(dudeactor, targetactor);
         aiActivateDude(dudeactor);
-
     }
-
 }
 
-void aiPatrolAlarmFull(spritetype* pSprite, XSPRITE* pXTarget, bool chain) {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-    if (!xsprIsFine(pSprite) || !IsDudeSprite(pSprite))
+void aiPatrolAlarmFull(DBloodActor* actor, DBloodActor* targetactor, bool chain) 
+{
+    if (!actor->hasX() || !actor->IsDudeActor())
         return;
 
-    XSPRITE* pXSprite = &xsprite[pSprite->extra];
+    spritetype* pSprite = &actor->s();
+    XSPRITE* pXSprite = &actor->x();
+    spritetype* pTarget = &targetactor->s();
+
     if (pXSprite->health <= 0)
         return;
-
-    spritetype* pDude = NULL; XSPRITE* pXDude = NULL;
-    spritetype* pTarget = &sprite[pXTarget->reference];
 
     int eaz2 = (getDudeInfo(pSprite->type)->eyeHeight * pSprite->yrepeat) << 2;
     int x2 = pSprite->x, y2 = pSprite->y, z2 = pSprite->z - eaz2, sect2 = pSprite->sectnum;
     
-    int tzt, tzb; GetSpriteExtents(pTarget, &tzt, &tzb);
+    int tzt, tzb; 
+    GetActorExtents(targetactor, &tzt, &tzb);
     int x3 = pTarget->x, y3 = pTarget->y, z3 = tzt, sect3 = pTarget->sectnum;
 
-
-    for (int nSprite = headspritestat[kStatDude]; nSprite >= 0; nSprite = nextspritestat[nSprite]) {
-
-        auto dudeactor = &bloodActors[nSprite];
-        pDude = &dudeactor->s();
-        if (pDude->index == pSprite->index || !IsDudeSprite(pDude) || IsPlayerSprite(pDude) || pDude->extra < 0)
+    BloodStatIterator it(kStatDude);
+    while (auto dudeactor = it.Next())
+    {
+        auto pDude = &dudeactor->s();
+        if (dudeactor == actor || !dudeactor->IsDudeActor() || dudeactor->IsPlayerActor() || !dudeactor->hasX())
             continue;
 
-        pXDude = &dudeactor->x();
+        auto pXDude = &dudeactor->x();
         if (pXDude->health <= 0)
             continue;
 
@@ -7507,52 +8238,69 @@ void aiPatrolAlarmFull(spritetype* pSprite, XSPRITE* pXTarget, bool chain) {
         if (//(nDist1 < hdist || nDist2 < hdist) ||
             ((nDist1 < sdist && cansee(x1, y1, z1, sect1, x2, y2, z2, sect2)) || (nDist2 < sdist && cansee(x1, y1, z1, sect1, x3, y3, z3, sect3)))) {
 
-            if (aiInPatrolState(pXDude->aiState)) aiPatrolStop(pDude, pXDude->target_i);
-            if (pXDude->target_i >= 0 || pXDude->target_i == pXSprite->target_i)
+            if (aiInPatrolState(pXDude->aiState)) aiPatrolStop(dudeactor, dudeactor->GetTarget());
+            if (dudeactor->GetTarget() && dudeactor->GetTarget() == actor->GetTarget())
                 continue;
 
-            if (spriRangeIsFine(pXSprite->target_i)) aiSetTarget(dudeactor, &bloodActors[pXSprite->target_i]);
+            if (actor->GetTarget() ) aiSetTarget(dudeactor, actor->GetTarget());
             else aiSetTarget(dudeactor, pSprite->x, pSprite->y, pSprite->z);
             aiActivateDude(dudeactor);
 
             if (chain)
-                aiPatrolAlarmFull(pDude, pXTarget, Chance(0x0010));
-
-            //Printf("Dude #%d alarms dude #%d", pSprite->index, pDude->index);
-
+                aiPatrolAlarmFull(dudeactor, targetactor, Chance(0x0010));
+            //Printf("Dude #%d alarms dude #%d", actor->GetIndex(), pDude->index);
         }
-
     }
-
 }
 
-bool spritesTouching(int nXSprite1, int nXSprite2) {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-    if (!xspriRangeIsFine(nXSprite1) || !xspriRangeIsFine(nXSprite2))
+bool spritesTouching(DBloodActor *actor1, DBloodActor* actor2) 
+{
+    if (!actor1->hasX() || !actor2->hasX())
         return false;
 
+    auto hit = &actor1->hit;
     DBloodActor* hitactor = nullptr;
-    if (gSpriteHit[nXSprite1].hit.type == kHitSprite) hitactor = gSpriteHit[nXSprite1].hit.actor;
-    else if (gSpriteHit[nXSprite1].florhit.type == kHitSprite) hitactor = gSpriteHit[nXSprite1].florhit.actor;
-    else if (gSpriteHit[nXSprite1].ceilhit.type == kHitSprite) hitactor = gSpriteHit[nXSprite1].ceilhit.actor;
+    if (hit->hit.type == kHitSprite) hitactor = hit->hit.actor;
+    else if (hit->florhit.type == kHitSprite) hitactor = hit->florhit.actor;
+    else if (hit->ceilhit.type == kHitSprite) hitactor = hit->ceilhit.actor;
     else return false;
-    return hitactor->hasX() && hitactor->s().extra == nXSprite2;
+    return hitactor->hasX() && hitactor == actor2;
 }
 
-bool aiCanCrouch(spritetype* pSprite) {
-    
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+bool aiCanCrouch(DBloodActor* actor)
+{
+    auto pSprite = &actor->s();
     if (pSprite->type >= kDudeBase && pSprite->type < kDudeVanillaMax)
         return (gDudeInfoExtra[pSprite->type - kDudeBase].idlcseqofs >= 0 && gDudeInfoExtra[pSprite->type - kDudeBase].mvecseqofs >= 0);
     else if (pSprite->type == kDudeModernCustom || pSprite->type == kDudeModernCustomBurning)
-        return gGenDudeExtra[pSprite->index].canDuck;
+        return actor->genDudeExtra.canDuck;
 
     return false;
 
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-bool readyForCrit(spritetype* pHunter, spritetype* pVictim) {
-
+bool readyForCrit(DBloodActor* hunter, DBloodActor* victim) 
+{
+    auto pHunter = &hunter->s();
+    auto pVictim = &victim->s();
     if (!(pHunter->type >= kDudeBase && pHunter->type < kDudeMax) || !(pVictim->type >= kDudeBase && pVictim->type < kDudeMax))
         return false;
 
@@ -7565,37 +8313,48 @@ bool readyForCrit(spritetype* pHunter, spritetype* pVictim) {
     return (abs(((getangle(dx, dy) + 1024 - pVictim->ang) & 2047) - 1024) <= kAng45);
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
+DBloodActor* aiPatrolSearchTargets(DBloodActor* actor) 
+{
+    spritetype* pSprite = &actor->s();
+    XSPRITE* pXSprite = &actor->x();
 
-int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
-   
     enum { kMaxPatrolFoundSounds = 256 }; // should be the maximum amount of sound channels the engine can play at the same time.
     PATROL_FOUND_SOUNDS patrolBonkles[kMaxPatrolFoundSounds];
 
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
     DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type); PLAYER* pPlayer = NULL;
     
-    for (int i = 0; i < kMaxPatrolFoundSounds; i++) {
+    for (int i = 0; i < kMaxPatrolFoundSounds; i++) 
+    {
         patrolBonkles[i].snd = patrolBonkles[i].cur = 0;
         patrolBonkles[i].max = ClipLow((gGameOptions.nDifficulty + 1) >> 1, 1);
     }
 
-    int i, j, f, mod, x, y, z, dx, dy, nDist, eyeAboveZ, target = -1, sndCnt = 0, seeDist, hearDist, feelDist, seeChance, hearChance;
-    bool stealth = (pXSprite->unused1 & kDudeFlagStealth); bool blind = (pXSprite->dudeGuard); bool deaf = (pXSprite->dudeDeaf);
+    int i, j, f, mod, x, y, z, dx, dy, nDist, eyeAboveZ, sndCnt = 0, seeDist, hearDist, feelDist, seeChance, hearChance;
+    bool stealth = (pXSprite->unused1 & kDudeFlagStealth);
+    bool blind = (pXSprite->dudeGuard); 
+    bool deaf = (pXSprite->dudeDeaf);
 
+    DBloodActor* newtarget = nullptr;
     // search for player targets
-    for (i = connecthead; i != -1; i = connectpoint2[i]) {
-        
+    for (i = connecthead; i != -1; i = connectpoint2[i]) 
+    {
         pPlayer = &gPlayer[i];
+        if (!pPlayer->actor->hasX()) continue;
+
         spritetype* pSpr = pPlayer->pSprite;
-        if (!xsprIsFine(pSpr))
-            continue;
-    
-        XSPRITE* pXSpr = &xsprite[pSpr->extra];
+        XSPRITE* pXSpr = &pPlayer->actor->x();
         if (pXSpr->health <= 0)
             continue;
 
-        target = -1; seeChance = hearChance = 0x0000;
+        newtarget = nullptr;
+        seeChance = hearChance = 0x0000;
         x = pSpr->x, y = pSpr->y, z = pSpr->z, dx = x - pSprite->x, dy = y - pSprite->y; nDist = approxDist(dx, dy);
         seeDist = (stealth) ? pDudeInfo->seeDist / 3 : pDudeInfo->seeDist >> 1;
         hearDist = pDudeInfo->hearDist; feelDist = hearDist >> 1;
@@ -7603,30 +8362,27 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
         // TO-DO: is there any dudes that sees this patrol dude and sees target?
 
 
-        if (nDist <= seeDist) {
-
+        if (nDist <= seeDist) 
+        {
             eyeAboveZ = (pDudeInfo->eyeHeight * pSprite->yrepeat) << 2;
-            if (nDist < seeDist >> 3) GetSpriteExtents(pSpr, &z, &j); //use ztop of the target sprite
+            if (nDist < seeDist >> 3) GetActorExtents(pPlayer->actor, &z, &j); //use ztop of the target sprite
             if (!cansee(x, y, z, pSpr->sectnum, pSprite->x, pSprite->y, pSprite->z - eyeAboveZ, pSprite->sectnum))
                 continue;
-
-        } else {
-        
-            continue;
-        
         }
+        else 
+            continue;
 
         bool invisible = (powerupCheck(pPlayer, kPwUpShadowCloak) > 0);
-        if (spritesTouching(pSprite->extra, pSpr->extra) || spritesTouching(pSpr->extra, pSprite->extra)) {
-
-            DPrintf(DMSG_SPAMMY, "Patrol dude #%d spot the Player #%d via touch.", pSprite->index, pPlayer->nPlayer + 1);
+        if (spritesTouching(actor, pPlayer->actor) || spritesTouching(pPlayer->actor, actor)) 
+        {
+            DPrintf(DMSG_SPAMMY, "Patrol dude #%d spot the Player #%d via touch.", actor->GetIndex(), pPlayer->nPlayer + 1);
             if (invisible) pPlayer->pwUpTime[kPwUpShadowCloak] = 0;
-            target = pSpr->index;
+            newtarget = pPlayer->actor;
             break;
-
         }
 
-        if (!deaf) {
+        if (!deaf) 
+        {
 
             soundEngine->EnumerateChannels([&](FSoundChan* chan)
                 {
@@ -7640,7 +8396,8 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
                         sndy = emitter->y;
 
                         // sound attached to the sprite
-                        if (pSpr->index != emitter->index && emitter->owner != pSpr->index) {
+                        if (pSpr != emitter && emitter->owner != actor->GetSpriteIndex())
+                        {
 
                             if (!sectRangeIsFine(emitter->sectnum)) return false;
                             searchsect = emitter->sectnum;
@@ -7674,7 +8431,7 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
                     BloodSectIterator it(searchsect);
                     while (auto act = it.Next())
                     {
-                        if (act->GetOwner() == &bloodActors[pSpr->index])
+                        if (act->GetOwner() == pPlayer->actor)
                         {
                             found = true;
                             break;
@@ -7690,58 +8447,64 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
 
             if (invisible && hearChance >= kMaxPatrolSpotValue >> 2) 
             {
-                target = pSpr->index;
+                newtarget = pPlayer->actor;
                 pPlayer->pwUpTime[kPwUpShadowCloak] = 0;
                 invisible = false;
                 break;
             }
-
         }
 
-        if (!invisible && (!deaf || !blind)) {
-
-            if (stealth) {
-
-                switch (pPlayer->lifeMode) {
+        if (!invisible && (!deaf || !blind)) 
+        {
+            if (stealth) 
+            {
+                switch (pPlayer->lifeMode) 
+                {
                     case kModeHuman:
                     case kModeHumanShrink:
-                        if (pPlayer->lifeMode == kModeHumanShrink) {
+                        if (pPlayer->lifeMode == kModeHumanShrink) 
+                        {
                             seeDist  -= mulscale8(164, seeDist);
                             feelDist -= mulscale8(164, feelDist);
                         }
-                        if (pPlayer->posture == kPostureCrouch) {
+                        if (pPlayer->posture == kPostureCrouch) 
+                        {
                             seeDist  -= mulscale8(64, seeDist);
                             feelDist -= mulscale8(128, feelDist);
                         }
                         break;
                     case kModeHumanGrown:
-                        if (pPlayer->posture != kPostureCrouch) {
+                        if (pPlayer->posture != kPostureCrouch) 
+                        {
                             seeDist  += mulscale8(72, seeDist);
                             feelDist += mulscale8(64, feelDist);
-                        } else {
+                        }
+                        else 
+                        {
                             seeDist  += mulscale8(48, seeDist);
                         }
                         break;
                 }
-
             }
 
             bool itCanHear = false; bool itCanSee = false;
-            feelDist = ClipLow(feelDist, 0);  seeDist = ClipLow(seeDist, 0);
+            feelDist = ClipLow(feelDist, 0);  
+            seeDist = ClipLow(seeDist, 0);
 
-            if (hearDist) {
-
+            if (hearDist) 
+            {
+                auto act = pPlayer->actor;
                 itCanHear = (!deaf && (nDist < hearDist || hearChance > 0));
-                if (itCanHear && nDist < feelDist && (xvel[pSpr->index] || yvel[pSpr->index] || zvel[pSpr->index]))
-                    hearChance += ClipLow(mulscale8(1, ClipLow(((feelDist - nDist) + (abs(xvel[pSpr->index]) + abs(yvel[pSpr->index]) + abs(zvel[pSpr->index]))) >> 6, 0)), 0);
+                if (itCanHear && nDist < feelDist && (act->xvel || act->yvel || act->zvel))
+                    hearChance += ClipLow(mulscale8(1, ClipLow(((feelDist - nDist) + (abs(act->xvel) + abs(act->yvel) + abs(act->zvel))) >> 6, 0)), 0);
             }
 
-            if (seeDist) {
-
+            if (seeDist) 
+            {
                 int periphery = ClipLow(pDudeInfo->periphery, kAng60);
                 int nDeltaAngle = abs(((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024);
-                if ((itCanSee = (!blind && nDist < seeDist && nDeltaAngle < periphery)) == true) {
-
+                if ((itCanSee = (!blind && nDist < seeDist && nDeltaAngle < periphery)) == true) 
+                {
                     int base = 100 + ((20 * gGameOptions.nDifficulty) - (nDeltaAngle / 5));
                     //seeChance = base - MulScale(ClipRange(5 - gGameOptions.nDifficulty, 1, 4), nDist >> 1, 16);
                     //scale(0x40000, a6, dist2);
@@ -7753,24 +8516,23 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
                     //seeChance = scale(0x1000, base, t);
                     //viewSetSystemMessage("SEE CHANCE: %d, BASE %d, DIST %d, T %d", seeChance, base, nDist, t);
                     //itCanSee = false;
-
                 }
-
             }
 
             if (!itCanSee && !itCanHear)
                 continue;
 
-            if (stealth) {
-
+            if (stealth) 
+            {
                 // search in stealth regions to modify spot chances
-                for (j = headspritestat[kStatModernStealthRegion]; j != -1; j = nextspritestat[j]) {
-
-                    spritetype* pSteal = &sprite[j];
-                    if (!xspriRangeIsFine(pSteal->extra))
+                BloodStatIterator it(kStatModernStealthRegion);
+                while (auto iactor = it.Next())
+                {
+                    if (!iactor->hasX())
                         continue;
 
-                    XSPRITE* pXSteal = &xsprite[pSteal->extra];
+                    spritetype* pSteal = &iactor->s();
+                    XSPRITE* pXSteal = &iactor->x();
                     if (pXSteal->locked) // ignore locked regions
                         continue;
 
@@ -7781,36 +8543,36 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
                     bool crouch = (pSteal->flags & kModernTypeFlag8); // target must crouch
                     //bool floor = (pSteal->cstat & CSTAT_SPRITE_BLOCK); // target (or dude?) must touch floor of the sector
 
-                    if (trgt) {
+                    if (trgt) 
+                    {
 
                         if (pXSteal->data1 > 0)
                         {
                             if (approxDist(abs(pSteal->x - pSpr->x) >> 4, abs(pSteal->y - pSpr->y) >> 4) >= pXSteal->data1)
                                 continue;
 
-                        } else if (pSpr->sectnum != pSteal->sectnum)
+                        } 
+                        else if (pSpr->sectnum != pSteal->sectnum)
                             continue;
 
                         if (crouch && pPlayer->posture == kPostureStand)
                             continue;
-
                     }
 
-
-                    if (dude) {
-
+                    if (dude) 
+                    {
                         if (pXSteal->data1 > 0)
                         {
                             if (approxDist(abs(pSteal->x - pSprite->x) >> 4, abs(pSteal->y - pSprite->y) >> 4) >= pXSteal->data1)
                                 continue;
 
-                        } else if (pSprite->sectnum != pSteal->sectnum)
+                        } 
+                        else if (pSprite->sectnum != pSteal->sectnum)
                             continue;
-
                     }
 
-                    if (itCanHear) {
-
+                    if (itCanHear) 
+                    {
                         if (fixd)
                             hearChance = ClipLow(hearChance, pXSteal->data2);
 
@@ -7818,11 +8580,10 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
                         if (fixd)  hearChance = mod; else hearChance += mod;
 
                         hearChance = ClipRange(hearChance, -kMaxPatrolSpotValue, kMaxPatrolSpotValue);
-
                     }
 
-                    if (itCanSee) {
-
+                    if (itCanSee) 
+                    {
                         if (fixd)
                             seeChance = ClipLow(seeChance, pXSteal->data3);
 
@@ -7832,43 +8593,43 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
                         seeChance = ClipRange(seeChance, -kMaxPatrolSpotValue, kMaxPatrolSpotValue);
                     }
 
-
                     // trigger this region if target gonna be spot
                     if (pXSteal->txID && pXSprite->data3 + hearChance + seeChance >= kMaxPatrolSpotValue)
-                        trTriggerSprite(pSteal->index, pXSteal, kCmdToggle);
-
+                        trTriggerSprite(iactor, kCmdToggle);
                    
                     // continue search another stealth regions to affect chances
-
                 }
-
             }
 
-            if (itCanHear && hearChance > 0) {
-                DPrintf(DMSG_SPAMMY, "Patrol dude #%d hearing the Player #%d.", pSprite->index, pPlayer->nPlayer + 1);
+            if (itCanHear && hearChance > 0) 
+            {
+                DPrintf(DMSG_SPAMMY, "Patrol dude #%d hearing the Player #%d.", actor->GetIndex(), pPlayer->nPlayer + 1);
                 pXSprite->data3 = ClipRange(pXSprite->data3 + hearChance, -kMaxPatrolSpotValue, kMaxPatrolSpotValue);
-                if (!stealth) {
-                    target = pSpr->index;
+                if (!stealth) 
+                {
+                    newtarget = pPlayer->actor;
                     break;
-            }
+                }
             }
 
-            if (itCanSee && seeChance > 0) {
-                //DPrintf(DMSG_SPAMMY, "Patrol dude #%d seeing the Player #%d.", pSprite->index, pPlayer->nPlayer + 1);
+            if (itCanSee && seeChance > 0) 
+            {
+                //DPrintf(DMSG_SPAMMY, "Patrol dude #%d seeing the Player #%d.", actor->GetIndex(), pPlayer->nPlayer + 1);
                 //pXSprite->data3 += seeChance;
                 pXSprite->data3 = ClipRange(pXSprite->data3 + seeChance, -kMaxPatrolSpotValue, kMaxPatrolSpotValue);
-                if (!stealth) {
-                    target = pSpr->index;
+                if (!stealth) 
+                {
+                    newtarget = pPlayer->actor;
                     break;
                 }
             }
-
         }
 
         // add check for corpses?
 
-        if ((pXSprite->data3 = ClipRange(pXSprite->data3, 0, kMaxPatrolSpotValue)) == kMaxPatrolSpotValue) {
-            target = pSpr->index;
+        if ((pXSprite->data3 = ClipRange(pXSprite->data3, 0, kMaxPatrolSpotValue)) == kMaxPatrolSpotValue) 
+        {
+            newtarget = pPlayer->actor;
             break;
         }
 
@@ -7877,17 +8638,25 @@ int aiPatrolSearchTargets(spritetype* pSprite, XSPRITE* pXSprite) {
 
     }
 
-    if (target >= 0) return target;
+    if (newtarget) return newtarget;
     pXSprite->data3 -= ClipLow(((kPercFull * pXSprite->data3) / kMaxPatrolSpotValue) >> 2, 3);
-    return -1;
+    return nullptr;
 }
 
-void aiPatrolFlagsMgr(spritetype* pSource, XSPRITE* pXSource, spritetype* pDest, XSPRITE* pXDest, bool copy, bool init) {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-    auto destactor = &bloodActors[pDest->index];
+void aiPatrolFlagsMgr(DBloodActor* sourceactor, DBloodActor* destactor, bool copy, bool init) 
+{
+    XSPRITE* pXSource = &sourceactor->x();
+    XSPRITE* pXDest = &destactor->x();
+
     // copy flags
-    if (copy) {
-    
+    if (copy) 
+    {
         pXDest->dudeFlag4  = pXSource->dudeFlag4;
         pXDest->dudeAmbush = pXSource->dudeAmbush;
         pXDest->dudeGuard  = pXSource->dudeGuard;
@@ -7896,221 +8665,216 @@ void aiPatrolFlagsMgr(spritetype* pSource, XSPRITE* pXSource, spritetype* pDest,
 
         if (pXSource->unused1 & kDudeFlagStealth) pXDest->unused1 |= kDudeFlagStealth;
         else pXDest->unused1 &= ~kDudeFlagStealth;
-    
     }
 
     // do init
-    if (init) {
-
-        if (!pXDest->dudeFlag4) {
-
+    if (init) 
+    {
+        if (!pXDest->dudeFlag4) 
+        {
             if (aiInPatrolState(pXDest->aiState))
-                aiPatrolStop(pDest, -1);
-
-        } else {
-
+                aiPatrolStop(destactor, nullptr);
+        }
+        else 
+        {
             if (aiInPatrolState(pXDest->aiState))
                 return;
             
-            pXDest->target_i = -1; // reset the target
+            destactor->SetTarget(nullptr);
             pXDest->stateTimer = 0;
             
-            
-            aiPatrolSetMarker(pDest, pXDest);
-            if (spriteIsUnderwater(destactor)) aiPatrolState(pDest, kAiStatePatrolWaitW);
-            else aiPatrolState(pDest, kAiStatePatrolWaitL);
+            aiPatrolSetMarker(destactor);
+            if (spriteIsUnderwater(destactor)) aiPatrolState(destactor, kAiStatePatrolWaitW);
+            else aiPatrolState(destactor, kAiStatePatrolWaitL);
             pXDest->data3 = 0; // reset the spot progress
-
         }
-
     }
-
 }
 
-bool aiPatrolGetPathDir(XSPRITE* pXSprite, XSPRITE* pXMarker) {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-    if (pXSprite->unused2 == kPatrolMoveForward) return (pXMarker->data2 == -2) ? (bool)kPatrolMoveBackward : (bool)kPatrolMoveForward;
-    else return (findNextMarker(pXMarker, kPatrolMoveBackward) >= 0) ? (bool)kPatrolMoveBackward : (bool)kPatrolMoveForward;
+bool aiPatrolGetPathDir(DBloodActor* actor, DBloodActor* marker) 
+{
+    if (actor->x().unused2 == kPatrolMoveForward) return (marker->x().data2 == -2) ? (bool)kPatrolMoveBackward : (bool)kPatrolMoveForward;
+    else return (findNextMarker(marker, kPatrolMoveBackward) != nullptr) ? (bool)kPatrolMoveBackward : (bool)kPatrolMoveForward;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
 
-void aiPatrolThink(DBloodActor* actor) {
-
+void aiPatrolThink(DBloodActor* actor)
+{
     auto pXSprite = &actor->x();
     auto pSprite = &actor->s();
 
     assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
-    
 
-    int nTarget, stateTimer, nMarker = pXSprite->target_i;
-    if ((nTarget = aiPatrolSearchTargets(pSprite, pXSprite)) != -1) {
-        aiPatrolStop(pSprite, nTarget, pXSprite->dudeAmbush);
+    DBloodActor* targetactor;
+    int stateTimer;
+    auto markeractor = actor->GetTarget();
+    if ((targetactor = aiPatrolSearchTargets(actor)) != nullptr) 
+    {
+        aiPatrolStop(actor, targetactor, pXSprite->dudeAmbush);
         return;
     }
 
     
     bool crouch = (pXSprite->unused1 & kDudeFlagCrouch), uwater = spriteIsUnderwater(actor);
-    if (!spriRangeIsFine(nMarker) || (pSprite->type == kDudeModernCustom && ((uwater && !canSwim(actor)) || !canWalk(actor)))) {
-        aiPatrolStop(pSprite, -1);
+    if (markeractor == nullptr || (pSprite->type == kDudeModernCustom && ((uwater && !canSwim(actor)) || !canWalk(actor)))) 
+    {
+        aiPatrolStop(actor, nullptr);
         return;
     }
     
-    auto markeractor = &bloodActors[nMarker];
     spritetype* pMarker = &markeractor->s();
     XSPRITE* pXMarker = &markeractor->x();
     const DUDEINFO_EXTRA* pExtra = &gDudeInfoExtra[pSprite->type - kDudeBase];
     bool isFinal = ((!pXSprite->unused2 && pXMarker->data2 == -1) || (pXSprite->unused2 && pXMarker->data1 == -1));
     bool reached = false;
     
-    if (aiPatrolWaiting(pXSprite->aiState)) {
-        
+    if (aiPatrolWaiting(pXSprite->aiState)) 
+    {
         //viewSetSystemMessage("WAIT %d / %d", pXSprite->targetY, pXSprite->stateTimer);
         
-        if (pXSprite->stateTimer > 0 || pXMarker->data1 == pXMarker->data2) {
-
+        if (pXSprite->stateTimer > 0 || pXMarker->data1 == pXMarker->data2) 
+        {
             if (pExtra->flying)
-                zvel[pSprite->index] = Random2(0x8000);
+                actor->zvel = Random2(0x8000);
 
             // turn while waiting
-            if (pMarker->flags & kModernTypeFlag16) {
-                
+            if (pMarker->flags & kModernTypeFlag16) 
+            {
                 stateTimer = pXSprite->stateTimer;
                 
-                if (--pXSprite->unused4 <= 0) {
-                    
-                    if (uwater) aiPatrolState(pSprite, kAiStatePatrolTurnW);
-                    else if (crouch) aiPatrolState(pSprite, kAiStatePatrolTurnC);
-                    else aiPatrolState(pSprite, kAiStatePatrolTurnL);
+                if (--pXSprite->unused4 <= 0) 
+                {
+                    if (uwater) aiPatrolState(actor, kAiStatePatrolTurnW);
+                    else if (crouch) aiPatrolState(actor, kAiStatePatrolTurnC);
+                    else aiPatrolState(actor, kAiStatePatrolTurnL);
                     pXSprite->unused4 = kMinPatrolTurnDelay + Random(kPatrolTurnDelayRange);
-
                 }
 
                 // must restore stateTimer for waiting
                 pXSprite->stateTimer = stateTimer;
             }
-
-
             return;
-
         }
 
         // trigger at departure
-        if (pXMarker->triggerOff) {
-
+        if (pXMarker->triggerOff) 
+        {
             // send command
-            if (pXMarker->txID) {
-
+            if (pXMarker->txID) 
+            {
                 evSendActor(markeractor, pXMarker->txID, (COMMAND_ID)pXMarker->command);
 
                 // copy dude flags for current dude
-            } else if (pXMarker->command == kCmdDudeFlagsSet) {
-
-                aiPatrolFlagsMgr(pMarker, pXMarker, pSprite, pXSprite, true, true);
+            }
+            else if (pXMarker->command == kCmdDudeFlagsSet) 
+            {
+                aiPatrolFlagsMgr(markeractor, actor, true, true);
                 if (!pXSprite->dudeFlag4) // this dude is not in patrol anymore
                     return;
-
             }
-
-
         }
 
         // release the enemy
-        if (isFinal) {
-            aiPatrolStop(pSprite, -1);
+        if (isFinal) 
+        {
+            aiPatrolStop(actor, nullptr);
             return;
         }
 
         // move next marker
-        aiPatrolSetMarker(pSprite, pXSprite);
+        aiPatrolSetMarker(actor);
 
-    } else if (aiPatrolTurning(pXSprite->aiState)) {
-
+    } else if (aiPatrolTurning(pXSprite->aiState)) 
+    {
         //viewSetSystemMessage("TURN");
-        if ((int)pSprite->ang == (int)pXSprite->goalAng) {
-            
+        if ((int)pSprite->ang == (int)pXSprite->goalAng) 
+        {
             // save imer for waiting
             stateTimer = pXSprite->stateTimer;
             
-            if (uwater) aiPatrolState(pSprite, kAiStatePatrolWaitW);
-            else if (crouch) aiPatrolState(pSprite, kAiStatePatrolWaitC);
-            else aiPatrolState(pSprite, kAiStatePatrolWaitL);
+            if (uwater) aiPatrolState(actor, kAiStatePatrolWaitW);
+            else if (crouch) aiPatrolState(actor, kAiStatePatrolWaitC);
+            else aiPatrolState(actor, kAiStatePatrolWaitL);
             
             // must restore it
             pXSprite->stateTimer = stateTimer;
-
         }
-        
-        
         return;
 
-    } else if ((reached = aiPatrolMarkerReached(pSprite, pXSprite)) == true) {
-
+    }
+    else if ((reached = aiPatrolMarkerReached(actor)) == true) 
+    {
         pXMarker->isTriggered = pXMarker->triggerOnce; // can't select this marker for path anymore if true
 
-        if (pMarker->flags > 0) {
-            
+        if (pMarker->flags > 0) 
+        {
             if ((pMarker->flags & kModernTypeFlag2) && (pMarker->flags & kModernTypeFlag1)) crouch = !crouch;
             else if (pMarker->flags & kModernTypeFlag2) crouch = false;
-            else if ((pMarker->flags & kModernTypeFlag1) && aiCanCrouch(pSprite)) crouch = true;
-
+            else if ((pMarker->flags & kModernTypeFlag1) && aiCanCrouch(actor)) crouch = true;
         }
 
-        if (pXMarker->waitTime > 0 || pXMarker->data1 == pXMarker->data2) {
-
+        if (pXMarker->waitTime > 0 || pXMarker->data1 == pXMarker->data2) 
+        {
             // take marker's angle
-            if (!(pMarker->flags & kModernTypeFlag4)) {
-
+            if (!(pMarker->flags & kModernTypeFlag4)) 
+            {
                 pXSprite->goalAng = ((!(pMarker->flags & kModernTypeFlag8) && pXSprite->unused2) ? pMarker->ang + kAng180 : pMarker->ang) & 2047;
                 if ((int)pSprite->ang != (int)pXSprite->goalAng) // let the enemy play move animation while turning
                     return;
-
             }
 
-            if (pMarker->owner == pSprite->index)
-                pMarker->owner = aiPatrolMarkerBusy(pSprite->index, pMarker->index);
+            if (markeractor->GetOwner() == actor)
+                markeractor->SetOwner(aiPatrolMarkerBusy(actor, markeractor));
 
             // trigger at arrival
-            if (pXMarker->triggerOn) {
-
+            if (pXMarker->triggerOn) 
+            {
                 // send command
-                if (pXMarker->txID) {
-
+                if (pXMarker->txID) 
+                {
                     evSendActor(markeractor, pXMarker->txID, (COMMAND_ID)pXMarker->command);
-
+                } 
+                else if (pXMarker->command == kCmdDudeFlagsSet) 
+                {
                 // copy dude flags for current dude
-                } else if (pXMarker->command == kCmdDudeFlagsSet) {
-
-                    aiPatrolFlagsMgr(pMarker, pXMarker, pSprite, pXSprite, true, true);
+                    aiPatrolFlagsMgr(markeractor, actor, true, true);
                     if (!pXSprite->dudeFlag4) // this dude is not in patrol anymore
                         return;
-
                 }
-            
             }
 
-            if (uwater) aiPatrolState(pSprite, kAiStatePatrolWaitW);
-            else if (crouch) aiPatrolState(pSprite, kAiStatePatrolWaitC);
-            else aiPatrolState(pSprite, kAiStatePatrolWaitL);
+            if (uwater) aiPatrolState(actor, kAiStatePatrolWaitW);
+            else if (crouch) aiPatrolState(actor, kAiStatePatrolWaitC);
+            else aiPatrolState(actor, kAiStatePatrolWaitL);
 
             if (pXMarker->waitTime)
                 pXSprite->stateTimer = (pXMarker->waitTime * 120) / 10;
-
 
             if (pMarker->flags & kModernTypeFlag16)
                 pXSprite->unused4 = kMinPatrolTurnDelay + Random(kPatrolTurnDelayRange);
 
             return;
+        }
+        else 
+        {
+            if (markeractor->GetOwner() == actor)
+                markeractor->SetOwner(aiPatrolMarkerBusy(actor, markeractor));
 
-        
-        } else {
-        
-            if (pMarker->owner == pSprite->index)
-                pMarker->owner = aiPatrolMarkerBusy(pSprite->index, pMarker->index);
-            
-            if (pXMarker->triggerOn || pXMarker->triggerOff) {
-
-                if (pXMarker->txID) {
-
+            if (pXMarker->triggerOn || pXMarker->triggerOff) 
+            {
+                if (pXMarker->txID) 
+                {
                     // send command at arrival
                     if (pXMarker->triggerOn)
                         evSendActor(markeractor, pXMarker->txID, (COMMAND_ID)pXMarker->command);
@@ -8120,70 +8884,87 @@ void aiPatrolThink(DBloodActor* actor) {
                         evSendActor(markeractor, pXMarker->txID, (COMMAND_ID)pXMarker->command);
 
                 // copy dude flags for current dude
-                } else if (pXMarker->command == kCmdDudeFlagsSet) {
-
-                    aiPatrolFlagsMgr(pMarker, pXMarker, pSprite, pXSprite, true, true);
+                }
+                else if (pXMarker->command == kCmdDudeFlagsSet) 
+                {
+                    aiPatrolFlagsMgr(markeractor, actor, true, true);
                     if (!pXSprite->dudeFlag4) // this dude is not in patrol anymore
                         return;
-
                 }
-
             }
 
             // release the enemy
-            if (isFinal) {
-                aiPatrolStop(pSprite, -1);
+            if (isFinal) 
+            {
+                aiPatrolStop(actor, nullptr);
                 return;
             }
 
             // move the next marker
-            aiPatrolSetMarker(pSprite, pXSprite);
-
+            aiPatrolSetMarker(actor);
         }
-
     }
     
-    nnExtAiSetDirection(pSprite, pXSprite, getangle(pMarker->x - pSprite->x, pMarker->y - pSprite->y));
+    nnExtAiSetDirection(actor, getangle(pMarker->x - pSprite->x, pMarker->y - pSprite->y));
 
     if (aiPatrolMoving(pXSprite->aiState) && !reached) return;
-    else if (uwater) aiPatrolState(pSprite, kAiStatePatrolMoveW);
-    else if (crouch) aiPatrolState(pSprite, kAiStatePatrolMoveC);
-    else aiPatrolState(pSprite, kAiStatePatrolMoveL);
+    else if (uwater) aiPatrolState(actor, kAiStatePatrolMoveW);
+    else if (crouch) aiPatrolState(actor, kAiStatePatrolMoveC);
+    else aiPatrolState(actor, kAiStatePatrolMoveL);
     return;
 
 }
-// ------------------------------------------------
 
-int listTx(XSPRITE* pXRedir, int tx) {
-    if (txIsRanged(pXRedir)) {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+int listTx(DBloodActor* actor, int tx) 
+{
+    if (txIsRanged(actor)) 
+    {
+        XSPRITE* pXRedir = &actor->x();
         if (tx == -1) tx = pXRedir->data1;
         else if (tx < pXRedir->data4) tx++;
         else tx = -1;
-    } else {
-        if (tx == -1) {
-            for (int i = 0; i <= 3; i++) {
-                if ((tx = GetDataVal(&bloodActors[pXRedir->reference], i)) <= 0) continue;
+    } 
+    else 
+    {
+        if (tx == -1) 
+        {
+            for (int i = 0; i <= 3; i++) 
+            {
+                if ((tx = GetDataVal(actor, i)) <= 0) continue;
                 else return tx;
             }
-        } else {
+        } 
+        else 
+        {
             int saved = tx; bool savedFound = false;
-            for (int i = 0; i <= 3; i++) {
-                tx = GetDataVal(&bloodActors[pXRedir->reference], i);
+            for (int i = 0; i <= 3; i++) 
+            {
+                tx = GetDataVal(actor, i);
                 if (savedFound && tx > 0) return tx;
                 else if (tx != saved) continue;
                 else savedFound = true;
             }
         }
-        
         tx = -1;
     }
-
     return tx;
 }
 
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
 DBloodActor* evrIsRedirector(DBloodActor* actor) 
 {
-    if (actor) 
+    if (actor)
     {
         switch (actor->s().type) 
         {
@@ -8194,23 +8975,31 @@ DBloodActor* evrIsRedirector(DBloodActor* actor)
         }
     }
 
-    return NULL;
+    return nullptr;
 }
 
-XSPRITE* evrListRedirectors(int objType, int objXIndex, XSPRITE* pXRedir, int* tx) {
+//---------------------------------------------------------------------------
+//
+// 
+//
+//---------------------------------------------------------------------------
+
+DBloodActor* evrListRedirectors(int objType, int objXIndex, DBloodActor* objActor, DBloodActor* pXRedir, int* tx) 
+{
     if (!gEventRedirectsUsed) return NULL;
     else if (pXRedir && (*tx = listTx(pXRedir, *tx)) != -1)
         return pXRedir;
 
     int id = 0;
-    switch (objType) {
+    switch (objType) 
+    {
         case OBJ_SECTOR:
             if (!xsectRangeIsFine(objXIndex)) return NULL;
             id = xsector[objXIndex].txID;
             break;
         case OBJ_SPRITE:
-            if (!xspriRangeIsFine(objXIndex)) return NULL;
-            id = xsprite[objXIndex].txID;
+            if (!objActor) return NULL;
+            id = objActor->x().txID;
             break;
         case OBJ_WALL:
             if (!xwallRangeIsFine(objXIndex)) return NULL;
@@ -8220,14 +9009,18 @@ XSPRITE* evrListRedirectors(int objType, int objXIndex, XSPRITE* pXRedir, int* t
             return NULL;
     }
 
-    int nIndex = (pXRedir) ? pXRedir->reference : -1; bool prevFound = false;
-    for (int i = bucketHead[id]; i < bucketHead[id + 1]; i++) {
+    bool prevFound = false;
+    for (int i = bucketHead[id]; i < bucketHead[id + 1]; i++) 
+    {
         if (rxBucket[i].type != OBJ_SPRITE) continue;
-        auto rxactor = evrIsRedirector(rxBucket[i].GetActor());
-        if (!rxactor || !rxactor->hasX()) continue;
-
-        if (prevFound || nIndex == -1) { *tx = listTx(&rxactor->x(), *tx); return &rxactor->x(); }
-        else if (nIndex != rxactor->s().index) continue;
+        auto pXSpr = evrIsRedirector(rxBucket[i].actor);
+        if (!pXSpr) continue;
+        else if (prevFound || pXRedir == nullptr) 
+        {
+            *tx = listTx(pXSpr, *tx); 
+            return pXSpr; 
+        }
+        else if (pXRedir != pXSpr) continue;
         else prevFound = true;
     }
 
@@ -8235,23 +9028,38 @@ XSPRITE* evrListRedirectors(int objType, int objXIndex, XSPRITE* pXRedir, int* t
     return NULL;
 }
 
+//---------------------------------------------------------------------------
+//
 // this function checks if all TX objects have the same value
-bool incDecGoalValueIsReached(XSPRITE* pXSprite) {
-    
+//
+//---------------------------------------------------------------------------
+
+bool incDecGoalValueIsReached(DBloodActor* actor) 
+{
+    XSPRITE* pXSprite = &actor->x();
     if (pXSprite->data3 != pXSprite->sysData1) return false;
-    char buffer[5]; sprintf(buffer, "%d", abs(pXSprite->data1)); int len = int(strlen(buffer)); int rx = -1;
-    for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++) {
-        if (rxBucket[i].type == OBJ_SPRITE && evrIsRedirector(rxBucket[i].GetActor())) continue;
-        for (int a = 0; a < len; a++) {
+    char buffer[7]; 
+    snprintf(buffer, 7, "%d", abs(pXSprite->data1)); 
+    int len = int(strlen(buffer)); 
+    int rx = -1;
+
+    for (int i = bucketHead[pXSprite->txID]; i < bucketHead[pXSprite->txID + 1]; i++) 
+    {
+        if (rxBucket[i].type == OBJ_SPRITE && evrIsRedirector(rxBucket[i].actor)) continue;
+        for (int a = 0; a < len; a++) 
+        {
             if (getDataFieldOfObject(rxBucket[i].type, rxBucket[i].rxindex, rxBucket[i].actor, (buffer[a] - 52) + 4) != pXSprite->data3)
                 return false;
         }
     }
 
-    XSPRITE* pXRedir = NULL; // check redirected TX buckets
-    while ((pXRedir = evrListRedirectors(OBJ_SPRITE, sprite[pXSprite->reference].extra, pXRedir, &rx)) != NULL) {
-        for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) {
-            for (int a = 0; a < len; a++) {
+    DBloodActor* pXRedir = nullptr; // check redirected TX buckets
+    while ((pXRedir = evrListRedirectors(OBJ_SPRITE, 0, actor, pXRedir, &rx)) != nullptr) 
+    {
+        for (int i = bucketHead[rx]; i < bucketHead[rx + 1]; i++) 
+        {
+            for (int a = 0; a < len; a++) 
+            {
                 if (getDataFieldOfObject(rxBucket[i].type, rxBucket[i].rxindex, rxBucket[i].actor, (buffer[a] - 52) + 4) != pXSprite->data3)
                     return false;
             }
@@ -8261,40 +9069,60 @@ bool incDecGoalValueIsReached(XSPRITE* pXSprite) {
     return true;
 }
 
-void seqSpawnerOffSameTx(XSPRITE* pXSource) {
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
-    for (int i = 0; i < kMaxXSprites; i++) {
-        
-        XSPRITE* pXSprite = &xsprite[i];
-        if (pXSprite->reference != pXSource->reference && spriRangeIsFine(pXSprite->reference)) {
-            if (sprite[pXSprite->reference].type != kModernSeqSpawner) continue;
-            else if (pXSprite->txID == pXSource->txID && pXSprite->state == 1) {
-                evKillActor(&bloodActors[pXSprite->reference]);
-                pXSprite->state = 0;
-            }
+void seqSpawnerOffSameTx(DBloodActor* actor) 
+{
+    auto pXSource = &actor->x();
+    BloodSpriteIterator it;
+    while (auto iactor = it.Next())
+    {
+        if (iactor->s().type != kModernSeqSpawner || !iactor->hasX() || iactor == actor) continue;
+        XSPRITE* pXSprite = &iactor->x();
+        if (pXSprite->txID == pXSource->txID && pXSprite->state == 1) 
+        {
+            evKillActor(iactor);
+            pXSprite->state = 0;
         }
     }
 }
 
+//---------------------------------------------------------------------------
+//
 // this function can be called via sending numbered command to TX kChannelModernEndLevelCustom
 // it allows to set custom next level instead of taking it from INI file.
-void levelEndLevelCustom(int nLevel) {
+//
+//---------------------------------------------------------------------------
 
+void levelEndLevelCustom(int nLevel) 
+{
     gGameOptions.uGameFlags |= GF_AdvanceLevel;
     gNextLevel = FindMapByIndex(currentLevel->cluster, nLevel + 1);
 }
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void callbackUniMissileBurst(DBloodActor* actor, int) // 22
 {
     if (!actor) return;
     spritetype* pSprite = &actor->s();
     if (pSprite->statnum != kStatProjectile) return;
-    int nAngle = getangle(actor->xvel(), actor->yvel());
+    int nAngle = getangle(actor->xvel, actor->yvel);
     int nRadius = 0x55555;
 
     for (int i = 0; i < 8; i++)
     {
-        spritetype* pBurst = &actSpawnSprite(actor, 5)->s();
+        auto burstactor = actSpawnSprite(actor, 5);
+        if (!burstactor) break;
+        spritetype* pBurst = &burstactor->s();
 
         pBurst->type = pSprite->type;
         pBurst->shade = pSprite->shade;
@@ -8302,9 +9130,10 @@ void callbackUniMissileBurst(DBloodActor* actor, int) // 22
 
         
         pBurst->cstat = pSprite->cstat;
-        if ((pBurst->cstat & CSTAT_SPRITE_BLOCK)) {
+        if ((pBurst->cstat & CSTAT_SPRITE_BLOCK)) 
+        {
             pBurst->cstat &= ~CSTAT_SPRITE_BLOCK; // we don't want missiles impact each other
-            evPostActor(&bloodActors[pBurst->index], 100, kCallbackMissileSpriteBlock); // so set blocking flag a bit later
+            evPostActor(burstactor, 100, kCallbackMissileSpriteBlock); // so set blocking flag a bit later
         }
 
         pBurst->pal = pSprite->pal;
@@ -8313,9 +9142,9 @@ void callbackUniMissileBurst(DBloodActor* actor, int) // 22
         pBurst->xrepeat = pSprite->xrepeat / 2;
         pBurst->yrepeat = pSprite->yrepeat / 2;
         pBurst->ang = ((pSprite->ang + missileInfo[pSprite->type - kMissileBase].angleOfs) & 2047);
-        pBurst->owner = pSprite->owner;
+        burstactor->SetOwner(actor);
 
-        actBuildMissile(&bloodActors[pBurst->index], &bloodActors[pSprite->index]);
+        actBuildMissile(burstactor, actor);
 
         int nAngle2 = (i << 11) / 8;
         int dx = 0;
@@ -8327,14 +9156,20 @@ void callbackUniMissileBurst(DBloodActor* actor, int) // 22
             dz >>= 1;
         }
         RotateVector(&dx, &dy, nAngle);
-        xvel[pBurst->index] += dx;
-        yvel[pBurst->index] += dy;
-        zvel[pBurst->index] += dz;
-        evPostActor(&bloodActors[pBurst->index], 960, kCallbackRemove);
+        burstactor->xvel += dx;
+        burstactor->yvel += dy;
+        burstactor->zvel += dz;
+        evPostActor(burstactor, 960, kCallbackRemove);
     }
     evPostActor(actor, 0, kCallbackRemove);
 }
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
 
 void callbackMakeMissileBlocking(DBloodActor* actor, int) // 23
 {
@@ -8348,11 +9183,12 @@ void callbackGenDudeUpdate(DBloodActor* actor, int) // 24
         genDudeUpdate(actor);
 }
 
-void clampSprite(spritetype* pSprite, int which) {
-
+void clampSprite(DBloodActor* actor, int which) 
+{
+    auto pSprite = &actor->s();
     int zTop, zBot;
-    if (pSprite->sectnum >= 0 && pSprite->sectnum < kMaxSectors) {
-
+    if (pSprite->sectnum >= 0 && pSprite->sectnum < kMaxSectors) 
+    {
         GetSpriteExtents(pSprite, &zTop, &zBot);
         if (which & 0x01)
             pSprite->z += ClipHigh(getflorzofslope(pSprite->sectnum, pSprite->x, pSprite->y) - zBot, 0);
@@ -8443,6 +9279,7 @@ void SerializeNNExts(FSerializer& arc)
 {
     if (arc.BeginObject("nnexts"))
     {
+#ifdef OLD_SAVEGAME
         // the GenDudeArray only contains valid info for kDudeModernCustom and kDudeModernCustomBurning so only save the relevant entries as these are not small.
         bool foundsome = false;
         for (int i = 0; i < kMaxSprites; i++)
@@ -8451,12 +9288,11 @@ void SerializeNNExts(FSerializer& arc)
             {
                 if (!foundsome) arc.BeginArray("gendudeextra");
                 foundsome = true;
-                arc(nullptr, gGenDudeExtra[i]);
+                arc(nullptr, bloodActors[i].genDudeExtra);
             }
         }
         if (foundsome) arc.EndArray();
 
-#ifdef OLD_SAVEGAME
         // In compatibility mode write this out as a sparse array sorted by xsprite index.
         SPRITEMASS gSpriteMass[kMaxSprites];
         for (int i = 0; i < kMaxSprites; i++)

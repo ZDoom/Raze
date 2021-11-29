@@ -413,14 +413,13 @@ static void BuildEpisodeMenu()
 		double y = ld->mYpos;
 
 		// Volume definitions should be sorted by intended menu order.
-		auto font = PickSmallFont();
 		for (auto &vol : volumes)
 		{
 			if (vol.name.IsNotEmpty() && !(vol.flags & VF_HIDEFROMSP))
 			{
-				int isShareware = ((g_gameType & GAMEFLAG_DUKE) && (g_gameType & GAMEFLAG_SHAREWARE) && (vol.flags & VF_SHAREWARELOCK));
+				bool isShareware = ((g_gameType & GAMEFLAG_DUKE) && (g_gameType & GAMEFLAG_SHAREWARE) && (vol.flags & VF_SHAREWARELOCK));
 				auto it = CreateCustomListMenuItemText(ld->mXpos, y, ld->mLinespacing, vol.name[0],
-					vol.name, ld->mFont, CR_UNTRANSLATED, isShareware, NAME_Skillmenu, vol.index); // font colors are not used, so hijack one for the shareware flag.
+					vol.name, ld->mFont, CR_UNTRANSLATED, int(isShareware), NAME_Skillmenu, vol.index); // font colors are not used, so hijack one for the shareware flag.
 
 				y += ld->mLinespacing;
 				ld->mItems.Push(it);

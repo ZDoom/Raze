@@ -155,7 +155,7 @@ void ItemFlash()
     TintPalette(16, 16, 16);
 }
 
-void FillItems(short nPlayer)
+void FillItems(int nPlayer)
 {
     for (int i = 0; i < 6; i++)
     {
@@ -174,7 +174,7 @@ void FillItems(short nPlayer)
     }
 }
 
-static bool UseEye(short nPlayer)
+static bool UseEye(int nPlayer)
 {
     if (PlayerList[nPlayer].nInvisible >= 0) 
         PlayerList[nPlayer].nInvisible = 900;
@@ -196,7 +196,7 @@ static bool UseEye(short nPlayer)
     return true;
 }
 
-static bool UseMask(short nPlayer)
+static bool UseMask(int nPlayer)
 {
     PlayerList[nPlayer].nMaskAmount = 1350;
     PlayerList[nPlayer].nAir = 100;
@@ -208,7 +208,7 @@ static bool UseMask(short nPlayer)
     return true;
 }
 
-bool UseTorch(short nPlayer)
+bool UseTorch(int nPlayer)
 {
     if (!PlayerList[nPlayer].nTorch) 
     {
@@ -219,7 +219,7 @@ bool UseTorch(short nPlayer)
     return true;
 }
 
-bool UseHeart(short nPlayer)
+bool UseHeart(int nPlayer)
 {
     if (PlayerList[nPlayer].nHealth < kMaxHealth) {
         PlayerList[nPlayer].nHealth = kMaxHealth;
@@ -235,7 +235,7 @@ bool UseHeart(short nPlayer)
 }
 
 // invincibility
-bool UseScarab(short nPlayer)
+bool UseScarab(int nPlayer)
 {
     if (PlayerList[nPlayer].invincibility >= 0 && PlayerList[nPlayer].invincibility < 900)
         PlayerList[nPlayer].invincibility = 900;
@@ -249,7 +249,7 @@ bool UseScarab(short nPlayer)
 }
 
 // faster firing
-static bool UseHand(short nPlayer)
+static bool UseHand(int nPlayer)
 {
     PlayerList[nPlayer].nDouble = 1350;
 
@@ -261,7 +261,7 @@ static bool UseHand(short nPlayer)
     return true;
 }
 
-void UseItem(short nPlayer, short nItem)
+void UseItem(int nPlayer, int nItem)
 {
     bool didit = false;
     switch (nItem)
@@ -313,7 +313,7 @@ void UseItem(short nPlayer, short nItem)
 }
 
 // TODO - bool return type?
-int GrabItem(short nPlayer, short nItem)
+int GrabItem(int nPlayer, int nItem)
 {
     if (PlayerList[nPlayer].items[nItem] >= 5) {
         return 0;
@@ -369,8 +369,6 @@ void InitItems()
 void StartRegenerate(DExhumedActor* pActor)
 {
     spritetype *pSprite = &pActor->s();
-
-    DExhumedActor* pCurr = nullptr;
 
     auto pos = Regenerates.Find(pActor);
     if (pos >= Regenerates.Size())

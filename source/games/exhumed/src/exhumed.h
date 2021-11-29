@@ -130,8 +130,6 @@ extern short nButtonColor;
 
 extern short nHeadStage;
 
-extern short lastfps;
-
 extern int flash;
 
 extern short nSnakeCam;
@@ -231,13 +229,13 @@ struct GameInterface : public ::GameInterface
     void Ticker() override;
     void DrawBackground() override;
     void Render() override;
-    void GetInput(InputPacket* packet, ControlInfo* const hidInput) override;
+    void GetInput(ControlInfo* const hidInput, double const scaleAdjust, InputPacket* packet = nullptr) override;
     void Startup() override;
     const char* GenericCheat(int player, int cheat) override;
 	void NewGame(MapRecord *map, int skill, bool) override;
 	void LevelCompleted(MapRecord *map, int skill) override;
 	void NextLevel(MapRecord *map, int skill) override;
-    bool DrawAutomapPlayer(int x, int y, int z, int a, double const smoothratio) override;
+    bool DrawAutomapPlayer(int mx, int my, int x, int y, int z, int a, double const smoothratio) override;
     fixed_t playerHorizMin() override { return IntToFixed(-150); }
     fixed_t playerHorizMax() override { return IntToFixed(150); }
     int playerKeyMove() override { return 6; }

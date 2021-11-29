@@ -421,7 +421,6 @@ IDataBuffer *VulkanFrameBuffer::CreateDataBuffer(int bindingpoint, bool ssbo, bo
 {
 	auto buffer = new VKDataBuffer(bindingpoint, ssbo, needsresize);
 
-	auto fb = GetVulkanFrameBuffer();
 	switch (bindingpoint)
 	{
 	case LIGHTBUF_BINDINGPOINT: LightBufferSSO = buffer; break;

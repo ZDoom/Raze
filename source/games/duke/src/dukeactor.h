@@ -33,6 +33,10 @@ public:
 	{
 	}
 	
+	DukeSectIterator(sectortype* stat) : SectIterator(stat)
+	{
+	}
+	
 	DDukeActor *Next()
 	{
 		int n = NextIndex();
@@ -134,14 +138,7 @@ inline DDukeActor* ScriptIndexToActor(int index)
 	return &hittype[index];
 }
 
-int spawn_d(int j, int pn);
-int spawn_r(int j, int pn);
-
-inline DDukeActor* spawn(DDukeActor* spawner, int type)
-{
-	int i = (isRR()? spawn_r : spawn_d)(spawner ? spawner->GetSpriteIndex() : -1, type);
-	return i == -1 ? nullptr : &hittype[i];
-}
+DDukeActor* spawn(DDukeActor* spawner, int type);
 
 inline int ldist(DDukeActor* s1, DDukeActor* s2)
 {
@@ -194,26 +191,26 @@ inline void getzrange_ex(int x, int y, int z, int sectnum, int32_t* ceilz, Colli
 }
 
 inline int hitscan(int x, int y, int z, int sectnum, int32_t vx, int32_t vy, int32_t vz,
-	int* hitsect, int* hitwall, DDukeActor** hitspr, int* hitx, int* hity, int* hitz, uint32_t cliptype)
+	sectortype** hitsect, walltype** hitwall, DDukeActor** hitspr, int* hitx, int* hity, int* hitz, uint32_t cliptype)
 {
 	short hitsprt, hitsct, hitwal;
 	int res = ::hitscan(x, y, z, sectnum, vx, vy, vz, &hitsct, &hitwal, &hitsprt, hitx, hity, hitz, cliptype);
 	if (hitspr) *hitspr = hitsprt == -1 ? nullptr : &hittype[hitsprt];
-	if (hitsect) *hitsect = hitsct;
-	if (hitwall) *hitwall = hitwal;
+	if (hitsect) *hitsect = hitsct >= 0? &sector[hitsct] : nullptr;
+	if (hitwall) *hitwall = hitwal >= 0? &wall[hitwal] : nullptr;
 	return res;
 }
 
 inline void   neartag(int32_t xs, int32_t ys, int32_t zs, int sectnum, int ange,
-	int* neartagsector, int* neartagwall, DDukeActor** neartagsprite,
+	sectortype** neartagsector, walltype** neartagwall, DDukeActor** neartagsprite,
 	int32_t* neartaghitdist, int32_t neartagrange, uint8_t tagsearch)
 {
 	int16_t nts;
 	int16_t ntsec, ntwal;
 	::neartag(xs, ys, zs, sectnum, ange, &ntsec, &ntwal, &nts, neartaghitdist, neartagrange, tagsearch);
 	*neartagsprite = nts == -1 ? nullptr : &hittype[nts];
-	*neartagsector = ntsec;
-	*neartagwall = ntwal;
+	*neartagsector = ntsec == -1? nullptr : &sector[ntsec];
+	*neartagwall = ntwal == -1? nullptr : &wall[ntwal];
 }
 
 

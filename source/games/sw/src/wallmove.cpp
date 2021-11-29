@@ -38,16 +38,17 @@ BEGIN_SW_NS
 
 SECTOR_OBJECTp DetectSectorObjectByWall(WALLp);
 
-void SOwallmove(SECTOR_OBJECTp sop, SPRITEp sp, WALLp find_wallp, int dist, int *nx, int *ny)
+void SOwallmove(SECTOR_OBJECTp sop, DSWActor* actor, WALLp find_wallp, int dist, int *nx, int *ny)
 {
     int j,k,wallcount;
     WALLp wp;
     short startwall,endwall;
     SECTORp *sectp;
 
-    if (TEST(sop->flags, SOBJ_SPRITE_OBJ))
+    if (!actor->hasU() || TEST(sop->flags, SOBJ_SPRITE_OBJ))
         return;
 
+    auto u = actor->u();
     wallcount = 0;
     for (sectp = sop->sectp, j = 0; *sectp; sectp++, j++)
     {
@@ -62,8 +63,7 @@ void SOwallmove(SECTOR_OBJECTp sop, SPRITEp sp, WALLp find_wallp, int dist, int 
             {
                 short ang;
                 // move orig x and y in saved angle
-                ASSERT(User[sp - sprite].Data());
-                ang = User[sp - sprite]->sang;
+                ang = u->sang;
 
                 *nx = MulScale(dist, bcos(ang), 14);
                 *ny = MulScale(dist, bsin(ang), 14);
@@ -80,7 +80,7 @@ void SOwallmove(SECTOR_OBJECTp sop, SPRITEp sp, WALLp find_wallp, int dist, int 
     }
 }
 
-int DoWallMove(SPRITEp sp)
+int DoWallMove(DSWActor* actor)
 {
     int dist,nx,ny;
     short shade1,shade2,ang,picnum1,picnum2;
@@ -89,6 +89,8 @@ int DoWallMove(SPRITEp sp)
     bool found = false;
     short dang;
     bool SOsprite = false;
+
+    auto sp = &actor->s();
 
     dist = SP_TAG13(sp);
     ang = SP_TAG4(sp);
@@ -104,7 +106,7 @@ int DoWallMove(SPRITEp sp)
     nx = MulScale(dist, bcos(ang), 14);
     ny = MulScale(dist, bsin(ang), 14);
 
-    for (wallp = wall; wallp < &wall[numwalls]; wallp++)
+    for (wallp = &wall[0]; wallp < &wall[numwalls]; wallp++)
     {
         if (wallp->x == sp->x && wallp->y == sp->y)
         {
@@ -115,7 +117,7 @@ int DoWallMove(SPRITEp sp)
                 SECTOR_OBJECTp sop;
                 sop = DetectSectorObjectByWall(wallp);
                 ASSERT(sop);
-                SOwallmove(sop, sp, wallp, dist, &nx, &ny);
+                SOwallmove(sop, actor, wallp, dist, &nx, &ny);
 
                 SOsprite = true;
             }
@@ -132,7 +134,7 @@ int DoWallMove(SPRITEp sp)
                 wallp->picnum = picnum1;
 
             // find the previous wall
-            prev_wall = PrevWall(short(wallp - wall));
+            prev_wall = PrevWall(wallnum(wallp));
             if (shade2)
                 wall[prev_wall].shade = int8_t(shade2);
             if (picnum2)
@@ -141,17 +143,17 @@ int DoWallMove(SPRITEp sp)
     }
 
     SP_TAG9(sp)--;
-    if ((signed char)SP_TAG9(sp) <= 0)
+    if ((int8_t)SP_TAG9(sp) <= 0)
     {
-        KillSprite(short(sp - sprite));
+        KillActor(actor);
     }
     else
     {
         if (SOsprite)
         {
             // move the sprite offset from center
-            User[sp - sprite]->sx -= nx;
-            User[sp - sprite]->sy -= ny;
+            actor->u()->sx -= nx;
+            actor->u()->sy -= ny;
         }
         else
         {
@@ -169,44 +171,37 @@ bool CanSeeWallMove(SPRITEp wp, short match)
     bool found = false;
     SPRITEp sp;
 
-    StatIterator it(STAT_WALL_MOVE_CANSEE);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_WALL_MOVE_CANSEE);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
+        sp = &actor->s();
 
         if (SP_TAG2(sp) == match)
         {
             found = true;
 
-            if (cansee(wp->x,wp->y,wp->z,wp->sectnum,sp->x,sp->y,sp->z,sp->sectnum))
+            if (cansee(wp->x, wp->y, wp->z, wp->sectnum, sp->x, sp->y, sp->z, sp->sectnum))
             {
                 return true;
             }
         }
     }
 
-    if (found)
-        return false;
-    else
-        return true;
+    return !found;
 }
 
 int DoWallMoveMatch(short match)
 {
-    SPRITEp sp;
-    int i;
     bool found = false;
 
     // just all with the same matching tags
-    StatIterator it(STAT_WALL_MOVE);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_WALL_MOVE);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
-
-        if (SP_TAG2(sp) == match)
+        if (SP_TAG2(&actor->s()) == match)
         {
             found = true;
-            DoWallMove(sp);
+            DoWallMove(actor);
         }
     }
 

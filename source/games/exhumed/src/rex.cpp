@@ -37,7 +37,7 @@ static actionSeq RexSeq[] = {
     {28, 1}
 };
 
-void BuildRex(DExhumedActor* pActor, int x, int y, int z, int nSector, short nAngle, int nChannel)
+void BuildRex(DExhumedActor* pActor, int x, int y, int z, int nSector, int nAngle, int nChannel)
 {
     spritetype* pSprite;
     if (pActor == nullptr)
@@ -213,7 +213,7 @@ void AIRex::Tick(RunListEvent* ev)
             {
                 if (pTarget == nullptr)
                 {
-                    short nAngle = pSprite->ang; // make backup of this variable
+                    auto nAngle = pSprite->ang; // make backup of this variable
                     pActor->pTarget = FindPlayer(pActor, 60);
                     pSprite->ang = nAngle;
                 }
@@ -345,7 +345,7 @@ void AIRex::Tick(RunListEvent* ev)
 
                 if (pSprite2->statnum && pSprite2->statnum < 107)
                 {
-                    short nAngle = pSprite->ang;
+                    int nAngle = pSprite->ang;
 
                     runlist_DamageEnemy(nMov.actor, pActor, 15);
 

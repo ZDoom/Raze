@@ -68,14 +68,14 @@ enum VECTOR_TYPE {
 
 struct THINGINFO
 {
-    short startHealth;
-    short mass;
+    int16_t startHealth;
+    int16_t mass;
     uint8_t clipdist;
-    short flags;
-    int elastic; // elasticity
-    int dmgResist; // damage resistance
-    short cstat;
-    short picnum;
+    int16_t flags;
+    int32_t elastic; // elasticity
+    int32_t dmgResist; // damage resistance
+    int16_t cstat;
+    int16_t picnum;
     int8_t shade;
     uint8_t pal;
     uint8_t xrepeat; // xrepeat
@@ -85,44 +85,44 @@ struct THINGINFO
 
 struct AMMOITEMDATA
 {
-    short cstat;
-    short picnum;
+    int16_t cstat;
+    int16_t picnum;
     int8_t shade;
     uint8_t pal;
     uint8_t xrepeat;
     uint8_t yrepeat;
-    short count;
+    int16_t count;
     uint8_t type;
     uint8_t weaponType;
 };
 
 struct WEAPONITEMDATA
 {
-    short cstat;
-    short picnum;
+    int16_t cstat;
+    int16_t picnum;
     int8_t shade;
     uint8_t pal;
     uint8_t xrepeat;
     uint8_t yrepeat;
-    short type;
-    short ammoType;
-    short count;
+    int16_t type;
+    int16_t ammoType;
+    int16_t count;
 };
 
 struct ITEMDATA
 {
-    short cstat;
-    short picnum;
+    int16_t cstat;
+    int16_t picnum;
     int8_t shade;
     uint8_t pal;
     uint8_t xrepeat;
     uint8_t yrepeat;
-    short packSlot;
+    int16_t packSlot;
 };
 
 struct MissileType
 {
-    short picnum;
+    int16_t picnum;
     int velocity;
     int angleOfs;
     uint8_t xrepeat;
@@ -134,8 +134,8 @@ struct MissileType
 struct EXPLOSION
 {
     uint8_t repeat;
-    char dmg;
-    char dmgRng;
+    uint8_t dmg;
+    uint8_t dmgRng;
     int radius;
     int dmgType;
     int burnTime;
@@ -198,11 +198,6 @@ template<typename T> bool IsAmmoSprite(T const * const pSprite)
     return pSprite->type >= kItemAmmoBase && pSprite->type < kItemAmmoMax;
 }
 
-inline void actBurnSprite(int nSource, XSPRITE *pXSprite, int nTime)
-{
-    pXSprite->burnTime = ClipHigh(pXSprite->burnTime + nTime, sprite[pXSprite->reference].statnum == kStatDude ? 2400 : 1200);
-    pXSprite->burnSource = nSource;
-}
 
 #ifdef POLYMER
 void actAddGameLight(int lightRadius, int spriteNum, int zOffset, int lightRange, int lightColor, int lightPrio);
@@ -216,7 +211,7 @@ void sub_3888C(int, int);
 void TreeToGibCallback(int, int);
 
 bool IsUnderwaterSector(int nSector);
-void actInit(bool bSaveLoad);
+void actInit();
 int actWallBounceVector(int *x, int *y, int nWall, int a4);
 int actFloorBounceVector(int *x, int *y, int *z, int nSector, int a5);
 void actRadiusDamage(DBloodActor* source, int x, int y, int z, int nSector, int nDist, int a7, int a8, DAMAGE_TYPE a9, int a10, int a11);
@@ -230,17 +225,18 @@ void actExplodeSprite(DBloodActor *pSprite);
 void actActivateGibObject(DBloodActor *actor);
 void actProcessSprites(void);
 DBloodActor* actSpawnSprite(int nSector, int x, int y, int z, int nStat, bool a6);
-DBloodActor* actSpawnDude(DBloodActor* pSource, short nType, int a3, int a4);
+DBloodActor* actSpawnDude(DBloodActor* pSource, int nType, int a3, int a4);
 DBloodActor * actSpawnSprite(DBloodActor *pSource, int nStat);
 DBloodActor * actSpawnThing(int nSector, int x, int y, int z, int nThingType);
 DBloodActor* actFireThing(DBloodActor* pSprite, int a2, int a3, int a4, int thingType, int a6);
 DBloodActor* actFireMissile(DBloodActor *pSprite, int a2, int a3, int a4, int a5, int a6, int nType);
 
+void actBurnSprite(DBloodActor* pSource, DBloodActor* pTarget, int nTime);
+
 int actGetRespawnTime(DBloodActor *pSprite);
 bool actCheckRespawn(DBloodActor *pSprite);
 bool actCanSplatWall(int nWall);
 void actFireVector(DBloodActor *pShooter, int a2, int a3, int a4, int a5, int a6, VECTOR_TYPE vectorType);
-void actPostSprite(int nSprite, int nStatus);
 void actPostSprite(DBloodActor* actor, int status);
 void actPostProcess(void);
 void MakeSplash(DBloodActor *actor);

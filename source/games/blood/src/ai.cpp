@@ -49,7 +49,7 @@ bool dudeIsPlayingSeq(DBloodActor* actor, int nSeq)
 	if (pSprite->statnum == kStatDude && pSprite->type >= kDudeBase && pSprite->type < kDudeMax)
 	{
 		DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
-		if (seqGetID(3, pSprite->extra) == pDudeInfo->seqStartID + nSeq && seqGetStatus(3, pSprite->extra) >= 0)
+        if (seqGetID(actor) == pDudeInfo->seqStartID + nSeq && seqGetStatus(actor) >= 0)
 			return true;
 	}
 	return false;
@@ -138,7 +138,7 @@ bool CanMove(DBloodActor* actor, DBloodActor* target, int nAngle, int nRange)
 	int x = pSprite->x;
 	int y = pSprite->y;
 	int z = pSprite->z;
-	HitScan(pSprite, z, bcos(nAngle), bsin(nAngle), 0, CLIPMASK0, nRange);
+	HitScan(actor, z, bcos(nAngle), bsin(nAngle), 0, CLIPMASK0, nRange);
 	int nDist = approxDist(x - gHitInfo.hitx, y - gHitInfo.hity);
 	if (nDist - (pSprite->clipdist << 2) < nRange)
 	{
@@ -262,8 +262,8 @@ void aiChooseDirection(DBloodActor* actor, int a3)
 	int vc = ((a3 + 1024 - pSprite->ang) & 2047) - 1024;
 	int nCos = Cos(pSprite->ang);
 	int nSin = Sin(pSprite->ang);
-	int dx = actor->xvel();
-	int dy = actor->yvel();
+	int dx = actor->xvel;
+	int dy = actor->yvel;
 	int t1 = DMulScale(dx, nCos, dy, nSin, 30);
 	int vsi = ((t1 * 15) >> 12) / 2;
 	int v8 = 341;
@@ -314,8 +314,8 @@ void aiMoveForward(DBloodActor* actor)
 	pSprite->ang = (pSprite->ang + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
 	if (abs(nAng) > 341)
 		return;
-	actor->xvel() += MulScale(pDudeInfo->frontSpeed, Cos(pSprite->ang), 30);
-	actor->yvel() += MulScale(pDudeInfo->frontSpeed, Sin(pSprite->ang), 30);
+    actor->xvel += MulScale(pDudeInfo->frontSpeed, Cos(pSprite->ang), 30);
+    actor->yvel += MulScale(pDudeInfo->frontSpeed, Sin(pSprite->ang), 30);
 }
 
 //---------------------------------------------------------------------------
@@ -354,8 +354,8 @@ void aiMoveDodge(DBloodActor* actor)
 	{
 		int nCos = Cos(pSprite->ang);
 		int nSin = Sin(pSprite->ang);
-		int dx = actor->xvel();
-		int dy = actor->yvel();
+        int dx = actor->xvel;
+        int dy = actor->yvel;
 		int t1 = DMulScale(dx, nCos, dy, nSin, 30);
 		int t2 = DMulScale(dx, nSin, -dy, nCos, 30);
 		if (pXSprite->dodgeDir > 0)
@@ -363,8 +363,8 @@ void aiMoveDodge(DBloodActor* actor)
 		else
 			t2 -= pDudeInfo->sideSpeed;
 
-		actor->xvel() = DMulScale(t1, nCos, t2, nSin, 30);
-		actor->yvel() = DMulScale(t1, nSin, -t2, nCos, 30);
+        actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
+        actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
 	}
 }
 
@@ -982,7 +982,6 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 	if (source)
 	{
 		spritetype* pSource = &source->s();
-		int nSource = pSource->index;
 		if (pSprite == pSource) return 0;
 		else if (actor->GetTarget() == nullptr) // if no target, give the dude a target
 		{
@@ -1009,12 +1008,12 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 			// for enemies in patrol mode
 			if (aiInPatrolState(pXSprite->aiState))
 			{
-				aiPatrolStop(pSprite, pSource->index, pXSprite->dudeAmbush);
+                aiPatrolStop(actor, source, pXSprite->dudeAmbush);
 
 				PLAYER* pPlayer = getPlayerById(pSource->type);
 				if (!pPlayer) return nDamage;
 				if (powerupCheck(pPlayer, kPwUpShadowCloak)) pPlayer->pwUpTime[kPwUpShadowCloak] = 0;
-				if (readyForCrit(pSource, pSprite))
+				if (readyForCrit(source, actor)) 
 				{
 					nDamage += aiDamageSprite(actor, source, nDmgType, nDamage * (10 - gGameOptions.nDifficulty));
 					if (pXSprite->health > 0)
@@ -1027,7 +1026,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 						}
 					}
 
-					DPrintf(DMSG_SPAMMY, "Player #%d does the critical damage to patrol dude #%d!", pPlayer->nPlayer + 1, pSprite->index);
+                    DPrintf(DMSG_SPAMMY, "Player #%d does the critical damage to patrol dude #%d!", pPlayer->nPlayer + 1, actor->GetIndex());
 				}
 
 				return nDamage;
@@ -1055,7 +1054,7 @@ int aiDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE nDmgType
 
 			if (pSprite->type == kDudeModernCustom)
 			{
-				GENDUDEEXTRA* pExtra = &actor->genDudeExtra();
+				GENDUDEEXTRA* pExtra = &actor->genDudeExtra;
 				if (nDmgType == kDamageBurn)
 				{
 					if (pXSprite->health > (uint32_t)pDudeInfo->fleeHealth) return nDamage;
@@ -1266,7 +1265,7 @@ void RecoilDude(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
 	auto pSprite = &actor->s();
-	char v4 = Chance(0x8000);
+	uint8_t v4 = Chance(0x8000);
 	DUDEEXTRA* pDudeExtra = &actor->dudeExtra;
 	if (pSprite->statnum == kStatDude && (pSprite->type >= kDudeBase && pSprite->type < kDudeMax))
 	{
@@ -1276,7 +1275,7 @@ void RecoilDude(DBloodActor* actor)
 #ifdef NOONE_EXTENSIONS
 		case kDudeModernCustom:
 		{
-			GENDUDEEXTRA* pExtra = &actor->genDudeExtra();
+			GENDUDEEXTRA* pExtra = &actor->genDudeExtra;
 			int rChance = getRecoilChance(actor);
 			if (pExtra->canElectrocute && pDudeExtra->teslaHit && !spriteIsUnderwater(actor, false))
 			{
@@ -1298,7 +1297,7 @@ void RecoilDude(DBloodActor* actor)
 				else aiGenDudeNewState(actor, &genDudeRecoilL);
 			}
 
-			short rState = inRecoil(pXSprite->aiState);
+			int rState = inRecoil(pXSprite->aiState);
 			if (rState > 0)
 			{
 				if (!canWalk(actor))
@@ -1528,7 +1527,6 @@ void RecoilDude(DBloodActor* actor)
 
 void aiThinkTarget(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
 	auto pSprite = &actor->s();
 	assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
@@ -1537,7 +1535,7 @@ void aiThinkTarget(DBloodActor* actor)
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 		{
 			PLAYER* pPlayer = &gPlayer[p];
-			if (pSprite->owner == pPlayer->nSprite || pPlayer->pXSprite->health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
+            if (actor->GetOwner() == pPlayer->actor || pPlayer->pXSprite->health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
 				continue;
 			int x = pPlayer->pSprite->x;
 			int y = pPlayer->pSprite->y;
@@ -1554,7 +1552,7 @@ void aiThinkTarget(DBloodActor* actor)
 			int nDeltaAngle = ((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024;
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{
-				aiSetTarget(actor, pPlayer->actor());
+                aiSetTarget(actor, pPlayer->actor);
 				aiActivateDude(actor);
 				return;
 			}
@@ -1585,7 +1583,7 @@ void aiLookForTarget(DBloodActor* actor)
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 		{
 			PLAYER* pPlayer = &gPlayer[p];
-			if (pSprite->owner == pPlayer->nSprite || pPlayer->pXSprite->health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
+            if (actor->GetOwner() == pPlayer->actor || pPlayer->pXSprite->health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
 				continue;
 			int x = pPlayer->pSprite->x;
 			int y = pPlayer->pSprite->y;
@@ -1601,7 +1599,7 @@ void aiLookForTarget(DBloodActor* actor)
 			int nDeltaAngle = ((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024;
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{
-				aiSetTarget(actor, pPlayer->actor());
+                aiSetTarget(actor, pPlayer->actor);
 				aiActivateDude(actor);
 				return;
 			}
@@ -1614,9 +1612,8 @@ void aiLookForTarget(DBloodActor* actor)
 		}
 		if (pXSprite->state)
 		{
-			uint8_t sectmap[(kMaxSectors + 7) >> 3];
 			const bool newSectCheckMethod = !cl_bloodvanillaenemies && !VanillaMode(); // use new sector checking logic
-			GetClosestSpriteSectors(pSprite->sectnum, pSprite->x, pSprite->y, 400, sectmap, nullptr, newSectCheckMethod);
+			GetClosestSpriteSectors(pSprite->sectnum, pSprite->x, pSprite->y, 400, nullptr, newSectCheckMethod);
 
 			BloodStatIterator it(kStatDude);
 			while (DBloodActor* actor2 = it.Next())
@@ -1663,7 +1660,7 @@ void aiProcessDudes(void)
 			if (pXSprite->aiState->moveFunc)
 				pXSprite->aiState->moveFunc(actor);
 
-			if (pXSprite->aiState->thinkFunc && (gFrameCount & 3) == (pSprite->index & 3)) // ouch, ouch! :(
+			if (pXSprite->aiState->thinkFunc && (gFrameCount & 3) == (actor->GetIndex() & 3))
 				pXSprite->aiState->thinkFunc(actor);
 		}
 
@@ -1671,11 +1668,11 @@ void aiProcessDudes(void)
 #ifdef NOONE_EXTENSIONS
 		case kDudeModernCustom:
 		case kDudeModernCustomBurning: {
-				GENDUDEEXTRA* pExtra = &actor->genDudeExtra();
+			GENDUDEEXTRA* pExtra = &actor->genDudeExtra;
 				if (pExtra->slaveCount > 0) updateTargetOfSlaves(actor);
 				if (pExtra->pLifeLeech != nullptr) updateTargetOfLeech(actor);
 			if (pXSprite->stateTimer == 0 && pXSprite->aiState && pXSprite->aiState->nextState
-				&& (pXSprite->aiState->stateTicks > 0 || seqGetStatus(3, pSprite->extra) < 0))
+				&& (pXSprite->aiState->stateTicks > 0 || seqGetStatus(actor) < 0))
 			{
 					aiGenDudeNewState(actor, pXSprite->aiState->nextState);
 			}
@@ -1978,21 +1975,22 @@ void aiInitSprite(DBloodActor* actor)
 
 			// make dude follow the markers
 			bool uwater = spriteIsUnderwater(actor);
-            if (pXSprite->target_i <= 0 || sprite[pXSprite->target_i].type != kMarkerPath) 
+            if (actor->GetTarget() == nullptr || actor->GetTarget()->s().type != kMarkerPath) 
             {
                 actor->SetTarget(nullptr);
-                aiPatrolSetMarker(pSprite, pXSprite);
+                aiPatrolSetMarker(actor);
 			}
 
-			if (stateTimer > 0) {
-				if (uwater) aiPatrolState(pSprite, kAiStatePatrolWaitW);
-				else if (pXSprite->unused1 & kDudeFlagCrouch) aiPatrolState(pSprite, kAiStatePatrolWaitC);
-				else aiPatrolState(pSprite, kAiStatePatrolWaitL);
+            if (stateTimer > 0) 
+            {
+                if (uwater) aiPatrolState(actor, kAiStatePatrolWaitW);
+                else if (pXSprite->unused1 & kDudeFlagCrouch) aiPatrolState(actor, kAiStatePatrolWaitC);
+                else aiPatrolState(actor, kAiStatePatrolWaitL);
 				pXSprite->stateTimer = stateTimer; // restore state timer
 			}
-			else if (uwater) aiPatrolState(pSprite, kAiStatePatrolMoveW);
-			else if (pXSprite->unused1 & kDudeFlagCrouch) aiPatrolState(pSprite, kAiStatePatrolMoveC);
-			else aiPatrolState(pSprite, kAiStatePatrolMoveL);
+            else if (uwater) aiPatrolState(actor, kAiStatePatrolMoveW);
+            else if (pXSprite->unused1 & kDudeFlagCrouch) aiPatrolState(actor, kAiStatePatrolMoveC);
+            else aiPatrolState(actor, kAiStatePatrolMoveL);
 		}
 	}
 #endif

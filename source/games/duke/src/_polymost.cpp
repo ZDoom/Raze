@@ -2,14 +2,14 @@ BEGIN_DUKE_NS
 
 void SE40_Draw(int tag, spritetype *spr, int x, int y, int z, binangle a, fixedhoriz h, int smoothratio)
 {
-	int i, j = 0, k = 0;
+	int i, k = 0;
 	int ok = 0, fofmode = 0;
 	int offx, offy;
 	spritetype* floor1, *floor2 = nullptr;
 
 	if (spr->ang != 512) return;
 
-	i = FOF;    //Effect TILE
+	i = FOF; //Effect TILE
 	tileDelete(FOF);
 	if (!testgotpic(FOF, true)) return;
 
@@ -139,10 +139,10 @@ void se40code(int x, int y, int z, binangle a, fixedhoriz h, int smoothratio)
 	{
 		switch (act->s->lotag - tag + 40)
 		{
-			//            case 40:
-			//            case 41:
-			//                SE40_Draw(i,x,y,a,smoothratio);
-			//                break;
+			//case 40:
+			//case 41:
+			//	SE40_Draw(i,x,y,a,smoothratio);
+			//	break;
 		case 42:
 		case 43:
 		case 44:
@@ -168,21 +168,21 @@ void renderMirror(int cposx, int cposy, int cposz, binangle cang, fixedhoriz cho
 		int dst = 0x7fffffff, i = 0;
 		for (int k = 0; k < mirrorcnt; k++)
 		{
-			int j = abs(wall[mirrorwall[k]].x - cposx) + abs(wall[mirrorwall[k]].y - cposy);
+			int j = abs(mirrorwall[k]->x - cposx) + abs(mirrorwall[k]->y - cposy);
 			if (j < dst) dst = j, i = k;
 		}
 
-		if (wall[mirrorwall[i]].overpicnum == TILE_MIRROR)
+		if (mirrorwall[i]->overpicnum == TILE_MIRROR)
 		{
 			int tposx, tposy;
 			fixed_t tang;
 
-			renderPrepareMirror(cposx, cposy, cposz, cang.asq16(), choriz.asq16(), mirrorwall[i], &tposx, &tposy, &tang);
+			renderPrepareMirror(cposx, cposy, cposz, cang.asq16(), choriz.asq16(), wallnum(mirrorwall[i]), &tposx, &tposy, &tang);
 
 			int j = g_visibility;
 			g_visibility = (j >> 1) + (j >> 2);
 
-			renderDrawRoomsQ16(tposx, tposy, cposz, tang, choriz.asq16(), mirrorsector[i], true);
+			renderDrawRoomsQ16(tposx, tposy, cposz, tang, choriz.asq16(), sectnum(mirrorsector[i]), true);
 
 			display_mirror = 1;
 			fi.animatesprites(pm_tsprite, pm_spritesortcnt, tposx, tposy, tang, smoothratio);

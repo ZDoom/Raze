@@ -246,7 +246,7 @@ void WriteSavePic(FileWriter* file, int width, int height)
 	savefile = file;
 	savewidth = width;
 	saveheight = height;
-	bool didit = gi->GenerateSavePic();
+	/*bool didit =*/ gi->GenerateSavePic();
 	writingsavepic = false;
 	xdim = oldx;
 	ydim = oldy;

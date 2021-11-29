@@ -43,7 +43,7 @@ struct GameInterface : public ::GameInterface
 	void ExitFromMenu() override;
 	ReservedSpace GetReservedScreenSpace(int viewsize) override;
 	void DrawPlayerSprite(const DVector2& origin, bool onteam) override;
-	void GetInput(InputPacket* packet, ControlInfo* const hidInput) override;
+	void GetInput(ControlInfo* const hidInput, double const scaleAdjust, InputPacket* packet = nullptr) override;
 	void UpdateSounds() override;
 	void Startup() override;
 	void DrawBackground() override;
@@ -54,7 +54,7 @@ struct GameInterface : public ::GameInterface
 	void NextLevel(MapRecord* map, int skill) override;
 	void NewGame(MapRecord* map, int skill, bool) override;
 	void LevelCompleted(MapRecord* map, int skill) override;
-	bool DrawAutomapPlayer(int x, int y, int z, int a, double const smoothratio) override;
+	bool DrawAutomapPlayer(int mx, int my, int x, int y, int z, int a, double const smoothratio) override;
 	int playerKeyMove() override { return 40; }
 	void WarpToCoords(int x, int y, int z, int a, int h) override;
 	void ToggleThirdPerson() override;
@@ -67,8 +67,8 @@ struct GameInterface : public ::GameInterface
 	void UpdateCameras(double smoothratio) override;
 	void EnterPortal(spritetype* viewer, int type) override;
 	void LeavePortal(spritetype* viewer, int type) override;
-	bool GetGeoEffect(GeoEffect* eff, int viewsector) override;
-	void AddExcludedEpisode(FString episode) override;
+	bool GetGeoEffect(GeoEffect* eff, sectortype* viewsector) override;
+	void AddExcludedEpisode(const FString& episode) override;
 	int GetCurrentSkill() override;
 
 };
@@ -82,12 +82,13 @@ struct Dispatcher
 	void (*animatewalls)();
 	void (*operaterespawns)(int low);
 	void (*operateforcefields)(DDukeActor* act, int low);
-	bool (*checkhitswitch)(int snum, int w, DDukeActor* act);
-	void (*activatebysector)(int sect, DDukeActor* j);
-	void (*checkhitwall)(DDukeActor* spr, int dawallnum, int x, int y, int z, int atwith);
-	bool (*checkhitceiling)(int sn);
+	bool (*checkhitswitch)(int snum, walltype* w, DDukeActor* act);
+	void (*activatebysector)(sectortype* sect, DDukeActor* j);
+	void (*checkhitwall)(DDukeActor* spr, walltype* dawall, int x, int y, int z, int atwith);
+	bool (*checkhitceiling)(sectortype* sn);
 	void (*checkhitsprite)(DDukeActor* i, DDukeActor* sn);
 	void (*checksectors)(int low);
+	DDukeActor* (*spawninit)(DDukeActor* actj, DDukeActor* act);
 
 	bool (*ceilingspace)(sectortype* sectp);
 	bool (*floorspace)(sectortype* sectp);

@@ -70,16 +70,10 @@ struct ATTRIBUTEstruct
 extern ATTRIBUTE DefaultAttrib;
 
 // AI.C functions
-void DebugMoveHit(short SpriteNum);
-bool ActorMoveHitReact(short SpriteNum);
-bool ActorFlaming(short SpriteNum);
-void DoActorSetSpeed(short SpriteNum,uint8_t speed);
+bool ActorMoveHitReact(DSWActor* actor);
 short ChooseActionNumber(short decision[]);
-int DoActorNoise(ANIMATORp Action,short SpriteNum);
-bool CanSeePlayer(short SpriteNum);
-int CanHitPlayer(short SpriteNum);
-int DoActorPickClosePlayer(short SpriteNum);
-int CloseRangeDist(SPRITEp sp1,SPRITEp sp2);
+bool CanSeePlayer(DSWActor* actor);
+int DoActorPickClosePlayer(DSWActor* actor);
 int InitActorDecide(DSWActor* actor);
 int DoActorDecide(DSWActor* actor);
 int InitActorAlertNoise(DSWActor* actor);
@@ -96,9 +90,8 @@ int InitActorExtra6Noise(DSWActor* actor);
 int InitActorMoveCloser(DSWActor* actor);
 int DoActorCantMoveCloser(DSWActor* actor);
 int DoActorMoveCloser(DSWActor* actor);
-short FindTrackToPlayer(USERp u);
-short FindTrackAwayFromPlayer(USERp u);
-short FindWanderTrack(USERp u);
+short FindTrackToPlayer(DSWActor* actor);
+short FindTrackAwayFromPlayer(DSWActor* actor);
 int InitActorRunAway(DSWActor* actor);
 int InitActorRunToward(DSWActor* actor);
 int InitActorAttack(DSWActor* actor);
@@ -109,8 +102,6 @@ int InitActorFindPlayer(DSWActor* actor);
 int InitActorDuck(DSWActor* actor);
 int DoActorDuck(DSWActor* actor);
 int DoActorMoveJump(DSWActor* actor);
-int move_scan(short SpriteNum,short ang,int dist,int *stopx,int *stopy,int *stopz,short *stopsect);
-int FindNewAngle(short SpriteNum,signed char dir,int DistToMove);
 int InitActorReposition(DSWActor* actor);
 int DoActorReposition(DSWActor* actor);
 int InitActorPause(DSWActor* actor);
@@ -162,7 +153,7 @@ DoActorExtra5Noise,
 DoActorExtra6Noise;
 */
 
-void DoActorSetSpeed(short SpriteNum, uint8_t speed);
+void DoActorSetSpeed(DSWActor* actor, uint8_t speed);
 
 END_SW_NS
 

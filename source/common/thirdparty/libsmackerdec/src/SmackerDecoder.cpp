@@ -243,9 +243,9 @@ const char *kSMK4iD = "SMK4";
  * Context used for code reconstructing
  */
 typedef struct HuffContext {
-    int length;
-    int maxlength;
-    int current;
+    int length = 0;
+    int maxlength = 0;
+    int current = 0;
 
 	std::vector<uint32_t> bits;
 	std::vector<int> lengths;
@@ -986,8 +986,6 @@ int SmackerDecoder::DecodeAudio(uint32_t size, SmackerAudioTrack &track)
         Printf("SmackerDecoder::DecodeAudio() - Channels mismatch\n");
 		return -1;
     }
-
-    memset(h, 0, sizeof(HuffContext) * 4);
 
     // Initialize
     for (i = 0; i < (1 << (sampleBits + stereo)); i++) {

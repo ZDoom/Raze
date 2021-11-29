@@ -491,7 +491,7 @@ bool FResourceFile::FindPrefixRange(FString filter, void *lumps, size_t lumpsize
 {
 	uint32_t min, max, mid, inside;
 	FResourceLump *lump;
-	int cmp;
+	int cmp = 0;
 
 	end = start = 0;
 
@@ -500,7 +500,7 @@ bool FResourceFile::FindPrefixRange(FString filter, void *lumps, size_t lumpsize
 	lumps = (uint8_t *)lumps - lumpsize;
 
 	// Binary search to find any match at all.
-	min = 1, max = maxlump;
+	mid = min = 1, max = maxlump;
 	while (min <= max)
 	{
 		mid = min + (max - min) / 2;

@@ -266,7 +266,7 @@ static int parseArgs(char *pzArgs, int *nArg1, int *nArg2)
 {
     if (!nArg1 || !nArg2 || strlen(pzArgs) < 3)
         return -1;
-	*nArg1 = pzArgs[0] - '0';
+    *nArg1 = pzArgs[0] - '0';
     int a1 = pzArgs[1] == ' ' ? 0 : pzArgs[1] - '0';
     *nArg2 = a1 * 10 + (pzArgs[2] - '0');
     return 2;
@@ -304,27 +304,27 @@ const char* GameInterface::GenericCheat(int player, int cheat)
         SetToys(true);
         break;
     case kCheatKevorkian:
-        actDamageSprite(gMe->actor(), gMe->actor(), kDamageBullet, 8000);
+        actDamageSprite(gMe->actor, gMe->actor, kDamageBullet, 8000);
         return GStrings("TXTB_KEVORKIAN");
 
     case kCheatMcGee:
     {
         if (!gMe->pXSprite->burnTime)
-            evPostActor(gMe->actor(), 0, kCallbackFXFlameLick);
-        actBurnSprite(gMe->pSprite->index, gMe->pXSprite, 2400);
+            evPostActor(gMe->actor, 0, kCallbackFXFlameLick);
+        actBurnSprite(gMe->actor, gMe->actor, 2400);
         return GStrings("TXTB_FIRED");
     }
     case kCheatEdmark:
-        actDamageSprite(gMe->actor(), gMe->actor(), kDamageExplode, 8000);
+        actDamageSprite(gMe->actor, gMe->actor, kDamageExplode, 8000);
         return GStrings("TXTB_THEDAYS");
 
     case kCheatKrueger:
     {
-        actHealDude(gMe->actor(), 200, 200);
+        actHealDude(gMe->actor, 200, 200);
         gMe->armor[1] = VanillaMode() ? 200 : 3200;
         if (!gMe->pXSprite->burnTime)
-            evPostActor(gMe->actor(), 0, kCallbackFXFlameLick);
-        actBurnSprite(gMe->pSprite->index, gMe->pXSprite, 2400);
+            evPostActor(gMe->actor, 0, kCallbackFXFlameLick);
+        actBurnSprite(gMe->actor, gMe->actor, 2400);
         return GStrings("TXTB_RETARD");
     }
     case kCheatSterno:
@@ -334,7 +334,7 @@ const char* GameInterface::GenericCheat(int player, int cheat)
         gMe->flickerEffect = 360;
         break;
     case kCheatSpork:
-        actHealDude(gMe->actor(), 200, 200);
+        actHealDude(gMe->actor, 200, 200);
         break;
     case kCheatClarice:
         for (int i = 0; i < 3; i++)
@@ -383,7 +383,7 @@ const char* GameInterface::GenericCheat(int player, int cheat)
         SetWooMode(true);
         break;
     case kCheatCousteau:
-        actHealDude(gMe->actor(), 200, 200);
+        actHealDude(gMe->actor, 200, 200);
         gMe->packSlots[1].curAmount = 100;
         if (!VanillaMode())
             gMe->pwUpTime[kPwUpDivingSuit] = gPowerUpInfo[kPwUpDivingSuit].bonusTime;
@@ -507,7 +507,7 @@ static void cmd_Give(int player, uint8_t **stream, bool skip)
         break;
 
     case GIVE_HEALTH:
-        actHealDude(gMe->actor(), 200, 200);
+        actHealDude(gMe->actor, 200, 200);
         bPlayerCheated = true;
         break;
 

@@ -81,7 +81,7 @@ extern POSTURE gPostureDefaults[kModeMax][kPostureMax];
 
 struct PLAYER
 {
-    DBloodActor*        actor();
+    DBloodActor*        actor;
     spritetype*         pSprite;
     XSPRITE*            pXSprite;
     DUDEINFO*           pDudeInfo;
@@ -104,7 +104,6 @@ struct PLAYER
     int                 swayHeight;
     int                 swayWidth;
     int                 nPlayer;  // Connect id
-    int                 nSprite;
     int                 lifeMode;
     int                 bloodlust;  // ---> useless
     int                 zView;
@@ -115,7 +114,7 @@ struct PLAYER
     bool                isUnderwater;
     bool                hasKey[8];
     int8_t              hasFlag;
-    short               used2[8];  // ??
+    DBloodActor*        ctfFlagState[2];
     int                 damageControl[7];
     int8_t              curWeapon;
     int8_t              nextWeapon;
@@ -139,17 +138,15 @@ struct PLAYER
     //int               relAim;
     //int               at1ce;
     //int               at1d2;
-    int                 aimTarget;  // aim target sprite
+    DBloodActor*        aimTarget;  // aim target sprite
     int                 aimTargetsCount;
-    short               aimTargets[16];
+    DBloodActor*        aimTargets[16];
     int                 deathTime;
     int                 pwUpTime[kMaxPowerUps];
     int                 fragCount;
     int                 fragInfo[8];
     int                 teamId;
-    int                 fraggerId;
-    DBloodActor* fragger();
-    void setFragger(DBloodActor*);
+    DBloodActor*        fragger;
     int                 underwaterTime;
     int                 bubbleTime;
     int                 restTime;
@@ -164,7 +161,7 @@ struct PLAYER
     int                 armor[3];      // armor
     //int               at342;
     //int               at346;
-    int                 voodooTarget;
+    DBloodActor*        voodooTarget;
     int                 voodooTargets;  // --> useless
     int                 voodooVar1;     // --> useless
     int                 vodooVar2;      // --> useless
@@ -192,7 +189,7 @@ struct AMMOINFO
 
 struct POWERUPINFO
 {
-    short picnum;
+    int16_t picnum;
     bool pickupOnce;
     int bonusTime;
     int maxTime;
@@ -241,20 +238,20 @@ inline bool IsTargetTeammate(spritetype *pSourceSprite, spritetype *pTargetSprit
 }
 
 int powerupCheck(PLAYER *pPlayer, int nPowerUp);
-char powerupActivate(PLAYER *pPlayer, int nPowerUp);
+bool powerupActivate(PLAYER *pPlayer, int nPowerUp);
 void powerupDeactivate(PLAYER *pPlayer, int nPowerUp);
-void powerupSetState(PLAYER *pPlayer, int nPowerUp, char bState);
+void powerupSetState(PLAYER *pPlayer, int nPowerUp, bool bState);
 void powerupProcess(PLAYER *pPlayer);
 void powerupClear(PLAYER *pPlayer);
 int packItemToPowerup(int nPack);
 int powerupToPackItem(int nPowerUp);
-char packAddItem(PLAYER *pPlayer, unsigned int nPack);
+bool packAddItem(PLAYER *pPlayer, unsigned int nPack);
 int packCheckItem(PLAYER *pPlayer, int nPack);
-char packItemActive(PLAYER *pPlayer, int nPack);
+bool packItemActive(PLAYER *pPlayer, int nPack);
 void packUseItem(PLAYER *pPlayer, int nPack);
 void packPrevItem(PLAYER *pPlayer);
 void packNextItem(PLAYER *pPlayer);
-char        playerSeqPlaying(PLAYER *pPlayer, int nSeq);
+bool        playerSeqPlaying(PLAYER *pPlayer, int nSeq);
 void playerSetRace(PLAYER *pPlayer, int nLifeMode);
 void playerSetGodMode(PLAYER *pPlayer, bool bGodMode);
 void playerResetInertia(PLAYER *pPlayer);
@@ -262,21 +259,13 @@ void        playerCorrectInertia(PLAYER *pPlayer, vec3_t const *oldpos);
 void        playerStart(int nPlayer, int bNewLevel = 0);
 void playerReset(PLAYER *pPlayer);
 void playerInit(int nPlayer, unsigned int a2);
-char findDroppedLeech(PLAYER *a1, spritetype *a2);
-char PickupItem(PLAYER *pPlayer, spritetype *pItem);
-char PickupAmmo(PLAYER *pPlayer, spritetype *pAmmo);
-char PickupWeapon(PLAYER *pPlayer, spritetype *pWeapon);
-void PickUp(PLAYER *pPlayer, spritetype *pSprite);
 void CheckPickUp(PLAYER *pPlayer);
-int ActionScan(PLAYER *pPlayer, int *a2, int *a3);
 void ProcessInput(PLAYER *pPlayer);
 void playerProcess(PLAYER *pPlayer);
-spritetype *playerFireMissile(PLAYER *pPlayer, int a2, int a3, int a4, int a5, int a6);
-spritetype *playerFireThing(PLAYER *pPlayer, int a2, int a3, int thingType, int a5);
+DBloodActor *playerFireMissile(PLAYER *pPlayer, int a2, int a3, int a4, int a5, int a6);
+DBloodActor *playerFireThing(PLAYER *pPlayer, int a2, int a3, int thingType, int a5);
 void playerFrag(PLAYER *pKiller, PLAYER *pVictim);
-void FragPlayer(PLAYER *pPlayer, int nSprite);
 int playerDamageArmor(PLAYER *pPlayer, DAMAGE_TYPE nType, int nDamage);
-spritetype *flagDropped(PLAYER *pPlayer, int a2);
 int playerDamageSprite(DBloodActor* nSource, PLAYER *pPlayer, DAMAGE_TYPE nDamageType, int nDamage);
 int UseAmmo(PLAYER *pPlayer, int nAmmoType, int nDec);
 void voodooTarget(PLAYER *pPlayer);

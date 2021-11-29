@@ -65,7 +65,6 @@ AISTATE beast138FEC = { kAiStateOther, 9, -1, 120, NULL, aiMoveTurn, NULL, &beas
 
 void SlashSeqCallback(int, DBloodActor* actor)
 {
-	XSPRITE* pXSprite = &actor->x();
 	spritetype* pSprite = &actor->s();
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	spritetype* pTarget = &actor->GetTarget()->s();
@@ -83,8 +82,6 @@ void SlashSeqCallback(int, DBloodActor* actor)
 
 void StompSeqCallback(int, DBloodActor* actor1)
 {
-	uint8_t sectmap[(kMaxSectors + 7) >> 3];
-	XSPRITE* pXSprite = &actor1->x();
 	spritetype* pSprite = &actor1->s();
 	int dx = bcos(pSprite->ang);
 	int dy = bsin(pSprite->ang);
@@ -96,30 +93,25 @@ void StompSeqCallback(int, DBloodActor* actor1)
 	int v1c = 5 + 2 * gGameOptions.nDifficulty;
 	int v10 = 25 + 30 * gGameOptions.nDifficulty;
 	const bool newSectCheckMethod = !cl_bloodvanillaenemies && !VanillaMode(); // use new sector checking logic
-	GetClosestSpriteSectors(nSector, x, y, vc, sectmap, nullptr, newSectCheckMethod);
-	char v4 = 0;
-	int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
+	auto sectorMap = GetClosestSpriteSectors(nSector, x, y, vc, nullptr, newSectCheckMethod);
+	int hit = HitScan(actor1, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
 	DBloodActor* actor2 = nullptr;
 	actHitcodeToData(hit, &gHitInfo, &actor2);
-	if (hit == 3 && actor2)
-	{
-		if (actor2->s().statnum == kStatDude)
-			v4 = 0;
-	}
+
 	vc <<= 4;
 	BloodStatIterator it1(kStatDude);
 	while (auto actor2 = it1.Next())
 	{
-		if (actor1 != actor2 || v4)
+		if (actor1 != actor2)
 		{
 			spritetype* pSprite2 = &actor2->s();
-			if (pSprite2->extra > 0 && pSprite2->extra < kMaxXSprites)
+            if (actor2->hasX())
 			{
 				if (pSprite2->type == kDudeBeast)
 					continue;
 				if (pSprite2->flags & 32)
 					continue;
-				if (TestBitString(sectmap, pSprite2->sectnum) && CheckProximity(pSprite2, x, y, z, nSector, vc))
+                if (sectorMap[pSprite2->sectnum] && CheckProximity(actor2, x, y, z, nSector, vc))
 				{
 					int top, bottom;
 					GetActorExtents(actor1, &top, &bottom);
@@ -150,7 +142,7 @@ void StompSeqCallback(int, DBloodActor* actor1)
 		spritetype* pSprite2 = &actor2->s();
 		if (pSprite2->flags & 32)
 			continue;
-		if (TestBitString(sectmap, pSprite2->sectnum) && CheckProximity(pSprite2, x, y, z, nSector, vc))
+        if (sectorMap[pSprite2->sectnum] && CheckProximity(actor2, x, y, z, nSector, vc))
 		{
 			XSPRITE* pXSprite = &actor2->x();
 			if (pXSprite->locked)
@@ -176,7 +168,6 @@ void StompSeqCallback(int, DBloodActor* actor1)
 
 static void MorphToBeast(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
 	auto pSprite = &actor->s();
 	actHealDude(actor, dudeInfo[51].startHealth, dudeInfo[51].startHealth);
 	pSprite->type = kDudeBeast;
@@ -185,7 +176,6 @@ static void MorphToBeast(DBloodActor* actor)
 static void beastThinkSearch(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
 	aiChooseDirection(actor, pXSprite->goalAng);
 	aiThinkTarget(actor);
 }
@@ -219,7 +209,6 @@ static void beastThinkGoto(DBloodActor* actor)
 
 static void beastThinkChase(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
 	auto pSprite = &actor->s();
 	if (actor->GetTarget() == nullptr)
 	{
@@ -291,7 +280,7 @@ static void beastThinkChase(DBloodActor* actor)
 						pXSector = &xsector[nXSector];
 					else
 						pXSector = NULL;
-					int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
+					int hit = HitScan(actor, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
 					if (pXTarget->health > (unsigned)gPlayerTemplate[0].startHealth / 2)
 					{
 						switch (hit)
@@ -329,7 +318,7 @@ static void beastThinkChase(DBloodActor* actor)
 						pXSector = &xsector[nXSector];
 					else
 						pXSector = NULL;
-					int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
+					int hit = HitScan(actor, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
 					switch (hit)
 					{
 					case -1:
@@ -398,7 +387,6 @@ static void beastThinkSwimGoto(DBloodActor* actor)
 
 static void beastThinkSwimChase(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
 	auto pSprite = &actor->s();
 	if (actor->GetTarget() == nullptr)
 	{
@@ -468,8 +456,8 @@ static void beastMoveForward(DBloodActor* actor)
 	int nDist = approxDist(dx, dy);
 	if (nDist <= 0x400 && Random(64) < 32)
 		return;
-	actor->xvel() += MulScale(pDudeInfo->frontSpeed, Cos(pSprite->ang), 30);
-	actor->yvel() += MulScale(pDudeInfo->frontSpeed, Sin(pSprite->ang), 30);
+    actor->xvel += MulScale(pDudeInfo->frontSpeed, Cos(pSprite->ang), 30);
+    actor->yvel += MulScale(pDudeInfo->frontSpeed, Sin(pSprite->ang), 30);
 }
 
 static void sub_628A0(DBloodActor* actor)
@@ -493,16 +481,16 @@ static void sub_628A0(DBloodActor* actor)
 		return;
 	int nCos = Cos(pSprite->ang);
 	int nSin = Sin(pSprite->ang);
-	int vx = actor->xvel();
-	int vy = actor->yvel();
+    int vx = actor->xvel;
+    int vy = actor->yvel;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	if (actor->GetTarget() == nullptr)
 		t1 += nAccel;
 	else
 		t1 += nAccel >> 2;
-	actor->xvel() = DMulScale(t1, nCos, t2, nSin, 30);
-	actor->yvel() = DMulScale(t1, nSin, -t2, nCos, 30);
+    actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
+    actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
 }
 
 static void sub_62AE0(DBloodActor* actor)
@@ -532,21 +520,20 @@ static void sub_62AE0(DBloodActor* actor)
 		return;
 	int nCos = Cos(pSprite->ang);
 	int nSin = Sin(pSprite->ang);
-	int vx = actor->xvel();
-	int vy = actor->yvel();
+    int vx = actor->xvel;
+    int vy = actor->yvel;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	t1 += nAccel;
-	actor->xvel() = DMulScale(t1, nCos, t2, nSin, 30);
-	actor->yvel() = DMulScale(t1, nSin, -t2, nCos, 30);
-	actor->zvel() = -dz;
+    actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
+    actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
+    actor->zvel = -dz;
 }
 
 static void sub_62D7C(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
 	auto pSprite = &actor->s();
-	int nSprite = pSprite->index;
 	assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
@@ -570,14 +557,14 @@ static void sub_62D7C(DBloodActor* actor)
 		return;
 	int nCos = Cos(pSprite->ang);
 	int nSin = Sin(pSprite->ang);
-	int vx = actor->xvel();
-	int vy = actor->yvel();
+    int vx = actor->xvel;
+    int vy = actor->yvel;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	t1 += nAccel >> 1;
-	actor->xvel() = DMulScale(t1, nCos, t2, nSin, 30);
-	actor->yvel() = DMulScale(t1, nSin, -t2, nCos, 30);
-	actor->zvel() = dz;
+    actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
+    actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
+    actor->zvel = dz;
 }
 
 END_BLD_NS

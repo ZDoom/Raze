@@ -27,8 +27,8 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 BEGIN_SW_NS
 
 
-void SectorLightShade(SPRITEp sp, short intensity);
-void DiffuseLighting(SPRITEp sp);
+void SectorLightShade(DSWActor*, short intensity);
+void DiffuseLighting(DSWActor*);
 void DoLightingMatch(short match, short state);
 void InitLighting(void);
 void DoLighting(void);

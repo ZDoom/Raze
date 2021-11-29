@@ -39,9 +39,9 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-void ReverseSlidor(short SpriteNum)
+void ReverseSlidor(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
+    USERp u = actor->u();
     ROTATORp r;
 
     r = u->rotator.Data();
@@ -50,7 +50,7 @@ void ReverseSlidor(short SpriteNum)
     if (u->Tics)
     {
         u->Tics = 0;
-        SetSlidorActive(SpriteNum);
+        SetSlidorActive(actor);
         return;
     }
 
@@ -68,17 +68,15 @@ void ReverseSlidor(short SpriteNum)
 }
 
 
-bool
-SlidorSwitch(short match, short setting)
+bool SlidorSwitch(short match, short setting)
 {
     SPRITEp sp;
-    int i;
     bool found = false;
 
-    StatIterator it(STAT_DEFAULT);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_DEFAULT);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
+        sp = &actor->s();
 
         if (sp->lotag == TAG_SPRITE_SWITCH_VATOR && sp->hitag == match)
         {
@@ -90,15 +88,15 @@ SlidorSwitch(short match, short setting)
     return found;
 }
 
-void SetSlidorActive(short SpriteNum)
+void SetSlidorActive(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = u->SpriteP;
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
     ROTATORp r;
 
     r = u->rotator.Data();
 
-    DoSlidorInterp(SpriteNum, StartInterpolation);
+    DoSlidorInterp(actor, StartInterpolation);
 
     // play activate sound
     DoSoundSpotMatch(SP_TAG2(sp), 1, SOUND_OBJECT_TYPE);
@@ -113,12 +111,12 @@ void SetSlidorActive(short SpriteNum)
         VatorSwitch(SP_TAG2(sp), ON);
 }
 
-void SetSlidorInactive(short SpriteNum)
+void SetSlidorInactive(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = u->SpriteP;
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
 
-    DoSlidorInterp(SpriteNum, StopInterpolation);
+    DoSlidorInterp(actor, StopInterpolation);
 
     // play inactivate sound
     DoSoundSpotMatch(SP_TAG2(sp), 2, SOUND_OBJECT_TYPE);
@@ -127,7 +125,7 @@ void SetSlidorInactive(short SpriteNum)
 }
 
 // called for operation from the space bar
-short DoSlidorOperate(PLAYERp pp, short sectnum)
+void DoSlidorOperate(PLAYERp pp, short sectnum)
 {
     short match;
 
@@ -136,37 +134,27 @@ short DoSlidorOperate(PLAYERp pp, short sectnum)
 
     if (match > 0)
     {
-        if (TestSlidorMatchActive(match))
-            return -1;
-        else
-            return DoSlidorMatch(pp, match, true);
+        if (!TestSlidorMatchActive(match))
+            DoSlidorMatch(pp, match, true);
     }
-
-    return -1;
 }
 
 // called from switches and triggers
 // returns first vator found
-short
-DoSlidorMatch(PLAYERp pp, short match, bool manual)
+void DoSlidorMatch(PLAYERp pp, short match, bool manual)
 {
     USERp fu;
     SPRITEp fsp;
     short sectnum;
-    short first_vator = -1;
 
-    int i;
-
-    //SlidorSwitch(match, ON);
-
-    StatIterator it(STAT_SLIDOR);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_SLIDOR);
+    while (auto actor = it.Next())
     {
-        fsp = &sprite[i];
+        fsp = &actor->s();
 
         if (SP_TAG1(fsp) == SECT_SLIDOR && SP_TAG2(fsp) == match)
         {
-            fu = User[i].Data();
+            fu = actor->u();
 
             // single play only vator
             // bool 8 must be set for message to display
@@ -184,9 +172,6 @@ DoSlidorMatch(PLAYERp pp, short match, bool manual)
                     continue;
             }
 
-            if (first_vator == -1)
-                first_vator = i;
-
             sectnum = fsp->sectnum;
 
             if (pp && SectUser[sectnum].Data() && SectUser[sectnum]->stag == SECT_LOCK_DOOR && SectUser[sectnum]->number)
@@ -195,55 +180,37 @@ DoSlidorMatch(PLAYERp pp, short match, bool manual)
 
                 key_num = SectUser[sectnum]->number;
 
-#if 0
-                if (pp->HasKey[key_num - 1])
-                {
-                    int i;
-                    for (i=0; i<numsectors; i++)
-                    {
-                        if (SectUser[i] && SectUser[i]->stag == SECT_LOCK_DOOR && SectUser[i]->number == key_num)
-                            SectUser[i]->number = 0;  // unlock all doors of this type
-                    }
-                    UnlockKeyLock(key_num);
-                }
-                else
-#endif
                 {
                     PutStringInfo(pp, quoteMgr.GetQuote(QUOTE_DOORMSG + key_num - 1));
-                    return -1;
+                    return;
                 }
             }
 
             if (TEST(fu->Flags, SPR_ACTIVE))
             {
-                ReverseSlidor(i);
+                ReverseSlidor(actor);
                 continue;
             }
 
-            SetSlidorActive(i);
+            SetSlidorActive(actor);
         }
     }
-
-    return first_vator;
 }
 
 
-bool
-TestSlidorMatchActive(short match)
+bool TestSlidorMatchActive(short match)
 {
     USERp fu;
     SPRITEp fsp;
 
-    int i;
-
-    StatIterator it(STAT_SLIDOR);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_SLIDOR);
+    while (auto actor = it.Next())
     {
-        fsp = &sprite[i];
+        fsp = &actor->s();
 
         if (SP_TAG1(fsp) == SECT_SLIDOR && SP_TAG2(fsp) == match)
         {
-            fu = User[i].Data();
+            fu = actor->u();
 
             // Does not have to be inactive to be operated
             if (TEST_BOOL6(fsp))
@@ -257,12 +224,13 @@ TestSlidorMatchActive(short match)
     return false;
 }
 
-void DoSlidorInterp(short SpriteNum, INTERP_FUNC interp_func)
+void DoSlidorInterp(DSWActor* actor, INTERP_FUNC interp_func)
 {
+    auto sp = &actor->s();
     short w, pw, startwall, endwall;
 
-    w = startwall = sector[sprite[SpriteNum].sectnum].wallptr;
-    endwall = startwall + sector[sprite[SpriteNum].sectnum].wallnum - 1;
+    w = startwall = sector[sp->sectnum].wallptr;
+    endwall = startwall + sector[sp->sectnum].wallnum - 1;
 
     do
     {
@@ -382,12 +350,13 @@ void DoSlidorInterp(short SpriteNum, INTERP_FUNC interp_func)
     while (w != startwall);
 }
 
-int DoSlidorMoveWalls(short SpriteNum, int amt)
+int DoSlidorMoveWalls(DSWActor* actor, int amt)
 {
+    auto sp = &actor->s();
     short w, pw, startwall, endwall;
 
-    w = startwall = sector[sprite[SpriteNum].sectnum].wallptr;
-    endwall = startwall + sector[sprite[SpriteNum].sectnum].wallnum - 1;
+    w = startwall = sector[sp->sectnum].wallptr;
+    endwall = startwall + sector[sp->sectnum].wallnum - 1;
 
     do
     {
@@ -411,8 +380,8 @@ int DoSlidorMoveWalls(short SpriteNum, int amt)
             else
             {
                 // red wall - move 2 points
-                dragpoint(w, wall[w].x - amt, wall[w].y, 0);
-                dragpoint(wall[w].point2, wall[wall[w].point2].x - amt, wall[wall[w].point2].y, 0);
+                dragpoint(w, wall[w].x - amt, wall[w].y);
+                dragpoint(wall[w].point2, wall[wall[w].point2].x - amt, wall[wall[w].point2].y);
             }
 
             break;
@@ -435,8 +404,8 @@ int DoSlidorMoveWalls(short SpriteNum, int amt)
             else
             {
                 // red wall - move 2 points
-                dragpoint(w, wall[w].x + amt, wall[w].y, 0);
-                dragpoint(wall[w].point2, wall[wall[w].point2].x + amt, wall[wall[w].point2].y, 0);
+                dragpoint(w, wall[w].x + amt, wall[w].y);
+                dragpoint(wall[w].point2, wall[wall[w].point2].x + amt, wall[wall[w].point2].y);
             }
 
             break;
@@ -457,8 +426,8 @@ int DoSlidorMoveWalls(short SpriteNum, int amt)
             }
             else
             {
-                dragpoint(w, wall[w].x, wall[w].y - amt, 0);
-                dragpoint(wall[w].point2, wall[wall[w].point2].x, wall[wall[w].point2].y - amt, 0);
+                dragpoint(w, wall[w].x, wall[w].y - amt);
+                dragpoint(wall[w].point2, wall[wall[w].point2].x, wall[wall[w].point2].y - amt);
             }
 
             break;
@@ -479,8 +448,8 @@ int DoSlidorMoveWalls(short SpriteNum, int amt)
             }
             else
             {
-                dragpoint(w, wall[w].x, wall[w].y + amt, 0);
-                dragpoint(wall[w].point2, wall[wall[w].point2].x, wall[wall[w].point2].y + amt, 0);
+                dragpoint(w, wall[w].x, wall[w].y + amt);
+                dragpoint(wall[w].point2, wall[wall[w].point2].x, wall[wall[w].point2].y + amt);
             }
 
 
@@ -494,13 +463,13 @@ int DoSlidorMoveWalls(short SpriteNum, int amt)
     return 0;
 }
 
-int DoSlidorInstantClose(short SpriteNum)
+int DoSlidorInstantClose(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
     short w, startwall;
     int diff;
 
-    w = startwall = sector[sprite[SpriteNum].sectnum].wallptr;
+    w = startwall = sector[sp->sectnum].wallptr;
 
     do
     {
@@ -508,22 +477,22 @@ int DoSlidorInstantClose(short SpriteNum)
         {
         case TAG_WALL_SLIDOR_LEFT:
             diff = wall[w].x - sp->x;
-            DoSlidorMoveWalls(SpriteNum, diff);
+            DoSlidorMoveWalls(actor, diff);
             break;
 
         case TAG_WALL_SLIDOR_RIGHT:
             diff = wall[w].x - sp->x;
-            DoSlidorMoveWalls(SpriteNum, -diff);
+            DoSlidorMoveWalls(actor, -diff);
             break;
 
         case TAG_WALL_SLIDOR_UP:
             diff = wall[w].y - sp->y;
-            DoSlidorMoveWalls(SpriteNum, diff);
+            DoSlidorMoveWalls(actor, diff);
             break;
 
         case TAG_WALL_SLIDOR_DOWN:
             diff = wall[w].y - sp->y;
-            DoSlidorMoveWalls(SpriteNum, -diff);
+            DoSlidorMoveWalls(actor, -diff);
             break;
         }
 
@@ -535,10 +504,10 @@ int DoSlidorInstantClose(short SpriteNum)
 }
 
 
-int DoSlidorMove(short SpriteNum)
+int DoSlidor(DSWActor* actor)
 {
-    USERp u = User[SpriteNum].Data();
-    SPRITEp sp = u->SpriteP;
+    USERp u = actor->u();
+    SPRITEp sp = &actor->s();
     ROTATORp r;
     int old_pos;
     bool kill = false;
@@ -580,7 +549,7 @@ int DoSlidorMove(short SpriteNum)
             // new tgt is CLOSED (0)
             r->tgt = 0;
             r->vel = -r->vel;
-            SetSlidorInactive(SpriteNum);
+            SetSlidorInactive(actor);
 
             if (SP_TAG6(sp) && !TEST_BOOL8(sp))
                 DoMatchEverything(nullptr, SP_TAG6(sp), -1);
@@ -600,11 +569,11 @@ int DoSlidorMove(short SpriteNum)
             r->vel = labs(r->vel);
 
             r->tgt = r->open_dest;
-            SetSlidorInactive(SpriteNum);
+            SetSlidorInactive(actor);
 
             RESET_BOOL8(sp);
 
-            // set owner swith back to OFF
+            // set Owner swith back to OFF
             // only if ALL vators are inactive
             if (!TestSlidorMatchActive(match))
             {
@@ -623,21 +592,20 @@ int DoSlidorMove(short SpriteNum)
         // if heading for the OFF (original) position and should NOT CRUSH
         if (TEST_BOOL3(sp) && r->tgt == 0)
         {
-            int i;
             SPRITEp bsp;
             USERp bu;
             bool found = false;
 
-            SectIterator it(sp->sectnum);
-            while ((i = it.NextIndex()) >= 0)
+            SWSectIterator it(sp->sectnum);
+            while (auto itActor = it.Next())
             {
-                bsp = &sprite[i];
-                bu = User[i].Data();
+                bsp = &itActor->s();
+                bu = itActor->u();
 
                 if (bu && TEST(bsp->cstat, CSTAT_SPRITE_BLOCK) && TEST(bsp->extra, SPRX_PLAYER_OR_ENEMY))
                 {
                     // found something blocking so reverse to ON position
-                    ReverseSlidor(SpriteNum);
+                    ReverseSlidor(actor);
                     SET_BOOL8(sp); // tell vator that something blocking door
                     found = true;
                     break;
@@ -656,7 +624,7 @@ int DoSlidorMove(short SpriteNum)
                     if (pp->lo_sectp == &sector[sp->sectnum] ||
                         pp->hi_sectp == &sector[sp->sectnum])
                     {
-                        ReverseSlidor(SpriteNum);
+                        ReverseSlidor(actor);
 
                         u->vel_rate = -u->vel_rate;
                         found = true;
@@ -667,30 +635,17 @@ int DoSlidorMove(short SpriteNum)
     }
 
 
-    DoSlidorMoveWalls(SpriteNum, r->pos - old_pos);
+    DoSlidorMoveWalls(actor, r->pos - old_pos);
 
     if (kill)
     {
-        SetSlidorInactive(SpriteNum);
-        KillSprite(SpriteNum);
+        SetSlidorInactive(actor);
+        KillActor(actor);
         return 0;
     }
 
     return 0;
 }
-
-int DoSlidor(DSWActor* actor)
-{
-    USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
-    SPRITEp sp = &sprite[SpriteNum];
-    SECTORp sectp = &sector[sp->sectnum];
-
-    DoSlidorMove(SpriteNum);
-
-    return 0;
-}
-
 
 #include "saveable.h"
 

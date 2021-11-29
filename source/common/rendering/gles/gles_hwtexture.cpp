@@ -166,9 +166,6 @@ unsigned int FHardwareTexture::CreateTexture(unsigned char * buffer, int w, int 
 
 void FHardwareTexture::AllocateBuffer(int w, int h, int texelsize) 
 {	
-	int rw = GetTexDimension(w);
-	int rh = GetTexDimension(h);
-
 	if (texelsize < 1 || texelsize > 4) texelsize = 4;
 	glTextureBytes = texelsize;
 	bufferpitch = w;
@@ -287,8 +284,6 @@ void FHardwareTexture::BindToFrameBuffer(int width, int height)
 
 bool FHardwareTexture::BindOrCreate(FTexture *tex, int texunit, int clampmode, int translation, int flags)
 {
-	int usebright = false;
-
 	bool needmipmap = (clampmode <= CLAMP_XY) && !forcenofilter;
 
 	// Bind it to the system.

@@ -53,10 +53,10 @@ struct SEQFRAME
 
 struct Seq {
 	char signature[4];
-	short version;
-	short nFrames;
-	short ticksPerFrame;
-	short soundId;
+	int16_t version;
+	int16_t nFrames;
+	int16_t ticksPerFrame;
+	int16_t soundId;
 	int flags;
 	SEQFRAME frames[1];
 	void Precache(int palette);
@@ -72,16 +72,12 @@ struct Seq {
 	}
 };
 
-struct ACTIVE
-{
-	uint8_t type;
-	unsigned short xindex;
-};
-
+class DBloodActor;
 struct SEQINST
 {
 	Seq* pSequence;
-	int index, type;
+	DBloodActor* actor;
+	int seqindex, type;
 
 	int nSeqID;
 	int callback;
@@ -109,6 +105,7 @@ void seqKillAll(void);
 int seqGetStatus(int a1, int a2);
 int seqGetStatus(DBloodActor*);
 int seqGetID(int a1, int a2);
+int seqGetID(DBloodActor*);
 void seqProcess(int a1);
 
 Seq* getSequence(int res_id);

@@ -133,7 +133,7 @@ void G_BuildTiccmd(ticcmd_t* cmd)
 	cmd->ucmd = {};
 	I_GetEvent();
 	auto input = CONTROL_GetInput();
-	gi->GetInput(&cmd->ucmd, &input);
+	gi->GetInput(&input, I_GetInputFrac(SyncInput()), &cmd->ucmd);
 	cmd->consistency = consistency[myconnectindex][(maketic / ticdup) % BACKUPTICS];
 }
 
@@ -220,6 +220,7 @@ static void GameTicker()
 
 		case ga_newgame:
 			FX_StopAllSounds();
+			[[fallthrough]];
 		case ga_newgamenostopsound:
 			DeleteScreenJob();
 			FX_SetReverb(0);
@@ -240,6 +241,7 @@ static void GameTicker()
 		case ga_mainmenu:
 			FX_StopAllSounds();
 			if (isBlood()) Mus_Stop();
+			[[fallthrough]];
 		case ga_mainmenunostopsound:
 			gi->FreeLevelData();
 			gamestate = GS_MENUSCREEN;
@@ -576,7 +578,7 @@ void TryRunTics (void)
 		{
 			I_GetEvent();
 			auto input = CONTROL_GetInput();
-			gi->GetInput(nullptr, &input);
+			gi->GetInput(&input, I_GetInputFrac(SyncInput()));
 		}
 		return;
 	}

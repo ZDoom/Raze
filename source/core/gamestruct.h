@@ -13,6 +13,7 @@ bool System_WantGuiCapture();	// During playing this tells us whether the game m
 class FSerializer;
 struct FRenderViewpoint;
 struct spritetype;
+struct sectortype;
 
 struct GameStats
 {
@@ -89,7 +90,7 @@ struct GameInterface
 	virtual FString GetCoordString() { return "'stat coord' not implemented"; }
 	virtual void ExitFromMenu() { throw CExitEvent(0); }
 	virtual ReservedSpace GetReservedScreenSpace(int viewsize) { return { 0, 0 }; }
-	virtual void GetInput(InputPacket* packet, ControlInfo* const hidInput) {}
+	virtual void GetInput(ControlInfo* const hidInput, double const scaleAdjust, InputPacket* packet = nullptr) {}
 	virtual void UpdateSounds() {}
 	virtual void ErrorCleanup() {}
 	virtual void Startup() {}
@@ -102,7 +103,7 @@ struct GameInterface
 	virtual void NextLevel(MapRecord* map, int skill) {}
 	virtual void NewGame(MapRecord* map, int skill, bool special = false) {}
 	virtual void LevelCompleted(MapRecord* map, int skill) {}
-	virtual bool DrawAutomapPlayer(int x, int y, int z, int a, double const smoothratio) { return false; }
+	virtual bool DrawAutomapPlayer(int mx, int my, int x, int y, int z, int a, double const smoothratio) { return false; }
 	virtual void SetTileProps(int tile, int surf, int vox, int shade) {}
 	virtual fixed_t playerHorizMin() { return IntToFixed(-200); }
 	virtual fixed_t playerHorizMax() { return IntToFixed(200); }
@@ -118,13 +119,13 @@ struct GameInterface
 	virtual void UpdateCameras(double smoothratio) {}
 	virtual void EnterPortal(spritetype* viewer, int type) {}
 	virtual void LeavePortal(spritetype* viewer, int type) {}
-	virtual bool GetGeoEffect(GeoEffect* eff, int viewsector) { return false; }
+	virtual bool GetGeoEffect(GeoEffect* eff, sectortype* viewsector) { return false; }
 	virtual int Voxelize(int sprnum) { return -1; }
-	virtual void AddExcludedEpisode(FString episode) {}
+	virtual void AddExcludedEpisode(const FString& episode) {}
 	virtual int GetCurrentSkill() { return -1; }
 	virtual bool IsQAVInterpTypeValid(const FString& type) { return false; }
-	virtual void AddQAVInterpProps(const int& res_id, const FString& interptype, const bool& loopable, const TMap<int, TArray<int>>& ignoredata) { }
-	virtual void RemoveQAVInterpProps(const int& res_id) { }
+	virtual void AddQAVInterpProps(const int res_id, const FString& interptype, const bool loopable, const TMap<int, TArray<int>>&& ignoredata) { }
+	virtual void RemoveQAVInterpProps(const int res_id) { }
 
 	virtual FString statFPS()
 	{

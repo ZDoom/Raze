@@ -34,13 +34,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 BEGIN_BLD_NS
 
 POINT2D baseWall[kMaxWalls];
-POINT3D baseSprite[kMaxSprites];
 int baseFloor[kMaxSectors];
 int baseCeil[kMaxSectors];
 int velFloor[kMaxSectors];
 int velCeil[kMaxSectors];
-short gUpperLink[kMaxSectors];
-short gLowerLink[kMaxSectors];
+DBloodActor* gUpperLink[kMaxSectors];
+DBloodActor* gLowerLink[kMaxSectors];
 HITINFO gHitInfo;
 
 bool AreSectorsNeighbors(int sect1, int sect2)
@@ -139,9 +138,10 @@ bool FindSector(int nX, int nY, int *nSector)
     return 0;
 }
 
-bool CheckProximity(spritetype *pSprite, int nX, int nY, int nZ, int nSector, int nDist)
+bool CheckProximity(DBloodActor *actor, int nX, int nY, int nZ, int nSector, int nDist)
 {
-    assert(pSprite != NULL);
+    assert(actor != NULL);
+    auto pSprite = &actor->s();
     int oX = abs(nX-pSprite->x)>>4;
     if (oX >= nDist) return 0;
 
@@ -154,7 +154,7 @@ bool CheckProximity(spritetype *pSprite, int nX, int nY, int nZ, int nSector, in
     if (approxDist(oX, oY) >= nDist) return 0;
 
     int bottom, top;
-    GetSpriteExtents(pSprite, &top, &bottom);
+    GetActorExtents(actor, &top, &bottom);
     if (cansee(pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum, nX, nY, nZ, nSector))
         return 1;
     if (cansee(pSprite->x, pSprite->y, bottom, pSprite->sectnum, nX, nY, nZ, nSector))
@@ -378,9 +378,10 @@ bool IntersectRay(int wx, int wy, int wdx, int wdy, int x1, int y1, int z1, int 
     return 1;
 }
 
-int HitScan(spritetype *pSprite, int z, int dx, int dy, int dz, unsigned int nMask, int nRange)
+int HitScan(DBloodActor *actor, int z, int dx, int dy, int dz, unsigned int nMask, int nRange)
 {
-    assert(pSprite != NULL);
+    assert(actor != NULL);
+    auto pSprite = &actor->s();
     assert(dx != 0 || dy != 0);
     gHitInfo.clearObj();
     int x = pSprite->x;
@@ -423,8 +424,11 @@ int HitScan(spritetype *pSprite, int z, int dx, int dy, int dz, unsigned int nMa
     return -1;
 }
 
-int VectorScan(spritetype *pSprite, int nOffset, int nZOffset, int dx, int dy, int dz, int nRange, int ac)
+int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, int dz, int nRange, int ac)
 {
+    assert(actor != NULL);
+    auto pSprite = &actor->s();
+
     int nNum = 256;
     assert(pSprite != NULL);
     gHitInfo.clearObj();
@@ -581,33 +585,25 @@ int VectorScan(spritetype *pSprite, int nOffset, int nZOffset, int dx, int dy, i
         {
             if (dz > 0)
             {
-                if (gUpperLink[gHitInfo.hitsect] < 0)
-                    return 2;
-                int nSprite = gUpperLink[gHitInfo.hitsect];
-                int nLink = sprite[nSprite].owner & 0xfff;
+                auto actor = getUpperLink(gHitInfo.hitsect);
+                if (!actor) return 2;
+                auto link = actor->GetOwner();
                 gHitInfo.clearObj();
-                x1 = gHitInfo.hitx + sprite[nLink].x - sprite[nSprite].x;
-                y1 = gHitInfo.hity + sprite[nLink].y - sprite[nSprite].y;
-                z1 = gHitInfo.hitz + sprite[nLink].z - sprite[nSprite].z;
-                pos = { x1, y1, z1 };
+                vec3_t pos = link->s().pos - actor->s().pos + vec3_t(gHitInfo.hitx, gHitInfo.hity, gHitInfo.hitz);
                 hitData.pos.z = gHitInfo.hitz;
-                hitscan(&pos, sprite[nLink].sectnum, dx, dy, dz<<4, &hitData, CLIPMASK1);
+                hitscan(&pos, link->s().sectnum, dx, dy, dz<<4, &hitData, CLIPMASK1);
                 gHitInfo.set(&hitData);
                 continue;
             }
             else
             {
-                if (gLowerLink[gHitInfo.hitsect] < 0)
-                    return 1;
-                int nSprite = gLowerLink[gHitInfo.hitsect];
-                int nLink = sprite[nSprite].owner & 0xfff;
+                auto actor = getLowerLink(gHitInfo.hitsect);
+                if (!actor) return 1;
+                auto link = actor->GetOwner();
                 gHitInfo.clearObj();
-                x1 = gHitInfo.hitx + sprite[nLink].x - sprite[nSprite].x;
-                y1 = gHitInfo.hity + sprite[nLink].y - sprite[nSprite].y;
-                z1 = gHitInfo.hitz + sprite[nLink].z - sprite[nSprite].z;
-                pos = { x1, y1, z1 };
+                vec3_t pos = link->s().pos - actor->s().pos + vec3_t(gHitInfo.hitx, gHitInfo.hity, gHitInfo.hitz);
                 hitData.pos.z = gHitInfo.hitz;
-                hitscan(&pos, sprite[nLink].sectnum, dx, dy, dz<<4, &hitData, CLIPMASK1);
+                hitscan(&pos, link->s().sectnum, dx, dy, dz<<4, &hitData, CLIPMASK1);
                 gHitInfo.set(&hitData);
                 continue;
             }
@@ -617,10 +613,12 @@ int VectorScan(spritetype *pSprite, int nOffset, int nZOffset, int dx, int dy, i
     return -1;
 }
 
-void GetZRange(spritetype *pSprite, int *ceilZ, Collision *ceilColl, int *floorZ, Collision *floorColl, int nDist, unsigned int nMask, unsigned int nClipParallax)
+void GetZRange(DBloodActor *actor, int *ceilZ, Collision *ceilColl, int *floorZ, Collision *floorColl, int nDist, unsigned int nMask, unsigned int nClipParallax)
 {
+    assert(actor != NULL);
+    auto pSprite = &actor->s();
+
     int floorHit, ceilHit;
-    assert(pSprite != NULL);
     int bakCstat = pSprite->cstat;
     int32_t nTemp1, nTemp2;
     pSprite->cstat &= ~257;
@@ -637,14 +635,13 @@ void GetZRange(spritetype *pSprite, int *ceilZ, Collision *ceilColl, int *floorZ
             XSECTOR *pXSector = &xsector[sector[nSector].extra];
             *floorZ += pXSector->Depth << 10;
         }
-        if (gUpperLink[nSector] >= 0)
+        auto actor = getUpperLink(nSector);
+        if (actor)
         {
-            int nSprite = gUpperLink[nSector];
-            int nLink = sprite[nSprite].owner & 0xfff;
-            vec3_t lpos = { pSprite->x + sprite[nLink].x - sprite[nSprite].x, pSprite->y + sprite[nLink].y - sprite[nSprite].y,
-                pSprite->z + sprite[nLink].z - sprite[nSprite].z };
-            getzrange(&lpos, sprite[nLink].sectnum, &nTemp1, &nTemp2, (int32_t*)floorZ, &floorHit, nDist, nMask);
-            *floorZ -= sprite[nLink].z - sprite[nSprite].z;
+            auto link = actor->GetOwner();
+            vec3_t lpos = pSprite->pos + link->s().pos - actor->s().pos;
+            getzrange(&lpos, link->s().sectnum, &nTemp1, &nTemp2, (int32_t*)floorZ, &floorHit, nDist, nMask);
+            *floorZ -= link->s().z - actor->s().z;
             floorColl->setFromEngine(floorHit);
         }
     }
@@ -653,14 +650,13 @@ void GetZRange(spritetype *pSprite, int *ceilZ, Collision *ceilColl, int *floorZ
         int nSector = ceilColl->index;
         if ((nClipParallax & PARALLAXCLIP_CEILING) == 0 && (sector[nSector].ceilingstat & 1))
             *ceilZ = 0x80000000;
-        if (gLowerLink[nSector] >= 0)
+        auto actor = getLowerLink(nSector);
+        if (actor)
         {
-            int nSprite = gLowerLink[nSector];
-            int nLink = sprite[nSprite].owner & 0xfff;
-            vec3_t lpos = { pSprite->x + sprite[nLink].x - sprite[nSprite].x, pSprite->y + sprite[nLink].y - sprite[nSprite].y,
-                pSprite->z + sprite[nLink].z - sprite[nSprite].z };
-            getzrange(&lpos, sprite[nLink].sectnum, (int32_t*)ceilZ, &ceilHit, &nTemp1, &nTemp2, nDist, nMask);
-            *ceilZ -= sprite[nLink].z - sprite[nSprite].z;
+            auto link = actor->GetOwner();
+            vec3_t lpos = pSprite->pos + link->s().pos - actor->s().pos;
+            getzrange(&lpos, link->s().sectnum, (int32_t*)ceilZ, &ceilHit, &nTemp1, &nTemp2, nDist, nMask);
+            *ceilZ -= link->s().z - actor->s().z;
             ceilColl->setFromEngine(ceilHit);
         }
     }
@@ -685,14 +681,14 @@ void GetZRangeAtXYZ(int x, int y, int z, int nSector, int *ceilZ, Collision* cei
             XSECTOR *pXSector = &xsector[sector[nSector].extra];
             *floorZ += pXSector->Depth << 10;
         }
-        if (gUpperLink[nSector] >= 0)
+        auto actor = getUpperLink(nSector);
+        if (actor)
         {
-            int nSprite = gUpperLink[nSector];
-            int nLink = sprite[nSprite].owner & 0xfff;
-            lpos = { x + sprite[nLink].x - sprite[nSprite].x, y + sprite[nLink].y - sprite[nSprite].y,
-                z + sprite[nLink].z - sprite[nSprite].z };
-            getzrange(&lpos, sprite[nLink].sectnum, &nTemp1, &nTemp2, (int32_t*)floorZ, &floorHit, nDist, nMask);
-            *floorZ -= sprite[nLink].z - sprite[nSprite].z;
+            auto link = actor->GetOwner();
+            vec3_t newpos = lpos + link->s().pos - actor->s().pos;
+            getzrange(&newpos, link->s().sectnum, &nTemp1, &nTemp2, (int32_t*)floorZ, &floorHit, nDist, nMask);
+            floorColl->setFromEngine(floorHit);
+            *floorZ -= link->s().z - actor->s().z;
         }
     }
     if (ceilColl->type == kHitSector)
@@ -700,14 +696,14 @@ void GetZRangeAtXYZ(int x, int y, int z, int nSector, int *ceilZ, Collision* cei
         int nSector = ceilColl->index;
         if ((nClipParallax & PARALLAXCLIP_CEILING) == 0 && (sector[nSector].ceilingstat & 1))
             *ceilZ = 0x80000000;
-        if (gLowerLink[nSector] >= 0)
+        auto actor = getLowerLink(nSector);
+        if (actor)
         {
-            int nSprite = gLowerLink[nSector];
-            int nLink = sprite[nSprite].owner & 0xfff;
-            lpos = { x + sprite[nLink].x - sprite[nSprite].x, y + sprite[nLink].y - sprite[nSprite].y,
-                z + sprite[nLink].z - sprite[nSprite].z };
-            getzrange(&lpos, sprite[nLink].sectnum, (int32_t*)ceilZ, &ceilHit, &nTemp1, &nTemp2, nDist, nMask);
-            *ceilZ -= sprite[nLink].z - sprite[nSprite].z;
+            auto link = actor->GetOwner();
+            vec3_t newpos = lpos + link->s().pos - actor->s().pos;
+            getzrange(&newpos, link->s().sectnum, (int32_t*)ceilZ, &ceilHit, &nTemp1, &nTemp2, nDist, nMask);
+            ceilColl->setFromEngine(ceilHit);
+            *ceilZ -= link->s().z - actor->s().z;
         }
     }
 }
@@ -755,156 +751,60 @@ unsigned int ClipMove(vec3_t *pos, int *nSector, int xv, int yv, int wd, int cd,
     return nRes;
 }
 
-int GetClosestSectors(int nSector, int x, int y, int nDist, short *pSectors, char *pSectBit)
-{
-    char sectbits[(kMaxSectors+7)>>3];
-    assert(pSectors != NULL);
-    memset(sectbits, 0, sizeof(sectbits));
-    pSectors[0] = nSector;
-    SetBitString(sectbits, nSector);
-    int n = 1;
-    int i = 0;
-    if (pSectBit)
-    {
-        memset(pSectBit, 0, (kMaxSectors+7)>>3);
-        SetBitString(pSectBit, nSector);
-    }
-    while (i < n)
-    {
-        int nCurSector = pSectors[i];
-        int nStartWall = sector[nCurSector].wallptr;
-        int nEndWall = nStartWall + sector[nCurSector].wallnum;
-        walltype *pWall = &wall[nStartWall];
-        for (int j = nStartWall; j < nEndWall; j++, pWall++)
-        {
-            int nNextSector = pWall->nextsector;
-            if (nNextSector < 0)
-                continue;
-            if (TestBitString(sectbits, nNextSector))
-                continue;
-            SetBitString(sectbits, nNextSector);
-            int dx = abs(wall[pWall->point2].x - x)>>4;
-            int dy = abs(wall[pWall->point2].y - y)>>4;
-            if (dx < nDist && dy < nDist)
-            {
-                if (approxDist(dx, dy) < nDist)
-                {
-                    if (pSectBit)
-                        SetBitString(pSectBit, nNextSector);
-                    pSectors[n++] = nNextSector;
-                }
-            }
-        }
-        i++;
-    }
-    pSectors[n] = -1;
-    return n;
-}
-
-int GetClosestSpriteSectors(int nSector, int x, int y, int nDist, uint8_t *pSectBit, short *pWalls, bool newSectCheckMethod)
+BitArray GetClosestSpriteSectors(int nSector, int x, int y, int nDist, TArray<int>* pWalls, bool newSectCheckMethod)
 {
     // by default this function fails with sectors that linked with wide spans, or there was more than one link to the same sector. for example...
     // E6M1: throwing TNT on the stone footpath while standing on the brown road will fail due to the start/end points of the span being too far away. it'll only do damage at one end of the road
     // E1M2: throwing TNT at the double doors while standing on the train platform
     // by setting newSectCheckMethod to true these issues will be resolved
-    static short pSectors[kMaxSectors];
-    uint8_t sectbits[(kMaxSectors+7)>>3];
-    memset(sectbits, 0, sizeof(sectbits));
-    pSectors[0] = nSector;
-    SetBitString(sectbits, nSector);
-    int n = 1, m = 0;
-    int i = 0;
-    if (pSectBit)
+
+    BitArray sectorMap(numsectors); // this gets returned to the caller.
+    sectorMap.Zero();
+    sectorMap.Set(nSector);
+    double nDist4sq = 256. * nDist * nDist;    // (nDist * 16)^2 - * 16 to account for Build's 28.4 fixed point format.
+
+    BFSSearch search(numsectors, nSector);
+
+    for (unsigned nCurSector; (nCurSector = search.GetNext()) != BFSSearch::EOL;)
     {
-        memset(pSectBit, 0, (kMaxSectors+7)>>3);
-        SetBitString(pSectBit, nSector);
-    }
-    while (i < n) // scan through sectors
-    {
-        const int nCurSector = pSectors[i];
-        const int nStartWall = sector[nCurSector].wallptr;
-        const int nEndWall = nStartWall + sector[nCurSector].wallnum;
-        for (int j = nStartWall; j < nEndWall; j++) // scan each wall of current sector for new sectors
+        for (auto& wal : wallsofsector(nCurSector))
         {
-            const walltype *pWall = &wall[j];
-            const int nNextSector = pWall->nextsector;
+            const int nNextSector = wal.nextsector;
             if (nNextSector < 0) // if next wall isn't linked to a sector, skip
                 continue;
-            if (TestBitString(sectbits, nNextSector)) // if we've already checked this sector, skip
-                continue;
-            bool setSectBit = true;
             bool withinRange = false;
             if (!newSectCheckMethod) // original method
             {
-                withinRange = CheckProximityWall(pWall->point2, x, y, nDist);
+                if (search.Check(nNextSector)) // if we've already checked this sector, skip. This is bad, therefore only in compat mode.
+                    continue;
+                withinRange = CheckProximityWall(wal.point2, x, y, nDist);
             }
-            else // new method - first test edges and then wall span midpoints
+            else // new method using proper math and no bad shortcut.
             {
-                for (int k = (j+1); k < nEndWall; k++) // scan through the rest of the sector's walls
-                {
-                    if (wall[k].nextsector == nNextSector) // if the next walls still reference the sector, then don't flag the sector as checked (yet)
-                    {
-                        setSectBit = false;
-                        break;
-                    }
-                }
-                const int nWallA = j;
-                const int nWallB = wall[nWallA].point2;
-                int x1 = wall[nWallA].x, y1 = wall[nWallA].y;
-                int x2 = wall[nWallB].x, y2 = wall[nWallB].y;
-                int point1Dist = approxDist(x-x1, y-y1); // setup edge distance needed for below loop (determines which point to shift closer to center)
-                int point2Dist = approxDist(x-x2, y-y2);
-                int nLength = approxDist(x1-x2, y1-y2);
-                const int nDist4 = nDist<<4;
-                nLength = ClipRange(nLength / (nDist4+(nDist4>>1)), 1, 4); // always test midpoint at least once, and never split more than 4 times
-                for (int k = 0; true; k++) // check both points of wall and subdivide span into smaller chunks towards target
-                {
-                    withinRange = (point1Dist < nDist4) || (point2Dist < nDist4); // check if both points of span is within radius
-                    if (withinRange)
-                        break;
-                    if (k == nLength) // reached end
-                        break;
-                    const int xcenter = (x1+x2)>>1, ycenter = (y1+y2)>>1;
-                    if (point1Dist < point2Dist) // shift closest side of wall towards target point, and refresh point distance values
-                    {
-                        x2 = xcenter, y2 = ycenter;
-                        point2Dist = approxDist(x-x2, y-y2);
-                    }
-                    else
-                    {
-                        x1 = xcenter, y1 = ycenter;
-                        point1Dist = approxDist(x-x1, y-y1);
-                    }
-                }
+                double dist1 = SquareDistToWall(x, y, &wal);
+                withinRange = dist1 <= nDist4sq;
             }
-            if (withinRange) // if new sector is within range, set to current sector and test walls
+            if (withinRange) // if new sector is within range, add it to the processing queue
             {
-                setSectBit = true; // sector is within range, set the sector as checked
-                if (pSectBit)
-                    SetBitString(pSectBit, nNextSector);
-                pSectors[n++] = nNextSector;
-                if (pWalls && pWall->extra > 0)
+                sectorMap.Set(nNextSector);
+                search.Add(nNextSector);
+                if (pWalls && wal.extra > 0)
                 {
-                    XWALL *pXWall = &xwall[pWall->extra];
+                    XWALL *pXWall = &xwall[wal.extra];
                     if (pXWall->triggerVector && !pXWall->isTriggered && !pXWall->state)
-                        pWalls[m++] = j;
+                        pWalls->Push(wallnum(&wal));
                 }
             }
-            if (setSectBit)
-                SetBitString(sectbits, nNextSector);
         }
-        i++;
     }
-    pSectors[n] = -1;
-    if (pWalls) pWalls[m] = -1;
-    return n;
+    return sectorMap;
 }
 
-int picWidth(short nPic, short repeat) {
+int picWidth(int nPic, int repeat) {
     return ClipLow((tileWidth(nPic) * repeat) << 2, 0);
 }
 
-int picHeight(short nPic, short repeat) {
+int picHeight(int nPic, int repeat) {
     return ClipLow((tileHeight(nPic) * repeat) << 2, 0);
 }
 

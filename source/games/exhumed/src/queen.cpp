@@ -270,7 +270,7 @@ void DestroyAllEggs()
 void SetHeadVel(DExhumedActor* pActor)
 {
     auto pSprite = &pActor->s();
-    short nAngle = pSprite->ang;
+    int nAngle = pSprite->ang;
 
     pSprite->xvel = bcos(nAngle, nVelShift);
     pSprite->yvel = bsin(nAngle, nVelShift);
@@ -278,7 +278,7 @@ void SetHeadVel(DExhumedActor* pActor)
 
 Collision QueenAngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int val1, int val2)
 {
-    short nAngle;
+    int nAngle;
 
     spritetype* pSprite = &pActor->s();
     if (pActor2 == nullptr)
@@ -439,7 +439,7 @@ void BuildQueenEgg(short nQueen, int nVal)
     int y = pSprite->y;
     int nSector =pSprite->sectnum;
     int nFloorZ = sector[nSector].floorz;
-    short nAngle = pSprite->ang;
+    int nAngle = pSprite->ang;
 
     auto pActor2 = insertActor(nSector, 121);
     auto pSprite2 = &pActor2->s();
@@ -570,7 +570,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
         }
         else
         {
-            short nAngle;
+            int nAngle;
 
             switch (nMov.type)
             {
@@ -697,7 +697,7 @@ void BuildQueenHead(short nQueen)
 
     int x = pSprite->x;
     int y = pSprite->y;
-    short nAngle = pSprite->ang;
+    int nAngle = pSprite->ang;
     int nSector =pSprite->sectnum;
     int z = sector[nSector].floorz;
 

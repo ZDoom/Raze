@@ -10,11 +10,10 @@ void collectTSpritesForPortal(int x, int y, int i, int interpolation)
 {
     int nSector = mirror[i].link;
     int nSector2 = mirror[i].wallnum;
-    int nSprite;
-    SectIterator it(nSector);
-    while ((nSprite = it.NextIndex()) >= 0)
+    BloodSectIterator it(nSector);
+    while (auto actor = it.Next())
     {
-        spritetype* pSprite = &sprite[nSprite];
+        spritetype* pSprite = &actor->s();
         if (pSprite == gView->pSprite)
             continue;
         int top, bottom;
@@ -51,8 +50,7 @@ void collectTSpritesForPortal(int x, int y, int i, int interpolation)
                 pTSprite->yoffset = pSprite->yoffset;
                 pTSprite->cstat = pSprite->cstat;
                 pTSprite->statnum = kStatDecoration;
-                pTSprite->owner = pSprite->index;
-                pTSprite->extra = pSprite->extra;
+                pTSprite->owner = actor->GetSpriteIndex();
                 pTSprite->flags = pSprite->hitag | 0x200;
                 pTSprite->x = dx + interpolatedvalue(pSprite->ox, pSprite->x, interpolation);
                 pTSprite->y = dy + interpolatedvalue(pSprite->oy, pSprite->y, interpolation);
@@ -126,26 +124,12 @@ void processSpritesOnOtherSideOfPortal(int x, int y, int interpolation)
 
 void render3DViewPolymost(int nSectnum, int cX, int cY, int cZ, binangle cA, fixedhoriz cH)
 {
-    int yxAspect = yxaspect;
-    int viewingRange = viewingrange;
     videoSetCorrectedAspect();
 
     int v1 = xs_CRoundToInt(double(viewingrange) * tan(r_fov * (pi::pi() / 360.)));
 
     renderSetAspect(v1, yxaspect);
 
-
-    int ceilingZ, floorZ;
-    getzsofslope(nSectnum, cX, cY, &ceilingZ, &floorZ);
-    if (cZ >= floorZ)
-    {
-        cZ = floorZ - (gUpperLink[nSectnum] >= 0 ? 0 : (8 << 8));
-    }
-    if (cZ <= ceilingZ)
-    {
-        cZ = ceilingZ + (gLowerLink[nSectnum] >= 0 ? 0 : (8 << 8));
-    }
-    cH = q16horiz(ClipRange(cH.asq16(), gi->playerHorizMin(), gi->playerHorizMax()));
 RORHACK:
     bool ror_status[16];
     for (int i = 0; i < 16; i++)
@@ -186,7 +170,7 @@ RORHACK:
 }
 
 // hack the portal planes with the sky flag for rendering. Only Polymost needs this hack.
-void setPortalFlags(char mode)
+void setPortalFlags(int mode)
 {
     for (int i = mirrorcnt - 1; i >= 0; i--)
     {
@@ -254,7 +238,7 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
                 {
                     renderPrepareMirror(x, y, z, a, horiz, nWall, &cx, &cy, &ca);
                 }
-                int32_t didmirror = renderDrawRoomsQ16(cx, cy, z, ca, horiz, mirrorsector, true);
+                renderDrawRoomsQ16(cx, cy, z, ca, horiz, mirrorsector, true);
                 viewProcessSprites(pm_tsprite, pm_spritesortcnt, cx, cy, z, FixedToInt(ca), smooth);
                 renderDrawMasks();
                 if (GetWallType(nWall) != kWallStack)
@@ -269,7 +253,7 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
             {
                 r_rorphase = 1;
                 int nSector = mirror[i].link;
-                int bakCstat;
+                int bakCstat = 0;
                 if (viewPlayer >= 0)
                 {
                     bakCstat = gPlayer[viewPlayer].pSprite->cstat;
@@ -284,7 +268,7 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
                 }
                 renderDrawRoomsQ16(x + mirror[i].dx, y + mirror[i].dy, z + mirror[i].dz, a, horiz, nSector, true);
                 viewProcessSprites(pm_tsprite, pm_spritesortcnt, x + mirror[i].dx, y + mirror[i].dy, z + mirror[i].dz, FixedToInt(a), smooth);
-                short fstat = sector[nSector].floorstat;
+                auto fstat = sector[nSector].floorstat;
                 sector[nSector].floorstat |= 1;
                 renderDrawMasks();
                 sector[nSector].floorstat = fstat;
@@ -301,7 +285,7 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
             {
                 r_rorphase = 1;
                 int nSector = mirror[i].link;
-                int bakCstat;
+                int bakCstat = 0;
                 if (viewPlayer >= 0)
                 {
                     bakCstat = gPlayer[viewPlayer].pSprite->cstat;
@@ -316,7 +300,7 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
                 }
                 renderDrawRoomsQ16(x + mirror[i].dx, y + mirror[i].dy, z + mirror[i].dz, a, horiz, nSector, true);
                 viewProcessSprites(pm_tsprite, pm_spritesortcnt, x + mirror[i].dx, y + mirror[i].dy, z + mirror[i].dz, FixedToInt(a), smooth);
-                short cstat = sector[nSector].ceilingstat;
+                auto cstat = sector[nSector].ceilingstat;
                 sector[nSector].ceilingstat |= 1;
                 renderDrawMasks();
                 sector[nSector].ceilingstat = cstat;

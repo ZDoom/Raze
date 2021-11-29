@@ -359,7 +359,6 @@ FGameTexture *mdloadskin(idmodel_t *m, int32_t number, int32_t pal, int32_t surf
 {
     int32_t i;
     mdskinmap_t *sk, *skzero = NULL;
-    int32_t doalloc = 1;
 
     if (m->mdnum == 2)
         surf = 0;
@@ -418,7 +417,7 @@ static void updateanimation(md2model_t *m, tspriteptr_t tspr, uint8_t lpal)
 
     int32_t const smoothdurationp = (hw_animsmoothing && (tile2model[tile].smoothduration != 0));
     spritesmooth_t * const smooth = &spritesmooth[((unsigned)tspr->owner < MAXSPRITES+MAXUNIQHUDID) ? tspr->owner : MAXSPRITES+MAXUNIQHUDID-1];
-    spriteext_t * const sprext = &spriteext[((unsigned)tspr->owner < MAXSPRITES+MAXUNIQHUDID) ? tspr->owner : MAXSPRITES+MAXUNIQHUDID-1];
+    spriteext_t * const sprext = &spriteext[((unsigned)tspr->owner < MAXSPRITES) ? tspr->owner : MAXSPRITES-1];
 
     const mdanim_t *anim;
     for (anim = m->animations; anim && anim->startframe != m->cframe; anim = anim->next)
@@ -1147,7 +1146,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
  //   int32_t texunits = GL_TEXTURE0;
 
     const int32_t owner = tspr->owner;
-    const spriteext_t *const sext = &spriteext[((unsigned)owner < MAXSPRITES+MAXUNIQHUDID) ? owner : MAXSPRITES+MAXUNIQHUDID-1];
+    const spriteext_t *const sext = &spriteext[((unsigned)owner < MAXSPRITES) ? owner : MAXSPRITES-1];
     const uint8_t lpal = ((unsigned)owner < MAXSPRITES) ? sprite[tspr->owner].pal : tspr->pal;
     const int32_t sizyrep = tileHeight(tspr->picnum) * tspr->yrepeat;
 
@@ -1361,9 +1360,6 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
         if (!tex)
             continue;
 		
-		FGameTexture *det = nullptr, *glow = nullptr;
-		float detscale = 1.f;
-
         int palid = TRANSLATION(Translation_Remap + curbasepal, globalpal);
         GLInterface.SetFade(sector[tspr->sectnum].floorpal);
         GLInterface.SetTexture(tex, palid, CLAMP_XY);
@@ -1558,7 +1554,7 @@ void updateModelInterpolation()
 	omdtims = mdtims;
 	mdtims = I_msTime();
 	
-	for (native_t i = 0; i < MAXSPRITES + MAXUNIQHUDID; ++i)
+	for (native_t i = 0; i < MAXSPRITES; ++i)
 		if ((mdpause && spriteext[i].mdanimtims) || (spriteext[i].flags & SPREXT_NOMDANIM))
 			spriteext[i].mdanimtims += mdtims - omdtims;
 }

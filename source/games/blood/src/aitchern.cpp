@@ -48,23 +48,17 @@ AISTATE tcherno13AA28 = { kAiStateChase, 8, -1, 60, NULL, aiMoveTurn, NULL, &tch
 
 void sub_71A90(int, DBloodActor* actor)
 {
-	XSPRITE* pXSprite = &actor->x();
-	spritetype* pSprite = &actor->s();
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
-	spritetype* pTarget = &actor->GetTarget()->s();
-	XSPRITE* pXTarget = &actor->GetTarget()->x();
-	int nTarget = pTarget->index;
-	int nOwner = pSprite->owner;
-	if (pXTarget->burnTime == 0)
-		evPostActor(actor->GetTarget(), 0, kCallbackFXFlameLick);
-	actBurnSprite(nOwner, pXTarget, 40);
+	auto target = actor->GetTarget();
+	if (target->x().burnTime == 0)
+		evPostActor(target, 0, kCallbackFXFlameLick);
+	actBurnSprite(actor->GetOwner(), target, 40);
 	if (Chance(0x6000))
 		aiNewState(actor, &tcherno13A9D4);
 }
 
 void sub_71BD4(int, DBloodActor* actor)
 {
-	XSPRITE* pXSprite = &actor->x();
 	spritetype* pSprite = &actor->s();
 	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
 	int height = pSprite->yrepeat * pDudeInfo->eyeHeight;
@@ -93,9 +87,9 @@ void sub_71BD4(int, DBloodActor* actor)
 		if (tt.at10)
 		{
 			int t = DivScale(nDist, tt.at10, 12);
-			x2 += (actor->xvel() * t) >> 12;
-			y2 += (actor->yvel() * t) >> 12;
-			z2 += (actor->zvel() * t) >> 8;
+			x2 += (actor->xvel * t) >> 12;
+			y2 += (actor->yvel * t) >> 12;
+			z2 += (actor->zvel * t) >> 8;
 		}
 		int tx = x + MulScale(Cos(pSprite->ang), nDist, 30);
 		int ty = y + MulScale(Sin(pSprite->ang), nDist, 30);
@@ -134,7 +128,6 @@ void sub_71BD4(int, DBloodActor* actor)
 
 void sub_720AC(int, DBloodActor* actor)
 {
-	XSPRITE* pXSprite = &actor->x();
 	spritetype* pSprite = &actor->s();
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 
@@ -168,9 +161,9 @@ void sub_720AC(int, DBloodActor* actor)
 		if (tt.at10)
 		{
 			int t = DivScale(nDist, tt.at10, 12);
-			x2 += (actor->xvel() * t) >> 12;
-			y2 += (actor->yvel() * t) >> 12;
-			z2 += (actor->zvel() * t) >> 8;
+			x2 += (actor->xvel * t) >> 12;
+			y2 += (actor->yvel * t) >> 12;
+			z2 += (actor->zvel * t) >> 8;
 		}
 		int tx = x + MulScale(Cos(pSprite->ang), nDist, 30);
 		int ty = y + MulScale(Sin(pSprite->ang), nDist, 30);
@@ -210,7 +203,6 @@ void sub_720AC(int, DBloodActor* actor)
 static void sub_72580(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
 	aiChooseDirection(actor, pXSprite->goalAng);
 	aiThinkTarget(actor);
 }
@@ -231,7 +223,7 @@ static void sub_725A4(DBloodActor* actor)
 	else if (pDudeExtraE->thinkTime >= 10 && pDudeExtraE->active)
 	{
 		pXSprite->goalAng += 256;
-		POINT3D* pTarget = &actor->basePoint();
+		POINT3D* pTarget = &actor->basePoint;
 		aiSetTarget(actor, pTarget->x, pTarget->y, pTarget->z);
 		aiNewState(actor, &tcherno13AA28);
 		return;
@@ -258,7 +250,7 @@ static void sub_725A4(DBloodActor* actor)
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{
 				pDudeExtraE->thinkTime = 0;
-				aiSetTarget(actor, pPlayer->actor());
+				aiSetTarget(actor, pPlayer->actor);
 				aiActivateDude(actor);
 			}
 			else if (nDist < pDudeInfo->hearDist)
@@ -296,7 +288,6 @@ static void sub_72850(DBloodActor* actor)
 
 static void sub_72934(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
 	auto pSprite = &actor->s();
 	if (actor->GetTarget() == nullptr)
 	{

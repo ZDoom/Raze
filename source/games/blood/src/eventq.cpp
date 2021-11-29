@@ -294,21 +294,18 @@ void evInit()
 		}
 	}
 
-	for (int i = 0; i < kMaxSprites; i++)
+	BloodLinearSpriteIterator it;
+	while (auto actor = it.Next())
 	{
-		if (sprite[i].statnum < kMaxStatus)
+		if (actor->hasX() && actor->x().rxID > 0)
 		{
-			int nXSprite = sprite[i].extra;
-			if (nXSprite > 0 && xsprite[nXSprite].rxID > 0)
-			{
 				assert(nCount < kChannelMax);
 				rxBucket[nCount].type = SS_SPRITE;
-				rxBucket[nCount].rxindex = i;
-				rxBucket[nCount].actor = &bloodActors[i];
+				rxBucket[nCount].rxindex = 0;
+				rxBucket[nCount].actor = actor;
 				nCount++;
 			}
 		}
-	}
 
 	SortRXBucket(nCount);
 	bucketCount = nCount;
@@ -427,7 +424,7 @@ void evSend(DBloodActor* actor, int nIndex, int nType, int rxId, COMMAND_ID comm
 			{
 				XSPRITE* pXSprite = &actor->x();
 				if (pXSprite->rxID == rxId)
-					trMessageSprite(actor->s().index, event);
+					trMessageSprite(actor, event);
 			}
 		}
 		return;
@@ -445,7 +442,7 @@ void evSend(DBloodActor* actor, int nIndex, int nType, int rxId, COMMAND_ID comm
 			{
 				XSPRITE* pXSprite = &actor->x();
 				if (pXSprite->rxID == rxId)
-					trMessageSprite(actor->s().index, event);
+					trMessageSprite(actor, event);
 			}
 		}
 		return;
@@ -462,14 +459,14 @@ void evSend(DBloodActor* actor, int nIndex, int nType, int rxId, COMMAND_ID comm
 		if (playerRXRngIsFine(rxId)) 
 		{
 			if ((pPlayer = getPlayerById((rxId - kChannelPlayer7) + kMaxPlayers)) != nullptr)
-				trMessageSprite(pPlayer->nSprite, event);
+				trMessageSprite(pPlayer->actor, event);
 		}
 		else if (rxId == kChannelAllPlayers) 
 		{
 			for (int i = 0; i < kMaxPlayers; i++) 
 			{
 				if ((pPlayer = getPlayerById(i)) != nullptr)
-					trMessageSprite(pPlayer->nSprite, event);
+					trMessageSprite(pPlayer->actor, event);
 			}
             return;
 		}
@@ -494,9 +491,8 @@ void evSend(DBloodActor* actor, int nIndex, int nType, int rxId, COMMAND_ID comm
 
 				if (actor && actor->hasX() && !(actor->s().flags & 32))
 				{
-					XSPRITE* pXSprite = &actor->x();
 					if (actor->x().rxID > 0)
-						trMessageSprite(actor->s().index, event);
+						trMessageSprite(actor, event);
 				}
 				break;
 			}
@@ -511,45 +507,45 @@ void evSend(DBloodActor* actor, int nIndex, int nType, int rxId, COMMAND_ID comm
 //
 //---------------------------------------------------------------------------
 
-void evPost_(int nIndex, int nType, unsigned int nDelta, COMMAND_ID command)
+void evPost_(DBloodActor* actor, int nIndex, int nType, unsigned int nDelta, COMMAND_ID command)
 {
 	assert(command != kCmdCallback);
-	if (command == kCmdState) command = evGetSourceState(nType, nIndex, &bloodActors[nIndex]) ? kCmdOn : kCmdOff;
-	else if (command == kCmdNotState) command = evGetSourceState(nType, nIndex, &bloodActors[nIndex]) ? kCmdOff : kCmdOn;
-	EVENT evn = { &bloodActors[nIndex], (int16_t)nIndex, (int8_t)nType, (int8_t)command, 0, PlayClock + (int)nDelta };
+	if (command == kCmdState) command = evGetSourceState(nType, nIndex, actor) ? kCmdOn : kCmdOff;
+	else if (command == kCmdNotState) command = evGetSourceState(nType, nIndex, actor) ? kCmdOff : kCmdOn;
+	EVENT evn = {actor, nIndex, (int8_t)nType, (int8_t)command, 0, PlayClock + (int)nDelta };
 	queue.insert(evn);
 }
 
-void evPost_(int nIndex, int nType, unsigned int nDelta, CALLBACK_ID callback)
+void evPost_(DBloodActor* actor, int nIndex, int nType, unsigned int nDelta, CALLBACK_ID callback)
 {
-	EVENT evn = {&bloodActors[nIndex], (int16_t)nIndex, (int8_t)nType, kCmdCallback, (int16_t)callback, PlayClock + (int)nDelta };
+	EVENT evn = {actor, nIndex, (int8_t)nType, kCmdCallback, (int16_t)callback, PlayClock + (int)nDelta };
 	queue.insert(evn);
 }
 
 
 void evPostActor(DBloodActor* actor, unsigned int nDelta, COMMAND_ID command)
 {
-	evPost_(actor->s().index, SS_SPRITE, nDelta, command);
+	evPost_(actor, 0, SS_SPRITE, nDelta, command);
 }
 
 void evPostActor(DBloodActor* actor, unsigned int nDelta, CALLBACK_ID callback)
 {
-	evPost_(actor->s().index, SS_SPRITE, nDelta, callback);
+	evPost_(actor, 0, SS_SPRITE, nDelta, callback);
 }
 
 void evPostSector(int index, unsigned int nDelta, COMMAND_ID command)
 {
-	evPost_(index, SS_SECTOR, nDelta, command);
+	evPost_(nullptr, index, SS_SECTOR, nDelta, command);
 }
 
 void evPostSector(int index, unsigned int nDelta, CALLBACK_ID callback)
 {
-	evPost_(index, SS_SECTOR, nDelta, callback);
+	evPost_(nullptr, index, SS_SECTOR, nDelta, callback);
 }
 
 void evPostWall(int index, unsigned int nDelta, COMMAND_ID command)
 {
-	evPost_(index, SS_WALL, nDelta, command);
+	evPost_(nullptr, index, SS_WALL, nDelta, command);
 }
 
 
@@ -630,6 +626,11 @@ void evProcess(unsigned int time)
 	{
 		EVENT event = *queue.begin();
 		queue.erase(queue.begin());
+		if (event.type == SS_SPRITE)
+		{
+			// Don't call events on destroyed actors. Seems to happen occasionally.
+			if (!event.actor || event.actor->s().statnum == kStatFree) continue;
+		}
 
 		if (event.cmd == kCmdCallback)
 		{
@@ -648,7 +649,7 @@ void evProcess(unsigned int time)
 				trMessageWall(event.index_, event);
 				break;
 			case SS_SPRITE:
-				trMessageSprite(event.actor->s().index, event);
+				trMessageSprite(event.actor, event);
 				break;
 			}
 		}

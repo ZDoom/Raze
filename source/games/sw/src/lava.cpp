@@ -451,31 +451,30 @@ ACTOR_ACTION_SET LavaActionSet =
     nullptr
 };
 
-int
-SetupLava(short SpriteNum)
+int SetupLava(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum].Data();
+        u = actor->u();
         ASSERT(u);
     }
     else
     {
-        u = SpawnUser(SpriteNum,LAVA_RUN_R0,s_LavaRun[0]);
+        u = SpawnUser(actor, LAVA_RUN_R0, s_LavaRun[0]);
         u->Health = 100;
     }
 
-    ChangeState(SpriteNum, s_LavaRun[0]);
+    ChangeState(actor, s_LavaRun[0]);
     u->Attrib = &LavaAttrib;
-    DoActorSetSpeed(SpriteNum, NORM_SPEED);
+    DoActorSetSpeed(actor, NORM_SPEED);
     u->StateEnd = s_LavaDie;
     u->Rot = sg_LavaRun;
 
-    EnemyDefaults(SpriteNum, &LavaActionSet, &LavaPersonality);
+    EnemyDefaults(actor, &LavaActionSet, &LavaPersonality);
     sp->xrepeat = sp->yrepeat = 110;
     sp->clipdist = (512) >> 2;
     SET(u->Flags, SPR_XFLIP_TOGGLE|SPR_ELECTRO_TOLERANT);
@@ -488,12 +487,11 @@ SetupLava(short SpriteNum)
 int NullLava(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags,SPR_SLIDING))
         DoActorSlide(actor);
 
-    KeepActorOnFloor(SpriteNum);
+    KeepActorOnFloor(actor);
 
     DoActorSectorDamage(actor);
     return 0;
@@ -502,17 +500,16 @@ int NullLava(DSWActor* actor)
 int DoLavaMove(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags,SPR_SLIDING))
         DoActorSlide(actor);
 
     if (u->track >= 0)
-        ActorFollowTrack(SpriteNum, ACTORMOVETICS);
+        ActorFollowTrack(actor, ACTORMOVETICS);
     else
         (*u->ActorActionFunc)(actor);
 
-    KeepActorOnFloor(SpriteNum);
+    KeepActorOnFloor(actor);
 
     DoActorSectorDamage(actor);
     return 0;

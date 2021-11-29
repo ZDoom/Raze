@@ -54,7 +54,7 @@ void resetmys()
 	myy = omyy = ps[myconnectindex].pos.y;
 	myz = omyz = ps[myconnectindex].pos.z;
 	myxvel = myyvel = myzvel = 0;
-	myang = myang = ps[myconnectindex].angle.ang;
+	myang = ps[myconnectindex].angle.ang;
 	myhoriz = omyhoriz = ps[myconnectindex].horizon.horiz;
 	myhorizoff = omyhorizoff = ps[myconnectindex].horizon.horizoff;
 	mycursectnum = ps[myconnectindex].cursectnum;
@@ -117,12 +117,12 @@ void fakedomovethings(void)
 		actions = syn->actions;
 
 		psect = mycursectnum;
-		psectlotag = sector[psect].lotag;
+		psectlotag = psect->lotag;
 		spritebridge = 0;
 
 		shrunk = (p->GetActor()->s.yrepeat < (isRR()? 8 : 32));
 
-		if( ud.clipping == 0 && ( sector[psect].floorpicnum == MIRROR || psect < 0 || psect >= MAXSECTORS) )
+		if( ud.clipping == 0 && ( psect->floorpicnum == MIRROR || psect == nullptr) )
 		{
 			myx = omyx;
 			myy = omyy;
@@ -145,7 +145,7 @@ void fakedomovethings(void)
 		if(clz.type == kHitSector && psectlotag == 1 && abs(myz-j) > gs.playerheight+(16<<8) )
 			psectlotag = 0;
 
-		if( p->aim_mode == 0 && myonground && psectlotag != 2 && (sector[psect].floorstat&2) )
+		if( p->aim_mode == 0 && myonground && psectlotag != 2 && (psect->floorstat&2) )
 		{
 				x = myx + bcos(myang, -5);
 				y = myy + bsin(myang, -5);
@@ -296,7 +296,7 @@ void fakedomovethings(void)
 			}
 				 if(myz < (fz-(i<<8)) && (floorspace(psect)|ceilingspace(psect)) == 0 ) //falling
 				 {
-							if( (sb_snum&3) == 0 && !(p->OnMotorcycle || p->OnBoat) && myonground && (sector[psect].floorstat&2) && myz >= (fz-(i<<8)-(16<<8) ) )
+							if( (sb_snum&3) == 0 && !(p->OnMotorcycle || p->OnBoat) && myonground && (psect->floorstat&2) && myz >= (fz-(i<<8)-(16<<8) ) )
 									 myz = fz-(i<<8);
 							else
 							{
@@ -398,8 +398,8 @@ void fakedomovethings(void)
 				 myxvel = 0;
 				 myyvel = 0;
 		}
-		else if ( syn->avel )          //p->ang += syncangvel * constant
-		{                         //ENGINE calculates angvel for you
+		else if ( syn->avel )//p->ang += syncangvel * constant
+		{                    //ENGINE calculates angvel for you
 			int tempang;
 
 			tempang = syn->avel<<1;

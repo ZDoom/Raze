@@ -231,33 +231,26 @@ void AddFlash(int nSector, int x, int y, int z, int val)
 
     int var_14 = 0;
 
-    int startwall = sectp->wallptr;
-    int endwall = sectp->wallptr + sectp->wallnum;
-
-    for (int i = startwall; i < endwall; i++)
+	for (auto& wal : wallsofsector(sectp))
     {
-        short wall2 = wall[i].point2;
-
-        int xAverage = (wall[i].x + wall[wall2].x) / 2;
-        int yAverage = (wall[i].y + wall[wall2].y) / 2;
+		auto average = wal.center();
 
         sectortype *pNextSector = NULL;
-        if (wall[i].nextsector > -1) {
-            pNextSector = &sector[wall[i].nextsector];
-        }
+        if (wal.nextsector > -1)
+            pNextSector = wal.nextSector();
 
         int ebx = -255;
 
         if (!var_18)
         {
-            int x2 = x - xAverage;
+            int x2 = x - average.x;
             if (x2 < 0) {
                 x2 = -x2;
             }
 
             ebx = x2;
 
-            int y2 = y - yAverage;
+            int y2 = y - average.y;
             if (y2 < 0) {
                 y2 = -y2;
             }
@@ -270,7 +263,7 @@ void AddFlash(int nSector, int x, int y, int z, int val)
             var_14++;
             var_28 += ebx;
 
-            if (wall[i].pal < 5)
+            if (wal.pal < 5)
             {
                 if (!pNextSector || pNextSector->floorz < sectp->floorz)
                 {
@@ -280,23 +273,23 @@ void AddFlash(int nSector, int x, int y, int z, int val)
                     }
 
                     sFlash[nFlash].nType = var_20 | 2;
-                    sFlash[nFlash].shade = wall[i].shade;
-                    sFlash[nFlash].nIndex = i;
+                    sFlash[nFlash].shade = wal.shade;
+					sFlash[nFlash].nIndex = wallnum(&wal);
 
-                    wall[i].pal += 7;
+                    wal.pal += 7;
 
-                    ebx += wall[i].shade;
+                    ebx += wal.shade;
                     int eax = ebx;
 
                     if (ebx < -127) {
                         eax = -127;
                     }
 
-                    wall[i].shade = eax;
+                    wal.shade = eax;
 
-                    if (!var_1C && !wall[i].overpicnum && pNextSector)
+                    if (!var_1C && !wal.overpicnum && pNextSector)
                     {
-                        AddFlash(wall[i].nextsector, x, y, z, val);
+                        AddFlash(wal.nextsector, x, y, z, val);
                     }
                 }
             }
@@ -691,7 +684,7 @@ void AddFlow(int nIndex, int nSpeed, int b, int nAngle)
         StartInterpolation(nIndex, Interp_Wall_PanX);
         StartInterpolation(nIndex, Interp_Wall_PanY);
 
-        short nAngle;
+        int nAngle;
 
         if (b == 2) {
             nAngle = 512;

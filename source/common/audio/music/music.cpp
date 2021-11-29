@@ -684,8 +684,6 @@ bool S_ChangeMusic(const char* musicname, int order, bool looping, bool force)
 		return true;
 	}
 
-	int lumpnum = -1;
-	int length = 0;
 	ZMusic_MusicStream handle = nullptr;
 	MidiDeviceSetting* devp = MidiDevices.CheckKey(musicname);
 

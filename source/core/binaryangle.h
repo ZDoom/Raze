@@ -129,6 +129,7 @@ class binangle
 public:
 	binangle() = default;
 	binangle(const binangle &other) = default;
+	binangle& operator=(const binangle& other) = default;
 	// This class intentionally makes no allowances for implicit type conversions because those would render it ineffective.
 	constexpr short asbuild() const { return value >> BAMBITS; }
 	constexpr double asbuildf() const { return value * (1. / +BAMUNIT); }

@@ -80,25 +80,14 @@ extern ParentalStruct aVoxelArray[MAXTILES];
 /////////////////////////////////////////////////////
 void SpawnWallSound(short sndnum, short i)
 {
-    short SpriteNum;
     vec3_t mid;
-    SPRITEp sp;
 
-    SpriteNum = COVERinsertsprite(0, STAT_DEFAULT);
-    if (SpriteNum < 0)
-        return;
-
-    sp = &sprite[SpriteNum];
-    sp->cstat = 0;
-    sp->extra = 0;
     // Get wall midpoint for offset in mirror view
     mid.x = (wall[i].x + wall[wall[i].point2].x) / 2;
     mid.y = (wall[i].y + wall[wall[i].point2].y) / 2;
     mid.z = (sector[wall[i].nextsector].ceilingz + sector[wall[i].nextsector].floorz) / 2;
-    setspritez(SpriteNum, &mid);
-    sp = &sprite[SpriteNum];
 
-    PlaySound(sndnum, sp, v3df_dontpan | v3df_doppler);
+    PlaySound(sndnum, &mid, v3df_dontpan | v3df_doppler);
 }
 
 short
@@ -173,53 +162,49 @@ void
 JS_SpriteSetup(void)
 {
     SPRITEp sp;
-    int SpriteNum;
     USERp u;
     short i;
 
-    StatIterator it(STAT_DEFAULT);
-    while ((SpriteNum = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_DEFAULT);
+    while (auto actor = it.Next())
     {
         short tag;
 
-        sp = &sprite[SpriteNum];
+        sp = &actor->s();
         tag = sp->hitag;
 
         // Non static camera. Camera sprite will be drawn!
-        if (tag == MIRROR_CAM && sprite[SpriteNum].picnum != ST1)
+        if (tag == MIRROR_CAM && sp->picnum != ST1)
         {
             // Just change it to static, sprite has all the info I need
-//          u = SpawnUser(SpriteNum, sp->picnum, nullptr);
-//          RESET(sp->cstat, CSTAT_SPRITE_BLOCK);
-//          SET(sp->cstat, CSTAT_SPRITE_BLOCK_HITSCAN);
-            change_sprite_stat(SpriteNum, STAT_SPAWN_SPOT);
+            change_actor_stat(actor, STAT_SPAWN_SPOT);
         }
 
-        switch (sprite[SpriteNum].picnum)
+        switch (sp->picnum)
         {
         case ST1:
             if (tag == MIRROR_CAM)
             {
                 // Just change it to static, sprite has all the info I need
                 // ST1 cameras won't move with SOBJ's!
-                change_sprite_stat(SpriteNum, STAT_ST1);
+                change_actor_stat(actor, STAT_ST1);
             }
             else if (tag == MIRROR_SPAWNSPOT)
             {
                 // Just change it to static, sprite has all the info I need
-                change_sprite_stat(SpriteNum, STAT_ST1);
+                change_actor_stat(actor, STAT_ST1);
             }
             else if (tag == AMBIENT_SOUND)
             {
-                change_sprite_stat(SpriteNum, STAT_AMBIENT);
+                change_actor_stat(actor, STAT_AMBIENT);
             }
             else if (tag == TAG_ECHO_SOUND)
             {
-                change_sprite_stat(SpriteNum, STAT_ECHO);
+                change_actor_stat(actor, STAT_ECHO);
             }
             else if (tag == TAG_DRIPGEN)
             {
-                u = SpawnUser(SpriteNum, 0, nullptr);
+                u = SpawnUser(actor, 0, nullptr);
 
                 ASSERT(u != nullptr);
                 u->RotNum = 0;
@@ -227,7 +212,7 @@ JS_SpriteSetup(void)
 
                 u->ActorActionFunc = GenerateDrips;
 
-                change_sprite_stat(SpriteNum, STAT_NO_STATE);
+                change_actor_stat(actor, STAT_NO_STATE);
                 SET(sp->cstat, CSTAT_SPRITE_INVISIBLE);
             }
             break;
@@ -243,14 +228,14 @@ JS_SpriteSetup(void)
         case 2720:
         case 3143:
         case 3157:
-            PlaySound(DIGI_FIRE1, sp, v3df_follow|v3df_dontpan|v3df_doppler);
+            PlaySound(DIGI_FIRE1, actor, v3df_follow|v3df_dontpan|v3df_doppler);
             break;
         case 795:
         case 880:
-            PlaySound(DIGI_WATERFLOW1, sp, v3df_follow|v3df_dontpan|v3df_doppler);
+            PlaySound(DIGI_WATERFLOW1, actor, v3df_follow|v3df_dontpan|v3df_doppler);
             break;
         case 460:  // Wind Chimes
-            InitAmbient(79, sp);
+            InitAmbient(79, actor);
             break;
 
         }
@@ -291,7 +276,6 @@ void JS_InitMirrors(void)
 {
     short startwall, endwall;
     int i, j, s;
-    int SpriteNum;
     bool Found_Cam = false;
 
 
@@ -310,8 +294,8 @@ void JS_InitMirrors(void)
     {
 		tileDelete(i + MIRRORLABEL);
         mirror[i].campic = -1;
-        mirror[i].camsprite = -1;
-        mirror[i].camera = -1;
+        mirror[i].camspriteActor = nullptr;
+        mirror[i].cameraActor = nullptr;
         mirror[i].ismagic = false;
     }
 
@@ -345,14 +329,14 @@ void JS_InitMirrors(void)
 
                     Found_Cam = false;
 
-                    StatIterator it(STAT_ST1);
-                    while ((ii = it.NextIndex()) >= 0)
+                    SWStatIterator it(STAT_ST1);
+                    while (auto itActor = it.Next())
                     {
-                        sp = &sprite[ii];
+                        sp = &itActor->s();
                         // if correct type and matches
                         if (sp->hitag == MIRROR_CAM && sp->lotag == wall[i].hitag)
                         {
-                            mirror[mirrorcnt].camera = ii;
+                            mirror[mirrorcnt].cameraActor = itActor;
                             // Set up camera variables
                             SP_TAG5(sp) = sp->ang;      // Set current angle to
                             // sprite angle
@@ -361,14 +345,14 @@ void JS_InitMirrors(void)
                     }
 
                     it.Reset(STAT_SPAWN_SPOT);
-                    while ((ii = it.NextIndex()) >= 0)
+                    while (auto itActor = it.Next())
                     {
-                        sp = &sprite[ii];
+                        sp = &itActor->s();
 
                         // if correct type and matches
                         if (sp->hitag == MIRROR_CAM && sp->lotag == wall[i].hitag)
                         {
-                            mirror[mirrorcnt].camera = ii;
+                            mirror[mirrorcnt].cameraActor = itActor;
                             // Set up camera variables
                             SP_TAG5(sp) = sp->ang;      // Set current angle to
                             // sprite angle
@@ -386,17 +370,17 @@ void JS_InitMirrors(void)
                     mirror[mirrorcnt].ismagic = true;
 
                     Found_Cam = false;
-                    if (TEST_BOOL1(&sprite[mirror[mirrorcnt].camera]))
+                    if (TEST_BOOL1(&mirror[mirrorcnt].cameraActor->s()))
                     {
-                        StatIterator it(STAT_DEFAULT);
-                        while ((SpriteNum = it.NextIndex()) >= 0)
+                        SWStatIterator it(STAT_DEFAULT);
+                        while (auto itActor = it.Next())
                         {
-                            sp = &sprite[SpriteNum];
+                            sp = &itActor->s();
                             if (sp->picnum >= CAMSPRITE && sp->picnum < CAMSPRITE + 8 &&
                                 sp->hitag == wall[i].hitag)
                             {
                                 mirror[mirrorcnt].campic = sp->picnum;
-                                mirror[mirrorcnt].camsprite = SpriteNum;
+                                mirror[mirrorcnt].camspriteActor = itActor;
 
                                 // JBF: commenting out this line results in the screen in $BULLET being visible
 								tileDelete(mirror[mirrorcnt].campic);
@@ -410,7 +394,7 @@ void JS_InitMirrors(void)
                             Printf("Did not find drawtotile for camera number %d\n", mirrorcnt);
                             Printf("wall[%d].hitag == %d\n", i, wall[i].hitag);
                             Printf("Map Coordinates: x = %d, y = %d\n", wall[i].x, wall[i].y);
-                            RESET_BOOL1(&sprite[mirror[mirrorcnt].camera]);
+                            RESET_BOOL1(&mirror[mirrorcnt].cameraActor->s());
                         }
                     }
 
@@ -427,16 +411,6 @@ void JS_InitMirrors(void)
 
                 // Set tics used to none
                 mirror[mirrorcnt].tics = 0;
-
-                if (mirror[mirrorcnt].ismagic)
-                {
-                    //DSPRINTF(ds, "mirror.mirrorwall %d", mirror[mirrorcnt].mirrorwall);
-                    MONO_PRINT(ds);
-                    //DSPRINTF(ds, "mirror.mirrorsector %d", mirror[mirrorcnt].mirrorsector);
-                    MONO_PRINT(ds);
-                    //DSPRINTF(ds, "mirror.camera %d", mirror[mirrorcnt].camera);
-                    MONO_PRINT(ds);
-                }
 
                 mirrorcnt++;
             }
@@ -490,7 +464,6 @@ void drawroomstotile(int daposx, int daposy, int daposz,
 void
 JS_ProcessEchoSpot()
 {
-    int i;
     SPRITEp tp;
     int j,dist;
     PLAYERp pp = Player+screenpeek;
@@ -498,12 +471,12 @@ JS_ProcessEchoSpot()
     bool reverb_set = false;
 
     // Process echo sprites
-    StatIterator it(STAT_ECHO);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_ECHO);
+    while (auto actor = it.Next())
     {
         dist = 0x7fffffff;
 
-        tp = &sprite[i];
+        tp = &actor->s();
 
         j = abs(tp->x - pp->posx);
         j += abs(tp->y - pp->posy);
@@ -585,7 +558,7 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz, double smoothratio)
                 {
                     SPRITEp tp;
 
-                    tp = &sprite[mirror[cnt].camsprite];
+                    tp = &mirror[cnt].camspriteActor->s();
 
                     j = abs(tp->x - tx);
                     j += abs(tp->y - ty);
@@ -599,9 +572,9 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz, double smoothratio)
                 int dx, dy, dz, tdx, tdy, tdz, midx, midy;
 
 
-                ASSERT(mirror[cnt].camera != -1);
+                ASSERT(mirror[cnt].cameraActor != nullptr);
 
-                sp = &sprite[mirror[cnt].camera];
+                sp = &mirror[cnt].cameraActor->s();
 
                 ASSERT(sp);
 
@@ -952,11 +925,9 @@ JAnalyzeSprites(tspriteptr_t tspr)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-void
-UnlockKeyLock(short key_num, short hit_sprite)
+void UnlockKeyLock(short key_num, DSWActor* hitActor)
 {
-    SPRITEp sp;
-    int SpriteNum = 0, color = 0;
+    int color = 0;
 
     // Get palette by looking at key number
     switch (key_num - 1)
@@ -987,33 +958,33 @@ UnlockKeyLock(short key_num, short hit_sprite)
         break;
     }
 
-    StatIterator it(STAT_DEFAULT);
-    while ((SpriteNum = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_DEFAULT);
+    while (auto itActor = it.Next())
     {
-        sp = &sprite[SpriteNum];
+        auto sp = &itActor->s();
 
         switch (sp->picnum)
         {
         case SKEL_LOCKED:
             if (sp->pal == color)
             {
-                PlaySound(DIGI_UNLOCK, sp, v3df_doppler | v3df_dontpan);
-                if (SpriteNum == hit_sprite)
+                PlaySound(DIGI_UNLOCK, itActor, v3df_doppler | v3df_dontpan);
+                if (itActor == hitActor)
                     sp->picnum = SKEL_UNLOCKED;
             }
             break;
         case RAMCARD_LOCKED:
             if (sp->pal == color)
             {
-                PlaySound(DIGI_CARDUNLOCK, sp, v3df_doppler | v3df_dontpan);
+                PlaySound(DIGI_CARDUNLOCK, itActor, v3df_doppler | v3df_dontpan);
                 sp->picnum = RAMCARD_UNLOCKED;
             }
             break;
         case CARD_LOCKED:
             if (sp->pal == color)
             {
-                PlaySound(DIGI_RAMUNLOCK, sp, v3df_doppler | v3df_dontpan);
-                if (SpriteNum == hit_sprite)
+                PlaySound(DIGI_RAMUNLOCK, itActor, v3df_doppler | v3df_dontpan);
+                if (itActor == hitActor)
                     sp->picnum = CARD_UNLOCKED;
                 else
                     sp->picnum = CARD_UNLOCKED+1;

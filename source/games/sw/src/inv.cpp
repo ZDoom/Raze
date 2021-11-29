@@ -139,7 +139,7 @@ void AutoPickInventory(PLAYERp pp)
 
 void UseInventoryMedkit(PLAYERp pp)
 {
-    USERp u = User[pp->PlayerSprite].Data();
+    USERp u = pp->Actor()->u();
     short diff;
     short inv = INVENTORY_MEDKIT;
     short amt;
@@ -285,7 +285,7 @@ void UseInventoryRepairKit(PLAYERp pp)
 
 void UseInventoryCloak(PLAYERp pp)
 {
-    SPRITEp sp = pp->SpriteP;
+    SPRITEp sp = &pp->Actor()->s();
 
     if (pp->InventoryActive[pp->InventoryNum])
     {
@@ -311,7 +311,7 @@ void UseInventoryCloak(PLAYERp pp)
 
 void StopInventoryCloak(PLAYERp pp, short InventoryNum)
 {
-    SPRITEp sp = pp->SpriteP;
+    SPRITEp sp = &pp->Actor()->s();
 
     pp->InventoryActive[InventoryNum] = false;
 

@@ -44,8 +44,6 @@ AISTATE handJump = { kAiStateChase, 7, nJumpClient, 120, NULL, NULL, NULL, &hand
 
 void HandJumpSeqCallback(int, DBloodActor* actor)
 {
-	XSPRITE* pXSprite = &actor->x();
-	spritetype* pSprite = &actor->s();
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	spritetype* pTarget = &actor->GetTarget()->s();
 	if (IsPlayerSprite(pTarget))
@@ -62,7 +60,6 @@ void HandJumpSeqCallback(int, DBloodActor* actor)
 static void handThinkSearch(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
 	aiChooseDirection(actor, pXSprite->goalAng);
 	aiThinkTarget(actor);
 }
@@ -85,7 +82,6 @@ static void handThinkGoto(DBloodActor* actor)
 
 static void handThinkChase(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
 	auto pSprite = &actor->s();
 	if (actor->GetTarget() == nullptr)
 	{

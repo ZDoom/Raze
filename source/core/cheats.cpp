@@ -530,20 +530,35 @@ CCMD(skill)
 		}
 		else if (argsCount == 2)
 		{
+			// Get maximum valid skills for loaded game.
+			auto maxvalidskills = 0;
+			for (auto i = 0; i < MAXSKILLS; i++)
+			{
+				if (gSkillNames[i].IsNotEmpty())
+				{
+					maxvalidskills++;
+				}
+			}
+
+			// Test and set skill if its legal.
 			auto newSkill = atoi(argv[1]);
-			if (newSkill >= 0 and newSkill <  MAXSKILLS)
+			if (newSkill >= 0 && newSkill < maxvalidskills)
 			{
 				g_nextskill = newSkill;
 				Printf("Skill will be changed for next game.\n");
 			}
 			else
 			{
-				Printf("Please specify a skill level between 0 and %d\n", MAXSKILLS - 1);
+				Printf("Please specify a skill level between 0 and %d\n", maxvalidskills - 1);
+				for (auto i = 0; i < maxvalidskills; i++)
+				{
+					Printf("%d = '%s'\n", i, GStrings.localize(gSkillNames[i]));
+				}
 			}
 		}
 		else if (argsCount > 2)
 		{
-			Printf(PRINT_BOLD, "skill <newskill>: returns the current skill level, and optionally sets the skill level for the next game.\n");
+			Printf(PRINT_BOLD, "skill <level>: returns the current skill level, and optionally sets the skill level for the next game if provided and is valid.\n");
 		}
 	}
 	else

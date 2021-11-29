@@ -37,7 +37,7 @@ static InputPacket gInput;
 void UpdatePlayerSpriteAngle(PLAYER* pPlayer);
 void doslopetilting(PLAYER* pPlayer, double const scaleAdjust);
 
-void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
+void GameInterface::GetInput(ControlInfo* const hidInput, double const scaleAdjust, InputPacket* packet)
 {
     if (paused || M_Active())
     {
@@ -46,7 +46,6 @@ void GameInterface::GetInput(InputPacket* packet, ControlInfo* const hidInput)
     }
 
     PLAYER* pPlayer = &gPlayer[myconnectindex];
-    double const scaleAdjust = InputScale();
     InputPacket input {};
 
     ApplyGlobalInput(gInput, hidInput);

@@ -139,7 +139,6 @@ void AddCmdDefine(char *text, int value)
 static void SplitPath(const char *pzPath, char *pzDirectory, char *pzFile, char *pzType)
 {
     int const nLength = (int)strlen(pzPath);
-    const char *pDirectory = pzPath+nLength;
     const char *pDot = NULL;
     for (int i = nLength-1; i >= 0; i--)
     {
@@ -576,6 +575,7 @@ void ParseScript(int lumpnum)
                         rfs.SkipBeyondValue('\n');
                     }
                 }
+                [[fallthrough]];
             }
             case kTagResource: // really light blue..
             {
@@ -586,7 +586,7 @@ void ParseScript(int lumpnum)
                 }
 
                 strcpy(inp, scriptBuffer);
-                char nFlags = 0;
+                uint8_t nFlags = 0;
                 int ID = 0;
                 bool isDefine = false;
 
@@ -773,7 +773,7 @@ void ParseScript(int lumpnum)
                 // eg strcpy(fileName, "AMB1.SFX");
                 strcpy(fileName, scriptBuffer);
 
-                char nFlags = 0;
+                uint8_t nFlags = 0;
                 int ID = 0;
 
                 bool isDefine = false;

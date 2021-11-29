@@ -37,7 +37,7 @@ void DestroyGrenade(DExhumedActor* pActor)
     DeleteActor(pActor);
 }
 
-void BounceGrenade(DExhumedActor* pActor, short nAngle)
+void BounceGrenade(DExhumedActor* pActor, int nAngle)
 {
     pActor->nTurn >>= 1;
 
@@ -47,7 +47,7 @@ void BounceGrenade(DExhumedActor* pActor, short nAngle)
     D3PlayFX(StaticSound[kSound3], pActor);
 }
 
-void ThrowGrenade(short nPlayer, int, int, int ecx, int push1)
+void ThrowGrenade(int nPlayer, int, int, int ecx, int push1)
 {
     if (PlayerList[nPlayer].pPlayerGrenade == nullptr)
         return;
@@ -57,7 +57,7 @@ void ThrowGrenade(short nPlayer, int, int, int ecx, int push1)
     auto pPlayerActor = PlayerList[nPlayer].Actor();
     auto pPlayerSprite = &pPlayerActor->s();
 
-    short nAngle = pPlayerSprite->ang;
+    int nAngle = pPlayerSprite->ang;
 
     ChangeActorSect(pActor, PlayerList[nPlayer].nPlayerViewSect);
 
@@ -180,7 +180,7 @@ void ExplodeGrenade(DExhumedActor* pActor)
     {
         auto pPlayerActor = PlayerList[nPlayer].Actor();
 		auto pPlayerSprite = &pPlayerActor->s();
-        short nAngle = pPlayerSprite->ang;
+        int nAngle = pPlayerSprite->ang;
 
         pGrenadeSprite->z = pPlayerSprite->z;
         pGrenadeSprite->x = bcos(nAngle, -5) + pPlayerSprite->x;
@@ -231,7 +231,7 @@ void AIGrenade::Tick(RunListEvent* ev)
     pActor->nIndex2--;
     if (!pActor->nIndex2)
     {
-        short nPlayer = pGrenadeSprite->owner;
+        int nPlayer = pGrenadeSprite->owner;
 
         if (pActor->nTurn < 0)
         {
@@ -345,8 +345,6 @@ void AIGrenade::RadialDamage(RunListEvent* ev)
 {
     auto pActor = ev->pObjActor;
     if (!pActor) return;
-
-    auto pGrenadeSprite = &pActor->s();
 
     if (pActor != ev->pOtherActor && !pActor->nFrame)
     {

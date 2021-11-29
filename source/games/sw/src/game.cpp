@@ -179,7 +179,6 @@ void GameInterface::LoadGameTextures()
 void GameInterface::app_init()
 {
     GameTicRate = TICS_PER_SEC / synctics;
-    InputScalePercentage = 0.070625;
     InitCheats();
     automapping = 1;
 
@@ -266,7 +265,7 @@ void InitLevelGlobals(void)
 
 
     for (auto& b : bosswasseen) b = false;
-    memset(BossSpriteNum,-1,sizeof(BossSpriteNum));
+    memset(BossSpriteNum,0,sizeof(BossSpriteNum));
 }
 
 //---------------------------------------------------------------------------
@@ -369,7 +368,6 @@ void InitLevel(MapRecord *maprec)
     PlaceActorsOnTracks();
     PostSetupSectorObject();
     SetupMirrorTiles();
-    initlava();
     CollectPortals();
 
     // reset NewGame
@@ -443,22 +441,19 @@ void TerminateLevel(void)
 
         pnum = stat - STAT_PLAYER0;
 
-        StatIterator it(stat);
-        if ((i = it.NextIndex()) >= 0)
+        SWStatIterator it(stat);
+        if (auto actor = it.Next())
         {
-            if (User[i].Data()) puser[pnum].CopyFromUser(User[i].Data());
+            if (actor->hasU()) puser[pnum].CopyFromUser(actor->u());
         }
     }
 
     // Kill User memory and delete sprites
-    for (stat = 0; stat < MAXSTATUS; stat++)
+    SWSpriteIterator it;
+    while (auto actor = it.Next())
     {
-        StatIterator it(stat);
-        while ((i = it.NextIndex()) >= 0)
-        {
-            KillSprite(i);
+        KillActor(actor);
         }
-    }
 
     // Free SectUser memory
     for (auto& su : SectUser) su.Clear();
@@ -474,11 +469,9 @@ void TerminateLevel(void)
         memset(pp->cookieQuote, 0, sizeof(pp->cookieQuote));
         pp->DoPlayerAction = nullptr;
 
-        pp->SpriteP = nullptr;
-        pp->PlayerSprite = -1;
+        pp->actor = nullptr;
 
-        pp->UnderSpriteP = nullptr;
-        pp->PlayerUnderSprite = -1;
+        pp->PlayerUnderActor = nullptr;
 
         memset(pp->HasKey, 0, sizeof(pp->HasKey));
 
@@ -488,14 +481,13 @@ void TerminateLevel(void)
         memset(pp->Wpn, 0, sizeof(pp->Wpn));
         memset(pp->InventoryTics, 0, sizeof(pp->InventoryTics));
 
-        pp->Killer = -1;
+        pp->KillerActor = nullptr;;
 
         INITLIST(&pp->PanelSpriteList);
     }
 }
 
 
-using namespace ShadowWarrior;
 static bool DidOrderSound;
 static int zero = 0;
 
@@ -670,7 +662,7 @@ int RandomRange(int range)
         rand_num--;
 
     // shift values to give more precision
-    value = (rand_num << 14) / ((65535UL << 14) / range);
+    value = (rand_num << 14) / ((65535U << 14) / range);
 
     if (value >= (uint32_t)range)
         value = range - 1;

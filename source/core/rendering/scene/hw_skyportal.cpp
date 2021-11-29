@@ -37,8 +37,6 @@ void HWSkyPortal::DrawContents(HWDrawInfo *di, FRenderState &state)
 {
 	int indexed = hw_int_useindexedcolortextures;
 	hw_int_useindexedcolortextures = false; // this code does not work with indexed textures.
-	bool drawBoth = false;
-	auto &vp = di->Viewpoint;
 
 	if (di->isSoftwareLighting())
 	{
@@ -64,7 +62,6 @@ void HWSkyPortal::DrawContents(HWDrawInfo *di, FRenderState &state)
 	else if (!origin->cloudy)
 	{
 		auto tex = origin->texture;
-		float texw = tex->GetDisplayWidth();
 		float texh = tex->GetDisplayHeight();
 		auto& modelMatrix = state.mModelMatrix;
 		auto& textureMatrix = state.mTextureMatrix;

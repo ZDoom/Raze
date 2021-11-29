@@ -39,8 +39,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-BREAK_INFOp GlobBreakInfo;
-
 static int SectorOfWall(short theline);
 static void DoWallBreakSpriteMatch(short match);
 
@@ -493,8 +491,9 @@ BREAK_INFOp SetupWallForBreak(WALLp wallp)
     return break_info;
 }
 
-BREAK_INFOp SetupSpriteForBreak(SPRITEp sp)
+BREAK_INFOp SetupSpriteForBreak(DSWActor* actor)
 {
+    auto sp = &actor->s();
     short picnum = sp->picnum;
     BREAK_INFOp break_info;
 
@@ -533,21 +532,19 @@ BREAK_INFOp SetupSpriteForBreak(SPRITEp sp)
 // ACTIVATE
 //////////////////////////////////////////////
 
-short FindBreakSpriteMatch(short match)
+DSWActor* FindBreakSpriteMatch(short match)
 {
-    int i;
-
-    StatIterator it(STAT_BREAKABLE);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_BREAKABLE);
+    while (auto actor = it.Next())
     {
-        auto sp = &sprite[i];
+        auto sp = &actor->s();
         if (SP_TAG2(sp) == match && sp->picnum == ST1)
         {
-            return i;
+            return actor;
         }
     }
 
-    return -1;
+    return nullptr;
 }
 
 //
@@ -557,9 +554,7 @@ short FindBreakSpriteMatch(short match)
 int AutoBreakWall(WALLp wallp, int hit_x, int hit_y, int hit_z, short ang, short type)
 {
     BREAK_INFOp break_info;
-    short BreakSprite;
     WALLp nwp;
-    SPRITEp bsp;
 
     wallp->lotag = 0;
     if (wallp->nextwall >= 0)
@@ -594,22 +589,16 @@ int AutoBreakWall(WALLp wallp, int hit_x, int hit_y, int hit_z, short ang, short
     {
         vec3_t hit_pos = { hit_x, hit_y, hit_z };
         // need correct location for spawning shrap
-        BreakSprite = COVERinsertsprite(0, STAT_DEFAULT);
-        ASSERT(BreakSprite >= 0);
-        bsp = &sprite[BreakSprite];
+        auto breakActor = InsertActor(0, STAT_DEFAULT);
+        auto bsp = &breakActor->s();
         bsp->cstat = 0;
         bsp->extra = 0;
         bsp->ang = ang;
         bsp->picnum = ST1;
         bsp->xrepeat = bsp->yrepeat = 64;
-        setspritez(BreakSprite, &hit_pos);
-
-        // pass Break Info Globally
-        GlobBreakInfo = break_info;
-        SpawnShrap(BreakSprite, -1);
-        GlobBreakInfo = nullptr;
-
-        KillSprite(BreakSprite);
+        SetActorZ(breakActor, &hit_pos);
+        SpawnShrap(breakActor, nullptr, -1, break_info);
+        KillActor(breakActor);
     }
 
     // change the wall
@@ -649,24 +638,20 @@ int AutoBreakWall(WALLp wallp, int hit_x, int hit_y, int hit_z, short ang, short
                 DoWallBreakSpriteMatch(wallp->hitag);
         }
     }
-
-
     return true;
 }
 
 bool UserBreakWall(WALLp wp, short)
 {
-    short SpriteNum;
-    SPRITEp sp;
     short match = wp->hitag;
     int block_flags = CSTAT_WALL_BLOCK|CSTAT_WALL_BLOCK_HITSCAN;
     int type_flags = CSTAT_WALL_TRANSLUCENT|CSTAT_WALL_MASKED|CSTAT_WALL_1WAY;
     int flags = block_flags|type_flags;
     bool ret = false;
 
-    SpriteNum = FindBreakSpriteMatch(match);
+    auto actor = FindBreakSpriteMatch(match);
 
-    if (SpriteNum < 0)
+    if (actor == nullptr)
     {
         // do it the old way and get rid of wall - assumed to be masked
         DoSpawnSpotsForKill(match);
@@ -681,7 +666,7 @@ bool UserBreakWall(WALLp wp, short)
         return true;
     }
 
-    sp = &sprite[SpriteNum];
+    auto sp = &actor->s();
 
     if (wp->picnum == SP_TAG5(sp))
         return true;
@@ -824,7 +809,7 @@ bool HitBreakWall(WALLp wp, int hit_x, int hit_y, int hit_z, short ang, short ty
     //if (hit_x == INT32_MAX)
     {
         int sectnum;
-        WallBreakPosition(short(wp - wall), &sectnum, &hit_x, &hit_y, &hit_z, &ang);
+        WallBreakPosition(wallnum(wp), &sectnum, &hit_x, &hit_y, &hit_z, &ang);
     }
 
     AutoBreakWall(wp, hit_x, hit_y, hit_z, ang, type);
@@ -835,10 +820,10 @@ bool HitBreakWall(WALLp wp, int hit_x, int hit_y, int hit_z, short ang, short ty
 // SPRITE
 //
 
-int KillBreakSprite(short BreakSprite)
+int KillBreakSprite(DSWActor* breakActor)
 {
-    SPRITEp bp = &sprite[BreakSprite];
-    USERp bu = User[BreakSprite].Data();
+    SPRITEp bp = &breakActor->s();
+    USERp bu = breakActor->u();
 
     // Does not actually kill the sprite so it will be valid for the rest
     // of the loop traversal.
@@ -846,49 +831,47 @@ int KillBreakSprite(short BreakSprite)
     // IMPORTANT: Do not change the statnum if possible so that NEXTI in
     // SpriteControl loop traversals will maintain integrity.
 
-    SpriteQueueDelete(BreakSprite);
+    SpriteQueueDelete(breakActor);
 
     if (bu)
     {
         if (bp->statnum == STAT_DEFAULT)
             // special case allow kill of sprites on STAT_DEFAULT list
             // a few things have users and are not StateControlled
-            KillSprite(BreakSprite);
+            KillActor(breakActor);
         else
-            SetSuicide(BreakSprite);
+            SetSuicide(breakActor);
     }
     else
     {
-        change_sprite_stat(BreakSprite, STAT_SUICIDE);
+        change_actor_stat(breakActor, STAT_SUICIDE);
     }
 
     return 0;
 }
 
 
-int UserBreakSprite(short BreakSprite)
+int UserBreakSprite(DSWActor* breakActor)
 {
     SPRITEp sp;
-    SPRITEp bp = &sprite[BreakSprite];
+    SPRITEp bp = &breakActor->s();
     short match = bp->lotag;
     short match_extra;
-    short SpriteNum;
 
-    SpriteNum = FindBreakSpriteMatch(match);
+    auto actor = FindBreakSpriteMatch(match);
 
-    if (SpriteNum < 0)
+    if (actor == nullptr)
     {
         // even if you didn't find a matching ST1 go ahead and kill it and match everything
         // its better than forcing everyone to have a ST1
         DoMatchEverything(nullptr, match, -1);
         // Kill sound if one is attached
-        DeleteNoSoundOwner(BreakSprite);
-        //change_sprite_stat(BreakSprite, STAT_SUICIDE);
-        KillBreakSprite(BreakSprite);
+        DeleteNoSoundOwner(breakActor);
+        KillBreakSprite(breakActor);
         return true;
     }
 
-    sp = &sprite[SpriteNum];
+    sp = &actor->s();
     match_extra = SP_TAG6(bp);
 
     if (bp->picnum == SP_TAG5(sp))
@@ -911,10 +894,8 @@ int UserBreakSprite(short BreakSprite)
         if (SP_TAG8(sp) == 1)
         {
             // Kill sound if one is attached
-            DeleteNoSoundOwner(BreakSprite);
-            KillBreakSprite(BreakSprite);
-            //KillSprite(BreakSprite);
-            //change_sprite_stat(BreakSprite, STAT_SUICIDE);
+            DeleteNoSoundOwner(breakActor);
+            KillBreakSprite(breakActor);
             return true;
         }
         else if (SP_TAG8(sp) == 2)
@@ -943,9 +924,9 @@ int UserBreakSprite(short BreakSprite)
     return false;
 }
 
-int AutoBreakSprite(short BreakSprite, short type)
+int AutoBreakSprite(DSWActor* breakActor, short type)
 {
-    SPRITEp bp = &sprite[BreakSprite];
+    SPRITEp bp = &breakActor->s();
     BREAK_INFOp break_info;
     extern void DoWallBreakMatch(short match);
 
@@ -957,8 +938,6 @@ int AutoBreakSprite(short BreakSprite, short type)
 
     if (!break_info)
     {
-        //DSPRINTF(ds,"Break Info not found - sprite %d", bp - sprite);
-        MONO_PRINT(ds);
         return false;
     }
 
@@ -975,9 +954,7 @@ int AutoBreakSprite(short BreakSprite, short type)
 
             bp->picnum = break_info->breaknum;
             // pass Break Info Globally
-            GlobBreakInfo = break_info;
-            SpawnShrap(BreakSprite, -1);
-            GlobBreakInfo = nullptr;
+            SpawnShrap(breakActor, nullptr, -1, break_info);
             if (bp->picnum == 3683)
                 RESET(bp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         }
@@ -989,23 +966,19 @@ int AutoBreakSprite(short BreakSprite, short type)
     RESET(bp->cstat, CSTAT_SPRITE_BREAKABLE);
 
     // pass Break Info Globally
-    GlobBreakInfo = break_info;
-    SpawnShrap(BreakSprite, -1);
-    GlobBreakInfo = nullptr;
+    SpawnShrap(breakActor, nullptr, -1, break_info);
 
     // kill it or change the pic
     if (TEST(break_info->flags, BF_KILL) || break_info->breaknum == -1)
     {
         if (TEST(break_info->flags, BF_FIRE_FALL))
-            SpawnBreakFlames(BreakSprite);
+            SpawnBreakFlames(breakActor);
 
         RESET(bp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         SET(bp->cstat, CSTAT_SPRITE_INVISIBLE);
         // Kill sound if one is attached
-        DeleteNoSoundOwner(BreakSprite);
-        KillBreakSprite(BreakSprite);
-        //change_sprite_stat(BreakSprite, STAT_SUICIDE);
-        //KillSprite(BreakSprite);
+        DeleteNoSoundOwner(breakActor);
+        KillBreakSprite(breakActor);
         return true;
     }
     else
@@ -1018,8 +991,9 @@ int AutoBreakSprite(short BreakSprite, short type)
     return false;
 }
 
-bool NullActor(USERp u)
+bool NullActor(DSWActor* actor)
 {
+    auto u = actor->u();
     // a Null Actor is defined as an actor that has no real controlling programming attached
 
     // check to see if attached to SO
@@ -1037,36 +1011,31 @@ bool NullActor(USERp u)
     return false;
 }
 
-int HitBreakSprite(short BreakSprite, short type)
+int HitBreakSprite(DSWActor* breakActor, short type)
 {
-    SPRITEp bp = &sprite[BreakSprite];
-    USERp bu = User[BreakSprite].Data();
-
-    //SPRITEp sp;
-    // ignore as a breakable if true
-    //if (sp->lotag == TAG_SPRITE_HIT_MATCH)
-    //    return(false);
+    SPRITEp bp = &breakActor->s();
+    USERp bu = breakActor->u();
 
     if (TEST_BOOL1(bp))
     {
         if (TEST_BOOL2(bp))
             return false;
 
-        return UserBreakSprite(BreakSprite);
+        return UserBreakSprite(breakActor);
     }
 
-    if (bu && !NullActor(bu))
+    if (bu && !NullActor(breakActor))
     {
         // programmed animating type - without BOOL1 set
         if (bp->lotag)
             DoLightingMatch(bp->lotag, -1);
 
-        SpawnShrap(BreakSprite, -1);
+        SpawnShrap(breakActor, nullptr);
         RESET(bp->extra, SPRX_BREAKABLE);
         return false;
     }
 
-    return AutoBreakSprite(BreakSprite,type);
+    return AutoBreakSprite(breakActor, type);
 }
 
 static int SectorOfWall(short theline)
@@ -1112,16 +1081,14 @@ void DoWallBreakMatch(short match)
 
 static void DoWallBreakSpriteMatch(short match)
 {
-    int i;
-
-    StatIterator it(STAT_ENEMY);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_ENEMY);
+    while (auto actor = it.Next())
     {
-        SPRITEp sp = &sprite[i];
+        SPRITEp sp = &actor->s();
 
         if (sp->hitag == match)
         {
-            KillSprite(i);
+            KillActor(actor);
         }
     }
 }

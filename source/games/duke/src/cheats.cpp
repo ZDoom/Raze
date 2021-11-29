@@ -101,15 +101,15 @@ static const char *cheatGod(int myconnectindex, int state)
 static const char* cheatUnlock()
 {
 	if (isShareware()) return nullptr;
-	for (int i = numsectors - 1; i >= 0; i--) //Unlock
+	for (auto&sect : sectors())
 	{
-		int j = sector[i].lotag;
+		int j = sect.lotag;
 		if (j == -1 || j == 32767) continue;
 		if ((j & 0x7fff) > 2)
 		{
 			if (j & (0xffff - 16384))
-				sector[i].lotag &= (0xffff - 16384);
-			operatesectors(i, ps[myconnectindex].GetActor());
+				sect.lotag &= (0xffff - 16384);
+			operatesectors(&sect, ps[myconnectindex].GetActor());
 		}
 	}
 	fi.operateforcefields(ps[myconnectindex].GetActor(), -1);
@@ -121,9 +121,12 @@ static const char *cheatKfc(int player)
 	for (int i = 0; i < 7; i++)
 	{
 		auto spr = spawn(ps[player].GetActor(), TILE_HEN);
-		spr->s->pal = 1;
-		spr->s->xrepeat = spr->s->xrepeat << 2;
-		spr->s->yrepeat = spr->s->yrepeat << 2;
+		if (spr)
+		{
+			spr->s->pal = 1;
+			spr->s->xrepeat = spr->s->xrepeat << 2;
+			spr->s->yrepeat = spr->s->yrepeat << 2;
+		}
 	}
 	return quoteMgr.GetQuote(QUOTE_CHEAT_KFC);
 }

@@ -48,13 +48,13 @@ enum EGameFlag
 struct GAMEOPTIONS {
     uint8_t nGameType;
     uint8_t nDifficulty;
-    char nMonsterSettings;
+    uint8_t nMonsterSettings;
     int uGameFlags;
     int uNetGameFlags;
-    char nWeaponSettings;
-    char nItemSettings;
-    char nRespawnSettings;
-    char nTeamSettings;
+	uint8_t nWeaponSettings;
+	uint8_t nItemSettings;
+	uint8_t nRespawnSettings;
+	uint8_t nTeamSettings;
     int nMonsterRespawnTime;
     int nWeaponRespawnTime;
     int nItemRespawnTime;

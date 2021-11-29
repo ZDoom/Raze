@@ -44,7 +44,6 @@ AISTATE ratBite = { kAiStateChase, 6, nRatBiteClient, 120, NULL, NULL, NULL, &ra
 
 void ratBiteSeqCallback(int, DBloodActor* actor)
 {
-	XSPRITE* pXSprite = &actor->x();
 	spritetype* pSprite = &actor->s();
 	int dx = bcos(pSprite->ang);
 	int dy = bsin(pSprite->ang);
@@ -58,7 +57,6 @@ void ratBiteSeqCallback(int, DBloodActor* actor)
 static void ratThinkSearch(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
 	aiChooseDirection(actor, pXSprite->goalAng);
 	aiThinkTarget(actor);
 }
@@ -81,7 +79,6 @@ static void ratThinkGoto(DBloodActor* actor)
 
 static void ratThinkChase(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
 	auto pSprite = &actor->s();
 	if (actor->GetTarget() == nullptr)
 	{

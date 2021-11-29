@@ -83,6 +83,7 @@ void animatesprites_r(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 				t->shade = -127;
 				continue;
 			}
+			[[fallthrough]];
 		case BULLETHOLE:
 		case CRACK1:
 		case CRACK2:
@@ -134,8 +135,9 @@ void animatesprites_r(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 	}
 
 
-	for (j = 0; j < spritesortcnt; j++)  //Between drawrooms() and drawmasks()
-	{                             //is the perfect time to animate sprites
+	//Between drawrooms() and drawmasks() is the perfect time to animate sprites
+	for (j = 0; j < spritesortcnt; j++)
+	{
 		t = &tsprite[j];
 		i = t->owner;
 		h = &hittype[i];
@@ -576,6 +578,7 @@ void animatesprites_r(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 		case MINJIBC:
 			if (isRRRA() && t->pal == 19)
 				t->shade = -127;
+			[[fallthrough]];
 		case JIBS1:
 		case JIBS2:
 		case JIBS3:
@@ -598,6 +601,7 @@ void animatesprites_r(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 
 			if (shadedsector[s->sectnum] == 1)
 				t->shade = 16;
+			[[fallthrough]];
 
 		case SCRAP1:
 		case SCRAP2:
@@ -627,6 +631,7 @@ void animatesprites_r(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 				t->pal = 7;
 				break;
 			}
+			[[fallthrough]];
 		default:
 		default_case:
 
@@ -788,6 +793,7 @@ void animatesprites_r(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 		case RPG2:
 		case RRTILE1790:
 			if (!isRRRA()) break;
+			[[fallthrough]];
 		case EXPLOSION2:
 		case FREEZEBLAST:
 		case ATOMICHEALTH:
@@ -838,6 +844,7 @@ void animatesprites_r(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 		case RRTILE8218:
 		case RRTILE8220:
 			if (!isRRRA()) break;
+			[[fallthrough]];
 		case RRTILE1878:
 		case RRTILE1952:
 		case RRTILE1953:
@@ -933,6 +940,7 @@ void animatesprites_r(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 			break;
 		case SHELL:
 			t->picnum = s->picnum + (h->temp_data[0] & 1);
+			[[fallthrough]];
 		case SHOTGUNSHELL:
 			t->cstat |= 12;
 			if (h->temp_data[0] > 1) t->cstat &= ~4;

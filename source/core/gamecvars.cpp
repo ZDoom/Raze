@@ -51,7 +51,7 @@ CVARD(Bool, cl_crosshair, true, CVAR_ARCHIVE, "enable/disable crosshair");
 CVARD(Bool, cl_automsg, false, CVAR_ARCHIVE, "enable/disable automatically sending messages to all players") // Not implemented for Blood
 CVARD(Bool, cl_autorun, true, CVAR_ARCHIVE, "enable/disable autorun")
 
-CVARD(Bool, cl_runmode, true, CVAR_ARCHIVE, "enable/disable modernized run key operation")
+CVARD(Bool, cl_runmode, false, CVAR_ARCHIVE, "enable/disable modernized run key operation")
 
 bool G_CheckAutorun(bool button)
 {
@@ -89,7 +89,6 @@ CVARD(Bool, cl_bloodqavinterp, true, CVAR_ARCHIVE, "enable/disable Blood's QAV i
 CVARD(Bool, cl_bloodweapinterp, false, CVAR_ARCHIVE, "enable/disable Blood's weapon interpolation. Depends on 'cl_bloodqavinterp'")
 CVARD(Bool, cl_bloodoldweapbalance, false, CVAR_ARCHIVE, "enable/disable legacy 1.0 weapon handling for Blood")
 CVARD(Bool, cl_loadingscreens, true, CVAR_ARCHIVE, "enable/disable loading screens for games")
-CVARD(Bool, cl_preciseinputscaling, true, CVAR_ARCHIVE, "enable/disable precise scaling of unsynchronised input fraction")
 
 
 CUSTOM_CVARD(Int, cl_autoaim, 1, CVAR_ARCHIVE|CVAR_USERINFO, "enable/disable weapon autoaim")
@@ -321,7 +320,7 @@ CVAR(String, usermapfolder, "", CVAR_ARCHIVE);
 CUSTOM_CVAR(Int, playercolor, 0, CVAR_ARCHIVE|CVAR_USERINFO)
 {
 	if (self < 0 || self > 10) self = 0;
-	else ;// gi->PlayerColorChanged(); // this part is game specific
+	//else ;// gi->PlayerColorChanged(); // this part is game specific
 }
 
 // Will only become useful if the obituary system gets overhauled and for localization

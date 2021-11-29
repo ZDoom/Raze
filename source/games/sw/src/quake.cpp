@@ -52,13 +52,10 @@ BEGIN_SW_NS
 // only for timed quakes
 #define QUAKE_WaitForTrigger(sp) (TEST_BOOL3(sp))
 
-short CopyQuakeSpotToOn(SPRITEp sp)
+void CopyQuakeSpotToOn(SPRITEp sp)
 {
-    short New;
-    SPRITEp np;
-
-    New = COVERinsertsprite(sp->sectnum, STAT_QUAKE_SPOT);
-    np = &sprite[New];
+    auto actorNew = InsertActor(sp->sectnum, STAT_QUAKE_SPOT);
+    auto np = &actorNew->s();
 
     memcpy(np, sp, sizeof(SPRITE));
 
@@ -67,25 +64,19 @@ short CopyQuakeSpotToOn(SPRITEp sp)
 
     np->cstat = 0;
     np->extra = 0;
-    np->owner = -1;
 
-    change_sprite_stat(New, STAT_QUAKE_ON);
+    change_actor_stat(actorNew, STAT_QUAKE_ON);
 
     QUAKE_Duration(np) *= 120;
-
-    return New;
 }
 
 
 void DoQuakeMatch(short match)
 {
-    int i;
-    SPRITEp sp;
-
-    StatIterator it(STAT_QUAKE_SPOT);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_QUAKE_SPOT);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
+        auto sp = &actor->s();
 
         if (QUAKE_Match(sp) == match)
         {
@@ -99,7 +90,7 @@ void DoQuakeMatch(short match)
                 CopyQuakeSpotToOn(sp);
                 if (QUAKE_KillAfterQuake(sp))
                 {
-                    KillSprite(i);
+                    KillActor(actor);
                     continue;
                 }
             }
@@ -110,19 +101,16 @@ void DoQuakeMatch(short match)
 
 void ProcessQuakeOn(void)
 {
-    int i;
-    SPRITEp sp;
-
-    StatIterator it(STAT_QUAKE_ON);
-    while ((i = it.NextIndex()) >= 0)
-    {
-        sp = &sprite[i];
+    SWStatIterator it(STAT_QUAKE_ON);
+	while (auto actor = it.Next())
+	{
+		auto sp = &actor->s();
 
         // get rid of quake when timer runs out
         QUAKE_Duration(sp) -= synctics*4;
         if (QUAKE_Duration(sp) < 0)
         {
-            KillSprite(i);
+            KillActor(actor);
             continue;
         }
     }
@@ -130,15 +118,13 @@ void ProcessQuakeOn(void)
 
 void ProcessQuakeSpot(void)
 {
-    int i;
-    SPRITEp sp;
     int rand_test;
 
     // check timed quakes and random quakes
-    StatIterator it(STAT_QUAKE_SPOT);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_QUAKE_SPOT);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
+        auto sp = &actor->s();
 
         // not a timed quake
         if (!QUAKE_WaitSecs(sp))
@@ -154,8 +140,7 @@ void ProcessQuakeSpot(void)
         if ((int16_t)QUAKE_WaitTics(sp) < 0)
         {
             // reset timer - add in Duration of quake
-            //QUAKE_WaitTics(sp) = ((QUAKE_WaitSecs(sp)*10L) + QUAKE_Duration(sp)) * 120L;
-            SET_SP_TAG13(sp, (((QUAKE_WaitSecs(sp)*10L) + QUAKE_Duration(sp)) * 120L));
+            SET_SP_TAG13(sp, (((QUAKE_WaitSecs(sp)*10) + QUAKE_Duration(sp)) * 120));
 
             // spawn a quake if condition is met
             rand_test = QUAKE_RandomTest(sp);
@@ -167,8 +152,8 @@ void ProcessQuakeSpot(void)
                 // kill quake spot if needed
                 if (QUAKE_KillAfterQuake(sp))
                 {
-                    DeleteNoSoundOwner(i);
-                    KillSprite(i);
+                    DeleteNoSoundOwner(actor);
+                    KillActor(actor);
                     continue;
                 }
             }
@@ -196,10 +181,10 @@ void QuakeViewChange(PLAYERp pp, int *z_diff, int *x_diff, int *y_diff, short *a
         return;
 
     // find the closest quake - should be a strength value
-    StatIterator it(STAT_QUAKE_ON);
-    while ((i = it.NextIndex()) >= 0)
-    {
-        sp = &sprite[i];
+    SWStatIterator it(STAT_QUAKE_ON);
+	while (auto actor = it.Next())
+	{
+		auto sp = &actor->s();
 
         dist = FindDistance3D(pp->posx - sp->x, pp->posy - sp->y, pp->posz - sp->z);
 
@@ -249,22 +234,17 @@ void QuakeViewChange(PLAYERp pp, int *z_diff, int *x_diff, int *y_diff, short *a
     }
 }
 
-int SpawnQuake(short sectnum, int x, int y, int z,
+void SpawnQuake(short sectnum, int x, int y, int z,
                short tics, short amt, int radius)
 {
-    short SpriteNum;
-    SPRITEp sp;
 
-    SpriteNum = COVERinsertsprite(sectnum, STAT_QUAKE_ON);
-    sp = &sprite[SpriteNum];
-
-    ASSERT(SpriteNum >= 0);
+    auto actorNew = InsertActor(sectnum, STAT_QUAKE_ON);
+    auto sp = &actorNew->s();
 
     sp->x = x;
     sp->y = y;
     sp->z = z;
     sp->cstat = 0;
-    sp->owner = -1;
     sp->extra = 0;
 
     QUAKE_Match(sp) = -1;
@@ -274,10 +254,7 @@ int SpawnQuake(short sectnum, int x, int y, int z,
     QUAKE_AngAmt(sp) = 8;
     QUAKE_PosAmt(sp) = 0;
 
-    PlaySound(DIGI_ERUPTION, sp, v3df_follow|v3df_dontpan);
-    Set3DSoundOwner(SpriteNum);
-
-    return SpriteNum;
+    PlaySound(DIGI_ERUPTION, actorNew, v3df_follow|v3df_dontpan);
 }
 
 bool
@@ -288,18 +265,18 @@ SetQuake(PLAYERp pp, short tics, short amt)
 }
 
 int
-SetExpQuake(int16_t Weapon)
+SetExpQuake(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[Weapon];
+    SPRITEp sp = &actor->s();
 
     SpawnQuake(sp->sectnum, sp->x, sp->y, sp->z,  40, 4, 20000); // !JIM! was 8, 40000
     return 0;
 }
 
 int
-SetGunQuake(int16_t SpriteNum)
+SetGunQuake(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
 
     SpawnQuake(sp->sectnum, sp->x, sp->y, sp->z,  40, 8, 40000);
 
@@ -315,27 +292,25 @@ SetPlayerQuake(PLAYERp pp)
 }
 
 int
-SetNuclearQuake(int16_t Weapon)
+SetNuclearQuake(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[Weapon];
+    SPRITEp sp = &actor->s();
 
     SpawnQuake(sp->sectnum, sp->x, sp->y, sp->z, 400, 8, 64000);
     return 0;
 }
 
-int
-SetSumoQuake(int16_t SpriteNum)
+int SetSumoQuake(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
 
     SpawnQuake(sp->sectnum, sp->x, sp->y, sp->z,  120, 4, 20000);
     return 0;
 }
 
-int
-SetSumoFartQuake(int16_t SpriteNum)
+int SetSumoFartQuake(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
 
     SpawnQuake(sp->sectnum, sp->x, sp->y, sp->z,  60, 4, 4000);
     return 0;

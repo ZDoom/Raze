@@ -64,12 +64,12 @@ struct VIEW {
     int zvel; //zvel
     int sectnum; // sectnum
     unsigned int floordist; // floordist
-    char at6e; // look center
-    char at6f;
-    char at70; // run
-    char at71; // jump
-    char at72; // underwater
-    short at73; // sprite flags
+    uint8_t at6e; // look center
+    uint8_t at6f;
+    uint8_t at70; // run
+    uint8_t at71; // jump
+    uint8_t at72; // underwater
+    int16_t at73; // sprite flags
     SPRITEHIT at75;
     binangle look_ang;
     binangle rotscrnang;
@@ -136,7 +136,6 @@ extern int gScreenTilt;
 extern int deliriumTilt, deliriumTurn, deliriumPitch;
 extern int gScreenTiltO, deliriumTurnO, deliriumPitchO;
 extern int gShowFrameRate;
-extern FixedBitArray<kMaxSprites> gInterpolateSprite;
 extern int gLastPal;
 extern double gInterpolate;
 
@@ -173,18 +172,13 @@ inline void viewInterpolateWall(int nWall, walltype *pWall)
     StartInterpolation(nWall, Interp_Wall_Y);
 }
 
-inline void viewBackupSpriteLoc(int nSprite, spritetype *pSprite)
-{
-    if (!gInterpolateSprite[nSprite])
-    {
-        pSprite->backuploc();
-        gInterpolateSprite.Set(nSprite);
-    }
-}
-
 inline void viewBackupSpriteLoc(DBloodActor* actor)
 {
-    viewBackupSpriteLoc(actor->s().index, &actor->s());
+    if (!actor->interpolated)
+    {
+        actor->s().backuploc();
+        actor->interpolated = true;
+    }
 }
 
 

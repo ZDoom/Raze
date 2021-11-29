@@ -92,7 +92,7 @@ void DestroySnake(int nSnake)
     }
 }
 
-void ExplodeSnakeSprite(DExhumedActor* pActor, short nPlayer)
+void ExplodeSnakeSprite(DExhumedActor* pActor, int nPlayer)
 {
     auto pSprite = &pActor->s();
     short nDamage = BulletInfo[kWeaponStaff].nDamage;
@@ -116,7 +116,7 @@ void ExplodeSnakeSprite(DExhumedActor* pActor, short nPlayer)
     StopActorSound(pActor);
 }
 
-void BuildSnake(short nPlayer, short zVal)
+void BuildSnake(int nPlayer, short zVal)
 {
 
     zVal -= 1280;
@@ -129,7 +129,7 @@ void BuildSnake(short nPlayer, short zVal)
     int x = pPlayerSprite->x;
     int y = pPlayerSprite->y;
     int z = (pPlayerSprite->z + zVal) - 2560;
-    short nAngle = pPlayerSprite->ang;
+    int nAngle = pPlayerSprite->ang;
 
     short hitsect;
     int hitx, hity, hitz;
@@ -188,7 +188,7 @@ void BuildSnake(short nPlayer, short zVal)
 
         //		GrabTimeSlot(3);
 
-        DExhumedActor* sprt;
+        DExhumedActor* sprt = nullptr;
 
         for (int i = 0; i < kSnakeSprites; i++)
         {
@@ -266,14 +266,13 @@ void BuildSnake(short nPlayer, short zVal)
 
 DExhumedActor* FindSnakeEnemy(short nSnake)
 {
-    short nPlayer = SnakeList[nSnake].nSnakePlayer;
+    int nPlayer = SnakeList[nSnake].nSnakePlayer;
 	auto pPlayerActor = PlayerList[nPlayer].Actor();
-	auto pPlayerSprite = &pPlayerActor->s();
 	
     auto pActor = SnakeList[nSnake].pSprites[0]; // CHECKME
     auto pSprite = &pActor->s();
 
-    short nAngle = pSprite->ang;
+    int nAngle = pSprite->ang;
     int nSector =pSprite->sectnum;
 
     int esi = 2048;
@@ -361,7 +360,7 @@ void AISnake::Tick(RunListEvent* ev)
 
     if (nMov.type || nMov.exbits)
     {
-        short nPlayer = SnakeList[nSnake].nSnakePlayer;
+        int nPlayer = SnakeList[nSnake].nSnakePlayer;
         ExplodeSnakeSprite(SnakeList[nSnake].pSprites[0], nPlayer);
 
         nPlayerSnake[nPlayer] = -1;
@@ -371,7 +370,7 @@ void AISnake::Tick(RunListEvent* ev)
     }
     else
     {
-        short nAngle = pSprite->ang;
+        int nAngle = pSprite->ang;
         int var_30 = -bcos(nAngle, 6);
         int var_34 = -bsin(nAngle, 6);
 
@@ -410,8 +409,8 @@ void AISnake::Tick(RunListEvent* ev)
 
 void AISnake::Draw(RunListEvent* ev)
 {
-    short nSnake = RunData[ev->nRun].nObjIndex;
-    short nSprite = ev->nParam;
+    int nSnake = RunData[ev->nRun].nObjIndex;
+    int nSprite = ev->nParam;
 
     if ((nSnake & 0xFF) == 0) {
         seq_PlotSequence(nSprite, SeqOffsets[kSeqSnakehed], 0, 0);

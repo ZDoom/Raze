@@ -481,32 +481,31 @@ ACTOR_ACTION_SET GoroActionSet =
     nullptr
 };
 
-int
-SetupGoro(short SpriteNum)
+int SetupGoro(DSWActor* actor)
 {
-    SPRITEp sp = &sprite[SpriteNum];
+    SPRITEp sp = &actor->s();
     USERp u;
     ANIMATOR DoActorDecide;
 
     if (TEST(sp->cstat, CSTAT_SPRITE_RESTORE))
     {
-        u = User[SpriteNum].Data();
+        u = actor->u();
         ASSERT(u);
     }
     else
     {
-        u = SpawnUser(SpriteNum,GORO_RUN_R0,s_GoroRun[0]);
+        u = SpawnUser(actor, GORO_RUN_R0,s_GoroRun[0]);
         u->Health = HEALTH_GORO;
     }
 
-    ChangeState(SpriteNum, s_GoroRun[0]);
+    ChangeState(actor, s_GoroRun[0]);
     u->Attrib = &GoroAttrib;
-    DoActorSetSpeed(SpriteNum, NORM_SPEED);
+    DoActorSetSpeed(actor, NORM_SPEED);
     u->StateEnd = s_GoroDie;
     u->Rot = sg_GoroRun;
 
 
-    EnemyDefaults(SpriteNum, &GoroActionSet, &GoroPersonality);
+    EnemyDefaults(actor, &GoroActionSet, &GoroPersonality);
     sp->clipdist = 512 >> 2;
     SET(u->Flags, SPR_XFLIP_TOGGLE);
 
@@ -516,12 +515,11 @@ SetupGoro(short SpriteNum)
 int NullGoro(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags,SPR_SLIDING))
         DoActorSlide(actor);
 
-    KeepActorOnFloor(SpriteNum);
+    KeepActorOnFloor(actor);
 
     DoActorSectorDamage(actor);
     return 0;
@@ -541,19 +539,16 @@ int DoGoroPain(DSWActor* actor)
 int DoGoroMove(DSWActor* actor)
 {
     USER* u = actor->u();
-    int SpriteNum = u->SpriteNum;
 
     if (TEST(u->Flags,SPR_SLIDING))
         DoActorSlide(actor);
 
     if (u->track >= 0)
-        ActorFollowTrack(SpriteNum, ACTORMOVETICS);
+        ActorFollowTrack(actor, ACTORMOVETICS);
     else
         (*u->ActorActionFunc)(actor);
 
-    ASSERT(User[SpriteNum].Data());
-
-    KeepActorOnFloor(SpriteNum);
+    KeepActorOnFloor(actor);
 
     DoActorSectorDamage(actor);
     return 0;

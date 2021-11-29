@@ -50,38 +50,38 @@ void ballreturn(DDukeActor *ball)
 				{
 					act2->s->lotag = 100;
 					act2->s->extra++;
-					pinsectorresetdown(act2->s->sectnum);
+					pinsectorresetdown(act2->getSector());
 				}
 			}
 		}
 	}
 }
 
-void pinsectorresetdown(int sect)
+void pinsectorresetdown(sectortype* sec)
 {
-	int j = getanimationgoal(anim_ceilingz, sect);
+	int j = getanimationgoal(anim_ceilingz, sec);
 
 	if (j == -1)
 	{
-		j = sector[sect].floorz;
-		setanimation(sect, anim_ceilingz, sect, j, 64);
+		j = sec->floorz;
+		setanimation(sec, anim_ceilingz, sec, j, 64);
 	}
 }
 
-int pinsectorresetup(int sect)
+int pinsectorresetup(sectortype* sec)
 {
-	int j = getanimationgoal(anim_ceilingz, sect);
+	int j = getanimationgoal(anim_ceilingz, sec);
 
 	if (j == -1)
 	{
-		j = sector[nextsectorneighborz(sect, sector[sect].ceilingz, -1, -1)].ceilingz;
-		setanimation(sect, anim_ceilingz, sect, j, 64);
+		j = nextsectorneighborzptr(sec, sec->ceilingz, -1, -1)->ceilingz;
+		setanimation(sec, anim_ceilingz, sec, j, 64);
 		return 1;
 	}
 	return 0;
 }
 
-int checkpins(int sect)
+int checkpins(sectortype* sect)
 {
 	int  x, y;
 	bool pins[10] = {};
@@ -113,6 +113,7 @@ int checkpins(int sect)
 			{
 				switch (i)
 				{
+				default:
 				case 0:
 					x = 64;
 					y = 48;
@@ -162,9 +163,9 @@ int checkpins(int sect)
 	return pin;
 }
 
-void resetpins(int sect)
+void resetpins(sectortype* sect)
 {
-	int i, tag;
+	int i, tag = 0;
 	int x, y;
 	DukeSectIterator it(sect);
 	while (auto a2 = it.Next())
@@ -178,16 +179,19 @@ void resetpins(int sect)
 		if (a2->s->picnum == 283)
 		{
 			auto spawned = spawn(a2, BOWLINGPIN);
-			spawned->s->lotag = a2->s->lotag;
-			if (spawned->s->lotag == 3 || spawned->s->lotag == 5)
+			if (spawned)
 			{
-				spawned->s->clipdist = (1 + (krand() % 1)) * 16 + 32;
+				spawned->s->lotag = a2->s->lotag;
+				if (spawned->s->lotag == 3 || spawned->s->lotag == 5)
+				{
+					spawned->s->clipdist = (1 + (krand() % 1)) * 16 + 32;
+				}
+				else
+				{
+					spawned->s->clipdist = (1 + (krand() % 1)) * 16 + 32;
+				}
+				spawned->s->ang -= ((krand() & 32) - (krand() & 64)) & 2047;
 			}
-			else
-			{
-				spawned->s->clipdist = (1 + (krand() % 1)) * 16 + 32;
-			}
-			spawned->s->ang -= ((krand() & 32) - (krand() & 64)) & 2047;
 		}
 		if (a2->s->picnum == 280)
 			tag = a2->s->hitag;
@@ -201,6 +205,7 @@ void resetpins(int sect)
 		{
 			switch (i)
 			{
+			default:
 			case 0:
 				x = 64;
 				y = 48;
@@ -262,6 +267,7 @@ void resetlanepics(void)
 		{
 			switch (i)
 			{
+			default:
 			case 0:
 				x = 64;
 				y = 48;

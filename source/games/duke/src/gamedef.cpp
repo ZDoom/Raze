@@ -62,7 +62,7 @@ enum { VERSIONCHECK = 41 };
 
 static TArray<FString> exclEpisodes;
 
-void GameInterface::AddExcludedEpisode(FString episode)
+void GameInterface::AddExcludedEpisode(const FString& episode)
 {
 	auto s = FStringTable::MakeMacro(episode.GetChars());
 	s.StripRight();
@@ -507,7 +507,6 @@ static int getlabeloffset(LABELS* pLabel, const char* psz)
 {
 	// find the label psz in the table pLabel.
 	// returns the offset in the array for the label, or -1
-	int l = -1;
 	int i;
 
 	for (i = 0; pLabel[i].lId >= 0; i++)
@@ -571,7 +570,7 @@ static void appendscriptvalue(int value)
 
 static int popscriptvalue()
 {
-	decltype(ScriptCode)::value_type p;
+	decltype(ScriptCode)::value_type p = 0;
 	ScriptCode.Pop(p);
 	return p;
 }
@@ -1191,6 +1190,7 @@ int ConCompiler::parsecommand()
 		popscriptvalue();
 		parsing_actor = scriptpos();
 
+		j = 0;
 		if (tw == concmd_useractor)
 		{ 
 			transnum(LABEL_DEFINE);
@@ -1566,6 +1566,7 @@ int ConCompiler::parsecommand()
 
 	case concmd_ifpinventory:
 		transnum(LABEL_DEFINE);
+		[[fallthrough]];
 	case concmd_ifrnd:
 	case concmd_ifpdistl:
 	case concmd_ifpdistg:
@@ -1591,6 +1592,7 @@ int ConCompiler::parsecommand()
 	case concmd_ifsoundid:
 	case concmd_ifsounddist:
 		transnum(tw == concmd_ifai? LABEL_AI : tw == concmd_ifaction? LABEL_ACTION : tw == concmd_ifmove? LABEL_MOVE : LABEL_DEFINE);
+		[[fallthrough]];
 	case concmd_ifonwater:
 	case concmd_ifinwater:
 	case concmd_ifactornotstayput:
@@ -1870,6 +1872,7 @@ int ConCompiler::parsecommand()
 		{
 			return 1;
 		}
+		[[fallthrough]];
 	case concmd_fall:
 	case concmd_tip:
 		//		  case 21:
@@ -2218,7 +2221,7 @@ int ConCompiler::parsecommand()
 	{
 		int lLabelID;
 		// syntax getwall[<var>].x <VAR>
-		// gets the value of wall[<var>].xxx into <VAR>
+		// gets the value of wall [<var>].xxx into <VAR>
 
 		// now get name of .xxx
 		while ((*textptr != '['))
@@ -2319,7 +2322,7 @@ int ConCompiler::parsecommand()
 	{
 		int lLabelID;
 		// syntax getwall[<var>].x <VAR>
-		// gets the value of wall[<var>].xxx into <VAR>
+		// gets the value of wall [<var>].xxx into <VAR>
 
 		// now get name of .xxx
 		while ((*textptr != '['))
@@ -2895,14 +2898,6 @@ int ConCompiler::parsecommand()
 	case concmd_startlevel:
 		// start at specified level
 		// startlevel <episode> <level>
-#if 0
-		if (!g_bEnhanced)
-		{
-			errorcount++;
-			printf("  * ERROR!(L%ld) Command  '%s' is enhanced only.  Define enhance with the version number your code needs before using this commands.\n", line_number, tempbuf);
-			return 0;
-		}
-#endif
 		// get the ID of the DEF
 		getlabel();	
 		checkforkeyword();
@@ -2932,14 +2927,6 @@ int ConCompiler::parsecommand()
 	case concmd_mapvoxel:
 		// map a tilenum to a voxel.
 		// syntax: mapvoxel <tilenum> <filename (8.3)>
-#if 0
-		if (!g_bEnhanced)
-		{
-			errorcount++;
-			printf("  * ERROR!(L%ld) Command  '%s' is enhanced only.  Define enhance with the version number your code needs before using this commands.\n", line_number, tempbuf);
-			return 0;
-		}
-#endif
 		popscriptvalue(); // don't save in compiled code
 
 		transnum(LABEL_DEFINE);
@@ -2962,14 +2949,6 @@ int ConCompiler::parsecommand()
 	case concmd_myospal:
 	case concmd_myosx:
 	case concmd_myospalx:
-#if 0
-		if (!g_bEnhanced)
-		{
-			errorcount++;
-			printf("  * ERROR!(L%ld) Command  '%s' is enhanced only.  Define enhance with the version number your code needs before using this commands.\n", line_number, tempbuf);
-			return 0;
-		}
-#endif
 		// syntax:
 		// int x, int y, int tilenum, int shade, int orientation
 		// myospal adds char pal

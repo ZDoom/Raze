@@ -284,11 +284,13 @@ void HWDrawInfo::DispatchSprites()
 		if ((unsigned)spritenum < MAXSPRITES)
 			sprite[spritenum].cstat2 |= CSTAT2_SPRITE_MAPPED;
 
+		tileUpdatePicnum(&tilenum, sprite->owner + 32768, 0);
+		tspr->picnum = tilenum;
 		setgotpic(tilenum);
 
 		if (!(spriteext[spritenum].flags & SPREXT_NOTMD))
 		{
-			int pt = Ptile2tile(tspr->picnum, tspr->pal);
+			int pt = Ptile2tile(tilenum, tspr->pal);
 			if (hw_models && tile2model[pt].modelid >= 0 && tile2model[pt].framenum >= 0)
 			{
 				//HWSprite hwsprite;
@@ -296,17 +298,17 @@ void HWDrawInfo::DispatchSprites()
 			}
 			if (r_voxels)
 			{
-				if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT) != CSTAT_SPRITE_ALIGNMENT_SLAB && tiletovox[tspr->picnum] >= 0 && voxmodels[tiletovox[tspr->picnum]])
+				if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT) != CSTAT_SPRITE_ALIGNMENT_SLAB && tiletovox[tilenum] >= 0 && voxmodels[tiletovox[tilenum]])
 				{
 					HWSprite hwsprite;
 					int num = tiletovox[tilenum];
 					if (hwsprite.ProcessVoxel(this, voxmodels[num], tspr, &sector[tspr->sectnum], voxrotate[num])) 
 						continue;
 				}
-				else if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT) == CSTAT_SPRITE_ALIGNMENT_SLAB && tspr->picnum < MAXVOXELS && voxmodels[tspr->picnum])
+				else if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT) == CSTAT_SPRITE_ALIGNMENT_SLAB && tspr->picnum < MAXVOXELS && voxmodels[tilenum])
 				{
 					HWSprite hwsprite;
-					int num = tspr->picnum;
+					int num = tilenum;
 					hwsprite.ProcessVoxel(this, voxmodels[tspr->picnum], tspr, &sector[tspr->sectnum], voxrotate[num]);
 					continue;
 				}
@@ -323,9 +325,6 @@ void HWDrawInfo::DispatchSprites()
 			tspr->pos.x -= bcos(tspr->ang, -13);
 			tspr->pos.y -= bsin(tspr->ang, -13);
 		}
-
-		tileUpdatePicnum(&tilenum, sprite->owner + 32768, 0);
-		tspr->picnum = tilenum;
 
 		switch (tspr->cstat & CSTAT_SPRITE_ALIGNMENT)
 		{
@@ -403,7 +402,7 @@ void HWDrawInfo::CreateScene(bool portal)
 	int drawsect = effsect;
 	// RR geometry hack. Ugh...
 	// This just adds to the existing render list, so we must offset the effect areas to the same xy-space as the main one as we cannot change the view matrix.
-	if (gi->GetGeoEffect(&eff, effsect))
+	if (gi->GetGeoEffect(&eff, &sector[effsect]))
 	{
 		ingeo = true;
 		geoofs = { (float)eff.geox[0], (float)eff.geoy[0] };
@@ -487,7 +486,6 @@ void HWDrawInfo::CreateScene(bool portal)
 
 void HWDrawInfo::RenderScene(FRenderState &state)
 {
-	const auto &vp = Viewpoint;
 	RenderAll.Clock();
 
 	state.SetDepthMask(true);
@@ -675,7 +673,6 @@ void HWDrawInfo::DrawScene(int drawmode, bool portal)
 {
 	static int recursion = 0;
 	static int ssao_portals_available = 0;
-	const auto& vp = Viewpoint;
 
 	bool applySSAO = false;
 	if (drawmode == DM_MAINVIEW)

@@ -60,7 +60,6 @@ AISTATE gillBeast13A170 = { kAiStateOther, 10, -1, 120, NULL, NULL, aiMoveTurn, 
 
 void GillBiteSeqCallback(int, DBloodActor* actor)
 {
-	XSPRITE* pXSprite = &actor->x();
 	spritetype* pSprite = &actor->s();
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	spritetype* pTarget = &actor->GetTarget()->s();
@@ -77,7 +76,6 @@ void GillBiteSeqCallback(int, DBloodActor* actor)
 static void gillThinkSearch(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
-	auto pSprite = &actor->s();
 	aiChooseDirection(actor, pXSprite->goalAng);
 	aiThinkTarget(actor);
 }
@@ -111,7 +109,6 @@ static void gillThinkGoto(DBloodActor* actor)
 
 static void gillThinkChase(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
 	auto pSprite = &actor->s();
 	if (actor->GetTarget() == nullptr)
 	{
@@ -182,7 +179,7 @@ static void gillThinkChase(DBloodActor* actor)
 						pXSector = &xsector[nXSector];
 					else
 						pXSector = NULL;
-					int hit = HitScan(pSprite, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
+					int hit = HitScan(actor, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
 					switch (hit)
 					{
 					case -1:
@@ -252,7 +249,6 @@ static void gillThinkSwimGoto(DBloodActor* actor)
 
 static void gillThinkSwimChase(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
 	auto pSprite = &actor->s();
 	if (actor->GetTarget() == nullptr)
 	{
@@ -310,7 +306,7 @@ static void sub_6CB00(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
 	auto pSprite = &actor->s();
-	int nSprite = pSprite->index;
+
 	assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
 	int nAng = ((pXSprite->goalAng + 1024 - pSprite->ang) & 2047) - 1024;
@@ -328,16 +324,16 @@ static void sub_6CB00(DBloodActor* actor)
 		return;
 	int nCos = Cos(pSprite->ang);
 	int nSin = Sin(pSprite->ang);
-	int vx = actor->xvel();
-	int vy = actor->yvel();
+    int vx = actor->xvel;
+    int vy = actor->yvel;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	if (actor->GetTarget() == nullptr)
 		t1 += nAccel;
 	else
 		t1 += nAccel >> 2;
-	actor->xvel() = DMulScale(t1, nCos, t2, nSin, 30);
-	actor->yvel() = DMulScale(t1, nSin, -t2, nCos, 30);
+    actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
+    actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
 }
 
 static void sub_6CD74(DBloodActor* actor)
@@ -367,14 +363,14 @@ static void sub_6CD74(DBloodActor* actor)
 		return;
 	int nCos = Cos(pSprite->ang);
 	int nSin = Sin(pSprite->ang);
-	int vx = actor->xvel();
-	int vy = actor->yvel();
+    int vx = actor->xvel;
+    int vy = actor->yvel;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	t1 += nAccel;
-	actor->xvel() = DMulScale(t1, nCos, t2, nSin, 30);
-	actor->yvel() = DMulScale(t1, nSin, -t2, nCos, 30);
-	actor->zvel() = -dz;
+    actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
+    actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
+    actor->zvel = -dz;
 }
 
 static void sub_6D03C(DBloodActor* actor)
@@ -404,14 +400,14 @@ static void sub_6D03C(DBloodActor* actor)
 		return;
 	int nCos = Cos(pSprite->ang);
 	int nSin = Sin(pSprite->ang);
-	int vx = actor->xvel();
-	int vy = actor->yvel();
+    int vx = actor->xvel;
+    int vy = actor->yvel;
 	int t1 = DMulScale(vx, nCos, vy, nSin, 30);
 	int t2 = DMulScale(vx, nSin, -vy, nCos, 30);
 	t1 += nAccel >> 1;
-	actor->xvel() = DMulScale(t1, nCos, t2, nSin, 30);
-	actor->yvel() = DMulScale(t1, nSin, -t2, nCos, 30);
-	actor->zvel() = dz;
+    actor->xvel = DMulScale(t1, nCos, t2, nSin, 30);
+    actor->yvel = DMulScale(t1, nSin, -t2, nCos, 30);
+    actor->zvel = dz;
 }
 
 END_BLD_NS

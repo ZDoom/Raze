@@ -124,7 +124,7 @@ struct GameInterface : public ::GameInterface
 	FString GetCoordString() override;
 	ReservedSpace GetReservedScreenSpace(int viewsize) override;
 	void UpdateSounds() override;
-	void GetInput(InputPacket* packet, ControlInfo* const hidInput) override;
+	void GetInput(ControlInfo* const hidInput, double const scaleAdjust, InputPacket* packet = nullptr) override;
 	void Ticker() override;
 	void DrawBackground() override;
 	void Startup() override;
@@ -133,7 +133,7 @@ struct GameInterface : public ::GameInterface
 	void NewGame(MapRecord *sng, int skill, bool) override;
 	void NextLevel(MapRecord* map, int skill) override;
 	void LevelCompleted(MapRecord* map, int skill) override;
-	bool DrawAutomapPlayer(int x, int y, int z, int a, double const smoothratio) override;
+	bool DrawAutomapPlayer(int mx, int my, int x, int y, int z, int a, double const smoothratio) override;
 	void SetTileProps(int til, int surf, int vox, int shade) override;
 	fixed_t playerHorizMin() override { return IntToFixed(-180); }
 	fixed_t playerHorizMax() override { return IntToFixed(120); }
@@ -151,8 +151,8 @@ struct GameInterface : public ::GameInterface
 	void LoadGameTextures() override;
 	int GetCurrentSkill() override;
 	bool IsQAVInterpTypeValid(const FString& type) override;
-	void AddQAVInterpProps(const int& res_id, const FString& interptype, const bool& loopable, const TMap<int, TArray<int>>& ignoredata) override;
-	void RemoveQAVInterpProps(const int& res_id) override;
+	void AddQAVInterpProps(const int res_id, const FString& interptype, const bool loopable, const TMap<int, TArray<int>>&& ignoredata) override;
+	void RemoveQAVInterpProps(const int res_id) override;
 
 	GameStats getStats() override;
 };

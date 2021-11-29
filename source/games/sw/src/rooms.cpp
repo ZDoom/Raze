@@ -54,42 +54,41 @@ SAVE save;
 
 bool FAF_DebugView = false;
 
-int COVERinsertsprite(short sectnum, short stat)
+DSWActor* InsertActor(int sectnum, int stat)
 {
     short spnum;
     spnum = insertsprite(sectnum, stat);
-    auto pSprite = &sprite[spnum];
+    auto pActor = &swActors[spnum];
+    auto pSprite = &pActor->s();
 
     PRODUCTION_ASSERT(spnum >= 0);
 
-    pSprite->x = sprite[spnum].y = sprite[spnum].z = 0;
+    pSprite->x = pSprite->y = pSprite->z = 0;
     pSprite->cstat = 0;
     pSprite->picnum = 0;
     pSprite->shade = 0;
     pSprite->pal = 0;
     pSprite->clipdist = 0;
-    pSprite->xrepeat = sprite[spnum].yrepeat = 0;
-    pSprite->xoffset = sprite[spnum].yoffset = 0;
+    pSprite->xrepeat = pSprite->yrepeat = 0;
+    pSprite->xoffset = pSprite->yoffset = 0;
     pSprite->ang = 0;
     pSprite->owner = -1;
-    pSprite->xvel = sprite[spnum].yvel = sprite[spnum].zvel = 0;
+    pSprite->xvel = pSprite->yvel = pSprite->zvel = 0;
     pSprite->lotag = 0;
     pSprite->hitag = 0;
     pSprite->extra = 0;
 
-    return spnum;
+    return pActor;
 }
 
-bool
-FAF_Sector(short sectnum)
+bool FAF_Sector(short sectnum)
 {
-    int SpriteNum;
     SPRITEp sp;
 
-    SectIterator it(sectnum);
-    while ((SpriteNum = it.NextIndex()) >= 0)
+    SWSectIterator it(sectnum);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[SpriteNum];
+        sp = &actor->s();
 
         if (sp->statnum == STAT_FAF &&
             (sp->hitag >= VIEW_LEVEL1 && sp->hitag <= VIEW_LEVEL6))
@@ -104,7 +103,7 @@ FAF_Sector(short sectnum)
 void SetWallWarpHitscan(short sectnum)
 {
     short start_wall, wall_num;
-    SPRITEp sp_warp;
+    DSWActor* sp_warp;
 
     if (!WarpSectorInfo(sectnum, &sp_warp))
         return;
@@ -140,6 +139,17 @@ void ResetWallWarpHitscan(short sectnum)
     }
     while (wall_num != start_wall);
 }
+
+void
+FAFhitscan(int32_t x, int32_t y, int32_t z, int16_t sectnum,
+    int32_t xvect, int32_t yvect, int32_t zvect,
+    HITINFO* hitinfo, int32_t clipmask)
+{
+    hitdata_t hitdata;
+    FAFhitscan(x, y, z, sectnum, xvect, yvect, zvect, &hitdata, clipmask);
+    hitinfo->set(&hitdata);
+}
+
 
 void
 FAFhitscan(int32_t x, int32_t y, int32_t z, int16_t sectnum,
@@ -259,8 +269,7 @@ FAFhitscan(int32_t x, int32_t y, int32_t z, int16_t sectnum,
     }
 }
 
-bool
-FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects,
+bool FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects,
           int32_t xe, int32_t ye, int32_t ze, int16_t secte)
 {
     int loz, hiz;
@@ -341,19 +350,17 @@ FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects,
 }
 
 
-int
-GetZadjustment(short sectnum, short hitag)
+int GetZadjustment(short sectnum, short hitag)
 {
-    int i;
     SPRITEp sp;
 
     if (sectnum < 0 || !TEST(sector[sectnum].extra, SECTFX_Z_ADJUST))
         return 0L;
 
-    StatIterator it(STAT_ST1);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_ST1);
+    while (auto itActor = it.Next())
     {
-        sp = &sprite[i];
+        sp = &itActor->s();
 
         if (sp->hitag == hitag && sp->sectnum == sectnum)
         {
@@ -364,20 +371,20 @@ GetZadjustment(short sectnum, short hitag)
     return 0L;
 }
 
-bool SectorZadjust(int ceilhit, int32_t* hiz, short florhit, int32_t* loz)
+bool SectorZadjust(const Collision& ceilhit, int32_t* hiz, const Collision& florhit, int32_t* loz)
 {
     extern int PlaxCeilGlobZadjust, PlaxFloorGlobZadjust;
     int z_amt = 0;
 
     bool SkipFAFcheck = false;
 
-    if ((int)florhit != -1)
+    if (florhit.type != -1)
     {
-        switch (TEST(florhit, HIT_MASK))
+        switch (florhit.type)
         {
-        case HIT_SECTOR:
+        case kHitSector:
         {
-            short hit_sector = NORM_SECTOR(florhit);
+            short hit_sector = florhit.index;
 
             // don't jack with connect sectors
             if (FAF_ConnectFloor(hit_sector))
@@ -425,13 +432,13 @@ bool SectorZadjust(int ceilhit, int32_t* hiz, short florhit, int32_t* loz)
         }
     }
 
-    if ((int)ceilhit != -1)
+    if (ceilhit.type != -1)
     {
-        switch (TEST(ceilhit, HIT_MASK))
+        switch (ceilhit.type)
         {
-        case HIT_SECTOR:
+        case kHitSector:
         {
-            short hit_sector = NORM_SECTOR(ceilhit);
+            short hit_sector = ceilhit.index;
 
             // don't jack with connect sectors
             if (FAF_ConnectCeiling(hit_sector))
@@ -478,31 +485,31 @@ bool SectorZadjust(int ceilhit, int32_t* hiz, short florhit, int32_t* loz)
     return SkipFAFcheck;
 }
 
-void WaterAdjust(short florhit, int32_t* loz)
+void WaterAdjust(const Collision& florhit, int32_t* loz)
 {
-    switch (TEST(florhit, HIT_MASK))
+    if (florhit.type == kHitSector)
     {
-    case HIT_SECTOR:
-    {
-        SECT_USERp sectu = SectUser[NORM_SECTOR(florhit)].Data();
+        SECT_USERp sectu = SectUser[florhit.index].Data();
 
         if (sectu && FixedToInt(sectu->depth_fixed))
             *loz += Z(FixedToInt(sectu->depth_fixed));
     }
-    break;
-    case HIT_SPRITE:
-        break;
-    }
 }
 
-void FAFgetzrange(vec3_t pos, int16_t sectnum,
-                  int32_t* hiz, int32_t* ceilhit,
-                  int32_t* loz, int32_t* florhit,
-                  int32_t clipdist, int32_t clipmask)
+static void getzrange(vec3_t* pos, int16_t sectnum, int32_t* hiz, Collision* ceilhit, int32_t* loz, Collision* florhit, int32_t clipdist, int32_t clipmask)
+{
+    int f, c;
+    ::getzrange(pos, sectnum, hiz, &c, loz, &f, clipdist, clipmask);
+    ceilhit->setFromEngine(c);
+    florhit->setFromEngine(f);
+}
+
+void FAFgetzrange(vec3_t pos, int16_t sectnum, int32_t* hiz, Collision* ceilhit, int32_t* loz, Collision* florhit, int32_t clipdist, int32_t clipmask)
 {
     int foo1;
-    int foo2;
+    Collision foo2;
     bool SkipFAFcheck;
+    Collision trash; trash.invalidate();
 
     // IMPORTANT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     // This will return invalid FAF ceiling and floor heights inside of analyzesprite
@@ -529,11 +536,7 @@ void FAFgetzrange(vec3_t pos, int16_t sectnum,
         int uppersect = sectnum;
         int newz = *hiz - Z(2);
 
-        switch (TEST(*ceilhit, HIT_MASK))
-        {
-        case HIT_SPRITE:
-            return;
-        }
+        if (ceilhit->type == kHitSprite) return
 
         updatesectorz(pos.x, pos.y, newz, &uppersect);
         if (uppersect < 0)
@@ -541,23 +544,14 @@ void FAFgetzrange(vec3_t pos, int16_t sectnum,
         vec3_t npos = pos;
         npos.z = newz;
         getzrange(&npos, uppersect, hiz,  ceilhit, &foo1,  &foo2, clipdist, clipmask);
-        SectorZadjust(*ceilhit, hiz, -1, nullptr);
+        SectorZadjust(*ceilhit, hiz, trash, nullptr);
     }
     else if (FAF_ConnectFloor(sectnum) && !TEST(sector[sectnum].floorstat, FLOOR_STAT_FAF_BLOCK_HITSCAN))
-    //if (FAF_ConnectFloor(sectnum))
     {
         int lowersect = sectnum;
         int newz = *loz + Z(2);
 
-        switch (TEST(*florhit, HIT_MASK))
-        {
-        case HIT_SECTOR:
-        {
-            break;
-        }
-        case HIT_SPRITE:
-            return;
-        }
+        if (florhit->type == kHitSprite) return
 
         updatesectorz(pos.x, pos.y, newz, &lowersect);
         if (lowersect < 0)
@@ -565,18 +559,19 @@ void FAFgetzrange(vec3_t pos, int16_t sectnum,
         vec3_t npos = pos;
         npos.z = newz;
         getzrange(&npos, lowersect, &foo1,  &foo2, loz,  florhit, clipdist, clipmask);
-        SectorZadjust(-1, nullptr, *florhit, loz);
+        SectorZadjust(trash, nullptr, *florhit, loz);
         WaterAdjust(*florhit, loz);
     }
 }
 
 void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, int16_t sectnum,
-                       int32_t* hiz, int32_t* ceilhit,
-                       int32_t* loz, int32_t* florhit)
+                       int32_t* hiz, Collision* ceilhit,
+                       int32_t* loz, Collision* florhit)
 {
     int foo1;
-    int foo2;
+    Collision foo2;
     bool SkipFAFcheck;
+    Collision trash; trash.invalidate();
 
     // IMPORTANT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     // This will return invalid FAF ceiling and floor heights inside of analyzesprite
@@ -602,32 +597,27 @@ void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, int16_t sectnum,
     {
         int uppersect = sectnum;
         int newz = *hiz - Z(2);
-        switch (TEST(*ceilhit, HIT_MASK))
-        {
-        case HIT_SPRITE:
+        if (ceilhit->type == kHitSprite)
             return;
-        }
+
         updatesectorz(x, y, newz, &uppersect);
         if (uppersect < 0)
             return; // _ErrMsg(ERR_STD_ARG, "Did not find a sector at %d, %d, %d, sectnum %d", x, y, newz, sectnum);
         getzrangepoint(x, y, newz, uppersect, hiz,  ceilhit, &foo1,  &foo2);
-        SectorZadjust(*ceilhit, hiz, -1, nullptr);
+        SectorZadjust(*ceilhit, hiz, trash, nullptr);
     }
     else if (FAF_ConnectFloor(sectnum) && !TEST(sector[sectnum].floorstat, FLOOR_STAT_FAF_BLOCK_HITSCAN))
     //if (FAF_ConnectFloor(sectnum))
     {
         int lowersect = sectnum;
         int newz = *loz + Z(2);
-        switch (TEST(*florhit, HIT_MASK))
-        {
-        case HIT_SPRITE:
+        if (florhit->type == kHitSprite)
             return;
-        }
         updatesectorz(x, y, newz, &lowersect);
         if (lowersect < 0)
             return; // _ErrMsg(ERR_STD_ARG, "Did not find a sector at %d, %d, %d, sectnum %d", x, y, newz, sectnum);
         getzrangepoint(x, y, newz, lowersect, &foo1,  &foo2, loz,  florhit);
-        SectorZadjust(-1, nullptr, *florhit, loz);
+        SectorZadjust(trash, nullptr, *florhit, loz);
         WaterAdjust(*florhit, loz);
     }
 }
@@ -635,13 +625,12 @@ void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, int16_t sectnum,
 void
 SetupMirrorTiles(void)
 {
-    int i;
     SPRITEp sp;
 
-    StatIterator it(STAT_FAF);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_FAF);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
+        sp = &actor->s();
 
         if (sector[sp->sectnum].ceilingpicnum == FAF_PLACE_MIRROR_PIC)
         {
@@ -663,31 +652,23 @@ SetupMirrorTiles(void)
     }
 }
 
-short GlobStackSect[2];
-
-void
-GetUpperLowerSector(short match, int x, int y, short *upper, short *lower)
+void GetUpperLowerSector(short match, int x, int y, short *upper, short *lower)
 {
     int i;
-    short sectorlist[16];
+    int sectorlist[16];
     int sln = 0;
-    int SpriteNum;
     SPRITEp sp;
-#if 0
-    // keep a list of the last stacked sectors the view was in and
-    // check those fisrt
-    sln = 0;
-    for (i = 0; i < (int)SIZ(GlobStackSect); i++)
+
+    for (i = 0; i < numsectors; i++)// - 1; i >= 0; i--)
     {
-        // will not hurt if GlobStackSect is invalid - inside checks for this
-        if (inside(x, y, GlobStackSect[i]) == 1)
+        if (inside(x, y, (short) i) == 1)
         {
             bool found = false;
 
-            SectIterator it(GlobStackSect[i]);
-            while ((SpriteNum = it.NextIndex()) >= 0)
+            SWSectIterator it(i);
+            while (auto actor = it.Next())
             {
-                sp = &sprite[SpriteNum];
+                sp = &actor->s();
 
                 if (sp->statnum == STAT_FAF &&
                     (sp->hitag >= VIEW_LEVEL1 && sp->hitag <= VIEW_LEVEL6)
@@ -699,45 +680,9 @@ GetUpperLowerSector(short match, int x, int y, short *upper, short *lower)
 
             if (!found)
                 continue;
-
-            sectorlist[sln] = GlobStackSect[i];
+            if (sln < (int)SIZ(sectorlist))
+                sectorlist[sln] = i;
             sln++;
-        }
-    }
-#endif
-
-    // didn't find it yet so test ALL sectors
-    if (sln < 2)
-    {
-        sln = 0;
-        for (i = 0; i < numsectors; i++)// - 1; i >= 0; i--)
-        {
-            if (inside(x, y, (short) i) == 1)
-            {
-                bool found = false;
-
-                SectIterator it(i);
-                while ((SpriteNum = it.NextIndex()) >= 0)
-                {
-                    sp = &sprite[SpriteNum];
-
-                    if (sp->statnum == STAT_FAF &&
-                        (sp->hitag >= VIEW_LEVEL1 && sp->hitag <= VIEW_LEVEL6)
-                        && sp->lotag == match)
-                    {
-                        found = true;
-                    }
-                }
-
-                if (!found)
-                    continue;
-
-                if (sln < (int)SIZ(GlobStackSect))
-                    GlobStackSect[sln] = i;
-                if (sln < (int)SIZ(sectorlist))
-                    sectorlist[sln] = i;
-                sln++;
-            }
         }
     }
 
@@ -760,8 +705,6 @@ GetUpperLowerSector(short match, int x, int y, short *upper, short *lower)
     // is exactly on a sector line.
     else if (sln > 2)
     {
-        //DSPRINTF(ds, "TOO MANY SECTORS FOUND: x=%d, y=%d, match=%d, num sectors %d, %d, %d, %d, %d, %d", x, y, match, sln, sectorlist[0], sectorlist[1], sectorlist[2], sectorlist[3], sectorlist[4]);
-        MONO_PRINT(ds);
         // try again moving the x,y pos around until you only get two sectors
         GetUpperLowerSector(match, x - 1, y, upper, lower);
     }
@@ -784,12 +727,10 @@ GetUpperLowerSector(short match, int x, int y, short *upper, short *lower)
     }
 }
 
-bool
-FindCeilingView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum)
+bool FindCeilingView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum)
 {
     int xoff = 0;
     int yoff = 0;
-    int i;
     SPRITEp sp = nullptr;
     int pix_diff;
     int newz;
@@ -798,10 +739,10 @@ FindCeilingView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum
 
     // Search Stat List For closest ceiling view sprite
     // Get the match, xoff, yoff from this point
-    StatIterator it(STAT_FAF);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_FAF);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
+        sp = &actor->s();
 
         if (sp->hitag == VIEW_THRU_CEILING && sp->lotag == match)
         {
@@ -812,9 +753,9 @@ FindCeilingView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum
     }
 
     it.Reset(STAT_FAF);
-    while ((i = it.NextIndex()) >= 0)
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
+        sp = &actor->s();
 
         if (sp->lotag == match)
         {
@@ -850,9 +791,9 @@ FindCeilingView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum
         newz = sector[sp->sectnum].floorz + ((pix_diff / 128) + 1) * Z(128);
 
         it.Reset(STAT_FAF);
-        while ((i = it.NextIndex()) >= 0)
+        while (auto actor = it.Next())
         {
-            sp = &sprite[i];
+            sp = &actor->s();
 
             if (sp->lotag == match)
             {
@@ -881,12 +822,10 @@ FindCeilingView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum
     return true;
 }
 
-bool
-FindFloorView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum)
+bool FindFloorView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum)
 {
     int xoff = 0;
     int yoff = 0;
-    int i;
     SPRITEp sp = nullptr;
     int newz;
     int pix_diff;
@@ -895,10 +834,10 @@ FindFloorView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum)
 
     // Search Stat List For closest ceiling view sprite
     // Get the match, xoff, yoff from this point
-    StatIterator it(STAT_FAF);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_FAF);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
+        sp = &actor->s();
 
         if (sp->hitag == VIEW_THRU_FLOOR && sp->lotag == match)
         {
@@ -910,9 +849,9 @@ FindFloorView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum)
 
 
     it.Reset(STAT_FAF);
-    while ((i = it.NextIndex()) >= 0)
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
+        sp = &actor->s();
 
         if (sp->lotag == match)
         {
@@ -948,9 +887,9 @@ FindFloorView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum)
         newz = sector[sp->sectnum].ceilingz - ((pix_diff / 128) + 1) * Z(128);
 
         it.Reset(STAT_FAF);
-        while ((i = it.NextIndex()) >= 0)
+        while (auto actor = it.Next())
         {
-            sp = &sprite[i];
+            sp = &actor->s();
 
             if (sp->lotag == match)
             {
@@ -979,17 +918,15 @@ FindFloorView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum)
     return true;
 }
 
-short
-FindViewSectorInScene(short cursectnum, short level)
+short FindViewSectorInScene(short cursectnum, short level)
 {
-    int i;
     SPRITEp sp;
     short match;
 
-    StatIterator it(STAT_FAF);
-    while ((i = it.NextIndex()) >= 0)
+    SWStatIterator it(STAT_FAF);
+    while (auto actor = it.Next())
     {
-        sp = &sprite[i];
+        sp = &actor->s();
 
         if (sp->hitag == level)
         {
@@ -1079,13 +1016,12 @@ void CollectPortals()
         // pick one sprite out of the sectors, repeat until we get a valid connection
         for (auto sec : fp.sectors)
         {
-            SectIterator it(sec);
-            int spr;
-            while ((spr = it.NextIndex()) >= 0)
+            SWSectIterator it(sec);
+            while (auto actor = it.Next())
             {
-                int tx = sprite[spr].x;
-                int ty = sprite[spr].y;
-                int tz = sprite[spr].z;
+                int tx = actor->s().x;
+                int ty = actor->s().y;
+                int tz = actor->s().z;
                 int16_t tsectnum = sec;
 
                 int match = FindViewSectorInScene(tsectnum, VIEW_LEVEL1);
@@ -1097,7 +1033,7 @@ void CollectPortals()
                         // got something!
                         fp.othersector = tsectnum;
                         fp.offset = { tx, ty, tz };
-                        fp.offset -= sprite[spr].pos;
+                        fp.offset -= actor->s().pos;
                         goto nextfg;
                     }
                 }
@@ -1110,13 +1046,12 @@ void CollectPortals()
     {
         for (auto sec : fp.sectors)
         {
-            SectIterator it(sec);
-            int spr;
-            while ((spr = it.NextIndex()) >= 0)
+            SWSectIterator it(sec);
+            while (auto actor = it.Next())
             {
-                int tx = sprite[spr].x;
-                int ty = sprite[spr].y;
-                int tz = sprite[spr].z;
+                int tx = actor->s().x;
+                int ty = actor->s().y;
+                int tz = actor->s().z;
                 int16_t tsectnum = sec;
 
                 int match = FindViewSectorInScene(tsectnum, VIEW_LEVEL2);
@@ -1128,7 +1063,7 @@ void CollectPortals()
                         // got something!
                         fp.othersector = tsectnum;
                         fp.offset = { tx, ty, tz };
-                        fp.offset -= sprite[spr].pos;
+                        fp.offset -= actor->s().pos;
                         goto nextcg;
                     }
                 }

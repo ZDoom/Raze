@@ -218,13 +218,11 @@ int S_DefineSound(unsigned index, const char *filename, int minpitch, int maxpit
 {
 	auto& S_sfx = soundEngine->GetSounds();
 	index++;
-	unsigned oldindex = S_sfx.Size();
 	if (index >= S_sfx.Size())
 	{
 		S_sfx.Resize(index + 1);
 	}
 	auto sfx = &S_sfx[index];
-	bool alreadydefined = !sfx->bTentative;
 	sfx->UserData.Resize(kMaxUserData);
 	auto sndinf = sfx->UserData.Data();
 	sndinf[kFlags] = type & ~SF_ONEINST_INTERNAL;
@@ -275,7 +273,7 @@ static int GetPositionInfo(DDukeActor* actor, int soundNum, int sectNum,
 	// However, ultimately rolloff would also just reposition the sound source so this can remain as it is.
 
 	auto sp = actor->s;
-	int orgsndist = 0, sndang = 0, sndist = 0, explosion = 0;
+	int orgsndist = 0, sndist = 0;
 	auto const* snd = soundEngine->GetUserData(soundNum + 1);
 	int userflags = snd ? snd[kFlags] : 0;
 	int dist_adjust = snd ? snd[kVolAdjust] : 0;
@@ -586,7 +584,7 @@ void S_StopSound(int sndNum, DDukeActor* actor, int channel)
 		else soundEngine->StopSound(SOURCE_Actor, actor, channel, -1);
 
 		// StopSound kills the actor reference so this cannot be delayed until ChannelEnded gets called. At that point the actor may also not be valid anymore.
-		if (S_IsAmbientSFX(actor) && sector[actor->s->sectnum].lotag < 3)  // ST_2_UNDERWATER
+		if (S_IsAmbientSFX(actor) && actor->s->sector()->lotag < 3)  // ST_2_UNDERWATER
 			actor->temp_data[0] = 0;
 	}
 }
@@ -765,7 +763,6 @@ void S_WorldTourMappingsForOldSounds()
 	// It's really ironic that despite their low quality they often sound a lot better than the new ones.
 	if (!isWorldTour()) return;
 	auto &s_sfx = soundEngine->GetSounds();
-	int maxorig = s_sfx.Size();
 	for(unsigned i = 1; i < s_sfx.Size(); i++)
 	{
 		auto fname = s_sfx[i].name;

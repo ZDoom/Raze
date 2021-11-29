@@ -71,7 +71,6 @@ public:
     CGibVelocity(int _vx, int _vy, int _vz) : vx(_vx), vy(_vy), vz(_vz) {}
 };
 
-void GibSprite(spritetype *pSprite, GIBTYPE nGibType, CGibPosition *pPos, CGibVelocity *pVel);
-//void GibFX(int nWall, GIBFX * pGFX, int a3, int a4, int a5, int a6, CGibVelocity * pVel);
+void GibSprite(DBloodActor *pSprite, GIBTYPE nGibType, CGibPosition *pPos, CGibVelocity *pVel);
 void GibWall(int nWall, GIBTYPE nGibType, CGibVelocity *pVel);
 END_BLD_NS

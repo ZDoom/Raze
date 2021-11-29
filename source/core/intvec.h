@@ -18,8 +18,10 @@ struct vec2_t
     vec2_t operator-(const vec2_t& other) const { return { x - other.x, y - other.y }; }
     vec2_t& operator+=(const vec2_t& other) { x += other.x; y += other.y; return *this; };
     vec2_t& operator-=(const vec2_t& other) { x -= other.x; y -= other.y; return *this; };
+	vec2_t& operator/= (int other) { x /= other; y /= other; return *this; }
     bool operator == (const vec2_t& other) const { return x == other.x && y == other.y; };
 };
+inline vec2_t operator/ (const vec2_t& vec, int other) { return { vec.x / other, vec.y / other }; }
 
 struct vec3_t
 {
