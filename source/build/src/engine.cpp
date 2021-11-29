@@ -1184,7 +1184,8 @@ int findwallbetweensectors(int sect1, int sect2)
 void updatesector(int32_t const x, int32_t const y, int * const sectnum)
 {
     int sect = *sectnum;
-    updatesectorneighbor(x, y, &sect, INITIALUPDATESECTORDIST, MAXUPDATESECTORDIST);
+
+    updatesectorneighbor(x, y, &sect, MAXUPDATESECTORDIST);
     if (sect != -1)
         SET_AND_RETURN(*sectnum, sect);
 
@@ -1200,21 +1201,13 @@ void updatesector(int32_t const x, int32_t const y, int * const sectnum)
 
 void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int* const sectnum)
 {
-	int32_t cz, fz;
-	getzsofslope(*sectnum, x, y, &cz, &fz);
+    int sect = *sectnum;
 
-	walltype const * wal = &wall[sector[*sectnum].wallptr];
-	int wallsleft = sector[*sectnum].wallnum;
-	do
-	{
-		int const next = wal->nextsector;
-		if (next>=0 && inside_z_p(x,y,z, next))
-			SET_AND_RETURN(*sectnum, next);
+    updatesectorneighborz(x, y, z, &sect, MAXUPDATESECTORDIST);
+    if (sect != -1)
+        SET_AND_RETURN(*sectnum, sect);
 
-		wal++;
-	}
-	while (--wallsleft);
- 
+
     // we need to support passing in a sectnum of -1, unfortunately
     for (int i = numsectors - 1; i >= 0; --i)
         if (inside_z_p(x, y, z, i))
@@ -1223,17 +1216,18 @@ void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int* const
     *sectnum = -1;
 }
 
-void updatesectorneighbor(int32_t const x, int32_t const y, int * const sectnum, int32_t initialMaxDistance /*= INITIALUPDATESECTORDIST*/, int32_t maxDistance /*= MAXUPDATESECTORDIST*/)
+void updatesectorneighbor(int32_t const x, int32_t const y, int * const sectnum, int32_t maxDistance)
 {
     int const initialsectnum = *sectnum;
 
-    if ((validSectorIndex(initialsectnum)) && getsectordist({x, y}, initialsectnum) <= initialMaxDistance)
+    if ((validSectorIndex(initialsectnum)))
     {
         if (inside_p(x, y, initialsectnum))
             return;
 
         BFSSearch search(numsectors, *sectnum);
 
+        int iter = 0;
         for (unsigned listsectnum; (listsectnum = search.GetNext()) != BFSSearch::EOL;)
         {
             if (inside_p(x, y, listsectnum))
@@ -1244,9 +1238,42 @@ void updatesectorneighbor(int32_t const x, int32_t const y, int * const sectnum,
 
             for (auto& wal : wallsofsector(listsectnum))
             {
-                if (wal.nextsector >= 0 && getsectordist({ x, y }, wal.nextsector) <= maxDistance)
+                if (wal.nextsector >= 0 && (iter == 0 || getsectordist({ x, y }, wal.nextsector) <= maxDistance))
                     search.Add(wal.nextsector);
             }
+            iter++;
+        }
+    }
+
+    *sectnum = -1;
+}
+
+void updatesectorneighborz(int32_t const x, int32_t const y, int32_t const z, int* const sectnum, int32_t maxDistance)
+{
+    int const initialsectnum = *sectnum;
+
+    if ((validSectorIndex(initialsectnum)))
+    {
+        if (inside_z_p(x, y, z, initialsectnum))
+            return;
+
+        BFSSearch search(numsectors, *sectnum);
+
+        int iter = 0;
+        for (unsigned listsectnum; (listsectnum = search.GetNext()) != BFSSearch::EOL;)
+        {
+            if (inside_z_p(x, y, z, listsectnum))
+            {
+                *sectnum = listsectnum;
+                return;
+            }
+
+            for (auto& wal : wallsofsector(listsectnum))
+            {
+                if (wal.nextsector >= 0 && (iter == 0 || getsectordist({ x, y }, wal.nextsector) <= maxDistance))
+                    search.Add(wal.nextsector);
+            }
+            iter++;
         }
     }
 
@@ -1448,4 +1475,12 @@ int tilehasmodelorvoxel(int const tilenume, int pal)
     return
         (mdinited && hw_models && tile2model[Ptile2tile(tilenume, pal)].modelid != -1) ||
         (r_voxels && tiletovox[tilenume] != -1);
+}
+
+
+CCMD(updatesectordebug)
+{
+    int sect = 319;
+    updatesector(1792, 24334, &sect);
+    int blah = sect;
 }

@@ -1108,7 +1108,7 @@ static void movetripbomb(DDukeActor *actor)
 		int const oldSectNum = s->sectnum;
 		int       curSectNum = s->sectnum;
 
-		updatesectorneighbor(s->x, s->y, &curSectNum, 1024, 2048);
+		updatesectorneighbor(s->x, s->y, &curSectNum, 2048);
 		changeactorsect(actor, curSectNum);
 
 		DDukeActor* hit;
@@ -1139,7 +1139,7 @@ static void movetripbomb(DDukeActor *actor)
 
 					s->x += bcos(actor->temp_data[5], -4);
 					s->y += bsin(actor->temp_data[5], -4);
-					updatesectorneighbor(s->x, s->y, &curSectNum, 1024, 2048);
+					updatesectorneighbor(s->x, s->y, &curSectNum, 2048);
 
 					if (curSectNum == -1)
 						break;
