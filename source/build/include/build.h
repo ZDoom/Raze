@@ -669,6 +669,8 @@ extern int skiptile;
 static vec2_t const zerovec = { 0, 0 };
 
 inline int inside_p(int32_t const x, int32_t const y, int const sectnum) { return (sectnum >= 0 && inside(x, y, sectnum) == 1); }
+// same as above but with the same signature as inside_z_p for passing to updatesectorneighborz.
+inline int inside_p0(int32_t const x, int32_t const y, int32_t const z, int const sectnum) { return (sectnum >= 0 && inside(x, y, sectnum) == 1); } 
 
 #define SET_AND_RETURN(Lval, Rval) \
     do                             \

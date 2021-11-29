@@ -1177,6 +1177,47 @@ int findwallbetweensectors(int sect1, int sect2)
     return -1;
 }
 
+
+
+template<class Inside>
+void updatesectorneighborz(int32_t const x, int32_t const y, int32_t const z, int* const sectnum, int32_t maxDistance, Inside checker)
+{
+    int const initialsectnum = *sectnum;
+
+    if ((validSectorIndex(initialsectnum)))
+    {
+        if (checker(x, y, z, initialsectnum))
+            return;
+
+        BFSSearch search(numsectors, *sectnum);
+
+        int iter = 0;
+        for (unsigned listsectnum; (listsectnum = search.GetNext()) != BFSSearch::EOL;)
+        {
+            if (checker(x, y, z, listsectnum))
+            {
+                *sectnum = listsectnum;
+                return;
+            }
+
+            for (auto& wal : wallsofsector(listsectnum))
+            {
+                if (wal.nextsector >= 0 && (iter == 0 || getsectordist({ x, y }, wal.nextsector) <= maxDistance))
+                    search.Add(wal.nextsector);
+            }
+            iter++;
+        }
+    }
+
+    *sectnum = -1;
+}
+
+void updatesectorneighbor(int32_t const x, int32_t const y, int* const sectnum, int32_t maxDistance)
+{
+    updatesectorneighborz(x, y, 0, sectnum, maxDistance, inside_p0);
+}
+
+
 //
 // updatesector[z]
 //
@@ -1202,7 +1243,7 @@ void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int* const
 {
     int sect = *sectnum;
 
-    updatesectorneighborz(x, y, z, &sect, MAXUPDATESECTORDIST);
+    updatesectorneighborz(x, y, z, &sect, MAXUPDATESECTORDIST, inside_z_p);
     if (sect != -1)
         SET_AND_RETURN(*sectnum, sect);
 
@@ -1215,69 +1256,6 @@ void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int* const
     *sectnum = -1;
 }
 
-void updatesectorneighbor(int32_t const x, int32_t const y, int * const sectnum, int32_t maxDistance)
-{
-    int const initialsectnum = *sectnum;
-
-    if ((validSectorIndex(initialsectnum)))
-    {
-        if (inside_p(x, y, initialsectnum))
-            return;
-
-        BFSSearch search(numsectors, *sectnum);
-
-        int iter = 0;
-        for (unsigned listsectnum; (listsectnum = search.GetNext()) != BFSSearch::EOL;)
-        {
-            if (inside_p(x, y, listsectnum))
-            {
-                *sectnum = listsectnum;
-                return;
-            }
-
-            for (auto& wal : wallsofsector(listsectnum))
-            {
-                if (wal.nextsector >= 0 && (iter == 0 || getsectordist({ x, y }, wal.nextsector) <= maxDistance))
-                    search.Add(wal.nextsector);
-            }
-            iter++;
-        }
-    }
-
-    *sectnum = -1;
-}
-
-void updatesectorneighborz(int32_t const x, int32_t const y, int32_t const z, int* const sectnum, int32_t maxDistance)
-{
-    int const initialsectnum = *sectnum;
-
-    if ((validSectorIndex(initialsectnum)))
-    {
-        if (inside_z_p(x, y, z, initialsectnum))
-            return;
-
-        BFSSearch search(numsectors, *sectnum);
-
-        int iter = 0;
-        for (unsigned listsectnum; (listsectnum = search.GetNext()) != BFSSearch::EOL;)
-        {
-            if (inside_z_p(x, y, z, listsectnum))
-            {
-                *sectnum = listsectnum;
-                return;
-            }
-
-            for (auto& wal : wallsofsector(listsectnum))
-            {
-                if (wal.nextsector >= 0 && (iter == 0 || getsectordist({ x, y }, wal.nextsector) <= maxDistance))
-                    search.Add(wal.nextsector);
-            }
-            iter++;
-        }
-    }
-
-    *sectnum = -1;
-}
 
 //
 // rotatepoint
