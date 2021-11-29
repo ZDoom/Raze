@@ -1238,7 +1238,6 @@ void CheckPickUp(PLAYER *pPlayer)
 
 int ActionScan(PLAYER *pPlayer, int *pIndex, DBloodActor** pAct)
 {
-	int xx = 0; int* pXIndex = &xx;
     *pIndex = 0;
     *pAct = nullptr;
     spritetype *pSprite = pPlayer->pSprite;
@@ -1286,30 +1285,33 @@ int ActionScan(PLAYER *pPlayer, int *pIndex, DBloodActor** pAct)
         }
         case 0:
         case 4:
+        {
+            auto pWall = &wall[gHitInfo.hitwall];
             *pIndex = gHitInfo.hitwall;
-            *pXIndex = wall[*pIndex].extra;
-            if (*pXIndex > 0 && wall[*pIndex].xw().triggerPush)
+            if (pWall->hasX() && pWall->xw().triggerPush)
                 return 0;
-            if (wall[*pIndex].nextsector >= 0)
+            if (pWall->twoSided())
             {
-                *pIndex = wall[*pIndex].nextsector;
-                *pXIndex = sector[*pIndex].extra;
-                if (*pXIndex > 0 && xsector[*pXIndex].Wallpush)
+                auto sect = pWall->nextSector();
+                *pIndex = sectnum(sect);
+                if (sect->hasX() && sect->xs().Wallpush)
                     return 6;
             }
             break;
+        }
         case 1:
         case 2:
+        {
+            auto pSector = &sector[gHitInfo.hitsect];
             *pIndex = gHitInfo.hitsect;
-            *pXIndex = sector[*pIndex].extra;
-            if (*pXIndex > 0 && xsector[*pXIndex].Push)
+            if (pSector->hasX() && pSector->xs().Push)
                 return 6;
             break;
         }
+        }
     }
     *pIndex = pSprite->sectnum;
-    *pXIndex = sector[*pIndex].extra;
-    if (*pXIndex > 0 && xsector[*pXIndex].Push)
+    if (pSprite->sector()->hasX() && pSprite->sector()->xs().Push)
         return 6;
     return -1;
 }
