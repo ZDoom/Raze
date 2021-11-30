@@ -1443,7 +1443,7 @@ void AIQueen::RadialDamage(RunListEvent* ev)
     assert(nQueen >= 0 && nQueen < kMaxQueens);
     auto pActor = QueenList[nQueen].pActor;
     auto pSprite = &pActor->s();
-    auto pRadial = &ev->pOtherActor->s();
+    auto pRadial = &ev->pRadialActor->s();
 
     if (pRadial->statnum != 121 && (pSprite->cstat & 0x101) != 0)
     {

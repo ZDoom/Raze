@@ -346,7 +346,7 @@ void AIGrenade::RadialDamage(RunListEvent* ev)
     auto pActor = ev->pObjActor;
     if (!pActor) return;
 
-    if (pActor != ev->pOtherActor && !pActor->nFrame)
+    if (pActor != ev->pRadialActor && !pActor->nFrame)
     {
         if (runlist_CheckRadialDamage(pActor) > 280)
         {
