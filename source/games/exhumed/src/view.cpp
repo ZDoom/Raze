@@ -251,6 +251,7 @@ void DrawView(double smoothRatio, bool sceneonly)
 
         nSector = PlayerList[nLocalPlayer].nPlayerViewSect;
         updatesector(playerX, playerY, &nSector);
+        if (nSector == -1) PlayerList[nLocalPlayer].nPlayerViewSect;
 
         if (!SyncInput())
         {
@@ -305,21 +306,25 @@ void DrawView(double smoothRatio, bool sceneonly)
             }
         }
     }
-    auto pSector = &sector[nSector];
     nCamerax = playerX;
     nCameray = playerY;
     nCameraz = playerZ;
 
-    int Z = pSector->ceilingz + 256;
-    if (Z <= viewz)
+    if (nSector != -1)
     {
-        Z = pSector->floorz - 256;
+        auto pSector = &sector[nSector];
 
-        if (Z < viewz)
+        int Z = pSector->ceilingz + 256;
+        if (Z <= viewz)
+        {
+            Z = pSector->floorz - 256;
+
+            if (Z < viewz)
+                viewz = Z;
+        }
+        else {
             viewz = Z;
-    }
-    else {
-        viewz = Z;
+        }
     }
 
     nCamerapan = pan;
