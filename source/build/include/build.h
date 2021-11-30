@@ -445,7 +445,7 @@ inline void updatesector(int const x, int const y, sectortype** const sectp)
 {
 	int sectno = *sectp? (*sectp) - sector : -1;
 	updatesector(x, y, &sectno);
-	*sectp = &sector[sectno];
+	*sectp = sectno == -1? nullptr : &sector[sectno];
 }
 void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int * const sectnum) ATTRIBUTE((nonnull(4)));
 
