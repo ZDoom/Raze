@@ -2337,10 +2337,6 @@ static void polymost_drawmaskwallinternal(int32_t wallIndex)
     int32_t const sectnum = wal->nextWall()->nextsector;
     auto const sec = (usectorptr_t)&sector[sectnum];
 
-//    if (wal->nextsector < 0) return;
-    // Without MASKWALL_BAD_ACCESS fix:
-    // wal->nextsector is -1, WGR2 SVN Lochwood Hollow (Til' Death L1)  (or trueror1.map)
-
     auto const nsec = (usectorptr_t)wal->nextSector();
 
     polymost_outputGLDebugMessage(3, "polymost_drawmaskwallinternal(wallIndex:%d)", wallIndex);
@@ -2388,11 +2384,11 @@ static void polymost_drawmaskwallinternal(int32_t wallIndex)
     int32_t m1 = (int32_t)((wal2->y - wal->y) * t0 + wal->y);
     int32_t cz[4], fz[4];
     getzsofslope(sectnum, m0, m1, &cz[0], &fz[0]);
-    getzsofslope(wal->nextsector, m0, m1, &cz[1], &fz[1]);
+    getzsofslopeptr(wal->nextSector(), m0, m1, &cz[1], &fz[1]);
     m0 = (int32_t)((wal2->x - wal->x) * t1 + wal->x);
     m1 = (int32_t)((wal2->y - wal->y) * t1 + wal->y);
     getzsofslope(sectnum, m0, m1, &cz[2], &fz[2]);
-    getzsofslope(wal->nextsector, m0, m1, &cz[3], &fz[3]);
+    getzsofslopeptr(wal->nextSector(), m0, m1, &cz[3], &fz[3]);
 
     float ryp0 = 1.f/p0.Y;
     float ryp1 = 1.f/p1.Y;
@@ -3309,6 +3305,7 @@ EXTERN_CVAR(Int, gl_fogmode)
 int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz, fixed_t daang, fixed_t dahoriz, sectortype* dacursect, bool fromoutside)
 {
     if (dacursect) return renderDrawRoomsQ16(daposx, daposy, daposz, daang, dahoriz, sectnum(dacursect), fromoutside);
+    return 0;
 }
 
 int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,

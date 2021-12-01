@@ -548,25 +548,27 @@ void loadMapBackup(const char* filename)
 // Sets the sector reference for each wall. We need this for the triangulation cache.
 void setWallSectors()
 {
-	for (int i = 0; i < numsectors; i++)
+	int i = 0;
+	for(auto& sect : sectors())
 	{
-		sector[i].dirty = 255;
-		sector[i].exflags = 0;
-		for (int w = 0; w < sector[i].wallnum; w++)
+		sect.dirty = 255;
+		sect.exflags = 0;
+		for (auto& wal : wallsofsector(&sect))
 		{
-			wall[sector[i].wallptr + w].sector = i;
+			wal.sector = i;
 		}
+		i++;
 	}
 
 	// validate 'nextsector' fields. Some maps have these wrong which can cause render glitches and occasionally even crashes.
-	for (int i = 0; i < numwalls; i++)
+	for (auto& wal : walls())
 	{
-		if (wall[i].nextwall != -1)
+		if (wal.nextwall != -1)
 		{
-			if (wall[i].nextsector != wall[wall[i].nextwall].sector)
+			if (wal.nextsector != wal.nextWall()->sector)
 			{
-				DPrintf(DMSG_ERROR, "Bad 'nextsector' reference %d on wall %d\n", wall[i].nextsector, i);
-				wall[i].nextsector = wall[wall[i].nextwall].sector;
+				DPrintf(DMSG_ERROR, "Bad 'nextsector' reference %d on wall %d\n", wal.nextsector, i);
+				wal.nextsector = wal.nextWall()->sector;
 			}
 		}
 	}
