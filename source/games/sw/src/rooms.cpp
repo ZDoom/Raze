@@ -536,7 +536,7 @@ void FAFgetzrange(vec3_t pos, int16_t sectnum, int32_t* hiz, Collision* ceilhit,
         int uppersect = sectnum;
         int newz = *hiz - Z(2);
 
-        if (ceilhit->type == kHitSprite) return
+        if (ceilhit->type == kHitSprite) return;
 
         updatesectorz(pos.x, pos.y, newz, &uppersect);
         if (uppersect < 0)
@@ -551,7 +551,7 @@ void FAFgetzrange(vec3_t pos, int16_t sectnum, int32_t* hiz, Collision* ceilhit,
         int lowersect = sectnum;
         int newz = *loz + Z(2);
 
-        if (florhit->type == kHitSprite) return
+        if (florhit->type == kHitSprite) return;
 
         updatesectorz(pos.x, pos.y, newz, &lowersect);
         if (lowersect < 0)
