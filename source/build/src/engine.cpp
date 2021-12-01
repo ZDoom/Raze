@@ -1129,16 +1129,12 @@ int32_t getsectordist(vec2_t const in, int const sectnum, vec2_t * const out /*=
 
     int32_t distance = INT32_MAX;
 
-    auto const sec       = (usectorptr_t)&sector[sectnum];
-    int const  startwall = sec->wallptr;
-    int const  endwall   = sec->wallptr + sec->wallnum;
-    auto       uwal      = (uwallptr_t)&wall[startwall];
     vec2_t     closest = {};
 
-    for (int j = startwall; j < endwall; j++, uwal++)
+    for (auto& wal : wallsofsector(sectnum))
     {
         vec2_t p;
-        int32_t const walldist = getwalldist(in, j, &p);
+        int32_t const walldist = getwalldist(in, wallnum(&wal), &p);
 
         if (walldist < distance)
         {
@@ -1401,7 +1397,8 @@ void getzsofslopeptr(usectorptr_t sec, int32_t dax, int32_t day, int32_t *ceilz,
 //
 void alignceilslope(int16_t dasect, int32_t x, int32_t y, int32_t z)
 {
-    auto const wal = (uwallptr_t)&wall[sector[dasect].wallptr];
+    auto sect = &sector[dasect];
+    auto const wal = (uwallptr_t)sect->firstWall();
     const int32_t dax = wal->point2Wall()->x-wal->x;
     const int32_t day = wal->point2Wall()->y-wal->y;
 
@@ -1409,11 +1406,11 @@ void alignceilslope(int16_t dasect, int32_t x, int32_t y, int32_t z)
     if (i == 0)
         return;
 
-    sector[dasect].ceilingheinum = Scale((z-sector[dasect].ceilingz)<<8,
+    sect->ceilingheinum = Scale((z-sect->ceilingz)<<8,
                                          ksqrt(uhypsq(dax,day)), i);
-    if (sector[dasect].ceilingheinum == 0)
-        sector[dasect].ceilingstat &= ~2;
-    else sector[dasect].ceilingstat |= 2;
+    if (sect->ceilingheinum == 0)
+        sect->ceilingstat &= ~2;
+    else sect->ceilingstat |= 2;
 }
 
 
@@ -1422,7 +1419,8 @@ void alignceilslope(int16_t dasect, int32_t x, int32_t y, int32_t z)
 //
 void alignflorslope(int16_t dasect, int32_t x, int32_t y, int32_t z)
 {
-    auto const wal = (uwallptr_t)&wall[sector[dasect].wallptr];
+    auto sect = &sector[dasect];
+    auto const wal = (uwallptr_t)sect->firstWall();
     const int32_t dax = wal->point2Wall()->x-wal->x;
     const int32_t day = wal->point2Wall()->y-wal->y;
 
@@ -1430,11 +1428,11 @@ void alignflorslope(int16_t dasect, int32_t x, int32_t y, int32_t z)
     if (i == 0)
         return;
 
-    sector[dasect].floorheinum = Scale((z-sector[dasect].floorz)<<8,
+    sect->floorheinum = Scale((z-sect->floorz)<<8,
                                        ksqrt(uhypsq(dax,day)), i);
-    if (sector[dasect].floorheinum == 0)
-        sector[dasect].floorstat &= ~2;
-    else sector[dasect].floorstat |= 2;
+    if (sect->floorheinum == 0)
+        sect->floorstat &= ~2;
+    else sect->floorstat |= 2;
 }
 
 
