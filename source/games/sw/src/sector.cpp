@@ -167,7 +167,6 @@ static void WallSetupLoop(WALLp wp, int16_t lotag, int16_t extra)
 
 void WallSetup(void)
 {
-    short i = 0;
     short NextSineWall = 0;
     WALLp wp;
 
@@ -182,8 +181,8 @@ void WallSetup(void)
         if (wp->picnum == FAF_PLACE_MIRROR_PIC)
             wp->picnum = FAF_MIRROR_PIC;
 
-        if (wall[i].picnum == FAF_PLACE_MIRROR_PIC+1)
-            wall[i].picnum = FAF_MIRROR_PIC+1;
+        if (wp->picnum == FAF_PLACE_MIRROR_PIC+1)
+            wp->picnum = FAF_MIRROR_PIC+1;
 
         // this overwrites the lotag so it needs to be called LAST - its down there
         // SetupWallForBreak(wp);
@@ -212,7 +211,7 @@ void WallSetup(void)
             }
             else
             {
-                Printf(PRINT_HIGH, "one-sided wall %d in loop setup\n", i);
+                Printf(PRINT_HIGH, "one-sided wall %d in loop setup\n", wallnum(wp));
             }
             break;
         }
@@ -226,7 +225,7 @@ void WallSetup(void)
             }
             else
             {
-                Printf(PRINT_HIGH, "one-sided wall %d in loop setup\n", i);
+                Printf(PRINT_HIGH, "one-sided wall %d in loop setup\n", wallnum(wp));
             }
             wp->lotag = 0;
             break;
@@ -270,7 +269,7 @@ void WallSetup(void)
 
 
             // count up num_points
-            for (wall_num = i, num_points = 0;
+            for (wall_num = wallnum(wp), num_points = 0;
                  num_points < MAX_SINE_WALL_POINTS && wall[wall_num].lotag != tag_end;
                  wall_num = wall[wall_num].point2, num_points++)
             {
@@ -294,7 +293,7 @@ void WallSetup(void)
             if (peak)
                 num_points = peak;
 
-            for (wall_num = i, cnt = 0;
+            for (wall_num = wallnum(wp), cnt = 0;
                  cnt < MAX_SINE_WALL_POINTS && wall[wall_num].lotag != tag_end;
                  wall_num = wall[wall_num].point2, cnt++)
             {
