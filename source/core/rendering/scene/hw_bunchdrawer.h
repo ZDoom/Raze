@@ -8,7 +8,7 @@ class Clipper;
 
 struct FBunch
 {
-    int sectnum;
+    int sectornum;
     int startline;
     int endline;
     bool portal;

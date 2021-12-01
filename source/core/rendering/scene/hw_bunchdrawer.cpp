@@ -107,7 +107,7 @@ bool BunchDrawer::StartBunch(int sectnum, int linenum, binangle startan, binangl
 {
 	FBunch* bunch = &Bunches[LastBunch = Bunches.Reserve(1)];
 
-	bunch->sectnum = sectnum;
+	bunch->sectornum = sectnum;
 	bunch->startline = bunch->endline = linenum;
 	bunch->startangle = startan;
 	bunch->endangle = endan;
@@ -311,7 +311,7 @@ void BunchDrawer::ProcessBunch(int bnch)
 					SetupWall.Clock();
 
 					HWWall hwwall;
-					hwwall.Process(di, &wall[ww], &sector[bunch->sectnum], wall[ww].nextsector < 0 ? nullptr : &sector[wall[ww].nextsector]);
+					hwwall.Process(di, &wall[ww], &sector[bunch->sectornum], wall[ww].nextsector < 0 ? nullptr : &sector[wall[ww].nextsector]);
 					rendered_lines++;
 
 					SetupWall.Unclock();
