@@ -1600,9 +1600,7 @@ void SlipSlope(PLAYERp pp)
     if (!TEST(sectu->flags, SECTFU_SLIDE_SECTOR) || !TEST(pp->cursector->floorstat, FLOOR_STAT_SLOPE))
         return;
 
-    auto wallptr = pp->cursector->firstWall();
-
-    ang = getangle(wallptr->delta());
+    ang = getangle(pp->cursector->firstWall()->delta());
 
     ang = NORM_ANGLE(ang + 512);
 
