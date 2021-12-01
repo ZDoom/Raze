@@ -57,26 +57,25 @@ FString EventObject::description() const
 
 static int GetBucketChannel(const RXBUCKET* pBucket)
 {
-	switch (pBucket->type)
+	if (pBucket->isSector())
 	{
-	case SS_SECTOR:
-	{
-		auto pSector = &sector[pBucket->rxindex];
+		auto pSector = pBucket->sector();
 		assert(pSector->hasX());
 		return pSector->xs().rxID;
 	}
-	case SS_WALL:
+	if (pBucket->isWall())
 	{
-		auto pWall = &wall[pBucket->rxindex];
+		auto pWall = pBucket->wall();
 		assert(pWall->hasX());
 		return pWall->xw().rxID;
 	}
-
-	case SS_SPRITE:
-		return pBucket->actor()? pBucket->actor()->x().rxID : 0;
+	if (pBucket->isActor())
+	{
+		auto pActor = pBucket->actor();
+		return pActor? pActor->x().rxID : 0;
 	}
 
-	Printf(PRINT_HIGH, "Unexpected rxBucket type %d", pBucket->type);
+	Printf(PRINT_HIGH, "Unexpected rxBucket %s", pBucket->description().GetChars());
 	return 0;
 }
 
