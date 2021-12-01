@@ -111,7 +111,7 @@ int clipinsidebox(vec2_t *vect, int wallnum, int walldist)
     int const r = walldist << 1;
 
     auto const wal1 = (uwallptr_t)&wall[wallnum];
-    auto const wal2 = (uwallptr_t)&wall[wal1->point2];
+    auto const wal2 = (uwallptr_t)wal1->point2Wall();
 
     vec2_t const v1 = { wal1->x + walldist - vect->x, wal1->y + walldist - vect->y };
     vec2_t       v2 = { wal2->x + walldist - vect->x, wal2->y + walldist - vect->y };
@@ -986,7 +986,7 @@ void getzrange_(const vec3_t *pos, int16_t sectnum,
             if (k >= 0)
             {
                 vec2_t const v1 = wall[j].pos;
-                vec2_t const v2 = wall[wall[j].point2].pos;
+                vec2_t const v2 = wall[j].point2Wall()->pos;
 
                 if ((v1.x < xmin && (v2.x < xmin)) || (v1.x > xmax && v2.x > xmax) ||
                     (v1.y < ymin && (v2.y < ymin)) || (v1.y > ymax && v2.y > ymax))

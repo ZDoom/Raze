@@ -526,8 +526,8 @@ bool HWMirrorPortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *clippe
 
 	int x = line->x;
 	int y = line->y;
-	int dx = wall[line->point2].x - x;
-	int dy = wall[line->point2].y - y;
+	int dx = line->point2Wall()->x - x;
+	int dy = line->point2Wall()->y - y;
 
 	// this can overflow so use 64 bit math.
 	const int64_t j = int64_t(dx) * dx + int64_t(dy) * dy;
@@ -565,7 +565,7 @@ bool HWMirrorPortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *clippe
 	ClearClipper(di, clipper);
 
 	auto startan = bvectangbam(line->x - newx, line->y - newy);
-	auto endan = bvectangbam(wall[line->point2].x - newx, wall[line->point2].y - newy);
+	auto endan = bvectangbam(line->point2Wall()->x - newx, line->point2Wall()->y - newy);
 	clipper->RestrictVisibleRange(endan, startan);  // we check the line from the backside so angles are reversed.
 	return true;
 }
@@ -608,10 +608,10 @@ bool HWLineToLinePortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *cl
 	DVector2 npos = vp.Pos - srccenter + destcenter;
 
 #if 0 // Blood does not rotate these. Needs map checking to make sure it can be added.
-	int dx = wall[origin->point2].x - origin->x;
-	int dy = wall[origin->point2].y - origin->y;
-	int dx2 = wall[line->point2].x - line->x;
-	int dy2 = wall[line->point2].y - line->y;
+	int dx = origin->point2Wall()->x - origin->x;
+	int dy = origin->point2Wall()->y - origin->y;
+	int dx2 = line->point2Wall()->x - line->x;
+	int dy2 = line->point2Wall()->y - line->y;
 
 	auto srcang = bvectangbam(dx, dy);
 	auto destang = bvectangbam(-dx, -dy);
@@ -635,7 +635,7 @@ bool HWLineToLinePortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *cl
 	ClearClipper(di, clipper);
 
 	auto startan = bvectangbam(origin->x - origx, origin->y - origy);
-	auto endan = bvectangbam(wall[origin->point2].x - origx, wall[origin->point2].y - origy);
+	auto endan = bvectangbam(origin->point2Wall()->x - origx, origin->point2Wall()->y - origy);
 	clipper->RestrictVisibleRange(startan, endan);
 	return true;
 }
@@ -687,7 +687,7 @@ bool HWLineToSpritePortal::Setup(HWDrawInfo* di, FRenderState& rstate, Clipper* 
 	ClearClipper(di, clipper);
 
 	auto startan = bvectangbam(origin->x - origx, origin->y - origy);
-	auto endan = bvectangbam(wall[origin->point2].x - origx, wall[origin->point2].y - origy);
+	auto endan = bvectangbam(origin->point2Wall()->x - origx, origin->point2Wall()->y - origy);
 	clipper->RestrictVisibleRange(startan, endan);
 	return true;
 }

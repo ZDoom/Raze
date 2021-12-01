@@ -143,12 +143,12 @@ inline double WallStartY(int wallnum)
 
 inline double WallEndX(int wallnum)
 {
-    return wall[wall[wallnum].point2].x * (1 / 16.);
+    return wall[wallnum].point2Wall()->x * (1 / 16.);
 }
 
 inline double WallEndY(int wallnum)
 {
-    return wall[wall[wallnum].point2].y * (1 / -16.);
+    return wall[wallnum].point2Wall()->y * (1 / -16.);
 }
 
 inline double WallStartX(const walltype* wallnum)
@@ -168,12 +168,12 @@ inline DVector2 WallStart(const walltype* wallnum)
 
 inline double WallEndX(const walltype* wallnum)
 {
-    return wall[wallnum->point2].x * (1 / 16.);
+    return wallnum->point2Wall()->x * (1 / 16.);
 }
 
 inline double WallEndY(const walltype* wallnum)
 {
-    return wall[wallnum->point2].y * (1 / -16.);
+	return wallnum->point2Wall()->y * (1 / -16.);
 }
 
 inline DVector2 WallEnd(const walltype* wallnum)

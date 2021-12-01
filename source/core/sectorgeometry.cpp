@@ -118,8 +118,8 @@ public:
 		auto firstwall = sec->firstWall();
 		ix1 = firstwall->x;
 		iy1 = firstwall->y;
-		ix2 = wall[firstwall->point2].x;
-		iy2 = wall[firstwall->point2].y;
+		ix2 = firstwall->point2Wall()->x;
+		iy2 = firstwall->point2Wall()->y;
 
 		if (plane == 0)
 		{
@@ -555,7 +555,7 @@ void SectorGeometry::ValidateSector(unsigned int secnum, int plane, const FVecto
 			sec->floorxpan_ == compare->floorxpan_ &&
 			sec->floorypan_ == compare->floorypan_ &&
 			sec->firstWall()->pos == data[secnum].poscompare[0] &&
-			wall[sec->firstWall()->point2].pos == data[secnum].poscompare2[0] &&
+			sec->firstWall()->point2Wall()->pos == data[secnum].poscompare2[0] &&
 			!(sec->dirty & 1) && data[secnum].planes[plane].vertices.Size() ) return;
 
 		sec->dirty &= ~1;
@@ -568,14 +568,14 @@ void SectorGeometry::ValidateSector(unsigned int secnum, int plane, const FVecto
 			sec->ceilingxpan_ == compare->ceilingxpan_ &&
 			sec->ceilingypan_ == compare->ceilingypan_ &&
 			sec->firstWall()->pos == data[secnum].poscompare[1] &&
-			wall[sec->firstWall()->point2].pos == data[secnum].poscompare2[1] &&
+			sec->firstWall()->point2Wall()->pos == data[secnum].poscompare2[1] &&
 			!(sec->dirty & 2) && data[secnum].planes[1].vertices.Size()) return;
 
 		sec->dirty &= ~2;
 	}
 	*compare = *sec;
 	data[secnum].poscompare[plane] = sec->firstWall()->pos;
-	data[secnum].poscompare2[plane] = wall[sec->firstWall()->point2].pos;
+	data[secnum].poscompare2[plane] = sec->firstWall()->point2Wall()->pos;
 	if (data[secnum].degenerate || !MakeVertices(secnum, plane, offset))
 	{
 		data[secnum].degenerate = true;

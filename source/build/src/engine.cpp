@@ -104,7 +104,7 @@ ADD_STAT(printcoords)
 static void getclosestpointonwall_internal(vec2_t const p, int32_t const dawall, vec2_t *const closest)
 {
     vec2_t const w  = wall[dawall].pos;
-    vec2_t const w2 = wall[wall[dawall].point2].pos;
+    vec2_t const w2 = wall[dawall].point2Wall()->pos;
     vec2_t const d  = { w2.x - w.x, w2.y - w.y };
 
     int64_t i = d.x * ((int64_t)p.x - w.x) + d.y * ((int64_t)p.y - w.y);

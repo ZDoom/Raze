@@ -1000,8 +1000,8 @@ static void polymost_internal_nonparallaxed(FVector2 n0, FVector2 n1, float ryp0
     if (globalorientation & 64)
     {
         //relative alignment
-        vec2_t const xy = { wall[sec->firstWall()->point2].x - sec->firstWall()->x,
-                            wall[sec->firstWall()->point2].y - sec->firstWall()->y };
+        vec2_t const xy = sec->firstWall()->delta();
+
         float r;
 
         int length = ksqrt(uhypsq(xy.x, xy.y));
@@ -1844,9 +1844,9 @@ static void polymost_drawalls(int32_t const bunch)
 int32_t wallfront(int32_t l1, int32_t l2)
 {
     vec2_t const l1vect = wall[thewall[l1]].pos;
-    vec2_t const l1p2vect = wall[wall[thewall[l1]].point2].pos;
+    vec2_t const l1p2vect = wall[thewall[l1]].point2Wall()->pos;
     vec2_t const l2vect = wall[thewall[l2]].pos;
-    vec2_t const l2p2vect = wall[wall[thewall[l2]].point2].pos;
+    vec2_t const l2p2vect = wall[thewall[l2]].point2Wall()->pos;
     vec2_t d = { l1p2vect.x - l1vect.x, l1p2vect.y - l1vect.y };
     int32_t t1 = DMulScale(l2vect.x - l1vect.x, d.y, -d.x, l2vect.y - l1vect.y, 2); //p1(l2) vs. l1
     int32_t t2 = DMulScale(l2p2vect.x - l1vect.x, d.y, -d.x, l2p2vect.y - l1vect.y, 2); //p2(l2) vs. l1
@@ -3269,8 +3269,8 @@ static_assert((int)RS_YFLIP == (int)HUDFLAG_FLIPPED);
 void renderPrepareMirror(int32_t dax, int32_t day, int32_t daz, fixed_t daang, fixed_t dahoriz, int16_t dawall,
     int32_t* tposx, int32_t* tposy, fixed_t* tang)
 {
-    const int32_t x = wall[dawall].x, dx = wall[wall[dawall].point2].x - x;
-    const int32_t y = wall[dawall].y, dy = wall[wall[dawall].point2].y - y;
+    const int32_t x = wall[dawall].x, dx = wall[dawall].point2Wall()->x - x;
+    const int32_t y = wall[dawall].y, dy = wall[dawall].point2Wall()->y - y;
 
     const int32_t j = dx * dx + dy * dy;
     if (j == 0)
@@ -3649,7 +3649,7 @@ void renderDrawMasks(void)
         maskwallcnt--;
 
         FVector2 dot = { (float)wall[w].x, (float)wall[w].y };
-        FVector2 dot2 = { (float)wall[wall[w].point2].x, (float)wall[wall[w].point2].y };
+        FVector2 dot2 = { (float)wall[w].point2Wall()->x, (float)wall[w].point2Wall()->y };
         FVector2 middle = { (dot.X + dot2.X) * .5f, (dot.Y + dot2.Y) * .5f };
 
         _equation maskeq = equation(dot.X, dot.Y, dot2.X, dot2.Y);

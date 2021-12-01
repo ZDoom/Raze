@@ -244,7 +244,7 @@ protected:
 	{
 		this->line = line;
 		//v1 = &line->pos;
-		//v2 = &wall[line->point2].pos;
+		//v2 = &line->point2Wall()->pos;
 		//CalcDelta();
 	}
 
