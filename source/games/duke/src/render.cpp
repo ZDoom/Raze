@@ -123,7 +123,7 @@ void GameInterface::UpdateCameras(double smoothratio)
 				}
 				else
 				{
-					render_camtex(camera, camera->pos, camera->sectnum, ang, buildhoriz(camera->shade), buildang(0), tex, rect, smoothratio);
+					render_camtex(camera, camera->pos, camera->sector(), ang, buildhoriz(camera->shade), buildang(0), tex, rect, smoothratio);
 				}
 				display_mirror = 0;
 			});

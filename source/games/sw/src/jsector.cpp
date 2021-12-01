@@ -426,13 +426,13 @@ void drawroomstotile(int daposx, int daposy, int daposz,
         {
             if (!testnewrenderer)
             {
-                renderDrawRoomsQ16(daposx, daposy, daposz, ang.asq16(), horiz.asq16(), sectnum(dacursect), false);
+                renderDrawRoomsQ16(daposx, daposy, daposz, ang.asq16(), horiz.asq16(), dacursect, false);
                 analyzesprites(pm_tsprite, pm_spritesortcnt, daposx, daposy, daposz, ang.asbuild());
                 renderDrawMasks();
             }
             else
             {
-                render_camtex(nullptr, { daposx, daposy, daposz }, sectnum(dacursect), ang, horiz, buildang(0), tileGetTexture(tilenume), rect, smoothratio);
+                render_camtex(nullptr, { daposx, daposy, daposz }, dacursect, ang, horiz, buildang(0), tileGetTexture(tilenume), rect, smoothratio);
             }
         });
 

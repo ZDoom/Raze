@@ -364,17 +364,17 @@ void render_drawrooms(spritetype* playersprite, const vec3_t& position, int sect
 	All.Unclock();
 }
 
-void render_camtex(spritetype* playersprite, const vec3_t& position, int sectnum, binangle angle, fixedhoriz horizon, binangle rollang, FGameTexture* camtex, IntRect& rect, double smoothratio)
+void render_camtex(spritetype* playersprite, const vec3_t& position, sectortype* sect, binangle angle, fixedhoriz horizon, binangle rollang, FGameTexture* camtex, IntRect& rect, double smoothratio)
 {
-	updatesector(position.x, position.y, &sectnum);
-	if (sectnum < 0) return;
+	updatesector(position.x, position.y, &sect);
+	if (!sect) return;
 
 	screen->RenderState()->SetVertexBuffer(screen->mVertexData);
 
 	// now render the main view
 	float ratio = camtex->GetDisplayWidth() / camtex->GetDisplayHeight();
 
-	FRenderViewpoint r_viewpoint = SetupViewpoint(playersprite, position, sectnum, angle, horizon, rollang);
+	FRenderViewpoint r_viewpoint = SetupViewpoint(playersprite, position, sectnum(sect), angle, horizon, rollang);
 	if (cl_capfps) r_viewpoint.TicFrac = smoothratio;
 
 	RenderViewpoint(r_viewpoint, &rect, r_viewpoint.FieldOfView.Degrees, ratio, ratio, false, false);
