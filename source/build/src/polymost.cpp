@@ -3306,6 +3306,11 @@ void renderCompleteMirror(void)
 //
 EXTERN_CVAR(Int, gl_fogmode)
 
+int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz, fixed_t daang, fixed_t dahoriz, sectortype* dacursect, bool fromoutside)
+{
+    if (dacursect) return renderDrawRoomsQ16(daposx, daposy, daposz, daang, dahoriz, sectnum(dacursect), fromoutside);
+}
+
 int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
     fixed_t daang, fixed_t dahoriz, int dacursectnum, bool fromoutside)
 {

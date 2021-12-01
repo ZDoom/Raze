@@ -2276,7 +2276,7 @@ sectdone:
 
             // loc_1BC57:
 
-            // CHECKME - are we finished with 'nSector' variable at this point? if so, maybe set it to pPlayerSprite->sectnum so we can make this code a bit neater. Don't assume pPlayerSprite->sectnum == nSector here!!
+            // CHECKME - are we finished with 'nSector' variable at this point? if so, maybe set it to pPlayerSprite->sector() so we can make this code a bit neater. Don't assume pPlayerSprite->sectnum == nSector here!!
             if (nStandHeight > (pPlayerSprite->sector()->floorz - pPlayerSprite->sector()->ceilingz)) {
                 var_48 = 1;
             }

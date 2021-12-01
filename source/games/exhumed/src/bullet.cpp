@@ -411,7 +411,7 @@ MOVEEND:
 
         nVal = coll.type || coll.exbits? 1:0;
 
-        // pSprite.sectnum may have changed since we set nSectFlag ?
+        // pSprite's sector may have changed since we set nSectFlag ?
         int nFlagVal = nSectFlag ^ pSprite->sector()->Flag;
         if (nFlagVal & kSectUnderwater)
         {

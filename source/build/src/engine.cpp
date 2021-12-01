@@ -225,7 +225,7 @@ static int32_t engineLoadTables(void)
 
 ///// sector lists of sprites /////
 
-// insert sprite at the head of sector list, change .sectnum
+// insert sprite at the head of sector list, change sectnum
 static void do_insertsprite_at_headofsect(int16_t spritenum, int16_t sectnum)
 {
     int16_t const ohead = headspritesect[sectnum];
@@ -344,7 +344,7 @@ int32_t deletesprite(int16_t spritenum)
     do_deletespritesect(spritenum);
 
     // (dummy) insert at tail of sector freelist, compat
-    // for code that checks .sectnum==MAXSECTOR
+    // for code that checks sectnum==MAXSECTOR
     sprite[spritenum].sectnum = MAXSECTORS;
 
     // insert at tail of status freelist
@@ -769,34 +769,34 @@ int32_t spriteheightofsptr(uspriteptr_t spr, int32_t *height, int32_t alsotileyo
 //
 int32_t setsprite(int16_t spritenum, const vec3_t *newpos)
 {
-    int tempsectnum = sprite[spritenum].sectnum;
+    auto tempsector = sprite[spritenum].sector();
 
     if (newpos != &sprite[spritenum].pos)
         sprite[spritenum].pos = *newpos;
 
-    updatesector(newpos->x,newpos->y,&tempsectnum);
+    updatesector(newpos->x,newpos->y,&tempsector);
 
-    if (tempsectnum < 0)
+    if (tempsector == nullptr)
         return -1;
-    if (tempsectnum != sprite[spritenum].sectnum)
-        changespritesect(spritenum,tempsectnum);
+    if (tempsector != sprite[spritenum].sector())
+        changespritesect(spritenum, sectnum(tempsector));
 
     return 0;
 }
 
 int32_t setspritez(int16_t spritenum, const vec3_t *newpos)
 {
-    int tempsectnum = sprite[spritenum].sectnum;
+    auto tempsectnum = sprite[spritenum].sector();
 
     if ((void const *)newpos != (void *)&sprite[spritenum])
         sprite[spritenum].pos = *newpos;
 
     updatesectorz(newpos->x,newpos->y,newpos->z,&tempsectnum);
 
-    if (tempsectnum < 0)
+    if (tempsectnum == nullptr)
         return -1;
-    if (tempsectnum != sprite[spritenum].sectnum)
-        changespritesect(spritenum,tempsectnum);
+    if (tempsectnum != sprite[spritenum].sector())
+        changespritesect(spritenum, sectnum(tempsectnum));
 
     return 0;
 }

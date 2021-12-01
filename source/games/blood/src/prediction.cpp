@@ -233,7 +233,7 @@ static void fakeProcessInput(PLAYER *pPlayer, InputPacket *pInput)
         predict.at24 = 0;
 #endif
 
-    int nSector = predict.sectnum;
+    int nSector = predict.sector;
     int florhit = predict.at75.florhit.type;
 	bool va = (predict.floordist < 16 && (florhit == kHitSector || florhit == 0));
 
@@ -277,12 +277,12 @@ void fakePlayerProcess(PLAYER *pPlayer, InputPacket *pInput)
     int dzt = (predict.z-top)/4;
 
     int dw = pSprite->clipdist<<2;
-    int nSector = predict.sectnum;
+    int nSector = predict.sector;
     if (!gNoClip)
     {
-        pushmove(&predict.pos, &predict.sectnum, dw, dzt, dzb, CLIPMASK0);
-        if (predict.sectnum == -1)
-            predict.sectnum = nSector;
+        pushmove(&predict.pos, &predict.sector, dw, dzt, dzb, CLIPMASK0);
+        if (predict.sector == -1)
+            predict.sector = nSector;
     }
     fakeProcessInput(pPlayer, pInput);
 
@@ -346,7 +346,7 @@ void fakePlayerProcess(PLAYER *pPlayer, InputPacket *pInput)
 	if (predict.at48 == 1)
 	{
 		predict.at72 = 1;
-        int nSector = predict.sectnum;
+        int nSector = predict.sector;
         auto nLink = getLowerLink(nSector);
 		if (nLink && (nLink->s().type == kMarkerLowGoo || nLink->s().type == kMarkerLowWater))
 		{
@@ -371,7 +371,7 @@ static void fakeMoveDude(spritetype *pSprite)
     int bz = (bottom-predict.z)/4;
     int tz = (predict.z-top)/4;
     int wd = pSprite->clipdist*4;
-    int nSector = predict.sectnum;
+    int nSector = predict.sector;
     assert(validSectorIndex(nSector));
     if (predict.xvel || predict.yvel)
     {
@@ -380,7 +380,7 @@ static void fakeMoveDude(spritetype *pSprite)
             predict.x += predict.xvel>>12;
             predict.y += predict.yvel>>12;
             if (!FindSector(predict.x, predict.y, &nSector))
-                nSector = predict.sectnum;
+                nSector = predict.sector;
         }
         else
         {
@@ -388,7 +388,7 @@ static void fakeMoveDude(spritetype *pSprite)
             pSprite->cstat &= ~257;
             ClipMove(&predict.pos, &nSector, predict.xvel >> 12, predict.yvel >> 12, wd, tz, bz, CLIPMASK0, predict.at75.hit);
             if (nSector == -1)
-                nSector = predict.sectnum;
+                nSector = predict.sector;
                     
             if (sector[nSector].type >= kSectorPath && sector[nSector].type <= kSectorRotate)
             {
@@ -421,16 +421,16 @@ static void fakeMoveDude(spritetype *pSprite)
         }
         }
     }
-    if (predict.sectnum != nSector)
+    if (predict.sector != nSector)
     {
         assert(validSectorIndex(nSector));
-        predict.sectnum = nSector;
+        predict.sector = nSector;
     }
     bool bUnderwater = 0;
     bool bDepth = 0;
-    if (sector[sectnum].hasX())
+    if (sector[sector].hasX())
     {
-        XSECTOR *pXSector = &sector[sectnum].xs();
+        XSECTOR *pXSector = &sector[sector].xs();
         if (pXSector->Underwater)
             bUnderwater = 1;
         if (pXSector->Depth)
@@ -454,7 +454,7 @@ static void fakeMoveDude(spritetype *pSprite)
     pTempSprite->x = predict.x;
     pTempSprite->y = predict.y;
     pTempSprite->z = predict.z;
-    pTempSprite-> sectnum = predict. sectnum;
+    pTempSprite-> sector = predict. sector;
     int ceilZ, floorZ;
     Collision ceilColl, floorColl;
     GetZRange(pTempSprite, &ceilZ, &ceilColl, &floorZ, &floorColl, wd, CLIPMASK0);
@@ -575,8 +575,8 @@ static void fakeActAirDrag(spritetype *, int num)
 #if 0
     int xvec = 0;
     int yvec = 0;
-    assert(validSectorIndex(predict.sectnum));
-    sectortype *pSector = &sector[predict.sectnum];
+    assert(validSectorIndex(predict.sector));
+    sectortype *pSector = &sector[predict.sector];
     if (pSector->hasX())
     {
         XSECTOR *pXSector = &pSector->xs();
@@ -601,8 +601,8 @@ void fakeActProcessSprites(void)
 	spritetype *pSprite = gMe->pSprite;
 	if (pSprite->statnum == kStatDude)
 	{
-		int nSector = predict.sectnum;
-        auto pSector = &sector[predict.sectnum];
+		int nSector = predict.sector;
+        auto pSector = &sector[predict.sector];
 		auto pXSector = pSector->hasX()? &pSector->xs() : nullptr;
 		if (pXSector)
 		{

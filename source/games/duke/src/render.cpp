@@ -64,7 +64,7 @@ BEGIN_DUKE_NS
 //
 //---------------------------------------------------------------------------
 
-void renderView(spritetype* playersprite, int sectnum, int x, int y, int z, binangle a, fixedhoriz h, binangle rotscrnang, int smoothratio)
+void renderView(spritetype* playersprite, sectortype* sect, int x, int y, int z, binangle a, fixedhoriz h, binangle rotscrnang, int smoothratio)
 {
 	if (!testnewrenderer)
 	{
@@ -73,13 +73,13 @@ void renderView(spritetype* playersprite, int sectnum, int x, int y, int z, bina
 
 		se40code(x, y, z, a, h, smoothratio);
 		renderMirror(x, y, z, a, h, smoothratio);
-		renderDrawRoomsQ16(x, y, z, a.asq16(), h.asq16(), sectnum, false);
+		renderDrawRoomsQ16(x, y, z, a.asq16(), h.asq16(), sect, false);
 		fi.animatesprites(pm_tsprite, pm_spritesortcnt, x, y, a.asbuild(), smoothratio);
 		renderDrawMasks();
 	}
 	else
 	{
-		render_drawrooms(playersprite, { x, y, z }, sectnum, a, h, rotscrnang, smoothratio);
+		render_drawrooms(playersprite, { x, y, z }, sectnum(sect), a, h, rotscrnang, smoothratio);
 	}
 }
 
@@ -117,7 +117,7 @@ void GameInterface::UpdateCameras(double smoothratio)
 				if (!testnewrenderer)
 				{
 					// Note: no ROR or camera here - Polymost has no means to detect these things before rendering the scene itself.
-					renderDrawRoomsQ16(camera->x, camera->y, camera->z, ang.asq16(), IntToFixed(camera->shade), camera->sectnum, false); // why 'shade'...?
+					renderDrawRoomsQ16(camera->x, camera->y, camera->z, ang.asq16(), IntToFixed(camera->shade), camera->sector(), false); // why 'shade'...?
 					fi.animatesprites(pm_tsprite, pm_spritesortcnt, camera->x, camera->y, ang.asbuild(), (int)smoothratio);
 					renderDrawMasks();
 				}
@@ -292,7 +292,7 @@ void displayrooms(int snum, double smoothratio)
 		cang = buildang(interpolatedangle(ud.cameraactor->tempang, s->ang, smoothratio));
 
 		auto bh = buildhoriz(s->yvel);
-		renderView(s, s->sectnum, s->x, s->y, s->z - (4 << 8), cang, bh, buildang(0), (int)smoothratio);
+		renderView(s, s->sector(), s->x, s->y, s->z - (4 << 8), cang, bh, buildang(0), (int)smoothratio);
 	}
 	else
 	{
@@ -410,7 +410,7 @@ void displayrooms(int snum, double smoothratio)
 		}
 		else
 		{
-			renderView(viewer, sectnum(sect), cposx, cposy, cposz, cang, choriz, rotscrnang, (int)smoothratio);
+			renderView(viewer, sect, cposx, cposy, cposz, cang, choriz, rotscrnang, (int)smoothratio);
 		}
 	}
 	//GLInterface.SetMapFog(false);

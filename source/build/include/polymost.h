@@ -44,6 +44,7 @@ void   renderPrepareMirror(int32_t dax, int32_t day, int32_t daz, fixed_t daang,
 void   renderCompleteMirror(void);
 
 int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz, fixed_t daang, fixed_t dahoriz, int dacursectnum, bool fromoutside);
+int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz, fixed_t daang, fixed_t dahoriz, sectortype* dacursect, bool fromoutside);
 
 void   renderDrawMasks(void);
 
