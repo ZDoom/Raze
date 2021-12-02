@@ -589,7 +589,10 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
                 if (!actor) return 2;
                 auto link = actor->GetOwner();
                 gHitInfo.clearObj();
-                vec3_t pos = link->s().pos - actor->s().pos + vec3_t(gHitInfo.hitx, gHitInfo.hity, gHitInfo.hitz);
+                x1 = gHitInfo.hitx + link->s().x - actor->s().x;
+                y1 = gHitInfo.hity + link->s().y - actor->s().y;
+                z1 = gHitInfo.hitz + link->s().z - actor->s().z;
+                pos = { x1, y1, z1 };
                 hitData.pos.z = gHitInfo.hitz;
                 hitscan(&pos, link->s().sectnum, dx, dy, dz<<4, &hitData, CLIPMASK1);
                 gHitInfo.set(&hitData);
@@ -601,7 +604,10 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
                 if (!actor) return 1;
                 auto link = actor->GetOwner();
                 gHitInfo.clearObj();
-                vec3_t pos = link->s().pos - actor->s().pos + vec3_t(gHitInfo.hitx, gHitInfo.hity, gHitInfo.hitz);
+                x1 = gHitInfo.hitx + link->s().x - actor->s().x;
+                y1 = gHitInfo.hity + link->s().y - actor->s().y;
+                z1 = gHitInfo.hitz + link->s().z - actor->s().z;
+                pos = { x1, y1, z1 };
                 hitData.pos.z = gHitInfo.hitz;
                 hitscan(&pos, link->s().sectnum, dx, dy, dz<<4, &hitData, CLIPMASK1);
                 gHitInfo.set(&hitData);
