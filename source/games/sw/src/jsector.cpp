@@ -439,8 +439,6 @@ void JS_InitMirrors(void)
 void drawroomstotile(int daposx, int daposy, int daposz,
                      binangle ang, fixedhoriz horiz, short dacursectnum, short tilenume, double smoothratio)
 {
-	TileFiles.MakeCanvas(tilenume, tileWidth(tilenume), tileHeight(tilenume));
-
     auto canvas = renderSetTarget(tilenume);
     if (!canvas) return;
 

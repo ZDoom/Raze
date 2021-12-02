@@ -86,11 +86,11 @@ FTextureManager::~FTextureManager ()
 
 void FTextureManager::DeleteAll()
 {
-	FImageSource::ClearImages();
 	for (unsigned int i = 0; i < Textures.Size(); ++i)
 	{
 		delete Textures[i].Texture;
 	}
+	FImageSource::ClearImages();
 	Textures.Clear();
 	Translation.Clear();
 	FirstTextureForFile.Clear();

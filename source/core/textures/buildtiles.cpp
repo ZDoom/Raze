@@ -157,8 +157,8 @@ void BuildTiles::Init()
 
 void BuildTiles::AddTile(int tilenum, FGameTexture* tex, bool permap)
 {
-	assert(!tex->GetID().isValid());	// must not be added yet.
-	TexMan.AddGameTexture(tex);
+	if (!tex->GetID().isValid())
+		TexMan.AddGameTexture(tex);
 	tiledata[tilenum].texture = tex;
 	if (!permap) tiledata[tilenum].backup = tex;
 }
@@ -391,10 +391,24 @@ FGameTexture* BuildTiles::ValidateCustomTile(int tilenum, ReplacementType type)
 	}
 	else if (type == ReplacementType::Canvas)
 	{
+		// necessary fuckery thanks to SW considering camera textures the same as mirrors and deleting them if opportune.
+		// If we do not remember them this would create new ones over and over again.
+		auto check = cameratextures.CheckKey(tilenum);
+		if (check)
+		{
+			// if this once was a camera texture but now isn't anymore, grab that camera texture from the cache and reuse it.
+			AddTile(tilenum, *check);
+			return *check;
+		}
+
 		replacement = new FCanvasTexture(1, 1);
 	}
 	else return nullptr;
 	auto rep = MakeGameTexture(replacement, tile->GetName(), ETextureType::Override);
+	if (type == ReplacementType::Canvas)
+	{
+		cameratextures.Insert(tilenum, rep);
+	}
 	AddTile(tilenum, rep);
 	return rep;
 }
@@ -648,6 +662,7 @@ void artSetupMapArt(const char* filename)
 void tileDelete(int tile)
 {
 	TileFiles.tiledata[tile].texture = TileFiles.tiledata[tile].backup = TexMan.GameByIndex(0);
+	TileFiles.tiledata[tile].replacement = ReplacementType::Art; // whatever this was, now it isn't anymore. (SW tries to nuke camera textures with this, :( )
 	tiletovox[tile] = -1; // clear the link but don't clear the voxel. It may be in use for another tile.
 	md_undefinetile(tile);
 }
