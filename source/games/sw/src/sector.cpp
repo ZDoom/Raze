@@ -386,7 +386,9 @@ void SectorSetup(void)
     {
         memset(&SectorObject[ndx], -1, sizeof(SectorObject[0]));
         // 0 pointers
-        //memset(&SectorObject[ndx].sectp, nullptr, sizeof(SectorObject[0].sectp));
+        memset(&SectorObject[ndx].sectp, 0, sizeof(SectorObject[0].sectp));
+        memset(&SectorObject[ndx].so_actors, 0, sizeof(SectorObject[0].so_actors));
+        SectorObject[ndx].match_event_actor = nullptr;
         SectorObject[ndx].PreMoveAnimator = nullptr;
         SectorObject[ndx].PostMoveAnimator = nullptr;
         SectorObject[ndx].Animator = nullptr;
