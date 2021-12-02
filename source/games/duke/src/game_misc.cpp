@@ -238,7 +238,7 @@ void drawoverlays(double smoothratio)
 	else
 		videoclearFade();
 
-	MarkSectorSeen(sectnum(pp->cursector));
+	MarkSectorSeen(pp->cursector);
 
 	if (ud.cameraactor == nullptr)
 	{

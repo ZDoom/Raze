@@ -1580,7 +1580,7 @@ drawscreen(PLAYERp pp, double smoothratio)
     }
 
 
-    MarkSectorSeen(sectnum(pp->cursector));
+    MarkSectorSeen(pp->cursector);
 
     if ((automapMode != am_off) && pp == Player+myconnectindex)
     {

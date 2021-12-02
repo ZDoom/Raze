@@ -293,21 +293,20 @@ void ClearAutomap()
 //
 //---------------------------------------------------------------------------
 
-void MarkSectorSeen(int i)
+void MarkSectorSeen(sectortype* sec)
 {
-	if (validSectorIndex(i)) 
+	if (sec) 
 	{
-		show2dsector.Set(i);
-		auto wal = &wall[sector[i].wallptr];
-		for (int j = sector[i].wallnum; j > 0; j--, wal++)
+		show2dsector.Set(sectnum(sec));
+		for (auto& wal : wallsofsector(sec))
 		{
-			i = wal->nextsector;
-			if (i < 0) continue;
-			if (wal->cstat & 0x0071) continue;
-			if (wal->nextWall()->cstat & 0x0071) continue;
-			if (sector[i].lotag == 32767) continue;
-			if (sector[i].ceilingz >= sector[i].floorz) continue;
-			show2dsector.Set(i);
+			if (!wal.twoSided()) continue;
+			if (wal.cstat & 0x0071) continue;
+			if (wal.nextWall()->cstat & 0x0071) continue;
+			auto osec = wal.nextSector();
+			if (osec->lotag == 32767) continue;
+			if (osec->ceilingz >= osec->floorz) continue;
+			show2dsector.Set(sectnum(osec));
 		}
 	}
 }

@@ -32,16 +32,15 @@ bool bShowTowers = false;
 
 void GrabMap()
 {
-    for (int i = 0; i < numsectors; i++) {
-        MarkSectorSeen(i);
-    }
+    for(auto&sec : sectors())
+        MarkSectorSeen(&sec);
 }
 
 
 void UpdateMap()
 {
     if (initsectp->ceilingpal != 3 || (PlayerList[nLocalPlayer].nTorch != 0)) {
-        MarkSectorSeen(sectnum(initsectp));
+        MarkSectorSeen(initsectp);
     }
 }
 
