@@ -331,17 +331,6 @@ inline int clipmove(vec3_t& pos, sectortype** const sect, int xvect, int yvect,
 	return result.setFromEngine(res);
 }
 
-inline void neartag(const vec3_t& pos, sectortype* sect, int angle, HitInfoBase& result, int neartagrange, int tagsearch)
-{
-	short ntsect, ntwal, ntsprt;
-	int ntdist;
-	neartag_(pos.x, pos.y, pos.z, sect == nullptr ? -1 : sector.IndexOf(sect), angle, &ntsect, &ntwal, &ntsprt, &ntdist, neartagrange, tagsearch);
-	result.hitpos.x = ntdist;
-	result.hitSector = ntsect == -1 ? nullptr : &sector[ntsect];
-	result.hitWall = ntwal == -1 ? nullptr : &wall[ntwal];
-	result.hitActor = ntsprt == -1 ? nullptr : actorArray[ntsprt];
-}
-
 inline void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBase& ceilhit, int32_t* florz,
 	CollisionBase& florhit, int32_t walldist, uint32_t cliptype)
 {

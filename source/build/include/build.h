@@ -384,9 +384,9 @@ extern vec2_t hitscangoal;
 int32_t   hitscan_(const vec3_t* sv, int16_t sectnum, int32_t vx, int32_t vy, int32_t vz,
     hitdata_t* hitinfo, uint32_t cliptype) ATTRIBUTE((nonnull(1, 6)));
 
-void   neartag_(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange,
-               int16_t *neartagsector, int16_t *neartagwall, int16_t *neartagsprite,
-               int32_t *neartaghitdist, int32_t neartagrange, uint8_t tagsearch);
+struct HitInfoBase;
+void neartag(const vec3_t& pos, sectortype* sect, int angle, HitInfoBase& result, int neartagrange, int tagsearch);
+
 int cansee(int x1, int y1, int z1, sectortype* sect1, int x2, int y2, int z2, sectortype* sect2);
 int32_t   inside(int32_t x, int32_t y, int sectnum);
 void   dragpoint(int pointhighlight, int32_t dax, int32_t day);

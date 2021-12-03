@@ -875,84 +875,68 @@ int cansee(int x1, int y1, int z1, sectortype* sect1, int x2, int y2, int z2, se
 //
 // neartag
 //
-void neartag_(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange,
-             int16_t *neartagsector, int16_t *neartagwall, int16_t *neartagsprite, int32_t *neartaghitdist,  /* out */
-             int32_t neartagrange, uint8_t tagsearch)
-{
-    int16_t tempshortcnt, tempshortnum;
 
+void neartag(const vec3_t& sv, sectortype* sect, int ange, HitInfoBase& result, int neartagrange, int tagsearch)
+{
     const int32_t vx = MulScale(bcos(ange), neartagrange, 14);
     const int32_t vy = MulScale(bsin(ange), neartagrange, 14);
-    vec3_t hitv = { xs+vx, ys+vy, 0 };
-    const vec3_t sv = { xs, ys, zs };
+    vec3_t hitv = { sv.x+vx, sv.y+vy, 0 };
 
-    *neartagsector = -1; *neartagwall = -1; *neartagsprite = -1;
-    *neartaghitdist = 0;
+    result.clearObj();
+    result.hitpos.x = 0;
 
-    if (!validSectorIndex(sectnum) || (tagsearch & 3) == 0)
+    if (!sect || (tagsearch & 3) == 0)
         return;
 
-    clipsectorlist[0] = sectnum;
-    tempshortcnt = 0; tempshortnum = 1;
+    BFSSectorSearch search(sect);
 
-    do
+    while (auto dasect = search.GetNext())
     {
-        const int32_t dasector = clipsectorlist[tempshortcnt];
-
-        const int32_t startwall = sector[dasector].wallptr;
-        const int32_t endwall = startwall + sector[dasector].wallnum - 1;
-        uwallptr_t wal;
-        int32_t z;
-
-        for (z=startwall,wal=(uwallptr_t)&wall[startwall]; z<=endwall; z++,wal++)
+        for (auto& w : wallsofsector(dasect))
         {
+            auto wal = &w;
             auto const wal2 = (uwallptr_t)wal->point2Wall();
-            const int32_t nextsector = wal->nextsector;
+            const auto nextsect = wal->nextSector();
 
-            const int32_t x1=wal->x, y1=wal->y, x2=wal2->x, y2=wal2->y;
+            const int32_t x1 = wal->x, y1 = wal->y, x2 = wal2->x, y2 = wal2->y;
             int32_t intx, inty, intz, good = 0;
 
-            if (nextsector >= 0)
+            if (wal->twoSided())
             {
-                if ((tagsearch&1) && sector[nextsector].lotag) good |= 1;
-                if ((tagsearch&2) && sector[nextsector].hitag) good |= 1;
+                if ((tagsearch & 1) && nextsect->lotag) good |= 1;
+                if ((tagsearch & 2) && nextsect->hitag) good |= 1;
             }
 
-            if ((tagsearch&1) && wal->lotag) good |= 2;
-            if ((tagsearch&2) && wal->hitag) good |= 2;
+            if ((tagsearch & 1) && wal->lotag) good |= 2;
+            if ((tagsearch & 2) && wal->hitag) good |= 2;
 
-            if ((good == 0) && (nextsector < 0)) continue;
-            if ((coord_t)(x1-xs)*(y2-ys) < (coord_t)(x2-xs)*(y1-ys)) continue;
+            if ((good == 0) && (!wal->twoSided())) continue;
+            if ((coord_t)(x1 - sv.x) * (y2 - sv.y) < (coord_t)(x2 - sv.x) * (y1 - sv.y)) continue;
 
-            if (lintersect(xs,ys,zs,hitv.x,hitv.y,hitv.z,x1,y1,x2,y2,&intx,&inty,&intz) == 1)
+            if (lintersect(sv.x, sv.y, sv.z, hitv.x, hitv.y, hitv.z, x1, y1, x2, y2, &intx, &inty, &intz) == 1)
             {
                 if (good != 0)
                 {
-                    if (good&1) *neartagsector = nextsector;
-                    if (good&2) *neartagwall = z;
-                    *neartaghitdist = DMulScale(intx-xs, bcos(ange), inty-ys, bsin(ange), 14);
+                    if (good & 1) result.hitSector = nextsect;
+                    if (good & 2) result.hitWall = wal;
+                    result.hitpos.x = DMulScale(intx - sv.x, bcos(ange), inty - sv.y, bsin(ange), 14);
                     hitv.x = intx; hitv.y = inty; hitv.z = intz;
                 }
 
-                if (nextsector >= 0)
+                if (wal->twoSided())
                 {
-                    int32_t zz;
-                    for (zz=tempshortnum-1; zz>=0; zz--)
-                        if (clipsectorlist[zz] == nextsector) break;
-                    if (zz < 0) clipsectorlist[tempshortnum++] = nextsector;
+                    search.Add(nextsect);
                 }
             }
         }
 
-        tempshortcnt++;
-
         if (tagsearch & 4)
             continue; // skip sprite search
 
-        SectIterator it(dasector);
-        while ((z = it.NextIndex()) >= 0)
+        TSectIterator<DCoreActor> it(dasect);
+        while (auto actor = it.Next())
         {
-            auto const spr = (uspriteptr_t)&sprite[z];
+            auto const spr = &actor->s();
 
             if (spr->cstat2 & CSTAT2_SPRITE_NOFIND)
                 continue;
@@ -961,13 +945,12 @@ void neartag_(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange,
             {
                 if (try_facespr_intersect(spr, sv, vx, vy, 0, &hitv, 1))
                 {
-                    *neartagsprite = z;
-                    *neartaghitdist = DMulScale(hitv.x-xs, bcos(ange), hitv.y-ys, bsin(ange), 14);
+                    result.hitActor = actor;
+                    result.hitpos.x = DMulScale(hitv.x-sv.x, bcos(ange), hitv.y-sv.y, bsin(ange), 14);
                 }
             }
         }
     }
-    while (tempshortcnt < tempshortnum);
 }
 
 
