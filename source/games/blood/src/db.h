@@ -122,7 +122,6 @@ int DeleteSprite(DBloodActor* actor);
 int ChangeSpriteSect(int nSprite, int nSector);
 int qchangespritesect(short nSprite, short nSector);
 int ChangeSpriteStat(int nSprite, int nStatus);
-void InitFreeList(unsigned short *pList, int nCount);
 void dbInit(void);
 void PropagateMarkerReferences(void);
 unsigned int dbReadMapCRC(const char *pPath);

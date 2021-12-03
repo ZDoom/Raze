@@ -235,16 +235,6 @@ int ChangeSpriteStat(int nSprite, int nStatus)
     return 0;
 }
 
-void InitFreeList(unsigned short* pList, int nCount)
-{
-    for (int i = 1; i < nCount; i++)
-    {
-        pList[i] = i - 1;
-    }
-    pList[0] = nCount - 1;
-}
-
-
 void dbInit(void)
 {
     initspritelists();
