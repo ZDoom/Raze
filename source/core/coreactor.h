@@ -301,19 +301,13 @@ inline void ChangeActorSect(DCoreActor* actor, sectortype* sect)
 	changespritesect(actor->GetSpriteIndex(), sector.IndexOf(sect));
 }
 
-inline int SetActorZ(DCoreActor* actor, const vec3_t* newpos)
-{
-	return setspritez(actor->GetSpriteIndex(), newpos);
-}
 
-inline int SetActor(DCoreActor* actor, const vec3_t* newpos)
-{
-	return setsprite(actor->GetSpriteIndex(), newpos);
-}
+void SetActorZ(DCoreActor* actor, const vec3_t* newpos);
+void SetActor(DCoreActor* actor, const vec3_t* newpos);
 
-inline int SetActor(DCoreActor* actor, const vec3_t& newpos)
+inline void SetActor(DCoreActor* actor, const vec3_t& newpos)
 {
-	return setsprite(actor->GetSpriteIndex(), &newpos);
+	SetActor(actor, &newpos);
 }
 
 

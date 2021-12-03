@@ -410,6 +410,11 @@ struct spritetype
         backupang();
     }
 
+    void setpos(const vec3_t& newpos)
+    {
+        pos = newpos;
+    }
+
     int32_t interpolatedx(double const smoothratio, int const scale = 16)
     {
         return interpolatedvalue(ox, x, smoothratio, scale);

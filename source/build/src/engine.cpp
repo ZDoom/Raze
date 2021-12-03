@@ -31,6 +31,7 @@
 #include "render.h"
 #include "gamefuncs.h"
 #include "hw_voxels.h"
+#include "coreactor.h"
 
 #ifdef USE_OPENGL
 # include "mdsprite.h"
@@ -765,44 +766,6 @@ int32_t spriteheightofsptr(uspriteptr_t spr, int32_t *height, int32_t alsotileyo
 }
 
 //
-// setsprite
-//
-int32_t setsprite(int16_t spritenum, const vec3_t *newpos)
-{
-    auto tempsector = sprite[spritenum].sector();
-
-    if (newpos != &sprite[spritenum].pos)
-        sprite[spritenum].pos = *newpos;
-
-    updatesector(newpos->x,newpos->y,&tempsector);
-
-    if (tempsector == nullptr)
-        return -1;
-    if (tempsector != sprite[spritenum].sector())
-        changespritesect(spritenum, sectnum(tempsector));
-
-    return 0;
-}
-
-int32_t setspritez(int16_t spritenum, const vec3_t *newpos)
-{
-    auto tempsectnum = sprite[spritenum].sector();
-
-    if ((void const *)newpos != (void *)&sprite[spritenum])
-        sprite[spritenum].pos = *newpos;
-
-    updatesectorz(newpos->x,newpos->y,newpos->z,&tempsectnum);
-
-    if (tempsectnum == nullptr)
-        return -1;
-    if (tempsectnum != sprite[spritenum].sector())
-        changespritesect(spritenum, sectnum(tempsectnum));
-
-    return 0;
-}
-
-
-//
 // nextsectorneighborz
 //
 // -1: ceiling or up
@@ -1442,6 +1405,28 @@ int tilehasmodelorvoxel(int const tilenume, int pal)
         (mdinited && hw_models && tile2model[Ptile2tile(tilenume, pal)].modelid != -1) ||
         (r_voxels && tiletovox[tilenume] != -1);
 }
+
+
+void SetActor(DCoreActor* actor, const vec3_t* newpos)
+{
+    auto tempsector = actor->sector();
+    actor->s().setpos(*newpos);
+    updatesector(newpos->x, newpos->y, &tempsector);
+
+    if (tempsector && tempsector != actor->sector())
+        ChangeActorSect(actor, tempsector);
+}
+
+void SetActorZ(DCoreActor* actor, const vec3_t* newpos)
+{
+    auto tempsector = actor->sector();
+    actor->s().setpos(*newpos);
+    updatesectorz(newpos->x, newpos->y, newpos->z, &tempsector);
+
+    if (tempsector && tempsector != actor->sector())
+        ChangeActorSect(actor, tempsector);
+}
+
 
 
 CCMD(updatesectordebug)
