@@ -171,7 +171,6 @@ extern HitInfo gHitInfo;
 using BloodStatIterator = TStatIterator<DBloodActor>;
 using BloodSectIterator = TSectIterator<DBloodActor>;
 using BloodSpriteIterator = TSpriteIterator<DBloodActor>;
-using BloodLinearSpriteIterator = TLinearSpriteIterator<DBloodActor>;
 
 inline void GetActorExtents(DBloodActor* actor, int* top, int* bottom)
 {

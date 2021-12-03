@@ -79,6 +79,71 @@ void EndLevel(void)
 	seqKillAll();
 }
 
+TArray<DBloodActor*> SpawnActors(SpawnSpriteDef& sprites)
+{
+	TArray<DBloodActor*> spawns(sprites.sprites.Size(), true);
+	initspritelists();
+	for (unsigned i = 0; i < sprites.sprites.Size(); i++)
+	{
+		RemoveSpriteStat(i);
+		auto actor = &bloodActors[i];
+		spawns[i] = actor;
+		actor->Clear();
+		actor->s() = sprites.sprites[i];
+		if (sprites.sprites[i].extra > 0)
+		{
+			actor->addX();
+			actor->x() = sprites.xspr[i];
+		}
+
+		InsertSpriteSect(i, actor->s().sectnum);
+		InsertSpriteStat(i, actor->s().statnum);
+	}
+	Numsprites = spawns.Size();
+	return spawns;
+}
+
+void PropagateMarkerReferences(void)
+{
+	BloodStatIterator it(kStatMarker);
+	while (auto actor = it.Next())
+	{
+		switch (actor->s().type)
+		{
+		case kMarkerOff:
+		case kMarkerAxis:
+		case kMarkerWarpDest:
+		{
+			int nOwner = actor->s().owner;
+			if (nOwner >= 0 && nOwner < numsectors)
+			{
+				if (sector[nOwner].hasX())
+				{
+					sector[nOwner].xs().marker0 = actor;
+					continue;
+				}
+			}
+		}
+		break;
+		case kMarkerOn:
+		{
+			int nOwner = actor->s().owner;
+			if (nOwner >= 0 && nOwner < numsectors)
+			{
+				if (sector[nOwner].hasX())
+				{
+					sector[nOwner].xs().marker1 = actor;
+					continue;
+				}
+			}
+		}
+		break;
+		}
+
+		DeleteSprite(actor);
+	}
+}
+
 void StartLevel(MapRecord* level, bool newgame)
 {
 	if (!level) return;
@@ -111,7 +176,8 @@ void StartLevel(MapRecord* level, bool newgame)
 		}
 	}
 	//drawLoadingScreen();
-	dbLoadMap(currentLevel->fileName, (int*)&startpos.x, (int*)&startpos.y, (int*)&startpos.z, &startang, &startsector, nullptr);
+	SpawnSpriteDef sprites;
+	dbLoadMap(currentLevel->fileName, (int*)&startpos.x, (int*)&startpos.y, (int*)&startpos.z, &startang, &startsector, nullptr, sprites);
 	SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
 	STAT_NewLevel(currentLevel->fileName);
 	wsrand(dbReadMapCRC(currentLevel->LabelName()));
@@ -119,23 +185,13 @@ void StartLevel(MapRecord* level, bool newgame)
 	gSecretMgr.Clear();
 	automapping = 1;
 
-
 	// Here is where later the actors must be spawned.
-
-	// get a sorted list of all actors as we need to run some init code in spawn order. (iterating bloodActors would actually do, but that won't last forever)
-	TArray<DBloodActor*> actorlist;
-	BloodSpriteIterator sit;
-	while (auto act = sit.Next())
-	{
-		actorlist.Push(act);
-	}
-	std::sort(actorlist.begin(), actorlist.end(), [](DBloodActor* a, DBloodActor* b) { return a->GetIndex() < b->GetIndex(); });
-
-
+	auto actorlist = SpawnActors(sprites);
+	PropagateMarkerReferences();
 	int modernTypesErased = 0;
-	for(unsigned i = 0; i < actorlist.Size(); i++)
+	for (auto actor : actorlist)
 	{
-		auto actor = actorlist[i];
+
 		spritetype* pSprite = &actor->s();
 		if (actor->exists() && actor->hasX()) 
 		{

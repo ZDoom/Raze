@@ -244,47 +244,6 @@ void dbInit(void)
     }
 }
 
-void PropagateMarkerReferences(void)
-{
-    BloodStatIterator it(kStatMarker);
-    while (auto actor = it.Next())
-    {
-        switch (actor->s().type)  
-        {
-            case kMarkerOff:
-            case kMarkerAxis:
-            case kMarkerWarpDest: 
-            {
-                int nOwner = actor->s().owner;
-                if (nOwner >= 0 && nOwner < numsectors) 
-                {
-                    if (sector[nOwner].hasX())
-                    {
-                        sector[nOwner].xs().marker0 = actor;
-                        continue;
-                    }
-                }
-            }
-            break;
-            case kMarkerOn: 
-            {
-                int nOwner = actor->s().owner;
-                if (nOwner >= 0 && nOwner < numsectors)
-                {
-                    if (sector[nOwner].hasX())
-                    {
-                        sector[nOwner].xs().marker1 = actor;
-                        continue;
-                    }
-                }
-            }
-            break;
-        }
-        
-        DeleteSprite(actor);
-    }
-}
-
 bool drawtile2048, encrypted;
 
 MAPHEADER2 byte_19AE44;
@@ -384,8 +343,7 @@ struct walltypedisk
 
 #pragma pack(pop)
 
-
-void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sectortype** pSector, unsigned int* pCRC)
+void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sectortype** pSector, unsigned int* pCRC, SpawnSpriteDef& sprites)
 {
     int16_t tpskyoff[256];
     ClearAutomap();
@@ -728,21 +686,19 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sect
 
         }
     }
-    initspritelists();
     leveltimer = mapHeader.numsprites;
+    sprites.sprites.Resize(mapHeader.numsprites);
+    sprites.xspr.Resize(mapHeader.numsprites);
     for (int i = 0; i < mapHeader.numsprites; i++)
     {
-        RemoveSpriteStat(i);
         spritetypedisk load;
-        auto actor = &bloodActors[i];
-        actor->Clear();
-        spritetype* pSprite = &actor->s();
         fr.Read(&load, sizeof(spritetypedisk)); // load into an intermediate buffer so that spritetype is no longer bound by file formats.
         if (encrypted) // What were these people thinking? :(
         {
             dbCrypt((char*)&load, sizeof(spritetypedisk), (gMapRev * sizeof(spritetypedisk)) | 0x7474614d);
         }
-
+        auto pSprite = &sprites.sprites[i];
+        pSprite->clear();
         pSprite->x = LittleLong(load.x);
         pSprite->y = LittleLong(load.y);
         pSprite->z = LittleLong(load.z);
@@ -770,14 +726,11 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sect
         pSprite->time = i;
         ValidateSprite(*pSprite);
 
-        InsertSpriteSect(i, pSprite->sectnum);
-        InsertSpriteStat(i, pSprite->statnum);
-        Numsprites++;
         if (pSprite->extra > 0)
         {
             char pBuffer[nXSpriteSize];
-            actor->addX();
-            XSPRITE* pXSprite = &actor->x();
+            XSPRITE* pXSprite = &sprites.xspr[i];
+            *pXSprite = {};
             int nCount;
             if (!encrypted)
             {
@@ -863,10 +816,6 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sect
                 gModernMap = true;
 #endif
         }
-        if ((sprite[i].cstat & 0x30) == 0x30)
-        {
-            sprite[i].cstat &= ~0x30;
-        }
     }
     unsigned int nCRC = fr.ReadUInt32();
 
@@ -874,7 +823,7 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sect
     auto buffer = fr.Read();
     uint8_t md4[16];
     md4once(buffer.Data(), buffer.Size(), md4);
-    G_LoadMapHack(mapname, md4, sprite, mapHeader.numsprites);
+    G_LoadMapHack(mapname, md4, sprites.sprites.Data(), mapHeader.numsprites);
 
     if (CalcCRC32(buffer.Data(), buffer.Size() - 4) != nCRC)
     {
@@ -882,7 +831,6 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sect
     }
     if (pCRC)
         *pCRC = nCRC;
-    PropagateMarkerReferences();
     if (encrypted)
     {
         if (gMattId == 0x7474614d || gMattId == 0x4d617474)
@@ -908,9 +856,9 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sect
         switch (header.version & 0xff)
         {
         case 0:
-            for (int i = 0; i < numsectors; i++)
+            for (auto& sect : sectors())
             {
-                sectortype* pSector = &sector[i];
+                sectortype* pSector = &sect;
                 if (pSector->hasX())
                 {
                     XSECTOR* pXSector = &pSector->xs();
@@ -932,9 +880,9 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sect
             }
             [[fallthrough]];
         case 1:
-            for (int i = 0; i < numsectors; i++)
+            for (auto& sect : sectors())
             {
-                sectortype* pSector = &sector[i];
+                sectortype* pSector = &sect;
                 if (pSector->hasX())
                 {
                     XSECTOR* pXSector = &pSector->xs();
@@ -943,9 +891,6 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sect
             }
             [[fallthrough]];
         case 2:
-            for (int i = 0; i < kMaxSprites; i++)
-            {
-            }
             break;
 
         }
@@ -964,8 +909,9 @@ END_BLD_NS
 // only used by the backup loader.
 void qloadboard(const char* filename, char flags, vec3_t* dapos, int16_t* daang)
 {
+    Blood::SpawnSpriteDef sprites;
     sectortype* sp;
-    Blood::dbLoadMap(filename, &dapos->x, &dapos->y, &dapos->z, daang, &sp, NULL);
+    Blood::dbLoadMap(filename, &dapos->x, &dapos->y, &dapos->z, daang, &sp, nullptr, sprites);
     Blood::dbInit();    // clean up immediately.
 }
     
