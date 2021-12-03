@@ -513,7 +513,7 @@ void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang,
 	auto buffer = fr.Read();
 	unsigned char md4[16];
 	md4once(buffer.Data(), buffer.Size(), md4);
-	G_LoadMapHack(filename, md4);
+	G_LoadMapHack(filename, md4, sprite, numsprites);
 	setWallSectors();
 	hw_BuildSections();
 	sectorGeometry.SetSize(numsections);

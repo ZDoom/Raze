@@ -353,7 +353,7 @@ void allocateMapArrays(int numsprites);
 void ValidateSprite(spritetype& spr);
 void engineLoadBoard(const char *filename, int flags, vec3_t *dapos, int16_t *daang, int *dacursectnum);
 void loadMapBackup(const char* filename);
-void G_LoadMapHack(const char* filename, const unsigned char*);
+void G_LoadMapHack(const char* filename, const unsigned char*, spritetype*, int);
 
 void   videoSetCorrectedAspect();
 void   videoSetViewableArea(int32_t x1, int32_t y1, int32_t x2, int32_t y2);

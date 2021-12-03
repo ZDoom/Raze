@@ -48,7 +48,7 @@ void AddUserMapHack(usermaphack_t& mhk)
     usermaphacks.Push(mhk);
 }
 
-static int32_t LoadMapHack(const char *filename)
+static int32_t LoadMapHack(const char *filename, spritetype* sprites, int numsprites)
 {
     int currentsprite = -1;
     int currentwall = -1;
@@ -67,7 +67,7 @@ static int32_t LoadMapHack(const char *filename)
         FString token = sc.String;
         auto validateSprite = [&]()
         {
-            if (currentsprite < 0)
+            if (currentsprite < 0 || currentsprite >= numsprites)
             {
                 sc.ScriptMessage("Using %s without a valid sprite", token.GetChars());
                 return false;
@@ -77,7 +77,7 @@ static int32_t LoadMapHack(const char *filename)
 
         auto validateWall = [&]()
         {
-            if (currentwall < 0)
+            if (currentwall < 0 || currentwall >= numwalls)
             {
                 sc.ScriptMessage("Using %s without a valid wall", token.GetChars());
                 return false;
@@ -87,7 +87,7 @@ static int32_t LoadMapHack(const char *filename)
 
         auto validateSector = [&]()
         {
-            if (currentsector < 0)
+            if (currentsector < 0 || currentsector >= numsectors)
             {
                 sc.ScriptMessage("Using %s without a valid sector", token.GetChars());
                 return false;
@@ -157,7 +157,7 @@ static int32_t LoadMapHack(const char *filename)
             {
                 if (currentsprite != -1 && validateSprite())
                 {
-                    sprite[currentsprite].sectnum = sc.Number;
+                    sprites[currentsprite].sectnum = sc.Number;
                 }
             }
         }
@@ -171,7 +171,7 @@ static int32_t LoadMapHack(const char *filename)
                 }
                 else if (currentsprite != -1 && validateSprite())
                 {
-                    sprite[currentsprite].picnum = sc.Number;
+                    sprites[currentsprite].picnum = sc.Number;
                 }
             }
         }
@@ -222,7 +222,7 @@ static int32_t LoadMapHack(const char *filename)
                 }
                 else if (currentsprite != -1 && validateSprite())
                 {
-                    sprite[currentsprite].cstat &= ~sc.Number;
+                    sprites[currentsprite].cstat &= ~sc.Number;
                 }
             }
         }
@@ -236,7 +236,7 @@ static int32_t LoadMapHack(const char *filename)
                 }
                 else if (currentsprite != -1 && validateSprite())
                 {
-                    sprite[currentsprite].cstat |= sc.Number;
+                    sprites[currentsprite].cstat |= sc.Number;
                 }
             }
         }
@@ -250,7 +250,7 @@ static int32_t LoadMapHack(const char *filename)
                 }
                 else if (currentsprite != -1 && validateSprite())
                 {
-                    sprite[currentsprite].lotag = sc.Number;
+                    sprites[currentsprite].lotag = sc.Number;
                 }
             }
         }
@@ -377,7 +377,7 @@ static int32_t LoadMapHack(const char *filename)
 	return 0;
 }
 
-void G_LoadMapHack(const char* filename, const unsigned char* md4)
+void G_LoadMapHack(const char* filename, const unsigned char* md4, spritetype* sprites, int numsprites)
 {
     hw_ClearSplitSector();
     blockingpairs.Reset();
@@ -387,16 +387,16 @@ void G_LoadMapHack(const char* filename, const unsigned char* md4)
     {
         internal.AppendFormat("%02x", md4[j]);
     }
-    LoadMapHack(internal + ".mhk");
+    LoadMapHack(internal + ".mhk", sprites, numsprites);
     FString hack = StripExtension(filename) + ".mhk";
 
-    if (LoadMapHack(hack))
+    if (LoadMapHack(hack, sprites, numsprites))
     {
         for (auto& mhk : usermaphacks)
         {
             if (!memcmp(md4, mhk.md4, 16))
             {
-                LoadMapHack(mhk.mhkfile);
+                LoadMapHack(mhk.mhkfile, sprites, numsprites);
             }
         }
     }

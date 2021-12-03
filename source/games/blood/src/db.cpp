@@ -884,7 +884,7 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sect
     auto buffer = fr.Read();
     uint8_t md4[16];
     md4once(buffer.Data(), buffer.Size(), md4);
-    G_LoadMapHack(mapname, md4);
+    G_LoadMapHack(mapname, md4, sprite, mapHeader.numsprites);
 
     if (CalcCRC32(buffer.Data(), buffer.Size() - 4) != nCRC)
     {
