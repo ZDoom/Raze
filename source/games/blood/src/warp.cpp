@@ -55,14 +55,16 @@ void validateLinks()
     }
 }
 
-void warpInit(void)
+
+void warpInit(TArray<DBloodActor*>& actors)
 {
     #ifdef NOONE_EXTENSIONS
     int team1 = 0; int team2 = 0; gTeamsSpawnUsed = false; // increment if team start positions specified.
     #endif
-    BloodLinearSpriteIterator it;
-    while (auto actor = it.Next())
+
+    for(auto actor : actors)
     {
+        if (!actor->exists()) continue;
         spritetype* pSprite = &actor->s();
             if (actor->hasX()) {
                 XSPRITE *pXSprite = &actor->x();

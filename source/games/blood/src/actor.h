@@ -209,7 +209,7 @@ void sub_3888C(int, int);
 void TreeToGibCallback(int, int);
 
 bool IsUnderwaterSector(sectortype* pSector);
-void actInit();
+void actInit(TArray<DBloodActor*>& actors);
 int actWallBounceVector(int *x, int *y, walltype* pWall, int a4);
 int actFloorBounceVector(int *x, int *y, int *z, sectortype* pSector, int a5);
 void actRadiusDamage(DBloodActor* source, int x, int y, int z, sectortype* pSector, int nDist, int a7, int a8, DAMAGE_TYPE a9, int a10, int a11);

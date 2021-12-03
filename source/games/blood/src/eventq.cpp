@@ -272,7 +272,7 @@ static void createBucketHeads()
 //
 //---------------------------------------------------------------------------
 
-void evInit()
+void evInit(TArray<DBloodActor*>& actors)
 {
 	int nCount = 0;
 
@@ -300,16 +300,15 @@ void evInit()
 		}
 	}
 
-	BloodLinearSpriteIterator it;
-	while (auto actor = it.Next())
+	for (auto actor : actors)
 	{
-		if (actor->hasX() && actor->x().rxID > 0)
+		if (actor->exists() && actor->hasX() && actor->x().rxID > 0)
 		{
-				assert(nCount < kChannelMax);
+			assert(nCount < kChannelMax);
 			rxBucket[nCount] = EventObject(actor);
-				nCount++;
-			}
+			nCount++;
 		}
+	}
 	SortRXBucket(nCount);
 	bucketCount = nCount;
 	createBucketHeads();

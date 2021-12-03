@@ -58,7 +58,7 @@ void trMessageWall(walltype* pWall, const EVENT& event);
 void trTriggerSprite(DBloodActor* actor, int command);
 void trMessageSprite(DBloodActor* actor, EVENT event);
 void trProcessBusy(void);
-void trInit(void);
+void trInit(TArray<DBloodActor*>& actors);
 void trTextOver(int nId);
 bool SetSpriteState(DBloodActor* actor, int nState);
 bool SetWallState(walltype* pWall, int nState);

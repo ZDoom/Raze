@@ -2517,11 +2517,11 @@ static void actInitDudes()
 //
 //---------------------------------------------------------------------------
 
-void actInit()
+void actInit(TArray<DBloodActor*>& actors)
 {
 #ifdef NOONE_EXTENSIONS
 	if (!gModernMap) nnExtResetGlobals();
-	else nnExtInitModernStuff();
+	else nnExtInitModernStuff(actors);
 #endif
 
 	BloodStatIterator it(kStatItem);

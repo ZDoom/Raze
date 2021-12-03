@@ -119,12 +119,25 @@ void StartLevel(MapRecord* level, bool newgame)
 	gSecretMgr.Clear();
 	automapping = 1;
 
-	int modernTypesErased = 0;
-	BloodLinearSpriteIterator it;
-	while (auto actor = it.Next())
+
+	// Here is where later the actors must be spawned.
+
+	// get a sorted list of all actors as we need to run some init code in spawn order. (iterating bloodActors would actually do, but that won't last forever)
+	TArray<DBloodActor*> actorlist;
+	BloodSpriteIterator sit;
+	while (auto act = sit.Next())
 	{
+		actorlist.Push(act);
+	}
+	std::sort(actorlist.begin(), actorlist.end(), [](DBloodActor* a, DBloodActor* b) { return a->GetIndex() < b->GetIndex(); });
+
+
+	int modernTypesErased = 0;
+	for(unsigned i = 0; i < actorlist.Size(); i++)
+	{
+		auto actor = actorlist[i];
 		spritetype* pSprite = &actor->s();
-		if (pSprite->statnum < kMaxStatus && actor->hasX()) 
+		if (actor->exists() && actor->hasX()) 
 		{
 
 			XSPRITE* pXSprite = &actor->x();
@@ -175,9 +188,9 @@ void StartLevel(MapRecord* level, bool newgame)
 #endif
 	}
 	InitSectorFX();
-	warpInit();
-	actInit();
-	evInit();
+	warpInit(actorlist);
+	actInit(actorlist);
+	evInit(actorlist);
 	for (int i = connecthead; i >= 0; i = connectpoint2[i])
 	{
 		if (newgame)
@@ -207,7 +220,7 @@ void StartLevel(MapRecord* level, bool newgame)
 	}
 	PreloadCache();
 	InitMirrors();
-	trInit();
+	trInit(actorlist);
 	if (!gMe->packSlots[1].isActive) // if diving suit is not active, turn off reverb sound effect
 		sfxSetReverb(0);
 	ambInit();

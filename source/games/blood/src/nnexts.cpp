@@ -516,7 +516,7 @@ void nnExtResetGlobals()
 //
 //---------------------------------------------------------------------------
 
-void nnExtInitModernStuff() 
+void nnExtInitModernStuff(TArray<DBloodActor*>& actors) 
 {
     nnExtResetGlobals();
 
@@ -536,10 +536,9 @@ void nnExtInitModernStuff()
         }
     }
     
-    BloodLinearSpriteIterator it;
-    while (auto actor = it.Next())
+    for (auto actor : actors)
     {
-        if (!actor->hasX()) continue;
+        if (!actor->exists() || !actor->hasX()) continue;
         XSPRITE* pXSprite = &actor->x();
         spritetype* pSprite = &actor->s();
         
@@ -816,10 +815,9 @@ void nnExtInitModernStuff()
         int count = 0;
         TRCONDITION* pCond = &gCondition[gTrackingCondsCount];
 
-        BloodLinearSpriteIterator it;
-        while (auto iactor2 = it.Next())
+        for (auto iactor2 : actors)
         {
-            if (!iactor2->hasX() || iactor2->x().txID != pXSprite->rxID || iactor2 == iactor)
+            if (!iactor->exists() || !iactor2->hasX() || iactor2->x().txID != pXSprite->rxID || iactor2 == iactor)
                 continue;
 
             XSPRITE* pXSpr = &iactor2->x();

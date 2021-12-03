@@ -1967,7 +1967,7 @@ void trProcessBusy(void)
 
 void InitGenerator(DBloodActor*);
 
-void trInit(void)
+void trInit(TArray<DBloodActor*>& actors)
 {
     gBusy.Clear();
     for(auto& wal : walls())
@@ -1976,15 +1976,12 @@ void trInit(void)
         wal.baseWall.x = wal.x;
         wal.baseWall.y = wal.y;
     }
-    BloodLinearSpriteIterator it;
-    while (auto actor = it.Next())
+    for(auto actor : actors)
     {
+        if (!actor->exists()) continue;
         auto spr = &actor->s();
-        if (spr->statnum < kStatFree)
-        {
-            spr->inittype = spr->type;
-            actor->basePoint = spr->pos;
-        }
+        spr->inittype = spr->type;
+        actor->basePoint = spr->pos;
     }
     for(auto& wal : walls())
     {
@@ -2069,8 +2066,7 @@ void trInit(void)
         }
     }
 
-    it.Reset();
-    while (auto actor = it.Next())
+    for (auto actor : actors)
     {
         auto pSprite = &actor->s();
         if (pSprite->statnum < kStatFree && actor->hasX())

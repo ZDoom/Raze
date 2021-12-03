@@ -12,6 +12,11 @@ protected:
 
 public:
 
+	bool exists() const
+	{
+		return (unsigned)s().statnum < MAXSTATUS;
+	}
+
 	spritetype& s() const
 	{ 
 		return sprite[index]; 
@@ -262,6 +267,12 @@ public:
 			if (stat < MAXSTATUS) it.Reset(stat);
 		}
 		return nullptr;
+	}
+
+	void Reset()
+	{
+		stat = 0;
+		it.Reset(0);
 	}
 };
 
