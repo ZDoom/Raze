@@ -389,7 +389,7 @@ void prelevel_d(int g)
 
 			if (mirrorcnt > 63)
 				I_Error("Too many mirrors (64 max.)");
-			if (sectp->ceilingpicnum != MIRROR)
+			if (sectp && sectp->ceilingpicnum != MIRROR)
 			{
 				assert(wallnum(&wal) > 0);
 				sectp->ceilingpicnum = MIRROR;
