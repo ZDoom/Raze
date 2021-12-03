@@ -53,7 +53,6 @@
 #include "gamehud.h"
 
 EXTERN_CVAR(Bool, cl_capfps)
-EXTERN_CVAR(Int, vid_preferbackend)
 
 PalEntry GlobalMapFog;
 float GlobalFogDensity = 350.f;
@@ -119,7 +118,7 @@ void RenderViewpoint(FRenderViewpoint& mainvp, IntRect* bounds, float fov, float
 	auto vrmode = VRMode::GetVRMode(mainview && toscreen);
 	const int eyeCount = vrmode->mEyeCount;
 	screen->FirstEye();
-	hw_int_useindexedcolortextures = eyeCount > 1 || vid_preferbackend == 3? false : *hw_useindexedcolortextures;
+	hw_int_useindexedcolortextures = eyeCount > 1? false : *hw_useindexedcolortextures;
 
 	for (int eye_ix = 0; eye_ix < eyeCount; ++eye_ix)
 	{
