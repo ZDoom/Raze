@@ -139,8 +139,6 @@ static int32_t r_parallaxskyclamping = 1;
 
 static int32_t drawingskybox = 0;
 
-static hitdata_t polymost_hitdata;
-
 FGameTexture* globalskytex = nullptr;
 
 void polymost_outputGLDebugMessage(uint8_t severity, const char* format, ...)

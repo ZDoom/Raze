@@ -335,11 +335,6 @@ OTHER VARIABLES:
             you call the loadboard function.
 ***************************************************************************/
 
-typedef struct {
-    vec3_t pos;
-    int16_t sprite, wall, sect;
-} hitdata_t;
-
 typedef struct artheader_t {
     int32_t tilestart, tileend, numtiles;
 } artheader_t;
@@ -381,10 +376,8 @@ void   getzrange_(const vec3_t *pos, int16_t sectnum, int32_t *ceilz, int32_t *c
 
 extern vec2_t hitscangoal;
 
-int32_t   hitscan_(const vec3_t* sv, int16_t sectnum, int32_t vx, int32_t vy, int32_t vz,
-    hitdata_t* hitinfo, uint32_t cliptype) ATTRIBUTE((nonnull(1, 6)));
-
 struct HitInfoBase;
+int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& direction, HitInfoBase& hitinfo, unsigned cliptype);
 void neartag(const vec3_t& pos, sectortype* sect, int angle, HitInfoBase& result, int neartagrange, int tagsearch);
 
 int cansee(int x1, int y1, int z1, sectortype* sect1, int x2, int y2, int z2, sectortype* sect2);

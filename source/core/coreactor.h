@@ -310,18 +310,6 @@ inline void SetActor(DCoreActor* actor, const vec3_t& newpos)
 
 
 
-inline int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& direction, HitInfoBase& hitinfo, unsigned cliptype)
-{
-	hitdata_t hd{};
-	hd.pos.z = hitinfo.hitpos.z;	// this can pass through unaltered.
-	int res = hitscan_(&start, sector.IndexOf(startsect), direction.x, direction.y, direction.z, &hd, cliptype);
-	hitinfo.hitpos = hd.pos;
-	hitinfo.hitSector = hd.sect == -1? nullptr : &sector[hd.sect];
-	hitinfo.hitWall = hd.wall == -1? nullptr : &wall[hd.wall];
-	hitinfo.hitActor = hd.sprite == -1? nullptr : actorArray[hd.sprite];
-	return res;
-}
-
 inline int clipmove(vec3_t& pos, sectortype** const sect, int xvect, int yvect,
 	int const walldist, int const ceildist, int const flordist, unsigned const cliptype, CollisionBase& result, int clipmoveboxtracenum = 3)
 {

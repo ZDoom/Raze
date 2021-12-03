@@ -86,16 +86,16 @@ class BFSSectorSearch : public BFSSearch
 {
 public:
 	
-	BFSSectorSearch(sectortype* startnode) : BFSSearch(numsectors, sector.IndexOf(startnode))
+	BFSSectorSearch(const sectortype* startnode) : BFSSearch(numsectors, sector.IndexOf(startnode))
 	{
 	}
 
-	bool Check(sectortype* index) const
+	bool Check(const sectortype* index) const
 	{
 		return BFSSearch::Check(sector.IndexOf(index));
 	}
 
-	void Set(sectortype* index)
+	void Set(const sectortype* index)
 	{
 		BFSSearch::Set(sector.IndexOf(index));
 	}

@@ -176,7 +176,6 @@ void CalcOtherPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, sectortyp
     int nHSector;
     int hX, hY;
     vec3_t pos = {*pX, *pY, *pZ};
-    hitdata_t hitdata;
     hitscan(&pos, *vsectnum, vX, vY, vZ, &hitdata, CLIPMASK1);
     nHSector = hitdata.sect;
     hX = hitdata.pos.x;
