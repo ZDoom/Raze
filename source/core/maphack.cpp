@@ -48,11 +48,12 @@ void AddUserMapHack(usermaphack_t& mhk)
     usermaphacks.Push(mhk);
 }
 
-static int32_t LoadMapHack(const char *filename, spritetype* sprites, int numsprites)
+static int32_t LoadMapHack(const char *filename, SpawnSpriteDef& sprites)
 {
     int currentsprite = -1;
     int currentwall = -1;
     int currentsector = -1;
+    int numsprites = sprites.sprites.Size();
 
     FScanner sc;
     int lump = fileSystem.FindFile(filename);
@@ -61,6 +62,8 @@ static int32_t LoadMapHack(const char *filename, spritetype* sprites, int numspr
         return -1;
     }
     sc.OpenLumpNum(lump);
+    sprites.sprext.Resize(numsprites);
+    memset(sprites.sprext.Data(), 0, sizeof(spriteext_t) * sprites.sprext.Size());
 
     while (sc.GetString())
     {
@@ -157,7 +160,7 @@ static int32_t LoadMapHack(const char *filename, spritetype* sprites, int numspr
             {
                 if (currentsprite != -1 && validateSprite())
                 {
-                    sprites[currentsprite].sectnum = sc.Number;
+                    sprites.sprites[currentsprite].sectnum = sc.Number;
                 }
             }
         }
@@ -171,7 +174,7 @@ static int32_t LoadMapHack(const char *filename, spritetype* sprites, int numspr
                 }
                 else if (currentsprite != -1 && validateSprite())
                 {
-                    sprites[currentsprite].picnum = sc.Number;
+                    sprites.sprites[currentsprite].picnum = sc.Number;
                 }
             }
         }
@@ -222,7 +225,7 @@ static int32_t LoadMapHack(const char *filename, spritetype* sprites, int numspr
                 }
                 else if (currentsprite != -1 && validateSprite())
                 {
-                    sprites[currentsprite].cstat &= ~sc.Number;
+                    sprites.sprites[currentsprite].cstat &= ~sc.Number;
                 }
             }
         }
@@ -236,7 +239,7 @@ static int32_t LoadMapHack(const char *filename, spritetype* sprites, int numspr
                 }
                 else if (currentsprite != -1 && validateSprite())
                 {
-                    sprites[currentsprite].cstat |= sc.Number;
+                    sprites.sprites[currentsprite].cstat |= sc.Number;
                 }
             }
         }
@@ -250,7 +253,7 @@ static int32_t LoadMapHack(const char *filename, spritetype* sprites, int numspr
                 }
                 else if (currentsprite != -1 && validateSprite())
                 {
-                    sprites[currentsprite].lotag = sc.Number;
+                    sprites.sprites[currentsprite].lotag = sc.Number;
                 }
             }
         }
@@ -262,73 +265,73 @@ static int32_t LoadMapHack(const char *filename, spritetype* sprites, int numspr
         else if (sc.Compare("angleoff") || sc.Compare("angoff"))
         {
             if (sc.CheckNumber() && validateSprite())
-                spriteext[currentsprite].angoff = (int16_t)sc.Number;
+                sprites.sprext[currentsprite].angoff = (int16_t)sc.Number;
         }
         else if (sc.Compare("notmd") || sc.Compare("notmd2") || sc.Compare("notmd3"))
         {
             if (validateSprite())
-                spriteext[currentsprite].flags |= SPREXT_NOTMD;
+                sprites.sprext[currentsprite].flags |= SPREXT_NOTMD;
         }
         else if (sc.Compare("nomdanim") || sc.Compare("nomd2anim") || sc.Compare("nomd3anim"))
         {
             if (validateSprite())
-                spriteext[currentsprite].flags |= SPREXT_NOMDANIM;
+                sprites.sprext[currentsprite].flags |= SPREXT_NOMDANIM;
         }
         else if (sc.Compare("pitch"))
         {
             if (sc.CheckNumber() && validateSprite())
-                spriteext[currentsprite].pitch = (int16_t)sc.Number;
+                sprites.sprext[currentsprite].pitch = (int16_t)sc.Number;
         }
         else if (sc.Compare("roll"))
         {
             if (sc.CheckNumber() && validateSprite())
-                spriteext[currentsprite].roll = (int16_t)sc.Number;
+                sprites.sprext[currentsprite].roll = (int16_t)sc.Number;
         }
         else if (sc.Compare("mdxoff") || sc.Compare("mdpivxoff") || sc.Compare("mdpivotxoff"))
         {
             if (sc.CheckNumber() && validateSprite())
-                spriteext[currentsprite].pivot_offset.x = sc.Number;
+                sprites.sprext[currentsprite].pivot_offset.x = sc.Number;
         }
         else if (sc.Compare("mdyoff") || sc.Compare("mdpivyoff") || sc.Compare("mdpivotyoff"))
         {
             if (sc.CheckNumber() && validateSprite())
-                spriteext[currentsprite].pivot_offset.y = sc.Number;
+                sprites.sprext[currentsprite].pivot_offset.y = sc.Number;
         }
         else if (sc.Compare("mdzoff") || sc.Compare("mdpivzoff") || sc.Compare("mdpivotzoff"))
         {
             if (sc.CheckNumber() && validateSprite())
-                spriteext[currentsprite].pivot_offset.z = sc.Number;
+                sprites.sprext[currentsprite].pivot_offset.z = sc.Number;
         }
         else if (sc.Compare("mdposxoff") || sc.Compare("mdpositionxoff"))
         {
             if (sc.CheckNumber() && validateSprite())
-                spriteext[currentsprite].position_offset.x = sc.Number;
+                sprites.sprext[currentsprite].position_offset.x = sc.Number;
         }
         else if (sc.Compare("mdposyoff") || sc.Compare("mdpositionyoff"))
         {
             if (sc.CheckNumber() && validateSprite())
-                spriteext[currentsprite].position_offset.x = sc.Number;
+                sprites.sprext[currentsprite].position_offset.x = sc.Number;
         }
         else if (sc.Compare("mdposzoff") || sc.Compare("mdpositionzoff"))
         {
             if (sc.CheckNumber() && validateSprite())
-                spriteext[currentsprite].position_offset.x = sc.Number;
+                sprites.sprext[currentsprite].position_offset.x = sc.Number;
         }
         else if (sc.Compare("away1"))
         {
             if (validateSprite())
-                spriteext[currentsprite].flags |= SPREXT_AWAY1;
+                sprites.sprext[currentsprite].flags |= SPREXT_AWAY1;
         }
         else if (sc.Compare("away2"))
         {
             if (validateSprite())
-                spriteext[currentsprite].flags |= SPREXT_AWAY2;
+                sprites.sprext[currentsprite].flags |= SPREXT_AWAY2;
         }
         else if (sc.Compare("mhkreset"))
         {
             if (validateSprite())
             {
-                auto& sx = spriteext[currentsprite];
+                auto& sx = sprites.sprext[currentsprite];
                 sx.angoff = 0;
                 sx.flags &= ~(SPREXT_NOTMD | SPREXT_NOMDANIM | SPREXT_AWAY1 | SPREXT_AWAY2);
                 sx.pitch = 0;
@@ -377,7 +380,7 @@ static int32_t LoadMapHack(const char *filename, spritetype* sprites, int numspr
 	return 0;
 }
 
-void G_LoadMapHack(const char* filename, const unsigned char* md4, spritetype* sprites, int numsprites)
+void G_LoadMapHack(const char* filename, const unsigned char* md4, SpawnSpriteDef& sprites)
 {
     hw_ClearSplitSector();
     blockingpairs.Reset();
@@ -387,16 +390,16 @@ void G_LoadMapHack(const char* filename, const unsigned char* md4, spritetype* s
     {
         internal.AppendFormat("%02x", md4[j]);
     }
-    LoadMapHack(internal + ".mhk", sprites, numsprites);
+    LoadMapHack(internal + ".mhk", sprites);
     FString hack = StripExtension(filename) + ".mhk";
 
-    if (LoadMapHack(hack, sprites, numsprites))
+    if (LoadMapHack(hack, sprites))
     {
         for (auto& mhk : usermaphacks)
         {
             if (!memcmp(md4, mhk.md4, 16))
             {
-                LoadMapHack(mhk.mhkfile, sprites, numsprites);
+                LoadMapHack(mhk.mhkfile, sprites);
             }
         }
     }

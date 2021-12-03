@@ -22,6 +22,16 @@ public:
 		return sprite[index]; 
 	}
 
+	spriteext_t& sx() const
+	{
+		return spriteext[index];
+	}
+
+	spritesmooth_t& sm() const
+	{
+		return spritesmooth[index];
+	}
+
 	int GetIndex() const
 	{ 
 		// For error printing only! This is only identical with the sprite index for items spawned at map start.

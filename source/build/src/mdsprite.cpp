@@ -6,6 +6,7 @@
 #include "engine_priv.h"
 #include "polymost.h"
 #include "mdsprite.h"
+#include "coreactor.h"
 
 #include "palette.h"
 #include "textures.h"
@@ -1553,9 +1554,13 @@ void updateModelInterpolation()
 	omdtims = mdtims;
 	mdtims = I_msTime();
 	
-	for (int i = 0; i < MAXSPRITES; ++i)
-		if ((mdpause && spriteext[i].mdanimtims) || (spriteext[i].flags & SPREXT_NOMDANIM))
-			spriteext[i].mdanimtims += mdtims - omdtims;
+    TSpriteIterator<DCoreActor> it;
+    while (auto actor = it.Next())
+    {
+        auto& sx = actor->sx();
+        if ((mdpause && sx.mdanimtims) || (sx.flags & SPREXT_NOMDANIM))
+            sx.mdanimtims += mdtims - omdtims;
+    }
 }
 #endif
 

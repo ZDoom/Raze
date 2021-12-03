@@ -349,11 +349,18 @@ int32_t    engineInit(void);
 void   engineUnInit(void);
 void   initspritelists(void);
 
+struct SpawnSpriteDef
+{
+    TArray<spritetype> sprites;
+    TArray<spriteext_t> sprext;
+};
+
+
 void allocateMapArrays(int numsprites);
 void ValidateSprite(spritetype& spr);
 void engineLoadBoard(const char *filename, int flags, vec3_t *dapos, int16_t *daang, int *dacursectnum);
 void loadMapBackup(const char* filename);
-void G_LoadMapHack(const char* filename, const unsigned char*, spritetype*, int);
+void G_LoadMapHack(const char* filename, const unsigned char*, SpawnSpriteDef& sprites);
 
 void   videoSetCorrectedAspect();
 void   videoSetViewableArea(int32_t x1, int32_t y1, int32_t x2, int32_t y2);

@@ -429,6 +429,7 @@ void allocateMapArrays(int numsprites)
 
 void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang, int* cursectnum)
 {
+	SpawnSpriteDef sprites;
 	inputState.ClearAllInput();
 
 	FileReader fr = fileSystem.OpenFileReader(filename);
@@ -459,6 +460,7 @@ void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang,
 	// Now that we know the map's size, set up the globals.
 	allocateMapArrays(numsprites);
 	initspritelists(); // may not be used in Blood!
+	sprites.sprites.Resize(numsprites);
 
 	// Now load the actual data.
 	fr.Seek(sectorpos, FileReader::SeekSet);
@@ -513,7 +515,7 @@ void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang,
 	auto buffer = fr.Read();
 	unsigned char md4[16];
 	md4once(buffer.Data(), buffer.Size(), md4);
-	G_LoadMapHack(filename, md4, sprite, numsprites);
+	G_LoadMapHack(filename, md4, sprites);
 	setWallSectors();
 	hw_BuildSections();
 	sectorGeometry.SetSize(numsections);

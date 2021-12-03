@@ -79,7 +79,7 @@ void EndLevel(void)
 	seqKillAll();
 }
 
-TArray<DBloodActor*> SpawnActors(SpawnSpriteDef& sprites)
+TArray<DBloodActor*> SpawnActors(BloodSpawnSpriteDef& sprites)
 {
 	TArray<DBloodActor*> spawns(sprites.sprites.Size(), true);
 	initspritelists();
@@ -90,6 +90,10 @@ TArray<DBloodActor*> SpawnActors(SpawnSpriteDef& sprites)
 		spawns[i] = actor;
 		actor->Clear();
 		actor->s() = sprites.sprites[i];
+		if (sprites.sprext.Size()) actor->sx() = sprites.sprext[i];
+		else actor->sx() = {};
+		actor->sm() = {};
+
 		if (sprites.sprites[i].extra > 0)
 		{
 			actor->addX();
@@ -176,7 +180,7 @@ void StartLevel(MapRecord* level, bool newgame)
 		}
 	}
 	//drawLoadingScreen();
-	SpawnSpriteDef sprites;
+	BloodSpawnSpriteDef sprites;
 	dbLoadMap(currentLevel->fileName, (int*)&startpos.x, (int*)&startpos.y, (int*)&startpos.z, &startang, &startsector, nullptr, sprites);
 	SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
 	STAT_NewLevel(currentLevel->fileName);

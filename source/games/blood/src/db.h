@@ -74,12 +74,6 @@ struct MAPHEADER2 {
 
 #pragma pack(pop)
 
-struct SpawnSpriteDef
-{
-    TArray<spritetype> sprites;
-    TArray<XSPRITE> xspr;
-};
-
 extern bool drawtile2048, encrypted;
 extern MAPHEADER2 byte_19AE44;
 
@@ -100,6 +94,11 @@ template<typename T> void GetSpriteExtents(T const * const pSprite, int *top, in
         *bottom += (pSprite->yrepeat << 2)*(height - center);
     }
 }
+
+struct BloodSpawnSpriteDef : public SpawnSpriteDef
+{
+    TArray<XSPRITE> xspr;
+};
 
 #ifdef POLYMER
 #pragma pack(push, 1)
@@ -129,7 +128,7 @@ int ChangeSpriteStat(int nSprite, int nStatus);
 void dbInit(void);
 void PropagateMarkerReferences(void);
 unsigned int dbReadMapCRC(const char *pPath);
-void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sectortype** pSector, unsigned int* pCRC, SpawnSpriteDef& sprites);
+void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sectortype** pSector, unsigned int* pCRC, BloodSpawnSpriteDef& sprites);
 
 
 END_BLD_NS

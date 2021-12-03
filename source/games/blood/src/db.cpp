@@ -343,7 +343,7 @@ struct walltypedisk
 
 #pragma pack(pop)
 
-void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sectortype** pSector, unsigned int* pCRC, SpawnSpriteDef& sprites)
+void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sectortype** pSector, unsigned int* pCRC, BloodSpawnSpriteDef& sprites)
 {
     int16_t tpskyoff[256];
     ClearAutomap();
@@ -823,7 +823,7 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sect
     auto buffer = fr.Read();
     uint8_t md4[16];
     md4once(buffer.Data(), buffer.Size(), md4);
-    G_LoadMapHack(mapname, md4, sprites.sprites.Data(), mapHeader.numsprites);
+    G_LoadMapHack(mapname, md4, sprites);
 
     if (CalcCRC32(buffer.Data(), buffer.Size() - 4) != nCRC)
     {
@@ -909,7 +909,7 @@ END_BLD_NS
 // only used by the backup loader.
 void qloadboard(const char* filename, char flags, vec3_t* dapos, int16_t* daang)
 {
-    Blood::SpawnSpriteDef sprites;
+    Blood::BloodSpawnSpriteDef sprites;
     sectortype* sp;
     Blood::dbLoadMap(filename, &dapos->x, &dapos->y, &dapos->z, daang, &sp, nullptr, sprites);
     Blood::dbInit();    // clean up immediately.
