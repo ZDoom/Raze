@@ -286,11 +286,6 @@ void InterpSectorSprites(sectortype* sect, bool state)
             if (TEST(u->Flags, SPR_SKIP2) && sp->statnum <= STAT_SKIP2_INTERP_END)
                 continue;
         }
-
-        if (state)
-            StartInterpolation(actor->GetSpriteIndex(), Interp_Sprite_Z);
-        else
-            StopInterpolation(actor->GetSpriteIndex(), Interp_Sprite_Z);
     }
 }
 

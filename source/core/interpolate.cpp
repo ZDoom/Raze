@@ -54,7 +54,6 @@ double Get(int index, int type)
 	case Interp_Wall_PanX:				return wall[index].xpan_;
 	case Interp_Wall_PanY:				return wall[index].ypan_;
 
-	case Interp_Sprite_Z:				return sprite[index].z;
 	default: return 0;
 	}
 }
@@ -77,8 +76,6 @@ void Set(int index, int type, double val)
 	case Interp_Wall_Y:                 old = wall[index].y; wall[index].y = xs_CRoundToInt(val); if (wall[index].y != old) sector[wall[index].sector].dirty = 255; break;
 	case Interp_Wall_PanX:              wall[index].xpan_ = float(val);  break;
 	case Interp_Wall_PanY:              wall[index].ypan_ = float(val);  break;
-                                        
-	case Interp_Sprite_Z:               sprite[index].z = xs_CRoundToInt(val); break;
 	}
 }
 

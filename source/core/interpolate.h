@@ -13,8 +13,6 @@ enum EInterpolationType
 	Interp_Wall_X,
 	Interp_Wall_Y,
 	
-	Interp_Sprite_Z,
-
 	Interp_Pan_First,
 	Interp_Sect_FloorPanX = Interp_Pan_First,
 	Interp_Sect_FloorPanY,

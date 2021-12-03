@@ -644,10 +644,6 @@ void KillActor(DSWActor* actor)
         // any Anims attached
         AnimDelete(ANIM_Userz, 0, actor);
         AnimDelete(ANIM_Spritez, 0, actor);
-        StopInterpolation(actor->GetSpriteIndex(), Interp_Sprite_Z);
-
-        //if (TEST(u->Flags2, SPR2_DONT_TARGET_OWNER))
-        //    Zombies--;
 
         // adjust sprites attached to sector objects
         if (TEST(u->Flags, SPR_SO_ATTACHED))
