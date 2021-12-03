@@ -472,6 +472,14 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, ConditionElement& 
 	return arc;
 }
 
+FSerializer& Serialize(FSerializer& arc, const char* keyname, DBloodActor*& w, DBloodActor** def)
+{
+	int index = w? int(w - bloodActors) : -1;
+	Serialize(arc, keyname, index, nullptr);
+	if (arc.isReading()) w = index == -1? nullptr : &bloodActors[index];
+	return arc;
+}
+
 FSerializer& Serialize(FSerializer& arc, const char* keyname, DBloodActor& w, DBloodActor* def)
 {
 	static DBloodActor nul;

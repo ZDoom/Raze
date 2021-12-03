@@ -369,14 +369,6 @@ inline DBloodActor* getLowerLink(int sect)
 	return gLowerLink[sect];
 }
 
-inline FSerializer& Serialize(FSerializer& arc, const char* keyname, DBloodActor*& w, DBloodActor** def)
-{
-	int index = w? int(w - bloodActors) : -1;
-	Serialize(arc, keyname, index, nullptr);
-	if (arc.isReading()) w = index == -1? nullptr : &bloodActors[index];
-	return arc;
-}
-
 inline void sfxPlay3DSound(DBloodActor* pSprite, int soundId, int a3 = -1, int a4 = 0)
 {
 	sfxPlay3DSound(&pSprite->s(), soundId, a3, a4);
