@@ -593,7 +593,7 @@ int32_t clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, int32_
             case CSTAT_SPRITE_ALIGNMENT_FACING:
                 if (p1.x >= clipMin.x && p1.x <= clipMax.x && p1.y >= clipMin.y && p1.y <= clipMax.y)
                 {
-                    int32_t height, daz = spr->z+spriteheightofs(j, &height, 1);
+                    int32_t height, daz = spr->z+spriteheightofsptr(spr, &height, 1);
 
                     if (pos->z > daz-height-flordist && pos->z < daz+ceildist)
                     {
@@ -609,7 +609,7 @@ int32_t clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, int32_
 
             case CSTAT_SPRITE_ALIGNMENT_WALL:
             {
-                int32_t height, daz = spr->z+spriteheightofs(j, &height, 1);
+                int32_t height, daz = spr->z+spriteheightofsptr(spr, &height, 1);
 
                 if (pos->z > daz-height-flordist && pos->z < daz+ceildist)
                 {
@@ -1070,7 +1070,7 @@ void getzrange_(const vec3_t *pos, int16_t sectnum,
                         int32_t k = walldist+(spr->clipdist<<2)+1;
                         if ((abs(v1.x-pos->x) <= k) && (abs(v1.y-pos->y) <= k))
                         {
-                            daz = spr->z + spriteheightofs(j, &k, 1);
+                            daz = spr->z + spriteheightofsptr(spr, &k, 1);
                             daz2 = daz - k;
                             clipyou = 1;
                         }
@@ -1080,12 +1080,12 @@ void getzrange_(const vec3_t *pos, int16_t sectnum,
                     case CSTAT_SPRITE_ALIGNMENT_WALL:
                     {
                         vec2_t v2;
-                        get_wallspr_points((uspriteptr_t)&sprite[j], &v1.x, &v2.x, &v1.y, &v2.y);
+                        get_wallspr_points(spr, &v1.x, &v2.x, &v1.y, &v2.y);
 
                         if (clipinsideboxline(pos->x,pos->y,v1.x,v1.y,v2.x,v2.y,walldist+1) != 0)
                         {
                             int32_t k;
-                            daz = spr->z + spriteheightofs(j, &k, 1);
+                            daz = spr->z + spriteheightofsptr(spr, &k, 1);
                             daz2 = daz-k;
                             clipyou = 1;
                         }
@@ -1100,7 +1100,7 @@ void getzrange_(const vec3_t *pos, int16_t sectnum,
                             continue;
 
                         vec2_t v2, v3, v4;
-                        get_floorspr_points((uspriteptr_t) &sprite[j], pos->x, pos->y, &v1.x, &v2.x, &v3.x, &v4.x,
+                        get_floorspr_points((uspriteptr_t) spr, pos->x, pos->y, &v1.x, &v2.x, &v3.x, &v4.x,
                                             &v1.y, &v2.y, &v3.y, &v4.y);
 
                         vec2_t const da = { MulScale(bcos(spr->ang - 256), walldist + 4, 14),
