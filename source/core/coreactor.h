@@ -286,29 +286,6 @@ public:
 	}
 };
 
-// For iterating linearly over map spawned sprites. Will later only be valid on map load
-template<class TActor>
-class TLinearSpriteIterator
-{
-	int index = 0;
-public:
-
-	void Reset()
-	{
-		index = 0;
-	}
-
-	TActor* Next()
-	{
-		while (index < MAXSPRITES)
-		{
-			auto p = actorArray[index++];
-			if (p->s().statnum != MAXSTATUS) return static_cast<TActor*>(p);
-		}
-		return nullptr;
-	}
-};
-
 using CoreSectIterator = TSectIterator<DCoreActor>;
 
 

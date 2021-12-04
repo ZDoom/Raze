@@ -57,6 +57,23 @@ int Counters[kNumCounters];
 uint8_t bIsVersion6 = true;
 
 
+//---------------------------------------------------------------------------
+//
+// this is just a dummy for now to provide the intended setup.
+//
+//---------------------------------------------------------------------------
+
+static TArray<DExhumedActor*> spawnactors(SpawnSpriteDef& spawns)
+{
+    insertAllSprites(spawns);
+    TArray<DExhumedActor*> actorlist;
+    for (unsigned i = 0; i < spawns.sprites.Size(); i++)
+    {
+        if (exhumedActors[i].exists()) actorlist.Push(&exhumedActors[i]);
+    }
+    return actorlist;
+}
+
 
 
 uint8_t LoadLevel(MapRecord* map)
@@ -124,7 +141,7 @@ uint8_t LoadLevel(MapRecord* map)
     inity = startPos.y;
     initz = startPos.z;
     initsectp = &sector[initsect];
-	insertAllSprites(spawned);
+    auto actors = spawnactors(spawned);
 
     int i;
 
@@ -149,7 +166,7 @@ uint8_t LoadLevel(MapRecord* map)
     flash = 0;
     precache();
 
-    LoadObjects();
+    LoadObjects(actors);
     return true;
 }
 
@@ -707,13 +724,12 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
     DeleteActor(pActor);
 }
 
-void ExamineSprites()
+void ExamineSprites(TArray<DExhumedActor*>& actors)
 {
     nNetStartSprites = 0;
     nCurStartSprite = 0;
 
-	ExhumedLinearSpriteIterator it;
-    while (auto ac = it.Next())
+    for(auto& ac : actors)
     {
 		auto pSprite = &ac->s();
 
@@ -751,7 +767,7 @@ void ExamineSprites()
     }
 }
 
-void LoadObjects()
+void LoadObjects(TArray<DExhumedActor*>& actors)
 {
     runlist_InitRun();
     runlist_InitChan();
@@ -796,7 +812,7 @@ void LoadObjects()
         }
     }
 
-    ExamineSprites();
+    ExamineSprites(actors);
     PostProcess();
     InitRa();
     InitChunks();

@@ -61,7 +61,6 @@ using Collision = TCollision<DExhumedActor>;
 using ExhumedStatIterator = TStatIterator<DExhumedActor>;
 using ExhumedSectIterator = TSectIterator<DExhumedActor>;
 using ExhumedSpriteIterator = TSpriteIterator<DExhumedActor>;
-using ExhumedLinearSpriteIterator = TLinearSpriteIterator<DExhumedActor>;
 
 
 inline FSerializer& Serialize(FSerializer& arc, const char* keyname, DExhumedActor*& w, DExhumedActor** def)

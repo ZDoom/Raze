@@ -87,7 +87,7 @@ extern int Counters[kNumCounters];
 
 void SnapSectors(sectortype* pSectorA, sectortype* pSectorB, int b);
 
-void LoadObjects();
+void LoadObjects(TArray<DExhumedActor*>& actors);
 
 // light
 

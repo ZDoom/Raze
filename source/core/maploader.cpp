@@ -431,7 +431,6 @@ void allocateMapArrays(int numsprites)
 	memset(sector.Data(), 0, sizeof(sectortype) * numsectors);
 	wall.Resize(numwalls);
 	memset(wall.Data(), 0, sizeof(walltype) * numwalls);
-	memset(sprite, 0, sizeof(*sprite) * MAXSPRITES);
 	memset(spriteext, 0, sizeof(spriteext_t) * MAXSPRITES);
 	memset(spritesmooth, 0, sizeof(spritesmooth_t) * (MAXSPRITES + MAXUNIQHUDID));
 
