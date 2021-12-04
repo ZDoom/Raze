@@ -941,11 +941,10 @@ int pushmove_(vec3_t *const vect, int *const sectnum,
 //
 // getzrange
 //
-void getzrange_(const vec3_t *pos, int16_t sectnum,
-               int32_t *ceilz, CollisionBase&  ceilhit, int32_t *florz, CollisionBase& florhit,
-               int32_t walldist, uint32_t cliptype)
+
+void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBase& ceilhit, int32_t* florz, CollisionBase& florhit, int32_t walldist, uint32_t cliptype)
 {
-    if (sectnum < 0)
+    if (sect == nullptr)
     {
         *ceilz = INT32_MIN; ceilhit.setVoid();
         *florz = INT32_MAX; florhit.setVoid();
@@ -958,19 +957,20 @@ void getzrange_(const vec3_t *pos, int16_t sectnum,
 
     //Extra walldist for sprites on sector lines
     const int32_t extradist = walldist+MAXCLIPDIST+1;
-    const int32_t xmin = pos->x-extradist, ymin = pos->y-extradist;
-    const int32_t xmax = pos->x+extradist, ymax = pos->y+extradist;
+    const int32_t xmin = pos.x-extradist, ymin = pos.y-extradist;
+    const int32_t xmax = pos.x+extradist, ymax = pos.y+extradist;
 
     const int32_t dawalclipmask = (cliptype&65535);
     const int32_t dasprclipmask = (cliptype >> 16);
 
-    vec2_t closest = pos->vec2;
+    vec2_t closest = pos.vec2;
+    int sectnum = ::sectnum(sect);
     if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE)
         getsectordist(closest, sectnum, &closest);
     else
-        getzsofslope(sectnum,closest.x,closest.y,ceilz,florz);
-    ceilhit.setSector(sectnum);
-    florhit.setSector(sectnum);
+        getzsofslopeptr(sect,closest.x,closest.y,ceilz,florz);
+    ceilhit.setSector(sect);
+    florhit.setSector(sect);
 
     clipsectorlist[0] = sectnum;
     clipsectnum = 1;
@@ -1000,7 +1000,7 @@ void getzrange_(const vec3_t *pos, int16_t sectnum,
                     continue;
 
                 vec2_t const d = { v2.x-v1.x, v2.y-v1.y };
-                if (d.x*(pos->y-v1.y) < (pos->x-v1.x)*d.y) continue; //back
+                if (d.x*(pos.y-v1.y) < (pos.x-v1.x)*d.y) continue; //back
 
                 vec2_t da = { (d.x > 0) ? d.x*(ymin-v1.y) : d.x*(ymax-v1.y),
                               (d.y > 0) ? d.y*(xmax-v1.x) : d.y*(xmin-v1.x) };
@@ -1011,8 +1011,8 @@ void getzrange_(const vec3_t *pos, int16_t sectnum,
                 if (wall[j].cstat&dawalclipmask) continue;  // XXX?
                 auto const sec = (usectorptr_t)&sector[k];
 
-                if (((sec->ceilingstat&1) == 0) && (pos->z <= sec->ceilingz+(3<<8))) continue;
-                if (((sec->floorstat&1) == 0) && (pos->z >= sec->floorz-(3<<8))) continue;
+                if (((sec->ceilingstat&1) == 0) && (pos.z <= sec->ceilingz+(3<<8))) continue;
+                if (((sec->floorstat&1) == 0) && (pos.z >= sec->floorz-(3<<8))) continue;
 
                 if (bitmap_test(clipsectormap, k) == 0)
                     addclipsect(k);
@@ -1029,7 +1029,7 @@ void getzrange_(const vec3_t *pos, int16_t sectnum,
                     continue;
                 //It actually got here, through all the continue's!!!
                 int32_t daz = 0, daz2 = 0;
-                closest = pos->vec2;
+                closest = pos.vec2;
                 if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE)
                     getsectordist(closest, k, &closest);
                 else
@@ -1073,7 +1073,7 @@ void getzrange_(const vec3_t *pos, int16_t sectnum,
                     case CSTAT_SPRITE_ALIGNMENT_FACING:
                     {
                         int32_t k = walldist+(spr->clipdist<<2)+1;
-                        if ((abs(v1.x-pos->x) <= k) && (abs(v1.y-pos->y) <= k))
+                        if ((abs(v1.x-pos.x) <= k) && (abs(v1.y-pos.y) <= k))
                         {
                             daz = spr->z + spriteheightofsptr(spr, &k, 1);
                             daz2 = daz - k;
@@ -1087,7 +1087,7 @@ void getzrange_(const vec3_t *pos, int16_t sectnum,
                         vec2_t v2;
                         get_wallspr_points(spr, &v1.x, &v2.x, &v1.y, &v2.y);
 
-                        if (clipinsideboxline(pos->x,pos->y,v1.x,v1.y,v2.x,v2.y,walldist+1) != 0)
+                        if (clipinsideboxline(pos.x,pos.y,v1.x,v1.y,v2.x,v2.y,walldist+1) != 0)
                         {
                             int32_t k;
                             daz = spr->z + spriteheightofsptr(spr, &k, 1);
@@ -1101,11 +1101,11 @@ void getzrange_(const vec3_t *pos, int16_t sectnum,
                     {
                         daz = spr->z; daz2 = daz;
 
-                        if ((cstat&64) != 0 && (pos->z > daz) == ((cstat&8)==0))
+                        if ((cstat&64) != 0 && (pos.z > daz) == ((cstat&8)==0))
                             continue;
 
                         vec2_t v2, v3, v4;
-                        get_floorspr_points((uspriteptr_t) spr, pos->x, pos->y, &v1.x, &v2.x, &v3.x, &v4.x,
+                        get_floorspr_points((uspriteptr_t) spr, pos.x, pos.y, &v1.x, &v2.x, &v3.x, &v4.x,
                                             &v1.y, &v2.y, &v3.y, &v4.y);
 
                         vec2_t const da = { MulScale(bcos(spr->ang - 256), walldist + 4, 14),
@@ -1121,13 +1121,13 @@ void getzrange_(const vec3_t *pos, int16_t sectnum,
 
                 if (clipyou != 0)
                 {
-                    if ((pos->z > daz) && (daz > *ceilz))
+                    if ((pos.z > daz) && (daz > *ceilz))
                     {
                         *ceilz = daz;
                         ceilhit.setSprite(actor);
                     }
 
-                    if ((pos->z < daz2) && (daz2 < *florz))
+                    if ((pos.z < daz2) && (daz2 < *florz))
                     {
                         *florz = daz2;
                         florhit.setSprite(actor);

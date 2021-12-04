@@ -319,12 +319,6 @@ inline int clipmove(vec3_t& pos, sectortype** const sect, int xvect, int yvect,
 	return result.type;
 }
 
-inline void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBase& ceilhit, int32_t* florz,
-	CollisionBase& florhit, int32_t walldist, uint32_t cliptype)
-{
-	getzrange_(&pos, sector.IndexOf(sect), ceilz, ceilhit, florz, florhit, walldist, cliptype);
-}
-
 inline int pushmove(vec3_t* const vect, sectortype** const sect, int32_t const walldist, int32_t const ceildist, int32_t const flordist,
 	uint32_t const cliptype, bool clear = true)
 {
