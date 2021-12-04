@@ -314,9 +314,9 @@ inline int clipmove(vec3_t& pos, sectortype** const sect, int xvect, int yvect,
 	int const walldist, int const ceildist, int const flordist, unsigned const cliptype, CollisionBase& result, int clipmoveboxtracenum = 3)
 {
 	int sectno = *sect ? sector.IndexOf(*sect) : -1;
-	int res = clipmove_(&pos, &sectno, xvect, yvect, walldist, ceildist, flordist, cliptype, clipmoveboxtracenum);
+	result = clipmove_(&pos, &sectno, xvect, yvect, walldist, ceildist, flordist, cliptype, clipmoveboxtracenum);
 	*sect = sectno == -1 ? nullptr : &sector[sectno];
-	return result.setFromEngine(res);
+	return result.type;
 }
 
 inline void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBase& ceilhit, int32_t* florz,

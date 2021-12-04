@@ -22,7 +22,7 @@ int clipsectorlist[MAXCLIPSECTORS];
 static int origclipsectorlist[MAXCLIPSECTORS];
 static uint8_t clipsectormap[(MAXSECTORS+7)>>3];
 static uint8_t origclipsectormap[(MAXSECTORS+7)>>3];
-static int16_t clipobjectval[MAXCLIPNUM];
+static CollisionBase clipobjectval[MAXCLIPNUM];
 static uint8_t clipignore[(MAXCLIPNUM+7)>>3];
 static int32_t rxi[8], ryi[8];
 
@@ -183,7 +183,7 @@ static inline void addclipsect(int const sectnum)
 }
 
 
-static void addclipline(int32_t dax1, int32_t day1, int32_t dax2, int32_t day2, int16_t daoval, int nofix)
+static void addclipline(int32_t dax1, int32_t day1, int32_t dax2, int32_t day2, const CollisionBase& daoval, int nofix)
 {
     if (clipnum >= MAXCLIPNUM)
     {
@@ -443,13 +443,14 @@ static void clipupdatesector(vec2_t const pos, int * const sectnum, int walldist
 //
 // clipmove
 //
-int32_t clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, int32_t yvect,
+CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, int32_t yvect,
                  int32_t const walldist, int32_t const ceildist, int32_t const flordist, uint32_t const cliptype, int clipmoveboxtracenum)
 {
+    CollisionBase b{};
     if ((xvect|yvect) == 0 || *sectnum < 0)
-        return 0;
+        return b;
 
-    uspriteptr_t curspr=NULL;  // non-NULL when handling sprite with sector-like clipping
+    DCoreActor* curspr=NULL;  // non-NULL when handling sprite with sector-like clipping
 
     int const initialsectnum = *sectnum;
 
@@ -540,7 +541,9 @@ int32_t clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, int32_
 
             if (clipyou)
             {
-                int16_t const objtype = curspr ? (int16_t)(curspr - sprite) + 49152 : (int16_t)j + 32768;
+                CollisionBase objtype;
+                if (curspr) objtype.setSprite(curspr);
+                else objtype.setWall(j);
 
                 //Add 2 boxes at endpoints
                 int32_t bsz = walldist; if (diff.x < 0) bsz = -bsz;
@@ -576,17 +579,19 @@ int32_t clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, int32_
         if (dasprclipmask==0)
             continue;
 
-        int j;
-        SectIterator it(dasect);
-        while ((j = it.NextIndex()) >= 0)
+        TSectIterator<DCoreActor> it(dasect);
+        while (auto actor = it.Next())
         {
-            auto const spr = (uspriteptr_t)&sprite[j];
+            auto const spr = &actor->s();
             const int32_t cstat = spr->cstat;
 
             if ((cstat&dasprclipmask) == 0)
                 continue;
 
             auto p1 = spr->pos.vec2;
+
+            CollisionBase obj;
+            obj.setSprite(actor);
 
             switch (cstat & (CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_ALIGNMENT_FLOOR))
             {
@@ -599,10 +604,10 @@ int32_t clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, int32_
                     {
                         int32_t bsz = (spr->clipdist << 2)+walldist;
                         if (diff.x < 0) bsz = -bsz;
-                        addclipline(p1.x-bsz, p1.y-bsz, p1.x-bsz, p1.y+bsz, (int16_t)j+49152, false);
+                        addclipline(p1.x-bsz, p1.y-bsz, p1.x-bsz, p1.y+bsz, obj, false);
                         bsz = (spr->clipdist << 2)+walldist;
                         if (diff.y < 0) bsz = -bsz;
-                        addclipline(p1.x+bsz, p1.y-bsz, p1.x-bsz, p1.y-bsz, (int16_t)j+49152, false);
+                        addclipline(p1.x+bsz, p1.y-bsz, p1.x-bsz, p1.y-bsz, obj, false);
                     }
                 }
                 break;
@@ -623,19 +628,19 @@ int32_t clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, int32_
                                      MulScale(bsin(spr->ang + 256), walldist, 14) };
 
                         if ((p1.x-pos->x) * (p2.y-pos->y) >= (p2.x-pos->x) * (p1.y-pos->y))  // Front
-                            addclipline(p1.x+v.x, p1.y+v.y, p2.x+v.y, p2.y-v.x, (int16_t)j+49152, false);
+                            addclipline(p1.x+v.x, p1.y+v.y, p2.x+v.y, p2.y-v.x, obj, false);
                         else
                         {
                             if ((cstat & 64) != 0)
                                 continue;
-                            addclipline(p2.x-v.x, p2.y-v.y, p1.x-v.y, p1.y+v.x, (int16_t)j+49152, false);
+                            addclipline(p2.x-v.x, p2.y-v.y, p1.x-v.y, p1.y+v.x, obj, false);
                         }
 
                         //Side blocker
                         if ((p2.x-p1.x) * (pos->x-p1.x)+(p2.y-p1.y) * (pos->y-p1.y) < 0)
-                            addclipline(p1.x-v.y, p1.y+v.x, p1.x+v.x, p1.y+v.y, (int16_t)j+49152, true);
+                            addclipline(p1.x-v.y, p1.y+v.x, p1.x+v.x, p1.y+v.y, obj, true);
                         else if ((p1.x-p2.x) * (pos->x-p2.x)+(p1.y-p2.y) * (pos->y-p2.y) < 0)
-                            addclipline(p2.x+v.y, p2.y-v.x, p2.x-v.x, p2.y-v.y, (int16_t)j+49152, true);
+                            addclipline(p2.x+v.y, p2.y-v.x, p2.x-v.x, p2.y-v.y, obj, true);
                     }
                 }
                 break;
@@ -661,23 +666,23 @@ int32_t clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, int32_
                     if ((rxi[0]-pos->x) * (ryi[1]-pos->y) < (rxi[1]-pos->x) * (ryi[0]-pos->y))
                     {
                         if (clipinsideboxline(cent.x, cent.y, rxi[1], ryi[1], rxi[0], ryi[0], rad) != 0)
-                            addclipline(rxi[1]-v.y, ryi[1]+v.x, rxi[0]+v.x, ryi[0]+v.y, (int16_t)j+49152, false);
+                            addclipline(rxi[1]-v.y, ryi[1]+v.x, rxi[0]+v.x, ryi[0]+v.y, obj, false);
                     }
                     else if ((rxi[2]-pos->x) * (ryi[3]-pos->y) < (rxi[3]-pos->x) * (ryi[2]-pos->y))
                     {
                         if (clipinsideboxline(cent.x, cent.y, rxi[3], ryi[3], rxi[2], ryi[2], rad) != 0)
-                            addclipline(rxi[3]+v.y, ryi[3]-v.x, rxi[2]-v.x, ryi[2]-v.y, (int16_t)j+49152, false);
+                            addclipline(rxi[3]+v.y, ryi[3]-v.x, rxi[2]-v.x, ryi[2]-v.y, obj, false);
                     }
 
                     if ((rxi[1]-pos->x) * (ryi[2]-pos->y) < (rxi[2]-pos->x) * (ryi[1]-pos->y))
                     {
                         if (clipinsideboxline(cent.x, cent.y, rxi[2], ryi[2], rxi[1], ryi[1], rad) != 0)
-                            addclipline(rxi[2]-v.x, ryi[2]-v.y, rxi[1]-v.y, ryi[1]+v.x, (int16_t)j+49152, false);
+                            addclipline(rxi[2]-v.x, ryi[2]-v.y, rxi[1]-v.y, ryi[1]+v.x, obj, false);
                     }
                     else if ((rxi[3]-pos->x) * (ryi[0]-pos->y) < (rxi[0]-pos->x) * (ryi[3]-pos->y))
                     {
                         if (clipinsideboxline(cent.x, cent.y, rxi[0], ryi[0], rxi[3], ryi[3], rad) != 0)
-                            addclipline(rxi[0]+v.x, ryi[0]+v.y, rxi[3]+v.y, ryi[3]-v.x, (int16_t)j+49152, false);
+                            addclipline(rxi[0]+v.x, ryi[0]+v.y, rxi[3]+v.y, ryi[3]-v.x, obj, false);
                     }
                 }
                 break;
@@ -687,7 +692,7 @@ int32_t clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, int32_
     } while (clipsectcnt < clipsectnum || clipspritecnt < clipspritenum);
 
     int32_t hitwalls[4], hitwall;
-    int32_t clipReturn = 0;
+    CollisionBase clipReturn{};
 
     int cnt = clipmoveboxtracenum;
 
@@ -757,7 +762,7 @@ int32_t clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, int32_
             yvect = (goal.y-vec.y)<<14;
 
             if (cnt == clipmoveboxtracenum)
-                clipReturn = (uint16_t) clipobjectval[hitwall];
+                clipReturn = clipobjectval[hitwall];
             hitwalls[cnt] = hitwall;
         }
 
