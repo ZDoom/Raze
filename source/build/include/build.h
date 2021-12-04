@@ -496,20 +496,6 @@ inline void getcorrectzsofslope(int sectnum, int32_t dax, int32_t day, int32_t *
     getzsofslopeptr((usectorptr_t)&sector[sectnum], closest.x, closest.y, ceilz, florz);
 }
 
-inline int32_t getcorrectceilzofslope(int sectnum, int32_t dax, int32_t day)
-{
-    vec2_t closest = { dax, day };
-    getsectordist(closest, sectnum, &closest);
-    return getceilzofslopeptr((usectorptr_t)&sector[sectnum], closest.x, closest.y);
-}
-
-inline int32_t getcorrectflorzofslope(int sectnum, int32_t dax, int32_t day)
-{
-    vec2_t closest = { dax, day };
-    getsectordist(closest, sectnum, &closest);
-    return getflorzofslopeptr((usectorptr_t)&sector[sectnum], closest.x, closest.y);
-}
-
 void   alignceilslope(int16_t dasect, int32_t x, int32_t y, int32_t z);
 void   alignflorslope(int16_t dasect, int32_t x, int32_t y, int32_t z);
 void setslope(int32_t sectnum, int32_t cf, int16_t slope);

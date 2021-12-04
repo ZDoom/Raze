@@ -983,17 +983,14 @@ void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBas
         ////////// Walls //////////
 
         auto const startsec = (usectorptr_t)&sector[clipsectorlist[clipsectcnt]];
-        const int startwall = startsec->wallptr;
-        const int endwall = startwall + startsec->wallnum;
 
-        for (int j=startwall; j<endwall; j++)
+        for(auto&wal : wallsofsector(startsec))
         {
-            const int k = wall[j].nextsector;
-
-            if (k >= 0)
+            if (wal.twoSided())
             {
-                vec2_t const v1 = wall[j].pos;
-                vec2_t const v2 = wall[j].point2Wall()->pos;
+                auto nextsect = wal.nextSector();
+                vec2_t const v1 = wal.pos;
+                vec2_t const v2 = wal.point2Wall()->pos;
 
                 if ((v1.x < xmin && (v2.x < xmin)) || (v1.x > xmax && v2.x > xmax) ||
                     (v1.y < ymin && (v2.y < ymin)) || (v1.y > ymax && v2.y > ymax))
@@ -1008,14 +1005,14 @@ void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBas
                 if (da.x >= da.y)
                     continue;
 
-                if (wall[j].cstat&dawalclipmask) continue;  // XXX?
-                auto const sec = (usectorptr_t)&sector[k];
+                if (wal.cstat&dawalclipmask) continue;  // XXX?
 
-                if (((sec->ceilingstat&1) == 0) && (pos.z <= sec->ceilingz+(3<<8))) continue;
-                if (((sec->floorstat&1) == 0) && (pos.z >= sec->floorz-(3<<8))) continue;
+                if (((nextsect->ceilingstat&1) == 0) && (pos.z <= nextsect->ceilingz+(3<<8))) continue;
+                if (((nextsect->floorstat&1) == 0) && (pos.z >= nextsect->floorz-(3<<8))) continue;
 
-                if (bitmap_test(clipsectormap, k) == 0)
-                    addclipsect(k);
+                int nextsectno = ::sectnum(nextsect);
+                if (bitmap_test(clipsectormap, nextsectno) == 0)
+                    addclipsect(nextsectno);
 
                 if (((v1.x < xmin + MAXCLIPDIST) && (v2.x < xmin + MAXCLIPDIST)) ||
                     ((v1.x > xmax - MAXCLIPDIST) && (v2.x > xmax - MAXCLIPDIST)) ||
@@ -1031,16 +1028,16 @@ void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBas
                 int32_t daz = 0, daz2 = 0;
                 closest = pos.vec2;
                 if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE)
-                    getsectordist(closest, k, &closest);
+                    getsectordist(closest, nextsectno, &closest);
                 else
-                    getzsofslope(k, closest.x,closest.y, &daz,&daz2);
+                    getzsofslopeptr(nextsect, closest.x,closest.y, &daz,&daz2);
 
                 {
                     if (daz > *ceilz)
-                        *ceilz = daz, ceilhit.setSector(k);
+                        *ceilz = daz, ceilhit.setSector(nextsect);
 
                     if (daz2 < *florz)
-                        *florz = daz2, florhit.setSector(k);
+                        *florz = daz2, florhit.setSector(nextsect);
                 }
             }
         }

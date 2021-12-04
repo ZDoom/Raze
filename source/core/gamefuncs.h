@@ -269,7 +269,7 @@ inline TArrayView<walltype> walls()
     return TArrayView<walltype>(&wall[0], numwalls);
 }
 
-inline TArrayView<walltype> wallsofsector(sectortype* sec)
+inline TArrayView<walltype> wallsofsector(const sectortype* sec)
 {
     return TArrayView<walltype>(sec->firstWall(), sec->wallnum);
 }
