@@ -1269,13 +1269,10 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
     while (auto sec = search.GetNext())
     {
         i = 1;
-        if (enginecompatibility_mode != ENGINECOMPATIBILITY_19950829)
-        {
-            if (hitscan_trysector(sv, sec, &hitinfo, vx,vy,vz, sec->ceilingstat, sec->ceilingheinum, sec->ceilingz, -i))
-                continue;
-            if (hitscan_trysector(sv, sec, &hitinfo, vx,vy,vz, sec->floorstat, sec->floorheinum, sec->floorz, i))
-                continue;
-        }
+        if (hitscan_trysector(sv, sec, &hitinfo, vx,vy,vz, sec->ceilingstat, sec->ceilingheinum, sec->ceilingz, -i))
+            continue;
+        if (hitscan_trysector(sv, sec, &hitinfo, vx,vy,vz, sec->floorstat, sec->floorheinum, sec->floorz, i))
+            continue;
 
         ////////// Walls //////////
 
@@ -1293,59 +1290,23 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
                 < compat_maybe_truncate_to_int32((coord_t)(x2-sv->x)*(y1-sv->y))) continue;
             if (rintersect(sv->x,sv->y,sv->z, vx,vy,vz, x1,y1, x2,y2, &intx,&inty,&intz) == -1) continue;
 
-            if (enginecompatibility_mode == ENGINECOMPATIBILITY_19950829)
-            {
-                if (vz != 0)
-                    if ((intz <= sec->ceilingz) || (intz >= sec->floorz))
-                        if (abs(intx-sv->x)+abs(inty-sv->y) < abs(hitinfo.hitpos.x-sv->x)+abs(hitinfo.hitpos.y-sv->y))
-                        {
-                                //x1,y1,z1 are temp variables
-                            if (vz > 0) z1 = sec->floorz; else z1 = sec->ceilingz;
-                            x1 = sv->x + Scale(z1-sv->z,vx,vz);
-                            y1 = sv->y + Scale(z1-sv->z,vy,vz);
-                            if (inside(x1,y1,sec) == 1)
-                            {
-                                hit_set(&hitinfo, sec, nullptr, nullptr, x1, y1, z1);
-                                continue;
-                            }
-                        }
-            }
-            else if (abs(intx-sv->x)+abs(inty-sv->y) >= abs((hitinfo.hitpos.x)-sv->x)+abs((hitinfo.hitpos.y)-sv->y))
+            if (abs(intx-sv->x)+abs(inty-sv->y) >= abs((hitinfo.hitpos.x)-sv->x)+abs((hitinfo.hitpos.y)-sv->y))
                 continue;
 
             if (!curspr)
             {
-                if (enginecompatibility_mode == ENGINECOMPATIBILITY_19950829)
+                if ((!wal->twoSided()) || (wal->cstat&dawalclipmask))
                 {
-                    if (!wal->twoSided() || (wal->cstat&dawalclipmask))
-                    {
-                        if ((abs(intx-sv->x)+abs(inty-sv->y) < abs(hitinfo.hitpos.x-sv->x)+abs(hitinfo.hitpos.y-sv->y)))
-                            hit_set(&hitinfo, sec, wal, nullptr, intx, inty, intz);
-                        continue;
-                    }
-
-                    if (intz <= nextsect->ceilingz || intz >= nextsect->floorz)
-                    {
-                        if ((abs(intx-sv->x)+abs(inty-sv->y) < abs(hitinfo.hitpos.x-sv->x)+abs(hitinfo.hitpos.y-sv->y)))
-                            hit_set(&hitinfo, sec, wal, nullptr, intx, inty, intz);
-                        continue;
-                    }
+                    hit_set(&hitinfo, sec, wal, nullptr, intx, inty, intz);
+                    continue;
                 }
-                else
-                {
-                    if ((!wal->twoSided()) || (wal->cstat&dawalclipmask))
-                    {
-                        hit_set(&hitinfo, sec, wal, nullptr, intx, inty, intz);
-                        continue;
-                    }
 
-                    int32_t daz2;
-                    getzsofslopeptr(nextsect,intx,inty,&daz,&daz2);
-                    if (intz <= daz || intz >= daz2)
-                    {
-                        hit_set(&hitinfo, sec, wal, nullptr, intx, inty, intz);
-                        continue;
-                    }
+                int32_t daz2;
+                getzsofslopeptr(nextsect,intx,inty,&daz,&daz2);
+                if (intz <= daz || intz >= daz2)
+                {
+                    hit_set(&hitinfo, sec, wal, nullptr, intx, inty, intz);
+                    continue;
                 }
             }
             search.Add(nextsect);
@@ -1430,29 +1391,17 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
 
             case CSTAT_SPRITE_ALIGNMENT_FLOOR:
             {
-                int32_t x3, y3, x4, y4, zz;
+                int32_t x3, y3, x4, y4;
                 intz = z1;
 
                 if (vz == 0 || ((intz-sv->z)^vz) < 0) continue;
 
                 if ((cstat&64) != 0)
                     if ((sv->z > intz) == ((cstat&8)==0)) continue;
-                if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE)
-                {
-                    // Abyss crash prevention code ((intz-sv->z)*zx overflowing a 8-bit word)
-                    // PK: the reason for the crash is not the overflowing (even if it IS a problem;
-                    // signed overflow is undefined behavior in C), but rather the idiv trap when
-                    // the resulting quotient doesn't fit into a *signed* 32-bit integer.
-                    zz = (uint32_t)(intz-sv->z) * vx;
-                    intx = sv->x+Scale(zz,1,vz);
-                    zz = (uint32_t)(intz-sv->z) * vy;
-                    inty = sv->y+Scale(zz,1,vz);
-                }
-                else
-                {
-                    intx = sv->x+Scale(intz-sv->z,vx,vz);
-                    inty = sv->y+Scale(intz-sv->z,vy,vz);
-                }
+
+                // avoid overflow errors by using 64 bit math.
+                intx = int(sv->x + (int64_t(intz) - sv->z) * vx / vz);
+                inty = int(sv->y + (int64_t(intz) - sv->z) * vy / vz);
 
                 if (abs(intx-sv->x)+abs(inty-sv->y) > abs((hitinfo.hitpos.x)-sv->x)+abs((hitinfo.hitpos.y)-sv->y))
                     continue;
