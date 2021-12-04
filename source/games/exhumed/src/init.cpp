@@ -118,11 +118,13 @@ uint8_t LoadLevel(MapRecord* map)
 
     vec3_t startPos;
     int initsect;
-    engineLoadBoard(currentLevel->fileName, 0, &startPos, &inita, &initsect);
+    SpawnSpriteDef spawned;
+    engineLoadBoard(currentLevel->fileName, 0, &startPos, &inita, &initsect, spawned);
     initx = startPos.x;
     inity = startPos.y;
     initz = startPos.z;
     initsectp = &sector[initsect];
+	insertAllSprites(spawned);
 
     int i;
 

@@ -238,10 +238,6 @@ int ChangeSpriteStat(int nSprite, int nStatus)
 void dbInit(void)
 {
     initspritelists();
-    for (int i = 0; i < kMaxSprites; i++)
-    {
-        sprite[i].cstat = 128;
-    }
 }
 
 bool drawtile2048, encrypted;

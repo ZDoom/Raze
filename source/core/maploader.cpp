@@ -40,6 +40,7 @@
 #include "printf.h"
 #include "inputstate.h"
 #include "md4.h"
+#include "coreactor.h"
 #include "gamecontrol.h"
 #include "gamefuncs.h"
 #include "sectorgeometry.h"
@@ -364,15 +365,21 @@ static void ReadSpriteV5(FileReader& fr, spritetype& spr)
 }
 
 
-static void insertAllSprites(const char* filename, const vec3_t* pos, int* cursectnum, int16_t numsprites)
+void insertAllSprites(SpawnSpriteDef& sprites)
 {
 	// This function is stupid because it exploits side effects of insertsprite and should be redone by only inserting the valid sprites.
-	int i, realnumsprites = numsprites;
+	int i, realnumsprites = sprites.sprites.Size();
+	int numsprites = realnumsprites;
 
 	for (i = 0; i < numsprites; i++)
 	{
+		auto actor = actorArray[i];
 		bool removeit = false;
-		auto& spr = sprite[i];
+		auto& spr = actor->s();
+		spr = sprites.sprites[i];
+		if (sprites.sprext.Size()) actor->sx() = sprites.sprext[i];
+		else actor->sx() = {};
+		actor->sm() = {};
 
 		if (spr.statnum == MAXSTATUS)
 		{
@@ -384,7 +391,7 @@ static void insertAllSprites(const char* filename, const vec3_t* pos, int* curse
 
 		if (removeit)
 		{
-			sprite[i].statnum = MAXSTATUS;
+			spr.statnum = MAXSTATUS;
 			realnumsprites--;
 		}
 	}
@@ -392,12 +399,17 @@ static void insertAllSprites(const char* filename, const vec3_t* pos, int* curse
 	if (numsprites != realnumsprites)
 	{
 		for (i = 0; i < numsprites; i++)
-			if (sprite[i].statnum == MAXSTATUS)
+		{
+			auto actor = actorArray[i];
+			auto& spr = actor->s();
+
+			if (spr.statnum == MAXSTATUS)
 			{
 				// Now remove it for real!
-				sprite[i].statnum = 0;
+				spr.statnum = 0;
 				deletesprite(i);
 			}
+		}
 	}
 
 	assert(realnumsprites == Numsprites);
@@ -427,9 +439,8 @@ void allocateMapArrays(int numsprites)
 	Polymost::Polymost_prepare_loadboard();
 }
 
-void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang, int* cursectnum)
+void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang, int* cursectnum, SpawnSpriteDef& sprites)
 {
-	SpawnSpriteDef sprites;
 	inputState.ClearAllInput();
 
 	FileReader fr = fileSystem.OpenFileReader(filename);
@@ -495,19 +506,14 @@ void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang,
 	{
 		switch (mapversion)
 		{
-		case 5: ReadSpriteV5(fr, sprite[i]); break;
-		case 6: ReadSpriteV6(fr, sprite[i]); break;
-		default: ReadSpriteV7(fr, sprite[i]); break;
+		case 5: ReadSpriteV5(fr, sprites.sprites[i]); break;
+		case 6: ReadSpriteV6(fr, sprites.sprites[i]); break;
+		default: ReadSpriteV7(fr, sprites.sprites[i]); break;
 		}
 	}
 
 	artSetupMapArt(filename);
-	insertAllSprites(filename, pos, cursectnum, numsprites);
 
-	for (int i = 0; i < numsprites; i++)
-	{
-		if ((sprite[i].cstat & 48) == 48) sprite[i].cstat &= ~48;
-	}
 	//Must be last.
 	updatesector(pos->x, pos->y, cursectnum);
 	guniqhudid = 0;
@@ -535,6 +541,7 @@ void loadMapBackup(const char* filename)
 	vec3_t pos;
 	int16_t scratch;
 	int scratch2;
+	SpawnSpriteDef scratch3;
 
 	if (isBlood())
 	{
@@ -542,7 +549,7 @@ void loadMapBackup(const char* filename)
 	}
 	else
 	{
-		engineLoadBoard(filename, 0, &pos, &scratch, &scratch2);
+		engineLoadBoard(filename, 0, &pos, &scratch, &scratch2, scratch3);
 		initspritelists();
 	}
 }

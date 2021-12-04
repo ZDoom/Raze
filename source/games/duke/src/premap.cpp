@@ -945,7 +945,8 @@ static int LoadTheMap(MapRecord *mi, struct player_struct *p, int gamemode)
 
 	currentLevel = mi;
 	int sect;
-	engineLoadBoard(mi->fileName, isShareware(), &p->pos, &lbang, &sect);
+	SpawnSpriteDef sprites;
+	engineLoadBoard(mi->fileName, isShareware(), &p->pos, &lbang, &sect, sprites);
 	p->cursector = &sector[sect];
 
 	SECRET_SetMapName(mi->DisplayName(), mi->name);
@@ -954,6 +955,8 @@ static int LoadTheMap(MapRecord *mi, struct player_struct *p, int gamemode)
 	p->angle.ang = buildang(lbang);
 
 	memset(gotpic, 0, sizeof(gotpic));
+
+	insertAllSprites(sprites);
 	
 	if (isRR()) prelevel_r(gamemode);
 	else prelevel_d(gamemode);

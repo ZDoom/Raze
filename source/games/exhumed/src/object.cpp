@@ -2565,7 +2565,7 @@ void PostProcess()
             }
         }
 
-        ExhumedLinearSpriteIterator it;
+        ExhumedSpriteIterator it;
         while (auto act = it.Next())
         {
             auto spr = &act->s();

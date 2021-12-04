@@ -355,10 +355,12 @@ struct SpawnSpriteDef
     TArray<spriteext_t> sprext;
 };
 
+[[deprecated]]
+void insertAllSprites(SpawnSpriteDef& sprites);
 
 void allocateMapArrays(int numsprites);
 void ValidateSprite(spritetype& spr);
-void engineLoadBoard(const char *filename, int flags, vec3_t *dapos, int16_t *daang, int *dacursectnum);
+void engineLoadBoard(const char *filename, int flags, vec3_t *dapos, int16_t *daang, int *dacursectnum, SpawnSpriteDef& sprites);
 void loadMapBackup(const char* filename);
 void G_LoadMapHack(const char* filename, const unsigned char*, SpawnSpriteDef& sprites);
 

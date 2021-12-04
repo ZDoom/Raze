@@ -52,7 +52,6 @@ inline DSWActor* DSWActor::base() { return swActors; }
 using SWStatIterator = TStatIterator<DSWActor>;
 using SWSectIterator = TSectIterator<DSWActor>;
 using SWSpriteIterator = TSpriteIterator<DSWActor>;
-using SWLinearSpriteIterator = TLinearSpriteIterator<DSWActor>;
 
 
 inline FSerializer& Serialize(FSerializer& arc, const char* keyname, DSWActor*& w, DSWActor** def)
