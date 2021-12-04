@@ -942,13 +942,13 @@ int pushmove_(vec3_t *const vect, int *const sectnum,
 // getzrange
 //
 void getzrange_(const vec3_t *pos, int16_t sectnum,
-               int32_t *ceilz, int32_t *ceilhit, int32_t *florz, int32_t *florhit,
+               int32_t *ceilz, CollisionBase&  ceilhit, int32_t *florz, CollisionBase& florhit,
                int32_t walldist, uint32_t cliptype)
 {
     if (sectnum < 0)
     {
-        *ceilz = INT32_MIN; *ceilhit = -1;
-        *florz = INT32_MAX; *florhit = -1;
+        *ceilz = INT32_MIN; ceilhit.setVoid();
+        *florz = INT32_MAX; florhit.setVoid();
         return;
     }
 
@@ -969,7 +969,8 @@ void getzrange_(const vec3_t *pos, int16_t sectnum,
         getsectordist(closest, sectnum, &closest);
     else
         getzsofslope(sectnum,closest.x,closest.y,ceilz,florz);
-    *ceilhit = sectnum+16384; *florhit = sectnum+16384;
+    ceilhit.setSector(sectnum);
+    florhit.setSector(sectnum);
 
     clipsectorlist[0] = sectnum;
     clipsectnum = 1;
@@ -1036,10 +1037,10 @@ void getzrange_(const vec3_t *pos, int16_t sectnum,
 
                 {
                     if (daz > *ceilz)
-                        *ceilz = daz, *ceilhit = k+16384;
+                        *ceilz = daz, ceilhit.setSector(k);
 
                     if (daz2 < *florz)
-                        *florz = daz2, *florhit = k+16384;
+                        *florz = daz2, florhit.setSector(k);
                 }
             }
         }
@@ -1052,12 +1053,11 @@ void getzrange_(const vec3_t *pos, int16_t sectnum,
     if (dasprclipmask)
     for (int i=0; i<clipsectnum; i++)
     {
-        int j;
         if (!validSectorIndex(clipsectorlist[i])) continue;    // we got a deleted sprite in here somewhere. Skip this entry.
-        SectIterator it(clipsectorlist[i]);
-        while ((j = it.NextIndex()) >= 0)
+        TSectIterator<DCoreActor> it(clipsectorlist[i]);
+        while (auto actor = it.Next())
         {
-            auto spr = &sprite[j];
+            auto spr = &actor->s();
             const int32_t cstat = spr->cstat;
             int32_t daz = 0, daz2 = 0;
 
@@ -1124,13 +1124,13 @@ void getzrange_(const vec3_t *pos, int16_t sectnum,
                     if ((pos->z > daz) && (daz > *ceilz))
                     {
                         *ceilz = daz;
-                        *ceilhit = j+49152;
+                        ceilhit.setSprite(actor);
                     }
 
                     if ((pos->z < daz2) && (daz2 < *florz))
                     {
                         *florz = daz2;
-                        *florhit = j+49152;
+                        florhit.setSprite(actor);
                     }
                 }
             }

@@ -371,8 +371,8 @@ void setVideoMode();
 class F2DDrawer;
 
 
-void   getzrange_(const vec3_t *pos, int16_t sectnum, int32_t *ceilz, int32_t *ceilhit, int32_t *florz,
-                 int32_t *florhit, int32_t walldist, uint32_t cliptype) ATTRIBUTE((nonnull(1,3,4,5,6)));
+void   getzrange_(const vec3_t *pos, int16_t sectnum, int32_t *ceilz, CollisionBase& ceilhit, int32_t *florz,
+                 CollisionBase& florhit, int32_t walldist, uint32_t cliptype) ATTRIBUTE((nonnull(1,3,4,5,6)));
 
 extern vec2_t hitscangoal;
 
