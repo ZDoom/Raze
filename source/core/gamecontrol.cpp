@@ -78,6 +78,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "hw_voxels.h"
 #include "hw_palmanager.h"
 #include "razefont.h"
+#include "coreactor.h"
 
 CVAR(Bool, autoloadlights, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 CVAR(Bool, autoloadbrightmaps, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
@@ -1376,7 +1377,7 @@ void GameInterface::loadPalette()
 void GameInterface::FreeLevelData()
 {
 	// Make sure that there is no more level to toy around with.
-	initspritelists();
+	InitSpriteLists();
 	numsectors = numwalls = 0;
 	currentLevel = nullptr;
 }

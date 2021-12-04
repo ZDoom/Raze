@@ -41,6 +41,31 @@ BEGIN_BLD_NS
 DBloodActor bloodActors[kMaxSprites];
 
 
+DBloodActor* InsertSprite(sectortype* pSector, int nStat)
+{
+    auto act = static_cast<DBloodActor*>(::InsertActor(pSector, nStat));
+    auto pSprite = &act->s();
+    pSprite->cstat = 128;
+    pSprite->clipdist = 32;
+    pSprite->xrepeat = pSprite->yrepeat = 64;
+    return act;
+}
+
+int DeleteSprite(DBloodActor* actor)
+{
+    auto sp = &actor->s();
+    FVector3 pos = GetSoundPos(&actor->s().pos);
+    soundEngine->RelinkSound(SOURCE_Actor, actor, nullptr, &pos);
+
+#ifdef NOONE_EXTENSIONS
+    for (auto& ctrl : gPlayerCtrl) if (ctrl.qavScene.initiator == actor) ctrl.qavScene.initiator = nullptr;
+#endif
+
+    ::DeleteActor(actor);
+    return 0;
+}
+
+
 bool gModernMap = false;
 unsigned int gStatCount[kMaxStatus + 1];
 
@@ -53,191 +78,6 @@ void dbCrypt(char *pPtr, int nLength, int nKey)
         pPtr[i] = pPtr[i] ^ nKey;
         nKey++;
     }
-}
-
-void InsertSpriteSect(int nSprite, int nSector)
-{
-    assert(nSprite >= 0 && nSprite < kMaxSprites);
-    assert(validSectorIndex(nSector));
-    int nOther = headspritesect[nSector];
-    if (nOther >= 0)
-    {
-        prevspritesect[nSprite] = prevspritesect[nOther];
-        nextspritesect[nSprite] = -1;
-        nextspritesect[prevspritesect[nOther]] = nSprite;
-        prevspritesect[nOther] = nSprite;
-    }
-    else
-    {
-        prevspritesect[nSprite] = nSprite;
-        nextspritesect[nSprite] = -1;
-        headspritesect[nSector] = nSprite;
-    }
-    sprite[nSprite].sectnum = nSector;
-}
-
-void RemoveSpriteSect(int nSprite)
-{
-    assert(nSprite >= 0 && nSprite < kMaxSprites);
-    int nSector = sprite[nSprite].sectnum;
-    assert(validSectorIndex(nSector));
-    int nOther = nextspritesect[nSprite];
-    if (nOther < 0)
-    {
-        nOther = headspritesect[nSector];
-    }
-    prevspritesect[nOther] = prevspritesect[nSprite];
-    if (headspritesect[nSector] != nSprite)
-    {
-        nextspritesect[prevspritesect[nSprite]] = nextspritesect[nSprite];
-    }
-    else
-    {
-        headspritesect[nSector] = nextspritesect[nSprite];
-    }
-    sprite[nSprite].sectnum = MAXSECTORS;
-}
-
-void InsertSpriteStat(int nSprite, int nStat)
-{
-    assert(nSprite >= 0 && nSprite < kMaxSprites);
-    assert(nStat >= 0 && nStat <= kMaxStatus);
-    int nOther = headspritestat[nStat];
-    if (nOther >= 0)
-    {
-        prevspritestat[nSprite] = prevspritestat[nOther];
-        nextspritestat[nSprite] = -1;
-        nextspritestat[prevspritestat[nOther]] = nSprite;
-        prevspritestat[nOther] = nSprite;
-    }
-    else
-    {
-        prevspritestat[nSprite] = nSprite;
-        nextspritestat[nSprite] = -1;
-        headspritestat[nStat] = nSprite;
-    }
-    sprite[nSprite].statnum = nStat;
-    gStatCount[nStat]++;
-}
-
-void RemoveSpriteStat(int nSprite)
-{
-    assert(nSprite >= 0 && nSprite < kMaxSprites);
-    int nStat = sprite[nSprite].statnum;
-    assert(nStat >= 0 && nStat <= kMaxStatus);
-    int nOther = nextspritestat[nSprite];
-    if (nOther < 0)
-    {
-        nOther = headspritestat[nStat];
-    }
-    prevspritestat[nOther] = prevspritestat[nSprite];
-    if (headspritestat[nStat] != nSprite)
-    {
-        nextspritestat[prevspritestat[nSprite]] = nextspritestat[nSprite];
-    }
-    else
-    {
-        headspritestat[nStat] = nextspritestat[nSprite];
-    }
-    sprite[nSprite].statnum = MAXSTATUS;
-    gStatCount[nStat]--;
-}
-
-void qinitspritelists(void) // Replace
-{
-    for (int i = 0; i <= MAXSECTORS; i++)
-    {
-        headspritesect[i] = -1;
-    }
-    for (int i = 0; i <= kMaxStatus; i++)
-    {
-        headspritestat[i] = -1;
-    }
-    for (int i = 0; i < kMaxSprites; i++)
-    {
-        sprite[i].sectnum = -1;
-        InsertSpriteStat(i, kMaxStatus);
-    }
-    memset(gStatCount, 0, sizeof(gStatCount));
-    Numsprites = 0;
-}
-
-DBloodActor* InsertSprite(sectortype* pSector, int nStat)
-{
-    int nSprite = headspritestat[kMaxStatus];
-    assert(nSprite < kMaxSprites);
-    if (nSprite < 0)
-    {
-        I_Error("Out of sprites!"); // we cannot deal with this - and most of the calling code never checks...
-        return nullptr;
-    }
-    RemoveSpriteStat(nSprite);
-    DBloodActor* actor = &bloodActors[nSprite];
-    actor->Clear();
-    spritetype *pSprite = &actor->s();
-    memset(pSprite, 0, sizeof(spritetype));
-    InsertSpriteStat(nSprite, nStat);
-    InsertSpriteSect(nSprite, sectnum(pSector));
-    pSprite->cstat = 128;
-    pSprite->clipdist = 32;
-    pSprite->xrepeat = pSprite->yrepeat = 64;
-    actor->SetOwner(nullptr);
-
-    Numsprites++;
-
-    sprite[nSprite].time = leveltimer++;
-    return actor;
-}
-
-
-inline int DeleteSprite(DBloodActor* actor)
-{
-    auto sp = &actor->s();
-    FVector3 pos = GetSoundPos(&actor->s().pos);
-    soundEngine->RelinkSound(SOURCE_Actor, actor, nullptr, &pos);
-
-    assert(sp->statnum >= 0 && sp->statnum < kMaxStatus);
-    RemoveSpriteStat(actor->GetSpriteIndex());
-    assert(sp->insector());
-    RemoveSpriteSect(actor->GetSpriteIndex());
-    InsertSpriteStat(actor->GetSpriteIndex(), kMaxStatus);
-#ifdef NOONE_EXTENSIONS
-    for (auto& ctrl : gPlayerCtrl) if (ctrl.qavScene.initiator == actor) ctrl.qavScene.initiator = nullptr;
-#endif
-    Numsprites--;
-
-    return 0;
-}
-
-int ChangeSpriteSect(int nSprite, int nSector)
-{
-    assert(nSprite >= 0 && nSprite < kMaxSprites);
-    assert(validSectorIndex(nSector));
-	assert(sprite[nSprite].insector());
-    RemoveSpriteSect(nSprite);
-    InsertSpriteSect(nSprite, nSector);
-    return 0;
-}
-
-int qchangespritesect(short nSprite, short nSector)
-{
-    return ChangeSpriteSect(nSprite, nSector);
-}
-
-int ChangeSpriteStat(int nSprite, int nStatus)
-{
-    assert(nSprite >= 0 && nSprite < kMaxSprites);
-    assert(nStatus >= 0 && nStatus < kMaxStatus);
-    assert(sprite[nSprite].statnum >= 0 && sprite[nSprite].statnum < kMaxStatus);
-    assert(sprite[nSprite].insector());
-    RemoveSpriteStat(nSprite);
-    InsertSpriteStat(nSprite, nStatus);
-    return 0;
-}
-
-void dbInit(void)
-{
-    initspritelists();
 }
 
 bool drawtile2048, encrypted;
@@ -436,7 +276,6 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sect
 #endif
     * pSector = &sector[mapHeader.sect];
 
-    dbInit();
     if (encrypted)
     {
         fr.Read(&byte_19AE44, 128);
@@ -904,6 +743,5 @@ void qloadboard(const char* filename, char flags, vec3_t* dapos, int16_t* daang)
     Blood::BloodSpawnSpriteDef sprites;
     sectortype* sp;
     Blood::dbLoadMap(filename, &dapos->x, &dapos->y, &dapos->z, daang, &sp, nullptr, sprites);
-    Blood::dbInit();    // clean up immediately.
 }
     

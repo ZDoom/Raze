@@ -56,11 +56,6 @@ inline int bossguy(DDukeActor* pSprite)
 
 // old interface versions of already changed functions
 
-inline void deletesprite(int num)
-{
-	deletesprite(&hittype[num]);
-}
-
 int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, unsigned int cliptype, Collision& result);
 int movesprite_ex_r(DDukeActor* actor, int xchange, int ychange, int zchange, unsigned int cliptype, Collision& result);
 

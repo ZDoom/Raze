@@ -151,7 +151,7 @@ void SpawnVis(DSWActor* parentActor, sectortype* sect, int x, int y, int z, int 
             }
         }
 
-        auto actorNew = InsertActor(psp->sector(), STAT_VIS_ON);
+        auto actorNew = insertActor(psp->sector(), STAT_VIS_ON);
         sp = &actorNew->s();
         SetOwner(parentActor, actorNew);
 
@@ -170,7 +170,7 @@ void SpawnVis(DSWActor* parentActor, sectortype* sect, int x, int y, int z, int 
         if (sect->floorpal == PALETTE_FOG)
             return;
 
-        auto actorNew = InsertActor(sect, STAT_VIS_ON);
+        auto actorNew = insertActor(sect, STAT_VIS_ON);
         sp = &actorNew->s();
 
         sp->x = x;

@@ -220,11 +220,7 @@ Collision MoveCreature(DExhumedActor* nSprite);
 Collision MoveCreatureWithCaution(DExhumedActor* actor);
 void WheresMyMouth(int nPlayer, vec3_t* pos, sectortype** sectnum);
 int GetActorHeight(DExhumedActor* nSprite);
-DExhumedActor* insertActor(int, int);
-inline DExhumedActor* insertActor(sectortype* s, int st)
-{
-    return insertActor(sector.IndexOf(s), st);
-}
+DExhumedActor* insertActor(sectortype* s, int st);
 DExhumedActor* GrabBody();
 DExhumedActor* GrabBodyGunSprite();
 void FuncCreatureChunk(int a, int, int nRun);

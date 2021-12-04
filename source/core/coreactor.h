@@ -2,7 +2,6 @@
 
 #include <stdint.h>
 #include "build.h"
-#include "iterators.h"
 
 class DCoreActor
 {
@@ -11,6 +10,12 @@ protected:
 	int index;
 
 public:
+
+	// These two are needed because we cannot rely on the ones in the sprites for unlinking.
+	int link_stat;
+	sectortype* link_sector;
+	DCoreActor* prevStat, * nextStat;
+	DCoreActor* prevSect, * nextSect;
 
 	bool exists() const
 	{
@@ -209,51 +214,80 @@ struct TCollision : public CollisionBase
 };
 
 
+struct ActorStatList
+{
+	DCoreActor* firstEntry, * lastEntry;
+};
+
+extern ActorStatList statList[MAXSTATUS];
 
 // Iterator wrappers that return an actor pointer, not an index.
 template<class TActor>
-class TStatIterator : public StatIterator
+class TStatIterator
 {
+	DCoreActor* next;
 public:
-	TStatIterator(int stat) : StatIterator(stat)
+	TStatIterator(int stat)
 	{
+		next = statList[stat].firstEntry;
+	}
+
+	void Reset(int stat)
+	{
+		next = statList[stat].firstEntry;
 	}
 
 	TActor* Next()
 	{
-		int n = NextIndex();
-		return n >= 0 ? static_cast<TActor*>(actorArray[n]) : nullptr;
+		auto n = next;
+		if (next) next = next->nextStat;
+		return static_cast<TActor*>(n);
 	}
 
 	TActor* Peek()
 	{
-		int n = PeekIndex();
-		return n >= 0 ? static_cast<TActor*>(actorArray[n]) : nullptr;
+		return static_cast<TActor*>(next);
 	}
 };
 
 template<class TActor>
-class TSectIterator : public SectIterator
+class TSectIterator
 {
+	DCoreActor* next;
 public:
-	TSectIterator(int stat) : SectIterator(stat)
+	//[[deprecated]]
+	TSectIterator(int stat)
 	{
+		next = sector[stat].firstEntry;
 	}
 
-	TSectIterator(sectortype* stat) : SectIterator(stat)
+	TSectIterator(sectortype* stat)
 	{
+		next = stat->firstEntry;
 	}
+
+	//[[deprecated]]
+	void Reset(int stat)
+	{
+		next = sector[stat].firstEntry;
+	}
+
+	void Reset(sectortype* stat)
+	{
+		next = stat->firstEntry;
+	}
+
 
 	TActor* Next()
 	{
-		int n = NextIndex();
-		return n >= 0 ? static_cast<TActor*>(actorArray[n]) : nullptr;
+		auto n = next;
+		if (next) next = next->nextSect;
+		return static_cast<TActor*>(n);
 	}
 
 	TActor* Peek()
 	{
-		int n = PeekIndex();
-		return n >= 0 ? static_cast<TActor*>(actorArray[n]) : nullptr;
+		return static_cast<TActor*>(next);
 	}
 };
 
@@ -288,16 +322,15 @@ public:
 
 using CoreSectIterator = TSectIterator<DCoreActor>;
 
+// Only to be used by initial actor spawns!
+void InsertActorSect(DCoreActor* actor, sectortype* sector, bool tail = false);
+void InsertActorStat(DCoreActor* actor, int stat, bool tail = false);
 
-inline void ChangeActorStat(DCoreActor* actor, int stat)
-{
-	changespritestat(actor->GetSpriteIndex(), stat);
-}
-
-inline void ChangeActorSect(DCoreActor* actor, sectortype* sect)
-{
-	changespritesect(actor->GetSpriteIndex(), sector.IndexOf(sect));
-}
+DCoreActor* InsertActor(sectortype* sector, int stat, bool forcetail = false);
+int DeleteActor(DCoreActor* actor);
+void ChangeActorSect(DCoreActor* actor, sectortype* sector, bool forcetail = false);
+int ChangeActorStat(DCoreActor* actor, int nStatus, bool forcetail = false);
+void InitSpriteLists();
 
 
 void SetActorZ(DCoreActor* actor, const vec3_t* newpos);

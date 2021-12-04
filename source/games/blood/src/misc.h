@@ -43,7 +43,6 @@ void setPortalFlags(int mode);
 void processSpritesOnOtherSideOfPortal(int x, int y, int interpolation);
 void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int viewPlayer);
 int qanimateoffs(int a1, int a2);
-void HookReplaceFunctions();
 
 struct PLAYER;
 

@@ -115,18 +115,9 @@ void DeleteLight(int32_t s);
 
 #endif
 
-void InsertSpriteSect(int nSprite, int nSector);
-void RemoveSpriteSect(int nSprite);
-void InsertSpriteStat(int nSprite, int nStat);
-void RemoveSpriteStat(int nSprite);
-void qinitspritelists(void);
 DBloodActor* InsertSprite(sectortype* pSector, int nStat);
 int DeleteSprite(DBloodActor* actor);
-int ChangeSpriteSect(int nSprite, int nSector);
-int qchangespritesect(short nSprite, short nSector);
-int ChangeSpriteStat(int nSprite, int nStatus);
-void dbInit(void);
-void PropagateMarkerReferences(void);
+
 unsigned int dbReadMapCRC(const char *pPath);
 void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sectortype** pSector, unsigned int* pCRC, BloodSpawnSpriteDef& sprites);
 

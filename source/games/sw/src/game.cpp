@@ -293,6 +293,26 @@ void InitLevelGlobals2(void)
 //
 //---------------------------------------------------------------------------
 
+void spawnactors(SpawnSpriteDef& sprites)
+{
+    InitSpriteLists();
+    for (unsigned i = 0; i < sprites.sprites.Size(); i++)
+    {
+        if (sprites.sprites[i].statnum == MAXSTATUS)
+        {
+            continue;
+        }
+        auto sprt = &sprites.sprites[i];
+        auto actor = insertActor(sprt->sector(), sprt->statnum);
+        actor->Clear();
+        actor->s() = sprites.sprites[i];
+        if (sprites.sprext.Size()) actor->sx() = sprites.sprext[i];
+        else actor->sx() = {};
+        actor->sm() = {};
+    }
+}
+
+
 void InitLevel(MapRecord *maprec)
 {
     Terminate3DSounds();
@@ -330,7 +350,7 @@ void InitLevel(MapRecord *maprec)
     int cursect;
     SpawnSpriteDef sprites;
     engineLoadBoard(maprec->fileName, SW_SHAREWARE ? 1 : 0, &Player[0].pos, &ang, &cursect, sprites);
-    insertAllSprites(sprites);
+    spawnactors(sprites);
     Player[0].cursector = &sector[cursect];
 
     SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);

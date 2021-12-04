@@ -61,13 +61,4 @@ int qanimateoffs(int a1, int a2)
     return offset;
 }
 
-void qinitspritelists();
-int32_t qchangespritesect(int16_t nSprite, int16_t nSector);
-
-void HookReplaceFunctions(void)
-{
-    initspritelists_replace = qinitspritelists;
-    changespritesect_replace = qchangespritesect;
-}
-
 END_BLD_NS

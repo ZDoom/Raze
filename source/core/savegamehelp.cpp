@@ -666,20 +666,11 @@ void SerializeMap(FSerializer& arc)
 				activeSprites.Set(i);
 			}
 		}
-		// simplify the data a bit for better compression. 
-		for (int i = 0; i < MAXSPRITES; i++)
-		{
-			if (nextspritestat[i] == i + 1) nextspritestat[i] = -2;
-			if (nextspritesect[i] == i + 1) nextspritesect[i] = -2;
-			if (prevspritestat[i] == i - 1) prevspritestat[i] = -2;
-			if (prevspritesect[i] == i - 1) prevspritesect[i] = -2;
-		}
-
 	}
 	else
 	{
 		memset(sprite, 0, sizeof(sprite[0]) * MAXSPRITES);
-		initspritelists();
+		InitSpriteLists();
 		zsp = sprite[0];
 	}
 
@@ -692,12 +683,6 @@ void SerializeMap(FSerializer& arc)
 			("sectors", sector, sectorbackup)
 			("numwalls", numwalls)
 			("walls", wall, wallbackup)
-			.Array("headspritestat", headspritestat, MAXSTATUS + 1)
-			.Array("nextspritestat", nextspritestat, MAXSPRITES)
-			.Array("prevspritestat", prevspritestat, MAXSPRITES)
-			.Array("headspritesect", headspritesect, MAXSECTORS + 1)
-			.Array("nextspritesect", nextspritesect, MAXSPRITES)
-			.Array("prevspritesect", prevspritesect, MAXSPRITES)
 
 			("tailspritefree", tailspritefree)
 			("myconnectindex", myconnectindex)
@@ -729,15 +714,6 @@ void SerializeMap(FSerializer& arc)
 		arc.EndObject();
 	}
 
-
-	// Undo the simplification.
-	for (int i = 0; i < MAXSPRITES; i++)
-	{
-		if (nextspritestat[i] == -2) nextspritestat[i] = i + 1;
-		if (nextspritesect[i] == -2) nextspritesect[i] = i + 1;
-		if (prevspritestat[i] == -2) prevspritestat[i] = i - 1;
-		if (prevspritesect[i] == -2) prevspritesect[i] = i - 1;
-	}
 	if (arc.isReading())
 	{
 		setWallSectors();

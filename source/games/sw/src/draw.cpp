@@ -547,7 +547,7 @@ DSWActor* CopySprite(sprt const* tsp, sectortype* newsector)
 {
     SPRITEp sp;
 
-    auto actorNew = InsertActor(newsector, STAT_FAF_COPY);
+    auto actorNew = insertActor(newsector, STAT_FAF_COPY);
     sp = &actorNew->s();
 
     sp->x = tsp->x;
@@ -1277,7 +1277,7 @@ PostDraw(void)
     while (auto actor = it.Next())
     {
         actor->clearUser();
-        deletesprite(actor->GetSpriteIndex());
+        ::DeleteActor(actor);
     }
 }
 

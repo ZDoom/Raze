@@ -1155,7 +1155,7 @@ void BunnyHatch(DSWActor* actor)
 
     for (int i = 0; i < MAX_BUNNYS; i++)
     {
-        auto actorNew = InsertActor(sp->sector(), STAT_DEFAULT);
+        auto actorNew = insertActor(sp->sector(), STAT_DEFAULT);
         np = &actorNew->s();
         np->clear();
         np->x = sp->x;
@@ -1218,7 +1218,7 @@ DSWActor* BunnyHatch2(DSWActor* actor)
     SPRITEp wp = &actor->s();
 
 
-    auto actorNew = InsertActor(wp->sector(), STAT_DEFAULT);
+    auto actorNew = insertActor(wp->sector(), STAT_DEFAULT);
     auto np = &actorNew->s();
     np->clear();
     np->x = wp->x;

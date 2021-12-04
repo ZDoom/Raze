@@ -82,12 +82,18 @@ void EndLevel(void)
 TArray<DBloodActor*> SpawnActors(BloodSpawnSpriteDef& sprites)
 {
 	TArray<DBloodActor*> spawns(sprites.sprites.Size(), true);
-	initspritelists();
+	InitSpriteLists();
+	int j = 0;
 	for (unsigned i = 0; i < sprites.sprites.Size(); i++)
 	{
-		RemoveSpriteStat(i);
-		auto actor = &bloodActors[i];
-		spawns[i] = actor;
+		if (sprites.sprites[i].statnum == MAXSTATUS)
+		{
+			spawns.Pop();
+			continue;
+		}
+		auto sprt = &sprites.sprites[i];
+		auto actor = InsertSprite(sprt->sector(), sprt->statnum);
+		spawns[j++] = actor;
 		actor->Clear();
 		actor->s() = sprites.sprites[i];
 		if (sprites.sprext.Size()) actor->sx() = sprites.sprext[i];
@@ -99,11 +105,7 @@ TArray<DBloodActor*> SpawnActors(BloodSpawnSpriteDef& sprites)
 			actor->addX();
 			actor->x() = sprites.xspr[i];
 		}
-
-		InsertSpriteSect(i, actor->s().sectnum);
-		InsertSpriteStat(i, actor->s().statnum);
 	}
-	Numsprites = spawns.Size();
 	return spawns;
 }
 
@@ -506,8 +508,6 @@ void GameInterface::app_init()
 	memcpy(&gGameOptions, &gSingleGameOptions, sizeof(GAMEOPTIONS));
 	gGameOptions.nMonsterSettings = !userConfig.nomonsters;
 	ReadAllRFS();
-
-	HookReplaceFunctions();
 
 	levelLoadDefaults();
 

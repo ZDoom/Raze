@@ -177,14 +177,4 @@ inline void GetActorExtents(DBloodActor* actor, int* top, int* bottom)
 	GetSpriteExtents(&actor->s(), top, bottom);
 }
 
-inline void ChangeActorStat(DBloodActor* actor, int stat)
-{
-	ChangeSpriteStat(actor->GetSpriteIndex(), stat);
-}
-
-inline void ChangeActorSect(DBloodActor* actor, sectortype* stat)
-{
-	ChangeSpriteSect(actor->GetSpriteIndex(), sectnum(stat));
-}
-
 END_BLD_NS

@@ -935,15 +935,27 @@ static void SpawnPortals()
 //
 //---------------------------------------------------------------------------
 
-static TArray<DDukeActor*> spawnactors(SpawnSpriteDef& spawns)
+static TArray<DDukeActor*> spawnactors(SpawnSpriteDef& sprites)
 {
-	insertAllSprites(spawns);
-	TArray<DDukeActor*> actorlist;
-	for(unsigned i = 0; i < spawns.sprites.Size(); i++)
+	TArray<DDukeActor*> spawns(sprites.sprites.Size(), true);
+	InitSpriteLists();
+	int j = 0;
+	for (unsigned i = 0; i < sprites.sprites.Size(); i++)
 	{
-		if (hittype[i].exists()) actorlist.Push(&hittype[i]);
+		if (sprites.sprites[i].statnum == MAXSTATUS)
+		{
+			spawns.Pop();
+			continue;
+		}
+		auto sprt = &sprites.sprites[i];
+		auto actor = static_cast<DDukeActor*>(InsertActor(sprt->sector(), sprt->statnum));
+		spawns[j++] = actor;
+		*actor->s = sprites.sprites[i];
+		if (sprites.sprext.Size()) actor->sx() = sprites.sprext[i];
+		else actor->sx() = {};
+		actor->sm() = {};
 	}
-	return actorlist;
+	return spawns;
 }
 
 //---------------------------------------------------------------------------

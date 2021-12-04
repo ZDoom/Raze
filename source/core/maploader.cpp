@@ -387,7 +387,7 @@ void insertAllSprites(SpawnSpriteDef& sprites)
 			removeit = true;
 		}
 
-		insertsprite(spr.sectnum, spr.statnum, true);
+		//insertsprite(spr.sectnum, spr.statnum, true);
 
 		if (removeit)
 		{
@@ -407,7 +407,7 @@ void insertAllSprites(SpawnSpriteDef& sprites)
 			{
 				// Now remove it for real!
 				spr.statnum = 0;
-				deletesprite(i);
+				//deletesprite(i);
 			}
 		}
 	}
@@ -468,7 +468,6 @@ void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang,
 
 	// Now that we know the map's size, set up the globals.
 	allocateMapArrays(numsprites);
-	initspritelists(); // may not be used in Blood!
 	sprites.sprites.Resize(numsprites);
 	memset(sprites.sprites.Data(), 0, numsprites * sizeof(spritetype));
 
@@ -549,7 +548,6 @@ void loadMapBackup(const char* filename)
 	else
 	{
 		engineLoadBoard(filename, 0, &pos, &scratch, &scratch2, scratch3);
-		initspritelists();
 	}
 }
 

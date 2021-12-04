@@ -53,12 +53,10 @@ DDukeActor* EGS(sectortype* whatsectp, int s_x, int s_y, int s_z, int s_pn, int8
 {
 	// sector pointer must be strictly validated here or the engine will crash.
 	if (whatsectp == nullptr || !validSectorIndex(sectnum(whatsectp))) return nullptr;
-	int const i = insertsprite(sectnum(whatsectp), s_ss);
+	auto act = static_cast<DDukeActor*>(::InsertActor(whatsectp, s_ss));
 
-	if (i < 0)
-		I_Error(" Too many sprites spawned.");
+	if (act == nullptr) return nullptr;
 
-	auto act = &hittype[i];
 	auto s = act->s;
 
 	s->x = s_x;

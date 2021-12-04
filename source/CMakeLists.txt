@@ -1013,6 +1013,7 @@ set (PCH_SOURCES
 	build/src/mdsprite.cpp
 	build/src/polymost.cpp
 
+	core/actorlist.cpp
 	core/automap.cpp
 	core/cheats.cpp
 	core/cheathandler.cpp

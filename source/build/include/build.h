@@ -238,10 +238,6 @@ extern int16_t pskybits_override;
 // (or -1 if freelist is empty):
 EXTERN int16_t tailspritefree;
 
-EXTERN int16_t headspritesect[MAXSECTORS+1], headspritestat[MAXSTATUS+1];
-EXTERN int16_t prevspritesect[MAXSPRITES], prevspritestat[MAXSPRITES];
-EXTERN int16_t nextspritesect[MAXSPRITES], nextspritestat[MAXSPRITES];
-
 EXTERN uint8_t gotpic[(MAXTILES+7)>>3];
 extern FixedBitArray<MAXSECTORS> gotsector;
 
@@ -321,7 +317,6 @@ typedef struct artheader_t {
 
 int32_t    engineInit(void);
 void   engineUnInit(void);
-void   initspritelists(void);
 
 struct SpawnSpriteDef
 {
@@ -484,19 +479,7 @@ int32_t lintersect(int32_t originX, int32_t originY, int32_t originZ,
                    int32_t lineStartX, int32_t lineStartY, int32_t lineEndX, int32_t lineEndY,
                    int32_t *intersectionX, int32_t *intersectionY, int32_t *intersectionZ);
 
-int32_t insertsprite(int16_t sectnum, int16_t statnum, bool frominit = false);
-int32_t deletesprite(int16_t spritenum);
-
-int32_t   changespritesect(int16_t spritenum, int16_t newsectnum);
-int32_t   changespritestat(int16_t spritenum, int16_t newstatnum);
-
-int32_t   setspritez(int16_t spritenum, const vec3_t *) ATTRIBUTE((nonnull(2)));
-
 int32_t spriteheightofsptr(uspriteptr_t spr, int32_t *height, int32_t alsotileyofs);
-inline int32_t spriteheightofs(int16_t i, int32_t *height, int32_t alsotileyofs)
-{
-    return spriteheightofsptr((uspriteptr_t)&sprite[i], height, alsotileyofs);
-}
 
 int videoCaptureScreen();
 
@@ -593,19 +576,11 @@ static inline int64_t compat_maybe_truncate_to_int32(int64_t val)
     return enginecompatibility_mode != ENGINECOMPATIBILITY_NONE ? (int32_t)val : val;
 }
 
-static inline int32_t setspritez_old(int16_t spritenum, int32_t x, int32_t y, int32_t z)
-{
-    const vec3_t vector = { x, y, z };
-    return setspritez(spritenum, &vector);
-}
-
 extern int32_t rintersect(int32_t x1, int32_t y1, int32_t z1,
     int32_t vx_, int32_t vy_, int32_t vz,
     int32_t x3, int32_t y3, int32_t x4, int32_t y4,
     int32_t *intx, int32_t *inty, int32_t *intz);
 
-extern void(*initspritelists_replace)(void);
-extern int32_t(*changespritesect_replace)(int16_t spritenum, int16_t newsectnum);
 
 
 void updateModelInterpolation();
@@ -703,8 +678,5 @@ inline walltype* sectortype::lastWall() const
     return &wall[wallptr + wallnum - 1]; // cannot be -1 in a proper map
 }
 
-
-
-#include "iterators.h"
 
 #endif // build_h_

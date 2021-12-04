@@ -63,17 +63,29 @@ uint8_t bIsVersion6 = true;
 //
 //---------------------------------------------------------------------------
 
-static TArray<DExhumedActor*> spawnactors(SpawnSpriteDef& spawns)
+static TArray<DExhumedActor*> spawnactors(SpawnSpriteDef& sprites)
 {
-    insertAllSprites(spawns);
-    TArray<DExhumedActor*> actorlist;
-    for (unsigned i = 0; i < spawns.sprites.Size(); i++)
+    TArray<DExhumedActor*> spawns(sprites.sprites.Size(), true);
+    InitSpriteLists();
+    int j = 0;
+    for (unsigned i = 0; i < sprites.sprites.Size(); i++)
     {
-        if (exhumedActors[i].exists()) actorlist.Push(&exhumedActors[i]);
+        if (sprites.sprites[i].statnum == MAXSTATUS)
+        {
+            spawns.Pop();
+            continue;
+        }
+        auto sprt = &sprites.sprites[i];
+        auto actor = insertActor(sprt->sector(), sprt->statnum);
+        spawns[j++] = actor;
+        actor->Clear();
+        actor->s() = sprites.sprites[i];
+        if (sprites.sprext.Size()) actor->sx() = sprites.sprext[i];
+        else actor->sx() = {};
+        actor->sm() = {};
     }
-    return actorlist;
+    return spawns;
 }
-
 
 
 uint8_t LoadLevel(MapRecord* map)
@@ -86,9 +98,6 @@ uint8_t LoadLevel(MapRecord* map)
         nClockVal = 0;
         nEnergyTowers = 0;
     }
-
-    initspritelists();
-
 
     // init stuff
     {

@@ -503,12 +503,11 @@ void DeleteActor(DExhumedActor* actor)
     FVector3 pos = GetSoundPos(&actor->s().pos);
     soundEngine->RelinkSound(SOURCE_Actor, &actor->s(), nullptr, &pos);
 
-    deletesprite(actor->GetSpriteIndex());
-    actor->s().ox = 0x80000000;
-
     if (actor == bestTarget) {
         bestTarget = nullptr;
     }
+
+    ::DeleteActor(actor);
 }
 
 

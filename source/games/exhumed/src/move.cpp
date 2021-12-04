@@ -469,10 +469,9 @@ int GetActorHeight(DExhumedActor* actor)
     return tileHeight(actor->s().picnum) * actor->s().yrepeat * 4;
 }
 
-DExhumedActor* insertActor(int sect, int stat)
+DExhumedActor* insertActor(sectortype* s, int st)
 {
-    int ndx = insertsprite(sect, stat);
-    return ndx >= 0 ? &exhumedActors[ndx] : nullptr;
+    return static_cast<DExhumedActor*>(::InsertActor(s, st));
 }
 
 

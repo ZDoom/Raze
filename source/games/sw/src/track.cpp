@@ -313,7 +313,7 @@ DSWActor* TrackClonePoint(DSWActor* actor)
 {
     SPRITEp sp = &actor->s(), np;
 
-    auto actorNew = InsertActor(sp->sector(), sp->statnum);
+    auto actorNew = insertActor(sp->sector(), sp->statnum);
 
     np = &actorNew->s();
 

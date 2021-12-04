@@ -16069,7 +16069,7 @@ DSWActor* SpawnWallHole(sectortype* hit_sect, walltype* hit_wall, int hit_x, int
     short w,nw,wall_ang;
     SPRITEp sp;
 
-    auto actor = InsertActor(hit_sect, STAT_DEFAULT);
+    auto actor = insertActor(hit_sect, STAT_DEFAULT);
     sp = &actor->s();
     sp->xrepeat = sp->yrepeat = 16;
     sp->cstat = 0;
@@ -18602,7 +18602,7 @@ void QueueHole(sectortype* hit_sect, walltype* hit_wall, int hit_x, int hit_y, i
         return;
 
     if (HoleQueue[HoleQueueHead] == nullptr)
-        HoleQueue[HoleQueueHead] = spawnedActor = InsertActor(hit_sect, STAT_HOLE_QUEUE);
+        HoleQueue[HoleQueueHead] = spawnedActor = insertActor(hit_sect, STAT_HOLE_QUEUE);
     else
         spawnedActor = HoleQueue[HoleQueueHead];
 

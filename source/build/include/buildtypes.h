@@ -59,8 +59,12 @@ END_BLD_NS
 //40 bytes
 class DCoreActor;
 struct walltype;
+
+
 struct sectortype
 {
+    DCoreActor* firstEntry, * lastEntry;
+
     int16_t wallptr, wallnum;
     int32_t ceilingz, floorz;
     uint16_t ceilingstat, floorstat;

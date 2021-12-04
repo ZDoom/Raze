@@ -54,14 +54,10 @@ SAVE save;
 
 bool FAF_DebugView = false;
 
-DSWActor* InsertActor(int sectnum, int stat)
+DSWActor* insertActor(sectortype* sect, int statnum)
 {
-    short spnum;
-    spnum = insertsprite(sectnum, stat);
-    auto pActor = &swActors[spnum];
+    auto pActor = static_cast<DSWActor*>(::InsertActor(sect, statnum));
     auto pSprite = &pActor->s();
-
-    PRODUCTION_ASSERT(spnum >= 0);
 
     pSprite->x = pSprite->y = pSprite->z = 0;
     pSprite->cstat = 0;
