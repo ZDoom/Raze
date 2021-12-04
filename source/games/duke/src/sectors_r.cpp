@@ -790,7 +790,7 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 					DDukeActor* switches[3];
 					int switchcount = 0, j;
 					S_PlaySound3D(SWITCH_ON, act, &v);
-					DukeLinearSpriteIterator it;
+					DukeSpriteIterator it;
 					while (auto actt = it.Next())
 					{
 						int jpn = actt->s->picnum;
@@ -806,6 +806,11 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 					}
 					if (switchcount == 3)
 					{
+						// This once was a linear search over sprites[] so bring things back in order, just to be safe.
+						if (switches[0]->GetIndex() > switches[1]->GetIndex()) std::swap(switches[0], switches[1]);
+						if (switches[0]->GetIndex() > switches[2]->GetIndex()) std::swap(switches[0], switches[2]);
+						if (switches[1]->GetIndex() > switches[2]->GetIndex()) std::swap(switches[1], switches[2]);
+
 						S_PlaySound3D(78, act, &v);
 						for (j = 0; j < switchcount; j++)
 						{
@@ -1038,7 +1043,7 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 					auto spawned = EGS(sptr, x, y, z, SECTOREFFECTOR, 0, 0, 0, ps[0].angle.ang.asbuild(), 0, 0, spr, 3);
 					if (spawned)
 					{
-						spawned->s->lotag = 128;
+						spawned->s->lotag = SE_128_GLASS_BREAKING;
 						spawned->temp_walls[0] = wal;
 						S_PlayActorSound(GLASS_BREAKING, spawned);
 					}
@@ -1059,7 +1064,7 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 					auto spawned = EGS(sptr, x, y, z, SECTOREFFECTOR, 0, 0, 0, ps[0].angle.ang.asbuild(), 0, 0, spr, 3);
 					if (spawned)
 					{
-						spawned->s->lotag = 128;
+						spawned->s->lotag = SE_128_GLASS_BREAKING;
 						spawned->temp_data[1] = 2;
 						spawned->temp_walls[0] = wal;
 						S_PlayActorSound(GLASS_BREAKING, spawned);

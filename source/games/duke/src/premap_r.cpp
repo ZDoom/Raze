@@ -407,13 +407,13 @@ void cacheit_r(void)
 //
 //---------------------------------------------------------------------------
 
-void spriteinit_r(int i)
+void spriteinit_r(DDukeActor* actor, TArray<DDukeActor*>& actors)
 {
-	i = initspriteforspawn(i, { CRACK1, CRACK2, CRACK3, CRACK4 });
-	if ((i & 0x1000000)) spawninit_r(nullptr, &hittype[i & 0xffffff]);
+	bool res = initspriteforspawn(actor, { CRACK1, CRACK2, CRACK3, CRACK4 });
+	if (res) spawninit_r(nullptr, actor, &actors);
 }
 
-void prelevel_r(int g)
+void prelevel_r(int g, TArray<DDukeActor*>& actors)
 {
 	struct player_struct* p;
 	int i;
@@ -433,14 +433,14 @@ void prelevel_r(int g)
 
 	if (isRRRA())
 	{
-
-		for (j = 0; j < MAXSPRITES; j++)
+		for(auto actor : actors)
 		{
-			auto spr = &sprite[j];
+			if (!actor->exists()) continue;
+			auto spr = actor->s;
 			if (spr->pal == 100)
 			{
 				if (numplayers > 1)
-					deletesprite(j);
+					deletesprite(actor);
 				else
 					spr->pal = 0;
 			}
@@ -449,7 +449,7 @@ void prelevel_r(int g)
 				spr->extra = 0;
 				spr->hitag = 1;
 				spr->pal = 0;
-				changespritestat(j, 118);
+				ChangeActorStat(actor, 118);
 			}
 		}
 	}
@@ -600,9 +600,10 @@ void prelevel_r(int g)
 		}
 	}
 
-	for (i = 0; i < MAXSPRITES; i++)
+	for (auto actor : actors)
 	{
-		auto spr = &sprite[i];
+		if (!actor->exists()) continue;
+		auto spr = actor->s;
 		if (spr->picnum == RRTILE19)
 		{
 			if (geocnt > 64)
@@ -610,10 +611,10 @@ void prelevel_r(int g)
 			if (spr->hitag == 0)
 			{
 				geosector[geocnt] = spr->sector();
-				for (j = 0; j < MAXSPRITES; j++)
+				for (auto actor2 : actors)
 				{
-					auto spj = &sprite[j];
-					if (spr->lotag == spj->lotag && j != i && spj->picnum == RRTILE19)
+					auto spj = actor2->s;
+					if (spr->lotag == spj->lotag && actor2 != actor && spj->picnum == RRTILE19)
 					{
 						if (spj->hitag == 1)
 						{
@@ -636,31 +637,31 @@ void prelevel_r(int g)
 		}
 	}
 
-	for (i = 0; i < MAXSPRITES; i++)
+	for (auto actor : actors)
 	{
-		auto spr = &sprite[i];
-		if (spr->statnum < MAXSTATUS)
+		if (actor->exists())
 		{
+			auto spr = actor->s;
 			if (spr->picnum == SECTOREFFECTOR && spr->lotag == SE_14_SUBWAY_CAR)
 				continue;
-			spriteinit_r(i);
+			spriteinit_r(actor, actors);
 		}
 	}
 
-	for (i = 0; i < MAXSPRITES; i++)
+	for (auto actor : actors)
 	{
-		auto spr = &sprite[i];
-		if (spr->statnum < MAXSTATUS)
+		if (actor->exists())
 		{
+			auto spr = actor->s;
 			if (spr->picnum == SECTOREFFECTOR && spr->lotag == SE_14_SUBWAY_CAR)
-				spriteinit_r(i);
-		}
-		if (spr->picnum == RRTILE19)
-			deletesprite(i);
-		if (spr->picnum == RRTILE34)
-		{
-			spr->sector()->keyinfo = uint8_t(spr->lotag);
-			deletesprite(i);
+				spriteinit_r(actor, actors);
+			if (spr->picnum == RRTILE19)
+				deletesprite(actor);
+			if (spr->picnum == RRTILE34)
+			{
+				spr->sector()->keyinfo = uint8_t(spr->lotag);
+				deletesprite(actor);
+			}
 		}
 	}
 

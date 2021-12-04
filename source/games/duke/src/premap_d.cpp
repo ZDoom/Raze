@@ -269,13 +269,13 @@ void cacheit_d(void)
 //
 //
 //---------------------------------------------------------------------------
-void spriteinit_d(int i)
+void spriteinit_d(DDukeActor* actor, TArray<DDukeActor*>& actors)
 {
-	i = initspriteforspawn(i, { CRACK1, CRACK2, CRACK3, CRACK4, SPEAKER, LETTER, DUCK, TARGET, TRIPBOMB, VIEWSCREEN, VIEWSCREEN2 });
-	if ((i & 0x1000000)) spawninit_d(nullptr, &hittype[i&0xffffff]);
+	bool res = initspriteforspawn(actor, { CRACK1, CRACK2, CRACK3, CRACK4, SPEAKER, LETTER, DUCK, TARGET, TRIPBOMB, VIEWSCREEN, VIEWSCREEN2 });
+	if (res) spawninit_d(nullptr, actor, &actors);
 }
 
-void prelevel_d(int g)
+void prelevel_d(int g, TArray<DDukeActor*>& actors)
 {
 	int i, j, lotaglist;
 	short lotags[65];
@@ -316,32 +316,32 @@ void prelevel_d(int g)
 	}
 
 
-	for (i = 0; i < MAXSPRITES; i++)
+	for (auto actor : actors)
 	{
-		auto spr = &sprite[i];
-		if (spr->statnum < MAXSTATUS)
+		if (actor->exists())
 		{
+			auto spr = actor->s;
 			if (spr->picnum == SECTOREFFECTOR && spr->lotag == SE_14_SUBWAY_CAR)
 				continue;
-			spriteinit_d(i);
+			spriteinit_d(actor, actors);
 		}
 	}
 
-	for (i = 0; i < MAXSPRITES; i++)
+	for (auto actor : actors)
 	{
-		auto spr = &sprite[i];
-		if (spr->statnum < MAXSTATUS)
+		if (actor->exists())
 		{
+			auto spr = actor->s;
 			if (spr->picnum == SECTOREFFECTOR && spr->lotag == SE_14_SUBWAY_CAR)
-				spriteinit_d(i);
+				spriteinit_d(actor, actors);
 		}
 	}
 	lotaglist = 0;
 
 	it.Reset(STAT_DEFAULT);
-	while ((i = it.NextIndex()) >= 0)
+	while (auto actor = it.Next())
 	{
-		auto spr = &sprite[i];
+		auto spr = actor->s;
 		switch (spr->picnum)
 		{
 		case DIPSWITCH + 1:

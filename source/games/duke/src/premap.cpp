@@ -931,6 +931,23 @@ static void SpawnPortals()
 
 //---------------------------------------------------------------------------
 //
+// this is just a dummy for now to provide the intended setup.
+//
+//---------------------------------------------------------------------------
+
+static TArray<DDukeActor*> spawnactors(SpawnSpriteDef& spawns)
+{
+	insertAllSprites(spawns);
+	TArray<DDukeActor*> actorlist;
+	for(unsigned i = 0; i < spawns.sprites.Size(); i++)
+	{
+		if (hittype[i].exists()) actorlist.Push(&hittype[i]);
+	}
+	return actorlist;
+}
+
+//---------------------------------------------------------------------------
+//
 //
 //
 //---------------------------------------------------------------------------
@@ -956,10 +973,10 @@ static int LoadTheMap(MapRecord *mi, struct player_struct *p, int gamemode)
 
 	memset(gotpic, 0, sizeof(gotpic));
 
-	insertAllSprites(sprites);
+	auto actorlist = spawnactors(sprites);
 	
-	if (isRR()) prelevel_r(gamemode);
-	else prelevel_d(gamemode);
+	if (isRR()) prelevel_r(gamemode, actorlist);
+	else prelevel_d(gamemode, actorlist);
 
 	SpawnPortals();
 

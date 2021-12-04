@@ -41,7 +41,7 @@ source as it is released.
 BEGIN_DUKE_NS
 
 
-DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
+DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* actors)
 {
 	auto sp = act->s;
 	auto spj = actj == nullptr ? nullptr : actj->s;
@@ -1125,7 +1125,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act)
 		break;
 
 	case SECTOREFFECTOR:
-		spawneffector(act);
+		spawneffector(act, actors);
 
 		break;
 

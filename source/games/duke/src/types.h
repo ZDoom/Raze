@@ -45,9 +45,10 @@ struct DDukeActor : public DCoreActor
 
 	static DDukeActor* array();	// this is necessary to allow define inline functions referencing the global array inside the definition itself.
 
-	DDukeActor() : s(&sprite[this - array()]) 
+	DDukeActor()
 	{
 		index = int(this - array());
+		s = &DCoreActor::s();
 	}
 	DDukeActor(const DDukeActor& other) = delete;				// we also do not want to allow copies.
 	DDukeActor& operator=(const DDukeActor& other) = delete;

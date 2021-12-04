@@ -137,9 +137,8 @@ DDukeActor* EGS(sectortype* whatsectp, int s_x, int s_y, int s_z, int s_pn, int8
 //
 //---------------------------------------------------------------------------
 
-int initspriteforspawn(int i, const std::initializer_list<int> &excludes)
+bool initspriteforspawn(DDukeActor* act, const std::initializer_list<int> &excludes)
 {
-	auto act = &hittype[i];
 	auto sp = act->s;
 	auto t = act->temp_data;
 
@@ -168,7 +167,7 @@ int initspriteforspawn(int i, const std::initializer_list<int> &excludes)
 	if (sp->cstat & 48)
 		if (!isIn(sp->picnum, excludes) && (sp->cstat & 48))
 		{
-			if (sp->shade == 127) return i;
+			if (sp->shade == 127) return false;
 			if (wallswitchcheck(act) && (sp->cstat & 16))
 			{
 				if (sp->picnum != TILE_ACCESSSWITCH && sp->picnum != TILE_ACCESSSWITCH2 && sp->pal)
@@ -177,21 +176,21 @@ int initspriteforspawn(int i, const std::initializer_list<int> &excludes)
 					{
 						sp->xrepeat = sp->yrepeat = 0;
 						sp->cstat = sp->lotag = sp->hitag = 0;
-						return i;
+						return false;
 					}
 				}
 				sp->cstat |= 257;
 				if (sp->pal && sp->picnum != TILE_ACCESSSWITCH && sp->picnum != TILE_ACCESSSWITCH2)
 					sp->pal = 0;
-				return i;
+				return false;
 			}
 
 			if (sp->hitag)
 			{
-				changespritestat(i, 12);
+				ChangeActorStat(act, 12);
 				sp->cstat |= 257;
 				sp->extra = gs.impact_damage;
-				return i;
+				return false;
 			}
 		}
 
@@ -209,7 +208,7 @@ int initspriteforspawn(int i, const std::initializer_list<int> &excludes)
 			sp->hitag = s3;
 	}
 	else t[1] = t[4] = 0;
-	return i | 0x1000000;
+	return true;
 }
 
 //---------------------------------------------------------------------------
@@ -226,7 +225,7 @@ DDukeActor* spawn(DDukeActor* actj, int pn)
 		if (spawned)
 		{
 			spawned->picnum = actj->s->picnum;
-			return fi.spawninit(actj, spawned);
+			return fi.spawninit(actj, spawned, nullptr);
 		}
 	}
 	return nullptr;
@@ -619,7 +618,7 @@ int initreactor(DDukeActor* actj, DDukeActor* actor, bool isrecon)
 //
 //---------------------------------------------------------------------------
 
-void spawneffector(DDukeActor* actor)
+void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 {
 	auto sp = actor->s;
 	auto sectp = sp->sector();
@@ -637,18 +636,18 @@ void spawneffector(DDukeActor* actor)
 			break;
 		case SE_7_TELEPORT: // Transporters!!!!
 		case SE_23_ONE_WAY_TELEPORT:// XPTR END
-			if (sp->lotag != SE_23_ONE_WAY_TELEPORT)
+			if (sp->lotag != SE_23_ONE_WAY_TELEPORT && actors)
 			{
-				DukeLinearSpriteIterator it;
-				while (auto act2 = it.Next())
-					{
+				
+				for(auto act2 : *actors)
+				{
 					if (act2->s->statnum < MAXSTATUS && act2->s->picnum == SECTOREFFECTOR && (act2->s->lotag == SE_7_TELEPORT || act2->s->lotag == SE_23_ONE_WAY_TELEPORT) && 
 						actor != act2 && act2->s->hitag == sp->hitag)
 					{
 						actor->SetOwner(act2);
 						break;
 					}
-			}
+				}
 			}
 			else actor->SetOwner(actor);
 
@@ -943,9 +942,9 @@ void spawneffector(DDukeActor* actor)
 					sectp->hitag = ActorToScriptIndex(actor);
 				}
 
-				DukeLinearSpriteIterator it;
+				
 				bool found = false;
-				while (auto act2 = it.Next())
+				if (actors) for(auto act2 : *actors)
 				{
 					auto spr = act2->s;
 					if (spr->statnum < MAXSTATUS)

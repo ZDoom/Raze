@@ -35,7 +35,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 
 BEGIN_DUKE_NS
 
-DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act)
+DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* actors)
 {
 	auto sp = act->s;
 	auto spj = actj == nullptr ? nullptr : actj->s;
@@ -1371,7 +1371,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act)
 		ChangeActorStat(act, STAT_STANDABLE);
 		break;
 	case SECTOREFFECTOR:
-		spawneffector(act);
+		spawneffector(act, actors);
 		break;
 
 	case SEENINE:

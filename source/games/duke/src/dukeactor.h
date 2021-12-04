@@ -8,7 +8,6 @@ BEGIN_DUKE_NS
 using DukeStatIterator = TStatIterator<DDukeActor>;
 using DukeSectIterator = TSectIterator<DDukeActor>;
 using DukeSpriteIterator = TSpriteIterator<DDukeActor>;
-using DukeLinearSpriteIterator = TLinearSpriteIterator<DDukeActor>;
 
 inline DDukeActor* player_struct::GetActor()
 {
