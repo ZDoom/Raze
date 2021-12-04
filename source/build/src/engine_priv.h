@@ -36,7 +36,7 @@ inline int32_t bad_tspr(tspriteptr_t tspr)
 {
     // NOTE: tspr->owner >= MAXSPRITES (could be model) has to be handled by
     // caller.
-    return (tspr->owner < 0 || (unsigned)tspr->picnum >= MAXTILES);
+    return (tspr->ownerActor == nullptr || (unsigned)tspr->picnum >= MAXTILES);
 }
 
 inline void set_globalpos(int32_t const x, int32_t const y, int32_t const z)

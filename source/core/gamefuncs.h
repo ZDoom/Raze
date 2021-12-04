@@ -124,7 +124,8 @@ inline void PlanesAtPoint(const sectortype* sec, float dax, float day, float* ce
     PlanesAtPoint(sec, int(dax), int(day), ceilz, florz);
 }
 void setWallSectors();
-void GetWallSpritePosition(const spritetype* spr, vec2_t pos, vec2_t* out, bool render = false);
+void GetWallSpritePosition(const tspritetype* spr, vec2_t pos, vec2_t* out, bool render = false);
+void GetFlatSpritePosition(const tspritetype* spr, vec2_t pos, vec2_t* out, bool render = false);
 void GetFlatSpritePosition(const spritetype* spr, vec2_t pos, vec2_t* out, bool render = false);
 void checkRotatedWalls();
 
@@ -230,6 +231,11 @@ inline int shadeToLight(int shade)
 inline void copyfloorpal(spritetype* spr, const sectortype* sect)
 {
     if (!lookups.noFloorPal(sect->floorpal)) spr->pal = sect->floorpal;
+}
+
+inline void copyfloorpal(tspritetype* spr, const sectortype* sect)
+{
+	if (!lookups.noFloorPal(sect->floorpal)) spr->pal = sect->floorpal;
 }
 
 inline void spriteSetSlope(spritetype* spr, int heinum)

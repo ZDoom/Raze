@@ -64,11 +64,11 @@ DExhumedActor* pEnemy;
 int nEnemyPal = 0;
 
 // We cannot drag these through the entire event system... :(
-spritetype* mytsprite;
+tspritetype* mytsprite;
 int* myspritesortcnt;
 
 // NOTE - not to be confused with Ken's analyzesprites()
-static void analyzesprites(spritetype* tsprite, int& spritesortcnt, int x, int y, int z, double const smoothratio)
+static void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int x, int y, int z, double const smoothratio)
 {
     tspritetype *pTSprite;
 
@@ -78,7 +78,7 @@ static void analyzesprites(spritetype* tsprite, int& spritesortcnt, int x, int y
     for (int i = 0; i < spritesortcnt; i++) {
         pTSprite = &tsprite[i];
 
-        if (pTSprite->owner != -1)
+        if (pTSprite->ownerActor)
         {
             // interpolate sprite position
             pTSprite->pos = pTSprite->interpolatedvec3(smoothratio);
@@ -105,8 +105,7 @@ static void analyzesprites(spritetype* tsprite, int& spritesortcnt, int x, int y
 
     for (nTSprite = spritesortcnt-1, pTSprite = &tsprite[nTSprite]; nTSprite >= 0; nTSprite--, pTSprite--)
     {
-        int nSprite = pTSprite->owner;
-        auto pActor = &exhumedActors[nSprite];
+        auto pActor = static_cast<DExhumedActor*>(pTSprite->ownerActor);
         spritetype *pSprite = &pActor->s();
 
         if (pTSprite->sector() != nullptr)
@@ -471,7 +470,7 @@ bool GameInterface::GenerateSavePic()
     return true;
 }
 
-void GameInterface::processSprites(spritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio)
+void GameInterface::processSprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio)
 {
     analyzesprites(tsprite, spritesortcnt, viewx, viewy, viewz, smoothRatio);
 }

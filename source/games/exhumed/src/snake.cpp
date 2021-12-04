@@ -406,7 +406,7 @@ void AISnake::Draw(RunListEvent* ev)
         seq_PlotSequence(nSprite, SeqOffsets[kSeqSnakBody], 0, 0);
     }
 
-    ev->pTSprite->owner = -1;
+    ev->pTSprite->ownerActor = nullptr;
 }
 
 END_PS_NS

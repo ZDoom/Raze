@@ -67,7 +67,7 @@ static void RotateXZ(int *pX, int *, int *pZ, int ang)
 	*pZ = dmulscale30r(oX,angSin,oZ,angCos);
 }
 
-tspritetype* viewInsertTSprite(spritetype* tsprite, int& spritesortcnt, sectortype* pSector, int nStatnum, tspritetype const * const parentTSprite)
+tspritetype* viewInsertTSprite(tspritetype* tsprite, int& spritesortcnt, sectortype* pSector, int nStatnum, tspritetype const * const parentTSprite)
 {
     if (spritesortcnt >= MAXSPRITESONSCREEN)
         return nullptr;
@@ -78,17 +78,15 @@ tspritetype* viewInsertTSprite(spritetype* tsprite, int& spritesortcnt, sectorty
     pTSprite->cstat = 128;
     pTSprite->xrepeat = 64;
     pTSprite->yrepeat = 64;
-    pTSprite->owner = -1;
+    pTSprite->ownerActor = nullptr;
     pTSprite->type = -spritesortcnt;
     pTSprite->statnum = nStatnum;
     pTSprite->setsector(pSector);
     spritesortcnt++;
     if (parentTSprite)
     {
-        pTSprite->x = parentTSprite->x;
-        pTSprite->y = parentTSprite->y;
-        pTSprite->z = parentTSprite->z;
-        pTSprite->owner = parentTSprite->owner;
+        pTSprite->pos = parentTSprite->pos;
+        pTSprite->ownerActor = parentTSprite->ownerActor;
         pTSprite->ang = parentTSprite->ang;
     }
     pTSprite->x += Cos(gCameraAng)>>25;
@@ -124,11 +122,11 @@ static const WEAPONICON gWeaponIcon[] = {
 };
 
 
-static tspritetype *viewAddEffect(spritetype* tsprite, int& spritesortcnt, int nTSprite, VIEW_EFFECT nViewEffect)
+static tspritetype *viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int nTSprite, VIEW_EFFECT nViewEffect)
 {
     assert(nViewEffect >= 0 && nViewEffect < kViewEffectMax);
     auto pTSprite = &tsprite[nTSprite];
-    auto owneractor = &bloodActors[pTSprite->owner];
+    auto owneractor = static_cast<DBloodActor*>(pTSprite->ownerActor);
     if (gDetail < effectDetail[nViewEffect] || nTSprite >= MAXSPRITESONSCREEN) return NULL;
     switch (nViewEffect)
     {
@@ -281,7 +279,7 @@ static tspritetype *viewAddEffect(spritetype* tsprite, int& spritesortcnt, int n
             assert(pSector);
             FindSector(pNSprite->x, pNSprite->y, pNSprite->z, &pSector);
             pNSprite->setsector(pSector);
-            pNSprite->owner = pTSprite->owner;
+            pNSprite->ownerActor = pTSprite->ownerActor;
             pNSprite->picnum = pTSprite->picnum;
             pNSprite->cstat |= 2;
             if (i < 2)
@@ -424,7 +422,7 @@ static tspritetype *viewAddEffect(spritetype* tsprite, int& spritesortcnt, int n
         pNSprite->xrepeat = pNSprite->yrepeat = 64;
         pNSprite->cstat |= 106;
         pNSprite->ang = pTSprite->ang;
-        pNSprite->owner = pTSprite->owner;
+        pNSprite->ownerActor = pTSprite->ownerActor;
         break;
     }
     case kViewEffectFloorGlow:
@@ -444,7 +442,7 @@ static tspritetype *viewAddEffect(spritetype* tsprite, int& spritesortcnt, int n
         pNSprite->xrepeat = pNSprite->yrepeat = nShade;
         pNSprite->cstat |= 98;
         pNSprite->ang = pTSprite->ang;
-        pNSprite->owner = pTSprite->owner;
+        pNSprite->ownerActor = pTSprite->ownerActor;
         break;
     }
     case kViewEffectSpear:
@@ -511,7 +509,7 @@ static void viewApplyDefaultPal(tspritetype *pTSprite, sectortype const *pSector
     }
 }
 
-void viewProcessSprites(spritetype* tsprite, int& spritesortcnt, int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t smoothratio)
+void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t smoothratio)
 {
 	// shift before interpolating to increase precision.
 	int myclock = (PlayClock<<3) + MulScale(4<<3, smoothratio, 16);
@@ -521,9 +519,9 @@ void viewProcessSprites(spritetype* tsprite, int& spritesortcnt, int32_t cX, int
     for (int nTSprite = spritesortcnt-1; nTSprite >= 0; nTSprite--)
     {
         tspritetype *pTSprite = &tsprite[nTSprite];
-        auto owneractor = &bloodActors[pTSprite->owner];
+        auto owneractor = static_cast<DBloodActor*>(pTSprite->ownerActor);
         XSPRITE *pTXSprite = NULL;
-        if (sprite[pTSprite->owner].detail > gDetail)
+        if (owneractor->s().detail > gDetail)
         {
             pTSprite->xrepeat = 0;
             continue;
@@ -547,7 +545,6 @@ void viewProcessSprites(spritetype* tsprite, int& spritesortcnt, int32_t cX, int
             continue;
         }
 
-        int nSprite = pTSprite->owner;
         if (cl_interpolate && owneractor->interpolated && !(pTSprite->flags&512))
         {
             pTSprite->pos = pTSprite->interpolatedvec3(gInterpolate);
@@ -569,7 +566,7 @@ void viewProcessSprites(spritetype* tsprite, int& spritesortcnt, int32_t cX, int
                 break;
             case 1:
             {
-                if (tilehasmodelorvoxel(pTSprite->picnum, pTSprite->pal) && !(spriteext[nSprite].flags&SPREXT_NOTMD))
+                if (tilehasmodelorvoxel(pTSprite->picnum, pTSprite->pal) && !(owneractor->sx().flags&SPREXT_NOTMD))
                 {
                     pTSprite->cstat &= ~4;
                     break;
@@ -591,7 +588,7 @@ void viewProcessSprites(spritetype* tsprite, int& spritesortcnt, int32_t cX, int
             }
             case 2:
             {
-                if (tilehasmodelorvoxel(pTSprite->picnum, pTSprite->pal) && !(spriteext[nSprite].flags&SPREXT_NOTMD))
+                if (tilehasmodelorvoxel(pTSprite->picnum, pTSprite->pal) && !(owneractor->sx().flags&SPREXT_NOTMD))
                 {
                     pTSprite->cstat &= ~4;
                     break;
@@ -621,11 +618,11 @@ void viewProcessSprites(spritetype* tsprite, int& spritesortcnt, int32_t cX, int
             case 6:
             case 7:
             {
-                if (hw_models && md_tilehasmodel(pTSprite->picnum, pTSprite->pal) >= 0 && !(spriteext[nSprite].flags&SPREXT_NOTMD))
+                if (hw_models && md_tilehasmodel(pTSprite->picnum, pTSprite->pal) >= 0 && !(owneractor->sx().flags&SPREXT_NOTMD))
                     break;
 
                 // Can be overridden by def script
-                if (r_voxels && tiletovox[pTSprite->picnum] == -1 && voxelIndex[pTSprite->picnum] != -1 && !(spriteext[nSprite].flags&SPREXT_NOTMD))
+                if (r_voxels && tiletovox[pTSprite->picnum] == -1 && voxelIndex[pTSprite->picnum] != -1 && !(owneractor->sx().flags&SPREXT_NOTMD))
                 {
                     if ((pTSprite->flags&kHitagRespawn) == 0)
                     {
@@ -648,10 +645,10 @@ void viewProcessSprites(spritetype* tsprite, int& spritesortcnt, int32_t cX, int
             nAnim--;
         }
 
-        if ((pTSprite->cstat&48) != 48 && r_voxels && !(spriteext[nSprite].flags&SPREXT_NOTMD))
+        if ((pTSprite->cstat&48) != 48 && r_voxels && !(owneractor->sx().flags&SPREXT_NOTMD))
         {
             int const nRootTile = pTSprite->picnum;
-            int nAnimTile = pTSprite->picnum + animateoffs_replace(pTSprite->picnum, 32768+pTSprite->owner);
+            int nAnimTile = pTSprite->picnum + qanimateoffs(pTSprite->picnum, 32768 + (pTSprite->ownerActor->GetIndex() & 16383));
 
 #if 0
             if (tiletovox[nAnimTile] != -1)
@@ -667,10 +664,10 @@ void viewProcessSprites(spritetype* tsprite, int& spritesortcnt, int32_t cX, int
                 pTSprite->cstat2 |= CSTAT2_SPRITE_MDLROTATE; // per-sprite rotation setting.
         }
 
-        if ((pTSprite->cstat&48) != 48 && hw_models && !(spriteext[nSprite].flags&SPREXT_NOTMD))
+        if ((pTSprite->cstat&48) != 48 && hw_models && !(owneractor->sx().flags&SPREXT_NOTMD))
         {
             int const nRootTile = pTSprite->picnum;
-            int nAnimTile = pTSprite->picnum + animateoffs_replace(pTSprite->picnum, 32768+pTSprite->owner);
+            int nAnimTile = pTSprite->picnum + qanimateoffs(pTSprite->picnum, 32768 + (pTSprite->ownerActor->GetIndex() & 16383));
 
             if (tile2model[Ptile2tile(nAnimTile, pTSprite->pal)].modelid >= 0 &&
                 tile2model[Ptile2tile(nAnimTile, pTSprite->pal)].framenum >= 0)
@@ -697,7 +694,7 @@ void viewProcessSprites(spritetype* tsprite, int& spritesortcnt, int32_t cX, int
         }
         nShade += tileShade[pTSprite->picnum];
         pTSprite->shade = ClipRange(nShade, -128, 127);
-        if ((pTSprite->flags&kHitagRespawn) && sprite[pTSprite->owner].owner == 3)
+        if ((pTSprite->flags&kHitagRespawn) && pTSprite->ownerActor->s().owner == 3)    // Where does this 3 come from? Nothing sets it.
         {
             assert(pTXSprite != NULL);
             pTSprite->xrepeat = 48;
@@ -892,7 +889,7 @@ void viewProcessSprites(spritetype* tsprite, int& spritesortcnt, int32_t cX, int
                 }
             }
             
-            if (pTSprite->owner != gView->actor->GetSpriteIndex() || gViewPos != VIEWPOS_0) {
+            if (pTSprite->ownerActor != gView->actor || gViewPos != VIEWPOS_0) {
                 if (getflorzofslopeptr(pTSprite->sector(), pTSprite->x, pTSprite->y) >= cZ)
                 {
                     viewAddEffect(tsprite, spritesortcnt, nTSprite, kViewEffectShadow);
@@ -974,7 +971,7 @@ void viewProcessSprites(spritetype* tsprite, int& spritesortcnt, int32_t cX, int
 }
 
 
-void GameInterface::processSprites(spritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio)
+void GameInterface::processSprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio)
 {
     viewProcessSprites(tsprite, spritesortcnt, viewx, viewy, viewz, viewang.asbuild(), int(smoothRatio));
 }

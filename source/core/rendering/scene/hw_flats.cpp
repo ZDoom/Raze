@@ -346,7 +346,7 @@ void HWFlat::ProcessSector(HWDrawInfo *di, sectortype * frontsector, int section
 	}
 }
 
-void HWFlat::ProcessFlatSprite(HWDrawInfo* di, spritetype* sprite, sectortype* sector)
+void HWFlat::ProcessFlatSprite(HWDrawInfo* di, tspritetype* sprite, sectortype* sector)
 {
 	int tilenum = sprite->picnum;
 	texture = tileGetTexture(tilenum);

@@ -16,9 +16,6 @@ extern double gxyaspect;
 extern float grhalfxdown10x;
 extern float gcosang, gsinang, gcosang2, gsinang2;
 
-extern void Polymost_prepare_loadboard(void);
-
-
 //void phex(char v, char *s);
 void polymost_drawsprite(int32_t snum);
 void polymost_drawmaskwall(int32_t damaskwallcnt);
@@ -27,7 +24,6 @@ void polymost_initosdfuncs(void);
 void polymost_drawrooms(void);
 void polymost_prepareMirror(int32_t dax, int32_t day, int32_t daz, fixed_t daang, fixed_t dahoriz, int16_t mirrorWall);
 void polymost_completeMirror();
-void polymost_deletesprite(int num);
 
 int32_t polymost_maskWallHasTranslucency(walltype const * const wall);
 int32_t polymost_spriteHasTranslucency(spritetype const * const tspr);

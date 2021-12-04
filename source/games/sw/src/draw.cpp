@@ -70,7 +70,6 @@ extern int f_c;
 
 extern ParentalStruct aVoxelArray[MAXTILES];
 
-DSWActor* ConnectCopySprite(spritetype const * tsp);
 void PreDrawStackedWater(void);
 
 void SW_InitMultiPsky(void)
@@ -99,14 +98,14 @@ ShadeSprite(tspriteptr_t tsp)
 #endif
 
 
-int GetRotation(spritetype* tsprite, int& spritesortcnt, int tSpriteNum, int viewx, int viewy)
+int GetRotation(tspritetype* tsprite, int& spritesortcnt, int tSpriteNum, int viewx, int viewy)
 {
     static const uint8_t RotTable8[] = {0, 7, 6, 5, 4, 3, 2, 1};
     static const uint8_t RotTable5[] = {0, 1, 2, 3, 4, 3, 2, 1};
     int rotation;
 
     tspriteptr_t tsp = &tsprite[tSpriteNum];
-    USERp tu = swActors[tsp->owner].u();
+    USERp tu = static_cast<DSWActor*>(tsp->ownerActor)->u();
     int angle2;
 
     if (tu->RotNum == 0)
@@ -169,10 +168,10 @@ directions was not standardized.
 
 */
 
-int SetActorRotation(spritetype* tsprite, int& spritesortcnt, int tSpriteNum, int viewx, int viewy)
+int SetActorRotation(tspritetype* tsprite, int& spritesortcnt, int tSpriteNum, int viewx, int viewy)
 {
     tspriteptr_t tsp = &tsprite[tSpriteNum];
-    USERp tu = swActors[tsp->owner].u();
+    USERp tu = static_cast<DSWActor*>(tsp->ownerActor)->u();
     int StateOffset, Rotation;
 
     // don't modify ANY tu vars - back them up!
@@ -206,7 +205,7 @@ int SetActorRotation(spritetype* tsprite, int& spritesortcnt, int tSpriteNum, in
 int DoShadowFindGroundPoint(tspriteptr_t sp)
 {
     // USES TSPRITE !!!!!
-    USERp u = swActors[sp->owner].u();
+    USERp u = static_cast<DSWActor*>(sp->ownerActor)->u();
     SPRITEp hsp;
     Collision ceilhit, florhit;
     int hiz, loz = u->loz;
@@ -259,10 +258,10 @@ int DoShadowFindGroundPoint(tspriteptr_t sp)
 }
 
 void
-DoShadows(spritetype* tsprite, int& spritesortcnt, tspriteptr_t tsp, int viewz, int camang)
+DoShadows(tspritetype* tsprite, int& spritesortcnt, tspriteptr_t tsp, int viewz, int camang)
 {
     tspriteptr_t tSpr = &tsprite[spritesortcnt];
-    USERp tu = swActors[tsp->owner].u();
+    USERp tu = static_cast<DSWActor*>(tsp->ownerActor)->u();
     int ground_dist = 0;
     int view_dist = 0;
     int loz;
@@ -357,9 +356,9 @@ DoShadows(spritetype* tsprite, int& spritesortcnt, tspriteptr_t tsp, int viewz, 
 }
 
 void
-DoMotionBlur(spritetype* tsprite, int& spritesortcnt, tspritetype const * const tsp)
+DoMotionBlur(tspritetype* tsprite, int& spritesortcnt, tspritetype const * const tsp)
 {
-    USERp tu = swActors[tsp->owner].u();
+    USERp tu = static_cast<DSWActor*>(tsp->ownerActor)->u();
     int nx,ny,nz = 0,dx,dy,dz;
     int i, ang;
     int xrepeat, yrepeat, repeat_adj = 0;
@@ -444,7 +443,7 @@ void SetVoxelSprite(SPRITEp sp, int pic)
     sp->picnum = pic;
 }
 
-void WarpCopySprite(spritetype* tsprite, int& spritesortcnt)
+void WarpCopySprite(tspritetype* tsprite, int& spritesortcnt)
 {
     SPRITEp sp1, sp2, sp;
     int spnum;
@@ -480,7 +479,7 @@ void WarpCopySprite(spritetype* tsprite, int& spritesortcnt)
                     if (spit->picnum == ST1)
                         continue;
 
-                    tspriteptr_t newTSpr = renderAddTSpriteFromSprite(tsprite, spritesortcnt, itActor2->GetSpriteIndex());
+                    tspriteptr_t newTSpr = renderAddTsprite(tsprite, spritesortcnt, itActor2);
                     newTSpr->statnum = 0;
 
                     xoff = sp1->x - newTSpr->x;
@@ -503,7 +502,7 @@ void WarpCopySprite(spritetype* tsprite, int& spritesortcnt)
                     if (spit->picnum == ST1)
                         continue;
 
-                    tspriteptr_t newTSpr = renderAddTSpriteFromSprite(tsprite, spritesortcnt, itActor2->GetSpriteIndex());
+                    tspriteptr_t newTSpr = renderAddTsprite(tsprite, spritesortcnt, itActor2);
                     newTSpr->statnum = 0;
 
                     xoff = sp2->x - newTSpr->x;
@@ -543,7 +542,74 @@ void DoStarView(tspriteptr_t tsp, USERp tu, int viewz)
     }
 }
 
-void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, int camang)
+template<class sprt>
+DSWActor* CopySprite(sprt const* tsp, sectortype* newsector)
+{
+    SPRITEp sp;
+
+    auto actorNew = InsertActor(newsector, STAT_FAF_COPY);
+    sp = &actorNew->s();
+
+    sp->x = tsp->x;
+    sp->y = tsp->y;
+    sp->z = tsp->z;
+    sp->cstat = tsp->cstat;
+    sp->picnum = tsp->picnum;
+    sp->pal = tsp->pal;
+    sp->xrepeat = tsp->xrepeat;
+    sp->yrepeat = tsp->yrepeat;
+    sp->xoffset = tsp->xoffset;
+    sp->yoffset = tsp->yoffset;
+    sp->ang = tsp->ang;
+    sp->xvel = tsp->xvel;
+    sp->yvel = tsp->yvel;
+    sp->zvel = tsp->zvel;
+    sp->shade = tsp->shade;
+
+    RESET(sp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+
+    return actorNew;
+}
+
+template<class sprt>
+DSWActor* ConnectCopySprite(sprt const* tsp)
+{
+    sectortype* newsector;
+    int testz;
+
+    if (FAF_ConnectCeiling(tsp->sector()))
+    {
+        newsector = tsp->sector();
+        testz = SPRITEp_TOS(tsp) - Z(10);
+
+        if (testz < tsp->sector()->ceilingz)
+            updatesectorz(tsp->x, tsp->y, testz, &newsector);
+
+        if (newsector != nullptr && newsector != tsp->sector())
+        {
+            return CopySprite(tsp, newsector);
+        }
+    }
+
+    if (FAF_ConnectFloor(tsp->sector()))
+    {
+        newsector = tsp->sector();
+        testz = SPRITEp_BOS(tsp) + Z(10);
+
+        if (testz > tsp->sector()->floorz)
+            updatesectorz(tsp->x, tsp->y, testz, &newsector);
+
+        if (newsector != nullptr && newsector != tsp->sector())
+        {
+            return CopySprite(tsp, newsector);
+        }
+    }
+
+    return nullptr;
+}
+
+
+void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, int camang)
 {
     int tSpriteNum;
     int smr4, smr2;
@@ -562,9 +628,8 @@ void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int view
 
     for (tSpriteNum = spritesortcnt - 1; tSpriteNum >= 0; tSpriteNum--)
     {
-        int SpriteNum = tsprite[tSpriteNum].owner;
-        auto tActor = &swActors[SpriteNum];
         tspriteptr_t tsp = &tsprite[tSpriteNum];
+        auto tActor = static_cast<DSWActor*>(tsp->ownerActor);
         tu = tActor->hasU()? tActor->u() : nullptr;
         auto tsectp = tsp->sector();
 
@@ -585,7 +650,7 @@ void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int view
         // don't draw these
         if (tsp->statnum >= STAT_DONT_DRAW)
         {
-            tsp->owner = -1;
+            tsp->ownerActor = nullptr;
             continue;
         }
 
@@ -752,7 +817,7 @@ void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int view
                 else
                 {
                     // dont draw your sprite
-                    tsp->owner = -1;
+                    tsp->ownerActor = nullptr;
                     //SET(tsp->cstat, CSTAT_SPRITE_INVISIBLE);
                 }
             }
@@ -767,7 +832,7 @@ void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int view
             }
         }
 
-        if (OverlapDraw && FAF_ConnectArea(tsp->sector()) && tsp->owner >= 0)
+        if (OverlapDraw && FAF_ConnectArea(tsp->sector()) && tsp->ownerActor)
         {
             ConnectCopySprite(tsp);
         }
@@ -846,13 +911,13 @@ void analyzesprites(spritetype* tsprite, int& spritesortcnt, int viewx, int view
 
 
 #if 1
-tspriteptr_t get_tsprite(spritetype* tsprite, int& spritesortcnt, int SpriteNum)
+tspriteptr_t get_tsprite(tspritetype* tsprite, int& spritesortcnt, DSWActor* actor)
 {
     int tSpriteNum;
 
     for (tSpriteNum = spritesortcnt - 1; tSpriteNum >= 0; tSpriteNum--)
     {
-        if (tsprite[tSpriteNum].owner == SpriteNum)
+        if (tsprite[tSpriteNum].ownerActor == actor)
             return &tsprite[tSpriteNum];
     }
 
@@ -860,23 +925,23 @@ tspriteptr_t get_tsprite(spritetype* tsprite, int& spritesortcnt, int SpriteNum)
 }
 
 void
-post_analyzesprites(spritetype* tsprite, int& spritesortcnt)
+post_analyzesprites(tspritetype* tsprite, int& spritesortcnt)
 {
     int tSpriteNum;
     USERp tu;
 
     for (tSpriteNum = spritesortcnt - 1; tSpriteNum >= 0; tSpriteNum--)
     {
-        int SpriteNum = tsprite[tSpriteNum].owner;
-        if (SpriteNum < 0) continue;    // JBF: verify this is safe
+        auto actor = static_cast<DSWActor*>(tsprite[tSpriteNum].ownerActor);
+        if (!actor) continue;    // JBF: verify this is safe
         tspriteptr_t tsp = &tsprite[tSpriteNum];
-        tu = swActors[SpriteNum].u();
 
-        if (tu)
+        if (actor->hasU())
         {
+            tu = actor->u();
             if (tu->ID == FIREBALL_FLAMES && tu->attachActor != nullptr)
             {
-                tspriteptr_t const atsp = get_tsprite(tsprite, spritesortcnt, tu->attachActor->GetSpriteIndex());
+                tspriteptr_t const atsp = get_tsprite(tsprite, spritesortcnt, tu->attachActor);
 
                 if (!atsp)
                 {
@@ -1216,71 +1281,6 @@ PostDraw(void)
     }
 }
 
-DSWActor* CopySprite(spritetype const * tsp, sectortype* newsector)
-{
-    SPRITEp sp;
-
-    auto actorNew = InsertActor(newsector, STAT_FAF_COPY);
-    sp = &actorNew->s();
-
-    sp->x = tsp->x;
-    sp->y = tsp->y;
-    sp->z = tsp->z;
-    sp->cstat = tsp->cstat;
-    sp->picnum = tsp->picnum;
-    sp->pal = tsp->pal;
-    sp->xrepeat = tsp->xrepeat;
-    sp->yrepeat = tsp->yrepeat;
-    sp->xoffset = tsp->xoffset;
-    sp->yoffset = tsp->yoffset;
-    sp->ang = tsp->ang;
-    sp->xvel = tsp->xvel;
-    sp->yvel = tsp->yvel;
-    sp->zvel = tsp->zvel;
-    sp->shade = tsp->shade;
-
-    RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-
-    return actorNew;
-}
-
-DSWActor* ConnectCopySprite(spritetype const * tsp)
-{
-    sectortype* newsector;
-    int testz;
-
-    if (FAF_ConnectCeiling(tsp->sector()))
-    {
-        newsector = tsp->sector();
-        testz = SPRITEp_TOS(tsp) - Z(10);
-
-        if (testz < tsp->sector()->ceilingz)
-            updatesectorz(tsp->x, tsp->y, testz, &newsector);
-
-        if (newsector != nullptr && newsector != tsp->sector())
-        {
-            return CopySprite(tsp, newsector);
-        }
-    }
-
-    if (FAF_ConnectFloor(tsp->sector()))
-    {
-        newsector = tsp->sector();
-        testz = SPRITEp_BOS(tsp) + Z(10);
-
-        if (testz > tsp->sector()->floorz)
-            updatesectorz(tsp->x, tsp->y, testz, &newsector);
-
-        if (newsector != nullptr && newsector != tsp->sector())
-        {
-            return CopySprite(tsp, newsector);
-        }
-    }
-
-    return nullptr;
-}
-
-
 void PreDrawStackedWater(void)
 {
     SWStatIterator it(STAT_CEILING_FLOOR_PIC_OVERRIDE);
@@ -1303,7 +1303,7 @@ void PreDrawStackedWater(void)
                 if (u->xchange == -989898)
                     continue;
 
-                auto actorNew = ConnectCopySprite((spritetype const *)sp);
+                auto actorNew = ConnectCopySprite(sp);
                 if (actorNew != nullptr)
                 {
                     // spawn a user
@@ -1863,7 +1863,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
     return true;
 }
 
-void GameInterface::processSprites(spritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio)
+void GameInterface::processSprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio)
 {
     analyzesprites(tsprite, spritesortcnt, viewx, viewy, viewz, viewang.asbuild());
     post_analyzesprites(tsprite, spritesortcnt);

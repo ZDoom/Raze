@@ -244,7 +244,7 @@ void AIFish::Draw(RunListEvent* ev)
     int nAction = pActor->nAction;
 
     seq_PlotSequence(ev->nParam, SeqOffsets[kSeqFish] + FishSeq[nAction].a, pActor->nFrame, FishSeq[nAction].b);
-    ev->pTSprite->owner = -1;
+    ev->pTSprite->ownerActor = nullptr;
     return;
 }
 

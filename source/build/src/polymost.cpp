@@ -282,10 +282,10 @@ int32_t polymost_maskWallHasTranslucency(walltype const * const wall)
     return checkTranslucentReplacement(tileGetTexture(wall->picnum)->GetID(), wall->pal);
 }
 
-int32_t polymost_spriteHasTranslucency(spritetype const * const tspr)
+int32_t polymost_spriteHasTranslucency(tspritetype const * const tspr)
 {
     if ((tspr->cstat & CSTAT_SPRITE_TRANSLUCENT) || (tspr->clipdist & TSPR_FLAGS_DRAW_LAST) || 
-        ((unsigned)tspr->owner < MAXSPRITES && spriteext[tspr->owner].alpha))
+        (tspr->ownerActor && tspr->ownerActor->sx().alpha))
         return true;
 
     return checkTranslucentReplacement(tileGetTexture(tspr->picnum)->GetID(), tspr->pal);
@@ -1926,7 +1926,7 @@ void polymost_scansector(int32_t sectnum)
                     (r_voxels && tiletovox[spr->picnum] >= 0 && voxmodels[tiletovox[spr->picnum]]) ||
                     (r_voxels && gi->Voxelize(spr->picnum) > -1) ||
                     DMulScale(bcos(spr->ang), -s.x, bsin(spr->ang), -s.y, 6) > 0)
-                    if (renderAddTsprite(pm_tsprite, pm_spritesortcnt, act->GetSpriteIndex(), sectnum))
+                    if (!renderAddTsprite(pm_tsprite, pm_spritesortcnt, act))
                         break;
             }
         }
@@ -2603,26 +2603,6 @@ void polymost_completeMirror()
 	GLInterface.DisableStencil();
 }
 
-typedef struct
-{
-    int16_t wall;
-    int8_t wdist;
-    int8_t filler;
-} wallspriteinfo_t;
-
-static wallspriteinfo_t wsprinfo[MAXSPRITES];
-
-void Polymost_prepare_loadboard(void)
-{
-    memset(wsprinfo, 0, sizeof(wsprinfo));
-}
-
-void polymost_deletesprite(int num)
-{
-    wsprinfo[num].wall = -1;
-
-}
-
 
 static inline int32_t polymost_findwall(tspritetype const * const tspr, vec2_t const * const tsiz, int32_t * rd)
 {
@@ -2691,7 +2671,7 @@ static int32_t polymost_lintersect(int32_t x1, int32_t y1, int32_t x2, int32_t y
 }
 
 #define TSPR_OFFSET_FACTOR .0002f
-#define TSPR_OFFSET(tspr) (TSPR_OFFSET_FACTOR + ((tspr->owner != -1 ? tspr->owner & 63 : 0) * TSPR_OFFSET_FACTOR))
+#define TSPR_OFFSET(tspr) (TSPR_OFFSET_FACTOR + ((tspr->ownerActor ? tspr->ownerActor->GetIndex() & 63 : 0) * TSPR_OFFSET_FACTOR))
 
 void polymost_drawsprite(int32_t snum)
 {
@@ -2702,10 +2682,10 @@ void polymost_drawsprite(int32_t snum)
 
     usectorptr_t sec;
 
-    int32_t spritenum = tspr->owner;
+    auto actor = tspr->ownerActor;
 
     if ((tspr->cstat&48) != 48)
-        tileUpdatePicnum(&tspr->picnum, spritenum + 32768);
+        tileUpdatePicnum(&tspr->picnum, (actor->GetIndex() & 16383) + 32768);
 
     globalpicnum = tspr->picnum;
     globalshade = tspr->shade;
@@ -2731,12 +2711,12 @@ void polymost_drawsprite(int32_t snum)
 
     SetRenderStyleFromBlend(!!(tspr->cstat & 2), tspr->blend, !!(tspr->cstat & 512));
 
-    drawpoly_alpha = spriteext[spritenum].alpha;
+    drawpoly_alpha = actor->sx().alpha;
     drawpoly_blend = tspr->blend;
 
     sec = (usectorptr_t)tspr->sector();
 
-    while (!(spriteext[spritenum].flags & SPREXT_NOTMD))
+    while (!(actor->sx().flags & SPREXT_NOTMD))
     {
         if (hw_models && tile2model[Ptile2tile(tspr->picnum, tspr->pal)].modelid >= 0 &&
             tile2model[Ptile2tile(tspr->picnum, tspr->pal)].framenum >= 0)
@@ -2768,12 +2748,12 @@ void polymost_drawsprite(int32_t snum)
 
     vec3_t pos = tspr->pos;
 
-    if (spriteext[spritenum].flags & SPREXT_AWAY1)
+    if (actor->sx().flags & SPREXT_AWAY1)
     {
         pos.x += bcos(tspr->ang, -13);
         pos.y += bsin(tspr->ang, -13);
     }
-    else if (spriteext[spritenum].flags & SPREXT_AWAY2)
+    else if (actor->sx().flags & SPREXT_AWAY2)
     {
         pos.x -= bcos(tspr->ang, -13);
         pos.y -= bsin(tspr->ang, -13);
@@ -2918,29 +2898,8 @@ void polymost_drawsprite(int32_t snum)
             FVector2 vec0 = { (float)(pos.x - globalposx) - vf.X,
                              (float)(pos.y - globalposy) - vf.Y };
 
-            int32_t const s = tspr->owner;
             int32_t walldist = 1;
-            int32_t w = (s == -1) ? -1 : wsprinfo[s].wall;
-
-            // find the wall most likely to be what the sprite is supposed to be ornamented against
-            // this is really slow, so cache the result. Also assume that this association never changes once it is set up
-            if (s == -1 || !wsprinfo[s].wall)
-            {
-                w = polymost_findwall(tspr, &tsiz, &walldist);
-
-                if (s != -1)
-                {
-                    wallspriteinfo_t *ws = &wsprinfo[s];
-                    ws->wall = w;
-
-                    if (w != -1)
-                    {
-                        ws->wdist = walldist;
-                    }
-                }
-            }
-            else if (s != -1)
-                walldist = wsprinfo[s].wdist;
+            int w = polymost_findwall(tspr, &tsiz, &walldist);
 
             // detect if the sprite is either on the wall line or the wall line and sprite intersect
             if (w != -1)
@@ -3172,10 +3131,10 @@ void polymost_drawsprite(int32_t snum)
 
                 // unfortunately, offsetting by only 1 isn't enough on most Android devices
                 if (pos.z == sec->ceilingz || pos.z == sec->ceilingz + 1)
-                    pos.z = sec->ceilingz + 2, fadjust = (tspr->owner & 31);
+                    pos.z = sec->ceilingz + 2, fadjust = (tspr->ownerActor->GetIndex() & 31);
 
                 if (pos.z == sec->floorz || pos.z == sec->floorz - 1)
-                    pos.z = sec->floorz - 2, fadjust = -((tspr->owner & 31));
+                    pos.z = sec->floorz - 2, fadjust = -((tspr->ownerActor->GetIndex() & 31));
 
                 float f = (float)(pos.z - globalposz + fadjust) * gyxscale;
 
@@ -3247,8 +3206,7 @@ void polymost_drawsprite(int32_t snum)
             break;
     }
 
-    if ((unsigned)spritenum < MAXSPRITES)
-        sprite[spritenum].cstat2 |= CSTAT2_SPRITE_MAPPED;
+    actor->s().cstat2 |= CSTAT2_SPRITE_MAPPED;
 
 _drawsprite_return:
     ;
@@ -3309,6 +3267,7 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz, fixed
 int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
     fixed_t daang, fixed_t dahoriz, int dacursectnum, bool fromoutside)
 {
+    memset(pm_tsprite, 0, sizeof(pm_tsprite));
     pm_spritesortcnt = 0;
     checkRotatedWalls();
 
@@ -3386,12 +3345,14 @@ static inline int comparetsprites(int const k, int const l)
     if (tspriteptr[k]->statnum != tspriteptr[l]->statnum)
         return tspriteptr[k]->statnum - tspriteptr[l]->statnum;
 
+    if (!tspriteptr[k]->ownerActor || !tspriteptr[l]->ownerActor) return 0; // why are these getting dragged into here?
+
     if (tspriteptr[k]->x == tspriteptr[l]->x &&
         tspriteptr[k]->y == tspriteptr[l]->y &&
         tspriteptr[k]->z == tspriteptr[l]->z &&
         (tspriteptr[k]->cstat & 48) == (tspriteptr[l]->cstat & 48) &&
-        tspriteptr[k]->owner != tspriteptr[l]->owner)
-        return tspriteptr[k]->owner - tspriteptr[l]->owner;
+        tspriteptr[k]->ownerActor != tspriteptr[l]->ownerActor)
+        return tspriteptr[k]->ownerActor->GetIndex() - tspriteptr[l]->ownerActor->GetIndex();
 
     if (abs(spritesxyz[k].z - globalposz) != abs(spritesxyz[l].z - globalposz))
         return abs(spritesxyz[k].z - globalposz) - abs(spritesxyz[l].z - globalposz);
@@ -3464,9 +3425,9 @@ static void sortsprites(int const start, int const end)
     }
 }
 
-static bool spriteIsModelOrVoxel(const spritetype* tspr)
+static bool spriteIsModelOrVoxel(const tspritetype* tspr)
 {
-    if ((unsigned)tspr->owner < MAXSPRITES && spriteext[tspr->owner].flags & SPREXT_NOTMD)
+    if (!tspr->ownerActor || tspr->ownerActor->sx().flags & SPREXT_NOTMD)
         return false;
 
     if (hw_models)
@@ -3818,11 +3779,11 @@ int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr, bool rotate)
 
     k0 = m->bscale / 64.f;
     f = (float)tspr->xrepeat * (256.f / 320.f) * k0;
-    if ((sprite[tspr->owner].cstat & 48) == 16)
+    if ((tspr->ownerActor->s().cstat & 48) == 16)
     {
         f *= 1.25f;
-        a0.Y -= tspr->xoffset * bcosf(spriteext[tspr->owner].angoff, -20);
-        a0.X += tspr->xoffset * bsinf(spriteext[tspr->owner].angoff, -20);
+        a0.Y -= tspr->xoffset * bcosf(tspr->ownerActor->sx().angoff, -20);
+        a0.X += tspr->xoffset * bsinf(tspr->ownerActor->sx().angoff, -20);
     }
 
     if (globalorientation & 8) { m0.Z = -m0.Z; a0.Z = -a0.Z; } //y-flipping
@@ -3833,8 +3794,8 @@ int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr, bool rotate)
     f = (float)tspr->yrepeat * k0;
     m0.Z *= f; a0.Z *= f;
 
-    k0 = (float)(tspr->z + spriteext[tspr->owner].position_offset.z);
-    f = ((globalorientation & 8) && (sprite[tspr->owner].cstat & 48) != 0) ? -4.f : 4.f;
+    k0 = (float)(tspr->z + tspr->ownerActor->sx().position_offset.z);
+    f = ((globalorientation & 8) && (tspr->ownerActor->s().cstat & 48) != 0) ? -4.f : 4.f;
     k0 -= (tspr->yoffset * tspr->yrepeat) * f * m->bscale;
     zoff = m->siz.z * .5f;
     if (!(tspr->cstat & 128))
@@ -3851,8 +3812,8 @@ int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr, bool rotate)
 
     int const shadowHack = !!(tspr->clipdist & TSPR_FLAGS_MDHACK);
 
-    m0.Y *= f; a0.Y = (((float)(tspr->x + spriteext[tspr->owner].position_offset.x - globalposx)) * (1.f / 1024.f) + a0.Y) * f;
-    m0.X *= -f; a0.X = (((float)(tspr->y + spriteext[tspr->owner].position_offset.y - globalposy)) * -(1.f / 1024.f) + a0.X) * -f;
+    m0.Y *= f; a0.Y = (((float)(tspr->x + ownerActor->sx().position_offset.x - globalposx)) * (1.f / 1024.f) + a0.Y) * f;
+    m0.X *= -f; a0.X = (((float)(tspr->y + ownerActor->sx().position_offset.y - globalposy)) * -(1.f / 1024.f) + a0.X) * -f;
     m0.Z *= g; a0.Z = (((float)(k0 - globalposz - shadowHack)) * -(1.f / 16384.f) + a0.Z) * g;
 
     float mat[16];
@@ -3884,11 +3845,11 @@ int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr, bool rotate)
     if (!shadowHack)
     {
         pc[3] = (tspr->cstat & 2) ? glblend[tspr->blend].def[!!(tspr->cstat & 512)].alpha : 1.0f;
-        pc[3] *= 1.0f - spriteext[tspr->owner].alpha;
+        pc[3] *= 1.0f - tspr->ownerActor->sx().alpha;
 
         SetRenderStyleFromBlend(!!(tspr->cstat & 2), tspr->blend, !!(tspr->cstat & 512));
 
-        if (!(tspr->cstat & 2) || spriteext[tspr->owner].alpha > 0.f || pc[3] < 1.0f)
+        if (!(tspr->cstat & 2) || tspr->ownerActor->sx().alpha > 0.f || pc[3] < 1.0f)
             GLInterface.EnableBlend(true);  // else GLInterface.EnableBlend(false);
     }
     else pc[3] = 1.f;
@@ -3948,7 +3909,7 @@ int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr, bool rotate)
         RenderStyle = LegacyRenderStyles[STYLE_Translucent];
         alpha = 1.f;
     }
-    alpha *= 1.f - spriteext[tspr->owner].alpha;
+    alpha *= 1.f - tspr->ownerActor->sx().alpha;
     GLInterface.SetRenderStyle(RenderStyle);
     GLInterface.SetColor(pc[0], pc[1], pc[2], alpha);
 

@@ -387,7 +387,7 @@ void insertAllSprites(SpawnSpriteDef& sprites)
 			removeit = true;
 		}
 
-		insertsprite(spr.sectnum, spr.statnum);
+		insertsprite(spr.sectnum, spr.statnum, true);
 
 		if (removeit)
 		{
@@ -435,7 +435,6 @@ void allocateMapArrays(int numsprites)
 	memset(spritesmooth, 0, sizeof(spritesmooth_t) * (MAXSPRITES + MAXUNIQHUDID));
 
 	ClearAutomap();
-	Polymost::Polymost_prepare_loadboard();
 }
 
 void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang, int* cursectnum, SpawnSpriteDef& sprites)
@@ -471,6 +470,7 @@ void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang,
 	allocateMapArrays(numsprites);
 	initspritelists(); // may not be used in Blood!
 	sprites.sprites.Resize(numsprites);
+	memset(sprites.sprites.Data(), 0, numsprites * sizeof(spritetype));
 
 	// Now load the actual data.
 	fr.Seek(sectorpos, FileReader::SeekSet);

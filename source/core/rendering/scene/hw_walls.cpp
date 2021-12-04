@@ -46,7 +46,7 @@
 //
 //==========================================================================
 
-static int GetClosestPointOnWall(spritetype* spr, walltype* wal, vec2_t* const n)
+static int GetClosestPointOnWall(tspritetype* spr, walltype* wal, vec2_t* const n)
 {
 	auto w = wal->pos;
 	auto d = wal->point2Wall()->pos - w;
@@ -106,7 +106,7 @@ static int GetClosestPointOnWall(spritetype* spr, walltype* wal, vec2_t* const n
 //
 //==========================================================================
 
-static int IsOnWall(spritetype* tspr, int height)
+static int IsOnWall(tspritetype* tspr, int height)
 {
 	int dist = 3, closest = -1;
 	auto sect = tspr->sector();
@@ -1124,7 +1124,7 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 	}
 }
 
-void HWWall::ProcessWallSprite(HWDrawInfo* di, spritetype* spr, sectortype* sector)
+void HWWall::ProcessWallSprite(HWDrawInfo* di, tspritetype* spr, sectortype* sector)
 {
 	auto tex = tileGetTexture(spr->picnum);
 	if (!tex || !tex->isValid()) return;

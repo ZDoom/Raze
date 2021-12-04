@@ -167,7 +167,7 @@ void AILavaDude::Draw(RunListEvent* ev)
     int nSeq = LavadudeSeq[nAction].a + SeqOffsets[kSeqLavag];
 
     seq_PlotSequence(ev->nParam, nSeq, pActor->nFrame, LavadudeSeq[nAction].b);
-    ev->pTSprite->owner = -1;
+    ev->pTSprite->ownerActor = nullptr;
     return;
 }
 

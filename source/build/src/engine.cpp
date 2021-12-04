@@ -160,16 +160,18 @@ static int16_t numhits;
 // Internal Engine Functions
 //
 
+BEGIN_BLD_NS
+int qanimateoffs(int a1, int a2);
+END_BLD_NS
 
 //
 // animateoffs (internal)
 //
-int32_t (*animateoffs_replace)(int const tilenum, int fakevar) = NULL;
 int32_t animateoffs(int const tilenum, int fakevar)
 {
-    if (animateoffs_replace)
+    if (isBlood())
     {
-        return animateoffs_replace(tilenum, fakevar);
+        return Blood::qanimateoffs(tilenum, fakevar);
     }
 
     int const animnum = picanm[tilenum].num;
@@ -311,13 +313,17 @@ static void do_deletespritestat(int16_t deleteme)
 //
 // insertsprite
 //
-int32_t insertsprite(int16_t sectnum, int16_t statnum)
+int32_t insertsprite(int16_t sectnum, int16_t statnum, bool frominit)
 {
     // TODO: guard against bad sectnum?
     int32_t const newspritenum = insertspritestat(statnum);
 
+    // Build's default init of sprites is insantity².
     if (newspritenum >= 0)
     {
+        // Make sure it's clear.
+        if (!frominit) sprite[newspritenum].clear();
+
         assert(validSectorIndex(sectnum));
 
         do_insertsprite_at_headofsect(newspritenum, sectnum);
@@ -334,7 +340,6 @@ int32_t insertsprite(int16_t sectnum, int16_t statnum)
 //
 int32_t deletesprite(int16_t spritenum)
 {
-    Polymost::polymost_deletesprite(spritenum);
     assert((sprite[spritenum].statnum == MAXSTATUS)
             == (sprite[spritenum].sectnum == MAXSECTORS));
 

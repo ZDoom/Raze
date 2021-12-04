@@ -311,7 +311,7 @@ inline void HWSprite::PutSprite(HWDrawInfo* di, bool translucent)
 //
 //==========================================================================
 
-void HWSprite::Process(HWDrawInfo* di, spritetype* spr, sectortype* sector, int thruportal)
+void HWSprite::Process(HWDrawInfo* di, tspritetype* spr, sectortype* sector, int thruportal)
 {
 	if (spr == nullptr)
 		return;
@@ -445,10 +445,10 @@ void HWSprite::Process(HWDrawInfo* di, spritetype* spr, sectortype* sector, int 
 //
 //==========================================================================
 
-bool HWSprite::ProcessVoxel(HWDrawInfo* di, voxmodel_t* vox, spritetype* spr, sectortype* sector, bool rotate)
+bool HWSprite::ProcessVoxel(HWDrawInfo* di, voxmodel_t* vox, tspritetype* spr, sectortype* sector, bool rotate)
 {
 	Sprite = spr;
-	auto sprext = &spriteext[spr->owner];
+	auto sprext = &spr->ownerActor->sx();
 
 	texture = nullptr;
 	modelframe = -1;
@@ -477,7 +477,7 @@ bool HWSprite::ProcessVoxel(HWDrawInfo* di, voxmodel_t* vox, spritetype* spr, se
 
 	float basescale = voxel->bscale / 64.f;
 	float sprxscale = (float)spr->xrepeat * (256.f / 320.f) * basescale;
-	if ((::sprite[spr->owner].cstat & CSTAT_SPRITE_ALIGNMENT) == CSTAT_SPRITE_ALIGNMENT_WALL)
+	if ((spr->ownerActor->s().cstat & CSTAT_SPRITE_ALIGNMENT) == CSTAT_SPRITE_ALIGNMENT_WALL)
 	{
 		sprxscale *= 1.25f;
 		translatevec.Y -= spr->xoffset * bcosf(sprext->angoff, -20);
@@ -505,7 +505,7 @@ bool HWSprite::ProcessVoxel(HWDrawInfo* di, voxmodel_t* vox, spritetype* spr, se
 	translatevec.Z *= sprzscale;
 
 	float zpos = (float)(spr->z + sprext->position_offset.z);
-	float zscale = ((spr->cstat & CSTAT_SPRITE_YFLIP) && (::sprite[spr->owner].cstat & CSTAT_SPRITE_ALIGNMENT) != 0) ? -4.f : 4.f;
+	float zscale = ((spr->cstat & CSTAT_SPRITE_YFLIP) && (spr->ownerActor->s().cstat & CSTAT_SPRITE_ALIGNMENT) != 0) ? -4.f : 4.f;
 	zpos -= (spr->yoffset * spr->yrepeat) * zscale * voxel->bscale;
 
 	x = (spr->x + sprext->position_offset.x) * (1 / 16.f);

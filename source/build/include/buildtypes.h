@@ -57,6 +57,7 @@ BEGIN_BLD_NS
 END_BLD_NS
 
 //40 bytes
+class DCoreActor;
 struct walltype;
 struct sectortype
 {
@@ -369,9 +370,13 @@ struct spritetype
 #endif
     void clear()
     {
+        int sect = sectnum;
+        int stat = statnum;
         int save = time;    // this may not be cleared ever!!!
         memset(this, 0, sizeof(*this));
         time = save;
+        sectnum = sect;
+        statnum = stat;
     }
 
     void backupx()
@@ -459,7 +464,120 @@ struct spritetype
 	void setsector(sectortype*);
 };
 
-using tspritetype = spritetype;
+// This is mostly the same, but it omits the 'owner' field in favor of a full actor pointer. 
+// Incompatibility with spritetype regarding assignments is deliberate as these serve a fundamentally different purpose!
+struct tspritetype
+{
+    union {
+        struct
+        {
+            int32_t x, y, z;
+        };
+        vec3_t pos;
+    };
+    union {
+        struct
+        {
+            int32_t ox, oy, oz;
+        };
+        vec3_t opos;
+    };
+    uint16_t cstat;
+    int16_t picnum;
+    int8_t shade;
+    uint8_t pal, clipdist, blend;
+    uint8_t xrepeat, yrepeat;
+    int8_t xoffset, yoffset;
+    int16_t sectnum, statnum;
+    int16_t oang, ang;
+    int16_t xvel;
+    int16_t yvel;
+    int16_t zvel;
+    union {
+        int16_t lotag, type;
+    };
+    union {
+        int16_t hitag, flags;
+    };
+    int16_t extra;
+    uint16_t cstat2;
+    int time;
+    DCoreActor* ownerActor;
+
+    sectortype* sector() const;
+    bool insector() const;
+    void setsector(sectortype*);
+    void copyfrom(spritetype* spr)
+    {
+        pos = spr->pos;
+        opos = spr->opos;
+        cstat = spr->cstat;
+        picnum = spr->picnum;
+        shade = spr->shade;
+        pal = spr->pal;
+        clipdist = spr->clipdist;
+        blend = spr->blend;
+        xrepeat = spr->xrepeat;
+        yrepeat = spr->yrepeat;
+        xoffset = spr->xoffset;
+        yoffset = spr->yoffset;
+        sectnum = spr->sectnum;
+        statnum = spr->statnum;
+        ang = spr->ang;
+        oang = spr->oang;
+        xvel = spr->xvel;
+        yvel = spr->yvel;
+        zvel = spr->zvel;
+        lotag = spr->lotag;
+        hitag = spr->hitag;
+        extra = spr->extra;
+        time = spr->time;
+        cstat2 = spr->cstat2;
+        ownerActor = nullptr;
+    }
+
+    int32_t interpolatedx(double const smoothratio, int const scale = 16)
+    {
+        return interpolatedvalue(ox, x, smoothratio, scale);
+    }
+
+    int32_t interpolatedy(double const smoothratio, int const scale = 16)
+    {
+        return interpolatedvalue(oy, y, smoothratio, scale);
+    }
+
+    int32_t interpolatedz(double const smoothratio, int const scale = 16)
+    {
+        return interpolatedvalue(oz, z, smoothratio, scale);
+    }
+
+    vec2_t interpolatedvec2(double const smoothratio, int const scale = 16)
+    {
+        return
+        {
+            interpolatedx(smoothratio, scale),
+            interpolatedy(smoothratio, scale)
+        };
+    }
+
+    vec3_t interpolatedvec3(double const smoothratio, int const scale = 16)
+    {
+        return
+        {
+            interpolatedx(smoothratio, scale),
+            interpolatedy(smoothratio, scale),
+            interpolatedz(smoothratio, scale)
+        };
+    }
+
+    int16_t interpolatedang(double const smoothratio)
+    {
+        return interpolatedangle(oang, ang, smoothratio, 16);
+    }
+
+
+};
+
 #endif
 
 //////////////////// END Version 7 map format ////////////////

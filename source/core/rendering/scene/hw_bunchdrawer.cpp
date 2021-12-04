@@ -44,6 +44,7 @@
 #include "mapinfo.h"
 #include "gamecontrol.h"
 #include "hw_sections.h"
+#include "coreactor.h"
 
 extern TArray<TArray<int>> blockingpairs;
 //==========================================================================
@@ -559,15 +560,14 @@ void BunchDrawer::ProcessSection(int sectionnum, bool portal)
 
 	SetupSprite.Clock();
 
-	int z;
 	int sectnum = sections[sectionnum].sector;
 	if (!gotsector[sectnum])
 	{
 		gotsector.Set(sectnum);
-		SectIterator it(sectnum);
-		while ((z = it.NextIndex()) >= 0)
+		CoreSectIterator it(sectnum);
+		while (auto actor = it.Next())
 		{
-			auto const spr = (uspriteptr_t)&sprite[z];
+			auto const spr = &actor->s();
 
 			if ((spr->cstat & CSTAT_SPRITE_INVISIBLE) || spr->xrepeat == 0 || spr->yrepeat == 0) // skip invisible sprites
 				continue;
@@ -581,7 +581,7 @@ void BunchDrawer::ProcessSection(int sectionnum, bool portal)
 					(r_voxels && tiletovox[spr->picnum] >= 0 && voxmodels[tiletovox[spr->picnum]]) ||
 					(r_voxels && gi->Voxelize(spr->picnum) > -1) ||
 					DMulScale(bcos(spr->ang), -sx, bsin(spr->ang), -sy, 6) > 0)
-					if (renderAddTsprite(di->tsprite, di->spritesortcnt, z, sectnum))
+					if (!renderAddTsprite(di->tsprite, di->spritesortcnt, actor))
 						break;
 			}
 		}

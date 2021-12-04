@@ -14,6 +14,7 @@
 #include "gamecontrol.h"
 #include "hw_renderstate.h"
 #include "hw_cvars.h"
+#include "coreactor.h"
 
 #ifdef _MSC_VER
 #pragma warning(disable:4244) // this gets a bit annoying in the renderer...
@@ -187,7 +188,7 @@ public:
 
 public:
 	walltype* seg;
-	spritetype* Sprite;
+	tspritetype* Sprite;
 	sectortype* frontsector, * backsector;
 //private:
 
@@ -231,7 +232,7 @@ public:
 
 public:
 	void Process(HWDrawInfo* di, walltype* seg, sectortype* frontsector, sectortype* backsector);
-	void ProcessWallSprite(HWDrawInfo* di, spritetype* spr, sectortype* frontsector);
+	void ProcessWallSprite(HWDrawInfo* di, tspritetype* spr, sectortype* frontsector);
 
 	float PointOnSide(float x,float y)
 	{
@@ -253,7 +254,7 @@ class HWFlat
 public:
 	int section;
 	sectortype * sec;
-	spritetype* Sprite; // for flat sprites.
+	tspritetype* Sprite; // for flat sprites.
 	FGameTexture *texture;
 
 	float z; // the z position of the flat (only valid for non-sloped planes)
@@ -279,7 +280,7 @@ public:
 
 	void PutFlat(HWDrawInfo* di, int whichplane);
 	void ProcessSector(HWDrawInfo *di, sectortype * frontsector, int sectionnum, int which = 7 /*SSRF_RENDERALL*/);	// cannot use constant due to circular dependencies.
-	void ProcessFlatSprite(HWDrawInfo* di, spritetype* sprite, sectortype* sector);
+	void ProcessFlatSprite(HWDrawInfo* di, tspritetype* sprite, sectortype* sector);
 	
 	void DrawSubsectors(HWDrawInfo *di, FRenderState &state);
 	void DrawFlat(HWDrawInfo* di, FRenderState& state, bool translucent);
@@ -296,7 +297,7 @@ class HWSprite
 {
 public:
 
-	spritetype* Sprite;
+	tspritetype* Sprite;
 	PalEntry fade;
 	int shade, palette;
 	float visibility;
@@ -334,8 +335,8 @@ public:
 
 	void CreateVertices(HWDrawInfo* di);
 	void PutSprite(HWDrawInfo *di, bool translucent);
-	void Process(HWDrawInfo *di, spritetype* thing,sectortype * sector, int thruportal = false);
-	bool ProcessVoxel(HWDrawInfo* di, voxmodel_t* voxel, spritetype* tspr, sectortype* sector, bool rotate);
+	void Process(HWDrawInfo *di, tspritetype* thing,sectortype * sector, int thruportal = false);
+	bool ProcessVoxel(HWDrawInfo* di, voxmodel_t* voxel, tspritetype* tspr, sectortype* sector, bool rotate);
 
 	void DrawSprite(HWDrawInfo* di, FRenderState& state, bool translucent);
 };
@@ -372,16 +373,16 @@ inline bool maskWallHasTranslucency(const walltype* wall)
 	return (wall->cstat & CSTAT_WALL_TRANSLUCENT) || checkTranslucentReplacement(tileGetTexture(wall->picnum)->GetID(), wall->pal);
 }
 
-inline bool spriteHasTranslucency(const spritetype* tspr)
+inline bool spriteHasTranslucency(const tspritetype* tspr)
 {
 	if ((tspr->cstat & CSTAT_SPRITE_TRANSLUCENT) || //(tspr->clipdist & TSPR_FLAGS_DRAW_LAST) ||
-		((unsigned)tspr->owner < MAXSPRITES && spriteext[tspr->owner].alpha))
+		(tspr->ownerActor->sx().alpha))
 		return true;
 
 	return checkTranslucentReplacement(tileGetTexture(tspr->picnum)->GetID(), tspr->pal);
 }
 
-inline void SetSpriteTranslucency(const spritetype* sprite, float& alpha, FRenderStyle& RenderStyle)
+inline void SetSpriteTranslucency(const tspritetype* sprite, float& alpha, FRenderStyle& RenderStyle)
 {
 	bool trans = (sprite->cstat & CSTAT_SPRITE_TRANSLUCENT);
 	if (trans)
@@ -394,7 +395,7 @@ inline void SetSpriteTranslucency(const spritetype* sprite, float& alpha, FRende
 		RenderStyle = LegacyRenderStyles[STYLE_Translucent];
 		alpha = 1.f;
 	}
-	alpha *= 1.f - spriteext[sprite->owner].alpha;
+	alpha *= 1.f - sprite->ownerActor->sx().alpha;
 }
 
 //==========================================================================

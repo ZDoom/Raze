@@ -154,27 +154,6 @@ EXTERN int leveltimer;
 extern TArray<sectortype> sectorbackup;
 extern TArray<walltype> wallbackup;
 
-inline tspriteptr_t renderAddTSpriteFromSprite(spritetype* tsprite, int& spritesortcnt, uint16_t const spritenum)
-{
-    auto tspr = &tsprite[spritesortcnt++];
-    auto const spr = &sprite[spritenum];
-    *tspr = *spr;
-    tspr->clipdist = 0;
-    tspr->owner = spritenum;
-    return tspr;
-}
-
-// returns: 0=continue sprite collecting;
-//          1=break out of sprite collecting;
-inline int32_t renderAddTsprite(spritetype* tsprite, int& spritesortcnt, int16_t z, int16_t sectnum)
-{
-    if (spritesortcnt >= MAXSPRITESONSCREEN) return 1;
-    renderAddTSpriteFromSprite(tsprite, spritesortcnt, z);
-    return 0;
-}
-
-
-
 EXTERN int32_t xdim, ydim;
 EXTERN int32_t yxaspect, viewingrange;
 
@@ -505,7 +484,7 @@ int32_t lintersect(int32_t originX, int32_t originY, int32_t originZ,
                    int32_t lineStartX, int32_t lineStartY, int32_t lineEndX, int32_t lineEndY,
                    int32_t *intersectionX, int32_t *intersectionY, int32_t *intersectionZ);
 
-int32_t insertsprite(int16_t sectnum, int16_t statnum);
+int32_t insertsprite(int16_t sectnum, int16_t statnum, bool frominit = false);
 int32_t deletesprite(int16_t spritenum);
 
 int32_t   changespritesect(int16_t spritenum, int16_t newsectnum);
@@ -625,7 +604,6 @@ extern int32_t rintersect(int32_t x1, int32_t y1, int32_t z1,
     int32_t x3, int32_t y3, int32_t x4, int32_t y4,
     int32_t *intx, int32_t *inty, int32_t *intz);
 
-extern int32_t(*animateoffs_replace)(int const tilenum, int fakevar);
 extern void(*initspritelists_replace)(void);
 extern int32_t(*changespritesect_replace)(int16_t spritenum, int16_t newsectnum);
 
@@ -675,6 +653,25 @@ inline bool spritetype::insector() const
 {
 	return validSectorIndex(sectnum);
 }
+
+inline sectortype* tspritetype::sector() const
+{
+    return !validSectorIndex(sectnum) ? nullptr : &::sector[sectnum];
+}
+
+inline bool tspritetype::insector() const
+{
+    return validSectorIndex(sectnum);
+}
+
+inline void tspritetype::setsector(sectortype* sect)
+{
+    // place for asserts.
+    sectnum = sect ? ::sector.IndexOf(sect) : -1;
+}
+
+
+
 
 inline sectortype* walltype::nextSector() const
 {

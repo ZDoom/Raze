@@ -751,7 +751,6 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 		viewSetErrorMessage("");
 		Net_ClearFifo();
 		paused = 0;
-		Polymost::Polymost_prepare_loadboard();
 		Mus_ResumeSaved();
 	}
 	validateLinks();

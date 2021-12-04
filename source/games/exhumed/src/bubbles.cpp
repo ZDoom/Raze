@@ -113,7 +113,7 @@ void AIBubble::Draw(RunListEvent* ev)
     if (!pActor) return;
 
     seq_PlotSequence(ev->nParam, pActor->nIndex, pActor->nFrame, 1);
-    ev->pTSprite->owner = -1;
+    ev->pTSprite->ownerActor = nullptr;
 }
 
 

@@ -232,7 +232,7 @@ void AIAnim::Draw(RunListEvent* ev)
     int nIndex2 = pActor->nIndex2;
 
     seq_PlotSequence(ev->nParam, nIndex2, pActor->nIndex, 0x101);
-    ev->pTSprite->owner = -1;
+    ev->pTSprite->ownerActor = nullptr;
 }
 
 void BuildExplosion(DExhumedActor* pActor)

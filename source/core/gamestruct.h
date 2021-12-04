@@ -14,6 +14,7 @@ class FSerializer;
 struct FRenderViewpoint;
 struct spritetype;
 struct sectortype;
+struct tspritetype;
 
 struct GameStats
 {
@@ -115,7 +116,7 @@ struct GameInterface
 	virtual int chaseCamX(binangle ang) { return 0; }
 	virtual int chaseCamY(binangle ang) { return 0; }
 	virtual int chaseCamZ(fixedhoriz horiz) { return 0; }
-	virtual void processSprites(spritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio) = 0;
+	virtual void processSprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio) = 0;
 	virtual void UpdateCameras(double smoothratio) {}
 	virtual void EnterPortal(spritetype* viewer, int type) {}
 	virtual void LeavePortal(spritetype* viewer, int type) {}

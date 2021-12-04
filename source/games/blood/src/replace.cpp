@@ -66,7 +66,6 @@ int32_t qchangespritesect(int16_t nSprite, int16_t nSector);
 
 void HookReplaceFunctions(void)
 {
-    animateoffs_replace = qanimateoffs;
     initspritelists_replace = qinitspritelists;
     changespritesect_replace = qchangespritesect;
 }

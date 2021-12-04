@@ -352,10 +352,6 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sect
 #endif
 
 
-#ifdef USE_OPENGL
-    Polymost::Polymost_prepare_loadboard();
-#endif
-
     FString mapname = pPath;
     DefaultExtension(mapname, ".map");
     auto fr = fileSystem.OpenFileReader(mapname);

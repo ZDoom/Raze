@@ -44,9 +44,9 @@ EXTERN_CVAR(Bool, wt_commentary)
 
 BEGIN_DUKE_NS
 
-void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int a, int smoothratio)
+void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, int a, int smoothratio)
 {
-	int i, j, k, p;
+	int j, k, p;
 	int l, t1, t3, t4;
 	spritetype* s;
 	tspritetype* t;
@@ -55,8 +55,7 @@ void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 	for (j = 0; j < spritesortcnt; j++)
 	{
 		t = &tsprite[j];
-		i = t->owner;
-		h = &hittype[i];
+		h = static_cast<DDukeActor*>(t->ownerActor);
 		s = h->s;
 
 		switch (t->picnum)
@@ -130,7 +129,7 @@ void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 		case GREENSLIME + 7:
 			break;
 		default:
-			if (((t->cstat & 16)) || (badguy(t) && t->extra > 0) || t->statnum == 10)
+			if (((t->cstat & 16)) || (badguypic(t->picnum) && t->extra > 0) || t->statnum == 10)
 				continue;
 		}
 
@@ -143,8 +142,7 @@ void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 	for (j = 0; j < spritesortcnt; j++)  
 	{
 		t = &tsprite[j];
-		i = t->owner;
-		h = &hittype[i];
+		h = static_cast<DDukeActor*>(t->ownerActor);
 		s = h->s;
 		auto OwnerAc = h->GetOwner();
 		auto Owner = OwnerAc ? OwnerAc->s : nullptr;
@@ -334,8 +332,8 @@ void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 
 			if ((display_mirror == 1 || screenpeek != p || !h->GetOwner()) && ud.multimode > 1 && cl_showweapon && ps[p].GetActor()->s->extra > 0 && ps[p].curr_weapon > 0)
 			{
-				auto newtspr = &tsprite[spritesortcnt];
-				memcpy(newtspr, t, sizeof(spritetype));
+				auto newtspr = &tsprite[spritesortcnt++];
+				newtspr = t;
 
 				newtspr->statnum = 99;
 
@@ -378,7 +376,6 @@ void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 					newtspr->yrepeat = 16;
 				}
 				newtspr->pal = 0;
-				spritesortcnt++;
 			}
 
 			if (!h->GetOwner())
@@ -427,7 +424,7 @@ void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 				if (h->GetOwner() && display_mirror == 0 && ps[p].over_shoulder_on == 0)
 					if (ud.multimode < 2 || (ud.multimode > 1 && p == screenpeek))
 					{
-						t->owner = -1;
+						t->ownerActor = nullptr;
 						t->xrepeat = t->yrepeat = 0;
 						continue;
 					}
@@ -592,7 +589,7 @@ void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 
 						if ((s->z - daz) < (8 << 8) && ps[screenpeek].pos.z < daz)
 						{
-							auto shadowspr = &tsprite[spritesortcnt];
+							auto shadowspr = &tsprite[spritesortcnt++];
 							*shadowspr = *t;
 
 							shadowspr->statnum = 99;
@@ -620,7 +617,6 @@ void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 								shadowspr->x += bcos(look, -9);
 								shadowspr->y += bsin(look, -9);
 							}
-							spritesortcnt++;
 						}
 					}
 
@@ -717,7 +713,7 @@ void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 					if (ud.cameraactor == nullptr)
 						if (screenpeek == Owner->yvel && display_mirror == 0)
 						{
-							t->owner = -1;
+							t->ownerActor = nullptr;
 							break;
 						}
 				if ((Owner->cstat & 32768) == 0)

@@ -182,7 +182,7 @@ void PlanesAtPoint(const sectortype* sec, int dax, int day, float* pceilz, float
 //
 //==========================================================================
 
-void GetWallSpritePosition(const spritetype* spr, vec2_t pos, vec2_t* out, bool render)
+void GetWallSpritePosition(const tspritetype* spr, vec2_t pos, vec2_t* out, bool render)
 {
 	auto tex = tileGetTexture(spr->picnum);
 
@@ -218,7 +218,8 @@ void GetWallSpritePosition(const spritetype* spr, vec2_t pos, vec2_t* out, bool 
 //
 //==========================================================================
 
-void GetFlatSpritePosition(const spritetype* spr, vec2_t pos, vec2_t* out, bool render)
+template<class sprt>
+void TGetFlatSpritePosition(const sprt* spr, vec2_t pos, vec2_t* out, bool render)
 {
 	auto tex = tileGetTexture(spr->picnum);
 
@@ -258,6 +259,15 @@ void GetFlatSpritePosition(const spritetype* spr, vec2_t pos, vec2_t* out, bool 
 	out[3] = out[0] - sub;
 }
 
+void GetFlatSpritePosition(const spritetype* spr, vec2_t pos, vec2_t* out, bool render)
+{
+	TGetFlatSpritePosition(spr, pos, out, render);
+}
+
+void GetFlatSpritePosition(const tspritetype* spr, vec2_t pos, vec2_t* out, bool render)
+{
+	TGetFlatSpritePosition(spr, pos, out, render);
+}
 
 //==========================================================================
 //

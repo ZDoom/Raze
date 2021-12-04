@@ -42,6 +42,7 @@
 #include "gamestruct.h"
 #include "automap.h"
 #include "hw_voxels.h"
+#include "coreactor.h"
 
 EXTERN_CVAR(Float, r_visibility)
 CVAR(Bool, gl_no_skyclear, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
@@ -276,19 +277,18 @@ void HWDrawInfo::DispatchSprites()
 	{
 		auto tspr = &tsprite[i];
 		int tilenum = tspr->picnum;
-		int spritenum = tspr->owner;
+		auto actor = tspr->ownerActor;
 
-		if (spritenum < 0 || (unsigned)tilenum >= MAXTILES)
+		if (actor == nullptr || tspr->xrepeat == 0 || tspr->yrepeat == 0 || tilenum >= MAXTILES)
 			continue;
 
-		if ((unsigned)spritenum < MAXSPRITES)
-			sprite[spritenum].cstat2 |= CSTAT2_SPRITE_MAPPED;
+		actor->s().cstat2 |= CSTAT2_SPRITE_MAPPED;
 
-		tileUpdatePicnum(&tilenum, sprite->owner + 32768, 0);
+		tileUpdatePicnum(&tilenum, (actor->GetIndex() & 16383) + 32768, 0);
 		tspr->picnum = tilenum;
 		setgotpic(tilenum);
 
-		if (!(spriteext[spritenum].flags & SPREXT_NOTMD))
+		if (!(actor->sx().flags & SPREXT_NOTMD))
 		{
 			int pt = Ptile2tile(tilenum, tspr->pal);
 			if (hw_models && tile2model[pt].modelid >= 0 && tile2model[pt].framenum >= 0)
@@ -315,12 +315,12 @@ void HWDrawInfo::DispatchSprites()
 			}
 		}
 
-		if (spriteext[spritenum].flags & SPREXT_AWAY1)
+		if (actor->sx().flags & SPREXT_AWAY1)
 		{
 			tspr->pos.x += bcos(tspr->ang, -13);
 			tspr->pos.y += bsin(tspr->ang, -13);
 		}
-		else if (spriteext[spritenum].flags & SPREXT_AWAY2)
+		else if (actor->sx().flags & SPREXT_AWAY2)
 		{
 			tspr->pos.x -= bcos(tspr->ang, -13);
 			tspr->pos.y -= bsin(tspr->ang, -13);
@@ -377,6 +377,7 @@ void HWDrawInfo::CreateScene(bool portal)
 	screen->mVertexData->Map();
 	screen->mLights->Map();
 
+	memset(tsprite, 0, sizeof(tsprite));
 	spritesortcnt = 0;
 	ingeo = false;
 	geoofs = { 0,0 };

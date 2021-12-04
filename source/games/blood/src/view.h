@@ -147,7 +147,7 @@ void viewCorrectViewOffsets(int nPlayer, vec3_t const *oldpos);
 void InitStatusBar(void);
 void UpdateStatusBar();
 void viewInit(void);
-void viewProcessSprites(spritetype* tsprite, int& spritesortcnt, int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t smooth);
+void viewprocessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, int32_t cY, int32_t cZ, int32_t cA, int32_t smooth);
 void viewSetMessage(const char *pMessage, const int pal = 0, const MESSAGE_PRIORITY priority = MESSAGE_PRIORITY_NORMAL);
 
 

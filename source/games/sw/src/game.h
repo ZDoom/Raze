@@ -253,6 +253,17 @@ inline int SPRITEp_SIZE_Z(const spritetype* sp)
 	return (tileHeight(sp->picnum) * sp->yrepeat) << 2;
 }
 
+inline int SPRITEp_SIZE_Y(const tspritetype* sp)
+{
+    return MulScale(tileHeight(sp->picnum), sp->yrepeat, 6);
+}
+
+inline int SPRITEp_SIZE_Z(const tspritetype* sp)
+{
+    return (tileHeight(sp->picnum) * sp->yrepeat) << 2;
+}
+
+
 
 // Given a z height and sprite return the correct y repeat value
 inline int SPRITEp_SIZE_Z_2_YREPEAT(const spritetype* sp, int zh)
@@ -267,7 +278,17 @@ inline int SPRITEp_SIZE_TOS(const spritetype* sp)
     return (DIV2(SPRITEp_SIZE_Z(sp)) + (tileTopOffset(sp->picnum) << 8));
 }
 
+inline int SPRITEp_SIZE_TOS(const tspritetype* sp)
+{
+    return (DIV2(SPRITEp_SIZE_Z(sp)) + (tileTopOffset(sp->picnum) << 8));
+}
+
 inline int SPRITEp_SIZE_BOS(const spritetype* sp)
+{
+    return (DIV2(SPRITEp_SIZE_Z(sp)) - (tileTopOffset(sp->picnum) << 8));
+}
+
+inline int SPRITEp_SIZE_BOS(const tspritetype* sp)
 {
     return (DIV2(SPRITEp_SIZE_Z(sp)) - (tileTopOffset(sp->picnum) << 8));
 }
@@ -2153,7 +2174,7 @@ struct GameInterface : public ::GameInterface
     int chaseCamX(binangle ang) override { return -ang.bcos(-3); }
     int chaseCamY(binangle ang) override { return -ang.bsin(-3); }
     int chaseCamZ(fixedhoriz horiz) override { return horiz.asq16() >> 8; }
-    void processSprites(spritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio) override;
+    void processSprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio) override;
     void UpdateCameras(double smoothratio) override;
     void EnterPortal(spritetype* viewer, int type) override;
     void LeavePortal(spritetype* viewer, int type) override;

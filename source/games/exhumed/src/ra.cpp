@@ -294,7 +294,7 @@ void AIRa::Draw(RunListEvent* ev)
     int nSeq = SeqOffsets[kSeqEyeHit] + RaSeq[Ra[nPlayer].nAction].a;
 
     seq_PlotSequence(ev->nParam, nSeq, Ra[nPlayer].nFrame, 1);
-    ev->pTSprite->owner = -1;
+    ev->pTSprite->ownerActor = nullptr;
 }
 
 

@@ -415,9 +415,10 @@ static void updateanimation(md2model_t *m, tspriteptr_t tspr, uint8_t lpal)
         Printf("1: c > n\n");
 #endif
 
+    auto ownerActor = tspr->ownerActor;
     int32_t const smoothdurationp = (hw_animsmoothing && (tile2model[tile].smoothduration != 0));
-    spritesmooth_t * const smooth = &spritesmooth[((unsigned)tspr->owner < MAXSPRITES+MAXUNIQHUDID) ? tspr->owner : MAXSPRITES+MAXUNIQHUDID-1];
-    spriteext_t * const sprext = &spriteext[((unsigned)tspr->owner < MAXSPRITES) ? tspr->owner : MAXSPRITES-1];
+    spritesmooth_t* const smooth = &ownerActor->sm();
+    spriteext_t* const sprext = &ownerActor->sx();
 
     const mdanim_t *anim;
     for (anim = m->animations; anim && anim->startframe != m->cframe; anim = anim->next)
@@ -1087,10 +1088,11 @@ void md3_vox_calcmat_common(tspriteptr_t tspr, const FVector3 *a0, float f, floa
 {
     float k0, k1, k2, k3, k4, k5, k6, k7;
 
-    k0 = ((float)(tspr->x+spriteext[tspr->owner].position_offset.x-globalposx))*f*(1.f/1024.f);
-    k1 = ((float)(tspr->y+spriteext[tspr->owner].position_offset.y-globalposy))*f*(1.f/1024.f);
-    k4 = -bsinf(tspr->ang+spriteext[tspr->owner].angoff, -14);
-    k5 = bcosf(tspr->ang+spriteext[tspr->owner].angoff, -14);
+    auto& sext = tspr->ownerActor->sx();
+    k0 = ((float)(tspr->x+sext.position_offset.x-globalposx))*f*(1.f/1024.f);
+    k1 = ((float)(tspr->y+sext.position_offset.y-globalposy))*f*(1.f/1024.f);
+    k4 = -bsinf(tspr->ang+sext.angoff, -14);
+    k5 = bcosf(tspr->ang+sext.angoff, -14);
     k2 = k0*(1-k4)+k1*k5;
     k3 = k1*(1-k4)-k0*k5;
     k6 = - gsinang; 
@@ -1145,9 +1147,10 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
     float pc[4];
  //   int32_t texunits = GL_TEXTURE0;
 
-    const int32_t owner = tspr->owner;
-    const spriteext_t *const sext = &spriteext[((unsigned)owner < MAXSPRITES) ? owner : MAXSPRITES-1];
-    const uint8_t lpal = ((unsigned)owner < MAXSPRITES) ? sprite[tspr->owner].pal : tspr->pal;
+    auto ownerActor = tspr->ownerActor;
+    const spritetype* const spr = &ownerActor->s();
+    const spriteext_t* const sext = &ownerActor->sx();
+    const uint8_t lpal = spr->pal;
     const int32_t sizyrep = tileHeight(tspr->picnum) * tspr->yrepeat;
 
     updateanimation((md2model_t *)m, tspr, lpal);
@@ -1177,8 +1180,8 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
     a0.Z = m->zadd * m->scale;
 
     // Parkar: Moved up to be able to use k0 for the y-flipping code
-    k0 = (float)tspr->z+spriteext[tspr->owner].position_offset.z;
-    f = ((globalorientation&8) && (sprite[tspr->owner].cstat&48)!=0) ? -4.f : 4.f;
+    k0 = (float)tspr->z+sext->position_offset.z;
+    f = ((globalorientation&8) && (spr->cstat&48)!=0) ? -4.f : 4.f;
     k0 -= (tspr->yoffset*tspr->yrepeat)*f;
     if ((globalorientation&128) && !((globalorientation&48)==32))
         k0 += (float)(sizyrep<<1);
@@ -1202,7 +1205,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
     m0.Z *= f; m1.Z *= f; a0.Z *= f;
 
     // floor aligned
-    k1 = (float)tspr->y+spriteext[tspr->owner].position_offset.y;
+    k1 = (float)tspr->y+sext->position_offset.y;
     if ((globalorientation&48)==32)
     {
         m0.Z = -m0.Z; m1.Z = -m1.Z; a0.Z = -a0.Z;
@@ -1215,7 +1218,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
     // calculations below again, but are needed for the base offsets.
     f = (65536.f*512.f)/(fxdimen*fviewingrange);
     g = 32.f/(fxdimen*gxyaspect);
-    m0.Y *= f; m1.Y *= f; a0.Y = (((float)(tspr->x+spriteext[tspr->owner].position_offset.x-globalposx))*  (1.f/1024.f) + a0.Y)*f;
+    m0.Y *= f; m1.Y *= f; a0.Y = (((float)(tspr->x+sext->position_offset.x-globalposx))*  (1.f/1024.f) + a0.Y)*f;
     m0.X *=-f; m1.X *=-f; a0.X = ((k1     -fglobalposy) * -(1.f/1024.f) + a0.X)*-f;
     m0.Z *= g; m1.Z *= g; a0.Z = ((k0     -fglobalposz) * -(1.f/16384.f) + a0.Z)*g;
 
@@ -1237,11 +1240,9 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
     // to use Z-buffer hacks to hide overdraw problems with the flat-tsprite-on-floor shadows,
     // also disabling detail, glow, normal, and specular maps.
 
-    // WTF??? This should be done with proper math.
     if (tspr->clipdist & TSPR_FLAGS_MDHACK)
     {
-        double f = (double) (tspr->owner + 1) * (std::numeric_limits<double>::epsilon() * 8.0);
-        if (f != 0.0) f *= 1.0/(double) (FindDistance2D(globalposx - tspr->x, globalposy - tspr->y)>>5);
+        // What once was here had been neutered in EDuke32 already.
 		GLInterface.SetDepthFunc(DF_LEqual);
     }
 
@@ -1528,8 +1529,7 @@ int32_t polymost_mddraw(tspriteptr_t tspr)
         allocmodelverts = maxmodelverts;
     }
 
-    mdmodel_t *const vm = models[tile2model[Ptile2tile(tspr->picnum,
-    (tspr->owner >= MAXSPRITES) ? tspr->pal : sprite[tspr->owner].pal)].modelid];
+    mdmodel_t *const vm = models[tile2model[Ptile2tile(tspr->picnum, tspr->ownerActor->s().pal)].modelid];
     if (vm->mdnum == 1)
         return polymost_voxdraw((voxmodel_t *)vm,tspr, false); // can't access rotating info anymore
     else if (vm->mdnum == 3)

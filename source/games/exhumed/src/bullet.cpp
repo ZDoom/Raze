@@ -871,7 +871,7 @@ void AIBullet::Draw(RunListEvent* ev)
     else
     {
         seq_PlotSequence(ev->nParam, nSeq, BulletList[nBullet].nFrame, 0);
-        ev->pTSprite->owner = -1;
+        ev->pTSprite->ownerActor = nullptr;
     }
 }
 

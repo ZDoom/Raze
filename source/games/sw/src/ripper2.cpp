@@ -1238,8 +1238,6 @@ void Ripper2Hatch(DSWActor* actor)
         np = &actorNew->s();
         np->clear();
         ClearOwner(actorNew);
-        np->setsector(wp->sector());
-        np->statnum = STAT_DEFAULT;
         np->x = wp->x;
         np->y = wp->y;
         np->z = wp->z;

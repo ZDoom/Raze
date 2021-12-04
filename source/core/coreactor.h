@@ -327,3 +327,14 @@ inline int pushmove(vec3_t* const vect, sectortype** const sect, int32_t const w
 	*sect = sectno == -1 ? nullptr : &sector[sectno];
 	return res;
 }
+
+inline tspriteptr_t renderAddTsprite(tspritetype* tsprite, int& spritesortcnt, DCoreActor* actor)
+{
+	if (spritesortcnt >= MAXSPRITESONSCREEN) return nullptr;
+	auto tspr = &tsprite[spritesortcnt++];
+	tspr->copyfrom(&actor->s());
+	tspr->clipdist = 0;
+	tspr->ownerActor = actor;
+	return tspr;
+}
+

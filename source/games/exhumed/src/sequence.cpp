@@ -561,7 +561,7 @@ int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
     esi += edx;
 
     int var_14 = edx + 1;
-    int16_t nOwner = pTSprite->owner;
+    auto pOwner = pTSprite->ownerActor;
 
     while (1)
     {
@@ -573,17 +573,18 @@ int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
         }
 
         tspriteptr_t tsp = &mytsprite[(*myspritesortcnt)++];
-        tsp->x       = pTSprite->x;
-        tsp->y       = pTSprite->y;
-        tsp->z       = pTSprite->z;
-        tsp->shade   = shade;
-        tsp->pal     = pTSprite->pal;
+        tsp->x = pTSprite->x;
+        tsp->y = pTSprite->y;
+        tsp->z = pTSprite->z;
+        tsp->shade = shade;
+        tsp->pal = pTSprite->pal;
         tsp->xrepeat = pTSprite->xrepeat;
         tsp->yrepeat = pTSprite->yrepeat;
-        tsp->ang     = pTSprite->ang;
-        tsp->owner   = pTSprite->owner;
+        tsp->ang = pTSprite->ang;
+        tsp->ownerActor = pTSprite->ownerActor;
         tsp->sectnum = pTSprite->sectnum;
         tsp->cstat   = pTSprite->cstat |= 0x80;
+        tsp->cstat2 = pTSprite->cstat2;
         tsp->statnum = esi;
 
         if (ChunkFlag[nBase] & 1)
@@ -602,9 +603,9 @@ int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
         nBase++;
     }
 
-    if (!(pTSprite->cstat & 0x101) || (sprite[nOwner].statnum == 100 && nNetPlayerCount))
+    if (!(pTSprite->cstat & 0x101) || (pOwner->s().statnum == 100 && nNetPlayerCount))
     {
-        pTSprite->owner = -1;
+        pTSprite->ownerActor = nullptr;
     }
     else
     {
@@ -612,7 +613,7 @@ int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
         int nFloorZ = pSector->floorz;
 
         if (nFloorZ <= PlayerList[nLocalPlayer].eyelevel + initz) {
-            pTSprite->owner = -1;
+            pTSprite->ownerActor = nullptr;
         }
         else
         {

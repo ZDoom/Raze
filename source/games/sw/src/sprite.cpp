@@ -775,10 +775,8 @@ void KillActor(DSWActor* actor)
     soundEngine->RelinkSound(SOURCE_Actor, &actor->s(), nullptr, &pos);
 
     deletesprite(actor->GetSpriteIndex());
-    // shred your garbage - but not statnum and sectnum, which the backend needs to manage the sprite.
+    // shred your garbage
     sp->clear();
-    sp->statnum = MAXSTATUS;
-    sp->sectnum = MAXSECTORS;
 
     // Kill references in all users - slow but unavoidable if we don't want the game to crash on stale pointers.
     SWSpriteIterator it;
