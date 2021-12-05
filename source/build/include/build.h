@@ -378,8 +378,7 @@ int32_t   hitscan_(const vec3_t* sv, int16_t sectnum, int32_t vx, int32_t vy, in
 void   neartag_(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange,
                int16_t *neartagsector, int16_t *neartagwall, int16_t *neartagsprite,
                int32_t *neartaghitdist, int32_t neartagrange, uint8_t tagsearch);
-int32_t   cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1,
-                 int32_t x2, int32_t y2, int32_t z2, int16_t sect2);
+int cansee(int x1, int y1, int z1, sectortype* sect1, int x2, int y2, int z2, sectortype* sect2);
 int32_t   inside(int32_t x, int32_t y, int sectnum);
 void   dragpoint(int pointhighlight, int32_t dax, int32_t day);
 int32_t try_facespr_intersect(uspriteptr_t const spr, vec3_t const in,
@@ -717,11 +716,6 @@ inline walltype* sectortype::firstWall() const
 inline walltype* sectortype::lastWall() const
 {
     return &wall[wallptr + wallnum - 1]; // cannot be -1 in a proper map
-}
-
-inline int cansee(int x1, int y1, int z1, sectortype* sect1, int x2, int y2, int z2, sectortype* sect2)
-{
-	return cansee(x1, y1, z1, sector.IndexOf(sect1), x2, y2, z2, sector.IndexOf(sect2));
 }
 
 

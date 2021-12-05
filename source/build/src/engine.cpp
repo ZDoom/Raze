@@ -811,18 +811,19 @@ int32_t nextsectorneighborz(int16_t sectnum, int32_t refz, int16_t topbottom, in
 // cansee
 //
 
-int32_t cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1, int32_t x2, int32_t y2, int32_t z2, int16_t sect2)
+int cansee(int x1, int y1, int z1, sectortype* sect1, int x2, int y2, int z2, sectortype* sect2)
 {
+    if (!sect1 || !sect2) return false;
+
     const int32_t x21 = x2-x1, y21 = y2-y1, z21 = z2-z1;
 
     if (x1 == x2 && y1 == y2)
         return (sect1 == sect2);
 
-    BFSSearch search(numsectors, sect1);
+    BFSSectorSearch search(sect1);
 
-    for (unsigned dasectnum; (dasectnum = search.GetNext()) != BFSSearch::EOL;)
+    while (auto sec = search.GetNext())
     {
-        auto const sec = (usectorptr_t)&sector[dasectnum];
         uwallptr_t wal;
         int cnt;
         for (cnt=sec->wallnum,wal=(uwallptr_t)sec->firstWall(); cnt>0; cnt--,wal++)
@@ -831,7 +832,7 @@ int32_t cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1, int32_t x2, in
             const int32_t x31 = wal->x-x1, x34 = wal->x-wal2->x;
             const int32_t y31 = wal->y-y1, y34 = wal->y-wal2->y;
 
-            int32_t x, y, z, nexts, t, bot;
+            int32_t x, y, z, t, bot;
             int32_t cfz[2];
 
             bot = y21*x34-x21*y34; if (bot <= 0) continue;
@@ -843,24 +844,24 @@ int32_t cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1, int32_t x2, in
                 continue;
             }
 
-            nexts = wal->nextsector;
 
-                if (nexts < 0 || wal->cstat&32)
-                    return 0;
+            if (!wal->twoSided() || wal->cstat&32)
+                return 0;
 
             t = DivScale(t,bot, 24);
             x = x1 + MulScale(x21,t, 24);
             y = y1 + MulScale(y21,t, 24);
             z = z1 + MulScale(z21,t, 24);
 
-            getzsofslope(dasectnum, x,y, &cfz[0],&cfz[1]);
+            getzsofslopeptr(sec, x,y, &cfz[0],&cfz[1]);
 
             if (z <= cfz[0] || z >= cfz[1])
             {
                 return 0;
             }
 
-            getzsofslope(nexts, x,y, &cfz[0],&cfz[1]);
+            auto nexts = wal->nextSector();
+            getzsofslopeptr(nexts, x,y, &cfz[0],&cfz[1]);
             if (z <= cfz[0] || z >= cfz[1])
                 return 0;
 
