@@ -7,6 +7,7 @@
 #include "constants.h"
 #include "types.h"
 #include "d_net.h"
+#include "serialize_obj.h"
 
 BEGIN_DUKE_NS
 
@@ -44,6 +45,12 @@ struct DukeGameInfo
 
 extern DukeGameInfo gs;
 
+inline TObjPtr<DDukeActor*> camsprite;
+inline TObjPtr<DDukeActor*> BellSprite;
+inline TObjPtr<DDukeActor*> spriteq[1024];
+inline TObjPtr<DDukeActor*> currentCommentarySprite;
+
+
 extern int otherp; // transient helper, MP only
 extern int actor_tog; // cheat state
 extern intptr_t apScriptGameEvent[];
@@ -64,7 +71,6 @@ extern animwalltype animwall[MAXANIMWALLS];
 extern int numanimwalls;
 extern int animatecnt;
 extern int numclouds;
-extern DDukeActor* camsprite;
 extern int numcyclers;
 extern int earthquaketime;
 extern int global_random;
@@ -91,7 +97,6 @@ extern float cloudx;
 extern float cloudy;
 extern int cloudclock;
 
-extern DDukeActor *spriteq[1024];
 extern Cycler cyclers[MAXCYCLERS];
 extern sectortype* mirrorsector[64];
 extern walltype* mirrorwall[64];
@@ -121,7 +126,6 @@ extern TArray<CraneDef> cranes;
 extern int WindTime, WindDir;
 extern short fakebubba_spawn, mamaspawn_count, banjosound;
 extern short BellTime;
-extern DDukeActor* BellSprite /* word_119BE0*/;
 extern uint8_t enemysizecheat /*raat607*/, ufospawnsminion, pistonsound, chickenphase /* raat605*/, RRRA_ExitedLevel, fogactive;
 extern uint32_t everyothertime;
 extern player_orig po[MAXPLAYERS];

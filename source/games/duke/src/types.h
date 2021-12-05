@@ -34,7 +34,7 @@ class DDukeActor : public DCoreActor
 public:
 	uint8_t cgg;
 	uint8_t spriteextra;	// moved here for easier maintenance. This was originally a hacked in field in the sprite structure called 'filler'.
-	DDukeActor* ownerActor, * hitOwnerActor;
+	TObjPtr<DDukeActor*> ownerActor, hitOwnerActor;
 	short picnum, ang, extra, movflag;
 	short tempang, dispicnum;
 	short timetosleep;
@@ -49,7 +49,7 @@ public:
 	walltype* temp_walls[2]; // SE20 + SE128
 	sectortype* temp_sect, *actorstayput;
 	
-	DDukeActor* temp_actor, *seek_actor;
+	TObjPtr<DDukeActor*> temp_actor, seek_actor;
 	spritetype* s;	// direct reference to the corresponding sprite.
 
 	TArray<GameVarValue> uservars;
@@ -163,7 +163,7 @@ struct user_defs
 	int m_ffire, ffire, m_player_skill, multimode;
 	int player_skill, marker;
 
-	DDukeActor* cameraactor;
+	TObjPtr<DDukeActor*> cameraactor;
 
 };
 
@@ -178,7 +178,7 @@ struct CraneDef
 {
 	int x, y, z;
 	int polex, poley;
-	DDukeActor* poleactor;
+	TObjPtr<DDukeActor*> poleactor;
 };
 
 struct player_struct 
@@ -227,7 +227,8 @@ struct player_struct
 	sectortype* cursector;
 	sectortype* one_parallax_sectnum; // wall + sector references. Make them pointers later?
 	walltype* access_wall;
-	DDukeActor* actor;
+	TObjPtr<DDukeActor*> actor;
+	TObjPtr<DDukeActor*> actorsqu, wackedbyactor, on_crane, holoduke_on, somethingonplayer, access_spritenum, dummyplayersprite, newOwner;
 
 	short last_extra, subweapon;
 	short ammo_amount[MAX_WEAPONS], frag, fraggedself;
@@ -241,7 +242,6 @@ struct player_struct
 	short cheat_phase;
 	short extra_extra8, quick_kick, last_quick_kick;
 	short heat_amount, timebeforeexit, customexitsound;
-	DDukeActor* actorsqu, *wackedbyactor, *on_crane, *holoduke_on, *somethingonplayer, *access_spritenum, *dummyplayersprite, *newOwner;
 
 	short weaprecs[256], weapreccnt;
 	unsigned int interface_toggle_flag;

@@ -55,8 +55,6 @@ CVAR(Bool, wt_commentary, false, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 BEGIN_DUKE_NS
 
 static FSoundID currentCommentarySound;
-static DDukeActor* currentCommentarySprite; // todo: GC this once actors become objects
-
 
 void UnmuteSounds()
 {

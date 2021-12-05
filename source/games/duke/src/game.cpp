@@ -47,6 +47,12 @@ void SetDispatcher();
 void InitCheats();
 int registerosdcommands(void);
 
+//---------------------------------------------------------------------------
+//
+// DObject stuff - everything GC related.
+//
+//---------------------------------------------------------------------------
+
 IMPLEMENT_CLASS(DDukeActor, false, true)
 IMPLEMENT_POINTERS_START(DDukeActor)
 IMPLEMENT_POINTER(ownerActor)
@@ -62,6 +68,32 @@ size_t DDukeActor::PropagateMark()
 		var.Mark();
 	}
 	return uservars.Size() + Super::PropagateMark();
+}
+
+static void markgcroots()
+{
+	GC::Mark(camsprite);
+	GC::Mark(BellSprite);
+	GC::MarkArray(spriteq, countof(spriteq));
+	GC::Mark(currentCommentarySprite);
+	GC::Mark(ud.cameraactor);
+	for (auto& crn : cranes) GC::Mark(crn.poleactor);
+	for (auto& pl : ps)
+	{
+		GC::Mark(pl.actor);
+		GC::Mark(pl.actorsqu);
+		GC::Mark(pl.wackedbyactor);
+		GC::Mark(pl.on_crane);
+		GC::Mark(pl.holoduke_on);
+		GC::Mark(pl.somethingonplayer);
+		GC::Mark(pl.access_spritenum);
+		GC::Mark(pl.dummyplayersprite);
+		GC::Mark(pl.newOwner);
+		for (auto& var : pl.uservars)
+		{
+			var.Mark();
+		}
+	}
 }
 
 //---------------------------------------------------------------------------
@@ -303,6 +335,7 @@ int GameInterface::GetCurrentSkill()
 void GameInterface::app_init()
 {
 	SetupActors(RUNTIME_CLASS(DDukeActor));
+	GC::AddMarkerFunc(markgcroots);
 
 	if (isRR()) C_SetNotifyFontScale(0.5);
 	ud.god = 0;

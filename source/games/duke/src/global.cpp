@@ -56,7 +56,6 @@ player_struct ps[MAXPLAYERS];
 //------------------------------------------------------------------------- 
 
 int lastvisinc;								// weapon flash
-DDukeActor* camsprite;						// active camera
 int earthquaketime;
 int global_random;							// readonly - one single global per-frame random value. Ugh...
 
@@ -69,7 +68,6 @@ int hulkspawn;								// Spawn a hulk?
 int lastlevel;								// Set at the end of RRRA's E2L7.
 short fakebubba_spawn, mamaspawn_count, banjosound; // RRRA special effects
 short BellTime;
-DDukeActor* BellSprite /* word_119BE0*/;
 int WindTime, WindDir;
 uint8_t enemysizecheat /*raat607*/, ufospawnsminion, pistonsound, chickenphase /* raat605*/, RRRA_ExitedLevel, fogactive;
 
@@ -93,7 +91,6 @@ bool sound445done;							// used in checksectors_r. This was local state inside 
 
 int spriteqamount = 64;						// internal sprite queue
 int spriteqloc;
-DDukeActor* spriteq[1024];
 animwalltype animwall[MAXANIMWALLS];		// animated walls
 int numanimwalls;
 int animatecnt;								// sector plane movement
