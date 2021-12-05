@@ -38,9 +38,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
-DBloodActor bloodActors[kMaxSprites];
-
-
 DBloodActor* InsertSprite(sectortype* pSector, int nStat)
 {
     auto act = static_cast<DBloodActor*>(::InsertActor(pSector, nStat));

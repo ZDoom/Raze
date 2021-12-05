@@ -668,7 +668,7 @@ int GetDistToLine(int x1, int y1, int x2, int y2, int x3, int y3)
     return approxDist(t1-x1, t2-y1);
 }
 
-void ClipMove(vec3_t& pos, sectortype** pSector, int xv, int yv, int wd, int cd, int fd, unsigned int nMask, Collision& hit, int tracecount)
+void ClipMove(vec3_t& pos, sectortype** pSector, int xv, int yv, int wd, int cd, int fd, unsigned int nMask, CollisionBase& hit, int tracecount)
 {
     auto opos = pos;
     sectortype* bakSect = *pSector;

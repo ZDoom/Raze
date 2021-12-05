@@ -91,7 +91,6 @@ TArray<CraneDef> cranes;
 
 bool sound445done;							// used in checksectors_r. This was local state inside a function, but this must be maintained globally and serialized
 
-DDukeActor hittype[MAXSPRITES + 1];			// +1 to have a blank entry for serialization, all access in game code through the iterators.
 int spriteqamount = 64;						// internal sprite queue
 int spriteqloc;
 DDukeActor* spriteq[1024];

@@ -51,6 +51,33 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
+
+IMPLEMENT_CLASS(DBloodActor, false, true)
+IMPLEMENT_POINTERS_START(DBloodActor)
+IMPLEMENT_POINTER(prevmarker)
+IMPLEMENT_POINTER(ownerActor)
+IMPLEMENT_POINTER(hit.hit.hitActor)
+IMPLEMENT_POINTER(hit.ceilhit.hitActor)
+IMPLEMENT_POINTER(hit.florhit.hitActor)
+IMPLEMENT_POINTER(genDudeExtra.pLifeLeech)
+IMPLEMENT_POINTER(genDudeExtra.slave[0])
+IMPLEMENT_POINTER(genDudeExtra.slave[1])
+IMPLEMENT_POINTER(genDudeExtra.slave[2])
+IMPLEMENT_POINTER(genDudeExtra.slave[3])
+IMPLEMENT_POINTER(genDudeExtra.slave[4])
+IMPLEMENT_POINTER(genDudeExtra.slave[5])
+IMPLEMENT_POINTER(genDudeExtra.slave[6])
+IMPLEMENT_POINTER(xsprite.burnSource)
+IMPLEMENT_POINTER(xsprite.target)
+IMPLEMENT_POINTERS_END
+
+size_t DBloodActor::PropagateMark()
+{
+	condition[0].Mark();
+	condition[1].Mark();
+	return 2;
+}
+
 void InitCheats();
 
 bool bNoDemo = false;
@@ -490,10 +517,7 @@ void GameInterface::loadPalette(void)
 
 void GameInterface::app_init()
 {
-	for (int i = 0; i < MAXSPRITES; i++)
-	{
-		actorArray[i] = &bloodActors[i];
-	}
+	SetupActors(RUNTIME_CLASS(DBloodActor));
 	InitCheats();
 	memcpy(&gGameOptions, &gSingleGameOptions, sizeof(GAMEOPTIONS));
 	gGameOptions.nMonsterSettings = !userConfig.nomonsters;

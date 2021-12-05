@@ -4205,15 +4205,15 @@ static void checkCeilHit(DBloodActor* actor)
 	auto pSprite = &actor->s();
 	auto pXSprite = actor->hasX() ? &actor->x() : nullptr;
 
-	const auto& coll = actor->hit.ceilhit;
+	auto& coll = actor->hit.ceilhit;
 	switch (coll.type)
 	{
 	case kHitWall:
 		break;
 	case kHitSprite:
-		if (coll.actor()->hasX())
+		auto actor2 = coll.actor();
+		if (actor2 && actor2->hasX())
 		{
-			auto actor2 = coll.actor();
 			spritetype* pSprite2 = &actor2->s();
 			XSPRITE* pXSprite2 = &actor2->x();
 			if ((pSprite2->statnum == kStatThing || pSprite2->statnum == kStatDude) && (actor->xvel != 0 || actor->yvel != 0 || actor->zvel != 0))
@@ -4524,7 +4524,7 @@ static void ProcessTouchObjects(DBloodActor* actor)
 	if (gModernMap && actor->IsDudeActor())
 	{
 		DBloodActor* actor2 = nullptr;
-		for (Collision* coll : { &actor->hit.hit, &actor->hit.florhit, &actor->hit.ceilhit})
+		for (auto* coll : { &actor->hit.hit, &actor->hit.florhit, &actor->hit.ceilhit})
 		{
 			if (coll->type == kHitSprite)
 			{
@@ -4627,7 +4627,7 @@ static Collision MoveThing(DBloodActor* actor)
 			ChangeActorSect(actor, pSector);
 		}
 
-		Collision &coll = actor->hit.hit;
+		auto &coll = actor->hit.hit;
 		if (coll.type == kHitWall)
 		{
 			actWallBounceVector(&actor->xvel, &actor->yvel, coll.hitWall, pThingInfo->elastic);
@@ -4859,7 +4859,7 @@ void MoveDude(DBloodActor* actor)
 			assert(pSector);
 			pSprite->cstat = bakCstat;
 		}
-		const Collision& coll = actor->hit.hit;
+		auto& coll = actor->hit.hit;
 		switch (coll.type)
 		{
 		case kHitSprite:

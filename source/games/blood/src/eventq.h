@@ -43,7 +43,7 @@ class EventObject
 public:
 	EventObject() = default;
 	explicit EventObject(std::nullptr_t) { index = -1; }
-	explicit EventObject(DBloodActor* actor_) { ActorP = actor_; assert(isActor()); /* GC:WriteBarrier(actor);*/ }
+	explicit EventObject(DBloodActor* actor_) { ActorP = actor_; assert(isActor()); }
 	explicit EventObject(sectortype *sect) { index = (sectnum(sect) << 8) | Sector; }
 	explicit EventObject(walltype* wall) { index = (wallnum(wall) << 8) | Wall; }
 
@@ -51,26 +51,20 @@ public:
 	bool isSector() const { return (index&7) == Sector; }
 	bool isWall() const { return (index&7) == Wall; }
 	
-	DBloodActor* actor() const { assert(isActor()); return /*GC::ReadBarrier*/(ActorP); }
-	sectortype* sector() const { assert(isSector()); return &::sector[index >> 8]; }
-	walltype* wall() const { assert(isWall()); return &::wall[index >> 8]; }
-	int rawindex() const { return index >> 8; }
+	DBloodActor* actor() { assert(isActor()); return GC::ReadBarrier(ActorP); }
+	sectortype* sector() { assert(isSector()); return &::sector[index >> 8]; }
+	walltype* wall() { assert(isWall()); return &::wall[index >> 8]; }
+	int rawindex() { return index >> 8; }
 
 	bool operator==(const EventObject& other) const { return index == other.index; }
 	bool operator!=(const EventObject& other) const { return index != other.index; }
 
 	FString description() const;
-
-	// refactoring helper
-	/*
-	[[deprecated]] void fromElements(int type, int index, DBloodActor* act)
+	void Mark()
 	{
-		if (type == 0) *this = &::wall[index];
-		else if (type == 6) *this = &::sector[index];
-		else if (type == 3) *this = act;
-		else assert(false);
+		if (isActor()) GC::Mark(ActorP);
 	}
-	*/
+
 };
 
 
@@ -220,19 +214,19 @@ struct EVENT
 		return target.isWall();
 	}
 
-	DBloodActor* getActor() const
+	DBloodActor* getActor() 
 	{
 		assert(isActor());
 		return target.actor();
 	}
 
-	sectortype* getSector() const
+	sectortype* getSector() 
 	{
 		assert(isSector());
 		return target.sector();
 	}
 
-	walltype* getWall() const
+	walltype* getWall() 
 	{
 		assert(isWall());
 		return target.wall();

@@ -7,9 +7,8 @@ BEGIN_SW_NS
 
 class DSWActor : public DCoreActor
 {
-	using Super = DCoreActor;
-
-	DSWActor* base();
+	DECLARE_CLASS(DSWActor, DCoreActor)
+	HAS_OBJECT_POINTERS
 
 public:
 
@@ -18,10 +17,7 @@ public:
 	walltype* tempwall;	// transient, to replace a hack using a 16 bit sprite field.
 	DSWActor* ownerActor;
 
-	DSWActor()
-	{
-		index = (int(this - base()));
-	}
+	DSWActor() = default;
 	DSWActor& operator=(const DSWActor& other) = default;
 
 	void ClearContent()
@@ -50,9 +46,6 @@ public:
 
 };
 
-extern DSWActor swActors[MAXSPRITES];
-
-inline DSWActor* DSWActor::base() { return swActors; }
 
 // subclassed to add a game specific actor() method
 
@@ -60,15 +53,6 @@ inline DSWActor* DSWActor::base() { return swActors; }
 using SWStatIterator = TStatIterator<DSWActor>;
 using SWSectIterator = TSectIterator<DSWActor>;
 using SWSpriteIterator = TSpriteIterator<DSWActor>;
-
-
-inline FSerializer& Serialize(FSerializer& arc, const char* keyname, DSWActor*& w, DSWActor** def)
-{
-	int index = w? int(w - swActors) : -1;
-	Serialize(arc, keyname, index, nullptr);
-	if (arc.isReading()) w = index == -1? nullptr : &swActors[index];
-	return arc;
-}
 
 
 END_SW_NS

@@ -52,7 +52,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
-DExhumedActor exhumedActors[MAXSPRITES];
+IMPLEMENT_CLASS(DExhumedActor, false, true)
+IMPLEMENT_POINTERS_START(DExhumedActor)
+IMPLEMENT_POINTER(pTarget)
+IMPLEMENT_POINTERS_END
 
 static MapRecord* NextMap;
 
@@ -464,10 +467,7 @@ static void SetTileNames()
 
 void GameInterface::app_init()
 {
-    for (int i = 0; i < MAXSPRITES; i++)
-    {
-        actorArray[i] = &exhumedActors[i];
-}
+    SetupActors(RUNTIME_CLASS(DExhumedActor));
 
 #if 0
     help_disabled = true;

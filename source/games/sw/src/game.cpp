@@ -178,10 +178,7 @@ void GameInterface::LoadGameTextures()
 
 void GameInterface::app_init()
 {
-    for (int i = 0; i < MAXSPRITES; i++)
-    {
-        actorArray[i] = &swActors[i];
-    }
+    SetupActors(RUNTIME_CLASS(DSWActor));
 
     GameTicRate = TICS_PER_SEC / synctics;
     InitCheats();

@@ -54,7 +54,7 @@ extern TArray<BUSY> gBusy;
 void trTriggerSector(sectortype *pSector, int command);
 void trMessageSector(sectortype* pSector, EVENT event);
 void trTriggerWall(walltype*, int command);
-void trMessageWall(walltype* pWall, const EVENT& event);
+void trMessageWall(walltype* pWall, EVENT& event);
 void trTriggerSprite(DBloodActor* actor, int command);
 void trMessageSprite(DBloodActor* actor, EVENT event);
 void trProcessBusy(void);

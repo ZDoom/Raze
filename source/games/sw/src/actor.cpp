@@ -42,7 +42,17 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 BEGIN_SW_NS
 
-DSWActor swActors[MAXSPRITES];
+IMPLEMENT_CLASS(DSWActor, false, true)
+IMPLEMENT_POINTERS_START(DSWActor)
+IMPLEMENT_POINTER(ownerActor)
+IMPLEMENT_POINTER(user.lowActor)
+IMPLEMENT_POINTER(user.lowActor)
+IMPLEMENT_POINTER(user.highActor)
+IMPLEMENT_POINTER(user.targetActor)
+IMPLEMENT_POINTER(user.flameActor)
+IMPLEMENT_POINTER(user.attachActor)
+IMPLEMENT_POINTER(user.WpnGoalActor)
+IMPLEMENT_POINTERS_END
 
 extern int jump_grav;
 

@@ -23,7 +23,8 @@ struct STATUSBARTYPE
 
 class DDukeActor : public DCoreActor
 {
-	using Super = DCoreActor;
+	DECLARE_CLASS(DDukeActor, DCoreActor)
+	HAS_OBJECT_POINTERS
 public:
 	uint8_t cgg;
 	uint8_t spriteextra;	// moved here for easier maintenance. This was originally a hacked in field in the sprite structure called 'filler'.
@@ -47,15 +48,8 @@ public:
 
 	TArray<GameVarValue> uservars;
 
-	static DDukeActor* array();	// this is necessary to allow define inline functions referencing the global array inside the definition itself.
-
-	DDukeActor()
-	{
-		index = int(this - array());
-		s = &DCoreActor::s();
-	}
-	DDukeActor(const DDukeActor& other) = delete;				// we also do not want to allow copies.
-	DDukeActor& operator=(const DDukeActor& other) = delete;
+	DDukeActor() = default;
+	size_t PropagateMark() override;
 	void ClearContent() override
 	{
 		Super::ClearContent();
@@ -109,8 +103,6 @@ public:
 	void Serialize(FSerializer& arc) override;
 
 };
-extern DDukeActor hittype[MAXSPRITES + 1];
-inline DDukeActor* DDukeActor::array() { return hittype; }
 
 // subclassed to add a game specific actor() method
 using HitInfo = THitInfo<DDukeActor>;

@@ -24,19 +24,23 @@ class GameVarValue
 
 public:
 	GameVarValue() = default;
-	explicit GameVarValue(DDukeActor* actor_) { ActorP = actor_; assert(isActor()); /* GC:WriteBarrier(actor);*/ }
+	explicit GameVarValue(DDukeActor* actor_) { ActorP = actor_; assert(isActor()); }
 	explicit GameVarValue(int val) { index = (val << 8) | Value; }
 
 	bool isActor() const { return (index & 7) == Actor; }
 	bool isValue() const { return (index & 7) == Value; }
 
-	DDukeActor* actor() const { assert(isActor()); return /*GC::ReadBarrier*/(ActorP); }
-	int value() const { assert(isValue()); return index >> 8; }
-	int safeValue() const { return isValue() ? value() : actor() == nullptr ? 0 : -1; }	// return -1 for valid actors and 0 for null. This allows most comparisons to work.
-	DDukeActor* safeActor() const { return isActor() ? actor() : nullptr; }
+	DDukeActor* actor() { assert(isActor()); return GC::ReadBarrier(ActorP); }
+	int value() { assert(isValue()); return index >> 8; }
+	int safeValue() { return isValue() ? value() : actor() == nullptr ? 0 : -1; }	// return -1 for valid actors and 0 for null. This allows most comparisons to work.
+	DDukeActor* safeActor() { return isActor() ? actor() : nullptr; }
 
 	bool operator==(const GameVarValue& other) const { return index == other.index; }
 	bool operator!=(const GameVarValue& other) const { return index != other.index; }
+	void Mark()
+	{
+		if (isActor()) GC::Mark(ActorP);
+	}
 };
 
 enum

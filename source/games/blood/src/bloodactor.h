@@ -8,13 +8,14 @@ class DBloodActor;
 
 struct SPRITEHIT
 {
+	// These must use read barriers as they can live longer and need proper GC maintenance.
 	Collision hit, ceilhit, florhit;
 };
 
 class DBloodActor : public DCoreActor
 {
-	using Super = DCoreActor;
-	DBloodActor* base();
+	DECLARE_CLASS(DBloodActor, DCoreActor)
+	HAS_OBJECT_POINTERS
 
 public:
 	int dudeSlope;
@@ -35,12 +36,9 @@ public:
 	int cumulDamage;
 	bool interpolated;
 
-	DBloodActor()
-	{
-		index = (int(this - base()));
-	}
-
+	DBloodActor() = default;
 	void Serialize(FSerializer& arc) override;
+	size_t PropagateMark() override;
 
 	DBloodActor& operator=(const DBloodActor& other) = default;
 
@@ -164,10 +162,6 @@ public:
 		}
 	}
 };
-
-extern DBloodActor bloodActors[kMaxSprites];
-
-inline DBloodActor* DBloodActor::base() { return bloodActors; }
 
 // subclassed to add a game specific actor() method
 

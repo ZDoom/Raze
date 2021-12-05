@@ -47,6 +47,23 @@ void SetDispatcher();
 void InitCheats();
 int registerosdcommands(void);
 
+IMPLEMENT_CLASS(DDukeActor, false, true)
+IMPLEMENT_POINTERS_START(DDukeActor)
+IMPLEMENT_POINTER(ownerActor)
+IMPLEMENT_POINTER(hitOwnerActor)
+IMPLEMENT_POINTER(temp_actor)
+IMPLEMENT_POINTER(seek_actor)
+IMPLEMENT_POINTERS_END
+
+size_t DDukeActor::PropagateMark()
+{
+	for (auto& var : uservars)
+	{
+		var.Mark();
+	}
+	return uservars.Size() + Super::PropagateMark();
+}
+
 //---------------------------------------------------------------------------
 //
 // game specific command line args go here. 
@@ -285,10 +302,7 @@ int GameInterface::GetCurrentSkill()
 
 void GameInterface::app_init()
 {
-	for (int i = 0; i < MAXSPRITES; i++)
-	{
-		actorArray[i] = &hittype[i];
-	}
+	SetupActors(RUNTIME_CLASS(DDukeActor));
 
 	if (isRR()) C_SetNotifyFontScale(0.5);
 	ud.god = 0;

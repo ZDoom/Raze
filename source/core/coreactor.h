@@ -3,11 +3,14 @@
 #include <stdint.h>
 #include "build.h"
 
-class DCoreActor
+class DCoreActor : public DObject
 {
+	DECLARE_CLASS(DCoreActor, DObject)
+	HAS_OBJECT_POINTERS
 	// common part of the game actors
-protected:
-	int index;
+//protected:
+public:
+	int index; // this will go away very soon.
 
 public:
 
@@ -21,8 +24,11 @@ public:
 	spriteext_t sprext;
 	spritesmooth_t spsmooth;
 
-
+	DCoreActor() = default;
 	virtual ~DCoreActor() = default;
+	DCoreActor(const DCoreActor& other) = delete;				// we also do not want to allow copies.
+	DCoreActor& operator=(const DCoreActor& other) = delete;
+
 	virtual void Serialize(FSerializer& arc);
 	// This may only be called when all actor lists are clean.
 	virtual void ClearContent()
@@ -32,6 +38,8 @@ public:
 		prevStat = nextStat = prevSect = nextSect = nullptr;
 		spr = {};
 	}
+
+	size_t PropagateMark() override;
 
 	bool exists() const
 	{
@@ -93,7 +101,6 @@ public:
 };
 
 // holds pointers to the game-side actors.
-inline DCoreActor* actorArray[16384];
 extern TArray<sectortype> sector;
 extern TArray<walltype> wall;
 
@@ -114,14 +121,6 @@ enum EHitBits
 
 
 };
-
-inline FSerializer& Serialize(FSerializer& arc, const char* keyname, DCoreActor*& w, DCoreActor** def)
-{
-	int index = w ? w->GetSpriteIndex() : -1;
-	Serialize(arc, keyname, index, nullptr);
-	if (arc.isReading()) w = index == -1 ? nullptr : actorArray[index];
-	return arc;
-}
 
 // This serves as input/output for all functions dealing with collisions, hits, etc.
 // Not all utilities use all variables.
@@ -222,7 +221,22 @@ struct CollisionBase
 template<class T>
 struct TCollision : public CollisionBase
 {
-	T* actor() const { return static_cast<T*>(hitActor); }
+	T* actor() const
+	{ 
+		return static_cast<T*>(hitActor); 
+	}
+
+	// normally collision data is short lived, this is only needed in some very rare circumstances.
+	T* safeActor()
+	{
+		return static_cast<T*>(GC::ReadBarrier(hitActor));
+	}
+
+	auto operator=(const CollisionBase& other)
+	{
+		*(CollisionBase*)this = other;
+		return *this;
+	}
 };
 
 
@@ -339,6 +353,7 @@ int DeleteActor(DCoreActor* actor);
 void ChangeActorSect(DCoreActor* actor, sectortype* sector, bool forcetail = false);
 int ChangeActorStat(DCoreActor* actor, int nStatus, bool forcetail = false);
 void InitSpriteLists();
+void SetupActors(PClass* clstype);
 
 
 void SetActorZ(DCoreActor* actor, const vec3_t* newpos);

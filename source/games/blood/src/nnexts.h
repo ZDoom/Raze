@@ -331,9 +331,9 @@ void seqTxSendCmdAll(DBloodActor* pXSource, DBloodActor* nIndex, COMMAND_ID cmd,
 void trPlayerCtrlLink(DBloodActor* pXSource, PLAYER* pPlayer, bool checkCondition);
 void trPlayerCtrlStopScene(PLAYER* pPlayer);
 //  -------------------------------------------------------------------------   //
-void modernTypeTrigger(int type, sectortype*sect, walltype* wal, DBloodActor* actor, const EVENT& event);
+void modernTypeTrigger(int type, sectortype*sect, walltype* wal, DBloodActor* actor, EVENT& event);
 bool modernTypeOperateSector(sectortype* pSector, const EVENT& event);
-bool modernTypeOperateSprite(DBloodActor*, const EVENT& event);
+bool modernTypeOperateSprite(DBloodActor*, EVENT& event);
 bool modernTypeOperateWall(walltype* pWall, const EVENT& event);
 void modernTypeSendCommand(DBloodActor* nSprite, int channel, COMMAND_ID command);
 //  -------------------------------------------------------------------------   //
@@ -358,14 +358,14 @@ bool isShrinked(DBloodActor* pSprite);
 bool IsBurningDude(DBloodActor* pSprite);
 bool IsKillableDude(DBloodActor* pSprite);
 bool isActive(DBloodActor* nSprite);
-int getDataFieldOfObject(const EventObject& eob, int dataIndex);
+int getDataFieldOfObject(EventObject& eob, int dataIndex);
 int getDataFieldOfObject(int objType, sectortype* sect, walltype* wal, DBloodActor* actor, int dataIndex);
 bool setDataValueOfObject(int objType, sectortype* sect, walltype* wal, DBloodActor* objActor, int dataIndex, int value);
 bool incDecGoalValueIsReached(DBloodActor* actor);
 int getSpriteMassBySize(DBloodActor* pSprite);
 bool ceilIsTooLow(DBloodActor* pSprite);
 void levelEndLevelCustom(int nLevel);
-int useCondition(DBloodActor*, const EVENT& event);
+int useCondition(DBloodActor*, EVENT& event);
 bool condCmp(int val, int arg1, int arg2, int comOp);
 bool condCmpne(int arg1, int arg2, int comOp);
 void condError(DBloodActor* pXCond, const char* pzFormat, ...);

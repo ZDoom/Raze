@@ -395,9 +395,11 @@ int DeleteActor(DCoreActor* actor)
 
 //==========================================================================
 //
-//
+// code below will go away or be changed once 
+// we can use real DObject life cycle management.
 //
 //==========================================================================
+static DCoreActor* actorArray[16384];
 
 void InitSpriteLists()
 {
@@ -445,3 +447,25 @@ void SetActorZ(DCoreActor* actor, const vec3_t* newpos)
 }
 
 
+IMPLEMENT_CLASS(DCoreActor, false, false)
+
+size_t DCoreActor::PropagateMark()
+{
+	GC::Mark(prevStat);
+	GC::Mark(nextStat);
+	GC::Mark(prevSect);
+	GC::Mark(nextSect);
+	return 4 + Super::PropagateMark();
+}
+
+void SetupActors(PClass* clstype)
+{
+	// this is temporary until we have added proper tracking to all pointers in the games.
+	// Until then we have to keep a static array of actors to avoid stale references to deallocated memory.
+	for (int i = 0; i < 16384; i++)
+	{
+		actorArray[i] = static_cast<DCoreActor*>(clstype->CreateNew());
+		actorArray[i]->index = i;
+		actorArray[i]->Release();	// no GC for this static array.
+	}
+}

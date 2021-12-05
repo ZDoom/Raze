@@ -55,7 +55,7 @@ FString EventObject::description() const
 //
 //---------------------------------------------------------------------------
 
-static int GetBucketChannel(const EventObject* pBucket)
+static int GetBucketChannel(EventObject* pBucket)
 {
 	if (pBucket->isSector())
 	{
@@ -85,7 +85,7 @@ static int GetBucketChannel(const EventObject* pBucket)
 //
 //---------------------------------------------------------------------------
 
-static int CompareChannels(const EventObject* ref1, const EventObject* ref2)
+static int CompareChannels(EventObject* ref1, EventObject* ref2)
 {
 	return GetBucketChannel(ref1) - GetBucketChannel(ref2);
 }
@@ -320,7 +320,7 @@ void evInit(TArray<DBloodActor*>& actors)
 //
 //---------------------------------------------------------------------------
 
-static bool evGetSourceState(const EventObject& eob)
+static bool evGetSourceState(EventObject& eob)
 {
 	if (eob.isSector())
 	{
@@ -349,7 +349,7 @@ static bool evGetSourceState(const EventObject& eob)
 //
 //---------------------------------------------------------------------------
 
-void evSend(const EventObject& eob, int rxId, COMMAND_ID command)
+void evSend(EventObject& eob, int rxId, COMMAND_ID command)
 {
 	switch (command) {
 	case kCmdState:
@@ -509,7 +509,7 @@ void evSend(const EventObject& eob, int rxId, COMMAND_ID command)
 //
 //---------------------------------------------------------------------------
 
-void evPost_(const EventObject& eob, unsigned int nDelta, COMMAND_ID command)
+void evPost_(EventObject& eob, unsigned int nDelta, COMMAND_ID command)
 {
 	assert(command != kCmdCallback);
 	if (command == kCmdState) command = evGetSourceState(eob) ? kCmdOn : kCmdOff;
@@ -527,7 +527,8 @@ void evPost_(const EventObject& eob, unsigned int nDelta, CALLBACK_ID callback)
 
 void evPostActor(DBloodActor* actor, unsigned int nDelta, COMMAND_ID command)
 {
-	evPost_(EventObject(actor), nDelta, command);
+	auto ev = EventObject(actor);
+	evPost_(ev, nDelta, command);
 }
 
 void evPostActor(DBloodActor* actor, unsigned int nDelta, CALLBACK_ID callback)
@@ -537,7 +538,8 @@ void evPostActor(DBloodActor* actor, unsigned int nDelta, CALLBACK_ID callback)
 
 void evPostSector(sectortype* sect, unsigned int nDelta, COMMAND_ID command)
 {
-	evPost_(EventObject(sect), nDelta, command);
+	auto ev = EventObject(sect);
+	evPost_(ev, nDelta, command);
 }
 
 void evPostSector(sectortype* sect, unsigned int nDelta, CALLBACK_ID callback)
@@ -547,7 +549,8 @@ void evPostSector(sectortype* sect, unsigned int nDelta, CALLBACK_ID callback)
 
 void evPostWall(walltype* wal, unsigned int nDelta, COMMAND_ID command)
 {
-	evPost_(EventObject(wal), nDelta, command);
+	auto ev = EventObject(wal);
+	evPost_(ev, nDelta, command);
 }
 
 
@@ -598,22 +601,26 @@ void evKillSector(sectortype* sec)
 // these have no target.
 void evSendGame(int rxId, COMMAND_ID command)
 {
-	evSend(EventObject(nullptr), rxId, command);
+	auto ev = EventObject(nullptr);
+	evSend(ev, rxId, command);
 }
 
 void evSendActor(DBloodActor* actor, int rxId, COMMAND_ID command)
 {
-	evSend(EventObject(actor), rxId, command);
+	auto ev = EventObject(actor);
+	evSend(ev, rxId, command);
 }
 
 void evSendSector(sectortype* sect, int rxId, COMMAND_ID command)
 {
-	evSend(EventObject(sect), rxId, command);
+	auto ev = EventObject(sect);
+	evSend(ev, rxId, command);
 }
 
 void evSendWall(walltype* wal, int rxId, COMMAND_ID command)
 {
-	evSend(EventObject(wal), rxId, command);
+	auto ev = EventObject(wal);
+	evSend(ev, rxId, command);
 }
 
 //---------------------------------------------------------------------------

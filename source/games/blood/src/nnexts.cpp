@@ -452,7 +452,7 @@ bool nnExtEraseModernStuff(DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-void nnExtTriggerObject(const EventObject& eob, int command)
+void nnExtTriggerObject(EventObject& eob, int command)
 {
     if (eob.isSector())
     {
@@ -4532,19 +4532,20 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
             case 58: // touching another sprite?
             {
                 DBloodActor* actorvar = nullptr;
+                // Caution: The hit pointers here may be stale, so be careful with them.
                 switch (arg3) 
                 {
                     case 0:
                     case 1:
-                    if (objActor->hit.florhit.type == kHitSprite) actorvar = objActor->hit.florhit.actor();
+                    if (objActor->hit.florhit.type == kHitSprite) actorvar = objActor->hit.florhit.safeActor();
                         if (arg3 || var >= 0) break;
                     [[fallthrough]];
                     case 2:
-                    if (objActor->hit.hit.type == kHitSprite) actorvar = objActor->hit.hit.actor();
+                    if (objActor->hit.hit.type == kHitSprite) actorvar = objActor->hit.hit.safeActor();
                         if (arg3 || var >= 0) break;
                     [[fallthrough]];
                     case 3:
-                    if (objActor->hit.ceilhit.type == kHitSprite) actorvar = objActor->hit.ceilhit.actor();
+                    if (objActor->hit.ceilhit.type == kHitSprite) actorvar = objActor->hit.ceilhit.safeActor();
                         break;
                 }
                 if (actorvar == nullptr) 
@@ -4559,15 +4560,15 @@ bool condCheckSprite(DBloodActor* aCond, int cmpOp, bool PUSH)
                         {
                             case 0:
                             case 1:
-                            if (hit.ceilhit.type == kHitSprite && hit.ceilhit.actor() == objActor) actorvar = iactor;
+                            if (hit.ceilhit.type == kHitSprite && hit.ceilhit.safeActor() == objActor) actorvar = iactor;
                             if (arg3 || actorvar) break;
                             [[fallthrough]];
                             case 2:
-                            if (hit.hit.type == kHitSprite && hit.hit.actor() == objActor) actorvar = iactor;
+                            if (hit.hit.type == kHitSprite && hit.hit.safeActor() == objActor) actorvar = iactor;
                             if (arg3 || actorvar) break;
                             [[fallthrough]];
                             case 3:
-                            if (hit.florhit.type == kHitSprite && hit.florhit.actor() == objActor) actorvar = iactor;
+                            if (hit.florhit.type == kHitSprite && hit.florhit.safeActor() == objActor) actorvar = iactor;
                                 break;
                         }
                     }
@@ -4708,7 +4709,7 @@ void modernTypeSendCommand(DBloodActor* actor, int destChannel, COMMAND_ID comma
 //
 //---------------------------------------------------------------------------
 
-void modernTypeTrigger(int destObjType, sectortype* destSect, walltype* destWall, DBloodActor* destactor, const EVENT& event) 
+void modernTypeTrigger(int destObjType, sectortype* destSect, walltype* destWall, DBloodActor* destactor, EVENT& event) 
 {
     if (!event.isActor()) return;
     auto pActor = event.getActor();
@@ -5421,7 +5422,7 @@ void useDudeSpawn(DBloodActor* pSource, DBloodActor* pSprite)
 //
 //---------------------------------------------------------------------------
 
-bool modernTypeOperateSprite(DBloodActor* actor, const EVENT& event) 
+bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event) 
 {
     auto pSprite = &actor->s();
     auto pXSprite = &actor->x();
@@ -6126,7 +6127,7 @@ void useSequentialTx(DBloodActor* sourceactor, COMMAND_ID cmd, bool setState)
 //
 //---------------------------------------------------------------------------
 
-int useCondition(DBloodActor* sourceactor, const EVENT& event)
+int useCondition(DBloodActor* sourceactor, EVENT& event)
 {
     spritetype* pSource = &sourceactor->s();
     auto pXSource = &sourceactor->x();
@@ -6211,8 +6212,10 @@ int useCondition(DBloodActor* sourceactor, const EVENT& event)
             }
 
             // send it for initial object
-            if ((pSource->flags & kModernTypeFlag2) && (sourceactor->condition[0] != sourceactor->condition[1] || !(pSource->hitag & kModernTypeFlag1))) {
-                nnExtTriggerObject(condGet(sourceactor), pXSource->command);
+            if ((pSource->flags & kModernTypeFlag2) && (sourceactor->condition[0] != sourceactor->condition[1] || !(pSource->hitag & kModernTypeFlag1))) 
+            {
+                auto co = condGet(sourceactor);
+                nnExtTriggerObject(co, pXSource->command);
             }
         }
     }
@@ -7329,7 +7332,7 @@ bool isActive(DBloodActor* actor)
 //
 //---------------------------------------------------------------------------
 
-int getDataFieldOfObject(const EventObject &eob, int dataIndex)
+int getDataFieldOfObject(EventObject &eob, int dataIndex)
 {
     int data = -65535;
 

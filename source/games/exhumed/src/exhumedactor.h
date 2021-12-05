@@ -4,7 +4,6 @@
 
 BEGIN_PS_NS
 
-class DExhumedActor;
 
 enum
 {
@@ -16,9 +15,8 @@ enum
 
 class DExhumedActor : public DCoreActor
 {
-	using Super = DCoreActor;
-
-	DExhumedActor* base();
+	DECLARE_CLASS(DExhumedActor, DCoreActor)
+	HAS_OBJECT_POINTERS
 
 public:
 	DExhumedActor* pTarget;
@@ -41,11 +39,7 @@ public:
 	int y;
 
 
-	DExhumedActor() 
-	{
-		index = (int(this - base()));
-	}
-	DExhumedActor& operator=(const DExhumedActor& other) = default;
+	DExhumedActor() = default;
 
 	void ClearContent() override
 	{
@@ -58,10 +52,6 @@ public:
 
 };
 
-extern DExhumedActor exhumedActors[MAXSPRITES];
-
-inline DExhumedActor* DExhumedActor::base() { return exhumedActors; }
-
 // subclassed to add a game specific actor() method
 using HitInfo = THitInfo<DExhumedActor>;
 using Collision = TCollision<DExhumedActor>;
@@ -70,13 +60,5 @@ using ExhumedStatIterator = TStatIterator<DExhumedActor>;
 using ExhumedSectIterator = TSectIterator<DExhumedActor>;
 using ExhumedSpriteIterator = TSpriteIterator<DExhumedActor>;
 
-
-inline FSerializer& Serialize(FSerializer& arc, const char* keyname, DExhumedActor*& w, DExhumedActor** def)
-{
-	int index = w? int(w - exhumedActors) : -1;
-	Serialize(arc, keyname, index, nullptr);
-	if (arc.isReading()) w = index == -1? nullptr : &exhumedActors[index];
-	return arc;
-}
 
 END_BLD_NS

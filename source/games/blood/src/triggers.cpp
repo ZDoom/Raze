@@ -160,7 +160,7 @@ void ReverseBusy(sectortype* pSector, BUSYID a2)
     }
 }
 
-unsigned int GetSourceBusy(const EVENT& a1)
+unsigned int GetSourceBusy(EVENT& a1)
 {
     if (a1.isSector())
     {
@@ -1677,7 +1677,7 @@ void LinkSprite(DBloodActor* actor, EVENT event)
     }
 }
 
-void LinkWall(walltype* pWall, const EVENT& event)
+void LinkWall(walltype* pWall, EVENT& event)
 {
     int nBusy = GetSourceBusy(event);
     pWall->xw().busy = nBusy;
@@ -1770,7 +1770,7 @@ void trMessageSector(sectortype* pSector, EVENT event)
     }
 }
 
-void trMessageWall(walltype* pWall, const EVENT& event) 
+void trMessageWall(walltype* pWall, EVENT& event) 
 {
     assert(pWall->hasX());
     
