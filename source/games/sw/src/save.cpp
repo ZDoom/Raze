@@ -1112,7 +1112,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, TRACK& w, TRACK* d
 void DSWActor::Serialize(FSerializer& arc)
 {
 	Super::Serialize(arc);
-	arc("hasuser", hasUser);
+	arc("hasuser", hasUser)
+		("owner", ownerActor);
 	if (hasUser) arc("user", user); // only write if defined.
 }
 

@@ -581,26 +581,22 @@ STATE s_IconFlag[] =
 
 void SetOwner(DSWActor* ownr, DSWActor* child, bool flag)
 {
-    SPRITEp cp = &child->s();
-
     if (flag && ownr != nullptr && ownr->hasU())
     {
         SET(ownr->u()->Flags2, SPR2_CHILDREN);
     }
-
-    cp->owner = ownr? ownr->GetSpriteIndex() : -1;
+    child->ownerActor = ownr;
 }
 
 
 DSWActor* GetOwner(DSWActor* child)
 {
-    if (!child || child->s().owner < 0) return nullptr;
-    return &swActors[child->s().owner];
+    return child ? child->ownerActor : nullptr;
 }
 
 void ClearOwner(DSWActor* child)
 {
-    if (child) child->s().owner = -1;
+    if (child) child->ownerActor = nullptr;
 }
 
 void SetAttach(DSWActor* ownr, DSWActor* child)

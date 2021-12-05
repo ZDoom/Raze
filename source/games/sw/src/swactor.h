@@ -16,6 +16,7 @@ public:
 	bool hasUser;
 	USER user;
 	walltype* tempwall;	// transient, to replace a hack using a 16 bit sprite field.
+	DSWActor* ownerActor;
 
 	DSWActor()
 	{

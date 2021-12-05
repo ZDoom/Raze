@@ -147,35 +147,6 @@ struct VOCstruct
 };
 
 
-// JIMSOUND3D(tm) variables section //////////////////////////////////////////
-
-#if 0
-struct VOC3Dstruct
-{
-    VOC_INFOp vp;                       // Pointer to the sound
-    int *x;                            // Pointer to x coordinate
-    int *y;                            // Pointer to y coordinate
-    int *z;                            // Pointer to z coordinate
-    int fx, fy, fz;                    // Non-Follow literal values
-    Voc3D_Flags flags;                  // 3d voc sound flags
-    int handle;                         // Current handle to the voc
-    short doplr_delta;                  // Change in distance since last call
-    VOC3D_INFOp prev, next;             // Linked voc list
-    short owner;                        // Hold index into user array to
-    // delete looping sounds
-    int num;                            // Digital Entry number used for
-    // callback of looping sounds
-    // If sound is active but user == 0, stop the sound
-    short dist;                         // Current distance of sound from player
-    uint8_t priority;                      // Used to force a higher priority based on distance
-    int tics;                          // Tics used to count to next sound occurance
-    int maxtics;                       // Tics until next sound occurance
-    // for intermittent sounds
-    bool deleted;                       // Has sound been marked for deletion?
-    bool FX_Ok;                         // Did this sound play ok?
-};
-#endif
-
 extern VOC_INFO voc[];
 
 END_SW_NS
