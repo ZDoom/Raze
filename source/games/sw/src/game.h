@@ -238,29 +238,19 @@ inline void DISTANCE(int x1, int y1, int x2, int y2, int& dist, int& tx, int& ty
 	dist = tx + ty - (tmin >> 1);
 }
 
-inline int SPRITEp_SIZE_X(const spritetype* sp)
+inline int SPRITEp_SIZE_X(const spritetypebase* sp)
 {
 	return MulScale(tileWidth(sp->picnum), sp->xrepeat, 6);
 }
 
-inline int SPRITEp_SIZE_Y(const spritetype* sp)
+inline int SPRITEp_SIZE_Y(const spritetypebase* sp)
 {
 	return MulScale(tileHeight(sp->picnum), sp->yrepeat, 6);
 }
 
-inline int SPRITEp_SIZE_Z(const spritetype* sp)
+inline int SPRITEp_SIZE_Z(const spritetypebase* sp)
 {
 	return (tileHeight(sp->picnum) * sp->yrepeat) << 2;
-}
-
-inline int SPRITEp_SIZE_Y(const tspritetype* sp)
-{
-    return MulScale(tileHeight(sp->picnum), sp->yrepeat, 6);
-}
-
-inline int SPRITEp_SIZE_Z(const tspritetype* sp)
-{
-    return (tileHeight(sp->picnum) * sp->yrepeat) << 2;
 }
 
 

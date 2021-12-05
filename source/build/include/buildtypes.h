@@ -323,7 +323,7 @@ enum
 #ifndef buildtypes_h__enums
 
 
-struct spritetype
+struct spritetypebase
 {
     union {
         struct
@@ -346,7 +346,7 @@ struct spritetype
     uint8_t xrepeat, yrepeat;
     int8_t xoffset, yoffset;
     int16_t sectnum, statnum;
-    int16_t oang, ang, owner;
+    int16_t oang, ang;
     int16_t xvel;
     int16_t yvel;
     union {
@@ -361,63 +361,7 @@ struct spritetype
     int16_t extra;
     int16_t detail;
     int time;
-    int16_t wall;
     uint16_t cstat2;
-    int8_t wdist;
-
-
-#if 0
-    // make sure we do not accidentally copy this
-    spritetype() = default;
-    spritetype(const spritetype&) = delete;
-    spritetype& operator=(const spritetype&) = delete;
-#endif
-    void clear()
-    {
-        int sect = sectnum;
-        int stat = statnum;
-        int save = time;    // this may not be cleared ever!!!
-        memset(this, 0, sizeof(*this));
-        time = save;
-        sectnum = sect;
-        statnum = stat;
-    }
-
-    void backupx()
-    {
-        opos.x = pos.x;
-    }
-
-    void backupy()
-    {
-        opos.y = pos.y;
-    }
-
-    void backupz()
-    {
-        opos.z = pos.z;
-    }
-
-    void backupvec2()
-    {
-        opos.vec2 = pos.vec2;
-    }
-
-    void backuppos()
-    {
-        opos = pos;
-    }
-
-    void backupang()
-    {
-        oang = ang;
-    }
-
-    void backuploc()
-    {
-        backuppos();
-        backupang();
-    }
 
     void setpos(const vec3_t& newpos)
     {
@@ -465,52 +409,71 @@ struct spritetype
 
     sectortype* sector() const;
     bool insector() const;
-	void setsector(sectortype*);
+    void setsector(sectortype*);
+};
+
+
+struct spritetype : public spritetypebase
+{
+    int16_t owner;
+    int16_t detail;
+    int16_t wall;
+    int8_t wdist;
+
+    void clear()
+    {
+        int sect = sectnum;
+        int stat = statnum;
+        int save = time;    // this may not be cleared ever!!!
+        memset(this, 0, sizeof(*this));
+        time = save;
+        sectnum = sect;
+        statnum = stat;
+    }
+
+    void backupx()
+    {
+        opos.x = pos.x;
+    }
+
+    void backupy()
+    {
+        opos.y = pos.y;
+    }
+
+    void backupz()
+    {
+        opos.z = pos.z;
+    }
+
+    void backupvec2()
+    {
+        opos.vec2 = pos.vec2;
+    }
+
+    void backuppos()
+    {
+        opos = pos;
+    }
+
+    void backupang()
+    {
+        oang = ang;
+    }
+
+    void backuploc()
+    {
+        backuppos();
+        backupang();
+    }
 };
 
 // This is mostly the same, but it omits the 'owner' field in favor of a full actor pointer. 
 // Incompatibility with spritetype regarding assignments is deliberate as these serve a fundamentally different purpose!
-struct tspritetype
+struct tspritetype : public spritetypebase
 {
-    union {
-        struct
-        {
-            int32_t x, y, z;
-        };
-        vec3_t pos;
-    };
-    union {
-        struct
-        {
-            int32_t ox, oy, oz;
-        };
-        vec3_t opos;
-    };
-    uint16_t cstat;
-    int16_t picnum;
-    int8_t shade;
-    uint8_t pal, clipdist, blend;
-    uint8_t xrepeat, yrepeat;
-    int8_t xoffset, yoffset;
-    int16_t sectnum, statnum;
-    int16_t oang, ang;
-    int16_t xvel;
-    int16_t yvel;
-    int16_t zvel;
-    union {
-        int16_t lotag, type;
-    };
-    union {
-        int16_t hitag, flags;
-    };
-    int16_t extra;
-    uint16_t cstat2;
-    int time;
     DCoreActor* ownerActor;
 
-    sectortype* sector() const;
-    bool insector() const;
-    void setsector(sectortype*);
     void copyfrom(spritetype* spr)
     {
         pos = spr->pos;
@@ -539,46 +502,6 @@ struct tspritetype
         cstat2 = spr->cstat2;
         ownerActor = nullptr;
     }
-
-    int32_t interpolatedx(double const smoothratio, int const scale = 16)
-    {
-        return interpolatedvalue(ox, x, smoothratio, scale);
-    }
-
-    int32_t interpolatedy(double const smoothratio, int const scale = 16)
-    {
-        return interpolatedvalue(oy, y, smoothratio, scale);
-    }
-
-    int32_t interpolatedz(double const smoothratio, int const scale = 16)
-    {
-        return interpolatedvalue(oz, z, smoothratio, scale);
-    }
-
-    vec2_t interpolatedvec2(double const smoothratio, int const scale = 16)
-    {
-        return
-        {
-            interpolatedx(smoothratio, scale),
-            interpolatedy(smoothratio, scale)
-        };
-    }
-
-    vec3_t interpolatedvec3(double const smoothratio, int const scale = 16)
-    {
-        return
-        {
-            interpolatedx(smoothratio, scale),
-            interpolatedy(smoothratio, scale),
-            interpolatedz(smoothratio, scale)
-        };
-    }
-
-    int16_t interpolatedang(double const smoothratio)
-    {
-        return interpolatedangle(oang, ang, smoothratio, 16);
-    }
-
 
 };
 
