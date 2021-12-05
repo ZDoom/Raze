@@ -465,7 +465,6 @@ void SetupActors(PClass* clstype)
 	for (int i = 0; i < 16384; i++)
 	{
 		actorArray[i] = static_cast<DCoreActor*>(clstype->CreateNew());
-		actorArray[i]->index = i;
 		actorArray[i]->Release();	// no GC for this static array.
 	}
 }

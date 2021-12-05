@@ -8,10 +8,6 @@ class DCoreActor : public DObject
 	DECLARE_CLASS(DCoreActor, DObject)
 	HAS_OBJECT_POINTERS
 	// common part of the game actors
-//protected:
-public:
-	int index; // this will go away very soon.
-
 public:
 
 	// These two are needed because we cannot rely on the ones in the sprites for unlinking.
@@ -82,12 +78,6 @@ public:
 		return s().time; 
 	}	
 
-	int GetSpriteIndex() const 
-	{ 
-		// this is only here to mark places that need changing later! It will be removed once the sprite array goes.
-		return index; 
-	}	
-	
 	sectortype* sector() const
 	{
 		return s().sector();

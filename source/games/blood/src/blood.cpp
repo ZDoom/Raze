@@ -75,7 +75,7 @@ size_t DBloodActor::PropagateMark()
 {
 	condition[0].Mark();
 	condition[1].Mark();
-	return 2;
+	return 2 + Super::PropagateMark();
 }
 
 void InitCheats();
