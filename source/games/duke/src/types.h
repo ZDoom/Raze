@@ -23,6 +23,8 @@ struct STATUSBARTYPE
 
 struct DDukeActor : public DCoreActor
 {
+	using Super = DCoreActor;
+
 	uint8_t cgg;
 	uint8_t spriteextra;	// moved here for easier maintenance. This was originally a hacked in field in the sprite structure called 'filler'.
 	DDukeActor* ownerActor, * hitOwnerActor;
@@ -99,6 +101,9 @@ struct DDukeActor : public DCoreActor
 		// only valid for real players - just here to abstract yvel.
 		return s->yvel;
 	}
+
+	void Serialize(FSerializer& arc) override;
+
 };
 extern DDukeActor hittype[MAXSPRITES + 1];
 inline DDukeActor* DDukeActor::array() { return hittype; }

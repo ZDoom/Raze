@@ -570,28 +570,24 @@ bool GameInterface::CanSave()
     return new GameInterface;
 }
 
-FSerializer& Serialize(FSerializer& arc, const char* keyname, DExhumedActor& w, DExhumedActor* def)
+void DExhumedActor::Serialize(FSerializer& arc)
 {
-    if (arc.BeginObject(keyname))
-    {
-        arc("phase", w.nPhase)
-            ("health", w.nHealth)
-            ("frame", w.nFrame)
-            ("action", w.nAction)
-            ("target", w.pTarget)
-            ("count", w.nCount)
-            ("run", w.nRun)
-            ("index", w.nIndex)
-			("index2", w.nIndex2)
-			("channel", w.nChannel)
-            ("damage", w.nDamage)
+    Super::Serialize(arc);
+    arc("phase", nPhase)
+        ("health", nHealth)
+        ("frame", nFrame)
+        ("action", nAction)
+        ("target", pTarget)
+        ("count", nCount)
+        ("run", nRun)
+        ("index", nIndex)
+        ("index2", nIndex2)
+        ("channel", nChannel)
+        ("damage", nDamage)
 
-            ("turn", w.nTurn)
-            ("x", w.x)
-            ("y", w.y)
-            .EndObject();
-    }
-    return arc;
+        ("turn", nTurn)
+        ("x", x)
+        ("y", y);
 }
 
 void SerializeState(FSerializer& arc)
@@ -622,7 +618,6 @@ void SerializeState(FSerializer& arc)
             ("slipmode", bSlipMode)
             ("PlayClock", PlayClock)
             ("spiritsprite", pSpiritSprite)
-            .SparseArray("actors", exhumedActors, kMaxSprites, activeSprites)
             .EndObject();
     }
 }

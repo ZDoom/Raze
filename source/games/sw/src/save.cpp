@@ -1109,19 +1109,16 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, TRACK& w, TRACK* d
 //
 //---------------------------------------------------------------------------
 
-FSerializer& Serialize(FSerializer& arc, const char* keyname, DSWActor& w, DSWActor* def)
+void DSWActor::Serialize(FSerializer& arc)
 {
+	Super::Serialize(arc);
 	if (arc.isReading())
 	{
-		w.Clear();
+		// nuke the User before loading anything.
+		Clear();
 	}
-	if (arc.BeginObject(keyname))
-	{
-		arc("hasuser", w.hasUser);
-		if (w.hasUser) arc("user", w.user); // only write if defined.
-		arc.EndObject();
-	}
-	return arc;
+	arc("hasuser", hasUser);
+	if (hasUser) arc("user", user); // only write if defined.
 }
 
 //---------------------------------------------------------------------------
@@ -1139,8 +1136,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
     {
         preSerializePanelSprites(arc);
 		so_serializeinterpolations(arc);
-		arc .SparseArray("actors", swActors, MAXSPRITES, activeSprites)
-			("numplayers", numplayers)
+		arc ("numplayers", numplayers)
 			.Array("players", Player, numplayers)
 			("skill", Skill)
 			("screenpeek", screenpeek)

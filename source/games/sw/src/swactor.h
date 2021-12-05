@@ -7,6 +7,8 @@ BEGIN_SW_NS
 
 class DSWActor : public DCoreActor
 {
+	using Super = DCoreActor;
+
 	DSWActor* base();
 
 public:
@@ -40,6 +42,9 @@ public:
 		hasUser = false;
 		user.Clear();
 	}
+
+	void Serialize(FSerializer& arc) override;
+
 };
 
 extern DSWActor swActors[MAXSPRITES];

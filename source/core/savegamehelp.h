@@ -5,8 +5,6 @@
 #include "gamefuncs.h"
 #include "coreactor.h"
 
-extern FixedBitArray<MAXSPRITES> activeSprites;
-
 // Savegame utilities
 class FileReader;
 extern int SaveVersion;

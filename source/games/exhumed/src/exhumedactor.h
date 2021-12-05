@@ -16,6 +16,8 @@ enum
 
 class DExhumedActor : public DCoreActor
 {
+	using Super = DCoreActor;
+
 	DExhumedActor* base();
 
 public:
@@ -48,6 +50,9 @@ public:
 	void Clear()
 	{
 	}
+
+	void Serialize(FSerializer& arc) override;
+
 };
 
 extern DExhumedActor exhumedActors[MAXSPRITES];

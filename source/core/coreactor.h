@@ -17,6 +17,9 @@ public:
 	DCoreActor* prevStat, * nextStat;
 	DCoreActor* prevSect, * nextSect;
 
+	virtual ~DCoreActor() = default;
+	virtual void Serialize(FSerializer& arc);
+
 	bool exists() const
 	{
 		return (unsigned)s().statnum < MAXSTATUS;
@@ -321,10 +324,6 @@ public:
 };
 
 using CoreSectIterator = TSectIterator<DCoreActor>;
-
-// Only to be used by initial actor spawns!
-void InsertActorSect(DCoreActor* actor, sectortype* sector, bool tail = false);
-void InsertActorStat(DCoreActor* actor, int stat, bool tail = false);
 
 DCoreActor* InsertActor(sectortype* sector, int stat, bool forcetail = false);
 int DeleteActor(DCoreActor* actor);

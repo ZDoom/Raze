@@ -283,38 +283,37 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 }
 
 
-FSerializer& Serialize(FSerializer& arc, const char* keyname, DDukeActor& w, DDukeActor* def)
+void DDukeActor::Serialize(FSerializer& arc)
 {
-	if (!def) def = &hittype[MAXSPRITES];
-	if (arc.BeginObject(keyname))
-	{
-		arc("cgg", w.cgg, def->cgg)
-			("spriteextra", w.spriteextra, def->spriteextra)
-			("picnum", w.picnum, def->picnum)
-			("ang", w.ang, def->ang)
-			("extra", w.extra, def->extra)
-			("owneractor", w.ownerActor, def->ownerActor)
-			("owner", w.hitOwnerActor, def->hitOwnerActor)
-			("movflag", w.movflag, def->movflag)
-			("tempang", w.tempang, def->tempang)
-			("actorstayput", w.actorstayput, def->actorstayput)
-			("dispicnum", w.dispicnum, def->dispicnum)
-			("timetosleep", w.timetosleep, def->timetosleep)
-			("floorz", w.floorz, def->floorz)
-			("ceilingz", w.ceilingz, def->ceilingz)
-			("lastvx", w.lastvx, def->lastvx)
-			("lastvy", w.lastvy, def->lastvy)
-			("aflags", w.aflags, def->aflags)
-			("saved_ammo", w.saved_ammo, def->saved_ammo)
-			("temp_actor", w.temp_actor, def->temp_actor)
-			("seek_actor", w.seek_actor, def->seek_actor)
-			.Array("temp_data", w.temp_data, def->temp_data, 6)
-			.Array("temo_wall", w.temp_walls, def->temp_walls,2)
-			("temp_sect", w.temp_sect, def->temp_sect)
-			.EndObject();
-	}
-	return arc;
+	//AActor* def = GetDefault();
+
+	Super::Serialize(arc);
+
+	arc("cgg", cgg)
+		("spriteextra", spriteextra)
+		("picnum", picnum)
+		("ang", ang)
+		("extra", extra)
+		("owneractor", ownerActor)
+		("owner", hitOwnerActor)
+		("movflag", movflag)
+		("tempang", tempang)
+		("actorstayput", actorstayput)
+		("dispicnum", dispicnum)
+		("timetosleep", timetosleep)
+		("floorz", floorz)
+		("ceilingz", ceilingz)
+		("lastvx", lastvx)
+		("lastvy", lastvy)
+		("aflags", aflags)
+		("saved_ammo", saved_ammo)
+		("temp_actor", temp_actor)
+		("seek_actor", seek_actor)
+		.Array("temp_data", temp_data, 6)
+		.Array("temo_wall", temp_walls, 2)
+		("temp_sect", temp_sect);
 }
+
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, Cycler& w, Cycler* def)
 {
@@ -348,8 +347,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 	{
 		arc("multimode", ud.multimode);
 
-		arc.SparseArray("actors", hittype, MAXSPRITES, activeSprites)
-			("skill", ud.player_skill)
+		arc("skill", ud.player_skill)
 			("from_bonus", ud.from_bonus)
 			("secretlevel", ud.secretlevel)
 			("respawn_monsters", ud.respawn_monsters)

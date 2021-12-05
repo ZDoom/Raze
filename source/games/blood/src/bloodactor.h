@@ -13,6 +13,7 @@ struct SPRITEHIT
 
 class DBloodActor : public DCoreActor
 {
+	using Super = DCoreActor;
 	DBloodActor* base();
 
 public:
@@ -38,6 +39,8 @@ public:
 	{
 		index = (int(this - base()));
 	}
+
+	void Serialize(FSerializer& arc) override;
 
 	DBloodActor& operator=(const DBloodActor& other) = default;
 

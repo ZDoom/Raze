@@ -464,52 +464,41 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, DBloodActor*& w, D
 	return arc;
 }
 
-FSerializer& Serialize(FSerializer& arc, const char* keyname, DBloodActor& w, DBloodActor* def)
+void DBloodActor::Serialize(FSerializer& arc)
 {
-	static DBloodActor nul;
-	if (!def)
-	{
-		def = &nul;
-		if (arc.isReading()) w.Clear();
-	}
-
-	if (arc.BeginObject(keyname))
-	{
-		arc("xvel", w.xvel, def->xvel)
-			("yvel", w.yvel, def->yvel)
-			("zvel", w.zvel, def->zvel)
-			("hasx", w.hasx, def->hasx);
+	Super::Serialize(arc);
+	arc("xvel", xvel)
+		("yvel", yvel)
+		("zvel", zvel)
+		("hasx", hasx);
 
 		// The rest is only relevant if the actor has an xsprite.
-		if (w.hasX())
+	if (hasX())
 		{
-			arc("xsprite", w.xsprite, def->xsprite)
-				("dudeslope", w.dudeSlope, def->dudeSlope)
-				("dudeextra", w.dudeExtra, def->dudeExtra)
-				("explosionflag", w.explosionhackflag, def->explosionhackflag)
-				("spritehit", w.hit, def->hit)
-				("basepoint", w.basePoint, def->basePoint)
-				("owneractor", w.ownerActor, def->ownerActor);
+		arc("xsprite", xsprite)
+			("dudeslope", dudeSlope)
+			("dudeextra", dudeExtra)
+			("explosionflag", explosionhackflag)
+			("spritehit", hit)
+			("basepoint", basePoint)
+			("owneractor", ownerActor);
 
 #ifdef NOONE_EXTENSIONS
 			if (gModernMap)
 			{
-				arc("spritemass", w.spriteMass, def->spriteMass) // no treatment for old savegames. If this gets lost it is not critical
-					("prevmarker", w.prevmarker, def->prevmarker)
-					.Array("conditions", w.condition, def->condition, 2);
+			arc("spritemass", spriteMass)
+				("prevmarker", prevmarker)
+				.Array("conditions", condition, 2);
 				
 
 				// GenDudeExtra only contains valid info for kDudeModernCustom and kDudeModernCustomBurning so only save when needed as these are not small.
-				if (w.s().type == kDudeModernCustom || w.s().type == kDudeModernCustomBurning)
+				if (s().type == kDudeModernCustom || s().type == kDudeModernCustomBurning)
 				{
-					arc("gendudeextra", w.genDudeExtra);
+				arc("gendudeextra", genDudeExtra);
 				}
 			}
 #endif
 			}
-		arc.EndObject();
-	}
-	return arc;
 }
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, XWALL& w, XWALL* def)
@@ -692,9 +681,7 @@ void SerializeState(FSerializer& arc)
 			("scale", pSky->yscale)
 			.Array("tileofs", pSky->tileofs, countof(pSky->tileofs))
 			("numtiles", pSky->lognumtiles)
-			("gameoptions", gGameOptions)
-
-			.SparseArray("actors", bloodActors, kMaxSprites, activeSprites);
+			("gameoptions", gGameOptions);
 
 		arc.EndObject();
 	}

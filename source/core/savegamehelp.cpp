@@ -75,7 +75,6 @@ extern FString BackupSaveGame;
 int SaveVersion;
 
 void SerializeMap(FSerializer &arc);
-FixedBitArray<MAXSPRITES> activeSprites;
 
 CVAR(String, cl_savedir, "", CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 
@@ -653,33 +652,17 @@ FSerializer &Serialize(FSerializer &arc, const char *key, walltype &c, walltype 
 }
 
 
+void DCoreActor::Serialize(FSerializer& arc)
+{
+	// nothing here yet.
+}
+
+
 void SerializeMap(FSerializer& arc)
 {
-	// create a map of all used sprites so that we can use that elsewhere to only save what's needed.
-	activeSprites.Zero();
-	if (arc.isWriting())
-	{
-		for (int i=0; i<MAXSPRITES;i++)
-		{
-			if (sprite[i].statnum != MAXSTATUS)
-			{
-				activeSprites.Set(i);
-			}
-		}
-	}
-	else
-	{
-		memset(sprite, 0, sizeof(sprite[0]) * MAXSPRITES);
-		InitSpriteLists();
-		zsp = sprite[0];
-	}
-
 	if (arc.BeginObject("engine"))
 	{
-		arc.SerializeMemory("activesprites", activeSprites.Storage(), activeSprites.StorageSize())
-			.SparseArray("sprites", sprite, MAXSPRITES, activeSprites)
-			.SparseArray("spriteext", spriteext, MAXSPRITES, activeSprites)
-			("numsectors", numsectors)
+		arc("numsectors", numsectors)
 			("sectors", sector, sectorbackup)
 			("numwalls", numwalls)
 			("walls", wall, wallbackup)
