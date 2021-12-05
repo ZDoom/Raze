@@ -59,17 +59,17 @@ enum
 
 
 extern int StarQueueHead;
-extern DSWActor* StarQueue[MAX_STAR_QUEUE];
+extern TObjPtr<DSWActor*> StarQueue[MAX_STAR_QUEUE];
 extern int HoleQueueHead;
-extern DSWActor* HoleQueue[MAX_HOLE_QUEUE];
+extern TObjPtr<DSWActor*> HoleQueue[MAX_HOLE_QUEUE];
 extern int WallBloodQueueHead;
-extern DSWActor* WallBloodQueue[MAX_WALLBLOOD_QUEUE];
+extern TObjPtr<DSWActor*> WallBloodQueue[MAX_WALLBLOOD_QUEUE];
 extern int FloorBloodQueueHead;
-extern DSWActor* FloorBloodQueue[MAX_FLOORBLOOD_QUEUE];
+extern TObjPtr<DSWActor*> FloorBloodQueue[MAX_FLOORBLOOD_QUEUE];
 extern int GenericQueueHead;
-extern DSWActor* GenericQueue[MAX_GENERIC_QUEUE];
+extern TObjPtr<DSWActor*> GenericQueue[MAX_GENERIC_QUEUE];
 extern int LoWangsQueueHead;
-extern DSWActor* LoWangsQueue[MAX_LOWANGS_QUEUE];
+extern TObjPtr<DSWActor*> LoWangsQueue[MAX_LOWANGS_QUEUE];
 
 void ChangeState(DSWActor* actor, STATEp statep);
 void DoPlayerBeginRecoil(PLAYERp pp, short pix_amt);

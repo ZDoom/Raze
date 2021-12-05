@@ -61,13 +61,32 @@ static struct so_interp
         int32_t lastipos;
         int32_t lastoldipos;
         int32_t lastangdiff;
-        DSWActor* actorofang;
+        TObjPtr<DSWActor*> actorofang;
     } data[SO_MAXINTERPOLATIONS];
 
     int32_t numinterpolations;
     int32_t tic, lasttic;
     bool hasvator;
 } so_interpdata[MAX_SECTOR_OBJECTS];
+
+void MarkSOInterp()
+{
+    int32_t i;
+    SECTOR_OBJECTp sop;
+    so_interp* interp;
+    so_interp::interp_data* data;
+
+    for (sop = SectorObject, interp = so_interpdata;
+        sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++, interp++)
+    {
+        if (SO_EMPTY(sop))
+            continue;
+        for (i = 0, data = interp->data; i < interp->numinterpolations; i++, data++)
+        {
+            GC::Mark(data->actorofang);
+        }
+    }
+}
 
 static int &getvalue(so_interp::interp_data& element, bool write)
 {

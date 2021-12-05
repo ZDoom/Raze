@@ -591,7 +591,7 @@ void SetOwner(DSWActor* ownr, DSWActor* child, bool flag)
 
 DSWActor* GetOwner(DSWActor* child)
 {
-    return child ? child->ownerActor : nullptr;
+    return child ? child->ownerActor.Get() : nullptr;
 }
 
 void ClearOwner(DSWActor* child)

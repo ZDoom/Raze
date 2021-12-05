@@ -51,6 +51,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "gamestruct.h"
 #include "packet.h"
 #include "gameinput.h"
+#include "serialize_obj.h"
 
 EXTERN_CVAR(Bool, sw_ninjahack)
 EXTERN_CVAR(Bool, sw_darts)
@@ -731,14 +732,15 @@ struct PLAYERstruct
         vec3_t pos;
     };
     
-    DSWActor* actor;
-    DSWActor* lowActor, * highActor;
-    DSWActor* remoteActor;
-    DSWActor* PlayerUnderActor;
-    DSWActor* KillerActor;  //who killed me
-    DSWActor* HitBy;                    // Sprite num of whatever player was last hit by
+    TObjPtr<DSWActor*> actor;
+    TObjPtr<DSWActor*> lowActor, highActor;
+    TObjPtr<DSWActor*> remoteActor;
+    TObjPtr<DSWActor*> PlayerUnderActor;
+    TObjPtr<DSWActor*> KillerActor;  //who killed me
+    TObjPtr<DSWActor*> HitBy;                    // Sprite num of whatever player was last hit by
+    TObjPtr<DSWActor*> last_camera_act;
 
-    DSWActor* Actor() const
+    DSWActor* Actor()
     {
         return actor;
     }
@@ -761,7 +763,6 @@ struct PLAYERstruct
     int ceiling_dist,floor_dist;
     SECTORp hi_sectp, lo_sectp;
 
-    DSWActor* last_camera_act;
     int circle_camera_dist;
     int six,siy,siz; // save player interp position for PlayerSprite
     int16_t siang;
@@ -1093,12 +1094,12 @@ struct USER
     // sector object - contains info for the SO
 
     // referenced actors
-    DSWActor* lowActor, * highActor;
-    DSWActor* targetActor; // target player for the enemy - can only handle one player at at time
-    DSWActor* flameActor;
-    DSWActor* attachActor;  // attach to sprite if needed - electro snake
-    DSWActor* flagOwnerActor;
-    DSWActor* WpnGoalActor;
+    TObjPtr<DSWActor*> lowActor, highActor;
+    TObjPtr<DSWActor*> targetActor; // target player for the enemy - can only handle one player at at time
+    TObjPtr<DSWActor*> flameActor;
+    TObjPtr<DSWActor*> attachActor;  // attach to sprite if needed - electro snake
+    TObjPtr<DSWActor*> flagOwnerActor;
+    TObjPtr<DSWActor*> WpnGoalActor;
 
     int Flags;
     int Flags2;
@@ -1625,9 +1626,9 @@ struct SECTOR_OBJECTstruct
     soANIMATORp PreMoveAnimator;
     soANIMATORp PostMoveAnimator;
     soANIMATORp Animator;
-    DSWActor* controller;
+    TObjPtr<DSWActor*> controller;
 
-    DSWActor* sp_child;  // child sprite that holds info for the sector object
+    TObjPtr<DSWActor*> sp_child;  // child sprite that holds info for the sector object
 
     union
     {
@@ -1635,8 +1636,8 @@ struct SECTOR_OBJECTstruct
         vec3_t pmid;
     };
     
-	DSWActor* so_actors[MAX_SO_SPRITE];    // hold the actors of the object
-	DSWActor* match_event_actor; // spritenum of the match event sprite
+	TObjPtr<DSWActor*> so_actors[MAX_SO_SPRITE];    // hold the actors of the object
+	TObjPtr<DSWActor*> match_event_actor; // spritenum of the match event sprite
 
     sectortype
         *sectp[MAX_SO_SECTOR],
@@ -2240,12 +2241,13 @@ struct ANIMstruct
 	int goal;
 	int vel;
 	short vel_adj;
-	DSWActor* animactor;
+	TObjPtr<DSWActor*> animactor;
 	ANIM_CALLBACKp callback;
 	SECTOR_OBJECTp callbackdata;    // only gets used in one place for this so having a proper type makes serialization easier.
 
 	int& Addr()
 	{
+        static int scratch;
 		switch (animtype)
 		{
 		case ANIM_Floorz:
@@ -2253,9 +2255,11 @@ struct ANIMstruct
 		case ANIM_SopZ:
 			return SectorObject[animindex].zmid;
 		case ANIM_Spritez:
+            if (animactor == nullptr) return scratch;
 			return animactor->s().z;
 		case ANIM_Userz:
-			return animactor->u()->sz;
+            if (animactor == nullptr) return scratch;
+            return animactor->u()->sz;
 		case ANIM_SUdepth:
 			return sector[animindex].depth_fixed;
 		default:

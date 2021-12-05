@@ -72,17 +72,17 @@ int ShellCount = 0;
 
 //int Zombies = 0;
 int StarQueueHead=0;
-DSWActor* StarQueue[MAX_STAR_QUEUE];
+TObjPtr<DSWActor*> StarQueue[MAX_STAR_QUEUE];
 int HoleQueueHead=0;
-DSWActor* HoleQueue[MAX_HOLE_QUEUE];
+TObjPtr<DSWActor*> HoleQueue[MAX_HOLE_QUEUE];
 int WallBloodQueueHead=0;
-DSWActor* WallBloodQueue[MAX_WALLBLOOD_QUEUE];
+TObjPtr<DSWActor*> WallBloodQueue[MAX_WALLBLOOD_QUEUE];
 int FloorBloodQueueHead=0;
-DSWActor* FloorBloodQueue[MAX_FLOORBLOOD_QUEUE];
+TObjPtr<DSWActor*> FloorBloodQueue[MAX_FLOORBLOOD_QUEUE];
 int GenericQueueHead=0;
-DSWActor* GenericQueue[MAX_GENERIC_QUEUE];
+TObjPtr<DSWActor*> GenericQueue[MAX_GENERIC_QUEUE];
 int LoWangsQueueHead=0;
-DSWActor* LoWangsQueue[MAX_LOWANGS_QUEUE];
+TObjPtr<DSWActor*> LoWangsQueue[MAX_LOWANGS_QUEUE];
 void SpawnBreakStaticFlames(DSWActor* actor);
 
 bool GlobalSkipZrange = false;

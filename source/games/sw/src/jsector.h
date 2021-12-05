@@ -40,8 +40,8 @@ typedef enum
 
 typedef struct
 {
-	DSWActor* cameraActor;                       // Contains number of ST1 sprite used as a camera
-	DSWActor* camspriteActor;                    // sprite pointing to campic
+	TObjPtr<DSWActor*> cameraActor;                       // Contains number of ST1 sprite used as a camera
+    TObjPtr<DSWActor*> camspriteActor;                    // sprite pointing to campic
 	walltype* mirrorWall;                   // Wall number containing the mirror tile
     sectortype* mirrorSector;                 // used internally to draw mirror rooms
     short campic;                       // Editart tile number to draw a screen to

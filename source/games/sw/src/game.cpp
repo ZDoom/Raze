@@ -32,6 +32,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "names2.h"
 #include "panel.h"
 #include "game.h"
+#include "swactor.h"
 #include "interpso.h"
 #include "tags.h"
 #include "sector.h"
@@ -101,6 +102,48 @@ IMPLEMENT_POINTER(user.flameActor)
 IMPLEMENT_POINTER(user.attachActor)
 IMPLEMENT_POINTER(user.WpnGoalActor)
 IMPLEMENT_POINTERS_END
+
+void MarkSOInterp();
+
+void markgcroots()
+{
+    MarkSOInterp();
+    GC::MarkArray(StarQueue, MAX_STAR_QUEUE);
+    GC::MarkArray(HoleQueue, MAX_HOLE_QUEUE);
+    GC::MarkArray(WallBloodQueue, MAX_WALLBLOOD_QUEUE);
+    GC::MarkArray(FloorBloodQueue, MAX_FLOORBLOOD_QUEUE);
+    GC::MarkArray(GenericQueue, MAX_GENERIC_QUEUE);
+    GC::MarkArray(LoWangsQueue, MAX_LOWANGS_QUEUE);
+    GC::MarkArray(BossSpriteNum, 3);
+    for (auto& pl : Player)
+    {
+        GC::Mark(pl.actor);
+        GC::Mark(pl.lowActor);
+        GC::Mark(pl.highActor);
+        GC::Mark(pl.remoteActor);
+        GC::Mark(pl.PlayerUnderActor);
+        GC::Mark(pl.KillerActor);
+        GC::Mark(pl.HitBy);
+        GC::Mark(pl.last_camera_act);
+    }
+    for (auto& so : SectorObject)
+    {
+       GC::Mark(so.controller);
+       GC::Mark(so.sp_child);
+       GC::MarkArray(so.so_actors, MAX_SO_SPRITE);
+       GC::Mark(so.match_event_actor);
+    }
+    for (int i = 0; i < AnimCnt; i++)
+    {
+        GC::Mark(Anim[i].animactor);
+    }
+    for (auto& mir : mirror)
+    {
+        GC::Mark(mir.cameraActor);
+        GC::Mark(mir.camspriteActor);
+    }
+}
+
 
 void pClearSpriteList(PLAYERp pp);
 
@@ -191,6 +234,7 @@ void GameInterface::LoadGameTextures()
 void GameInterface::app_init()
 {
     SetupActors(RUNTIME_CLASS(DSWActor));
+    GC::AddMarkerFunc(markgcroots);
 
     GameTicRate = TICS_PER_SEC / synctics;
     InitCheats();

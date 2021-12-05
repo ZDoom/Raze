@@ -15,7 +15,7 @@ public:
 	bool hasUser;
 	USER user;
 	walltype* tempwall;	// transient, to replace a hack using a 16 bit sprite field.
-	DSWActor* ownerActor;
+	TObjPtr<DSWActor*> ownerActor;
 
 	DSWActor() = default;
 	DSWActor& operator=(const DSWActor& other) = default;
@@ -43,7 +43,6 @@ public:
 	}
 
 	void Serialize(FSerializer& arc) override;
-
 };
 
 
