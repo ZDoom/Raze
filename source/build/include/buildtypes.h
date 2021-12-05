@@ -97,12 +97,12 @@ struct sectortype
         {
             uint8_t keyinfo;
             uint8_t shadedsector;
-            DCoreActor* hitagactor;    // we need this because Duke stores an actor in the hitag field. Is really a DDukeActor, but cannot be declared here safely.
+            TObjPtr<DCoreActor*> hitagactor;    // we need this because Duke stores an actor in the hitag field. Is really a DDukeActor, but cannot be declared here safely.
         };
         struct // Blood
         {
             BLD_NS::XSECTOR* _xs;
-            DCoreActor* upperLink, *lowerLink;
+            TObjPtr<DCoreActor*> upperLink, lowerLink;
             int baseFloor, baseCeil;
             int velFloor, velCeil;
             uint8_t slopewallofs;

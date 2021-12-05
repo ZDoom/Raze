@@ -3909,7 +3909,7 @@ HORIZONLY:
 		psectp = s->sector();
 		if (ud.clipping == 0 && psectp->lotag == ST_31_TWO_WAY_TRAIN)
 		{
-			auto act = static_cast<DDukeActor*>(psectp->hitagactor);
+			auto act = barrier_cast<DDukeActor*>(psectp->hitagactor);
 			if (act && act->s->xvel && act->temp_data[0] == 0)
 			{
 				quickkill(p);

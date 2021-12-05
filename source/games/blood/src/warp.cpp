@@ -163,7 +163,7 @@ void warpInit(TArray<DBloodActor*>& actors)
 
     for(auto& sect : sectors())
     {
-        auto actor = static_cast<DBloodActor*>(sect.upperLink);
+        auto actor = barrier_cast<DBloodActor*>(sect.upperLink);
         if (actor && actor->hasX())
         {
             spritetype *pSprite = &actor->s();
@@ -171,7 +171,7 @@ void warpInit(TArray<DBloodActor*>& actors)
             int nLink = pXSprite->data1;
             for(auto& sect : sectors())
             {
-                auto actor2 = static_cast<DBloodActor*>(sect.lowerLink);
+                auto actor2 = barrier_cast<DBloodActor*>(sect.lowerLink);
                 if (actor2 && actor2->hasX())
                 {
                     spritetype *pSprite2 = &actor2->s();
@@ -192,8 +192,8 @@ int CheckLink(DBloodActor *actor)
 {
     auto pSprite = &actor->s();
     auto pSector = pSprite->sector();
-    auto aUpper = static_cast<DBloodActor*>(pSector->upperLink);
-    auto aLower = static_cast<DBloodActor*>(pSector->lowerLink);
+    auto aUpper = barrier_cast<DBloodActor*>(pSector->upperLink);
+    auto aLower = barrier_cast<DBloodActor*>(pSector->lowerLink);
     if (aUpper)
     {
         spritetype* pUpper = &aUpper->s();
@@ -253,8 +253,8 @@ int CheckLink(DBloodActor *actor)
 
 int CheckLink(int *x, int *y, int *z, sectortype** pSector)
 {
-    auto upper = static_cast<DBloodActor*>((*pSector)->upperLink);
-    auto lower = static_cast<DBloodActor*>((*pSector)->lowerLink);
+    auto upper = barrier_cast<DBloodActor*>((*pSector)->upperLink);
+    auto lower = barrier_cast<DBloodActor*>((*pSector)->lowerLink);
     if (upper)
     {
         spritetype *pUpper = &upper->s();

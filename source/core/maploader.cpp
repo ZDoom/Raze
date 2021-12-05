@@ -526,3 +526,18 @@ void setWallSectors()
 	}
 
 }
+
+void MarkMap()
+{
+	for (auto& sect : sectors())
+	{
+		GC::Mark(sect.firstEntry);
+		GC::Mark(sect.lastEntry);
+		if (isDukeLike()) GC::Mark(sect.hitagactor);
+		else if (isBlood())
+		{
+			GC::Mark(sect.upperLink);
+			GC::Mark(sect.lowerLink);
+		}
+	}
+}

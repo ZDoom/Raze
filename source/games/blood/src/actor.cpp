@@ -4950,8 +4950,8 @@ void MoveDude(DBloodActor* actor)
 		if (pXSector->Underwater) bUnderwater = 1;
 		if (pXSector->Depth) bDepth = 1;
 	}
-	auto pUpperLink = pSector->upperLink;
-	auto pLowerLink = pSector->lowerLink;
+	DCoreActor* pUpperLink = pSector->upperLink;
+	DCoreActor* pLowerLink = pSector->lowerLink;
 	if (pUpperLink && (pUpperLink->s().type == kMarkerUpWater || pUpperLink->s().type == kMarkerUpGoo)) bDepth = 1;
 	if (pLowerLink && (pLowerLink->s().type == kMarkerLowWater || pLowerLink->s().type == kMarkerLowGoo)) bDepth = 1;
 	if (pPlayer) wd += 16;
@@ -5076,7 +5076,7 @@ void MoveDude(DBloodActor* actor)
 				if (gModernMap)
 				{
 					pPlayer->nWaterPal = 0;
-					auto pUpper = static_cast<DBloodActor*>(pSector->upperLink);
+					auto pUpper = barrier_cast<DBloodActor*>(pSector->upperLink);
 					if (pUpper && pUpper->hasX()) pPlayer->nWaterPal = pUpper->x().data2;
 				}
 #endif

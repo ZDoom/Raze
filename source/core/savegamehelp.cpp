@@ -61,6 +61,7 @@
 #include "sectorgeometry.h"
 #include "d_net.h"
 #include "ns.h"
+#include "serialize_obj.h"
 #include "games/blood/src/mapstructs.h"
 #include <zlib.h>
 

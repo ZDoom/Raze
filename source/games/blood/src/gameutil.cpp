@@ -523,7 +523,7 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
         {
             if (dz > 0)
             {
-                auto actor = static_cast<DBloodActor*>(gHitInfo.hitSector->upperLink);
+                auto actor = barrier_cast<DBloodActor*>(gHitInfo.hitSector->upperLink);
                 if (!actor) return 2;
                 auto link = actor->GetOwner();
                 gHitInfo.clearObj();
@@ -537,7 +537,7 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
             }
             else
             {
-                auto actor = static_cast<DBloodActor*>(gHitInfo.hitSector->lowerLink);
+                auto actor = barrier_cast<DBloodActor*>(gHitInfo.hitSector->lowerLink);
                 if (!actor) return 1;
                 auto link = actor->GetOwner();
                 gHitInfo.clearObj();
@@ -574,7 +574,7 @@ void GetZRange(DBloodActor *actor, int *ceilZ, Collision *ceilColl, int *floorZ,
             XSECTOR *pXSector = &pSector->xs();
             *floorZ += pXSector->Depth << 10;
         }
-        auto actor = static_cast<DBloodActor*>(pSector->upperLink);
+        auto actor = barrier_cast<DBloodActor*>(pSector->upperLink);
         if (actor)
         {
             auto link = actor->GetOwner();
@@ -588,7 +588,7 @@ void GetZRange(DBloodActor *actor, int *ceilZ, Collision *ceilColl, int *floorZ,
         auto pSector = ceilColl->hitSector;
         if ((nClipParallax & PARALLAXCLIP_CEILING) == 0 && (pSector->ceilingstat & 1))
             *ceilZ = 0x80000000;
-        auto actor = static_cast<DBloodActor*>(pSector->lowerLink);
+        auto actor = barrier_cast<DBloodActor*>(pSector->lowerLink);
         if (actor)
         {
             auto link = actor->GetOwner();
@@ -616,7 +616,7 @@ void GetZRangeAtXYZ(int x, int y, int z, sectortype* pSector, int *ceilZ, Collis
             XSECTOR* pXSector = &pSector->xs();
             *floorZ += pXSector->Depth << 10;
         }
-        auto actor = static_cast<DBloodActor*>(pSector->upperLink);
+        auto actor = barrier_cast<DBloodActor*>(pSector->upperLink);
         if (actor)
         {
             auto link = actor->GetOwner();
@@ -630,7 +630,7 @@ void GetZRangeAtXYZ(int x, int y, int z, sectortype* pSector, int *ceilZ, Collis
         auto pSector = ceilColl->hitSector;
         if ((nClipParallax & PARALLAXCLIP_CEILING) == 0 && (pSector->ceilingstat & 1))
             *ceilZ = 0x80000000;
-        auto actor = static_cast<DBloodActor*>(pSector->lowerLink);
+        auto actor = barrier_cast<DBloodActor*>(pSector->lowerLink);
         if (actor)
         {
             auto link = actor->GetOwner();

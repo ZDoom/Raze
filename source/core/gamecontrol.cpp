@@ -145,6 +145,7 @@ bool PreBindTexture(FRenderState* state, FGameTexture*& tex, EUpscaleFlags& flag
 void highTileSetup();
 void FontCharCreated(FGameTexture* base, FGameTexture* untranslated);
 void LoadVoxelModels();
+void MarkMap();
 
 DStatusBarCore* StatusBar;
 
@@ -1054,6 +1055,7 @@ int RunGame()
 	StartScreen->Progress();
 
 	engineInit();
+	GC::AddMarkerFunc(MarkMap);
 	gi->app_init();
 	StartScreen->Progress();
 	G_ParseMapInfo();
@@ -1382,6 +1384,7 @@ void GameInterface::FreeLevelData()
 	sector.Reset();
 	wall.Reset();
 	currentLevel = nullptr;
+	GC::FullGC();
 }
 
 //---------------------------------------------------------------------------

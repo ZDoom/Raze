@@ -3072,7 +3072,7 @@ HORIZONLY:
 		psectp = s->sector();
 		if (ud.clipping == 0 && psectp->lotag == 31)
 		{
-			auto secact = static_cast<DDukeActor*>(psectp->hitagactor);
+			auto secact = barrier_cast<DDukeActor*>(psectp->hitagactor);
 			if (secact && secact->s->xvel && secact->temp_data[0] == 0)
 			{
 				quickkill(p);
