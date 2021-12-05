@@ -4,13 +4,13 @@
 
 struct SectionLine
 {
-	int16_t section;
-	int16_t partnersection;
-	int16_t startpoint;
-	int16_t endpoint;
-	int16_t wall;
-	int16_t partner;
-	int16_t point2index;
+	int section;
+	int partnersection;
+	int startpoint;
+	int endpoint;
+	int wall;
+	int partner;
+	int point2index;
 };
 
 struct Section

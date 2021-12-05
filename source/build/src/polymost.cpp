@@ -2606,28 +2606,29 @@ void polymost_completeMirror()
 
 static inline int32_t polymost_findwall(tspritetype const * const tspr, vec2_t const * const tsiz, int32_t * rd)
 {
-    int32_t dist = 4, closest = -1;
+    int32_t dist = 4;
     auto const sect = tspr->sector();
     vec2_t n;
+    walltype* closest = nullptr;
 
-    for (intptr_t i=sect->wallptr; i<sect->wallptr + sect->wallnum; i++)
+    for(auto& wal : wallsofsector(sect))
     {
-        if ((wall[i].nextsector == -1 || ((sector[wall[i].nextsector].ceilingz > (tspr->z - ((tsiz->y * tspr->yrepeat) << 2))) ||
-             sector[wall[i].nextsector].floorz < tspr->z)) && !polymost_getclosestpointonwall((const vec2_t *) tspr, i, &n))
+        if ((!wal.twoSided() || ((wal.nextSector()->ceilingz > (tspr->z - ((tsiz->y * tspr->yrepeat) << 2))) ||
+             wal.nextSector()->floorz < tspr->z)) && !polymost_getclosestpointonwall((const vec2_t *) tspr, wallnum(&wal), &n))
         {
             int const dst = abs(tspr->x - n.x) + abs(tspr->y - n.y);
 
             if (dst <= dist)
             {
                 dist = dst;
-                closest = i;
+                closest = &wal;
             }
         }
     }
 
     *rd = dist;
 
-    return closest;
+    return closest? wallnum(closest) : -1;
 }
 
 static int32_t polymost_lintersect(int32_t x1, int32_t y1, int32_t x2, int32_t y2,

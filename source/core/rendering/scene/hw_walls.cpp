@@ -109,27 +109,27 @@ static int GetClosestPointOnWall(tspritetype* spr, walltype* wal, vec2_t* const 
 
 static int IsOnWall(tspritetype* tspr, int height)
 {
-	int dist = 3, closest = -1;
+	int dist = 3;
 	auto sect = tspr->sector();
 	vec2_t n;
+	walltype* closest = nullptr;
 
 	int topz = (tspr->z - ((height * tspr->yrepeat) << 2));
-	for (int i = sect->wallptr; i < sect->wallptr + sect->wallnum; i++)
+	for(auto& wal : wallsofsector(sect))
 	{
-		auto wal = &wall[i];
-		if ((wal->nextsector == -1 || ((wal->nextSector()->ceilingz > topz) ||
-			wal->nextSector()->floorz < tspr->z)) && !GetClosestPointOnWall(tspr, wal, &n))
+		if ((wal.nextsector == -1 || ((wal.nextSector()->ceilingz > topz) ||
+			wal.nextSector()->floorz < tspr->z)) && !GetClosestPointOnWall(tspr, &wal, &n))
 		{
 			int const dst = abs(tspr->x - n.x) + abs(tspr->y - n.y);
 
 			if (dst <= dist)
 			{
 				dist = dst;
-				closest = i;
+				closest = &wal;
 			}
 		}
 	}
-	return closest == -1? -1 : dist;
+	return closest == nullptr? -1 : dist;
 }
 
 //==========================================================================

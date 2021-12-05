@@ -419,33 +419,26 @@ void drawredlines(int cposx, int cposy, int czoom, int cang)
 	{
 		if (!gFullMap && !show2dsector[i]) continue;
 
-		int startwall = sector[i].wallptr;
-		int endwall = sector[i].wallptr + sector[i].wallnum;
-
 		int z1 = sector[i].ceilingz;
 		int z2 = sector[i].floorz;
-		walltype* wal;
-		int j;
 
-		for (j = startwall, wal = &wall[startwall]; j < endwall; j++, wal++)
+		for (auto& wal : wallsofsector(i))
 		{
-			int k = wal->nextwall;
-			if (k < 0 || k >= numwalls) continue;
+			if (!wal.twoSided()) continue;
 
-			int s = wal->nextsector;
-			if (s < 0 || s >= numsectors) continue;
+			auto osec = wal.nextSector();
 
-			if (sector[s].ceilingz == z1 && sector[s].floorz == z2)
-				if (((wal->cstat | wal->nextWall()->cstat) & (16 + 32)) == 0) continue;
+			if (osec->ceilingz == z1 && osec->floorz == z2)
+				if (((wal.cstat | wal.nextWall()->cstat) & (16 + 32)) == 0) continue;
 
-			if (ShowRedLine(j, i))
+			if (ShowRedLine(wallnum(&wal), i))
 			{
-				int ox = wal->x - cposx;
-				int oy = wal->y - cposy;
+				int ox = wal.x - cposx;
+				int oy = wal.y - cposy;
 				int x1 = DMulScale(ox, xvect, -oy, yvect, 16) + (width << 11);
 				int y1 = DMulScale(oy, xvect, ox, yvect, 16) + (height << 11);
 
-				auto wal2 = wal->point2Wall();
+				auto wal2 = wal.point2Wall();
 				ox = wal2->x - cposx;
 				oy = wal2->y - cposy;
 				int x2 = DMulScale(ox, xvect, -oy, yvect, 16) + (width << 11);
@@ -474,26 +467,20 @@ static void drawwhitelines(int cposx, int cposy, int czoom, int cang)
 	{
 		if (!gFullMap && !show2dsector[i] && !isSWALL()) continue;
 
-		int startwall = sector[i].wallptr;
-		int endwall = sector[i].wallptr + sector[i].wallnum;
-
-		walltype* wal;
-		int j;
-
-		for (j = startwall, wal = &wall[startwall]; j < endwall; j++, wal++)
+		for (auto& wal : wallsofsector(i))
 		{
-			if (wal->nextwall >= 0) continue;
-			if (!gFullMap && !tileGetTexture(wal->picnum)->isValid()) continue;
+			if (wal.nextwall >= 0) continue;
+			if (!gFullMap && !tileGetTexture(wal.picnum)->isValid()) continue;
 
-			if (isSWALL() && !gFullMap && !show2dwall[j])
+			if (isSWALL() && !gFullMap && !show2dwall[wallnum(&wal)])
 				continue;
 
-			int ox = wal->x - cposx;
-			int oy = wal->y - cposy;
+			int ox = wal.x - cposx;
+			int oy = wal.y - cposy;
 			int x1 = DMulScale(ox, xvect, -oy, yvect, 16) + (width << 11);
 			int y1 = DMulScale(oy, xvect, ox, yvect, 16) + (height << 11);
 
-			int k = wal->point2;
+			int k = wal.point2;
 			auto wal2 = &wall[k];
 			ox = wal2->x - cposx;
 			oy = wal2->y - cposy;
