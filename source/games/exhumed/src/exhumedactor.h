@@ -47,8 +47,11 @@ public:
 	}
 	DExhumedActor& operator=(const DExhumedActor& other) = default;
 
-	void Clear()
+	void ClearContent() override
 	{
+		Super::ClearContent();
+		pTarget = nullptr;
+		nPhase = nHealth = nFrame = nAction = nCount = nRun = nIndex = nIndex2 = nChannel = nDamage = nTurn = x = y = 0;
 	}
 
 	void Serialize(FSerializer& arc) override;

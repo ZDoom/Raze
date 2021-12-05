@@ -388,6 +388,7 @@ int DeleteActor(DCoreActor* actor)
 		assert(actor->prevSect == nullptr && actor->nextSect == nullptr);
 	}
 	Numsprites--;
+	actor->ClearContent();
 	freeList.push_front(actor);
 	return 0;
 }
@@ -411,7 +412,7 @@ void InitSpriteLists()
 	freeList.clear();
 	for(auto& actor : actorArray)
 	{
-		actor->prevSect = actor->prevStat = actor->nextSect = actor->nextStat = nullptr;
+		actor->ClearContent();
 		freeList.push_front(actor);
 	}
 	Numsprites = 0;

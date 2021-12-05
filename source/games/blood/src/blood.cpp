@@ -94,7 +94,6 @@ TArray<DBloodActor*> SpawnActors(BloodSpawnSpriteDef& sprites)
 		auto sprt = &sprites.sprites[i];
 		auto actor = InsertSprite(sprt->sector(), sprt->statnum);
 		spawns[j++] = actor;
-		actor->Clear();
 		actor->s() = sprites.sprites[i];
 		if (sprites.sprext.Size()) actor->sx() = sprites.sprext[i];
 		else actor->sx() = {};

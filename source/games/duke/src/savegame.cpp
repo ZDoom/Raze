@@ -337,7 +337,6 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 {
 	if (arc.isReading())
 	{
-		for (auto& h : hittype) h.clear();
 		memset(geosectorwarp, -1, sizeof(geosectorwarp));
 		memset(geosectorwarp2, -1, sizeof(geosectorwarp2));
 		memset(ambienthitag, -1, sizeof(ambienthitag));

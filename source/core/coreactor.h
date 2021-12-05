@@ -24,6 +24,14 @@ public:
 
 	virtual ~DCoreActor() = default;
 	virtual void Serialize(FSerializer& arc);
+	// This may only be called when all actor lists are clean.
+	virtual void ClearContent()
+	{
+		link_stat = MAXSTATUS;
+		link_sector = nullptr;
+		prevStat = nextStat = prevSect = nextSect = nullptr;
+		spr = {};
+	}
 
 	bool exists() const
 	{

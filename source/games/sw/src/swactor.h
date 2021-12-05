@@ -23,9 +23,11 @@ public:
 	}
 	DSWActor& operator=(const DSWActor& other) = default;
 
-	void Clear()
+	void ClearContent()
 	{
+		Super::ClearContent();
 		clearUser();
+		tempwall = nullptr;
 	}
 	bool hasU() { return hasUser; }
 

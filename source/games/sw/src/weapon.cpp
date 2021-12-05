@@ -7675,7 +7675,7 @@ int DoStar(DSWActor* actor)
             vel = ksqrt(SQ(u->xchange) + SQ(u->ychange));
 
             if (vel < 500)
-                break; // will be killed below - hittype != 0
+                break; // will be killed below - actor != 0
 
             // 32000 to 96000
             u->xchange = MulScale(u->xchange, 64000 + (RandomRange(64000) - 32000), 16);

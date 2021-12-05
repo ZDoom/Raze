@@ -93,7 +93,7 @@ LABELS actorlabels[]=
 	{ "hitag", ACTOR_HITAG, 0, 0 },
 	{ "extra", ACTOR_EXTRA, 0, 0 },
 
-	// hittype labels...
+	// hit type labels...
 	{ "htcgg", ACTOR_HTCGG, 0, 0 },
 	{ "htpicnum", ACTOR_HTPICNUM, 0, 0 },
 	{ "htang", ACTOR_HTANG, 0, 0 },

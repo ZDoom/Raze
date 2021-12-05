@@ -501,13 +501,6 @@ void nnExtResetGlobals()
         pCond->length = 0;
     }
     gTrackingCondsCount = 0;
-
-    // clear sprite mass cache
-    for (int i = 0; i < kMaxSprites; i++) 
-    {
-        bloodActors[i].spriteMass = {};
-    }
-
 }
 
 //---------------------------------------------------------------------------

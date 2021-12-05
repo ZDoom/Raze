@@ -736,12 +736,13 @@ static int nextquicksave = -1;
 
  void DoLoadGame(const char* name)
  {
+	 gi->FreeLevelData();
 	 if (ReadSavegame(name))
 	 {
-			 gameaction = ga_level;
-		 }
-		 else
-		 {
+		 gameaction = ga_level;
+	 }
+	 else
+	 {
 		 I_Error("%s: Failed to open savegame", name);
 	 }
  }
@@ -765,7 +766,6 @@ static int nextquicksave = -1;
 	 }
 
 	 inputState.ClearAllInput();
-	 gi->FreeLevelData();
 	 DoLoadGame(savename);
 	 BackupSaveGame = savename;
  }

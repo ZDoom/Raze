@@ -1112,11 +1112,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, TRACK& w, TRACK* d
 void DSWActor::Serialize(FSerializer& arc)
 {
 	Super::Serialize(arc);
-	if (arc.isReading())
-	{
-		// nuke the User before loading anything.
-		Clear();
-	}
 	arc("hasuser", hasUser);
 	if (hasUser) arc("user", user); // only write if defined.
 }

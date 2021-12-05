@@ -54,9 +54,11 @@ struct DDukeActor : public DCoreActor
 	}
 	DDukeActor(const DDukeActor& other) = delete;				// we also do not want to allow copies.
 	DDukeActor& operator=(const DDukeActor& other) = delete;
-	void clear()
+	void ClearContent() override
 	{
-		actorstayput = nullptr;
+		Super::ClearContent();
+		temp_sect = actorstayput = nullptr;
+		temp_actor = seek_actor = nullptr;
 		ownerActor = nullptr;
 		hitOwnerActor = nullptr;
 		cgg = spriteextra = 0;
