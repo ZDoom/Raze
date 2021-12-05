@@ -40,13 +40,14 @@ void validateLinks()
     int snum = 0;
     for (auto& sect : sectors())
     {
-
-        if (sect.upperLink && !sect.upperLink->GetOwner())
+        DCoreActor* upper = sect.upperLink;
+        if (upper && !static_cast<DBloodActor*>(upper)->GetOwner())
         {
             Printf(PRINT_HIGH, "Unpartnered upper link in sector %d\n", snum);
             sect.upperLink = nullptr;
         }
-        if (sect.upperLink && !sect.upperLink->GetOwner())
+        DCoreActor* lower = sect.lowerLink;
+        if (lower && !static_cast<DBloodActor*>(lower)->GetOwner())
         {
             Printf(PRINT_HIGH, "Unpartnered lower link in sector %d\n", snum);
             sect.lowerLink = nullptr;
@@ -162,7 +163,7 @@ void warpInit(TArray<DBloodActor*>& actors)
 
     for(auto& sect : sectors())
     {
-        auto actor = sect.upperLink;
+        auto actor = static_cast<DBloodActor*>(sect.upperLink);
         if (actor && actor->hasX())
         {
             spritetype *pSprite = &actor->s();
@@ -170,7 +171,7 @@ void warpInit(TArray<DBloodActor*>& actors)
             int nLink = pXSprite->data1;
             for(auto& sect : sectors())
             {
-                auto actor2 = sect.lowerLink;
+                auto actor2 = static_cast<DBloodActor*>(sect.lowerLink);
                 if (actor2 && actor2->hasX())
                 {
                     spritetype *pSprite2 = &actor2->s();
@@ -191,8 +192,8 @@ int CheckLink(DBloodActor *actor)
 {
     auto pSprite = &actor->s();
     auto pSector = pSprite->sector();
-    auto aUpper = pSector->upperLink;
-    auto aLower = pSector->lowerLink;
+    auto aUpper = static_cast<DBloodActor*>(pSector->upperLink);
+    auto aLower = static_cast<DBloodActor*>(pSector->lowerLink);
     if (aUpper)
     {
         spritetype* pUpper = &aUpper->s();
@@ -252,8 +253,8 @@ int CheckLink(DBloodActor *actor)
 
 int CheckLink(int *x, int *y, int *z, sectortype** pSector)
 {
-    auto upper = (*pSector)->upperLink;
-    auto lower = (*pSector)->lowerLink;
+    auto upper = static_cast<DBloodActor*>((*pSector)->upperLink);
+    auto lower = static_cast<DBloodActor*>((*pSector)->lowerLink);
     if (upper)
     {
         spritetype *pUpper = &upper->s();

@@ -939,7 +939,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 					if (sp->pal) sp->clipdist = 1;
 					else sp->clipdist = 0;
 					t[3] = sectp->floorz;
-					sectp->hitag = ActorToScriptIndex(actor);
+					sectp->hitagactor = actor;
 				}
 
 				
@@ -991,7 +991,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 					sp->extra = 0;
 				else sp->extra = 1;
 
-				sectp->hitag = ActorToScriptIndex(actor);
+				sectp->hitagactor = actor;
 
 				sectortype* s = nullptr;
 				for (auto& wal : wallsofsector(sectp))

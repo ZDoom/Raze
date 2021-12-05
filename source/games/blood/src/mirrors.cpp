@@ -113,7 +113,7 @@ void InitMirrors(void)
         auto secti = &sector[i];
         if (secti->floorpicnum == 504)
         {
-            auto link = secti->upperLink;
+            auto link = static_cast<DBloodActor*>(secti->upperLink);
             if (link == nullptr)
                 continue;
             auto link2 = link->GetOwner();

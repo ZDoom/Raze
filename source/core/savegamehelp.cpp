@@ -79,11 +79,8 @@ void SerializeMap(FSerializer &arc);
 CVAR(String, cl_savedir, "", CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 
 BEGIN_BLD_NS
-
 FSerializer& Serialize(FSerializer& arc, const char* keyname, XWALL& w, XWALL* def);
 FSerializer& Serialize(FSerializer& arc, const char* keyname, XSECTOR& w, XSECTOR* def);
-FSerializer& Serialize(FSerializer& arc, const char* keyname, DBloodActor*& w, DBloodActor** def);
-
 END_BLD_NS
 
 //=============================================================================
@@ -541,8 +538,10 @@ FSerializer &Serialize(FSerializer &arc, const char *key, sectortype &c, sectort
 		// Save the extensions only when playing their respective games.
 		if (isDukeLike())
 		{
-			arc("keyinfo", c.keyinfo, def->keyinfo);
-			arc("shadedsector", c.shadedsector, def->shadedsector);
+			arc("keyinfo", c.keyinfo, def->keyinfo)
+				("shadedsector", c.shadedsector, def->shadedsector)
+				("hitagactor", c.hitagactor, def->hitagactor);
+
 		}
 		else if (isBlood())
 		{

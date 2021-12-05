@@ -2846,7 +2846,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
                 
                 spritetype* pUpper = NULL; XSPRITE* pXUpper = NULL;
                     
-                auto aLower = pSector->lowerLink;
+                auto aLower = static_cast<DBloodActor*>(pSector->lowerLink);
                 spritetype* pLower = nullptr;
                 XSPRITE* pXLower = nullptr;
                 if (aLower)
@@ -2857,7 +2857,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
                     // must be sure we found exact same upper link
                     for (auto& sec : sectors())
                     {
-                        auto aUpper = sec.upperLink;
+                        auto aUpper = static_cast<DBloodActor*>(sec.upperLink);
                         if (aUpper == nullptr || aUpper->x().data1 != pXLower->data1) continue;
                         pUpper = &aUpper->s();
                         pXUpper = &aUpper->x();
@@ -3022,14 +3022,14 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
 
         if (pXSector->Underwater) 
         {
-            auto aLink = pSource->sector()->lowerLink;
+            auto aLink = static_cast<DBloodActor*>(pSource->sector()->lowerLink);
             spritetype* pLink = nullptr;
             if (aLink) 
             {
                 // must be sure we found exact same upper link
                 for(auto& sec : sectors())
                 {
-                    auto aUpper = sec.upperLink;
+                    auto aUpper = static_cast<DBloodActor*>(sec.upperLink);
                     if (aUpper == nullptr || aUpper->x().data1 != aLink->x().data1) continue;
                     pLink = &aLink->s();
                     break;

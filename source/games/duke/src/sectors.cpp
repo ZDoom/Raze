@@ -980,7 +980,7 @@ void operatesectors(sectortype* sptr, DDukeActor *actor)
 
 	case ST_30_ROTATE_RISE_BRIDGE:
 	{
-		auto act = ScriptIndexToActor(sptr->hitag);
+		auto act = static_cast<DDukeActor*>(sptr->hitagactor);
 		if (!act) break;
 		if (act->tempang == 0 || act->tempang == 256) callsound(sptr, actor);
 		if (act->s->extra == 1) act->s->extra = 3;
@@ -990,7 +990,7 @@ void operatesectors(sectortype* sptr, DDukeActor *actor)
 
 	case ST_31_TWO_WAY_TRAIN:
 	{
-		auto act = ScriptIndexToActor(sptr->hitag);
+		auto act = static_cast<DDukeActor*>(sptr->hitagactor);
 		if (!act) break;
 		if (act->temp_data[4] == 0)
 			act->temp_data[4] = 1;

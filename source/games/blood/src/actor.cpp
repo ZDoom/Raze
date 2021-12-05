@@ -5076,7 +5076,7 @@ void MoveDude(DBloodActor* actor)
 				if (gModernMap)
 				{
 					pPlayer->nWaterPal = 0;
-					auto pUpper = pSector->upperLink;
+					auto pUpper = static_cast<DBloodActor*>(pSector->upperLink);
 					if (pUpper && pUpper->hasX()) pPlayer->nWaterPal = pUpper->x().data2;
 				}
 #endif
