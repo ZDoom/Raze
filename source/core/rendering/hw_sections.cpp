@@ -135,7 +135,7 @@ static void SplitSection(int section, int start, int end)
 		{
 			SectionLine& newline = sectionLines[thisline];
 			newline = sectionLines[sline];
-			newline.section = int16_t(sect1 - sections);
+			newline.section = int(sect1 - sections);
 			if (i != sect1->lines.Size() - 1) newline.point2index = thisline + 1 - firstnewline;
 			else newline.point2index = 0;
 			assert(newline.point2index >= 0);
@@ -153,8 +153,8 @@ static void SplitSection(int section, int start, int end)
 		{
 			splitline1 = thisline++;
 			sectionLines[splitline1].wall = -1;
-			sectionLines[splitline1].section = int16_t(sect1 - sections);
-			sectionLines[splitline1].partnersection = int16_t(sect2 - sections);
+			sectionLines[splitline1].section = int(sect1 - sections);
+			sectionLines[splitline1].partnersection = int(sect2 - sections);
 			sectionLines[splitline1].startpoint = start;
 			sectionLines[splitline1].endpoint = end;
 			sectionLines[splitline1].point2index = splitline1 + 1 - firstnewline;
@@ -170,7 +170,7 @@ static void SplitSection(int section, int start, int end)
 		{
 			SectionLine& newline = sectionLines[thisline];
 			newline = sectionLines[sline];
-			newline.section = int16_t(sect2 - sections);
+			newline.section = int(sect2 - sections);
 			if (i != sect2->lines.Size() - 1) newline.point2index = thisline + 1 - firstnewline;
 			else newline.point2index = 0;
 			assert(newline.point2index >= 0);
@@ -188,8 +188,8 @@ static void SplitSection(int section, int start, int end)
 		{
 			splitline2 = thisline++;
 			sectionLines[splitline2].wall = -1;
-			sectionLines[splitline2].section = int16_t(sect2 - sections);
-			sectionLines[splitline2].partnersection = int16_t(sect1 - sections);
+			sectionLines[splitline2].section = int(sect2 - sections);
+			sectionLines[splitline2].partnersection = int(sect1 - sections);
 			sectionLines[splitline2].startpoint = end;
 			sectionLines[splitline2].endpoint = start;
 			sectionLines[splitline2].point2index = splitline2 + 1 - firstnewline;
@@ -199,8 +199,8 @@ static void SplitSection(int section, int start, int end)
 	sectionLines[splitline2].partner = splitline1;
 
 	sectionspersector[sect.sector].Resize(2);
-	sectionspersector[sect.sector][0] = int16_t(sect1 - sections);
-	sectionspersector[sect.sector][1] = int16_t(sect2 - sections);
+	sectionspersector[sect.sector][0] = int(sect1 - sections);
+	sectionspersector[sect.sector][1] = int(sect2 - sections);
 }
 
 void hw_SplitSector(int sectnum, int start, int end)
