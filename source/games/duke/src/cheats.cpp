@@ -197,7 +197,7 @@ const char* GameInterface::GenericCheat(int player, int cheat)
 
 	case CHT_RHETT:
 		ud.god = 0;
-		memset(ps[player].gotweapon, 0, MAX_WEAPONS);
+		memset(ps[player].gotweapon, 0, sizeof(ps[player].gotweapon));
 		ps[player].curr_weapon = KNEE_WEAPON;
 		ps[player].nocheat = 1;
 		ps[player].GetActor()->s->extra = 1;

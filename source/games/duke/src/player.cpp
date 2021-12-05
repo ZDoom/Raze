@@ -258,7 +258,7 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 			}
 			else
 			{
-				weap = aplWeaponWorksLike[ps[s->yvel].curr_weapon][s->yvel];
+				weap = aplWeaponWorksLike(ps[s->yvel].curr_weapon, s->yvel);
 			}
 			if (weap > CHAINGUN_WEAPON || weap == KNEE_WEAPON)
 			{
@@ -277,8 +277,8 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 	}
 	else if (isWW2GI())
 	{
-		gotshrinker = s->picnum == TILE_APLAYER && aplWeaponWorksLike[ps[s->yvel].curr_weapon][s->yvel] == SHRINKER_WEAPON;
-		gotfreezer = s->picnum == TILE_APLAYER && aplWeaponWorksLike[ps[s->yvel].curr_weapon][s->yvel] == FREEZE_WEAPON;
+		gotshrinker = s->picnum == TILE_APLAYER && aplWeaponWorksLike(ps[s->yvel].curr_weapon, s->yvel) == SHRINKER_WEAPON;
+		gotfreezer = s->picnum == TILE_APLAYER && aplWeaponWorksLike(ps[s->yvel].curr_weapon, s->yvel) == FREEZE_WEAPON;
 	}
 	else
 	{
@@ -937,13 +937,13 @@ bool movementBlocked(player_struct *p)
 	auto blockingweapon = [=]()
 	{
 		if (isRR()) return false;
-		if (isWW2GI()) return aplWeaponWorksLike[p->curr_weapon][p->GetPlayerNum()] == TRIPBOMB_WEAPON;
+		if (isWW2GI()) return aplWeaponWorksLike(p->curr_weapon, p->GetPlayerNum()) == TRIPBOMB_WEAPON;
 		else return p->curr_weapon == TRIPBOMB_WEAPON;
 	};
 
 	auto weapondelay = [=]()
 	{
-		if (isWW2GI()) return aplWeaponFireDelay[p->curr_weapon][p->GetPlayerNum()];
+		if (isWW2GI()) return aplWeaponFireDelay(p->curr_weapon, p->GetPlayerNum());
 		else return 4;
 	};
 

@@ -3235,8 +3235,7 @@ void loadcons()
 	}
 
 	// These can only be retrieved AFTER loading the scripts.
-	InitGameVarPointers();
-	ResetSystemDefaults();
+	FinalizeGameVars();
 	S_WorldTourMappingsForOldSounds(); // create a sound mapping for World Tour.
 	S_CacheAllSounds();
 	comp.setmusic();

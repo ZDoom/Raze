@@ -240,31 +240,7 @@ void addweapon_d(struct player_struct *p, int weapon)
 	}
 
 	p->okickback_pic = p->kickback_pic = 0;
-#ifdef EDUKE
-	if(p->curr_weapon != weapon)
-	{
-		int snum;
-		snum = p->GetPlayerNum();
-
-		SetGameVarID(g_iWeaponVarID,weapon, snum, p->GetActor());
-		if (p->curr_weapon >= 0)
-		{
-			SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike[weapon][snum], snum, p->GetActor());
-		}
-		else
-		{
-			SetGameVarID(g_iWorksLikeVarID, -1, snum, p->GetActor());
-		}
-		SetGameVarID(g_iReturnVarID, 0, snum, -1);
-		OnEvent(EVENT_CHANGEWEAPON, snum, p->GetActor(), -1);
-		if (GetGameVarID(g_iReturnVarID, nullptr, snum) == 0)
-		{
-			p->curr_weapon = weapon;
-		}
-	}
-#else
 	p->curr_weapon = weapon;
-#endif
 	p->wantweaponfire = -1;
 
 	switch (weapon)

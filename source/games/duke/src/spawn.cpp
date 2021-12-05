@@ -56,6 +56,8 @@ DDukeActor* EGS(sectortype* whatsectp, int s_x, int s_y, int s_z, int s_pn, int8
 	auto act = static_cast<DDukeActor*>(::InsertActor(whatsectp, s_ss));
 
 	if (act == nullptr) return nullptr;
+	SetupGameVarsForActor(act);
+
 
 	auto s = act->s;
 

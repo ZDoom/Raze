@@ -176,7 +176,7 @@ void checkavailweapon(struct player_struct* player)
 		SetGameVarID(g_iWeaponVarID, player->curr_weapon, player->GetActor(), snum); // snum is player index!
 		if (player->curr_weapon >= 0)
 		{
-			SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike[player->curr_weapon][snum], player->GetActor(), snum);
+			SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike(player->curr_weapon, snum), player->GetActor(), snum);
 		}
 		else
 		{

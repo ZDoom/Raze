@@ -265,6 +265,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 			// new stuff
 			("actions", w.sync.actions)
 			.Array("frags", w.frags, MAXPLAYERS)
+			("uservars", w.uservars)
 			.EndObject();
 
 		w.invdisptime = 0;
@@ -311,7 +312,8 @@ void DDukeActor::Serialize(FSerializer& arc)
 		("seek_actor", seek_actor)
 		.Array("temp_data", temp_data, 6)
 		.Array("temo_wall", temp_walls, 2)
-		("temp_sect", temp_sect);
+		("temp_sect", temp_sect)
+		("uservars", uservars);
 }
 
 

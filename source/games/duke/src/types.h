@@ -45,6 +45,8 @@ struct DDukeActor : public DCoreActor
 	DDukeActor* temp_actor, *seek_actor;
 	spritetype* s;	// direct reference to the corresponding sprite.
 
+	TArray<int64_t> uservars;
+
 	static DDukeActor* array();	// this is necessary to allow define inline functions referencing the global array inside the definition itself.
 
 	DDukeActor()
@@ -301,6 +303,9 @@ struct player_struct
 	uint8_t moto_do_bump, moto_bump_fast, moto_on_oil, moto_on_mud;
 	double vehForwardScale, vehReverseScale, MotoSpeed;
 	bool vehTurnLeft, vehTurnRight, vehBraking;
+
+	TArray<int64_t> uservars;
+
 
 	// input stuff.
 	InputPacket sync;
