@@ -5162,7 +5162,7 @@ void alterang(int ang, DDukeActor* actor, int playernum)
 		s->ang = WindDir;
 	else if (ang & seekplayer)
 	{
-		auto holoduke = !isRR()? ps[playernum].holoduke_on : nullptr;
+		DDukeActor* holoduke = !isRR()? ps[playernum].holoduke_on.Get() : nullptr;
 
 		// NOTE: looks like 'Owner' is set to target sprite ID...
 

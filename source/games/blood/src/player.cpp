@@ -753,7 +753,7 @@ void playerStart(int nPlayer, int bNewLevel)
             XSPRITE* pXCtrl = &iactor->x();
             if (pXCtrl->data1 == pPlayer->nPlayer + 1) 
             {
-                auto SpriteOld = iactor->prevmarker;
+                DBloodActor* SpriteOld = iactor->prevmarker;
                 trPlayerCtrlLink(iactor, pPlayer, (SpriteOld == nullptr)); // this modifies iactor's prevmarker field!
                 if (SpriteOld)
                     condUpdateObjectIndex(SpriteOld, iactor->prevmarker);
@@ -1355,7 +1355,7 @@ void ProcessInput(PLAYER *pPlayer)
     pPlayer->horizon.resetadjustment();
     pPlayer->angle.resetadjustment();
 
-    auto actor = pPlayer->actor;
+    DBloodActor* actor = pPlayer->actor;
     spritetype *pSprite = pPlayer->pSprite;
     XSPRITE *pXSprite = pPlayer->pXSprite;
     POSTURE *pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
@@ -1373,7 +1373,7 @@ void ProcessInput(PLAYER *pPlayer)
     if (pXSprite->health == 0)
     {
         bool bSeqStat = playerSeqPlaying(pPlayer, 16);
-        auto fragger = pPlayer->fragger;
+        DBloodActor* fragger = pPlayer->fragger;
         if (fragger)
         {
             pPlayer->angle.addadjustment(getincanglebam(pPlayer->angle.ang, bvectangbam(fragger->s().x - pSprite->x, fragger->s().y - pSprite->y)));
@@ -1577,14 +1577,14 @@ void ProcessInput(PLAYER *pPlayer)
             pPlayer->handTime = ClipLow(pPlayer->handTime-4*(6-gGameOptions.nDifficulty), 0);
         if (pPlayer->handTime <= 0 && pPlayer->hand)
         {
-            auto pactor = pPlayer->actor;
+            DBloodActor* pactor = pPlayer->actor;
             auto spawned = actSpawnDude(pactor, kDudeHand, pPlayer->pSprite->clipdist<<1, 0);
             if (spawned)
             {
-            spritetype* pSprite2 = &spawned->s();
+                spritetype* pSprite2 = &spawned->s();
                 pSprite2->ang = (pPlayer->pSprite->ang + 1024) & 2047;
-            int x = bcos(pPlayer->pSprite->ang);
-            int y = bsin(pPlayer->pSprite->ang);
+                int x = bcos(pPlayer->pSprite->ang);
+                int y = bsin(pPlayer->pSprite->ang);
                 spawned->xvel = pPlayer->actor->xvel + MulScale(0x155555, x, 14);
                 spawned->yvel = pPlayer->actor->yvel + MulScale(0x155555, y, 14);
                 spawned->zvel = pPlayer->actor->zvel;
@@ -1660,7 +1660,7 @@ void ProcessInput(PLAYER *pPlayer)
 
 void playerProcess(PLAYER *pPlayer)
 {
-    auto actor = pPlayer->actor;
+    DBloodActor* actor = pPlayer->actor;
     spritetype *pSprite = pPlayer->pSprite;
     XSPRITE *pXSprite = pPlayer->pXSprite;
     POSTURE* pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
@@ -1902,7 +1902,7 @@ int playerDamageArmor(PLAYER *pPlayer, DAMAGE_TYPE nType, int nDamage)
 
 void flagDropped(PLAYER *pPlayer, int a2)
 {
-    auto playeractor = pPlayer->actor;
+    DBloodActor* playeractor = pPlayer->actor;
     DBloodActor* actor;
     char buffer[80];
     switch (a2)
@@ -1938,7 +1938,7 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
 
     spritetype *pSprite = pPlayer->pSprite;
     XSPRITE *pXSprite = pPlayer->pXSprite;
-    auto pActor = pPlayer->actor;
+    DBloodActor* pActor = pPlayer->actor;
     DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
     int nDeathSeqID = -1;
     int nKneelingPlayer = -1;
@@ -2104,7 +2104,7 @@ int UseAmmo(PLAYER *pPlayer, int nAmmoType, int nDec)
 
 void voodooTarget(PLAYER *pPlayer)
 {
-    auto actor = pPlayer->actor;
+    DBloodActor* actor = pPlayer->actor;
     int v4 = pPlayer->aim.dz;
     int dz = pPlayer->zWeapon-pPlayer->pSprite->z;
     if (UseAmmo(pPlayer, 9, 0) < 8)

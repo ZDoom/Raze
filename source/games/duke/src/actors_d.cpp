@@ -1461,7 +1461,7 @@ static bool movefireball(DDukeActor* actor)
 		if (actor->temp_data[0] >= 1 && actor->temp_data[0] < 6)
 		{
 			float siz = 1.0f - (actor->temp_data[0] * 0.2f);
-			auto trail = actor->temp_actor;
+			DDukeActor* trail = actor->temp_actor;
 			auto ball = spawn(actor, FIREBALL);
 			if (ball)
 			{
@@ -2474,7 +2474,7 @@ static void greenslime(DDukeActor *actor)
 
 	if (t[0] == -2) //On top of somebody (an enemy)
 	{
-		auto s5 = actor->temp_actor;
+		DDukeActor* s5 = actor->temp_actor;
 		makeitfall(actor);
 		if (s5)
 		{

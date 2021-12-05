@@ -173,7 +173,7 @@ static bool BannedUnderwater(int nWeapon)
     return nWeapon == kWeapSpraycan || nWeapon == kWeapDynamite;
 }
 
-static bool CheckWeaponAmmo(PLAYER *pPlayer, int weapon, int ammotype, int count)
+static bool CheckWeaponAmmo(const PLAYER *pPlayer, int weapon, int ammotype, int count)
 {
     if (gInfiniteAmmo)
         return 1;
@@ -186,7 +186,7 @@ static bool CheckWeaponAmmo(PLAYER *pPlayer, int weapon, int ammotype, int count
     return pPlayer->ammoCount[ammotype] >= count;
 }
 
-static bool CheckAmmo(PLAYER *pPlayer, int ammotype, int count)
+static bool CheckAmmo(const PLAYER *pPlayer, int ammotype, int count)
 {
     if (gInfiniteAmmo)
         return 1;
@@ -199,7 +199,7 @@ static bool CheckAmmo(PLAYER *pPlayer, int ammotype, int count)
     return pPlayer->ammoCount[ammotype] >= count;
 }
 
-static bool checkAmmo2(PLAYER *pPlayer, int ammotype, int amount)
+static bool checkAmmo2(const PLAYER *pPlayer, int ammotype, int amount)
 {
     if (gInfiniteAmmo)
         return 1;
@@ -1059,7 +1059,7 @@ void WeaponUpdateState(PLAYER *pPlayer)
 
 void FirePitchfork(int, PLAYER *pPlayer)
 {
-    auto actor = pPlayer->actor;
+    DBloodActor* actor = pPlayer->actor;
     Aim *aim = &pPlayer->aim;
     int r1 = Random2(2000);
     int r2 = Random2(2000);
@@ -1216,7 +1216,7 @@ enum { kMaxShotgunBarrels = 4 };
 
 void FireShotgun(int nTrigger, PLAYER *pPlayer)
 {
-    auto actor = pPlayer->actor;
+    DBloodActor* actor = pPlayer->actor;
     assert(nTrigger > 0 && nTrigger <= kMaxShotgunBarrels);
     if (nTrigger == 1)
     {
@@ -1263,7 +1263,7 @@ void EjectShell(int, PLAYER *pPlayer)
 
 void FireTommy(int nTrigger, PLAYER *pPlayer)
 {
-    auto actor = pPlayer->actor;
+    DBloodActor* actor = pPlayer->actor;
     Aim *aim = &pPlayer->aim;
     sfxPlay3DSound(pPlayer->actor, 431, -1, 0);
     switch (nTrigger)
@@ -1302,7 +1302,7 @@ enum { kMaxSpread = 14 };
 
 void FireSpread(int nTrigger, PLAYER *pPlayer)
 {
-    auto actor = pPlayer->actor;
+    DBloodActor* actor = pPlayer->actor;
     assert(nTrigger > 0 && nTrigger <= kMaxSpread);
     Aim *aim = &pPlayer->aim;
     int angle = (getangle(aim->dx, aim->dy)+((112*(nTrigger-1))/14-56))&2047;
@@ -1324,7 +1324,7 @@ void FireSpread(int nTrigger, PLAYER *pPlayer)
 
 void AltFireSpread(int nTrigger, PLAYER *pPlayer)
 {
-    auto actor = pPlayer->actor;
+    DBloodActor* actor = pPlayer->actor;
     assert(nTrigger > 0 && nTrigger <= kMaxSpread);
     Aim *aim = &pPlayer->aim;
     int angle = (getangle(aim->dx, aim->dy)+((112*(nTrigger-1))/14-56))&2047;
@@ -1354,7 +1354,7 @@ void AltFireSpread(int nTrigger, PLAYER *pPlayer)
 
 void AltFireSpread2(int nTrigger, PLAYER *pPlayer)
 {
-    auto actor = pPlayer->actor;
+    DBloodActor* actor = pPlayer->actor;
     assert(nTrigger > 0 && nTrigger <= kMaxSpread);
     Aim *aim = &pPlayer->aim;
     int angle = (getangle(aim->dx, aim->dy)+((112*(nTrigger-1))/14-56))&2047;
@@ -1447,15 +1447,15 @@ void AltFireFlare(int nTrigger, PLAYER *pPlayer)
 void FireVoodoo(int nTrigger, PLAYER *pPlayer)
 {
     nTrigger--;
-    auto actor = pPlayer->actor;
+    DBloodActor* actor = pPlayer->actor;
     spritetype *pSprite = pPlayer->pSprite;
     if (nTrigger == 4)
     {
         actDamageSprite(actor, actor, kDamageBullet, 1<<4);
         return;
     }
-    assert(pPlayer->voodooTarget != nullptr);
-    auto targetactor = pPlayer->voodooTarget;
+    DBloodActor* targetactor = pPlayer->voodooTarget;
+    if (!targetactor) return;
     spritetype *pTarget = &targetactor->s();
     if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pPlayer, pTarget))
         return;
@@ -1505,7 +1505,7 @@ void FireVoodoo(int nTrigger, PLAYER *pPlayer)
 
 void AltFireVoodoo(int nTrigger, PLAYER *pPlayer)
 {
-    auto actor = pPlayer->actor;
+    DBloodActor* actor = pPlayer->actor;
     if (nTrigger == 2) {
 
         // by NoOne: trying to simulate v1.0x voodoo here.
@@ -1516,7 +1516,8 @@ void AltFireVoodoo(int nTrigger, PLAYER *pPlayer)
             {
                 for (int i = 0; i < pPlayer->aimTargetsCount; i++)
                 {
-                    auto targetactor = pPlayer->aimTargets[i];
+                    DBloodActor* targetactor = pPlayer->aimTargets[i];
+                    if (!targetactor) continue;
                     spritetype* pTarget = &targetactor->s();
                     if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pPlayer, pTarget))
                         continue;
@@ -1552,7 +1553,8 @@ void AltFireVoodoo(int nTrigger, PLAYER *pPlayer)
             int v4 = pPlayer->ammoCount[9] - (pPlayer->ammoCount[9] / nCount) * nCount;
             for (int i = 0; i < pPlayer->aimTargetsCount; i++)
             {
-                auto targetactor = pPlayer->aimTargets[i];
+                DBloodActor* targetactor = pPlayer->aimTargets[i];
+                if (!targetactor) continue;
                 spritetype* pTarget = &targetactor->s();
                 if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pPlayer, pTarget))
                     continue;
@@ -1706,7 +1708,7 @@ void FireLifeLeech(int nTrigger, PLAYER *pPlayer)
     int r1 = Random2(2000);
     int r2 = Random2(2000);
     int r3 = Random2(1000);
-    auto actor = pPlayer->actor;
+    DBloodActor* actor = pPlayer->actor;
     auto missileActor = playerFireMissile(pPlayer, 0, pPlayer->aim.dx+r1, pPlayer->aim.dy+r2, pPlayer->aim.dz+r3, 315);
     if (missileActor)
     {
@@ -1722,7 +1724,7 @@ void FireLifeLeech(int nTrigger, PLAYER *pPlayer)
 
 void AltFireLifeLeech(int , PLAYER *pPlayer)
 {
-    auto actor = pPlayer->actor;
+    DBloodActor* actor = pPlayer->actor;
     sfxPlay3DSound(pPlayer->actor, 455, 2, 0);
     auto missile = playerFireThing(pPlayer, 0, -4730, kThingDroppedLifeLeech, 0x19999);
     if (missile)
@@ -1758,7 +1760,7 @@ void AltFireLifeLeech(int , PLAYER *pPlayer)
 
 void FireBeast(int , PLAYER * pPlayer)
 {
-    auto actor = pPlayer->actor;
+    DBloodActor* actor = pPlayer->actor;
     int r1 = Random2(2000);
     int r2 = Random2(2000);
     int r3 = Random2(2000);
@@ -1792,7 +1794,7 @@ int WeaponUpgrade(PLAYER *pPlayer, int newWeapon)
 int OrderNext[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 1, 1 };
 int OrderPrev[] = { 12, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 1 };
 
-static int WeaponFindNext(PLAYER *pPlayer, int *a2, int bDir)
+static int WeaponFindNext(const PLAYER *pPlayer, int *a2, int bDir)
 {
     int weapon = pPlayer->curWeapon;
     do
@@ -1825,7 +1827,7 @@ static int WeaponFindNext(PLAYER *pPlayer, int *a2, int bDir)
     return weapon;
 }
 
-static int WeaponFindLoaded(PLAYER *pPlayer, int *a2)
+static int WeaponFindLoaded(const PLAYER *pPlayer, int *a2)
 {
     int v4 = 1;
     int v14 = 0;
@@ -2246,18 +2248,19 @@ void WeaponProcess(PLAYER *pPlayer) {
         {
             if (prevNewWeaponVal == WeaponSel_Next || prevNewWeaponVal == WeaponSel_Prev) // if player switched weapons
             {
-                PLAYER tmpPlayer = *pPlayer;
-                tmpPlayer.curWeapon = pPlayer->newWeapon; // set current banned weapon to curweapon so WeaponFindNext() can find the next weapon
+                int saveweapon = pPlayer->curWeapon;
+                pPlayer->curWeapon = pPlayer->newWeapon; // set current banned weapon to curweapon so WeaponFindNext() can find the next weapon
                 for (int i = 0; i < 3; i++) // attempt twice to find a new weapon
                 {
-                    tmpPlayer.curWeapon = WeaponFindNext(&tmpPlayer, NULL, (char)(prevNewWeaponVal == WeaponSel_Next));
-                    if (!BannedUnderwater(tmpPlayer.curWeapon)) // if new weapon is not a banned weapon, set to new current weapon
+                    pPlayer->curWeapon = WeaponFindNext(pPlayer, NULL, (char)(prevNewWeaponVal == WeaponSel_Next));
+                    if (!BannedUnderwater(pPlayer->curWeapon)) // if new weapon is not a banned weapon, set to new current weapon
                     {
-                        pPlayer->newWeapon = tmpPlayer.curWeapon;
+                        pPlayer->newWeapon = pPlayer->curWeapon;
                         pPlayer->weaponMode[pPlayer->newWeapon] = 0;
                         break;
                     }
                 }
+                pPlayer->curWeapon = saveweapon;
             }
         }
         if (pPlayer->newWeapon == kWeapDynamite)

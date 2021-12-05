@@ -1340,9 +1340,9 @@ void nnExtProcessSuperSprites()
                 for (int a = connecthead; a != -1; a = connectpoint2[a]) 
                 {
                     pPlayer = &gPlayer[a];
-                    auto pact = pPlayer->actor;
+                    DBloodActor* pact = pPlayer->actor;
 
-                    if (pact->hit.hit.type == kHitSprite && pact->hit.hit.actor() == debrisactor) 
+                    if (pact && pact->hit.hit.type == kHitSprite && pact->hit.hit.actor() == debrisactor) 
                     {
                         int nSpeed = approxDist(pact->xvel, pact->yvel);
                             nSpeed = ClipLow(nSpeed - MulScale(nSpeed, mass, 6), 0x9000 - (mass << 3));
@@ -1582,7 +1582,7 @@ int debrisGetFreeIndex(void)
 
 void debrisConcuss(DBloodActor* owneractor, int listIndex, int x, int y, int z, int dmg)
 {
-    auto actor = gPhysSpritesList[listIndex];
+    DBloodActor* actor = gPhysSpritesList[listIndex];
     if (actor != nullptr && actor->hasX())
     {
         spritetype* pSprite = &actor->s();
@@ -1652,7 +1652,7 @@ void debrisBubble(DBloodActor* actor)
 
 void debrisMove(int listIndex)
 {
-    auto actor = gPhysSpritesList[listIndex];
+    DBloodActor* actor = gPhysSpritesList[listIndex];
     XSPRITE* pXSprite = &actor->x();
     spritetype* pSprite = &actor->s();   
     auto pSector = pSprite->sector();
@@ -4324,21 +4324,21 @@ bool condCheckDude(DBloodActor* aCond, int cmpOp, bool PUSH)
             case kDudeModernCustomBurning:
                 switch (cond) {
                     case 20: // life leech is thrown?
-                        {
-                        auto act = objActor->genDudeExtra.pLifeLeech;
-                            if (!act) return false;
+                    {
+                        DBloodActor* act = objActor->genDudeExtra.pLifeLeech;
+                        if (!act) return false;
                         else if (PUSH) condPush(aCond, act);
                         return true;
-                        }
+                    }
 
                     case 21: // life leech is destroyed?
-                        {
-                        auto act = objActor->genDudeExtra.pLifeLeech;
-                            if (!act) return false;
-                            if (objActor->GetSpecialOwner()) return true;
+                    {
+                        DBloodActor* act = objActor->genDudeExtra.pLifeLeech;
+                        if (!act) return false;
+                        if (objActor->GetSpecialOwner()) return true;
                         else if (PUSH) condPush(aCond, act);
                         return false;
-                        }
+                    }
 
                     case 22: // are required amount of dudes is summoned?
                         return condCmp(objActor->genDudeExtra.slaveCount, arg1, arg2, cmpOp);
@@ -8400,9 +8400,9 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
 
             if (hearDist) 
             {
-                auto act = pPlayer->actor;
+                DBloodActor* act = pPlayer->actor;
                 itCanHear = (!deaf && (nDist < hearDist || hearChance > 0));
-                if (itCanHear && nDist < feelDist && (act->xvel || act->yvel || act->zvel))
+                if (act && itCanHear && nDist < feelDist && (act->xvel || act->yvel || act->zvel))
                     hearChance += ClipLow(mulscale8(1, ClipLow(((feelDist - nDist) + (abs(act->xvel) + abs(act->yvel) + abs(act->zvel))) >> 6, 0)), 0);
             }
 

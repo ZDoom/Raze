@@ -5992,7 +5992,7 @@ static void actCheckExplosion()
 				for (int i = 0; i < gPhysSpritesCount; i++)
 				{
 					if (gPhysSpritesList[i] == nullptr) continue;
-					auto physactor = gPhysSpritesList[i];
+					DBloodActor* physactor = gPhysSpritesList[i];
 					spritetype* pDebris = &physactor->s();
 					if (!pDebris->insector() || (pDebris->flags & kHitagFree) != 0) continue;
 

@@ -1090,7 +1090,7 @@ static void chickenarrow(DDukeActor* actor)
 			spawn(actor, MONEY);
 		}
 	}
-	auto ts = actor->seek_actor;
+	DDukeActor* ts = actor->seek_actor;
 	if (!ts) return;
 
 	if (ts->s->extra <= 0)
