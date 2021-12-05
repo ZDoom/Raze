@@ -248,9 +248,9 @@ static bool cheatInventory(int player)
 	{
 		SetGameVarID(g_iReturnVarID, defvalue, nullptr, player);
 		OnEvent(evtype, player, nullptr, -1);
-		if (GetGameVarID(g_iReturnVarID, nullptr, player) >= 0)
+		if (GetGameVarID(g_iReturnVarID, nullptr, player).safeValue() >= 0)
 		{
-			dest = GetGameVarID(g_iReturnVarID, nullptr, player);
+			dest = GetGameVarID(g_iReturnVarID, nullptr, player).value();
 		}
 	};
 

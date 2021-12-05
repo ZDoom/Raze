@@ -21,10 +21,10 @@ struct STATUSBARTYPE
 	bool gotweapon[MAX_WEAPONS];
 };
 
-struct DDukeActor : public DCoreActor
+class DDukeActor : public DCoreActor
 {
 	using Super = DCoreActor;
-
+public:
 	uint8_t cgg;
 	uint8_t spriteextra;	// moved here for easier maintenance. This was originally a hacked in field in the sprite structure called 'filler'.
 	DDukeActor* ownerActor, * hitOwnerActor;
@@ -45,7 +45,7 @@ struct DDukeActor : public DCoreActor
 	DDukeActor* temp_actor, *seek_actor;
 	spritetype* s;	// direct reference to the corresponding sprite.
 
-	TArray<int64_t> uservars;
+	TArray<GameVarValue> uservars;
 
 	static DDukeActor* array();	// this is necessary to allow define inline functions referencing the global array inside the definition itself.
 
@@ -304,7 +304,7 @@ struct player_struct
 	double vehForwardScale, vehReverseScale, MotoSpeed;
 	bool vehTurnLeft, vehTurnRight, vehBraking;
 
-	TArray<int64_t> uservars;
+	TArray<GameVarValue> uservars;
 
 
 	// input stuff.

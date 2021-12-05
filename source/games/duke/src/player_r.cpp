@@ -869,7 +869,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 	SetGameVarID(g_iAtWithVarID, atwith, actor, p);
 	SetGameVarID(g_iReturnVarID, 0, actor, p);
 	OnEvent(EVENT_SHOOT, p, ps[p].GetActor(), -1);
-	if (GetGameVarID(g_iReturnVarID, actor, p) != 0)
+	if (GetGameVarID(g_iReturnVarID, actor, p).safeValue() != 0)
 	{
 		return;
 	}
@@ -3909,7 +3909,7 @@ HORIZONLY:
 		psectp = s->sector();
 		if (ud.clipping == 0 && psectp->lotag == ST_31_TWO_WAY_TRAIN)
 		{
-			auto act = ScriptIndexToActor(psectp->hitag);
+			auto act = static_cast<DDukeActor*>(psectp->hitagactor);
 			if (act && act->s->xvel && act->temp_data[0] == 0)
 			{
 				quickkill(p);

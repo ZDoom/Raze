@@ -1003,7 +1003,7 @@ static void movetripbomb(DDukeActor *actor)
 {
 	auto s = actor->s;
 	int j, x;
-	int lTripBombControl = GetGameVar("TRIPBOMB_CONTROL", TRIPBOMB_TRIPWIRE, nullptr, -1);
+	int lTripBombControl = GetGameVar("TRIPBOMB_CONTROL", TRIPBOMB_TRIPWIRE, nullptr, -1).safeValue();
 	if (lTripBombControl & TRIPBOMB_TIMER)
 	{
 		// we're on a timer....

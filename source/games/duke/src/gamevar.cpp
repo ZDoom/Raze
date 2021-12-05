@@ -55,6 +55,45 @@ extern int errorcount, warningcount, line_count;
 //intptr_t *actorLoadEventScrptr[MAXTILES];
 intptr_t apScriptGameEvent[MAXGAMEEVENTS];
 
+
+//---------------------------------------------------------------------------
+//
+//
+//
+//---------------------------------------------------------------------------
+
+FSerializer& Serialize(FSerializer& arc, const char* keyname, GameVarValue& w, GameVarValue* def)
+{
+	if (arc.BeginObject(keyname))
+	{
+		int type = w.isActor() ? 0 : 1;
+		arc("type", type);
+		switch (type)
+		{
+		case 0:
+		{
+			// pointless to handle now, fix when saving works again.
+#pragma message(" fix me!");
+#if 0
+			DDukeActor* a = arc.isWriting() ? w.actor() : nullptr;
+			arc("actor", a);
+			if (arc.isReading()) w = GameVarValue(a);
+			break;
+#endif
+		}
+		case 1:
+		{
+			auto s = arc.isWriting()? w.value() : 0;
+			arc("value", s);
+			if (arc.isReading()) w = GameVarValue(s);
+			break;
+		}
+		}
+		arc.EndObject();
+	}
+	return arc;
+}
+
 //---------------------------------------------------------------------------
 //
 //
@@ -72,8 +111,12 @@ void SerializeGameVars(FSerializer &arc)
 			{
 				if (arc.BeginObject(gv.szLabel))
 				{
-					arc("value", gv.lValue)
-						("initvalue", gv.initValue)
+					if (gv.dwFlags & (GAMEVAR_FLAG_PERPLAYER | GAMEVAR_FLAG_PERACTOR))
+						arc("index", gv.indexValue);
+					else 
+						arc("value", gv.lValue);
+
+					arc("initvalue", gv.initValue)
 						.EndObject();
 				}
 			}
@@ -115,10 +158,10 @@ int AddGameVar(const char* pszLabel, intptr_t lValue, unsigned dwFlags)
 		if (aGameVars[i].dwFlags & GAMEVAR_FLAG_SYSTEM && !(dwFlags & (GAMEVAR_FLAG_PLONG | GAMEVAR_FLAG_PFUNC)))
 		{
 			// if existing is system, they only get to change default value....
-			aGameVars[i].lValue = (int)lValue;
+			aGameVars[i].lValue = GameVarValue(lValue);
 			if (!(dwFlags & GAMEVAR_FLAG_NODEFAULT))
 			{
-				aGameVars[i].defaultValue = (int)lValue;
+				aGameVars[i].defaultValue = GameVarValue(lValue);
 			}
 		}
 		else
@@ -131,14 +174,14 @@ int AddGameVar(const char* pszLabel, intptr_t lValue, unsigned dwFlags)
 			}
 			else
 			{
-				aGameVars[i].lValue = (int)lValue;
+				aGameVars[i].lValue = GameVarValue(lValue);
 			}
 			if (!(dwFlags & GAMEVAR_FLAG_NODEFAULT))
 			{
-				aGameVars[i].defaultValue = (int)lValue;
+				aGameVars[i].defaultValue = GameVarValue(lValue);
 			}
 		}
-		aGameVars[i].initValue = (int)lValue;
+		aGameVars[i].initValue = GameVarValue(lValue);
 		if (i == iGameVarCount)
 		{
 			// we're adding a new one.
@@ -232,7 +275,7 @@ void ResetGameVars(void)
 			{
 				for (auto &pl : ps)
 				{
-					pl.uservars[aGameVars[i].lValue] = aGameVars[i].defaultValue;
+					pl.uservars[aGameVars[i].indexValue] = aGameVars[i].defaultValue;
 				}
 			}
 			else if (!(aGameVars[i].dwFlags & GAMEVAR_FLAG_PERACTOR))
@@ -254,22 +297,22 @@ void ResetGameVars(void)
 //
 //---------------------------------------------------------------------------
 
-int GetGameVarID(int id, DDukeActor* sActor, int sPlayer)
+GameVarValue GetGameVarID(int id, DDukeActor* sActor, int sPlayer)
 {
 	if(id<0 || id >= iGameVarCount)
 	{
 		Printf("GetGameVarID: Invalid Game ID %d\n", id);
-		return -1;
+		return GameVarValue(-1);
 	}
 	if (id == g_iThisActorID)
 	{
-		return ActorToScriptIndex(sActor);
+		return GameVarValue(sActor);
 	}
 	if( aGameVars[id].dwFlags & GAMEVAR_FLAG_PERPLAYER )
 	{
 		// for the current player
 		if (sPlayer >= 0 && sPlayer < MAXPLAYERS)
-			return ps[sPlayer].uservars[aGameVars[id].lValue];
+			return ps[sPlayer].uservars[aGameVars[id].indexValue];
 
 		return aGameVars[id].initValue;
 	}
@@ -278,7 +321,7 @@ int GetGameVarID(int id, DDukeActor* sActor, int sPlayer)
 		// for the current actor
 		if(sActor != nullptr)
 		{
-			return sActor->uservars[aGameVars[id].lValue];
+			return sActor->uservars[aGameVars[id].indexValue];
 		}
 		else
 		{
@@ -292,7 +335,7 @@ int GetGameVarID(int id, DDukeActor* sActor, int sPlayer)
 			Printf("GetGameVarID NULL PlValues for PLONG Var=%s\n",aGameVars[id].szLabel);
 		}
 
-		return	*aGameVars[id].plValue;
+		return	GameVarValue(*aGameVars[id].plValue);
 	}
 	else if (aGameVars[id].dwFlags & GAMEVAR_FLAG_PFUNC)
 	{
@@ -301,7 +344,7 @@ int GetGameVarID(int id, DDukeActor* sActor, int sPlayer)
 			Printf("GetGameVarID NULL PlValues for PFUNC Var=%s\n", aGameVars[id].szLabel);
 		}
 
-		return	aGameVars[id].getter();
+		return	GameVarValue(aGameVars[id].getter());
 	}
 	else
 	{
@@ -316,7 +359,7 @@ int GetGameVarID(int id, DDukeActor* sActor, int sPlayer)
 //
 //---------------------------------------------------------------------------
 
-void SetGameVarID(int id, int lValue, DDukeActor* sActor, int sPlayer)
+void SetGameVarID(int id, GameVarValue lValue, DDukeActor* sActor, int sPlayer)
 {
 	if(id<0 || id >= iGameVarCount)
 	{
@@ -329,24 +372,24 @@ void SetGameVarID(int id, int lValue, DDukeActor* sActor, int sPlayer)
 		if (sPlayer >= 0)
 		{
 			if (sPlayer < MAXPLAYERS)
-				ps[sPlayer].uservars[aGameVars[id].lValue] = lValue;
+				ps[sPlayer].uservars[aGameVars[id].indexValue] = lValue;
 		}
 		else
 		{
 			for (int i = connecthead; i >= 0; i = connectpoint2[i])
-				ps[i].uservars[aGameVars[id].lValue] = lValue; // set for all players
+				ps[i].uservars[aGameVars[id].indexValue] = lValue; // set for all players
 			aGameVars[id].initValue = lValue;
 		}
 	}
 	else if( aGameVars[id].dwFlags & GAMEVAR_FLAG_PERACTOR )
 	{
 		// for the current actor
-		if (sActor != nullptr) sActor->uservars[aGameVars[id].lValue] = lValue;
+		if (sActor != nullptr) sActor->uservars[aGameVars[id].indexValue] = lValue;
 		else
 		{
 			DukeSpriteIterator it;
 			while (auto actor = it.Next())
-				actor->uservars[aGameVars[id].lValue] = lValue;
+				actor->uservars[aGameVars[id].indexValue] = lValue;
 			aGameVars[id].initValue = lValue;
 		}
 
@@ -354,7 +397,7 @@ void SetGameVarID(int id, int lValue, DDukeActor* sActor, int sPlayer)
 	else if( aGameVars[id].dwFlags & GAMEVAR_FLAG_PLONG )
 	{
 		// set the value at pointer
-		*aGameVars[id].plValue=lValue;
+		*aGameVars[id].plValue = lValue.safeValue();
 	}
 	else if( !(aGameVars[id].dwFlags & GAMEVAR_FLAG_PFUNC) )
 	{
@@ -363,13 +406,23 @@ void SetGameVarID(int id, int lValue, DDukeActor* sActor, int sPlayer)
 	
 }
 
+void SetGameVarID(int id, int lValue, DDukeActor* sActor, int sPlayer)
+{
+	SetGameVarID(id, GameVarValue(lValue), sActor, sPlayer);
+}
+
+void SetGameVarID(int id, DDukeActor* lValue, DDukeActor* sActor, int sPlayer)
+{
+	SetGameVarID(id, GameVarValue(lValue), sActor, sPlayer);
+}
+
 //---------------------------------------------------------------------------
 //
 // 
 //
 //---------------------------------------------------------------------------
 
-int GetGameVar(const char *szGameLabel, int lDefault, DDukeActor* sActor, int sPlayer)
+GameVarValue GetGameVar(const char *szGameLabel, GameVarValue lDefault, DDukeActor* sActor, int sPlayer)
 {
 	for (int i = 0; i < iGameVarCount; i++)
 	{
@@ -379,6 +432,11 @@ int GetGameVar(const char *szGameLabel, int lDefault, DDukeActor* sActor, int sP
 		}
 	}
 	return lDefault;
+}
+
+GameVarValue GetGameVar(const char* szGameLabel, int lDefault, DDukeActor* sActor, int sPlayer)
+{
+	return GetGameVar(szGameLabel, GameVarValue(lDefault), sActor, sPlayer);
 }
 
 //---------------------------------------------------------------------------
@@ -397,7 +455,7 @@ int GetGameValuePtr(char *szGameLabel)
 			{
 				I_FatalError("%s was overridden to something other than a player gamevar.", szGameLabel);
 			}
-			return aGameVars[i].lValue;
+			return aGameVars[i].indexValue;
 		}
 	}
 	I_FatalError("%s was overridden to something other than a player gamevar.", szGameLabel);
@@ -468,21 +526,21 @@ static int i_aplWeaponFireSound[MAX_WEAPONS];	// Sound made when firing (each ti
 static int i_aplWeaponSound2Time[MAX_WEAPONS];	// Alternate sound time
 static int i_aplWeaponSound2Sound[MAX_WEAPONS];	// Alternate sound sound ID
 
-int aplWeaponClip(int weapon, int player) { return ps[player].uservars[i_aplWeaponClip[weapon]]; }
-int aplWeaponReload(int weapon, int player) { return ps[player].uservars[i_aplWeaponReload[weapon]]; }
-int aplWeaponFireDelay(int weapon, int player) { return ps[player].uservars[i_aplWeaponFireDelay[weapon]]; }
-int aplWeaponHoldDelay(int weapon, int player) { return ps[player].uservars[i_aplWeaponHoldDelay[weapon]]; }
-int aplWeaponTotalTime(int weapon, int player) { return ps[player].uservars[i_aplWeaponTotalTime[weapon]]; }
-int aplWeaponFlags(int weapon, int player) { return ps[player].uservars[i_aplWeaponFlags[weapon]]; }
-int aplWeaponShoots(int weapon, int player) { return ps[player].uservars[i_aplWeaponShoots[weapon]]; }
-int aplWeaponSpawnTime(int weapon, int player) { return ps[player].uservars[i_aplWeaponSpawnTime[weapon]]; }
-int aplWeaponSpawn(int weapon, int player) { return ps[player].uservars[i_aplWeaponSpawn[weapon]]; }
-int aplWeaponShotsPerBurst(int weapon, int player) { return ps[player].uservars[i_aplWeaponShotsPerBurst[weapon]]; }
-int aplWeaponWorksLike(int weapon, int player) { return ps[player].uservars[i_aplWeaponWorksLike[weapon]]; }
-int aplWeaponInitialSound(int weapon, int player) { return ps[player].uservars[i_aplWeaponInitialSound[weapon]]; }
-int aplWeaponFireSound(int weapon, int player) { return ps[player].uservars[i_aplWeaponFireSound[weapon]]; }
-int aplWeaponSound2Time(int weapon, int player) { return ps[player].uservars[i_aplWeaponSound2Time[weapon]]; }
-int aplWeaponSound2Sound(int weapon, int player) { return ps[player].uservars[i_aplWeaponSound2Sound[weapon]]; }
+int aplWeaponClip(int weapon, int player) { return ps[player].uservars[i_aplWeaponClip[weapon]].safeValue(); }
+int aplWeaponReload(int weapon, int player) { return ps[player].uservars[i_aplWeaponReload[weapon]].safeValue(); }
+int aplWeaponFireDelay(int weapon, int player) { return ps[player].uservars[i_aplWeaponFireDelay[weapon]].safeValue(); }
+int aplWeaponHoldDelay(int weapon, int player) { return ps[player].uservars[i_aplWeaponHoldDelay[weapon]].safeValue(); }
+int aplWeaponTotalTime(int weapon, int player) { return ps[player].uservars[i_aplWeaponTotalTime[weapon]].safeValue(); }
+int aplWeaponFlags(int weapon, int player) { return ps[player].uservars[i_aplWeaponFlags[weapon]].safeValue(); }
+int aplWeaponShoots(int weapon, int player) { return ps[player].uservars[i_aplWeaponShoots[weapon]].safeValue(); }
+int aplWeaponSpawnTime(int weapon, int player) { return ps[player].uservars[i_aplWeaponSpawnTime[weapon]].safeValue(); }
+int aplWeaponSpawn(int weapon, int player) { return ps[player].uservars[i_aplWeaponSpawn[weapon]].safeValue(); }
+int aplWeaponShotsPerBurst(int weapon, int player) { return ps[player].uservars[i_aplWeaponShotsPerBurst[weapon]].safeValue(); }
+int aplWeaponWorksLike(int weapon, int player) { return ps[player].uservars[i_aplWeaponWorksLike[weapon]].safeValue(); }
+int aplWeaponInitialSound(int weapon, int player) { return ps[player].uservars[i_aplWeaponInitialSound[weapon]].safeValue(); }
+int aplWeaponFireSound(int weapon, int player) { return ps[player].uservars[i_aplWeaponFireSound[weapon]].safeValue(); }
+int aplWeaponSound2Time(int weapon, int player) { return ps[player].uservars[i_aplWeaponSound2Time[weapon]].safeValue(); }
+int aplWeaponSound2Sound(int weapon, int player) { return ps[player].uservars[i_aplWeaponSound2Sound[weapon]].safeValue(); }
 
 //---------------------------------------------------------------------------
 //
@@ -1166,11 +1224,11 @@ void FinalizeGameVars(void)
 	{
 		if (aGameVars[i].dwFlags & GAMEVAR_FLAG_PERPLAYER)
 		{
-			aGameVars[i].lValue = weapNdx++;
+			aGameVars[i].indexValue = weapNdx++;
 		}
 		if (aGameVars[i].dwFlags & GAMEVAR_FLAG_PERACTOR)
 		{
-			aGameVars[i].lValue = actorNdx++;
+			aGameVars[i].indexValue = actorNdx++;
 		}
 	}
 	for (auto& pl : ps) pl.uservars.Resize(weapNdx);
@@ -1200,7 +1258,7 @@ void SetupGameVarsForActor(DDukeActor* actor)
 	{
 		if (aGameVars[i].dwFlags & GAMEVAR_FLAG_PERACTOR)
 		{
-			actor->uservars[aGameVars[i].lValue] = aGameVars[i].initValue;
+			actor->uservars[aGameVars[i].indexValue] = aGameVars[i].initValue;
 		}
 	}
 }

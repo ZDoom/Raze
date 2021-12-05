@@ -19,19 +19,6 @@ inline int player_struct::GetPlayerNum()
 	return actor->s->yvel;
 }
 
-inline int ActorToScriptIndex(DDukeActor* a)
-{
-	if (!a) return -1;
-	return a->GetSpriteIndex();
-}
-
-inline DDukeActor* ScriptIndexToActor(int index)
-{
-	// only allow valid actors to get through here. Everything else gets null'ed.
-	if (index < 0 || index >= MAXSPRITES || hittype[index].s->statnum == MAXSTATUS) return nullptr;
-	return &hittype[index];
-}
-
 DDukeActor* spawn(DDukeActor* spawner, int type);
 
 inline int ldist(DDukeActor* s1, DDukeActor* s2)

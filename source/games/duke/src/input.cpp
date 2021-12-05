@@ -98,7 +98,7 @@ void hud_input(int plnum)
 		{
 			SetGameVarID(g_iReturnVarID, 0, nullptr, plnum);
 			OnEvent(EVENT_QUICKKICK, plnum, nullptr, -1);
-			if (GetGameVarID(g_iReturnVarID, nullptr, plnum) == 0)
+			if (GetGameVarID(g_iReturnVarID, nullptr, plnum).value() == 0)
 			{
 				p->quick_kick = 14;
 				if (!p->quick_kick_msg && plnum == screenpeek) FTA(QUOTE_MIGHTY_FOOT, p);
@@ -123,7 +123,7 @@ void hud_input(int plnum)
 		{
 			SetGameVarID(g_iReturnVarID, 0, nullptr, plnum);
 			OnEvent(EVENT_INVENTORY, plnum, nullptr, -1);
-			if (GetGameVarID(g_iReturnVarID, nullptr, plnum) == 0)
+			if (GetGameVarID(g_iReturnVarID, nullptr, plnum).value() == 0)
 			{
 				if (p->inven_icon > ICON_NONE && p->inven_icon <= ICON_HEATS) PlayerSetItemUsed(plnum, p->inven_icon);
 			}
@@ -133,7 +133,7 @@ void hud_input(int plnum)
 		{
 			SetGameVarID(g_iReturnVarID, 0, nullptr, plnum);
 			OnEvent(EVENT_USENIGHTVISION, plnum, nullptr, -1);
-			if (GetGameVarID(g_iReturnVarID, nullptr, plnum) == 0 && p->heat_amount > 0)
+			if (GetGameVarID(g_iReturnVarID, nullptr, plnum).value() == 0 && p->heat_amount > 0)
 			{
 				p->heat_on = !p->heat_on;
 				p->inven_icon = 5;
@@ -146,7 +146,7 @@ void hud_input(int plnum)
 		{
 			SetGameVarID(g_iReturnVarID, 0, nullptr, plnum);
 			OnEvent(EVENT_USESTEROIDS, plnum, nullptr, -1);
-			if (GetGameVarID(g_iReturnVarID, nullptr, plnum) == 0)
+			if (GetGameVarID(g_iReturnVarID, nullptr, plnum).value() == 0)
 			{
 				if (p->steroids_amount == 400)
 				{
@@ -229,13 +229,13 @@ void hud_input(int plnum)
 			{
 				SetGameVarID(g_iReturnVarID, dainv, nullptr, plnum);
 				OnEvent(EVENT_INVENTORYLEFT, plnum, nullptr, -1);
-				dainv = GetGameVarID(g_iReturnVarID, nullptr, plnum);
+				dainv = GetGameVarID(g_iReturnVarID, nullptr, plnum).safeValue();
 			}
 			if (PlayerInput(plnum, SB_INVNEXT))
 			{
 				SetGameVarID(g_iReturnVarID, dainv, nullptr, plnum);
 				OnEvent(EVENT_INVENTORYRIGHT, plnum, nullptr, -1);
-				dainv = GetGameVarID(g_iReturnVarID, nullptr, plnum);
+				dainv = GetGameVarID(g_iReturnVarID, nullptr, plnum).safeValue();
 			}
 			p->inven_icon = dainv;
 			// Someone must have really hated constant data, doing this with a switch/case (and of course also with literal numbers...)
@@ -273,7 +273,7 @@ void hud_input(int plnum)
 		{
 			SetGameVarID(g_iReturnVarID, 0, nullptr, plnum);
 			OnEvent(EVENT_HOLODUKEON, plnum, nullptr, -1);
-			if (GetGameVarID(g_iReturnVarID, nullptr, plnum) == 0)
+			if (GetGameVarID(g_iReturnVarID, nullptr, plnum).value() == 0)
 			{
 				if (!isRR())
 				{
@@ -330,7 +330,7 @@ void hud_input(int plnum)
 		{
 			SetGameVarID(g_iReturnVarID, 0, nullptr, plnum);
 			OnEvent(EVENT_USENIGHTVISION, plnum, nullptr, -1);
-			if (GetGameVarID(g_iReturnVarID, nullptr, plnum) == 0)
+			if (GetGameVarID(g_iReturnVarID, nullptr, plnum).value() == 0)
 			{
 				if (p->yehaa_timer == 0)
 				{
@@ -362,7 +362,7 @@ void hud_input(int plnum)
 		{
 			SetGameVarID(g_iReturnVarID, 0, nullptr, plnum);
 			OnEvent(EVENT_USEMEDKIT, plnum, nullptr, -1);
-			if (GetGameVarID(g_iReturnVarID, nullptr, plnum) == 0)
+			if (GetGameVarID(g_iReturnVarID, nullptr, plnum).value() == 0)
 			{
 				if (p->firstaid_amount > 0 && p->GetActor()->s->extra < gs.max_player_health)
 				{
@@ -415,7 +415,7 @@ void hud_input(int plnum)
 		{
 			SetGameVarID(g_iReturnVarID, 0, nullptr, plnum);
 			OnEvent(EVENT_USEJETPACK, plnum, nullptr, -1);
-			if (GetGameVarID(g_iReturnVarID, nullptr, plnum) == 0)
+			if (GetGameVarID(g_iReturnVarID, nullptr, plnum).value() == 0)
 			{
 				if (!isRR())
 				{
@@ -483,7 +483,7 @@ void hud_input(int plnum)
 		{
 			SetGameVarID(g_iReturnVarID, 0, nullptr, plnum);
 			OnEvent(EVENT_TURNAROUND, plnum, nullptr, -1);
-			if (GetGameVarID(g_iReturnVarID, nullptr, plnum) != 0)
+			if (GetGameVarID(g_iReturnVarID, nullptr, plnum).value() != 0)
 			{
 				p->sync.actions &= ~SB_TURNAROUND;
 			}

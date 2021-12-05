@@ -6,6 +6,39 @@ BEGIN_DUKE_NS
 
 // gamedef.c
 
+class DDukeActor;
+
+// Game vars can reference actors, we need a type-safe way to handle that so that index values won't get misappropriated and actors can be GC'd.
+class GameVarValue
+{
+	enum EType
+	{
+		Actor = 0,
+		Value = 1
+	};
+	union
+	{
+		DDukeActor* ActorP;
+		uint64_t index;
+	};
+
+public:
+	GameVarValue() = default;
+	explicit GameVarValue(DDukeActor* actor_) { ActorP = actor_; assert(isActor()); /* GC:WriteBarrier(actor);*/ }
+	explicit GameVarValue(int val) { index = (val << 8) | Value; }
+
+	bool isActor() const { return (index & 7) == Actor; }
+	bool isValue() const { return (index & 7) == Value; }
+
+	DDukeActor* actor() const { assert(isActor()); return /*GC::ReadBarrier*/(ActorP); }
+	int value() const { assert(isValue()); return index >> 8; }
+	int safeValue() const { return isValue() ? value() : actor() == nullptr ? 0 : -1; }	// return -1 for valid actors and 0 for null. This allows most comparisons to work.
+	DDukeActor* safeActor() const { return isActor() ? actor() : nullptr; }
+
+	bool operator==(const GameVarValue& other) const { return index == other.index; }
+	bool operator!=(const GameVarValue& other) const { return index != other.index; }
+};
+
 enum
 {
 	// store global game definitions
@@ -95,12 +128,13 @@ typedef struct
 {
 	union
 	{
-		int lValue;
+		GameVarValue lValue;
+		int indexValue;
 		int* plValue;
 		int (*getter)();
 	};
-	int defaultValue;
-	int initValue;	// this is what gets copied to players/actors upon spawn. This is not the same as the default!
+	GameVarValue defaultValue;
+	GameVarValue initValue;	// this is what gets copied to players/actors upon spawn. This is not the same as the default!
 	unsigned int dwFlags;
 	char szLabel[MAXVARLABEL];
 } MATTGAMEVAR;
@@ -126,10 +160,15 @@ int GetDefID(const char *szGameLabel);
 void ClearGameVars(void);
 void AddSystemVars();
 void ResetGameVars(void);
-struct DDukeActor;
-int GetGameVarID(int id, DDukeActor* sActor, int sPlayer);
+class DDukeActor;
+class GameVarValue;
+GameVarValue GetGameVarID(int id, DDukeActor* sActor, int sPlayer);
+void SetGameVarID(int id, GameVarValue lValue, DDukeActor* sActor, int sPlayer);
+GameVarValue GetGameVar(const char* szGameLabel, GameVarValue lDefault, DDukeActor* sActor, int sPlayer);
+GameVarValue GetGameVar(const char* szGameLabel, int lDefault, DDukeActor* sActor, int sPlayer);
 void SetGameVarID(int id, int lValue, DDukeActor* sActor, int sPlayer);
-int GetGameVar(const char* szGameLabel, int lDefault, DDukeActor* sActor, int sPlayer);
+void SetGameVarID(int id, DDukeActor* lValue, DDukeActor* sActor, int sPlayer);
+
 
 void ClearGameEvents();
 bool IsGameEvent(int i);

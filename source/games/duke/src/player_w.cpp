@@ -162,7 +162,7 @@ void fireweapon_ww(int snum)
 		SetGameVarID(g_iWeaponVarID, p->curr_weapon, p->GetActor(), snum);
 		SetGameVarID(g_iWorksLikeVarID, aplWeaponWorksLike(p->curr_weapon, snum), p->GetActor(), snum);
 		OnEvent(EVENT_FIRE, snum, p->GetActor(), -1);
-		if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum) == 0)
+		if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum).value() == 0)
 		{
 			switch (aplWeaponWorksLike(p->curr_weapon, snum))
 			{
@@ -350,8 +350,8 @@ void operateweapon_ww(int snum, ESyncBits actions)
 			if (j)
 			{
 				{
-					int lGrenadeLifetime = GetGameVar("GRENADE_LIFETIME", NAM_GRENADE_LIFETIME, nullptr, snum);
-					int lGrenadeLifetimeVar = GetGameVar("GRENADE_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, nullptr, snum);
+					int lGrenadeLifetime = GetGameVar("GRENADE_LIFETIME", NAM_GRENADE_LIFETIME, nullptr, snum).value();
+					int lGrenadeLifetimeVar = GetGameVar("GRENADE_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, nullptr, snum).value();
 					// set timer.  blows up when at zero....
 					j->s->extra = lGrenadeLifetime
 						+ MulScale(krand(), lGrenadeLifetimeVar, 14)
