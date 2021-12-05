@@ -195,14 +195,6 @@ struct CollisionBase
 		return kHitWall;
 	}
 
-	int setSprite(int num)
-	{
-		*this = {};
-		type = kHitSprite;
-		hitActor = actorArray[num];
-		return kHitSprite;
-	}
-
 	int setSprite(DCoreActor* num)
 	{
 		*this = {};
@@ -216,17 +208,6 @@ struct CollisionBase
 		hitSector = nullptr;
 		type = kHitVoid;
 		return kHitVoid;
-	}
-
-	// this hack job needs to go. We still need it for the time being.
-	int setFromEngine(int value)
-	{
-		int type = value & kHitTypeMaskSW;
-		if (type == kHitSector) setSector(value & kHitIndexMask);
-		else if (type == kHitWall) setWall(value & kHitIndexMask);
-		else if (type == kHitSprite) setSprite(value & kHitIndexMask);
-		else setNone();
-		return type;
 	}
 };
 
