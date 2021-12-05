@@ -6007,7 +6007,7 @@ static void actCheckExplosion()
 				{
 					if (gImpactSpritesList[i] == nullptr) continue;
 
-					auto impactactor = gImpactSpritesList[i];
+					DBloodActor* impactactor = gImpactSpritesList[i];
 					if (!impactactor->hasX() || !impactactor->s().insector() || (impactactor->s().flags & kHitagFree) != 0)	continue;
 
 					if (!CheckSector(sectorMap, &impactactor->s()) || !CheckProximity(impactactor, x, y, z, pSector, radius))

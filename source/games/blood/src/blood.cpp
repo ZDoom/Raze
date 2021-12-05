@@ -78,6 +78,24 @@ size_t DBloodActor::PropagateMark()
 	return 2 + Super::PropagateMark();
 }
 
+static void markgcroots()
+{
+	GC::MarkArray(gProxySpritesList, gProxySpritesCount);
+	GC::MarkArray(gSightSpritesList, gSightSpritesCount);
+	GC::MarkArray(gPhysSpritesList, gPhysSpritesCount);
+	GC::MarkArray(gImpactSpritesList, gImpactSpritesCount);
+	for (auto& pl : gPlayer)
+	{
+		GC::Mark(pl.actor);
+		GC::MarkArray(pl.ctfFlagState, 2);
+		GC::Mark(pl.aimTarget);
+		GC::MarkArray(pl.aimTargets, 16);
+		GC::Mark(pl.fragger);
+		GC::Mark(pl.voodooTarget);
+	}
+}
+
+
 void InitCheats();
 
 bool bNoDemo = false;
@@ -518,6 +536,7 @@ void GameInterface::loadPalette(void)
 void GameInterface::app_init()
 {
 	SetupActors(RUNTIME_CLASS(DBloodActor));
+	GC::AddMarkerFunc(markgcroots);
 	InitCheats();
 	memcpy(&gGameOptions, &gSingleGameOptions, sizeof(GAMEOPTIONS));
 	gGameOptions.nMonsterSettings = !userConfig.nomonsters;

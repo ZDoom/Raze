@@ -46,8 +46,8 @@ struct XSPRITE {
        };
     };
 
-    DBloodActor* target;           // target sprite
-    DBloodActor* burnSource;
+    TObjPtr<DBloodActor*> target;           // target sprite
+    TObjPtr<DBloodActor*> burnSource;
 
     int32_t targetX;          // target x
     int32_t targetY;          // target y

@@ -26,8 +26,8 @@ public:
 	DUDEEXTRA dudeExtra;
 	SPRITEMASS spriteMass;
 	GENDUDEEXTRA genDudeExtra;
-	DBloodActor* prevmarker;	// needed by the nnext marker code. This originally hijacked targetX in XSPRITE
-	DBloodActor* ownerActor;	// was previously stored in the sprite's owner field.
+	TObjPtr<DBloodActor*> prevmarker;	// needed by the nnext marker code. This originally hijacked targetX in XSPRITE
+	TObjPtr<DBloodActor*> ownerActor;	// was previously stored in the sprite's owner field.
 	POINT3D basePoint;
 	EventObject condition[2];
 	bool explosionhackflag; // this originally hijacked the target field which is not safe when working with pointers.

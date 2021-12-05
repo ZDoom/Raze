@@ -80,7 +80,7 @@ extern POSTURE gPostureDefaults[kModeMax][kPostureMax];
 
 struct PLAYER
 {
-    DBloodActor*        actor;
+    TObjPtr<DBloodActor*>        actor;
     spritetype*         pSprite;
     XSPRITE*            pXSprite;
     DUDEINFO*           pDudeInfo;
@@ -113,7 +113,7 @@ struct PLAYER
     bool                isUnderwater;
     bool                hasKey[8];
     int8_t              hasFlag;
-    DBloodActor*        ctfFlagState[2];
+    TObjPtr<DBloodActor*>        ctfFlagState[2];
     int                 damageControl[7];
     int8_t              curWeapon;
     int8_t              nextWeapon;
@@ -137,15 +137,15 @@ struct PLAYER
     //int               relAim;
     //int               at1ce;
     //int               at1d2;
-    DBloodActor*        aimTarget;  // aim target sprite
+    TObjPtr<DBloodActor*>        aimTarget;  // aim target sprite
     int                 aimTargetsCount;
-    DBloodActor*        aimTargets[16];
+    TObjPtr<DBloodActor*>        aimTargets[16];
     int                 deathTime;
     int                 pwUpTime[kMaxPowerUps];
     int                 fragCount;
     int                 fragInfo[8];
     int                 teamId;
-    DBloodActor*        fragger;
+    TObjPtr<DBloodActor*>        fragger;
     int                 underwaterTime;
     int                 bubbleTime;
     int                 restTime;
@@ -160,7 +160,7 @@ struct PLAYER
     int                 armor[3];      // armor
     //int               at342;
     //int               at346;
-    DBloodActor*        voodooTarget;
+    TObjPtr<DBloodActor*>        voodooTarget;
     int                 voodooTargets;  // --> useless
     int                 voodooVar1;     // --> useless
     int                 vodooVar2;      // --> useless

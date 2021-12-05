@@ -40,14 +40,6 @@ inline int mulscale8(int a, int b) { return MulScale(a, b, 8); }
 
 bool gAllowTrueRandom = false;
 bool gEventRedirectsUsed = false;
-DBloodActor* gProxySpritesList[];  // list of additional sprites which can be triggered by Proximity
-int gProxySpritesCount;   // current count
-DBloodActor* gSightSpritesList[];  // list of additional sprites which can be triggered by Sight
-int gSightSpritesCount;   // current count
-DBloodActor* gPhysSpritesList[];   // list of additional sprites which can be affected by physics
-int gPhysSpritesCount;    // current count
-DBloodActor* gImpactSpritesList[];
-int gImpactSpritesCount;
 
 
 
@@ -1176,14 +1168,15 @@ void nnExtProcessSuperSprites()
     {
         for (int i = 0; i < gProxySpritesCount; i++)
         {
-            if (!gProxySpritesList[i] || !gProxySpritesList[i]->hasX()) continue;
+            DBloodActor* pProx = gProxySpritesList[i];
+            if (!pProx || !pProx->hasX()) continue;
 
-            auto const pProxSpr = &gProxySpritesList[i]->s();
-            XSPRITE* pXProxSpr = &gProxySpritesList[i]->x();
+            auto const pProxSpr = &pProx->s();
+            XSPRITE* pXProxSpr = &pProx->x();
             if (!pXProxSpr->Proximity || (!pXProxSpr->Interrutable && pXProxSpr->state != pXProxSpr->restState) || pXProxSpr->locked == 1
                 || pXProxSpr->isTriggered) continue;  // don't process locked or triggered sprites
 
-            int okDist = (gProxySpritesList[i]->IsDudeActor()) ? 96 : ClipLow(pProxSpr->clipdist * 3, 32);
+            int okDist = (pProx->IsDudeActor()) ? 96 : ClipLow(pProxSpr->clipdist * 3, 32);
             int x = pProxSpr->x;
             int y = pProxSpr->y;
             int z = pProxSpr->z;	
@@ -1197,7 +1190,7 @@ void nnExtProcessSuperSprites()
                     if (!affected->hasX() || affected->x().health <= 0) continue;
                     else if (CheckProximity(affected, x, y, z, pSect, okDist))
                     {
-                        trTriggerSprite(gProxySpritesList[i], kCmdSpriteProximity);
+                        trTriggerSprite(pProx, kCmdSpriteProximity);
                         break;
                     }
                 }
@@ -1212,7 +1205,7 @@ void nnExtProcessSuperSprites()
 
                     if (pPlayer->pXSprite->health > 0 && CheckProximity(gPlayer->actor, x, y, z, pSect, okDist))
                     {
-                        trTriggerSprite(gProxySpritesList[i], kCmdSpriteProximity);
+                        trTriggerSprite(pProx, kCmdSpriteProximity);
                         break;
                     }
                 }
@@ -1225,19 +1218,20 @@ void nnExtProcessSuperSprites()
     {
         for (int i = 0; i < gSightSpritesCount; i++)
         {
-            if (!gSightSpritesList[i] || !gSightSpritesList[i]->hasX()) continue;
+            DBloodActor* pSight = gSightSpritesList[i];
+            if (!pSight || !pSight->hasX()) continue;
 
-            auto const pSightSpr = &gSightSpritesList[i]->s();
-            XSPRITE* pXSightSpr = &gSightSpritesList[i]->x();
+            auto const pSightSpr = &pSight->s();
+            XSPRITE* pXSightSpr = &pSight->x();
 
             if ((!pXSightSpr->Interrutable && pXSightSpr->state != pXSightSpr->restState) || pXSightSpr->locked == 1 ||
                 pXSightSpr->isTriggered) continue; // don't process locked or triggered sprites
 
             // sprite is drawn for one of players
-            if ((pXSightSpr->unused3 & kTriggerSpriteScreen) && (gSightSpritesList[i]->s().cstat2 & CSTAT2_SPRITE_MAPPED))
+            if ((pXSightSpr->unused3 & kTriggerSpriteScreen) && (pSight->s().cstat2 & CSTAT2_SPRITE_MAPPED))
             {
-                trTriggerSprite(gSightSpritesList[i], kCmdSpriteSight);
-                gSightSpritesList[i]->s().cstat2 &= ~CSTAT2_SPRITE_MAPPED;
+                trTriggerSprite(pSight, kCmdSpriteSight);
+                pSight->s().cstat2 &= ~CSTAT2_SPRITE_MAPPED;
                 continue;
             }
 
@@ -1259,7 +1253,7 @@ void nnExtProcessSuperSprites()
                 {
                     if (pXSightSpr->Sight)
                     {
-                    trTriggerSprite(gSightSpritesList[i], kCmdSpriteSight);
+                    trTriggerSprite(pSight, kCmdSpriteSight);
                         break;
                     }
 
@@ -1274,7 +1268,7 @@ void nnExtProcessSuperSprites()
                         if (!vector)
                             pSightSpr->cstat &= ~CSTAT_SPRITE_BLOCK_HITSCAN;
 
-                        if (gHitInfo.actor() == gSightSpritesList[i])
+                        if (gHitInfo.actor() == pSight)
                         {
                             trTriggerSprite(gHitInfo.actor(), kCmdSpriteSight);
                             break;
@@ -1290,7 +1284,7 @@ void nnExtProcessSuperSprites()
     {
         for (int i = 0; i < gPhysSpritesCount; i++)
         {
-            auto debrisactor = gPhysSpritesList[i];
+            DBloodActor* debrisactor = gPhysSpritesList[i];
             if (debrisactor == nullptr || !debrisactor->hasX()) continue;
             auto const pDebris = &debrisactor->s();
 
