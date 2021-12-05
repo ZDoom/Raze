@@ -237,9 +237,8 @@ static void SetWallPalV5()
 	}
 }
 
-void ValidateSprite(spritetype& spr)
+void ValidateSprite(spritetype& spr, int index)
 {
-	int index = int(&spr - sprite);
 	bool bugged = false;
 	if ((unsigned)spr.statnum >= MAXSTATUS)
 	{
@@ -297,7 +296,6 @@ static void ReadSpriteV7(FileReader& fr, spritetype& spr)
 	spr.hitag = fr.ReadInt16();
 	spr.extra = fr.ReadInt16();
 	spr.detail = 0;
-	ValidateSprite(spr);
 }
 
 static void ReadSpriteV6(FileReader& fr, spritetype& spr)
@@ -326,7 +324,6 @@ static void ReadSpriteV6(FileReader& fr, spritetype& spr)
 	spr.extra = fr.ReadInt16();
 	spr.blend = 0;
 	spr.detail = 0;
-	ValidateSprite(spr);
 }
 
 static void ReadSpriteV5(FileReader& fr, spritetype& spr)
@@ -361,7 +358,6 @@ static void ReadSpriteV5(FileReader& fr, spritetype& spr)
 	spr.xoffset = 0;
 	spr.yoffset = 0;
 	spr.detail = 0;
-	ValidateSprite(spr);
 }
 
 
@@ -431,8 +427,6 @@ void allocateMapArrays(int numsprites)
 	memset(sector.Data(), 0, sizeof(sectortype) * numsectors);
 	wall.Resize(numwalls);
 	memset(wall.Data(), 0, sizeof(walltype) * numwalls);
-	memset(spriteext, 0, sizeof(spriteext_t) * MAXSPRITES);
-	memset(spritesmooth, 0, sizeof(spritesmooth_t) * (MAXSPRITES + MAXUNIQHUDID));
 
 	ClearAutomap();
 }
@@ -508,6 +502,8 @@ void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang,
 		case 6: ReadSpriteV6(fr, sprites.sprites[i]); break;
 		default: ReadSpriteV7(fr, sprites.sprites[i]); break;
 		}
+		ValidateSprite(sprites.sprites[i], i);
+
 	}
 
 	artSetupMapArt(filename);

@@ -17,6 +17,11 @@ public:
 	DCoreActor* prevStat, * nextStat;
 	DCoreActor* prevSect, * nextSect;
 
+	spritetype spr;
+	spriteext_t sprext;
+	spritesmooth_t spsmooth;
+
+
 	virtual ~DCoreActor() = default;
 	virtual void Serialize(FSerializer& arc);
 
@@ -25,19 +30,34 @@ public:
 		return (unsigned)s().statnum < MAXSTATUS;
 	}
 
-	spritetype& s() const
+	const spritetype& s() const
 	{ 
-		return sprite[index]; 
+		return spr;
 	}
 
-	spriteext_t& sx() const
+	spritetype& s()
 	{
-		return spriteext[index];
+		return spr;
 	}
 
-	spritesmooth_t& sm() const
+	const spriteext_t& sx() const
 	{
-		return spritesmooth[index];
+		return sprext;
+	}
+
+	spriteext_t& sx()
+	{
+		return sprext;
+	}
+
+	const spritesmooth_t& sm() const
+	{
+		return spsmooth;
+	}
+
+	spritesmooth_t& sm()
+	{
+		return spsmooth;
 	}
 
 	int GetIndex() const

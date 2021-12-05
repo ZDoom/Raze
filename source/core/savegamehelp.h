@@ -22,14 +22,6 @@ void M_Autosave();
 #define SAVEGAME_EXT ".dsave"
 
 
-template<> inline FSerializer& Serialize(FSerializer& arc, const char* keyname, spritetype*& w, spritetype** def)
-{
-	int ndx = w ? int(w - sprite) : -1;
-	arc(keyname, ndx);
-	w = ndx == -1 ? nullptr : sprite + ndx;
-	return arc;
-}
-
 template<> inline FSerializer& Serialize(FSerializer& arc, const char* keyname, sectortype*& w, sectortype** def)
 {
 	int ndx = w ? sectnum(w) : -1;

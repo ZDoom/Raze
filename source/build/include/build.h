@@ -143,12 +143,8 @@ struct usermaphack_t
     uint8_t md4[16]{};
 };
 
-extern spriteext_t spriteext[MAXSPRITES];
-extern spritesmooth_t spritesmooth[MAXSPRITES + MAXUNIQHUDID];
-
 extern TArray<sectortype> sector;
 extern TArray<walltype> wall;
-extern spritetype sprite[MAXSPRITES];
 EXTERN int leveltimer;
 
 extern TArray<sectortype> sectorbackup;
@@ -328,7 +324,7 @@ struct SpawnSpriteDef
 void insertAllSprites(SpawnSpriteDef& sprites);
 
 void allocateMapArrays(int numsprites);
-void ValidateSprite(spritetype& spr);
+void ValidateSprite(spritetype& spr, int index);
 void engineLoadBoard(const char *filename, int flags, vec3_t *dapos, int16_t *daang, int *dacursectnum, SpawnSpriteDef& sprites);
 void loadMapBackup(const char* filename);
 void G_LoadMapHack(const char* filename, const unsigned char*, SpawnSpriteDef& sprites);

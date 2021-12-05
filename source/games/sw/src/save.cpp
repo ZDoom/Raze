@@ -459,7 +459,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYERstruct& w, P
 			("lo_sectp", w.lo_sectp)
 			("hi_sp", w.highActor)
 			("lo_sp", w.lowActor)
-			("last_camera_sp", w.last_camera_sp)
+			("last_camera_sp", w.last_camera_act)
 			("circle_camera_dist", w.circle_camera_dist)
 			("six", w.six)
 			("siy", w.siy)

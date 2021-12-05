@@ -655,6 +655,10 @@ FSerializer &Serialize(FSerializer &arc, const char *key, walltype &c, walltype 
 void DCoreActor::Serialize(FSerializer& arc)
 {
 	// nothing here yet.
+	arc("sprite", spr)
+		("spriteext", sprext);
+
+	if (arc.isReading()) spsmooth = {};
 }
 
 

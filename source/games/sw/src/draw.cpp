@@ -1171,14 +1171,14 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, sectortype** tsect, binan
 
                 if (!player_in_camera && pp->camera_check_time_delay > 0)
                 {
-                    if (pp->last_camera_sp != sp)
+                    if (pp->last_camera_act != actor)
                         continue;
                 }
 
                 switch (sp->clipdist)
                 {
                 case 1:
-                    pp->last_camera_sp = sp;
+                    pp->last_camera_act = actor;
                     CircleCamera(tx, ty, tz, tsect, tang, 0);
                     found_camera = true;
                     break;
@@ -1187,7 +1187,7 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, sectortype** tsect, binan
                 {
                     int xvect,yvect,zvect,zdiff;
 
-                    pp->last_camera_sp = sp;
+                    pp->last_camera_act = actor;
 
                     xvect = ang.bcos(-3);
                     yvect = ang.bsin(-3);

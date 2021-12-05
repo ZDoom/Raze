@@ -41,12 +41,8 @@
 #include "gl_renderer.h"
 #endif
 
-spriteext_t spriteext[MAXSPRITES];
-spritesmooth_t spritesmooth[MAXSPRITES + MAXUNIQHUDID];
-
 TArray<sectortype> sector;
 TArray<walltype> wall;
-spritetype sprite[MAXSPRITES];
 
 int32_t r_rortexture = 0;
 int32_t r_rortexturerange = 0;

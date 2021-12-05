@@ -771,7 +771,7 @@ struct PLAYERstruct
     int ceiling_dist,floor_dist;
     SECTORp hi_sectp, lo_sectp;
 
-    SPRITEp last_camera_sp;
+    DSWActor* last_camera_act;
     int circle_camera_dist;
     int six,siy,siz; // save player interp position for PlayerSprite
     int16_t siang;
