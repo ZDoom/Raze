@@ -361,56 +361,6 @@ static void ReadSpriteV5(FileReader& fr, spritetype& spr)
 }
 
 
-void insertAllSprites(SpawnSpriteDef& sprites)
-{
-	// This function is stupid because it exploits side effects of insertsprite and should be redone by only inserting the valid sprites.
-	int i, realnumsprites = sprites.sprites.Size();
-	int numsprites = realnumsprites;
-
-	for (i = 0; i < numsprites; i++)
-	{
-		auto actor = actorArray[i];
-		bool removeit = false;
-		auto& spr = actor->s();
-		spr = sprites.sprites[i];
-		if (sprites.sprext.Size()) actor->sx() = sprites.sprext[i];
-		else actor->sx() = {};
-		actor->sm() = {};
-
-		if (spr.statnum == MAXSTATUS)
-		{
-			spr.statnum = spr.sectnum = 0;
-			removeit = true;
-		}
-
-		//insertsprite(spr.sectnum, spr.statnum, true);
-
-		if (removeit)
-		{
-			spr.statnum = MAXSTATUS;
-			realnumsprites--;
-		}
-	}
-
-	if (numsprites != realnumsprites)
-	{
-		for (i = 0; i < numsprites; i++)
-		{
-			auto actor = actorArray[i];
-			auto& spr = actor->s();
-
-			if (spr.statnum == MAXSTATUS)
-			{
-				// Now remove it for real!
-				spr.statnum = 0;
-				//deletesprite(i);
-			}
-		}
-	}
-
-	assert(realnumsprites == Numsprites);
-}
-
 void addBlockingPairs();
 
 // allocates global map storage. Blood will also call this.
