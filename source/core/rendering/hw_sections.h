@@ -17,7 +17,7 @@ struct Section
 {
 	int sector;
 	// this is the whole point of sections - instead of just having a start index and count, we have an explicit list of lines that's a lot easier to change when needed.
-	TArray<int16_t> lines;	
+	TArray<int> lines;	
 };
 
 // giving 25% more may be a bit high as normally this should be small numbers only.
