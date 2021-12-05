@@ -210,7 +210,7 @@ bool WarpSectorInfo(sectortype* sect, DSWActor** sp_warp)
 {
     *sp_warp = nullptr;
 
-    if (!TEST(sect->extra, SECTFX_WARP_SECTOR))
+    if (sect && !TEST(sect->extra, SECTFX_WARP_SECTOR))
         return false;
 
     SWStatIterator it(STAT_WARP);
