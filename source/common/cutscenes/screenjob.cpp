@@ -334,7 +334,7 @@ bool StartCutscene(const char* s, int flags, const CompletionFunc& completion)
 {
 	CutsceneDef def;
 	def.function = s;
-	return StartCutscene(def, 0, completion);
+	return StartCutscene(def, flags, completion);
 }
 
 //=============================================================================
