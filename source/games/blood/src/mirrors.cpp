@@ -120,8 +120,8 @@ void InitMirrors(void)
             if (link2 == nullptr)
                 continue;
 
-            int j = link2->s().sectnum;
             auto sectj = link2->s().sector();
+            int j = sectnum(sectj);
             if (sectj->ceilingpicnum != 504)
                 I_Error("Lower link sector %d doesn't have mirror picnum\n", j);
             mirror[mirrorcnt].type = 2;

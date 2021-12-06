@@ -621,7 +621,7 @@ void viewDrawScreen(bool sceneonly)
         BloodStatIterator it(kStatExplosion);
         while (auto actor = it.Next())
         {
-            if (actor->hasX() && gotsector[actor->s().sectnum])
+            if (actor->hasX() && gotsector[actor->s().sectno()])
             {
                 brightness += actor->x().data3 * 32;
             }
@@ -635,7 +635,7 @@ void viewDrawScreen(bool sceneonly)
             case kMissileTeslaAlt:
             case kMissileFlareAlt:
             case kMissileTeslaRegular:
-                if (gotsector[pSprite->sectnum]) brightness += 256;
+                if (gotsector[pSprite->sectno()]) brightness += 256;
                 break;
             }
         }

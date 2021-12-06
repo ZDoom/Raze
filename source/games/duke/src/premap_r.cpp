@@ -510,7 +510,7 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 					{
 						auto spr = act->s;
 						if (spr->picnum == RRTILE66)
-							if (spr->lotag == sj->sectnum)
+							if (spr->lotag == sj->sectno()) // bad map format design... Should have used a tag instead...
 							{
 								childsectnum = spr->sector();
 								deletesprite(act);

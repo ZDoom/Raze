@@ -677,7 +677,7 @@ bool HWLineToSpritePortal::Setup(HWDrawInfo* di, FRenderState& rstate, Clipper* 
 	int origy = vp.Pos.Y * -16;
 
 	vp.SectNums = nullptr;
-	vp.SectCount = camera->sectnum;
+	vp.SectCount = camera->sectno();
 	vp.Pos.X = npos.X;
 	vp.Pos.Y = npos.Y;
 

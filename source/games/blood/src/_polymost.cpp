@@ -35,7 +35,7 @@ void collectTSpritesForPortal(int x, int y, int i, int interpolation)
                 tspritetype* pTSprite = &pm_tsprite[pm_spritesortcnt++];
                 *pTSprite = {};
                 pTSprite->type = pSprite->type;
-                pTSprite->sectnum = nSector2;
+                pTSprite->setsector(nSector2);
                 pTSprite->x = pSprite->x + dx;
                 pTSprite->y = pSprite->y + dy;
                 pTSprite->z = pSprite->z + dz;

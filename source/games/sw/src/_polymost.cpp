@@ -123,7 +123,7 @@ void FAF_DrawRooms(int x, int y, int z, fixed_t q16ang, fixed_t q16horiz, int se
     {
         auto sp = &actor->s();
         // manually set gotpic
-        if (gotsector[sp->sectnum])
+        if (gotsector[sp->sectno()])
         {
             setgotpic(FAF_MIRROR_PIC);
         }

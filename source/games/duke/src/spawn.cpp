@@ -122,7 +122,7 @@ DDukeActor* EGS(sectortype* whatsectp, int s_x, int s_y, int s_z, int s_pn, int8
 		s->hitag = 0;
 	}
 
-	if (show2dsector[s->sectnum]) act->s->cstat2 |= CSTAT2_SPRITE_MAPPED;
+	if (show2dsector[s->sectno()]) act->s->cstat2 |= CSTAT2_SPRITE_MAPPED;
 	else act->s->cstat2 &= ~CSTAT2_SPRITE_MAPPED;
 
 	act->sx() = {};

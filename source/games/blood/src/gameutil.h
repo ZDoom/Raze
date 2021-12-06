@@ -53,7 +53,7 @@ int picHeight(int nPic, int repeat);
 
 inline bool CheckSector(const BitArray& bits, spritetype* spr)
 {
-    return bits[spr->sectnum];
+    return bits[spr->sectno()];
 }
 
 
