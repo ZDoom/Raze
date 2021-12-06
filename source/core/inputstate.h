@@ -111,6 +111,11 @@ inline bool SyncInput()
 	return gamesetinput || cl_syncinput;
 }
 
+inline float backendinputscale()
+{
+	return (1.f / 16.f);
+}
+
 //---------------------------------------------------------------------------
 //
 // Inline functions to help with edge cases where synchronised input is needed.

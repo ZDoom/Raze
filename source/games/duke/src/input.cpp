@@ -39,6 +39,9 @@ source as it is released.
 #include "v_video.h"
 #include "dukeactor.h"
 
+EXTERN_CVAR(Float, m_sensitivity_x)
+EXTERN_CVAR(Float, m_yaw)
+
 BEGIN_DUKE_NS
 
 // State timer counters. 
@@ -733,6 +736,10 @@ static void processVehicleInput(player_struct *p, ControlInfo* const hidInput, I
 {
 	bool const kbdLeft = buttonMap.ButtonDown(gamefunc_Turn_Left) || buttonMap.ButtonDown(gamefunc_Strafe_Left);
 	bool const kbdRight = buttonMap.ButtonDown(gamefunc_Turn_Right) || buttonMap.ButtonDown(gamefunc_Strafe_Right);
+
+	// Cancel out micro-movement
+	if (fabs(hidInput->mouseturnx) < (m_sensitivity_x * m_yaw * backendinputscale() * 2.f)) hidInput->mouseturnx = 0;
+
 	p->vehTurnLeft = kbdLeft || hidInput->mouseturnx < 0 || hidInput->dyaw < 0;
 	p->vehTurnRight = kbdRight || hidInput->mouseturnx > 0 || hidInput->dyaw > 0;
 
@@ -753,7 +760,7 @@ static void processVehicleInput(player_struct *p, ControlInfo* const hidInput, I
 		input.avel = (float)boatApplyTurn(p, hidInput, kbdLeft, kbdRight, scaleAdjust);
 	}
 
-	loc.fvel = (int16_t)clamp<int>(xs_CRoundToInt(p->MotoSpeed), -(MAXVELMOTO >> 3), MAXVELMOTO);
+	loc.fvel = clamp<int16_t>(xs_CRoundToInt(p->MotoSpeed), -(MAXVELMOTO >> 3), MAXVELMOTO);
 	input.avel *= BAngToDegree;
 	loc.avel += input.avel;
 }
