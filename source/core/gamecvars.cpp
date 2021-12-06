@@ -65,22 +65,22 @@ CVARD(Bool, cl_autosavedeletion, true, CVAR_ARCHIVE, "enable/disable automatic d
 CVARD(Int, cl_maxautosaves, 8, CVAR_ARCHIVE, "number of autosaves to keep before deleting the oldest") // Not implemented for Blood
 CVARD(Bool, cl_obituaries, true, CVAR_ARCHIVE, "enable/disable multiplayer death messages") // Not implemented 
 CVARD(Bool, cl_idplayers, true, CVAR_ARCHIVE, "enable/disable name display when aiming at opponents")
-CVARD(Bool, cl_weaponsway, true, CVAR_ARCHIVE, "enable/disable player weapon swaying")
+CVARD(Bool, cl_weaponsway, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable player weapon swaying")
 
 // Todo: Consolidate these to be consistent across games?
-CVARD(Bool, cl_viewbob, true, CVAR_ARCHIVE, "enable/disable player head bobbing")
+CVARD(Bool, cl_viewbob, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable player head bobbing")
 CVARD(Bool, cl_viewhbob, true, CVAR_ARCHIVE, "enable/disable view horizontal bobbing") // Only implemented in Blood
 CVARD(Bool, cl_viewvbob, true, CVAR_ARCHIVE, "enable/disable view vertical bobbing") // Only implemented in Blood
 
-CVARD(Bool, cl_interpolate, true, CVAR_ARCHIVE, "enable/disable view interpolation") // only implemented in Blood
-CVARD(Bool, cl_slopetilting, false, CVAR_ARCHIVE, "enable/disable slope tilting") // only implemented in Blood
-CVARD(Int, cl_showweapon, 1, CVAR_ARCHIVE, "enable/disable show weapons") // only implemented in Blood
+CVARD(Bool, cl_interpolate, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable view interpolation")
+CVARD(Bool, cl_slopetilting, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable slope tilting")
+CVARD(Int, cl_showweapon, 1, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable show weapons")
 CVARD(Bool, cl_sointerpolation, true, CVAR_ARCHIVE, "enable/disable sector object interpolation") // only implemented in SW
-CVARD(Bool, cl_syncinput, false, CVAR_ARCHIVE, "enable/disable synchronized input with game's tickrate") // only implemented in Duke
+CVARD(Bool, cl_syncinput, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable synchronized input with game's tickrate")
 CVARD(Bool, cl_swsmoothsway, true, CVAR_ARCHIVE, "move SW weapon left and right smoothly while bobbing")
 CVARD(Bool, cl_showmagamt, false, CVAR_ARCHIVE, "show the amount of rounds left in the magazine of your weapon on the modern HUD")
 CVARD(Bool, cl_nomeleeblur, false, CVAR_ARCHIVE, "enable/disable blur effect with melee weapons in SW")
-CVARD(Bool, cl_hudinterpolation, true, CVAR_ARCHIVE, "enable/disable HUD (weapon drawer) interpolation")
+CVARD(Bool, cl_hudinterpolation, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable HUD (weapon drawer) interpolation")
 CVARD(Bool, cl_bloodvanillarun, true, CVAR_ARCHIVE, "enable/disable Blood's vanilla run mode")
 CVARD(Bool, cl_bloodvanillabobbing, true, CVAR_ARCHIVE, "enable/disable Blood's vanilla bobbing while not using vanilla run mode")
 CVARD(Bool, cl_bloodvanillaexplosions, false, CVAR_ARCHIVE, "enable/disable Blood's vanilla explosion behavior")
@@ -88,7 +88,7 @@ CVARD(Bool, cl_bloodvanillaenemies, false, CVAR_ARCHIVE, "enable/disable Blood's
 CVARD(Bool, cl_bloodqavinterp, true, CVAR_ARCHIVE, "enable/disable Blood's QAV interpolation")
 CVARD(Bool, cl_bloodweapinterp, false, CVAR_ARCHIVE, "enable/disable Blood's weapon interpolation. Depends on 'cl_bloodqavinterp'")
 CVARD(Bool, cl_bloodoldweapbalance, false, CVAR_ARCHIVE, "enable/disable legacy 1.0 weapon handling for Blood")
-CVARD(Bool, cl_loadingscreens, true, CVAR_ARCHIVE, "enable/disable loading screens for games")
+CVARD(Bool, cl_loadingscreens, true, CVAR_ARCHIVE|CVAR_GLOBALCONFIG, "enable/disable loading screens for games")
 
 
 CUSTOM_CVARD(Int, cl_autoaim, 1, CVAR_ARCHIVE|CVAR_USERINFO, "enable/disable weapon autoaim")
