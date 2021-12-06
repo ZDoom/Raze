@@ -188,6 +188,12 @@ void ShowScoreboard(int numplayers, const CompletionFunc& completion_)
 
 void ShowIntermission(MapRecord* fromMap, MapRecord* toMap, SummaryInfo* info, CompletionFunc completion_)
 {
+	if (fromMap == toMap)
+	{
+		// don't show intermission when restarting the same level.
+		completion_(false);
+		return;
+	}
 	bool bossexit = g_bossexit;
 	g_bossexit = false;
 

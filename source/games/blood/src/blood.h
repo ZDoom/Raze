@@ -80,7 +80,7 @@ void QuitGame(void);
 void PreloadCache(void);
 void ProcessFrame(void);
 void ScanINIFiles(void);
-void EndLevel();
+void EndLevel(bool);
 
 struct MIRROR
 {

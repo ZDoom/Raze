@@ -154,7 +154,6 @@ void StartLevel(MapRecord* level, bool newgame)
 	if (!level) return;
 	gFrameCount = 0;
 	PlayClock = 0;
-	EndLevel();
 	inputState.ClearAllInput();
 	currentLevel = level;
 
@@ -172,14 +171,6 @@ void StartLevel(MapRecord* level, bool newgame)
 		gRedFlagDropped = false;
 	}
 #endif
-	if (!newgame)
-	{
-		for (int i = connecthead; i >= 0; i = connectpoint2[i])
-		{
-			memcpy(&gPlayerTemp[i], &gPlayer[i], sizeof(PLAYER));
-			gHealthTemp[i] = gPlayer[i].actor->x().health;
-		}
-	}
 	//drawLoadingScreen();
 	BloodSpawnSpriteDef sprites;
 	dbLoadMap(currentLevel->fileName, (int*)&startpos.x, (int*)&startpos.y, (int*)&startpos.z, &startang, &startsector, nullptr, sprites);
