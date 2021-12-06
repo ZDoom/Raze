@@ -235,7 +235,7 @@ extern int16_t pskybits_override;
 EXTERN int16_t tailspritefree;
 
 EXTERN uint8_t gotpic[(MAXTILES+7)>>3];
-extern FixedBitArray<MAXSECTORS> gotsector;
+extern BitArray gotsector;
 
 
 extern uint32_t drawlinepat;

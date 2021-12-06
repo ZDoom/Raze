@@ -49,6 +49,8 @@
 #include "interpolate.h"
 #include "games/blood/src/mapstructs.h"
 
+extern BitArray clipsectormap;
+
 // needed for skipping over to get the map size first.
 enum
 {
@@ -371,6 +373,8 @@ void allocateMapArrays(int numsprites)
 
 	show2dsector.Resize(numsectors);
 	show2dwall.Resize(numwalls);
+	gotsector.Resize(numsectors);
+	clipsectormap.Resize(numsectors);
 
 	mapDataArena.FreeAll();
 	sector.Resize(numsectors);
@@ -469,7 +473,7 @@ void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang,
 	G_LoadMapHack(filename, md4, sprites);
 	setWallSectors();
 	hw_BuildSections();
-	sectorGeometry.SetSize(numsections);
+	sectorGeometry.SetSize(Sections.Size());
 
 
 	wallbackup = wall;

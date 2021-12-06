@@ -218,7 +218,7 @@ public:
 
 bool SectorGeometry::MakeVertices(unsigned int secnum, int plane, const FVector2& offset)
 {
-	auto sec = &sections[secnum];
+	auto sec = &Sections[secnum];
 	auto sectorp = &sector[sec->sector];
 	int numvertices = sec->lines.Size();
 	
@@ -333,7 +333,7 @@ bool SectorGeometry::MakeVertices(unsigned int secnum, int plane, const FVector2
 
 bool SectorGeometry::MakeVertices2(unsigned int secnum, int plane, const FVector2& offset)
 {
-	auto sec = &sections[secnum];
+	auto sec = &Sections[secnum];
 	auto sectorp = &sector[sec->sector];
 	int numvertices = sec->lines.Size();
 
@@ -544,7 +544,7 @@ nexti:;
 
 void SectorGeometry::ValidateSector(unsigned int secnum, int plane, const FVector2& offset)
 {
-	auto sec = &sector[sections[secnum].sector];
+	auto sec = &sector[Sections[secnum].sector];
 
 	auto compare = &data[secnum].compare[plane];
 	if (plane == 0)

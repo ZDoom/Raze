@@ -20,15 +20,11 @@ static linetype clipit[MAXCLIPNUM];
 static int32_t clipsectnum, origclipsectnum, clipspritenum;
 int clipsectorlist[MAXCLIPSECTORS];
 static int origclipsectorlist[MAXCLIPSECTORS];
-static uint8_t clipsectormap[(MAXSECTORS+7)>>3];
-static uint8_t origclipsectormap[(MAXSECTORS+7)>>3];
 static CollisionBase clipobjectval[MAXCLIPNUM];
 static uint8_t clipignore[(MAXCLIPNUM+7)>>3];
 static int32_t rxi[8], ryi[8];
 
-inline void bitmap_set(uint8_t* const ptr, int const n) { ptr[n >> 3] |= 1 << (n & 7); }
-inline char bitmap_test(uint8_t const* const ptr, int const n) { return ptr[n >> 3] & (1 << (n & 7)); }
-
+BitArray clipsectormap;
 
 int32_t quickloadboard=0;
 
@@ -36,6 +32,7 @@ vec2_t hitscangoal = { (1<<29)-1, (1<<29)-1 };
 int32_t hitallsprites = 0;
 
 ////////// CLIPMOVE //////////
+inline char bitmap_test(uint8_t const* const ptr, int const n) { return ptr[n >> 3] & (1 << (n & 7)); }
 
 
 // x1, y1: in/out
@@ -175,7 +172,7 @@ static inline void addclipsect(int const sectnum)
 {
     if (clipsectnum < MAXCLIPSECTORS)
     {
-        bitmap_set(clipsectormap, sectnum);
+        clipsectormap.Set(sectnum);
         clipsectorlist[clipsectnum++] = sectnum;
     }
     else
@@ -413,7 +410,7 @@ static void clipupdatesector(vec2_t const pos, int * const sectnum, int walldist
 
             for (auto& wal : wallsofsector(listsectnum))
             {
-                if (wal.nextsector >= 0 && bitmap_test(clipsectormap, wal.nextsector))
+                if (wal.nextsector >= 0 && clipsectormap[wal.nextsector])
                     search.Add(wal.nextsector);
             }
         }
@@ -478,8 +475,8 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 
     clipmove_warned = 0;
 
-    memset(clipsectormap, 0, (numsectors+7)>>3);
-    bitmap_set(clipsectormap, *sectnum);
+    clipsectormap.Zero();
+    clipsectormap.Set(*sectnum);
 
     do
     {
@@ -563,7 +560,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
             }
             else if (wal->nextsector>=0)
             {
-                if (bitmap_test(clipsectormap, wal->nextsector) == 0)
+                if (!clipsectormap[wal->nextsector])
                     addclipsect(wal->nextsector);
             }
         }
@@ -858,8 +855,8 @@ int pushmove_(vec3_t *const vect, int *const sectnum,
             clipsectorlist[0] = *sectnum;
             clipsectnum = 1;
 
-            memset(clipsectormap, 0, (numsectors + 7) >> 3);
-            bitmap_set(clipsectormap, *sectnum);
+            clipsectormap.Zero();
+            clipsectormap.Set(*sectnum);
         }
 
         do
@@ -926,7 +923,7 @@ int pushmove_(vec3_t *const vect, int *const sectnum,
                         clipupdatesector(vect->vec2, sectnum, walldist);
                         if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE && *sectnum < 0) return -1;
                     }
-                    else if (bitmap_test(clipsectormap, wal->nextsector) == 0)
+                    else if (!clipsectormap[wal->nextsector])
                         addclipsect(wal->nextsector);
                 }
 
@@ -975,8 +972,8 @@ void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBas
     clipsectorlist[0] = sectnum;
     clipsectnum = 1;
     clipspritenum = 0;
-    memset(clipsectormap, 0, (numsectors+7)>>3);
-    bitmap_set(clipsectormap, sectnum);
+    clipsectormap.Zero();
+    clipsectormap.Set(sectnum);
 
     do  //Collect sectors inside your square first
     {
@@ -1011,7 +1008,7 @@ void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBas
                 if (((nextsect->floorstat&1) == 0) && (pos.z >= nextsect->floorz-(3<<8))) continue;
 
                 int nextsectno = ::sectnum(nextsect);
-                if (bitmap_test(clipsectormap, nextsectno) == 0)
+                if (!clipsectormap[nextsectno])
                     addclipsect(nextsectno);
 
                 if (((v1.x < xmin + MAXCLIPDIST) && (v2.x < xmin + MAXCLIPDIST)) ||

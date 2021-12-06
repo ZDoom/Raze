@@ -92,6 +92,7 @@ void BunchDrawer::StartScene()
 	StartTime = I_msTime();
 	Bunches.Clear();
 	CompareData.Clear();
+	gotsector.Resize(numsectors);
 	gotsector.Zero();
 	gotsection2.Zero();
 	gotwall.Zero();
@@ -560,7 +561,7 @@ void BunchDrawer::ProcessSection(int sectionnum, bool portal)
 
 	SetupSprite.Clock();
 
-	int sectnum = sections[sectionnum].sector;
+	int sectnum = Sections[sectionnum].sector;
 	if (!gotsector[sectnum])
 	{
 		gotsector.Set(sectnum);
@@ -598,7 +599,7 @@ void BunchDrawer::ProcessSection(int sectionnum, bool portal)
 
 	//Todo: process subsectors
 	inbunch = false;
-	auto section = &sections[sectionnum];
+	auto section = &Sections[sectionnum];
 	for (unsigned i = 0; i < section->lines.Size(); i++)
 	{
 		auto thisline = &sectionLines[section->lines[i]];
