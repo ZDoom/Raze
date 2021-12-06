@@ -74,23 +74,19 @@ size_t MarkRunlist();
 
 static void markgcroots()
 {
-    size_t num = MarkMove();
-    num += MarkBullets();
-    num += MarkInput();
-    num += MarkItems();
-    num += MarkLighting();
-    num += MarkObjects();
-    num += MarkPlayers();
-    num += MarkQueen();
-    num += MarkRa();
-    num += MarkSnake();
-    num += MarkRunlist();
+    MarkBullets();
+    MarkInput();
+    MarkItems();
+    MarkLighting();
+    MarkObjects();
+    MarkPlayers();
+    MarkQueen();
+    MarkRa();
+    MarkSnake();
+    MarkRunlist();
 
     GC::Mark(bestTarget);
     GC::Mark(pSpiritSprite);
-    num += 2;
-
-    Printf("%d objects marked\n", num);
 }
 
 static MapRecord* NextMap;
@@ -502,7 +498,6 @@ static void SetTileNames()
 
 void GameInterface::app_init()
 {
-    SetupActors(RUNTIME_CLASS(DExhumedActor));
     GC::AddMarkerFunc(markgcroots);
 
 
@@ -544,7 +539,7 @@ void DeleteActor(DExhumedActor* actor)
         bestTarget = nullptr;
     }
 
-    ::DeleteActor(actor);
+    actor->Destroy();
 }
 
 

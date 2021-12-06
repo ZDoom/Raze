@@ -485,7 +485,7 @@ int GetActorHeight(DExhumedActor* actor)
 
 DExhumedActor* insertActor(sectortype* s, int st)
 {
-    return static_cast<DExhumedActor*>(::InsertActor(s, st));
+    return static_cast<DExhumedActor*>(::InsertActor(RUNTIME_CLASS(DExhumedActor), s, st));
 }
 
 

@@ -67,7 +67,7 @@ size_t DDukeActor::PropagateMark()
 	{
 		var.Mark();
 	}
-	return uservars.Size() + Super::PropagateMark();
+	return Super::PropagateMark();
 }
 
 static void markgcroots()
@@ -334,7 +334,6 @@ int GameInterface::GetCurrentSkill()
 
 void GameInterface::app_init()
 {
-	SetupActors(RUNTIME_CLASS(DDukeActor));
 	GC::AddMarkerFunc(markgcroots);
 
 	if (isRR()) C_SetNotifyFontScale(0.5);

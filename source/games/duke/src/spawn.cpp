@@ -53,7 +53,7 @@ DDukeActor* EGS(sectortype* whatsectp, int s_x, int s_y, int s_z, int s_pn, int8
 {
 	// sector pointer must be strictly validated here or the engine will crash.
 	if (whatsectp == nullptr || !validSectorIndex(sectnum(whatsectp))) return nullptr;
-	auto act = static_cast<DDukeActor*>(::InsertActor(whatsectp, s_ss));
+	auto act = static_cast<DDukeActor*>(::InsertActor(RUNTIME_CLASS(DDukeActor), whatsectp, s_ss));
 
 	if (act == nullptr) return nullptr;
 	act->s = &act->spr;

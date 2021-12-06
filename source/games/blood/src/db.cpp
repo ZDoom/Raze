@@ -40,7 +40,7 @@ BEGIN_BLD_NS
 
 DBloodActor* InsertSprite(sectortype* pSector, int nStat)
 {
-    auto act = static_cast<DBloodActor*>(::InsertActor(pSector, nStat));
+    auto act = static_cast<DBloodActor*>(::InsertActor(RUNTIME_CLASS(DBloodActor), pSector, nStat));
     auto pSprite = &act->s();
     pSprite->cstat = 128;
     pSprite->clipdist = 32;
@@ -58,7 +58,7 @@ int DeleteSprite(DBloodActor* actor)
     for (auto& ctrl : gPlayerCtrl) if (ctrl.qavScene.initiator == actor) ctrl.qavScene.initiator = nullptr;
 #endif
 
-    ::DeleteActor(actor);
+    actor->Destroy();
     return 0;
 }
 

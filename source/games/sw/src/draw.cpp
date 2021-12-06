@@ -1279,7 +1279,7 @@ PostDraw(void)
     while (auto actor = it.Next())
     {
         actor->clearUser();
-        ::DeleteActor(actor);
+        actor->Destroy();
     }
 }
 

@@ -56,7 +56,7 @@ bool FAF_DebugView = false;
 
 DSWActor* insertActor(sectortype* sect, int statnum)
 {
-    auto pActor = static_cast<DSWActor*>(::InsertActor(sect, statnum));
+    auto pActor = static_cast<DSWActor*>(::InsertActor(RUNTIME_CLASS(DSWActor), sect, statnum));
     auto pSprite = &pActor->s();
 
     pSprite->x = pSprite->y = pSprite->z = 0;

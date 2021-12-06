@@ -233,7 +233,6 @@ void GameInterface::LoadGameTextures()
 
 void GameInterface::app_init()
 {
-    SetupActors(RUNTIME_CLASS(DSWActor));
     GC::AddMarkerFunc(markgcroots);
 
     GameTicRate = TICS_PER_SEC / synctics;

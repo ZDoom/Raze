@@ -529,6 +529,11 @@ void setWallSectors()
 
 void MarkMap()
 {
+	for (auto& stat : statList)
+	{
+		GC::Mark(stat.firstEntry);
+		GC::Mark(stat.lastEntry);
+	}
 	for (auto& sect : sectors())
 	{
 		GC::Mark(sect.firstEntry);

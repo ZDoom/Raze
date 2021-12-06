@@ -32,7 +32,6 @@
 **
 */
 
-#include <deque>
 #include "build.h"
 #include "coreactor.h"
 #include "gamefuncs.h"
@@ -40,7 +39,6 @@
 // Doubly linked ring list of Actors
 
 
-std::deque<DCoreActor*> freeList; //  only needed until we can get rid of the sprite array.
 ActorStatList statList[MAXSTATUS];
 
 //==========================================================================
@@ -100,8 +98,8 @@ static void AddStatTail(DCoreActor* actor, int statnum)
 	assert(ValidateStatList(statnum));
 	actor->s().statnum = statnum;
 	actor->link_stat = statnum;
-	//GC::WriteBarrier(tail);
-	//GC::WriteBarrier(actor);
+	GC::WriteBarrier(actor);
+	GC::WriteBarrier(tail);
 }
 
 //==========================================================================
@@ -124,8 +122,8 @@ static void AddStatHead(DCoreActor* actor, int statnum)
 	statList[statnum].firstEntry = actor;
 	actor->s().statnum = statnum;
 	actor->link_stat = statnum;
-	//GC::WriteBarrier(head);
-	//GC::WriteBarrier(actor);
+	GC::WriteBarrier(actor);
+	GC::WriteBarrier(head);
 }
 
 
@@ -155,10 +153,8 @@ static void RemoveActorStat(DCoreActor* actor)
 	actor->nextStat = actor->prevStat = nullptr;
 	actor->s().statnum = MAXSTATUS;
 	actor->link_stat = MAXSTATUS;
-	/*
-	GC::WriteBarrier(prev, next);
-	GC::WriteBarrier(next, prev);
-	*/
+	GC::WriteBarrier(prev);
+	GC::WriteBarrier(next);
 }
 
 //==========================================================================
@@ -239,8 +235,8 @@ static void AddSectTail(DCoreActor *actor, sectortype* sect)
 	assert(ValidateSectList(sect));
 	actor->s().setsector(sect);
 	actor->link_sector = sect;
-	//GC::WriteBarrier(tail);
-	//GC::WriteBarrier(actor);
+	GC::WriteBarrier(actor);
+	GC::WriteBarrier(tail);
 }
 
 //==========================================================================
@@ -263,8 +259,8 @@ static void AddSectHead(DCoreActor *actor, sectortype* sect)
 	assert(ValidateSectList(sect));
 	actor->s().sectnum = sectnum(sect);
 	actor->link_sector = sect;
-	//GC::WriteBarrier(head);
-	//GC::WriteBarrier(actor);
+	GC::WriteBarrier(actor);
+	GC::WriteBarrier(head);
 }
 
 //==========================================================================
@@ -299,10 +295,8 @@ static void RemoveActorSect(DCoreActor* actor)
 	actor->nextSect = actor->prevSect = nullptr;
 	actor->s().setsector(nullptr);
 	actor->link_sector = nullptr;
-	/*
-	GC::WriteBarrier(prev, next);
-	GC::WriteBarrier(next, prev);
-	*/
+	GC::WriteBarrier(prev);
+	GC::WriteBarrier(next);
 }
 
 //==========================================================================
@@ -344,16 +338,12 @@ void ChangeActorSect(DCoreActor* actor, sectortype* sect, bool tail)
 //
 //==========================================================================
 
-DCoreActor* InsertActor(sectortype* sector, int stat, bool tail)
+DCoreActor* InsertActor(PClass* type, sectortype* sector, int stat, bool tail)
 {
-	if (freeList.empty())
-	{
-		I_Error("Out of sprites!"); // we cannot deal with this - and most of the calling code never checks...
-		return nullptr;
-	}
+	assert(type->IsDescendantOf(RUNTIME_CLASS(DCoreActor)));
 
-	auto actor = freeList.back();
-	freeList.pop_back();
+	auto actor = static_cast<DCoreActor*>(type->CreateNew());
+	GC::WriteBarrier(actor);
 
 	spritetype* pSprite = &actor->s();
 	pSprite->clear();
@@ -372,27 +362,23 @@ DCoreActor* InsertActor(sectortype* sector, int stat, bool tail)
 //
 //==========================================================================
 
-int DeleteActor(DCoreActor* actor)
+void DCoreActor::OnDestroy()
 {
-	auto sp = &actor->s();
-	assert(sp->statnum >= 0 && sp->statnum < MAXSTATUS);
+	assert(spr.statnum >= 0 && spr.statnum < MAXSTATUS);
 
-	int stat = actor->link_stat;
-	RemoveActorStat(actor);
+	int stat = link_stat;
+	RemoveActorStat(this);
 
-	auto sect = actor->link_sector;
+	auto sect = link_sector;
 	if (sect)
 	{
-		RemoveActorSect(actor);
+		RemoveActorSect(this);
 	}
 	else
 	{
-		assert(actor->prevSect == nullptr && actor->nextSect == nullptr);
+		assert(prevSect == nullptr && nextSect == nullptr);
 	}
 	Numsprites--;
-	actor->ClearContent();
-	freeList.push_front(actor);
-	return 0;
 }
 
 //==========================================================================
@@ -401,10 +387,19 @@ int DeleteActor(DCoreActor* actor)
 // we can use real DObject life cycle management.
 //
 //==========================================================================
-static DCoreActor* actorArray[16384];
 
 void InitSpriteLists()
 {
+	// Do not mass-destroy from the iterator. This may fail if destroying one actor results in further destructions.
+	TArray<DCoreActor*> allActors;
+	TSpriteIterator<DCoreActor> it;
+	while (auto actor = it.Next())
+		allActors.Push(actor);
+	for (auto& act : allActors)
+	{
+		if (!(act->ObjectFlags & OF_EuthanizeMe))
+			act->Destroy();
+	}
 	for (auto& stat : statList)
 	{
 		stat.firstEntry = stat.lastEntry = nullptr;
@@ -412,12 +407,6 @@ void InitSpriteLists()
 	for (auto& sect : sectors())
 	{
 		sect.firstEntry = sect.lastEntry = nullptr;
-	}
-	freeList.clear();
-	for(auto& actor : actorArray)
-	{
-		actor->ClearContent();
-		freeList.push_front(actor);
 	}
 	Numsprites = 0;
 }
@@ -457,16 +446,6 @@ size_t DCoreActor::PropagateMark()
 	GC::Mark(nextStat);
 	GC::Mark(prevSect);
 	GC::Mark(nextSect);
-	return 4 + Super::PropagateMark();
+	return Super::PropagateMark();
 }
 
-void SetupActors(PClass* clstype)
-{
-	// this is temporary until we have added proper tracking to all pointers in the games.
-	// Until then we have to keep a static array of actors to avoid stale references to deallocated memory.
-	for (int i = 0; i < 16384; i++)
-	{
-		actorArray[i] = static_cast<DCoreActor*>(clstype->CreateNew());
-		actorArray[i]->Release();	// no GC for this static array.
-	}
-}

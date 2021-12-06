@@ -35,6 +35,8 @@ public:
 		spr = {};
 	}
 
+	virtual void BeginPlay() {}
+	void OnDestroy() override;
 	size_t PropagateMark() override;
 
 	bool exists() const
@@ -338,12 +340,10 @@ public:
 
 using CoreSectIterator = TSectIterator<DCoreActor>;
 
-DCoreActor* InsertActor(sectortype* sector, int stat, bool forcetail = false);
-int DeleteActor(DCoreActor* actor);
+DCoreActor* InsertActor(PClass* type, sectortype* sector, int stat, bool forcetail = false);
 void ChangeActorSect(DCoreActor* actor, sectortype* sector, bool forcetail = false);
 int ChangeActorStat(DCoreActor* actor, int nStatus, bool forcetail = false);
 void InitSpriteLists();
-void SetupActors(PClass* clstype);
 
 
 void SetActorZ(DCoreActor* actor, const vec3_t* newpos);

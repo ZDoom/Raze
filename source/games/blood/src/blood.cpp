@@ -75,7 +75,7 @@ size_t DBloodActor::PropagateMark()
 {
 	condition[0].Mark();
 	condition[1].Mark();
-	return 2 + Super::PropagateMark();
+	return Super::PropagateMark();
 }
 
 static void markgcroots()
@@ -535,7 +535,6 @@ void GameInterface::loadPalette(void)
 
 void GameInterface::app_init()
 {
-	SetupActors(RUNTIME_CLASS(DBloodActor));
 	GC::AddMarkerFunc(markgcroots);
 	InitCheats();
 	memcpy(&gGameOptions, &gSingleGameOptions, sizeof(GAMEOPTIONS));

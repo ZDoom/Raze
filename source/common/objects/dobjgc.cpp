@@ -195,6 +195,7 @@ static DObject **SweepList(DObject **p, size_t count, size_t *finalize_count)
 
 				// However, this can happen during deletion of the thinker list while cleaning up
 				// from a savegame error so we can't assume that any thinker that gets here is an error.
+				assert(!curr->IsKindOf("CoreActor"));
 
 				curr->Destroy();
 			}
