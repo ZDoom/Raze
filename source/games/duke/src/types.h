@@ -283,7 +283,8 @@ struct player_struct
 	short MamaEnd; // raat609
 	short moto_drink;
 	float TiltStatus, oTiltStatus;
-	short VBumpNow, VBumpTarget, TurbCount;
+	double VBumpNow, VBumpTarget;
+	short TurbCount;
 	short drug_stat[3]; // raat5f1..5
 	uint8_t DrugMode, lotag800kill;
 	uint8_t sea_sick_stat; // raat5dd

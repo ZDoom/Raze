@@ -1721,7 +1721,7 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 	if (p->MotoSpeed != 0 && p->on_ground == 1)
 	{
 		if (!p->VBumpNow && (krand() & 3) == 2)
-			p->VBumpTarget = short((p->MotoSpeed / 16.) * ((krand() & 7) - 4));
+			p->VBumpTarget = p->MotoSpeed * (1. / 16.) * ((krand() & 7) - 4);
 
 		if (p->vehTurnLeft || p->moto_drink < 0)
 		{
@@ -1757,14 +1757,14 @@ static void onMotorcycle(int snum, ESyncBits &actions)
 		p->VBumpNow += p->moto_bump_fast ? 6 : 1;
 		if (p->VBumpTarget < p->VBumpNow)
 			p->VBumpNow = p->VBumpTarget;
-		horiz = p->VBumpNow / 3.;
+		horiz = p->VBumpNow * (1. / 3.);
 	}
 	else if (p->VBumpTarget < p->VBumpNow)
 	{
 		p->VBumpNow -= p->moto_bump_fast ? 6 : 1;
 		if (p->VBumpTarget > p->VBumpNow)
 			p->VBumpNow = p->VBumpTarget;
-		horiz = p->VBumpNow / 3.;
+		horiz = p->VBumpNow * (1. / 3.);
 	}
 	else
 	{
@@ -1991,7 +1991,7 @@ static void onBoat(int snum, ESyncBits &actions)
 	if (p->MotoSpeed != 0 && p->on_ground == 1)
 	{
 		if (!p->VBumpNow && (krand() & 15) == 14)
-			p->VBumpTarget = short((p->MotoSpeed / 16.) * ((krand() & 3) - 2));
+			p->VBumpTarget = p->MotoSpeed * (1. / 16.) * ((krand() & 3) - 2);
 
 		if (p->vehTurnLeft && p->moto_drink < 0)
 		{
@@ -2025,14 +2025,14 @@ static void onBoat(int snum, ESyncBits &actions)
 		p->VBumpNow += p->moto_bump_fast ? 6 : 1;
 		if (p->VBumpTarget < p->VBumpNow)
 			p->VBumpNow = p->VBumpTarget;
-		horiz = p->VBumpNow / 3.;
+		horiz = p->VBumpNow * (1. / 3.);
 	}
 	else if (p->VBumpTarget < p->VBumpNow)
 	{
 		p->VBumpNow -= p->moto_bump_fast ? 6 : 1;
 		if (p->VBumpTarget > p->VBumpNow)
 			p->VBumpNow = p->VBumpTarget;
-		horiz = p->VBumpNow / 3.;
+		horiz = p->VBumpNow * (1. / 3.);
 	}
 	else
 	{
