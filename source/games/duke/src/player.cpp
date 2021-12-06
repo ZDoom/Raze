@@ -170,7 +170,7 @@ int hits(DDukeActor* actor)
 {
 	auto sp = actor->s;
 	int zoff;
-	HitInfo hit;
+	HitInfo hit{};
 
 	if (sp->picnum == TILE_APLAYER) zoff = isRR() ? PHEIGHT_RR : PHEIGHT_DUKE;
 	else zoff = 0;
@@ -189,7 +189,7 @@ int hitasprite(DDukeActor* actor, DDukeActor** hitsp)
 {
 	auto sp = actor->s;
 	int zoff;
-	HitInfo hit;
+	HitInfo hit{};
 
 	if (badguy(actor))
 		zoff = (42 << 8);
@@ -213,7 +213,7 @@ int hitasprite(DDukeActor* actor, DDukeActor** hitsp)
 
 int hitawall(struct player_struct* p, walltype** hitw)
 {
-	HitInfo hit;
+	HitInfo hit{};
 
 	hitscan(p->pos, p->cursector, { p->angle.ang.bcos(), p->angle.ang.bsin(), 0 }, hit, CLIPMASK0);
 	if (hitw) *hitw = hit.hitWall;
@@ -993,7 +993,7 @@ void shootbloodsplat(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 	spritetype* const s = actor->s;
 	auto sectp = s->sector();
 	int zvel;
-	HitInfo hit;
+	HitInfo hit{};
 
 	if (p >= 0)
 		sa += 64 - (krand() & 127);

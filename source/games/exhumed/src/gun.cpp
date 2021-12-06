@@ -249,7 +249,7 @@ Collision CheckCloseRange(int nPlayer, int *x, int *y, int *z, sectortype* *ppSe
     int xVect = bcos(ang);
     int yVect = bsin(ang);
 
-    HitInfo hit;
+    HitInfo hit{};
     hitscan({ *x, *y, *z }, *ppSector, { xVect, yVect, 0 }, hit, CLIPMASK1);
 
     int ecx = bsin(150, -3);

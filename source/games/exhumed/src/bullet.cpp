@@ -444,7 +444,7 @@ MOVEEND:
         else
         {
             vec3_t startPos = { x, y, z };
-            HitInfo hit;
+            HitInfo hit{};
             int dz;
             if (bVanilla)
                 dz = -bsin(pBullet->nPitch, 3);

@@ -1935,7 +1935,7 @@ void SpriteSetup(void)
                 case SECT_WALL_PAN_SPEED:
                 {
                     vec3_t hit_pos = { sp->x, sp->y, sp->z - Z(8) };
-                    HitInfo hit;
+                    HitInfo hit{};
 
                     hitscan(hit_pos, sp->sector(),    // Start position
                         { bcos(sp->ang), bsin(sp->ang), 0 }, hit, CLIPMASK_MISSILE);
@@ -1964,7 +1964,7 @@ void SpriteSetup(void)
                 case WALL_DONT_STICK:
                 {
                     vec3_t hit_pos = { sp->x, sp->y, sp->z - Z(8) };
-                    HitInfo hit;
+                    HitInfo hit{};
 
                     hitscan(hit_pos, sp->sector(),    // Start position
                         { bcos(sp->ang), bsin(sp->ang), 0 }, hit, CLIPMASK_MISSILE);

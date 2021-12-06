@@ -4478,7 +4478,7 @@ bool WeaponMoveHit(DSWActor* actor)
         // clipmove does not correctly return the sprite for WALL sprites
         // on walls, so look with hitscan
 
-        HitInfo hit;
+        HitInfo hit{};
         hitscan(sp->pos, sp->sector(), { bcos(sp->ang), bsin(sp->ang), sp->zvel }, hit, CLIPMASK_MISSILE);
 
         if (!hit.hitSector)
@@ -12526,7 +12526,7 @@ int InitSwordAttack(PLAYERp pp)
 
     // all this is to break glass
     {
-        HitInfo hit;
+        HitInfo hit{};
         short daang;
         int daz;
 
@@ -12716,7 +12716,7 @@ int InitFistAttack(PLAYERp pp)
 
     // all this is to break glass
     {
-        HitInfo hit;
+        HitInfo hit{};
         short daang;
         int daz;
 
@@ -13492,7 +13492,7 @@ void InitHeartAttack(PLAYERp pp)
 
 int ContinueHitscan(PLAYERp pp, sectortype* sect, int x, int y, int z, short ang, int xvect, int yvect, int zvect)
 {
-    HitInfo hit;
+    HitInfo hit{};
     USERp u = pp->Actor()->u();
 
     FAFhitscan(x, y, z, sect,
@@ -13575,7 +13575,7 @@ int InitShotgun(PLAYERp pp)
     USERp u = pp->Actor()->u();
     auto sp = &pp->Actor()->s();
     short daang,ndaang, i;
-    HitInfo hit;
+    HitInfo hit{};
     int daz, ndaz;
     int nx,ny,nz;
     int xvect,yvect,zvect;
@@ -16129,7 +16129,7 @@ int InitUzi(PLAYERp pp)
     SPRITEp wp, hsp;
     USERp wu;
     short daang;
-    HitInfo hit;
+    HitInfo hit{};
     int daz, nz;
     int xvect,yvect,zvect;
     short cstat = 0;
@@ -16699,7 +16699,7 @@ int InitSobjMachineGun(DSWActor* actor, PLAYERp pp)
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
     short daang;
-    HitInfo hit;
+    HitInfo hit{};
     int daz;
     int nx,ny,nz;
     short cstat = 0;
@@ -17067,7 +17067,7 @@ int InitTurretMgun(SECTOR_OBJECTp sop)
 {
     SPRITEp hsp;
     short daang, i;
-    HitInfo hit;
+    HitInfo hit{};
     int daz;
     int nx,ny,nz;
     short cstat = 0;
@@ -17233,7 +17233,7 @@ int InitEnemyUzi(DSWActor* actor)
     SPRITEp sp = &actor->s(), wp;
     USERp wu;
     short daang;
-    HitInfo hit;
+    HitInfo hit{};
     int daz;
     int zh;
     void InitUziShell(PLAYERp);
@@ -18874,7 +18874,7 @@ DSWActor* QueueWallBlood(DSWActor* actor, short ang)
     SPRITEp sp;
     short rndnum;
     int daz;
-    HitInfo hit;
+    HitInfo hit{};
     USERp u = actor->u();
 
 

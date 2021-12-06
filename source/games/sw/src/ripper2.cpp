@@ -938,7 +938,7 @@ int InitRipper2Hang(DSWActor* actor)
     SPRITEp sp = &actor->s();
     int dist;
 
-    HitInfo hit;
+    HitInfo hit{};
 
     bool Found = false;
     short dang, tang;

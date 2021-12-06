@@ -5075,7 +5075,7 @@ int furthestangle(DDukeActor *actor, int angs)
 	auto s = actor->s;
 	int j, furthest_angle = 0, angincs;
 	int d, greatestd;
-	HitInfo hit;
+	HitInfo hit{};
 
 	greatestd = -(1 << 30);
 	angincs = 2048 / angs;
@@ -5109,7 +5109,7 @@ int furthestcanseepoint(DDukeActor *actor, DDukeActor* tosee, int* dax, int* day
 	auto s = actor->s;
 	int j, angincs;
 	int d, da;//, d, cd, ca,tempx,tempy,cx,cy;
-	HitInfo hit;
+	HitInfo hit{};
 
 	if ((actor->temp_data[0] & 63)) return -1;
 

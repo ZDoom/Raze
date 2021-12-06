@@ -3109,7 +3109,7 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
         if (u->ActorActionSet->Jump)
         {
             int zdiff;
-            HitInfo hit;
+            HitInfo hit{};
 
             sp->ang = tpoint->ang;
 

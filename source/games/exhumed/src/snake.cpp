@@ -130,7 +130,7 @@ void BuildSnake(int nPlayer, int zVal)
     int z = (pPlayerSprite->z + zVal) - 2560;
     int nAngle = pPlayerSprite->ang;
 
-    HitInfo hit;
+    HitInfo hit{};
     hitscan({ x, y, z }, pPlayerSprite->sector(), { bcos(nAngle), bsin(nAngle), 0 }, hit, CLIPMASK1);
 
     uint32_t yDiff = abs(hit.hitpos.y - y);

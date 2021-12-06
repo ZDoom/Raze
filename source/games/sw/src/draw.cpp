@@ -904,7 +904,7 @@ void
 CircleCamera(int *nx, int *ny, int *nz, sectortype** vsect, binangle *nang, fixed_t q16horiz)
 {
     SPRITEp sp;
-    HitInfo hit;
+    HitInfo hit{};
     int i, vx, vy, vz, hx, hy;
     int bakcstat, daang;
     PLAYERp pp = &Player[screenpeek];

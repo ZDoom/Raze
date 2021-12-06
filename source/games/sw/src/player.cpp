@@ -2655,7 +2655,7 @@ void DoPlayerMoveVehicle(PLAYERp pp)
 
     if (RectClip)
     {
-        HitInfo hit;
+        HitInfo hit{};
         int vel;
         int ret;
 
@@ -3418,7 +3418,7 @@ void DoPlayerClimb(PLAYERp pp)
 
 int DoPlayerWadeSuperJump(PLAYERp pp)
 {
-    HitInfo hit;
+    HitInfo hit{};
     unsigned i;
     //short angs[3];
     static short angs[3] = {0, 0, 0};

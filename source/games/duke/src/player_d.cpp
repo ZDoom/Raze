@@ -236,7 +236,7 @@ static void shootknee(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 	auto s = actor->s;
 	auto sectp = s->sector();
 	int zvel;
-	HitInfo hit;
+	HitInfo hit{};
 
 	if (p >= 0)
 	{
@@ -323,7 +323,7 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 	auto s = actor->s;
 	auto sectp = s->sector();
 	int zvel = 0;
-	HitInfo hit;
+	HitInfo hit{};
 
 	if (s->extra >= 0) s->shade = -96;
 
@@ -854,7 +854,7 @@ static void shootlaser(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 	auto sectp = s->sector();
 	int zvel;
 	int j;
-	HitInfo hit;
+	HitInfo hit{};
 
 	if (p >= 0)
 		zvel = -ps[p].horizon.sum().asq16() >> 11;
@@ -925,7 +925,7 @@ static void shootgrowspark(DDukeActor* actor, int p, int sx, int sy, int sz, int
 	auto sect = s->sector();
 	int zvel;
 	int k;
-	HitInfo hit;
+	HitInfo hit{};
 
 	if (p >= 0)
 	{
@@ -2024,7 +2024,7 @@ static void underwater(int snum, ESyncBits actions, int fz, int cz)
 int operateTripbomb(int snum)
 {
 	auto p = &ps[snum];
-	HitInfo hit;
+	HitInfo hit{};
 
 	hitscan(p->pos, p->cursector, { p->angle.ang.bcos(), p->angle.ang.bsin(), -p->horizon.sum().asq16() >> 11 }, hit, CLIPMASK1);
 

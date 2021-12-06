@@ -242,7 +242,7 @@ int CanHitPlayer(DSWActor* actor)
 {
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
-    HitInfo hit;
+    HitInfo hit{};
     int xvect,yvect,zvect;
     int ang;
     // if actor can still see the player

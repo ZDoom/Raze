@@ -400,7 +400,7 @@ void AILion::Tick(RunListEvent* ev)
 
             for (int i = 0; i < 5; i++)
             {
-                HitInfo hit;
+                HitInfo hit{};
 
                 hitscan({ x, y, z }, pSprite->sector(), { bcos(nScanAngle), bsin(nScanAngle), 0 }, hit, CLIPMASK1);
 

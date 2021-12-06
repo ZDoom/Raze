@@ -282,7 +282,7 @@ bool FAFcansee(int32_t xs, int32_t ys, int32_t zs, sectortype* sects,
     else
         zvect = 0;
 
-    HitInfo hit;
+    HitInfo hit{};
     hitscan(s, sects, { xvect, yvect, zvect }, hit, CLIPMASK_MISSILE);
 
     if (hit.hitSector == nullptr)
