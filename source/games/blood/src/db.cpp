@@ -532,7 +532,7 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sect
         pSprite->z = LittleLong(load.z);
         pSprite->cstat = LittleShort(load.cstat);
         pSprite->picnum = LittleShort(load.picnum);
-        pSprite->sectnum = LittleShort(load.sectnum);
+        int secno = LittleShort(load.sectnum);
         pSprite->statnum = LittleShort(load.statnum);
         pSprite->ang = LittleShort(load.ang);
         pSprite->owner = LittleShort(load.owner);
@@ -552,7 +552,7 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sect
         pSprite->shade = load.shade;
         pSprite->blend = 0;
         pSprite->time = i;
-        ValidateSprite(*pSprite, i);
+        ValidateSprite(*pSprite, secno, i);
 
         if (pSprite->extra > 0)
         {

@@ -160,7 +160,7 @@ static int32_t LoadMapHack(const char *filename, SpawnSpriteDef& sprites)
             {
                 if (currentsprite != -1 && validateSprite())
                 {
-                    sprites.sprites[currentsprite].sectnum = sc.Number;
+                    sprites.sprites[currentsprite].setsector(sc.Number);
                 }
             }
         }

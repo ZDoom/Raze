@@ -257,7 +257,7 @@ static void AddSectHead(DCoreActor *actor, sectortype* sect)
 	else sect->lastEntry = actor;
 	sect->firstEntry = actor;
 	assert(ValidateSectList(sect));
-	actor->s().sectnum = sectnum(sect);
+	actor->s().setsector(sect);
 	actor->link_sector = sect;
 	GC::WriteBarrier(actor);
 	GC::WriteBarrier(head);

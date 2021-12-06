@@ -324,7 +324,7 @@ struct SpawnSpriteDef
 void insertAllSprites(SpawnSpriteDef& sprites);
 
 void allocateMapArrays(int numsprites);
-void ValidateSprite(spritetype& spr, int index);
+void ValidateSprite(spritetype& spr, int secno, int index);
 void engineLoadBoard(const char *filename, int flags, vec3_t *dapos, int16_t *daang, int *dacursectnum, SpawnSpriteDef& sprites);
 void loadMapBackup(const char* filename);
 void G_LoadMapHack(const char* filename, const unsigned char*, SpawnSpriteDef& sprites);
@@ -614,10 +614,21 @@ inline sectortype* spritetypebase::sector() const
 	return !validSectorIndex(sectnum)? nullptr : &::sector[sectnum];
 }
 
+inline int spritetypebase::sectno() const
+{
+    return sectnum;
+}
+
 inline void spritetypebase::setsector(sectortype* sect)
 {
 	// place for asserts.
 	sectnum = sect? ::sector.IndexOf(sect) : -1;
+}
+
+inline void spritetypebase::setsector(int sec)
+{
+    // place for asserts.
+    sectnum = validSectorIndex(sec)? sec : -1;
 }
 
 inline bool spritetypebase::insector() const

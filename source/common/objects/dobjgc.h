@@ -186,7 +186,7 @@ class TObjPtr
 public:
 	TObjPtr() = default;
 
-	TObjPtr(const TObjPtr<T> &q) = delete;	
+	TObjPtr(const TObjPtr<T> &q) = default;	
 
 	TObjPtr(T q) noexcept
 		: pp(q)

@@ -237,7 +237,7 @@ static void SetWallPalV5()
 	}
 }
 
-void ValidateSprite(spritetype& spr, int index)
+void ValidateSprite(spritetype& spr, int sectnum, int index)
 {
 	bool bugged = false;
 	if ((unsigned)spr.statnum >= MAXSTATUS)
@@ -250,27 +250,27 @@ void ValidateSprite(spritetype& spr, int index)
 		Printf("Sprite #%d (%d,%d) has invalid picnum %d.\n", index, spr.x, spr.y, spr.picnum);
 		bugged = true;
 	}
-	else if (!validSectorIndex(spr.sectnum))
+	else if (!validSectorIndex(sectnum))
 	{
-		int sectnum = -1;
+		sectnum = -1;
 		updatesector(spr.x, spr.y, &sectnum);
 		bugged = sectnum < 0;
 
-		if (!DPrintf(DMSG_WARNING, "Sprite #%d (%d,%d) with invalid sector %d was corrected to sector %d\n", index, spr.x, spr.y, spr.sectnum, sectnum))
+		if (!DPrintf(DMSG_WARNING, "Sprite #%d (%d,%d) with invalid sector %d was corrected to sector %d\n", index, spr.x, spr.y, sectnum, sectnum))
 		{
-			if (bugged) Printf("Sprite #%d (%d,%d) with invalid sector %d\n", index, spr.x, spr.y, spr.sectnum);
+			if (bugged) Printf("Sprite #%d (%d,%d) with invalid sector %d\n", index, spr.x, spr.y, sectnum);
 		}
-		spr.sectnum = sectnum;
 	}
 	if (bugged)
 	{
 		spr.clear();
 		spr.statnum = MAXSTATUS;
-		spr.sectnum = MAXSECTORS;
+		sectnum = -1;
 	}
+	spr.setsector(sectnum);
 }
 
-static void ReadSpriteV7(FileReader& fr, spritetype& spr)
+static void ReadSpriteV7(FileReader& fr, spritetype& spr, int& secno)
 {
 	spr.pos.x = fr.ReadInt32();
 	spr.pos.y = fr.ReadInt32();
@@ -285,7 +285,7 @@ static void ReadSpriteV7(FileReader& fr, spritetype& spr)
 	spr.yrepeat = fr.ReadUInt8();
 	spr.xoffset = fr.ReadInt8();
 	spr.yoffset = fr.ReadInt8();
-	spr.sectnum = fr.ReadInt16();
+	secno = fr.ReadInt16();
 	spr.statnum = fr.ReadInt16();
 	spr.ang = fr.ReadInt16();
 	spr.owner = fr.ReadInt16();
@@ -298,7 +298,7 @@ static void ReadSpriteV7(FileReader& fr, spritetype& spr)
 	spr.detail = 0;
 }
 
-static void ReadSpriteV6(FileReader& fr, spritetype& spr)
+static void ReadSpriteV6(FileReader& fr, spritetype& spr, int& secno)
 {
 	spr.pos.x = fr.ReadInt32();
 	spr.pos.y = fr.ReadInt32();
@@ -317,7 +317,7 @@ static void ReadSpriteV6(FileReader& fr, spritetype& spr)
 	spr.yvel = fr.ReadInt16();
 	spr.zvel = fr.ReadInt16();
 	spr.owner = fr.ReadInt16();
-	spr.sectnum = fr.ReadInt16();
+	secno = fr.ReadInt16();
 	spr.statnum = fr.ReadInt16();
 	spr.lotag = fr.ReadInt16();
 	spr.hitag = fr.ReadInt16();
@@ -326,7 +326,7 @@ static void ReadSpriteV6(FileReader& fr, spritetype& spr)
 	spr.detail = 0;
 }
 
-static void ReadSpriteV5(FileReader& fr, spritetype& spr)
+static void ReadSpriteV5(FileReader& fr, spritetype& spr, int& secno)
 {
 	spr.pos.x = fr.ReadInt32();
 	spr.pos.y = fr.ReadInt32();
@@ -341,7 +341,7 @@ static void ReadSpriteV5(FileReader& fr, spritetype& spr)
 	spr.yvel = fr.ReadInt16();
 	spr.zvel = fr.ReadInt16();
 	spr.owner = fr.ReadInt16();
-	spr.sectnum = fr.ReadInt16();
+	secno = fr.ReadInt16();
 	spr.statnum = fr.ReadInt16();
 	spr.lotag = fr.ReadInt16();
 	spr.hitag = fr.ReadInt16();
@@ -446,13 +446,14 @@ void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang,
 	fr.Seek(spritepos, FileReader::SeekSet);
 	for (int i = 0; i < numsprites; i++)
 	{
+		int secno = -1;
 		switch (mapversion)
 		{
-		case 5: ReadSpriteV5(fr, sprites.sprites[i]); break;
-		case 6: ReadSpriteV6(fr, sprites.sprites[i]); break;
-		default: ReadSpriteV7(fr, sprites.sprites[i]); break;
+		case 5: ReadSpriteV5(fr, sprites.sprites[i], secno); break;
+		case 6: ReadSpriteV6(fr, sprites.sprites[i], secno); break;
+		default: ReadSpriteV7(fr, sprites.sprites[i], secno); break;
 		}
-		ValidateSprite(sprites.sprites[i], i);
+		ValidateSprite(sprites.sprites[i], secno, i);
 
 	}
 

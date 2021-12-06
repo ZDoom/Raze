@@ -408,8 +408,10 @@ struct spritetypebase
     }
 
     sectortype* sector() const;
+    int sectno() const;
     bool insector() const;
     void setsector(sectortype*);
+    void setsector(int);
 };
 
 
