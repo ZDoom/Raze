@@ -339,13 +339,14 @@ struct spritetypebase
         };
         vec3_t opos;
     };
+    sectortype* sectp;
     uint16_t cstat;
     int16_t picnum;
     int8_t shade;
     uint8_t pal, clipdist, blend;
     uint8_t xrepeat, yrepeat;
     int8_t xoffset, yoffset;
-    int16_t sectnum, statnum;
+    int16_t statnum;
     int16_t oang, ang;
     int16_t xvel;
     int16_t yvel;
@@ -424,12 +425,12 @@ struct spritetype : public spritetypebase
 
     void clear()
     {
-        int sect = sectnum;
+        auto sect = sectp;
         int stat = statnum;
         int save = time;    // this may not be cleared ever!!!
         memset(this, 0, sizeof(*this));
         time = save;
-        sectnum = sect;
+        sectp = sect;
         statnum = stat;
     }
 
@@ -490,7 +491,7 @@ struct tspritetype : public spritetypebase
         yrepeat = spr->yrepeat;
         xoffset = spr->xoffset;
         yoffset = spr->yoffset;
-        sectnum = spr->sectnum;
+        sectp = spr->sectp;
         statnum = spr->statnum;
         ang = spr->ang;
         oang = spr->oang;

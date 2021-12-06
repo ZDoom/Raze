@@ -462,7 +462,7 @@ FSerializer &Serialize(FSerializer &arc, const char *key, spritetype &c, spritet
 			("xoffset", c.xoffset, def->xoffset)
 			("yoffset", c.yoffset, def->yoffset)
 			("statnum", c.statnum)
-			("sectnum", c.sectnum)
+			("sectnum", c.sectp)
 			("ang", c.ang, def->ang)
 			("owner", c.owner, def->owner)
 			("xvel", c.xvel, def->xvel)

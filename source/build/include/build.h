@@ -611,29 +611,29 @@ inline bool testgotpic(int32_t tilenume, bool reset = false)
 
 inline sectortype* spritetypebase::sector() const
 {
-	return !validSectorIndex(sectnum)? nullptr : &::sector[sectnum];
+    return sectp;
 }
 
 inline int spritetypebase::sectno() const
 {
-    return sectnum;
+    return sectp? ::sector.IndexOf(sectp) : -1;
 }
 
 inline void spritetypebase::setsector(sectortype* sect)
 {
 	// place for asserts.
-	sectnum = sect? ::sector.IndexOf(sect) : -1;
+    sectp = sect;
 }
 
 inline void spritetypebase::setsector(int sec)
 {
     // place for asserts.
-    sectnum = validSectorIndex(sec)? sec : -1;
+    sectp = validSectorIndex(sec)? &::sector[sec] : nullptr;
 }
 
 inline bool spritetypebase::insector() const
 {
-	return validSectorIndex(sectnum);
+	return sectp != nullptr;
 }
 
 

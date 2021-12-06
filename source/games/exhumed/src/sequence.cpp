@@ -582,7 +582,7 @@ int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
         tsp->yrepeat = pTSprite->yrepeat;
         tsp->ang = pTSprite->ang;
         tsp->ownerActor = pTSprite->ownerActor;
-        tsp->sectnum = pTSprite->sectnum;
+        tsp->sectp = pTSprite->sectp;
         tsp->cstat   = pTSprite->cstat |= 0x80;
         tsp->cstat2 = pTSprite->cstat2;
         tsp->statnum = esi;
