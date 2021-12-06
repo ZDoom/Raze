@@ -43,6 +43,9 @@ typedef struct {
 static_assert(sizeof(vec3d_t) == sizeof(double) * 3);
 int32_t xyaspect = -1;
 bool inpreparemirror = 0;
+int32_t r_rortexture = 0;
+int32_t r_rortexturerange = 0;
+int32_t r_rorphase = 0;
 
 
 
@@ -65,7 +68,6 @@ int pm_smoothratio;
 CVAR(Int, skytile, 0, 0)
 CVAR(Bool, testnewrenderer, false, CVAR_ARCHIVE|CVAR_GLOBALCONFIG)
 
-extern fixed_t global100horiz;  // (-100..300)-scale horiz (the one passed to drawrooms)
 static vec3_t spritesxyz[MAXSPRITESONSCREEN + 1];
 static int16_t thewall[MAXWALLSB];
 static int16_t bunchp2[MAXWALLSB], thesector[MAXWALLSB];
@@ -3290,8 +3292,6 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
 
     set_globalpos(daposx, daposy, daposz);
     Polymost::set_globalang(daang);
-
-    global100horiz = dahoriz;
 
     gotsector.Zero();
     qglobalhoriz = MulScale(dahoriz, DivScale(xdimenscale, viewingrange, 16), 16) + IntToFixed(ydimen >> 1);

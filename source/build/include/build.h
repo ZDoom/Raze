@@ -248,8 +248,6 @@ enum {
     GLOBAL_NO_GL_FOGSHADE = 1<<2,
 };
 
-extern const char *engineerrstr;
-
 EXTERN int32_t editorzrange[2];
 
 enum {
@@ -261,55 +259,6 @@ enum {
 
 EXTERN int32_t enginecompatibility_mode;
 
-/*************************************************************************
-POSITION VARIABLES:
-
-        POSX is your x - position ranging from 0 to 65535
-        POSY is your y - position ranging from 0 to 65535
-            (the length of a side of the grid in EDITBORD would be 1024)
-        POSZ is your z - position (height) ranging from 0 to 65535, 0 highest.
-        ANG is your angle ranging from 0 to 2047.  Instead of 360 degrees, or
-             2 * PI radians, I use 2048 different angles, so 90 degrees would
-             be 512 in my system.
-
-SPRITE VARIABLES:
-
-    EXTERN short headspritesect[MAXSECTORS+1], headspritestat[MAXSTATUS+1];
-    EXTERN short prevspritesect[MAXSPRITES], prevspritestat[MAXSPRITES];
-    EXTERN short nextspritesect[MAXSPRITES], nextspritestat[MAXSPRITES];
-
-    Example: if the linked lists look like the following:
-         ????????????????
-               Sector lists:               Status lists:
-         ????????????????J
-           Sector0:  4, 5, 8             Status0:  2, 0, 8
-           Sector1:  16, 2, 0, 7         Status1:  4, 5, 16, 7, 3, 9
-           Sector2:  3, 9
-         ????????????????
-    Notice that each number listed above is shown exactly once on both the
-        left and right side.  This is because any sprite that exists must
-        be in some sector, and must have some kind of status that you define.
-
-
-OTHER VARIABLES:
-
-        SINTABLE[2048] is a sin table with 2048 angles rather than the
-            normal 360 angles for higher precision.  Also since SINTABLE is in
-            all integers, the range is multiplied by 16383, so instead of the
-            normal -1<sin(x)<1, the range of sintable is -16383<sintable[]<16383
-            If you use this sintable, you can possibly speed up your code as
-            well as save space in memory.  If you plan to use sintable, 2
-            identities you may want to keep in mind are:
-                sintable[ang&2047]       = sin(ang * (3.141592/1024)) * 16383
-                sintable[(ang+512)&2047] = cos(ang * (3.141592/1024)) * 16383
-        NUMSECTORS - the total number of existing sectors.  Modified every time
-            you call the loadboard function.
-***************************************************************************/
-
-typedef struct artheader_t {
-    int32_t tilestart, tileend, numtiles;
-} artheader_t;
-#define ARTv1_UNITOFFSET 24 // using sizeof does not work because picanm_t is not the in-file format.
 
 int32_t    engineInit(void);
 void   engineUnInit(void);

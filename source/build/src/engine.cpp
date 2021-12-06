@@ -44,9 +44,6 @@
 TArray<sectortype> sector;
 TArray<walltype> wall;
 
-int32_t r_rortexture = 0;
-int32_t r_rortexturerange = 0;
-int32_t r_rorphase = 0;
 int32_t mdtims, omdtims;
 
 float fcosglobalang, fsinglobalang;
@@ -55,47 +52,7 @@ float fydimen, fviewingrange;
 uint8_t globalr = 255, globalg = 255, globalb = 255;
 
 int16_t pskybits_override = -1;
-
-static int32_t beforedrawrooms = 1;
-
-static int32_t no_radarang2 = 0;
 static int16_t radarang[1280];
-
-const char *engineerrstr = "No error";
-
-int32_t showfirstwall=0;
-int32_t showheightindicators=1;
-int32_t circlewall=-1;
-
-fixed_t global100horiz;  // (-100..300)-scale horiz (the one passed to drawrooms)
-
-static FString printcoords(void)
-{
-    FString str;
-
-    str.Format(
-        "pos.x: %d\n"
-        "pos.y: %d\n"
-        "pos.z: %d\n"
-        "ang  : %d\n"
-        "horiz: %d\n",
-        globalposx, globalposy,
-        globalposz, globalang, 
-        FixedToInt(global100horiz)
-    );
-
-    return str;
-}
-
-CCMD(printcoords)
-{
-    Printf("%s", printcoords().GetChars());
-}
-
-ADD_STAT(printcoords)
-{
-    return printcoords();
-}
 
 // adapted from build.c
 static void getclosestpointonwall_internal(vec2_t const p, int32_t const dawall, vec2_t *const closest)
@@ -139,7 +96,6 @@ int32_t cosviewingrangeglobalang, sinviewingrangeglobalang;
 
 int32_t viewingrangerecip;
 
-static int32_t globalxpanning, globalypanning;
 int32_t globalshade, globalorientation;
 int16_t globalpicnum;
 
