@@ -36,7 +36,7 @@ void QuitGame(void);
 
 enum
 {
-    kMaxSprites = MAXSPRITES,
+    kMagicOwner = 16383,
 
     kMaxTiles = MAXTILES,
     kMaxStatus = MAXSTATUS,

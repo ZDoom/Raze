@@ -42,9 +42,9 @@
 #include "hw_sections.h"
 
 
-SectionLine sectionLines[MAXWALLS + (MAXWALLS >> 2)];
+TArray<SectionLine> sectionLines;
 TArray<Section> Sections;
-TArray<int> sectionspersector[MAXSECTORS];	// reverse map, mainly for the automap
+TArray<TArray<int>> sectionspersector;	// reverse map, mainly for the automap
 int numsectionlines;
 
 void hw_SplitSector(int sector, int startpos, int endpos);
@@ -55,16 +55,11 @@ TArray<int> splits;
 void hw_BuildSections()
 {
 	Sections.Resize(numsectors);
+	sectionspersector.Resize(numsectors);
+	sectionLines.Resize(numwalls * 5 / 4); // cannot reallocate, unfortunately.
+	numsectionlines = numwalls;
 	for (int i = 0; i < numsectors; i++)
 	{
-		// Fix maps which do not set their wallptr to the first wall. Lo Wang In Time's map 11 is such a case.
-		int wp = sector[i].wallptr;
-		while  (wp > 0 && wall[wp - 1].nextwall >= 0 && wall[wp - 1].nextWall()->nextsector == i)
-		{
-			sector[i].wallptr--;
-			sector[i].wallnum++;
-			wp--;
-		}
 		Sections[i].sector = i;
 		Sections[i].lines.Resize(sector[i].wallnum);
 		for (int j = 0; j < sector[i].wallnum; j++) Sections[i].lines[j] = sector[i].wallptr + j;

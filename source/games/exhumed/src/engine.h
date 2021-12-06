@@ -25,7 +25,6 @@ BEGIN_PS_NS
 enum
 {
 	kStatIgnited = 404,
-	kMaxSprites = 4096,
 	kMaxVoxels	= 4096,
 	kMaxPalookups = 256,
 	kMaxStatus   = 1024,

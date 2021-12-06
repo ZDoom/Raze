@@ -645,6 +645,8 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sect
 #endif
         }
     }
+    fixSectors();
+        
     unsigned int nCRC = fr.ReadUInt32();
 
     fr.Seek(0, FileReader::SeekSet);

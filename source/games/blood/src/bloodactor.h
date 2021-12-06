@@ -111,12 +111,12 @@ public:
 	void SetSpecialOwner() // nnext hackery
 	{
 		ownerActor = nullptr;
-		s().owner = kMaxSprites - 1;
+		s().owner = kMagicOwner;
 	}
 
 	bool GetSpecialOwner()
 	{
-		return  ownerActor == nullptr && (s().owner == kMaxSprites - 1);
+		return  ownerActor == nullptr && (s().owner == kMagicOwner);
 	}
 
 	bool IsPlayerActor()

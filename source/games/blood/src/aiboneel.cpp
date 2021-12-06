@@ -67,7 +67,7 @@ void eelBiteSeqCallback(int, DBloodActor* actor)
 
 	/*
 	 * workaround for
-	 * pXSprite->target >= 0 && pXSprite->target < kMaxSprites in file NBlood/source/blood/src/aiboneel.cpp at line 86
+	 * pXSprite->target >= 0 in file NBlood/source/blood/src/aiboneel.cpp at line 86
 	 * The value of pXSprite->target is -1.
 	 * copied from lines 177:181
 	 * resolves this case, but may cause other issues?

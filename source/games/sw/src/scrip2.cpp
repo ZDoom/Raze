@@ -58,7 +58,6 @@ ParentalStruct aVoxelArray[MAXTILES];
 
 static char* script_p, * scriptend_p;
 static char    token[MAXTOKEN];
-static int     grabbed;
 static int     scriptline;
 static bool    endofscript;
 static bool    tokenready;                     // only true if UnGetToken was just called
@@ -196,12 +195,8 @@ void LoadKVXFromScript(const char* filename)
     int lNumber = 0, lTile = 0; // lNumber is the voxel no. and lTile is the editart tile being
     // replaced.
 
-    int grabbed = 0;          // Number of lines parsed
-
     // zero out the array memory with -1's for pics not being voxelized
     memset(&aVoxelArray[0], -1, sizeof(struct TILE_INFO_TYPE) * MAXTILES);
-
-    grabbed = 0;
 
     // Load the file
     auto buffer = LoadScriptFile(filename);
@@ -235,10 +230,6 @@ void LoadKVXFromScript(const char* filename)
 
         if (lNumber >= nextvoxid)   // JBF: so voxels in the def file append to the list
             nextvoxid = lNumber + 1;
-
-        grabbed++;
-        ASSERT(grabbed < MAXSPRITES);
-
     }
     while (script_p < scriptend_p);
 

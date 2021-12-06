@@ -21,10 +21,9 @@ struct Section
 };
 
 // giving 25% more may be a bit high as normally this should be small numbers only.
-extern SectionLine sectionLines[MAXWALLS + (MAXWALLS >> 2)];
+extern TArray<SectionLine> sectionLines;
 extern TArray<Section> Sections;
-extern TArray<int> sectionspersector[MAXSECTORS];	// reverse map, mainly for the automap
-extern int numsectionlines;
+extern TArray<TArray<int>> sectionspersector;	// reverse map, mainly for the automap
 
 
 void hw_BuildSections();

@@ -100,21 +100,6 @@ struct BloodSpawnSpriteDef : public SpawnSpriteDef
     TArray<XSPRITE> xspr;
 };
 
-#ifdef POLYMER
-#pragma pack(push, 1)
-struct PolymerLight_t {
-    int16_t lightId, lightmaxrange;
-    _prlight* lightptr;
-    uint8_t lightcount;
-};
-#pragma pack(pop)
-
-extern PolymerLight_t gPolymerLight[kMaxSprites];
-
-void DeleteLight(int32_t s);
-
-#endif
-
 DBloodActor* InsertSprite(sectortype* pSector, int nStat);
 int DeleteSprite(DBloodActor* actor);
 

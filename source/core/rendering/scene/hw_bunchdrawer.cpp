@@ -74,8 +74,8 @@ void BunchDrawer::Init(HWDrawInfo *_di, Clipper* c, vec2_t& view, binangle a1, b
 		// Precalculate the clip angles to avoid doing this repeatedly during level traversal.
 		wall[i].clipangle = clipper->PointToAngle(wall[i].pos);
 	}
-	memset(sectionstartang, -1, sizeof(sectionstartang));
-	memset(sectionendang, -1, sizeof(sectionendang));
+	memset(sectionstartang.Data(), -1, sectionstartang.Size() * sizeof(sectionstartang[0]));
+	memset(sectionendang.Data(), -1, sectionendang.Size() * sizeof(sectionendang[0]));
 	gotwall.Resize(numwalls);
 	blockwall.Resize(numwalls);
 }
@@ -94,8 +94,11 @@ void BunchDrawer::StartScene()
 	CompareData.Clear();
 	gotsector.Resize(numsectors);
 	gotsector.Zero();
+	gotsection2.Resize(Sections.Size());
 	gotsection2.Zero();
 	gotwall.Zero();
+	sectionstartang.Resize(Sections.Size());
+	sectionendang.Resize(Sections.Size());
 	blockwall.Zero();
 }
 

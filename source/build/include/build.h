@@ -38,19 +38,15 @@ typedef int64_t coord_t;
 
 enum
 {
-    MAXSECTORS = 4096,
-    MAXWALLS = 16384,
-    MAXSPRITES = 16384,
-
     MAXVOXMIPS = 5,
 
-    MAXWALLSB = ((MAXWALLS >> 2) + (MAXWALLS >> 3)),
+    MAXWALLSB = 6144,
 
     MAXVOXELS = 1024,
     MAXSTATUS = 1024,
     // Maximum number of component tiles in a multi-psky:
     MAXPSKYTILES = 16,
-    MAXSPRITESONSCREEN = MAXSPRITES >> 2,
+    MAXSPRITESONSCREEN = 4096,
     MAXUNIQHUDID = 256, //Extra slots so HUD models can store animation state without messing game sprites
 
     TSPR_TEMP = 99,
@@ -274,6 +270,7 @@ void insertAllSprites(SpawnSpriteDef& sprites);
 
 void allocateMapArrays(int numsprites);
 void ValidateSprite(spritetype& spr, int secno, int index);
+void fixSectors();
 void engineLoadBoard(const char *filename, int flags, vec3_t *dapos, int16_t *daang, int *dacursectnum, SpawnSpriteDef& sprites);
 void loadMapBackup(const char* filename);
 void G_LoadMapHack(const char* filename, const unsigned char*, SpawnSpriteDef& sprites);

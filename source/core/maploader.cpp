@@ -385,6 +385,22 @@ void allocateMapArrays(int numsprites)
 	ClearAutomap();
 }
 
+void fixSectors()
+{
+	for(auto& sect : sectors())
+	{
+		// Fix maps which do not set their wallptr to the first wall of the sector. Lo Wang In Time's map 11 is such a case.
+		auto wp = sect.firstWall();
+		// Note: we do not have the 'sector' index initialized here, it would not be helpful anyway for this fix.
+		while (wp != wall.Data() && wp[-1].twoSided() && wp[-1].nextWall()->nextWall() == &wp[-1] && wp[-1].nextWall()->nextSector() == &sect)
+		{
+			sect.wallptr--;
+			sect.wallnum++;
+			wp--;
+		}
+	}
+}
+
 void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang, int* cursectnum, SpawnSpriteDef& sprites)
 {
 	inputState.ClearAllInput();
@@ -411,7 +427,6 @@ void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang,
 	auto wallpos = fr.Tell();
 	fr.Seek((mapversion == 5 ? wallsize5 : mapversion == 6 ? wallsize6 : wallsize7)* numwalls, FileReader::SeekCur);
 	int numsprites = fr.ReadUInt16();
-	if ((unsigned)numsprites > MAXSPRITES) I_Error("%s: Invalid map, too many sprites", filename);
 	auto spritepos = fr.Tell();
 
 	// Now that we know the map's size, set up the globals.
@@ -464,6 +479,7 @@ void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang,
 	artSetupMapArt(filename);
 
 	//Must be last.
+	fixSectors();
 	updatesector(pos->x, pos->y, cursectnum);
 	guniqhudid = 0;
 	fr.Seek(0, FileReader::SeekSet);

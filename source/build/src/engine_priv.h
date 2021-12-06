@@ -34,8 +34,6 @@ int32_t animateoffs(int tilenum, int fakevar);
 
 inline int32_t bad_tspr(tspriteptr_t tspr)
 {
-    // NOTE: tspr->owner >= MAXSPRITES (could be model) has to be handled by
-    // caller.
     return (tspr->ownerActor == nullptr || (unsigned)tspr->picnum >= MAXTILES);
 }
 

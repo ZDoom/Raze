@@ -105,7 +105,7 @@ static int32_t LoadMapHack(const char *filename, SpawnSpriteDef& sprites)
             if (sc.CheckNumber())
             {
                 currentsprite = sc.Number;
-                if (currentsprite < 0 || currentsprite >= MAXSPRITES)
+                if ((unsigned)currentsprite >= sprites.sprites.Size())
                 {
                     sc.ScriptMessage("Invalid sprite number %d", currentsprite);
                     currentsprite = -1;

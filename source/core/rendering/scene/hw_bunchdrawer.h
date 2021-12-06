@@ -28,12 +28,12 @@ class BunchDrawer
     vec2_t iview;
     float gcosang, gsinang;
     BitArray gotsector;
-    FixedBitArray<MAXSECTORS*5/4> gotsection2;
+    BitArray gotsection2;
     BitArray gotwall;
     BitArray blockwall;
     binangle ang1, ang2, angrange;
 
-    int sectionstartang[MAXSECTORS*5/4], sectionendang[MAXSECTORS*5/4];
+    TArray<int> sectionstartang, sectionendang;
 
 private:
 
