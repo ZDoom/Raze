@@ -63,17 +63,20 @@ struct walltype;
 struct sectortype
 {
     DCoreActor* firstEntry, * lastEntry;
-
-    int16_t wallptr, wallnum;
+    int32_t wallptr;
     int32_t ceilingz, floorz;
+
+    int16_t wallnum;
     uint16_t ceilingstat, floorstat;
     int16_t ceilingpicnum, ceilingheinum;
+    int16_t floorpicnum, floorheinum;
+
     int8_t ceilingshade;
     uint8_t ceilingpal; /*CM_FLOORZ:*/
-    int16_t floorpicnum, floorheinum;
     int8_t floorshade;
     uint8_t floorpal;;
     uint8_t /*CM_CEILINGZ:*/ visibility, fogpal;
+
     union {
         int16_t lotag, type;
     };
@@ -82,9 +85,9 @@ struct sectortype
 
     uint8_t dirty;
     uint8_t exflags;
-    float ceilingxpan_, ceilingypan_, floorxpan_, floorypan_;
     uint8_t portalflags;
     int8_t portalnum;
+    float ceilingxpan_, ceilingypan_, floorxpan_, floorypan_;
 
     // section reference (not written to a savegame
     int numsections;
@@ -187,7 +190,7 @@ struct walltype
         };
         vec2_t pos;
     };
-    int16_t point2, nextwall, sector, nextsector;
+    int32_t point2, nextwall, sector, nextsector;
     uint16_t cstat;
     int16_t picnum, overpicnum;
     int8_t shade;
