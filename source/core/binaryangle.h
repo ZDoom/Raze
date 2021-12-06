@@ -226,9 +226,9 @@ inline FSerializer &Serialize(FSerializer &arc, const char *key, binangle &obj, 
 
 inline double HorizToPitch(double horiz) { return atan2(horiz, 128) * (180. / pi::pi()); }
 inline double HorizToPitch(fixed_t q16horiz) { return atan2(q16horiz, IntToFixed(128)) * (180. / pi::pi()); }
-inline fixed_t PitchToHoriz(double pitch) { return xs_CRoundToInt(IntToFixed(128) * tan(pitch * (pi::pi() / 180.))); }
-inline int32_t PitchToBAM(double pitch) { return xs_CRoundToInt(clamp<double>(pitch * (1073741823.5 / 45.), -INT32_MAX, INT32_MAX)); }
-inline constexpr double BAMToPitch(int32_t bam) { return bam * (45. / 1073741823.5); }
+inline fixed_t PitchToHoriz(double pitch) { return xs_CRoundToInt(clamp<double>(IntToFixed(128) * tan(pitch * (pi::pi() / 180.)), INT32_MIN, INT32_MAX)); }
+inline int32_t PitchToBAM(double pitch) { return xs_CRoundToInt(clamp<double>(pitch * (0x80000000u / 90.), INT32_MIN, INT32_MAX)); }
+inline constexpr double BAMToPitch(int32_t bam) { return bam * (90. / 0x80000000u); }
 
 
 //---------------------------------------------------------------------------
