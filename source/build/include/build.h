@@ -351,7 +351,7 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
 void neartag(const vec3_t& pos, sectortype* sect, int angle, HitInfoBase& result, int neartagrange, int tagsearch);
 
 int cansee(int x1, int y1, int z1, sectortype* sect1, int x2, int y2, int z2, sectortype* sect2);
-int32_t   inside(int32_t x, int32_t y, int sectnum);
+int32_t   inside(int32_t x, int32_t y, const sectortype* sectnum);
 void   dragpoint(int pointhighlight, int32_t dax, int32_t day);
 int32_t try_facespr_intersect(uspriteptr_t const spr, vec3_t const in,
                                      int32_t vx, int32_t vy, int32_t vz,
@@ -380,9 +380,6 @@ inline void updatesectorz(int32_t const x, int32_t const y, int32_t const z, sec
 void updatesectorneighbor(int32_t const x, int32_t const y, int * const sectnum, int32_t maxDistance = MAXUPDATESECTORDIST) ATTRIBUTE((nonnull(3)));
 
 
-int findwallbetweensectors(int sect1, int sect2);
-
-inline int sectoradjacent(int sect1, int sect2) { return findwallbetweensectors(sect1, sect2) != -1; }
 int32_t getsectordist(vec2_t const in, int const sectnum, vec2_t * const out = nullptr);
 extern const int16_t *chsecptr_onextwall;
 
@@ -556,9 +553,9 @@ extern int skiptile;
 
 static vec2_t const zerovec = { 0, 0 };
 
-inline int inside_p(int32_t const x, int32_t const y, int const sectnum) { return (sectnum >= 0 && inside(x, y, sectnum) == 1); }
+inline int inside_p(int32_t const x, int32_t const y, int const sectnum) { return (sectnum >= 0 && inside(x, y, &sector[sectnum]) == 1); }
 // same as above but with the same signature as inside_z_p for passing to updatesectorneighborz.
-inline int inside_p0(int32_t const x, int32_t const y, int32_t const z, int const sectnum) { return (sectnum >= 0 && inside(x, y, sectnum) == 1); } 
+inline int inside_p0(int32_t const x, int32_t const y, int32_t const z, int const sectnum) { return inside_p(x, y, sectnum); }
 
 #define SET_AND_RETURN(Lval, Rval) \
     do                             \

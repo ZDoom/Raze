@@ -1021,7 +1021,6 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
                 }
             }
         }
-		int nNextSector = sectnum(pNextSector);
         it.Reset(pNextSector);
         while (auto pActor = it.Next())
         {

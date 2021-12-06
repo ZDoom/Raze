@@ -1,5 +1,6 @@
 #pragma once
 #include "build.h"
+#include "gamefuncs.h"
 
 class FSerializer;
 struct IntRect;
@@ -56,7 +57,7 @@ inline void mergePortals()
 					{
 						for (unsigned t = 0; t < pt2.targets.Size(); t++)
 						{
-							if (findwallbetweensectors(pt1.targets[s], pt2.targets[t]) >= 0)
+							if (sectorsConnected(pt1.targets[s], pt2.targets[t]))
 							{
 								pt1.targets.Append(pt2.targets);
 								pt2.targets.Reset();

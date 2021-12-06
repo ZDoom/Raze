@@ -302,6 +302,21 @@ void checkRotatedWalls()
 
 //==========================================================================
 //
+// check if two sectors share a wall connection
+//
+//==========================================================================
+
+bool sectorsConnected(int sect1, int sect2)
+{
+	for (auto& wal : wallsofsector(sect1))
+	{
+		if (wal.nextsector == sect2) return true;
+	}
+	return false;
+}
+
+//==========================================================================
+//
 // vector serializers
 //
 //==========================================================================

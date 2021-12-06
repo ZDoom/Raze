@@ -59,7 +59,7 @@ void hw_BuildSections()
 	{
 		// Fix maps which do not set their wallptr to the first wall. Lo Wang In Time's map 11 is such a case.
 		int wp = sector[i].wallptr;
-		while  (wp > 0 && wall[wp - 1].nextwall >= 0 && wall[wall[wp - 1].nextwall].nextsector == i)
+		while  (wp > 0 && wall[wp - 1].nextwall >= 0 && wall[wp - 1].nextWall()->nextsector == i)
 		{
 			sector[i].wallptr--;
 			sector[i].wallnum++;

@@ -529,7 +529,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 
            // We're not interested in any sector reached by portal traversal that we're "inside" of.
             if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE && !curspr && dasect != initialsectnum
-                && inside(pos->x, pos->y, dasect) == 1)
+                && inside(pos->x, pos->y, sec) == 1)
             {
                 int k;
                 for (k=startwall; k<endwall; k++)
@@ -706,7 +706,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
                 {
                     vec2_t const vec = pos->vec2;
                     keepaway(&pos->x, &pos->y, i);
-                    if (inside(pos->x,pos->y, *sectnum) != 1)
+                    if (inside_p(pos->x,pos->y, *sectnum) != 1)
                         pos->vec2 = vec;
                     break;
                 }
@@ -779,7 +779,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
     if (enginecompatibility_mode != ENGINECOMPATIBILITY_NONE)
     {
         for (int j=0; j<clipsectnum; j++)
-            if (inside(pos->x, pos->y, clipsectorlist[j]) == 1)
+            if (inside_p(pos->x, pos->y, clipsectorlist[j]) == 1)
             {
                 *sectnum = clipsectorlist[j];
                 return clipReturn;
@@ -788,7 +788,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
         int32_t tempint2, tempint1 = INT32_MAX;
         *sectnum = -1;
         for (int j=numsectors-1; j>=0; j--)
-            if (inside(pos->x, pos->y, j) == 1)
+            if (inside_p(pos->x, pos->y, j) == 1)
             {
                 if (enginecompatibility_mode != ENGINECOMPATIBILITY_19950829 && (sector[j].ceilingstat&2))
                     tempint2 = getceilzofslope(j, pos->x, pos->y) - pos->z;
@@ -1234,7 +1234,7 @@ static int32_t hitscan_trysector(const vec3_t *sv, sectortype* sec, HitInfoBase 
 
     if ((x1 != INT32_MAX) && (abs(x1-sv->x)+abs(y1-sv->y) < abs((hit->hitpos.x)-sv->x)+abs((hit->hitpos.y)-sv->y)))
     {
-        if (inside(x1,y1,sectnum(sec)) == 1)
+        if (inside(x1,y1,sec) == 1)
         {
             hit_set(hit, sec, nullptr, nullptr, x1, y1, z1);
             hitscan_hitsectcf = (how+1)>>1;

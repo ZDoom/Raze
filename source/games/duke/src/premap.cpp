@@ -892,7 +892,7 @@ static void SpawnPortals()
 				{
 					for (auto& t : pt.targets)
 					{
-						if (findwallbetweensectors(i, t) >= 0)
+						if (sectorsConnected(i, t))
 						{
 							sectp->portalflags = PORTAL_SECTOR_FLOOR;
 							sectp->portalnum = uint8_t(1 ^ (&pt - allPortals.Data()));
@@ -909,9 +909,9 @@ static void SpawnPortals()
 			{
 				if (pt.type == PORTAL_SECTOR_FLOOR)
 				{
-					for (auto& t : pt.targets)
+					for (auto t : pt.targets)
 					{
-						if (findwallbetweensectors(i, t) >= 0)
+						if (sectorsConnected(i, t))
 						{
 							sectp->portalflags = PORTAL_SECTOR_CEILING;
 							sectp->portalnum = uint8_t(1 ^ (&pt - allPortals.Data()));

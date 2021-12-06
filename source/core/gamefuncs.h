@@ -128,6 +128,7 @@ void GetWallSpritePosition(const tspritetype* spr, vec2_t pos, vec2_t* out, bool
 void GetFlatSpritePosition(const tspritetype* spr, vec2_t pos, vec2_t* out, bool render = false);
 void GetFlatSpritePosition(const spritetype* spr, vec2_t pos, vec2_t* out, bool render = false);
 void checkRotatedWalls();
+bool sectorsConnected(int sect1, int sect2);
 
 // y is negated so that the orientation is the same as in GZDoom, in order to use its utilities.
 // The render code should NOT use Build coordinates for anything!
@@ -319,11 +320,6 @@ inline double SquareDistToWall(double px, double py, const walltype* wal)
 	return SquareDist(px, py, lx1 + t * (lx2 - lx1), ly1 + t * (ly2 - ly1));
 }
 
-inline int inside(int x, int y, sectortype* sect)
-{
-	return inside(x, y, sectnum(sect));
-}
-
 inline void   dragpoint(walltype* pointhighlight, int32_t dax, int32_t day)
 {
 	dragpoint(wallnum(pointhighlight), dax, day);
@@ -343,11 +339,4 @@ inline void updatesectorneighbor(int32_t const x, int32_t const y, sectortype* *
 	int sectno = *sect? sector.IndexOf(*sect) : -1;
 	updatesectorneighbor(x, y, &sectno, maxDistance);
 	*sect = sectno < 0? nullptr : &sector[sectno];
-}
-
-
-
-inline int findwallbetweensectors(sectortype* sect1, sectortype* sect2)
-{
-	return findwallbetweensectors(sectnum(sect1), sectnum(sect2));
 }

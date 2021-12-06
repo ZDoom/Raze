@@ -54,7 +54,7 @@ static FVector3 CalcNormal(sectortype* sector, int plane)
 {
 	FVector3 pt[3];
 
-	auto wal = &wall[sector->wallptr];
+	auto wal = sector->firstWall();
 	auto wal2 = wal->point2Wall();
 
 	pt[0] = { (float)WallStartX(wal), (float)WallStartY(wal), 0 };

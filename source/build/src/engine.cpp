@@ -443,21 +443,16 @@ int32_t engineInit(void)
 // See http://fabiensanglard.net/duke3d/build_engine_internals.php,
 // "Inside details" for the idea behind the algorithm.
 
-int32_t inside(int32_t x, int32_t y, int sectnum)
+int32_t inside(int32_t x, int32_t y, const sectortype* sect)
 {
-	if (validSectorIndex(sectnum))
+	if (sect)
     {
-        uint32_t cnt = 0;
-        auto wal       = (uwallptr_t)sector[sectnum].firstWall();
-        int  wallsleft = sector[sectnum].wallnum;
-
-        do
+        unsigned cnt = 0;
+        vec2_t xy = { x, y };
+        for(auto& wal : wallsofsector(sect))
         {
-            // Get the x and y components of the [tested point]-->[wall
-            // point{1,2}] vectors.
-            vec2_t v1 = { wal->x - x, wal->y - y };
-            auto const &wal2 = *(uwallptr_t)wal->point2Wall();
-            vec2_t v2 = { wal2.x - x, wal2.y - y };
+            vec2_t v1 = wal.pos - xy;
+            vec2_t v2 = wal.point2Wall()->pos - xy;
 
             // If their signs differ[*], ...
             //
@@ -467,14 +462,9 @@ int32_t inside(int32_t x, int32_t y, int sectnum)
             // where y_m := min(y1, y2) and y_M := max(y1, y2).
             if ((v1.y^v2.y) < 0)
                 cnt ^= (((v1.x^v2.x) >= 0) ? v1.x : (v1.x*v2.y-v2.x*v1.y)^v2.y);
-
-            wal++;
         }
-        while (--wallsleft);
-
         return cnt>>31;
     }
-
     return -1;
 }
 
@@ -853,22 +843,6 @@ int32_t getsectordist(vec2_t const in, int const sectnum, vec2_t * const out /*=
 
     return distance;
 }
-
-int findwallbetweensectors(int sect1, int sect2)
-{
-    if (sector[sect1].wallnum > sector[sect2].wallnum)
-        std::swap(sect1, sect2);
-
-    auto const sec  = (usectorptr_t)&sector[sect1];
-    int const  last = sec->wallptr + sec->wallnum;
-
-    for (int i = sec->wallptr; i < last; i++)
-        if (wall[i].nextsector == sect2)
-            return i;
-
-    return -1;
-}
-
 
 
 template<class Inside>
