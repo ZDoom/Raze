@@ -376,6 +376,7 @@ struct spritetype
     }
 
     sectortype* sector() const;
+    bool insector() const;
 };
 
 using tspritetype = spritetype;

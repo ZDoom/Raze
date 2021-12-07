@@ -526,7 +526,7 @@ void moveplayers(void)
 			}
 		}
 
-		if (spri->sector())
+		if (spri->insector())
 		{
 			if (spri->sector()->ceilingstat & 1)
 				spri->shade += (spri->sector()->ceilingshade - spri->shade) >> 1;

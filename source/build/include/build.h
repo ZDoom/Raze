@@ -742,6 +742,12 @@ inline bool testgotpic(int32_t tilenume, bool reset = false)
 }
 
 
+inline bool spritetype::insector() const
+{
+    return validSectorIndex(sectnum);
+}
+
+
 #include "iterators.h"
 
 #endif // build_h_
