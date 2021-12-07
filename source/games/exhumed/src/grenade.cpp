@@ -52,7 +52,7 @@ void ThrowGrenade(int nPlayer, int, int, int ecx, int push1)
     if (PlayerList[nPlayer].pPlayerGrenade == nullptr)
         return;
 
-    auto pActor = PlayerList[nPlayer].pPlayerGrenade;
+    DExhumedActor* pActor = PlayerList[nPlayer].pPlayerGrenade;
     auto pGrenadeSprite = &pActor->s();
     auto pPlayerActor = PlayerList[nPlayer].Actor();
     auto pPlayerSprite = &pPlayerActor->s();

@@ -127,7 +127,7 @@ void AISpider::Tick(RunListEvent* ev)
         spp->nFrame = 0;
     }
 
-    auto pTarget = spp->pTarget;
+    DExhumedActor* pTarget = spp->pTarget;
 
     if (pTarget == nullptr || pTarget->s().cstat & 0x101)
     {

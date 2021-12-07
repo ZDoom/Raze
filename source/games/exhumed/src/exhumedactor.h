@@ -19,7 +19,7 @@ class DExhumedActor : public DCoreActor
 	HAS_OBJECT_POINTERS
 
 public:
-	DExhumedActor* pTarget;
+	TObjPtr<DExhumedActor*> pTarget;
 
 	int16_t nPhase;
 

@@ -65,6 +65,7 @@ TArray<DCoreActor*> checked;
 
 static bool ValidateStatList(int statnum)
 {
+#if 0
 	checked.Clear();
 	for (auto entry = statList[statnum].firstEntry; entry; entry = entry->nextStat)
 	{
@@ -75,6 +76,7 @@ static bool ValidateStatList(int statnum)
 		assert(entry->prevStat == nullptr || entry->prevStat->nextStat == entry);
 		assert(entry->nextStat == nullptr || entry->nextStat->prevStat == entry);
 	}
+#endif
 	return true;
 }
 
@@ -197,6 +199,7 @@ int ChangeActorStat(DCoreActor* actor, int statnum, bool tail)
 
 static bool ValidateSectList(sectortype* sect, DCoreActor *checkme = nullptr)
 {
+#if 0
 	assert(sect);
 	checked.Clear();
 	assert(sect->firstEntry == nullptr || sect->firstEntry->prevSect == nullptr);
@@ -211,6 +214,7 @@ static bool ValidateSectList(sectortype* sect, DCoreActor *checkme = nullptr)
 		assert(entry->prevSect == nullptr || entry->prevSect->nextSect == entry);
 		assert(entry->nextSect == nullptr || entry->nextSect->prevSect == entry);
 	}
+#endif
 	return true;
 }
 
@@ -330,8 +334,6 @@ static void InsertActorSect(DCoreActor* actor, sectortype* sector, bool tail)
 void ChangeActorSect(DCoreActor* actor, sectortype* sect, bool tail)
 {
 	if (sect == nullptr) return;
-	auto old_sect = actor->link_sector;
-	assert(actor->s().insector());
 	RemoveActorSect(actor);
 	InsertActorSect(actor, sect, tail);
 }

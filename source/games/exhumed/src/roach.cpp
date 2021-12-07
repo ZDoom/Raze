@@ -206,7 +206,7 @@ void AIRoach::Tick(RunListEvent* ev)
     }
 
     int nFlag = FrameFlag[SeqBase[nSeq] + pActor->nFrame];
-    auto pTarget = pActor->pTarget;
+    DExhumedActor* pTarget = pActor->pTarget;
 
     if (nAction > 5) {
         return;

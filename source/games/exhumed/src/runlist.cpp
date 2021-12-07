@@ -48,6 +48,16 @@ RunChannel sRunChannels[kMaxChannels];
 FreeListArray<RunStruct, kMaxRuns> RunData;
 
 
+size_t MarkRunlist()
+{
+    for (unsigned i = 0; i < kMaxRuns; i++) // only way to catch everything. :(
+    {
+        GC::Mark(RunData[i].pObjActor);
+    }
+    return kMaxRuns;
+}
+
+
 FSerializer& Serialize(FSerializer& arc, const char* keyname, RunStruct& w, RunStruct* def)
 {
     if (arc.BeginObject(keyname))
@@ -55,8 +65,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, RunStruct& w, RunS
         arc("ref", w.nAIType)
             ("val", w.nObjIndex)
             ("actor", w.pObjActor)
-            ("_4", w.next)
-            ("_6", w.prev)
+            ("next", w.next)
+            ("prev", w.prev)
             .EndObject();
     }
     return arc;
@@ -490,7 +500,6 @@ void runlist_ReadyChannel(int eax)
 
 void runlist_ProcessChannels()
 {
-#if 1
     int v0;
     int v1;
     int v5;
@@ -542,63 +551,6 @@ void runlist_ProcessChannels()
         ChannelList = v1;
     } while (v1 != -1);
 
-#else
-    int edi = -1;
-    int esi = edi;
-
-    while (1)
-    {
-        int nChannel = ChannelList;
-        if (nChannel < 0)
-        {
-            ChannelList = esi;
-            if (esi != -1)
-            {
-                edi = -1;
-                esi = edi;
-                continue;
-            }
-            else {
-                return;
-            }
-        }
-
-        int b = sRunChannels[nChannel].b;
-        int d = sRunChannels[nChannel].d;
-
-        if (d & 2)
-        {
-            sRunChannels[nChannel].d = d ^ 2;
-            runlist_SignalRun(sRunChannels[nChannel].a, ChannelList, &ExhumedAI::ProcessChannel);
-        }
-
-        if (d & 1)
-        {
-            sRunChannels[nChannel].d = d ^ 1;
-            runlist_SignalRun(sRunChannels[nChannel].a, 0, &ExhumedAI::Process);
-        }
-
-        if (sRunChannels[nChannel].d == 0)
-        {
-            sRunChannels[ChannelList].b = -1;
-        }
-        else
-        {
-            if (esi == -1)
-            {
-                esi = ChannelList;
-                edi = esi;
-            }
-            else
-            {
-                sRunChannels[edi].b = ChannelList;
-                edi = ChannelList;
-            }
-        }
-
-        ChannelList = b;
-    }
-#endif
 }
 
 int runlist_FindChannel(int ax)

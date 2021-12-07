@@ -138,7 +138,7 @@ DExhumedActor* FindFood(DExhumedActor* pActor)
 
     if (nChunkTotal)
     {
-        auto pActor2 = nChunkSprite[RandomSize(7) % nChunkTotal];
+        DExhumedActor* pActor2 = nChunkSprite[RandomSize(7) % nChunkTotal];
 		if (pActor2 != nullptr)
 		{
 			auto pSprite2 = &pActor2->s();
@@ -152,7 +152,7 @@ DExhumedActor* FindFood(DExhumedActor* pActor)
         return nullptr;
     }
 
-    auto pActor2 = nBodySprite[RandomSize(7) % nBodyTotal];
+    DExhumedActor* pActor2 = nBodySprite[RandomSize(7) % nBodyTotal];
     if (pActor2 != nullptr)
     {
 		auto pSprite2 = &pActor2->s();
@@ -224,7 +224,7 @@ void AIRat::Tick(RunListEvent* ev)
         pActor->nFrame = 0;
     }
 
-    auto pTarget = pActor->pTarget;
+    DExhumedActor* pTarget = pActor->pTarget;
 
     Gravity(pActor);
 

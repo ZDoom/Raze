@@ -33,6 +33,16 @@ FreeListArray<Snake, kMaxSnakes> SnakeList;
 
 int16_t nPlayerSnake[kMaxPlayers];
 
+size_t MarkSnake()
+{
+    for (int i = 0; i < kMaxSnakes; i++)
+    {
+        GC::Mark(SnakeList[i].pEnemy);
+        GC::MarkArray(SnakeList[i].pSprites, kSnakeSprites);
+    }
+    return kMaxSnakes * (1 + kSnakeSprites);
+}
+
 FSerializer& Serialize(FSerializer& arc, const char* keyname, Snake& w, Snake* def)
 {
     if (arc.BeginObject(keyname))
@@ -74,7 +84,8 @@ void DestroySnake(int nSnake)
 
     for (int i = 0; i < kSnakeSprites; i++)
     {
-        auto pSnake = SnakeList[nSnake].pSprites[i];
+        DExhumedActor* pSnake = SnakeList[nSnake].pSprites[i];
+        if (!pSnake) continue;
         auto pSprite = &pSnake->s();
 
         runlist_DoSubRunRec(pSprite->lotag - 1);
@@ -101,7 +112,7 @@ void ExplodeSnakeSprite(DExhumedActor* pActor, int nPlayer)
     }
 
     // take a copy of this, to revert after call to runlist_RadialDamageEnemy()
-    auto nOwner = pActor->pTarget;
+    DExhumedActor* nOwner = pActor->pTarget;
     pActor->pTarget = PlayerList[nPlayer].pActor;
 
     runlist_RadialDamageEnemy(pActor, nDamage, BulletInfo[kWeaponStaff].nRadius);
@@ -256,7 +267,8 @@ DExhumedActor* FindSnakeEnemy(int nSnake)
     int nPlayer = SnakeList[nSnake].nSnakePlayer;
 	auto pPlayerActor = PlayerList[nPlayer].Actor();
 	
-    auto pActor = SnakeList[nSnake].pSprites[0]; // CHECKME
+    DExhumedActor* pActor = SnakeList[nSnake].pSprites[0]; // CHECKME
+    if (!pActor) return nullptr;
     auto pSprite = &pActor->s();
 
     int nAngle = pSprite->ang;
@@ -307,12 +319,13 @@ void AISnake::Tick(RunListEvent* ev)
     int nSnake = RunData[ev->nRun].nObjIndex;
     assert(nSnake >= 0 && nSnake < kMaxSnakes);
 
-    auto pActor = SnakeList[nSnake].pSprites[0];
+    DExhumedActor* pActor = SnakeList[nSnake].pSprites[0];
+    if (!pActor) return;
     auto pSprite = &pActor->s();
 
     seq_MoveSequence(pActor, SeqOffsets[kSeqSnakehed], 0);
 
-    auto pEnemySprite = SnakeList[nSnake].pEnemy;
+    DExhumedActor* pEnemySprite = SnakeList[nSnake].pEnemy;
 
     Collision nMov;
     int zVal;
@@ -374,7 +387,8 @@ void AISnake::Tick(RunListEvent* ev)
 
         for (int i = 7; i > 0; i--)
         {
-            auto pActor2 = SnakeList[nSnake].pSprites[i];
+            DExhumedActor* pActor2 = SnakeList[nSnake].pSprites[i];
+            if (!pActor2) continue;
 			auto pSprite2 = &pActor2->s();
 
             pSprite2->ang = nAngle;

@@ -34,8 +34,8 @@ enum { kMaxBullets		= 500 };
 // 32 bytes
 struct Bullet
 {
-    DExhumedActor* pActor;
-    DExhumedActor* pEnemy;
+    TObjPtr<DExhumedActor*> pActor;
+    TObjPtr<DExhumedActor*> pEnemy;
 
     int16_t nSeq;
     int16_t nFrame;
@@ -55,6 +55,16 @@ struct Bullet
 FreeListArray<Bullet, kMaxBullets> BulletList;
 int lasthitz, lasthitx, lasthity;
 sectortype* lasthitsect;
+
+size_t MarkBullets()
+{
+    for (int i = 0; i < kMaxBullets; i++)
+    {
+        GC::Mark(BulletList[i].pActor);
+        GC::Mark(BulletList[i].pEnemy);
+    }
+    return 2 * kMaxBullets;
+}
 
 int nRadialBullet = 0;
 
@@ -138,7 +148,7 @@ int GrabBullet()
 
 void DestroyBullet(int nBullet)
 {
-    auto pActor = BulletList[nBullet].pActor;
+    DExhumedActor* pActor = BulletList[nBullet].pActor;
 	auto pSprite = &pActor->s();
 
     runlist_DoSubRunRec(BulletList[nBullet].nRunRec);
@@ -223,7 +233,7 @@ void BulletHitsSprite(Bullet *pBullet, DExhumedActor* pBulletActor, DExhumedActo
                 break;
             }
 
-            auto pActor = pBullet->pActor;
+            DExhumedActor* pActor = pBullet->pActor;
             spritetype *pSprite = &pActor->s();
 
             if (nStat == kStatAnubisDrum)
@@ -307,7 +317,7 @@ int MoveBullet(int nBullet)
     int nType = pBullet->nType;
     bulletInfo *pBulletInfo = &BulletInfo[nType];
 
-    auto pActor = BulletList[nBullet].pActor;
+    DExhumedActor* pActor = BulletList[nBullet].pActor;
     spritetype *pSprite = &pActor->s();
 
     int x = pSprite->x;
@@ -322,7 +332,7 @@ int MoveBullet(int nBullet)
 
     if (pBullet->field_10 < 30000)
     {
-        auto pEnemyActor = BulletList[nBullet].pEnemy;
+        DExhumedActor* pEnemyActor = BulletList[nBullet].pEnemy;
         if (pEnemyActor)
         {
             if (!(pEnemyActor->s().cstat & 0x101))
@@ -494,7 +504,8 @@ HITSPRITE:
                         nDamage *= 2;
                     }
 
-                    runlist_DamageEnemy(EnergyBlocks[pHitWall->nextSector()->extra], pActor, nDamage);
+                    DExhumedActor* eb = EnergyBlocks[pHitWall->nextSector()->extra];
+                    if (eb) runlist_DamageEnemy(eb, pActor, nDamage);
                 }
             }
         }
@@ -821,7 +832,7 @@ void AIBullet::Tick(RunListEvent* ev)
     assert(nBullet >= 0 && nBullet < kMaxBullets);
 
     int nSeq = SeqOffsets[BulletList[nBullet].nSeq];
-    auto pActor = BulletList[nBullet].pActor;
+    DExhumedActor* pActor = BulletList[nBullet].pActor;
     auto pSprite = &pActor->s();
 
     int nFlag = FrameFlag[SeqBase[nSeq] + BulletList[nBullet].nFrame];

@@ -156,7 +156,7 @@ void AISoul::Tick(RunListEvent* ev)
 	auto coll = movesprite(pActor, bcos(pSprite->ang) * nVel, bsin(pSprite->ang) * nVel, pSprite->zvel, 5120, 0, CLIPMASK0);
     if (coll.exbits & 0x10000)
     {
-		auto pSet = pActor->pTarget;
+		DExhumedActor* pSet = pActor->pTarget;
 		if (!pSet) return;
         auto pSetSprite = &pSet->s();
 
@@ -267,7 +267,7 @@ void AISet::Tick(RunListEvent* ev)
     }
 
     int nFlag = FrameFlag[SeqBase[nSeq] + pActor->nFrame];
-    auto pTarget = pActor->pTarget;
+    DExhumedActor* pTarget = pActor->pTarget;
 
     if (pTarget && nAction < 10)
     {

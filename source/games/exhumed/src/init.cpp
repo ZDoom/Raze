@@ -45,11 +45,8 @@ sectortype* initsectp;
 
 int nCurChunkNum = 0;
 
-DExhumedActor* nBodyGunSprite[50];
 int movefifoend;
 int movefifopos;
-
-int nCurBodyGunNum;
 
 int Counters[kNumCounters];
 
@@ -846,8 +843,6 @@ void SerializeInit(FSerializer& arc)
             ("inita", inita)
             ("initsect", initsectp)
             ("curchunk", nCurChunkNum)
-            .Array("bodygunsprite", nBodyGunSprite, countof(nBodyGunSprite))
-            ("curbodygun", nCurBodyGunNum)
             .Array("counters", Counters, kNumCounters)
             .EndObject();
     }

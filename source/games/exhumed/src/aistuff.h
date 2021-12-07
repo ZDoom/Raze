@@ -198,7 +198,7 @@ void FuncLion(int, int, int, int);
 // 16 bytes
 struct BlockInfo
 {
-    DExhumedActor* pActor;
+    TObjPtr<DExhumedActor*> pActor;
     int x;
     int y;
     int field_8;
@@ -206,8 +206,8 @@ struct BlockInfo
 extern BlockInfo sBlockInfo[];
 
 extern Collision hiHit;
-extern DExhumedActor* nChunkSprite[];
-extern DExhumedActor* nBodySprite[];
+extern TObjPtr<DExhumedActor*> nChunkSprite[];
+extern TObjPtr<DExhumedActor*> nBodySprite[];
 
 signed int lsqrt(int a1);
 void MoveThings();
@@ -259,7 +259,7 @@ extern int bTorch;
 extern int nSmokeSparks;
 extern int nDronePitch;
 extern int lFinaleStart;
-extern DExhumedActor* pFinaleSpr;
+extern TObjPtr<DExhumedActor*> pFinaleSpr;
 
 void InitObjects();
 void InitElev();
@@ -305,8 +305,8 @@ void FuncQueen(int, int, int, int);
 
 struct RA
 {
-	DExhumedActor* pActor;
-	DExhumedActor* pTarget;
+	TObjPtr<DExhumedActor*> pActor;
+    TObjPtr<DExhumedActor*> pTarget;
 	
     int16_t nAction;
     int16_t nFrame;
@@ -352,7 +352,7 @@ struct RunStruct
 {
     int nAIType;                // todo later: replace this with an AI pointer
     int nObjIndex;              // If object is a non-actor / not refactored yet.
-    DExhumedActor* pObjActor;   // If object is an actor
+    TObjPtr<DExhumedActor*> pObjActor;   // If object is an actor
     int next;
     int prev;
 };
@@ -715,8 +715,8 @@ enum { kSnakeSprites = 8 }; // or rename to kSnakeParts?
 // 32bytes
 struct Snake
 {
-    DExhumedActor* pEnemy;	 // nRun
-    DExhumedActor* pSprites[kSnakeSprites];
+    TObjPtr<DExhumedActor*> pEnemy;	 // nRun
+    TObjPtr<DExhumedActor*> pSprites[kSnakeSprites];
 
 	int16_t nCountdown;
     int16_t nRun;

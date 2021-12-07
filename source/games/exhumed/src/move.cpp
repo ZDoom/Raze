@@ -35,21 +35,33 @@ int nPushBlocks;
 // TODO - moveme?
 sectortype* overridesect;
 
-DExhumedActor* nBodySprite[50];
+enum
+{
+    kMaxPushBlocks = 100,
+    kMaxMoveChunks = 75
+};
+
+
+TObjPtr<DExhumedActor*> nBodySprite[50];
+TObjPtr<DExhumedActor*> nChunkSprite[kMaxMoveChunks];
+BlockInfo sBlockInfo[kMaxPushBlocks];
+TObjPtr<DExhumedActor*> nBodyGunSprite[50];
+int nCurBodyGunNum;
 
 int sprceiling, sprfloor;
 Collision loHit, hiHit;
 
-enum
-{
-	kMaxPushBlocks	= 100,
-	kMaxMoveChunks	= 75
-};
-
 // think this belongs in init.c?
-BlockInfo sBlockInfo[kMaxPushBlocks];
 
-DExhumedActor *nChunkSprite[kMaxMoveChunks];
+
+size_t MarkMove()
+{
+    GC::MarkArray(nBodySprite, 50);
+    GC::MarkArray(nChunkSprite, kMaxMoveChunks);
+    for(int i = 0; i < nPushBlocks; i++)
+        GC::Mark(sBlockInfo[i].pActor);
+    return 50 + kMaxMoveChunks + nPushBlocks;
+}
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, BlockInfo& w, BlockInfo* def)
 {
@@ -73,7 +85,9 @@ void SerializeMove(FSerializer& arc)
             ("chunkcount", nCurChunkNum)
             .Array("chunks", nChunkSprite, kMaxMoveChunks)
             ("overridesect", overridesect)
-            .Array("bodysprite", nBodySprite, 50)
+            .Array("bodysprite", nBodySprite, countof(nBodySprite))
+            ("curbodygun", nCurBodyGunNum)
+            .Array("bodygunsprite", nBodyGunSprite, countof(nBodyGunSprite))
             .EndObject();
     }
 }
@@ -1281,7 +1295,7 @@ void InitChunks()
 
 DExhumedActor* GrabBodyGunSprite()
 {
-    auto pActor = nBodyGunSprite[nCurBodyGunNum];
+    DExhumedActor* pActor = nBodyGunSprite[nCurBodyGunNum];
 	spritetype* pSprite;
     if (pActor == nullptr)
     {
@@ -1346,7 +1360,7 @@ DExhumedActor* GrabBody()
 
 DExhumedActor* GrabChunkSprite()
 {
-    auto pActor = nChunkSprite[nCurChunkNum];
+    DExhumedActor* pActor = nChunkSprite[nCurChunkNum];
 
     if (pActor == nullptr)
     {

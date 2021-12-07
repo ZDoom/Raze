@@ -60,10 +60,8 @@ extern int16_t inita;
 extern sectortype* initsectp;
 
 extern int nCurChunkNum;
-extern DExhumedActor* nBodyGunSprite[50];
 extern int movefifoend;
 extern int movefifopos;
-extern int nCurBodyGunNum;
 
 // all static counters combined in an array for easier maintenance.
 enum ECounter

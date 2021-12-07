@@ -28,7 +28,6 @@ BEGIN_PS_NS
 int nMagicSeq = -1;
 int nPreMagicSeq  = -1;
 int nSavePointSeq = -1;
-//FreeListArray<Anim, kMaxAnims> AnimList;
 
 
 void SerializeAnim(FSerializer& arc)
@@ -138,7 +137,7 @@ void AIAnim::Tick(RunListEvent* ev)
 
     if (pSprite->statnum == kStatIgnited)
     {
-        auto pIgniter = pActor->pTarget;
+        DExhumedActor* pIgniter = pActor->pTarget;
 
         if (pIgniter)
         {

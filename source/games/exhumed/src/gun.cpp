@@ -807,7 +807,7 @@ loc_flag:
                     DExhumedActor* target = nullptr;
                     if (sPlayerInput[nPlayer].pTarget != nullptr && Autoaim(nPlayer))
                     {
-                        auto t = sPlayerInput[nPlayer].pTarget;
+                        DExhumedActor* t = sPlayerInput[nPlayer].pTarget;
                         // only autoaim if target is in front of the player.
                         auto pTargetSprite = &t->s();
 						assert(pTargetSprite->sector());

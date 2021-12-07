@@ -136,7 +136,7 @@ void AIAnubis::Tick(RunListEvent* ev)
         bVal = true;
     }
 
-    auto pTarget = ap->pTarget;
+    DExhumedActor* pTarget = ap->pTarget;
 
     int nFrame = SeqBase[nSeq] + ap->nFrame;
     int nFlag = FrameFlag[nFrame];

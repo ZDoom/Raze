@@ -32,6 +32,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamestruct.h"
 #include "names.h"
 #include "exhumedactor.h"
+#include "serialize_obj.h"
 
 BEGIN_PS_NS
 
@@ -111,7 +112,7 @@ extern int nEnergyTowers;
 
 extern int nEnergyChan;
 
-extern DExhumedActor* pSpiritSprite;
+extern TObjPtr<DExhumedActor*> pSpiritSprite;
 
 extern bool bInDemo;
 

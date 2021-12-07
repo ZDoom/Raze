@@ -52,10 +52,46 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_PS_NS
 
+TObjPtr<DExhumedActor*> bestTarget;
+
 IMPLEMENT_CLASS(DExhumedActor, false, true)
 IMPLEMENT_POINTERS_START(DExhumedActor)
 IMPLEMENT_POINTER(pTarget)
 IMPLEMENT_POINTERS_END
+
+size_t MarkMove();
+size_t MarkBullets();
+size_t MarkInput();
+size_t MarkItems();
+size_t MarkLighting();
+size_t MarkObjects();
+size_t MarkPlayers();
+size_t MarkQueen();
+size_t MarkRa();
+size_t MarkSnake();
+size_t MarkRunlist();
+
+
+static void markgcroots()
+{
+    size_t num = MarkMove();
+    num += MarkBullets();
+    num += MarkInput();
+    num += MarkItems();
+    num += MarkLighting();
+    num += MarkObjects();
+    num += MarkPlayers();
+    num += MarkQueen();
+    num += MarkRa();
+    num += MarkSnake();
+    num += MarkRunlist();
+
+    GC::Mark(bestTarget);
+    GC::Mark(pSpiritSprite);
+    num += 2;
+
+    Printf("%d objects marked\n", num);
+}
 
 static MapRecord* NextMap;
 
@@ -138,7 +174,6 @@ bool bInDemo = false;
 bool bSlipMode = false;
 bool bDoFlashes = true;
 
-DExhumedActor* bestTarget;
 
 int nStartLevel;
 int nTimeLimit;
@@ -468,6 +503,8 @@ static void SetTileNames()
 void GameInterface::app_init()
 {
     SetupActors(RUNTIME_CLASS(DExhumedActor));
+    GC::AddMarkerFunc(markgcroots);
+
 
 #if 0
     help_disabled = true;

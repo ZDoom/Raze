@@ -67,14 +67,14 @@ struct Bob
 
 struct Drip
 {
-    DExhumedActor* pActor;
+    TObjPtr<DExhumedActor*> pActor;
     int16_t nCount;
 };
 
 // 56 bytes
 struct Elev
 {
-    DExhumedActor* pActor;
+    TObjPtr<DExhumedActor*> pActor;
     sectortype* pSector;
     int16_t nFlags;
     int16_t nChannel;
@@ -110,7 +110,7 @@ struct wallFace
 
 struct slideData
 {
-    DExhumedActor* pActor;
+    TObjPtr<DExhumedActor*> pActor;
     int16_t nChannel;
     int16_t nStart;
     int16_t nRunRec;
@@ -142,7 +142,7 @@ struct Point
 
 struct Trap
 {
-    DExhumedActor* pActor;
+    TObjPtr<DExhumedActor*> pActor;
     walltype* pWall1;
     walltype* pWall2;
 
@@ -167,11 +167,22 @@ TArray<slideData> SlideData;
 TArray<wallFace> WallFace;
 TArray<Drip> sDrip;
 TArray<DExhumedActor*> EnergyBlocks;
+TObjPtr<DExhumedActor*> pFinaleSpr;
+
+size_t MarkObjects()
+{
+    GC::Mark(pFinaleSpr);
+    for (auto& d : sDrip) GC::Mark(d.pActor);
+    for (auto& d : sTrap) GC::Mark(d.pActor);
+    for (auto& d : Elevator) GC::Mark(d.pActor);
+    for (auto& d : SlideData) GC::Mark(d.pActor);
+    GC::MarkArray(EnergyBlocks);
+    return 1 + sDrip.Size() + sTrap.Size() + Elevator.Size() + SlideData.Size();
+}
 
 int lFinaleStart;
 
 int nFinaleStage;
-DExhumedActor* pFinaleSpr;
 
 int nDronePitch = 0;
 int nSmokeSparks = 0;
@@ -751,7 +762,7 @@ void AIElev::Tick(RunListEvent* ev)
     assert(nChannel >= 0 && nChannel < kMaxChannels);
 
     auto pSector =Elevator[nElev].pSector;
-    auto pElevSpr = Elevator[nElev].pActor;
+    DExhumedActor* pElevSpr = Elevator[nElev].pActor;
 
     int ebp = 0; // initialise to *something*
 
@@ -1274,7 +1285,8 @@ void AITrap::ProcessChannel(RunListEvent* ev)
 void AITrap::Tick(RunListEvent* ev)
 {
     int nTrap = RunData[ev->nRun].nObjIndex;
-    auto pActor = sTrap[nTrap].pActor;
+    DExhumedActor* pActor = sTrap[nTrap].pActor;
+    if (!pActor) return;
     auto pSprite = &pActor->s();
 
     if (sTrap[nTrap].nState >= 0)
@@ -2120,7 +2132,8 @@ void DoDrips()
         sDrip[i].nCount--;
         if (sDrip[i].nCount <= 0)
         {
-            auto pActor = sDrip[i].pActor;
+            DExhumedActor* pActor = sDrip[i].pActor;
+            if (!pActor) continue;
             auto pSprite = &pActor->s();
 
             int nSeqOffset = SeqOffsets[kSeqDrips];

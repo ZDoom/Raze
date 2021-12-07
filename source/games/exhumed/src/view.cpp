@@ -59,9 +59,6 @@ bool bCamera = false;
 
 int viewz;
 
-DExhumedActor* pEnemy;
-
-int nEnemyPal = 0;
 
 // We cannot drag these through the entire event system... :(
 tspritetype* mytsprite;
@@ -198,6 +195,8 @@ static TextOverlay subtitleOverlay;
 
 void DrawView(double smoothRatio, bool sceneonly)
 {
+    DExhumedActor* pEnemy = nullptr;
+    int nEnemyPal = -1;
     int playerX;
     int playerY;
     int playerZ;
@@ -218,7 +217,7 @@ void DrawView(double smoothRatio, bool sceneonly)
 
     if (nSnakeCam >= 0 && !sceneonly)
     {
-        auto pActor = SnakeList[nSnakeCam].pSprites[0];
+        DExhumedActor* pActor = SnakeList[nSnakeCam].pSprites[0];
 		auto pSprite = &pActor->s();
 
         playerX = pSprite->x;
@@ -497,8 +496,6 @@ void SerializeView(FSerializer& arc)
             ("camerapan", nCamerapan)
             ("camera", bCamera)
             ("viewz", viewz)
-            ("enemy", pEnemy)
-            ("enemypal", nEnemyPal)
             .Array("vertpan", dVertPan, countof(dVertPan))
             .Array("quake", nQuake, countof(nQuake))
             .EndObject();

@@ -55,7 +55,7 @@ struct PlayerSave
 struct Player
 {
 	DExhumedActor* Actor() { return pActor; }
-    DExhumedActor* pActor;
+    TObjPtr<DExhumedActor*> pActor;
     int16_t nHealth;
     int16_t nLives;
     int16_t nDouble;
@@ -108,9 +108,9 @@ struct Player
     int ototalvel;
     int totalvel;
     int16_t eyelevel, oeyelevel;
-    DExhumedActor* pPlayerGrenade;
-    DExhumedActor* pPlayerFloorSprite;
-    DExhumedActor* pDoppleSprite;
+    TObjPtr<DExhumedActor*> pPlayerGrenade;
+    TObjPtr<DExhumedActor*> pPlayerFloorSprite;
+    TObjPtr<DExhumedActor*> pDoppleSprite;
 
 };
 
@@ -120,7 +120,7 @@ extern Player PlayerList[kMaxPlayers];
 
 extern int obobangle, bobangle;
 
-extern DExhumedActor* nNetStartSprite[kMaxPlayers];
+extern TObjPtr<DExhumedActor*> nNetStartSprite[kMaxPlayers];
 extern int nNetStartSprites;
 extern int nCurStartSprite;
 

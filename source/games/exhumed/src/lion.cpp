@@ -222,7 +222,7 @@ void AILion::Tick(RunListEvent* ev)
     }
 
     int nFlag = FrameFlag[SeqBase[nSeq] + pActor->nFrame];
-    auto pTarget = pActor->pTarget;
+    DExhumedActor* pTarget = pActor->pTarget;
 
     auto nMov = MoveCreatureWithCaution(pActor);
 

@@ -42,7 +42,7 @@ struct Flash
     {
         walltype* pWall;
         sectortype* pSector;
-        DExhumedActor* pActor;
+        TObjPtr<DExhumedActor*> pActor;
     };
     int next;
     int8_t nType;
@@ -100,6 +100,15 @@ int nGlowCount;
 int bDoFlicks = 0;
 int bDoGlows = 0;
 
+size_t MarkLighting()
+{
+    for (int i = 0; i < kMaxFlashes; i++)
+    {
+        auto& f = sFlash[i];
+        if (f.nType & 4) GC::Mark(f.pActor);
+    }
+    return kMaxFlashes;
+}
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, Flash& w, Flash* def)
 {
@@ -442,12 +451,10 @@ void UndoFlashes()
 
                 case 3:
                 {
-                    auto ac = pFlash->pActor;
-                    if (!ac) continue;
-                    auto sp = &ac->s();
-                    if (sp->pal >= 7)
+                    DExhumedActor* ac = pFlash->pActor;
+                    if (ac && ac->spr.pal >= 7)
                     {
-                        pShade = &sp->shade;
+                        pShade = &ac->spr.shade;
                     }
                     else {
                         goto loc_1868A;
@@ -505,12 +512,11 @@ void UndoFlashes()
 
             case 3:
             {
-                auto ac = pFlash->pActor;
-                auto sp = &ac->s();
-                if (sp->pal >= 7)
+                DExhumedActor* ac = pFlash->pActor;
+                if (ac && ac->spr.pal >= 7)
                 {
-                    sp->pal -= 7;
-                    sp->shade = pFlash->shade;
+                    ac->spr.pal -= 7;
+                    ac->spr.shade = pFlash->shade;
                 }
 
                 break;

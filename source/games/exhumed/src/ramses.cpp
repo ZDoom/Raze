@@ -57,7 +57,7 @@ int word_964EC = 10;
 
 int nSpiritRepeatX;
 int nSpiritRepeatY;
-DExhumedActor* pSpiritSprite;
+TObjPtr<DExhumedActor*> pSpiritSprite;
 int nPixelsToShow;
 int nTalkTime = 0;
 

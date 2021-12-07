@@ -98,8 +98,14 @@ AnimInfo nItemAnimInfo[] = {
 
 const int16_t nItemMagic[] = { 500, 1000, 100, 500, 400, 200, 700, 0 };
 
-TArray<DExhumedActor*> Regenerates;
+TArray<DExhumedActor*> Regenerates; // must handle read barriers manually!
 int nMagicCount;
+
+size_t MarkItems()
+{
+    GC::MarkArray(Regenerates);
+    return Regenerates.Size();
+}
 
 void SerializeItems(FSerializer& arc)
 {
@@ -395,7 +401,7 @@ void DoRegenerates()
 {
     for(unsigned i = 0; i < Regenerates.Size(); i++)
     {
-        auto pActor = Regenerates[i];
+        DExhumedActor* pActor = GC::ReadBarrier(Regenerates[i]);
         auto pSprite = &pActor->s();
         if (pSprite->extra > 0)
         {

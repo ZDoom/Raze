@@ -77,7 +77,7 @@ int nLocalPlayer = 0;
 
 Player PlayerList[kMaxPlayers];
 
-DExhumedActor* nNetStartSprite[kMaxPlayers] = { };
+TObjPtr<DExhumedActor*> nNetStartSprite[kMaxPlayers] = { };
 
 int nStandHeight;
 
@@ -86,6 +86,20 @@ int nStandHeight;
 int PlayerCount;
 int nNetStartSprites;
 int nCurStartSprite;
+
+
+size_t MarkPlayers()
+{
+    for (auto& p : PlayerList)
+    {
+        GC::Mark(p.pActor);
+        GC::Mark(p.pDoppleSprite);
+        GC::Mark(p.pPlayerFloorSprite);
+        GC::Mark(p.pPlayerGrenade);
+    }
+    GC::MarkArray(nNetStartSprite, kMaxPlayers);
+    return 5 * kMaxPlayers;
+}
 
 void SetSavePoint(int nPlayer, int x, int y, int z, sectortype* pSector, int nAngle)
 {
@@ -206,7 +220,7 @@ void RestartPlayer(int nPlayer)
 {
 	auto plr = &PlayerList[nPlayer];
     auto pActor = plr->Actor();
-	auto pDopSprite = plr->pDoppleSprite;
+    DExhumedActor* pDopSprite = plr->pDoppleSprite;
 
     DExhumedActor* floorsprt;
 
@@ -220,7 +234,7 @@ void RestartPlayer(int nPlayer)
 
         plr->pActor = nullptr;
 
-		auto pFloorSprite = plr->pPlayerFloorSprite;
+		DExhumedActor* pFloorSprite = plr->pPlayerFloorSprite;
 		if (pFloorSprite != nullptr) {
 			DeleteActor(pFloorSprite);
 		}
@@ -245,7 +259,7 @@ void RestartPlayer(int nPlayer)
 
 	if (nTotalPlayers > 1)
 	{
-		auto nNStartSprite = nNetStartSprite[nCurStartSprite];
+        DExhumedActor* nNStartSprite = nNetStartSprite[nCurStartSprite];
 		auto nstspr = &nNStartSprite->s();
 		nCurStartSprite++;
 
@@ -548,7 +562,7 @@ int AddAmmo(int nPlayer, int nWeapon, int nAmmoAmount)
 
 void SetPlayerMummified(int nPlayer, int bIsMummified)
 {
-    auto pActor = PlayerList[nPlayer].pActor;
+    DExhumedActor* pActor = PlayerList[nPlayer].pActor;
 	auto pSprite = &pActor->s();
 
     pSprite->yvel = 0;
@@ -633,13 +647,13 @@ void AIPlayer::Damage(RunListEvent* ev)
     auto pPlayerActor = PlayerList[nPlayer].Actor();
     int nAction = PlayerList[nPlayer].nAction;
     auto pPlayerSprite = &pPlayerActor->s();
-    auto pDopple = PlayerList[nPlayer].pDoppleSprite;
+    DExhumedActor* pDopple = PlayerList[nPlayer].pDoppleSprite;
 
     if (!nDamage) {
         return;
     }
 
-    DExhumedActor* pActor2 = (!ev->isRadialEvent()) ? ev->pOtherActor : ev->pRadialActor->pTarget;
+    DExhumedActor* pActor2 = (!ev->isRadialEvent()) ? ev->pOtherActor : ev->pRadialActor->pTarget.Get();
 
     // ok continue case 0x80000 as normal, loc_1C57C
     if (!PlayerList[nPlayer].nHealth) {
@@ -744,7 +758,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     auto pPlayerActor = PlayerList[nPlayer].Actor();
     auto pPlayerSprite = &pPlayerActor->s();
 
-    auto pDopple = PlayerList[nPlayer].pDoppleSprite;
+    DExhumedActor* pDopple = PlayerList[nPlayer].pDoppleSprite;
 
     int nAction = PlayerList[nPlayer].nAction;
     int nActionB = PlayerList[nPlayer].nAction;
@@ -803,7 +817,7 @@ void AIPlayer::Tick(RunListEvent* ev)
         if (PlayerList[nPlayer].nInvisible == 0)
         {
             pPlayerSprite->cstat &= 0x7FFF; // set visible
-            auto pFloorSprite = PlayerList[nPlayer].pPlayerFloorSprite;
+            DExhumedActor* pFloorSprite = PlayerList[nPlayer].pPlayerFloorSprite;
 
             if (pFloorSprite != nullptr) {
                 pFloorSprite->s().cstat &= 0x7FFF; // set visible
@@ -1049,7 +1063,7 @@ void AIPlayer::Tick(RunListEvent* ev)
                         {
                             PlayerList[nPlayer].nPlayerPushSound = 1;
                             int nBlock = PlayerList[nPlayer].pPlayerPushSect->extra;
-                            auto pBlockActor = sBlockInfo[nBlock].pActor;
+                            DExhumedActor* pBlockActor = sBlockInfo[nBlock].pActor;
 
                             D3PlayFX(StaticSound[kSound23], pBlockActor, 0x4000);
                         }
@@ -1274,7 +1288,7 @@ sectdone:
         }
 
         // loc_1B1EB
-        auto pFloorActor = PlayerList[nPlayer].pPlayerFloorSprite;
+        DExhumedActor* pFloorActor = PlayerList[nPlayer].pPlayerFloorSprite;
         if (nTotalPlayers > 1 && pFloorActor)
         {
             auto pFloorSprite = &pFloorActor->s();

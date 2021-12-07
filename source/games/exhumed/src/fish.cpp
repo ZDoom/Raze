@@ -342,7 +342,7 @@ void AIFish::Tick(RunListEvent* ev)
         pActor->nFrame = 0;
     }
 
-    auto pTargetActor = pActor->pTarget;
+    DExhumedActor* pTargetActor = pActor->pTarget;
 
     switch (nAction)
     {

@@ -255,7 +255,7 @@ void AILavaDude::Tick(RunListEvent* ev)
         }
     }
 
-    auto pTarget = pActor->pTarget;
+    DExhumedActor* pTarget = pActor->pTarget;
 
     if (pTarget && nAction < 4)
     {

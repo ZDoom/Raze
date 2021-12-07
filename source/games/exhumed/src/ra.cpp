@@ -37,6 +37,16 @@ static actionSeq RaSeq[] = {
     {2, 0}
 };
 
+size_t MarkRa()
+{
+    for (auto& r : Ra)
+    {
+        GC::Mark(r.pActor);
+        GC::Mark(r.pTarget);
+    }
+    return 2 * kMaxPlayers;
+}
+
 FSerializer& Serialize(FSerializer& arc, const char* keyname, RA& w, RA* def)
 {
     if (arc.BeginObject(keyname))
@@ -62,7 +72,8 @@ void SerializeRa(FSerializer& arc)
 void FreeRa(int nPlayer)
 {
     int nRun = Ra[nPlayer].nRun;
-    auto pActor = Ra[nPlayer].pActor;
+    DExhumedActor* pActor = Ra[nPlayer].pActor;
+    if (!pActor) return;
 	auto pSprite = &pActor->s();
 
     runlist_SubRunRec(nRun);
@@ -70,6 +81,7 @@ void FreeRa(int nPlayer)
     runlist_FreeRun(pSprite->lotag - 1);
 
     DeleteActor(pActor);
+    Ra[nPlayer] = {};
 }
 
 void BuildRa(int nPlayer)
@@ -112,8 +124,9 @@ void InitRa()
 
 void MoveRaToEnemy(int nPlayer)
 {
-    auto pTarget = Ra[nPlayer].pTarget;
-    auto pActor = Ra[nPlayer].pActor;
+    DExhumedActor* pTarget = Ra[nPlayer].pTarget;
+    DExhumedActor* pActor = Ra[nPlayer].pActor;
+    if (!pActor) return;
     int nAction = Ra[nPlayer].nAction;
 	auto pSprite = &pActor->s();
 
@@ -171,7 +184,8 @@ void AIRa::Tick(RunListEvent* ev)
     int nCurrentWeapon = PlayerList[nPlayer].nCurrentWeapon;
 
     int nSeq = SeqOffsets[kSeqEyeHit] + RaSeq[Ra[nPlayer].nAction].a;
-    auto pActor = Ra[nPlayer].pActor;
+    DExhumedActor* pActor = Ra[nPlayer].pActor;
+    if (!pActor) return;
     auto pSprite = &pActor->s();
 
     bool bVal = false;

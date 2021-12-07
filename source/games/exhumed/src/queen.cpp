@@ -70,8 +70,8 @@ static actionSeq EggSeq[] = {
 
 struct Queen
 {
-    DExhumedActor* pActor;
-    DExhumedActor* pTarget;
+    TObjPtr<DExhumedActor*> pActor;
+    TObjPtr<DExhumedActor*> pTarget;
     int16_t nHealth;
     int16_t nFrame;
     int16_t nAction;
@@ -83,8 +83,8 @@ struct Queen
 
 struct Egg
 {
-    DExhumedActor* pActor;
-    DExhumedActor* pTarget;
+    TObjPtr<DExhumedActor*> pActor;
+    TObjPtr<DExhumedActor*> pTarget;
     int16_t nHealth;
     int16_t nFrame;
     int16_t nAction;
@@ -94,8 +94,8 @@ struct Egg
 
 struct Head
 {
-    DExhumedActor* pActor;
-    DExhumedActor* pTarget;
+    TObjPtr<DExhumedActor*> pActor;
+    TObjPtr<DExhumedActor*> pTarget;
     int16_t nHealth;
     int16_t nFrame;
     int16_t nAction;
@@ -112,7 +112,7 @@ int nQHead = 0;
 int nHeadVel;
 int nVelShift;
 
-DExhumedActor* tailspr[kMaxTails];
+TObjPtr<DExhumedActor*> tailspr[kMaxTails];
 
 
 Queen QueenList[kMaxQueens];
@@ -123,6 +123,21 @@ int MoveQY[25];
 int MoveQZ[25];
 sectortype* MoveQS[25];
 int16_t MoveQA[25];
+
+
+size_t MarkQueen()
+{
+    GC::Mark(QueenList[0].pActor);
+    GC::Mark(QueenList[0].pTarget);
+    GC::Mark(QueenHead.pActor);
+    GC::Mark(QueenHead.pTarget);
+    for (int i = 0; i < kMaxEggs; i++)
+    {
+        GC::Mark(QueenEgg[i].pActor);
+        GC::Mark(QueenEgg[i].pTarget);
+    }
+    return 4 + 2 * kMaxEggs;
+}
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, Queen& w, Queen* def)
 {
@@ -229,7 +244,8 @@ void BlowChunks(DExhumedActor* pActor)
 
 void DestroyEgg(int nEgg)
 {
-    auto pActor = QueenEgg[nEgg].pActor;
+    DExhumedActor* pActor = QueenEgg[nEgg].pActor;
+    if (!pActor) return;
     auto pSprite = &pActor->s();
 
     if (QueenEgg[nEgg].nAction != 4)
@@ -360,7 +376,8 @@ int DestroyTailPart()
         return 0;
     }
 
-    auto pActor = tailspr[--QueenHead.nIndex2];
+    DExhumedActor* pActor = tailspr[--QueenHead.nIndex2];
+    if (!pActor) return 0;
 
     BlowChunks(pActor);
     BuildExplosion(pActor);
@@ -430,7 +447,8 @@ void BuildQueenEgg(int nQueen, int nVal)
         return;
     }
 
-    auto pActor = QueenList[nQueen].pActor;
+    DExhumedActor* pActor = QueenList[nQueen].pActor;
+    if (!pActor) return;
     auto pSprite = &pActor->s();
 
     int x = pSprite->x;
@@ -500,7 +518,8 @@ void AIQueenEgg::Tick(RunListEvent* ev)
 {
     int nEgg = RunData[ev->nRun].nObjIndex;
     Egg* pEgg = &QueenEgg[nEgg];
-    auto pActor = pEgg->pActor;
+    DExhumedActor* pActor = pEgg->pActor;
+    if (!pActor) return;
     auto pSprite = &pActor->s();
     int nAction = pEgg->nAction;
 
@@ -533,7 +552,9 @@ void AIQueenEgg::Tick(RunListEvent* ev)
             bVal = true;
         }
 
-        pTarget = UpdateEnemy(&pEgg->pActor);
+        DExhumedActor* enemy = pEgg->pActor;
+        pTarget = UpdateEnemy(&enemy);
+        pEgg->pActor = enemy;
         pEgg->pTarget = pTarget;
 
         if (pTarget && (pTarget->s().cstat & 0x101) == 0)
@@ -655,7 +676,8 @@ void AIQueenEgg::RadialDamage(RunListEvent* ev)
 {
     int nEgg = RunData[ev->nRun].nObjIndex;
     Egg* pEgg = &QueenEgg[nEgg];
-    auto pActor = pEgg->pActor;
+    DExhumedActor* pActor = pEgg->pActor;
+    if (!pActor) return;
     auto pSprite = &pActor->s();
     auto pRadial = &ev->pRadialActor->s();
 
@@ -690,7 +712,8 @@ void AIQueenEgg::Draw(RunListEvent* ev)
 
 void BuildQueenHead(int nQueen)
 {
-    auto pActor = QueenList[nQueen].pActor;
+    DExhumedActor* pActor = QueenList[nQueen].pActor;
+    if (!pActor) return;
     auto pSprite = &pActor->s();
 
     int x = pSprite->x;
@@ -742,7 +765,8 @@ void BuildQueenHead(int nQueen)
 
 void AIQueenHead::Tick(RunListEvent* ev)
 {
-    auto pActor = QueenHead.pActor;
+    DExhumedActor* pActor = QueenHead.pActor;
+    if (!pActor) return;
     auto pSprite = &pActor->s();
 
     int nAction = QueenHead.nAction;
@@ -766,7 +790,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
         var_14 = 1;
     }
 
-    auto pTarget = QueenHead.pTarget;
+    DExhumedActor* pTarget = QueenHead.pTarget;
 
     if (pTarget)
     {
@@ -930,7 +954,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
             }
 
             auto headSect = MoveQS[nHd];
-            auto pTActor = tailspr[i];
+            DExhumedActor* pTActor = tailspr[i];
             if (pTActor)
             {
                 auto pTSprite = &pTActor->s();
@@ -1041,7 +1065,8 @@ void AIQueenHead::RadialDamage(RunListEvent* ev)
 
 void AIQueenHead::Damage(RunListEvent* ev)
 {
-    auto pActor = QueenHead.pActor;
+    DExhumedActor* pActor = QueenHead.pActor;
+    if (!pActor) return;
     auto pSprite = &pActor->s();
 
     if (QueenHead.nHealth > 0 && ev->nDamage != 0)
@@ -1176,11 +1201,12 @@ void AIQueen::Tick(RunListEvent* ev)
     int nQueen = RunData[ev->nRun].nObjIndex;
     assert(nQueen >= 0 && nQueen < kMaxQueens);
 
-    auto pActor = QueenList[nQueen].pActor;
+    DExhumedActor* pActor = QueenList[nQueen].pActor;
+    if (!pActor) return;
     auto pSprite = &pActor->s();
     int nAction = QueenList[nQueen].nAction;
     int si = QueenList[nQueen].nAction2;
-    auto pTarget = QueenList[nQueen].pTarget;
+    DExhumedActor* pTarget = QueenList[nQueen].pTarget;
 
     bool bVal = false;
 
@@ -1435,7 +1461,8 @@ void AIQueen::RadialDamage(RunListEvent* ev)
 {
     int nQueen = RunData[ev->nRun].nObjIndex;
     assert(nQueen >= 0 && nQueen < kMaxQueens);
-    auto pActor = QueenList[nQueen].pActor;
+    DExhumedActor* pActor = QueenList[nQueen].pActor;
+    if (!pActor) return;
     auto pSprite = &pActor->s();
     auto pRadial = &ev->pRadialActor->s();
 
@@ -1451,7 +1478,8 @@ void AIQueen::Damage(RunListEvent* ev)
     int nQueen = RunData[ev->nRun].nObjIndex;
     assert(nQueen >= 0 && nQueen < kMaxQueens);
 
-    auto pActor = QueenList[nQueen].pActor;
+    DExhumedActor* pActor = QueenList[nQueen].pActor;
+    if (!pActor) return;
     auto pSprite = &pActor->s();
     int si = QueenList[nQueen].nAction2;
 
