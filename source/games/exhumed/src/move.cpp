@@ -801,6 +801,7 @@ int GetUpAngle(DExhumedActor* pActor1, int nVal, DExhumedActor* pActor2, int ecx
 void InitPushBlocks()
 {
     nPushBlocks = 0;
+    memset(sBlockInfo, 0, sizeof(sBlockInfo));
 }
 
 int GrabPushBlock()

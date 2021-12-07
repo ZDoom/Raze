@@ -539,6 +539,7 @@ loc_1868A:
         {
             nLastFlash = edi;
         }
+        pFlash->pActor = nullptr;
         sFlash.Release(nFlash);
     }
 }
