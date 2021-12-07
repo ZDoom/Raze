@@ -69,15 +69,15 @@ const char *GetVersionString();
 #define SAVESIG_SW GAMENAME ".ShadowWarrior"
 #define SAVESIG_PS GAMENAME ".Exhumed"
 
-#define MINSAVEVER_DN3D 10
-#define MINSAVEVER_BLD 12
-#define MINSAVEVER_SW 13
-#define MINSAVEVER_PS 15
+#define MINSAVEVER_DN3D 16
+#define MINSAVEVER_BLD 16
+#define MINSAVEVER_SW 16
+#define MINSAVEVER_PS 16
 
-#define SAVEVER_DN3D 12
-#define SAVEVER_BLD 12
-#define SAVEVER_SW 13
-#define SAVEVER_PS 15
+#define SAVEVER_DN3D 16
+#define SAVEVER_BLD 16
+#define SAVEVER_SW 16
+#define SAVEVER_PS 16
 
 #define NETGAMEVERSION 1
 

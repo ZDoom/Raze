@@ -142,6 +142,7 @@ static void RemoveActorStat(DCoreActor* actor)
 
 	auto prevp = prev ? &prev->nextStat : &firstEntry;
 	auto nextp = next ? &next->prevStat : &lastEntry;
+
 	assert(*prevp == actor);
 	assert(*nextp == actor);
 
@@ -364,7 +365,7 @@ DCoreActor* InsertActor(PClass* type, sectortype* sector, int stat, bool tail)
 
 void DCoreActor::OnDestroy()
 {
-	assert(spr.statnum >= 0 && spr.statnum < MAXSTATUS);
+	if(link_stat == INT_MAX) return;
 
 	int stat = link_stat;
 	RemoveActorStat(this);
@@ -395,11 +396,10 @@ void InitSpriteLists()
 	TSpriteIterator<DCoreActor> it;
 	while (auto actor = it.Next())
 		allActors.Push(actor);
-	for (auto& act : allActors)
-	{
-		if (!(act->ObjectFlags & OF_EuthanizeMe))
-			act->Destroy();
-	}
+
+	// clear all lists manually before doing any mass destruction. 
+	// This may also be called in error situations where the list has become corrupted, 
+	// so we should not depend on its consistency anymore.
 	for (auto& stat : statList)
 	{
 		stat.firstEntry = stat.lastEntry = nullptr;
@@ -407,6 +407,16 @@ void InitSpriteLists()
 	for (auto& sect : sectors())
 	{
 		sect.firstEntry = sect.lastEntry = nullptr;
+	}
+
+	for (auto& act : allActors)
+	{
+		if (!(act->ObjectFlags & OF_EuthanizeMe))
+		{
+			act->link_stat = INT_MAX;
+			act->prevStat = act->nextStat = act->prevSect = act->nextSect = nullptr;
+			act->Destroy();
+		}
 	}
 	Numsprites = 0;
 }

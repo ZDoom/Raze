@@ -298,6 +298,7 @@ void DDukeActor::Serialize(FSerializer& arc)
 
 	Super::Serialize(arc);
 
+	if (arc.isReading()) s = &spr;
 	arc("cgg", cgg)
 		("spriteextra", spriteextra)
 		("picnum", picnum)

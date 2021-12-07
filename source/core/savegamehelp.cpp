@@ -107,6 +107,7 @@ static void SerializeGlobals(FSerializer& arc)
 
 static void SerializeSession(FSerializer& arc)
 {
+	arc.ReadObjects(false);
 	SerializeMap(arc);
 	SerializeStatistics(arc);
 	SECRET_Serialize(arc);
@@ -510,7 +511,9 @@ FSerializer &Serialize(FSerializer &arc, const char *key, sectortype &c, sectort
 {
 	if (arc.BeginObject(key))
 	{
-		arc("wallptr", c.wallptr, def->wallptr)
+		arc("firstentry", c.firstEntry)
+			("lastentry", c.lastEntry)
+			("wallptr", c.wallptr, def->wallptr)
 			("wallnum", c.wallnum, def->wallnum)
 			("ceilingz", c.ceilingz, def->ceilingz)
 			("floorz", c.floorz, def->floorz)
@@ -651,11 +654,27 @@ FSerializer &Serialize(FSerializer &arc, const char *key, walltype &c, walltype 
 	return arc;
 }
 
+FSerializer& Serialize(FSerializer& arc, const char* key, ActorStatList& c, ActorStatList* def)
+{
+	if (arc.BeginObject(key))
+	{
+		arc("firstentry", c.firstEntry)
+			("lastentry", c.lastEntry)
+			.EndObject();
+	}
+	return arc;
+}
 
 void DCoreActor::Serialize(FSerializer& arc)
 {
-	// nothing here yet.
-	arc("sprite", spr)
+	Super::Serialize(arc);
+	arc("link_stat", link_stat)
+		("link_sector", link_sector)
+		("prevstat", prevStat)
+		("nextstat", nextStat)
+		("prevsect", prevSect)
+		("nextsect", nextSect)
+		("sprite", spr)
 		("spriteext", sprext);
 
 	if (arc.isReading()) spsmooth = {};
@@ -666,7 +685,8 @@ void SerializeMap(FSerializer& arc)
 {
 	if (arc.BeginObject("engine"))
 	{
-		arc("numsectors", numsectors)
+		arc.Array("statlist", statList, MAXSTATUS)
+			("numsectors", numsectors)
 			("sectors", sector, sectorbackup)
 			("numwalls", numwalls)
 			("walls", wall, wallbackup)
