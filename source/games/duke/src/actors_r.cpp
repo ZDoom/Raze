@@ -53,7 +53,7 @@ void resetlanepics(void);
 
 bool ceilingspace_r(sectortype* sectp)
 {
-	if( (sectp->ceilingstat&1) && sectp->ceilingpal == 0 )
+	if (sectp && (sectp->ceilingstat&1) && sectp->ceilingpal == 0)
 	{
 		switch(sectp->ceilingpicnum)
 		{

@@ -106,7 +106,7 @@ void SerializeActorGlobals(FSerializer& arc)
 
 bool ceilingspace_d(sectortype* sectp)
 {
-	if( (sectp->ceilingstat&1) && sectp->ceilingpal == 0 )
+	if (sectp && (sectp->ceilingstat&1) && sectp->ceilingpal == 0)
 	{
 		switch(sectp->ceilingpicnum)
 		{
