@@ -3651,7 +3651,7 @@ void processinput_r(int snum)
 		p->angle.applyinput(sb_avel, &actions);
 	}
 
-	if (p->spritebridge == 0)
+	if (p->spritebridge == 0 && s->sector())
 	{
 		int j = s->sector()->floorpicnum;
 		k = 0;

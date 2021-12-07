@@ -526,10 +526,13 @@ void moveplayers(void)
 			}
 		}
 
-		if (spri->sector()->ceilingstat & 1)
-			spri->shade += (spri->sector()->ceilingshade - spri->shade) >> 1;
-		else
-			spri->shade += (spri->sector()->floorshade - spri->shade) >> 1;
+		if (spri->sector())
+		{
+			if (spri->sector()->ceilingstat & 1)
+				spri->shade += (spri->sector()->ceilingshade - spri->shade) >> 1;
+			else
+				spri->shade += (spri->sector()->floorshade - spri->shade) >> 1;
+		}
 	}
 }
 
