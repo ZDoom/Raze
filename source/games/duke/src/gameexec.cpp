@@ -2622,7 +2622,7 @@ int ParseState::parse(void)
 		{
 			DPrintf(DMSG_NOTIFY, " (Global)");
 		}
-		DPrintf(DMSG_NOTIFY, " =%d",	GetGameVarID(*insptr, g_ac, g_p));
+		DPrintf(DMSG_NOTIFY, " =%d",	GetGameVarID(*insptr, g_ac, g_p).safeValue());
 		insptr++;
 		break;
 	}

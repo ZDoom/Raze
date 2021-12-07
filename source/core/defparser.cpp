@@ -890,7 +890,7 @@ void parseMultiPsky(FScanner& sc, FScriptPosition& pos)
 		else if (sc.Compare("yscale")) sc.GetNumber(sky.yscale, true);
 		else if (sc.Compare({ "tile", "panel" }))
 		{
-			int panel, offset;
+			int panel = 0, offset = 0;
 			sc.GetNumber(panel, true);
 			sc.GetNumber(offset, true);
 			if ((unsigned)panel < MAXPSKYTILES && (unsigned)offset <= PSKYOFF_MAX) sky.tileofs[panel] = offset;
@@ -1441,7 +1441,7 @@ void parsePalookup(FScanner& sc, FScriptPosition& pos)
 		else if (sc.Compare("nofloorpal")) lookups.tables[id].noFloorPal = 1;
 		else if (sc.Compare("copy"))
 		{
-			int source;
+			int source = 0;
 			sc.GetNumber(source, true);
 
 			if ((unsigned)source >= MAXPALOOKUPS || source == id)

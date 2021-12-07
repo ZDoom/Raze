@@ -99,13 +99,13 @@ static int ccmd_spawn(CCmdFuncPtr parm)
 		if (set & 1) spawned->s->pal = (uint8_t)pal;
 		if (set & 2) spawned->s->cstat = (uint16_t)cstat;
 		if (set & 4) spawned->s->ang = ang;
-		if (set & 8)
-			SetActor(spawned, { x, y, z });
-			if (spawned->sector() == nullptr)
-			{
-				Printf("spawn: Sprite can't be spawned into null space\n");
-				deletesprite(spawned);
-			}
+		if (set & 8) SetActor(spawned, { x, y, z });
+
+		if (spawned->sector() == nullptr)
+		{
+			Printf("spawn: Sprite can't be spawned into null space\n");
+			deletesprite(spawned);
+		}
 	}
 
 	return CCMD_OK;

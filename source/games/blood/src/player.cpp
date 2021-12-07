@@ -835,9 +835,10 @@ int team_ticker[8];
 
 void playerInit(int nPlayer, unsigned int a2)
 {
-    PLAYER *pPlayer = &gPlayer[nPlayer];
     if (!(a2&1))
-        memset(pPlayer, 0, sizeof(PLAYER));
+        gPlayer[nPlayer] = {};
+
+    PLAYER *pPlayer = &gPlayer[nPlayer];
     pPlayer->nPlayer = nPlayer;
     pPlayer->teamId = nPlayer;
     if (gGameOptions.nGameType == 3)
