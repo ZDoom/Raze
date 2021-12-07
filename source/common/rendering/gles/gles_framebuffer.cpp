@@ -138,6 +138,7 @@ void OpenGLFrameBuffer::InitializeState()
 	glDisable(GL_POLYGON_OFFSET_FILL);
 	
 	glEnable(GL_BLEND);
+	if (gles.depthClampAvailable) glEnable(GL_DEPTH_CLAMP);
 
 	glDisable(GL_DEPTH_TEST);
 
