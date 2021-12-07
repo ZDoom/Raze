@@ -2710,7 +2710,7 @@ static void operateweapon(int snum, ESyncBits actions, sectortype* psectp)
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
 	int i, k;
-	int psectlotag = psectp->lotag;
+	int psectlotag = psectp ? psectp->lotag : 857;
 
 	if (!isRRRA() && p->curr_weapon >= MOTORCYCLE_WEAPON) return;
 	switch (p->curr_weapon)
