@@ -722,16 +722,16 @@ void prelevel_r(int g)
 		
 		if (wal->overpicnum == MIRROR && (wal->cstat & 32) != 0)
 		{
-			auto sect = wal->nextSector();
+			auto sectp = wal->nextSector();
 
 			if (mirrorcnt > 63)
 				I_Error("Too many mirrors (64 max.)");
-			if (sect->ceilingpicnum != MIRROR)
+			if (sectp && sectp->ceilingpicnum != MIRROR)
 			{
-				sect->ceilingpicnum = MIRROR;
-				sect->floorpicnum = MIRROR;
+				sectp->ceilingpicnum = MIRROR;
+				sectp->floorpicnum = MIRROR;
 				mirrorwall[mirrorcnt] = wal;
-				mirrorsector[mirrorcnt] = sect;
+				mirrorsector[mirrorcnt] = sectp;
 				mirrorcnt++;
 				continue;
 			}
