@@ -245,10 +245,9 @@ void insertspriteq(DDukeActor* const actor)
 	{
 		if (spriteq[spriteqloc] != nullptr)
 		{
-			// Why is this not deleted here?
-			// Also todo: Make list size a CVAR.
+			// todo: Make list size a CVAR.
 			spriteq[spriteqloc]->s->xrepeat = 0;
-			// deletesprite(spriteq[spriteqloc]);
+			deletesprite(spriteq[spriteqloc]);
 		}
 		spriteq[spriteqloc] = actor;
 		spriteqloc = (spriteqloc + 1) % spriteqamount;
@@ -779,7 +778,8 @@ void movecrane(DDukeActor *actor, int crane)
 	else if (t[0] == 9)
 		t[0] = 0;
 
-	SetActor(cpt.poleactor, { spri->x, spri->y, spri->z - (34 << 8) });
+	if (cpt.poleactor)
+		SetActor(cpt.poleactor, { spri->x, spri->y, spri->z - (34 << 8) });
 
 	auto Owner = actor->GetOwner();
 	if (Owner != nullptr || actor->IsActiveCrane())

@@ -248,14 +248,14 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 			continue;
 		case VIEWSCREEN:
 		case VIEWSCREEN2:
-			if (camsprite != nullptr && h->GetHitOwner()->temp_data[0] == 1)
+			if (camsprite != nullptr && h->GetHitOwner() && h->GetHitOwner()->temp_data[0] == 1)
 			{
 				t->picnum = STATIC;
 				t->cstat |= (rand() & 12);
 				t->xrepeat += 8;
 				t->yrepeat += 8;
 			}
-			else if (camsprite == h->GetHitOwner())
+			else if (camsprite && camsprite == h->GetHitOwner())
 			{
 				t->picnum = TILE_VIEWSCR;
 			}

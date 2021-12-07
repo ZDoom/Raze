@@ -113,7 +113,7 @@ public:
 		{
 			UnloadSound(schan->SoundID);
 			currentCommentarySound = 0;
-			currentCommentarySprite->s->picnum = DEVELOPERCOMMENTARY;
+			if (currentCommentarySprite) currentCommentarySprite->s->picnum = DEVELOPERCOMMENTARY;
 			I_SetRelativeVolume(1.0f);
 			UnmuteSounds();
 		}

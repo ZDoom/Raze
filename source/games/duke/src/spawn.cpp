@@ -500,6 +500,7 @@ void initcrane(DDukeActor* actj, DDukeActor* acti, int CRANEPOLE)
 	apt.x = sp->x;
 	apt.y = sp->y;
 	apt.z = sp->z;
+	apt.poleactor = nullptr;
 
 	DukeStatIterator it(STAT_DEFAULT);
 	while (auto act = it.Next())
