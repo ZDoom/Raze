@@ -134,14 +134,8 @@ void animatesprites_d(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 				continue;
 		}
 
-		if (t->sector()->ceilingstat & 1)
-			l = t->sector()->ceilingshade;
-		else
-			l = t->sector()->floorshade;
-
-		if (l < -127) l = -127;
-		if (l > 128) l = 127;
-		t->shade = l;
+		if (t->insector())
+			t->shade = clamp<int>(t->sector()->ceilingstat & 1 ? t->sector()->ceilingshade : t->sector()->floorshade, -127, 127);
 	}
 
 
