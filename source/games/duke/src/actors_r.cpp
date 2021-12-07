@@ -74,7 +74,7 @@ bool ceilingspace_r(sectortype* sectp)
 
 bool floorspace_r(sectortype* sectp)
 {
-	if( (sectp->floorstat&1) && sectp->ceilingpal == 0 )
+	if (sectp && (sectp->floorstat&1) && sectp->ceilingpal == 0)
 	{
 		switch(sectp->floorpicnum)
 		{

@@ -126,7 +126,7 @@ bool ceilingspace_d(sectortype* sectp)
 
 bool floorspace_d(sectortype* sectp)
 {
-	if( (sectp->floorstat&1) && sectp->ceilingpal == 0 )
+	if (sectp && (sectp->floorstat&1) && sectp->ceilingpal == 0)
 	{
 		switch(sectp->floorpicnum)
 		{
