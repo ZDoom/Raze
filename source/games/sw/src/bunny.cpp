@@ -951,9 +951,9 @@ int DoBunnyQuickJump(DSWActor* actor)
         DoPickCloseBunny(actor);
 
     // Random Chance of like sexes fighting
-    if (u->lowActor)
+    DSWActor* hitActor = u->lowActor;
+    if (hitActor)
     {
-        auto hitActor = u->lowActor;
         SPRITEp tsp = &hitActor->s();
         USERp tu = hitActor->u();
 
@@ -993,9 +993,9 @@ int DoBunnyQuickJump(DSWActor* actor)
     }
 
     // Get layed!
-    if (u->lowActor && u->spal == PALETTE_PLAYER8) // Only males check this
+    hitActor = u->lowActor;
+    if (hitActor && u->spal == PALETTE_PLAYER8) // Only males check this
     {
-        auto hitActor = u->lowActor;
         SPRITEp tsp = &hitActor->s();
         USERp tu = hitActor->u();
 

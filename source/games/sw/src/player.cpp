@@ -2556,7 +2556,8 @@ void DoPlayerMoveVehicle(PLAYERp pp)
 {
     int z;
     int floor_dist;
-    auto actor = pp->sop->sp_child;
+    DSWActor* actor = pp->sop->sp_child;
+    if (!actor) return;
     SPRITEp sp = &actor->s();
     auto psp = &pp->Actor()->s();
     USERp u = actor->u();

@@ -2069,7 +2069,7 @@ int DoCarryFlag(DSWActor* actor)
     SPRITEp sp = &actor->s();
 
     const int FLAG_DETONATE_STATE = 99;
-    auto fown = u->flagOwnerActor;
+    DSWActor* fown = u->flagOwnerActor;
     if (!fown) return 0;
     SPRITEp fp = &fown->s();
     USERp fu = fown->u();
@@ -2226,7 +2226,7 @@ int DoCarryFlagNoDet(DSWActor* actor)
 
     SPRITEp ap = &u->attachActor->s();
     USERp au = u->attachActor->u();
-    auto fown = u->flagOwnerActor;
+    DSWActor* fown = u->flagOwnerActor;
     if (!fown) return 0;
     SPRITEp fp = &fown->s();
     USERp fu = fown->u();

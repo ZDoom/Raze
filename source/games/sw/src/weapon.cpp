@@ -4216,7 +4216,8 @@ bool VehicleMoveHit(DSWActor* actor)
     sop = u->sop_parent;
 
     // sprite controlling sop
-    auto ctrlr = sop->controller;
+    DSWActor*  ctrlr = sop->controller;
+    if (!ctrlr) return false;
     cp = &ctrlr->s();
 
     switch (u->coll.type)
@@ -5280,7 +5281,7 @@ int ActorStdMissile(DSWActor* actor, DSWActor* weapActor)
     }
 
     // Reset the weapons target before dying
-    auto goal = wu->WpnGoalActor;
+    DSWActor* goal = wu->WpnGoalActor;
     if (goal != nullptr)
     {
         // attempt to see if it was killed
@@ -8182,7 +8183,8 @@ int DoPlasmaFountain(DSWActor* actor)
     }
     else
     {
-        auto attachActor = u->attachActor;
+        DSWActor* attachActor = u->attachActor;
+        if (!attachActor) return 0;
         ap = &attachActor->s();
 
         // move with sprite
@@ -8887,7 +8889,7 @@ int DoMineStuck(DSWActor* actor)
     constexpr int MINE_DETONATE_STATE = 99;
 
     // if no Owner then die
-    auto attachActor = u->attachActor;
+    DSWActor* attachActor = u->attachActor;
     if (attachActor != nullptr)
     {
         SPRITEp ap = &attachActor->s();
@@ -9343,7 +9345,7 @@ int DoEMPBurst(DSWActor* actor)
     USER* u = actor->u();
     SPRITEp sp = &actor->s();
 
-    auto attachActor = u->attachActor;
+    DSWActor* attachActor = u->attachActor;
     if (attachActor != nullptr)
     {
         SPRITEp ap = &attachActor->s();
@@ -13185,7 +13187,7 @@ DSWActor* AimHitscanToTarget(DSWActor* actor, int *z, short *ang, int z_ratio)
     SPRITEp hp;
     USERp hu;
 
-    auto hitActor = u->targetActor;
+    DSWActor* hitActor = u->targetActor;
     if (hitActor == nullptr)
         return nullptr;
 
@@ -16808,7 +16810,8 @@ int InitSobjGun(PLAYERp pp)
 
     for (i = 0; pp->sop->so_actors[i] != nullptr; i++)
     {
-		auto actor = pp->sop->so_actors[i];
+		DSWActor* actor = pp->sop->so_actors[i];
+        if (!actor) continue;
 		sp = &actor->s();
         if (sp->statnum == STAT_SO_SHOOT_POINT)
         {
@@ -17079,7 +17082,8 @@ int InitTurretMgun(SECTOR_OBJECTp sop)
 
     for (i = 0; sop->so_actors[i] != nullptr; i++)
     {
-		auto actor = sop->so_actors[i];
+		DSWActor* actor = sop->so_actors[i];
+        if (!actor) continue;
 		sp = &actor->s();
         if (sp->statnum == STAT_SO_SHOOT_POINT)
         {

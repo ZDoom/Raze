@@ -90,6 +90,18 @@ CVAR(Bool, sw_bunnyrockets, false, CVAR_SERVERINFO | CVAR_CHEAT);   // This is a
 
 BEGIN_SW_NS
 
+IMPLEMENT_CLASS(DSWActor, false, true)
+IMPLEMENT_POINTERS_START(DSWActor)
+IMPLEMENT_POINTER(ownerActor)
+IMPLEMENT_POINTER(user.lowActor)
+IMPLEMENT_POINTER(user.lowActor)
+IMPLEMENT_POINTER(user.highActor)
+IMPLEMENT_POINTER(user.targetActor)
+IMPLEMENT_POINTER(user.flameActor)
+IMPLEMENT_POINTER(user.attachActor)
+IMPLEMENT_POINTER(user.WpnGoalActor)
+IMPLEMENT_POINTERS_END
+
 void pClearSpriteList(PLAYERp pp);
 
 extern int sw_snd_scratch;

@@ -353,7 +353,8 @@ void so_dointerpolations(int32_t smoothratio)                      // Stick at b
             // instead, using TSPRITE info if possible.
             if (data->curelement >= soi_sprx && data->curelement <= soi_sprz)
             {
-				auto actor = data->actorofang;
+				DSWActor* actor = data->actorofang;
+                if (!actor) continue;
                 USERp u = actor->u();
                 if (u && (actor->s().statnum != STAT_DEFAULT) &&
                     ((TEST(u->Flags, SPR_SKIP4) && (actor->s().statnum <= STAT_SKIP4_INTERP_END)) ||
@@ -362,7 +363,11 @@ void so_dointerpolations(int32_t smoothratio)                      // Stick at b
             }
 
             if (data->curelement == soi_sprang)
-                data->actorofang->s().ang = NORM_ANGLE(data->lastoldipos + MulScale(data->lastangdiff, ratio, 16));
+            {
+                DSWActor* actor = data->actorofang;
+                if (!actor) continue;
+                actor->s().ang = NORM_ANGLE(data->lastoldipos + MulScale(data->lastangdiff, ratio, 16));
+            }
             else
             {
                 delta = data->lastipos - data->lastoldipos;

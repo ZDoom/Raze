@@ -1364,12 +1364,16 @@ void UpdateWallPortalState()
         }
         else
         {
-            auto sp = &mirror[i].cameraActor->s();
-            if (!TEST_BOOL1(sp))
+            DSWActor* cam = mirror[i].cameraActor;
+            if (cam)
             {
-                wal->portalflags = PORTAL_WALL_TO_SPRITE;
-                wal->portalnum = i;
-                wall_to_sprite_actors[i] = mirror[i].cameraActor;
+                auto sp = &cam->s();
+                if (!TEST_BOOL1(sp))
+                {
+                    wal->portalflags = PORTAL_WALL_TO_SPRITE;
+                    wal->portalnum = i;
+                    wall_to_sprite_actors[i] = cam;
+                }
             }
         }
     }

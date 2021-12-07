@@ -1748,7 +1748,8 @@ PlayerPart:
 
 	for (i = 0; sop->so_actors[i] != nullptr; i++)
 	{
-		auto actor = sop->so_actors[i];
+        DSWActor* actor = sop->so_actors[i];
+        if (!actor) continue;
 		sp = &actor->s();
 		u = actor->u();
 
@@ -1977,7 +1978,8 @@ void KillSectorObjectSprites(SECTOR_OBJECTp sop)
 
     for (i = 0; sop->so_actors[i] != nullptr; i++)
     {
-		auto actor = sop->so_actors[i];
+		DSWActor* actor = sop->so_actors[i];
+        if (!actor) continue;
         sp = &actor->s();
         u = actor->u();
 
@@ -2002,8 +2004,9 @@ void UpdateSectorObjectSprites(SECTOR_OBJECTp sop)
 
 	for (i = 0; sop->so_actors[i] != nullptr; i++)
 	{
-		auto actor = sop->so_actors[i];
-		sp = &actor->s();
+        DSWActor* actor = sop->so_actors[i];
+        if (!actor) continue;
+        sp = &actor->s();
 
         SetActorZ(actor, &sp->pos);
     }
@@ -2837,7 +2840,9 @@ void DoTornadoObject(SECTOR_OBJECTp sop)
 
 void DoAutoTurretObject(SECTOR_OBJECTp sop)
 {
-    auto actor = sop->sp_child;
+    DSWActor* actor = sop->sp_child;
+    if (!actor) return;
+
     USERp u = actor->u();
     short delta_ang;
     int diff;
@@ -2861,8 +2866,9 @@ void DoAutoTurretObject(SECTOR_OBJECTp sop)
     {
 		for (i = 0; sop->so_actors[i] != nullptr; i++)
         {
-			auto sActor = sop->so_actors[i];
-			auto shootp = &sActor->s();
+            DSWActor* sActor = sop->so_actors[i];
+            if (!sActor) continue;
+            auto shootp = &sActor->s();
 
 			if (shootp->statnum == STAT_SO_SHOOT_POINT)
             {
@@ -2887,7 +2893,9 @@ void DoAutoTurretObject(SECTOR_OBJECTp sop)
         {
 			for (i = 0; sop->so_actors[i] != nullptr; i++)
 			{
-				auto sActor = sop->so_actors[i];
+                DSWActor* sActor = sop->so_actors[i];
+                if (!sActor) continue;
+
 				auto shootp = &sActor->s();
 
 				if (shootp->statnum == STAT_SO_SHOOT_POINT)
