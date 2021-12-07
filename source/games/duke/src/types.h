@@ -21,6 +21,12 @@ struct STATUSBARTYPE
 	bool gotweapon[MAX_WEAPONS];
 };
 
+struct FireProj
+{
+	int x, y, z;
+	int xv, yv, zv;
+};
+
 class DDukeActor : public DCoreActor
 {
 	DECLARE_CLASS(DDukeActor, DCoreActor)
@@ -47,6 +53,9 @@ public:
 	spritetype* s;	// direct reference to the corresponding sprite.
 
 	TArray<GameVarValue> uservars;
+
+	// Todo: Once we start assigning subclasses to actors, this one needs to be moved to the proper FIREBALL subclass.
+	FireProj fproj;
 
 	DDukeActor() = default;
 	size_t PropagateMark() override;

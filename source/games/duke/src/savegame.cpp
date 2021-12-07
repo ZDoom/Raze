@@ -44,9 +44,23 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 BEGIN_DUKE_NS
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, GameVarValue& w, GameVarValue* def);
-void SerializeActorGlobals(FSerializer& arc);
 void lava_serialize(FSerializer& arc);
 void SerializeGameVars(FSerializer &arc);
+
+static FSerializer& Serialize(FSerializer& arc, const char* key, FireProj& p, FireProj* def)
+{
+	if (arc.BeginObject(key))
+	{
+		arc("x", p.x)
+			("y", p.y)
+			("z", p.z)
+			("xv", p.xv)
+			("yv", p.yv)
+			("zv", p.zv)
+			.EndObject();
+	}
+	return arc;
+}
 
 
 FSerializer& Serialize(FSerializer& arc, const char* keyname, CraneDef& w, CraneDef* def)
@@ -307,7 +321,9 @@ void DDukeActor::Serialize(FSerializer& arc)
 		.Array("temp_data", temp_data, 6)
 		.Array("temo_wall", temp_walls, 2)
 		("temp_sect", temp_sect)
-		("uservars", uservars);
+		("uservars", uservars)
+
+		("fireproj", fproj);
 }
 
 
@@ -432,7 +448,6 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 			.Array("po", po, ud.multimode)
 			.EndObject();
 
-		SerializeActorGlobals(arc);
 		lava_serialize(arc);
 		SerializeGameVars(arc);
 

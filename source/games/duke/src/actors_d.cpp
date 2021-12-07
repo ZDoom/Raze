@@ -42,61 +42,6 @@ This file contains parts of DukeGDX by Alexander Makarov-[M210] (m210-2007@mail.
 
 BEGIN_DUKE_NS
 
-struct FireProj
-{
-	int x, y, z;
-	int xv, yv, zv;
-};
-
-static TMap<int, FireProj> fire;
-
-static FSerializer& Serialize(FSerializer& arc, const char* key, FireProj& p, FireProj* def)
-{
-	if (arc.BeginObject(key))
-	{
-		arc("x", p.x)
-			("y", p.y)
-			("z", p.z)
-			("xv", p.xv)
-			("yv", p.yv)
-			("zv", p.zv)
-			.EndObject();
-	}
-	return arc;
-}
-
-void SerializeActorGlobals(FSerializer& arc)
-{
-	if (arc.isWriting() && fire.CountUsed() == 0) return;
-	bool res = arc.BeginArray("FireProj");
-	if (arc.isReading())
-	{
-		fire.Clear();
-		if (!res) return;
-		int length = arc.ArraySize() / 2;
-		int key;
-		FireProj value;
-
-		for (int i = 0; i < length; i++)
-		{
-			arc(nullptr, key);
-			Serialize(arc, nullptr, value, nullptr);
-			fire.Insert(key, value);
-		}
-	}
-	else
-	{
-		TMap<int, FireProj>::Iterator it(fire);
-		TMap<int, FireProj>::Pair* pair;
-		while (it.NextPair(pair))
-		{
-			int k = pair->Key;
-			Serialize(arc, nullptr, k, nullptr);
-			Serialize(arc, nullptr, pair->Value, nullptr);
-		}
-	}
-	arc.EndArray();
-}
 
 //---------------------------------------------------------------------------
 //
@@ -1516,22 +1461,21 @@ static bool movefireball(DDukeActor* actor)
 		if (actor->temp_data[0] >= 1 && actor->temp_data[0] < 6)
 		{
 			float siz = 1.0f - (actor->temp_data[0] * 0.2f);
-			// This still needs work- it stores an actor reference in a general purpose integer field.
-			int trail = actor->temp_data[1];
+			auto trail = actor->temp_actor;
 			auto ball = spawn(actor, FIREBALL);
 			if (ball)
 			{
 				auto spr = ball->s;
-				actor->temp_data[1] = ball->GetSpriteIndex();
+				actor->temp_actor = ball;
 
 				spr->xvel = s->xvel;
 				spr->yvel = s->yvel;
 				spr->zvel = s->zvel;
 				if (actor->temp_data[0] > 1)
 				{
-					FireProj* proj = fire.CheckKey(trail);
-					if (proj != nullptr)
+					if (trail)
 					{
+						FireProj* proj = &trail->fproj;
 						spr->x = proj->x;
 						spr->y = proj->y;
 						spr->z = proj->z;
@@ -1544,9 +1488,8 @@ static bool movefireball(DDukeActor* actor)
 				spr->cstat = s->cstat;
 				spr->extra = 0;
 
-				FireProj proj = { spr->x, spr->y, spr->z, spr->xvel, spr->yvel, spr->zvel };
+				ball->fproj = { spr->x, spr->y, spr->z, spr->xvel, spr->yvel, spr->zvel };
 
-				fire.Insert(ball->GetSpriteIndex(), proj);
 				ChangeActorStat(ball, STAT_PROJECTILE);
 			}
 		}
