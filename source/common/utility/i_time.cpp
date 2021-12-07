@@ -213,8 +213,8 @@ double I_GetInputFrac(bool const synchronised, double const ticrate)
 			// This rectifies a deviation of 100+ ms or more depending on the length
 			// of the operation to be within 1-2 ms of synchronised input
 			// from 60 fps to at least 1000 fps at ticrates of 30 and 40 Hz.
-			const double result = elapsedInputTicks * ticrate / 1000.;
-			return result * (1. + 0.35 * (1. - ticrate / 50.) * (1. - result));
+			const double result = elapsedInputTicks * ticrate * (1. / 1000.);
+			return result * (1. + 0.35 * (1. - ticrate * (1. / 50.)) * (1. - result));
 		}
 		else
 		{
