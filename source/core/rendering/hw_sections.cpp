@@ -87,6 +87,8 @@ void hw_BuildSections()
 
 static void SplitSection(int section, int start, int end)
 {
+#if 0 // disabled until refactoring. This code is a mess and needs to be redone.
+
 	// note: to do this, the sector's lines must be well ordered and there must only be one outline and no holes.
 	// This also can only apply a single split to a given sector.
 	int firstsection = Sections.Reserve(2);
@@ -195,6 +197,7 @@ static void SplitSection(int section, int start, int end)
 	sectionspersector[sect.sector].Resize(2);
 	sectionspersector[sect.sector][0] = Sections.IndexOf(sect1);
 	sectionspersector[sect.sector][1] = Sections.IndexOf(sect2);
+#endif
 }
 
 void hw_SplitSector(int sectnum, int start, int end)
