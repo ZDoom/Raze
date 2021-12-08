@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "gamefuncs.h"
 #include "hw_sections.h"
 #include "sectorgeometry.h"
+#include "hw_sections2.h"
 
 #include "blood.h"
 
@@ -728,6 +729,7 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sect
 
     setWallSectors();
     hw_BuildSections();
+    hw_CreateSections2();
     sectorGeometry.SetSize(Sections.Size());
     wallbackup = wall;
     sectorbackup = sector;

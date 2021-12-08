@@ -47,6 +47,7 @@
 #include "render.h"
 #include "hw_sections.h"
 #include "interpolate.h"
+#include "hw_sections2.h"
 #include "games/blood/src/mapstructs.h"
 
 extern BitArray clipsectormap;
@@ -489,6 +490,7 @@ void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang,
 	G_LoadMapHack(filename, md4, sprites);
 	setWallSectors();
 	hw_BuildSections();
+	hw_CreateSections2();
 	sectorGeometry.SetSize(Sections.Size());
 
 
