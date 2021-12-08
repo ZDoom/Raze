@@ -60,6 +60,7 @@ void CollectLoops(TArray<loopcollect>& sectors)
 			if (visited[w]) continue;
 			thisloop.Clear();
 			thisloop.Push(w);
+			visited.Set(w);
 			
 			for (int ww = wall[w].point2; ww != w; ww = wall[ww].point2)
 			{
@@ -71,15 +72,31 @@ void CollectLoops(TArray<loopcollect>& sectors)
 				}
 				if (visited[ww])
 				{
-					Printf("Wall %d's point2 links to already visited wall %d\n", w, ww);
+					// quick check for the only known cause of this in proper maps: 
+					// RRRA E1L3 and SW $yamato have a wall duplicate where the duplicate's index is the original's + 1. These can just be deleted here and be ignored.
+					if (ww > 1 && wall[ww-1].x == wall[ww-2].x && wall[ww-1].y == wall[ww-2].y && wall[ww-1].point2 == wall[ww-2].point2 && wall[ww - 1].point2 == ww)
+					{
+						thisloop.Clear();
+						break;
+					}
+					Printf("found already visited wall %d\nLinked by:", ww);
+					for (int i = 0; i < numwalls; i++)
+					{
+						if (wall[i].point2 == ww)
+							Printf(" %d,", i);
+					}
+					Printf("\n");
 					sectors.Last().bugged = true;
 					break;
 				}
 				thisloop.Push(ww);
 				visited.Set(ww);
 			}
-			count ++;
-			sectors.Last().loops.Push(std::move(thisloop));
+			if (thisloop.Size() > 0)
+			{
+				count++;
+				sectors.Last().loops.Push(std::move(thisloop));
+			}
 		}
 	}
 	Printf("Created %d loops from %d sectors, %d walls\n", count, numsectors, numwalls);
