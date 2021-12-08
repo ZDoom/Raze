@@ -522,13 +522,20 @@ void loadMapBackup(const char* filename)
 void setWallSectors()
 {
 	int i = 0;
+	for (auto& wal : walls())
+	{
+		wal.sector = -1;
+	}
 	for(auto& sect : sectors())
 	{
 		sect.dirty = 255;
 		sect.exflags = 0;
 		for (auto& wal : wallsofsector(&sect))
 		{
-			wal.sector = i;
+			if (wal.sector == -1)
+				wal.sector = i;
+			else
+				Printf("Wall %d referenced by multiple sectors (%d, %d)!\n", wallnum(&wal), wal.sector, sectnum(&sect));
 		}
 		i++;
 	}
