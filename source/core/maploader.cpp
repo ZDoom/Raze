@@ -411,7 +411,7 @@ void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang,
 	int mapversion = fr.ReadInt32();
 	if (mapversion < 5 || mapversion > 9) // 9 is most likely useless but let's try anyway.
 	{
-		I_Error("%s: Invalid map format, expcted 5-9, got %d", filename, mapversion);
+		I_Error("%s: Invalid map format, expected 5-9, got %d", filename, mapversion);
 	}
 
 	pos->x = fr.ReadInt32();

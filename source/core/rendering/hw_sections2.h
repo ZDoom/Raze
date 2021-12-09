@@ -1,11 +1,18 @@
 
 struct Section2;
 
+enum ESEctionFlag
+{
+	Unclosed = 1,	// at least one unclosed loop
+	Dumped = 2,		// builder was unable to properly construct, so content may not be usable for triangulator.
+	BadWinding = 4,
+};
+
 struct Section2Wall
 {
 	// references to game data
-	vec3_t* v1;					// points to start vertex in wall[]
-	vec3_t* v2; 				// points to end vertex in wall[]
+	vec2_t* v1;					// points to start vertex in wall[]
+	vec2_t* v2; 				// points to end vertex in wall[]
 	walltype* wall;				// points to the actual wall this belongs to - this is NOT necessarily the same as v1 and can be null.
 	
 	// references to section data
@@ -14,18 +21,22 @@ struct Section2Wall
 	Section2* backsection;		// if this is null the wall is one-sided
 };
 
-struct Loop
+struct Section2Loop
 {
 	TArrayView<Section2Wall*> walls;
-	bool unclosed;
 };
 
 struct Section2
 {
+	int flags;
+	int index;
 	sectortype* sector;
 	// this uses a memory arena for storage, so use TArrayView instead of TArray
 	TArrayView<Section2Wall*> walls;
-	TArrayView<Loop*> loops;		
+	TArrayView<Section2Loop> loops;
 };
+
+extern TArray<Section2*> sections2;
+extern TArrayView<TArrayView<Section2*>> sections2PerSector;
 
 void hw_CreateSections2();
