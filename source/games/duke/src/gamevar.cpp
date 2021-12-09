@@ -72,7 +72,6 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, GameVarValue& w, G
 		{
 		case 0:
 		{
-			// pointless to handle now, fix when saving works again.
 			DDukeActor* a = arc.isWriting() ? w.actor() : nullptr;
 			arc("actor", a);
 			if (arc.isReading()) w = GameVarValue(a);
