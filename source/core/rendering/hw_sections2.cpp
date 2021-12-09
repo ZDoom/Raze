@@ -53,7 +53,7 @@ using cmp = bool(*)(int, int);
 
 void StripLoop(TArray<vec2_t>& points)
 {
-	for (unsigned p = 0; p < points.Size(); p++)
+	for (int p = 0; p < (int)points.Size(); p++)
 	{
 		unsigned prev = p == 0 ? points.Size() - 1 : p - 1;
 		unsigned next = p == points.Size() - 1 ? 0 : p + 1;
@@ -80,6 +80,7 @@ void StripLoop(TArray<vec2_t>& points)
 			p--;
 			if (p > 0) p--; // backtrack one point more to ensure we can check the newly formed connection as well.
 		}
+		// Todo: check the non-orthogonal case of the above, too. Duke E2L7's sector 130 is such a case.
 	}
 }
 
@@ -138,7 +139,13 @@ int GetWindingOrder(TArray<int>& poly)
 		points[i++] = wall[index].pos;
 	}
 	StripLoop(points);
+	if (points.Size() == 0) return 1; // Sector has no dimension. We must accept this as valid here.
 	int order = GetWindingOrder(points);
+	if (order == 0)
+	{
+		// this may be a diagonal overlap, so try one other corner, too.
+		order = GetWindingOrder(points, cmpGreater, cmpLess);
+	}
 	// if (order == 0) do a pedantic check - this is hopefully not needed ever.
 	return order;
 }
@@ -204,10 +211,6 @@ static void CollectLoops(TArray<loopcollect>& sectors)
 			}
 			if (thisloop.Size() > 0)
 			{
-				if (i == 318)
-				{
-					int a = 0;
-				}
 				count++;
 				int o = GetWindingOrder(thisloop);
 				if (o == 0) Printf("Unable to determine winding order of loop in sector %d!\n", i);
@@ -492,7 +495,7 @@ static void ConstructSections(TArray<sectionbuildsector>& builders)
 		{
 			auto section = (Section2*)sectionArena.Calloc(sizeof(Section2));
 			auto& srcsect = builder.sections[j];
-			sections2.Push(section);
+			sections2[cursection++] = section;
 			sections2PerSector[i][j] = section;
 
 			int sectwalls = srcsect.wallcount;
@@ -514,7 +517,7 @@ static void ConstructSections(TArray<sectionbuildsector>& builders)
 				for (unsigned w = 0; w < numwalls; w++)
 				{
 					auto wal = wallmap[srcloop[w]];
-					walls[curwall++] = loop.walls[w] = wal;
+					section->walls[curwall++] = loop.walls[w] = wal;
 					wal->frontsection = section;
 					// backsection will be filled in when everything is done.
 				}
@@ -534,6 +537,7 @@ static void ConstructSections(TArray<sectionbuildsector>& builders)
 void hw_CreateSections2()
 {
 	sectionArena.FreeAll();
+	sections2.Reset();
 	TArray<loopcollect> collect;
 	CollectLoops(collect);
 
@@ -546,6 +550,7 @@ void hw_CreateSections2()
 	{
 		for (int i = 0; i < numsectors; i++)
 		{
+			if (sections2PerSector[i].Size() == 1 && sections2PerSector[i][0]->flags == 0) continue;	
 			Printf(PRINT_LOG, "Sector %d, %d walls, %d sections\n", i, sector[i].wallnum, sections2PerSector[i].Size());
 			for (auto& section : sections2PerSector[i])
 			{
@@ -559,6 +564,35 @@ void hw_CreateSections2()
 					}
 				}
 			}
+		}
+	}
+}
+
+#include "c_dispatch.h"
+#include "engineerrors.h"
+
+CCMD(sectiontest)
+{
+	TMap<FString, bool> processed;
+	for (int i = 0; i < fileSystem.GetNumEntries(); i++)
+	{
+		FString f = FString(fileSystem.GetFileFullName(i)).MakeUpper();
+		if (f.IndexOf(".MAP") == f.Len() - 4)
+		{
+			if (processed.CheckKey(f)) continue;
+			processed.Insert(f, true);
+			Printf(PRINT_LOG, "Checking %s\n--------------------------\n", f.GetChars());
+			try
+			{
+				loadMapBackup(f);
+			}
+			catch (const CRecoverableError& error)
+			{
+				Printf(PRINT_LOG, "Unable to load map: %s\n", error.what());
+			}
+			Printf(PRINT_LOG, "\n\n");
+			I_DebugPrint(f);
+			I_DebugPrint("\n");
 		}
 	}
 }

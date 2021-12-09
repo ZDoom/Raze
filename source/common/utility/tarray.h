@@ -1877,18 +1877,20 @@ public:
 	// Return a reference to an element
 	T &operator[] (size_t index) const
 	{
+		assert(index < Count);
 		return Array[index];
 	}
 	// Returns a reference to the last element
 	T &Last() const
 	{
+		assert(Count > 0);
 		return Array[Count - 1];
 	}
 
 	// returns address of first element
 	T *Data() const
 	{
-		return &Array[0];
+		return Array;
 	}
 
 	unsigned Size() const
