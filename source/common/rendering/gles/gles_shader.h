@@ -277,6 +277,7 @@ public:
 #endif
 
 	bool hasSpotLight;
+	bool paletteInterpolate;
 };
 
 class FShader
@@ -419,8 +420,8 @@ public:
 #ifdef NPOT_EMULATION
 		tag |= (flavour.npotEmulation & 1) << 22;
 #endif
-		
 		tag |= (flavour.hasSpotLight & 1) << 23;
+		tag |= (flavour.paletteInterpolate & 1) << 24;
 
 		return tag;
 	}
