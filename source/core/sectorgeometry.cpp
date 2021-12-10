@@ -105,7 +105,6 @@ class UVCalculator
 
 public:
 
-	// Moved in from pragmas.h
 	UVCalculator(sectortype* sec, int plane, FGameTexture* tx, const FVector2& off)
 	{
 		float xpan, ypan;

@@ -410,7 +410,7 @@ static void GroupData(TArray<loopcollect>& collect, TArray<sectionbuildsector>& 
 						}
 						else
 						{
-							Printf("Nested loops found in sector %d\n", i);
+							Printf("Nested loops found in sector %d, comparing loops starting at %d and %d\n", i, sectloops[a][0], sectloops[b][0]);
 							bugged.Insert(i, true);
 							if (inside[a] != -2)
 							{
@@ -586,8 +586,13 @@ void hw_CreateSections2()
 					for (auto& wall : loop.walls)
 					{
 						Printf(PRINT_LOG, "\t\t\tWall %d, (%d, %d) -> (%d, %d)", ::wall.IndexOf(wall->wall), wall->v1->x / 16, wall->v1->y / -16, wall->v2->x / 16, wall->v2->y / -16);
-						if (wall->wall->nextwall == -1) Printf(PRINT_LOG, "\n");
-						else Printf(PRINT_LOG, "next wall = %d, next sector = %d\n", wall->wall->nextwall, wall->wall->nextsector);
+						if (wall->wall->nextwall == -1) Printf(PRINT_LOG, "one-sided\n");
+						else
+						{
+							Printf(PRINT_LOG, " next wall = %d, next sector = %d", wall->wall->nextwall, wall->wall->nextsector);
+							if (wall->wall->nextWall()->nextWall() != wall->wall) Printf(PRINT_LOG, " unreachable");
+							Printf(PRINT_LOG, "\n");
+						}
 					}
 				}
 			}
