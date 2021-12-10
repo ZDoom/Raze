@@ -4,6 +4,7 @@
 #include "c_cvars.h"
 
 CVAR(Bool, hw_sectiondebug, false, 0)
+TMap<int, bool> bugged;
 
 static FMemArena sectionArena(102400);
 TArray<Section2*> sections2;
@@ -185,6 +186,7 @@ static void CollectLoops(TArray<loopcollect>& sectors)
 				{
 					Printf("Found wall %d outside sector %d in a loop\n", ww, i);
 					sectors.Last().bugged = ESEctionFlag::Unclosed;
+					bugged.Insert(i, true);
 					break;
 				}
 				if (visited[ww])
@@ -197,6 +199,7 @@ static void CollectLoops(TArray<loopcollect>& sectors)
 						break;
 					}
 					Printf("found already visited wall %d\nLinked by:", ww);
+					bugged.Insert(i, true);
 					for (int i = 0; i < numwalls; i++)
 					{
 						if (wall[i].point2 == ww)
@@ -213,7 +216,11 @@ static void CollectLoops(TArray<loopcollect>& sectors)
 			{
 				count++;
 				int o = GetWindingOrder(thisloop);
-				if (o == 0) Printf("Unable to determine winding order of loop in sector %d!\n", i);
+				if (o == 0)
+				{
+					Printf("Unable to determine winding order of loop in sector %d!\n", i);
+					bugged.Insert(i, true);
+				}
 
 				thisloop.Push(o);
 				sectors.Last().loops.Push(std::move(thisloop));
@@ -238,7 +245,11 @@ static void CollectLoops(TArray<loopcollect>& sectors)
 static int insideLoop(int vertex, TArray<int>& loop)
 {
 	auto pt = wall[vertex].pos;
+	for (int i = 0; i < 2; i++)
 	{
+		// to reliably detect walls where vertices lie directly on outer walls, we must test the wall's center as well.
+		// SW: Wanton Destrcution's $bath.map, sector 601 is an example for that.
+		if (i == 1) pt += wall[vertex].delta() / 2; 
 		bool c = false;
 		for (unsigned i = 0; i < loop.Size() - 1; i++)
 		{
@@ -255,13 +266,12 @@ static int insideLoop(int vertex, TArray<int>& loop)
 				int64_t deltay = int64_t(pt2.y) - pt1.y;
 				//if (x < deltax * (deltaty) / deltay + pt1.x)
 				// reformatted to avoid the division - for nagative deltay the sign needs to be flipped to give the correct result.
-				if (((deltay * deltatx - deltax * deltaty) ^ deltay) < 0)
-				{
+				int64_t result = ((deltay * deltatx - deltax * deltaty) ^ deltay);
+				if (result < 0)
 					c = !c;
-				}
 			}
 		}
-		return int(c);
+		if (i == 1 || c == 1) return int(c);
 	}
 	return -1;
 }
@@ -288,6 +298,11 @@ static void GroupData(TArray<loopcollect>& collect, TArray<sectionbuildsector>& 
 {
 	for (int i = 0; i < numsectors; i++)
 	{
+		if (i == 250)
+		{
+			int a = 0;
+		}
+
 		auto& builder = builders[i];
 		builder.sectnum = i;
 		auto& sectloops = collect[i].loops;
@@ -306,6 +321,7 @@ static void GroupData(TArray<loopcollect>& collect, TArray<sectionbuildsector>& 
 			{
 				builder.sections.Last().bugged = ESEctionFlag::BadWinding; // Todo: Use flags for bugginess.
 				Printf("Sector %d has wrong winding order\n", i);
+				bugged.Insert(i, true);
 			}
 			continue;
 		}
@@ -351,7 +367,7 @@ static void GroupData(TArray<loopcollect>& collect, TArray<sectionbuildsector>& 
 			{
 				for (auto& loop1 : sectloops) for (auto& loop2 : sectloops)
 				{
-					if (insideLoop(loop1, loop2))
+					if (&loop1 != &loop2 && insideLoop(loop1, loop2))
 					{
 						goto nope; // just get out of here.
 					}
@@ -370,6 +386,7 @@ static void GroupData(TArray<loopcollect>& collect, TArray<sectionbuildsector>& 
 			// Now try the case where we got multiple sections where some have holes.
 			// For that, first build a map to see which sectors lie inside others.
 			TArray<int> inside(sectloops.Size(), true);
+			TArray<TArray<int>> outside(sectloops.Size(), true);
 			for (auto& in : inside) in = -1;
 			for (unsigned a = 0; a < sectloops.Size(); a++)
 			{
@@ -382,35 +399,41 @@ static void GroupData(TArray<loopcollect>& collect, TArray<sectionbuildsector>& 
 							if (sectloops[a].Last() != -1 || sectloops[b].Last() != 1)
 							{
 								Printf("Bad winding order for loops in sector %d\n", i);
-								inside[a] = inside[b] = -2;
+								bugged.Insert(i, true);
+								inside[a] = inside[b] = -2; // invalidate both loops
 							}
-							else inside[a] = b;
+							else
+							{
+								inside[a] = b;
+								outside[b].Push(a);
+							}
 						}
 						else
 						{
 							Printf("Nested loops found in sector %d\n", i);
-							if (inside[a] != -2) inside[inside[a]] = -2;
-							inside[a] = -2;
-							inside[b] = -2;
+							bugged.Insert(i, true);
+							if (inside[a] != -2)
+							{
+								inside[inside[a]] = -2;
+							}
+							inside[a] = inside[b] = -2;
 						}
 					}
 				}
 			}
-			// Now write out the sections.
+			// Now write out the proper sections we were able to find.
 			for (unsigned a = 0; a < sectloops.Size(); a++)
 			{
-				if (inside[i] > 0)
+				if (inside[a] == -1 && sectloops[a].Size() > 0 && sectloops[a].Last() == 1)
 				{
-					int b = inside[i];
-					if (inside[b] != -1) continue;
-					auto& loop = sectloops[b];
+					auto& loop = sectloops[a];
 					builder.sections.Reserve(1);
-					builder.sections.Last().bugged = 0;
+					builder.sections.Last().bugged = -1; // debug only - remove once checked!!!
 					builder.sections.Last().wallcount = loop.Size() - 1;
 					builder.sections.Last().loops.Push(std::move(loop));
-					for (unsigned c = 0; c < sectloops.Size(); c++)
+					for (auto c: outside[a])
 					{
-						if (inside[c] == b)
+						if (inside[c] == a)
 						{
 							auto& loop = sectloops[c];
 							builder.sections.Last().wallcount += loop.Size() - 1;
@@ -432,6 +455,7 @@ static void GroupData(TArray<loopcollect>& collect, TArray<sectionbuildsector>& 
 				{
 					tossit = true;
 					Printf("Potential problem at sector %d with %d loops\n", i, sectloops.Size());
+					bugged.Insert(i, true);
 					builder.sections.Reserve(1);
 					builder.sections.Last().bugged = ESEctionFlag::Dumped;	// this will most likely require use of the node builder to triangulate anyway.
 				}
@@ -536,6 +560,7 @@ static void ConstructSections(TArray<sectionbuildsector>& builders)
 
 void hw_CreateSections2()
 {
+	bugged.Clear();
 	sectionArena.FreeAll();
 	sections2.Reset();
 	TArray<loopcollect> collect;
@@ -550,7 +575,7 @@ void hw_CreateSections2()
 	{
 		for (int i = 0; i < numsectors; i++)
 		{
-			if (sections2PerSector[i].Size() == 1 && sections2PerSector[i][0]->flags == 0) continue;	
+			if (sections2PerSector[i][0]->flags == 0 && !bugged.CheckKey(i)) continue;	
 			Printf(PRINT_LOG, "Sector %d, %d walls, %d sections\n", i, sector[i].wallnum, sections2PerSector[i].Size());
 			for (auto& section : sections2PerSector[i])
 			{
@@ -560,7 +585,9 @@ void hw_CreateSections2()
 					Printf(PRINT_LOG, "\t\tLoop, %d walls\n", loop.walls.Size());
 					for (auto& wall : loop.walls)
 					{
-						Printf(PRINT_LOG, "\t\t\tWall %d, (%d, %d) -> (%d, %d)\n", ::wall.IndexOf(wall->wall), wall->v1->x / 16, wall->v1->y / -16, wall->v2->x / 16, wall->v2->y / -16);
+						Printf(PRINT_LOG, "\t\t\tWall %d, (%d, %d) -> (%d, %d)", ::wall.IndexOf(wall->wall), wall->v1->x / 16, wall->v1->y / -16, wall->v2->x / 16, wall->v2->y / -16);
+						if (wall->wall->nextwall == -1) Printf(PRINT_LOG, "\n");
+						else Printf(PRINT_LOG, "next wall = %d, next sector = %d\n", wall->wall->nextwall, wall->wall->nextsector);
 					}
 				}
 			}

@@ -259,7 +259,7 @@ static int32_t LoadMapHack(const char *filename, SpawnSpriteDef& sprites)
         }
         else if (sc.Compare("sw_serp_continue")) // This is a hack for SW's Last Warrior mod to continue from L4 to L5.
         {
-            currentLevel->gameflags |= LEVEL_SW_DEATHEXIT_SERPENT_NEXT;
+            if (currentLevel) currentLevel->gameflags |= LEVEL_SW_DEATHEXIT_SERPENT_NEXT;
         }
 
         else if (sc.Compare("angleoff") || sc.Compare("angoff"))

@@ -2268,7 +2268,7 @@ void polymost_drawrooms()
     maskwallcnt = 0;
 
     // NOTE: globalcursectnum has been already adjusted in ADJUST_GLOBALCURSECTNUM.
-    assert(validSectorIndex(globalcursectnum));
+    if (!validSectorIndex(globalcursectnum)) return; // if we can't render - don't render. Asserting here is useless.
     polymost_scansector(globalcursectnum);
 
     grhalfxdown10x = grhalfxdown10;

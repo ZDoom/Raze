@@ -77,7 +77,11 @@ void hw_BuildSections()
 		sectionLines[i].partner = wal.nextwall;
 		sectionLines[i].section = wal.sector;
 		sectionLines[i].partnersection = wal.nextsector;
-		sectionLines[i].point2index = wal.point2 - wal.sectorp()->wallptr;
+		sectionLines[i].point2index = 0;
+		if (wal.sector == -1)
+			Printf("Warning: Wall %d without a sector!\n", wall.IndexOf(&wal));
+		else 
+			sectionLines[i].point2index = wal.point2 - wal.sectorp()->wallptr;
 	}
 
 	for (unsigned i = 0; i < splits.Size(); i += 3)
