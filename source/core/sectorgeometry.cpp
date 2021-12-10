@@ -143,13 +143,10 @@ public:
 		sinalign = float(vang.Sin());
 
 		int pow2width = 1 << sizeToBits((int)tx->GetDisplayWidth());
-		if (pow2width < (int)tx->GetDisplayWidth()) pow2width *= 2;
-
 		int pow2height = 1 << sizeToBits((int)tx->GetDisplayHeight());
-		if (pow2height < (int)tx->GetDisplayHeight()) pow2height *= 2;
 
-		xpanning = pow2width * xpan / (256.f * tx->GetDisplayWidth());
-		ypanning = pow2height * ypan / (256.f * tx->GetDisplayHeight());
+		xpanning = xpan / 256.f;
+		ypanning = ypan / 256.f;
 
 		float scalefactor = (stat & CSTAT_SECTOR_TEXHALF) ? 8.0f : 16.0f;
 
@@ -167,8 +164,8 @@ public:
 			}
 		}
 
-		xscaled = scalefactor * (int)tx->GetDisplayWidth();
-		yscaled = scalefactor * (int)tx->GetDisplayHeight();
+		xscaled = scalefactor * pow2width;
+		yscaled = scalefactor * pow2height;
 	}
 
 	FVector2 GetUV(int x, int y, float z)
