@@ -543,7 +543,7 @@ void setWallSectors()
 	// validate 'nextsector' fields. Some maps have these wrong which can cause render glitches and occasionally even crashes.
 	for (auto& wal : walls())
 	{
-		if (wal.nextwall != -1)
+		if (validWallIndex(wal.nextwall))
 		{
 			if (wal.nextsector != wal.nextWall()->sector)
 			{
@@ -551,6 +551,7 @@ void setWallSectors()
 				wal.nextsector = wal.nextWall()->sector;
 			}
 		}
+		else wal.nextwall = -1;
 	}
 
 }
