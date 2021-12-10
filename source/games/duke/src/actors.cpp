@@ -3586,7 +3586,7 @@ void handle_se10(DDukeActor* actor, const int* specialtags)
 	auto sc = actor->getSector();
 	int sh = s->hitag;
 
-	if ((sc->lotag & 0xff) == 27 || (sc->floorz > sc->ceilingz && (sc->lotag & 0xff) != 23) || sc->lotag == 65536 - 32791)
+	if ((sc->lotag & 0xff) == 27 || (sc->floorz > sc->ceilingz && (sc->lotag & 0xff) != 23) || sc->lotag == 32791 - 65536)
 	{
 		int j = 1;
 
