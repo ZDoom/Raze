@@ -271,7 +271,7 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sect
 #if 1 // bad, bad hack, just for making Polymost happy...
 	PolymostAllocFakeSector();
 #endif
-    * pSector = &sector[mapHeader.sect];
+    * pSector = mapHeader.sect >= 0? &sector[mapHeader.sect] : nullptr;
 
     if (encrypted)
     {
