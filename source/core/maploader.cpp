@@ -526,6 +526,52 @@ void setWallSectors()
 	{
 		wal.sector = -1;
 	}
+	for (int i = 0; i < numsectors - 1; i++)
+	{
+		auto sect = &sector[i];
+		auto nextsect = &sector[i + 1];
+
+		if (sect->wallptr < nextsect->wallptr && sect->wallptr + sect->wallnum > nextsect->wallptr)
+		{
+			// We have overlapping wall ranges for two sectors. Do some analysis to see where these walls belong
+			int checkstart = nextsect->wallptr;
+			int checkend = sect->wallptr + sect->wallnum;
+
+			// for now assign the walls to the first sector. Final decisions are made below.
+			nextsect->wallnum -= checkend - checkstart;
+			nextsect->wallptr = checkend;
+
+			auto belongs = [](int wal, int first, int last, int firstwal)
+			{
+				bool point2ok = wall[wal].point2 >= first && wall[wal].point2 < last;
+				bool refok = false;
+				for (int i = first; i < last; i++) 
+					if (wall[i].point2 >= firstwal && wall[i].point2 <= wal) 
+					{
+						refok = true; break; 
+					}
+				return refok && point2ok;
+			};
+			while (checkstart < checkend && belongs(checkstart, sect->wallptr, checkstart, checkstart))
+				checkstart++;
+
+			sect->wallnum = checkstart - sect->wallptr;
+
+			while (checkstart < checkend && belongs(checkend - 1, checkend, nextsect->wallptr + nextsect->wallnum, checkstart))
+				checkend--;
+
+			nextsect->wallnum += nextsect->wallptr - checkend;
+			nextsect->wallptr = checkend;
+
+			if (nextsect->wallptr > sect->wallptr + sect->wallnum)
+			{
+				// If there's a gap, assign to the first sector. In this case we may only guess.
+				Printf("Wall range %d - %d referenced by sectors %d and %d\n", sect->wallptr + sect->wallnum, nextsect->wallptr - 1, i, i + 1);
+				sect->wallnum = nextsect->wallptr - sect->wallptr;
+			}
+		}
+	}
+
 	for(auto& sect : sectors())
 	{
 		sect.dirty = 255;
@@ -534,8 +580,6 @@ void setWallSectors()
 		{
 			if (wal.sector == -1)
 				wal.sector = i;
-			else
-				Printf("Wall %d referenced by multiple sectors (%d, %d)!\n", wallnum(&wal), wal.sector, sectnum(&sect));
 		}
 		i++;
 	}
