@@ -429,7 +429,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_WEAPON_SWAY:
-		if (bSet) ps[iPlayer].weapon_sway = lValue;
+		if (bSet) ps[iPlayer].oweapon_sway = ps[iPlayer].weapon_sway = lValue;
 		else SetGameVarID(lVar2, ps[iPlayer].weapon_sway, sActor, sPlayer);
 		break;
 
@@ -567,7 +567,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_KICKBACK_PIC:
-		if (bSet) ps[iPlayer].kickback_pic = lValue;
+		if (bSet) ps[iPlayer].okickback_pic = ps[iPlayer].kickback_pic = lValue;
 		else SetGameVarID(lVar2, ps[iPlayer].kickback_pic, sActor, sPlayer);
 		break;
 
@@ -607,7 +607,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_RANDOM_CLUB_FRAME:
-		if (bSet) ps[iPlayer].random_club_frame = lValue;
+		if (bSet) ps[iPlayer].orandom_club_frame = ps[iPlayer].random_club_frame = lValue;
 		else SetGameVarID(lVar2, ps[iPlayer].random_club_frame, sActor, sPlayer);
 		break;
 
@@ -726,7 +726,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_WEAPON_POS:
-		if (bSet) ps[iPlayer].weapon_pos = lValue;
+		if (bSet) ps[iPlayer].oweapon_pos = ps[iPlayer].weapon_pos = lValue;
 		else SetGameVarID(lVar2, ps[iPlayer].weapon_pos, sActor, sPlayer);
 		break;
 
@@ -870,7 +870,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_HARD_LANDING:
-		if (bSet) ps[iPlayer].hard_landing = lValue;
+		if (bSet) ps[iPlayer].ohard_landing = ps[iPlayer].hard_landing = lValue;
 		else SetGameVarID(lVar2, ps[iPlayer].hard_landing, sActor, sPlayer);
 		break;
 
