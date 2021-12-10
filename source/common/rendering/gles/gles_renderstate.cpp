@@ -158,6 +158,7 @@ bool FGLRenderState::ApplyShader()
 
 
 	flavour.blendFlags = (int)(mStreamData.uTextureAddColor.a + 0.01);
+	flavour.paletteInterpolate = !!(flavour.blendFlags & 0x4000);
 
 	flavour.twoDFog = false;
 	flavour.fogEnabled = false;

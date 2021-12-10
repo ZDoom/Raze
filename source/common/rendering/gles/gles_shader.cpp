@@ -686,7 +686,7 @@ bool FShader::Bind(ShaderFlavourData& flavour)
 		variantConfig.AppendFormat("#define MAXIMUM_LIGHT_VECTORS %d\n", gles.numlightvectors);
 		variantConfig.AppendFormat("#define DEF_TEXTURE_MODE %d\n", flavour.textureMode);
 		variantConfig.AppendFormat("#define DEF_TEXTURE_FLAGS %d\n", flavour.texFlags);
-		variantConfig.AppendFormat("#define DEF_BLEND_FLAGS %d\n", flavour.blendFlags);
+		variantConfig.AppendFormat("#define DEF_BLEND_FLAGS %d\n", flavour.blendFlags & 0x7);
 		variantConfig.AppendFormat("#define DEF_FOG_2D %d\n", flavour.twoDFog);
 		variantConfig.AppendFormat("#define DEF_FOG_ENABLED %d\n", flavour.fogEnabled);
 		variantConfig.AppendFormat("#define DEF_FOG_RADIAL %d\n", flavour.fogEquationRadial);
@@ -714,6 +714,7 @@ bool FShader::Bind(ShaderFlavourData& flavour)
 #endif
 
 		variantConfig.AppendFormat("#define DEF_HAS_SPOTLIGHT %d\n", flavour.hasSpotLight);
+		variantConfig.AppendFormat("#define DEF_PALETTE_INTERPOLATE %d\n", flavour.paletteInterpolate);
 
 		//Printf("Shader: %s, %08x %s", mFragProg2.GetChars(), tag, variantConfig.GetChars());
 
