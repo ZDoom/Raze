@@ -3763,7 +3763,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 
 	if (t[1] == 0 || a == 0)
 	{
-		if ((badguy(actor) && actor->spr.extra <= 0) || (actor->spr.opos.X != actor->spr.pos.X) || (actor->spr.oy != actor->spr.pos.Y))
+		if ((badguy(actor) && actor->spr.extra <= 0) || (actor->spr.opos.X != actor->spr.pos.X) || (actor->spr.opos.Y != actor->spr.pos.Y))
 		{
 			actor->spr.backupvec2();
 			SetActor(actor, actor->spr.pos);

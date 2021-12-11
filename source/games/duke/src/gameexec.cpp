@@ -1333,8 +1333,8 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		else SetGameVarID(lVar2, act->spr.opos.X, sActor, sPlayer);
 		break;
 	case ACTOR_HTBPOSY:
-		if (bSet) act->spr.oy = lValue;
-		else SetGameVarID(lVar2, act->spr.oy, sActor, sPlayer);
+		if (bSet) act->spr.opos.Y = lValue;
+		else SetGameVarID(lVar2, act->spr.opos.Y, sActor, sPlayer);
 		break;
 	case ACTOR_HTBPOSZ:
 		if (bSet) act->spr.oz = lValue;
