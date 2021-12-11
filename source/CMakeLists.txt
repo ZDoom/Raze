@@ -376,7 +376,8 @@ add_custom_target( revision_check ALL
 
 # required libraries
 
-set( PROJECT_LIBRARIES ${PROJECT_LIBRARIES} "${ZLIB_LIBRARIES}" "${JPEG_LIBRARIES}" "${BZIP2_LIBRARIES}" "${CMAKE_DL_LIBS}" )
+
+set( PROJECT_LIBRARIES ${PROJECT_LIBRARIES} "${ZLIB_LIBRARIES}" "${JPEG_LIBRARIES}" "${BZIP2_LIBRARIES}" "${CMAKE_DL_LIBS}" "${TESS_LIBRARIES}" )
 if (HAVE_VULKAN)
 	set( PROJECT_LIBRARIES ${PROJECT_LIBRARIES} "glslang" "SPIRV" "OGLCompiler")
 endif()
@@ -435,7 +436,7 @@ else()
 endif()
 
 
-include_directories( "${ZLIB_INCLUDE_DIR}" "${ZMUSIC_INCLUDE_DIR}" "${BZIP2_INCLUDE_DIR}" "${LZMA_INCLUDE_DIR}" "${JPEG_INCLUDE_DIR}" "${GDTOA_INCLUDE_DIR}" )
+include_directories( "${ZLIB_INCLUDE_DIR}" "${ZMUSIC_INCLUDE_DIR}" "${BZIP2_INCLUDE_DIR}" "${LZMA_INCLUDE_DIR}" "${JPEG_INCLUDE_DIR}" "${GDTOA_INCLUDE_DIR}" "${TESS_INCLUDE_DIR}" )
 
 if (WIN32)
 	include_directories( "platform/win32" )

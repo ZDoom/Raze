@@ -375,6 +375,12 @@ else()
 	set( JPEG_LIBRARY jpeg )
 endif()
 
+add_subdirectory( libraries/libtess )
+set( TESS_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libraries/libtess/Include )
+set( TESS_LIBRARIES tess2 )
+set( TESS_LIBRARY tess2 )
+
+
 if( BZIP2_FOUND AND NOT FORCE_INTERNAL_BZIP2 )
 	message( STATUS "Using system bzip2 library, includes found at ${BZIP2_INCLUDE_DIR}" )
 else()
