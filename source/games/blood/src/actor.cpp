@@ -4313,7 +4313,7 @@ static void checkHit(DBloodActor* actor)
 	auto pSprite = &actor->s();
 	auto pXSprite = actor->hasX() ? &actor->x() : nullptr;
 
-	const auto& coll = actor->hit.ceilhit;
+	const auto& coll = actor->hit.hit;
 	switch (coll.type)
 	{
 	case kHitWall:
@@ -4386,7 +4386,7 @@ static void checkFloorHit(DBloodActor* actor)
 {
 	auto pSprite = &actor->s();
 
-	const auto& coll = actor->hit.ceilhit;
+	const auto& coll = actor->hit.florhit;
 	switch (coll.type)
 	{
 	case kHitWall:
@@ -4541,7 +4541,7 @@ static void ProcessTouchObjects(DBloodActor* actor)
 		}
 
 		// Touch walls
-		const auto& coll = actor->hit.ceilhit;
+		const auto& coll = actor->hit.hit;
 		walltype* pHWall = nullptr;
 		if (coll.type == kHitWall)
 		{
