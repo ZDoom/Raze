@@ -368,17 +368,11 @@ inline walltype* lastwall(walltype* point)
     return &wall[lastwall(wall.IndexOf(point))];
 }
 
-int32_t   nextsectorneighborz(int16_t sectnum, int32_t refz, int16_t topbottom, int16_t direction);
-inline sectortype* nextsectorneighborzptr(int16_t sectnum, int32_t refz, int16_t topbottom, int16_t direction)
+sectortype* nextsectorneighborzptr(sectortype* sectp, int refz, int topbottom, int direction);
+inline sectortype* safenextsectorneighborzptr(sectortype* sectp, int refz, int topbottom, int direction)
 {
-	auto sect = nextsectorneighborz(sectnum, refz, topbottom, direction);
-	return sect == -1? nullptr : &sector[sect];
-}
-
-inline sectortype* nextsectorneighborzptr(sectortype* sectp, int32_t refz, int16_t topbottom, int16_t direction)
-{
-	auto sect = nextsectorneighborz(sector.IndexOf(sectp), refz, topbottom, direction);
-	return sect == -1? nullptr : &sector[sect];
+    auto sect = nextsectorneighborzptr(sectp, refz, topbottom, direction);
+    return sect == nullptr ? sectp : sect;
 }
 
 int32_t   getceilzofslopeptr(usectorptr_t sec, int32_t dax, int32_t day) ATTRIBUTE((nonnull(1)));

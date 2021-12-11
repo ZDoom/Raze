@@ -676,9 +676,9 @@ static void handle_st29(sectortype* sptr, DDukeActor* actor)
 	int j;
 
 	if (sptr->lotag & 0x8000)
-		j = nextsectorneighborzptr(sptr, sptr->ceilingz, 1, 1)->floorz;
+		j = safenextsectorneighborzptr(sptr, sptr->ceilingz, 1, 1)->floorz;
 	else
-		j = nextsectorneighborzptr(sptr, sptr->ceilingz, -1, -1)->ceilingz;
+		j = safenextsectorneighborzptr(sptr, sptr->ceilingz, -1, -1)->ceilingz;
 
 	DukeStatIterator it(STAT_EFFECTOR);
 	while (auto act2 = it.Next())
@@ -757,14 +757,14 @@ static void handle_st21(sectortype* sptr, DDukeActor* actor)
 	if (i >= 0)
 	{
 		if (animategoal[i] == sptr->ceilingz)
-			animategoal[i] = nextsectorneighborzptr(sptr, sptr->ceilingz, 1, 1)->floorz;
+			animategoal[i] = safenextsectorneighborzptr(sptr, sptr->ceilingz, 1, 1)->floorz;
 		else animategoal[i] = sptr->ceilingz;
 		j = animategoal[i];
 	}
 	else
 	{
 		if (sptr->ceilingz == sptr->floorz)
-			j = nextsectorneighborzptr(sptr, sptr->ceilingz, 1, 1)->floorz;
+			j = safenextsectorneighborzptr(sptr, sptr->ceilingz, 1, 1)->floorz;
 		else j = sptr->ceilingz;
 
 		sptr->lotag ^= 0x8000;
@@ -791,9 +791,9 @@ static void handle_st22(sectortype* sptr, DDukeActor* actor)
 	}
 	else
 	{
-		q = nextsectorneighborzptr(sptr, sptr->floorz, 1, 1)->floorz;
+		q = safenextsectorneighborzptr(sptr, sptr->floorz, 1, 1)->floorz;
 		j = setanimation(sptr, anim_floorz, sptr, q, sptr->extra);
-		q = nextsectorneighborzptr(sptr, sptr->ceilingz, -1, -1)->ceilingz;
+		q = safenextsectorneighborzptr(sptr, sptr->ceilingz, -1, -1)->ceilingz;
 		j = setanimation(sptr, anim_ceilingz, sptr, q, sptr->extra);
 	}
 

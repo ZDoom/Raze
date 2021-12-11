@@ -474,22 +474,18 @@ int32_t spriteheightofsptr(uspriteptr_t spr, int32_t *height, int32_t alsotileyo
 //
 // -1: ceiling or up
 //  1: floor or down
-int32_t nextsectorneighborz(int16_t sectnum, int32_t refz, int16_t topbottom, int16_t direction)
+sectortype* nextsectorneighborzptr(sectortype* sectp, int refz, int topbottom, int direction)
 {
-    int32_t nextz = (direction==1) ? INT32_MAX : INT32_MIN;
-    int32_t sectortouse = -1;
+    int nextz = (direction==1) ? INT32_MAX : INT32_MIN;
+    sectortype* sectortouse = nullptr;
 
-    auto wal = (uwallptr_t)sector[sectnum].firstWall();
-    int32_t i = sector[sectnum].wallnum;
-
-    do
+    for(auto& wal : wallsofsector(sectp))
     {
-        const int32_t ns = wal->nextsector;
-
-        if (ns >= 0)
+        if (wal.twoSided())
         {
-            const int32_t testz = (topbottom == 1) ?
-                sector[ns].floorz : sector[ns].ceilingz;
+            auto ns = wal.nextSector();
+
+            const int32_t testz = (topbottom == 1) ? ns->floorz : ns->ceilingz;
 
             const int32_t update = (direction == 1) ?
                 (nextz > testz && testz > refz) :
@@ -501,12 +497,7 @@ int32_t nextsectorneighborz(int16_t sectnum, int32_t refz, int16_t topbottom, in
                 sectortouse = ns;
             }
         }
-
-        wal++;
-        i--;
     }
-    while (i != 0);
-
     return sectortouse;
 }
 
