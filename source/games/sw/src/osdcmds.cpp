@@ -51,7 +51,7 @@ BEGIN_SW_NS
 
 void GameInterface::WarpToCoords(int x, int y, int z, int ang, int horz)
 {
-    Player->oposx = Player->posx = x;
+    Player->oposx = Player->pos.X = x;
     Player->oposy = Player->posy = y;
     Player->oposz = Player->posz = z;
 

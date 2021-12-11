@@ -1309,7 +1309,7 @@ int PlayerInitChemBomb(PLAYERp pp)
     if (!pp->insector())
         return 0;
 
-    nx = pp->posx;
+    nx = pp->pos.X;
     ny = pp->posy;
     nz = pp->posz + pp->bob_z + Z(8);
 
@@ -1733,7 +1733,7 @@ int PlayerInitCaltrops(PLAYERp pp)
     if (!pp->insector())
         return 0;
 
-    nx = pp->posx;
+    nx = pp->pos.X;
     ny = pp->posy;
     nz = pp->posz + pp->bob_z + Z(8);
 

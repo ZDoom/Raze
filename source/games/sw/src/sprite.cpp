@@ -1529,9 +1529,9 @@ void PreMapCombineFloors(void)
             {
                 if (itsect == dasect)
                 {
-                    pp->posx += dx;
+                    pp->pos.X += dx;
                     pp->posy += dy;
-                    pp->oposx = pp->oldposx = pp->posx;
+                    pp->oposx = pp->oldposx = pp->pos.X;
                     pp->oposy = pp->oldposy = pp->posy;
                     break;
                 }
@@ -5214,7 +5214,7 @@ int DoGet(DSWActor* actor)
         if (TEST(pp->Flags, PF_DEAD))
             continue;
 
-        DISTANCE(pp->posx, pp->posy, sp->pos.X, sp->pos.Y, dist, a,b,c);
+        DISTANCE(pp->pos.X, pp->posy, sp->pos.X, sp->pos.Y, dist, a,b,c);
         if ((unsigned)dist > (pu->Radius + u->Radius))
         {
             continue;
@@ -5228,7 +5228,7 @@ int DoGet(DSWActor* actor)
         auto cstat_bak = sp->cstat;
         SET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         can_see = FAFcansee(sp->pos.X, sp->pos.Y, sp->pos.Z, sp->sector(),
-                            pp->posx, pp->posy, pp->posz, pp->cursector);
+                            pp->pos.X, pp->posy, pp->posz, pp->cursector);
         sp->cstat = cstat_bak;
 
         if (!can_see)
@@ -6261,7 +6261,7 @@ void SpriteControl(void)
                 pp = &Player[pnum];
 
                 // Only update the ones closest
-                DISTANCE(pp->posx, pp->posy, sp->pos.X, sp->pos.Y, dist, tx, ty, tmin);
+                DISTANCE(pp->pos.X, pp->posy, sp->pos.X, sp->pos.Y, dist, tx, ty, tmin);
 
                 AdjustActiveRange(pp, actor, dist);
 

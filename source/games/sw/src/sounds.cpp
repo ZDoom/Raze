@@ -123,7 +123,7 @@ short SoundDist(int x, int y, int z, int basedist)
     double sqrdist, retval;
     extern short screenpeek;
 
-    tx = fabs(Player[screenpeek].posx - x);
+    tx = fabs(Player[screenpeek].pos.X - x);
     ty = fabs(Player[screenpeek].posy - y);
     tz = fabs((Player[screenpeek].posz - z) >> 4);
 
@@ -382,7 +382,7 @@ static void UpdateAmbients()
         if (sdist < 255 && amb->vocIndex == DIGI_WHIPME)
         {
             PLAYERp pp = Player + screenpeek;
-            if (!FAFcansee(sp->pos.X, sp->pos.Y, sp->pos.Z, sp->sector(), pp->posx, pp->posy, pp->posz, pp->cursector))
+            if (!FAFcansee(sp->pos.X, sp->pos.Y, sp->pos.Z, sp->sector(), pp->pos.X, pp->posy, pp->posz, pp->cursector))
             {
                 sdist = 255;
             }
@@ -560,7 +560,7 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
             // Can the ambient sound see the player?  If not, tone it down some.
             if ((chanflags & CHANF_LOOP))
             {
-                if (!FAFcansee(vpos->X, vpos->Y, vpos->Z, sp->sector(), pp->posx, pp->posy, pp->posz, pp->cursector))
+                if (!FAFcansee(vpos->X, vpos->Y, vpos->Z, sp->sector(), pp->pos.X, pp->posy, pp->posz, pp->cursector))
                 {
                     auto distvec = npos - campos;
                     npos = campos + distvec * 1.75f;  // Play more quietly
@@ -603,7 +603,7 @@ void GameInterface::UpdateSounds(void)
         if (TEST_BOOL1(rsp))
             tang = buildang(rsp->ang);
         else
-            tang = bvectangbam(pp->sop_remote->xmid - pp->posx, pp->sop_remote->ymid - pp->posy);
+            tang = bvectangbam(pp->sop_remote->xmid - pp->pos.X, pp->sop_remote->ymid - pp->posy);
     }
     else tang = pp->angle.ang;
 

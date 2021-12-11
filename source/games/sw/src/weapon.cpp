@@ -11832,7 +11832,7 @@ void InitSpellRing(PLAYERp pp)
 
     for (missiles = 0, ang = ang_start; missiles < max_missiles; ang += ang_diff, missiles++)
     {
-        auto actorNew = SpawnActor(STAT_MISSILE_SKIP4, FIREBALL1, s_Ring, pp->cursector, pp->posx, pp->posy, pp->posz, ang, 0);
+        auto actorNew = SpawnActor(STAT_MISSILE_SKIP4, FIREBALL1, s_Ring, pp->cursector, pp->pos.X, pp->posy, pp->posz, ang, 0);
 
         sp = &actorNew->s();
 
@@ -12214,7 +12214,7 @@ void InitSpellNapalm(PLAYERp pp)
     for (i = 0; i < SIZ(mp); i++)
     {
         auto actor = SpawnActor(STAT_MISSILE, FIREBALL1, s_Napalm, pp->cursector,
-                                pp->posx, pp->posy, pp->posz + Z(12), pp->angle.ang.asbuild(), NAPALM_VELOCITY*2);
+                                pp->pos.X, pp->posy, pp->posz + Z(12), pp->angle.ang.asbuild(), NAPALM_VELOCITY*2);
 
         sp = &actor->s();
         u = actor->u();
@@ -12366,7 +12366,7 @@ int InitSpellMirv(PLAYERp pp)
         return 0;
 
     auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL1, s_Mirv, pp->cursector,
-                            pp->posx, pp->posy, pp->posz + Z(12), pp->angle.ang.asbuild(), MIRV_VELOCITY);
+                            pp->pos.X, pp->posy, pp->posz + Z(12), pp->angle.ang.asbuild(), MIRV_VELOCITY);
 
     sp = &actorNew->s();
     u = actorNew->u();
@@ -12506,7 +12506,7 @@ int InitSwordAttack(PLAYERp pp)
             if (!TEST(sp->extra, SPRX_PLAYER_OR_ENEMY))
                 continue;
 
-            dist = Distance(pp->posx, pp->posy, sp->pos.X, sp->pos.Y);
+            dist = Distance(pp->pos.X, pp->posy, sp->pos.X, sp->pos.Y);
 
             reach = 1000; // !JIM! was 800
             face = 200;
@@ -12531,7 +12531,7 @@ int InitSwordAttack(PLAYERp pp)
         daang = pp->angle.ang.asbuild();
         daz = -MulScale(pp->horizon.horiz.asq16(), 2000, 16) + (RandomRange(24000) - 12000);
 
-        FAFhitscan(pp->posx, pp->posy, pp->posz, pp->cursector,       // Start position
+        FAFhitscan(pp->pos.X, pp->posy, pp->posz, pp->cursector,       // Start position
             bcos(daang),      // X vector of 3D ang
             bsin(daang),      // Y vector of 3D ang
             daz,              // Z vector of 3D ang
@@ -12540,7 +12540,7 @@ int InitSwordAttack(PLAYERp pp)
         if (hit.hitSector == nullptr)
             return 0;
 
-        if (FindDistance3D(pp->posx - hit.hitpos.X, pp->posy - hit.hitpos.Y, pp->posz - hit.hitpos.Z) < 700)
+        if (FindDistance3D(pp->pos.X - hit.hitpos.X, pp->posy - hit.hitpos.Y, pp->posz - hit.hitpos.Z) < 700)
         {
 
             if (hit.actor() != nullptr)
@@ -12683,7 +12683,7 @@ int InitFistAttack(PLAYERp pp)
             if (!TEST(sp->extra, SPRX_PLAYER_OR_ENEMY))
                 continue;
 
-            dist = Distance(pp->posx, pp->posy, sp->pos.X, sp->pos.Y);
+            dist = Distance(pp->pos.X, pp->posy, sp->pos.X, sp->pos.Y);
 
             if (pp->InventoryActive[2]) // Shadow Bombs give you demon fist
             {
@@ -12721,7 +12721,7 @@ int InitFistAttack(PLAYERp pp)
         daang = pp->angle.ang.asbuild();
         daz = -MulScale(pp->horizon.horiz.asq16(), 2000, 16) + (RandomRange(24000) - 12000);
 
-        FAFhitscan(pp->posx, pp->posy, pp->posz, pp->cursector,       // Start position
+        FAFhitscan(pp->pos.X, pp->posy, pp->posz, pp->cursector,       // Start position
                    bcos(daang),      // X vector of 3D ang
                    bsin(daang),      // Y vector of 3D ang
                    daz,              // Z vector of 3D ang
@@ -12730,7 +12730,7 @@ int InitFistAttack(PLAYERp pp)
         if (hit.hitSector == nullptr)
             return 0;
 
-        if (FindDistance3D(pp->posx - hit.hitpos.X, pp->posy - hit.hitpos.Y, pp->posz - hit.hitpos.Z) < 700)
+        if (FindDistance3D(pp->pos.X - hit.hitpos.X, pp->posy - hit.hitpos.Y, pp->posz - hit.hitpos.Z) < 700)
         {
 
             if (hit.actor() != nullptr)
@@ -13333,7 +13333,7 @@ int InitStar(PLAYERp pp)
     if (!pp->insector())
         return 0;
 
-    nx = pp->posx;
+    nx = pp->pos.X;
     ny = pp->posy;
 
     nz = pp->posz + pp->bob_z + Z(8);
@@ -13451,7 +13451,7 @@ void InitHeartAttack(PLAYERp pp)
         return;
 
     auto actorNew = SpawnActor(STAT_MISSILE_SKIP4, BLOOD_WORM, s_BloodWorm, pp->cursector,
-                            pp->posx, pp->posy, pp->posz + Z(12), pp->angle.ang.asbuild(), BLOOD_WORM_VELOCITY*2);
+                            pp->pos.X, pp->posy, pp->posz + Z(12), pp->angle.ang.asbuild(), BLOOD_WORM_VELOCITY*2);
 
     sp = &actorNew->s();
     u = actorNew->u();
@@ -13595,7 +13595,7 @@ int InitShotgun(PLAYERp pp)
         }
     }
 
-    nx = pp->posx;
+    nx = pp->pos.X;
     ny = pp->posy;
     daz = nz = pp->posz + pp->bob_z;
 
@@ -13754,7 +13754,7 @@ int InitLaser(PLAYERp pp)
     if (!pp->insector())
         return 0;
 
-    nx = pp->posx;
+    nx = pp->pos.X;
     ny = pp->posy;
 
     nz = pp->posz + pp->bob_z + Z(8);
@@ -13863,7 +13863,7 @@ int InitRail(PLAYERp pp)
     if (!pp->insector())
         return 0;
 
-    nx = pp->posx;
+    nx = pp->pos.X;
     ny = pp->posy;
 
     nz = pp->posz + pp->bob_z + Z(11);
@@ -14044,7 +14044,7 @@ int InitRocket(PLAYERp pp)
     if (!pp->insector())
         return 0;
 
-    nx = pp->posx;
+    nx = pp->pos.X;
     ny = pp->posy;
 
     // Spawn a shot
@@ -14157,7 +14157,7 @@ int InitBunnyRocket(PLAYERp pp)
     if (!pp->insector())
         return 0;
 
-    nx = pp->posx;
+    nx = pp->pos.X;
     ny = pp->posy;
 
     // Spawn a shot
@@ -14266,7 +14266,7 @@ int InitNuke(PLAYERp pp)
     if (!pp->insector())
         return 0;
 
-    nx = pp->posx;
+    nx = pp->pos.X;
     ny = pp->posy;
 
     // Spawn a shot
@@ -14434,7 +14434,7 @@ int InitMicro(PLAYERp pp)
     short i,ang;
     TARGET_SORTp ts = TargetSort;
 
-    nx = pp->posx;
+    nx = pp->pos.X;
     ny = pp->posy;
 
     const int MAX_MICRO = 1;
@@ -15809,7 +15809,7 @@ int InitTracerUzi(PLAYERp pp)
 
     short lat_dist[] = {800,-800};
 
-    nx = pp->posx;
+    nx = pp->pos.X;
     ny = pp->posy;
     nz = pp->posz + Z(8) + -MulScale(pp->horizon.horiz.asq16(), 72, 16);
 
@@ -16185,7 +16185,7 @@ int InitUzi(PLAYERp pp)
     xvect = bcos(daang);
     yvect = bsin(daang);
     zvect = daz;
-    FAFhitscan(pp->posx, pp->posy, nz, pp->cursector,       // Start position
+    FAFhitscan(pp->pos.X, pp->posy, nz, pp->cursector,       // Start position
                xvect,yvect,zvect,
                hit, CLIPMASK_MISSILE);
 
@@ -17407,7 +17407,7 @@ int InitGrenade(PLAYERp pp)
     if (!pp->insector())
         return 0;
 
-    nx = pp->posx;
+    nx = pp->pos.X;
     ny = pp->posy;
     nz = pp->posz + pp->bob_z + Z(8);
 
@@ -17565,7 +17565,7 @@ int InitMine(PLAYERp pp)
     if (!pp->insector())
         return 0;
 
-    nx = pp->posx;
+    nx = pp->pos.X;
     ny = pp->posy;
     nz = pp->posz + pp->bob_z + Z(8);
 
@@ -17712,7 +17712,7 @@ int InitFireball(PLAYERp pp)
     if (!pp->insector())
         return 0;
 
-    nx += pp->posx;
+    nx += pp->pos.X;
     ny += pp->posy;
 
     nz = pp->posz + pp->bob_z + Z(15);
@@ -19019,7 +19019,7 @@ int DoFloorBlood(DSWActor* actor)
         {
             pp = &Player[pnum];
 
-            DISTANCE(sp->pos.X, sp->pos.Y, pp->posx, pp->posy, dist, a, b, c);
+            DISTANCE(sp->pos.X, sp->pos.Y, pp->pos.X, pp->posy, dist, a, b, c);
 
             if (dist < near_dist)
             {

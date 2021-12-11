@@ -434,7 +434,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYERstruct& w, P
 {
 	if (arc.BeginObject(keyname))
 	{
-		arc("x", w.posx)
+		arc("x", w.pos.X)
 			("y", w.posy)
 			("z", w.posz)
 			("lv_sectnum", w.lv_sector)
@@ -580,9 +580,9 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYERstruct& w, P
 	}
 	if (arc.isReading())
 	{
-		w.oposx = w.posx;
-		w.oposy = w.posx;
-		w.oposz = w.posx;
+		w.oposx = w.pos.X;
+		w.oposy = w.pos.X;
+		w.oposz = w.pos.X;
 		w.oz_speed = w.z_speed;
 		w.oxvect = w.xvect;
 		w.oyvect = w.yvect;

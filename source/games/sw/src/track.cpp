@@ -1587,14 +1587,14 @@ void MovePlayer(PLAYERp pp, SECTOR_OBJECTp sop, int nx, int ny)
         SET(pp->Flags, PF_PLAYER_RIDING);
 
         pp->RevolveAng = pp->angle.ang;
-        pp->RevolveX = pp->posx;
+        pp->RevolveX = pp->pos.X;
         pp->RevolveY = pp->posy;
 
         // set the delta angle to 0 when moving
         pp->RevolveDeltaAng = 0;
     }
 
-    pp->posx += nx;
+    pp->pos.X += nx;
     pp->posy += ny;
 
     if (TEST(sop->flags, SOBJ_DONT_ROTATE))
@@ -1611,7 +1611,7 @@ void MovePlayer(PLAYERp pp, SECTOR_OBJECTp sop, int nx, int ny)
         // moving then you
         // know where he was last
         pp->RevolveAng = pp->angle.ang;
-        pp->RevolveX = pp->posx;
+        pp->RevolveX = pp->pos.X;
         pp->RevolveY = pp->posy;
 
         // set the delta angle to 0 when moving
@@ -1851,7 +1851,7 @@ PlayerPart:
             // prevents you from falling into map HOLEs created by moving
             // Sectors and sprites around.
             //if (sop->xmid < MAXSO)
-            updatesector(pp->posx, pp->posy, &pp->cursector);
+            updatesector(pp->pos.X, pp->posy, &pp->cursector);
 
             // in case you are in a whirlpool
             // move perfectly with the ride in the z direction
@@ -3542,7 +3542,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
             {
                 pp = &Player[pnum];
 
-                if (Distance(sp->pos.X, sp->pos.Y, pp->posx, pp->posy) < u->Dist)
+                if (Distance(sp->pos.X, sp->pos.Y, pp->pos.X, pp->posy) < u->Dist)
                 {
                     u->targetActor = pp->Actor();
                     RESET(u->Flags, SPR_WAIT_FOR_PLAYER);

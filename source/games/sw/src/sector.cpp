@@ -1451,7 +1451,7 @@ int OperateSprite(DSWActor* actor, short player_is_operating)
     {
         pp = GlobPlayerP;
 
-        if (!FAFcansee(pp->posx, pp->posy, pp->posz, pp->cursector, sp->pos.X, sp->pos.Y, sp->pos.Z - DIV2(SPRITEp_SIZE_Z(sp)), sp->sector()))
+        if (!FAFcansee(pp->pos.X, pp->posy, pp->posz, pp->cursector, sp->pos.X, sp->pos.Y, sp->pos.Z - DIV2(SPRITEp_SIZE_Z(sp)), sp->sector()))
             return false;
     }
 
@@ -1923,7 +1923,7 @@ void OperateTripTrigger(PLAYERp pp)
 
             if (TEST(u->Flags, SPR_WAIT_FOR_TRIGGER))
             {
-                if (Distance(sp->pos.X, sp->pos.Y, pp->posx, pp->posy) < dist)
+                if (Distance(sp->pos.X, sp->pos.Y, pp->pos.X, pp->posy) < dist)
                 {
                     u->targetActor = pp->Actor();
                     RESET(u->Flags, SPR_WAIT_FOR_TRIGGER);
@@ -2054,7 +2054,7 @@ bool NearThings(PLAYERp pp)
         HitInfo hit{};
         short dang = pp->angle.ang.asbuild();
 
-        FAFhitscan(pp->posx, pp->posy, pp->posz - Z(30), pp->cursector,    // Start position
+        FAFhitscan(pp->pos.X, pp->posy, pp->posz - Z(30), pp->cursector,    // Start position
                    bcos(dang),  // X vector of 3D ang
                    bsin(dang),  // Y vector of 3D ang
                    0,           // Z vector of 3D ang
@@ -2063,7 +2063,7 @@ bool NearThings(PLAYERp pp)
         if (hit.hitSector == nullptr)
             return false;
 
-        if (Distance(hit.hitpos.X, hit.hitpos.Y, pp->posx, pp->posy) > 1500)
+        if (Distance(hit.hitpos.X, hit.hitpos.Y, pp->pos.X, pp->posy) > 1500)
             return false;
 
         // hit a sprite?
@@ -2104,7 +2104,7 @@ void NearTagList(NEAR_TAG_INFOp ntip, PLAYERp pp, int z, int dist, int type, int
     HitInfo near;
 
 
-    neartag({ pp->posx, pp->posy, z }, pp->cursector, pp->angle.ang.asbuild(), near, dist, type);
+    neartag({ pp->pos.X, pp->posy, z }, pp->cursector, pp->angle.ang.asbuild(), near, dist, type);
 
     if (near.hitSector != nullptr)
     {
@@ -2221,7 +2221,7 @@ int DoPlayerGrabStar(PLAYERp pp)
         {
             sp = &StarQueue[i]->s();
 
-            if (FindDistance3D(sp->pos.X - pp->posx, sp->pos.Y - pp->posy, sp->pos.Z - pp->posz + Z(12)) < 500)
+            if (FindDistance3D(sp->pos.X - pp->pos.X, sp->pos.Y - pp->posy, sp->pos.Z - pp->posz + Z(12)) < 500)
             {
                 break;
             }
@@ -2764,7 +2764,7 @@ void DoSector(void)
             }
             else
             {
-                DISTANCE(pp->posx, pp->posy, sop->xmid, sop->ymid, dist, a, b, c);
+                DISTANCE(pp->pos.X, pp->posy, sop->xmid, sop->ymid, dist, a, b, c);
                 if (dist < min_dist)
                     min_dist = dist;
             }

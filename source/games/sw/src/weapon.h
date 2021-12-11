@@ -32,7 +32,7 @@ BEGIN_SW_NS
 #define NEW_ELECTRO 1
 #define HORIZ_MULT 128L
 
-#define ANG2PLAYER(pp,sp) (getangle((pp)->posx - (sp)->pos.X, (pp)->posy - (sp)->pos.Y))
+#define ANG2PLAYER(pp,sp) (getangle((pp)->pos.X - (sp)->pos.X, (pp)->posy - (sp)->pos.Y))
 #define ANG2SPRITE(sp,op) (getangle((sp)->pos.X - (op)->pos.X, (sp)->pos.Y - (op)->pos.Y))
 
 #define MAX_HOLE_QUEUE 64
