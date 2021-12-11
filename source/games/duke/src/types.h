@@ -100,6 +100,7 @@ public:
 
 	inline void SetActiveCrane(bool yes)
 	{
+		ownerActor = nullptr;
 		s->owner = yes ? -2 : -1;
 	}
 
