@@ -876,7 +876,7 @@ USERp SpawnUser(DSWActor* actor, short id, STATEp state)
     u->motion_blur_dist = 256;
 
     sp->backuppos();
-    u->oz = sp->oz;
+    u->oz = sp->opos.Z;
 
     u->active_range = MIN_ACTIVE_RANGE;
 
@@ -2128,7 +2128,7 @@ void SpriteSetup(void)
                         }
 
                         // set orig z
-                        u->oz = sp->oz = sectp->floorz;
+                        u->oz = sp->opos.Z = sectp->floorz;
                     }
                     else
                     {
@@ -2149,7 +2149,7 @@ void SpriteSetup(void)
                         }
 
                         // set orig z
-                        u->oz = sp->oz = sectp->ceilingz;
+                        u->oz = sp->opos.Z = sectp->ceilingz;
                     }
 
 
@@ -2333,7 +2333,7 @@ void SpriteSetup(void)
                         }
 
                         // set orig z
-                        u->oz = sp->oz = u->zclip;
+                        u->oz = sp->opos.Z = u->zclip;
                     }
                     else
                     {
@@ -2351,7 +2351,7 @@ void SpriteSetup(void)
                         }
 
                         // set orig z
-                        u->oz = sp->oz = u->zclip;
+                        u->oz = sp->opos.Z = u->zclip;
                     }
 
                     change_actor_stat(actor, STAT_SPIKE);
@@ -6542,7 +6542,7 @@ void MissileWarpUpdatePos(DSWActor* actor, sectortype* sect)
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
     sp->backuppos();
-    u->oz = sp->oz;
+    u->oz = sp->opos.Z;
     ChangeActorSect(actor, sect);
     MissileZrange(actor);
 }
@@ -6552,7 +6552,7 @@ void ActorWarpUpdatePos(DSWActor* actor, sectortype* sect)
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
     sp->backuppos();
-    u->oz = sp->oz;
+    u->oz = sp->opos.Z;
     ChangeActorSect(actor, sect);
     DoActorZrange(actor);
 }

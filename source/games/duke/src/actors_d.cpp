@@ -3834,7 +3834,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 			}
 			else if (actor->spr.picnum != DRONE && actor->spr.picnum != SHARK && actor->spr.picnum != COMMANDER)
 			{
-				if (actor->spr.oz != actor->spr.pos.Z || (ud.multimode < 2 && ud.player_skill < 2))
+				if (actor->spr.opos.Z != actor->spr.pos.Z || (ud.multimode < 2 && ud.player_skill < 2))
 				{
 					if ((t[0] & 1) || ps[playernum].actorsqu == actor) return;
 					else daxvel <<= 1;

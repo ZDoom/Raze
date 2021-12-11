@@ -882,7 +882,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
                 u->RotNum = 0;
 
                 sp->backuppos();
-                u->oz = sp->oz;
+                u->oz = sp->opos.Z;
 
                 switch (sp->statnum)
                 {

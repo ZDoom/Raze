@@ -6508,7 +6508,7 @@ void MoveSkipSavePos(void)
                 u = actor->u();
 
                 sp->backuppos();
-                u->oz = sp->oz;
+                u->oz = sp->opos.Z;
             }
         }
     }
@@ -6528,7 +6528,7 @@ void MoveSkipSavePos(void)
                 u = actor->u();
 
                 sp->backuppos();
-                u->oz = sp->oz;
+                u->oz = sp->opos.Z;
             }
         }
     }

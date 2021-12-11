@@ -380,12 +380,7 @@ struct walltype
 
 struct spritetypebase
 {
-	// todo: get rid of the single variables!
-	vec3_t pos;
-	union {
-		struct { int32_t BLAHBLAHX, BLAHBLAHY, oz; };
-		vec3_t opos;
-	};
+	vec3_t pos, opos;
 	
 	sectortype* sectp;
 	
@@ -423,17 +418,17 @@ struct spritetypebase
 
 	int32_t interpolatedx(double const smoothratio, int const scale = 16)
 	{
-		return interpolatedvalue(BLAHBLAHX, pos.X, smoothratio, scale);
+		return interpolatedvalue(opos.X, pos.X, smoothratio, scale);
 	}
 
 	int32_t interpolatedy(double const smoothratio, int const scale = 16)
 	{
-		return interpolatedvalue(BLAHBLAHY, pos.Y, smoothratio, scale);
+		return interpolatedvalue(opos.Y, pos.Y, smoothratio, scale);
 	}
 
 	int32_t interpolatedz(double const smoothratio, int const scale = 16)
 	{
-		return interpolatedvalue(oz, pos.Z, smoothratio, scale);
+		return interpolatedvalue(opos.Z, pos.Z, smoothratio, scale);
 	}
 
 	vec2_t interpolatedvec2(double const smoothratio, int const scale = 16)
