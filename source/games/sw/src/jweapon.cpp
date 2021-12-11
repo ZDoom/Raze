@@ -1570,8 +1570,7 @@ int PlayerInitFlashBomb(PLAYERp pp)
     return 0;
 }
 
-int
-InitFlashBomb(DSWActor* actor)
+int InitFlashBomb(DSWActor* actor)
 {
     SPRITEp sp = &actor->s();
     int i;

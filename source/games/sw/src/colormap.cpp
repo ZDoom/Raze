@@ -34,8 +34,7 @@ BEGIN_SW_NS
 
 int f_c = 3;
 
-void
-MapColors(int num, COLOR_MAP cm, int create, uint8_t *tempbuf)
+void MapColors(int num, COLOR_MAP cm, int create, uint8_t *tempbuf)
 {
     int i;
     float inc;

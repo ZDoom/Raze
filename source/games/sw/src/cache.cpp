@@ -345,8 +345,7 @@ void PreCachePachinko(int pal)
 	PreCacheRange(4840,4863, pal);
 }
 
-void
-PreCacheActor(void)
+void PreCacheActor(void)
 {
 	int pic;
 

@@ -57,8 +57,7 @@ void DoPlayerSectorUpdatePreMove(PLAYERp);
 void DoPlayerSectorUpdatePostMove(PLAYERp);
 
 
-void
-InitPrediction(PLAYERp pp)
+void InitPrediction(PLAYERp pp)
 {
     if (!PredictionOn)
         return;
@@ -68,8 +67,7 @@ InitPrediction(PLAYERp pp)
     PredictUser = *pp->Actor()->u();
 }
 
-void
-DoPrediction(PLAYERp ppp)
+void DoPrediction(PLAYERp ppp)
 {
 #if 0
     USERp u;
@@ -123,8 +121,7 @@ DoPrediction(PLAYERp ppp)
 #endif
 }
 
-void
-CorrectPrediction(int actualfifoplc)
+void CorrectPrediction(int actualfifoplc)
 {
 #if 0
     PREDICTp predict = &Predict[actualfifoplc & (MOVEFIFOSIZ-1)];

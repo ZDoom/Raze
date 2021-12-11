@@ -553,8 +553,7 @@ STATE s_TrashCanPain[7] =
     {TRASHCAN_PAIN_R0 + 6, TRASHCAN_PAIN_RATE, TrashCanPain, &s_TrashCanPain[0]}
 };
 
-int
-SetupTrashCan(DSWActor* actor)
+int SetupTrashCan(DSWActor* actor)
 {
     SPRITEp sp = &actor->s();
     USERp u;
@@ -659,8 +658,7 @@ STATE s_PachinkoLightOperate[] =
     {PACHINKOLIGHT_R0 - 5, 12, PachinkoLightOperate, &s_PachinkoLightOperate[0]},
 };
 
-int
-SetupPachinkoLight(DSWActor* actor)
+int SetupPachinkoLight(DSWActor* actor)
 {
     SPRITEp sp = &actor->s();
     USERp u;
@@ -760,8 +758,7 @@ STATE s_Pachinko1Operate[] =
     {PACHINKO1_R0 + 22, SF_QUICK_CALL, PachinkoCheckWin, &s_Pachinko1Stand[0]}
 };
 
-int
-SetupPachinko1(DSWActor* actor)
+int SetupPachinko1(DSWActor* actor)
 {
     SPRITEp sp = &actor->s();
     USERp u;
@@ -931,8 +928,7 @@ STATE s_Pachinko2Operate[] =
     {PACHINKO2_R0 + 22, SF_QUICK_CALL, PachinkoCheckWin, &s_Pachinko2Stand[0]}
 };
 
-int
-SetupPachinko2(DSWActor* actor)
+int SetupPachinko2(DSWActor* actor)
 {
     SPRITEp sp = &actor->s();
     USERp u;
@@ -1015,8 +1011,7 @@ STATE s_Pachinko3Operate[] =
     {PACHINKO3_R0 + 22, SF_QUICK_CALL, PachinkoCheckWin, &s_Pachinko3Stand[0]}
 };
 
-int
-SetupPachinko3(DSWActor* actor)
+int SetupPachinko3(DSWActor* actor)
 {
     SPRITEp sp = &actor->s();
     USERp u;
@@ -1100,8 +1095,7 @@ STATE s_Pachinko4Operate[] =
     {PACHINKO4_R0 + 22, SF_QUICK_CALL, PachinkoCheckWin, &s_Pachinko4Stand[0]}
 };
 
-int
-SetupPachinko4(DSWActor* actor)
+int SetupPachinko4(DSWActor* actor)
 {
     SPRITEp sp = &actor->s();
     USERp u;
@@ -1428,8 +1422,7 @@ STATE s_MechanicGirlDrill[2] =
 };
 
 
-int
-SetupMechanicGirl(DSWActor* actor)
+int SetupMechanicGirl(DSWActor* actor)
 {
     SPRITEp sp = &actor->s();
     USERp u;
@@ -1852,8 +1845,7 @@ STATE s_PruneGirlPain[2] =
     {PRUNEGIRL_PAIN_R0 + 0, 0|SF_QUICK_CALL, InitActorDecide, &s_PruneGirlPain[0]}
 };
 
-int
-SetupPruneGirl(DSWActor* actor)
+int SetupPruneGirl(DSWActor* actor)
 {
     SPRITEp sp = &actor->s();
     USERp u;

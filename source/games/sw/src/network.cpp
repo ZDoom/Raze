@@ -59,8 +59,7 @@ double smoothratio;
 
 // must start out as 0
 
-void
-InitNetPlayerOptions(void)
+void InitNetPlayerOptions(void)
 {
 //    short pnum;
     PLAYERp pp = Player + myconnectindex;

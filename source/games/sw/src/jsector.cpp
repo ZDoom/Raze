@@ -76,8 +76,7 @@ extern ParentalStruct aVoxelArray[MAXTILES];
 
 
 
-short
-CheckTileSound(short picnum)
+short CheckTileSound(short picnum)
 {
     short sndnum = -1;
 
@@ -144,8 +143,7 @@ ANIMATOR GenerateDrips;
 /////////////////////////////////////////////////////
 //  Initialize any of my special use sprites
 /////////////////////////////////////////////////////
-void
-JS_SpriteSetup(void)
+void JS_SpriteSetup(void)
 {
     SPRITEp sp;
     USERp u;
@@ -701,8 +699,7 @@ void GameInterface::LeavePortal(spritetype* viewer, int type)
 }
 
 
-void
-DoAutoSize(tspriteptr_t tspr)
+void DoAutoSize(tspriteptr_t tspr)
 {
     if (!bAutoSize)
         return;
@@ -851,8 +848,7 @@ DoAutoSize(tspriteptr_t tspr)
 // Rotation angles for sprites
 short rotang = 0;
 
-void
-JAnalyzeSprites(tspriteptr_t tspr)
+void JAnalyzeSprites(tspriteptr_t tspr)
 {
     rotang += 4;
     if (rotang > 2047)

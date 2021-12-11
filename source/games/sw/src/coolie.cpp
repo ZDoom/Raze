@@ -613,8 +613,7 @@ int InitCoolieCharge(DSWActor* actor)
 }
 
 
-int
-DoCoolieWaitBirth(DSWActor* actor)
+int DoCoolieWaitBirth(DSWActor* actor)
 {
     USER* u = actor->u();
 

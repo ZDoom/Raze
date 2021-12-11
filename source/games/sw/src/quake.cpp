@@ -256,15 +256,13 @@ void SpawnQuake(sectortype* sect, int x, int y, int z,
     PlaySound(DIGI_ERUPTION, actorNew, v3df_follow|v3df_dontpan);
 }
 
-bool
-SetQuake(PLAYERp pp, short tics, short amt)
+bool SetQuake(PLAYERp pp, short tics, short amt)
 {
     SpawnQuake(pp->cursector, pp->posx, pp->posy, pp->posz,  tics, amt, 30000);
     return false;
 }
 
-int
-SetExpQuake(DSWActor* actor)
+int SetExpQuake(DSWActor* actor)
 {
     SPRITEp sp = &actor->s();
 
@@ -272,8 +270,7 @@ SetExpQuake(DSWActor* actor)
     return 0;
 }
 
-int
-SetGunQuake(DSWActor* actor)
+int SetGunQuake(DSWActor* actor)
 {
     SPRITEp sp = &actor->s();
 
@@ -282,16 +279,14 @@ SetGunQuake(DSWActor* actor)
     return 0;
 }
 
-int
-SetPlayerQuake(PLAYERp pp)
+int SetPlayerQuake(PLAYERp pp)
 {
     SpawnQuake(pp->cursector, pp->posx, pp->posy, pp->posz,  40, 8, 40000);
 
     return 0;
 }
 
-int
-SetNuclearQuake(DSWActor* actor)
+int SetNuclearQuake(DSWActor* actor)
 {
     SPRITEp sp = &actor->s();
 

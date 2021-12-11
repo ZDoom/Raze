@@ -337,8 +337,7 @@ void StopInventoryCloak(PLAYERp pp, short InventoryNum)
 //
 //////////////////////////////////////////////////////////////////////
 
-void
-DoPlayerNightVisionPalette(PLAYERp pp)
+void DoPlayerNightVisionPalette(PLAYERp pp)
 {
     if (pp != Player + screenpeek) return;
 
@@ -361,8 +360,7 @@ DoPlayerNightVisionPalette(PLAYERp pp)
     }
 }
 
-void
-UseInventoryNightVision(PLAYERp pp)
+void UseInventoryNightVision(PLAYERp pp)
 {
     if (pp->InventoryActive[pp->InventoryNum])
     {
@@ -379,8 +377,7 @@ UseInventoryNightVision(PLAYERp pp)
     PlaySound(DIGI_NIGHTON, pp, v3df_dontpan|v3df_follow);
 }
 
-void
-StopInventoryNightVision(PLAYERp pp, short InventoryNum)
+void StopInventoryNightVision(PLAYERp pp, short InventoryNum)
 {
     pp->InventoryActive[InventoryNum] = false;
 

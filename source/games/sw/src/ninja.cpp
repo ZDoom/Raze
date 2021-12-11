@@ -1815,8 +1815,7 @@ ACTOR_ACTION_SET PlayerNinjaActionSet =
 
 */
 
-int
-SetupNinja(DSWActor* actor)
+int SetupNinja(DSWActor* actor)
 {
     SPRITEp sp = &actor->s();
     USERp u;

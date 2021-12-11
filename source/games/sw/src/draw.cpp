@@ -84,8 +84,7 @@ void SW_InitMultiPsky(void)
 
 
 #if 1
-void
-ShadeSprite(tspriteptr_t tsp)
+void ShadeSprite(tspriteptr_t tsp)
 {
     // set shade of sprite
     tsp->shade = tsp->sector()->floorshade - 25;
@@ -259,8 +258,7 @@ int DoShadowFindGroundPoint(tspriteptr_t sp)
     return loz;
 }
 
-void
-DoShadows(tspritetype* tsprite, int& spritesortcnt, tspriteptr_t tsp, int viewz, int camang)
+void DoShadows(tspritetype* tsprite, int& spritesortcnt, tspriteptr_t tsp, int viewz, int camang)
 {
     tspriteptr_t tSpr = &tsprite[spritesortcnt];
     USERp tu = static_cast<DSWActor*>(tsp->ownerActor)->u();
@@ -357,8 +355,7 @@ DoShadows(tspritetype* tsprite, int& spritesortcnt, tspriteptr_t tsp, int viewz,
     spritesortcnt++;
 }
 
-void
-DoMotionBlur(tspritetype* tsprite, int& spritesortcnt, tspritetype const * const tsp)
+void DoMotionBlur(tspritetype* tsprite, int& spritesortcnt, tspritetype const * const tsp)
 {
     USERp tu = static_cast<DSWActor*>(tsp->ownerActor)->u();
     int nx,ny,nz = 0,dx,dy,dz;
@@ -926,8 +923,7 @@ tspriteptr_t get_tsprite(tspritetype* tsprite, int& spritesortcnt, DSWActor* act
     return nullptr;
 }
 
-void
-post_analyzesprites(tspritetype* tsprite, int& spritesortcnt)
+void post_analyzesprites(tspritetype* tsprite, int& spritesortcnt)
 {
     int tSpriteNum;
     USERp tu;
@@ -967,8 +963,7 @@ post_analyzesprites(tspritetype* tsprite, int& spritesortcnt)
 }
 #endif
 
-void
-CircleCamera(int *nx, int *ny, int *nz, sectortype** vsect, binangle *nang, fixed_t q16horiz)
+void CircleCamera(int *nx, int *ny, int *nz, sectortype** vsect, binangle *nang, fixed_t q16horiz)
 {
     SPRITEp sp;
     HitInfo hit{};
@@ -1252,8 +1247,7 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, sectortype** tsect, binan
     }
 }
 
-void
-PreDraw(void)
+void PreDraw(void)
 {
     int i;
     PreDrawStackedWater();
@@ -1265,8 +1259,7 @@ PreDraw(void)
     }
 }
 
-void
-PostDraw(void)
+void PostDraw(void)
 {
     int i;
     SWStatIterator it(STAT_FLOOR_SLOPE_DONT_DRAW);
@@ -1429,8 +1422,7 @@ void RestorePortalState()
     }
 }
 
-void
-drawscreen(PLAYERp pp, double smoothratio)
+void drawscreen(PLAYERp pp, double smoothratio)
 {
     extern bool CameraTestMode;
     int tx, ty, tz;

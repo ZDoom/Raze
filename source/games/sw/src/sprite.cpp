@@ -4848,8 +4848,7 @@ int DoStayOnFloor(DSWActor* actor)
     return 0;
 }
 
-int
-DoGrating(DSWActor* actor)
+int DoGrating(DSWActor* actor)
 {
     USER* u = actor->u();
     SPRITEp sp = &actor->s();
@@ -5091,8 +5090,7 @@ int KillGetWeapon(DSWActor* actor)
     return 0;
 }
 
-int
-DoSpawnItemTeleporterEffect(SPRITEp sp)
+int DoSpawnItemTeleporterEffect(SPRITEp sp)
 {
     extern STATE s_TeleportEffect[];
     SPRITEp ep;
@@ -6080,8 +6078,7 @@ void ProcessActiveVars(DSWActor* actor)
     u->wait_active_check += ACTORMOVETICS;
 }
 
-void
-AdjustActiveRange(PLAYERp pp, DSWActor* actor, int dist)
+void AdjustActiveRange(PLAYERp pp, DSWActor* actor, int dist)
 {
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
@@ -6620,8 +6617,7 @@ int MissileWaterAdjust(DSWActor* actor)
     return 0;
 }
 
-int
-MissileZrange(DSWActor* actor)
+int MissileZrange(DSWActor* actor)
 {
     USERp u = actor->u();
     SPRITEp sp = &actor->s();

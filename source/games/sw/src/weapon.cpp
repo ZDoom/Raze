@@ -19140,8 +19140,7 @@ void QueueGeneric(DSWActor* actor, short pic)
 }
 
 #if 0
-int
-DoShellShrap(DSWActor* actor)
+int DoShellShrap(DSWActor* actor)
 {
     SPRITEp sp = &actor->s();
     USERp u = actor->u();

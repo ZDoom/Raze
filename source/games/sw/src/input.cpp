@@ -41,14 +41,12 @@ void DoPlayerTurnTurret(PLAYERp pp, float avel);
 
 static InputPacket loc;
 
-void
-InitNetVars(void)
+void InitNetVars(void)
 {
     loc = {};
 }
 
-void
-InitTimingVars(void)
+void InitTimingVars(void)
 {
     PlayClock = 0;
     randomseed = 17L;

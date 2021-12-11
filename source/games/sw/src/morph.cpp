@@ -39,8 +39,7 @@ BEGIN_SW_NS
 
 void ScaleSectorObject(SECTOR_OBJECTp);
 
-short
-DoSectorObjectSetScale(short match)
+short DoSectorObjectSetScale(short match)
 {
     SECTOR_OBJECTp sop;
 
@@ -112,8 +111,7 @@ DoSectorObjectSetScale(short match)
     return 0;
 }
 
-short
-DoSOevent(short match, short state)
+short DoSOevent(short match, short state)
 {
     SECTOR_OBJECTp sop;
     SPRITEp me_sp;
@@ -296,8 +294,7 @@ void ScaleRandomPoint(SECTOR_OBJECTp sop, short k, short ang, int x, int y, int 
 // Morph point - move point around
 //
 
-void
-MorphTornado(SECTOR_OBJECTp sop)
+void MorphTornado(SECTOR_OBJECTp sop)
 {
     int mx, my;
     int ceilingz;
@@ -378,8 +375,7 @@ MorphTornado(SECTOR_OBJECTp sop)
 }
 
 // moves center point around and aligns slope
-void
-MorphFloor(SECTOR_OBJECTp sop)
+void MorphFloor(SECTOR_OBJECTp sop)
 {
     int mx, my;
     int floorz;
@@ -458,8 +454,7 @@ MorphFloor(SECTOR_OBJECTp sop)
     }
 }
 
-void
-SOBJ_AlignFloorToPoint(SECTOR_OBJECTp sop, int x, int y, int z)
+void SOBJ_AlignFloorToPoint(SECTOR_OBJECTp sop, int x, int y, int z)
 {
     SECTORp *sectp;
     int j;
@@ -474,8 +469,7 @@ SOBJ_AlignFloorToPoint(SECTOR_OBJECTp sop, int x, int y, int z)
     }
 }
 
-void
-SOBJ_AlignCeilingToPoint(SECTOR_OBJECTp sop, int x, int y, int z)
+void SOBJ_AlignCeilingToPoint(SECTOR_OBJECTp sop, int x, int y, int z)
 {
     SECTORp *sectp;
     int j;
@@ -490,8 +484,7 @@ SOBJ_AlignCeilingToPoint(SECTOR_OBJECTp sop, int x, int y, int z)
     }
 }
 
-void
-SOBJ_AlignFloorCeilingToPoint(SECTOR_OBJECTp sop, int x, int y, int z)
+void SOBJ_AlignFloorCeilingToPoint(SECTOR_OBJECTp sop, int x, int y, int z)
 {
     SECTORp *sectp;
     int j;
@@ -508,8 +501,7 @@ SOBJ_AlignFloorCeilingToPoint(SECTOR_OBJECTp sop, int x, int y, int z)
 }
 
 // moves center point around and aligns slope
-void
-SpikeFloor(SECTOR_OBJECTp sop)
+void SpikeFloor(SECTOR_OBJECTp sop)
 {
     int mx, my;
     int floorz;

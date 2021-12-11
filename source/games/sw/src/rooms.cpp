@@ -581,8 +581,7 @@ void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, sectortype* const sect,
     }
 }
 
-void
-SetupMirrorTiles(void)
+void SetupMirrorTiles(void)
 {
     SPRITEp sp;
 

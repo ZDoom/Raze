@@ -502,8 +502,7 @@ int DoHornetCircle(DSWActor* actor)
 }
 
 
-int
-DoHornetDeath(DSWActor* actor)
+int DoHornetDeath(DSWActor* actor)
 {
     USER* u = actor->u();
     SPRITEp sp = &actor->s();
