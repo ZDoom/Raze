@@ -576,7 +576,7 @@ void setWallSectors()
 
 	for(auto& sect : sectors())
 	{
-		sect.dirty = 255;
+		sect.dirty = EDirty::AllDirty;
 		sect.exflags = 0;
 		for (auto& wal : wallsofsector(&sect))
 		{

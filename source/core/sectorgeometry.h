@@ -4,6 +4,8 @@
 #include "vectors.h"
 #include "build.h"
 
+struct Section2;
+
 struct SectorGeometryPlane
 {
 	TArray<FVector3> vertices;
@@ -46,3 +48,52 @@ public:
 extern SectorGeometry sectorGeometry;
 
 		
+enum GeomFlags
+{
+	NoEarcut = 1,
+	NoLibtess = 2,
+	FloorDone = 4,
+	CeilingDone = 8,
+};
+
+struct SectionGeometryData
+{
+	SectorGeometryPlane planes[2];
+	sectortype compare[2] = {};
+	vec2_t poscompare[2] = {};
+	vec2_t poscompare2[2] = {};
+	FVector3 normal[2];
+	int dirty;
+	int flags;
+};
+
+class SectionGeometry
+{
+	TArray<FVector2> meshVerts;
+	TArray<int> meshIndices;
+	TArray<SectionGeometryData> data;
+
+	bool ValidateSection(Section2* section, int plane, const FVector2& offset);
+	void MarkDirty(sectortype* sector);
+
+public:
+	/*
+	SectionGeometryPlane* get(Section2* section, int plane, const FVector2& offset)
+	{
+		if (section->index >= data.Size()) return nullptr;
+		ValidateSector(section->index, plane, offset);
+		return &data[section->index].planes[plane];
+	}
+	*/
+
+	void SetSize(unsigned sectcount)
+	{
+		data.Clear(); // delete old content
+		data.Resize(sectcount);
+	}
+};
+
+extern SectorGeometry sectorGeometry;
+extern SectionGeometry sectionGeometry;
+
+				

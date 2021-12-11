@@ -29,7 +29,7 @@ struct Section2Loop
 struct Section2
 {
 	int flags;
-	int index;
+	unsigned index;
 	sectortype* sector;
 	// this uses a memory arena for storage, so use TArrayView instead of TArray
 	TArrayView<Section2Wall*> walls;
@@ -40,3 +40,7 @@ extern TArray<Section2*> sections2;
 extern TArrayView<TArrayView<Section2*>> sections2PerSector;
 
 void hw_CreateSections2();
+using Outline = TArray<TArray<vec2_t>>;
+using Point = std::pair<float, float>;
+using FOutline = std::vector<std::vector<Point>> ; // Data type was chosen so it can be passed directly into Earcut.
+Outline BuildOutline(Section2* section);

@@ -50,6 +50,14 @@ enum
     PORTAL_SECTOR_GEOMETRY = 8,
 };
 
+enum EDirty
+{
+    FloorDirty = 1,
+    CeilingDirty = 2,
+    GeometryDirty = 4,
+    AllDirty = 7
+};
+
 BEGIN_BLD_NS
     struct XWALL;
     struct XSECTOR;

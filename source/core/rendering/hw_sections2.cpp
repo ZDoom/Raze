@@ -1,3 +1,43 @@
+/*
+** hw_sections.cpp
+** For decoupling the renderer from internal Build structures
+**
+**---------------------------------------------------------------------------
+** Copyright 2021 Christoph Oelckers
+** All rights reserved.
+**
+** Redistribution and use in source and binary forms, with or without
+** modification, are permitted provided that the following conditions
+** are met:
+**
+** 1. Redistributions of source code must retain the above copyright
+**    notice, this list of conditions and the following disclaimer.
+** 2. Redistributions in binary form must reproduce the above copyright
+**    notice, this list of conditions and the following disclaimer in the
+**    documentation and/or other materials provided with the distribution.
+** 3. The name of the author may not be used to endorse or promote products
+**    derived from this software without specific prior written permission.
+**
+** THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+** IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+** OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+** IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+** INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+** NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+** DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+** THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+** (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+** THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+**---------------------------------------------------------------------------
+**
+** The sole reason for existence of this file is that Build's sector setup
+** does not allow for easy splitting of sectors, either for having disjoint parts
+** or requiring partial rendering. So we need to add a superstructure
+** where we can shuffle around the map content without disturbing the original
+** order...
+**
+*/
+
 #include "build.h"
 #include "hw_sections2.h"
 #include "memarena.h"
@@ -44,6 +84,13 @@ static int sgn(int v)
 	return (v > 0) - (v < 0);
 }
 
+static int dist(const vec2_t& a, const vec2_t& b)
+{
+	// We only need to know if it's 1 or higher, so this is enough.
+	return abs(a.x - b.x) + abs(a.y - b.y);
+}
+
+
 using cmp = bool(*)(int, int);
 
 //==========================================================================
@@ -59,7 +106,7 @@ void StripLoop(TArray<vec2_t>& points)
 		unsigned prev = p == 0 ? points.Size() - 1 : p - 1;
 		unsigned next = p == points.Size() - 1 ? 0 : p + 1;
 
-		if (points[next] == points[prev])
+		if (points[next] == points[prev]) // if the two neighboring points are equal, this one dos not contribute to the sector's area.
 		{
 			if (next == 0)
 			{
@@ -74,9 +121,10 @@ void StripLoop(TArray<vec2_t>& points)
 			if (p > 0) p--; // backtrack one point more to ensure we can check the newly formed connection as well.
 		}
 		else if ((points[prev].x == points[p].x && points[next].x == points[p].x && sgn(points[next].y - points[p].y) == sgn(points[prev].y - points[p].y)) ||
-			(points[prev].y == points[p].y && points[next].y == points[p].y && sgn(points[next].x - points[p].x) == sgn(points[prev].x - points[p].x)))
+			(points[prev].y == points[p].y && points[next].y == points[p].y && sgn(points[next].x - points[p].x) == sgn(points[prev].x - points[p].x)) ||
+			dist(points[prev], points[next]) <= 1) // if the two points are extremely close together, we may also ignore the intermediate point.
 		{
-			// both points exit the point into the same direction. Here it is sufficient to just delete it so that the neighboring ones connect directly.
+			// both connections exit the point into the same direction. Here it is sufficient to just delete it so that the neighboring ones connect directly.
 			points.Delete(p);
 			p--;
 			if (p > 0) p--; // backtrack one point more to ensure we can check the newly formed connection as well.
@@ -84,6 +132,7 @@ void StripLoop(TArray<vec2_t>& points)
 		// Todo: check the non-orthogonal case of the above, too. Duke E2L7's sector 130 is such a case.
 	}
 }
+
 
 //==========================================================================
 //
@@ -599,6 +648,28 @@ void hw_CreateSections2()
 		}
 	}
 }
+
+//==========================================================================
+//
+// Create a set of vertex loops from a given session
+//
+//==========================================================================
+
+Outline BuildOutline(Section2* section)
+{
+	Outline output(section->loops.Size(), true);
+	for (unsigned i = 0; i < section->loops.Size(); i++)
+	{
+		output[i].Resize(section->loops[i].walls.Size());
+		for (unsigned j = 0; j < section->loops[i].walls.Size(); j++)
+		{
+			output[i][j] = *section->loops[i].walls[j]->v1;
+		}
+		StripLoop(output[i]);
+	}
+	return output;
+}
+
 
 #include "c_dispatch.h"
 #include "engineerrors.h"

@@ -133,6 +133,16 @@ bool sectorsConnected(int sect1, int sect2);
 // y is negated so that the orientation is the same as in GZDoom, in order to use its utilities.
 // The render code should NOT use Build coordinates for anything!
 
+inline double RenderX(int x)
+{
+	return x * (1 / 16.);
+}
+
+inline double RenderY(int y)
+{
+	return y * (1 / -16.);
+}
+
 inline double WallStartX(int wallnum)
 {
     return wall[wallnum].x * (1 / 16.);

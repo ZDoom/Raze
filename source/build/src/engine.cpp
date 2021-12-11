@@ -626,7 +626,7 @@ void dragpoint(int w, int32_t dax, int32_t day)
     while (1)
     {
         auto wal = &wall[w];
-        sector[wal->sector].dirty = 255;
+        sector[wal->sector].dirty = EDirty::AllDirty;
         wal->x = dax;
         wal->y = day;
         walbitmap.Set(w);
