@@ -363,15 +363,17 @@ bool SectorGeometry::MakeVertices2(unsigned int secnum, int plane, const FVector
 		lines[j].wallnum = sline->wall;
 		lines[j].sidedef[0] = &sides[j];
 		lines[j].sidedef[1] = nullptr;
-		lines[j].v1 = &vertexes[i];
-		lines[j].v2 = &vertexes[sline->point2index];
+		lines[j].v1 = &vertexes[j];
+		lines[j].v2 = &vertexes[sline->point2index + j - i];
 
 		sides[j].sidenum = j;
 		sides[j].sector = sectorp;
 		j++;
 	}
-	lines.Resize(j);
-	sides.Resize(j);
+
+	vertexes.Clamp(j);
+	lines.Clamp(j);
+	sides.Clamp(j);
 	// Weed out any overlaps. These often happen with door setups and can lead to bad subsectors
 	for (unsigned i = 0; i < lines.Size(); i++)
 	{
