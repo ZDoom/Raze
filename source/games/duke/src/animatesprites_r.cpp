@@ -703,8 +703,11 @@ void animatesprites_r(spritetype* tsprite, int& spritesortcnt, int x, int y, int
 				t->picnum += k + ScriptCode[t4] + l * t3;
 
 				if (l > 0)
-					while (t->picnum >= 0 && t->picnum < MAXTILES && !tileGetTexture(t->picnum)->isValid() && t->picnum > 0)
+				{
+					while (t->picnum >= 0 && t->picnum < MAXTILES && !tileGetTexture(t->picnum)->isValid())
 						t->picnum -= l;       //Hack, for actors 
+				}
+
 				if (t->picnum < 0 || t->picnum >= MAXTILES)
 				{
 					t->picnum = 0;
