@@ -770,9 +770,9 @@ void KillActor(DSWActor* actor)
     FVector3 pos = GetSoundPos(&actor->s().pos);
     soundEngine->RelinkSound(SOURCE_Actor, &actor->s(), nullptr, &pos);
 
-    actor->Destroy();
     // shred your garbage
     sp->clear();
+    actor->Destroy();
 
     // Kill references in all users - slow but unavoidable if we don't want the game to crash on stale pointers.
     SWSpriteIterator it;
