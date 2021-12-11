@@ -582,6 +582,7 @@ int GameMain()
 		r = -1;
 	}
 	//DeleteScreenJob();
+	if (gi) gi->FreeLevelData();
 	DeinitMenus();
 	if (StatusBar) StatusBar->Destroy();
 	StatusBar = nullptr;
