@@ -476,10 +476,9 @@ int32_t spriteheightofsptr(uspriteptr_t spr, int32_t *height, int32_t alsotileyo
 //  1: floor or down
 int32_t nextsectorneighborz(int16_t sectnum, int32_t refz, int16_t topbottom, int16_t direction)
 {
-    int32_t nextz = (direction == 1) ? INT32_MAX : INT32_MIN;
-    int32_t sectortouse = sectnum; // was -1, which is bad because no caller checks it.
+    int32_t nextz = (direction==1) ? INT32_MAX : INT32_MIN;
+    int32_t sectortouse = -1;
 
-    assert(validSectorIndex(sectnum));
     auto wal = (uwallptr_t)sector[sectnum].firstWall();
     int32_t i = sector[sectnum].wallnum;
 
