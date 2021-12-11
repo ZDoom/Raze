@@ -435,8 +435,8 @@ void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang,
 	auto spritepos = fr.Tell();
 
 	// Now that we know the map's size, set up the globals.
-	initspritelists(); // may not be used in Blood!
 	allocateMapArrays(numsprites);
+	initspritelists(); // may not be used in Blood!
 
 	// Now load the actual data.
 	fr.Seek(sectorpos, FileReader::SeekSet);
