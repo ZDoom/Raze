@@ -825,7 +825,7 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
                 PLAYERp pp = tu->PlayerP;
                 int sr = 65536 - int(smoothratio);
                 tsp->pos.X -= MulScale(pp->pos.X - pp->oposx, sr, 16);
-                tsp->pos.Y -= MulScale(pp->posy - pp->oposy, sr, 16);
+                tsp->pos.Y -= MulScale(pp->pos.Y - pp->oposy, sr, 16);
                 tsp->pos.Z -= MulScale(pp->posz - pp->oposz, sr, 16);
                 tsp->ang -= MulScale(pp->angle.ang.asbuild() - pp->angle.oang.asbuild(), sr, 16);
             }
@@ -1071,7 +1071,7 @@ FString GameInterface::GetCoordString()
     PLAYERp pp = Player + myconnectindex;
     FString out;
     out.AppendFormat("POSX:%d ", pp->pos.X);
-    out.AppendFormat("POSY:%d ", pp->posy);
+    out.AppendFormat("POSY:%d ", pp->pos.Y);
     out.AppendFormat("POSZ:%d ", pp->posz);
     out.AppendFormat("ANG:%d\n", pp->angle.ang.asbuild());
 
@@ -1459,7 +1459,7 @@ void drawscreen(PLAYERp pp, double smoothratio)
         camerapp = pp;
 
     tx = interpolatedvalue(camerapp->oposx, camerapp->pos.X, sr);
-    ty = interpolatedvalue(camerapp->oposy, camerapp->posy, sr);
+    ty = interpolatedvalue(camerapp->oposy, camerapp->pos.Y, sr);
     tz = interpolatedvalue(camerapp->oposz, camerapp->posz, sr);
 
     // Interpolate the player's angle while on a sector object, just like VoidSW.
@@ -1486,7 +1486,7 @@ void drawscreen(PLAYERp pp, double smoothratio)
             (!cl_sointerpolation || (CommEnabled && !pp->sop_remote)))
         {
             tx = pp->pos.X;
-            ty = pp->posy;
+            ty = pp->pos.Y;
             tz = pp->posz;
             tang = pp->angle.ang;
         }

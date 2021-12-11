@@ -303,12 +303,12 @@ inline int SPRITEp_SIZE_BOS(const tspritetype* sp)
 
 #define SQ(val) ((val) * (val))
 
-#define KENFACING_PLAYER(pp,sp) (bcos(sp->ang)*(pp->posy-sp->pos.Y) >= bsin(sp-ang)*(pp->pos.X-sp->pos.X))
-#define FACING_PLAYER(pp,sp) (abs(getincangle(getangle((pp)->pos.X - (sp)->pos.X, (pp)->posy - (sp)->pos.Y), (sp)->ang)) < 512)
-#define PLAYER_FACING(pp,sp) (abs(getincangle(getangle((sp)->pos.X - (pp)->pos.X, (sp)->pos.Y - (pp)->posy), (pp)->angle.ang.asbuild())) < 320)
+#define KENFACING_PLAYER(pp,sp) (bcos(sp->ang)*(pp->pos.Y-sp->pos.Y) >= bsin(sp-ang)*(pp->pos.X-sp->pos.X))
+#define FACING_PLAYER(pp,sp) (abs(getincangle(getangle((pp)->pos.X - (sp)->pos.X, (pp)->pos.Y - (sp)->pos.Y), (sp)->ang)) < 512)
+#define PLAYER_FACING(pp,sp) (abs(getincangle(getangle((sp)->pos.X - (pp)->pos.X, (sp)->pos.Y - (pp)->pos.Y), (pp)->angle.ang.asbuild())) < 320)
 
-#define FACING_PLAYER_RANGE(pp,sp,range) (abs(getincangle(getangle((pp)->pos.X - (sp)->pos.X, (pp)->posy - (sp)->pos.Y), (sp)->ang)) < (range))
-#define PLAYER_FACING_RANGE(pp,sp,range) (abs(getincangle(getangle((sp)->pos.X - (pp)->pos.X, (sp)->pos.Y - (pp)->posy), (pp)->angle.ang.asbuild())) < (range))
+#define FACING_PLAYER_RANGE(pp,sp,range) (abs(getincangle(getangle((pp)->pos.X - (sp)->pos.X, (pp)->pos.Y - (sp)->pos.Y), (sp)->ang)) < (range))
+#define PLAYER_FACING_RANGE(pp,sp,range) (abs(getincangle(getangle((sp)->pos.X - (pp)->pos.X, (sp)->pos.Y - (pp)->pos.Y), (pp)->angle.ang.asbuild())) < (range))
 #define FACING_RANGE(sp1,sp2,range) (abs(getincangle(getangle((sp1)->pos.X - (sp2)->pos.X, (sp1)->pos.Y - (sp2)->pos.Y), (sp2)->ang)) < (range))
 
 // two vectors
@@ -663,7 +663,7 @@ struct PLAYERstruct
     // variable that fit in the sprite or user structure
     union
     {
-        struct { int32_t BLAHBLAHX, posy, posz; };
+        struct { int32_t BLAHBLAHX, BLAHBLAHY, posz; };
         vec3_t pos;
     };
     

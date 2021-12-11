@@ -347,7 +347,7 @@ int DoActorPickClosePlayer(DSWActor* actor)
             //    continue;
         }
 
-        DISTANCE(sp->pos.X, sp->pos.Y, pp->pos.X, pp->posy, dist, a, b, c);
+        DISTANCE(sp->pos.X, sp->pos.Y, pp->pos.X, pp->pos.Y, dist, a, b, c);
 
         if (dist < near_dist)
         {
@@ -377,7 +377,7 @@ int DoActorPickClosePlayer(DSWActor* actor)
             //    continue;
         }
 
-        DISTANCE(sp->pos.X, sp->pos.Y, pp->pos.X, pp->posy, dist, a, b, c);
+        DISTANCE(sp->pos.X, sp->pos.Y, pp->pos.X, pp->pos.Y, dist, a, b, c);
 
         auto psp = &pp->Actor()->s();
         if (dist < near_dist && FAFcansee(sp->pos.X, sp->pos.Y, look_height, sp->sector(), psp->pos.X, psp->pos.Y, SPRITEp_UPPER(psp), psp->sector()))

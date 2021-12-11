@@ -435,7 +435,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYERstruct& w, P
 	if (arc.BeginObject(keyname))
 	{
 		arc("x", w.pos.X)
-			("y", w.posy)
+			("y", w.pos.Y)
 			("z", w.posz)
 			("lv_sectnum", w.lv_sector)
 			("lv_x", w.lv_x)

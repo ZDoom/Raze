@@ -59,7 +59,7 @@ Collision MultiClipMove(PLAYERp pp, int z, int floor_dist)
         // allowing you to move through wall
         ang = NORM_ANGLE(pp->angle.ang.asbuild() + sop->clipbox_ang[i]);
 
-        vec3_t spos = { pp->pos.X, pp->posy, z };
+        vec3_t spos = { pp->pos.X, pp->pos.Y, z };
 
         xvect = sop->clipbox_vdist[i] * bcos(ang);
         yvect = sop->clipbox_vdist[i] * bsin(ang);
@@ -73,7 +73,7 @@ Collision MultiClipMove(PLAYERp pp, int z, int floor_dist)
             min_ndx = i;
             // ox is where it should be
             opos[i].X = pos[i].X = pp->pos.X + MulScale(sop->clipbox_vdist[i], bcos(ang), 14);
-            opos[i].Y = pos[i].Y = pp->posy + MulScale(sop->clipbox_vdist[i], bsin(ang), 14);
+            opos[i].Y = pos[i].Y = pp->pos.Y + MulScale(sop->clipbox_vdist[i], bsin(ang), 14);
 
             // spos.x is where it hit
             pos[i].X = spos.X;
@@ -113,7 +113,7 @@ Collision MultiClipMove(PLAYERp pp, int z, int floor_dist)
 
     // put posx and y off from offset
     pp->pos.X += pos[min_ndx].X - opos[min_ndx].X;
-    pp->posy += pos[min_ndx].Y - opos[min_ndx].Y;
+    pp->pos.Y += pos[min_ndx].Y - opos[min_ndx].Y;
 
     return min_ret;
 }
@@ -132,7 +132,7 @@ short MultiClipTurn(PLAYERp pp, short new_ang, int z, int floor_dist)
     {
         ang = NORM_ANGLE(new_ang + sop->clipbox_ang[i]);
 
-        vec3_t pos = { pp->pos.X, pp->posy, z };
+        vec3_t pos = { pp->pos.X, pp->pos.Y, z };
 
         xvect = sop->clipbox_vdist[i] * bcos(ang);
         yvect = sop->clipbox_vdist[i] * bsin(ang);
@@ -203,7 +203,7 @@ int RectClipMove(PLAYERp pp, int *qx, int *qy)
     if (testquadinsect(&point_num, xy, pp->cursector))
     {
         pp->pos.X += (pp->xvect>>14);
-        pp->posy += (pp->yvect>>14);
+        pp->pos.Y += (pp->yvect>>14);
         return true;
     }
 
@@ -220,7 +220,7 @@ int RectClipMove(PLAYERp pp, int *qx, int *qy)
         if (testquadinsect(&point_num, xy, pp->cursector))
         {
             pp->pos.X -= (pp->yvect>>15);
-            pp->posy += (pp->xvect>>15);
+            pp->pos.Y += (pp->xvect>>15);
         }
 
         return false;
@@ -236,7 +236,7 @@ int RectClipMove(PLAYERp pp, int *qx, int *qy)
         if (testquadinsect(&point_num, xy, pp->cursector))
         {
             pp->pos.X += (pp->yvect>>15);
-            pp->posy -= (pp->xvect>>15);
+            pp->pos.Y -= (pp->xvect>>15);
         }
 
         return false;
