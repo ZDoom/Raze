@@ -436,7 +436,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYERstruct& w, P
 	{
 		arc("x", w.pos.X)
 			("y", w.pos.Y)
-			("z", w.posz)
+			("z", w.pos.Z)
 			("lv_sectnum", w.lv_sector)
 			("lv_x", w.lv_x)
 			("lv_y", w.lv_y)

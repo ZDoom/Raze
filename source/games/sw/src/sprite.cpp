@@ -5228,7 +5228,7 @@ int DoGet(DSWActor* actor)
         auto cstat_bak = sp->cstat;
         SET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         can_see = FAFcansee(sp->pos.X, sp->pos.Y, sp->pos.Z, sp->sector(),
-                            pp->pos.X, pp->pos.Y, pp->posz, pp->cursector);
+                            pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector);
         sp->cstat = cstat_bak;
 
         if (!can_see)

@@ -661,11 +661,7 @@ typedef struct
 struct PLAYERstruct
 {
     // variable that fit in the sprite or user structure
-    union
-    {
-        struct { int32_t BLAHBLAHX, BLAHBLAHY, posz; };
-        vec3_t pos;
-    };
+    vec3_t pos;
     
     TObjPtr<DSWActor*> actor;
     TObjPtr<DSWActor*> lowActor, highActor;

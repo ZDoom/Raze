@@ -641,7 +641,7 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz, double smoothratio)
 
                     // If player is dead still then update at MoveSkip4
                     // rate.
-                    if (pp->pos.X == pp->oposx && pp->pos.Y == pp->oposy && pp->posz == pp->oposz)
+                    if (pp->pos.X == pp->oposx && pp->pos.Y == pp->oposy && pp->pos.Z == pp->oposz)
                         DoCam = true;
 
 
@@ -655,7 +655,7 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz, double smoothratio)
 
                             if (TEST_BOOL11(sp) && numplayers > 1)
                             {
-                                drawroomstotile(cp->pos.X, cp->pos.Y, cp->posz, cp->angle.ang, cp->horizon.horiz, cp->cursector, mirror[cnt].campic, smoothratio);
+                                drawroomstotile(cp->pos.X, cp->pos.Y, cp->pos.Z, cp->angle.ang, cp->horizon.horiz, cp->cursector, mirror[cnt].campic, smoothratio);
                             }
                             else
                             {

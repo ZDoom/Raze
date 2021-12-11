@@ -2360,7 +2360,7 @@ void InitPlayerSprite(PLAYERp pp)
     COVER_SetReverb(0); // Turn off any echoing that may have been going before
     pp->Reverb = 0;
     auto actor = SpawnActor(STAT_PLAYER0 + pnum, NINJA_RUN_R0, nullptr, pp->cursector, pp->pos.X,
-                                            pp->pos.Y, pp->posz, pp->angle.ang.asbuild(), 0);
+                                            pp->pos.Y, pp->pos.Z, pp->angle.ang.asbuild(), 0);
 
     pp->actor = actor;
     sp = &actor->s();
@@ -2433,7 +2433,7 @@ void SpawnPlayerUnderSprite(PLAYERp pp)
     int pnum = int(pp - Player);
 
     pp->PlayerUnderActor = SpawnActor(STAT_PLAYER_UNDER0 + pnum,
-                                                 NINJA_RUN_R0, nullptr, pp->cursector, pp->pos.X, pp->pos.Y, pp->posz, pp->angle.ang.asbuild(), 0);
+                                                 NINJA_RUN_R0, nullptr, pp->cursector, pp->pos.X, pp->pos.Y, pp->pos.Z, pp->angle.ang.asbuild(), 0);
 
     sp = &pp->PlayerUnderActor->s();
     u = pp->PlayerUnderActor->u();

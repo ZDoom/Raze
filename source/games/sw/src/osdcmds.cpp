@@ -53,7 +53,7 @@ void GameInterface::WarpToCoords(int x, int y, int z, int ang, int horz)
 {
     Player->oposx = Player->pos.X = x;
     Player->oposy = Player->pos.Y = y;
-    Player->oposz = Player->posz = z;
+    Player->oposz = Player->pos.Z = z;
 
     if (ang != INT_MIN)
     {

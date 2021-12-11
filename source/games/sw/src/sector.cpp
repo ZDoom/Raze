@@ -1451,7 +1451,7 @@ int OperateSprite(DSWActor* actor, short player_is_operating)
     {
         pp = GlobPlayerP;
 
-        if (!FAFcansee(pp->pos.X, pp->pos.Y, pp->posz, pp->cursector, sp->pos.X, sp->pos.Y, sp->pos.Z - DIV2(SPRITEp_SIZE_Z(sp)), sp->sector()))
+        if (!FAFcansee(pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector, sp->pos.X, sp->pos.Y, sp->pos.Z - DIV2(SPRITEp_SIZE_Z(sp)), sp->sector()))
             return false;
     }
 
@@ -2054,7 +2054,7 @@ bool NearThings(PLAYERp pp)
         HitInfo hit{};
         short dang = pp->angle.ang.asbuild();
 
-        FAFhitscan(pp->pos.X, pp->pos.Y, pp->posz - Z(30), pp->cursector,    // Start position
+        FAFhitscan(pp->pos.X, pp->pos.Y, pp->pos.Z - Z(30), pp->cursector,    // Start position
                    bcos(dang),  // X vector of 3D ang
                    bsin(dang),  // Y vector of 3D ang
                    0,           // Z vector of 3D ang
@@ -2221,7 +2221,7 @@ int DoPlayerGrabStar(PLAYERp pp)
         {
             sp = &StarQueue[i]->s();
 
-            if (FindDistance3D(sp->pos.X - pp->pos.X, sp->pos.Y - pp->pos.Y, sp->pos.Z - pp->posz + Z(12)) < 500)
+            if (FindDistance3D(sp->pos.X - pp->pos.X, sp->pos.Y - pp->pos.Y, sp->pos.Z - pp->pos.Z + Z(12)) < 500)
             {
                 break;
             }
@@ -2275,7 +2275,7 @@ void PlayerOperateEnv(PLAYERp pp)
                 NearThings(pp); // Check for player sound specified in a level sprite
             }
 
-            BuildNearTagList(nti, sizeof(nti), pp, pp->posz, 2048L, NTAG_SEARCH_LO_HI, 8);
+            BuildNearTagList(nti, sizeof(nti), pp, pp->pos.Z, 2048L, NTAG_SEARCH_LO_HI, 8);
 
             found = false;
 

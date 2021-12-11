@@ -1860,7 +1860,7 @@ PlayerPart:
                 // move up some for really fast moving plats
                 //pp->posz -= PLAYER_HEIGHT + Z(12);
                 DoPlayerZrange(pp);
-                pp->posz = pp->loz - PLAYER_CRAWL_HEIGHT;
+                pp->pos.Z = pp->loz - PLAYER_CRAWL_HEIGHT;
                 pp->Actor()->spr.pos.Z = pp->loz;
             }
             else
@@ -1871,7 +1871,7 @@ PlayerPart:
 
                 if (!TEST(pp->Flags, PF_JUMPING | PF_FALLING | PF_FLYING))
                 {
-                    pp->posz = pp->loz - PLAYER_HEIGHT;
+                    pp->pos.Z = pp->loz - PLAYER_HEIGHT;
                     pp->Actor()->spr.pos.Z = pp->loz;
                 }
             }

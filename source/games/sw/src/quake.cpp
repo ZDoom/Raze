@@ -185,7 +185,7 @@ void QuakeViewChange(PLAYERp pp, int *z_diff, int *x_diff, int *y_diff, short *a
 	{
 		auto sp = &actor->s();
 
-        dist = FindDistance3D(pp->pos.X - sp->pos.X, pp->pos.Y - sp->pos.Y, pp->posz - sp->pos.Z);
+        dist = FindDistance3D(pp->pos.X - sp->pos.X, pp->pos.Y - sp->pos.Y, pp->pos.Z - sp->pos.Z);
 
         // shake whole level
         if (QUAKE_TestDontTaper(sp))
@@ -258,7 +258,7 @@ void SpawnQuake(sectortype* sect, int x, int y, int z,
 
 bool SetQuake(PLAYERp pp, short tics, short amt)
 {
-    SpawnQuake(pp->cursector, pp->pos.X, pp->pos.Y, pp->posz,  tics, amt, 30000);
+    SpawnQuake(pp->cursector, pp->pos.X, pp->pos.Y, pp->pos.Z,  tics, amt, 30000);
     return false;
 }
 
@@ -281,7 +281,7 @@ int SetGunQuake(DSWActor* actor)
 
 int SetPlayerQuake(PLAYERp pp)
 {
-    SpawnQuake(pp->cursector, pp->pos.X, pp->pos.Y, pp->posz,  40, 8, 40000);
+    SpawnQuake(pp->cursector, pp->pos.X, pp->pos.Y, pp->pos.Z,  40, 8, 40000);
 
     return 0;
 }

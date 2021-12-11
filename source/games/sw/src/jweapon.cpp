@@ -1311,7 +1311,7 @@ int PlayerInitChemBomb(PLAYERp pp)
 
     nx = pp->pos.X;
     ny = pp->pos.Y;
-    nz = pp->posz + pp->bob_z + Z(8);
+    nz = pp->pos.Z + pp->bob_z + Z(8);
 
     // Spawn a shot
     // Inserting and setting up variables
@@ -1735,7 +1735,7 @@ int PlayerInitCaltrops(PLAYERp pp)
 
     nx = pp->pos.X;
     ny = pp->pos.Y;
-    nz = pp->posz + pp->bob_z + Z(8);
+    nz = pp->pos.Z + pp->bob_z + Z(8);
 
     auto spawnedActor = SpawnActor(STAT_DEAD_ACTOR, CALTROPS, s_Caltrops, pp->cursector,
                     nx, ny, nz, pp->angle.ang.asbuild(), (CHEMBOMB_VELOCITY + RandomRange(CHEMBOMB_VELOCITY)) / 2);

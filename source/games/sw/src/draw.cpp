@@ -826,7 +826,7 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
                 int sr = 65536 - int(smoothratio);
                 tsp->pos.X -= MulScale(pp->pos.X - pp->oposx, sr, 16);
                 tsp->pos.Y -= MulScale(pp->pos.Y - pp->oposy, sr, 16);
-                tsp->pos.Z -= MulScale(pp->posz - pp->oposz, sr, 16);
+                tsp->pos.Z -= MulScale(pp->pos.Z - pp->oposz, sr, 16);
                 tsp->ang -= MulScale(pp->angle.ang.asbuild() - pp->angle.oang.asbuild(), sr, 16);
             }
         }
@@ -1072,7 +1072,7 @@ FString GameInterface::GetCoordString()
     FString out;
     out.AppendFormat("POSX:%d ", pp->pos.X);
     out.AppendFormat("POSY:%d ", pp->pos.Y);
-    out.AppendFormat("POSZ:%d ", pp->posz);
+    out.AppendFormat("POSZ:%d ", pp->pos.Z);
     out.AppendFormat("ANG:%d\n", pp->angle.ang.asbuild());
 
     return out;
@@ -1460,7 +1460,7 @@ void drawscreen(PLAYERp pp, double smoothratio)
 
     tx = interpolatedvalue(camerapp->oposx, camerapp->pos.X, sr);
     ty = interpolatedvalue(camerapp->oposy, camerapp->pos.Y, sr);
-    tz = interpolatedvalue(camerapp->oposz, camerapp->posz, sr);
+    tz = interpolatedvalue(camerapp->oposz, camerapp->pos.Z, sr);
 
     // Interpolate the player's angle while on a sector object, just like VoidSW.
     // This isn't needed for the turret as it was fixable, but moving sector objects are problematic.
@@ -1487,7 +1487,7 @@ void drawscreen(PLAYERp pp, double smoothratio)
         {
             tx = pp->pos.X;
             ty = pp->pos.Y;
-            tz = pp->posz;
+            tz = pp->pos.Z;
             tang = pp->angle.ang;
         }
         tsect = pp->cursector;
@@ -1496,7 +1496,7 @@ void drawscreen(PLAYERp pp, double smoothratio)
 
     pp->six = tx;
     pp->siy = ty;
-    pp->siz = tz - pp->posz;
+    pp->siz = tz - pp->pos.Z;
     pp->siang = tang.asbuild();
 
     QuakeViewChange(camerapp, &quake_z, &quake_x, &quake_y, &quake_ang);

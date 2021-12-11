@@ -125,7 +125,7 @@ short SoundDist(int x, int y, int z, int basedist)
 
     tx = fabs(Player[screenpeek].pos.X - x);
     ty = fabs(Player[screenpeek].pos.Y - y);
-    tz = fabs((Player[screenpeek].posz - z) >> 4);
+    tz = fabs((Player[screenpeek].pos.Z - z) >> 4);
 
     // Use the Pythagreon Theorem to compute the magnitude of a 3D vector
     sqrdist = fabs(tx * tx + ty * ty + tz * tz);
@@ -382,7 +382,7 @@ static void UpdateAmbients()
         if (sdist < 255 && amb->vocIndex == DIGI_WHIPME)
         {
             PLAYERp pp = Player + screenpeek;
-            if (!FAFcansee(sp->pos.X, sp->pos.Y, sp->pos.Z, sp->sector(), pp->pos.X, pp->pos.Y, pp->posz, pp->cursector))
+            if (!FAFcansee(sp->pos.X, sp->pos.Y, sp->pos.Z, sp->sector(), pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector))
             {
                 sdist = 255;
             }
@@ -560,7 +560,7 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
             // Can the ambient sound see the player?  If not, tone it down some.
             if ((chanflags & CHANF_LOOP))
             {
-                if (!FAFcansee(vpos->X, vpos->Y, vpos->Z, sp->sector(), pp->pos.X, pp->pos.Y, pp->posz, pp->cursector))
+                if (!FAFcansee(vpos->X, vpos->Y, vpos->Z, sp->sector(), pp->pos.X, pp->pos.Y, pp->pos.Z, pp->cursector))
                 {
                     auto distvec = npos - campos;
                     npos = campos + distvec * 1.75f;  // Play more quietly
