@@ -2528,7 +2528,12 @@ bool genDudePrepare(DBloodActor* actor, int propId)
 
         case kGenDudePropertySlaves:
         {
-            pExtra->slaveCount = 0; memset(pExtra->slave, -1, sizeof(pExtra->slave));
+            pExtra->slaveCount = 0;
+            for (auto i = 0; i < kGenDudeMaxSlaves; i++)
+            {
+                pExtra->slave[i] = nullptr;
+            }
+
             BloodStatIterator it(kStatDude);
             while (auto actor2 = it.Next())
             {
