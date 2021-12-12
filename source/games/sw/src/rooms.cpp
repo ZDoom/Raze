@@ -161,7 +161,7 @@ FAFhitscan(int32_t x, int32_t y, int32_t z, sectortype* sect,
             hit.hitpos.y -= yvect>>9;
 
             // warp to new x,y,z, sectnum
-            sectortype* newsect;
+            sectortype* newsect = nullptr;
             if (Warp(&hit.hitpos.x, &hit.hitpos.y, &hit.hitpos.z, &newsect))
             {
                 // hitscan needs to pass through dest sect
@@ -191,7 +191,7 @@ FAFhitscan(int32_t x, int32_t y, int32_t z, sectortype* sect,
             if (TEST(hit.hitSector->firstWall()->cstat, CSTAT_WALL_WARP_HITSCAN))
             {
                 // hit the floor of a sector that is a warping sector
-                sectortype* newsect;
+                sectortype* newsect = nullptr;
                 if (Warp(&hit.hitpos.x, &hit.hitpos.y, &hit.hitpos.z, &newsect))
                 {
                     auto pos = hit.hitpos;
