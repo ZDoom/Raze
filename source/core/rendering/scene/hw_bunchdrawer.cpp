@@ -72,7 +72,6 @@ void BunchDrawer::Init(HWDrawInfo *_di, Clipper* c, vec2_t& view, binangle a1, b
 	for (int i = 0; i < numwalls; i++)
 	{
 		// Precalculate the clip angles to avoid doing this repeatedly during level traversal.
-		// Reverse the orientation so that startangle and endangle are properly ordered.
 		wall[i].clipangle = clipper->PointToAngle(wall[i].pos);
 	}
 	memset(sectionstartang, -1, sizeof(sectionstartang));
@@ -215,6 +214,7 @@ int BunchDrawer::ClipLine(int aline, bool portal)
 		return CL_Skip;
 	}
 	if (line >= 0 && blockwall[line]) return CL_Draw;
+	auto wal = &wall[line];
 
 	// convert to clipper coordinates and clamp to valid range.
 	int startAngle = startAngleBam.asbam();
@@ -228,13 +228,23 @@ int BunchDrawer::ClipLine(int aline, bool portal)
 
 	// check against the maximum possible viewing range of the sector.
 	// Todo: check if this is sufficient or if we really have to do a more costly check against the single visible segments.
+	// Note: These walls may be excluded from the clipper, but not from being drawn!
+	bool dontclip = false;
 	if (sectStartAngle != -1)
 	{
-		if (sectStartAngle > endAngle || sectEndAngle < startAngle) 
-			return CL_Skip; // completely outside the valid range for this sector.
+		if (sectStartAngle > endAngle || sectEndAngle < startAngle)
+		{
+			dontclip = true;
+		}
+		else
+		{
 		if (sectStartAngle > startAngle) startAngle = sectStartAngle;
 		if (sectEndAngle < endAngle) endAngle = sectEndAngle;
-		if (endAngle <= startAngle) return CL_Skip; // can this even happen?
+			if (endAngle <= startAngle)
+			{
+				return CL_Skip; // can this even happen?
+	}
+		}
 	}
 
 	if (!portal && !clipper->IsRangeVisible(startAngle, endAngle))
@@ -242,11 +252,10 @@ int BunchDrawer::ClipLine(int aline, bool portal)
 		return CL_Skip;
 	}
 
-	auto wal = &wall[line];
 	if (cline->partner == -1 || (wal->cstat & CSTAT_WALL_1WAY) || CheckClip(wal))
 	{
 		// one-sided
-		if (!portal) clipper->AddClipRange(startAngle, endAngle);
+		if (!portal && !dontclip) clipper->AddClipRange(startAngle, endAngle);
 		return CL_Draw;
 	}
 	else
