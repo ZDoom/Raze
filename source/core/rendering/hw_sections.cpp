@@ -140,9 +140,12 @@ static void SplitSection(int section, int start, int end)
 			assert(newline.point2index >= 0);
 
 			// relink the partner
-			auto& partnerline = sectionLines[newline.partner];
-			partnerline.partner = thisline;
-			partnerline.partnersection = newline.section;
+			if (newline.partner >= 0)
+			{
+				auto& partnerline = sectionLines[newline.partner];
+				partnerline.partner = thisline;
+				partnerline.partnersection = newline.section;
+			}
 			thisline++;
 		}
 		else
@@ -172,9 +175,12 @@ static void SplitSection(int section, int start, int end)
 			assert(newline.point2index >= 0);
 
 			// relink the partner
-			auto& partnerline = sectionLines[newline.partner];
-			partnerline.partner = thisline;
-			partnerline.partnersection = newline.section;
+			if (newline.partner >= 0)
+			{
+				auto& partnerline = sectionLines[newline.partner];
+				partnerline.partner = thisline;
+				partnerline.partnersection = newline.section;
+			}
 			thisline++;
 		}
 		else
