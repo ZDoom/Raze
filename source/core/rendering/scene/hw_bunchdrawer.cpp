@@ -238,12 +238,9 @@ int BunchDrawer::ClipLine(int aline, bool portal)
 		}
 		else
 		{
-		if (sectStartAngle > startAngle) startAngle = sectStartAngle;
-		if (sectEndAngle < endAngle) endAngle = sectEndAngle;
-			if (endAngle <= startAngle)
-			{
-				return CL_Skip; // can this even happen?
-	}
+			if (sectStartAngle > startAngle) startAngle = sectStartAngle;
+			if (sectEndAngle < endAngle) endAngle = sectEndAngle;
+			if (endAngle <= startAngle) return CL_Skip; // can this even happen?
 		}
 	}
 
