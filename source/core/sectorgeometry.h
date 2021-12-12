@@ -56,9 +56,13 @@ enum GeomFlags
 	CeilingDone = 8,
 };
 
+using SectionGeometryPlane = SectorGeometryPlane;
+
 struct SectionGeometryData
 {
 	SectorGeometryPlane planes[2];
+	TArray<FVector2> meshVertices;	// flat vertices. Stored separately so that plane changes won't require completely new triangulation.
+	TArray<int> meshIndices;
 	sectortype compare[2] = {};
 	vec2_t poscompare[2] = {};
 	vec2_t poscompare2[2] = {};
@@ -69,22 +73,16 @@ struct SectionGeometryData
 
 class SectionGeometry
 {
-	TArray<FVector2> meshVerts;
-	TArray<int> meshIndices;
 	TArray<SectionGeometryData> data;
 
-	bool ValidateSection(Section2* section, int plane, const FVector2& offset);
+	bool ValidateSection(Section2* section, int plane);
 	void MarkDirty(sectortype* sector);
+	bool CreateMesh(Section2* section);
+	void CreatePlaneMesh(Section2* section, int plane, const FVector2& offset);
+
 
 public:
-	/*
-	SectionGeometryPlane* get(Section2* section, int plane, const FVector2& offset)
-	{
-		if (section->index >= data.Size()) return nullptr;
-		ValidateSector(section->index, plane, offset);
-		return &data[section->index].planes[plane];
-	}
-	*/
+	SectionGeometryPlane* get(Section2* section, int plane, const FVector2& offset, TArray<int>** pIndices);
 
 	void SetSize(unsigned sectcount)
 	{

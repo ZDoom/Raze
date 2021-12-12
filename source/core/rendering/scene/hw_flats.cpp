@@ -98,17 +98,17 @@ void HWFlat::MakeVertices()
 	bool canvas = texture->isHardwareCanvas();
 	if (Sprite == nullptr)
 	{
-#if 0
 		if (section != nullptr)
 		{
-			auto mesh = sectionGeometry.get(section, plane, geoofs);
+			TArray<int>* pIndices;
+			auto mesh = sectionGeometry.get(section, plane, geoofs, &pIndices);
 
-			auto ret = screen->mVertexData->AllocVertices(mesh->indices.Size());
+			auto ret = screen->mVertexData->AllocVertices(pIndices->Size());
 			auto vp = ret.first;
 			float base = (plane == 0 ? sec->floorz : sec->ceilingz) * (1 / -256.f);
-			for (unsigned i = 0; i < mesh->indices.Size(); i++)
+			for (unsigned i = 0; i < pIndices->Size(); i++)
 			{
-				auto ii = mesh->indicess[i];
+				auto ii = (*pIndices)[i];
 				auto& pt = mesh->vertices[ii];
 				auto& uv = mesh->texcoords[ii];
 				vp->SetVertex(pt.X, base + pt.Z, pt.Y);
@@ -116,10 +116,9 @@ void HWFlat::MakeVertices()
 				vp++;
 			}
 			vertindex = ret.second;
-			vertcount = mesh->indices.Size();
+			vertcount = pIndices->Size();
 		}
 		else
-#endif
 		{
 			auto mesh = sectorGeometry.get(oldsection, plane, geoofs);
 			if (!mesh) return;

@@ -45,6 +45,7 @@
 #include "nodebuilder/nodebuild.h"
 
 SectorGeometry sectorGeometry;
+SectionGeometry sectionGeometry;
 
 //==========================================================================
 //
@@ -316,10 +317,10 @@ ETriangulateResult TriangulateOutlineLibtess(const FOutline& polygon, int count,
 
 	int result = tessTesselate(tess, TESS_WINDING_POSITIVE, TESS_POLYGONS, 3, 2, 0);
 	if (!result)
-		{
+	{
 		tessDeleteTess(tess);
 		return ETriangulateResult::Failed;
-		}
+	}
 
 	const float* verts = tessGetVertices(tess);
 	const int* vinds = tessGetVertexIndices(tess);
@@ -418,7 +419,7 @@ ETriangulateResult TriangulateOutlineNodeBuild(const FOutline& polygon, int coun
 //
 //==========================================================================
 
-bool SectionGeometry::ValidateSection(Section2* section, int plane, const FVector2& offset)
+bool SectionGeometry::ValidateSection(Section2* section, int plane)
 {
 	auto sec = section->sector;
 	auto& sdata = data[section->index];
@@ -457,10 +458,116 @@ bool SectionGeometry::ValidateSection(Section2* section, int plane, const FVecto
 }
 
 
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+bool SectionGeometry::CreateMesh(Section2* section)
+{
+	auto outline = BuildOutline(section);
+	FOutline foutline;
+	int count = OutlineToFloat(outline, foutline);
+	if (count == -1) return false; // gotta wait...
+	TArray<FVector2> meshVertices;
+	TArray<int> meshIndices;
+	ETriangulateResult result = ETriangulateResult::Failed;
+
+	auto& sdata = data[section->index];
+
+	if (!(section->flags & NoEarcut))
+	{
+		result = TriangulateOutlineEarcut(foutline, count, sdata.meshVertices, sdata.meshIndices);
+	}
+	if (result == ETriangulateResult::Failed && !(section->flags & NoLibtess))
+	{
+		section->flags |= NoEarcut;
+		result = TriangulateOutlineLibtess(foutline, count, sdata.meshVertices, sdata.meshIndices);
+	}
+	if (result == ETriangulateResult::Failed)
+	{
+		section->flags |= NoLibtess;
+		result = TriangulateOutlineNodeBuild(foutline, count, sdata.meshVertices, meshIndices);
+	}
+	section->flags &= ~EDirty::GeometryDirty;
+	return true;
+}
+
+//==========================================================================
+//
+// assumes that the geometry has already been validated.
+//
+//==========================================================================
+
+void SectionGeometry::CreatePlaneMesh(Section2* section, int plane, const FVector2& offset)
+{
+	auto sectorp = section->sector;
+	// calculate the rest.
+	auto texture = tileGetTexture(plane ? sectorp->ceilingpicnum : sectorp->floorpicnum);
+	auto& sdata = data[section->index];
+	auto& entry = sdata.planes[plane];
+	int fz = sectorp->floorz, cz = sectorp->ceilingz;
+	sectorp->floorz = sectorp->ceilingz = 0;	
+
+	UVCalculator uvcalc(sectorp, plane, texture, offset);
+
+	entry.vertices.Resize(sdata.meshVertices.Size());
+	entry.texcoords.Resize(entry.vertices.Size());
+
+	for (unsigned i = 0; i < entry.vertices.Size(); i++)
+	{
+		auto& org = sdata.meshVertices[i];
+		auto& pt = entry.vertices[i];
+		auto& tc = entry.texcoords[i];
+
+		pt.XY() = org;
+		PlanesAtPoint(sectorp, (pt.X * 16), (pt.Y * -16), plane ? &pt.Z : nullptr, !plane ? &pt.Z : nullptr);
+		tc = uvcalc.GetUV(int(pt.X * 16.), int(pt.Y * -16.), pt.Z);
+	}
+	entry.normal = CalcNormal(sectorp, plane);
+	sectorp->floorz = fz;
+	sectorp->ceilingz = cz;
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
 void SectionGeometry::MarkDirty(sectortype* sector)
 {
 	for (auto section : sections2PerSector[sectnum(sector)])
 	{
 		data[section->index].dirty = sector->dirty;
 	}
+	sector->dirty = 0;
+}
+
+//==========================================================================
+//
+//
+//
+//==========================================================================
+
+SectionGeometryPlane* SectionGeometry::get(Section2* section, int plane, const FVector2& offset, TArray<int>** pIndices)
+{
+	if (!section || section->index >= data.Size()) return nullptr;
+	auto sectp = section->sector;
+	if (sectp->dirty) MarkDirty(sectp);
+	if (section->flags & EDirty::GeometryDirty)
+	{
+		bool res = CreateMesh(section);
+		if (!res)
+		{
+			section->flags &= ~EDirty::GeometryDirty;	// sector is in an invalid state, so pretend the old setup is still valid. Happens in some SW maps.
+		}
+	}
+	if (!ValidateSection(section, plane))
+	{
+		CreatePlaneMesh(section, plane, offset);
+	}
+	*pIndices = &data[section->index].meshIndices;
+	return &data[section->index].planes[plane];
 }

@@ -679,7 +679,7 @@ nexti:;
 	// calculate the rest.
 	auto texture = tileGetTexture(plane ? sectorp->ceilingpicnum : sectorp->floorpicnum);
 
-	UVCalculator uvcalc(sectorp, plane, texture, offset);
+	UVCalculator1 uvcalc(sectorp, plane, texture, offset);
 
 	entry.texcoords.Resize(entry.vertices.Size());
 	for (unsigned i = 0; i < entry.vertices.Size(); i++)
