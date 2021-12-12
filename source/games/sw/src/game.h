@@ -1893,17 +1893,17 @@ int SpawnBlood(DSWActor* actor, DSWActor* weapActor, short hit_ang, int hit_x, i
 
 inline bool FAF_ConnectCeiling(sectortype* sect)
 {
-    return (sect->ceilingpicnum == FAF_MIRROR_PIC);
+    return (sect && sect->ceilingpicnum == FAF_MIRROR_PIC);
 }
 
 inline bool FAF_ConnectFloor(sectortype* sect)
 {
-    return (sect->floorpicnum == FAF_MIRROR_PIC);
+    return (sect && sect->floorpicnum == FAF_MIRROR_PIC);
 }
 
 inline bool FAF_ConnectArea(sectortype* sect)
 {
-    return (FAF_ConnectCeiling(sect) || FAF_ConnectFloor(sect));
+    return sect && (FAF_ConnectCeiling(sect) || FAF_ConnectFloor(sect));
 }
 
 bool PlayerCeilingHit(PLAYERp pp, int zlimit);
