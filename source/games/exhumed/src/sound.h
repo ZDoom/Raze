@@ -130,10 +130,10 @@ int LoadSound(const char* sound);
 void BendAmbientSound();
 void CheckAmbience(sectortype* pSector);
 
-void PlayFX2(unsigned int nSound, DExhumedActor* nSprite, int sectf = 0, EChanFlags chanflags = CHANF_NONE, int sprflags = 0);
+void PlayFX2(int nSound, DExhumedActor* nSprite, int sectf = 0, EChanFlags chanflags = CHANF_NONE, int sprflags = 0);
 
-void PlayFXAtXYZ(unsigned int nSound, int x, int y, int z, EChanFlags chanflags = CHANF_NONE, int sectf = 0);
-inline void D3PlayFX(unsigned int nSound, DExhumedActor* actor, int flags = 0)
+void PlayFXAtXYZ(int nSound, int x, int y, int z, EChanFlags chanflags = CHANF_NONE, int sectf = 0);
+inline void D3PlayFX(int nSound, DExhumedActor* actor, int flags = 0)
 {
     PlayFX2(nSound, actor, 0, CHANF_NONE, flags);
 }

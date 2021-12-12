@@ -553,7 +553,7 @@ void GameInterface::UpdateSounds()
 
 int soundx, soundy, soundz;
 
-void PlayFX2(unsigned int nSound, DExhumedActor* pActor, int sectf, EChanFlags chanflags, int sprflags)
+void PlayFX2(int nSound, DExhumedActor* pActor, int sectf, EChanFlags chanflags, int sprflags)
 {
     if (!SoundEnabled()) return;
     if ((nSound&0x1ff) >= kMaxSounds || !soundEngine->isValidSoundId((nSound & 0x1ff)+1))
@@ -654,7 +654,7 @@ void PlayFX2(unsigned int nSound, DExhumedActor* pActor, int sectf, EChanFlags c
 //
 //==========================================================================
 
-void PlayFXAtXYZ(unsigned int ax, int x, int y, int z, EChanFlags chanflags, int sectf)
+void PlayFXAtXYZ(int ax, int x, int y, int z, EChanFlags chanflags, int sectf)
 {
     soundx = x;
     soundy = y;
