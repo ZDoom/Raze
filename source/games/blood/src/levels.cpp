@@ -50,7 +50,7 @@ void levelInitINI(const char *pzIni)
 	if (!fileSystem.FileExists(pzIni))
         I_Error("Initialization: %s does not exist", pzIni);
     BloodINI = new IniFile(pzIni);
-    strncpy(BloodIniFile, pzIni, BMAX_PATH);
+    strncpy(BloodIniFile, pzIni, BMAX_PATH-1);
 }
 
 void CheckSectionAbend(const char *pzSection)

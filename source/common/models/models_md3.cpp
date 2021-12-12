@@ -141,7 +141,7 @@ bool FMD3Model::Load(const char * path, int lumpnum, const char * buffer, int le
 	Frames.Resize(numFrames);
 	for (unsigned i = 0; i < numFrames; i++)
 	{
-		strncpy(Frames[i].Name, frm[i].Name, 16);
+		strncpy(Frames[i].Name, frm[i].Name, 15);
 		for (int j = 0; j < 3; j++) Frames[i].origin[j] = frm[i].localorigin[j];
 	}
 
