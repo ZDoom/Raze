@@ -608,7 +608,7 @@ void GameInterface::UpdateSounds(void)
     }
     else tang = pp->angle.ang;
 
-    listener.angle = float(-tang.asbuild() * BAngRadian); // Build uses a period of 2048.
+    listener.angle = float(-tang.asrad());
     listener.velocity.Zero();
     listener.position = GetSoundPos(&pp->pos);
     listener.underwater = false;
