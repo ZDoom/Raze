@@ -664,6 +664,7 @@ void FSerializer::ReadObjects(bool hubtravel)
 			if (!founderrors)
 			{
 				// Reset to start;
+				unsigned size = r->mObjects.Size();
 				r->mObjects.Last().mIndex = 0;
 
 				for (unsigned i = 0; i < r->mDObjects.Size(); i++)
@@ -680,6 +681,7 @@ void FSerializer::ReadObjects(bool hubtravel)
 							}
 							catch (CRecoverableError &err)
 							{
+								r->mObjects.Clamp(size);	// close all inner objects.
 								// In case something in here throws an error, let's continue and deal with it later.
 								Printf(TEXTCOLOR_RED "'%s'\n while restoring %s\n", err.GetMessage(), obj ? obj->GetClass()->TypeName.GetChars() : "invalid object");
 								mErrors++;

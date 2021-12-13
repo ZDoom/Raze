@@ -142,6 +142,7 @@ static void RemoveActorStat(DCoreActor* actor)
 
 	auto prevp = prev ? &prev->nextStat : &firstEntry;
 	auto nextp = next ? &next->prevStat : &lastEntry;
+	if (*prevp == nullptr && *nextp == nullptr) return;	// can happen during an aborted savegame load.
 
 	assert(*prevp == actor);
 	assert(*nextp == actor);
@@ -285,6 +286,7 @@ static void RemoveActorSect(DCoreActor* actor)
 
 	auto prevp = prev ? &prev->nextSect : &firstEntry;
 	auto nextp = next ? &next->prevSect : &lastEntry;
+	if (*prevp == nullptr && *nextp == nullptr) return;	// can happen during an aborted savegame load.
 	assert(*prevp == actor);
 	assert(*nextp == actor);
 
