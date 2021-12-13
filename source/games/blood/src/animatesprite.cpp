@@ -537,8 +537,9 @@ void viewProcessSprites(spritetype* tsprite, int& spritesortcnt, int32_t cX, int
             pTXSprite = &owneractor->x();
         }
         int nTile = pTSprite->picnum;
-        if (nTile < 0 || nTile >= kMaxTiles)
+        if (nTile <= 0 || nTile >= kMaxTiles)
         {
+            pTSprite->xrepeat = 0;
             continue;
         }
 
