@@ -630,7 +630,7 @@ void KillActor(DSWActor* actor)
     if (u)
     {
         PLAYERp pp;
-        short pnum;
+        int pnum;
 
         // doing a MissileSetPos - don't allow killing
         if (TEST(u->Flags, SPR_SET_POS_DONT_KILL))
@@ -645,7 +645,7 @@ void KillActor(DSWActor* actor)
         if (TEST(u->Flags, SPR_SO_ATTACHED))
         {
             SECTOR_OBJECTp sop;
-            short sn, FoundSpriteNdx = -1;
+            int sn, FoundSpriteNdx = -1;
 
             for (sop = SectorObject; sop < &SectorObject[MAX_SECTOR_OBJECTS]; sop++)
             {
@@ -672,8 +672,6 @@ void KillActor(DSWActor* actor)
                     break;
                 }
             }
-
-            ASSERT(FoundSpriteNdx >= 0);
         }
 
         // if a player is dead and watching this sprite
@@ -706,7 +704,7 @@ void KillActor(DSWActor* actor)
         if (TEST(sp->extra, SPRX_PLAYER_OR_ENEMY))
         {
             USERp mu;
-            static short MissileStats[] = {STAT_MISSILE, STAT_MISSILE_SKIP4};
+            static int8_t MissileStats[] = {STAT_MISSILE, STAT_MISSILE_SKIP4};
 
             for (stat = 0; stat < SIZ(MissileStats); stat++)
             {

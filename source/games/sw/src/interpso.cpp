@@ -278,18 +278,24 @@ void so_updateinterpolations(void) // Stick at beginning of domovethings
         bool skip = !SyncInput() && (sop->track == SO_TURRET);
         if (SO_EMPTY(sop) || skip)
             continue;
+
+
         if (interp->tic < interp->lasttic)
             interp->tic += synctics;
         for (i = 0, data = interp->data; i < interp->numinterpolations; i++, data++)
         {
             if (data->curelement == soi_sprang)
             {
-				USERp u = data->actorofang->u();
-                if (u)
-                    u->oangdiff = 0;
-                if (!interpolating)
-                    data->lastangdiff = 0;
-                data->oldipos = data->actorofang->s().ang;
+                auto actorofang = data->actorofang;
+                if (actorofang)
+                {
+                    USERp u = actorofang->u();
+                    if (u)
+                        u->oangdiff = 0;
+                    if (!interpolating)
+                        data->lastangdiff = 0;
+                    data->oldipos = actorofang->s().ang;
+                }
             }
             else
                 data->oldipos = getvalue(*data, false);
@@ -318,11 +324,17 @@ void so_dointerpolations(int32_t smoothratio)                      // Stick at b
         if (SO_EMPTY(sop) || skip)
             continue;
 
-        for (i = 0; i < interp->numinterpolations; i++)
-            interp->data[i].bakipos = (interp->data[i].curelement == soi_sprang) ?
-                                      interp->data[i].actorofang->s().ang :
-                                      getvalue(interp->data[i], false);
 
+        for (i = 0; i < interp->numinterpolations; i++)
+        {
+            auto actorofang = interp->data[i].actorofang;
+            if (interp->data[i].curelement >= soi_sprx && actorofang == nullptr)
+                continue; // target went poof.
+
+            interp->data[i].bakipos = (interp->data[i].curelement == soi_sprang) ?
+                                      actorofang->s().ang :
+                                      getvalue(interp->data[i], false);
+        }
         if (interp->tic == 0) // Only if the SO has just moved
         {
             for (i = 0, data = interp->data; i < interp->numinterpolations; i++, data++)
@@ -331,8 +343,12 @@ void so_dointerpolations(int32_t smoothratio)                      // Stick at b
                 data->lastoldipos = data->oldipos;
                 if (data->curelement == soi_sprang)
                 {
-                    USERp u = data->actorofang->u();
-                    data->lastangdiff = u ? u->oangdiff : 0;
+                    auto actorofang = data->actorofang;
+                    if (actorofang)
+                    {
+                        USERp u = actorofang->u();
+                        data->lastangdiff = u ? u->oangdiff : 0;
+                    }
                 }
             }
         }
@@ -412,7 +428,10 @@ void so_restoreinterpolations(void)                 // Stick at end of drawscree
 
         for (i = 0, data = interp->data; i < interp->numinterpolations; i++, data++)
             if (data->curelement == soi_sprang)
-                data->actorofang->s().ang = data->bakipos;
+            {
+                auto actorofang = interp->data[i].actorofang;
+                if (actorofang) actorofang->s().ang = data->bakipos;
+            }
             else
                 getvalue(*data, true) = data->bakipos;
     }
