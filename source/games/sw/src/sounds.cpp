@@ -597,7 +597,18 @@ void GameInterface::UpdateSounds(void)
     PLAYERp pp = Player + screenpeek;
     SoundListener listener;
 
-    listener.angle = float(-pp->angle.ang.asbuild() * BAngRadian); // Build uses a period of 2048.
+    binangle tang;
+    if (pp->sop_remote)
+    {
+        auto rsp = &pp->remoteActor->s();
+        if (TEST_BOOL1(rsp))
+            tang = buildang(rsp->ang);
+        else
+            tang = bvectangbam(pp->sop_remote->xmid - pp->posx, pp->sop_remote->ymid - pp->posy);
+    }
+    else tang = pp->angle.ang;
+
+    listener.angle = float(-tang.asbuild() * BAngRadian); // Build uses a period of 2048.
     listener.velocity.Zero();
     listener.position = GetSoundPos(&pp->pos);
     listener.underwater = false;
