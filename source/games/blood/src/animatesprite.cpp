@@ -537,7 +537,15 @@ void viewProcessSprites(spritetype* tsprite, int& spritesortcnt, int32_t cX, int
             pTXSprite = &owneractor->x();
         }
         int nTile = pTSprite->picnum;
-        if (nTile <= 0 || nTile >= kMaxTiles)
+        if (nTile < 0 || nTile >= kMaxTiles)
+        {
+            pTSprite->xrepeat = 0;
+            continue;
+        }
+        // skip picnum 0 on face sprites. picnum 0 is a simple wall texture in Blood, 
+        // but there are maps that use 0 on some operator sprites that may show up in potals as a result.
+        // Since the wall texture is perfectly fine for wall and floor sprites, these will be allowed to pass.
+        if (nTile == 0 && (pTSprite->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FACING)
         {
             pTSprite->xrepeat = 0;
             continue;
