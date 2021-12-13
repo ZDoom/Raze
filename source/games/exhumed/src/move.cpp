@@ -366,7 +366,7 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
     int hihit, lohit;
     vec3_t pos = pSprite->pos;
     pos.z -= 256;
-    getzrange(&pSprite->pos, pSprite->sectnum,
+    getzrange(&pos, pSprite->sectnum,
         &sprceiling, &hihit, &sprfloor, &lohit, 128, CLIPMASK0);
     hiHit.setFromEngine(hihit);
     loHit.setFromEngine(lohit);
