@@ -724,11 +724,10 @@ void COVER_SetReverb(int amt)
 void DeleteNoSoundOwner(DSWActor* actor)
 {
     if (!soundEngine) return;
-    SPRITEp sp = &actor->s();
 
     soundEngine->EnumerateChannels([=](FSoundChan* chan)
         {
-            if (chan->Source == sp && chan->ChanFlags & CHANF_LOOP)
+            if (chan->Source == actor && chan->ChanFlags & CHANF_LOOP)
             {
                 soundEngine->StopChannel(chan);
             }
