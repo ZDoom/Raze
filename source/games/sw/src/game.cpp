@@ -507,8 +507,11 @@ void TerminateLevel(void)
         Track[ndx].FreeTrackPoints();
     }
 
-    // Clear the tracks
+    // Clear the tracks and other arrays holding pointers into the level data.
     memset(Track, 0, sizeof(Track));
+    memset(SineWaveFloor, 0, sizeof(SineWaveFloor));
+    memset(SineWall, 0, sizeof(SineWall));
+    memset(SpringBoard, 0, sizeof(SpringBoard));
 
     StopFX();
 
@@ -542,6 +545,7 @@ void TerminateLevel(void)
         // Free panel sprites for players
         pClearSpriteList(pp);
 
+        pp->LadderSector = nullptr;
         pp->cookieTime = 0;
         memset(pp->cookieQuote, 0, sizeof(pp->cookieQuote));
         pp->DoPlayerAction = nullptr;
