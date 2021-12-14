@@ -45,7 +45,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "v_draw.h"
 #include "sectorgeometry.h"
 #include "gamefuncs.h"
-#include "hw_sections.h"
+#include "hw_sections2.h"
 #include "coreactor.h"
 CVAR(Bool, am_followplayer, true, CVAR_ARCHIVE)
 CVAR(Bool, am_rotate, true, CVAR_ARCHIVE)
@@ -581,12 +581,14 @@ void renderDrawMapView(int cposx, int cposy, int czoom, int cang)
 		int picnum = sect->floorpicnum;
 		if ((unsigned)picnum >= (unsigned)MAXTILES) continue;
 
-		for (auto ii : sectionspersector[i])
+		for (auto sect : sections2PerSector[i])
 		{
-			auto mesh = sectorGeometry.get(ii, 0, { 0.f,0.f });
-			vertices.Resize(mesh->vertices.Size());
-			for (unsigned j = 0; j < mesh->vertices.Size(); j++)
+			TArray<int>* indices;
+			auto mesh = sectionGeometry.get(sect, 0, { 0.f, 0.f }, &indices);
+			vertices.Resize(indices->Size());
+			for (unsigned jj = 0; jj < indices->Size(); jj++)
 			{
+				int j = (*indices)[jj];
 				int ox = int(mesh->vertices[j].X * 16.f) - cposx;
 				int oy = int(mesh->vertices[j].Y * -16.f) - cposy;
 				int x1 = DMulScale(ox, xvect, -oy, yvect, 16) + (width << 11);

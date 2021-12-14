@@ -257,7 +257,7 @@ ETriangulateResult TriangulateOutlineEarcut(const FOutline& polygon, int count, 
 	// Sections are already validated so we can assume that the data is well defined here.
 
 	auto indices = mapbox::earcut(polygon);
-	if (indices.size() < 3 * count)
+	if (indices.size() < 3 * (count + polygon.size() * 2 - 2))
 	{
 		// this means that full triangulation failed.
 		return ETriangulateResult::Failed;
@@ -271,7 +271,7 @@ ETriangulateResult TriangulateOutlineEarcut(const FOutline& polygon, int count, 
 			points[p++] = { pt.first, pt.second };
 		}
 	}
-	indicesOut.Resize(count * 3);
+	indicesOut.Resize((unsigned)indices.size());
 	for (unsigned i = 0; i < indices.size(); i++)
 	{
 		indicesOut[i] = indices[i];
@@ -313,7 +313,7 @@ ETriangulateResult TriangulateOutlineLibtess(const FOutline& polygon, int count,
 
 	// Add contours.
 	for (auto& loop : polygon)
-		tessAddContour(tess, 2, &loop.data()->first, (int)sizeof(*loop.data()), loop.size());
+		tessAddContour(tess, 2, &loop.data()->first, (int)sizeof(*loop.data()), (int)loop.size());
 
 	int result = tessTesselate(tess, TESS_WINDING_POSITIVE, TESS_POLYGONS, 3, 2, 0);
 	if (!result)
@@ -556,7 +556,7 @@ SectionGeometryPlane* SectionGeometry::get(Section2* section, int plane, const F
 	if (!section || section->index >= data.Size()) return nullptr;
 	auto sectp = section->sector;
 	if (sectp->dirty) MarkDirty(sectp);
-	if (section->flags & EDirty::GeometryDirty)
+	if (data[section->index].dirty & EDirty::GeometryDirty)
 	{
 		bool res = CreateMesh(section);
 		if (!res)

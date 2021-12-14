@@ -492,6 +492,7 @@ void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang,
 	hw_BuildSections();
 	hw_CreateSections2();
 	sectorGeometry.SetSize(Sections.Size());
+	sectionGeometry.SetSize(sections2.Size());
 
 
 	wallbackup = wall;

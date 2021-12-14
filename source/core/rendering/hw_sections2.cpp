@@ -568,8 +568,10 @@ static void ConstructSections(TArray<sectionbuildsector>& builders)
 		{
 			auto section = (Section2*)sectionArena.Calloc(sizeof(Section2));
 			auto& srcsect = builder.sections[j];
-			sections2[cursection++] = section;
+			sections2[cursection] = section;
 			sections2PerSector[i][j] = section;
+			section->sector = &sector[i];
+			section->index = cursection++;
 
 			int sectwalls = srcsect.wallcount;
 			auto walls = (Section2Wall**)sectionArena.Calloc(sectwalls * sizeof(Section2Wall*));
@@ -620,11 +622,11 @@ void hw_CreateSections2()
 
 	ConstructSections(builders);
 
-	//if (hw_sectiondebug)
+	if (hw_sectiondebug)
 	{
 		for (int i = 0; i < numsectors; i++)
 		{
-			if (sections2PerSector[i][0]->flags == 0 && !bugged.CheckKey(i)) continue;	
+			//if (sections2PerSector[i][0]->flags == 0 && !bugged.CheckKey(i)) continue;	
 			Printf(PRINT_LOG, "Sector %d, %d walls, %d sections\n", i, sector[i].wallnum, sections2PerSector[i].Size());
 			for (auto& section : sections2PerSector[i])
 			{
