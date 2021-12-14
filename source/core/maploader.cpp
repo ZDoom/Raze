@@ -584,6 +584,17 @@ void setWallSectors()
 		i++;
 	}
 
+	for (unsigned i = 1; i < wall.Size() - 1; i++)
+	{
+		// two maps in RRRA have this error. Delete one of those 2 walls.
+		if (wall[i].point2 == wall[i + 1].point2)
+		{
+			wall[i].nextwall = -1;
+			wall[i].nextsector = -1;
+			wall[i].point2 = i;
+		}
+	}
+
 	// validate 'nextsector' fields. Some maps have these wrong which can cause render glitches and occasionally even crashes.
 	for (auto& wal : walls())
 	{
