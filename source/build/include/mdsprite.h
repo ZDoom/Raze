@@ -73,7 +73,7 @@ typedef struct
 typedef struct { uint8_t v[3], ni; } md2vert_t; //compressed vertex coords (x,y,z)
 typedef struct
 {
-    vec3f_t mul, add; //scale&translation vector
+    FVector3 mul, add; //scale&translation vector
     char name[16];    //frame name
     md2vert_t verts[1]; //first vertex of this frame
 } md2frame_t;
@@ -104,7 +104,7 @@ typedef struct { int16_t x, y, z; uint8_t nlat, nlng; } md3xyzn_t; //xyz are [10
 
 typedef struct
 {
-    vec3f_t min, max, cen; //bounding box&origin
+    FVector3 min, max, cen; //bounding box&origin
     float r; //radius of bounding sphere
     char nam[16]; //ascz frame name
 } md3frame_t;
@@ -112,7 +112,7 @@ typedef struct
 typedef struct
 {
     char nam[64]; //ascz tag name
-    vec3f_t p, x, y, z; //tag object pos&orient
+    FVector3 p, x, y, z; //tag object pos&orient
 } md3tag_t;
 
 typedef struct
@@ -163,7 +163,7 @@ struct md3model_t : public idmodel_t
 
     //MD3 specific
     md3head_t head;
-    vec3f_t *muladdframes;
+    FVector3 *muladdframes;
 
     uint16_t *indexes;
     uint16_t *vindexes;
@@ -183,7 +183,7 @@ FGameTexture* mdloadskin(idmodel_t* m, int32_t number, int32_t pal, int32_t surf
 void mdinit(void);
 void freeallmodels(void);
 int32_t polymost_mddraw(tspriteptr_t tspr);
-EXTERN void md3_vox_calcmat_common(tspriteptr_t tspr, const vec3f_t *a0, float f, float mat[16]);
+EXTERN void md3_vox_calcmat_common(tspriteptr_t tspr, const FVector3 *a0, float f, float mat[16]);
 
 EXTERN int32_t mdpause;
 EXTERN int32_t nextmodelid;

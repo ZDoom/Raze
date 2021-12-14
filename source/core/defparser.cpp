@@ -1941,7 +1941,7 @@ static bool parseModelHudBlock(FScanner& sc)
 
 	for (int i = starttile; i <= endtile; i++)
 	{
-		vec3f_t addf = { (float)add.X, (float)add.Y, (float)add.Z };
+		FVector3 addf = { (float)add.X, (float)add.Y, (float)add.Z };
 		int res = md_definehud(mdglobal.lastmodelid, i, addf, angadd, flags, fov);
 		if (res < 0)
 		{

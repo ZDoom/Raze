@@ -513,10 +513,10 @@ bool HWSprite::ProcessVoxel(HWDrawInfo* di, voxmodel_t* vox, spritetype* spr, se
 
 	float zoff = voxel->siz.z * .5f;
 	if (!(spr->cstat & CSTAT_SPRITE_YCENTER))
-		zoff += voxel->piv.z;
+		zoff += voxel->piv.Z;
 	else if ((spr->cstat & CSTAT_SPRITE_ALIGNMENT) != CSTAT_SPRITE_ALIGNMENT_SLAB)
 	{
-		zoff += voxel->piv.z;
+		zoff += voxel->piv.Z;
 		zoff -= voxel->siz.z * .5f;
 	}
 	if (spr->cstat & CSTAT_SPRITE_YFLIP) zoff = voxel->siz.z - zoff;
@@ -526,7 +526,7 @@ bool HWSprite::ProcessVoxel(HWDrawInfo* di, voxmodel_t* vox, spritetype* spr, se
 	rotmat.rotate(buildang(ang).asdeg() - 90.f, 0, 1, 0);
 	rotmat.scale(scalevec.X, scalevec.Z, scalevec.Y);
 	// Apply pivot last
-	rotmat.translate(-voxel->piv.x, zoff, voxel->piv.y);
+	rotmat.translate(-voxel->piv.X, zoff, voxel->piv.Y);
 
 
 

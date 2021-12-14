@@ -11,6 +11,7 @@
 #include "m_alloc.h"
 #include "intvec.h"
 #include "m_swap.h"
+#include "vectors.h"
 
 ////////// Language and compiler feature polyfills //////////
 
@@ -62,22 +63,11 @@ typedef intptr_t bssize_t;
 
 using  native_t = intptr_t;
 
-typedef struct {
+struct vec2f_t {
     float x, y;
-} vec2f_t;
+};
 
-typedef struct {
-    union {
-        struct {
-            union { float x, d; };
-            union { float y, u; };
-            union { float z, v; };
-        };
-        vec2f_t vec2;
-    };
-} vec3f_t;
-
-static_assert(sizeof(vec3f_t) == sizeof(float) * 3);
+static_assert(sizeof(FVector3) == sizeof(float) * 3);
 
 
 #include "basics.h"

@@ -623,7 +623,7 @@ EXTERN FixedBitArray<MAXVOXELS>voxreserve;
 #ifdef USE_OPENGL
 // TODO: dynamically allocate this
 
-typedef struct { vec3f_t add; int16_t angadd, flags, fov; } hudtyp;
+typedef struct { FVector3 add; int16_t angadd, flags, fov; } hudtyp;
 
 typedef struct
 {
@@ -656,7 +656,7 @@ int32_t md_defineanimation(int32_t modelid, const char *framestart, const char *
                            int32_t fps, int32_t flags);
 int32_t md_defineskin(int32_t modelid, const char *skinfn, int32_t palnum, int32_t skinnum,
                       int32_t surfnum, float param, float specpower, float specfactor, int32_t flags);
-int32_t md_definehud (int32_t modelid, int32_t tilex, vec3f_t add,
+int32_t md_definehud (int32_t modelid, int32_t tilex, FVector3 add,
                       int32_t angadd, int32_t flags, int32_t fov);
 int32_t md_undefinetile(int32_t tile);
 int32_t md_undefinemodel(int32_t modelid);

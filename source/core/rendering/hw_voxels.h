@@ -8,7 +8,7 @@ struct voxmodel_t : public mdmodel_t
 {
     FVoxelModel* model = nullptr;
     vec3_t siz;
-    vec3f_t piv;
+    FVector3 piv;
     int32_t is8bit;
 };
 

@@ -1123,18 +1123,18 @@ static void polymost_internal_nonparallaxed(vec2f_t n0, vec2f_t n1, float ryp0, 
         py[1] = y1;
         py[2] = double(global_getzofslope_func((usectorptr_t)&sector[sectnum], oxy.x, oxy.y) - globalposz) * oy2 + ghoriz;
 
-        vec3f_t oxyz[2] = { { (float)(py[1] - py[2]), (float)(py[2] - py[0]), (float)(py[0] - py[1]) },
+        FVector3 oxyz[2] = { { (float)(py[1] - py[2]), (float)(py[2] - py[0]), (float)(py[0] - py[1]) },
                             { (float)(px[2] - px[1]), (float)(px[0] - px[2]), (float)(px[1] - px[0]) } };
 
-        float const r = 1.f / (oxyz[0].x * px[0] + oxyz[0].y * px[1] + oxyz[0].z * px[2]);
+        float const r = 1.f / (oxyz[0].X * px[0] + oxyz[0].Y * px[1] + oxyz[0].Z * px[2]);
 
-        xtex.d = (oxyz[0].x * duv[0].d + oxyz[0].y * duv[1].d + oxyz[0].z * duv[2].d) * r;
-        xtex.u = (oxyz[0].x * duv[0].u + oxyz[0].y * duv[1].u + oxyz[0].z * duv[2].u) * r;
-        xtex.v = (oxyz[0].x * duv[0].v + oxyz[0].y * duv[1].v + oxyz[0].z * duv[2].v) * r;
+        xtex.d = (oxyz[0].X * duv[0].d + oxyz[0].Y * duv[1].d + oxyz[0].Z * duv[2].d) * r;
+        xtex.u = (oxyz[0].X * duv[0].u + oxyz[0].Y * duv[1].u + oxyz[0].Z * duv[2].u) * r;
+        xtex.v = (oxyz[0].X * duv[0].v + oxyz[0].Y * duv[1].v + oxyz[0].Z * duv[2].v) * r;
 
-        ytex.d = (oxyz[1].x * duv[0].d + oxyz[1].y * duv[1].d + oxyz[1].z * duv[2].d) * r;
-        ytex.u = (oxyz[1].x * duv[0].u + oxyz[1].y * duv[1].u + oxyz[1].z * duv[2].u) * r;
-        ytex.v = (oxyz[1].x * duv[0].v + oxyz[1].y * duv[1].v + oxyz[1].z * duv[2].v) * r;
+        ytex.d = (oxyz[1].X * duv[0].d + oxyz[1].Y * duv[1].d + oxyz[1].Z * duv[2].d) * r;
+        ytex.u = (oxyz[1].X * duv[0].u + oxyz[1].Y * duv[1].u + oxyz[1].Z * duv[2].u) * r;
+        ytex.v = (oxyz[1].X * duv[0].v + oxyz[1].Y * duv[1].v + oxyz[1].Z * duv[2].v) * r;
 
         otex.d = duv[0].d - px[0] * xtex.d - py[0] * ytex.d;
         otex.u = duv[0].u - px[0] * xtex.u - py[0] * ytex.u;
@@ -1309,10 +1309,10 @@ static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, i
     // Transform polygon to sky coordinates
     for (int i = 0; i < n; i++)
     {
-        vec3f_t const o = { dpxy[i].x-ghalfx, dpxy[i].y-ghalfy, ghalfx / gvrcorrection };
+        FVector3 const o = { dpxy[i].x-ghalfx, dpxy[i].y-ghalfy, ghalfx / gvrcorrection };
 
         //Up/down rotation
-        vec3d_t v = { o.x, o.y * gchang - o.z * gshang, o.z * gchang + o.y * gshang };
+        vec3d_t v = { o.X, o.Y * gchang - o.Z * gshang, o.Z * gchang + o.Y * gshang };
         float const r = (ghalfx / gvrcorrection) / v.z;
         xys[i].x = v.x * r + ghalfx;
         xys[i].y = v.y * r + ghalfy;
@@ -1337,7 +1337,7 @@ static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, i
     vv[1] = dd*((float)xdimscale*fviewingrange) * (1.f/(daptileyscale*65536.f));
     vv[0] = dd*((float)((tilesize.y>>1)+dapyoffs)) - vv[1]*ghoriz;
     int ti = (1<<(heightBits(globalpicnum))); if (ti != tilesize.y) ti += ti;
-    vec3f_t o;
+    FVector3 o;
 
     xtex.d = xtex.v = 0;
     ytex.d = ytex.u = 0;
@@ -1360,9 +1360,9 @@ static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, i
 
     int picnumbak = globalpicnum;
     ti = globalpicnum;
-    o.y = fviewingrange/(ghalfx*256.f); o.z = 1.f/o.y;
+    o.Y = fviewingrange/(ghalfx*256.f); o.Z = 1.f/o.Y;
 
-    int y = ((int32_t)(((x0-ghalfx)*o.y)+fglobalang)>>(11-dapskybits));
+    int y = ((int32_t)(((x0-ghalfx)*o.Y)+fglobalang)>>(11-dapskybits));
     float fx = x0;
 
     do
@@ -1372,14 +1372,14 @@ static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, i
 			globalpicnum = skytile;
         if (npot)
         {
-            fx = ((float)((y<<(11-dapskybits))-fglobalang))*o.z+ghalfx;
+            fx = ((float)((y<<(11-dapskybits))-fglobalang))*o.Z+ghalfx;
             int tang = (y<<(11-dapskybits))&2047;
             otex.u = otex.d*(t*((float)(tang)) * (1.f/2048.f) + xPanning) - xtex.u*fx;
         }
         else
             otex.u = otex.d*(t*((float)(fglobalang-(y<<(11-dapskybits)))) * (1.f/2048.f) + xPanning) - xtex.u*ghalfx;
         y++;
-        o.x = fx; fx = ((float)((y<<(11-dapskybits))-fglobalang))*o.z+ghalfx;
+        o.X = fx; fx = ((float)((y<<(11-dapskybits))-fglobalang))*o.Z+ghalfx;
 
         if (fx > x1) { fx = x1; ti = -1; }
 
@@ -1410,10 +1410,10 @@ static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, i
         for (int i = 0; i < 3; i++)
         {
             vec2f_t const o = { fxy[i].x-ghalfx, fxy[i].y-ghalfy };
-            vec3f_t const o2 = { o.x, o.y, ghalfx / gvrcorrection };
+            FVector3 const o2 = { o.x, o.y, ghalfx / gvrcorrection };
 
             //Up/down rotation (backwards)
-            vec3d_t v = { o2.x, o2.y * gchang + o2.z * gshang, o2.z * gchang - o2.y * gshang };
+            vec3d_t v = { o2.X, o2.Y * gchang + o2.Z * gshang, o2.Z * gchang - o2.Y * gshang };
             float const r = (ghalfx / gvrcorrection) / v.z;
             fxyt[i].x = v.x * r + ghalfx;
             fxyt[i].y = v.y * r + ghalfy;
@@ -1422,18 +1422,18 @@ static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, i
             duvt[i].v = duv[i].v*r;
         }
 
-        vec3f_t oxyz[2] = { { (float)(fxyt[1].y - fxyt[2].y), (float)(fxyt[2].y - fxyt[0].y), (float)(fxyt[0].y - fxyt[1].y) },
+        FVector3 oxyz[2] = { { (float)(fxyt[1].y - fxyt[2].y), (float)(fxyt[2].y - fxyt[0].y), (float)(fxyt[0].y - fxyt[1].y) },
                             { (float)(fxyt[2].x - fxyt[1].x), (float)(fxyt[0].x - fxyt[2].x), (float)(fxyt[1].x - fxyt[0].x) } };
 
-        float const rr = 1.f / (oxyz[0].x * fxyt[0].x + oxyz[0].y * fxyt[1].x + oxyz[0].z * fxyt[2].x);
+        float const rr = 1.f / (oxyz[0].X * fxyt[0].x + oxyz[0].Y * fxyt[1].x + oxyz[0].Z * fxyt[2].x);
 
-        xtex.d = (oxyz[0].x * duvt[0].d + oxyz[0].y * duvt[1].d + oxyz[0].z * duvt[2].d) * rr;
-        xtex.u = (oxyz[0].x * duvt[0].u + oxyz[0].y * duvt[1].u + oxyz[0].z * duvt[2].u) * rr;
-        xtex.v = (oxyz[0].x * duvt[0].v + oxyz[0].y * duvt[1].v + oxyz[0].z * duvt[2].v) * rr;
+        xtex.d = (oxyz[0].X * duvt[0].d + oxyz[0].Y * duvt[1].d + oxyz[0].Z * duvt[2].d) * rr;
+        xtex.u = (oxyz[0].X * duvt[0].u + oxyz[0].Y * duvt[1].u + oxyz[0].Z * duvt[2].u) * rr;
+        xtex.v = (oxyz[0].X * duvt[0].v + oxyz[0].Y * duvt[1].v + oxyz[0].Z * duvt[2].v) * rr;
 
-        ytex.d = (oxyz[1].x * duvt[0].d + oxyz[1].y * duvt[1].d + oxyz[1].z * duvt[2].d) * rr;
-        ytex.u = (oxyz[1].x * duvt[0].u + oxyz[1].y * duvt[1].u + oxyz[1].z * duvt[2].u) * rr;
-        ytex.v = (oxyz[1].x * duvt[0].v + oxyz[1].y * duvt[1].v + oxyz[1].z * duvt[2].v) * rr;
+        ytex.d = (oxyz[1].X * duvt[0].d + oxyz[1].Y * duvt[1].d + oxyz[1].Z * duvt[2].d) * rr;
+        ytex.u = (oxyz[1].X * duvt[0].u + oxyz[1].Y * duvt[1].u + oxyz[1].Z * duvt[2].u) * rr;
+        ytex.v = (oxyz[1].X * duvt[0].v + oxyz[1].Y * duvt[1].v + oxyz[1].Z * duvt[2].v) * rr;
 
         otex.d = duvt[0].d - fxyt[0].x * xtex.d - fxyt[0].y * ytex.d;
         otex.u = duvt[0].u - fxyt[0].x * xtex.u - fxyt[0].y * ytex.u;
@@ -1448,13 +1448,13 @@ static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, i
         {
             int const j = i < n-1 ? i + 1 : 0;
 
-            if (xys[i].x >= o.x)
+            if (xys[i].x >= o.X)
                 cxy[n2++] = xys[i];
 
-            if ((xys[i].x >= o.x) != (xys[j].x >= o.x))
+            if ((xys[i].x >= o.X) != (xys[j].x >= o.X))
             {
-                float const r = (o.x - xys[i].x) / (xys[j].x - xys[i].x);
-                cxy[n2++] = { o.x, (xys[j].y - xys[i].y) * r + xys[i].y };
+                float const r = (o.X - xys[i].x) / (xys[j].x - xys[i].x);
+                cxy[n2++] = { o.X, (xys[j].y - xys[i].y) * r + xys[i].y };
             }
         }
 
@@ -1476,10 +1476,10 @@ static void polymost_flatskyrender(vec2f_t const* const dpxy, int32_t const n, i
         // Transform back to polymost coordinates
         for (int i = 0; i < n3; i++)
         {
-            vec3f_t const o = { cxy2[i].x-ghalfx, cxy2[i].y-ghalfy, ghalfx / gvrcorrection };
+            FVector3 const o = { cxy2[i].x-ghalfx, cxy2[i].y-ghalfy, ghalfx / gvrcorrection };
 
             //Up/down rotation
-            vec3d_t v = { o.x, o.y * gchang + o.z * gshang, o.z * gchang - o.y * gshang };
+            vec3d_t v = { o.X, o.Y * gchang + o.Z * gshang, o.Z * gchang - o.Y * gshang };
             float const r = (ghalfx / gvrcorrection) / v.z;
             cxy[i].x = v.x * r + ghalfx;
             cxy[i].y = v.y * r + ghalfy;
@@ -2205,7 +2205,7 @@ void polymost_drawrooms()
         gstang = -gstang;
 
     //Generate viewport trapezoid (for handling screen up/down)
-    vec3f_t p[4] = {  { 0-1,                                        0-1+ghorizcorrect,                                  0 },
+    FVector3 p[4] = {  { 0-1,                                        0-1+ghorizcorrect,                                  0 },
                       { (float)(windowxy2.x + 1 - windowxy1.x + 2), 0-1+ghorizcorrect,                                  0 },
                       { (float)(windowxy2.x + 1 - windowxy1.x + 2), (float)(windowxy2.y + 1 - windowxy1.y + 2)+ghorizcorrect, 0 },
                       { 0-1,                                        (float)(windowxy2.y + 1 - windowxy1.y + 2)+ghorizcorrect, 0 } };
@@ -2213,11 +2213,11 @@ void polymost_drawrooms()
     for (auto & v : p)
     {
         //Tilt rotation (backwards)
-        vec2f_t const o = { (v.x-ghalfx)*ratio, (v.y-ghoriz)*ratio };
-        vec3f_t const o2 = { o.x*gctang + o.y*gstang, o.y*gctang - o.x*gstang + ghoriz2, ghalfx / gvrcorrection };
+        vec2f_t const o = { (v.X-ghalfx)*ratio, (v.Y-ghoriz)*ratio };
+        FVector3 const o2 = { o.x*gctang + o.y*gstang, o.y*gctang - o.x*gstang + ghoriz2, ghalfx / gvrcorrection };
 
         //Up/down rotation (backwards)
-        v = { o2.x, o2.y * gchang + o2.z * gshang, o2.z * gchang - o2.y * gshang };
+        v = { o2.X, o2.Y * gchang + o2.Z * gshang, o2.Z * gchang - o2.Y * gshang };
     }
 
     if (inpreparemirror)
@@ -2227,19 +2227,19 @@ void polymost_drawrooms()
     //Clip to SCISDIST plane
     int n = 0;
 
-    vec3f_t p2[6];
+    FVector3 p2[6];
 
     for (bssize_t i=0; i<4; i++)
     {
         int const j = i < 3 ? i + 1 : 0;
 
-        if (p[i].z >= SCISDIST)
+        if (p[i].Z >= SCISDIST)
             p2[n++] = p[i];
 
-        if ((p[i].z >= SCISDIST) != (p[j].z >= SCISDIST))
+        if ((p[i].Z >= SCISDIST) != (p[j].Z >= SCISDIST))
         {
-            float const r = (SCISDIST - p[i].z) / (p[j].z - p[i].z);
-            p2[n++] = { (p[j].x - p[i].x) * r + p[i].x, (p[j].y - p[i].y) * r + p[i].y, SCISDIST };
+            float const r = (SCISDIST - p[i].Z) / (p[j].Z - p[i].Z);
+            p2[n++] = { (p[j].X - p[i].X) * r + p[i].X, (p[j].Y - p[i].Y) * r + p[i].Y, SCISDIST };
         }
     }
 
@@ -2253,9 +2253,9 @@ void polymost_drawrooms()
 
     for (bssize_t i = 0; i < n; i++)
     {
-        float const r = (ghalfx / gvrcorrection) / p2[i].z;
-        sx[i] = p2[i].x * r + ghalfx;
-        sy[i] = p2[i].y * r + ghoriz;
+        float const r = (ghalfx / gvrcorrection) / p2[i].Z;
+        sx[i] = p2[i].X * r + ghalfx;
+        sy[i] = p2[i].Y * r + ghoriz;
     }
 
     polymost_initmosts(sx, sy, n);
@@ -3811,35 +3811,35 @@ int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr, bool rotate)
     }
 
 
-    vec3f_t m0 = { m->scale, m->scale, m->scale };
-    vec3f_t a0 = { 0, 0, m->zadd * m->scale };
+    FVector3 m0 = { m->scale, m->scale, m->scale };
+    FVector3 a0 = { 0, 0, m->zadd * m->scale };
 
     k0 = m->bscale / 64.f;
     f = (float)tspr->xrepeat * (256.f / 320.f) * k0;
     if ((sprite[tspr->owner].cstat & 48) == 16)
     {
         f *= 1.25f;
-        a0.y -= tspr->xoffset * bcosf(spriteext[tspr->owner].angoff, -20);
-        a0.x += tspr->xoffset * bsinf(spriteext[tspr->owner].angoff, -20);
+        a0.Y -= tspr->xoffset * bcosf(spriteext[tspr->owner].angoff, -20);
+        a0.X += tspr->xoffset * bsinf(spriteext[tspr->owner].angoff, -20);
     }
 
-    if (globalorientation & 8) { m0.z = -m0.z; a0.z = -a0.z; } //y-flipping
-    if (globalorientation & 4) { m0.x = -m0.x; a0.x = -a0.x; a0.y = -a0.y; } //x-flipping
+    if (globalorientation & 8) { m0.Z = -m0.Z; a0.Z = -a0.Z; } //y-flipping
+    if (globalorientation & 4) { m0.X = -m0.X; a0.X = -a0.X; a0.Y = -a0.Y; } //x-flipping
 
-    m0.x *= f; a0.x *= f; f = -f;
-    m0.y *= f; a0.y *= f;
+    m0.X *= f; a0.X *= f; f = -f;
+    m0.Y *= f; a0.Y *= f;
     f = (float)tspr->yrepeat * k0;
-    m0.z *= f; a0.z *= f;
+    m0.Z *= f; a0.Z *= f;
 
     k0 = (float)(tspr->z + spriteext[tspr->owner].position_offset.z);
     f = ((globalorientation & 8) && (sprite[tspr->owner].cstat & 48) != 0) ? -4.f : 4.f;
     k0 -= (tspr->yoffset * tspr->yrepeat) * f * m->bscale;
     zoff = m->siz.z * .5f;
     if (!(tspr->cstat & 128))
-        zoff += m->piv.z;
+        zoff += m->piv.Z;
     else if ((tspr->cstat & 48) != 48)
     {
-        zoff += m->piv.z;
+        zoff += m->piv.Z;
         zoff -= m->siz.z * .5f;
     }
     if (globalorientation & 8) zoff = m->siz.z - zoff;
@@ -3849,9 +3849,9 @@ int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr, bool rotate)
 
     int const shadowHack = !!(tspr->clipdist & TSPR_FLAGS_MDHACK);
 
-    m0.y *= f; a0.y = (((float)(tspr->x + spriteext[tspr->owner].position_offset.x - globalposx)) * (1.f / 1024.f) + a0.y) * f;
-    m0.x *= -f; a0.x = (((float)(tspr->y + spriteext[tspr->owner].position_offset.y - globalposy)) * -(1.f / 1024.f) + a0.x) * -f;
-    m0.z *= g; a0.z = (((float)(k0 - globalposz - shadowHack)) * -(1.f / 16384.f) + a0.z) * g;
+    m0.Y *= f; a0.Y = (((float)(tspr->x + spriteext[tspr->owner].position_offset.x - globalposx)) * (1.f / 1024.f) + a0.Y) * f;
+    m0.X *= -f; a0.X = (((float)(tspr->y + spriteext[tspr->owner].position_offset.y - globalposy)) * -(1.f / 1024.f) + a0.X) * -f;
+    m0.Z *= g; a0.Z = (((float)(k0 - globalposz - shadowHack)) * -(1.f / 16384.f) + a0.Z) * g;
 
     float mat[16];
     md3_vox_calcmat_common(tspr, &a0, f, mat);
@@ -3898,13 +3898,13 @@ int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr, bool rotate)
     memcpy(omat, mat, sizeof(omat));
 
     f = 1.f / 64.f;
-    g = m0.x * f; mat[0] *= g; mat[1] *= g; mat[2] *= g;
-    g = m0.y * f; mat[4] = omat[8] * g; mat[5] = omat[9] * g; mat[6] = omat[10] * g;
-    g = -m0.z * f; mat[8] = omat[4] * g; mat[9] = omat[5] * g; mat[10] = omat[6] * g;
+    g = m0.X * f; mat[0] *= g; mat[1] *= g; mat[2] *= g;
+    g = m0.Y * f; mat[4] = omat[8] * g; mat[5] = omat[9] * g; mat[6] = omat[10] * g;
+    g = -m0.Z * f; mat[8] = omat[4] * g; mat[9] = omat[5] * g; mat[10] = omat[6] * g;
     //
-    mat[12] -= (m->piv.x * mat[0] + m->piv.y * mat[4] + zoff * mat[8]);
-    mat[13] -= (m->piv.x * mat[1] + m->piv.y * mat[5] + zoff * mat[9]);
-    mat[14] -= (m->piv.x * mat[2] + m->piv.y * mat[6] + zoff * mat[10]);
+    mat[12] -= (m->piv.X * mat[0] + m->piv.Y * mat[4] + zoff * mat[8]);
+    mat[13] -= (m->piv.X * mat[1] + m->piv.Y * mat[5] + zoff * mat[9]);
+    mat[14] -= (m->piv.X * mat[2] + m->piv.Y * mat[6] + zoff * mat[10]);
     //
     //Let OpenGL (and perhaps hardware :) handle the matrix rotation
     mat[3] = mat[7] = mat[11] = 0.f; mat[15] = 1.f;

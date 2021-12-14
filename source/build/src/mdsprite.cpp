@@ -81,7 +81,7 @@ static int32_t nummodelsalloced = 0;
 
 static int32_t maxmodelverts = 0, allocmodelverts = 0;
 static int32_t maxmodeltris = 0, allocmodeltris = 0;
-static vec3f_t *vertlist = NULL; //temp array to store interpolated vertices for drawing
+static FVector3 *vertlist = NULL; //temp array to store interpolated vertices for drawing
 
 #ifdef USE_GLEXT
 static int32_t allocvbos = 0, curvbo = 0;
@@ -303,7 +303,7 @@ int32_t md_defineskin(int32_t modelid, const char *skinfn, int32_t palnum, int32
     return 0;
 }
 
-int32_t md_definehud(int32_t modelid, int32_t tilex, vec3f_t add, int32_t angadd, int32_t flags, int32_t fov)
+int32_t md_definehud(int32_t modelid, int32_t tilex, FVector3 add, int32_t angadd, int32_t flags, int32_t fov)
 {
     if (!mdinited) mdinit();
 
@@ -685,7 +685,7 @@ static md2model_t *md2load(FileReader & fil, const char *filnam)
     m3->numframes = m3->head.numframes;
 
     m3->head.frames = (md3frame_t *)M_Calloc(m3->head.numframes, sizeof(md3frame_t));
-    m3->muladdframes = (vec3f_t *)M_Calloc(m->numframes * 2, sizeof(vec3f_t));
+    m3->muladdframes = (FVector3 *)M_Calloc(m->numframes * 2, sizeof(FVector3));
 
     f = (md2frame_t *)(m->frames);
 
@@ -751,9 +751,9 @@ static md2model_t *md2load(FileReader & fil, const char *filnam)
             while (k < m->numframes)
             {
                 f = (md2frame_t *)&m->frames[k*m->framebytes];
-                s->xyzn[(k*s->numverts) + (i*3) + j].x = (int16_t) (((f->verts[m->tris[i].v[j]].v[0] * f->mul.x) + f->add.x) * 64.f);
-                s->xyzn[(k*s->numverts) + (i*3) + j].y = (int16_t) (((f->verts[m->tris[i].v[j]].v[1] * f->mul.y) + f->add.y) * 64.f);
-                s->xyzn[(k*s->numverts) + (i*3) + j].z = (int16_t) (((f->verts[m->tris[i].v[j]].v[2] * f->mul.z) + f->add.z) * 64.f);
+                s->xyzn[(k*s->numverts) + (i*3) + j].x = (int16_t) (((f->verts[m->tris[i].v[j]].v[0] * f->mul.X) + f->add.X) * 64.f);
+                s->xyzn[(k*s->numverts) + (i*3) + j].y = (int16_t) (((f->verts[m->tris[i].v[j]].v[1] * f->mul.Y) + f->add.Y) * 64.f);
+                s->xyzn[(k*s->numverts) + (i*3) + j].z = (int16_t) (((f->verts[m->tris[i].v[j]].v[2] * f->mul.Z) + f->add.Z) * 64.f);
 
                 k++;
             }
@@ -996,8 +996,8 @@ static void      md3postload_common(md3model_t *m)
     {
         frame = &m->head.frames[framei];
 
-        memset(&frame->min, 0, sizeof(vec3f_t));
-        memset(&frame->max, 0, sizeof(vec3f_t));
+        memset(&frame->min, 0, sizeof(FVector3));
+        memset(&frame->max, 0, sizeof(FVector3));
 
         frame->r        = 0.0f;
 
@@ -1013,9 +1013,9 @@ static void      md3postload_common(md3model_t *m)
                 {
                     md3xyzn_t const & framevert = frameverts[0];
 
-                    frame->min.x    = framevert.x;
-                    frame->min.y    = framevert.y;
-                    frame->min.z    = framevert.z;
+                    frame->min.X    = framevert.x;
+                    frame->min.Y    = framevert.y;
+                    frame->min.Z    = framevert.z;
 
                     frame->max      = frame->min;
                 }
@@ -1023,20 +1023,20 @@ static void      md3postload_common(md3model_t *m)
                 {
                     md3xyzn_t const & framevert = frameverts[verti];
 
-                    if (frame->min.x > framevert.x)
-                        frame->min.x = framevert.x;
-                    if (frame->max.x < framevert.x)
-                        frame->max.x = framevert.x;
+                    if (frame->min.X > framevert.x)
+                        frame->min.X = framevert.x;
+                    if (frame->max.X < framevert.x)
+                        frame->max.X = framevert.x;
 
-                    if (frame->min.y > framevert.y)
-                        frame->min.y = framevert.y;
-                    if (frame->max.y < framevert.y)
-                        frame->max.y = framevert.y;
+                    if (frame->min.Y > framevert.y)
+                        frame->min.Y = framevert.y;
+                    if (frame->max.Y < framevert.y)
+                        frame->max.Y = framevert.y;
 
-                    if (frame->min.z > framevert.z)
-                        frame->min.z = framevert.z;
-                    if (frame->max.z < framevert.z)
-                        frame->max.z = framevert.z;
+                    if (frame->min.Z > framevert.z)
+                        frame->min.Z = framevert.z;
+                    if (frame->max.Z < framevert.z)
+                        frame->max.Z = framevert.z;
                 }
 
                 ++verti;
@@ -1045,9 +1045,9 @@ static void      md3postload_common(md3model_t *m)
             ++surfi;
         }
 
-        frame->cen.x = (frame->min.x + frame->max.x) * .5f;
-        frame->cen.y = (frame->min.y + frame->max.y) * .5f;
-        frame->cen.z = (frame->min.z + frame->max.z) * .5f;
+        frame->cen.X = (frame->min.X + frame->max.X) * .5f;
+        frame->cen.Y = (frame->min.Y + frame->max.Y) * .5f;
+        frame->cen.Z = (frame->min.Z + frame->max.Z) * .5f;
 
         surfi = 0;
         while (surfi < m->head.numsurfs)
@@ -1061,9 +1061,9 @@ static void      md3postload_common(md3model_t *m)
             {
                 md3xyzn_t const & framevert = frameverts[verti];
 
-                vec1[0] = framevert.x - frame->cen.x;
-                vec1[1] = framevert.y - frame->cen.y;
-                vec1[2] = framevert.z - frame->cen.z;
+                vec1[0] = framevert.x - frame->cen.X;
+                vec1[1] = framevert.y - frame->cen.Y;
+                vec1[2] = framevert.z - frame->cen.Z;
 
                 dist = vec1[0] * vec1[0] + vec1[1] * vec1[1] + vec1[2] * vec1[2];
 
@@ -1083,7 +1083,7 @@ static void      md3postload_common(md3model_t *m)
 }
 
 
-void md3_vox_calcmat_common(tspriteptr_t tspr, const vec3f_t *a0, float f, float mat[16])
+void md3_vox_calcmat_common(tspriteptr_t tspr, const FVector3 *a0, float f, float mat[16])
 {
     float k0, k1, k2, k3, k4, k5, k6, k7;
 
@@ -1106,9 +1106,9 @@ void md3_vox_calcmat_common(tspriteptr_t tspr, const vec3f_t *a0, float f, float
     mat[10] = k4*k7 - k5*k6; 
     mat[14] = k2*k6 + k3*k7;
 
-    mat[12] = (mat[12] + a0->y*mat[0]) + (a0->z*mat[4] + a0->x*mat[ 8]);
-    mat[13] = (mat[13] + a0->y*mat[1]) + (a0->z*mat[5] + a0->x*mat[ 9]);
-    mat[14] = (mat[14] + a0->y*mat[2]) + (a0->z*mat[6] + a0->x*mat[10]);
+    mat[12] = (mat[12] + a0->Y*mat[0]) + (a0->Z*mat[4] + a0->X*mat[ 8]);
+    mat[13] = (mat[13] + a0->Y*mat[1]) + (a0->Z*mat[5] + a0->X*mat[ 9]);
+    mat[14] = (mat[14] + a0->Y*mat[2]) + (a0->Z*mat[6] + a0->X*mat[10]);
 }
 
 static void md3draw_handle_triangles(const md3surf_t *s, uint16_t *indexhandle,
@@ -1130,7 +1130,7 @@ static void md3draw_handle_triangles(const md3surf_t *s, uint16_t *indexhandle,
 
             vt->SetTexCoord(s->uv[k].u, s->uv[k].v);
 
-            vt->SetVertex(vertlist[k].x, vertlist[k].y, vertlist[k].z);
+            vt->SetVertex(vertlist[k].X, vertlist[k].Y, vertlist[k].Z);
         }
     }
 	GLInterface.Draw(DT_Triangles, data.second, s->numtris *3);
@@ -1138,7 +1138,7 @@ static void md3draw_handle_triangles(const md3surf_t *s, uint16_t *indexhandle,
 
 static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 {
-    vec3f_t m0, m1, a0;
+    FVector3 m0, m1, a0;
     md3xyzn_t *v0, *v1;
     int32_t i, surfi;
     float f, g, k0, k1, k2=0, k3=0, mat[16];  // inits: compiler-happy
@@ -1170,11 +1170,11 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
         m->nframe = clamp(m->nframe, 0, m->numframes-1);
     }
 
-    m0.z = m0.y = m0.x = g *= m->scale * (1.f/64.f);
-    m1.z = m1.y = m1.x = f *= m->scale * (1.f/64.f);
+    m0.Z = m0.Y = m0.X = g *= m->scale * (1.f/64.f);
+    m1.Z = m1.Y = m1.X = f *= m->scale * (1.f/64.f);
 
-    a0.x = a0.y = 0;
-    a0.z = m->zadd * m->scale;
+    a0.X = a0.Y = 0;
+    a0.Z = m->zadd * m->scale;
 
     // Parkar: Moved up to be able to use k0 for the y-flipping code
     k0 = (float)tspr->z+spriteext[tspr->owner].position_offset.z;
@@ -1186,28 +1186,28 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
     // Parkar: Changed to use the same method as centeroriented sprites
     if (globalorientation&8) //y-flipping
     {
-        m0.z = -m0.z; m1.z = -m1.z; a0.z = -a0.z;
+        m0.Z = -m0.Z; m1.Z = -m1.Z; a0.Z = -a0.Z;
         k0 -= (float)(sizyrep<<2);
     }
-    if (globalorientation&4) { m0.y = -m0.y; m1.y = -m1.y; a0.y = -a0.y; } //x-flipping
+    if (globalorientation&4) { m0.Y = -m0.Y; m1.Y = -m1.Y; a0.Y = -a0.Y; } //x-flipping
 
     // yoffset differs from zadd in that it does not follow cstat&8 y-flipping
-    a0.z += m->yoffset*m->scale;
+    a0.Z += m->yoffset*m->scale;
 
     f = ((float)tspr->xrepeat) * (1.f/64.f) * m->bscale;
-    m0.x *= f; m0.y *= -f;
-    m1.x *= f; m1.y *= -f;
-    a0.x *= f; a0.y *= -f;
+    m0.X *= f; m0.Y *= -f;
+    m1.X *= f; m1.Y *= -f;
+    a0.X *= f; a0.Y *= -f;
     f = ((float)tspr->yrepeat) * (1.f/64.f) * m->bscale;
-    m0.z *= f; m1.z *= f; a0.z *= f;
+    m0.Z *= f; m1.Z *= f; a0.Z *= f;
 
     // floor aligned
     k1 = (float)tspr->y+spriteext[tspr->owner].position_offset.y;
     if ((globalorientation&48)==32)
     {
-        m0.z = -m0.z; m1.z = -m1.z; a0.z = -a0.z;
-        m0.y = -m0.y; m1.y = -m1.y; a0.y = -a0.y;
-        f = a0.x; a0.x = a0.z; a0.z = f;
+        m0.Z = -m0.Z; m1.Z = -m1.Z; a0.Z = -a0.Z;
+        m0.Y = -m0.Y; m1.Y = -m1.Y; a0.Y = -a0.Y;
+        f = a0.X; a0.X = a0.Z; a0.Z = f;
         k1 += (float)(sizyrep>>3);
     }
 
@@ -1215,9 +1215,9 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
     // calculations below again, but are needed for the base offsets.
     f = (65536.f*512.f)/(fxdimen*fviewingrange);
     g = 32.f/(fxdimen*gxyaspect);
-    m0.y *= f; m1.y *= f; a0.y = (((float)(tspr->x+spriteext[tspr->owner].position_offset.x-globalposx))*  (1.f/1024.f) + a0.y)*f;
-    m0.x *=-f; m1.x *=-f; a0.x = ((k1     -fglobalposy) * -(1.f/1024.f) + a0.x)*-f;
-    m0.z *= g; m1.z *= g; a0.z = ((k0     -fglobalposz) * -(1.f/16384.f) + a0.z)*g;
+    m0.Y *= f; m1.Y *= f; a0.Y = (((float)(tspr->x+spriteext[tspr->owner].position_offset.x-globalposx))*  (1.f/1024.f) + a0.Y)*f;
+    m0.X *=-f; m1.X *=-f; a0.X = ((k1     -fglobalposy) * -(1.f/1024.f) + a0.X)*-f;
+    m0.Z *= g; m1.Z *= g; a0.Z = ((k0     -fglobalposz) * -(1.f/16384.f) + a0.Z)*g;
 
     md3_vox_calcmat_common(tspr, &a0, f, mat);
 
@@ -1276,17 +1276,17 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
     // PLAG: Cleaner model rotation code
     if (sext->pitch || sext->roll)
     {
-        float f = 1.f/((fxdimen * fviewingrange) * (256.f/(65536.f*128.f)) * (m0.x+m1.x));
+        float f = 1.f/((fxdimen * fviewingrange) * (256.f/(65536.f*128.f)) * (m0.X+m1.X));
         memset(&a0, 0, sizeof(a0));
 
         if (sext->pivot_offset.x)
-            a0.x = (float) sext->pivot_offset.x * f;
+            a0.X = (float) sext->pivot_offset.x * f;
 
         if (sext->pivot_offset.y)  // Compare with SCREEN_FACTORS above
-            a0.y = (float) sext->pivot_offset.y * f;
+            a0.Y = (float) sext->pivot_offset.y * f;
 
         if ((sext->pivot_offset.z) && !(tspr->clipdist & TSPR_FLAGS_MDHACK))  // Compare with SCREEN_FACTORS above
-            a0.z = (float)sext->pivot_offset.z / (gxyaspect * fxdimen * (65536.f/128.f) * (m0.z+m1.z));
+            a0.Z = (float)sext->pivot_offset.z / (gxyaspect * fxdimen * (65536.f/128.f) * (m0.Z+m1.Z));
 
         k0 = bcosf(sext->pitch, -14);
         k1 = bsinf(sext->pitch, -14);
@@ -1302,7 +1302,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
     {
         //PLAG : sorting stuff
         uint16_t           *indexhandle;
-        vec3f_t fp;
+        FVector3 fp;
 
         const md3surf_t *const s = &m->head.surfs[surfi];
 
@@ -1311,28 +1311,28 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 
         if (sext->pitch || sext->roll)
         {
-            vec3f_t fp1, fp2;
+            FVector3 fp1, fp2;
 
             for (i=s->numverts-1; i>=0; i--)
             {
-                fp.z = v0[i].x + a0.x;
-                fp.x = v0[i].y + a0.y;
-                fp.y = v0[i].z + a0.z;
+                fp.Z = v0[i].x + a0.X;
+                fp.X = v0[i].y + a0.Y;
+                fp.Y = v0[i].z + a0.Z;
 
-                fp1.x = fp.x*k2 +       fp.y*k3;
-                fp1.y = fp.x*k0*(-k3) + fp.y*k0*k2 + fp.z*(-k1);
-                fp1.z = fp.x*k1*(-k3) + fp.y*k1*k2 + fp.z*k0;
+                fp1.X = fp.X*k2 +       fp.Y*k3;
+                fp1.Y = fp.X*k0*(-k3) + fp.Y*k0*k2 + fp.Z*(-k1);
+                fp1.Z = fp.X*k1*(-k3) + fp.Y*k1*k2 + fp.Z*k0;
 
-                fp.z = v1[i].x + a0.x;
-                fp.x = v1[i].y + a0.y;
-                fp.y = v1[i].z + a0.z;
+                fp.Z = v1[i].x + a0.X;
+                fp.X = v1[i].y + a0.Y;
+                fp.Y = v1[i].z + a0.Z;
 
-                fp2.x = fp.x*k2 +       fp.y*k3;
-                fp2.y = fp.x*k0*(-k3) + fp.y*k0*k2 + fp.z*(-k1);
-                fp2.z = fp.x*k1*(-k3) + fp.y*k1*k2 + fp.z*k0;
-                fp.z = (fp1.z - a0.x)*m0.x + (fp2.z - a0.x)*m1.x;
-                fp.x = (fp1.x - a0.y)*m0.y + (fp2.x - a0.y)*m1.y;
-                fp.y = (fp1.y - a0.z)*m0.z + (fp2.y - a0.z)*m1.z;
+                fp2.X = fp.X*k2 +       fp.Y*k3;
+                fp2.Y = fp.X*k0*(-k3) + fp.Y*k0*k2 + fp.Z*(-k1);
+                fp2.Z = fp.X*k1*(-k3) + fp.Y*k1*k2 + fp.Z*k0;
+                fp.Z = (fp1.Z - a0.X)*m0.X + (fp2.Z - a0.X)*m1.X;
+                fp.X = (fp1.X - a0.Y)*m0.Y + (fp2.X - a0.Y)*m1.Y;
+                fp.Y = (fp1.Y - a0.Z)*m0.Z + (fp2.Y - a0.Z)*m1.Z;
 
                 vertlist[i] = fp;
             }
@@ -1341,9 +1341,9 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
         {
             for (i=s->numverts-1; i>=0; i--)
             {
-                fp.z = v0[i].x*m0.x + v1[i].x*m1.x;
-                fp.y = v0[i].z*m0.z + v1[i].z*m1.z;
-                fp.x = v0[i].y*m0.y + v1[i].y*m1.y;
+                fp.Z = v0[i].x*m0.X + v1[i].x*m1.X;
+                fp.Y = v0[i].z*m0.Z + v1[i].z*m1.Z;
+                fp.X = v0[i].y*m0.Y + v1[i].y*m1.Y;
 
                 vertlist[i] = fp;
             }
@@ -1376,28 +1376,28 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
             {
                 for (i=0; i<=s->numtris-1; ++i)
                 {
-                    vec3f_t const vlt[3] = { vertlist[s->tris[i].i[0]], vertlist[s->tris[i].i[1]], vertlist[s->tris[i].i[2]] };
+                    FVector3 const vlt[3] = { vertlist[s->tris[i].i[0]], vertlist[s->tris[i].i[1]], vertlist[s->tris[i].i[2]] };
 
                     // Matrix multiplication - ugly but clear
-                    vec3f_t const fp[3] = { { (vlt[0].x * mat[0]) + (vlt[0].y * mat[4]) + (vlt[0].z * mat[8]) + mat[12],
-                                              (vlt[0].x * mat[1]) + (vlt[0].y * mat[5]) + (vlt[0].z * mat[9]) + mat[13],
-                                              (vlt[0].x * mat[2]) + (vlt[0].y * mat[6]) + (vlt[0].z * mat[10]) + mat[14] },
+                    FVector3 const fp[3] = { { (vlt[0].X * mat[0]) + (vlt[0].Y * mat[4]) + (vlt[0].Z * mat[8]) + mat[12],
+                                              (vlt[0].X * mat[1]) + (vlt[0].Y * mat[5]) + (vlt[0].Z * mat[9]) + mat[13],
+                                              (vlt[0].X * mat[2]) + (vlt[0].Y * mat[6]) + (vlt[0].Z * mat[10]) + mat[14] },
 
-                                            { (vlt[1].x * mat[0]) + (vlt[1].y * mat[4]) + (vlt[1].z * mat[8]) + mat[12],
-                                              (vlt[1].x * mat[1]) + (vlt[1].y * mat[5]) + (vlt[1].z * mat[9]) + mat[13],
-                                              (vlt[1].x * mat[2]) + (vlt[1].y * mat[6]) + (vlt[1].z * mat[10]) + mat[14] },
+                                            { (vlt[1].X * mat[0]) + (vlt[1].Y * mat[4]) + (vlt[1].Z * mat[8]) + mat[12],
+                                              (vlt[1].X * mat[1]) + (vlt[1].Y * mat[5]) + (vlt[1].Z * mat[9]) + mat[13],
+                                              (vlt[1].X * mat[2]) + (vlt[1].Y * mat[6]) + (vlt[1].Z * mat[10]) + mat[14] },
 
-                                            { (vlt[2].x * mat[0]) + (vlt[2].y * mat[4]) + (vlt[2].z * mat[8]) + mat[12],
-                                              (vlt[2].x * mat[1]) + (vlt[2].y * mat[5]) + (vlt[2].z * mat[9]) + mat[13],
-                                              (vlt[2].x * mat[2]) + (vlt[2].y * mat[6]) + (vlt[2].z * mat[10]) + mat[14] } };
+                                            { (vlt[2].X * mat[0]) + (vlt[2].Y * mat[4]) + (vlt[2].Z * mat[8]) + mat[12],
+                                              (vlt[2].X * mat[1]) + (vlt[2].Y * mat[5]) + (vlt[2].Z * mat[9]) + mat[13],
+                                              (vlt[2].X * mat[2]) + (vlt[2].Y * mat[6]) + (vlt[2].Z * mat[10]) + mat[14] } };
 
-                    f = (fp[0].x * fp[0].x) + (fp[0].y * fp[0].y) + (fp[0].z * fp[0].z);
-                    g = (fp[1].x * fp[1].x) + (fp[1].y * fp[1].y) + (fp[1].z * fp[1].z);
+                    f = (fp[0].X * fp[0].X) + (fp[0].Y * fp[0].Y) + (fp[0].Z * fp[0].Z);
+                    g = (fp[1].X * fp[1].X) + (fp[1].Y * fp[1].Y) + (fp[1].Z * fp[1].Z);
 
                     if (f > g)
                         f = g;
 
-                    g = (fp[2].x * fp[2].x) + (fp[2].y * fp[2].y) + (fp[2].z * fp[2].z);
+                    g = (fp[2].X * fp[2].X) + (fp[2].Y * fp[2].Y) + (fp[2].Z * fp[2].Z);
 
                     if (f > g)
                         f = g;
@@ -1524,7 +1524,7 @@ int32_t polymost_mddraw(tspriteptr_t tspr)
 {
     if (maxmodelverts > allocmodelverts)
     {
-        vertlist = (vec3f_t *) M_Realloc(vertlist, sizeof(vec3f_t)*maxmodelverts);
+        vertlist = (FVector3 *) M_Realloc(vertlist, sizeof(FVector3)*maxmodelverts);
         allocmodelverts = maxmodelverts;
     }
 
