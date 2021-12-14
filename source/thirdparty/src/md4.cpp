@@ -29,6 +29,7 @@ typedef unsigned char const *RPOINTER;
 typedef unsigned short UINT2;
 typedef unsigned int  UINT4;
 
+#include <string.h>
 #include "md4.h"
 
 /* Constants for MD4Transform routine.
