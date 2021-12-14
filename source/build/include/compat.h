@@ -55,13 +55,6 @@
 
 #include "engineerrors.h"
 
-typedef intptr_t bssize_t;
-
-#define BMAX_PATH 256
-
-using  native_t = intptr_t;
-
-
 #include "basics.h"
 
 #endif // compat_h_

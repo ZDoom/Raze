@@ -1451,7 +1451,7 @@ static void md3free(md3model_t *m)
 
     if (m->head.surfs)
     {
-        for (bssize_t surfi=m->head.numsurfs-1; surfi>=0; surfi--)
+        for (int surfi=m->head.numsurfs-1; surfi>=0; surfi--)
         {
             md3surf_t *s = &m->head.surfs[surfi];
             M_Free(s->tris);
@@ -1554,7 +1554,7 @@ void updateModelInterpolation()
 	omdtims = mdtims;
 	mdtims = I_msTime();
 	
-	for (native_t i = 0; i < MAXSPRITES; ++i)
+	for (int i = 0; i < MAXSPRITES; ++i)
 		if ((mdpause && spriteext[i].mdanimtims) || (spriteext[i].flags & SPREXT_NOMDANIM))
 			spriteext[i].mdanimtims += mdtims - omdtims;
 }

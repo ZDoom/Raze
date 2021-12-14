@@ -1194,8 +1194,8 @@ static bool parseBasePaletteRaw(FScanner& sc, FScriptPosition& pos, int id)
 			{
 				if (shiftleft != 0)
 				{
-					for (bssize_t k = 0; k < 768; k++)
-						palbuf[k] <<= shiftleft;
+					for (auto& pe : palbuf)
+						pe <<= shiftleft;
 				}
 
 				paletteSetColorTable(id, palbuf.Data(), false, false);

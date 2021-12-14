@@ -340,7 +340,7 @@ static void polymost_drawpoly(FVector2 const * const dpxy, int32_t const n, int3
     {
         float f = 0; //f is area of polygon / 2
 
-        for (bssize_t i=n-2, j=n-1,k=0; k<n; i=j,j=k,k++)
+        for (intptr_t i=n-2, j=n-1,k=0; k<n; i=j,j=k,k++)
             f += (dpxy[i].X-dpxy[k].X)*dpxy[j].Y;
 
         if (f <= 0) return;
@@ -366,7 +366,7 @@ static void polymost_drawpoly(FVector2 const * const dpxy, int32_t const n, int3
     int j = 0;
     float px[8], py[8], dd[8], uu[8], vv[8];
 
-    for (bssize_t i=0; i<n; ++i)
+    for (intptr_t i=0; i<n; ++i)
     {
         px[j] = dpxy[i].X;
         py[j] = dpxy[i].Y;
@@ -454,7 +454,7 @@ static void polymost_drawpoly(FVector2 const * const dpxy, int32_t const n, int3
     FVector2 const scale = { 1.f / tsiz2.x, 1.f / tsiz2.y };
 	auto data = screen->mVertexData->AllocVertices(npoints);
 	auto vt = data.first;
-    for (bssize_t i = 0; i < npoints; ++i, vt++)
+    for (intptr_t i = 0; i < npoints; ++i, vt++)
     {
         float const r = 1.f / dd[i];
 
@@ -502,7 +502,7 @@ static void polymost_drawpoly(FVector2 const * const dpxy, int32_t const n, int3
 
 static inline void vsp_finalize_init(int32_t const vcnt)
 {
-    for (bssize_t i=0; i<vcnt; ++i)
+    for (intptr_t i=0; i<vcnt; ++i)
     {
         vsp[i].cy[1] = vsp[i+1].cy[0]; vsp[i].ctag = i;
         vsp[i].fy[1] = vsp[i+1].fy[0]; vsp[i].ftag = i;
@@ -512,7 +512,7 @@ static inline void vsp_finalize_init(int32_t const vcnt)
     vsp[vcnt-1].n = 0; vsp[0].p = vcnt-1;
 
     //VSPMAX-1 is dummy empty node
-    for (bssize_t i=vcnt; i<VSPMAX; i++) { vsp[i].n = i+1; vsp[i].p = i-1; }
+    for (intptr_t i=vcnt; i<VSPMAX; i++) { vsp[i].n = i+1; vsp[i].p = i-1; }
     vsp[VSPMAX-1].n = vcnt; vsp[vcnt].p = VSPMAX-1;
 }
 
@@ -578,7 +578,7 @@ static void polymost_clipmost(FVector2 *dpxy, int &n, float x0, float x1, float 
     int n2 = 0;
     t1 = -((dpxy[0].X - x0) * (y1top - y0top) - (dpxy[0].Y - y0top) * (x1 - x0));
 
-    for (bssize_t i=0; i<n; i++)
+    for (intptr_t i=0; i<n; i++)
     {
         int j = i + 1;
 
@@ -610,7 +610,7 @@ static void polymost_clipmost(FVector2 *dpxy, int &n, float x0, float x1, float 
     t1 = -((dp2[0].X - x1) * (y0bot - y1bot) - (dp2[0].Y - y1bot) * (x0 - x1));
     n = 0;
 
-    for (bssize_t i = 0, j = 1; i < n2; j = ++i + 1)
+    for (intptr_t i = 0, j = 1; i < n2; j = ++i + 1)
     {
         if (j >= n2)
             j = 0;
@@ -697,7 +697,7 @@ static void polymost_domost(float x0, float y0, float x1, float y1, float y0top 
     int32_t  spt[4];
     int firstnode = vsp[0].n;
 
-    for (bssize_t newi, i=vsp[0].n; i; i=newi)
+    for (intptr_t newi, i=vsp[0].n; i; i=newi)
     {
         newi = vsp[i].n; n0.X = vsp[i].x; n1.X = vsp[newi].x;
 
@@ -762,7 +762,7 @@ static void polymost_domost(float x0, float y0, float x1, float y1, float y0top 
 
         float const rdx = 1.f/dx;
 
-        for (bssize_t z=0, vcnt=0; z<=scnt; z++,i=vcnt)
+        for (intptr_t z=0, vcnt=0; z<=scnt; z++,i=vcnt)
         {
             float t;
 
@@ -1204,7 +1204,7 @@ static void calc_ypanning(int32_t refposz, float ryp0, float ryp1,
 
 static inline int32_t testvisiblemost(float const x0, float const x1)
 {
-    for (bssize_t i=vsp[0].n, newi; i; i=newi)
+    for (intptr_t i=vsp[0].n, newi; i; i=newi)
     {
         newi = vsp[i].n;
         if ((x0 < vsp[newi].x) && (vsp[i].x < x1) && (vsp[i].ctag >= 0))
@@ -1349,7 +1349,7 @@ static void polymost_flatskyrender(FVector2 const* const dpxy, int32_t const n, 
 
     float x0 = xys[0].X, x1 = xys[0].X;
 
-    for (bssize_t i=n-1; i>=1; i--)
+    for (intptr_t i=n-1; i>=1; i--)
     {
         if (xys[i].X < x0) x0 = xys[i].X;
         if (xys[i].X > x1) x1 = xys[i].X;
@@ -1444,7 +1444,7 @@ static void polymost_flatskyrender(FVector2 const* const dpxy, int32_t const n, 
         int n2 = 0, n3 = 0;
 
         // Clip to o.x
-        for (bssize_t i=0; i<n; i++)
+        for (intptr_t i=0; i<n; i++)
         {
             int const j = i < n-1 ? i + 1 : 0;
 
@@ -1459,7 +1459,7 @@ static void polymost_flatskyrender(FVector2 const* const dpxy, int32_t const n, 
         }
 
         // Clip to fx
-        for (bssize_t i=0; i<n2; i++)
+        for (intptr_t i=0; i<n2; i++)
         {
             int const j = i < n2-1 ? i + 1 : 0;
 
@@ -1509,7 +1509,7 @@ static void polymost_drawalls(int32_t const bunch)
     polymost_outputGLDebugMessage(3, "polymost_drawalls(bunch:%d)", bunch);
 
     //DRAW WALLS SECTION!
-    for (bssize_t z=bunchfirst[bunch]; z>=0; z=bunchp2[z])
+    for (intptr_t z=bunchfirst[bunch]; z>=0; z=bunchp2[z])
     {
         int32_t const wallnum = thewall[z];
 
@@ -2019,7 +2019,7 @@ void polymost_scansector(int32_t sectnum)
             }
         }
 
-        for (bssize_t z=onumscans; z<numscans; z++)
+        for (intptr_t z=onumscans; z<numscans; z++)
         {
             if ((wall[thewall[z]].point2 != thewall[bunchp2[z]]) || (dxb2[z] > nexttowardf(dxb1[bunchp2[z]], dxb2[z])))
             {
@@ -2028,7 +2028,7 @@ void polymost_scansector(int32_t sectnum)
             }
         }
 
-        for (bssize_t z=bunchfrst; z<numbunches; z++)
+        for (intptr_t z=bunchfrst; z<numbunches; z++)
         {
             int zz;
             for (zz=bunchfirst[z]; bunchp2[zz]>=0; zz=bunchp2[zz]) { }
@@ -2051,7 +2051,7 @@ static void polymost_initmosts(const float * px, const float * py, int const n)
 
     int32_t imin = (px[1] < px[0]);
 
-    for (bssize_t i=n-1; i>=2; i--)
+    for (intptr_t i=n-1; i>=2; i--)
         if (px[i] < px[imin]) imin = i;
 
     int32_t vcnt = 1; //0 is dummy solid node
@@ -2120,7 +2120,7 @@ static void polymost_initmosts(const float * px, const float * py, int const n)
     xbt = py[0];
     xbb = py[0];
 
-    for (bssize_t i=n-1; i>=1; i--)
+    for (intptr_t i=n-1; i>=1; i--)
     {
         if (xbl > px[i]) xbl = px[i];
         if (xbr < px[i]) xbr = px[i];
@@ -2229,7 +2229,7 @@ void polymost_drawrooms()
 
     FVector3 p2[6];
 
-    for (bssize_t i=0; i<4; i++)
+    for (intptr_t i=0; i<4; i++)
     {
         int const j = i < 3 ? i + 1 : 0;
 
@@ -2251,7 +2251,7 @@ void polymost_drawrooms()
 
     float sx[6], sy[6];
 
-    for (bssize_t i = 0; i < n; i++)
+    for (intptr_t i = 0; i < n; i++)
     {
         float const r = (ghalfx / gvrcorrection) / p2[i].Z;
         sx[i] = p2[i].X * r + ghalfx;
@@ -2297,13 +2297,13 @@ void polymost_drawrooms()
 
         int32_t closest = 0;              //Almost works, but not quite :(
 
-        for (bssize_t i=1; i<numbunches; ++i)
+        for (intptr_t i=1; i<numbunches; ++i)
         {
             int const bnch = polymost_bunchfront(i,closest); if (bnch < 0) continue;
             ptempbuf[i] = 1;
             if (!bnch) { ptempbuf[closest] = 1; closest = i; }
         }
-        for (bssize_t i=0; i<numbunches; ++i) //Double-check
+        for (intptr_t i=0; i<numbunches; ++i) //Double-check
         {
             if (ptempbuf[i]) continue;
             int const bnch = polymost_bunchfront(i,closest); if (bnch < 0) continue;
@@ -2471,7 +2471,7 @@ static void polymost_drawmaskwallinternal(int32_t wallIndex)
     int n2 = 0;
     t1 = -((dpxy[0].X - x0) * (csy[2] - csy[0]) - (dpxy[0].Y - csy[0]) * (x1 - x0));
 
-    for (bssize_t i=0; i<4; i++)
+    for (intptr_t i=0; i<4; i++)
     {
         int j = i + 1;
 
@@ -2498,7 +2498,7 @@ static void polymost_drawmaskwallinternal(int32_t wallIndex)
     t1 = -((dp2[0].X - x1) * (fsy[0] - fsy[2]) - (dp2[0].Y - fsy[2]) * (x0 - x1));
     int n = 0;
 
-    for (bssize_t i = 0, j = 1; i < n2; j = ++i + 1)
+    for (intptr_t i = 0, j = 1; i < n2; j = ++i + 1)
     {
         if (j >= n2)
             j = 0;
@@ -2634,7 +2634,7 @@ static inline int32_t polymost_findwall(tspritetype const * const tspr, vec2_t c
     auto const sect = &sector[tspr->sectnum];
     vec2_t n;
 
-    for (bssize_t i=sect->wallptr; i<sect->wallptr + sect->wallnum; i++)
+    for (intptr_t i=sect->wallptr; i<sect->wallptr + sect->wallnum; i++)
     {
         if ((wall[i].nextsector == -1 || ((sector[wall[i].nextsector].ceilingz > (tspr->z - ((tsiz->y * tspr->yrepeat) << 2))) ||
              sector[wall[i].nextsector].floorz < tspr->z)) && !polymost_getclosestpointonwall((const vec2_t *) tspr, i, &n))
@@ -3113,7 +3113,7 @@ void polymost_drawsprite(int32_t snum)
                 FVector2 pxy[6];
 
                 // Project 3D to 2D
-                for (bssize_t j = 0; j < 4; j++)
+                for (intptr_t j = 0; j < 4; j++)
                 {
                     FVector2 s0 = { (float)(tspr->x - globalposx), (float)(tspr->y - globalposy) };
 
@@ -3153,7 +3153,7 @@ void polymost_drawsprite(int32_t snum)
                 int32_t npoints = 0;
                 FVector2 p2[6];
 
-                for (bssize_t i = 0, j = 1; i < 4; j = ((++i + 1) & 3))
+                for (intptr_t i = 0, j = 1; i < 4; j = ((++i + 1) & 3))
                 {
                     if (pxy[i].Y >= SCISDIST)
                         p2[npoints++] = pxy[i];
@@ -3183,7 +3183,7 @@ void polymost_drawsprite(int32_t snum)
 
                 float f = (float)(pos.z - globalposz + fadjust) * gyxscale;
 
-                for (bssize_t j = 0; j < npoints; j++)
+                for (intptr_t j = 0; j < npoints; j++)
                 {
                     float const ryp0 = 1.f / p2[j].Y;
                     pxy[j] = { ghalfx * p2[j].X * ryp0 + ghalfx, f * ryp0 + ghoriz };
@@ -3407,7 +3407,7 @@ static void sortsprites(int const start, int const end)
     gap = 1; while (gap < end - start) gap = (gap << 1) + 1;
     for (gap >>= 1; gap > 0; gap >>= 1)   //Sort sprite list
         for (i = start; i < end - gap; i++)
-            for (bssize_t l = i; l >= start; l -= gap)
+            for (intptr_t l = i; l >= start; l -= gap)
             {
                 if (spritesxyz[l].y <= spritesxyz[l + gap].y) break;
                 std::swap(tspriteptr[l], tspriteptr[l + gap]);
@@ -3416,7 +3416,7 @@ static void sortsprites(int const start, int const end)
             }
 
     ys = spritesxyz[start].y; i = start;
-    for (bssize_t j = start + 1; j <= end; j++)
+    for (intptr_t j = start + 1; j <= end; j++)
     {
         if (j < end)
         {
@@ -3429,7 +3429,7 @@ static void sortsprites(int const start, int const end)
 
         if (j > i + 1)
         {
-            for (bssize_t k = i; k < j; k++)
+            for (intptr_t k = i; k < j; k++)
             {
                 auto const s = tspriteptr[k];
 
@@ -3448,8 +3448,8 @@ static void sortsprites(int const start, int const end)
                 }
             }
 
-            for (bssize_t k = i + 1; k < j; k++)
-                for (bssize_t l = i; l < k; l++)
+            for (intptr_t k = i + 1; k < j; k++)
+                for (intptr_t l = i; l < k; l++)
                     if (comparetsprites(k, l) < 0)
                     {
                         std::swap(tspriteptr[k], tspriteptr[l]);
@@ -3566,7 +3566,7 @@ void renderDrawMasks(void)
     if (pm_spritesortcnt < numSprites)
     {
         i = pm_spritesortcnt;
-        for (bssize_t i = pm_spritesortcnt; i < numSprites;)
+        for (intptr_t i = pm_spritesortcnt; i < numSprites;)
         {
             int32_t py = spritesxyz[i].y;
             int32_t pcstat = tspriteptr[i]->cstat & 48;
@@ -3590,7 +3590,7 @@ void renderDrawMasks(void)
             {
                 GLInterface.SetDepthMask(false);
 
-                for (bssize_t k = j - 1; k >= i; k--)
+                for (intptr_t k = j - 1; k >= i; k--)
                 {
                     debugmask_add(k | 32768, tspriteptr[k]->owner);
                     Polymost::polymost_drawsprite(k);
@@ -3600,7 +3600,7 @@ void renderDrawMasks(void)
 
                 GLInterface.SetColorMask(false);
 
-                for (bssize_t k = j - 1; k >= i; k--)
+                for (intptr_t k = j - 1; k >= i; k--)
                 {
                     Polymost::polymost_drawsprite(k);
                     tspriteptr[k] = NULL;

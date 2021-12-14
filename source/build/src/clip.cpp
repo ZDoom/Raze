@@ -296,7 +296,7 @@ static inline int32_t cliptrace(vec2_t const pos, vec2_t * const goal)
             continue;
 
         int32_t const bot = diff.x*area.y - area.x*diff.y;
-        native_t cnt = 256;
+        int cnt = 256;
 
         if (!bot)
             continue;
@@ -492,7 +492,7 @@ int32_t clipmove(vec3_t * const pos, int * const sectnum, int32_t xvect, int32_t
         int const  endwall   = startwall + sec->wallnum;
         auto       wal       = (uwallptr_t)&wall[startwall];
 
-        for (native_t j=startwall; j<endwall; j++, wal++)
+        for (int j=startwall; j<endwall; j++, wal++)
         {
             auto const wal2 = (uwallptr_t)&wall[wal->point2];
 
@@ -733,7 +733,7 @@ int32_t clipmove(vec3_t * const pos, int * const sectnum, int32_t xvect, int32_t
             else
                 tempint = DMulScale(clipr.x, move.x, clipr.y, move.y, 6);
 
-            for (native_t i=cnt+1, j; i<=clipmoveboxtracenum; ++i)
+            for (int i=cnt+1, j; i<=clipmoveboxtracenum; ++i)
             {
                 j = hitwalls[i];
 
@@ -772,7 +772,7 @@ int32_t clipmove(vec3_t * const pos, int * const sectnum, int32_t xvect, int32_t
 
     if (enginecompatibility_mode != ENGINECOMPATIBILITY_NONE)
     {
-        for (native_t j=0; j<clipsectnum; j++)
+        for (int j=0; j<clipsectnum; j++)
             if (inside(pos->x, pos->y, clipsectorlist[j]) == 1)
             {
                 *sectnum = clipsectorlist[j];
@@ -979,7 +979,7 @@ void getzrange(const vec3_t *pos, int16_t sectnum,
         const int startwall = startsec->wallptr;
         const int endwall = startwall + startsec->wallnum;
 
-        for (bssize_t j=startwall; j<endwall; j++)
+        for (int j=startwall; j<endwall; j++)
         {
             const int k = wall[j].nextsector;
 
@@ -1044,7 +1044,7 @@ void getzrange(const vec3_t *pos, int16_t sectnum,
     ////////// Sprites //////////
 
     if (dasprclipmask)
-    for (bssize_t i=0; i<clipsectnum; i++)
+    for (int i=0; i<clipsectnum; i++)
     {
         int j;
         if (!validSectorIndex(clipsectorlist[i])) continue;    // we got a deleted sprite in here somewhere. Skip this entry.

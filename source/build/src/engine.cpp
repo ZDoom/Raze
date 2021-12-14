@@ -869,7 +869,7 @@ int32_t cansee(int32_t x1, int32_t y1, int32_t z1, int16_t sect1, int32_t x2, in
     {
         auto const sec = (usectorptr_t)&sector[dasectnum];
         uwallptr_t wal;
-        bssize_t cnt;
+        int cnt;
         for (cnt=sec->wallnum,wal=(uwallptr_t)&wall[sec->wallptr]; cnt>0; cnt--,wal++)
         {
             auto const wal2 = (uwallptr_t)&wall[wal->point2];
