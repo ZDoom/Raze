@@ -262,48 +262,12 @@ int32_t lintersect(const int32_t originX, const int32_t originY, const int32_t o
 // rintersect (internal)
 //
 // returns: -1 if didn't intersect, coefficient (x3--x4 fraction)<<16 else
-int32_t rintersect_old(int32_t x1, int32_t y1, int32_t z1,
-                   int32_t vx, int32_t vy, int32_t vz,
-                   int32_t x3, int32_t y3, int32_t x4, int32_t y4,
-                   int32_t *intx, int32_t *inty, int32_t *intz)
-{
-    //p1 towards p2 is a ray
-
-    int32_t const x34=x3-x4, y34=y3-y4;
-    int32_t const x31=x3-x1, y31=y3-y1;
-
-    int32_t const bot  = vx*y34 - vy*x34;
-    int32_t const topt = x31*y34 - y31*x34;
-
-    if (bot == 0)
-        return -1;
-
-    int32_t const topu = vx*y31 - vy*x31;
-
-    if (bot > 0 && (topt < 0 || topu < 0 || topu >= bot))
-        return -1;
-    else if (bot < 0 && (topt > 0 || topu > 0 || topu <= bot))
-        return -1;
-
-    int32_t t = DivScale(topt, bot, 16);
-    *intx = x1 + MulScale(vx, t, 16);
-    *inty = y1 + MulScale(vy, t, 16);
-    *intz = z1 + MulScale(vz, t, 16);
-
-    t = DivScale(topu, bot, 16);
-
-    return t;
-}
-
 int32_t rintersect(int32_t x1, int32_t y1, int32_t z1,
                    int32_t vx, int32_t vy, int32_t vz,
                    int32_t x3, int32_t y3, int32_t x4, int32_t y4,
                    int32_t *intx, int32_t *inty, int32_t *intz)
 {
     //p1 towards p2 is a ray
-
-    if (enginecompatibility_mode != ENGINECOMPATIBILITY_NONE)
-        return rintersect_old(x1,y1,z1,vx,vy,vz,x3,y3,x4,y4,intx,inty,intz);
 
     int64_t const x34=x3-x4, y34=y3-y4;
     int64_t const x31=x3-x1, y31=y3-y1;
