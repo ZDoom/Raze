@@ -160,7 +160,7 @@ void PrecacheDude(spritetype *pSprite)
     case kDudeGargoyleStatueStone:
         seqPrecacheId(pDudeInfo->seqStartID+6, palette);
         seqPrecacheId(pDudeInfo->seqStartID+6, palette); //???
-        fallthrough__;
+        [[fallthrough]];
     case kDudeGargoyleFlesh:
     case kDudeGargoyleStone:
         seqPrecacheId(pDudeInfo->seqStartID+6, palette);
@@ -182,7 +182,7 @@ void PrecacheDude(spritetype *pSprite)
     case kDudeCerberusTwoHead:
         seqPrecacheId(pDudeInfo->seqStartID+6, palette);
         seqPrecacheId(pDudeInfo->seqStartID+7, palette);
-        fallthrough__;
+        [[fallthrough]];
     case kDudeHand:
     case kDudeBoneEel:
     case kDudeBat:
@@ -196,10 +196,10 @@ void PrecacheDude(spritetype *pSprite)
     case kDudeZombieAxeBuried:
         seqPrecacheId(pDudeInfo->seqStartID+12, palette);
         seqPrecacheId(pDudeInfo->seqStartID+9, palette);
-        fallthrough__;
+        [[fallthrough]];
     case kDudeZombieAxeLaying:
         seqPrecacheId(pDudeInfo->seqStartID+10, palette);
-        fallthrough__;
+        [[fallthrough]];
     case kDudeZombieAxeNormal:
         seqPrecacheId(pDudeInfo->seqStartID+6, palette);
         seqPrecacheId(pDudeInfo->seqStartID+7, palette);

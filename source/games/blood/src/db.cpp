@@ -1042,7 +1042,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, int 
                     }
                 }
             }
-            fallthrough__;
+            [[fallthrough]];
         case 1:
             for (int i = 0; i < numsectors; i++)
             {
@@ -1053,7 +1053,7 @@ void dbLoadMap(const char *pPath, int *pX, int *pY, int *pZ, short *pAngle, int 
                     pXSector->freq >>= 1;
                 }
             }
-            fallthrough__;
+            [[fallthrough]];
         case 2:
             for (int i = 0; i < kMaxSprites; i++)
             {

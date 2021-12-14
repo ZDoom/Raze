@@ -1374,7 +1374,7 @@ void runlist_ProcessSectorTag(int nSector, int nLotag, int nHitag)
             runlist_AddRunRec(sRunChannels[nChannel].a,nSwitch.first, nSwitch.second);
 
             // Fall through to case 62
-            fallthrough__;
+            [[fallthrough]];
         }
         case 63: // Ceiling door, kill trigger (Enemy death triggers door)
         {

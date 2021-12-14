@@ -314,7 +314,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, short nLotag, short nHitag)
         {
             nVal = 3 * (nHitag / 3);
             // fall through to 6,7 etc
-            fallthrough__;
+            [[fallthrough]];
         }
         case 6:
         case 7:

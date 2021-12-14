@@ -306,7 +306,7 @@ void OperateSprite(DBloodActor* actor, EVENT event)
                 break;
             case kCmdSpriteProximity:
                 if (pXSprite->state) break;
-                fallthrough__;
+                [[fallthrough]];
             case kCmdOn:
             case kCmdSpritePush:
             case kCmdSpriteTouch:
@@ -494,7 +494,7 @@ void OperateSprite(DBloodActor* actor, EVENT event)
         break;
     case kThingTNTBarrel:
         if (pSprite->flags & kHitagRespawn) return;
-        fallthrough__;
+        [[fallthrough]];
     case kThingArmedTNTStick:
     case kThingArmedTNTBundle:
     case kThingArmedSpray:
@@ -528,7 +528,7 @@ void OperateSprite(DBloodActor* actor, EVENT event)
                     sfxPlay3DSound(pSprite, 452, 0, 0);
                     evPostActor(actor, 30, kCmdOff);
                     pXSprite->state = 1;
-                    fallthrough__;
+                    [[fallthrough]];
                 case kCmdOn:
                     sfxPlay3DSound(pSprite, 451, 0, 0);
                     pXSprite->Proximity = 1;

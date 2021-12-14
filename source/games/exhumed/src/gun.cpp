@@ -817,7 +817,7 @@ loc_flag:
                         nQuake[nPlayer] = 128;
                     }
                     // fall through
-                    fallthrough__;
+                    [[fallthrough]];
                 }
                 case kWeaponPistol:
                 {

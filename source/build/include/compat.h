@@ -15,10 +15,6 @@
 
 ////////// Language and compiler feature polyfills //////////
 
-#  define fallthrough__ [[fallthrough]]
-
-////////// Architecture detection //////////
-
 #ifdef WORDS_BIGENDIAN
 #  define B_BIG_ENDIAN    1
 #else
