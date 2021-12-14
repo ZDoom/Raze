@@ -33,7 +33,7 @@ class InputState
 {
 	uint8_t KeyStatus[NUM_KEYS];
 	bool AnyKeyStatus;
-	vec2f_t  g_mousePos;
+	FVector2  g_mousePos;
 
 public:
 
@@ -46,8 +46,8 @@ public:
 
 	void MouseAddToPos(float x, float y)
 	{
-		g_mousePos.x += x;
-		g_mousePos.y += y;
+		g_mousePos.X += x;
+		g_mousePos.Y += y;
 	}
 
 	void GetMouseDelta(ControlInfo* hidInput);

@@ -48,7 +48,7 @@ struct vec3_t
 
 
 #if 0
-struct vec2f_t
+struct FVector2
 {
     float x, y;
 };

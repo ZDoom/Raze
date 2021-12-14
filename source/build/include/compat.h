@@ -59,19 +59,9 @@ typedef intptr_t bssize_t;
 
 #define BMAX_PATH 256
 
-////////// Metaprogramming structs //////////
-
 using  native_t = intptr_t;
-
-struct vec2f_t {
-    float x, y;
-};
-
-static_assert(sizeof(FVector3) == sizeof(float) * 3);
 
 
 #include "basics.h"
-
-////////// Bitfield manipulation //////////
 
 #endif // compat_h_

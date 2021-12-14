@@ -64,10 +64,10 @@ CVAR(Float, m_side, 1.f, CVAR_GLOBALCONFIG | CVAR_ARCHIVE)
 
 void InputState::GetMouseDelta(ControlInfo * hidInput)
 {
-	hidInput->mouseturnx = g_mousePos.x * m_yaw * (1.f / 18.f);
-	hidInput->mouseturny = g_mousePos.y * m_pitch * (1.f / 14.f);
-	hidInput->mousemovex = g_mousePos.x * m_side;
-	hidInput->mousemovey = g_mousePos.y * m_forward;
+	hidInput->mouseturnx = g_mousePos.X * m_yaw * (1.f / 18.f);
+	hidInput->mouseturny = g_mousePos.Y * m_pitch * (1.f / 14.f);
+	hidInput->mousemovex = g_mousePos.X * m_side;
+	hidInput->mousemovey = g_mousePos.Y * m_forward;
 
 	g_mousePos = {};
 }
