@@ -595,11 +595,14 @@ static void ConstructSections(TArray<sectionbuildsector>& builders)
 					auto wal = wallmap[srcloop[w]];
 					section->walls[curwall++] = loop.walls[w] = wal;
 					wal->section = section->index;
-					// backsection will be filled in when everything is done.
+					wal->index = section2walls.Size();
+					section2walls.Push(wal);
 				}
 			}
 		}
 	}
+	section2walls.ShrinkToFit();
+	sections2.ShrinkToFit();
 }
 
 //==========================================================================
@@ -613,6 +616,7 @@ void hw_CreateSections2()
 	bugged.Clear();
 	sectionArena.FreeAll();
 	sections2.Reset();
+	section2walls.Clear();
 	TArray<loopcollect> collect;
 	CollectLoops(collect);
 
