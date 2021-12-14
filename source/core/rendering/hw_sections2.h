@@ -10,15 +10,17 @@ enum ESEctionFlag
 
 struct Section2Wall
 {
-	// references to game data
-	vec2_t* v1;					// points to start vertex in wall[]
-	vec2_t* v2; 				// points to end vertex in wall[]
-	walltype* wall;				// points to the actual wall this belongs to - this is NOT necessarily the same as v1 and can be null.
-	
-	// references to section data
-	Section2Wall* backside;		// points to this wall's back side
-	Section2* frontsection;
-	Section2* backsection;		// if this is null the wall is one-sided
+	int index;
+	int section;
+	int startpoint;
+	int endpoint;
+	int wall; // points to the actual wall this belongs to - this is NOT necessarily the same as startpoint and can be -1.
+	Section2Wall* backside;		// this is better kept as pointer because of reindexing when splitting a section.
+
+	vec2_t v1() const { return ::wall[startpoint].pos; }
+	vec2_t v2() const { return ::wall[endpoint].pos; }
+	walltype* wallp() const { return &::wall[wall]; }
+
 };
 
 struct Section2Loop
@@ -40,6 +42,7 @@ struct Section2
 
 extern TArray<Section2*> sections2;
 extern TArrayView<TArrayView<Section2*>> sections2PerSector;
+extern TArray<Section2Wall*> section2walls;
 
 void hw_CreateSections2();
 using Outline = TArray<TArray<vec2_t>>;

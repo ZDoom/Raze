@@ -47,6 +47,7 @@ CVAR(Bool, hw_sectiondebug, false, 0)
 TMap<int, bool> bugged;
 
 static FMemArena sectionArena(102400);
+TArray<Section2Wall*> section2walls;
 TArray<Section2*> sections2;
 TArrayView<TArrayView<Section2*>> sections2PerSector;
 
@@ -534,9 +535,9 @@ static void ConstructSections(TArray<sectionbuildsector>& builders)
 	}
 	for (int i = 0; i < numwalls; i++)
 	{
-		wallmap[i]->v1 = &wall[i].pos;
-		wallmap[i]->v2 = &wall[i].point2Wall()->pos;
-		wallmap[i]->wall = &wall[i];
+		wallmap[i]->startpoint = i;
+		wallmap[i]->endpoint = wall[i].point2;
+		wallmap[i]->wall = i;
 		wallmap[i]->backside = validWallIndex(wall[i].nextwall)? wallmap[wall[i].nextwall] : nullptr;
 	}
 
@@ -593,14 +594,12 @@ static void ConstructSections(TArray<sectionbuildsector>& builders)
 				{
 					auto wal = wallmap[srcloop[w]];
 					section->walls[curwall++] = loop.walls[w] = wal;
-					wal->frontsection = section;
+					wal->section = section->index;
 					// backsection will be filled in when everything is done.
 				}
 			}
 		}
 	}
-	for (auto& wal : wallmap)
-		if (wal->backside) wal->backsection = wal->backside->frontsection;
 }
 
 //==========================================================================
@@ -636,12 +635,12 @@ void hw_CreateSections2()
 					Printf(PRINT_LOG, "\t\tLoop, %d walls\n", loop.walls.Size());
 					for (auto& wall : loop.walls)
 					{
-						Printf(PRINT_LOG, "\t\t\tWall %d, (%d, %d) -> (%d, %d)", ::wall.IndexOf(wall->wall), wall->v1->x / 16, wall->v1->y / -16, wall->v2->x / 16, wall->v2->y / -16);
-						if (wall->wall->nextwall == -1) Printf(PRINT_LOG, "one-sided\n");
+						Printf(PRINT_LOG, "\t\t\tWall %d, (%d, %d) -> (%d, %d)", wall->wall, wall->v1().x / 16, wall->v1().y / -16, wall->v2().x / 16, wall->v2().y / -16);
+						if (wall->wallp()->nextwall == -1) Printf(PRINT_LOG, "one-sided\n");
 						else
 						{
-							Printf(PRINT_LOG, " next wall = %d, next sector = %d", wall->wall->nextwall, wall->wall->nextsector);
-							if (wall->wall->nextWall()->nextWall() != wall->wall) Printf(PRINT_LOG, " unreachable");
+							Printf(PRINT_LOG, " next wall = %d, next sector = %d", wall->wallp()->nextwall, wall->wallp()->nextsector);
+							if (wall->wallp()->nextWall()->nextWall() != wall->wallp()) Printf(PRINT_LOG, " unreachable");
 							Printf(PRINT_LOG, "\n");
 						}
 					}
@@ -665,7 +664,7 @@ Outline BuildOutline(Section2* section)
 		output[i].Resize(section->loops[i].walls.Size());
 		for (unsigned j = 0; j < section->loops[i].walls.Size(); j++)
 		{
-			output[i][j] = *section->loops[i].walls[j]->v1;
+			output[i][j] = section->loops[i].walls[j]->v1();
 		}
 		StripLoop(output[i]);
 	}
