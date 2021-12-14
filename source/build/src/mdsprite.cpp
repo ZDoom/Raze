@@ -2,7 +2,6 @@
 
 #ifdef USE_OPENGL
 
-#include "compat.h"
 #include "build.h"
 #include "engine_priv.h"
 #include "polymost.h"

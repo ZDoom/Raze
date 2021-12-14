@@ -37,7 +37,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #endif
 
 #include "build.h"
-#include "compat.h"
 #include "d_net.h"
 
 #include "mytypes.h"

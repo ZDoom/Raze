@@ -24,7 +24,6 @@
 #ifndef SAVEABLE_H
 #define SAVEABLE_H
 
-#include "compat.h"
 
 struct saveable_code
 {

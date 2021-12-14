@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-#include "compat.h"
 #include "printf.h"
 #include "c_dispatch.h" 
 #include "tarray.h"
@@ -12,6 +11,7 @@
 #include "m_joy.h"
 #include "gamecvars.h"
 #include "packet.h"
+#include "vectors.h"
 
 
 struct ControlInfo

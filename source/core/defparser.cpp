@@ -34,7 +34,6 @@
 */
 
 #include "build.h"
-#include "compat.h"
 
 #include "mdsprite.h"  // md3model_t
 #include "buildtiles.h"

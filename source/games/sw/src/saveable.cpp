@@ -23,7 +23,6 @@
 
 #include "ns.h"
 
-#include "compat.h"
 #include "tarray.h"
 #include "debugbreak.h"
 BEGIN_SW_NS

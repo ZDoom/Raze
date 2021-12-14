@@ -35,7 +35,6 @@ source as it is released.
 
 #include "ns.h"	// Must come before everything else!
 
-#include "compat.h"
 #include "g_input.h"
 
 #include "duke3d.h"

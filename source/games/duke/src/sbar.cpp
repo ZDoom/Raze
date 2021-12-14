@@ -35,7 +35,6 @@ source as it is released.
 
 #include "v_font.h"
 #include "duke3d.h"
-#include "compat.h"
 #include "v_draw.h"
 #include "texturemanager.h"
 #include "mapinfo.h"

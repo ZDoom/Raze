@@ -17,7 +17,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 #include "ns.h"
 #include "automap.h"
-#include "compat.h"
 #include "aistuff.h"
 #include "player.h"
 #include "view.h"

@@ -2,9 +2,6 @@
 
 #include "build.h"
 
-#include "compat.h"
-
-
 #include "polymost.h"
 #include "gamecvars.h"
 #include "razemenu.h"
