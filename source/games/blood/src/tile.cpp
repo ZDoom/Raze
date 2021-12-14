@@ -53,7 +53,7 @@ void GameInterface::LoadGameTextures()
     if (hFile.isOpen())
     {
         hFile.Read(voxelIndex, sizeof(voxelIndex));
-#if B_BIG_ENDIAN == 1
+#if WORDS_BIGENDIAN
         for (int i = 0; i < kMaxTiles; i++)
             voxelIndex[i] = LittleShort(voxelIndex[i]);
 #endif

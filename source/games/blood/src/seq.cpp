@@ -545,7 +545,6 @@ void seqKill(DBloodActor* actor)
 
 static void ByteSwapSEQ(Seq* pSeq)
 {
-#if 1//B_BIG_ENDIAN == 1
 	pSeq->version = LittleShort(pSeq->version);
 	pSeq->nFrames = LittleShort(pSeq->nFrames);
 	pSeq->ticksPerFrame = LittleShort(pSeq->ticksPerFrame);
@@ -579,7 +578,6 @@ static void ByteSwapSEQ(Seq* pSeq)
 		swapFrame.reserved = bitReader.readUnsigned(2);
 		*pFrame = swapFrame;
 	}
-#endif
 }
 
 FMemArena seqcache;

@@ -187,7 +187,7 @@ inline int32_t FIXED(int32_t msw, int32_t lsw)
 }
 
 // Ouch...
-#if B_BIG_ENDIAN == 0
+#ifndef WORDS_BIGENDIAN
 # define MSB_VAR(fixed) (*(((uint8_t*)&(fixed)) + 1))
 # define LSB_VAR(fixed) (*((uint8_t*)&(fixed)))
 #else

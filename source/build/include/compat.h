@@ -15,12 +15,6 @@
 
 ////////// Language and compiler feature polyfills //////////
 
-#ifdef WORDS_BIGENDIAN
-#  define B_BIG_ENDIAN    1
-#else
-#  define B_BIG_ENDIAN    0
-#endif
-
 #include <inttypes.h>
 #include <stdint.h>
 

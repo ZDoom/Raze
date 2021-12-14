@@ -143,7 +143,7 @@ void viewInit(void)
     assert(lensdata.Size() == kLensSize * kLensSize * sizeof(int));
 
     lensTable = (int*)lensdata.Data();
-#if B_BIG_ENDIAN == 1
+#if WORDS_BIGENDIAN
     for (int i = 0; i < kLensSize*kLensSize; i++)
     {
         lensTable[i] = LittleLong(lensTable[i]);

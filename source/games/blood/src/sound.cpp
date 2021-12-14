@@ -49,7 +49,7 @@ int soundRates[13] = {
 
 void ByteSwapSFX(SFX* pSFX)
 {
-#if B_BIG_ENDIAN == 1
+#if WORDS_BIGENDIAN
     pSFX->relVol = LittleLong(pSFX->relVol);
     pSFX->pitch = LittleLong(pSFX->pitch);
     pSFX->pitchRange = LittleLong(pSFX->pitchRange);

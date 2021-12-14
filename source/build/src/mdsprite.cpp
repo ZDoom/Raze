@@ -565,7 +565,7 @@ static md2model_t *md2load(FileReader & fil, const char *filnam)
     m->mdnum = 2; m->scale = .01f;
 
     fil.Read((char *)&head,sizeof(md2head_t));
-#if B_BIG_ENDIAN != 0
+#if WORDS_BIGENDIAN
     head.id = LittleLong(head.id);                 head.vers = LittleLong(head.vers);
     head.skinxsiz = LittleLong(head.skinxsiz);     head.skinysiz = LittleLong(head.skinysiz);
     head.framebytes = LittleLong(head.framebytes); head.numskins = LittleLong(head.numskins);
@@ -612,7 +612,7 @@ static md2model_t *md2load(FileReader & fil, const char *filnam)
     if (fil.Read((char *)m->uv,head.numuv*sizeof(md2uv_t)) != (int32_t)(head.numuv*sizeof(md2uv_t)))
         { M_Free(m->uv); M_Free(m->tris); M_Free(m->glcmds); M_Free(m->frames); M_Free(m); return 0; }
 
-#if B_BIG_ENDIAN != 0
+#if WORDS_BIGENDIAN
     {
         char *f = (char *)m->frames;
         int32_t *l,j;
@@ -847,7 +847,7 @@ static md3model_t *md3load(FileReader & fil)
 
     fil.Read(&m->head,SIZEOF_MD3HEAD_T);
 
-#if B_BIG_ENDIAN != 0
+#if WORDS_BIGENDIAN
     m->head.id = LittleLong(m->head.id);             m->head.vers = LittleLong(m->head.vers);
     m->head.flags = LittleLong(m->head.flags);       m->head.numframes = LittleLong(m->head.numframes);
     m->head.numtags = LittleLong(m->head.numtags);   m->head.numsurfs = LittleLong(m->head.numsurfs);
@@ -882,7 +882,7 @@ static md3model_t *md3load(FileReader & fil)
     // surfs[i].geometry is for FREE_SURFS_GEOMETRY.
     assert(m->head.surfs[0].geometry == NULL);
 
-#if B_BIG_ENDIAN != 0
+#if WORDS_BIGENDIAN
     {
         int32_t j, *l;
 
@@ -907,7 +907,7 @@ static md3model_t *md3load(FileReader & fil)
         s = &m->head.surfs[surfi];
         fil.Seek(ofsurf,FileReader::SeekSet); fil.Read(s,SIZEOF_MD3SURF_T);
 
-#if B_BIG_ENDIAN != 0
+#if WORDS_BIGENDIAN
         {
             int32_t j, *l;
             s->id = LittleLong(s->id);
@@ -940,7 +940,7 @@ static md3model_t *md3load(FileReader & fil)
         fil.Seek(offs[2],FileReader::SeekSet); fil.Read(s->uv     ,leng[2]);
         fil.Seek(offs[3],FileReader::SeekSet); fil.Read(s->xyzn   ,leng[3]);
 
-#if B_BIG_ENDIAN != 0
+#if WORDS_BIGENDIAN
         {
             int32_t j, *l;
 
