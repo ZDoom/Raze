@@ -46,6 +46,7 @@
 #include "m_argv.h"
 #include "filesystem.h"
 #include "findfile.h"
+#include "engineerrors.h"
 
 static const char* res_exts[] = { ".grp", ".zip", ".pk3", ".pk4", ".7z", ".pk7" };
 

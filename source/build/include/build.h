@@ -15,7 +15,6 @@
 
 static_assert('\xff' == 255, "Char must be unsigned!");
 
-#include "compat.h"
 #include "printf.h"
 #include "palette.h"
 #include "binaryangle.h"

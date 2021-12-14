@@ -1,4 +1,3 @@
-/*
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -10,6 +9,7 @@
 #include <ctype.h>
 #include <stdint.h>
 #include <new>
+#include <type_traits>
 #include <algorithm>
 #include <forward_list>
 #include <sys/stat.h>
@@ -26,4 +26,3 @@
 // The overall savings from PCHing them are more significant.
 #include "tarray.h"
 #include "zstring.h"
-*/
