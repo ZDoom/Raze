@@ -153,7 +153,8 @@ void HWSprite::DrawSprite(HWDrawInfo* di, FRenderState& state, bool translucent)
 			state.SetDepthFunc(DF_LEqual);
 			state.EnableTexture(true);
 			model->BuildVertexBuffer(&mr);
-			mr.BeginDrawModel(RenderStyle, nullptr, rotmat, portalState.isMirrored());
+			bool mirrored = ((Sprite->cstat & CSTAT_SECTOR_XFLIP) != 0) ^ ((Sprite->cstat & CSTAT_SECTOR_YFLIP) != 0) ^ portalState.isMirrored();
+			mr.BeginDrawModel(RenderStyle, nullptr, rotmat, mirrored);
 			mr.SetupFrame(model, 0, 0, 0);
 			model->RenderFrame(&mr, TexMan.GetGameTexture(model->GetPaletteTexture()), 0, 0, 0.f, TRANSLATION(Translation_Remap + curbasepal, palette));
 			mr.EndDrawModel(RenderStyle, nullptr);
