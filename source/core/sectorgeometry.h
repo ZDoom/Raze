@@ -67,8 +67,6 @@ struct SectionGeometryData
 	vec2_t poscompare[2] = {};
 	vec2_t poscompare2[2] = {};
 	FVector3 normal[2];
-	int dirty;
-	int flags;
 };
 
 class SectionGeometry

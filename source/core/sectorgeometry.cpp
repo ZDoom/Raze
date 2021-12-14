@@ -233,13 +233,13 @@ static int OutlineToFloat(Outline& outl, FOutline& polygon)
 		for (unsigned j = 0; j < outl[i].Size(); j++)
 		{
 			float X = RenderX(outl[i][j].x);
-			float Y = RenderX(outl[i][j].y);
-				if (fabs(X) > 32768.f || fabs(Y) > 32768.f)
-				{
-					// If we get here there's some fuckery going around with the coordinates. Let's better abort and wait for things to realign.
-					// Do not try alternative methods if this happens.
+			float Y = RenderY(outl[i][j].y);
+			if (fabs(X) > 32768.f || fabs(Y) > 32768.f)
+			{
+				// If we get here there's some fuckery going around with the coordinates. Let's better abort and wait for things to realign.
+				// Do not try alternative methods if this happens.
 				return -1;
-				}
+			}
 			polygon[i][j] = { X, Y };
 			}
 		}
@@ -257,7 +257,8 @@ ETriangulateResult TriangulateOutlineEarcut(const FOutline& polygon, int count, 
 	// Sections are already validated so we can assume that the data is well defined here.
 
 	auto indices = mapbox::earcut(polygon);
-	if (indices.size() < 3 * (count + polygon.size() * 2 - 2))
+	size_t numtriangles = count + (polygon.size() - 1) * 2 - 2; // accout for the extra connections needed to turn the polygon into s single loop.
+	if (indices.size() < numtriangles * 3)
 	{
 		// this means that full triangulation failed.
 		return ETriangulateResult::Failed;
@@ -284,10 +285,11 @@ ETriangulateResult TriangulateOutlineEarcut(const FOutline& polygon, int count, 
 // Try to triangulate a given outline with libtess2.
 //
 //==========================================================================
+FMemArena tessArena(100000);
 
 ETriangulateResult TriangulateOutlineLibtess(const FOutline& polygon, int count, TArray<FVector2>& points, TArray<int>& indicesOut)
 {
-	FMemArena tessArena(100000);
+	tessArena.FreeAll();
 
 	auto poolAlloc = [](void* userData, unsigned int size) -> void*
 	{
@@ -309,13 +311,14 @@ ETriangulateResult TriangulateOutlineLibtess(const FOutline& polygon, int count,
 	if (!tess)
 		return ETriangulateResult::Failed;
 
-	//tessSetOption(tess, TESS_CONSTRAINED_DELAUNAY_TRIANGULATION, 1);
+	tessSetOption(tess, TESS_CONSTRAINED_DELAUNAY_TRIANGULATION, 0);
+	tessSetOption(tess, TESS_REVERSE_CONTOURS, 1);
 
 	// Add contours.
 	for (auto& loop : polygon)
 		tessAddContour(tess, 2, &loop.data()->first, (int)sizeof(*loop.data()), (int)loop.size());
 
-	int result = tessTesselate(tess, TESS_WINDING_POSITIVE, TESS_POLYGONS, 3, 2, 0);
+	int result = tessTesselate(tess, TESS_WINDING_POSITIVE, TESS_POLYGONS, 3, 2, nullptr);
 	if (!result)
 	{
 		tessDeleteTess(tess);
@@ -326,16 +329,16 @@ ETriangulateResult TriangulateOutlineLibtess(const FOutline& polygon, int count,
 	const int* vinds = tessGetVertexIndices(tess);
 	const int* elems = tessGetElements(tess);
 	const int nverts = tessGetVertexCount(tess);
-	const int nelems = tessGetElementCount(tess);
+	const int nelems = tessGetElementCount(tess) * 3;	// an 'element' here is a full triangle, not a single vertex like in OpenGL...
 
 	points.Resize(nverts);
 	indicesOut.Resize(nelems);
 	for (int i = 0; i < nverts; i++)
-			{
+	{
 		points[i] = { verts[i * 2], verts[i * 2 + 1] };
-			}
+	}
 	for (int i = 0; i < nelems; i++)
-			{
+	{
 		indicesOut[i] = elems[i];
 	}
 	return ETriangulateResult::Ok;
@@ -347,6 +350,7 @@ ETriangulateResult TriangulateOutlineLibtess(const FOutline& polygon, int count,
 //
 //==========================================================================
 
+#if 0
 ETriangulateResult TriangulateOutlineNodeBuild(const FOutline& polygon, int count, TArray<FVector2>& points, TArray<int>& indicesOut)
 {
 	TArray<vertex_t> vertexes(count, true);
@@ -412,6 +416,7 @@ ETriangulateResult TriangulateOutlineNodeBuild(const FOutline& polygon, int coun
 	}
 	return ETriangulateResult::Ok;
 }
+#endif
 
 //==========================================================================
 //
@@ -434,9 +439,9 @@ bool SectionGeometry::ValidateSection(Section2* section, int plane)
 			sec->floorypan_ == compare->floorypan_ &&
 			sec->firstWall()->pos == sdata.poscompare[0] &&
 			sec->firstWall()->point2Wall()->pos == sdata.poscompare2[0] &&
-			!(sdata.dirty & EDirty::FloorDirty) && sdata.planes[plane].vertices.Size() ) return true;
+			!(section->dirty & EDirty::FloorDirty) && sdata.planes[plane].vertices.Size() ) return true;
 
-		sdata.dirty &= EDirty::FloorDirty;
+		section->dirty &= EDirty::FloorDirty;
 	}
 	else
 	{
@@ -447,9 +452,9 @@ bool SectionGeometry::ValidateSection(Section2* section, int plane)
 			sec->ceilingypan_ == compare->ceilingypan_ &&
 			sec->firstWall()->pos == sdata.poscompare[1] &&
 			sec->firstWall()->point2Wall()->pos == sdata.poscompare2[1] &&
-			!(sdata.dirty & EDirty::CeilingDirty) && sdata.planes[1].vertices.Size()) return true;
+			!(section->dirty & EDirty::CeilingDirty) && sdata.planes[1].vertices.Size()) return true;
 
-		sdata.dirty &= ~EDirty::CeilingDirty;
+		section->dirty &= ~EDirty::CeilingDirty;
 	}
 	*compare = *sec;
 	sdata.poscompare[plane] = sec->firstWall()->pos;
@@ -480,17 +485,20 @@ bool SectionGeometry::CreateMesh(Section2* section)
 	{
 		result = TriangulateOutlineEarcut(foutline, count, sdata.meshVertices, sdata.meshIndices);
 	}
-	if (result == ETriangulateResult::Failed && !(section->flags & NoLibtess))
+	if (result == ETriangulateResult::Failed && !(section->geomflags & NoLibtess))
 	{
-		section->flags |= NoEarcut;
+		section->geomflags |= NoEarcut;
 		result = TriangulateOutlineLibtess(foutline, count, sdata.meshVertices, sdata.meshIndices);
 	}
+#if 0
 	if (result == ETriangulateResult::Failed)
 	{
-		section->flags |= NoLibtess;
+		section->geomflags |= NoLibtess;
 		result = TriangulateOutlineNodeBuild(foutline, count, sdata.meshVertices, meshIndices);
 	}
-	section->flags &= ~EDirty::GeometryDirty;
+#endif
+
+	section->dirty &= ~EDirty::GeometryDirty;
 	return true;
 }
 
@@ -521,7 +529,7 @@ void SectionGeometry::CreatePlaneMesh(Section2* section, int plane, const FVecto
 		auto& pt = entry.vertices[i];
 		auto& tc = entry.texcoords[i];
 
-		pt.XY() = org;
+		pt.X = org.X; pt.Y = org.Y;
 		PlanesAtPoint(sectorp, (pt.X * 16), (pt.Y * -16), plane ? &pt.Z : nullptr, !plane ? &pt.Z : nullptr);
 		tc = uvcalc.GetUV(int(pt.X * 16.), int(pt.Y * -16.), pt.Z);
 	}
@@ -540,7 +548,7 @@ void SectionGeometry::MarkDirty(sectortype* sector)
 {
 	for (auto section : sections2PerSector[sectnum(sector)])
 	{
-		data[section->index].dirty = sector->dirty;
+		section->dirty = sector->dirty;
 	}
 	sector->dirty = 0;
 }
@@ -556,12 +564,12 @@ SectionGeometryPlane* SectionGeometry::get(Section2* section, int plane, const F
 	if (!section || section->index >= data.Size()) return nullptr;
 	auto sectp = section->sector;
 	if (sectp->dirty) MarkDirty(sectp);
-	if (data[section->index].dirty & EDirty::GeometryDirty)
+	if (section->dirty & EDirty::GeometryDirty)
 	{
 		bool res = CreateMesh(section);
 		if (!res)
 		{
-			section->flags &= ~EDirty::GeometryDirty;	// sector is in an invalid state, so pretend the old setup is still valid. Happens in some SW maps.
+			section->dirty &= ~EDirty::GeometryDirty;	// sector is in an invalid state, so pretend the old setup is still valid. Happens in some SW maps.
 		}
 	}
 	if (!ValidateSection(section, plane))

@@ -581,28 +581,31 @@ void renderDrawMapView(int cposx, int cposy, int czoom, int cang)
 		int picnum = sect->floorpicnum;
 		if ((unsigned)picnum >= (unsigned)MAXTILES) continue;
 
+		int translation = TRANSLATION(Translation_Remap + curbasepal, sector[i].floorpal);
+		PalEntry light = shadeToLight(sector[i].floorshade);
+		setgotpic(picnum);
+
 		for (auto sect : sections2PerSector[i])
 		{
 			TArray<int>* indices;
 			auto mesh = sectionGeometry.get(sect, 0, { 0.f, 0.f }, &indices);
-			vertices.Resize(indices->Size());
-			for (unsigned jj = 0; jj < indices->Size(); jj++)
+			vertices.Resize(mesh->vertices.Size());
+			for (unsigned j = 0; j < mesh->vertices.Size(); j++)
 			{
-				int j = (*indices)[jj];
 				int ox = int(mesh->vertices[j].X * 16.f) - cposx;
 				int oy = int(mesh->vertices[j].Y * -16.f) - cposy;
 				int x1 = DMulScale(ox, xvect, -oy, yvect, 16) + (width << 11);
 				int y1 = DMulScale(oy, xvect, ox, yvect, 16) + (height << 11);
 				vertices[j] = { x1 / 4096.f, y1 / 4096.f, mesh->texcoords[j].X, mesh->texcoords[j].Y };
 			}
+
+#ifdef _DEBUG
+			// visualize the triangulator being used.
+			if (sections2PerSector[i][0]->geomflags & NoEarcut) light.r = light.b = 80;
+#endif
+			twod->AddPoly(tileGetTexture(picnum, true), vertices.Data(), vertices.Size(), (unsigned*)indices->Data(), indices->Size(), translation, light,
+				LegacyRenderStyles[STYLE_Translucent], windowxy1.x, windowxy1.y, windowxy2.x + 1, windowxy2.y + 1);
 		}
-
-		int translation = TRANSLATION(Translation_Remap + curbasepal, sector[i].floorpal);
-		setgotpic(picnum);
-		twod->AddPoly(tileGetTexture(picnum, true), vertices.Data(), vertices.Size(), nullptr, 0, translation, shadeToLight(sector[i].floorshade), 
-			LegacyRenderStyles[STYLE_Translucent], windowxy1.x, windowxy1.y, windowxy2.x + 1, windowxy2.y + 1);
-
-
 	}
 	qsort(floorsprites.Data(), floorsprites.Size(), sizeof(spritetype*), [](const void* a, const void* b)
 		{

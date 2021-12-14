@@ -28,7 +28,9 @@ struct Section2Loop
 
 struct Section2
 {
-	int flags;
+	uint8_t flags;
+	uint8_t dirty;
+	uint8_t geomflags;
 	unsigned index;
 	sectortype* sector;
 	// this uses a memory arena for storage, so use TArrayView instead of TArray
