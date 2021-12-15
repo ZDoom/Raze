@@ -45,7 +45,6 @@
 
 FMemArena sectionArena(102400);
 
-CVAR(Bool, hw_sectiondebug, false, 0)
 TMap<int, bool> bugged;
 
 TArray<SectionLine> sectionLines;
@@ -626,35 +625,6 @@ void hw_CreateSections2()
 	GroupData(collect, builders);
 
 	ConstructSections(builders);
-
-	if (hw_sectiondebug)
-	{
-		for (int i = 0; i < numsectors; i++)
-		{
-			//if (sections2PerSector[i][0]->flags == 0 && !bugged.CheckKey(i)) continue;	
-			Printf(PRINT_LOG, "Sector %d, %d walls, %d sections\n", i, sector[i].wallnum, sectionsPerSector[i].Size());
-			for (auto& section : sectionsPerSector[i])
-			{
-				Printf(PRINT_LOG, "\tSection %d, %d loops, flags = %d\n", section->index, section->loops.Size(), section->flags);
-				for (auto& loop : section->loops)
-				{
-					Printf(PRINT_LOG, "\t\tLoop, %d walls\n", loop.walls.Size());
-					for (auto& wall_i : loop.walls)
-					{
-						auto wall = &sectionLines[wall_i];
-						Printf(PRINT_LOG, "\t\t\tWall %d, (%d, %d) -> (%d, %d)", wall->wall, wall->v1().x / 16, wall->v1().y / -16, wall->v2().x / 16, wall->v2().y / -16);
-						if (wall->wallp()->nextwall == -1) Printf(PRINT_LOG, "one-sided\n");
-						else
-						{
-							Printf(PRINT_LOG, " next wall = %d, next sector = %d", wall->wallp()->nextwall, wall->wallp()->nextsector);
-							if (wall->wallp()->nextWall()->nextWall() != wall->wallp()) Printf(PRINT_LOG, " unreachable");
-							Printf(PRINT_LOG, "\n");
-						}
-					}
-				}
-			}
-		}
-	}
 }
 
 //==========================================================================
@@ -689,35 +659,4 @@ void hw_SetSplitSector(int sectnum, int start, int end)
 void hw_ClearSplitSector()
 {
 	splits.Clear();
-}
-
-
-
-#include "c_dispatch.h"
-#include "engineerrors.h"
-
-CCMD(sectiontest)
-{
-	TMap<FString, bool> processed;
-	for (int i = 0; i < fileSystem.GetNumEntries(); i++)
-	{
-		FString f = FString(fileSystem.GetFileFullName(i)).MakeUpper();
-		if (f.IndexOf(".MAP") == f.Len() - 4)
-		{
-			if (processed.CheckKey(f)) continue;
-			processed.Insert(f, true);
-			Printf(PRINT_LOG, "Checking %s\n--------------------------\n", f.GetChars());
-			try
-			{
-				loadMapBackup(f);
-			}
-			catch (const CRecoverableError& error)
-			{
-				Printf(PRINT_LOG, "Unable to load map: %s\n", error.what());
-			}
-			Printf(PRINT_LOG, "\n\n");
-			I_DebugPrint(f);
-			I_DebugPrint("\n");
-		}
-	}
 }
