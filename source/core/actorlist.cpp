@@ -35,6 +35,7 @@
 #include "build.h"
 #include "coreactor.h"
 #include "gamefuncs.h"
+#include "raze_sound.h"
 
 // Doubly linked ring list of Actors
 
@@ -367,6 +368,21 @@ DCoreActor* InsertActor(PClass* type, sectortype* sector, int stat, bool tail)
 
 void DCoreActor::OnDestroy()
 {
+	FVector3 pos = GetSoundPos(&spr.pos);
+	soundEngine->RelinkSound(SOURCE_Actor, this, nullptr, &pos);
+
+	// also scan all other sounds if they have this actor as source. If so, null the source and stop looped sounds.
+	soundEngine->EnumerateChannels([=](FSoundChan* chan)
+		{
+			if (chan->Source == this)
+			{
+				if (chan->ChanFlags & CHANF_LOOP) soundEngine->StopChannel(chan);
+				else chan->Source = nullptr;
+			}
+			return 0;
+		});
+
+
 	if(link_stat == INT_MAX) return;
 
 	int stat = link_stat;

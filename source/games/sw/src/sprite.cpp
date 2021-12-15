@@ -765,9 +765,6 @@ void KillActor(DSWActor* actor)
         actor->clearUser();
     }
 
-    FVector3 pos = GetSoundPos(&actor->s().pos);
-    soundEngine->RelinkSound(SOURCE_Actor, &actor->s(), nullptr, &pos);
-
     // shred your garbage
     sp->clear();
     actor->Destroy();

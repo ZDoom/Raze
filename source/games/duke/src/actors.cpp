@@ -76,8 +76,7 @@ void deletesprite(DDukeActor *const actor)
 {
 	if (actor->s->picnum == MUSICANDSFX && actor->temp_data[0] == 1)
 		S_StopSound(actor->s->lotag, actor);
-	else
-		S_RelinkActorSound(actor, nullptr);
+
 	actor->Destroy();
 }
 

@@ -532,9 +532,6 @@ void DeleteActor(DExhumedActor* actor)
         return;
     }
 
-    FVector3 pos = GetSoundPos(&actor->s().pos);
-    soundEngine->RelinkSound(SOURCE_Actor, &actor->s(), nullptr, &pos);
-
     if (actor == bestTarget) {
         bestTarget = nullptr;
     }

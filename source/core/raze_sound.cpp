@@ -216,50 +216,61 @@ void S_SerializeSounds(FSerializer& arc)
 {
 	FSoundChan* chan;
 
-GSnd->Sync(true);
+	GSnd->Sync(true);
 
-if (arc.isWriting())
-{
-	// Count channels and accumulate them so we can store them in
-	// reverse order. That way, they will be in the same order when
-	// reloaded later as they are now.
-	TArray<FSoundChan*> chans = soundEngine->AllActiveChannels();
-
-	if (chans.Size() > 0 && arc.BeginArray("sounds"))
+	if (arc.isWriting())
 	{
-		for (unsigned int i = chans.Size(); i-- != 0; )
-		{
-			// Replace start time with sample position.
-			uint64_t start = chans[i]->StartTime;
-			chans[i]->StartTime = GSnd ? GSnd->GetPosition(chans[i]) : 0;
-			arc(nullptr, *chans[i]);
-			chans[i]->StartTime = start;
-		}
-		arc.EndArray();
-	}
-}
-else
-{
-	unsigned int count;
+		// Count channels and accumulate them so we can store them in
+		// reverse order. That way, they will be in the same order when
+		// reloaded later as they are now.
+		TArray<FSoundChan*> chans = soundEngine->AllActiveChannels();
 
-	soundEngine->StopAllChannels();
-	if (arc.BeginArray("sounds"))
-	{
-		count = arc.ArraySize();
-		for (unsigned int i = 0; i < count; ++i)
+		if (chans.Size() > 0 && arc.BeginArray("sounds"))
 		{
-			chan = (FSoundChan*)soundEngine->GetChannel(nullptr);
-			arc(nullptr, *chan);
-			// Sounds always start out evicted when restored from a save.
-			chan->ChanFlags |= CHANF_EVICTED | CHANF_ABSTIME;
+			for (unsigned int i = chans.Size(); i-- != 0; )
+			{
+				// Replace start time with sample position.
+				uint64_t start = chans[i]->StartTime;
+				chans[i]->StartTime = GSnd ? GSnd->GetPosition(chans[i]) : 0;
+				arc(nullptr, *chans[i]);
+				chans[i]->StartTime = start;
+			}
+			arc.EndArray();
 		}
-		arc.EndArray();
 	}
-	// Add a small delay so that eviction only runs once the game is up and runnnig.
-	soundEngine->SetRestartTime(I_GetTime() + 2);
-}
-GSnd->Sync(false);
-GSnd->UpdateSounds();
+	else
+	{
+		unsigned int count;
+
+		soundEngine->StopAllChannels();
+		if (arc.BeginArray("sounds"))
+		{
+			count = arc.ArraySize();
+			for (unsigned int i = 0; i < count; ++i)
+			{
+				chan = (FSoundChan*)soundEngine->GetChannel(nullptr);
+				arc(nullptr, *chan);
+				// Sounds always start out evicted when restored from a save.
+				chan->ChanFlags |= CHANF_EVICTED | CHANF_ABSTIME;
+			}
+			arc.EndArray();
+		}
+		// Add a small delay so that eviction only runs once the game is up and runnnig.
+		soundEngine->SetRestartTime(I_GetTime() + 2);
+	}
+	// Check if there's actor sounds without an actor. This can happen if a savegame is badly timed with a freshly destroyed actor.
+	soundEngine->EnumerateChannels([](FSoundChan* chan)
+		{
+			auto eng = static_cast<RazeSoundEngine*>(soundEngine);
+			if (eng->SourceIsActor(chan) && chan->Source == nullptr)
+			{
+				eng->StopChannel(chan);
+			}
+			return 0;
+		});
+
+	GSnd->Sync(false);
+	GSnd->UpdateSounds();
 }
 
 //==========================================================================

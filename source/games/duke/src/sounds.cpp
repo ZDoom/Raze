@@ -553,12 +553,6 @@ int S_PlayActorSound(int soundNum, DDukeActor* actor, int channel, EChanFlags fl
 		S_PlaySound3D(soundNum, actor, &actor->s->pos, channel, flags));
 }
 
-void S_RelinkActorSound(DDukeActor* from, DDukeActor* to)
-{
-	FVector3 pos = GetSoundPos(&from->s->pos);
-	soundEngine->RelinkSound(SOURCE_Actor, from, to, &pos);
-}
-
 void S_StopSound(int sndNum, DDukeActor* actor, int channel)
 {
 	sndNum = GetReplacementSound(sndNum);

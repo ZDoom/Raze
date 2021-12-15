@@ -50,10 +50,6 @@ DBloodActor* InsertSprite(sectortype* pSector, int nStat)
 
 int DeleteSprite(DBloodActor* actor)
 {
-    auto sp = &actor->s();
-    FVector3 pos = GetSoundPos(&actor->s().pos);
-    soundEngine->RelinkSound(SOURCE_Actor, actor, nullptr, &pos);
-
 #ifdef NOONE_EXTENSIONS
     for (auto& ctrl : gPlayerCtrl) if (ctrl.qavScene.initiator == actor) ctrl.qavScene.initiator = nullptr;
 #endif
