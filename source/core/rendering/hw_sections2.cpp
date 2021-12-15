@@ -567,12 +567,12 @@ static void ConstructSections(TArray<sectionbuildsector>& builders)
 			auto& srcsect = builder.sections[j];
 			sections2[cursection] = section;
 			sections2PerSector[i][j] = section;
-			section->sector = &sector[i];
+			section->sector = i;
 			section->index = cursection++;
 
 			int sectwalls = srcsect.wallcount;
 			auto walls = (int*)sectionArena.Calloc(sectwalls * sizeof(int));
-			section->walls.Set(walls, sectwalls);
+			section->lines.Set(walls, sectwalls);
 
 			unsigned srcloops = srcsect.loops.Size();
 			auto loops = (Section2Loop*)sectionArena.Calloc(srcloops * sizeof(Section2Loop));
@@ -590,7 +590,7 @@ static void ConstructSections(TArray<sectionbuildsector>& builders)
 				{
 					int wall_i = srcloop[w];
 					auto wal = &sectionLines[wall_i];
-					section->walls[curwall++] = loop.walls[w] = wall_i;
+					section->lines[curwall++] = loop.walls[w] = wall_i;
 					wal->section = section->index;
 				}
 			}

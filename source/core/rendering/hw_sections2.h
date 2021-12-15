@@ -19,9 +19,9 @@ struct Section2
 	uint8_t dirty;
 	uint8_t geomflags;
 	unsigned index;
-	sectortype* sector;
+	int sector;
 	// this uses a memory arena for storage, so use TArrayView instead of TArray
-	TArrayView<int> walls;
+	TArrayView<int> lines;
 	TArrayView<Section2Loop> loops;
 };
 

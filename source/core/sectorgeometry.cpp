@@ -426,7 +426,7 @@ ETriangulateResult TriangulateOutlineNodeBuild(const FOutline& polygon, int coun
 
 bool SectionGeometry::ValidateSection(Section2* section, int plane)
 {
-	auto sec = section->sector;
+	auto sec = &sector[section->sector];
 	auto& sdata = data[section->index];
 
 	auto compare = &sdata.compare[plane];
@@ -510,7 +510,7 @@ bool SectionGeometry::CreateMesh(Section2* section)
 
 void SectionGeometry::CreatePlaneMesh(Section2* section, int plane, const FVector2& offset)
 {
-	auto sectorp = section->sector;
+	auto sectorp = &sector[section->sector];
 	// calculate the rest.
 	auto texture = tileGetTexture(plane ? sectorp->ceilingpicnum : sectorp->floorpicnum);
 	auto& sdata = data[section->index];
@@ -562,7 +562,7 @@ void SectionGeometry::MarkDirty(sectortype* sector)
 SectionGeometryPlane* SectionGeometry::get(Section2* section, int plane, const FVector2& offset, TArray<int>** pIndices)
 {
 	if (!section || section->index >= data.Size()) return nullptr;
-	auto sectp = section->sector;
+	auto sectp = &sector[section->sector];
 	if (sectp->dirty) MarkDirty(sectp);
 	if (section->dirty & EDirty::GeometryDirty)
 	{
