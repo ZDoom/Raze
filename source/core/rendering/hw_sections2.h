@@ -1,4 +1,4 @@
-
+#include "hw_sections.h"
 struct Section2;
 
 enum ESEctionFlag
@@ -8,24 +8,9 @@ enum ESEctionFlag
 	BadWinding = 4,
 };
 
-struct Section2Wall
-{
-	int index;
-	int section;
-	int startpoint;
-	int endpoint;
-	int wall; // points to the actual wall this belongs to - this is NOT necessarily the same as startpoint and can be -1.
-	Section2Wall* backside;		// this is better kept as pointer because of reindexing when splitting a section.
-
-	vec2_t v1() const { return ::wall[startpoint].pos; }
-	vec2_t v2() const { return ::wall[endpoint].pos; }
-	walltype* wallp() const { return &::wall[wall]; }
-
-};
-
 struct Section2Loop
 {
-	TArrayView<Section2Wall*> walls;
+	TArrayView<int> walls;
 };
 
 struct Section2
@@ -36,13 +21,12 @@ struct Section2
 	unsigned index;
 	sectortype* sector;
 	// this uses a memory arena for storage, so use TArrayView instead of TArray
-	TArrayView<Section2Wall*> walls;
+	TArrayView<int> walls;
 	TArrayView<Section2Loop> loops;
 };
 
 extern TArray<Section2*> sections2;
 extern TArrayView<TArrayView<Section2*>> sections2PerSector;
-extern TArray<Section2Wall*> section2walls;
 
 void hw_CreateSections2();
 using Outline = TArray<TArray<vec2_t>>;

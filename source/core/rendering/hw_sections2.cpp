@@ -47,7 +47,6 @@ CVAR(Bool, hw_sectiondebug, false, 0)
 TMap<int, bool> bugged;
 
 static FMemArena sectionArena(102400);
-TArray<Section2Wall*> section2walls;
 TArray<Section2*> sections2;
 TArrayView<TArrayView<Section2*>> sections2PerSector;
 
@@ -528,17 +527,14 @@ static void ConstructSections(TArray<sectionbuildsector>& builders)
 	// count all sections and allocate the global buffers.
 
 	// Allocate all Section walls.
-	TArray<Section2Wall*> wallmap(numwalls, true);
+	sectionLines.Resize(numwalls);
+
 	for (int i = 0; i < numwalls; i++)
 	{
-		wallmap[i] = (Section2Wall*)sectionArena.Calloc(sizeof(Section2Wall));
-	}
-	for (int i = 0; i < numwalls; i++)
-	{
-		wallmap[i]->startpoint = i;
-		wallmap[i]->endpoint = wall[i].point2;
-		wallmap[i]->wall = i;
-		wallmap[i]->backside = validWallIndex(wall[i].nextwall)? wallmap[wall[i].nextwall] : nullptr;
+		sectionLines[i].startpoint = i;
+		sectionLines[i].endpoint = wall[i].point2;
+		sectionLines[i].wall = i;
+		sectionLines[i].partner = wall[i].nextwall;
 	}
 
 	unsigned count = 0;
@@ -575,7 +571,7 @@ static void ConstructSections(TArray<sectionbuildsector>& builders)
 			section->index = cursection++;
 
 			int sectwalls = srcsect.wallcount;
-			auto walls = (Section2Wall**)sectionArena.Calloc(sectwalls * sizeof(Section2Wall*));
+			auto walls = (int*)sectionArena.Calloc(sectwalls * sizeof(int));
 			section->walls.Set(walls, sectwalls);
 
 			unsigned srcloops = srcsect.loops.Size();
@@ -588,20 +584,24 @@ static void ConstructSections(TArray<sectionbuildsector>& builders)
 				auto& srcloop = srcsect.loops[i];
 				auto& loop = section->loops[i];
 				unsigned numwalls = srcloop.Size() - 1;
-				auto walls = (Section2Wall**)sectionArena.Calloc(numwalls * sizeof(Section2Wall*));
+				auto walls = (int*)sectionArena.Calloc(numwalls * sizeof(int));
 				loop.walls.Set(walls, numwalls);
 				for (unsigned w = 0; w < numwalls; w++)
 				{
-					auto wal = wallmap[srcloop[w]];
-					section->walls[curwall++] = loop.walls[w] = wal;
+					int wall_i = srcloop[w];
+					auto wal = &sectionLines[wall_i];
+					section->walls[curwall++] = loop.walls[w] = wall_i;
 					wal->section = section->index;
-					wal->index = section2walls.Size();
-					section2walls.Push(wal);
 				}
 			}
 		}
 	}
-	section2walls.ShrinkToFit();
+	// Can only do this after completing everything else.
+	for (auto& line : sectionLines)
+	{
+		line.partnersection = line.partner == -1 ? -1 : sectionLines[line.partner].section;
+	}
+	sectionLines.ShrinkToFit();
 	sections2.ShrinkToFit();
 }
 
@@ -615,8 +615,8 @@ void hw_CreateSections2()
 {
 	bugged.Clear();
 	sectionArena.FreeAll();
-	sections2.Reset();
-	section2walls.Clear();
+	sections2.Clear();
+	sectionLines.Clear();
 	TArray<loopcollect> collect;
 	CollectLoops(collect);
 
@@ -637,8 +637,9 @@ void hw_CreateSections2()
 				for (auto& loop : section->loops)
 				{
 					Printf(PRINT_LOG, "\t\tLoop, %d walls\n", loop.walls.Size());
-					for (auto& wall : loop.walls)
+					for (auto& wall_i : loop.walls)
 					{
+						auto wall = &sectionLines[wall_i];
 						Printf(PRINT_LOG, "\t\t\tWall %d, (%d, %d) -> (%d, %d)", wall->wall, wall->v1().x / 16, wall->v1().y / -16, wall->v2().x / 16, wall->v2().y / -16);
 						if (wall->wallp()->nextwall == -1) Printf(PRINT_LOG, "one-sided\n");
 						else
@@ -668,7 +669,7 @@ Outline BuildOutline(Section2* section)
 		output[i].Resize(section->loops[i].walls.Size());
 		for (unsigned j = 0; j < section->loops[i].walls.Size(); j++)
 		{
-			output[i][j] = section->loops[i].walls[j]->v1();
+			output[i][j] = sectionLines[section->loops[i].walls[j]].v1();
 		}
 		StripLoop(output[i]);
 	}

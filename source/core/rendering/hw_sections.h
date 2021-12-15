@@ -11,7 +11,19 @@ struct SectionLine
 	int wall;
 	int partner;
 	int point2index;
+
+	vec2_t v1() const { return ::wall[startpoint].pos; }
+	vec2_t v2() const { return ::wall[endpoint].pos; }
+	walltype* wallp() const { return &::wall[wall]; }
+	SectionLine* partnerLine() const;
+
 };
+extern TArray<SectionLine> sectionLines;
+
+inline SectionLine* SectionLine::partnerLine() const
+{
+	return partner == -1 ? nullptr : &sectionLines[partner];
+}
 
 struct Section
 {
@@ -20,7 +32,6 @@ struct Section
 	TArray<int> lines;	
 };
 
-extern TArray<SectionLine> sectionLines;
 extern TArray<Section> Sections;
 extern TArray<TArray<int>> sectionspersector;	// reverse map, mainly for the automap
 
