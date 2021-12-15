@@ -201,7 +201,7 @@ FAFhitscan(int32_t x, int32_t y, int32_t z, sectortype* sect,
             }
             else
             {
-                sectortype* newsect;
+                sectortype* newsect = nullptr;
                 if (WarpPlane(&hit.hitpos.x, &hit.hitpos.y, &hit.hitpos.z, &newsect))
                 {
                     auto pos = hit.hitpos;
