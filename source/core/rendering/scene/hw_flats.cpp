@@ -100,7 +100,7 @@ void HWFlat::MakeVertices()
 	if (Sprite == nullptr)
 	{
 		TArray<int>* pIndices;
-		auto mesh = sectionGeometry.get(&sections2[section], plane, geoofs, &pIndices);
+		auto mesh = sectionGeometry.get(&sections[section], plane, geoofs, &pIndices);
 
 		auto ret = screen->mVertexData->AllocVertices(pIndices->Size());
 		auto vp = ret.first;
@@ -162,7 +162,7 @@ void HWFlat::DrawFlat(HWDrawInfo *di, FRenderState &state, bool translucent)
 	if (!Sprite)
 	{
 		TArray<int> *indices;
-		auto mesh = sectionGeometry.get(&sections2[section], plane, geoofs, &indices);
+		auto mesh = sectionGeometry.get(&sections[section], plane, geoofs, &indices);
 		state.SetNormal(mesh->normal);
 	}
 	else

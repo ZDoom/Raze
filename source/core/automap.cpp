@@ -585,7 +585,7 @@ void renderDrawMapView(int cposx, int cposy, int czoom, int cang)
 		PalEntry light = shadeToLight(sector[i].floorshade);
 		setgotpic(picnum);
 
-		for (auto sect : sections2PerSector[i])
+		for (auto sect : sectionsPerSector[i])
 		{
 			TArray<int>* indices;
 			auto mesh = sectionGeometry.get(sect, 0, { 0.f, 0.f }, &indices);
@@ -601,7 +601,7 @@ void renderDrawMapView(int cposx, int cposy, int czoom, int cang)
 
 #ifdef _DEBUG
 			// visualize the triangulator being used.
-			if (sections2PerSector[i][0]->geomflags & NoEarcut) light.r = light.b = 80;
+			if (sectionsPerSector[i][0]->geomflags & NoEarcut) light.r = light.b = 80;
 #endif
 			twod->AddPoly(tileGetTexture(picnum, true), vertices.Data(), vertices.Size(), (unsigned*)indices->Data(), indices->Size(), translation, light,
 				LegacyRenderStyles[STYLE_Translucent], windowxy1.x, windowxy1.y, windowxy2.x + 1, windowxy2.y + 1);

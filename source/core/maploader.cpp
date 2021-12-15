@@ -489,7 +489,7 @@ void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang,
 	G_LoadMapHack(filename, md4, sprites);
 	setWallSectors();
 	hw_CreateSections2();
-	sectionGeometry.SetSize(sections2.Size());
+	sectionGeometry.SetSize(sections.Size());
 
 
 	wallbackup = wall;

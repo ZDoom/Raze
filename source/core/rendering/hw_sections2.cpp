@@ -49,8 +49,8 @@ CVAR(Bool, hw_sectiondebug, false, 0)
 TMap<int, bool> bugged;
 
 TArray<SectionLine> sectionLines;
-TArray<Section> sections2;
-TArrayView<TArrayView<Section*>> sections2PerSector;
+TArray<Section> sections;
+TArrayView<TArrayView<Section*>> sectionsPerSector;
 TArray<int> splits;
 
 struct loopcollect
@@ -542,9 +542,9 @@ static void ConstructSections(TArray<sectionbuildsector>& builders)
 
 	unsigned count = 0;
 	// allocate as much as possible from the arena here.
-	size_t size = sizeof(*sections2PerSector.Data()) * numsectors;
+	size_t size = sizeof(*sectionsPerSector.Data()) * numsectors;
 	auto data = sectionArena.Calloc(size);
-	sections2PerSector.Set(static_cast<decltype(sections2PerSector.Data())>(data), numsectors);
+	sectionsPerSector.Set(static_cast<decltype(sectionsPerSector.Data())>(data), numsectors);
 
 	for (int i = 0; i < numsectors; i++)
 	{
@@ -553,10 +553,10 @@ static void ConstructSections(TArray<sectionbuildsector>& builders)
 
 		size = sizeof(Section*) * builder.sections.Size();
 		data = sectionArena.Calloc(size);
-		sections2PerSector[i].Set(static_cast<Section** >(data), builder.sections.Size()); // although this may need reallocation, it is too small to warrant single allocations for each sector.
+		sectionsPerSector[i].Set(static_cast<Section** >(data), builder.sections.Size()); // although this may need reallocation, it is too small to warrant single allocations for each sector.
 	}
-	sections2.Resize(count); // this we cannot put into the arena because its size may change.
-	memset(sections2.Data(), 0, count * sizeof(*sections2.Data()));
+	sections.Resize(count); // this we cannot put into the arena because its size may change.
+	memset(sections.Data(), 0, count * sizeof(*sections.Data()));
 
 	// now fill in the data
 
@@ -566,9 +566,9 @@ static void ConstructSections(TArray<sectionbuildsector>& builders)
 		auto& builder = builders[i];
 		for (unsigned j = 0; j < builder.sections.Size(); j++)
 		{
-			auto section = &sections2[cursection];
+			auto section = &sections[cursection];
 			auto& srcsect = builder.sections[j];
-			sections2PerSector[i][j] = section;
+			sectionsPerSector[i][j] = section;
 			section->sector = i;
 			section->index = cursection++;
 
@@ -604,7 +604,7 @@ static void ConstructSections(TArray<sectionbuildsector>& builders)
 		line.partnersection = line.partner == -1 ? -1 : sectionLines[line.partner].section;
 	}
 	sectionLines.ShrinkToFit();
-	sections2.ShrinkToFit();
+	sections.ShrinkToFit();
 }
 
 //==========================================================================
@@ -617,7 +617,7 @@ void hw_CreateSections2()
 {
 	bugged.Clear();
 	sectionArena.FreeAll();
-	sections2.Clear();
+	sections.Clear();
 	sectionLines.Clear();
 	TArray<loopcollect> collect;
 	CollectLoops(collect);
@@ -632,8 +632,8 @@ void hw_CreateSections2()
 		for (int i = 0; i < numsectors; i++)
 		{
 			//if (sections2PerSector[i][0]->flags == 0 && !bugged.CheckKey(i)) continue;	
-			Printf(PRINT_LOG, "Sector %d, %d walls, %d sections\n", i, sector[i].wallnum, sections2PerSector[i].Size());
-			for (auto& section : sections2PerSector[i])
+			Printf(PRINT_LOG, "Sector %d, %d walls, %d sections\n", i, sector[i].wallnum, sectionsPerSector[i].Size());
+			for (auto& section : sectionsPerSector[i])
 			{
 				Printf(PRINT_LOG, "\tSection %d, %d loops, flags = %d\n", section->index, section->loops.Size(), section->flags);
 				for (auto& loop : section->loops)

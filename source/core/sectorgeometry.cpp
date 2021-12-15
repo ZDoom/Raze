@@ -547,7 +547,7 @@ void SectionGeometry::CreatePlaneMesh(Section* section, int plane, const FVector
 
 void SectionGeometry::MarkDirty(sectortype* sector)
 {
-	for (auto section : sections2PerSector[sectnum(sector)])
+	for (auto section : sectionsPerSector[sectnum(sector)])
 	{
 		section->dirty = sector->dirty;
 	}

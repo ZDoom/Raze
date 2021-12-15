@@ -50,8 +50,8 @@ struct Section
 	TArrayView<Section2Loop> loops;
 };
 
-extern TArray<Section> sections2;
-extern TArrayView<TArrayView<Section*>> sections2PerSector;
+extern TArray<Section> sections;
+extern TArrayView<TArrayView<Section*>> sectionsPerSector;
 
 void hw_CreateSections2();
 using Outline = TArray<TArray<vec2_t>>;
