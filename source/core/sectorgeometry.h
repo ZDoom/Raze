@@ -4,7 +4,7 @@
 #include "vectors.h"
 #include "build.h"
 
-struct Section2;
+struct Section;
 
 struct SectorGeometryPlane
 {
@@ -73,14 +73,14 @@ class SectionGeometry
 {
 	TArray<SectionGeometryData> data;
 
-	bool ValidateSection(Section2* section, int plane);
+	bool ValidateSection(Section* section, int plane);
 	void MarkDirty(sectortype* sector);
-	bool CreateMesh(Section2* section);
-	void CreatePlaneMesh(Section2* section, int plane, const FVector2& offset);
+	bool CreateMesh(Section* section);
+	void CreatePlaneMesh(Section* section, int plane, const FVector2& offset);
 
 
 public:
-	SectionGeometryPlane* get(Section2* section, int plane, const FVector2& offset, TArray<int>** pIndices);
+	SectionGeometryPlane* get(Section* section, int plane, const FVector2& offset, TArray<int>** pIndices);
 
 	void SetSize(unsigned sectcount)
 	{

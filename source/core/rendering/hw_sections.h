@@ -2,6 +2,14 @@
 
 #include "build.h"
 
+enum ESEctionFlag
+{
+	Unclosed = 1,	// at least one unclosed loop
+	Dumped = 2,		// builder was unable to properly construct, so content may not be usable for triangulator.
+	BadWinding = 4,
+};
+
+
 struct SectionLine
 {
 	int section;
@@ -25,11 +33,21 @@ inline SectionLine* SectionLine::partnerLine() const
 	return partner == -1 ? nullptr : &sectionLines[partner];
 }
 
+struct Section2Loop
+{
+	TArrayView<int> walls;
+};
+
 struct Section
 {
+	uint8_t flags;
+	uint8_t dirty;
+	uint8_t geomflags;
+	unsigned index;
 	int sector;
-	// this is the whole point of sections - instead of just having a start index and count, we have an explicit list of lines that's a lot easier to change when needed.
-	TArray<int> lines;	
+	// this uses a memory arena for storage, so use TArrayView instead of TArray
+	TArrayView<int> lines;
+	TArrayView<Section2Loop> loops;
 };
 
 extern TArray<Section> Sections;

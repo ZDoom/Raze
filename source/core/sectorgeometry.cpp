@@ -424,7 +424,7 @@ ETriangulateResult TriangulateOutlineNodeBuild(const FOutline& polygon, int coun
 //
 //==========================================================================
 
-bool SectionGeometry::ValidateSection(Section2* section, int plane)
+bool SectionGeometry::ValidateSection(Section* section, int plane)
 {
 	auto sec = &sector[section->sector];
 	auto& sdata = data[section->index];
@@ -469,7 +469,7 @@ bool SectionGeometry::ValidateSection(Section2* section, int plane)
 //
 //==========================================================================
 
-bool SectionGeometry::CreateMesh(Section2* section)
+bool SectionGeometry::CreateMesh(Section* section)
 {
 	auto outline = BuildOutline(section);
 	FOutline foutline;
@@ -508,7 +508,7 @@ bool SectionGeometry::CreateMesh(Section2* section)
 //
 //==========================================================================
 
-void SectionGeometry::CreatePlaneMesh(Section2* section, int plane, const FVector2& offset)
+void SectionGeometry::CreatePlaneMesh(Section* section, int plane, const FVector2& offset)
 {
 	auto sectorp = &sector[section->sector];
 	// calculate the rest.
@@ -559,7 +559,7 @@ void SectionGeometry::MarkDirty(sectortype* sector)
 //
 //==========================================================================
 
-SectionGeometryPlane* SectionGeometry::get(Section2* section, int plane, const FVector2& offset, TArray<int>** pIndices)
+SectionGeometryPlane* SectionGeometry::get(Section* section, int plane, const FVector2& offset, TArray<int>** pIndices)
 {
 	if (!section || section->index >= data.Size()) return nullptr;
 	auto sectp = &sector[section->sector];

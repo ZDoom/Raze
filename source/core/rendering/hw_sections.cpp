@@ -46,6 +46,7 @@
 #include "nodebuilder/nodebuild.h"
 
 
+FMemArena tempsectionArena(102400);
 TArray<SectionLine> sectionLines;
 TArray<Section> Sections;
 TArray<TArray<int>> sectionspersector;	// reverse map, mainly for the automap
@@ -59,13 +60,15 @@ TArray<int> splits;
 void hw_BuildSections()
 {
 	Sections.Resize(numsectors);
+	memset(Sections.Data(), 0, numsectors * sizeof(Section));
 	sectionspersector.Resize(numsectors);
 	sectionLines.Resize(numwalls * 5 / 4); // cannot reallocate, unfortunately.
 	numsectionlines = numwalls;
 	for (int i = 0; i < numsectors; i++)
 	{
 		Sections[i].sector = i;
-		Sections[i].lines.Resize(sector[i].wallnum);
+		auto lines = (int*)tempsectionArena.Alloc(sector[i].wallnum * sizeof(int));
+		Sections[i].lines.Set(lines, sector[i].wallnum);
 		for (int j = 0; j < sector[i].wallnum; j++) Sections[i].lines[j] = sector[i].wallptr + j;
 		sectionspersector[i].Resize(1);
 		sectionspersector[i][0] = i;

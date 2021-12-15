@@ -261,7 +261,7 @@ void HWFlat::PutFlat(HWDrawInfo *di, int whichplane)
 //
 //==========================================================================
 
-void HWFlat::ProcessSector(HWDrawInfo *di, sectortype * frontsector, Section2* sectionp, int section_, int which)
+void HWFlat::ProcessSector(HWDrawInfo *di, sectortype * frontsector, Section* sectionp, int section_, int which)
 {
 #ifdef _DEBUG
 	if (sectnum(sec) == gl_breaksec)

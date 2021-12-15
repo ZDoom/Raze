@@ -31,7 +31,7 @@ class VSMatrix;
 struct FSpriteModelFrame;
 class FRenderState;
 struct voxmodel_t;
-struct Section2;
+struct Section;
 
 struct HWSectorPlane
 {
@@ -254,7 +254,7 @@ class HWFlat
 {
 public:
 	int oldsection;
-	Section2* section;
+	Section* section;
 	sectortype * sec;
 	tspritetype* Sprite; // for flat sprites.
 	FGameTexture *texture;
@@ -281,7 +281,7 @@ public:
 	//void SetupLights(HWDrawInfo *di, FLightNode *head, FDynLightData &lightdata, int portalgroup);
 
 	void PutFlat(HWDrawInfo* di, int whichplane);
-	void ProcessSector(HWDrawInfo *di, sectortype * frontsector, Section2* sectionp, int sectionnum, int which = 7 /*SSRF_RENDERALL*/);	// cannot use constant due to circular dependencies.
+	void ProcessSector(HWDrawInfo *di, sectortype * frontsector, Section* sectionp, int sectionnum, int which = 7 /*SSRF_RENDERALL*/);	// cannot use constant due to circular dependencies.
 	void ProcessFlatSprite(HWDrawInfo* di, tspritetype* sprite, sectortype* sector);
 	
 	void DrawSubsectors(HWDrawInfo *di, FRenderState &state);

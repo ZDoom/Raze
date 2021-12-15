@@ -43,12 +43,13 @@
 #include "memarena.h"
 #include "c_cvars.h"
 
+FMemArena sectionArena(102400);
+
 CVAR(Bool, hw_sectiondebug, false, 0)
 TMap<int, bool> bugged;
 
-static FMemArena sectionArena(102400);
-TArray<Section2*> sections2;
-TArrayView<TArrayView<Section2*>> sections2PerSector;
+TArray<Section*> sections2;
+TArrayView<TArrayView<Section*>> sections2PerSector;
 
 struct loopcollect
 {
@@ -548,9 +549,9 @@ static void ConstructSections(TArray<sectionbuildsector>& builders)
 		auto& builder = builders[i];
 		count += builder.sections.Size();
 
-		size = sizeof(Section2*) * builder.sections.Size();
+		size = sizeof(Section*) * builder.sections.Size();
 		data = sectionArena.Calloc(size);
-		sections2PerSector[i].Set(static_cast<Section2** >(data), builder.sections.Size()); // although this may need reallocation, it is too small to warrant single allocations for each sector.
+		sections2PerSector[i].Set(static_cast<Section** >(data), builder.sections.Size()); // although this may need reallocation, it is too small to warrant single allocations for each sector.
 	}
 	sections2.Resize(count); // this we cannot put into the arena because its size may change.
 	memset(sections2.Data(), 0, count * sizeof(*sections2.Data()));
@@ -563,7 +564,7 @@ static void ConstructSections(TArray<sectionbuildsector>& builders)
 		auto& builder = builders[i];
 		for (unsigned j = 0; j < builder.sections.Size(); j++)
 		{
-			auto section = (Section2*)sectionArena.Calloc(sizeof(Section2));
+			auto section = (Section*)sectionArena.Calloc(sizeof(Section));
 			auto& srcsect = builder.sections[j];
 			sections2[cursection] = section;
 			sections2PerSector[i][j] = section;
@@ -661,7 +662,7 @@ void hw_CreateSections2()
 //
 //==========================================================================
 
-Outline BuildOutline(Section2* section)
+Outline BuildOutline(Section* section)
 {
 	Outline output(section->loops.Size(), true);
 	for (unsigned i = 0; i < section->loops.Size(); i++)
