@@ -1058,7 +1058,6 @@ set (PCH_SOURCES
 	core/rendering/hw_models.cpp
 	core/rendering/hw_voxels.cpp
 	core/rendering/hw_palmanager.cpp
-	core/rendering/hw_sections.cpp
 	core/rendering/hw_sections2.cpp
 	core/rendering/scene/hw_clipper.cpp
 	core/rendering/scene/hw_walls.cpp

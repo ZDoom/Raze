@@ -39,7 +39,7 @@
 */
 
 #include "build.h"
-#include "hw_sections2.h"
+#include "hw_sections.h"
 #include "memarena.h"
 #include "c_cvars.h"
 
@@ -48,8 +48,10 @@ FMemArena sectionArena(102400);
 CVAR(Bool, hw_sectiondebug, false, 0)
 TMap<int, bool> bugged;
 
-TArray<Section*> sections2;
+TArray<SectionLine> sectionLines;
+TArray<Section> sections2;
 TArrayView<TArrayView<Section*>> sections2PerSector;
+TArray<int> splits;
 
 struct loopcollect
 {
@@ -564,9 +566,8 @@ static void ConstructSections(TArray<sectionbuildsector>& builders)
 		auto& builder = builders[i];
 		for (unsigned j = 0; j < builder.sections.Size(); j++)
 		{
-			auto section = (Section*)sectionArena.Calloc(sizeof(Section));
+			auto section = &sections2[cursection];
 			auto& srcsect = builder.sections[j];
-			sections2[cursection] = section;
 			sections2PerSector[i][j] = section;
 			section->sector = i;
 			section->index = cursection++;
@@ -676,6 +677,20 @@ Outline BuildOutline(Section* section)
 	}
 	return output;
 }
+
+
+void hw_SetSplitSector(int sectnum, int start, int end)
+{
+	splits.Push(sectnum);
+	splits.Push(start);
+	splits.Push(end);
+}
+
+void hw_ClearSplitSector()
+{
+	splits.Clear();
+}
+
 
 
 #include "c_dispatch.h"

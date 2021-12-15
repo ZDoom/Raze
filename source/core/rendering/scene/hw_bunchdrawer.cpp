@@ -88,7 +88,8 @@ void BunchDrawer::Init(HWDrawInfo *_di, Clipper* c, vec2_t& view, binangle a1, b
 
 void BunchDrawer::StartScene()
 {
-	unsigned numsections = Sections.Size();
+	//unsigned numsections = Sections.Size();
+	unsigned numsections = sections2.Size();
 	LastBunch = 0;
 	StartTime = I_msTime();
 	Bunches.Clear();
@@ -565,7 +566,8 @@ void BunchDrawer::ProcessSection(int sectionnum, bool portal)
 
 	SetupSprite.Clock();
 
-	int sectnum = Sections[sectionnum].sector;
+	//int sectnum = Sections[sectionnum].sector;
+	int sectnum = sections2[sectionnum].sector;
 	if (!gotsector[sectnum])
 	{
 		gotsector.Set(sectnum);
@@ -603,7 +605,8 @@ void BunchDrawer::ProcessSection(int sectionnum, bool portal)
 
 	//Todo: process subsectors
 	inbunch = false;
-	auto section = &Sections[sectionnum];
+	//auto section = &Sections[sectionnum];
+	auto section = &sections2[sectionnum];
 	for (unsigned i = 0; i < section->lines.Size(); i++)
 	{
 		auto thisline = &sectionLines[section->lines[i]];
@@ -651,17 +654,17 @@ void BunchDrawer::RenderScene(const int* viewsectors, unsigned sectcount, bool p
 
 		for (unsigned i = 0; i < sectcount; i++)
 		{
-			for (auto j : sectionspersector[viewsectors[i]])
+			for (auto j : sections2PerSector[viewsectors[i]])
 			{
-				sectionstartang[j] = 0;
-				sectionendang[j] = int(angrange.asbam());
+				sectionstartang[j->index] = 0;
+				sectionendang[j->index] = int(angrange.asbam());
 			}
 		}
 		for (unsigned i = 0; i < sectcount; i++)
 		{
-			for (auto j : sectionspersector[viewsectors[i]])
+			for (auto j : sections2PerSector[viewsectors[i]])
 			{
-				ProcessSection(j, portal);
+				ProcessSection(j->index, portal);
 			}
 		}
 		while (Bunches.Size() > 0)

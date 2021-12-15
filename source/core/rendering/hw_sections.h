@@ -50,10 +50,14 @@ struct Section
 	TArrayView<Section2Loop> loops;
 };
 
-extern TArray<Section> Sections;
-extern TArray<TArray<int>> sectionspersector;	// reverse map, mainly for the automap
+extern TArray<Section> sections2;
+extern TArrayView<TArrayView<Section*>> sections2PerSector;
 
+void hw_CreateSections2();
+using Outline = TArray<TArray<vec2_t>>;
+using Point = std::pair<float, float>;
+using FOutline = std::vector<std::vector<Point>>; // Data type was chosen so it can be passed directly into Earcut.
+Outline BuildOutline(Section* section);
 
-void hw_BuildSections();
 void hw_SetSplitSector(int sector, int startpos, int endpos);
 void hw_ClearSplitSector();

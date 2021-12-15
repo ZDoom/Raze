@@ -63,7 +63,6 @@
 #include "ns.h"
 #include "serialize_obj.h"
 #include "games/blood/src/mapstructs.h"
-#include "hw_sections2.h"
 #include <zlib.h>
 
 
@@ -725,7 +724,6 @@ void SerializeMap(FSerializer& arc)
 	if (arc.isReading())
 	{
 		setWallSectors();
-		hw_BuildSections();
 		hw_CreateSections2();
 		sectionGeometry.SetSize(sections2.Size());
 	}
