@@ -64,7 +64,6 @@ void BunchDrawer::Init(HWDrawInfo *_di, Clipper* c, vec2_t& view, binangle a1, b
 	viewy = view.y * -(1/ 16.f);
 	iview = view;
 	StartScene();
-	clipper->SetViewpoint(view);
 
 	gcosang = bamang(di->Viewpoint.RotAngle).fcos();
 	gsinang = bamang(di->Viewpoint.RotAngle).fsin();
@@ -72,7 +71,8 @@ void BunchDrawer::Init(HWDrawInfo *_di, Clipper* c, vec2_t& view, binangle a1, b
 	for (int i = 0; i < numwalls; i++)
 	{
 		// Precalculate the clip angles to avoid doing this repeatedly during level traversal.
-		wall[i].clipangle = clipper->PointToAngle(wall[i].pos);
+		auto vv = wall[i].pos - view;
+		wall[i].clipangle = bvectangbam(vv.x, vv.y);
 	}
 	memset(sectionstartang.Data(), -1, sectionstartang.Size() * sizeof(sectionstartang[0]));
 	memset(sectionendang.Data(), -1, sectionendang.Size() * sizeof(sectionendang[0]));

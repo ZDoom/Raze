@@ -146,7 +146,6 @@ void HWDrawInfo::StartScene(FRenderViewpoint& parentvp, HWViewpointUniforms* uni
 		VPUniforms.mShadowmapFilter = gl_shadowmap_filter;
 	}
 	vec2_t view = { int(Viewpoint.Pos.X * 16), int(Viewpoint.Pos.Y * -16) };
-	mClipper->SetViewpoint(view);
 
 	ClearBuffers();
 
