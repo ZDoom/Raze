@@ -597,7 +597,7 @@ void BunchDrawer::ProcessSection(int sectionnum, bool portal)
 
 	SetupFlat.Clock();
 	HWFlat flat;
-	flat.ProcessSector(di, &sector[sectnum], nullptr, sectionnum);
+	flat.ProcessSector(di, &sector[sectnum], sectionnum);
 	SetupFlat.Unclock();
 
 	//Todo: process subsectors

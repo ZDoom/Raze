@@ -36,6 +36,7 @@
 #include "hw_drawstructs.h"
 #include "hw_renderstate.h"
 #include "sectorgeometry.h"
+#include "hw_sections2.h"
 
 #ifdef _DEBUG
 CVAR(Int, gl_breaksec, -1, 0)
@@ -98,44 +99,23 @@ void HWFlat::MakeVertices()
 	bool canvas = texture->isHardwareCanvas();
 	if (Sprite == nullptr)
 	{
-		if (section != nullptr)
-		{
-			TArray<int>* pIndices;
-			auto mesh = sectionGeometry.get(section, plane, geoofs, &pIndices);
+		TArray<int>* pIndices;
+		auto mesh = sectionGeometry.get(sections2[section], plane, geoofs, &pIndices);
 
-			auto ret = screen->mVertexData->AllocVertices(pIndices->Size());
-			auto vp = ret.first;
-			float base = (plane == 0 ? sec->floorz : sec->ceilingz) * (1 / -256.f);
-			for (unsigned i = 0; i < pIndices->Size(); i++)
-			{
-				auto ii = (*pIndices)[i];
-				auto& pt = mesh->vertices[ii];
-				auto& uv = mesh->texcoords[ii];
-				vp->SetVertex(pt.X, base + pt.Z, pt.Y);
-				vp->SetTexCoord(uv.X, canvas ? 1.f - uv.Y : uv.Y);
-				vp++;
-			}
-			vertindex = ret.second;
-			vertcount = pIndices->Size();
-		}
-		else
+		auto ret = screen->mVertexData->AllocVertices(pIndices->Size());
+		auto vp = ret.first;
+		float base = (plane == 0 ? sec->floorz : sec->ceilingz) * (1 / -256.f);
+		for (unsigned i = 0; i < pIndices->Size(); i++)
 		{
-			auto mesh = sectorGeometry.get(oldsection, plane, geoofs);
-			if (!mesh) return;
-			auto ret = screen->mVertexData->AllocVertices(mesh->vertices.Size());
-			auto vp = ret.first;
-			float base = (plane == 0 ? sec->floorz : sec->ceilingz) * (1 / -256.f);
-			for (unsigned i = 0; i < mesh->vertices.Size(); i++)
-			{
-				auto& pt = mesh->vertices[i];
-				auto& uv = mesh->texcoords[i];
-				vp->SetVertex(pt.X, base + pt.Z, pt.Y);
-				vp->SetTexCoord(uv.X, canvas ? 1.f - uv.Y : uv.Y);
-				vp++;
-			}
-			vertindex = ret.second;
-			vertcount = mesh->vertices.Size();
+			auto ii = (*pIndices)[i];
+			auto& pt = mesh->vertices[ii];
+			auto& uv = mesh->texcoords[ii];
+			vp->SetVertex(pt.X, base + pt.Z, pt.Y);
+			vp->SetTexCoord(uv.X, canvas ? 1.f - uv.Y : uv.Y);
+			vp++;
 		}
+		vertindex = ret.second;
+		vertcount = pIndices->Size();
 	}
 	else
 	{
@@ -181,7 +161,8 @@ void HWFlat::DrawFlat(HWDrawInfo *di, FRenderState &state, bool translucent)
 
 	if (!Sprite)
 	{
-		auto mesh = sectorGeometry.get(oldsection, plane, geoofs);
+		TArray<int> *indices;
+		auto mesh = sectionGeometry.get(sections2[section], plane, geoofs, &indices);
 		state.SetNormal(mesh->normal);
 	}
 	else
@@ -261,7 +242,7 @@ void HWFlat::PutFlat(HWDrawInfo *di, int whichplane)
 //
 //==========================================================================
 
-void HWFlat::ProcessSector(HWDrawInfo *di, sectortype * frontsector, Section* sectionp, int section_, int which)
+void HWFlat::ProcessSector(HWDrawInfo *di, sectortype * frontsector, int section_, int which)
 {
 #ifdef _DEBUG
 	if (sectnum(sec) == gl_breaksec)
@@ -279,8 +260,7 @@ void HWFlat::ProcessSector(HWDrawInfo *di, sectortype * frontsector, Section* se
 
 	visibility = sectorVisibility(frontsector);
 	sec = frontsector;
-	oldsection = section_;
-	section = sectionp;
+	section = section_;
 	Sprite = nullptr;
 	geoofs = di->geoofs;
 
