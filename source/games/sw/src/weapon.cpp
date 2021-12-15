@@ -11578,7 +11578,7 @@ int DoMirvMissile(DSWActor* actor)
     if (TEST(u->Flags, SPR_UNDERWATER) && (RANDOM_P2(1024 << 4) >> 4) < 256)
         SpawnBubble(actor);
 
-    if (u->coll.type == kHitNone)
+    if (u->coll.type != kHitNone)
     {
         if (WeaponMoveHit(actor))
         {
