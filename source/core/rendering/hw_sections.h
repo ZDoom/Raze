@@ -18,7 +18,6 @@ struct SectionLine
 	int endpoint;
 	int wall;
 	int partner;
-	int point2index;
 
 	vec2_t v1() const { return ::wall[startpoint].pos; }
 	vec2_t v2() const { return ::wall[endpoint].pos; }

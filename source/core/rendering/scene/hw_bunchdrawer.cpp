@@ -221,7 +221,6 @@ int BunchDrawer::ClipLine(int aline, bool portal)
 		return CL_Skip;
 	}
 	if (line >= 0 && blockwall[line]) return CL_Draw;
-	auto wal = &wall[line];
 
 	// convert to clipper coordinates and clamp to valid range.
 	int startAngle = startAngleBam.asbam();
@@ -256,7 +255,10 @@ int BunchDrawer::ClipLine(int aline, bool portal)
 		return CL_Skip;
 	}
 
-	if (cline->partner == -1 || (wal->cstat & CSTAT_WALL_1WAY) || CheckClip(wal))
+	if (line < 0)
+		return CL_Pass;
+
+	if (cline->partner == -1 || (wall[line].cstat & CSTAT_WALL_1WAY) || CheckClip(&wall[line]))
 	{
 		// one-sided
 		if (!portal && !dontclip) clipper->AddClipRange(startAngle, endAngle);
@@ -442,7 +444,7 @@ int BunchDrawer::BunchInFront(FBunch* b1, FBunch* b2)
 		// Find the wall in b1 that overlaps b2->startangle
 		for (int i = b1->startline; i <= b1->endline; i++)
 		{
-			endang = ClipAngle(wall[i].point2);
+			endang = ClipAngle(sectionLines[i].endpoint);
 			if (endang.asbam() > anglecheck.asbam())
 			{
 				// found a line
@@ -468,7 +470,7 @@ int BunchDrawer::BunchInFront(FBunch* b1, FBunch* b2)
 		// Find the wall in b2 that overlaps b1->startangle
 		for (int i = b2->startline; i <= b2->endline; i++)
 		{
-			endang = ClipAngle(wall[i].point2);
+			endang = ClipAngle(sectionLines[i].endpoint);
 			if (endang.asbam() > anglecheck.asbam())
 			{
 				// found a line
@@ -622,6 +624,7 @@ void BunchDrawer::ProcessSection(int sectionnum, bool portal)
 		{
 			if (walang1.asbam() >= angrange.asbam()) { walang1 = bamang(0); inbunch = false; }
 			if (walang2.asbam() >= angrange.asbam()) walang2 = angrange;
+			if (section->lines[i] >= numwalls) inbunch = false;
 			if (!inbunch)
 			{
 				//Printf("Starting bunch:\n\tWall %d\n", section->lines[i]);

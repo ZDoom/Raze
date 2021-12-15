@@ -520,6 +520,61 @@ static void GroupData(TArray<loopcollect>& collect, TArray<sectionbuildsector>& 
 
 //==========================================================================
 //
+// handle explicit sector splits while we still have simple index arrays.
+// This operates on the generated sections
+//
+//==========================================================================
+
+static void TrySplitLoop(sectionbuildsector& builder, int firstwall, int lastwall)
+{
+	for (unsigned s = 0; s < builder.sections.Size(); s++)
+	{
+		auto& section = builder.sections[s];
+		if (section.loops.Size() > 1)
+		{
+			// Must have one loop to split a section. Should this ever be needed for sections with holes the loops need to be joined before running this.
+			Printf("Unable to split sector %d between walls %d and %d\n", builder.sectnum, firstwall, lastwall);
+			return;
+		}
+		auto& loop = section.loops[0];
+		unsigned i1 = loop.Find(firstwall);
+		unsigned i2 = loop.Find(lastwall);
+		if (i1 >= loop.Size() || i2 >= loop.Size()) continue;
+		if (i2 < i1) std::swap(i1, i2);
+		TArray<int> newloop1;
+		TArray<int> newloop2;
+		auto it = loop.begin();
+		auto end = loop.end() - 1;
+		while (it != end && *it != firstwall) newloop1.Push(*it++);
+		newloop1.Push(-firstwall);
+		while (it != end && *it != lastwall) newloop2.Push(*it++);
+		newloop2.Push(-lastwall);
+		while (it != end) newloop1.Push(*it++);
+		section.wallcount = newloop1.Size();
+		newloop1.Push(loop.Last());
+		section.loops[0] = std::move(newloop1);
+		builder.sections.Reserve(1);
+		auto& newsect = builder.sections.Last();
+		newsect.bugged = false;
+		newsect.wallcount = newloop2.Size();
+		newloop2.Push(loop.Last());
+		newsect.loops.Resize(1);
+		newsect.loops[0] = std::move(newloop2);
+		break;
+	}
+}
+
+static void SplitLoops(TArray<sectionbuildsector>& builders)
+{
+	for (unsigned i = 0; i < splits.Size(); i += 3)
+	{
+		int sector = splits[0];
+		TrySplitLoop(builders[sector], splits[i + 1], splits[i + 2]);
+	}
+}
+
+//==========================================================================
+//
 //
 //
 //==========================================================================
@@ -527,16 +582,31 @@ static void GroupData(TArray<loopcollect>& collect, TArray<sectionbuildsector>& 
 static void ConstructSections(TArray<sectionbuildsector>& builders)
 {
 	// count all sections and allocate the global buffers.
+	TArray<int> splitwalls;
 
 	// Allocate all Section walls.
-	sectionLines.Resize(numwalls);
+	sectionLines.Resize(numwalls + splits.Size() * 2 / 3);
 
+	for (unsigned i = 0; i < splits.Size(); i++)
+	{
+		if (i % 3) splitwalls.Push(splits[i]);
+	}
+
+	int nextwall = numwalls;
 	for (int i = 0; i < numwalls; i++)
 	{
 		sectionLines[i].startpoint = i;
 		sectionLines[i].endpoint = wall[i].point2;
 		sectionLines[i].wall = i;
 		sectionLines[i].partner = wall[i].nextwall;
+	}
+	for (int i = numwalls; i < (int)sectionLines.Size(); i++)
+	{
+		int pair = (i - numwalls);
+		sectionLines[i].startpoint = splitwalls[pair];
+		sectionLines[i].endpoint = splitwalls[pair ^ 1];
+		sectionLines[i].wall = -1;
+		sectionLines[i].partner = numwalls + (pair ^ 1);
 	}
 
 	unsigned count = 0;
@@ -584,15 +654,25 @@ static void ConstructSections(TArray<sectionbuildsector>& builders)
 			{
 				auto& srcloop = srcsect.loops[i];
 				auto& loop = section->loops[i];
-				unsigned numwalls = srcloop.Size() - 1;
-				auto walls = (int*)sectionArena.Calloc(numwalls * sizeof(int));
-				loop.walls.Set(walls, numwalls);
-				for (unsigned w = 0; w < numwalls; w++)
+				unsigned numsectionwalls = srcloop.Size() - 1;
+				auto walls = (int*)sectionArena.Calloc(numsectionwalls * sizeof(int));
+				loop.walls.Set(walls, numsectionwalls);
+				for (unsigned w = 0; w < numsectionwalls; w++)
 				{
 					int wall_i = srcloop[w];
-					auto wal = &sectionLines[wall_i];
-					section->lines[curwall++] = loop.walls[w] = wall_i;
-					wal->section = section->index;
+					if (wall_i >= 0)
+					{
+						auto wal = &sectionLines[wall_i];
+						section->lines[curwall++] = loop.walls[w] = wall_i;
+						wal->section = section->index;
+					}
+					else
+					{
+						wall_i = numwalls + splitwalls.Find(-wall_i);
+						auto wal = &sectionLines[wall_i];
+						section->lines[curwall++] = loop.walls[w] = wall_i;
+						wal->section = section->index;
+					}
 				}
 			}
 		}
@@ -623,6 +703,7 @@ void hw_CreateSections2()
 
 	TArray<sectionbuildsector> builders(numsectors, true);
 	GroupData(collect, builders);
+	SplitLoops(builders);
 
 	ConstructSections(builders);
 }
