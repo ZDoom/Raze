@@ -42,7 +42,6 @@
 #include "earcut.hpp"
 #include "hw_sections2.h"
 #include "tesselator.h"
-#include "nodebuilder/nodebuild.h"
 
 SectorGeometry sectorGeometry;
 SectionGeometry sectionGeometry;
@@ -498,7 +497,10 @@ bool SectionGeometry::CreateMesh(Section* section)
 	}
 #endif
 
+	sdata.planes[0].vertices.Clear();
+	sdata.planes[1].vertices.Clear();
 	section->dirty &= ~EDirty::GeometryDirty;
+	section->dirty |= EDirty::FloorDirty | EDirty::CeilingDirty;
 	return true;
 }
 
