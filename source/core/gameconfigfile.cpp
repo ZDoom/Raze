@@ -90,6 +90,7 @@ FGameConfigFile::FGameConfigFile ()
 		SetValueForKey ("Path", local_app_support + "/NBlood", true);
 		SetValueForKey("Path", local_app_support + "/JFSW", true);
 		SetValueForKey("Path", local_app_support + "/VoidSW", true);
+		SetValueForKey("Path", local_app_support + "/Raze/*", true);
 
 #elif !defined(__unix__)
 		SetValueForKey ("Path", "$PROGDIR", true);
