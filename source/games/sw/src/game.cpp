@@ -545,8 +545,16 @@ void TerminateLevel(void)
         // Free panel sprites for players
         pClearSpriteList(pp);
 
+        // clear *all* pointers in Player!
+        pp->remote = {};
+        pp->sop = pp->sop_remote = nullptr;
         pp->LadderSector = nullptr;
         pp->cookieTime = 0;
+        pp->hi_sectp = pp->lo_sectp = nullptr;
+        pp->cursector = pp->lastcursector = pp->lv_sector = nullptr;
+        pp->sop_control = pp->sop_riding = nullptr;
+        pp->PanelSpriteList = {};
+
         memset(pp->cookieQuote, 0, sizeof(pp->cookieQuote));
         pp->DoPlayerAction = nullptr;
 
