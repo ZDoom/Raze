@@ -88,17 +88,18 @@ void BunchDrawer::Init(HWDrawInfo *_di, Clipper* c, vec2_t& view, binangle a1, b
 
 void BunchDrawer::StartScene()
 {
+	unsigned numsections = Sections.Size();
 	LastBunch = 0;
 	StartTime = I_msTime();
 	Bunches.Clear();
 	CompareData.Clear();
 	gotsector.Resize(numsectors);
 	gotsector.Zero();
-	gotsection2.Resize(Sections.Size());
+	gotsection2.Resize(numsections);
 	gotsection2.Zero();
 	gotwall.Zero();
-	sectionstartang.Resize(Sections.Size());
-	sectionendang.Resize(Sections.Size());
+	sectionstartang.Resize(numsections);
+	sectionendang.Resize(numsections);
 	blockwall.Zero();
 }
 

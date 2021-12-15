@@ -42,8 +42,6 @@
 #include "hw_sections.h"
 #include "sectorgeometry.h"
 #include "gamefuncs.h"
-#include "earcut.hpp"
-#include "nodebuilder/nodebuild.h"
 
 
 FMemArena tempsectionArena(102400);

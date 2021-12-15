@@ -609,8 +609,7 @@ file( GLOB HEADER_FILES
 	core/input/*.h
 	core/rendering/*.h
 	core/rendering/scene/*.h
-	core/nodebuilder/*.h
-
+	
 	common/audio/sound/thirdparty/*.h
 	common/audio/sound/*.h
 	common/audio/music/*.h*
@@ -1055,13 +1054,6 @@ set (PCH_SOURCES
 	core/gi.cpp
 	core/defparser.cpp
 
-	core/nodebuilder/nodebuild.cpp
-	core/nodebuilder/nodebuild_classify_nosse2.cpp
-	core/nodebuilder/nodebuild_events.cpp
-	core/nodebuilder/nodebuild_extract.cpp
-	core/nodebuilder/nodebuild_gl.cpp
-	core/nodebuilder/nodebuild_utility.cpp 
-	
 	core/rendering/hw_entrypoint.cpp
 	core/rendering/hw_models.cpp
 	core/rendering/hw_voxels.cpp
