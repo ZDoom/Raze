@@ -727,7 +727,7 @@ void SerializeMap(FSerializer& arc)
 		setWallSectors();
 		hw_BuildSections();
 		hw_CreateSections2();
-		sectorGeometry.SetSize(Sections.Size());
+		sectionGeometry.SetSize(sections2.Size());
 	}
 }
 

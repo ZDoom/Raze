@@ -43,7 +43,6 @@
 #include "hw_sections2.h"
 #include "tesselator.h"
 
-SectorGeometry sectorGeometry;
 SectionGeometry sectionGeometry;
 
 //==========================================================================
