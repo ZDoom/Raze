@@ -118,7 +118,7 @@ bool BunchDrawer::StartBunch(int sectnum, int linenum, binangle startan, binangl
 	bunch->startangle = startan;
 	bunch->endangle = endan;
 	bunch->portal = portal;
-	assert(bunch->endangle.asbam() > bunch->startangle.asbam());
+	assert(bunch->endangle.asbam() >= bunch->startangle.asbam());
 	return bunch->endangle != angrange;
 }
 
