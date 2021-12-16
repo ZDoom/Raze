@@ -40,7 +40,7 @@
 #include "gamefuncs.h"
 #include "texturemanager.h"
 #include "earcut.hpp"
-#include "hw_sections2.h"
+#include "hw_sections.h"
 #include "tesselator.h"
 
 SectionGeometry sectionGeometry;

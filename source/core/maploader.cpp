@@ -488,7 +488,7 @@ void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang,
 	md4once(buffer.Data(), buffer.Size(), md4);
 	G_LoadMapHack(filename, md4, sprites);
 	setWallSectors();
-	hw_CreateSections2();
+	hw_CreateSections();
 	sectionGeometry.SetSize(sections.Size());
 
 

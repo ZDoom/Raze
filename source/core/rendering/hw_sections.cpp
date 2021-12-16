@@ -692,7 +692,7 @@ static void ConstructSections(TArray<sectionbuildsector>& builders)
 //
 //==========================================================================
 
-void hw_CreateSections2()
+void hw_CreateSections()
 {
 	bugged.Clear();
 	sectionArena.FreeAll();

@@ -45,7 +45,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 #include "v_draw.h"
 #include "sectorgeometry.h"
 #include "gamefuncs.h"
-#include "hw_sections2.h"
+#include "hw_sections.h"
 #include "coreactor.h"
 CVAR(Bool, am_followplayer, true, CVAR_ARCHIVE)
 CVAR(Bool, am_rotate, true, CVAR_ARCHIVE)

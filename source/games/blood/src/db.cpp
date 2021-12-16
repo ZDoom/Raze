@@ -723,7 +723,7 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sect
     }
 
     setWallSectors();
-    hw_CreateSections2();
+    hw_CreateSections();
     sectionGeometry.SetSize(sections.Size());
     wallbackup = wall;
     sectorbackup = sector;
