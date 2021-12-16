@@ -43,12 +43,12 @@ void validateLinks()
 
         if (getUpperLink(snum) && !getUpperLink(snum)->GetOwner())
         {
-            Printf("Unpartnered upper link in sector %d\n", snum);
+            Printf(PRINT_HIGH, "Unpartnered upper link in sector %d\n", snum);
             gUpperLink[snum] = nullptr;
         }
         if (getLowerLink(snum) && !getLowerLink(snum)->GetOwner())
         {
-            Printf("Unpartnered upper link in sector %d\n", snum);
+            Printf(PRINT_HIGH, "Unpartnered upper link in sector %d\n", snum);
             gLowerLink[snum] = nullptr;
         }
         snum++;
