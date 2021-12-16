@@ -36,6 +36,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 BEGIN_BLD_NS
 
+void validateLinks();
+
+
 FixedBitArray<MAXSPRITES> activeXSprites;
 
 // All AI states for assigning an index.
@@ -817,6 +820,7 @@ void GameInterface::SerializeGameState(FSerializer& arc)
 		Polymost::Polymost_prepare_loadboard();
 		Mus_ResumeSaved();
 	}
+	validateLinks();
 }
 
 
