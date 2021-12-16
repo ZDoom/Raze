@@ -344,80 +344,6 @@ ETriangulateResult TriangulateOutlineLibtess(const FOutline& polygon, int count,
 
 //==========================================================================
 //
-// Try to triangulate a given outline with the ZDoom node builder.
-//
-//==========================================================================
-
-#if 0
-ETriangulateResult TriangulateOutlineNodeBuild(const FOutline& polygon, int count, TArray<FVector2>& points, TArray<int>& indicesOut)
-{
-	TArray<vertex_t> vertexes(count, true);
-	TArray<line_t> lines(count, true);
-	TArray<side_t> sides(count, true);
-	sectortype dummy;
-
-	int n = 0;
-	for (size_t i = 0; i < polygon.size(); i++)
-				{
-		int firstn = n;
-		for (size_t j = 0; j < polygon[i].size(); i++)
-				{
-			vertexes[n].set(polygon[i][j].first, polygon[i][j].second);
-
-			lines[n].backsector = nullptr;
-			lines[n].frontsector = &dummy;
-			lines[n].linenum = (int)j;
-			lines[n].wallnum = n;
-			lines[n].sidedef[0] = &sides[n];
-			lines[n].sidedef[1] = nullptr;
-			lines[n].v1 = &vertexes[n];
-			lines[n].v2 = j == polygon[i].size() ? &vertexes[firstn] : &vertexes[n + 1];
-
-			sides[n].sidenum = n;
-			sides[n].sector = &dummy;
-
-				}
-				}
-
-	FNodeBuilder::FLevel leveldata =
-	{
-		&vertexes[0], count,
-		&sides[0], count,
-		&lines[0], count,
-		0, 0, 0, 0
-	};
-	leveldata.FindMapBounds();
-	FNodeBuilder builder(leveldata);
-
-	FLevelLocals Level;
-	builder.Extract(Level);
-
-	points.Resize(Level.vertexes.Size());
-	for (unsigned i = 0; i < Level.vertexes.Size(); i++)
-	{
-		points[i] = { (float)Level.vertexes[i].fX(), (float)Level.vertexes[i].fY() };
-	}
-
-	indicesOut.Clear();
-	for (auto& sub : Level.subsectors)
-	{
-		if (sub.numlines <= 2) continue;
-		auto v0 = Level.vertexes.IndexOf(sub.firstline->v1);
-		for (unsigned i = 1; i < sub.numlines - 1; i++)
-		{
-			auto v1 = Level.vertexes.IndexOf(sub.firstline->v1);
-			auto v2 = Level.vertexes.IndexOf(sub.firstline->v2);
-			indicesOut.Push(v0);
-			indicesOut.Push(v1);
-			indicesOut.Push(v2);
-		}
-	}
-	return ETriangulateResult::Ok;
-}
-#endif
-
-//==========================================================================
-//
 //
 //
 //==========================================================================
@@ -488,13 +414,6 @@ bool SectionGeometry::CreateMesh(Section* section)
 		section->geomflags |= NoEarcut;
 		result = TriangulateOutlineLibtess(foutline, count, sdata.meshVertices, sdata.meshIndices);
 	}
-#if 0
-	if (result == ETriangulateResult::Failed)
-	{
-		section->geomflags |= NoLibtess;
-		result = TriangulateOutlineNodeBuild(foutline, count, sdata.meshVertices, meshIndices);
-	}
-#endif
 
 	sdata.planes[0].vertices.Clear();
 	sdata.planes[1].vertices.Clear();
