@@ -55,7 +55,7 @@ void DrawOverlapRoom(int tx, int ty, int tz, fixed_t tq16ang, fixed_t tq16horiz,
         {
             save.sect[i]->floorz = save.zval[i];
             save.sect[i]->floorpicnum = save.pic[i];
-            save.sect[i]->floorheinum = save.slope[i];
+            save.sect[i]->setfloorslope(save.slope[i]);
         }
 
         analyzesprites(pm_tsprite, pm_spritesortcnt, tx, ty, tz, false);
@@ -80,7 +80,7 @@ void DrawOverlapRoom(int tx, int ty, int tz, fixed_t tq16ang, fixed_t tq16horiz,
             {
                 save.sect[i]->ceilingz = save.zval[i];
                 save.sect[i]->ceilingpicnum = save.pic[i];
-                save.sect[i]->ceilingheinum = save.slope[i];
+                save.sect[i]->setceilingslope(save.slope[i]);
             }
 
             analyzesprites(pm_tsprite, pm_spritesortcnt, tx, ty, tz, false);

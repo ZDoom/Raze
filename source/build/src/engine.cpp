@@ -890,50 +890,6 @@ void renderRestoreTarget()
 }
 
 
-//
-// alignceilslope
-//
-void alignceilslope(int16_t dasect, int32_t x, int32_t y, int32_t z)
-{
-    auto sect = &sector[dasect];
-    auto const wal = (uwallptr_t)sect->firstWall();
-    const int32_t dax = wal->point2Wall()->x-wal->x;
-    const int32_t day = wal->point2Wall()->y-wal->y;
-
-    const int32_t i = (y-wal->y)*dax - (x-wal->x)*day;
-    if (i == 0)
-        return;
-
-    sect->ceilingheinum = Scale((z-sect->ceilingz)<<8,
-                                         ksqrt(uhypsq(dax,day)), i);
-    if (sect->ceilingheinum == 0)
-        sect->ceilingstat &= ~2;
-    else sect->ceilingstat |= 2;
-}
-
-
-//
-// alignflorslope
-//
-void alignflorslope(int16_t dasect, int32_t x, int32_t y, int32_t z)
-{
-    auto sect = &sector[dasect];
-    auto const wal = (uwallptr_t)sect->firstWall();
-    const int32_t dax = wal->point2Wall()->x-wal->x;
-    const int32_t day = wal->point2Wall()->y-wal->y;
-
-    const int32_t i = (y-wal->y)*dax - (x-wal->x)*day;
-    if (i == 0)
-        return;
-
-    sect->floorheinum = Scale((z-sect->floorz)<<8,
-                                       ksqrt(uhypsq(dax,day)), i);
-    if (sect->floorheinum == 0)
-        sect->floorstat &= ~2;
-    else sect->floorstat |= 2;
-}
-
-
 int tilehasmodelorvoxel(int const tilenume, int pal)
 {
     return

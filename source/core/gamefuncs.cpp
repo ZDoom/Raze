@@ -183,7 +183,7 @@ void calcSlope(const sectortype* sec, float xpos, float ypos, float* pceilz, flo
 //
 //==========================================================================
 
-void PlanesAtPoint(const sectortype* sec, int dax, int day, float* pceilz, float* pflorz)
+void PlanesAtPoint(const sectortype* sec, float dax, float day, float* pceilz, float* pflorz)
 {
 	calcSlope(sec, dax, day, pceilz, pflorz);
 	if (pceilz) *pceilz *= -(1 / 256.f);
@@ -192,7 +192,7 @@ void PlanesAtPoint(const sectortype* sec, int dax, int day, float* pceilz, float
 
 //==========================================================================
 //
-// for the games
+// for the games (these are not inlined so that they can inline calcSlope)
 //
 //==========================================================================
 
@@ -216,6 +216,20 @@ void getzsofslopeptr(usectorptr_t sec, int32_t dax, int32_t day, int32_t* ceilz,
 	calcSlope(sec, dax, day, &c, &f);
 	*ceilz = int(c);
 	*florz = int(f);
+}
+
+//==========================================================================
+//
+// 
+//
+//==========================================================================
+
+int getslopeval(sectortype* sect, int x, int y, int z, int basez)
+{
+	auto wal = sect->firstWall();
+	auto delta = wal->delta();
+	int i = (y - wal->y) * delta.x - (x - wal->x) * delta.y;
+	return i == 0? 0 : Scale((z - basez) << 8, wal->Length(), i);
 }
 
 

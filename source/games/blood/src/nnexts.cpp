@@ -6499,14 +6499,11 @@ void useSlopeChanger(DBloodActor* sourceactor, int objType, sectortype* pSect, D
         {
             case 2:
             case 0:
-            if (slope == 0) pSect->floorstat &= ~0x0002;
-            else if (!(pSect->floorstat & 0x0002))
-                    pSect->floorstat |= 0x0002;
 
             // just set floor slope
             if (flag2)
             {
-                pSect->floorheinum = slope;
+                pSect->setfloorslope(slope);
             }
             else
             {
@@ -6521,7 +6518,7 @@ void useSlopeChanger(DBloodActor* sourceactor, int objType, sectortype* pSect, D
                     {
                         sprite2sectorSlope(iactor, pSect, 0, true);
 
-                        // set new slope of floor
+                        // set temporary slope of floor
                         pSect->floorheinum = slope;
 
                         // force sloped sprites to be on floor slope z
@@ -6533,21 +6530,18 @@ void useSlopeChanger(DBloodActor* sourceactor, int objType, sectortype* pSect, D
                 }
 
                 // finally set new slope of floor
-                pSect->floorheinum = slope;
+                pSect->setfloorslope(slope);
 
             }
 
                 if (pXSource->data1 == 0) break;
                 [[fallthrough]];
             case 1:
-            if (slope == 0) pSect->ceilingstat &= ~0x0002;
-            else if (!(pSect->ceilingstat & 0x0002))
-                    pSect->ceilingstat |= 0x0002;
 
             // just set ceiling slope
             if (flag2)
             {
-                pSect->ceilingheinum = slope;
+                pSect->setceilingslope(slope);
             }
             else
             { 
@@ -6573,7 +6567,7 @@ void useSlopeChanger(DBloodActor* sourceactor, int objType, sectortype* pSect, D
                 }
 
                 // finally set new slope of ceiling
-                pSect->ceilingheinum = slope;
+                pSect->setceilingslope(slope);
 
             }
                 break;

@@ -2516,15 +2516,13 @@ void SpriteSetup(void)
                     if (TEST(sectp->floorstat, CSTAT_SECTOR_SLOPE))
                     {
                         SP_TAG5(sp) = sectp->floorheinum;
-                        RESET(sectp->floorstat, CSTAT_SECTOR_SLOPE);
-                        sectp->floorheinum = 0;
+                        sectp->setfloorslope(0);
                     }
 
                     if (TEST(sectp->ceilingstat, CSTAT_SECTOR_SLOPE))
                     {
                         SP_TAG6(sp) = sectp->ceilingheinum;
-                        RESET(sectp->ceilingstat, CSTAT_SECTOR_SLOPE);
-                        sectp->ceilingheinum = 0;
+                        sectp->setceilingslope(0);
                     }
 
                     SP_TAG4(sp) = abs(sectp->ceilingz - sectp->floorz)>>8;

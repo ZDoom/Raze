@@ -902,14 +902,12 @@ void DoExplodeSector(short match)
 
         if (SP_TAG5(esp))
         {
-            sectp->floorheinum = SP_TAG5(esp);
-            SET(sectp->floorstat, CSTAT_SECTOR_SLOPE);
+            sectp->setfloorslope(SP_TAG5(esp));
         }
 
         if (SP_TAG6(esp))
         {
-            sectp->ceilingheinum = SP_TAG6(esp);
-            SET(sectp->ceilingstat, CSTAT_SECTOR_SLOPE);
+            sectp->setceilingslope(SP_TAG6(esp));
         }
 
         for (zh = sectp->ceilingz; zh < sectp->floorz; zh += Z(60))

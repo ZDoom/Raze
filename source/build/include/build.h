@@ -337,9 +337,8 @@ inline void getcorrectzsofslope(int sectnum, int32_t dax, int32_t day, int32_t *
     getzsofslopeptr((usectorptr_t)&sector[sectnum], closest.x, closest.y, ceilz, florz);
 }
 
-void   alignceilslope(int16_t dasect, int32_t x, int32_t y, int32_t z);
-void   alignflorslope(int16_t dasect, int32_t x, int32_t y, int32_t z);
-void setslope(int32_t sectnum, int32_t cf, int16_t slope);
+void   alignceilslope(sectortype* dasect, int32_t x, int32_t y, int32_t z);
+void   alignflorslope(sectortype* dasect, int32_t x, int32_t y, int32_t z);
 
 int32_t lintersect(int32_t originX, int32_t originY, int32_t originZ,
                    int32_t destX, int32_t destY, int32_t destZ,

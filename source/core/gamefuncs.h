@@ -118,11 +118,12 @@ void loaddefinitionsfile(const char* fn, bool cumulative = false, bool maingrp =
 
 bool calcChaseCamPos(int* px, int* py, int* pz, spritetype* pspr, sectortype** psectnum, binangle ang, fixedhoriz horiz, double const smoothratio);
 
-void PlanesAtPoint(const sectortype* sec, int dax, int day, float* ceilz, float* florz);
-inline void PlanesAtPoint(const sectortype* sec, float dax, float day, float* ceilz, float* florz) // this is just for warning evasion.
-{
-    PlanesAtPoint(sec, int(dax), int(day), ceilz, florz);
-}
+void PlanesAtPoint(const sectortype* sec, float dax, float day, float* ceilz, float* florz);
+
+int getslopeval(sectortype* sect, int x, int y, int z, int planez);
+
+
+
 void setWallSectors();
 void GetWallSpritePosition(const tspritetype* spr, vec2_t pos, vec2_t* out, bool render = false);
 void GetFlatSpritePosition(const tspritetype* spr, vec2_t pos, vec2_t* out, bool render = false);
@@ -335,15 +336,15 @@ inline void   dragpoint(walltype* pointhighlight, int32_t dax, int32_t day)
 	dragpoint(wallnum(pointhighlight), dax, day);
 }
 
-inline void   alignceilslope(sectortype* dasect, int32_t x, int32_t y, int32_t z)
+inline void alignceilslope(sectortype* sect, int x, int y, int z)
 {
-	alignceilslope(sector.IndexOf(dasect), x, y, z);
-}
-inline void   alignflorslope(sectortype* dasect, int32_t x, int32_t y, int32_t z)
-{
-	alignflorslope(sector.IndexOf(dasect), x, y, z);
+	sect->setceilingslope(getslopeval(sect, x, y, z, sect->ceilingz));
 }
 
+inline void alignflorslope(sectortype* sect, int x, int y, int z)
+{
+	sect->setfloorslope(getslopeval(sect, x, y, z, sect->floorz));
+}
 inline void updatesectorneighbor(int32_t const x, int32_t const y, sectortype* * const sect, int32_t maxDistance = MAXUPDATESECTORDIST)
 {
 	int sectno = *sect? sector.IndexOf(*sect) : -1;

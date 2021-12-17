@@ -1089,7 +1089,7 @@ void DoSector(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		else SetGameVarID(lVar2, sectp->ceilingpicnum, sActor, sPlayer);
 		break;
 	case SECTOR_CEILINGSLOPE:
-		if (bSet) sectp->ceilingheinum = lValue;
+		if (bSet) sectp->setceilingslope(lValue);
 		else SetGameVarID(lVar2, sectp->ceilingheinum, sActor, sPlayer);
 		break;
 	case SECTOR_CEILINGSHADE:
@@ -1113,7 +1113,7 @@ void DoSector(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		else SetGameVarID(lVar2, sectp->floorpicnum, sActor, sPlayer);
 		break;
 	case SECTOR_FLOORSLOPE:
-		if (bSet) sectp->floorheinum = lValue;
+		if (bSet) sectp->setfloorslope(lValue);
 		else SetGameVarID(lVar2, sectp->floorheinum, sActor, sPlayer);
 		break;
 	case SECTOR_FLOORSHADE:

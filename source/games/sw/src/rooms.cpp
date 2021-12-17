@@ -764,7 +764,7 @@ bool FindCeilingView(int match, int* x, int* y, int z, sectortype** sect)
                     // don't change FAF_MIRROR_PIC - ConnectArea
                     if (sp->sector()->floorpicnum != FAF_MIRROR_PIC)
                         sp->sector()->floorpicnum = FAF_MIRROR_PIC + 1;
-                    sp->sector()->floorheinum = 0;
+                    sp->sector()->setfloorslope(0);
 
                     save.zcount++;
                     PRODUCTION_ASSERT(save.zcount < ZMAX);
@@ -861,7 +861,7 @@ bool FindFloorView(int match, int* x, int* y, int z, sectortype** sect)
                     // don't change FAF_MIRROR_PIC - ConnectArea
                     if (sp->sector()->ceilingpicnum != FAF_MIRROR_PIC)
                         sp->sector()->ceilingpicnum = FAF_MIRROR_PIC + 1;
-                    sp->sector()->ceilingheinum = 0;
+                    sp->sector()->setceilingslope(0);
 
                     save.zcount++;
                     PRODUCTION_ASSERT(save.zcount < ZMAX);

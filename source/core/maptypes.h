@@ -258,6 +258,8 @@ struct sectortype
 	void addfloorypan(float add) { floorypan_ = fmodf(floorypan_ + add + 512, 256); } // +512 is for handling negative offsets
 	void addceilingxpan(float add) { ceilingxpan_ = fmodf(ceilingxpan_ + add + 512, 256); } // +512 is for handling negative offsets
 	void addceilingypan(float add) { ceilingypan_ = fmodf(ceilingypan_ + add + 512, 256); } // +512 is for handling negative offsets
+	void setceilingslope(int heinum) { ceilingheinum = heinum; if (heinum) ceilingstat |= CSTAT_SECTOR_SLOPE; else ceilingstat &= ~CSTAT_SECTOR_SLOPE; }
+	void setfloorslope(int heinum) { floorheinum = heinum; if (heinum) floorstat |= CSTAT_SECTOR_SLOPE; else floorstat &= ~CSTAT_SECTOR_SLOPE; }
 	walltype* firstWall() const;
 	walltype* lastWall() const;
 
