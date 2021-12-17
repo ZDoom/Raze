@@ -285,7 +285,7 @@ void HWDrawInfo::DispatchSprites()
 
 		tileUpdatePicnum(&tilenum, (actor->GetIndex() & 16383) + 32768, 0);
 		tspr->picnum = tilenum;
-		setgotpic(tilenum);
+		gotpic.Set(tilenum);
 
 		if (!(actor->sx().flags & SPREXT_NOTMD))
 		{

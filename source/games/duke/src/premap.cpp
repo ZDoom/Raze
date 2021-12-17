@@ -983,7 +983,7 @@ static int LoadTheMap(MapRecord *mi, struct player_struct *p, int gamemode)
 
 	p->angle.ang = buildang(lbang);
 
-	memset(gotpic, 0, sizeof(gotpic));
+	gotpic.Zero();
 
 	auto actorlist = spawnactors(sprites);
 	

@@ -422,7 +422,7 @@ FGameTexture* BuildTiles::ValidateCustomTile(int tilenum, ReplacementType type)
 int32_t BuildTiles::artLoadFiles(const char* filename)
 {
 	TileFiles.LoadArtSet(filename);
-	memset(gotpic, 0, sizeof(gotpic));
+	gotpic.Zero();
 	return 0;
 }
 

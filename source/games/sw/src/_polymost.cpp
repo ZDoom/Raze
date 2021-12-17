@@ -125,7 +125,7 @@ void FAF_DrawRooms(int x, int y, int z, fixed_t q16ang, fixed_t q16horiz, int se
         // manually set gotpic
         if (gotsector[sp->sectno()])
         {
-            setgotpic(FAF_MIRROR_PIC);
+            gotpic.Set(FAF_MIRROR_PIC);
         }
 
         if (SP_TAG3(sp) == 0)
@@ -194,7 +194,7 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fixed_t tpq16ang, fixed
                 }
                 else if ((unsigned)mirror[cnt].campic < MAXTILES && testgotpic(mirror[cnt].campic))
                 {
-                    cleargotpic(mirror[cnt].campic);
+                    gotpic.Clear(mirror[cnt].campic);
                 }
 
                 mirrorinview = true;

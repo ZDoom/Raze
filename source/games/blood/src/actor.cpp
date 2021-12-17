@@ -5015,11 +5015,11 @@ void MoveDude(DBloodActor* actor)
 		{
 		case kMarkerLowStack:
 			if (pPlayer == gView)
-				setgotpic(pSprite->sector()->floorpicnum);
+				gotpic.Set(pSprite->sector()->floorpicnum);
 			break;
 		case kMarkerUpStack:
 			if (pPlayer == gView)
-				setgotpic(pSprite->sector()->ceilingpicnum);
+				gotpic.Set(pSprite->sector()->ceilingpicnum);
 			break;
 		case kMarkerLowWater:
 		case kMarkerLowGoo:

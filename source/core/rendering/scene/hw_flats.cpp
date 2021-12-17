@@ -294,7 +294,7 @@ void HWFlat::ProcessSector(HWDrawInfo *di, sectortype * frontsector, int section
 		if (alpha != 0.f)
 		{
 			int tilenum = frontsector->floorpicnum;
-			setgotpic(tilenum);
+			gotpic.Set(tilenum);
 			tileUpdatePicnum(&tilenum, tilenum, 0);
 			texture = tileGetTexture(tilenum);
 			if (texture && texture->isValid())
@@ -338,7 +338,7 @@ void HWFlat::ProcessSector(HWDrawInfo *di, sectortype * frontsector, int section
 			//iboindex = frontsector->iboindex[sector_t::ceiling];
 
 			int tilenum = frontsector->ceilingpicnum;
-			setgotpic(tilenum);
+			gotpic.Set(tilenum);
 			tileUpdatePicnum(&tilenum, tilenum, 0);
 			texture = tileGetTexture(tilenum);
 			if (texture && texture->isValid())

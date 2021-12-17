@@ -223,10 +223,6 @@ extern int16_t pskybits_override;
 // (or -1 if freelist is empty):
 EXTERN int16_t tailspritefree;
 
-EXTERN uint8_t gotpic[(MAXTILES+7)>>3];
-extern BitArray gotsector;
-
-
 extern uint32_t drawlinepat;
 
 extern uint8_t globalr, globalg, globalb;
@@ -465,23 +461,6 @@ inline void tileUpdatePicnum(int* const tileptr, int const obj, int stat)
 
     if (((obj & 16384) == 16384) && (stat & CSTAT_WALL_ROTATE_90) && RotTile(tile).newtile != -1)
         tile = RotTile(tile).newtile;
-}
-
-inline void setgotpic(int32_t tilenume)
-{
-    gotpic[tilenume >> 3] |= 1 << (tilenume & 7);
-}
-
-inline void cleargotpic(int32_t tilenume)
-{
-    gotpic[tilenume >> 3] &= ~(1 << (tilenume & 7));
-}
-
-inline bool testgotpic(int32_t tilenume, bool reset = false)
-{
-    bool res = gotpic[tilenume >> 3] & (1 << (tilenume & 7));
-    if (reset) gotpic[tilenume >> 3] &= ~(1 << (tilenume & 7));
-    return res;
 }
 
 #endif // build_h_

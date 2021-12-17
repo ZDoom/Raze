@@ -361,7 +361,7 @@ static void polymost_drawpoly(FVector2 const * const dpxy, int32_t const n, int3
         globalfloorpal = globalpal = 0;
 
     //Load texture (globalpicnum)
-    setgotpic(globalpicnum);
+    gotpic.Set(globalpicnum);
 	vec2_t tsiz = { tilesize.x, tilesize.y };
 
     assert(n <= MAX_DRAWPOLY_VERTS);

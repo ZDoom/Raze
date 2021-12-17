@@ -546,6 +546,7 @@ extern TArray<walltype> wall;
 extern TArray<sectortype> sectorbackup;
 extern TArray<walltype> wallbackup;
 extern int numsectors, numwalls;
+extern BitArray gotsector;
 
 //=============================================================================
 //
