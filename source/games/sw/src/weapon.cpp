@@ -16087,7 +16087,7 @@ DSWActor* SpawnWallHole(sectortype* hit_sect, walltype* hit_wall, int hit_x, int
 
     //SET(sp->cstat, CSTAT_SPRITE_TRANSLUCENT|CSTAT_SPRITE_ALIGNMENT_WALL);
     SET(sp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
-    SET(sp->cstat, CSTAT_SPRITE_ONE_SIDED);
+    SET(sp->cstat, CSTAT_SPRITE_ONE_SIDE);
 
     wall_ang = NORM_ANGLE(getangle(hit_wall->delta())-512);
 
@@ -18629,7 +18629,7 @@ void QueueHole(sectortype* hit_sect, walltype* hit_wall, int hit_x, int hit_y, i
     ASSERT(sp->statnum != MAXSTATUS);
 
     SET(sp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
-    SET(sp->cstat, CSTAT_SPRITE_ONE_SIDED);
+    SET(sp->cstat, CSTAT_SPRITE_ONE_SIDE);
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
     wall_ang = NORM_ANGLE(getangle(hit_wall->delta())+512);
@@ -18710,7 +18710,7 @@ int QueueFloorBlood(DSWActor* actor)
     sp->shade -= 5;  // Brighten it up just a bit
 
     SET(sp->cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR);
-    SET(sp->cstat, CSTAT_SPRITE_ONE_SIDED);
+    SET(sp->cstat, CSTAT_SPRITE_ONE_SIDE);
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
     RESET(u->Flags, SPR_SHADOW);
 
@@ -18832,7 +18832,7 @@ int QueueFootPrint(DSWActor* actor)
     if (left_foot)
         SET(sp->cstat, CSTAT_SPRITE_XFLIP);
     SET(sp->cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR);
-    SET(sp->cstat, CSTAT_SPRITE_ONE_SIDED);
+    SET(sp->cstat, CSTAT_SPRITE_ONE_SIDE);
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
     return 0;
@@ -18959,7 +18959,7 @@ DSWActor* QueueWallBlood(DSWActor* actor, short ang)
     spawnedActor->tempwall = hit.hitWall; // pass hitinfo.wall
 
     SET(sp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
-    SET(sp->cstat, CSTAT_SPRITE_ONE_SIDED);
+    SET(sp->cstat, CSTAT_SPRITE_ONE_SIDE);
     SET(sp->cstat, CSTAT_SPRITE_YCENTER);
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 

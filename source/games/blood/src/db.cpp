@@ -548,7 +548,7 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sect
         pSprite->shade = load.shade;
         pSprite->blend = 0;
         pSprite->time = i;
-        ValidateSprite(*pSprite, secno, i);
+        validateSprite(*pSprite, secno, i);
 
         if (pSprite->extra > 0)
         {
@@ -649,7 +649,7 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sect
     auto buffer = fr.Read();
     uint8_t md4[16];
     md4once(buffer.Data(), buffer.Size(), md4);
-    G_LoadMapHack(mapname, md4, sprites);
+    loadMapHack(mapname, md4, sprites);
 
     if (CalcCRC32(buffer.Data(), buffer.Size() - 4) != nCRC)
     {

@@ -51,6 +51,14 @@
 
 extern BitArray clipsectormap;
 
+int numsectors, numwalls;	// not really needed anymore, need to be refactored out (58x numsectors, 48x numwalls)
+TArray<sectortype> sector;
+TArray<walltype> wall;
+
+// for differential savegames.
+TArray<sectortype> sectorbackup;
+TArray<walltype> wallbackup;
+
 // needed for skipping over to get the map size first.
 enum
 {
@@ -239,7 +247,7 @@ static void SetWallPalV5()
 	}
 }
 
-void ValidateSprite(spritetype& spr, int sectnum, int index)
+void validateSprite(spritetype& spr, int sectnum, int index)
 {
 	bool bugged = false;
 	if ((unsigned)spr.statnum >= MAXSTATUS)
@@ -401,7 +409,7 @@ void fixSectors()
 	}
 }
 
-void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang, int* cursectnum, SpawnSpriteDef& sprites)
+void loadMap(const char* filename, int flags, vec3_t* pos, int16_t* ang, int* cursectnum, SpawnSpriteDef& sprites)
 {
 	inputState.ClearAllInput();
 
@@ -472,7 +480,7 @@ void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang,
 		case 6: ReadSpriteV6(fr, sprites.sprites[i], secno); break;
 		default: ReadSpriteV7(fr, sprites.sprites[i], secno); break;
 		}
-		ValidateSprite(sprites.sprites[i], secno, i);
+		validateSprite(sprites.sprites[i], secno, i);
 
 	}
 
@@ -486,7 +494,7 @@ void engineLoadBoard(const char* filename, int flags, vec3_t* pos, int16_t* ang,
 	auto buffer = fr.Read();
 	unsigned char md4[16];
 	md4once(buffer.Data(), buffer.Size(), md4);
-	G_LoadMapHack(filename, md4, sprites);
+	loadMapHack(filename, md4, sprites);
 	setWallSectors();
 	hw_CreateSections();
 	sectionGeometry.SetSize(sections.Size());
@@ -514,7 +522,7 @@ void loadMapBackup(const char* filename)
 	}
 	else
 	{
-		engineLoadBoard(filename, 0, &pos, &scratch, &scratch2, scratch3);
+		loadMap(filename, 0, &pos, &scratch, &scratch2, scratch3);
 	}
 }
 

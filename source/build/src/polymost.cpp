@@ -3902,8 +3902,8 @@ int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr, bool rotate)
     FRenderStyle RenderStyle;
     if (trans)
     {
-        RenderStyle = GetRenderStyle(0, !!(tspr->cstat & CSTAT_SPRITE_TRANSLUCENT_INVERT));
-        alpha = GetAlphaFromBlend((tspr->cstat & CSTAT_SPRITE_TRANSLUCENT_INVERT) ? DAMETH_TRANS2 : DAMETH_TRANS1, 0);
+        RenderStyle = GetRenderStyle(0, !!(tspr->cstat & CSTAT_SPRITE_TRANS_FLIP));
+        alpha = GetAlphaFromBlend((tspr->cstat & CSTAT_SPRITE_TRANS_FLIP) ? DAMETH_TRANS2 : DAMETH_TRANS1, 0);
     }
     else
     {

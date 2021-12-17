@@ -41,9 +41,6 @@
 #include "gl_renderer.h"
 #endif
 
-TArray<sectortype> sector;
-TArray<walltype> wall;
-
 int32_t mdtims, omdtims;
 
 float fcosglobalang, fsinglobalang;

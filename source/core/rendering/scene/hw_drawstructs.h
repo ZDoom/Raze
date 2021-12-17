@@ -388,8 +388,8 @@ inline void SetSpriteTranslucency(const tspritetype* sprite, float& alpha, FRend
 	bool trans = (sprite->cstat & CSTAT_SPRITE_TRANSLUCENT);
 	if (trans)
 	{
-		RenderStyle = GetRenderStyle(0, !!(sprite->cstat & CSTAT_SPRITE_TRANSLUCENT_INVERT));
-		alpha = GetAlphaFromBlend((sprite->cstat & CSTAT_SPRITE_TRANSLUCENT_INVERT) ? DAMETH_TRANS2 : DAMETH_TRANS1, 0);
+		RenderStyle = GetRenderStyle(0, !!(sprite->cstat & CSTAT_SPRITE_TRANS_FLIP));
+		alpha = GetAlphaFromBlend((sprite->cstat & CSTAT_SPRITE_TRANS_FLIP) ? DAMETH_TRANS2 : DAMETH_TRANS1, 0);
 	}
 	else
 	{

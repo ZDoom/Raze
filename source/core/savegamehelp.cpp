@@ -66,9 +66,6 @@
 #include <zlib.h>
 
 
-TArray<sectortype> sectorbackup;
-TArray<walltype> wallbackup;
-
 void WriteSavePic(FileWriter* file, int width, int height);
 bool WriteZip(const char* filename, TArray<FString>& filenames, TArray<FCompressedBuffer>& content);
 extern FString savename;

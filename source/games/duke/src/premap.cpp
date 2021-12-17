@@ -975,7 +975,7 @@ static int LoadTheMap(MapRecord *mi, struct player_struct *p, int gamemode)
 	currentLevel = mi;
 	int sect;
 	SpawnSpriteDef sprites;
-	engineLoadBoard(mi->fileName, isShareware(), &p->pos, &lbang, &sect, sprites);
+	loadMap(mi->fileName, isShareware(), &p->pos, &lbang, &sect, sprites);
 	p->cursector = &sector[sect];
 
 	SECRET_SetMapName(mi->DisplayName(), mi->name);

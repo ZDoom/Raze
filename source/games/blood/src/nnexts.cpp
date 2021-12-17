@@ -3181,8 +3181,8 @@ void useEffectGen(DBloodActor* sourceactor, DBloodActor* actor)
                     pEffectSpr->cstat &= ~CSTAT_SPRITE_INVISIBLE;
             }
 
-            if (pEffectSpr->cstat & CSTAT_SPRITE_ONE_SIDED)
-                pEffectSpr->cstat &= ~CSTAT_SPRITE_ONE_SIDED;
+            if (pEffectSpr->cstat & CSTAT_SPRITE_ONE_SIDE)
+                pEffectSpr->cstat &= ~CSTAT_SPRITE_ONE_SIDE;
         }
     }
 }

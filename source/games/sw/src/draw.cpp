@@ -415,7 +415,7 @@ void DoMotionBlur(tspritetype* tsprite, int& spritesortcnt, tspritetype const * 
     {
         tspriteptr_t tSpr = &tsprite[spritesortcnt];
         *tSpr = *tsp;
-        SET(tSpr->cstat, CSTAT_SPRITE_TRANSLUCENT|CSTAT_SPRITE_TRANSLUCENT_INVERT);
+        SET(tSpr->cstat, CSTAT_SPRITE_TRANSLUCENT|CSTAT_SPRITE_TRANS_FLIP);
 
         tSpr->x += dx;
         tSpr->y += dy;

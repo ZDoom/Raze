@@ -570,7 +570,7 @@ void renderDrawMapView(int cposx, int cposy, int czoom, int cang)
 
 			if ((spr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FLOOR)
 			{
-				if ((spr->cstat & (CSTAT_SPRITE_ONE_SIDED | CSTAT_SPRITE_YFLIP)) == (CSTAT_SPRITE_ONE_SIDED | CSTAT_SPRITE_YFLIP))
+				if ((spr->cstat & (CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_YFLIP)) == (CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_YFLIP))
 					continue; // upside down
 				floorsprites.Push(spr);
 			}
@@ -639,8 +639,8 @@ void renderDrawMapView(int cposx, int cposy, int czoom, int cang)
 		float alpha = 1;
 		if (spr->cstat & CSTAT_SPRITE_TRANSLUCENT)
 		{
-			rs = GetRenderStyle(0, !!(spr->cstat & CSTAT_SPRITE_TRANSLUCENT_INVERT));
-			alpha = GetAlphaFromBlend((spr->cstat & CSTAT_SPRITE_TRANSLUCENT_INVERT) ? DAMETH_TRANS2 : DAMETH_TRANS1, 0);
+			rs = GetRenderStyle(0, !!(spr->cstat & CSTAT_SPRITE_TRANS_FLIP));
+			alpha = GetAlphaFromBlend((spr->cstat & CSTAT_SPRITE_TRANS_FLIP) ? DAMETH_TRANS2 : DAMETH_TRANS1, 0);
 			color.a = uint8_t(alpha * 255);
 		}
 

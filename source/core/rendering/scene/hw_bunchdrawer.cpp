@@ -584,7 +584,7 @@ void BunchDrawer::ProcessSection(int sectionnum, bool portal)
 			// this checks if the sprite is it behind the camera, which will not work if the pitch is high enough to necessitate a FOV of more than 180°.
 			//if ((spr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) || (hw_models && tile2model[spr->picnum].modelid >= 0) || ((sx * gcosang) + (sy * gsinang) > 0)) 
 			{
-				if ((spr->cstat & (CSTAT_SPRITE_ONE_SIDED | CSTAT_SPRITE_ALIGNMENT_MASK)) != (CSTAT_SPRITE_ONE_SIDED | CSTAT_SPRITE_ALIGNMENT_WALL) ||
+				if ((spr->cstat & (CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_MASK)) != (CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_WALL) ||
 					(r_voxels && tiletovox[spr->picnum] >= 0 && voxmodels[tiletovox[spr->picnum]]) ||
 					(r_voxels && gi->Voxelize(spr->picnum) > -1) ||
 					DMulScale(bcos(spr->ang), -sx, bsin(spr->ang), -sy, 6) > 0)

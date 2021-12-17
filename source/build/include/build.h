@@ -86,7 +86,7 @@ enum {
     RS_CENTERORIGIN = (1<<30),
 };
 
-#include "buildtypes.h"
+#include "maptypes.h"
 
 using uspriteptr_t = spritetype const *;
 using uwallptr_t   = walltype const *;
@@ -100,28 +100,38 @@ using tspriteptr_t = tspritetype *;
 int32_t getwalldist(vec2_t const in, int const wallnum);
 int32_t getwalldist(vec2_t const in, int const wallnum, vec2_t * const out);
 
-typedef struct {
+enum
+{
+    SPREXT_NOTMD = 1,
+    SPREXT_NOMDANIM = 2,
+    SPREXT_AWAY1 = 4,
+    SPREXT_AWAY2 = 8,
+    SPREXT_TSPRACCESS = 16,
+    SPREXT_TEMPINVISIBLE = 32,
+};
+
+struct spriteext_t
+{
     uint32_t mdanimtims;
     int16_t mdanimcur;
     int16_t angoff, pitch, roll;
     vec3_t pivot_offset, position_offset;
     uint8_t flags;
     float alpha;
-} spriteext_t;
+};
 
-typedef struct {
+struct spritesmooth_t
+{
     float smoothduration;
     int16_t mdcurframe, mdoldframe;
     int16_t mdsmooth;
-    uint8_t filler[2];
-} spritesmooth_t;
+};
 
-#define SPREXT_NOTMD 1
-#define SPREXT_NOMDANIM 2
-#define SPREXT_AWAY1 4
-#define SPREXT_AWAY2 8
-#define SPREXT_TSPRACCESS 16
-#define SPREXT_TEMPINVISIBLE 32
+struct SpawnSpriteDef
+{
+    TArray<spritetype> sprites;
+    TArray<spriteext_t> sprext;
+};
 
 // using the clipdist field
 enum
@@ -139,30 +149,13 @@ struct usermaphack_t
     uint8_t md4[16]{};
 };
 
-extern TArray<sectortype> sector;
-extern TArray<walltype> wall;
 EXTERN int leveltimer;
-
-extern TArray<sectortype> sectorbackup;
-extern TArray<walltype> wallbackup;
 
 EXTERN int32_t xdim, ydim;
 EXTERN int32_t yxaspect, viewingrange;
 
 EXTERN int32_t Numsprites;
-EXTERN int numsectors, numwalls;
 EXTERN int32_t display_mirror;
-
-inline bool validSectorIndex(int sectnum)
-{
-	return sectnum >= 0 && sectnum < numsectors;
-}
-
-inline bool validWallIndex(int wallnum)
-{
-	return wallnum >= 0 && wallnum < numwalls;
-}
-
 
 EXTERN int32_t randomseed;
 
@@ -239,14 +232,6 @@ extern uint32_t drawlinepat;
 extern uint8_t globalr, globalg, globalb;
 
 enum {
-    GLOBAL_NO_GL_TILESHADES = 1<<0,
-    GLOBAL_NO_GL_FULLBRIGHT = 1<<1,
-    GLOBAL_NO_GL_FOGSHADE = 1<<2,
-};
-
-EXTERN int32_t editorzrange[2];
-
-enum {
     ENGINECOMPATIBILITY_NONE = 0,
     ENGINECOMPATIBILITY_19950829, // Powerslave/Exhumed
     ENGINECOMPATIBILITY_19960925, // Blood v1.21
@@ -258,22 +243,6 @@ EXTERN int32_t enginecompatibility_mode;
 
 int32_t    engineInit(void);
 void   engineUnInit(void);
-
-struct SpawnSpriteDef
-{
-    TArray<spritetype> sprites;
-    TArray<spriteext_t> sprext;
-};
-
-[[deprecated]]
-void insertAllSprites(SpawnSpriteDef& sprites);
-
-void allocateMapArrays(int numsprites);
-void ValidateSprite(spritetype& spr, int secno, int index);
-void fixSectors();
-void engineLoadBoard(const char *filename, int flags, vec3_t *dapos, int16_t *daang, int *dacursectnum, SpawnSpriteDef& sprites);
-void loadMapBackup(const char* filename);
-void G_LoadMapHack(const char* filename, const unsigned char*, SpawnSpriteDef& sprites);
 
 void   videoSetCorrectedAspect();
 void   videoSetViewableArea(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
@@ -530,94 +499,5 @@ inline bool testgotpic(int32_t tilenume, bool reset = false)
     if (reset) gotpic[tilenume >> 3] &= ~(1 << (tilenume & 7));
     return res;
 }
-
-inline sectortype* spritetypebase::sector() const
-{
-    return sectp;
-}
-
-inline int spritetypebase::sectno() const
-{
-    return sectp? ::sector.IndexOf(sectp) : -1;
-}
-
-inline void spritetypebase::setsector(sectortype* sect)
-{
-	// place for asserts.
-    sectp = sect;
-}
-
-inline void spritetypebase::setsector(int sec)
-{
-    // place for asserts.
-    sectp = validSectorIndex(sec)? &::sector[sec] : nullptr;
-}
-
-inline bool spritetypebase::insector() const
-{
-	return sectp != nullptr;
-}
-
-
-
-inline sectortype* walltype::nextSector() const
-{
-	return !validSectorIndex(nextsector)? nullptr :  &::sector[nextsector];
-}
-
-inline walltype* walltype::nextWall() const
-{
-	return !validWallIndex(nextwall)? nullptr : &::wall[nextwall];
-}
-
-inline sectortype* walltype::sectorp() const
-{
-	return &::sector[sector]; // cannot be -1 in a proper map.
-}
-
-inline walltype* walltype::lastWall() const
-{
-    int index = wall.IndexOf(this);
-    if (index > 0 && wall[index - 1].point2 == index) return &wall[index - 1];
-
-    int check = index;
-    for (int i = 0; i < numwalls; i++)
-    {
-        int next = wall[check].point2;
-        if (next == index) return &wall[check];
-        check = next;
-    }
-    return nullptr;
-}
-
-inline walltype* walltype::point2Wall() const
-{
-	return &::wall[point2]; // cannot be -1 in a proper map.
-}
-
-inline walltype* sectortype::firstWall() const
-{
-	return &wall[wallptr]; // cannot be -1 in a proper map
-}
-
-inline walltype* sectortype::lastWall() const
-{
-    return &wall[wallptr + wallnum - 1]; // cannot be -1 in a proper map
-}
-
-inline void walltype::moved() 
-{
-    lengthflags = 3;
-    sectorp()->dirty = EDirty::AllDirty;
-}
-
-inline void walltype::move(int newx, int newy)
-{
-    pos.x = newx;
-    pos.y = newy;
-    lengthflags = 3;
-    sectorp()->dirty = EDirty::AllDirty;
-}
-
 
 #endif // build_h_

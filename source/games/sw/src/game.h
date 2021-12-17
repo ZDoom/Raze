@@ -359,44 +359,6 @@ inline int SPRITEp_SIZE_BOS(const tspritetype* sp)
 #define FLOOR_STAT_TRANS_FLIP     (BIT(7)|BIT(8))
 #define FLOOR_STAT_FAF_BLOCK_HITSCAN      BIT(15)
 
-#define CSTAT_WALL_BLOCK            BIT(0)
-#define CSTAT_WALL_BOTTOM_SWAP      BIT(1)
-#define CSTAT_WALL_ALIGN_BOTTOM     BIT(2)
-#define CSTAT_WALL_XFLIP            BIT(3)
-#define CSTAT_WALL_MASKED           BIT(4)
-#define CSTAT_WALL_1WAY             BIT(5)
-#define CSTAT_WALL_BLOCK_HITSCAN    BIT(6)
-#define CSTAT_WALL_TRANSLUCENT      BIT(7)
-#define CSTAT_WALL_YFLIP            BIT(8)
-#define CSTAT_WALL_TRANS_FLIP       BIT(9)
-#define CSTAT_WALL_BLOCK_ACTOR (BIT(14)) // my def
-#define CSTAT_WALL_WARP_HITSCAN (BIT(15)) // my def
-
-//cstat, bit 0: 1 = Blocking sprite (use with clipmove, getzrange)    "B"
-//       bit 1: 1 = 50/50 transluscence, 0 = normal                   "T"
-//       bit 2: 1 = x-flipped, 0 = normal                             "F"
-//       bit 3: 1 = y-flipped, 0 = normal                             "F"
-//       bits 5-4: 00 = FACE sprite (default)                         "R"
-//                 01 = WALL sprite (like masked walls)
-//                 10 = FLOOR sprite (parallel to ceilings&floors)
-//                 11 = SPIN sprite (face sprite that can spin 2draw style - not done yet)
-//       bit 6: 1 = 1-sided sprite, 0 = normal                        "1"
-//       bit 7: 1 = Real centered centering, 0 = foot center          "C"
-//       bit 8: 1 = Blocking sprite (use with hitscan)                "H"
-//       bit 9: reserved
-//       bit 10: reserved
-//       bit 11: reserved
-//       bit 12: reserved
-//       bit 13: reserved
-//       bit 14: reserved
-//       bit 15: 1 = Invisible sprite, 0 = not invisible
-#define CSTAT_SPRITE_RESTORE        BIT(12) // my def
-#define CSTAT_SPRITE_CLOSE_FLOOR    BIT(13) // my def - tells whether a sprite
-// started out close to a ceiling or floor
-#define CSTAT_SPRITE_BLOCK_MISSILE  BIT(14) // my def
-
-#define CSTAT_SPRITE_BREAKABLE (CSTAT_SPRITE_BLOCK_HITSCAN|CSTAT_SPRITE_BLOCK_MISSILE)
-
 #undef CLIPMASK0 // defined in build.h
 #undef CLIPMASK1
 

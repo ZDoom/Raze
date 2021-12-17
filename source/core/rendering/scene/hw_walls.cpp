@@ -1141,7 +1141,7 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, tspritetype* spr, sectortype* sec
 	glseg.x2 = pos[1].x * (1 / 16.f);
 	glseg.y2 = pos[1].y * (1 / -16.f);
 
-	if (spr->cstat & CSTAT_SPRITE_ONE_SIDED)
+	if (spr->cstat & CSTAT_SPRITE_ONE_SIDE)
 	{
 		if (PointOnLineSide(di->Viewpoint.Pos.X, di->Viewpoint.Pos.Y, glseg.x1, glseg.y1, glseg.x2 - glseg.x1, glseg.y2 - glseg.y1) <= 0)
 		{
