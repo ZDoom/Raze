@@ -1597,7 +1597,7 @@ void SlipSlope(PLAYERp pp)
 
     auto sectu = pp->cursector;
 
-    if (!TEST(sectu->flags, SECTFU_SLIDE_SECTOR) || !TEST(pp->cursector->floorstat, FLOOR_STAT_SLOPE))
+    if (!TEST(sectu->flags, SECTFU_SLIDE_SECTOR) || !TEST(pp->cursector->floorstat, CSTAT_SECTOR_SLOPE))
         return;
 
     ang = getangle(pp->cursector->firstWall()->delta());
@@ -1610,7 +1610,7 @@ void SlipSlope(PLAYERp pp)
 
 void DoPlayerHorizon(PLAYERp pp, float const horz, double const scaleAdjust)
 {
-    bool const canslopetilt = !TEST(pp->Flags, PF_FLYING|PF_SWIMMING|PF_DIVING|PF_CLIMBING|PF_JUMPING|PF_FALLING) && pp->cursector && TEST(pp->cursector->floorstat, FLOOR_STAT_SLOPE);
+    bool const canslopetilt = !TEST(pp->Flags, PF_FLYING|PF_SWIMMING|PF_DIVING|PF_CLIMBING|PF_JUMPING|PF_FALLING) && pp->cursector && TEST(pp->cursector->floorstat, CSTAT_SECTOR_SLOPE);
     pp->horizon.calcviewpitch(pp->pos.vec2, pp->angle.ang, pp->input.actions & SB_AIMMODE, canslopetilt, pp->cursector, scaleAdjust, TEST(pp->Flags, PF_CLIMBING));
     pp->horizon.applyinput(horz, &pp->input.actions, scaleAdjust);
 }
@@ -3487,7 +3487,7 @@ bool PlayerFallTest(PLAYERp pp, int player_height)
         // if on a STEEP slope sector and you have not moved off of the sector
         if (pp->lo_sectp &&
             labs(pp->lo_sectp->floorheinum) > 3000 &&
-            TEST(pp->lo_sectp->floorstat, FLOOR_STAT_SLOPE) &&
+            TEST(pp->lo_sectp->floorstat, CSTAT_SECTOR_SLOPE) &&
             pp->lo_sectp == pp->lastcursector)
         {
             return false;
@@ -4606,7 +4606,7 @@ int DoPlayerTestPlaxDeath(PLAYERp pp)
     USERp u = pp->Actor()->u();
 
     // landed on a paralax floor
-    if (pp->lo_sectp && TEST(pp->lo_sectp->floorstat, FLOOR_STAT_PLAX))
+    if (pp->lo_sectp && TEST(pp->lo_sectp->floorstat, CSTAT_SECTOR_SKY))
     {
         PlayerUpdateHealth(pp, -u->Health);
         PlayerCheckDeath(pp, nullptr);

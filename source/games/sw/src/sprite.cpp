@@ -2003,16 +2003,16 @@ void SpriteSetup(void)
                     if (SP_TAG7(sp) == 0 || SP_TAG7(sp) == 1)
                     {
                         if (SP_TAG3(sp) == 0)
-                            SET(sp->sector()->ceilingstat, CEILING_STAT_FAF_BLOCK_HITSCAN);
+                            SET(sp->sector()->ceilingstat, CSTAT_SECTOR_FAF_BLOCK_HITSCAN);
                         else
-                            SET(sp->sector()->floorstat, FLOOR_STAT_FAF_BLOCK_HITSCAN);
+                            SET(sp->sector()->floorstat, CSTAT_SECTOR_FAF_BLOCK_HITSCAN);
                     }
                     else if (TEST_BOOL1(sp))
                     {
                         if (SP_TAG3(sp) == 0)
-                            SET(sp->sector()->ceilingstat, CEILING_STAT_FAF_BLOCK_HITSCAN);
+                            SET(sp->sector()->ceilingstat, CSTAT_SECTOR_FAF_BLOCK_HITSCAN);
                         else
-                            SET(sp->sector()->floorstat, FLOOR_STAT_FAF_BLOCK_HITSCAN);
+                            SET(sp->sector()->floorstat, CSTAT_SECTOR_FAF_BLOCK_HITSCAN);
                     }
 
                     // copy tag 7 to tag 6 and pre-shift it
@@ -2513,17 +2513,17 @@ void SpriteSetup(void)
 
                     SetSectorWallBits(sp->sector(), WALLFX_DONT_STICK, false, true);
 
-                    if (TEST(sectp->floorstat, FLOOR_STAT_SLOPE))
+                    if (TEST(sectp->floorstat, CSTAT_SECTOR_SLOPE))
                     {
                         SP_TAG5(sp) = sectp->floorheinum;
-                        RESET(sectp->floorstat, FLOOR_STAT_SLOPE);
+                        RESET(sectp->floorstat, CSTAT_SECTOR_SLOPE);
                         sectp->floorheinum = 0;
                     }
 
-                    if (TEST(sectp->ceilingstat, CEILING_STAT_SLOPE))
+                    if (TEST(sectp->ceilingstat, CSTAT_SECTOR_SLOPE))
                     {
                         SP_TAG6(sp) = sectp->ceilingheinum;
-                        RESET(sectp->ceilingstat, CEILING_STAT_SLOPE);
+                        RESET(sectp->ceilingstat, CSTAT_SECTOR_SLOPE);
                         sectp->ceilingheinum = 0;
                     }
 
@@ -2690,7 +2690,6 @@ void SpriteSetup(void)
 
                 case CEILING_Z_ADJUST:
                 {
-                    //SET(sp->sector()->ceilingstat, CEILING_STAT_FAF_BLOCK_HITSCAN);
                     SET(sp->sector()->extra, SECTFX_Z_ADJUST);
                     change_actor_stat(actor, STAT_ST1);
                     break;
@@ -2698,7 +2697,6 @@ void SpriteSetup(void)
 
                 case FLOOR_Z_ADJUST:
                 {
-                    //SET(sp->sector()->floorstat, FLOOR_STAT_FAF_BLOCK_HITSCAN);
                     SET(sp->sector()->extra, SECTFX_Z_ADJUST);
                     change_actor_stat(actor, STAT_ST1);
                     break;
@@ -6738,7 +6736,7 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
         }
     }
 
-    if (retval.type != kHitNone && TEST(sp->sector()->ceilingstat, CEILING_STAT_PLAX))
+    if (retval.type != kHitNone && TEST(sp->sector()->ceilingstat, CSTAT_SECTOR_SKY))
     {
         if (sp->z < sp->sector()->ceilingz)
         {
@@ -6746,7 +6744,7 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
         }
     }
 
-    if (retval.type != kHitNone && TEST(sp->sector()->floorstat, FLOOR_STAT_PLAX))
+    if (retval.type != kHitNone && TEST(sp->sector()->floorstat, CSTAT_SECTOR_SKY))
     {
         if (sp->z > sp->sector()->floorz)
         {

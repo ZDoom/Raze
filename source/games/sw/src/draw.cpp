@@ -853,7 +853,7 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
             tsp->shade = int8_t(newshade);
         }
 
-        if (TEST(tsectp->ceilingstat, CEILING_STAT_PLAX))
+        if (TEST(tsectp->ceilingstat, CSTAT_SECTOR_SKY))
         {
             newshade = tsp->shade;
             newshade += tsectp->ceilingshade;
@@ -1255,7 +1255,7 @@ void PreDraw(void)
     SWStatIterator it(STAT_FLOOR_SLOPE_DONT_DRAW);
     while (auto actor = it.Next())
     {
-        RESET(actor->s().sector()->floorstat, FLOOR_STAT_SLOPE);
+        RESET(actor->s().sector()->floorstat, CSTAT_SECTOR_SLOPE);
     }
 }
 
@@ -1265,7 +1265,7 @@ void PostDraw(void)
     SWStatIterator it(STAT_FLOOR_SLOPE_DONT_DRAW);
     while (auto actor = it.Next())
     {
-        SET(actor->s().sector()->floorstat, FLOOR_STAT_SLOPE);
+        SET(actor->s().sector()->floorstat, CSTAT_SECTOR_SLOPE);
     }
 
     it.Reset(STAT_FAF_COPY);
@@ -1383,7 +1383,7 @@ void UpdateWallPortalState()
             SP_TAG4(sp) = sp->sector()->ceilingstat;
             //SET(sp->sector()->ceilingstat, ((int)SP_TAG7(sp))<<7);
             SET(sp->sector()->ceilingstat, SP_TAG6(sp));
-            RESET(sp->sector()->ceilingstat, CEILING_STAT_PLAX);
+            RESET(sp->sector()->ceilingstat, CSTAT_SECTOR_SKY);
         }
         else if (SP_TAG3(sp) == 1)
         {
@@ -1392,7 +1392,7 @@ void UpdateWallPortalState()
             SP_TAG4(sp) = sp->sector()->floorstat;
             //SET(sp->sector()->floorstat, ((int)SP_TAG7(sp))<<7);
             SET(sp->sector()->floorstat, SP_TAG6(sp));
-            RESET(sp->sector()->floorstat, FLOOR_STAT_PLAX);
+            RESET(sp->sector()->floorstat, CSTAT_SECTOR_SKY);
         }
     }
 
@@ -1410,14 +1410,14 @@ void RestorePortalState()
             sp->sector()->ceilingpicnum = SP_TAG5(sp);
             sp->sector()->ceilingstat = SP_TAG4(sp);
             //RESET(sp->sector()->ceilingstat, CEILING_STAT_TYPE_MASK);
-            RESET(sp->sector()->ceilingstat, CEILING_STAT_PLAX);
+            RESET(sp->sector()->ceilingstat, CSTAT_SECTOR_SKY);
         }
         else if (SP_TAG3(sp) == 1)
         {
             sp->sector()->floorpicnum = SP_TAG5(sp);
             sp->sector()->floorstat = SP_TAG4(sp);
             //RESET(sp->sector()->floorstat, FLOOR_STAT_TYPE_MASK);
-            RESET(sp->sector()->floorstat, FLOOR_STAT_PLAX);
+            RESET(sp->sector()->floorstat, CSTAT_SECTOR_SKY);
         }
     }
 }

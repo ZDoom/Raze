@@ -62,6 +62,7 @@ enum ESectorBits
 	CSTAT_SECTOR_TRANS				= 128,
 	CSTAT_SECTOR_TRANS_INVERT		= 256,
 	CSTAT_SECTOR_METHOD				= 384,
+	CSTAT_SECTOR_FAF_BLOCK_HITSCAN	= 32768,	// SW only
 };
 
 // Extended sector bit flags.

@@ -214,7 +214,7 @@ FAFhitscan(int32_t x, int32_t y, int32_t z, sectortype* sect,
         getzsofslopeptr(hit.hitSector, hit.hitpos.x, hit.hitpos.y, &hiz, &loz);
         if (abs(hit.hitpos.z - loz) < Z(4))
         {
-            if (FAF_ConnectFloor(hit.hitSector) && !TEST(hit.hitSector->floorstat, FLOOR_STAT_FAF_BLOCK_HITSCAN))
+            if (FAF_ConnectFloor(hit.hitSector) && !TEST(hit.hitSector->floorstat, CSTAT_SECTOR_FAF_BLOCK_HITSCAN))
             {
                 updatesectorz(hit.hitpos.x, hit.hitpos.y, hit.hitpos.z + Z(12), &newsector);
                 plax_found = true;
@@ -222,7 +222,7 @@ FAFhitscan(int32_t x, int32_t y, int32_t z, sectortype* sect,
         }
         else if (labs(hit.hitpos.z - hiz) < Z(4))
         {
-            if (FAF_ConnectCeiling(hit.hitSector) && !TEST(hit.hitSector->floorstat, CEILING_STAT_FAF_BLOCK_HITSCAN))
+            if (FAF_ConnectCeiling(hit.hitSector) && !TEST(hit.hitSector->floorstat, CSTAT_SECTOR_FAF_BLOCK_HITSCAN))
             {
                 updatesectorz(hit.hitpos.x, hit.hitpos.y, hit.hitpos.z - Z(12), &newsector);
                 plax_found = true;
@@ -357,7 +357,7 @@ bool SectorZadjust(const Collision& ceilhit, int32_t* hiz, const Collision& flor
             if (FAF_ConnectFloor(hit_sector))
             {
                 // rippers were dying through the floor in $rock
-                if (TEST(hit_sector->floorstat, CEILING_STAT_FAF_BLOCK_HITSCAN))
+                if (TEST(hit_sector->floorstat, CSTAT_SECTOR_FAF_BLOCK_HITSCAN))
                     break;
 
                 if (TEST(hit_sector->extra, SECTFX_Z_ADJUST))
@@ -389,7 +389,7 @@ bool SectorZadjust(const Collision& ceilhit, int32_t* hiz, const Collision& flor
             }
             else
             // default adjustment for plax
-            if (TEST(hit_sector->floorstat, FLOOR_STAT_PLAX))
+            if (TEST(hit_sector->floorstat, CSTAT_SECTOR_SKY))
             {
                 *loz += PlaxFloorGlobZadjust;
             }
@@ -439,7 +439,7 @@ bool SectorZadjust(const Collision& ceilhit, int32_t* hiz, const Collision& flor
             }
             else
             // default adjustment for plax
-            if (TEST(hit_sector->ceilingstat, CEILING_STAT_PLAX))
+            if (TEST(hit_sector->ceilingstat, CSTAT_SECTOR_SKY))
             {
                 *hiz -= PlaxCeilGlobZadjust;
             }
@@ -506,7 +506,7 @@ void FAFgetzrange(vec3_t pos, sectortype* sect, int32_t* hiz, Collision* ceilhit
         getzrange(npos, uppersect, hiz,  *ceilhit, &foo1, foo2, clipdist, clipmask);
         SectorZadjust(*ceilhit, hiz, trash, nullptr);
     }
-    else if (FAF_ConnectFloor(sect) && !TEST(sect->floorstat, FLOOR_STAT_FAF_BLOCK_HITSCAN))
+    else if (FAF_ConnectFloor(sect) && !TEST(sect->floorstat, CSTAT_SECTOR_FAF_BLOCK_HITSCAN))
     {
         auto lowersect = sect;
         int newz = *loz + Z(2);
@@ -566,7 +566,7 @@ void FAFgetzrangepoint(int32_t x, int32_t y, int32_t z, sectortype* const sect,
         getzrangepoint(x, y, newz, uppersect, hiz,  ceilhit, &foo1,  &foo2);
         SectorZadjust(*ceilhit, hiz, trash, nullptr);
     }
-    else if (FAF_ConnectFloor(sect) && !TEST(sect->floorstat, FLOOR_STAT_FAF_BLOCK_HITSCAN))
+    else if (FAF_ConnectFloor(sect) && !TEST(sect->floorstat, CSTAT_SECTOR_FAF_BLOCK_HITSCAN))
     {
         auto lowersect = sect;
         int newz = *loz + Z(2);
@@ -593,13 +593,13 @@ void SetupMirrorTiles(void)
         if (sp->sector()->ceilingpicnum == FAF_PLACE_MIRROR_PIC)
         {
             sp->sector()->ceilingpicnum = FAF_MIRROR_PIC;
-            SET(sp->sector()->ceilingstat, CEILING_STAT_PLAX);
+            SET(sp->sector()->ceilingstat, CSTAT_SECTOR_SKY);
         }
 
         if (sp->sector()->floorpicnum == FAF_PLACE_MIRROR_PIC)
         {
             sp->sector()->floorpicnum = FAF_MIRROR_PIC;
-            SET(sp->sector()->floorstat, FLOOR_STAT_PLAX);
+            SET(sp->sector()->floorstat, CSTAT_SECTOR_SKY);
         }
 
         if (sp->sector()->ceilingpicnum == FAF_PLACE_MIRROR_PIC+1)

@@ -2190,7 +2190,7 @@ void CallbackSOsink(ANIMp ap, void *data)
     destsect->floorshade = srcsect->floorshade;
 //    destsect->floorz = srcsect->floorz;
 
-    RESET(destsect->floorstat, FLOOR_STAT_RELATIVE);
+    RESET(destsect->floorstat, CSTAT_SECTOR_ALIGN);
     ASSERT(destsect->hasU() && srcsect->hasU());
 
     tgt_depth = FixedToInt(srcsect->depth_fixed);

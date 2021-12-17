@@ -104,7 +104,7 @@ void FAF_DrawRooms(int x, int y, int z, fixed_t q16ang, fixed_t q16horiz, int se
             sp->sector()->ceilingpicnum = SP_TAG2(sp);
             SP_TAG4(sp) = sp->sector()->ceilingstat;
             SET(sp->sector()->ceilingstat, SP_TAG6(sp));
-            RESET(sp->sector()->ceilingstat, CEILING_STAT_PLAX);
+            RESET(sp->sector()->ceilingstat, CSTAT_SECTOR_SKY);
         }
         else if (SP_TAG3(sp) == 1)
         {
@@ -112,7 +112,7 @@ void FAF_DrawRooms(int x, int y, int z, fixed_t q16ang, fixed_t q16horiz, int se
             sp->sector()->floorpicnum = SP_TAG2(sp);
             SP_TAG4(sp) = sp->sector()->floorstat;
             SET(sp->sector()->floorstat, SP_TAG6(sp));
-            RESET(sp->sector()->floorstat, FLOOR_STAT_PLAX);
+            RESET(sp->sector()->floorstat, CSTAT_SECTOR_SKY);
         }
     }
 
@@ -133,15 +133,13 @@ void FAF_DrawRooms(int x, int y, int z, fixed_t q16ang, fixed_t q16horiz, int se
             // restore ceilingpicnum and ceilingstat
             sp->sector()->ceilingpicnum = SP_TAG5(sp);
             sp->sector()->ceilingstat = SP_TAG4(sp);
-            //RESET(sp->sector()->ceilingstat, CEILING_STAT_TYPE_MASK);
-            RESET(sp->sector()->ceilingstat, CEILING_STAT_PLAX);
+            RESET(sp->sector()->ceilingstat, CSTAT_SECTOR_SKY);
         }
         else if (SP_TAG3(sp) == 1)
         {
             sp->sector()->floorpicnum = SP_TAG5(sp);
             sp->sector()->floorstat = SP_TAG4(sp);
-            //RESET(sp->sector()->floorstat, FLOOR_STAT_TYPE_MASK);
-            RESET(sp->sector()->floorstat, FLOOR_STAT_PLAX);
+            RESET(sp->sector()->floorstat, CSTAT_SECTOR_SKY);
         }
     }
 }

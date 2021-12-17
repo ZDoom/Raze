@@ -332,33 +332,6 @@ inline int SPRITEp_SIZE_BOS(const tspritetype* sp)
 #define OVER_SPRITE_XFLIP       (BIT(3))
 #define OVER_SPRITE_YFLIP       (BIT(4))
 
-// system defines for status bits
-#define CEILING_STAT_PLAX           BIT(0)
-#define CEILING_STAT_SLOPE          BIT(1)
-#define CEILING_STAT_SWAPXY         BIT(2)
-#define CEILING_STAT_SMOOSH         BIT(3)
-#define CEILING_STAT_XFLIP          BIT(4)
-#define CEILING_STAT_YFLIP          BIT(5)
-#define CEILING_STAT_RELATIVE       BIT(6)
-#define CEILING_STAT_TYPE_MASK     (BIT(7)|BIT(8))
-#define CEILING_STAT_MASKED         BIT(7)
-#define CEILING_STAT_TRANS          BIT(8)
-#define CEILING_STAT_TRANS_FLIP     (BIT(7)|BIT(8))
-#define CEILING_STAT_FAF_BLOCK_HITSCAN      BIT(15)
-
-#define FLOOR_STAT_PLAX           BIT(0)
-#define FLOOR_STAT_SLOPE          BIT(1)
-#define FLOOR_STAT_SWAPXY         BIT(2)
-#define FLOOR_STAT_SMOOSH         BIT(3)
-#define FLOOR_STAT_XFLIP          BIT(4)
-#define FLOOR_STAT_YFLIP          BIT(5)
-#define FLOOR_STAT_RELATIVE       BIT(6)
-#define FLOOR_STAT_TYPE_MASK     (BIT(7)|BIT(8))
-#define FLOOR_STAT_MASKED         BIT(7)
-#define FLOOR_STAT_TRANS          BIT(8)
-#define FLOOR_STAT_TRANS_FLIP     (BIT(7)|BIT(8))
-#define FLOOR_STAT_FAF_BLOCK_HITSCAN      BIT(15)
-
 #undef CLIPMASK0 // defined in build.h
 #undef CLIPMASK1
 

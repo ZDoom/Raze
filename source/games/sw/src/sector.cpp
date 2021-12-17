@@ -414,7 +414,7 @@ void SectorSetup(void)
             SectorLiquidSet(sectp);
         }
 
-        if (TEST(sectp->floorstat, FLOOR_STAT_PLAX))
+        if (TEST(sectp->floorstat, CSTAT_SECTOR_SKY))
         {
             // don't do a z adjust for FAF area
             if (sectp->floorpicnum != FAF_PLACE_MIRROR_PIC)
@@ -423,7 +423,7 @@ void SectorSetup(void)
             }
         }
 
-        if (TEST(sectp->ceilingstat, CEILING_STAT_PLAX))
+        if (TEST(sectp->ceilingstat, CSTAT_SECTOR_SKY))
         {
             // don't do a z adjust for FAF area
             if (sectp->ceilingpicnum != FAF_PLACE_MIRROR_PIC)
@@ -484,7 +484,7 @@ void SectorSetup(void)
             {
             case 0:
                 SET(swf->flags, SINE_FLOOR);
-                if (TEST(sectp->floorstat, FLOOR_STAT_SLOPE))
+                if (TEST(sectp->floorstat, CSTAT_SECTOR_SLOPE))
                 {
                     SET(swf->flags, SINE_SLOPED);
                 }
@@ -903,13 +903,13 @@ void DoExplodeSector(short match)
         if (SP_TAG5(esp))
         {
             sectp->floorheinum = SP_TAG5(esp);
-            SET(sectp->floorstat, FLOOR_STAT_SLOPE);
+            SET(sectp->floorstat, CSTAT_SECTOR_SLOPE);
         }
 
         if (SP_TAG6(esp))
         {
             sectp->ceilingheinum = SP_TAG6(esp);
-            SET(sectp->ceilingstat, CEILING_STAT_SLOPE);
+            SET(sectp->ceilingstat, CSTAT_SECTOR_SLOPE);
         }
 
         for (zh = sectp->ceilingz; zh < sectp->floorz; zh += Z(60))
@@ -1323,9 +1323,9 @@ void DoChangorMatch(short match)
             sectp->ceilingheinum += SP_TAG6(sp);
 
             if (sectp->ceilingheinum)
-                SET(sectp->ceilingstat, CEILING_STAT_SLOPE);
+                SET(sectp->ceilingstat, CSTAT_SECTOR_SLOPE);
             else
-                RESET(sectp->ceilingstat, CEILING_STAT_SLOPE);
+                RESET(sectp->ceilingstat, CSTAT_SECTOR_SLOPE);
 
             sectp->ceilingshade += SP_TAG7(sp);
             sectp->ceilingpal += SP_TAG8(sp);
@@ -1337,9 +1337,9 @@ void DoChangorMatch(short match)
             sectp->floorheinum += SP_TAG6(sp);
 
             if (sectp->floorheinum)
-                SET(sectp->floorstat, FLOOR_STAT_SLOPE);
+                SET(sectp->floorstat, CSTAT_SECTOR_SLOPE);
             else
-                RESET(sectp->floorstat, FLOOR_STAT_SLOPE);
+                RESET(sectp->floorstat, CSTAT_SECTOR_SLOPE);
 
             sectp->floorshade += SP_TAG7(sp);
             sectp->floorpal += SP_TAG8(sp);
@@ -2467,7 +2467,7 @@ void DoSineWaveFloor(void)
         for (swf = &SineWaveFloor[wave][0], flags = swf->flags; swf->sectp != nullptr && swf < &SineWaveFloor[wave][SIZ(SineWaveFloor[wave])]; swf++)
         {
             auto sect = swf->sectp;
-            if (!TEST(sect->floorstat, FLOOR_STAT_SLOPE))
+            if (!TEST(sect->floorstat, CSTAT_SECTOR_SLOPE))
                 continue;
 
             if (TEST(flags, SINE_SLOPED))

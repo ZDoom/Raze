@@ -4361,7 +4361,7 @@ bool WeaponMoveHit(DSWActor* actor)
             }
         }
 
-        if (TEST(sectp->ceilingstat, CEILING_STAT_PLAX) && sectp->ceilingpicnum != FAF_MIRROR_PIC)
+        if (TEST(sectp->ceilingstat, CSTAT_SECTOR_SKY) && sectp->ceilingpicnum != FAF_MIRROR_PIC)
         {
             if (labs(sp->z - sectp->ceilingz) < SPRITEp_SIZE_Z(sp))
             {
@@ -8388,14 +8388,14 @@ bool SlopeBounce(DSWActor* actor, bool *hit_wall)
     // detect the ceiling and the hit_wall
     if (sp->z < DIV2(hiz+loz))
     {
-        if (!TEST(hit_sector->ceilingstat, CEILING_STAT_SLOPE))
+        if (!TEST(hit_sector->ceilingstat, CSTAT_SECTOR_SLOPE))
             slope = 0;
         else
             slope = hit_sector->ceilingheinum;
     }
     else
     {
-        if (!TEST(hit_sector->floorstat, FLOOR_STAT_SLOPE))
+        if (!TEST(hit_sector->floorstat, CSTAT_SECTOR_SLOPE))
             slope = 0;
         else
             slope = hit_sector->floorheinum;
@@ -12606,7 +12606,7 @@ int InitSwordAttack(PLAYERp pp)
             {
                 if (hit.hitWall->twoSided())
                 {
-                    if (TEST(hit.hitWall->nextSector()->ceilingstat, CEILING_STAT_PLAX))
+                    if (TEST(hit.hitWall->nextSector()->ceilingstat, CSTAT_SECTOR_SKY))
                     {
                         if (hit.hitpos.z < hit.hitWall->nextSector()->ceilingz)
                         {
@@ -12809,7 +12809,7 @@ int InitFistAttack(PLAYERp pp)
             {
                 if (hit.hitWall->twoSided())
                 {
-                    if (TEST(hit.hitWall->nextSector()->ceilingstat, CEILING_STAT_PLAX))
+                    if (TEST(hit.hitWall->nextSector()->ceilingstat, CSTAT_SECTOR_SKY))
                     {
                         if (hit.hitpos.z < hit.hitWall->nextSector()->ceilingz)
                         {
@@ -13509,7 +13509,7 @@ int ContinueHitscan(PLAYERp pp, sectortype* sect, int x, int y, int z, short ang
         if (labs(hit.hitpos.z - hit.hitSector->ceilingz) <= Z(1))
         {
             hit.hitpos.z += Z(16);
-            if (TEST(hit.hitSector->ceilingstat, CEILING_STAT_PLAX))
+            if (TEST(hit.hitSector->ceilingstat, CSTAT_SECTOR_SKY))
                 return 0;
         }
         else if (labs(hit.hitpos.z - hit.hitSector->floorz) <= Z(1))
@@ -13521,7 +13521,7 @@ int ContinueHitscan(PLAYERp pp, sectortype* sect, int x, int y, int z, short ang
     {
         if (hit.hitWall->twoSided())
         {
-            if (TEST(hit.hitWall->nextSector()->ceilingstat, CEILING_STAT_PLAX))
+            if (TEST(hit.hitWall->nextSector()->ceilingstat, CSTAT_SECTOR_SKY))
             {
                 if (hit.hitpos.z < hit.hitWall->nextSector()->ceilingz)
                 {
@@ -13645,7 +13645,7 @@ int InitShotgun(PLAYERp pp)
                 hit.hitpos.z += Z(16);
                 SET(cstat, CSTAT_SPRITE_YFLIP);
 
-                if (TEST(hit.hitSector->ceilingstat, CEILING_STAT_PLAX))
+                if (TEST(hit.hitSector->ceilingstat, CSTAT_SECTOR_SKY))
                     continue;
 
                 if (SectorIsUnderwaterArea(hit.hitSector))
@@ -13676,7 +13676,7 @@ int InitShotgun(PLAYERp pp)
         {
             if (hit.hitWall->twoSided())
             {
-                if (TEST(hit.hitWall->nextSector()->ceilingstat, CEILING_STAT_PLAX))
+                if (TEST(hit.hitWall->nextSector()->ceilingstat, CSTAT_SECTOR_SKY))
                 {
                     if (hit.hitpos.z < hit.hitWall->nextSector()->ceilingz)
                     {
@@ -16208,7 +16208,7 @@ int InitUzi(PLAYERp pp)
             hit.hitpos.z += Z(16);
             SET(cstat, CSTAT_SPRITE_YFLIP);
 
-            if (TEST(hit.hitSector->ceilingstat, CEILING_STAT_PLAX))
+            if (TEST(hit.hitSector->ceilingstat, CSTAT_SECTOR_SKY))
                 return 0;
 
             if (SectorIsUnderwaterArea(hit.hitSector))
@@ -16240,7 +16240,7 @@ int InitUzi(PLAYERp pp)
     {
         if (hit.hitWall->twoSided())
         {
-            if (TEST(hit.hitWall->nextSector()->ceilingstat, CEILING_STAT_PLAX))
+            if (TEST(hit.hitWall->nextSector()->ceilingstat, CSTAT_SECTOR_SKY))
             {
                 if (hit.hitpos.z < hit.hitWall->nextSector()->ceilingz)
                 {
@@ -16751,7 +16751,7 @@ int InitSobjMachineGun(DSWActor* actor, PLAYERp pp)
             hit.hitpos.z += Z(16);
             SET(cstat, CSTAT_SPRITE_YFLIP);
 
-            if (TEST(hit.hitSector->ceilingstat, CEILING_STAT_PLAX))
+            if (TEST(hit.hitSector->ceilingstat, CSTAT_SECTOR_SKY))
                 return 0;
         }
         else if (labs(hit.hitpos.z - hit.hitSector->floorz) <= Z(1))
@@ -17158,7 +17158,7 @@ int InitTurretMgun(SECTOR_OBJECTp sop)
                     hit.hitpos.z += Z(16);
                     SET(cstat, CSTAT_SPRITE_YFLIP);
 
-                    if (TEST(hit.hitSector->ceilingstat, CEILING_STAT_PLAX))
+                    if (TEST(hit.hitSector->ceilingstat, CSTAT_SECTOR_SKY))
                         continue;
                 }
                 else if (labs(hit.hitpos.z - hit.hitSector->floorz) <= Z(1))
@@ -17176,7 +17176,7 @@ int InitTurretMgun(SECTOR_OBJECTp sop)
             {
                 if (hit.hitWall->twoSided())
                 {
-                    if (TEST(hit.hitWall->nextSector()->ceilingstat, CEILING_STAT_PLAX))
+                    if (TEST(hit.hitWall->nextSector()->ceilingstat, CSTAT_SECTOR_SKY))
                     {
                         if (hit.hitpos.z < hit.hitWall->nextSector()->ceilingz)
                         {
@@ -17312,7 +17312,7 @@ int InitEnemyUzi(DSWActor* actor)
     {
         if (hit.hitWall->twoSided())
         {
-            if (TEST(hit.hitWall->nextSector()->ceilingstat, CEILING_STAT_PLAX))
+            if (TEST(hit.hitWall->nextSector()->ceilingstat, CSTAT_SECTOR_SKY))
             {
                 if (hit.hitpos.z < hit.hitWall->nextSector()->ceilingz)
                 {
@@ -18175,7 +18175,7 @@ int SpawnSplash(DSWActor* actor)
     if (sectu && (TEST(sectp->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_NONE))
         return 0;
 
-    if (sectu && TEST(sectp->floorstat, FLOOR_STAT_PLAX))
+    if (sectu && TEST(sectp->floorstat, CSTAT_SECTOR_SKY))
         return 0;
 
     PlaySound(DIGI_SPLASH1, actor, v3df_none);
@@ -18208,7 +18208,7 @@ int SpawnSplashXY(int hit_x, int hit_y, int hit_z, sectortype* sectp)
     if (sectp->hasU() && (TEST(sectp->extra, SECTFX_LIQUID_MASK) == SECTFX_LIQUID_NONE))
         return 0;
 
-    if (sectp->hasU() && TEST(sectp->floorstat, FLOOR_STAT_PLAX))
+    if (sectp->hasU() && TEST(sectp->floorstat, CSTAT_SECTOR_SKY))
         return 0;
 
     auto actorNew = SpawnActor(STAT_MISSILE, SPLASH, s_Splash, sectp, hit_x, hit_y, hit_z, 0, 0);
@@ -18759,9 +18759,9 @@ int QueueFootPrint(DSWActor* actor)
             Found = true;
 
         // Stupid masked floor stuff!  Damn your weirdness!
-        if (TEST(u->PlayerP->cursector->ceilingstat, CEILING_STAT_PLAX))
+        if (TEST(u->PlayerP->cursector->ceilingstat, CSTAT_SECTOR_SKY))
             Found = true;
-        if (TEST(u->PlayerP->cursector->floorstat, CEILING_STAT_PLAX))
+        if (TEST(u->PlayerP->cursector->floorstat, CSTAT_SECTOR_SKY))
             Found = true;
     }
 
