@@ -119,9 +119,7 @@ int DoWallMove(DSWActor* actor)
             }
             else
             {
-                wal.x = sp->x + nx;
-                wal.y = sp->y + ny;
-                wal.sectorp()->dirty = 255;
+                wal.move(sp->x + nx, sp->y + ny);
             }
 
             if (shade1)

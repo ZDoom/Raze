@@ -759,10 +759,8 @@ void PathSound(sectortype* pSector, int nSound)
 
 void DragPoint(walltype* pWall, int x, int y)
 {
-    pWall->sectorp()->dirty = 255; 
     viewInterpolateWall(pWall);
-    pWall->x = x;
-    pWall->y = y;
+    pWall->move(x, y);
 
     int vsi = numwalls;
     auto prevWall = pWall;
@@ -771,24 +769,20 @@ void DragPoint(walltype* pWall, int x, int y)
         if (prevWall->twoSided())
         {
             prevWall = prevWall->nextWall()->point2Wall();
-            prevWall->sectorp()->dirty = 255;
             viewInterpolateWall(prevWall);
-            prevWall->x = x;
-            prevWall->y = y;
+            prevWall->move(x, y);
         }
         else
         {
             prevWall = pWall;
             do
             {
-                auto lw = lastwall(prevWall);
-                if (lw->twoSided())
+                auto lw = prevWall->lastWall();
+                if (lw && lw->twoSided())
                 {
                     prevWall = lw->nextWall();
-                    prevWall->sectorp()->dirty = 255;
                     viewInterpolateWall(prevWall);
-                    prevWall->x = x;
-                    prevWall->y = y;
+                    prevWall->move(x, y);
                 }
                 else
                     break;

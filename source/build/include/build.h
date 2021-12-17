@@ -352,21 +352,6 @@ inline constexpr uint32_t uhypsq(int32_t const dx, int32_t const dy)
 }
 
 void rotatepoint(vec2_t const pivot, vec2_t p, int16_t const daang, vec2_t * const p2) ATTRIBUTE((nonnull(4)));
-inline void rotatepoint(int px, int py, int ptx, int pty, int daang, int* resx, int* resy)
-{
-    vec2_t pivot = { px, py };
-    vec2_t point = { ptx, pty };
-    vec2_t result;
-    rotatepoint(pivot, point, daang, &result);
-    *resx = result.x;
-    *resy = result.y;
-}
-
-int32_t   lastwall(int16_t point);
-inline walltype* lastwall(walltype* point)
-{
-    return &wall[lastwall(wall.IndexOf(point))];
-}
 
 sectortype* nextsectorneighborzptr(sectortype* sectp, int refz, int topbottom, int direction);
 inline sectortype* safenextsectorneighborzptr(sectortype* sectp, int refz, int topbottom, int direction)
@@ -590,6 +575,21 @@ inline sectortype* walltype::sectorp() const
 	return &::sector[sector]; // cannot be -1 in a proper map.
 }
 
+inline walltype* walltype::lastWall() const
+{
+    int index = wall.IndexOf(this);
+    if (index > 0 && wall[index - 1].point2 == index) return &wall[index - 1];
+
+    int check = index;
+    for (int i = 0; i < numwalls; i++)
+    {
+        int next = wall[check].point2;
+        if (next == index) return &wall[check];
+        check = next;
+    }
+    return nullptr;
+}
+
 inline walltype* walltype::point2Wall() const
 {
 	return &::wall[point2]; // cannot be -1 in a proper map.
@@ -603,6 +603,20 @@ inline walltype* sectortype::firstWall() const
 inline walltype* sectortype::lastWall() const
 {
     return &wall[wallptr + wallnum - 1]; // cannot be -1 in a proper map
+}
+
+inline void walltype::moved() 
+{
+    lengthflags = 3;
+    sectorp()->dirty = EDirty::AllDirty;
+}
+
+inline void walltype::move(int newx, int newy)
+{
+    pos.x = newx;
+    pos.y = newy;
+    lengthflags = 3;
+    sectorp()->dirty = EDirty::AllDirty;
 }
 
 

@@ -281,7 +281,6 @@ void ms(DDukeActor* const actor)
 {
 	//T1,T2 and T3 are used for all the sector moving stuff!!!
 
-	int tx, ty;
 	auto s = actor->s;
 
 	s->x += MulScale(s->xvel, bcos(s->ang), 14);
@@ -292,12 +291,10 @@ void ms(DDukeActor* const actor)
 
 	for(auto& wal : wallsofsector(actor->sector()))
 	{
-		rotatepoint(
-			0, 0,
-			msx[j], msy[j],
-			k & 2047, &tx, &ty);
+		vec2_t t;
+		rotatepoint({ 0, 0 }, { msx[j], msy[j] }, k & 2047, &t);
 
-		dragpoint(&wal, s->x + tx, s->y + ty);
+		dragpoint(&wal, s->x + t.x, s->y + t.y);
 		j++;
 	}
 }
@@ -2751,20 +2748,18 @@ void handle_se00(DDukeActor* actor, int LASERLINE)
 
 				ps[p].pos.z += zchange;
 
-				int m, x;
-				rotatepoint(Owner->s->x, Owner->s->y,	ps[p].pos.x, ps[p].pos.y, (q * l), &m, &x);
+				vec2_t res;
+				rotatepoint(Owner->s->pos.vec2, ps[p].pos.vec2, (q * l), &res);
 
-				ps[p].bobposx += m - ps[p].pos.x;
-				ps[p].bobposy += x - ps[p].pos.y;
+				ps[p].bobposx += res.x - ps[p].pos.x;
+				ps[p].bobposy += res.y - ps[p].pos.y;
 
-				ps[p].pos.x = m;
-				ps[p].pos.y = x;
+				ps[p].pos.vec2 = res;
 
 				auto psp = ps[p].GetActor();
 				if (psp->s->extra <= 0)
 				{
-					psp->s->x = m;
-					psp->s->y = x;
+					psp->s->pos.vec2 = res;
 				}
 			}
 		}
@@ -2784,7 +2779,7 @@ void handle_se00(DDukeActor* actor, int LASERLINE)
 					sprp->ang &= 2047;
 
 					sprp->z += zchange;
-					rotatepoint(Owner->s->x, Owner->s->y, ap->s->x, ap->s->y, (q* l), &ap->s->x, &ap->s->y);
+					rotatepoint(Owner->s->pos.vec2, ap->s->pos.vec2, (q* l), &ap->s->pos.vec2);
 				}
 		}
 
@@ -2932,7 +2927,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 
 				if (s->sector() == psp->s->sector())
 				{
-					rotatepoint(s->x, s->y, ps[p].pos.x, ps[p].pos.y, q, &ps[p].pos.x, &ps[p].pos.y);
+					rotatepoint(s->pos.vec2, ps[p].pos.vec2, q, &ps[p].pos.vec2);
 
 					ps[p].pos.x += m;
 					ps[p].pos.y += x;
@@ -2961,7 +2956,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 			auto sj = a2->s;
 			if (sj->statnum != 10 && sj->sector()->lotag != 2 && sj->picnum != SECTOREFFECTOR && sj->picnum != LOCATORS)
 			{
-				rotatepoint(s->x, s->y, sj->x, sj->y, q, &sj->x, &sj->y);
+				rotatepoint(s->pos.vec2, sj->pos.vec2, q, &sj->pos.vec2);
 
 				sj->x += m;
 				sj->y += x;

@@ -329,7 +329,7 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sect
         pSector->floorypan_ = load.floorypanning;
         pSector->visibility = load.visibility;
         pSector->slopewallofs = load.fogpal;
-        pSector->dirty = 255;
+        pSector->dirty = EDirty::AllDirty;
         pSector->exflags = 0;
         pSector->fogpal = 0;
 

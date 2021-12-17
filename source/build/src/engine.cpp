@@ -626,9 +626,7 @@ void dragpoint(int w, int32_t dax, int32_t day)
     while (1)
     {
         auto wal = &wall[w];
-        sector[wal->sector].dirty = EDirty::AllDirty;
-        wal->x = dax;
-        wal->y = day;
+        wal->move(dax, day);
         walbitmap.Set(w);
 
         if (!clockwise)  //search points CCW
@@ -651,9 +649,9 @@ void dragpoint(int w, int32_t dax, int32_t day)
 
         if (clockwise)
         {
-            int32_t thelastwall = lastwall(w);
-            if (wall[thelastwall].nextwall >= 0)
-                w = wall[thelastwall].nextwall;
+            auto thelastwall = wall[w].lastWall();
+            if (thelastwall->nextwall >= 0)
+                w = thelastwall->nextwall;
             else
                 break;
         }
@@ -668,32 +666,6 @@ void dragpoint(int w, int32_t dax, int32_t day)
             continue;
         }
     }
-}
-
-//
-// lastwall
-//
-int32_t lastwall(int16_t point)
-{
-    if (point > 0 && wall[point-1].point2 == point)
-        return point-1;
-
-    int i = point, cnt = numwalls;
-    do
-    {
-        int const j = wall[i].point2;
-
-        if (j == point)
-        {
-            point = i;
-            break;
-        }
-
-        i = j;
-    }
-    while (--cnt);
-
-    return point;
 }
 
 ////////// UPDATESECTOR* FAMILY OF FUNCTIONS //////////

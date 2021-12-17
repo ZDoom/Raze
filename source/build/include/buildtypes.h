@@ -208,10 +208,12 @@ struct walltype
     };
     int16_t hitag;
     int16_t extra;
+    uint16_t portalnum;
     float xpan_, ypan_;
     binangle clipangle;
     uint8_t portalflags;
-    uint16_t portalnum;
+    uint8_t lengthflags;
+    int length; // cached value to avoid calling sqrt repeatedly.
 
     // Blood is the only game which extends the wall struct.
     Blood::XWALL* _xw;
@@ -226,12 +228,15 @@ struct walltype
     sectortype* nextSector() const;
 	sectortype* sectorp() const;
 	walltype* nextWall() const;
+    walltype* lastWall() const;
     walltype* point2Wall() const;
 	vec2_t delta() const { return point2Wall()->pos - pos; }
 	vec2_t center() const { return(point2Wall()->pos + pos) / 2; }
 	int deltax() const { return point2Wall()->x - x; }
 	int deltay() const { return point2Wall()->y - y; }
     bool twoSided() const { return nextsector >= 0; }
+    void move(int newx, int newy);
+    void moved();
 
     Blood::XWALL& xw() const { return *_xw; }
     bool hasX() const { return _xw != nullptr; }

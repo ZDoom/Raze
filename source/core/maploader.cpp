@@ -525,7 +525,9 @@ void setWallSectors()
 	for (auto& wal : walls())
 	{
 		wal.sector = -1;
+		wal.lengthflags = 3;
 	}
+
 	for (int i = 0; i < numsectors - 1; i++)
 	{
 		auto sect = &sector[i];

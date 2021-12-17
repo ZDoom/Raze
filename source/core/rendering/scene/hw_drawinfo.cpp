@@ -417,7 +417,7 @@ void HWDrawInfo::CreateScene(bool portal)
 				wal->x += eff.geox[i];
 				wal->y += eff.geoy[i];
 			}
-			sect->dirty = 255;
+			sect->dirty = EDirty::AllDirty;
 			if (eff.geosector[i] == drawsectp) drawsectp = eff.geosectorwarp[i];
 		}
 
@@ -449,7 +449,7 @@ void HWDrawInfo::CreateScene(bool portal)
 				wal->x += eff.geox2[i];
 				wal->y += eff.geoy2[i];
 			}
-			sect->dirty = 255;
+			sect->dirty = EDirty::AllDirty;
 			if (eff.geosector[i] == orgdrawsectp) drawsectp = eff.geosectorwarp2[i];
 		}
 

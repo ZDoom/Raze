@@ -1687,12 +1687,11 @@ void MovePoints(SECTOR_OBJECTp sop, short delta_ang, int nx, int ny)
 
             if (wal.extra && TEST(wal.extra, WALLFX_LOOP_OUTER))
             {
-                dragpoint(&wal, wal.x += nx, wal.y += ny);
+                dragpoint(&wal, wal.x + nx, wal.y + ny);
             }
             else
             {
-                wal.x += nx;
-                wal.y += ny;
+                wal.move(wal.x + nx, wal.y + ny);
             }
 
             rot_ang = delta_ang;
@@ -1714,8 +1713,7 @@ void MovePoints(SECTOR_OBJECTp sop, short delta_ang, int nx, int ny)
             }
             else
             {
-                wal.x = rxy.x;
-                wal.y = rxy.y;
+                wal.move(rxy.x, rxy.y);
             }
         }
 
@@ -1938,8 +1936,7 @@ void RefreshPoints(SECTOR_OBJECTp sop, int nx, int ny, bool dynamic)
                     }
                     else
                     {
-                        wal.x = dx;
-                        wal.y = dy;
+                        wal.move(dx, dy);
                     }
                 }
 
@@ -2093,8 +2090,7 @@ void CollapseSectorObject(SECTOR_OBJECTp sop, int nx, int ny)
                 }
                 else
                 {
-                    wal.x = nx;
-                    wal.y = ny;
+                    wal.move(nx, ny);
                 }
             }
         }

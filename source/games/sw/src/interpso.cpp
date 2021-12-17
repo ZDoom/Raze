@@ -96,10 +96,10 @@ static int &getvalue(so_interp::interp_data& element, bool write)
     switch (type)
     {
     case soi_wallx:
-        if (write) wall[index].sectorp()->dirty = 255;
+        if (write) wall[index].moved();
         return wall[index].x;
     case soi_wally:
-        if (write) wall[index].sectorp()->dirty = 255;
+        if (write) wall[index].moved();
         return wall[index].y;
     case soi_ceil:
         return sector[index].ceilingz;
