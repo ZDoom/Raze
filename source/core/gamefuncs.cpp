@@ -146,35 +146,78 @@ bool calcChaseCamPos(int* px, int* py, int* pz, spritetype* pspr, sectortype** p
 
 //==========================================================================
 //
-// note that this returns values in renderer coordinate space with inverted sign!
+// consolidated slope calculation
+//
+//==========================================================================
+
+void calcSlope(const sectortype* sec, float xpos, float ypos, float* pceilz, float* pflorz)
+{
+	int bits = 0;
+	if (pceilz)
+	{
+		bits |= sec->ceilingstat;
+		*pceilz = float(sec->ceilingz);
+	}
+	if (pflorz)
+	{
+		bits |= sec->floorstat;
+		*pflorz = float(sec->floorz);
+	}
+
+	if ((bits & CSTAT_SECTOR_SLOPE) == CSTAT_SECTOR_SLOPE)
+	{
+		auto wal = sec->firstWall();
+		int len = wal->Length();
+		if (len != 0)
+		{
+			float den = (wal->deltax() * (float(ypos - wal->y)) - wal->deltay() * (float(xpos - wal->x))) * (1.f / 8.f);
+			if (pceilz && sec->ceilingstat & CSTAT_SECTOR_SLOPE) *pceilz += (sec->ceilingheinum * den) / len;
+			if (pflorz && sec->floorstat & CSTAT_SECTOR_SLOPE) *pflorz += (sec->floorheinum * den) / len;
+		}
+	}
+}
+
+//==========================================================================
+//
+// for the renderer (Polymost variants are in polymost.cpp)
 //
 //==========================================================================
 
 void PlanesAtPoint(const sectortype* sec, int dax, int day, float* pceilz, float* pflorz)
 {
-	float ceilz = float(sec->ceilingz);
-	float florz = float(sec->floorz);
-
-	if (((sec->ceilingstat | sec->floorstat) & CSTAT_SECTOR_SLOPE) == CSTAT_SECTOR_SLOPE)
-	{
-		auto wal = sec->firstWall();
-		auto wal2 = wal->point2Wall();
-
-		float dx = float(wal2->x - wal->x);
-		float dy = float(wal2->y - wal->y);
-
-		int i = (int)sqrt(dx * dx + dy * dy) << 5; // length of sector's first wall.
-		if (i != 0)
-		{
-			float const j = (dx * (float(day - wal->y)) - dy * (float(dax - wal->x))) * (1.f / 8.f);
-			if (sec->ceilingstat & CSTAT_SECTOR_SLOPE) ceilz += (sec->ceilingheinum * j) / i;
-			if (sec->floorstat & CSTAT_SECTOR_SLOPE) florz += (sec->floorheinum * j) / i;
-		}
-	}
-	// Scale to render coordinates.
-	if (pceilz) *pceilz = ceilz * -(1.f / 256.f);
-	if (pflorz) *pflorz = florz * -(1.f / 256.f);
+	calcSlope(sec, dax, day, pceilz, pflorz);
+	if (pceilz) *pceilz *= -(1 / 256.f);
+	if (pflorz) *pflorz *= -(1 / 256.f);
 }
+
+//==========================================================================
+//
+// for the games
+//
+//==========================================================================
+
+int32_t getceilzofslopeptr(usectorptr_t sec, int32_t dax, int32_t day)
+{
+	float z;
+	calcSlope(sec, dax, day, &z, nullptr);
+	return int(z);
+}
+
+int32_t getflorzofslopeptr(usectorptr_t sec, int32_t dax, int32_t day)
+{
+	float z;
+	calcSlope(sec, dax, day, nullptr, &z);
+	return int(z);
+}
+
+void getzsofslopeptr(usectorptr_t sec, int32_t dax, int32_t day, int32_t* ceilz, int32_t* florz)
+{
+	float c, f;
+	calcSlope(sec, dax, day, &c, &f);
+	*ceilz = int(c);
+	*florz = int(f);
+}
+
 
 //==========================================================================
 //

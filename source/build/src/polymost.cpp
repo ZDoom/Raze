@@ -48,6 +48,7 @@ int32_t r_rortexturerange = 0;
 int32_t r_rorphase = 0;
 
 
+void calcSlope(const sectortype* sec, float xpos, float ypos, float* pceilz, float* pflorz);
 
 int skiptile = -1;
 FGameTexture* GetSkyTexture(int basetile, int lognumtiles, const int16_t* tilemap, int remap = 0);
@@ -1159,7 +1160,7 @@ static void polymost_internal_nonparallaxed(FVector2 n0, FVector2 n1, float ryp0
 
     if (have_floor)
     {
-        if (globalposz > getflorzofslope(sectnum, globalposx, globalposy))
+        if (globalposz > getflorzofslopeptr(sec, globalposx, globalposy))
             domostpolymethod = DAMETH_BACKFACECULL; //Back-face culling
 
         if (domostpolymethod & DAMETH_MASKPROPS)
@@ -1169,7 +1170,7 @@ static void polymost_internal_nonparallaxed(FVector2 n0, FVector2 n1, float ryp0
     }
     else
     {
-        if (globalposz < getceilzofslope(sectnum, globalposx, globalposy))
+        if (globalposz < getceilzofslopeptr(sec, globalposx, globalposy))
             domostpolymethod = DAMETH_BACKFACECULL; //Back-face culling
 
         if (domostpolymethod & DAMETH_MASKPROPS)
@@ -1245,60 +1246,21 @@ static inline int polymost_getclosestpointonwall(vec2_t const * const pos, int32
 
 static float fgetceilzofslope(usectorptr_t sec, float dax, float day)
 {
-    if (!(sec->ceilingstat&2))
-        return float(sec->ceilingz);
-
-    auto const wal  = (uwallptr_t)sec->firstWall();
-    auto const wal2 = (uwallptr_t)wal->point2Wall();
-
-    vec2_t const w = *(vec2_t const *)wal;
-    vec2_t const d = { wal2->x - w.x, wal2->y - w.y };
-
-    int const i = ksqrt(uhypsq(d.x,d.y))<<5;
-    if (i == 0) return sec->ceilingz;
-
-    float const j = (d.x*(day-w.y)-d.y*(dax-w.x))*(1.f/8.f);
-    return float(sec->ceilingz) + (sec->ceilingheinum*j)/i;
+    float z;
+    calcSlope(sec, dax, day, &z, nullptr);
+    return z;
 }
 
 static float fgetflorzofslope(usectorptr_t sec, float dax, float day)
 {
-    if (!(sec->floorstat&2))
-        return float(sec->floorz);
-
-    auto const wal  = (uwallptr_t)sec->firstWall();
-    auto const wal2 = (uwallptr_t)wal->point2Wall();
-
-    vec2_t const w = *(vec2_t const *)wal;
-    vec2_t const d = { wal2->x - w.x, wal2->y - w.y };
-
-    int const i = ksqrt(uhypsq(d.x,d.y))<<5;
-    if (i == 0) return sec->floorz;
-
-    float const j = (d.x*(day-w.y)-d.y*(dax-w.x))*(1.f/8.f);
-    return float(sec->floorz) + (sec->floorheinum*j)/i;
+    float z;
+    calcSlope(sec, dax, day, nullptr, &z);
+    return z;
 }
 
 static void fgetzsofslope(usectorptr_t sec, float dax, float day, float* ceilz, float *florz)
 {
-    *ceilz = float(sec->ceilingz); *florz = float(sec->floorz);
-
-    if (((sec->ceilingstat|sec->floorstat)&2) != 2)
-        return;
-
-    auto const wal  = (uwallptr_t)sec->firstWall();
-    auto const wal2 = (uwallptr_t)wal->point2Wall();
-
-    vec2_t const d = { wal2->x - wal->x, wal2->y - wal->y };
-
-    int const i = ksqrt(uhypsq(d.x,d.y))<<5;
-    if (i == 0) return;
-    
-    float const j = (d.x*(day-wal->y)-d.y*(dax-wal->x))*(1.f/8.f);
-    if (sec->ceilingstat&2)
-        *ceilz += (sec->ceilingheinum*j)/i;
-    if (sec->floorstat&2)
-        *florz += (sec->floorheinum*j)/i;
+    calcSlope(sec, dax, day, ceilz, florz);
 }
 
 static void polymost_flatskyrender(FVector2 const* const dpxy, int32_t const n, int32_t method, const vec2_16_t &tilesize)
@@ -1620,7 +1582,7 @@ static void polymost_drawalls(int32_t const bunch)
         }
         else if (!(globalorientation&1))
         {
-            int32_t fz = getflorzofslope(sectnum, globalposx, globalposy);
+            int32_t fz = getflorzofslopeptr(sec, globalposx, globalposy);
             if (globalposz <= fz)
                 polymost_internal_nonparallaxed(n0, n1, ryp0, ryp1, x0, x1, fy0, fy1, sectnum, true);
         }
@@ -1673,7 +1635,7 @@ static void polymost_drawalls(int32_t const bunch)
         }
         else if (!(globalorientation&1))
         {
-            int32_t cz = getceilzofslope(sectnum, globalposx, globalposy);
+            int32_t cz = getceilzofslopeptr(sec, globalposx, globalposy);
             if (globalposz >= cz)
                 polymost_internal_nonparallaxed(n0, n1, ryp0, ryp1, x0, x1, cy0, cy1, sectnum, false);
         }
@@ -2383,11 +2345,11 @@ static void polymost_drawmaskwallinternal(int32_t wallIndex)
     int32_t m0 = (int32_t)((wal2->x - wal->x) * t0 + wal->x);
     int32_t m1 = (int32_t)((wal2->y - wal->y) * t0 + wal->y);
     int32_t cz[4], fz[4];
-    getzsofslope(sectnum, m0, m1, &cz[0], &fz[0]);
+    getzsofslopeptr(sec, m0, m1, &cz[0], &fz[0]);
     getzsofslopeptr(wal->nextSector(), m0, m1, &cz[1], &fz[1]);
     m0 = (int32_t)((wal2->x - wal->x) * t1 + wal->x);
     m1 = (int32_t)((wal2->y - wal->y) * t1 + wal->y);
-    getzsofslope(sectnum, m0, m1, &cz[2], &fz[2]);
+    getzsofslopeptr(sec, m0, m1, &cz[2], &fz[2]);
     getzsofslopeptr(wal->nextSector(), m0, m1, &cz[3], &fz[3]);
 
     float ryp0 = 1.f/p0.Y;

@@ -334,6 +334,8 @@ struct walltype
 	int deltax() const { return point2Wall()->x - x; }
 	int deltay() const { return point2Wall()->y - y; }
 	bool twoSided() const { return nextsector >= 0; }
+	int Length();
+	void calcLength();	// this is deliberately not inlined and stored in a file where it can't be found at compile time.
 	void move(int newx, int newy);
 	void moved();
 
@@ -647,6 +649,16 @@ inline void walltype::move(int newx, int newy)
 	pos.y = newy;
 	lengthflags = 3;
 	sectorp()->dirty = EDirty::AllDirty;
+}
+
+inline int walltype::Length()
+{
+	if ((lengthflags & 1) || (point2Wall()->lengthflags & 2))
+	{
+		// value is stale, recreate
+		calcLength();
+	}
+	return length;
 }
 
 //=============================================================================

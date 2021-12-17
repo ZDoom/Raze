@@ -333,22 +333,6 @@ int32_t   getceilzofslopeptr(usectorptr_t sec, int32_t dax, int32_t day) ATTRIBU
 int32_t   getflorzofslopeptr(usectorptr_t sec, int32_t dax, int32_t day) ATTRIBUTE((nonnull(1)));
 void   getzsofslopeptr(usectorptr_t sec, int32_t dax, int32_t day,
                        int32_t *ceilz, int32_t *florz) ATTRIBUTE((nonnull(1,4,5)));
-void yax_getzsofslope(int sectNum, int playerX, int playerY, int32_t* pCeilZ, int32_t* pFloorZ);
-
-inline int32_t getceilzofslope(int sectnum, int32_t dax, int32_t day)
-{
-    return getceilzofslopeptr((usectorptr_t)&sector[sectnum], dax, day);
-}
-
-inline int32_t getflorzofslope(int sectnum, int32_t dax, int32_t day)
-{
-    return getflorzofslopeptr((usectorptr_t)&sector[sectnum], dax, day);
-}
-
-inline void getzsofslope(int sectnum, int32_t dax, int32_t day, int32_t *ceilz, int32_t *florz)
-{
-    getzsofslopeptr((usectorptr_t)&sector[sectnum], dax, day, ceilz, florz);
-}
 
 inline void getcorrectzsofslope(int sectnum, int32_t dax, int32_t day, int32_t *ceilz, int32_t *florz)
 {

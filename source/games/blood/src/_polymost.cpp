@@ -19,7 +19,7 @@ void collectTSpritesForPortal(int x, int y, int i, int interpolation)
         int top, bottom;
         GetSpriteExtents(pSprite, &top, &bottom);
         int zCeil, zFloor;
-        getzsofslope(nSector, pSprite->x, pSprite->y, &zCeil, &zFloor);
+        getzsofslopeptr(&sector[nSector], pSprite->x, pSprite->y, &zCeil, &zFloor);
         if (pSprite->statnum == kStatDude && (top < zCeil || bottom > zFloor))
         {
             int j = i;

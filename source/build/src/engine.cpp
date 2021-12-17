@@ -675,7 +675,7 @@ void dragpoint(int w, int32_t dax, int32_t day)
 static inline int inside_z_p(int32_t const x, int32_t const y, int32_t const z, int const sectnum)
 {
     int32_t cz, fz;
-    getzsofslope(sectnum, x, y, &cz, &fz);
+    getzsofslopeptr(&sector[sectnum], x, y, &cz, &fz);
     return (z >= cz && z <= fz && inside_p(x, y, sectnum));
 }
 
@@ -889,67 +889,6 @@ void renderRestoreTarget()
 
 }
 
-
-int32_t getceilzofslopeptr(usectorptr_t sec, int32_t dax, int32_t day)
-{
-    if (!(sec->ceilingstat&2))
-        return sec->ceilingz;
-
-    auto const wal  = (uwallptr_t)sec->firstWall();
-    auto const wal2 = (uwallptr_t)wal->point2Wall();
-
-    vec2_t const w = *(vec2_t const *)wal;
-    vec2_t const d = { wal2->x - w.x, wal2->y - w.y };
-
-    int const i = ksqrt(uhypsq(d.x,d.y))<<5;
-    if (i == 0) return sec->ceilingz;
-
-    int const j = DMulScale(d.x, day-w.y, -d.y, dax-w.x, 3);
-    int const shift = enginecompatibility_mode != ENGINECOMPATIBILITY_NONE ? 0 : 1;
-    return sec->ceilingz + (Scale(sec->ceilingheinum,j>>shift,i)<<shift);
-}
-
-int32_t getflorzofslopeptr(usectorptr_t sec, int32_t dax, int32_t day)
-{
-    if (!(sec->floorstat&2))
-        return sec->floorz;
-
-    auto const wal  = (uwallptr_t)sec->firstWall();
-    auto const wal2 = (uwallptr_t)wal->point2Wall();
-
-    vec2_t const w = *(vec2_t const *)wal;
-    vec2_t const d = { wal2->x - w.x, wal2->y - w.y };
-
-    int const i = ksqrt(uhypsq(d.x,d.y))<<5;
-    if (i == 0) return sec->floorz;
-
-    int const j = DMulScale(d.x, day-w.y, -d.y, dax-w.x, 3);
-    int const shift = enginecompatibility_mode != ENGINECOMPATIBILITY_NONE ? 0 : 1;
-    return sec->floorz + (Scale(sec->floorheinum,j>>shift,i)<<shift);
-}
-
-void getzsofslopeptr(usectorptr_t sec, int32_t dax, int32_t day, int32_t *ceilz, int32_t *florz)
-{
-    *ceilz = sec->ceilingz; *florz = sec->floorz;
-
-    if (((sec->ceilingstat|sec->floorstat)&2) != 2)
-        return;
-
-    auto const wal  = (uwallptr_t)sec->firstWall();
-    auto const wal2 = (uwallptr_t)wal->point2Wall();
-
-    vec2_t const d = { wal2->x - wal->x, wal2->y - wal->y };
-
-    int const i = ksqrt(uhypsq(d.x,d.y))<<5;
-    if (i == 0) return;
-
-    int const j = DMulScale(d.x,day-wal->y, -d.y,dax-wal->x, 3);
-    int const shift = enginecompatibility_mode != ENGINECOMPATIBILITY_NONE ? 0 : 1;
-    if (sec->ceilingstat&2)
-        *ceilz += Scale(sec->ceilingheinum,j>>shift,i)<<shift;
-    if (sec->floorstat&2)
-        *florz += Scale(sec->floorheinum,j>>shift,i)<<shift;
-}
 
 //
 // alignceilslope

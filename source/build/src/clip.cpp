@@ -225,13 +225,13 @@ static int cliptestsector(int const dasect, int const nextsect, int32_t const fl
         break;
     default:
     {
-        int32_t daz = getflorzofslope(dasect, pos.x, pos.y);
-        int32_t daz2 = getflorzofslope(nextsect, pos.x, pos.y);
+        int32_t daz = getflorzofslopeptr(&sector[dasect], pos.x, pos.y);
+        int32_t daz2 = getflorzofslopeptr(sec2, pos.x, pos.y);
 
         if (daz2 < daz-(1<<8) && (sec2->floorstat&1) == 0)
             if (posz >= daz2-(flordist-1)) return 1;
-        daz = getceilzofslope(dasect, pos.x, pos.y);
-        daz2 = getceilzofslope(nextsect, pos.x, pos.y);
+        daz = getceilzofslopeptr(&sector[dasect], pos.x, pos.y);
+        daz2 = getceilzofslopeptr(sec2, pos.x, pos.y);
         if (daz2 > daz+(1<<8) && (sec2->ceilingstat&1) == 0)
             if (posz <= daz2+(ceildist-1)) return 1;
 
@@ -784,28 +784,30 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 
         int32_t tempint2, tempint1 = INT32_MAX;
         *sectnum = -1;
-        for (int j=numsectors-1; j>=0; j--)
-            if (inside_p(pos->x, pos->y, j) == 1)
+        for (int j = numsectors - 1; j >= 0; j--)
+        {
+            auto sect = &sector[j];
+            if (inside(pos->x, pos->y, sect) == 1)
             {
-                if (enginecompatibility_mode != ENGINECOMPATIBILITY_19950829 && (sector[j].ceilingstat&2))
-                    tempint2 = getceilzofslope(j, pos->x, pos->y) - pos->z;
+                if (enginecompatibility_mode != ENGINECOMPATIBILITY_19950829 && (sect->ceilingstat & CSTAT_SECTOR_SLOPE))
+                    tempint2 = getceilzofslopeptr(sect, pos->x, pos->y) - pos->z;
                 else
-                    tempint2 = sector[j].ceilingz - pos->z;
+                    tempint2 = sect->ceilingz - pos->z;
 
                 if (tempint2 > 0)
                 {
                     if (tempint2 < tempint1)
                     {
-                        *sectnum = (int16_t)j; 
+                        *sectnum = (int16_t)j;
                         tempint1 = tempint2;
                     }
                 }
                 else
                 {
-                    if (enginecompatibility_mode != ENGINECOMPATIBILITY_19950829 && (sector[j].floorstat&2))
-                        tempint2 = pos->z - getflorzofslope(j, pos->x, pos->y);
+                    if (enginecompatibility_mode != ENGINECOMPATIBILITY_19950829 && (sect->ceilingstat & CSTAT_SECTOR_SLOPE))
+                        tempint2 = pos->z - getflorzofslopeptr(sect, pos->x, pos->y);
                     else
-                        tempint2 = pos->z - sector[j].floorz;
+                        tempint2 = pos->z - sect->floorz;
 
                     if (tempint2 <= 0)
                     {
@@ -819,6 +821,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
                     }
                 }
             }
+        }
     }
 
     return clipReturn;
