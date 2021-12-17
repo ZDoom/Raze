@@ -64,7 +64,7 @@ void walltype::calcLength()
 	lengthflags &= ~1;
 	point2Wall()->lengthflags &= ~2;
 	auto d = delta();
-	length = (int)sqrt(d.x * d.x + d.y * d.y) << 5;
+	length = (int)sqrt(d.x * d.x + d.y * d.y);
 }
 
 // needed for skipping over to get the map size first.

@@ -170,9 +170,9 @@ void calcSlope(const sectortype* sec, float xpos, float ypos, float* pceilz, flo
 		int len = wal->Length();
 		if (len != 0)
 		{
-			float den = (wal->deltax() * (float(ypos - wal->y)) - wal->deltay() * (float(xpos - wal->x))) * (1.f / 8.f);
-			if (pceilz && sec->ceilingstat & CSTAT_SECTOR_SLOPE) *pceilz += (sec->ceilingheinum * den) / len;
-			if (pflorz && sec->floorstat & CSTAT_SECTOR_SLOPE) *pflorz += (sec->floorheinum * den) / len;
+			float fac = (wal->deltax() * (float(ypos - wal->y)) - wal->deltay() * (float(xpos - wal->x))) * (1.f / 256.f) / len;
+			if (pceilz && sec->ceilingstat & CSTAT_SECTOR_SLOPE) *pceilz += (sec->ceilingheinum * fac);
+			if (pflorz && sec->floorstat & CSTAT_SECTOR_SLOPE) *pflorz += (sec->floorheinum * fac);
 		}
 	}
 }
