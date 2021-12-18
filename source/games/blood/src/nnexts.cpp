@@ -2559,7 +2559,6 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
         case OBJ_WALL: 
         {
             if (!pWall) return;
-            int old = -1;
 
             // data3 = set wall hitag
             if (valueIsBetween(pXSource->data3, -1, 32767)) 
@@ -2571,17 +2570,17 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
             // data4 = set wall cstat
             if (valueIsBetween(pXSource->data4, -1, 65535)) 
             {
-                old = pWall->cstat;
+                auto old = pWall->cstat;
 
                 // set new cstat
-                if ((pSource->flags & kModernTypeFlag1)) pWall->cstat |= pXSource->data4; // relative
-                else pWall->cstat = pXSource->data4; // absolute
+                if ((pSource->flags & kModernTypeFlag1)) pWall->cstat |= EWallFlags::FromInt(pXSource->data4); // relative
+                else pWall->cstat = EWallFlags::FromInt(pXSource->data4); // absolute
 
                 // and hanlde exceptions
-                if ((old & 0x2) && !(pWall->cstat & 0x2)) pWall->cstat |= 0x2; // kWallBottomSwap
-                if ((old & 0x4) && !(pWall->cstat & 0x4)) pWall->cstat |= 0x4; // kWallBottomOrg, kWallOutsideOrg
-                if ((old & 0x20) && !(pWall->cstat & 0x20)) pWall->cstat |= 0x20; // kWallOneWay
-
+                pWall->cstat |= old & (CSTAT_WALL_BOTTOM_SWAP | CSTAT_WALL_ALIGN_BOTTOM | CSTAT_WALL_1WAY);
+                pWall->cstat = (pWall->cstat & ~CSTAT_WALL_MOVE_MASK) | (old & CSTAT_WALL_MOVE_MASK);
+#if 0
+                // old code for reference. This does not look right.
                 if (old & 0xc000) {
 
                     if (!(pWall->cstat & 0xc000))
@@ -2592,6 +2591,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
                     else if ((old & 0x8000) && !(pWall->cstat & 0x8000)) pWall->cstat |= 0x8000; // kWallMoveBackward
 
                 }
+#endif
             }
         }
         break;
