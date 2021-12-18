@@ -1095,7 +1095,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		case HEAVYHBOMB:
 			if (targ->temp_data[0] == 0)
 			{
-				s->cstat &= ~257;
+				s->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 				targ->temp_data[0] = 1;
 				spawn(targ, BURNING);
 			}
@@ -1119,7 +1119,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 
 			if (s->picnum == CACTUS)
 				s->picnum = CACTUSBROKE;
-			s->cstat &= ~257;
+			s->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 			//	   else deletesprite(i);
 			break;
 		}
@@ -1256,7 +1256,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 	case TOILET:
 		s->picnum = TOILETBROKE;
 		s->cstat |= (krand() & 1) << 2;
-		s->cstat &= ~257;
+		s->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 		spawn(targ, TOILETWATER);
 		S_PlayActorSound(GLASS_BREAKING, targ);
 		break;
@@ -1264,7 +1264,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 	case STALL:
 		s->picnum = STALLBROKE;
 		s->cstat |= (krand() & 1) << 2;
-		s->cstat &= ~257;
+		s->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 		spawn(targ, TOILETWATER);
 		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;

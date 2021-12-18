@@ -385,7 +385,7 @@ static void fakeMoveDude(spritetype *pSprite)
         else
         {
             auto bakCstat = pSprite->cstat;
-            pSprite->cstat &= ~257;
+            pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
             ClipMove(&predict.pos, &nSector, predict.xvel >> 12, predict.yvel >> 12, wd, tz, bz, CLIPMASK0, predict.at75.hit);
             if (nSector == -1)
                 nSector = predict.sector;

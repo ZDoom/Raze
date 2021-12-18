@@ -180,7 +180,7 @@ bool initspriteforspawn(DDukeActor* act, const std::initializer_list<int> &exclu
 						return false;
 					}
 				}
-				sp->cstat |= 257;
+				sp->cstat |= CSTAT_SPRITE_BLOCK_ALL;
 				if (sp->pal && sp->picnum != TILE_ACCESSSWITCH && sp->picnum != TILE_ACCESSSWITCH2)
 					sp->pal = 0;
 				return false;
@@ -189,7 +189,7 @@ bool initspriteforspawn(DDukeActor* act, const std::initializer_list<int> &exclu
 			if (sp->hitag)
 			{
 				ChangeActorStat(act, 12);
-				sp->cstat |= 257;
+				sp->cstat |= CSTAT_SPRITE_BLOCK_ALL;
 				sp->extra = gs.impact_damage;
 				return false;
 			}
@@ -599,7 +599,7 @@ int initreactor(DDukeActor* actj, DDukeActor* actor, bool isrecon)
 	else
 		sp->extra = gs.impact_damage;
 
-	sp->cstat |= 257; // Make it hitable
+	sp->cstat |= CSTAT_SPRITE_BLOCK_ALL; // Make it hitable
 
 	if (ud.multimode < 2 && sp->pal != 0)
 	{

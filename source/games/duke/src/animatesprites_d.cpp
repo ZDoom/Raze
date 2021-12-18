@@ -716,7 +716,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 							t->ownerActor = nullptr;
 							break;
 						}
-				if ((Owner->cstat & 32768) == 0)
+				if ((Owner->cstat & CSTAT_SPRITE_INVISIBLE) == 0)
 				{
 					t->picnum = OwnerAc->dispicnum;
 					t->pal = Owner->pal;

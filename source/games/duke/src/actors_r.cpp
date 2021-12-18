@@ -1434,7 +1434,7 @@ static void weaponcommon_r(DDukeActor *proj)
 
 			if (x)
 			{
-				x->s->cstat = 128;
+				x->s->cstat = CSTAT_SPRITE_YCENTER;
 				x->s->pal = s->pal;
 			}
 		}
@@ -2508,7 +2508,7 @@ static void heavyhbomb(DDukeActor *actor)
 	int x, l;
 	auto Owner = actor->GetOwner();
 
-	if ((s->cstat & 32768))
+	if ((s->cstat & CSTAT_SPRITE_INVISIBLE))
 	{
 		t[2]--;
 		if (t[2] <= 0)
@@ -2522,8 +2522,8 @@ static void heavyhbomb(DDukeActor *actor)
 
 	int p = findplayer(actor, &x);
 
-	if (x < 1220) s->cstat &= ~257;
-	else s->cstat |= 257;
+	if (x < 1220) s->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
+	else s->cstat |= CSTAT_SPRITE_BLOCK_ALL;
 
 	if (t[3] == 0)
 	{

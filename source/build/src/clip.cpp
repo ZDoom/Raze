@@ -81,10 +81,10 @@ static inline void get_floorspr_points(T const * const spr, int32_t px, int32_t 
 
     vec2_t adjofs = { tileLeftOffset(tilenum) + spr->xoffset, tileTopOffset(tilenum) + spr->yoffset };
 
-    if (spr->cstat & 4)
+    if (spr->cstat & CSTAT_SPRITE_XFLIP)
         adjofs.x = -adjofs.x;
 
-    if (spr->cstat & 8)
+    if (spr->cstat & CSTAT_SPRITE_YFLIP)
         adjofs.y = -adjofs.y;
 
     vec2_t const center = { ((span.x >> 1) + adjofs.x) * repeat.x, ((span.y >> 1) + adjofs.y) * repeat.y };

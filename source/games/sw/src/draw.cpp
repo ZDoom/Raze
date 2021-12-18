@@ -1760,7 +1760,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
                     y1 = spry;
                     tilenum = spr->picnum;
                     xoff = (int)tileLeftOffset(tilenum) + (int)spr->xoffset;
-                    if ((spr->cstat & 4) > 0)
+                    if ((spr->cstat & CSTAT_SPRITE_XFLIP) > 0)
                         xoff = -xoff;
                     k = spr->ang;
                     l = spr->xrepeat;
@@ -1793,9 +1793,9 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
                         tilenum = spr->picnum;
                         xoff = (int)tileLeftOffset(tilenum) + (int)spr->xoffset;
                         yoff = (int)tileTopOffset(tilenum) + (int)spr->yoffset;
-                        if ((spr->cstat & 4) > 0)
+                        if ((spr->cstat & CSTAT_SPRITE_XFLIP) > 0)
                             xoff = -xoff;
-                        if ((spr->cstat & 8) > 0)
+                        if ((spr->cstat & CSTAT_SPRITE_YFLIP) > 0)
                             yoff = -yoff;
 
                         k = spr->ang;

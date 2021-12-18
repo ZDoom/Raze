@@ -137,7 +137,7 @@ static void shootfireball(DDukeActor *actor, int p, int sx, int sy, int sz, int 
 			spr->yrepeat = 40;
 		}
 		spr->yvel = p;
-		spr->cstat = 128;
+		spr->cstat = CSTAT_SPRITE_YCENTER;
 		spr->clipdist = 4;
 	}
 }
@@ -404,9 +404,9 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 		}
 	}
 
-	s->cstat &= ~257;
+	s->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 	hitscan({ sx, sy, sz }, sectp, { bcos(sa), bsin(sa), zvel << 6 }, hit, CLIPMASK1);
-	s->cstat |= 257;
+	s->cstat |= CSTAT_SPRITE_BLOCK_ALL;
 
 
 	if (hit.hitSector == nullptr) return;
@@ -664,7 +664,7 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 			}
 		}
 
-		spawned->s->cstat = 128;
+		spawned->s->cstat = CSTAT_SPRITE_YCENTER;
 		spawned->s->clipdist = 4;
 
 		sa = s->ang + 32 - (krand() & 63);
@@ -834,7 +834,7 @@ static void shootrpg(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, i
 		spj->yrepeat >>= 1;
 	}
 
-	spj->cstat = 128;
+	spj->cstat = CSTAT_SPRITE_YCENTER;
 	if (atwith == RPG)
 		spj->clipdist = 4;
 	else
@@ -973,10 +973,10 @@ static void shootgrowspark(DDukeActor* actor, int p, int sx, int sy, int sz, int
 
 	//RESHOOTGROW:
 
-	s->cstat &= ~257;
+	s->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 	hitscan({ sx, sy, sz }, sect, { bcos(sa), bsin(sa), zvel << 6 }, hit, CLIPMASK1);
 
-	s->cstat |= 257;
+	s->cstat |= CSTAT_SPRITE_BLOCK_ALL;
 
 	auto spark = EGS(sect, hit.hitpos.x, hit.hitpos.y, hit.hitpos.z, GROWSPARK, -16, 28, 28, sa, 0, 0, actor, 1);
 	if (!spark) return;
@@ -1180,7 +1180,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 
 		if (j)
 		{
-			j->s->cstat = 128;
+			j->s->cstat = CSTAT_SPRITE_YCENTER;
 			j->s->clipdist = 32;
 		}
 

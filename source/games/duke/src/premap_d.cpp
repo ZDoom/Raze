@@ -256,7 +256,7 @@ void cacheit_d(void)
 		DukeSectIterator it(&sect);
 		while (auto j = it.Next())
 		{
-			if (j->s->xrepeat != 0 && j->s->yrepeat != 0 && (j->s->cstat & 32768) == 0)
+			if (j->s->xrepeat != 0 && j->s->yrepeat != 0 && (j->s->cstat & CSTAT_SPRITE_INVISIBLE) == 0)
 				cachespritenum(j->s);
 		}
 	}

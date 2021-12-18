@@ -1363,7 +1363,7 @@ void movetongue(DDukeActor *actor, int tongue, int jaw)
 			8, 8, 0, 0, 0, actor, 5);
 		if (q)
 		{
-			q->s->cstat = 128;
+			q->s->cstat = CSTAT_SPRITE_YCENTER;
 			q->s->pal = 8;
 	}
 	}
@@ -1375,7 +1375,7 @@ void movetongue(DDukeActor *actor, int tongue, int jaw)
 		32, 32, 0, 0, 0, actor, 5);
 	if (spawned)
 	{
-		spawned->s->cstat = 128;
+		spawned->s->cstat = CSTAT_SPRITE_YCENTER;
 		if (actor->temp_data[1] > 512 && actor->temp_data[1] < (1024))
 			spawned->s->picnum = jaw + 1;
 	}

@@ -1908,7 +1908,7 @@ void aiInitSprite(DBloodActor* actor)
 	case kDudeSpiderBrown:
 	case kDudeSpiderRed:
 	case kDudeSpiderBlack:
-		if (pSprite->cstat & 8) pSprite->flags |= 9;
+		if (pSprite->cstat & CSTAT_SPRITE_YFLIP) pSprite->flags |= 9;
 		else pSprite->flags = 15;
 		break;
 	case kDudeGargoyleFlesh:

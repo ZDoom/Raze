@@ -6290,7 +6290,7 @@ void useUniMissileGen(DBloodActor* sourceactor, DBloodActor* actor)
 
     if (pSprite->cstat & 32) 
     {
-        if (pSprite->cstat & 8) dz = 0x4000;
+        if (pSprite->cstat & CSTAT_SPRITE_YFLIP) dz = 0x4000;
         else dz = -0x4000;
     }
     else 

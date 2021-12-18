@@ -75,7 +75,7 @@ tspritetype* viewInsertTSprite(tspritetype* tsprite, int& spritesortcnt, sectort
     int nTSprite = spritesortcnt;
     tspritetype *pTSprite = &tsprite[nTSprite];
     memset(pTSprite, 0, sizeof(tspritetype));
-    pTSprite->cstat = 128;
+    pTSprite->cstat = CSTAT_SPRITE_YCENTER;
     pTSprite->xrepeat = 64;
     pTSprite->yrepeat = 64;
     pTSprite->ownerActor = nullptr;

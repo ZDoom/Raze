@@ -104,7 +104,7 @@ void AISpider::Tick(RunListEvent* ev)
 
     if (spp->nHealth)
     {
-        if (sp->cstat & 8)
+        if (sp->cstat & CSTAT_SPRITE_YFLIP)
         {
             sp->z = sp->sector()->ceilingz + GetActorHeight(spp);
         }
@@ -180,7 +180,7 @@ void AISpider::Tick(RunListEvent* ev)
         case_3:
             auto pSector =sp->sector();
 
-            if (sp->cstat & 8)
+            if (sp->cstat & CSTAT_SPRITE_YFLIP)
             {
                 sp->zvel = 0;
                 sp->z = pSector->ceilingz + (tileHeight(sp->picnum) << 5);
@@ -212,7 +212,7 @@ void AISpider::Tick(RunListEvent* ev)
 
                 if (spp->nAction == 1 && RandomBit())
                 {
-                    if (sp->cstat & 8)
+                    if (sp->cstat & CSTAT_SPRITE_YFLIP)
                     {
                         sp->cstat ^= 8;
                         sp->zvel = 1;

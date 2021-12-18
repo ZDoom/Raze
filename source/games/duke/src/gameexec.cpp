@@ -3731,7 +3731,7 @@ void LoadActor(DDukeActor *actor, int p, int x)
 				if (actor->s->xrepeat > 60) return;
 				if (ud.respawn_monsters == 1 && actor->s->extra <= 0) return;
 			}
-			else if (ud.respawn_items == 1 && (actor->s->cstat & 32768)) return;
+			else if (ud.respawn_items == 1 && (actor->s->cstat & CSTAT_SPRITE_INVISIBLE)) return;
 
 			if (actor->timetosleep > 1)
 				actor->timetosleep--;
@@ -3839,7 +3839,7 @@ void execute(DDukeActor *actor,int p,int x)
 				if (actor->s->xrepeat > 60) goto quit;
 				if (ud.respawn_monsters == 1 && actor->s->extra <= 0) goto quit;
 			}
-			else if (ud.respawn_items == 1 && (actor->s->cstat & 32768)) goto quit;
+			else if (ud.respawn_items == 1 && (actor->s->cstat & CSTAT_SPRITE_INVISIBLE)) goto quit;
 
 			if (actor->timetosleep > 1)
 				actor->timetosleep--;

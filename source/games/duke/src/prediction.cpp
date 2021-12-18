@@ -112,7 +112,7 @@ void fakedomovethings(void)
 		p = &ps[myconnectindex];
 
 		backcstat = p->GetActor()->s.cstat;
-		p->GetActor()->s.cstat &= ~257;
+		p->GetActor()->s.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 
 		actions = syn->actions;
 

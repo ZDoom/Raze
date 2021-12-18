@@ -73,7 +73,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		sp->xrepeat = 64;
 		sp->yrepeat = 64;
 		sp->extra = sp->lotag;
-		sp->cstat |= 257;
+		sp->cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		ChangeActorStat(act, 116);
 		break;
 	case PIG + 11:
@@ -91,7 +91,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		sp->xrepeat = 32;
 		sp->yrepeat = 32;
 		sp->extra = 0;
-		sp->cstat |= 257;
+		sp->cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		sp->hitag = 0;
 		ChangeActorStat(act, 117);
 		break;
@@ -234,9 +234,9 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case NEON6:
 	case DOMELITE:
 		if (sp->picnum != WATERSPLASH2)
-			sp->cstat |= 257;
+			sp->cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		if (sp->picnum == DOMELITE)
-			sp->cstat |= 257;
+			sp->cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		[[fallthrough]];
 	case JIBS1:
 	case JIBS2:
@@ -415,12 +415,12 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case PIPE5:
 	case PIPE6:
 		sp->clipdist = 32;
-		sp->cstat |= 257;
+		sp->cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		ChangeActorStat(act, 0);
 		break;
 	case FEMMAG1:
 	case FEMMAG2:
-		sp->cstat &= ~257;
+		sp->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 		ChangeActorStat(act, 0);
 		break;
 
@@ -453,7 +453,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		}
 		else
 		{
-			sp->cstat |= 257;
+			sp->cstat |= CSTAT_SPRITE_BLOCK_ALL;
 			sp->clipdist = 32;
 		}
 		ChangeActorStat(act, 2);
@@ -561,7 +561,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		}
 		else
 		{
-			sp->cstat |= 257;
+			sp->cstat |= CSTAT_SPRITE_BLOCK_ALL;
 			sp->clipdist = 128;
 		}
 		[[fallthrough]];
@@ -1045,7 +1045,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			}
 			else
 			{
-				sp->cstat |= 257;
+				sp->cstat |= CSTAT_SPRITE_BLOCK_ALL;
 
 				if (sp->picnum != 5501)
 					if (actorfella(act))
@@ -1447,7 +1447,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case RRTILE2121:
 	case RRTILE2122:
 		sp->lotag = 1;
-		sp->cstat |= 257;
+		sp->cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		sp->clipdist = 8;
 		act->SetOwner(act);
 		break;

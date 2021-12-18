@@ -260,7 +260,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 		}
 	}
 
-	s->cstat &= ~257;
+	s->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 	hitscan({ sx, sy, sz }, sectp, { bcos(sa), bsin(sa),zvel << 6 }, hit, CLIPMASK1);
 
 	if (isRRRA() && hit.hitSector != nullptr && (((hit.hitSector->lotag == 160 && zvel > 0) || (hit.hitSector->lotag == 161 && zvel < 0))
@@ -289,7 +289,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 		}
 	}
 
-	s->cstat |= 257;
+	s->cstat |= CSTAT_SPRITE_BLOCK_ALL;
 
 	if (hit.hitSector == nullptr) return;
 
@@ -578,7 +578,7 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 		auto j = EGS(sect, sx, sy, sz, atwith, -127, sizx, sizy, sa, vel, zvel, actor, 4);
 		if (!j) return;
 		j->s->extra += (krand() & 7);
-		j->s->cstat = 128;
+		j->s->cstat = CSTAT_SPRITE_YCENTER;
 		j->s->clipdist = 4;
 
 		sa = s->ang + 32 - (krand() & 63);
@@ -738,7 +738,7 @@ static void shootrpg(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 		spawned->s->yrepeat >>= 1;
 	}
 
-	spawned->s->cstat = 128;
+	spawned->s->cstat = CSTAT_SPRITE_YCENTER;
 	if (atwith == RPG || (atwith == RPG2 && isRRRA()))
 		spawned->s->clipdist = 4;
 	else
@@ -813,7 +813,7 @@ static void shootwhip(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, 
 		auto j = EGS(sect, sx, sy, sz, atwith, -127, sizx, sizy, sa, vel, zvel, actor, 4);
 		if (!j) return;
 		j->s->extra += (krand() & 7);
-		j->s->cstat = 128;
+		j->s->cstat = CSTAT_SPRITE_YCENTER;
 		j->s->clipdist = 4;
 
 		sa = s->ang + 32 - (krand() & 63);

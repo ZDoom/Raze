@@ -566,9 +566,9 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 		S_StopSound(-1, actor, CHAN_VOICE);
 
 
-		if (s->pal != 1 && (s->cstat & 32768) == 0) s->cstat = 0;
+		if (s->pal != 1 && (s->cstat & CSTAT_SPRITE_INVISIBLE) == 0) s->cstat = 0;
 
-		if (ud.multimode > 1 && (s->pal != 1 || (s->cstat & 32768)))
+		if (ud.multimode > 1 && (s->pal != 1 || (s->cstat & CSTAT_SPRITE_INVISIBLE)))
 		{
 			if (p->frag_ps != snum)
 			{

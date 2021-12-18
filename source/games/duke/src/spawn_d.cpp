@@ -97,7 +97,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			{
 				makeitfall(act);
 
-				sp->cstat |= 257;
+				sp->cstat |= CSTAT_SPRITE_BLOCK_ALL;
 				ps[connecthead].max_actors_killed++;
 
 				if (spj) {
@@ -182,11 +182,11 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case NEON6:
 	case DOMELITE:
 		if (sp->picnum != WATERSPLASH2)
-			sp->cstat |= 257;
+			sp->cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		[[fallthrough]];
 	case NUKEBUTTON:
 		if (sp->picnum == DOMELITE)
-			sp->cstat |= 257;
+			sp->cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		[[fallthrough]];
 	case JIBS1:
 	case JIBS2:
@@ -214,7 +214,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ChangeActorStat(act, 4);
 		break;
 	case NATURALLIGHTNING:
-		sp->cstat &= ~257;
+		sp->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 		sp->cstat |= CSTAT_SPRITE_INVISIBLE;
 		break;
 	case TRANSPORTERSTAR:
@@ -353,7 +353,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (sp->picnum == SPACEMARINE)
 		{
 			sp->extra = 20;
-			sp->cstat |= 257;
+			sp->cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		}
 		ChangeActorStat(act, 2);
 		break;
@@ -424,14 +424,14 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case PIPE5:
 	case PIPE6:
 		sp->clipdist = 32;
-		sp->cstat |= 257;
+		sp->cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		[[fallthrough]];
 	case OCEANSPRITE4:
 		ChangeActorStat(act, 0);
 		break;
 	case FEMMAG1:
 	case FEMMAG2:
-		sp->cstat &= ~257;
+		sp->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 		ChangeActorStat(act, 0);
 		break;
 	case DUKETAG:
@@ -503,7 +503,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		}
 		else
 		{
-			sp->cstat |= 257;
+			sp->cstat |= CSTAT_SPRITE_BLOCK_ALL;
 			sp->clipdist = 32;
 		}
 
@@ -537,7 +537,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		}
 		else
 		{
-			sp->cstat |= 257;
+			sp->cstat |= CSTAT_SPRITE_BLOCK_ALL;
 			sp->clipdist = 128;
 		}
 		[[fallthrough]];
@@ -779,7 +779,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case DUCK:
 	case LETTER:
 		sp->extra = 1;
-		sp->cstat |= 257;
+		sp->cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		ChangeActorStat(act, 1);
 		break;
 	case OCTABRAINSTAYPUT:
@@ -890,7 +890,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			}
 			else
 			{
-				sp->cstat |= 257;
+				sp->cstat |= CSTAT_SPRITE_BLOCK_ALL;
 
 				if (sp->picnum != SHARK)
 					ps[myconnectindex].max_actors_killed++;
@@ -1178,7 +1178,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case TOILET:
 	case STALL:
 		sp->lotag = 1;
-		sp->cstat |= 257;
+		sp->cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		sp->clipdist = 8;
 		act->SetOwner(act);
 		break;

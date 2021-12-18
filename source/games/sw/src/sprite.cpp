@@ -4481,16 +4481,16 @@ void getzrangepoint(int x, int y, int z, sectortype* sect,
         daz = spr->z;
 
         // Only check if sprite's 2-sided or your on the 1-sided side
-        if (((cstat & 64) != 0) && ((z > daz) == ((cstat & 8) == 0)))
+        if (((cstat & 64) != 0) && ((z > daz) == ((cstat & CSTAT_SPRITE_YFLIP) == 0)))
             continue;
 
         // Calculate and store centering offset information into xoff&yoff
         tilenum = spr->picnum;
         xoff = (int)tileLeftOffset(tilenum) + (int)spr->xoffset;
         yoff = (int)tileTopOffset(tilenum) + (int)spr->yoffset;
-        if (cstat & 4)
+        if (cstat & CSTAT_SPRITE_XFLIP)
             xoff = -xoff;
-        if (cstat & 8)
+        if (cstat & CSTAT_SPRITE_YFLIP)
             yoff = -yoff;
 
         // Calculate all 4 points of the floor sprite.

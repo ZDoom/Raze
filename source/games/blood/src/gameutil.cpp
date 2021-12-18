@@ -427,7 +427,7 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
                 otherZ -= (nOffset*pOther->yrepeat)<<2;
             assert(height > 0);
             int height2 = scale(otherZ-gHitInfo.hitpos.z, tileHeight(nPicnum), height);
-            if (!(pOther->cstat & 8))
+            if (!(pOther->cstat & CSTAT_SPRITE_YFLIP))
                 height2 = tileHeight(nPicnum)-height2;
             if (height2 >= 0 && height2 < tileHeight(nPicnum))
             {
@@ -562,7 +562,7 @@ void GetZRange(DBloodActor *actor, int *ceilZ, Collision *ceilColl, int *floorZ,
 
     int bakCstat = pSprite->cstat;
     int32_t nTemp1;
-    pSprite->cstat &= ~257;
+    pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
     getzrange(pSprite->pos, pSprite->sector(), (int32_t*)ceilZ, *ceilColl, (int32_t*)floorZ, *floorColl, nDist, nMask);
     if (floorColl->type == kHitSector)
     {

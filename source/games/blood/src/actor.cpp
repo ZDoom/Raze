@@ -2767,7 +2767,7 @@ static DBloodActor* actSpawnFloor(DBloodActor* actor)
 	updatesector(x, y, &pSector);
 	int zFloor = getflorzofslopeptr(pSector, x, y);
 	auto spawned = actSpawnSprite(pSector, x, y, zFloor, 3, 0);
-	if (spawned) spawned->s().cstat &= ~257;
+	if (spawned) spawned->s().cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 	return spawned;
 }
 
@@ -4029,7 +4029,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 				pXMissile->goalAng = getangle(pMissile->x - pSpriteHit->x, pMissile->y - pSpriteHit->y) - pSpriteHit->ang;
 				pXMissile->state = 1;
 				actPostSprite(missileActor, kStatFlare);
-				pMissile->cstat &= ~257;
+				pMissile->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 				break;
 			}
 		}
@@ -4141,7 +4141,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 	if (gModernMap && pXSpriteHit && pXSpriteHit->state != pXSpriteHit->restState && pXSpriteHit->Impact)
 		trTriggerSprite(actorHit, kCmdSpriteImpact);
 #endif
-	pMissile->cstat &= ~257;
+	pMissile->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 }
 
 //---------------------------------------------------------------------------
@@ -4613,7 +4613,7 @@ static Collision MoveThing(DBloodActor* actor)
 	if (actor->xvel || actor->yvel)
 	{
 		auto bakCstat = pSprite->cstat;
-		pSprite->cstat &= ~257;
+		pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 		if ((actor->GetOwner()) && !cl_bloodvanillaexplosions && !VanillaMode())
 			enginecompatibility_mode = ENGINECOMPATIBILITY_NONE; // improved clipmove accuracy
 		ClipMove(pSprite->pos, &pSector, actor->xvel >> 12, actor->yvel >> 12, pSprite->clipdist << 2, (pSprite->z - top) / 4, (bottom - pSprite->z) / 4, CLIPMASK0, lhit);
@@ -4839,7 +4839,7 @@ void MoveDude(DBloodActor* actor)
 		else
 		{
 			auto bakCstat = pSprite->cstat;
-			pSprite->cstat &= ~257;
+			pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 			ClipMove(pSprite->pos, &pSector, actor->xvel >> 12, actor->yvel >> 12, wd, tz, bz, CLIPMASK0, actor->hit.hit);
 			if (pSector == nullptr)
 			{
@@ -5304,7 +5304,7 @@ int MoveMissile(DBloodActor* actor)
 	{
 		pOwner = &Owner->s();
 		bakCstat = pOwner->cstat;
-		pOwner->cstat &= ~257;
+		pOwner->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 	}
 	gHitInfo.clearObj();
 	if (pSprite->type == kMissileFlameSpray) actAirDrag(actor, 0x1000);
@@ -5346,7 +5346,7 @@ int MoveMissile(DBloodActor* actor)
 		if (pOwner && !isFlameSprite && !cl_bloodvanillaexplosions && !VanillaMode())
 		{
 			enginecompatibility_mode = ENGINECOMPATIBILITY_NONE; // improved clipmove accuracy
-			pSprite->cstat &= ~257; // remove self collisions for accurate clipmove
+			pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL; // remove self collisions for accurate clipmove
 		}
 		Collision clipmoveresult;
 		ClipMove(pos, &pSector2, vx, vy, pSprite->clipdist << 2, (pos.z - top) / 4, (bottom - pos.z) / 4, CLIPMASK0, clipmoveresult, 1);
@@ -5624,7 +5624,7 @@ void actActivateGibObject(DBloodActor* actor)
 	if (sound > 0) sfxPlay3DSound(pSprite->x, pSprite->y, pSprite->z, sound, pSprite->sector());
 	if (dropmsg > 0) actDropObject(actor, dropmsg);
 
-	if (!(pSprite->cstat & 32768) && !(pSprite->flags & kHitagRespawn))
+	if (!(pSprite->cstat & CSTAT_SPRITE_INVISIBLE) && !(pSprite->flags & kHitagRespawn))
 		actPostSprite(actor, kStatFree);
 }
 
@@ -6796,7 +6796,7 @@ bool actCheckRespawn(DBloodActor* actor)
 
 			if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax))
 			{
-				pSprite->cstat &= ~257;
+				pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 				pSprite->pos = actor->basePoint;
 			}
 			evPostActor(actor, nRespawnTime, kCallbackRespawn);
@@ -7155,7 +7155,7 @@ void TreeToGibCallback(int, DBloodActor* actor)
 	pXSprite->data3 = 0;
 	pXSprite->health = thingInfo[17].startHealth;
 	pXSprite->data4 = 312;
-	pSprite->cstat |= 257;
+	pSprite->cstat |= CSTAT_SPRITE_BLOCK_ALL;
 }
 
 void DudeToGibCallback1(int, DBloodActor* actor)
