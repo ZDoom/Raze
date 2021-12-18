@@ -346,7 +346,7 @@ void OperateSprite(DBloodActor* actor, EVENT event)
                 break;
             case kCmdOn:
                 pXSprite->state = 1;
-                pSprite->cstat &= (unsigned short)~CSTAT_SPRITE_INVISIBLE;
+                pSprite->cstat &= ~CSTAT_SPRITE_INVISIBLE;
                 pSprite->cstat |= CSTAT_SPRITE_BLOCK;
                 break;
             case kCmdToggle:
@@ -496,7 +496,7 @@ void OperateSprite(DBloodActor* actor, EVENT event)
                 SetSpriteState(actor, 1);
                 break;
             default:
-                pSprite->cstat &= (unsigned short)~CSTAT_SPRITE_INVISIBLE;
+                pSprite->cstat &= ~CSTAT_SPRITE_INVISIBLE;
                 actExplodeSprite(actor);
                 break;
         }
@@ -875,7 +875,7 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
 
         x = actor->basePoint.x;
         y = actor->basePoint.y;
-        if (pSprite->cstat&8192)
+        if (pSprite->cstat & CSTAT_SPRITE_MOVE_FORWARD)
         {
             if (vbp)
                 RotatePoint((int*)&x, (int*)&y, vbp, a4, a5);
@@ -884,7 +884,7 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
             pSprite->x = x+vc-a4;
             pSprite->y = y+v8-a5;
         }
-        else if (pSprite->cstat&16384)
+        else if (pSprite->cstat & CSTAT_SPRITE_MOVE_REVERSE)
         {
             if (vbp)
                 RotatePoint((int*)& x, (int*)& y, -vbp, a4, a4);
@@ -929,7 +929,7 @@ void ZTranslateSector(sectortype* pSector, XSECTOR *pXSector, int a3, int a4)
                 continue;
             int top, bottom;
             GetSpriteExtents(pSprite, &top, &bottom);
-            if (pSprite->cstat&8192)
+            if (pSprite->cstat & CSTAT_SPRITE_MOVE_FORWARD)
             {
                 viewBackupSpriteLoc(actor);
                 pSprite->z += pSector->floorz-oldZ;
@@ -956,7 +956,7 @@ void ZTranslateSector(sectortype* pSector, XSECTOR *pXSector, int a3, int a4)
             spritetype* pSprite = &actor->s();
             if (pSprite->statnum == kStatMarker || pSprite->statnum == kStatPathMarker)
                 continue;
-            if (pSprite->cstat&16384)
+            if (pSprite->cstat & CSTAT_SPRITE_MOVE_REVERSE)
             {
                 viewBackupSpriteLoc(actor);
                 pSprite->z += pSector->ceilingz-oldZ;
@@ -1068,7 +1068,7 @@ int VSpriteBusy(sectortype* pSector, unsigned int a2)
         while (auto actor = it.Next())
         {
             spritetype *pSprite = &actor->s();
-            if (pSprite->cstat&8192)
+            if (pSprite->cstat & CSTAT_SPRITE_MOVE_FORWARD)
             {
                 viewBackupSpriteLoc(actor);
                 pSprite->z = actor->basePoint.z+MulScale(dz1, GetWaveValue(a2, nWave), 16);
@@ -1082,7 +1082,7 @@ int VSpriteBusy(sectortype* pSector, unsigned int a2)
         while (auto actor = it.Next())
         {
             spritetype* pSprite = &actor->s();
-            if (pSprite->cstat & 16384)
+            if (pSprite->cstat & CSTAT_SPRITE_MOVE_REVERSE)
             {
                 viewBackupSpriteLoc(actor);
                 pSprite->z = actor->basePoint.z + MulScale(dz2, GetWaveValue(a2, nWave), 16);
@@ -1837,7 +1837,7 @@ void ProcessMotion(void)
             while (auto actor = it.Next())
             {
                 auto pSprite = &actor->s();
-                if (pSprite->cstat&24576)
+                if (pSprite->cstat & CSTAT_SPRITE_MOVE_MASK)
                 {
                     viewBackupSpriteLoc(actor);
                     pSprite->z += vdi;
@@ -2112,7 +2112,7 @@ void trInit(TArray<DBloodActor*>& actors)
                 break;
             }
             if (pXSprite->Vector) pSprite->cstat |= CSTAT_SPRITE_BLOCK_HITSCAN;
-            if (pXSprite->Push) pSprite->cstat |= 4096;
+            if (pXSprite->Push) pSprite->cstat |= CSTAT_SPRITE_BLOOD_BIT1;
         }
     }
     
@@ -2197,7 +2197,7 @@ void ActivateGenerator(DBloodActor* actor)
 void FireballTrapSeqCallback(int, DBloodActor* actor)
 {
     spritetype* pSprite = &actor->s();
-    if (pSprite->cstat&32)
+    if (pSprite->cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)
         actFireMissile(actor, 0, 0, 0, 0, (pSprite->cstat & CSTAT_SPRITE_YFLIP) ? 0x4000 : -0x4000, kMissileFireball);
     else
         actFireMissile(actor, 0, 0, bcos(pSprite->ang), bsin(pSprite->ang), 0, kMissileFireball);

@@ -268,27 +268,27 @@ void UpdateSprite(DBloodActor* actor, SEQFRAME* pFrame)
 	if (pFrame->transparent)
 		pSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
 	else
-		pSprite->cstat &= ~2;
+		pSprite->cstat &= ~CSTAT_SPRITE_TRANSLUCENT;
 	if (pFrame->transparent2)
 		pSprite->cstat |= CSTAT_SPRITE_TRANS_FLIP;
 	else
-		pSprite->cstat &= ~512;
+		pSprite->cstat &= ~CSTAT_SPRITE_TRANS_FLIP;
 	if (pFrame->blockable)
 		pSprite->cstat |= CSTAT_SPRITE_BLOCK;
 	else
 		pSprite->cstat &= ~CSTAT_SPRITE_BLOCK;
 	if (pFrame->hittable)
-		pSprite->cstat |= 256;
+		pSprite->cstat |= CSTAT_SPRITE_BLOCK_HITSCAN;
 	else
-		pSprite->cstat &= ~256;
+		pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_HITSCAN;
 	if (pFrame->invisible)
 		pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
 	else
-		pSprite->cstat &= (unsigned short)~32768;
+		pSprite->cstat &= ~CSTAT_SPRITE_INVISIBLE;
 	if (pFrame->pushable)
-		pSprite->cstat |= 4096;
+		pSprite->cstat |= CSTAT_SPRITE_BLOOD_BIT1;
 	else
-		pSprite->cstat &= ~4096;
+		pSprite->cstat &= ~CSTAT_SPRITE_BLOOD_BIT1;
 	if (pFrame->smoke)
 		pSprite->flags |= 256;
 	else

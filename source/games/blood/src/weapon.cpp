@@ -1730,7 +1730,7 @@ void AltFireLifeLeech(int , PLAYER *pPlayer)
     if (missile)
     {
         auto pMissile = &missile->s();
-        pMissile->cstat |= 4096;
+        pMissile->cstat |= CSTAT_SPRITE_BLOOD_BIT1;
         XSPRITE *pXSprite = &missile->x();
         pXSprite->Push = 1;
         pXSprite->Proximity = 1;

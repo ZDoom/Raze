@@ -343,8 +343,8 @@ int HitScan(DBloodActor *actor, int z, int dx, int dy, int dz, unsigned int nMas
     gHitInfo.clearObj();
     int x = pSprite->x;
     int y = pSprite->y;
-    int bakCstat = pSprite->cstat;
-    pSprite->cstat &= ~256;
+    auto bakCstat = pSprite->cstat;
+    pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_HITSCAN;
     if (nRange)
     {
         hitscangoal.x = x + MulScale(nRange << 4, Cos(pSprite->ang), 30);
@@ -388,8 +388,8 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
     int x1 = pSprite->x+MulScale(nOffset, Cos(pSprite->ang+512), 30);
     int y1 = pSprite->y+MulScale(nOffset, Sin(pSprite->ang+512), 30);
     int z1 = pSprite->z+nZOffset;
-    int bakCstat = pSprite->cstat;
-    pSprite->cstat &= ~256;
+    auto bakCstat = pSprite->cstat;
+    pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_HITSCAN;
     if (nRange)
     {
         hitscangoal.x = x1+MulScale(nRange<<4, Cos(pSprite->ang), 30);
@@ -445,8 +445,8 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
                         return 3;
                 }
             }
-            int bakCstat = pOther->cstat;
-            pOther->cstat &= ~256;
+            auto bakCstat = pOther->cstat;
+            pOther->cstat &= ~CSTAT_SPRITE_BLOCK_HITSCAN;
             gHitInfo.clearObj();
             pos = gHitInfo.hitpos; // must make a copy!
             hitscan(pos, pOther->sector(), { dx, dy, dz << 4 }, gHitInfo, CLIPMASK1);
@@ -560,7 +560,7 @@ void GetZRange(DBloodActor *actor, int *ceilZ, Collision *ceilColl, int *floorZ,
     auto pSprite = &actor->s();
     Collision scratch;
 
-    int bakCstat = pSprite->cstat;
+    auto bakCstat = pSprite->cstat;
     int32_t nTemp1;
     pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
     getzrange(pSprite->pos, pSprite->sector(), (int32_t*)ceilZ, *ceilColl, (int32_t*)floorZ, *floorColl, nDist, nMask);
