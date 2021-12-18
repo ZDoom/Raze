@@ -613,26 +613,26 @@ void SetupGibWallState(walltype *pWall, XWALL *pXWall)
         pWall2 = pWall->nextWall();
     if (pXWall->state)
     {
-        pWall->cstat &= ~65;
+        pWall->cstat &= ~(CSTAT_WALL_BLOCK | CSTAT_WALL_BLOCK_HITSCAN);
         if (pWall2)
         {
-            pWall2->cstat &= ~65;
-            pWall->cstat &= ~16;
-            pWall2->cstat &= ~16;
+            pWall2->cstat &= ~(CSTAT_WALL_BLOCK | CSTAT_WALL_BLOCK_HITSCAN);
+            pWall->cstat &= ~CSTAT_WALL_MASKED;
+            pWall2->cstat &= ~CSTAT_WALL_MASKED;
         }
         return;
     }
     bool bVector = pXWall->triggerVector != 0;
-    pWall->cstat |= 1;
+    pWall->cstat |= CSTAT_WALL_BLOCK;
     if (bVector)
-        pWall->cstat |= 64;
+        pWall->cstat |= CSTAT_WALL_BLOCK_HITSCAN;
     if (pWall2)
     {
-        pWall2->cstat |= 1;
+        pWall2->cstat |= CSTAT_WALL_BLOCK;
         if (bVector)
-            pWall2->cstat |= 64;
-        pWall->cstat |= 16;
-        pWall2->cstat |= 16;
+            pWall2->cstat |= CSTAT_WALL_BLOCK_HITSCAN;
+        pWall->cstat |= CSTAT_WALL_MASKED;
+        pWall2->cstat |= CSTAT_WALL_MASKED;
     }
 }
 
@@ -825,12 +825,12 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
             auto p2Wall = wal.point2Wall();
             x = wal.baseWall.x;
             y = wal.baseWall.y;
-            if (wal.cstat&16384)
+            if (wal.cstat & CSTAT_WALL_MOVE_FORWARD)
             {
                 if (vbp)
                     RotatePoint((int*)&x, (int*)&y, vbp, a4, a5);
                 DragPoint(&wal, x+vc-a4, y+v8-a5);
-                if ((p2Wall->cstat&49152) == 0)
+                if ((p2Wall->cstat & CSTAT_WALL_MOVE_MASK) == 0)
                 {
                     x = p2Wall->baseWall.x;
                     y = p2Wall->baseWall.y;
@@ -840,12 +840,12 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
                 }
                 continue;
             }
-            if (wal.cstat&32768)
+            if (wal.cstat & CSTAT_WALL_MOVE_BACKWARD)
             {
                 if (vbp)
                     RotatePoint((int*)&x, (int*)&y, -vbp, a4, a5);
                 DragPoint(&wal, x-(vc-a4), y-(v8-a5));
-                if ((p2Wall->cstat&49152) == 0)
+                if ((p2Wall->cstat & CSTAT_WALL_MOVE_MASK) == 0)
                 {
                     x = p2Wall->baseWall.x;
                     y = p2Wall->baseWall.y;

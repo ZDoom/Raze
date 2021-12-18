@@ -107,8 +107,12 @@ enum EWallBits // names are from Shadow Warrior
 
 	CSTAT_WALL_ROTATE_90			= 1<<12,		// EDuke32 extension supported by Raze
 
-	CSTAT_WALL_BLOCK_ACTOR			= 1<<14,		// SW specific. Also used by Blood for different purposes
-	CSTAT_WALL_WARP_HITSCAN			= 1<<15,		// SW specific. Also used by Blood for different purposes
+	CSTAT_WALL_BLOCK_ACTOR			= 1<<14,		// SW specific.
+	CSTAT_WALL_WARP_HITSCAN			= 1<<15,		// SW specific.
+
+	CSTAT_WALL_MOVE_FORWARD			= 1 << 14,		// Blood specific
+	CSTAT_WALL_MOVE_BACKWARD		= 1 << 15,		// Blood specific
+	CSTAT_WALL_MOVE_MASK			= CSTAT_WALL_MOVE_FORWARD | CSTAT_WALL_MOVE_BACKWARD
 
 };
 
