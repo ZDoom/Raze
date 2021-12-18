@@ -643,9 +643,9 @@ int AutoBreakWall(WALLp wallp, int hit_x, int hit_y, int hit_z, int ang, int typ
 bool UserBreakWall(WALLp wp)
 {
     int match = wp->hitag;
-    int block_flags = CSTAT_WALL_BLOCK|CSTAT_WALL_BLOCK_HITSCAN;
-    int type_flags = CSTAT_WALL_TRANSLUCENT|CSTAT_WALL_MASKED|CSTAT_WALL_1WAY;
-    int flags = block_flags|type_flags;
+    const auto block_flags = CSTAT_WALL_BLOCK|CSTAT_WALL_BLOCK_HITSCAN;
+    const auto type_flags = CSTAT_WALL_TRANSLUCENT|CSTAT_WALL_MASKED|CSTAT_WALL_1WAY;
+    const auto flags = block_flags|type_flags;
     bool ret = false;
 
     auto actor = FindBreakSpriteMatch(match);
