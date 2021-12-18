@@ -692,7 +692,7 @@ void viewDrawScreen(bool sceneonly)
         {
             tmpSect = vf0 & (kMaxWalls - 1);
         }
-        int v8 = byte_1CE5C2 > 0 && (sector [tmpSect].ceilingstat & 1);
+        int v8 = byte_1CE5C2 > 0 && (sector [tmpSect].ceilingstat & CSTAT_SECTOR_SKY);
         if (gWeather.at12d8 > 0 || v8)
         {
             gWeather.Draw(cX, cY, cZ, cA.asq16(), cH.asq16() + deliriumPitch, gWeather.at12d8);

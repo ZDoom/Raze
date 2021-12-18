@@ -250,7 +250,7 @@ void PreloadCache()
     {
         tilePrecacheTile(sect.floorpicnum, 0, sect.floorpal);
         tilePrecacheTile(sect.ceilingpicnum, 0, sect.ceilingpal);
-        if ((sect.ceilingstat&1) != 0 && skyTile == -1)
+        if ((sect.ceilingstat & CSTAT_SECTOR_SKY) != 0 && skyTile == -1)
             skyTile = sect.ceilingpicnum;
     }
     for(auto& wal : walls())

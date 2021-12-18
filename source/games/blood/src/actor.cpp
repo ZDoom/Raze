@@ -6870,7 +6870,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 		{
 		case 1:
 		{
-			if (pSector->ceilingstat & 1)
+			if (pSector->ceilingstat & CSTAT_SECTOR_SKY)
 				nSurf = kSurfNone;
 			else
 				nSurf = surfType[pSector->ceilingpicnum];
@@ -6878,7 +6878,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 		}
 		case 2:
 		{
-			if (pSector->floorstat & 1)
+			if (pSector->floorstat & CSTAT_SECTOR_SKY)
 				nSurf = kSurfNone;
 			else
 				nSurf = surfType[pSector->floorpicnum];

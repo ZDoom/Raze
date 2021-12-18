@@ -1586,7 +1586,7 @@ static void polymost_drawalls(int32_t const bunch)
             if (globalposz <= fz)
                 polymost_internal_nonparallaxed(n0, n1, ryp0, ryp1, x0, x1, fy0, fy1, sectnum, true);
         }
-        else if ((nextsectnum < 0) || (!(sector[nextsectnum].floorstat&1)))
+        else if ((nextsectnum < 0) || (!(sector[nextsectnum].floorstat & CSTAT_SECTOR_SKY)))
         {
             skyzbufferhack = 1;
 
@@ -1639,7 +1639,7 @@ static void polymost_drawalls(int32_t const bunch)
             if (globalposz >= cz)
                 polymost_internal_nonparallaxed(n0, n1, ryp0, ryp1, x0, x1, cy0, cy1, sectnum, false);
         }
-        else if ((nextsectnum < 0) || (!(sector[nextsectnum].ceilingstat&1)))
+        else if ((nextsectnum < 0) || (!(sector[nextsectnum].ceilingstat & CSTAT_SECTOR_SKY)))
         {
             skyzbufferhack = 1;
 
@@ -1685,7 +1685,7 @@ static void polymost_drawalls(int32_t const bunch)
 
             if ((wal->cstat&48) == 16) maskwall[maskwallcnt++] = z;
 
-            if (((cy0 < ocy0) || (cy1 < ocy1)) && (!((sec->ceilingstat&sector[nextsectnum].ceilingstat)&1)))
+            if (((cy0 < ocy0) || (cy1 < ocy1)) && (!((sec->ceilingstat&sector[nextsectnum].ceilingstat) & CSTAT_SECTOR_SKY)))
             {
                 globalpicnum = wal->picnum; globalshade = wal->shade; globalfloorpal = globalpal = (int32_t)((uint8_t)wal->pal);
                 GLInterface.SetVisibility(sectorVisibility(sec));
@@ -1710,7 +1710,7 @@ static void polymost_drawalls(int32_t const bunch)
                 polymost_domost(x1,ocy1,x0,ocy0,cy1,ocy1,cy0,ocy0);
                 if (wal->cstat&8) { xtex.u = ogux; ytex.u = oguy; otex.u = oguo; }
             }
-            if (((ofy0 < fy0) || (ofy1 < fy1)) && (!((sec->floorstat&sector[nextsectnum].floorstat)&1)))
+            if (((ofy0 < fy0) || (ofy1 < fy1)) && (!((sec->floorstat&sector[nextsectnum].floorstat) & CSTAT_SECTOR_SKY)))
             {
                 uwallptr_t nwal;
 
@@ -2820,14 +2820,14 @@ void polymost_drawsprite(int32_t snum)
             }
 
             // Clip sprites to ceilings/floors when no parallaxing and not sloped
-            if (!(tspr->sector()->ceilingstat & 3))
+            if (!(tspr->sector()->ceilingstat & (CSTAT_SECTOR_SKY|CSTAT_SECTOR_SLOPE)))
             {
                 s0.Y = ((float) (tspr->sector()->ceilingz - globalposz)) * gyxscale * ryp0 + ghoriz;
                 if (pxy[0].Y < s0.Y)
                     pxy[0].Y = pxy[1].Y = s0.Y;
             }
 
-            if (!(tspr->sector()->floorstat & 3))
+            if (!(tspr->sector()->floorstat & (CSTAT_SECTOR_SKY | CSTAT_SECTOR_SLOPE)))
             {
                 s0.Y = ((float) (tspr->sector()->floorz - globalposz)) * gyxscale * ryp0 + ghoriz;
                 if (pxy[2].Y > s0.Y)
@@ -2972,7 +2972,7 @@ void polymost_drawsprite(int32_t snum)
             }
 
             // Clip sprites to ceilings/floors when no parallaxing
-            if (!(tspr->sector()->ceilingstat & 1))
+            if (!(tspr->sector()->ceilingstat & CSTAT_SECTOR_SKY))
             {
                 if (tspr->sector()->ceilingz > pos.z - (float)((tspr->yrepeat * tsiz.y) << 2))
                 {
@@ -2980,7 +2980,7 @@ void polymost_drawsprite(int32_t snum)
                     sc1 = (float)(tspr->sector()->ceilingz - globalposz) * ryp1 + ghoriz;
                 }
             }
-            if (!(tspr->sector()->floorstat & 1))
+            if (!(tspr->sector()->floorstat & CSTAT_SECTOR_SKY))
             {
                 if (tspr->sector()->floorz < pos.z)
                 {

@@ -185,7 +185,7 @@ void AISpider::Tick(RunListEvent* ev)
                 sp->zvel = 0;
                 sp->z = pSector->ceilingz + (tileHeight(sp->picnum) << 5);
 
-                if (pSector->ceilingstat & 1)
+                if (pSector->ceilingstat & CSTAT_SECTOR_SKY)
                 {
                     sp->cstat ^= 8;
                     sp->zvel = 1;

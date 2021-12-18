@@ -466,7 +466,7 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
                 return 0;
             if (gHitInfo.hitpos.z >= nZFloor)
             {
-                if (!(pSector->floorstat&1) || !(pSectorNext->floorstat&1))
+                if (!(pSector->floorstat & CSTAT_SECTOR_SKY) || !(pSectorNext->floorstat & CSTAT_SECTOR_SKY))
                     return 0;
                 return 2;
             }
@@ -567,7 +567,7 @@ void GetZRange(DBloodActor *actor, int *ceilZ, Collision *ceilColl, int *floorZ,
     if (floorColl->type == kHitSector)
     {
         auto pSector = floorColl->hitSector;
-        if ((nClipParallax & PARALLAXCLIP_FLOOR) == 0 && (pSector->floorstat & 1))
+        if ((nClipParallax & PARALLAXCLIP_FLOOR) == 0 && (pSector->floorstat & CSTAT_SECTOR_SKY))
             *floorZ = 0x7fffffff;
         if (pSector->hasX())
         {
@@ -586,7 +586,7 @@ void GetZRange(DBloodActor *actor, int *ceilZ, Collision *ceilColl, int *floorZ,
     if (ceilColl->type == kHitSector)
     {
         auto pSector = ceilColl->hitSector;
-        if ((nClipParallax & PARALLAXCLIP_CEILING) == 0 && (pSector->ceilingstat & 1))
+        if ((nClipParallax & PARALLAXCLIP_CEILING) == 0 && (pSector->ceilingstat & CSTAT_SECTOR_SKY))
             *ceilZ = 0x80000000;
         auto actor = barrier_cast<DBloodActor*>(pSector->lowerLink);
         if (actor)
@@ -609,7 +609,7 @@ void GetZRangeAtXYZ(int x, int y, int z, sectortype* pSector, int *ceilZ, Collis
     if (floorColl->type == kHitSector)
     {
         auto pSector = floorColl->hitSector;
-        if ((nClipParallax & PARALLAXCLIP_FLOOR) == 0 && (pSector->floorstat & 1))
+        if ((nClipParallax & PARALLAXCLIP_FLOOR) == 0 && (pSector->floorstat & CSTAT_SECTOR_SKY))
             *floorZ = 0x7fffffff;
         if (pSector->hasX())
         {
@@ -628,7 +628,7 @@ void GetZRangeAtXYZ(int x, int y, int z, sectortype* pSector, int *ceilZ, Collis
     if (ceilColl->type == kHitSector)
     {
         auto pSector = ceilColl->hitSector;
-        if ((nClipParallax & PARALLAXCLIP_CEILING) == 0 && (pSector->ceilingstat & 1))
+        if ((nClipParallax & PARALLAXCLIP_CEILING) == 0 && (pSector->ceilingstat & CSTAT_SECTOR_SKY))
             *ceilZ = 0x80000000;
         auto actor = barrier_cast<DBloodActor*>(pSector->lowerLink);
         if (actor)

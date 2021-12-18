@@ -337,7 +337,7 @@ void AddFlash(sectortype* pSector, int x, int y, int z, int val)
 
         pSector->floorshade = eax;
 
-        if (!(pSector->ceilingstat & 1))
+        if (!(pSector->ceilingstat & CSTAT_SECTOR_SKY))
         {
             if (pSector->ceilingpal < 4)
             {

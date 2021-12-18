@@ -732,7 +732,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 			else
 				sectp->ceilingz = sectp->floorz = sp->z;
 
-			if (sectp->ceilingstat & 1)
+			if (sectp->ceilingstat & CSTAT_SECTOR_SKY)
 			{
 				sectp->ceilingstat ^= 1;
 				t[3] = 1;
@@ -753,7 +753,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 						if (wl.twoSided())
 						{
 							auto nsec = wl.nextSector();
-							if (!(nsec->ceilingstat & 1))
+							if (!(nsec->ceilingstat & CSTAT_SECTOR_SKY))
 							{
 								sectp->ceilingpicnum = nsec->ceilingpicnum;
 								sectp->ceilingshade = nsec->ceilingshade;

@@ -233,7 +233,7 @@ void CFX::fxProcess(void)
         {
             int32_t floorZ, ceilZ;
             getzsofslopeptr(pSector, pSprite->x, pSprite->y, &ceilZ, &floorZ);
-            if (ceilZ > pSprite->z && !(pSector->ceilingstat&1))
+            if (ceilZ > pSprite->z && !(pSector->ceilingstat & CSTAT_SECTOR_SKY))
             {
                 remove(actor);
                 continue;

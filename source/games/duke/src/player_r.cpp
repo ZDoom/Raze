@@ -313,7 +313,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 		{
 			if (zvel < 0)
 			{
-				if (hit.hitSector->ceilingstat & 1)
+				if (hit.hitSector->ceilingstat & CSTAT_SECTOR_SKY)
 				{
 					spark->s->xrepeat = 0;
 					spark->s->yrepeat = 0;
@@ -2122,7 +2122,7 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz, int
 
 	if (p->pos.z < (fz - (i << 8))) //falling
 	{
-		if ((actions & (SB_JUMP|SB_CROUCH)) == 0 && p->on_ground && (psect->floorstat & 2) && p->pos.z >= (fz - (i << 8) - (16 << 8)))
+		if ((actions & (SB_JUMP|SB_CROUCH)) == 0 && p->on_ground && (psect->floorstat & CSTAT_SECTOR_SLOPE) && p->pos.z >= (fz - (i << 8) - (16 << 8)))
 			p->pos.z = fz - (i << 8);
 		else
 		{

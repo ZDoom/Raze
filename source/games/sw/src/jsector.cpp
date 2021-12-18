@@ -284,7 +284,7 @@ void JS_InitMirrors(void)
         if (wal.twoSided() && (wal.overpicnum == MIRROR) && (wal.cstat & 32))
         {
             auto sec = wal.nextSector();
-            if ((sec->floorstat & 1) == 0)
+            if ((sec->floorstat & CSTAT_SECTOR_SKY) == 0)
             {
                 if (mirrorcnt >= MAXMIRRORS)
                 {

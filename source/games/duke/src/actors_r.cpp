@@ -53,7 +53,7 @@ void resetlanepics(void);
 
 bool ceilingspace_r(sectortype* sectp)
 {
-	if (sectp && (sectp->ceilingstat&1) && sectp->ceilingpal == 0)
+	if (sectp && (sectp->ceilingstat & CSTAT_SECTOR_SKY) && sectp->ceilingpal == 0)
 	{
 		switch(sectp->ceilingpicnum)
 		{
@@ -74,7 +74,7 @@ bool ceilingspace_r(sectortype* sectp)
 
 bool floorspace_r(sectortype* sectp)
 {
-	if (sectp && (sectp->floorstat&1) && sectp->ceilingpal == 0)
+	if (sectp && (sectp->floorstat & CSTAT_SECTOR_SKY) && sectp->ceilingpal == 0)
 	{
 		switch(sectp->floorpicnum)
 		{
@@ -574,7 +574,7 @@ void movefta_r(void)
 					case NUKEBARREL:
 					case NUKEBARRELDENTED:
 					case NUKEBARRELLEAKED:
-						if (s->sector()->ceilingstat & 1)
+						if (s->sector()->ceilingstat & CSTAT_SECTOR_SKY)
 							s->shade = s->sector()->ceilingshade;
 						else s->shade = s->sector()->floorshade;
 
@@ -596,7 +596,7 @@ void movefta_r(void)
 			}
 			if (/*!j &&*/ badguy(act)) // this is like RedneckGDX. j is uninitialized here, i.e. most likely not 0.
 			{
-				if (s->sector()->ceilingstat & 1)
+				if (s->sector()->ceilingstat & CSTAT_SECTOR_SKY)
 					s->shade = s->sector()->ceilingshade;
 				else s->shade = s->sector()->floorshade;
 
@@ -1303,7 +1303,7 @@ bool weaponhitsector(DDukeActor *proj, const vec3_t& oldpos)
 
 	if (s->zvel < 0)
 	{
-		if (s->sector()->ceilingstat & 1)
+		if (s->sector()->ceilingstat & CSTAT_SECTOR_SKY)
 			if (s->sector()->ceilingpal == 0)
 			{
 				deletesprite(proj);
@@ -3808,7 +3808,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 		}
 		if (badguy(actor) && spr->extra <= 0)
 		{
-			if (spr->sector()->ceilingstat & 1)
+			if (spr->sector()->ceilingstat & CSTAT_SECTOR_SKY)
 			{
 				if (spr->sector()->shadedsector == 1)
 				{
@@ -3960,7 +3960,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 
 	if (a)
 	{
-		if (spr->sector()->ceilingstat & 1)
+		if (spr->sector()->ceilingstat & CSTAT_SECTOR_SKY)
 		{
 			if (spr->sector()->shadedsector == 1)
 			{

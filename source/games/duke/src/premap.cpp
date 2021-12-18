@@ -700,7 +700,7 @@ void prelevel_common(int g)
 			continue;
 		}
 
-		if (sectp->ceilingstat & 1)
+		if (sectp->ceilingstat & CSTAT_SECTOR_SKY)
 		{
 			//setupbackdrop(sectp->ceilingpicnum);
 

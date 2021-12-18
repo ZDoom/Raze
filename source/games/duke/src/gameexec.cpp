@@ -2500,7 +2500,7 @@ int ParseState::parse(void)
 		parseifelse(PlayerInput(g_p, SB_OPEN));
 		break;
 	case concmd_ifoutside:
-		parseifelse(g_sp->sector()->ceilingstat & 1);
+		parseifelse(g_sp->sector()->ceilingstat & CSTAT_SECTOR_SKY);
 		break;
 	case concmd_ifmultiplayer:
 		parseifelse(ud.multimode > 1);

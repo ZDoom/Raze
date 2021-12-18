@@ -523,7 +523,7 @@ void moveplayers(void)
 
 		if (spri->insector())
 		{
-			if (spri->sector()->ceilingstat & 1)
+			if (spri->sector()->ceilingstat & CSTAT_SECTOR_SKY)
 				spri->shade += (spri->sector()->ceilingshade - spri->shade) >> 1;
 			else
 				spri->shade += (spri->sector()->floorshade - spri->shade) >> 1;
@@ -1646,7 +1646,7 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 
 	getglobalz(actor);
 
-	if (sectp->ceilingstat & 1)
+	if (sectp->ceilingstat & CSTAT_SECTOR_SKY)
 		s->shade += (sectp->ceilingshade - s->shade) >> 1;
 	else s->shade += (sectp->floorshade - s->shade) >> 1;
 
@@ -2864,7 +2864,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 		t[2] += q;
 		s->ang += q;
 
-		bool statstate = (!checkstat || ((sc->floorstat & 1) == 0 && (sc->ceilingstat & 1) == 0));
+		bool statstate = (!checkstat || ((sc->floorstat & CSTAT_SECTOR_SKY) == 0 && (sc->ceilingstat & CSTAT_SECTOR_SKY) == 0));
 		if (s->xvel == sc->extra)
 		{
 			if (statstate)
@@ -2872,7 +2872,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 				if (!S_CheckSoundPlaying(actor->lastvx))
 					S_PlayActorSound(actor->lastvx, actor);
 			}
-			if ((!checkstat || !statstate) && (ud.monsters_off == 0 && sc->floorpal == 0 && (sc->floorstat & 1) && rnd(8)))
+			if ((!checkstat || !statstate) && (ud.monsters_off == 0 && sc->floorpal == 0 && (sc->floorstat & CSTAT_SECTOR_SKY) && rnd(8)))
 			{
 				int p = findplayer(actor, &x);
 				if (x < 20480)
@@ -3374,7 +3374,7 @@ void handle_se04(DDukeActor *actor)
 		auto sj = a2->s;
 		if (sj->cstat & 16)
 		{
-			if (sc->ceilingstat & 1)
+			if (sc->ceilingstat & CSTAT_SECTOR_SKY)
 				sj->shade = sc->ceilingshade;
 			else sj->shade = sc->floorshade;
 		}
@@ -3701,7 +3701,7 @@ void handle_se12(DDukeActor *actor, int planeonly)
 		{
 			if (a2->s->cstat & 16)
 			{
-				if (sc->ceilingstat & 1)
+				if (sc->ceilingstat & CSTAT_SECTOR_SKY)
 					a2->s->shade = sc->ceilingshade;
 				else a2->s->shade = sc->floorshade;
 			}
@@ -3741,7 +3741,7 @@ void handle_se12(DDukeActor *actor, int planeonly)
 		{
 			if (a2->s->cstat & 16)
 			{
-				if (sc->ceilingstat & 1)
+				if (sc->ceilingstat & CSTAT_SECTOR_SKY)
 					a2->s->shade = sc->ceilingshade;
 				else a2->s->shade = sc->floorshade;
 			}

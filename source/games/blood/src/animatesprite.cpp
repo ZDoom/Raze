@@ -684,7 +684,7 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
         XSECTOR const* pXSector = pSector->hasX() ? &pSector->xs() : nullptr;
         int nShade = pTSprite->shade;
 
-        if ((pSector->ceilingstat&1) && (pSector->floorstat&32768) == 0)
+        if ((pSector->ceilingstat & CSTAT_SECTOR_SKY) && (pSector->floorstat&32768) == 0)
         {
             nShade += tileShade[pSector->ceilingpicnum]+pSector->ceilingshade;
         }
@@ -812,12 +812,12 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
                     sectortype *pSector = pTSprite->sector();
                     
                     int zDiff = (pTSprite->z - pSector->ceilingz) >> 8;
-                    if ((pSector->ceilingstat&1) == 0 && zDiff < 64) {
+                    if ((pSector->ceilingstat & CSTAT_SECTOR_SKY) == 0 && zDiff < 64) {
                         viewAddEffect(tsprite, spritesortcnt, nTSprite, kViewEffectCeilGlow);
                     }
                     
                     zDiff = (pSector->floorz - pTSprite->z) >> 8;
-                    if ((pSector->floorstat&1) == 0 && zDiff < 64) {
+                    if ((pSector->floorstat & CSTAT_SECTOR_SKY) == 0 && zDiff < 64) {
                         viewAddEffect(tsprite, spritesortcnt, nTSprite, kViewEffectFloorGlow);
                     }
                     break;

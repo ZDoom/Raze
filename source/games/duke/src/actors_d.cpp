@@ -51,7 +51,7 @@ BEGIN_DUKE_NS
 
 bool ceilingspace_d(sectortype* sectp)
 {
-	if (sectp && (sectp->ceilingstat&1) && sectp->ceilingpal == 0)
+	if (sectp && (sectp->ceilingstat & CSTAT_SECTOR_SKY) && sectp->ceilingpal == 0)
 	{
 		switch(sectp->ceilingpicnum)
 		{
@@ -71,7 +71,7 @@ bool ceilingspace_d(sectortype* sectp)
 
 bool floorspace_d(sectortype* sectp)
 {
-	if (sectp && (sectp->floorstat&1) && sectp->ceilingpal == 0)
+	if (sectp && (sectp->floorstat & CSTAT_SECTOR_SKY) && sectp->ceilingpal == 0)
 	{
 		switch(sectp->floorpicnum)
 		{
@@ -674,7 +674,7 @@ void movefta_d(void)
 						case NUKEBARRELDENTED:
 						case NUKEBARRELLEAKED:
 						case TRIPBOMB:
-							if (s->sector()->ceilingstat&1)
+							if (s->sector()->ceilingstat & CSTAT_SECTOR_SKY)
 								s->shade = s->sector()->ceilingshade;
 							else s->shade = s->sector()->floorshade;
 
@@ -693,7 +693,7 @@ void movefta_d(void)
 			}
 			if (badguy(act))
 			{
-				if (s->sector()->ceilingstat & 1)
+				if (s->sector()->ceilingstat & CSTAT_SECTOR_SKY)
 					s->shade = s->sector()->ceilingshade;
 				else s->shade = s->sector()->floorshade;
 			}
@@ -1616,7 +1616,7 @@ static bool weaponhitsector(DDukeActor* proj, const vec3_t& oldpos, bool firebal
 
 	if (s->zvel < 0)
 	{
-		if (s->sector()->ceilingstat & 1)
+		if (s->sector()->ceilingstat & CSTAT_SECTOR_SKY)
 			if (s->sector()->ceilingpal == 0)
 			{
 				deletesprite(proj);
@@ -2249,7 +2249,7 @@ static void greenslime(DDukeActor *actor)
 
 	t[1] += 128;
 
-	if (sectp->floorstat & 1)
+	if (sectp->floorstat & CSTAT_SECTOR_SKY)
 	{
 		deletesprite(actor);
 		return;
@@ -2538,7 +2538,7 @@ static void greenslime(DDukeActor *actor)
 			s->zvel = 0;
 			s->cstat &= (65535 - 8);
 
-			if ((sectp->ceilingstat & 1) || (actor->ceilingz + 6144) < s->z)
+			if ((sectp->ceilingstat & CSTAT_SECTOR_SKY) || (actor->ceilingz + 6144) < s->z)
 			{
 				s->z += 2048;
 				t[0] = 3;
@@ -2571,7 +2571,7 @@ static void greenslime(DDukeActor *actor)
 		s->xrepeat = 36 + bcos(t[1], -11);
 		s->yrepeat = 16 + bsin(t[1], -13);
 
-		if (rnd(4) && (sectp->ceilingstat & 1) == 0 &&
+		if (rnd(4) && (sectp->ceilingstat & CSTAT_SECTOR_SKY) == 0 &&
 			abs(actor->floorz - actor->ceilingz)
 			< (192 << 8))
 		{
@@ -3885,7 +3885,7 @@ void move_d(DDukeActor *actor, int playernum, int xvel)
 
 	if (a)
 	{
-		if (spr->sector()->ceilingstat & 1)
+		if (spr->sector()->ceilingstat & CSTAT_SECTOR_SKY)
 			spr->shade += (spr->sector()->ceilingshade - spr->shade) >> 1;
 		else spr->shade += (spr->sector()->floorshade - spr->shade) >> 1;
 
