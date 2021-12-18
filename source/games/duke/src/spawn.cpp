@@ -176,7 +176,8 @@ bool initspriteforspawn(DDukeActor* act, const std::initializer_list<int> &exclu
 					if ((ud.multimode < 2) || (ud.multimode > 1 && ud.coop == 1))
 					{
 						sp->xrepeat = sp->yrepeat = 0;
-						sp->cstat = sp->lotag = sp->hitag = 0;
+						sp->cstat = 0;
+						sp->lotag = sp->hitag = 0;
 						return false;
 					}
 				}
@@ -197,7 +198,7 @@ bool initspriteforspawn(DDukeActor* act, const std::initializer_list<int> &exclu
 
 	int s = sp->picnum;
 
-	if (sp->cstat & CSTAT_SPRITE_BLOCK) sp->cstat |= 256;
+	if (sp->cstat & CSTAT_SPRITE_BLOCK) sp->cstat |= CSTAT_SPRITE_BLOCK_HITSCAN;
 
 	if (gs.actorinfo[s].scriptaddress)
 	{
@@ -330,7 +331,7 @@ void spawntransporter(DDukeActor *actj, DDukeActor* acti, bool beam)
 	}
 
 	sp->shade = -127;
-	sp->cstat = CSTAT_SPRITE_YCENTER | 2;
+	sp->cstat = CSTAT_SPRITE_YCENTER | CSTAT_SPRITE_TRANSLUCENT;
 	sp->ang = spj->ang;
 
 	sp->xvel = 128;
@@ -414,7 +415,8 @@ void initfootprint(DDukeActor* actj, DDukeActor* acti)
 		}
 		else { sp->xrepeat = sp->yrepeat = 0; return; }
 
-		sp->cstat = 32 + ((ps[actj->s->yvel].footprintcount & 1) << 2);
+		sp->cstat = CSTAT_SPRITE_ALIGNMENT_FLOOR;
+		if ((ps[actj->s->yvel].footprintcount & 1)) sp->cstat |= CSTAT_SPRITE_XFLIP;
 		sp->ang = actj->s->ang;
 	}
 
@@ -490,7 +492,7 @@ void initcrane(DDukeActor* actj, DDukeActor* acti, int CRANEPOLE)
 	auto sp = acti->s;
 	auto sect = sp->sector();
 	auto t = acti->temp_data;
-	sp->cstat |= 64 | 257;
+	sp->cstat |= CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_ONE_SIDE;
 
 	sp->picnum += 2;
 	sp->z = sect->ceilingz + (48 << 8);

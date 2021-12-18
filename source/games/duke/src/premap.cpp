@@ -597,7 +597,7 @@ void resetpspritevars(int g)
 			s->shade = 0;
 			s->xrepeat = isRR() ? 24 : 42;
 			s->yrepeat = isRR() ? 17 : 36;
-			s->cstat = 1 + 256;
+			s->cstat = CSTAT_SPRITE_BLOCK_ALL;
 			s->xoffset = 0;
 			s->clipdist = 64;
 

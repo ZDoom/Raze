@@ -406,7 +406,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
 		{
 			spr = act->s;
 
-			if (act == pactor || (spr->cstat & 0x8000) || spr->cstat == 257 || spr->xrepeat == 0) continue;
+			if (act == pactor || (spr->cstat & CSTAT_SPRITE_INVISIBLE) || spr->cstat == CSTAT_SPRITE_BLOCK_ALL || spr->xrepeat == 0) continue;
 
 			col = PalEntry(0, 170, 170);
 			if (spr->cstat & CSTAT_SPRITE_BLOCK) col = PalEntry(170, 0, 170);
