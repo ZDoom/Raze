@@ -1207,7 +1207,7 @@ void operateforcefields_common(DDukeActor *effector, int low, const std::initial
 						wal->lotag = 0;
 				}
 				else
-					wal->cstat = 85;
+					wal->cstat = (CSTAT_WALL_BLOCK | CSTAT_WALL_ALIGN_BOTTOM | CSTAT_WALL_MASKED | CSTAT_WALL_BLOCK_HITSCAN);
 			}
 	}
 }

@@ -918,7 +918,7 @@ void checkplayerhurt_d(struct player_struct* p, const Collision& coll)
 	auto wal = coll.hitWall;
 
 	if (p->hurt_delay > 0) p->hurt_delay--;
-	else if (wal->cstat & 85) switch (wal->overpicnum)
+	else if (wal->cstat & (CSTAT_WALL_BLOCK | CSTAT_WALL_ALIGN_BOTTOM | CSTAT_WALL_MASKED | CSTAT_WALL_BLOCK_HITSCAN)) switch (wal->overpicnum)
 	{
 	case W_FORCEFIELD:
 	case W_FORCEFIELD + 1:

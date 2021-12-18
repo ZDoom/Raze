@@ -301,8 +301,9 @@ void MarkSectorSeen(sectortype* sec)
 		for (auto& wal : wallsofsector(sec))
 		{
 			if (!wal.twoSided()) continue;
-			if (wal.cstat & 0x0071) continue;
-			if (wal.nextWall()->cstat & 0x0071) continue;
+			const auto bits = (CSTAT_WALL_BLOCK | CSTAT_WALL_MASKED | CSTAT_WALL_1WAY | CSTAT_WALL_BLOCK_HITSCAN);
+			if (wal.cstat & bits) continue;
+			if (wal.nextWall()->cstat & bits) continue;
 			auto osec = wal.nextSector();
 			if (osec->lotag == 32767) continue;
 			if (osec->ceilingz >= osec->floorz) continue;
@@ -390,7 +391,7 @@ bool ShowRedLine(int j, int i)
 		{
 			if (sector[i].floorz != sector[i].ceilingz)
 				if (wal->nextSector()->floorz != wal->nextSector()->ceilingz)
-					if (((wal->cstat | wal->nextWall()->cstat) & (16 + 32)) == 0)
+					if (((wal->cstat | wal->nextWall()->cstat) & (CSTAT_WALL_MASKED | CSTAT_WALL_1WAY)) == 0)
 						if (sector[i].floorz == wal->nextSector()->floorz)
 							return false;
 			if (sector[i].floorpicnum != wal->nextSector()->floorpicnum)
@@ -429,7 +430,7 @@ void drawredlines(int cposx, int cposy, int czoom, int cang)
 			auto osec = wal.nextSector();
 
 			if (osec->ceilingz == z1 && osec->floorz == z2)
-				if (((wal.cstat | wal.nextWall()->cstat) & (16 + 32)) == 0) continue;
+				if (((wal.cstat | wal.nextWall()->cstat) & (CSTAT_WALL_MASKED | CSTAT_WALL_1WAY)) == 0) continue;
 
 			if (ShowRedLine(wallnum(&wal), i))
 			{

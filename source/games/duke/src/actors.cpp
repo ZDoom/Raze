@@ -4141,13 +4141,13 @@ void handle_se19(DDukeActor *actor, int BIGFORCE)
 			{
 				if (wal.overpicnum == BIGFORCE)
 				{
-					wal.cstat &= (128 + 32 + 8 + 4 + 2);
+					wal.cstat &= (CSTAT_WALL_TRANSLUCENT | CSTAT_WALL_1WAY | CSTAT_WALL_XFLIP | CSTAT_WALL_ALIGN_BOTTOM | CSTAT_WALL_BOTTOM_SWAP);
 					wal.overpicnum = 0;
 					auto nextwal = wal.nextWall();
 					if (nextwal != nullptr)
 					{
 						nextwal->overpicnum = 0;
-						nextwal->cstat &= (128 + 32 + 8 + 4 + 2);
+						nextwal->cstat &= (CSTAT_WALL_TRANSLUCENT | CSTAT_WALL_1WAY | CSTAT_WALL_XFLIP | CSTAT_WALL_ALIGN_BOTTOM | CSTAT_WALL_BOTTOM_SWAP);
 					}
 				}
 			}
@@ -4707,12 +4707,12 @@ void handle_se128(DDukeActor *actor)
 
 	//if (wal->cstat | 32) // this has always been bugged, the condition can never be false.
 	{
-		wal->cstat &= (255 - 32);
-		wal->cstat |= 16;
+		wal->cstat &= ~CSTAT_WALL_1WAY;
+		wal->cstat |= CSTAT_WALL_MASKED;
 		if (wal->twoSided())
 		{
-			wal->nextWall()->cstat &= (255 - 32);
-			wal->nextWall()->cstat |= 16;
+			wal->nextWall()->cstat &= ~CSTAT_WALL_1WAY;
+			wal->nextWall()->cstat |= CSTAT_WALL_MASKED;
 		}
 	}
 //	else return;
@@ -4725,9 +4725,9 @@ void handle_se128(DDukeActor *actor)
 	if (t[0] < t[1]) t[0]++;
 	else
 	{
-		wal->cstat &= (128 + 32 + 8 + 4 + 2);
+		wal->cstat &= (CSTAT_WALL_TRANSLUCENT | CSTAT_WALL_1WAY | CSTAT_WALL_XFLIP | CSTAT_WALL_ALIGN_BOTTOM | CSTAT_WALL_BOTTOM_SWAP);
 		if (nextwal)
-			nextwal->cstat &= (128 + 32 + 8 + 4 + 2);
+			nextwal->cstat &= (CSTAT_WALL_TRANSLUCENT | CSTAT_WALL_1WAY | CSTAT_WALL_XFLIP | CSTAT_WALL_ALIGN_BOTTOM | CSTAT_WALL_BOTTOM_SWAP);
 		deletesprite(actor);
 	}
 }

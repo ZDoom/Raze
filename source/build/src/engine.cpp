@@ -501,7 +501,7 @@ int cansee(int x1, int y1, int z1, sectortype* sect1, int x2, int y2, int z2, se
             }
 
 
-            if (!wal->twoSided() || wal->cstat&32)
+            if (!wal->twoSided() || wal->cstat & CSTAT_WALL_1WAY)
                 return 0;
 
             t = DivScale(t,bot, 24);

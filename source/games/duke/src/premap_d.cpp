@@ -423,7 +423,7 @@ void prelevel_d(int g, TArray<DDukeActor*>& actors)
 		case W_FORCEFIELD + 2:
 			if (wal.shade > 31)
 				wal.cstat = 0;
-			else wal.cstat |= 85 + 256;
+			else wal.cstat |= CSTAT_WALL_BLOCK | CSTAT_WALL_ALIGN_BOTTOM | CSTAT_WALL_MASKED | CSTAT_WALL_BLOCK_HITSCAN | CSTAT_WALL_YFLIP;
 
 			if (wal.lotag && wal.twoSided())
 				wal.nextWall()->lotag = wal.lotag;
