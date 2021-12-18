@@ -317,7 +317,8 @@ DSWActor* TrackClonePoint(DSWActor* actor)
 
     np = &actorNew->s();
 
-    np->cstat = np->extra = 0;
+    np->cstat = 0;
+    np->extra = 0;
     np->x = sp->x;
     np->y = sp->y;
     np->z = sp->z;

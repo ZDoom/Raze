@@ -5303,7 +5303,7 @@ int MoveMissile(DBloodActor* actor)
 	if (Owner && Owner->IsDudeActor())
 	{
 		pOwner = &Owner->s();
-		bakCstat = ESpriteFlags::FromInt(pOwner->cstat);
+		bakCstat = pOwner->cstat;
 		pOwner->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 	}
 	gHitInfo.clearObj();

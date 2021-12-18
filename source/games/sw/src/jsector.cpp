@@ -868,7 +868,7 @@ void JAnalyzeSprites(tspriteptr_t tspr)
         {
             // Turn on voxels
             tspr->picnum = aVoxelArray[tspr->picnum].Voxel;     // Get the voxel number
-            tspr->cstat |= 48;          // Set stat to voxelize sprite
+            tspr->cstat |= CSTAT_SPRITE_ALIGNMENT_SLAB;          // Set stat to voxelize sprite
         }
     }
     else
@@ -887,7 +887,7 @@ void JAnalyzeSprites(tspriteptr_t tspr)
             {
                 // Turn on voxels
                 tspr->picnum = aVoxelArray[tspr->picnum].Voxel;     // Get the voxel number
-                tspr->cstat |= 48;          // Set stat to voxelize sprite
+                tspr->cstat |= CSTAT_SPRITE_ALIGNMENT_SLAB;          // Set stat to voxelize sprite
             }
             break;
         }

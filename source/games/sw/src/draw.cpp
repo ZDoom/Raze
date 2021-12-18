@@ -210,7 +210,7 @@ int DoShadowFindGroundPoint(tspriteptr_t sp)
     SPRITEp hsp;
     Collision ceilhit, florhit;
     int hiz, loz = u->loz;
-    int save_cstat, bak_cstat;
+    ESpriteFlags save_cstat, bak_cstat;
 
     // recursive routine to find the ground - either sector or floor sprite
     // skips over enemy and other types of sprites
@@ -968,7 +968,7 @@ void CircleCamera(int *nx, int *ny, int *nz, sectortype** vsect, binangle *nang,
     SPRITEp sp;
     HitInfo hit{};
     int i, vx, vy, vz, hx, hy;
-    int bakcstat, daang;
+    int daang;
     PLAYERp pp = &Player[screenpeek];
     binangle ang;
 
@@ -987,7 +987,7 @@ void CircleCamera(int *nx, int *ny, int *nz, sectortype** vsect, binangle *nang,
     // Player sprite of current view
     sp = &pp->Actor()->s();
 
-    bakcstat = sp->cstat;
+    auto bakcstat = sp->cstat;
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
     // Make sure sector passed to hitscan is correct
@@ -1027,12 +1027,11 @@ void CircleCamera(int *nx, int *ny, int *nz, sectortype** vsect, binangle *nang,
         else
         {
             SPRITEp hsp = &hit.actor()->s();
-            int flag_backup;
 
             // if you hit a sprite that's not a wall sprite - try again
             if (!TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
-                flag_backup = hsp->cstat;
+                auto flag_backup = hsp->cstat;
                 RESET(hsp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
                 CircleCamera(nx, ny, nz, vsect, nang, q16horiz);

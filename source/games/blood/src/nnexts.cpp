@@ -2809,8 +2809,8 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
                 auto old = pSprite->cstat;
 
                 // set new cstat
-                if ((pSource->flags & kModernTypeFlag1)) pSprite->cstat |= pXSource->data4; // relative
-                else pSprite->cstat = pXSource->data4 & 0xffff; // absolute
+                if ((pSource->flags & kModernTypeFlag1)) pSprite->cstat |= ESpriteFlags::FromInt(pXSource->data4); // relative
+                else pSprite->cstat = ESpriteFlags::FromInt(pXSource->data4 & 0xffff); // absolute
 
                 // and handle exceptions
                 if ((old & CSTAT_SPRITE_BLOOD_BIT1)) pSprite->cstat |= CSTAT_SPRITE_BLOOD_BIT1; //kSpritePushable
@@ -3805,8 +3805,8 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
                         case 25: return condCmp(pObj->picnum, arg1, arg2, cmpOp);
                         case 26: return condCmp(pObj->pal, arg1, arg2, cmpOp);
                         case 27: return condCmp(pObj->shade, arg1, arg2, cmpOp);
-                        case 28: return (pObj->cstat & arg1);
-                        case 29: return (pObj->hitag & arg1);
+                        case 28: return (pObj->cstat & ESpriteFlags::FromInt(arg1));
+                        case 29: return (pObj->flags & arg1);
                         case 30: return condCmp(pObj->xrepeat, arg1, arg2, cmpOp);
                         case 31: return condCmp(pObj->xoffset, arg1, arg2, cmpOp);
                         case 32: return condCmp(pObj->yrepeat, arg1, arg2, cmpOp);

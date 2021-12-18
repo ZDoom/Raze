@@ -3606,7 +3606,8 @@ int ActorCoughItem(DSWActor* actor)
         ASSERT(sp->insector());
         actorNew = insertActor(sp->sector(), STAT_SPAWN_ITEMS);
         np = &actorNew->s();
-        np->cstat = np->extra = 0;
+        np->cstat = 0;
+        np->extra = 0;
         np->x = sp->x;
         np->y = sp->y;
         np->z = SPRITEp_MID(sp);
@@ -3647,7 +3648,8 @@ int ActorCoughItem(DSWActor* actor)
         ASSERT(sp->insector());
         actorNew = insertActor(sp->sector(), STAT_SPAWN_ITEMS);
         np = &actorNew->s();
-        np->cstat = np->extra = 0;
+        np->cstat = 0;
+        np->extra = 0;
         np->x = sp->x;
         np->y = sp->y;
         np->z = SPRITEp_MID(sp);
@@ -3675,7 +3677,8 @@ int ActorCoughItem(DSWActor* actor)
         ASSERT(sp->insector());
         actorNew = insertActor(sp->sector(), STAT_SPAWN_ITEMS);
         np = &actorNew->s();
-        np->cstat = np->extra = 0;
+        np->cstat = 0;
+        np->extra = 0;
         np->x = sp->x;
         np->y = sp->y;
         np->z = SPRITEp_MID(sp);
@@ -3769,7 +3772,8 @@ int ActorCoughItem(DSWActor* actor)
         ASSERT(sp->insector());
         actorNew = insertActor(sp->sector(), STAT_SPAWN_ITEMS);
         np = &actorNew->s();
-        np->cstat = np->extra = 0;
+        np->cstat = 0;
+        np->extra = 0;
         np->x = sp->x;
         np->y = sp->y;
         np->z = SPRITEp_MID(sp);
@@ -3827,7 +3831,8 @@ int ActorCoughItem(DSWActor* actor)
         ASSERT(sp->insector());
         actorNew = insertActor(sp->sector(), STAT_SPAWN_ITEMS);
         np = &actorNew->s();
-        np->cstat = np->extra = 0;
+        np->cstat = 0;
+        np->extra = 0;
         np->x = sp->x;
         np->y = sp->y;
         np->z = SPRITEp_LOWER(sp)+Z(10);
@@ -4576,14 +4581,13 @@ void DoActorZrange(DSWActor* actor)
     USERp u = actor->u(), wu;
     SPRITEp sp = &actor->s(), wp;
     Collision ceilhit, florhit;
-    short save_cstat;
 
-    save_cstat = TEST(sp->cstat, CSTAT_SPRITE_BLOCK);
+    auto save_cstat = sp->cstat & CSTAT_SPRITE_BLOCK;
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK);
     vec3_t pos = sp->pos;
     pos.z -= DIV2(SPRITEp_SIZE_Z(sp));
     FAFgetzrange(pos, sp->sector(), &u->hiz, &ceilhit, &u->loz, &florhit, (((int) sp->clipdist) << 2) - GETZRANGE_CLIP_ADJ, CLIPMASK_ACTOR);
-    SET(sp->cstat, save_cstat);
+    sp->cstat |= save_cstat;
 
     u->lo_sectp = u->hi_sectp = nullptr;
     u->highActor = nullptr;
@@ -4659,10 +4663,9 @@ bool ActorDrop(DSWActor* actor, int x, int y, int z, sectortype* new_sector, sho
     SPRITEp sp = &actor->s();
     int hiz, loz;
     Collision ceilhit, florhit;
-    short save_cstat;
 
     // look only at the center point for a floor sprite
-    save_cstat = TEST(sp->cstat, CSTAT_SPRITE_BLOCK);
+    auto save_cstat = TEST(sp->cstat, CSTAT_SPRITE_BLOCK);
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK);
     FAFgetzrangepoint(x, y, z - DIV2(SPRITEp_SIZE_Z(sp)), new_sector, &hiz, &ceilhit, &loz, &florhit);
     SET(sp->cstat, save_cstat);
@@ -5172,7 +5175,6 @@ int DoGet(DSWActor* actor)
     short pnum, key_num;
     int dist, a,b,c;
     bool can_see;
-    int cstat_bak;
 
     // For flag stuff
     USERp nu;
@@ -5223,7 +5225,7 @@ int DoGet(DSWActor* actor)
             continue;
         }
 
-        cstat_bak = sp->cstat;
+        auto cstat_bak = sp->cstat;
         SET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         can_see = FAFcansee(sp->x, sp->y, sp->z, sp->sector(),
                             pp->posx, pp->posy, pp->posz, pp->cursector);
@@ -6470,7 +6472,7 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
 
     // Set the blocking bit to 0 temporarly so FAFgetzrange doesn't pick
     // up its own sprite
-    tempshort = spr->cstat;
+    auto tempstat = spr->cstat;
     spr->cstat = 0;
 
     // I subtracted 8 from the clipdist because actors kept going up on
@@ -6482,7 +6484,7 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
                  &globhiz, &globhihit, &globloz, &globlohit,
                  (((int) spr->clipdist) << 2) - GETZRANGE_CLIP_ADJ, cliptype);
 
-    spr->cstat = tempshort;
+    spr->cstat = tempstat;
 
     // !AIC - puts getzrange results into USER varaible u->loz, u->hiz, u->lo_sectp, u->hi_sectp, etc.
     // Takes info from global variables
@@ -6611,11 +6613,10 @@ int MissileZrange(DSWActor* actor)
 {
     USERp u = actor->u();
     SPRITEp sp = &actor->s();
-    short tempshort;
 
     // Set the blocking bit to 0 temporarly so FAFgetzrange doesn't pick
     // up its own sprite
-    tempshort = sp->cstat;
+    auto tempshort = sp->cstat;
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK);
 
     FAFgetzrangepoint(sp->x, sp->y, sp->z - 1, sp->sector(),
@@ -6634,7 +6635,6 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
     SPRITEp sp = &actor->s();
     Collision retval{};
     int zh;
-    int tempshort;
 
     ASSERT(actor->hasU());
 
@@ -6673,7 +6673,7 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
 
     // Set the blocking bit to 0 temporarly so FAFgetzrange doesn't pick
     // up its own sprite
-    tempshort = sp->cstat;
+    auto tempshort = sp->cstat;
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK);
 
     FAFgetzrangepoint(sp->x, sp->y, sp->z - 1, sp->sector(),

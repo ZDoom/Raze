@@ -8208,7 +8208,7 @@ int DoPlasmaFountain(DSWActor* actor)
     {
         u->WaitTics = 0;
 
-        bak_cstat = sp->cstat;
+        auto bak_cstat = sp->cstat;
         RESET(sp->cstat, CSTAT_SPRITE_BLOCK);
         sp->cstat = bak_cstat;
 
@@ -8247,7 +8247,7 @@ int DoPlasma(DSWActor* actor)
 
             if (TEST(hsp->cstat, CSTAT_SPRITE_BLOCK) && !TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
-                short hcstat = hsp->cstat;
+                auto hcstat = hsp->cstat;
 
                 if (hu && hitActor != u->WpnGoalActor)
                 {
@@ -9532,7 +9532,7 @@ int DoRail(DSWActor* actor)
  
                     if (hs->extra & SPRX_PLAYER_OR_ENEMY)
                     {
-                        short cstat_save = hs->cstat;
+                        auto cstat_save = hs->cstat;
 
                         RESET(hs->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN|CSTAT_SPRITE_BLOCK_MISSILE);
                         DoRail(actor);
@@ -11178,13 +11178,11 @@ int DoFindGround(DSWActor* actor)
     SPRITEp sp = &actor->s(), hsp;
     USERp u = actor->u();
     Collision ceilhit, florhit;
-    short save_cstat;
-    short bak_cstat;
 
     // recursive routine to find the ground - either sector or floor sprite
     // skips over enemy and other types of sprites
 
-    save_cstat = sp->cstat;
+    auto save_cstat = sp->cstat;
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     FAFgetzrange(sp->pos, sp->sector(), &u->hiz, &ceilhit, &u->loz, &florhit, (((int) sp->clipdist) << 2) - GETZRANGE_CLIP_ADJ, CLIPMASK_PLAYER);
     sp->cstat = save_cstat;
@@ -11207,7 +11205,7 @@ int DoFindGround(DSWActor* actor)
         {
             // reset the blocking bit of what you hit and try again -
             // recursive
-            bak_cstat = hsp->cstat;
+            auto bak_cstat = hsp->cstat;
             RESET(hsp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
             DoFindGround(actor);
             hsp->cstat = bak_cstat;
@@ -11235,13 +11233,11 @@ int DoFindGroundPoint(DSWActor* actor)
     SPRITEp sp = &actor->s(), hsp;
     USERp u = actor->u();
     Collision ceilhit, florhit;
-    short save_cstat;
-    short bak_cstat;
 
     // recursive routine to find the ground - either sector or floor sprite
     // skips over enemy and other types of sprites
 
-    save_cstat = sp->cstat;
+    auto save_cstat = sp->cstat;
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
     FAFgetzrangepoint(sp->x, sp->y, sp->z, sp->sector(), &u->hiz, &ceilhit, &u->loz, &florhit);
     sp->cstat = save_cstat;
@@ -11264,7 +11260,7 @@ int DoFindGroundPoint(DSWActor* actor)
         {
             // reset the blocking bit of what you hit and try again -
             // recursive
-            bak_cstat = hsp->cstat;
+            auto bak_cstat = hsp->cstat;
             RESET(hsp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
             DoFindGroundPoint(actor);
             hsp->cstat = bak_cstat;
@@ -11327,7 +11323,7 @@ int DoNapalm(DSWActor* actor)
 
             if (TEST(hsp->cstat, CSTAT_SPRITE_BLOCK) && !TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
-                short hcstat = hsp->cstat;
+                auto hcstat = hsp->cstat;
 
                 sp->x = ox;
                 sp->y = oy;
@@ -11509,7 +11505,7 @@ int DoSerpMeteor(DSWActor* actor)
 
             if (hu && hu->ID >= SKULL_R0 && hu->ID <= SKULL_SERP)
             {
-                short hcstat = hsp->cstat;
+                auto hcstat = hsp->cstat;
 
                 sp->x = ox;
                 sp->y = oy;
@@ -16134,7 +16130,7 @@ int InitUzi(PLAYERp pp)
     HitInfo hit{};
     int daz, nz;
     int xvect,yvect,zvect;
-    short cstat = 0;
+    ESpriteFlags cstat = 0;
     uint8_t pal = 0;
     //static char alternate=0;
     static int uziclock=0;

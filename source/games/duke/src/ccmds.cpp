@@ -43,7 +43,7 @@ int getlabelvalue(const char* text);
 static int ccmd_spawn(CCmdFuncPtr parm)
 {
 	int x = 0, y = 0, z = 0;
-	int16_t cstat = 0;
+	ESpriteFlags cstat = 0;
 	int picnum = 0;
 	unsigned int pal = 0;
 	int ang = 0;

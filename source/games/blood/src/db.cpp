@@ -526,7 +526,7 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sect
         pSprite->x = LittleLong(load.x);
         pSprite->y = LittleLong(load.y);
         pSprite->z = LittleLong(load.z);
-        pSprite->cstat = LittleShort(load.cstat);
+        pSprite->cstat = ESpriteFlags::FromInt(LittleShort(load.cstat));
         pSprite->picnum = LittleShort(load.picnum);
         int secno = LittleShort(load.sectnum);
         pSprite->statnum = LittleShort(load.statnum);

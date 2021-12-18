@@ -1859,14 +1859,13 @@ void UpdatePlayerSprite(PLAYERp pp)
 void DoPlayerZrange(PLAYERp pp)
 {
     Collision ceilhit, florhit;
-    short bakcstat;
 
     if (!pp->Actor()) return;
     // Don't let you fall if you're just slightly over a cliff
     // This function returns the highest and lowest z's
     // for an entire box, NOT just a point.  -Useful for clipping
     auto sp = &pp->Actor()->s();
-    bakcstat = sp->cstat;
+    auto bakcstat = sp->cstat;
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK);
     vec3_t pos = pp->pos;
     pos.z += Z(8);
@@ -2011,7 +2010,6 @@ void DoPlayerMove(PLAYERp pp)
     auto sp = &pp->Actor()->s();
     USERp u = pp->Actor()->u();
     int friction;
-    int save_cstat;
     int push_ret = 0;
 
     // If SO interpolation is disabled, make sure the player's aiming,
@@ -2114,7 +2112,7 @@ void DoPlayerMove(PLAYERp pp)
             pp->oposy = pp->posy;
         }
 
-        save_cstat = sp->cstat;
+        auto save_cstat = sp->cstat;
         RESET(sp->cstat, CSTAT_SPRITE_BLOCK);
         Collision coll;
         updatesector(pp->posx, pp->posy, &pp->cursector);
@@ -2561,7 +2559,6 @@ void DoPlayerMoveVehicle(PLAYERp pp)
     SPRITEp sp = &actor->s();
     auto psp = &pp->Actor()->s();
     USERp u = actor->u();
-    int save_cstat;
     int x[4], y[4], ox[4], oy[4];
     int wallcount;
     int count=0;
@@ -2660,7 +2657,7 @@ void DoPlayerMoveVehicle(PLAYERp pp)
         int vel;
         int ret;
 
-        save_cstat = psp->cstat;
+        auto save_cstat = psp->cstat;
         RESET(psp->cstat, CSTAT_SPRITE_BLOCK);
         DoPlayerTurnVehicleRect(pp, x, y, ox, oy);
 
@@ -2715,7 +2712,7 @@ void DoPlayerMoveVehicle(PLAYERp pp)
             DoPlayerTurnVehicle(pp, pp->input.avel, z, floor_dist);
         }
 
-        save_cstat = psp->cstat;
+        auto save_cstat = psp->cstat;
         RESET(psp->cstat, CSTAT_SPRITE_BLOCK);
         if (pp->sop->clipdist)
         {

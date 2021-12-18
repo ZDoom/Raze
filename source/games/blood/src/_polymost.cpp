@@ -260,7 +260,7 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
                 ESpriteFlags bakCstat = 0;
                 if (viewPlayer >= 0)
                 {
-                    bakCstat = ESpriteFlags::FromInt(gPlayer[viewPlayer].pSprite->cstat);
+                    bakCstat = gPlayer[viewPlayer].pSprite->cstat;
                     if (gViewPos == 0)
                     {
                         gPlayer[viewPlayer].pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
@@ -292,7 +292,7 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
                 ESpriteFlags bakCstat = 0;
                 if (viewPlayer >= 0)
                 {
-                    bakCstat = ESpriteFlags::FromInt(gPlayer[viewPlayer].pSprite->cstat);
+                    bakCstat = gPlayer[viewPlayer].pSprite->cstat;
                     if (gViewPos == 0)
                     {
                         gPlayer[viewPlayer].pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
