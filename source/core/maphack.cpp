@@ -221,7 +221,7 @@ static int32_t LoadMapHack(const char *filename, SpawnSpriteDef& sprites)
             {
                 if (currentwall != -1 && validateWall())
                 {
-                    wall[currentwall].cstat &= ~sc.Number;
+                    wall[currentwall].cstat &= EWallFlags::FromInt(~sc.Number);
                 }
                 else if (currentsprite != -1 && validateSprite())
                 {
@@ -235,7 +235,7 @@ static int32_t LoadMapHack(const char *filename, SpawnSpriteDef& sprites)
             {
                 if (currentwall != -1 && validateWall())
                 {
-                    wall[currentwall].cstat |= sc.Number;
+                    wall[currentwall].cstat |= EWallFlags::FromInt(sc.Number);
                 }
                 else if (currentsprite != -1 && validateSprite())
                 {

@@ -116,6 +116,9 @@ enum EWallBits // names are from Shadow Warrior
 
 };
 
+typedef TFlags<EWallBits, uint16_t> EWallFlags;
+DEFINE_TFLAGS_OPERATORS(EWallFlags)
+
 enum ESpriteBits // names mostly from SW.
 {
 	CSTAT_SPRITE_BLOCK				= 1,			//   bit 0: 1 = Blocking sprite (use with clipmove, getzrange)       "B"
@@ -312,7 +315,7 @@ struct walltype
 	float xpan_;
 	float ypan_;
 	
-	uint16_t cstat;
+	EWallFlags cstat;
 	int16_t picnum;
 	int16_t overpicnum;
 	union { int16_t lotag, type; }; // type is for Blood

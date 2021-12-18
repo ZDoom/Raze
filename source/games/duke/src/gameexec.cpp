@@ -979,7 +979,7 @@ void DoWall(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, i
 		if (!bSet) SetGameVarID(lVar2, wallp->nextsector, sActor, sPlayer);
 		break;
 	case WALL_CSTAT:
-		if (bSet) wallp->cstat = lValue;
+		if (bSet) wallp->cstat = EWallFlags::FromInt(lValue);
 		else SetGameVarID(lVar2, wallp->cstat, sActor, sPlayer);
 		break;
 	case WALL_PICNUM:

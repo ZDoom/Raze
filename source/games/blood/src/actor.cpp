@@ -5384,7 +5384,7 @@ int MoveMissile(DBloodActor* actor)
 				if (pXWall->triggerVector)
 				{
 					trTriggerWall(pWall, kCmdWallImpact);
-					if (!(pWall->cstat & 64))
+					if (!(pWall->cstat & CSTAT_WALL_BLOCK_HITSCAN))
 					{
 						cliptype = -1;
 						if (i-- > 0)
@@ -6814,8 +6814,7 @@ bool actCheckRespawn(DBloodActor* actor)
 
 bool actCanSplatWall(walltype* pWall)
 {
-	if (pWall->cstat & 16384) return 0;
-	if (pWall->cstat & 32768) return 0;
+	if (pWall->cstat & (CSTAT_WALL_MOVE_MASK)) return 0;
 
 	int nType = pWall->type;
 	if (nType >= kWallBase && nType < kWallMax) return 0;

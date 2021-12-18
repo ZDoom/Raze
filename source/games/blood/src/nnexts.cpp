@@ -3782,7 +3782,7 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
                         case 25: return condCmp(pObj->picnum, arg1, arg2, cmpOp);
                         case 26: return condCmp(pObj->pal, arg1, arg2, cmpOp);
                         case 27: return condCmp(pObj->shade, arg1, arg2, cmpOp);
-                        case 28: return (pObj->cstat & arg1);
+                        case 28: return (pObj->cstat & EWallFlags::FromInt(arg1));
                         case 29: return (pObj->hitag & arg1);
                         case 30: return condCmp(pObj->xrepeat, arg1, arg2, cmpOp);
                         case 31: return condCmp(pObj->xpan(), arg1, arg2, cmpOp);

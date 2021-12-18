@@ -451,7 +451,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 
     int const initialsectnum = *sectnum;
 
-    int32_t const dawalclipmask = (cliptype & 65535);  // CLIPMASK0 = 0x00010001
+    int32_t const dawalclipmask = (cliptype & 65535);  // CLIPMASK0 = 0x00010001 (in desperate need of getting fixed!)
     int32_t const dasprclipmask = (cliptype >> 16);    // CLIPMASK1 = 0x01000040
 
     vec2_t const move = { xvect, yvect };
@@ -514,7 +514,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 
             int clipyou = 0;
 
-                if (wal->nextsector < 0 || (wal->cstat&dawalclipmask))
+                if (wal->nextsector < 0 || (wal->cstat & EWallFlags::FromInt(dawalclipmask)))
                 {
                     clipyou = 1;
                 }
@@ -879,7 +879,7 @@ int pushmove_(vec3_t *const vect, int *const sectnum,
                 if (clipinsidebox(&vect->vec2, i, walldist-4) == 1)
                 {
                     int j = 0;
-                    if (wal->nextsector < 0 || wal->cstat&dawalclipmask) j = 1;
+                    if (wal->nextsector < 0 || wal->cstat & EWallFlags::FromInt(dawalclipmask)) j = 1;
                     else
                     {
                         int32_t daz2;
@@ -1005,7 +1005,7 @@ void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBas
                 if (da.x >= da.y)
                     continue;
 
-                if (wal.cstat&dawalclipmask) continue;  // XXX?
+                if (wal.cstat & EWallFlags::FromInt(dawalclipmask)) continue;  // XXX?
 
                 if (((nextsect->ceilingstat & CSTAT_SECTOR_SKY) == 0) && (pos.z <= nextsect->ceilingz+(3<<8))) continue;
                 if (((nextsect->floorstat & CSTAT_SECTOR_SKY) == 0) && (pos.z >= nextsect->floorz-(3<<8))) continue;
@@ -1297,7 +1297,7 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
 
             if (!curspr)
             {
-                if ((!wal->twoSided()) || (wal->cstat&dawalclipmask))
+                if ((!wal->twoSided()) || (wal->cstat & EWallFlags::FromInt(dawalclipmask)))
                 {
                     hit_set(&hitinfo, sec, wal, nullptr, intx, inty, intz);
                     continue;
