@@ -164,7 +164,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			if (spj->sector()->lotag == 2)
 			{
 				sp->z = getceilzofslopeptr(sp->sector(), sp->x, sp->y) + (16 << 8);
-				sp->cstat |= 8;
+				sp->cstat |= CSTAT_SPRITE_YFLIP;
 			}
 			else if (spj->sector()->lotag == 1)
 				sp->z = getflorzofslopeptr(sp->sector(), sp->x, sp->y);
@@ -215,7 +215,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		break;
 	case NATURALLIGHTNING:
 		sp->cstat &= ~257;
-		sp->cstat |= 32768;
+		sp->cstat |= CSTAT_SPRITE_INVISIBLE;
 		break;
 	case TRANSPORTERSTAR:
 	case TRANSPORTERBEAM:
@@ -668,7 +668,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			sp->yrepeat = spj->yrepeat;
 			sp->zvel = 128;
 			if (sp->sector()->lotag != 2)
-				sp->cstat |= 32768;
+				sp->cstat |= CSTAT_SPRITE_INVISIBLE;
 		}
 		ChangeActorStat(act, STAT_DUMMYPLAYER);
 		break;
@@ -755,7 +755,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			Printf(TEXTCOLOR_YELLOW "WARNING: WATERBUBBLEMAKER %d @ %d,%d with hitag!=0. Applying fixup.\n", act->GetIndex(), sp->x, sp->y);
 			sp->hitag = 0;
 		}
-		sp->cstat |= 32768;
+		sp->cstat |= CSTAT_SPRITE_INVISIBLE;
 		ChangeActorStat(act, 6);
 		break;
 	case BOLT1:
@@ -771,7 +771,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		[[fallthrough]];
 	case MASTERSWITCH:
 		if (sp->picnum == MASTERSWITCH)
-			sp->cstat |= 32768;
+			sp->cstat |= CSTAT_SPRITE_INVISIBLE;
 		sp->yvel = 0;
 		ChangeActorStat(act, 6);
 		break;
@@ -913,7 +913,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		break;
 
 	case LOCATORS:
-		sp->cstat |= 32768;
+		sp->cstat |= CSTAT_SPRITE_INVISIBLE;
 		ChangeActorStat(act, 7);
 		break;
 

@@ -293,7 +293,7 @@ void AISpider::Tick(RunListEvent* ev)
         && hiHit.type != kHitSprite
         && !((sp->sector()->ceilingstat) & CSTAT_SECTOR_SKY))
     {
-        sp->cstat |= 8;
+        sp->cstat |= CSTAT_SPRITE_YFLIP;
         sp->z = GetActorHeight(spp) + sp->sector()->ceilingz;
         sp->zvel = 0;
 

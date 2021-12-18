@@ -504,7 +504,7 @@ int seq_PlotArrowSequence(int nSprite, int16_t nSeq, int nVal)
     if (ChunkFlag[nFrameBase] & 1)
     {
         pTSprite->xoffset = (int8_t)ChunkXpos[nFrameBase];
-        pTSprite->cstat |= 4;
+        pTSprite->cstat |= CSTAT_SPRITE_XFLIP;
     }
     else
     {
@@ -590,7 +590,7 @@ int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
         if (ChunkFlag[nBase] & 1)
         {
             tsp->xoffset = (int8_t)ChunkXpos[nBase];
-            tsp->cstat |= 4; // x-flipped
+            tsp->cstat |= CSTAT_SPRITE_XFLIP; // x-flipped
         }
         else
         {

@@ -57,7 +57,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case RRTILE2027:
 	case RRTILE2028:
 		sp->cstat = 0;
-		sp->cstat |= 32768;
+		sp->cstat |= CSTAT_SPRITE_INVISIBLE;
 		sp->xrepeat = 0;
 		sp->yrepeat = 0;
 		sp->clipdist = 0;
@@ -168,7 +168,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case RRTILE292:
 	case RRTILE293:
 		sp->cstat = 0;
-		sp->cstat |= 32768;
+		sp->cstat |= CSTAT_SPRITE_INVISIBLE;
 		sp->xrepeat = 0;
 		sp->yrepeat = 0;
 		sp->clipdist = 0;
@@ -216,7 +216,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			if (spj->sector()->lotag == 2)
 			{
 				sp->z = getceilzofslopeptr(sp->sector(), sp->x, sp->y) + (16 << 8);
-				sp->cstat |= 8;
+				sp->cstat |= CSTAT_SPRITE_YFLIP;
 			}
 			else if (spj->sector()->lotag == 1)
 				sp->z = getflorzofslopeptr(sp->sector(), sp->x, sp->y);
@@ -473,7 +473,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ChangeActorStat(act, 2);
 		break;
 	case RRTILE295:
-		sp->cstat |= 32768;
+		sp->cstat |= CSTAT_SPRITE_INVISIBLE;
 		ChangeActorStat(act, 107);
 		break;
 	case RRTILE296:
@@ -610,7 +610,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		break;
 	case SOUNDFX:
 	{
-		sp->cstat |= 32768;
+		sp->cstat |= CSTAT_SPRITE_INVISIBLE;
 		ChangeActorStat(act, 2);
 	}
 	break;
@@ -668,7 +668,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			sp->yrepeat = spj->yrepeat;
 			sp->zvel = 128;
 			if (sp->sector()->lotag != 2)
-				sp->cstat |= 32768;
+				sp->cstat |= CSTAT_SPRITE_INVISIBLE;
 		}
 		ChangeActorStat(act, 13);
 		break;
@@ -729,7 +729,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		}
 		[[fallthrough]];
 	case WATERBUBBLEMAKER:
-		sp->cstat |= 32768;
+		sp->cstat |= CSTAT_SPRITE_INVISIBLE;
 		ChangeActorStat(act, 6);
 		break;
 	case BOLT1:
@@ -741,7 +741,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		[[fallthrough]];
 	case MASTERSWITCH:
 		if (sp->picnum == MASTERSWITCH)
-			sp->cstat |= 32768;
+			sp->cstat |= CSTAT_SPRITE_INVISIBLE;
 		sp->yvel = 0;
 		ChangeActorStat(act, 6);
 		break;
@@ -1066,14 +1066,14 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		break;
 	case LOCATORS:
 		//                sp->xrepeat=sp->yrepeat=0;
-		sp->cstat |= 32768;
+		sp->cstat |= CSTAT_SPRITE_INVISIBLE;
 		ChangeActorStat(act, STAT_LOCATOR);
 		break;
 
 	case ACTIVATORLOCKED:
 	case ACTIVATOR:
 		//                sp->xrepeat=sp->yrepeat=0;
-		sp->cstat |= 32768;
+		sp->cstat |= CSTAT_SPRITE_INVISIBLE;
 		if (sp->picnum == ACTIVATORLOCKED)
 			sectp->lotag ^= 16384;
 		ChangeActorStat(act, STAT_ACTIVATOR);
@@ -1491,7 +1491,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ChangeActorStat(act, STAT_STANDABLE);
 		break;
 	case RRTILE63:
-		sp->cstat |= 32768;
+		sp->cstat |= CSTAT_SPRITE_INVISIBLE;
 		sp->xrepeat = 1;
 		sp->yrepeat = 1;
 		sp->clipdist = 1;

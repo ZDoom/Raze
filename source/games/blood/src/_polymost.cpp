@@ -72,7 +72,7 @@ void collectTSpritesForPortal(int x, int y, int i, int interpolation)
                     else
                     {
                         nAnim = 8 - nAnim;
-                        pTSprite->cstat |= 4;
+                        pTSprite->cstat |= CSTAT_SPRITE_XFLIP;
                     }
                     break;
                 }
@@ -138,7 +138,7 @@ RORHACK:
     int bakCstat = gView->pSprite->cstat;
     if (gViewPos == 0)
     {
-        gView->pSprite->cstat |= 32768;
+        gView->pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
     }
     else
     {
@@ -263,7 +263,7 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
                     bakCstat = gPlayer[viewPlayer].pSprite->cstat;
                     if (gViewPos == 0)
                     {
-                        gPlayer[viewPlayer].pSprite->cstat |= 32768;
+                        gPlayer[viewPlayer].pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
                     }
                     else
                     {
@@ -295,7 +295,7 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
                     bakCstat = gPlayer[viewPlayer].pSprite->cstat;
                     if (gViewPos == 0)
                     {
-                        gPlayer[viewPlayer].pSprite->cstat |= 32768;
+                        gPlayer[viewPlayer].pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
                     }
                     else
                     {

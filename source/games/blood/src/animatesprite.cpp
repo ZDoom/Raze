@@ -204,7 +204,7 @@ static tspritetype *viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int 
             break;
 
         pNSprite->z = pTSprite->z;
-        pNSprite->cstat |= 2;
+        pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
         pNSprite->shade = -128;
         pNSprite->xrepeat = pTSprite->xrepeat;
         pNSprite->yrepeat = pTSprite->yrepeat;
@@ -231,7 +231,7 @@ static tspritetype *viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int 
 
         pNSprite->shade = 26;
         pNSprite->pal = 0;
-        pNSprite->cstat |= 2;
+        pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
         pNSprite->xrepeat = pNSprite->yrepeat = 64;
         pNSprite->picnum = 2089;
         break;
@@ -246,7 +246,7 @@ static tspritetype *viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int 
         GetSpriteExtents(pTSprite, &top, &bottom);
         pNSprite->shade = 26;
         pNSprite->pal = 0;
-        pNSprite->cstat |= 2;
+        pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
         pNSprite->xrepeat = pNSprite->yrepeat = 24;
         pNSprite->picnum = 626;
         pNSprite->z = top;
@@ -281,7 +281,7 @@ static tspritetype *viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int 
             pNSprite->setsector(pSector);
             pNSprite->ownerActor = pTSprite->ownerActor;
             pNSprite->picnum = pTSprite->picnum;
-            pNSprite->cstat |= 2;
+            pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
             if (i < 2)
                 pNSprite->cstat |= 514;
             pNSprite->shade = ClipLow(pTSprite->shade-16, -128);
@@ -317,7 +317,7 @@ static tspritetype *viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int 
             pNSprite->picnum = 672;
         else
             pNSprite->picnum = 754;
-        pNSprite->cstat |= 2;
+        pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
         pNSprite->shade = 8;
         pNSprite->xrepeat = pTSprite->xrepeat;
         pNSprite->yrepeat = pTSprite->yrepeat;
@@ -336,7 +336,7 @@ static tspritetype *viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int 
             pNSprite->picnum = 672;
         else
             pNSprite->picnum = 754;
-        pNSprite->cstat |= 2;
+        pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
         pNSprite->shade = 8;
         pNSprite->xrepeat = pTSprite->xrepeat;
         pNSprite->yrepeat = pTSprite->yrepeat;
@@ -380,7 +380,7 @@ static tspritetype *viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int 
 
             pNSprite->z = getflorzofslopeptr(pTSprite->sector(), pNSprite->x, pNSprite->y);
             pNSprite->shade = 127;
-            pNSprite->cstat |= 2;
+            pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
             pNSprite->xrepeat = pTSprite->xrepeat;
             pNSprite->yrepeat = pTSprite->yrepeat >> 2;
             pNSprite->picnum = pTSprite->picnum;
@@ -399,7 +399,7 @@ static tspritetype *viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int 
 
         pNSprite->shade = -128;
         pNSprite->pal = 2;
-        pNSprite->cstat |= 2;
+        pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
         pNSprite->z = pTSprite->z;
         pNSprite->xrepeat = pTSprite->xrepeat;
         pNSprite->yrepeat = pTSprite->yrepeat;
@@ -582,7 +582,7 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
                 else
                 {
                     nAnim = 8 - nAnim;
-                    pTSprite->cstat |= 4;
+                    pTSprite->cstat |= CSTAT_SPRITE_XFLIP;
                 }
                 break;
             }
@@ -723,11 +723,11 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
         }
         if (pTSprite->flags&1024)
         {
-            pTSprite->cstat |= 4;
+            pTSprite->cstat |= CSTAT_SPRITE_XFLIP;
         }
         if (pTSprite->flags&2048)
         {
-            pTSprite->cstat |= 8;
+            pTSprite->cstat |= CSTAT_SPRITE_YFLIP;
         }
         switch (pTSprite->statnum) {
         case kStatDecoration: {
@@ -842,7 +842,7 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
             if (IsPlayerSprite(pTSprite)) {
                 PLAYER *pPlayer = &gPlayer[pTSprite->type-kDudePlayer1];
                 if (powerupCheck(pPlayer, kPwUpShadowCloak) && !powerupCheck(gView, kPwUpBeastVision)) {
-                    pTSprite->cstat |= 2;
+                    pTSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
                     pTSprite->pal = 5;
                 }  else if (powerupCheck(pPlayer, kPwUpDeathMask)) {
                     pTSprite->shade = -128;
@@ -875,7 +875,7 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
                         if (pNTSprite)
                         {
                             pNTSprite->pal = 10;
-                            pNTSprite->cstat |= 4;
+                            pNTSprite->cstat |= CSTAT_SPRITE_XFLIP;
                         }
                     }
                     if (pPlayer->hasFlag&2) {
@@ -883,7 +883,7 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
                         if (pNTSprite)
                         {
                             pNTSprite->pal = 7;
-                            pNTSprite->cstat |= 4;
+                            pNTSprite->cstat |= CSTAT_SPRITE_XFLIP;
                         }
                     }
                 }
@@ -949,7 +949,7 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
                 else
                 {
                     nAnim = 8 - nAnim;
-                    pTSprite->cstat |= 4;
+                    pTSprite->cstat |= CSTAT_SPRITE_XFLIP;
                 }
                 break;
             }

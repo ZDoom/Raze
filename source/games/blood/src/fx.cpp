@@ -174,9 +174,9 @@ DBloodActor* CFX::fxSpawnActor(FX_ID nFx, sectortype* pSector, int x, int y, int
     if (pFX->yrepeat > 0)
         pSprite->yrepeat = pFX->yrepeat;
     if ((pFX->flags & 1) && Chance(0x8000))
-        pSprite->cstat |= 4;
+        pSprite->cstat |= CSTAT_SPRITE_XFLIP;
     if ((pFX->flags & 2) && Chance(0x8000))
-        pSprite->cstat |= 8;
+        pSprite->cstat |= CSTAT_SPRITE_YFLIP;
     if (pFX->seq)
     {
         actor->addX();

@@ -1957,7 +1957,7 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
             case kDamageExplode:
                 GibSprite(pActor, GIBTYPE_7, NULL, NULL);
                 GibSprite(pActor, GIBTYPE_15, NULL, NULL);
-                pPlayer->pSprite->cstat |= 32768;
+                pPlayer->pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
                 nDeathSeqID = 17;
                 break;
             default:
@@ -2017,7 +2017,7 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
             sfxPlay3DSound(pPlayer->actor, 717, 0, 0);
             GibSprite(pActor, GIBTYPE_7, NULL, NULL);
             GibSprite(pActor, GIBTYPE_15, NULL, NULL);
-            pPlayer->pSprite->cstat |= 32768;
+            pPlayer->pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
             nDeathSeqID = 2;
             break;
         case kDamageBurn:

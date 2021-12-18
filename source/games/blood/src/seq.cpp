@@ -266,7 +266,7 @@ void UpdateSprite(DBloodActor* actor, SEQFRAME* pFrame)
 	}
 
 	if (pFrame->transparent)
-		pSprite->cstat |= 2;
+		pSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
 	else
 		pSprite->cstat &= ~2;
 	if (pFrame->transparent2)
@@ -282,7 +282,7 @@ void UpdateSprite(DBloodActor* actor, SEQFRAME* pFrame)
 	else
 		pSprite->cstat &= ~256;
 	if (pFrame->invisible)
-		pSprite->cstat |= 32768;
+		pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
 	else
 		pSprite->cstat &= (unsigned short)~32768;
 	if (pFrame->pushable)

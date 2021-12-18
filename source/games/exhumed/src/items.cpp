@@ -128,7 +128,7 @@ void BuildItemAnim(DExhumedActor* pActor)
         auto pAnimActor = BuildAnim(pActor, 41, nItemAnimInfo[nItem].a, pSprite->x, pSprite->y, pSprite->z, pSprite->sector(), nItemAnimInfo[nItem].repeat, 20);
 
         if (nItem == 44) {
-            pAnimActor->s().cstat |= 2;
+            pAnimActor->s().cstat |= CSTAT_SPRITE_TRANSLUCENT;
         }
 
         ChangeActorStat(pAnimActor, pSprite->statnum);

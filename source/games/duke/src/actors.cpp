@@ -493,7 +493,7 @@ void moveplayers(void)
 			if (spri->xrepeat < 42)
 			{
 				spri->xrepeat += 4;
-				spri->cstat |= 2;
+				spri->cstat |= CSTAT_SPRITE_TRANSLUCENT;
 			}
 			else spri->xrepeat = 42;
 			if (spri->yrepeat < 36)
@@ -1058,7 +1058,7 @@ void movewaterdrip(DDukeActor *actor, int drip)
 
 		if (s->zvel == 0)
 		{
-			s->cstat |= 32768;
+			s->cstat |= CSTAT_SPRITE_INVISIBLE;
 
 			if (s->pal != 2 && (isRR() || s->hitag == 0))
 				S_PlayActorSound(SOMETHING_DRIPPING, actor);
@@ -1405,7 +1405,7 @@ void rpgexplode(DDukeActor *actor, int hit, const vec3_t &pos, int EXPLOSION2, i
 			spawn(actor, EXPLOSION2BOT);
 		else
 		{
-			explosion->s->cstat |= 8;
+			explosion->s->cstat |= CSTAT_SPRITE_YFLIP;
 			explosion->s->z += (48 << 8);
 		}
 	}
@@ -2149,7 +2149,7 @@ void frameeffect1(DDukeActor *actor)
 			return;
 		}
 		else if (t[0] > 4) actor->s->cstat |= 512 + 2;
-		else if (t[0] > 2) actor->s->cstat |= 2;
+		else if (t[0] > 2) actor->s->cstat |= CSTAT_SPRITE_TRANSLUCENT;
 		actor->s->xoffset = Owner->s->xoffset;
 		actor->s->yoffset = Owner->s->yoffset;
 	}

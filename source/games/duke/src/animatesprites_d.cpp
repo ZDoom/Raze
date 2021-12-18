@@ -90,7 +90,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 			if (k > 4)
 			{
 				k = 8 - k;
-				t->cstat |= 4;
+				t->cstat |= CSTAT_SPRITE_XFLIP;
 			}
 			else t->cstat &= ~4;
 			t->picnum = s->picnum + k;
@@ -279,7 +279,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 			if (k > 6)
 			{
 				k = 12 - k;
-				t->cstat |= 4;
+				t->cstat |= CSTAT_SPRITE_XFLIP;
 			}
 			else t->cstat &= ~4;
 			t->picnum = RPG + k;
@@ -300,7 +300,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 			if (k > 6)
 			{
 				k = 12 - k;
-				t->cstat |= 4;
+				t->cstat |= CSTAT_SPRITE_XFLIP;
 			}
 			else t->cstat &= ~4;
 
@@ -317,7 +317,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 
 			if (ps[p].over_shoulder_on > 0 && ps[p].newOwner == nullptr)
 			{
-				t->cstat |= 2;
+				t->cstat |= CSTAT_SPRITE_TRANSLUCENT;
 #if 0 // multiplayer only
 				if (screenpeek == myconnectindex && numplayers >= 2)
 				{
@@ -391,7 +391,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 					if (k > 4)
 					{
 						k = 8 - k;
-						t->cstat |= 4;
+						t->cstat |= CSTAT_SPRITE_XFLIP;
 					}
 					else t->cstat &= ~4;
 				}
@@ -518,7 +518,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 					k = (((s->ang + 3072 + 128 - a) & 2047) >> 7) & 7;
 					if (k > 3)
 					{
-						t->cstat |= 4;
+						t->cstat |= CSTAT_SPRITE_XFLIP;
 						k = 7 - k;
 					}
 					else t->cstat &= ~4;
@@ -530,7 +530,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 					if (k > 4)
 					{
 						k = 8 - k;
-						t->cstat |= 4;
+						t->cstat |= CSTAT_SPRITE_XFLIP;
 					}
 					else t->cstat &= ~4;
 					break;
@@ -540,7 +540,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 					if (k > 6)
 					{
 						k = 12 - k;
-						t->cstat |= 4;
+						t->cstat |= CSTAT_SPRITE_XFLIP;
 					}
 					else t->cstat &= ~4;
 					break;
@@ -565,7 +565,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 					h->dispicnum = t->picnum;
 			}
 			else if (display_mirror == 1)
-				t->cstat |= 4;
+				t->cstat |= CSTAT_SPRITE_XFLIP;
 		}
 
 		if (s->statnum == STAT_DUMMYPLAYER || badguy(s) || (s->picnum == APLAYER && h->GetOwner()))
@@ -597,7 +597,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 							shadowspr->yrepeat = (t->yrepeat >> 3);
 							if (t->yrepeat < 4) t->yrepeat = 4;
 							shadowspr->shade = 127;
-							shadowspr->cstat |= 2;
+							shadowspr->cstat |= CSTAT_SPRITE_TRANSLUCENT;
 
 							shadowspr->z = daz;
 							shadowspr->pal = 4;
@@ -682,7 +682,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 			if (k > 4)
 			{
 				k = 8 - k;
-				t->cstat |= 4;
+				t->cstat |= CSTAT_SPRITE_XFLIP;
 			}
 			else t->cstat &= ~4;
 		}
@@ -739,7 +739,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 			if (k > 4)
 			{
 				k = 8 - k;
-				t->cstat |= 4;
+				t->cstat |= CSTAT_SPRITE_XFLIP;
 			}
 			else t->cstat &= ~4;
 			t->picnum = s->picnum + k;

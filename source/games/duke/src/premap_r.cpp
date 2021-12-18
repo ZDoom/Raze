@@ -581,7 +581,7 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 			break;
 
 		case RRTILE67:
-			si->cstat |= 32768;
+			si->cstat |= CSTAT_SPRITE_INVISIBLE;
 			break;
 
 		case SOUNDFX:

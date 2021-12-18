@@ -209,7 +209,7 @@ void AIAnim::Tick(RunListEvent* ev)
             pActor->nIndex = 0;
             pActor->nIndex2 = nMagicSeq;
             pActor->nAction |= 0x10;
-            pSprite->cstat |= 2;
+            pSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
         }
         else if (nIndex2 == nSavePointSeq)
         {

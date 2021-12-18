@@ -414,7 +414,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
 			sprx = spr->x;
 			spry = spr->y;
 
-			if ((spr->cstat & 257) != 0) switch (spr->cstat & 48)
+			if ((spr->cstat & CSTAT_SPRITE_BLOCK_ALL) != 0) switch (spr->cstat & 48)
 			{
 			case 0:
 				//break;

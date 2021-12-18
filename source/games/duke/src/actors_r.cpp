@@ -272,7 +272,7 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 			auto spri2 = act2->s;
 			if (x == 0 || x >= 5 || AFLAMABLE(spri2->picnum))
 			{
-				if (spri2->cstat & 257)
+				if (spri2->cstat & CSTAT_SPRITE_BLOCK_ALL)
 					if (dist(actor, act2) < r)
 					{
 						if (badguy(act2) && !cansee(spri2->x, spri2->y, spri2->z + q, spri2->sector(), spri->x, spri->y, spri->z + q, spri->sector()))
@@ -282,7 +282,7 @@ void hitradius_r(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 						fi.checkhitsprite(act2, actor);
 					}
 			}
-			else if (spri2->extra >= 0 && act2 != actor && (badguy(act2) || spri2->picnum == QUEBALL || spri2->picnum == BOWLINGPIN || spri2->picnum == STRIPEBALL || (spri2->cstat & 257) || spri2->picnum == DUKELYINGDEAD))
+			else if (spri2->extra >= 0 && act2 != actor && (badguy(act2) || spri2->picnum == QUEBALL || spri2->picnum == BOWLINGPIN || spri2->picnum == STRIPEBALL || (spri2->cstat & CSTAT_SPRITE_BLOCK_ALL) || spri2->picnum == DUKELYINGDEAD))
 			{
 				if (spri->picnum == MORTER && act2 == Owner)
 				{
@@ -760,7 +760,7 @@ void respawn_rrra(DDukeActor* oldact, DDukeActor* newact)
 
 	if (newspr->pal == 8)
 	{
-		newspr->cstat |= 2;
+		newspr->cstat |= CSTAT_SPRITE_TRANSLUCENT;
 	}
 
 	if (newspr->pal != 6)
@@ -807,7 +807,7 @@ void movefallers_r(void)
 								ac2->temp_data[0] = 1;
 								ac2->s->cstat &= (65535 - 64);
 								if (ac2->s->picnum == CEILINGSTEAM || ac2->s->picnum == STEAM)
-									ac2->s->cstat |= 32768;
+									ac2->s->cstat |= CSTAT_SPRITE_INVISIBLE;
 							}
 						}
 					}
@@ -1472,7 +1472,7 @@ static void weaponcommon_r(DDukeActor *proj)
 					{
 						if (s->zvel < 0)
 						{
-							k->s->cstat |= 8;
+							k->s->cstat |= CSTAT_SPRITE_YFLIP;
 							k->s->z += (72 << 8);
 						}
 					}
@@ -3383,7 +3383,7 @@ void handle_se06_r(DDukeActor *actor)
 					if (ns)
 					{
 						ns->s->cstat = 0;
-						ns->s->cstat |= 32768;
+						ns->s->cstat |= CSTAT_SPRITE_INVISIBLE;
 						ns->s->z = s->sector()->floorz - 6144;
 					}
 					deletesprite(actor);

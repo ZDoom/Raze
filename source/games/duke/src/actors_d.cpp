@@ -328,7 +328,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 			
 			if (x == 0 || x >= 5 || AFLAMABLE(spri2->picnum))
 			{
-				if (spri->picnum != SHRINKSPARK || (spri2->cstat & 257))
+				if (spri->picnum != SHRINKSPARK || (spri2->cstat & CSTAT_SPRITE_BLOCK_ALL))
 					if (dist(actor, act2) < r)
 					{
 						if (badguy(act2) && !cansee(spri2->x, spri2->y, spri2->z + q, spri2->sector(), spri->x, spri->y, spri->z + q, spri->sector()))
@@ -336,7 +336,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 						fi.checkhitsprite(act2, actor);
 					}
 			}
-			else if (spri2->extra >= 0 && act2 != actor && (spri2->picnum == TRIPBOMB || badguy(act2) || spri2->picnum == QUEBALL || spri2->picnum == STRIPEBALL || (spri2->cstat & 257) || spri2->picnum == DUKELYINGDEAD))
+			else if (spri2->extra >= 0 && act2 != actor && (spri2->picnum == TRIPBOMB || badguy(act2) || spri2->picnum == QUEBALL || spri2->picnum == STRIPEBALL || (spri2->cstat & CSTAT_SPRITE_BLOCK_ALL) || spri2->picnum == DUKELYINGDEAD))
 			{
 				if (spri->picnum == SHRINKSPARK && spri2->picnum != SHARK && (act2 == Owner || spri2->xrepeat < 24))
 				{
@@ -871,7 +871,7 @@ void movefallers_d(void)
 								a2->temp_data[0] = 1;
 								a2->s->cstat &= (65535 - 64);
 								if (a2->s->picnum == CEILINGSTEAM || a2->s->picnum == STEAM)
-									a2->s->cstat |= 32768;
+									a2->s->cstat |= CSTAT_SPRITE_INVISIBLE;
 							}
 						}
 					}
@@ -1798,7 +1798,7 @@ static void weaponcommon_d(DDukeActor* proj)
 					{
 						if (s->zvel < 0)
 						{
-							k->s->cstat |= 8; k->s->z += (72 << 8);
+							k->s->cstat |= CSTAT_SPRITE_YFLIP; k->s->z += (72 << 8);
 						}
 					}
 				}
@@ -2547,7 +2547,7 @@ static void greenslime(DDukeActor *actor)
 		}
 		else
 		{
-			s->cstat |= 8;
+			s->cstat |= CSTAT_SPRITE_YFLIP;
 			makeitfall(actor);
 		}
 
@@ -3140,9 +3140,9 @@ static void fireflyflyingeffect(DDukeActor *actor)
 	}
 
 	if (Owner->s->xrepeat >= 24 || Owner->s->pal == 1)
-		actor->s->cstat |= 0x8000;
+		actor->s->cstat |= CSTAT_SPRITE_INVISIBLE;
 	else
-		actor->s->cstat &= ~0x8000;
+		actor->s->cstat &= ~CSTAT_SPRITE_INVISIBLE;
 
 	double dx = Owner->s->x - ps[p].GetActor()->s->x;
 	double dy = Owner->s->y - ps[p].GetActor()->s->y;
@@ -3451,7 +3451,7 @@ static void handle_se28(DDukeActor* actor)
 			while (auto act2 = it.Next())
 			{
 				if (act2->s->picnum == NATURALLIGHTNING && act2->s->hitag == s->hitag)
-					act2->s->cstat |= 32768;
+					act2->s->cstat |= CSTAT_SPRITE_INVISIBLE;
 			}
 		}
 		else if (t[2] > (t[1] >> 3) && t[2] < (t[1] >> 2))
@@ -3488,7 +3488,7 @@ static void handle_se28(DDukeActor* actor)
 						}
 						return;
 					}
-					else act2->s->cstat |= 32768;
+					else act2->s->cstat |= CSTAT_SPRITE_INVISIBLE;
 				}
 			}
 		}

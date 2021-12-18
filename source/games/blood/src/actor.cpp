@@ -2724,7 +2724,7 @@ static void actNapalmMove(DBloodActor* actor)
 
 	actPostSprite(actor, kStatDecoration);
 	seqSpawn(9, actor);
-	if (Chance(0x8000)) pSprite->cstat |= 4;
+	if (Chance(0x8000)) pSprite->cstat |= CSTAT_SPRITE_XFLIP;
 
 	sfxPlay3DSound(actor, 303, 24 + (pSprite->flags & 3), 1);
 	actRadiusDamage(pOwner, pSprite->x, pSprite->y, pSprite->z, pSprite->sector(), 128, 0, 60, kDamageExplode, 15, 120);
@@ -5467,7 +5467,7 @@ void actExplodeSprite(DBloodActor* actor)
 	case kMissileFireballNapalm:
 		nType = kExplosionNapalm;
 		seqSpawn(4, actor, -1);
-		if (Chance(0x8000)) pSprite->cstat |= 4;
+		if (Chance(0x8000)) pSprite->cstat |= CSTAT_SPRITE_XFLIP;
 		sfxPlay3DSound(actor, 303, -1, 0);
 		GibSprite(actor, GIBTYPE_5, nullptr, nullptr);
 		break;
@@ -5475,7 +5475,7 @@ void actExplodeSprite(DBloodActor* actor)
 	case kMissileFlareAlt:
 		nType = kExplosionFireball;
 		seqSpawn(9, actor, -1);
-		if (Chance(0x8000)) pSprite->cstat |= 4;
+		if (Chance(0x8000)) pSprite->cstat |= CSTAT_SPRITE_XFLIP;
 		sfxPlay3DSound(actor, 306, 24 + (actor->GetIndex() & 3), FX_GlobalChannel);
 		GibSprite(actor, GIBTYPE_5, nullptr, nullptr);
 		break;
@@ -5582,7 +5582,7 @@ void actExplodeSprite(DBloodActor* actor)
 	default:
 		nType = kExplosionStandard;
 		seqSpawn(4, actor, -1);
-		if (Chance(0x8000)) pSprite->cstat |= 4;
+		if (Chance(0x8000)) pSprite->cstat |= CSTAT_SPRITE_XFLIP;
 		sfxPlay3DSound(actor, 303, -1, 0);
 		GibSprite(actor, GIBTYPE_5, nullptr, nullptr);
 		break;
@@ -6785,7 +6785,7 @@ bool actCheckRespawn(DBloodActor* actor)
 		if (pSprite->type >= kThingBase && pSprite->type < kThingMax)
 		{
 			pXSprite->respawnPending = 3;
-			if (pSprite->type == kThingTNTBarrel) pSprite->cstat |= 32768;
+			if (pSprite->type == kThingTNTBarrel) pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
 		}
 		if (nRespawnTime > 0)
 		{

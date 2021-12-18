@@ -102,7 +102,7 @@ void quickkill(struct player_struct* p)
 
 	auto pa = p->GetActor();
 	pa->s->extra = 0;
-	pa->s->cstat |= 32768;
+	pa->s->cstat |= CSTAT_SPRITE_INVISIBLE;
 	if (ud.god == 0) fi.guts(pa, TILE_JIBS6, 8, myconnectindex);
 	return;
 }

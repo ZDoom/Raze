@@ -628,7 +628,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 	int d, clostest = 0;
 
 	sp->yvel = sectp->extra;
-	sp->cstat |= 32768;
+	sp->cstat |= CSTAT_SPRITE_INVISIBLE;
 	sp->xrepeat = sp->yrepeat = 0;
 
 	switch (sp->lotag)
