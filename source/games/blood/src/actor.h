@@ -72,7 +72,7 @@ struct THINGINFO
     int16_t flags;
     int32_t elastic; // elasticity
     int32_t dmgResist; // damage resistance
-    int16_t cstat;
+    ESpriteFlags cstat;
     int16_t picnum;
     int8_t shade;
     uint8_t pal;

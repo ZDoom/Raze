@@ -879,7 +879,7 @@ void JAnalyzeSprites(tspriteptr_t tspr)
 
             if (!r_voxels || (tspr->ownerActor->sx().flags & SPREXT_NOTMD))
             {
-                tspr->cstat |= 16;
+                tspr->cstat |= CSTAT_SPRITE_ALIGNMENT_WALL;
                 break;
             }
 

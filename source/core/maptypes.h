@@ -139,12 +139,16 @@ enum ESpriteBits // names mostly from SW.
 	CSTAT_SPRITE_TRANS_FLIP			= 512,			//   bit 9: 1 = Transluscence reversing, 0 = normal                  "T"
 
 	CSTAT_SPRITE_BLOCK_ALL			= CSTAT_SPRITE_BLOCK_HITSCAN | CSTAT_SPRITE_BLOCK, // 257
+	CSTAT_SPRITE_INVISIBLE = 32768,		//   bit 15: 1 = Invisible sprite, 0 = not invisible
 
-	CSTAT_SPRITE_RESTORE			= 1<<12, // SW specific
-	CSTAT_SPRITE_CLOSE_FLOOR		= 1<<13, // SW specific - tells whether a sprite started out close to a ceiling or floor
-	CSTAT_SPRITE_BLOCK_MISSILE		= 1<<14, // SW specific
+	// SW flags
+	CSTAT_SPRITE_RESTORE			= 1<<12, 
+	CSTAT_SPRITE_CLOSE_FLOOR		= 1<<13, //tells whether a sprite started out close to a ceiling or floor
+	CSTAT_SPRITE_BLOCK_MISSILE		= 1<<14, 
 	CSTAT_SPRITE_BREAKABLE			= CSTAT_SPRITE_BLOCK_HITSCAN|CSTAT_SPRITE_BLOCK_MISSILE,
-	CSTAT_SPRITE_INVISIBLE			= 32768,		//   bit 15: 1 = Invisible sprite, 0 = not invisible
+
+	// Blood flags
+	CSTAT_SPRITE_BLOOD_BIT1			= 4096,
 };
 
 typedef TFlags<ESpriteBits, uint16_t> ESpriteFlags;

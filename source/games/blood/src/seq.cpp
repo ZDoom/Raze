@@ -274,9 +274,9 @@ void UpdateSprite(DBloodActor* actor, SEQFRAME* pFrame)
 	else
 		pSprite->cstat &= ~512;
 	if (pFrame->blockable)
-		pSprite->cstat |= 1;
+		pSprite->cstat |= CSTAT_SPRITE_BLOCK;
 	else
-		pSprite->cstat &= ~1;
+		pSprite->cstat &= ~CSTAT_SPRITE_BLOCK;
 	if (pFrame->hittable)
 		pSprite->cstat |= 256;
 	else

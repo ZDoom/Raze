@@ -1651,7 +1651,7 @@ const THINGINFO thingInfo[] = {
 		11,
 		4096,
 		80,
-		384,
+		CSTAT_SPRITE_YCENTER | CSTAT_SPRITE_BLOCK_HITSCAN,
 		907,
 		0,
 		0,
@@ -1668,7 +1668,7 @@ const THINGINFO thingInfo[] = {
 		3,
 		24576,
 		1600,
-		256,
+		CSTAT_SPRITE_BLOCK_HITSCAN,
 		3444,
 		-16,
 		0,
@@ -1684,7 +1684,7 @@ const THINGINFO thingInfo[] = {
 		3,
 		24576,
 		1600,
-		256,
+		CSTAT_SPRITE_BLOCK_HITSCAN,
 		3457,
 		-16,
 		0,
@@ -1940,7 +1940,7 @@ const THINGINFO thingInfo[] = {
 		3,
 		24576,
 		1600,
-		256,
+		CSTAT_SPRITE_BLOCK_HITSCAN,
 		3422,
 		-32,
 		0,
@@ -1956,7 +1956,7 @@ const THINGINFO thingInfo[] = {
 		3,
 		24576,
 		1600,
-		256,
+		CSTAT_SPRITE_BLOCK_HITSCAN,
 		3433,
 		-32,
 		0,
@@ -1972,7 +1972,7 @@ const THINGINFO thingInfo[] = {
 		3,
 		32768,
 		1600,
-		256,
+		CSTAT_SPRITE_BLOCK_HITSCAN,
 		3467,
 		-128,
 		0,
@@ -1988,7 +1988,7 @@ const THINGINFO thingInfo[] = {
 		3,
 		32768,
 		1600,
-		256,
+		CSTAT_SPRITE_BLOCK_HITSCAN,
 		1462,
 		0,
 		0,
@@ -2004,7 +2004,7 @@ const THINGINFO thingInfo[] = {
 		11,
 		32768,
 		1600,
-		256,
+		CSTAT_SPRITE_BLOCK_HITSCAN,
 		-1,
 		0,
 		0,
@@ -2052,7 +2052,7 @@ const THINGINFO thingInfo[] = {
 		3,
 		24576,
 		0,
-		257,
+		CSTAT_SPRITE_BLOCK_ALL,
 		-1,
 		0,
 		0,
@@ -2068,7 +2068,7 @@ const THINGINFO thingInfo[] = {
 		3,
 		8192,
 		0,
-		257,
+		CSTAT_SPRITE_BLOCK_ALL,
 		-1,
 		0,
 		0,
@@ -2084,7 +2084,7 @@ const THINGINFO thingInfo[] = {
 		3,
 		40960,
 		1280,
-		257,
+		CSTAT_SPRITE_BLOCK_ALL,
 		3405,
 		0,
 		0,
@@ -2100,7 +2100,7 @@ const THINGINFO thingInfo[] = {
 		3,
 		57344,
 		1600,
-		256,
+		CSTAT_SPRITE_BLOCK_HITSCAN,
 		3281,
 		-128,
 		0,
@@ -2116,7 +2116,7 @@ const THINGINFO thingInfo[] = {
 		3,
 		57344,
 		1600,
-		256,
+		CSTAT_SPRITE_BLOCK_HITSCAN,
 		2020,
 		-128,
 		0,
@@ -2132,7 +2132,7 @@ const THINGINFO thingInfo[] = {
 		3,
 		57344,
 		1600,
-		256,
+		CSTAT_SPRITE_BLOCK_HITSCAN,
 		1860,
 		-128,
 		0,
@@ -2148,7 +2148,7 @@ const THINGINFO thingInfo[] = {
 		3,
 		32768,
 		1600,
-		257,
+		CSTAT_SPRITE_BLOCK_ALL,
 		800,
 		-128,
 		0,
@@ -2180,7 +2180,7 @@ const THINGINFO thingInfo[] = {
 		3,
 		24576,
 		1600,
-		256,
+		CSTAT_SPRITE_BLOCK_HITSCAN,
 		3444,
 		-16,
 		7,
@@ -2196,7 +2196,7 @@ const THINGINFO thingInfo[] = {
 		3,
 		32768,
 		1600,
-		256,
+		CSTAT_SPRITE_BLOCK_HITSCAN,
 		1462,
 		0,
 		0,
@@ -2212,7 +2212,7 @@ const THINGINFO thingInfo[] = {
 		3,
 		32768,
 		1600,
-		257,
+		CSTAT_SPRITE_BLOCK_ALL,
 		800,
 		-128,
 		0,
@@ -2354,7 +2354,7 @@ static void actInitTraps()
 		spritetype* pSprite = &act->s();
 		if (pSprite->type == kTrapExploder)
 		{
-			pSprite->cstat &= ~1;
+			pSprite->cstat &= ~CSTAT_SPRITE_BLOCK;
 			pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
 			if (!act->hasX()) continue;
 			auto x = &act->x();
@@ -2474,7 +2474,7 @@ static void actInitDudes()
 				{
 				case kDudeModernCustom:
 				case kDudeModernCustomBurning:
-					pSprite->cstat |= 4096 + CSTAT_SPRITE_BLOCK_HITSCAN + CSTAT_SPRITE_BLOCK;
+					pSprite->cstat |= CSTAT_SPRITE_BLOOD_BIT1 | CSTAT_SPRITE_BLOCK_HITSCAN | CSTAT_SPRITE_BLOCK;
 					seqStartId = genDudeSeqStartId(act); //  Custom Dude stores its SEQ in data2
 					pXSprite->sysData1 = pXSprite->data3; // move sndStartId to sysData1, because data3 used by the game;
 					pXSprite->data3 = 0;
@@ -2485,12 +2485,12 @@ static void actInitDudes()
 					[[fallthrough]];
 				default:
 					pSprite->clipdist = dudeInfo[nType].clipdist;
-					pSprite->cstat |= 4096 + CSTAT_SPRITE_BLOCK_HITSCAN + CSTAT_SPRITE_BLOCK;
+					pSprite->cstat |= CSTAT_SPRITE_BLOOD_BIT1 | CSTAT_SPRITE_BLOCK_HITSCAN | CSTAT_SPRITE_BLOCK;
 					break;
 				}
 #else
 				pSprite->clipdist = dudeInfo[nType].clipdist;
-				pSprite->cstat |= 4096 + CSTAT_SPRITE_BLOCK_HITSCAN + CSTAT_SPRITE_BLOCK;
+				pSprite->cstat |= CSTAT_SPRITE_BLOOD_BIT1 | CSTAT_SPRITE_BLOCK_HITSCAN | CSTAT_SPRITE_BLOCK;
 #endif
 
 				act->xvel = act->yvel = act->zvel = 0;
@@ -4096,7 +4096,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 
 	case kMissileButcherKnife:
 		actPostSprite(missileActor, kStatDebris);
-		pMissile->cstat &= ~16;
+		pMissile->cstat &= ~CSTAT_SPRITE_ALIGNMENT_WALL;
 		pMissile->type = kSpriteDecoration;
 		seqSpawn(20, missileActor, -1);
 		if (hitCode == 3 && actorHit && actorHit->hasX())
@@ -4779,7 +4779,7 @@ static Collision MoveThing(DBloodActor* actor)
 		{
 			auto hitActor = coll.actor();
 			auto hitSpr = &hitActor->s();
-			if ((hitSpr->cstat & 0x30) == 0)
+			if ((hitSpr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FACING)
 			{
 				actor->xvel += MulScale(4, pSprite->x - hitSpr->x, 2);
 				actor->yvel += MulScale(4, pSprite->y - hitSpr->y, 2);
@@ -5265,7 +5265,7 @@ void MoveDude(DBloodActor* actor)
 		if (floorColl.type == kHitSprite)
 		{
 			auto hitAct = floorColl.actor();
-			if ((hitAct->s().cstat & 0x30) == 0)
+			if ((hitAct->s().cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FACING)
 			{
 				actor->xvel += MulScale(4, pSprite->x - hitAct->s().x, 2);
 				actor->yvel += MulScale(4, pSprite->y - hitAct->s().y, 2);
@@ -5298,12 +5298,12 @@ int MoveMissile(DBloodActor* actor)
 	auto pSprite = &actor->s();
 	auto Owner = actor->GetOwner();
 	int cliptype = -1;
-	int bakCstat = 0;
+	ESpriteFlags bakCstat = 0;
 	spritetype* pOwner = nullptr;
 	if (Owner && Owner->IsDudeActor())
 	{
 		pOwner = &Owner->s();
-		bakCstat = pOwner->cstat;
+		bakCstat = ESpriteFlags::FromInt(pOwner->cstat);
 		pOwner->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 	}
 	gHitInfo.clearObj();
@@ -5709,7 +5709,7 @@ static void actCheckProximity()
 							{
 							case kThingDroppedLifeLeech:
 								if (!Chance(0x4000) && nextdude) continue;
-								if (pSprite2->cstat & CLIPMASK0) actor->SetTarget(dudeactor);
+								if (pSprite2->cstat & CSTAT_SPRITE_BLOCK) actor->SetTarget(dudeactor);
 								else continue;
 								break;
 
@@ -6396,7 +6396,7 @@ DBloodActor* actSpawnDude(DBloodActor* source, int nType, int a3, int a4)
 	pSprite2->ang = angle;
 	vec3_t pos = { x, y, z };
     SetActor(spawned, &pos);
-	pSprite2->cstat |= 0x1101;
+	pSprite2->cstat |= CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_BLOOD_BIT1;
 	pSprite2->clipdist = getDudeInfo(nDude + kDudeBase)->clipdist;
 	pXSprite2->health = getDudeInfo(nDude + kDudeBase)->startHealth << 4;
 	pXSprite2->respawn = 1;
@@ -6587,7 +6587,7 @@ void actBuildMissile(DBloodActor* spawned, DBloodActor* actor)
 		seqSpawn(29, spawned, -1);
 		break;
 	case kMissileButcherKnife:
-		pMissile->cstat |= 16;
+		pMissile->cstat |= CSTAT_SPRITE_ALIGNMENT_WALL;
 		break;
 	case kMissileTeslaRegular:
 		sfxPlay3DSound(spawned, 251, 0, 0);
@@ -6695,7 +6695,7 @@ DBloodActor* actFireMissile(DBloodActor* actor, int a2, int a3, int a4, int a5, 
 	spawned->yvel = MulScale(pMissileInfo->velocity, a5, 14);
 	spawned->zvel = MulScale(pMissileInfo->velocity, a6, 14);
 	spawned->SetOwner(actor);
-	pMissile->cstat |= 1;
+	pMissile->cstat |= CSTAT_SPRITE_BLOCK;
 	spawned->SetTarget(nullptr);
 	evPostActor(spawned, 600, kCallbackRemove);
 
@@ -6900,7 +6900,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 					if (pFX)
 					{
 						pFX->s().ang = (GetWallAngle(pWall) + 512) & 2047;
-						pFX->s().cstat |= 16;
+						pFX->s().cstat |= CSTAT_SPRITE_ALIGNMENT_WALL;
 					}
 				}
 			}
@@ -7005,7 +7005,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 								{
 									pFX->zvel = 0x2222;
 									pFX->s().ang = (GetWallAngle(pWall) + 512) & 2047;
-									pFX->s().cstat |= 16;
+									pFX->s().cstat |= CSTAT_SPRITE_ALIGNMENT_WALL;
 								}
 							}
 						}
