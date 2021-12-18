@@ -577,7 +577,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		break;
 	case BULLETHOLE:
 		sp->xrepeat = sp->yrepeat = 3;
-		sp->cstat = 16 + (krand() & 12);
+		sp->cstat = CSTAT_SPRITE_ALIGNMENT_WALL + (krand() & 12);
 		insertspriteq(act);
 		[[fallthrough]];
 	case MONEY:
@@ -622,7 +622,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		{
 			sp->ang = spj->ang;
 			sp->shade = -64;
-			sp->cstat = 128 | (krand() & 4);
+			sp->cstat = CSTAT_SPRITE_YCENTER | (krand() & 4);
 		}
 
 		if (sp->picnum == EXPLOSION2)
@@ -1361,7 +1361,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (spj)
 		{
 			sp->ang = spj->ang;
-			sp->cstat = 16 + 128 + 2;
+			sp->cstat = CSTAT_SPRITE_ALIGNMENT_WALL + 128 + 2;
 			sp->xrepeat = sp->yrepeat = 1;
 			sp->xvel = -8;
 			ssp(act, CLIPMASK0);

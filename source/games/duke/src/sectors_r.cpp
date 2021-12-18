@@ -2187,7 +2187,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 
 	case FANSPRITE:
 		s->picnum = FANSPRITEBROKE;
-		s->cstat &= (65535 - 257);
+		s->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		for (j = 0; j < 16; j++) RANDOMSCRAP(targ);
 
@@ -2304,13 +2304,13 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 
 	case GRATE1:
 		s->picnum = BGRATE1;
-		s->cstat &= (65535 - 256 - 1);
+		s->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 		S_PlayActorSound(VENT_BUST, targ);
 		break;
 
 	case CIRCLEPANNEL:
 		s->picnum = CIRCLEPANNELBROKE;
-		s->cstat &= (65535 - 256 - 1);
+		s->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 		S_PlayActorSound(VENT_BUST, targ);
 		break;
 

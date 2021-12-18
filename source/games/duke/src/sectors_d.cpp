@@ -1136,7 +1136,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 
 	case FANSPRITE:
 		s->picnum = FANSPRITEBROKE;
-		s->cstat &= (65535 - 257);
+		s->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 		if (s->sector()->floorpicnum == FANSHADOW)
 			s->sector()->floorpicnum = FANSHADOWBROKE;
 
@@ -1244,7 +1244,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		break;
 
 	case BROKEHYDROPLANT:
-		if (s->cstat & 1)
+		if (s->cstat & CSTAT_SPRITE_BLOCK)
 		{
 			S_PlayActorSound(GLASS_BREAKING, targ);
 			s->z += 16 << 8;
@@ -1277,24 +1277,24 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 
 	case GRATE1:
 		s->picnum = BGRATE1;
-		s->cstat &= (65535 - 256 - 1);
+		s->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 		S_PlayActorSound(VENT_BUST, targ);
 		break;
 
 	case CIRCLEPANNEL:
 		s->picnum = CIRCLEPANNELBROKE;
-		s->cstat &= (65535 - 256 - 1);
+		s->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 		S_PlayActorSound(VENT_BUST, targ);
 		break;
 	case PANNEL1:
 	case PANNEL2:
 		s->picnum = BPANNEL1;
-		s->cstat &= (65535 - 256 - 1);
+		s->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 		S_PlayActorSound(VENT_BUST, targ);
 		break;
 	case PANNEL3:
 		s->picnum = BPANNEL3;
-		s->cstat &= (65535 - 256 - 1);
+		s->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 		S_PlayActorSound(VENT_BUST, targ);
 		break;
 	case PIPE1:
@@ -1421,7 +1421,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 
 				if (s->picnum != TANK && !bossguy(targ) && s->picnum != RECON && s->picnum != ROTATEGUN)
 				{
-					if ((s->cstat & 48) == 0)
+					if ((s->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == 0)
 						s->ang = (pspr->ang + 1024) & 2047;
 					s->xvel = -(pspr->extra << 2);
 					auto sp = s->sector();

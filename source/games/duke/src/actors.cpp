@@ -1521,8 +1521,8 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 		if (s->picnum == stripeball)
 		{
 			s->cstat = CSTAT_SPRITE_BLOCK_ALL;
-			s->cstat |= 4 & s->xvel;
-			s->cstat |= 8 & s->xvel;
+			s->cstat |= CSTAT_SPRITE_XFLIP & s->xvel;
+			s->cstat |= CSTAT_SPRITE_YFLIP & s->xvel;
 		}
 	}
 	else

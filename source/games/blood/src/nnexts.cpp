@@ -6288,7 +6288,7 @@ void useUniMissileGen(DBloodActor* sourceactor, DBloodActor* actor)
     if (pXSource->data1 < kMissileBase || pXSource->data1 >= kMissileMax)
         return;
 
-    if (pSprite->cstat & 32) 
+    if (pSprite->cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR) 
     {
         if (pSprite->cstat & CSTAT_SPRITE_YFLIP) dz = 0x4000;
         else dz = -0x4000;

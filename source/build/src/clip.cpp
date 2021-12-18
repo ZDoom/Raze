@@ -628,7 +628,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
                             addclipline(p1.x+v.x, p1.y+v.y, p2.x+v.y, p2.y-v.x, obj, false);
                         else
                         {
-                            if ((cstat & 64) != 0)
+                            if ((cstat & CSTAT_SPRITE_ONE_SIDE) != 0)
                                 continue;
                             addclipline(p2.x-v.x, p2.y-v.y, p1.x-v.y, p1.y+v.x, obj, false);
                         }
@@ -647,8 +647,8 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
             {
                 if (pos->z > spr->z-flordist && pos->z < spr->z+ceildist)
                 {
-                    if ((cstat&64) != 0)
-                        if ((pos->z > spr->z) == ((cstat&8)==0))
+                    if ((cstat & CSTAT_SPRITE_ONE_SIDE) != 0)
+                        if ((pos->z > spr->z) == ((cstat & CSTAT_SPRITE_YFLIP)==0))
                             continue;
 
                     rxi[0] = p1.x;
@@ -1098,7 +1098,7 @@ void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBas
                     {
                         daz = spr->z; daz2 = daz;
 
-                        if ((cstat&64) != 0 && (pos.z > daz) == ((cstat&8)==0))
+                        if ((cstat & CSTAT_SPRITE_ONE_SIDE) != 0 && (pos.z > daz) == ((cstat & CSTAT_SPRITE_YFLIP)==0))
                             continue;
 
                         vec2_t v2, v3, v4;
@@ -1335,7 +1335,7 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
                     continue;
 
             x1 = spr->x; y1 = spr->y; z1 = spr->z;
-            switch (cstat&CSTAT_SPRITE_ALIGNMENT)
+            switch (cstat&CSTAT_SPRITE_ALIGNMENT_MASK)
             {
             case 0:
             {
@@ -1356,7 +1356,7 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
 
                 get_wallspr_points(spr, &x1, &x2, &y1, &y2);
 
-                if ((cstat&64) != 0)   //back side of 1-way sprite
+                if ((cstat & CSTAT_SPRITE_ONE_SIDE) != 0)   //back side of 1-way sprite
                     if (compat_maybe_truncate_to_int32((coord_t)(x1-sv->x)*(y2-sv->y))
                         < compat_maybe_truncate_to_int32((coord_t)(x2-sv->x)*(y1-sv->y))) continue;
 
@@ -1398,8 +1398,8 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
 
                 if (vz == 0 || ((intz-sv->z)^vz) < 0) continue;
 
-                if ((cstat&64) != 0)
-                    if ((sv->z > intz) == ((cstat&8)==0)) continue;
+                if ((cstat & CSTAT_SPRITE_ONE_SIDE) != 0)
+                    if ((sv->z > intz) == ((cstat & CSTAT_SPRITE_YFLIP)==0)) continue;
 
                 // avoid overflow errors by using 64 bit math.
                 intx = int(sv->x + (int64_t(intz) - sv->z) * vx / vz);

@@ -1194,7 +1194,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
     }
     if (globalorientation&4) { m0.Y = -m0.Y; m1.Y = -m1.Y; a0.Y = -a0.Y; } //x-flipping
 
-    // yoffset differs from zadd in that it does not follow cstat&8 y-flipping
+    // yoffset differs from zadd in that it does not follow cstat & CSTAT_SPRITE_YFLIP y-flipping
     a0.Z += m->yoffset*m->scale;
 
     f = ((float)tspr->xrepeat) * (1.f/64.f) * m->bscale;
@@ -1252,10 +1252,10 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
     // tinting
     pc[0] = pc[1] = pc[2] = ((float)numshades - min(max((globalshade * hw_shadescale) + m->shadeoff, 0.f), (float)numshades)) / (float)numshades;
 
-    pc[3] = (tspr->cstat&2) ? glblend[tspr->blend].def[!!(tspr->cstat&512)].alpha : 1.0f;
+    pc[3] = (tspr->cstat & CSTAT_SPRITE_TRANSLUCENT) ? glblend[tspr->blend].def[!!(tspr->cstat&512)].alpha : 1.0f;
     pc[3] *= 1.0f - sext->alpha;
 
-    SetRenderStyleFromBlend(!!(tspr->cstat & 2), tspr->blend, !!(tspr->cstat & 512));
+    SetRenderStyleFromBlend(!!(tspr->cstat & CSTAT_SPRITE_TRANSLUCENT), tspr->blend, !!(tspr->cstat & CSTAT_SPRITE_TRANS_FLIP));
 
     if (m->usesalpha) //Sprites with alpha in texture
     {
@@ -1266,7 +1266,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
     }
     else
     {
-        if ((tspr->cstat&2) || sext->alpha > 0.f || pc[3] < 1.0f)
+        if ((tspr->cstat & CSTAT_SPRITE_TRANSLUCENT) || sext->alpha > 0.f || pc[3] < 1.0f)
             GLInterface.EnableBlend(true); //else GLInterface.EnableBlend(false);
     }
     GLInterface.SetColor(pc[0],pc[1],pc[2],pc[3]);

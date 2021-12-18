@@ -805,7 +805,7 @@ void movefallers_r(void)
 							if (ac2->s->hitag == s->hitag)
 							{
 								ac2->temp_data[0] = 1;
-								ac2->s->cstat &= (65535 - 64);
+								ac2->s->cstat &= ~CSTAT_SPRITE_ONE_SIDE;
 								if (ac2->s->picnum == CEILINGSTEAM || ac2->s->picnum == STEAM)
 									ac2->s->cstat |= CSTAT_SPRITE_INVISIBLE;
 							}
@@ -951,7 +951,7 @@ CLEAR_THE_BOLT:
 	int l = global_random & 7;
 	s->xrepeat = l + 8;
 
-	if (l & 1) s->cstat ^= 2;
+	if (l & 1) s->cstat ^= CSTAT_SPRITE_TRANSLUCENT;
 
 	if (s->picnum == (BOLT1 + 1) && (krand() & 1) && sectp->floorpicnum == HURTRAIL)
 		S_PlayActorSound(SHORT_CIRCUIT, actor);
@@ -1260,7 +1260,7 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const vec3_t& oldpos)
 					{
 						j->s->xrepeat = 8;
 						j->s->yrepeat = 8;
-						j->s->cstat = 16;
+						j->s->cstat = CSTAT_SPRITE_ALIGNMENT_WALL;
 						j->s->ang = (j->s->ang + 512) & 2047;
 						j->s->clipdist = MulScale(s->xrepeat, tileWidth(s->picnum), 7);
 					}
@@ -2614,7 +2614,7 @@ static void heavyhbomb(DDukeActor *actor)
 
 		if (s->xvel < 0)
 			s->xvel = 0;
-		if (s->xvel & 8) s->cstat ^= 4;
+		if (s->xvel & 8) s->cstat ^= CSTAT_SPRITE_XFLIP;
 	}
 
 	if (coll.type == kHitWall)

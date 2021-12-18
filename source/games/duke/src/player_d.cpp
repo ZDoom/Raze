@@ -903,7 +903,7 @@ static void shootlaser(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 			S_PlayActorSound(LASERTRIP_ONWALL, bomb);
 			bomb->s->xvel = -20;
 			ssp(bomb, CLIPMASK0);
-			bomb->s->cstat = 16;
+			bomb->s->cstat = CSTAT_SPRITE_ALIGNMENT_WALL;
 			auto delta = hit.hitWall->delta();
 			bomb->temp_data[5] = bomb->s->ang = getangle(-delta.x, -delta.y) - 512;
 			

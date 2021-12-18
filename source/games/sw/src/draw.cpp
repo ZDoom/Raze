@@ -1718,7 +1718,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
                     spry = spr->interpolatedy(smoothratio);
                 }
 
-                switch (spr->cstat & 48)
+                switch (spr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
                 {
                 case 0:  // Regular sprite
                     if (Player[p].Actor() == actor)
@@ -1750,7 +1750,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
                             {
                                 DrawTexture(twod, tileGetTexture(1196 + pspr_ndx[myconnectindex], true), xx, yy, DTA_ScaleX, sc, DTA_ScaleY, sc, DTA_Rotate, daang * -BAngToDegree,
                                     DTA_CenterOffsetRel, 2, DTA_TranslationIndex, TRANSLATION(Translation_Remap, spr->pal), DTA_Color, shadeToLight(spr->shade),
-                                    DTA_Alpha, (spr->cstat & 2) ? 0.33 : 1., TAG_DONE);
+                                    DTA_Alpha, (spr->cstat & CSTAT_SPRITE_TRANSLUCENT) ? 0.33 : 1., TAG_DONE);
                             }
                         }
                     }

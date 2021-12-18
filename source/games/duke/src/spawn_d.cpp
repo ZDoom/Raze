@@ -240,9 +240,9 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		sp->xrepeat = 32;
 
 		if (gs.lasermode == 1)
-			sp->cstat = 16 + 2;
+			sp->cstat = CSTAT_SPRITE_ALIGNMENT_WALL + 2;
 		else if (gs.lasermode == 0 || gs.lasermode == 2)
-			sp->cstat = 16;
+			sp->cstat = CSTAT_SPRITE_ALIGNMENT_WALL;
 		else
 		{
 			sp->xrepeat = 0;
@@ -555,7 +555,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		break;
 	case BULLETHOLE:
 		sp->xrepeat = sp->yrepeat = 3;
-		sp->cstat = 16 + (krand() & 12);
+		sp->cstat = CSTAT_SPRITE_ALIGNMENT_WALL + (krand() & 12);
 		insertspriteq(act);
 		[[fallthrough]];
 	case MONEY:
@@ -615,7 +615,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		{
 			sp->ang = spj->ang;
 			sp->shade = -64;
-			sp->cstat = 128 | (krand() & 4);
+			sp->cstat = CSTAT_SPRITE_YCENTER | (krand() & 4);
 		}
 
 		if (sp->picnum == EXPLOSION2 || sp->picnum == EXPLOSION2BOT)
@@ -1114,7 +1114,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (spj)
 		{
 			sp->ang = spj->ang;
-			sp->cstat = 16 + 128 + 2;
+			sp->cstat = CSTAT_SPRITE_ALIGNMENT_WALL + 128 + 2;
 			sp->xrepeat = sp->yrepeat = 1;
 			sp->xvel = -8;
 			ssp(act, CLIPMASK0);
@@ -1157,7 +1157,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		}
 		else
 		{
-			sp->cstat |= (sp->cstat & 48) ? 1 : 17;
+			sp->cstat |= (sp->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) ? 1 : 17;
 			sp->extra = 1;
 		}
 

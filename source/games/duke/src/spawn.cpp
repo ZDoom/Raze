@@ -197,7 +197,7 @@ bool initspriteforspawn(DDukeActor* act, const std::initializer_list<int> &exclu
 
 	int s = sp->picnum;
 
-	if (sp->cstat & 1) sp->cstat |= 256;
+	if (sp->cstat & CSTAT_SPRITE_BLOCK) sp->cstat |= 256;
 
 	if (gs.actorinfo[s].scriptaddress)
 	{
@@ -330,7 +330,7 @@ void spawntransporter(DDukeActor *actj, DDukeActor* acti, bool beam)
 	}
 
 	sp->shade = -127;
-	sp->cstat = 128 | 2;
+	sp->cstat = CSTAT_SPRITE_YCENTER | 2;
 	sp->ang = spj->ang;
 
 	sp->xvel = 128;

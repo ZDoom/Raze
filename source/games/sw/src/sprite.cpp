@@ -1635,7 +1635,7 @@ void SpriteSetup(void)
         }
 
         // CSTAT_SPIN is insupported - get rid of it
-        if (TEST(sp->cstat, CSTAT_SPRITE_ALIGNMENT) == CSTAT_SPRITE_ALIGNMENT_SLAB)
+        if (TEST(sp->cstat, CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_SLAB)
             RESET(sp->cstat, CSTAT_SPRITE_ALIGNMENT_SLAB);
 
         // if BLOCK is set set BLOCK_HITSCAN
@@ -4481,7 +4481,7 @@ void getzrangepoint(int x, int y, int z, sectortype* sect,
         daz = spr->z;
 
         // Only check if sprite's 2-sided or your on the 1-sided side
-        if (((cstat & 64) != 0) && ((z > daz) == ((cstat & CSTAT_SPRITE_YFLIP) == 0)))
+        if (((cstat & CSTAT_SPRITE_ONE_SIDE) != 0) && ((z > daz) == ((cstat & CSTAT_SPRITE_YFLIP) == 0)))
             continue;
 
         // Calculate and store centering offset information into xoff&yoff

@@ -869,7 +869,7 @@ void movefallers_d(void)
 							if (a2->s->hitag == s->hitag)
 							{
 								a2->temp_data[0] = 1;
-								a2->s->cstat &= (65535 - 64);
+								a2->s->cstat &= ~CSTAT_SPRITE_ONE_SIDE;
 								if (a2->s->picnum == CEILINGSTEAM || a2->s->picnum == STEAM)
 									a2->s->cstat |= CSTAT_SPRITE_INVISIBLE;
 							}
@@ -1297,7 +1297,7 @@ CLEAR_THE_BOLT:
 	int l = global_random & 7;
 	s->xrepeat = l + 8;
 
-	if (l & 1) s->cstat ^= 2;
+	if (l & 1) s->cstat ^= CSTAT_SPRITE_TRANSLUCENT;
 
 	if (s->picnum == (BOLT1+1) && (krand()&7) == 0 && sectp->floorpicnum == HURTRAIL)
 		S_PlayActorSound(SHORT_CIRCUIT,actor);
@@ -2455,7 +2455,7 @@ static void greenslime(DDukeActor *actor)
 	{
 		makeitfall(actor);
 
-		s->cstat &= 65535 - 8;
+		s->cstat &= ~CSTAT_SPRITE_YFLIP;
 		s->picnum = GREENSLIME + 4;
 
 		if (s->xrepeat > 32) s->xrepeat -= krand() & 7;
@@ -2536,7 +2536,7 @@ static void greenslime(DDukeActor *actor)
 		if (t[0] == 2)
 		{
 			s->zvel = 0;
-			s->cstat &= (65535 - 8);
+			s->cstat &= ~CSTAT_SPRITE_YFLIP;
 
 			if ((sectp->ceilingstat & CSTAT_SECTOR_SKY) || (actor->ceilingz + 6144) < s->z)
 			{
@@ -2826,7 +2826,7 @@ static void heavyhbomb(DDukeActor *actor)
 
 		if (s->xvel < 0)
 			s->xvel = 0;
-		if (s->xvel & 8) s->cstat ^= 4;
+		if (s->xvel & 8) s->cstat ^= CSTAT_SPRITE_XFLIP;
 	}
 
 	if (coll.type== kHitWall)
@@ -2982,7 +2982,7 @@ void moveactors_d(void)
 				if (t[0] > 60)
 				{
 					t[0] = 0;
-					s->cstat = 128 + 257 + 16;
+					s->cstat = CSTAT_SPRITE_YCENTER + 257 + 16;
 					s->extra = 1;
 				}
 			}

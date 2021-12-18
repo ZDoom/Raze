@@ -37,7 +37,6 @@ bool calcChaseCamPos(int* px, int* py, int* pz, spritetype* pspr, sectortype** p
 {
 	HitInfoBase hitinfo;
 	binangle daang;
-	short bakcstat;
 	int newdist;
 
 	if (!*psect) return false;
@@ -46,8 +45,8 @@ bool calcChaseCamPos(int* px, int* py, int* pz, spritetype* pspr, sectortype** p
 	int ny = gi->chaseCamY(ang);
 	int nz = gi->chaseCamZ(horiz);
 
-	bakcstat = pspr->cstat;
-	pspr->cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
+	auto bakcstat = pspr->cstat;
+	pspr->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 	updatesectorz(*px, *py, *pz, psect);
 	hitscan({ *px, *py, *pz }, *psect, { nx, ny, nz }, hitinfo, CLIPMASK1);
 	pspr->cstat = bakcstat;

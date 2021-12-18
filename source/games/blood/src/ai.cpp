@@ -807,7 +807,7 @@ void aiActivateDude(DBloodActor* actor)
 	case kDudeSpiderRed:
 	case kDudeSpiderBlack:
 		pSprite->flags |= 2;
-		pSprite->cstat &= ~8;
+		pSprite->cstat &= ~CSTAT_SPRITE_YFLIP;
 		if (actor->GetTarget() == nullptr)
 			aiNewState(actor, &spidSearch);
 		else
@@ -821,7 +821,7 @@ void aiActivateDude(DBloodActor* actor)
 		DUDEEXTRA_STATS* pDudeExtraE = &actor->dudeExtra.stats;
 		pDudeExtraE->active = 1;
 		pSprite->flags |= 2;
-		pSprite->cstat &= ~8;
+		pSprite->cstat &= ~CSTAT_SPRITE_YFLIP;
 		if (actor->GetTarget() == nullptr)
 			aiNewState(actor, &spidSearch);
 		else

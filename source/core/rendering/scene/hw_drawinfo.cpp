@@ -297,14 +297,14 @@ void HWDrawInfo::DispatchSprites()
 			}
 			if (r_voxels)
 			{
-				if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT) != CSTAT_SPRITE_ALIGNMENT_SLAB && tiletovox[tilenum] >= 0 && voxmodels[tiletovox[tilenum]])
+				if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLAB && tiletovox[tilenum] >= 0 && voxmodels[tiletovox[tilenum]])
 				{
 					HWSprite hwsprite;
 					int num = tiletovox[tilenum];
 					if (hwsprite.ProcessVoxel(this, voxmodels[num], tspr, tspr->sector(), voxrotate[num])) 
 						continue;
 				}
-				else if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT) == CSTAT_SPRITE_ALIGNMENT_SLAB && tspr->picnum < MAXVOXELS && voxmodels[tilenum])
+				else if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_SLAB && tspr->picnum < MAXVOXELS && voxmodels[tilenum])
 				{
 					HWSprite hwsprite;
 					int num = tilenum;
@@ -325,7 +325,7 @@ void HWDrawInfo::DispatchSprites()
 			tspr->pos.y -= bsin(tspr->ang, -13);
 		}
 
-		switch (tspr->cstat & CSTAT_SPRITE_ALIGNMENT)
+		switch (tspr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
 		{
 		case CSTAT_SPRITE_ALIGNMENT_FACING:
 		{
