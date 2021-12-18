@@ -125,7 +125,7 @@ void BuildLava(DExhumedActor* pActor, int x, int y, int, sectortype* pSector, in
     pSprite->x = x;
     pSprite->y = y;
     pSprite->z = pSector->floorz;
-    pSprite->cstat = 0x8000;
+    pSprite->cstat = CSTAT_SPRITE_INVISIBLE;
     pSprite->xrepeat = 200;
     pSprite->yrepeat = 200;
     pSprite->shade = -12;
@@ -448,7 +448,7 @@ void AILavaDude::Tick(RunListEvent* ev)
         {
             pActor->nAction = 0;
             pActor->nFrame = 0;
-            pSprite->cstat = 0x8000;
+            pSprite->cstat = CSTAT_SPRITE_INVISIBLE;
         }
         break;
     }

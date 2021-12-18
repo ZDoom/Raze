@@ -92,7 +92,7 @@ void BuildRa(int nPlayer)
     auto pActor = insertActor(pPlayerSprite->sector(), 203);
 	auto pSprite = &pActor->s();
 
-    pSprite->cstat = 0x8000;
+    pSprite->cstat = CSTAT_SPRITE_INVISIBLE;
     pSprite->xvel = 0;
     pSprite->yvel = 0;
     pSprite->zvel = 0;
@@ -164,7 +164,7 @@ void MoveRaToEnemy(int nPlayer)
             return;
         }
 
-        pSprite->cstat = 0x8000;
+        pSprite->cstat = CSTAT_SPRITE_INVISIBLE;
         pTarget = PlayerList[nPlayer].Actor();
     }
 	auto pTargSprite = &pTarget->s();
@@ -213,7 +213,7 @@ void AIRa::Tick(RunListEvent* ev)
 
         if (!Ra[nPlayer].nState || Ra[nPlayer].pTarget == nullptr)
         {
-            pSprite->cstat = 0x8000;
+            pSprite->cstat = CSTAT_SPRITE_INVISIBLE;
         }
         else
         {

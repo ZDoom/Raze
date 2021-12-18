@@ -1423,7 +1423,7 @@ sectdone:
 
                         if (var_70 == 55)
                         {
-                            pSpriteB->cstat = 0x8000;
+                            pSpriteB->cstat = CSTAT_SPRITE_INVISIBLE;
                             DestroyItemAnim(pActorB);
 
                             // loc_1BA74: - repeated block, see in default case
@@ -1812,7 +1812,7 @@ sectdone:
                         goto do_default;
                     }
 
-                    pSpriteB->cstat = 0x8000;
+                    pSpriteB->cstat = CSTAT_SPRITE_INVISIBLE;
                     DestroyItemAnim(pActorB);
                     ////
                             // loc_1BA74: - repeated block, see in default case
@@ -1874,7 +1874,7 @@ sectdone:
                         goto do_default;
                     }
 
-                    pSpriteB->cstat = 0x8000;
+                    pSpriteB->cstat = CSTAT_SPRITE_INVISIBLE;
                     DestroyItemAnim(pActorB);
                     ////
                             // loc_1BA74: - repeated block, see in default case
@@ -1936,7 +1936,7 @@ sectdone:
                         goto do_default;
                     }
 
-                    pSpriteB->cstat = 0x8000;
+                    pSpriteB->cstat = CSTAT_SPRITE_INVISIBLE;
                     DestroyItemAnim(pActorB);
                     ////
                             // loc_1BA74: - repeated block, see in default case
@@ -1998,7 +1998,7 @@ sectdone:
                         goto do_default;
                     }
 
-                    pSpriteB->cstat = 0x8000;
+                    pSpriteB->cstat = CSTAT_SPRITE_INVISIBLE;
                     DestroyItemAnim(pActorB);
                     ////
                             // loc_1BA74: - repeated block, see in default case
@@ -2060,7 +2060,7 @@ sectdone:
                         goto do_default;
                     }
 
-                    pSpriteB->cstat = 0x8000;
+                    pSpriteB->cstat = CSTAT_SPRITE_INVISIBLE;
                     DestroyItemAnim(pActorB);
                     ////
                             // loc_1BA74: - repeated block, see in default case
@@ -2122,7 +2122,7 @@ sectdone:
                         goto do_default;
                     }
 
-                    pSpriteB->cstat = 0x8000;
+                    pSpriteB->cstat = CSTAT_SPRITE_INVISIBLE;
                     DestroyItemAnim(pActorB);
                     ////
                             // loc_1BA74: - repeated block, see in default case
@@ -2619,7 +2619,7 @@ sectdone:
     }
     else
     {
-        pDopple->s().cstat = 0x8000;
+        pDopple->s().cstat = CSTAT_SPRITE_INVISIBLE;
     }
 
     MoveWeapons(nPlayer);

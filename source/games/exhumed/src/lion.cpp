@@ -527,7 +527,7 @@ void AILion::Tick(RunListEvent* ev)
         {
             runlist_SubRunRec(pSprite->owner);
             runlist_SubRunRec(pActor->nRun);
-            pSprite->cstat = 0x8000;
+            pSprite->cstat = CSTAT_SPRITE_INVISIBLE;
         }
         return;
     }

@@ -104,7 +104,7 @@ void BuildSoul(DExhumedActor* pSet)
     auto pActor = insertActor(pSetSprite->sector(), 0);
     auto pSprite = &pActor->s();
 
-    pSprite->cstat = 0x8000;
+    pSprite->cstat = CSTAT_SPRITE_INVISIBLE;
     pSprite->shade = -127;
     pSprite->xrepeat = 1;
     pSprite->yrepeat = 1;

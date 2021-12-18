@@ -240,7 +240,7 @@ void AISpider::Tick(RunListEvent* ev)
                 runlist_DoSubRunRec(sp->owner);
                 runlist_FreeRun(sp->lotag - 1);
                 runlist_SubRunRec(spp->nRun);
-                sp->cstat = 0x8000;
+                sp->cstat = CSTAT_SPRITE_INVISIBLE;
                 DeleteActor(spp);
             }
             return;

@@ -140,7 +140,7 @@ void BuildBubbleMachine(DExhumedActor* pActor)
     pActor->nCount = pActor->nFrame;
 
 	auto pSprite = &pActor->s();
-    pSprite->cstat = 0x8000;
+    pSprite->cstat = CSTAT_SPRITE_INVISIBLE;
     ChangeActorStat(pActor, kStatBubbleMachine);
 }
 

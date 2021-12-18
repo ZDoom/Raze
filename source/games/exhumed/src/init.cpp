@@ -701,13 +701,13 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
             case 63:
             {
                 ChangeActorStat(pActor, 405);
-                pSprite->cstat = 0x8000;
+                pSprite->cstat = CSTAT_SPRITE_INVISIBLE;
                 return;
             }
             case 62:
             {
                 nNetStartSprite[nNetStartSprites] = pActor;
-                pSprite->cstat = 0x8000;
+                pSprite->cstat = CSTAT_SPRITE_INVISIBLE;
 
                 nNetStartSprites++;
                 return;
@@ -766,7 +766,7 @@ void ExamineSprites(TArray<DExhumedActor*>& actors)
         pSprite->x = initx;
         pSprite->y = inity;
         pSprite->z = initz;
-        pSprite->cstat = 0x8000;
+        pSprite->cstat = CSTAT_SPRITE_INVISIBLE;
         nNetStartSprite[nNetStartSprites] = pActor;
         nNetStartSprites++;
     }

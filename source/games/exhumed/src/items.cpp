@@ -389,7 +389,7 @@ void StartRegenerate(DExhumedActor* pActor)
         pSprite->ang /= 5;
     }
 
-    pSprite->cstat = 0x8000;
+    pSprite->cstat = CSTAT_SPRITE_INVISIBLE;
     pSprite->xrepeat = 1;
     pSprite->yrepeat = 1;
     pSprite->pal = 1;

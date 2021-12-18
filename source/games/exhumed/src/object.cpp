@@ -396,7 +396,7 @@ DExhumedActor* BuildWallSprite(sectortype* pSector)
 
 	pSprite->pos.vec2 = wal->center();
     pSprite->z = (pSector->floorz + pSector->ceilingz) / 2;
-    pSprite->cstat = 0x8000;
+    pSprite->cstat = CSTAT_SPRITE_INVISIBLE;
 
     return pActor;
  }
@@ -464,7 +464,7 @@ DExhumedActor* FindWallSprites(sectortype* pSector)
         pSprite->x = (var_24 + esi) / 2;
         pSprite->y = (ecx + edi) / 2;
         pSprite->z = pSector->floorz;
-        pSprite->cstat = 0x8000;
+        pSprite->cstat = CSTAT_SPRITE_INVISIBLE;
         pSprite->owner = -1;
         pSprite->lotag = 0;
         pSprite->hitag = 0;
@@ -1027,7 +1027,7 @@ int BuildSlide(int nChannel, walltype* pStartWall, walltype* pWall1, walltype* p
     auto pSprite = &pActor->s();
 
     SlideData[nSlide].pActor = pActor;
-    pSprite->cstat = 0x8000;
+    pSprite->cstat = CSTAT_SPRITE_INVISIBLE;
     pSprite->x = pStartWall->x;
     pSprite->y = pStartWall->y;
     pSprite->z = pSector->floorz;
@@ -1213,7 +1213,7 @@ int BuildTrap(DExhumedActor* pActor, int edx, int ebx, int ecx)
 
     ChangeActorStat(pActor, 0);
 
-    pSprite->cstat = 0x8000;
+    pSprite->cstat = CSTAT_SPRITE_INVISIBLE;
     pSprite->xvel = 0;
     pSprite->yvel = 0;
     pSprite->zvel = 0;
@@ -1610,7 +1610,7 @@ DExhumedActor* BuildEnergyBlock(sectortype* pSector)
     }
 
     spr->xrepeat = nRepeat;
-    spr->cstat = 0x8000;
+    spr->cstat = CSTAT_SPRITE_INVISIBLE;
     spr->xvel = 0;
     spr->yvel = 0;
     spr->zvel = 0;
@@ -1854,7 +1854,7 @@ DExhumedActor* BuildObject(DExhumedActor* pActor, int nOjectType, int nHitag)
         pActor->pTarget = pActor2;
         pActor->nIndex2 = -1;
 
-        pSprite2->cstat = 0x8000;
+        pSprite2->cstat = CSTAT_SPRITE_INVISIBLE;
         pSprite2->x = spr->x;
         pSprite2->y = spr->y;
         pSprite2->z = spr->z;
@@ -1886,7 +1886,7 @@ void ExplodeScreen(DExhumedActor* pActor)
         BuildSpark(pActor, 0); // shoot out blue orbs
     }
 
-    pSprite->cstat = 0x8000;
+    pSprite->cstat = CSTAT_SPRITE_INVISIBLE;
     PlayFX2(StaticSound[kSound78], pActor);
 }
 
@@ -2573,7 +2573,7 @@ void PostProcess()
                 {
                     wal.pal = 1;
                     auto pActor = insertActor(&sect, 407);
-                    pActor->s().cstat = 0x8000;
+                    pActor->s().cstat = CSTAT_SPRITE_INVISIBLE;
                 }
             }
         }

@@ -364,7 +364,7 @@ void AIRat::Tick(RunListEvent* ev)
             runlist_FreeRun(pSprite->lotag - 1);
             runlist_SubRunRec(pActor->nRun);
 
-            pSprite->cstat = 0x8000;
+            pSprite->cstat = CSTAT_SPRITE_INVISIBLE;
             DeleteActor(pActor);
         }
         return;

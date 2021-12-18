@@ -113,7 +113,7 @@ void BuildGrenade(int nPlayer)
     pSprite->shade = -64;
     pSprite->xrepeat = 20;
     pSprite->yrepeat = 20;
-    pSprite->cstat = 0x8000;
+    pSprite->cstat = CSTAT_SPRITE_INVISIBLE;
     pSprite->picnum = 1;
     pSprite->pal = 0;
     pSprite->clipdist = 30;

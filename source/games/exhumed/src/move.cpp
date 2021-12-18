@@ -840,7 +840,7 @@ void CreatePushBlock(sectortype* pSector)
     pSprite->x = xAvg;
     pSprite->y = yAvg;
     pSprite->z = pSector->floorz - 256;
-    pSprite->cstat = 0x8000;
+    pSprite->cstat = CSTAT_SPRITE_INVISIBLE;
 
     int var_28 = 0;
 
@@ -1338,7 +1338,7 @@ DExhumedActor* GrabBody()
             pActor = insertActor(0, 899);
             pSprite = &pActor->s();
             nBodySprite[nCurBodyNum] = pActor;
-            pSprite->cstat = 0x8000;
+            pSprite->cstat = CSTAT_SPRITE_INVISIBLE;
         }
 		else
 			pSprite = &pActor->s();
@@ -1467,7 +1467,7 @@ void AICreatureChunk::Tick(RunListEvent* ev)
 
         if (nVal.exbits & kHitAux2)
         {
-            pSprite->cstat = 0x8000;
+            pSprite->cstat = CSTAT_SPRITE_INVISIBLE;
         }
         else
         {

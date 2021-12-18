@@ -998,7 +998,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
                     pSprite->xrepeat = 127 - QueenHead.nIndex2;
                     pSprite->yrepeat = 127 - QueenHead.nIndex2;
 
-                    pSprite->cstat = 0x8000;
+                    pSprite->cstat = CSTAT_SPRITE_INVISIBLE;
 
                     // DEMO-TODO: in disassembly angle was used without masking and thus causing OOB issue.
                     // This behavior probably would be needed emulated for demo compatibility

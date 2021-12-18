@@ -315,7 +315,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case FORCESPHERE:
 		if (!spj)
 		{
-			sp->cstat = 32768;
+			sp->cstat = CSTAT_SPRITE_INVISIBLE;
 			ChangeActorStat(act, 2);
 		}
 		else
@@ -466,7 +466,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ChangeActorStat(act, 2);
 		break;
 	case HENSTAND:
-		sp->cstat = 257;
+		sp->cstat = CSTAT_SPRITE_BLOCK_ALL;
 		sp->clipdist = 48;
 		sp->xrepeat = 21;
 		sp->yrepeat = 15;
@@ -486,7 +486,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case RRTILE3190:
 	case RRTILE3191:
 	case RRTILE3192:
-		sp->cstat = 257;
+		sp->cstat = CSTAT_SPRITE_BLOCK_ALL;
 		sp->clipdist = 8;
 		sp->xrepeat = 32;
 		sp->yrepeat = 26;
@@ -494,7 +494,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ChangeActorStat(act, 1);
 		break;
 	case RRTILE3120:
-		sp->cstat = 257;
+		sp->cstat = CSTAT_SPRITE_BLOCK_ALL;
 		sp->clipdist = 8;
 		sp->xrepeat = 12;
 		sp->yrepeat = 10;
@@ -502,7 +502,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ChangeActorStat(act, 1);
 		break;
 	case RRTILE3122:
-		sp->cstat = 257;
+		sp->cstat = CSTAT_SPRITE_BLOCK_ALL;
 		sp->clipdist = 2;
 		sp->xrepeat = 8;
 		sp->yrepeat = 6;
@@ -510,7 +510,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ChangeActorStat(act, 1);
 		break;
 	case RRTILE3123:
-		sp->cstat = 257;
+		sp->cstat = CSTAT_SPRITE_BLOCK_ALL;
 		sp->clipdist = 8;
 		sp->xrepeat = 13;
 		sp->yrepeat = 13;
@@ -518,7 +518,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ChangeActorStat(act, 1);
 		break;
 	case RRTILE3124:
-		sp->cstat = 257;
+		sp->cstat = CSTAT_SPRITE_BLOCK_ALL;
 		sp->clipdist = 8;
 		sp->xrepeat = 17;
 		sp->yrepeat = 12;
@@ -526,7 +526,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ChangeActorStat(act, 1);
 		break;
 	case RRTILE3132:
-		sp->cstat = 257;
+		sp->cstat = CSTAT_SPRITE_BLOCK_ALL;
 		sp->clipdist = 8;
 		sp->xrepeat = 13;
 		sp->yrepeat = 10;
@@ -534,7 +534,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ChangeActorStat(act, 1);
 		break;
 	case BOWLINGPIN:
-		sp->cstat = 257;
+		sp->cstat = CSTAT_SPRITE_BLOCK_ALL;
 		sp->clipdist = 48;
 		sp->xrepeat = 23;
 		sp->yrepeat = 23;
@@ -605,7 +605,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			ChangeActorStat(act, STAT_MISC);
 			break;
 		}
-		sp->cstat = 32768;
+		sp->cstat = CSTAT_SPRITE_INVISIBLE;
 		ChangeActorStat(act, 11);
 		break;
 	case SOUNDFX:
@@ -1330,7 +1330,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case TREE1:
 	case TREE2:
 	case TIRE:
-		sp->cstat = 257; // Make it hitable
+		sp->cstat = CSTAT_SPRITE_BLOCK_ALL; // Make it hitable
 		sp->extra = 1;
 		ChangeActorStat(act, 6);
 		break;
@@ -1343,7 +1343,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case CAMERAPOLE:
 		sp->extra = 1;
 
-		if (gs.camerashitable) sp->cstat = 257;
+		if (gs.camerashitable) sp->cstat = CSTAT_SPRITE_BLOCK_ALL;
 		else sp->cstat = 0;
 
 		if (ud.multimode < 2 && sp->pal != 0)
@@ -1380,7 +1380,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		sp->shade = -16;
 		if (sp->xrepeat <= 8)
 		{
-			sp->cstat = 32768;
+			sp->cstat = CSTAT_SPRITE_INVISIBLE;
 			sp->xrepeat = sp->yrepeat = 0;
 		}
 		else sp->cstat = 1 + 256;
@@ -1421,7 +1421,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		sp->yrepeat = 18;
 		sp->clipdist = MulScale(sp->xrepeat, tileWidth(sp->picnum), 7);
 		act->saved_ammo = 100;
-		sp->cstat = 257;
+		sp->cstat = CSTAT_SPRITE_BLOCK_ALL;
 		sp->lotag = 1;
 		ChangeActorStat(act, STAT_ACTOR);
 		break;
@@ -1437,7 +1437,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		sp->yrepeat = 32;
 		sp->clipdist = MulScale(sp->xrepeat, tileWidth(sp->picnum), 7);
 		act->saved_ammo = 20;
-		sp->cstat = 257;
+		sp->cstat = CSTAT_SPRITE_BLOCK_ALL;
 		sp->lotag = 1;
 		ChangeActorStat(act, 1);
 		break;
@@ -1482,7 +1482,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		{
 			if (sp->picnum == EGG)
 				sp->clipdist = 24;
-			sp->cstat = 257 | (krand() & 4);
+			sp->cstat = CSTAT_SPRITE_BLOCK_ALL | (krand() & 4);
 			ChangeActorStat(act, STAT_ZOMBIEACTOR);
 		}
 		break;
