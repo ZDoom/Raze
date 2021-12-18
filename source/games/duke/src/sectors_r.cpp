@@ -2359,7 +2359,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		s = targ->s;
 		[[fallthrough]];
 	default:
-		if ((s->cstat & 16) && s->hitag == 0 && s->lotag == 0 && s->statnum == 0)
+		if ((s->cstat & CSTAT_SPRITE_ALIGNMENT_WALL) && s->hitag == 0 && s->lotag == 0 && s->statnum == 0)
 			break;
 
 		if ((pspr->picnum == SHRINKSPARK || pspr->picnum == FREEZEBLAST || proj->GetOwner() != targ) && s->statnum != 4)

@@ -255,7 +255,7 @@ static tspritetype *viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int 
     case kViewEffectTrail:
     {
         int nAng = pTSprite->ang;
-        if (pTSprite->cstat & 16)
+        if (pTSprite->cstat & CSTAT_SPRITE_ALIGNMENT_WALL)
         {
             nAng = (nAng+512)&2047;
         }
@@ -484,7 +484,7 @@ static tspritetype *viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int 
         {
             pNSprite->ang = (gView->pSprite->ang + 512) & 2047; // always face viewer
             pNSprite->cstat |= 48;
-            pNSprite->cstat &= ~8;
+            pNSprite->cstat &= ~CSTAT_SPRITE_YFLIP;
             pNSprite->picnum = nVoxel;
             if (pPlayer->curWeapon == kWeapLifeLeech) // position lifeleech behind player
             {
@@ -645,7 +645,7 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
             nAnim--;
         }
 
-        if ((pTSprite->cstat&48) != 48 && r_voxels && !(owneractor->sx().flags&SPREXT_NOTMD))
+        if ((pTSprite->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLAB && r_voxels && !(owneractor->sx().flags&SPREXT_NOTMD))
         {
             int const nRootTile = pTSprite->picnum;
             int nAnimTile = pTSprite->picnum + qanimateoffs(pTSprite->picnum, 32768 + (pTSprite->ownerActor->GetIndex() & 16383));
@@ -664,7 +664,7 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
                 pTSprite->cstat2 |= CSTAT2_SPRITE_MDLROTATE; // per-sprite rotation setting.
         }
 
-        if ((pTSprite->cstat&48) != 48 && hw_models && !(owneractor->sx().flags&SPREXT_NOTMD))
+        if ((pTSprite->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLAB && hw_models && !(owneractor->sx().flags&SPREXT_NOTMD))
         {
             int const nRootTile = pTSprite->picnum;
             int nAnimTile = pTSprite->picnum + qanimateoffs(pTSprite->picnum, 32768 + (pTSprite->ownerActor->GetIndex() & 16383));

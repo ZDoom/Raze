@@ -2976,7 +2976,7 @@ void moveactors_d(void)
 
 		case DUCK:
 		case TARGET:
-			if (s->cstat & 32)
+			if (s->cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)
 			{
 				t[0]++;
 				if (t[0] > 60)
@@ -3000,8 +3000,8 @@ void moveactors_d(void)
 						if (act2->s->lotag == s->lotag &&
 							act2->s->picnum == s->picnum)
 						{
-							if ((act2->s->hitag && !(act2->s->cstat & 32)) ||
-								(!act2->s->hitag && (act2->s->cstat & 32))
+							if ((act2->s->hitag && !(act2->s->cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)) ||
+								(!act2->s->hitag && (act2->s->cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR))
 								)
 							{
 								k = 0;

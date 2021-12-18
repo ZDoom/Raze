@@ -165,11 +165,11 @@ bool initspriteforspawn(DDukeActor* act, const std::initializer_list<int> &exclu
 	t[0] = t[1] = t[2] = t[3] = t[4] = t[5] = 0;
 	act->temp_actor = nullptr;
 
-	if (sp->cstat & 48)
-		if (!isIn(sp->picnum, excludes) && (sp->cstat & 48))
+	if (sp->cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
+		if (!isIn(sp->picnum, excludes) && (sp->cstat & CSTAT_SPRITE_ALIGNMENT_MASK))
 		{
 			if (sp->shade == 127) return false;
-			if (wallswitchcheck(act) && (sp->cstat & 16))
+			if (wallswitchcheck(act) && (sp->cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
 			{
 				if (sp->picnum != TILE_ACCESSSWITCH && sp->picnum != TILE_ACCESSSWITCH2 && sp->pal)
 				{

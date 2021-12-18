@@ -107,7 +107,7 @@ void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 		case NEON6:
 			continue;
 		default:
-			if (((t->cstat & 16)) || (badguypic(t->picnum) && t->extra > 0) || t->statnum == 10)
+			if (((t->cstat & CSTAT_SPRITE_ALIGNMENT_WALL)) || (badguypic(t->picnum) && t->extra > 0) || t->statnum == STAT_PLAYER)
 			{
 				if (s->sector()->shadedsector == 1 && s->statnum != 1)
 				{
@@ -627,7 +627,7 @@ void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 			break;
 		}
 
-		if (gs.actorinfo[s->picnum].scriptaddress && (t->cstat & 48) != 48)
+		if (gs.actorinfo[s->picnum].scriptaddress && (t->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLAB)
 		{
 			if (t4)
 			{
@@ -723,7 +723,7 @@ void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 			t->shade = -127;
 
 		if (s->statnum == 13 || badguy(s) || (s->picnum == APLAYER && h->GetOwner()))
-			if ((s->cstat & 48) == 0 && t->statnum != 99)
+			if ((s->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == 0 && t->statnum != 99)
 				if (s->picnum != EXPLOSION2 && s->picnum != DOMELITE && s->picnum != TORNADO && s->picnum != EXPLOSION3 && (s->picnum != SBMOVE || isRRRA()))
 				{
 					if (h->dispicnum < 0)

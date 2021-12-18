@@ -898,7 +898,7 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
             int top, bottom;
             GetSpriteExtents(pSprite, &top, &bottom);
             int floorZ = getflorzofslopeptr(pSector, pSprite->x, pSprite->y);
-            if (!(pSprite->cstat&48) && floorZ <= bottom)
+            if (!(pSprite->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) && floorZ <= bottom)
             {
                 if (v14)
                     RotatePoint((int*)&pSprite->x, (int*)&pSprite->y, v14, v20, v24);
@@ -936,7 +936,7 @@ void ZTranslateSector(sectortype* pSector, XSECTOR *pXSector, int a3, int a4)
             }
             else if (pSprite->flags&2)
                 pSprite->flags |= 4;
-            else if (oldZ <= bottom && !(pSprite->cstat&48))
+            else if (oldZ <= bottom && !(pSprite->cstat & CSTAT_SPRITE_ALIGNMENT_MASK))
             {
                 viewBackupSpriteLoc(actor);
                 pSprite->z += pSector->floorz-oldZ;
@@ -1859,7 +1859,7 @@ void ProcessMotion(void)
                     {
                         int top, bottom;
                         GetSpriteExtents(pSprite, &top, &bottom);
-                        if (bottom >= floorZ && (pSprite->cstat&48) == 0)
+                        if (bottom >= floorZ && (pSprite->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == 0)
                         {
                             viewBackupSpriteLoc(actor);
                             pSprite->z += vdi;
@@ -1879,7 +1879,7 @@ void ProcessMotion(void)
                     auto pSprite = &actor->s();
                     int top, bottom;
                     GetSpriteExtents(pSprite, &top, &bottom);
-                    if (top <= ceilZ && (pSprite->cstat&48) == 0)
+                    if (top <= ceilZ && (pSprite->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == 0)
                     {
                         viewBackupSpriteLoc(actor);
                         pSprite->z += vdi;
@@ -2198,7 +2198,7 @@ void FireballTrapSeqCallback(int, DBloodActor* actor)
 {
     spritetype* pSprite = &actor->s();
     if (pSprite->cstat&32)
-        actFireMissile(actor, 0, 0, 0, 0, (pSprite->cstat&8) ? 0x4000 : -0x4000, kMissileFireball);
+        actFireMissile(actor, 0, 0, 0, 0, (pSprite->cstat & CSTAT_SPRITE_YFLIP) ? 0x4000 : -0x4000, kMissileFireball);
     else
         actFireMissile(actor, 0, 0, bcos(pSprite->ang), bsin(pSprite->ang), 0, kMissileFireball);
 }

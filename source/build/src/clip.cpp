@@ -49,7 +49,7 @@ static inline void get_wallspr_points(T const * const spr, int32_t *x1, int32_t 
     int32_t xoff = tileLeftOffset(tilenum) + spr->xoffset;
     int32_t k, l, dax, day;
 
-    if (spr->cstat&4)
+    if (spr->cstat & CSTAT_SPRITE_XFLIP)
         xoff = -xoff;
 
     dax = bsin(ang) * xrepeat;

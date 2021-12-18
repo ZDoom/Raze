@@ -2649,7 +2649,7 @@ void polymost_drawsprite(int32_t snum)
 
     auto actor = tspr->ownerActor;
 
-    if ((tspr->cstat&48) != 48)
+    if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLAB)
         tileUpdatePicnum(&tspr->picnum, (actor->GetIndex() & 16383) + 32768);
 
     globalpicnum = tspr->picnum;
@@ -2671,10 +2671,10 @@ void polymost_drawsprite(int32_t snum)
 
     int32_t method = DAMETH_MASK | DAMETH_CLAMPED;
 
-    if (tspr->cstat & 2)
-        method = DAMETH_CLAMPED | ((tspr->cstat & 512) ? DAMETH_TRANS2 : DAMETH_TRANS1);
+    if (tspr->cstat & CSTAT_SPRITE_TRANSLUCENT)
+        method = DAMETH_CLAMPED | ((tspr->cstat & CSTAT_SPRITE_TRANS_FLIP) ? DAMETH_TRANS2 : DAMETH_TRANS1);
 
-    SetRenderStyleFromBlend(!!(tspr->cstat & 2), tspr->blend, !!(tspr->cstat & 512));
+    SetRenderStyleFromBlend(!!(tspr->cstat & CSTAT_SPRITE_TRANSLUCENT), tspr->blend, !!(tspr->cstat & CSTAT_SPRITE_TRANS_FLIP));
 
     drawpoly_alpha = actor->sx().alpha;
     drawpoly_blend = tspr->blend;
@@ -2692,14 +2692,14 @@ void polymost_drawsprite(int32_t snum)
 
         if (r_voxels)
         {
-            if ((tspr->cstat & 48) != 48 && tiletovox[tspr->picnum] >= 0 && voxmodels[tiletovox[tspr->picnum]])
+            if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLAB && tiletovox[tspr->picnum] >= 0 && voxmodels[tiletovox[tspr->picnum]])
             {
                 int num = tiletovox[tspr->picnum];
                 if (polymost_voxdraw(voxmodels[num], tspr, voxrotate[num])) return;
                 break;  // else, render as flat sprite
             }
 
-            if ((tspr->cstat & 48) == 48 && tspr->picnum < MAXVOXELS && voxmodels[tspr->picnum])
+            if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_SLAB && tspr->picnum < MAXVOXELS && voxmodels[tspr->picnum])
             {
                 int num = tspr->picnum;
                 polymost_voxdraw(voxmodels[tspr->picnum], tspr, voxrotate[num]);
@@ -3299,10 +3299,10 @@ static inline int32_t         sameside(const _equation* eq, const FVector2* p1, 
 
 static inline int comparetsprites(int const k, int const l)
 {
-    if ((tspriteptr[k]->cstat & 48) != (tspriteptr[l]->cstat & 48))
-        return (tspriteptr[k]->cstat & 48) - (tspriteptr[l]->cstat & 48);
+    if ((tspriteptr[k]->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != (tspriteptr[l]->cstat & CSTAT_SPRITE_ALIGNMENT_MASK))
+        return (tspriteptr[k]->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) - (tspriteptr[l]->cstat & CSTAT_SPRITE_ALIGNMENT_MASK);
 
-    if ((tspriteptr[k]->cstat & 48) == 16 && tspriteptr[k]->ang != tspriteptr[l]->ang)
+    if ((tspriteptr[k]->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_WALL && tspriteptr[k]->ang != tspriteptr[l]->ang)
         return tspriteptr[k]->ang - tspriteptr[l]->ang;
 
     if (tspriteptr[k]->statnum != tspriteptr[l]->statnum)
@@ -3313,7 +3313,7 @@ static inline int comparetsprites(int const k, int const l)
     if (tspriteptr[k]->x == tspriteptr[l]->x &&
         tspriteptr[k]->y == tspriteptr[l]->y &&
         tspriteptr[k]->z == tspriteptr[l]->z &&
-        (tspriteptr[k]->cstat & 48) == (tspriteptr[l]->cstat & 48) &&
+        (tspriteptr[k]->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == (tspriteptr[l]->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) &&
         tspriteptr[k]->ownerActor != tspriteptr[l]->ownerActor)
         return tspriteptr[k]->ownerActor->GetIndex() - tspriteptr[l]->ownerActor->GetIndex();
 
@@ -3360,14 +3360,14 @@ static void sortsprites(int const start, int const end)
                 auto const s = tspriteptr[k];
 
                 spritesxyz[k].z = s->z;
-                if ((s->cstat & 48) != 32)
+                if ((s->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_FLOOR)
                 {
                     int32_t yoff = tileTopOffset(s->picnum) + s->yoffset;
                     int32_t yspan = (tileHeight(s->picnum) * s->yrepeat << 2);
 
                     spritesxyz[k].z -= (yoff * s->yrepeat) << 2;
 
-                    if (!(s->cstat & 128))
+                    if (!(s->cstat & CSTAT_SPRITE_YCENTER))
                         spritesxyz[k].z -= (yspan >> 1);
                     if (abs(spritesxyz[k].z - globalposz) < (yspan >> 1))
                         spritesxyz[k].z = globalposz;
@@ -3399,7 +3399,7 @@ static bool spriteIsModelOrVoxel(const tspritetype* tspr)
         if (mdinfo.modelid >= 0 && mdinfo.framenum >= 0) return true;
     }
 
-    auto slabalign = (tspr->cstat & CSTAT_SPRITE_ALIGNMENT) == CSTAT_SPRITE_ALIGNMENT_SLAB;
+    auto slabalign = (tspr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_SLAB;
     if (r_voxels && !slabalign && tiletovox[tspr->picnum] >= 0 && voxmodels[tiletovox[tspr->picnum]]) return true;
     return (slabalign && voxmodels[tspr->picnum]);
 }
@@ -3445,7 +3445,7 @@ void renderDrawMasks(void)
 
             spritesxyz[i].x = Scale(xp + yp, xdimen << 7, yp);
         }
-        else if ((tspriteptr[i]->cstat & 48) == 0)
+        else if ((tspriteptr[i]->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == 0)
         {
         killsprite:
             if (!modelp)
@@ -3495,12 +3495,12 @@ void renderDrawMasks(void)
         for (intptr_t i = pm_spritesortcnt; i < numSprites;)
         {
             int32_t py = spritesxyz[i].y;
-            int32_t pcstat = tspriteptr[i]->cstat & 48;
+            int32_t pcstat = tspriteptr[i]->cstat & CSTAT_SPRITE_ALIGNMENT_MASK;
             int32_t pangle = tspriteptr[i]->ang;
             int j = i + 1;
             if (!spriteIsModelOrVoxel(tspriteptr[i]))
             {
-                while (j < numSprites && py == spritesxyz[j].y && pcstat == (tspriteptr[j]->cstat & 48) && (pcstat != 16 || pangle == tspriteptr[j]->ang)
+                while (j < numSprites && py == spritesxyz[j].y && pcstat == (tspriteptr[j]->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) && (pcstat != 16 || pangle == tspriteptr[j]->ang)
                     && !spriteIsModelOrVoxel(tspriteptr[j]))
                 {
                     j++;
@@ -3610,7 +3610,7 @@ void renderDrawMasks(void)
 
                         const _equation pineq = inleft ? p1eq : p2eq;
 
-                        if ((tspr->cstat & 48) == 32)
+                        if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FLOOR)
                         {
                             numpts = 4;
                             GetFlatSpritePosition(tspr, tspr->pos.vec2, pp);
@@ -3622,12 +3622,12 @@ void renderDrawMasks(void)
 
                             // Consider face sprites as wall sprites with camera ang.
                             // XXX: factor 4/5 needed?
-                            if ((tspr->cstat & 48) != 16)
+                            if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_WALL)
                                 tspriteptr[i]->ang = globalang;
 
                             GetWallSpritePosition(tspr, tspr->pos.vec2, pp);
 
-                            if ((tspr->cstat & 48) != 16)
+                            if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_WALL)
                                 tspriteptr[i]->ang = oang;
                         }
 
@@ -3727,7 +3727,7 @@ int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr, bool rotate)
     if ((intptr_t)m == (intptr_t)(-1)) // hackhackhack
         return 0;
 
-    if ((tspr->cstat & 48) == 32)
+    if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FLOOR)
         return 0;
 
     if ((tspr->cstat2 & CSTAT2_SPRITE_MDLROTATE) || rotate)
@@ -3742,7 +3742,7 @@ int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr, bool rotate)
 
     k0 = m->bscale / 64.f;
     f = (float)tspr->xrepeat * (256.f / 320.f) * k0;
-    if ((tspr->ownerActor->s().cstat & 48) == 16)
+    if ((tspr->ownerActor->s().cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_WALL)
     {
         f *= 1.25f;
         a0.Y -= tspr->xoffset * bcosf(tspr->ownerActor->sx().angoff, -20);
@@ -3758,12 +3758,12 @@ int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr, bool rotate)
     m0.Z *= f; a0.Z *= f;
 
     k0 = (float)(tspr->z + tspr->ownerActor->sx().position_offset.z);
-    f = ((globalorientation & 8) && (tspr->ownerActor->s().cstat & 48) != 0) ? -4.f : 4.f;
+    f = ((globalorientation & 8) && (tspr->ownerActor->s().cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != 0) ? -4.f : 4.f;
     k0 -= (tspr->yoffset * tspr->yrepeat) * f * m->bscale;
     zoff = m->siz.z * .5f;
-    if (!(tspr->cstat & 128))
+    if (!(tspr->cstat & CSTAT_SPRITE_YCENTER))
         zoff += m->piv.Z;
-    else if ((tspr->cstat & 48) != 48)
+    else if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != 48)
     {
         zoff += m->piv.Z;
         zoff -= m->siz.z * .5f;
@@ -3807,12 +3807,12 @@ int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr, bool rotate)
 
     if (!shadowHack)
     {
-        pc[3] = (tspr->cstat & 2) ? glblend[tspr->blend].def[!!(tspr->cstat & 512)].alpha : 1.0f;
+        pc[3] = (tspr->cstat & CSTAT_SPRITE_TRANSLUCENT) ? glblend[tspr->blend].def[!!(tspr->cstat & CSTAT_SPRITE_TRANS_FLIP)].alpha : 1.0f;
         pc[3] *= 1.0f - tspr->ownerActor->sx().alpha;
 
-        SetRenderStyleFromBlend(!!(tspr->cstat & 2), tspr->blend, !!(tspr->cstat & 512));
+        SetRenderStyleFromBlend(!!(tspr->cstat & CSTAT_SPRITE_TRANSLUCENT), tspr->blend, !!(tspr->cstat & CSTAT_SPRITE_TRANS_FLIP));
 
-        if (!(tspr->cstat & 2) || tspr->ownerActor->sx().alpha > 0.f || pc[3] < 1.0f)
+        if (!(tspr->cstat & CSTAT_SPRITE_TRANSLUCENT) || tspr->ownerActor->sx().alpha > 0.f || pc[3] < 1.0f)
             GLInterface.EnableBlend(true);  // else GLInterface.EnableBlend(false);
     }
     else pc[3] = 1.f;

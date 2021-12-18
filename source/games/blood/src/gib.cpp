@@ -281,7 +281,7 @@ void GibFX(DBloodActor* actor, GIBFX *pGFX, CGibPosition *pPos, CGibVelocity *pV
     GetActorExtents(actor, &top, &bottom);
     for (int i = 0; i < nCount; i++)
     {
-        if (!pPos && (pSprite->cstat&48) == 0)
+        if (!pPos && (pSprite->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == 0)
         {
             int nAngle = Random(2048);
             gPos.x = pSprite->x+MulScale(pSprite->clipdist<<2, Cos(nAngle), 30);
@@ -303,7 +303,7 @@ void GibFX(DBloodActor* actor, GIBFX *pGFX, CGibPosition *pPos, CGibVelocity *pV
             {
                 pFX->xvel = Random2((pGFX->atd<<18)/120);
                 pFX->yvel = Random2((pGFX->atd<<18)/120);
-                switch(pSprite->cstat&48)
+                switch(pSprite->cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
                 {
                 case 16:
                     pFX->zvel = Random2((pGFX->at11<<18)/120);
@@ -380,7 +380,7 @@ void GibThing(DBloodActor* actor, GIBTHING *pGThing, CGibPosition *pPos, CGibVel
         {
             gibactor->xvel = Random2((pGThing->atc<<18)/120);
             gibactor->yvel = Random2((pGThing->atc<<18)/120);
-            switch (pSprite->cstat&48)
+            switch (pSprite->cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
             {
             case 16:
                 gibactor->zvel = Random2((pGThing->at10<<18)/120);

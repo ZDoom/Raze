@@ -288,7 +288,7 @@ void prelevel_d(int g, TArray<DDukeActor*>& actors)
 		auto si = ac->s;
 		LoadActor(ac, -1, -1);
 
-		if (si->lotag == -1 && (si->cstat & 16))
+		if (si->lotag == -1 && (si->cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
 		{
 			ps[0].exitx = si->x;
 			ps[0].exity = si->y;

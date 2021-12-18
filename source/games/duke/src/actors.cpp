@@ -3372,7 +3372,7 @@ void handle_se04(DDukeActor *actor)
 	while (auto a2 = it.Next())
 	{
 		auto sj = a2->s;
-		if (sj->cstat & 16)
+		if (sj->cstat & CSTAT_SPRITE_ALIGNMENT_WALL)
 		{
 			if (sc->ceilingstat & CSTAT_SECTOR_SKY)
 				sj->shade = sc->ceilingshade;
@@ -3699,7 +3699,7 @@ void handle_se12(DDukeActor *actor, int planeonly)
 		DukeSectIterator it(sc);
 		while (auto a2 = it.Next())
 		{
-			if (a2->s->cstat & 16)
+			if (a2->s->cstat & CSTAT_SPRITE_ALIGNMENT_WALL)
 			{
 				if (sc->ceilingstat & CSTAT_SECTOR_SKY)
 					a2->s->shade = sc->ceilingshade;
@@ -3739,7 +3739,7 @@ void handle_se12(DDukeActor *actor, int planeonly)
 		DukeSectIterator it(actor->sector());
 		while (auto a2 = it.Next())
 		{
-			if (a2->s->cstat & 16)
+			if (a2->s->cstat & CSTAT_SPRITE_ALIGNMENT_WALL)
 			{
 				if (sc->ceilingstat & CSTAT_SECTOR_SKY)
 					a2->s->shade = sc->ceilingshade;
@@ -4933,7 +4933,7 @@ void getglobalz(DDukeActor* actor)
 		getzrange({ s->x, s->y, s->z - (FOURSLEIGHT) }, s->sector(), &actor->ceilingz, hz, &actor->floorz, lz, zr, CLIPMASK0);
 		s->cstat2 = cc;
 
-		if( lz.type == kHitSprite && (lz.actor()->s->cstat&48) == 0 )
+		if( lz.type == kHitSprite && (lz.actor()->s->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == 0 )
 		{
 			if( badguy(lz.actor()) && lz.actor()->s->pal != 1)
 			{

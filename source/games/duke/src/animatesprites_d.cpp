@@ -129,7 +129,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 		case GREENSLIME + 7:
 			break;
 		default:
-			if (((t->cstat & 16)) || (badguypic(t->picnum) && t->extra > 0) || t->statnum == 10)
+			if (((t->cstat & CSTAT_SPRITE_ALIGNMENT_WALL)) || (badguypic(t->picnum) && t->extra > 0) || t->statnum == STAT_PLAYER)
 				continue;
 		}
 
