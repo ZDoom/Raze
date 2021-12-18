@@ -103,6 +103,7 @@ enum EWallBits // names are from Shadow Warrior
 	CSTAT_WALL_TRANSLUCENT			= 128,			//   bit 7: 1 = Transluscence, 0 = not                               "T"
 	CSTAT_WALL_YFLIP				= 256,			//   bit 8: 1 = y-flipped, 0 = normal                                "F"
 	CSTAT_WALL_TRANS_FLIP			= 512,			//   bit 9: 1 = Transluscence reversing, 0 = normal                  "T"
+	CSTAT_WALL_ANY_EXCEPT_BLOCK		= 254,			// Duke stupidity
 
 	CSTAT_WALL_ROTATE_90			= 1<<12,		// EDuke32 extension supported by Raze
 

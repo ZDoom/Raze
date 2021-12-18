@@ -139,7 +139,7 @@ void animatewalls_d(void)
 
 		}
 
-		if (wal->cstat & 16)
+		if (wal->cstat & CSTAT_WALL_MASKED)
 			switch (wal->overpicnum)
 			{
 			case W_FORCEFIELD:
@@ -148,7 +148,7 @@ void animatewalls_d(void)
 
 				t = animwall[p].tag;
 
-				if (wal->cstat & 254)
+				if (wal->cstat & CSTAT_WALL_ANY_EXCEPT_BLOCK)
 				{
 					wal->addxpan(-t / 4096.f); // bcos(t, -12);
 					wal->addypan(-t / 4096.f); // bsin(t, -12);
@@ -657,7 +657,7 @@ void checkhitwall_d(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 		case OOZFILTER:
 		case EXPLODINGBARREL:
 			lotsofglass(spr, wal, 70);
-			wal->cstat &= ~16;
+			wal->cstat &= ~CSTAT_WALL_MASKED;
 			wal->overpicnum = MIRRORBROKE;
 			wal->portalflags = 0;
 			S_PlayActorSound(GLASS_HEAVYBREAK, spr);
@@ -665,7 +665,7 @@ void checkhitwall_d(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 		}
 	}
 
-	if (((wal->cstat & 16) || wal->overpicnum == BIGFORCE) && wal->twoSided())
+	if (((wal->cstat & CSTAT_WALL_MASKED) || wal->overpicnum == BIGFORCE) && wal->twoSided())
 		if (wal->nextSector()->floorz > z)
 			if (wal->nextSector()->floorz - wal->nextSector()->ceilingz)
 				switch (wal->overpicnum)
@@ -701,11 +701,11 @@ void checkhitwall_d(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 				}
 				case FANSPRITE:
 					wal->overpicnum = FANSPRITEBROKE;
-					wal->cstat &= 65535 - 65;
+					wal->cstat &= ~(CSTAT_WALL_BLOCK | CSTAT_WALL_BLOCK_HITSCAN);
 					if (wal->twoSided())
 					{
 						wal->nextWall()->overpicnum = FANSPRITEBROKE;
-						wal->nextWall()->cstat &= 65535 - 65;
+						wal->nextWall()->cstat &= ~(CSTAT_WALL_BLOCK | CSTAT_WALL_BLOCK_HITSCAN);
 					}
 					S_PlayActorSound(VENT_BUST, spr);
 					S_PlayActorSound(GLASS_BREAKING, spr);
@@ -1615,7 +1615,7 @@ void checksectors_d(int snum)
 					return;
 				}
 			
-			if (hitscanwall != nullptr && (hitscanwall->cstat & 16))
+			if (hitscanwall != nullptr && (hitscanwall->cstat & CSTAT_WALL_MASKED))
 				if (hitscanwall->lotag)
 					return;
 		}

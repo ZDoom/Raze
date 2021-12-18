@@ -383,7 +383,7 @@ void prelevel_d(int g, TArray<DDukeActor*>& actors)
 
 	for (auto& wal : walls())
 	{
-		if (wal.overpicnum == MIRROR && (wal.cstat & 32) != 0)
+		if (wal.overpicnum == MIRROR && (wal.cstat & CSTAT_WALL_1WAY) != 0)
 		{
 			auto sectp = wal.nextSector();
 
@@ -410,7 +410,7 @@ void prelevel_d(int g, TArray<DDukeActor*>& actors)
 		{
 		case FANSHADOW:
 		case FANSPRITE:
-			wal.cstat |= 65;
+			wal.cstat |= CSTAT_WALL_BLOCK | CSTAT_WALL_BLOCK_HITSCAN;
 			animwall[numanimwalls].wall = &wal;
 			numanimwalls++;
 			break;

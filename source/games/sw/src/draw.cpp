@@ -1703,7 +1703,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
             SHOWSPRITE:
 
                 PalEntry col = GPalette.BaseColors[56]; // 1=white / 31=black / 44=green / 56=pink / 128=yellow / 210=blue / 248=orange / 255=purple
-                if ((spr->cstat & 1) > 0)
+                if ((spr->cstat & CSTAT_SPRITE_BLOCK) > 0)
                     col = GPalette.BaseColors[248];
                 if (actor == peekActor)
                     col = GPalette.BaseColors[31];

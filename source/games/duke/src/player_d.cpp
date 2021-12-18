@@ -283,7 +283,7 @@ static void shootknee(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 
 			else if (hit.hitWall)
 			{
-				if (hit.hitWall->cstat & 2)
+				if (hit.hitWall->cstat & CSTAT_WALL_BOTTOM_SWAP)
 					if (hit.hitWall->twoSided())
 						if (hit.hitpos.z >= (hit.hitWall->nextSector()->floorz))
 							hit.hitWall =hit.hitWall->nextWall();
@@ -497,7 +497,7 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 				if (hit.hitWall->overpicnum != BIGFORCE)
 					if ((hit.hitWall->twoSided() && hit.hitWall->nextSector()->lotag == 0) ||
 						(!hit.hitWall->twoSided() && hit.hitSector->lotag == 0))
-						if ((hit.hitWall->cstat & 16) == 0)
+						if ((hit.hitWall->cstat & CSTAT_WALL_MASKED) == 0)
 						{
 							if (hit.hitWall->twoSided())
 							{
@@ -528,7 +528,7 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 
 		SKIPBULLETHOLE:
 
-			if (hit.hitWall->cstat & 2)
+			if (hit.hitWall->cstat & CSTAT_WALL_BOTTOM_SWAP)
 				if (hit.hitWall->twoSided())
 					if (hit.hitpos.z >= (hit.hitWall->nextSector()->floorz))
 						hit.hitWall = hit.hitWall->nextWall();
@@ -2048,7 +2048,7 @@ int operateTripbomb(int snum)
 			return 0;
 	}
 
-	if (j == nullptr && hit.hitWall != nullptr && (hit.hitWall->cstat & 16) == 0)
+	if (j == nullptr && hit.hitWall != nullptr && (hit.hitWall->cstat & CSTAT_WALL_MASKED) == 0)
 		if ((hit.hitWall->twoSided() && hit.hitWall->nextSector()->lotag <= 2) || (!hit.hitWall->twoSided() && hit.hitSector->lotag <= 2))
 			if (((hit.hitpos.x - p->pos.x) * (hit.hitpos.x - p->pos.x) + (hit.hitpos.y - p->pos.y) * (hit.hitpos.y - p->pos.y)) < (290 * 290))
 			{

@@ -847,7 +847,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 			{
 				if (!(wal.hitag & 1))
 					wal.shade = sp->shade;
-				if ((wal.cstat & 2) && wal.twoSided())
+				if ((wal.cstat & CSTAT_WALL_BOTTOM_SWAP) && wal.twoSided())
 					wal.nextWall()->shade = sp->shade;
 			}
 			break;

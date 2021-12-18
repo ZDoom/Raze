@@ -3309,7 +3309,7 @@ void handle_se03(DDukeActor *actor)
 		if (wal.hitag != 1)
 		{
 			wal.shade = t[0];
-			if ((wal.cstat & 2) && wal.twoSided())
+			if ((wal.cstat & CSTAT_WALL_BOTTOM_SWAP) && wal.twoSided())
 			{
 				wal.nextWall()->shade = wal.shade;
 			}
@@ -3363,7 +3363,7 @@ void handle_se04(DDukeActor *actor)
 		if (wal.hitag != 1)
 		{
 			wal.shade = t[0];
-			if ((wal.cstat & 2) && wal.twoSided())
+			if ((wal.cstat & CSTAT_WALL_BOTTOM_SWAP) && wal.twoSided())
 				wal.nextWall()->shade = wal.shade;
 		}
 	}

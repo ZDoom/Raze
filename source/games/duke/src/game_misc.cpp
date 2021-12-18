@@ -409,7 +409,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
 			if (act == pactor || (spr->cstat & 0x8000) || spr->cstat == 257 || spr->xrepeat == 0) continue;
 
 			col = PalEntry(0, 170, 170);
-			if (spr->cstat & 1) col = PalEntry(170, 0, 170);
+			if (spr->cstat & CSTAT_SPRITE_BLOCK) col = PalEntry(170, 0, 170);
 
 			sprx = spr->x;
 			spry = spr->y;

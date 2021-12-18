@@ -199,7 +199,7 @@ int hitasprite(DDukeActor* actor, DDukeActor** hitsp)
 	hitscan({ sp->x, sp->y, sp->z - zoff }, sp->sector(), { bcos(sp->ang), bsin(sp->ang), 0 }, hit, CLIPMASK1);
 	if (hitsp) *hitsp = hit.actor();
 
-	if (hit.hitWall != nullptr && (hit.hitWall->cstat & 16) && badguy(actor))
+	if (hit.hitWall != nullptr && (hit.hitWall->cstat & CSTAT_WALL_MASKED) && badguy(actor))
 		return((1 << 30));
 
 	return (FindDistance2D(hit.hitpos.x - sp->x, hit.hitpos.y - sp->y));
@@ -1012,7 +1012,7 @@ void shootbloodsplat(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 			(hit.hitSector->floorz - hit.hitWall->nextSector()->floorz) > (16 << 8)) ||
 			(!hit.hitWall->twoSided() && hit.hitSector->lotag == 0)))
 	{
-		if ((hit.hitWall->cstat & 16) == 0)
+		if ((hit.hitWall->cstat & CSTAT_WALL_MASKED) == 0)
 		{
 			if (hit.hitWall->twoSided())
 			{
