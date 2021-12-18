@@ -470,15 +470,15 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
                     return 0;
                 return 2;
             }
-            if (!(pWall->cstat & 0x30))
+            if (!(pWall->cstat & (CSTAT_WALL_MASKED | CSTAT_WALL_1WAY)))
                 return 0;
             int nOffset;
-            if (pWall->cstat & 4)
+            if (pWall->cstat & CSTAT_WALL_ALIGN_BOTTOM)
                 nOffset = ClipHigh(pSector->floorz, pSectorNext->floorz);
             else
                 nOffset = ClipLow(pSector->ceilingz, pSectorNext->ceilingz);
             nOffset = (gHitInfo.hitpos.z - nOffset) >> 8;
-            if (pWall->cstat & 256)
+            if (pWall->cstat & CSTAT_WALL_YFLIP)
                 nOffset = -nOffset;
 
             int nPicnum = pWall->overpicnum;
@@ -491,7 +491,7 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
             nOffset += int((nSizY*pWall->ypan_) / 256);
             int nLength = approxDist(pWall->x - pWall->point2Wall()->x, pWall->y - pWall->point2Wall()->y);
             int nHOffset;
-            if (pWall->cstat & 8)
+            if (pWall->cstat & CSTAT_WALL_XFLIP)
                 nHOffset = approxDist(gHitInfo.hitpos.x - pWall->point2Wall()->x, gHitInfo.hitpos.y - pWall->point2Wall()->y);
             else
                 nHOffset = approxDist(gHitInfo.hitpos.x - pWall->x, gHitInfo.hitpos.y - pWall->y);
@@ -505,10 +505,10 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
 
             if (pData[nPixel] == TRANSPARENT_INDEX)
             {
-                int bakCstat = pWall->cstat;
-                pWall->cstat &= ~64;
-                int bakCstat2 = pWall->nextWall()->cstat;
-                pWall->nextWall()->cstat &= ~64;
+                auto bakCstat = pWall->cstat;
+                pWall->cstat &= ~CSTAT_WALL_BLOCK_HITSCAN;
+                auto bakCstat2 = pWall->nextWall()->cstat;
+                pWall->nextWall()->cstat &= ~CSTAT_WALL_BLOCK_HITSCAN;
                 gHitInfo.clearObj();
                 pos = gHitInfo.hitpos;
                 hitscan(pos, pWall->nextSector(), { dx, dy, dz << 4 }, gHitInfo, CLIPMASK1);

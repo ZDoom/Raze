@@ -161,21 +161,21 @@ void UpdateWall(walltype* pWall, SEQFRAME* pFrame)
 	if (pFrame->palette)
 		pWall->pal = pFrame->palette;
 	if (pFrame->transparent)
-		pWall->cstat |= 128;
+		pWall->cstat |= CSTAT_WALL_TRANSLUCENT;
 	else
-		pWall->cstat &= ~128;
+		pWall->cstat &= ~CSTAT_WALL_TRANSLUCENT;
 	if (pFrame->transparent2)
-		pWall->cstat |= 512;
+		pWall->cstat |= CSTAT_WALL_TRANS_FLIP;
 	else
-		pWall->cstat &= ~512;
+		pWall->cstat &= ~CSTAT_WALL_TRANS_FLIP;
 	if (pFrame->blockable)
-		pWall->cstat |= 1;
+		pWall->cstat |= CSTAT_WALL_BLOCK;
 	else
-		pWall->cstat &= ~1;
+		pWall->cstat &= ~CSTAT_WALL_BLOCK;
 	if (pFrame->hittable)
-		pWall->cstat |= 64;
+		pWall->cstat |= CSTAT_WALL_BLOCK_HITSCAN;
 	else
-		pWall->cstat &= ~64;
+		pWall->cstat &= ~CSTAT_WALL_BLOCK_HITSCAN;
 }
 
 //---------------------------------------------------------------------------
@@ -193,43 +193,43 @@ void UpdateMasked(walltype* pWall, SEQFRAME* pFrame)
 		pWall->pal = pWallNext->pal = pFrame->palette;
 	if (pFrame->transparent)
 	{
-		pWall->cstat |= 128;
-		pWallNext->cstat |= 128;
+		pWall->cstat |= CSTAT_WALL_TRANSLUCENT;
+		pWallNext->cstat |= CSTAT_WALL_TRANSLUCENT;
 	}
 	else
 	{
-		pWall->cstat &= ~128;
-		pWallNext->cstat &= ~128;
+		pWall->cstat &= ~CSTAT_WALL_TRANSLUCENT;
+		pWallNext->cstat &= ~CSTAT_WALL_TRANSLUCENT;
 	}
 	if (pFrame->transparent2)
 	{
-		pWall->cstat |= 512;
-		pWallNext->cstat |= 512;
+		pWall->cstat |= CSTAT_WALL_TRANS_FLIP;
+		pWallNext->cstat |= CSTAT_WALL_TRANS_FLIP;
 	}
 	else
 	{
-		pWall->cstat &= ~512;
-		pWallNext->cstat &= ~512;
+		pWall->cstat &= ~CSTAT_WALL_TRANS_FLIP;
+		pWallNext->cstat &= ~CSTAT_WALL_TRANS_FLIP;
 	}
 	if (pFrame->blockable)
 	{
-		pWall->cstat |= 1;
-		pWallNext->cstat |= 1;
+		pWall->cstat |= CSTAT_WALL_BLOCK;
+		pWallNext->cstat |= CSTAT_WALL_BLOCK;
 	}
 	else
 	{
-		pWall->cstat &= ~1;
-		pWallNext->cstat &= ~1;
+		pWall->cstat &= ~CSTAT_WALL_BLOCK;
+		pWallNext->cstat &= ~CSTAT_WALL_BLOCK;
 	}
 	if (pFrame->hittable)
 	{
-		pWall->cstat |= 64;
-		pWallNext->cstat |= 64;
+		pWall->cstat |= CSTAT_WALL_BLOCK_HITSCAN;
+		pWallNext->cstat |= CSTAT_WALL_BLOCK_HITSCAN;
 	}
 	else
 	{
-		pWall->cstat &= ~64;
-		pWallNext->cstat &= ~64;
+		pWall->cstat &= ~CSTAT_WALL_BLOCK_HITSCAN;
+		pWallNext->cstat &= ~CSTAT_WALL_BLOCK_HITSCAN;
 	}
 }
 
@@ -715,9 +715,9 @@ void seqProcess(int nTicks)
 						{
 							assert(target.isWall());
 							auto pWall = target.wall();
-							pWall->cstat &= ~(8 + 16 + 32);
+							pWall->cstat &= ~(CSTAT_WALL_XFLIP | CSTAT_WALL_MASKED | CSTAT_WALL_1WAY);
 							if (pWall->twoSided())
-								pWall->nextWall()->cstat &= ~(8 + 16 + 32);
+								pWall->nextWall()->cstat &= ~(CSTAT_WALL_XFLIP | CSTAT_WALL_MASKED | CSTAT_WALL_1WAY);
 						}
 					}
 

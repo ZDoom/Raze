@@ -62,7 +62,7 @@ void InitMirrors(void)
 
                 mirror[mirrorcnt].wallnum = i;
                 mirror[mirrorcnt].type = 0;
-                pWalli->cstat |= 32;
+                pWalli->cstat |= CSTAT_WALL_1WAY;
                 int tmp = pWalli->xw().data;
                 int j;
                 for (j = numwalls - 1; j >= 0; j--)
@@ -99,7 +99,7 @@ void InitMirrors(void)
             mirror[mirrorcnt].wallnum = i;
             pWalli->picnum = nTile;
             mirror[mirrorcnt].type = 0;
-            pWalli->cstat |= 32;
+            pWalli->cstat |= CSTAT_WALL_1WAY;
             pWalli->portalflags = PORTAL_WALL_MIRROR;
             mirrorcnt++;
             continue;
