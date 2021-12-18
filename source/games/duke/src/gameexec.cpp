@@ -2255,7 +2255,7 @@ int ParseState::parse(void)
 			g_sp->backuppos();
 			updatesector(ps[g_p].pos.x, ps[g_p].pos.y, &ps[g_p].cursector);
 			SetActor(ps[g_p].GetActor(), { ps[g_p].pos.x, ps[g_p].pos.y, ps[g_p].pos.z + gs.playerheight });
-			g_sp->cstat = 257;
+			g_sp->cstat = CSTAT_SPRITE_BLOCK_ALL;
 
 			g_sp->shade = -12;
 			g_sp->clipdist = 64;

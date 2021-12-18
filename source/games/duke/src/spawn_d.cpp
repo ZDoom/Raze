@@ -134,7 +134,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			return act;
 		case SERIOUSSAM:
 			ChangeActorStat(act, 2);
-			sp->cstat = 257;
+			sp->cstat = CSTAT_SPRITE_BLOCK_ALL;
 			sp->extra = 150;
 			return act;
 		}
@@ -256,7 +256,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case FORCESPHERE:
 		if (!spj)
 		{
-			sp->cstat = 32768;
+			sp->cstat = CSTAT_SPRITE_INVISIBLE;
 			ChangeActorStat(act, 2);
 		}
 		else
@@ -594,7 +594,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			ChangeActorStat(act, STAT_MISC);
 			break;
 		}
-		sp->cstat = 32768;
+		sp->cstat = CSTAT_SPRITE_INVISIBLE;
 		ChangeActorStat(act, 11);
 		break;
 
@@ -919,7 +919,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 	case ACTIVATORLOCKED:
 	case ACTIVATOR:
-		sp->cstat = 32768;
+		sp->cstat = CSTAT_SPRITE_INVISIBLE;
 		if (sp->picnum == ACTIVATORLOCKED)
 			sp->sector()->lotag |= 16384;
 		ChangeActorStat(act, 8);
@@ -1066,7 +1066,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case TIRE:
 	case CONE:
 	case BOX:
-		sp->cstat = 257; // Make it hitable
+		sp->cstat = CSTAT_SPRITE_BLOCK_ALL; // Make it hitable
 		sp->extra = 1;
 		ChangeActorStat(act, STAT_STANDABLE);
 		break;
@@ -1093,7 +1093,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case CAMERAPOLE:
 		sp->extra = 1;
 
-		if (gs.camerashitable) sp->cstat = 257;
+		if (gs.camerashitable) sp->cstat = CSTAT_SPRITE_BLOCK_ALL;
 		else sp->cstat = 0;
 		[[fallthrough]];
 
@@ -1136,7 +1136,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		sp->shade = -16;
 		if (sp->xrepeat <= 8)
 		{
-			sp->cstat = 32768;
+			sp->cstat = CSTAT_SPRITE_INVISIBLE;
 			sp->xrepeat = sp->yrepeat = 0;
 		}
 		else sp->cstat = 1 + 256;
@@ -1152,7 +1152,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case FIREEXT:
 		if (sp->picnum == FIREEXT)
 		{
-			sp->cstat = 257;
+			sp->cstat = CSTAT_SPRITE_BLOCK_ALL;
 			sp->extra = gs.impact_damage << 2;
 		}
 		else
@@ -1219,7 +1219,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 				sp->clipdist = 24;
 				ps[connecthead].max_actors_killed++;
 			}
-			sp->cstat = 257 | (krand() & 4);
+			sp->cstat = CSTAT_SPRITE_BLOCK_ALL | (krand() & 4);
 			ChangeActorStat(act, STAT_ZOMBIEACTOR);
 		}
 		break;

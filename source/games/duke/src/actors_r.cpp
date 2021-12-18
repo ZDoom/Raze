@@ -1807,7 +1807,7 @@ void movetransports_r(void)
 					case PLAYERONWATER:
 						if (sectlotag == ST_2_UNDERWATER)
 						{
-							spr2->cstat &= 32767;
+							spr2->cstat &= ~CSTAT_SPRITE_INVISIBLE;
 							break;
 						}
 						[[fallthrough]];
@@ -2515,7 +2515,7 @@ static void heavyhbomb(DDukeActor *actor)
 		{
 			S_PlayActorSound(TELEPORTER, actor);
 			spawn(actor, TRANSPORTERSTAR);
-			s->cstat = 257;
+			s->cstat = CSTAT_SPRITE_BLOCK_ALL;
 		}
 		return;
 	}
@@ -2723,7 +2723,7 @@ DETONATEB:
 					{
 						t[2] = gs.respawnitemtime;
 						spawn(actor, RESPAWNMARKERRED);
-						s->cstat = 32768;
+						s->cstat = CSTAT_SPRITE_INVISIBLE;
 					}
 				}
 
@@ -2786,7 +2786,7 @@ static int henstand(DDukeActor *actor)
 		}
 		s->xvel--;
 		if (s->xvel < 0) s->xvel = 0;
-		s->cstat = 257;
+		s->cstat = CSTAT_SPRITE_BLOCK_ALL;
 		if (s->picnum == BOWLINGPIN)
 		{
 			s->cstat |= 4 & s->xvel;
@@ -3081,10 +3081,10 @@ void moveactors_r(void)
 		{
 			if( actor_tog == 1)
 			{
-				s->cstat = 32768;
+				s->cstat = CSTAT_SPRITE_INVISIBLE;
 				continue;
 			}
-			else if(actor_tog == 2) s->cstat = 257;
+			else if(actor_tog == 2) s->cstat = CSTAT_SPRITE_BLOCK_ALL;
 		}
 // #endif
 

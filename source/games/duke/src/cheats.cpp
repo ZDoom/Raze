@@ -72,7 +72,7 @@ static const char *cheatGod(int myconnectindex, int state)
 	if (ud.god)
 	{
 		if (isRRRA()) S_PlaySound(218, CHAN_AUTO, CHANF_UI);
-		act->s->cstat = 257;
+		act->s->cstat = CSTAT_SPRITE_BLOCK_ALL;
 
 		act->temp_data[0] = 0;
 		act->temp_data[1] = 0;

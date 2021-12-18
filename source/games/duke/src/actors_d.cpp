@@ -2122,7 +2122,7 @@ void movetransports_d(void)
 					case PLAYERONWATER:
 						if (sectlotag == 2)
 						{
-							spr2->cstat &= 32767;
+							spr2->cstat &= ~CSTAT_SPRITE_INVISIBLE;
 							break;
 						}
 						[[fallthrough]];
@@ -2240,10 +2240,10 @@ static void greenslime(DDukeActor *actor)
 	{
 		if (actor_tog == 1)
 		{
-			s->cstat = 32768;
+			s->cstat = CSTAT_SPRITE_INVISIBLE;
 			return;
 		}
-		else if (actor_tog == 2) s->cstat = 257;
+		else if (actor_tog == 2) s->cstat = CSTAT_SPRITE_BLOCK_ALL;
 	}
 	// #endif
 
@@ -2279,7 +2279,7 @@ static void greenslime(DDukeActor *actor)
 			return;
 		}
 		makeitfall(actor);
-		s->cstat = 257;
+		s->cstat = CSTAT_SPRITE_BLOCK_ALL;
 		s->picnum = GREENSLIME + 2;
 		s->extra = 1;
 		s->pal = 1;
@@ -2309,7 +2309,7 @@ static void greenslime(DDukeActor *actor)
 
 	if (x < 1596)
 		s->cstat = 0;
-	else s->cstat = 257;
+	else s->cstat = CSTAT_SPRITE_BLOCK_ALL;
 
 	if (t[0] == -4) //On the player
 	{
@@ -2745,7 +2745,7 @@ static void heavyhbomb(DDukeActor *actor)
 		{
 			S_PlayActorSound(TELEPORTER, actor);
 			spawn(actor, TRANSPORTERSTAR);
-			s->cstat = 257;
+			s->cstat = CSTAT_SPRITE_BLOCK_ALL;
 		}
 		return;
 	}
@@ -2891,7 +2891,7 @@ DETONATEB:
 			{
 				t[2] = gs.respawnitemtime;
 				spawn(actor, RESPAWNMARKERRED);
-				s->cstat = 32768;
+				s->cstat = CSTAT_SPRITE_INVISIBLE;
 				s->yrepeat = 9;
 				return;
 			}
@@ -2934,7 +2934,7 @@ DETONATEB:
 				{
 					t[2] = gs.respawnitemtime;
 					spawn(actor, RESPAWNMARKERRED);
-					s->cstat = 32768;
+					s->cstat = CSTAT_SPRITE_INVISIBLE;
 				}
 			}
 
@@ -3107,10 +3107,10 @@ void moveactors_d(void)
 		{
 			if (actor_tog == 1)
 			{
-				s->cstat = 32768;
+				s->cstat = CSTAT_SPRITE_INVISIBLE;
 				continue;
 			}
-			else if (actor_tog == 2) s->cstat = 257;
+			else if (actor_tog == 2) s->cstat = CSTAT_SPRITE_BLOCK_ALL;
 		}
 		// #endif
 
@@ -3471,7 +3471,7 @@ static void handle_se28(DDukeActor* actor)
 				{
 					if (rnd(32) && (t[2] & 1))
 					{
-						act2->s->cstat &= 32767;
+						act2->s->cstat &= ~CSTAT_SPRITE_INVISIBLE;
 						spawn(act2, SMALLSMOKE);
 
 						int x;

@@ -375,7 +375,7 @@ void movedummyplayers(void)
 			else
 			{
 				if (spri->sector()->lotag != 2) spri->z = spri->sector()->floorz;
-				spri->cstat = 32768;
+				spri->cstat = CSTAT_SPRITE_INVISIBLE;
 			}
 		}
 
@@ -444,7 +444,7 @@ void moveplayers(void)
 				if (ud.god)
 				{
 					spri->extra = gs.max_player_health;
-					spri->cstat = 257;
+					spri->cstat = CSTAT_SPRITE_BLOCK_ALL;
 					if (!isWW2GI() && !isRR())
 						p->jetpack_amount = 1599;
 				}
@@ -1048,7 +1048,7 @@ void movewaterdrip(DDukeActor *actor, int drip)
 	{
 		t[1]--;
 		if (t[1] == 0)
-			s->cstat &= 32767;
+			s->cstat &= ~CSTAT_SPRITE_INVISIBLE;
 	}
 	else
 	{
@@ -1520,7 +1520,7 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 		if (s->xvel < 0) s->xvel = 0;
 		if (s->picnum == stripeball)
 		{
-			s->cstat = 257;
+			s->cstat = CSTAT_SPRITE_BLOCK_ALL;
 			s->cstat |= 4 & s->xvel;
 			s->cstat |= 8 & s->xvel;
 		}
@@ -1595,7 +1595,7 @@ void forcesphere(DDukeActor* actor, int forcesphere)
 				auto k = spawn(actor, forcesphere);
 				if (k)
 				{
-					k->s->cstat = 257 + 128;
+					k->s->cstat = CSTAT_SPRITE_BLOCK_ALL + 128;
 					k->s->clipdist = 64;
 					k->s->ang = j;
 					k->s->zvel = bsin(l, -5);
@@ -1657,10 +1657,10 @@ void recon(DDukeActor *actor, int explosion, int firelaser, int attacksnd, int p
 	{
 		if (actor_tog == 1)
 		{
-			s->cstat = 32768;
+			s->cstat = CSTAT_SPRITE_INVISIBLE;
 			return;
 		}
-		else if (actor_tog == 2) s->cstat = 257;
+		else if (actor_tog == 2) s->cstat = CSTAT_SPRITE_BLOCK_ALL;
 	}
 	if (fi.ifhitbyweapon(actor) >= 0)
 	{
@@ -1882,7 +1882,7 @@ void reactor(DDukeActor* const actor, int REACTOR, int REACTOR2, int REACTORBURN
 			}
 			else if (sprj->picnum == REACTORSPARK || sprj->picnum == REACTOR2SPARK)
 			{
-				sprj->cstat = 32768;
+				sprj->cstat = CSTAT_SPRITE_INVISIBLE;
 			}
 		}		
 		return;
@@ -2001,7 +2001,7 @@ void camera(DDukeActor *actor)
 			if (j >= 0)
 			{
 				t[0] = 1; // static
-				s->cstat = 32768;
+				s->cstat = CSTAT_SPRITE_INVISIBLE;
 				for (int x = 0; x < 5; x++)
 					RANDOMSCRAP(actor);
 				return;

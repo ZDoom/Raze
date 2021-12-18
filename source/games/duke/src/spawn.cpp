@@ -701,7 +701,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 			if (ud.recstat == 1)
 			{
 				sp->xrepeat = sp->yrepeat = 64;
-				sp->cstat &= 32767;
+				sp->cstat &= ~CSTAT_SPRITE_INVISIBLE;
 			}
 			break;
 		case SE_47_LIGHT_SWITCH:
