@@ -2588,7 +2588,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 
                     if ((old & 0x0) && !(pWall->cstat & 0x0)) pWall->cstat |= 0x0; // kWallMoveNone
                     else if ((old & 0x4000) && !(pWall->cstat & 0x4000)) pWall->cstat |= 0x4000; // kWallMoveForward
-                    else if ((old & 0x8000) && !(pWall->cstat & 0x8000)) pWall->cstat |= 0x8000; // kWallMoveBackward
+                    else if ((old & 0x8000) && !(pWall->cstat & CSTAT_SPRITE_INVISIBLE)) pWall->cstat |= CSTAT_SPRITE_INVISIBLE; // kWallMoveBackward
 
                 }
 #endif
@@ -2813,7 +2813,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 
                 // and handle exceptions
                 if ((old & 0x1000) && !(pSprite->cstat & 0x1000)) pSprite->cstat |= 0x1000; //kSpritePushable
-                if ((old & 0x80) && !(pSprite->cstat & 0x80)) pSprite->cstat |= 0x80; // kSpriteOriginAlign
+                if ((old & CSTAT_SPRITE_YCENTER) && !(pSprite->cstat & CSTAT_SPRITE_YCENTER)) pSprite->cstat |= CSTAT_SPRITE_YCENTER;
 
                 if (old & 0x6000) 
                 {

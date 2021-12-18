@@ -488,7 +488,7 @@ void BuildQueenEgg(int nQueen, int nVal)
         pSprite2->xvel = 0;
         pSprite2->yvel = 0;
         pSprite2->zvel = -2000;
-        pSprite2->cstat = 0x101;
+        pSprite2->cstat = CSTAT_SPRITE_BLOCK_ALL;
     }
 
     pSprite2->lotag = runlist_HeadRun() + 1;
@@ -557,7 +557,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
         pEgg->pActor = enemy;
         pEgg->pTarget = pTarget;
 
-        if (pTarget && (pTarget->s().cstat & 0x101) == 0)
+        if (pTarget && (pTarget->s().cstat & CSTAT_SPRITE_BLOCK_ALL) == 0)
         {
             pEgg->pTarget = nullptr;
             pEgg->nAction = 0;
@@ -616,7 +616,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
         if (bVal)
         {
             pEgg->nAction = 3;
-            pSprite->cstat = 0x101;
+            pSprite->cstat = CSTAT_SPRITE_BLOCK_ALL;
         }
         break;
     }
@@ -681,7 +681,7 @@ void AIQueenEgg::RadialDamage(RunListEvent* ev)
     auto pSprite = &pActor->s();
     auto pRadial = &ev->pRadialActor->s();
 
-    if (pRadial->statnum != 121 && (pSprite->cstat & 0x101) != 0)
+    if (pRadial->statnum != 121 && (pSprite->cstat & CSTAT_SPRITE_BLOCK_ALL) != 0)
     {
         int nDamage = runlist_CheckRadialDamage(pActor);
 
@@ -794,7 +794,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
 
     if (pTarget)
     {
-        if (!(pTarget->s().cstat & 0x101))
+        if (!(pTarget->s().cstat & CSTAT_SPRITE_BLOCK_ALL))
         {
             pTarget = nullptr;
             QueenHead.pTarget = pTarget;
@@ -818,7 +818,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
 
                 QueenHead.nAction = 6;
                 nHeadVel = 800;
-                pSprite->cstat = 0x101;
+                pSprite->cstat = CSTAT_SPRITE_BLOCK_ALL;
             }
             else if (QueenHead.nIndex < 60)
             {
@@ -1056,7 +1056,7 @@ void AIQueenHead::RadialDamage(RunListEvent* ev)
     auto pSprite = &QueenHead.pActor->s();
     auto pRadial = &ev->pRadialActor->s();
 
-    if (pRadial->statnum != 121 && (pSprite->cstat & 0x101) != 0)
+    if (pRadial->statnum != 121 && (pSprite->cstat & CSTAT_SPRITE_BLOCK_ALL) != 0)
     {
         ev->nDamage = runlist_CheckRadialDamage(QueenHead.pActor);
         if (ev->nDamage) Damage(ev);
@@ -1150,7 +1150,7 @@ void BuildQueen(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector,
     pSprite->x = x;
     pSprite->y = y;
     pSprite->z = z;
-    pSprite->cstat = 0x101;
+    pSprite->cstat = CSTAT_SPRITE_BLOCK_ALL;
     pSprite->pal = 0;
     pSprite->shade = -12;
     pSprite->clipdist = 100;
@@ -1233,7 +1233,7 @@ void AIQueen::Tick(RunListEvent* ev)
     {
         if (nAction < 7)
         {
-            if (!(pSprite->cstat & 0x101))
+            if (!(pSprite->cstat & CSTAT_SPRITE_BLOCK_ALL))
             {
                 pTarget = nullptr;
                 QueenList[nQueen].pTarget = nullptr;
@@ -1348,7 +1348,7 @@ void AIQueen::Tick(RunListEvent* ev)
         // loc_35BD2
         if (nAction && pTarget != nullptr)
         {
-            if (!(pTarget->s().cstat & 0x101))
+            if (!(pTarget->s().cstat & CSTAT_SPRITE_BLOCK_ALL))
             {
                 QueenList[nQueen].nAction = 0;
                 QueenList[nQueen].nFrame = 0;
@@ -1451,7 +1451,7 @@ void AIQueen::Tick(RunListEvent* ev)
 
     case 10:
     {
-        pSprite->cstat &= 0xFEFE;
+        pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
         break;
     }
     }
@@ -1466,7 +1466,7 @@ void AIQueen::RadialDamage(RunListEvent* ev)
     auto pSprite = &pActor->s();
     auto pRadial = &ev->pRadialActor->s();
 
-    if (pRadial->statnum != 121 && (pSprite->cstat & 0x101) != 0)
+    if (pRadial->statnum != 121 && (pSprite->cstat & CSTAT_SPRITE_BLOCK_ALL) != 0)
     {
         ev->nDamage = runlist_CheckRadialDamage(pActor);
         if (ev->nDamage) Damage(ev);

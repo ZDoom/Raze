@@ -181,10 +181,10 @@ static bool UseEye(int nPlayer)
     auto pActor = PlayerList[nPlayer].Actor();
 	auto pSprite = &pActor->s();
 
-    pSprite->cstat |= 0x8000;
+    pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
 
     if (PlayerList[nPlayer].pPlayerFloorSprite != nullptr) {
-        pSprite->cstat |= 0x8000;
+        pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
     }
 
     if (nPlayer == nLocalPlayer)
@@ -434,7 +434,7 @@ void DoRegenerates()
         pSprite->xvel = pSprite->zvel; // setting to 0
 
         if (pSprite->statnum == kStatExplodeTrigger) {
-            pSprite->cstat = 0x101;
+            pSprite->cstat = CSTAT_SPRITE_BLOCK_ALL;
         }
         else {
             pSprite->cstat = 0;

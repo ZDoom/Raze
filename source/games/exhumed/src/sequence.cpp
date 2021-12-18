@@ -482,9 +482,9 @@ int seq_PlotArrowSequence(int nSprite, int16_t nSeq, int nVal)
     int16_t nFrameSize = FrameSize[nFrame];
 
     uint8_t nShade = pTSprite->shade;
-    int16_t nStat = pTSprite->cstat;
+    auto nStat = pTSprite->cstat;
 
-    nStat |= 0x80;
+    nStat |= CSTAT_SPRITE_YCENTER;
 
     if (nSeqOffset & 3) {
         nStat |= 0x18;
@@ -583,7 +583,7 @@ int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
         tsp->ang = pTSprite->ang;
         tsp->ownerActor = pTSprite->ownerActor;
         tsp->sectp = pTSprite->sectp;
-        tsp->cstat   = pTSprite->cstat |= 0x80;
+        tsp->cstat = pTSprite->cstat |= CSTAT_SPRITE_YCENTER;
         tsp->cstat2 = pTSprite->cstat2;
         tsp->statnum = esi;
 
@@ -603,7 +603,7 @@ int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
         nBase++;
     }
 
-    if (!(pTSprite->cstat & 0x101) || (pOwner->s().statnum == 100 && nNetPlayerCount))
+    if (!(pTSprite->cstat & CSTAT_SPRITE_BLOCK_ALL) || (pOwner->s().statnum == 100 && nNetPlayerCount))
     {
         pTSprite->ownerActor = nullptr;
     }

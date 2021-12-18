@@ -59,7 +59,7 @@ void BuildRex(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, i
     pSprite->x = x;
     pSprite->y = y;
     pSprite->z = z;
-    pSprite->cstat = 0x101;
+    pSprite->cstat = CSTAT_SPRITE_BLOCK_ALL;
     pSprite->clipdist = 80;
     pSprite->shade = -12;
     pSprite->xrepeat = 64;
@@ -134,7 +134,7 @@ void AIRex::Damage(RunListEvent* ev)
                 pSprite->xvel = 0;
                 pSprite->yvel = 0;
                 pSprite->zvel = 0;
-                pSprite->cstat &= 0xFEFE;
+                pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 
                 pActor->nHealth = 0;
 
@@ -433,7 +433,7 @@ void AIRex::Tick(RunListEvent* ev)
 
     case 7:
     {
-        pSprite->cstat &= 0xFEFE;
+        pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
         return;
     }
     }
@@ -441,7 +441,7 @@ void AIRex::Tick(RunListEvent* ev)
     // break-ed
     if (nAction > 0)
     {
-        if ((pTarget != nullptr) && (!(pTarget->s().cstat & 0x101)))
+        if ((pTarget != nullptr) && (!(pTarget->s().cstat & CSTAT_SPRITE_BLOCK_ALL)))
         {
             pActor->nAction = 0;
             pActor->nFrame = 0;

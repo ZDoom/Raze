@@ -69,7 +69,7 @@ void ThrowGrenade(int nPlayer, int, int, int ecx, int push1)
         nAngle = pPlayerSprite->ang;
     }
 
-    pGrenadeSprite->cstat &= 0x7FFF;
+    pGrenadeSprite->cstat &= ~CSTAT_SPRITE_BLOCK;
     pGrenadeSprite->ang = nAngle;
 
     if (push1 >= -3000)

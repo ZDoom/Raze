@@ -282,9 +282,9 @@ DExhumedActor* FindSnakeEnemy(int nSnake)
     while (auto pAct2 = it.Next())
     {
 		auto pSpr2 = &pAct2->s();
-        if (pSpr2->statnum >= 90 && pSpr2->statnum < 150 && (pSpr2->cstat & 0x101))
+        if (pSpr2->statnum >= 90 && pSpr2->statnum < 150 && (pSpr2->cstat & CSTAT_SPRITE_BLOCK_ALL))
         {
-            if (pAct2 != pPlayerActor && !(pSpr2->cstat & 0x8000))
+            if (pAct2 != pPlayerActor && !(pSpr2->cstat & CSTAT_SPRITE_INVISIBLE))
             {
                 int nAngle2 = (nAngle - GetAngleToSprite(pActor, pAct2)) & kAngleMask;
                 if (nAngle2 < esi)
@@ -345,7 +345,7 @@ void AISnake::Tick(RunListEvent* ev)
     }
     else
     {
-        if (!(pEnemySprite->s().cstat & 0x101))
+        if (!(pEnemySprite->s().cstat & CSTAT_SPRITE_BLOCK_ALL))
         {
             SnakeList[nSnake].pEnemy = nullptr;
             goto SEARCH_ENEMY;

@@ -92,7 +92,7 @@ void BuildRat(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, i
         ChangeActorStat(pActor, 108);
     }
 
-    pSprite->cstat = 0x101;
+    pSprite->cstat = CSTAT_SPRITE_BLOCK_ALL;
     pSprite->shade = -12;
     pSprite->xoffset = 0;
     pSprite->yoffset = 0;

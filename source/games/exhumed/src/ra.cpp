@@ -133,7 +133,7 @@ void MoveRaToEnemy(int nPlayer)
     if (pTarget)
     {
 		auto pTargSprite = &pTarget->s();
-        if (!(pTargSprite->cstat & 0x101) || pTargSprite->statnum == MAXSTATUS)
+        if (!(pTargSprite->cstat & CSTAT_SPRITE_BLOCK_ALL) || pTargSprite->statnum == MAXSTATUS)
         {
             Ra[nPlayer].pTarget = nullptr;
             if (nAction == 0 || nAction == 3) {
@@ -217,7 +217,7 @@ void AIRa::Tick(RunListEvent* ev)
         }
         else
         {
-            pSprite->cstat &= 0x7FFF;
+            pSprite->cstat &= ~CSTAT_SPRITE_BLOCK;
             Ra[nPlayer].nAction = 1;
             Ra[nPlayer].nFrame = 0;
         }
@@ -288,7 +288,7 @@ void AIRa::Tick(RunListEvent* ev)
     {
         if (bVal)
         {
-            pSprite->cstat |= 0x8000;
+            pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
             Ra[nPlayer].nAction = 0;
             Ra[nPlayer].nFrame = 0;
             Ra[nPlayer].nState = 0;

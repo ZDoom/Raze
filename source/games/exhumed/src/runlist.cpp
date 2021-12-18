@@ -1595,7 +1595,7 @@ int runlist_CheckRadialDamage(DExhumedActor* pActor)
         return 0;
     }
 
-    if (!(pSprite->cstat & 0x101)) {
+    if (!(pSprite->cstat & CSTAT_SPRITE_BLOCK_ALL)) {
         return 0;
     }
 
@@ -1641,7 +1641,7 @@ int runlist_CheckRadialDamage(DExhumedActor* pActor)
     if (nDist < nDamageRadius)
     {
         uint16_t nCStat = pSprite->cstat;
-        pSprite->cstat = 0x101;
+        pSprite->cstat = CSTAT_SPRITE_BLOCK_ALL;
 
         if (((kStatExplodeTarget - pSprite->statnum) <= 1) ||
             cansee(pRadialSpr->x,

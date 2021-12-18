@@ -194,7 +194,7 @@ void AILavaDude::Damage(RunListEvent* ev)
 
         nCreaturesKilled++;
 
-        pSprite->cstat &= 0xFEFE;
+        pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
     }
     else
     {
@@ -259,7 +259,7 @@ void AILavaDude::Tick(RunListEvent* ev)
 
     if (pTarget && nAction < 4)
     {
-        if (!(pTarget->s().cstat & 0x101) || pTarget->s().statnum == MAXSTATUS)
+        if (!(pTarget->s().cstat & CSTAT_SPRITE_BLOCK_ALL) || pTarget->s().statnum == MAXSTATUS)
         {
             pTarget = nullptr;
             pActor->pTarget = nullptr;
@@ -286,7 +286,7 @@ void AILavaDude::Tick(RunListEvent* ev)
             {
                 pActor->pTarget = pTarget;
                 pActor->nAction = 2;
-                pSprite->cstat = 0x101;
+                pSprite->cstat = CSTAT_SPRITE_BLOCK_ALL;
                 pActor->nFrame = 0;
                 break;
             }
@@ -332,7 +332,7 @@ void AILavaDude::Tick(RunListEvent* ev)
                 {
                     pActor->nAction = 2;
                     pActor->nFrame = 0;
-                    pSprite->cstat = 0x101;
+                    pSprite->cstat = CSTAT_SPRITE_BLOCK_ALL;
                     break;
                 }
             }
@@ -356,7 +356,7 @@ void AILavaDude::Tick(RunListEvent* ev)
 
             PlotCourseToSprite(pActor, pTarget);
 
-            pSprite->cstat |= 0x101;
+            pSprite->cstat |= CSTAT_SPRITE_BLOCK_ALL;
         }
 
         break;
@@ -386,7 +386,7 @@ void AILavaDude::Tick(RunListEvent* ev)
         if (var_1C)
         {
             pActor->nAction = 7;
-            pSprite->cstat &= 0xFEFE;
+            pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
         }
 
         break;

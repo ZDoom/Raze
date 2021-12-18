@@ -59,7 +59,7 @@ void BuildMummy(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector,
     pSprite->x = x;
     pSprite->y = y;
     pSprite->z = z;
-    pSprite->cstat = 0x101;
+    pSprite->cstat = CSTAT_SPRITE_BLOCK_ALL;
     pSprite->shade = -12;
     pSprite->clipdist = 32;
     pSprite->xvel = 0;
@@ -178,7 +178,7 @@ void AIMummy::Tick(RunListEvent* ev)
     {
         if ((pActor->nPhase & 0x1F) == (totalmoves & 0x1F))
         {
-            pSprite->cstat = 0x101;
+            pSprite->cstat = CSTAT_SPRITE_BLOCK_ALL;
 
             if (pTarget == nullptr)
             {
@@ -208,7 +208,7 @@ void AIMummy::Tick(RunListEvent* ev)
 
         if ((pActor->nPhase & 0x1F) == (totalmoves & 0x1F))
         {
-            pSprite->cstat = 0x101;
+            pSprite->cstat = CSTAT_SPRITE_BLOCK_ALL;
 
             PlotCourseToSprite(pActor, pTarget);
 
@@ -373,7 +373,7 @@ void AIMummy::Tick(RunListEvent* ev)
     {
         if (bVal)
         {
-            pSprite->cstat = 0x101;
+            pSprite->cstat = CSTAT_SPRITE_BLOCK_ALL;
 
             pActor->nAction = 0;
             pActor->nHealth = 300;
@@ -396,7 +396,7 @@ void AIMummy::Tick(RunListEvent* ev)
         {
             pSprite->xvel = 0;
             pSprite->yvel = 0;
-            pSprite->cstat = 0x101;
+            pSprite->cstat = CSTAT_SPRITE_BLOCK_ALL;
 
             pActor->nAction = 0;
             pActor->nFrame = 0;
@@ -448,7 +448,7 @@ void AIMummy::Damage(RunListEvent* ev)
     if (pActor->nHealth <= 0)
     {
         pActor->nHealth = 0;
-        pSprite->cstat &= 0xFEFE;
+        pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
         nCreaturesKilled++;
 
         DropMagic(pActor);

@@ -335,7 +335,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
         {
             pSprite->hitag = nVal;
             ChangeActorStat(pActor, nLotag + 900);
-            pSprite->cstat &= 0xFEFE;
+            pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
             BuildItemAnim(pActor);
             return;
         }
@@ -343,7 +343,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
         {
             pSprite->hitag = 40;
             ChangeActorStat(pActor, nLotag + 900);
-            pSprite->cstat &= 0xFEFE;
+            pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
             BuildItemAnim(pActor);
             return;
         }
@@ -351,7 +351,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
         {
             pSprite->hitag = 160;
             ChangeActorStat(pActor, nLotag + 900);
-            pSprite->cstat &= 0xFEFE;
+            pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
             BuildItemAnim(pActor);
             return;
         }
@@ -359,7 +359,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
         {
             pSprite->hitag = -200;
             ChangeActorStat(pActor, nLotag + 900);
-            pSprite->cstat &= 0xFEFE;
+            pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
             BuildItemAnim(pActor);
             return;
         }
@@ -382,7 +382,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
             {
                 pSprite->hitag = nVal;
                 ChangeActorStat(pActor, nLotag + 900);
-                pSprite->cstat &= 0xFEFE;
+                pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
                 BuildItemAnim(pActor);
                 return;
             }
@@ -391,7 +391,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
         {
             pSprite->hitag = 1;
             ChangeActorStat(pActor, 9 + 900);
-            pSprite->cstat &= 0xFEFE;
+            pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
             BuildItemAnim(pActor);
             return;
         }
@@ -402,7 +402,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
             nVal--; // CHECKME ??
             pSprite->hitag = nVal;
             ChangeActorStat(pActor, nLotag + 900);
-            pSprite->cstat &= 0xFEFE;
+            pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
             BuildItemAnim(pActor);
             return;
         }
@@ -715,7 +715,7 @@ void ProcessSpriteTag(DExhumedActor* pActor, int nLotag, int nHitag)
             case kTagRamses: // Ramses head
             {
                 pSpiritSprite = pActor;
-                pSprite->cstat |= 0x8000;
+                pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
                 return;
             }
             default: // TODO - checkme!

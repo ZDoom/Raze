@@ -60,7 +60,7 @@ void BuildSet(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, i
     pSprite->x = x;
     pSprite->y = y;
     pSprite->z = z;
-    pSprite->cstat = 0x101;
+    pSprite->cstat = CSTAT_SPRITE_BLOCK_ALL;
     pSprite->shade = -12;
     pSprite->clipdist = 110;
     pSprite->xvel = 0;
@@ -206,7 +206,7 @@ void AISet::Damage(RunListEvent* ev)
             pSprite->xvel = 0;
             pSprite->yvel = 0;
             pSprite->zvel = 0;
-            pSprite->cstat &= 0xFEFE;
+            pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 
             pActor->nHealth = 0;
 
@@ -271,7 +271,7 @@ void AISet::Tick(RunListEvent* ev)
 
     if (pTarget && nAction < 10)
     {
-        if (!(pTarget->s().cstat & 0x101))
+        if (!(pTarget->s().cstat & CSTAT_SPRITE_BLOCK_ALL))
         {
             pActor->pTarget = nullptr;
             pActor->nAction = 0;
@@ -611,7 +611,7 @@ void AISet::Tick(RunListEvent* ev)
 
     case 11:
     {
-        pSprite->cstat &= 0xFEFE;
+        pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
         return;
     }
     }
@@ -621,7 +621,7 @@ void AISet::Tick(RunListEvent* ev)
     {
         if (pTarget)
         {
-            if (!(pTarget->s().cstat & 0x101))
+            if (!(pTarget->s().cstat & CSTAT_SPRITE_BLOCK_ALL))
             {
                 pActor->nAction = 0;
                 pActor->nFrame = 0;

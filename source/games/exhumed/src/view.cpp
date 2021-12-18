@@ -116,9 +116,9 @@ static void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int x, int 
         pTSprite->pal = RemapPLU(pTSprite->pal);
 
         // PowerSlaveGDX: Torch bouncing fix
-        if ((pTSprite->picnum == kTorch1 || pTSprite->picnum == kTorch2) && (pTSprite->cstat & 0x80) == 0)
+        if ((pTSprite->picnum == kTorch1 || pTSprite->picnum == kTorch2) && (pTSprite->cstat & CSTAT_SPRITE_YCENTER) == 0)
         {
-            pTSprite->cstat |= 0x80;
+            pTSprite->cstat |= CSTAT_SPRITE_YCENTER;
             int nTileY = (tileHeight(pTSprite->picnum) * pTSprite->yrepeat) * 2;
             pTSprite->z -= nTileY;
         }
@@ -129,7 +129,7 @@ static void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int x, int 
             ev.pTSprite = pTSprite;
             runlist_SignalRun(pSprite->lotag - 1, nTSprite, &ExhumedAI::Draw, &ev);
 
-            if ((pSprite->statnum < 150) && (pSprite->cstat & 0x101) && (pActor != pPlayerActor))
+            if ((pSprite->statnum < 150) && (pSprite->cstat & CSTAT_SPRITE_BLOCK_ALL) && (pActor != pPlayerActor))
             {
                 int xval = pSprite->x - x;
                 int yval = pSprite->y - y;
@@ -211,9 +211,9 @@ void DrawView(double smoothRatio, bool sceneonly)
 
     auto pPlayerActor = PlayerList[nLocalPlayer].Actor();
 	auto pPlayerSprite = &pPlayerActor->s();
-    int nPlayerOldCstat = pPlayerSprite->cstat;
+    auto nPlayerOldCstat = pPlayerSprite->cstat;
     auto pDop = &PlayerList[nLocalPlayer].pDoppleSprite->s();
-    int nDoppleOldCstat = pDop->cstat;
+    auto nDoppleOldCstat = pDop->cstat;
 
     if (nSnakeCam >= 0 && !sceneonly)
     {
@@ -398,7 +398,7 @@ void DrawView(double smoothRatio, bool sceneonly)
                 {
                     nHeadStage = 5;
 
-                    pPlayerSprite->cstat |= 0x8000;
+                    pPlayerSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
 
                     int ang2 = nCameraa.asbuild() - pPlayerSprite->ang;
                     if (ang2 < 0)

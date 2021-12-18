@@ -114,7 +114,7 @@ DExhumedActor* BuildAnim(DExhumedActor* pActor, int val, int val2, int x, int y,
     pActor->nPhase = ITEM_MAGIC;
 
     if (nFlag & 0x80) {
-        pSprite->cstat |= 0x2; // set transluscence
+        pSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT; // set transluscence
     }
 
     return pActor;
@@ -130,7 +130,7 @@ void AIAnim::Tick(RunListEvent* ev)
 
     int nIndex = pActor->nIndex;
 
-    if (!(pSprite->cstat & 0x8000))
+    if (!(pSprite->cstat & CSTAT_SPRITE_INVISIBLE))
     {
         seq_MoveSequence(pActor, nIndex2, nIndex);
     }
@@ -161,7 +161,7 @@ void AIAnim::Tick(RunListEvent* ev)
 
             if (!nIndex)
             {
-                if (pSpriteB->cstat != 0x8000)
+                if (pSpriteB->cstat != CSTAT_SPRITE_INVISIBLE)
                 {
                     int hitag2 = pSpriteB->hitag;
                     pSpriteB->hitag--;

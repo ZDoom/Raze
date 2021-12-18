@@ -56,7 +56,7 @@ void BuildRoach(int nType, DExhumedActor* pActor, int x, int y, int z, sectortyp
     pSprite->x = x;
     pSprite->y = y;
     pSprite->z = z;
-    pSprite->cstat = 0x101;
+    pSprite->cstat = CSTAT_SPRITE_BLOCK_ALL;
     pSprite->shade = -12;
     pSprite->xoffset = 0;
     pSprite->yoffset = 0;
@@ -141,7 +141,7 @@ void AIRoach::Damage(RunListEvent* ev)
             pSprite->xvel = 0;
             pSprite->yvel = 0;
             pSprite->zvel = 0;
-            pSprite->cstat &= 0xFEFE;
+            pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 
             pActor->nHealth = 0;
 
@@ -317,7 +317,7 @@ void AIRoach::Tick(RunListEvent* ev)
             }
         }
 
-        if (pTarget && !(pTarget->s().cstat & 0x101))
+        if (pTarget && !(pTarget->s().cstat & CSTAT_SPRITE_BLOCK_ALL))
         {
             pActor->nAction = 1;
             pActor->nFrame = 0;

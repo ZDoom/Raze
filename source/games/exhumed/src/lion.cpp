@@ -62,7 +62,7 @@ void BuildLion(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, 
     pSprite->x = x;
     pSprite->y = y;
     pSprite->z = z;
-    pSprite->cstat = 0x101;
+    pSprite->cstat = CSTAT_SPRITE_BLOCK_ALL;
     pSprite->clipdist = 60;
     pSprite->shade = -12;
     pSprite->xrepeat = 40;
@@ -130,7 +130,7 @@ void AILion::Damage(RunListEvent* ev)
             pSprite->xvel = 0;
             pSprite->yvel = 0;
             pSprite->zvel = 0;
-            pSprite->cstat &= 0xFEFE;
+            pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 
             pActor->nHealth = 0;
 
@@ -183,7 +183,7 @@ void AILion::Damage(RunListEvent* ev)
                         pActor->nAction = 8;
                         pSprite->xvel = 0;
                         pSprite->yvel = 0;
-                        pSprite->cstat &= 0xFEFE;
+                        pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
                     }
 
                     pActor->nFrame = 0;
@@ -285,7 +285,7 @@ void AILion::Tick(RunListEvent* ev)
 
             int nAng = pSprite->ang & 0xFFF8;
 
-            if (pSprite->cstat & 0x8000)
+            if (pSprite->cstat & CSTAT_SPRITE_INVISIBLE)
             {
                 pSprite->xvel = bcos(nAng, 1);
                 pSprite->yvel = bsin(nAng, 1);
@@ -309,10 +309,10 @@ void AILion::Tick(RunListEvent* ev)
         {
             if (nMov.actor() == pTarget)
             {
-                if (pSprite->cstat & 0x8000)
+                if (pSprite->cstat & CSTAT_SPRITE_INVISIBLE)
                 {
                     pActor->nAction = 9;
-                    pSprite->cstat &= 0x7FFF;
+                    pSprite->cstat &= ~CSTAT_SPRITE_BLOCK;
                     pSprite->xvel = 0;
                     pSprite->yvel = 0;
                 }
@@ -504,7 +504,7 @@ void AILion::Tick(RunListEvent* ev)
         {
             pActor->nAction = 2;
             pActor->nFrame = 0;
-            pSprite->cstat |= 0x8000;
+            pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
         }
         return;
     }
@@ -515,7 +515,7 @@ void AILion::Tick(RunListEvent* ev)
         {
             pActor->nFrame = 0;
             pActor->nAction = 2;
-            pSprite->cstat |= 0x101;
+            pSprite->cstat |= CSTAT_SPRITE_BLOCK_ALL;
         }
         return;
     }
@@ -536,7 +536,7 @@ void AILion::Tick(RunListEvent* ev)
     // loc_379AD: ?
     if (nAction != 1 && pTarget != nullptr)
     {
-        if (!(pTarget->s().cstat & 0x101))
+        if (!(pTarget->s().cstat & CSTAT_SPRITE_BLOCK_ALL))
         {
             pActor->nAction = 1;
             pActor->nFrame = 0;

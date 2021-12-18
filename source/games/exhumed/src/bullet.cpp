@@ -335,7 +335,7 @@ int MoveBullet(int nBullet)
         DExhumedActor* pEnemyActor = BulletList[nBullet].pEnemy;
         if (pEnemyActor)
         {
-            if (!(pEnemyActor->s().cstat & 0x101))
+            if (!(pEnemyActor->s().cstat & CSTAT_SPRITE_BLOCK_ALL))
                 BulletList[nBullet].pEnemy = nullptr;
             else
             {
@@ -592,7 +592,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int n
         {
             spritetype *pTargetSprite = &pTarget->s();
 
-            if (pTargetSprite->cstat & 0x101)
+            if (pTargetSprite->cstat & CSTAT_SPRITE_BLOCK_ALL)
             {
                 sBullet.nType = nType;
                 sBullet.nDoubleDamage = nDoubleDamage;
@@ -703,7 +703,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int n
     pBulletSprite->picnum = seq_GetSeqPicnum(nSeq, 0, 0);
 
     if (nSeq == kSeqBullet) {
-        pBulletSprite->cstat |= 0x8000;
+        pBulletSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
     }
 
     pBullet->nPitch = nPitch;

@@ -319,7 +319,7 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
     auto pSect2 = pSector;
 
     // backup cstat
-    uint16_t cstat = pSprite->cstat;
+    auto cstat = pSprite->cstat;
 
     pSprite->cstat &= ~CSTAT_SPRITE_BLOCK;
 
@@ -728,7 +728,7 @@ DExhumedActor* FindPlayer(DExhumedActor* pActor, int nDistance, bool dontengage)
         pPlayerActor = PlayerList[i].Actor();
         auto pPlayerSprite = &pPlayerActor->s();
 
-        if ((pPlayerSprite->cstat & 0x101) && (!(pPlayerSprite->cstat & 0x8000)))
+        if ((pPlayerSprite->cstat & CSTAT_SPRITE_BLOCK_ALL) && (!(pPlayerSprite->cstat & CSTAT_SPRITE_INVISIBLE)))
         {
             int v9 = abs(pPlayerSprite->x - x);
 
@@ -1006,7 +1006,7 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
             {
                 pos.z = sp->z;
 
-                if ((nSectFlag & kSectUnderwater) || pos.z != nZVal || sp->cstat & 0x8000)
+                if ((nSectFlag & kSectUnderwater) || pos.z != nZVal || sp->cstat & CSTAT_SPRITE_INVISIBLE)
                 {
                     pos.x = sp->x;
                     pos.y = sp->y;
@@ -1075,7 +1075,7 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
         while (auto pActor = it.Next())
         {
             auto pSprite = &pActor->s();
-            if (pSprite->statnum >= 99 && nZVal == pSprite->z && !(pSprite->cstat & 0x8000))
+            if (pSprite->statnum >= 99 && nZVal == pSprite->z && !(pSprite->cstat & CSTAT_SPRITE_INVISIBLE))
             {
                 pSectorB = pSector;
                 Collision scratch;
@@ -1348,7 +1348,7 @@ DExhumedActor* GrabBody()
         if (nCurBodyNum >= 50) {
             nCurBodyNum = 0;
         }
-    } while (pSprite->cstat & 0x101);
+    } while (pSprite->cstat & CSTAT_SPRITE_BLOCK_ALL);
 
     if (nBodyTotal < 50) {
         nBodyTotal++;
@@ -1382,7 +1382,7 @@ DExhumedActor* GrabChunkSprite()
     if (nChunkTotal < kMaxMoveChunks)
         nChunkTotal++;
 
-    pActor->s().cstat = 0x80;
+    pActor->s().cstat = CSTAT_SPRITE_YCENTER;
 
     return pActor;
 }
@@ -1403,7 +1403,7 @@ DExhumedActor* BuildCreatureChunk(DExhumedActor* pSrc, int nPic, bool bSpecial)
 
     ChangeActorSect(actor, pSrcSpr->sector());
 
-    pSprite->cstat = 0x80;
+    pSprite->cstat = CSTAT_SPRITE_YCENTER;
     pSprite->shade = -12;
     pSprite->pal = 0;
 
@@ -1514,7 +1514,7 @@ DExhumedActor* UpdateEnemy(DExhumedActor** ppEnemy)
 {
     if (*ppEnemy)
     {
-        if (!((*ppEnemy)->s().cstat & 0x101)) {
+        if (!((*ppEnemy)->s().cstat & CSTAT_SPRITE_BLOCK_ALL)) {
             *ppEnemy = nullptr;
         }
     }

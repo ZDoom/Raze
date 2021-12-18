@@ -61,7 +61,7 @@ void BuildScorp(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector,
 	pSprite->x = x;
     pSprite->y = y;
     pSprite->z = z;
-    pSprite->cstat = 0x101;
+    pSprite->cstat = CSTAT_SPRITE_BLOCK_ALL;
     pSprite->clipdist = 70;
     pSprite->shade = -12;
     pSprite->xrepeat = 80;
@@ -142,7 +142,7 @@ void AIScorp::Damage(RunListEvent* ev)
         pSprite->xvel = 0;
         pSprite->yvel = 0;
         pSprite->zvel = 0;
-        pSprite->cstat &= 0xFEFE;
+        pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 
         nCreaturesKilled++;
         return;
@@ -397,7 +397,7 @@ void AIScorp::Tick(RunListEvent* ev)
 
     case 9:
     {
-        pSprite->cstat &= 0xFEFE;
+        pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 
         if (bVal)
         {
@@ -465,7 +465,7 @@ void AIScorp::Effect(RunListEvent* ev, DExhumedActor* pTarget, int mode)
         return;
     }
 
-    if (!(pTarget->s().cstat & 0x101))
+    if (!(pTarget->s().cstat & CSTAT_SPRITE_BLOCK_ALL))
     {
         pActor->nAction = 0;
         pActor->nFrame = 0;

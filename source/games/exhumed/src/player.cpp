@@ -131,7 +131,7 @@ void feebtag(int x, int y, int z, sectortype* pSector, DExhumedActor **nSprite, 
                 auto pSprite = &pActor->s();
                 int nStat = pSprite->statnum;
 
-                if (nStat >= 900 && !(pSprite->cstat & 0x8000))
+                if (nStat >= 900 && !(pSprite->cstat & CSTAT_SPRITE_INVISIBLE))
                 {
                     uint32_t xDiff = abs(pSprite->x - x);
                     uint32_t yDiff = abs(pSprite->y - y);
@@ -282,7 +282,7 @@ void RestartPlayer(int nPlayer)
 		fspr->z = nSpr->z;
 		fspr->yrepeat = 64;
 		fspr->xrepeat = 64;
-		fspr->cstat = 32;
+		fspr->cstat = CSTAT_SPRITE_ALIGNMENT_FLOOR;
 		fspr->picnum = nPlayer + kTile3571;
 	}
 	else
@@ -301,7 +301,7 @@ void RestartPlayer(int nPlayer)
 
 	plr->pPlayerFloorSprite = floorsprt;
 
-	nSpr->cstat = 0x101;
+	nSpr->cstat = CSTAT_SPRITE_BLOCK_ALL;
 	nSpr->shade = -12;
 	nSpr->clipdist = 58;
 	nSpr->pal = 0;
@@ -490,7 +490,7 @@ void StartDeathSeq(int nPlayer, int nVal)
     PlayerList[nPlayer].nInvisible = 0;
     dVertPan[nPlayer] = 15;
 
-    pSprite->cstat &= 0x7FFF;
+    pSprite->cstat &= ~CSTAT_SPRITE_BLOCK;
 
     SetNewWeaponImmediate(nPlayer, -2);
 
@@ -515,7 +515,7 @@ void StartDeathSeq(int nPlayer, int nVal)
 
     PlayerList[nPlayer].nSeqSize = 0;
 
-    pSprite->cstat &= 0xFEFE;
+    pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 
     if (nTotalPlayers == 1)
     {
@@ -816,11 +816,11 @@ void AIPlayer::Tick(RunListEvent* ev)
         PlayerList[nPlayer].nInvisible--;
         if (PlayerList[nPlayer].nInvisible == 0)
         {
-            pPlayerSprite->cstat &= 0x7FFF; // set visible
+            pPlayerSprite->cstat &= ~CSTAT_SPRITE_BLOCK; // set visible
             DExhumedActor* pFloorSprite = PlayerList[nPlayer].pPlayerFloorSprite;
 
             if (pFloorSprite != nullptr) {
-                pFloorSprite->s().cstat &= 0x7FFF; // set visible
+                pFloorSprite->s().cstat &= ~CSTAT_SPRITE_BLOCK; // set visible
             }
         }
         else if (PlayerList[nPlayer].nInvisible == 150 && nPlayer == nLocalPlayer)
@@ -2554,7 +2554,7 @@ sectdone:
             PlayerList[nPlayer].nAction = 18;
             break;
         case 19:
-            pPlayerSprite->cstat |= 0x8000;
+            pPlayerSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
             PlayerList[nPlayer].nAction = 20;
             break;
         }
@@ -2615,7 +2615,7 @@ sectdone:
     {
         pDopple->s().ang = pPlayerSprite->ang;
         ChangeActorSect(pDopple, pPlayerSprite->sector()->pAbove);
-        pDopple->s().cstat = 0x101;
+        pDopple->s().cstat = CSTAT_SPRITE_BLOCK_ALL;
     }
     else
     {

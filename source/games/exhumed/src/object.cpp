@@ -600,7 +600,7 @@ int CheckSectorSprites(sectortype* pSector, int nVal)
         while (auto pActor= it.Next())
         {
             auto pSprite = &pActor->s();
-            if ((pSprite->cstat & 0x101) && (nZDiff < GetActorHeight(pActor)))
+            if ((pSprite->cstat & CSTAT_SPRITE_BLOCK_ALL) && (nZDiff < GetActorHeight(pActor)))
             {
                 if (nVal != 1) {
                     return 1;
@@ -626,7 +626,7 @@ int CheckSectorSprites(sectortype* pSector, int nVal)
         ExhumedSectIterator it(pSector);
         while (auto pActor = it.Next())
         {
-            if (pActor->s().cstat & 0x101) {
+            if (pActor->s().cstat & CSTAT_SPRITE_BLOCK_ALL) {
                 return 1;
             }
         }
@@ -1818,7 +1818,7 @@ DExhumedActor* BuildObject(DExhumedActor* pActor, int nOjectType, int nHitag)
     ChangeActorStat(pActor, ObjectStatnum[nOjectType]);
 
     // 0x7FFD to ensure set as blocking ('B' and 'H') sprite and also disable translucency and set not invisible
-    spr->cstat = (spr->cstat | 0x101) & 0x7FFD;
+    spr->cstat = (spr->cstat | CSTAT_SPRITE_BLOCK_ALL) & 0x7FFD;
     spr->xvel = 0;
     spr->yvel = 0;
     spr->zvel = 0;
@@ -1898,7 +1898,7 @@ void AIObject::Tick(RunListEvent* ev)
     int nStat = pSprite->statnum;
     int bx = pActor->nIndex;
 
-    if (nStat == 97 || (!(pSprite->cstat & 0x101))) {
+    if (nStat == 97 || (!(pSprite->cstat & CSTAT_SPRITE_BLOCK_ALL))) {
         return;
     }
 
@@ -2060,7 +2060,7 @@ void AIObject::RadialDamage(RunListEvent* ev)
     auto pSprite = &pActor->s();
     int nStat = pSprite->statnum;
 
-    if (pActor->nHealth > 0 && pSprite->cstat & 0x101
+    if (pActor->nHealth > 0 && pSprite->cstat & CSTAT_SPRITE_BLOCK_ALL
         && (nStat != kStatExplodeTarget
             || ev->pRadialActor->s().statnum == 201
             || (nRadialBullet != 3 && nRadialBullet > -1)
@@ -2122,7 +2122,7 @@ void BuildDrip(DExhumedActor* pActor)
     auto nDrips = sDrip.Reserve(1);
     sDrip[nDrips].pActor = pActor;
     sDrip[nDrips].nCount = RandomSize(8) + 90;
-    pSprite->cstat = 0x8000u;
+    pSprite->cstat = CSTAT_SPRITE_INVISIBLE;
 }
 
 void DoDrips()

@@ -65,7 +65,7 @@ void BuildAnubis(DExhumedActor* ap, int x, int y, int z, sectortype* pSector, in
     sp->x = x;
     sp->y = y;
     sp->z = z;
-    sp->cstat = 0x101;
+    sp->cstat = CSTAT_SPRITE_BLOCK_ALL;
     sp->xoffset = 0;
     sp->shade = -12;
     sp->yoffset = 0;
@@ -325,7 +325,7 @@ void AIAnubis::Tick(RunListEvent* ev)
     case 13:
     case 14:
     {
-        sp->cstat &= 0xFEFE;
+        sp->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
         return;
     }
 
@@ -336,7 +336,7 @@ void AIAnubis::Tick(RunListEvent* ev)
     // loc_2564C:
     if (nAction && pTarget != nullptr)
     {
-        if (!(pTarget->s().cstat & 0x101))
+        if (!(pTarget->s().cstat & CSTAT_SPRITE_BLOCK_ALL))
         {
             ap->nAction = 0;
             ap->nFrame = 0;
@@ -432,7 +432,7 @@ void AIAnubis::Damage(RunListEvent* ev)
             sp->yvel = 0;
             sp->zvel = 0;
             sp->z = sp->sector()->floorz;
-            sp->cstat &= 0xFEFE;
+            sp->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 
             ap->nHealth = 0;
 

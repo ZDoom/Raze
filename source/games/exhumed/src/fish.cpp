@@ -167,7 +167,7 @@ void BuildFish(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, 
     pSprite->x = x;
     pSprite->y = y;
     pSprite->z = z;
-    pSprite->cstat = 0x101;
+    pSprite->cstat = CSTAT_SPRITE_BLOCK_ALL;
     pSprite->shade = -12;
     pSprite->clipdist = 80;
     pSprite->xrepeat = 40;
@@ -284,7 +284,7 @@ void AIFish::Damage(RunListEvent* ev)
         pActor->nHealth = 0;
         nCreaturesKilled++;
 
-        pSprite->cstat &= 0xFEFE;
+        pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 
         if (!ev->isRadialEvent())
         {

@@ -60,7 +60,7 @@ DExhumedActor* BuildWasp(DExhumedActor* pActor, int x, int y, int z, sectortype*
     }
 
     pSprite->shade = -12;
-    pSprite->cstat = 0x101;
+    pSprite->cstat = CSTAT_SPRITE_BLOCK_ALL;
     pSprite->pal = pSprite->sector()->ceilingpal;
     pSprite->clipdist = 70;
 
@@ -133,7 +133,7 @@ void AIWasp::RadialDamage(RunListEvent* ev)
     if (!pActor) return;
     auto pSprite = &pActor->s();
 
-    if (!(pSprite->cstat & 0x101))
+    if (!(pSprite->cstat & CSTAT_SPRITE_BLOCK_ALL))
         return;
 
     ev->nDamage = runlist_CheckRadialDamage(pActor);
@@ -217,7 +217,7 @@ void AIWasp::Tick(RunListEvent* ev)
     {
         pTarget = pActor->pTarget;
 
-        if (pTarget && (!(pTarget->s().cstat & 0x101) || (pTarget->s().sector()->Flag & kSectUnderwater)))
+        if (pTarget && (!(pTarget->s().cstat & CSTAT_SPRITE_BLOCK_ALL) || (pTarget->s().sector()->Flag & kSectUnderwater)))
         {
             // goto pink
             pActor->pTarget = nullptr;
@@ -347,7 +347,7 @@ void AIWasp::Tick(RunListEvent* ev)
             if (pSector->pBelow != nullptr)
             {
                 BuildSplash(pActor, pSector);
-                pSprite->cstat |= 0x8000;
+                pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
             }
 
             pSprite->xvel = 0;

@@ -58,7 +58,7 @@ DExhumedActor* BuildSpider(DExhumedActor* spp, int x, int y, int z, sectortype* 
     sp->x = x;
     sp->y = y;
     sp->z = z;
-    sp->cstat = 0x101;
+    sp->cstat = CSTAT_SPRITE_BLOCK_ALL;
     sp->shade = -12;
     sp->clipdist = 15;
     sp->xvel = 0;
@@ -129,7 +129,7 @@ void AISpider::Tick(RunListEvent* ev)
 
     DExhumedActor* pTarget = spp->pTarget;
 
-    if (pTarget == nullptr || pTarget->s().cstat & 0x101)
+    if (pTarget == nullptr || pTarget->s().cstat & CSTAT_SPRITE_BLOCK_ALL)
     {
         switch (nAction)
         {
@@ -397,7 +397,7 @@ void AISpider::Damage(RunListEvent* ev)
         spp->nAction = 5;
         spp->nFrame = 0;
 
-        sp->cstat &= 0xFEFE;
+        sp->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 
         nCreaturesKilled++;
 
