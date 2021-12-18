@@ -1133,7 +1133,7 @@ static void movecrack(DDukeActor* actor)
 		}
 		else
 		{
-			s->cstat = t[0];
+			s->cstat = ESpriteFlags::FromInt(t[0]);
 			s->ang = t[1];
 			s->extra = 0;
 		}

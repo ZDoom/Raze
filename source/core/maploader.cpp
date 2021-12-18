@@ -293,7 +293,7 @@ static void ReadSpriteV7(FileReader& fr, spritetype& spr, int& secno)
 	spr.pos.x = fr.ReadInt32();
 	spr.pos.y = fr.ReadInt32();
 	spr.pos.z = fr.ReadInt32();
-	spr.cstat = fr.ReadUInt16();
+	spr.cstat = ESpriteFlags::FromInt(fr.ReadUInt16());
 	spr.picnum = fr.ReadInt16();
 	spr.shade = fr.ReadInt8();
 	spr.pal = fr.ReadUInt8();
@@ -321,7 +321,7 @@ static void ReadSpriteV6(FileReader& fr, spritetype& spr, int& secno)
 	spr.pos.x = fr.ReadInt32();
 	spr.pos.y = fr.ReadInt32();
 	spr.pos.z = fr.ReadInt32();
-	spr.cstat = fr.ReadUInt16();
+	spr.cstat = ESpriteFlags::FromInt(fr.ReadUInt16());
 	spr.shade = fr.ReadInt8();
 	spr.pal = fr.ReadUInt8();
 	spr.clipdist = fr.ReadUInt8();
@@ -349,7 +349,7 @@ static void ReadSpriteV5(FileReader& fr, spritetype& spr, int& secno)
 	spr.pos.x = fr.ReadInt32();
 	spr.pos.y = fr.ReadInt32();
 	spr.pos.z = fr.ReadInt32();
-	spr.cstat = fr.ReadUInt16();
+	spr.cstat = ESpriteFlags::FromInt(fr.ReadUInt16());
 	spr.shade = fr.ReadInt8();
 	spr.xrepeat = fr.ReadUInt8();
 	spr.yrepeat = fr.ReadUInt8();

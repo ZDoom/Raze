@@ -899,7 +899,7 @@ static void movecrack(DDukeActor* actor)
 		}
 		else
 		{
-			s->cstat = t[0];
+			s->cstat = ESpriteFlags::FromInt(t[0]);
 			s->ang = t[1];
 			s->extra = 0;
 		}
@@ -2789,15 +2789,15 @@ static int henstand(DDukeActor *actor)
 		s->cstat = CSTAT_SPRITE_BLOCK_ALL;
 		if (s->picnum == BOWLINGPIN)
 		{
-			s->cstat |= 4 & s->xvel;
-			s->cstat |= 8 & s->xvel;
+			s->cstat |= CSTAT_SPRITE_XFLIP & ESpriteFlags::FromInt(s->xvel);
+			s->cstat |= CSTAT_SPRITE_YFLIP & ESpriteFlags::FromInt(s->xvel);
 			if (krand() & 1)
 				s->picnum = BOWLINGPIN + 1;
 		}
 		else if (s->picnum == HENSTAND)
 		{
-			s->cstat |= 4 & s->xvel;
-			s->cstat |= 8 & s->xvel;
+			s->cstat |= CSTAT_SPRITE_XFLIP & ESpriteFlags::FromInt(s->xvel);
+			s->cstat |= CSTAT_SPRITE_YFLIP & ESpriteFlags::FromInt(s->xvel);
 			if (krand() & 1)
 				s->picnum = HENSTAND + 1;
 			if (!s->xvel)

@@ -1193,7 +1193,7 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		else SetGameVarID(lVar2, spr->z, sActor, sPlayer);
 		break;
 	case ACTOR_CSTAT:
-		if (bSet) spr->cstat = lValue;
+		if (bSet) spr->cstat = ESpriteFlags::FromInt(lValue);
 		else SetGameVarID(lVar2, spr->cstat, sActor, sPlayer);
 		break;
 	case ACTOR_PICNUM:
@@ -2215,7 +2215,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_cstator:
 		insptr++;
-		g_sp->cstat |= (short)*insptr;
+		g_sp->cstat |= ESpriteFlags::FromInt(*insptr);
 		insptr++;
 		break;
 	case concmd_clipdist:
@@ -2225,7 +2225,7 @@ int ParseState::parse(void)
 		break;
 	case concmd_cstat:
 		insptr++;
-		g_sp->cstat =  (uint16_t)*insptr;
+		g_sp->cstat = ESpriteFlags::FromInt(*insptr);
 		insptr++;
 		break;
 	case concmd_newpic:

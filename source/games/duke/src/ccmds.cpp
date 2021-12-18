@@ -67,7 +67,7 @@ static int ccmd_spawn(CCmdFuncPtr parm)
 		ang = atol(parm->parms[3]) & 2047; set |= 4;
 		[[fallthrough]];
 	case 3: // cstat
-		cstat = (unsigned short)atol(parm->parms[2]); set |= 2;
+		cstat = ESpriteFlags::FromInt(atol(parm->parms[2])); set |= 2;
 		[[fallthrough]];
 	case 2: // pal
 		pal = (uint8_t)atol(parm->parms[1]); set |= 1;
@@ -97,7 +97,7 @@ static int ccmd_spawn(CCmdFuncPtr parm)
 	if (spawned)
 	{
 		if (set & 1) spawned->s->pal = (uint8_t)pal;
-		if (set & 2) spawned->s->cstat = (uint16_t)cstat;
+		if (set & 2) spawned->s->cstat = ESpriteFlags::FromInt(cstat);
 		if (set & 4) spawned->s->ang = ang;
 		if (set & 8) SetActor(spawned, { x, y, z });
 

@@ -225,7 +225,7 @@ static int32_t LoadMapHack(const char *filename, SpawnSpriteDef& sprites)
                 }
                 else if (currentsprite != -1 && validateSprite())
                 {
-                    sprites.sprites[currentsprite].cstat &= ~sc.Number;
+                    sprites.sprites[currentsprite].cstat &= ESpriteFlags::FromInt(~sc.Number);
                 }
             }
         }
@@ -239,7 +239,7 @@ static int32_t LoadMapHack(const char *filename, SpawnSpriteDef& sprites)
                 }
                 else if (currentsprite != -1 && validateSprite())
                 {
-                    sprites.sprites[currentsprite].cstat |= sc.Number;
+                    sprites.sprites[currentsprite].cstat |= ESpriteFlags::FromInt(sc.Number);
                 }
             }
         }

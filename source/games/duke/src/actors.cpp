@@ -1521,7 +1521,7 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 		if (s->picnum == stripeball)
 		{
 			s->cstat = CSTAT_SPRITE_BLOCK_ALL;
-			s->cstat |= int(CSTAT_SPRITE_XFLIP | CSTAT_SPRITE_YFLIP) & s->xvel;
+			s->cstat |= (CSTAT_SPRITE_XFLIP | CSTAT_SPRITE_YFLIP) & ESpriteFlags::FromInt(s->xvel);
 		}
 	}
 	else
@@ -2524,7 +2524,8 @@ void glasspieces(DDukeActor* actor)
 	if (s->xvel > 0)
 	{
 		s->xvel -= 2;
-		s->cstat = ((s->xvel & 3) << 2);
+		static const ESpriteFlags flips[] = { 0, CSTAT_SPRITE_XFLIP, CSTAT_SPRITE_YFLIP, CSTAT_SPRITE_XFLIP | CSTAT_SPRITE_YFLIP };
+		s->cstat = flips[s->xvel & 3];
 	}
 	else s->xvel = 0;
 

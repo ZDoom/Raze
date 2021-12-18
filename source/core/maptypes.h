@@ -395,7 +395,7 @@ struct spritetypebase
 	
 	sectortype* sectp;
 	
-	uint16_t cstat;
+	ESpriteFlags cstat;
 	int16_t picnum;
 	int16_t statnum;
 	int16_t ang;
