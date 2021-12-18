@@ -730,7 +730,7 @@ loc_flag:
                                 auto pActor2 = cRange.actor();
                                 auto pSprite2 = &pActor2->s();
 
-                                if (pSprite2->cstat & 0x50)
+                                if (pSprite2->cstat & (CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_ONE_SIDE))
                                 {
                                     var_28 += 2;
                                 }

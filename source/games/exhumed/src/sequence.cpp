@@ -487,10 +487,10 @@ int seq_PlotArrowSequence(int nSprite, int16_t nSeq, int nVal)
     nStat |= CSTAT_SPRITE_YCENTER;
 
     if (nSeqOffset & 3) {
-        nStat |= 0x18;
+        nStat |= CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_YFLIP;
     }
     else {
-        nStat &= 0x0E7;
+        nStat &= ~(CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_YFLIP);
     }
 
     if (FrameFlag[nFrame] & 4) {
@@ -624,7 +624,7 @@ int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
                 edx = 1;
             }
 
-            pTSprite->cstat = 0x22; // transluscence, floor sprite
+            pTSprite->cstat = CSTAT_SPRITE_ALIGNMENT_FLOOR | CSTAT_SPRITE_TRANSLUCENT;
             pTSprite->z = nFloorZ;
             pTSprite->yrepeat = (uint8_t)edx;
             pTSprite->xrepeat = (uint8_t)edx;

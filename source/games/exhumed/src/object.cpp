@@ -442,7 +442,7 @@ DExhumedActor* FindWallSprites(sectortype* pSector)
         auto spr = &actor->s();
         if (spr->lotag == 0)
         {
-            if ((spr->cstat & 0x50) == 80)
+            if ((spr->cstat & (CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_ONE_SIDE)) == (CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_ONE_SIDE))
             {
                 int var_28 = spr->x;
                 int ebx = spr->y;
@@ -1818,7 +1818,7 @@ DExhumedActor* BuildObject(DExhumedActor* pActor, int nOjectType, int nHitag)
     ChangeActorStat(pActor, ObjectStatnum[nOjectType]);
 
     // 0x7FFD to ensure set as blocking ('B' and 'H') sprite and also disable translucency and set not invisible
-    spr->cstat = (spr->cstat | CSTAT_SPRITE_BLOCK_ALL) & 0x7FFD;
+    spr->cstat = (spr->cstat | CSTAT_SPRITE_BLOCK_ALL) & ~(CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_INVISIBLE);
     spr->xvel = 0;
     spr->yvel = 0;
     spr->zvel = 0;

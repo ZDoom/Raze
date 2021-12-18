@@ -176,7 +176,7 @@ void AIAnim::Tick(RunListEvent* ev)
                             pSpriteB->shade++;
                         }
 
-                        if (!(pSpriteB->cstat & 101))
+                        if (!(pSpriteB->cstat & CSTAT_SPRITE_BLOCK_ALL)) // was 101 (decimal), GDX had 0x101 which appears to be correct.
                         {
 		                    DestroyAnim(pActor);
                             return;

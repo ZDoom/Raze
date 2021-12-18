@@ -1640,7 +1640,7 @@ int runlist_CheckRadialDamage(DExhumedActor* pActor)
 
     if (nDist < nDamageRadius)
     {
-        uint16_t nCStat = pSprite->cstat;
+        auto nCStat = pSprite->cstat;
         pSprite->cstat = CSTAT_SPRITE_BLOCK_ALL;
 
         if (((kStatExplodeTarget - pSprite->statnum) <= 1) ||
