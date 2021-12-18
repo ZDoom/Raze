@@ -142,7 +142,7 @@ RORHACK:
     }
     else
     {
-        gView->pSprite->cstat |= 514;
+        gView->pSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT |  CSTAT_SPRITE_TRANS_FLIP;
     }
 
     renderDrawRoomsQ16(cX, cY, cZ, cA.asq16(), cH.asq16() + deliriumPitchI, nSectnum, false);
@@ -267,7 +267,7 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
                     }
                     else
                     {
-                        gPlayer[viewPlayer].pSprite->cstat |= 514;
+                        gPlayer[viewPlayer].pSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT |  CSTAT_SPRITE_TRANS_FLIP;
                     }
                 }
                 renderDrawRoomsQ16(x + mirror[i].dx, y + mirror[i].dy, z + mirror[i].dz, a, horiz, nSector, true);
@@ -299,7 +299,7 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
                     }
                     else
                     {
-                        gPlayer[viewPlayer].pSprite->cstat |= 514;
+                        gPlayer[viewPlayer].pSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT |  CSTAT_SPRITE_TRANS_FLIP;
                     }
                 }
                 renderDrawRoomsQ16(x + mirror[i].dx, y + mirror[i].dy, z + mirror[i].dz, a, horiz, nSector, true);

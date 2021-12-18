@@ -285,7 +285,7 @@ static DBloodActor* nnExtSpawnDude(DBloodActor* sourceActor, DBloodActor* origin
     pDude->type = nType;
     pDude->ang = angle;
 
-    pDude->cstat |= 0x1101;
+    pDude->cstat |= CSTAT_SPRITE_BLOOD_BIT1 | CSTAT_SPRITE_BLOCK_ALL;
     pDude->clipdist = getDudeInfo(nType)->clipdist;
 
     pXDude->respawn = 1;

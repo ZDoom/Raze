@@ -2474,7 +2474,7 @@ static void actInitDudes()
 				{
 				case kDudeModernCustom:
 				case kDudeModernCustomBurning:
-					pSprite->cstat |= CSTAT_SPRITE_BLOOD_BIT1 | CSTAT_SPRITE_BLOCK_HITSCAN | CSTAT_SPRITE_BLOCK;
+					pSprite->cstat |= CSTAT_SPRITE_BLOOD_BIT1 | CSTAT_SPRITE_BLOCK_ALL;
 					seqStartId = genDudeSeqStartId(act); //  Custom Dude stores its SEQ in data2
 					pXSprite->sysData1 = pXSprite->data3; // move sndStartId to sysData1, because data3 used by the game;
 					pXSprite->data3 = 0;
@@ -2485,12 +2485,12 @@ static void actInitDudes()
 					[[fallthrough]];
 				default:
 					pSprite->clipdist = dudeInfo[nType].clipdist;
-					pSprite->cstat |= CSTAT_SPRITE_BLOOD_BIT1 | CSTAT_SPRITE_BLOCK_HITSCAN | CSTAT_SPRITE_BLOCK;
+					pSprite->cstat |= CSTAT_SPRITE_BLOOD_BIT1 | CSTAT_SPRITE_BLOCK_ALL;
 					break;
 				}
 #else
 				pSprite->clipdist = dudeInfo[nType].clipdist;
-				pSprite->cstat |= CSTAT_SPRITE_BLOOD_BIT1 | CSTAT_SPRITE_BLOCK_HITSCAN | CSTAT_SPRITE_BLOCK;
+				pSprite->cstat |= CSTAT_SPRITE_BLOOD_BIT1 | CSTAT_SPRITE_BLOCK_ALL;
 #endif
 
 				act->xvel = act->yvel = act->zvel = 0;

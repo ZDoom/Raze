@@ -252,7 +252,7 @@ void Respawn(DBloodActor* actor, sectortype*) // 9
             {
                 int nType = pSprite->type-kDudeBase;
                 pSprite->pos = actor->basePoint;
-                pSprite->cstat |= 0x1101;
+                pSprite->cstat |= CSTAT_SPRITE_BLOOD_BIT1 | CSTAT_SPRITE_BLOCK_ALL;
                 #ifdef NOONE_EXTENSIONS
                 if (!gModernMap || pXSprite->sysData2 <= 0) pXSprite->health = dudeInfo[pSprite->type - kDudeBase].startHealth << 4;
                 else pXSprite->health = ClipRange(pXSprite->sysData2 << 4, 1, 65535);
@@ -283,7 +283,7 @@ void Respawn(DBloodActor* actor, sectortype*) // 9
                 pXSprite->key = 0;
             } else if (pSprite->type == kThingTNTBarrel) {
                 pSprite->cstat |= CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN;
-                pSprite->cstat &= (unsigned short)~CSTAT_SPRITE_INVISIBLE;
+                pSprite->cstat &= ~CSTAT_SPRITE_INVISIBLE;
             }
 
             gFX.fxSpawnActor(FX_29, pSprite->sector(), pSprite->x, pSprite->y, pSprite->z, 0);

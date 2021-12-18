@@ -361,11 +361,11 @@ static void ThrowThing(DBloodActor* actor, bool impact)
         case kModernThingThrowableRock:
             pSpawned->picnum  = gCustomDudeDebrisPics[Random(5)];
             pSpawned->xrepeat = pSpawned->yrepeat = 24 + Random(42);
-            pSpawned->cstat |= 0x0001;
+            pSpawned->cstat |= CSTAT_SPRITE_BLOCK;
             pSpawned->pal = 5;
 
-            if (Chance(0x5000)) pSpawned->cstat |= 0x0004;
-            if (Chance(0x5000)) pSpawned->cstat |= 0x0008;
+            if (Chance(0x5000)) pSpawned->cstat |= CSTAT_SPRITE_XFLIP;
+            if (Chance(0x5000)) pSpawned->cstat |= CSTAT_SPRITE_YFLIP;
 
             if (pSpawned->xrepeat > 60) pXSpawned->data1 = 43;
             else if (pSpawned->xrepeat > 40) pXSpawned->data1 = 33;
@@ -1956,7 +1956,8 @@ DBloodActor* genDudeSpawn(DBloodActor* source, DBloodActor* actor, int nDist)
     pDude->type = nType; pDude->ang = nAngle;
     vec3_t pos = { x, y, z }; 
     SetActor(spawned, &pos);
-    pDude->cstat |= 0x1101; pDude->clipdist = dudeInfo[nType - kDudeBase].clipdist;
+    pDude->cstat |= CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_BLOOD_BIT1; 
+    pDude->clipdist = dudeInfo[nType - kDudeBase].clipdist;
 
     // inherit weapon, seq and sound settings.
     pXDude->data1 = pXSource->data1;

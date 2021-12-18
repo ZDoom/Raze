@@ -283,7 +283,7 @@ static tspritetype *viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int 
             pNSprite->picnum = pTSprite->picnum;
             pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
             if (i < 2)
-                pNSprite->cstat |= 514;
+                pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT |  CSTAT_SPRITE_TRANS_FLIP;
             pNSprite->shade = ClipLow(pTSprite->shade-16, -128);
             pNSprite->xrepeat = pTSprite->xrepeat;
             pNSprite->yrepeat = pTSprite->yrepeat;
@@ -420,7 +420,7 @@ static tspritetype *viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int 
         pNSprite->shade = ((pTSprite->z-pSector->ceilingz)>>8)-64;
         pNSprite->pal = 2;
         pNSprite->xrepeat = pNSprite->yrepeat = 64;
-        pNSprite->cstat |= 106;
+        pNSprite->cstat |= CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_FLOOR | CSTAT_SPRITE_YFLIP | CSTAT_SPRITE_TRANSLUCENT;
         pNSprite->ang = pTSprite->ang;
         pNSprite->ownerActor = pTSprite->ownerActor;
         break;
@@ -440,7 +440,7 @@ static tspritetype *viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int 
         pNSprite->shade = nShade-32;
         pNSprite->pal = 2;
         pNSprite->xrepeat = pNSprite->yrepeat = nShade;
-        pNSprite->cstat |= 98;
+        pNSprite->cstat |= CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_FLOOR | CSTAT_SPRITE_TRANSLUCENT;
         pNSprite->ang = pTSprite->ang;
         pNSprite->ownerActor = pTSprite->ownerActor;
         break;
@@ -453,7 +453,7 @@ static tspritetype *viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int 
 
         pNSprite->z = pTSprite->z;
         if (gDetail > 1)
-            pNSprite->cstat |= 514;
+            pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT |  CSTAT_SPRITE_TRANS_FLIP;
         pNSprite->shade = ClipLow(pTSprite->shade-32, -128);
         pNSprite->xrepeat = pTSprite->xrepeat;
         pNSprite->yrepeat = 64;
@@ -483,7 +483,7 @@ static tspritetype *viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int 
         if (cl_showweapon == 2 && r_voxels && nVoxel != -1)
         {
             pNSprite->ang = (gView->pSprite->ang + 512) & 2047; // always face viewer
-            pNSprite->cstat |= 48;
+            pNSprite->cstat |= CSTAT_SPRITE_ALIGNMENT_SLAB;
             pNSprite->cstat &= ~CSTAT_SPRITE_YFLIP;
             pNSprite->picnum = nVoxel;
             if (pPlayer->curWeapon == kWeapLifeLeech) // position lifeleech behind player
@@ -626,8 +626,8 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
                 {
                     if ((pTSprite->flags&kHitagRespawn) == 0)
                     {
-                        pTSprite->cstat |= 48;
-                        pTSprite->cstat &= ~(4|8);
+                        pTSprite->cstat |= CSTAT_SPRITE_ALIGNMENT_SLAB;
+                        pTSprite->cstat &= ~(CSTAT_SPRITE_XFLIP | CSTAT_SPRITE_YFLIP);
                         pTSprite->yoffset += tileTopOffset(pTSprite->picnum);
                         pTSprite->picnum = voxelIndex[pTSprite->picnum];
                         if ((picanm[nTile].extra&7) == 7)
@@ -701,7 +701,7 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
             pTSprite->yrepeat = 48;
             pTSprite->shade = -128;
             pTSprite->picnum = 2272 + 2*pTXSprite->respawnPending;
-            pTSprite->cstat &= ~514;
+            pTSprite->cstat &= ~(CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANS_FLIP);
             if (((IsItemSprite(pTSprite) || IsAmmoSprite(pTSprite)) && gGameOptions.nItemSettings == 2)
                 || (IsWeaponSprite(pTSprite) && gGameOptions.nWeaponSettings == 3))
             {
@@ -770,11 +770,11 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
                     break;
                 case kItemFlagA:
                     pTSprite->pal = 10;
-                    pTSprite->cstat |= 1024;
+                    pTSprite->cstat |= CSTAT_SPRITE_BLOOD_BIT2;
                     break;
                 case kItemFlagB:
                     pTSprite->pal = 7;
-                    pTSprite->cstat |= 1024;
+                    pTSprite->cstat |= CSTAT_SPRITE_BLOOD_BIT2;
                     break;
                 default:
                     if (pTSprite->type >= kItemKeySkull && pTSprite->type < kItemKeyMax)
@@ -789,7 +789,7 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
             switch (pTSprite->type) {
                 case kMissileTeslaAlt:
                     pTSprite->yrepeat = 128;
-                    pTSprite->cstat |= 32;
+                    pTSprite->cstat |= CSTAT_SPRITE_ALIGNMENT_FLOOR;
                     break;
                 case kMissileTeslaRegular:
                     viewAddEffect(tsprite, spritesortcnt, nTSprite, kViewEffectTesla);
