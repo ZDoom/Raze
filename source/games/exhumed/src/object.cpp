@@ -2338,7 +2338,7 @@ void AddMovingSector(sectortype* pSector, int edx, int ebx, int ecx)
         pMoveSect->nChannel = -1;
     }
 
-    pSector->floorstat |= 0x40;
+    pSector->floorstat |= CSTAT_SECTOR_ALIGN;
 }
 
 void DoMovingSects()
@@ -2493,8 +2493,8 @@ void PostProcess()
 
         if (pSector->Flag & kSectUnderwater)
         {
-            pSector->ceilingstat |= 0x40;
-            pSector->floorstat &= 0xBFFF;
+            pSector->ceilingstat |= CSTAT_SECTOR_ALIGN;
+            pSector->floorstat &= ~(CSTAT_SECTOR_EXHUMED_BIT1 | CSTAT_SECTOR_EXHUMED_BIT2);
 
             for (unsigned j = 0; j < sMoveSect.Size(); j++)
             {

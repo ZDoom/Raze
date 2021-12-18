@@ -2316,7 +2316,7 @@ bool jibs(DDukeActor *actor, int JIBS6, bool timeout, bool callsetsprite, bool f
 				deletesprite(actor);
 				return false;
 			}
-			if ((s->sector()->floorstat & 2))
+			if ((s->sector()->floorstat & CSTAT_SECTOR_SLOPE))
 			{
 				deletesprite(actor);
 				return false;
@@ -2359,7 +2359,7 @@ bool bloodpool(DDukeActor* actor, bool puke, int TIRE)
 	if (t[0] == 0)
 	{
 		t[0] = 1;
-		if (sectp->floorstat & 2)
+		if (sectp->floorstat & CSTAT_SECTOR_SLOPE)
 		{
 			deletesprite(actor);
 			return false;
@@ -2737,7 +2737,7 @@ void handle_se00(DDukeActor* actor, int LASERLINE)
 		t[2] += (l * q);
 	}
 
-	if (l && (sect->floorstat & 64))
+	if (l && (sect->floorstat & CSTAT_SECTOR_ALIGN))
 	{
 		int p;
 		for (p = connecthead; p >= 0; p = connectpoint2[p])
@@ -3794,7 +3794,7 @@ void handle_se13(DDukeActor* actor)
 			//Change the shades
 
 			t[3]++;
-			sc->ceilingstat ^= 1;
+			sc->ceilingstat ^= CSTAT_SECTOR_SKY;
 
 			if (s->ang == 512)
 			{
@@ -4259,7 +4259,7 @@ void handle_se20(DDukeActor* actor)
 				a2->s->x += x;
 				a2->s->y += l;
 				SetActor(a2, a2->s->pos);
-				if (a2->sector()->floorstat & 2)
+				if (a2->sector()->floorstat & CSTAT_SECTOR_SLOPE)
 					if (a2->s->statnum == 2)
 						makeitfall(a2);
 			}
@@ -4515,7 +4515,7 @@ void handle_se24(DDukeActor *actor, const int16_t *list1, const int16_t *list2, 
 
 						SetActor(a2, s2->pos);
 
-						if (s2->sector()->floorstat & 2)
+						if (s2->sector()->floorstat & CSTAT_SECTOR_SLOPE)
 							if (s2->statnum == 2)
 								makeitfall(a2);
 					}
@@ -5236,7 +5236,7 @@ void fall_common(DDukeActor *actor, int playernum, int JIBS6, int DRONE, int BLO
 			else c = gs.gravity;
 		}
 
-		if (actor->cgg <= 0 || (s->sector()->floorstat & 2))
+		if (actor->cgg <= 0 || (s->sector()->floorstat & CSTAT_SECTOR_SLOPE))
 		{
 			getglobalz(actor);
 			actor->cgg = 6;

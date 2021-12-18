@@ -487,7 +487,7 @@ void footprints(int snum)
 	auto s = actor->s;
 
 	if (p->footprintcount > 0 && p->on_ground)
-		if ((p->cursector->floorstat & 2) != 2)
+		if ((p->cursector->floorstat & CSTAT_SECTOR_SLOPE) != 2)
 		{
 			int j = -1;
 			DukeSectIterator it(s->sector());

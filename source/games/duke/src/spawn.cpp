@@ -734,12 +734,12 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 
 			if (sectp->ceilingstat & CSTAT_SECTOR_SKY)
 			{
-				sectp->ceilingstat ^= 1;
+				sectp->ceilingstat ^= CSTAT_SECTOR_SKY;
 				t[3] = 1;
 
 				if (!ceiling && sp->ang == 512)
 				{
-					sectp->ceilingstat ^= 1;
+					sectp->ceilingstat ^= CSTAT_SECTOR_SKY;
 					t[3] = 0;
 				}
 

@@ -291,7 +291,7 @@ void AISpider::Tick(RunListEvent* ev)
     if (nMov.exbits & kHitAux1
         && sp->zvel < 0
         && hiHit.type != kHitSprite
-        && !((sp->sector()->ceilingstat) & 1))
+        && !((sp->sector()->ceilingstat) & CSTAT_SECTOR_SKY))
     {
         sp->cstat |= 8;
         sp->z = GetActorHeight(spp) + sp->sector()->ceilingz;
