@@ -2662,7 +2662,7 @@ void polymost_drawsprite(int32_t snum)
 
     vec2_t off = { 0, 0 };
 
-    if ((globalorientation & 48) != 48)  // only non-voxel sprites should do this
+    if ((globalorientation & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLAB)  // only non-voxel sprites should do this
     {
         int const flag = hw_hightile && TileFiles.tiledata[globalpicnum].hiofs.xsize;
         off = { (int32_t)tspr->xoffset + (flag ? TileFiles.tiledata[globalpicnum].hiofs.xoffs : tileLeftOffset(globalpicnum)),

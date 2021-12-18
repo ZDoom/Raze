@@ -1183,7 +1183,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
     k0 = (float)tspr->z+sext->position_offset.z;
     f = ((globalorientation & 8) && (spr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_FACING) ? -4.f : 4.f;
     k0 -= (tspr->yoffset*tspr->yrepeat)*f;
-    if ((globalorientation&128) && !((globalorientation&48)==32))
+    if ((globalorientation&128) && !((globalorientation & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FLOOR))
         k0 += (float)(sizyrep<<1);
 
     // Parkar: Changed to use the same method as centeroriented sprites
@@ -1206,7 +1206,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
 
     // floor aligned
     k1 = (float)tspr->y+sext->position_offset.y;
-    if ((globalorientation&48)==32)
+    if ((globalorientation & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FLOOR)
     {
         m0.Z = -m0.Z; m1.Z = -m1.Z; a0.Z = -a0.Z;
         m0.Y = -m0.Y; m1.Y = -m1.Y; a0.Y = -a0.Y;
@@ -1225,7 +1225,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
     md3_vox_calcmat_common(tspr, &a0, f, mat);
 
     // floor aligned
-    if ((globalorientation&48)==32)
+    if ((globalorientation & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FLOOR)
     {
         f = mat[4]; mat[4] = mat[8]*16.f; mat[8] = -f*(1.f/16.f);
         f = mat[5]; mat[5] = mat[9]*16.f; mat[9] = -f*(1.f/16.f);

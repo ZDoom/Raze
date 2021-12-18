@@ -1292,12 +1292,6 @@ int ConCompiler::parsecommand()
 			Printf(TEXTCOLOR_RED "  * WARNING!(%s, line %d) tried to set cstat 32767, using 32768 instead.\n", fn, line_number);
 			warningcount++;
 		}
-		else if ((i & 48) == 48)
-		{
-			Printf(TEXTCOLOR_RED "  * WARNING!(%s, line %d) tried to set cstat %d, using %d instead.\n", fn, line_number, i, i ^ 48);
-			i ^= 48;
-			warningcount++;
-		}
 		appendscriptvalue(i);
 #endif
 		return 0;
