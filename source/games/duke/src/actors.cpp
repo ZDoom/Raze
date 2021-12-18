@@ -267,7 +267,7 @@ void lotsofstuff(DDukeActor* actor, int n, int spawntype)
 	{
 		int r1 = krand(), r2 = krand();	// using the RANDCORRECT version from RR.
 		auto j = EGS(s->sector(), s->x, s->y, s->z - (r2 % (47 << 8)), spawntype, -32, 8, 8, r1 & 2047, 0, 0, actor, 5);
-		if (j) j->s->cstat = krand() & 12;
+		if (j) j->s->cstat = randomFlip();
 	}
 }
 
@@ -1521,8 +1521,7 @@ bool queball(DDukeActor *actor, int pocket, int queball, int stripeball)
 		if (s->picnum == stripeball)
 		{
 			s->cstat = CSTAT_SPRITE_BLOCK_ALL;
-			s->cstat |= CSTAT_SPRITE_XFLIP & s->xvel;
-			s->cstat |= CSTAT_SPRITE_YFLIP & s->xvel;
+			s->cstat |= int(CSTAT_SPRITE_XFLIP | CSTAT_SPRITE_YFLIP) & s->xvel;
 		}
 	}
 	else
@@ -1595,7 +1594,7 @@ void forcesphere(DDukeActor* actor, int forcesphere)
 				auto k = spawn(actor, forcesphere);
 				if (k)
 				{
-					k->s->cstat = CSTAT_SPRITE_BLOCK_ALL + 128;
+					k->s->cstat = CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_YCENTER;
 					k->s->clipdist = 64;
 					k->s->ang = j;
 					k->s->zvel = bsin(l, -5);
@@ -2148,7 +2147,7 @@ void frameeffect1(DDukeActor *actor)
 			deletesprite(actor);
 			return;
 		}
-		else if (t[0] > 4) actor->s->cstat |= CSTAT_SPRITE_TRANS_FLIP + 2;
+		else if (t[0] > 4) actor->s->cstat |= CSTAT_SPRITE_TRANS_FLIP | CSTAT_SPRITE_TRANSLUCENT;
 		else if (t[0] > 2) actor->s->cstat |= CSTAT_SPRITE_TRANSLUCENT;
 		actor->s->xoffset = Owner->s->xoffset;
 		actor->s->yoffset = Owner->s->yoffset;

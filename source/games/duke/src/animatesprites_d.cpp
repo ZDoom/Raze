@@ -251,7 +251,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 			if (camsprite != nullptr && h->GetHitOwner() && h->GetHitOwner()->temp_data[0] == 1)
 			{
 				t->picnum = STATIC;
-				t->cstat |= (rand() & 12);
+				t->cstat |= randomFlip();
 				t->xrepeat += 8;
 				t->yrepeat += 8;
 			}

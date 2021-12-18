@@ -577,14 +577,14 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		break;
 	case BULLETHOLE:
 		sp->xrepeat = sp->yrepeat = 3;
-		sp->cstat = CSTAT_SPRITE_ALIGNMENT_WALL + (krand() & 12);
+		sp->cstat = CSTAT_SPRITE_ALIGNMENT_WALL | randomFlip();
 		insertspriteq(act);
 		[[fallthrough]];
 	case MONEY:
 		if (sp->picnum == MONEY)
 		{
 			act->temp_data[0] = krand() & 2047;
-			sp->cstat = krand() & 12;
+			sp->cstat = randomFlip();
 			sp->xrepeat = sp->yrepeat = 8;
 			sp->ang = krand() & 2047;
 		}
@@ -622,7 +622,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		{
 			sp->ang = spj->ang;
 			sp->shade = -64;
-			sp->cstat = CSTAT_SPRITE_YCENTER | (krand() & 4);
+			sp->cstat = CSTAT_SPRITE_YCENTER | randomXFlip();
 		}
 
 		if (sp->picnum == EXPLOSION2)
@@ -1168,7 +1168,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 				sp->zvel = 0;
 			}
 			ssp(act, CLIPMASK0);
-			sp->cstat = krand() & 4;
+			sp->cstat = randomXFlip();
 		}
 		else
 		{
@@ -1361,7 +1361,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (spj)
 		{
 			sp->ang = spj->ang;
-			sp->cstat = CSTAT_SPRITE_ALIGNMENT_WALL + 128 + 2;
+			sp->cstat = CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_YCENTER | CSTAT_SPRITE_TRANSLUCENT;
 			sp->xrepeat = sp->yrepeat = 1;
 			sp->xvel = -8;
 			ssp(act, CLIPMASK0);
@@ -1383,7 +1383,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			sp->cstat = CSTAT_SPRITE_INVISIBLE;
 			sp->xrepeat = sp->yrepeat = 0;
 		}
-		else sp->cstat = 1 + 256;
+		else sp->cstat = CSTAT_SPRITE_BLOCK_ALL;
 		sp->extra = gs.impact_damage << 2;
 		act->SetOwner(act);
 		ChangeActorStat(act, STAT_STANDABLE);
@@ -1393,7 +1393,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case CRACK2:
 	case CRACK3:
 	case CRACK4:
-		sp->cstat |= 17;
+		sp->cstat |= CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_ALIGNMENT_WALL;
 		sp->extra = 1;
 		if (ud.multimode < 2 && sp->pal != 0)
 		{
@@ -1482,7 +1482,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		{
 			if (sp->picnum == EGG)
 				sp->clipdist = 24;
-			sp->cstat = CSTAT_SPRITE_BLOCK_ALL | (krand() & 4);
+			sp->cstat = CSTAT_SPRITE_BLOCK_ALL | randomXFlip();
 			ChangeActorStat(act, STAT_ZOMBIEACTOR);
 		}
 		break;

@@ -305,7 +305,7 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 		while (auto act = it.Next())
 		{
 			auto sp = act->s;
-			if (sp->xrepeat > 0 && sp->extra >= 0 && (sp->cstat & (257 + 32768)) == 257)
+			if (sp->xrepeat > 0 && sp->extra >= 0 && (sp->cstat & (CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_INVISIBLE)) == CSTAT_SPRITE_BLOCK_ALL)
 				if (badguy(sp) || k < 2)
 				{
 					if (badguy(sp) || sp->picnum == TILE_APLAYER)

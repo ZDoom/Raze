@@ -555,7 +555,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		break;
 	case BULLETHOLE:
 		sp->xrepeat = sp->yrepeat = 3;
-		sp->cstat = CSTAT_SPRITE_ALIGNMENT_WALL + (krand() & 12);
+		sp->cstat = CSTAT_SPRITE_ALIGNMENT_WALL | randomFlip();
 		insertspriteq(act);
 		[[fallthrough]];
 	case MONEY:
@@ -564,7 +564,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (sp->picnum == MONEY || sp->picnum == MAIL || sp->picnum == PAPER)
 		{
 			act->temp_data[0] = krand() & 2047;
-			sp->cstat = krand() & 12;
+			sp->cstat = randomFlip();
 			sp->xrepeat = sp->yrepeat = 8;
 			sp->ang = krand() & 2047;
 		}
@@ -615,7 +615,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		{
 			sp->ang = spj->ang;
 			sp->shade = -64;
-			sp->cstat = CSTAT_SPRITE_YCENTER | (krand() & 4);
+			sp->cstat = CSTAT_SPRITE_YCENTER | randomXFlip();
 		}
 
 		if (sp->picnum == EXPLOSION2 || sp->picnum == EXPLOSION2BOT)
@@ -1219,7 +1219,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 				sp->clipdist = 24;
 				ps[connecthead].max_actors_killed++;
 			}
-			sp->cstat = CSTAT_SPRITE_BLOCK_ALL | (krand() & 4);
+			sp->cstat = CSTAT_SPRITE_BLOCK_ALL | randomXFlip();
 			ChangeActorStat(act, STAT_ZOMBIEACTOR);
 		}
 		break;

@@ -213,5 +213,20 @@ inline void hud_draw(double x, double y, int tilenum, int shade, int orientation
 	hud_drawsprite(x, y, 65536, 0, tilenum, shade, p, 2 | orientation);
 }
 
+inline ESpriteFlags randomFlip()
+{
+	int r = krand() & 12;
+	if (r == 0) return 0;
+	if (r == 4) return CSTAT_SPRITE_XFLIP;
+	if (r == 8) return CSTAT_SPRITE_YFLIP;
+	return CSTAT_SPRITE_XFLIP | CSTAT_SPRITE_YFLIP;
+}
+
+inline ESpriteFlags randomXFlip()
+{
+	int r = krand() & 4;
+	if (r == 0) return 0;
+	return CSTAT_SPRITE_XFLIP;
+}
 
 END_DUKE_NS
