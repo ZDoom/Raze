@@ -310,8 +310,8 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sect
         pSector->wallnum = LittleShort(load.wallnum);
         pSector->ceilingz = LittleLong(load.ceilingz);
         pSector->floorz = LittleLong(load.floorz);
-        pSector->ceilingstat = LittleShort(load.ceilingstat);
-        pSector->floorstat = LittleShort(load.floorstat);
+        pSector->ceilingstat = ESectorFlags::FromInt(LittleShort(load.ceilingstat));
+        pSector->floorstat = ESectorFlags::FromInt(LittleShort(load.floorstat));
         pSector->ceilingpicnum = LittleShort(load.ceilingpicnum);
         pSector->ceilingheinum = LittleShort(load.ceilingheinum);
         pSector->floorpicnum = LittleShort(load.floorpicnum);

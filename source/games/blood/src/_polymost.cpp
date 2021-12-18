@@ -180,15 +180,15 @@ void setPortalFlags(int mode)
             {
             case 1:
                 if (mode)
-                    sector[mirror[i].wallnum].ceilingstat |= 1;
+                    sector[mirror[i].wallnum].ceilingstat |= CSTAT_SECTOR_SKY;
                 else
-                    sector[mirror[i].wallnum].ceilingstat &= ~1;
+                    sector[mirror[i].wallnum].ceilingstat &= ~CSTAT_SECTOR_SKY;
                 break;
             case 2:
                 if (mode)
-                    sector[mirror[i].wallnum].floorstat |= 1;
+                    sector[mirror[i].wallnum].floorstat |= CSTAT_SECTOR_SKY;
                 else
-                    sector[mirror[i].wallnum].floorstat &= ~1;
+                    sector[mirror[i].wallnum].floorstat &= ~CSTAT_SECTOR_SKY;
                 break;
             }
         }
@@ -273,7 +273,7 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
                 renderDrawRoomsQ16(x + mirror[i].dx, y + mirror[i].dy, z + mirror[i].dz, a, horiz, nSector, true);
                 viewProcessSprites(pm_tsprite, pm_spritesortcnt, x + mirror[i].dx, y + mirror[i].dy, z + mirror[i].dz, FixedToInt(a), smooth);
                 auto fstat = sector[nSector].floorstat;
-                sector[nSector].floorstat |= 1;
+                sector[nSector].floorstat |= CSTAT_SECTOR_SKY;
                 renderDrawMasks();
                 sector[nSector].floorstat = fstat;
                 for (int i = 0; i < 16; i++)
@@ -305,7 +305,7 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
                 renderDrawRoomsQ16(x + mirror[i].dx, y + mirror[i].dy, z + mirror[i].dz, a, horiz, nSector, true);
                 viewProcessSprites(pm_tsprite, pm_spritesortcnt, x + mirror[i].dx, y + mirror[i].dy, z + mirror[i].dz, FixedToInt(a), smooth);
                 auto cstat = sector[nSector].ceilingstat;
-                sector[nSector].ceilingstat |= 1;
+                sector[nSector].ceilingstat |= CSTAT_SECTOR_SKY;
                 renderDrawMasks();
                 sector[nSector].ceilingstat = cstat;
                 for (int i = 0; i < 16; i++)

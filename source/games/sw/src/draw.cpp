@@ -1382,7 +1382,7 @@ void UpdateWallPortalState()
             sp->sector()->ceilingpicnum = SP_TAG2(sp);
             SP_TAG4(sp) = sp->sector()->ceilingstat;
             //SET(sp->sector()->ceilingstat, ((int)SP_TAG7(sp))<<7);
-            SET(sp->sector()->ceilingstat, SP_TAG6(sp));
+            SET(sp->sector()->ceilingstat, ESectorFlags::FromInt(SP_TAG6(sp)));
             RESET(sp->sector()->ceilingstat, CSTAT_SECTOR_SKY);
         }
         else if (SP_TAG3(sp) == 1)
@@ -1391,7 +1391,7 @@ void UpdateWallPortalState()
             sp->sector()->floorpicnum = SP_TAG2(sp);
             SP_TAG4(sp) = sp->sector()->floorstat;
             //SET(sp->sector()->floorstat, ((int)SP_TAG7(sp))<<7);
-            SET(sp->sector()->floorstat, SP_TAG6(sp));
+            SET(sp->sector()->floorstat, ESectorFlags::FromInt(SP_TAG6(sp)));
             RESET(sp->sector()->floorstat, CSTAT_SECTOR_SKY);
         }
     }
@@ -1408,14 +1408,14 @@ void RestorePortalState()
         {
             // restore ceilingpicnum and ceilingstat
             sp->sector()->ceilingpicnum = SP_TAG5(sp);
-            sp->sector()->ceilingstat = SP_TAG4(sp);
+            sp->sector()->ceilingstat = ESectorFlags::FromInt(SP_TAG4(sp));
             //RESET(sp->sector()->ceilingstat, CEILING_STAT_TYPE_MASK);
             RESET(sp->sector()->ceilingstat, CSTAT_SECTOR_SKY);
         }
         else if (SP_TAG3(sp) == 1)
         {
             sp->sector()->floorpicnum = SP_TAG5(sp);
-            sp->sector()->floorstat = SP_TAG4(sp);
+            sp->sector()->floorstat = ESectorFlags::FromInt(SP_TAG4(sp));
             //RESET(sp->sector()->floorstat, FLOOR_STAT_TYPE_MASK);
             RESET(sp->sector()->floorstat, CSTAT_SECTOR_SKY);
         }

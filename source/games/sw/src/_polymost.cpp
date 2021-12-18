@@ -103,7 +103,7 @@ void FAF_DrawRooms(int x, int y, int z, fixed_t q16ang, fixed_t q16horiz, int se
             SP_TAG5(sp) = sp->sector()->ceilingpicnum;
             sp->sector()->ceilingpicnum = SP_TAG2(sp);
             SP_TAG4(sp) = sp->sector()->ceilingstat;
-            SET(sp->sector()->ceilingstat, SP_TAG6(sp));
+            SET(sp->sector()->ceilingstat, ESectorFlags::FromInt(SP_TAG6(sp)));
             RESET(sp->sector()->ceilingstat, CSTAT_SECTOR_SKY);
         }
         else if (SP_TAG3(sp) == 1)
@@ -111,7 +111,7 @@ void FAF_DrawRooms(int x, int y, int z, fixed_t q16ang, fixed_t q16horiz, int se
             SP_TAG5(sp) = sp->sector()->floorpicnum;
             sp->sector()->floorpicnum = SP_TAG2(sp);
             SP_TAG4(sp) = sp->sector()->floorstat;
-            SET(sp->sector()->floorstat, SP_TAG6(sp));
+            SET(sp->sector()->floorstat, ESectorFlags::FromInt(SP_TAG6(sp)));
             RESET(sp->sector()->floorstat, CSTAT_SECTOR_SKY);
         }
     }
@@ -132,13 +132,13 @@ void FAF_DrawRooms(int x, int y, int z, fixed_t q16ang, fixed_t q16horiz, int se
         {
             // restore ceilingpicnum and ceilingstat
             sp->sector()->ceilingpicnum = SP_TAG5(sp);
-            sp->sector()->ceilingstat = SP_TAG4(sp);
+            sp->sector()->ceilingstat = ESectorFlags::FromInt(SP_TAG4(sp));
             RESET(sp->sector()->ceilingstat, CSTAT_SECTOR_SKY);
         }
         else if (SP_TAG3(sp) == 1)
         {
             sp->sector()->floorpicnum = SP_TAG5(sp);
-            sp->sector()->floorstat = SP_TAG4(sp);
+            sp->sector()->floorstat = ESectorFlags::FromInt(SP_TAG4(sp));
             RESET(sp->sector()->floorstat, CSTAT_SECTOR_SKY);
         }
     }

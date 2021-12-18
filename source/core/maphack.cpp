@@ -209,11 +209,11 @@ static int32_t LoadMapHack(const char *filename, SpawnSpriteDef& sprites)
                 sc.GetString();
                 if (sc.Compare("floor") && sc.CheckNumber())
                 {
-                    sector[currentsector].floorstat &= ~sc.Number;
+                    sector[currentsector].floorstat &= ESectorFlags::FromInt(~sc.Number);
                 }
                 else if (sc.Compare("ceiling") && sc.CheckNumber())
                 {
-                    sector[currentsector].ceilingstat &= ~sc.Number;
+                    sector[currentsector].ceilingstat &= ESectorFlags::FromInt(~sc.Number);
                 }
                 else sc.ScriptError("Bad token %s", sc.String);
             }

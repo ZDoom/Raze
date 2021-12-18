@@ -1323,7 +1323,7 @@ void nnExtProcessSuperSprites()
                         if (!pXSector->panAlways && pXSector->busy)
                             speed = MulScale(speed, pXSector->busy, 16);
                     }
-                    if (pDebris->sector()->floorstat & 64)
+                    if (pDebris->sector()->floorstat & CSTAT_SECTOR_ALIGN)
                         angle = (angle + GetWallAngle(pDebris->sector()->firstWall()) + 512) & 2047;
                     int dx = MulScale(speed, Cos(angle), 30);
                     int dy = MulScale(speed, Sin(angle), 30);
@@ -1383,8 +1383,8 @@ void nnExtProcessSuperSprites()
             int fz = getflorzofslopeptr(pSector, pDebris->x, pDebris->y);
 
             GetActorExtents(debrisactor, &top, &bottom);
-            if (fz >= bottom && pSector->lowerLink == nullptr && !(pSector->ceilingstat & 0x1)) pDebris->z += ClipLow(cz - top, 0);
-            if (cz <= top && pSector->upperLink == nullptr && !(pSector->floorstat & 0x1)) pDebris->z += ClipHigh(fz - bottom, 0);
+            if (fz >= bottom && pSector->lowerLink == nullptr && !(pSector->ceilingstat & CSTAT_SECTOR_SKY)) pDebris->z += ClipLow(cz - top, 0);
+            if (cz <= top && pSector->upperLink == nullptr && !(pSector->floorstat & CSTAT_SECTOR_SKY)) pDebris->z += ClipHigh(fz - bottom, 0);
         }
     }
 }
@@ -2955,14 +2955,14 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 
             // data3 = sector ceil cstat
             if (valueIsBetween(pXSource->data3, -1, 32767)) {
-                if ((pSource->flags & kModernTypeFlag1)) pSector->ceilingstat |= pXSource->data3;
-                else pSector->ceilingstat = pXSource->data3;
+                if ((pSource->flags & kModernTypeFlag1)) pSector->ceilingstat |= ESectorFlags::FromInt(pXSource->data3);
+                else pSector->ceilingstat = ESectorFlags::FromInt(pXSource->data3);
             }
 
             // data4 = sector floor cstat
             if (valueIsBetween(pXSource->data4, -1, 65535)) {
-                if ((pSource->flags & kModernTypeFlag1)) pSector->floorstat |= pXSource->data4;
-                else pSector->floorstat = pXSource->data4;
+                if ((pSource->flags & kModernTypeFlag1)) pSector->floorstat |= ESectorFlags::FromInt(pXSource->data4);
+                else pSector->floorstat = ESectorFlags::FromInt(pXSource->data4);
             }
         }
         break;
@@ -3848,9 +3848,10 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
                         case 28:
                             switch (arg3) 
                             {
-                                default: return ((pObj->floorstat & arg1) || (pObj->ceilingshade & arg1));
-                                case 1:  return (pObj->floorstat & arg1);
-                                case 2:  return (pObj->ceilingshade & arg1);
+                                auto a = ESectorFlags::FromInt(arg1);
+                                default: return ((pObj->floorstat & a) || (pObj->ceilingstat & a));
+                                case 1:  return (pObj->floorstat & a);
+                                case 2:  return (pObj->ceilingstat & a);
                             }
                             break;
                         case 29: return (pObj->hitag & arg1);

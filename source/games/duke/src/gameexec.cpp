@@ -1077,11 +1077,11 @@ void DoSector(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		else SetGameVarID(lVar2, sectp->floorz, sActor, sPlayer);
 		break;
 	case SECTOR_CEILINGSTAT:
-		if (bSet) sectp->ceilingstat = lValue;
+		if (bSet) sectp->ceilingstat = ESectorFlags::FromInt(lValue);
 		else SetGameVarID(lVar2, sectp->ceilingstat, sActor, sPlayer);
 		break;
 	case SECTOR_FLOORSTAT:
-		if (bSet) sectp->floorstat = lValue;
+		if (bSet) sectp->floorstat = ESectorFlags::FromInt(lValue);
 		else SetGameVarID(lVar2, sectp->floorstat, sActor, sPlayer);
 		break;
 	case SECTOR_CEILINGPICNUM:

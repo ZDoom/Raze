@@ -297,7 +297,7 @@ void JS_InitMirrors(void)
                 wal.picnum = MIRRORLABEL + mirrorcnt;
                 sec->ceilingpicnum = MIRRORLABEL + mirrorcnt;
                 sec->floorpicnum = MIRRORLABEL + mirrorcnt;
-                sec->floorstat |= 1;
+                sec->floorstat |= CSTAT_SECTOR_SKY;
                 mirror[mirrorcnt].mirrorWall = &wal;
                 mirror[mirrorcnt].mirrorSector = sec;
                 mirror[mirrorcnt].numspawnspots = 0;

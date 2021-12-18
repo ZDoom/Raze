@@ -101,8 +101,8 @@ static void ReadSectorV7(FileReader& fr, sectortype& sect)
 	sect.wallnum = fr.ReadInt16();
 	sect.ceilingz = fr.ReadInt32();
 	sect.floorz = fr.ReadInt32();
-	sect.ceilingstat = fr.ReadUInt16();
-	sect.floorstat = fr.ReadUInt16();
+	sect.ceilingstat = ESectorFlags::FromInt(fr.ReadUInt16());
+	sect.floorstat = ESectorFlags::FromInt(fr.ReadUInt16());
 	sect.ceilingpicnum = fr.ReadUInt16();
 	sect.ceilingheinum = fr.ReadInt16();
 	sect.ceilingshade = fr.ReadInt8();
@@ -138,8 +138,8 @@ static void ReadSectorV6(FileReader& fr, sectortype& sect)
 	sect.floorxpan_ = fr.ReadUInt8();
 	sect.ceilingypan_ = fr.ReadUInt8();
 	sect.floorypan_ = fr.ReadUInt8();
-	sect.ceilingstat = fr.ReadUInt8();
-	sect.floorstat = fr.ReadUInt8();
+	sect.ceilingstat = ESectorFlags::FromInt(fr.ReadUInt8());
+	sect.floorstat = ESectorFlags::FromInt(fr.ReadUInt8());
 	sect.ceilingpal = fr.ReadUInt8();
 	sect.floorpal = fr.ReadUInt8();
 	sect.visibility = fr.ReadUInt8();
@@ -165,16 +165,16 @@ static void ReadSectorV5(FileReader& fr, sectortype& sect)
 	sect.floorxpan_ = fr.ReadUInt8();
 	sect.ceilingypan_ = fr.ReadUInt8();
 	sect.floorypan_ = fr.ReadUInt8();
-	sect.ceilingstat = fr.ReadUInt8();
-	sect.floorstat = fr.ReadUInt8();
+	sect.ceilingstat = ESectorFlags::FromInt(fr.ReadUInt8());
+	sect.floorstat = ESectorFlags::FromInt(fr.ReadUInt8());
 	sect.ceilingpal = fr.ReadUInt8();
 	sect.floorpal = fr.ReadUInt8();
 	sect.visibility = fr.ReadUInt8();
 	sect.lotag = fr.ReadInt16();
 	sect.hitag = fr.ReadInt16();
 	sect.extra = fr.ReadInt16();
-	if ((sect.ceilingstat & 2) == 0) sect.ceilingheinum = 0;
-	if ((sect.floorstat & 2) == 0) sect.floorheinum = 0;
+	if ((sect.ceilingstat & CSTAT_SECTOR_SLOPE) == 0) sect.ceilingheinum = 0;
+	if ((sect.floorstat & CSTAT_SECTOR_SLOPE) == 0) sect.floorheinum = 0;
 }
 
 static void ReadWallV7(FileReader& fr, walltype& wall)

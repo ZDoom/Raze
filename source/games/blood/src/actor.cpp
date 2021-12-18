@@ -5781,7 +5781,7 @@ static void actCheckThings()
 						speed = pXSector->panVel << 9;
 						if (!pXSector->panAlways && pXSector->busy) speed = MulScale(speed, pXSector->busy, 16);
 					}
-					if (pSector->floorstat & 64) angle = (angle + GetWallAngle(pSector->firstWall()) + 512) & 2047;
+					if (pSector->floorstat & CSTAT_SECTOR_ALIGN) angle = (angle + GetWallAngle(pSector->firstWall()) + 512) & 2047;
 
 					actor->xvel += MulScale(speed, Cos(angle), 30);
 					actor->yvel += MulScale(speed, Sin(angle), 30);
@@ -6230,7 +6230,7 @@ static void actCheckDudes()
 					if (!pXSector->panAlways && pXSector->busy)
 						speed = MulScale(speed, pXSector->busy, 16);
 				}
-				if (pSector->floorstat & 64)
+				if (pSector->floorstat & CSTAT_SECTOR_ALIGN)
 					angle = (angle + GetWallAngle(pSector->firstWall()) + 512) & 2047;
 				int dx = MulScale(speed, Cos(angle), 30);
 				int dy = MulScale(speed, Sin(angle), 30);

@@ -29,6 +29,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 #include <stdint.h>
 #include "ns.h"
 #include "tarray.h"
+#include "tflags.h"
 
 //=============================================================================
 //
@@ -67,7 +68,13 @@ enum ESectorBits
 	CSTAT_SECTOR_EXHUMED_BIT1			= 1 << 14,
 	CSTAT_SECTOR_EXHUMED_BIT2			= 1 << 15,
 
+	CSTAT_SECTOR_NO_CEILINGSHADE	= 32768,	// Blood: Force use of floorshade for sprites, even in sky sectors.
+
 };
+
+typedef TFlags<ESectorBits, uint16_t> ESectorFlags;
+DEFINE_TFLAGS_OPERATORS(ESectorFlags)
+
 
 // Extended sector bit flags.
 enum ESectorExBits
@@ -179,8 +186,8 @@ struct sectortype
 	float floorypan_;
 
 	int16_t wallnum;
-	uint16_t ceilingstat;
-	uint16_t floorstat;
+	ESectorFlags ceilingstat;
+	ESectorFlags floorstat;
 	int16_t ceilingpicnum;
 	int16_t ceilingheinum;
 	int16_t floorpicnum;

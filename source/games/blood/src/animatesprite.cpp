@@ -684,7 +684,7 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
         XSECTOR const* pXSector = pSector->hasX() ? &pSector->xs() : nullptr;
         int nShade = pTSprite->shade;
 
-        if ((pSector->ceilingstat & CSTAT_SECTOR_SKY) && (pSector->floorstat&32768) == 0)
+        if ((pSector->ceilingstat & CSTAT_SECTOR_SKY) && (pSector->floorstat & CSTAT_SECTOR_NO_CEILINGSHADE) == 0)
         {
             nShade += tileShade[pSector->ceilingpicnum]+pSector->ceilingshade;
         }

@@ -257,11 +257,11 @@ void DoSectorPanning(void)
             if (pXSector->panFloor) // Floor
             {
                 int nTile = pSector->floorpicnum;
-                if (pSector->floorstat & 64)
+                if (pSector->floorstat & CSTAT_SECTOR_ALIGN)
                     angle -= 512;
-                int xBits = tileWidth(nTile) >> int((pSector->floorstat & 8) != 0);
+                int xBits = tileWidth(nTile) >> int((pSector->floorstat & CSTAT_SECTOR_TEXHALF) != 0);
                 int px = MulScale(speed << 2, Cos(angle), 30) / xBits;
-                int yBits = tileHeight(nTile) >> int((pSector->floorstat & 8) != 0);
+                int yBits = tileHeight(nTile) >> int((pSector->floorstat & CSTAT_SECTOR_TEXHALF) != 0);
                 int py = MulScale(speed << 2, Sin(angle), 30) / yBits;
                 pSector->addfloorxpan(px * (1.f / 256));
                 pSector->addfloorypan(-py * (1.f / 256));
@@ -269,11 +269,11 @@ void DoSectorPanning(void)
             if (pXSector->panCeiling) // Ceiling
             {
                 int nTile = pSector->ceilingpicnum;
-                if (pSector->ceilingstat & 64)
+                if (pSector->ceilingstat & CSTAT_SECTOR_ALIGN)
                     angle -= 512;
-                int xBits = tileWidth(nTile) >> int((pSector->ceilingstat & 8) != 0);
+                int xBits = tileWidth(nTile) >> int((pSector->ceilingstat & CSTAT_SECTOR_TEXHALF) != 0);
                 int px = MulScale(speed << 2, Cos(angle), 30) / xBits;
-                int yBits = tileHeight(nTile) >> int((pSector->ceilingstat & 8) != 0);
+                int yBits = tileHeight(nTile) >> int((pSector->ceilingstat & CSTAT_SECTOR_TEXHALF) != 0);
                 int py = MulScale(speed << 2, Sin(angle), 30) / yBits;
                 pSector->addceilingxpan(px * (1.f / 256));
                 pSector->addceilingypan(-py * (1.f / 256));
