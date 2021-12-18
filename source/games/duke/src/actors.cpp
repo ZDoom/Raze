@@ -2148,7 +2148,7 @@ void frameeffect1(DDukeActor *actor)
 			deletesprite(actor);
 			return;
 		}
-		else if (t[0] > 4) actor->s->cstat |= 512 + 2;
+		else if (t[0] > 4) actor->s->cstat |= CSTAT_SPRITE_TRANS_FLIP + 2;
 		else if (t[0] > 2) actor->s->cstat |= CSTAT_SPRITE_TRANSLUCENT;
 		actor->s->xoffset = Owner->s->xoffset;
 		actor->s->yoffset = Owner->s->yoffset;

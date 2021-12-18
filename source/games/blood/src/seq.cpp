@@ -270,7 +270,7 @@ void UpdateSprite(DBloodActor* actor, SEQFRAME* pFrame)
 	else
 		pSprite->cstat &= ~2;
 	if (pFrame->transparent2)
-		pSprite->cstat |= 512;
+		pSprite->cstat |= CSTAT_SPRITE_TRANS_FLIP;
 	else
 		pSprite->cstat &= ~512;
 	if (pFrame->blockable)

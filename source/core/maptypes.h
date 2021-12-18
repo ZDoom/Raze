@@ -132,7 +132,6 @@ enum ESpriteBits // names mostly from SW.
 	CSTAT_SPRITE_ALIGNMENT_SLAB		= 48,			//             11 = either voxel or slope sprite, depending on the situation
 	CSTAT_SPRITE_ALIGNMENT_SLOPE	= 48,
 	CSTAT_SPRITE_ALIGNMENT_MASK		= 48,
-	CSTAT_SPRITE_ALIGNMENT			= 48, 
 	
 	CSTAT_SPRITE_ONE_SIDE			= 64,			//   bit 6: 1 = 1-sided sprite, 0 = normal                           "1"
 	CSTAT_SPRITE_YCENTER			= 128,			//   bit 7: 1 = Real centered centering, 0 = foot center             "C"
@@ -147,6 +146,9 @@ enum ESpriteBits // names mostly from SW.
 	CSTAT_SPRITE_BREAKABLE			= CSTAT_SPRITE_BLOCK_HITSCAN|CSTAT_SPRITE_BLOCK_MISSILE,
 	CSTAT_SPRITE_INVISIBLE			= 32768,		//   bit 15: 1 = Invisible sprite, 0 = not invisible
 };
+
+typedef TFlags<ESpriteBits, uint16_t> ESpriteFlags;
+DEFINE_TFLAGS_OPERATORS(ESpriteFlags)
 
 enum ESpriteBits2
 {

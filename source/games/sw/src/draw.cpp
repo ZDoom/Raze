@@ -338,7 +338,7 @@ void DoShadows(tspritetype* tsprite, int& spritesortcnt, tspriteptr_t tsp, int v
         // cstat:    trans reverse
         // clipdist: tell mdsprite.cpp to use Z-buffer hacks to hide overdraw issues
         tSpr->clipdist |= TSPR_FLAGS_MDHACK;
-        tSpr->cstat |= 512;
+        tSpr->cstat |= CSTAT_SPRITE_TRANS_FLIP;
     }
     else if (!testnewrenderer)
     {

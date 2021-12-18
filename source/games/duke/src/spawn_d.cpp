@@ -158,7 +158,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		else sp->xrepeat = sp->yrepeat = 16 + (krand() & 15);
 
 		sp->shade = -16;
-		sp->cstat |= 128;
+		sp->cstat |= CSTAT_SPRITE_YCENTER;
 		if (spj)
 		{
 			if (spj->sector()->lotag == 2)
@@ -623,7 +623,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			sp->xrepeat = 48;
 			sp->yrepeat = 48;
 			sp->shade = -127;
-			sp->cstat |= 128;
+			sp->cstat |= CSTAT_SPRITE_YCENTER;
 		}
 		else if (sp->picnum == SHRINKEREXPLOSION)
 		{
@@ -896,7 +896,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 					ps[myconnectindex].max_actors_killed++;
 			}
 
-			if (sp->picnum == ORGANTIC) sp->cstat |= 128;
+			if (sp->picnum == ORGANTIC) sp->cstat |= CSTAT_SPRITE_YCENTER;
 
 			if (spj)
 			{
@@ -1032,7 +1032,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case ACCESSCARD:
 
 		if (sp->picnum == ATOMICHEALTH)
-			sp->cstat |= 128;
+			sp->cstat |= CSTAT_SPRITE_YCENTER;
 
 		if (ud.multimode > 1 && ud.coop != 1 && sp->picnum == ACCESSCARD)
 		{

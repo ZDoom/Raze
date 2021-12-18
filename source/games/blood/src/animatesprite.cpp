@@ -568,7 +568,7 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
             {
                 if (tilehasmodelorvoxel(pTSprite->picnum, pTSprite->pal) && !(owneractor->sx().flags&SPREXT_NOTMD))
                 {
-                    pTSprite->cstat &= ~4;
+                    pTSprite->cstat &= ~CSTAT_SPRITE_XFLIP;
                     break;
                 }
                 int dX = cX - pTSprite->x;
@@ -577,7 +577,7 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
                 nAnim = GetOctant(dX, dY);
                 if (nAnim <= 4)
                 {
-                    pTSprite->cstat &= ~4;
+                    pTSprite->cstat &= ~CSTAT_SPRITE_XFLIP;
                 }
                 else
                 {
@@ -590,7 +590,7 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
             {
                 if (tilehasmodelorvoxel(pTSprite->picnum, pTSprite->pal) && !(owneractor->sx().flags&SPREXT_NOTMD))
                 {
-                    pTSprite->cstat &= ~4;
+                    pTSprite->cstat &= ~CSTAT_SPRITE_XFLIP;
                     break;
                 }
                 int dX = cX - pTSprite->x;
@@ -944,7 +944,7 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
                 nAnim = GetOctant(dX, dY);
                 if (nAnim <= 4)
                 {
-                    pTSprite->cstat &= ~4;
+                    pTSprite->cstat &= ~CSTAT_SPRITE_XFLIP;
                 }
                 else
                 {

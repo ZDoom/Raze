@@ -210,7 +210,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		else sp->xrepeat = sp->yrepeat = 16 + (krand() & 15);
 
 		sp->shade = -16;
-		sp->cstat |= 128;
+		sp->cstat |= CSTAT_SPRITE_YCENTER;
 		if (spj)
 		{
 			if (spj->sector()->lotag == 2)
@@ -630,14 +630,14 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			sp->xrepeat = 48;
 			sp->yrepeat = 48;
 			sp->shade = -127;
-			sp->cstat |= 128;
+			sp->cstat |= CSTAT_SPRITE_YCENTER;
 		}
 		else if (sp->picnum == EXPLOSION3)
 		{
 			sp->xrepeat = 128;
 			sp->yrepeat = 128;
 			sp->shade = -127;
-			sp->cstat |= 128;
+			sp->cstat |= CSTAT_SPRITE_YCENTER;
 		}
 		else if (sp->picnum == SMALLSMOKE)
 		{
@@ -907,7 +907,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			sp->xrepeat = 64;
 			sp->yrepeat = 64;
 			sp->cstat = 2;
-			sp->cstat |= 512;
+			sp->cstat |= CSTAT_SPRITE_TRANS_FLIP;
 			sp->x += (krand() & 2047) - 1024;
 			sp->y += (krand() & 2047) - 1024;
 			sp->z += (krand() & 2047) - 1024;
@@ -1189,7 +1189,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case ACCESSCARD:
 
 		if (sp->picnum == ATOMICHEALTH)
-			sp->cstat |= 128;
+			sp->cstat |= CSTAT_SPRITE_YCENTER;
 
 		if (ud.multimode > 1 && ud.coop != 1 && sp->picnum == ACCESSCARD)
 		{

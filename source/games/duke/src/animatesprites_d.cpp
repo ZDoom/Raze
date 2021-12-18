@@ -82,7 +82,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 		case CHAIR3:
 			if (hw_models && md_tilehasmodel(t->picnum, t->pal) >= 0) 
 			{
-				t->cstat &= ~4;
+				t->cstat &= ~CSTAT_SPRITE_XFLIP;
 				break;
 			}
 
@@ -92,7 +92,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 				k = 8 - k;
 				t->cstat |= CSTAT_SPRITE_XFLIP;
 			}
-			else t->cstat &= ~4;
+			else t->cstat &= ~CSTAT_SPRITE_XFLIP;
 			t->picnum = s->picnum + k;
 			break;
 		case BLOODSPLAT1:
@@ -153,7 +153,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 			if (t->lotag == 27 && ud.recstat == 1)
 			{
 				t->picnum = 11 + ((PlayClock >> 3) & 1);
-				t->cstat |= 128;
+				t->cstat |= CSTAT_SPRITE_YCENTER;
 			}
 			else
 				t->xrepeat = t->yrepeat = 0;
@@ -270,7 +270,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 		case RPG:
 			if (hw_models && md_tilehasmodel(s->picnum, s->pal) >= 0) 
 			{
-				t->cstat &= ~4;
+				t->cstat &= ~CSTAT_SPRITE_XFLIP;
 				break;
 			}
 
@@ -281,14 +281,14 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 				k = 12 - k;
 				t->cstat |= CSTAT_SPRITE_XFLIP;
 			}
-			else t->cstat &= ~4;
+			else t->cstat &= ~CSTAT_SPRITE_XFLIP;
 			t->picnum = RPG + k;
 			break;
 
 		case RECON:
 			if (hw_models && md_tilehasmodel(s->picnum, s->pal) >= 0) 
 			{
-				t->cstat &= ~4;
+				t->cstat &= ~CSTAT_SPRITE_XFLIP;
 				break;
 			}
 
@@ -302,7 +302,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 				k = 12 - k;
 				t->cstat |= CSTAT_SPRITE_XFLIP;
 			}
-			else t->cstat &= ~4;
+			else t->cstat &= ~CSTAT_SPRITE_XFLIP;
 
 			if (abs(t3) > 64) k += 7;
 			t->picnum = RECON + k;
@@ -383,7 +383,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 				if (hw_models && md_tilehasmodel(s->picnum, s->pal) >= 0) 
 				{
 					k = 0;
-					t->cstat &= ~4;
+					t->cstat &= ~CSTAT_SPRITE_XFLIP;
 				}
 				else
 				{
@@ -393,7 +393,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 						k = 8 - k;
 						t->cstat |= CSTAT_SPRITE_XFLIP;
 					}
-					else t->cstat &= ~4;
+					else t->cstat &= ~CSTAT_SPRITE_XFLIP;
 				}
 
 				if (t->sector()->lotag == 2) k += 1795 - 1405;
@@ -505,7 +505,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 				if (hw_models && md_tilehasmodel(s->picnum, s->pal) >= 0) 
 				{
 					k = 0;
-					t->cstat &= ~4;
+					t->cstat &= ~CSTAT_SPRITE_XFLIP;
 				}
 				else switch (l) 
 				{
@@ -521,7 +521,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 						t->cstat |= CSTAT_SPRITE_XFLIP;
 						k = 7 - k;
 					}
-					else t->cstat &= ~4;
+					else t->cstat &= ~CSTAT_SPRITE_XFLIP;
 					break;
 
 				case 5:
@@ -532,7 +532,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 						k = 8 - k;
 						t->cstat |= CSTAT_SPRITE_XFLIP;
 					}
-					else t->cstat &= ~4;
+					else t->cstat &= ~CSTAT_SPRITE_XFLIP;
 					break;
 				case 7:
 					k = getangle(s->x - x, s->y - y);
@@ -542,11 +542,11 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 						k = 12 - k;
 						t->cstat |= CSTAT_SPRITE_XFLIP;
 					}
-					else t->cstat &= ~4;
+					else t->cstat &= ~CSTAT_SPRITE_XFLIP;
 					break;
 				case 8:
 					k = (((s->ang + 3072 + 128 - a) & 2047) >> 8) & 7;
-					t->cstat &= ~4;
+					t->cstat &= ~CSTAT_SPRITE_XFLIP;
 					break;
 				default:
 					k = 0;
@@ -608,7 +608,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 								// 512:trans reverse
 								//1024:tell MD2SPRITE.C to use Z-buffer hacks to hide overdraw issues
 								shadowspr->clipdist |= TSPR_FLAGS_MDHACK;
-								shadowspr->cstat |= 512;
+								shadowspr->cstat |= CSTAT_SPRITE_TRANS_FLIP;
 							}
 							else
 							{
@@ -657,7 +657,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 			break;
 		case FIRE:
 		case FIRE2:
-			t->cstat |= 128;
+			t->cstat |= CSTAT_SPRITE_YCENTER;
 			[[fallthrough]];
 		case BURNING:
 		case BURNING2:
@@ -674,7 +674,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 			if (hw_models && md_tilehasmodel(s->picnum, s->pal) >= 0) 
 			{
 				k = 0;
-				t->cstat &= ~4;
+				t->cstat &= ~CSTAT_SPRITE_XFLIP;
 			}
 			else
 			{
@@ -684,7 +684,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 				k = 8 - k;
 				t->cstat |= CSTAT_SPRITE_XFLIP;
 			}
-			else t->cstat &= ~4;
+			else t->cstat &= ~CSTAT_SPRITE_XFLIP;
 		}
 
 			t->picnum = s->picnum + k + ((h->temp_data[0] < 4) * 5);
@@ -702,9 +702,9 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 			t->picnum = s->picnum + (h->temp_data[0] & 1);
 			[[fallthrough]];
 		case SHOTGUNSHELL:
-			t->cstat |= 12;
-			if (h->temp_data[0] > 1) t->cstat &= ~4;
-			if (h->temp_data[0] > 2) t->cstat &= ~12;
+			t->cstat |= (CSTAT_SPRITE_XFLIP | CSTAT_SPRITE_YFLIP);
+			if (h->temp_data[0] > 1) t->cstat &= ~CSTAT_SPRITE_XFLIP;
+			if (h->temp_data[0] > 2) t->cstat &= ~(CSTAT_SPRITE_XFLIP | CSTAT_SPRITE_YFLIP);
 			break;
 		case FRAMEEFFECT1:
 			if (Owner && Owner->statnum < MAXSTATUS)
@@ -722,7 +722,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 					t->pal = Owner->pal;
 					t->shade = Owner->shade;
 					t->ang = Owner->ang;
-					t->cstat = 2 | Owner->cstat;
+					t->cstat = CSTAT_SPRITE_TRANSLUCENT | Owner->cstat;
 				}
 			}
 			break;
@@ -731,7 +731,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 		case RAT:
 			if (hw_models && md_tilehasmodel(s->picnum, s->pal) >= 0) 
 			{
-				t->cstat &= ~4;
+				t->cstat &= ~CSTAT_SPRITE_XFLIP;
 				break;
 			}
 
@@ -741,7 +741,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 				k = 8 - k;
 				t->cstat |= CSTAT_SPRITE_XFLIP;
 			}
-			else t->cstat &= ~4;
+			else t->cstat &= ~CSTAT_SPRITE_XFLIP;
 			t->picnum = s->picnum + k;
 			break;
 		}

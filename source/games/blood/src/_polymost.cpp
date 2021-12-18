@@ -67,7 +67,7 @@ void collectTSpritesForPortal(int x, int y, int i, int interpolation)
                     nAnim = GetOctant(dX, dY);
                     if (nAnim <= 4)
                     {
-                        pTSprite->cstat &= ~4;
+                        pTSprite->cstat &= ~CSTAT_SPRITE_XFLIP;
                     }
                     else
                     {

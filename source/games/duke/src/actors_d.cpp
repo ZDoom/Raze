@@ -2982,7 +2982,7 @@ void moveactors_d(void)
 				if (t[0] > 60)
 				{
 					t[0] = 0;
-					s->cstat = CSTAT_SPRITE_YCENTER + 257 + 16;
+					s->cstat = CSTAT_SPRITE_YCENTER | CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_ALIGNMENT_WALL;
 					s->extra = 1;
 				}
 			}
@@ -2991,7 +2991,7 @@ void moveactors_d(void)
 				int j = fi.ifhitbyweapon(act);
 				if (j >= 0)
 				{
-					s->cstat = 32 + 128;
+					s->cstat = CSTAT_SPRITE_ALIGNMENT_FLOOR | CSTAT_SPRITE_YCENTER;
 					k = 1;
 
 					DukeStatIterator it(STAT_ACTOR);
