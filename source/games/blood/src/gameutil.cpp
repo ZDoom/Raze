@@ -413,14 +413,14 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
             spritetype *pOther = &gHitInfo.actor()->s();
             if ((pOther->flags & 8) && !(ac & 1))
                 return 3;
-            if ((pOther->cstat & 0x30) != 0)
+            if ((pOther->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != 0)
                 return 3;
             int nPicnum = pOther->picnum;
             if (tileWidth(nPicnum) == 0 || tileHeight(nPicnum) == 0)
                 return 3;
             int height = (tileHeight(nPicnum)*pOther->yrepeat)<<2;
             int otherZ = pOther->z;
-            if (pOther->cstat & 0x80)
+            if (pOther->cstat & CSTAT_SPRITE_YCENTER)
                 otherZ += height / 2;
             int nOffset = tileTopOffset(nPicnum);
             if (nOffset)

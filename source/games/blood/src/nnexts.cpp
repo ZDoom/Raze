@@ -706,13 +706,14 @@ void nnExtInitModernStuff(TArray<DBloodActor*>& actors)
                     pXSprite->targetX = pXSprite->targetY = pXSprite->targetZ = pXSprite->sysData2 = -1;
                     actor->SetTarget(nullptr);
                     ChangeActorStat(actor, kStatModernCondition);
-                    int oldStat = pSprite->cstat; pSprite->cstat = 0x30;
+                    auto oldStat = pSprite->cstat; 
+                    pSprite->cstat = CSTAT_SPRITE_ALIGNMENT_SLOPE;
                     
                     if (oldStat & CSTAT_SPRITE_BLOCK) 
                         pSprite->cstat |= CSTAT_SPRITE_BLOCK;
                     
-                    if (oldStat & 0x2000) pSprite->cstat |= 0x2000;
-                    else if (oldStat & 0x4000) pSprite->cstat |= 0x4000;
+                    if (oldStat & CSTAT_SPRITE_MOVE_FORWARD) pSprite->cstat |= CSTAT_SPRITE_MOVE_FORWARD;
+                    else if (oldStat & CSTAT_SPRITE_MOVE_REVERSE) pSprite->cstat |= CSTAT_SPRITE_MOVE_REVERSE;
 
                     pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
                     break;
@@ -1869,7 +1870,7 @@ void debrisMove(int listIndex)
     else if (floorColl.type == kHitSprite)
     {
 
-        if ((floorColl.actor()->s().cstat & 0x30) == 0)
+        if ((floorColl.actor()->s().cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == 0)
         {
             actor->xvel += MulScale(4, pSprite->x - floorColl.actor()->s().x, 2);
             actor->yvel += MulScale(4, pSprite->y - floorColl.actor()->s().y, 2);
@@ -2805,16 +2806,19 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
             // data4 = sprite cstat
             if (valueIsBetween(pXSource->data4, -1, 65535)) 
             {
-                old = pSprite->cstat;
+                auto old = pSprite->cstat;
 
                 // set new cstat
                 if ((pSource->flags & kModernTypeFlag1)) pSprite->cstat |= pXSource->data4; // relative
                 else pSprite->cstat = pXSource->data4 & 0xffff; // absolute
 
                 // and handle exceptions
-                if ((old & 0x1000) && !(pSprite->cstat & 0x1000)) pSprite->cstat |= 0x1000; //kSpritePushable
-                if ((old & CSTAT_SPRITE_YCENTER) && !(pSprite->cstat & CSTAT_SPRITE_YCENTER)) pSprite->cstat |= CSTAT_SPRITE_YCENTER;
+                if ((old & CSTAT_SPRITE_BLOOD_BIT1)) pSprite->cstat |= CSTAT_SPRITE_BLOOD_BIT1; //kSpritePushable
+                if ((old & CSTAT_SPRITE_YCENTER)) pSprite->cstat |= CSTAT_SPRITE_YCENTER;
 
+                pSprite->cstat |= (old & CSTAT_SPRITE_MOVE_MASK);
+#if 0
+                // looks very broken.
                 if (old & 0x6000) 
                 {
                     if (!(pSprite->cstat & 0x6000))
@@ -2824,6 +2828,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
                     else if ((old & 0x2000) && !(pSprite->cstat & 0x2000)) pSprite->cstat |= 0x2000; // kSpriteMoveForward, kSpriteMoveFloor
                     else if ((old & 0x4000) && !(pSprite->cstat & 0x4000)) pSprite->cstat |= 0x4000; // kSpriteMoveReverse, kSpriteMoveCeiling
                 }
+#endif
             }
         }
         break;
@@ -3241,8 +3246,8 @@ void useSectorWindGen(DBloodActor* sourceactor, sectortype* pSector)
                 pSource->ang = nnExtRandom(-kAng360, kAng360) & 2047;
         }
     }
-    else if (pSource->cstat & 0x2000) pSource->ang += pXSource->data4;
-    else if (pSource->cstat & 0x4000) pSource->ang -= pXSource->data4;
+    else if (pSource->cstat & CSTAT_SPRITE_MOVE_FORWARD) pSource->ang += pXSource->data4;
+    else if (pSource->cstat & CSTAT_SPRITE_MOVE_REVERSE) pSource->ang -= pXSource->data4;
     else if (pXSource->sysData1 == 0) 
     {
         if ((ang += pXSource->data4) >= kAng180) pXSource->sysData1 = 1;
@@ -3323,7 +3328,7 @@ void useSpriteDamager(DBloodActor* sourceactor, int objType, sectortype* targSec
             GetActorExtents(sourceactor, &top, &bottom);
             floor = (bottom >= pSector->floorz);    
             ceil = (top <= pSector->ceilingz);
-            wall = (pSource->cstat & 0x10);        
+            wall = (pSource->cstat & CSTAT_SPRITE_ALIGNMENT_WALL);        
             enter = (!floor && !ceil && !wall);
             BloodSectIterator it(targSect);
             while (auto iactor = it.Next())

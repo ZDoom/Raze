@@ -684,7 +684,7 @@ void playerStart(int nPlayer, int bNewLevel)
     pXSprite->burnTime = 0;
     actor->SetBurnSource(nullptr);
     pPlayer->pXSprite->health = pDudeInfo->startHealth<<4;
-    pPlayer->pSprite->cstat &= (unsigned short)~32768;
+    pPlayer->pSprite->cstat &= ~CSTAT_SPRITE_INVISIBLE;
     pPlayer->bloodlust = 0;
     pPlayer->horizon.horiz = pPlayer->horizon.horizoff = q16horiz(0);
     pPlayer->slope = 0;

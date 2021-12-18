@@ -135,7 +135,7 @@ RORHACK:
         ror_status[i] = testgotpic(4080 + i);
     fixed_t deliriumPitchI = interpolatedvalue(IntToFixed(deliriumPitchO), IntToFixed(deliriumPitch), gInterpolate);
     DrawMirrors(cX, cY, cZ, cA.asq16(), cH.asq16() + deliriumPitchI, int(gInterpolate), gViewIndex);
-    int bakCstat = gView->pSprite->cstat;
+    auto bakCstat = gView->pSprite->cstat;
     if (gViewPos == 0)
     {
         gView->pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
@@ -257,10 +257,10 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
             {
                 r_rorphase = 1;
                 int nSector = mirror[i].link;
-                int bakCstat = 0;
+                ESpriteFlags bakCstat = 0;
                 if (viewPlayer >= 0)
                 {
-                    bakCstat = gPlayer[viewPlayer].pSprite->cstat;
+                    bakCstat = ESpriteFlags::FromInt(gPlayer[viewPlayer].pSprite->cstat);
                     if (gViewPos == 0)
                     {
                         gPlayer[viewPlayer].pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
@@ -289,10 +289,10 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
             {
                 r_rorphase = 1;
                 int nSector = mirror[i].link;
-                int bakCstat = 0;
+                ESpriteFlags bakCstat = 0;
                 if (viewPlayer >= 0)
                 {
-                    bakCstat = gPlayer[viewPlayer].pSprite->cstat;
+                    bakCstat = ESpriteFlags::FromInt(gPlayer[viewPlayer].pSprite->cstat);
                     if (gViewPos == 0)
                     {
                         gPlayer[viewPlayer].pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;

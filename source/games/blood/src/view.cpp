@@ -170,7 +170,7 @@ void CalcOtherPosition(spritetype *pSprite, int *pX, int *pY, int *pZ, sectortyp
     int vY = MulScale(-Sin(nAng), 1280, 30);
     int vZ = FixedToInt(MulScale(zm, 1280, 3))-(16<<8);
     int bakCstat = pSprite->cstat;
-    pSprite->cstat &= ~256;
+    pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_HITSCAN;
     assert(validSectorIndex(*vsectnum));
     FindSector(*pX, *pY, *pZ, vsectnum);
     int nHSector;
@@ -669,7 +669,7 @@ void viewDrawScreen(bool sceneonly)
         if (testnewrenderer)
         {
             fixedhoriz deliriumPitchI = q16horiz(interpolatedvalue(IntToFixed(deliriumPitchO), IntToFixed(deliriumPitch), gInterpolate));
-            int bakCstat = gView->pSprite->cstat;
+            auto bakCstat = gView->pSprite->cstat;
             gView->pSprite->cstat |= (gViewPos == 0) ? CSTAT_SPRITE_INVISIBLE : CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANS_FLIP;
             render_drawrooms(gView->pSprite, { cX, cY, cZ }, sectnum(pSector), cA, cH + deliriumPitchI, rotscrnang, gInterpolate);
             gView->pSprite->cstat = bakCstat;

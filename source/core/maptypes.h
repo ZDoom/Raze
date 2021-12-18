@@ -148,8 +148,11 @@ enum ESpriteBits // names mostly from SW.
 	CSTAT_SPRITE_BREAKABLE			= CSTAT_SPRITE_BLOCK_HITSCAN|CSTAT_SPRITE_BLOCK_MISSILE,
 
 	// Blood flags
-	CSTAT_SPRITE_BLOOD_BIT2			= 1024,
+	CSTAT_SPRITE_BLOOD_BIT2			= 1024, // Both of these get set but not checked directly, so no idea what they mean...
 	CSTAT_SPRITE_BLOOD_BIT1			= 4096,
+	CSTAT_SPRITE_MOVE_FORWARD		= 8192,
+	CSTAT_SPRITE_MOVE_REVERSE		= 16384,
+	CSTAT_SPRITE_MOVE_MASK			= CSTAT_SPRITE_MOVE_FORWARD | CSTAT_SPRITE_MOVE_REVERSE,
 };
 
 typedef TFlags<ESpriteBits, uint16_t> ESpriteFlags;
