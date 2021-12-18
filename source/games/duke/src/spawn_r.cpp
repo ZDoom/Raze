@@ -346,14 +346,14 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			if (spj->picnum == TIRE)
 				sp->shade = 127;
 		}
-		sp->cstat |= 32;
+		sp->cstat |= CSTAT_SPRITE_ALIGNMENT_FLOOR;
 		[[fallthrough]];
 
 	case BLOODSPLAT1:
 	case BLOODSPLAT2:
 	case BLOODSPLAT3:
 	case BLOODSPLAT4:
-		sp->cstat |= 16;
+		sp->cstat |= CSTAT_SPRITE_ALIGNMENT_WALL;
 		sp->xrepeat = 7 + (krand() & 7);
 		sp->yrepeat = 7 + (krand() & 7);
 		sp->z -= (16 << 8);
@@ -426,8 +426,8 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 	case MASKWALL7:
 	{
-		int j = sp->cstat & 60;
-		sp->cstat = j | 1;
+		auto j = sp->cstat & (CSTAT_SPRITE_ALIGNMENT_MASK | CSTAT_SPRITE_XFLIP | CSTAT_SPRITE_YFLIP);
+		sp->cstat = j | CSTAT_SPRITE_BLOCK;
 		ChangeActorStat(act, 0);
 		break;
 	}
@@ -448,7 +448,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case STRIPEBALL:
 		if (sp->picnum == QUEBALL || sp->picnum == STRIPEBALL)
 		{
-			sp->cstat = 256;
+			sp->cstat = CSTAT_SPRITE_BLOCK_HITSCAN;
 			sp->clipdist = 8;
 		}
 		else
@@ -459,7 +459,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ChangeActorStat(act, 2);
 		break;
 	case BOWLINGBALL:
-		sp->cstat = 256;
+		sp->cstat = CSTAT_SPRITE_BLOCK_HITSCAN;
 		sp->clipdist = 64;
 		sp->xrepeat = 11;
 		sp->yrepeat = 9;
@@ -906,7 +906,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		case MAMACLOUD:
 			sp->xrepeat = 64;
 			sp->yrepeat = 64;
-			sp->cstat = 2;
+			sp->cstat = CSTAT_SPRITE_TRANSLUCENT;
 			sp->cstat |= CSTAT_SPRITE_TRANS_FLIP;
 			sp->x += (krand() & 2047) - 1024;
 			sp->y += (krand() & 2047) - 1024;
@@ -990,7 +990,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			sp->yrepeat = 128;
 			sp->clipdist = MulScale(sp->xrepeat, tileWidth(sp->picnum), 7);
 			sp->clipdist >>= 2;
-			sp->cstat = 2;
+			sp->cstat = CSTAT_SPRITE_TRANSLUCENT;
 			break;
 		case LTH:
 			sp->xrepeat = 24;
@@ -1079,7 +1079,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		ChangeActorStat(act, STAT_ACTIVATOR);
 		break;
 	case DOORSHOCK:
-		sp->cstat |= 1 + 256;
+		sp->cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		sp->shade = -12;
 
 		ChangeActorStat(act, STAT_STANDABLE);
@@ -1101,7 +1101,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		sp->yrepeat = j;
 		sp->xrepeat = 25 - (j >> 1);
-		sp->cstat |= (krand() & 4);
+		if(krand() & 4) sp->cstat |= CSTAT_SPRITE_XFLIP;
 		break;
 	}
 	case HEAVYHBOMB:
@@ -1221,12 +1221,12 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		case SHOTGUNAMMO:
 			sp->xrepeat = 18;
 			sp->yrepeat = 17;
-			if (isRRRA()) sp->cstat = 256;
+			if (isRRRA()) sp->cstat = CSTAT_SPRITE_BLOCK_HITSCAN;
 			break;
 		case SIXPAK:
 			sp->xrepeat = 13;
 			sp->yrepeat = 9;
-			if (isRRRA()) sp->cstat = 256;
+			if (isRRRA()) sp->cstat = CSTAT_SPRITE_BLOCK_HITSCAN;
 			break;
 		case FIRSTAID:
 			sp->xrepeat = 8;

@@ -3374,7 +3374,7 @@ void handle_se06_r(DDukeActor *actor)
 					ns = EGS(s->sector(), s->x, s->y, s->sector()->ceilingz + 119428, 3677, -8, 16, 16, 0, 0, 0, actor, 5);
 					if (ns)
 					{
-						ns->s->cstat = 514;
+						ns->s->cstat = CSTAT_SPRITE_TRANS_FLIP | CSTAT_SPRITE_TRANSLUCENT;
 						ns->s->pal = 7;
 						ns->s->xrepeat = 80;
 						ns->s->yrepeat = 255;

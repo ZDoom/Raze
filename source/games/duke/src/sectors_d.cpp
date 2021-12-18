@@ -691,7 +691,7 @@ void checkhitwall_d(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 					}
 					if (spawned)
 					{
-						spawned->s->cstat |= 18 + 128;
+						spawned->s->cstat |= CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_YCENTER;
 						auto delta = wal->delta();
 						spawned->s->ang = getangle(-delta.x, -delta.y) - 512;
 
@@ -1255,7 +1255,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 
 	case TOILET:
 		s->picnum = TOILETBROKE;
-		s->cstat |= (krand() & 1) << 2;
+		if (krand() & 1) s->cstat |= CSTAT_SPRITE_XFLIP;
 		s->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 		spawn(targ, TOILETWATER);
 		S_PlayActorSound(GLASS_BREAKING, targ);
@@ -1263,7 +1263,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 
 	case STALL:
 		s->picnum = STALLBROKE;
-		s->cstat |= (krand() & 1) << 2;
+		if (krand() & 1) s->cstat |= CSTAT_SPRITE_XFLIP;
 		s->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 		spawn(targ, TOILETWATER);
 		S_PlayActorSound(GLASS_HEAVYBREAK, targ);

@@ -1877,7 +1877,7 @@ void polymost_scansector(int32_t sectnum)
         while (auto act = it.Next())
         {
             auto spr = &act->s();
-            if ((spr->cstat & 0x8000) || spr->xrepeat == 0 || spr->yrepeat == 0)
+            if ((spr->cstat & CSTAT_SPRITE_INVISIBLE) || spr->xrepeat == 0 || spr->yrepeat == 0)
                 continue;
 
             vec2_t const s = { spr->x-globalposx, spr->y-globalposy };
@@ -1886,7 +1886,7 @@ void polymost_scansector(int32_t sectnum)
                 (hw_models && tile2model[spr->picnum].modelid>=0) ||
                 ((s.x * gcosang) + (s.y * gsinang) > 0))
             {
-                if ((spr->cstat&(64+48))!=(64+16) ||
+                if ((spr->cstat&(CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_MASK))!=(CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_WALL) ||
                     (r_voxels && tiletovox[spr->picnum] >= 0 && voxmodels[tiletovox[spr->picnum]]) ||
                     (r_voxels && gi->Voxelize(spr->picnum) > -1) ||
                     DMulScale(bcos(spr->ang), -s.x, bsin(spr->ang), -s.y, 6) > 0)

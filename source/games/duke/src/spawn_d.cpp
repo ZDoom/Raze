@@ -240,7 +240,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		sp->xrepeat = 32;
 
 		if (gs.lasermode == 1)
-			sp->cstat = CSTAT_SPRITE_ALIGNMENT_WALL + 2;
+			sp->cstat = CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_TRANSLUCENT;
 		else if (gs.lasermode == 0 || gs.lasermode == 2)
 			sp->cstat = CSTAT_SPRITE_ALIGNMENT_WALL;
 		else
@@ -297,7 +297,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			if (spj->picnum == TIRE)
 				sp->shade = 127;
 		}
-		sp->cstat |= 32;
+		sp->cstat |= CSTAT_SPRITE_ALIGNMENT_FLOOR;
 		if (sp->picnum == LAVAPOOL)  // Twentieth Anniversary World Tour
 		{
 			int fz = getflorzofslopeptr(sp->sector(), sp->x, sp->y);
@@ -317,7 +317,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case BLOODSPLAT2:
 	case BLOODSPLAT3:
 	case BLOODSPLAT4:
-		sp->cstat |= 16;
+		sp->cstat |= CSTAT_SPRITE_ALIGNMENT_WALL;
 		sp->xrepeat = 7 + (krand() & 7);
 		sp->yrepeat = 7 + (krand() & 7);
 		sp->z -= (16 << 8);
@@ -460,8 +460,8 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case MASKWALL14:
 	case MASKWALL15:
 	{
-		int j = sp->cstat & 60;
-		sp->cstat = j | 1;
+		auto j = sp->cstat & (CSTAT_SPRITE_ALIGNMENT_MASK | CSTAT_SPRITE_XFLIP | CSTAT_SPRITE_YFLIP);
+		sp->cstat = j | CSTAT_SPRITE_BLOCK;
 		ChangeActorStat(act, 0);
 		break;
 	}
@@ -498,7 +498,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		if (sp->picnum == QUEBALL || sp->picnum == STRIPEBALL)
 		{
-			sp->cstat = 256;
+			sp->cstat = CSTAT_SPRITE_BLOCK_HITSCAN;
 			sp->clipdist = 8;
 		}
 		else
@@ -654,7 +654,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			sp->x += krand() % 256 - 128;
 			sp->y += krand() % 256 - 128;
 			sp->z -= krand() % 10240;
-			sp->cstat |= 0x80;
+			sp->cstat |= CSTAT_SPRITE_YCENTER;
 		}
 
 		ChangeActorStat(act, STAT_MISC);
@@ -926,7 +926,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		break;
 
 	case DOORSHOCK:
-		sp->cstat |= 1 + 256;
+		sp->cstat |= CSTAT_SPRITE_BLOCK_ALL;
 		sp->shade = -12;
 		ChangeActorStat(act, 6);
 		break;
@@ -951,7 +951,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		sp->yrepeat = j;
 		sp->xrepeat = 25 - (j >> 1);
-		sp->cstat |= (krand() & 4);
+		if (krand() & 4) sp->cstat |= CSTAT_SPRITE_XFLIP;
 
 		break;
 	}
@@ -1011,7 +1011,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			sp->z -= (32 << 8);
 			sp->zvel = -1024;
 			ssp(act, CLIPMASK0);
-			sp->cstat = krand() & 4;
+			if (krand() & 4) sp->cstat |= CSTAT_SPRITE_XFLIP;
 		}
 		else
 		{
@@ -1078,7 +1078,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 	case BOUNCEMINE:
 		act->SetOwner(act);
-		sp->cstat |= 1 + 256; //Make it hitable
+		sp->cstat |= CSTAT_SPRITE_BLOCK_ALL; //Make it hitable
 		sp->xrepeat = sp->yrepeat = 24;
 		sp->shade = -127;
 		sp->extra = gs.impact_damage << 2;
@@ -1114,7 +1114,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (spj)
 		{
 			sp->ang = spj->ang;
-			sp->cstat = CSTAT_SPRITE_ALIGNMENT_WALL + 128 + 2;
+			sp->cstat = CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_YCENTER | CSTAT_SPRITE_TRANSLUCENT;
 			sp->xrepeat = sp->yrepeat = 1;
 			sp->xvel = -8;
 			ssp(act, CLIPMASK0);
@@ -1139,7 +1139,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			sp->cstat = CSTAT_SPRITE_INVISIBLE;
 			sp->xrepeat = sp->yrepeat = 0;
 		}
-		else sp->cstat = 1 + 256;
+		else sp->cstat = CSTAT_SPRITE_BLOCK_ALL;
 		sp->extra = gs.impact_damage << 2;
 		act->SetOwner(act);
 		ChangeActorStat(act, STAT_STANDABLE);
@@ -1157,7 +1157,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		}
 		else
 		{
-			sp->cstat |= (sp->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) ? 1 : 17;
+			sp->cstat |= (sp->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) ? CSTAT_SPRITE_BLOCK : (CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_ALIGNMENT_WALL);
 			sp->extra = 1;
 		}
 

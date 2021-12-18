@@ -931,9 +931,9 @@ void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 			t->picnum = s->picnum + (h->temp_data[0] & 1);
 			[[fallthrough]];
 		case SHOTGUNSHELL:
-			t->cstat |= 12;
+			t->cstat |= CSTAT_SPRITE_XFLIP | CSTAT_SPRITE_YFLIP;
 			if (h->temp_data[0] > 1) t->cstat &= ~CSTAT_SPRITE_XFLIP;
-			if (h->temp_data[0] > 2) t->cstat &= ~12;
+			if (h->temp_data[0] > 2) t->cstat &= ~CSTAT_SPRITE_XFLIP | CSTAT_SPRITE_YFLIP;
 			break;
 		case FRAMEEFFECT1:
 			if (Owner && Owner->statnum < MAXSTATUS)
@@ -954,7 +954,7 @@ void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 					t->pal = Owner->pal;
 					t->shade = Owner->shade;
 					t->ang = Owner->ang;
-					t->cstat = 2 | Owner->cstat;
+					t->cstat = CSTAT_SPRITE_TRANSLUCENT | Owner->cstat;
 				}
 			}
 			break;

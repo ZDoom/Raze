@@ -2360,7 +2360,7 @@ static void underwater(int snum, ESyncBits actions, int fz, int cz)
 			j->s->xrepeat = 3;
 			j->s->yrepeat = 2;
 			j->s->z = p->pos.z + (8 << 8);
-			j->s->cstat = 514;
+			j->s->cstat = CSTAT_SPRITE_TRANS_FLIP | CSTAT_SPRITE_TRANSLUCENT;
 		}
 	}
 }
@@ -3463,7 +3463,7 @@ void processinput_r(int snum)
 
 	if (clz.type == kHitSprite)
 	{
-		if ((clz.actor()->s->cstat & 33) == 33)
+		if ((clz.actor()->s->cstat & (CSTAT_SPRITE_ALIGNMENT_FLOOR| CSTAT_SPRITE_BLOCK)) == (CSTAT_SPRITE_ALIGNMENT_FLOOR | CSTAT_SPRITE_BLOCK))
 		{
 			psectlotag = 0;
 			p->footprintcount = 0;

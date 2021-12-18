@@ -205,7 +205,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, int sx, int sy, int
 	spawned->s->y = sy + bsin(sa + 112) / 448;
 	spawned->s->z = sz - 256;
 	spawned->s->setsector(s->sector());
-	spawned->s->cstat = 0x80;
+	spawned->s->cstat = CSTAT_SPRITE_YCENTER;
 	spawned->s->ang = sa;
 	spawned->s->xrepeat = 2;
 	spawned->s->yrepeat = 2;
@@ -982,7 +982,7 @@ static void shootgrowspark(DDukeActor* actor, int p, int sx, int sy, int sz, int
 	if (!spark) return;
 
 	spark->s->pal = 2;
-	spark->s->cstat |= 130;
+	spark->s->cstat |= CSTAT_SPRITE_YCENTER | CSTAT_SPRITE_TRANSLUCENT;
 	spark->s->xrepeat = spark->s->yrepeat = 1;
 
 	if (hit.hitWall == nullptr && hit.actor() == nullptr && hit.hitSector != nullptr)
@@ -2790,7 +2790,7 @@ void processinput_d(int snum)
 
 	if (clz.type == kHitSprite)
 	{
-		if ((clz.actor()->s->cstat & 33) == 33)
+		if ((clz.actor()->s->cstat & (CSTAT_SPRITE_ALIGNMENT_FLOOR | CSTAT_SPRITE_BLOCK)) == (CSTAT_SPRITE_ALIGNMENT_FLOOR | CSTAT_SPRITE_BLOCK))
 		{
 			psectlotag = 0;
 			p->footprintcount = 0;

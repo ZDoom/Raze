@@ -419,7 +419,7 @@ int32_t spriteheightofsptr(uspriteptr_t spr, int32_t *height, int32_t alsotileyo
     if (height != NULL)
         *height = hei;
 
-    if (spr->cstat&128)
+    if (spr->cstat & CSTAT_SPRITE_YCENTER)
         zofs = hei>>1;
 
     // NOTE: a positive per-tile yoffset translates the sprite into the
