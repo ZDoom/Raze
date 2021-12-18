@@ -1683,7 +1683,7 @@ static void polymost_drawalls(int32_t const bunch)
             float const ocy1 = (cz-globalposz)*ryp1 + ghoriz;
             float const ofy1 = (fz-globalposz)*ryp1 + ghoriz;
 
-            if ((wal->cstat&48) == 16) maskwall[maskwallcnt++] = z;
+            if ((wal->cstat& (CSTAT_WALL_MASKED | CSTAT_WALL_1WAY)) == CSTAT_WALL_MASKED) maskwall[maskwallcnt++] = z;
 
             if (((cy0 < ocy0) || (cy1 < ocy1)) && (!((sec->ceilingstat&sector[nextsectnum].ceilingstat) & CSTAT_SECTOR_SKY)))
             {
@@ -1692,29 +1692,29 @@ static void polymost_drawalls(int32_t const bunch)
                 globalorientation = wal->cstat;
                 tileUpdatePicnum(&globalpicnum, wallnum+16384);
 
-                int i = (!(wal->cstat&4)) ? sector[nextsectnum].ceilingz : sec->ceilingz;
+                int i = (!(wal->cstat& CSTAT_WALL_ALIGN_BOTTOM)) ? sector[nextsectnum].ceilingz : sec->ceilingz;
 
                 // over
-                calc_ypanning(i, ryp0, ryp1, x0, x1, wal->ypan_, wal->yrepeat, wal->cstat&4, tileSize(globalpicnum));
+                calc_ypanning(i, ryp0, ryp1, x0, x1, wal->ypan_, wal->yrepeat, wal->cstat& CSTAT_WALL_ALIGN_BOTTOM, tileSize(globalpicnum));
 
-                if (wal->cstat&8) //xflip
+                if (wal->cstat& CSTAT_WALL_XFLIP) //xflip
                 {
                     float const t = (float)(wal->xrepeat*8 + wal->xpan_*2);
                     xtex.u = xtex.d*t - xtex.u;
                     ytex.u = ytex.d*t - ytex.u;
                     otex.u = otex.d*t - otex.u;
                 }
-                if (wal->cstat&256) { xtex.v = -xtex.v; ytex.v = -ytex.v; otex.v = -otex.v; } //yflip
+                if (wal->cstat& CSTAT_WALL_YFLIP) { xtex.v = -xtex.v; ytex.v = -ytex.v; otex.v = -otex.v; } //yflip
 
                 pow2xsplit = 1;
                 polymost_domost(x1,ocy1,x0,ocy0,cy1,ocy1,cy0,ocy0);
-                if (wal->cstat&8) { xtex.u = ogux; ytex.u = oguy; otex.u = oguo; }
+                if (wal->cstat& CSTAT_WALL_XFLIP) { xtex.u = ogux; ytex.u = oguy; otex.u = oguo; }
             }
             if (((ofy0 < fy0) || (ofy1 < fy1)) && (!((sec->floorstat&sector[nextsectnum].floorstat) & CSTAT_SECTOR_SKY)))
             {
                 uwallptr_t nwal;
 
-                if (!(wal->cstat&2)) nwal = wal;
+                if (!(wal->cstat& CSTAT_WALL_BOTTOM_SWAP)) nwal = wal;
                 else
                 {
                     nwal = (uwallptr_t)&wall[wal->nextwall];
@@ -1727,31 +1727,31 @@ static void polymost_drawalls(int32_t const bunch)
                 globalorientation = nwal->cstat;
                 tileUpdatePicnum(&globalpicnum, wallnum+16384);
 
-                int i = (!(nwal->cstat&4)) ? sector[nextsectnum].floorz : sec->ceilingz;
+                int i = (!(nwal->cstat&CSTAT_WALL_ALIGN_BOTTOM)) ? sector[nextsectnum].floorz : sec->ceilingz;
 
                 // under
-                calc_ypanning(i, ryp0, ryp1, x0, x1, nwal->ypan_, wal->yrepeat, !(nwal->cstat&4), tileSize(globalpicnum));
+                calc_ypanning(i, ryp0, ryp1, x0, x1, nwal->ypan_, wal->yrepeat, !(nwal->cstat& CSTAT_WALL_ALIGN_BOTTOM), tileSize(globalpicnum));
 
-                if (wal->cstat&8) //xflip
+                if (wal->cstat& CSTAT_WALL_XFLIP) //xflip
                 {
                     float const t = (float)(wal->xrepeat*8 + nwal->xpan_*2);
                     xtex.u = xtex.d*t - xtex.u;
                     ytex.u = ytex.d*t - ytex.u;
                     otex.u = otex.d*t - otex.u;
                 }
-                if (nwal->cstat&256) { xtex.v = -xtex.v; ytex.v = -ytex.v; otex.v = -otex.v; } //yflip
+                if (nwal->cstat& CSTAT_WALL_YFLIP) { xtex.v = -xtex.v; ytex.v = -ytex.v; otex.v = -otex.v; } //yflip
 
                 pow2xsplit = 1;
                 polymost_domost(x0,ofy0,x1,ofy1,ofy0,fy0,ofy1,fy1);
-                if (wal->cstat&(2+8)) { otex.u = oguo; xtex.u = ogux; ytex.u = oguy; }
+                if (wal->cstat&(CSTAT_WALL_BOTTOM_SWAP | CSTAT_WALL_XFLIP)) { otex.u = oguo; xtex.u = ogux; ytex.u = oguy; }
             }
         }
 
-        if ((nextsectnum < 0) || (wal->cstat&32))   //White/1-way wall
+        if ((nextsectnum < 0) || (wal->cstat& CSTAT_WALL_1WAY))   //White/1-way wall
         {
             do
             {
-                const int maskingOneWay = (nextsectnum >= 0 && (wal->cstat&32));
+                const int maskingOneWay = (nextsectnum >= 0 && (wal->cstat& CSTAT_WALL_1WAY));
 
                 if (maskingOneWay)
                 {
@@ -1769,7 +1769,7 @@ static void polymost_drawalls(int32_t const bunch)
                 tileUpdatePicnum(&globalpicnum, wallnum+16384);
 
                 int i;
-                int const nwcs4 = !(wal->cstat & 4);
+                int const nwcs4 = !(wal->cstat & CSTAT_WALL_ALIGN_BOTTOM);
 
                 if (nextsectnum >= 0) { i = nwcs4 ? nextsec->ceilingz : sec->ceilingz; }
                 else { i = nwcs4 ? sec->ceilingz : sec->floorz; }
@@ -1777,14 +1777,14 @@ static void polymost_drawalls(int32_t const bunch)
                 // white / 1-way
                 calc_ypanning(i, ryp0, ryp1, x0, x1, wal->ypan_, wal->yrepeat, nwcs4 && !maskingOneWay, tileSize(globalpicnum));
 
-                if (wal->cstat&8) //xflip
+                if (wal->cstat& CSTAT_WALL_XFLIP) //xflip
                 {
                     float const t = (float) (wal->xrepeat*8 + wal->xpan_*2);
                     xtex.u = xtex.d*t - xtex.u;
                     ytex.u = ytex.d*t - ytex.u;
                     otex.u = otex.d*t - otex.u;
                 }
-                if (wal->cstat&256) { xtex.v = -xtex.v; ytex.v = -ytex.v; otex.v = -otex.v; } //yflip
+                if (wal->cstat& CSTAT_WALL_YFLIP) { xtex.v = -xtex.v; ytex.v = -ytex.v; otex.v = -otex.v; } //yflip
 
                 pow2xsplit = 1;
 
@@ -1918,7 +1918,7 @@ void polymost_scansector(int32_t sectnum)
 
             int const nextsectnum = wal->nextsector; //Scan close sectors
 
-            if (nextsectnum >= 0 && !(wal->cstat&32) && sectorbordercnt < (int)countof(sectorborder))
+            if (nextsectnum >= 0 && !(wal->cstat& CSTAT_WALL_1WAY) && sectorbordercnt < (int)countof(sectorborder))
             if (gotsector[nextsectnum] == 0)
             {
                 double const d = fp1.X* fp2.Y - fp2.X * fp1.Y;
@@ -2375,25 +2375,25 @@ static void polymost_drawmaskwallinternal(int32_t wallIndex)
     ytex.u = 0;
 
     // mask
-    calc_ypanning((!(wal->cstat & 4)) ? max(nsec->ceilingz, sec->ceilingz) : min(nsec->floorz, sec->floorz), ryp0, ryp1,
+    calc_ypanning((!(wal->cstat & CSTAT_WALL_ALIGN_BOTTOM)) ? max(nsec->ceilingz, sec->ceilingz) : min(nsec->floorz, sec->floorz), ryp0, ryp1,
                   x0, x1, wal->ypan_, wal->yrepeat, 0, tileSize(globalpicnum));
 
-    if (wal->cstat&8) //xflip
+    if (wal->cstat& CSTAT_WALL_XFLIP) //xflip
     {
         float const t = (float)(wal->xrepeat*8 + wal->xpan_*2);
         xtex.u = xtex.d*t - xtex.u;
         ytex.u = ytex.d*t - ytex.u;
         otex.u = otex.d*t - otex.u;
     }
-    if (wal->cstat&256) { xtex.v = -xtex.v; ytex.v = -ytex.v; otex.v = -otex.v; } //yflip
+    if (wal->cstat& CSTAT_WALL_YFLIP) { xtex.v = -xtex.v; ytex.v = -ytex.v; otex.v = -otex.v; } //yflip
 
     int method = DAMETH_MASK | DAMETH_WALL;
 
-    if (wal->cstat & 128)
-        method = DAMETH_WALL | (((wal->cstat & 512)) ? DAMETH_TRANS2 : DAMETH_TRANS1);
+    if (wal->cstat & CSTAT_WALL_TRANSLUCENT)
+        method = DAMETH_WALL | (((wal->cstat & CSTAT_WALL_TRANS_FLIP)) ? DAMETH_TRANS2 : DAMETH_TRANS1);
 
     uint8_t const blend = 0;// wal->blend; nothing sets this and this feature is not worth reimplementing (render style needs to be done less hacky.)
-    SetRenderStyleFromBlend(!!(wal->cstat & 128), blend, !!(wal->cstat & 512));
+    SetRenderStyleFromBlend(!!(wal->cstat & CSTAT_WALL_TRANSLUCENT), blend, !!(wal->cstat & CSTAT_WALL_TRANS_FLIP));
 
     drawpoly_alpha = 0.f;
     drawpoly_blend = blend;
