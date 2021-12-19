@@ -14,11 +14,7 @@ class ClipNode
 	
 	ClipNode *prev, *next;
 	int start, end;
-
-	bool operator== (const ClipNode &other)
-	{
-		return other.start == start && other.end == end;
-	}
+	float topclip, bottomclip;
 };
 
 
@@ -27,14 +23,13 @@ class Clipper
 	FMemArena nodearena;
 	ClipNode * freelist = nullptr;
 
-	ClipNode * clipnodes = nullptr;
 	ClipNode * cliphead = nullptr;
-	void RemoveRange(ClipNode* cn);
 	binangle visibleStart, visibleEnd;
 
 public:
 	bool IsRangeVisible(int startangle, int endangle);
 	void AddClipRange(int startangle, int endangle);
+	void AddWindowRange(int startangle, int endangle, float topclip, float bottomclip);
 	void RemoveClipRange(int startangle, int endangle);
 
 public:
@@ -59,15 +54,20 @@ private:
 		else return (ClipNode*)nodearena.Alloc(sizeof(ClipNode));
 	}
 
-	ClipNode * NewRange(int start, int end)
+	ClipNode * NewRange(int start, int end, float top, float bottom)
 	{
 		ClipNode * c = GetNew();
 
 		c->start = start;
 		c->end = end;
+		c->topclip = top;
+		c->bottomclip = bottom;
 		c->next = c->prev = NULL;
 		return c;
 	}
+
+	void RemoveRange(ClipNode* cn);
+	void InsertRange(ClipNode* prev, ClipNode* node);
 
 public:
     

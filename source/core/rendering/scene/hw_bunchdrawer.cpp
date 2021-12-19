@@ -62,6 +62,7 @@ void BunchDrawer::Init(HWDrawInfo *_di, Clipper* c, vec2_t& view, binangle a1, b
 	clipper = c;
 	viewx = view.x * (1/ 16.f);
 	viewy = view.y * -(1/ 16.f);
+	viewz = (float)di->Viewpoint.Pos.Z;
 	iview = view;
 	StartScene();
 
@@ -149,15 +150,11 @@ void BunchDrawer::DeleteBunch(int index)
 	Bunches.Pop();
 }
 
-bool BunchDrawer::CheckClip(walltype* wal)
+bool BunchDrawer::CheckClip(walltype* wal, float* topclip, float* bottomclip)
 {
 	auto pt2 = wal->point2Wall();
 	sectortype* backsector = wal->nextSector();
 	sectortype* frontsector = wal->sectorp();
-
-	// if one plane is sky on both sides, the line must not clip.
-	if (frontsector->ceilingstat & backsector->ceilingstat & CSTAT_SECTOR_SKY) return false;
-	if (frontsector->floorstat & backsector->floorstat & CSTAT_SECTOR_SKY) return false;
 
 	float bs_floorheight1;
 	float bs_floorheight2;
@@ -177,7 +174,27 @@ bool BunchDrawer::CheckClip(walltype* wal)
 	PlanesAtPoint(backsector, wal->x, wal->y, &bs_ceilingheight1, &bs_floorheight1);
 	PlanesAtPoint(backsector, pt2->x, pt2->y, &bs_ceilingheight2, &bs_floorheight2);
 
-	// now check for closed sectors! No idea if we really need the sky checks. We'll see.
+	*bottomclip = max(max(bs_floorheight1, bs_floorheight2), max(fs_floorheight1, fs_floorheight2));
+	if (*bottomclip < viewz) *bottomclip = -FLT_MAX;
+
+	// if one plane is sky on both sides, the line must not clip.
+	if (frontsector->ceilingstat & backsector->ceilingstat & CSTAT_SECTOR_SKY)
+	{
+		// save some processing with outside areas - no need to add to the clipper if back sector is higher.
+		if (fs_ceilingheight1 <= bs_floorheight1 && fs_ceilingheight2 <= bs_floorheight2) *bottomclip = -FLT_MAX;
+		*topclip = FLT_MAX;
+		return false;
+	}
+	*topclip = min(min(bs_ceilingheight1, bs_ceilingheight2), min(fs_ceilingheight1, fs_ceilingheight2));
+	if (*topclip > viewz) *topclip = FLT_MAX;
+
+	if (frontsector->floorstat & backsector->floorstat & CSTAT_SECTOR_SKY)
+	{
+		*bottomclip = -FLT_MAX;
+		return false;
+	}
+
+	// now check for closed sectors.
 	if (bs_ceilingheight1 <= fs_floorheight1 && bs_ceilingheight2 <= fs_floorheight2)
 	{
 		// backsector's ceiling is below frontsector's floor.
@@ -258,15 +275,30 @@ int BunchDrawer::ClipLine(int aline, bool portal)
 	if (line < 0)
 		return CL_Pass;
 
-	if (cline->partner == -1 || (wall[line].cstat & CSTAT_WALL_1WAY) || CheckClip(&wall[line]))
+	float topclip = 0, bottomclip = 0;
+	if (cline->partner == -1 || (wall[line].cstat & CSTAT_WALL_1WAY) || CheckClip(&wall[line], &topclip, &bottomclip))
 	{
 		// one-sided
-		if (!portal && !dontclip) clipper->AddClipRange(startAngle, endAngle);
+		if (!portal && !dontclip)
+		{
+			clipper->AddClipRange(startAngle, endAngle);
+			Printf("\nWall %d from %2.3f - %2.3f (blocking)\n", line, bamang(startAngle).asdeg(), bamang(endAngle).asdeg());
+			clipper->DumpClipper();
+		}
 		return CL_Draw;
 	}
 	else
 	{
 		if (portal) clipper->RemoveClipRange(startAngle, endAngle);
+		else
+		{
+			if (topclip < viewz || bottomclip > viewz)
+			{
+				clipper->AddWindowRange(startAngle, endAngle, topclip, bottomclip);
+				Printf("\nWall %d from %2.3f - %2.3f, (%2.3f, %2.3f) (passing)\n", line, bamang(startAngle).asdeg(), bamang(endAngle).asdeg(), topclip, bottomclip);
+				clipper->DumpClipper();
+			}
+		}
 
 		// set potentially visible viewing range for this line's back sector.
 		int nsection = cline->partnersection;
@@ -648,7 +680,7 @@ void BunchDrawer::ProcessSection(int sectionnum, bool portal)
 
 void BunchDrawer::RenderScene(const int* viewsectors, unsigned sectcount, bool portal)
 {
-	//Printf("----------------------------------------- \nstart at sector %d\n", viewsectors[0]);
+	Printf("----------------------------------------- \nstart at sector %d\n", viewsectors[0]);
 	auto process = [&]()
 	{
 		clipper->Clear(ang1);

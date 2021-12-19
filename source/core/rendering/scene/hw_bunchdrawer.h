@@ -32,6 +32,7 @@ class BunchDrawer
     BitArray gotwall;
     BitArray blockwall;
     binangle ang1, ang2, angrange;
+    float viewz;
 
     TArray<int> sectionstartang, sectionendang;
 
@@ -49,7 +50,7 @@ private:
     bool StartBunch(int sectnum, int linenum, binangle startan, binangle endan, bool portal);
     bool AddLineToBunch(int line, binangle newan);
     void DeleteBunch(int index);
-    bool CheckClip(walltype* wal);
+    bool CheckClip(walltype* wal, float* topclip, float* bottomclip);
     int ClipLine(int line, bool portal);
     void ProcessBunch(int bnch);
     int WallInFront(int wall1, int wall2);
