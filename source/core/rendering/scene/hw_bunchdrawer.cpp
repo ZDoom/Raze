@@ -676,7 +676,7 @@ void BunchDrawer::ProcessSection(int sectionnum, bool portal)
 
 void BunchDrawer::RenderScene(const int* viewsectors, unsigned sectcount, bool portal)
 {
-	Printf("----------------------------------------- \nstart at sector %d, z = %2.3f\n", viewsectors[0], viewz);
+	//Printf("----------------------------------------- \nstart at sector %d, z = %2.3f\n", viewsectors[0], viewz);
 	auto process = [&]()
 	{
 		clipper->Clear(ang1);
