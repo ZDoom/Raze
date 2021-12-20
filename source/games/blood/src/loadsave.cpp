@@ -450,7 +450,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, DUDEEXTRA& w, DUDE
 			("teslaHit", w.teslaHit, &empty2)
 			("prio", w.prio, &empty)
 			("thinkTime", w.stats.thinkTime, &empty)
-			("active", w.stats.active, &empty2);
+			("active", w.stats.active, &empty2)
+			.EndObject();
 	}
 	return arc;
 }
