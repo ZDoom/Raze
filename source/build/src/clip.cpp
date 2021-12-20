@@ -924,7 +924,7 @@ int pushmove_(vec3_t *const vect, int *const sectnum,
                         bad = -1;
                         k--; if (k <= 0) return bad;
                         clipupdatesector(vect->vec2, sectnum, walldist);
-                        if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE && *sectnum < 0) return -1;
+                        if (*sectnum < 0) return -1;
                     }
                     else if (!clipsectormap[wal->nextsector])
                         addclipsect(wal->nextsector);
