@@ -214,7 +214,7 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fixed_t tpq16ang, fixed
                     if (j < dist)
                         dist = j;
                 }
-                else
+                else if (mirror[cnt].camspriteActor)
                 {
                     SPRITEp tp;
 
