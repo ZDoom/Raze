@@ -183,7 +183,7 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fixed_t tpq16ang, fixed
     bool bIsWallMirror = false;
 
     {
-        for (cnt = MAXMIRRORS - 1; cnt >= 0; cnt--)
+        for (cnt = mirrorcnt - 1; cnt >= 0; cnt--)
             //if (testgotpic(cnt + MIRRORLABEL) || testgotpic(cnt + CAMSPRITE))
             if (testgotpic(cnt + MIRRORLABEL) || ((unsigned)mirror[cnt].campic < MAXTILES && testgotpic(mirror[cnt].campic)))
             {
@@ -288,7 +288,7 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fixed_t tpq16ang, fixed
                         renderDrawMasks();
                     }
                 }
-                else
+                else if (mirror[cnt].mirrorWall)
                 {
                     // It's just a mirror
                     // Prepare drawrooms for drawing mirror and calculate
