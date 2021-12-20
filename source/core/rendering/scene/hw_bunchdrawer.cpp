@@ -78,7 +78,7 @@ void BunchDrawer::Init(HWDrawInfo *_di, Clipper* c, vec2_t& view, binangle a1, b
 	memset(sectionstartang.Data(), -1, sectionstartang.Size() * sizeof(sectionstartang[0]));
 	memset(sectionendang.Data(), -1, sectionendang.Size() * sizeof(sectionendang[0]));
 	gotwall.Resize(numwalls);
-	blockwall.Resize(numwalls);
+	//blockwall.Resize(numwalls);
 }
 
 //==========================================================================
@@ -101,7 +101,7 @@ void BunchDrawer::StartScene()
 	gotwall.Zero();
 	sectionstartang.Resize(numsections);
 	sectionendang.Resize(numsections);
-	blockwall.Zero();
+	//blockwall.Zero();
 }
 
 //==========================================================================
@@ -175,7 +175,6 @@ bool BunchDrawer::CheckClip(walltype* wal, float* topclip, float* bottomclip)
 	PlanesAtPoint(backsector, pt2->x, pt2->y, &bs_ceilingheight2, &bs_floorheight2);
 
 	*bottomclip = max(max(bs_floorheight1, bs_floorheight2), max(fs_floorheight1, fs_floorheight2));
-	if (*bottomclip < viewz) *bottomclip = -FLT_MAX;
 
 	// if one plane is sky on both sides, the line must not clip.
 	if (frontsector->ceilingstat & backsector->ceilingstat & CSTAT_SECTOR_SKY)
@@ -186,7 +185,6 @@ bool BunchDrawer::CheckClip(walltype* wal, float* topclip, float* bottomclip)
 		return false;
 	}
 	*topclip = min(min(bs_ceilingheight1, bs_ceilingheight2), min(fs_ceilingheight1, fs_ceilingheight2));
-	if (*topclip > viewz) *topclip = FLT_MAX;
 
 	if (frontsector->floorstat & backsector->floorstat & CSTAT_SECTOR_SKY)
 	{
@@ -237,7 +235,7 @@ int BunchDrawer::ClipLine(int aline, bool portal)
 	{
 		return CL_Skip;
 	}
-	if (line >= 0 && blockwall[line]) return CL_Draw;
+	//if (line >= 0 && blockwall[line]) return CL_Draw;
 
 	// convert to clipper coordinates and clamp to valid range.
 	int startAngle = startAngleBam.asbam();
@@ -292,9 +290,9 @@ int BunchDrawer::ClipLine(int aline, bool portal)
 		if (portal) clipper->RemoveClipRange(startAngle, endAngle);
 		else
 		{
-			if (topclip < viewz || bottomclip > viewz)
+			if (topclip < FLT_MAX || bottomclip > -FLT_MAX)
 			{
-				clipper->AddWindowRange(startAngle, endAngle, topclip, bottomclip);
+				clipper->AddWindowRange(startAngle, endAngle, topclip, bottomclip, viewz);
 				Printf("\nWall %d from %2.3f - %2.3f, (%2.3f, %2.3f) (passing)\n", line, bamang(startAngle).asdeg(), bamang(endAngle).asdeg(), topclip, bottomclip);
 				clipper->DumpClipper();
 			}
@@ -340,7 +338,7 @@ void BunchDrawer::ProcessBunch(int bnch)
 			int ww = sectionLines[i].wall;
 			if (ww != -1)
 			{
-				if (blockingpairs.Size() > 0) for (auto p : blockingpairs[ww]) blockwall.Set(sectionLines[p].wall);
+				//if (blockingpairs.Size() > 0) for (auto p : blockingpairs[ww]) blockwall.Set(sectionLines[p].wall);
 				show2dwall.Set(ww);
 
 				if (!gotwall[i])
@@ -680,7 +678,7 @@ void BunchDrawer::ProcessSection(int sectionnum, bool portal)
 
 void BunchDrawer::RenderScene(const int* viewsectors, unsigned sectcount, bool portal)
 {
-	Printf("----------------------------------------- \nstart at sector %d\n", viewsectors[0]);
+	Printf("----------------------------------------- \nstart at sector %d, z = %2.3f\n", viewsectors[0], viewz);
 	auto process = [&]()
 	{
 		clipper->Clear(ang1);

@@ -29,7 +29,7 @@ class Clipper
 public:
 	bool IsRangeVisible(int startangle, int endangle);
 	void AddClipRange(int startangle, int endangle);
-	void AddWindowRange(int startangle, int endangle, float topclip, float bottomclip);
+	void AddWindowRange(int startangle, int endangle, float topclip, float bottomclip, float viewz);
 	void RemoveClipRange(int startangle, int endangle);
 
 public:
@@ -67,7 +67,8 @@ private:
 	}
 
 	void RemoveRange(ClipNode* cn);
-	void InsertRange(ClipNode* prev, ClipNode* node);
+	bool InsertRange(ClipNode* prev, ClipNode* node);
+	void SplitRange(ClipNode* node, int start, int end, float topclip, float bottomclip);
 
 public:
     

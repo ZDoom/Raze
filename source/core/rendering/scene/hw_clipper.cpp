@@ -63,8 +63,22 @@ void Clipper::RemoveRange(ClipNode * range)
 	Free(range);
 }
 
-void Clipper::InsertRange(ClipNode* prev, ClipNode* node)
+//-----------------------------------------------------------------------------
+//
+// InsertRange
+//
+//-----------------------------------------------------------------------------
+
+bool Clipper::InsertRange(ClipNode* prev, ClipNode* node)
 {
+	if (node->start == node->end)
+	{
+		Free(node);
+		return false;
+	}
+	assert(node->start <= node->end);
+	assert(!prev || prev->end <= node->start);
+	assert(!prev || !prev->next || prev->next->start >= node->end);
 	if (prev)
 	{
 		node->next = prev->next;
@@ -77,6 +91,48 @@ void Clipper::InsertRange(ClipNode* prev, ClipNode* node)
 	}
 	node->prev = prev;
 	if (node->next) node->next->prev = node;
+
+#ifdef _DEBUG
+	// Make sure we catch ordering issues right away in debug mode.
+	auto check = cliphead;
+	while (check)
+	{
+		assert(!check->next || check->end <= check->next->start);
+		check = check->next;
+	}
+#endif
+
+	return true;
+}
+
+//-----------------------------------------------------------------------------
+//
+// SplitRange
+//
+//-----------------------------------------------------------------------------
+
+void Clipper::SplitRange(ClipNode* node, int start, int end, float topclip, float bottomclip)
+{
+	assert(start < end);
+	int clones = 0;
+	if (end < node->end)
+	{
+		int nodeend = node->end;
+		node->end = end;
+		auto endnode = NewRange(end, nodeend, node->topclip, node->bottomclip);
+		InsertRange(node, endnode);
+	}
+	if (start > node->start)
+	{
+		node->end = start;
+		auto startnode = NewRange(start, end, topclip, bottomclip);
+		InsertRange(node, startnode);
+	}
+	else
+	{
+		node->topclip = topclip;
+		node->bottomclip = bottomclip;
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -160,29 +216,11 @@ void Clipper::AddClipRange(int start, int end)
 			// check if the new range lies fully within an existing range.
 			else if (node->start <= start && node->end >= end)
 			{
-				// existing range is closed, we're done.
-				if (node->topclip <= node->bottomclip)
+				// if the existing range is closed, we're done.
+				// Other split up the old window to insert the new range in the middle.
+				if (node->topclip > node->bottomclip)
 				{
-					return;
-				}
-				// this splits up a window node so we got to insert two new nodes
-				else
-				{
-					int nodeend = node->end;
-					node->end = start;
-
-					auto mynode = NewRange(start, end, 0, 0);
-					InsertRange(node, mynode);
-
-					if (end != nodeend)
-					{
-						auto afternode = NewRange(end, nodeend, node->topclip, node->bottomclip);
-						InsertRange(mynode, afternode);
-					}
-
-					// We can only delete the old node after being done with its data.
-					if (node->end == node->start) RemoveRange(node);
-
+					SplitRange(node, start, end, 0, 0);
 					return;
 				}
 			}
@@ -275,8 +313,28 @@ void Clipper::AddClipRange(int start, int end)
 //
 //-----------------------------------------------------------------------------
 
-void Clipper::AddWindowRange(int start, int end, float topclip, float bottomclip)
+void Clipper::AddWindowRange(int start, int end, float topclip, float bottomclip, float viewz)
 {
+	auto mergeClip = [](ClipNode* node, float& topclip, float& bottomclip, float viewz)
+	{
+		// If the node is already closed, return a closed range.
+		if (node->topclip <= node->bottomclip)
+		{
+			topclip = bottomclip = 0;
+			return;
+		}
+		float mintopclip = min(node->topclip, topclip);
+		float maxbotclip = max(node->bottomclip, bottomclip);
+
+		if (mintopclip > max(viewz, maxbotclip)) topclip = FLT_MAX;
+		else topclip = mintopclip;
+
+		if (maxbotclip < min(viewz, mintopclip)) bottomclip = -FLT_MAX;
+		else bottomclip = maxbotclip;
+	};
+
+	ClipNode* prevNode = nullptr;
+
 	if (cliphead)
 	{
 		auto node = cliphead;
@@ -284,58 +342,66 @@ void Clipper::AddWindowRange(int start, int end, float topclip, float bottomclip
 		{
 			// check to see if range contains any old ranges.
 
+			//-----------------------------------------------------------------------------
+			//
 			// existing range is part of new one.
+			//
+			//-----------------------------------------------------------------------------
+			
 			if (node->start >= start && node->end <= end)
 			{
-				// if old range is a window, make some adjustments.
-				if (topclip <= node->topclip && bottomclip >= node->bottomclip)
+				if (node->topclip > node->bottomclip) // shortcut the common case where the old node is already closed.
 				{
-					// if the new window is more narrow both on top and bottom, we can remove the old range.
-					auto temp = node;
-					node = node->next;
-					RemoveRange(temp);
-					continue;
-				}
+					float mtopclip = topclip, mbottomclip = bottomclip;
+					mergeClip(node, mtopclip, mbottomclip, viewz);
+					// if old range is a window, make some adjustments.
+					if (mtopclip <= mbottomclip || (mtopclip <= node->topclip && mbottomclip >= node->bottomclip))
+					{
+						// if the new window is more narrow both on top and bottom, we can remove the old range.
+						auto temp = node;
+						node = node->next;
+						RemoveRange(temp);
+						continue;
+					}
 
-				// in all other cases we must adjust the node, and recursively process both sub-ranges.
-				if (topclip < node->topclip) node->topclip = topclip;
-				if (bottomclip > node->bottomclip) node->bottomclip = bottomclip;
+					// in all other cases we must adjust the node, and recursively process both sub-ranges.
+					node->topclip = mtopclip;
+					node->bottomclip = mbottomclip;
+				}
 				int nodestart = node->start, nodeend = node->end;
 				// At this point it is just easier to recursively add the sub-ranges because we'd have to run the full program on both anyway,
-				if (start < nodestart) AddWindowRange(start, nodestart, topclip, bottomclip);
-				if (end > nodeend) AddWindowRange(nodeend, end, topclip, bottomclip);
+				// We must ensure the the new ranges' length are > 0.
+				if (start < nodestart) AddWindowRange(start, nodestart, topclip, bottomclip, viewz);
+				if (end > nodeend) AddWindowRange(nodeend, end, topclip, bottomclip, viewz);
 				return;
 			}
+
+			//-----------------------------------------------------------------------------
+			//
 			// check if the new range lies fully within an existing range.
+			//
+			//-----------------------------------------------------------------------------
+
 			else if (node->start <= start && node->end >= end)
 			{
-				// existing range is closed or a more narrow window on both sides, we're done.
-				if (node->topclip <= node->bottomclip || (topclip >= node->topclip && bottomclip <= node->bottomclip))
+				// Shortcut if existing range is closed. In this case there's nothing to do.
+				if (node->topclip <= node->bottomclip)
 				{
 					return;
 				}
-				// this splits up a window node so we got to insert two new nodes
+
+				float mtopclip = topclip, mbottomclip = bottomclip;
+				mergeClip(node, mtopclip, mbottomclip, viewz);
+			
+				// existing range is a more narrow window on both sides, we're done.
+				if (mtopclip > mbottomclip && mtopclip >= node->topclip && mbottomclip <= node->bottomclip)
+				{
+					return;
+				}
 				else
 				{
 					// adapt the window for the intersection.
-					if (topclip > node->topclip) topclip = node->topclip;
-					if (bottomclip < node->bottomclip) bottomclip = node->bottomclip;
-
-					int nodeend = node->end;
-					node->end = start;
-
-					auto mynode = NewRange(start, end, topclip, bottomclip);
-					InsertRange(node, mynode);
-
-					if (end != nodeend)
-					{
-						auto afternode = NewRange(end, nodeend, node->topclip, node->bottomclip);
-						InsertRange(mynode, afternode);
-					}
-
-					// We can only delete the old node after being done with its data.
-					if (node->end == node->start) RemoveRange(node);
-
+					SplitRange(node, start, end, mtopclip, mbottomclip);
 					return;
 				}
 			}
@@ -350,94 +416,120 @@ void Clipper::AddWindowRange(int start, int end, float topclip, float bottomclip
 		node = cliphead;
 		while (node != nullptr && node->start <= end)
 		{
-			// node overlaps at the start.
-			if (node->start < start && node->end >= start)
-			{
-				struct temprange
-				{
-					int start, end;
-					float top, bottom;
-				};
-				temprange ranges[2];
-				memset(ranges, -1, sizeof(ranges));
-				// only split if this changes the old range, otherwise just truncate
-				if (node->topclip > node->bottomclip && (topclip < node->topclip || bottomclip > node->bottomclip))
-				{
-					ranges[0].start = start;
-					ranges[0].end = node->end;
-					ranges[0].top = min(topclip, node->topclip);
-					ranges[0].bottom = max(bottomclip, node->bottomclip);
-					node->end = start;
-				}
-				start = node->end;
+			auto next = node->next;	// get this before making any edits.
+		
+			//-----------------------------------------------------------------------------
+			//
+			// node overlaps the start of the new range
+			//
+			//-----------------------------------------------------------------------------
 
-				// check if the following range overlaps. We know already that it will go past the end of the newly added range
-				// (otherwise the first loop above would have taken care of it) so we can skip any checks for the full inclusion case.
-				auto next = node->next;
-				if (next && next->start <= end)
-				{
-					// only split if this changes the old range, otherwise just truncate
-					if (next->topclip > next->bottomclip && (topclip < next->topclip || bottomclip > next->bottomclip))
-					{
-						ranges[1].start = next->start;
-						ranges[1].end = end;
-						ranges[1].top = min(topclip, next->topclip);
-						ranges[1].bottom = max(bottomclip, next->bottomclip);
-						next->start = end;
-					}
-					end = next->start;
-				}
-				auto after = node;
-				ClipNode* insert;
-				if (ranges[0].end != -1)
-				{
-					insert = NewRange(ranges[0].start, ranges[0].end, ranges[0].top, ranges[0].bottom);
-					InsertRange(after, insert);
-					after = insert;
-				}
-				insert = NewRange(start, end, topclip, bottomclip);
-				InsertRange(after, insert);
-				after = insert;
-				if (ranges[1].end != -1)
-				{
-					insert = NewRange(ranges[1].start, ranges[1].end, ranges[1].top, ranges[1].bottom);
-					InsertRange(after, insert);
-				}
-				return;
-			}
-			// range overlaps at the end.
-			else if (node->start >= start && node->start <= end)
+			if (node->start < start && node->end > start)
 			{
-				auto prev = node->prev;
-				if (node->topclip > node->bottomclip && (topclip < node->topclip || bottomclip > node->bottomclip))
+				// if the old range is closed, just shorten the new one and continue.
+				if (node->topclip < node->bottomclip)
 				{
-					auto inode = NewRange(start, node->end, min(topclip, node->topclip), max(bottomclip, node->bottomclip));
-					node->end = start;
-					InsertRange(prev, inode);
+					start = node->end;
+					if (start >= end) return; // may have been crushed to a single point.
 				}
-				start = node->end;
-				auto mynode = NewRange(start, end, topclip, bottomclip);
-				InsertRange(prev, mynode);
-				return;
+				else
+				{
+					float mtopclip = topclip, mbottomclip = bottomclip;
+					mergeClip(node, mtopclip, mbottomclip, viewz);
+
+					// if the old range is more narrow than the new one, just shorten the new one and continue.
+					if (mtopclip > mbottomclip && mtopclip >= node->topclip && mbottomclip <= node->bottomclip)
+					{
+						start = node->end;
+						if (start >= end) return; // may have been crushed to a single point.
+					}
+
+					// the new range is more narrow than the old one - just shorten the old one and go on.
+					else if (mtopclip <= mbottomclip || (mtopclip < node->topclip && mbottomclip > node->bottomclip))
+					{
+						node->end = start;
+						assert(node->end > node->start); // ensured by initial condition.
+					}
+
+					// if the intersection needs to take properties of both old and new we need to make a split.
+					else
+					{
+						int nodeend = node->end;
+						SplitRange(node, start, nodeend, mtopclip, mbottomclip);
+						start = nodeend;
+						if (start >= end) return; // may have been crushed to a single point.
+					}
+				}
 			}
-			node = node->next;		
+
+			//-----------------------------------------------------------------------------
+			//
+			// nosw overlaps at the end of the new range.
+			//
+			//-----------------------------------------------------------------------------
+
+			else if (node->start >= start && node->start < end)
+			{
+				auto next = node->next;	// get this before making any edits.
+
+				// if the old range is closed, just shorten the new one and continue.
+				if (node->topclip < node->bottomclip)
+				{
+					end = node->start;
+					if (start >= end) return; // may have been crushed to a single point.
+				}
+				else
+				{
+					float mtopclip = topclip, mbottomclip = bottomclip;
+					mergeClip(node, mtopclip, mbottomclip, viewz);
+
+					// if the old range is more narrow than the new one, just shorten the new one and continue.
+					if (mtopclip > mbottomclip && mtopclip >= node->topclip && mbottomclip <= node->bottomclip)
+					{
+						end = node->start;
+						if (start >= end) return; // may have been crushed to a single point.
+					}
+
+					// the new range is more narrow than the old one - just shorten the old one and go on.
+					else if (mtopclip <= mbottomclip || (mtopclip < node->topclip && mbottomclip > node->bottomclip))
+					{
+						node->start = end;
+						assert(node->end > node->start);
+					}
+
+					// if the intersection needs to take properties of both old and new we need to make a split.
+					else
+					{
+						int nodestart = node->start;
+						SplitRange(node, nodestart, end, mtopclip, mbottomclip);
+						end = node->start;
+						if (start >= end) return; // may have been crushed to a single point.
+					}
+				}
+			}
+			node = next;
 		}
 		
-		//found no intersections - just add range
+		// we get here if a new range needs to be inserted.
 		node = cliphead;
-		ClipNode* prevNode = nullptr;
 		// advance to the place where this can be inserted.		
 		while (node != nullptr && node->start < end)
 		{
 			prevNode = node;
 			node = node->next;
 		}
+		assert(!prevNode || prevNode->end <= start);
+		assert(!prevNode || !prevNode->next || prevNode->next->start >= end);
+		assert(prevNode || (cliphead && (!cliphead->next || cliphead->next->start >= end)));
+	}
+
+	if (topclip > viewz) topclip = FLT_MAX;
+	if (bottomclip < viewz) bottomclip = -FLT_MAX;
+	// only insert a new node if it restricts the window.
+	if (topclip != FLT_MAX || bottomclip != -FLT_MAX)
+	{
 		auto mynode = NewRange(start, end, topclip, bottomclip);
 		InsertRange(prevNode, mynode);
-	}
-	else
-	{
-		cliphead = NewRange(start, end, topclip, bottomclip);
 	}
 }
 
