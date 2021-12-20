@@ -46,7 +46,6 @@
 #include "hw_sections.h"
 #include "coreactor.h"
 
-extern TArray<TArray<int>> blockingpairs;
 //==========================================================================
 //
 //
@@ -338,7 +337,6 @@ void BunchDrawer::ProcessBunch(int bnch)
 			int ww = sectionLines[i].wall;
 			if (ww != -1)
 			{
-				//if (blockingpairs.Size() > 0) for (auto p : blockingpairs[ww]) blockwall.Set(sectionLines[p].wall);
 				show2dwall.Set(ww);
 
 				if (!gotwall[i])

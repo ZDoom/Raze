@@ -379,8 +379,6 @@ static void ReadSpriteV5(FileReader& fr, spritetype& spr, int& secno)
 }
 
 
-void addBlockingPairs();
-
 // allocates global map storage. Blood will also call this.
 void allocateMapArrays(int numsprites)
 {

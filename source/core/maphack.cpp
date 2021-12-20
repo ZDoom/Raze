@@ -41,7 +41,6 @@
 #include "mapinfo.h"
 
 static TArray<usermaphack_t> usermaphacks;
-TArray<TArray<int>> blockingpairs;
 
 void AddUserMapHack(usermaphack_t& mhk)
 {
@@ -142,17 +141,6 @@ static int32_t LoadMapHack(const char *filename, SpawnSpriteDef& sprites)
                 }
             }
             else currentsector = -1;
-        }
-        else if (sc.Compare("blocks"))
-        {
-            if (sc.CheckNumber() && validateWall())
-            {
-                if (blockingpairs.Size() < (unsigned)numwalls)
-                {
-                    blockingpairs.Resize(numwalls);
-                }
-                blockingpairs[currentwall].Push(sc.Number);
-            }
         }
         else if (sc.Compare("sector"))
         {
@@ -383,7 +371,6 @@ static int32_t LoadMapHack(const char *filename, SpawnSpriteDef& sprites)
 void loadMapHack(const char* filename, const unsigned char* md4, SpawnSpriteDef& sprites)
 {
     hw_ClearSplitSector();
-    blockingpairs.Reset();
 
     FString internal = "engine/compatibility/";
     for (int j = 0; j < 16; ++j)
