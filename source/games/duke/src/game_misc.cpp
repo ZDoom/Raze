@@ -416,7 +416,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
 
 			if ((spr->cstat & CSTAT_SPRITE_BLOCK_ALL) != 0) switch (spr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
 			{
-			case 0:
+			case CSTAT_SPRITE_ALIGNMENT_FACING:
 				//break;
 
 				ox = sprx - cposx;
@@ -440,7 +440,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
 					x1 + x2 + (xdim << 11), y1 + y3 + (ydim << 11), col);
 				break;
 
-			case 16:
+			case CSTAT_SPRITE_ALIGNMENT_WALL:
 				if (spr->picnum == TILE_LASERLINE)
 				{
 					x1 = sprx;
@@ -475,10 +475,17 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
 
 				break;
 
-			case 32:
+			case CSTAT_SPRITE_ALIGNMENT_FLOOR:
+			case CSTAT_SPRITE_ALIGNMENT_SLOPE:
 				tilenum = spr->picnum;
-				xoff = tileLeftOffset(tilenum) + spr->xoffset;
-				yoff = tileTopOffset(tilenum) + spr->yoffset;
+				xoff = tileLeftOffset(tilenum);
+				yoff = tileTopOffset(tilenum);
+				if ((spr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLOPE)
+				{
+					xoff += spr->xoffset;
+					yoff += spr->yoffset;
+				}
+
 				if ((spr->cstat & CSTAT_SPRITE_XFLIP) > 0) xoff = -xoff;
 				if ((spr->cstat & CSTAT_SPRITE_YFLIP) > 0) yoff = -yoff;
 

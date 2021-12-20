@@ -67,10 +67,9 @@ static inline void get_wallspr_points(T const * const spr, int32_t *x1, int32_t 
 
 // x1, y1: in/out
 // rest x/y: out
-template <typename T>
-static inline void get_floorspr_points(T const * const spr, int32_t px, int32_t py,
+static inline void get_floorspr_points(spritetype const * const spr, int32_t px, int32_t py,
                                        int32_t *x1, int32_t *x2, int32_t *x3, int32_t *x4,
-                                       int32_t *y1, int32_t *y2, int32_t *y3, int32_t *y4)
+                                       int32_t *y1, int32_t *y2, int32_t *y3, int32_t *y4, int heinum = 0)
 {
     const int32_t tilenum = spr->picnum;
     const int32_t cosang = bcos(spr->ang);
@@ -81,6 +80,8 @@ static inline void get_floorspr_points(T const * const spr, int32_t px, int32_t 
 
     vec2_t adjofs = { tileLeftOffset(tilenum) + spr->xoffset, tileTopOffset(tilenum) + spr->yoffset };
 
+    int32_t const ratio = ksqrt(heinum * heinum + 4096 * 4096);
+
     if (spr->cstat & CSTAT_SPRITE_XFLIP)
         adjofs.x = -adjofs.x;
 
@@ -89,10 +90,11 @@ static inline void get_floorspr_points(T const * const spr, int32_t px, int32_t 
 
     vec2_t const center = { ((span.x >> 1) + adjofs.x) * repeat.x, ((span.y >> 1) + adjofs.y) * repeat.y };
     vec2_t const rspan  = { span.x * repeat.x, span.y * repeat.y };
-    vec2_t const ofs    = { -MulScale(cosang, rspan.y, 16), -MulScale(sinang, rspan.y, 16) };
+    vec2_t const ofs    = { -DivScale(MulScale(cosang, rspan.y, 16), ratio, 12), -DivScale(MulScale(sinang, rspan.y, 16), ratio, 12) };
+    vec2_t const cossinslope = { DivScale(cosang, ratio, 12), DivScale(sinang, ratio, 12) };
 
-    *x1 += DMulScale(sinang, center.x, cosang, center.y, 16) - px;
-    *y1 += DMulScale(sinang, center.y, -cosang, center.x, 16) - py;
+    *x1 += DMulScale(sinang, center.x, cossinslope.x, center.y, 16) - px;
+    *y1 += DMulScale(cossinslope.y, center.y, -cosang, center.x, 16) - py;
 
     *x2 = *x1 - MulScale(sinang, rspan.x, 16);
     *y2 = *y1 + MulScale(cosang, rspan.x, 16);
@@ -129,6 +131,16 @@ int clipinsidebox(vec2_t *vect, int wallnum, int walldist)
     v2.x *= ((v2.x > 0) ? (r - v1.y) : (0 - v1.y));
     v2.y *= ((v2.y > 0) ? (0 - v1.x) : (r - v1.x));
     return (v2.x >= v2.y) << 1;
+}
+
+static int32_t spriteGetZOfSlope(const spritetype* spr, int32_t dax, int32_t day)
+{
+    int16_t const heinum = spriteGetSlope(spr);
+    if (heinum == 0)
+        return spr->z;
+
+    int const j = DMulScale(bsin(spr->ang + 1024), day - spr->y, -bsin(spr->ang + 512), dax - spr->x, 4);
+    return spr->z + MulScale(heinum, j, 18);
 }
 
 
@@ -590,7 +602,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
             CollisionBase obj;
             obj.setSprite(actor);
 
-            switch (cstat & (CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_ALIGNMENT_FLOOR))
+            switch (cstat & (CSTAT_SPRITE_ALIGNMENT_MASK))
             {
             case CSTAT_SPRITE_ALIGNMENT_FACING:
                 if (p1.x >= clipMin.x && p1.x <= clipMax.x && p1.y >= clipMin.y && p1.y <= clipMax.y)
@@ -644,18 +656,32 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
             }
 
             case CSTAT_SPRITE_ALIGNMENT_FLOOR:
+            case CSTAT_SPRITE_ALIGNMENT_SLOPE:
             {
-                if (pos->z > spr->z-flordist && pos->z < spr->z+ceildist)
+                int heinum, sz;
+
+                if ((cstat & (CSTAT_SPRITE_ALIGNMENT_MASK)) == CSTAT_SPRITE_ALIGNMENT_SLOPE)
+                {
+                    heinum = spriteGetSlope(spr);
+                    sz = spriteGetZOfSlope(spr, pos->x, pos->y);
+                }
+                else
+                {
+                    heinum = 0;
+                    sz = spr->z;
+                }
+
+                if (pos->z > sz - flordist && pos->z < sz + ceildist)
                 {
                     if ((cstat & CSTAT_SPRITE_ONE_SIDE) != 0)
-                        if ((pos->z > spr->z) == ((cstat & CSTAT_SPRITE_YFLIP)==0))
+                        if ((pos->z > sz) == ((cstat & CSTAT_SPRITE_YFLIP)==0))
                             continue;
 
                     rxi[0] = p1.x;
                     ryi[0] = p1.y;
 
-                    get_floorspr_points((uspriteptr_t) spr, 0, 0, &rxi[0], &rxi[1], &rxi[2], &rxi[3],
-                        &ryi[0], &ryi[1], &ryi[2], &ryi[3]);
+                    get_floorspr_points(spr, 0, 0, &rxi[0], &rxi[1], &rxi[2], &rxi[3],
+                        &ryi[0], &ryi[1], &ryi[2], &ryi[3], heinum);
 
                     vec2_t v = { MulScale(bcos(spr->ang - 256), walldist, 14),
                                  MulScale(bsin(spr->ang - 256), walldist, 14) };
@@ -680,6 +706,58 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
                     {
                         if (clipinsideboxline(cent.x, cent.y, rxi[0], ryi[0], rxi[3], ryi[3], rad) != 0)
                             addclipline(rxi[0]+v.x, ryi[0]+v.y, rxi[3]+v.y, ryi[3]-v.x, obj, false);
+                    }
+                }
+
+                if (heinum == 0)
+                    continue;
+
+                // the rest is for slope sprites only.
+                const int32_t tilenum = spr->picnum;
+                const int32_t cosang = bcos(spr->ang);
+                const int32_t sinang = bsin(spr->ang);
+                vec2_t const span = { tileWidth(tilenum), tileHeight(tilenum) };
+                vec2_t const repeat = { spr->xrepeat, spr->yrepeat };
+                vec2_t adjofs = { tileLeftOffset(tilenum), tileTopOffset(tilenum) };
+
+                if (spr->cstat & CSTAT_SPRITE_XFLIP)
+                    adjofs.x = -adjofs.x;
+
+                if (spr->cstat & CSTAT_SPRITE_YFLIP)
+                    adjofs.y = -adjofs.y;
+
+                int32_t const centerx = ((span.x >> 1) + adjofs.x) * repeat.x;
+                int32_t const centery = ((span.y >> 1) + adjofs.y) * repeat.y;
+                int32_t const rspanx = span.x * repeat.x;
+                int32_t const rspany = span.y * repeat.y;
+                int32_t const ratio = ksqrt(heinum * heinum + 4096 * 4096);
+                int32_t zz[3] = { pos->z, pos->z + flordist, pos->z - ceildist };
+                for (int k = 0; k < 3; k++)
+                {
+                    int32_t jj = DivScale(spr->z - zz[k], heinum, 18);
+                    int32_t jj2 = MulScale(jj, ratio, 12);
+                    if (jj2 > (centery << 8) || jj2 < ((centery - rspany) << 8))
+                        continue;
+                    int32_t x1 = spr->x + MulScale(sinang, centerx, 16) + MulScale(jj, cosang, 24);
+                    int32_t y1 = spr->y - MulScale(cosang, centerx, 16) + MulScale(jj, sinang, 24);
+                    int32_t x2 = x1 - MulScale(sinang, rspanx, 16);
+                    int32_t y2 = y1 + MulScale(cosang, rspanx, 16);
+
+                    vec2_t const v = { MulScale(bcos(spr->ang - 256), walldist, 14),
+                                       MulScale(bsin(spr->ang - 256), walldist, 14) };
+
+                    if (clipinsideboxline(cent.x, cent.y, x1, y1, x2, y2, rad) != 0)
+                    {
+                        if ((x1 - pos->x) * (y2 - pos->y) >= (x2 - pos->x) * (y1 - pos->y))
+                        {
+                            addclipline(x1 + v.x, y1 + v.y, x2 + v.y, y2 - v.x, obj, false);
+                        }
+                        else
+                        {
+		                    if ((cstat & CSTAT_SPRITE_ONE_SIDE) != 0)
+                                continue;
+                            addclipline(x2 - v.x, y2 - v.y, x1 - v.y, y1 + v.x, obj, false);
+                        }
                     }
                 }
                 break;
@@ -1095,15 +1173,17 @@ void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBas
                     }
 
                     case CSTAT_SPRITE_ALIGNMENT_FLOOR:
+                    case CSTAT_SPRITE_ALIGNMENT_SLOPE:
                     {
-                        daz = spr->z; daz2 = daz;
+                        if ((cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FLOOR) daz = spr->z; 
+                        else daz = spriteGetZOfSlope(spr, pos.x, pos.y);
 
                         if ((cstat & CSTAT_SPRITE_ONE_SIDE) != 0 && (pos.z > daz) == ((cstat & CSTAT_SPRITE_YFLIP)==0))
                             continue;
 
                         vec2_t v2, v3, v4;
                         get_floorspr_points((uspriteptr_t) spr, pos.x, pos.y, &v1.x, &v2.x, &v3.x, &v4.x,
-                                            &v1.y, &v2.y, &v3.y, &v4.y);
+                                            &v1.y, &v2.y, &v3.y, &v4.y, spriteGetSlope(spr));
 
                         vec2_t const da = { MulScale(bcos(spr->ang - 256), walldist + 4, 14),
                                             MulScale(bsin(spr->ang - 256), walldist + 4, 14) };
@@ -1409,13 +1489,44 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
                     continue;
 
                 get_floorspr_points((uspriteptr_t)spr, intx, inty, &x1, &x2, &x3, &x4,
-                                    &y1, &y2, &y3, &y4);
+                                    &y1, &y2, &y3, &y4, spriteGetSlope(spr));
 
                 if (get_floorspr_clipyou({x1, y1}, {x2, y2}, {x3, y3}, {x4, y4}))
                     hit_set(&hitinfo, sec, nullptr, actor, intx, inty, intz);
 
                 break;
             }
+
+            case CSTAT_SPRITE_ALIGNMENT_SLOPE:
+            {
+                int32_t x3, y3, x4, y4, zz;
+                int32_t const heinum = spriteGetSlope(spr);
+                int32_t const dax = (heinum * sintable[(spr->ang + 1024) & 2047]) << 1;
+                int32_t const day = (heinum * sintable[(spr->ang + 512) & 2047]) << 1;
+                int32_t const j = (vz << 8) - DMulScale(dax, vy, -day, vx, 15);
+                if (j == 0) continue;
+                if ((cstat & 64) != 0)
+                    if ((j < 0) == ((cstat & 8) == 0)) continue;
+                int32_t i = ((spr->z - sv->z) << 8) + DMulScale(dax, sv->y - spr->y, -day, sv->x - spr->x, 15);
+                if ((i ^ j) < 0 || (abs(i) >> 1) >= abs(j)) continue;
+
+                i = DivScale(i, j, 30);
+                intx = sv->x + MulScale(vx, i, 30);
+                inty = sv->y + MulScale(vy, i, 30);
+                intz = sv->z + MulScale(vz, i, 30);
+
+                if (abs(intx - sv->x) + abs(inty - sv->y) > abs((hitinfo.hitpos.x) - sv->x) + abs((hitinfo.hitpos.y) - sv->y))
+                    continue;
+
+                get_floorspr_points((uspriteptr_t)spr, intx, inty, &x1, &x2, &x3, &x4,
+                    &y1, &y2, &y3, &y4, spriteGetSlope(spr));
+
+                if (get_floorspr_clipyou({ x1, y1 }, { x2, y2 }, { x3, y3 }, { x4, y4 }))
+                    hit_set(&hitinfo, sec, nullptr, actor, intx, inty, intz);
+
+                break;
+            }
+
             }
         }
     }

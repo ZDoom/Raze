@@ -569,7 +569,7 @@ void renderDrawMapView(int cposx, int cposy, int czoom, int cang)
 			if (spr->cstat & CSTAT_SPRITE_INVISIBLE)
 				continue;
 
-			if ((spr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FLOOR)
+			if (spr->cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)	// floor and slope sprites
 			{
 				if ((spr->cstat & (CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_YFLIP)) == (CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_YFLIP))
 					continue; // upside down

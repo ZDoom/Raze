@@ -163,6 +163,7 @@ enum ESpriteBits2
 	CSTAT2_SPRITE_MDLROTATE = 1,   // Only for tsprites: rotate if this is a model or voxel.
 	CSTAT2_SPRITE_NOFIND = 2,      // Invisible to neartag and hitscan
 	CSTAT2_SPRITE_MAPPED = 4,      // sprite was mapped for automap
+	CSTAT2_SPRITE_SLOPE = 8,       // Only for tsprites: render as sloped sprite
 
 };
 
@@ -568,6 +569,14 @@ struct tspritetype : public spritetypebase
 		time = spr->time;
 		cstat2 = spr->cstat2;
 		ownerActor = nullptr;
+
+		// need to copy the slope sprite flag around because for tsprites the bit combination means 'voxel'.
+		if ((cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_SLOPE)
+		{
+			cstat &= ~CSTAT_SPRITE_ALIGNMENT_WALL;
+			cstat2 |= CSTAT2_SPRITE_SLOPE;
+		}
+
 	}
 
 };

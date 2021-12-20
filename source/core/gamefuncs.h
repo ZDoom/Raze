@@ -260,7 +260,7 @@ inline void spriteSetSlope(spritetype* spr, int heinum)
     }
 }
 
-inline int spriteGetSlope(spritetype* spr)
+inline int spriteGetSlope(const spritetype* spr)
 {
     return ((spr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLOPE) ? 0 : uint8_t(spr->xoffset) + (uint8_t(spr->yoffset) << 8);
 }

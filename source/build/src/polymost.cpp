@@ -2635,6 +2635,35 @@ static int32_t polymost_lintersect(int32_t x1, int32_t y1, int32_t x2, int32_t y
     return rv;
 }
 
+
+static inline int16_t tspriteGetSlope(tspriteptr_t const tspr)
+{
+    if (!(tspr->cstat2 & CSTAT2_SPRITE_SLOPE))
+        return 0;
+    return uint8_t(tspr->xoffset) + (uint8_t(tspr->yoffset) << 8);
+}
+
+static inline int32_t tspriteGetZOfSlope(tspriteptr_t const tspr, int32_t dax, int32_t day)
+{
+    int16_t const heinum = tspriteGetSlope(tspr);
+    if (heinum == 0)
+        return tspr->z;
+
+    int const j = DMulScale(bsin(tspr->ang + 1024), day - tspr->y, -bsin(tspr->ang + 512), dax - tspr->x, 4);
+    return tspr->z + MulScale(heinum, j, 18);
+}
+
+static inline float tspriteGetZOfSlopeFloat(tspriteptr_t const tspr, float dax, float day)
+{
+    int16_t const heinum = tspriteGetSlope(tspr);
+    if (heinum == 0)
+        return float(tspr->z);
+
+    float const f = bsin(tspr->ang + 1024) * (day - tspr->y) - bsin(tspr->ang + 512) * (dax - tspr->x);
+    return float(tspr->z) + heinum * f * (1.f / 4194304.f);
+}
+
+
 #define TSPR_OFFSET_FACTOR .0002f
 #define TSPR_OFFSET(tspr) (TSPR_OFFSET_FACTOR + ((tspr->ownerActor ? tspr->ownerActor->GetIndex() & 63 : 0) * TSPR_OFFSET_FACTOR))
 
@@ -2664,9 +2693,16 @@ void polymost_drawsprite(int32_t snum)
 
     if ((globalorientation & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLAB)  // only non-voxel sprites should do this
     {
-        int const flag = hw_hightile && TileFiles.tiledata[globalpicnum].hiofs.xsize;
+        int const flag = hw_hightile && TileFiles.tiledata[globalpicnum].hiofs.xsize > 0;
         off = { (int32_t)tspr->xoffset + (flag ? TileFiles.tiledata[globalpicnum].hiofs.xoffs : tileLeftOffset(globalpicnum)),
                 (int32_t)tspr->yoffset + (flag ? TileFiles.tiledata[globalpicnum].hiofs.yoffs : tileTopOffset(globalpicnum)) };
+
+        if (!(tspr->cstat2 & CSTAT2_SPRITE_SLOPE))
+        {
+            off.x += tspr->xoffset;
+            off.y += tspr->yoffset;
+        }
+
     }
 
     int32_t method = DAMETH_MASK | DAMETH_CLAMPED;
@@ -3013,24 +3049,29 @@ void polymost_drawsprite(int32_t snum)
         case 2:  // Floor sprite
             GLInterface.SetVisibility(sectorVisibility(tspr->sector()) * (4.f/5.f)); // No idea why this uses a different visibility setting...
 
-            if ((globalorientation & 64) != 0 && (globalposz > pos.z) == (!(globalorientation & 8)))
+            if ((globalorientation & 64) != 0
+                && (globalposz > tspriteGetZOfSlope(tspr, globalposx, globalposy)) == (!(globalorientation & 8)))
                 goto _drawsprite_return;
             else
             {
+                int16_t const heinum = tspriteGetSlope(tspr);
+                float const fheinum = heinum * (1.f / 4096.f);
+                float ratio = 1.f / sqrtf(fheinum * fheinum + 1.f);
+
                 if ((globalorientation & 4) > 0)
                     off.x = -off.x;
                 if ((globalorientation & 8) > 0)
                     off.y = -off.y;
 
                 FVector2 const p0 = { (float)(((tsiz.x + 1) >> 1) - off.x) * tspr->xrepeat,
-                                     (float)(((tsiz.y + 1) >> 1) - off.y) * tspr->yrepeat },
+                                     (float)(((tsiz.y + 1) >> 1) - off.y) * tspr->yrepeat * ratio },
                               p1 = { (float)((tsiz.x >> 1) + off.x) * tspr->xrepeat,
-                                     (float)((tsiz.y >> 1) + off.y) * tspr->yrepeat };
+                                     (float)((tsiz.y >> 1) + off.y) * tspr->yrepeat * ratio };
 
                 float const c = bcosf(tspr->ang, -16);
                 float const s = bsinf(tspr->ang, -16);
 
-                FVector2 pxy[6];
+                FVector3 pxy[6];
 
                 // Project 3D to 2D
                 for (intptr_t j = 0; j < 4; j++)
@@ -3058,20 +3099,19 @@ void polymost_drawsprite(int32_t snum)
                         s0.Y -= c * p1.X;
                     }
 
-                    pxy[j] = { s0.Y * gcosang - s0.X * gsinang, s0.X * gcosang2 + s0.Y * gsinang2 };
+                    pxy[j] = { s0.Y * gcosang - s0.X * gsinang, s0.X * gcosang2 + s0.Y * gsinang2, 
+                        float(tspriteGetZOfSlopeFloat(tspr, s0.X + globalposx, s0.Y + globalposy)) };
                 }
 
-                if (pos.z < globalposz)  // if floor sprite is above you, reverse order of points
+                if (tspriteGetZOfSlope(tspr, globalposx, globalposy) < globalposz)  // if floor sprite is above you, reverse order of points
                 {
-                    static_assert(sizeof(uint64_t) == sizeof(FVector2));
-
                     std::swap(pxy[0], pxy[1]);
                     std::swap(pxy[2], pxy[3]);
                 }
 
                 // Clip to SCISDIST plane
                 int32_t npoints = 0;
-                FVector2 p2[6];
+                FVector3 p2[6];
 
                 for (intptr_t i = 0, j = 1; i < 4; j = ((++i + 1) & 3))
                 {
@@ -3081,8 +3121,9 @@ void polymost_drawsprite(int32_t snum)
                     if ((pxy[i].Y >= SCISDIST) != (pxy[j].Y >= SCISDIST))
                     {
                         float const f = (SCISDIST - pxy[i].Y) / (pxy[j].Y - pxy[i].Y);
-                        FVector2 const t = { (pxy[j].X - pxy[i].X) * f + pxy[i].X,
-                                            (pxy[j].Y - pxy[i].Y) * f + pxy[i].Y };
+                        FVector3 const t = { (pxy[j].X - pxy[i].X) * f + pxy[i].X,
+                                            (pxy[j].Y - pxy[i].Y) * f + pxy[i].Y,
+                                            (pxy[j].Z - pxy[i].Z)* f + pxy[i].Z };
                         p2[npoints++] = t;
                     }
                 }
@@ -3094,32 +3135,40 @@ void polymost_drawsprite(int32_t snum)
 
                 int fadjust = 0;
 
-                // unfortunately, offsetting by only 1 isn't enough on most Android devices
-                if (pos.z == sec->ceilingz || pos.z == sec->ceilingz + 1)
-                    pos.z = sec->ceilingz + 2, fadjust = (tspr->ownerActor->GetIndex() & 31);
+                if (heinum == 0)
+                {
+                    // unfortunately, offsetting by only 1 isn't enough on most Android devices
+                    if (pos.z == sec->ceilingz || pos.z == sec->ceilingz + 1)
+                        pos.z = sec->ceilingz + 2, fadjust = (tspr->ownerActor->GetIndex() & 31);
 
-                if (pos.z == sec->floorz || pos.z == sec->floorz - 1)
-                    pos.z = sec->floorz - 2, fadjust = -((tspr->ownerActor->GetIndex() & 31));
+                    if (pos.z == sec->floorz || pos.z == sec->floorz - 1)
+                        pos.z = sec->floorz - 2, fadjust = -((tspr->ownerActor->GetIndex() & 31));
+                }
 
-                float f = (float)(pos.z - globalposz + fadjust) * gyxscale;
+                FVector2 pxy2[6];
+                double pfy[6];
 
                 for (intptr_t j = 0; j < npoints; j++)
                 {
                     float const ryp0 = 1.f / p2[j].Y;
-                    pxy[j] = { ghalfx * p2[j].X * ryp0 + ghalfx, f * ryp0 + ghoriz };
+                    float const fs = (float)(p2[j].Z - globalposz + fadjust) * gyxscale;
+                    pxy2[j] = { ghalfx * p2[j].X * ryp0 + ghalfx, fs * ryp0 + ghoriz };
+                    pfy[j] = double(gyxscale * ryp0) + ghoriz;
                 }
 
                 // gd? Copied from floor rendering code
 
                 xtex.d = 0;
-                ytex.d = gxyaspect / (double)(pos.z - globalposz + fadjust);
+                ytex.d = gxyaspect;
+                if (heinum == 0)
+                    ytex.d /= (double)(pos.z - globalposz + fadjust);
                 otex.d = -ghoriz * ytex.d;
 
                 // copied&modified from relative alignment
                 FVector2 const vv = { (float)tspr->x + s * p1.X + c * p1.Y, (float)tspr->y + s * p1.Y - c * p1.X };
                 FVector2 ff = { -(p0.X + p1.X) * s, (p0.X + p1.X) * c };
 
-                f = polymost_invsqrt_approximation(ff.X * ff.X + ff.Y * ff.Y);
+                float f = 1.f / sqrtf(ff.X * ff.X + ff.Y * ff.Y);
 
                 ff.X *= f;
                 ff.Y *= f;
@@ -3156,10 +3205,48 @@ void polymost_drawsprite(int32_t snum)
                     otex.u = ftsiz.X * otex.d - otex.u;
                 }
 
+                if (heinum != 0)
+                {
+                    vec3d_t const duv[3] = {
+                        { (pxy2[0].X * xtex.d + pfy[0] * ytex.d + otex.d),
+                          (pxy2[0].X * xtex.u + pfy[0] * ytex.u + otex.u),
+                          (pxy2[0].X * xtex.v + pfy[0] * ytex.v + otex.v)
+                        },
+                        { (pxy2[1].X * xtex.d + pfy[1] * ytex.d + otex.d),
+                          (pxy2[1].X * xtex.u + pfy[1] * ytex.u + otex.u),
+                          (pxy2[1].X * xtex.v + pfy[1] * ytex.v + otex.v)
+                        },
+                        { (pxy2[2].X * xtex.d + pfy[2] * ytex.d + otex.d),
+                          (pxy2[2].X * xtex.u + pfy[2] * ytex.u + otex.u),
+                          (pxy2[2].X * xtex.v + pfy[2] * ytex.v + otex.v)
+                        }
+                    };
+
+                    FVector3 oxyz[2] = { { (float)(pxy2[1].Y - pxy2[2].Y), (float)(pxy2[2].Y - pxy2[0].Y), (float)(pxy2[0].Y - pxy2[1].Y) },
+                                        { (float)(pxy2[2].X - pxy2[1].X), (float)(pxy2[0].X - pxy2[2].X), (float)(pxy2[1].X - pxy2[0].X) } };
+
+                    float const r = 1.f / (oxyz[0].X * pxy2[0].X + oxyz[0].Y * pxy2[1].X + oxyz[0].Z * pxy2[2].X);
+
+                    xtex.d = (oxyz[0].X * duv[0].d + oxyz[0].Y * duv[1].d + oxyz[0].Z * duv[2].d) * r;
+                    xtex.u = (oxyz[0].X * duv[0].u + oxyz[0].Y * duv[1].u + oxyz[0].Z * duv[2].u) * r;
+                    xtex.v = (oxyz[0].X * duv[0].v + oxyz[0].Y * duv[1].v + oxyz[0].Z * duv[2].v) * r;
+
+                    ytex.d = (oxyz[1].X * duv[0].d + oxyz[1].Y * duv[1].d + oxyz[1].Z * duv[2].d) * r;
+                    ytex.u = (oxyz[1].X * duv[0].u + oxyz[1].Y * duv[1].u + oxyz[1].Z * duv[2].u) * r;
+                    ytex.v = (oxyz[1].X * duv[0].v + oxyz[1].Y * duv[1].v + oxyz[1].Z * duv[2].v) * r;
+
+                    otex.d = duv[0].d - pxy2[0].X * xtex.d - pxy2[0].Y * ytex.d;
+                    otex.u = duv[0].u - pxy2[0].X * xtex.u - pxy2[0].Y * ytex.u;
+                    otex.v = duv[0].v - pxy2[0].X * xtex.v - pxy2[0].Y * ytex.v;
+
+                    float const rr = sqrtf(fheinum * fheinum + 1.f);
+                    xtex.v *= rr; ytex.v *= rr; otex.v *= rr;
+                }
+
 				vec2_16_t tempsiz = { (int16_t)tsiz.x, (int16_t)tsiz.y };
 				pow2xsplit = 0;
 
-                polymost_drawpoly(pxy, npoints, method, tempsiz);
+                polymost_drawpoly(pxy2, npoints, method, tempsiz);
 
                 drawpoly_srepeat = 0;
                 drawpoly_trepeat = 0;
