@@ -214,7 +214,7 @@ void CopySectorMatch(int match)
                 dsectp->speed        = ssectp->speed;
                 dsectp->damage       = ssectp->damage;
                 dsectp->number       = ssectp->number;
-                dsectp->u_defined    = ssectp->u_defined;
+                if (ssectp->u_defined) dsectp->u_defined    = true;
                 dsectp->flags2       = ssectp->flags2;
 
                 dsectp->hitag = ssectp->hitag;
