@@ -66,8 +66,9 @@ private:
 		return c;
 	}
 
-	void RemoveRange(ClipNode* cn);
+	void RemoveRange(ClipNode* cn, bool free = true);
 	bool InsertRange(ClipNode* prev, ClipNode* node);
+	bool InsertBlockingRange(ClipNode* prev, ClipNode* node, int start, int end);
 	void SplitRange(ClipNode* node, int start, int end, float topclip, float bottomclip);
 
 public:

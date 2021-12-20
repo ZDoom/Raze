@@ -280,8 +280,8 @@ int BunchDrawer::ClipLine(int aline, bool portal)
 		if (!portal && !dontclip)
 		{
 			clipper->AddClipRange(startAngle, endAngle);
-			Printf("\nWall %d from %2.3f - %2.3f (blocking)\n", line, bamang(startAngle).asdeg(), bamang(endAngle).asdeg());
-			clipper->DumpClipper();
+			//Printf("\nWall %d from %2.3f - %2.3f (blocking)\n", line, bamang(startAngle).asdeg(), bamang(endAngle).asdeg());
+			//clipper->DumpClipper();
 		}
 		return CL_Draw;
 	}
@@ -293,8 +293,8 @@ int BunchDrawer::ClipLine(int aline, bool portal)
 			if (topclip < FLT_MAX || bottomclip > -FLT_MAX)
 			{
 				clipper->AddWindowRange(startAngle, endAngle, topclip, bottomclip, viewz);
-				Printf("\nWall %d from %2.3f - %2.3f, (%2.3f, %2.3f) (passing)\n", line, bamang(startAngle).asdeg(), bamang(endAngle).asdeg(), topclip, bottomclip);
-				clipper->DumpClipper();
+				//Printf("\nWall %d from %2.3f - %2.3f, (%2.3f, %2.3f) (passing)\n", line, bamang(startAngle).asdeg(), bamang(endAngle).asdeg(), topclip, bottomclip);
+				//clipper->DumpClipper();
 			}
 		}
 

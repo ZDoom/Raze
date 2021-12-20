@@ -47,7 +47,7 @@
 //
 //-----------------------------------------------------------------------------
 
-void Clipper::RemoveRange(ClipNode * range)
+void Clipper::RemoveRange(ClipNode * range, bool free)
 {
 	if (range == cliphead)
 	{
@@ -60,7 +60,7 @@ void Clipper::RemoveRange(ClipNode * range)
 		if (range->next) range->next->prev = range->prev;
 	}
 	
-	Free(range);
+	if (free) Free(range);
 }
 
 //-----------------------------------------------------------------------------
@@ -79,6 +79,32 @@ bool Clipper::InsertRange(ClipNode* prev, ClipNode* node)
 	assert(node->start <= node->end);
 	assert(!prev || prev->end <= node->start);
 	assert(!prev || !prev->next || prev->next->start >= node->end);
+
+	if (node->topclip <= node->bottomclip)
+	{
+		if (prev)
+		{
+			if (prev->topclip <= prev->bottomclip && prev->end >= node->start)
+			{
+				prev->end = node->end;
+				Free(node);
+				if (prev->next && prev->end >= prev->next->start && prev->next->topclip <= prev->next->bottomclip)
+				{
+					prev->end = prev->next->end;
+					Free(prev->next);
+					return true;
+				}
+				return false;
+			}
+			else if (prev->next && node->end >= prev->next->start && prev->next->topclip <= prev->next->bottomclip)
+			{
+				prev->next->start = node->start;
+				Free(node);
+				return false;
+			}
+		}
+	}
+
 	if (prev)
 	{
 		node->next = prev->next;
@@ -102,7 +128,7 @@ bool Clipper::InsertRange(ClipNode* prev, ClipNode* node)
 	}
 #endif
 
-	return true;
+	return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -130,8 +156,12 @@ void Clipper::SplitRange(ClipNode* node, int start, int end, float topclip, floa
 	}
 	else
 	{
+		// remove and reinsert to do proper checks of the clipping window.
+		auto prev = node->prev;
+		RemoveRange(node, false);
 		node->topclip = topclip;
 		node->bottomclip = bottomclip;
+		InsertRange(prev, node);
 	}
 }
 
@@ -444,8 +474,8 @@ void Clipper::AddWindowRange(int start, int end, float topclip, float bottomclip
 						if (start >= end) return; // may have been crushed to a single point.
 					}
 
-					// the new range is more narrow than the old one - just shorten the old one and go on.
-					else if (mtopclip <= mbottomclip || (mtopclip < node->topclip && mbottomclip > node->bottomclip))
+					// the unaltered new range is more narrow than the old one - just shorten the old one and go on.
+					else if (topclip <= bottomclip || (topclip < node->topclip && bottomclip > node->bottomclip))
 					{
 						node->end = start;
 						assert(node->end > node->start); // ensured by initial condition.
@@ -458,6 +488,7 @@ void Clipper::AddWindowRange(int start, int end, float topclip, float bottomclip
 						SplitRange(node, start, nodeend, mtopclip, mbottomclip);
 						start = nodeend;
 						if (start >= end) return; // may have been crushed to a single point.
+						if (mtopclip <= mbottomclip) next = cliphead; // list may have become out of sync.
 					}
 				}
 			}
@@ -490,8 +521,8 @@ void Clipper::AddWindowRange(int start, int end, float topclip, float bottomclip
 						if (start >= end) return; // may have been crushed to a single point.
 					}
 
-					// the new range is more narrow than the old one - just shorten the old one and go on.
-					else if (mtopclip <= mbottomclip || (mtopclip < node->topclip && mbottomclip > node->bottomclip))
+					// the unaltered new range is more narrow than the old one - just shorten the old one and go on.
+					else if (topclip <= bottomclip || (topclip < node->topclip && bottomclip > node->bottomclip))
 					{
 						node->start = end;
 						assert(node->end > node->start);
@@ -504,6 +535,7 @@ void Clipper::AddWindowRange(int start, int end, float topclip, float bottomclip
 						SplitRange(node, nodestart, end, mtopclip, mbottomclip);
 						end = node->start;
 						if (start >= end) return; // may have been crushed to a single point.
+						if (mtopclip <= mbottomclip) next = cliphead; // list may have become out of sync.
 					}
 				}
 			}
