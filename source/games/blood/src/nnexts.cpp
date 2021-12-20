@@ -3851,14 +3851,16 @@ bool condCheckMixed(DBloodActor* aCond, const EVENT& event, int cmpOp, bool PUSH
                             }
                             break;
                         case 28:
+                        {
+                            auto a = ESectorFlags::FromInt(arg1);
                             switch (arg3) 
                             {
-                                auto a = ESectorFlags::FromInt(arg1);
                                 default: return ((pObj->floorstat & a) || (pObj->ceilingstat & a));
                                 case 1:  return (pObj->floorstat & a);
                                 case 2:  return (pObj->ceilingstat & a);
                             }
                             break;
+                        }
                         case 29: return (pObj->hitag & arg1);
                         case 30: return condCmp(pObj->floorxpan(), arg1, arg2, cmpOp);
                         case 31: return condCmp(pObj->ceilingxpan(), arg1, arg2, cmpOp);
