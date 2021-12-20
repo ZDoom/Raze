@@ -871,7 +871,7 @@ int pushmove_(vec3_t *const vect, int *const sectnum,
             if (dir > 0)
                 startwall = sec->wallptr, endwall = startwall + sec->wallnum;
             else
-                endwall = sec->wallptr - 1, startwall = endwall + sec->wallnum - 1;
+                endwall = sec->wallptr, startwall = endwall + sec->wallnum - 1;
 
             int i;
 
