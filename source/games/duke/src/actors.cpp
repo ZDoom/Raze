@@ -262,12 +262,11 @@ void insertspriteq(DDukeActor* const actor)
 
 void lotsofstuff(DDukeActor* actor, int n, int spawntype)
 {
-	auto s = actor->s;
 	for (int i = n; i > 0; i--)
 	{
 		int r1 = krand(), r2 = krand();	// using the RANDCORRECT version from RR.
-		auto j = EGS(s->sector(), s->x, s->y, s->z - (r2 % (47 << 8)), spawntype, -32, 8, 8, r1 & 2047, 0, 0, actor, 5);
-		if (j) j->s->cstat = randomFlip();
+		auto j = EGS(actor->spr.sector(), actor->spr.x, actor->spr.y, actor->spr.z - (r2 % (47 << 8)), spawntype, -32, 8, 8, r1 & 2047, 0, 0, actor, 5);
+		if (j) j->spr.cstat = randomFlip();
 	}
 }
 
@@ -281,10 +280,8 @@ void ms(DDukeActor* const actor)
 {
 	//T1,T2 and T3 are used for all the sector moving stuff!!!
 
-	auto s = actor->s;
-
-	s->x += MulScale(s->xvel, bcos(s->ang), 14);
-	s->y += MulScale(s->xvel, bsin(s->ang), 14);
+	actor->spr.x += MulScale(actor->spr.xvel, bcos(actor->spr.ang), 14);
+	actor->spr.y += MulScale(actor->spr.xvel, bsin(actor->spr.ang), 14);
 
 	int j = actor->temp_data[1];
 	int k = actor->temp_data[2];
@@ -294,7 +291,7 @@ void ms(DDukeActor* const actor)
 		vec2_t t;
 		rotatepoint({ 0, 0 }, { msx[j], msy[j] }, k & 2047, &t);
 
-		dragpoint(&wal, s->x + t.x, s->y + t.y);
+		dragpoint(&wal, actor->spr.x + t.x, actor->spr.y + t.y);
 		j++;
 	}
 }
@@ -353,7 +350,6 @@ void movedummyplayers(void)
 	{
 		if (!act->GetOwner()) continue;
 		p = act->GetOwner()->PlayerIndex();
-		auto spri = act->s;
 
 		if ((!isRR() && ps[p].on_crane != nullptr) || !ps[p].insector() || ps[p].cursector->lotag != 1 || ps->GetActor()->s->extra <= 0)
 		{
@@ -365,23 +361,23 @@ void movedummyplayers(void)
 		{
 			if (ps[p].on_ground && ps[p].on_warping_sector == 1 && ps[p].cursector->lotag == 1)
 			{
-				spri->cstat = CSTAT_SPRITE_BLOCK_ALL;
-				spri->z = spri->sector()->ceilingz + (27 << 8);
-				spri->ang = ps[p].angle.ang.asbuild();
+				act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
+				act->spr.z = act->spr.sector()->ceilingz + (27 << 8);
+				act->spr.ang = ps[p].angle.ang.asbuild();
 				if (act->temp_data[0] == 8)
 					act->temp_data[0] = 0;
 				else act->temp_data[0]++;
 			}
 			else
 			{
-				if (spri->sector()->lotag != 2) spri->z = spri->sector()->floorz;
-				spri->cstat = CSTAT_SPRITE_INVISIBLE;
+				if (act->spr.sector()->lotag != 2) act->spr.z = act->spr.sector()->floorz;
+				act->spr.cstat = CSTAT_SPRITE_INVISIBLE;
 			}
 		}
 
-		spri->x += (ps[p].pos.x - ps[p].oposx);
-		spri->y += (ps[p].pos.y - ps[p].oposy);
-		SetActor(act, spri->pos);
+		act->spr.x += (ps[p].pos.x - ps[p].oposx);
+		act->spr.y += (ps[p].pos.y - ps[p].oposy);
+		SetActor(act, act->spr.pos);
 	}
 }
 
@@ -400,18 +396,17 @@ void moveplayers(void)
 	{
 		int pn = act->PlayerIndex();
 		auto p = &ps[pn];
-		auto spri = act->s;
 
 		if (act->GetOwner())
 		{
 			if (p->newOwner != nullptr) //Looking thru the camera
 			{
-				spri->x = p->oposx;
-				spri->y = p->oposy;
-				spri->z = p->oposz + gs.playerheight;
-				spri->backupz();
-				spri->ang = p->angle.oang.asbuild();
-				SetActor(act, spri->pos);
+				act->spr.x = p->oposx;
+				act->spr.y = p->oposy;
+				act->spr.z = p->oposz + gs.playerheight;
+				act->spr.backupz();
+				act->spr.ang = p->angle.oang.asbuild();
+				SetActor(act, act->spr.pos);
 			}
 			else
 			{
@@ -430,7 +425,7 @@ void moveplayers(void)
 					auto psp = ps[otherp].GetActor();
 					if (psp->s->extra > 0)
 					{
-						if (spri->yrepeat > 32 && psp->s->yrepeat < 32)
+						if (act->spr.yrepeat > 32 && psp->s->yrepeat < 32)
 						{
 							if (otherx < 1400 && p->knee_incs == 0)
 							{
@@ -443,8 +438,8 @@ void moveplayers(void)
 				}
 				if (ud.god)
 				{
-					spri->extra = gs.max_player_health;
-					spri->cstat = CSTAT_SPRITE_BLOCK_ALL;
+					act->spr.extra = gs.max_player_health;
+					act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 					if (!isWW2GI() && !isRR())
 						p->jetpack_amount = 1599;
 				}
@@ -454,21 +449,21 @@ void moveplayers(void)
 					p->angle.addadjustment(getincanglebam(p->angle.ang, bvectangbam(p->actorsqu->s->x - p->pos.x, p->actorsqu->s->y - p->pos.y)) >> 2);
 				}
 
-				if (spri->extra > 0)
+				if (act->spr.extra > 0)
 				{
 					// currently alive...
 
 					act->SetHitOwner(act);
 
 					if (ud.god == 0)
-						if (fi.ceilingspace(spri->sector()) || fi.floorspace(spri->sector()))
+						if (fi.ceilingspace(act->spr.sector()) || fi.floorspace(act->spr.sector()))
 							quickkill(p);
 				}
 				else
 				{
-					p->pos.x = spri->x;
-					p->pos.y = spri->y;
-					p->pos.z = spri->z - (20 << 8);
+					p->pos.x = act->spr.x;
+					p->pos.y = act->spr.y;
+					p->pos.z = act->spr.z - (20 << 8);
 
 					p->newOwner = nullptr;
 
@@ -477,7 +472,7 @@ void moveplayers(void)
 						p->angle.addadjustment(getincanglebam(p->angle.ang, bvectangbam(p->wackedbyactor->s->x - p->pos.x, p->wackedbyactor->s->y - p->pos.y)) >> 1);
 					}
 				}
-				spri->ang = p->angle.ang.asbuild();
+				act->spr.ang = p->angle.ang.asbuild();
 			}
 		}
 		else
@@ -488,45 +483,45 @@ void moveplayers(void)
 				continue;
 			}
 
-			spri->cstat = 0;
+			act->spr.cstat = 0;
 
-			if (spri->xrepeat < 42)
+			if (act->spr.xrepeat < 42)
 			{
-				spri->xrepeat += 4;
-				spri->cstat |= CSTAT_SPRITE_TRANSLUCENT;
+				act->spr.xrepeat += 4;
+				act->spr.cstat |= CSTAT_SPRITE_TRANSLUCENT;
 			}
-			else spri->xrepeat = 42;
-			if (spri->yrepeat < 36)
-				spri->yrepeat += 4;
+			else act->spr.xrepeat = 42;
+			if (act->spr.yrepeat < 36)
+				act->spr.yrepeat += 4;
 			else
 			{
-				spri->yrepeat = 36;
-				if (spri->sector()->lotag != ST_2_UNDERWATER)
+				act->spr.yrepeat = 36;
+				if (act->spr.sector()->lotag != ST_2_UNDERWATER)
 					makeitfall(act);
-				if (spri->zvel == 0 && spri->sector()->lotag == ST_1_ABOVE_WATER)
-					spri->z += (32 << 8);
+				if (act->spr.zvel == 0 && act->spr.sector()->lotag == ST_1_ABOVE_WATER)
+					act->spr.z += (32 << 8);
 			}
 
-			if (spri->extra < 8)
+			if (act->spr.extra < 8)
 			{
-				spri->xvel = 128;
-				spri->ang = p->angle.ang.asbuild();
-				spri->extra++;
+				act->spr.xvel = 128;
+				act->spr.ang = p->angle.ang.asbuild();
+				act->spr.extra++;
 				ssp(act, CLIPMASK0);
 			}
 			else
 			{
-				spri->ang = 2047 - (p->angle.ang.asbuild());
-				SetActor(act, spri->pos);
+				act->spr.ang = 2047 - (p->angle.ang.asbuild());
+				SetActor(act, act->spr.pos);
 			}
 		}
 
-		if (spri->insector())
+		if (act->spr.insector())
 		{
-			if (spri->sector()->ceilingstat & CSTAT_SECTOR_SKY)
-				spri->shade += (spri->sector()->ceilingshade - spri->shade) >> 1;
+			if (act->spr.sector()->ceilingstat & CSTAT_SECTOR_SKY)
+				act->spr.shade += (act->spr.sector()->ceilingshade - act->spr.shade) >> 1;
 			else
-				spri->shade += (spri->sector()->floorshade - spri->shade) >> 1;
+				act->spr.shade += (act->spr.sector()->floorshade - act->spr.shade) >> 1;
 		}
 	}
 }
@@ -545,13 +540,12 @@ void movefx(void)
 	DukeStatIterator iti(STAT_FX);
 	while (auto act = iti.Next())
 	{
-		auto spri = act->s;
-		switch (spri->picnum)
+		switch (act->spr.picnum)
 		{
 		case RESPAWN:
-			if (spri->extra == 66)
+			if (act->spr.extra == 66)
 			{
-				auto j = spawn(act, spri->hitag);
+				auto j = spawn(act, act->spr.hitag);
 				if (isRRRA() && j)
 				{
 					respawn_rrra(act, j);
@@ -561,13 +555,13 @@ void movefx(void)
 					deletesprite(act);
 				}
 			}
-			else if (spri->extra > (66 - 13))
-				spri->extra++;
+			else if (act->spr.extra > (66 - 13))
+				act->spr.extra++;
 			break;
 
 		case MUSICANDSFX:
 
-			ht = spri->hitag;
+			ht = act->spr.hitag;
 
 			if (act->temp_data[1] != (int)SoundEnabled())
 			{
@@ -575,12 +569,12 @@ void movefx(void)
 				act->temp_data[0] = 0;
 			}
 
-			if (spri->lotag >= 1000 && spri->lotag < 2000)
+			if (act->spr.lotag >= 1000 && act->spr.lotag < 2000)
 			{
 				x = ldist(ps[screenpeek].GetActor(), act);
 				if (x < ht && act->temp_data[0] == 0)
 				{
-					FX_SetReverb(spri->lotag - 1100);
+					FX_SetReverb(act->spr.lotag - 1100);
 					act->temp_data[0] = 1;
 				}
 				if (x >= ht && act->temp_data[0] == 1)
@@ -590,9 +584,9 @@ void movefx(void)
 					act->temp_data[0] = 0;
 				}
 			}
-			else if (spri->lotag < 999 && (unsigned)spri->sector()->lotag < ST_9_SLIDING_ST_DOOR && snd_ambience && spri->sector()->floorz != spri->sector()->ceilingz)
+			else if (act->spr.lotag < 999 && (unsigned)act->spr.sector()->lotag < ST_9_SLIDING_ST_DOOR && snd_ambience && act->spr.sector()->floorz != act->spr.sector()->ceilingz)
 			{
-				int flags = S_GetUserFlags(spri->lotag);
+				int flags = S_GetUserFlags(act->spr.lotag);
 				if (flags & SF_MSFX)
 				{
 					int x = dist(ps[screenpeek].GetActor(), act);
@@ -600,13 +594,13 @@ void movefx(void)
 					if (x < ht && act->temp_data[0] == 0)
 					{
 						// Start playing an ambience sound.
-						S_PlayActorSound(spri->lotag, act, CHAN_AUTO, CHANF_LOOP);
+						S_PlayActorSound(act->spr.lotag, act, CHAN_AUTO, CHANF_LOOP);
 						act->temp_data[0] = 1;  // AMBIENT_SFX_PLAYING
 					}
 					else if (x >= ht && act->temp_data[0] == 1)
 					{
 						// Stop playing ambience sound because we're out of its range.
-						S_StopSound(spri->lotag, act);
+						S_StopSound(act->spr.lotag, act);
 					}
 				}
 
@@ -614,9 +608,9 @@ void movefx(void)
 				{
 					if (act->temp_data[4] > 0) act->temp_data[4]--;
 					else for (p = connecthead; p >= 0; p = connectpoint2[p])
-						if (p == myconnectindex && ps[p].cursector == spri->sector())
+						if (p == myconnectindex && ps[p].cursector == act->spr.sector())
 						{
-							S_PlaySound(spri->lotag + (unsigned)global_random % (spri->hitag + 1));
+							S_PlaySound(act->spr.lotag + (unsigned)global_random % (act->spr.hitag + 1));
 							act->temp_data[4] = 26 * 40 + (global_random % (26 * 40));
 						}
 				}
@@ -635,15 +629,14 @@ void movefx(void)
 void movecrane(DDukeActor *actor, int crane)
 {
 	int* t = &actor->temp_data[0];
-	auto spri = actor->s;
-	auto sectp = spri->sector();
+	auto sectp = actor->spr.sector();
 	int x;
 	auto& cpt = cranes[t[4]];
 
 	//t[0] = state
 	//t[1] = checking sector number
 
-	if (spri->xvel) getglobalz(actor);
+	if (actor->spr.xvel) getglobalz(actor);
 
 	if (t[0] == 0) //Waiting to check the sector
 	{
@@ -656,7 +649,7 @@ void movecrane(DDukeActor *actor, int crane)
 			case STAT_ZOMBIEACTOR:
 			case STAT_STANDABLE:
 			case STAT_PLAYER:
-				spri->ang = getangle(cpt.polex - spri->x, cpt.poley - spri->y);
+				actor->spr.ang = getangle(cpt.polex - actor->spr.x, cpt.poley - actor->spr.y);
 				SetActor(a2, { cpt.polex, cpt.poley, a2->s->z });
 				t[0]++;
 				return;
@@ -666,33 +659,33 @@ void movecrane(DDukeActor *actor, int crane)
 
 	else if (t[0] == 1)
 	{
-		if (spri->xvel < 184)
+		if (actor->spr.xvel < 184)
 		{
-			spri->picnum = crane + 1;
-			spri->xvel += 8;
+			actor->spr.picnum = crane + 1;
+			actor->spr.xvel += 8;
 		}
 		//IFMOVING;	// JBF 20040825: see my rant above about this
 		ssp(actor, CLIPMASK0);
-		if (spri->sector() == actor->temp_sect)
+		if (actor->spr.sector() == actor->temp_sect)
 			t[0]++;
 	}
 	else if (t[0] == 2 || t[0] == 7)
 	{
-		spri->z += (1024 + 512);
+		actor->spr.z += (1024 + 512);
 
 		if (t[0] == 2)
 		{
-			if ((sectp->floorz - spri->z) < (64 << 8))
-				if (spri->picnum > crane) spri->picnum--;
+			if ((sectp->floorz - actor->spr.z) < (64 << 8))
+				if (actor->spr.picnum > crane) actor->spr.picnum--;
 
-			if ((sectp->floorz - spri->z) < (4096 + 1024))
+			if ((sectp->floorz - actor->spr.z) < (4096 + 1024))
 				t[0]++;
 		}
 		if (t[0] == 7)
 		{
-			if ((sectp->floorz - spri->z) < (64 << 8))
+			if ((sectp->floorz - actor->spr.z) < (64 << 8))
 			{
-				if (spri->picnum > crane) spri->picnum--;
+				if (actor->spr.picnum > crane) actor->spr.picnum--;
 				else
 				{
 					if (actor->IsActiveCrane())
@@ -710,8 +703,8 @@ void movecrane(DDukeActor *actor, int crane)
 	}
 	else if (t[0] == 3)
 	{
-		spri->picnum++;
-		if (spri->picnum == (crane + 2))
+		actor->spr.picnum++;
+		if (actor->spr.picnum == (crane + 2))
 		{
 			int p = checkcursectnums(actor->temp_sect);
 			if (p >= 0 && ps[p].on_ground)
@@ -719,7 +712,7 @@ void movecrane(DDukeActor *actor, int crane)
 				actor->SetActiveCrane(true);
 				ps[p].on_crane = actor;
 				S_PlayActorSound(isRR() ? 390 : DUKE_GRUNT, ps[p].GetActor());
-				ps[p].angle.settarget(spri->ang + 1024);
+				ps[p].angle.settarget(actor->spr.ang + 1024);
 			}
 			else
 			{
@@ -749,25 +742,25 @@ void movecrane(DDukeActor *actor, int crane)
 	}
 	else if (t[0] == 5 || t[0] == 8)
 	{
-		if (t[0] == 8 && spri->picnum < (crane + 2))
-			if ((sectp->floorz - spri->z) > 8192)
-				spri->picnum++;
+		if (t[0] == 8 && actor->spr.picnum < (crane + 2))
+			if ((sectp->floorz - actor->spr.z) > 8192)
+				actor->spr.picnum++;
 
-		if (spri->z < cpt.z)
+		if (actor->spr.z < cpt.z)
 		{
 			t[0]++;
-			spri->xvel = 0;
+			actor->spr.xvel = 0;
 		}
 		else
-			spri->z -= (1024 + 512);
+			actor->spr.z -= (1024 + 512);
 	}
 	else if (t[0] == 6)
 	{
-		if (spri->xvel < 192)
-			spri->xvel += 8;
-		spri->ang = getangle(cpt.x - spri->x, cpt.y - spri->y);
+		if (actor->spr.xvel < 192)
+			actor->spr.xvel += 8;
+		actor->spr.ang = getangle(cpt.x - actor->spr.x, cpt.y - actor->spr.y);
 		ssp(actor, CLIPMASK0);
-		if (((spri->x - cpt.x) * (spri->x - cpt.x) + (spri->y - cpt.y) * (spri->y - cpt.y)) < (128 * 128))
+		if (((actor->spr.x - cpt.x) * (actor->spr.x - cpt.x) + (actor->spr.y - cpt.y) * (actor->spr.y - cpt.y)) < (128 * 128))
 			t[0]++;
 	}
 
@@ -775,7 +768,7 @@ void movecrane(DDukeActor *actor, int crane)
 		t[0] = 0;
 
 	if (cpt.poleactor)
-		SetActor(cpt.poleactor, { spri->x, spri->y, spri->z - (34 << 8) });
+		SetActor(cpt.poleactor, { actor->spr.x, actor->spr.y, actor->spr.z - (34 << 8) });
 
 	auto Owner = actor->GetOwner();
 	if (Owner != nullptr || actor->IsActiveCrane())
@@ -789,17 +782,17 @@ void movecrane(DDukeActor *actor, int crane)
 				if (ps[p].on_crane == actor)
 					ps[p].on_crane = nullptr;
 			actor->SetActiveCrane(false);
-			spri->picnum = crane;
+			actor->spr.picnum = crane;
 			return;
 		}
 
 		if (Owner != nullptr)
 		{
-			SetActor(Owner, spri->pos);
+			SetActor(Owner, actor->spr.pos);
 
-			Owner->s->opos = spri->pos;
+			Owner->s->opos = actor->spr.pos;
 
-			spri->zvel = 0;
+			actor->spr.zvel = 0;
 		}
 		else if (actor->IsActiveCrane())
 		{
@@ -807,9 +800,9 @@ void movecrane(DDukeActor *actor, int crane)
 			ps[p].oposx = ps[p].pos.x;
 			ps[p].oposy = ps[p].pos.y;
 			ps[p].oposz = ps[p].pos.z;
-			ps[p].pos.x = spri->x - bcos(ang, -6);
-			ps[p].pos.y = spri->y - bsin(ang, -6);
-			ps[p].pos.z = spri->z + (2 << 8);
+			ps[p].pos.x = actor->spr.x - bcos(ang, -6);
+			ps[p].pos.y = actor->spr.y - bsin(ang, -6);
+			ps[p].pos.z = actor->spr.z + (2 << 8);
 			SetActor(ps[p].GetActor(), ps[p].pos);
 			ps[p].setCursector(ps[p].GetActor()->s->sector());
 		}
