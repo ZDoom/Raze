@@ -55,9 +55,9 @@ inline void setflag(int flag, const std::initializer_list<short>& types)
 	}
 }
 
-inline bool inventory(spritetype* S)
+inline bool inventory(DDukeActor* S)
 {
-	return !!(gs.actorinfo[S->picnum].flags & SFLAG_INVENTORY);
+	return !!(gs.actorinfo[S->spr.picnum].flags & SFLAG_INVENTORY);
 }
 
 inline void settileflag(int flag, const std::initializer_list<short>& types)

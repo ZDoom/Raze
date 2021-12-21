@@ -383,7 +383,7 @@ void dokneeattack(int snum, const std::initializer_list<int> & respawnlist)
 					quickkill(&ps[p->actorsqu->spr.yvel]);
 					ps[p->actorsqu->spr.yvel].frag_ps = snum;
 				}
-				else if (badguy(p->actorsqu->s))
+				else if (badguy(p->actorsqu))
 				{
 					deletesprite(p->actorsqu);
 					p->actors_killed++;

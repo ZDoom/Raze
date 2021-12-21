@@ -52,7 +52,6 @@ public:
 	TObjPtr<DDukeActor*> temp_actor, seek_actor;
 
 	TArray<GameVarValue> uservars;
-	spritetype* s;
 
 	// Todo: Once we start assigning subclasses to actors, this one needs to be moved to the proper FIREBALL subclass.
 	FireProj fproj;
