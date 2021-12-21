@@ -129,16 +129,15 @@ static void shootfireball(DDukeActor *actor, int p, int sx, int sy, int sz, int 
 	auto spawned = EGS(s->sector(), sx, sy, sz, FIREBALL, -127, sizx, sizy, sa, vel, zvel, actor, (short)4);
 	if (spawned)
 	{
-		auto spr = spawned->s;
-		spr->extra += (krand() & 7);
+		spawned->spr.extra += (krand() & 7);
 		if (s->picnum == BOSS5 || p >= 0)
 		{
-			spr->xrepeat = 40;
-			spr->yrepeat = 40;
+			spawned->spr.xrepeat = 40;
+			spawned->spr.yrepeat = 40;
 		}
-		spr->yvel = p;
-		spr->cstat = CSTAT_SPRITE_YCENTER;
-		spr->clipdist = 4;
+		spawned->spr.yvel = p;
+		spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
+		spawned->spr.clipdist = 4;
 	}
 }
 
@@ -745,16 +744,15 @@ static void shootrpg(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, i
 
 	if (!spawned) return;
 		
-	auto spj = spawned->s;
-	spj->extra += (krand() & 7);
+	spawned->spr.extra += (krand() & 7);
 	if (atwith != FREEZEBLAST)
 		spawned->temp_actor = aimed;
 	else
 	{
-		spj->yvel = gs.numfreezebounces;
-		spj->xrepeat >>= 1;
-		spj->yrepeat >>= 1;
-		spj->zvel -= (2 << 4);
+		spawned->spr.yvel = gs.numfreezebounces;
+		spawned->spr.xrepeat >>= 1;
+		spawned->spr.yrepeat >>= 1;
+		spawned->spr.zvel -= (2 << 4);
 	}
 
 	if (p == -1)
@@ -780,12 +778,12 @@ static void shootrpg(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, i
 				aoffs = int(aoffs * siz);
 			}
 
-			spj->x += xoffs;
-			spj->y += yoffs;
-			spj->ang += aoffs;
+			spawned->spr.x += xoffs;
+			spawned->spr.y += yoffs;
+			spawned->spr.ang += aoffs;
 
-			spj->xrepeat = 42;
-			spj->yrepeat = 42;
+			spawned->spr.xrepeat = 42;
+			spawned->spr.yrepeat = 42;
 		}
 		else if (s->picnum == BOSS2)
 		{
@@ -800,45 +798,45 @@ static void shootrpg(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, i
 				aoffs = Scale(aoffs, siz, 80);
 			}
 
-			spj->x -= xoffs;
-			spj->y -= yoffs;
-			spj->ang -= aoffs;
+			spawned->spr.x -= xoffs;
+			spawned->spr.y -= yoffs;
+			spawned->spr.ang -= aoffs;
 
-			spj->xrepeat = 24;
-			spj->yrepeat = 24;
+			spawned->spr.xrepeat = 24;
+			spawned->spr.yrepeat = 24;
 		}
 		else if (atwith != FREEZEBLAST)
 		{
-			spj->xrepeat = 30;
-			spj->yrepeat = 30;
-			spj->extra >>= 2;
+			spawned->spr.xrepeat = 30;
+			spawned->spr.yrepeat = 30;
+			spawned->spr.extra >>= 2;
 		}
 	}
 	else if ((isWW2GI() && aplWeaponWorksLike(ps[p].curr_weapon, p) == DEVISTATOR_WEAPON) || (!isWW2GI() && ps[p].curr_weapon == DEVISTATOR_WEAPON))
 	{
-		spj->extra >>= 2;
-		spj->ang += 16 - (krand() & 31);
-		spj->zvel += 256 - (krand() & 511);
+		spawned->spr.extra >>= 2;
+		spawned->spr.ang += 16 - (krand() & 31);
+		spawned->spr.zvel += 256 - (krand() & 511);
 
 		if (ps[p].hbomb_hold_delay)
 		{
-			spj->x -= bsin(sa) / 644;
-			spj->y += bcos(sa) / 644;
+			spawned->spr.x -= bsin(sa) / 644;
+			spawned->spr.y += bcos(sa) / 644;
 		}
 		else
 		{
-			spj->x += bsin(sa, -8);
-			spj->y -= bcos(sa, -8);
+			spawned->spr.x += bsin(sa, -8);
+			spawned->spr.y -= bcos(sa, -8);
 		}
-		spj->xrepeat >>= 1;
-		spj->yrepeat >>= 1;
+		spawned->spr.xrepeat >>= 1;
+		spawned->spr.yrepeat >>= 1;
 	}
 
-	spj->cstat = CSTAT_SPRITE_YCENTER;
+	spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
 	if (atwith == RPG)
-		spj->clipdist = 4;
+		spawned->spr.clipdist = 4;
 	else
-		spj->clipdist = 40;
+		spawned->spr.clipdist = 40;
 
 }
 
@@ -2038,17 +2036,16 @@ int operateTripbomb(int snum)
 		if (hit.hitWall->overpicnum == BIGFORCE)
 			return 0;
 
-	DDukeActor* j;
+	DDukeActor* act;
 	DukeSectIterator it(hit.hitSector);
-	while ((j = it.Next()))
+	while ((act = it.Next()))
 	{
-		auto sj = j->s;
-		if (sj->picnum == TRIPBOMB &&
-			abs(sj->z - hit.hitpos.z) < (12 << 8) && ((sj->x - hit.hitpos.x) * (sj->x - hit.hitpos.x) + (sj->y - hit.hitpos.y) * (sj->y - hit.hitpos.y)) < (290 * 290))
+		if (act->spr.picnum == TRIPBOMB &&
+			abs(act->spr.z - hit.hitpos.z) < (12 << 8) && ((act->spr.x - hit.hitpos.x) * (act->spr.x - hit.hitpos.x) + (act->spr.y - hit.hitpos.y) * (act->spr.y - hit.hitpos.y)) < (290 * 290))
 			return 0;
 	}
 
-	if (j == nullptr && hit.hitWall != nullptr && (hit.hitWall->cstat & CSTAT_WALL_MASKED) == 0)
+	if (act == nullptr && hit.hitWall != nullptr && (hit.hitWall->cstat & CSTAT_WALL_MASKED) == 0)
 		if ((hit.hitWall->twoSided() && hit.hitWall->nextSector()->lotag <= 2) || (!hit.hitWall->twoSided() && hit.hitSector->lotag <= 2))
 			if (((hit.hitpos.x - p->pos.x) * (hit.hitpos.x - p->pos.x) + (hit.hitpos.y - p->pos.y) * (hit.hitpos.y - p->pos.y)) < (290 * 290))
 			{
@@ -2646,8 +2643,7 @@ static void processweapon(int snum, ESyncBits actions)
 {
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
-	auto s = pact->s;
-	int shrunk = (s->yrepeat < 32);
+	int shrunk = (pact->spr.yrepeat < 32);
 
 	if (isNamWW2GI() && (actions & SB_HOLSTER)) // 'Holster Weapon
 	{
@@ -2729,11 +2725,9 @@ void processinput_d(int snum)
 	bool shrunk;
 	int psectlotag;
 	struct player_struct* p;
-	spritetype* s;
 
 	p = &ps[snum];
 	auto pact = p->GetActor();
-	s = pact->s;
 
 	p->horizon.resetadjustment();
 	p->angle.resetadjustment();
@@ -2747,7 +2741,7 @@ void processinput_d(int snum)
 	auto psectp = p->cursector;
 	if (psectp == nullptr)
 	{
-		if (s->extra > 0 && ud.clipping == 0)
+		if (pact->spr.extra > 0 && ud.clipping == 0)
 		{
 			quickkill(p);
 			S_PlayActorSound(SQUISHED, pact);
@@ -2758,7 +2752,7 @@ void processinput_d(int snum)
 	psectlotag = psectp->lotag;
 	p->spritebridge = 0;
 
-	shrunk = (s->yrepeat < 32);
+	shrunk = (pact->spr.yrepeat < 32);
 	getzrange(p->pos, psectp, &cz, chz, &fz, clz, 163, CLIPMASK0);
 
 	j = getflorzofslopeptr(psectp, p->pos.x, p->pos.y);
@@ -2796,7 +2790,7 @@ void processinput_d(int snum)
 			p->footprintcount = 0;
 			p->spritebridge = 1;
 		}
-		else if (badguy(clz.actor()) && clz.actor()->spr.xrepeat > 24 && abs(s->z - clz.actor()->spr.z) < (84 << 8))
+		else if (badguy(clz.actor()) && clz.actor()->spr.xrepeat > 24 && abs(pact->spr.z - clz.actor()->spr.z) < (84 << 8))
 		{
 			j = getangle(clz.actor()->spr.x - p->pos.x, clz.actor()->spr.y - p->pos.y);
 			p->posxv -= bcos(j, 4);
@@ -2805,14 +2799,14 @@ void processinput_d(int snum)
 	}
 
 
-	if (s->extra > 0) fi.incur_damage(p);
+	if (pact->spr.extra > 0) fi.incur_damage(p);
 	else
 	{
-		s->extra = 0;
+		pact->spr.extra = 0;
 		p->shield_amount = 0;
 	}
 
-	p->last_extra = s->extra;
+	p->last_extra = pact->spr.extra;
 
 	if (p->loogcnt > 0) p->loogcnt--;
 	else p->loogcnt = 0;
@@ -2828,7 +2822,7 @@ void processinput_d(int snum)
 			return;
 	}
 
-	if (s->extra <= 0 && !ud.god)
+	if (pact->spr.extra <= 0 && !ud.god)
 	{
 		playerisdead(snum, psectlotag, fz, cz);
 		return;
@@ -2845,7 +2839,7 @@ void processinput_d(int snum)
 
 	if (p->newOwner != nullptr)
 	{
-		p->posxv = p->posyv = s->xvel = 0;
+		p->posxv = p->posyv = pact->spr.xvel = 0;
 
 		fi.doincrements(p);
 
@@ -2862,9 +2856,9 @@ void processinput_d(int snum)
 	if (p->on_crane != nullptr)
 		goto HORIZONLY;
 
-	p->playerweaponsway(s->xvel);
+	p->playerweaponsway(pact->spr.xvel);
 
-	s->xvel = clamp(ksqrt((p->pos.x - p->bobposx) * (p->pos.x - p->bobposx) + (p->pos.y - p->bobposy) * (p->pos.y - p->bobposy)), 0, 512);
+	pact->spr.xvel = clamp(ksqrt((p->pos.x - p->bobposx) * (p->pos.x - p->bobposx) + (p->pos.y - p->bobposy) * (p->pos.y - p->bobposy)), 0, 512);
 	if (p->on_ground) p->bobcounter += p->GetActor()->spr.xvel >> 1;
 
 	p->backuppos(ud.clipping == 0 && (p->cursector->floorpicnum == MIRROR || !p->insector()));
@@ -2905,11 +2899,11 @@ void processinput_d(int snum)
 		p->angle.applyinput(sb_avel, &actions);
 	}
 
-	if (p->spritebridge == 0 && s->insector())
+	if (p->spritebridge == 0 && pact->spr.insector())
 	{
-		j = s->sector()->floorpicnum;
+		j = pact->spr.sector()->floorpicnum;
 
-		if (j == PURPLELAVA || s->sector()->ceilingpicnum == PURPLELAVA)
+		if (j == PURPLELAVA || pact->spr.sector()->ceilingpicnum == PURPLELAVA)
 		{
 			if (p->boot_amount > 0)
 			{
@@ -2923,7 +2917,7 @@ void processinput_d(int snum)
 				if (!S_CheckActorSoundPlaying(pact, DUKE_LONGTERM_PAIN))
 					S_PlayActorSound(DUKE_LONGTERM_PAIN, pact);
 				SetPlayerPal(p, PalEntry(32, 0, 8, 0));
-				s->extra--;
+				pact->spr.extra--;
 			}
 		}
 
@@ -3051,13 +3045,13 @@ HORIZONLY:
 
 	if (p->jetpack_on == 0)
 	{
-		if (s->xvel > 16)
+		if (pact->spr.xvel > 16)
 		{
 			if (psectlotag != 1 && psectlotag != 2 && p->on_ground)
 			{
 				p->pycount += 52;
 				p->pycount &= 2047;
-				p->pyoff = abs(s->xvel * bsin(p->pycount)) / 1596;
+				p->pyoff = abs(pact->spr.xvel * bsin(p->pycount)) / 1596;
 			}
 		}
 		else if (psectlotag != 2 && psectlotag != 1)
@@ -3069,7 +3063,7 @@ HORIZONLY:
 
 	if (psectlotag < 3)
 	{
-		psectp = s->sector();
+		psectp = pact->spr.sector();
 		if (ud.clipping == 0 && psectp->lotag == 31)
 		{
 			auto secact = barrier_cast<DDukeActor*>(psectp->hitagactor);
@@ -3085,7 +3079,7 @@ HORIZONLY:
 		if (!S_CheckActorSoundPlaying(pact, DUKE_ONWATER))
 			S_PlayActorSound(DUKE_ONWATER, pact);
 
-	if (p->cursector != s->sector())
+	if (p->cursector != pact->spr.sector())
 		ChangeActorSect(pact, p->cursector);
 
 	if (ud.clipping == 0)
@@ -3096,9 +3090,9 @@ HORIZONLY:
 	{
 		if (abs(pact->floorz - pact->ceilingz) < (48 << 8) || j)
 		{
-			if (!(s->sector()->lotag & 0x8000) && (isanunderoperator(s->sector()->lotag) ||
-				isanearoperator(s->sector()->lotag)))
-				fi.activatebysector(s->sector(), pact);
+			if (!(pact->spr.sector()->lotag & 0x8000) && (isanunderoperator(pact->spr.sector()->lotag) ||
+				isanearoperator(pact->spr.sector()->lotag)))
+				fi.activatebysector(pact->spr.sector(), pact);
 			if (j)
 			{
 				quickkill(p);
