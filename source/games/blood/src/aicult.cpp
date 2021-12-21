@@ -280,7 +280,7 @@ static void cultThinkChase(DBloodActor* actor)
 		return;
 	}
 	int nDist = approxDist(dx, dy);
-	if (nDist <= pDudeInfo->seeDist)
+	if (nDist > 0 && nDist <= pDudeInfo->seeDist)
 	{
 		int nDeltaAngle = ((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024;
 		int height = (pDudeInfo->eyeHeight * pSprite->yrepeat) << 2;
