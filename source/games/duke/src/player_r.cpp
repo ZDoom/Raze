@@ -85,8 +85,7 @@ void incur_damage_r(struct player_struct* p)
 
 static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, int atwith)
 {
-	spritetype* const s = actor->s;
-	auto sectp = s->sector();
+	auto sectp = actor->spr.sector();
 	int zvel;
 	HitInfo hit{};
 
@@ -205,12 +204,11 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 
 static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, int atwith)
 {
-	auto s = actor->s;
-	auto sectp = s->sector();
+	auto sectp = actor->spr.sector();
 	int zvel = 0;
 	HitInfo hit{};
 
-	if (s->extra >= 0) s->shade = -96;
+	if (actor->spr.extra >= 0) actor->spr.shade = -96;
 
 	if (p >= 0)
 	{
@@ -248,7 +246,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 		int j = findplayer(actor, &x);
 		sz -= (4 << 8);
 		zvel = ((ps[j].pos.z - sz) << 8) / (ldist(ps[j].GetActor(), actor));
-		if (s->picnum != BOSS1)
+		if (actor->spr.picnum != BOSS1)
 		{
 			zvel += 128 - (krand() & 255);
 			sa += 32 - (krand() & 63);
@@ -260,7 +258,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 		}
 	}
 
-	s->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
+	actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 	hitscan({ sx, sy, sz }, sectp, { bcos(sa), bsin(sa),zvel << 6 }, hit, CLIPMASK1);
 
 	if (isRRRA() && hit.hitSector != nullptr && (((hit.hitSector->lotag == 160 && zvel > 0) || (hit.hitSector->lotag == 161 && zvel < 0))
@@ -289,7 +287,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 		}
 	}
 
-	s->cstat |= CSTAT_SPRITE_BLOCK_ALL;
+	actor->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 
 	if (hit.hitSector == nullptr) return;
 
@@ -461,19 +459,18 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 
 static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, int atwith)
 {
-	auto s = actor->s;
-	auto sect = s->sector();
+	auto sect = actor->spr.sector();
 	int vel = 0, zvel;
 	int scount;
 
 	if (isRRRA())
 	{
-		if (atwith != SPIT && s->extra >= 0) s->shade = -96;
+		if (atwith != SPIT && actor->spr.extra >= 0) actor->spr.shade = -96;
 
 		scount = 1;
 		if (atwith == SPIT)
 		{
-			if (s->picnum == 8705)
+			if (actor->spr.picnum == 8705)
 				vel = 600;
 			else
 				vel = 400;
@@ -481,7 +478,7 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 	}
 	else
 	{
-		if (s->extra >= 0) s->shade = -96;
+		if (actor->spr.extra >= 0) actor->spr.shade = -96;
 
 		scount = 1;
 		if (atwith == SPIT) vel = 400;
@@ -490,13 +487,13 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 	{
 		vel = 840;
 		sz -= (4 << 7);
-		if (s->picnum == 4649)
+		if (actor->spr.picnum == 4649)
 		{
-			sx += bcos(s->ang + 256, -6);
-			sy += bsin(s->ang + 256, -6);
+			sx += bcos(actor->spr.ang + 256, -6);
+			sy += bsin(actor->spr.ang + 256, -6);
 			sz += (12 << 8);
 		}
-		if (s->picnum == VIXEN)
+		if (actor->spr.picnum == VIXEN)
 		{
 			sz -= (12 << 8);
 		}
@@ -506,8 +503,8 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 	{
 		auto aimed = aim(actor, AUTO_AIM_ANGLE);
 
-		sx += bcos(s->ang + 160, -7);
-		sy += bsin(s->ang + 160, -7);
+		sx += bcos(actor->spr.ang + 160, -7);
+		sy += bsin(actor->spr.ang + 160, -7);
 
 		if (aimed)
 		{
@@ -525,11 +522,11 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 		int x;
 		int j = findplayer(actor, &x);
 		// sa = getangle(ps[j].oposx-sx,ps[j].oposy-sy);
-		if (s->picnum == HULK)
+		if (actor->spr.picnum == HULK)
 			sa -= (krand() & 31);
-		else if (s->picnum == VIXEN)
+		else if (actor->spr.picnum == VIXEN)
 			sa -= (krand() & 16);
-		else if (s->picnum != UFOBEAM)
+		else if (actor->spr.picnum != UFOBEAM)
 			sa += 16 - (krand() & 31);
 
 		zvel = (((ps[j].oposz - sz + (3 << 8))) * vel) / ldist(ps[j].GetActor(), actor);
@@ -541,7 +538,7 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 	if (atwith == SPIT)
 	{
 		sizx = 18; sizy = 18;
-		if (!isRRRA() || s->picnum != MAMA) sz -= (10 << 8); else sz -= (20 << 8);
+		if (!isRRRA() || actor->spr.picnum != MAMA) sz -= (10 << 8); else sz -= (20 << 8);
 	}
 	else
 	{
@@ -581,7 +578,7 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 		j->spr.cstat = CSTAT_SPRITE_YCENTER;
 		j->spr.clipdist = 4;
 
-		sa = s->ang + 32 - (krand() & 63);
+		sa = actor->spr.ang + 32 - (krand() & 63);
 		zvel = oldzvel + 512 - (krand() & 1023);
 
 		if (atwith == FIRELASER)
@@ -602,13 +599,12 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 
 static void shootrpg(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, int atwith)
 {
-	auto s = actor->s;
-	auto sect = s->sector();
+	auto sect = actor->spr.sector();
 	int vel, zvel;
 	int l, scount;
 
 	DDukeActor* act90 = nullptr;
-	if (s->extra >= 0) s->shade = -96;
+	if (actor->spr.extra >= 0) actor->spr.shade = -96;
 
 	scount = 1;
 	vel = 644;
@@ -649,9 +645,9 @@ static void shootrpg(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 		int x;
 		int j = findplayer(actor, &x);
 		sa = getangle(ps[j].oposx - sx, ps[j].oposy - sy);
-		if (s->picnum == BOSS3)
+		if (actor->spr.picnum == BOSS3)
 			sz -= (32 << 8);
-		else if (s->picnum == BOSS2)
+		else if (actor->spr.picnum == BOSS2)
 		{
 			vel += 128;
 			sz += 24 << 8;
@@ -660,8 +656,8 @@ static void shootrpg(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 		l = ldist(ps[j].GetActor(), actor);
 		zvel = ((ps[j].oposz - sz) * vel) / l;
 
-		if (badguy(s) && (s->hitag & face_player_smart))
-			sa = s->ang + (krand() & 31) - 16;
+		if (badguy(actor) && (actor->spr.hitag & face_player_smart))
+			sa = actor->spr.ang + (krand() & 31) - 16;
 	}
 
 	if (p < 0) aimed = nullptr;
@@ -706,7 +702,7 @@ static void shootrpg(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 
 	if (p == -1)
 	{
-		if (s->picnum == HULK)
+		if (actor->spr.picnum == HULK)
 		{
 			spawned->spr.xrepeat = 8;
 			spawned->spr.yrepeat = 8;
@@ -755,12 +751,11 @@ static void shootrpg(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 
 static void shootwhip(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, int atwith)
 {
-	auto s = actor->s;
-	auto sect = s->sector();
+	auto sect = actor->spr.sector();
 	int vel = 0, zvel;
 	int scount;
 
-	if (s->extra >= 0) s->shade = -96;
+	if (actor->spr.extra >= 0) actor->spr.shade = -96;
 
 	scount = 1;
 	if (atwith == 3471)
@@ -794,7 +789,7 @@ static void shootwhip(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, 
 		int x;
 		int j = findplayer(actor, &x);
 		//                sa = getangle(ps[j].oposx-sx,ps[j].oposy-sy);
-		if (s->picnum == VIXEN)
+		if (actor->spr.picnum == VIXEN)
 			sa -= (krand() & 16);
 		else
 			sa += 16 - (krand() & 31);
@@ -816,7 +811,7 @@ static void shootwhip(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, 
 		j->spr.cstat = CSTAT_SPRITE_YCENTER;
 		j->spr.clipdist = 4;
 
-		sa = s->ang + 32 - (krand() & 63);
+		sa = actor->spr.ang + 32 - (krand() & 63);
 		zvel = oldzvel + 512 - (krand() & 1023);
 
 		scount--;
@@ -831,18 +826,16 @@ static void shootwhip(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, 
 
 void shoot_r(DDukeActor* actor, int atwith)
 {
-	spritetype* const s = actor->s;
-
 	int sa, p;
 	int sx, sy, sz, vel, zvel, x;
 
 
-	auto const sect = s->sector();
+	auto const sect = actor->spr.sector();
 	zvel = 0;
 
-	if (s->picnum == TILE_APLAYER)
+	if (actor->spr.picnum == TILE_APLAYER)
 	{
-		p = s->yvel;
+		p = actor->spr.yvel;
 
 		sx = ps[p].pos.x;
 		sy = ps[p].pos.y;
@@ -854,12 +847,12 @@ void shoot_r(DDukeActor* actor, int atwith)
 	else
 	{
 		p = -1;
-		sa = s->ang;
-		sx = s->x;
-		sy = s->y;
-		sz = s->z - ((s->yrepeat * tileHeight(s->picnum)) << 1) + (4 << 8);
+		sa = actor->spr.ang;
+		sx = actor->spr.x;
+		sy = actor->spr.y;
+		sz = actor->spr.z - ((actor->spr.yrepeat * tileHeight(actor->spr.picnum)) << 1) + (4 << 8);
 		sz -= (7 << 8);
-		if (badguy(s))
+		if (badguy(actor))
 		{
 			sx -= bsin(sa, -7);
 			sy += bcos(sa, -7);
@@ -903,7 +896,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 		if (j)
 		{
 			j->spr.xvel = 32;
-			j->spr.ang = s->ang;
+			j->spr.ang = actor->spr.ang;
 			j->spr.z -= (5 << 8);
 		}
 		break;
@@ -914,7 +907,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 		if (j)
 		{
 			j->spr.xvel = 250;
-			j->spr.ang = s->ang;
+			j->spr.ang = actor->spr.ang;
 			j->spr.z -= (15 << 8);
 		}
 		break;
@@ -947,7 +940,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 		if (!isRRRA()) break;
 	case MORTER:
 	{
-		if (s->extra >= 0) s->shade = -96;
+		if (actor->spr.extra >= 0) actor->spr.shade = -96;
 
 		auto j = ps[findplayer(actor, &x)].GetActor();
 		x = ldist(j, actor);
@@ -3289,7 +3282,6 @@ static void processweapon(int snum, ESyncBits actions, sectortype* psectp)
 {
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
-	auto s = pact->s;
 	int shrunk = (pact->spr.yrepeat < 8);
 
 	if (p->detonate_count > 0)
