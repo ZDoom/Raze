@@ -600,10 +600,6 @@ void renderDrawMapView(int cposx, int cposy, int czoom, int cang)
 				vertices[j] = { x1 / 4096.f, y1 / 4096.f, mesh->texcoords[j].X, mesh->texcoords[j].Y };
 			}
 
-#ifdef _DEBUG
-			// visualize the triangulator being used.
-			if (sectionsPerSector[i][0]->geomflags & NoEarcut) light.r = light.b = 80;
-#endif
 			twod->AddPoly(tileGetTexture(picnum, true), vertices.Data(), vertices.Size(), (unsigned*)indices->Data(), indices->Size(), translation, light,
 				LegacyRenderStyles[STYLE_Translucent], windowxy1.x, windowxy1.y, windowxy2.x + 1, windowxy2.y + 1);
 		}
