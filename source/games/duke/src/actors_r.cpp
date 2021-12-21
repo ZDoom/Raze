@@ -1940,57 +1940,55 @@ static void rrra_specialstats()
 	DukeStatIterator it(117);
 	while (auto act = it.Next())
 	{
-		auto s = act->s;
-		if (s->hitag > 2)
-			s->hitag = 0;
-		if ((s->picnum == RRTILE8488 || s->picnum == RRTILE8490) && s->hitag != 2)
+		if (act->spr.hitag > 2)
+			act->spr.hitag = 0;
+		if ((act->spr.picnum == RRTILE8488 || act->spr.picnum == RRTILE8490) && act->spr.hitag != 2)
 		{
-			s->hitag = 2;
-			s->extra = -100;
+			act->spr.hitag = 2;
+			act->spr.extra = -100;
 		}
-		if (s->hitag == 0)
+		if (act->spr.hitag == 0)
 		{
-			s->extra++;
-			if (s->extra >= 30)
-				s->hitag = 1;
+			act->spr.extra++;
+			if (act->spr.extra >= 30)
+				act->spr.hitag = 1;
 		}
-		else if (s->hitag == 1)
+		else if (act->spr.hitag == 1)
 		{
-			s->extra--;
-			if (s->extra <= -30)
-				s->hitag = 0;
+			act->spr.extra--;
+			if (act->spr.extra <= -30)
+				act->spr.hitag = 0;
 		}
-		else if (s->hitag == 2)
+		else if (act->spr.hitag == 2)
 		{
-			s->extra--;
-			if (s->extra <= -104)
+			act->spr.extra--;
+			if (act->spr.extra <= -104)
 			{
-				spawn(act, s->lotag);
+				spawn(act, act->spr.lotag);
 				deletesprite(act);
 			}
 		}
-		movesprite_ex(act, 0, 0, s->extra * 2, CLIPMASK0, coll);
+		movesprite_ex(act, 0, 0, act->spr.extra * 2, CLIPMASK0, coll);
 	}
 
 	it.Reset(118);
 	while (auto act = it.Next())
 	{
-		auto s = act->s;
-		if (s->hitag > 1)
-			s->hitag = 0;
-		if (s->hitag == 0)
+		if (act->spr.hitag > 1)
+			act->spr.hitag = 0;
+		if (act->spr.hitag == 0)
 		{
-			s->extra++;
-			if (s->extra >= 20)
-				s->hitag = 1;
+			act->spr.extra++;
+			if (act->spr.extra >= 20)
+				act->spr.hitag = 1;
 		}
-		else if (s->hitag == 1)
+		else if (act->spr.hitag == 1)
 		{
-			s->extra--;
-			if (s->extra <= -20)
-				s->hitag = 0;
+			act->spr.extra--;
+			if (act->spr.extra <= -20)
+				act->spr.hitag = 0;
 		}
-		movesprite_ex(act, 0, 0, s->extra, CLIPMASK0, coll);
+		movesprite_ex(act, 0, 0, act->spr.extra, CLIPMASK0, coll);
 	}
 
 	if (ps[screenpeek].MamaEnd > 0)
@@ -2007,8 +2005,7 @@ static void rrra_specialstats()
 		DukeSpriteIterator it;
 		while (auto act = it.Next())
 		{
-			auto s = act->s;
-			switch (s->picnum)
+			switch (act->spr.picnum)
 			{
 				//case 4049:
 				//case 4050:
@@ -2050,15 +2047,15 @@ static void rrra_specialstats()
 			case MAMA:
 				if (enemysizecheat == 3)
 				{
-					s->xrepeat <<= 1;
-					s->yrepeat <<= 1;
-					s->clipdist = MulScale(s->xrepeat, tileWidth(s->picnum), 7);
+					act->spr.xrepeat <<= 1;
+					act->spr.yrepeat <<= 1;
+					act->spr.clipdist = MulScale(act->spr.xrepeat, tileWidth(act->spr.picnum), 7);
 				}
 				else if (enemysizecheat == 2)
 				{
-					s->xrepeat >>= 1;
-					s->yrepeat >>= 1;
-					s->clipdist = MulScale(s->xrepeat, tileHeight(s->picnum), 7);
+					act->spr.xrepeat >>= 1;
+					act->spr.yrepeat >>= 1;
+					act->spr.clipdist = MulScale(act->spr.xrepeat, tileHeight(act->spr.picnum), 7);
 				}
 				break;
 			}
@@ -2070,29 +2067,28 @@ static void rrra_specialstats()
 	it.Reset(121);
 	while (auto act = it.Next())
 	{
-		auto s = act->s;
-		s->extra++;
-		if (s->extra < 100)
+		act->spr.extra++;
+		if (act->spr.extra < 100)
 		{
-			if (s->extra == 90)
+			if (act->spr.extra == 90)
 			{
-				s->picnum--;
-				if (s->picnum < PIG + 7)
-					s->picnum = PIG + 7;
-				s->extra = 1;
+				act->spr.picnum--;
+				if (act->spr.picnum < PIG + 7)
+					act->spr.picnum = PIG + 7;
+				act->spr.extra = 1;
 			}
 			movesprite_ex(act, 0, 0, -300, CLIPMASK0, coll);
-			if (s->sector()->ceilingz + (4 << 8) > s->z)
+			if (act->spr.sector()->ceilingz + (4 << 8) > act->spr.z)
 			{
-				s->picnum = 0;
-				s->extra = 100;
+				act->spr.picnum = 0;
+				act->spr.extra = 100;
 			}
 		}
-		else if (s->extra == 200)
+		else if (act->spr.extra == 200)
 		{
-			SetActor(act, { s->x, s->y, s->sector()->floorz - 10 });
-			s->extra = 1;
-			s->picnum = PIG + 11;
+			SetActor(act, { act->spr.x, act->spr.y, act->spr.sector()->floorz - 10 });
+			act->spr.extra = 1;
+			act->spr.picnum = PIG + 11;
 			spawn(act, TRANSPORTERSTAR);
 		}
 	}
@@ -2100,38 +2096,36 @@ static void rrra_specialstats()
 	it.Reset(119);
 	while (auto act = it.Next())
 	{
-		auto s = act->s;
-		if (s->hitag > 0)
+		if (act->spr.hitag > 0)
 		{
-			if (s->extra == 0)
+			if (act->spr.extra == 0)
 			{
-				s->hitag--;
-				s->extra = 150;
+				act->spr.hitag--;
+				act->spr.extra = 150;
 				spawn(act, RABBIT);
 			}
 			else
-				s->extra--;
+				act->spr.extra--;
 		}
 	}
 	it.Reset(116);
 	while (auto act = it.Next())
 	{
-		auto s = act->s;
-		if (s->extra)
+		if (act->spr.extra)
 		{
-			if (s->extra == s->lotag)
+			if (act->spr.extra == act->spr.lotag)
 				S_PlaySound(183);
-			s->extra--;
+			act->spr.extra--;
 			int j = movesprite_ex(act,
-				MulScale(s->hitag, bcos(s->ang), 14),
-				MulScale(s->hitag, bsin(s->ang), 14),
-				s->hitag << 1, CLIPMASK0, coll);
+				MulScale(act->spr.hitag, bcos(act->spr.ang), 14),
+				MulScale(act->spr.hitag, bsin(act->spr.ang), 14),
+				act->spr.hitag << 1, CLIPMASK0, coll);
 			if (j > 0)
 			{
 				S_PlayActorSound(PIPEBOMB_EXPLODE, act);
 				deletesprite(act);
 			}
-			if (s->extra == 0)
+			if (act->spr.extra == 0)
 			{
 				S_PlaySound(215);
 				deletesprite(act);
@@ -2144,29 +2138,28 @@ static void rrra_specialstats()
 	it.Reset(115);
 	while (auto act = it.Next())
 	{
-		auto s = act->s;
-		if (s->extra)
+		if (act->spr.extra)
 		{
-			if (s->picnum != RRTILE8162)
-				s->picnum = RRTILE8162;
-			s->extra--;
-			if (s->extra == 0)
+			if (act->spr.picnum != RRTILE8162)
+				act->spr.picnum = RRTILE8162;
+			act->spr.extra--;
+			if (act->spr.extra == 0)
 			{
 				int rvar;
 				rvar = krand() & 127;
 				if (rvar < 96)
 				{
-					s->picnum = RRTILE8162 + 3;
+					act->spr.picnum = RRTILE8162 + 3;
 				}
 				else if (rvar < 112)
 				{
 					if (ps[screenpeek].SlotWin & 1)
 					{
-						s->picnum = RRTILE8162 + 3;
+						act->spr.picnum = RRTILE8162 + 3;
 					}
 					else
 					{
-						s->picnum = RRTILE8162 + 2;
+						act->spr.picnum = RRTILE8162 + 2;
 						spawn(act, BATTERYAMMO);
 						ps[screenpeek].SlotWin |= 1;
 						S_PlayActorSound(52, act);
@@ -2176,11 +2169,11 @@ static void rrra_specialstats()
 				{
 					if (ps[screenpeek].SlotWin & 2)
 					{
-						s->picnum = RRTILE8162 + 3;
+						act->spr.picnum = RRTILE8162 + 3;
 					}
 					else
 					{
-						s->picnum = RRTILE8162 + 6;
+						act->spr.picnum = RRTILE8162 + 6;
 						spawn(act, HEAVYHBOMB);
 						ps[screenpeek].SlotWin |= 2;
 						S_PlayActorSound(52, act);
@@ -2190,11 +2183,11 @@ static void rrra_specialstats()
 				{
 					if (ps[screenpeek].SlotWin & 4)
 					{
-						s->picnum = RRTILE8162 + 3;
+						act->spr.picnum = RRTILE8162 + 3;
 					}
 					else
 					{
-						s->picnum = RRTILE8162 + 5;
+						act->spr.picnum = RRTILE8162 + 5;
 						spawn(act, SIXPAK);
 						ps[screenpeek].SlotWin |= 4;
 						S_PlayActorSound(52, act);
@@ -2204,11 +2197,11 @@ static void rrra_specialstats()
 				{
 					if (ps[screenpeek].SlotWin & 8)
 					{
-						s->picnum = RRTILE8162 + 3;
+						act->spr.picnum = RRTILE8162 + 3;
 					}
 					else
 					{
-						s->picnum = RRTILE8162 + 4;
+						act->spr.picnum = RRTILE8162 + 4;
 						spawn(act, ATOMICHEALTH);
 						ps[screenpeek].SlotWin |= 8;
 						S_PlayActorSound(52, act);
@@ -2221,29 +2214,28 @@ static void rrra_specialstats()
 	it.Reset(122);
 	while (auto act = it.Next())
 	{
-		auto s = act->s;
-		if (s->extra)
+		if (act->spr.extra)
 		{
-			if (s->picnum != RRTILE8589)
-				s->picnum = RRTILE8589;
-			s->extra--;
-			if (s->extra == 0)
+			if (act->spr.picnum != RRTILE8589)
+				act->spr.picnum = RRTILE8589;
+			act->spr.extra--;
+			if (act->spr.extra == 0)
 			{
 				int rvar;
 				rvar = krand() & 127;
 				if (rvar < 96)
 				{
-					s->picnum = RRTILE8589 + 4;
+					act->spr.picnum = RRTILE8589 + 4;
 				}
 				else if (rvar < 112)
 				{
 					if (ps[screenpeek].SlotWin & 1)
 					{
-						s->picnum = RRTILE8589 + 4;
+						act->spr.picnum = RRTILE8589 + 4;
 					}
 					else
 					{
-						s->picnum = RRTILE8589 + 5;
+						act->spr.picnum = RRTILE8589 + 5;
 						spawn(act, BATTERYAMMO);
 						ps[screenpeek].SlotWin |= 1;
 						S_PlayActorSound(342, act);
@@ -2253,11 +2245,11 @@ static void rrra_specialstats()
 				{
 					if (ps[screenpeek].SlotWin & 2)
 					{
-						s->picnum = RRTILE8589 + 4;
+						act->spr.picnum = RRTILE8589 + 4;
 					}
 					else
 					{
-						s->picnum = RRTILE8589 + 6;
+						act->spr.picnum = RRTILE8589 + 6;
 						spawn(act, HEAVYHBOMB);
 						ps[screenpeek].SlotWin |= 2;
 						S_PlayActorSound(342, act);
@@ -2267,11 +2259,11 @@ static void rrra_specialstats()
 				{
 					if (ps[screenpeek].SlotWin & 4)
 					{
-						s->picnum = RRTILE8589 + 4;
+						act->spr.picnum = RRTILE8589 + 4;
 					}
 					else
 					{
-						s->picnum = RRTILE8589 + 2;
+						act->spr.picnum = RRTILE8589 + 2;
 						spawn(act, SIXPAK);
 						ps[screenpeek].SlotWin |= 4;
 						S_PlayActorSound(342, act);
@@ -2281,11 +2273,11 @@ static void rrra_specialstats()
 				{
 					if (ps[screenpeek].SlotWin & 8)
 					{
-						s->picnum = RRTILE8589 + 4;
+						act->spr.picnum = RRTILE8589 + 4;
 					}
 					else
 					{
-						s->picnum = RRTILE8589 + 3;
+						act->spr.picnum = RRTILE8589 + 3;
 						spawn(act, ATOMICHEALTH);
 						ps[screenpeek].SlotWin |= 8;
 						S_PlayActorSound(342, act);
@@ -2315,23 +2307,22 @@ void rr_specialstats()
 	DukeStatIterator it(107);
 	while (auto act = it.Next())
 	{
-		auto s = act->s;
-		if (s->hitag == 100)
+		if (act->spr.hitag == 100)
 		{
-			s->z += (4 << 8);
-			if (s->z >= s->sector()->floorz + 15168)
-				s->z = s->sector()->floorz + 15168;
+			act->spr.z += (4 << 8);
+			if (act->spr.z >= act->spr.sector()->floorz + 15168)
+				act->spr.z = act->spr.sector()->floorz + 15168;
 		}
 
-		if (s->picnum == LUMBERBLADE)
+		if (act->spr.picnum == LUMBERBLADE)
 		{
-			s->extra++;
-			if (s->extra == 192)
+			act->spr.extra++;
+			if (act->spr.extra == 192)
 			{
-				s->hitag = 0;
-				s->z = s->sector()->floorz - 15168;
-				s->extra = 0;
-				s->picnum = RRTILE3410;
+				act->spr.hitag = 0;
+				act->spr.z = act->spr.sector()->floorz - 15168;
+				act->spr.extra = 0;
+				act->spr.picnum = RRTILE3410;
 				DukeStatIterator it2(STAT_DEFAULT);
 				while (auto act2 = it2.Next())
 				{
@@ -2348,83 +2339,82 @@ void rr_specialstats()
 		it.Reset(106);
 		while (auto act = it.Next())
 		{
-			auto s = act->s;
-			switch (s->picnum)
+			switch (act->spr.picnum)
 			{
 			case RRTILE285:
-				s->lotag--;
-				if (s->lotag < 0)
+				act->spr.lotag--;
+				if (act->spr.lotag < 0)
 				{
-					spawn(act, RRTILE3190)->spr.ang = s->ang;
-					s->lotag = 128;
+					spawn(act, RRTILE3190)->spr.ang = act->spr.ang;
+					act->spr.lotag = 128;
 				}
 				break;
 			case RRTILE286:
-				s->lotag--;
-				if (s->lotag < 0)
+				act->spr.lotag--;
+				if (act->spr.lotag < 0)
 				{
-					spawn(act, RRTILE3192)->spr.ang = s->ang;
-					s->lotag = 256;
+					spawn(act, RRTILE3192)->spr.ang = act->spr.ang;
+					act->spr.lotag = 256;
 				}
 				break;
 			case RRTILE287:
-				s->lotag--;
-				if (s->lotag < 0)
+				act->spr.lotag--;
+				if (act->spr.lotag < 0)
 				{
 					lotsoffeathers_r(act, (krand() & 3) + 4);
-					s->lotag = 84;
+					act->spr.lotag = 84;
 				}
 				break;
 			case RRTILE288:
-				s->lotag--;
-				if (s->lotag < 0)
+				act->spr.lotag--;
+				if (act->spr.lotag < 0)
 				{
 					auto j = spawn(act, RRTILE3132);
-					s->lotag = 96;
+					act->spr.lotag = 96;
 					if (j && !isRRRA()) S_PlayActorSound(472, j);
 				}
 				break;
 			case RRTILE289:
-				s->lotag--;
-				if (s->lotag < 0)
+				act->spr.lotag--;
+				if (act->spr.lotag < 0)
 				{
-					spawn(act, RRTILE3120)->spr.ang = s->ang;
-					s->lotag = 448;
+					spawn(act, RRTILE3120)->spr.ang = act->spr.ang;
+					act->spr.lotag = 448;
 				}
 				break;
 			case RRTILE290:
-				s->lotag--;
-				if (s->lotag < 0)
+				act->spr.lotag--;
+				if (act->spr.lotag < 0)
 				{
-					spawn(act, RRTILE3122)->spr.ang = s->ang;
-					s->lotag = 64;
+					spawn(act, RRTILE3122)->spr.ang = act->spr.ang;
+					act->spr.lotag = 64;
 				}
 				break;
 			case RRTILE291:
-				s->lotag--;
-				if (s->lotag < 0)
+				act->spr.lotag--;
+				if (act->spr.lotag < 0)
 				{
-					spawn(act, RRTILE3123)->spr.ang = s->ang;
-					s->lotag = 512;
+					spawn(act, RRTILE3123)->spr.ang = act->spr.ang;
+					act->spr.lotag = 512;
 				}
 				break;
 			case RRTILE292:
-				s->lotag--;
-				if (s->lotag < 0)
+				act->spr.lotag--;
+				if (act->spr.lotag < 0)
 				{
-					spawn(act, RRTILE3124)->spr.ang = s->ang;
-					s->lotag = 224;
+					spawn(act, RRTILE3124)->spr.ang = act->spr.ang;
+					act->spr.lotag = 224;
 				}
 				break;
 			case RRTILE293:
-				s->lotag--;
-				if (s->lotag < 0)
+				act->spr.lotag--;
+				if (act->spr.lotag < 0)
 				{
 					fi.guts(act, JIBS1, 1, myconnectindex);
 					fi.guts(act, JIBS2, 1, myconnectindex);
 					fi.guts(act, JIBS3, 1, myconnectindex);
 					fi.guts(act, JIBS4, 1, myconnectindex);
-					s->lotag = 256;
+					act->spr.lotag = 256;
 				}
 				break;
 			}
@@ -2434,26 +2424,25 @@ void rr_specialstats()
 	it.Reset(STAT_BOWLING);
 	while (auto act = it.Next())
 	{
-		auto s = act->s;
-		if (s->picnum == BOWLINGPINSPOT)
-			if (s->lotag == 100)
+		if (act->spr.picnum == BOWLINGPINSPOT)
+			if (act->spr.lotag == 100)
 			{
-				auto pst = pinsectorresetup(s->sector());
+				auto pst = pinsectorresetup(act->spr.sector());
 				if (pst)
 				{
-					s->lotag = 0;
-					if (s->extra == 1)
+					act->spr.lotag = 0;
+					if (act->spr.extra == 1)
 					{
-						pst = checkpins(s->sector());
+						pst = checkpins(act->spr.sector());
 						if (!pst)
 						{
-							s->extra = 2;
+							act->spr.extra = 2;
 						}
 					}
-					if (s->extra == 2)
+					if (act->spr.extra == 2)
 					{
-						s->extra = 0;
-						resetpins(s->sector());
+						act->spr.extra = 0;
+						resetpins(act->spr.sector());
 					}
 				}
 			}
@@ -2462,8 +2451,7 @@ void rr_specialstats()
 	it.Reset(108);
 	while (auto act = it.Next())
 	{
-		auto s = act->s;
-		if (s->picnum == RRTILE296)
+		if (act->spr.picnum == RRTILE296)
 		{
 			int x;
 			int p = findplayer(act, &x);
