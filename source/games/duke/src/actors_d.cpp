@@ -941,16 +941,15 @@ void movefallers_d(void)
 
 static void movetripbomb(DDukeActor *actor)
 {
-	auto s = actor->s;
 	int j, x;
 	int lTripBombControl = GetGameVar("TRIPBOMB_CONTROL", TRIPBOMB_TRIPWIRE, nullptr, -1).safeValue();
 	if (lTripBombControl & TRIPBOMB_TIMER)
 	{
 		// we're on a timer....
-		if (s->extra >= 0)
+		if (actor->spr.extra >= 0)
 		{
-			s->extra--;
-			if (s->extra == 0)
+			actor->spr.extra--;
+			if (actor->spr.extra == 0)
 			{
 				actor->temp_data[2] = 16;
 				S_PlayActorSound(LASERTRIP_ARMING, actor);
@@ -964,13 +963,13 @@ static void movetripbomb(DDukeActor *actor)
 		{
 			S_PlayActorSound(LASERTRIP_EXPLODE, actor);
 			for (j = 0; j < 5; j++) RANDOMSCRAP(actor);
-			x = s->extra;
+			x = actor->spr.extra;
 			fi.hitradius(actor, gs.tripbombblastradius, x >> 2, x >> 1, x - (x >> 2), x);
 
 			auto spawned = spawn(actor, EXPLOSION2);
 			if (spawned)
 			{
-				spawned->spr.ang = s->ang;
+				spawned->spr.ang = actor->spr.ang;
 				spawned->spr.xvel = 348;
 				ssp(spawned, CLIPMASK0);
 			}
@@ -978,7 +977,7 @@ static void movetripbomb(DDukeActor *actor)
 			DukeStatIterator it(STAT_MISC);
 			while (auto a1 = it.Next())
 			{
-				if (a1->spr.picnum == LASERLINE && s->hitag == a1->spr.hitag)
+				if (a1->spr.picnum == LASERLINE && actor->spr.hitag == a1->spr.hitag)
 					a1->spr.xrepeat = a1->spr.yrepeat = 0;
 			}
 			deletesprite(actor);
@@ -987,16 +986,16 @@ static void movetripbomb(DDukeActor *actor)
 	}
 	else
 	{
-		x = s->extra;
-		s->extra = 1;
-		int16_t l = s->ang;
+		x = actor->spr.extra;
+		actor->spr.extra = 1;
+		int16_t l = actor->spr.ang;
 		j = fi.ifhitbyweapon(actor);
 		if (j >= 0)
 		{ 
 			actor->temp_data[2] = 16; 
 		}
-		s->extra = x;
-		s->ang = l;
+		actor->spr.extra = x;
+		actor->spr.ang = l;
 	}
 
 	if (actor->temp_data[0] < 32)
@@ -1007,19 +1006,19 @@ static void movetripbomb(DDukeActor *actor)
 	}
 	if (actor->temp_data[0] == 32)
 	{
-		int16_t l = s->ang;
-		s->ang = actor->temp_data[5];
+		int16_t l = actor->spr.ang;
+		actor->spr.ang = actor->temp_data[5];
 
-		actor->temp_data[3] = s->x; actor->temp_data[4] = s->y;
-		s->x += bcos(actor->temp_data[5], -9);
-		s->y += bsin(actor->temp_data[5], -9);
-		s->z -= (3 << 8);
+		actor->temp_data[3] = actor->spr.x; actor->temp_data[4] = actor->spr.y;
+		actor->spr.x += bcos(actor->temp_data[5], -9);
+		actor->spr.y += bsin(actor->temp_data[5], -9);
+		actor->spr.z -= (3 << 8);
 
 		// Laser fix from EDuke32.
-		auto const oldSect = s->sector();
-		auto       curSect = s->sector();
+		auto const oldSect = actor->spr.sector();
+		auto       curSect = actor->spr.sector();
 
-		updatesectorneighbor(s->x, s->y, &curSect, 2048);
+		updatesectorneighbor(actor->spr.x, actor->spr.y, &curSect, 2048);
 		ChangeActorSect(actor, curSect);
 
 		DDukeActor* hit;
@@ -1027,7 +1026,7 @@ static void movetripbomb(DDukeActor *actor)
 
 		actor->lastvx = x;
 
-		s->ang = l;
+		actor->spr.ang = l;
 
 		if (lTripBombControl & TRIPBOMB_TRIPWIRE)
 		{
@@ -1038,7 +1037,7 @@ static void movetripbomb(DDukeActor *actor)
 				if (spawned)
 				{
 					SetActor(spawned, spawned->spr.pos);
-					spawned->spr.hitag = s->hitag;
+					spawned->spr.hitag = actor->spr.hitag;
 					spawned->temp_data[1] = spawned->spr.z;
 
 					if (x < 1024)
@@ -1048,9 +1047,9 @@ static void movetripbomb(DDukeActor *actor)
 					}
 					x -= 1024;
 
-					s->x += bcos(actor->temp_data[5], -4);
-					s->y += bsin(actor->temp_data[5], -4);
-					updatesectorneighbor(s->x, s->y, &curSect, 2048);
+					actor->spr.x += bcos(actor->temp_data[5], -4);
+					actor->spr.y += bsin(actor->temp_data[5], -4);
+					updatesectorneighbor(actor->spr.x, actor->spr.y, &curSect, 2048);
 
 					if (curSect == nullptr)
 						break;
@@ -1064,8 +1063,8 @@ static void movetripbomb(DDukeActor *actor)
 		}
 
 		actor->temp_data[0]++;
-		s->x = actor->temp_data[3]; s->y = actor->temp_data[4];
-		s->z += (3 << 8);
+		actor->spr.x = actor->temp_data[3]; actor->spr.y = actor->temp_data[4];
+		actor->spr.z += (3 << 8);
 		ChangeActorSect(actor, oldSect);
 		actor->temp_data[3] = 0;
 		if (hit && lTripBombControl & TRIPBOMB_TRIPWIRE)
@@ -1080,17 +1079,17 @@ static void movetripbomb(DDukeActor *actor)
 		actor->temp_data[1]++;
 
 
-		actor->temp_data[3] = s->x; actor->temp_data[4] = s->y;
-		s->x += bcos(actor->temp_data[5], -9);
-		s->y += bsin(actor->temp_data[5], -9);
-		s->z -= (3 << 8);
-		SetActor(actor, s->pos);
+		actor->temp_data[3] = actor->spr.x; actor->temp_data[4] = actor->spr.y;
+		actor->spr.x += bcos(actor->temp_data[5], -9);
+		actor->spr.y += bsin(actor->temp_data[5], -9);
+		actor->spr.z -= (3 << 8);
+		SetActor(actor, actor->spr.pos);
 
 		x = hitasprite(actor, nullptr);
 
-		s->x = actor->temp_data[3]; s->y = actor->temp_data[4];
-		s->z += (3 << 8);
-		SetActor(actor, s->pos);
+		actor->spr.x = actor->temp_data[3]; actor->spr.y = actor->temp_data[4];
+		actor->spr.z += (3 << 8);
+		SetActor(actor, actor->spr.pos);
 
 		if (actor->lastvx != x && lTripBombControl & TRIPBOMB_TRIPWIRE)
 		{
@@ -1108,19 +1107,18 @@ static void movetripbomb(DDukeActor *actor)
 
 static void movecrack(DDukeActor* actor)
 {
-	auto s = actor->s;
 	int* t = &actor->temp_data[0];
-	if (s->hitag > 0)
+	if (actor->spr.hitag > 0)
 	{
-		t[0] = s->cstat;
-		t[1] = s->ang;
+		t[0] = actor->spr.cstat;
+		t[1] = actor->spr.ang;
 		int j = fi.ifhitbyweapon(actor);
 		if (j == FIREEXT || j == RPG || j == RADIUSEXPLOSION || j == SEENINE || j == OOZFILTER)
 		{
 			DukeStatIterator it(STAT_STANDABLE);
 			while (auto a1 = it.Next())
 			{
-				if (s->hitag == a1->spr.hitag && (a1->spr.picnum == OOZFILTER || a1->spr.picnum == SEENINE))
+				if (actor->spr.hitag == a1->spr.hitag && (a1->spr.picnum == OOZFILTER || a1->spr.picnum == SEENINE))
 					if (a1->spr.shade != -32)
 						a1->spr.shade = -32;
 			}
@@ -1128,9 +1126,9 @@ static void movecrack(DDukeActor* actor)
 		}
 		else
 		{
-			s->cstat = ESpriteFlags::FromInt(t[0]);
-			s->ang = t[1];
-			s->extra = 0;
+			actor->spr.cstat = ESpriteFlags::FromInt(t[0]);
+			actor->spr.ang = t[1];
+			actor->spr.extra = 0;
 		}
 	}
 }
@@ -1212,10 +1210,9 @@ static void moveviewscreen(DDukeActor* actor)
 
 static void movesidebolt(DDukeActor* actor)
 {
-	auto s = actor->s;
 	int* t = &actor->temp_data[0];
 	int x;
-	auto sectp = s->sector();
+	auto sectp = actor->spr.sector();
 
 	findplayer(actor, &x);
 	if (x > 20480) return;
@@ -1226,25 +1223,25 @@ CLEAR_THE_BOLT2:
 		t[2]--;
 		return;
 	}
-	if ((s->xrepeat | s->yrepeat) == 0)
+	if ((actor->spr.xrepeat | actor->spr.yrepeat) == 0)
 	{
-		s->xrepeat = t[0];
-		s->yrepeat = t[1];
+		actor->spr.xrepeat = t[0];
+		actor->spr.yrepeat = t[1];
 	}
 	if ((krand() & 8) == 0)
 	{
-		t[0] = s->xrepeat;
-		t[1] = s->yrepeat;
+		t[0] = actor->spr.xrepeat;
+		t[1] = actor->spr.yrepeat;
 		t[2] = global_random & 4;
-		s->xrepeat = s->yrepeat = 0;
+		actor->spr.xrepeat = actor->spr.yrepeat = 0;
 		goto CLEAR_THE_BOLT2;
 	}
-	s->picnum++;
+	actor->spr.picnum++;
 
 	if ((krand() & 1) && sectp->floorpicnum == HURTRAIL)
 		S_PlayActorSound(SHORT_CIRCUIT, actor);
 
-	if (s->picnum == SIDEBOLT1 + 4) s->picnum = SIDEBOLT1;
+	if (actor->spr.picnum == SIDEBOLT1 + 4) actor->spr.picnum = SIDEBOLT1;
 }
 
 //---------------------------------------------------------------------------
@@ -1255,10 +1252,9 @@ CLEAR_THE_BOLT2:
 
 static void movebolt(DDukeActor *actor)
 {
-	auto s = actor->s;
 	int* t = &actor->temp_data[0];
 	int x;
-	auto sectp = s->sector();
+	auto sectp = actor->spr.sector();
 
 	findplayer(actor, &x);
 	if (x > 20480) return;
@@ -1274,32 +1270,32 @@ CLEAR_THE_BOLT:
 		sectp->ceilingshade = 20;
 		return;
 	}
-	if ((s->xrepeat | s->yrepeat) == 0)
+	if ((actor->spr.xrepeat | actor->spr.yrepeat) == 0)
 	{
-		s->xrepeat = t[0];
-		s->yrepeat = t[1];
+		actor->spr.xrepeat = t[0];
+		actor->spr.yrepeat = t[1];
 	}
 	else if ((krand() & 8) == 0)
 	{
-		t[0] = s->xrepeat;
-		t[1] = s->yrepeat;
+		t[0] = actor->spr.xrepeat;
+		t[1] = actor->spr.yrepeat;
 		t[2] = global_random & 4;
-		s->xrepeat = s->yrepeat = 0;
+		actor->spr.xrepeat = actor->spr.yrepeat = 0;
 		goto CLEAR_THE_BOLT;
 	}
-	s->picnum++;
+	actor->spr.picnum++;
 
 	int l = global_random & 7;
-	s->xrepeat = l + 8;
+	actor->spr.xrepeat = l + 8;
 
-	if (l & 1) s->cstat ^= CSTAT_SPRITE_TRANSLUCENT;
+	if (l & 1) actor->spr.cstat ^= CSTAT_SPRITE_TRANSLUCENT;
 
-	if (s->picnum == (BOLT1+1) && (krand()&7) == 0 && sectp->floorpicnum == HURTRAIL)
+	if (actor->spr.picnum == (BOLT1+1) && (krand()&7) == 0 && sectp->floorpicnum == HURTRAIL)
 		S_PlayActorSound(SHORT_CIRCUIT,actor);
 
-	if (s->picnum==BOLT1+4) s->picnum=BOLT1;
+	if (actor->spr.picnum==BOLT1+4) actor->spr.picnum=BOLT1;
 
-	if (s->picnum & 1)
+	if (actor->spr.picnum & 1)
 	{
 		sectp->floorshade = 0;
 		sectp->ceilingshade = 0;
@@ -1442,10 +1438,9 @@ void movestandables_d(void)
 
 static bool movefireball(DDukeActor* actor)
 {
-	auto s = actor->s;
 	auto Owner = actor->GetOwner();
 
-	if (s->sector()->lotag == 2)
+	if (actor->spr.sector()->lotag == 2)
 	{
 		deletesprite(actor);
 		return true;
@@ -1460,38 +1455,37 @@ static bool movefireball(DDukeActor* actor)
 			auto ball = spawn(actor, FIREBALL);
 			if (ball)
 			{
-				auto spr = ball->s;
 				actor->temp_actor = ball;
 
-				spr->xvel = s->xvel;
-				spr->yvel = s->yvel;
-				spr->zvel = s->zvel;
+				ball->spr.xvel = actor->spr.xvel;
+				ball->spr.yvel = actor->spr.yvel;
+				ball->spr.zvel = actor->spr.zvel;
 				if (actor->temp_data[0] > 1)
 				{
 					if (trail)
 					{
 						FireProj* proj = &trail->fproj;
-						spr->x = proj->x;
-						spr->y = proj->y;
-						spr->z = proj->z;
-						spr->xvel = proj->xv;
-						spr->yvel = proj->yv;
-						spr->zvel = proj->zv;
+						ball->spr.x = proj->x;
+						ball->spr.y = proj->y;
+						ball->spr.z = proj->z;
+						ball->spr.xvel = proj->xv;
+						ball->spr.yvel = proj->yv;
+						ball->spr.zvel = proj->zv;
 					}
 				}
-				spr->yrepeat = spr->xrepeat = (uint8_t)(s->xrepeat * siz);
-				spr->cstat = s->cstat;
-				spr->extra = 0;
+				ball->spr.yrepeat = ball->spr.xrepeat = (uint8_t)(actor->spr.xrepeat * siz);
+				ball->spr.cstat = actor->spr.cstat;
+				ball->spr.extra = 0;
 
-				ball->fproj = { spr->x, spr->y, spr->z, spr->xvel, spr->yvel, spr->zvel };
+				ball->fproj = { ball->spr.x, ball->spr.y, ball->spr.z, ball->spr.xvel, ball->spr.yvel, ball->spr.zvel };
 
 				ChangeActorStat(ball, STAT_PROJECTILE);
 			}
 		}
 		actor->temp_data[0]++;
 	}
-	if (s->zvel < 15000)
-		s->zvel += 200;
+	if (actor->spr.zvel < 15000)
+		actor->spr.zvel += 200;
 	return false;
 }
 
