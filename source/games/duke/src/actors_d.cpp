@@ -217,17 +217,16 @@ bool ifsquished(DDukeActor* actor, int p)
 {
 	if (isRR()) return false;	// this function is a no-op in RR's source.
 
-	auto spri = actor->s;
 	bool squishme = false;
-	if (spri->picnum == APLAYER && ud.clipping)
+	if (actor->spr.picnum == APLAYER && ud.clipping)
 		return false;
 
-	auto sectp = spri->sector();
+	auto sectp = actor->spr.sector();
 	int floorceildist = sectp->floorz - sectp->ceilingz;
 
 	if (sectp->lotag != ST_23_SWINGING_DOOR)
 	{
-		if (spri->pal == 1)
+		if (actor->spr.pal == 1)
 			squishme = floorceildist < (32 << 8) && (sectp->lotag & 32768) == 0;
 		else
 			squishme = floorceildist < (12 << 8);
@@ -238,9 +237,9 @@ bool ifsquished(DDukeActor* actor, int p)
 		FTA(QUOTE_SQUISHED, &ps[p]);
 
 		if (badguy(actor))
-			spri->xvel = 0;
+			actor->spr.xvel = 0;
 
-		if (spri->pal == 1)
+		if (actor->spr.pal == 1)
 		{
 			actor->picnum = SHOTSPARK1;
 			actor->extra = 1;
@@ -262,24 +261,22 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 {
 	static const uint8_t statlist[] = { STAT_DEFAULT, STAT_ACTOR, STAT_STANDABLE, STAT_PLAYER, STAT_FALLER, STAT_ZOMBIEACTOR, STAT_MISC };
 
-	auto spri = actor->s;
-	
-	if(spri->picnum != SHRINKSPARK && !(spri->picnum == RPG && spri->xrepeat < 11))
+	if(actor->spr.picnum != SHRINKSPARK && !(actor->spr.picnum == RPG && actor->spr.xrepeat < 11))
 	{
-		BFSSectorSearch search(spri->sector());
+		BFSSectorSearch search(actor->spr.sector());
 	
 		while (auto dasectp = search.GetNext())
 		{
-			if (((dasectp->ceilingz - spri->z) >> 8) < r)
+			if (((dasectp->ceilingz - actor->spr.z) >> 8) < r)
 			{
 				auto wal = dasectp->firstWall();
-				int d = abs(wal->x - spri->x) + abs(wal->y - spri->y);
+				int d = abs(wal->x - actor->spr.x) + abs(wal->y - actor->spr.y);
 				if (d < r)
 					fi.checkhitceiling(dasectp);
 				else
 				{
 					auto thirdpoint = wal->point2Wall()->point2Wall();
-					d = abs(thirdpoint->x - spri->x) + abs(thirdpoint->y - spri->y);
+					d = abs(thirdpoint->x - actor->spr.x) + abs(thirdpoint->y - actor->spr.y);
 					if (d < r)
 						fi.checkhitceiling(dasectp);
 				}
@@ -287,18 +284,18 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 
 			for (auto& wal : wallsofsector(dasectp))
 			{
-				if ((abs(wal.x - spri->x) + abs(wal.y - spri->y)) < r)
+				if ((abs(wal.x - actor->spr.x) + abs(wal.y - actor->spr.y)) < r)
 				{
 					if (wal.twoSided())
 					{
 						search.Add(wal.nextSector());
 					}
-					int x1 = (((wal.x + wal.point2Wall()->x) >> 1) + spri->x) >> 1;
-					int y1 = (((wal.y + wal.point2Wall()->y) >> 1) + spri->y) >> 1;
+					int x1 = (((wal.x + wal.point2Wall()->x) >> 1) + actor->spr.x) >> 1;
+					int y1 = (((wal.y + wal.point2Wall()->y) >> 1) + actor->spr.y) >> 1;
 					sectortype* sect = wal.sectorp();
 					updatesector(x1, y1, &sect);
-					if (sect && cansee(x1, y1, spri->z, sect, spri->x, spri->y, spri->z, spri->sector()))
-						fi.checkhitwall(actor, &wal, wal.x, wal.y, spri->z, spri->picnum);
+					if (sect && cansee(x1, y1, actor->spr.z, sect, actor->spr.x, actor->spr.y, actor->spr.z, actor->spr.sector()))
+						fi.checkhitwall(actor, &wal, wal.x, wal.y, actor->spr.z, actor->spr.picnum);
 				}
 			}
 		}
@@ -320,7 +317,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 					continue;
 				}
 				
-				if (spri->picnum == FLAMETHROWERFLAME && ((Owner->spr.picnum == FIREFLY && spri2->picnum == FIREFLY) || (Owner->spr.picnum == BOSS5 && spri2->picnum == BOSS5)))
+				if (actor->spr.picnum == FLAMETHROWERFLAME && ((Owner->spr.picnum == FIREFLY && spri2->picnum == FIREFLY) || (Owner->spr.picnum == BOSS5 && spri2->picnum == BOSS5)))
 				{
 					continue;
 				}
@@ -328,21 +325,21 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 			
 			if (x == 0 || x >= 5 || AFLAMABLE(spri2->picnum))
 			{
-				if (spri->picnum != SHRINKSPARK || (spri2->cstat & CSTAT_SPRITE_BLOCK_ALL))
+				if (actor->spr.picnum != SHRINKSPARK || (spri2->cstat & CSTAT_SPRITE_BLOCK_ALL))
 					if (dist(actor, act2) < r)
 					{
-						if (badguy(act2) && !cansee(spri2->x, spri2->y, spri2->z + q, spri2->sector(), spri->x, spri->y, spri->z + q, spri->sector()))
+						if (badguy(act2) && !cansee(spri2->x, spri2->y, spri2->z + q, spri2->sector(), actor->spr.x, actor->spr.y, actor->spr.z + q, actor->spr.sector()))
 							continue;
 						fi.checkhitsprite(act2, actor);
 					}
 			}
 			else if (spri2->extra >= 0 && act2 != actor && (spri2->picnum == TRIPBOMB || badguy(act2) || spri2->picnum == QUEBALL || spri2->picnum == STRIPEBALL || (spri2->cstat & CSTAT_SPRITE_BLOCK_ALL) || spri2->picnum == DUKELYINGDEAD))
 			{
-				if (spri->picnum == SHRINKSPARK && spri2->picnum != SHARK && (act2 == Owner || spri2->xrepeat < 24))
+				if (actor->spr.picnum == SHRINKSPARK && spri2->picnum != SHARK && (act2 == Owner || spri2->xrepeat < 24))
 				{
 					continue;
 				}
-				if (spri->picnum == MORTER && act2 == Owner)
+				if (actor->spr.picnum == MORTER && act2 == Owner)
 				{
 					continue;
 				}
@@ -351,25 +348,25 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 				int d = dist(actor, act2);
 				if (spri2->picnum == APLAYER) spri2->z += gs.playerheight;
 				
-				if (d < r && cansee(spri2->x, spri2->y, spri2->z - (8 << 8), spri2->sector(), spri->x, spri->y, spri->z - (12 << 8), spri->sector()))
+				if (d < r && cansee(spri2->x, spri2->y, spri2->z - (8 << 8), spri2->sector(), actor->spr.x, actor->spr.y, actor->spr.z - (12 << 8), actor->spr.sector()))
 				{
-					act2->ang = getangle(spri2->x - spri->x, spri2->y - spri->y);
+					act2->ang = getangle(spri2->x - actor->spr.x, spri2->y - actor->spr.y);
 					
-					if (spri->picnum == RPG && spri2->extra > 0)
+					if (actor->spr.picnum == RPG && spri2->extra > 0)
 						act2->picnum = RPG;
 					else if (!isWorldTour())
 					{
-						if (spri->picnum == SHRINKSPARK)
+						if (actor->spr.picnum == SHRINKSPARK)
 							act2->picnum = SHRINKSPARK;
 						else act2->picnum = RADIUSEXPLOSION;
 					}
 					else
 					{
-						if (spri->picnum == SHRINKSPARK || spri->picnum == FLAMETHROWERFLAME)
-							act2->picnum = spri->picnum;
-						else if (spri->picnum != FIREBALL || !Owner || Owner->spr.picnum != APLAYER)
+						if (actor->spr.picnum == SHRINKSPARK || actor->spr.picnum == FLAMETHROWERFLAME)
+							act2->picnum = actor->spr.picnum;
+						else if (actor->spr.picnum != FIREBALL || !Owner || Owner->spr.picnum != APLAYER)
 						{
-							if (spri->picnum == LAVAPOOL)
+							if (actor->spr.picnum == LAVAPOOL)
 								act2->picnum = FLAMETHROWERFLAME;
 							else
 								act2->picnum = RADIUSEXPLOSION;
@@ -378,7 +375,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 							act2->picnum = FLAMETHROWERFLAME;
 					}
 					
-					if (spri->picnum != SHRINKSPARK && (!isWorldTour() || spri->picnum != LAVAPOOL))
+					if (actor->spr.picnum != SHRINKSPARK && (!isWorldTour() || actor->spr.picnum != LAVAPOOL))
 					{
 						if (d < r / 3)
 						{
@@ -399,7 +396,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 						if (spri2->picnum != TANK && spri2->picnum != ROTATEGUN && spri2->picnum != RECON && !bossguy(act2))
 						{
 							if (spri2->xvel < 0) spri2->xvel = 0;
-							spri2->xvel += (spri->extra << 2);
+							spri2->xvel += (actor->spr.extra << 2);
 						}
 						
 						if (spri2->picnum == PODFEM1 || spri2->picnum == FEM1 ||
@@ -411,7 +408,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 							spri2->picnum == STATUEFLASH || spri2->picnum == SPACEMARINE || spri2->picnum == QUEBALL || spri2->picnum == STRIPEBALL)
 							fi.checkhitsprite(act2, actor);
 					}
-					else if (spri->extra == 0) act2->extra = 0;
+					else if (actor->spr.extra == 0) act2->extra = 0;
 					
 					if (spri2->picnum != RADIUSEXPLOSION && Owner && Owner->spr.statnum < MAXSTATUS)
 					{
@@ -421,7 +418,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 							
 							if (isWorldTour() && act2->picnum == FLAMETHROWERFLAME && Owner->spr.picnum == APLAYER)
 							{
-								ps[p].numloogs = -1 - spri->yvel;
+								ps[p].numloogs = -1 - actor->spr.yvel;
 							}
 							
 							if (ps[p].newOwner != nullptr)
@@ -447,34 +444,33 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, unsigned int cliptype, Collision &result)
 {
 	int clipdist;
-	auto spri = actor->s;
 	int bg = badguy(actor);
 
-	if (spri->statnum == 5 || (bg && spri->xrepeat < 4))
+	if (actor->spr.statnum == 5 || (bg && actor->spr.xrepeat < 4))
 	{
-		spri->x += (xchange * TICSPERFRAME) >> 2;
-		spri->y += (ychange * TICSPERFRAME) >> 2;
-		spri->z += (zchange * TICSPERFRAME) >> 2;
+		actor->spr.x += (xchange * TICSPERFRAME) >> 2;
+		actor->spr.y += (ychange * TICSPERFRAME) >> 2;
+		actor->spr.z += (zchange * TICSPERFRAME) >> 2;
 		if (bg)
-			SetActor(actor, spri->pos);
+			SetActor(actor, actor->spr.pos);
 		return result.setNone();
 	}
 
-	auto dasectp = spri->sector();
+	auto dasectp = actor->spr.sector();
 
-	vec3_t pos = spri->pos;
-	pos.z -= ((tileHeight(spri->picnum) * spri->yrepeat) << 1);
+	vec3_t pos = actor->spr.pos;
+	pos.z -= ((tileHeight(actor->spr.picnum) * actor->spr.yrepeat) << 1);
 
 	if (bg)
 	{
-		if (spri->xrepeat > 60)
+		if (actor->spr.xrepeat > 60)
 			clipmove(pos, &dasectp, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 1024, (4 << 8), (4 << 8), cliptype, result);
 		else 
 		{
-			if (spri->picnum == LIZMAN)
+			if (actor->spr.picnum == LIZMAN)
 				clipdist = 292;
 			else if (actorflag(actor, SFLAG_BADGUY))
-				clipdist = spri->clipdist << 2;
+				clipdist = actor->spr.clipdist << 2;
 			else
 				clipdist = 192;
 
@@ -484,38 +480,38 @@ int movesprite_ex_d(DDukeActor* actor, int xchange, int ychange, int zchange, un
 		// conditional code from hell...
 		if (dasectp == nullptr || (dasectp != nullptr &&
 			((actor->actorstayput != nullptr && actor->actorstayput != dasectp) ||
-			 ((spri->picnum == BOSS2) && spri->pal == 0 && dasectp->lotag != 3) ||
-			 ((spri->picnum == BOSS1 || spri->picnum == BOSS2) && dasectp->lotag == ST_1_ABOVE_WATER) ||
-			 (dasectp->lotag == ST_1_ABOVE_WATER && (spri->picnum == LIZMAN || (spri->picnum == LIZTROOP && spri->zvel == 0)))
+			 ((actor->spr.picnum == BOSS2) && actor->spr.pal == 0 && dasectp->lotag != 3) ||
+			 ((actor->spr.picnum == BOSS1 || actor->spr.picnum == BOSS2) && dasectp->lotag == ST_1_ABOVE_WATER) ||
+			 (dasectp->lotag == ST_1_ABOVE_WATER && (actor->spr.picnum == LIZMAN || (actor->spr.picnum == LIZTROOP && actor->spr.zvel == 0)))
 			))
 		 )
 		{
-			if (dasectp && dasectp->lotag == ST_1_ABOVE_WATER && spri->picnum == LIZMAN)
-				spri->ang = (krand()&2047);
-			else if ((actor->temp_data[0]&3) == 1 && spri->picnum != COMMANDER)
-				spri->ang = (krand()&2047);
-			SetActor(actor,spri->pos);
+			if (dasectp && dasectp->lotag == ST_1_ABOVE_WATER && actor->spr.picnum == LIZMAN)
+				actor->spr.ang = (krand()&2047);
+			else if ((actor->temp_data[0]&3) == 1 && actor->spr.picnum != COMMANDER)
+				actor->spr.ang = (krand()&2047);
+			SetActor(actor,actor->spr.pos);
 			if (dasectp == nullptr) dasectp = &sector[0];
 			return result.setSector(dasectp);
 		}
-		if ((result.type == kHitWall || result.type == kHitSprite) && (actor->cgg == 0)) spri->ang += 768;
+		if ((result.type == kHitWall || result.type == kHitSprite) && (actor->cgg == 0)) actor->spr.ang += 768;
 	}
 	else
 	{
-		if (spri->statnum == STAT_PROJECTILE)
+		if (actor->spr.statnum == STAT_PROJECTILE)
 			clipmove(pos, &dasectp, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 8, (4 << 8), (4 << 8), cliptype, result);
 		else
-			clipmove(pos, &dasectp, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), (int)(spri->clipdist << 2), (4 << 8), (4 << 8), cliptype, result);
+			clipmove(pos, &dasectp, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), (int)(actor->spr.clipdist << 2), (4 << 8), (4 << 8), cliptype, result);
 	}
-	spri->x = pos.x;
-	spri->y = pos.y;
+	actor->spr.x = pos.x;
+	actor->spr.y = pos.y;
 
 	if (dasectp != nullptr)
-		if (dasectp != spri->sector())
+		if (dasectp != actor->spr.sector())
 			ChangeActorSect(actor, dasectp);
-	int daz = spri->z + ((zchange * TICSPERFRAME) >> 3);
+	int daz = actor->spr.z + ((zchange * TICSPERFRAME) >> 3);
 	if ((daz > actor->ceilingz) && (daz <= actor->floorz))
-		spri->z = daz;
+		actor->spr.z = daz;
 	else if (result.type == kHitNone)
 		return result.setSector(dasectp);
 
@@ -727,18 +723,17 @@ DDukeActor* ifhitsectors_d(sectortype* sect)
 int ifhitbyweapon_d(DDukeActor *actor)
 {
 	int p;
-	auto spri = actor->s;
 	auto hitowner = actor->GetHitOwner();
 
 	if (actor->extra >= 0)
 	{
-		if (spri->extra >= 0)
+		if (actor->spr.extra >= 0)
 		{
-			if (spri->picnum == APLAYER)
+			if (actor->spr.picnum == APLAYER)
 			{
 				if (ud.god && actor->picnum != SHRINKSPARK) return -1;
 
-				p = spri->yvel;
+				p = actor->spr.yvel;
 				
 				if (hitowner &&
 					hitowner->spr.picnum == APLAYER &&
@@ -746,13 +741,13 @@ int ifhitbyweapon_d(DDukeActor *actor)
 					ud.ffire == 0)
 					return -1;
 
-				spri->extra -= actor->extra;
+				actor->spr.extra -= actor->extra;
 
 				if (hitowner)
 				{
-					if (spri->extra <= 0 && actor->picnum != FREEZEBLAST)
+					if (actor->spr.extra <= 0 && actor->picnum != FREEZEBLAST)
 					{
-						spri->extra = 0;
+						actor->spr.extra = 0;
 
 						ps[p].wackedbyactor = hitowner;
 
@@ -785,18 +780,18 @@ int ifhitbyweapon_d(DDukeActor *actor)
 			else
 			{
 				if (actor->extra == 0)
-					if (actor->picnum == SHRINKSPARK && spri->xrepeat < 24)
+					if (actor->picnum == SHRINKSPARK && actor->spr.xrepeat < 24)
 						return -1;
 
-				if (isWorldTour() && actor->picnum == FIREFLY && spri->xrepeat < 48)
+				if (isWorldTour() && actor->picnum == FIREFLY && actor->spr.xrepeat < 48)
 				{
 					if (actor->picnum != RADIUSEXPLOSION && actor->picnum != RPG)
 						return -1;
 				}
 
-				spri->extra -= actor->extra;
+				actor->spr.extra -= actor->extra;
 				auto Owner = actor->GetOwner();
-				if (spri->picnum != RECON && Owner && Owner->spr.statnum < MAXSTATUS)
+				if (actor->spr.picnum != RECON && Owner && Owner->spr.statnum < MAXSTATUS)
 					actor->SetOwner(hitowner);
 			}
 
@@ -809,8 +804,8 @@ int ifhitbyweapon_d(DDukeActor *actor)
 	if (ud.multimode < 2 || !isWorldTour()
 		|| actor->picnum != FLAMETHROWERFLAME
 		|| actor->extra >= 0
-		|| spri->extra > 0
-		|| spri->picnum != APLAYER
+		|| actor->spr.extra > 0
+		|| actor->spr.picnum != APLAYER
 		|| ps[actor->PlayerIndex()].numloogs > 0
 		|| hitowner == nullptr)
 	{
@@ -820,7 +815,7 @@ int ifhitbyweapon_d(DDukeActor *actor)
 	else
 	{
 		p = actor->PlayerIndex();
-		spri->extra = 0;
+		actor->spr.extra = 0;
 		ps[p].wackedbyactor = hitowner;
 
 		if (hitowner->spr.picnum == APLAYER && hitowner != ps[p].GetActor())
