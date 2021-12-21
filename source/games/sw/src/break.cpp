@@ -1034,7 +1034,7 @@ void DoWallBreakMatch(int match)
     int x,y,z;
     int wall_ang;
 
-    for(auto& wal : walls())
+    for(auto& wal : wall)
     {
         if (wal.hitag == match)
         {

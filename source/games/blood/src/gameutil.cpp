@@ -60,7 +60,7 @@ bool FindSector(int nX, int nY, int nZ, sectortype** pSector)
             }
         }
     }
-    for(auto& sec : sectors())
+    for(auto& sec: sector)
     {
         if (inside(nX, nY, &sec))
         {
@@ -91,7 +91,7 @@ bool FindSector(int nX, int nY, sectortype** pSector)
             return 1;
         }
     }
-    for (auto& sec : sectors())
+    for (auto& sec: sector)
     {
         if (inside(nX, nY, &sec))
         {

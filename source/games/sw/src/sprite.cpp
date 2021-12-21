@@ -1606,7 +1606,7 @@ void SpriteSetup(void)
     // Clear Sprite Extension structure
 
     // Clear all extra bits - they are set by sprites
-    for(auto& sect : sectors())
+    for(auto& sect: sector)
     {
         sect.extra = 0;
     }

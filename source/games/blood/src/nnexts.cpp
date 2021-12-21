@@ -825,7 +825,7 @@ void nnExtInitModernStuff(TArray<DBloodActor*>& actors)
             pCond->obj[count++].cmd = (uint8_t)pXSpr->command;
         }
 
-        for (auto& sect : sectors())
+        for (auto& sect: sector)
         {
             if (!sect.hasX() || sect.xs().txID != pXSprite->rxID) continue;
             else if (count >= kMaxTracedObjects)
@@ -835,7 +835,7 @@ void nnExtInitModernStuff(TArray<DBloodActor*>& actors)
             pCond->obj[count++].cmd = sect.xs().command;
         }
 
-        for(auto& wal : walls())
+        for(auto& wal : wall)
         {
             if (!wal.hasX() || wal.xw().txID != pXSprite->rxID)
                 continue;
@@ -2854,7 +2854,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
                     pXLower = &aLower->x();
 
                     // must be sure we found exact same upper link
-                    for (auto& sec : sectors())
+                    for (auto& sec: sector)
                     {
                         auto aUpper = barrier_cast<DBloodActor*>(sec.upperLink);
                         if (aUpper == nullptr || aUpper->x().data1 != pXLower->data1) continue;
@@ -3026,7 +3026,7 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
             if (aLink) 
             {
                 // must be sure we found exact same upper link
-                for(auto& sec : sectors())
+                for(auto& sec: sector)
                 {
                     auto aUpper = barrier_cast<DBloodActor*>(sec.upperLink);
                     if (aUpper == nullptr || aUpper->x().data1 != aLink->x().data1) continue;

@@ -101,7 +101,7 @@ static const char *cheatGod(int myconnectindex, int state)
 static const char* cheatUnlock()
 {
 	if (isShareware()) return nullptr;
-	for (auto&sect : sectors())
+	for (auto&sect: sector)
 	{
 		int j = sect.lotag;
 		if (j == -1 || j == 32767) continue;

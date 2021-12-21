@@ -38,7 +38,7 @@ ZONE gStartZone[8];
 void validateLinks()
 {
     int snum = 0;
-    for (auto& sect : sectors())
+    for (auto& sect: sector)
     {
         DCoreActor* upper = sect.upperLink;
         if (upper && !static_cast<DBloodActor*>(upper)->GetOwner())
@@ -161,7 +161,7 @@ void warpInit(TArray<DBloodActor*>& actors)
     }
     #endif
 
-    for(auto& sect : sectors())
+    for(auto& sect: sector)
     {
         auto actor = barrier_cast<DBloodActor*>(sect.upperLink);
         if (actor && actor->hasX())
@@ -169,7 +169,7 @@ void warpInit(TArray<DBloodActor*>& actors)
             spritetype *pSprite = &actor->s();
             XSPRITE *pXSprite = &actor->x();
             int nLink = pXSprite->data1;
-            for(auto& sect : sectors())
+            for(auto& sect: sector)
             {
                 auto actor2 = barrier_cast<DBloodActor*>(sect.lowerLink);
                 if (actor2 && actor2->hasX())

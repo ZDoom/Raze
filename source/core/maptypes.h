@@ -645,7 +645,7 @@ inline walltype* walltype::lastWall() const
 	if (index > 0 && wall[index - 1].point2 == index) return &wall[index - 1];
 
 	int check = index;
-	for (int i = 0; i < numwalls; i++)
+	for (int i = 0; i < 16384; i++)	// don't run endlessly in case of malformed sectors.
 	{
 		int next = wall[check].point2;
 		if (next == index) return &wall[check];

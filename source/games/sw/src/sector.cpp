@@ -126,7 +126,7 @@ void WallSetupDontMove(void)
 
             if (spu->lotag == spl->lotag)
             {
-                for(auto& wal : walls())
+                for(auto& wal : wall)
                 {
                     if (wal.x < spl->x && wal.x > spu->x && wal.y < spl->y && wal.y > spu->y)
                     {
@@ -169,7 +169,7 @@ void WallSetup(void)
 
     extern int x_min_bound, y_min_bound, x_max_bound, y_max_bound;
 
-    for (auto& wal : walls())
+    for (auto& wal : wall)
     {
         auto wp = &wal;
         if (wp->picnum == FAF_PLACE_MIRROR_PIC)
@@ -392,7 +392,7 @@ void SectorSetup(void)
 
     LevelSecrets = 0;
 
-    for(auto&sect : sectors())
+    for(auto&sect: sector)
     {
         auto const sectp = &sect;
         tag = sectp->lotag;
@@ -1589,7 +1589,7 @@ int OperateSprite(DSWActor* actor, short player_is_operating)
         key_num = sp->hitag;
         if (pp->HasKey[key_num - 1])
         {
-            for(auto& sect : sectors())
+            for(auto& sect: sector)
             {
                 if (sect.hasU() && sect.stag == SECT_LOCK_DOOR && sect.number == key_num)
                     sect.number = 0;  // unlock all doors of this type

@@ -277,16 +277,6 @@ inline int32_t getangle(walltype* wal)
         wal->point2Wall()->y - wal->y);
 }
 
-inline TArrayView<sectortype> sectors()
-{
-    return TArrayView<sectortype>(&sector[0], numsectors);
-}
-
-inline TArrayView<walltype> walls()
-{
-    return TArrayView<walltype>(&wall[0], numwalls);
-}
-
 inline TArrayView<walltype> wallsofsector(const sectortype* sec)
 {
     return TArrayView<walltype>(sec->firstWall(), sec->wallnum);

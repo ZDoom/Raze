@@ -32,7 +32,7 @@ bool bShowTowers = false;
 
 void GrabMap()
 {
-    for(auto&sec : sectors())
+    for(auto&sec: sector)
         MarkSectorSeen(&sec);
 }
 

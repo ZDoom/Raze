@@ -682,7 +682,7 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sect
         switch (header.version & 0xff)
         {
         case 0:
-            for (auto& sect : sectors())
+            for (auto& sect: sector)
             {
                 sectortype* pSector = &sect;
                 if (pSector->hasX())
@@ -706,7 +706,7 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sect
             }
             [[fallthrough]];
         case 1:
-            for (auto& sect : sectors())
+            for (auto& sect: sector)
             {
                 sectortype* pSector = &sect;
                 if (pSector->hasX())

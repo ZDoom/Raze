@@ -1490,7 +1490,7 @@ void DimLights()
     if (word_96786 == 0)
         return;
 
-    for (auto&sect : sectors())
+    for (auto&sect: sector)
     {
         if (sect.ceilingshade < 100)
             sect.ceilingshade++;
@@ -1722,7 +1722,7 @@ void ExplodeEnergyBlock(DExhumedActor* pActor)
             lFinaleStart = lFinaleStart + 1;
         }
 
-		for(auto& sect : sectors())
+		for(auto& sect: sector)
         {
             if (sect.ceilingpal == 1) {
                 sect.ceilingpal = 0;
@@ -2529,7 +2529,7 @@ void PostProcess()
 
     if (!(currentLevel->gameflags & LEVEL_EX_COUNTDOWN))
     {
-        for (auto& sect : sectors())
+        for (auto& sect: sector)
         {
             int var_20 = 30000;
 
@@ -2540,7 +2540,7 @@ void PostProcess()
             }
             else
             {
-                for (auto& sectj : sectors())
+                for (auto& sectj: sector)
                 {
                     // loc_23CA6:
 
@@ -2562,7 +2562,7 @@ void PostProcess()
     }
     else // nMap == kMap20)
     {
-        for(auto& sect : sectors())
+        for(auto& sect: sector)
         {
             sect.pSoundSect = &sect;
             sect.Sound = StaticSound[kSound62];

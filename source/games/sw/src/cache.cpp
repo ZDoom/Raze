@@ -77,7 +77,7 @@ void precacheMap(void)
 	WALLp wp;
 	SPRITEp sp;
 
-	for(auto& sec : sectors())
+	for(auto& sec: sector)
 	{
 		j = sec.ceilingpicnum;
 		markTileForPrecache(j, sec.ceilingpal);
@@ -104,7 +104,7 @@ void precacheMap(void)
 
 	}
 
-	for (auto& wal : walls())
+	for (auto& wal : wall)
 	{
 		j = wal.picnum;
 

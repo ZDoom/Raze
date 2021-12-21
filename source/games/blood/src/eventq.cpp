@@ -280,7 +280,7 @@ void evInit(TArray<DBloodActor*>& actors)
 	memset(rxBucket, 0, sizeof(rxBucket));
 
 	// add all the tags to the bucket array
-	for(auto& sect : sectors())
+	for(auto& sect: sector)
 	{
 		if (sect.hasX() && sect.xs().rxID > 0)
 		{
@@ -290,7 +290,7 @@ void evInit(TArray<DBloodActor*>& actors)
 		}
 	}
 
-	for(auto& wal: walls())
+	for(auto& wal: wall)
 	{
 		if (wal.hasX() && wal.xw().rxID > 0)
 		{

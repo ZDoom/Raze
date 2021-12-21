@@ -617,7 +617,7 @@ void GetUpperLowerSector(short match, int x, int y, sectortype** upper, sectorty
     int sln = 0;
     SPRITEp sp;
 
-    for(auto& sect : sectors())
+    for(auto& sect: sector)
     {
         if (inside(x, y, &sect) == 1)
         {

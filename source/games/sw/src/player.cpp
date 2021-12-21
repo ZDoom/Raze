@@ -3918,7 +3918,7 @@ int GetOverlapSector(int x, int y, sectortype** over, sectortype** under)
     // if nothing was found, check them all
     if (found == 0)
     {
-        for (auto& sect : sectors())
+        for (auto& sect: sector)
         {
             if (inside(x, y, &sect))
             {

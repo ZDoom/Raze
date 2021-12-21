@@ -783,7 +783,7 @@ void LoadObjects(TArray<DExhumedActor*>& actors)
     InitElev();
     InitWallFace();
 
-	for (auto& sect : sectors())
+	for (auto& sect: sector)
     {
         int hitag = sect.hitag;
         int lotag = sect.lotag;
@@ -801,7 +801,7 @@ void LoadObjects(TArray<DExhumedActor*>& actors)
         }
     }
 
-    for (auto& wal : walls())
+    for (auto& wal : wall)
     {
         wal.extra = -1;
 

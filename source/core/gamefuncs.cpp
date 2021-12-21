@@ -335,11 +335,10 @@ void GetFlatSpritePosition(const tspritetype* spr, vec2_t pos, vec2_t* out, bool
 
 void checkRotatedWalls()
 {
-	for (int i = 0; i < numwalls; ++i)
+	for (auto& w : wall)
 	{
-		if (wall[i].cstat & CSTAT_WALL_ROTATE_90)
+		if (w.cstat & CSTAT_WALL_ROTATE_90)
 		{
-			auto& w = wall[i];
 			auto& tile = RotTile(w.picnum + animateoffs(w.picnum, 16384));
 
 			if (tile.newtile == -1 && tile.owner == -1)

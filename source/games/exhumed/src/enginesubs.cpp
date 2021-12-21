@@ -38,7 +38,7 @@ void precache()
 {
     if (!r_precache) return;
 
-    for (auto& sect: sectors())
+    for (auto& sect: sector)
     {
         int j = sect.ceilingpicnum;
         markTileForPrecache(j, sect.ceilingpal);
@@ -51,7 +51,7 @@ void precache()
             for (int k = 1; k <= picanm[j].num; k++)  markTileForPrecache(j + k, sect.floorpal);
     }
 
-    for(auto& wal : walls())
+    for(auto& wal : wall)
     {
         int j = wal.picnum;
         markTileForPrecache(j, wal.pal);

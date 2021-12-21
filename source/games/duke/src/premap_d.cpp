@@ -236,14 +236,14 @@ void cacheit_d(void)
 
 	cachegoodsprites();
 
-	for (auto& wal : walls())
+	for (auto& wal : wall)
 	{
 		tloadtile(wal.picnum, wal.pal);
 		if (wal.overpicnum >= 0)
 			tloadtile(wal.overpicnum, wal.pal);
 	}
 
-	for (auto& sect : sectors())
+	for (auto& sect: sector)
 	{
 		tloadtile(sect.floorpicnum, sect.floorpal);
 		tloadtile(sect.ceilingpicnum, sect.ceilingpal);
@@ -381,7 +381,7 @@ void prelevel_d(int g, TArray<DDukeActor*>& actors)
 
 	mirrorcnt = 0;
 
-	for (auto& wal : walls())
+	for (auto& wal : wall)
 	{
 		if (wal.overpicnum == MIRROR && (wal.cstat & CSTAT_WALL_1WAY) != 0)
 		{

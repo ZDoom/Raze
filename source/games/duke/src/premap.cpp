@@ -686,7 +686,7 @@ void prelevel_common(int g)
 	memset(ambienthitag, -1, sizeof(ambienthitag));
 	memset(ambientlotag, -1, sizeof(ambientlotag));
 
-	for(auto&sec : sectors())
+	for(auto&sec: sector)
 	{
 		auto sectp = &sec;
 		sectp->extra = 256;
@@ -819,7 +819,7 @@ void donewgame(MapRecord* map, int sk)
 
 static void SpawnPortals()
 {
-	for (auto& wal : walls())
+	for (auto& wal : wall)
 	{
 		if (wal.overpicnum == TILE_MIRROR && (wal.cstat & CSTAT_WALL_1WAY)) wal.portalflags |= PORTAL_WALL_MIRROR;
 	}
@@ -1084,7 +1084,7 @@ void enterlevel(MapRecord *mi, int gamemode)
 	setLevelStarted(mi);
 	if (isRRRA() && ps[screenpeek].sea_sick_stat == 1)
 	{
-		for (auto& wal : walls())
+		for (auto& wal : wall)
 		{
 			if (wal.picnum == 7873 || wal.picnum == 7870)
 				StartInterpolation(&wal, Interp_Wall_PanX);

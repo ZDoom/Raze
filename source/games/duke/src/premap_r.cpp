@@ -374,14 +374,14 @@ void cacheit_r(void)
 
 	cachegoodsprites();
 
-	for (auto& wal : walls())
+	for (auto& wal : wall)
 	{
 			tloadtile(wal.picnum, wal.pal);
 		if(wal.overpicnum >= 0)
 			tloadtile(wal.overpicnum, wal.pal);
 	}
 
-	for (auto& sect : sectors())
+	for (auto& sect: sector)
 	{
 		tloadtile(sect.floorpicnum, sect.floorpal);
 		tloadtile(sect.ceilingpicnum, sect.ceilingpal);
@@ -454,7 +454,7 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 		}
 	}
 
-	for (auto&sect : sectors())
+	for (auto&sect: sector)
 	{
 		auto sectp = &sect;
 		if (sectp->ceilingpicnum == RRTILE2577)
@@ -481,7 +481,7 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 					deletesprite(act);
 				}
 			}
-			for(auto& osect : sectors())
+			for(auto& osect: sector)
 			{
 				if (sectp->hitag == osect.hitag && &osect != sectp)
 				{
@@ -716,7 +716,7 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 
 	mirrorcnt = 0;
 
-	for (auto& wl : walls())
+	for (auto& wl : wall)
 	{
 		walltype* wal = &wl;
 

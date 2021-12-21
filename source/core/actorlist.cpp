@@ -422,7 +422,7 @@ void InitSpriteLists()
 	{
 		stat.firstEntry = stat.lastEntry = nullptr;
 	}
-	for (auto& sect : sectors())
+	for (auto& sect: sector)
 	{
 		sect.firstEntry = sect.lastEntry = nullptr;
 	}

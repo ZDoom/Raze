@@ -102,7 +102,7 @@ int DoWallMove(DSWActor* actor)
     nx = MulScale(dist, bcos(ang), 14);
     ny = MulScale(dist, bsin(ang), 14);
 
-    for(auto& wal : walls())
+    for(auto& wal : wall)
     {
         if (wal.x == sp->x && wal.y == sp->y)
         {

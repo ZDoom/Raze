@@ -202,7 +202,7 @@ void animatewalls_r(void)
 
 	if (isRRRA() &&ps[screenpeek].sea_sick_stat == 1)
 	{
-		for (auto& wal : walls())
+		for (auto& wal : wall)
 		{
 			if (wal.picnum == RRTILE7873)
 				wal.addxpan(6);
@@ -601,7 +601,7 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 		}
 	}
 
-	for (auto& wal : walls())
+	for (auto& wal : wall)
 	{
 		if (lotag == wal.lotag)
 			switch (wal.picnum)

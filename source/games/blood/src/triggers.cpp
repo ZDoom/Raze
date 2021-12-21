@@ -1817,7 +1817,7 @@ void trMessageSprite(DBloodActor* actor, EVENT event)
 
 void ProcessMotion(void)
 {
-    for(auto& sect : sectors())
+    for(auto& sect: sector)
     {
         sectortype* pSector = &sect;
 
@@ -1892,7 +1892,7 @@ void ProcessMotion(void)
 
 void AlignSlopes(void)
 {
-    for(auto& sect : sectors())
+    for(auto& sect: sector)
     {
         if (sect.slopewallofs)
         {
@@ -1926,7 +1926,7 @@ int(*gBusyProc[])(sectortype*, unsigned int) =
 
 void trProcessBusy(void)
 {
-    for (auto& sect : sectors())
+    for (auto& sect: sector)
     {
         sect.velCeil = sect.velFloor = 0;
     }
@@ -1964,7 +1964,7 @@ void InitGenerator(DBloodActor*);
 void trInit(TArray<DBloodActor*>& actors)
 {
     gBusy.Clear();
-    for(auto& wal : walls())
+    for(auto& wal : wall)
     for (int i = 0; i < numwalls; i++)
     {
         wal.baseWall.x = wal.x;
@@ -1977,7 +1977,7 @@ void trInit(TArray<DBloodActor*>& actors)
         spr->inittype = spr->type;
         actor->basePoint = spr->pos;
     }
-    for(auto& wal : walls())
+    for(auto& wal : wall)
     {
         if (wal.hasX())
         {
@@ -1987,7 +1987,7 @@ void trInit(TArray<DBloodActor*>& actors)
         }
     }
 
-    for(auto& sect : sectors())
+    for(auto& sect: sector)
     {
         sectortype *pSector = &sect;
         pSector->baseFloor = pSector->floorz;

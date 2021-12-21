@@ -167,7 +167,7 @@ static void CalcMapBounds()
 	y_max_bound = INT_MIN;
 
 
-	for(auto& wal : walls())
+	for(auto& wal : wall)
 	{
 		// get map min and max coordinates
 		if (wal.x < x_min_bound) x_min_bound = wal.x;

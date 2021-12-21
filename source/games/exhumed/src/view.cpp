@@ -346,7 +346,7 @@ void DrawView(double smoothRatio, bool sceneonly)
         if (HavePLURemap())
         {
             auto p = paldata.Data();
-            for (auto& sect : sectors())
+            for (auto& sect: sector)
             {
                 uint8_t v;
                 v = *p++ = sect.floorpal;
@@ -354,7 +354,7 @@ void DrawView(double smoothRatio, bool sceneonly)
                 v = *p++ = sect.ceilingpal;
                 sect.ceilingpal = RemapPLU(v);
             }
-            for (auto& wal : walls())
+            for (auto& wal : wall)
             {
                 uint8_t v;
                 v = *p++ = wal.pal;
@@ -377,12 +377,12 @@ void DrawView(double smoothRatio, bool sceneonly)
         if (HavePLURemap())
         {
             auto p = paldata.Data();
-            for (auto& sect : sectors())
+            for (auto& sect: sector)
             {
                 sect.floorpal = *p++;
                 sect.ceilingpal = *p++;
             }
-            for (auto& wal : walls())
+            for (auto& wal : wall)
             {
                 wal.pal = *p++;
             }

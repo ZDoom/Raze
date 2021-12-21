@@ -224,7 +224,7 @@ void JS_SpriteSetup(void)
         }
     }
     // Check for certain walls to make sounds
-    for(auto& wal : walls())
+    for(auto& wal : wall)
     {
         int picnum = wal.picnum;
 
@@ -279,7 +279,7 @@ void JS_InitMirrors(void)
         mirror[i].ismagic = false;
     }
 
-    for(auto& wal : walls())
+    for(auto& wal : wall)
     {
         if (wal.twoSided() && (wal.overpicnum == MIRROR) && (wal.cstat & CSTAT_WALL_1WAY))
         {

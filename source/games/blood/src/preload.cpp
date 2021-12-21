@@ -246,14 +246,14 @@ void PreloadCache()
     if (!r_precache) return;
     int skyTile = -1;
     // Fonts
-    for(auto& sect : sectors())
+    for(auto& sect: sector)
     {
         tilePrecacheTile(sect.floorpicnum, 0, sect.floorpal);
         tilePrecacheTile(sect.ceilingpicnum, 0, sect.ceilingpal);
         if ((sect.ceilingstat & CSTAT_SECTOR_SKY) != 0 && skyTile == -1)
             skyTile = sect.ceilingpicnum;
     }
-    for(auto& wal : walls())
+    for(auto& wal : wall)
     {
         tilePrecacheTile(wal.picnum, 0, wal.pal);
         if (wal.overpicnum >= 0)

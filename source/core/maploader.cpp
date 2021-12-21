@@ -401,7 +401,7 @@ void allocateMapArrays(int numsprites)
 
 void fixSectors()
 {
-	for(auto& sect : sectors())
+	for(auto& sect: sector)
 	{
 		// Fix maps which do not set their wallptr to the first wall of the sector. Lo Wang In Time's map 11 is such a case.
 		auto wp = sect.firstWall();
@@ -536,7 +536,7 @@ void loadMapBackup(const char* filename)
 void setWallSectors()
 {
 	int i = 0;
-	for (auto& wal : walls())
+	for (auto& wal : wall)
 	{
 		wal.sector = -1;
 		wal.lengthflags = 3;
@@ -588,7 +588,7 @@ void setWallSectors()
 		}
 	}
 
-	for(auto& sect : sectors())
+	for(auto& sect: sector)
 	{
 		sect.dirty = EDirty::AllDirty;
 		sect.exflags = 0;
@@ -612,7 +612,7 @@ void setWallSectors()
 	}
 
 	// validate 'nextsector' fields. Some maps have these wrong which can cause render glitches and occasionally even crashes.
-	for (auto& wal : walls())
+	for (auto& wal : wall)
 	{
 		if (validWallIndex(wal.nextwall))
 		{
@@ -634,7 +634,7 @@ void MarkMap()
 		GC::Mark(stat.firstEntry);
 		GC::Mark(stat.lastEntry);
 	}
-	for (auto& sect : sectors())
+	for (auto& sect: sector)
 	{
 		GC::Mark(sect.firstEntry);
 		GC::Mark(sect.lastEntry);

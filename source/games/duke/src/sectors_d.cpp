@@ -417,7 +417,7 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 		}
 	}
 
-	for (auto& wal : walls())
+	for (auto& wal : wall)
 	{
 		if (lotag == wal.lotag)
 			switch (wal.picnum)

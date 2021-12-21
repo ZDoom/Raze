@@ -781,7 +781,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
 
 
     // look through all sectors for whole sectors that are IN bounds
-    for (auto&sec : sectors())
+    for (auto&sec: sector)
     {
         auto sect = &sec;
 
@@ -2197,7 +2197,7 @@ void CallbackSOsink(ANIMp ap, void *data)
 
     tgt_depth = FixedToInt(srcsect->depth_fixed);
 
-    for(auto& sect : sectors())
+    for(auto& sect: sector)
     {
         if (&sect == destsect)
         {

@@ -196,7 +196,7 @@ void DoSectorLighting(void)
 
 void UndoSectorLighting(void)
 {
-    for (auto& sect : sectors())
+    for (auto& sect: sector)
     {
         if (sect.hasX())
         {
@@ -307,7 +307,7 @@ void InitSectorFX(void)
     shadeList.Clear();
     panList.Clear();
     wallPanList.Clear();
-    for (auto& sect : sectors())
+    for (auto& sect: sector)
     {
         if (sect.hasX())
         {
@@ -332,7 +332,7 @@ void InitSectorFX(void)
             }
         }
     }
-    for(auto& wal : walls())
+    for(auto& wal : wall)
     {
         if (wal.hasX())
         {

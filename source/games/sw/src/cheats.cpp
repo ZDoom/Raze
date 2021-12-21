@@ -239,7 +239,7 @@ static void ItemCheat(int player)
 
     PlayerUpdateInventory(p, p->InventoryNum);
 
-    for (auto& sect : sectors())
+    for (auto& sect: sector)
     {
         if (sect.hasU() && sect.stag == SECT_LOCK_DOOR)
             sect.number = 0;  // unlock all doors of this type
