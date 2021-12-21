@@ -129,7 +129,7 @@ void GameInterface::UpdateSounds()
     //assert(primaryLevel->Zones.Size() > listenactor->Sector->ZoneNumber);
     listener.Environment = 0;// primaryLevel->Zones[listenactor->Sector->ZoneNumber].Environment;
 
-    listener.ListenerObject = gMe->pSprite;
+    listener.ListenerObject = gMe;
     soundEngine->SetListener(listener);
     soundEngine->UpdateSounds(I_GetTime());
 }

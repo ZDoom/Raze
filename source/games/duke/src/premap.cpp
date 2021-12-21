@@ -504,7 +504,6 @@ void resetpspritevars(int g)
 	int i, j;
 	int circ;
 	int firstx, firsty;
-	spritetype* s;
 	int aimmode[MAXPLAYERS];
 	STATUSBARTYPE tsbar[MAXPLAYERS];
 

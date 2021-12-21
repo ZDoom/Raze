@@ -257,7 +257,6 @@ static int GetPositionInfo(DDukeActor* actor, int soundNum, sectortype* sect,
 	// There's a lot of hackery going on here that could be mapped to rolloff and attenuation parameters.
 	// However, ultimately rolloff would also just reposition the sound source so this can remain as it is.
 
-	auto sp = actor->s;
 	int orgsndist = 0, sndist = 0;
 	auto const* snd = soundEngine->GetUserData(soundNum + 1);
 	int userflags = snd ? snd[kFlags] : 0;
@@ -266,18 +265,18 @@ static int GetPositionInfo(DDukeActor* actor, int soundNum, sectortype* sect,
 	FVector3 sndorg = GetSoundPos(pos);
 	FVector3 campos = GetSoundPos(cam);
 
-	if (sp->picnum != TILE_APLAYER || sp->yvel != screenpeek)
+	if (actor->spr.picnum != TILE_APLAYER || actor->spr.yvel != screenpeek)
 	{
 		orgsndist = sndist = int(16 * (sndorg - campos).Length());
 
-		if ((userflags & (SF_GLOBAL | SF_DTAG)) != SF_GLOBAL && sp->picnum == MUSICANDSFX && sp->lotag < 999 && (sp->sector()->lotag & 0xff) < ST_9_SLIDING_ST_DOOR)
-			sndist = DivScale(sndist, sp->hitag + 1, 14);
+		if ((userflags & (SF_GLOBAL | SF_DTAG)) != SF_GLOBAL && actor->spr.picnum == MUSICANDSFX && actor->spr.lotag < 999 && (actor->spr.sector()->lotag & 0xff) < ST_9_SLIDING_ST_DOOR)
+			sndist = DivScale(sndist, actor->spr.hitag + 1, 14);
 	}
 
 	sndist += dist_adjust;
 	if (sndist < 0) sndist = 0;
 
-	if (sect!= nullptr && sndist && sp->picnum != MUSICANDSFX && !cansee(cam->x, cam->y, cam->z - (24 << 8), sect, sp->x, sp->y, sp->z - (24 << 8), sp->sector()))
+	if (sect!= nullptr && sndist && actor->spr.picnum != MUSICANDSFX && !cansee(cam->x, cam->y, cam->z - (24 << 8), sect, actor->spr.x, actor->spr.y, actor->spr.z - (24 << 8), actor->spr.sector()))
 		sndist += sndist >> (isRR() ? 2 : 5);
 
 	// Here the sound distance was clamped to a minimum of 144*4. 
@@ -417,7 +416,7 @@ void GameInterface::UpdateSounds(void)
 		listener.Environment = nullptr;
 		listener.valid = false;
 	}
-	listener.ListenerObject = ud.cameraactor == nullptr ? nullptr : ud.cameraactor->s;
+	listener.ListenerObject = ud.cameraactor == nullptr ? nullptr : ud.cameraactor;
 	soundEngine->SetListener(listener);
 }
 

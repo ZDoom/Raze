@@ -25,15 +25,14 @@ void SE40_Draw(int tag, spritetype *spr, int x, int y, int z, binangle a, fixedh
 	DukeStatIterator it(STAT_RAROR);
 	while (auto act = it.Next())
 	{
-		auto spr = act->s;
 		if (
-			spr->picnum == SECTOREFFECTOR &&
-			spr->lotag == fofmode &&
-			spr->hitag == floor1->hitag
+			act->spr.picnum == SECTOREFFECTOR &&
+			act->spr.lotag == fofmode &&
+			act->spr.hitag == floor1->hitag
 			) 
 		{
 			floor1 = spr; 
-			fofmode = spr->lotag; 
+			fofmode = act->spr.lotag; 
 			ok++; 
 			break;
 		}
@@ -45,11 +44,10 @@ void SE40_Draw(int tag, spritetype *spr, int x, int y, int z, binangle a, fixedh
 	it.Reset(STAT_RAROR);
 	while (auto act = it.Next())
 	{
-		auto spr = act->s;
 		if (
-			spr->picnum == SECTOREFFECTOR &&
-			spr->lotag == k &&
-			spr->hitag == floor1->hitag
+			act->spr.picnum == SECTOREFFECTOR &&
+			act->spr.lotag == k &&
+			act->spr.hitag == floor1->hitag
 			) 
 		{
 			floor2 = spr; 
@@ -63,13 +61,12 @@ void SE40_Draw(int tag, spritetype *spr, int x, int y, int z, binangle a, fixedh
 	it.Reset(STAT_RAROR);
 	while (auto act = it.Next())
 	{
-		auto spr = act->s;
-		if (spr->picnum == SECTOREFFECTOR &&
-			spr->lotag == k + 2 &&
-			spr->hitag == floor1->hitag
+		if (act->spr.picnum == SECTOREFFECTOR &&
+			act->spr.lotag == k + 2 &&
+			act->spr.hitag == floor1->hitag
 			)
 		{
-			auto sect = spr->sector();
+			auto sect = act->spr.sector();
 			// repurpose otherwise unused fields in sectortype as temporary storage.
 			if (k == tag + 0)
 			{
@@ -98,13 +95,12 @@ void SE40_Draw(int tag, spritetype *spr, int x, int y, int z, binangle a, fixedh
 	it.Reset(STAT_RAROR);
 	while (auto act = it.Next())
 	{
-		auto spr = act->s;
-		if (spr->picnum == 1 &&
-			spr->lotag == k + 2 &&
-			spr->hitag == floor1->hitag
+		if (act->spr.picnum == 1 &&
+			act->spr.lotag == k + 2 &&
+			act->spr.hitag == floor1->hitag
 			)
 		{
-			auto sect = spr->sector();
+			auto sect = act->spr.sector();
 			if (k == tag + 0)
 			{
 				sect->floorz = sect->Flag;

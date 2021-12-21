@@ -97,13 +97,11 @@ void GameInterface::UpdateCameras(double smoothratio)
 		return;
 
 	auto p = &ps[screenpeek];
-	auto sp = camsprite->s;
-
 	if (p->newOwner != nullptr) camsprite->SetOwner(p->newOwner);
 
 	if (camsprite->GetOwner() && dist(p->GetActor(), camsprite) < VIEWSCREEN_ACTIVE_DISTANCE)
 	{
-		auto tex = tileGetTexture(sp->picnum);
+		auto tex = tileGetTexture(camsprite->spr.picnum);
 		TileFiles.MakeCanvas(TILE_VIEWSCR, (int)tex->GetDisplayWidth(), (int)tex->GetDisplayHeight());
 
 		auto canvas = renderSetTarget(TILE_VIEWSCR);
@@ -111,7 +109,7 @@ void GameInterface::UpdateCameras(double smoothratio)
 
 		screen->RenderTextureView(canvas, [=](IntRect& rect)
 			{
-				auto camera = camsprite->GetOwner()->s;
+				auto camera = &camsprite->GetOwner()->spr;
 				auto ang = buildang(camera->interpolatedang(smoothratio));
 				display_mirror = 1; // should really be 'display external view'.
 				if (!testnewrenderer)
@@ -284,7 +282,7 @@ void displayrooms(int snum, double smoothratio)
 
 	if (ud.cameraactor)
 	{
-		spritetype* s = ud.cameraactor->s;
+		spritetype* s = &ud.cameraactor->spr;
 
 		if (s->yvel < 0) s->yvel = -100;
 		else if (s->yvel > 199) s->yvel = 300;
@@ -349,7 +347,7 @@ void displayrooms(int snum, double smoothratio)
 		spritetype* viewer;
 		if (p->newOwner != nullptr)
 		{
-			auto spr = p->newOwner->s;
+			auto spr = &p->newOwner->spr;
 			cang = buildang(spr->interpolatedang(smoothratio));
 			choriz = buildhoriz(spr->shade);
 			cposx = spr->pos.x;
@@ -363,18 +361,18 @@ void displayrooms(int snum, double smoothratio)
 		else if (p->over_shoulder_on == 0)
 		{
 			if (cl_viewbob) cposz += interpolatedvalue(p->opyoff, p->pyoff, smoothratio);
-			viewer = p->GetActor()->s;
+			viewer = &p->GetActor()->spr;
 		}
 		else
 		{
 			cposz -= isRR() ? 3840 : 3072;
 
-			if (!calcChaseCamPos(&cposx, &cposy, &cposz, p->GetActor()->s, &sect, cang, choriz, smoothratio))
+			viewer = &p->GetActor()->spr;
+			if (!calcChaseCamPos(&cposx, &cposy, &cposz, viewer, &sect, cang, choriz, smoothratio))
 			{
 				cposz += isRR() ? 3840 : 3072;
-				calcChaseCamPos(&cposx, &cposy, &cposz, p->GetActor()->s, &sect, cang, choriz, smoothratio);
+				calcChaseCamPos(&cposx, &cposy, &cposz, viewer, &sect, cang, choriz, smoothratio);
 			}
-			viewer = p->GetActor()->s;
 		}
 
 		cz = p->GetActor()->ceilingz;
