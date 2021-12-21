@@ -2069,7 +2069,6 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz, int
 {
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
-	auto s = pact->s;
 
 	if (p->airleft != 15 * 26)
 		p->airleft = 15 * 26; //Aprox twenty seconds.
@@ -2170,8 +2169,8 @@ static void movement(int snum, ESyncBits actions, sectortype* psect, int fz, int
 					else if (p->falling_counter > 9)
 					{
 						int j = p->falling_counter;
-						s->extra -= j - (krand() & 3);
-						if (s->extra <= 0)
+						pact->spr.extra -= j - (krand() & 3);
+						if (pact->spr.extra <= 0)
 						{
 							S_PlayActorSound(SQUISHED, pact);
 						}
@@ -2375,7 +2374,6 @@ void onMotorcycleMove(int snum, walltype* wal)
 {
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
-	auto s = pact->s;
 	int angleDelta = abs(p->angle.ang.asbuild() - getangle(wal->delta()));
 	int damageAmount;
 
@@ -2409,8 +2407,8 @@ void onMotorcycleMove(int snum, walltype* wal)
 		if (S_CheckActorSoundPlaying(pact, 240) == 0)
 			S_PlayActorSound(240, pact);
 	}
-	s->extra -= damageAmount;
-	if (s->extra <= 0)
+	pact->spr.extra -= damageAmount;
+	if (pact->spr.extra <= 0)
 	{
 		S_PlayActorSound(SQUISHED, pact);
 		SetPlayerPal(p, PalEntry(63, 63, 0, 0));
@@ -2471,16 +2469,15 @@ void onBoatMove(int snum, int psectlotag, walltype* wal)
 void onMotorcycleHit(int snum, DDukeActor* victim)
 {
 	auto p = &ps[snum];
-	auto s = victim->s;
-	if (badguy(s) || s->picnum == APLAYER)
+	if (badguy(victim) || victim->spr.picnum == APLAYER)
 	{
-		if (s->picnum != APLAYER)
+		if (victim->spr.picnum != APLAYER)
 		{
 			if (numplayers == 1)
 			{
 				Collision coll;
 				int ang = int(p->TiltStatus * 20 + p->angle.ang.asbuild());
-				movesprite_ex(victim, bcos(ang, -8), bsin(ang, -8), s->zvel, CLIPMASK0, coll);
+				movesprite_ex(victim, bcos(ang, -8), bsin(ang, -8), victim->spr.zvel, CLIPMASK0, coll);
 			}
 		}
 		else
@@ -2490,24 +2487,23 @@ void onMotorcycleHit(int snum, DDukeActor* victim)
 		p->MotoSpeed -= p->MotoSpeed / 4.;
 		p->TurbCount = 6;
 	}
-	else if ((s->picnum == RRTILE2431 || s->picnum == RRTILE2443 || s->picnum == RRTILE2451 || s->picnum == RRTILE2455)
-		&& s->picnum != ACTIVATORLOCKED && p->MotoSpeed > 45)
+	else if ((victim->spr.picnum == RRTILE2431 || victim->spr.picnum == RRTILE2443 || victim->spr.picnum == RRTILE2451 || victim->spr.picnum == RRTILE2455)
+		&& victim->spr.picnum != ACTIVATORLOCKED && p->MotoSpeed > 45)
 	{
 		S_PlayActorSound(SQUISHED, victim);
-		if (s->picnum == RRTILE2431 || s->picnum == RRTILE2451)
+		if (victim->spr.picnum == RRTILE2431 || victim->spr.picnum == RRTILE2451)
 		{
-			if (s->lotag != 0)
+			if (victim->spr.lotag != 0)
 			{
 				DukeSpriteIterator it;
 				while (auto act2 = it.Next())
 				{
-					auto sprj = act2->s;
-					if ((sprj->picnum == RRTILE2431 || sprj->picnum == RRTILE2451) && sprj->pal == 4)
+					if ((act2->spr.picnum == RRTILE2431 || act2->spr.picnum == RRTILE2451) && act2->spr.pal == 4)
 					{
-						if (s->lotag == sprj->lotag)
+						if (victim->spr.lotag == act2->spr.lotag)
 						{
-							sprj->xrepeat = 0;
-							sprj->yrepeat = 0;
+							act2->spr.xrepeat = 0;
+							act2->spr.yrepeat = 0;
 						}
 					}
 				}
@@ -2518,8 +2514,8 @@ void onMotorcycleHit(int snum, DDukeActor* victim)
 		else
 			fi.guts(victim, RRTILE2465, 3, myconnectindex);
 		fi.guts(victim, RRTILE2465, 3, myconnectindex);
-		s->xrepeat = 0;
-		s->yrepeat = 0;
+		victim->spr.xrepeat = 0;
+		victim->spr.yrepeat = 0;
 	}
 }
 
@@ -2532,17 +2528,16 @@ void onMotorcycleHit(int snum, DDukeActor* victim)
 void onBoatHit(int snum, DDukeActor* victim)
 {
 	auto p = &ps[snum];
-	auto s = victim->s;
 
-	if (badguy(s) || s->picnum == APLAYER)
+	if (badguy(victim) || victim->spr.picnum == APLAYER)
 	{
-		if (s->picnum != APLAYER)
+		if (victim->spr.picnum != APLAYER)
 		{
 			if (numplayers == 1)
 			{
 				Collision coll;
 				int ang = int(p->TiltStatus * 20 + p->angle.ang.asbuild());
-				movesprite_ex(victim, bcos(ang, -9), bsin(ang, -9), s->zvel, CLIPMASK0, coll);
+				movesprite_ex(victim, bcos(ang, -9), bsin(ang, -9), victim->spr.zvel, CLIPMASK0, coll);
 			}
 		}
 		else
@@ -3295,7 +3290,7 @@ static void processweapon(int snum, ESyncBits actions, sectortype* psectp)
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
 	auto s = pact->s;
-	int shrunk = (s->yrepeat < 8);
+	int shrunk = (pact->spr.yrepeat < 8);
 
 	if (p->detonate_count > 0)
 	{
@@ -3355,7 +3350,6 @@ void processinput_r(int snum)
 
 	auto p = &ps[snum];
 	auto pact = p->GetActor();
-	auto s = pact->s;
 
 	p->horizon.resetadjustment();
 	p->angle.resetadjustment();
@@ -3367,17 +3361,17 @@ void processinput_r(int snum)
 	auto sb_avel = PlayerInputAngVel(snum);
 
 	auto psectp = p->cursector;
-	if (p->OnMotorcycle && s->extra > 0)
+	if (p->OnMotorcycle && pact->spr.extra > 0)
 	{
 		onMotorcycle(snum, actions);
 	}
-	else if (p->OnBoat && s->extra > 0)
+	else if (p->OnBoat && pact->spr.extra > 0)
 	{
 		onBoat(snum, actions);
 	}
 	if (psectp == nullptr)
 	{
-		if (s->extra > 0 && ud.clipping == 0)
+		if (pact->spr.extra > 0 && ud.clipping == 0)
 		{
 			quickkill(p);
 			S_PlayActorSound(SQUISHED, pact);
@@ -3403,15 +3397,15 @@ void processinput_r(int snum)
 		psectlotag = 1;
 
 	if (psectlotag == 857)
-		s->clipdist = 1;
+		pact->spr.clipdist = 1;
 	else
-		s->clipdist = 64;
+		pact->spr.clipdist = 64;
 
 	p->spritebridge = 0;
 
-	shrunk = (s->yrepeat < 8);
+	shrunk = (pact->spr.yrepeat < 8);
 	int tempfz;
-	if (s->clipdist == 64)
+	if (pact->spr.clipdist == 64)
 	{
 		getzrange(p->pos, psectp, &cz, chz, &fz, clz, 163L, CLIPMASK0);
 		tempfz = getflorzofslopeptr(psectp, p->pos.x, p->pos.y);
@@ -3485,7 +3479,7 @@ void processinput_r(int snum)
 				p->MotoSpeed -= p->MotoSpeed / 16.;
 			}
 		}
-		else if (badguy(clz.actor()) && clz.actor()->spr.xrepeat > 24 && abs(s->z - clz.actor()->spr.z) < (84 << 8))
+		else if (badguy(clz.actor()) && clz.actor()->spr.xrepeat > 24 && abs(pact->spr.z - clz.actor()->spr.z) < (84 << 8))
 		{
 			int j = getangle(clz.actor()->spr.x - p->pos.x, clz.actor()->spr.y - p->pos.y);
 			p->posxv -= bcos(j, 4);
@@ -3519,14 +3513,14 @@ void processinput_r(int snum)
 	}
 
 
-	if (s->extra > 0) fi.incur_damage(p);
+	if (pact->spr.extra > 0) fi.incur_damage(p);
 	else
 	{
-		s->extra = 0;
+		pact->spr.extra = 0;
 		p->shield_amount = 0;
 	}
 
-	p->last_extra = s->extra;
+	p->last_extra = pact->spr.extra;
 
 	if (p->loogcnt > 0) p->loogcnt--;
 	else p->loogcnt = 0;
@@ -3542,7 +3536,7 @@ void processinput_r(int snum)
 			return;
 	}
 
-	if (s->extra <= 0 && !ud.god)
+	if (pact->spr.extra <= 0 && !ud.god)
 	{
 		playerisdead(snum, psectlotag, fz, cz);
 		return;
@@ -3559,7 +3553,7 @@ void processinput_r(int snum)
 
 	if (p->newOwner != nullptr)
 	{
-		p->posxv = p->posyv = s->xvel = 0;
+		p->posxv = p->posyv = pact->spr.xvel = 0;
 
 		fi.doincrements(p);
 
@@ -3575,9 +3569,9 @@ void processinput_r(int snum)
 	if (p->on_crane != nullptr)
 		goto HORIZONLY;
 
-	p->playerweaponsway(s->xvel);
+	p->playerweaponsway(pact->spr.xvel);
 
-	s->xvel = clamp(ksqrt((p->pos.x - p->bobposx) * (p->pos.x - p->bobposx) + (p->pos.y - p->bobposy) * (p->pos.y - p->bobposy)), 0, 512);
+	pact->spr.xvel = clamp(ksqrt((p->pos.x - p->bobposx) * (p->pos.x - p->bobposx) + (p->pos.y - p->bobposy) * (p->pos.y - p->bobposy)), 0, 512);
 	if (p->on_ground) p->bobcounter += p->GetActor()->spr.xvel >> 1;
 
 	p->backuppos(ud.clipping == 0 && (p->cursector->floorpicnum == MIRROR || !p->insector()));
@@ -3634,9 +3628,9 @@ void processinput_r(int snum)
 		p->angle.applyinput(sb_avel, &actions);
 	}
 
-	if (p->spritebridge == 0 && s->insector())
+	if (p->spritebridge == 0 && pact->spr.insector())
 	{
-		int j = s->sector()->floorpicnum;
+		int j = pact->spr.sector()->floorpicnum;
 		k = 0;
 
 		if (p->on_ground && truefdist <= gs.playerheight + (16 << 8))
@@ -3880,14 +3874,14 @@ HORIZONLY:
 
 	if (p->jetpack_on == 0)
 	{
-		if (s->xvel > 16)
+		if (pact->spr.xvel > 16)
 		{
 			if (psectlotag != ST_1_ABOVE_WATER && psectlotag != ST_2_UNDERWATER && p->on_ground && (!isRRRA() || !p->sea_sick_stat))
 			{
 				p->pycount += 52;
 				p->pycount &= 2047;
 				p->pyoff =
-					abs(s->xvel * bsin(p->pycount)) / 1596;
+					abs(pact->spr.xvel * bsin(p->pycount)) / 1596;
 			}
 		}
 		else if (psectlotag != ST_2_UNDERWATER && psectlotag != 1 && (!isRRRA() || !p->sea_sick_stat))
@@ -3906,7 +3900,7 @@ HORIZONLY:
 
 	if (psectlotag < 3)
 	{
-		psectp = s->sector();
+		psectp = pact->spr.sector();
 		if (ud.clipping == 0 && psectp->lotag == ST_31_TWO_WAY_TRAIN)
 		{
 			auto act = barrier_cast<DDukeActor*>(psectp->hitagactor);
@@ -3923,13 +3917,13 @@ HORIZONLY:
 			if (!isRRRA() || (!p->OnBoat && !p->OnMotorcycle && p->cursector->hitag != 321))
 				S_PlayActorSound(DUKE_ONWATER, pact);
 
-	if (p->cursector != s->sector())
+	if (p->cursector != pact->spr.sector())
 		ChangeActorSect(pact, p->cursector);
 
 	int j;
 	if (ud.clipping == 0)
 	{
-		if (s->clipdist == 64)
+		if (pact->spr.clipdist == 64)
 			j = (pushmove(&p->pos, &p->cursector, 128L, (4L << 8), (4L << 8), CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < 512);
 		else
 			j = (pushmove(&p->pos, &p->cursector, 16L, (4L << 8), (4L << 8), CLIPMASK0) < 0 && furthestangle(p->GetActor(), 8) < 512);
@@ -3940,9 +3934,9 @@ HORIZONLY:
 	{
 		if (abs(pact->floorz - pact->ceilingz) < (48 << 8) || j)
 		{
-			if (!(s->sector()->lotag & 0x8000) && (isanunderoperator(s->sector()->lotag) ||
-				isanearoperator(s->sector()->lotag)))
-				fi.activatebysector(s->sector(), pact);
+			if (!(pact->spr.sector()->lotag & 0x8000) && (isanunderoperator(pact->spr.sector()->lotag) ||
+				isanearoperator(pact->spr.sector()->lotag)))
+				fi.activatebysector(pact->spr.sector(), pact);
 			if (j)
 			{
 				quickkill(p);
