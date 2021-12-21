@@ -40,21 +40,20 @@ int madenoise(int snum)
 	return 1;
 }
 
-int wakeup(DDukeActor* ac, int snum)
+int wakeup(DDukeActor* actor, int snum)
 {
 	player_struct *p;
 	int radius;
 	p = &ps[snum];
-	auto spr = ac->s;
 	if (!p->donoise)
 		return 0;
-	if (spr->pal == 30 || spr->pal == 32 || spr->pal == 33 || (isRRRA() && spr->pal == 8))
+	if (actor->spr.pal == 30 || actor->spr.pal == 32 || actor->spr.pal == 33 || (isRRRA() && actor->spr.pal == 8))
 		return 0;
 
 	radius = p->noise_radius;
 
-	if (p->noise_x - radius < spr->x && p->noise_x + radius > spr->x
-		&& p->noise_y - radius < spr->y && p->noise_y + radius > spr->y)
+	if (p->noise_x - radius < actor->spr.x && p->noise_x + radius > actor->spr.x
+		&& p->noise_y - radius < actor->spr.y && p->noise_y + radius > actor->spr.y)
 		return 1;
 	return 0;
 }

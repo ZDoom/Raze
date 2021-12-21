@@ -168,15 +168,14 @@ void tracers(int x1, int y1, int z1, int x2, int y2, int z2, int n)
 
 int hits(DDukeActor* actor)
 {
-	auto sp = actor->s;
 	int zoff;
 	HitInfo hit{};
 
-	if (sp->picnum == TILE_APLAYER) zoff = isRR() ? PHEIGHT_RR : PHEIGHT_DUKE;
+	if (actor->spr.picnum == TILE_APLAYER) zoff = isRR() ? PHEIGHT_RR : PHEIGHT_DUKE;
 	else zoff = 0;
 
-	hitscan(sp->pos, sp->sector(), { bcos(sp->ang), bsin(sp->ang), 0 }, hit, CLIPMASK1);
-	return (FindDistance2D(hit.hitpos.x - sp->x, hit.hitpos.y - sp->y));
+	hitscan(actor->spr.pos, actor->spr.sector(), { bcos(actor->spr.ang), bsin(actor->spr.ang), 0 }, hit, CLIPMASK1);
+	return (FindDistance2D(hit.hitpos.x - actor->spr.x, hit.hitpos.y - actor->spr.y));
 }
 
 //---------------------------------------------------------------------------
@@ -187,22 +186,21 @@ int hits(DDukeActor* actor)
 
 int hitasprite(DDukeActor* actor, DDukeActor** hitsp)
 {
-	auto sp = actor->s;
 	int zoff;
 	HitInfo hit{};
 
 	if (badguy(actor))
 		zoff = (42 << 8);
-	else if (sp->picnum == TILE_APLAYER) zoff = (39 << 8);
+	else if (actor->spr.picnum == TILE_APLAYER) zoff = (39 << 8);
 	else zoff = 0;
 
-	hitscan({ sp->x, sp->y, sp->z - zoff }, sp->sector(), { bcos(sp->ang), bsin(sp->ang), 0 }, hit, CLIPMASK1);
+	hitscan({ actor->spr.x, actor->spr.y, actor->spr.z - zoff }, actor->spr.sector(), { bcos(actor->spr.ang), bsin(actor->spr.ang), 0 }, hit, CLIPMASK1);
 	if (hitsp) *hitsp = hit.actor();
 
 	if (hit.hitWall != nullptr && (hit.hitWall->cstat & CSTAT_WALL_MASKED) && badguy(actor))
 		return((1 << 30));
 
-	return (FindDistance2D(hit.hitpos.x - sp->x, hit.hitpos.y - sp->y));
+	return (FindDistance2D(hit.hitpos.x - actor->spr.x, hit.hitpos.y - actor->spr.y));
 }
 
 //---------------------------------------------------------------------------
@@ -235,18 +233,17 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 	int aimstats[] = { STAT_PLAYER, STAT_DUMMYPLAYER, STAT_ACTOR, STAT_ZOMBIEACTOR };
 	int dx1, dy1, dx2, dy2, dx3, dy3, smax, sdist;
 	int xv, yv;
-	auto s = actor->s;
 
-	a = s->ang;
+	a = actor->spr.ang;
 
 	// Autoaim from DukeGDX.
-	if (s->picnum == TILE_APLAYER)
+	if (actor->spr.picnum == TILE_APLAYER)
 	{
-		int autoaim = Autoaim(s->yvel);
+		int autoaim = Autoaim(actor->spr.yvel);
 		if (!autoaim)
 		{
 			// The chickens in RRRA are homing and must always autoaim.
-			if (!isRRRA() || ps[s->yvel].curr_weapon != CHICKEN_WEAPON)
+			if (!isRRRA() || ps[actor->spr.yvel].curr_weapon != CHICKEN_WEAPON)
 				return nullptr;
 		}
 		else if (autoaim == 2)
@@ -254,11 +251,11 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 			int weap;
 			if (!isWW2GI())
 			{
-				weap = ps[s->yvel].curr_weapon;
+				weap = ps[actor->spr.yvel].curr_weapon;
 			}
 			else
 			{
-				weap = aplWeaponWorksLike(ps[s->yvel].curr_weapon, s->yvel);
+				weap = aplWeaponWorksLike(ps[actor->spr.yvel].curr_weapon, actor->spr.yvel);
 			}
 			if (weap > CHAINGUN_WEAPON || weap == KNEE_WEAPON)
 			{
@@ -268,7 +265,7 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 		}
 	}
 	DDukeActor* aimed = nullptr;
-	//	  if(s->picnum == TILE_APLAYER && ps[s->yvel].aim_mode) return -1;
+	//	  if(actor->spr.picnum == TILE_APLAYER && ps[actor->spr.yvel].aim_mode) return -1;
 
 	if (isRR())
 	{
@@ -277,13 +274,13 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 	}
 	else if (isWW2GI())
 	{
-		gotshrinker = s->picnum == TILE_APLAYER && aplWeaponWorksLike(ps[s->yvel].curr_weapon, s->yvel) == SHRINKER_WEAPON;
-		gotfreezer = s->picnum == TILE_APLAYER && aplWeaponWorksLike(ps[s->yvel].curr_weapon, s->yvel) == FREEZE_WEAPON;
+		gotshrinker = actor->spr.picnum == TILE_APLAYER && aplWeaponWorksLike(ps[actor->spr.yvel].curr_weapon, actor->spr.yvel) == SHRINKER_WEAPON;
+		gotfreezer = actor->spr.picnum == TILE_APLAYER && aplWeaponWorksLike(ps[actor->spr.yvel].curr_weapon, actor->spr.yvel) == FREEZE_WEAPON;
 	}
 	else
 	{
-		gotshrinker = s->picnum == TILE_APLAYER && ps[s->yvel].curr_weapon == SHRINKER_WEAPON;
-		gotfreezer = s->picnum == TILE_APLAYER && ps[s->yvel].curr_weapon == FREEZE_WEAPON;
+		gotshrinker = actor->spr.picnum == TILE_APLAYER && ps[actor->spr.yvel].curr_weapon == SHRINKER_WEAPON;
+		gotfreezer = actor->spr.picnum == TILE_APLAYER && ps[actor->spr.yvel].curr_weapon == FREEZE_WEAPON;
 	}
 
 	smax = 0x7fffffff;
@@ -304,25 +301,24 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 		DukeStatIterator it(aimstats[k]);
 		while (auto act = it.Next())
 		{
-			auto sp = act->s;
-			if (sp->xrepeat > 0 && sp->extra >= 0 && (sp->cstat & (CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_INVISIBLE)) == CSTAT_SPRITE_BLOCK_ALL)
-				if (badguy(sp) || k < 2)
+			if (act->spr.xrepeat > 0 && act->spr.extra >= 0 && (act->spr.cstat & (CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_INVISIBLE)) == CSTAT_SPRITE_BLOCK_ALL)
+				if (badguy(act) || k < 2)
 				{
-					if (badguy(sp) || sp->picnum == TILE_APLAYER)
+					if (badguy(act) || act->spr.picnum == TILE_APLAYER)
 					{
-						if (sp->picnum == TILE_APLAYER &&
+						if (act->spr.picnum == TILE_APLAYER &&
 							(isRR() && ud.ffire == 0) &&
 							ud.coop == 1 &&
-							s->picnum == TILE_APLAYER &&
-							s != sp)
+							actor->spr.picnum == TILE_APLAYER &&
+							actor != act)
 							continue;
 
-						if (gotshrinker && sp->xrepeat < 30 && !(gs.actorinfo[sp->picnum].flags & SFLAG_SHRINKAUTOAIM)) continue;
-						if (gotfreezer && sp->pal == 1) continue;
+						if (gotshrinker && act->spr.xrepeat < 30 && !(gs.actorinfo[act->spr.picnum].flags & SFLAG_SHRINKAUTOAIM)) continue;
+						if (gotfreezer && act->spr.pal == 1) continue;
 					}
 
-					xv = (sp->x - s->x);
-					yv = (sp->y - s->y);
+					xv = (act->spr.x - actor->spr.x);
+					yv = (act->spr.y - actor->spr.y);
 
 					if ((dy1 * xv) <= (dx1 * yv))
 						if ((dy2 * xv) >= (dx2 * yv))
@@ -330,11 +326,11 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 							sdist = MulScale(dx3, xv, 14) + MulScale(dy3, yv, 14);
 							if (sdist > 512 && sdist < smax)
 							{
-								if (s->picnum == TILE_APLAYER)
-									a = (abs(Scale(sp->z - s->z, 10, sdist) - ps[s->yvel].horizon.sum().asbuild()) < 100);
+								if (actor->spr.picnum == TILE_APLAYER)
+									a = (abs(Scale(act->spr.z - actor->spr.z, 10, sdist) - ps[actor->spr.yvel].horizon.sum().asbuild()) < 100);
 								else a = 1;
 
-								cans = cansee(sp->x, sp->y, sp->z - (32 << 8) + gs.actorinfo[sp->picnum].aimoffset, sp->sector(), s->x, s->y, s->z - (32 << 8), s->sector());
+								cans = cansee(act->spr.x, act->spr.y, act->spr.z - (32 << 8) + gs.actorinfo[act->spr.picnum].aimoffset, act->spr.sector(), actor->spr.x, actor->spr.y, actor->spr.z - (32 << 8), actor->spr.sector());
 
 								if (a && cans)
 								{
@@ -410,7 +406,6 @@ int makepainsounds(int snum, int type)
 {
 	auto p = &ps[snum];
 	auto actor = p->GetActor();
-	auto s = actor->s;
 	int k = 0;
 
 	switch (type)
@@ -425,7 +420,7 @@ int makepainsounds(int snum, int type)
 				if (!S_CheckActorSoundPlaying(actor, DUKE_LONGTERM_PAIN))
 					S_PlayActorSound(DUKE_LONGTERM_PAIN, actor);
 				SetPlayerPal(p, PalEntry(32, 64, 64, 64));
-				s->extra -= 1 + (krand() & 3);
+				actor->spr.extra -= 1 + (krand() & 3);
 				if (!S_CheckActorSoundPlaying(actor, SHORT_CIRCUIT))
 					S_PlayActorSound(SHORT_CIRCUIT, actor);
 			}
@@ -441,7 +436,7 @@ int makepainsounds(int snum, int type)
 				if (!S_CheckActorSoundPlaying(actor, DUKE_LONGTERM_PAIN))
 					S_PlayActorSound(DUKE_LONGTERM_PAIN, actor);
 				SetPlayerPal(p, PalEntry(32, 0, 8, 0));
-				s->extra -= 1 + (krand() & 3);
+				actor->spr.extra -= 1 + (krand() & 3);
 			}
 		}
 		break;
@@ -455,7 +450,7 @@ int makepainsounds(int snum, int type)
 				if (!S_CheckActorSoundPlaying(actor, DUKE_LONGTERM_PAIN))
 					S_PlayActorSound(DUKE_LONGTERM_PAIN, actor);
 				SetPlayerPal(p, PalEntry(32, 8, 0, 0));
-				s->extra -= 1 + (krand() & 3);
+				actor->spr.extra -= 1 + (krand() & 3);
 			}
 		}
 		break;
@@ -464,9 +459,9 @@ int makepainsounds(int snum, int type)
 			if (p->on_ground)
 			{
 				if (p->OnMotorcycle)
-					s->extra -= 2;
+					actor->spr.extra -= 2;
 				else
-					s->extra -= 4;
+					actor->spr.extra -= 4;
 				S_PlayActorSound(DUKE_LONGTERM_PAIN, actor);
 			}
 		break;
@@ -484,13 +479,12 @@ void footprints(int snum)
 {
 	auto p = &ps[snum];
 	auto actor = p->GetActor();
-	auto s = actor->s;
 
 	if (p->footprintcount > 0 && p->on_ground)
 		if ((p->cursector->floorstat & CSTAT_SECTOR_SLOPE) != 2)
 		{
 			int j = -1;
-			DukeSectIterator it(s->sector());
+			DukeSectIterator it(actor->spr.sector());
 			while (auto act = it.Next())
 			{
 				if (act->spr.picnum == TILE_FOOTPRINTS || act->spr.picnum == TILE_FOOTPRINTS2 || act->spr.picnum == TILE_FOOTPRINTS3 || act->spr.picnum == TILE_FOOTPRINTS4)
@@ -541,22 +535,21 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 {
 	auto p = &ps[snum];
 	auto actor = p->GetActor();
-	auto s = actor->s;
 
 	if (p->dead_flag == 0)
 	{
-		if (s->pal != 1)
+		if (actor->spr.pal != 1)
 		{
 			SetPlayerPal(p, PalEntry(63, 63, 0, 0));
 			p->pos.z -= (16 << 8);
-			s->z -= (16 << 8);
+			actor->spr.z -= (16 << 8);
 		}
 #if 0
 		if (ud.recstat == 1 && ud.multimode < 2)
 			closedemowrite();
 #endif
 
-		if (s->pal != 1)
+		if (actor->spr.pal != 1)
 			p->dead_flag = (512 - ((krand() & 1) << 10) + (krand() & 255) - 512) & 2047;
 
 		p->jetpack_on = 0;
@@ -566,9 +559,9 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 		S_StopSound(-1, actor, CHAN_VOICE);
 
 
-		if (s->pal != 1 && (s->cstat & CSTAT_SPRITE_INVISIBLE) == 0) s->cstat = 0;
+		if (actor->spr.pal != 1 && (actor->spr.cstat & CSTAT_SPRITE_INVISIBLE) == 0) actor->spr.cstat = 0;
 
-		if (ud.multimode > 1 && (s->pal != 1 || (s->cstat & CSTAT_SPRITE_INVISIBLE)))
+		if (ud.multimode > 1 && (actor->spr.pal != 1 || (actor->spr.cstat & CSTAT_SPRITE_INVISIBLE)))
 		{
 			if (p->frag_ps != snum)
 			{
@@ -601,8 +594,8 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 		}
 		else
 		{
-			s->z -= 512;
-			s->zvel = -348;
+			actor->spr.z -= 512;
+			actor->spr.zvel = -348;
 		}
 
 		Collision coll;
@@ -617,7 +610,7 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 
 	pushmove(&p->pos, &p->cursector, 128L, (4 << 8), (20 << 8), CLIPMASK0);
 
-	if (fz > cz + (16 << 8) && s->pal != 1)
+	if (fz > cz + (16 << 8) && actor->spr.pal != 1)
 		p->angle.rotscrnang = buildang(p->dead_flag + ((fz + p->pos.z) >> 7));
 
 	p->on_warping_sector = 0;
@@ -990,8 +983,7 @@ int haskey(sectortype* sectp, int snum)
 
 void shootbloodsplat(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, int atwith, int BIGFORCE, int OOZFILTER, int NEWBEAST)
 {
-	spritetype* const s = actor->s;
-	auto sectp = s->sector();
+	auto sectp = actor->spr.sector();
 	int zvel;
 	HitInfo hit{};
 
@@ -1042,7 +1034,7 @@ void shootbloodsplat(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 					spawned->spr.cstat |= randomXFlip();
 					ssp(spawned, CLIPMASK0);
 					SetActor(spawned, spawned->spr.pos);
-					if (s->picnum == OOZFILTER || s->picnum == NEWBEAST)
+					if (actor->spr.picnum == OOZFILTER || actor->spr.picnum == NEWBEAST)
 						spawned->spr.pal = 6;
 				}
 			}
