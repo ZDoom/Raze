@@ -51,7 +51,6 @@
 
 extern BitArray clipsectormap;
 
-int numsectors, numwalls;	// not really needed anymore, need to be refactored out (58x numsectors, 48x numwalls)
 TArray<sectortype> sector;
 TArray<walltype> wall;
 
@@ -434,10 +433,10 @@ void loadMap(const char* filename, int flags, vec3_t* pos, int16_t* ang, int* cu
 	*cursectnum = fr.ReadUInt16();
 
 	// Get the basics out before loading the data so that we can set up the global storage.
-	numsectors = fr.ReadUInt16();
+	unsigned numsectors = fr.ReadUInt16();
 	auto sectorpos = fr.Tell();
 	fr.Seek((mapversion == 5 ? sectorsize5 : mapversion == 6 ? sectorsize6 : sectorsize7) * numsectors, FileReader::SeekCur);
-	numwalls = fr.ReadUInt16();
+	unsigned numwalls = fr.ReadUInt16();
 	auto wallpos = fr.Tell();
 	fr.Seek((mapversion == 5 ? wallsize5 : mapversion == 6 ? wallsize6 : wallsize7)* numwalls, FileReader::SeekCur);
 	int numsprites = fr.ReadUInt16();

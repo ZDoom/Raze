@@ -209,8 +209,9 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
             {
             case 0:
             {
-                numwalls += 4; // hack alert. Blood adds some dummy walls and sectors that must not be among the counted, but here they have to be valid.
-                numsectors++;
+                // gross hack alert. Blood adds some dummy walls and sectors that must not be among the counted, but here they have to be valid.
+                wall.Reserve(4);
+                sector.Reserve(1);
                 int nWall = mirror[i].link;
                 walltype* pWall = &wall[nWall];
                 int nSector = pWall->sector;
@@ -248,8 +249,8 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
                     renderCompleteMirror();
                 pWall->nextwall = nNextWall;
                 pWall->nextsector = nNextSector;
-                numwalls -= 4;
-                numsectors--;
+                wall.Clamp(wall.Size() - 4);
+                sector.Clamp(sector.Size() - 1);
 
                 return;
             }
@@ -325,7 +326,7 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
 
 void InitPolymostMirrorHack()
 {
-    mirrorsector = numsectors;
+    mirrorsector = sector.Size();
     for (int i = 0; i < 4; i++)
     {
         mirrorwall[i] = wall.Size() + i;
@@ -349,9 +350,10 @@ void PolymostAllocFakeSector()
     // these additional entries are needed by Blood's mirror code. We must get them upon map load to avoid a later occuring reallocation. Ugh...
     // We do not want to actually increase the array size for this, though because it may screw with the savegame code. 
     // Before rendering this will temporarily be bumped up.
+    // Note that this depends on the resize operation not deleting and altering the new entries! 
     sector.Reserve(1);
     wall.Reserve(4);
-    sector.Resize(numsectors);
-    wall.Resize(numwalls);
+    wall.Clamp(wall.Size() - 4);
+    sector.Clamp(sector.Size() - 1);
 }
 END_BLD_NS

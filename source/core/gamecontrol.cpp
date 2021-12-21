@@ -1381,7 +1381,6 @@ void GameInterface::FreeLevelData()
 {
 	// Make sure that there is no more level to toy around with.
 	InitSpriteLists();
-	numsectors = numwalls = 0;
 	sector.Reset();
 	wall.Reset();
 	currentLevel = nullptr;

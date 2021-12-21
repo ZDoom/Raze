@@ -683,9 +683,7 @@ void SerializeMap(FSerializer& arc)
 	if (arc.BeginObject("engine"))
 	{
 		arc.Array("statlist", statList, MAXSTATUS)
-			("numsectors", numsectors)
 			("sectors", sector, sectorbackup)
-			("numwalls", numwalls)
 			("walls", wall, wallbackup)
 
 			("tailspritefree", tailspritefree)

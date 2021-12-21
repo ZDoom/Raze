@@ -261,8 +261,6 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sect
     }
     parallaxtype = mapHeader.parallax;
     gMapRev = mapHeader.revision;
-    numsectors = mapHeader.numsectors;
-    numwalls = mapHeader.numwalls;
     allocateMapArrays(mapHeader.numwalls, mapHeader.numsectors, mapHeader.numsprites);
 #if 1 // bad, bad hack, just for making Polymost happy...
 	PolymostAllocFakeSector();

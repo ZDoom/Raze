@@ -146,7 +146,7 @@ void InitMirrors(void)
             mirrorcnt++;
         }
     }
-    mirrorsector = numsectors;
+    mirrorsector = sector.Size();
     mergePortals();
     InitPolymostMirrorHack();
 }

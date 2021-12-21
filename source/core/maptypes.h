@@ -576,7 +576,6 @@ extern TArray<sectortype> sector;
 extern TArray<walltype> wall;
 extern TArray<sectortype> sectorbackup;
 extern TArray<walltype> wallbackup;
-extern int numsectors, numwalls;
 extern BitArray gotsector;
 
 //=============================================================================
@@ -587,12 +586,12 @@ extern BitArray gotsector;
 
 inline bool validSectorIndex(int sectnum)
 {
-	return sectnum >= 0 && sectnum < numsectors;
+	return (unsigned)sectnum < sector.Size();
 }
 
 inline bool validWallIndex(int wallnum)
 {
-	return wallnum >= 0 && wallnum < numwalls;
+	return (unsigned)wallnum < wall.Size();
 }
 
 inline sectortype* spritetypebase::sector() const
