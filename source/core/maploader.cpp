@@ -394,7 +394,7 @@ void allocateMapArrays(int numsprites)
 	sector.Resize(numsectors);
 	memset(sector.Data(), 0, sizeof(sectortype) * numsectors);
 	wall.Resize(numwalls);
-	memset(wall.Data(), 0, sizeof(walltype) * numwalls);
+	memset(wall.Data(), 0, sizeof(walltype) * wall.Size());
 
 	ClearAutomap();
 }
@@ -466,7 +466,7 @@ void loadMap(const char* filename, int flags, vec3_t* pos, int16_t* ang, int* cu
 	}
 
 	fr.Seek(wallpos, FileReader::SeekSet);
-	for (int i = 0; i < numwalls; i++)
+	for (unsigned i = 0; i < wall.Size(); i++)
 	{
 		switch (mapversion)
 		{

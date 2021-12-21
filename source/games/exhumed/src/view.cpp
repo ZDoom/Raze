@@ -335,7 +335,7 @@ void DrawView(double smoothRatio, bool sceneonly)
 
     if (nFreeze != 3)
     {
-        TArray<uint8_t> paldata(numsectors * 2 + numwalls, true);
+        TArray<uint8_t> paldata(sector.Size() * 2 + wall.Size(), true);
         int const viewingRange = viewingrange;
         int const vr = xs_CRoundToInt(65536. * tan(r_fov * (pi::pi() / 360.)));
 

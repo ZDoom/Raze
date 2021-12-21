@@ -951,9 +951,9 @@ void DoWall(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, i
 {
 	auto lValue = GetGameVarID(lVar2, sActor, sPlayer).safeValue();
 	auto vWall = GetGameVarID(lVar1, sActor, sPlayer);
-	auto iWall = vWall.safeValue();
+	 iWall = vWall.safeValue();
 
-	if (iWall < 0 || iWall >= numwalls || vWall.isActor())
+	if (iWall < 0 || iWall >= (int)wall.Size() || vWall.isActor())
 	{
 		if (!bSet) SetGameVarID(lVar2, 0, sActor, sPlayer);
 		return;

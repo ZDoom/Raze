@@ -65,7 +65,7 @@ void InitMirrors(void)
                 pWalli->cstat |= CSTAT_WALL_1WAY;
                 int tmp = pWalli->xw().data;
                 int j;
-                for (j = numwalls - 1; j >= 0; j--)
+                for (j = (int)wall.Size() - 1; j >= 0; j--)
                 {
                     if (j == i)
                         continue;

@@ -762,7 +762,7 @@ void DragPoint(walltype* pWall, int x, int y)
     viewInterpolateWall(pWall);
     pWall->move(x, y);
 
-    int vsi = numwalls;
+    int vsi = wall.Size();
     auto prevWall = pWall;
     do
     {
@@ -1965,7 +1965,6 @@ void trInit(TArray<DBloodActor*>& actors)
 {
     gBusy.Clear();
     for(auto& wal : wall)
-    for (int i = 0; i < numwalls; i++)
     {
         wal.baseWall.x = wal.x;
         wal.baseWall.y = wal.y;

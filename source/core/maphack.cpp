@@ -79,7 +79,7 @@ static int32_t LoadMapHack(const char *filename, SpawnSpriteDef& sprites)
 
         auto validateWall = [&]()
         {
-            if (currentwall < 0 || currentwall >= numwalls)
+            if (currentwall < 0 || currentwall >= (int)wall.Size())
             {
                 sc.ScriptMessage("Using %s without a valid wall", token.GetChars());
                 return false;
@@ -89,7 +89,7 @@ static int32_t LoadMapHack(const char *filename, SpawnSpriteDef& sprites)
 
         auto validateSector = [&]()
         {
-            if (currentsector < 0 || currentsector >= numsectors)
+            if (currentsector < 0 || currentsector >= (int)sector.Size())
             {
                 sc.ScriptMessage("Using %s without a valid sector", token.GetChars());
                 return false;

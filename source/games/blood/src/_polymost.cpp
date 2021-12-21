@@ -209,7 +209,7 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
             {
             case 0:
             {
-                numwalls += 4; // hack alert. Blood adds some dummy walls and sectors that must not be among the counter, but here they have to be valid.
+                numwalls += 4; // hack alert. Blood adds some dummy walls and sectors that must not be among the counted, but here they have to be valid.
                 numsectors++;
                 int nWall = mirror[i].link;
                 walltype* pWall = &wall[nWall];
@@ -328,14 +328,14 @@ void InitPolymostMirrorHack()
     mirrorsector = numsectors;
     for (int i = 0; i < 4; i++)
     {
-        mirrorwall[i] = numwalls + i;
+        mirrorwall[i] = wall.Size() + i;
         auto pWall = &(wall.Data()[mirrorwall[i]]);
         pWall->picnum = 504;
         pWall->overpicnum = 504;
         pWall->cstat = 0;
         pWall->nextsector = -1;
         pWall->nextwall = -1;
-        pWall->point2 = numwalls + i + 1;
+        pWall->point2 = wall.Size() + i + 1;
     }
     wall.Data()[mirrorwall[3]].point2 = mirrorwall[0];
     sector.Data()[mirrorsector].ceilingpicnum = 504;

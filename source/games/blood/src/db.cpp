@@ -272,7 +272,7 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sect
     if (encrypted)
     {
         fr.Read(&byte_19AE44, 128);
-        dbCrypt((char*)&byte_19AE44, 128, numwalls);
+        dbCrypt((char*)&byte_19AE44, 128, wall.Size());
 
         byte_19AE44.numxsprites = LittleLong(byte_19AE44.numxsprites);
         byte_19AE44.numxwalls = LittleLong(byte_19AE44.numxwalls);
@@ -431,7 +431,7 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sect
 
         }
     }
-    for (int i = 0; i < numwalls; i++)
+    for (unsigned i = 0; i < wall.Size(); i++)
     {
         walltype* pWall = &wall[i];
         walltypedisk load;

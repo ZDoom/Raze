@@ -311,8 +311,6 @@ public:
 	HWLineToSpritePortal(FPortalSceneState* state, walltype* from, spritetype* to)
 		: HWLinePortal(state, &wall[numwalls]), origin(from), camera(to)
 	{
-		// todo: set up two fake walls at the end of the walls array to be used for backside clipping.
-		// Not really needed for vanilla support but maybe later for feature enhancement.
 	}
 };
 
