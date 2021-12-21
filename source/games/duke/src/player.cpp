@@ -68,8 +68,8 @@ void PlayerColorChanged(void)
 	{
 		pp.palookup = ud.user_pals[myconnectindex] = playercolor2lookup(playercolor);
 	}
-	if (pp.GetActor()->s->picnum == TILE_APLAYER && pp.GetActor()->s->pal != 1)
-		pp.GetActor()->s->pal = ud.user_pals[myconnectindex];
+	if (pp.GetActor()->spr.picnum == TILE_APLAYER && pp.GetActor()->spr.pal != 1)
+		pp.GetActor()->spr.pal = ud.user_pals[myconnectindex];
 }
 
 //---------------------------------------------------------------------------
@@ -101,8 +101,8 @@ void quickkill(struct player_struct* p)
 	SetPlayerPal(p, PalEntry(48, 48, 48, 48));
 
 	auto pa = p->GetActor();
-	pa->s->extra = 0;
-	pa->s->cstat |= CSTAT_SPRITE_INVISIBLE;
+	pa->spr.extra = 0;
+	pa->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 	if (ud.god == 0) fi.guts(pa, TILE_JIBS6, 8, myconnectindex);
 	return;
 }
@@ -376,16 +376,16 @@ void dokneeattack(int snum, const std::initializer_list<int> & respawnlist)
 				fi.guts(p->actorsqu, TILE_JIBS6, 7, myconnectindex);
 				spawn(p->actorsqu, TILE_BLOODPOOL);
 				S_PlayActorSound(SQUISHED, p->actorsqu);
-				if (isIn(p->actorsqu->s->picnum, respawnlist))
+				if (isIn(p->actorsqu->spr.picnum, respawnlist))
 				{
-					if (p->actorsqu->s->yvel)
-						fi.operaterespawns(p->actorsqu->s->yvel);
+					if (p->actorsqu->spr.yvel)
+						fi.operaterespawns(p->actorsqu->spr.yvel);
 				}
 
-				if (p->actorsqu->s->picnum == TILE_APLAYER)
+				if (p->actorsqu->spr.picnum == TILE_APLAYER)
 				{
-					quickkill(&ps[p->actorsqu->s->yvel]);
-					ps[p->actorsqu->s->yvel].frag_ps = snum;
+					quickkill(&ps[p->actorsqu->spr.yvel]);
+					ps[p->actorsqu->spr.yvel].frag_ps = snum;
 				}
 				else if (badguy(p->actorsqu->s))
 				{
@@ -493,9 +493,9 @@ void footprints(int snum)
 			DukeSectIterator it(s->sector());
 			while (auto act = it.Next())
 			{
-				if (act->s->picnum == TILE_FOOTPRINTS || act->s->picnum == TILE_FOOTPRINTS2 || act->s->picnum == TILE_FOOTPRINTS3 || act->s->picnum == TILE_FOOTPRINTS4)
-					if (abs(act->s->x - p->pos.x) < 384)
-						if (abs(act->s->y - p->pos.y) < 384)
+				if (act->spr.picnum == TILE_FOOTPRINTS || act->spr.picnum == TILE_FOOTPRINTS2 || act->spr.picnum == TILE_FOOTPRINTS3 || act->spr.picnum == TILE_FOOTPRINTS4)
+					if (abs(act->spr.x - p->pos.x) < 384)
+						if (abs(act->spr.y - p->pos.y) < 384)
 						{
 							j = 1;
 							break;
@@ -516,8 +516,8 @@ void footprints(int snum)
 					}
 					if (fprint)
 					{
-						fprint->s->pal = p->footprintpal;
-						fprint->s->shade = (int8_t)p->footprintshade;
+						fprint->spr.pal = p->footprintpal;
+						fprint->spr.shade = (int8_t)p->footprintshade;
 					}
 				}
 			}
@@ -1019,7 +1019,7 @@ void shootbloodsplat(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 				DukeSectIterator it(hit.hitWall->nextSector());
 				while (auto act2 = it.Next())
 				{
-					if (act2->s->statnum == STAT_EFFECTOR && act2->s->lotag == SE_13_EXPLOSIVE)
+					if (act2->spr.statnum == STAT_EFFECTOR && act2->spr.lotag == SE_13_EXPLOSIVE)
 						return;
 				}
 			}
@@ -1033,17 +1033,17 @@ void shootbloodsplat(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 				auto spawned = spawn(actor, atwith);
 				if (spawned)
 				{
-					spawned->s->xvel = -12;
+					spawned->spr.xvel = -12;
 					auto delta = hit.hitWall->delta();
-					spawned->s->ang = getangle(-delta.x, -delta.y) + 512; // note the '-' sign here!
-					spawned->s->x = hit.hitpos.x;
-					spawned->s->y = hit.hitpos.y;
-					spawned->s->z = hit.hitpos.z;
-					spawned->s->cstat |= randomXFlip();
+					spawned->spr.ang = getangle(-delta.x, -delta.y) + 512; // note the '-' sign here!
+					spawned->spr.x = hit.hitpos.x;
+					spawned->spr.y = hit.hitpos.y;
+					spawned->spr.z = hit.hitpos.z;
+					spawned->spr.cstat |= randomXFlip();
 					ssp(spawned, CLIPMASK0);
-					SetActor(spawned, spawned->s->pos);
+					SetActor(spawned, spawned->spr.pos);
 					if (s->picnum == OOZFILTER || s->picnum == NEWBEAST)
-						spawned->s->pal = 6;
+						spawned->spr.pal = 6;
 				}
 			}
 		}
@@ -1220,7 +1220,7 @@ DEFINE_FIELD_X(DukePlayer, player_struct, holoduke_on)
 DEFINE_ACTION_FUNCTION(_DukePlayer, IsFrozen)
 {
 	PARAM_SELF_STRUCT_PROLOGUE(player_struct);
-	ACTION_RETURN_BOOL(self->GetActor()->s->pal == 1 && self->last_extra < 2);
+	ACTION_RETURN_BOOL(self->GetActor()->spr.pal == 1 && self->last_extra < 2);
 }
 
 DEFINE_ACTION_FUNCTION(_DukePlayer, GetGameVar)

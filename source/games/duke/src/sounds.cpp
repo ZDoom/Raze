@@ -111,7 +111,7 @@ public:
 		{
 			UnloadSound(schan->SoundID);
 			currentCommentarySound = 0;
-			if (currentCommentarySprite) currentCommentarySprite->s->picnum = DEVELOPERCOMMENTARY;
+			if (currentCommentarySprite) currentCommentarySprite->spr.picnum = DEVELOPERCOMMENTARY;
 			I_SetRelativeVolume(1.0f);
 			UnmuteSounds();
 		}
@@ -242,7 +242,7 @@ int S_DefineSound(unsigned index, const char *filename, int minpitch, int maxpit
 
 inline bool S_IsAmbientSFX(DDukeActor* actor)
 {
-	return (actor->s->picnum == MUSICANDSFX && actor->s->lotag < 999);
+	return (actor->spr.picnum == MUSICANDSFX && actor->spr.lotag < 999);
 }
 
 //==========================================================================
@@ -322,9 +322,9 @@ void S_GetCamera(vec3_t** c, int32_t* ca, sectortype** cs)
 	}
 	else
 	{
-		if (c) *c =  &ud.cameraactor->s->pos;
-		if (cs) *cs = ud.cameraactor->s->sector();
-		if (ca) *ca = ud.cameraactor->s->ang;
+		if (c) *c =  &ud.cameraactor->spr.pos;
+		if (cs) *cs = ud.cameraactor->spr.sector();
+		if (ca) *ca = ud.cameraactor->spr.ang;
 	}
 }
 
@@ -445,7 +445,7 @@ int S_PlaySound3D(int sndnum, DDukeActor* actor, const vec3_t* pos, int channel,
 
 	if (userflags & SF_TALK)
 	{
-		if (snd_speech == 0 || (ud.multimode > 1 && actor->s->picnum == TILE_APLAYER && actor->s->yvel != screenpeek && ud.coop != 1)) return -1;
+		if (snd_speech == 0 || (ud.multimode > 1 && actor->spr.picnum == TILE_APLAYER && actor->spr.yvel != screenpeek && ud.coop != 1)) return -1;
 		bool foundone =  soundEngine->EnumerateChannels([&](FSoundChan* chan)
 			{
 				auto sid = chan->OrgID;
@@ -483,7 +483,7 @@ int S_PlaySound3D(int sndnum, DDukeActor* actor, const vec3_t* pos, int channel,
 	}
 	else
 	{
-		if (sndist > 32767 && actor->s->picnum != MUSICANDSFX && (userflags & (SF_LOOP | SF_MSFX)) == 0)
+		if (sndist > 32767 && actor->spr.picnum != MUSICANDSFX && (userflags & (SF_LOOP | SF_MSFX)) == 0)
 			return -1;
 
 		if (underwater && (userflags & SF_TALK) == 0)
@@ -491,7 +491,7 @@ int S_PlaySound3D(int sndnum, DDukeActor* actor, const vec3_t* pos, int channel,
 	}
 
 	bool is_playing = soundEngine->GetSoundPlayingInfo(SOURCE_Any, nullptr, sndnum+1);
-	if (is_playing && actor->s->picnum != MUSICANDSFX)
+	if (is_playing && actor->spr.picnum != MUSICANDSFX)
 		S_StopSound(sndnum, actor);
 
 	int const repeatp = (userflags & SF_LOOP);
@@ -550,7 +550,7 @@ int S_PlaySound(int sndnum, int channel, EChanFlags flags, float vol)
 int S_PlayActorSound(int soundNum, DDukeActor* actor, int channel, EChanFlags flags)
 {
 	return (actor == nullptr ? S_PlaySound(soundNum, channel, flags) :
-		S_PlaySound3D(soundNum, actor, &actor->s->pos, channel, flags));
+		S_PlaySound3D(soundNum, actor, &actor->spr.pos, channel, flags));
 }
 
 void S_StopSound(int sndNum, DDukeActor* actor, int channel)
@@ -564,7 +564,7 @@ void S_StopSound(int sndNum, DDukeActor* actor, int channel)
 		else soundEngine->StopSound(SOURCE_Actor, actor, channel, -1);
 
 		// StopSound kills the actor reference so this cannot be delayed until ChannelEnded gets called. At that point the actor may also not be valid anymore.
-		if (S_IsAmbientSFX(actor) && actor->s->sector()->lotag < 3)  // ST_2_UNDERWATER
+		if (S_IsAmbientSFX(actor) && actor->spr.sector()->lotag < 3)  // ST_2_UNDERWATER
 			actor->temp_data[0] = 0;
 	}
 }

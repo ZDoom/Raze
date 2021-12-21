@@ -117,18 +117,18 @@ void DoSpawn(struct player_struct *p, int snum)
 	if((aplWeaponFlags(p->curr_weapon, snum) & WEAPON_FLAG_SPAWNTYPE2 ) )
 	{
 		// like shotgun shells
-		j->s->ang += 1024;
+		j->spr.ang += 1024;
 		ssp(j,CLIPMASK0);
-		j->s->ang += 1024;
+		j->spr.ang += 1024;
 //		p->kickback_pic++;
 	}
 	else if((aplWeaponFlags(p->curr_weapon, snum) & WEAPON_FLAG_SPAWNTYPE3 ) )
 	{
 		// like chaingun shells
-		j->s->ang += 1024;
-		j->s->ang &= 2047;
-		j->s->xvel += 32;
-		j->s->z += (3<<8);
+		j->spr.ang += 1024;
+		j->spr.ang &= 2047;
+		j->spr.xvel += 32;
+		j->spr.z += (3<<8);
 		ssp(j,CLIPMASK0);
 	}
 		
@@ -353,23 +353,23 @@ void operateweapon_ww(int snum, ESyncBits actions)
 					int lGrenadeLifetime = GetGameVar("GRENADE_LIFETIME", NAM_GRENADE_LIFETIME, nullptr, snum).value();
 					int lGrenadeLifetimeVar = GetGameVar("GRENADE_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, nullptr, snum).value();
 					// set timer.  blows up when at zero....
-					j->s->extra = lGrenadeLifetime
+					j->spr.extra = lGrenadeLifetime
 						+ MulScale(krand(), lGrenadeLifetimeVar, 14)
 						- lGrenadeLifetimeVar;
 				}
 
 				if (k == 15)
 				{
-					j->s->yvel = 3;
-					j->s->z += (8 << 8);
+					j->spr.yvel = 3;
+					j->spr.z += (8 << 8);
 				}
 
 				k = hits(p->GetActor());
 				if (k < 512)
 				{
-					j->s->ang += 1024;
-					j->s->zvel /= 3;
-					j->s->xvel /= 3;
+					j->spr.ang += 1024;
+					j->spr.zvel /= 3;
+					j->spr.xvel /= 3;
 				}
 
 				p->hbomb_on = 1;

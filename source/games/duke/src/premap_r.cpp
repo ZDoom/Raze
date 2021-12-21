@@ -394,7 +394,7 @@ void cacheit_r(void)
 		DukeSectIterator it(&sect);
 		while (auto j = it.Next())
 		{
-			if(j->s->xrepeat != 0 && j->s->yrepeat != 0 && (j->s->cstat & CSTAT_SPRITE_INVISIBLE) == 0)
+			if(j->spr.xrepeat != 0 && j->spr.yrepeat != 0 && (j->spr.cstat & CSTAT_SPRITE_INVISIBLE) == 0)
 					cachespritenum(j->s);
 		}
 	}
@@ -706,7 +706,7 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 				DukeStatIterator it1(STAT_EFFECTOR);
 				while (auto j = it1.Next())
 				{
-					if (j->s->lotag == 12 && j->s->hitag == spr->lotag)
+					if (j->spr.lotag == 12 && j->spr.hitag == spr->lotag)
 						j->temp_data[0] = 1;
 				}
 			}

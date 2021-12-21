@@ -67,12 +67,12 @@ static const char *cheatGod(int myconnectindex, int state)
 	auto act = p->GetActor();
 
 	p->resurrected = true;
-	act->s->extra = gs.max_player_health;
+	act->spr.extra = gs.max_player_health;
 	act->extra = 0;
 	if (ud.god)
 	{
 		if (isRRRA()) S_PlaySound(218, CHAN_AUTO, CHANF_UI);
-		act->s->cstat = CSTAT_SPRITE_BLOCK_ALL;
+		act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 
 		act->temp_data[0] = 0;
 		act->temp_data[1] = 0;
@@ -81,9 +81,9 @@ static const char *cheatGod(int myconnectindex, int state)
 		act->temp_data[4] = 0;
 		act->temp_data[5] = 0;
 
-		act->s->hitag = 0;
-		act->s->lotag = 0;
-		act->s->pal =
+		act->spr.hitag = 0;
+		act->spr.lotag = 0;
+		act->spr.pal =
 			ps[myconnectindex].palookup;
 
 		return quoteMgr.GetQuote(QUOTE_CHEAT_GODMODE_ON);
@@ -91,7 +91,7 @@ static const char *cheatGod(int myconnectindex, int state)
 	else
 	{
 		ud.god = 0;
-		act->s->extra = gs.max_player_health;
+		act->spr.extra = gs.max_player_health;
 		act->extra = -1;
 		ps[myconnectindex].last_extra = gs.max_player_health;
 		return quoteMgr.GetQuote(QUOTE_CHEAT_GODMODE_OFF);
@@ -123,9 +123,9 @@ static const char *cheatKfc(int player)
 		auto spr = spawn(ps[player].GetActor(), TILE_HEN);
 		if (spr)
 		{
-			spr->s->pal = 1;
-			spr->s->xrepeat = spr->s->xrepeat << 2;
-			spr->s->yrepeat = spr->s->yrepeat << 2;
+			spr->spr.pal = 1;
+			spr->spr.xrepeat = spr->spr.xrepeat << 2;
+			spr->spr.yrepeat = spr->spr.yrepeat << 2;
 		}
 	}
 	return quoteMgr.GetQuote(QUOTE_CHEAT_KFC);
@@ -200,7 +200,7 @@ const char* GameInterface::GenericCheat(int player, int cheat)
 		memset(ps[player].gotweapon, 0, sizeof(ps[player].gotweapon));
 		ps[player].curr_weapon = KNEE_WEAPON;
 		ps[player].nocheat = 1;
-		ps[player].GetActor()->s->extra = 1;
+		ps[player].GetActor()->spr.extra = 1;
 		return quoteMgr.GetQuote(QUOTE_YERFUCKED);
 
 	case CHT_AARON:
@@ -476,7 +476,7 @@ static void cmd_Give(int player, uint8_t** stream, bool skip)
 	int type = ReadByte(stream);
 	if (skip) return;
 
-	if (numplayers != 1 || gamestate != GS_LEVEL || ps[player].GetActor()->s->extra <= 0)
+	if (numplayers != 1 || gamestate != GS_LEVEL || ps[player].GetActor()->spr.extra <= 0)
 	{
 		Printf("give: Cannot give while dead or not in a single-player game.\n");
 		return;
@@ -490,7 +490,7 @@ static void cmd_Give(int player, uint8_t** stream, bool skip)
 		break;
 
 	case GIVE_HEALTH:
-		ps[player].GetActor()->s->extra = gs.max_player_health << 1;
+		ps[player].GetActor()->spr.extra = gs.max_player_health << 1;
 		break;
 
 	case GIVE_WEAPONS:

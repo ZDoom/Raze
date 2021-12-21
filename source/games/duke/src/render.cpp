@@ -297,7 +297,7 @@ void displayrooms(int snum, double smoothratio)
 	else
 	{
 		// Fixme: This should get the aspect ratio from the backend, not the current viewport size.
-		int i = DivScale(1, isRR() ? 64 : p->GetActor()->s->yrepeat + 28, 22);
+		int i = DivScale(1, isRR() ? 64 : p->GetActor()->spr.yrepeat + 28, 22);
 		int viewingaspect = !isRRRA() || !p->DrugMode ? xs_CRoundToInt(double(i) * tan(r_fov * (pi::pi() / 360.))) : getdrugmode(p, i);
 		renderSetAspect(MulScale(viewingaspect, viewingrange, 16), yxaspect);
 
@@ -386,7 +386,7 @@ void displayrooms(int snum, double smoothratio)
 			cang += buildang((2 - ((earthquaketime) & 2)) << 2);
 		}
 
-		if (p->GetActor()->s->pal == 1) cposz -= (18 << 8);
+		if (p->GetActor()->spr.pal == 1) cposz -= (18 << 8);
 
 		else if (p->spritebridge == 0 && p->newOwner == nullptr)
 		{

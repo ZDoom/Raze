@@ -98,7 +98,7 @@ DDukeActor* EGS(sectortype* whatsectp, int s_x, int s_y, int s_z, int s_pn, int8
 
 	if (s_ow)
 	{
-		act->picnum = s_ow->s->picnum;
+		act->picnum = s_ow->spr.picnum;
 		act->floorz = s_ow->floorz;
 		act->ceilingz = s_ow->ceilingz;
 	}
@@ -122,8 +122,8 @@ DDukeActor* EGS(sectortype* whatsectp, int s_x, int s_y, int s_z, int s_pn, int8
 		s->hitag = 0;
 	}
 
-	if (show2dsector[s->sectno()]) act->s->cstat2 |= CSTAT2_SPRITE_MAPPED;
-	else act->s->cstat2 &= ~CSTAT2_SPRITE_MAPPED;
+	if (show2dsector[s->sectno()]) act->spr.cstat2 |= CSTAT2_SPRITE_MAPPED;
+	else act->spr.cstat2 &= ~CSTAT2_SPRITE_MAPPED;
 
 	act->sx() = {};
 	act->sm() = {};
@@ -223,10 +223,10 @@ DDukeActor* spawn(DDukeActor* actj, int pn)
 {
 	if (actj)
 	{
-		auto spawned = EGS(actj->s->sector(), actj->s->x, actj->s->y, actj->s->z, pn, 0, 0, 0, 0, 0, 0, actj, 0);
+		auto spawned = EGS(actj->spr.sector(), actj->spr.x, actj->spr.y, actj->spr.z, pn, 0, 0, 0, 0, 0, 0, actj, 0);
 		if (spawned)
 		{
-			spawned->picnum = actj->s->picnum;
+			spawned->picnum = actj->spr.picnum;
 			return fi.spawninit(actj, spawned, nullptr);
 		}
 	}
@@ -277,8 +277,8 @@ void spawninitdefault(DDukeActor* actj, DDukeActor *act)
 			sp->clipdist = 80;
 			if (actj)
 			{
-				if (actj->s->picnum == RESPAWN)
-					act->tempang = sp->pal = actj->s->pal;
+				if (actj->spr.picnum == RESPAWN)
+					act->tempang = sp->pal = actj->spr.pal;
 				ChangeActorStat(act, STAT_ACTOR);
 			}
 			else ChangeActorStat(act, STAT_ZOMBIEACTOR);
@@ -293,7 +293,7 @@ void spawninitdefault(DDukeActor* actj, DDukeActor *act)
 		act->timetosleep = 0;
 
 		if (actj)
-			sp->ang = actj->s->ang;
+			sp->ang = actj->spr.ang;
 	}
 }
 
@@ -416,8 +416,8 @@ void initfootprint(DDukeActor* actj, DDukeActor* acti)
 		else { sp->xrepeat = sp->yrepeat = 0; return; }
 
 		sp->cstat = CSTAT_SPRITE_ALIGNMENT_FLOOR;
-		if ((ps[actj->s->yvel].footprintcount & 1)) sp->cstat |= CSTAT_SPRITE_XFLIP;
-		sp->ang = actj->s->ang;
+		if ((ps[actj->spr.yvel].footprintcount & 1)) sp->cstat |= CSTAT_SPRITE_XFLIP;
+		sp->ang = actj->spr.ang;
 	}
 
 	sp->z = sect->floorz;
@@ -545,10 +545,10 @@ void initwaterdrip(DDukeActor* actj, DDukeActor* actor)
 {
 	auto sp = actor->s;
 	auto t = actor->temp_data;
-	if (actj && (actj->s->statnum == 10 || actj->s->statnum == 1))
+	if (actj && (actj->spr.statnum == 10 || actj->spr.statnum == 1))
 	{
 		sp->shade = 32;
-		if (actj->s->pal != 1)
+		if (actj->spr.pal != 1)
 		{
 			sp->pal = 2;
 			sp->z -= (18 << 8);
@@ -645,8 +645,8 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 				
 				for(auto act2 : *actors)
 				{
-					if (act2->s->statnum < MAXSTATUS && act2->s->picnum == SECTOREFFECTOR && (act2->s->lotag == SE_7_TELEPORT || act2->s->lotag == SE_23_ONE_WAY_TELEPORT) && 
-						actor != act2 && act2->s->hitag == sp->hitag)
+					if (act2->spr.statnum < MAXSTATUS && act2->spr.picnum == SECTOREFFECTOR && (act2->spr.lotag == SE_7_TELEPORT || act2->spr.lotag == SE_23_ONE_WAY_TELEPORT) && 
+						actor != act2 && act2->spr.hitag == sp->hitag)
 					{
 						actor->SetOwner(act2);
 						break;
@@ -1067,17 +1067,17 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 		case SE_15_SLIDING_DOOR:
 		case SE_16_REACTOR:
 		case SE_26:
-			setsectinterpolate(actor->s->sector());
+			setsectinterpolate(actor->spr.sector());
 			break;
 
 		case SE_29_WAVES:
-			StartInterpolation(actor->s->sector(), Interp_Sect_Floorheinum);
-			StartInterpolation(actor->s->sector(), Interp_Sect_Floorz);
+			StartInterpolation(actor->spr.sector(), Interp_Sect_Floorheinum);
+			StartInterpolation(actor->spr.sector(), Interp_Sect_Floorz);
 			break;
 	}
 
-	if ((!isRR() && actor->s->lotag >= 40 && actor->s->lotag <= 45) ||
-		(isRRRA() && actor->s->lotag >= 150 && actor->s->lotag <= 155))
+	if ((!isRR() && actor->spr.lotag >= 40 && actor->spr.lotag <= 45) ||
+		(isRRRA() && actor->spr.lotag >= 150 && actor->spr.lotag <= 155))
 		ChangeActorStat(actor, STAT_RAROR);
 	else
 		ChangeActorStat(actor, STAT_EFFECTOR);
@@ -1146,7 +1146,7 @@ void spriteglass(DDukeActor* actor, int n)
 		int a = krand() & 2047;
 		int z = sp->z - ((krand() & 16) << 8);
 		auto k = EGS(sp->sector(), sp->x, sp->y, z, TILE_GLASSPIECES + (j % 3), krand() & 15, 36, 36, a, 32 + (krand() & 63), -512 - (krand() & 2047), actor, 5);
-		if (k) k->s->pal = sp->pal;
+		if (k) k->spr.pal = sp->pal;
 	}
 }
 
@@ -1198,7 +1198,7 @@ void lotsofcolourglass(DDukeActor* actor, walltype* wal, int n)
 		{
 			a = krand() & 2047;
 			auto k = EGS(sp->sector(), sp->x, sp->y, sp->z - (krand() & (63 << 8)), TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), 1024 - (krand() & 2047), actor, 5);
-			if (k) k->s->pal = krand() & 15;
+			if (k) k->spr.pal = krand() & 15;
 		}
 		return;
 	}
@@ -1219,7 +1219,7 @@ void lotsofcolourglass(DDukeActor* actor, walltype* wal, int n)
 			z = sp->z - (32 << 8) + (krand() & ((64 << 8) - 1));
 		a = sp->ang - 1024;
 		auto k = EGS(sp->sector(), x1, y1, z, TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), -(krand() & 2047), actor, 5);
-		if (k) k->s->pal = krand() & 7;
+		if (k) k->spr.pal = krand() & 7;
 	}
 }
 

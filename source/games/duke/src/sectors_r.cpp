@@ -306,16 +306,16 @@ void operaterespawns_r(int low)
 	DukeStatIterator it(STAT_FX);
 	while (auto act = it.Next())
 	{
-		if (act->s->lotag == low) switch (act->s->picnum)
+		if (act->spr.lotag == low) switch (act->spr.picnum)
 		{
 		case RESPAWN:
 		{
-			if (badguypic(act->s->hitag) && ud.monsters_off) break;
+			if (badguypic(act->spr.hitag) && ud.monsters_off) break;
 
 			auto star = spawn(act, TRANSPORTERSTAR);
-			if (star) star->s->z -= (32 << 8);
+			if (star) star->spr.z -= (32 << 8);
 
-			act->s->extra = 66 - 12;   // Just a way to killit
+			act->spr.extra = 66 - 12;   // Just a way to killit
 			break;
 		}
 		case RRTILE7424:
@@ -356,13 +356,13 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 
 	if (act)
 	{
-		lotag = act->s->lotag;
+		lotag = act->spr.lotag;
 		if (lotag == 0) return 0;
-		hitag = act->s->hitag;
-		sx = act->s->x;
-		sy = act->s->y;
-		picnum = act->s->picnum;
-		switchpal = act->s->pal;
+		hitag = act->spr.hitag;
+		sx = act->spr.x;
+		sy = act->spr.y;
+		picnum = act->spr.picnum;
+		switchpal = act->spr.pal;
 	}
 	else
 	{
@@ -555,14 +555,14 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 					DukeStatIterator it1(107);
 					while (auto other2 = it1.Next())
 					{
-						if (other2->s->picnum == RRTILE3410)
+						if (other2->spr.picnum == RRTILE3410)
 						{
-							other2->s->picnum++;
-							other2->s->hitag = 100;
-							other2->s->extra = 0;
+							other2->spr.picnum++;
+							other2->spr.hitag = 100;
+							other2->spr.extra = 0;
 							S_PlayActorSound(474, other2);
 						}
-						else if (other2->s->picnum == RRTILE295)
+						else if (other2->spr.picnum == RRTILE295)
 							deletesprite(other2);
 					}
 					si->picnum++;
@@ -765,11 +765,11 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 			{
 				BellTime = 132;
 				BellSprite = act;
-				act->s->picnum++;
+				act->spr.picnum++;
 			}
 			else if (picnum == RRTILE8464)
 			{
-				act->s->picnum = act->s->picnum + 1;
+				act->spr.picnum = act->spr.picnum + 1;
 				if (hitag == 10001)
 				{
 					if (ps[snum].SeaSick == 0)
@@ -793,8 +793,8 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 					DukeSpriteIterator it;
 					while (auto actt = it.Next())
 					{
-						int jpn = actt->s->picnum;
-						int jht = actt->s->hitag;
+						int jpn = actt->spr.picnum;
+						int jht = actt->spr.hitag;
 						if ((jpn == MULTISWITCH || jpn == MULTISWITCH2) && jht == 10000)
 						{
 							if (switchcount < 3)
@@ -814,11 +814,11 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 						S_PlaySound3D(78, act, &v);
 						for (j = 0; j < switchcount; j++)
 						{
-							switches[j]->s->hitag = 0;
+							switches[j]->spr.hitag = 0;
 							if (picnum >= MULTISWITCH2)
-								switches[j]->s->picnum = MULTISWITCH2 + 3;
+								switches[j]->spr.picnum = MULTISWITCH2 + 3;
 							else
-								switches[j]->s->picnum = MULTISWITCH + 3;
+								switches[j]->spr.picnum = MULTISWITCH + 3;
 							checkhitswitch_r(snum, nullptr, switches[j]);
 						}
 					}
@@ -839,9 +839,9 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 		DukeStatIterator it(STAT_EFFECTOR);
 		while (auto other = it.Next())
 		{
-			if (other->s->hitag == lotag)
+			if (other->spr.hitag == lotag)
 			{
-				switch (other->s->lotag)
+				switch (other->spr.lotag)
 				{
 				case 46:
 				case SE_47_LIGHT_SWITCH:
@@ -910,9 +910,9 @@ void activatebysector_r(sectortype* sect, DDukeActor* activator)
 	DukeSectIterator it(sect);
 	while (auto act = it.Next())
 	{
-		if (act->s->picnum == ACTIVATOR)
+		if (act->spr.picnum == ACTIVATOR)
 		{
-			operateactivators(act->s->lotag, -1);
+			operateactivators(act->spr.lotag, -1);
 			//			return;
 		}
 	}
@@ -1043,7 +1043,7 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 					auto spawned = EGS(sptr, x, y, z, SECTOREFFECTOR, 0, 0, 0, ps[0].angle.ang.asbuild(), 0, 0, spr, 3);
 					if (spawned)
 					{
-						spawned->s->lotag = SE_128_GLASS_BREAKING;
+						spawned->spr.lotag = SE_128_GLASS_BREAKING;
 						spawned->temp_walls[0] = wal;
 						S_PlayActorSound(GLASS_BREAKING, spawned);
 					}
@@ -1064,7 +1064,7 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 					auto spawned = EGS(sptr, x, y, z, SECTOREFFECTOR, 0, 0, 0, ps[0].angle.ang.asbuild(), 0, 0, spr, 3);
 					if (spawned)
 					{
-						spawned->s->lotag = SE_128_GLASS_BREAKING;
+						spawned->spr.lotag = SE_128_GLASS_BREAKING;
 						spawned->temp_data[1] = 2;
 						spawned->temp_walls[0] = wal;
 						S_PlayActorSound(GLASS_BREAKING, spawned);
@@ -1107,7 +1107,7 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 						if (wl.twoSided()) wl.nextSector()->lotag = 0;
 					}
 					s->sector()->lotag = 0;
-					S_StopSound(act->s->lotag);
+					S_StopSound(act->spr.lotag);
 					S_PlayActorSound(400, act);
 					deletesprite(act);
 				}
@@ -1366,7 +1366,7 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 		DukeStatIterator it(STAT_EFFECTOR);
 		while (auto act = it.Next())
 		{
-			if (act->s->hitag == wal->lotag && act->s->lotag == 3)
+			if (act->spr.hitag == wal->lotag && act->spr.lotag == 3)
 			{
 				act->temp_data[2] = j;
 				act->temp_data[3] = darkestwall;
@@ -1387,7 +1387,7 @@ void checkplayerhurt_r(struct player_struct* p, const Collision &coll)
 {
 	if (coll.type == kHitSprite)
 	{
-		switch (coll.actor()->s->picnum)
+		switch (coll.actor()->spr.picnum)
 		{
 		case RRTILE2430:
 		case RRTILE2431:
@@ -1398,7 +1398,7 @@ void checkplayerhurt_r(struct player_struct* p, const Collision &coll)
 		case RRTILE2455:
 			if (isRRRA() && p->hurt_delay2 < 8)
 			{
-				p->GetActor()->s->extra -= 2;
+				p->GetActor()->spr.extra -= 2;
 				p->hurt_delay2 = 16;
 				SetPlayerPal(p, PalEntry(32, 32, 0, 0));
 				S_PlayActorSound(DUKE_LONGTERM_PAIN, p->GetActor());
@@ -1407,7 +1407,7 @@ void checkplayerhurt_r(struct player_struct* p, const Collision &coll)
 		case CACTUS:
 			if (!isRRRA() && p->hurt_delay < 8)
 			{
-				p->GetActor()->s->extra -= 5;
+				p->GetActor()->spr.extra -= 5;
 				p->hurt_delay = 16;
 				SetPlayerPal(p, PalEntry(32, 32, 0, 0));
 				S_PlayActorSound(DUKE_LONGTERM_PAIN, p->GetActor());
@@ -1511,7 +1511,7 @@ bool checkhitceiling_r(sectortype* sectp)
 					DukeStatIterator it(STAT_EFFECTOR);
 					while (auto act2 = it.Next())
 					{
-						if (act2->s->hitag == spr1->hitag)
+						if (act2->spr.hitag == spr1->hitag)
 							act2->temp_data[3] = 1;
 					}
 					break;
@@ -1929,10 +1929,10 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 			DukeSpriteIterator it;
 			while (auto act = it.Next())
 			{
-				if (act->s->picnum == RRTILE8679 && act->s->pal == 4)
+				if (act->spr.picnum == RRTILE8679 && act->spr.pal == 4)
 				{
-					if (act->s->lotag == s->lotag)
-						act->s->picnum = RRTILE8680;
+					if (act->spr.lotag == s->lotag)
+						act->spr.picnum = RRTILE8680;
 				}
 			}
 		}
@@ -1955,8 +1955,8 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 			DukeSpriteIterator it;
 			while (auto act = it.Next())
 			{
-				if (act->s->picnum == RRTILE8094)
-					act->s->picnum = RRTILE5088;
+				if (act->spr.picnum == RRTILE8094)
+					act->spr.picnum = RRTILE5088;
 			}
 		}
 		break;
@@ -1969,10 +1969,10 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 				DukeSpriteIterator it;
 				while (auto act = it.Next())
 				{
-					if (act->s->picnum == RRTILE2431 && act->s->pal == 4)
+					if (act->spr.picnum == RRTILE2431 && act->spr.pal == 4)
 					{
-						if (s->lotag == act->s->lotag)
-							act->s->picnum = RRTILE2451;
+						if (s->lotag == act->spr.lotag)
+							act->spr.picnum = RRTILE2451;
 					}
 				}
 			}
@@ -1996,14 +1996,14 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 				DukeSpriteIterator it;
 				while (auto act = it.Next())
 				{
-					if (act->s->picnum == RRTILE2451 && act->s->pal == 4)
+					if (act->spr.picnum == RRTILE2451 && act->spr.pal == 4)
 					{
-						if (s->lotag == act->s->lotag)
+						if (s->lotag == act->spr.lotag)
 						{
 							fi.guts(targ, RRTILE2460, 12, myconnectindex);
 							fi.guts(targ, RRTILE2465, 3, myconnectindex);
-							act->s->xrepeat = 0;
-							act->s->yrepeat = 0;
+							act->spr.xrepeat = 0;
+							act->spr.yrepeat = 0;
 							s->xrepeat = 0;
 							s->yrepeat = 0;
 						}
@@ -2173,7 +2173,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 			for (k = 0; k < 64; k++)
 			{
 				auto j = EGS(s->sector(), s->x, s->y, s->z - (krand() % (48 << 8)), SCRAP6 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (s->zvel >> 2), targ, 5);
-				j->s->pal = 8;
+				j->spr.pal = 8;
 			}
 
 			if (s->picnum == CACTUS)
@@ -2331,7 +2331,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		}
 		{
 			auto j = spawn(targ, STEAM);
-			if (j) j->s->z = s->sector()->floorz - (32 << 8);
+			if (j) j->spr.z = s->sector()->floorz - (32 << 8);
 		}
 		break;
 
@@ -2377,17 +2377,17 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 							if (spawned)
 							{
 								if (pspr->pal == 6)
-									spawned->s->pal = 6;
-								spawned->s->z += (4 << 8);
-								spawned->s->xvel = 16;
-								spawned->s->xrepeat = spawned->s->yrepeat = 24;
-								spawned->s->ang += 32 - (krand() & 63);
+									spawned->spr.pal = 6;
+								spawned->spr.z += (4 << 8);
+								spawned->spr.xvel = 16;
+								spawned->spr.xrepeat = spawned->spr.yrepeat = 24;
+								spawned->spr.ang += 32 - (krand() & 63);
 							}
 						}
 
 				auto Owner = proj->GetOwner();
 
-				if (Owner && Owner->s->picnum == APLAYER && s->picnum != DRONE)
+				if (Owner && Owner->spr.picnum == APLAYER && s->picnum != DRONE)
 					if (ps[Owner->PlayerIndex()].curr_weapon == SHOTGUN_WEAPON)
 					{
 						fi.shoot(targ, BLOODSPLAT3);
@@ -2430,11 +2430,11 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 					DukeStatIterator it(STAT_EFFECTOR);
 					while (auto act = it.Next())
 					{
-						if (act->s->picnum == CAMERA1) act->s->yvel = 0;
+						if (act->spr.picnum == CAMERA1) act->spr.yvel = 0;
 					}
 				}
 				auto Owner = targ->GetHitOwner();
-				if (!Owner || Owner->s->picnum != APLAYER)
+				if (!Owner || Owner->spr.picnum != APLAYER)
 					if (ud.player_skill >= 3)
 						pspr->extra += (pspr->extra >> 1);
 			}
@@ -2497,7 +2497,7 @@ void checksectors_r(int snum)
 
 	//After this point the the player effects the map with space
 
-	if (chatmodeon || p->GetActor()->s->extra <= 0) return;
+	if (chatmodeon || p->GetActor()->spr.extra <= 0) return;
 
 	if (ud.cashman && PlayerInput(snum, SB_OPEN))
 		fi.lotsofmoney(p->GetActor(), 2);
@@ -2591,7 +2591,7 @@ void checksectors_r(int snum)
 				neartag({ p->pos.x, p->pos.y, p->pos.z + (16 << 8) }, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280, 3);
 				if (near.actor() != nullptr)
 				{
-					switch (near.actor()->s->picnum)
+					switch (near.actor()->spr.picnum)
 					{
 					case FEM10:
 					case NAKED1:
@@ -2610,7 +2610,7 @@ void checksectors_r(int snum)
 
 		if (p->newOwner == nullptr && near.actor() == nullptr && near.hitWall == nullptr && near.hitSector == nullptr)
 			if (isanunderoperator(p->GetActor()->sector()->lotag))
-				near.hitSector = p->GetActor()->s->sector();
+				near.hitSector = p->GetActor()->spr.sector();
 
 		if (near.hitSector && (near.hitSector->lotag & 16384))
 			return;
@@ -2630,7 +2630,7 @@ void checksectors_r(int snum)
 		{
 			if (fi.checkhitswitch(snum, nullptr, neartagsprite)) return;
 
-			switch (neartagsprite->s->picnum)
+			switch (neartagsprite->spr.picnum)
 			{
 			case RRTILE8448:
 				if (!isRRRA()) return;
@@ -2679,7 +2679,7 @@ void checksectors_r(int snum)
 			case RRTILE8594:
 			case RRTILE8595:
 				if (!isRRRA()) return;
-				neartagsprite->s->extra = 60;
+				neartagsprite->spr.extra = 60;
 				S_PlayActorSound(235, neartagsprite);
 				return;
 
@@ -2698,13 +2698,13 @@ void checksectors_r(int snum)
 						p->holster_weapon = 1;
 						p->weapon_pos = -1;
 					}
-					if (p->GetActor()->s->extra <= (gs.max_player_health - (gs.max_player_health / 10)))
+					if (p->GetActor()->spr.extra <= (gs.max_player_health - (gs.max_player_health / 10)))
 					{
-						p->GetActor()->s->extra += gs.max_player_health / 10;
-						p->last_extra = p->GetActor()->s->extra;
+						p->GetActor()->spr.extra += gs.max_player_health / 10;
+						p->last_extra = p->GetActor()->spr.extra;
 					}
-					else if (p->GetActor()->s->extra < gs.max_player_health)
-						p->GetActor()->s->extra = gs.max_player_health;
+					else if (p->GetActor()->spr.extra < gs.max_player_health)
+						p->GetActor()->spr.extra = gs.max_player_health;
 				}
 				else if (S_CheckActorSoundPlaying(pact, DUKE_GRUNT) == 0)
 					S_PlayActorSound(DUKE_GRUNT, pact);
@@ -2715,16 +2715,16 @@ void checksectors_r(int snum)
 					neartagsprite->temp_data[0] = 1;
 					neartagsprite->SetOwner(p->GetActor());
 
-					if (p->GetActor()->s->extra < gs.max_player_health)
+					if (p->GetActor()->spr.extra < gs.max_player_health)
 					{
-						p->GetActor()->s->extra++;
+						p->GetActor()->spr.extra++;
 						S_PlayActorSound(DUKE_DRINKING, pact);
 					}
 				}
 				return;
 			case PLUG:
 				S_PlayActorSound(SHORT_CIRCUIT, pact);
-				p->GetActor()->s->extra -= 2 + (krand() & 3);
+				p->GetActor()->spr.extra -= 2 + (krand() & 3);
 				SetPlayerPal(p, PalEntry(32, 48, 48, 64));
 				break;
 			}
@@ -2756,7 +2756,7 @@ void checksectors_r(int snum)
 			DukeSectIterator it(near.hitSector);
 			while (auto act = it.Next())
 			{
-				if (act->s->picnum == ACTIVATOR || act->s->picnum == MASTERSWITCH)
+				if (act->spr.picnum == ACTIVATOR || act->spr.picnum == MASTERSWITCH)
 					return;
 			}
 			if (haskey(near.hitSector, snum))
@@ -2777,11 +2777,11 @@ void checksectors_r(int snum)
 				DukeSectIterator it(p->GetActor()->sector());
 				while (auto act = it.Next())
 				{
-					if (act->s->picnum == ACTIVATOR || act->s->picnum == MASTERSWITCH)
+					if (act->spr.picnum == ACTIVATOR || act->spr.picnum == MASTERSWITCH)
 						return;
 				}
 				if (haskey(near.hitSector, snum))
-					operatesectors(p->GetActor()->s->sector(), p->GetActor());
+					operatesectors(p->GetActor()->spr.sector(), p->GetActor());
 				else
 				{
 					if (neartagsprite && neartagsprite->spriteextra > 3)
@@ -2922,7 +2922,7 @@ void tearitup(sectortype* sect)
 	DukeSectIterator it(sect);
 	while (auto act = it.Next())
 	{
-		if (act->s->picnum == DESTRUCTO)
+		if (act->spr.picnum == DESTRUCTO)
 		{
 			act->picnum = SHOTSPARK1;
 			act->extra = 1;

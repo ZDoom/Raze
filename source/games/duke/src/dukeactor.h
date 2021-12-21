@@ -16,7 +16,7 @@ inline DDukeActor* player_struct::GetActor()
 
 inline int player_struct::GetPlayerNum()
 {
-	return actor->s->yvel;
+	return actor->spr.yvel;
 }
 
 DDukeActor* spawn(DDukeActor* spawner, int type);
@@ -33,12 +33,12 @@ inline int dist(DDukeActor* s1, DDukeActor* s2)
 
 inline int badguy(DDukeActor* pSprite)
 {
-	return badguypic(pSprite->s->picnum);
+	return badguypic(pSprite->spr.picnum);
 }
 
 inline int bossguy(DDukeActor* pSprite)
 {
-	return bossguypic(pSprite->s->picnum);
+	return bossguypic(pSprite->spr.picnum);
 }
 
 // old interface versions of already changed functions

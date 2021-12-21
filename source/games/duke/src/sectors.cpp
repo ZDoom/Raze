@@ -120,17 +120,17 @@ int check_activator_motion(int lotag)
 	DukeStatIterator it(STAT_ACTIVATOR);
 	while (auto act = it.Next())
 	{
-		if (act->s->lotag == lotag)
+		if (act->spr.lotag == lotag)
 		{
 			for (int j = animatecnt - 1; j >= 0; j--)
-				if (act->s->sector() == animatesect[j])
+				if (act->spr.sector() == animatesect[j])
 					return(1);
 
 			DukeStatIterator it1(STAT_EFFECTOR);
 			while (auto act2 = it1.Next())
 			{
-				if (act->s->sector() == act2->s->sector())
-					switch (act2->s->lotag)
+				if (act->spr.sector() == act2->spr.sector())
+					switch (act2->spr.lotag)
 					{
 					case SE_11_SWINGING_DOOR:
 					case SE_30_TWO_WAY_TRAIN:
@@ -217,7 +217,7 @@ int findplayer(const DDukeActor* actor, int* d)
 {
 	int j, closest_player;
 	int x, closest;
-	auto s = &actor->s->pos;
+	auto s = &actor->spr.pos;
 
 	if (ud.multimode < 2)
 	{
@@ -231,7 +231,7 @@ int findplayer(const DDukeActor* actor, int* d)
 	for (j = connecthead; j >= 0; j = connectpoint2[j])
 	{
 		x = abs(ps[j].oposx - s->x) + abs(ps[j].oposy - s->y) + ((abs(ps[j].oposz - s->z + (28 << 8))) >> 4);
-		if (x < closest && ps[j].GetActor()->s->extra > 0)
+		if (x < closest && ps[j].GetActor()->spr.extra > 0)
 		{
 			closest_player = j;
 			closest = x;
@@ -257,7 +257,7 @@ int findotherplayer(int p, int* d)
 	closest_player = p;
 
 	for (j = connecthead; j >= 0; j = connectpoint2[j])
-		if (p != j && ps[j].GetActor()->s->extra > 0)
+		if (p != j && ps[j].GetActor()->spr.extra > 0)
 		{
 			x = abs(ps[j].oposx - ps[p].pos.x) + abs(ps[j].oposy - ps[p].pos.y) + (abs(ps[j].oposz - ps[p].pos.z) >> 4);
 
@@ -358,10 +358,10 @@ void doanimations(void)
 			DukeSectIterator it(dasectp);
 			while (auto act = it.Next())
 			{
-				if (act->s->statnum != STAT_EFFECTOR)
+				if (act->spr.statnum != STAT_EFFECTOR)
 				{
-					act->s->backupz();
-					act->s->z += v;
+					act->spr.backupz();
+					act->spr.z += v;
 					act->floorz = dasectp->floorz + v;
 				}
 			}
@@ -449,7 +449,7 @@ int setanimation(sectortype* animsect, int animtype, sectortype* animtarget, int
 
 bool activatewarpelevators(DDukeActor* actor, int d) //Parm = sectoreffectornum
 {
-	auto sect = actor->s->sector();
+	auto sect = actor->spr.sector();
 
 	// See if the sector exists
 
@@ -457,9 +457,9 @@ bool activatewarpelevators(DDukeActor* actor, int d) //Parm = sectoreffectornum
 	DDukeActor *act2;
 	while ((act2 = it.Next()))
 	{
-		if (act2->s->lotag == SE_17_WARP_ELEVATOR || (isRRRA() && act2->s->lotag == SE_18_INCREMENTAL_SECTOR_RISE_FALL))
-			if (act2->s->hitag == actor->s->hitag)
-				if ((abs(sect->floorz - actor->temp_data[2]) > act2->s->yvel) ||
+		if (act2->spr.lotag == SE_17_WARP_ELEVATOR || (isRRRA() && act2->spr.lotag == SE_18_INCREMENTAL_SECTOR_RISE_FALL))
+			if (act2->spr.hitag == actor->spr.hitag)
+				if ((abs(sect->floorz - actor->temp_data[2]) > act2->spr.yvel) ||
 					(act2->sector()->hitag == (sect->hitag - d)))
 					break;
 	}
@@ -480,8 +480,8 @@ bool activatewarpelevators(DDukeActor* actor, int d) //Parm = sectoreffectornum
 	it.Reset(STAT_EFFECTOR);
 	while ((act2 = it.Next()))
 	{
-		if (act2->s->lotag == SE_17_WARP_ELEVATOR || (isRRRA() && act2->s->lotag == SE_18_INCREMENTAL_SECTOR_RISE_FALL))
-			if (act2->s->hitag == actor->s->hitag)
+		if (act2->spr.lotag == SE_17_WARP_ELEVATOR || (isRRRA() && act2->spr.lotag == SE_18_INCREMENTAL_SECTOR_RISE_FALL))
+			if (act2->spr.hitag == actor->spr.hitag)
 			{
 				act2->temp_data[0] = d;
 				act2->temp_data[1] = d; //Make all check warp
@@ -588,17 +588,17 @@ static void handle_st09(sectortype* sptr, DDukeActor* actor)
 
 static void handle_st15(sectortype* sptr, DDukeActor* actor)
 {
-	if (actor->s->picnum != TILE_APLAYER) return;
+	if (actor->spr.picnum != TILE_APLAYER) return;
 
 	DukeSectIterator it(sptr);
 	DDukeActor* a2;
 	while ((a2 = it.Next()))
 	{
-		if (a2->s->picnum == SECTOREFFECTOR && a2->s->lotag == ST_17_PLATFORM_UP) break;
+		if (a2->spr.picnum == SECTOREFFECTOR && a2->spr.lotag == ST_17_PLATFORM_UP) break;
 	}
 	if (!a2) return;
 
-	if (actor->s->sector() == sptr)
+	if (actor->spr.sector() == sptr)
 	{
 		if (activatewarpelevators(a2, -1))
 			activatewarpelevators(a2, 1);
@@ -608,7 +608,7 @@ static void handle_st15(sectortype* sptr, DDukeActor* actor)
 	}
 	else
 	{
-		if (sptr->floorz > a2->s->z)
+		if (sptr->floorz > a2->spr.z)
 			activatewarpelevators(a2, -1);
 		else
 			activatewarpelevators(a2, 1);
@@ -685,8 +685,8 @@ static void handle_st29(sectortype* sptr, DDukeActor* actor)
 	DukeStatIterator it(STAT_EFFECTOR);
 	while (auto act2 = it.Next())
 	{
-		if ((act2->s->lotag == 22) &&
-			(act2->s->hitag == sptr->hitag))
+		if ((act2->spr.lotag == 22) &&
+			(act2->spr.hitag == sptr->hitag))
 		{
 			act2->sector()->extra = -act2->sector()->extra;
 
@@ -719,9 +719,9 @@ REDODOOR:
 		DukeSectIterator it(sptr);
 		while ((a2 = it.Next()))
 		{
-			if (a2->s->statnum == 3 && a2->s->lotag == 9)
+			if (a2->spr.statnum == 3 && a2->spr.lotag == 9)
 			{
-				j = a2->s->z;
+				j = a2->spr.z;
 				break;
 			}
 		}
@@ -819,7 +819,7 @@ static void handle_st23(sectortype* sptr, DDukeActor* actor)
 	DDukeActor* act2;
 	while ((act2 = it.Next()))
 	{
-		if (act2->s->lotag == SE_11_SWINGING_DOOR && act2->s->sector() == sptr && !act2->temp_data[4])
+		if (act2->spr.lotag == SE_11_SWINGING_DOOR && act2->spr.sector() == sptr && !act2->temp_data[4])
 		{
 			break;
 		}
@@ -834,7 +834,7 @@ static void handle_st23(sectortype* sptr, DDukeActor* actor)
 
 		while (auto act3 = it.Next())
 		{
-			if (l == (act3->sector()->lotag & 0x8000) && act3->s->lotag == SE_11_SWINGING_DOOR && act2->s->hitag == act3->s->hitag && act3->temp_data[4])
+			if (l == (act3->sector()->lotag & 0x8000) && act3->spr.lotag == SE_11_SWINGING_DOOR && act2->spr.hitag == act3->spr.hitag && act3->temp_data[4])
 			{
 				return;
 			}
@@ -843,7 +843,7 @@ static void handle_st23(sectortype* sptr, DDukeActor* actor)
 		it.Reset(STAT_EFFECTOR);
 		while (auto act3 = it.Next())
 		{
-			if (l == (act3->sector()->lotag & 0x8000) && act3->s->lotag == SE_11_SWINGING_DOOR && act2->s->hitag == act3->s->hitag)
+			if (l == (act3->sector()->lotag & 0x8000) && act3->spr.lotag == SE_11_SWINGING_DOOR && act2->spr.hitag == act3->spr.hitag)
 			{
 				if (act3->sector()->lotag & 0x8000) act3->sector()->lotag &= 0x7fff;
 				else act3->sector()->lotag |= 0x8000;
@@ -871,7 +871,7 @@ static void handle_st25(sectortype* sptr, DDukeActor* actor)
 	DDukeActor* act2;
 	while ((act2 = it.Next()))
 	{
-		if (act2->s->lotag == 15 && act2->s->sector() == sptr)
+		if (act2->spr.lotag == 15 && act2->spr.sector() == sptr)
 		{
 			break;
 		}
@@ -883,12 +883,12 @@ static void handle_st25(sectortype* sptr, DDukeActor* actor)
 	it.Reset(STAT_EFFECTOR);
 	while (auto act3 = it.Next())
 	{
-		if (act3->s->hitag == act2->s->hitag)
+		if (act3->spr.hitag == act2->spr.hitag)
 		{
-			if (act3->s->lotag == 15)
+			if (act3->spr.lotag == 15)
 			{
 				act3->sector()->lotag ^= 0x8000; // Toggle the open or close
-				act3->s->ang += 1024;
+				act3->spr.ang += 1024;
 				if (act3->temp_data[4]) callsound(act3->sector(), act3);
 				callsound(act3->sector(), act3);
 				if (act3->sector()->lotag & 0x8000) act3->temp_data[4] = 1;
@@ -909,7 +909,7 @@ static void handle_st27(sectortype* sptr, DDukeActor* actor)
 	DukeStatIterator it(STAT_EFFECTOR);
 	while (auto act2 = it.Next())
 	{
-		if ((act2->s->lotag & 0xff) == 20 && act2->s->sector() == sptr) //Bridge
+		if ((act2->spr.lotag & 0xff) == 20 && act2->spr.sector() == sptr) //Bridge
 		{
 
 			sptr->lotag ^= 0x8000;
@@ -935,9 +935,9 @@ static void handle_st28(sectortype* sptr, DDukeActor* actor)
 	DukeSectIterator it(sptr);
 	while (auto a2 = it.Next())
 	{
-		if (a2->s->statnum == 3 && (a2->s->lotag & 0xff) == 21)
+		if (a2->spr.statnum == 3 && (a2->spr.lotag & 0xff) == 21)
 		{
-			j = a2->s->hitag;
+			j = a2->spr.hitag;
 			break; //Found it
 		}
 	}
@@ -946,8 +946,8 @@ static void handle_st28(sectortype* sptr, DDukeActor* actor)
 	DukeStatIterator it1(STAT_EFFECTOR);
 	while (auto act3 = it.Next())
 	{
-		if ((act3->s->lotag & 0xff) == 21 && !act3->temp_data[0] &&
-			(act3->s->hitag) == j)
+		if ((act3->spr.lotag & 0xff) == 21 && !act3->temp_data[0] &&
+			(act3->spr.hitag) == j)
 			act3->temp_data[0] = 1;
 	}
 	callsound(sptr, actor);
@@ -985,8 +985,8 @@ void operatesectors(sectortype* sptr, DDukeActor *actor)
 		auto act = barrier_cast<DDukeActor*>(sptr->hitagactor);
 		if (!act) break;
 		if (act->tempang == 0 || act->tempang == 256) callsound(sptr, actor);
-		if (act->s->extra == 1) act->s->extra = 3;
-		else act->s->extra = 1;
+		if (act->spr.extra == 1) act->spr.extra = 3;
+		else act->spr.extra = 1;
 		break;
 	}
 
@@ -1102,9 +1102,9 @@ void operateactivators(int low, int plnum)
 	DukeStatIterator it(STAT_ACTIVATOR);
 	while (auto act = it.Next())
 	{
-		if (act->s->lotag == low)
+		if (act->spr.lotag == low)
 		{
-			if (act->s->picnum == ACTIVATORLOCKED)
+			if (act->spr.picnum == ACTIVATORLOCKED)
 			{
 				act->sector()->lotag ^= 16384;
 
@@ -1117,7 +1117,7 @@ void operateactivators(int low, int plnum)
 			}
 			else
 			{
-				switch (act->s->hitag)
+				switch (act->spr.hitag)
 				{
 				case 0:
 					break;
@@ -1140,7 +1140,7 @@ void operateactivators(int low, int plnum)
 					DukeSectIterator it(act->sector());
 					while (auto a2 = it.Next())
 					{
-						if (a2->s->statnum == 3) switch (a2->s->lotag)
+						if (a2->spr.statnum == 3) switch (a2->spr.lotag)
 						{
 						case SE_18_INCREMENTAL_SECTOR_RISE_FALL:
 							if (isRRRA()) break;
@@ -1177,8 +1177,8 @@ void operatemasterswitches(int low)
 	DukeStatIterator it(STAT_STANDABLE);
 	while (auto act2 = it.Next())
 	{
-		if (act2->s->picnum == MASTERSWITCH && act2->s->lotag == low && act2->s->yvel == 0)
-			act2->s->yvel = 1;
+		if (act2->spr.picnum == MASTERSWITCH && act2->spr.lotag == low && act2->spr.yvel == 0)
+			act2->spr.yvel = 1;
 	}
 }
 
@@ -1203,7 +1203,7 @@ void operateforcefields_common(DDukeActor *effector, int low, const std::initial
 				{
 					wal->cstat = 0;
 
-					if (effector && effector->s->picnum == SECTOREFFECTOR && effector->s->lotag == 30)
+					if (effector && effector->spr.picnum == SECTOREFFECTOR && effector->spr.lotag == 30)
 						wal->lotag = 0;
 				}
 				else
@@ -1237,12 +1237,12 @@ void allignwarpelevators(void)
 	DukeStatIterator it(STAT_EFFECTOR);
 	while (auto act = it.Next())
 	{
-		if (act->s->lotag == SE_17_WARP_ELEVATOR && act->s->shade > 16)
+		if (act->spr.lotag == SE_17_WARP_ELEVATOR && act->spr.shade > 16)
 		{
 			DukeStatIterator it1(STAT_EFFECTOR);
 			while (auto act2 = it1.Next())
 			{
-				if ((act2->s->lotag) == SE_17_WARP_ELEVATOR && act != act2 && act->s->hitag == act2->s->hitag)
+				if ((act2->spr.lotag) == SE_17_WARP_ELEVATOR && act != act2 && act->spr.hitag == act2->spr.hitag)
 				{
 					act2->sector()->floorz = act->sector()->floorz;
 					act2->sector()->ceilingz = act->sector()->ceilingz;

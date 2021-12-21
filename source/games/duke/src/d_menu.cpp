@@ -92,7 +92,7 @@ bool GameInterface::CanSave()
 {
 	if (ud.recstat == 2 || gamestate != GS_LEVEL) return false;
 	auto &myplayer = ps[myconnectindex];
-	return (myplayer.GetActor()->s->extra > 0);
+	return (myplayer.GetActor()->spr.extra > 0);
 }
 
 bool GameInterface::StartGame(FNewGameStartup& gs)

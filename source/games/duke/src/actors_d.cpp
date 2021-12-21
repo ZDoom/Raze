@@ -91,7 +91,7 @@ bool floorspace_d(sectortype* sectp)
 
 void check_fta_sounds_d(DDukeActor* actor)
 {
-	if (actor->s->extra > 0) switch (actor->s->picnum)
+	if (actor->spr.extra > 0) switch (actor->spr.picnum)
 	{
 	case LIZTROOPONTOILET:
 	case LIZTROOPJUSTSIT:
@@ -133,18 +133,18 @@ void check_fta_sounds_d(DDukeActor* actor)
 		S_PlaySound(BOS1_RECOG);
 		break;
 	case BOSS2:
-		if (actor->s->pal == 1)
+		if (actor->spr.pal == 1)
 			S_PlaySound(BOS2_RECOG);
 		else S_PlaySound(WHIPYOURASS);
 		break;
 	case BOSS3:
-		if (actor->s->pal == 1)
+		if (actor->spr.pal == 1)
 			S_PlaySound(BOS3_RECOG);
 		else S_PlaySound(RIPHEADNECK);
 		break;
 	case BOSS4:
 	case BOSS4STAYPUT:
-		if (actor->s->pal == 1)
+		if (actor->spr.pal == 1)
 			S_PlaySound(BOS4_RECOG);
 		S_PlaySound(BOSS4_FIRSTSEE);
 		break;
@@ -315,12 +315,12 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 			auto spri2 = act2->s;
 			if (isWorldTour() && Owner)
 			{
-				if (Owner->s->picnum == APLAYER && spri2->picnum == APLAYER && ud.coop != 0 && ud.ffire == 0 && Owner != act2)
+				if (Owner->spr.picnum == APLAYER && spri2->picnum == APLAYER && ud.coop != 0 && ud.ffire == 0 && Owner != act2)
 				{
 					continue;
 				}
 				
-				if (spri->picnum == FLAMETHROWERFLAME && ((Owner->s->picnum == FIREFLY && spri2->picnum == FIREFLY) || (Owner->s->picnum == BOSS5 && spri2->picnum == BOSS5)))
+				if (spri->picnum == FLAMETHROWERFLAME && ((Owner->spr.picnum == FIREFLY && spri2->picnum == FIREFLY) || (Owner->spr.picnum == BOSS5 && spri2->picnum == BOSS5)))
 				{
 					continue;
 				}
@@ -367,7 +367,7 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 					{
 						if (spri->picnum == SHRINKSPARK || spri->picnum == FLAMETHROWERFLAME)
 							act2->picnum = spri->picnum;
-						else if (spri->picnum != FIREBALL || !Owner || Owner->s->picnum != APLAYER)
+						else if (spri->picnum != FIREBALL || !Owner || Owner->spr.picnum != APLAYER)
 						{
 							if (spri->picnum == LAVAPOOL)
 								act2->picnum = FLAMETHROWERFLAME;
@@ -413,13 +413,13 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 					}
 					else if (spri->extra == 0) act2->extra = 0;
 					
-					if (spri2->picnum != RADIUSEXPLOSION && Owner && Owner->s->statnum < MAXSTATUS)
+					if (spri2->picnum != RADIUSEXPLOSION && Owner && Owner->spr.statnum < MAXSTATUS)
 					{
 						if (spri2->picnum == APLAYER)
 						{
 							int p = spri2->yvel;
 							
-							if (isWorldTour() && act2->picnum == FLAMETHROWERFLAME && Owner->s->picnum == APLAYER)
+							if (isWorldTour() && act2->picnum == FLAMETHROWERFLAME && Owner->spr.picnum == APLAYER)
 							{
 								ps[p].numloogs = -1 - spri->yvel;
 							}
@@ -588,13 +588,13 @@ void guts_d(DDukeActor* actor, int gtype, int n, int p)
 		auto spawned = EGS(s->sector(), s->x + (r5 & 255) - 128, s->y + (r4 & 255) - 128, gutz - (r3 & 8191), gtype, -32, sx, sy, a, 48 + (r2 & 31), -512 - (r1 & 2047), ps[p].GetActor(), 5);
 		if (spawned)
 		{
-			if (spawned->s->picnum == JIBS2)
+			if (spawned->spr.picnum == JIBS2)
 			{
-				spawned->s->xrepeat >>= 2;
-				spawned->s->yrepeat >>= 2;
+				spawned->spr.xrepeat >>= 2;
+				spawned->spr.yrepeat >>= 2;
 			}
 			if (pal != 0)
-				spawned->s->pal = pal;
+				spawned->spr.pal = pal;
 		}
 	}
 }
@@ -622,7 +622,7 @@ void movefta_d(void)
 		ssect = psect = s->sector();
 
 		auto pa = ps[p].GetActor();
-		if (pa->s->extra > 0)
+		if (pa->spr.extra > 0)
 		{
 			if (x < 30000)
 			{
@@ -712,7 +712,7 @@ DDukeActor* ifhitsectors_d(sectortype* sect)
 	DukeStatIterator it(STAT_MISC);
 	while (auto a1 = it.Next())
 	{
-		if (a1->s->picnum == EXPLOSION2 && sect == a1->s->sector())
+		if (a1->spr.picnum == EXPLOSION2 && sect == a1->spr.sector())
 			return a1;
 	}
 	return nullptr;
@@ -741,7 +741,7 @@ int ifhitbyweapon_d(DDukeActor *actor)
 				p = spri->yvel;
 				
 				if (hitowner &&
-					hitowner->s->picnum == APLAYER &&
+					hitowner->spr.picnum == APLAYER &&
 					ud.coop == 1 &&
 					ud.ffire == 0)
 					return -1;
@@ -756,7 +756,7 @@ int ifhitbyweapon_d(DDukeActor *actor)
 
 						ps[p].wackedbyactor = hitowner;
 
-						if (hitowner->s->picnum == APLAYER && p != hitowner->PlayerIndex())
+						if (hitowner->spr.picnum == APLAYER && p != hitowner->PlayerIndex())
 						{
 							ps[p].frag_ps = hitowner->PlayerIndex();
 						}
@@ -796,7 +796,7 @@ int ifhitbyweapon_d(DDukeActor *actor)
 
 				spri->extra -= actor->extra;
 				auto Owner = actor->GetOwner();
-				if (spri->picnum != RECON && Owner && Owner->s->statnum < MAXSTATUS)
+				if (spri->picnum != RECON && Owner && Owner->spr.statnum < MAXSTATUS)
 					actor->SetOwner(hitowner);
 			}
 
@@ -823,7 +823,7 @@ int ifhitbyweapon_d(DDukeActor *actor)
 		spri->extra = 0;
 		ps[p].wackedbyactor = hitowner;
 
-		if (hitowner->s->picnum == APLAYER && hitowner != ps[p].GetActor())
+		if (hitowner->spr.picnum == APLAYER && hitowner != ps[p].GetActor())
 			ps[p].frag_ps = hitowner->PlayerIndex(); // set the proper player index here - this previously set the sprite index...
 
 		actor->SetHitOwner(ps[p].GetActor());
@@ -866,12 +866,12 @@ void movefallers_d(void)
 						DukeStatIterator itj(STAT_FALLER);
 						while (auto a2 = itj.Next())
 						{
-							if (a2->s->hitag == s->hitag)
+							if (a2->spr.hitag == s->hitag)
 							{
 								a2->temp_data[0] = 1;
-								a2->s->cstat &= ~CSTAT_SPRITE_ONE_SIDE;
-								if (a2->s->picnum == CEILINGSTEAM || a2->s->picnum == STEAM)
-									a2->s->cstat |= CSTAT_SPRITE_INVISIBLE;
+								a2->spr.cstat &= ~CSTAT_SPRITE_ONE_SIDE;
+								if (a2->spr.picnum == CEILINGSTEAM || a2->spr.picnum == STEAM)
+									a2->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 							}
 						}
 					}
@@ -975,16 +975,16 @@ static void movetripbomb(DDukeActor *actor)
 			auto spawned = spawn(actor, EXPLOSION2);
 			if (spawned)
 			{
-				spawned->s->ang = s->ang;
-				spawned->s->xvel = 348;
+				spawned->spr.ang = s->ang;
+				spawned->spr.xvel = 348;
 				ssp(spawned, CLIPMASK0);
 			}
 
 			DukeStatIterator it(STAT_MISC);
 			while (auto a1 = it.Next())
 			{
-				if (a1->s->picnum == LASERLINE && s->hitag == a1->s->hitag)
-					a1->s->xrepeat = a1->s->yrepeat = 0;
+				if (a1->spr.picnum == LASERLINE && s->hitag == a1->spr.hitag)
+					a1->spr.xrepeat = a1->spr.yrepeat = 0;
 			}
 			deletesprite(actor);
 		}
@@ -1042,13 +1042,13 @@ static void movetripbomb(DDukeActor *actor)
 				auto spawned = spawn(actor, LASERLINE);
 				if (spawned)
 				{
-					SetActor(spawned, spawned->s->pos);
-					spawned->s->hitag = s->hitag;
-					spawned->temp_data[1] = spawned->s->z;
+					SetActor(spawned, spawned->spr.pos);
+					spawned->spr.hitag = s->hitag;
+					spawned->temp_data[1] = spawned->spr.z;
 
 					if (x < 1024)
 					{
-						spawned->s->xrepeat = x >> 5;
+						spawned->spr.xrepeat = x >> 5;
 						break;
 					}
 					x -= 1024;
@@ -1125,9 +1125,9 @@ static void movecrack(DDukeActor* actor)
 			DukeStatIterator it(STAT_STANDABLE);
 			while (auto a1 = it.Next())
 			{
-				if (s->hitag == a1->s->hitag && (a1->s->picnum == OOZFILTER || a1->s->picnum == SEENINE))
-					if (a1->s->shade != -32)
-						a1->s->shade = -32;
+				if (s->hitag == a1->spr.hitag && (a1->spr.picnum == OOZFILTER || a1->spr.picnum == SEENINE))
+					if (a1->spr.shade != -32)
+						a1->spr.shade = -32;
 			}
 			detonate(actor, EXPLOSION2);
 		}
@@ -1153,25 +1153,25 @@ static void movefireext(DDukeActor* actor)
 
 	for (int k = 0; k < 16; k++)
 	{
-		auto spawned = EGS(actor->s->sector(), actor->s->x, actor->s->y, actor->s->z - (krand() % (48 << 8)), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (actor->s->zvel >> 2), actor, 5);
-		if(spawned) spawned->s->pal = 2;
+		auto spawned = EGS(actor->spr.sector(), actor->spr.x, actor->spr.y, actor->spr.z - (krand() % (48 << 8)), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (actor->spr.zvel >> 2), actor, 5);
+		if(spawned) spawned->spr.pal = 2;
 	}
 
 	spawn(actor, EXPLOSION2);
 	S_PlayActorSound(PIPEBOMB_EXPLODE, actor);
 	S_PlayActorSound(GLASS_HEAVYBREAK, actor);
 
-	if (actor->s->hitag > 0)
+	if (actor->spr.hitag > 0)
 	{
 		DukeStatIterator it(STAT_STANDABLE);
 		while (auto a1 = it.Next())
 		{
-			if (actor->s->hitag == a1->s->hitag && (a1->s->picnum == OOZFILTER || a1->s->picnum == SEENINE))
-				if (a1->s->shade != -32)
-					a1->s->shade = -32;
+			if (actor->spr.hitag == a1->spr.hitag && (a1->spr.picnum == OOZFILTER || a1->spr.picnum == SEENINE))
+				if (a1->spr.shade != -32)
+					a1->spr.shade = -32;
 		}
 
-		int x = actor->s->extra;
+		int x = actor->spr.extra;
 		spawn(actor, EXPLOSION2);
 		fi.hitradius(actor, gs.pipebombblastradius, x >> 2, x - (x >> 1), x - (x >> 2), x);
 		S_PlayActorSound(PIPEBOMB_EXPLODE, actor);
@@ -1193,7 +1193,7 @@ static void movefireext(DDukeActor* actor)
 static void moveviewscreen(DDukeActor* actor)
 {
 	const int VIEWSCR_DIST = 8192;	// was originally 2048, was increased to this by EDuke32 and RedNukem.
-	if (actor->s->xrepeat == 0) deletesprite(actor);
+	if (actor->spr.xrepeat == 0) deletesprite(actor);
 	else
 	{
 		int x;
@@ -1203,7 +1203,7 @@ static void moveviewscreen(DDukeActor* actor)
 		if (x >= VIEWSCR_DIST && camsprite == actor)
 		{
 			camsprite = nullptr;
-			actor->s->yvel = 0;
+			actor->spr.yvel = 0;
 			actor->temp_data[0] = 0;
 		}
 	}
@@ -1327,7 +1327,7 @@ void movestandables_d(void)
 	DukeStatIterator it(STAT_STANDABLE);
 	while (auto act = it.Next())
 	{
-		int picnum = act->s->picnum;
+		int picnum = act->spr.picnum;
 
 		if (!act->insector())
 		{
@@ -1456,7 +1456,7 @@ static bool movefireball(DDukeActor* actor)
 		return true;
 	}
 
-	if (!Owner || Owner->s->picnum != FIREBALL)
+	if (!Owner || Owner->spr.picnum != FIREBALL)
 	{
 		if (actor->temp_data[0] >= 1 && actor->temp_data[0] < 6)
 		{
@@ -1509,15 +1509,15 @@ static bool movefireball(DDukeActor* actor)
 static bool weaponhitsprite(DDukeActor* proj, DDukeActor *targ, bool fireball)
 {
 	auto s = proj->s;
-	if (s->picnum == FREEZEBLAST && targ->s->pal == 1)
-		if (badguy(targ) || targ->s->picnum == APLAYER)
+	if (s->picnum == FREEZEBLAST && targ->spr.pal == 1)
+		if (badguy(targ) || targ->spr.picnum == APLAYER)
 		{
 			auto spawned = spawn(targ, TRANSPORTERSTAR);
 			if (spawned)
 			{
-				spawned->s->pal = 1;
-				spawned->s->xrepeat = 32;
-				spawned->s->yrepeat = 32;
+				spawned->spr.pal = 1;
+				spawned->spr.xrepeat = 32;
+				spawned->spr.yrepeat = 32;
 			}
 
 			deletesprite(proj);
@@ -1527,12 +1527,12 @@ static bool weaponhitsprite(DDukeActor* proj, DDukeActor *targ, bool fireball)
 	if (!isWorldTour() || s->picnum != FIREBALL || fireball)
 		fi.checkhitsprite(targ, proj);
 
-	if (targ->s->picnum == APLAYER)
+	if (targ->spr.picnum == APLAYER)
 	{
-		int p = targ->s->yvel;
+		int p = targ->spr.yvel;
 		auto Owner = proj->GetOwner();
 
-		if (ud.multimode >= 2 && fireball && Owner && Owner->s->picnum == APLAYER)
+		if (ud.multimode >= 2 && fireball && Owner && Owner->spr.picnum == APLAYER)
 		{
 			ps[p].numloogs = -1 - s->yvel;
 		}
@@ -1632,7 +1632,7 @@ static bool weaponhitsector(DDukeActor* proj, const vec3_t& oldpos, bool firebal
 		{
 			spawned->SetOwner(proj);
 			spawned->SetHitOwner(proj);
-			spawned->s->yvel = s->yvel;
+			spawned->spr.yvel = s->yvel;
 		}
 		deletesprite(proj);
 		return true;
@@ -1688,7 +1688,7 @@ static void weaponcommon_d(DDukeActor* proj)
 		if (proj->picnum != BOSS2 && s->xrepeat >= 10 && s->sector()->lotag != 2)
 		{
 			auto spawned = spawn(proj, SMALLSMOKE);
-			if (spawned) spawned->s->z += (1 << 8);
+			if (spawned) spawned->spr.z += (1 << 8);
 		}
 		break;
 
@@ -1703,7 +1703,7 @@ static void weaponcommon_d(DDukeActor* proj)
 		MulScale(k, bsin(s->ang), 14), ll, CLIPMASK1, coll);
 
 	if (s->picnum == RPG && proj->temp_actor != nullptr)
-		if (FindDistance2D(s->x - proj->temp_actor->s->x, s->y - proj->temp_actor->s->y) < 256)
+		if (FindDistance2D(s->x - proj->temp_actor->spr.x, s->y - proj->temp_actor->spr.y) < 256)
 			coll.setSprite(proj->temp_actor);
 
 	if (!s->insector())
@@ -1740,8 +1740,8 @@ static void weaponcommon_d(DDukeActor* proj)
 				s->xrepeat, s->yrepeat, 0, 0, 0, proj->GetOwner(), 5);
 			if (spawned)
 			{
-				spawned->s->cstat = CSTAT_SPRITE_YCENTER;
-				spawned->s->pal = s->pal;
+				spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
+				spawned->spr.pal = s->pal;
 			}
 		}
 	}
@@ -1752,7 +1752,7 @@ static void weaponcommon_d(DDukeActor* proj)
 	{
 		if (s->picnum == COOLEXPLOSION1)
 		{
-			if (coll.type == kHitSprite && coll.actor()->s->picnum != APLAYER)
+			if (coll.type == kHitSprite && coll.actor()->spr.picnum != APLAYER)
 			{
 				return;
 			}
@@ -1760,7 +1760,7 @@ static void weaponcommon_d(DDukeActor* proj)
 			s->zvel = 0;
 		}
 
-		bool fireball = (isWorldTour() && s->picnum == FIREBALL && (!proj->GetOwner() || proj->GetOwner()->s->picnum != FIREBALL));
+		bool fireball = (isWorldTour() && s->picnum == FIREBALL && (!proj->GetOwner() || proj->GetOwner()->spr.picnum != FIREBALL));
 
 		if (coll.type == kHitSprite)
 		{
@@ -1793,12 +1793,12 @@ static void weaponcommon_d(DDukeActor* proj)
 				auto k = spawn(proj, EXPLOSION2);
 				if (k)
 				{
-					k->s->xrepeat = k->s->yrepeat = s->xrepeat >> 1;
+					k->spr.xrepeat = k->spr.yrepeat = s->xrepeat >> 1;
 					if (coll.type == kHitSector)
 					{
 						if (s->zvel < 0)
 						{
-							k->s->cstat |= CSTAT_SPRITE_YFLIP; k->s->z += (72 << 8);
+							k->spr.cstat |= CSTAT_SPRITE_YFLIP; k->spr.z += (72 << 8);
 						}
 					}
 				}
@@ -1806,7 +1806,7 @@ static void weaponcommon_d(DDukeActor* proj)
 			if (fireball)
 			{
 				auto spawned = spawn(proj, EXPLOSION2);
-				if (spawned) spawned->s->xrepeat = spawned->s->yrepeat = (short)(s->xrepeat >> 1);
+				if (spawned) spawned->spr.xrepeat = spawned->spr.yrepeat = (short)(s->xrepeat >> 1);
 			}
 		}
 		if (s->picnum != COOLEXPLOSION1)
@@ -1846,7 +1846,7 @@ void moveweapons_d(void)
 		}
 
 
-		switch(act->s->picnum)
+		switch(act->spr.picnum)
 		{
 		case RADIUSEXPLOSION:
 		case KNEE:
@@ -1857,14 +1857,14 @@ void moveweapons_d(void)
 			continue;
 
 		case FREEZEBLAST:
-			if (act->s->yvel < 1 || act->s->extra < 2 || (act->s->xvel|act->s->zvel) == 0)
+			if (act->spr.yvel < 1 || act->spr.extra < 2 || (act->spr.xvel|act->spr.zvel) == 0)
 			{
 				auto spawned = spawn(act,TRANSPORTERSTAR);
 				if (spawned)
 				{
-					spawned->s->pal = 1;
-					spawned->s->xrepeat = 32;
-					spawned->s->yrepeat = 32;
+					spawned->spr.pal = 1;
+					spawned->spr.xrepeat = 32;
+					spawned->spr.yrepeat = 32;
 				}
 				deletesprite(act);
 				continue;
@@ -1872,7 +1872,7 @@ void moveweapons_d(void)
 			[[fallthrough]];
 		case FIREBALL:
 			// Twentieth Anniversary World Tour
-			if (act->s->picnum == FIREBALL && !isWorldTour()) break;
+			if (act->spr.picnum == FIREBALL && !isWorldTour()) break;
 			[[fallthrough]];
 		case SHRINKSPARK:
 		case RPG:
@@ -1949,10 +1949,10 @@ void movetransports_d(void)
 							if (ps[k].cursector == Owner->sector())
 							{
 								ps[k].frag_ps = p;
-								ps[k].GetActor()->s->extra = 0;
+								ps[k].GetActor()->spr.extra = 0;
 							}
 							
-							ps[p].angle.ang = buildang(Owner->s->ang);
+							ps[p].angle.ang = buildang(Owner->spr.ang);
 							
 							if (Owner->GetOwner() != Owner)
 							{
@@ -1961,9 +1961,9 @@ void movetransports_d(void)
 								ps[p].transporter_hold = 13;
 							}
 							
-							ps[p].bobposx = ps[p].oposx = ps[p].pos.x = Owner->s->x;
-							ps[p].bobposy = ps[p].oposy = ps[p].pos.y = Owner->s->y;
-							ps[p].oposz = ps[p].pos.z = Owner->s->z - gs.playerheight;
+							ps[p].bobposx = ps[p].oposx = ps[p].pos.x = Owner->spr.x;
+							ps[p].bobposy = ps[p].oposy = ps[p].pos.y = Owner->spr.y;
+							ps[p].oposz = ps[p].pos.z = Owner->spr.z - gs.playerheight;
 							
 							ChangeActorSect(act2, Owner->sector());
 							ps[p].setCursector(spr2->sector());
@@ -1983,16 +1983,16 @@ void movetransports_d(void)
 						if ((ps[p].jetpack_on == 0) || (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP))) ||
 							(ps[p].jetpack_on && PlayerInput(p, SB_CROUCH)))
 						{
-							ps[p].oposx = ps[p].pos.x += Owner->s->x - spr->x;
-							ps[p].oposy = ps[p].pos.y += Owner->s->y - spr->y;
+							ps[p].oposx = ps[p].pos.x += Owner->spr.x - spr->x;
+							ps[p].oposy = ps[p].pos.y += Owner->spr.y - spr->y;
 							
 							if (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP) || ps[p].jetpack_on < 11))
-								ps[p].pos.z = Owner->s->z - 6144;
-							else ps[p].pos.z = Owner->s->z + 6144;
+								ps[p].pos.z = Owner->spr.z - 6144;
+							else ps[p].pos.z = Owner->spr.z + 6144;
 							ps[p].oposz = ps[p].pos.z;
 							
 							auto pa = ps[p].GetActor();
-							pa->s->opos = ps[p].pos;
+							pa->spr.opos = ps[p].pos;
 							
 							ChangeActorSect(act2, Owner->sector());
 							ps[p].setCursector(Owner->sector());
@@ -2010,7 +2010,7 @@ void movetransports_d(void)
 						{
 							FX_StopAllSounds();
 						}
-						if (ps[p].GetActor()->s->extra > 0)
+						if (ps[p].GetActor()->spr.extra > 0)
 							S_PlayActorSound(DUKE_UNDERWATER, act2);
 						ps[p].oposz = ps[p].pos.z =
 						Owner->sector()->ceilingz + (7 << 8);
@@ -2039,8 +2039,8 @@ void movetransports_d(void)
 					
 					if (k == 1)
 					{
-						ps[p].oposx = ps[p].pos.x += Owner->s->x - spr->x;
-						ps[p].oposy = ps[p].pos.y += Owner->s->y - spr->y;
+						ps[p].oposx = ps[p].pos.x += Owner->spr.x - spr->x;
+						ps[p].oposy = ps[p].pos.y += Owner->spr.y - spr->y;
 						
 						if (!Owner || Owner->GetOwner() != Owner)
 							ps[p].transporter_hold = -2;
@@ -2056,7 +2056,7 @@ void movetransports_d(void)
 							for (int l = 0; l < 9; l++)
 						{
 							auto q = spawn(ps[p].GetActor(), WATERBUBBLE);
-							if (q) q->s->z += krand() & 16383;
+							if (q) q->spr.z += krand() & 16383;
 						}
 					}
 				}
@@ -2140,8 +2140,8 @@ void movetransports_d(void)
 							auto k = spawn(act2, WATERSPLASH2);
 							if (k && sectlotag == 1 && spr2->statnum == 4)
 							{
-								k->s->xvel = spr2->xvel >> 1;
-								k->s->ang = spr2->ang;
+								k->spr.xvel = spr2->xvel >> 1;
+								k->spr.ang = spr2->ang;
 								ssp(k, CLIPMASK0);
 							}
 						}
@@ -2151,12 +2151,12 @@ void movetransports_d(void)
 						case 0:
 							if (onfloorz)
 							{
-								if (spr2->statnum == STAT_PROJECTILE || (checkcursectnums(spr->sector()) == -1 && checkcursectnums(Owner->s->sector()) == -1))
+								if (spr2->statnum == STAT_PROJECTILE || (checkcursectnums(spr->sector()) == -1 && checkcursectnums(Owner->spr.sector()) == -1))
 								{
-									spr2->x += (Owner->s->x - spr->x);
-									spr2->y += (Owner->s->y - spr->y);
+									spr2->x += (Owner->spr.x - spr->x);
+									spr2->y += (Owner->spr.y - spr->y);
 									spr2->z -= spr->z - Owner->sector()->floorz;
-									spr2->ang = Owner->s->ang;
+									spr2->ang = Owner->spr.ang;
 									
 									spr2->backupang();
 									
@@ -2180,9 +2180,9 @@ void movetransports_d(void)
 							}
 							else
 							{
-								spr2->x += (Owner->s->x - spr->x);
-								spr2->y += (Owner->s->y - spr->y);
-								spr2->z = Owner->s->z + 4096;
+								spr2->x += (Owner->spr.x - spr->x);
+								spr2->y += (Owner->spr.y - spr->y);
+								spr2->z = Owner->spr.z + 4096;
 								
 								spr2->backupz();
 								
@@ -2190,8 +2190,8 @@ void movetransports_d(void)
 							}
 							break;
 						case 1:
-							spr2->x += (Owner->s->x - spr->x);
-							spr2->y += (Owner->s->y - spr->y);
+							spr2->x += (Owner->spr.x - spr->x);
+							spr2->y += (Owner->spr.y - spr->y);
 							spr2->z = Owner->sector()->ceilingz + ll;
 							
 							spr2->backupz();
@@ -2200,8 +2200,8 @@ void movetransports_d(void)
 							
 							break;
 						case 2:
-							spr2->x += (Owner->s->x - spr->x);
-							spr2->y += (Owner->s->y - spr->y);
+							spr2->x += (Owner->spr.x - spr->x);
+							spr2->y += (Owner->spr.y - spr->y);
 							spr2->z = Owner->sector()->floorz - ll;
 							
 							spr2->backupz();
@@ -2291,7 +2291,7 @@ static void greenslime(DDukeActor *actor)
 			for (j = 16; j >= 0; j--)
 			{
 				auto k = EGS(s->sector(), s->x, s->y, s->z, GLASSPIECES + (j % 3), -32, 36, 36, krand() & 2047, 32 + (krand() & 63), 1024 - (krand() & 1023), actor, 5);
-				k->s->pal = 1;
+				k->spr.pal = 1;
 			}
 			ps[p].actors_killed++;
 			S_PlayActorSound(GLASS_BREAKING, actor);
@@ -2313,7 +2313,7 @@ static void greenslime(DDukeActor *actor)
 
 	if (t[0] == -4) //On the player
 	{
-		if (ps[p].GetActor()->s->extra < 1)
+		if (ps[p].GetActor()->spr.extra < 1)
 		{
 			t[0] = 0;
 			return;
@@ -2323,13 +2323,13 @@ static void greenslime(DDukeActor *actor)
 
 		s->ang = ps[p].angle.ang.asbuild();
 
-		if ((PlayerInput(p, SB_FIRE) || (ps[p].quick_kick > 0)) && ps[p].GetActor()->s->extra > 0)
+		if ((PlayerInput(p, SB_FIRE) || (ps[p].quick_kick > 0)) && ps[p].GetActor()->spr.extra > 0)
 			if (ps[p].quick_kick > 0 || (ps[p].curr_weapon != HANDREMOTE_WEAPON && ps[p].curr_weapon != HANDBOMB_WEAPON && ps[p].curr_weapon != TRIPBOMB_WEAPON && ps[p].ammo_amount[ps[p].curr_weapon] >= 0))
 			{
 				for (x = 0; x < 8; x++)
 				{
 					auto j = EGS(s->sector(), s->x, s->y, s->z - (8 << 8), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (s->zvel >> 2), actor, 5);
-					j->s->pal = 6;
+					j->spr.pal = 6;
 				}
 
 				S_PlayActorSound(SLIM_DYING, actor);
@@ -2337,7 +2337,7 @@ static void greenslime(DDukeActor *actor)
 				if ((krand() & 255) < 32)
 				{
 					auto j = spawn(actor, BLOODPOOL);
-					if (j) j->s->pal = 0;
+					if (j) j->spr.pal = 0;
 				}
 				ps[p].actors_killed++;
 				t[0] = -3;
@@ -2370,7 +2370,7 @@ static void greenslime(DDukeActor *actor)
 			DukeStatIterator it(STAT_ACTOR);
 			while (auto ac = it.Next())
 			{
-				if (ac->s->picnum == CAMERA1) ac->s->yvel = 0;
+				if (ac->spr.picnum == CAMERA1) ac->spr.yvel = 0;
 			}
 		}
 
@@ -2383,7 +2383,7 @@ static void greenslime(DDukeActor *actor)
 			if (t[3] == 5)
 			{
 				auto psp = ps[p].GetActor();
-				psp->s->extra += -(5 + (krand() & 3));
+				psp->spr.extra += -(5 + (krand() & 3));
 				S_PlayActorSound(SLIM_ATTACK, actor);
 			}
 
@@ -2438,13 +2438,13 @@ static void greenslime(DDukeActor *actor)
 		if ((krand() & 255) < 32)
 		{
 			auto j = spawn(actor, BLOODPOOL);
-			if (j) j->s->pal = 0;
+			if (j) j->spr.pal = 0;
 		}
 
 		for (x = 0; x < 8; x++)
 		{
 			auto j = EGS(s->sector(), s->x, s->y, s->z - (8 << 8), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (s->zvel >> 2), actor, 5);
-			if (j) j->s->pal = 6;
+			if (j) j->spr.pal = 6;
 		}
 		t[0] = -3;
 		deletesprite(actor);
@@ -2478,13 +2478,13 @@ static void greenslime(DDukeActor *actor)
 		makeitfall(actor);
 		if (s5)
 		{
-			s5->s->xvel = 0;
+			s5->spr.xvel = 0;
 
-			int l = s5->s->ang;
+			int l = s5->spr.ang;
 
-			s->z = s5->s->z;
-			s->x = s5->s->x + bcos(l, -11);
-			s->y = s5->s->y + bsin(l, -11);
+			s->z = s5->spr.z;
+			s->x = s5->spr.x + bcos(l, -11);
+			s->y = s5->spr.y + bsin(l, -11);
 
 			s->picnum = GREENSLIME + 2 + (global_random & 1);
 
@@ -2497,7 +2497,7 @@ static void greenslime(DDukeActor *actor)
 					t[0] = -1;
 					x = ldist(actor, s5);
 					if (x < 768) {
-						s5->s->xrepeat = 0;
+						s5->spr.xrepeat = 0;
 					}
 				}
 			}
@@ -2511,9 +2511,9 @@ static void greenslime(DDukeActor *actor)
 		DukeSectIterator it(actor->sector());
 		while (auto a2 = it.Next())
 		{
-			if (gs.actorinfo[a2->s->picnum].flags & SFLAG_GREENSLIMEFOOD)
+			if (gs.actorinfo[a2->spr.picnum].flags & SFLAG_GREENSLIMEFOOD)
 			{
-				if (ldist(actor, a2) < 768 && (abs(s->z - a2->s->z) < 8192)) //Gulp them
+				if (ldist(actor, a2) < 768 && (abs(s->z - a2->spr.z) < 8192)) //Gulp them
 				{
 					actor->temp_actor = a2;
 					t[0] = -2;
@@ -2640,7 +2640,7 @@ static void flamethrowerflame(DDukeActor *actor)
 	t[0]++;
 	if (sectp->lotag == 2)
 	{
-		spawn(actor, EXPLOSION2)->s->shade = 127;
+		spawn(actor, EXPLOSION2)->spr.shade = 127;
 		deletesprite(actor);
 		return;
 	}
@@ -2660,7 +2660,7 @@ static void flamethrowerflame(DDukeActor *actor)
 		t[3] = krand() % 10;
 	if (t[0] > 30) 
 	{
-		spawn(actor, EXPLOSION2)->s->shade = 127;
+		spawn(actor, EXPLOSION2)->spr.shade = 127;
 		deletesprite(actor);
 		return;
 	}
@@ -2696,7 +2696,7 @@ static void flamethrowerflame(DDukeActor *actor)
 		if (coll.type == kHitSprite)
 		{
 			fi.checkhitsprite(coll.actor(), actor);
-			if (coll.actor()->s->picnum == APLAYER)
+			if (coll.actor()->spr.picnum == APLAYER)
 				S_PlayActorSound(PISTOL_BODYHIT, coll.actor());
 		}
 		else if (coll.type == kHitWall)
@@ -2814,7 +2814,7 @@ static void heavyhbomb(DDukeActor *actor)
 		goto DETONATEB;
 	}
 
-	if ( Owner && Owner->s->picnum == APLAYER)
+	if ( Owner && Owner->spr.picnum == APLAYER)
 		l = Owner->PlayerIndex();
 	else l = -1;
 
@@ -2917,7 +2917,7 @@ DETONATEB:
 				if (ps[p].gotweapon[HANDBOMB_WEAPON] == 0 || Owner == ps[p].GetActor())
 					fi.addweapon(&ps[p], HANDBOMB_WEAPON);
 
-				if (!Owner || Owner->s->picnum != APLAYER)
+				if (!Owner || Owner->spr.picnum != APLAYER)
 				{
 					SetPlayerPal(&ps[p], PalEntry(32, 0, 32, 0));
 				}
@@ -2997,11 +2997,11 @@ void moveactors_d(void)
 					DukeStatIterator it(STAT_ACTOR);
 					while (auto act2 = it.Next())
 					{
-						if (act2->s->lotag == s->lotag &&
-							act2->s->picnum == s->picnum)
+						if (act2->spr.lotag == s->lotag &&
+							act2->spr.picnum == s->picnum)
 						{
-							if ((act2->s->hitag && !(act2->s->cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)) ||
-								(!act2->s->hitag && (act2->s->cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR))
+							if ((act2->spr.hitag && !(act2->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR)) ||
+								(!act2->spr.hitag && (act2->spr.cstat & CSTAT_SPRITE_ALIGNMENT_FLOOR))
 								)
 							{
 								k = 0;
@@ -3133,19 +3133,19 @@ static void fireflyflyingeffect(DDukeActor *actor)
 	execute(actor, p, x);
 
 	auto Owner = actor->GetOwner();
-	if (!Owner || Owner->s->picnum != FIREFLY) 
+	if (!Owner || Owner->spr.picnum != FIREFLY) 
 	{
 		deletesprite(actor);
 		return;
 	}
 
-	if (Owner->s->xrepeat >= 24 || Owner->s->pal == 1)
-		actor->s->cstat |= CSTAT_SPRITE_INVISIBLE;
+	if (Owner->spr.xrepeat >= 24 || Owner->spr.pal == 1)
+		actor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 	else
-		actor->s->cstat &= ~CSTAT_SPRITE_INVISIBLE;
+		actor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
 
-	double dx = Owner->s->x - ps[p].GetActor()->s->x;
-	double dy = Owner->s->y - ps[p].GetActor()->s->y;
+	double dx = Owner->spr.x - ps[p].GetActor()->spr.x;
+	double dy = Owner->spr.y - ps[p].GetActor()->spr.y;
 	double dist = sqrt(dx * dx + dy * dy);
 	if (dist != 0.0) 
 	{
@@ -3153,11 +3153,11 @@ static void fireflyflyingeffect(DDukeActor *actor)
 		dy /= dist;
 	}
 
-	actor->s->x = (int) (Owner->s->x - (dx * -10.0));
-	actor->s->y = (int) (Owner->s->y - (dy * -10.0));
-	actor->s->z = Owner->s->z + 2048;
+	actor->spr.x = (int) (Owner->spr.x - (dx * -10.0));
+	actor->spr.y = (int) (Owner->spr.y - (dy * -10.0));
+	actor->spr.z = Owner->spr.z + 2048;
 
-	if (Owner->s->extra <= 0) 
+	if (Owner->spr.extra <= 0) 
 	{
 		deletesprite(actor);
 	}
@@ -3253,7 +3253,7 @@ void moveexplosions_d(void)  // STATNUM 5
 			if (x < 512)
 			{
 				SetPlayerPal(&ps[p], PalEntry(32, 32, 0, 0));
-				ps[p].GetActor()->s->extra -= 4;
+				ps[p].GetActor()->spr.extra -= 4;
 			}
 			[[fallthrough]];
 
@@ -3386,15 +3386,15 @@ void handle_se06_d(DDukeActor* actor)
 	DukeStatIterator it(STAT_EFFECTOR);
 	while (auto act2 = it.Next())
 	{
-		if ((act2->s->lotag == 14) && (sh == act2->s->hitag) && (act2->temp_data[0] == t[0]))
+		if ((act2->spr.lotag == 14) && (sh == act2->spr.hitag) && (act2->temp_data[0] == t[0]))
 		{
-			act2->s->xvel = s->xvel;
+			act2->spr.xvel = s->xvel;
 			//if( t[4] == 1 )
 			{
 				if (act2->temp_data[5] == 0)
 					act2->temp_data[5] = dist(act2, actor);
 				int x = Sgn(dist(act2, actor) - act2->temp_data[5]);
-				if (act2->s->extra)
+				if (act2->spr.extra)
 					x = -x;
 				s->xvel += x;
 			}
@@ -3450,8 +3450,8 @@ static void handle_se28(DDukeActor* actor)
 			DukeStatIterator it(STAT_DEFAULT);
 			while (auto act2 = it.Next())
 			{
-				if (act2->s->picnum == NATURALLIGHTNING && act2->s->hitag == s->hitag)
-					act2->s->cstat |= CSTAT_SPRITE_INVISIBLE;
+				if (act2->spr.picnum == NATURALLIGHTNING && act2->spr.hitag == s->hitag)
+					act2->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 			}
 		}
 		else if (t[2] > (t[1] >> 3) && t[2] < (t[1] >> 2))
@@ -3467,11 +3467,11 @@ static void handle_se28(DDukeActor* actor)
 			DukeStatIterator it(STAT_DEFAULT);
 			while (auto act2 = it.Next())
 			{
-				if (act2->s->picnum == NATURALLIGHTNING && act2->s->hitag == s->hitag)
+				if (act2->spr.picnum == NATURALLIGHTNING && act2->spr.hitag == s->hitag)
 				{
 					if (rnd(32) && (t[2] & 1))
 					{
-						act2->s->cstat &= ~CSTAT_SPRITE_INVISIBLE;
+						act2->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
 						spawn(act2, SMALLSMOKE);
 
 						int x;
@@ -3483,12 +3483,12 @@ static void handle_se28(DDukeActor* actor)
 							if (S_CheckActorSoundPlaying(psa, DUKE_LONGTERM_PAIN) < 1)
 								S_PlayActorSound(DUKE_LONGTERM_PAIN, psa);
 							S_PlayActorSound(SHORT_CIRCUIT, psa);
-							psa->s->extra -= 8 + (krand() & 7);
+							psa->spr.extra -= 8 + (krand() & 7);
 							SetPlayerPal(&ps[p], PalEntry(32, 16, 0, 0));
 						}
 						return;
 					}
-					else act2->s->cstat |= CSTAT_SPRITE_INVISIBLE;
+					else act2->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 				}
 			}
 		}
@@ -3511,7 +3511,7 @@ void moveeffectors_d(void)   //STATNUM 3
 	while (auto act = it.Next())
 	{
 		auto sc = act->sector();
-		switch (act->s->lotag)
+		switch (act->spr.lotag)
 		{
 		case SE_0_ROTATING_SECTOR:
 			handle_se00(act, LASERLINE);
@@ -3636,9 +3636,9 @@ void moveeffectors_d(void)   //STATNUM 3
 			break;
 
 		case SE_29_WAVES:
-			act->s->hitag += 64;
-			l = MulScale(act->s->yvel, bsin(act->s->hitag), 12);
-			sc->floorz = act->s->z + l;
+			act->spr.hitag += 64;
+			l = MulScale(act->spr.yvel, bsin(act->spr.hitag), 12);
+			sc->floorz = act->spr.z + l;
 			break;
 		case SE_31_FLOOR_RISE_FALL: // True Drop Floor
 			handle_se31(act, true);
@@ -3681,11 +3681,11 @@ void moveeffectors_d(void)   //STATNUM 3
 	it.Reset(STAT_EFFECTOR);
 	while (auto act = it.Next())
 	{
-		if (act->s->lotag != SE_29_WAVES) continue;
+		if (act->spr.lotag != SE_29_WAVES) continue;
 		auto sc = act->sector();
 		if (sc->wallnum != 4) continue;
 		auto wal = sc->firstWall() + 2;
-		alignflorslope(act->s->sector(), wal->x, wal->y, wal->nextSector()->floorz);
+		alignflorslope(act->spr.sector(), wal->x, wal->y, wal->nextSector()->floorz);
 	}
 }
 
@@ -3913,7 +3913,7 @@ bool spawnweapondebris_d(int picnum, int dnum)
 
 void respawnhitag_d(DDukeActor* actor)
 {
-	switch (actor->s->picnum)
+	switch (actor->spr.picnum)
 	{
 	case FEM1:
 	case FEM2:
@@ -3928,19 +3928,19 @@ void respawnhitag_d(DDukeActor* actor)
 	case PODFEM1:
 	case NAKED1:
 	case STATUE:
-		if (actor->s->yvel) fi.operaterespawns(actor->s->yvel);
+		if (actor->spr.yvel) fi.operaterespawns(actor->spr.yvel);
 		break;
 	default:
-		if (actor->s->hitag >= 0) fi.operaterespawns(actor->s->hitag);
+		if (actor->spr.hitag >= 0) fi.operaterespawns(actor->spr.hitag);
 		break;
 	}
 }
 
 void checktimetosleep_d(DDukeActor *actor)
 {
-	if (actor->s->statnum == STAT_STANDABLE)
+	if (actor->spr.statnum == STAT_STANDABLE)
 	{
-		switch (actor->s->picnum)
+		switch (actor->spr.picnum)
 		{
 		case RUBBERCAN:
 		case EXPLODINGBARREL:

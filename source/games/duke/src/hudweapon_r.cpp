@@ -137,7 +137,7 @@ void displayweapon_r(int snum, double smoothratio)
 	looking_arc = p->angle.looking_arc(smoothratio);
 	hard_landing *= 8.;
 
-	gun_pos -= fabs(p->GetActor()->s->xrepeat < 8 ? bsinf(weapon_sway * 4., -9) : bsinf(weapon_sway * 0.5, -10));
+	gun_pos -= fabs(p->GetActor()->spr.xrepeat < 8 ? bsinf(weapon_sway * 4., -9) : bsinf(weapon_sway * 0.5, -10));
 	gun_pos -= hard_landing;
 
 	weapon_xoffset = (160)-90;
@@ -147,12 +147,12 @@ void displayweapon_r(int snum, double smoothratio)
 	if (p->insector() && p->cursector->shadedsector == 1)
 		shade = 16;
 	else
-		shade = p->GetActor()->s->shade;
+		shade = p->GetActor()->spr.shade;
 	if(shade > 24) shade = 24;
 
-	pal = !p->insector()? 0 : p->GetActor()->s->pal == 1? 1 : p->cursector->floorpal;
+	pal = !p->insector()? 0 : p->GetActor()->spr.pal == 1? 1 : p->cursector->floorpal;
 
-	if(p->newOwner != nullptr || ud.cameraactor != nullptr || p->over_shoulder_on > 0 || (p->GetActor()->s->pal != 1 && p->GetActor()->s->extra <= 0))
+	if(p->newOwner != nullptr || ud.cameraactor != nullptr || p->over_shoulder_on > 0 || (p->GetActor()->spr.pal != 1 && p->GetActor()->spr.extra <= 0))
 		return;
 
 	if(p->last_weapon >= 0)
@@ -162,7 +162,7 @@ void displayweapon_r(int snum, double smoothratio)
 	j = 14-p->quick_kick;
 	if(j != 14)
 	{
-		if(p->GetActor()->s->pal == 1)
+		if(p->GetActor()->spr.pal == 1)
 			pal = 1;
 		else
 			pal = p->palookup;
@@ -289,12 +289,12 @@ void displayweapon_r(int snum, double smoothratio)
 		return;
 	}
 
-	if (p->GetActor()->s->xrepeat < 8)
+	if (p->GetActor()->spr.xrepeat < 8)
 	{
 		static int fistsign;
 		if (p->jetpack_on == 0)
 		{
-			i = p->GetActor()->s->xvel;
+			i = p->GetActor()->spr.xvel;
 			looking_arc += 32 - (i >> 1);
 			fistsign += i >> 1;
 		}
@@ -599,7 +599,7 @@ void displayweapon_r(int snum, double smoothratio)
 			if (*kb > 0)
 				gun_pos -= bsinf((*kb) << 7, -12);
 
-			if (*kb > 0 && p->GetActor()->s->pal != 1) weapon_xoffset += 1 - (rand() & 3);
+			if (*kb > 0 && p->GetActor()->spr.pal != 1) weapon_xoffset += 1 - (rand() & 3);
 
 			switch (*kb)
 			{
@@ -812,7 +812,7 @@ void displayweapon_r(int snum, double smoothratio)
 			}
 			else
 			{
-				if (p->GetActor()->s->pal != 1)
+				if (p->GetActor()->spr.pal != 1)
 				{
 					weapon_xoffset += rand() & 3;
 					gun_pos += (rand() & 3);

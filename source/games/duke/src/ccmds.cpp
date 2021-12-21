@@ -96,9 +96,9 @@ static int ccmd_spawn(CCmdFuncPtr parm)
 	auto spawned = spawn(ps[myconnectindex].GetActor(), picnum);
 	if (spawned)
 	{
-		if (set & 1) spawned->s->pal = (uint8_t)pal;
-		if (set & 2) spawned->s->cstat = ESpriteFlags::FromInt(cstat);
-		if (set & 4) spawned->s->ang = ang;
+		if (set & 1) spawned->spr.pal = (uint8_t)pal;
+		if (set & 2) spawned->spr.cstat = ESpriteFlags::FromInt(cstat);
+		if (set & 4) spawned->spr.ang = ang;
 		if (set & 8) SetActor(spawned, { x, y, z });
 
 		if (spawned->sector() == nullptr)

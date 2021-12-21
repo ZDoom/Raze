@@ -371,7 +371,7 @@ void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 #endif
 			}
 
-			if ((display_mirror == 1 || screenpeek != p || !h->GetOwner()) && ud.multimode > 1 && cl_showweapon && ps[p].GetActor()->s->extra > 0 && ps[p].curr_weapon > 0)
+			if ((display_mirror == 1 || screenpeek != p || !h->GetOwner()) && ud.multimode > 1 && cl_showweapon && ps[p].GetActor()->spr.extra > 0 && ps[p].curr_weapon > 0)
 			{
 				auto newtspr = &tsprite[spritesortcnt++];
 				newtspr = t;

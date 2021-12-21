@@ -137,7 +137,7 @@ void se40code(int x, int y, int z, binangle a, fixedhoriz h, int smoothratio)
 	DukeStatIterator it(STAT_RAROR);
 	while (auto act = it.Next())
 	{
-		switch (act->s->lotag - tag + 40)
+		switch (act->spr.lotag - tag + 40)
 		{
 			//case 40:
 			//case 41:
@@ -147,7 +147,7 @@ void se40code(int x, int y, int z, binangle a, fixedhoriz h, int smoothratio)
 		case 43:
 		case 44:
 		case 45:
-			if (ps[screenpeek].cursector == act->s->sector())
+			if (ps[screenpeek].cursector == act->spr.sector())
 				SE40_Draw(tag, act->s, x, y, z, a, h, smoothratio);
 			break;
 		}
@@ -217,7 +217,7 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 		while (auto act = it.Next())
 		{
 			ChangeActorSect(act, geosectorwarp[gs]);
-			SetActor(act, { act->s->x -= geox[gs], act->s->y -= geoy[gs], act->s->z });
+			SetActor(act, { act->spr.x -= geox[gs], act->spr.y -= geoy[gs], act->spr.z });
 		}
 		if (geosector[gs] == sectp)
 		{
@@ -237,7 +237,7 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 		while (auto act = it.Next())
 		{
 			ChangeActorSect(act, geosector[gs]);
-			SetActor(act, { act->s->x += geox[gs], act->s->y += geoy[gs], act->s->z });
+			SetActor(act, { act->spr.x += geox[gs], act->spr.y += geoy[gs], act->spr.z });
 		}
 	}
 	fi.animatesprites(pm_tsprite, pm_spritesortcnt, cposx, cposy, cang.asbuild(), smoothratio);
@@ -249,7 +249,7 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 		while (auto act = it.Next())
 		{
 			ChangeActorSect(act, geosectorwarp2[gs]);
-			SetActor(act, { act->s->x -= geox2[gs], act->s->y -= geoy2[gs], act->s->z });
+			SetActor(act, { act->spr.x -= geox2[gs], act->spr.y -= geoy2[gs], act->spr.z });
 		}
 		if (geosector[gs] == sectp)
 		{
@@ -269,7 +269,7 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 		while (auto act = it.Next())
 		{
 			ChangeActorSect(act, geosector[gs]);
-			SetActor(act, { act->s->x += geox2[gs], act->s->y += geoy2[gs], act->s->z });
+			SetActor(act, { act->spr.x += geox2[gs], act->spr.y += geoy2[gs], act->spr.z });
 		}
 	}
 	fi.animatesprites(pm_tsprite, pm_spritesortcnt, cposx, cposy, cang.asbuild(), smoothratio);

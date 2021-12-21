@@ -107,7 +107,7 @@ int animatefist(int gs, player_struct* p, double look_anghalf, double looking_ar
 
 int animateknee(int gs, player_struct* p, double look_anghalf, double looking_arc, double horiz16th, double plravel, int pal)
 {
-	if (p->knee_incs > 11 || p->knee_incs == 0 || p->GetActor()->s->extra <= 0) return 0;
+	if (p->knee_incs > 11 || p->knee_incs == 0 || p->GetActor()->spr.extra <= 0) return 0;
 
 	static const int8_t knee_y[] = { 0,-8,-16,-32,-64,-84,-108,-108,-108,-72,-32,-8 };
 
@@ -126,7 +126,7 @@ int animateknee(int gs, player_struct* p, double look_anghalf, double looking_ar
 
 int animateknuckles(int gs, player_struct* p, double look_anghalf, double looking_arc, double horiz16th, double plravel, int pal)
 {
-	if (isWW2GI() || p->over_shoulder_on != 0 || p->knuckle_incs == 0 || p->GetActor()->s->extra <= 0) return 0;
+	if (isWW2GI() || p->over_shoulder_on != 0 || p->knuckle_incs == 0 || p->GetActor()->spr.extra <= 0) return 0;
 
 	static const uint8_t knuckle_frames[] = { 0,1,2,2,3,3,3,2,2,1,0 };
 
@@ -178,7 +178,7 @@ static int animatetip(int gs, player_struct* p, double look_anghalf, double look
 
 int animateaccess(int gs, player_struct* p, double look_anghalf, double looking_arc, double horiz16th, double plravel)
 {
-	if(p->access_incs == 0 || p->GetActor()->s->extra <= 0) return 0;
+	if(p->access_incs == 0 || p->GetActor()->spr.extra <= 0) return 0;
 
 	static const int8_t access_y[] = {0,-8,-16,-32,-64,-84,-108,-108,-108,-108,-108,-108,-108,-108,-108,-108,-96,-72,-64,-32,-16};
 
@@ -186,7 +186,7 @@ int animateaccess(int gs, player_struct* p, double look_anghalf, double looking_
 
 	int pal;
 	if (p->access_spritenum != nullptr)
-		pal = p->access_spritenum->s->pal;
+		pal = p->access_spritenum->spr.pal;
 	else pal = 0;
 
 	if((p->access_incs-3) > 0 && (p->access_incs-3)>>3)
@@ -241,22 +241,22 @@ void displayweapon_d(int snum, double smoothratio)
 	looking_arc = p->angle.looking_arc(smoothratio);
 	hard_landing *= 8.;
 
-	gun_pos -= fabs(p->GetActor()->s->xrepeat < 32 ? bsinf(weapon_sway * 4., -9) : bsinf(weapon_sway * 0.5, -10));
+	gun_pos -= fabs(p->GetActor()->spr.xrepeat < 32 ? bsinf(weapon_sway * 4., -9) : bsinf(weapon_sway * 0.5, -10));
 	gun_pos -= hard_landing;
 
 	weapon_xoffset = (160)-90;
 	weapon_xoffset -= bcosf(weapon_sway * 0.5) * (1. / 1536.);
 	weapon_xoffset -= 58 + p->weapon_ang;
 
-	shade = p->GetActor()->s->shade;
+	shade = p->GetActor()->spr.shade;
 	if(shade > 24) shade = 24;
 
-	pal = !p->insector() ? 0 : p->GetActor()->s->pal == 1 ? 1 : p->cursector->floorpal;
+	pal = !p->insector() ? 0 : p->GetActor()->spr.pal == 1 ? 1 : p->cursector->floorpal;
 	if (pal == 0)
 		pal = p->palookup;
 
 	auto adjusted_arc = looking_arc - hard_landing;
-	bool playerVars  = p->newOwner != nullptr || ud.cameraactor != nullptr || p->over_shoulder_on > 0 || (p->GetActor()->s->pal != 1 && p->GetActor()->s->extra <= 0);
+	bool playerVars  = p->newOwner != nullptr || ud.cameraactor != nullptr || p->over_shoulder_on > 0 || (p->GetActor()->spr.pal != 1 && p->GetActor()->spr.extra <= 0);
 	bool playerAnims = animatefist(shade, p, look_anghalf, looking_arc, plravel, pal) || animateknuckles(shade, p, look_anghalf, adjusted_arc, horiz16th, plravel, pal) ||
 					   animatetip(shade, p, look_anghalf, adjusted_arc, horiz16th, plravel, pal) || animateaccess(shade, p, look_anghalf, adjusted_arc, horiz16th, plravel);
 
@@ -300,13 +300,13 @@ void displayweapon_d(int snum, double smoothratio)
 		}
 	}
 
-	if (p->GetActor()->s->xrepeat < 40)
+	if (p->GetActor()->spr.xrepeat < 40)
 	{
 		static int fistsign;
 		//shrunken..
 		if (p->jetpack_on == 0)
 		{
-			i = p->GetActor()->s->xvel;
+			i = p->GetActor()->spr.xvel;
 			looking_arc += 32 - (i >> 1);
 			fistsign += i >> 1;
 		}
@@ -432,7 +432,7 @@ void displayweapon_d(int snum, double smoothratio)
 				gun_pos -= bsinf(kickback_pic * 128., -12);
 			}
 
-			if (*kb > 0 && p->GetActor()->s->pal != 1)
+			if (*kb > 0 && p->GetActor()->spr.pal != 1)
 			{
 				weapon_xoffset += 1 - (rand() & 3);
 			}
@@ -551,7 +551,7 @@ void displayweapon_d(int snum, double smoothratio)
 			if (*kb > 0)
 				gun_pos -= bsinf(kickback_pic * 128., -12);
 
-			if (*kb > 0 && p->GetActor()->s->pal != 1) weapon_xoffset += 1 - (rand() & 3);
+			if (*kb > 0 && p->GetActor()->spr.pal != 1) weapon_xoffset += 1 - (rand() & 3);
 
 			if (*kb == 0)
 			{
@@ -650,7 +650,7 @@ void displayweapon_d(int snum, double smoothratio)
 			if (*kb > 0)
 				gun_pos -= bsinf(kickback_pic * 128., -12);
 
-			if (*kb > 0 && p->GetActor()->s->pal != 1) weapon_xoffset += 1 - (rand() & 3);
+			if (*kb > 0 && p->GetActor()->spr.pal != 1) weapon_xoffset += 1 - (rand() & 3);
 
 			hud_drawpal(weapon_xoffset + 168 - look_anghalf, looking_arc + 260 - gun_pos, CHAINGUN, shade, o, pal);
 			switch(*kb)
@@ -662,9 +662,9 @@ void displayweapon_d(int snum, double smoothratio)
 					if (*kb > 4 && *kb < 12)
 					{
 						i = 0;
-						if (p->GetActor()->s->pal != 1) i = rand() & 7;
+						if (p->GetActor()->spr.pal != 1) i = rand() & 7;
 						hud_drawpal(i + weapon_xoffset - 4 + 140 - look_anghalf,i + looking_arc - (kickback_pic / 2.) + 208 - gun_pos, CHAINGUN + 5 + ((*kb - 4) / 5),shade,o,pal);
-						if (p->GetActor()->s->pal != 1) i = rand() & 7;
+						if (p->GetActor()->spr.pal != 1) i = rand() & 7;
 						hud_drawpal(i + weapon_xoffset - 4 + 184 - look_anghalf,i + looking_arc - (kickback_pic / 2.) + 208 - gun_pos, CHAINGUN + 5 + ((*kb - 4) / 5),shade,o,pal);
 					}
 					if (*kb < 8)
@@ -911,7 +911,7 @@ void displayweapon_d(int snum, double smoothratio)
 			{
 				static const uint8_t cat_frames[] = { 0,0,1,1,2,2 };
 
-				if (p->GetActor()->s->pal != 1)
+				if (p->GetActor()->spr.pal != 1)
 				{
 					weapon_xoffset += rand() & 3;
 					looking_arc += rand() & 3;
@@ -961,7 +961,7 @@ void displayweapon_d(int snum, double smoothratio)
 			else
 			{
 				// the 'active' display.
-				if (p->GetActor()->s->pal != 1)
+				if (p->GetActor()->spr.pal != 1)
 				{
 					weapon_xoffset += rand() & 3;
 					gun_pos += (rand() & 3);
@@ -1033,7 +1033,7 @@ void displayweapon_d(int snum, double smoothratio)
 			}
 			else
 			{
-				if (p->GetActor()->s->pal != 1)
+				if (p->GetActor()->spr.pal != 1)
 				{
 					weapon_xoffset += rand() & 3;
 					gun_pos += (rand() & 3);
@@ -1122,7 +1122,7 @@ void displayweapon_d(int snum, double smoothratio)
 			}
 			else
 			{
-				if (p->GetActor()->s->pal != 1)
+				if (p->GetActor()->spr.pal != 1)
 				{
 					weapon_xoffset += rand() & 3;
 					gun_pos += (rand() & 3);
@@ -1166,7 +1166,7 @@ void displayweapon_d(int snum, double smoothratio)
 			else
 			{
 				static const uint8_t cat_frames[] = { 0, 0, 1, 1, 2, 2 };
-				if (p->GetActor()->s->pal != 1)
+				if (p->GetActor()->spr.pal != 1)
 				{
 					weapon_xoffset += krand() & 1;
 					looking_arc += krand() & 1;
