@@ -136,6 +136,7 @@ bulletInfo BulletInfo[] = {
 void InitBullets()
 {
     BulletList.Clear();
+    lasthitsect = nullptr;
 }
 
 int GrabBullet()
