@@ -851,22 +851,21 @@ void movefountain(DDukeActor *actor, int fountain)
 
 void moveflammable(DDukeActor* actor, int tire, int box, int pool)
 {
-	auto spri = actor->s;
 	int j;
 	if (actor->temp_data[0] == 1)
 	{
 		actor->temp_data[1]++;
 		if ((actor->temp_data[1] & 3) > 0) return;
 
-		if (!isRR() && spri->picnum == tire && actor->temp_data[1] == 32)
+		if (!isRR() && actor->spr.picnum == tire && actor->temp_data[1] == 32)
 		{
-			spri->cstat = 0;
+			actor->spr.cstat = 0;
 			auto spawned = spawn(actor, pool);
 			if (spawned) spawned->s->shade = 127;
 		}
 		else
 		{
-			if (spri->shade < 64) spri->shade++;
+			if (actor->spr.shade < 64) actor->spr.shade++;
 			else
 			{
 				deletesprite(actor);
@@ -874,27 +873,27 @@ void moveflammable(DDukeActor* actor, int tire, int box, int pool)
 			}
 		}
 
-		j = spri->xrepeat - (krand() & 7);
+		j = actor->spr.xrepeat - (krand() & 7);
 		if (j < 10)
 		{
 			deletesprite(actor);
 			return;
 		}
 
-		spri->xrepeat = j;
+		actor->spr.xrepeat = j;
 
-		j = spri->yrepeat - (krand() & 7);
+		j = actor->spr.yrepeat - (krand() & 7);
 		if (j < 4)
 		{
 			deletesprite(actor);
 			return;
 		}
-		spri->yrepeat = j;
+		actor->spr.yrepeat = j;
 	}
-	if (box >= 0 && spri->picnum == box)
+	if (box >= 0 && actor->spr.picnum == box)
 	{
 		makeitfall(actor);
-		actor->ceilingz = spri->sector()->ceilingz;
+		actor->ceilingz = actor->spr.sector()->ceilingz;
 	}
 }
 
@@ -907,44 +906,42 @@ void moveflammable(DDukeActor* actor, int tire, int box, int pool)
 
 void detonate(DDukeActor *actor, int explosion)
 {
-	auto spri = actor->s;
 	int* t = &actor->temp_data[0];
 	earthquaketime = 16;
 
 	DukeStatIterator itj(STAT_EFFECTOR);
 	while (auto effector = itj.Next())
 	{
-		auto sj = effector->s;
-		if (actor->s->hitag == sj->hitag)
+		if (actor->s->hitag == effector->spr.hitag)
 		{
-			if (sj->lotag == SE_13_EXPLOSIVE)
+			if (effector->spr.lotag == SE_13_EXPLOSIVE)
 			{
 				if (effector->temp_data[2] == 0)
 					effector->temp_data[2] = 1;
 			}
-			else if (sj->lotag == SE_8_UP_OPEN_DOOR_LIGHTS)
+			else if (effector->spr.lotag == SE_8_UP_OPEN_DOOR_LIGHTS)
 				effector->temp_data[4] = 1;
-			else if (sj->lotag == SE_18_INCREMENTAL_SECTOR_RISE_FALL)
+			else if (effector->spr.lotag == SE_18_INCREMENTAL_SECTOR_RISE_FALL)
 			{
 				if (effector->temp_data[0] == 0)
 					effector->temp_data[0] = 1;
 			}
-			else if (sj->lotag == SE_21_DROP_FLOOR)
+			else if (effector->spr.lotag == SE_21_DROP_FLOOR)
 				effector->temp_data[0] = 1;
 		}
 	}
 
-	spri->z -= (32 << 8);
+	actor->spr.z -= (32 << 8);
 
-	if ((t[3] == 1 && spri->xrepeat) || spri->lotag == -99)
+	if ((t[3] == 1 && actor->spr.xrepeat) || actor->spr.lotag == -99)
 	{
-		int x = spri->extra;
+		int x = actor->spr.extra;
 		spawn(actor, explosion);
 		fi.hitradius(actor, gs.seenineblastradius, x >> 2, x - (x >> 1), x - (x >> 2), x);
 		S_PlayActorSound(PIPEBOMB_EXPLODE, actor);
 	}
 
-	if (spri->xrepeat)
+	if (actor->spr.xrepeat)
 		for (int x = 0; x < 8; x++) RANDOMSCRAP(actor);
 
 	deletesprite(actor);
@@ -959,21 +956,19 @@ void detonate(DDukeActor *actor, int explosion)
 
 void movemasterswitch(DDukeActor *actor, int spectype1, int spectype2)
 {
-	auto spri = actor->s;
-	if (spri->yvel == 1)
+	if (actor->spr.yvel == 1)
 	{
-		spri->hitag--;
-		if (spri->hitag <= 0)
+		actor->spr.hitag--;
+		if (actor->spr.hitag <= 0)
 		{
-			operatesectors(spri->sector(), actor);
+			operatesectors(actor->spr.sector(), actor);
 
 			DukeSectIterator it(actor->sector());
 			while (auto effector = it.Next())
 			{
-				auto sj = effector->s;
-				if (sj->statnum == STAT_EFFECTOR)
+				if (effector->spr.statnum == STAT_EFFECTOR)
 				{
-					switch (sj->lotag)
+					switch (effector->spr.lotag)
 					{
 					case SE_2_EARTHQUAKE:
 					case SE_21_DROP_FLOOR:
@@ -987,20 +982,20 @@ void movemasterswitch(DDukeActor *actor, int spectype1, int spectype2)
 						break;
 					}
 				}
-				else if (sj->statnum == STAT_STANDABLE)
+				else if (effector->spr.statnum == STAT_STANDABLE)
 				{
-					if (sj->picnum == spectype1 || sj->picnum == spectype2) // SEENINE and OOZFILTER
+					if (effector->spr.picnum == spectype1 || effector->spr.picnum == spectype2) // SEENINE and OOZFILTER
 					{
-						sj->shade = -31;
+						effector->spr.shade = -31;
 					}
 				}
 			}
 			// we cannot delete this because it may be used as a sound source.
 			// This originally depended on undefined behavior as the deleted sprite was still used for the sound
 			// with no checking if it got reused in the mean time.
-			spri->picnum = 0;	// give it a picnum without any behavior attached, just in case
-			spri->cstat |= CSTAT_SPRITE_INVISIBLE;
-			spri->cstat2 |= CSTAT2_SPRITE_NOFIND;
+			actor->spr.picnum = 0;	// give it a picnum without any behavior attached, just in case
+			actor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
+			actor->spr.cstat2 |= CSTAT2_SPRITE_NOFIND;
 			ChangeActorStat(actor, STAT_REMOVED);
 		}
 	}
@@ -1014,14 +1009,13 @@ void movemasterswitch(DDukeActor *actor, int spectype1, int spectype2)
 
 void movetrash(DDukeActor *actor)
 {
-	auto s = actor->s;
-	if (s->xvel == 0) s->xvel = 1;
+	if (actor->spr.xvel == 0) actor->spr.xvel = 1;
 	if (ssp(actor, CLIPMASK0))
 	{
 		makeitfall(actor);
-		if (krand() & 1) s->zvel -= 256;
-		if (abs(s->xvel) < 48)
-			s->xvel += (krand() & 3);
+		if (krand() & 1) actor->spr.zvel -= 256;
+		if (abs(actor->spr.xvel) < 48)
+			actor->spr.xvel += (krand() & 3);
 	}
 	else deletesprite(actor);
 }
@@ -1034,37 +1028,36 @@ void movetrash(DDukeActor *actor)
 
 void movewaterdrip(DDukeActor *actor, int drip)
 {
-	auto s = actor->s;
 	int* t = &actor->temp_data[0];
 
 	if (t[1])
 	{
 		t[1]--;
 		if (t[1] == 0)
-			s->cstat &= ~CSTAT_SPRITE_INVISIBLE;
+			actor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
 	}
 	else
 	{
 		makeitfall(actor);
 		ssp(actor, CLIPMASK0);
-		if (s->xvel > 0) s->xvel -= 2;
+		if (actor->spr.xvel > 0) actor->spr.xvel -= 2;
 
-		if (s->zvel == 0)
+		if (actor->spr.zvel == 0)
 		{
-			s->cstat |= CSTAT_SPRITE_INVISIBLE;
+			actor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 
-			if (s->pal != 2 && (isRR() || s->hitag == 0))
+			if (actor->spr.pal != 2 && (isRR() || actor->spr.hitag == 0))
 				S_PlayActorSound(SOMETHING_DRIPPING, actor);
 
 			auto Owner = actor->GetOwner();
-			if (!Owner || Owner->s->picnum != drip)
+			if (!Owner || Owner->spr.picnum != drip)
 			{
 				deletesprite(actor);
 			}
 			else
 			{
-				s->z = t[0];
-				s->backupz();
+				actor->spr.z = t[0];
+				actor->spr.backupz();
 				t[1] = 48 + (krand() & 31);
 			}
 		}
@@ -1079,12 +1072,11 @@ void movewaterdrip(DDukeActor *actor, int drip)
 
 void movedoorshock(DDukeActor* actor)
 {
-	auto s = actor->s;
-	auto sectp = s->sector();
+	auto sectp = actor->spr.sector();
 	int j = abs(sectp->ceilingz - sectp->floorz) >> 9;
-	s->yrepeat = j + 4;
-	s->xrepeat = 16;
-	s->z = sectp->floorz;
+	actor->spr.yrepeat = j + 4;
+	actor->spr.xrepeat = 16;
+	actor->spr.z = sectp->floorz;
 }
 
 //---------------------------------------------------------------------------
@@ -1095,13 +1087,12 @@ void movedoorshock(DDukeActor* actor)
 
 void movetouchplate(DDukeActor* actor, int plate)
 {
-	auto s = actor->s;
 	int* t = &actor->temp_data[0];
-	auto sectp = s->sector();
+	auto sectp = actor->spr.sector();
 	int x;
 	int p;
 
-	if (t[1] == 1 && s->hitag >= 0) //Move the sector floor
+	if (t[1] == 1 && actor->spr.hitag >= 0) //Move the sector floor
 	{
 		x = sectp->floorz;
 
@@ -1115,21 +1106,21 @@ void movetouchplate(DDukeActor* actor, int plate)
 			else
 			{
 				sectp->floorz += sectp->extra;
-				p = checkcursectnums(s->sector());
+				p = checkcursectnums(actor->spr.sector());
 				if (p >= 0) ps[p].pos.z += sectp->extra;
 			}
 		}
 		else
 		{
-			if (x <= s->z)
+			if (x <= actor->spr.z)
 			{
-				sectp->floorz = s->z;
+				sectp->floorz = actor->spr.z;
 				t[1] = 0;
 			}
 			else
 			{
 				sectp->floorz -= sectp->extra;
-				p = checkcursectnums(s->sector());
+				p = checkcursectnums(actor->spr.sector());
 				if (p >= 0)
 					ps[p].pos.z -= sectp->extra;
 			}
@@ -1139,20 +1130,20 @@ void movetouchplate(DDukeActor* actor, int plate)
 
 	if (t[5] == 1) return;
 
-	p = checkcursectnums(s->sector());
-	if (p >= 0 && (ps[p].on_ground || s->ang == 512))
+	p = checkcursectnums(actor->spr.sector());
+	if (p >= 0 && (ps[p].on_ground || actor->spr.ang == 512))
 	{
-		if (t[0] == 0 && !check_activator_motion(s->lotag))
+		if (t[0] == 0 && !check_activator_motion(actor->spr.lotag))
 		{
 			t[0] = 1;
 			t[1] = 1;
 			t[3] = !t[3];
-			operatemasterswitches(s->lotag);
-			operateactivators(s->lotag, p);
-			if (s->hitag > 0)
+			operatemasterswitches(actor->spr.lotag);
+			operateactivators(actor->spr.lotag, p);
+			if (actor->spr.hitag > 0)
 			{
-				s->hitag--;
-				if (s->hitag == 0) t[5] = 1;
+				actor->spr.hitag--;
+				if (actor->spr.hitag == 0) t[5] = 1;
 			}
 		}
 	}
@@ -1163,7 +1154,7 @@ void movetouchplate(DDukeActor* actor, int plate)
 		DukeStatIterator it(STAT_STANDABLE);
 		while (auto act2 = it.Next())
 		{
-			if (act2 != actor && act2->s->picnum == plate && act2->s->lotag == s->lotag)
+			if (act2 != actor && act2->spr.picnum == plate && act2->spr.lotag == actor->spr.lotag)
 			{
 				act2->temp_data[1] = 1;
 				act2->temp_data[3] = t[3];
@@ -1180,63 +1171,61 @@ void movetouchplate(DDukeActor* actor, int plate)
 
 void moveooz(DDukeActor* actor, int seenine, int seeninedead, int ooz, int explosion)
 {
-	auto s = actor->s;
 	int* t = &actor->temp_data[0];
 	int j;
-	if (s->shade != -32 && s->shade != -33)
+	if (actor->spr.shade != -32 && actor->spr.shade != -33)
 	{
-		if (s->xrepeat)
+		if (actor->spr.xrepeat)
 			j = (fi.ifhitbyweapon(actor) >= 0);
 		else
 			j = 0;
 
-		if (j || s->shade == -31)
+		if (j || actor->spr.shade == -31)
 		{
-			if (j) s->lotag = 0;
+			if (j) actor->spr.lotag = 0;
 
 			t[3] = 1;
 
 			DukeStatIterator it(STAT_STANDABLE);
 			while (auto act2 = it.Next())
 			{
-				auto ss = act2->s;
-				if (s->hitag == ss->hitag && (ss->picnum == seenine || ss->picnum == ooz))
-					ss->shade = -32;
+				if (actor->spr.hitag == act2->spr.hitag && (act2->spr.picnum == seenine || act2->spr.picnum == ooz))
+					act2->spr.shade = -32;
 			}
 		}
 	}
 	else
 	{
-		if (s->shade == -32)
+		if (actor->spr.shade == -32)
 		{
-			if (s->lotag > 0)
+			if (actor->spr.lotag > 0)
 			{
-				s->lotag -= 3;
-				if (s->lotag <= 0) s->lotag = -99;
+				actor->spr.lotag -= 3;
+				if (actor->spr.lotag <= 0) actor->spr.lotag = -99;
 			}
 			else
-				s->shade = -33;
+				actor->spr.shade = -33;
 		}
 		else
 		{
-			if (s->xrepeat > 0)
+			if (actor->spr.xrepeat > 0)
 			{
 				actor->temp_data[2]++;
 				if (actor->temp_data[2] == 3)
 				{
-					if (s->picnum == ooz)
+					if (actor->spr.picnum == ooz)
 					{
 						actor->temp_data[2] = 0;
 						detonate(actor, explosion);
 						return;
 					}
-					if (s->picnum != (seeninedead + 1))
+					if (actor->spr.picnum != (seeninedead + 1))
 					{
 						actor->temp_data[2] = 0;
 
-						if (s->picnum == seeninedead) s->picnum++;
-						else if (s->picnum == seenine)
-							s->picnum = seeninedead;
+						if (actor->spr.picnum == seeninedead) actor->spr.picnum++;
+						else if (actor->spr.picnum == seenine)
+							actor->spr.picnum = seeninedead;
 					}
 					else
 					{
