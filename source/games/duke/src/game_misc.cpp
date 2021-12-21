@@ -391,7 +391,6 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
 	int xvect, yvect;
 	int p;
 	PalEntry col;
-	spritetype* spr;
 
 	xvect = -bsin(cang) * czoom;
 	yvect = -bcos(cang) * czoom;
@@ -404,17 +403,15 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
 		DukeSectIterator it(i);
 		while (auto act = it.Next())
 		{
-			spr = act->s;
-
-			if (act == pactor || (spr->cstat & CSTAT_SPRITE_INVISIBLE) || spr->cstat == CSTAT_SPRITE_BLOCK_ALL || spr->xrepeat == 0) continue;
+			if (act == pactor || (act->spr.cstat & CSTAT_SPRITE_INVISIBLE) || act->spr.cstat == CSTAT_SPRITE_BLOCK_ALL || act->spr.xrepeat == 0) continue;
 
 			col = PalEntry(0, 170, 170);
-			if (spr->cstat & CSTAT_SPRITE_BLOCK) col = PalEntry(170, 0, 170);
+			if (act->spr.cstat & CSTAT_SPRITE_BLOCK) col = PalEntry(170, 0, 170);
 
-			sprx = spr->x;
-			spry = spr->y;
+			sprx = act->spr.x;
+			spry = act->spr.y;
 
-			if ((spr->cstat & CSTAT_SPRITE_BLOCK_ALL) != 0) switch (spr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
+			if ((act->spr.cstat & CSTAT_SPRITE_BLOCK_ALL) != 0) switch (act->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
 			{
 			case CSTAT_SPRITE_ALIGNMENT_FACING:
 				//break;
@@ -424,8 +421,8 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
 				x1 = DMulScale(ox, xvect, -oy, yvect, 16);
 				y1 = DMulScale(oy, xvect, ox, yvect, 16);
 
-				ox = bcos(spr->ang, -7);
-				oy = bsin(spr->ang, -7);
+				ox = bcos(act->spr.ang, -7);
+				oy = bsin(act->spr.ang, -7);
 				x2 = DMulScale(ox, xvect, -oy, yvect, 16);
 				y2 = DMulScale(oy, xvect, ox, yvect, 16);
 
@@ -441,15 +438,15 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
 				break;
 
 			case CSTAT_SPRITE_ALIGNMENT_WALL:
-				if (spr->picnum == TILE_LASERLINE)
+				if (act->spr.picnum == TILE_LASERLINE)
 				{
 					x1 = sprx;
 					y1 = spry;
-					tilenum = spr->picnum;
-					xoff = tileLeftOffset(tilenum) + spr->xoffset;
-					if ((spr->cstat & CSTAT_SPRITE_XFLIP) > 0) xoff = -xoff;
-					k = spr->ang;
-					l = spr->xrepeat;
+					tilenum = act->spr.picnum;
+					xoff = tileLeftOffset(tilenum) + act->spr.xoffset;
+					if ((act->spr.cstat & CSTAT_SPRITE_XFLIP) > 0) xoff = -xoff;
+					k = act->spr.ang;
+					l = act->spr.xrepeat;
 					dax = bsin(k) * l;
 					day = -bcos(k) * l;
 					l = tileWidth(tilenum);
@@ -477,25 +474,25 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
 
 			case CSTAT_SPRITE_ALIGNMENT_FLOOR:
 			case CSTAT_SPRITE_ALIGNMENT_SLOPE:
-				tilenum = spr->picnum;
+				tilenum = act->spr.picnum;
 				xoff = tileLeftOffset(tilenum);
 				yoff = tileTopOffset(tilenum);
-				if ((spr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLOPE)
+				if ((act->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLOPE)
 				{
-					xoff += spr->xoffset;
-					yoff += spr->yoffset;
+					xoff += act->spr.xoffset;
+					yoff += act->spr.yoffset;
 				}
 
-				if ((spr->cstat & CSTAT_SPRITE_XFLIP) > 0) xoff = -xoff;
-				if ((spr->cstat & CSTAT_SPRITE_YFLIP) > 0) yoff = -yoff;
+				if ((act->spr.cstat & CSTAT_SPRITE_XFLIP) > 0) xoff = -xoff;
+				if ((act->spr.cstat & CSTAT_SPRITE_YFLIP) > 0) yoff = -yoff;
 
-				k = spr->ang;
+				k = act->spr.ang;
 				cosang = bcos(k);
 				sinang = bsin(k);
 				xspan = tileWidth(tilenum);
-				xrepeat = spr->xrepeat;
+				xrepeat = act->spr.xrepeat;
 				yspan = tileHeight(tilenum);
-				yrepeat = spr->yrepeat;
+				yrepeat = act->spr.yrepeat;
 
 				dax = ((xspan >> 1) + xoff) * xrepeat;
 				day = ((yspan >> 1) + yoff) * yrepeat;
@@ -552,8 +549,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
 	for (p = connecthead; p >= 0; p = connectpoint2[p])
 	{
 		auto act = ps[p].GetActor();
-		auto pspr = act->s;
-		auto spos = pspr->interpolatedvec2(smoothratio);
+		auto spos = act->spr.interpolatedvec2(smoothratio);
 
 		ox = mx - cposx;
 		oy = my - cposy;
@@ -562,24 +558,24 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
 		int xx = xdim / 2. + x1 / 4096.;
 		int yy = ydim / 2. + y1 / 4096.;
 
-		daang = ((!SyncInput() ? pspr->ang : pspr->interpolatedang(smoothratio)) - cang) & 2047;
+		daang = ((!SyncInput() ? act->spr.ang : act->spr.interpolatedang(smoothratio)) - cang) & 2047;
 
 		if (p == screenpeek || ud.coop == 1)
 		{
 			auto& pp = ps[p];
-			if (pspr->xvel > 16 && pp.on_ground)
+			if (act->spr.xvel > 16 && pp.on_ground)
 				i = TILE_APLAYERTOP + ((PlayClock >> 4) & 3);
 			else
 				i = TILE_APLAYERTOP;
 
 			j = abs(pp.truefz - pp.pos.z) >> 8;
-			j = czoom * (pspr->yrepeat + j);
+			j = czoom * (act->spr.yrepeat + j);
 
 			if (j < 22000) j = 22000;
 			else if (j > (65536 << 1)) j = (65536 << 1);
 
-			DrawTexture(twod, tileGetTexture(i), xx, yy, DTA_TranslationIndex, TRANSLATION(Translation_Remap + setpal(&pp), pspr->pal), DTA_CenterOffset, true,
-				DTA_Rotate, daang * -BAngToDegree, DTA_Color, shadeToLight(pspr->shade), DTA_ScaleX, j / 65536., DTA_ScaleY, j / 65536., TAG_DONE);
+			DrawTexture(twod, tileGetTexture(i), xx, yy, DTA_TranslationIndex, TRANSLATION(Translation_Remap + setpal(&pp), act->spr.pal), DTA_CenterOffset, true,
+				DTA_Rotate, daang * -BAngToDegree, DTA_Color, shadeToLight(act->spr.shade), DTA_ScaleX, j / 65536., DTA_ScaleY, j / 65536., TAG_DONE);
 		}
 	}
 	return true;

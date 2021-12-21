@@ -1170,8 +1170,6 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 	{
 		act = GetGameVarID(lVar1, sActor, sPlayer).safeActor();
 	}
-	auto spr = act->s;
-
 	if (!act)
 	{
 		if (!bSet) SetGameVarID(lVar2, 0, sActor, sPlayer);
@@ -1181,97 +1179,97 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 	switch (lLabelID)
 	{
 	case ACTOR_X:
-		if (bSet) spr->x = lValue;
-		else SetGameVarID(lVar2, spr->x, sActor, sPlayer);
+		if (bSet) act->spr.x = lValue;
+		else SetGameVarID(lVar2, act->spr.x, sActor, sPlayer);
 		break;
 	case ACTOR_Y:
-		if (bSet) spr->y = lValue;
-		else SetGameVarID(lVar2, spr->y, sActor, sPlayer);
+		if (bSet) act->spr.y = lValue;
+		else SetGameVarID(lVar2, act->spr.y, sActor, sPlayer);
 		break;
 	case ACTOR_Z:
-		if (bSet) spr->z = lValue;
-		else SetGameVarID(lVar2, spr->z, sActor, sPlayer);
+		if (bSet) act->spr.z = lValue;
+		else SetGameVarID(lVar2, act->spr.z, sActor, sPlayer);
 		break;
 	case ACTOR_CSTAT:
-		if (bSet) spr->cstat = ESpriteFlags::FromInt(lValue);
-		else SetGameVarID(lVar2, spr->cstat, sActor, sPlayer);
+		if (bSet) act->spr.cstat = ESpriteFlags::FromInt(lValue);
+		else SetGameVarID(lVar2, act->spr.cstat, sActor, sPlayer);
 		break;
 	case ACTOR_PICNUM:
-		if (bSet) spr->picnum = lValue;
-		else SetGameVarID(lVar2, spr->picnum, sActor, sPlayer);
+		if (bSet) act->spr.picnum = lValue;
+		else SetGameVarID(lVar2, act->spr.picnum, sActor, sPlayer);
 		break;
 	case ACTOR_SHADE:
-		if (bSet) spr->shade = lValue;
-		else SetGameVarID(lVar2, spr->shade, sActor, sPlayer);
+		if (bSet) act->spr.shade = lValue;
+		else SetGameVarID(lVar2, act->spr.shade, sActor, sPlayer);
 		break;
 	case ACTOR_PAL:
-		if (bSet) spr->pal = lValue;
-		else SetGameVarID(lVar2, spr->pal, sActor, sPlayer);
+		if (bSet) act->spr.pal = lValue;
+		else SetGameVarID(lVar2, act->spr.pal, sActor, sPlayer);
 		break;
 	case ACTOR_CLIPDIST:
-		if (bSet) spr->clipdist = lValue;
-		else SetGameVarID(lVar2, spr->clipdist, sActor, sPlayer);
+		if (bSet) act->spr.clipdist = lValue;
+		else SetGameVarID(lVar2, act->spr.clipdist, sActor, sPlayer);
 		break;
 	case ACTOR_DETAIL:
 		if (bSet) act->spriteextra = lValue;
 		else SetGameVarID(lVar2, act->spriteextra, sActor, sPlayer);
 		break;
 	case ACTOR_XREPEAT:
-		if (bSet) spr->xrepeat = lValue;
-		else SetGameVarID(lVar2, spr->xrepeat, sActor, sPlayer);
+		if (bSet) act->spr.xrepeat = lValue;
+		else SetGameVarID(lVar2, act->spr.xrepeat, sActor, sPlayer);
 		break;
 	case ACTOR_YREPEAT:
-		if (bSet) spr->yrepeat = lValue;
-		else SetGameVarID(lVar2, spr->yrepeat, sActor, sPlayer);
+		if (bSet) act->spr.yrepeat = lValue;
+		else SetGameVarID(lVar2, act->spr.yrepeat, sActor, sPlayer);
 		break;
 	case ACTOR_XOFFSET:
-		if (bSet) spr->xoffset = lValue;
-		else SetGameVarID(lVar2, spr->xoffset, sActor, sPlayer);
+		if (bSet) act->spr.xoffset = lValue;
+		else SetGameVarID(lVar2, act->spr.xoffset, sActor, sPlayer);
 		break;
 	case ACTOR_YOFFSET:
-		if (bSet) spr->yoffset = lValue;
-		else SetGameVarID(lVar2, spr->yoffset, sActor, sPlayer);
+		if (bSet) act->spr.yoffset = lValue;
+		else SetGameVarID(lVar2, act->spr.yoffset, sActor, sPlayer);
 		break;
 	case ACTOR_SECTNUM: // made read only because this is not safe.
 		if (!bSet) /*changespritesect(iActor, lValue);
-		else*/ SetGameVarID(lVar2, spr->sectno(), sActor, sPlayer);
+		else*/ SetGameVarID(lVar2, act->spr.sectno(), sActor, sPlayer);
 		break;
 	case ACTOR_STATNUM: 
 		if (!bSet) /*changespritestat(iActor, lValue);
-		else*/ SetGameVarID(lVar2, spr->statnum, sActor, sPlayer);
+		else*/ SetGameVarID(lVar2, act->spr.statnum, sActor, sPlayer);
 		break;
 	case ACTOR_ANG:
-		if (bSet) spr->ang = lValue;
-		else SetGameVarID(lVar2, spr->ang, sActor, sPlayer);
+		if (bSet) act->spr.ang = lValue;
+		else SetGameVarID(lVar2, act->spr.ang, sActor, sPlayer);
 		break;
 	case ACTOR_OWNER:
 		// there is no way to handle this well because we do not know whether this is an actor or not. Pity.
-		if (bSet) spr->owner = lValue;
-		else SetGameVarID(lVar2, spr->owner, sActor, sPlayer);
+		if (bSet) act->spr.owner = lValue;
+		else SetGameVarID(lVar2, act->spr.owner, sActor, sPlayer);
 		break;
 	case ACTOR_XVEL:
-		if (bSet) spr->xvel = lValue;
-		else SetGameVarID(lVar2, spr->xvel, sActor, sPlayer);
+		if (bSet) act->spr.xvel = lValue;
+		else SetGameVarID(lVar2, act->spr.xvel, sActor, sPlayer);
 		break;
 	case ACTOR_YVEL:
-		if (bSet) spr->yvel = lValue;
-		else SetGameVarID(lVar2, spr->yvel, sActor, sPlayer);
+		if (bSet) act->spr.yvel = lValue;
+		else SetGameVarID(lVar2, act->spr.yvel, sActor, sPlayer);
 		break;
 	case ACTOR_ZVEL:
-		if (bSet) spr->zvel = lValue;
-		else SetGameVarID(lVar2, spr->zvel, sActor, sPlayer);
+		if (bSet) act->spr.zvel = lValue;
+		else SetGameVarID(lVar2, act->spr.zvel, sActor, sPlayer);
 		break;
 	case ACTOR_LOTAG:
-		if (bSet) spr->lotag = lValue;
-		else SetGameVarID(lVar2, spr->lotag, sActor, sPlayer);
+		if (bSet) act->spr.lotag = lValue;
+		else SetGameVarID(lVar2, act->spr.lotag, sActor, sPlayer);
 		break;
 	case ACTOR_HITAG:
-		if (bSet) spr->hitag = lValue;
-		else SetGameVarID(lVar2, spr->hitag, sActor, sPlayer);
+		if (bSet) act->spr.hitag = lValue;
+		else SetGameVarID(lVar2, act->spr.hitag, sActor, sPlayer);
 		break;
 	case ACTOR_EXTRA:
-		if (bSet) spr->extra = lValue;
-		else SetGameVarID(lVar2, spr->extra, sActor, sPlayer);
+		if (bSet) act->spr.extra = lValue;
+		else SetGameVarID(lVar2, act->spr.extra, sActor, sPlayer);
 		break;
 
 	case ACTOR_HTCGG:
@@ -1331,16 +1329,16 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		else SetGameVarID(lVar2, act->lastvy, sActor, sPlayer);
 		break;
 	case ACTOR_HTBPOSX:
-		if (bSet) spr->ox = lValue;
-		else SetGameVarID(lVar2, spr->ox, sActor, sPlayer);
+		if (bSet) act->spr.ox = lValue;
+		else SetGameVarID(lVar2, act->spr.ox, sActor, sPlayer);
 		break;
 	case ACTOR_HTBPOSY:
-		if (bSet) spr->oy = lValue;
-		else SetGameVarID(lVar2, spr->oy, sActor, sPlayer);
+		if (bSet) act->spr.oy = lValue;
+		else SetGameVarID(lVar2, act->spr.oy, sActor, sPlayer);
 		break;
 	case ACTOR_HTBPOSZ:
-		if (bSet) spr->oz = lValue;
-		else SetGameVarID(lVar2, spr->oz, sActor, sPlayer);
+		if (bSet) act->spr.oz = lValue;
+		else SetGameVarID(lVar2, act->spr.oz, sActor, sPlayer);
 		break;
 	case ACTOR_HTG_T0:
 		if (bSet) act->temp_data[0] = lValue;
@@ -1473,7 +1471,6 @@ static bool ifcansee(DDukeActor* actor, int pnum)
 {
 	int j;
 	DDukeActor* tosee;
-	auto spr = actor->s;
 
 	// select sprite for monster to target
 	// if holoduke is on, let them target holoduke first.
@@ -1481,7 +1478,7 @@ static bool ifcansee(DDukeActor* actor, int pnum)
 	if (ps[pnum].holoduke_on != nullptr && !isRR())
 	{
 		tosee = ps[pnum].holoduke_on;
-		j = cansee(spr->x, spr->y, spr->z - (krand() & ((32 << 8) - 1)), spr->sector(), tosee->spr.x, tosee->spr.y, tosee->spr.z, tosee->sector());
+		j = cansee(actor->spr.x, actor->spr.y, actor->spr.z - (krand() & ((32 << 8) - 1)), actor->spr.sector(), tosee->spr.x, tosee->spr.y, tosee->spr.z, tosee->sector());
 
 		if (j == 0)
 		{
@@ -1493,7 +1490,7 @@ static bool ifcansee(DDukeActor* actor, int pnum)
 	else tosee = ps[pnum].GetActor();	// holoduke not on. look for player
 
 	// can they see player, (or player's holoduke)
-	j = cansee(spr->x, spr->y, spr->z - (krand() & ((47 << 8))), spr->sector(), tosee->spr.x, tosee->spr.y, tosee->spr.z - ((isRR()? 28 : 24) << 8), tosee->sector());
+	j = cansee(actor->spr.x, actor->spr.y, actor->spr.z - (krand() & ((47 << 8))), actor->spr.sector(), tosee->spr.x, tosee->spr.y, tosee->spr.z - ((isRR()? 28 : 24) << 8), tosee->sector());
 
 	if (j == 0)
 	{
@@ -1509,7 +1506,7 @@ static bool ifcansee(DDukeActor* actor, int pnum)
 		actor->lastvy = tosee->spr.y;
 	}
 
-	if (j == 1 && (spr->statnum == STAT_ACTOR || spr->statnum == STAT_STANDABLE))
+	if (j == 1 && (actor->spr.statnum == STAT_ACTOR || actor->spr.statnum == STAT_STANDABLE))
 		actor->timetosleep = SLEEPTIME;
 
 	return j == 1;
@@ -2522,8 +2519,7 @@ int ParseState::parse(void)
 							DDukeActor* a2;
 							while ((a2 = it.Next()))
 							{
-								auto sj = a2->s;
-								if (sj->picnum == ACTIVATOR)
+								if (a2->spr.picnum == ACTIVATOR)
 									break;
 							}
 							if (a2 == nullptr)
