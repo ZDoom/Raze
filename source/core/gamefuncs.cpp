@@ -274,12 +274,13 @@ void GetWallSpritePosition(const tspritetype* spr, vec2_t pos, vec2_t* out, bool
 //
 //==========================================================================
 
-template<class sprt>
-void TGetFlatSpritePosition(const sprt* spr, vec2_t pos, vec2_t* out, bool render)
+void TGetFlatSpritePosition(const spritetypebase* spr, vec2_t pos, vec2_t* out, int* outz, int heinum, bool render)
 {
 	auto tex = tileGetTexture(spr->picnum);
 
 	int width, height, leftofs, topofs;
+	int ratio = ksqrt(heinum * heinum + 4096 * 4096);
+
 	if (render && hw_hightile && TileFiles.tiledata[spr->picnum].hiofs.xsize)
 	{
 		width = TileFiles.tiledata[spr->picnum].hiofs.xsize * spr->xrepeat;
@@ -303,26 +304,40 @@ void TGetFlatSpritePosition(const sprt* spr, vec2_t pos, vec2_t* out, bool rende
 
 	int cosang = bcos(spr->ang);
 	int sinang = bsin(spr->ang);
+	int cosangslope = DivScale(cosang, ratio, 12);
+	int sinangslope = DivScale(sinang, ratio, 12);
 
-	out[0].x = pos.x + DMulScale(sinang, sprcenterx, cosang, sprcentery, 16);
-	out[0].y = pos.y + DMulScale(sinang, sprcentery, -cosang, sprcenterx, 16);
+	out[0].x = pos.x + DMulScale(sinang, sprcenterx, cosangslope, sprcentery, 16);
+	out[0].y = pos.y + DMulScale(sinangslope, sprcentery, -cosang, sprcenterx, 16);
 
 	out[1].x = out[0].x - MulScale(sinang, width, 16);
 	out[1].y = out[0].y + MulScale(cosang, width, 16);
 
-	vec2_t sub = { MulScale(cosang, height, 16), MulScale(sinang, height, 16) };
+	vec2_t sub = { MulScale(cosangslope, height, 16), MulScale(sinangslope, height, 16) };
 	out[2] = out[1] - sub;
 	out[3] = out[0] - sub;
+	if (outz)
+	{
+		if (!heinum) outz[3] = outz[2] = outz[1] = outz[0] = 0;
+		else
+		{
+			for (int i = 0; i < 4; i++)
+			{
+				int spos = DMulScale(-sinang, out[i].y - spr->y, -cosang, out[i].x - spr->x, 4);
+				outz[i] = MulScale(heinum, spos, 18);
+			}
+		}
+	}
 }
 
 void GetFlatSpritePosition(const spritetype* spr, vec2_t pos, vec2_t* out, bool render)
 {
-	TGetFlatSpritePosition(spr, pos, out, render);
+	TGetFlatSpritePosition(spr, pos, out, nullptr, spriteGetSlope(spr), render);
 }
 
-void GetFlatSpritePosition(const tspritetype* spr, vec2_t pos, vec2_t* out, bool render)
+void GetFlatSpritePosition(const tspritetype* spr, vec2_t pos, vec2_t* out, int* outz, bool render)
 {
-	TGetFlatSpritePosition(spr, pos, out, render);
+	TGetFlatSpritePosition(spr, pos, out, outz, tspriteGetSlope(spr), render);
 }
 
 //==========================================================================

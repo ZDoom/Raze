@@ -2635,24 +2635,6 @@ static int32_t polymost_lintersect(int32_t x1, int32_t y1, int32_t x2, int32_t y
     return rv;
 }
 
-
-static inline int16_t tspriteGetSlope(tspriteptr_t const tspr)
-{
-    if (!(tspr->cstat2 & CSTAT2_SPRITE_SLOPE))
-        return 0;
-    return uint8_t(tspr->xoffset) + (uint8_t(tspr->yoffset) << 8);
-}
-
-static inline int32_t tspriteGetZOfSlope(tspriteptr_t const tspr, int32_t dax, int32_t day)
-{
-    int16_t const heinum = tspriteGetSlope(tspr);
-    if (heinum == 0)
-        return tspr->z;
-
-    int const j = DMulScale(bsin(tspr->ang + 1024), day - tspr->y, -bsin(tspr->ang + 512), dax - tspr->x, 4);
-    return tspr->z + MulScale(heinum, j, 18);
-}
-
 static inline float tspriteGetZOfSlopeFloat(tspriteptr_t const tspr, float dax, float day)
 {
     int16_t const heinum = tspriteGetSlope(tspr);
@@ -3700,7 +3682,7 @@ void renderDrawMasks(void)
                         if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FLOOR)
                         {
                             numpts = 4;
-                            GetFlatSpritePosition(tspr, tspr->pos.vec2, pp);
+                            GetFlatSpritePosition(tspr, tspr->pos.vec2, pp, nullptr);
                         }
                         else
                         {

@@ -126,8 +126,8 @@ int getslopeval(sectortype* sect, int x, int y, int z, int planez);
 
 void setWallSectors();
 void GetWallSpritePosition(const tspritetype* spr, vec2_t pos, vec2_t* out, bool render = false);
-void GetFlatSpritePosition(const tspritetype* spr, vec2_t pos, vec2_t* out, bool render = false);
 void GetFlatSpritePosition(const spritetype* spr, vec2_t pos, vec2_t* out, bool render = false);
+void GetFlatSpritePosition(const tspritetype* spr, vec2_t pos, vec2_t* out, int* outz = nullptr, bool render = false);
 void checkRotatedWalls();
 bool sectorsConnected(int sect1, int sect2);
 
@@ -264,6 +264,22 @@ inline int spriteGetSlope(const spritetype* spr)
 {
     return ((spr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLOPE) ? 0 : uint8_t(spr->xoffset) + (uint8_t(spr->yoffset) << 8);
 }
+
+// same stuff, different flag...
+inline int tspriteGetSlope(const tspritetype* spr)
+{
+	return !(spr->cstat2 & CSTAT2_SPRITE_SLOPE) ? 0 : uint8_t(spr->xoffset) + (uint8_t(spr->yoffset) << 8);
+}
+
+inline int32_t tspriteGetZOfSlope(const tspritetype* tspr, int dax, int day)
+{
+	int heinum = tspriteGetSlope(tspr);
+	if (heinum == 0) return tspr->z;
+
+	int const j = DMulScale(bsin(tspr->ang + 1024), day - tspr->y, -bsin(tspr->ang + 512), dax - tspr->x, 4);
+	return tspr->z + MulScale(heinum, j, 18);
+}
+
 
 inline int I_GetBuildTime()
 {

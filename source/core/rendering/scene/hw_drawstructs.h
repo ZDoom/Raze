@@ -272,7 +272,7 @@ public:
 
 	int plane;
 	int vertindex, vertcount;	// this should later use a static vertex buffer, but that'd hinder the development phase, so for now vertex data gets created on the fly.
-	void MakeVertices();
+	void MakeVertices(HWDrawInfo* di);
 
 	int dynlightindex;
 

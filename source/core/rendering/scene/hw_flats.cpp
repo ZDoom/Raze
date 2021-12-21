@@ -93,7 +93,7 @@ void HWFlat::SetupLights(HWDrawInfo *di, FLightNode * node, FDynLightData &light
 //
 //==========================================================================
 
-void HWFlat::MakeVertices()
+void HWFlat::MakeVertices(HWDrawInfo* di)
 {
 	if (vertcount > 0) return;
 	bool canvas = texture->isHardwareCanvas();
@@ -120,17 +120,54 @@ void HWFlat::MakeVertices()
 	else
 	{
 		vec2_t pos[4];
-		GetFlatSpritePosition(Sprite, Sprite->pos.vec2, pos, true);
+		int ofsz[4];
+		GetFlatSpritePosition(Sprite, Sprite->pos.vec2, pos, ofsz, true);
 
 		auto ret = screen->mVertexData->AllocVertices(6);
 		auto vp = ret.first;
 		float x = !(Sprite->cstat & CSTAT_SPRITE_XFLIP) ? 0.f : 1.f;
 		float y = !(Sprite->cstat & CSTAT_SPRITE_YFLIP) ? 0.f : 1.f;
+		if (Sprite->cstat2 & CSTAT2_SPRITE_SLOPE)
+		{
+
+			int posx = int(di->Viewpoint.Pos.X * 16.f);
+			int posy = int(di->Viewpoint.Pos.Y * -16.f);
+			int posz = int(di->Viewpoint.Pos.Z * -256.f);
+
+			// Make adjustments for poorly aligned slope sprites on floors or ceilings
+			constexpr float ONPLANE_THRESHOLD = 3.f;
+			if (tspriteGetZOfSlope(Sprite, posx, posy) < posz)
+			{
+				float maxofs = -FLT_MAX, minofs = FLT_MAX;
+				for (int i = 0; i < 4; i++)
+				{
+					float vz = getceilzofslopeptr(Sprite->sectp, pos[i].x, pos[i].y) * (1 / -256.f);
+					float sz = z + ofsz[i] * (1 / -256.f);
+					int diff = vz - sz;
+					if (diff > maxofs) maxofs = diff;
+					if (diff < minofs) minofs = diff;
+				}
+				if (maxofs > 0 && minofs >= -ONPLANE_THRESHOLD && maxofs <= ONPLANE_THRESHOLD) z -= maxofs;
+			}
+			else
+			{
+				float maxofs = -FLT_MAX, minofs = FLT_MAX;
+				for (int i = 0; i < 4; i++)
+				{
+					float vz = getflorzofslopeptr(Sprite->sectp, pos[i].x, pos[i].y) * (1 / -256.f);
+					float sz = z + ofsz[i] * (1 / -256.f);
+					int diff = vz - sz;
+					if (diff > maxofs) maxofs = diff;
+					if (diff < minofs) minofs = diff;
+				}
+				if (minofs < 0 && maxofs <= -ONPLANE_THRESHOLD && minofs >= ONPLANE_THRESHOLD) z -= minofs;
+			}
+		}
 		for (unsigned i = 0; i < 6; i++)
 		{
 			const static unsigned indices[] = { 0, 1, 2, 0, 2, 3 };
 			int j = indices[i];
-			vp->SetVertex(pos[j].x * (1 / 16.f), z, pos[j].y * (1 / -16.f));
+			vp->SetVertex(pos[j].x * (1 / 16.f), z + ofsz[j] * (1 / -256.f), pos[j].y * (1 / -16.f));
 			if (!canvas) vp->SetTexCoord(j == 1 || j == 2 ? 1.f - x : x, j == 2 || j == 3 ? 1.f - y : y);
 			else vp->SetTexCoord(j == 1 || j == 2 ? 1.f - x : x, j == 2 || j == 3 ? y : 1.f - y);
 			vp++;
@@ -149,7 +186,7 @@ void HWFlat::DrawFlat(HWDrawInfo *di, FRenderState &state, bool translucent)
 {
 	if (screen->BuffersArePersistent() && !Sprite)
 	{
-		MakeVertices();
+		MakeVertices(di);
 	}
 
 #ifdef _DEBUG
@@ -228,7 +265,7 @@ void HWFlat::PutFlat(HWDrawInfo *di, int whichplane)
 			SetupLights(di, section->lighthead, lightdata, sector->PortalGroup);
 		}
 #endif
-		MakeVertices();
+		MakeVertices(di);
 	}
 	di->AddFlat(this);
 	rendered_flats++;
