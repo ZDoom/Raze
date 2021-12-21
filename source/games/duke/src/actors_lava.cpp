@@ -123,24 +123,24 @@ void lava_serialize(FSerializer& arc)
 		("windertime", windertime);
 }
 
-void addtorch(spritetype* s)
+void addtorch(DDukeActor* actor)
 {
 	if (torchcnt >= 64)
 		I_Error("Too many torch effects");
 
-	torchsector[torchcnt] = s->sector();
-	torchsectorshade[torchcnt] = s->sector()->floorshade;
-	torchtype[torchcnt] = s->lotag;
+	torchsector[torchcnt] = actor->spr.sector();
+	torchsectorshade[torchcnt] = actor->spr.sector()->floorshade;
+	torchtype[torchcnt] = actor->spr.lotag;
 	torchcnt++;
 }
 
-void addlightning(spritetype* s)
+void addlightning(DDukeActor* actor)
 {
 	if (lightnincnt >= 64)
 		I_Error("Too many lightnin effects");
 
-	lightninsector[lightnincnt] = s->sector();
-	lightninsectorshade[lightnincnt] = s->sector()->floorshade;
+	lightninsector[lightnincnt] = actor->spr.sector();
+	lightninsectorshade[lightnincnt] = actor->spr.sector()->floorshade;
 	lightnincnt++;
 }
 

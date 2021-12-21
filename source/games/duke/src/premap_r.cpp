@@ -46,17 +46,17 @@ static inline void tloadtile(int tilenum, int palnum = 0)
 //
 //---------------------------------------------------------------------------
 
-static void cachespritenum(spritetype *spr)
+static void cachespritenum(DDukeActor* actor)
 {
 	int maxc;
 	int j;
-	int pal = spr->pal;
+	int pal = actor->spr.pal;
 
-	if (ud.monsters_off && badguy(spr)) return;
+	if (ud.monsters_off && badguy(actor)) return;
 
 	maxc = 1;
 
-	switch (spr->picnum)
+	switch (actor->spr.picnum)
 	{
 	case HYDRENT:
 		tloadtile(BROKEFIREHYDRENT);
@@ -65,7 +65,7 @@ static void cachespritenum(spritetype *spr)
 		break;
 	case RRTILE2121:
 	case RRTILE2122:
-		tloadtile(spr->picnum, pal);
+		tloadtile(actor->spr.picnum, pal);
 		break;
 	case TOILET:
 		tloadtile(TOILETBROKE);
@@ -121,7 +121,7 @@ static void cachespritenum(spritetype *spr)
 		break;
 	case COW:
 		maxc = 56;
-		for (j = spr->picnum; j < (spr->picnum + maxc); j++)
+		for (j = actor->spr.picnum; j < (actor->spr.picnum + maxc); j++)
 			tloadtile(j, pal);
 		maxc = 0;
 		break;
@@ -273,7 +273,7 @@ static void cachespritenum(spritetype *spr)
 		break;
 	case VIXEN:
 		maxc = 214;
-		for (j = spr->picnum; j < spr->picnum + maxc; j++)
+		for (j = actor->spr.picnum; j < actor->spr.picnum + maxc; j++)
 			tloadtile(j, pal);
 		maxc = 0;
 		break;
@@ -282,7 +282,7 @@ static void cachespritenum(spritetype *spr)
 		{
 
 			maxc = 54;
-			for (j = spr->picnum; j < spr->picnum + maxc; j++)
+			for (j = actor->spr.picnum; j < actor->spr.picnum + maxc; j++)
 				tloadtile(j, pal);
 			maxc = 100;
 			for (j = SBMOVE; j < SBMOVE + maxc; j++)
@@ -292,7 +292,7 @@ static void cachespritenum(spritetype *spr)
 		break;
 	case HULK:
 		maxc = 40;
-		for (j = spr->picnum - 41; j < spr->picnum + maxc - 41; j++)
+		for (j = actor->spr.picnum - 41; j < actor->spr.picnum + maxc - 41; j++)
 			tloadtile(j, pal);
 		for (j = HULKJIBA; j <= HULKJIBC + 4; j++)
 			tloadtile(j, pal);
@@ -300,7 +300,7 @@ static void cachespritenum(spritetype *spr)
 		break;
 	case MINION:
 		maxc = 141;
-		for (j = spr->picnum; j < spr->picnum + maxc; j++)
+		for (j = actor->spr.picnum; j < actor->spr.picnum + maxc; j++)
 			tloadtile(j, pal);
 		for (j = MINJIBA; j <= MINJIBC + 4; j++)
 			tloadtile(j, pal);
@@ -310,7 +310,7 @@ static void cachespritenum(spritetype *spr)
 
 	}
 
-	for (j = spr->picnum; j < (spr->picnum + maxc); j++)
+	for (j = actor->spr.picnum; j < (actor->spr.picnum + maxc); j++)
 		tloadtile(j, pal);
 }
 
@@ -392,10 +392,10 @@ void cacheit_r(void)
 		}
 
 		DukeSectIterator it(&sect);
-		while (auto j = it.Next())
+		while (auto act = it.Next())
 		{
-			if(j->spr.xrepeat != 0 && j->spr.yrepeat != 0 && (j->spr.cstat & CSTAT_SPRITE_INVISIBLE) == 0)
-					cachespritenum(j->s);
+			if(act->spr.xrepeat != 0 && act->spr.yrepeat != 0 && (act->spr.cstat & CSTAT_SPRITE_INVISIBLE) == 0)
+					cachespritenum(act);
 		}
 	}
 	precacheMarkedTiles();
@@ -436,19 +436,18 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 		for(auto actor : actors)
 		{
 			if (!actor->exists()) continue;
-			auto spr = actor->s;
-			if (spr->pal == 100)
+			if (actor->spr.pal == 100)
 			{
 				if (numplayers > 1)
 					deletesprite(actor);
 				else
-					spr->pal = 0;
+					actor->spr.pal = 0;
 			}
-			else if (spr->pal == 101)
+			else if (actor->spr.pal == 101)
 			{
-				spr->extra = 0;
-				spr->hitag = 1;
-				spr->pal = 0;
+				actor->spr.extra = 0;
+				actor->spr.hitag = 1;
+				actor->spr.pal = 0;
 				ChangeActorStat(actor, 118);
 			}
 		}
@@ -468,16 +467,15 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 			dist = 0;
 			while (auto act = it.Next())
 			{
-				auto spr = act->s;
-				if (spr->picnum == RRTILE11)
+				if (act->spr.picnum == RRTILE11)
 				{
-					dist = spr->lotag << 4;
-					speed = spr->hitag;
+					dist = act->spr.lotag << 4;
+					speed = act->spr.hitag;
 					deletesprite(act);
 				}
-				if (spr->picnum == RRTILE38)
+				if (act->spr.picnum == RRTILE38)
 				{
-					sound = spr->lotag;
+					sound = act->spr.lotag;
 					deletesprite(act);
 				}
 			}
@@ -500,27 +498,25 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 			DukeSectIterator it(sectp);
 			while (auto act = it.Next())
 			{
-				auto sj = act->s;
-				if (sj->picnum == RRTILE64)
+				if (act->spr.picnum == RRTILE64)
 				{
-					dist = sj->lotag << 4;
-					speed = sj->hitag;
+					dist = act->spr.lotag << 4;
+					speed = act->spr.hitag;
 					DukeSpriteIterator itt;
 					while(auto act = itt.Next())
 					{
-						auto spr = act->s;
-						if (spr->picnum == RRTILE66)
-							if (spr->lotag == sj->sectno()) // bad map format design... Should have used a tag instead...
+						if (act->spr.picnum == RRTILE66)
+							if (act->spr.lotag == act->spr.sectno()) // bad map format design... Should have used a tag instead...
 							{
-								childsectnum = spr->sector();
+								childsectnum = act->spr.sector();
 								deletesprite(act);
 							}
 					}
 					deletesprite(act);
 				}
-				if (sj->picnum == RRTILE65)
+				if (act->spr.picnum == RRTILE65)
 				{
-					sound = sj->lotag;
+					sound = act->spr.lotag;
 					deletesprite(act);
 				}
 			}
@@ -533,55 +529,54 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 	DukeStatIterator it(STAT_DEFAULT);
 	while (auto ac = it.Next())
 	{
-		auto si = ac->s;
 		LoadActor(ac, -1, -1);
 
-		if (si->lotag == -1 && (si->cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
+		if (ac->spr.lotag == -1 && (ac->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
 		{
-			ps[0].exitx = si->x;
-			ps[0].exity = si->y;
+			ps[0].exitx = ac->spr.x;
+			ps[0].exity = ac->spr.y;
 		}
-		else switch (si->picnum)
+		else switch (ac->spr.picnum)
 		{
 		case NUKEBUTTON:
 			chickenplant = 1;
 			break;
 
 		case GPSPEED:
-			si->sector()->extra = si->lotag;
+			ac->spr.sector()->extra = ac->spr.lotag;
 			deletesprite(ac);
 			break;
 
 		case CYCLER:
 			if (numcyclers >= MAXCYCLERS)
 				I_Error("Too many cycling sectors.");
-			cyclers[numcyclers].sector = si->sector();
-			cyclers[numcyclers].lotag = si->lotag;
-			cyclers[numcyclers].shade1 = si->shade;
-			cyclers[numcyclers].shade2 = si->sector()->floorshade;
-			cyclers[numcyclers].hitag = si->hitag;
-			cyclers[numcyclers].state = (si->ang == 1536);
+			cyclers[numcyclers].sector = ac->spr.sector();
+			cyclers[numcyclers].lotag = ac->spr.lotag;
+			cyclers[numcyclers].shade1 = ac->spr.shade;
+			cyclers[numcyclers].shade2 = ac->spr.sector()->floorshade;
+			cyclers[numcyclers].hitag = ac->spr.hitag;
+			cyclers[numcyclers].state = (ac->spr.ang == 1536);
 			numcyclers++;
 			deletesprite(ac);
 			break;
 
 		case RRTILE18:
-			addtorch(si);
+			addtorch(ac);
 			deletesprite(ac);
 			break;
 
 		case RRTILE35:
-			addlightning(si);
+			addlightning(ac);
 			deletesprite(ac);
 			break;
 
 		case RRTILE68:
-			si->sector()->shadedsector = 1;
+			ac->spr.sector()->shadedsector = 1;
 			deletesprite(ac);
 			break;
 
 		case RRTILE67:
-			si->cstat |= CSTAT_SPRITE_INVISIBLE;
+			ac->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 			break;
 
 		case SOUNDFX:
@@ -589,12 +584,12 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 				I_Error("Too many ambient effects");
 			else
 			{
-				ambienthitag[ambientfx] = si->hitag;
-				ambientlotag[ambientfx] = si->lotag;
-				si->ang = ambientfx;
+				ambienthitag[ambientfx] = ac->spr.hitag;
+				ambientlotag[ambientfx] = ac->spr.lotag;
+				ac->spr.ang = ambientfx;
 				ambientfx++;
-				si->lotag = 0;
-				si->hitag = 0;
+				ac->spr.lotag = 0;
+				ac->spr.hitag = 0;
 			}
 			break;
 		}
@@ -603,32 +598,30 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 	for (auto actor : actors)
 	{
 		if (!actor->exists()) continue;
-		auto spr = actor->s;
-		if (spr->picnum == RRTILE19)
+		if (actor->spr.picnum == RRTILE19)
 		{
 			if (geocnt > 64)
 				I_Error("Too many geometry effects");
-			if (spr->hitag == 0)
+			if (actor->spr.hitag == 0)
 			{
-				geosector[geocnt] = spr->sector();
+				geosector[geocnt] = actor->spr.sector();
 				for (auto actor2 : actors)
 				{
-					auto spj = actor2->s;
-					if (spr->lotag == spj->lotag && actor2 != actor && spj->picnum == RRTILE19)
+					if (actor->spr.lotag == actor2->spr.lotag && actor2 != actor && actor2->spr.picnum == RRTILE19)
 					{
-						if (spj->hitag == 1)
+						if (actor2->spr.hitag == 1)
 						{
-							geosectorwarp[geocnt] = spj->sector();
-							geox[geocnt] = spr->x - spj->x;
-							geoy[geocnt] = spr->y - spj->y;
-							//geoz[geocnt] = spr->z - spj->z;
+							geosectorwarp[geocnt] = actor2->spr.sector();
+							geox[geocnt] = actor->spr.x - actor2->spr.x;
+							geoy[geocnt] = actor->spr.y - actor2->spr.y;
+							//geoz[geocnt] = actor->spr.z - actor2->spr.z;
 						}
-						if (spj->hitag == 2)
+						if (actor2->spr.hitag == 2)
 						{
-							geosectorwarp2[geocnt] = spj->sector();
-							geox2[geocnt] = spr->x - spj->x;
-							geoy2[geocnt] = spr->y - spj->y;
-							//geoz2[geocnt] = spr->z - spj->z;
+							geosectorwarp2[geocnt] = actor2->spr.sector();
+							geox2[geocnt] = actor->spr.x - actor2->spr.x;
+							geoy2[geocnt] = actor->spr.y - actor2->spr.y;
+							//geoz2[geocnt] = actor->spr.z - actor2->spr.z;
 						}
 					}
 				}
@@ -641,8 +634,7 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 	{
 		if (actor->exists())
 		{
-			auto spr = actor->s;
-			if (spr->picnum == SECTOREFFECTOR && spr->lotag == SE_14_SUBWAY_CAR)
+			if (actor->spr.picnum == SECTOREFFECTOR && actor->spr.lotag == SE_14_SUBWAY_CAR)
 				continue;
 			spriteinit_r(actor, actors);
 		}
@@ -652,14 +644,13 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 	{
 		if (actor->exists())
 		{
-			auto spr = actor->s;
-			if (spr->picnum == SECTOREFFECTOR && spr->lotag == SE_14_SUBWAY_CAR)
+			if (actor->spr.picnum == SECTOREFFECTOR && actor->spr.lotag == SE_14_SUBWAY_CAR)
 				spriteinit_r(actor, actors);
-			if (spr->picnum == RRTILE19)
+			if (actor->spr.picnum == RRTILE19)
 				deletesprite(actor);
-			if (spr->picnum == RRTILE34)
+			if (actor->spr.picnum == RRTILE34)
 			{
-				spr->sector()->keyinfo = uint8_t(spr->lotag);
+				actor->spr.sector()->keyinfo = uint8_t(actor->spr.lotag);
 				deletesprite(actor);
 			}
 		}
@@ -670,8 +661,7 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 	it.Reset(STAT_DEFAULT);
 	while (auto ac = it.Next())
 	{
-		auto spr = ac->s;
-		switch (spr->picnum)
+		switch (ac->spr.picnum)
 		{
 		case RRTILE8464 + 1:
 			if (!isRRRA()) break;
@@ -693,12 +683,12 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 		case NUKEBUTTON + 1:
 
 			for (j = 0; j < lotaglist; j++)
-				if (spr->lotag == lotags[j])
+				if (ac->spr.lotag == lotags[j])
 					break;
 
 			if (j == lotaglist)
 			{
-				lotags[lotaglist] = spr->lotag;
+				lotags[lotaglist] = ac->spr.lotag;
 				lotaglist++;
 				if (lotaglist > 64)
 					I_Error("Too many switches (64 max).");
@@ -706,7 +696,7 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 				DukeStatIterator it1(STAT_EFFECTOR);
 				while (auto j = it1.Next())
 				{
-					if (j->spr.lotag == 12 && j->spr.hitag == spr->lotag)
+					if (j->spr.lotag == 12 && j->spr.hitag == ac->spr.lotag)
 						j->temp_data[0] = 1;
 				}
 			}
