@@ -4964,7 +4964,6 @@ int dodge(DDukeActor* actor)
 	DukeStatIterator it(STAT_PROJECTILE);
 	while (auto ac = it.Next())
 	{
-		auto si = ac->s;
 		if (ac->GetOwner() == ac || ac->spr.sector() != actor->spr.sector())
 			continue;
 

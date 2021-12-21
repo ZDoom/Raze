@@ -309,33 +309,32 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 		DukeStatIterator itj(statlist[x]);
 		while (auto act2 = itj.Next())
 		{
-			auto spri2 = act2->s;
 			if (isWorldTour() && Owner)
 			{
-				if (Owner->spr.picnum == APLAYER && spri2->picnum == APLAYER && ud.coop != 0 && ud.ffire == 0 && Owner != act2)
+				if (Owner->spr.picnum == APLAYER && act2->spr.picnum == APLAYER && ud.coop != 0 && ud.ffire == 0 && Owner != act2)
 				{
 					continue;
 				}
 				
-				if (actor->spr.picnum == FLAMETHROWERFLAME && ((Owner->spr.picnum == FIREFLY && spri2->picnum == FIREFLY) || (Owner->spr.picnum == BOSS5 && spri2->picnum == BOSS5)))
+				if (actor->spr.picnum == FLAMETHROWERFLAME && ((Owner->spr.picnum == FIREFLY && act2->spr.picnum == FIREFLY) || (Owner->spr.picnum == BOSS5 && act2->spr.picnum == BOSS5)))
 				{
 					continue;
 				}
 			}
 			
-			if (x == 0 || x >= 5 || AFLAMABLE(spri2->picnum))
+			if (x == 0 || x >= 5 || AFLAMABLE(act2->spr.picnum))
 			{
-				if (actor->spr.picnum != SHRINKSPARK || (spri2->cstat & CSTAT_SPRITE_BLOCK_ALL))
+				if (actor->spr.picnum != SHRINKSPARK || (act2->spr.cstat & CSTAT_SPRITE_BLOCK_ALL))
 					if (dist(actor, act2) < r)
 					{
-						if (badguy(act2) && !cansee(spri2->x, spri2->y, spri2->z + q, spri2->sector(), actor->spr.x, actor->spr.y, actor->spr.z + q, actor->spr.sector()))
+						if (badguy(act2) && !cansee(act2->spr.x, act2->spr.y, act2->spr.z + q, act2->spr.sector(), actor->spr.x, actor->spr.y, actor->spr.z + q, actor->spr.sector()))
 							continue;
 						fi.checkhitsprite(act2, actor);
 					}
 			}
-			else if (spri2->extra >= 0 && act2 != actor && (spri2->picnum == TRIPBOMB || badguy(act2) || spri2->picnum == QUEBALL || spri2->picnum == STRIPEBALL || (spri2->cstat & CSTAT_SPRITE_BLOCK_ALL) || spri2->picnum == DUKELYINGDEAD))
+			else if (act2->spr.extra >= 0 && act2 != actor && (act2->spr.picnum == TRIPBOMB || badguy(act2) || act2->spr.picnum == QUEBALL || act2->spr.picnum == STRIPEBALL || (act2->spr.cstat & CSTAT_SPRITE_BLOCK_ALL) || act2->spr.picnum == DUKELYINGDEAD))
 			{
-				if (actor->spr.picnum == SHRINKSPARK && spri2->picnum != SHARK && (act2 == Owner || spri2->xrepeat < 24))
+				if (actor->spr.picnum == SHRINKSPARK && act2->spr.picnum != SHARK && (act2 == Owner || act2->spr.xrepeat < 24))
 				{
 					continue;
 				}
@@ -344,15 +343,15 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 					continue;
 				}
 				
-				if (spri2->picnum == APLAYER) spri2->z -= gs.playerheight;
+				if (act2->spr.picnum == APLAYER) act2->spr.z -= gs.playerheight;
 				int d = dist(actor, act2);
-				if (spri2->picnum == APLAYER) spri2->z += gs.playerheight;
+				if (act2->spr.picnum == APLAYER) act2->spr.z += gs.playerheight;
 				
-				if (d < r && cansee(spri2->x, spri2->y, spri2->z - (8 << 8), spri2->sector(), actor->spr.x, actor->spr.y, actor->spr.z - (12 << 8), actor->spr.sector()))
+				if (d < r && cansee(act2->spr.x, act2->spr.y, act2->spr.z - (8 << 8), act2->spr.sector(), actor->spr.x, actor->spr.y, actor->spr.z - (12 << 8), actor->spr.sector()))
 				{
-					act2->ang = getangle(spri2->x - actor->spr.x, spri2->y - actor->spr.y);
+					act2->ang = getangle(act2->spr.x - actor->spr.x, act2->spr.y - actor->spr.y);
 					
-					if (actor->spr.picnum == RPG && spri2->extra > 0)
+					if (actor->spr.picnum == RPG && act2->spr.extra > 0)
 						act2->picnum = RPG;
 					else if (!isWorldTour())
 					{
@@ -393,28 +392,28 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 							act2->extra = hp1 + (krand() % (hp2 - hp1));
 						}
 						
-						if (spri2->picnum != TANK && spri2->picnum != ROTATEGUN && spri2->picnum != RECON && !bossguy(act2))
+						if (act2->spr.picnum != TANK && act2->spr.picnum != ROTATEGUN && act2->spr.picnum != RECON && !bossguy(act2))
 						{
-							if (spri2->xvel < 0) spri2->xvel = 0;
-							spri2->xvel += (actor->spr.extra << 2);
+							if (act2->spr.xvel < 0) act2->spr.xvel = 0;
+							act2->spr.xvel += (actor->spr.extra << 2);
 						}
 						
-						if (spri2->picnum == PODFEM1 || spri2->picnum == FEM1 ||
-							spri2->picnum == FEM2 || spri2->picnum == FEM3 ||
-							spri2->picnum == FEM4 || spri2->picnum == FEM5 ||
-							spri2->picnum == FEM6 || spri2->picnum == FEM7 ||
-							spri2->picnum == FEM8 || spri2->picnum == FEM9 ||
-							spri2->picnum == FEM10 || spri2->picnum == STATUE ||
-							spri2->picnum == STATUEFLASH || spri2->picnum == SPACEMARINE || spri2->picnum == QUEBALL || spri2->picnum == STRIPEBALL)
+						if (act2->spr.picnum == PODFEM1 || act2->spr.picnum == FEM1 ||
+							act2->spr.picnum == FEM2 || act2->spr.picnum == FEM3 ||
+							act2->spr.picnum == FEM4 || act2->spr.picnum == FEM5 ||
+							act2->spr.picnum == FEM6 || act2->spr.picnum == FEM7 ||
+							act2->spr.picnum == FEM8 || act2->spr.picnum == FEM9 ||
+							act2->spr.picnum == FEM10 || act2->spr.picnum == STATUE ||
+							act2->spr.picnum == STATUEFLASH || act2->spr.picnum == SPACEMARINE || act2->spr.picnum == QUEBALL || act2->spr.picnum == STRIPEBALL)
 							fi.checkhitsprite(act2, actor);
 					}
 					else if (actor->spr.extra == 0) act2->extra = 0;
 					
-					if (spri2->picnum != RADIUSEXPLOSION && Owner && Owner->spr.statnum < MAXSTATUS)
+					if (act2->spr.picnum != RADIUSEXPLOSION && Owner && Owner->spr.statnum < MAXSTATUS)
 					{
-						if (spri2->picnum == APLAYER)
+						if (act2->spr.picnum == APLAYER)
 						{
-							int p = spri2->yvel;
+							int p = act2->spr.yvel;
 							
 							if (isWorldTour() && act2->picnum == FLAMETHROWERFLAME && Owner->spr.picnum == APLAYER)
 							{
@@ -546,30 +545,29 @@ void lotsofpaper_d(DDukeActor *actor, int n)
 
 void guts_d(DDukeActor* actor, int gtype, int n, int p)
 {
-	auto s = actor->s;
 	int gutz, floorz;
 	int j;
 	int sx, sy;
 	uint8_t pal;
 
-	if (badguy(actor) && s->xrepeat < 16)
+	if (badguy(actor) && actor->spr.xrepeat < 16)
 		sx = sy = 8;
 	else sx = sy = 32;
 
-	gutz = s->z - (8 << 8);
-	floorz = getflorzofslopeptr(s->sector(), s->x, s->y);
+	gutz = actor->spr.z - (8 << 8);
+	floorz = getflorzofslopeptr(actor->spr.sector(), actor->spr.x, actor->spr.y);
 
 	if (gutz > (floorz - (8 << 8)))
 		gutz = floorz - (8 << 8);
 
-	gutz += gs.actorinfo[s->picnum].gutsoffset;
+	gutz += gs.actorinfo[actor->spr.picnum].gutsoffset;
 
-	if (badguy(actor) && s->pal == 6)
+	if (badguy(actor) && actor->spr.pal == 6)
 		pal = 6;
-	else if (s->picnum != LIZTROOP) // EDuke32 transfers the palette unconditionally, I'm not sure that's such a good idea.
+	else if (actor->spr.picnum != LIZTROOP) // EDuke32 transfers the palette unconditionally, I'm not sure that's such a good idea.
 		pal = 0;
 	else
-		pal = s->pal;
+		pal = actor->spr.pal;
 
 	for (j = 0; j < n; j++)
 	{
@@ -581,7 +579,7 @@ void guts_d(DDukeActor* actor, int gtype, int n, int p)
 		int r4 = krand();
 		int r5 = krand();
 		// TRANSITIONAL: owned by a player???
-		auto spawned = EGS(s->sector(), s->x + (r5 & 255) - 128, s->y + (r4 & 255) - 128, gutz - (r3 & 8191), gtype, -32, sx, sy, a, 48 + (r2 & 31), -512 - (r1 & 2047), ps[p].GetActor(), 5);
+		auto spawned = EGS(actor->spr.sector(), actor->spr.x + (r5 & 255) - 128, actor->spr.y + (r4 & 255) - 128, gutz - (r3 & 8191), gtype, -32, sx, sy, a, 48 + (r2 & 31), -512 - (r1 & 2047), ps[p].GetActor(), 5);
 		if (spawned)
 		{
 			if (spawned->spr.picnum == JIBS2)
@@ -612,10 +610,9 @@ void movefta_d(void)
 
 	while (auto act = iti.Next())
 	{
-		auto s = act->s;
 		p = findplayer(act, &x);
 
-		ssect = psect = s->sector();
+		ssect = psect = act->spr.sector();
 
 		auto pa = ps[p].GetActor();
 		if (pa->spr.extra > 0)
@@ -634,8 +631,8 @@ void movefta_d(void)
 						{
 							continue;
 						}
-						sx = s->x + 64 - (krand() & 127);
-						sy = s->y + 64 - (krand() & 127);
+						sx = act->spr.x + 64 - (krand() & 127);
+						sy = act->spr.y + 64 - (krand() & 127);
 						updatesector(px, py, &ssect);
 						if (ssect == nullptr)
 						{
@@ -644,17 +641,17 @@ void movefta_d(void)
 
 						int r1 = krand();
 						int r2 = krand();
-						j = cansee(sx, sy, s->z - (r2 % (52 << 8)), s->sector(), px, py, ps[p].oposz - (r1 % (32 << 8)), ps[p].cursector);
+						j = cansee(sx, sy, act->spr.z - (r2 % (52 << 8)), act->spr.sector(), px, py, ps[p].oposz - (r1 % (32 << 8)), ps[p].cursector);
 					}
 					else
 					{
 						int r1 = krand();
 						int r2 = krand();
-						j = cansee(s->x, s->y, s->z - ((r2 & 31) << 8), s->sector(), ps[p].oposx, ps[p].oposy, ps[p].oposz - ((r1 & 31) << 8), ps[p].cursector);
+						j = cansee(act->spr.x, act->spr.y, act->spr.z - ((r2 & 31) << 8), act->spr.sector(), ps[p].oposx, ps[p].oposy, ps[p].oposz - ((r1 & 31) << 8), ps[p].cursector);
 					}
 
 
-					if (j) switch(s->picnum)
+					if (j) switch(act->spr.picnum)
 					{
 						case RUBBERCAN:
 						case EXPLODINGBARREL:
@@ -670,9 +667,9 @@ void movefta_d(void)
 						case NUKEBARRELDENTED:
 						case NUKEBARRELLEAKED:
 						case TRIPBOMB:
-							if (s->sector()->ceilingstat & CSTAT_SECTOR_SKY)
-								s->shade = s->sector()->ceilingshade;
-							else s->shade = s->sector()->floorshade;
+							if (act->spr.sector()->ceilingstat & CSTAT_SECTOR_SKY)
+								act->spr.shade = act->spr.sector()->ceilingshade;
+							else act->spr.shade = act->spr.sector()->floorshade;
 
 							act->timetosleep = 0;
 							ChangeActorStat(act, STAT_STANDABLE);
@@ -689,9 +686,9 @@ void movefta_d(void)
 			}
 			if (badguy(act))
 			{
-				if (s->sector()->ceilingstat & CSTAT_SECTOR_SKY)
-					s->shade = s->sector()->ceilingshade;
-				else s->shade = s->sector()->floorshade;
+				if (act->spr.sector()->ceilingstat & CSTAT_SECTOR_SKY)
+					act->spr.shade = act->spr.sector()->ceilingshade;
+				else act->spr.shade = act->spr.sector()->floorshade;
 			}
 		}
 	}
@@ -842,26 +839,25 @@ void movefallers_d(void)
 	DukeStatIterator iti(STAT_FALLER);
 	while (auto act = iti.Next())
 	{
-		auto s = act->s;
-		auto sectp = s->sector();
+		auto sectp = act->spr.sector();
 
 		if (act->temp_data[0] == 0)
 		{
-			s->z -= (16 << 8);
-			act->temp_data[1] = s->ang;
-			x = s->extra;
+			act->spr.z -= (16 << 8);
+			act->temp_data[1] = act->spr.ang;
+			x = act->spr.extra;
 			j = fi.ifhitbyweapon(act);
 			if (j >= 0)
 			{
 				if (j == FIREEXT || j == RPG || j == RADIUSEXPLOSION || j == SEENINE || j == OOZFILTER)
 				{
-					if (s->extra <= 0)
+					if (act->spr.extra <= 0)
 					{
 						act->temp_data[0] = 1;
 						DukeStatIterator itj(STAT_FALLER);
 						while (auto a2 = itj.Next())
 						{
-							if (a2->spr.hitag == s->hitag)
+							if (a2->spr.hitag == act->spr.hitag)
 							{
 								a2->temp_data[0] = 1;
 								a2->spr.cstat &= ~CSTAT_SPRITE_ONE_SIDE;
@@ -874,48 +870,48 @@ void movefallers_d(void)
 				else
 				{
 					act->extra = 0;
-					s->extra = x;
+					act->spr.extra = x;
 				}
 			}
-			s->ang = act->temp_data[1];
-			s->z += (16 << 8);
+			act->spr.ang = act->temp_data[1];
+			act->spr.z += (16 << 8);
 		}
 		else if (act->temp_data[0] == 1)
 		{
-			if (s->lotag > 0)
+			if (act->spr.lotag > 0)
 			{
-				s->lotag-=3;
-				if (s->lotag <= 0)
+				act->spr.lotag-=3;
+				if (act->spr.lotag <= 0)
 				{
-					s->xvel = (32 + (krand() & 63));
-					s->zvel = -(1024 + (krand() & 1023));
+					act->spr.xvel = (32 + (krand() & 63));
+					act->spr.zvel = -(1024 + (krand() & 1023));
 				}
 			}
 			else
 			{
-				if (s->xvel > 0)
+				if (act->spr.xvel > 0)
 				{
-					s->xvel -= 8;
+					act->spr.xvel -= 8;
 					ssp(act, CLIPMASK0);
 				}
 
-				if (fi.floorspace(s->sector())) x = 0;
+				if (fi.floorspace(act->spr.sector())) x = 0;
 				else
 				{
-					if (fi.ceilingspace(s->sector()))
+					if (fi.ceilingspace(act->spr.sector()))
 						x = gs.gravity / 6;
 					else
 						x = gs.gravity;
 				}
 
-				if (s->z < (sectp->floorz - FOURSLEIGHT))
+				if (act->spr.z < (sectp->floorz - FOURSLEIGHT))
 				{
-					s->zvel += x;
-					if (s->zvel > 6144)
-						s->zvel = 6144;
-					s->z += s->zvel;
+					act->spr.zvel += x;
+					if (act->spr.zvel > 6144)
+						act->spr.zvel = 6144;
+					act->spr.z += act->spr.zvel;
 				}
-				if ((sectp->floorz - s->z) < (16 << 8))
+				if ((sectp->floorz - act->spr.z) < (16 << 8))
 				{
 					j = 1 + (krand() & 7);
 					for (x = 0; x < j; x++) RANDOMSCRAP(act);
@@ -1497,8 +1493,7 @@ static bool movefireball(DDukeActor* actor)
 
 static bool weaponhitsprite(DDukeActor* proj, DDukeActor *targ, bool fireball)
 {
-	auto s = proj->s;
-	if (s->picnum == FREEZEBLAST && targ->spr.pal == 1)
+	if (proj->spr.picnum == FREEZEBLAST && targ->spr.pal == 1)
 		if (badguy(targ) || targ->spr.picnum == APLAYER)
 		{
 			auto spawned = spawn(targ, TRANSPORTERSTAR);
@@ -1513,7 +1508,7 @@ static bool weaponhitsprite(DDukeActor* proj, DDukeActor *targ, bool fireball)
 			return true;
 		}
 
-	if (!isWorldTour() || s->picnum != FIREBALL || fireball)
+	if (!isWorldTour() || proj->spr.picnum != FIREBALL || fireball)
 		fi.checkhitsprite(targ, proj);
 
 	if (targ->spr.picnum == APLAYER)
@@ -1523,12 +1518,12 @@ static bool weaponhitsprite(DDukeActor* proj, DDukeActor *targ, bool fireball)
 
 		if (ud.multimode >= 2 && fireball && Owner && Owner->spr.picnum == APLAYER)
 		{
-			ps[p].numloogs = -1 - s->yvel;
+			ps[p].numloogs = -1 - proj->spr.yvel;
 		}
 
 		S_PlayActorSound(PISTOL_BODYHIT, targ);
 
-		if (s->picnum == SPIT)
+		if (proj->spr.picnum == SPIT)
 		{
 			ps[p].horizon.addadjustment(32);
 			ps[p].sync.actions |= SB_CENTERVIEW;
@@ -1560,13 +1555,12 @@ static bool weaponhitsprite(DDukeActor* proj, DDukeActor *targ, bool fireball)
 
 static bool weaponhitwall(DDukeActor *proj, walltype* wal, const vec3_t &oldpos)
 {
-	auto s = proj->s;
-	if (s->picnum != RPG && s->picnum != FREEZEBLAST && s->picnum != SPIT &&
-		(!isWorldTour() || s->picnum != FIREBALL) &&
+	if (proj->spr.picnum != RPG && proj->spr.picnum != FREEZEBLAST && proj->spr.picnum != SPIT &&
+		(!isWorldTour() || proj->spr.picnum != FIREBALL) &&
 		(wal->overpicnum == MIRROR || wal->picnum == MIRROR))
 	{
 		int k = getangle(wal->delta());
-		s->ang = ((k << 1) - s->ang) & 2047;
+		proj->spr.ang = ((k << 1) - proj->spr.ang) & 2047;
 		proj->SetOwner(proj);
 		spawn(proj, TRANSPORTERSTAR);
 		return true;
@@ -1574,18 +1568,18 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const vec3_t &oldpos)
 	else
 	{
 		SetActor(proj, oldpos);
-		fi.checkhitwall(proj, wal, s->x, s->y, s->z, s->picnum);
+		fi.checkhitwall(proj, wal, proj->spr.x, proj->spr.y, proj->spr.z, proj->spr.picnum);
 
-		if (s->picnum == FREEZEBLAST)
+		if (proj->spr.picnum == FREEZEBLAST)
 		{
 			if (wal->overpicnum != MIRROR && wal->picnum != MIRROR)
 			{
-				s->extra >>= 1;
-				s->yvel--;
+				proj->spr.extra >>= 1;
+				proj->spr.yvel--;
 			}
 
 			int k = getangle(wal->delta());
-			s->ang = ((k << 1) - s->ang) & 2047;
+			proj->spr.ang = ((k << 1) - proj->spr.ang) & 2047;
 			return true;
 		}
 	}
@@ -1600,19 +1594,18 @@ static bool weaponhitwall(DDukeActor *proj, walltype* wal, const vec3_t &oldpos)
 
 static bool weaponhitsector(DDukeActor* proj, const vec3_t& oldpos, bool fireball)
 {
-	auto s = proj->s;
 	SetActor(proj, oldpos);
 
-	if (s->zvel < 0)
+	if (proj->spr.zvel < 0)
 	{
-		if (s->sector()->ceilingstat & CSTAT_SECTOR_SKY)
-			if (s->sector()->ceilingpal == 0)
+		if (proj->spr.sector()->ceilingstat & CSTAT_SECTOR_SKY)
+			if (proj->spr.sector()->ceilingpal == 0)
 			{
 				deletesprite(proj);
 				return true;
 			}
 
-		fi.checkhitceiling(s->sector());
+		fi.checkhitceiling(proj->spr.sector());
 	}
 	else if (fireball)
 	{
@@ -1621,22 +1614,22 @@ static bool weaponhitsector(DDukeActor* proj, const vec3_t& oldpos, bool firebal
 		{
 			spawned->SetOwner(proj);
 			spawned->SetHitOwner(proj);
-			spawned->spr.yvel = s->yvel;
+			spawned->spr.yvel = proj->spr.yvel;
 		}
 		deletesprite(proj);
 		return true;
 	}
 
-	if (s->picnum == FREEZEBLAST)
+	if (proj->spr.picnum == FREEZEBLAST)
 	{
 		bounce(proj);
 		ssp(proj, CLIPMASK1);
-		s->extra >>= 1;
-		if (s->xrepeat > 8)
-			s->xrepeat -= 2;
-		if (s->yrepeat > 8)
-			s->yrepeat -= 2;
-		s->yvel--;
+		proj->spr.extra >>= 1;
+		if (proj->spr.xrepeat > 8)
+			proj->spr.xrepeat -= 2;
+		if (proj->spr.yrepeat > 8)
+			proj->spr.yrepeat -= 2;
+		proj->spr.yvel--;
 		return true;
 	}
 	return false;
@@ -1650,31 +1643,30 @@ static bool weaponhitsector(DDukeActor* proj, const vec3_t& oldpos, bool firebal
 
 static void weaponcommon_d(DDukeActor* proj)
 {
-	auto s = proj->s;
-	if (s->picnum == COOLEXPLOSION1)
+	if (proj->spr.picnum == COOLEXPLOSION1)
 		if (!S_CheckActorSoundPlaying(proj, WIERDSHOT_FLY))
 			S_PlayActorSound(WIERDSHOT_FLY, proj);
 
 	int k, ll;
-	vec3_t oldpos = s->pos;
+	vec3_t oldpos = proj->spr.pos;
 
-	if (s->picnum == RPG && s->sector()->lotag == 2)
+	if (proj->spr.picnum == RPG && proj->spr.sector()->lotag == 2)
 	{
-		k = s->xvel >> 1;
-		ll = s->zvel >> 1;
+		k = proj->spr.xvel >> 1;
+		ll = proj->spr.zvel >> 1;
 	}
 	else
 	{
-		k = s->xvel;
-		ll = s->zvel;
+		k = proj->spr.xvel;
+		ll = proj->spr.zvel;
 	}
 
 	getglobalz(proj);
 
-	switch (s->picnum)
+	switch (proj->spr.picnum)
 	{
 	case RPG:
-		if (proj->picnum != BOSS2 && s->xrepeat >= 10 && s->sector()->lotag != 2)
+		if (proj->picnum != BOSS2 && proj->spr.xrepeat >= 10 && proj->spr.sector()->lotag != 2)
 		{
 			auto spawned = spawn(proj, SMALLSMOKE);
 			if (spawned) spawned->spr.z += (1 << 8);
@@ -1688,68 +1680,68 @@ static void weaponcommon_d(DDukeActor* proj)
 
 	Collision coll;
 	movesprite_ex(proj,
-		MulScale(k, bcos(s->ang), 14),
-		MulScale(k, bsin(s->ang), 14), ll, CLIPMASK1, coll);
+		MulScale(k, bcos(proj->spr.ang), 14),
+		MulScale(k, bsin(proj->spr.ang), 14), ll, CLIPMASK1, coll);
 
-	if (s->picnum == RPG && proj->temp_actor != nullptr)
-		if (FindDistance2D(s->x - proj->temp_actor->spr.x, s->y - proj->temp_actor->spr.y) < 256)
+	if (proj->spr.picnum == RPG && proj->temp_actor != nullptr)
+		if (FindDistance2D(proj->spr.x - proj->temp_actor->spr.x, proj->spr.y - proj->temp_actor->spr.y) < 256)
 			coll.setSprite(proj->temp_actor);
 
-	if (!s->insector())
+	if (!proj->spr.insector())
 	{
 		deletesprite(proj);
 		return;
 	}
 
-	if (coll.type != kHitSprite && s->picnum != FREEZEBLAST)
+	if (coll.type != kHitSprite && proj->spr.picnum != FREEZEBLAST)
 	{
-		if (s->z < proj->ceilingz)
+		if (proj->spr.z < proj->ceilingz)
 		{
-			coll.setSector(s->sector());
-			s->zvel = -1;
+			coll.setSector(proj->spr.sector());
+			proj->spr.zvel = -1;
 		}
 		else
-			if ((s->z > proj->floorz && s->sector()->lotag != 1) ||
-				(s->z > proj->floorz + (16 << 8) && s->sector()->lotag == 1))
+			if ((proj->spr.z > proj->floorz && proj->spr.sector()->lotag != 1) ||
+				(proj->spr.z > proj->floorz + (16 << 8) && proj->spr.sector()->lotag == 1))
 			{
-				coll.setSector(s->sector());
-				if (s->sector()->lotag != 1)
-					s->zvel = 1;
+				coll.setSector(proj->spr.sector());
+				if (proj->spr.sector()->lotag != 1)
+					proj->spr.zvel = 1;
 			}
 	}
 
-	if (s->picnum == FIRELASER)
+	if (proj->spr.picnum == FIRELASER)
 	{
 		for (k = -3; k < 2; k++)
 		{
-			auto spawned = EGS(s->sector(),
-				s->x + MulScale(k, bcos(s->ang), 9),
-				s->y + MulScale(k, bsin(s->ang), 9),
-				s->z + ((k * Sgn(s->zvel)) * abs(s->zvel / 24)), FIRELASER, -40 + (k << 2),
-				s->xrepeat, s->yrepeat, 0, 0, 0, proj->GetOwner(), 5);
+			auto spawned = EGS(proj->spr.sector(),
+				proj->spr.x + MulScale(k, bcos(proj->spr.ang), 9),
+				proj->spr.y + MulScale(k, bsin(proj->spr.ang), 9),
+				proj->spr.z + ((k * Sgn(proj->spr.zvel)) * abs(proj->spr.zvel / 24)), FIRELASER, -40 + (k << 2),
+				proj->spr.xrepeat, proj->spr.yrepeat, 0, 0, 0, proj->GetOwner(), 5);
 			if (spawned)
 			{
 				spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
-				spawned->spr.pal = s->pal;
+				spawned->spr.pal = proj->spr.pal;
 			}
 		}
 	}
-	else if (s->picnum == SPIT) if (s->zvel < 6144)
-		s->zvel += gs.gravity - 112;
+	else if (proj->spr.picnum == SPIT) if (proj->spr.zvel < 6144)
+		proj->spr.zvel += gs.gravity - 112;
 
 	if (coll.type != 0)
 	{
-		if (s->picnum == COOLEXPLOSION1)
+		if (proj->spr.picnum == COOLEXPLOSION1)
 		{
 			if (coll.type == kHitSprite && coll.actor()->spr.picnum != APLAYER)
 			{
 				return;
 			}
-			s->xvel = 0;
-			s->zvel = 0;
+			proj->spr.xvel = 0;
+			proj->spr.zvel = 0;
 		}
 
-		bool fireball = (isWorldTour() && s->picnum == FIREBALL && (!proj->GetOwner() || proj->GetOwner()->spr.picnum != FIREBALL));
+		bool fireball = (isWorldTour() && proj->spr.picnum == FIREBALL && (!proj->GetOwner() || proj->GetOwner()->spr.picnum != FIREBALL));
 
 		if (coll.type == kHitSprite)
 		{
@@ -1764,28 +1756,28 @@ static void weaponcommon_d(DDukeActor* proj)
 			if (weaponhitsector(proj, oldpos, fireball)) return;
 		}
 
-		if (s->picnum != SPIT)
+		if (proj->spr.picnum != SPIT)
 		{
-			if (s->picnum == RPG)
+			if (proj->spr.picnum == RPG)
 			{
 				// j is only needed for the hit type mask.
 				rpgexplode(proj, coll.type, oldpos, EXPLOSION2, EXPLOSION2BOT, -1, RPG_EXPLODE);
 			}
-			else if (s->picnum == SHRINKSPARK)
+			else if (proj->spr.picnum == SHRINKSPARK)
 			{
 				spawn(proj, SHRINKEREXPLOSION);
 				S_PlayActorSound(SHRINKER_HIT, proj);
 				fi.hitradius(proj, gs.shrinkerblastradius, 0, 0, 0, 0);
 			}
-			else if (s->picnum != COOLEXPLOSION1 && s->picnum != FREEZEBLAST && s->picnum != FIRELASER && (!isWorldTour() || s->picnum != FIREBALL))
+			else if (proj->spr.picnum != COOLEXPLOSION1 && proj->spr.picnum != FREEZEBLAST && proj->spr.picnum != FIRELASER && (!isWorldTour() || proj->spr.picnum != FIREBALL))
 			{
 				auto k = spawn(proj, EXPLOSION2);
 				if (k)
 				{
-					k->spr.xrepeat = k->spr.yrepeat = s->xrepeat >> 1;
+					k->spr.xrepeat = k->spr.yrepeat = proj->spr.xrepeat >> 1;
 					if (coll.type == kHitSector)
 					{
-						if (s->zvel < 0)
+						if (proj->spr.zvel < 0)
 						{
 							k->spr.cstat |= CSTAT_SPRITE_YFLIP; k->spr.z += (72 << 8);
 						}
@@ -1795,25 +1787,25 @@ static void weaponcommon_d(DDukeActor* proj)
 			if (fireball)
 			{
 				auto spawned = spawn(proj, EXPLOSION2);
-				if (spawned) spawned->spr.xrepeat = spawned->spr.yrepeat = (short)(s->xrepeat >> 1);
+				if (spawned) spawned->spr.xrepeat = spawned->spr.yrepeat = (short)(proj->spr.xrepeat >> 1);
 			}
 		}
-		if (s->picnum != COOLEXPLOSION1)
+		if (proj->spr.picnum != COOLEXPLOSION1)
 		{
 			deletesprite(proj);
 			return;
 		}
 	}
-	if (s->picnum == COOLEXPLOSION1)
+	if (proj->spr.picnum == COOLEXPLOSION1)
 	{
-		s->shade++;
-		if (s->shade >= 40)
+		proj->spr.shade++;
+		if (proj->spr.shade >= 40)
 		{
 			deletesprite(proj);
 			return;
 		}
 	}
-	else if (s->picnum == RPG && s->sector()->lotag == 2 && s->xrepeat >= 10 && rnd(140))
+	else if (proj->spr.picnum == RPG && proj->spr.sector()->lotag == 2 && proj->spr.xrepeat >= 10 && rnd(140))
 		spawn(proj, WATERBUBBLE);
 
 }
