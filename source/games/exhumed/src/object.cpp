@@ -1210,6 +1210,7 @@ int BuildTrap(DExhumedActor* pActor, int edx, int ebx, int ecx)
     int var_10 = ecx;
 
     int nTrap = sTrap.Reserve(1);
+    sTrap[nTrap] = {};
 
     ChangeActorStat(pActor, 0);
 
@@ -1241,12 +1242,9 @@ int BuildTrap(DExhumedActor* pActor, int edx, int ebx, int ecx)
         return nTrap;
     }
 
-    sTrap[nTrap].pWall1 = nullptr;
-    sTrap[nTrap].pWall2 = nullptr;
-
     auto pSector = pSprite->sector();
 
-    for(auto wal : wallsofsector(pSector))
+    for(auto& wal : wallsofsector(pSector))
     {
         if (var_18 == wal.hitag)
         {
