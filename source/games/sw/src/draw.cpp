@@ -1680,7 +1680,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
 
     // Draw sprites
     auto peekActor = Player[screenpeek].Actor();
-    for (i = 0; i < numsectors; i++)
+    for (unsigned i = 0; i < sector.Size(); i++)
     {
         SWSectIterator it(i);
         while (auto actor = it.Next())

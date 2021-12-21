@@ -211,13 +211,13 @@ int GetWindingOrder(TArray<int>& poly)
 static void CollectLoops(TArray<loopcollect>& sectors)
 {
 	BitArray visited;
-	visited.Resize(numwalls);
+	visited.Resize(wall.Size());
 	visited.Zero();
 
 	TArray<int> thisloop;
 	
 	int count = 0;
-	for (int i = 0; i < numsectors; i++)
+	for (unsigned i = 0; i < sector.Size(); i++)
 	{
 		int first = sector[i].wallptr;
 		int last = first + sector[i].wallnum;
@@ -251,7 +251,7 @@ static void CollectLoops(TArray<loopcollect>& sectors)
 					}
 					Printf("found already visited wall %d\nLinked by:", ww);
 					bugged.Insert(i, true);
-					for (int i = 0; i < numwalls; i++)
+					for (unsigned i = 0; i < wall.Size(); i++)
 					{
 						if (wall[i].point2 == ww)
 							Printf(" %d,", i);
@@ -347,13 +347,8 @@ static int insideLoop(TArray<int>& check, TArray<int>& loop)
 
 static void GroupData(TArray<loopcollect>& collect, TArray<sectionbuildsector>& builders)
 {
-	for (int i = 0; i < numsectors; i++)
+	for (unsigned i = 0; i < sector.Size(); i++)
 	{
-		if (i == 250)
-		{
-			int a = 0;
-		}
-
 		auto& builder = builders[i];
 		builder.sectnum = i;
 		auto& sectloops = collect[i].loops;
@@ -585,37 +580,37 @@ static void ConstructSections(TArray<sectionbuildsector>& builders)
 	TArray<int> splitwalls;
 
 	// Allocate all Section walls.
-	sectionLines.Resize(numwalls + splits.Size() * 2 / 3);
+	sectionLines.Resize(wall.Size() + splits.Size() * 2 / 3);
 
 	for (unsigned i = 0; i < splits.Size(); i++)
 	{
 		if (i % 3) splitwalls.Push(splits[i]);
 	}
 
-	int nextwall = numwalls;
-	for (int i = 0; i < numwalls; i++)
+	unsigned nextwall = wall.Size();
+	for (unsigned i = 0; i < wall.Size(); i++)
 	{
 		sectionLines[i].startpoint = i;
 		sectionLines[i].endpoint = wall[i].point2;
 		sectionLines[i].wall = i;
 		sectionLines[i].partner = wall[i].nextwall;
 	}
-	for (int i = numwalls; i < (int)sectionLines.Size(); i++)
+	for (unsigned i = wall.Size(); i < sectionLines.Size(); i++)
 	{
-		int pair = (i - numwalls);
+		unsigned pair = (i - wall.Size());
 		sectionLines[i].startpoint = splitwalls[pair];
 		sectionLines[i].endpoint = splitwalls[pair ^ 1];
 		sectionLines[i].wall = -1;
-		sectionLines[i].partner = numwalls + (pair ^ 1);
+		sectionLines[i].partner = wall.Size() + (pair ^ 1);
 	}
 
 	unsigned count = 0;
 	// allocate as much as possible from the arena here.
-	size_t size = sizeof(*sectionsPerSector.Data()) * numsectors;
+	size_t size = sizeof(*sectionsPerSector.Data()) * sector.Size();
 	auto data = sectionArena.Calloc(size);
-	sectionsPerSector.Set(static_cast<decltype(sectionsPerSector.Data())>(data), numsectors);
+	sectionsPerSector.Set(static_cast<decltype(sectionsPerSector.Data())>(data), sector.Size());
 
-	for (int i = 0; i < numsectors; i++)
+	for (unsigned i = 0; i < sector.Size(); i++)
 	{
 		auto& builder = builders[i];
 		count += builder.sections.Size();
@@ -630,7 +625,7 @@ static void ConstructSections(TArray<sectionbuildsector>& builders)
 	// now fill in the data
 
 	int cursection = 0;
-	for (int i = 0; i < numsectors; i++)
+	for (unsigned i = 0; i < sector.Size(); i++)
 	{
 		auto& builder = builders[i];
 		for (unsigned j = 0; j < builder.sections.Size(); j++)
@@ -668,7 +663,7 @@ static void ConstructSections(TArray<sectionbuildsector>& builders)
 					}
 					else
 					{
-						wall_i = numwalls + splitwalls.Find(-wall_i);
+						wall_i = (int)wall.Size() + splitwalls.Find(-wall_i);
 						auto wal = &sectionLines[wall_i];
 						section->lines[curwall++] = loop.walls[w] = wall_i;
 						wal->section = section->index;
@@ -701,7 +696,7 @@ void hw_CreateSections()
 	TArray<loopcollect> collect;
 	CollectLoops(collect);
 
-	TArray<sectionbuildsector> builders(numsectors, true);
+	TArray<sectionbuildsector> builders(sector.Size(), true);
 	GroupData(collect, builders);
 	SplitLoops(builders);
 

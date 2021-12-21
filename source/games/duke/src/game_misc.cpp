@@ -398,7 +398,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
 
 	//Draw sprites
 	auto pactor = ps[screenpeek].GetActor();
-	for (i = 0; i < numsectors; i++)
+	for (unsigned i = 0; i < sector.Size(); i++)
 	{
 		if (!gFullMap || !show2dsector[i]) continue;
 		DukeSectIterator it(i);

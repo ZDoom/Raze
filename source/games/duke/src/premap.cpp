@@ -881,7 +881,7 @@ static void SpawnPortals()
 	}
 	// Unfortunately the above still isn't enough. We got to do one more check to add stuff to the portals.
 	// There is one map where a sector neighboring a portal is not marked as part of the portal itself.
-	for (int i = 0; i < numsectors; i++)
+	for (unsigned i = 0; i < sector.Size(); i++)
 	{
 		auto sectp = &sector[i];
 		if (sectp->floorpicnum == FOF && sectp->portalflags != PORTAL_SECTOR_FLOOR)

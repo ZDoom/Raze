@@ -62,10 +62,10 @@ inline void mergePortals()
 								pt1.targets.Append(pt2.targets);
 								pt2.targets.Reset();
 								pt2.type = -1;
-								for (int n = 0; n < numsectors; n++)
+								for (auto& s : sector)
 								{
 									//Printf("Merged %d and %d\n", i, j);
-									if (sector[n].portalnum == (int)j) sector[n].portalnum = i;
+									if (s.portalnum == (int)j) s.portalnum = i;
 								}
 								didsomething = true;
 								break;

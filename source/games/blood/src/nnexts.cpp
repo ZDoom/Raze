@@ -8314,7 +8314,7 @@ DBloodActor* aiPatrolSearchTargets(DBloodActor* actor)
                     }
                     else if (chan->SourceType == SOURCE_Unattached)
                     {
-                        if (chan->UserData < 0 || chan->UserData >= numsectors) return false; // not a vaild sector sound.
+                        if (chan->UserData < 0 || !validSectorIndex(chan->UserData)) return false; // not a vaild sector sound.
                         sndx = int(chan->Point[0] * 16);
                         sndy = int(chan->Point[1] * -16);
                         searchsect = &sector[chan->UserData];

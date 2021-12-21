@@ -416,7 +416,7 @@ void drawredlines(int cposx, int cposy, int czoom, int cang)
 	int width = screen->GetWidth();
 	int height = screen->GetHeight();
 
-	for (int i = 0; i < numsectors; i++)
+	for (unsigned i = 0; i < sector.Size(); i++)
 	{
 		if (!gFullMap && !show2dsector[i]) continue;
 
@@ -464,7 +464,7 @@ static void drawwhitelines(int cposx, int cposy, int czoom, int cang)
 	int width = screen->GetWidth();
 	int height = screen->GetHeight();
 
-	for (int i = numsectors - 1; i >= 0; i--)
+	for (int i = (int)sector.Size() - 1; i >= 0; i--)
 	{
 		if (!gFullMap && !show2dsector[i] && !isSWALL()) continue;
 
@@ -556,7 +556,7 @@ void renderDrawMapView(int cposx, int cposy, int czoom, int cang)
 	TArray<spritetype*> floorsprites;
 
 
-	for (int i = numsectors - 1; i >= 0; i--)
+	for (int i = (int)sector.Size() - 1; i >= 0; i--)
 	{
 		auto sect = &sector[i];
 		if (!gFullMap && !show2dsector[i]) continue;

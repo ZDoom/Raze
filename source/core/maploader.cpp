@@ -244,7 +244,7 @@ static void ReadWallV5(FileReader& fr, walltype& wall)
 
 static void SetWallPalV5()
 {
-	for (int i = 0; i < numsectors; i++)
+	for (unsigned i = 0; i < sector.Size(); i++)
 	{
 		int startwall = sector[i].wallptr;
 		int endwall = startwall + sector[i].wallnum;
@@ -380,20 +380,20 @@ static void ReadSpriteV5(FileReader& fr, spritetype& spr, int& secno)
 
 
 // allocates global map storage. Blood will also call this.
-void allocateMapArrays(int numsprites)
+void allocateMapArrays(int numwall, int numsector, int numsprites)
 {
 	ClearInterpolations();
 
 
-	show2dsector.Resize(numsectors);
-	show2dwall.Resize(numwalls);
-	gotsector.Resize(numsectors);
-	clipsectormap.Resize(numsectors);
+	show2dsector.Resize(numsector);
+	show2dwall.Resize(numwall);
+	gotsector.Resize(numsector);
+	clipsectormap.Resize(numsector);
 
 	mapDataArena.FreeAll();
-	sector.Resize(numsectors);
-	memset(sector.Data(), 0, sizeof(sectortype) * numsectors);
-	wall.Resize(numwalls);
+	sector.Resize(numsector);
+	memset(sector.Data(), 0, sizeof(sectortype) * numsector);
+	wall.Resize(numwall);
 	memset(wall.Data(), 0, sizeof(walltype) * wall.Size());
 
 	ClearAutomap();
@@ -444,13 +444,13 @@ void loadMap(const char* filename, int flags, vec3_t* pos, int16_t* ang, int* cu
 	auto spritepos = fr.Tell();
 
 	// Now that we know the map's size, set up the globals.
-	allocateMapArrays(numsprites);
+	allocateMapArrays(numwalls, numsectors, numsprites);
 	sprites.sprites.Resize(numsprites);
 	memset(sprites.sprites.Data(), 0, numsprites * sizeof(spritetype));
 
 	// Now load the actual data.
 	fr.Seek(sectorpos, FileReader::SeekSet);
-	for (int i = 0; i < numsectors; i++)
+	for (unsigned i = 0; i < sector.Size(); i++)
 	{
 		switch (mapversion)
 		{
@@ -542,7 +542,7 @@ void setWallSectors()
 		wal.lengthflags = 3;
 	}
 
-	for (int i = 0; i < numsectors - 1; i++)
+	for (unsigned i = 0; i < sector.Size() - 1; i++)
 	{
 		auto sect = &sector[i];
 		auto nextsect = &sector[i + 1];

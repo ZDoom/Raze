@@ -86,7 +86,7 @@ class BFSSectorSearch : public BFSSearch
 {
 public:
 	
-	BFSSectorSearch(const sectortype* startnode) : BFSSearch(numsectors, sector.IndexOf(startnode))
+	BFSSectorSearch(const sectortype* startnode) : BFSSearch(sector.Size(), sector.IndexOf(startnode))
 	{
 	}
 

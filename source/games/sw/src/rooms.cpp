@@ -917,17 +917,17 @@ void CollectPortals()
     testnewrenderer = true;
     TArray<PortalGroup> floorportals;
     TArray<PortalGroup> ceilingportals;
-    BitArray floordone(numsectors), ceilingdone(numsectors);
+    BitArray floordone(sector.Size()), ceilingdone(sector.Size());
 
-    for (int i = 0; i < numsectors; i++)
+    for (auto& sec : sector)
     {
-        sector[i].portalflags = sector[i].portalnum = 0;
+        sec.portalflags = sec.portalnum = 0;
     }
     floordone.Zero();
     ceilingdone.Zero();
     portalClear();
 
-    for (int i = 0; i < numsectors; i++)
+    for (unsigned i = 0; i < sector.Size(); i++)
     {
         if (sector[i].floorpicnum == FAF_MIRROR_PIC && !floordone[i])
         {

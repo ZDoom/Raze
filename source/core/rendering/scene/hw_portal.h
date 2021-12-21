@@ -297,6 +297,7 @@ public:
 
 struct HWLineToSpritePortal : public HWLinePortal
 {
+	walltype clipline = {};
 	walltype* origin;
 	spritetype* camera;
 protected:
@@ -309,7 +310,7 @@ protected:
 public:
 
 	HWLineToSpritePortal(FPortalSceneState* state, walltype* from, spritetype* to)
-		: HWLinePortal(state, &wall[numwalls]), origin(from), camera(to)
+		: HWLinePortal(state, &clipline), origin(from), camera(to)
 	{
 	}
 };

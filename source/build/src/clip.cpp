@@ -398,7 +398,7 @@ static void clipupdatesector(vec2_t const pos, int * const sectnum, int walldist
     }
 
     {
-        BFSSearch search(numsectors, *sectnum);
+        BFSSearch search(sector.Size(), *sectnum);
 
         for (unsigned listsectnum; (listsectnum = search.GetNext()) != BFSSearch::EOL;)
         {
@@ -417,7 +417,7 @@ static void clipupdatesector(vec2_t const pos, int * const sectnum, int walldist
     }
 
     {
-        BFSSearch search(numsectors, *sectnum);
+        BFSSearch search(sector.Size(), *sectnum);
 
         for (unsigned listsectnum; (listsectnum = search.GetNext()) != BFSSearch::EOL;)
         {
@@ -784,7 +784,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 
         int32_t tempint2, tempint1 = INT32_MAX;
         *sectnum = -1;
-        for (int j = numsectors - 1; j >= 0; j--)
+        for (int j = (int)sector.Size() - 1; j >= 0; j--)
         {
             auto sect = &sector[j];
             if (inside(pos->x, pos->y, sect) == 1)

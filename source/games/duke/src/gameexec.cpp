@@ -951,7 +951,7 @@ void DoWall(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, i
 {
 	auto lValue = GetGameVarID(lVar2, sActor, sPlayer).safeValue();
 	auto vWall = GetGameVarID(lVar1, sActor, sPlayer);
-	 iWall = vWall.safeValue();
+	auto iWall = vWall.safeValue();
 
 	if (iWall < 0 || iWall >= (int)wall.Size() || vWall.isActor())
 	{
@@ -1050,7 +1050,7 @@ void DoSector(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		iSector = vv.safeValue();
 	}
 
-	if (iSector < 0 || iSector >= numsectors || no)
+	if (iSector < 0 || iSector >= (int)sector.Size() || no)
 	{
 		if (!bSet) SetGameVarID(lVar2, 0, sActor, sPlayer);
 		return;

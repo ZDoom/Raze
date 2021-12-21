@@ -68,16 +68,16 @@ void BunchDrawer::Init(HWDrawInfo *_di, Clipper* c, vec2_t& view, binangle a1, b
 	gcosang = bamang(di->Viewpoint.RotAngle).fcos();
 	gsinang = bamang(di->Viewpoint.RotAngle).fsin();
 
-	for (int i = 0; i < numwalls; i++)
+	for (auto& w : wall)
 	{
 		// Precalculate the clip angles to avoid doing this repeatedly during level traversal.
-		auto vv = wall[i].pos - view;
-		wall[i].clipangle = bvectangbam(vv.x, vv.y);
+		auto vv = w.pos - view;
+		w.clipangle = bvectangbam(vv.x, vv.y);
 	}
 	memset(sectionstartang.Data(), -1, sectionstartang.Size() * sizeof(sectionstartang[0]));
 	memset(sectionendang.Data(), -1, sectionendang.Size() * sizeof(sectionendang[0]));
-	gotwall.Resize(numwalls);
-	//blockwall.Resize(numwalls);
+	gotwall.Resize(wall.Size());
+	//blockwall.Resize(wall.Size());
 }
 
 //==========================================================================
@@ -93,7 +93,7 @@ void BunchDrawer::StartScene()
 	StartTime = I_msTime();
 	Bunches.Clear();
 	CompareData.Clear();
-	gotsector.Resize(numsectors);
+	gotsector.Resize(sector.Size());
 	gotsector.Zero();
 	gotsection2.Resize(numsections);
 	gotsection2.Zero();
@@ -652,7 +652,7 @@ void BunchDrawer::ProcessSection(int sectionnum, bool portal)
 		{
 			if (walang1.asbam() >= angrange.asbam()) { walang1 = bamang(0); inbunch = false; }
 			if (walang2.asbam() >= angrange.asbam()) walang2 = angrange;
-			if (section->lines[i] >= numwalls) inbunch = false;
+			if (section->lines[i] >= (int)wall.Size()) inbunch = false;
 			if (!inbunch)
 			{
 				//Printf("Starting bunch:\n\tWall %d\n", section->lines[i]);

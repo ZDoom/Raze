@@ -690,7 +690,7 @@ BitArray GetClosestSpriteSectors(sectortype* pSector, int x, int y, int nDist, T
     // E1M2: throwing TNT at the double doors while standing on the train platform
     // by setting newSectCheckMethod to true these issues will be resolved
 
-    BitArray sectorMap(numsectors); // this gets returned to the caller.
+    BitArray sectorMap(sector.Size()); // this gets returned to the caller.
     sectorMap.Zero();
     sectorMap.Set(sectnum(pSector));
     double nDist4sq = 256. * nDist * nDist;    // (nDist * 16)^2 - * 16 to account for Build's 28.4 fixed point format.

@@ -615,7 +615,7 @@ void neartag(const vec3_t& sv, sectortype* sect, int ange, HitInfoBase& result, 
 //
 void dragpoint(int w, int32_t dax, int32_t day)
 {
-    BFSSearch walbitmap(numwalls);
+    BFSSearch walbitmap(wall.Size());
     int clockwise = 0;
     const int tmpstartwall = w;
     int cnt = 16384; // limit the number of iterations.
@@ -735,7 +735,7 @@ void updatesectorneighborz(int32_t const x, int32_t const y, int32_t const z, in
         if (checker(x, y, z, initialsectnum))
             return;
 
-        BFSSearch search(numsectors, *sectnum);
+        BFSSearch search(sector.Size(), *sectnum);
 
         int iter = 0;
         for (unsigned listsectnum; (listsectnum = search.GetNext()) != BFSSearch::EOL;)
@@ -777,7 +777,7 @@ void updatesector(int32_t const x, int32_t const y, int * const sectnum)
 
     // we need to support passing in a sectnum of -1, unfortunately
 
-    for (int i = numsectors - 1; i >= 0; --i)
+    for (int i = (int)sector.Size() - 1; i >= 0; --i)
         if (inside_p(x, y, i))
             SET_AND_RETURN(*sectnum, i);
 
@@ -795,7 +795,7 @@ void updatesectorz(int32_t const x, int32_t const y, int32_t const z, int* const
 
 
     // we need to support passing in a sectnum of -1, unfortunately
-    for (int i = numsectors - 1; i >= 0; --i)
+    for (int i = (int)sector.Size() - 1; i >= 0; --i)
         if (inside_z_p(x, y, z, i))
             SET_AND_RETURN(*sectnum, i);
 

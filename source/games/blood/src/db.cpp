@@ -263,7 +263,7 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sect
     gMapRev = mapHeader.revision;
     numsectors = mapHeader.numsectors;
     numwalls = mapHeader.numwalls;
-    allocateMapArrays(mapHeader.numsprites);
+    allocateMapArrays(mapHeader.numwalls, mapHeader.numsectors, mapHeader.numsprites);
 #if 1 // bad, bad hack, just for making Polymost happy...
 	PolymostAllocFakeSector();
 #endif
@@ -297,7 +297,7 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sect
         pSky->tileofs[i] = LittleShort(tpskyoff[i]);
     }
 
-    for (int i = 0; i < numsectors; i++)
+    for (unsigned i = 0; i < sector.Size(); i++)
     {
         sectortype* pSector = &sector[i];
         sectortypedisk load;

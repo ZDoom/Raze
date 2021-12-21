@@ -48,7 +48,7 @@ void InitMirrors(void)
 	{
 		tileDelete(4080 + i);
 	}
-    for (int i = numwalls - 1; i >= 0; i--)
+    for (int i = (int)wall.Size() - 1; i >= 0; i--)
     {
         auto pWalli = &wall[i];
         if (mirrorcnt == 16)
@@ -105,7 +105,7 @@ void InitMirrors(void)
             continue;
         }
     }
-    for (int i = numsectors - 1; i >= 0; i--)
+    for (int i = (int)sector.Size() - 1; i >= 0; i--)
     {
         if (mirrorcnt >= 15)
             break;
