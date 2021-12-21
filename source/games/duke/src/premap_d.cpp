@@ -53,17 +53,17 @@ inline void tloadtile(int tilenum, int palnum = 0)
 //
 //---------------------------------------------------------------------------
 
-static void cachespritenum(spritetype *spr)
+static void cachespritenum(DDukeActor* actor)
 {
 	int maxc;
 	int j;
-	int pal = spr->pal;
+	int pal = actor->spr.pal;
 
-	if(ud.monsters_off && badguy(spr)) return;
+	if(ud.monsters_off && badguy(actor)) return;
 
 	maxc = 1;
 
-	switch(spr->picnum)
+	switch(actor->spr.picnum)
 	{
 		case HYDRENT:
 			tloadtile(BROKEFIREHYDRENT);
@@ -165,7 +165,7 @@ static void cachespritenum(spritetype *spr)
 			break;
 	}
 
-	for(j = spr->picnum; j < (spr->picnum+maxc); j++)
+	for(j = actor->spr.picnum; j < (actor->spr.picnum+maxc); j++)
 			tloadtile(j, pal);
 }
 
@@ -254,10 +254,10 @@ void cacheit_d(void)
 		}
 
 		DukeSectIterator it(&sect);
-		while (auto j = it.Next())
+		while (auto act = it.Next())
 		{
-			if (j->spr.xrepeat != 0 && j->spr.yrepeat != 0 && (j->spr.cstat & CSTAT_SPRITE_INVISIBLE) == 0)
-				cachespritenum(j->s);
+			if (act->spr.xrepeat != 0 && act->spr.yrepeat != 0 && (act->spr.cstat & CSTAT_SPRITE_INVISIBLE) == 0)
+				cachespritenum(act);
 		}
 	}
 
@@ -285,30 +285,29 @@ void prelevel_d(int g, TArray<DDukeActor*>& actors)
 	DukeStatIterator it(STAT_DEFAULT);
 	while (auto ac = it.Next())
 	{
-		auto si = ac->s;
 		LoadActor(ac, -1, -1);
 
-		if (si->lotag == -1 && (si->cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
+		if (ac->spr.lotag == -1 && (ac->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
 		{
-			ps[0].exitx = si->x;
-			ps[0].exity = si->y;
+			ps[0].exitx = ac->spr.x;
+			ps[0].exity = ac->spr.y;
 		}
-		else switch (si->picnum)
+		else switch (ac->spr.picnum)
 		{
 		case GPSPEED:
-			si->sector()->extra = si->lotag;
+			ac->spr.sector()->extra = ac->spr.lotag;
 			deletesprite(ac);
 			break;
 
 		case CYCLER:
 			if (numcyclers >= MAXCYCLERS)
 				I_Error("Too many cycling sectors.");
-			cyclers[numcyclers].sector = si->sector();
-			cyclers[numcyclers].lotag = si->lotag;
-			cyclers[numcyclers].shade1 = si->shade;
-			cyclers[numcyclers].shade2 = si->sector()->floorshade;
-			cyclers[numcyclers].hitag = si->hitag;
-			cyclers[numcyclers].state = (si->ang == 1536);
+			cyclers[numcyclers].sector = ac->spr.sector();
+			cyclers[numcyclers].lotag = ac->spr.lotag;
+			cyclers[numcyclers].shade1 = ac->spr.shade;
+			cyclers[numcyclers].shade2 = ac->spr.sector()->floorshade;
+			cyclers[numcyclers].hitag = ac->spr.hitag;
+			cyclers[numcyclers].state = (ac->spr.ang == 1536);
 			numcyclers++;
 			deletesprite(ac);
 			break;
@@ -320,8 +319,7 @@ void prelevel_d(int g, TArray<DDukeActor*>& actors)
 	{
 		if (actor->exists())
 		{
-			auto spr = actor->s;
-			if (spr->picnum == SECTOREFFECTOR && spr->lotag == SE_14_SUBWAY_CAR)
+			if (actor->spr.picnum == SECTOREFFECTOR && actor->spr.lotag == SE_14_SUBWAY_CAR)
 				continue;
 			spriteinit_d(actor, actors);
 		}
@@ -331,8 +329,7 @@ void prelevel_d(int g, TArray<DDukeActor*>& actors)
 	{
 		if (actor->exists())
 		{
-			auto spr = actor->s;
-			if (spr->picnum == SECTOREFFECTOR && spr->lotag == SE_14_SUBWAY_CAR)
+			if (actor->spr.picnum == SECTOREFFECTOR && actor->spr.lotag == SE_14_SUBWAY_CAR)
 				spriteinit_d(actor, actors);
 		}
 	}
@@ -341,8 +338,7 @@ void prelevel_d(int g, TArray<DDukeActor*>& actors)
 	it.Reset(STAT_DEFAULT);
 	while (auto actor = it.Next())
 	{
-		auto spr = actor->s;
-		switch (spr->picnum)
+		switch (actor->spr.picnum)
 		{
 		case DIPSWITCH + 1:
 		case DIPSWITCH2 + 1:
@@ -358,12 +354,12 @@ void prelevel_d(int g, TArray<DDukeActor*>& actors)
 		case LOCKSWITCH1 + 1:
 		case POWERSWITCH2 + 1:
 			for (j = 0; j < lotaglist; j++)
-				if (spr->lotag == lotags[j])
+				if (actor->spr.lotag == lotags[j])
 					break;
 
 			if (j == lotaglist)
 			{
-				lotags[lotaglist] = spr->lotag;
+				lotags[lotaglist] = actor->spr.lotag;
 				lotaglist++;
 				if (lotaglist > 64)
 					I_Error("Too many switches (64 max).");
@@ -371,7 +367,7 @@ void prelevel_d(int g, TArray<DDukeActor*>& actors)
 				DukeStatIterator it1(STAT_EFFECTOR);
 				while (auto ac = it1.Next())
 				{
-					if (ac->spr.lotag == 12 && ac->spr.hitag == spr->lotag)
+					if (ac->spr.lotag == 12 && ac->spr.hitag == actor->spr.lotag)
 						ac->temp_data[0] = 1;
 				}
 			}

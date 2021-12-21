@@ -573,8 +573,6 @@ void resetpspritevars(int g)
 	DukeStatIterator it(STAT_PLAYER);
 	while (auto act = it.Next())
 	{
-		s = act->s;
-
 		if (numplayersprites == MAXPLAYERS)
 			I_Error("Too many player sprites (max 16.)");
 
@@ -584,57 +582,57 @@ void resetpspritevars(int g)
 			firsty = ps[0].pos.y;
 		}
 
-		po[numplayersprites].ox = s->x;
-		po[numplayersprites].oy = s->y;
-		po[numplayersprites].oz = s->z;
-		po[numplayersprites].oa = s->ang;
-		po[numplayersprites].os = s->sector();
+		po[numplayersprites].ox = act->spr.x;
+		po[numplayersprites].oy = act->spr.y;
+		po[numplayersprites].oz = act->spr.z;
+		po[numplayersprites].oa = act->spr.ang;
+		po[numplayersprites].os = act->spr.sector();
 
 		numplayersprites++;
 		if (j >= 0)
 		{
 			act->SetOwner(act);
-			s->shade = 0;
-			s->xrepeat = isRR() ? 24 : 42;
-			s->yrepeat = isRR() ? 17 : 36;
-			s->cstat = CSTAT_SPRITE_BLOCK_ALL;
-			s->xoffset = 0;
-			s->clipdist = 64;
+			act->spr.shade = 0;
+			act->spr.xrepeat = isRR() ? 24 : 42;
+			act->spr.yrepeat = isRR() ? 17 : 36;
+			act->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
+			act->spr.xoffset = 0;
+			act->spr.clipdist = 64;
 
 			if (ps[j].last_extra == 0)
 			{
 				ps[j].last_extra = gs.max_player_health;
-				s->extra = gs.max_player_health;
+				act->spr.extra = gs.max_player_health;
 			}
-			else s->extra = ps[j].last_extra;
+			else act->spr.extra = ps[j].last_extra;
 
-			s->yvel = j;
+			act->spr.yvel = j;
 
 			if (ud.last_level == -1)
 			{
-				if (s->pal == 0)
+				if (act->spr.pal == 0)
 				{
-					s->pal = ps[j].palookup = which_palookup;
+					act->spr.pal = ps[j].palookup = which_palookup;
 					ud.user_pals[j] = which_palookup;
 					which_palookup++;
 					if (which_palookup == 17) which_palookup = 9;
 				}
-				else ud.user_pals[j] = ps[j].palookup = s->pal;
+				else ud.user_pals[j] = ps[j].palookup = act->spr.pal;
 			}
 			else
-				s->pal = ps[j].palookup = ud.user_pals[j];
+				act->spr.pal = ps[j].palookup = ud.user_pals[j];
 
 			ps[j].actor = act;
 			ps[j].frag_ps = j;
 			act->SetOwner(act);
 
-			ps[j].bobposx = ps[j].oposx = ps[j].pos.x = s->x;
-			ps[j].bobposy = ps[j].oposy = ps[j].pos.y = s->y;
-			ps[j].oposz = ps[j].pos.z = s->z;
-			s->backuppos();
-			ps[j].angle.oang = ps[j].angle.ang = buildang(s->ang);
+			ps[j].bobposx = ps[j].oposx = ps[j].pos.x = act->spr.x;
+			ps[j].bobposy = ps[j].oposy = ps[j].pos.y = act->spr.y;
+			ps[j].oposz = ps[j].pos.z = act->spr.z;
+			act->spr.backuppos();
+			ps[j].angle.oang = ps[j].angle.ang = buildang(act->spr.ang);
 
-			updatesector(s->x, s->y, &ps[j].cursector);
+			updatesector(act->spr.x, act->spr.y, &ps[j].cursector);
 
 			j = connectpoint2[j];
 
@@ -834,33 +832,31 @@ static void SpawnPortals()
 	DukeStatIterator it(STAT_RAROR);
 	while (auto act = it.Next())
 	{
-		auto spr = act->s;
-		if (spr->picnum == SECTOREFFECTOR && spr->lotag == tag)
+		if (act->spr.picnum == SECTOREFFECTOR && act->spr.lotag == tag)
 		{
-			if (processedTags.Find(spr->hitag) == processedTags.Size())
+			if (processedTags.Find(act->spr.hitag) == processedTags.Size())
 			{
 				DukeStatIterator it2(STAT_RAROR);
 				while (auto act2 = it2.Next())
 				{
-					auto spr2 = act2->s;
-					if (spr2->picnum == SECTOREFFECTOR && spr2->lotag == tag + 1 && spr2->hitag == spr->hitag)
+					if (act2->spr.picnum == SECTOREFFECTOR && act2->spr.lotag == tag + 1 && act2->spr.hitag == act->spr.hitag)
 					{
-						if (processedTags.Find(spr->hitag) == processedTags.Size())
+						if (processedTags.Find(act->spr.hitag) == processedTags.Size())
 						{
-							sectortype* s1 = spr->sector(), *s2 = spr2->sector();
+							sectortype* s1 = act->spr.sector(), *s2 = act2->spr.sector();
 							s1->portalflags = PORTAL_SECTOR_FLOOR;
 							s1->portalflags = PORTAL_SECTOR_CEILING;
-							s2->portalnum = portalAdd(PORTAL_SECTOR_FLOOR, sectnum(s2), spr2->x - spr->x, spr2->y - spr->y, spr->hitag);
-							s2->portalnum = portalAdd(PORTAL_SECTOR_CEILING, sectnum(s1), spr->x - spr2->x, spr->y - spr2->y, spr->hitag);
-							processedTags.Push(spr->hitag);
+							s2->portalnum = portalAdd(PORTAL_SECTOR_FLOOR, sectnum(s2), act2->spr.x - act->spr.x, act2->spr.y - act->spr.y, act->spr.hitag);
+							s2->portalnum = portalAdd(PORTAL_SECTOR_CEILING, sectnum(s1), act->spr.x - act2->spr.x, act->spr.y - act2->spr.y, act->spr.hitag);
+							processedTags.Push(act->spr.hitag);
 						}
 						else
 						{
 							for (auto& p : allPortals)
 							{
-								if (p.type == PORTAL_SECTOR_FLOOR && p.dz == spr->hitag)
+								if (p.type == PORTAL_SECTOR_FLOOR && p.dz == act->spr.hitag)
 								{
-									p.targets.Push(spr2->sectno());
+									p.targets.Push(act2->spr.sectno());
 								}
 							}
 						}
@@ -871,9 +867,9 @@ static void SpawnPortals()
 			{
 				for (auto& p : allPortals)
 				{
-					if (p.type == PORTAL_SECTOR_CEILING && p.dz == spr->hitag)
+					if (p.type == PORTAL_SECTOR_CEILING && p.dz == act->spr.hitag)
 					{
-						p.targets.Push(spr->sectno());
+						p.targets.Push(act->spr.sectno());
 					}
 				}
 			}
