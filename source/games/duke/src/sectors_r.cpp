@@ -984,7 +984,6 @@ void checkhitwall_r(DDukeActor* spr, walltype* wal, int x, int y, int z, int atw
 {
 	int j;
 	int sn = -1, darkestwall;
-	spritetype* s;
 
 	if (wal->overpicnum == MIRROR)
 	{

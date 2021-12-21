@@ -21,16 +21,6 @@ inline int player_struct::GetPlayerNum()
 
 DDukeActor* spawn(DDukeActor* spawner, int type);
 
-inline int ldist(DDukeActor* s1, DDukeActor* s2)
-{
-	return ldist(s1->s, s2->s);
-}
-
-inline int dist(DDukeActor* s1, DDukeActor* s2)
-{
-	return dist(s1->s, s2->s);
-}
-
 inline int badguy(DDukeActor* pSprite)
 {
 	return badguypic(pSprite->spr.picnum);

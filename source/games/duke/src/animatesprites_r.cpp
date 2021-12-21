@@ -127,7 +127,6 @@ void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 		t = &tsprite[j];
 		h = static_cast<DDukeActor*>(t->ownerActor);
 		auto OwnerAc = h->GetOwner();
-		auto Owner = OwnerAc ? OwnerAc->s : nullptr;
 
 		switch (h->spr.picnum)
 		{
@@ -198,32 +197,32 @@ void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 		case TRIPBOMBSPRITE:
 			continue;
 		case FORCESPHERE:
-			if (t->statnum == STAT_MISC && Owner)
+			if (t->statnum == STAT_MISC && OwnerAc)
 			{
 				int sqa =
 					getangle(
-						Owner->x - ps[screenpeek].pos.x,
-						Owner->y - ps[screenpeek].pos.y);
+						OwnerAc->spr.x - ps[screenpeek].pos.x,
+						OwnerAc->spr.y - ps[screenpeek].pos.y);
 				int sqb =
 					getangle(
-						Owner->x - t->x,
-						Owner->y - t->y);
+						OwnerAc->spr.x - t->x,
+						OwnerAc->spr.y - t->y);
 
 				if (abs(getincangle(sqa, sqb)) > 512)
-					if (ldist(Owner, t) < ldist(ps[screenpeek].GetActor()->s, Owner))
+					if (ldist(OwnerAc, t) < ldist(ps[screenpeek].GetActor(), OwnerAc))
 						t->xrepeat = t->yrepeat = 0;
 			}
 			continue;
 		case BURNING:
-			if (Owner && Owner->statnum == STAT_PLAYER)
+			if (OwnerAc && OwnerAc->spr.statnum == STAT_PLAYER)
 			{
-				if (display_mirror == 0 && Owner->yvel == screenpeek && ps[Owner->yvel].over_shoulder_on == 0)
+				if (display_mirror == 0 && OwnerAc->spr.yvel == screenpeek && ps[OwnerAc->spr.yvel].over_shoulder_on == 0)
 					t->xrepeat = 0;
 				else
 				{
 					t->ang = getangle(x - t->x, y - t->y);
-					t->x = Owner->x;
-					t->y = Owner->y;
+					t->x = OwnerAc->spr.x;
+					t->y = OwnerAc->spr.y;
 					t->x += bcos(t->ang, -10);
 					t->y += bsin(t->ang, -10);
 				}
@@ -237,7 +236,7 @@ void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 			t->shade = bsin(PlayClock << 4, -10);
 			break;
 		case SHRINKSPARK:
-			if (Owner && (Owner->picnum == CHEER || Owner->picnum == CHEERSTAYPUT) && isRRRA())
+			if (OwnerAc && (OwnerAc->spr.picnum == CHEER || OwnerAc->spr.picnum == CHEERSTAYPUT) && isRRRA())
 			{
 				t->picnum = CHEERBLADE + ((PlayClock >> 4) & 3);
 				t->shade = -127;
@@ -253,16 +252,16 @@ void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 			}
 			else goto default_case;
 		case SPIT:
-			if (isRRRA() && Owner)
+			if (isRRRA() && OwnerAc)
 			{
-				if (Owner->picnum == MINION && Owner->pal == 8)
+				if (OwnerAc->spr.picnum == MINION && OwnerAc->spr.pal == 8)
 					t->picnum = RRTILE3500 + ((PlayClock >> 4) % 6);
-				else if (Owner->picnum == MINION && Owner->pal == 19)
+				else if (OwnerAc->spr.picnum == MINION && OwnerAc->spr.pal == 19)
 				{
 					t->picnum = RRTILE5090 + ((PlayClock >> 4) & 3);
 					t->shade = -127;
 				}
-				else if (Owner->picnum == MAMA)
+				else if (OwnerAc->spr.picnum == MAMA)
 				{
 					k = getangle(h->spr.x - x, h->spr.y - y);
 					k = (((h->spr.ang + 3072 + 128 - k) & 2047) >> 8) & 7;
@@ -814,7 +813,7 @@ void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 			break;
 		case FIRE:
 		case BURNING:
-			if (Owner && Owner->picnum != TREE1 && Owner->picnum != TREE2)
+			if (OwnerAc && OwnerAc->spr.picnum != TREE1 && OwnerAc->spr.picnum != TREE2)
 				t->z = t->sector()->floorz;
 			t->shade = -127;
 			break;
@@ -913,7 +912,7 @@ void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 			else t->cstat &= ~CSTAT_SPRITE_XFLIP;
 
 			t->picnum = h->spr.picnum + k + ((h->temp_data[0] < 4) * 5);
-			if (Owner) t->shade = Owner->shade;
+			if (OwnerAc) t->shade = OwnerAc->spr.shade;
 			break;
 		case MUD:
 			t->picnum = MUD + t1;
@@ -933,25 +932,25 @@ void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 			if (h->temp_data[0] > 2) t->cstat &= ~CSTAT_SPRITE_XFLIP | CSTAT_SPRITE_YFLIP;
 			break;
 		case FRAMEEFFECT1:
-			if (Owner && Owner->statnum < MAXSTATUS)
+			if (OwnerAc && OwnerAc->spr.statnum < MAXSTATUS)
 			{
-				if (Owner->picnum == APLAYER)
+				if (OwnerAc->spr.picnum == APLAYER)
 					if (ud.cameraactor == nullptr)
-						if (screenpeek == Owner->yvel && display_mirror == 0)
+						if (screenpeek == OwnerAc->spr.yvel && display_mirror == 0)
 						{
 							t->ownerActor = nullptr;
 							break;
 						}
-				if ((Owner->cstat & CSTAT_SPRITE_INVISIBLE) == 0)
+				if ((OwnerAc->spr.cstat & CSTAT_SPRITE_INVISIBLE) == 0)
 				{
-					if (Owner->picnum == APLAYER)
+					if (OwnerAc->spr.picnum == APLAYER)
 						t->picnum = 1554;
 					else
 						t->picnum = OwnerAc->dispicnum;
-					t->pal = Owner->pal;
-					t->shade = Owner->shade;
-					t->ang = Owner->ang;
-					t->cstat = CSTAT_SPRITE_TRANSLUCENT | Owner->cstat;
+					t->pal = OwnerAc->spr.pal;
+					t->shade = OwnerAc->spr.shade;
+					t->ang = OwnerAc->spr.ang;
+					t->cstat = CSTAT_SPRITE_TRANSLUCENT | OwnerAc->spr.cstat;
 				}
 			}
 			break;

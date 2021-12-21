@@ -50,9 +50,9 @@ public:
 	sectortype* temp_sect, *actorstayput;
 	
 	TObjPtr<DDukeActor*> temp_actor, seek_actor;
-	spritetype* s;	// direct reference to the corresponding sprite.
 
 	TArray<GameVarValue> uservars;
+	spritetype* s;
 
 	// Todo: Once we start assigning subclasses to actors, this one needs to be moved to the proper FIREBALL subclass.
 	FireProj fproj;
@@ -95,19 +95,19 @@ public:
 
 	inline bool IsActiveCrane()
 	{
-		return s->owner == -2;
+		return spr.owner == -2;
 	}
 
 	inline void SetActiveCrane(bool yes)
 	{
 		ownerActor = nullptr;
-		s->owner = yes ? -2 : -1;
+		spr.owner = yes ? -2 : -1;
 	}
 
 	int PlayerIndex() const
 	{
 		// only valid for real players - just here to abstract yvel.
-		return s->yvel;
+		return spr.yvel;
 	}
 
 	void Serialize(FSerializer& arc) override;

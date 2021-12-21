@@ -81,29 +81,27 @@ inline int checkcursectnums(sectortype* se)
 	return -1;
 }
 
-// These are from duke's sector.c
-inline int ldist(const spritetype* s1, const spritetype* s2)
+inline int ldist(DDukeActor* s1, DDukeActor* s2)
 {
 	int vx, vy;
-	vx = s1->x - s2->x;
-	vy = s1->y - s2->y;
+	vx = s1->spr.x - s2->spr.x;
+	vy = s1->spr.y - s2->spr.y;
 	return(FindDistance2D(vx, vy) + 1);
 }
 
-inline int ldist(const spritetype* s1, const tspritetype* s2)
+inline int ldist(const DDukeActor* s1, const tspritetype* s2)
 {
 	int vx, vy;
-	vx = s1->x - s2->x;
-	vy = s1->y - s2->y;
+	vx = s1->spr.x - s2->x;
+	vy = s1->spr.y - s2->y;
 	return(FindDistance2D(vx, vy) + 1);
 }
-
-inline int dist(const spritetype* s1, const spritetype* s2)
+inline int dist(DDukeActor* s1, DDukeActor* s2)
 {
 	int vx, vy, vz;
-	vx = s1->x - s2->x;
-	vy = s1->y - s2->y;
-	vz = s1->z - s2->z;
+	vx = s1->spr.x - s2->spr.x;
+	vy = s1->spr.y - s2->spr.y;
+	vz = s1->spr.z - s2->spr.z;
 	return(FindDistance3D(vx, vy, vz));
 }
 

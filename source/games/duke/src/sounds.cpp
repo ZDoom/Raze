@@ -354,11 +354,9 @@ void DukeSoundEngine::CalcPosVel(int type, const void* source, const float pt[3]
 		else if (type == SOURCE_Actor)
 		{
 			auto aactor = (DDukeActor*)source;
-			auto aspr = aactor ? aactor->s : nullptr;
-			assert(aspr != nullptr);
-			if (aspr != nullptr)
+			if (aactor != nullptr)
 			{
-				GetPositionInfo(aactor, chanSound - 1, camsect, campos, &aspr->pos, nullptr, pos);
+				GetPositionInfo(aactor, chanSound - 1, camsect, campos, &aactor->spr.pos, nullptr, pos);
 				/*
 				if (vel) // DN3D does not properly maintain this.
 				{
