@@ -1529,7 +1529,7 @@ int32_t polymost_mddraw(tspriteptr_t tspr)
         allocmodelverts = maxmodelverts;
     }
 
-    mdmodel_t *const vm = models[tile2model[Ptile2tile(tspr->picnum, tspr->ownerActor->s().pal)].modelid];
+    mdmodel_t *const vm = models[tile2model[Ptile2tile(tspr->picnum, tspr->ownerActor->spr.pal)].modelid];
     if (vm->mdnum == 1)
         return polymost_voxdraw((voxmodel_t *)vm,tspr, false); // can't access rotating info anymore
     else if (vm->mdnum == 3)

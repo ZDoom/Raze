@@ -975,9 +975,9 @@ void CollectPortals()
             SWSectIterator it(sec);
             while (auto actor = it.Next())
             {
-                int tx = actor->s().x;
-                int ty = actor->s().y;
-                int tz = actor->s().z;
+                int tx = actor->spr.x;
+                int ty = actor->spr.y;
+                int tz = actor->spr.z;
                 auto tsect = &sector[sec];
 
                 int match = FindViewSectorInScene(tsect, VIEW_LEVEL1);
@@ -989,7 +989,7 @@ void CollectPortals()
                         // got something!
                         fp.othersector = sectnum(tsect);
                         fp.offset = { tx, ty, tz };
-                        fp.offset -= actor->s().pos;
+                        fp.offset -= actor->spr.pos;
                         goto nextfg;
                     }
                 }
@@ -1005,9 +1005,9 @@ void CollectPortals()
             SWSectIterator it(sec);
             while (auto actor = it.Next())
             {
-                int tx = actor->s().x;
-                int ty = actor->s().y;
-                int tz = actor->s().z;
+                int tx = actor->spr.x;
+                int ty = actor->spr.y;
+                int tz = actor->spr.z;
                 auto tsect = &sector[sec];
 
                 int match = FindViewSectorInScene(tsect, VIEW_LEVEL2);
@@ -1019,7 +1019,7 @@ void CollectPortals()
                         // got something!
                         fp.othersector = sectnum(tsect);
                         fp.offset = { tx, ty, tz };
-                        fp.offset -= actor->s().pos;
+                        fp.offset -= actor->spr.pos;
                         goto nextcg;
                     }
                 }

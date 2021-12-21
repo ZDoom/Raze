@@ -1494,7 +1494,7 @@ DBloodActor* getNextIncarnation(DBloodActor* actor)
     {
         if (!rxBucket[i].isActor()) continue;
 		auto rxactor = rxBucket[i].actor();
-        if (actor != rxactor && rxactor->s().statnum == kStatInactive) return rxactor;
+        if (actor != rxactor && rxactor->spr.statnum == kStatInactive) return rxactor;
     }
     return nullptr;
 }
@@ -1623,7 +1623,7 @@ static void scaleDamage(DBloodActor* actor)
     }
 
     // take in account yrepeat of sprite
-    int yrepeat = actor->s().yrepeat;
+    int yrepeat = actor->spr.yrepeat;
     if (yrepeat < 64) 
     {
         for (int i = 0; i < kDmgMax; i++) curScale[i] += (64 - yrepeat);
@@ -1634,7 +1634,7 @@ static void scaleDamage(DBloodActor* actor)
     }
 
     // take surface type into account
-    int surfType = tileGetSurfType(actor->s().picnum);
+    int surfType = tileGetSurfType(actor->spr.picnum);
     switch (surfType) 
     {
         case 1:  // stone
@@ -2518,7 +2518,7 @@ bool genDudePrepare(DBloodActor* actor, int propId)
                 BloodStatIterator it(kStatThing);
                 while (auto actor2 = it.Next())
                 {
-                    if (actor2->GetOwner() == actor && actor2->s().type == kModernThingEnemyLifeLeech) {
+                    if (actor2->GetOwner() == actor && actor2->spr.type == kModernThingEnemyLifeLeech) {
                         pExtra->pLifeLeech = actor2;
                         break;
                     }

@@ -281,7 +281,7 @@ void HWDrawInfo::DispatchSprites()
 		if (actor == nullptr || tspr->xrepeat == 0 || tspr->yrepeat == 0 || tilenum >= MAXTILES)
 			continue;
 
-		actor->s().cstat2 |= CSTAT2_SPRITE_MAPPED;
+		actor->spr.cstat2 |= CSTAT2_SPRITE_MAPPED;
 
 		tileUpdatePicnum(&tilenum, (actor->GetIndex() & 16383) + 32768, 0);
 		tspr->picnum = tilenum;

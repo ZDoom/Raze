@@ -75,9 +75,9 @@ void InitSpiritHead()
     ExhumedSpriteIterator it;
     while (auto act = it.Next())
     {
-        if (act->s().statnum)
+        if (act->spr.statnum)
         {
-            act->s().cstat |= CSTAT_SPRITE_INVISIBLE;
+            act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
         }
     }
 

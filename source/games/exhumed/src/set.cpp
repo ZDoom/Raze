@@ -271,7 +271,7 @@ void AISet::Tick(RunListEvent* ev)
 
     if (pTarget && nAction < 10)
     {
-        if (!(pTarget->s().cstat & CSTAT_SPRITE_BLOCK_ALL))
+        if (!(pTarget->spr.cstat & CSTAT_SPRITE_BLOCK_ALL))
         {
             pActor->pTarget = nullptr;
             pActor->nAction = 0;
@@ -446,7 +446,7 @@ void AISet::Tick(RunListEvent* ev)
             {
                 if (pTarget == nMov.actor())
                 {
-                    int nAng = getangle(pTarget->s().x - pSprite->x, pTarget->s().y - pSprite->y);
+                    int nAng = getangle(pTarget->spr.x - pSprite->x, pTarget->spr.y - pSprite->y);
                     if (AngleDiff(pSprite->ang, nAng) < 64)
                     {
                         pActor->nAction = 4;
@@ -621,7 +621,7 @@ void AISet::Tick(RunListEvent* ev)
     {
         if (pTarget)
         {
-            if (!(pTarget->s().cstat & CSTAT_SPRITE_BLOCK_ALL))
+            if (!(pTarget->spr.cstat & CSTAT_SPRITE_BLOCK_ALL))
             {
                 pActor->nAction = 0;
                 pActor->nFrame = 0;

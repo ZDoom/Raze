@@ -158,7 +158,7 @@ void AIMummy::Tick(RunListEvent* ev)
 
     if (pTarget != nullptr && nAction < 4)
     {
-        if ((!pTarget->s().cstat) && nAction)
+        if ((!pTarget->spr.cstat) && nAction)
         {
             pActor->nAction = 0;
             pActor->nFrame = 0;
@@ -217,7 +217,7 @@ void AIMummy::Tick(RunListEvent* ev)
                 if (RandomBit() && pTarget)
                 {
                     if (cansee(pSprite->x, pSprite->y, pSprite->z - GetActorHeight(pActor), pSprite->sector(),
-                        pTarget->s().x, pTarget->s().y, pTarget->s().z - GetActorHeight(pTarget), pTarget->s().sector()))
+                        pTarget->spr.x, pTarget->spr.y, pTarget->spr.z - GetActorHeight(pTarget), pTarget->spr.sector()))
                     {
                         pActor->nAction = 3;
                         pActor->nFrame = 0;
@@ -284,7 +284,7 @@ void AIMummy::Tick(RunListEvent* ev)
         {
             if (nMov.actor() == pTarget)
             {
-                int nAngle = getangle(pTarget->s().x - pSprite->x, pTarget->s().y - pSprite->y);
+                int nAngle = getangle(pTarget->spr.x - pSprite->x, pTarget->spr.y - pSprite->y);
                 if (AngleDiff(pSprite->ang, nAngle) < 64)
                 {
                     pActor->nAction = 2;
@@ -346,7 +346,7 @@ void AIMummy::Tick(RunListEvent* ev)
                 if (!RandomSize(3))
                 {
                     SetBulletEnemy(pBullet->nPhase, pTarget);
-                    pBullet->s().pal = 5;
+                    pBullet->spr.pal = 5;
                 }
             }
         }

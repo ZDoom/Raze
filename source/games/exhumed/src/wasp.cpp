@@ -217,7 +217,7 @@ void AIWasp::Tick(RunListEvent* ev)
     {
         pTarget = pActor->pTarget;
 
-        if (pTarget && (!(pTarget->s().cstat & CSTAT_SPRITE_BLOCK_ALL) || (pTarget->s().sector()->Flag & kSectUnderwater)))
+        if (pTarget && (!(pTarget->spr.cstat & CSTAT_SPRITE_BLOCK_ALL) || (pTarget->spr.sector()->Flag & kSectUnderwater)))
         {
             // goto pink
             pActor->pTarget = nullptr;

@@ -174,7 +174,7 @@ void BuildSnake(int nPlayer, int zVal)
     {
         DExhumedActor* pTarget = nullptr;
         auto hitactor = hit.actor();
-        if (hitactor && hitactor->s().statnum >= 90 && hitactor->s().statnum <= 199) {
+        if (hitactor && hitactor->spr.statnum >= 90 && hitactor->spr.statnum <= 199) {
             pTarget = hitactor;
         }
         else if (sPlayerInput[nPlayer].pTarget != nullptr) 
@@ -210,9 +210,9 @@ void BuildSnake(int nPlayer, int zVal)
             }
             else
             {
-                pSprite->x = sprt->s().x;
-                pSprite->y = sprt->s().y;
-                pSprite->z = sprt->s().z;
+                pSprite->x = sprt->spr.x;
+                pSprite->y = sprt->spr.y;
+                pSprite->z = sprt->spr.z;
                 pSprite->xrepeat = 40 - 3 * i;
                 pSprite->yrepeat = 40 - 3 * i;
             }
@@ -345,7 +345,7 @@ void AISnake::Tick(RunListEvent* ev)
     }
     else
     {
-        if (!(pEnemySprite->s().cstat & CSTAT_SPRITE_BLOCK_ALL))
+        if (!(pEnemySprite->spr.cstat & CSTAT_SPRITE_BLOCK_ALL))
         {
             SnakeList[nSnake].pEnemy = nullptr;
             goto SEARCH_ENEMY;

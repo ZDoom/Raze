@@ -671,7 +671,7 @@ void playerStart(int nPlayer, int bNewLevel)
     playerResetPosture(pPlayer);
     seqSpawn(pDudeInfo->seqStartID, actor, -1);
     if (pPlayer == gMe)
-    actor->s().cstat2 |= CSTAT2_SPRITE_MAPPED;
+    actor->spr.cstat2 |= CSTAT2_SPRITE_MAPPED;
     int top, bottom;
     GetSpriteExtents(pSprite, &top, &bottom);
     pSprite->z -= bottom - pSprite->z;
@@ -1377,7 +1377,7 @@ void ProcessInput(PLAYER *pPlayer)
         DBloodActor* fragger = pPlayer->fragger;
         if (fragger)
         {
-            pPlayer->angle.addadjustment(getincanglebam(pPlayer->angle.ang, bvectangbam(fragger->s().x - pSprite->x, fragger->s().y - pSprite->y)));
+            pPlayer->angle.addadjustment(getincanglebam(pPlayer->angle.ang, bvectangbam(fragger->spr.x - pSprite->x, fragger->spr.y - pSprite->y)));
         }
         pPlayer->deathTime += 4;
         if (!bSeqStat)
@@ -1753,7 +1753,7 @@ void playerProcess(PLAYER *pPlayer)
     {
         pPlayer->isUnderwater = 1;
         auto link = pSprite->sector()->lowerLink;
-        if (link && (link->s().type == kMarkerLowGoo || link->s().type == kMarkerLowWater))
+        if (link && (link->spr.type == kMarkerLowGoo || link->spr.type == kMarkerLowWater))
         {
             if (getceilzofslopeptr(pSprite->sector(), pSprite->x, pSprite->y) > pPlayer->zView)
                 pPlayer->isUnderwater = 0;
@@ -1859,7 +1859,7 @@ void FragPlayer(PLAYER *pPlayer, DBloodActor* killer)
 {
     if (killer && killer->IsPlayerActor())
     {
-        PLAYER *pKiller = &gPlayer[killer->s().type - kDudePlayer1];
+        PLAYER *pKiller = &gPlayer[killer->spr.type - kDudePlayer1];
         playerFrag(pKiller, pPlayer);
         int nTeam1 = pKiller->teamId&1;
         int nTeam2 = pPlayer->teamId&1;

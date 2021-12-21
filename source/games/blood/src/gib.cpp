@@ -292,7 +292,7 @@ void GibFX(DBloodActor* actor, GIBFX *pGFX, CGibPosition *pPos, CGibVelocity *pV
         if (pFX)
         {
             if (pGFX->at1 < 0)
-                pFX->s().pal = pSprite->pal;
+                pFX->spr.pal = pSprite->pal;
             if (pVel)
             {
                 pFX->xvel = pVel->vx+Random2(pGFX->atd);
@@ -409,7 +409,7 @@ void GibSprite(DBloodActor* actor, GIBTYPE nGibType, CGibPosition *pPos, CGibVel
     assert(actor != NULL);
     assert(nGibType >= 0 && nGibType < kGibMax);
 
-    if (!actor->s().insector())
+    if (!actor->spr.insector())
         return;
     GIBLIST *pGib = &gibList[nGibType];
     for (int i = 0; i < pGib->Kills; i++)
@@ -440,7 +440,7 @@ void GibFX(walltype* pWall, GIBFX * pGFX, int a3, int a4, int a5, int a6, CGibVe
         if (pGib)
         {
             if (pGFX->at1 < 0)
-                pGib->s().pal = pWall->pal;
+                pGib->spr.pal = pWall->pal;
             if (!pVel)
             {
                 pGib->xvel = Random2((pGFX->atd<<18)/120);

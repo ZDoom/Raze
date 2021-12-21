@@ -120,7 +120,7 @@ void AIRex::Damage(RunListEvent* ev)
     if (ev->nDamage)
     {
         auto pTarget = ev->pOtherActor;
-        if (pTarget && pTarget->s().statnum == 100)
+        if (pTarget && pTarget->spr.statnum == 100)
         {
             pActor->pTarget = pTarget;
         }
@@ -441,7 +441,7 @@ void AIRex::Tick(RunListEvent* ev)
     // break-ed
     if (nAction > 0)
     {
-        if ((pTarget != nullptr) && (!(pTarget->s().cstat & CSTAT_SPRITE_BLOCK_ALL)))
+        if ((pTarget != nullptr) && (!(pTarget->spr.cstat & CSTAT_SPRITE_BLOCK_ALL)))
         {
             pActor->nAction = 0;
             pActor->nFrame = 0;

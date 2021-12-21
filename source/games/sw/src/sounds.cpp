@@ -534,7 +534,7 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
         }
         else if (type == SOURCE_Actor || type == SOURCE_Player)
         {
-            vpos = type == SOURCE_Actor ? &((DSWActor*)source)->s().pos : &((PLAYERp)source)->pos;
+            vpos = type == SOURCE_Actor ? &((DSWActor*)source)->spr.pos : &((PLAYERp)source)->pos;
             FVector3 npos = GetSoundPos(vpos);
 
             *pos = npos;
@@ -645,7 +645,7 @@ int _PlaySound(int num, DSWActor* actor, PLAYERp pp, vec3_t* pos, Voc3D_Flags fl
     {
         if (actor && !pos)
         {
-            pos = &actor->s().pos;
+            pos = &actor->spr.pos;
             actor = nullptr;
         }
         else if (pp && !pos)

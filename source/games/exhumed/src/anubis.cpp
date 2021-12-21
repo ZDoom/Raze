@@ -188,7 +188,7 @@ void AIAnubis::Tick(RunListEvent* ev)
         {
             if (move.actor() == pTarget)
             {
-                int nAng = getangle(pTarget->s().x - sp->x, pTarget->s().y - sp->y);
+                int nAng = getangle(pTarget->spr.x - sp->x, pTarget->spr.y - sp->y);
                 int nAngDiff = AngleDiff(sp->ang, nAng);
 
                 if (nAngDiff < 64)
@@ -222,11 +222,11 @@ void AIAnubis::Tick(RunListEvent* ev)
                 if (pTarget != nullptr) // NOTE: nTarget can be -1. this check wasn't in original code. TODO: demo compatiblity?
                 {
                     if (cansee(sp->x, sp->y, sp->z - GetActorHeight(ap), sp->sector(),
-                        pTarget->s().x, pTarget->s().y, pTarget->s().z - GetActorHeight(pTarget), pTarget->s().sector()))
+                        pTarget->spr.x, pTarget->spr.y, pTarget->spr.z - GetActorHeight(pTarget), pTarget->spr.sector()))
                     {
                         sp->xvel = 0;
                         sp->yvel = 0;
-                        sp->ang = GetMyAngle(pTarget->s().x - sp->x, pTarget->s().y - sp->y);
+                        sp->ang = GetMyAngle(pTarget->spr.x - sp->x, pTarget->spr.y - sp->y);
 
                         ap->nAction = 3;
                         ap->nFrame = 0;
@@ -336,7 +336,7 @@ void AIAnubis::Tick(RunListEvent* ev)
     // loc_2564C:
     if (nAction && pTarget != nullptr)
     {
-        if (!(pTarget->s().cstat & CSTAT_SPRITE_BLOCK_ALL))
+        if (!(pTarget->spr.cstat & CSTAT_SPRITE_BLOCK_ALL))
         {
             ap->nAction = 0;
             ap->nFrame = 0;

@@ -176,7 +176,7 @@ static void calebThinkChase(DBloodActor* actor)
 							aiNewState(actor, &tinycalebAttack);
 						break;
 					case 3:
-						if (pSprite->type != gHitInfo.actor()->s().type)
+						if (pSprite->type != gHitInfo.actor()->spr.type)
 						{
 							if (pXSector && pXSector->Underwater)
 								aiNewState(actor, &tinycalebSwimAttack);

@@ -598,7 +598,7 @@ void TrackSetup(void)
         it.Reset(STAT_TRACK + ndx);
         while (auto actor = it.Next())
         {
-            if (actor->s().lotag == TRACK_START)
+            if (actor->spr.lotag == TRACK_START)
             {
                 ASSERT(t->NumPoints == 0);
 
@@ -639,7 +639,7 @@ void TrackSetup(void)
             it.Reset(STAT_TRACK + ndx);
             while (auto actor = it.Next())
             {
-                dist = Distance((tp + t->NumPoints - 1)->x, (tp + t->NumPoints - 1)->y, actor->s().x, actor->s().y);
+                dist = Distance((tp + t->NumPoints - 1)->x, (tp + t->NumPoints - 1)->y, actor->spr.x, actor->spr.y);
 
                 if (dist < low_dist)
                 {
@@ -683,7 +683,7 @@ DSWActor* FindBoundSprite(int tag)
     SWStatIterator it(STAT_ST1);
     while (auto actor = it.Next())
     {
-        if (actor->s().hitag == tag)
+        if (actor->spr.hitag == tag)
         {
             return actor;
         }
@@ -1667,8 +1667,8 @@ void MovePoints(SECTOR_OBJECTp sop, short delta_ang, int nx, int ny)
         PlayerMove = false;
 
     // move child sprite along also
-    sop->sp_child->s().x = sop->xmid;
-    sop->sp_child->s().y = sop->ymid;
+    sop->sp_child->spr.x = sop->xmid;
+    sop->sp_child->spr.y = sop->ymid;
 
 
     // setting floorz if need be
@@ -1861,7 +1861,7 @@ PlayerPart:
                 //pp->posz -= PLAYER_HEIGHT + Z(12);
                 DoPlayerZrange(pp);
                 pp->posz = pp->loz - PLAYER_CRAWL_HEIGHT;
-                pp->Actor()->s().z = pp->loz;
+                pp->Actor()->spr.z = pp->loz;
             }
             else
             {
@@ -1872,7 +1872,7 @@ PlayerPart:
                 if (!TEST(pp->Flags, PF_JUMPING | PF_FALLING | PF_FLYING))
                 {
                     pp->posz = pp->loz - PLAYER_HEIGHT;
-                    pp->Actor()->s().z = pp->loz;
+                    pp->Actor()->spr.z = pp->loz;
                 }
             }
         }
@@ -2871,7 +2871,7 @@ void DoAutoTurretObject(SECTOR_OBJECTp sop)
 			if (shootp->statnum == STAT_SO_SHOOT_POINT)
             {
                 if (!FAFcansee(shootp->x, shootp->y, shootp->z-Z(4), shootp->sector(),
-                               u->targetActor->s().x, u->targetActor->s().y, ActorUpper(u->targetActor), u->targetActor->s().sector()))
+                               u->targetActor->spr.x, u->targetActor->spr.y, ActorUpper(u->targetActor), u->targetActor->spr.sector()))
                 {
                     return;
                 }
@@ -2907,8 +2907,8 @@ void DoAutoTurretObject(SECTOR_OBJECTp sop)
             }
         }
 
-        //sop->ang_tgt = getangle(sop->xmid - u->targetActor->s().x, sop->ymid - u->targetActor->s().y);
-        sop->ang_tgt = getangle(u->targetActor->s().x - sop->xmid,  u->targetActor->s().y - sop->ymid);
+        //sop->ang_tgt = getangle(sop->xmid - u->targetActor->spr.x, sop->ymid - u->targetActor->spr.y);
+        sop->ang_tgt = getangle(u->targetActor->spr.x - sop->xmid,  u->targetActor->spr.y - sop->ymid);
 
         // get delta to target angle
         delta_ang = getincangle(sop->ang, sop->ang_tgt);

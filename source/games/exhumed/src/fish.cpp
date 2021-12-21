@@ -307,7 +307,7 @@ void AIFish::Damage(RunListEvent* ev)
     else
     {
         auto pTarget = ev->pOtherActor;
-        if (pTarget && pTarget->s().statnum < 199)
+        if (pTarget && pTarget->spr.statnum < 199)
         {
             pActor->pTarget = pTarget;
         }
@@ -361,7 +361,7 @@ void AIFish::Tick(RunListEvent* ev)
                 pActor->nAction = 2;
                 pActor->nFrame = 0;
 
-                int nAngle = GetMyAngle(pTargetActor->s().x - pSprite->x, pTargetActor->s().z - pSprite->z);
+                int nAngle = GetMyAngle(pTargetActor->spr.x - pSprite->x, pTargetActor->spr.z - pSprite->z);
                 pSprite->zvel = bsin(nAngle, -5);
 
                 pActor->nCount = RandomSize(6) + 90;
@@ -392,7 +392,7 @@ void AIFish::Tick(RunListEvent* ev)
             PlotCourseToSprite(pActor, pTargetActor);
             int nHeight = GetActorHeight(pActor) >> 1;
 
-            int z = abs(pTargetActor->s().z - pSprite->z);
+            int z = abs(pTargetActor->spr.z - pSprite->z);
 
             if (z <= nHeight)
             {
@@ -405,7 +405,7 @@ void AIFish::Tick(RunListEvent* ev)
                 pSprite->yvel = 0;
             }
 
-            pSprite->zvel = (pTargetActor->s().z - pSprite->z) >> 3;
+            pSprite->zvel = (pTargetActor->spr.z - pSprite->z) >> 3;
         }
         break;
     }

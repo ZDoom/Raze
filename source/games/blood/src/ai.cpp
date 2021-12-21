@@ -112,7 +112,7 @@ static bool isImmune(DBloodActor* actor, int dmgType, int minScale)
 
 	if (dmgType >= kDmgFall && dmgType < kDmgMax && actor->hasX() && actor->x().locked != 1)
 	{
-		int type = actor->s().type;
+		int type = actor->spr.type;
 		if (type >= kThingBase && type < kThingMax)
 			return (thingInfo[type - kThingBase].dmgControl[dmgType] <= minScale);
 		else if (actor->IsDudeActor())
@@ -171,12 +171,12 @@ bool CanMove(DBloodActor* actor, DBloodActor* target, int nAngle, int nRange)
 	auto Lower = pSector->lowerLink;
 	if (Upper != nullptr)
 	{
-		if (Upper->s().type == kMarkerUpWater || Upper->s().type == kMarkerUpGoo)
+		if (Upper->spr.type == kMarkerUpWater || Upper->spr.type == kMarkerUpGoo)
 			Water = Depth = 1;
 	}
 	if (Lower != nullptr)
 	{
-		if (Lower->s().type == kMarkerLowWater || Lower->s().type == kMarkerLowGoo)
+		if (Lower->spr.type == kMarkerLowWater || Lower->spr.type == kMarkerLowGoo)
 			Depth = 1;
 	}
 	switch (pSprite->type) {
@@ -1734,7 +1734,7 @@ void aiInitSprite(DBloodActor* actor)
 	if (gModernMap)
 	{
 		// must keep it in case of loading save
-		if (pXSprite->dudeFlag4 && actor->GetTarget() && actor->GetTarget()->s().type == kMarkerPath)
+		if (pXSprite->dudeFlag4 && actor->GetTarget() && actor->GetTarget()->spr.type == kMarkerPath)
 		{
 			stateTimer = pXSprite->stateTimer;
 			pTargetMarker = actor->GetTarget();
@@ -1968,7 +1968,7 @@ void aiInitSprite(DBloodActor* actor)
 
 			// make dude follow the markers
 			bool uwater = spriteIsUnderwater(actor);
-            if (actor->GetTarget() == nullptr || actor->GetTarget()->s().type != kMarkerPath) 
+            if (actor->GetTarget() == nullptr || actor->GetTarget()->spr.type != kMarkerPath) 
             {
                 actor->SetTarget(nullptr);
                 aiPatrolSetMarker(actor);

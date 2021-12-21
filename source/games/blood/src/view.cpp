@@ -621,7 +621,7 @@ void viewDrawScreen(bool sceneonly)
         BloodStatIterator it(kStatExplosion);
         while (auto actor = it.Next())
         {
-            if (actor->hasX() && gotsector[actor->s().sectno()])
+            if (actor->hasX() && gotsector[actor->spr.sectno()])
             {
                 brightness += actor->x().data3 * 32;
             }

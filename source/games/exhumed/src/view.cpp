@@ -237,8 +237,8 @@ void DrawView(double smoothRatio, bool sceneonly)
         }
         else
         {
-            nEnemyPal = pEnemy->s().pal;
-            pEnemy->s().pal = 5;
+            nEnemyPal = pEnemy->spr.pal;
+            pEnemy->spr.pal = 5;
         }
     }
     else
@@ -444,7 +444,7 @@ void DrawView(double smoothRatio, bool sceneonly)
             {
                 RestoreGreenPal();
                 if (nEnemyPal > -1) {
-                    pEnemy->s().pal = (uint8_t)nEnemyPal;
+                    pEnemy->spr.pal = (uint8_t)nEnemyPal;
                 }
 
                 DrawMap(smoothRatio);

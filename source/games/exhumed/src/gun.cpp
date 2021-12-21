@@ -245,7 +245,7 @@ Collision CheckCloseRange(int nPlayer, int *x, int *y, int *z, sectortype* *ppSe
 {
     auto pActor = PlayerList[nPlayer].Actor();
 
-    int ang = pActor->s().ang;
+    int ang = pActor->spr.ang;
     int xVect = bcos(ang);
     int yVect = bsin(ang);
 
@@ -954,7 +954,7 @@ void DrawWeapons(double smooth)
     }
 
     if (nWeapon < 0) {
-        nShade = PlayerList[nLocalPlayer].Actor()->s().shade;
+        nShade = PlayerList[nLocalPlayer].Actor()->spr.shade;
     }
 
     double const look_anghalf = PlayerList[nLocalPlayer].angle.look_anghalf(smooth);

@@ -159,7 +159,7 @@ void AIRoach::Damage(RunListEvent* ev)
             auto pSprite2 = ev->pOtherActor;
             if (pSprite2)
             {
-                if (pSprite2->s().statnum < 199) {
+                if (pSprite2->spr.statnum < 199) {
                     pActor->pTarget = pSprite2;
                 }
 
@@ -282,7 +282,7 @@ void AIRoach::Tick(RunListEvent* ev)
 
                 pSprite->xvel = 0;
                 pSprite->yvel = 0;
-                pSprite->ang = GetMyAngle(pTarget->s().x - pSprite->x, pTarget->s().y - pSprite->y);
+                pSprite->ang = GetMyAngle(pTarget->spr.x - pSprite->x, pTarget->spr.y - pSprite->y);
 
                 pActor->nFrame = 0;
             }
@@ -311,13 +311,13 @@ void AIRoach::Tick(RunListEvent* ev)
 
                 pSprite->xvel = 0;
                 pSprite->yvel = 0;
-                pSprite->ang = GetMyAngle(pTarget->s().x - pSprite->x, pTarget->s().y - pSprite->y);
+                pSprite->ang = GetMyAngle(pTarget->spr.x - pSprite->x, pTarget->spr.y - pSprite->y);
 
                 pActor->nFrame = 0;
             }
         }
 
-        if (pTarget && !(pTarget->s().cstat & CSTAT_SPRITE_BLOCK_ALL))
+        if (pTarget && !(pTarget->spr.cstat & CSTAT_SPRITE_BLOCK_ALL))
         {
             pActor->nAction = 1;
             pActor->nFrame = 0;

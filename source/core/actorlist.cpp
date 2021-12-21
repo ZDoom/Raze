@@ -97,7 +97,7 @@ static void AddStatTail(DCoreActor* actor, int statnum)
 	else statList[statnum].firstEntry = actor;
 	statList[statnum].lastEntry = actor;
 	assert(ValidateStatList(statnum));
-	actor->s().statnum = statnum;
+	actor->spr.statnum = statnum;
 	actor->link_stat = statnum;
 	GC::WriteBarrier(actor);
 	GC::WriteBarrier(tail);
@@ -121,7 +121,7 @@ static void AddStatHead(DCoreActor* actor, int statnum)
 	else statList[statnum].lastEntry = actor;
 	assert(ValidateStatList(statnum));
 	statList[statnum].firstEntry = actor;
-	actor->s().statnum = statnum;
+	actor->spr.statnum = statnum;
 	actor->link_stat = statnum;
 	GC::WriteBarrier(actor);
 	GC::WriteBarrier(head);
@@ -154,7 +154,7 @@ static void RemoveActorStat(DCoreActor* actor)
 	assert(ValidateStatList(actor->link_stat));
 
 	actor->nextStat = actor->prevStat = nullptr;
-	actor->s().statnum = MAXSTATUS;
+	actor->spr.statnum = MAXSTATUS;
 	actor->link_stat = MAXSTATUS;
 	GC::WriteBarrier(prev);
 	GC::WriteBarrier(next);
@@ -184,7 +184,7 @@ int ChangeActorStat(DCoreActor* actor, int statnum, bool tail)
 {
 	int oldstat = actor->link_stat;
 	assert(statnum >= 0 && statnum < MAXSTATUS);
-	assert(actor->s().statnum >= 0 && actor->s().statnum < MAXSTATUS);
+	assert(actor->spr.statnum >= 0 && actor->spr.statnum < MAXSTATUS);
 	RemoveActorStat(actor);
 	InsertActorStat(actor, statnum, tail);
 	return 0;
@@ -236,7 +236,7 @@ static void AddSectTail(DCoreActor *actor, sectortype* sect)
 	else sect->firstEntry = actor;
 	sect->lastEntry = actor;
 	assert(ValidateSectList(sect));
-	actor->s().setsector(sect);
+	actor->spr.setsector(sect);
 	actor->link_sector = sect;
 	GC::WriteBarrier(actor);
 	GC::WriteBarrier(tail);
@@ -260,7 +260,7 @@ static void AddSectHead(DCoreActor *actor, sectortype* sect)
 	else sect->lastEntry = actor;
 	sect->firstEntry = actor;
 	assert(ValidateSectList(sect));
-	actor->s().setsector(sect);
+	actor->spr.setsector(sect);
 	actor->link_sector = sect;
 	GC::WriteBarrier(actor);
 	GC::WriteBarrier(head);
@@ -297,7 +297,7 @@ static void RemoveActorSect(DCoreActor* actor)
 	assert(ValidateSectList(actor->link_sector, actor));
 
 	actor->nextSect = actor->prevSect = nullptr;
-	actor->s().setsector(nullptr);
+	actor->spr.setsector(nullptr);
 	actor->link_sector = nullptr;
 	GC::WriteBarrier(prev);
 	GC::WriteBarrier(next);
@@ -316,7 +316,7 @@ static void InsertActorSect(DCoreActor* actor, sectortype* sector, bool tail)
 	if (!sector)
 	{
 		actor->link_sector = nullptr;
-		actor->s().setsector(nullptr);
+		actor->spr.setsector(nullptr);
 		return;
 	}
 	if (isSafe() || tail) AddSectTail(actor, sector);
@@ -356,7 +356,7 @@ DCoreActor* InsertActor(PClass* type, sectortype* sector, int stat, bool tail)
 	InsertActorSect(actor, sector, tail);
 
 	Numsprites++;
-	actor->s().time = leveltimer++;
+	actor->spr.time = leveltimer++;
 	return actor;
 }
 
@@ -448,7 +448,7 @@ void InitSpriteLists()
 void SetActor(DCoreActor* actor, const vec3_t* newpos)
 {
 	auto tempsector = actor->sector();
-	actor->s().setpos(*newpos);
+	actor->spr.setpos(*newpos);
 	updatesector(newpos->x, newpos->y, &tempsector);
 
 	if (tempsector && tempsector != actor->sector())
@@ -458,7 +458,7 @@ void SetActor(DCoreActor* actor, const vec3_t* newpos)
 void SetActorZ(DCoreActor* actor, const vec3_t* newpos)
 {
 	auto tempsector = actor->sector();
-	actor->s().setpos(*newpos);
+	actor->spr.setpos(*newpos);
 	updatesectorz(newpos->x, newpos->y, newpos->z, &tempsector);
 
 	if (tempsector && tempsector != actor->sector())

@@ -164,7 +164,7 @@ void fxBloodSpurt(DBloodActor* actor, sectortype*) // 6
     auto pFX = gFX.fxSpawnActor(FX_27, pSprite->sector(), pSprite->x, pSprite->y, pSprite->z, 0);
     if (pFX)
     {
-        pFX->s().ang = 0;
+        pFX->spr.ang = 0;
         pFX->xvel = actor->xvel>>8;
         pFX->yvel = actor->yvel>>8;
         pFX->zvel = actor->zvel>>8;
@@ -362,7 +362,7 @@ void CounterCheck(DBloodActor*, sectortype* pSector) // 12
     BloodSectIterator it(pSector);
     while (auto actor = it.Next())
     {
-        if (actor->s().type == nType) nCount++;
+        if (actor->spr.type == nType) nCount++;
     }
         
     if (nCount < nReq) {
@@ -408,7 +408,7 @@ void fxBloodBits(DBloodActor* actor, sectortype*) // 14
     {
         auto pFX = gFX.fxSpawnActor(FX_36, pSprite->sector(), x, y, floorZ-64, 0);
         if (pFX)
-            pFX->s().ang = nAngle;
+            pFX->spr.ang = nAngle;
     }
     gFX.remove(actor);
 }
@@ -532,7 +532,7 @@ void fxPodBloodSpray(DBloodActor* actor, sectortype*) // 18
         pFX = gFX.fxSpawnActor(FX_54, pSprite->sector(), pSprite->x, pSprite->y, pSprite->z, 0);
     if (pFX)
     {
-        pFX->s().ang = 0;
+        pFX->spr.ang = 0;
         pFX->xvel = actor->xvel >> 8;
         pFX->yvel = actor->yvel >> 8;
         pFX->zvel = actor->zvel >> 8;
@@ -567,13 +567,13 @@ void fxPodBloodSplat(DBloodActor* actor, sectortype*) // 19
         if (Chance(0x500) || pSprite->type == kThingPodGreenBall)
             pFX = gFX.fxSpawnActor(FX_55, pSprite->sector(), x, y, floorZ-64, 0);
         if (pFX)
-            pFX->s().ang = nAngle;
+            pFX->spr.ang = nAngle;
     }
     else
     {
         pFX = gFX.fxSpawnActor(FX_32, pSprite->sector(), x, y, floorZ-64, 0);
         if (pFX)
-            pFX->s().ang = nAngle;
+            pFX->spr.ang = nAngle;
     }
     gFX.remove(actor);
 }

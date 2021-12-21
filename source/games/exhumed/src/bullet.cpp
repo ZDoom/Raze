@@ -175,11 +175,11 @@ void IgniteSprite(DExhumedActor* pActor)
         pAnimActor->pTarget = pActor;
         ChangeActorStat(pAnimActor, kStatIgnited);
 
-        int yRepeat = (tileHeight(pAnimActor->s().picnum) * 32) / nFlameHeight;
+        int yRepeat = (tileHeight(pAnimActor->spr.picnum) * 32) / nFlameHeight;
         if (yRepeat < 1)
             yRepeat = 1;
 
-        pAnimActor->s().yrepeat = (uint8_t)yRepeat;
+        pAnimActor->spr.yrepeat = (uint8_t)yRepeat;
     }
 }
 
@@ -336,7 +336,7 @@ int MoveBullet(int nBullet)
         DExhumedActor* pEnemyActor = BulletList[nBullet].pEnemy;
         if (pEnemyActor)
         {
-            if (!(pEnemyActor->s().cstat & CSTAT_SPRITE_BLOCK_ALL))
+            if (!(pEnemyActor->spr.cstat & CSTAT_SPRITE_BLOCK_ALL))
                 BulletList[nBullet].pEnemy = nullptr;
             else
             {
@@ -599,7 +599,7 @@ DExhumedActor* BuildBullet(DExhumedActor* pActor, int nType, int nZOffset, int n
                 sBullet.nDoubleDamage = nDoubleDamage;
 
                 sBullet.pActor = insertActor(pSprite->sector(), 200);
-                sBullet.pActor->s().ang = nAngle;
+                sBullet.pActor->spr.ang = nAngle;
 
                 int nHeight = GetActorHeight(pTarget);
 

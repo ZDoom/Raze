@@ -251,7 +251,7 @@ void LifeLeechOperate(DBloodActor* actor, EVENT event)
                             evPostActor(actor, t2, kCallbackLeechStateTimer);
                             pXSprite->data3 = ClipLow(pXSprite->data3-1, 0);
                             if (!VanillaMode()) // disable collisions so lifeleech doesn't do that weird bobbing
-                                missile->s().cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
+                                missile->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
                         }
                         pSprite->ang = angBak;
                     }
@@ -2025,7 +2025,7 @@ void trInit(TArray<DBloodActor*>& actors)
                 BloodSectIterator it(pSector);
                 while (auto actor = it.Next())
                 {
-                    actor->basePoint = actor->s().pos;
+                    actor->basePoint = actor->spr.pos;
                 }
                 TranslateSector(pSector, 0, pXSector->busy, pSprite1->x, pSprite1->y, pSprite1->x, pSprite1->y, pSprite1->ang, pSprite2->x, pSprite2->y, pSprite2->ang, pSector->type == kSectorSlide);
                 ZTranslateSector(pSector, pXSector, pXSector->busy, 1);
@@ -2044,7 +2044,7 @@ void trInit(TArray<DBloodActor*>& actors)
                 BloodSectIterator it(pSector);
                 while (auto actor = it.Next())
                 {
-                    actor->basePoint = actor->s().pos;
+                    actor->basePoint = actor->spr.pos;
                 }
                 TranslateSector(pSector, 0, pXSector->busy, pSprite1->x, pSprite1->y, pSprite1->x, pSprite1->y, 0, pSprite1->x, pSprite1->y, pSprite1->ang, pSector->type == kSectorRotate);
                 ZTranslateSector(pSector, pXSector, pXSector->busy, 1);

@@ -1983,7 +1983,7 @@ int InitBloodSpray(DSWActor* actor, bool dogib, short velocity)
 
 int BloodSprayFall(DSWActor* actor)
 {
-    actor->s().z += 1500;
+    actor->spr.z += 1500;
     return 0;
 }
 

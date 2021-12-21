@@ -521,7 +521,7 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
         tspritetype *pTSprite = &tsprite[nTSprite];
         auto owneractor = static_cast<DBloodActor*>(pTSprite->ownerActor);
         XSPRITE *pTXSprite = NULL;
-        if (owneractor->s().detail > gDetail)
+        if (owneractor->spr.detail > gDetail)
         {
             pTSprite->xrepeat = 0;
             continue;
@@ -694,7 +694,7 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
         }
         nShade += tileShade[pTSprite->picnum];
         pTSprite->shade = ClipRange(nShade, -128, 127);
-        if ((pTSprite->flags&kHitagRespawn) && pTSprite->ownerActor->s().owner == 3)    // Where does this 3 come from? Nothing sets it.
+        if ((pTSprite->flags&kHitagRespawn) && pTSprite->ownerActor->spr.owner == 3)    // Where does this 3 come from? Nothing sets it.
         {
             assert(pTXSprite != NULL);
             pTSprite->xrepeat = 48;

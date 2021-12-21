@@ -165,7 +165,7 @@ static void gillThinkChase(DBloodActor* actor)
 							aiNewState(actor, &gillBeastBite);
 						break;
 					case 3:
-						if (pSprite->type != gHitInfo.actor()->s().type)
+						if (pSprite->type != gHitInfo.actor()->spr.type)
 						{
 							if (pXSector && pXSector->Underwater)
 								aiNewState(actor, &gillBeastSwimBite);

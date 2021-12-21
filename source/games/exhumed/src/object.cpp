@@ -626,7 +626,7 @@ int CheckSectorSprites(sectortype* pSector, int nVal)
         ExhumedSectIterator it(pSector);
         while (auto pActor = it.Next())
         {
-            if (pActor->s().cstat & CSTAT_SPRITE_BLOCK_ALL) {
+            if (pActor->spr.cstat & CSTAT_SPRITE_BLOCK_ALL) {
                 return 1;
             }
         }
@@ -869,7 +869,7 @@ void AIElev::Tick(RunListEvent* ev)
     // maybe this doesn't go here?
     while (pElevSpr)
     {
-        pElevSpr->s().z += ebp;
+        pElevSpr->spr.z += ebp;
         pElevSpr = pElevSpr->pTarget;
     }
 }
@@ -1327,12 +1327,12 @@ void AITrap::Tick(RunListEvent* ev)
             {
                 if (nType == 15)
                 {
-                    pBullet->s().ang = (pBullet->s().ang - 512) & kAngleMask;
+                    pBullet->spr.ang = (pBullet->spr.ang - 512) & kAngleMask;
                     D3PlayFX(StaticSound[kSound32], pBullet);
                 }
                 else
                 {
-                    pBullet->s().clipdist = 50;
+                    pBullet->spr.clipdist = 50;
 
                     auto pWall = sTrap[nTrap].pWall1;
                     if (pWall)
@@ -1519,7 +1519,7 @@ void DoFinale()
         if (!(dword_96788 & 2))
         {
             int nAng = RandomSize(11);
-            pFinaleSpr->s().ang = nAng;
+            pFinaleSpr->spr.ang = nAng;
             BuildSpark(pFinaleSpr, 1);
         }
 
@@ -2060,9 +2060,9 @@ void AIObject::RadialDamage(RunListEvent* ev)
 
     if (pActor->nHealth > 0 && pSprite->cstat & CSTAT_SPRITE_BLOCK_ALL
         && (nStat != kStatExplodeTarget
-            || ev->pRadialActor->s().statnum == 201
+            || ev->pRadialActor->spr.statnum == 201
             || (nRadialBullet != 3 && nRadialBullet > -1)
-            || ev->pRadialActor->s().statnum == kStatExplodeTrigger))
+            || ev->pRadialActor->spr.statnum == kStatExplodeTrigger))
     {
         int nDamage = runlist_CheckRadialDamage(pActor);
         if (nDamage <= 0) {
@@ -2571,7 +2571,7 @@ void PostProcess()
                 {
                     wal.pal = 1;
                     auto pActor = insertActor(&sect, 407);
-                    pActor->s().cstat = CSTAT_SPRITE_INVISIBLE;
+                    pActor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
                 }
             }
         }
@@ -2592,7 +2592,7 @@ void PostProcess()
     {
         auto pObjectActor = ObjectList[i];
 
-        if (pObjectActor->s().statnum == kStatExplodeTarget)
+        if (pObjectActor->spr.statnum == kStatExplodeTarget)
         {
             if (!pObjectActor->nIndex2) {
                 pObjectActor->nIndex2 = -1;
@@ -2605,7 +2605,7 @@ void PostProcess()
                 for (unsigned j = 0; j < ObjectList.Size(); j++)
                 {
 
-                    if (i != j && ObjectList[j]->s().statnum == kStatExplodeTarget && edi == ObjectList[j]->nIndex2)
+                    if (i != j && ObjectList[j]->spr.statnum == kStatExplodeTarget && edi == ObjectList[j]->nIndex2)
                     {
                         pObjectActor->nIndex2 = j;
                         ObjectList[j]->nIndex2 = i;

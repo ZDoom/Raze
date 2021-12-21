@@ -32,7 +32,7 @@ void DestroyGrenade(DExhumedActor* pActor)
 {
     runlist_DoSubRunRec(pActor->nPhase);
     runlist_SubRunRec(pActor->nRun);
-    runlist_DoSubRunRec(pActor->s().lotag - 1);
+    runlist_DoSubRunRec(pActor->spr.lotag - 1);
 
     DeleteActor(pActor);
 }
@@ -334,7 +334,7 @@ void AIGrenade::Tick(RunListEvent* ev)
         }
         else if (nMov.type == kHitSprite)
         {
-            BounceGrenade(pActor, nMov.actor()->s().ang);
+            BounceGrenade(pActor, nMov.actor()->spr.ang);
         }
 
         pActor->nHealth = 0;

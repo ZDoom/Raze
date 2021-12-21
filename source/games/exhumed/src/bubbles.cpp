@@ -152,6 +152,6 @@ void DoBubbles(int nPlayer)
     WheresMyMouth(nPlayer, &pos, &pSector);
 
     auto pActor = BuildBubble(pos, pSector);
-    pActor->s().hitag = nPlayer;
+    pActor->spr.hitag = nPlayer;
 }
 END_PS_NS

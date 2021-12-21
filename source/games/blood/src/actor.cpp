@@ -2527,9 +2527,9 @@ void actInit(TArray<DBloodActor*>& actors)
 	BloodStatIterator it(kStatItem);
 	while (auto act = it.Next())
 	{
-		if (act->s().type == kItemWeaponVoodooDoll)
+		if (act->spr.type == kItemWeaponVoodooDoll)
 		{
-			act->s().type = kItemAmmoVoodooDoll;
+			act->spr.type = kItemAmmoVoodooDoll;
 			break;
 		}
 	}
@@ -2767,7 +2767,7 @@ static DBloodActor* actSpawnFloor(DBloodActor* actor)
 	updatesector(x, y, &pSector);
 	int zFloor = getflorzofslopeptr(pSector, x, y);
 	auto spawned = actSpawnSprite(pSector, x, y, zFloor, 3, 0);
-	if (spawned) spawned->s().cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
+	if (spawned) spawned->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 	return spawned;
 }
 
@@ -2895,8 +2895,8 @@ DBloodActor* actDropObject(DBloodActor* actor, int nType)
 	{
 		int top, bottom;
 		GetActorExtents(act2, &top, &bottom);
-		if (bottom >= act2->s().z)
-			act2->s().z -= bottom - act2->s().z;
+		if (bottom >= act2->spr.z)
+			act2->spr.z -= bottom - act2->spr.z;
 	}
 
 	return act2;
@@ -3143,7 +3143,7 @@ static void checkDropObjects(DBloodActor* actor)
 	if (pXSprite->key > 0) actDropObject(actor, kItemKeyBase + pXSprite->key - 1);
 	if (pXSprite->dropMsg > 0) actDropObject(actor, pXSprite->dropMsg);
 
-	switch (actor->s().type)
+	switch (actor->spr.type)
 	{
 	case kDudeCultistTommy:
 	{
@@ -3256,7 +3256,7 @@ static void spawnGibs(DBloodActor* actor, int type, int velz)
 {
 	int top, bottom;
 	GetActorExtents(actor, &top, &bottom);
-	CGibPosition gibPos(actor->s().x, actor->s().y, top);
+	CGibPosition gibPos(actor->spr.x, actor->spr.y, top);
 	CGibVelocity gibVel(actor->xvel >> 1, actor->yvel >> 1, velz);
 	GibSprite(actor, GIBTYPE_27, &gibPos, &gibVel);
 }
@@ -3724,7 +3724,7 @@ static int actDamageThing(DBloodActor* source, DBloodActor* actor, int damage, D
 			pXSprite->stateTimer = pXSprite->data4 = pXSprite->isTriggered = 0;
 
 #ifdef NOONE_EXTENSIONS
-			if (Owner && Owner->s().type == kDudeModernCustom)
+			if (Owner && Owner->spr.type == kDudeModernCustom)
 				Owner->SetSpecialOwner(); // indicates if custom dude had life leech.
 #endif
 			break;
@@ -3813,7 +3813,7 @@ int actDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE damageT
 	if (source == nullptr) source = actor;
 
 	PLAYER* pSourcePlayer = nullptr;
-	if (source->IsPlayerActor()) pSourcePlayer = &gPlayer[source->s().type - kDudePlayer1];
+	if (source->IsPlayerActor()) pSourcePlayer = &gPlayer[source->spr.type - kDudePlayer1];
 	if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pSourcePlayer, pSprite)) return 0;
 
 	switch (pSprite->statnum)
@@ -3907,7 +3907,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 			if (gGameOptions.weaponsV10x && !VanillaMode() && pDudeInfo != nullptr)
 			{
 				if (missileOwner->IsDudeActor() && missileOwner->hasX() && missileOwner->x().health != 0)
-					actHealDude(missileOwner, nDamage >> 2, getDudeInfo(missileOwner->s().type)->startHealth);
+					actHealDude(missileOwner, nDamage >> 2, getDudeInfo(missileOwner->spr.type)->startHealth);
 			}
 		}
 
@@ -3933,7 +3933,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 			if (pWallHit)
 			{
 				auto pFX = gFX.fxSpawnActor(FX_52, pMissile->sector(), pMissile->x, pMissile->y, pMissile->z, 0);
-				if (pFX) pFX->s().ang = (GetWallAngle(pWallHit) + 512) & 2047;
+				if (pFX) pFX->spr.ang = (GetWallAngle(pWallHit) + 512) & 2047;
 			}
 			break;
 		}
@@ -4105,7 +4105,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 			{
 				int nDamage = (10 + Random(10)) << 4;
 				actDamageSprite(missileOwner, actorHit, kDamageSpirit, nDamage);
-				int nType = missileOwner->s().type - kDudeBase;
+				int nType = missileOwner->spr.type - kDudeBase;
 				if (missileOwner->x().health > 0)
 					actHealDude(missileOwner, 10, getDudeInfo(nType + kDudeBase)->startHealth);
 			}
@@ -4153,10 +4153,10 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 static void actKickObject(DBloodActor* kicker, DBloodActor* kicked)
 {
 	int nSpeed = ClipLow(approxDist(kicker->xvel, kicker->yvel) * 2, 0xaaaaa);
-	kicked->xvel = MulScale(nSpeed, Cos(kicker->s().ang + Random2(85)), 30);
-	kicked->yvel = MulScale(nSpeed, Sin(kicker->s().ang + Random2(85)), 30);
+	kicked->xvel = MulScale(nSpeed, Cos(kicker->spr.ang + Random2(85)), 30);
+	kicked->yvel = MulScale(nSpeed, Sin(kicker->spr.ang + Random2(85)), 30);
 	kicked->zvel = MulScale(nSpeed, -0x2000, 14);
-	kicked->s().flags = 7;
+	kicked->spr.flags = 7;
 }
 
 //---------------------------------------------------------------------------
@@ -4952,8 +4952,8 @@ void MoveDude(DBloodActor* actor)
 	}
 	DCoreActor* pUpperLink = pSector->upperLink;
 	DCoreActor* pLowerLink = pSector->lowerLink;
-	if (pUpperLink && (pUpperLink->s().type == kMarkerUpWater || pUpperLink->s().type == kMarkerUpGoo)) bDepth = 1;
-	if (pLowerLink && (pLowerLink->s().type == kMarkerLowWater || pLowerLink->s().type == kMarkerLowGoo)) bDepth = 1;
+	if (pUpperLink && (pUpperLink->spr.type == kMarkerUpWater || pUpperLink->spr.type == kMarkerUpGoo)) bDepth = 1;
+	if (pLowerLink && (pLowerLink->spr.type == kMarkerLowWater || pLowerLink->spr.type == kMarkerLowGoo)) bDepth = 1;
 	if (pPlayer) wd += 16;
 	if (actor->zvel) pSprite->z += actor->zvel >> 8;
 
@@ -5265,10 +5265,10 @@ void MoveDude(DBloodActor* actor)
 		if (floorColl.type == kHitSprite)
 		{
 			auto hitAct = floorColl.actor();
-			if ((hitAct->s().cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FACING)
+			if ((hitAct->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FACING)
 			{
-				actor->xvel += MulScale(4, pSprite->x - hitAct->s().x, 2);
-				actor->yvel += MulScale(4, pSprite->y - hitAct->s().y, 2);
+				actor->xvel += MulScale(4, pSprite->x - hitAct->spr.x, 2);
+				actor->yvel += MulScale(4, pSprite->y - hitAct->spr.y, 2);
 				return;
 			}
 		}
@@ -6008,7 +6008,7 @@ static void actCheckExplosion()
 					if (gImpactSpritesList[i] == nullptr) continue;
 
 					DBloodActor* impactactor = gImpactSpritesList[i];
-					if (!impactactor->hasX() || !impactactor->s().insector() || (impactactor->s().flags & kHitagFree) != 0)	continue;
+					if (!impactactor->hasX() || !impactactor->spr.insector() || (impactactor->spr.flags & kHitagFree) != 0)	continue;
 
 					if (!CheckSector(sectorMap, &impactactor->s()) || !CheckProximity(impactactor, x, y, z, pSector, radius))
 						continue;
@@ -6899,8 +6899,8 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 					auto pFX = gFX.fxSpawnActor(pVectorData->surfHit[nSurf].fx1, pSector, x, y, z, 0);
 					if (pFX)
 					{
-						pFX->s().ang = (GetWallAngle(pWall) + 512) & 2047;
-						pFX->s().cstat |= CSTAT_SPRITE_ALIGNMENT_WALL;
+						pFX->spr.ang = (GetWallAngle(pWall) + 512) & 2047;
+						pFX->spr.cstat |= CSTAT_SPRITE_ALIGNMENT_WALL;
 					}
 				}
 			}
@@ -7004,8 +7004,8 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 								if (pFX)
 								{
 									pFX->zvel = 0x2222;
-									pFX->s().ang = (GetWallAngle(pWall) + 512) & 2047;
-									pFX->s().cstat |= CSTAT_SPRITE_ALIGNMENT_WALL;
+									pFX->spr.ang = (GetWallAngle(pWall) + 512) & 2047;
+									pFX->spr.cstat |= CSTAT_SPRITE_ALIGNMENT_WALL;
 								}
 							}
 						}
@@ -7222,11 +7222,11 @@ void actPostProcess(void)
 {
 	for (auto& p : gPost)
 	{
-		p.sprite->s().flags &= ~32;
+		p.sprite->spr.flags &= ~32;
 		int nStatus = p.status;
 		if (nStatus == kStatFree)
 		{
-			if (p.sprite->s().statnum != kStatFree)
+			if (p.sprite->spr.statnum != kStatFree)
 			{
 				evKillActor(p.sprite);
 				if (p.sprite->hasX()) seqKill(p.sprite);
@@ -7276,7 +7276,7 @@ void MakeSplash(DBloodActor* actor)
 void actBurnSprite(DBloodActor* pSource, DBloodActor* pTarget, int nTime)
 {
 	auto pXSprite = &pTarget->x();
-	pXSprite->burnTime = ClipHigh(pXSprite->burnTime + nTime, pTarget->s().statnum == kStatDude ? 2400 : 1200);
+	pXSprite->burnTime = ClipHigh(pXSprite->burnTime + nTime, pTarget->spr.statnum == kStatDude ? 2400 : 1200);
 	pTarget->SetBurnSource(pSource);
 }
 

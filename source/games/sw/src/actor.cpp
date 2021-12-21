@@ -219,7 +219,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
         }
         u->ActorActionFunc = nullptr;
         // Get angle to player
-        sp->ang = NORM_ANGLE(getangle(u->targetActor->s().x - sp->x, u->targetActor->s().y - sp->y) + 1024);
+        sp->ang = NORM_ANGLE(getangle(u->targetActor->spr.x - sp->x, u->targetActor->spr.y - sp->y) + 1024);
         break;
 
     case UZI_SMOKE+1: // Shotgun
@@ -242,7 +242,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
         DoActorBeginJump(actor);
         u->ActorActionFunc = nullptr;
         // Get angle to player
-        sp->ang = NORM_ANGLE(getangle(u->targetActor->s().x - sp->x, u->targetActor->s().y - sp->y) + 1024);
+        sp->ang = NORM_ANGLE(getangle(u->targetActor->spr.x - sp->x, u->targetActor->spr.y - sp->y) + 1024);
         break;
 
     default:
@@ -775,7 +775,7 @@ int DoActorStopFall(DSWActor* actor)
 
 
     // don't stand on face or wall sprites - jump again
-    if (u->lowActor && !TEST(u->lowActor->s().cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR))
+    if (u->lowActor && !TEST(u->lowActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR))
     {
         //sp->ang = NORM_ANGLE(sp->ang + (RANDOM_P2(64<<8)>>8) - 32);
         sp->ang = NORM_ANGLE(sp->ang + 1024 + (RANDOM_P2(512<<8)>>8));

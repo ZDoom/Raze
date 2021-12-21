@@ -975,11 +975,11 @@ bool ActorTestSpawn(DSWActor* actor)
     if (sp->statnum == STAT_DEFAULT && sp->lotag == TAG_SPAWN_ACTOR)
     {
         auto actorNew = insertActor(sp->sector(), STAT_DEFAULT);
-        int t = actorNew->s().time;  // must be preserved!
+        int t = actorNew->spr.time;  // must be preserved!
         actorNew->s() = *sp;
-        actorNew->s().time = t;
+        actorNew->spr.time = t;
         change_actor_stat(actorNew, STAT_SPAWN_TRIGGER);
-        RESET(actorNew->s().cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+        RESET(actorNew->spr.cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         return false;
     }
 
@@ -1070,7 +1070,7 @@ int EnemyCheckSkill()
 bool ActorSpawn(DSWActor* actor)
 {
     bool ret = true;
-    int picnum = actor->s().picnum;
+    int picnum = actor->spr.picnum;
     switch (picnum)
     {
     case COOLIE_RUN_R0:
@@ -1507,8 +1507,8 @@ void PreMapCombineFloors(void)
             SWSectIterator it(dasect);
             while (auto jActor = it.Next())
             {
-                jActor->s().x += dx;
-                jActor->s().y += dy;
+                jActor->spr.x += dx;
+                jActor->spr.y += dy;
             }
 
             for (auto& wal : wallsofsector(dasect))
@@ -1561,7 +1561,7 @@ void SpriteSetupPost(void)
     SWStatIterator it(STAT_FLOOR_PAN);
     while (auto iActor = it.Next())
     {
-        SWSectIterator it2(iActor->s().sector());
+        SWSectIterator it2(iActor->spr.sector());
         while (auto jActor = it.Next())
         {
             ds = &jActor->s();
@@ -3557,7 +3557,7 @@ bool ItemSpotClear(DSWActor* actor, short statnum, short id)
         SWSectIterator it(sip->sector());
         while (auto itActor = it.Next())
         {
-            if (itActor->s().statnum == statnum && itActor->u()->ID == id)
+            if (itActor->spr.statnum == statnum && itActor->u()->ID == id)
             {
                 found = true;
                 break;
@@ -4377,7 +4377,7 @@ int NewStateGroup(DSWActor* actor, STATEp StateGroup[])
 
     // turn anims off because people keep setting them in the
     // art file
-    RESET(picanm[actor->s().picnum].sf, PICANM_ANIMTYPE_MASK);
+    RESET(picanm[actor->spr.picnum].sf, PICANM_ANIMTYPE_MASK);
     return 0;
 }
 
@@ -4837,7 +4837,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
 
 int DoStayOnFloor(DSWActor* actor)
 {
-    actor->s().z = actor->s().sector()->floorz;
+    actor->spr.z = actor->spr.sector()->floorz;
     return 0;
 }
 
@@ -6010,7 +6010,7 @@ KeyMain:
 
         case ICON_FLAG:
         {
-            if (sp->pal == pp->Actor()->s().pal) break; // Can't pick up your own flag!
+            if (sp->pal == pp->Actor()->spr.pal) break; // Can't pick up your own flag!
 
             PlaySound(DIGI_ITEM, actor, v3df_dontpan);
 

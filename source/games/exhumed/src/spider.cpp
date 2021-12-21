@@ -129,7 +129,7 @@ void AISpider::Tick(RunListEvent* ev)
 
     DExhumedActor* pTarget = spp->pTarget;
 
-    if (pTarget == nullptr || pTarget->s().cstat & CSTAT_SPRITE_BLOCK_ALL)
+    if (pTarget == nullptr || pTarget->spr.cstat & CSTAT_SPRITE_BLOCK_ALL)
     {
         switch (nAction)
         {
@@ -316,7 +316,7 @@ void AISpider::Tick(RunListEvent* ev)
         {
             if (nMov.actor() == pTarget)
             {
-                int nAng = getangle(pTarget->s().x - sp->x, pTarget->s().y - sp->y);
+                int nAng = getangle(pTarget->spr.x - sp->x, pTarget->spr.y - sp->y);
                 if (AngleDiff(sp->ang, nAng) < 64)
                 {
                     spp->nAction = 2;
@@ -382,7 +382,7 @@ void AISpider::Damage(RunListEvent* ev)
             or should code below (action set, b set) happen?
             Other AI doesn't show consistency in this regard (see Scorpion code)
         */
-        if (pTarget && pTarget->s().statnum == 100)
+        if (pTarget && pTarget->spr.statnum == 100)
         {
             spp->pTarget = pTarget;
         }

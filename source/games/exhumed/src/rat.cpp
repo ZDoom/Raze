@@ -240,8 +240,8 @@ void AIRat::Tick(RunListEvent* ev)
             return;
         }
 
-        int xVal = abs(pSprite->x - pTarget->s().x);
-        int yVal = abs(pSprite->y - pTarget->s().y);
+        int xVal = abs(pSprite->x - pTarget->spr.x);
+        int yVal = abs(pSprite->y - pTarget->spr.y);
 
         if (xVal > 50 || yVal > 50)
         {
@@ -293,8 +293,8 @@ void AIRat::Tick(RunListEvent* ev)
 
         MoveCreature(pActor);
 
-        int xVal = abs(pSprite->x - pTarget->s().x);
-        int yVal = abs(pSprite->y - pTarget->s().y);
+        int xVal = abs(pSprite->x - pTarget->spr.x);
+        int yVal = abs(pSprite->y - pTarget->spr.y);
 
         if (xVal >= 50 || yVal >= 50)
         {

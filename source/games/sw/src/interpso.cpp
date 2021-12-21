@@ -113,15 +113,15 @@ static int &getvalue(so_interp::interp_data& element, bool write)
         return SectorObject[index].zmid;
     case soi_sprx:
 		if (element.actorofang)
-			return element.actorofang->s().x;
+			return element.actorofang->spr.x;
         break;
     case soi_spry:
 		if (element.actorofang)
-			return element.actorofang->s().y;
+			return element.actorofang->spr.y;
         break;
     case soi_sprz:
 		if (element.actorofang)
-			return element.actorofang->s().z;
+			return element.actorofang->spr.z;
         break;
     default:
 		break;
@@ -165,7 +165,7 @@ static void so_setspriteanginterpolation(so_interp *interp, DSWActor* actor)
     data->curelement = soi_sprang;
     data->oldipos =
         data->lastipos =
-        data->lastoldipos = actor->s().ang;
+        data->lastoldipos = actor->spr.ang;
     data->lastangdiff = 0;
     data->actorofang = actor;
 }
@@ -211,7 +211,7 @@ void so_addinterpolation(SECTOR_OBJECTp sop)
 
         SWSectIterator it(*sectp);
         while (auto actor = it.Next())
-            if (actor->s().statnum == STAT_VATOR && SP_TAG1(&actor->s()) == SECT_VATOR)
+            if (actor->spr.statnum == STAT_VATOR && SP_TAG1(&actor->s()) == SECT_VATOR)
             {
                 interp->hasvator = true;
                 break;
@@ -294,7 +294,7 @@ void so_updateinterpolations(void) // Stick at beginning of domovethings
                         u->oangdiff = 0;
                     if (!interpolating)
                         data->lastangdiff = 0;
-                    data->oldipos = actorofang->s().ang;
+                    data->oldipos = actorofang->spr.ang;
                 }
             }
             else
@@ -332,7 +332,7 @@ void so_dointerpolations(int32_t smoothratio)                      // Stick at b
                 continue; // target went poof.
 
             interp->data[i].bakipos = (interp->data[i].curelement == soi_sprang) ?
-                                      actorofang->s().ang :
+                                      actorofang->spr.ang :
                                       getvalue(interp->data[i], false);
         }
         if (interp->tic == 0) // Only if the SO has just moved
@@ -391,9 +391,9 @@ void so_dointerpolations(int32_t smoothratio)                      // Stick at b
 				DSWActor* actor = data->actorofang;
                 if (!actor) continue;
                 USERp u = actor->u();
-                if (u && (actor->s().statnum != STAT_DEFAULT) &&
-                    ((TEST(u->Flags, SPR_SKIP4) && (actor->s().statnum <= STAT_SKIP4_INTERP_END)) ||
-                     (TEST(u->Flags, SPR_SKIP2) && (actor->s().statnum <= STAT_SKIP2_INTERP_END))))
+                if (u && (actor->spr.statnum != STAT_DEFAULT) &&
+                    ((TEST(u->Flags, SPR_SKIP4) && (actor->spr.statnum <= STAT_SKIP4_INTERP_END)) ||
+                     (TEST(u->Flags, SPR_SKIP2) && (actor->spr.statnum <= STAT_SKIP2_INTERP_END))))
                     continue;
             }
 
@@ -401,7 +401,7 @@ void so_dointerpolations(int32_t smoothratio)                      // Stick at b
             {
                 DSWActor* actor = data->actorofang;
                 if (!actor) continue;
-                actor->s().ang = NORM_ANGLE(data->lastoldipos + MulScale(data->lastangdiff, ratio, 16));
+                actor->spr.ang = NORM_ANGLE(data->lastoldipos + MulScale(data->lastangdiff, ratio, 16));
             }
             else
             {
@@ -430,7 +430,7 @@ void so_restoreinterpolations(void)                 // Stick at end of drawscree
             if (data->curelement == soi_sprang)
             {
                 auto actorofang = interp->data[i].actorofang;
-                if (actorofang) actorofang->s().ang = data->bakipos;
+                if (actorofang) actorofang->spr.ang = data->bakipos;
             }
             else
                 getvalue(*data, true) = data->bakipos;

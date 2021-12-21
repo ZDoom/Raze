@@ -2191,7 +2191,7 @@ struct ANIMstruct
 			return SectorObject[animindex].zmid;
 		case ANIM_Spritez:
             if (animactor == nullptr) return scratch;
-			return animactor->s().z;
+			return animactor->spr.z;
 		case ANIM_Userz:
             if (animactor == nullptr) return scratch;
             return animactor->u()->sz;

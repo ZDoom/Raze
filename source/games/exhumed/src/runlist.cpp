@@ -1723,7 +1723,7 @@ void runlist_DamageEnemy(DExhumedActor* pActor, DExhumedActor* pActor2, int nDam
     // is there now one less creature? (has one died)
     if (nPreCreaturesKilled < nCreaturesKilled && pActor2 != nullptr)
     {
-        if (pActor2->s().statnum != 100) {
+        if (pActor2->spr.statnum != 100) {
             return;
         }
 
@@ -1734,7 +1734,7 @@ void runlist_DamageEnemy(DExhumedActor* pActor, DExhumedActor* pActor2, int nDam
         {
             // Do a taunt
             auto pPlayerActor = PlayerList[nPlayer].Actor();
-            auto pSector = pPlayerActor->s().sector();
+            auto pSector = pPlayerActor->spr.sector();
 
             if (!(pSector->Flag & kSectUnderwater))
             {

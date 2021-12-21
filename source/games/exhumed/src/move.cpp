@@ -247,7 +247,7 @@ int BelowNear(DExhumedActor* pActor, int x, int y, int walldist)
 
     if (loHit.type == kHitSprite)
     {
-        z2 = loHit.actor()->s().z;
+        z2 = loHit.actor()->spr.z;
     }
     else
     {
@@ -480,7 +480,7 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
 
 int GetActorHeight(DExhumedActor* actor)
 {
-    return tileHeight(actor->s().picnum) * actor->s().yrepeat * 4;
+    return tileHeight(actor->spr.picnum) * actor->spr.yrepeat * 4;
 }
 
 DExhumedActor* insertActor(sectortype* s, int st)
@@ -1122,8 +1122,8 @@ void SetQuake(DExhumedActor* pActor, int nVal)
         auto pPlayerActor = PlayerList[i].Actor();
 
 
-        uint32_t xDiff = abs((int32_t)((pPlayerActor->s().x - x) >> 8));
-        uint32_t yDiff = abs((int32_t)((pPlayerActor->s().y - y) >> 8));
+        uint32_t xDiff = abs((int32_t)((pPlayerActor->spr.x - x) >> 8));
+        uint32_t yDiff = abs((int32_t)((pPlayerActor->spr.y - y) >> 8));
 
         uint32_t sqrtNum = xDiff * xDiff + yDiff * yDiff;
 
@@ -1367,7 +1367,7 @@ DExhumedActor* GrabChunkSprite()
         pActor = insertActor(0, 899);
 		nChunkSprite[nCurChunkNum] = pActor;
     }
-    else if (pActor->s().statnum)
+    else if (pActor->spr.statnum)
     {
 // TODO	MonoOut("too many chunks being used at once!\n");
         return nullptr;
@@ -1382,7 +1382,7 @@ DExhumedActor* GrabChunkSprite()
     if (nChunkTotal < kMaxMoveChunks)
         nChunkTotal++;
 
-    pActor->s().cstat = CSTAT_SPRITE_YCENTER;
+    pActor->spr.cstat = CSTAT_SPRITE_YCENTER;
 
     return pActor;
 }
@@ -1480,7 +1480,7 @@ void AICreatureChunk::Tick(RunListEvent* ev)
             }
             else if (nVal.type == kHitSprite)
             {
-                nAngle = nVal.actor()->s().ang;
+                nAngle = nVal.actor()->spr.ang;
             }
             else if (nVal.type == kHitWall)
             {
@@ -1514,7 +1514,7 @@ DExhumedActor* UpdateEnemy(DExhumedActor** ppEnemy)
 {
     if (*ppEnemy)
     {
-        if (!((*ppEnemy)->s().cstat & CSTAT_SPRITE_BLOCK_ALL)) {
+        if (!((*ppEnemy)->spr.cstat & CSTAT_SPRITE_BLOCK_ALL)) {
             *ppEnemy = nullptr;
         }
     }

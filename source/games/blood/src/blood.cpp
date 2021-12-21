@@ -158,13 +158,13 @@ void PropagateMarkerReferences(void)
 	BloodStatIterator it(kStatMarker);
 	while (auto actor = it.Next())
 	{
-		switch (actor->s().type)
+		switch (actor->spr.type)
 		{
 		case kMarkerOff:
 		case kMarkerAxis:
 		case kMarkerWarpDest:
 		{
-			int nOwner = actor->s().owner;
+			int nOwner = actor->spr.owner;
 			if (validSectorIndex(nOwner))
 			{
 				if (sector[nOwner].hasX())
@@ -177,7 +177,7 @@ void PropagateMarkerReferences(void)
 		break;
 		case kMarkerOn:
 		{
-			int nOwner = actor->s().owner;
+			int nOwner = actor->spr.owner;
 			if (validSectorIndex(nOwner))
 			{
 				if (sector[nOwner].hasX())

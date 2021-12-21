@@ -159,7 +159,7 @@ void AILion::Damage(RunListEvent* ev)
 
             if (pTarget)
             {
-                if (pTarget->s().statnum < 199) {
+                if (pTarget->spr.statnum < 199) {
                     pActor->pTarget = pTarget;
                 }
 
@@ -318,7 +318,7 @@ void AILion::Tick(RunListEvent* ev)
                 }
                 else
                 {
-                    int nAng = getangle(pTarget->s().x - pSprite->x, pTarget->s().y - pSprite->y);
+                    int nAng = getangle(pTarget->spr.x - pSprite->x, pTarget->spr.y - pSprite->y);
 
                     if (AngleDiff(pSprite->ang, nAng) < 64)
                     {
@@ -451,7 +451,7 @@ void AILion::Tick(RunListEvent* ev)
         {
             if (nMov.actor() == pTarget)
             {
-                int nAng = getangle(pTarget->s().x - pSprite->x, pTarget->s().y - pSprite->y);
+                int nAng = getangle(pTarget->spr.x - pSprite->x, pTarget->spr.y - pSprite->y);
                 if (AngleDiff(pSprite->ang, nAng) < 64)
                 {
                     pActor->nAction = 3;
@@ -536,7 +536,7 @@ void AILion::Tick(RunListEvent* ev)
     // loc_379AD: ?
     if (nAction != 1 && pTarget != nullptr)
     {
-        if (!(pTarget->s().cstat & CSTAT_SPRITE_BLOCK_ALL))
+        if (!(pTarget->spr.cstat & CSTAT_SPRITE_BLOCK_ALL))
         {
             pActor->nAction = 1;
             pActor->nFrame = 0;

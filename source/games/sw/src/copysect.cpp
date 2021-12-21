@@ -261,7 +261,7 @@ void CopySectorMatch(int match)
     it.Reset(STAT_COPY_DEST);
     while (auto dActor = it.Next())
     {
-        if (match == dActor->s().lotag)
+        if (match == dActor->spr.lotag)
             KillActor(dActor);
     }
 
@@ -269,7 +269,7 @@ void CopySectorMatch(int match)
     it.Reset(STAT_COPY_SOURCE);
     while (auto sActor = it.Next())
     {
-        if (match == sActor->s().lotag)
+        if (match == sActor->spr.lotag)
             KillActor(sActor);
     }
 

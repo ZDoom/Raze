@@ -260,7 +260,7 @@ void AIScorp::Tick(RunListEvent* ev)
             {
                 if (pTarget == nMov.actor())
                 {
-                    int nAngle = getangle(pTarget->s().x - pSprite->x, pTarget->s().y - pSprite->y);
+                    int nAngle = getangle(pTarget->spr.x - pSprite->x, pTarget->spr.y - pSprite->y);
                     if (AngleDiff(pSprite->ang, nAngle) < 64)
                     {
                         pActor->nAction = 2;
@@ -441,11 +441,11 @@ void AIScorp::Effect(RunListEvent* ev, DExhumedActor* pTarget, int mode)
             pActor->nCount = 45;
 
             if (cansee(pSprite->x, pSprite->y, pSprite->z - GetActorHeight(pActor), pSprite->sector(),
-                pTarget->s().x, pTarget->s().y, pTarget->s().z - GetActorHeight(pTarget), pTarget->s().sector()))
+                pTarget->spr.x, pTarget->spr.y, pTarget->spr.z - GetActorHeight(pTarget), pTarget->spr.sector()))
             {
                 pSprite->xvel = 0;
                 pSprite->yvel = 0;
-                pSprite->ang = GetMyAngle(pTarget->s().x - pSprite->x, pTarget->s().y - pSprite->y);
+                pSprite->ang = GetMyAngle(pTarget->spr.x - pSprite->x, pTarget->spr.y - pSprite->y);
 
                 pActor->nIndex = RandomSize(2) + RandomSize(3);
 
@@ -465,7 +465,7 @@ void AIScorp::Effect(RunListEvent* ev, DExhumedActor* pTarget, int mode)
         return;
     }
 
-    if (!(pTarget->s().cstat & CSTAT_SPRITE_BLOCK_ALL))
+    if (!(pTarget->spr.cstat & CSTAT_SPRITE_BLOCK_ALL))
     {
         pActor->nAction = 0;
         pActor->nFrame = 0;

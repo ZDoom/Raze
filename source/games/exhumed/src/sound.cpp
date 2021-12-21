@@ -478,7 +478,7 @@ void EXSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
             assert(actor != nullptr);
             if (actor != nullptr)
             {
-                *pos = GetSoundPos(&actor->s().pos);
+                *pos = GetSoundPos(&actor->spr.pos);
             }
         }
         if ((chanflags & CHANF_LISTENERZ) && type != SOURCE_None)
@@ -567,9 +567,9 @@ void PlayFX2(int nSound, DExhumedActor* pActor, int sectf, EChanFlags chanflags,
     {
         fullvol = (sprflags & 0x2000) != 0;
         hiprio = (sprflags & 0x4000) != 0;
-        soundx = pActor->s().x;
-        soundy = pActor->s().y;
-        soundz = pActor->s().z;
+        soundx = pActor->spr.x;
+        soundy = pActor->spr.y;
+        soundz = pActor->spr.z;
     }
 
     int nVolume = 255;
@@ -644,7 +644,7 @@ void PlayFX2(int nSound, DExhumedActor* pActor, int sectf, EChanFlags chanflags,
     }
 
     // Nuke: added nSprite >= 0 check
-    if (pActor != PlayerList[nLocalPlayer].Actor() && pActor != nullptr && (pActor->s().cstat & CSTAT_SPRITE_BLOCK_ALL))
+    if (pActor != PlayerList[nLocalPlayer].Actor() && pActor != nullptr && (pActor->spr.cstat & CSTAT_SPRITE_BLOCK_ALL))
         nCreepyTimer = kCreepyCount;
 }
 

@@ -1514,7 +1514,7 @@ void DoPlayerTurnVehicle(PLAYERp pp, float avel, int z, int floor_dist)
         if (MultiClipTurn(pp, NORM_ANGLE(sum.asbuild()), z, floor_dist))
         {
             pp->angle.ang = sum;
-            pp->Actor()->s().ang = pp->angle.ang.asbuild();
+            pp->Actor()->spr.ang = pp->angle.ang.asbuild();
         }
     }
 }
@@ -1542,7 +1542,7 @@ void DoPlayerTurnVehicleRect(PLAYERp pp, int *x, int *y, int *ox, int *oy)
         if (RectClipTurn(pp, NORM_ANGLE(sum.asbuild()), x, y, ox, oy))
         {
             pp->angle.ang = sum;
-            pp->Actor()->s().ang = pp->angle.ang.asbuild();
+            pp->Actor()->spr.ang = pp->angle.ang.asbuild();
         }
     }
 }
@@ -1582,7 +1582,7 @@ void DoPlayerTurnTurret(PLAYERp pp, float avel)
         }
 
         pp->angle.ang = new_ang;
-        pp->Actor()->s().ang = pp->angle.ang.asbuild();
+        pp->Actor()->spr.ang = pp->angle.ang.asbuild();
     }
 
     OperateSectorObject(pp->sop, pp->angle.ang.asbuild(), pp->sop->xmid, pp->sop->ymid);
@@ -3437,7 +3437,7 @@ int DoPlayerWadeSuperJump(PLAYERp pp)
 
             if (hit.hitSector != nullptr && labs(hit.hitSector->floorz - pp->posz) < Z(50))
             {
-                if (Distance(pp->posx, pp->posy, hit.hitpos.x, hit.hitpos.y) < ((((int)pp->Actor()->s().clipdist)<<2) + 256))
+                if (Distance(pp->posx, pp->posy, hit.hitpos.x, hit.hitpos.y) < ((((int)pp->Actor()->spr.clipdist)<<2) + 256))
                     return true;
             }
         }
@@ -3758,7 +3758,7 @@ bool PlayerOnLadder(PLAYERp pp)
 
         if (hit.actor() != nullptr)
         {
-            int cstat = hit.actor()->s().cstat;
+            int cstat = hit.actor()->spr.cstat;
             // if the sprite blocking you hit is not a wall sprite there is something between
             // you and the ladder
             if (TEST(cstat, CSTAT_SPRITE_BLOCK) &&
@@ -4335,7 +4335,7 @@ void DoPlayerStopDiveNoWarp(PLAYERp pp)
     RESET(pp->Flags, PF_DIVING|PF_DIVING_IN_LAVA);
     DoPlayerDivePalette(pp);
     DoPlayerNightVisionPalette(pp);
-    RESET(pp->Actor()->s().cstat, CSTAT_SPRITE_YCENTER);
+    RESET(pp->Actor()->spr.cstat, CSTAT_SPRITE_YCENTER);
     if (pp == Player + screenpeek)
     {
         COVER_SetReverb(0);
@@ -4625,7 +4625,7 @@ void DoPlayerCurrent(PLAYERp pp)
     xvect = sectu->speed * synctics * bcos(sectu->ang) >> 4;
     yvect = sectu->speed * synctics * bsin(sectu->ang) >> 4;
 
-    push_ret = pushmove(&pp->pos, &pp->cursector, ((int)pp->Actor()->s().clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
+    push_ret = pushmove(&pp->pos, &pp->cursector, ((int)pp->Actor()->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!TEST(pp->Flags, PF_DEAD))
@@ -4641,10 +4641,10 @@ void DoPlayerCurrent(PLAYERp pp)
         return;
     }
     Collision coll;
-    clipmove(pp->pos, &pp->cursector, xvect, yvect, ((int)pp->Actor()->s().clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER, coll);
+    clipmove(pp->pos, &pp->cursector, xvect, yvect, ((int)pp->Actor()->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER, coll);
 
     PlayerCheckValidMove(pp);
-    pushmove(&pp->pos, &pp->cursector, ((int)pp->Actor()->s().clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
+    pushmove(&pp->pos, &pp->cursector, ((int)pp->Actor()->spr.clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!TEST(pp->Flags, PF_DEAD))
@@ -5003,7 +5003,7 @@ void DoPlayerBeginOperate(PLAYERp pp)
     // look for gun before trying to using it
     for (i = 0; sop->so_actors[i] != nullptr; i++)
     {
-        if (sop->so_actors[i]->s().statnum == STAT_SO_SHOOT_POINT)
+        if (sop->so_actors[i]->spr.statnum == STAT_SO_SHOOT_POINT)
         {
             SET(sop->flags, SOBJ_HAS_WEAPON);
             break;
@@ -5088,7 +5088,7 @@ void DoPlayerBeginRemoteOperate(PLAYERp pp, SECTOR_OBJECTp sop)
     // look for gun before trying to using it
     for (i = 0; sop->so_actors[i] != nullptr; i++)
     {
-        if (sop->so_actors[i]->s().statnum == STAT_SO_SHOOT_POINT)
+        if (sop->so_actors[i]->spr.statnum == STAT_SO_SHOOT_POINT)
         {
             SET(sop->flags, SOBJ_HAS_WEAPON);
             break;
@@ -6537,7 +6537,7 @@ void MoveSkipSavePos(void)
     // back up all sprite angles.
     while (auto actor = it.Next())
     {
-        actor->s().backupang();
+        actor->spr.backupang();
     }
 }
 
@@ -7047,7 +7047,7 @@ void InitMultiPlayerInfo(void)
 
         auto start0 = SpawnActor(MultiStatList[stat], ST1, nullptr, pp->cursector, pp->posx, pp->posy, pp->posz, pp->angle.ang.asbuild(), 0);
         start0->clearUser();
-        start0->s().picnum = ST1;
+        start0->spr.picnum = ST1;
     }
 
     memset(SpawnPositionUsed,0,sizeof(SpawnPositionUsed));

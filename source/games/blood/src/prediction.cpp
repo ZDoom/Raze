@@ -348,7 +348,7 @@ void fakePlayerProcess(PLAYER *pPlayer, InputPacket *pInput)
 		predict.at72 = 1;
         int nSector = predict.sector;
         auto nLink = getLowerLink(nSector);
-		if (nLink && (nLink->s().type == kMarkerLowGoo || nLink->s().type == kMarkerLowWater))
+		if (nLink && (nLink->spr.type == kMarkerLowGoo || nLink->spr.type == kMarkerLowWater))
 		{
 			if (getceilzofslope(nSector, predict.x, predict.y) > predict.viewz)
 				predict.at72 = 0;
@@ -438,9 +438,9 @@ static void fakeMoveDude(spritetype *pSprite)
     }
     auto nUpperLink = getUpperLink(nSector);
     auto nLowerLink = getLowerLink(nSector);
-    if (nUpperLink >= 0 && (nUpperLink->s().type == kMarkerUpWater || nUpperLink->s().type == kMarkerUpGoo))
+    if (nUpperLink >= 0 && (nUpperLink->spr.type == kMarkerUpWater || nUpperLink->spr.type == kMarkerUpGoo))
         bDepth = 1;
-    if (nLowerLink >= 0 && (nLowerLink->s().type == kMarkerLowWater || nLowerLink->s().type == kMarkerLowGoo))
+    if (nLowerLink >= 0 && (nLowerLink->spr.type == kMarkerLowWater || nLowerLink->spr.type == kMarkerLowGoo))
         bDepth = 1;
     if (pPlayer)
         wd += 16;
@@ -548,10 +548,10 @@ static void fakeMoveDude(spritetype *pSprite)
         if (floorColl.type == kHitSprite)
         {
             auto hitactor = floorColl.actor;
-            if ((hitactor->s().cstat & 0x30) == 0)
+            if ((hitactor->spr.cstat & 0x30) == 0)
             {
-                predict.xvel += MulScale(4, predict.x - hitactor->s().x, 2);
-                predict.yvel += MulScale(4, predict.y - hitactor->s().y, 2);
+                predict.xvel += MulScale(4, predict.x - hitactor->spr.x, 2);
+                predict.yvel += MulScale(4, predict.y - hitactor->spr.y, 2);
                 return;
             }
         }

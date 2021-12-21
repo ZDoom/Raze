@@ -103,10 +103,10 @@ void VisViewChange(PLAYERp pp, int *vis)
         auto own = GetOwner(actor);
         if (own != nullptr)
         {
-            x = own->s().x;
-            y = own->s().y;
-            z = own->s().z;
-            sectp = own->s().sector();
+            x = own->spr.x;
+            y = own->spr.y;
+            z = own->spr.z;
+            sectp = own->spr.sector();
         }
         else
         {

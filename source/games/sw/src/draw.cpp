@@ -301,7 +301,7 @@ void DoShadows(tspritetype* tsprite, int& spritesortcnt, tspriteptr_t tsp, int v
     loz = tu->loz;
     if (tu->lowActor)
     {
-        if (!TEST(tu->lowActor->s().cstat, CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_ALIGNMENT_FLOOR))
+        if (!TEST(tu->lowActor->spr.cstat, CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_ALIGNMENT_FLOOR))
         {
             loz = DoShadowFindGroundPoint(tsp);
         }
@@ -762,7 +762,7 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
             {
                 tsp->pal = PALETTE_RED_LIGHTING;
                 // Turn it off, it gets reset by PrintSpriteInfo
-                tActor->s().hitag = 0;
+                tActor->spr.hitag = 0;
             }
         }
 
@@ -1254,7 +1254,7 @@ void PreDraw(void)
     SWStatIterator it(STAT_FLOOR_SLOPE_DONT_DRAW);
     while (auto actor = it.Next())
     {
-        RESET(actor->s().sector()->floorstat, CSTAT_SECTOR_SLOPE);
+        RESET(actor->spr.sector()->floorstat, CSTAT_SECTOR_SLOPE);
     }
 }
 
@@ -1264,7 +1264,7 @@ void PostDraw(void)
     SWStatIterator it(STAT_FLOOR_SLOPE_DONT_DRAW);
     while (auto actor = it.Next())
     {
-        SET(actor->s().sector()->floorstat, CSTAT_SECTOR_SLOPE);
+        SET(actor->spr.sector()->floorstat, CSTAT_SECTOR_SLOPE);
     }
 
     it.Reset(STAT_FAF_COPY);
@@ -1280,7 +1280,7 @@ void PreDrawStackedWater(void)
     SWStatIterator it(STAT_CEILING_FLOOR_PIC_OVERRIDE);
     while (auto itActor = it.Next())
     {
-        SWSectIterator it2(itActor->s().sector());
+        SWSectIterator it2(itActor->spr.sector());
         while (auto itActor2 = it2.Next())
         {
             if (itActor2->hasU())

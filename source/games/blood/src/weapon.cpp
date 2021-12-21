@@ -1713,7 +1713,7 @@ void FireLifeLeech(int nTrigger, PLAYER *pPlayer)
     if (missileActor)
     {
         missileActor->SetTarget(pPlayer->aimTarget);
-        missileActor->s().ang = (nTrigger==2) ? 1024 : 0;
+        missileActor->spr.ang = (nTrigger==2) ? 1024 : 0;
     }
     if (checkAmmo2(pPlayer, 8, 1))
         UseAmmo(pPlayer, 8, 1);
@@ -2462,7 +2462,7 @@ void WeaponProcess(PLAYER *pPlayer) {
             {
             }
             pPlayer->voodooTarget = pPlayer->aimTarget;
-            if (pPlayer->voodooTarget == nullptr || pPlayer->voodooTarget->s().statnum != kStatDude)
+            if (pPlayer->voodooTarget == nullptr || pPlayer->voodooTarget->spr.statnum != kStatDude)
                 i = 4;
             StartQAV(pPlayer,kQAVVDFIRE1 + i, nClientFireVoodoo);
             return;
@@ -2672,7 +2672,7 @@ void teslaHit(DBloodActor *missileactor, int a2)
     bool v4 = true;
     DBloodActor* actor = nullptr;
     actHitcodeToData(a2, &gHitInfo, &actor);
-    if (a2 == 3 && actor && actor->s().statnum == kStatDude)
+    if (a2 == 3 && actor && actor->spr.statnum == kStatDude)
         v4 = false;
     BloodStatIterator it(kStatDude);
     while (auto hitactor = it.Next())

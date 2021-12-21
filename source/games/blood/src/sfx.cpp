@@ -93,7 +93,7 @@ void BloodSoundEngine::CalcPosVel(int type, const void* source, const float pt[3
 
             // Engine expects velocity in units per second, not units per tic.
             if (vel) *vel = { actor->xvel * (30 / 65536.f), actor->zvel * (-30 / 65536.f), actor->yvel * (-30 / 65536.f) };
-            *pos = GetSoundPos(&actor->s().pos);
+            *pos = GetSoundPos(&actor->spr.pos);
         }
         else if (type == SOURCE_Ambient)
         {
@@ -174,7 +174,7 @@ void sfxPlay3DSoundCP(DBloodActor* pActor, int soundId, int playchannel, int pla
     auto sid = soundEngine->FindSoundByResID(soundId);
     if (sid == 0) return;
 
-    auto svec = GetSoundPos(&pActor->s().pos);
+    auto svec = GetSoundPos(&pActor->spr.pos);
 
     float attenuation;
     sid = getSfx(sid, attenuation, pitch, volume);

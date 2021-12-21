@@ -557,7 +557,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
         pEgg->pActor = enemy;
         pEgg->pTarget = pTarget;
 
-        if (pTarget && (pTarget->s().cstat & CSTAT_SPRITE_BLOCK_ALL) == 0)
+        if (pTarget && (pTarget->spr.cstat & CSTAT_SPRITE_BLOCK_ALL) == 0)
         {
             pEgg->pTarget = nullptr;
             pEgg->nAction = 0;
@@ -599,7 +599,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
                 nAngle = GetWallNormal(nMov.hitWall);
                 break;
             case kHitSprite:
-                nAngle = nMov.actor()->s().ang;
+                nAngle = nMov.actor()->spr.ang;
                 break;
             }
 
@@ -629,7 +629,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
         switch (nMov.type)
         {
         case kHitSprite:
-            if (nMov.actor()->s().statnum != 121)
+            if (nMov.actor()->spr.statnum != 121)
             {
                 runlist_DamageEnemy(nMov.actor(), pActor, 5);
             }
@@ -663,7 +663,7 @@ void AIQueenEgg::Tick(RunListEvent* ev)
         if (pEgg->nCounter <= 0)
         {
             auto pWaspSprite = BuildWasp(nullptr, pSprite->x, pSprite->y, pSprite->z, pSprite->sector(), pSprite->ang, true);
-            pSprite->z = pWaspSprite->s().z;
+            pSprite->z = pWaspSprite->spr.z;
 
             DestroyEgg(nEgg);
         }
@@ -794,7 +794,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
 
     if (pTarget)
     {
-        if (!(pTarget->s().cstat & CSTAT_SPRITE_BLOCK_ALL))
+        if (!(pTarget->spr.cstat & CSTAT_SPRITE_BLOCK_ALL))
         {
             pTarget = nullptr;
             QueenHead.pTarget = pTarget;
@@ -834,7 +834,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
 
             if (nMov.exbits == 0)
             {
-                if (nMov.type == kHitSprite) nNewAng = nMov.actor()->s().ang;
+                if (nMov.type == kHitSprite) nNewAng = nMov.actor()->spr.ang;
                 else if (nMov.type == kHitWall) nNewAng = GetWallNormal(nMov.hitWall);
             }
             else if (nMov.exbits == kHitAux2)
@@ -880,7 +880,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
         [[fallthrough]];
 
     case 1:
-        if ((pTarget->s().z - 51200) > pSprite->z)
+        if ((pTarget->spr.z - 51200) > pSprite->z)
         {
             QueenHead.nAction = 4;
             QueenHead.nFrame = 0;
@@ -1348,7 +1348,7 @@ void AIQueen::Tick(RunListEvent* ev)
         // loc_35BD2
         if (nAction && pTarget != nullptr)
         {
-            if (!(pTarget->s().cstat & CSTAT_SPRITE_BLOCK_ALL))
+            if (!(pTarget->spr.cstat & CSTAT_SPRITE_BLOCK_ALL))
             {
                 QueenList[nQueen].nAction = 0;
                 QueenList[nQueen].nFrame = 0;
@@ -1420,16 +1420,16 @@ void AIQueen::Tick(RunListEvent* ev)
                     {
                         auto pChunkActor = BuildCreatureChunk(pActor, seq_GetSeqPicnum(kSeqQueen, 57, 0));
 
-                        pChunkActor->s().picnum = kQueenChunk + (i % 3);
-                        pChunkActor->s().xrepeat = 100;
-                        pChunkActor->s().yrepeat = 100;
+                        pChunkActor->spr.picnum = kQueenChunk + (i % 3);
+                        pChunkActor->spr.xrepeat = 100;
+                        pChunkActor->spr.yrepeat = 100;
                     }
 
                     auto pChunkActor = BuildCreatureChunk(pActor, seq_GetSeqPicnum(kSeqQueen, 57, 0));
 
-                    pChunkActor->s().picnum = kTile3126;
-                    pChunkActor->s().yrepeat = 100;
-                    pChunkActor->s().xrepeat = 100;
+                    pChunkActor->spr.picnum = kTile3126;
+                    pChunkActor->spr.yrepeat = 100;
+                    pChunkActor->spr.xrepeat = 100;
 
                     PlayFXAtXYZ(
                         StaticSound[kSound40],

@@ -89,7 +89,7 @@ DSWActor* WarpPlane(int32_t* x, int32_t* y, int32_t* z, sectortype** sect)
 
     if (sp_ceiling)
     {
-        if (*z <= sp_ceiling->s().z)
+        if (*z <= sp_ceiling->spr.z)
         {
             return WarpToArea(sp_ceiling, x, y, z, sect);
         }
@@ -97,7 +97,7 @@ DSWActor* WarpPlane(int32_t* x, int32_t* y, int32_t* z, sectortype** sect)
 
     if (sp_floor)
     {
-        if (*z >= sp_floor->s().z)
+        if (*z >= sp_floor->spr.z)
         {
             return WarpToArea(sp_floor, x, y, z, sect);
         }

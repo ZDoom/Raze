@@ -223,7 +223,7 @@ bool TestSlidorMatchActive(short match)
 
 void DoSlidorInterp(DSWActor* actor, INTERP_FUNC interp_func)
 {
-    auto sp = actor->s().sector();
+    auto sp = actor->spr.sector();
 
     // this code is just weird.
     auto startWall = sp->firstWall();
@@ -275,7 +275,7 @@ void DoSlidorInterp(DSWActor* actor, INTERP_FUNC interp_func)
 
 int DoSlidorMoveWalls(DSWActor* actor, int amt)
 {
-    auto sp = actor->s().sector();
+    auto sp = actor->spr.sector();
 
     // this code is just weird.
     auto startWall = sp->firstWall();

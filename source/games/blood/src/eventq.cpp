@@ -493,7 +493,7 @@ void evSend(EventObject& eob, int rxId, COMMAND_ID command)
 			{
 				auto actor = eo.actor();
 
-				if (actor && actor->hasX() && !(actor->s().flags & 32))
+				if (actor && actor->hasX() && !(actor->spr.flags & 32))
 				{
 					if (actor->x().rxID > 0)
 						trMessageSprite(actor, event);
@@ -638,7 +638,7 @@ void evProcess(unsigned int time)
 		if (event.target.isActor())
 		{
 			// Don't call events on destroyed actors. Seems to happen occasionally.
-			if (!event.target.actor() || event.target.actor()->s().statnum == kStatFree) continue;
+			if (!event.target.actor() || event.target.actor()->spr.statnum == kStatFree) continue;
 		}
 
 		if (event.cmd == kCmdCallback)

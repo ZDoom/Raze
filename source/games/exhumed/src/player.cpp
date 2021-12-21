@@ -612,7 +612,7 @@ static void pickupMessage(int no)
 void UpdatePlayerSpriteAngle(Player* pPlayer)
 {
     inita = pPlayer->angle.ang.asbuild();
-    if (pPlayer->Actor()) pPlayer->Actor()->s().ang = inita;
+    if (pPlayer->Actor()) pPlayer->Actor()->spr.ang = inita;
 }
 
 void AIPlayer::Draw(RunListEvent* ev)
@@ -711,7 +711,7 @@ void AIPlayer::Damage(RunListEvent* ev)
     else
     {
         // player has died
-        if (pActor2 && pActor2->s().statnum == 100)
+        if (pActor2 && pActor2->spr.statnum == 100)
         {
             int nPlayer2 = GetPlayerFromActor(pActor2);
 
@@ -781,7 +781,7 @@ void AIPlayer::Tick(RunListEvent* ev)
     int var_EC = PlayerList[nPlayer].nSeqSize;
 
     pPlayerSprite->picnum = seq_GetSeqPicnum(PlayerList[nPlayer].nSeq, PlayerSeq[nHeightTemplate[nAction]].a, var_EC);
-    pDopple->s().picnum = pPlayerSprite->picnum;
+    pDopple->spr.picnum = pPlayerSprite->picnum;
 
     if (PlayerList[nPlayer].nTorch > 0)
     {
@@ -820,7 +820,7 @@ void AIPlayer::Tick(RunListEvent* ev)
             DExhumedActor* pFloorSprite = PlayerList[nPlayer].pPlayerFloorSprite;
 
             if (pFloorSprite != nullptr) {
-                pFloorSprite->s().cstat &= ~CSTAT_SPRITE_BLOCK; // set visible
+                pFloorSprite->spr.cstat &= ~CSTAT_SPRITE_BLOCK; // set visible
             }
         }
         else if (PlayerList[nPlayer].nInvisible == 150 && nPlayer == nLocalPlayer)
@@ -1326,7 +1326,7 @@ sectdone:
         feebtag(pPlayerSprite->x, pPlayerSprite->y, pPlayerSprite->z, pPlayerSprite->sector(), &pActorB, var_30, 768);
 
         // Item pickup code
-        if (pActorB != nullptr && pActorB->s().statnum >= 900)
+        if (pActorB != nullptr && pActorB->spr.statnum >= 900)
         {
             auto pSpriteB = &pActorB->s();
             int var_8C = 16;
@@ -2609,17 +2609,17 @@ sectdone:
     }
 
     // loc_1C4E1
-    pDopple->s().pos = pPlayerSprite->pos;
+    pDopple->spr.pos = pPlayerSprite->pos;
 
     if (pPlayerSprite->sector()->pAbove != nullptr)
     {
-        pDopple->s().ang = pPlayerSprite->ang;
+        pDopple->spr.ang = pPlayerSprite->ang;
         ChangeActorSect(pDopple, pPlayerSprite->sector()->pAbove);
-        pDopple->s().cstat = CSTAT_SPRITE_BLOCK_ALL;
+        pDopple->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
     }
     else
     {
-        pDopple->s().cstat = CSTAT_SPRITE_INVISIBLE;
+        pDopple->spr.cstat = CSTAT_SPRITE_INVISIBLE;
     }
 
     MoveWeapons(nPlayer);
@@ -2774,7 +2774,7 @@ DEFINE_ACTION_FUNCTION(_ExhumedPlayer, IsUnderwater)
 DEFINE_ACTION_FUNCTION(_ExhumedPlayer, GetAngle)
 {
     PARAM_SELF_STRUCT_PROLOGUE(Player);
-    ACTION_RETURN_INT(self->Actor()->s().ang);
+    ACTION_RETURN_INT(self->Actor()->spr.ang);
 }
 
 

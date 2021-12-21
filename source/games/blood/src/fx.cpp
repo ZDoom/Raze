@@ -155,7 +155,7 @@ DBloodActor* CFX::fxSpawnActor(FX_ID nFx, sectortype* pSector, int x, int y, int
     {
         BloodStatIterator it(kStatFX);
         auto iactor = it.Next();
-        while (iactor && (iactor->s().flags & 32))
+        while (iactor && (iactor->spr.flags & 32))
             iactor = it.Next();
         if (!iactor)
             return nullptr;
@@ -266,7 +266,7 @@ void fxSpawnBlood(DBloodActor *actor, int )
     auto bloodactor = gFX.fxSpawnActor(FX_27, pSprite->sector(), pSprite->x, pSprite->y, pSprite->z, 0);
     if (bloodactor)
     {
-        bloodactor->s().ang = 1024;
+        bloodactor->spr.ang = 1024;
         bloodactor->xvel = Random2(0x6aaaa);
         bloodactor->yvel = Random2(0x6aaaa);
         bloodactor->zvel = -(int)Random(0x10aaaa)-100;
@@ -291,7 +291,7 @@ void fxSpawnPodStuff(DBloodActor* actor, int )
         spawnactor = gFX.fxSpawnActor(FX_54, pSprite->sector(), pSprite->x, pSprite->y, pSprite->z, 0);
     if (spawnactor)
     {
-        spawnactor->s().ang = 1024;
+        spawnactor->spr.ang = 1024;
         spawnactor->xvel = Random2(0x6aaaa);
         spawnactor->yvel = Random2(0x6aaaa);
         spawnactor->zvel = -(int)Random(0x10aaaa)-100;
@@ -310,7 +310,7 @@ void fxSpawnEjectingBrass(DBloodActor* actor, int z, int a3, int a4)
     if (pBrass)
     {
         if (!VanillaMode())
-            pBrass->s().ang = Random(2047);
+            pBrass->spr.ang = Random(2047);
         int nDist = (a4 << 18) / 120 + Random2(((a4 / 4) << 18) / 120);
         int nAngle = pSprite->ang + Random2(56) + 512;
         pBrass->xvel = MulScale(nDist, Cos(nAngle), 30);
@@ -330,7 +330,7 @@ void fxSpawnEjectingShell(DBloodActor* actor, int z, int a3, int a4)
     if (pShell)
     {
         if (!VanillaMode())
-            pShell->s().ang = Random(2047);
+            pShell->spr.ang = Random(2047);
         int nDist = (a4 << 18) / 120 + Random2(((a4 / 4) << 18) / 120);
         int nAngle = pSprite->ang + Random2(56) + 512;
         pShell->xvel = MulScale(nDist, Cos(nAngle), 30);

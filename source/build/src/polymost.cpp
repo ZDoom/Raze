@@ -3240,7 +3240,7 @@ void polymost_drawsprite(int32_t snum)
             break;
     }
 
-    actor->s().cstat2 |= CSTAT2_SPRITE_MAPPED;
+    actor->spr.cstat2 |= CSTAT2_SPRITE_MAPPED;
 
 _drawsprite_return:
     ;
@@ -3811,7 +3811,7 @@ int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr, bool rotate)
 
     k0 = m->bscale / 64.f;
     f = (float)tspr->xrepeat * (256.f / 320.f) * k0;
-    if ((tspr->ownerActor->s().cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_WALL)
+    if ((tspr->ownerActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_WALL)
     {
         f *= 1.25f;
         a0.Y -= tspr->xoffset * bcosf(tspr->ownerActor->sx().angoff, -20);
@@ -3827,7 +3827,7 @@ int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr, bool rotate)
     m0.Z *= f; a0.Z *= f;
 
     k0 = (float)(tspr->z + tspr->ownerActor->sx().position_offset.z);
-    f = ((globalorientation & 8) && (tspr->ownerActor->s().cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != 0) ? -4.f : 4.f;
+    f = ((globalorientation & 8) && (tspr->ownerActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != 0) ? -4.f : 4.f;
     k0 -= (tspr->yoffset * tspr->yrepeat) * f * m->bscale;
     zoff = m->siz.z * .5f;
     if (!(tspr->cstat & CSTAT_SPRITE_YCENTER))

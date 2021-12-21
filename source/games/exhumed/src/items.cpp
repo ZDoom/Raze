@@ -128,11 +128,11 @@ void BuildItemAnim(DExhumedActor* pActor)
         auto pAnimActor = BuildAnim(pActor, 41, nItemAnimInfo[nItem].a, pSprite->x, pSprite->y, pSprite->z, pSprite->sector(), nItemAnimInfo[nItem].repeat, 20);
 
         if (nItem == 44) {
-            pAnimActor->s().cstat |= CSTAT_SPRITE_TRANSLUCENT;
+            pAnimActor->spr.cstat |= CSTAT_SPRITE_TRANSLUCENT;
         }
 
         ChangeActorStat(pAnimActor, pSprite->statnum);
-        pAnimActor->s().hitag = pSprite->hitag;
+        pAnimActor->spr.hitag = pSprite->hitag;
         pSprite->owner = 0;
     }
     else
@@ -145,7 +145,7 @@ void BuildItemAnim(DExhumedActor* pActor)
 
 void DestroyItemAnim(DExhumedActor* actor)
 {
-    if (actor && actor->s().owner >= 0) 
+    if (actor && actor->spr.owner >= 0) 
         DestroyAnim(actor);
 }
 
@@ -352,7 +352,7 @@ void DropMagic(DExhumedActor* pActor)
 
         if (pAnimActor)
         {
-            AddFlash(pAnimActor->s().sector(), pAnimActor->s().x, pAnimActor->s().y, pAnimActor->s().z, 128);
+            AddFlash(pAnimActor->spr.sector(), pAnimActor->spr.x, pAnimActor->spr.y, pAnimActor->spr.z, 128);
             ChangeActorStat(pAnimActor, 950);
         }
         nMagicCount = RandomSize(2);

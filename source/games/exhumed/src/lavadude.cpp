@@ -99,7 +99,7 @@ void AILavaDudeLimb::Draw(RunListEvent* ev)
 {
     auto pActor = ev->pObjActor;
     if (!pActor) return;
-    seq_PlotSequence(ev->nParam, (SeqOffsets[kSeqLavag] + 30) + pActor->s().picnum, 0, 1);
+    seq_PlotSequence(ev->nParam, (SeqOffsets[kSeqLavag] + 30) + pActor->spr.picnum, 0, 1);
 }
 
 
@@ -202,7 +202,7 @@ void AILavaDude::Damage(RunListEvent* ev)
 
         if (pTarget)
         {
-            if (pTarget->s().statnum < 199)
+            if (pTarget->spr.statnum < 199)
             {
                 pActor->pTarget = pTarget;
             }
@@ -259,7 +259,7 @@ void AILavaDude::Tick(RunListEvent* ev)
 
     if (pTarget && nAction < 4)
     {
-        if (!(pTarget->s().cstat & CSTAT_SPRITE_BLOCK_ALL) || pTarget->s().statnum == MAXSTATUS)
+        if (!(pTarget->spr.cstat & CSTAT_SPRITE_BLOCK_ALL) || pTarget->spr.statnum == MAXSTATUS)
         {
             pTarget = nullptr;
             pActor->pTarget = nullptr;
@@ -327,7 +327,7 @@ void AILavaDude::Tick(RunListEvent* ev)
         {
             if (coll.actor() == pTarget)
             {
-                int nAng = getangle(pTarget->s().x - pSprite->x, pTarget->s().y - pSprite->y);
+                int nAng = getangle(pTarget->spr.x - pSprite->x, pTarget->spr.y - pSprite->y);
                 if (AngleDiff(pSprite->ang, nAng) < 64)
                 {
                     pActor->nAction = 2;

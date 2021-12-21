@@ -527,11 +527,11 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
                 if (!actor) return 2;
                 auto link = actor->GetOwner();
                 gHitInfo.clearObj();
-                x1 = gHitInfo.hitpos.x + link->s().x - actor->s().x;
-                y1 = gHitInfo.hitpos.y + link->s().y - actor->s().y;
-                z1 = gHitInfo.hitpos.z + link->s().z - actor->s().z;
+                x1 = gHitInfo.hitpos.x + link->spr.x - actor->spr.x;
+                y1 = gHitInfo.hitpos.y + link->spr.y - actor->spr.y;
+                z1 = gHitInfo.hitpos.z + link->spr.z - actor->spr.z;
                 pos = { x1, y1, z1 };
-                hitscan(pos, link->s().sector(), { dx, dy, dz << 4 }, gHitInfo, CLIPMASK1);
+                hitscan(pos, link->spr.sector(), { dx, dy, dz << 4 }, gHitInfo, CLIPMASK1);
 
                 continue;
             }
@@ -541,11 +541,11 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
                 if (!actor) return 1;
                 auto link = actor->GetOwner();
                 gHitInfo.clearObj();
-                x1 = gHitInfo.hitpos.x + link->s().x - actor->s().x;
-                y1 = gHitInfo.hitpos.y + link->s().y - actor->s().y;
-                z1 = gHitInfo.hitpos.z + link->s().z - actor->s().z;
+                x1 = gHitInfo.hitpos.x + link->spr.x - actor->spr.x;
+                y1 = gHitInfo.hitpos.y + link->spr.y - actor->spr.y;
+                z1 = gHitInfo.hitpos.z + link->spr.z - actor->spr.z;
                 pos = { x1, y1, z1 };
-                hitscan(pos, link->s().sector(), { dx, dy, dz << 4 }, gHitInfo, CLIPMASK1);
+                hitscan(pos, link->spr.sector(), { dx, dy, dz << 4 }, gHitInfo, CLIPMASK1);
                 continue;
             }
         }
@@ -578,9 +578,9 @@ void GetZRange(DBloodActor *actor, int *ceilZ, Collision *ceilColl, int *floorZ,
         if (actor)
         {
             auto link = actor->GetOwner();
-            vec3_t lpos = pSprite->pos + link->s().pos - actor->s().pos;
-            getzrange(lpos, link->s().sector(), &nTemp1, scratch, (int32_t*)floorZ, *floorColl, nDist, nMask);
-            *floorZ -= link->s().z - actor->s().z;
+            vec3_t lpos = pSprite->pos + link->spr.pos - actor->spr.pos;
+            getzrange(lpos, link->spr.sector(), &nTemp1, scratch, (int32_t*)floorZ, *floorColl, nDist, nMask);
+            *floorZ -= link->spr.z - actor->spr.z;
         }
     }
     if (ceilColl->type == kHitSector)
@@ -592,9 +592,9 @@ void GetZRange(DBloodActor *actor, int *ceilZ, Collision *ceilColl, int *floorZ,
         if (actor)
         {
             auto link = actor->GetOwner();
-            vec3_t lpos = pSprite->pos + link->s().pos - actor->s().pos;
-            getzrange(lpos, link->s().sector(), (int32_t*)ceilZ, *ceilColl, &nTemp1, scratch, nDist, nMask);
-            *ceilZ -= link->s().z - actor->s().z;
+            vec3_t lpos = pSprite->pos + link->spr.pos - actor->spr.pos;
+            getzrange(lpos, link->spr.sector(), (int32_t*)ceilZ, *ceilColl, &nTemp1, scratch, nDist, nMask);
+            *ceilZ -= link->spr.z - actor->spr.z;
         }
     }
     pSprite->cstat = bakCstat;
@@ -620,9 +620,9 @@ void GetZRangeAtXYZ(int x, int y, int z, sectortype* pSector, int *ceilZ, Collis
         if (actor)
         {
             auto link = actor->GetOwner();
-            vec3_t newpos = lpos + link->s().pos - actor->s().pos;
-            getzrange(newpos, link->s().sector(), &nTemp1, scratch, (int32_t*)floorZ, *floorColl, nDist, nMask);
-            *floorZ -= link->s().z - actor->s().z;
+            vec3_t newpos = lpos + link->spr.pos - actor->spr.pos;
+            getzrange(newpos, link->spr.sector(), &nTemp1, scratch, (int32_t*)floorZ, *floorColl, nDist, nMask);
+            *floorZ -= link->spr.z - actor->spr.z;
         }
     }
     if (ceilColl->type == kHitSector)
@@ -634,9 +634,9 @@ void GetZRangeAtXYZ(int x, int y, int z, sectortype* pSector, int *ceilZ, Collis
         if (actor)
         {
             auto link = actor->GetOwner();
-            vec3_t newpos = lpos + link->s().pos - actor->s().pos;
-            getzrange(newpos, link->s().sector(), (int32_t*)ceilZ, *ceilColl, &nTemp1, scratch, nDist, nMask);
-            *ceilZ -= link->s().z - actor->s().z;
+            vec3_t newpos = lpos + link->spr.pos - actor->spr.pos;
+            getzrange(newpos, link->spr.sector(), (int32_t*)ceilZ, *ceilColl, &nTemp1, scratch, nDist, nMask);
+            *ceilZ -= link->spr.z - actor->spr.z;
         }
     }
 }

@@ -603,7 +603,7 @@ int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
         nBase++;
     }
 
-    if (!(pTSprite->cstat & CSTAT_SPRITE_BLOCK_ALL) || (pOwner->s().statnum == 100 && nNetPlayerCount))
+    if (!(pTSprite->cstat & CSTAT_SPRITE_BLOCK_ALL) || (pOwner->spr.statnum == 100 && nNetPlayerCount))
     {
         pTSprite->ownerActor = nullptr;
     }
