@@ -48,7 +48,6 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 {
 	int j, k, p;
 	int l, t1, t3, t4;
-	spritetype* s;
 	tspritetype* t;
 	DDukeActor* h;
 
@@ -56,7 +55,6 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 	{
 		t = &tsprite[j];
 		h = static_cast<DDukeActor*>(t->ownerActor);
-		s = h->s;
 
 		switch (t->picnum)
 		{
@@ -93,7 +91,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 				t->cstat |= CSTAT_SPRITE_XFLIP;
 			}
 			else t->cstat &= ~CSTAT_SPRITE_XFLIP;
-			t->picnum = s->picnum + k;
+			t->picnum = h->spr.picnum + k;
 			break;
 		case BLOODSPLAT1:
 		case BLOODSPLAT2:
@@ -143,11 +141,10 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 	{
 		t = &tsprite[j];
 		h = static_cast<DDukeActor*>(t->ownerActor);
-		s = h->s;
 		auto OwnerAc = h->GetOwner();
 		auto Owner = OwnerAc ? OwnerAc->s : nullptr;
 
-		switch (s->picnum)
+		switch (h->spr.picnum)
 		{
 		case SECTOREFFECTOR:
 			if (t->lotag == 27 && ud.recstat == 1)
@@ -167,24 +164,24 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 		}
 
 		if (t->statnum == 99) continue;
-		if (s->statnum != STAT_ACTOR && s->picnum == APLAYER && ps[s->yvel].newOwner == nullptr && h->GetOwner())
+		if (h->spr.statnum != STAT_ACTOR && h->spr.picnum == APLAYER && ps[h->spr.yvel].newOwner == nullptr && h->GetOwner())
 		{
-			t->x -= MulScale(MaxSmoothRatio - smoothratio, ps[s->yvel].pos.x - ps[s->yvel].oposx, 16);
-			t->y -= MulScale(MaxSmoothRatio - smoothratio, ps[s->yvel].pos.y - ps[s->yvel].oposy, 16);
-			t->z = interpolatedvalue(ps[s->yvel].oposz, ps[s->yvel].pos.z, smoothratio);
+			t->x -= MulScale(MaxSmoothRatio - smoothratio, ps[h->spr.yvel].pos.x - ps[h->spr.yvel].oposx, 16);
+			t->y -= MulScale(MaxSmoothRatio - smoothratio, ps[h->spr.yvel].pos.y - ps[h->spr.yvel].oposy, 16);
+			t->z = interpolatedvalue(ps[h->spr.yvel].oposz, ps[h->spr.yvel].pos.z, smoothratio);
 			t->z += PHEIGHT_DUKE;
 		}
-		else if (s->picnum != CRANEPOLE)
+		else if (h->spr.picnum != CRANEPOLE)
 		{
-			t->pos = s->interpolatedvec3(smoothratio);
+			t->pos = h->spr.interpolatedvec3(smoothratio);
 		}
 
-		auto sectp = s->sector();
+		auto sectp = h->spr.sector();
 		t1 = h->temp_data[1];
 		t3 = h->temp_data[3];
 		t4 = h->temp_data[4];
 
-		switch (s->picnum)
+		switch (h->spr.picnum)
 		{
 		case DUKELYINGDEAD:
 			t->z += (24 << 8);
@@ -268,14 +265,14 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 			t->picnum = GROWSPARK + ((PlayClock >> 4) & 3);
 			break;
 		case RPG:
-			if (hw_models && md_tilehasmodel(s->picnum, s->pal) >= 0) 
+			if (hw_models && md_tilehasmodel(h->spr.picnum, h->spr.pal) >= 0) 
 			{
 				t->cstat &= ~CSTAT_SPRITE_XFLIP;
 				break;
 			}
 
-			k = getangle(s->x - x, s->y - y);
-			k = (((s->ang + 3072 + 128 - k) & 2047) / 170);
+			k = getangle(h->spr.x - x, h->spr.y - y);
+			k = (((h->spr.ang + 3072 + 128 - k) & 2047) / 170);
 			if (k > 6)
 			{
 				k = 12 - k;
@@ -286,16 +283,16 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 			break;
 
 		case RECON:
-			if (hw_models && md_tilehasmodel(s->picnum, s->pal) >= 0) 
+			if (hw_models && md_tilehasmodel(h->spr.picnum, h->spr.pal) >= 0) 
 			{
 				t->cstat &= ~CSTAT_SPRITE_XFLIP;
 				break;
 			}
 
-			k = getangle(s->x - x, s->y - y);
+			k = getangle(h->spr.x - x, h->spr.y - y);
 			if (h->temp_data[0] < 4)
-				k = (((s->ang + 3072 + 128 - k) & 2047) / 170);
-			else k = (((s->ang + 3072 + 128 - k) & 2047) / 170);
+				k = (((h->spr.ang + 3072 + 128 - k) & 2047) / 170);
+			else k = (((h->spr.ang + 3072 + 128 - k) & 2047) / 170);
 
 			if (k > 6)
 			{
@@ -311,7 +308,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 
 		case APLAYER:
 
-			p = s->yvel;
+			p = h->spr.yvel;
 
 			if (t->pal == 1) t->z -= (18 << 8);
 
@@ -364,7 +361,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 
 				if (h->GetOwner())
 					newtspr->z = ps[p].pos.z - (12 << 8);
-				else newtspr->z = s->z - (51 << 8);
+				else newtspr->z = h->spr.z - (51 << 8);
 				if (ps[p].curr_weapon == HANDBOMB_WEAPON)
 				{
 					newtspr->xrepeat = 10;
@@ -380,14 +377,14 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 
 			if (!h->GetOwner())
 			{
-				if (hw_models && md_tilehasmodel(s->picnum, s->pal) >= 0) 
+				if (hw_models && md_tilehasmodel(h->spr.picnum, h->spr.pal) >= 0) 
 				{
 					k = 0;
 					t->cstat &= ~CSTAT_SPRITE_XFLIP;
 				}
 				else
 				{
-					k = (((s->ang + 3072 + 128 - a) & 2047) >> 8) & 7;
+					k = (((h->spr.ang + 3072 + 128 - a) & 2047) >> 8) & 7;
 					if (k > 4)
 					{
 						k = 8 - k;
@@ -397,7 +394,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 				}
 
 				if (t->sector()->lotag == 2) k += 1795 - 1405;
-				else if ((h->floorz - s->z) > (64 << 8)) k += 60;
+				else if ((h->floorz - h->spr.z) > (64 << 8)) k += 60;
 
 				t->picnum += k;
 				t->pal = ps[p].palookup;
@@ -405,12 +402,12 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 				goto PALONLY;
 			}
 
-			if (ps[p].on_crane == nullptr && (s->sector()->lotag & 0x7ff) != 1)
+			if (ps[p].on_crane == nullptr && (h->spr.sector()->lotag & 0x7ff) != 1)
 			{
-				l = s->z - ps[p].GetActor()->floorz + (3 << 8);
-				if (l > 1024 && s->yrepeat > 32 && s->extra > 0)
-					s->yoffset = (int8_t)(l / (s->yrepeat << 2));
-				else s->yoffset = 0;
+				l = h->spr.z - ps[p].GetActor()->floorz + (3 << 8);
+				if (l > 1024 && h->spr.yrepeat > 32 && h->spr.extra > 0)
+					h->spr.yoffset = (int8_t)(l / (h->spr.yrepeat << 2));
+				else h->spr.yoffset = 0;
 			}
 
 			if (ps[p].newOwner != nullptr)
@@ -473,8 +470,8 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 		case SCRAP6 + 6:
 		case SCRAP6 + 7:
 
-			if (h->picnum == BLIMP && t->picnum == SCRAP1 && s->yvel >= 0)
-				t->picnum = s->yvel;
+			if (h->picnum == BLIMP && t->picnum == SCRAP1 && h->spr.yvel >= 0)
+				t->picnum = h->spr.yvel;
 			else t->picnum += h->temp_data[0];
 			t->shade -= 6;
 
@@ -496,13 +493,13 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 			break;
 		}
 
-		if (gs.actorinfo[s->picnum].scriptaddress)
+		if (gs.actorinfo[h->spr.picnum].scriptaddress)
 		{
 			if (t4)
 			{
 				l = ScriptCode[t4 + 2];
 
-				if (hw_models && md_tilehasmodel(s->picnum, s->pal) >= 0) 
+				if (hw_models && md_tilehasmodel(h->spr.picnum, h->spr.pal) >= 0) 
 				{
 					k = 0;
 					t->cstat &= ~CSTAT_SPRITE_XFLIP;
@@ -510,12 +507,12 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 				else switch (l) 
 				{
 				case 2:
-					k = (((s->ang + 3072 + 128 - a) & 2047) >> 8) & 1;
+					k = (((h->spr.ang + 3072 + 128 - a) & 2047) >> 8) & 1;
 					break;
 
 				case 3:
 				case 4:
-					k = (((s->ang + 3072 + 128 - a) & 2047) >> 7) & 7;
+					k = (((h->spr.ang + 3072 + 128 - a) & 2047) >> 7) & 7;
 					if (k > 3)
 					{
 						t->cstat |= CSTAT_SPRITE_XFLIP;
@@ -525,8 +522,8 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 					break;
 
 				case 5:
-					k = getangle(s->x - x, s->y - y);
-					k = (((s->ang + 3072 + 128 - k) & 2047) >> 8) & 7;
+					k = getangle(h->spr.x - x, h->spr.y - y);
+					k = (((h->spr.ang + 3072 + 128 - k) & 2047) >> 8) & 7;
 					if (k > 4)
 					{
 						k = 8 - k;
@@ -535,8 +532,8 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 					else t->cstat &= ~CSTAT_SPRITE_XFLIP;
 					break;
 				case 7:
-					k = getangle(s->x - x, s->y - y);
-					k = (((s->ang + 3072 + 128 - k) & 2047) / 170);
+					k = getangle(h->spr.x - x, h->spr.y - y);
+					k = (((h->spr.ang + 3072 + 128 - k) & 2047) / 170);
 					if (k > 6)
 					{
 						k = 12 - k;
@@ -545,7 +542,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 					else t->cstat &= ~CSTAT_SPRITE_XFLIP;
 					break;
 				case 8:
-					k = (((s->ang + 3072 + 128 - a) & 2047) >> 8) & 7;
+					k = (((h->spr.ang + 3072 + 128 - a) & 2047) >> 8) & 7;
 					t->cstat &= ~CSTAT_SPRITE_XFLIP;
 					break;
 				default:
@@ -568,9 +565,9 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 				t->cstat |= CSTAT_SPRITE_XFLIP;
 		}
 
-		if (s->statnum == STAT_DUMMYPLAYER || badguy(s) || (s->picnum == APLAYER && h->GetOwner()))
-			if (t->statnum != 99 && s->picnum != EXPLOSION2 && s->picnum != HANGLIGHT && s->picnum != DOMELITE)
-				if (s->picnum != HOTMEAT)
+		if (h->spr.statnum == STAT_DUMMYPLAYER || badguy(h) || (h->spr.picnum == APLAYER && h->GetOwner()))
+			if (t->statnum != 99 && h->spr.picnum != EXPLOSION2 && h->spr.picnum != HANGLIGHT && h->spr.picnum != DOMELITE)
+				if (h->spr.picnum != HOTMEAT)
 				{
 					if (h->dispicnum < 0)
 					{
@@ -581,13 +578,13 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 					{
 						int daz;
 
-						if ((sectp->lotag & 0xff) > 2 || s->statnum == 4 || s->statnum == 5 || s->picnum == DRONE || s->picnum == COMMANDER)
+						if ((sectp->lotag & 0xff) > 2 || h->spr.statnum == 4 || h->spr.statnum == 5 || h->spr.picnum == DRONE || h->spr.picnum == COMMANDER)
 							daz = sectp->floorz;
 						else
 							daz = h->floorz;
 
 
-						if ((s->z - daz) < (8 << 8) && ps[screenpeek].pos.z < daz)
+						if ((h->spr.z - daz) < (8 << 8) && ps[screenpeek].pos.z < daz)
 						{
 							auto shadowspr = &tsprite[spritesortcnt++];
 							*shadowspr = *t;
@@ -628,7 +625,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 				}
 
 
-		switch (s->picnum)
+		switch (h->spr.picnum)
 		{
 		case LASERLINE:
 			if (!Owner) break;
@@ -668,10 +665,10 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 			break;
 		case COOLEXPLOSION1:
 			t->shade = -127;
-			t->picnum += (s->shade >> 1);
+			t->picnum += (h->spr.shade >> 1);
 			break;
 		case PLAYERONWATER:
-			if (hw_models && md_tilehasmodel(s->picnum, s->pal) >= 0) 
+			if (hw_models && md_tilehasmodel(h->spr.picnum, h->spr.pal) >= 0) 
 			{
 				k = 0;
 				t->cstat &= ~CSTAT_SPRITE_XFLIP;
@@ -687,7 +684,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 			else t->cstat &= ~CSTAT_SPRITE_XFLIP;
 		}
 
-			t->picnum = s->picnum + k + ((h->temp_data[0] < 4) * 5);
+			t->picnum = h->spr.picnum + k + ((h->temp_data[0] < 4) * 5);
 			if (Owner) t->shade = Owner->shade;
 
 			break;
@@ -696,10 +693,10 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 			t->picnum = WATERSPLASH2 + t1;
 			break;
 		case REACTOR2:
-			t->picnum = s->picnum + h->temp_data[2];
+			t->picnum = h->spr.picnum + h->temp_data[2];
 			break;
 		case SHELL:
-			t->picnum = s->picnum + (h->temp_data[0] & 1);
+			t->picnum = h->spr.picnum + (h->temp_data[0] & 1);
 			[[fallthrough]];
 		case SHOTGUNSHELL:
 			t->cstat |= (CSTAT_SPRITE_XFLIP | CSTAT_SPRITE_YFLIP);
@@ -729,7 +726,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 
 		case CAMERA1:
 		case RAT:
-			if (hw_models && md_tilehasmodel(s->picnum, s->pal) >= 0) 
+			if (hw_models && md_tilehasmodel(h->spr.picnum, h->spr.pal) >= 0) 
 			{
 				t->cstat &= ~CSTAT_SPRITE_XFLIP;
 				break;
@@ -742,7 +739,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 				t->cstat |= CSTAT_SPRITE_XFLIP;
 			}
 			else t->cstat &= ~CSTAT_SPRITE_XFLIP;
-			t->picnum = s->picnum + k;
+			t->picnum = h->spr.picnum + k;
 			break;
 		}
 

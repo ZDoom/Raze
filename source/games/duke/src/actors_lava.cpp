@@ -517,7 +517,7 @@ void moveminecart(void)
 		DukeSectIterator it(csect);
 		while (auto a2 = it.Next())
 		{
-			if (badguy(&a2->spr))
+			if (badguy(a2))
 				SetActor(a2, { cx, cy, a2->spr.z });
 		}
 	}
