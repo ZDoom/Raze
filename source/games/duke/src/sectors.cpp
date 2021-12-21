@@ -62,16 +62,15 @@ int callsound(sectortype* sn, DDukeActor* whatsprite)
 	DukeSectIterator it(sn);
 	while (auto act = it.Next())
 	{
-		auto si = act->s;
-		if (si->picnum == MUSICANDSFX && si->lotag < 1000)
+		if (act->spr.picnum == MUSICANDSFX && act->spr.lotag < 1000)
 		{
 			if (whatsprite == nullptr) whatsprite = act;
 
-			int snum = si->lotag;
+			int snum = act->spr.lotag;
 			auto flags = S_GetUserFlags(snum);
 
 			// Reset if the desired actor isn't playing anything.
-			bool hival = S_IsSoundValid(si->hitag);
+			bool hival = S_IsSoundValid(act->spr.hitag);
 			if (act->temp_data[0] == 1 && !hival)
 			{
 				if (!S_CheckActorSoundPlaying(act->temp_actor, snum))
@@ -84,25 +83,25 @@ int callsound(sectortype* sn, DDukeActor* whatsprite)
 				{
 					if (snum)
 					{
-						if (si->hitag && snum != si->hitag)
-							S_StopSound(si->hitag, act->temp_actor);
+						if (act->spr.hitag && snum != act->spr.hitag)
+							S_StopSound(act->spr.hitag, act->temp_actor);
 						S_PlayActorSound(snum, whatsprite);
 						act->temp_actor = whatsprite;
 					}
 
-					if ((si->sector()->lotag & 0xff) != ST_22_SPLITTING_DOOR)
+					if ((act->spr.sector()->lotag & 0xff) != ST_22_SPLITTING_DOOR)
 						act->temp_data[0] = 1;
 				}
 			}
-			else if (si->hitag < 1000)
+			else if (act->spr.hitag < 1000)
 			{
-				if ((flags & SF_LOOP) || (si->hitag && si->hitag != si->lotag))
-					S_StopSound(si->lotag, act->temp_actor);
-				if (si->hitag) S_PlayActorSound(si->hitag, whatsprite);
+				if ((flags & SF_LOOP) || (act->spr.hitag && act->spr.hitag != act->spr.lotag))
+					S_StopSound(act->spr.lotag, act->temp_actor);
+				if (act->spr.hitag) S_PlayActorSound(act->spr.hitag, whatsprite);
 				act->temp_data[0] = 0;
 				act->temp_actor = whatsprite;
 			}
-			return si->lotag;
+			return act->spr.lotag;
 		}
 	}
 	return -1;

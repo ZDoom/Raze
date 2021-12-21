@@ -357,30 +357,29 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 	DukeStatIterator it(STAT_DEFAULT);
 	while (auto other = it.Next())
 	{
-		auto si = other->s;
-		if (lotag == si->lotag) switch (si->picnum)
+		if (lotag == other->spr.lotag) switch (other->spr.picnum)
 		{
 		case DIPSWITCH:
 		case TECHSWITCH:
 		case ALIENSWITCH:
-			if (act && act == other) si->picnum++;
-			else if (si->hitag == 0) correctdips++;
+			if (act && act == other) other->spr.picnum++;
+			else if (other->spr.hitag == 0) correctdips++;
 			numdips++;
 			break;
 		case TECHSWITCH + 1:
 		case DIPSWITCH + 1:
 		case ALIENSWITCH + 1:
-			if (act && act == other) si->picnum--;
-			else if (si->hitag == 1) correctdips++;
+			if (act && act == other) other->spr.picnum--;
+			else if (other->spr.hitag == 1) correctdips++;
 			numdips++;
 			break;
 		case MULTISWITCH:
 		case MULTISWITCH + 1:
 		case MULTISWITCH + 2:
 		case MULTISWITCH + 3:
-			si->picnum++;
-			if (si->picnum > (MULTISWITCH + 3))
-				si->picnum = MULTISWITCH;
+			other->spr.picnum++;
+			if (other->spr.picnum > (MULTISWITCH + 3))
+				other->spr.picnum = MULTISWITCH;
 			break;
 		case ACCESSSWITCH:
 		case ACCESSSWITCH2:
@@ -397,7 +396,7 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 		case PULLSWITCH:
 		case DIPSWITCH2:
 		case DIPSWITCH3:
-			si->picnum++;
+			other->spr.picnum++;
 			break;
 		case PULLSWITCH + 1:
 		case HANDSWITCH + 1:
@@ -412,7 +411,7 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 		case FRANKENSTINESWITCH + 1:
 		case DIPSWITCH2 + 1:
 		case DIPSWITCH3 + 1:
-			si->picnum--;
+			other->spr.picnum--;
 			break;
 		}
 	}
@@ -1035,10 +1034,8 @@ bool checkhitceiling_d(sectortype* sectp)
 void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 {
 	int j, k, p;
-	spritetype* s = targ->s;
-	auto pspr = proj->s;
 
-	switch (s->picnum)
+	switch (targ->spr.picnum)
 	{
 	case WTGLASS1:
 	case WTGLASS2:
@@ -1059,11 +1056,11 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		break;
 	case QUEBALL:
 	case STRIPEBALL:
-		if (pspr->picnum == QUEBALL || pspr->picnum == STRIPEBALL)
+		if (proj->spr.picnum == QUEBALL || proj->spr.picnum == STRIPEBALL)
 		{
-			pspr->xvel = (s->xvel >> 1) + (s->xvel >> 2);
-			pspr->ang -= (s->ang << 1) + 1024;
-			s->ang = getangle(s->x - pspr->x, s->y - pspr->y) - 512;
+			proj->spr.xvel = (targ->spr.xvel >> 1) + (targ->spr.xvel >> 2);
+			proj->spr.ang -= (targ->spr.ang << 1) + 1024;
+			targ->spr.ang = getangle(targ->spr.x - proj->spr.x, targ->spr.y - proj->spr.y) - 512;
 			if (S_CheckSoundPlaying(POOLBALLHIT) < 2)
 				S_PlayActorSound(POOLBALLHIT, targ);
 		}
@@ -1071,8 +1068,8 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		{
 			if (krand() & 3)
 			{
-				s->xvel = 164;
-				s->ang = pspr->ang;
+				targ->spr.xvel = 164;
+				targ->spr.ang = proj->spr.ang;
 			}
 			else
 			{
@@ -1086,7 +1083,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 	case TIRE:
 	case CONE:
 	case BOX:
-		switch (pspr->picnum)
+		switch (proj->spr.picnum)
 		{
 		case RADIUSEXPLOSION:
 		case RPG:
@@ -1095,7 +1092,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		case HEAVYHBOMB:
 			if (targ->temp_data[0] == 0)
 			{
-				s->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
+				targ->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 				targ->temp_data[0] = 1;
 				spawn(targ, BURNING);
 			}
@@ -1104,7 +1101,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		break;
 	case CACTUS:
 		//		case CACTUSBROKE:
-		switch (pspr->picnum)
+		switch (proj->spr.picnum)
 		{
 		case RADIUSEXPLOSION:
 		case RPG:
@@ -1113,13 +1110,13 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		case HEAVYHBOMB:
 			for (k = 0; k < 64; k++)
 			{
-				auto j = EGS(s->sector(), s->x, s->y, s->z - (krand() % (48 << 8)), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (s->zvel >> 2), targ, 5);
+				auto j = EGS(targ->spr.sector(), targ->spr.x, targ->spr.y, targ->spr.z - (krand() % (48 << 8)), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (targ->spr.zvel >> 2), targ, 5);
 				j->spr.pal = 8;
 			}
 
-			if (s->picnum == CACTUS)
-				s->picnum = CACTUSBROKE;
-			s->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
+			if (targ->spr.picnum == CACTUS)
+				targ->spr.picnum = CACTUSBROKE;
+			targ->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 			//	   else deletesprite(i);
 			break;
 		}
@@ -1128,17 +1125,17 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 	case HANGLIGHT:
 	case GENERICPOLE2:
 		for (k = 0; k < 6; k++)
-			EGS(s->sector(), s->x, s->y, s->z - (8 << 8), SCRAP1 + (krand() & 15), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (s->zvel >> 2), targ, 5);
+			EGS(targ->spr.sector(), targ->spr.x, targ->spr.y, targ->spr.z - (8 << 8), SCRAP1 + (krand() & 15), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (targ->spr.zvel >> 2), targ, 5);
 		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		deletesprite(targ);
 		break;
 
 
 	case FANSPRITE:
-		s->picnum = FANSPRITEBROKE;
-		s->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
-		if (s->sector()->floorpicnum == FANSHADOW)
-			s->sector()->floorpicnum = FANSHADOWBROKE;
+		targ->spr.picnum = FANSPRITEBROKE;
+		targ->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
+		if (targ->spr.sector()->floorpicnum == FANSHADOW)
+			targ->spr.sector()->floorpicnum = FANSHADOWBROKE;
 
 		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		for (j = 0; j < 16; j++) RANDOMSCRAP(targ);
@@ -1148,17 +1145,17 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 	case WATERFOUNTAIN + 1:
 	case WATERFOUNTAIN + 2:
 	case WATERFOUNTAIN + 3:
-		s->picnum = WATERFOUNTAINBROKE;
+		targ->spr.picnum = WATERFOUNTAINBROKE;
 		spawn(targ, TOILETWATER);
 		break;
 	case SATELITE:
 	case FUELPOD:
 	case SOLARPANNEL:
 	case ANTENNA:
-		if (gs.actorinfo[SHOTSPARK1].scriptaddress && pspr->extra != ScriptCode[gs.actorinfo[SHOTSPARK1].scriptaddress])
+		if (gs.actorinfo[SHOTSPARK1].scriptaddress && proj->spr.extra != ScriptCode[gs.actorinfo[SHOTSPARK1].scriptaddress])
 		{
 			for (j = 0; j < 15; j++)
-				EGS(s->sector(), s->x, s->y, s->sector()->floorz - (12 << 8) - (j << 9), SCRAP1 + (krand() & 15), -8, 64, 64,
+				EGS(targ->spr.sector(), targ->spr.x, targ->spr.y, targ->spr.sector()->floorz - (12 << 8) - (j << 9), SCRAP1 + (krand() & 15), -8, 64, 64,
 					krand() & 2047, (krand() & 127) + 64, -(krand() & 511) - 256, targ, 5);
 			spawn(targ, EXPLOSION2);
 			deletesprite(targ);
@@ -1192,23 +1189,23 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 	case VASE:
 	case STATUEFLASH:
 	case STATUE:
-		if (s->picnum == BOTTLE10)
+		if (targ->spr.picnum == BOTTLE10)
 			fi.lotsofmoney(targ, 4 + (krand() & 3));
-		else if (s->picnum == STATUE || s->picnum == STATUEFLASH)
+		else if (targ->spr.picnum == STATUE || targ->spr.picnum == STATUEFLASH)
 		{
 			lotsofcolourglass(targ, nullptr, 40);
 			S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		}
-		else if (s->picnum == VASE)
+		else if (targ->spr.picnum == VASE)
 			lotsofglass(targ, nullptr, 40);
 
 		S_PlayActorSound(GLASS_BREAKING, targ);
-		s->ang = krand() & 2047;
+		targ->spr.ang = krand() & 2047;
 		lotsofglass(targ, nullptr, 8);
 		deletesprite(targ);
 		break;
 	case FETUS:
-		s->picnum = FETUSBROKE;
+		targ->spr.picnum = FETUSBROKE;
 		S_PlayActorSound(GLASS_BREAKING, targ);
 		lotsofglass(targ, nullptr, 10);
 		break;
@@ -1216,7 +1213,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		for (j = 0; j < 48; j++)
 		{
 			fi.shoot(targ, BLOODSPLAT1);
-			s->ang += 333;
+			targ->spr.ang += 333;
 		}
 		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		S_PlayActorSound(SQUISHED, targ);
@@ -1227,13 +1224,13 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		deletesprite(targ);
 		break;
 	case HYDROPLANT:
-		s->picnum = BROKEHYDROPLANT;
+		targ->spr.picnum = BROKEHYDROPLANT;
 		S_PlayActorSound(GLASS_BREAKING, targ);
 		lotsofglass(targ, nullptr, 10);
 		break;
 
 	case FORCESPHERE:
-		s->xrepeat = 0;
+		targ->spr.xrepeat = 0;
 		if (targ->GetOwner())
 		{
 			targ->GetOwner()->temp_data[0] = 32;
@@ -1244,57 +1241,57 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		break;
 
 	case BROKEHYDROPLANT:
-		if (s->cstat & CSTAT_SPRITE_BLOCK)
+		if (targ->spr.cstat & CSTAT_SPRITE_BLOCK)
 		{
 			S_PlayActorSound(GLASS_BREAKING, targ);
-			s->z += 16 << 8;
-			s->cstat = 0;
+			targ->spr.z += 16 << 8;
+			targ->spr.cstat = 0;
 			lotsofglass(targ, nullptr, 5);
 		}
 		break;
 
 	case TOILET:
-		s->picnum = TOILETBROKE;
-		if (krand() & 1) s->cstat |= CSTAT_SPRITE_XFLIP;
-		s->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
+		targ->spr.picnum = TOILETBROKE;
+		if (krand() & 1) targ->spr.cstat |= CSTAT_SPRITE_XFLIP;
+		targ->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 		spawn(targ, TOILETWATER);
 		S_PlayActorSound(GLASS_BREAKING, targ);
 		break;
 
 	case STALL:
-		s->picnum = STALLBROKE;
-		if (krand() & 1) s->cstat |= CSTAT_SPRITE_XFLIP;
-		s->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
+		targ->spr.picnum = STALLBROKE;
+		if (krand() & 1) targ->spr.cstat |= CSTAT_SPRITE_XFLIP;
+		targ->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 		spawn(targ, TOILETWATER);
 		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 
 	case HYDRENT:
-		s->picnum = BROKEFIREHYDRENT;
+		targ->spr.picnum = BROKEFIREHYDRENT;
 		spawn(targ, TOILETWATER);
 		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		break;
 
 	case GRATE1:
-		s->picnum = BGRATE1;
-		s->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
+		targ->spr.picnum = BGRATE1;
+		targ->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 		S_PlayActorSound(VENT_BUST, targ);
 		break;
 
 	case CIRCLEPANNEL:
-		s->picnum = CIRCLEPANNELBROKE;
-		s->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
+		targ->spr.picnum = CIRCLEPANNELBROKE;
+		targ->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 		S_PlayActorSound(VENT_BUST, targ);
 		break;
 	case PANNEL1:
 	case PANNEL2:
-		s->picnum = BPANNEL1;
-		s->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
+		targ->spr.picnum = BPANNEL1;
+		targ->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 		S_PlayActorSound(VENT_BUST, targ);
 		break;
 	case PANNEL3:
-		s->picnum = BPANNEL3;
-		s->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
+		targ->spr.picnum = BPANNEL3;
+		targ->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 		S_PlayActorSound(VENT_BUST, targ);
 		break;
 	case PIPE1:
@@ -1303,18 +1300,18 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 	case PIPE4:
 	case PIPE5:
 	case PIPE6:
-		switch (s->picnum)
+		switch (targ->spr.picnum)
 		{
-		case PIPE1:s->picnum = PIPE1B; break;
-		case PIPE2:s->picnum = PIPE2B; break;
-		case PIPE3:s->picnum = PIPE3B; break;
-		case PIPE4:s->picnum = PIPE4B; break;
-		case PIPE5:s->picnum = PIPE5B; break;
-		case PIPE6:s->picnum = PIPE6B; break;
+		case PIPE1:targ->spr.picnum = PIPE1B; break;
+		case PIPE2:targ->spr.picnum = PIPE2B; break;
+		case PIPE3:targ->spr.picnum = PIPE3B; break;
+		case PIPE4:targ->spr.picnum = PIPE4B; break;
+		case PIPE5:targ->spr.picnum = PIPE5B; break;
+		case PIPE6:targ->spr.picnum = PIPE6B; break;
 		}
 		{
 			auto j = spawn(targ, STEAM);
-			if (j) j->spr.z = s->sector()->floorz - (32 << 8);
+			if (j) j->spr.z = targ->spr.sector()->floorz - (32 << 8);
 		}
 		break;
 
@@ -1322,28 +1319,28 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 	case LUKE:
 	case INDY:
 	case JURYGUY:
-		S_PlayActorSound(s->lotag, targ);
-		spawn(targ, s->hitag);
+		S_PlayActorSound(targ->spr.lotag, targ);
+		spawn(targ, targ->spr.hitag);
 		[[fallthrough]];
 	case SPACEMARINE:
 	{
-		s->extra -= pspr->extra;
-		if (s->extra > 0) break;
-		s->ang = krand() & 2047;
+		targ->spr.extra -= proj->spr.extra;
+		if (targ->spr.extra > 0) break;
+		targ->spr.ang = krand() & 2047;
 		fi.shoot(targ, BLOODSPLAT1);
-		s->ang = krand() & 2047;
+		targ->spr.ang = krand() & 2047;
 		fi.shoot(targ, BLOODSPLAT2);
-		s->ang = krand() & 2047;
+		targ->spr.ang = krand() & 2047;
 		fi.shoot(targ, BLOODSPLAT3);
-		s->ang = krand() & 2047;
+		targ->spr.ang = krand() & 2047;
 		fi.shoot(targ, BLOODSPLAT4);
-		s->ang = krand() & 2047;
+		targ->spr.ang = krand() & 2047;
 		fi.shoot(targ, BLOODSPLAT1);
-		s->ang = krand() & 2047;
+		targ->spr.ang = krand() & 2047;
 		fi.shoot(targ, BLOODSPLAT2);
-		s->ang = krand() & 2047;
+		targ->spr.ang = krand() & 2047;
 		fi.shoot(targ, BLOODSPLAT3);
-		s->ang = krand() & 2047;
+		targ->spr.ang = krand() & 2047;
 		fi.shoot(targ, BLOODSPLAT4);
 		fi.guts(targ, JIBS1, 1, myconnectindex);
 		fi.guts(targ, JIBS2, 2, myconnectindex);
@@ -1357,8 +1354,8 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 	}
 	case CHAIR1:
 	case CHAIR2:
-		s->picnum = BROKENCHAIR;
-		s->cstat = 0;
+		targ->spr.picnum = BROKENCHAIR;
+		targ->spr.cstat = 0;
 		break;
 	case CHAIR3:
 	case MOVIECAMERA:
@@ -1377,29 +1374,28 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 	case PLAYERONWATER:
 		targ = targ->GetOwner();
 		if (!targ) break;
-		s = targ->s;
 		[[fallthrough]];
 	default:
-		if ((s->cstat & CSTAT_SPRITE_ALIGNMENT_WALL) && s->hitag == 0 && s->lotag == 0 && s->statnum == 0)
+		if ((targ->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL) && targ->spr.hitag == 0 && targ->spr.lotag == 0 && targ->spr.statnum == 0)
 			break;
 
-		if ((pspr->picnum == FREEZEBLAST || proj->GetOwner() != targ) && s->statnum != 4)
+		if ((proj->spr.picnum == FREEZEBLAST || proj->GetOwner() != targ) && targ->spr.statnum != 4)
 		{
 			if (badguy(targ) == 1)
 			{
-				if (isWorldTour() && s->picnum == FIREFLY && s->xrepeat < 48)
+				if (isWorldTour() && targ->spr.picnum == FIREFLY && targ->spr.xrepeat < 48)
 					break;
 
-				if (pspr->picnum == RPG) pspr->extra <<= 1;
+				if (proj->spr.picnum == RPG) proj->spr.extra <<= 1;
 
-				if ((s->picnum != DRONE) && (s->picnum != ROTATEGUN) && (s->picnum != COMMANDER) && (s->picnum < GREENSLIME || s->picnum > GREENSLIME + 7))
-					if (pspr->picnum != FREEZEBLAST)
-						//if (actortype[s->picnum] == 0) //TRANSITIONAL. Cannot be done right with EDuke mess backing the engine. 
+				if ((targ->spr.picnum != DRONE) && (targ->spr.picnum != ROTATEGUN) && (targ->spr.picnum != COMMANDER) && (targ->spr.picnum < GREENSLIME || targ->spr.picnum > GREENSLIME + 7))
+					if (proj->spr.picnum != FREEZEBLAST)
+						//if (actortype[targ->spr.picnum] == 0) //TRANSITIONAL. Cannot be done right with EDuke mess backing the engine. 
 						{
 							auto spawned = spawn(proj, JIBS6);
 							if (spawned)
 							{
-								if (pspr->pal == 6)
+								if (proj->spr.pal == 6)
 									spawned->spr.pal = 6;
 								spawned->spr.z += (4 << 8);
 								spawned->spr.xvel = 16;
@@ -1410,7 +1406,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 
 				auto Owner = proj->GetOwner();
 
-				if (Owner && Owner->spr.picnum == APLAYER && s->picnum != ROTATEGUN && s->picnum != DRONE)
+				if (Owner && Owner->spr.picnum == APLAYER && targ->spr.picnum != ROTATEGUN && targ->spr.picnum != DRONE)
 					if (ps[Owner->PlayerIndex()].curr_weapon == SHOTGUN_WEAPON)
 					{
 						fi.shoot(targ, BLOODSPLAT3);
@@ -1419,36 +1415,36 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 						fi.shoot(targ, BLOODSPLAT4);
 					}
 
-				if (s->picnum != TANK && !bossguy(targ) && s->picnum != RECON && s->picnum != ROTATEGUN)
+				if (targ->spr.picnum != TANK && !bossguy(targ) && targ->spr.picnum != RECON && targ->spr.picnum != ROTATEGUN)
 				{
-					if ((s->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == 0)
-						s->ang = (pspr->ang + 1024) & 2047;
-					s->xvel = -(pspr->extra << 2);
-					auto sp = s->sector();
-					pushmove(&s->pos, &sp, 128L, (4 << 8), (4 << 8), CLIPMASK0);
-					if (sp != s->sector() && sp != nullptr)
+					if ((targ->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == 0)
+						targ->spr.ang = (proj->spr.ang + 1024) & 2047;
+					targ->spr.xvel = -(proj->spr.extra << 2);
+					auto sp = targ->spr.sector();
+					pushmove(&targ->spr.pos, &sp, 128L, (4 << 8), (4 << 8), CLIPMASK0);
+					if (sp != targ->spr.sector() && sp != nullptr)
 						ChangeActorSect(targ, sp);
 				}
 
-				if (s->statnum == 2)
+				if (targ->spr.statnum == 2)
 				{
 					ChangeActorStat(targ, 1);
 					targ->timetosleep = SLEEPTIME;
 				}
-				if ((s->xrepeat < 24 || s->picnum == SHARK) && pspr->picnum == SHRINKSPARK) return;
+				if ((targ->spr.xrepeat < 24 || targ->spr.picnum == SHARK) && proj->spr.picnum == SHRINKSPARK) return;
 			}
 
-			if (s->statnum != 2)
+			if (targ->spr.statnum != 2)
 			{
-				if (pspr->picnum == FREEZEBLAST && ((s->picnum == APLAYER && s->pal == 1) || (gs.freezerhurtowner == 0 && proj->GetOwner() == targ)))
+				if (proj->spr.picnum == FREEZEBLAST && ((targ->spr.picnum == APLAYER && targ->spr.pal == 1) || (gs.freezerhurtowner == 0 && proj->GetOwner() == targ)))
 					return;
 
 
-				int hitpic = pspr->picnum;
+				int hitpic = proj->spr.picnum;
 				auto Owner = proj->GetOwner();
 				if (Owner && Owner->spr.picnum == APLAYER)
 				{
-					if (s->picnum == APLAYER && ud.coop != 0 && ud.ffire == 0)
+					if (targ->spr.picnum == APLAYER && ud.coop != 0 && ud.ffire == 0)
 						return;
 
 					auto tOwner = targ->GetOwner();
@@ -1457,14 +1453,14 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 				}
 
 				targ->picnum = hitpic;
-				targ->extra += pspr->extra;
-				targ->ang = pspr->ang;
+				targ->extra += proj->spr.extra;
+				targ->ang = proj->spr.ang;
 				targ->SetHitOwner(Owner);
 			}
 
-			if (s->statnum == 10)
+			if (targ->spr.statnum == 10)
 			{
-				p = s->yvel;
+				p = targ->spr.yvel;
 				if (ps[p].newOwner != nullptr)
 				{
 					ps[p].newOwner = nullptr;
@@ -1482,13 +1478,13 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 					}
 				}
 
-				if (s->xrepeat < 24 && pspr->picnum == SHRINKSPARK)
+				if (targ->spr.xrepeat < 24 && proj->spr.picnum == SHRINKSPARK)
 					return;
 
 				auto hitowner = targ->GetHitOwner();
 				if (!hitowner || hitowner->spr.picnum != APLAYER)
 					if (ud.player_skill >= 3)
-						pspr->extra += (pspr->extra >> 1);
+						proj->spr.extra += (proj->spr.extra >> 1);
 			}
 
 		}
@@ -1746,10 +1742,9 @@ void checksectors_d(int snum)
 				DukeStatIterator it(STAT_ACTOR);
 				while (auto acti = it.Next())
 				{
-					auto spr = acti->s;
-					if (spr->picnum == CAMERA1 && spr->yvel == 0 && neartagsprite->spr.hitag == spr->lotag)
+					if (acti->spr.picnum == CAMERA1 && acti->spr.yvel == 0 && neartagsprite->spr.hitag == acti->spr.lotag)
 					{
-						spr->yvel = 1; //Using this camera
+						acti->spr.yvel = 1; //Using this camera
 						if (snum == screenpeek) S_PlaySound(MONITOR_ACTIVE);
 
 						neartagsprite->SetOwner(acti);
