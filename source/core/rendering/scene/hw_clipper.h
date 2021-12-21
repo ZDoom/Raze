@@ -70,6 +70,7 @@ private:
 	bool InsertRange(ClipNode* prev, ClipNode* node);
 	bool InsertBlockingRange(ClipNode* prev, ClipNode* node, int start, int end);
 	void SplitRange(ClipNode* node, int start, int end, float topclip, float bottomclip);
+	void ValidateList();
 
 public:
     

@@ -43,6 +43,25 @@
 
 //-----------------------------------------------------------------------------
 //
+//
+//
+//-----------------------------------------------------------------------------
+
+void Clipper::ValidateList()
+{
+#ifdef _DEBUG
+	// Make sure we catch ordering issues right away in debug mode.
+	auto check = cliphead;
+	while (check)
+	{
+		assert(!check->next || check->end <= check->next->start);
+		check = check->next;
+	}
+#endif
+}
+
+//-----------------------------------------------------------------------------
+//
 // RemoveRange
 //
 //-----------------------------------------------------------------------------
@@ -61,6 +80,7 @@ void Clipper::RemoveRange(ClipNode * range, bool free)
 	}
 	
 	if (free) Free(range);
+	ValidateList();
 }
 
 //-----------------------------------------------------------------------------
@@ -118,16 +138,7 @@ bool Clipper::InsertRange(ClipNode* prev, ClipNode* node)
 	node->prev = prev;
 	if (node->next) node->next->prev = node;
 
-#ifdef _DEBUG
-	// Make sure we catch ordering issues right away in debug mode.
-	auto check = cliphead;
-	while (check)
-	{
-		assert(!check->next || check->end <= check->next->start);
-		check = check->next;
-	}
-#endif
-
+	ValidateList();
 	return false;
 }
 
@@ -288,12 +299,14 @@ void Clipper::AddClipRange(int start, int end)
 						}
 					}
 					// we're done and do not need to add a new node.
+					ValidateList();
 					return;
 				}
 				else
 				{
 					// if the old node is a window, restrict its size to the left of the new range and continue checking
 					node->end = start;
+					ValidateList();
 				}
 			}
 			// range overlaps at the end.
@@ -303,6 +316,7 @@ void Clipper::AddClipRange(int start, int end)
 				if (node->topclip <= node->bottomclip)
 				{
 					node->start = start;
+					ValidateList();
 					return;
 				}
 				// node is a window - so restrict its size and insert the new node in front of it,
@@ -460,6 +474,7 @@ void Clipper::AddWindowRange(int start, int end, float topclip, float bottomclip
 				if (node->topclip < node->bottomclip)
 				{
 					start = node->end;
+					ValidateList();
 					if (start >= end) return; // may have been crushed to a single point.
 				}
 				else
@@ -471,6 +486,7 @@ void Clipper::AddWindowRange(int start, int end, float topclip, float bottomclip
 					if (mtopclip > mbottomclip && mtopclip >= node->topclip && mbottomclip <= node->bottomclip)
 					{
 						start = node->end;
+						ValidateList();
 						if (start >= end) return; // may have been crushed to a single point.
 					}
 
@@ -478,6 +494,7 @@ void Clipper::AddWindowRange(int start, int end, float topclip, float bottomclip
 					else if (topclip <= bottomclip || (topclip < node->topclip && bottomclip > node->bottomclip))
 					{
 						node->end = start;
+						ValidateList();
 						assert(node->end > node->start); // ensured by initial condition.
 					}
 
@@ -507,6 +524,7 @@ void Clipper::AddWindowRange(int start, int end, float topclip, float bottomclip
 				if (node->topclip < node->bottomclip)
 				{
 					end = node->start;
+					ValidateList();
 					if (start >= end) return; // may have been crushed to a single point.
 				}
 				else
@@ -518,6 +536,7 @@ void Clipper::AddWindowRange(int start, int end, float topclip, float bottomclip
 					if (mtopclip > mbottomclip && mtopclip >= node->topclip && mbottomclip <= node->bottomclip)
 					{
 						end = node->start;
+						ValidateList();
 						if (start >= end) return; // may have been crushed to a single point.
 					}
 
@@ -525,6 +544,7 @@ void Clipper::AddWindowRange(int start, int end, float topclip, float bottomclip
 					else if (topclip <= bottomclip || (topclip < node->topclip && bottomclip > node->bottomclip))
 					{
 						node->start = end;
+						ValidateList();
 						assert(node->end > node->start);
 					}
 
@@ -533,7 +553,7 @@ void Clipper::AddWindowRange(int start, int end, float topclip, float bottomclip
 					{
 						int nodestart = node->start;
 						SplitRange(node, nodestart, end, mtopclip, mbottomclip);
-						end = node->start;
+						end = nodestart;
 						if (start >= end) return; // may have been crushed to a single point.
 						if (mtopclip <= mbottomclip) next = cliphead; // list may have become out of sync.
 					}
