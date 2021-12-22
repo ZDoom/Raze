@@ -421,7 +421,7 @@ void evSend(EventObject& eob, int rxId, COMMAND_ID command)
 		while (auto actor = it.Next())
 		{
 			spritetype* pSprite = &actor->s();
-			if (pSprite->flags & 32)
+			if (actor->spr.flags & 32)
 				continue;
 			if (actor->hasX())
 			{
@@ -439,7 +439,7 @@ void evSend(EventObject& eob, int rxId, COMMAND_ID command)
 		while (auto actor = it.Next())
 		{
 			spritetype* pSprite = &actor->s();
-			if (pSprite->flags & 32)
+			if (actor->spr.flags & 32)
 				continue;
 			if (actor->hasX())
 			{

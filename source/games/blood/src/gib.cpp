@@ -266,10 +266,10 @@ int ChanceToCount(int a1, int a2)
 void GibFX(DBloodActor* actor, GIBFX *pGFX, CGibPosition *pPos, CGibVelocity *pVel)
 {
     spritetype* pSprite = &actor->s();
-    auto pSector = pSprite->sector();
+    auto pSector = actor->spr.sector();
     if (adult_lockout && gGameOptions.nGameType == 0 && pGFX->fxId == FX_13)
         return;
-    CGibPosition gPos(pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z);
+    CGibPosition gPos(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z);
     if (pPos)
         gPos = *pPos;
     int32_t ceilZ, floorZ;
@@ -281,18 +281,18 @@ void GibFX(DBloodActor* actor, GIBFX *pGFX, CGibPosition *pPos, CGibVelocity *pV
     GetActorExtents(actor, &top, &bottom);
     for (int i = 0; i < nCount; i++)
     {
-        if (!pPos && (pSprite->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == 0)
+        if (!pPos && (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == 0)
         {
             int nAngle = Random(2048);
-            gPos.x = pSprite->pos.X+MulScale(pSprite->clipdist<<2, Cos(nAngle), 30);
-            gPos.y = pSprite->pos.Y+MulScale(pSprite->clipdist<<2, Sin(nAngle), 30);
+            gPos.x = actor->spr.pos.X+MulScale(actor->spr.clipdist<<2, Cos(nAngle), 30);
+            gPos.y = actor->spr.pos.Y+MulScale(actor->spr.clipdist<<2, Sin(nAngle), 30);
             gPos.z = bottom-Random(bottom-top);
         }
         auto pFX = gFX.fxSpawnActor(pGFX->fxId, pSector, gPos.x, gPos.y, gPos.z, 0);
         if (pFX)
         {
             if (pGFX->at1 < 0)
-                pFX->spr.pal = pSprite->pal;
+                pFX->spr.pal = actor->spr.pal;
             if (pVel)
             {
                 pFX->xvel = pVel->vx+Random2(pGFX->atd);
@@ -303,7 +303,7 @@ void GibFX(DBloodActor* actor, GIBFX *pGFX, CGibPosition *pPos, CGibVelocity *pV
             {
                 pFX->xvel = Random2((pGFX->atd<<18)/120);
                 pFX->yvel = Random2((pGFX->atd<<18)/120);
-                switch(pSprite->cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
+                switch(actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
                 {
                 case 16:
                     pFX->zvel = Random2((pGFX->at11<<18)/120);
@@ -343,15 +343,15 @@ void GibThing(DBloodActor* actor, GIBTHING *pGThing, CGibPosition *pPos, CGibVel
 
     if (pGThing->chance == 65536 || Chance(pGThing->chance))
     {
-        auto pSector = pSprite->sector();
+        auto pSector = actor->spr.sector();
         int top, bottom;
         GetActorExtents(actor, &top, &bottom);
         int x, y, z;
         if (!pPos)
         {
             int nAngle = Random(2048);
-            x = pSprite->pos.X+MulScale(pSprite->clipdist<<2, Cos(nAngle), 30);
-            y = pSprite->pos.Y+MulScale(pSprite->clipdist<<2, Sin(nAngle), 30);
+            x = actor->spr.pos.X+MulScale(actor->spr.clipdist<<2, Cos(nAngle), 30);
+            y = actor->spr.pos.Y+MulScale(actor->spr.clipdist<<2, Sin(nAngle), 30);
             z = bottom-Random(bottom-top);
         }
         else
@@ -380,7 +380,7 @@ void GibThing(DBloodActor* actor, GIBTHING *pGThing, CGibPosition *pPos, CGibVel
         {
             gibactor->xvel = Random2((pGThing->atc<<18)/120);
             gibactor->yvel = Random2((pGThing->atc<<18)/120);
-            switch (pSprite->cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
+            switch (actor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
             {
             case 16:
                 gibactor->zvel = Random2((pGThing->at10<<18)/120);

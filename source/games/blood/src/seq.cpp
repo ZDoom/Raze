@@ -243,68 +243,68 @@ void UpdateSprite(DBloodActor* actor, SEQFRAME* pFrame)
 {
 	spritetype* pSprite = &actor->s();
 	assert(actor->hasX());
-	if (pSprite->flags & 2)
+	if (actor->spr.flags & 2)
 	{
-		if (tileHeight(pSprite->picnum) != tileHeight(seqGetTile(pFrame)) || tileTopOffset(pSprite->picnum) != tileTopOffset(seqGetTile(pFrame))
-			|| (pFrame->yrepeat && pFrame->yrepeat != pSprite->yrepeat))
-			pSprite->flags |= 4;
+		if (tileHeight(actor->spr.picnum) != tileHeight(seqGetTile(pFrame)) || tileTopOffset(actor->spr.picnum) != tileTopOffset(seqGetTile(pFrame))
+			|| (pFrame->yrepeat && pFrame->yrepeat != actor->spr.yrepeat))
+			actor->spr.flags |= 4;
 	}
-	pSprite->picnum = seqGetTile(pFrame);
+	actor->spr.picnum = seqGetTile(pFrame);
 	if (pFrame->palette)
-		pSprite->pal = pFrame->palette;
-	pSprite->shade = pFrame->shade;
+		actor->spr.pal = pFrame->palette;
+	actor->spr.shade = pFrame->shade;
 
 	int scale = actor->xspr.scale; // SEQ size scaling
 	if (pFrame->xrepeat) {
-		if (scale) pSprite->xrepeat = ClipRange(MulScale(pFrame->xrepeat, scale, 8), 0, 255);
-		else pSprite->xrepeat = pFrame->xrepeat;
+		if (scale) actor->spr.xrepeat = ClipRange(MulScale(pFrame->xrepeat, scale, 8), 0, 255);
+		else actor->spr.xrepeat = pFrame->xrepeat;
 	}
 
 	if (pFrame->yrepeat) {
-		if (scale) pSprite->yrepeat = ClipRange(MulScale(pFrame->yrepeat, scale, 8), 0, 255);
-		else pSprite->yrepeat = pFrame->yrepeat;
+		if (scale) actor->spr.yrepeat = ClipRange(MulScale(pFrame->yrepeat, scale, 8), 0, 255);
+		else actor->spr.yrepeat = pFrame->yrepeat;
 	}
 
 	if (pFrame->transparent)
-		pSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
+		actor->spr.cstat |= CSTAT_SPRITE_TRANSLUCENT;
 	else
-		pSprite->cstat &= ~CSTAT_SPRITE_TRANSLUCENT;
+		actor->spr.cstat &= ~CSTAT_SPRITE_TRANSLUCENT;
 	if (pFrame->transparent2)
-		pSprite->cstat |= CSTAT_SPRITE_TRANS_FLIP;
+		actor->spr.cstat |= CSTAT_SPRITE_TRANS_FLIP;
 	else
-		pSprite->cstat &= ~CSTAT_SPRITE_TRANS_FLIP;
+		actor->spr.cstat &= ~CSTAT_SPRITE_TRANS_FLIP;
 	if (pFrame->blockable)
-		pSprite->cstat |= CSTAT_SPRITE_BLOCK;
+		actor->spr.cstat |= CSTAT_SPRITE_BLOCK;
 	else
-		pSprite->cstat &= ~CSTAT_SPRITE_BLOCK;
+		actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK;
 	if (pFrame->hittable)
-		pSprite->cstat |= CSTAT_SPRITE_BLOCK_HITSCAN;
+		actor->spr.cstat |= CSTAT_SPRITE_BLOCK_HITSCAN;
 	else
-		pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_HITSCAN;
+		actor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_HITSCAN;
 	if (pFrame->invisible)
-		pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
+		actor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 	else
-		pSprite->cstat &= ~CSTAT_SPRITE_INVISIBLE;
+		actor->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
 	if (pFrame->pushable)
-		pSprite->cstat |= CSTAT_SPRITE_BLOOD_BIT1;
+		actor->spr.cstat |= CSTAT_SPRITE_BLOOD_BIT1;
 	else
-		pSprite->cstat &= ~CSTAT_SPRITE_BLOOD_BIT1;
+		actor->spr.cstat &= ~CSTAT_SPRITE_BLOOD_BIT1;
 	if (pFrame->smoke)
-		pSprite->flags |= 256;
+		actor->spr.flags |= 256;
 	else
-		pSprite->flags &= ~256;
+		actor->spr.flags &= ~256;
 	if (pFrame->aiming)
-		pSprite->flags |= 8;
+		actor->spr.flags |= 8;
 	else
-		pSprite->flags &= ~8;
+		actor->spr.flags &= ~8;
 	if (pFrame->flipx)
-		pSprite->flags |= 1024;
+		actor->spr.flags |= 1024;
 	else
-		pSprite->flags &= ~1024;
+		actor->spr.flags &= ~1024;
 	if (pFrame->flipy)
-		pSprite->flags |= 2048;
+		actor->spr.flags |= 2048;
 	else
-		pSprite->flags &= ~2048;
+		actor->spr.flags &= ~2048;
 }
 
 //---------------------------------------------------------------------------
@@ -352,8 +352,8 @@ void SEQINST::Update()
 		spritetype* pSprite = &actor->s();
 		if (!VanillaMode() && pSequence->frames[frameIndex].surfaceSound && actor->zvel == 0 && actor->xvel != 0) {
 
-			if (pSprite->sector()->upperLink) break; // don't play surface sound for stacked sectors
-			int surf = tileGetSurfType(pSprite->sector()->floorpicnum); 
+			if (actor->spr.sector()->upperLink) break; // don't play surface sound for stacked sectors
+			int surf = tileGetSurfType(actor->spr.sector()->floorpicnum); 
 			if (!surf) break;
 			static int surfSfxMove[15][4] = {
 				/* {snd1, snd2, gameVolume, myVolume} */

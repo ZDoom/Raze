@@ -19,8 +19,8 @@ void collectTSpritesForPortal(int x, int y, int i, int interpolation)
         int top, bottom;
         GetSpriteExtents(pSprite, &top, &bottom);
         int zCeil, zFloor;
-        getzsofslopeptr(&sector[nSector], pSprite->pos.X, pSprite->pos.Y, &zCeil, &zFloor);
-        if (pSprite->statnum == kStatDude && (top < zCeil || bottom > zFloor))
+        getzsofslopeptr(&sector[nSector], actor->spr.pos.X, actor->spr.pos.Y, &zCeil, &zFloor);
+        if (actor->spr.statnum == kStatDude && (top < zCeil || bottom > zFloor))
         {
             int j = i;
             if (mirror[i].type == 2)
@@ -34,27 +34,27 @@ void collectTSpritesForPortal(int x, int y, int i, int interpolation)
             {
                 tspritetype* pTSprite = &pm_tsprite[pm_spritesortcnt++];
                 *pTSprite = {};
-                pTSprite->type = pSprite->type;
+                pTSprite->type = actor->spr.type;
                 pTSprite->setsector(nSector2);
-                pTSprite->pos.X = pSprite->pos.X + dx;
-                pTSprite->pos.Y = pSprite->pos.Y + dy;
-                pTSprite->pos.Z = pSprite->pos.Z + dz;
-                pTSprite->ang = pSprite->ang;
-                pTSprite->picnum = pSprite->picnum;
-                pTSprite->shade = pSprite->shade;
-                pTSprite->pal = pSprite->pal;
-                pTSprite->xrepeat = pSprite->xrepeat;
-                pTSprite->yrepeat = pSprite->yrepeat;
-                pTSprite->xoffset = pSprite->xoffset;
-                pTSprite->yoffset = pSprite->yoffset;
-                pTSprite->cstat = pSprite->cstat;
+                pTSprite->pos.X = actor->spr.pos.X + dx;
+                pTSprite->pos.Y = actor->spr.pos.Y + dy;
+                pTSprite->pos.Z = actor->spr.pos.Z + dz;
+                pTSprite->ang = actor->spr.ang;
+                pTSprite->picnum = actor->spr.picnum;
+                pTSprite->shade = actor->spr.shade;
+                pTSprite->pal = actor->spr.pal;
+                pTSprite->xrepeat = actor->spr.xrepeat;
+                pTSprite->yrepeat = actor->spr.yrepeat;
+                pTSprite->xoffset = actor->spr.xoffset;
+                pTSprite->yoffset = actor->spr.yoffset;
+                pTSprite->cstat = actor->spr.cstat;
                 pTSprite->statnum = kStatDecoration;
                 pTSprite->ownerActor = actor;
-                pTSprite->flags = pSprite->hitag | 0x200;
-                pTSprite->pos.X = dx + interpolatedvalue(pSprite->opos.X, pSprite->pos.X, interpolation);
-                pTSprite->pos.Y = dy + interpolatedvalue(pSprite->opos.Y, pSprite->pos.Y, interpolation);
-                pTSprite->pos.Z = dz + interpolatedvalue(pSprite->opos.Z, pSprite->pos.Z, interpolation);
-                pTSprite->ang = pSprite->interpolatedang(interpolation);
+                pTSprite->flags = actor->spr.hitag | 0x200;
+                pTSprite->pos.X = dx + interpolatedvalue(actor->spr.opos.X, actor->spr.pos.X, interpolation);
+                pTSprite->pos.Y = dy + interpolatedvalue(actor->spr.opos.Y, actor->spr.pos.Y, interpolation);
+                pTSprite->pos.Z = dz + interpolatedvalue(actor->spr.opos.Z, actor->spr.pos.Z, interpolation);
+                pTSprite->ang = actor->spr.interpolatedang(interpolation);
 
                 int nAnim = 0;
                 switch (picanm[pTSprite->picnum].extra & 7)
@@ -135,14 +135,14 @@ RORHACK:
         ror_status[i] = testgotpic(4080 + i);
     fixed_t deliriumPitchI = interpolatedvalue(IntToFixed(deliriumPitchO), IntToFixed(deliriumPitch), gInterpolate);
     DrawMirrors(cX, cY, cZ, cA.asq16(), cH.asq16() + deliriumPitchI, int(gInterpolate), gViewIndex);
-    auto bakCstat = gView->pSprite->cstat;
+    auto bakCstat = gView->actor->spr.cstat;
     if (gViewPos == 0)
     {
-        gView->pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
+        gView->actor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
     }
     else
     {
-        gView->pSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT |  CSTAT_SPRITE_TRANS_FLIP;
+        gView->actor->spr.cstat |= CSTAT_SPRITE_TRANSLUCENT |  CSTAT_SPRITE_TRANS_FLIP;
     }
 
     renderDrawRoomsQ16(cX, cY, cZ, cA.asq16(), cH.asq16() + deliriumPitchI, nSectnum, false);
@@ -153,7 +153,7 @@ RORHACK:
             do_ror_hack = true;
     if (do_ror_hack)
     {
-        gView->pSprite->cstat = bakCstat;
+        gView->actor->spr.cstat = bakCstat;
         pm_spritesortcnt = 0;
         goto RORHACK;
     }
@@ -164,7 +164,7 @@ RORHACK:
     setPortalFlags(0);
     processSpritesOnOtherSideOfPortal(cX, cY, int(gInterpolate));
     renderDrawMasks();
-    gView->pSprite->cstat = bakCstat;
+    gView->actor->spr.cstat = bakCstat;
 
 }
 
@@ -261,14 +261,14 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
                 ESpriteFlags bakCstat = 0;
                 if (viewPlayer >= 0)
                 {
-                    bakCstat = gPlayer[viewPlayer].pSprite->cstat;
+                    bakCstat = gPlayer[viewPlayer].actor->spr.cstat;
                     if (gViewPos == 0)
                     {
-                        gPlayer[viewPlayer].pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
+                        gPlayer[viewPlayer].actor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
                     }
                     else
                     {
-                        gPlayer[viewPlayer].pSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT |  CSTAT_SPRITE_TRANS_FLIP;
+                        gPlayer[viewPlayer].actor->spr.cstat |= CSTAT_SPRITE_TRANSLUCENT |  CSTAT_SPRITE_TRANS_FLIP;
                     }
                 }
                 renderDrawRoomsQ16(x + mirror[i].dx, y + mirror[i].dy, z + mirror[i].dz, a, horiz, nSector, true);
@@ -281,7 +281,7 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
                     gotpic.Clear(4080 + i);
                 if (viewPlayer >= 0)
                 {
-                    gPlayer[viewPlayer].pSprite->cstat = bakCstat;
+                    gPlayer[viewPlayer].actor->spr.cstat = bakCstat;
                 }
                 r_rorphase = 0;
                 return;
@@ -293,14 +293,14 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
                 ESpriteFlags bakCstat = 0;
                 if (viewPlayer >= 0)
                 {
-                    bakCstat = gPlayer[viewPlayer].pSprite->cstat;
+                    bakCstat = gPlayer[viewPlayer].actor->spr.cstat;
                     if (gViewPos == 0)
                     {
-                        gPlayer[viewPlayer].pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
+                        gPlayer[viewPlayer].actor->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
                     }
                     else
                     {
-                        gPlayer[viewPlayer].pSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT |  CSTAT_SPRITE_TRANS_FLIP;
+                        gPlayer[viewPlayer].actor->spr.cstat |= CSTAT_SPRITE_TRANSLUCENT |  CSTAT_SPRITE_TRANS_FLIP;
                     }
                 }
                 renderDrawRoomsQ16(x + mirror[i].dx, y + mirror[i].dy, z + mirror[i].dz, a, horiz, nSector, true);
@@ -313,7 +313,7 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
                     gotpic.Clear(4080 + i);
                 if (viewPlayer >= 0)
                 {
-                    gPlayer[viewPlayer].pSprite->cstat = bakCstat;
+                    gPlayer[viewPlayer].actor->spr.cstat = bakCstat;
                 }
                 r_rorphase = 0;
                 return;
