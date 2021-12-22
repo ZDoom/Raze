@@ -1232,8 +1232,8 @@ int RDoorBusy(sectortype* pSector, unsigned int a2)
     else
         nWave = pXSector->busyWaveB;
     if (!pXSector->marker0) return 0;
-    spritetype* pSprite = &pXSector->marker0->s();
-    TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), pSprite->pos.X, pSprite->pos.Y, pSprite->pos.X, pSprite->pos.Y, 0, pSprite->pos.X, pSprite->pos.Y, pSprite->ang, pSector->type == kSectorRotate);
+    spritetype* pSprite1 = &pXSector->marker0->s();
+    TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), pSprite1->pos.X, pSprite1->pos.Y, pSprite1->pos.X, pSprite1->pos.Y, 0, pSprite1->pos.X, pSprite1->pos.Y, pSprite1->ang, pSector->type == kSectorRotate);
     ZTranslateSector(pSector, pXSector, a2, nWave);
     pXSector->busy = a2;
     if (pXSector->command == kCmdLink && pXSector->txID)
@@ -1252,19 +1252,19 @@ int StepRotateBusy(sectortype* pSector, unsigned int a2)
     assert(pSector && pSector->hasX());
     XSECTOR* pXSector = &pSector->xs();
     if (!pXSector->marker0) return 0;
-    spritetype* pSprite = &pXSector->marker0->s();
+    spritetype* pSprite1 = &pXSector->marker0->s();
     int vbp;
     if (pXSector->busy < a2)
     {
-        vbp = pXSector->data+pSprite->ang;
+        vbp = pXSector->data+pSprite1->ang;
         int nWave = pXSector->busyWaveA;
-        TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), pSprite->pos.X, pSprite->pos.Y, pSprite->pos.X, pSprite->pos.Y, pXSector->data, pSprite->pos.X, pSprite->pos.Y, vbp, 1);
+        TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), pSprite1->pos.X, pSprite1->pos.Y, pSprite1->pos.X, pSprite1->pos.Y, pXSector->data, pSprite1->pos.X, pSprite1->pos.Y, vbp, 1);
     }
     else
     {
-        vbp = pXSector->data-pSprite->ang;
+        vbp = pXSector->data-pSprite1->ang;
         int nWave = pXSector->busyWaveB;
-        TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), pSprite->pos.X, pSprite->pos.Y, pSprite->pos.X, pSprite->pos.Y, vbp, pSprite->pos.X, pSprite->pos.Y, pXSector->data, 1);
+        TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), pSprite1->pos.X, pSprite1->pos.Y, pSprite1->pos.X, pSprite1->pos.Y, vbp, pSprite1->pos.X, pSprite1->pos.Y, pXSector->data, 1);
     }
     pXSector->busy = a2;
     if (pXSector->command == kCmdLink && pXSector->txID)
@@ -1300,15 +1300,16 @@ int PathBusy(sectortype* pSector, unsigned int a2)
     assert(pSector && pSector->hasX());
     XSECTOR* pXSector = &pSector->xs();
 
-    if (!pXSector->basePath || !pXSector->marker0 || !pXSector->marker1) return 0;
-    spritetype* pSprite = &pXSector->basePath->s();
-    spritetype* pSprite1 = &pXSector->marker0->s();
-    spritetype* pSprite2 = &pXSector->marker1->s();
+    auto basepath = pXSector->basePath;
+    auto marker0 = pXSector->marker0;
+    auto marker1 = pXSector->marker1;
+    if (!basepath || !marker0 || !marker1) return 0;
+
     XSPRITE *pXSprite1 = &pXSector->marker0->x();
     XSPRITE *pXSprite2 = &pXSector->marker1->x();
 
     int nWave = pXSprite1->wave;
-    TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), pSprite->pos.X, pSprite->pos.Y, pSprite1->pos.X, pSprite1->pos.Y, pSprite1->ang, pSprite2->pos.X, pSprite2->pos.Y, pSprite2->ang, 1);
+    TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), basepath->spr.pos.X, basepath->spr.pos.Y, marker0->spr.pos.X, marker0->spr.pos.Y, marker0->spr.ang, marker1->spr.pos.X, marker1->spr.pos.Y, marker1->spr.ang, 1);
     ZTranslateSector(pSector, pXSector, a2, nWave);
     pXSector->busy = a2;
     if ((a2&0xffff) == 0)
@@ -1318,7 +1319,7 @@ int PathBusy(sectortype* pSector, unsigned int a2)
         pXSector->busy = 0;
         if (pXSprite1->data4)
             PathSound(pSector, pXSprite1->data4);
-        pXSector->marker0 = pXSector->marker1;
+        pXSector->marker0 = marker1;
         pXSector->data = pXSprite2->data1;
         return 3;
     }
@@ -1375,10 +1376,9 @@ void TeleFrag(DBloodActor* killer, sectortype* pSector)
     BloodSectIterator it(pSector);
     while (auto victim = it.Next())
     {
-        spritetype *pSprite = &victim->s();
-        if (pSprite->statnum == kStatDude)
+        if (victim->spr.statnum == kStatDude)
             actDamageSprite(killer, victim, kDamageExplode, 4000);
-        else if (pSprite->statnum == kStatThing)
+        else if (victim->spr.statnum == kStatThing)
             actDamageSprite(killer, victim, kDamageExplode, 4000);
     }
 }
@@ -1439,7 +1439,7 @@ void OperatePath(sectortype* pSector, EVENT event)
     assert(pSector);
     auto pXSector = &pSector->xs();
     if (!pXSector->marker0) return;
-    spritetype* pSprite2 = &pXSector->marker0->s();
+    spritetype* pSprite1 = &pXSector->marker0->s();
     XSPRITE *pXSprite2 = &pXSector->marker0->x();
     int nId = pXSprite2->data2;
     
@@ -1469,7 +1469,7 @@ void OperatePath(sectortype* pSector, EVENT event)
     }
         
     pXSector->marker1 = actor;
-    pXSector->offFloorZ = pSprite2->pos.Z;
+    pXSector->offFloorZ = pSprite1->pos.Z;
     pXSector->onFloorZ = pSprite->pos.Z;
     switch (event.cmd) {
         case kCmdOn:

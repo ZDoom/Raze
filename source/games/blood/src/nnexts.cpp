@@ -2598,7 +2598,6 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
         break;
         case OBJ_SPRITE: 
         {
-            spritetype* pSprite = &targetactor->s(); 
             XSPRITE* pXSprite = &targetactor->x();
             bool thing2debris = false;
             int old = -1;
@@ -2606,25 +2605,25 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
             // data3 = set sprite hitag
             if (valueIsBetween(pXSource->data3, -1, 32767)) 
             {
-                old = pSprite->flags;
+                old = targetactor->spr.flags;
 
                 // set new hitag
-                if ((pSource->flags & kModernTypeFlag1)) pSprite->flags = pSource->flags |= pXSource->data3; // relative
-                else pSprite->flags = pXSource->data3;  // absolute
+                if ((pSource->flags & kModernTypeFlag1)) targetactor->spr.flags = pSource->flags |= pXSource->data3; // relative
+                else targetactor->spr.flags = pXSource->data3;  // absolute
 
                 // and handle exceptions
-                if ((old & kHitagFree) && !(pSprite->flags & kHitagFree)) pSprite->flags |= kHitagFree;
-                if ((old & kHitagRespawn) && !(pSprite->flags & kHitagRespawn)) pSprite->flags |= kHitagRespawn;
+                if ((old & kHitagFree) && !(targetactor->spr.flags & kHitagFree)) targetactor->spr.flags |= kHitagFree;
+                if ((old & kHitagRespawn) && !(targetactor->spr.flags & kHitagRespawn)) targetactor->spr.flags |= kHitagRespawn;
 
                 // prepare things for different (debris) physics.
-                if (pSprite->statnum == kStatThing && debrisGetFreeIndex() >= 0) thing2debris = true;
+                if (targetactor->spr.statnum == kStatThing && debrisGetFreeIndex() >= 0) thing2debris = true;
 
             }
 
             // data2 = sprite physics settings
             if (valueIsBetween(pXSource->data2, -1, 32767) || thing2debris) 
             {
-                switch (pSprite->statnum) 
+                switch (targetactor->spr.statnum) 
                 {
                 case kStatDude: // dudes already treating in game
                 case kStatFree:
@@ -2639,13 +2638,13 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
                     if (thing2debris) 
                     {
                         // converting thing to debris
-                        if ((pSprite->flags & kPhysMove) != 0) flags |= kPhysMove;
+                        if ((targetactor->spr.flags & kPhysMove) != 0) flags |= kPhysMove;
                         else flags &= ~kPhysMove;
 
-                        if ((pSprite->flags & kPhysGravity) != 0) flags |= (kPhysGravity | kPhysFalling);
+                        if ((targetactor->spr.flags & kPhysGravity) != 0) flags |= (kPhysGravity | kPhysFalling);
                         else flags &= ~(kPhysGravity | kPhysFalling);
 
-                        pSprite->flags &= ~(kPhysMove | kPhysGravity | kPhysFalling);
+                        targetactor->spr.flags &= ~(kPhysMove | kPhysGravity | kPhysFalling);
                         targetactor->xvel = targetactor->yvel = targetactor->zvel = 0;
                         pXSprite->restState = pXSprite->state;
 
@@ -2774,14 +2773,14 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
                             pXSprite->physAttr = flags; // update physics attributes
 
                             // allow things to became debris, so they use different physics...
-                            if (pSprite->statnum == kStatThing) ChangeActorStat(targetactor, 0);
+                            if (targetactor->spr.statnum == kStatThing) ChangeActorStat(targetactor, 0);
 
                             // set random goal ang for swimming so they start turning
                             if ((flags & kPhysDebrisSwim) && !targetactor->xvel && !targetactor->yvel && !targetactor->zvel)
-                                pXSprite->goalAng = (pSprite->ang + Random3(kAng45)) & 2047;
+                                pXSprite->goalAng = (targetactor->spr.ang + Random3(kAng45)) & 2047;
                             
                             if (pXSprite->physAttr & kPhysDebrisVector)
-                                pSprite->cstat |= CSTAT_SPRITE_BLOCK_HITSCAN;
+                                targetactor->spr.cstat |= CSTAT_SPRITE_BLOCK_HITSCAN;
 
                             gPhysSpritesList[nIndex] = targetactor;
                             if (nIndex >= gPhysSpritesCount) gPhysSpritesCount++;
@@ -2796,7 +2795,7 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 
                         pXSprite->physAttr = flags;
                         targetactor->xvel = targetactor->yvel = targetactor->zvel = 0;
-                        if (pSprite->lotag >= kThingBase && pSprite->lotag < kThingMax)
+                        if (targetactor->spr.lotag >= kThingBase && targetactor->spr.lotag < kThingMax)
                             ChangeActorStat(targetactor, kStatThing);  // if it was a thing - restore statnum
                     }
                     break;
@@ -2806,27 +2805,27 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
             // data4 = sprite cstat
             if (valueIsBetween(pXSource->data4, -1, 65535)) 
             {
-                auto old = pSprite->cstat;
+                auto old = targetactor->spr.cstat;
 
                 // set new cstat
-                if ((pSource->flags & kModernTypeFlag1)) pSprite->cstat |= ESpriteFlags::FromInt(pXSource->data4); // relative
-                else pSprite->cstat = ESpriteFlags::FromInt(pXSource->data4 & 0xffff); // absolute
+                if ((pSource->flags & kModernTypeFlag1)) targetactor->spr.cstat |= ESpriteFlags::FromInt(pXSource->data4); // relative
+                else targetactor->spr.cstat = ESpriteFlags::FromInt(pXSource->data4 & 0xffff); // absolute
 
                 // and handle exceptions
-                if ((old & CSTAT_SPRITE_BLOOD_BIT1)) pSprite->cstat |= CSTAT_SPRITE_BLOOD_BIT1; //kSpritePushable
-                if ((old & CSTAT_SPRITE_YCENTER)) pSprite->cstat |= CSTAT_SPRITE_YCENTER;
+                if ((old & CSTAT_SPRITE_BLOOD_BIT1)) targetactor->spr.cstat |= CSTAT_SPRITE_BLOOD_BIT1; //kSpritePushable
+                if ((old & CSTAT_SPRITE_YCENTER)) targetactor->spr.cstat |= CSTAT_SPRITE_YCENTER;
 
-                pSprite->cstat |= (old & CSTAT_SPRITE_MOVE_MASK);
+                targetactor->spr.cstat |= (old & CSTAT_SPRITE_MOVE_MASK);
 #if 0
                 // looks very broken.
                 if (old & 0x6000) 
                 {
-                    if (!(pSprite->cstat & 0x6000))
-                        pSprite->cstat |= 0x6000; // kSpriteMoveMask
+                    if (!(targetactor->spr.cstat & 0x6000))
+                        targetactor->spr.cstat |= 0x6000; // kSpriteMoveMask
 
-                    if ((old & 0x0) && !(pSprite->cstat & 0x0)) pSprite->cstat |= 0x0; // kSpriteMoveNone
-                    else if ((old & 0x2000) && !(pSprite->cstat & 0x2000)) pSprite->cstat |= 0x2000; // kSpriteMoveForward, kSpriteMoveFloor
-                    else if ((old & 0x4000) && !(pSprite->cstat & 0x4000)) pSprite->cstat |= 0x4000; // kSpriteMoveReverse, kSpriteMoveCeiling
+                    if ((old & 0x0) && !(targetactor->spr.cstat & 0x0)) targetactor->spr.cstat |= 0x0; // kSpriteMoveNone
+                    else if ((old & 0x2000) && !(targetactor->spr.cstat & 0x2000)) targetactor->spr.cstat |= 0x2000; // kSpriteMoveForward, kSpriteMoveFloor
+                    else if ((old & 0x4000) && !(targetactor->spr.cstat & 0x4000)) targetactor->spr.cstat |= 0x4000; // kSpriteMoveReverse, kSpriteMoveCeiling
                 }
 #endif
             }
@@ -3573,21 +3572,20 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector
         }
         case OBJ_SPRITE:
         {
-            auto pSprite = &iactor->s();
             if (pXSource->data2 <= 0) seqKill(iactor);
-            else if (pSprite->insector())
+            else if (iactor->spr.insector())
             {
                 if (pXSource->data3 > 0)
                 {
-                    auto spawned = InsertSprite(pSprite->sector(), kStatDecoration);
+                    auto spawned = InsertSprite(iactor->spr.sector(), kStatDecoration);
                     auto pSpawned = &spawned->s();
                     int top, bottom; GetActorExtents(spawned, &top, &bottom);
-                    pSpawned->pos.X = pSprite->pos.X;
-                    pSpawned->pos.Y = pSprite->pos.Y;
+                    pSpawned->pos.X = iactor->spr.pos.X;
+                    pSpawned->pos.Y = iactor->spr.pos.Y;
                     switch (pXSource->data3) 
                     {                    
 					default:
-                        pSpawned->pos.Z = pSprite->pos.Z;
+                        pSpawned->pos.Z = iactor->spr.pos.Z;
                         break;
                     case 2:
                         pSpawned->pos.Z = bottom;
@@ -3596,11 +3594,11 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector
                         pSpawned->pos.Z = top;
                         break;
                     case 4:
-                        pSpawned->pos.Z = pSprite->pos.Z + tileHeight(pSprite->picnum) / 2 + tileTopOffset(pSprite->picnum);
+                        pSpawned->pos.Z = iactor->spr.pos.Z + tileHeight(iactor->spr.picnum) / 2 + tileTopOffset(iactor->spr.picnum);
                         break;
                     case 5:
                     case 6:
-                        if (!pSprite->insector()) pSpawned->pos.Z = top;
+                        if (!iactor->spr.insector()) pSpawned->pos.Z = top;
                         else pSpawned->pos.Z = (pXSource->data3 == 5) ? spawned->sector()->floorz : spawned->sector()->ceilingz;
                         break;
                     }
@@ -7127,7 +7125,8 @@ void playerQavSceneDraw(PLAYER* pPlayer, int a2, double a3, double a4, int a5)
     if (pPlayer == NULL || pPlayer->sceneQav == -1) return;
 
     QAVSCENE* pQavScene = &gPlayerCtrl[pPlayer->nPlayer].qavScene;
-    spritetype* pSprite = &pQavScene->initiator->s();
+    auto actor = pQavScene->initiator;
+    spritetype* pSprite = &actor->s();
 
     if (pQavScene->qavResrc != NULL) 
     {
