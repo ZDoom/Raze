@@ -6992,47 +6992,44 @@ void Fx33Callback(int, DBloodActor* actor)
 
 void TreeToGibCallback(int, DBloodActor* actor)
 {
-	XSPRITE* pXSprite = &actor->x();
 	actor->spr.type = kThingObjectExplode;
-	pXSprite->state = 1;
-	pXSprite->data1 = 15;
-	pXSprite->data2 = 0;
-	pXSprite->data3 = 0;
-	pXSprite->health = thingInfo[17].startHealth;
-	pXSprite->data4 = 312;
+	actor->xspr.state = 1;
+	actor->xspr.data1 = 15;
+	actor->xspr.data2 = 0;
+	actor->xspr.data3 = 0;
+	actor->xspr.health = thingInfo[17].startHealth;
+	actor->xspr.data4 = 312;
 	actor->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL;
 }
 
 void DudeToGibCallback1(int, DBloodActor* actor)
 {
-	XSPRITE* pXSprite = &actor->x();
 	actor->spr.type = kThingBloodChunks;
-	pXSprite->data1 = 8;
-	pXSprite->data2 = 0;
-	pXSprite->data3 = 0;
-	pXSprite->health = thingInfo[26].startHealth;
-	pXSprite->data4 = 319;
-	pXSprite->triggerOnce = 0;
-	pXSprite->isTriggered = 0;
-	pXSprite->locked = 0;
-	pXSprite->targetX = PlayClock;
-	pXSprite->state = 1;
+	actor->xspr.data1 = 8;
+	actor->xspr.data2 = 0;
+	actor->xspr.data3 = 0;
+	actor->xspr.health = thingInfo[26].startHealth;
+	actor->xspr.data4 = 319;
+	actor->xspr.triggerOnce = 0;
+	actor->xspr.isTriggered = 0;
+	actor->xspr.locked = 0;
+	actor->xspr.targetX = PlayClock;
+	actor->xspr.state = 1;
 }
 
 void DudeToGibCallback2(int, DBloodActor* actor)
 {
-	XSPRITE* pXSprite = &actor->x();
 	actor->spr.type = kThingBloodChunks;
-	pXSprite->data1 = 3;
-	pXSprite->data2 = 0;
-	pXSprite->data3 = 0;
-	pXSprite->health = thingInfo[26].startHealth;
-	pXSprite->data4 = 319;
-	pXSprite->triggerOnce = 0;
-	pXSprite->isTriggered = 0;
-	pXSprite->locked = 0;
-	pXSprite->targetX = PlayClock;
-	pXSprite->state = 1;
+	actor->xspr.data1 = 3;
+	actor->xspr.data2 = 0;
+	actor->xspr.data3 = 0;
+	actor->xspr.health = thingInfo[26].startHealth;
+	actor->xspr.data4 = 319;
+	actor->xspr.triggerOnce = 0;
+	actor->xspr.isTriggered = 0;
+	actor->xspr.locked = 0;
+	actor->xspr.targetX = PlayClock;
+	actor->xspr.state = 1;
 }
 
 //---------------------------------------------------------------------------
