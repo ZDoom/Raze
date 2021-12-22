@@ -1464,7 +1464,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 				if (ps[p].newOwner != nullptr)
 				{
 					ps[p].newOwner = nullptr;
-					ps[p].pos.X = ps[p].oposx;
+					ps[p].pos.X = ps[p].opos.X;
 					ps[p].pos.Y = ps[p].oposy;
 					ps[p].pos.Z = ps[p].oposz;
 					ps[p].angle.restore();
@@ -1502,7 +1502,7 @@ void clearcameras(int i, player_struct* p)
 {
 	if (i < 0)
 	{
-		p->pos.X = p->oposx;
+		p->pos.X = p->opos.X;
 		p->pos.Y = p->oposy;
 		p->pos.Z = p->oposz;
 		p->newOwner = nullptr;
@@ -1616,7 +1616,7 @@ void checksectors_d(int snum)
 					return;
 		}
 		if (p->newOwner != nullptr)
-			neartag({ p->oposx, p->oposy, p->oposz }, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280L, 1);
+			neartag({ p->opos.X, p->oposy, p->oposz }, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280L, 1);
 		else
 		{
 			neartag(p->pos, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280, 1);

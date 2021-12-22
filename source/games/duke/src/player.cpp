@@ -745,12 +745,12 @@ void player_struct::backuppos(bool noclipping)
 {
 	if (!noclipping)
 	{
-		oposx = pos.X;
+		opos.X = pos.X;
 		oposy = pos.Y;
 	}
 	else
 	{
-		pos.X = oposx;
+		pos.X = opos.X;
 		pos.Y = oposy;
 	}
 
@@ -1065,7 +1065,7 @@ DEFINE_FIELD_X(DukePlayer, player_struct, loogcnt)
 DEFINE_FIELD_X(DukePlayer, player_struct, invdisptime)
 DEFINE_FIELD_X(DukePlayer, player_struct, bobposx)
 DEFINE_FIELD_X(DukePlayer, player_struct, bobposy)
-DEFINE_FIELD_X(DukePlayer, player_struct, oposx)
+//DEFINE_FIELD_X(DukePlayer, player_struct, oposx)
 DEFINE_FIELD_X(DukePlayer, player_struct, oposy)
 DEFINE_FIELD_X(DukePlayer, player_struct, oposz)
 DEFINE_FIELD_X(DukePlayer, player_struct, pyoff)

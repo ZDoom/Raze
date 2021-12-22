@@ -270,14 +270,14 @@ void drawoverlays(double smoothratio)
 				}
 				else
 				{
-					cposx = interpolatedvalue(pp->oposx, pp->pos.X, smoothratio);
+					cposx = interpolatedvalue(pp->opos.X, pp->pos.X, smoothratio);
 					cposy = interpolatedvalue(pp->oposy, pp->pos.Y, smoothratio);
 					cang = (!SyncInput() ? pp->angle.ang : interpolatedangle(pp->angle.oang, pp->angle.ang, smoothratio)).asbuild();
 				}
 			}
 			else
 			{
-				cposx = pp->oposx;
+				cposx = pp->opos.X;
 				cposy = pp->oposy;
 				cang = pp->angle.oang.asbuild();
 			}

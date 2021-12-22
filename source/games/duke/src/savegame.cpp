@@ -277,7 +277,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 			.EndObject();
 
 		w.invdisptime = 0;
-		w.oposx = w.pos.X;
+		w.opos.X = w.pos.X;
 		w.oposy = w.pos.Y;
 		w.oposz = w.pos.Z;
 		w.opyoff = w.pyoff;

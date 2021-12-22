@@ -159,7 +159,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, int sx, int sy, int
 	{
 		int x;
 		int j = findplayer(actor, &x);
-		sa = getangle(ps[j].oposx - sx, ps[j].oposy - sy);
+		sa = getangle(ps[j].opos.X - sx, ps[j].oposy - sy);
 
 		if (actor->spr.picnum == BOSS5)
 		{
@@ -184,7 +184,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, int sx, int sy, int
 		zvel = -MulScale(ps[p].horizon.sum().asq16(), 81, 16);
 		if (ps[p].GetActor()->spr.xvel != 0)
 			vel = (int)((((512 - (1024
-				- abs(abs(getangle(sx - ps[p].oposx, sy - ps[p].oposy) - sa) - 1024)))
+				- abs(abs(getangle(sx - ps[p].opos.X, sy - ps[p].oposy) - sa) - 1024)))
 				* 0.001953125f) * ps[p].GetActor()->spr.xvel) + 400);
 		if (actor->spr.sector()->lotag == 2 && (krand() % 5) == 0)
 			spawned = spawn(actor, WATERBUBBLE);
@@ -706,7 +706,7 @@ static void shootrpg(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, i
 	{
 		int x;
 		int j = findplayer(actor, &x);
-		sa = getangle(ps[j].oposx - sx, ps[j].oposy - sy);
+		sa = getangle(ps[j].opos.X - sx, ps[j].oposy - sy);
 		if (actor->spr.picnum == BOSS3)
 		{
 			int zoffs = (32 << 8);

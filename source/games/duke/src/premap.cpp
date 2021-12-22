@@ -60,7 +60,7 @@ void pickrandomspot(int snum)
 		i = krand()%numplayersprites;
 	else i = snum;
 
-	p->bobposx = p->oposx = p->pos.X = po[i].ox;
+	p->bobposx = p->opos.X = p->pos.X = po[i].ox;
 	p->bobposy = p->oposy = p->pos.Y = po[i].oy;
 	p->oposz = p->pos.Z = po[i].oz;
 	p->angle.oang = p->angle.ang = buildang(po[i].oa);
@@ -625,7 +625,7 @@ void resetpspritevars(int g)
 			ps[j].frag_ps = j;
 			act->SetOwner(act);
 
-			ps[j].bobposx = ps[j].oposx = ps[j].pos.X = act->spr.pos.X;
+			ps[j].bobposx = ps[j].opos.X = ps[j].pos.X = act->spr.pos.X;
 			ps[j].bobposy = ps[j].oposy = ps[j].pos.Y = act->spr.pos.Y;
 			ps[j].oposz = ps[j].pos.Z = act->spr.pos.Z;
 			act->spr.backuppos();

@@ -186,7 +186,7 @@ struct player_struct
 	// This is basically the version from JFDuke but this first block contains a few changes to make it work with other parts of Raze.
 	
 	// The sound code wants to read a vector out of this so we need to define one for the main coordinate.
-	vec3_t pos;
+	vec3_t pos, opos;
 
 	// player's horizon and angle structs.
 	PlayerHorizon horizon;
@@ -216,7 +216,7 @@ struct player_struct
 	// From here on it is unaltered from JFDuke with the exception of a few fields that are no longer needed and were removed.
 	int exitx, exity, loogiex[64], loogiey[64], numloogs, loogcnt;
 	int invdisptime;
-	int bobposx, bobposy, oposx, oposy, oposz, pyoff, opyoff;
+	int bobposx, bobposy, oposy, oposz, pyoff, opyoff;
 	int posxv, posyv, poszv, last_pissed_time, truefz, truecz;
 	int player_par, visibility;
 	int bobcounter;

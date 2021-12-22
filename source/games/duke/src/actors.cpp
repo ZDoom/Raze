@@ -202,7 +202,7 @@ void checkavailweapon(struct player_struct* player)
 void clearcamera(player_struct* ps)
 {
 	ps->newOwner = nullptr;
-	ps->pos.X = ps->oposx;
+	ps->pos.X = ps->opos.X;
 	ps->pos.Y = ps->oposy;
 	ps->pos.Z = ps->oposz;
 	ps->angle.restore();
@@ -375,7 +375,7 @@ void movedummyplayers(void)
 			}
 		}
 
-		act->spr.pos.X += (ps[p].pos.X - ps[p].oposx);
+		act->spr.pos.X += (ps[p].pos.X - ps[p].opos.X);
 		act->spr.pos.Y += (ps[p].pos.Y - ps[p].oposy);
 		SetActor(act, act->spr.pos);
 	}
@@ -401,7 +401,7 @@ void moveplayers(void)
 		{
 			if (p->newOwner != nullptr) //Looking thru the camera
 			{
-				act->spr.pos.X = p->oposx;
+				act->spr.pos.X = p->opos.X;
 				act->spr.pos.Y = p->oposy;
 				act->spr.pos.Z = p->oposz + gs.playerheight;
 				act->spr.backupz();
@@ -797,7 +797,7 @@ void movecrane(DDukeActor *actor, int crane)
 		else if (actor->IsActiveCrane())
 		{
 			auto ang = ps[p].angle.ang.asbuild();
-			ps[p].oposx = ps[p].pos.X;
+			ps[p].opos.X = ps[p].pos.X;
 			ps[p].oposy = ps[p].pos.Y;
 			ps[p].oposz = ps[p].pos.Z;
 			ps[p].pos.X = actor->spr.pos.X - bcos(ang, -6);
@@ -2900,7 +2900,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 
 					if (numplayers > 1)
 					{
-						ps[p].oposx = ps[p].pos.X;
+						ps[p].opos.X = ps[p].pos.X;
 						ps[p].oposy = ps[p].pos.Y;
 					}
 					if (psp->spr.extra <= 0)
@@ -2944,7 +2944,7 @@ void handle_se14(DDukeActor* actor, bool checkstat, int RPG, int JIBS6)
 						updatesector(ps[p].pos.X, ps[p].pos.Y, &k);
 						if ((k == nullptr && ud.clipping == 0) || (k == actor->spr.sector() && ps[p].cursector != actor->spr.sector()))
 						{
-							ps[p].oposx = ps[p].pos.X = actor->spr.pos.X;
+							ps[p].opos.X = ps[p].pos.X = actor->spr.pos.X;
 							ps[p].oposy = ps[p].pos.Y = actor->spr.pos.Y;
 							ps[p].setCursector(actor->spr.sector());
 
@@ -3065,7 +3065,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 
 				if (numplayers > 1)
 				{
-					ps[p].oposx = ps[p].pos.X;
+					ps[p].opos.X = ps[p].pos.X;
 					ps[p].oposy = ps[p].pos.Y;
 				}
 
@@ -3111,7 +3111,7 @@ void handle_se30(DDukeActor *actor, int JIBS6)
 							ps[p].pos.X = actor->spr.pos.X;
 							ps[p].pos.Y = actor->spr.pos.Y;
 
-							ps[p].oposx = ps[p].pos.X;
+							ps[p].opos.X = ps[p].pos.X;
 							ps[p].oposy = ps[p].pos.Y;
 
 							ps[p].setCursector(actor->spr.sector());
@@ -3933,7 +3933,7 @@ void handle_se17(DDukeActor* actor)
 				act3->floorz = act2->spr.sector()->floorz;
 				act3->ceilingz = act2->spr.sector()->ceilingz;
 
-				ps[p].bobposx = ps[p].oposx = ps[p].pos.X;
+				ps[p].bobposx = ps[p].opos.X = ps[p].pos.X;
 				ps[p].bobposy = ps[p].oposy = ps[p].pos.Y;
 				ps[p].oposz = ps[p].pos.Z;
 
@@ -4214,7 +4214,7 @@ void handle_se20(DDukeActor* actor)
 				ps[p].pos.X += x;
 				ps[p].pos.Y += l;
 
-				ps[p].oposx = ps[p].pos.X;
+				ps[p].opos.X = ps[p].pos.X;
 				ps[p].oposy = ps[p].pos.Y;
 
 				SetActor(ps[p].GetActor(), { ps[p].pos.X, ps[p].pos.Y, ps[p].pos.Z + gs.playerheight });
