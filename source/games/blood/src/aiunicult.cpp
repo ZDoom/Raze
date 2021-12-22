@@ -122,11 +122,6 @@ static void forcePunch(DBloodActor* actor)
         punchCallback(0, actor);
 }
 
-/*bool sameFamily(spritetype* pDude1, spritetype* pDude2) {
-
-    return true;
-}*/
-
 //---------------------------------------------------------------------------
 //
 //
@@ -202,9 +197,8 @@ void punchCallback(int, DBloodActor* actor)
         int nZOffset2 = 0;
         
 
-        auto const pTarget = &target->s();
         if(target->IsDudeActor())
-            nZOffset2 = getDudeInfo(pTarget->type)->eyeHeight * pTarget->yrepeat << 2;
+            nZOffset2 = getDudeInfo(target->spr.type)->eyeHeight * target->spr.yrepeat << 2;
 
         int dx = bcos(pSprite->ang);
         int dy = bsin(pSprite->ang);
@@ -307,12 +301,12 @@ void ThrowCallback2(int, DBloodActor* actor)
 static void ThrowThing(DBloodActor* actor, bool impact) 
 {
     spritetype* pSprite = &actor->s();
+    auto target = actor->GetTarget();
 
-    if (actor->GetTarget() == nullptr)
+    if (target == nullptr)
         return;
 
-    spritetype * pTarget = &actor->GetTarget()->s();
-    if (!(pTarget->type >= kDudeBase && pTarget->type < kDudeMax))
+    if (!(target->spr.type >= kDudeBase && target->spr.type < kDudeMax))
         return;
 
     int curWeapon = actor->genDudeExtra.curWeapon;
@@ -325,9 +319,9 @@ static void ThrowThing(DBloodActor* actor, bool impact)
         sfxPlay3DSound(actor, 455, -1, 0);
             
     int zThrow = 14500;
-    int dx = pTarget->pos.X - pSprite->pos.X;
-    int dy = pTarget->pos.Y - pSprite->pos.Y;
-    int dz = pTarget->pos.Z - pSprite->pos.Z;
+    int dx = target->spr.pos.X - pSprite->pos.X;
+    int dy = target->spr.pos.Y - pSprite->pos.Y;
+    int dz = target->spr.pos.Z - pSprite->pos.Z;
     int dist = approxDist(dx, dy);
     
     auto actLeech = leechIsDropped(actor);
@@ -345,30 +339,29 @@ static void ThrowThing(DBloodActor* actor, bool impact)
     DBloodActor* spawned = nullptr;
     if ((spawned = actFireThing(actor, 0, 0, (dz / 128) - zThrow, curWeapon, DivScale(dist / 540, 120, 23))) == nullptr) return;
             
-    auto const pSpawned = &spawned->s();
     auto const pXSpawned = &spawned->x();
-    if (pThinkInfo->picnum < 0 && pSpawned->type != kModernThingThrowableRock) pSpawned->picnum = 0;
+    if (pThinkInfo->picnum < 0 && spawned->spr.type != kModernThingThrowableRock) spawned->spr.picnum = 0;
             
     spawned->SetOwner(actor);
 
     switch (curWeapon) {
         case kThingNapalmBall:
-            pSpawned->xrepeat = pSpawned->yrepeat = 24;
+            spawned->spr.xrepeat = spawned->spr.yrepeat = 24;
             pXSpawned->data4 = 3 + gGameOptions.nDifficulty;
             impact = true;
             break;
         case kModernThingThrowableRock:
-            pSpawned->picnum  = gCustomDudeDebrisPics[Random(5)];
-            pSpawned->xrepeat = pSpawned->yrepeat = 24 + Random(42);
-            pSpawned->cstat |= CSTAT_SPRITE_BLOCK;
-            pSpawned->pal = 5;
+            spawned->spr.picnum  = gCustomDudeDebrisPics[Random(5)];
+            spawned->spr.xrepeat = spawned->spr.yrepeat = 24 + Random(42);
+            spawned->spr.cstat |= CSTAT_SPRITE_BLOCK;
+            spawned->spr.pal = 5;
 
-            if (Chance(0x5000)) pSpawned->cstat |= CSTAT_SPRITE_XFLIP;
-            if (Chance(0x5000)) pSpawned->cstat |= CSTAT_SPRITE_YFLIP;
+            if (Chance(0x5000)) spawned->spr.cstat |= CSTAT_SPRITE_XFLIP;
+            if (Chance(0x5000)) spawned->spr.cstat |= CSTAT_SPRITE_YFLIP;
 
-            if (pSpawned->xrepeat > 60) pXSpawned->data1 = 43;
-            else if (pSpawned->xrepeat > 40) pXSpawned->data1 = 33;
-            else if (pSpawned->xrepeat > 30) pXSpawned->data1 = 23;
+            if (spawned->spr.xrepeat > 60) pXSpawned->data1 = 43;
+            else if (spawned->spr.xrepeat > 40) pXSpawned->data1 = 33;
+            else if (spawned->spr.xrepeat > 30) pXSpawned->data1 = 23;
             else pXSpawned->data1 = 12;
             return;
         case kThingTNTBarrel:
@@ -387,9 +380,9 @@ static void ThrowThing(DBloodActor* actor, bool impact)
             sfxPlay3DSound(actor, 490, -1, 0);
 
             pXSpawned->data3 = 512 / (gGameOptions.nDifficulty + 1);
-            pSpawned->cstat &= ~CSTAT_SPRITE_BLOCK;
-            pSpawned->pal = 6;
-            pSpawned->clipdist = 0;
+            spawned->spr.cstat &= ~CSTAT_SPRITE_BLOCK;
+            spawned->spr.pal = 6;
+            spawned->spr.clipdist = 0;
             spawned->SetTarget(actor->GetTarget());
             pXSpawned->Proximity = true;
             pXSpawned->stateTimer = 1;
@@ -465,8 +458,8 @@ static void unicultThinkChase(DBloodActor* actor)
     auto const pSprite = &actor->s();
     if (pSprite->type < kDudeBase || pSprite->type >= kDudeMax) return;
 
-    auto const targetactor = actor->GetTarget();
-    if (targetactor == nullptr)
+    auto const target = actor->GetTarget();
+    if (target == nullptr)
     {
         if(spriteIsUnderwater(actor,false)) aiGenDudeNewState(actor, &genDudeGotoW);
         else aiGenDudeNewState(actor, &genDudeGotoL);
@@ -477,10 +470,7 @@ static void unicultThinkChase(DBloodActor* actor)
         genDudeUpdate(actor);
     }
 
-    // we need to be very careful here not to screw up the condition for this check!
-	XSPRITE* pXTarget = !targetactor || !targetactor->IsDudeActor() || !targetactor->hasX() ? nullptr : &targetactor->x();
-
-    if (pXTarget == nullptr)  // target lost
+    if (!target || !target->IsDudeActor() || !target->hasX())  // target lost
     {
         if(spriteIsUnderwater(actor,false)) aiGenDudeNewState(actor, &genDudeSearchShortW);
         else aiGenDudeNewState(actor, &genDudeSearchShortL);
@@ -488,11 +478,11 @@ static void unicultThinkChase(DBloodActor* actor)
         return;
     } 
 
-    auto const pTarget = &targetactor->s();
+    XSPRITE* pXTarget = &target->x();
     if (pXTarget->health <= 0) // target is dead
     {
         PLAYER* pPlayer = NULL;
-        if ((!IsPlayerSprite(pTarget)) || ((pPlayer = getPlayerById(pTarget->type)) != NULL && pPlayer->fragger == actor)) 
+        if ((!target->IsPlayerActor()) || ((pPlayer = getPlayerById(target->spr.type)) != NULL && pPlayer->fragger == actor)) 
         {
             playGenDudeSound(actor, kGenDudeSndTargetDead);
             if (spriteIsUnderwater(actor, false)) aiGenDudeNewState(actor, &genDudeSearchShortW);
@@ -505,8 +495,8 @@ static void unicultThinkChase(DBloodActor* actor)
     }
     
     // check target
-    int dx = pTarget->pos.X - pSprite->pos.X; 
-    int dy = pTarget->pos.Y - pSprite->pos.Y;
+    int dx = target->spr.pos.X - pSprite->pos.X; 
+    int dy = target->spr.pos.Y - pSprite->pos.Y;
     int dist = ClipLow((int)approxDist(dx, dy), 1);
 
     // quick hack to prevent spinning around or changing attacker's sprite angle on high movement speeds
@@ -528,9 +518,9 @@ static void unicultThinkChase(DBloodActor* actor)
         else aiGenDudeNewState(actor, &genDudeGotoL);
         return;
     }
-    else if (IsPlayerSprite(pTarget)) 
+    else if (target->IsPlayerActor()) 
     {
-        PLAYER* pPlayer = &gPlayer[pTarget->type - kDudePlayer1];
+        PLAYER* pPlayer = &gPlayer[target->spr.type - kDudePlayer1];
         if (powerupCheck(pPlayer, kPwUpShadowCloak) > 0)  
         {
             if (spriteIsUnderwater(actor, false)) aiGenDudeNewState(actor, &genDudeSearchShortW);
@@ -544,7 +534,7 @@ static void unicultThinkChase(DBloodActor* actor)
     int losAngle = ((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024;
     int eyeAboveZ = (pDudeInfo->eyeHeight * pSprite->yrepeat) << 2;
 
-    if (dist > pDudeInfo->seeDist || !cansee(pTarget->pos.X, pTarget->pos.Y, pTarget->pos.Z, pTarget->sector(),
+    if (dist > pDudeInfo->seeDist || !cansee(target->spr.pos.X, target->spr.pos.Y, target->spr.pos.Z, target->spr.sector(),
         pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z - eyeAboveZ, pSprite->sector()))
     {
         if (spriteIsUnderwater(actor, false)) aiGenDudeNewState(actor, &genDudeSearchW);
@@ -559,7 +549,7 @@ static void unicultThinkChase(DBloodActor* actor)
         if ((PlayClock & 64) == 0 && Chance(0x3000) && !spriteIsUnderwater(actor, false))
             playGenDudeSound(actor, kGenDudeSndChasing);
 
-        actor->dudeSlope = dist == 0 ? 0 : DivScale(pTarget->pos.Z - pSprite->pos.Z, dist, 10);
+        actor->dudeSlope = dist == 0 ? 0 : DivScale(target->spr.pos.Z - pSprite->pos.Z, dist, 10);
 
         int curWeapon = actor->genDudeExtra.curWeapon; 
         int weaponType = actor->genDudeExtra.weaponType;
@@ -604,8 +594,8 @@ static void unicultThinkChase(DBloodActor* actor)
                                 return;
                             }
 
-                            int ldist = aiFightGetTargetDist(targetactor, pDudeInfo, actLeech);
-                            if (ldist > 3 || !cansee(pTarget->pos.X, pTarget->pos.Y, pTarget->pos.Z, pTarget->sector(),
+                            int ldist = aiFightGetTargetDist(target, pDudeInfo, actLeech);
+                            if (ldist > 3 || !cansee(target->spr.pos.X, target->spr.pos.Y, target->spr.pos.Z, target->spr.sector(),
                                 actLeech->spr.pos.X, actLeech->spr.pos.Y, actLeech->spr.pos.Z, actLeech->spr.sector()) || actLeech->GetTarget() == nullptr)
                             {
                                 aiGenDudeNewState(actor, &genDudeThrow2);
@@ -736,7 +726,7 @@ static void unicultThinkChase(DBloodActor* actor)
                             else aiGenDudeNewState(actor, &genDudeDodgeShortW);
                             return;
                         }
-                        else if (dist <= 4000 && pXTarget->burnTime >= 2000 && targetactor->GetBurnSource() == actor)
+                        else if (dist <= 4000 && pXTarget->burnTime >= 2000 && target->GetBurnSource() == actor)
                         {
                             if (dist > meleeVector->maxDist) aiGenDudeNewState(actor, &genDudeChaseL);
                             else aiGenDudeNewState(actor, &genDudePunch);
@@ -750,7 +740,7 @@ static void unicultThinkChase(DBloodActor* actor)
             {
                 int nType = curWeapon - kTrapExploder; 
                 const EXPLOSION* pExpl = &explodeInfo[nType];
-                if (CheckProximity(actor, pTarget->pos.X, pTarget->pos.Y, pTarget->pos.Z, pTarget->sector(), pExpl->radius >> 1)) 
+                if (CheckProximity(actor, target->spr.pos.X, target->spr.pos.Y, target->spr.pos.Z, target->spr.sector(), pExpl->radius >> 1)) 
                 {
                     actor->xvel = actor->yvel = actor->zvel = 0;
                     if (doExplosion(actor, nType) && pXSprite->health > 0)
@@ -774,7 +764,7 @@ static void unicultThinkChase(DBloodActor* actor)
                     
                     if (hit >= 0) 
                     {
-                        targetDist = dist - (pTarget->clipdist << 2);
+                        targetDist = dist - (target->spr.clipdist << 2);
                         objDist = approxDist(gHitInfo.hitpos.X - pSprite->pos.X, gHitInfo.hitpos.Y - pSprite->pos.Y);
                     }
 
@@ -783,7 +773,6 @@ static void unicultThinkChase(DBloodActor* actor)
                         DBloodActor* hitactor = nullptr;
                         walltype* pHWall = NULL; 
                         XWALL* pXHWall = NULL;
-                        spritetype* pHSprite = NULL; 
                         XSPRITE* pXHSprite = NULL;
                         bool hscn = false; 
                         bool blck = false; 
@@ -795,9 +784,7 @@ static void unicultThinkChase(DBloodActor* actor)
                             hitactor = gHitInfo.actor();
                             if (hitactor)
                             {
-                                pHSprite = &hitactor->s();
-                                pXHSprite = &hitactor->x();
-                                hscn = (pHSprite->cstat & CSTAT_SPRITE_BLOCK_HITSCAN); blck = (pHSprite->cstat & CSTAT_SPRITE_BLOCK);
+                                hscn = (hitactor->spr.cstat & CSTAT_SPRITE_BLOCK_HITSCAN); blck = (hitactor->spr.cstat & CSTAT_SPRITE_BLOCK);
                             }
                             break;
                         case 0:
@@ -857,12 +844,12 @@ static void unicultThinkChase(DBloodActor* actor)
                                                 }
                                                 if (pSprite->pos.X < pHSprite->pos.X) 
                                                 {
-                                                    if (Chance(0x9000) && pTarget->pos.X > pHSprite->pos.X) pXSprite->dodgeDir = -1;
+                                                    if (Chance(0x9000) && target->spr.pos.X > pHSprite->pos.X) pXSprite->dodgeDir = -1;
                                                     else pXSprite->dodgeDir = 1;
                                                 }
                                                 else 
                                                 {
-                                                    if (Chance(0x9000) && pTarget->pos.X > pHSprite->pos.X) pXSprite->dodgeDir = 1;
+                                                    if (Chance(0x9000) && target->spr.pos.X > pHSprite->pos.X) pXSprite->dodgeDir = 1;
                                                     else pXSprite->dodgeDir = -1;
                                                 }
                                             }
@@ -870,12 +857,12 @@ static void unicultThinkChase(DBloodActor* actor)
                                         default:
                                             if (pSprite->pos.X < pHSprite->pos.X) 
                                             {
-                                                if (Chance(0x9000) && pTarget->pos.X > pHSprite->pos.X) pXSprite->dodgeDir = -1;
+                                                if (Chance(0x9000) && target->spr.pos.X > pHSprite->pos.X) pXSprite->dodgeDir = -1;
                                                 else pXSprite->dodgeDir = 1;
                                             } 
                                             else 
                                             {
-                                                if (Chance(0x9000) && pTarget->pos.X > pHSprite->pos.X) pXSprite->dodgeDir = 1;
+                                                if (Chance(0x9000) && target->spr.pos.X > pHSprite->pos.X) pXSprite->dodgeDir = 1;
                                                 else pXSprite->dodgeDir = -1;
                                             }
                                             break;
@@ -914,12 +901,12 @@ static void unicultThinkChase(DBloodActor* actor)
 
                                         if (pSprite->pos.X < pHSprite->pos.X) 
                                         {
-                                            if (Chance(0x3000) && pTarget->pos.X > pHSprite->pos.X) pXSprite->dodgeDir = -1;
+                                            if (Chance(0x3000) && target->spr.pos.X > pHSprite->pos.X) pXSprite->dodgeDir = -1;
                                             else pXSprite->dodgeDir = 1;
                                         }
                                         else 
                                         {
-                                            if (Chance(0x3000) && pTarget->pos.X > pHSprite->pos.X) pXSprite->dodgeDir = 1;
+                                            if (Chance(0x3000) && target->spr.pos.X > pHSprite->pos.X) pXSprite->dodgeDir = 1;
                                             else pXSprite->dodgeDir = -1;
                                         }
 
@@ -969,7 +956,7 @@ static void unicultThinkChase(DBloodActor* actor)
                                 {
                                     // allow attack if dude is far from object, but target is close to it
                                     int dudeDist = approxDist(gHitInfo.hitpos.X - pSprite->pos.X, gHitInfo.hitpos.Y - pSprite->pos.Y);
-                                    int targetDist = approxDist(gHitInfo.hitpos.X - pTarget->pos.X, gHitInfo.hitpos.Y - pTarget->pos.Y);
+                                    int targetDist = approxDist(gHitInfo.hitpos.X - target->spr.pos.X, gHitInfo.hitpos.Y - target->spr.pos.Y);
                                     if (dudeDist < mdist) 
                                     {
                                         //viewSetSystemMessage("DUDE CLOSE TO OBJ: %d, MDIST: %d", dudeDist, mdist);
@@ -1407,13 +1394,12 @@ void removeDudeStuff(DBloodActor* actor)
     BloodStatIterator it(kStatThing);
     while (auto actor2 = it.Next())
     {
-        if ( actor2->GetOwner() != actor) continue;
-        auto pSprite2 = &actor2->s();
-        switch (pSprite2->type) {
+        if (actor2->GetOwner() != actor) continue;
+        switch (actor2->spr.type) {
             case kThingArmedProxBomb:
             case kThingArmedRemoteBomb:
             case kModernThingTNTProx:
-                pSprite2->type = kSpriteDecoration;
+                actor2->spr.type = kSpriteDecoration;
                 actPostSprite(actor2, kStatFree);
                 break;
             case kModernThingEnemyLifeLeech:
@@ -1438,18 +1424,16 @@ void removeDudeStuff(DBloodActor* actor)
 
 void removeLeech(DBloodActor* actLeech, bool delSprite) 
 {
-    if (actLeech != NULL) 
+    if (actLeech != nullptr) 
     {
-        auto const pLeech = &actLeech->s();
-        auto effectactor = gFX.fxSpawnActor((FX_ID)52, pLeech->sector(), pLeech->pos.X, pLeech->pos.Y, pLeech->pos.Z, pLeech->ang);
-        if (effectactor != NULL) 
+        auto effectactor = gFX.fxSpawnActor((FX_ID)52, actLeech->spr.sector(), actLeech->spr.pos.X, actLeech->spr.pos.Y, actLeech->spr.pos.Z, actLeech->spr.ang);
+        if (effectactor != nullptr) 
         {
-            spritetype* pEffect = &effectactor->s();
-            pEffect->cstat = CSTAT_SPRITE_ALIGNMENT_FACING;
-            pEffect->pal = 6;
+            effectactor->spr.cstat = CSTAT_SPRITE_ALIGNMENT_FACING;
+            effectactor->spr.pal = 6;
             int repeat = 64 + Random(50);
-            pEffect->xrepeat = repeat;
-            pEffect->yrepeat = repeat;
+            effectactor->spr.xrepeat = repeat;
+            effectactor->spr.yrepeat = repeat;
         }
         
         sfxPlay3DSoundCP(actLeech, 490, -1, 0,60000);
@@ -1459,7 +1443,7 @@ void removeLeech(DBloodActor* actLeech, bool delSprite)
 
         if (delSprite) 
         {
-            pLeech->type = kSpriteDecoration;
+            actLeech->spr.type = kSpriteDecoration;
             actPostSprite(actLeech, kStatFree);
         }
 
@@ -1828,23 +1812,22 @@ void dudeLeechOperate(DBloodActor* actor, const EVENT& event)
     auto actTarget = actor->GetTarget();
     if (actTarget != nullptr && actTarget != actor->GetOwner())
     {
-        spritetype* pTarget = &actTarget->s();
-        if (pTarget->statnum == kStatDude && !(pTarget->flags & 32) && actTarget->hasX() && !pXSprite->stateTimer) 
+        if (actTarget->spr.statnum == kStatDude && !(actTarget->spr.flags & 32) && actTarget->hasX() && !pXSprite->stateTimer) 
         {
-            if (IsPlayerSprite(pTarget)) 
+            if (actTarget->IsPlayerActor()) 
             {
-                PLAYER* pPlayer = &gPlayer[pTarget->type - kDudePlayer1];
+                PLAYER* pPlayer = &gPlayer[actTarget->spr.type - kDudePlayer1];
                 if (powerupCheck(pPlayer, kPwUpShadowCloak) > 0) return;
             }
             int top, bottom;
             GetActorExtents(actor, &top, &bottom);
-            int nType = pTarget->type - kDudeBase;
+            int nType = actTarget->spr.type - kDudeBase;
             DUDEINFO* pDudeInfo = &dudeInfo[nType];
             int z1 = (top - pSprite->pos.Z) - 256;
-            int x = pTarget->pos.X; int y = pTarget->pos.Y; int z = pTarget->pos.Z;
+            int x = actTarget->spr.pos.X; int y = actTarget->spr.pos.Y; int z = actTarget->spr.pos.Z;
             int nDist = approxDist(x - pSprite->pos.X, y - pSprite->pos.Y);
             
-            if (nDist != 0 && cansee(pSprite->pos.X, pSprite->pos.Y, top, pSprite->sector(), x, y, z, pTarget->sector()))
+            if (nDist != 0 && cansee(pSprite->pos.X, pSprite->pos.Y, top, pSprite->sector(), x, y, z, actTarget->spr.sector()))
             {
                 int t = DivScale(nDist, 0x1aaaaa, 12);
                 x += (actTarget->xvel * t) >> 12;
@@ -1853,7 +1836,7 @@ void dudeLeechOperate(DBloodActor* actor, const EVENT& event)
                 pSprite->ang = getangle(x - pSprite->pos.X, y - pSprite->pos.Y);
                 int dx = bcos(pSprite->ang);
                 int dy = bsin(pSprite->ang);
-                int tz = pTarget->pos.Z - (pTarget->yrepeat * pDudeInfo->aimHeight) * 4;
+                int tz = actTarget->spr.pos.Z - (actTarget->spr.yrepeat * pDudeInfo->aimHeight) * 4;
                 int dz = DivScale(tz - top - 256, nDist, 10);
                 int nMissileType = kMissileLifeLeechAltNormal + (pXSprite->data3 ? 1 : 0);
                 int t2;
@@ -1887,19 +1870,18 @@ bool doExplosion(DBloodActor* actor, int nType)
     auto const pSprite = &actor->s();
 
     auto actExplosion = actSpawnSprite(pSprite->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z, kStatExplosion, true);
-    auto const pExplosion = &actExplosion->s();
     auto const pXExplosion = &actExplosion->x();
     if (!actExplosion->hasX())
         return false;
 
     int nSeq = 4; int nSnd = 304; const EXPLOSION* pExpl = &explodeInfo[nType];
     
-    pExplosion->type = nType;
-    pExplosion->cstat |= CSTAT_SPRITE_INVISIBLE;
+    actExplosion->spr.type = nType;
+    actExplosion->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
     actExplosion->SetOwner(actor);
-    pExplosion->shade = -127;
+    actExplosion->spr.shade = -127;
 
-    pExplosion->yrepeat = pExplosion->xrepeat = pExpl->repeat;
+    actExplosion->spr.yrepeat = actExplosion->spr.xrepeat = pExpl->repeat;
 
     pXExplosion->data1 = pExpl->ticks;
     pXExplosion->data2 = pExpl->quakeEffect;
@@ -1929,11 +1911,9 @@ DBloodActor* genDudeSpawn(DBloodActor* source, DBloodActor* actor, int nDist)
 {
     spritetype* pSprite = &actor->s();
 
-    spritetype* pSource = &source->s();
     auto pXSource = &source->x();
 
     auto spawned = actSpawnSprite(actor, kStatDude);
-    spritetype* pDude = &spawned->s();
     XSPRITE* pXDude = &spawned->x();
 
     int x, y, z = pSprite->pos.Z, nAngle = pSprite->ang, nType = kDudeModernCustom;
@@ -1952,11 +1932,11 @@ DBloodActor* genDudeSpawn(DBloodActor* source, DBloodActor* actor, int nDist)
 
     }
 
-    pDude->type = nType; pDude->ang = nAngle;
+    spawned->spr.type = nType; spawned->spr.ang = nAngle;
     vec3_t pos = { x, y, z }; 
     SetActor(spawned, &pos);
-    pDude->cstat |= CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_BLOOD_BIT1; 
-    pDude->clipdist = dudeInfo[nType - kDudeBase].clipdist;
+    spawned->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_BLOOD_BIT1; 
+    spawned->spr.clipdist = dudeInfo[nType - kDudeBase].clipdist;
 
     // inherit weapon, seq and sound settings.
     pXDude->data1 = pXSource->data1;
@@ -1971,20 +1951,20 @@ DBloodActor* genDudeSpawn(DBloodActor* source, DBloodActor* actor, int nDist)
     pXDude->busyTime = pXSource->busyTime;
 
     // inherit clipdist?
-    if (pSource->clipdist > 0)
-        pDude->clipdist = pSource->clipdist;
+    if (source->spr.clipdist > 0)
+        spawned->spr.clipdist = source->spr.clipdist;
 
     // inherit custom hp settings
     if (pXSource->data4 <= 0) pXDude->health = dudeInfo[nType - kDudeBase].startHealth << 4;
     else pXDude->health = ClipRange(pXSource->data4 << 4, 1, 65535);
 
 
-    if (pSource->flags & kModernTypeFlag1) 
+    if (source->spr.flags & kModernTypeFlag1) 
     {
-        switch (pSource->type) {
+        switch (source->spr.type) {
             case kModernCustomDudeSpawn:
                 //inherit pal?
-                if (pDude->pal <= 0) pDude->pal = pSource->pal;
+                if (spawned->spr.pal <= 0) spawned->spr.pal = source->spr.pal;
 
                 // inherit spawn sprite trigger settings, so designer can count monsters.
                 pXDude->txID = pXSource->txID;
@@ -2009,10 +1989,10 @@ DBloodActor* genDudeSpawn(DBloodActor* source, DBloodActor* actor, int nDist)
     }
 
     // inherit sprite size (useful for seqs with zero repeats)
-    if (pSource->flags & kModernTypeFlag2) 
+    if (source->spr.flags & kModernTypeFlag2) 
     {
-        pDude->xrepeat = pSource->xrepeat;
-        pDude->yrepeat = pSource->yrepeat;
+        spawned->spr.xrepeat = source->spr.xrepeat;
+        spawned->spr.yrepeat = source->spr.yrepeat;
     }
 
     gKillMgr.AddNewKill(1);
@@ -2042,7 +2022,6 @@ void genDudeTransform(DBloodActor* actor)
     }
     
     auto pXIncarnation = &actIncarnation->x();
-    spritetype* pIncarnation = &actIncarnation->s();
     pXSprite->key = pXSprite->dropMsg = pXSprite->locked = 0;
 
     // save incarnation's going on and off options
@@ -2056,13 +2035,13 @@ void genDudeTransform(DBloodActor* actor)
     // trigger dude death before transform
     trTriggerSprite(actor, kCmdOff);
 
-    pSprite->type = pSprite->inittype = pIncarnation->type;
-    pSprite->flags = pIncarnation->flags;
-    pSprite->pal = pIncarnation->pal;
-    pSprite->shade = pIncarnation->shade;
-    pSprite->clipdist = pIncarnation->clipdist;
-    pSprite->xrepeat = pIncarnation->xrepeat;
-    pSprite->yrepeat = pIncarnation->yrepeat;
+    pSprite->type = pSprite->inittype = actIncarnation->spr.type;
+    pSprite->flags = actIncarnation->spr.flags;
+    pSprite->pal = actIncarnation->spr.pal;
+    pSprite->shade = actIncarnation->spr.shade;
+    pSprite->clipdist = actIncarnation->spr.clipdist;
+    pSprite->xrepeat = actIncarnation->spr.xrepeat;
+    pSprite->yrepeat = actIncarnation->spr.yrepeat;
 
     pXSprite->txID = pXIncarnation->txID;
     pXSprite->command = pXIncarnation->command;
@@ -2136,7 +2115,7 @@ void genDudeTransform(DBloodActor* actor)
 
     /*// remove the incarnation in case if non-locked
     if (pXIncarnation->locked == 0) {
-        pXIncarnation->txID = pIncarnation->type = 0;
+        pXIncarnation->txID = actIncarnation->spr.type = 0;
         actPostSprite(pIncarnation, kStatFree);
         // or restore triggerOn and off options
     } else {
