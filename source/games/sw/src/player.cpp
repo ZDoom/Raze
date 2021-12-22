@@ -1281,7 +1281,7 @@ void DoPlayerTeleportToSprite(PLAYERp pp, vec3_t* sp, int ang)
 {
     pp->angle.ang = pp->angle.oang = buildang(ang);
     pp->pos.X = pp->opos.X = pp->oldposx = sp->X;
-    pp->pos.Y = pp->oposy = pp->oldposy = sp->Y;
+    pp->pos.Y = pp->opos.Y = pp->oldposy = sp->Y;
 
     //getzsofslopeptr(sp->sector(), pp->posx, pp->posy, &cz, &fz);
     //pp->posz = pp->oposz = fz - PLAYER_HEIGHT;
@@ -1295,7 +1295,7 @@ void DoPlayerTeleportToSprite(PLAYERp pp, vec3_t* sp, int ang)
 void DoPlayerTeleportToOffset(PLAYERp pp)
 {
     pp->opos.X = pp->oldposx = pp->pos.X;
-    pp->oposy = pp->oldposy = pp->pos.Y;
+    pp->opos.Y = pp->oldposy = pp->pos.Y;
 
     updatesector(pp->pos.X, pp->pos.Y, &pp->cursector);
     SET(pp->Flags2, PF2_TELEPORTED);
@@ -2082,7 +2082,7 @@ void DoPlayerMove(PLAYERp pp)
         if (interpolate_ride)
         {
             pp->opos.X = pp->pos.X;
-            pp->oposy = pp->pos.Y;
+            pp->opos.Y = pp->pos.Y;
         }
         pp->pos.X += pp->xvect >> 14;
         pp->pos.Y += pp->yvect >> 14;
@@ -2109,7 +2109,7 @@ void DoPlayerMove(PLAYERp pp)
         if (interpolate_ride)
         {
             pp->opos.X = pp->pos.X;
-            pp->oposy = pp->pos.Y;
+            pp->opos.Y = pp->pos.Y;
         }
 
         auto save_cstat = sp->cstat;
@@ -3604,7 +3604,7 @@ void PlayerWarpUpdatePos(PLAYERp pp)
         return;
 
     pp->opos.X = pp->pos.X;
-    pp->oposy = pp->pos.Y;
+    pp->opos.Y = pp->pos.Y;
     pp->oposz = pp->pos.Z;
     DoPlayerZrange(pp);
     UpdatePlayerSprite(pp);
@@ -4120,7 +4120,7 @@ void DoPlayerWarpToUnderwater(PLAYERp pp)
     pp->pos.Z = under_sp->sector()->ceilingz + Z(6);
 
     pp->opos.X = pp->pos.X;
-    pp->oposy = pp->pos.Y;
+    pp->opos.Y = pp->pos.Y;
     pp->oposz = pp->pos.Z;
 
     DoPlayerZrange(pp);
@@ -4198,7 +4198,7 @@ void DoPlayerWarpToSurface(PLAYERp pp)
     pp->pos.Z -= Z(pp->WadeDepth);
 
     pp->opos.X = pp->pos.X;
-    pp->oposy = pp->pos.Y;
+    pp->opos.Y = pp->pos.Y;
     pp->oposz = pp->pos.Z;
 
     return;
@@ -6486,7 +6486,7 @@ void MoveSkipSavePos(void)
         pp = Player + pnum;
 
         pp->opos.X = pp->pos.X;
-        pp->oposy = pp->pos.Y;
+        pp->opos.Y = pp->pos.Y;
         pp->oposz = pp->pos.Z;
         pp->obob_z = pp->bob_z;
         pp->angle.backup();
@@ -6826,7 +6826,7 @@ void InitAllPlayers(void)
     for (pp = Player; pp < &Player[MAX_SW_PLAYERS]; pp++)
     {
         pp->pos.X = pp->opos.X = pfirst->pos.X;
-        pp->pos.Y = pp->oposy = pfirst->pos.Y;
+        pp->pos.Y = pp->opos.Y = pfirst->pos.Y;
         pp->pos.Z = pp->oposz = pfirst->pos.Z;
         pp->angle.ang = pp->angle.oang = pfirst->angle.ang;
         pp->horizon.horiz = pp->horizon.ohoriz = pfirst->horizon.horiz;
@@ -6983,7 +6983,7 @@ void PlayerSpawnPosition(PLAYERp pp)
 
 
     pp->pos.X = pp->opos.X = sp->pos.X;
-    pp->pos.Y = pp->oposy = sp->pos.Y;
+    pp->pos.Y = pp->opos.Y = sp->pos.Y;
     pp->pos.Z = pp->oposz = sp->pos.Z;
     pp->angle.ang = pp->angle.oang = buildang(sp->ang);
     pp->setcursector(sp->sector());

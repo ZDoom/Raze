@@ -825,7 +825,7 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
                 PLAYERp pp = tu->PlayerP;
                 int sr = 65536 - int(smoothratio);
                 tsp->pos.X -= MulScale(pp->pos.X - pp->opos.X, sr, 16);
-                tsp->pos.Y -= MulScale(pp->pos.Y - pp->oposy, sr, 16);
+                tsp->pos.Y -= MulScale(pp->pos.Y - pp->opos.Y, sr, 16);
                 tsp->pos.Z -= MulScale(pp->pos.Z - pp->oposz, sr, 16);
                 tsp->ang -= MulScale(pp->angle.ang.asbuild() - pp->angle.oang.asbuild(), sr, 16);
             }
@@ -1459,7 +1459,7 @@ void drawscreen(PLAYERp pp, double smoothratio)
         camerapp = pp;
 
     tx = interpolatedvalue(camerapp->opos.X, camerapp->pos.X, sr);
-    ty = interpolatedvalue(camerapp->oposy, camerapp->pos.Y, sr);
+    ty = interpolatedvalue(camerapp->opos.Y, camerapp->pos.Y, sr);
     tz = interpolatedvalue(camerapp->oposz, camerapp->pos.Z, sr);
 
     // Interpolate the player's angle while on a sector object, just like VoidSW.

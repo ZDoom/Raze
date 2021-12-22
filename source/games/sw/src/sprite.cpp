@@ -1532,7 +1532,7 @@ void PreMapCombineFloors(void)
                     pp->pos.X += dx;
                     pp->pos.Y += dy;
                     pp->opos.X = pp->oldposx = pp->pos.X;
-                    pp->oposy = pp->oldposy = pp->pos.Y;
+                    pp->opos.Y = pp->oldposy = pp->pos.Y;
                     break;
                 }
             }
