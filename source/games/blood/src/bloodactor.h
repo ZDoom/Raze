@@ -179,4 +179,9 @@ inline void GetActorExtents(DBloodActor* actor, int* top, int* bottom)
 	GetSpriteExtents(&actor->s(), top, bottom);
 }
 
+inline bool CheckSector(const BitArray& bits, DBloodActor* act)
+{
+	return bits[act->spr.sectno()];
+}
+
 END_BLD_NS

@@ -2657,7 +2657,7 @@ void actRadiusDamage(DBloodActor* source, int x, int y, int z, sectortype* pSect
 				if (act2->hasX())
 				{
 					if (act2->spr.flags & 0x20) continue;
-					if (!CheckSector(sectorMap, pSprite2)) continue;
+					if (!CheckSector(sectorMap, act2)) continue;
 					if (!CheckProximity(act2, x, y, z, pSector, nDist)) continue;
 
 					int dx = abs(x - act2->spr.pos.X);
@@ -2682,7 +2682,7 @@ void actRadiusDamage(DBloodActor* source, int x, int y, int z, sectortype* pSect
 		while (auto act2 = it.Next())
 		{
 			if (act2->spr.flags & 0x20) continue;
-			if (!CheckSector(sectorMap, pSprite2)) continue;
+			if (!CheckSector(sectorMap, act2)) continue;
 			if (!CheckProximity(act2, x, y, z, pSector, nDist)) continue;
 
 			XSPRITE* pXSprite2 = &act2->x();
@@ -5909,7 +5909,7 @@ static void actCheckExplosion()
 
 			if (pDude->flags & 32) continue;
 
-			if (CheckSector(sectorMap, pDude))
+			if (CheckSector(sectorMap, dudeactor))
 			{
 				if (pXSprite->data1 && CheckProximity(dudeactor, x, y, z, pSector, radius))
 				{
@@ -5938,7 +5938,7 @@ static void actCheckExplosion()
 
 			if (pThing->flags & 32) continue;
 
-			if (CheckSector(sectorMap, pThing))
+			if (CheckSector(sectorMap, thingactor))
 			{
 				if (pXSprite->data1 && CheckProximity(thingactor, x, y, z, pSector, radius) && thingactor->hasX())
 				{
@@ -5960,10 +5960,10 @@ static void actCheckExplosion()
 
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 		{
-			spritetype* pSprite2 = gPlayer[p].pSprite;
-			int dx = (x - pSprite2->pos.X) >> 4;
-			int dy = (y - pSprite2->pos.Y) >> 4;
-			int dz = (z - pSprite2->pos.Z) >> 8;
+			auto pos = gPlayer[p].pSprite->pos;
+			int dx = (x - pos.X) >> 4;
+			int dy = (y - pos.Y) >> 4;
+			int dz = (z - pos.Z) >> 8;
 			int nDist = dx * dx + dy * dy + dz * dz + 0x40000;
 			int t = DivScale(pXSprite->data2, nDist, 16);
 			gPlayer[p].flickerEffect += t;
@@ -5982,7 +5982,7 @@ static void actCheckExplosion()
 					spritetype* pDebris = &physactor->s();
 					if (!pDebris->insector() || (pDebris->flags & kHitagFree) != 0) continue;
 
-					if (!CheckSector(sectorMap, pDebris) || !CheckProximity(physactor, x, y, z, pSector, radius)) continue;
+					if (!CheckSector(sectorMap, physactor) || !CheckProximity(physactor, x, y, z, pSector, radius)) continue;
 					else debrisConcuss(Owner, i, x, y, z, pExplodeInfo->dmgType);
 				}
 			}
@@ -5996,7 +5996,7 @@ static void actCheckExplosion()
 					DBloodActor* impactactor = gImpactSpritesList[i];
 					if (!impactactor->hasX() || !impactactor->spr.insector() || (impactactor->spr.flags & kHitagFree) != 0)	continue;
 
-					if (!CheckSector(sectorMap, &impactactor->s()) || !CheckProximity(impactactor, x, y, z, pSector, radius))
+					if (!CheckSector(sectorMap, impactactor) || !CheckProximity(impactactor, x, y, z, pSector, radius))
 						continue;
 
 					trTriggerSprite(impactactor, kCmdSpriteImpact);
@@ -6137,8 +6137,7 @@ static void actCheckDudes()
 				BloodStatIterator it1(kStatDude);
 				while (auto actor2 = it1.Next())
 				{
-					spritetype* pSprite2 = &actor2->s();
-					if (pSprite2->flags & 32) continue;
+					if (actor2->spr.flags & 32) continue;
 
 					XSPRITE* pXSprite2 = &actor2->x();
 
@@ -6362,7 +6361,6 @@ DBloodActor* actSpawnDude(DBloodActor* source, int nType, int a3, int a4)
 	XSPRITE* pXSource = &source->x();
 	auto spawned = actSpawnSprite(source, kStatDude);
 	if (!spawned) return NULL;
-	spritetype* pSprite2 = &spawned->s();
 	XSPRITE* pXSprite2 = &spawned->x();
 	int angle = pSource->ang;
 	int nDude = nType - kDudeBase;
@@ -6378,12 +6376,12 @@ DBloodActor* actSpawnDude(DBloodActor* source, int nType, int a3, int a4)
 		x = pSource->pos.X + mulscale30r(Cos(angle), a3);
 		y = pSource->pos.Y + mulscale30r(Sin(angle), a3);
 	}
-	pSprite2->type = nType;
-	pSprite2->ang = angle;
+	spawned->spr.type = nType;
+	spawned->spr.ang = angle;
 	vec3_t pos = { x, y, z };
     SetActor(spawned, &pos);
-	pSprite2->cstat |= CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_BLOOD_BIT1;
-	pSprite2->clipdist = getDudeInfo(nDude + kDudeBase)->clipdist;
+	spawned->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_BLOOD_BIT1;
+	spawned->spr.clipdist = getDudeInfo(nDude + kDudeBase)->clipdist;
 	pXSprite2->health = getDudeInfo(nDude + kDudeBase)->startHealth << 4;
 	pXSprite2->respawn = 1;
 	if (getSequence(getDudeInfo(nDude + kDudeBase)->seqStartID))
@@ -6399,7 +6397,7 @@ DBloodActor* actSpawnDude(DBloodActor* source, int nType, int a3, int a4)
 		{
 		case kMarkerDudeSpawn:
 			//inherit pal?
-			if (pSprite2->pal <= 0) pSprite2->pal = pSource->pal;
+			if (spawned->spr.pal <= 0) spawned->spr.pal = pSource->pal;
 
 			// inherit spawn sprite trigger settings, so designer can count monsters.
 			pXSprite2->txID = pXSource->txID;
