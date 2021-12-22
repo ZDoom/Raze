@@ -319,7 +319,6 @@ static void ThrowThing(DBloodActor* actor, bool impact)
     int dist = approxDist(dx, dy);
     
     auto actLeech = leechIsDropped(actor);
-    XSPRITE* pXLeech = actLeech && actLeech->hasX()? &actLeech->x() : nullptr;
     
     switch (curWeapon) {
         case kModernThingEnemyLifeLeech:
@@ -367,7 +366,7 @@ static void ThrowThing(DBloodActor* actor, bool impact)
             spawned->xspr.Proximity = true;
             return;
         case kModernThingEnemyLifeLeech:
-            if (actLeech != nullptr) spawned->xspr.health = pXLeech->health;
+            if (actLeech != nullptr) spawned->xspr.health = actLeech->xspr.health;
             else spawned->xspr.health = ((pThinkInfo->startHealth << 4) * gGameOptions.nDifficulty) >> 1;
 
             sfxPlay3DSound(actor, 490, -1, 0);
