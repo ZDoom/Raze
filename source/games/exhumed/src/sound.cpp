@@ -427,10 +427,7 @@ void EXSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
         if (nSnakeCam > -1)
         {
             Snake* pSnake = &SnakeList[nSnakeCam];
-            spritetype* pSnakeSprite = &pSnake->pSprites[0]->s();
-            campos.x = pSnakeSprite->x;
-            campos.y = pSnakeSprite->y;
-            campos.z = pSnakeSprite->z;
+            campos = pSnake->pSprites[0]->spr.pos;
         }
         else
         {
@@ -504,9 +501,8 @@ void GameInterface::UpdateSounds()
     if (nSnakeCam > -1)
     {
         Snake *pSnake = &SnakeList[nSnakeCam];
-        spritetype *pSnakeSprite = &pSnake->pSprites[0]->s();
-        pos = pSnakeSprite->pos;
-        ang = pSnakeSprite->ang;
+        pos = pSnake->pSprites[0]->spr.pos;
+        ang = pSnake->pSprites[0]->spr.ang;
     }
     else
     {
@@ -604,10 +600,10 @@ void PlayFX2(int nSound, DExhumedActor* pActor, int sectf, EChanFlags chanflags,
                     {
                         if (chan->SoundID == nSound + 1)
                         {
-                            if (!allowMultiple && &pActor->s() == chan->Source)
+                            if (!allowMultiple && pActor == chan->Source)
                                 return 1;
                         }
-                        else if (&pActor->s() == chan->Source)
+                        else if (pActor == chan->Source)
                         {
                             soundEngine->StopChannel(chan);
                             return -1;
@@ -688,8 +684,7 @@ void CheckAmbience(sectortype* sect)
                 {
                     if (sect == pSector2)
                     {
-                        spritetype* pSprite = &PlayerList[0].Actor()->s();
-                        amb = GetSoundPos(&pSprite->pos);
+                        amb = GetSoundPos(&PlayerList[0].Actor()->spr.pos);
                     }
                     else
                     {
@@ -719,7 +714,7 @@ void UpdateCreepySounds()
 {
     if ((currentLevel->gameflags & LEVEL_EX_COUNTDOWN) || nFreeze || !SoundEnabled())
         return;
-    spritetype* pSprite = &PlayerList[nLocalPlayer].Actor()->s();
+    spritetype* pSprite = &PlayerList[nLocalPlayer].pActor->spr;
     nCreepyTimer--;
     if (nCreepyTimer <= 0)
     {
@@ -769,7 +764,7 @@ void UpdateCreepySounds()
 void StopActorSound(DExhumedActor *pActor)
 {
     if (pActor)
-        soundEngine->StopSound(SOURCE_Actor, &pActor->s(), -1);
+        soundEngine->StopSound(SOURCE_Actor, pActor, -1);
 }
 
 void StopAllSounds(void)
