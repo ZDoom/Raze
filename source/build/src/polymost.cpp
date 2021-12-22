@@ -2676,8 +2676,8 @@ void polymost_drawsprite(int32_t snum)
     if ((globalorientation & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLAB)  // only non-voxel sprites should do this
     {
         int const flag = hw_hightile && TileFiles.tiledata[globalpicnum].hiofs.xsize > 0;
-        off = { (int32_t)tspr->xoffset + (flag ? TileFiles.tiledata[globalpicnum].hiofs.xoffs : tileLeftOffset(globalpicnum)),
-                (int32_t)tspr->yoffset + (flag ? TileFiles.tiledata[globalpicnum].hiofs.yoffs : tileTopOffset(globalpicnum)) };
+        off = { (flag ? TileFiles.tiledata[globalpicnum].hiofs.xoffs : tileLeftOffset(globalpicnum)),
+                (flag ? TileFiles.tiledata[globalpicnum].hiofs.yoffs : tileTopOffset(globalpicnum)) };
 
         if (!(tspr->cstat2 & CSTAT2_SPRITE_SLOPE))
         {
