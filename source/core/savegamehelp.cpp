@@ -447,7 +447,7 @@ FSerializer &Serialize(FSerializer &arc, const char *key, spritetype &c, spritet
 	if (arc.BeginObject(key))
 	{
 		arc("x", c.pos.X, def->pos.X)
-			("y", c.y, def->y)
+			("y", c.pos.Y, def->pos.Y)
 			("z", c.z, def->z)
 			("cstat", c.cstat, def->cstat)
 			("picnum", c.picnum, def->picnum)

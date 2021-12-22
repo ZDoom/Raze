@@ -843,7 +843,7 @@ int DoBunnyBeginJumpAttack(DSWActor* actor)
     SPRITEp psp = &u->targetActor->s();
     int tang;
 
-    tang = getangle(psp->pos.X - sp->pos.X, psp->y - sp->y);
+    tang = getangle(psp->pos.X - sp->pos.X, psp->pos.Y - sp->pos.Y);
 
     Collision coll = move_sprite(actor, bcos(tang, -7), bsin(tang, -7),
         0L, u->ceiling_dist, u->floor_dist, CLIPMASK_ACTOR, ACTORMOVETICS);
@@ -923,11 +923,11 @@ void DoPickCloseBunny(DSWActor* actor)
 
         if (tu->ID != BUNNY_RUN_R0) continue;
 
-        DISTANCE(tsp->pos.X, tsp->y, sp->pos.X, sp->y, dist, a, b, c);
+        DISTANCE(tsp->pos.X, tsp->pos.Y, sp->pos.X, sp->pos.Y, dist, a, b, c);
 
         if (dist > near_dist) continue;
 
-        ICanSee = FAFcansee(sp->pos.X, sp->y, look_height, sp->sector(), tsp->pos.X, tsp->y, SPRITEp_UPPER(tsp), tsp->sector());
+        ICanSee = FAFcansee(sp->pos.X, sp->pos.Y, look_height, sp->sector(), tsp->pos.X, tsp->pos.Y, SPRITEp_UPPER(tsp), tsp->sector());
 
         if (ICanSee && dist < near_dist && tu->ID == BUNNY_RUN_R0)
         {
@@ -1032,7 +1032,7 @@ int DoBunnyQuickJump(DSWActor* actor)
                         if (pp == Player+myconnectindex)
                         {
                             choose_snd = STD_RANDOM_RANGE(2<<8)>>8;
-                            if (FAFcansee(sp->pos.X,sp->y,SPRITEp_TOS(sp),sp->sector(),pp->posx, pp->posy, pp->posz, pp->cursector) && Facing(actor, u->targetActor))
+                            if (FAFcansee(sp->pos.X,sp->pos.Y,SPRITEp_TOS(sp),sp->sector(),pp->posx, pp->posy, pp->posz, pp->cursector) && Facing(actor, u->targetActor))
                                 PlayerSound(fagsnds[choose_snd], v3df_doppler|v3df_follow|v3df_dontpan,pp);
                         }
                     }
@@ -1047,14 +1047,14 @@ int DoBunnyQuickJump(DSWActor* actor)
                         if (pp == Player+myconnectindex)
                         {
                             choose_snd = STD_RANDOM_RANGE(3<<8)>>8;
-                            if (FAFcansee(sp->pos.X,sp->y,SPRITEp_TOS(sp),sp->sector(),pp->posx, pp->posy, pp->posz, pp->cursector) && Facing(actor, u->targetActor))
+                            if (FAFcansee(sp->pos.X,sp->pos.Y,SPRITEp_TOS(sp),sp->sector(),pp->posx, pp->posy, pp->posz, pp->cursector) && Facing(actor, u->targetActor))
                                 PlayerSound(straightsnds[choose_snd], v3df_doppler|v3df_follow|v3df_dontpan,pp);
                         }
                     }
                 }
 
                 sp->pos.X = tsp->pos.X; // Mount up little bunny
-                sp->y = tsp->y;
+                sp->pos.Y = tsp->pos.Y;
                 sp->ang = tsp->ang;
                 sp->ang = NORM_ANGLE(sp->ang + 1024);
                 HelpMissileLateral(actor, 2000);
@@ -1121,7 +1121,7 @@ int DoBunnyRipHeart(DSWActor* actor)
     u->WaitTics = 6 * 120;
 
     // player face bunny
-    tsp->ang = getangle(sp->pos.X - tsp->pos.X, sp->y - tsp->y);
+    tsp->ang = getangle(sp->pos.X - tsp->pos.X, sp->pos.Y - tsp->pos.Y);
     return 0;
 }
 
@@ -1159,7 +1159,7 @@ void BunnyHatch(DSWActor* actor)
         np = &actorNew->s();
         np->clear();
         np->pos.X = sp->pos.X;
-        np->y = sp->y;
+        np->pos.Y = sp->pos.Y;
         np->z = sp->z;
         np->xrepeat = 30;  // Baby size
         np->yrepeat = 24;
@@ -1222,7 +1222,7 @@ DSWActor* BunnyHatch2(DSWActor* actor)
     auto np = &actorNew->s();
     np->clear();
     np->pos.X = wp->pos.X;
-    np->y = wp->y;
+    np->pos.Y = wp->pos.Y;
     np->z = wp->z;
     np->xrepeat = 30;  // Baby size
     np->yrepeat = 24;

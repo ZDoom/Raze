@@ -455,7 +455,7 @@ JS_ProcessEchoSpot()
         tp = &actor->s();
 
         j = abs(tp->pos.X - pp->posx);
-        j += abs(tp->y - pp->posy);
+        j += abs(tp->pos.Y - pp->posy);
         if (j < dist)
             dist = j;
 
@@ -537,7 +537,7 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz, double smoothratio)
                     tp = &mirror[cnt].camspriteActor->s();
 
                     j = abs(tp->pos.X - tx);
-                    j += abs(tp->y - ty);
+                    j += abs(tp->pos.Y - ty);
                     if (j < dist)
                         dist = j;
                 }
@@ -568,9 +568,9 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz, double smoothratio)
                     dx = sp->pos.X + tdx;
 
                 if (midy >= ty)
-                    dy = sp->y - tdy;
+                    dy = sp->pos.Y - tdy;
                 else
-                    dy = sp->y + tdy;
+                    dy = sp->pos.Y + tdy;
 
                 tdz = abs(tz - sp->z);
                 if (tz >= sp->z)
@@ -659,7 +659,7 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz, double smoothratio)
                             }
                             else
                             {
-                                drawroomstotile(sp->pos.X, sp->y, sp->z, buildang(SP_TAG5(sp)), camhoriz, sp->sector(), mirror[cnt].campic, smoothratio);
+                                drawroomstotile(sp->pos.X, sp->pos.Y, sp->z, buildang(SP_TAG5(sp)), camhoriz, sp->sector(), mirror[cnt].campic, smoothratio);
                             }
                         }
                     }

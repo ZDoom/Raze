@@ -143,7 +143,7 @@ void SpidBirthSeqCallback(int, DBloodActor* actor)
 	spritetype* pTarget = &actor->GetTarget()->s();
 	DUDEEXTRA_STATS* pDudeExtraE = &actor->dudeExtra.stats;
 	int dx = pXSprite->targetX - pSprite->pos.X;
-	int dy = pXSprite->targetY - pSprite->y;
+	int dy = pXSprite->targetY - pSprite->pos.Y;
 	int nAngle = getangle(dx, dy);
 	int nDist = approxDist(dx, dy);
 
@@ -181,7 +181,7 @@ static void spidThinkGoto(DBloodActor* actor)
 	assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
 	int dx = pXSprite->targetX - pSprite->pos.X;
-	int dy = pXSprite->targetY - pSprite->y;
+	int dy = pXSprite->targetY - pSprite->pos.Y;
 	int nAngle = getangle(dx, dy);
 	int nDist = approxDist(dx, dy);
 	aiChooseDirection(actor, nAngle);
@@ -203,7 +203,7 @@ static void spidThinkChase(DBloodActor* actor)
 	spritetype* pTarget = &actor->GetTarget()->s();
 	XSPRITE* pXTarget = &actor->GetTarget()->x();
 	int dx = pTarget->pos.X - pSprite->pos.X;
-	int dy = pTarget->y - pSprite->y;
+	int dy = pTarget->pos.Y - pSprite->pos.Y;
 	aiChooseDirection(actor, getangle(dx, dy));
 	if (pXTarget->health == 0)
 	{
@@ -220,7 +220,7 @@ static void spidThinkChase(DBloodActor* actor)
 		int nDeltaAngle = ((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024;
 		int height = (pDudeInfo->eyeHeight * pSprite->yrepeat) << 2;
 
-		if (cansee(pTarget->pos.X, pTarget->y, pTarget->z, pTarget->sector(), pSprite->pos.X, pSprite->y, pSprite->z - height, pSprite->sector())) {
+		if (cansee(pTarget->pos.X, pTarget->pos.Y, pTarget->z, pTarget->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->z - height, pSprite->sector())) {
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery) {
 				aiSetTarget(actor, actor->GetTarget());
 

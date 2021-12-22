@@ -838,7 +838,7 @@ void BossHealthMeter(void)
             sp = &BossSpriteNum[i]->s();
             u = BossSpriteNum[i]->u();
 
-            if (cansee(sp->pos.X, sp->y, SPRITEp_TOS(sp), sp->sector(), pp->posx, pp->posy, pp->posz - Z(40), pp->cursector))
+            if (cansee(sp->pos.X, sp->pos.Y, SPRITEp_TOS(sp), sp->sector(), pp->posx, pp->posy, pp->posz - Z(40), pp->cursector))
             {
                 if (i == 0 && !bosswasseen[0])
                 {

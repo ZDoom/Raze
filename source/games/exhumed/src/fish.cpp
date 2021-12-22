@@ -51,7 +51,7 @@ void BuildFishLimb(DExhumedActor* pActor, int anim)
     pChunkActor->nFrame = RandomSize(3) % SeqSize[SeqOffsets[kSeqFish] + anim + 40];
 
     pSprite2->pos.X = pSprite->pos.X;
-    pSprite2->y = pSprite->y;
+    pSprite2->pos.Y = pSprite->pos.Y;
     pSprite2->z = pSprite->z;
     pSprite2->cstat = 0;
     pSprite2->shade = -12;
@@ -101,7 +101,7 @@ void AIFishLimb::Tick(RunListEvent* ev)
     {
         pActor->nFrame = 0;
         if (RandomBit()) {
-            BuildBlood(pSprite->pos.X, pSprite->y, pSprite->z, pSprite->sector());
+            BuildBlood(pSprite->pos.X, pSprite->pos.Y, pSprite->z, pSprite->sector());
         }
     }
 
@@ -158,14 +158,14 @@ void BuildFish(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, 
     {
         pSprite = &pActor->s();
         x = pSprite->pos.X;
-        y = pSprite->y;
+        y = pSprite->pos.Y;
         z = pSprite->z;
         nAngle = pSprite->ang;
         ChangeActorStat(pActor, 103);
     }
 
     pSprite->pos.X = x;
-    pSprite->y = y;
+    pSprite->pos.Y = y;
     pSprite->z = z;
     pSprite->cstat = CSTAT_SPRITE_BLOCK_ALL;
     pSprite->shade = -12;
@@ -293,7 +293,7 @@ void AIFish::Damage(RunListEvent* ev)
                 BuildFishLimb(pActor, i);
             }
 
-            PlayFXAtXYZ(StaticSound[kSound40], pSprite->pos.X, pSprite->y, pSprite->z);
+            PlayFXAtXYZ(StaticSound[kSound40], pSprite->pos.X, pSprite->pos.Y, pSprite->z);
             DestroyFish(pActor);
         }
         else
@@ -435,7 +435,7 @@ void AIFish::Tick(RunListEvent* ev)
     }
 
     int x = pSprite->pos.X;
-    int y = pSprite->y;
+    int y = pSprite->pos.Y;
     int z = pSprite->z;
     auto pSector =pSprite->sector();
 
@@ -446,7 +446,7 @@ void AIFish::Tick(RunListEvent* ev)
     {
         ChangeActorSect(pActor, pSector);
         pSprite->pos.X = x;
-        pSprite->y = y;
+        pSprite->pos.Y = y;
         pSprite->z = z;
 
         IdleFish(pActor, 0);
@@ -481,7 +481,7 @@ void AIFish::Tick(RunListEvent* ev)
                 if (pHitSpr->statnum == 100)
                 {
                     pActor->pTarget = coll.actor();
-                    pSprite->ang = GetMyAngle(pHitSpr->pos.X - pSprite->pos.X, pHitSpr->y - pSprite->y);
+                    pSprite->ang = GetMyAngle(pHitSpr->pos.X - pSprite->pos.X, pHitSpr->pos.Y - pSprite->pos.Y);
 
                     if (nAction != 3)
                     {

@@ -221,7 +221,7 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fixed_t tpq16ang, fixed
                     tp = &mirror[cnt].camspriteActor->s();
 
                     j = abs(tp->pos.X - tx);
-                    j += abs(tp->y - ty);
+                    j += abs(tp->pos.Y - ty);
                     if (j < dist)
                         dist = j;
                 }
@@ -255,9 +255,9 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fixed_t tpq16ang, fixed
                         dx = sp->pos.X + tdx;
 
                     if (midy >= ty)
-                        dy = sp->y - tdy;
+                        dy = sp->pos.Y - tdy;
                     else
-                        dy = sp->y + tdy;
+                        dy = sp->pos.Y + tdy;
 
                     tdz = abs(tz - sp->z);
                     if (tz >= sp->z)

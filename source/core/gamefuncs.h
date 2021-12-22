@@ -206,7 +206,7 @@ inline double SpriteX(spritetype* spr)
 
 inline double SpriteY(spritetype* spr)
 {
-    return spr->y * (1 / -16.);
+    return spr->pos.Y * (1 / -16.);
 }
 
 inline DVector2 SpritePos(spritetype* spr)
@@ -276,7 +276,7 @@ inline int32_t tspriteGetZOfSlope(const tspritetype* tspr, int dax, int day)
 	int heinum = tspriteGetSlope(tspr);
 	if (heinum == 0) return tspr->z;
 
-	int const j = DMulScale(bsin(tspr->ang + 1024), day - tspr->y, -bsin(tspr->ang + 512), dax - tspr->pos.X, 4);
+	int const j = DMulScale(bsin(tspr->ang + 1024), day - tspr->pos.Y, -bsin(tspr->ang + 512), dax - tspr->pos.X, 4);
 	return tspr->z + MulScale(heinum, j, 18);
 }
 

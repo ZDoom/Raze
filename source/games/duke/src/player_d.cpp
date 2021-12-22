@@ -199,7 +199,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, int sx, int sy, int
 	}
 
 	spawned->spr.pos.X = sx + bsin(sa + 630) / 448;
-	spawned->spr.y = sy + bsin(sa + 112) / 448;
+	spawned->spr.pos.Y = sy + bsin(sa + 112) / 448;
 	spawned->spr.z = sz - 256;
 	spawned->spr.setsector(actor->spr.sector());
 	spawned->spr.cstat = CSTAT_SPRITE_YCENTER;
@@ -215,7 +215,7 @@ static void shootflamethrowerflame(DDukeActor* actor, int p, int sx, int sy, int
 		if (actor->spr.picnum == BOSS5)
 		{
 			spawned->spr.pos.X -= bsin(sa) / 56;
-			spawned->spr.y += bcos(sa) / 56;
+			spawned->spr.pos.Y += bcos(sa) / 56;
 			spawned->spr.xrepeat = 10;
 			spawned->spr.yrepeat = 10;
 		}
@@ -245,7 +245,7 @@ static void shootknee(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 		int x;
 		auto pactor = ps[findplayer(actor, &x)].GetActor();
 		zvel = ((pactor->spr.z - sz) << 8) / (x + 1);
-		sa = getangle(pactor->spr.pos.X - sx, pactor->spr.y - sy);
+		sa = getangle(pactor->spr.pos.X - sx, pactor->spr.pos.Y - sy);
 	}
 
 	hitscan({ sx, sy, sz }, sectp, { bcos(sa), bsin(sa), zvel << 6 }, hit, CLIPMASK1);
@@ -297,7 +297,7 @@ static void shootknee(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 			if (splash)
 			{
 				splash->spr.pos.X = hit.hitpos.X;
-				splash->spr.y = hit.hitpos.Y;
+				splash->spr.pos.Y = hit.hitpos.Y;
 				splash->spr.ang = ps[p].angle.ang.asbuild(); // Total tweek
 				splash->spr.xvel = 32;
 				ssp(actor, CLIPMASK0);
@@ -351,7 +351,7 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 				break;
 			}
 			zvel = ((aimed->spr.z - sz - dal) << 8) / ldist(ps[p].GetActor(), aimed);
-			sa = getangle(aimed->spr.pos.X - sx, aimed->spr.y - sy);
+			sa = getangle(aimed->spr.pos.X - sx, aimed->spr.pos.Y - sy);
 		}
 
 		if (isWW2GI())
@@ -596,7 +596,7 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 		{
 			int dal = ((aimed->spr.xrepeat * tileHeight(aimed->spr.picnum)) << 1) - (12 << 8);
 			zvel = ((aimed->spr.z - sz - dal) * vel) / ldist(ps[p].GetActor(), aimed);
-			sa = getangle(aimed->spr.pos.X - sx, aimed->spr.y - sy);
+			sa = getangle(aimed->spr.pos.X - sx, aimed->spr.pos.Y - sy);
 		}
 		else
 			zvel = -MulScale(ps[p].horizon.sum().asq16(), 98, 16);
@@ -695,7 +695,7 @@ static void shootrpg(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, i
 			int dal = ((aimed->spr.xrepeat * tileHeight(aimed->spr.picnum)) << 1) + (8 << 8);
 			zvel = ((aimed->spr.z - sz - dal) * vel) / ldist(ps[p].GetActor(), aimed);
 			if (aimed->spr.picnum != RECON)
-				sa = getangle(aimed->spr.pos.X - sx, aimed->spr.y - sy);
+				sa = getangle(aimed->spr.pos.X - sx, aimed->spr.pos.Y - sy);
 		}
 		else zvel = -MulScale(ps[p].horizon.sum().asq16(), 81, 16);
 		if (atwith == RPG)
@@ -773,7 +773,7 @@ static void shootrpg(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, i
 			}
 
 			spawned->spr.pos.X += xoffs;
-			spawned->spr.y += yoffs;
+			spawned->spr.pos.Y += yoffs;
 			spawned->spr.ang += aoffs;
 
 			spawned->spr.xrepeat = 42;
@@ -793,7 +793,7 @@ static void shootrpg(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, i
 			}
 
 			spawned->spr.pos.X -= xoffs;
-			spawned->spr.y -= yoffs;
+			spawned->spr.pos.Y -= yoffs;
 			spawned->spr.ang -= aoffs;
 
 			spawned->spr.xrepeat = 24;
@@ -815,12 +815,12 @@ static void shootrpg(DDukeActor *actor, int p, int sx, int sy, int sz, int sa, i
 		if (ps[p].hbomb_hold_delay)
 		{
 			spawned->spr.pos.X -= bsin(sa) / 644;
-			spawned->spr.y += bcos(sa) / 644;
+			spawned->spr.pos.Y += bcos(sa) / 644;
 		}
 		else
 		{
 			spawned->spr.pos.X += bsin(sa, -8);
-			spawned->spr.y -= bcos(sa, -8);
+			spawned->spr.pos.Y -= bcos(sa, -8);
 		}
 		spawned->spr.xrepeat >>= 1;
 		spawned->spr.yrepeat >>= 1;
@@ -938,7 +938,7 @@ static void shootgrowspark(DDukeActor* actor, int p, int sx, int sy, int sz, int
 				break;
 			}
 			zvel = ((aimed->spr.z - sz - dal) << 8) / (ldist(ps[p].GetActor(), aimed));
-			sa = getangle(aimed->spr.pos.X - sx, aimed->spr.y - sy);
+			sa = getangle(aimed->spr.pos.X - sx, aimed->spr.pos.Y - sy);
 		}
 		else
 		{
@@ -1035,7 +1035,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 	{
 		sa = actor->spr.ang;
 		sx = actor->spr.pos.X;
-		sy = actor->spr.y;
+		sy = actor->spr.pos.Y;
 		sz = actor->spr.z - (actor->spr.yrepeat * tileHeight(actor->spr.picnum) << 1) + (4 << 8);
 		if (actor->spr.picnum != ROTATEGUN)
 		{
@@ -1067,7 +1067,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 			{
 				k->spr.setsector(sect);
 				k->spr.pos.X = sx;
-				k->spr.y = sy;
+				k->spr.pos.Y = sy;
 				k->spr.z = sz;
 				k->spr.ang = sa;
 				k->spr.xvel = 500;
@@ -1149,7 +1149,7 @@ void shoot_d(DDukeActor* actor, int atwith)
 			{
 				dal = ((aimed->spr.xrepeat * tileHeight(aimed->spr.picnum)) << 1);
 				zvel = ((aimed->spr.z - sz - dal - (4 << 8)) * 768) / (ldist(ps[p].GetActor(), aimed));
-				sa = getangle(aimed->spr.pos.X - sx, aimed->spr.y - sy);
+				sa = getangle(aimed->spr.pos.X - sx, aimed->spr.pos.Y - sy);
 			}
 			else zvel = -MulScale(ps[p].horizon.sum().asq16(), 98, 16);
 		}
@@ -1995,7 +1995,7 @@ static void underwater(int snum, ESyncBits actions, int fz, int cz)
 		if (j)
 		{
 			j->spr.pos.X += bcos(p->angle.ang.asbuild() + 64 - (global_random & 128), -6);
-			j->spr.y += bsin(p->angle.ang.asbuild() + 64 - (global_random & 128), -6);
+			j->spr.pos.Y += bsin(p->angle.ang.asbuild() + 64 - (global_random & 128), -6);
 			j->spr.xrepeat = 3;
 			j->spr.yrepeat = 2;
 			j->spr.z = p->pos.Z + (8 << 8);
@@ -2031,7 +2031,7 @@ int operateTripbomb(int snum)
 	while ((act = it.Next()))
 	{
 		if (act->spr.picnum == TRIPBOMB &&
-			abs(act->spr.z - hit.hitpos.Z) < (12 << 8) && ((act->spr.pos.X - hit.hitpos.X) * (act->spr.pos.X - hit.hitpos.X) + (act->spr.y - hit.hitpos.Y) * (act->spr.y - hit.hitpos.Y)) < (290 * 290))
+			abs(act->spr.z - hit.hitpos.Z) < (12 << 8) && ((act->spr.pos.X - hit.hitpos.X) * (act->spr.pos.X - hit.hitpos.X) + (act->spr.pos.Y - hit.hitpos.Y) * (act->spr.pos.Y - hit.hitpos.Y)) < (290 * 290))
 			return 0;
 	}
 
@@ -2782,7 +2782,7 @@ void processinput_d(int snum)
 		}
 		else if (badguy(clz.actor()) && clz.actor()->spr.xrepeat > 24 && abs(pact->spr.z - clz.actor()->spr.z) < (84 << 8))
 		{
-			j = getangle(clz.actor()->spr.pos.X - p->pos.X, clz.actor()->spr.y - p->pos.Y);
+			j = getangle(clz.actor()->spr.pos.X - p->pos.X, clz.actor()->spr.pos.Y - p->pos.Y);
 			p->posxv -= bcos(j, 4);
 			p->posyv -= bsin(j, 4);
 		}

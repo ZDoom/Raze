@@ -641,7 +641,7 @@ void playerStart(int nPlayer, int bNewLevel)
                 while (auto act = it.Next())
                 {
                     spritetype* pSprite = &act->s();
-                    if (pStartZone->x == pSprite->pos.X && pStartZone->y == pSprite->y && IsPlayerSprite(pSprite)) {
+                    if (pStartZone->x == pSprite->pos.X && pStartZone->y == pSprite->pos.Y && IsPlayerSprite(pSprite)) {
                         pStartZone = NULL;
                         break;
                     }
@@ -1091,7 +1091,7 @@ bool PickupItem(PLAYER *pPlayer, DBloodActor* itemactor)
             return 1;
     }
     
-    sfxPlay3DSound(pSprite->pos.X, pSprite->y, pSprite->z, pickupSnd, pSprite->sector());
+    sfxPlay3DSound(pSprite->pos.X, pSprite->pos.Y, pSprite->z, pickupSnd, pSprite->sector());
     return 1;
 }
 
@@ -1203,7 +1203,7 @@ void CheckPickUp(PLAYER *pPlayer)
 {
     spritetype *pSprite = pPlayer->pSprite;
     int x = pSprite->pos.X;
-    int y = pSprite->y;
+    int y = pSprite->pos.Y;
     int z = pSprite->z;
     auto pSector = pSprite->sector();
     BloodStatIterator it(kStatItem);
@@ -1215,7 +1215,7 @@ void CheckPickUp(PLAYER *pPlayer)
         int dx = abs(x-pItem->pos.X)>>4;
         if (dx > 48)
             continue;
-        int dy = abs(y-pItem->y)>>4;
+        int dy = abs(y-pItem->pos.Y)>>4;
         if (dy > 48)
             continue;
         int top, bottom;
@@ -1230,9 +1230,9 @@ void CheckPickUp(PLAYER *pPlayer)
         if (approxDist(dx,dy) > 48)
             continue;
         GetSpriteExtents(pItem, &top, &bottom);
-        if (cansee(x, y, z, pSector, pItem->pos.X, pItem->y, pItem->z, pItem->sector())
-         || cansee(x, y, z, pSector, pItem->pos.X, pItem->y, top, pItem->sector())
-         || cansee(x, y, z, pSector, pItem->pos.X, pItem->y, bottom, pItem->sector()))
+        if (cansee(x, y, z, pSector, pItem->pos.X, pItem->pos.Y, pItem->z, pItem->sector())
+         || cansee(x, y, z, pSector, pItem->pos.X, pItem->pos.Y, top, pItem->sector())
+         || cansee(x, y, z, pSector, pItem->pos.X, pItem->pos.Y, bottom, pItem->sector()))
             PickUp(pPlayer, itemactor);
     }
 }
@@ -1245,7 +1245,7 @@ int ActionScan(PLAYER *pPlayer, HitInfo* out)
     int y = bsin(pSprite->ang);
     int z = pPlayer->slope;
     int hit = HitScan(pPlayer->actor, pPlayer->zView, x, y, z, 0x10000040, 128);
-    int hitDist = approxDist(pSprite->pos.X-gHitInfo.hitpos.X, pSprite->y-gHitInfo.hitpos.Y)>>4;
+    int hitDist = approxDist(pSprite->pos.X-gHitInfo.hitpos.X, pSprite->pos.Y-gHitInfo.hitpos.Y)>>4;
     if (hitDist < 64)
     {
         switch (hit)
@@ -1377,7 +1377,7 @@ void ProcessInput(PLAYER *pPlayer)
         DBloodActor* fragger = pPlayer->fragger;
         if (fragger)
         {
-            pPlayer->angle.addadjustment(getincanglebam(pPlayer->angle.ang, bvectangbam(fragger->spr.pos.X - pSprite->pos.X, fragger->spr.y - pSprite->y)));
+            pPlayer->angle.addadjustment(getincanglebam(pPlayer->angle.ang, bvectangbam(fragger->spr.pos.X - pSprite->pos.X, fragger->spr.pos.Y - pSprite->pos.Y)));
         }
         pPlayer->deathTime += 4;
         if (!bSeqStat)
@@ -1755,7 +1755,7 @@ void playerProcess(PLAYER *pPlayer)
         auto link = pSprite->sector()->lowerLink;
         if (link && (link->spr.type == kMarkerLowGoo || link->spr.type == kMarkerLowWater))
         {
-            if (getceilzofslopeptr(pSprite->sector(), pSprite->pos.X, pSprite->y) > pPlayer->zView)
+            if (getceilzofslopeptr(pSprite->sector(), pSprite->pos.X, pSprite->pos.Y) > pPlayer->zView)
                 pPlayer->isUnderwater = 0;
         }
     }
@@ -1964,7 +1964,7 @@ int playerDamageSprite(DBloodActor* source, PLAYER *pPlayer, DAMAGE_TYPE nDamage
             {
                 int top, bottom;
                 GetSpriteExtents(pSprite, &top, &bottom);
-                CGibPosition gibPos(pSprite->pos.X, pSprite->y, top);
+                CGibPosition gibPos(pSprite->pos.X, pSprite->pos.Y, top);
                 CGibVelocity gibVel(pActor->xvel >> 1, pActor->yvel >> 1, -0xccccc);
                 GibSprite(pActor, GIBTYPE_27, &gibPos, &gibVel);
                 GibSprite(pActor, GIBTYPE_7, NULL, NULL);

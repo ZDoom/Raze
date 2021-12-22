@@ -69,7 +69,7 @@ void podAttack(int, DBloodActor* actor)
 
 	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
 	int x = pTarget->pos.X - pSprite->pos.X;
-	int y = pTarget->y - pSprite->y;
+	int y = pTarget->pos.Y - pSprite->pos.Y;
 	int dz = pTarget->z - pSprite->z;
 	x += Random2(1000);
 	y += Random2(1000);
@@ -125,7 +125,7 @@ void sub_70284(int, DBloodActor* actor)
 		nDist = 75;
 		break;
 	}
-	actRadiusDamage(actor, pSprite->pos.X, pSprite->y, pSprite->z, pSprite->sector(), nDist, 1, 5 * (1 + gGameOptions.nDifficulty), dmgType, 2, nBurn);
+	actRadiusDamage(actor, pSprite->pos.X, pSprite->pos.Y, pSprite->z, pSprite->sector(), nDist, 1, 5 * (1 + gGameOptions.nDifficulty), dmgType, 2, nBurn);
 }
 
 static void aiPodSearch(DBloodActor* actor)
@@ -147,7 +147,7 @@ static void aiPodMove(DBloodActor* actor)
 
 	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
 	int dx = pXSprite->targetX - pSprite->pos.X;
-	int dy = pXSprite->targetY - pSprite->y;
+	int dy = pXSprite->targetY - pSprite->pos.Y;
 	int nAngle = getangle(dx, dy);
 	int nDist = approxDist(dx, dy);
 	aiChooseDirection(actor, nAngle);
@@ -191,7 +191,7 @@ static void aiPodChase(DBloodActor* actor)
 	spritetype* pTarget = &actor->GetTarget()->s();
 	XSPRITE* pXTarget = &actor->GetTarget()->x();
 	int dx = pTarget->pos.X - pSprite->pos.X;
-	int dy = pTarget->y - pSprite->y;
+	int dy = pTarget->pos.Y - pSprite->pos.Y;
 	aiChooseDirection(actor, getangle(dx, dy));
 	if (pXTarget->health == 0) {
 
@@ -212,7 +212,7 @@ static void aiPodChase(DBloodActor* actor)
 	{
 		int nDeltaAngle = ((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024;
 		int height = (pDudeInfo->eyeHeight * pSprite->yrepeat) << 2;
-		if (cansee(pTarget->pos.X, pTarget->y, pTarget->z, pTarget->sector(), pSprite->pos.X, pSprite->y, pSprite->z - height, pSprite->sector()))
+		if (cansee(pTarget->pos.X, pTarget->pos.Y, pTarget->z, pTarget->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->z - height, pSprite->sector()))
 		{
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{

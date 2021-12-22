@@ -104,14 +104,14 @@ void VisViewChange(PLAYERp pp, int *vis)
         if (own != nullptr)
         {
             x = own->spr.pos.X;
-            y = own->spr.y;
+            y = own->spr.pos.Y;
             z = own->spr.z;
             sectp = own->spr.sector();
         }
         else
         {
             x = sp->pos.X;
-            y = sp->y;
+            y = sp->pos.Y;
             z = sp->z;
             sectp = sp->sector();
         }
@@ -160,7 +160,7 @@ void SpawnVis(DSWActor* parentActor, sectortype* sect, int x, int y, int z, int 
         SET(pu->Flags2, SPR2_CHILDREN);
 
         sp->pos.X = psp->pos.X;
-        sp->y = psp->y;
+        sp->pos.Y = psp->pos.Y;
         sp->z = psp->z;
 
         SET(pu->Flags2, SPR2_VIS_SHADING);
@@ -174,7 +174,7 @@ void SpawnVis(DSWActor* parentActor, sectortype* sect, int x, int y, int z, int 
         sp = &actorNew->s();
 
         sp->pos.X = x;
-        sp->y = y;
+        sp->pos.Y = y;
         sp->z = z - Z(20);
     }
 

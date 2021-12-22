@@ -119,9 +119,9 @@ void ExplodeSnakeSprite(DExhumedActor* pActor, int nPlayer)
 
     pActor->pTarget = nOwner;
 
-    BuildAnim(nullptr, 23, 0, pSprite->pos.X, pSprite->y, pSprite->z, pSprite->sector(), 40, 4);
+    BuildAnim(nullptr, 23, 0, pSprite->pos.X, pSprite->pos.Y, pSprite->z, pSprite->sector(), 40, 4);
 
-    AddFlash(pSprite->sector(), pSprite->pos.X, pSprite->y, pSprite->z, 128);
+    AddFlash(pSprite->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->z, 128);
 
     StopActorSound(pActor);
 }
@@ -137,7 +137,7 @@ void BuildSnake(int nPlayer, int zVal)
     int nPic = seq_GetSeqPicnum(kSeqSnakBody, 0, 0);
 
     int x = pPlayerSprite->pos.X;
-    int y = pPlayerSprite->y;
+    int y = pPlayerSprite->pos.Y;
     int z = (pPlayerSprite->z + zVal) - 2560;
     int nAngle = pPlayerSprite->ang;
 
@@ -163,7 +163,7 @@ void BuildSnake(int nPlayer, int zVal)
         auto pActor = insertActor(hit.hitSector, 202);
 		auto pSprite = &pActor->s();
         pSprite->pos.X = hit.hitpos.X;
-        pSprite->y = hit.hitpos.Y;
+        pSprite->pos.Y = hit.hitpos.Y;
         pSprite->z = hit.hitpos.Z;
 
         ExplodeSnakeSprite(pActor, nPlayer);
@@ -201,7 +201,7 @@ void BuildSnake(int nPlayer, int zVal)
             if (i == 0)
             {
                 pSprite->pos.X = pPlayerSprite->pos.X;
-                pSprite->y = pPlayerSprite->y;
+                pSprite->pos.Y = pPlayerSprite->pos.Y;
                 pSprite->z = pPlayerSprite->z + zVal;
                 pSprite->xrepeat = 32;
                 pSprite->yrepeat = 32;
@@ -211,7 +211,7 @@ void BuildSnake(int nPlayer, int zVal)
             else
             {
                 pSprite->pos.X = sprt->spr.pos.X;
-                pSprite->y = sprt->spr.y;
+                pSprite->pos.Y = sprt->spr.pos.Y;
                 pSprite->z = sprt->spr.z;
                 pSprite->xrepeat = 40 - 3 * i;
                 pSprite->yrepeat = 40 - 3 * i;
@@ -382,7 +382,7 @@ void AISnake::Tick(RunListEvent* ev)
         auto pSector = pSprite->sector();
 
         int x = pSprite->pos.X;
-        int y = pSprite->y;
+        int y = pSprite->pos.Y;
         int z = pSprite->z;
 
         for (int i = 7; i > 0; i--)
@@ -393,7 +393,7 @@ void AISnake::Tick(RunListEvent* ev)
 
             pSprite2->ang = nAngle;
             pSprite2->pos.X = x;
-            pSprite2->y = y;
+            pSprite2->pos.Y = y;
             pSprite2->z = z;
 
             ChangeActorSect(pActor2, pSector);

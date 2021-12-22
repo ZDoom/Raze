@@ -57,7 +57,7 @@ void ambProcess(void)
             if (pXSprite->state)
             {
                 int dx = pSprite->pos.X-gMe->pSprite->pos.X;
-                int dy = pSprite->y-gMe->pSprite->y;
+                int dy = pSprite->pos.Y-gMe->pSprite->pos.Y;
                 int dz = pSprite->z-gMe->pSprite->z;
                 dx >>= 4;
                 dy >>= 4;

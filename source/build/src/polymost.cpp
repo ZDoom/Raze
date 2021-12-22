@@ -1880,7 +1880,7 @@ void polymost_scansector(int32_t sectnum)
             if ((spr->cstat & CSTAT_SPRITE_INVISIBLE) || spr->xrepeat == 0 || spr->yrepeat == 0)
                 continue;
 
-            vec2_t const s = { spr->pos.X-globalposx, spr->y-globalposy };
+            vec2_t const s = { spr->pos.X-globalposx, spr->pos.Y-globalposy };
 
             if ((spr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) ||
                 (hw_models && tile2model[spr->picnum].modelid>=0) ||
@@ -2580,7 +2580,7 @@ static inline int32_t polymost_findwall(tspritetype const * const tspr, vec2_t c
         if ((!wal.twoSided() || ((wal.nextSector()->ceilingz > (tspr->z - ((tsiz->Y * tspr->yrepeat) << 2))) ||
              wal.nextSector()->floorz < tspr->z)) && !polymost_getclosestpointonwall((const vec2_t *) tspr, wallnum(&wal), &n))
         {
-            int const dst = abs(tspr->pos.X - n.X) + abs(tspr->y - n.Y);
+            int const dst = abs(tspr->pos.X - n.X) + abs(tspr->pos.Y - n.Y);
 
             if (dst <= dist)
             {
@@ -2641,7 +2641,7 @@ static inline float tspriteGetZOfSlopeFloat(tspriteptr_t const tspr, float dax, 
     if (heinum == 0)
         return float(tspr->z);
 
-    float const f = bsin(tspr->ang + 1024) * (day - tspr->y) - bsin(tspr->ang + 512) * (dax - tspr->pos.X);
+    float const f = bsin(tspr->ang + 1024) * (day - tspr->pos.Y) - bsin(tspr->ang + 512) * (dax - tspr->pos.X);
     return float(tspr->z) + heinum * f * (1.f / 4194304.f);
 }
 
@@ -2764,14 +2764,14 @@ void polymost_drawsprite(int32_t snum)
             // NOTE: yoff not negated not for y flipping, unlike wall and floor
             // aligned sprites.
 
-            int const ang = (getangle(tspr->pos.X - globalposx, tspr->y - globalposy) + 1024) & 2047;
+            int const ang = (getangle(tspr->pos.X - globalposx, tspr->pos.Y - globalposy) + 1024) & 2047;
 
             float foffs = TSPR_OFFSET(tspr);
 
             FVector2 const offs = { float(bcosf(ang, -6) * foffs), float(bsinf(ang, -6) * foffs) };
 
             FVector2 s0 = { (float)(tspr->pos.X - globalposx) + offs.X,
-                           (float)(tspr->y - globalposy) + offs.Y};
+                           (float)(tspr->pos.Y - globalposy) + offs.Y};
 
             FVector2 p0 = { s0.Y * gcosang - s0.X * gsinang, s0.X * gcosang2 + s0.Y * gsinang2 };
 
@@ -3058,7 +3058,7 @@ void polymost_drawsprite(int32_t snum)
                 // Project 3D to 2D
                 for (intptr_t j = 0; j < 4; j++)
                 {
-                    FVector2 s0 = { (float)(tspr->pos.X - globalposx), (float)(tspr->y - globalposy) };
+                    FVector2 s0 = { (float)(tspr->pos.X - globalposx), (float)(tspr->pos.Y - globalposy) };
 
                     if ((j + 0) & 2)
                     {
@@ -3147,7 +3147,7 @@ void polymost_drawsprite(int32_t snum)
                 otex.d = -ghoriz * ytex.d;
 
                 // copied&modified from relative alignment
-                FVector2 const vv = { (float)tspr->pos.X + s * p1.X + c * p1.Y, (float)tspr->y + s * p1.Y - c * p1.X };
+                FVector2 const vv = { (float)tspr->pos.X + s * p1.X + c * p1.Y, (float)tspr->pos.Y + s * p1.Y - c * p1.X };
                 FVector2 ff = { -(p0.X + p1.X) * s, (p0.X + p1.X) * c };
 
                 float f = 1.f / sqrtf(ff.X * ff.X + ff.Y * ff.Y);
@@ -3380,7 +3380,7 @@ static inline int comparetsprites(int const k, int const l)
     if (!tspriteptr[k]->ownerActor || !tspriteptr[l]->ownerActor) return 0; // why are these getting dragged into here?
 
     if (tspriteptr[k]->pos.X == tspriteptr[l]->pos.X &&
-        tspriteptr[k]->y == tspriteptr[l]->y &&
+        tspriteptr[k]->pos.Y == tspriteptr[l]->pos.Y &&
         tspriteptr[k]->z == tspriteptr[l]->z &&
         (tspriteptr[k]->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == (tspriteptr[l]->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) &&
         tspriteptr[k]->ownerActor != tspriteptr[l]->ownerActor)
@@ -3501,7 +3501,7 @@ void renderDrawMasks(void)
 
     for (i = numSprites - 1; i >= 0; --i)
     {
-        const int32_t xs = tspriteptr[i]->pos.X - globalposx, ys = tspriteptr[i]->y - globalposy;
+        const int32_t xs = tspriteptr[i]->pos.X - globalposx, ys = tspriteptr[i]->pos.Y - globalposy;
         const int32_t yp = DMulScale(xs, cosviewingrangeglobalang, ys, sinviewingrangeglobalang, 6);
         const int32_t modelp = spriteIsModelOrVoxel(tspriteptr[i]);
 
@@ -3657,7 +3657,7 @@ void renderDrawMasks(void)
                 auto const tspr = tspriteptr[i];
 
                 spr.X = (float)tspr->pos.X;
-                spr.Y = (float)tspr->y;
+                spr.Y = (float)tspr->pos.Y;
 
                 if (!sameside(&maskeq, &spr, &pos))
                 {
@@ -3845,7 +3845,7 @@ int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr, bool rotate)
     int const shadowHack = !!(tspr->clipdist & TSPR_FLAGS_MDHACK);
 
     m0.Y *= f; a0.Y = (((float)(tspr->pos.X + tspr->ownerActor->sx().position_offset.X - globalposx)) * (1.f / 1024.f) + a0.Y) * f;
-    m0.X *= -f; a0.X = (((float)(tspr->y + tspr->ownerActor->sx().position_offset.Y - globalposy)) * -(1.f / 1024.f) + a0.X) * -f;
+    m0.X *= -f; a0.X = (((float)(tspr->pos.Y + tspr->ownerActor->sx().position_offset.Y - globalposy)) * -(1.f / 1024.f) + a0.X) * -f;
     m0.Z *= g; a0.Z = (((float)(k0 - globalposz - shadowHack)) * -(1.f / 16384.f) + a0.Z) * g;
 
     float mat[16];

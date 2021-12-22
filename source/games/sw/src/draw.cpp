@@ -114,7 +114,7 @@ int GetRotation(tspritetype* tsprite, int& spritesortcnt, int tSpriteNum, int vi
 
     // Get which of the 8 angles of the sprite to draw (0-7)
     // rotation ranges from 0-7
-    angle2 = getangle(tsp->pos.X - viewx, tsp->y - viewy);
+    angle2 = getangle(tsp->pos.X - viewx, tsp->pos.Y - viewy);
     rotation = ((tsp->ang + 3072 + 128 - angle2) & 2047);
     rotation = (rotation >> 8) & 7;
 
@@ -221,7 +221,7 @@ int DoShadowFindGroundPoint(tspriteptr_t sp)
 
     save_cstat = sp->cstat;
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-    FAFgetzrangepoint(sp->pos.X, sp->y, sp->z, sp->sector(), &hiz, &ceilhit, &loz, &florhit);
+    FAFgetzrangepoint(sp->pos.X, sp->pos.Y, sp->z, sp->sector(), &hiz, &ceilhit, &loz, &florhit);
     sp->cstat = save_cstat;
 
     switch (florhit.type)
@@ -271,7 +271,7 @@ void DoShadows(tspritetype* tsprite, int& spritesortcnt, tspriteptr_t tsp, int v
     auto sect = tsp->sector();
     // make sure its the correct sector
     // DoShadowFindGroundPoint calls FAFgetzrangepoint and this is sensitive
-    updatesector(tsp->pos.X, tsp->y, &sect);
+    updatesector(tsp->pos.X, tsp->pos.Y, &sect);
 
     if (sect == nullptr)
     {
@@ -343,9 +343,9 @@ void DoShadows(tspritetype* tsprite, int& spritesortcnt, tspriteptr_t tsp, int v
     else if (!testnewrenderer)
     {
         // Alter the shadow's position so that it appears behind the sprite itself.
-        int look = getangle(tSpr->pos.X - Player[screenpeek].six, tSpr->y - Player[screenpeek].siy);
+        int look = getangle(tSpr->pos.X - Player[screenpeek].six, tSpr->pos.Y - Player[screenpeek].siy);
         tSpr->pos.X += bcos(look, -9);
-        tSpr->y += bsin(look, -9);
+        tSpr->pos.Y += bsin(look, -9);
     }
     else tSpr->time = 1;
 
@@ -418,7 +418,7 @@ void DoMotionBlur(tspritetype* tsprite, int& spritesortcnt, tspritetype const * 
         SET(tSpr->cstat, CSTAT_SPRITE_TRANSLUCENT|CSTAT_SPRITE_TRANS_FLIP);
 
         tSpr->pos.X += dx;
-        tSpr->y += dy;
+        tSpr->pos.Y += dy;
         dx += nx;
         dy += ny;
 
@@ -482,11 +482,11 @@ void WarpCopySprite(tspritetype* tsprite, int& spritesortcnt)
                     newTSpr->statnum = 0;
 
                     xoff = sp1->pos.X - newTSpr->pos.X;
-                    yoff = sp1->y - newTSpr->y;
+                    yoff = sp1->pos.Y - newTSpr->pos.Y;
                     zoff = sp1->z - newTSpr->z;
 
                     newTSpr->pos.X = sp2->pos.X - xoff;
-                    newTSpr->y = sp2->y - yoff;
+                    newTSpr->pos.Y = sp2->pos.Y - yoff;
                     newTSpr->z = sp2->z - zoff;
                     newTSpr->setsector(sp2->sector());
                 }
@@ -505,11 +505,11 @@ void WarpCopySprite(tspritetype* tsprite, int& spritesortcnt)
                     newTSpr->statnum = 0;
 
                     xoff = sp2->pos.X - newTSpr->pos.X;
-                    yoff = sp2->y - newTSpr->y;
+                    yoff = sp2->pos.Y - newTSpr->pos.Y;
                     zoff = sp2->z - newTSpr->z;
 
                     newTSpr->pos.X = sp1->pos.X - xoff;
-                    newTSpr->y = sp1->y - yoff;
+                    newTSpr->pos.Y = sp1->pos.Y - yoff;
                     newTSpr->z = sp1->z - zoff;
                     newTSpr->setsector(sp1->sector());
                 }
@@ -550,7 +550,7 @@ DSWActor* CopySprite(sprt const* tsp, sectortype* newsector)
     sp = &actorNew->s();
 
     sp->pos.X = tsp->pos.X;
-    sp->y = tsp->y;
+    sp->pos.Y = tsp->pos.Y;
     sp->z = tsp->z;
     sp->cstat = tsp->cstat;
     sp->picnum = tsp->picnum;
@@ -582,7 +582,7 @@ DSWActor* ConnectCopySprite(sprt const* tsp)
         testz = SPRITEp_TOS(tsp) - Z(10);
 
         if (testz < tsp->sector()->ceilingz)
-            updatesectorz(tsp->pos.X, tsp->y, testz, &newsector);
+            updatesectorz(tsp->pos.X, tsp->pos.Y, testz, &newsector);
 
         if (newsector != nullptr && newsector != tsp->sector())
         {
@@ -596,7 +596,7 @@ DSWActor* ConnectCopySprite(sprt const* tsp)
         testz = SPRITEp_BOS(tsp) + Z(10);
 
         if (testz > tsp->sector()->floorz)
-            updatesectorz(tsp->pos.X, tsp->y, testz, &newsector);
+            updatesectorz(tsp->pos.X, tsp->pos.Y, testz, &newsector);
 
         if (newsector != nullptr && newsector != tsp->sector())
         {
@@ -678,7 +678,7 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
             if (tsp->picnum == BETTY_R0 || tsp->picnum == FLOORBLOOD1)
             {
                 auto sp = &tActor->s();
-                int32_t const floorz = getflorzofslopeptr(sp->sector(), sp->pos.X, sp->y);
+                int32_t const floorz = getflorzofslopeptr(sp->sector(), sp->pos.X, sp->pos.Y);
                 if (sp->z > floorz)
                     tsp->z = floorz;
             }
@@ -801,12 +801,12 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
                         // move sprite forward some so he looks like he's
                         // climbing
                         tsp->pos.X = pp->six + MOVEx(128 + 80, tsp->ang);
-                        tsp->y = pp->siy + MOVEy(128 + 80, tsp->ang);
+                        tsp->pos.Y = pp->siy + MOVEy(128 + 80, tsp->ang);
                     }
                     else
                     {
                         tsp->pos.X = pp->six;
-                        tsp->y = pp->siy;
+                        tsp->pos.Y = pp->siy;
                     }
 
                     tsp->z = tsp->z + pp->siz;
@@ -825,7 +825,7 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
                 PLAYERp pp = tu->PlayerP;
                 int sr = 65536 - int(smoothratio);
                 tsp->pos.X -= MulScale(pp->posx - pp->oposx, sr, 16);
-                tsp->y -= MulScale(pp->posy - pp->oposy, sr, 16);
+                tsp->pos.Y -= MulScale(pp->posy - pp->oposy, sr, 16);
                 tsp->z -= MulScale(pp->posz - pp->oposz, sr, 16);
                 tsp->ang -= MulScale(pp->angle.ang.asbuild() - pp->angle.oang.asbuild(), sr, 16);
             }
@@ -947,7 +947,7 @@ void post_analyzesprites(tspritetype* tsprite, int& spritesortcnt)
                 }
 
                 tsp->pos.X = atsp->pos.X;
-                tsp->y = atsp->y;
+                tsp->pos.Y = atsp->pos.Y;
                 // statnum is priority - draw this ALWAYS first at 0
                 // statnum is priority - draw this ALWAYS last at MAXSTATUS
                 if (TEST(atsp->extra, SPRX_BURNABLE))
@@ -1113,7 +1113,7 @@ void PrintSpriteInfo(PLAYERp pp)
         if (sp)
         {
             Printf("POSX:%d, ", sp->pos.X);
-            Printf("POSY:%d, ", sp->y);
+            Printf("POSY:%d, ", sp->pos.Y);
             Printf("POSZ:%d,", sp->z);
             Printf("ANG:%d\n", sp->ang);
         }
@@ -1148,12 +1148,12 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, sectortype** tsect, binan
         {
             sp = &actor->s();
 
-            ang = bvectangbam(*tx - sp->pos.X, *ty - sp->y);
+            ang = bvectangbam(*tx - sp->pos.X, *ty - sp->pos.Y);
             ang_test = getincangle(ang.asbuild(), sp->ang) < sp->lotag;
 
             FAFcansee_test =
-                (FAFcansee(sp->pos.X, sp->y, sp->z, sp->sector(), *tx, *ty, *tz, pp->cursector) ||
-                 FAFcansee(sp->pos.X, sp->y, sp->z, sp->sector(), *tx, *ty, *tz + SPRITEp_SIZE_Z(&pp->Actor()->s()), pp->cursector));
+                (FAFcansee(sp->pos.X, sp->pos.Y, sp->z, sp->sector(), *tx, *ty, *tz, pp->cursector) ||
+                 FAFcansee(sp->pos.X, sp->pos.Y, sp->z, sp->sector(), *tx, *ty, *tz + SPRITEp_SIZE_Z(&pp->Actor()->s()), pp->cursector));
 
             player_in_camera = ang_test && FAFcansee_test;
 
@@ -1189,12 +1189,12 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, sectortype** tsect, binan
                     zdiff = sp->z - *tz;
                     if (labs(sp->pos.X - *tx) > 1000)
                         zvect = Scale(xvect, zdiff, sp->pos.X - *tx);
-                    else if (labs(sp->y - *ty) > 1000)
-                        zvect = Scale(yvect, zdiff, sp->y - *ty);
+                    else if (labs(sp->pos.Y - *ty) > 1000)
+                        zvect = Scale(yvect, zdiff, sp->pos.Y - *ty);
                     else if (sp->pos.X - *tx != 0)
                         zvect = Scale(xvect, zdiff, sp->pos.X - *tx);
-                    else if (sp->y - *ty != 0)
-                        zvect = Scale(yvect, zdiff, sp->y - *ty);
+                    else if (sp->pos.Y - *ty != 0)
+                        zvect = Scale(yvect, zdiff, sp->pos.Y - *ty);
                     else
                         zvect = 0;
 
@@ -1206,7 +1206,7 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, sectortype** tsect, binan
 
                     *tang = ang;
                     *tx = sp->pos.X;
-                    *ty = sp->y;
+                    *ty = sp->pos.Y;
                     *tz = sp->z;
                     *tsect = sp->sector();
 
@@ -1708,7 +1708,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
                     col = GPalette.BaseColors[31];
 
                 sprx = spr->pos.X;
-                spry = spr->y;
+                spry = spr->pos.Y;
 
                 k = spr->statnum;
                 if ((k >= 1) && (k <= 8) && (k != 2))   // Interpolate moving

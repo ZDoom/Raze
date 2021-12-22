@@ -166,7 +166,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 		if (h->spr.statnum != STAT_ACTOR && h->spr.picnum == APLAYER && ps[h->spr.yvel].newOwner == nullptr && h->GetOwner())
 		{
 			t->pos.X -= MulScale(MaxSmoothRatio - smoothratio, ps[h->spr.yvel].pos.X - ps[h->spr.yvel].oposx, 16);
-			t->y -= MulScale(MaxSmoothRatio - smoothratio, ps[h->spr.yvel].pos.Y - ps[h->spr.yvel].oposy, 16);
+			t->pos.Y -= MulScale(MaxSmoothRatio - smoothratio, ps[h->spr.yvel].pos.Y - ps[h->spr.yvel].oposy, 16);
 			t->z = interpolatedvalue(ps[h->spr.yvel].oposz, ps[h->spr.yvel].pos.Z, smoothratio);
 			t->z += PHEIGHT_DUKE;
 		}
@@ -208,11 +208,11 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 				int sqa =
 					getangle(
 						OwnerAc->spr.pos.X - ps[screenpeek].pos.X,
-						OwnerAc->spr.y - ps[screenpeek].pos.Y);
+						OwnerAc->spr.pos.Y - ps[screenpeek].pos.Y);
 				int sqb =
 					getangle(
 						OwnerAc->spr.pos.X - t->pos.X,
-						OwnerAc->spr.y - t->y);
+						OwnerAc->spr.pos.Y - t->pos.Y);
 
 				if (abs(getincangle(sqa, sqb)) > 512)
 					if (ldist(OwnerAc, t) < ldist(ps[screenpeek].GetActor(), OwnerAc))
@@ -227,11 +227,11 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 					t->xrepeat = 0;
 				else
 				{
-					t->ang = getangle(x - t->pos.X, y - t->y);
+					t->ang = getangle(x - t->pos.X, y - t->pos.Y);
 					t->pos.X = OwnerAc->spr.pos.X;
-					t->y = OwnerAc->spr.y;
+					t->pos.Y = OwnerAc->spr.pos.Y;
 					t->pos.X += bcos(t->ang, -10);
-					t->y += bsin(t->ang, -10);
+					t->pos.Y += bsin(t->ang, -10);
 				}
 			}
 			break;
@@ -270,7 +270,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 				break;
 			}
 
-			k = getangle(h->spr.pos.X - x, h->spr.y - y);
+			k = getangle(h->spr.pos.X - x, h->spr.pos.Y - y);
 			k = (((h->spr.ang + 3072 + 128 - k) & 2047) / 170);
 			if (k > 6)
 			{
@@ -288,7 +288,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 				break;
 			}
 
-			k = getangle(h->spr.pos.X - x, h->spr.y - y);
+			k = getangle(h->spr.pos.X - x, h->spr.pos.Y - y);
 			if (h->temp_data[0] < 4)
 				k = (((h->spr.ang + 3072 + 128 - k) & 2047) / 170);
 			else k = (((h->spr.ang + 3072 + 128 - k) & 2047) / 170);
@@ -521,7 +521,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 					break;
 
 				case 5:
-					k = getangle(h->spr.pos.X - x, h->spr.y - y);
+					k = getangle(h->spr.pos.X - x, h->spr.pos.Y - y);
 					k = (((h->spr.ang + 3072 + 128 - k) & 2047) >> 8) & 7;
 					if (k > 4)
 					{
@@ -531,7 +531,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 					else t->cstat &= ~CSTAT_SPRITE_XFLIP;
 					break;
 				case 7:
-					k = getangle(h->spr.pos.X - x, h->spr.y - y);
+					k = getangle(h->spr.pos.X - x, h->spr.pos.Y - y);
 					k = (((h->spr.ang + 3072 + 128 - k) & 2047) / 170);
 					if (k > 6)
 					{
@@ -609,9 +609,9 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 							else
 							{
 								// Alter the shadow's position so that it appears behind the sprite itself.
-								int look = getangle(shadowspr->pos.X - ps[screenpeek].pos.X, shadowspr->y - ps[screenpeek].pos.Y);
+								int look = getangle(shadowspr->pos.X - ps[screenpeek].pos.X, shadowspr->pos.Y - ps[screenpeek].pos.Y);
 								shadowspr->pos.X += bcos(look, -9);
-								shadowspr->y += bsin(look, -9);
+								shadowspr->pos.Y += bsin(look, -9);
 							}
 						}
 					}

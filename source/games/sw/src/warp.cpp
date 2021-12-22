@@ -118,7 +118,7 @@ DSWActor* WarpToArea(DSWActor* sp_from, int32_t* x, int32_t* y, int32_t* z, sect
     int z_adj = 0;
 
     xoff = *x - sp->pos.X;
-    yoff = *y - sp->y;
+    yoff = *y - sp->pos.Y;
     zoff = *z - sp->z;
     match = sp->lotag;
 
@@ -182,7 +182,7 @@ DSWActor* WarpToArea(DSWActor* sp_from, int32_t* x, int32_t* y, int32_t* z, sect
 
                 // determine new x,y,z position
                 *x = spi->pos.X + xoff;
-                *y = spi->y + yoff;
+                *y = spi->pos.Y + yoff;
                 *z = spi->z + zoff;
 
                 // make sure you warp outside of warp plane

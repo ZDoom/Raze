@@ -57,13 +57,13 @@ void BuildAnubis(DExhumedActor* ap, int x, int y, int z, sectortype* pSector, in
         sp = &ap->s();
 
         x = sp->pos.X;
-        y = sp->y;
+        y = sp->pos.Y;
         z = sp->sector()->floorz;
         nAngle = sp->ang;
     }
 
     sp->pos.X = x;
-    sp->y = y;
+    sp->pos.Y = y;
     sp->z = z;
     sp->cstat = CSTAT_SPRITE_BLOCK_ALL;
     sp->xoffset = 0;
@@ -188,7 +188,7 @@ void AIAnubis::Tick(RunListEvent* ev)
         {
             if (move.actor() == pTarget)
             {
-                int nAng = getangle(pTarget->spr.pos.X - sp->pos.X, pTarget->spr.y - sp->y);
+                int nAng = getangle(pTarget->spr.pos.X - sp->pos.X, pTarget->spr.pos.Y - sp->pos.Y);
                 int nAngDiff = AngleDiff(sp->ang, nAng);
 
                 if (nAngDiff < 64)
@@ -221,12 +221,12 @@ void AIAnubis::Tick(RunListEvent* ev)
 
                 if (pTarget != nullptr) // NOTE: nTarget can be -1. this check wasn't in original code. TODO: demo compatiblity?
                 {
-                    if (cansee(sp->pos.X, sp->y, sp->z - GetActorHeight(ap), sp->sector(),
-                        pTarget->spr.pos.X, pTarget->spr.y, pTarget->spr.z - GetActorHeight(pTarget), pTarget->spr.sector()))
+                    if (cansee(sp->pos.X, sp->pos.Y, sp->z - GetActorHeight(ap), sp->sector(),
+                        pTarget->spr.pos.X, pTarget->spr.pos.Y, pTarget->spr.z - GetActorHeight(pTarget), pTarget->spr.sector()))
                     {
                         sp->xvel = 0;
                         sp->yvel = 0;
-                        sp->ang = GetMyAngle(pTarget->spr.pos.X - sp->pos.X, pTarget->spr.y - sp->y);
+                        sp->ang = GetMyAngle(pTarget->spr.pos.X - sp->pos.X, pTarget->spr.pos.Y - sp->pos.Y);
 
                         ap->nAction = 3;
                         ap->nFrame = 0;
@@ -406,7 +406,7 @@ void AIAnubis::Damage(RunListEvent* ev)
                     auto pDrumSprite = &pDrumActor->s();
 
                     pDrumSprite->pos.X = sp->pos.X;
-                    pDrumSprite->y = sp->y;
+                    pDrumSprite->pos.Y = sp->pos.Y;
                     pDrumSprite->z = pDrumSprite->sector()->floorz;
                     pDrumSprite->xrepeat = 40;
                     pDrumSprite->yrepeat = 40;

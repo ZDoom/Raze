@@ -276,7 +276,7 @@ static int GetPositionInfo(DDukeActor* actor, int soundNum, sectortype* sect,
 	sndist += dist_adjust;
 	if (sndist < 0) sndist = 0;
 
-	if (sect!= nullptr && sndist && actor->spr.picnum != MUSICANDSFX && !cansee(cam->X, cam->Y, cam->Z - (24 << 8), sect, actor->spr.pos.X, actor->spr.y, actor->spr.z - (24 << 8), actor->spr.sector()))
+	if (sect!= nullptr && sndist && actor->spr.picnum != MUSICANDSFX && !cansee(cam->X, cam->Y, cam->Z - (24 << 8), sect, actor->spr.pos.X, actor->spr.pos.Y, actor->spr.z - (24 << 8), actor->spr.sector()))
 		sndist += sndist >> (isRR() ? 2 : 5);
 
 	// Here the sound distance was clamped to a minimum of 144*4. 

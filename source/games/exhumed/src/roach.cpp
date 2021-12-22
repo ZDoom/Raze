@@ -48,13 +48,13 @@ void BuildRoach(int nType, DExhumedActor* pActor, int x, int y, int z, sectortyp
         ChangeActorStat(pActor, 105);
         pSprite = &pActor->s();
         x = pSprite->pos.X;
-        y = pSprite->y;
+        y = pSprite->pos.Y;
         z = pSprite->sector()->floorz;
         angle = pSprite->ang;
     }
 
     pSprite->pos.X = x;
-    pSprite->y = y;
+    pSprite->pos.Y = y;
     pSprite->z = z;
     pSprite->cstat = CSTAT_SPRITE_BLOCK_ALL;
     pSprite->shade = -12;
@@ -282,7 +282,7 @@ void AIRoach::Tick(RunListEvent* ev)
 
                 pSprite->xvel = 0;
                 pSprite->yvel = 0;
-                pSprite->ang = GetMyAngle(pTarget->spr.pos.X - pSprite->pos.X, pTarget->spr.y - pSprite->y);
+                pSprite->ang = GetMyAngle(pTarget->spr.pos.X - pSprite->pos.X, pTarget->spr.pos.Y - pSprite->pos.Y);
 
                 pActor->nFrame = 0;
             }
@@ -311,7 +311,7 @@ void AIRoach::Tick(RunListEvent* ev)
 
                 pSprite->xvel = 0;
                 pSprite->yvel = 0;
-                pSprite->ang = GetMyAngle(pTarget->spr.pos.X - pSprite->pos.X, pTarget->spr.y - pSprite->y);
+                pSprite->ang = GetMyAngle(pTarget->spr.pos.X - pSprite->pos.X, pTarget->spr.pos.Y - pSprite->pos.Y);
 
                 pActor->nFrame = 0;
             }

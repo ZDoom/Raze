@@ -37,7 +37,7 @@ void GameInterface::WarpToCoords(int x, int y, int z, int ang, int horz)
     VIEW* pView = &gPrevView[myconnectindex];
 
     pPlayer->pSprite->pos.X = pView->x = gView->pSprite->pos.X = x;
-    pPlayer->pSprite->y = pView->y = gView->pSprite->y = y;
+    pPlayer->pSprite->pos.Y = pView->y = gView->pSprite->pos.Y = y;
     pPlayer->zView      = pView->viewz = gView->zView      = z;
 
     if (ang != INT_MIN)

@@ -49,7 +49,7 @@ DExhumedActor* BuildWasp(DExhumedActor* pActor, int x, int y, int z, sectortype*
         pSprite = &pActor->s();
 
         pSprite->pos.X = x;
-        pSprite->y = y;
+        pSprite->pos.Y = y;
         pSprite->z = z;
     }
     else

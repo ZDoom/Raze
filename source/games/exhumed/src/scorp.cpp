@@ -53,13 +53,13 @@ void BuildScorp(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector,
 
 		pSprite = &pActor->s();
         x = pSprite->pos.X;
-        y = pSprite->y;
+        y = pSprite->pos.Y;
         z = pSprite->sector()->floorz;
         nAngle = pSprite->ang;
     }
 
 	pSprite->pos.X = x;
-    pSprite->y = y;
+    pSprite->pos.Y = y;
     pSprite->z = z;
     pSprite->cstat = CSTAT_SPRITE_BLOCK_ALL;
     pSprite->clipdist = 70;
@@ -260,7 +260,7 @@ void AIScorp::Tick(RunListEvent* ev)
             {
                 if (pTarget == nMov.actor())
                 {
-                    int nAngle = getangle(pTarget->spr.pos.X - pSprite->pos.X, pTarget->spr.y - pSprite->y);
+                    int nAngle = getangle(pTarget->spr.pos.X - pSprite->pos.X, pTarget->spr.pos.Y - pSprite->pos.Y);
                     if (AngleDiff(pSprite->ang, nAngle) < 64)
                     {
                         pActor->nAction = 2;
@@ -379,7 +379,7 @@ void AIScorp::Tick(RunListEvent* ev)
             return;
         }
 
-        auto pSpiderActor = BuildSpider(nullptr, pSprite->pos.X, pSprite->y, pSprite->z, pSprite->sector(), pSprite->ang);
+        auto pSpiderActor = BuildSpider(nullptr, pSprite->pos.X, pSprite->pos.Y, pSprite->z, pSprite->sector(), pSprite->ang);
         if (pSpiderActor)
         {
 			auto pSpiderSprite = &pSpiderActor->s();
@@ -440,12 +440,12 @@ void AIScorp::Effect(RunListEvent* ev, DExhumedActor* pTarget, int mode)
         {
             pActor->nCount = 45;
 
-            if (cansee(pSprite->pos.X, pSprite->y, pSprite->z - GetActorHeight(pActor), pSprite->sector(),
-                pTarget->spr.pos.X, pTarget->spr.y, pTarget->spr.z - GetActorHeight(pTarget), pTarget->spr.sector()))
+            if (cansee(pSprite->pos.X, pSprite->pos.Y, pSprite->z - GetActorHeight(pActor), pSprite->sector(),
+                pTarget->spr.pos.X, pTarget->spr.pos.Y, pTarget->spr.z - GetActorHeight(pTarget), pTarget->spr.sector()))
             {
                 pSprite->xvel = 0;
                 pSprite->yvel = 0;
-                pSprite->ang = GetMyAngle(pTarget->spr.pos.X - pSprite->pos.X, pTarget->spr.y - pSprite->y);
+                pSprite->ang = GetMyAngle(pTarget->spr.pos.X - pSprite->pos.X, pTarget->spr.pos.Y - pSprite->pos.Y);
 
                 pActor->nIndex = RandomSize(2) + RandomSize(3);
 

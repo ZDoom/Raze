@@ -551,12 +551,12 @@ int DoSkelTeleport(DSWActor* actor)
     int x,y;
 
     x = sp->pos.X;
-    y = sp->y;
+    y = sp->pos.Y;
 
     while (true)
     {
         sp->pos.X = x;
-        sp->y = y;
+        sp->pos.Y = y;
 
         if (RANDOM_P2(1024) < 512)
             sp->pos.X += 512 + RANDOM_P2(1024);
@@ -564,9 +564,9 @@ int DoSkelTeleport(DSWActor* actor)
             sp->pos.X -= 512 + RANDOM_P2(1024);
 
         if (RANDOM_P2(1024) < 512)
-            sp->y += 512 + RANDOM_P2(1024);
+            sp->pos.Y += 512 + RANDOM_P2(1024);
         else
-            sp->y -= 512 + RANDOM_P2(1024);
+            sp->pos.Y -= 512 + RANDOM_P2(1024);
 
         SetActorZ(actor, &sp->pos);
 

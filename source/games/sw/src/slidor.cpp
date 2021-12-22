@@ -416,12 +416,12 @@ int DoSlidorInstantClose(DSWActor* actor)
             break;
 
         case TAG_WALL_SLIDOR_UP:
-            diff = wal->pos.Y - sp->y;
+            diff = wal->pos.Y - sp->pos.Y;
             DoSlidorMoveWalls(actor, diff);
             break;
 
         case TAG_WALL_SLIDOR_DOWN:
-            diff = wal->pos.Y - sp->y;
+            diff = wal->pos.Y - sp->pos.Y;
             DoSlidorMoveWalls(actor, -diff);
             break;
         }

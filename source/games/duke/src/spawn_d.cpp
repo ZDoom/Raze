@@ -119,14 +119,14 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->SetOwner(actj);
 			ChangeActorStat(act, STAT_MISC);
 			act->spr.pos.X += krand() % 512 - 256;
-			act->spr.y += krand() % 512 - 256;
+			act->spr.pos.Y += krand() % 512 - 256;
 			act->spr.xrepeat = 16;
 			act->spr.yrepeat = 16;
 			return act;
 		case WHISPYSMOKE:
 			ChangeActorStat(act, STAT_MISC);
 			act->spr.pos.X += krand() % 256 - 128;
-			act->spr.y += krand() % 256 - 128;
+			act->spr.pos.Y += krand() % 256 - 128;
 			act->spr.xrepeat = 20;
 			act->spr.yrepeat = 20;
 			return act;
@@ -161,11 +161,11 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		{
 			if (actj->spr.sector()->lotag == 2)
 			{
-				act->spr.z = getceilzofslopeptr(act->spr.sector(), act->spr.pos.X, act->spr.y) + (16 << 8);
+				act->spr.z = getceilzofslopeptr(act->spr.sector(), act->spr.pos.X, act->spr.pos.Y) + (16 << 8);
 				act->spr.cstat |= CSTAT_SPRITE_YFLIP;
 			}
 			else if (actj->spr.sector()->lotag == 1)
-				act->spr.z = getflorzofslopeptr(act->spr.sector(), act->spr.pos.X, act->spr.y);
+				act->spr.z = getflorzofslopeptr(act->spr.sector(), act->spr.pos.X, act->spr.pos.Y);
 		}
 
 		if (sectp->floorpicnum == FLOORSLIME ||
@@ -298,7 +298,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.cstat |= CSTAT_SPRITE_ALIGNMENT_FLOOR;
 		if (act->spr.picnum == LAVAPOOL)  // Twentieth Anniversary World Tour
 		{
-			int fz = getflorzofslopeptr(act->spr.sector(), act->spr.pos.X, act->spr.y);
+			int fz = getflorzofslopeptr(act->spr.sector(), act->spr.pos.X, act->spr.pos.Y);
 			if (fz != act->spr.z)
 				act->spr.z = fz;
 			act->spr.z -= 200;
@@ -549,7 +549,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 	case SPOTLITE:
 		t[0] = act->spr.pos.X;
-		t[1] = act->spr.y;
+		t[1] = act->spr.pos.Y;
 		break;
 	case BULLETHOLE:
 		act->spr.xrepeat = act->spr.yrepeat = 3;
@@ -642,7 +642,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		if (actj)
 		{
-			int x = getflorzofslopeptr(act->spr.sector(), act->spr.pos.X, act->spr.y);
+			int x = getflorzofslopeptr(act->spr.sector(), act->spr.pos.X, act->spr.pos.Y);
 			if (act->spr.z > x - (12 << 8))
 				act->spr.z = x - (12 << 8);
 		}
@@ -650,7 +650,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (act->spr.picnum == ONFIRE)
 		{
 			act->spr.pos.X += krand() % 256 - 128;
-			act->spr.y += krand() % 256 - 128;
+			act->spr.pos.Y += krand() % 256 - 128;
 			act->spr.z -= krand() % 10240;
 			act->spr.cstat |= CSTAT_SPRITE_YCENTER;
 		}
@@ -750,7 +750,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case WATERBUBBLEMAKER:
 		if (act->spr.hitag && act->spr.picnum == WATERBUBBLEMAKER)
 		{	// JBF 20030913: Pisses off move(), eg. in bobsp2
-			Printf(TEXTCOLOR_YELLOW "WARNING: WATERBUBBLEMAKER %d @ %d,%d with hitag!=0. Applying fixup.\n", act->GetIndex(), act->spr.pos.X, act->spr.y);
+			Printf(TEXTCOLOR_YELLOW "WARNING: WATERBUBBLEMAKER %d @ %d,%d with hitag!=0. Applying fixup.\n", act->GetIndex(), act->spr.pos.X, act->spr.pos.Y);
 			act->spr.hitag = 0;
 		}
 		act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;

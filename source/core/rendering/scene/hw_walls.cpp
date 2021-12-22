@@ -120,7 +120,7 @@ static int IsOnWall(tspritetype* tspr, int height)
 		if ((wal.nextsector == -1 || ((wal.nextSector()->ceilingz > topz) ||
 			wal.nextSector()->floorz < tspr->z)) && !GetClosestPointOnWall(tspr, &wal, &n))
 		{
-			int const dst = abs(tspr->pos.X - n.X) + abs(tspr->y - n.Y);
+			int const dst = abs(tspr->pos.X - n.X) + abs(tspr->pos.Y - n.Y);
 
 			if (dst <= dist)
 			{

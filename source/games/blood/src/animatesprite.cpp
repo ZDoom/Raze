@@ -90,7 +90,7 @@ tspritetype* viewInsertTSprite(tspritetype* tsprite, int& spritesortcnt, sectort
         pTSprite->ang = parentTSprite->ang;
     }
     pTSprite->pos.X += Cos(gCameraAng)>>25;
-    pTSprite->y += Sin(gCameraAng)>>25;
+    pTSprite->pos.Y += Sin(gCameraAng)>>25;
     return pTSprite;
 }
 
@@ -172,7 +172,7 @@ static tspritetype *viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int 
             RotateYZ(&x, &y, &z, nRand1);
             RotateXZ(&x, &y, &z, nRand2);
             pNSprite->pos.X = pTSprite->pos.X + x;
-            pNSprite->y = pTSprite->y + y;
+            pNSprite->pos.Y = pTSprite->pos.Y + y;
             pNSprite->z = pTSprite->z + (z<<4);
             pNSprite->picnum = 1720;
             pNSprite->shade = -128;
@@ -274,10 +274,10 @@ static tspritetype *viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int 
             int x = MulScale(nLen, Cos(nAng), 30);
             pNSprite->pos.X = pTSprite->pos.X + x;
             int y = MulScale(nLen, Sin(nAng), 30);
-            pNSprite->y = pTSprite->y + y;
+            pNSprite->pos.Y = pTSprite->pos.Y + y;
             pNSprite->z = pTSprite->z;
             assert(pSector);
-            FindSector(pNSprite->pos.X, pNSprite->y, pNSprite->z, &pSector);
+            FindSector(pNSprite->pos.X, pNSprite->pos.Y, pNSprite->z, &pSector);
             pNSprite->setsector(pSector);
             pNSprite->ownerActor = pTSprite->ownerActor;
             pNSprite->picnum = pTSprite->picnum;
@@ -378,7 +378,7 @@ static tspritetype *viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int 
             if (!pNSprite)
                 break;
 
-            pNSprite->z = getflorzofslopeptr(pTSprite->sector(), pNSprite->pos.X, pNSprite->y);
+            pNSprite->z = getflorzofslopeptr(pTSprite->sector(), pNSprite->pos.X, pNSprite->pos.Y);
             pNSprite->shade = 127;
             pNSprite->cstat |= CSTAT_SPRITE_TRANSLUCENT;
             pNSprite->xrepeat = pTSprite->xrepeat;
@@ -414,7 +414,7 @@ static tspritetype *viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int 
 
         sectortype *pSector = pTSprite->sector();
         pNSprite->pos.X = pTSprite->pos.X;
-        pNSprite->y = pTSprite->y;
+        pNSprite->pos.Y = pTSprite->pos.Y;
         pNSprite->z = pSector->ceilingz;
         pNSprite->picnum = 624;
         pNSprite->shade = ((pTSprite->z-pSector->ceilingz)>>8)-64;
@@ -433,7 +433,7 @@ static tspritetype *viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int 
 
         sectortype *pSector = pTSprite->sector();
         pNSprite->pos.X = pTSprite->pos.X;
-        pNSprite->y = pTSprite->y;
+        pNSprite->pos.Y = pTSprite->pos.Y;
         pNSprite->z = pSector->floorz;
         pNSprite->picnum = 624;
         uint8_t nShade = (pSector->floorz-pTSprite->z)>>8;
@@ -472,7 +472,7 @@ static tspritetype *viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int 
             break;
 
         pNSprite->pos.X = pTSprite->pos.X;
-        pNSprite->y = pTSprite->y;
+        pNSprite->pos.Y = pTSprite->pos.Y;
         pNSprite->z = pTSprite->z-(32<<8);
         pNSprite->z -= weaponIcon.zOffset<<8; // offset up
         pNSprite->picnum = nTile;
@@ -489,7 +489,7 @@ static tspritetype *viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int 
             if (pPlayer->curWeapon == kWeapLifeLeech) // position lifeleech behind player
             {
                 pNSprite->pos.X += MulScale(128, Cos(gView->pSprite->ang), 30);
-                pNSprite->y += MulScale(128, Sin(gView->pSprite->ang), 30);
+                pNSprite->pos.Y += MulScale(128, Sin(gView->pSprite->ang), 30);
             }
             if ((pPlayer->curWeapon == kWeapLifeLeech) || (pPlayer->curWeapon == kWeapVoodooDoll))  // make lifeleech/voodoo doll always face viewer like sprite
                 pNSprite->ang = (pNSprite->ang + 512) & 2047; // offset angle 90 degrees
@@ -572,7 +572,7 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
                     break;
                 }
                 int dX = cX - pTSprite->pos.X;
-                int dY = cY - pTSprite->y;
+                int dY = cY - pTSprite->pos.Y;
                 RotateVector(&dX, &dY, 128-pTSprite->ang);
                 nAnim = GetOctant(dX, dY);
                 if (nAnim <= 4)
@@ -594,7 +594,7 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
                     break;
                 }
                 int dX = cX - pTSprite->pos.X;
-                int dY = cY - pTSprite->y;
+                int dY = cY - pTSprite->pos.Y;
                 RotateVector(&dX, &dY, 128-pTSprite->ang);
                 nAnim = GetOctant(dX, dY);
                 break;
@@ -610,7 +610,7 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
                 {
                     int top, bottom;
                     GetSpriteExtents(pTSprite, &top, &bottom);
-                    if (getflorzofslopeptr(pTSprite->sector(), pTSprite->pos.X, pTSprite->y) > bottom)
+                    if (getflorzofslopeptr(pTSprite->sector(), pTSprite->pos.X, pTSprite->pos.Y) > bottom)
                         nAnim = 1;
                 }
                 break;
@@ -864,7 +864,7 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
                     if (pNTSprite) {
                         POSTURE *pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
                         pNTSprite->pos.X += MulScale(pPosture->zOffset, Cos(pTSprite->ang), 28);
-                        pNTSprite->y += MulScale(pPosture->zOffset, Sin(pTSprite->ang), 28);
+                        pNTSprite->pos.Y += MulScale(pPosture->zOffset, Sin(pTSprite->ang), 28);
                         pNTSprite->z = pPlayer->pSprite->z-pPosture->xOffset;
                     }
                 }
@@ -890,7 +890,7 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
             }
             
             if (pTSprite->ownerActor != gView->actor || gViewPos != VIEWPOS_0) {
-                if (getflorzofslopeptr(pTSprite->sector(), pTSprite->pos.X, pTSprite->y) >= cZ)
+                if (getflorzofslopeptr(pTSprite->sector(), pTSprite->pos.X, pTSprite->pos.Y) >= cZ)
                 {
                     viewAddEffect(tsprite, spritesortcnt, nTSprite, kViewEffectShadow);
                 }
@@ -922,7 +922,7 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
 
             if (pTSprite->type < kThingBase || pTSprite->type >= kThingMax || owneractor->hit.florhit.type == kHitNone)
             {
-                if ((pTSprite->flags & kPhysMove) && getflorzofslopeptr(pTSprite->sector(), pTSprite->pos.X, pTSprite->y) >= cZ)
+                if ((pTSprite->flags & kPhysMove) && getflorzofslopeptr(pTSprite->sector(), pTSprite->pos.X, pTSprite->pos.Y) >= cZ)
                     viewAddEffect(tsprite, spritesortcnt, nTSprite, kViewEffectShadow);
             }
         }
@@ -939,7 +939,7 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
             case 1:
             {
                 int dX = cX - pTSprite->pos.X;
-                int dY = cY - pTSprite->y;
+                int dY = cY - pTSprite->pos.Y;
                 RotateVector(&dX, &dY, 128-pTSprite->ang);
                 nAnim = GetOctant(dX, dY);
                 if (nAnim <= 4)
@@ -956,7 +956,7 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
             case 2:
             {
                 int dX = cX - pTSprite->pos.X;
-                int dY = cY - pTSprite->y;
+                int dY = cY - pTSprite->pos.Y;
                 RotateVector(&dX, &dY, 128-pTSprite->ang);
                 nAnim = GetOctant(dX, dY);
                 break;

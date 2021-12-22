@@ -564,7 +564,7 @@ int DoCheckSwarm(DSWActor* actor)
     if (u->targetActor->u()->PlayerP)
     {
         pp = u->targetActor->u()->PlayerP;
-        DISTANCE(sp->pos.X, sp->y, pp->posx, pp->posy, pdist, a, b, c);
+        DISTANCE(sp->pos.X, sp->pos.Y, pp->posx, pp->posy, pdist, a, b, c);
     }
     else
         return 0;
@@ -580,7 +580,7 @@ int DoCheckSwarm(DSWActor* actor)
 
         if (tsp->hitag != TAG_SWARMSPOT || tsp->lotag != 2) continue;
 
-        DISTANCE(sp->pos.X, sp->y, tsp->pos.X, tsp->y, dist, a, b, c);
+        DISTANCE(sp->pos.X, sp->pos.Y, tsp->pos.X, tsp->pos.Y, dist, a, b, c);
 
         if (dist < pdist && u->ID == tu->ID) // Only flock to your own kind
         {

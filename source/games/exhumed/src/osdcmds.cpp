@@ -39,7 +39,7 @@ void GameInterface::WarpToCoords(int x, int y, int z, int ang, int horz)
     spritetype *pSprite = &nPlayer->Actor()->s(); 
 
     pSprite->ox = pSprite->pos.X = x;
-    pSprite->oy = pSprite->y = y;
+    pSprite->oy = pSprite->pos.Y = y;
     pSprite->oz = pSprite->z = z;
 
     if (ang != INT_MIN)

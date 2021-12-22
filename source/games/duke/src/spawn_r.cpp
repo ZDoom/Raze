@@ -213,11 +213,11 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		{
 			if (actj->spr.sector()->lotag == 2)
 			{
-				act->spr.z = getceilzofslopeptr(act->spr.sector(), act->spr.pos.X, act->spr.y) + (16 << 8);
+				act->spr.z = getceilzofslopeptr(act->spr.sector(), act->spr.pos.X, act->spr.pos.Y) + (16 << 8);
 				act->spr.cstat |= CSTAT_SPRITE_YFLIP;
 			}
 			else if (actj->spr.sector()->lotag == 1)
-				act->spr.z = getflorzofslopeptr(act->spr.sector(), act->spr.pos.X, act->spr.y);
+				act->spr.z = getflorzofslopeptr(act->spr.sector(), act->spr.pos.X, act->spr.pos.Y);
 		}
 
 		if (sectp->floorpicnum == FLOORSLIME ||
@@ -571,7 +571,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 	case SPOTLITE:
 		t[0] = act->spr.pos.X;
-		t[1] = act->spr.y;
+		t[1] = act->spr.pos.Y;
 		break;
 	case BULLETHOLE:
 		act->spr.xrepeat = act->spr.yrepeat = 3;
@@ -650,7 +650,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 		if (actj)
 		{
-			int x = getflorzofslopeptr(act->spr.sector(), act->spr.pos.X, act->spr.y);
+			int x = getflorzofslopeptr(act->spr.sector(), act->spr.pos.X, act->spr.pos.Y);
 			if (act->spr.z > x - (12 << 8))
 				act->spr.z = x - (12 << 8);
 		}
@@ -907,7 +907,7 @@ DDukeActor* spawninit_r(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 			act->spr.cstat = CSTAT_SPRITE_TRANSLUCENT;
 			act->spr.cstat |= CSTAT_SPRITE_TRANS_FLIP;
 			act->spr.pos.X += (krand() & 2047) - 1024;
-			act->spr.y += (krand() & 2047) - 1024;
+			act->spr.pos.Y += (krand() & 2047) - 1024;
 			act->spr.z += (krand() & 2047) - 1024;
 			break;
 		case MAMA:

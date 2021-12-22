@@ -303,7 +303,7 @@ void SpawnMidSplash(DSWActor* actor)
     USERp nu;
 
     auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_GoreSplash, sp->sector(),
-                      sp->pos.X, sp->y, SPRITEp_MID(sp), sp->ang, 0);
+                      sp->pos.X, sp->pos.Y, SPRITEp_MID(sp), sp->ang, 0);
 
     np = &actorNew->s();
     nu = actorNew->u();
@@ -334,7 +334,7 @@ void SpawnFloorSplash(DSWActor* actor)
     USERp nu;
 
     auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_GoreFloorSplash, sp->sector(),
-                      sp->pos.X, sp->y, sp->z, sp->ang, 0);
+                      sp->pos.X, sp->pos.Y, sp->z, sp->ang, 0);
 
     np = &actorNew->s();
     nu = actorNew->u();
@@ -382,7 +382,7 @@ int DoBloodSpray(DSWActor* actor)
         // special stuff for blood worm
         sp->z += (u->zchange >> 1);
 
-        getzsofslopeptr(sp->sector(), sp->pos.X, sp->y, &cz, &fz);
+        getzsofslopeptr(sp->sector(), sp->pos.X, sp->pos.Y, &cz, &fz);
         // pretend like we hit a sector
         if (sp->z >= fz)
         {
@@ -444,7 +444,7 @@ int DoBloodSpray(DSWActor* actor)
 
             if (wph->lotag == TAG_WALL_BREAK)
             {
-                HitBreakWall(wph, sp->pos.X, sp->y, sp->z, sp->ang, u->ID);
+                HitBreakWall(wph, sp->pos.X, sp->pos.Y, sp->z, sp->ang, u->ID);
                 u->coll.setNone();
                 break;
             }
@@ -471,7 +471,7 @@ int DoBloodSpray(DSWActor* actor)
                 sp->xvel = sp->yvel = u->xchange = u->ychange = 0;
                 sp->xrepeat = sp->yrepeat = 70 - RandomRange(25);
                 sp->pos.X = bsp->pos.X;
-                sp->y = bsp->y;
+                sp->pos.Y = bsp->pos.Y;
 
                 // !FRANK! bit of a hack
                 // yvel is the hit_wall
@@ -479,7 +479,7 @@ int DoBloodSpray(DSWActor* actor)
                 {
                     // sy & sz are the ceiling and floor of the sector you are sliding down
                     if (bldActor->tempwall->twoSided())
-                        getzsofslopeptr(bldActor->tempwall->nextSector(), sp->pos.X, sp->y, &u->sy, &u->sz);
+                        getzsofslopeptr(bldActor->tempwall->nextSector(), sp->pos.X, sp->pos.Y, &u->sy, &u->sz);
                     else
                         u->sy = u->sz; // ceiling and floor are equal - white wall
                 }
@@ -542,7 +542,7 @@ int DoBloodSpray(DSWActor* actor)
     {
 
         auto actorNew = SpawnActor(STAT_MISSILE, GOREDrip, s_BloodSpray, sp->sector(),
-                          sp->pos.X, sp->y, sp->z, sp->ang, 100);
+                          sp->pos.X, sp->pos.Y, sp->z, sp->ang, 100);
 
         auto np = &actorNew->s();
         auto nu = actorNew->u();
@@ -652,7 +652,7 @@ int DoPhosphorus(DSWActor* actor)
 
             if (wph->lotag == TAG_WALL_BREAK)
             {
-                HitBreakWall(wph, sp->pos.X, sp->y, sp->z, sp->ang, u->ID);
+                HitBreakWall(wph, sp->pos.X, sp->pos.Y, sp->z, sp->ang, u->ID);
                 u->coll.setNone();
                 break;
             }
@@ -755,7 +755,7 @@ int DoPhosphorus(DSWActor* actor)
     {
 
         auto actorNew = SpawnActor(STAT_SKIP4, PUFF, s_PhosphorExp, sp->sector(),
-                          sp->pos.X, sp->y, sp->z, sp->ang, 100);
+                          sp->pos.X, sp->pos.Y, sp->z, sp->ang, 100);
 
         auto np = &actorNew->s();
         auto nu = actorNew->u();
@@ -862,7 +862,7 @@ int DoChemBomb(DSWActor* actor)
 
             if (wph->lotag == TAG_WALL_BREAK)
             {
-                HitBreakWall(wph, sp->pos.X, sp->y, sp->z, sp->ang, u->ID);
+                HitBreakWall(wph, sp->pos.X, sp->pos.Y, sp->z, sp->ang, u->ID);
                 u->coll.setNone();
                 break;
             }
@@ -985,7 +985,7 @@ int DoChemBomb(DSWActor* actor)
     if (!TEST(u->Flags, SPR_BOUNCE | SPR_UNDERWATER) && !TEST(sp->cstat, CSTAT_SPRITE_INVISIBLE))
     {
         auto actorNew = SpawnActor(STAT_MISSILE, PUFF, s_Puff, sp->sector(),
-                          sp->pos.X, sp->y, sp->z, sp->ang, 100);
+                          sp->pos.X, sp->pos.Y, sp->z, sp->ang, 100);
 
         auto np = &actorNew->s();
         auto nu = actorNew->u();
@@ -1087,7 +1087,7 @@ int DoCaltrops(DSWActor* actor)
 
             if (wph->lotag == TAG_WALL_BREAK)
             {
-                HitBreakWall(wph, sp->pos.X, sp->y, sp->z, sp->ang, u->ID);
+                HitBreakWall(wph, sp->pos.X, sp->pos.Y, sp->z, sp->ang, u->ID);
                 u->coll.setNone();
                 break;
             }
@@ -1226,7 +1226,7 @@ int SpawnRadiationCloud(DSWActor* actor)
         return -1;
 
     auto actorNew = SpawnActor(STAT_MISSILE, RADIATION_CLOUD, s_RadiationCloud, sp->sector(),
-                      sp->pos.X, sp->y, sp->z - RANDOM_P2(Z(8)), sp->ang, 0);
+                      sp->pos.X, sp->pos.Y, sp->z - RANDOM_P2(Z(8)), sp->ang, 0);
 
     np = &actorNew->s();
     nu = actorNew->u();
@@ -1280,7 +1280,7 @@ int DoRadiationCloud(DSWActor* actor)
     sp->z -= sp->zvel;
 
     sp->pos.X += u->xchange;
-    sp->y += u->ychange;
+    sp->pos.Y += u->ychange;
 
     if (u->ID)
     {
@@ -1390,7 +1390,7 @@ int InitSpriteChemBomb(DSWActor* actor)
     PlaySound(DIGI_THROW, actor, v3df_dontpan | v3df_doppler);
 
     nx = sp->pos.X;
-    ny = sp->y;
+    ny = sp->pos.Y;
     nz = sp->z;
 
     // Spawn a shot
@@ -1443,7 +1443,7 @@ int InitChemBomb(DSWActor* actor)
 //    PlayerUpdateAmmo(pp, u->WeaponNum, -1);
 
     nx = sp->pos.X;
-    ny = sp->y;
+    ny = sp->pos.Y;
     nz = sp->z;
 
     // Spawn a shot
@@ -1526,14 +1526,14 @@ int PlayerInitFlashBomb(PLAYERp pp)
             if (itActor == pp->Actor())
                 break;
 
-            DISTANCE(hp->pos.X, hp->y, sp->pos.X, sp->y, dist, tx, ty, tmin);
+            DISTANCE(hp->pos.X, hp->pos.Y, sp->pos.X, sp->pos.Y, dist, tx, ty, tmin);
             if (dist > 16384)           // Flash radius
                 continue;
 
             if (!TEST(sp->cstat, CSTAT_SPRITE_BLOCK))
                 continue;
 
-            if (!FAFcansee(hp->pos.X, hp->y, hp->z, hp->sector(), sp->pos.X, sp->y, sp->z - SPRITEp_SIZE_Z(sp), sp->sector()))
+            if (!FAFcansee(hp->pos.X, hp->pos.Y, hp->z, hp->sector(), sp->pos.X, sp->pos.Y, sp->z - SPRITEp_SIZE_Z(sp), sp->sector()))
                 continue;
 
             damage = GetDamage(itActor, pp->Actor(), DMG_FLASHBOMB);
@@ -1591,14 +1591,14 @@ int InitFlashBomb(DSWActor* actor)
             hp = &itActor->s();
             hu = itActor->u();
 
-            DISTANCE(hp->pos.X, hp->y, sp->pos.X, sp->y, dist, tx, ty, tmin);
+            DISTANCE(hp->pos.X, hp->pos.Y, sp->pos.X, sp->pos.Y, dist, tx, ty, tmin);
             if (dist > 16384)           // Flash radius
                 continue;
 
             if (!TEST(sp->cstat, CSTAT_SPRITE_BLOCK))
                 continue;
 
-            if (!FAFcansee(hp->pos.X, hp->y, hp->z, hp->sector(), sp->pos.X, sp->y, sp->z - SPRITEp_SIZE_Z(sp), sp->sector()))
+            if (!FAFcansee(hp->pos.X, hp->pos.Y, hp->z, hp->sector(), sp->pos.X, sp->pos.Y, sp->z - SPRITEp_SIZE_Z(sp), sp->sector()))
                 continue;
 
             damage = GetDamage(itActor, actor, DMG_FLASHBOMB);
@@ -1682,7 +1682,7 @@ void SpawnFlashBombOnActor(DSWActor* actor)
     }
 
     auto actorNew = SpawnActor(STAT_MISSILE, FIREBALL_FLAMES, s_FireballFlames, sp->sector(),
-                      sp->pos.X, sp->y, sp->z, sp->ang, 0);
+                      sp->pos.X, sp->pos.Y, sp->z, sp->ang, 0);
     auto np = &actorNew->s();
     auto nu = actorNew->u();
 
@@ -1804,7 +1804,7 @@ int InitCaltrops(DSWActor* actor)
     PlaySound(DIGI_THROW, actor, v3df_dontpan | v3df_doppler);
 
     nx = sp->pos.X;
-    ny = sp->y;
+    ny = sp->pos.Y;
     nz = sp->z;
 
     // Spawn a shot
@@ -1854,7 +1854,7 @@ int InitPhosphorus(DSWActor* actor)
     PlaySound(DIGI_FIREBALL1, actor, v3df_follow);
 
     nx = sp->pos.X;
-    ny = sp->y;
+    ny = sp->pos.Y;
     nz = sp->z;
 
     daang = NORM_ANGLE(RandomRange(2048));
@@ -1940,7 +1940,7 @@ int InitBloodSpray(DSWActor* actor, bool dogib, short velocity)
             ang = NORM_ANGLE(ang+1024+256 - RandomRange(256));
 
         nx = sp->pos.X;
-        ny = sp->y;
+        ny = sp->pos.Y;
         nz = SPRITEp_TOS(sp)-20;
 
         // Spawn a shot
@@ -2035,7 +2035,7 @@ DSWActor* DoFlagRangeTest(DSWActor* actor, int range)
             sp = &itActor->s();
 
 
-            DISTANCE(sp->pos.X, sp->y, wp->pos.X, wp->y, dist, tx, ty, tmin);
+            DISTANCE(sp->pos.X, sp->pos.Y, wp->pos.X, wp->pos.Y, dist, tx, ty, tmin);
             if (dist > range)
                 continue;
 
@@ -2048,10 +2048,10 @@ DSWActor* DoFlagRangeTest(DSWActor* actor, int range)
             if (!TEST(sp->extra, SPRX_PLAYER_OR_ENEMY))
                 continue;
 
-            if (!FAFcansee(sp->pos.X, sp->y, sp->z, sp->sector(), wp->pos.X, wp->y, wp->z, wp->sector()))
+            if (!FAFcansee(sp->pos.X, sp->pos.Y, sp->z, sp->sector(), wp->pos.X, wp->pos.Y, wp->z, wp->sector()))
                 continue;
 
-            dist = FindDistance3D(wp->pos.X - sp->pos.X, wp->y - sp->y, wp->z - sp->z);
+            dist = FindDistance3D(wp->pos.X - sp->pos.X, wp->pos.Y - sp->pos.Y, wp->z - sp->z);
             if (dist > range)
                 continue;
 
@@ -2079,7 +2079,7 @@ int DoCarryFlag(DSWActor* actor)
     {
         SPRITEp ap = &u->attachActor->s();
 
-        vec3_t pos = { ap->pos.X, ap->y, SPRITEp_MID(ap) };
+        vec3_t pos = { ap->pos.X, ap->pos.Y, SPRITEp_MID(ap) };
         SetActorZ(actor, &pos);
         sp->ang = NORM_ANGLE(ap->ang + 1536);
     }
@@ -2239,7 +2239,7 @@ int DoCarryFlagNoDet(DSWActor* actor)
     {
         SPRITEp ap = &u->attachActor->s();
 
-        vec3_t pos = { ap->pos.X, ap->y, SPRITEp_MID(ap) };
+        vec3_t pos = { ap->pos.X, ap->pos.Y, SPRITEp_MID(ap) };
         SetActorZ(actor, &pos);
         sp->ang = NORM_ANGLE(ap->ang + 1536);
         sp->z = ap->z - DIV2(SPRITEp_SIZE_Z(ap));
@@ -2345,7 +2345,7 @@ int SpawnShell(DSWActor* actor, int ShellNum)
 
 
     nx = sp->pos.X;
-    ny = sp->y;
+    ny = sp->pos.Y;
     nz = DIV2(SPRITEp_TOS(sp)+ SPRITEp_BOS(sp));
 
     switch (ShellNum)

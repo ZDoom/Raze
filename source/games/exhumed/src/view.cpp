@@ -132,7 +132,7 @@ static void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int x, int 
             if ((pSprite->statnum < 150) && (pSprite->cstat & CSTAT_SPRITE_BLOCK_ALL) && (pActor != pPlayerActor))
             {
                 int xval = pSprite->pos.X - x;
-                int yval = pSprite->y - y;
+                int yval = pSprite->pos.Y - y;
 
                 int vcos = bcos(nAngle);
                 int vsin = bsin(nAngle);
@@ -172,7 +172,7 @@ static void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int x, int 
 
         nCreepyTimer = kCreepyCount;
 
-        if (!cansee(x, y, z, pSector, pTarget->pos.X, pTarget->y, pTarget->z - GetActorHeight(bestTarget), pTarget->sector()))
+        if (!cansee(x, y, z, pSector, pTarget->pos.X, pTarget->pos.Y, pTarget->z - GetActorHeight(bestTarget), pTarget->sector()))
         {
             bestTarget = nullptr;
         }
@@ -221,7 +221,7 @@ void DrawView(double smoothRatio, bool sceneonly)
 		auto pSprite = &pActor->s();
 
         playerX = pSprite->pos.X;
-        playerY = pSprite->y;
+        playerY = pSprite->pos.Y;
         playerZ = pSprite->z;
         pSector = pSprite->sector();
         nAngle = buildang(pSprite->ang);

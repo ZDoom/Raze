@@ -219,7 +219,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
         }
         u->ActorActionFunc = nullptr;
         // Get angle to player
-        sp->ang = NORM_ANGLE(getangle(u->targetActor->spr.pos.X - sp->pos.X, u->targetActor->spr.y - sp->y) + 1024);
+        sp->ang = NORM_ANGLE(getangle(u->targetActor->spr.pos.X - sp->pos.X, u->targetActor->spr.pos.Y - sp->pos.Y) + 1024);
         break;
 
     case UZI_SMOKE+1: // Shotgun
@@ -242,7 +242,7 @@ int DoActorDie(DSWActor* actor, DSWActor* weapActor, int meansofdeath)
         DoActorBeginJump(actor);
         u->ActorActionFunc = nullptr;
         // Get angle to player
-        sp->ang = NORM_ANGLE(getangle(u->targetActor->spr.pos.X - sp->pos.X, u->targetActor->spr.y - sp->y) + 1024);
+        sp->ang = NORM_ANGLE(getangle(u->targetActor->spr.pos.X - sp->pos.X, u->targetActor->spr.pos.Y - sp->pos.Y) + 1024);
         break;
 
     default:
@@ -414,7 +414,7 @@ int DoActorDebris(DSWActor* actor)
         KillActor(actor);
         return 0;
     case ZILLA_RUN_R0:
-        getzsofslopeptr(sp->sector(), sp->pos.X, sp->y, &u->hiz, &u->loz);
+        getzsofslopeptr(sp->sector(), sp->pos.X, sp->pos.Y, &u->hiz, &u->loz);
         u->lo_sectp = sp->sector();
         u->hi_sectp = sp->sector();
         u->lowActor = nullptr;
@@ -499,7 +499,7 @@ int DoGenerateSewerDebris(DSWActor* actor)
     {
         u->Tics = u->WaitTics;
 
-        auto spawned = SpawnActor(STAT_DEAD_ACTOR, 0, Debris[RANDOM_P2(4<<8)>>8], sp->sector(), sp->pos.X, sp->y, sp->z, sp->ang, 200);
+        auto spawned = SpawnActor(STAT_DEAD_ACTOR, 0, Debris[RANDOM_P2(4<<8)>>8], sp->sector(), sp->pos.X, sp->pos.Y, sp->z, sp->ang, 200);
 
         SetOwner(actor, spawned);
     }
@@ -590,7 +590,7 @@ void KeepActorOnFloor(DSWActor* actor)
     {
         int ceilz, florz;
         Collision ctrash, ftrash;
-        FAFgetzrangepoint(sp->pos.X, sp->y, sp->z, sp->sector(),
+        FAFgetzrangepoint(sp->pos.X, sp->pos.Y, sp->z, sp->sector(),
                           &ceilz, &ctrash, &florz, &ftrash);
 
         u->oz = sp->z = florz;

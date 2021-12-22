@@ -85,7 +85,7 @@ void BuildRat(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, i
     {
         pSprite = &pActor->s();
         x = pSprite->pos.X;
-        y = pSprite->y;
+        y = pSprite->pos.Y;
         z = pSprite->z;
         nAngle = pSprite->ang;
 
@@ -131,7 +131,7 @@ DExhumedActor* FindFood(DExhumedActor* pActor)
     auto pSprite = &pActor->s();
     auto pSector = pSprite->sector();
     int x = pSprite->pos.X;
-    int y = pSprite->y;
+    int y = pSprite->pos.Y;
     int z = pSprite->z;
 
     int z2 = (z + pSector->ceilingz) / 2;
@@ -142,7 +142,7 @@ DExhumedActor* FindFood(DExhumedActor* pActor)
 		if (pActor2 != nullptr)
 		{
 			auto pSprite2 = &pActor2->s();
-            if (cansee(x, y, z2, pSector, pSprite2->pos.X, pSprite2->y, pSprite2->z, pSprite2->sector())) {
+            if (cansee(x, y, z2, pSector, pSprite2->pos.X, pSprite2->pos.Y, pSprite2->z, pSprite2->sector())) {
                 return pActor2;
             }
         }
@@ -158,7 +158,7 @@ DExhumedActor* FindFood(DExhumedActor* pActor)
 		auto pSprite2 = &pActor2->s();
         if (nPlayerPic == pSprite2->picnum)
         {
-            if (cansee(x, y, z, pSector, pSprite2->pos.X, pSprite2->y, pSprite2->z, pSprite2->sector())) {
+            if (cansee(x, y, z, pSector, pSprite2->pos.X, pSprite2->pos.Y, pSprite2->z, pSprite2->sector())) {
                 return pActor2;
             }
         }
@@ -241,7 +241,7 @@ void AIRat::Tick(RunListEvent* ev)
         }
 
         int xVal = abs(pSprite->pos.X - pTarget->spr.pos.X);
-        int yVal = abs(pSprite->y - pTarget->spr.y);
+        int yVal = abs(pSprite->pos.Y - pTarget->spr.pos.Y);
 
         if (xVal > 50 || yVal > 50)
         {
@@ -294,7 +294,7 @@ void AIRat::Tick(RunListEvent* ev)
         MoveCreature(pActor);
 
         int xVal = abs(pSprite->pos.X - pTarget->spr.pos.X);
-        int yVal = abs(pSprite->y - pTarget->spr.y);
+        int yVal = abs(pSprite->pos.Y - pTarget->spr.pos.Y);
 
         if (xVal >= 50 || yVal >= 50)
         {

@@ -49,7 +49,7 @@ void BuildMummy(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector,
     {
         pSprite = &pActor->s();
         x = pSprite->pos.X;
-        y = pSprite->y;
+        y = pSprite->pos.Y;
         z = pSprite->z;
         nAngle = pSprite->ang;
 
@@ -57,7 +57,7 @@ void BuildMummy(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector,
     }
 
     pSprite->pos.X = x;
-    pSprite->y = y;
+    pSprite->pos.Y = y;
     pSprite->z = z;
     pSprite->cstat = CSTAT_SPRITE_BLOCK_ALL;
     pSprite->shade = -12;
@@ -107,12 +107,12 @@ void CheckMummyRevive(DExhumedActor* pActor)
             auto pSprite2 = &pOther->s();
 
             int x = abs(pSprite2->pos.X - pSprite->pos.X) >> 8;
-            int y = abs(pSprite2->y - pSprite->y) >> 8;
+            int y = abs(pSprite2->pos.Y - pSprite->pos.Y) >> 8;
 
             if (x <= 20 && y <= 20)
             {
-                if (cansee(pSprite->pos.X, pSprite->y, pSprite->z - 8192, pSprite->sector(),
-                          pSprite2->pos.X, pSprite2->y, pSprite2->z - 8192, pSprite2->sector()))
+                if (cansee(pSprite->pos.X, pSprite->pos.Y, pSprite->z - 8192, pSprite->sector(),
+                          pSprite2->pos.X, pSprite2->pos.Y, pSprite2->z - 8192, pSprite2->sector()))
                 {
                     pSprite2->cstat = 0;
                     pOther->nAction = 6;
@@ -216,8 +216,8 @@ void AIMummy::Tick(RunListEvent* ev)
             {
                 if (RandomBit() && pTarget)
                 {
-                    if (cansee(pSprite->pos.X, pSprite->y, pSprite->z - GetActorHeight(pActor), pSprite->sector(),
-                        pTarget->spr.pos.X, pTarget->spr.y, pTarget->spr.z - GetActorHeight(pTarget), pTarget->spr.sector()))
+                    if (cansee(pSprite->pos.X, pSprite->pos.Y, pSprite->z - GetActorHeight(pActor), pSprite->sector(),
+                        pTarget->spr.pos.X, pTarget->spr.pos.Y, pTarget->spr.z - GetActorHeight(pTarget), pTarget->spr.sector()))
                     {
                         pActor->nAction = 3;
                         pActor->nFrame = 0;
@@ -284,7 +284,7 @@ void AIMummy::Tick(RunListEvent* ev)
         {
             if (nMov.actor() == pTarget)
             {
-                int nAngle = getangle(pTarget->spr.pos.X - pSprite->pos.X, pTarget->spr.y - pSprite->y);
+                int nAngle = getangle(pTarget->spr.pos.X - pSprite->pos.X, pTarget->spr.pos.Y - pSprite->pos.Y);
                 if (AngleDiff(pSprite->ang, nAngle) < 64)
                 {
                     pActor->nAction = 2;

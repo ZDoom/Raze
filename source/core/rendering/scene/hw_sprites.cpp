@@ -333,7 +333,7 @@ void HWSprite::Process(HWDrawInfo* di, tspritetype* spr, sectortype* sector, int
 
 	x = spr->pos.X * (1 / 16.f);
 	z = spr->z * (1 / -256.f);
-	y = spr->y * (1 / -16.f);
+	y = spr->pos.Y * (1 / -16.f);
 	auto vp = di->Viewpoint;
 
 	if ((vp.Pos.XY() - DVector2(x, y)).LengthSquared() < 0.125) return;
@@ -395,7 +395,7 @@ void HWSprite::Process(HWDrawInfo* di, tspritetype* spr, sectortype* sector, int
 		float viewvecY = vp.ViewVector.Y;
 
 		x = spr->pos.X * (1 / 16.f);
-		y = spr->y * (1 / -16.f);
+		y = spr->pos.Y * (1 / -16.f);
 		z = spr->z * (1 / -256.f);
 
 		x1 = x - viewvecY * (xoff - (width * 0.5f));
@@ -510,7 +510,7 @@ bool HWSprite::ProcessVoxel(HWDrawInfo* di, voxmodel_t* vox, tspritetype* spr, s
 
 	x = (spr->pos.X + sprext->position_offset.X) * (1 / 16.f);
 	z = zpos * (1 / -256.f);
-	y = (spr->y + sprext->position_offset.Y) * (1 / -16.f);
+	y = (spr->pos.Y + sprext->position_offset.Y) * (1 / -16.f);
 
 	float zoff = voxel->siz.Z * .5f;
 	if (!(spr->cstat & CSTAT_SPRITE_YCENTER))

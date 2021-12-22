@@ -117,7 +117,7 @@ static int &getvalue(so_interp::interp_data& element, bool write)
         break;
     case soi_spry:
 		if (element.actorofang)
-			return element.actorofang->spr.y;
+			return element.actorofang->spr.pos.Y;
         break;
     case soi_sprz:
 		if (element.actorofang)

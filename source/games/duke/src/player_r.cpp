@@ -100,7 +100,7 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 		int x;
 		auto pspr = ps[findplayer(actor, &x)].GetActor();
 		zvel = ((pspr->spr.z - sz) << 8) / (x + 1);
-		sa = getangle(pspr->spr.pos.X - sx, pspr->spr.y - sy);
+		sa = getangle(pspr->spr.pos.X - sx, pspr->spr.pos.Y - sy);
 	}
 
 	hitscan({ sx, sy, sz }, sectp, { bcos(sa), bsin(sa), zvel << 6 }, hit, CLIPMASK1);
@@ -116,7 +116,7 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 			{
 				int nx, ny, nz;
 				nx = hit.hitpos.X + (effector->GetOwner()->spr.pos.X - effector->spr.pos.X);
-				ny = hit.hitpos.Y + (effector->GetOwner()->spr.y - effector->spr.y);
+				ny = hit.hitpos.Y + (effector->GetOwner()->spr.pos.Y - effector->spr.pos.Y);
 				if (hit.hitSector->lotag == 161)
 				{
 					nz = effector->GetOwner()->sector()->floorz;
@@ -186,7 +186,7 @@ static void shootmelee(DDukeActor *actor, int p, int sx, int sy, int sz, int sa,
 			if (splash)
 			{
 				splash->spr.pos.X = hit.hitpos.X;
-				splash->spr.y = hit.hitpos.Y;
+				splash->spr.pos.Y = hit.hitpos.Y;
 				splash->spr.ang = ps[p].angle.ang.asbuild(); // Total tweek
 				splash->spr.xvel = 32;
 				ssp(actor, 0);
@@ -217,7 +217,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 		{
 			int dal = ((aimed->spr.xrepeat * tileHeight(aimed->spr.picnum)) << 1) + (5 << 8);
 			zvel = ((aimed->spr.z - sz - dal) << 8) / ldist(ps[p].GetActor(), aimed);
-			sa = getangle(aimed->spr.pos.X - sx, aimed->spr.y - sy);
+			sa = getangle(aimed->spr.pos.X - sx, aimed->spr.pos.Y - sy);
 		}
 
 		if (atwith == SHOTSPARK1)
@@ -272,7 +272,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 			{
 				int nx, ny, nz;
 				nx = hit.hitpos.X + (effector->GetOwner()->spr.pos.X - effector->spr.pos.X);
-				ny = hit.hitpos.Y + (effector->GetOwner()->spr.y - effector->spr.y);
+				ny = hit.hitpos.Y + (effector->GetOwner()->spr.pos.Y - effector->spr.pos.Y);
 				if (hit.hitSector->lotag == 161)
 				{
 					nz = effector->GetOwner()->sector()->floorz;
@@ -510,7 +510,7 @@ static void shootstuff(DDukeActor* actor, int p, int sx, int sy, int sz, int sa,
 		{
 			int dal = ((aimed->spr.xrepeat * tileHeight(aimed->spr.picnum)) << 1) - (12 << 8);
 			zvel = ((aimed->spr.z - sz - dal) * vel) / ldist(ps[p].GetActor(), aimed);
-			sa = getangle(aimed->spr.pos.X - sx, aimed->spr.y - sy);
+			sa = getangle(aimed->spr.pos.X - sx, aimed->spr.pos.Y - sy);
 		}
 		else
 		{
@@ -626,7 +626,7 @@ static void shootrpg(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 			int dal = ((aimed->spr.xrepeat * tileHeight(aimed->spr.picnum)) << 1) + (8 << 8);
 			zvel = ((aimed->spr.z - sz - dal) * vel) / ldist(ps[p].GetActor(), aimed);
 			if (aimed->spr.picnum != RECON)
-				sa = getangle(aimed->spr.pos.X - sx, aimed->spr.y - sy);
+				sa = getangle(aimed->spr.pos.X - sx, aimed->spr.pos.Y - sy);
 		}
 		else zvel = -MulScale(ps[p].horizon.sum().asq16(), 81, 16);
 		if (atwith == RPG)
@@ -723,12 +723,12 @@ static void shootrpg(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 		if (ps[p].hbomb_hold_delay)
 		{
 			spawned->spr.pos.X -= bsin(sa) / 644;
-			spawned->spr.y += bcos(sa) / 644;
+			spawned->spr.pos.Y += bcos(sa) / 644;
 		}
 		else
 		{
 			spawned->spr.pos.X += bsin(sa, -8);
-			spawned->spr.y -= bcos(sa, -8);
+			spawned->spr.pos.Y -= bcos(sa, -8);
 		}
 		spawned->spr.xrepeat >>= 1;
 		spawned->spr.yrepeat >>= 1;
@@ -779,7 +779,7 @@ static void shootwhip(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, 
 		{
 			int dal = ((aimed->spr.xrepeat * tileHeight(aimed->spr.picnum)) << 1) - (12 << 8);
 			zvel = ((aimed->spr.z - sz - dal) * vel) / ldist(ps[p].GetActor(), aimed);
-			sa = getangle(aimed->spr.pos.X - sx, aimed->spr.y - sy);
+			sa = getangle(aimed->spr.pos.X - sx, aimed->spr.pos.Y - sy);
 		}
 		else
 			zvel = -MulScale(ps[p].horizon.sum().asq16(), 98, 16);
@@ -849,7 +849,7 @@ void shoot_r(DDukeActor* actor, int atwith)
 		p = -1;
 		sa = actor->spr.ang;
 		sx = actor->spr.pos.X;
-		sy = actor->spr.y;
+		sy = actor->spr.pos.Y;
 		sz = actor->spr.z - ((actor->spr.yrepeat * tileHeight(actor->spr.picnum)) << 1) + (4 << 8);
 		sz -= (7 << 8);
 		if (badguy(actor))
@@ -2348,7 +2348,7 @@ static void underwater(int snum, ESyncBits actions, int fz, int cz)
 		if (j)
 		{
 			j->spr.pos.X += bcos(p->angle.ang.asbuild() + 64 - (global_random & 128) + 128, -6);
-			j->spr.y += bsin(p->angle.ang.asbuild() + 64 - (global_random & 128) + 128, -6);
+			j->spr.pos.Y += bsin(p->angle.ang.asbuild() + 64 - (global_random & 128) + 128, -6);
 			j->spr.xrepeat = 3;
 			j->spr.yrepeat = 2;
 			j->spr.z = p->pos.Z + (8 << 8);
@@ -3473,7 +3473,7 @@ void processinput_r(int snum)
 		}
 		else if (badguy(clz.actor()) && clz.actor()->spr.xrepeat > 24 && abs(pact->spr.z - clz.actor()->spr.z) < (84 << 8))
 		{
-			int j = getangle(clz.actor()->spr.pos.X - p->pos.X, clz.actor()->spr.y - p->pos.Y);
+			int j = getangle(clz.actor()->spr.pos.X - p->pos.X, clz.actor()->spr.pos.Y - p->pos.Y);
 			p->posxv -= bcos(j, 4);
 			p->posyv -= bsin(j, 4);
 		}
@@ -4028,7 +4028,7 @@ void OnMotorcycle(struct player_struct *p, DDukeActor* motosprite)
 		if (motosprite)
 		{
 			p->pos.X = motosprite->spr.pos.X;
-			p->pos.Y = motosprite->spr.y;
+			p->pos.Y = motosprite->spr.pos.Y;
 			p->angle.ang = buildang(motosprite->spr.ang);
 			p->ammo_amount[MOTORCYCLE_WEAPON] = motosprite->saved_ammo;
 			deletesprite(motosprite);
@@ -4108,7 +4108,7 @@ void OnBoat(struct player_struct *p, DDukeActor* boat)
 		if (boat)
 		{
 			p->pos.X = boat->spr.pos.X;
-			p->pos.Y = boat->spr.y;
+			p->pos.Y = boat->spr.pos.Y;
 			p->angle.ang = buildang(boat->spr.ang);
 			p->ammo_amount[BOAT_WEAPON] = boat->saved_ammo;
 			deletesprite(boat);

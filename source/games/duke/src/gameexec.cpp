@@ -1183,8 +1183,8 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		else SetGameVarID(lVar2, act->spr.pos.X, sActor, sPlayer);
 		break;
 	case ACTOR_Y:
-		if (bSet) act->spr.y = lValue;
-		else SetGameVarID(lVar2, act->spr.y, sActor, sPlayer);
+		if (bSet) act->spr.pos.Y = lValue;
+		else SetGameVarID(lVar2, act->spr.pos.Y, sActor, sPlayer);
 		break;
 	case ACTOR_Z:
 		if (bSet) act->spr.z = lValue;
@@ -1478,7 +1478,7 @@ static bool ifcansee(DDukeActor* actor, int pnum)
 	if (ps[pnum].holoduke_on != nullptr && !isRR())
 	{
 		tosee = ps[pnum].holoduke_on;
-		j = cansee(actor->spr.pos.X, actor->spr.y, actor->spr.z - (krand() & ((32 << 8) - 1)), actor->spr.sector(), tosee->spr.pos.X, tosee->spr.y, tosee->spr.z, tosee->sector());
+		j = cansee(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.z - (krand() & ((32 << 8) - 1)), actor->spr.sector(), tosee->spr.pos.X, tosee->spr.pos.Y, tosee->spr.z, tosee->sector());
 
 		if (j == 0)
 		{
@@ -1490,7 +1490,7 @@ static bool ifcansee(DDukeActor* actor, int pnum)
 	else tosee = ps[pnum].GetActor();	// holoduke not on. look for player
 
 	// can they see player, (or player's holoduke)
-	j = cansee(actor->spr.pos.X, actor->spr.y, actor->spr.z - (krand() & ((47 << 8))), actor->spr.sector(), tosee->spr.pos.X, tosee->spr.y, tosee->spr.z - ((isRR()? 28 : 24) << 8), tosee->sector());
+	j = cansee(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.z - (krand() & ((47 << 8))), actor->spr.sector(), tosee->spr.pos.X, tosee->spr.pos.Y, tosee->spr.z - ((isRR()? 28 : 24) << 8), tosee->sector());
 
 	if (j == 0)
 	{
@@ -1503,7 +1503,7 @@ static bool ifcansee(DDukeActor* actor, int pnum)
 		// else, they did see it.
 		// save where we were looking..
 		actor->lastvx = tosee->spr.pos.X;
-		actor->lastvy = tosee->spr.y;
+		actor->lastvy = tosee->spr.pos.Y;
 	}
 
 	if (j == 1 && (actor->spr.statnum == STAT_ACTOR || actor->spr.statnum == STAT_STANDABLE))
@@ -1541,12 +1541,12 @@ int ParseState::parse(void)
 		parseifelse(ifcanshoottarget(g_ac, g_p, g_x));
 		break;
 	case concmd_ifcanseetarget:
-		j = cansee(g_ac->spr.pos.X, g_ac->spr.y, g_ac->spr.z - ((krand() & 41) << 8), g_ac->spr.sector(), ps[g_p].pos.X, ps[g_p].pos.Y, ps[g_p].pos.Z/*-((krand()&41)<<8)*/, ps[g_p].GetActor()->sector());
+		j = cansee(g_ac->spr.pos.X, g_ac->spr.pos.Y, g_ac->spr.z - ((krand() & 41) << 8), g_ac->spr.sector(), ps[g_p].pos.X, ps[g_p].pos.Y, ps[g_p].pos.Z/*-((krand()&41)<<8)*/, ps[g_p].GetActor()->sector());
 		parseifelse(j);
 		if (j) g_ac->timetosleep = SLEEPTIME;
 		break;
 	case concmd_ifnocover:
-		j = cansee(g_ac->spr.pos.X, g_ac->spr.y, g_ac->spr.z, g_ac->spr.sector(), ps[g_p].pos.X, ps[g_p].pos.Y, ps[g_p].pos.Z, ps[g_p].GetActor()->sector());
+		j = cansee(g_ac->spr.pos.X, g_ac->spr.pos.Y, g_ac->spr.z, g_ac->spr.sector(), ps[g_p].pos.X, ps[g_p].pos.Y, ps[g_p].pos.Z, ps[g_p].GetActor()->sector());
 		parseifelse(j);
 		if (j) g_ac->timetosleep = SLEEPTIME;
 		break;
@@ -2190,7 +2190,7 @@ int ParseState::parse(void)
 				else s = (krand()%3);
 
 				auto l = EGS(g_ac->spr.sector(),
-					g_ac->spr.pos.X + (krand() & 255) - 128, g_ac->spr.y + (krand() & 255) - 128, g_ac->spr.z - (8 << 8) - (krand() & 8191),
+					g_ac->spr.pos.X + (krand() & 255) - 128, g_ac->spr.pos.Y + (krand() & 255) - 128, g_ac->spr.z - (8 << 8) - (krand() & 8191),
 					dnum + s, g_ac->spr.shade, 32 + (krand() & 15), 32 + (krand() & 15),
 					krand() & 2047, (krand() & 127) + 32, -(krand() & 2047), g_ac, 5);
 				if (l)
@@ -2246,7 +2246,7 @@ int ParseState::parse(void)
 			// I am not convinced this is even remotely smart to be executed from here..
 			pickrandomspot(g_p);
 			g_ac->spr.pos.X = ps[g_p].bobposx = ps[g_p].oposx = ps[g_p].pos.X;
-			g_ac->spr.y = ps[g_p].bobposy = ps[g_p].oposy = ps[g_p].pos.Y;
+			g_ac->spr.pos.Y = ps[g_p].bobposy = ps[g_p].oposy = ps[g_p].pos.Y;
 			g_ac->spr.z = ps[g_p].oposz = ps[g_p].pos.Z;
 			g_ac->spr.backuppos();
 			updatesector(ps[g_p].pos.X, ps[g_p].pos.Y, &ps[g_p].cursector);
@@ -2449,7 +2449,7 @@ int ParseState::parse(void)
 				if (g_ac->spr.picnum == TILE_APLAYER && ud.multimode > 1)
 					j = getincangle(ps[otherp].angle.ang.asbuild(), getangle(ps[g_p].pos.X - ps[otherp].pos.X, ps[g_p].pos.Y - ps[otherp].pos.Y));
 				else
-					j = getincangle(ps[g_p].angle.ang.asbuild(), getangle(g_ac->spr.pos.X - ps[g_p].pos.X, g_ac->spr.y - ps[g_p].pos.Y));
+					j = getincangle(ps[g_p].angle.ang.asbuild(), getangle(g_ac->spr.pos.X - ps[g_p].pos.X, g_ac->spr.pos.Y - ps[g_p].pos.Y));
 
 				if( j > -128 && j < 128 )
 					j = 1;
@@ -2506,7 +2506,7 @@ int ParseState::parse(void)
 		if( g_ac->spr.sector()->lotag == 0 )
 		{
 			HitInfo hit{};
-			neartag({ g_ac->spr.pos.X, g_ac->spr.y, g_ac->spr.z - (32 << 8) }, g_ac->spr.sector(), g_ac->spr.ang, hit, 768, 1);
+			neartag({ g_ac->spr.pos.X, g_ac->spr.pos.Y, g_ac->spr.z - (32 << 8) }, g_ac->spr.sector(), g_ac->spr.ang, hit, 768, 1);
 			auto sectp = hit.hitSector;
 			if (sectp)
 			{
@@ -2813,7 +2813,7 @@ int ParseState::parse(void)
 	case concmd_pstomp:
 		insptr++;
 		if( ps[g_p].knee_incs == 0 && ps[g_p].GetActor()->spr.xrepeat >= (isRR()? 9: 40) )
-			if( cansee(g_ac->spr.pos.X,g_ac->spr.y,g_ac->spr.z-(4<<8),g_ac->spr.sector(),ps[g_p].pos.X,ps[g_p].pos.Y,ps[g_p].pos.Z+(16<<8),ps[g_p].GetActor()->spr.sector()) )
+			if( cansee(g_ac->spr.pos.X,g_ac->spr.pos.Y,g_ac->spr.z-(4<<8),g_ac->spr.sector(),ps[g_p].pos.X,ps[g_p].pos.Y,ps[g_p].pos.Z+(16<<8),ps[g_p].GetActor()->spr.sector()) )
 		{
 			ps[g_p].knee_incs = 1;
 			if(ps[g_p].weapon_pos == 0)
@@ -2827,16 +2827,16 @@ int ParseState::parse(void)
 
 		j = 0;
 
-		updatesector(g_ac->spr.pos.X + 108, g_ac->spr.y + 108, &s1);
+		updatesector(g_ac->spr.pos.X + 108, g_ac->spr.pos.Y + 108, &s1);
 		if (s1 == g_ac->spr.sector())
 		{
-			updatesector(g_ac->spr.pos.X - 108, g_ac->spr.y - 108, &s1);
+			updatesector(g_ac->spr.pos.X - 108, g_ac->spr.pos.Y - 108, &s1);
 			if (s1 == g_ac->spr.sector())
 			{
-				updatesector(g_ac->spr.pos.X + 108, g_ac->spr.y - 108, &s1);
+				updatesector(g_ac->spr.pos.X + 108, g_ac->spr.pos.Y - 108, &s1);
 				if (s1 == g_ac->spr.sector())
 				{
-					updatesector(g_ac->spr.pos.X - 108, g_ac->spr.y + 108, &s1);
+					updatesector(g_ac->spr.pos.X - 108, g_ac->spr.pos.Y + 108, &s1);
 					if (s1 == g_ac->spr.sector())
 						j = 1;
 				}
@@ -3151,7 +3151,7 @@ int ParseState::parse(void)
 		i = *(insptr++);	// ID of def
 
 		// g_ac->lastvx and lastvy are last known location of target.
-		ang = getangle(g_ac->lastvx - g_ac->spr.pos.X, g_ac->lastvy - g_ac->spr.y);
+		ang = getangle(g_ac->lastvx - g_ac->spr.pos.X, g_ac->lastvy - g_ac->spr.pos.Y);
 		SetGameVarID(i, ang, g_ac, g_p);
 		break;
 	}

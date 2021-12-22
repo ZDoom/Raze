@@ -947,7 +947,7 @@ int InitRipper2Hang(DSWActor* actor)
     {
         tang = NORM_ANGLE(sp->ang + dang);
 
-        FAFhitscan(sp->pos.X, sp->y, sp->z - SPRITEp_SIZE_Z(sp), sp->sector(),  // Start position
+        FAFhitscan(sp->pos.X, sp->pos.Y, sp->z - SPRITEp_SIZE_Z(sp), sp->sector(),  // Start position
                    bcos(tang),   // X vector of 3D ang
                    bsin(tang),   // Y vector of 3D ang
                    0,            // Z vector of 3D ang
@@ -956,7 +956,7 @@ int InitRipper2Hang(DSWActor* actor)
         if (hit.hitSector == nullptr)
             continue;
 
-        dist = Distance(sp->pos.X, sp->y, hit.hitpos.X, hit.hitpos.Y);
+        dist = Distance(sp->pos.X, sp->pos.Y, hit.hitpos.X, hit.hitpos.Y);
 
         if (hit.hitWall == nullptr || dist < 2000 || dist > 7000)
         {
@@ -1082,7 +1082,7 @@ int DoRipper2BeginJumpAttack(DSWActor* actor)
     SPRITEp psp = &u->targetActor->s();
     short tang;
 
-    tang = getangle(psp->pos.X - sp->pos.X, psp->y - sp->y);
+    tang = getangle(psp->pos.X - sp->pos.X, psp->pos.Y - sp->pos.Y);
 
     // Always jump at player if mad.
 	
@@ -1200,7 +1200,7 @@ int DoRipper2RipHeart(DSWActor* actor)
     u->WaitTics = 6 * 120;
 
     // player face ripper2
-    tsp->ang = getangle(sp->pos.X - tsp->pos.X, sp->y - tsp->y);
+    tsp->ang = getangle(sp->pos.X - tsp->pos.X, sp->pos.Y - tsp->pos.Y);
     return 0;
 }
 
@@ -1239,7 +1239,7 @@ void Ripper2Hatch(DSWActor* actor)
         np->clear();
         ClearOwner(actorNew);
         np->pos.X = wp->pos.X;
-        np->y = wp->y;
+        np->pos.Y = wp->pos.Y;
         np->z = wp->z;
         //np->xrepeat = np->yrepeat = 36;
         np->xrepeat = np->yrepeat = 64;

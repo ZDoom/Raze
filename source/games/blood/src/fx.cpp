@@ -202,18 +202,18 @@ void CFX::fxProcess(void)
         FXDATA *pFXData = &gFXData[pSprite->type];
         actAirDrag(actor, pFXData->drag);
         pSprite->pos.X += actor->xvel>>12;
-        pSprite->y += actor->yvel>>12;
+        pSprite->pos.Y += actor->yvel>>12;
         pSprite->z += actor->zvel>>8;
         // Weird...
         if (actor->xvel || (actor->yvel && pSprite->z >= pSprite->sector()->floorz))
         {
-            updatesector(pSprite->pos.X, pSprite->y, &pSector);
+            updatesector(pSprite->pos.X, pSprite->pos.Y, &pSector);
             if (pSector == nullptr)
             {
                 remove(actor);
                 continue;
             }
-            if (getflorzofslopeptr(pSprite->sector(), pSprite->pos.X, pSprite->y) <= pSprite->z)
+            if (getflorzofslopeptr(pSprite->sector(), pSprite->pos.X, pSprite->pos.Y) <= pSprite->z)
             {
                 if (pFXData->funcID < 0 || pFXData->funcID >= kCallbackMax)
                 {
@@ -232,7 +232,7 @@ void CFX::fxProcess(void)
         if (actor->xvel || actor->yvel || actor->zvel)
         {
             int32_t floorZ, ceilZ;
-            getzsofslopeptr(pSector, pSprite->pos.X, pSprite->y, &ceilZ, &floorZ);
+            getzsofslopeptr(pSector, pSprite->pos.X, pSprite->pos.Y, &ceilZ, &floorZ);
             if (ceilZ > pSprite->z && !(pSector->ceilingstat & CSTAT_SECTOR_SKY))
             {
                 remove(actor);
@@ -259,11 +259,11 @@ void fxSpawnBlood(DBloodActor *actor, int )
     if (!pSprite->insector())
         return;
     auto pSector = pSprite->sector();
-    if (!FindSector(pSprite->pos.X, pSprite->y, pSprite->z, &pSector))
+    if (!FindSector(pSprite->pos.X, pSprite->pos.Y, pSprite->z, &pSector))
         return;
     if (adult_lockout && gGameOptions.nGameType <= 0)
         return;
-    auto bloodactor = gFX.fxSpawnActor(FX_27, pSprite->sector(), pSprite->pos.X, pSprite->y, pSprite->z, 0);
+    auto bloodactor = gFX.fxSpawnActor(FX_27, pSprite->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->z, 0);
     if (bloodactor)
     {
         bloodactor->spr.ang = 1024;
@@ -280,15 +280,15 @@ void fxSpawnPodStuff(DBloodActor* actor, int )
     if (!pSprite->insector())
         return;
     auto pSector = pSprite->sector();
-    if (!FindSector(pSprite->pos.X, pSprite->y, pSprite->z, &pSector))
+    if (!FindSector(pSprite->pos.X, pSprite->pos.Y, pSprite->z, &pSector))
         return;
     if (adult_lockout && gGameOptions.nGameType <= 0)
         return;
     DBloodActor *spawnactor;
     if (pSprite->type == kDudePodGreen)
-        spawnactor = gFX.fxSpawnActor(FX_53, pSprite->sector(), pSprite->pos.X, pSprite->y, pSprite->z, 0);
+        spawnactor = gFX.fxSpawnActor(FX_53, pSprite->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->z, 0);
     else
-        spawnactor = gFX.fxSpawnActor(FX_54, pSprite->sector(), pSprite->pos.X, pSprite->y, pSprite->z, 0);
+        spawnactor = gFX.fxSpawnActor(FX_54, pSprite->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->z, 0);
     if (spawnactor)
     {
         spawnactor->spr.ang = 1024;
@@ -303,7 +303,7 @@ void fxSpawnEjectingBrass(DBloodActor* actor, int z, int a3, int a4)
 {
     auto pSprite = &actor->s();
     int x = pSprite->pos.X + MulScale(pSprite->clipdist - 4, Cos(pSprite->ang), 28);
-    int y = pSprite->y + MulScale(pSprite->clipdist - 4, Sin(pSprite->ang), 28);
+    int y = pSprite->pos.Y + MulScale(pSprite->clipdist - 4, Sin(pSprite->ang), 28);
     x += MulScale(a3, Cos(pSprite->ang + 512), 30);
     y += MulScale(a3, Sin(pSprite->ang + 512), 30);
     auto pBrass = gFX.fxSpawnActor((FX_ID)(FX_37 + Random(3)), pSprite->sector(), x, y, z, 0);
@@ -323,7 +323,7 @@ void fxSpawnEjectingShell(DBloodActor* actor, int z, int a3, int a4)
 {
     auto pSprite = &actor->s();
     int x = pSprite->pos.X + MulScale(pSprite->clipdist - 4, Cos(pSprite->ang), 28);
-    int y = pSprite->y + MulScale(pSprite->clipdist - 4, Sin(pSprite->ang), 28);
+    int y = pSprite->pos.Y + MulScale(pSprite->clipdist - 4, Sin(pSprite->ang), 28);
     x += MulScale(a3, Cos(pSprite->ang + 512), 30);
     y += MulScale(a3, Sin(pSprite->ang + 512), 30);
     auto pShell = gFX.fxSpawnActor((FX_ID)(FX_40 + Random(3)), pSprite->sector(), x, y, z, 0);

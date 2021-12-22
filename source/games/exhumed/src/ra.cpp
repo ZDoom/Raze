@@ -170,7 +170,7 @@ void MoveRaToEnemy(int nPlayer)
 	auto pTargSprite = &pTarget->s();
 
     pSprite->pos.X = pTargSprite->pos.X;
-    pSprite->y = pTargSprite->y;
+    pSprite->pos.Y = pTargSprite->pos.Y;
     pSprite->z = pTargSprite->z - GetActorHeight(pTarget);
 
     if (pSprite->sector() != pTargSprite->sector()) {

@@ -62,7 +62,7 @@ void viewBackupView(int nPlayer)
     VIEW *pView = &gPrevView[nPlayer];
     pView->angle = pPlayer->angle.ang;
     pView->x = pPlayer->pSprite->pos.X;
-    pView->y = pPlayer->pSprite->y;
+    pView->y = pPlayer->pSprite->pos.Y;
     pView->viewz = pPlayer->zView;
     pView->weaponZ = pPlayer->zWeapon-pPlayer->zView-0xc00;
     pView->horiz = pPlayer->horizon.horiz;
@@ -83,7 +83,7 @@ void viewCorrectViewOffsets(int nPlayer, vec3_t const *oldpos)
     PLAYER *pPlayer = &gPlayer[nPlayer];
     VIEW *pView = &gPrevView[nPlayer];
     pView->x += pPlayer->pSprite->pos.X-oldpos->X;
-    pView->y += pPlayer->pSprite->y-oldpos->Y;
+    pView->y += pPlayer->pSprite->pos.Y-oldpos->Y;
     pView->viewz += pPlayer->pSprite->z-oldpos->Z;
 }
 
@@ -391,7 +391,7 @@ static void DrawMap(spritetype* pSprite)
     }
     VIEW* pView = &gPrevView[gViewIndex];
     int x = interpolatedvalue(pView->x, pSprite->pos.X, gInterpolate);
-    int y = interpolatedvalue(pView->y, pSprite->y, gInterpolate);
+    int y = interpolatedvalue(pView->y, pSprite->pos.Y, gInterpolate);
     int ang = (!SyncInput() ? gView->angle.sum() : gView->angle.interpolatedsum(gInterpolate)).asbuild();
     DrawOverheadMap(x, y, ang, gInterpolate);
     if (tm)
@@ -434,7 +434,7 @@ void SetupView(int &cX, int& cY, int& cZ, binangle& cA, fixedhoriz& cH, sectorty
     {
         VIEW* pView = &gPrevView[gViewIndex];
         cX = interpolatedvalue(pView->x, gView->pSprite->pos.X, gInterpolate);
-        cY = interpolatedvalue(pView->y, gView->pSprite->y, gInterpolate);
+        cY = interpolatedvalue(pView->y, gView->pSprite->pos.Y, gInterpolate);
         cZ = interpolatedvalue(pView->viewz, gView->zView, gInterpolate);
         zDelta = interpolatedvaluef(pView->weaponZ, gView->zWeapon - gView->zView - (12 << 8), gInterpolate);
         bobWidth = interpolatedvalue(pView->bobWidth, gView->bobWidth, gInterpolate);
@@ -749,7 +749,7 @@ FString GameInterface::GetCoordString()
     FString out;
 
     out.Format("pos= %d, %d, %d - angle = %2.3f",
-        gMe->pSprite->pos.X, gMe->pSprite->y, gMe->pSprite->z, gMe->pSprite->ang * BAngToDegree);
+        gMe->pSprite->pos.X, gMe->pSprite->pos.Y, gMe->pSprite->z, gMe->pSprite->ang * BAngToDegree);
 
     return out;
 }

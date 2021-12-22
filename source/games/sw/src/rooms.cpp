@@ -59,7 +59,7 @@ DSWActor* insertActor(sectortype* sect, int statnum)
     auto pActor = static_cast<DSWActor*>(::InsertActor(RUNTIME_CLASS(DSWActor), sect, statnum));
     auto pSprite = &pActor->s();
 
-    pSprite->pos.X = pSprite->y = pSprite->z = 0;
+    pSprite->pos.X = pSprite->pos.Y = pSprite->z = 0;
     pSprite->cstat = 0;
     pSprite->picnum = 0;
     pSprite->shade = 0;
@@ -701,7 +701,7 @@ bool FindCeilingView(int match, int* x, int* y, int z, sectortype** sect)
         if (sp->hitag == VIEW_THRU_CEILING && sp->lotag == match)
         {
             xoff = *x - sp->pos.X;
-            yoff = *y - sp->y;
+            yoff = *y - sp->pos.Y;
             break;
         }
     }
@@ -719,7 +719,7 @@ bool FindCeilingView(int match, int* x, int* y, int z, sectortype** sect)
                 sectortype* upper,* lower;
 
                 *x = sp->pos.X + xoff;
-                *y = sp->y + yoff;
+                *y = sp->pos.Y + yoff;
 
                 // get new sector
                 GetUpperLowerSector(match, *x, *y, &upper, &lower);
@@ -796,7 +796,7 @@ bool FindFloorView(int match, int* x, int* y, int z, sectortype** sect)
         if (sp->hitag == VIEW_THRU_FLOOR && sp->lotag == match)
         {
             xoff = *x - sp->pos.X;
-            yoff = *y - sp->y;
+            yoff = *y - sp->pos.Y;
             break;
         }
     }
@@ -815,7 +815,7 @@ bool FindFloorView(int match, int* x, int* y, int z, sectortype** sect)
                 sectortype* upper,* lower;
 
                 *x = sp->pos.X + xoff;
-                *y = sp->y + yoff;
+                *y = sp->pos.Y + yoff;
 
                 // get new sector
                 GetUpperLowerSector(match, *x, *y, &upper, &lower);
@@ -976,7 +976,7 @@ void CollectPortals()
             while (auto actor = it.Next())
             {
                 int tx = actor->spr.pos.X;
-                int ty = actor->spr.y;
+                int ty = actor->spr.pos.Y;
                 int tz = actor->spr.z;
                 auto tsect = &sector[sec];
 
@@ -1006,7 +1006,7 @@ void CollectPortals()
             while (auto actor = it.Next())
             {
                 int tx = actor->spr.pos.X;
-                int ty = actor->spr.y;
+                int ty = actor->spr.pos.Y;
                 int tz = actor->spr.z;
                 auto tsect = &sector[sec];
 
