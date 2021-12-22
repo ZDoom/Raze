@@ -486,7 +486,7 @@ int cansee(int x1, int y1, int z1, sectortype* sect1, int x2, int y2, int z2, se
         {
             auto const wal2 = (uwallptr_t)wal->point2Wall();
             const int32_t x31 = wal->pos.X-x1, x34 = wal->pos.X-wal2->pos.X;
-            const int32_t y31 = wal->y-y1, y34 = wal->y-wal2->y;
+            const int32_t y31 = wal->pos.Y-y1, y34 = wal->pos.Y-wal2->pos.Y;
 
             int32_t x, y, z, t, bot;
             int32_t cfz[2];
@@ -554,7 +554,7 @@ void neartag(const vec3_t& sv, sectortype* sect, int ange, HitInfoBase& result, 
             auto const wal2 = (uwallptr_t)wal->point2Wall();
             const auto nextsect = wal->nextSector();
 
-            const int32_t x1 = wal->pos.X, y1 = wal->y, x2 = wal2->pos.X, y2 = wal2->y;
+            const int32_t x1 = wal->pos.X, y1 = wal->pos.Y, x2 = wal2->pos.X, y2 = wal2->pos.Y;
             int32_t intx, inty, intz, good = 0;
 
             if (wal->twoSided())

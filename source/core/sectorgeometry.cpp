@@ -60,8 +60,8 @@ static FVector3 CalcNormal(sectortype* sector, int plane)
 
 	pt[0] = { (float)WallStartX(wal), (float)WallStartY(wal), 0 };
 	pt[1] = { (float)WallEndX(wal), (float)WallEndY(wal), 0 };
-	PlanesAtPoint(sector, wal->pos.X, wal->y, plane ? &pt[0].Z : nullptr, plane? nullptr : &pt[0].Z);
-	PlanesAtPoint(sector, wal2->pos.X, wal2->y, plane ? &pt[1].Z : nullptr, plane ? nullptr : &pt[1].Z);
+	PlanesAtPoint(sector, wal->pos.X, wal->pos.Y, plane ? &pt[0].Z : nullptr, plane? nullptr : &pt[0].Z);
+	PlanesAtPoint(sector, wal2->pos.X, wal2->pos.Y, plane ? &pt[1].Z : nullptr, plane ? nullptr : &pt[1].Z);
 
 	if (pt[0].X == pt[1].X)
 	{
@@ -117,9 +117,9 @@ public:
 
 		auto firstwall = sec->firstWall();
 		ix1 = firstwall->pos.X;
-		iy1 = firstwall->y;
+		iy1 = firstwall->pos.Y;
 		ix2 = firstwall->point2Wall()->pos.X;
-		iy2 = firstwall->point2Wall()->y;
+		iy2 = firstwall->point2Wall()->pos.Y;
 
 		if (plane == 0)
 		{

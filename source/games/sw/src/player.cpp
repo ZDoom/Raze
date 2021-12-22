@@ -2629,7 +2629,7 @@ void DoPlayerMoveVehicle(PLAYERp pp)
                 if (wal.extra && TEST(wal.extra, WALLFX_LOOP_OUTER|WALLFX_LOOP_OUTER_SECONDARY) == WALLFX_LOOP_OUTER)
                 {
                     x[count] = wal.pos.X;
-                    y[count] = wal.y;
+                    y[count] = wal.pos.Y;
 
                     ox[count] = sop->xmid - sop->xorig[wallcount];
                     oy[count] = sop->ymid - sop->yorig[wallcount];

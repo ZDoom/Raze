@@ -222,20 +222,20 @@ void DrawMirrors(int x, int y, int z, fixed_t a, fixed_t horiz, int smooth, int 
                 wallarr[mirrorwall[0]].nextwall = nWall;
                 wallarr[mirrorwall[0]].nextsector = nSector;
                 wallarr[mirrorwall[0]].pos.X = pWall->point2Wall()->pos.X;
-                wallarr[mirrorwall[0]].y = pWall->point2Wall()->y;
+                wallarr[mirrorwall[0]].pos.Y = pWall->point2Wall()->pos.Y;
                 wallarr[mirrorwall[1]].pos.X = pWall->pos.X;
-                wallarr[mirrorwall[1]].y = pWall->y;
+                wallarr[mirrorwall[1]].pos.Y = pWall->pos.Y;
                 wallarr[mirrorwall[2]].pos.X = wallarr[mirrorwall[1]].pos.X + (wallarr[mirrorwall[1]].pos.X - wallarr[mirrorwall[0]].pos.X) * 16;
-                wallarr[mirrorwall[2]].y = wallarr[mirrorwall[1]].y + (wallarr[mirrorwall[1]].y - wallarr[mirrorwall[0]].y) * 16;
+                wallarr[mirrorwall[2]].pos.Y = wallarr[mirrorwall[1]].pos.Y + (wallarr[mirrorwall[1]].pos.Y - wallarr[mirrorwall[0]].pos.Y) * 16;
                 wallarr[mirrorwall[3]].pos.X = wallarr[mirrorwall[0]].pos.X + (wallarr[mirrorwall[0]].pos.X - wallarr[mirrorwall[1]].pos.X) * 16;
-                wallarr[mirrorwall[3]].y = wallarr[mirrorwall[0]].y + (wallarr[mirrorwall[0]].y - wallarr[mirrorwall[1]].y) * 16;
+                wallarr[mirrorwall[3]].pos.Y = wallarr[mirrorwall[0]].pos.Y + (wallarr[mirrorwall[0]].pos.Y - wallarr[mirrorwall[1]].pos.Y) * 16;
                 sector.Data()[mirrorsector].floorz = sector[nSector].floorz;
                 sector.Data()[mirrorsector].ceilingz = sector[nSector].ceilingz;
                 int cx, cy, ca;
                 if (pWall->type == kWallStack)
                 {
                     cx = x - (wall[pWall->hitag].pos.X - pWall->point2Wall()->pos.X);
-                    cy = y - (wall[pWall->hitag].y - pWall->point2Wall()->y);
+                    cy = y - (wall[pWall->hitag].pos.Y - pWall->point2Wall()->pos.Y);
                     ca = a;
                 }
                 else

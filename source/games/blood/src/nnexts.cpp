@@ -3556,7 +3556,7 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector
                 {
                     int cx, cy, cz;
                     cx = (pWall->pos.X + pWall->point2Wall()->pos.X) >> 1;
-                    cy = (pWall->y + pWall->point2Wall()->y) >> 1;
+                    cy = (pWall->pos.Y + pWall->point2Wall()->pos.Y) >> 1;
                     auto pMySector = pWall->sectorp();
                     int32_t ceilZ, floorZ;
                     getzsofslopeptr(pSector, cx, cy, &ceilZ, &floorZ);

@@ -790,7 +790,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
         for(auto& wal : wallsofsector(sect))
         {
             // all walls have to be in bounds to be in sector object
-            if (!(wal.pos.X > xlow && wal.pos.X < xhigh && wal.y > ylow && wal.y < yhigh))
+            if (!(wal.pos.X > xlow && wal.pos.X < xhigh && wal.pos.Y > ylow && wal.pos.Y < yhigh))
             {
                 SectorInBounds = false;
                 break;
@@ -1459,7 +1459,7 @@ void PlaceSectorObjectsOnTracks(void)
             for (auto& wal : wallsofsector(sop->sectp[j]))
             {
                 sop->xorig[sop->num_walls] = sop->xmid - wal.pos.X;
-                sop->yorig[sop->num_walls] = sop->ymid - wal.y;
+                sop->yorig[sop->num_walls] = sop->ymid - wal.pos.Y;
                 sop->num_walls++;
             }
         }
@@ -1688,11 +1688,11 @@ void MovePoints(SECTOR_OBJECTp sop, short delta_ang, int nx, int ny)
 
             if (wal.extra && TEST(wal.extra, WALLFX_LOOP_OUTER))
             {
-                dragpoint(&wal, wal.pos.X + nx, wal.y + ny);
+                dragpoint(&wal, wal.pos.X + nx, wal.pos.Y + ny);
             }
             else
             {
-                wal.move(wal.pos.X + nx, wal.y + ny);
+                wal.move(wal.pos.X + nx, wal.pos.Y + ny);
             }
 
             rot_ang = delta_ang;

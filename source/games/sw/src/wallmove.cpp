@@ -104,7 +104,7 @@ int DoWallMove(DSWActor* actor)
 
     for(auto& wal : wall)
     {
-        if (wal.pos.X == sp->x && wal.y == sp->y)
+        if (wal.pos.X == sp->x && wal.pos.Y == sp->y)
         {
             found = true;
 

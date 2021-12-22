@@ -50,7 +50,7 @@ double Get(int index, int type)
 	case Interp_Sect_CeilingPanY:		return sector[index].ceilingypan_;
 
 	case Interp_Wall_X:					return wall[index].pos.X;
-	case Interp_Wall_Y:					return wall[index].y;
+	case Interp_Wall_Y:					return wall[index].pos.Y;
 	case Interp_Wall_PanX:				return wall[index].xpan_;
 	case Interp_Wall_PanY:				return wall[index].ypan_;
 
@@ -73,7 +73,7 @@ void Set(int index, int type, double val)
 	case Interp_Sect_CeilingPanY:       sector[index].ceilingypan_ = float(val); break;
                                         
 	case Interp_Wall_X:                 old = wall[index].pos.X; wall[index].pos.X = xs_CRoundToInt(val); if (wall[index].pos.X != old) wall[index].moved(); break;
-	case Interp_Wall_Y:                 old = wall[index].y; wall[index].y = xs_CRoundToInt(val); if (wall[index].y != old) wall[index].moved(); break;
+	case Interp_Wall_Y:                 old = wall[index].pos.Y; wall[index].pos.Y = xs_CRoundToInt(val); if (wall[index].pos.Y != old) wall[index].moved(); break;
 	case Interp_Wall_PanX:              wall[index].xpan_ = float(val);  break;
 	case Interp_Wall_PanY:              wall[index].ypan_ = float(val);  break;
 	}

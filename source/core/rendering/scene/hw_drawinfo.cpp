@@ -415,7 +415,7 @@ void HWDrawInfo::CreateScene(bool portal)
 			{
 				auto wal = sect->firstWall() + w;
 				wal->pos.X += eff.geox[i];
-				wal->y += eff.geoy[i];
+				wal->pos.Y += eff.geoy[i];
 			}
 			sect->dirty = EDirty::AllDirty;
 			if (eff.geosector[i] == drawsectp) drawsectp = eff.geosectorwarp[i];
@@ -434,7 +434,7 @@ void HWDrawInfo::CreateScene(bool portal)
 			{
 				auto wal = sect->firstWall() + w;
 				wal->pos.X -= eff.geox[i];
-				wal->y -= eff.geoy[i];
+				wal->pos.Y -= eff.geoy[i];
 			}
 		}
 
@@ -447,7 +447,7 @@ void HWDrawInfo::CreateScene(bool portal)
 			{
 				auto wal = sect->firstWall() + w;
 				wal->pos.X += eff.geox2[i];
-				wal->y += eff.geoy2[i];
+				wal->pos.Y += eff.geoy2[i];
 			}
 			sect->dirty = EDirty::AllDirty;
 			if (eff.geosector[i] == orgdrawsectp) drawsectp = eff.geosectorwarp2[i];
@@ -465,7 +465,7 @@ void HWDrawInfo::CreateScene(bool portal)
 			{
 				auto wal = sect->firstWall() + w;
 				wal->pos.X -= eff.geox2[i];
-				wal->y -= eff.geoy2[i];
+				wal->pos.Y -= eff.geoy2[i];
 			}
 		}
 		ingeo = false;

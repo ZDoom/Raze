@@ -228,14 +228,14 @@ void SnapSectors(sectortype* pSectorA, sectortype* pSectorB, int b)
         int besty = bestx;
 
         int x = wal1.pos.X;
-        int y = wal1.y;
+        int y = wal1.pos.Y;
 
         walltype* bestwall = nullptr;
 
         for(auto& wal2 : wallsofsector(pSectorB))
         {
             int thisx = x - wal2.pos.X;
-            int thisy = y - wal2.y;
+            int thisy = y - wal2.pos.Y;
             int thisdist = abs(thisx) + abs(thisy);
 			int bestdist = abs(bestx) + abs(besty);
 
@@ -247,7 +247,7 @@ void SnapSectors(sectortype* pSectorA, sectortype* pSectorB, int b)
             }
         }
 
-        dragpoint(bestwall, bestwall->pos.X + bestx, bestwall->y + besty);
+        dragpoint(bestwall, bestwall->pos.X + bestx, bestwall->pos.Y + besty);
     }
 
     if (b) {

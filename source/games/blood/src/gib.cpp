@@ -436,7 +436,7 @@ void GibFX(walltype* pWall, GIBFX * pGFX, int a3, int a4, int a5, int a6, CGibVe
         int r1 = Random(a6);
         int r2 = Random(a5);
         int r3 = Random(a4);
-        auto pGib = gFX.fxSpawnActor(pGFX->fxId, pSector, pWall->pos.X+r3, pWall->y+r2, a3+r1, 0);
+        auto pGib = gFX.fxSpawnActor(pGFX->fxId, pSector, pWall->pos.X+r3, pWall->pos.Y+r2, a3+r1, 0);
         if (pGib)
         {
             if (pGFX->at1 < 0)
@@ -464,7 +464,7 @@ void GibWall(walltype* pWall, GIBTYPE nGibType, CGibVelocity *pVel)
     int cx, cy, cz, wx, wy, wz;
 
     cx = (pWall->pos.X+pWall->point2Wall()->pos.X)>>1;
-    cy = (pWall->y+pWall->point2Wall()->y)>>1;
+    cy = (pWall->pos.Y+pWall->point2Wall()->pos.Y)>>1;
     auto pSector = pWall->sectorp();
     int32_t ceilZ, floorZ;
     getzsofslopeptr(pSector, cx, cy, &ceilZ, &floorZ);
@@ -475,7 +475,7 @@ void GibWall(walltype* pWall, GIBTYPE nGibType, CGibVelocity *pVel)
     floorZ = ClipHigh(floorZ, floorZ2);
     wz = floorZ-ceilZ;
     wx = pWall->point2Wall()->pos.X-pWall->pos.X;
-    wy = pWall->point2Wall()->y-pWall->y;
+    wy = pWall->point2Wall()->pos.Y-pWall->pos.Y;
     cz = (ceilZ+floorZ)>>1;
 
     GIBLIST *pGib = &gibList[nGibType];

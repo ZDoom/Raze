@@ -1903,7 +1903,7 @@ void AlignSlopes(void)
                 auto pNextSector = pWall->nextSector();
 
                 int x = (pWall->pos.X+pWall2->pos.X)/2;
-                int y = (pWall->y+pWall2->y)/2;
+                int y = (pWall->pos.Y+pWall2->pos.Y)/2;
                 viewInterpolateSector(&sect);
                 alignflorslope(&sect, x, y, getflorzofslopeptr(pNextSector, x, y));
                 alignceilslope(&sect, x, y, getceilzofslopeptr(pNextSector, x, y));
@@ -1967,7 +1967,7 @@ void trInit(TArray<DBloodActor*>& actors)
     for(auto& wal : wall)
     {
         wal.baseWall.X = wal.pos.X;
-        wal.baseWall.Y = wal.y;
+        wal.baseWall.Y = wal.pos.Y;
     }
     for(auto actor : actors)
     {
@@ -2020,7 +2020,7 @@ void trInit(TArray<DBloodActor*>& actors)
                 for(auto& wal : wallsofsector(pSector))
                 {
                     wal.baseWall.X = wal.pos.X;
-                    wal.baseWall.Y = wal.y;
+                    wal.baseWall.Y = wal.pos.Y;
                 }
                 BloodSectIterator it(pSector);
                 while (auto actor = it.Next())
@@ -2039,7 +2039,7 @@ void trInit(TArray<DBloodActor*>& actors)
                 for (auto& wal : wallsofsector(pSector))
                 {
                     wal.baseWall.X = wal.pos.X;
-                    wal.baseWall.Y = wal.y;
+                    wal.baseWall.Y = wal.pos.Y;
                 }
                 BloodSectIterator it(pSector);
                 while (auto actor = it.Next())

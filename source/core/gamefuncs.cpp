@@ -67,7 +67,7 @@ bool calcChaseCamPos(int* px, int* py, int* pz, spritetype* pspr, sectortype** p
 			// Push you a little bit off the wall
 			*psect = hitinfo.hitSector;
 			daang = bvectangbam(hitinfo.hitWall->point2Wall()->pos.X - hitinfo.hitWall->pos.X,
-								hitinfo.hitWall->point2Wall()->y - hitinfo.hitWall->y);
+								hitinfo.hitWall->point2Wall()->pos.Y - hitinfo.hitWall->pos.Y);
 			newdist = nx * daang.bsin() + ny * -daang.bcos();
 
 			if (abs(nx) > abs(ny))
@@ -169,7 +169,7 @@ void calcSlope(const sectortype* sec, float xpos, float ypos, float* pceilz, flo
 		int len = wal->Length();
 		if (len != 0)
 		{
-			float fac = (wal->deltax() * (float(ypos - wal->y)) - wal->deltay() * (float(xpos - wal->pos.X))) * (1.f / 256.f) / len;
+			float fac = (wal->deltax() * (float(ypos - wal->pos.Y)) - wal->deltay() * (float(xpos - wal->pos.X))) * (1.f / 256.f) / len;
 			if (pceilz && sec->ceilingstat & CSTAT_SECTOR_SLOPE) *pceilz += (sec->ceilingheinum * fac);
 			if (pflorz && sec->floorstat & CSTAT_SECTOR_SLOPE) *pflorz += (sec->floorheinum * fac);
 		}
@@ -227,7 +227,7 @@ int getslopeval(sectortype* sect, int x, int y, int z, int basez)
 {
 	auto wal = sect->firstWall();
 	auto delta = wal->delta();
-	int i = (y - wal->y) * delta.X - (x - wal->pos.X) * delta.Y;
+	int i = (y - wal->pos.Y) * delta.X - (x - wal->pos.X) * delta.Y;
 	return i == 0? 0 : Scale((z - basez) << 8, wal->Length(), i);
 }
 

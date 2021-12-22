@@ -311,11 +311,7 @@ struct sectortype
 
 struct walltype
 {
-	// todo: get rid of the single variables!
-	union {
-		struct { int32_t BLAHBLAHX, y; };
-		vec2_t pos;
-	};
+	vec2_t pos;
 	
 	int32_t point2;
 	int32_t nextwall;
@@ -364,7 +360,7 @@ struct walltype
 	vec2_t delta() const { return point2Wall()->pos - pos; }
 	vec2_t center() const { return(point2Wall()->pos + pos) / 2; }
 	int deltax() const { return point2Wall()->pos.X - pos.X; }
-	int deltay() const { return point2Wall()->y - y; }
+	int deltay() const { return point2Wall()->pos.Y - pos.Y; }
 	bool twoSided() const { return nextsector >= 0; }
 	int Length();
 	void calcLength();	// this is deliberately not inlined and stored in a file where it can't be found at compile time.

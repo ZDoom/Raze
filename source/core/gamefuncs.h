@@ -151,7 +151,7 @@ inline double WallStartX(int wallnum)
 
 inline double WallStartY(int wallnum)
 {
-    return wall[wallnum].y * (1 / -16.);
+    return wall[wallnum].pos.Y * (1 / -16.);
 }
 
 inline double WallEndX(int wallnum)
@@ -161,7 +161,7 @@ inline double WallEndX(int wallnum)
 
 inline double WallEndY(int wallnum)
 {
-    return wall[wallnum].point2Wall()->y * (1 / -16.);
+    return wall[wallnum].point2Wall()->pos.Y * (1 / -16.);
 }
 
 inline double WallStartX(const walltype* wallnum)
@@ -171,7 +171,7 @@ inline double WallStartX(const walltype* wallnum)
 
 inline double WallStartY(const walltype* wallnum)
 {
-    return wallnum->y * (1 / -16.);
+    return wallnum->pos.Y * (1 / -16.);
 }
 
 inline DVector2 WallStart(const walltype* wallnum)
@@ -186,7 +186,7 @@ inline double WallEndX(const walltype* wallnum)
 
 inline double WallEndY(const walltype* wallnum)
 {
-	return wallnum->point2Wall()->y * (1 / -16.);
+	return wallnum->point2Wall()->pos.Y * (1 / -16.);
 }
 
 inline DVector2 WallEnd(const walltype* wallnum)
@@ -290,7 +290,7 @@ inline int32_t getangle(walltype* wal)
 {
     return getangle(
         wal->point2Wall()->pos.X - wal->pos.X,
-        wal->point2Wall()->y - wal->y);
+        wal->point2Wall()->pos.Y - wal->pos.Y);
 }
 
 inline TArrayView<walltype> wallsofsector(const sectortype* sec)
@@ -324,9 +324,9 @@ inline double SquareDist(double lx1, double ly1, double lx2, double ly2)
 inline double SquareDistToWall(double px, double py, const walltype* wal) 
 {
 	double lx1 = wal->pos.X;
-	double ly1 = wal->y;
+	double ly1 = wal->pos.Y;
 	double lx2 = wal->point2Wall()->pos.X;
-	double ly2 = wal->point2Wall()->y;
+	double ly2 = wal->point2Wall()->pos.Y;
 	
 	double wall_length = SquareDist(lx1, ly1, lx2, ly2);
 

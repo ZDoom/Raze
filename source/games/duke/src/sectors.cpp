@@ -291,7 +291,7 @@ int* animateptr(int type, int index, bool write)
 		return &wall[index].pos.X;
 	case anim_vertexy:
 		if (write) wall[index].moved();
-		return &wall[index].y;
+		return &wall[index].pos.Y;
 	default:
 		assert(false);
 		return &scratch;
@@ -507,7 +507,7 @@ static void handle_st09(sectortype* sptr, DDukeActor* actor)
 	for (auto& wal : wallsofsector(sptr))
 	{
 		dax += wal.pos.X;
-		day += wal.y;
+		day += wal.pos.Y;
 	}
 	dax /= sptr->wallnum;
 	day /= sptr->wallnum;
@@ -517,7 +517,7 @@ static void handle_st09(sectortype* sptr, DDukeActor* actor)
 	wallfind[0] = nullptr;
 	wallfind[1] = nullptr;
 	for (auto& wal : wallsofsector(sptr))
-		if ((wal.pos.X == dax) || (wal.y == day))
+		if ((wal.pos.X == dax) || (wal.pos.Y == day))
 		{
 			if (wallfind[0] == nullptr)
 				wallfind[0] = &wal;
@@ -533,10 +533,10 @@ static void handle_st09(sectortype* sptr, DDukeActor* actor)
 		auto prevwall = wal - 1;
 		if (prevwall < sptr->firstWall()) prevwall += sptr->wallnum;
 
-		if ((wal->pos.X == dax) && (wal->y == day))
+		if ((wal->pos.X == dax) && (wal->pos.Y == day))
 		{
 			dax2 = ((prevwall->pos.X + wal->point2Wall()->pos.X) >> 1) - wal->pos.X;
-			day2 = ((prevwall->y + wal->point2Wall()->y) >> 1) - wal->y;
+			day2 = ((prevwall->pos.Y + wal->point2Wall()->pos.Y) >> 1) - wal->pos.Y;
 			if (dax2 != 0)
 			{
 				dax2 = wal->point2Wall()->point2Wall()->pos.X;
@@ -548,18 +548,18 @@ static void handle_st09(sectortype* sptr, DDukeActor* actor)
 			}
 			else if (day2 != 0)
 			{
-				day2 = wal->point2Wall()->point2Wall()->y;
-				day2 -= wal->point2Wall()->y;
-				setanimation(sptr, anim_vertexy, wal, wal->y + day2, sp);
-				setanimation(sptr, anim_vertexy, prevwall, prevwall->y + day2, sp);
-				setanimation(sptr, anim_vertexy, wal->point2Wall(), wal->point2Wall()->y + day2, sp);
+				day2 = wal->point2Wall()->point2Wall()->pos.Y;
+				day2 -= wal->point2Wall()->pos.Y;
+				setanimation(sptr, anim_vertexy, wal, wal->pos.Y + day2, sp);
+				setanimation(sptr, anim_vertexy, prevwall, prevwall->pos.Y + day2, sp);
+				setanimation(sptr, anim_vertexy, wal->point2Wall(), wal->point2Wall()->pos.Y + day2, sp);
 				callsound(sptr, actor);
 			}
 		}
 		else
 		{
 			dax2 = ((prevwall->pos.X + wal->point2Wall()->pos.X) >> 1) - wal->pos.X;
-			day2 = ((prevwall->y + wal->point2Wall()->y) >> 1) - wal->y;
+			day2 = ((prevwall->pos.Y + wal->point2Wall()->pos.Y) >> 1) - wal->pos.Y;
 			if (dax2 != 0)
 			{
 				setanimation(sptr, anim_vertexx, wal, dax, sp);

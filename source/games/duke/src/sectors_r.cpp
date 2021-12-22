@@ -370,7 +370,7 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 		if (lotag == 0) return 0;
 		hitag = wwal->hitag;
 		sx = wwal->pos.X;
-		sy = wwal->y;
+		sy = wwal->pos.Y;
 		picnum = wwal->picnum;
 		switchpal = wwal->pal;
 	}
@@ -947,7 +947,7 @@ static void lotsofpopcorn(DDukeActor *actor, walltype* wal, int n)
 	j = n + 1;
 
 	int x1 = wal->pos.X;
-	int y1 = wal->y;
+	int y1 = wal->pos.Y;
 
 	auto delta = wal->delta();
 
@@ -2818,7 +2818,7 @@ void dofurniture(walltype* wlwal, sectortype* sectp, int snum)
 	for(auto& wal : wallsofsector(nextsect))
 	{
 		x = wal.pos.X;
-		y = wal.y;
+		y = wal.pos.Y;
 		if (x > max_x)
 			max_x = x;
 		if (y > max_y)
@@ -2851,11 +2851,11 @@ void dofurniture(walltype* wlwal, sectortype* sectp, int snum)
 		for(auto& wal : wallsofsector(nextsect))
 		{
 			x = wal.pos.X;
-			y = wal.y;
+			y = wal.pos.Y;
 			switch (wlwal->lotag)
 			{
 			case 42:
-				y = wal.y + var_cx;
+				y = wal.pos.Y + var_cx;
 				dragpoint(&wal, x, y);
 				break;
 			case 41:
@@ -2863,7 +2863,7 @@ void dofurniture(walltype* wlwal, sectortype* sectp, int snum)
 				dragpoint(&wal, x, y);
 				break;
 			case 40:
-				y = wal.y - var_cx;
+				y = wal.pos.Y - var_cx;
 				dragpoint(&wal, x, y);
 				break;
 			case 43:
@@ -2878,11 +2878,11 @@ void dofurniture(walltype* wlwal, sectortype* sectp, int snum)
 		for(auto& wal : wallsofsector(nextsect))
 		{
 			x = wal.pos.X;
-			y = wal.y;
+			y = wal.pos.Y;
 			switch (wlwal->lotag)
 			{
 			case 42:
-				y = wal.y - (var_cx - 2);
+				y = wal.pos.Y - (var_cx - 2);
 				dragpoint(&wal, x, y);
 				break;
 			case 41:
@@ -2890,7 +2890,7 @@ void dofurniture(walltype* wlwal, sectortype* sectp, int snum)
 				dragpoint(&wal, x, y);
 				break;
 			case 40:
-				y = wal.y + (var_cx - 2);
+				y = wal.pos.Y + (var_cx - 2);
 				dragpoint(&wal, x, y);
 				break;
 			case 43:

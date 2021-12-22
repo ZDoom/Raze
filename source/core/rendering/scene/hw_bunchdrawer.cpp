@@ -167,11 +167,11 @@ bool BunchDrawer::CheckClip(walltype* wal, float* topclip, float* bottomclip)
 	// Mirrors and horizons always block the view
 	//if (linedef->special==Line_Mirror || linedef->special==Line_Horizon) return true;
 
-	PlanesAtPoint(frontsector, wal->pos.X, wal->y, &fs_ceilingheight1, &fs_floorheight1);
-	PlanesAtPoint(frontsector, pt2->pos.X, pt2->y, &fs_ceilingheight2, &fs_floorheight2);
+	PlanesAtPoint(frontsector, wal->pos.X, wal->pos.Y, &fs_ceilingheight1, &fs_floorheight1);
+	PlanesAtPoint(frontsector, pt2->pos.X, pt2->pos.Y, &fs_ceilingheight2, &fs_floorheight2);
 
-	PlanesAtPoint(backsector, wal->pos.X, wal->y, &bs_ceilingheight1, &bs_floorheight1);
-	PlanesAtPoint(backsector, pt2->pos.X, pt2->y, &bs_ceilingheight2, &bs_floorheight2);
+	PlanesAtPoint(backsector, wal->pos.X, wal->pos.Y, &bs_ceilingheight1, &bs_floorheight1);
+	PlanesAtPoint(backsector, pt2->pos.X, pt2->pos.Y, &bs_ceilingheight2, &bs_floorheight2);
 
 	*bottomclip = max(max(bs_floorheight1, bs_floorheight2), max(fs_floorheight1, fs_floorheight2));
 

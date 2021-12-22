@@ -420,12 +420,12 @@ DExhumedActor* FindWallSprites(sectortype* pSector)
             esi = wal.pos.X;
         }
 
-        if (ecx > wal.y) {
-            ecx = wal.y;
+        if (ecx > wal.pos.Y) {
+            ecx = wal.pos.Y;
         }
 
-        if (edi < wal.y) {
-            edi = wal.y;
+        if (edi < wal.pos.Y) {
+            edi = wal.pos.Y;
         }
     }
 
@@ -993,22 +993,22 @@ int BuildSlide(int nChannel, walltype* pStartWall, walltype* pWall1, walltype* p
     SlideData[nSlide].pWall3 = pWall3;
 
     SlideData[nSlide].x1 = pStartWall->pos.X;
-    SlideData[nSlide].y1 = pStartWall->y;
+    SlideData[nSlide].y1 = pStartWall->pos.Y;
 
     SlideData[nSlide].x2 = pWall2->pos.X;
-    SlideData[nSlide].y2 = pWall2->y;
+    SlideData[nSlide].y2 = pWall2->pos.Y;
 
     SlideData[nSlide].x3 = pWall1->pos.X;
-    SlideData[nSlide].y3 = pWall1->y;
+    SlideData[nSlide].y3 = pWall1->pos.Y;
 
     SlideData[nSlide].x4 = pWall3->pos.X;
-    SlideData[nSlide].y4 = pWall3->y;
+    SlideData[nSlide].y4 = pWall3->pos.Y;
 
     SlideData[nSlide].x5 = p2ndLastWall->pos.X;
-    SlideData[nSlide].y5 = p2ndLastWall->y;
+    SlideData[nSlide].y5 = p2ndLastWall->pos.Y;
 
     SlideData[nSlide].x6 = pWall4->pos.X;
-    SlideData[nSlide].y6 = pWall4->y;
+    SlideData[nSlide].y6 = pWall4->pos.Y;
 
     StartInterpolation(pStartWall, Interp_Wall_X);
     StartInterpolation(pStartWall, Interp_Wall_Y);
@@ -1029,7 +1029,7 @@ int BuildSlide(int nChannel, walltype* pStartWall, walltype* pWall1, walltype* p
     SlideData[nSlide].pActor = pActor;
     pSprite->cstat = CSTAT_SPRITE_INVISIBLE;
     pSprite->x = pStartWall->pos.X;
-    pSprite->y = pStartWall->y;
+    pSprite->y = pStartWall->pos.Y;
     pSprite->z = pSector->floorz;
     pSprite->backuppos();
 
@@ -1082,7 +1082,7 @@ void AISlide::Tick(RunListEvent* ev)
     {
         auto pWall = SlideData[nSlide].pWall1;
         int x = pWall->pos.X;
-        int y = pWall->y;
+        int y = pWall->pos.Y;
 
         int nSeekA = LongSeek(&x, SlideData[nSlide].x5, 20, 20);
         int var_34 = nSeekA;
@@ -1105,7 +1105,7 @@ void AISlide::Tick(RunListEvent* ev)
 
         pWall = SlideData[nSlide].pStartWall;
 
-        y = pWall->y + var_24;
+        y = pWall->pos.Y + var_24;
         x = pWall->pos.X + var_20;
 
         dragpoint(SlideData[nSlide].pStartWall, x, y);
@@ -1113,7 +1113,7 @@ void AISlide::Tick(RunListEvent* ev)
         pWall = SlideData[nSlide].pWall3;
 
         x = pWall->pos.X;
-        y = pWall->y;
+        y = pWall->pos.Y;
 
         int nSeekC = LongSeek(&x, SlideData[nSlide].x6, 20, 20);
         int var_30 = nSeekC;
@@ -1132,7 +1132,7 @@ void AISlide::Tick(RunListEvent* ev)
         pWall = SlideData[nSlide].pWall2;
 
         x = pWall->pos.X + var_20;
-        y = pWall->y + var_24;
+        y = pWall->pos.Y + var_24;
 
         dragpoint(SlideData[nSlide].pWall2, x, y);
     }
@@ -1140,7 +1140,7 @@ void AISlide::Tick(RunListEvent* ev)
     {
         auto pWall = SlideData[nSlide].pStartWall;
         int x = pWall->pos.X;
-        int y = pWall->y;
+        int y = pWall->pos.Y;
 
         int nSeekA = LongSeek(&x, SlideData[nSlide].x1, 20, 20);
         int edi = nSeekA;
@@ -1158,7 +1158,7 @@ void AISlide::Tick(RunListEvent* ev)
 
         pWall = SlideData[nSlide].pWall1;
 
-        y = pWall->y + var_28;
+        y = pWall->pos.Y + var_28;
         x = pWall->pos.X + var_1C;
 
         dragpoint(SlideData[nSlide].pWall1, x, y);
@@ -1166,7 +1166,7 @@ void AISlide::Tick(RunListEvent* ev)
         pWall = SlideData[nSlide].pWall2;
 
         x = pWall->pos.X;
-        y = pWall->y;
+        y = pWall->pos.Y;
 
         int nSeekC = LongSeek(&x, SlideData[nSlide].x2, 20, 20);
         edi = nSeekC;
@@ -1184,7 +1184,7 @@ void AISlide::Tick(RunListEvent* ev)
 
         pWall = SlideData[nSlide].pWall3;
 
-        y = pWall->y + var_28;
+        y = pWall->pos.Y + var_28;
         x = pWall->pos.X + var_1C;
 
         dragpoint(SlideData[nSlide].pWall3, x, y);
@@ -1579,7 +1579,7 @@ DExhumedActor* BuildEnergyBlock(sectortype* pSector)
 	for(auto& wal : wallsofsector(pSector))
     {
         x += wal.pos.X;
-        y += wal.y;
+        y += wal.pos.Y;
 
         wal.picnum = kClockSymbol16;
         wal.pal = 0;
@@ -2545,7 +2545,7 @@ void PostProcess()
                     if (&sect != &sectj && sectj.Speed && !(sect.Flag & kSectLava))
                     {
 						int xVal = abs(sect.firstWall()->pos.X - sectj.firstWall()->pos.X);
-						int yVal = abs(sect.firstWall()->y - sectj.firstWall()->y);
+						int yVal = abs(sect.firstWall()->pos.Y - sectj.firstWall()->pos.Y);
 
                         if (xVal < 15000 && yVal < 15000 && (xVal + yVal < var_20))
                         {

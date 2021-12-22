@@ -285,7 +285,7 @@ void dojaildoor(void)
 				for (auto& wal : wallsofsector(sectp))
 				{
 					int x = wal.pos.X;
-					int y = wal.y;
+					int y = wal.pos.Y;
 					switch (jaildoordir[i])
 					{
 						case 10:
@@ -337,23 +337,23 @@ void dojaildoor(void)
 					{
 						default: // make case of bad parameters well defined.
 							x = wal.pos.X;
-							y = wal.y;
+							y = wal.pos.Y;
 							break;
 						case 10:
 							x = wal.pos.X;
-							y = wal.y + speed;
+							y = wal.pos.Y + speed;
 							break;
 						case 20:
 							x = wal.pos.X - speed;
-							y = wal.y;
+							y = wal.pos.Y;
 							break;
 						case 30:
 							x = wal.pos.X;
-							y = wal.y - speed;
+							y = wal.pos.Y - speed;
 							break;
 						case 40:
 							x = wal.pos.X + speed;
-							y = wal.y;
+							y = wal.pos.Y;
 							break;
 					}
 					dragpoint(&wal, x, y);
@@ -419,23 +419,23 @@ void moveminecart(void)
 					{
 						default: // make case of bad parameters well defined.
 							x = wal.pos.X;
-							y = wal.y;
+							y = wal.pos.Y;
 							break;
 						case 10:
 							x = wal.pos.X;
-							y = wal.y + speed;
+							y = wal.pos.Y + speed;
 							break;
 						case 20:
 							x = wal.pos.X - speed;
-							y = wal.y;
+							y = wal.pos.Y;
 							break;
 						case 30:
 							x = wal.pos.X;
-							y = wal.y - speed;
+							y = wal.pos.Y - speed;
 							break;
 						case 40:
 							x = wal.pos.X + speed;
-							y = wal.y;
+							y = wal.pos.Y;
 							break;
 					}
 					dragpoint(&wal, x, y);
@@ -473,23 +473,23 @@ void moveminecart(void)
 					{
 						default: // make case of bad parameters well defined.
 							x = wal.pos.X;
-							y = wal.y;
+							y = wal.pos.Y;
 							break;
 						case 10:
 							x = wal.pos.X;
-							y = wal.y + speed;
+							y = wal.pos.Y + speed;
 							break;
 						case 20:
 							x = wal.pos.X - speed;
-							y = wal.y;
+							y = wal.pos.Y;
 							break;
 						case 30:
 							x = wal.pos.X;
-							y = wal.y - speed;
+							y = wal.pos.Y - speed;
 							break;
 						case 40:
 							x = wal.pos.X + speed;
-							y = wal.y;
+							y = wal.pos.Y;
 							break;
 					}
 					dragpoint(&wal, x, y);
@@ -502,7 +502,7 @@ void moveminecart(void)
 		for (auto& wal : wallsofsector(csect))
 		{
 			x = wal.pos.X;
-			y = wal.y;
+			y = wal.pos.Y;
 			if (x > max_x)
 				max_x = x;
 			if (y > max_y)
