@@ -29,18 +29,18 @@ struct vec3_t
     {
         struct
         {
-            int32_t X, Y, z;
+            int32_t X, Y, Z;
         };
         vec2_t  vec2;
     };
 
     vec3_t() = default;
     vec3_t(const vec3_t&) = default;
-    vec3_t(int x, int y, int z_) : X(x), Y(y), z(z_) {}
-    vec3_t operator+(const vec3_t& other) const { return { X + other.X, Y + other.Y, z + other.z }; }
-    vec3_t operator-(const vec3_t& other) const { return { X - other.X, Y - other.Y, z - other.z }; }
-    vec3_t& operator+=(const vec3_t& other) { X += other.X; Y += other.Y; z += other.z; return *this; };
-    vec3_t& operator-=(const vec3_t& other) { X -= other.X; Y -= other.Y; z += other.z; return *this; };
+    vec3_t(int x, int y, int z) : X(x), Y(y), Z(z) {}
+    vec3_t operator+(const vec3_t& other) const { return { X + other.X, Y + other.Y, Z + other.Z }; }
+    vec3_t operator-(const vec3_t& other) const { return { X - other.X, Y - other.Y, Z - other.Z }; }
+    vec3_t& operator+=(const vec3_t& other) { X += other.X; Y += other.Y; Z += other.Z; return *this; };
+    vec3_t& operator-=(const vec3_t& other) { X -= other.X; Y -= other.Y; Z += other.Z; return *this; };
 
 };
 

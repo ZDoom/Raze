@@ -52,7 +52,7 @@ void resetmys()
 {
 	myx = omyx = ps[myconnectindex].pos.X;
 	myy = omyy = ps[myconnectindex].pos.Y;
-	myz = omyz = ps[myconnectindex].pos.z;
+	myz = omyz = ps[myconnectindex].pos.Z;
 	myxvel = myyvel = myzvel = 0;
 	myang = ps[myconnectindex].angle.ang;
 	myhoriz = omyhoriz = ps[myconnectindex].horizon.horiz;

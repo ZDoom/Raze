@@ -541,7 +541,7 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 		if (actor->spr.pal != 1)
 		{
 			SetPlayerPal(p, PalEntry(63, 63, 0, 0));
-			p->pos.z -= (16 << 8);
+			p->pos.Z -= (16 << 8);
 			actor->spr.z -= (16 << 8);
 		}
 #if 0
@@ -589,8 +589,8 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 	{
 		if (p->on_warping_sector == 0)
 		{
-			if (abs(p->pos.z - fz) > (gs.playerheight >> 1))
-				p->pos.z += 348;
+			if (abs(p->pos.Z - fz) > (gs.playerheight >> 1))
+				p->pos.Z += 348;
 		}
 		else
 		{
@@ -611,7 +611,7 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 	pushmove(&p->pos, &p->cursector, 128L, (4 << 8), (20 << 8), CLIPMASK0);
 
 	if (fz > cz + (16 << 8) && actor->spr.pal != 1)
-		p->angle.rotscrnang = buildang(p->dead_flag + ((fz + p->pos.z) >> 7));
+		p->angle.rotscrnang = buildang(p->dead_flag + ((fz + p->pos.Z) >> 7));
 
 	p->on_warping_sector = 0;
 
@@ -686,7 +686,7 @@ void playerCrouch(int snum)
 	OnEvent(EVENT_CROUCH, snum, p->GetActor(), -1);
 	if (GetGameVarID(g_iReturnVarID, p->GetActor(), snum).value() == 0)
 	{
-		p->pos.z += (2048 + 768);
+		p->pos.Z += (2048 + 768);
 		p->crack_time = CRACK_TIME;
 	}
 }
@@ -754,7 +754,7 @@ void player_struct::backuppos(bool noclipping)
 		pos.Y = oposy;
 	}
 
-	oposz = pos.z;
+	oposz = pos.Z;
 	bobposx = pos.X;
 	bobposy = pos.Y;
 	opyoff = pyoff;
@@ -1030,7 +1030,7 @@ void shootbloodsplat(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 					spawned->spr.ang = getangle(-delta.X, -delta.Y) + 512; // note the '-' sign here!
 					spawned->spr.x = hit.hitpos.X;
 					spawned->spr.y = hit.hitpos.Y;
-					spawned->spr.z = hit.hitpos.z;
+					spawned->spr.z = hit.hitpos.Z;
 					spawned->spr.cstat |= randomXFlip();
 					ssp(spawned, CLIPMASK0);
 					SetActor(spawned, spawned->spr.pos);

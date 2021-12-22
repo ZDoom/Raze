@@ -267,13 +267,13 @@ struct PlayerPosition
 	// Interpolation helpers.
 	void backupx() { opos.X = pos.X; }
 	void backupy() { opos.Y = pos.Y; }
-	void backupz() { opos.z = pos.z; }
+	void backupz() { opos.Z = pos.Z; }
 	void backuppos() { opos = pos; }
 
 	// Interpolated points.
 	int32_t interpolatedx(double const smoothratio, int const scale = 16) { return interpolatedvalue(opos.X, pos.X, smoothratio, scale); }
 	int32_t interpolatedy(double const smoothratio, int const scale = 16) { return interpolatedvalue(opos.Y, pos.Y, smoothratio, scale); }
-	int32_t interpolatedz(double const smoothratio, int const scale = 16) { return interpolatedvalue(opos.z, pos.z, smoothratio, scale); }
+	int32_t interpolatedz(double const smoothratio, int const scale = 16) { return interpolatedvalue(opos.Z, pos.Z, smoothratio, scale); }
 
 	// Interpolated vectors.
 	vec2_t interpolatedvec2(double const smoothratio, int const scale = 16)

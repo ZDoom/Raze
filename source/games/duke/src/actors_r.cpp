@@ -382,7 +382,7 @@ int movesprite_ex_r(DDukeActor* actor, int xchange, int ychange, int zchange, un
 	auto dasectp = actor->spr.sector();
 
 	vec3_t pos = actor->spr.pos;
-	pos.z -= ((tileHeight(actor->spr.picnum) * actor->spr.yrepeat) << 1);
+	pos.Z -= ((tileHeight(actor->spr.picnum) * actor->spr.yrepeat) << 1);
 
 	if (bg)
 	{
@@ -1606,7 +1606,7 @@ void movetransports_r(void)
 
 							ps[p].bobposx = ps[p].oposx = ps[p].pos.X = Owner->spr.x;
 							ps[p].bobposy = ps[p].oposy = ps[p].pos.Y = Owner->spr.y;
-							ps[p].oposz = ps[p].pos.z = Owner->spr.z - (gs.playerheight - (4 << 8));
+							ps[p].oposz = ps[p].pos.Z = Owner->spr.z - (gs.playerheight - (4 << 8));
 
 							ChangeActorSect(act2, Owner->sector());
 							ps[p].setCursector(act2->spr.sector());
@@ -1619,7 +1619,7 @@ void movetransports_r(void)
 					}
 					else break;
 
-					if (onfloorz == 0 && abs(act->spr.z - ps[p].pos.z) < 6144)
+					if (onfloorz == 0 && abs(act->spr.z - ps[p].pos.Z) < 6144)
 						if ((ps[p].jetpack_on == 0) || (ps[p].jetpack_on && PlayerInput(p, SB_JUMP)) ||
 							(ps[p].jetpack_on && PlayerInput(p, SB_CROUCH)))
 						{
@@ -1627,9 +1627,9 @@ void movetransports_r(void)
 							ps[p].oposy = ps[p].pos.Y += Owner->spr.y - act->spr.y;
 
 							if (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP) || ps[p].jetpack_on < 11))
-								ps[p].pos.z = Owner->spr.z - 6144;
-							else ps[p].pos.z = Owner->spr.z + 6144;
-							ps[p].oposz = ps[p].pos.z;
+								ps[p].pos.Z = Owner->spr.z - 6144;
+							else ps[p].pos.Z = Owner->spr.z + 6144;
+							ps[p].oposz = ps[p].pos.Z;
 
 							ChangeActorSect(act2, Owner->sector());
 							ps[p].setCursector(Owner->sector());
@@ -1641,23 +1641,23 @@ void movetransports_r(void)
 
 					if (isRRRA())
 					{
-						if (onfloorz && sectlotag == 160 && ps[p].pos.z > (sectp->floorz - (48 << 8)))
+						if (onfloorz && sectlotag == 160 && ps[p].pos.Z > (sectp->floorz - (48 << 8)))
 						{
 							k = 2;
-							ps[p].oposz = ps[p].pos.z =
+							ps[p].oposz = ps[p].pos.Z =
 								Owner->sector()->ceilingz + (7 << 8);
 						}
 
-						if (onfloorz && sectlotag == 161 && ps[p].pos.z < (sectp->ceilingz + (6 << 8)))
+						if (onfloorz && sectlotag == 161 && ps[p].pos.Z < (sectp->ceilingz + (6 << 8)))
 						{
 							k = 2;
 							if (ps[p].GetActor()->spr.extra <= 0) break;
-							ps[p].oposz = ps[p].pos.z =
+							ps[p].oposz = ps[p].pos.Z =
 								Owner->sector()->floorz - (49 << 8);
 						}
 					}
 
-					if ((onfloorz && sectlotag == ST_1_ABOVE_WATER && ps[p].pos.z > (sectp->floorz - (6 << 8))) ||
+					if ((onfloorz && sectlotag == ST_1_ABOVE_WATER && ps[p].pos.Z > (sectp->floorz - (6 << 8))) ||
 						(onfloorz && sectlotag == ST_1_ABOVE_WATER && ps[p].OnMotorcycle))
 					{
 						if (ps[p].OnBoat) break;
@@ -1667,13 +1667,13 @@ void movetransports_r(void)
 							FX_StopAllSounds();
 						}
 						S_PlayActorSound(DUKE_UNDERWATER, ps[p].GetActor());
-						ps[p].oposz = ps[p].pos.z =
+						ps[p].oposz = ps[p].pos.Z =
 							Owner->sector()->ceilingz + (7 << 8);
 						if (ps[p].OnMotorcycle)
 							ps[p].moto_underwater = 1;
 					}
 
-					if (onfloorz && sectlotag == ST_2_UNDERWATER && ps[p].pos.z < (sectp->ceilingz + (6 << 8)))
+					if (onfloorz && sectlotag == ST_2_UNDERWATER && ps[p].pos.Z < (sectp->ceilingz + (6 << 8)))
 					{
 						k = 1;
 						if (ps[p].GetActor()->spr.extra <= 0) break;
@@ -1683,7 +1683,7 @@ void movetransports_r(void)
 						}
 						S_PlayActorSound(DUKE_GASP, ps[p].GetActor());
 
-						ps[p].oposz = ps[p].pos.z =
+						ps[p].oposz = ps[p].pos.Z =
 							Owner->sector()->floorz - (7 << 8);
 					}
 
@@ -2451,7 +2451,7 @@ void rr_specialstats()
 						ps[p].angle.ang = buildang(act2->spr.ang);
 						ps[p].bobposx = ps[p].oposx = ps[p].pos.X = act2->spr.x;
 						ps[p].bobposy = ps[p].oposy = ps[p].pos.Y = act2->spr.y;
-						ps[p].oposz = ps[p].pos.z = act2->spr.z - (36 << 8);
+						ps[p].oposz = ps[p].pos.Z = act2->spr.z - (36 << 8);
 						auto pact = ps[p].GetActor();
 						ChangeActorSect(pact, act2->sector());
 						ps[p].setCursector(pact->sector());
@@ -2655,7 +2655,7 @@ DETONATEB:
 		}
 	}
 	else if (actor->spr.picnum == HEAVYHBOMB && x < 788 && t[0] > 7 && actor->spr.xvel == 0)
-		if (cansee(actor->spr.x, actor->spr.y, actor->spr.z - (8 << 8), actor->spr.sector(), ps[p].pos.X, ps[p].pos.Y, ps[p].pos.z, ps[p].cursector))
+		if (cansee(actor->spr.x, actor->spr.y, actor->spr.z - (8 << 8), actor->spr.sector(), ps[p].pos.X, ps[p].pos.Y, ps[p].pos.Z, ps[p].cursector))
 			if (ps[p].ammo_amount[DYNAMITE_WEAPON] < gs.max_ammo_amount[DYNAMITE_WEAPON])
 				if (actor->spr.pal == 0)
 				{

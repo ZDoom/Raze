@@ -272,7 +272,7 @@ Collision CheckCloseRange(int nPlayer, int *x, int *y, int *z, sectortype* *ppSe
 
     *x = hit.hitpos.X;
     *y = hit.hitpos.Y;
-    *z = hit.hitpos.z;
+    *z = hit.hitpos.Z;
     *ppSector = hit.hitSector;
 
     if (hit.actor()) {

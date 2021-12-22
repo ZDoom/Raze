@@ -144,7 +144,7 @@ uint8_t LoadLevel(MapRecord* map)
     loadMap(currentLevel->fileName, 0, &startPos, &inita, &initsect, spawned);
     initx = startPos.X;
     inity = startPos.Y;
-    initz = startPos.z;
+    initz = startPos.Z;
     initsectp = &sector[initsect];
     auto actors = spawnactors(spawned);
 

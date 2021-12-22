@@ -94,7 +94,7 @@ Collision MultiClipMove(PLAYERp pp, int z, int floor_dist)
         {
             // save off the start position
             opos[i] = pos[i] = spos;
-            pos[i].z = z;
+            pos[i].Z = z;
 
             // move the box
             clipmove(pos[i], &pp->cursector, pp->xvect, pp->yvect, (int)sop->clipbox_dist[i], Z(4), floor_dist, CLIPMASK_PLAYER, coll);

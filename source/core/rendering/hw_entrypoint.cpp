@@ -182,7 +182,7 @@ FRenderViewpoint SetupViewpoint(spritetype* cam, const vec3_t& position, int sec
 	r_viewpoint.CameraSprite = cam;
 	r_viewpoint.SectNums = nullptr;
 	r_viewpoint.SectCount = sectnum;
-	r_viewpoint.Pos = { position.X / 16.f, position.Y / -16.f, position.z / -256.f };
+	r_viewpoint.Pos = { position.X / 16.f, position.Y / -16.f, position.Z / -256.f };
 	r_viewpoint.HWAngles.Yaw = -90.f + angle.asdeg();
 	r_viewpoint.HWAngles.Pitch = -horizon.aspitch();
 	r_viewpoint.HWAngles.Roll = -rollang.asdeg();

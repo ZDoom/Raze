@@ -1071,7 +1071,7 @@ int VSpriteBusy(sectortype* pSector, unsigned int a2)
             if (pSprite->cstat & CSTAT_SPRITE_MOVE_FORWARD)
             {
                 viewBackupSpriteLoc(actor);
-                pSprite->z = actor->basePoint.z+MulScale(dz1, GetWaveValue(a2, nWave), 16);
+                pSprite->z = actor->basePoint.Z+MulScale(dz1, GetWaveValue(a2, nWave), 16);
             }
         }
     }
@@ -1085,7 +1085,7 @@ int VSpriteBusy(sectortype* pSector, unsigned int a2)
             if (pSprite->cstat & CSTAT_SPRITE_MOVE_REVERSE)
             {
                 viewBackupSpriteLoc(actor);
-                pSprite->z = actor->basePoint.z + MulScale(dz2, GetWaveValue(a2, nWave), 16);
+                pSprite->z = actor->basePoint.Z + MulScale(dz2, GetWaveValue(a2, nWave), 16);
             }
         }
     }

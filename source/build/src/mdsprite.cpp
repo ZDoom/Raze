@@ -1180,7 +1180,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
     a0.Z = m->zadd * m->scale;
 
     // Parkar: Moved up to be able to use k0 for the y-flipping code
-    k0 = (float)tspr->z+sext->position_offset.z;
+    k0 = (float)tspr->z+sext->position_offset.Z;
     f = ((globalorientation & 8) && (spr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_FACING) ? -4.f : 4.f;
     k0 -= (tspr->yoffset*tspr->yrepeat)*f;
     if ((globalorientation&128) && !((globalorientation & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FLOOR))
@@ -1286,8 +1286,8 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
         if (sext->pivot_offset.Y)  // Compare with SCREEN_FACTORS above
             a0.Y = (float) sext->pivot_offset.Y * f;
 
-        if ((sext->pivot_offset.z) && !(tspr->clipdist & TSPR_FLAGS_MDHACK))  // Compare with SCREEN_FACTORS above
-            a0.Z = (float)sext->pivot_offset.z / (gxyaspect * fxdimen * (65536.f/128.f) * (m0.Z+m1.Z));
+        if ((sext->pivot_offset.Z) && !(tspr->clipdist & TSPR_FLAGS_MDHACK))  // Compare with SCREEN_FACTORS above
+            a0.Z = (float)sext->pivot_offset.Z / (gxyaspect * fxdimen * (65536.f/128.f) * (m0.Z+m1.Z));
 
         k0 = bcosf(sext->pitch, -14);
         k1 = bsinf(sext->pitch, -14);

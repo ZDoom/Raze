@@ -60,7 +60,7 @@ FString GameInterface::GetCoordString()
 	FString out;
 
 	out.Format("pos= %d, %d, %d - angle = %2.3f - sector = %d, lotag = %d, hitag = %d",
-		ps[snum].pos.X, ps[snum].pos.Y, ps[snum].pos.z, ps[snum].angle.ang.asdeg(), sectnum(ps[snum].cursector),
+		ps[snum].pos.X, ps[snum].pos.Y, ps[snum].pos.Z, ps[snum].angle.ang.asdeg(), sectnum(ps[snum].cursector),
 		ps[snum].cursector->lotag, ps[snum].cursector->hitag);
 
 	return out;
@@ -568,7 +568,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
 			else
 				i = TILE_APLAYERTOP;
 
-			j = abs(pp.truefz - pp.pos.z) >> 8;
+			j = abs(pp.truefz - pp.pos.Z) >> 8;
 			j = czoom * (act->spr.yrepeat + j);
 
 			if (j < 22000) j = 22000;

@@ -504,7 +504,7 @@ bool HWSprite::ProcessVoxel(HWDrawInfo* di, voxmodel_t* vox, tspritetype* spr, s
 	scalevec.Z *= sprzscale; 
 	translatevec.Z *= sprzscale;
 
-	float zpos = (float)(spr->z + sprext->position_offset.z);
+	float zpos = (float)(spr->z + sprext->position_offset.Z);
 	float zscale = ((spr->cstat & CSTAT_SPRITE_YFLIP) && (spr->ownerActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != 0) ? -4.f : 4.f;
 	zpos -= (spr->yoffset * spr->yrepeat) * zscale * voxel->bscale;
 
@@ -512,15 +512,15 @@ bool HWSprite::ProcessVoxel(HWDrawInfo* di, voxmodel_t* vox, tspritetype* spr, s
 	z = zpos * (1 / -256.f);
 	y = (spr->y + sprext->position_offset.Y) * (1 / -16.f);
 
-	float zoff = voxel->siz.z * .5f;
+	float zoff = voxel->siz.Z * .5f;
 	if (!(spr->cstat & CSTAT_SPRITE_YCENTER))
 		zoff += voxel->piv.Z;
 	else if ((spr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_SLAB)
 	{
 		zoff += voxel->piv.Z;
-		zoff -= voxel->siz.z * .5f;
+		zoff -= voxel->siz.Z * .5f;
 	}
-	if (spr->cstat & CSTAT_SPRITE_YFLIP) zoff = voxel->siz.z - zoff;
+	if (spr->cstat & CSTAT_SPRITE_YFLIP) zoff = voxel->siz.Z - zoff;
 
 	rotmat.loadIdentity();
 	rotmat.translate(x + translatevec.X, z - translatevec.Z, y - translatevec.Y);

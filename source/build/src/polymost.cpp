@@ -2779,7 +2779,7 @@ void polymost_drawsprite(int32_t snum)
                 goto _drawsprite_return;
 
             float const ryp0 = 1.f / p0.Y;
-            s0 = { ghalfx * p0.X * ryp0 + ghalfx, ((float)(pos.z - globalposz)) * gyxscale * ryp0 + ghoriz };
+            s0 = { ghalfx * p0.X * ryp0 + ghalfx, ((float)(pos.Z - globalposz)) * gyxscale * ryp0 + ghoriz };
 
             float const f = ryp0 * fxdimen * (1.0f / 160.f);
 
@@ -2940,14 +2940,14 @@ void polymost_drawsprite(int32_t snum)
             const float ryp1 = f * gyxscale;
             float sx1 = ghalfx * p1.X * f + ghalfx;
 
-            pos.z -= ((off.Y * tspr->yrepeat) << 2);
+            pos.Z -= ((off.Y * tspr->yrepeat) << 2);
 
             if (globalorientation & 128)
             {
-                pos.z += ((tsiz.Y * tspr->yrepeat) << 1);
+                pos.Z += ((tsiz.Y * tspr->yrepeat) << 1);
 
                 if (tsiz.Y & 1)
-                    pos.z += (tspr->yrepeat << 1);  // Odd yspans
+                    pos.Z += (tspr->yrepeat << 1);  // Odd yspans
             }
 
             xtex.d = (ryp0 - ryp1) * gxyaspect / (sx0 - sx1);
@@ -2966,10 +2966,10 @@ void polymost_drawsprite(int32_t snum)
 
             f = ((float) tspr->yrepeat) * ftsiz.Y * 4;
 
-            float sc0 = ((float) (pos.z - globalposz - f)) * ryp0 + ghoriz;
-            float sc1 = ((float) (pos.z - globalposz - f)) * ryp1 + ghoriz;
-            float sf0 = ((float) (pos.z - globalposz)) * ryp0 + ghoriz;
-            float sf1 = ((float) (pos.z - globalposz)) * ryp1 + ghoriz;
+            float sc0 = ((float) (pos.Z - globalposz - f)) * ryp0 + ghoriz;
+            float sc1 = ((float) (pos.Z - globalposz - f)) * ryp1 + ghoriz;
+            float sf0 = ((float) (pos.Z - globalposz)) * ryp0 + ghoriz;
+            float sf1 = ((float) (pos.Z - globalposz)) * ryp1 + ghoriz;
 
             // gvx*sx0 + gvy*sc0 + gvo = 0
             // gvx*sx1 + gvy*sc1 + gvo = 0
@@ -2992,7 +2992,7 @@ void polymost_drawsprite(int32_t snum)
             // Clip sprites to ceilings/floors when no parallaxing
             if (!(tspr->sector()->ceilingstat & CSTAT_SECTOR_SKY))
             {
-                if (tspr->sector()->ceilingz > pos.z - (float)((tspr->yrepeat * tsiz.Y) << 2))
+                if (tspr->sector()->ceilingz > pos.Z - (float)((tspr->yrepeat * tsiz.Y) << 2))
                 {
                     sc0 = (float)(tspr->sector()->ceilingz - globalposz) * ryp0 + ghoriz;
                     sc1 = (float)(tspr->sector()->ceilingz - globalposz) * ryp1 + ghoriz;
@@ -3000,7 +3000,7 @@ void polymost_drawsprite(int32_t snum)
             }
             if (!(tspr->sector()->floorstat & CSTAT_SECTOR_SKY))
             {
-                if (tspr->sector()->floorz < pos.z)
+                if (tspr->sector()->floorz < pos.Z)
                 {
                     sf0 = (float)(tspr->sector()->floorz - globalposz) * ryp0 + ghoriz;
                     sf1 = (float)(tspr->sector()->floorz - globalposz) * ryp1 + ghoriz;
@@ -3120,11 +3120,11 @@ void polymost_drawsprite(int32_t snum)
                 if (heinum == 0)
                 {
                     // unfortunately, offsetting by only 1 isn't enough on most Android devices
-                    if (pos.z == sec->ceilingz || pos.z == sec->ceilingz + 1)
-                        pos.z = sec->ceilingz + 2, fadjust = (tspr->ownerActor->GetIndex() & 31);
+                    if (pos.Z == sec->ceilingz || pos.Z == sec->ceilingz + 1)
+                        pos.Z = sec->ceilingz + 2, fadjust = (tspr->ownerActor->GetIndex() & 31);
 
-                    if (pos.z == sec->floorz || pos.z == sec->floorz - 1)
-                        pos.z = sec->floorz - 2, fadjust = -((tspr->ownerActor->GetIndex() & 31));
+                    if (pos.Z == sec->floorz || pos.Z == sec->floorz - 1)
+                        pos.Z = sec->floorz - 2, fadjust = -((tspr->ownerActor->GetIndex() & 31));
                 }
 
                 FVector2 pxy2[6];
@@ -3143,7 +3143,7 @@ void polymost_drawsprite(int32_t snum)
                 xtex.d = 0;
                 ytex.d = gxyaspect;
                 if (heinum == 0)
-                    ytex.d /= (double)(pos.z - globalposz + fadjust);
+                    ytex.d /= (double)(pos.Z - globalposz + fadjust);
                 otex.d = -ghoriz * ytex.d;
 
                 // copied&modified from relative alignment
@@ -3386,8 +3386,8 @@ static inline int comparetsprites(int const k, int const l)
         tspriteptr[k]->ownerActor != tspriteptr[l]->ownerActor)
         return tspriteptr[k]->ownerActor->GetIndex() - tspriteptr[l]->ownerActor->GetIndex();
 
-    if (abs(spritesxyz[k].z - globalposz) != abs(spritesxyz[l].z - globalposz))
-        return abs(spritesxyz[k].z - globalposz) - abs(spritesxyz[l].z - globalposz);
+    if (abs(spritesxyz[k].Z - globalposz) != abs(spritesxyz[l].Z - globalposz))
+        return abs(spritesxyz[k].Z - globalposz) - abs(spritesxyz[l].Z - globalposz);
 
     return 0;
 }
@@ -3428,18 +3428,18 @@ static void sortsprites(int const start, int const end)
             {
                 auto const s = tspriteptr[k];
 
-                spritesxyz[k].z = s->z;
+                spritesxyz[k].Z = s->z;
                 if ((s->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_FLOOR)
                 {
                     int32_t yoff = tileTopOffset(s->picnum) + s->yoffset;
                     int32_t yspan = (tileHeight(s->picnum) * s->yrepeat << 2);
 
-                    spritesxyz[k].z -= (yoff * s->yrepeat) << 2;
+                    spritesxyz[k].Z -= (yoff * s->yrepeat) << 2;
 
                     if (!(s->cstat & CSTAT_SPRITE_YCENTER))
-                        spritesxyz[k].z -= (yspan >> 1);
-                    if (abs(spritesxyz[k].z - globalposz) < (yspan >> 1))
-                        spritesxyz[k].z = globalposz;
+                        spritesxyz[k].Z -= (yspan >> 1);
+                    if (abs(spritesxyz[k].Z - globalposz) < (yspan >> 1))
+                        spritesxyz[k].Z = globalposz;
                 }
             }
 
@@ -3826,18 +3826,18 @@ int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr, bool rotate)
     f = (float)tspr->yrepeat * k0;
     m0.Z *= f; a0.Z *= f;
 
-    k0 = (float)(tspr->z + tspr->ownerActor->sx().position_offset.z);
+    k0 = (float)(tspr->z + tspr->ownerActor->sx().position_offset.Z);
     f = ((globalorientation & 8) && (tspr->ownerActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != 0) ? -4.f : 4.f;
     k0 -= (tspr->yoffset * tspr->yrepeat) * f * m->bscale;
-    zoff = m->siz.z * .5f;
+    zoff = m->siz.Z * .5f;
     if (!(tspr->cstat & CSTAT_SPRITE_YCENTER))
         zoff += m->piv.Z;
     else if ((tspr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != 48)
     {
         zoff += m->piv.Z;
-        zoff -= m->siz.z * .5f;
+        zoff -= m->siz.Z * .5f;
     }
-    if (globalorientation & 8) zoff = m->siz.z - zoff;
+    if (globalorientation & 8) zoff = m->siz.Z - zoff;
 
     f = (65536.f * 512.f) / ((float)xdimen * viewingrange);
     g = 32.f / ((float)xdimen * Polymost::gxyaspect);

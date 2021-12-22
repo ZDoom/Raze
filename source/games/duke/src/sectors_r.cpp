@@ -681,7 +681,7 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 		setnextmap(false);
 	}
 
-	vec3_t v = { sx, sy, ps[snum].pos.z };
+	vec3_t v = { sx, sy, ps[snum].pos.Z };
 	switch (picnum)
 	{
 	default:
@@ -1424,7 +1424,7 @@ void checkplayerhurt_r(struct player_struct* p, const Collision &coll)
 		fi.checkhitwall(p->GetActor(), wal,
 			p->pos.X + p->angle.ang.bcos(-9),
 			p->pos.Y + p->angle.ang.bsin(-9),
-			p->pos.z, -1);
+			p->pos.Z, -1);
 		break;
 
 	}
@@ -2414,7 +2414,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 					ps[p].newOwner = nullptr;
 					ps[p].pos.X = ps[p].oposx;
 					ps[p].pos.Y = ps[p].oposy;
-					ps[p].pos.z = ps[p].oposz;
+					ps[p].pos.Z = ps[p].oposz;
 
 					updatesector(ps[p].pos.X, ps[p].pos.Y, &ps[p].cursector);
 
@@ -2574,12 +2574,12 @@ void checksectors_r(int snum)
 		{
 			neartag(p->pos, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280, 1);
 			if (near.actor() == nullptr && near.hitWall == nullptr && near.hitSector == nullptr)
-				neartag({ p->pos.X, p->pos.Y, p->pos.z + (8 << 8) }, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280, 1);
+				neartag({ p->pos.X, p->pos.Y, p->pos.Z + (8 << 8) }, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280, 1);
 			if (near.actor() == nullptr && near.hitWall == nullptr && near.hitSector == nullptr)
-				neartag({ p->pos.X, p->pos.Y, p->pos.z + (16 << 8) }, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280, 1);
+				neartag({ p->pos.X, p->pos.Y, p->pos.Z + (16 << 8) }, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280, 1);
 			if (near.actor() == nullptr && near.hitWall == nullptr && near.hitSector == nullptr)
 			{
-				neartag({ p->pos.X, p->pos.Y, p->pos.z + (16 << 8) }, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280, 3);
+				neartag({ p->pos.X, p->pos.Y, p->pos.Z + (16 << 8) }, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280, 3);
 				if (near.actor() != nullptr)
 				{
 					switch (near.actor()->spr.picnum)

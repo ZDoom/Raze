@@ -1133,7 +1133,7 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, tspritetype* spr, sectortype* sec
 	seg = nullptr;
 	Sprite = spr;
 	vec2_t pos[2];
-	int sprz = spr->pos.z;
+	int sprz = spr->pos.Z;
 
 	GetWallSpritePosition(spr, spr->pos.vec2, pos, true);
 	glseg.x1 = pos[0].X * (1 / 16.f);

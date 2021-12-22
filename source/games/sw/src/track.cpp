@@ -2821,7 +2821,7 @@ void DoTornadoObject(SECTOR_OBJECTp sop)
     floor_dist = (abs(cursect->ceilingz - cursect->floorz)) >> 2;
     pos.X = sop->xmid;
     pos.Y = sop->ymid;
-    pos.z = floor_dist;
+    pos.Z = floor_dist;
 
     PlaceSectorObject(sop, MAXSO, MAXSO);
     Collision coll;

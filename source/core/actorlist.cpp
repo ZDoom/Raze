@@ -459,7 +459,7 @@ void SetActorZ(DCoreActor* actor, const vec3_t* newpos)
 {
 	auto tempsector = actor->sector();
 	actor->spr.setpos(*newpos);
-	updatesectorz(newpos->X, newpos->Y, newpos->z, &tempsector);
+	updatesectorz(newpos->X, newpos->Y, newpos->Z, &tempsector);
 
 	if (tempsector && tempsector != actor->sector())
 		ChangeActorSect(actor, tempsector);

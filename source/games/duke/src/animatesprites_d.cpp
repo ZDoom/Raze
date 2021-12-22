@@ -167,7 +167,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 		{
 			t->x -= MulScale(MaxSmoothRatio - smoothratio, ps[h->spr.yvel].pos.X - ps[h->spr.yvel].oposx, 16);
 			t->y -= MulScale(MaxSmoothRatio - smoothratio, ps[h->spr.yvel].pos.Y - ps[h->spr.yvel].oposy, 16);
-			t->z = interpolatedvalue(ps[h->spr.yvel].oposz, ps[h->spr.yvel].pos.z, smoothratio);
+			t->z = interpolatedvalue(ps[h->spr.yvel].oposz, ps[h->spr.yvel].pos.Z, smoothratio);
 			t->z += PHEIGHT_DUKE;
 		}
 		else if (h->spr.picnum != CRANEPOLE)
@@ -359,7 +359,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 				}
 
 				if (h->GetOwner())
-					newtspr->z = ps[p].pos.z - (12 << 8);
+					newtspr->z = ps[p].pos.Z - (12 << 8);
 				else newtspr->z = h->spr.z - (51 << 8);
 				if (ps[p].curr_weapon == HANDBOMB_WEAPON)
 				{
@@ -583,7 +583,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 							daz = h->floorz;
 
 
-						if ((h->spr.z - daz) < (8 << 8) && ps[screenpeek].pos.z < daz)
+						if ((h->spr.z - daz) < (8 << 8) && ps[screenpeek].pos.Z < daz)
 						{
 							auto shadowspr = &tsprite[spritesortcnt++];
 							*shadowspr = *t;

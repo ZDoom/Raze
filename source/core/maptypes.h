@@ -479,7 +479,7 @@ struct spritetypebase
 
 	void backupz()
 	{
-		opos.z = pos.z;
+		opos.Z = pos.Z;
 	}
 
 	void backupvec2()

@@ -291,7 +291,7 @@ static void ReadSpriteV7(FileReader& fr, spritetype& spr, int& secno)
 {
 	spr.pos.X = fr.ReadInt32();
 	spr.pos.Y = fr.ReadInt32();
-	spr.pos.z = fr.ReadInt32();
+	spr.pos.Z = fr.ReadInt32();
 	spr.cstat = ESpriteFlags::FromInt(fr.ReadUInt16());
 	spr.picnum = fr.ReadInt16();
 	spr.shade = fr.ReadInt8();
@@ -319,7 +319,7 @@ static void ReadSpriteV6(FileReader& fr, spritetype& spr, int& secno)
 {
 	spr.pos.X = fr.ReadInt32();
 	spr.pos.Y = fr.ReadInt32();
-	spr.pos.z = fr.ReadInt32();
+	spr.pos.Z = fr.ReadInt32();
 	spr.cstat = ESpriteFlags::FromInt(fr.ReadUInt16());
 	spr.shade = fr.ReadInt8();
 	spr.pal = fr.ReadUInt8();
@@ -347,7 +347,7 @@ static void ReadSpriteV5(FileReader& fr, spritetype& spr, int& secno)
 {
 	spr.pos.X = fr.ReadInt32();
 	spr.pos.Y = fr.ReadInt32();
-	spr.pos.z = fr.ReadInt32();
+	spr.pos.Z = fr.ReadInt32();
 	spr.cstat = ESpriteFlags::FromInt(fr.ReadUInt16());
 	spr.shade = fr.ReadInt8();
 	spr.xrepeat = fr.ReadUInt8();
@@ -428,7 +428,7 @@ void loadMap(const char* filename, int flags, vec3_t* pos, int16_t* ang, int* cu
 
 	pos->X = fr.ReadInt32();
 	pos->Y = fr.ReadInt32();
-	pos->z = fr.ReadInt32();
+	pos->Z = fr.ReadInt32();
 	*ang = fr.ReadInt16() & 2047;
 	*cursectnum = fr.ReadUInt16();
 

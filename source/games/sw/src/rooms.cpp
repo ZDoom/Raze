@@ -162,7 +162,7 @@ FAFhitscan(int32_t x, int32_t y, int32_t z, sectortype* sect,
 
             // warp to new x,y,z, sectnum
             sectortype* newsect = nullptr;
-            if (Warp(&hit.hitpos.X, &hit.hitpos.Y, &hit.hitpos.z, &newsect))
+            if (Warp(&hit.hitpos.X, &hit.hitpos.Y, &hit.hitpos.Z, &newsect))
             {
                 // hitscan needs to pass through dest sect
                 ResetWallWarpHitscan(newsect);
@@ -192,7 +192,7 @@ FAFhitscan(int32_t x, int32_t y, int32_t z, sectortype* sect,
             {
                 // hit the floor of a sector that is a warping sector
                 sectortype* newsect = nullptr;
-                if (Warp(&hit.hitpos.X, &hit.hitpos.Y, &hit.hitpos.z, &newsect))
+                if (Warp(&hit.hitpos.X, &hit.hitpos.Y, &hit.hitpos.Z, &newsect))
                 {
                     auto pos = hit.hitpos;
                     hitscan(pos, newsect, { xvect, yvect, zvect }, hit, clipmask);
@@ -202,7 +202,7 @@ FAFhitscan(int32_t x, int32_t y, int32_t z, sectortype* sect,
             else
             {
                 sectortype* newsect = nullptr;
-                if (WarpPlane(&hit.hitpos.X, &hit.hitpos.Y, &hit.hitpos.z, &newsect))
+                if (WarpPlane(&hit.hitpos.X, &hit.hitpos.Y, &hit.hitpos.Z, &newsect))
                 {
                     auto pos = hit.hitpos;
                     hitscan(pos, newsect, { xvect, yvect, zvect }, hit, clipmask);
@@ -212,19 +212,19 @@ FAFhitscan(int32_t x, int32_t y, int32_t z, sectortype* sect,
         }
 
         getzsofslopeptr(hit.hitSector, hit.hitpos.X, hit.hitpos.Y, &hiz, &loz);
-        if (abs(hit.hitpos.z - loz) < Z(4))
+        if (abs(hit.hitpos.Z - loz) < Z(4))
         {
             if (FAF_ConnectFloor(hit.hitSector) && !TEST(hit.hitSector->floorstat, CSTAT_SECTOR_FAF_BLOCK_HITSCAN))
             {
-                updatesectorz(hit.hitpos.X, hit.hitpos.Y, hit.hitpos.z + Z(12), &newsector);
+                updatesectorz(hit.hitpos.X, hit.hitpos.Y, hit.hitpos.Z + Z(12), &newsector);
                 plax_found = true;
             }
         }
-        else if (labs(hit.hitpos.z - hiz) < Z(4))
+        else if (labs(hit.hitpos.Z - hiz) < Z(4))
         {
             if (FAF_ConnectCeiling(hit.hitSector) && !TEST(hit.hitSector->floorstat, CSTAT_SECTOR_FAF_BLOCK_HITSCAN))
             {
-                updatesectorz(hit.hitpos.X, hit.hitpos.Y, hit.hitpos.z - Z(12), &newsector);
+                updatesectorz(hit.hitpos.X, hit.hitpos.Y, hit.hitpos.Z - Z(12), &newsector);
                 plax_found = true;
             }
         }
@@ -288,19 +288,19 @@ bool FAFcansee(int32_t xs, int32_t ys, int32_t zs, sectortype* sects,
     if (hit.hitWall == nullptr && hit.actor() == nullptr)
     {
         getzsofslopeptr(hit.hitSector, hit.hitpos.X, hit.hitpos.Y, &hiz, &loz);
-        if (labs(hit.hitpos.z - loz) < Z(4))
+        if (labs(hit.hitpos.Z - loz) < Z(4))
         {
             if (FAF_ConnectFloor(hit.hitSector))
             {
-                updatesectorz(hit.hitpos.X, hit.hitpos.Y, hit.hitpos.z + Z(12), &newsect);
+                updatesectorz(hit.hitpos.X, hit.hitpos.Y, hit.hitpos.Z + Z(12), &newsect);
                 plax_found = true;
             }
         }
-        else if (labs(hit.hitpos.z - hiz) < Z(4))
+        else if (labs(hit.hitpos.Z - hiz) < Z(4))
         {
             if (FAF_ConnectCeiling(hit.hitSector))
             {
-                updatesectorz(hit.hitpos.X, hit.hitpos.Y, hit.hitpos.z - Z(12), &newsect);
+                updatesectorz(hit.hitpos.X, hit.hitpos.Y, hit.hitpos.Z - Z(12), &newsect);
                 plax_found = true;
             }
         }
@@ -311,7 +311,7 @@ bool FAFcansee(int32_t xs, int32_t ys, int32_t zs, sectortype* sects,
     }
 
     if (plax_found)
-        return !!cansee(hit.hitpos.X, hit.hitpos.Y, hit.hitpos.z, newsect, xe, ye, ze, secte);
+        return !!cansee(hit.hitpos.X, hit.hitpos.Y, hit.hitpos.Z, newsect, xe, ye, ze, secte);
 
     return false;
 }
@@ -502,7 +502,7 @@ void FAFgetzrange(vec3_t pos, sectortype* sect, int32_t* hiz, Collision* ceilhit
         if (uppersect == nullptr)
             return;
         vec3_t npos = pos;
-        npos.z = newz;
+        npos.Z = newz;
         getzrange(npos, uppersect, hiz,  *ceilhit, &foo1, foo2, clipdist, clipmask);
         SectorZadjust(*ceilhit, hiz, trash, nullptr);
     }
@@ -517,7 +517,7 @@ void FAFgetzrange(vec3_t pos, sectortype* sect, int32_t* hiz, Collision* ceilhit
         if (lowersect == nullptr)
             return; // _ErrMsg(ERR_STD_ARG, "Did not find a sector at %d, %d, %d", x, y, newz);
         vec3_t npos = pos;
-        npos.z = newz;
+        npos.Z = newz;
         getzrange(npos, lowersect, &foo1, foo2, loz,  *florhit, clipdist, clipmask);
         SectorZadjust(trash, nullptr, *florhit, loz);
         WaterAdjust(*florhit, loz);

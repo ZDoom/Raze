@@ -598,8 +598,8 @@ void playerResetInertia(PLAYER *pPlayer)
 
 void playerCorrectInertia(PLAYER* pPlayer, vec3_t const *oldpos)
 {
-    pPlayer->zView += pPlayer->pSprite->z-oldpos->z;
-    pPlayer->zWeapon += pPlayer->pSprite->z-oldpos->z;
+    pPlayer->zView += pPlayer->pSprite->z-oldpos->Z;
+    pPlayer->zWeapon += pPlayer->pSprite->z-oldpos->Z;
     viewCorrectViewOffsets(pPlayer->nPlayer, oldpos);
 }
 

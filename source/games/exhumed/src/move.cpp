@@ -374,7 +374,7 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
     // This function will keep the player from falling off cliffs when you're too close to the edge.
     // This function finds the highest and lowest z coordinates that your clipping BOX can get to.
     vec3_t pos = pSprite->pos;
-    pos.z -= 256;
+    pos.Z -= 256;
     getzrange(pos, pSprite->sector(), &sprceiling, hiHit, &sprfloor, loHit, 128, CLIPMASK0);
 
     int mySprfloor = sprfloor;
@@ -915,14 +915,14 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
     if (nSectFlag & kSectUnderwater)
     {
         nZVal = pSector->ceilingz;
-        pos.z = pNextSector->ceilingz + 256;
+        pos.Z = pNextSector->ceilingz + 256;
 
         pSector->ceilingz = pNextSector->ceilingz;
     }
     else
     {
         nZVal = pSector->floorz;
-        pos.z = pNextSector->floorz - 256;
+        pos.Z = pNextSector->floorz - 256;
 
         pSector->floorz = pNextSector->floorz;
     }
@@ -1004,9 +1004,9 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
             }
             else
             {
-                pos.z = sp->z;
+                pos.Z = sp->z;
 
-                if ((nSectFlag & kSectUnderwater) || pos.z != nZVal || sp->cstat & CSTAT_SPRITE_INVISIBLE)
+                if ((nSectFlag & kSectUnderwater) || pos.Z != nZVal || sp->cstat & CSTAT_SPRITE_INVISIBLE)
                 {
                     pos.X = sp->x;
                     pos.Y = sp->y;
@@ -1272,7 +1272,7 @@ void WheresMyMouth(int nPlayer, vec3_t* pos, sectortype **sectnum)
 
     *sectnum = pSprite->sector();
     *pos = pSprite->pos;
-    pos->z -= height;
+    pos->Z -= height;
 
     Collision scratch;
     clipmove(*pos, sectnum,

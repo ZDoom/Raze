@@ -437,7 +437,7 @@ void initshell(DDukeActor* actj, DDukeActor* act, bool isshell)
 			a = ps[snum].angle.ang.asbuild() - (krand() & 63) + 8;  //Fine tune
 
 			t[0] = krand() & 1;
-			act->spr.z = (3 << 8) + ps[snum].pyoff + ps[snum].pos.z - (ps[snum].horizon.sum().asq16() >> 12) + (!isshell ? (3 << 8) : 0);
+			act->spr.z = (3 << 8) + ps[snum].pyoff + ps[snum].pos.Z - (ps[snum].horizon.sum().asq16() >> 12) + (!isshell ? (3 << 8) : 0);
 			act->spr.zvel = -(krand() & 255);
 		}
 		else

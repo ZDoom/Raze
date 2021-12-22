@@ -464,7 +464,7 @@ MOVEEND:
             hitscan(startPos, pSprite->sector(), { bcos(pSprite->ang), bsin(pSprite->ang), dz }, hit, CLIPMASK1);
             x2 = hit.hitpos.X;
             y2 = hit.hitpos.Y;
-            z2 = hit.hitpos.z;
+            z2 = hit.hitpos.Z;
             hitactor = hit.actor();
             pHitSect = hit.hitSector;
             pHitWall = hit.hitWall;

@@ -164,7 +164,7 @@ void BuildSnake(int nPlayer, int zVal)
 		auto pSprite = &pActor->s();
         pSprite->x = hit.hitpos.X;
         pSprite->y = hit.hitpos.Y;
-        pSprite->z = hit.hitpos.z;
+        pSprite->z = hit.hitpos.Z;
 
         ExplodeSnakeSprite(pActor, nPlayer);
         DeleteActor(pActor);

@@ -329,7 +329,7 @@ void displayrooms(int snum, double smoothratio)
 		{
 			cposx = interpolatedvalue(p->oposx, p->pos.X, smoothratio);
 			cposy = interpolatedvalue(p->oposy, p->pos.Y, smoothratio);
-			cposz = interpolatedvalue(p->oposz, p->pos.z, smoothratio);;
+			cposz = interpolatedvalue(p->oposz, p->pos.Z, smoothratio);;
 			if (SyncInput())
 			{
 				// Original code for when the values are passed through the sync struct
@@ -352,7 +352,7 @@ void displayrooms(int snum, double smoothratio)
 			choriz = buildhoriz(spr->shade);
 			cposx = spr->pos.X;
 			cposy = spr->pos.Y;
-			cposz = spr->pos.z;
+			cposz = spr->pos.Z;
 			sect = spr->sector();
 			rotscrnang = buildang(0);
 			smoothratio = MaxSmoothRatio;

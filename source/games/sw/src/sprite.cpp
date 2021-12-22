@@ -4585,7 +4585,7 @@ void DoActorZrange(DSWActor* actor)
     auto save_cstat = sp->cstat & CSTAT_SPRITE_BLOCK;
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK);
     vec3_t pos = sp->pos;
-    pos.z -= DIV2(SPRITEp_SIZE_Z(sp));
+    pos.Z -= DIV2(SPRITEp_SIZE_Z(sp));
     FAFgetzrange(pos, sp->sector(), &u->hiz, &ceilhit, &u->loz, &florhit, (((int) sp->clipdist) << 2) - GETZRANGE_CLIP_ADJ, CLIPMASK_ACTOR);
     sp->cstat |= save_cstat;
 
@@ -6449,7 +6449,7 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
     {
         // move the center point up for moving
         zh = u->zclip;
-        clippos.z -= zh;
+        clippos.Z -= zh;
     }
 
 
@@ -6479,7 +6479,7 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
     // ledges they were not supposed to go up on.  Did the same for the
     // player. Seems to work ok!
     vec3_t pos = spr->pos;
-    pos.z -= zh + 1;
+    pos.Z -= zh + 1;
     FAFgetzrange(pos, spr->sector(),
                  &globhiz, &globhihit, &globloz, &globlohit,
                  (((int) spr->clipdist) << 2) - GETZRANGE_CLIP_ADJ, cliptype);
@@ -6490,16 +6490,16 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
     // Takes info from global variables
     DoActorGlobZ(actor);
 
-    clippos.z = spr->z + ((zchange * numtics) >> 3);
+    clippos.Z = spr->z + ((zchange * numtics) >> 3);
 
     // test for hitting ceiling or floor
-    if ((clippos.z - zh <= globhiz) || (clippos.z - zh > globloz))
+    if ((clippos.Z - zh <= globhiz) || (clippos.Z - zh > globloz))
     {
         if (retval.type == kHitNone)
         {
             if (TEST(u->Flags, SPR_CLIMBING))
             {
-                spr->z = clippos.z;
+                spr->z = clippos.Z;
                 return retval;
             }
 
@@ -6508,7 +6508,7 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
     }
     else
     {
-        spr->z = clippos.z;
+        spr->z = clippos.Z;
     }
 
     // extra processing for Stacks and warping
@@ -6652,7 +6652,7 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
     else
     {
         zh = u->zclip;
-        clippos.z -= zh;
+        clippos.Z -= zh;
     }
 
 
@@ -6687,20 +6687,20 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
     // missiles don't need the water to be down
     MissileWaterAdjust(actor);
 
-    clippos.z = sp->z + ((zchange * numtics) >> 3);
+    clippos.Z = sp->z + ((zchange * numtics) >> 3);
 
     // NOTE: this does not tell you when you hit a floor sprite
     // this case is currently treated like it hit a sector
 
     // test for hitting ceiling or floor
-    if (clippos.z - zh <= u->hiz + ceildist)
+    if (clippos.Z - zh <= u->hiz + ceildist)
     {
         // normal code
         sp->z = u->hiz + zh + ceildist;
         if (retval.type == kHitNone)
             retval.setSector(dasect);
     }
-    else if (clippos.z - zh > u->loz - flordist)
+    else if (clippos.Z - zh > u->loz - flordist)
     {
         sp->z = u->loz + zh - flordist;
         if (retval.type == kHitNone)
@@ -6708,7 +6708,7 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
     }
     else
     {
-        sp->z = clippos.z;
+        sp->z = clippos.Z;
     }
 
     if (FAF_ConnectArea(sp->sector()))
@@ -6803,7 +6803,7 @@ Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int cei
         dasect = sp->sector();
         lastsect = dasect;
         opos = sp->pos;
-        opos.z = daz;
+        opos.Z = daz;
         clipmove(opos, &dasect,
                           ((xchange * numtics) << 11), ((ychange * numtics) << 11),
                           (((int) sp->clipdist) << 2), ceildist, flordist, cliptype, retval, 1);

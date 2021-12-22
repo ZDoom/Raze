@@ -5349,7 +5349,7 @@ int MoveMissile(DBloodActor* actor)
 			pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL; // remove self collisions for accurate clipmove
 		}
 		Collision clipmoveresult;
-		ClipMove(pos, &pSector2, vx, vy, pSprite->clipdist << 2, (pos.z - top) / 4, (bottom - pos.z) / 4, CLIPMASK0, clipmoveresult, 1);
+		ClipMove(pos, &pSector2, vx, vy, pSprite->clipdist << 2, (pos.Z - top) / 4, (bottom - pos.Z) / 4, CLIPMASK0, clipmoveresult, 1);
 		enginecompatibility_mode = bakCompat; // restore
 		pSprite->cstat = bakSpriteCstat;
 		auto pSector = pSector2;
@@ -5371,7 +5371,7 @@ int MoveMissile(DBloodActor* actor)
 			{
 				int32_t fz, cz;
 				getzsofslopeptr(clipmoveresult.hitWall->nextSector(), pos.X, pos.Y, &cz, &fz);
-				if (pos.z <= cz || pos.z >= fz) cliptype = 0;
+				if (pos.Z <= cz || pos.Z >= fz) cliptype = 0;
 				else cliptype = 4;
 			}
 		}
@@ -5407,7 +5407,7 @@ int MoveMissile(DBloodActor* actor)
 		}
 		int ceilZ, floorZ;
 		Collision ceilColl, floorColl;
-		GetZRangeAtXYZ(pos.X, pos.Y, pos.z, pSector2, &ceilZ, &ceilColl, &floorZ, &floorColl, pSprite->clipdist << 2, CLIPMASK0);
+		GetZRangeAtXYZ(pos.X, pos.Y, pos.Z, pSector2, &ceilZ, &ceilColl, &floorZ, &floorColl, pSprite->clipdist << 2, CLIPMASK0);
 		GetActorExtents(actor, &top, &bottom);
 		top += vz;
 		bottom += vz;
@@ -5435,7 +5435,7 @@ int MoveMissile(DBloodActor* actor)
 		gHitInfo.hitSector = pSprite->sector();
 		gHitInfo.hitpos.X = pSprite->x;
 		gHitInfo.hitpos.Y = pSprite->y;
-		gHitInfo.hitpos.z = pSprite->z;
+		gHitInfo.hitpos.Z = pSprite->z;
 		break;
 	}
 	if (pOwner) pOwner->cstat = bakCstat;
@@ -6854,13 +6854,13 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 				gHitInfo.hitActor = shooter;
 				gHitInfo.hitpos.X = pShooter->x;
 				gHitInfo.hitpos.Y = pShooter->y;
-				gHitInfo.hitpos.z = pShooter->z;
+				gHitInfo.hitpos.Z = pShooter->z;
 			}
 		}
 	}
 	int x = gHitInfo.hitpos.X - MulScale(a4, 16, 14);
 	int y = gHitInfo.hitpos.Y - MulScale(a5, 16, 14);
-	int z = gHitInfo.hitpos.z - MulScale(a6, 256, 14);
+	int z = gHitInfo.hitpos.Z - MulScale(a6, 256, 14);
 	auto pSector = gHitInfo.hitSector;
 	uint8_t nSurf = kSurfNone;
 	if (nRange == 0 || approxDist(gHitInfo.hitpos.X - pShooter->x, gHitInfo.hitpos.Y - pShooter->y) < nRange)
@@ -6891,7 +6891,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 			{
 				int x = gHitInfo.hitpos.X - MulScale(a4, 16, 14);
 				int y = gHitInfo.hitpos.Y - MulScale(a5, 16, 14);
-				int z = gHitInfo.hitpos.z - MulScale(a6, 256, 14);
+				int z = gHitInfo.hitpos.Z - MulScale(a6, 256, 14);
 				int nSurf = surfType[pWall->picnum];
 				assert(nSurf < kSurfMax);
 				if (pVectorData->surfHit[nSurf].fx1 >= 0)
@@ -6982,7 +6982,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 					a4 += Random3(4000);
 					a5 += Random3(4000);
 					a6 += Random3(4000);
-					if (HitScan(actor, gHitInfo.hitpos.z, a4, a5, a6, CLIPMASK1, t) == 0)
+					if (HitScan(actor, gHitInfo.hitpos.Z, a4, a5, a6, CLIPMASK1, t) == 0)
 					{
 						if (approxDist(gHitInfo.hitpos.X - pSprite->x, gHitInfo.hitpos.Y - pSprite->y) <= t)
 						{
@@ -6992,7 +6992,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 							{
 								int x = gHitInfo.hitpos.X - MulScale(a4, 16, 14);
 								int y = gHitInfo.hitpos.Y - MulScale(a5, 16, 14);
-								int z = gHitInfo.hitpos.z - MulScale(a6, 16 << 4, 14);
+								int z = gHitInfo.hitpos.Z - MulScale(a6, 16 << 4, 14);
 								int nSurf = surfType[pWall->picnum];
 								const VECTORDATA* pVectorData = &gVectorData[19];
 								FX_ID t2 = pVectorData->surfHit[nSurf].fx2;

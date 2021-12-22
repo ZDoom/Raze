@@ -410,7 +410,7 @@ FSerializer& Serialize(FSerializer& arc, const char* key, vec3_t& c, vec3_t* def
 	{
 		arc("x", c.X, def ? &def->X : nullptr)
 			("y", c.Y, def ? &def->Y : nullptr)
-			("z", c.z, def ? &def->z : nullptr)
+			("z", c.Z, def ? &def->Z : nullptr)
 			.EndObject();
 	}
 	return arc;

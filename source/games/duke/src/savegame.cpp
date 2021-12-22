@@ -109,7 +109,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 	{
 		arc("posx", w.pos.X)
 			("posy", w.pos.Y)
-			("posz", w.pos.z)
+			("posz", w.pos.Z)
 			("angle", w.angle)
 			("horizon", w.horizon)
 			.Array("gotweapon", w.gotweapon, MAX_WEAPONS)
@@ -279,7 +279,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 		w.invdisptime = 0;
 		w.oposx = w.pos.X;
 		w.oposy = w.pos.Y;
-		w.oposz = w.pos.z;
+		w.oposz = w.pos.Z;
 		w.opyoff = w.pyoff;
 		w.oweapon_sway = w.weapon_sway;
 		w.oweapon_pos = w.weapon_pos;

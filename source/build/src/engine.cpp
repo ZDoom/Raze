@@ -569,14 +569,14 @@ void neartag(const vec3_t& sv, sectortype* sect, int ange, HitInfoBase& result, 
             if ((good == 0) && (!wal->twoSided())) continue;
             if ((coord_t)(x1 - sv.X) * (y2 - sv.Y) < (coord_t)(x2 - sv.X) * (y1 - sv.Y)) continue;
 
-            if (lintersect(sv.X, sv.Y, sv.z, hitv.X, hitv.Y, hitv.z, x1, y1, x2, y2, &intx, &inty, &intz) == 1)
+            if (lintersect(sv.X, sv.Y, sv.Z, hitv.X, hitv.Y, hitv.Z, x1, y1, x2, y2, &intx, &inty, &intz) == 1)
             {
                 if (good != 0)
                 {
                     if (good & 1) result.hitSector = nextsect;
                     if (good & 2) result.hitWall = wal;
                     result.hitpos.X = DMulScale(intx - sv.X, bcos(ange), inty - sv.Y, bsin(ange), 14);
-                    hitv.X = intx; hitv.Y = inty; hitv.z = intz;
+                    hitv.X = intx; hitv.Y = inty; hitv.Z = intz;
                 }
 
                 if (wal->twoSided())

@@ -1286,7 +1286,7 @@ void DoPlayerTeleportToSprite(PLAYERp pp, vec3_t* sp, int ang)
     //getzsofslopeptr(sp->sector(), pp->posx, pp->posy, &cz, &fz);
     //pp->posz = pp->oposz = fz - PLAYER_HEIGHT;
 
-    pp->posz = pp->oposz = sp->z - PLAYER_HEIGHT;
+    pp->posz = pp->oposz = sp->Z - PLAYER_HEIGHT;
 
     updatesector(pp->posx, pp->posy, &pp->cursector);
     SET(pp->Flags2, PF2_TELEPORTED);
@@ -1868,7 +1868,7 @@ void DoPlayerZrange(PLAYERp pp)
     auto bakcstat = sp->cstat;
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK);
     vec3_t pos = pp->pos;
-    pos.z += Z(8);
+    pos.Z += Z(8);
     FAFgetzrange(pos, pp->cursector, &pp->hiz, &ceilhit, &pp->loz, &florhit, ((int)sp->clipdist<<2) - GETZRANGE_CLIP_ADJ, CLIPMASK_PLAYER);
     sp->cstat = bakcstat;
 

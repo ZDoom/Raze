@@ -288,7 +288,7 @@ static int32_t LoadMapHack(const char *filename, SpawnSpriteDef& sprites)
         else if (sc.Compare("mdzoff") || sc.Compare("mdpivzoff") || sc.Compare("mdpivotzoff"))
         {
             if (sc.CheckNumber() && validateSprite())
-                sprites.sprext[currentsprite].pivot_offset.z = sc.Number;
+                sprites.sprext[currentsprite].pivot_offset.Z = sc.Number;
         }
         else if (sc.Compare("mdposxoff") || sc.Compare("mdpositionxoff"))
         {

@@ -334,7 +334,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_POSZ:
-		if (!bSet) SetGameVarID(lVar2, ps[iPlayer].pos.z, sActor, sPlayer);
+		if (!bSet) SetGameVarID(lVar2, ps[iPlayer].pos.Z, sActor, sPlayer);
 		break;
 
 	case PLAYER_HORIZ:
@@ -1541,12 +1541,12 @@ int ParseState::parse(void)
 		parseifelse(ifcanshoottarget(g_ac, g_p, g_x));
 		break;
 	case concmd_ifcanseetarget:
-		j = cansee(g_ac->spr.x, g_ac->spr.y, g_ac->spr.z - ((krand() & 41) << 8), g_ac->spr.sector(), ps[g_p].pos.X, ps[g_p].pos.Y, ps[g_p].pos.z/*-((krand()&41)<<8)*/, ps[g_p].GetActor()->sector());
+		j = cansee(g_ac->spr.x, g_ac->spr.y, g_ac->spr.z - ((krand() & 41) << 8), g_ac->spr.sector(), ps[g_p].pos.X, ps[g_p].pos.Y, ps[g_p].pos.Z/*-((krand()&41)<<8)*/, ps[g_p].GetActor()->sector());
 		parseifelse(j);
 		if (j) g_ac->timetosleep = SLEEPTIME;
 		break;
 	case concmd_ifnocover:
-		j = cansee(g_ac->spr.x, g_ac->spr.y, g_ac->spr.z, g_ac->spr.sector(), ps[g_p].pos.X, ps[g_p].pos.Y, ps[g_p].pos.z, ps[g_p].GetActor()->sector());
+		j = cansee(g_ac->spr.x, g_ac->spr.y, g_ac->spr.z, g_ac->spr.sector(), ps[g_p].pos.X, ps[g_p].pos.Y, ps[g_p].pos.Z, ps[g_p].GetActor()->sector());
 		parseifelse(j);
 		if (j) g_ac->timetosleep = SLEEPTIME;
 		break;
@@ -2000,8 +2000,8 @@ int ParseState::parse(void)
 		break;
 	case concmd_larrybird:
 		insptr++;
-		ps[g_p].pos.z = ps[g_p].GetActor()->sector()->ceilingz;
-		ps[g_p].GetActor()->spr.z = ps[g_p].pos.z;
+		ps[g_p].pos.Z = ps[g_p].GetActor()->sector()->ceilingz;
+		ps[g_p].GetActor()->spr.z = ps[g_p].pos.Z;
 		break;
 	case concmd_destroyit:
 		insptr++;
@@ -2068,7 +2068,7 @@ int ParseState::parse(void)
 			ps[g_p].newOwner = nullptr;
 			ps[g_p].pos.X = ps[g_p].oposx;
 			ps[g_p].pos.Y = ps[g_p].oposy;
-			ps[g_p].pos.z = ps[g_p].oposz;
+			ps[g_p].pos.Z = ps[g_p].oposz;
 			ps[g_p].angle.restore();
 			updatesector(ps[g_p].pos.X,ps[g_p].pos.Y,&ps[g_p].cursector);
 
@@ -2247,10 +2247,10 @@ int ParseState::parse(void)
 			pickrandomspot(g_p);
 			g_ac->spr.x = ps[g_p].bobposx = ps[g_p].oposx = ps[g_p].pos.X;
 			g_ac->spr.y = ps[g_p].bobposy = ps[g_p].oposy = ps[g_p].pos.Y;
-			g_ac->spr.z = ps[g_p].oposz = ps[g_p].pos.z;
+			g_ac->spr.z = ps[g_p].oposz = ps[g_p].pos.Z;
 			g_ac->spr.backuppos();
 			updatesector(ps[g_p].pos.X, ps[g_p].pos.Y, &ps[g_p].cursector);
-			SetActor(ps[g_p].GetActor(), { ps[g_p].pos.X, ps[g_p].pos.Y, ps[g_p].pos.z + gs.playerheight });
+			SetActor(ps[g_p].GetActor(), { ps[g_p].pos.X, ps[g_p].pos.Y, ps[g_p].pos.Z + gs.playerheight });
 			g_ac->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 
 			g_ac->spr.shade = -12;
@@ -2424,7 +2424,7 @@ int ParseState::parse(void)
 					j = 1;
 			else if( (l& prunning) && s >= 8 && PlayerInput(g_p, SB_RUN) )
 					j = 1;
-			else if( (l& phigher) && ps[g_p].pos.z < (g_ac->spr.z-(48<<8)) )
+			else if( (l& phigher) && ps[g_p].pos.Z < (g_ac->spr.z-(48<<8)) )
 					j = 1;
 			else if( (l& pwalkingback) && s <= -8 && !(PlayerInput(g_p, SB_RUN)) )
 					j = 1;
@@ -2813,7 +2813,7 @@ int ParseState::parse(void)
 	case concmd_pstomp:
 		insptr++;
 		if( ps[g_p].knee_incs == 0 && ps[g_p].GetActor()->spr.xrepeat >= (isRR()? 9: 40) )
-			if( cansee(g_ac->spr.x,g_ac->spr.y,g_ac->spr.z-(4<<8),g_ac->spr.sector(),ps[g_p].pos.X,ps[g_p].pos.Y,ps[g_p].pos.z+(16<<8),ps[g_p].GetActor()->spr.sector()) )
+			if( cansee(g_ac->spr.x,g_ac->spr.y,g_ac->spr.z-(4<<8),g_ac->spr.sector(),ps[g_p].pos.X,ps[g_p].pos.Y,ps[g_p].pos.Z+(16<<8),ps[g_p].GetActor()->spr.sector()) )
 		{
 			ps[g_p].knee_incs = 1;
 			if(ps[g_p].weapon_pos == 0)

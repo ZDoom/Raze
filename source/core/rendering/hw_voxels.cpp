@@ -79,7 +79,7 @@ static voxmodel_t* voxload(int lumpnum)
 		vm->piv.Z = float(pivot.Z);
 		vm->siz.X = voxel->Mips[0].SizeX;
 		vm->siz.Y = voxel->Mips[0].SizeY;
-		vm->siz.z = voxel->Mips[0].SizeZ;
+		vm->siz.Z = voxel->Mips[0].SizeZ;
 		vm->is8bit = true;
 		voxel->Mips[0].Pivot.Zero();  // Needs to be taken out of the voxel data because it gets baked into the vertex buffer which we cannot use here.
 		vm->model = new FVoxelModel(voxel, true);
