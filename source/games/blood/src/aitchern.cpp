@@ -197,14 +197,12 @@ void sub_720AC(int, DBloodActor* actor)
 
 static void sub_72580(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
-	aiChooseDirection(actor, pXSprite->goalAng);
+	aiChooseDirection(actor, actor->xspr.goalAng);
 	aiThinkTarget(actor);
 }
 
 static void sub_725A4(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
 	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)) {
 		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
 		return;
@@ -215,7 +213,7 @@ static void sub_725A4(DBloodActor* actor)
 		pDudeExtraE->thinkTime++;
 	else if (pDudeExtraE->thinkTime >= 10 && pDudeExtraE->active)
 	{
-		pXSprite->goalAng += 256;
+		actor->xspr.goalAng += 256;
 		POINT3D* pTarget = &actor->basePoint;
 		aiSetTarget(actor, pTarget->X, pTarget->Y, pTarget->Z);
 		aiNewState(actor, &tcherno13AA28);
@@ -226,7 +224,7 @@ static void sub_725A4(DBloodActor* actor)
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 		{
 			PLAYER* pPlayer = &gPlayer[p];
-			if (pPlayer->pXSprite->health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
+			if (pPlayer->actor->xspr.health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
 				continue;
 			int x = pPlayer->actor->spr.pos.X;
 			int y = pPlayer->actor->spr.pos.Y;
@@ -261,14 +259,13 @@ static void sub_725A4(DBloodActor* actor)
 
 static void sub_72850(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
 	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)) {
 		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	int dx = pXSprite->targetX - actor->spr.pos.X;
-	int dy = pXSprite->targetY - actor->spr.pos.Y;
+	int dx = actor->xspr.targetX - actor->spr.pos.X;
+	int dy = actor->xspr.targetY - actor->spr.pos.Y;
 	int nAngle = getangle(dx, dy);
 	int nDist = approxDist(dx, dy);
 	aiChooseDirection(actor, nAngle);

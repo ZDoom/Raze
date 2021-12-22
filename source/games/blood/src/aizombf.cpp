@@ -60,15 +60,14 @@ void zombfHackSeqCallback(int, DBloodActor* actor)
 
 void PukeSeqCallback(int, DBloodActor* actor)
 {
-	XSPRITE* pXSprite = &actor->x();
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	DUDEINFO* pDudeInfoT = getDudeInfo(target->spr.type);
 	int height = (pDudeInfo->eyeHeight * actor->spr.yrepeat);
 	int height2 = (pDudeInfoT->eyeHeight * target->spr.yrepeat);
-	int tx = pXSprite->targetX - actor->spr.pos.X;
-	int ty = pXSprite->targetY - actor->spr.pos.Y;
+	int tx = actor->xspr.targetX - actor->spr.pos.X;
+	int ty = actor->xspr.targetY - actor->spr.pos.Y;
 	int nAngle = getangle(tx, ty);
 	int dx = bcos(nAngle);
 	int dy = bsin(nAngle);
@@ -83,18 +82,16 @@ void ThrowSeqCallback(int, DBloodActor* actor)
 
 static void zombfThinkSearch(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
-	aiChooseDirection(actor, pXSprite->goalAng);
+	aiChooseDirection(actor, actor->xspr.goalAng);
 	aiThinkTarget(actor);
 }
 
 static void zombfThinkGoto(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	int dx = pXSprite->targetX - actor->spr.pos.X;
-	int dy = pXSprite->targetY - actor->spr.pos.Y;
+	int dx = actor->xspr.targetX - actor->spr.pos.X;
+	int dy = actor->xspr.targetY - actor->spr.pos.Y;
 	int nAngle = getangle(dx, dy);
 	int nDist = approxDist(dx, dy);
 	aiChooseDirection(actor, nAngle);

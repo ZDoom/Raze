@@ -127,22 +127,20 @@ void sub_70284(int, DBloodActor* actor)
 
 static void aiPodSearch(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
-	aiChooseDirection(actor, pXSprite->goalAng);
+	aiChooseDirection(actor, actor->xspr.goalAng);
 	aiThinkTarget(actor);
 }
 
 static void aiPodMove(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
 	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)) {
 		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
 		return;
 	}
 
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	int dx = pXSprite->targetX - actor->spr.pos.X;
-	int dy = pXSprite->targetY - actor->spr.pos.Y;
+	int dx = actor->xspr.targetX - actor->spr.pos.X;
+	int dy = actor->xspr.targetY - actor->spr.pos.Y;
 	int nAngle = getangle(dx, dy);
 	int nDist = approxDist(dx, dy);
 	aiChooseDirection(actor, nAngle);

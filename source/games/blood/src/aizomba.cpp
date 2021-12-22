@@ -60,13 +60,12 @@ AISTATE zombie13AC2C = { kAiStateOther, 11, nStandClient, 0, entryEZombie, NULL,
 
 void HackSeqCallback(int, DBloodActor* actor)
 {
-	XSPRITE* pXSprite = &actor->x();
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	DUDEINFO* pDudeInfoT = getDudeInfo(target->spr.type);
-	int tx = pXSprite->targetX - actor->spr.pos.X;
-	int ty = pXSprite->targetY - actor->spr.pos.Y;
+	int tx = actor->xspr.targetX - actor->spr.pos.X;
+	int ty = actor->xspr.targetY - actor->spr.pos.Y;
 	int nAngle = getangle(tx, ty);
 	int height = (actor->spr.yrepeat * pDudeInfo->eyeHeight) << 2;
 	int height2 = (target->spr.yrepeat * pDudeInfoT->eyeHeight) << 2;
@@ -84,18 +83,16 @@ void StandSeqCallback(int, DBloodActor* actor)
 
 static void zombaThinkSearch(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
-	aiChooseDirection(actor, pXSprite->goalAng);
+	aiChooseDirection(actor, actor->xspr.goalAng);
 	aiLookForTarget(actor);
 }
 
 static void zombaThinkGoto(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	int dx = pXSprite->targetX - actor->spr.pos.X;
-	int dy = pXSprite->targetY - actor->spr.pos.Y;
+	int dx = actor->xspr.targetX - actor->spr.pos.X;
+	int dy = actor->xspr.targetY - actor->spr.pos.Y;
 	int nAngle = getangle(dx, dy);
 	int nDist = approxDist(dx, dy);
 	aiChooseDirection(actor, nAngle);
@@ -213,7 +210,7 @@ static void myThinkTarget(DBloodActor* actor)
 	{
 		PLAYER* pPlayer = &gPlayer[p];
         auto owneractor = actor->GetOwner();
-        if (owneractor == nullptr || owneractor == pPlayer->actor || pPlayer->pXSprite->health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
+        if (owneractor == nullptr || owneractor == pPlayer->actor || pPlayer->actor->xspr.health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
 			continue;
 		int x = pPlayer->actor->spr.pos.X;
 		int y = pPlayer->actor->spr.pos.Y;
@@ -251,8 +248,7 @@ static void myThinkTarget(DBloodActor* actor)
 
 static void myThinkSearch(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
-	aiChooseDirection(actor, pXSprite->goalAng);
+	aiChooseDirection(actor, actor->xspr.goalAng);
 	myThinkTarget(actor);
 }
 
@@ -269,9 +265,8 @@ static void entryAIdle(DBloodActor* actor)
 
 static void entryEStand(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
 	sfxPlay3DSound(actor, 1100, -1, 0);
-	actor->spr.ang = getangle(pXSprite->targetX - actor->spr.pos.X, pXSprite->targetY - actor->spr.pos.Y);
+	actor->spr.ang = getangle(actor->xspr.targetX - actor->spr.pos.X, actor->xspr.targetY - actor->spr.pos.Y);
 }
 
 END_BLD_NS
