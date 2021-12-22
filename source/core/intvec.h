@@ -4,7 +4,7 @@ class FSerializer;
 
 struct vec2_16_t
 {
-    int16_t x, y;
+    int16_t X, y;
 };
 
 struct vec2_t

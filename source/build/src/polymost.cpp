@@ -362,7 +362,7 @@ static void polymost_drawpoly(FVector2 const * const dpxy, int32_t const n, int3
 
     //Load texture (globalpicnum)
     gotpic.Set(globalpicnum);
-	vec2_t tsiz = { tilesize.x, tilesize.y };
+	vec2_t tsiz = { tilesize.X, tilesize.y };
 
     assert(n <= MAX_DRAWPOLY_VERTS);
 
@@ -421,7 +421,7 @@ static void polymost_drawpoly(FVector2 const * const dpxy, int32_t const n, int3
 			GLInterface.SetNpotEmulation(0.f, 0.f); 
         else
         {
-            float xOffset = 1.f / tilesize.x;
+            float xOffset = 1.f / tilesize.X;
 			GLInterface.SetNpotEmulation((1.f*size2) / size, xOffset);
         }
     }
