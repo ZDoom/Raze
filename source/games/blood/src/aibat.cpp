@@ -77,7 +77,6 @@ void batBiteSeqCallback(int, DBloodActor* actor)
 
 static void batThinkTarget(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	DUDEEXTRA_STATS* pDudeExtraE = &actor->dudeExtra.stats;
@@ -86,7 +85,7 @@ static void batThinkTarget(DBloodActor* actor)
 	else if (pDudeExtraE->thinkTime >= 10 && pDudeExtraE->active)
 	{
 		pDudeExtraE->thinkTime = 0;
-		pXSprite->goalAng += 256;
+		actor->xspr.goalAng += 256;
 		POINT3D* pTarget = &actor->basePoint;
 		aiSetTarget(actor, pTarget->x, pTarget->y, pTarget->z);
 		aiNewState(actor, &batTurn);
@@ -97,7 +96,7 @@ static void batThinkTarget(DBloodActor* actor)
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 		{
 			PLAYER* pPlayer = &gPlayer[p];
-			if (pPlayer->pXSprite->health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
+			if (pPlayer->actor->xspr.health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
 				continue;
 			int x = pPlayer->actor->spr.x;
 			int y = pPlayer->actor->spr.y;
@@ -130,18 +129,16 @@ static void batThinkTarget(DBloodActor* actor)
 
 static void batThinkSearch(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
-	aiChooseDirection(actor, pXSprite->goalAng);
+	aiChooseDirection(actor, actor->xspr.goalAng);
 	batThinkTarget(actor);
 }
 
 static void batThinkGoto(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	int dx = pXSprite->targetX - actor->spr.x;
-	int dy = pXSprite->targetY - actor->spr.y;
+	int dx = actor->xspr.targetX - actor->spr.x;
+	int dy = actor->xspr.targetY - actor->spr.y;
 	int nAngle = getangle(dx, dy);
 	int nDist = approxDist(dx, dy);
 	aiChooseDirection(actor, nAngle);
@@ -161,11 +158,10 @@ static void batThinkPonder(DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto pTarget = actor->GetTarget();
-	XSPRITE* pXTarget = &pTarget->x();
 	int dx = pTarget->spr.x - actor->spr.x;
 	int dy = pTarget->spr.y - actor->spr.y;
 	aiChooseDirection(actor, getangle(dx, dy));
-	if (pXTarget->health == 0)
+	if (pTarget->xspr.health == 0)
 	{
 		aiNewState(actor, &batSearch);
 		return;
@@ -206,10 +202,9 @@ static void batThinkPonder(DBloodActor* actor)
 
 static void batMoveDodgeUp(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	int nAng = ((pXSprite->goalAng + 1024 - actor->spr.ang) & 2047) - 1024;
+	int nAng = ((actor->xspr.goalAng + 1024 - actor->spr.ang) & 2047) - 1024;
 	int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
 	actor->spr.ang = (actor->spr.ang + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
 	int nCos = Cos(actor->spr.ang);
@@ -218,7 +213,7 @@ static void batMoveDodgeUp(DBloodActor* actor)
     int dy = actor->yvel;
 	int t1 = DMulScale(dx, nCos, dy, nSin, 30);
 	int t2 = DMulScale(dx, nSin, -dy, nCos, 30);
-	if (pXSprite->dodgeDir > 0)
+	if (actor->xspr.dodgeDir > 0)
 		t2 += pDudeInfo->sideSpeed;
 	else
 		t2 -= pDudeInfo->sideSpeed;
@@ -230,13 +225,12 @@ static void batMoveDodgeUp(DBloodActor* actor)
 
 static void batMoveDodgeDown(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	int nAng = ((pXSprite->goalAng + 1024 - actor->spr.ang) & 2047) - 1024;
+	int nAng = ((actor->xspr.goalAng + 1024 - actor->spr.ang) & 2047) - 1024;
 	int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
 	actor->spr.ang = (actor->spr.ang + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
-	if (pXSprite->dodgeDir == 0)
+	if (actor->xspr.dodgeDir == 0)
 		return;
 	int nCos = Cos(actor->spr.ang);
 	int nSin = Sin(actor->spr.ang);
@@ -244,7 +238,7 @@ static void batMoveDodgeDown(DBloodActor* actor)
     int dy = actor->yvel;
 	int t1 = DMulScale(dx, nCos, dy, nSin, 30);
 	int t2 = DMulScale(dx, nSin, -dy, nCos, 30);
-	if (pXSprite->dodgeDir > 0)
+	if (actor->xspr.dodgeDir > 0)
 		t2 += pDudeInfo->sideSpeed;
 	else
 		t2 -= pDudeInfo->sideSpeed;
@@ -265,11 +259,10 @@ static void batThinkChase(DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto pTarget = actor->GetTarget();
-	XSPRITE* pXTarget = &pTarget->x();
 	int dx = pTarget->spr.x - actor->spr.x;
 	int dy = pTarget->spr.y - actor->spr.y;
 	aiChooseDirection(actor, getangle(dx, dy));
-	if (pXTarget->health == 0)
+	if (pTarget->xspr.health == 0)
 	{
 		aiNewState(actor, &batSearch);
 		return;
@@ -316,10 +309,9 @@ static void batThinkChase(DBloodActor* actor)
 
 static void batMoveForward(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	int nAng = ((pXSprite->goalAng + 1024 - actor->spr.ang) & 2047) - 1024;
+	int nAng = ((actor->xspr.goalAng + 1024 - actor->spr.ang) & 2047) - 1024;
 	int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
 	actor->spr.ang = (actor->spr.ang + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
 	int nAccel = pDudeInfo->frontSpeed << 2;
@@ -327,8 +319,8 @@ static void batMoveForward(DBloodActor* actor)
 		return;
 	if (actor->GetTarget() == nullptr)
 		actor->spr.ang = (actor->spr.ang + 256) & 2047;
-	int dx = pXSprite->targetX - actor->spr.x;
-	int dy = pXSprite->targetY - actor->spr.y;
+	int dx = actor->xspr.targetX - actor->spr.x;
+	int dy = actor->xspr.targetY - actor->spr.y;
 	int nDist = approxDist(dx, dy);
 	if ((unsigned int)Random(64) < 32 && nDist <= 0x200)
 		return;
@@ -348,20 +340,19 @@ static void batMoveForward(DBloodActor* actor)
 
 static void batMoveSwoop(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	int nAng = ((pXSprite->goalAng + 1024 - actor->spr.ang) & 2047) - 1024;
+	int nAng = ((actor->xspr.goalAng + 1024 - actor->spr.ang) & 2047) - 1024;
 	int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
 	actor->spr.ang = (actor->spr.ang + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
 	int nAccel = pDudeInfo->frontSpeed << 2;
 	if (abs(nAng) > 341)
 	{
-		pXSprite->goalAng = (actor->spr.ang + 512) & 2047;
+		actor->xspr.goalAng = (actor->spr.ang + 512) & 2047;
 		return;
 	}
-	int dx = pXSprite->targetX - actor->spr.x;
-	int dy = pXSprite->targetY - actor->spr.y;
+	int dx = actor->xspr.targetX - actor->spr.x;
+	int dy = actor->xspr.targetY - actor->spr.y;
 	int nDist = approxDist(dx, dy);
 	if (Chance(0x600) && nDist <= 0x200)
 		return;
@@ -379,10 +370,9 @@ static void batMoveSwoop(DBloodActor* actor)
 
 static void batMoveFly(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
 	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
-	int nAng = ((pXSprite->goalAng + 1024 - actor->spr.ang) & 2047) - 1024;
+	int nAng = ((actor->xspr.goalAng + 1024 - actor->spr.ang) & 2047) - 1024;
 	int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
 	actor->spr.ang = (actor->spr.ang + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
 	int nAccel = pDudeInfo->frontSpeed << 2;
@@ -391,8 +381,8 @@ static void batMoveFly(DBloodActor* actor)
 		actor->spr.ang = (actor->spr.ang + 512) & 2047;
 		return;
 	}
-	int dx = pXSprite->targetX - actor->spr.x;
-	int dy = pXSprite->targetY - actor->spr.y;
+	int dx = actor->xspr.targetX - actor->spr.x;
+	int dy = actor->xspr.targetY - actor->spr.y;
 	int nDist = approxDist(dx, dy);
 	if (Chance(0x4000) && nDist <= 0x200)
 		return;
@@ -410,11 +400,10 @@ static void batMoveFly(DBloodActor* actor)
 
 void batMoveToCeil(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
 	int x = actor->spr.x;
 	int y = actor->spr.y;
 	int z = actor->spr.z;
-	if (z - pXSprite->targetZ < 0x1000)
+	if (z - actor->xspr.targetZ < 0x1000)
 	{
 		DUDEEXTRA_STATS* pDudeExtraE = &actor->dudeExtra.stats;
 		pDudeExtraE->thinkTime = 0;
