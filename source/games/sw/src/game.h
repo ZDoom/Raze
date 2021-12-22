@@ -2091,8 +2091,8 @@ struct GameInterface : public ::GameInterface
     int chaseCamZ(fixedhoriz horiz) override { return horiz.asq16() >> 8; }
     void processSprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int viewy, int viewz, binangle viewang, double smoothRatio) override;
     void UpdateCameras(double smoothratio) override;
-    void EnterPortal(spritetype* viewer, int type) override;
-    void LeavePortal(spritetype* viewer, int type) override;
+    void EnterPortal(DCoreActor* viewer, int type) override;
+    void LeavePortal(DCoreActor* viewer, int type) override;
     int Voxelize(int sprnum);
     void ExitFromMenu() override;
     int GetCurrentSkill() override;

@@ -978,21 +978,21 @@ void GameInterface::processSprites(tspritetype* tsprite, int& spritesortcnt, int
 
 int display_mirror;
 
-void GameInterface::EnterPortal(spritetype* viewer, int type)
+void GameInterface::EnterPortal(DCoreActor* viewer, int type)
 {
     if (type == PORTAL_WALL_MIRROR)
     {
         display_mirror++;
-        if (viewer) viewer->cstat &= ~CSTAT_SPRITE_INVISIBLE;
+        if (viewer) viewer->spr.cstat &= ~CSTAT_SPRITE_INVISIBLE;
     }
 }
 
-void GameInterface::LeavePortal(spritetype* viewer, int type)
+void GameInterface::LeavePortal(DCoreActor* viewer, int type)
 {
     if (type == PORTAL_WALL_MIRROR)
     {
         display_mirror--;
-        if (viewer && display_mirror == 0 && !(viewer->cstat & CSTAT_SPRITE_TRANSLUCENT)) viewer->cstat |= CSTAT_SPRITE_INVISIBLE;
+        if (viewer && display_mirror == 0 && !(viewer->spr.cstat & CSTAT_SPRITE_TRANSLUCENT)) viewer->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
     }
 }
 

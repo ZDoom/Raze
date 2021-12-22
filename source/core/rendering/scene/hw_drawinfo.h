@@ -34,7 +34,7 @@ class FRenderState;
 
 struct FRenderViewpoint
 {
-	spritetype* CameraSprite;
+	DCoreActor* CameraActor;
 	DVector3 Pos;
 	FRotator HWAngles;
 	FAngle FieldOfView;

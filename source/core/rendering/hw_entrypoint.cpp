@@ -176,10 +176,10 @@ void RenderViewpoint(FRenderViewpoint& mainvp, IntRect* bounds, float fov, float
 //
 //===========================================================================
 
-FRenderViewpoint SetupViewpoint(spritetype* cam, const vec3_t& position, int sectnum, binangle angle, fixedhoriz horizon, binangle rollang)
+FRenderViewpoint SetupViewpoint(DCoreActor* cam, const vec3_t& position, int sectnum, binangle angle, fixedhoriz horizon, binangle rollang)
 {
 	FRenderViewpoint r_viewpoint{};
-	r_viewpoint.CameraSprite = cam;
+	r_viewpoint.CameraActor = cam;
 	r_viewpoint.SectNums = nullptr;
 	r_viewpoint.SectCount = sectnum;
 	r_viewpoint.Pos = { position.X / 16.f, position.Y / -16.f, position.Z / -256.f };
@@ -307,7 +307,7 @@ static void CheckTimer(FRenderState &state, uint64_t ShaderStartTime)
 
 void animatecamsprite(double s);
 
-void render_drawrooms(spritetype* playersprite, const vec3_t& position, int sectnum, binangle angle, fixedhoriz horizon, binangle rollang, double smoothratio)
+void render_drawrooms(DCoreActor* playersprite, const vec3_t& position, int sectnum, binangle angle, fixedhoriz horizon, binangle rollang, double smoothratio)
 {
 	checkRotatedWalls();
 
@@ -364,7 +364,7 @@ void render_drawrooms(spritetype* playersprite, const vec3_t& position, int sect
 	All.Unclock();
 }
 
-void render_camtex(spritetype* playersprite, const vec3_t& position, sectortype* sect, binangle angle, fixedhoriz horizon, binangle rollang, FGameTexture* camtex, IntRect& rect, double smoothratio)
+void render_camtex(DCoreActor* playersprite, const vec3_t& position, sectortype* sect, binangle angle, fixedhoriz horizon, binangle rollang, FGameTexture* camtex, IntRect& rect, double smoothratio)
 {
 	updatesector(position.X, position.Y, &sect);
 	if (!sect) return;

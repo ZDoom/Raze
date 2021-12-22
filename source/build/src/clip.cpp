@@ -1132,7 +1132,7 @@ void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBas
         TSectIterator<DCoreActor> it(clipsectorlist[i]);
         while (auto actor = it.Next())
         {
-            auto spr = &actor->s();
+            auto spr = &actor->spr;
             const int32_t cstat = spr->cstat;
             int32_t daz = 0, daz2 = 0;
 
@@ -1402,7 +1402,7 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
         TSectIterator<DCoreActor> it(sec);
         while (auto actor = it.Next())
         {
-            auto const spr = &actor->s();
+            auto const spr = &actor->spr;
             uint32_t const cstat = spr->cstat;
 
             if (spr->cstat2 & CSTAT2_SPRITE_NOFIND)

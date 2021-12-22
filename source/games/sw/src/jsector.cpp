@@ -688,12 +688,12 @@ void GameInterface::UpdateCameras(double smoothratio)
     JS_DrawCameras(cam_pp, cam_tx, cam_ty, cam_tz, smoothratio);
 }
 
-void GameInterface::EnterPortal(spritetype* viewer, int type)
+void GameInterface::EnterPortal(DCoreActor* viewer, int type)
 {
     if (type == PORTAL_WALL_MIRROR) display_mirror++;
 }
 
-void GameInterface::LeavePortal(spritetype* viewer, int type)
+void GameInterface::LeavePortal(DCoreActor* viewer, int type)
 {
     if (type == PORTAL_WALL_MIRROR) display_mirror--;
 }

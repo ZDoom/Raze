@@ -1563,7 +1563,7 @@ void drawscreen(PLAYERp pp, double smoothratio)
     else
     {
         UpdateWallPortalState();
-        render_drawrooms(&pp->Actor()->s(), { tx, ty, tz }, sectnum(tsect), tang, thoriz, trotscrnang, smoothratio);
+        render_drawrooms(pp->Actor(), { tx, ty, tz }, sectnum(tsect), tang, thoriz, trotscrnang, smoothratio);
         RestorePortalState();
     }
 

@@ -396,9 +396,9 @@ void HWScenePortalBase::DrawContents(HWDrawInfo* di, FRenderState& state)
 	if (Setup(di, state, di->mClipper))
 	{
 		auto type = GetType();
-		gi->EnterPortal(di->Viewpoint.CameraSprite, type);
+		gi->EnterPortal(di->Viewpoint.CameraActor, type);
 		di->DrawScene(DM_PORTAL, type == PORTAL_SECTOR_CEILING);
-		gi->LeavePortal(di->Viewpoint.CameraSprite, type);
+		gi->LeavePortal(di->Viewpoint.CameraActor, type);
 		Shutdown(di, state);
 	}
 	else state.ClearScreen();

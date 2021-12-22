@@ -64,7 +64,7 @@ BEGIN_DUKE_NS
 //
 //---------------------------------------------------------------------------
 
-void renderView(spritetype* playersprite, sectortype* sect, int x, int y, int z, binangle a, fixedhoriz h, binangle rotscrnang, int smoothratio)
+void renderView(DDukeActor* playersprite, sectortype* sect, int x, int y, int z, binangle a, fixedhoriz h, binangle rotscrnang, int smoothratio)
 {
 	if (!testnewrenderer)
 	{
@@ -109,19 +109,19 @@ void GameInterface::UpdateCameras(double smoothratio)
 
 		screen->RenderTextureView(canvas, [=](IntRect& rect)
 			{
-				auto camera = &camsprite->GetOwner()->spr;
-				auto ang = buildang(camera->interpolatedang(smoothratio));
+				auto camera = camsprite->GetOwner();
+				auto ang = buildang(camera->spr.interpolatedang(smoothratio));
 				display_mirror = 1; // should really be 'display external view'.
 				if (!testnewrenderer)
 				{
 					// Note: no ROR or camera here - Polymost has no means to detect these things before rendering the scene itself.
-					renderDrawRoomsQ16(camera->pos.X, camera->pos.Y, camera->pos.Z, ang.asq16(), IntToFixed(camera->shade), camera->sector(), false); // why 'shade'...?
-					fi.animatesprites(pm_tsprite, pm_spritesortcnt, camera->pos.X, camera->pos.Y, ang.asbuild(), (int)smoothratio);
+					renderDrawRoomsQ16(camera->spr.pos.X, camera->spr.pos.Y, camera->spr.pos.Z, ang.asq16(), IntToFixed(camera->spr.shade), camera->spr.sector(), false); // why 'shade'...?
+					fi.animatesprites(pm_tsprite, pm_spritesortcnt, camera->spr.pos.X, camera->spr.pos.Y, ang.asbuild(), (int)smoothratio);
 					renderDrawMasks();
 				}
 				else
 				{
-					render_camtex(camera, camera->pos, camera->sector(), ang, buildhoriz(camera->shade), buildang(0), tex, rect, smoothratio);
+					render_camtex(camera, camera->spr.pos, camera->spr.sector(), ang, buildhoriz(camera->spr.shade), buildang(0), tex, rect, smoothratio);
 				}
 				display_mirror = 0;
 			});
@@ -129,12 +129,12 @@ void GameInterface::UpdateCameras(double smoothratio)
 	}
 }
 
-void GameInterface::EnterPortal(spritetype* viewer, int type)
+void GameInterface::EnterPortal(DCoreActor* viewer, int type)
 {
 	if (type == PORTAL_WALL_MIRROR) display_mirror++;
 }
 
-void GameInterface::LeavePortal(spritetype* viewer, int type) 
+void GameInterface::LeavePortal(DCoreActor* viewer, int type) 
 {
 	if (type == PORTAL_WALL_MIRROR) display_mirror--;
 }
@@ -282,15 +282,15 @@ void displayrooms(int snum, double smoothratio)
 
 	if (ud.cameraactor)
 	{
-		spritetype* s = &ud.cameraactor->spr;
+		auto act = ud.cameraactor;
 
-		if (s->yvel < 0) s->yvel = -100;
-		else if (s->yvel > 199) s->yvel = 300;
+		if (act->spr.yvel < 0) act->spr.yvel = -100;
+		else if (act->spr.yvel > 199) act->spr.yvel = 300;
 
-		cang = buildang(interpolatedangle(ud.cameraactor->tempang, s->ang, smoothratio));
+		cang = buildang(interpolatedangle(ud.cameraactor->tempang, act->spr.ang, smoothratio));
 
-		auto bh = buildhoriz(s->yvel);
-		renderView(s, s->sector(), s->pos.X, s->pos.Y, s->pos.Z - (4 << 8), cang, bh, buildang(0), (int)smoothratio);
+		auto bh = buildhoriz(act->spr.yvel);
+		renderView(act, act->spr.sector(), act->spr.pos.X, act->spr.pos.Y, act->spr.pos.Z - (4 << 8), cang, bh, buildang(0), (int)smoothratio);
 	}
 	else
 	{
@@ -344,34 +344,34 @@ void displayrooms(int snum, double smoothratio)
 			}
 		}
 
-		spritetype* viewer;
+		DDukeActor* viewer;
 		if (p->newOwner != nullptr)
 		{
-			auto spr = &p->newOwner->spr;
-			cang = buildang(spr->interpolatedang(smoothratio));
-			choriz = buildhoriz(spr->shade);
-			cposx = spr->pos.X;
-			cposy = spr->pos.Y;
-			cposz = spr->pos.Z;
-			sect = spr->sector();
+			auto act = p->newOwner;
+			cang = buildang(act->spr.interpolatedang(smoothratio));
+			choriz = buildhoriz(act->spr.shade);
+			cposx = act->spr.pos.X;
+			cposy = act->spr.pos.Y;
+			cposz = act->spr.pos.Z;
+			sect = act->spr.sector();
 			rotscrnang = buildang(0);
 			smoothratio = MaxSmoothRatio;
-			viewer = spr;
+			viewer = act;
 		}
 		else if (p->over_shoulder_on == 0)
 		{
 			if (cl_viewbob) cposz += interpolatedvalue(p->opyoff, p->pyoff, smoothratio);
-			viewer = &p->GetActor()->spr;
+			viewer = p->GetActor();
 		}
 		else
 		{
 			cposz -= isRR() ? 3840 : 3072;
 
-			viewer = &p->GetActor()->spr;
-			if (!calcChaseCamPos(&cposx, &cposy, &cposz, viewer, &sect, cang, choriz, smoothratio))
+			viewer = p->GetActor();
+			if (!calcChaseCamPos(&cposx, &cposy, &cposz, &viewer->spr, &sect, cang, choriz, smoothratio))
 			{
 				cposz += isRR() ? 3840 : 3072;
-				calcChaseCamPos(&cposx, &cposy, &cposz, viewer, &sect, cang, choriz, smoothratio);
+				calcChaseCamPos(&cposx, &cposy, &cposz, &viewer->spr, &sect, cang, choriz, smoothratio);
 			}
 		}
 
