@@ -6318,9 +6318,8 @@ DBloodActor* actSpawnThing(sectortype* pSector, int x, int y, int z, int nThingT
 	int nType = nThingType - kThingBase;
 	actor->spr.type = nThingType;
 	assert(actor->hasX());
-	XSPRITE* pXThing = &actor->x();
 	const THINGINFO* pThingInfo = &thingInfo[nType];
-	pXThing->health = pThingInfo->startHealth << 4;
+	actor->xspr.health = pThingInfo->startHealth << 4;
 	actor->spr.clipdist = pThingInfo->clipdist;
 	actor->spr.flags = pThingInfo->flags;
 	if (actor->spr.flags & 2) actor->spr.flags |= 4;
@@ -6334,51 +6333,51 @@ DBloodActor* actSpawnThing(sectortype* pSector, int x, int y, int z, int nThingT
 	switch (nThingType)
 	{
 	case kThingVoodooHead:
-		pXThing->data1 = 0;
-		pXThing->data2 = 0;
-		pXThing->data3 = 0;
-		pXThing->data4 = 0;
-		pXThing->state = 1;
-		pXThing->triggerOnce = 1;
-		pXThing->isTriggered = 0;
+		actor->xspr.data1 = 0;
+		actor->xspr.data2 = 0;
+		actor->xspr.data3 = 0;
+		actor->xspr.data4 = 0;
+		actor->xspr.state = 1;
+		actor->xspr.triggerOnce = 1;
+		actor->xspr.isTriggered = 0;
 		break;
 
 	case kThingDroppedLifeLeech:
 #ifdef NOONE_EXTENSIONS
 	case kModernThingEnemyLifeLeech:
 #endif
-		pXThing->data1 = 0;
-		pXThing->data2 = 0;
-		pXThing->data3 = 0;
-		pXThing->data4 = 0;
-		pXThing->state = 1;
-		pXThing->triggerOnce = 0;
-		pXThing->isTriggered = 0;
+		actor->xspr.data1 = 0;
+		actor->xspr.data2 = 0;
+		actor->xspr.data3 = 0;
+		actor->xspr.data4 = 0;
+		actor->xspr.state = 1;
+		actor->xspr.triggerOnce = 0;
+		actor->xspr.isTriggered = 0;
 		break;
 
 	case kThingZombieHead:
-		pXThing->data1 = 8;
-		pXThing->data2 = 0;
-		pXThing->data3 = 0;
-		pXThing->data4 = 318;
-		pXThing->targetX = PlayClock + 180;
-		pXThing->locked = 1;
-		pXThing->state = 1;
-		pXThing->triggerOnce = 0;
-		pXThing->isTriggered = 0;
+		actor->xspr.data1 = 8;
+		actor->xspr.data2 = 0;
+		actor->xspr.data3 = 0;
+		actor->xspr.data4 = 318;
+		actor->xspr.targetX = PlayClock + 180;
+		actor->xspr.locked = 1;
+		actor->xspr.state = 1;
+		actor->xspr.triggerOnce = 0;
+		actor->xspr.isTriggered = 0;
 		break;
 
 	case kThingBloodBits:
 	case kThingBloodChunks:
-		pXThing->data1 = (nThingType == kThingBloodBits) ? 19 : 8;
-		pXThing->data2 = 0;
-		pXThing->data3 = 0;
-		pXThing->data4 = 318;
-		pXThing->targetX = PlayClock + 180;
-		pXThing->locked = 1;
-		pXThing->state = 1;
-		pXThing->triggerOnce = 0;
-		pXThing->isTriggered = 0;
+		actor->xspr.data1 = (nThingType == kThingBloodBits) ? 19 : 8;
+		actor->xspr.data2 = 0;
+		actor->xspr.data3 = 0;
+		actor->xspr.data4 = 318;
+		actor->xspr.targetX = PlayClock + 180;
+		actor->xspr.locked = 1;
+		actor->xspr.state = 1;
+		actor->xspr.triggerOnce = 0;
+		actor->xspr.isTriggered = 0;
 		break;
 
 	case kThingArmedTNTStick:
@@ -7113,8 +7112,7 @@ void MakeSplash(DBloodActor* actor)
 
 void actBurnSprite(DBloodActor* pSource, DBloodActor* pTarget, int nTime)
 {
-	auto pXSprite = &pTarget->x();
-	pXSprite->burnTime = ClipHigh(pXSprite->burnTime + nTime, pTarget->spr.statnum == kStatDude ? 2400 : 1200);
+	pTarget->xspr.burnTime = ClipHigh(pTarget->xspr.burnTime + nTime, pTarget->spr.statnum == kStatDude ? 2400 : 1200);
 	pTarget->SetBurnSource(pSource);
 }
 
