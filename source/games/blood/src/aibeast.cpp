@@ -101,12 +101,11 @@ void StompSeqCallback(int, DBloodActor* actor)
 	{
 		if (actor != actor2)
 		{
-			spritetype* pSprite2 = &actor2->s();
             if (actor2->hasX())
 			{
-				if (pSprite2->type == kDudeBeast)
+				if (actor2->spr.type == kDudeBeast)
 					continue;
-				if (pSprite2->flags & 32)
+				if (actor2->spr.flags & 32)
 					continue;
                 if (CheckSector(sectorMap, actor2) && CheckProximity(actor2, x, y, z, pSector, vc))
 				{
@@ -114,8 +113,8 @@ void StompSeqCallback(int, DBloodActor* actor)
 					GetActorExtents(actor, &top, &bottom);
 					if (abs(bottom - pSector->floorz) == 0)
 					{
-						int dx = abs(actor->spr.pos.X - pSprite2->pos.X);
-						int dy = abs(actor->spr.pos.Y - pSprite2->pos.Y);
+						int dx = abs(actor->spr.pos.X - actor2->spr.pos.X);
+						int dy = abs(actor->spr.pos.Y - actor2->spr.pos.Y);
 						int nDist2 = ksqrt(dx * dx + dy * dy);
 						if (nDist2 <= vc)
 						{
@@ -124,8 +123,8 @@ void StompSeqCallback(int, DBloodActor* actor)
 								nDamage = v1c + v10;
 							else
 								nDamage = v1c + ((vc - nDist2) * v10) / vc;
-							if (IsPlayerSprite(pSprite2))
-								gPlayer[pSprite2->type - kDudePlayer1].quakeEffect += nDamage * 4;
+							if (actor2->IsPlayerActor())
+								gPlayer[actor2->spr.type - kDudePlayer1].quakeEffect += nDamage * 4;
 							actDamageSprite(actor, actor2, kDamageFall, nDamage << 4);
 						}
 					}
@@ -136,16 +135,15 @@ void StompSeqCallback(int, DBloodActor* actor)
 	it1.Reset(kStatThing);
 	while (auto actor2 = it1.Next())
 	{
-		spritetype* pSprite2 = &actor2->s();
-		if (pSprite2->flags & 32)
+		if (actor2->spr.flags & 32)
 			continue;
 		if (CheckSector(sectorMap, actor2) && CheckProximity(actor2, x, y, z, pSector, vc))
 		{
 			XSPRITE* pXSprite = &actor2->x();
 			if (pXSprite->locked)
 				continue;
-			int dx = abs(actor->spr.pos.X - pSprite2->pos.X);
-			int dy = abs(actor->spr.pos.Y - pSprite2->pos.Y);
+			int dx = abs(actor->spr.pos.X - actor2->spr.pos.X);
+			int dy = abs(actor->spr.pos.Y - actor2->spr.pos.Y);
 			int nDist2 = ksqrt(dx * dx + dy * dy);
 			if (nDist2 <= vc)
 			{
@@ -154,8 +152,8 @@ void StompSeqCallback(int, DBloodActor* actor)
 					nDamage = v1c + v10;
 				else
 					nDamage = v1c + ((vc - nDist2) * v10) / vc;
-				if (IsPlayerSprite(pSprite2))
-					gPlayer[pSprite2->type - kDudePlayer1].quakeEffect += nDamage * 4;
+				if (actor2->IsPlayerActor())
+					gPlayer[actor2->spr.type - kDudePlayer1].quakeEffect += nDamage * 4;
 				actDamageSprite(actor, actor2, kDamageFall, nDamage << 4);
 			}
 		}
