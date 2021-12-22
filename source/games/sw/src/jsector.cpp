@@ -343,7 +343,7 @@ void JS_InitMirrors(void)
                     if (!Found_Cam)
                     {
                         Printf("Cound not find the camera view sprite for match %d\n", wal.hitag);
-                        Printf("Map Coordinates: x = %d, y = %d\n", wal.x, wal.y);
+                        Printf("Map Coordinates: x = %d, y = %d\n", wal.pos.X, wal.y);
                         break;
                     }
 
@@ -373,7 +373,7 @@ void JS_InitMirrors(void)
                         {
                             Printf("Did not find drawtotile for camera number %d\n", mirrorcnt);
                             Printf("wall(%d).hitag == %d\n", wallnum(&wal), wal.hitag);
-                            Printf("Map Coordinates: x = %d, y = %d\n", wal.x, wal.y);
+                            Printf("Map Coordinates: x = %d, y = %d\n", wal.pos.X, wal.y);
                             RESET_BOOL1(&mirror[mirrorcnt].cameraActor->s());
                         }
                     }
@@ -525,7 +525,7 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz, double smoothratio)
 
                 if (bIsWallMirror)
                 {
-                    j = abs(mirror[cnt].mirrorWall->x - tx);
+                    j = abs(mirror[cnt].mirrorWall->pos.X - tx);
                     j += abs(mirror[cnt].mirrorWall->y - ty);
                     if (j < dist)
                         dist = j;
@@ -555,7 +555,7 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz, double smoothratio)
                 auto wal = mirror[cnt].mirrorWall;
 
                 // Get wall midpoint for offset in mirror view
-                midx = (wal->x + wal->point2Wall()->x) / 2;
+                midx = (wal->pos.X + wal->point2Wall()->pos.X) / 2;
                 midy = (wal->y + wal->point2Wall()->y) / 2;
 
                 // Finish finding offsets

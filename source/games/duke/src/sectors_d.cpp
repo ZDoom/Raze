@@ -250,7 +250,7 @@ bool checkhitswitch_d(int snum, walltype* wwal, DDukeActor *act)
 		lotag = wwal->lotag;
 		if (lotag == 0) return 0;
 		hitag = wwal->hitag;
-		sx = wwal->x;
+		sx = wwal->pos.X;
 		sy = wwal->y;
 		picnum = wwal->picnum;
 		switchpal = wwal->pal;

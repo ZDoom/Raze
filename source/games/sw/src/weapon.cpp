@@ -7315,7 +7315,7 @@ void TraverseBreakableWalls(sectortype* start_sect, int x, int y, int z, short a
             if (wal.lotag == TAG_WALL_BREAK)
             {
                 // find midpoint
-                xmid = (wal.x + wal.point2Wall()->x) >> 1;
+                xmid = (wal.pos.X + wal.point2Wall()->pos.X) >> 1;
                 ymid = (wal.y + wal.point2Wall()->y) >> 1;
 
                 // don't need to go further if wall is too far out

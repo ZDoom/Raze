@@ -170,9 +170,9 @@ static void CalcMapBounds()
 	for(auto& wal : wall)
 	{
 		// get map min and max coordinates
-		if (wal.x < x_min_bound) x_min_bound = wal.x;
+		if (wal.pos.X < x_min_bound) x_min_bound = wal.pos.X;
 		if (wal.y < y_min_bound) y_min_bound = wal.y;
-		if (wal.x > x_max_bound) x_max_bound = wal.x;
+		if (wal.pos.X > x_max_bound) x_max_bound = wal.pos.X;
 		if (wal.y > y_max_bound) y_max_bound = wal.y;
 	}
 }
@@ -434,13 +434,13 @@ void drawredlines(int cposx, int cposy, int czoom, int cang)
 
 			if (ShowRedLine(wallnum(&wal), i))
 			{
-				int ox = wal.x - cposx;
+				int ox = wal.pos.X - cposx;
 				int oy = wal.y - cposy;
 				int x1 = DMulScale(ox, xvect, -oy, yvect, 16) + (width << 11);
 				int y1 = DMulScale(oy, xvect, ox, yvect, 16) + (height << 11);
 
 				auto wal2 = wal.point2Wall();
-				ox = wal2->x - cposx;
+				ox = wal2->pos.X - cposx;
 				oy = wal2->y - cposy;
 				int x2 = DMulScale(ox, xvect, -oy, yvect, 16) + (width << 11);
 				int y2 = DMulScale(oy, xvect, ox, yvect, 16) + (height << 11);
@@ -476,14 +476,14 @@ static void drawwhitelines(int cposx, int cposy, int czoom, int cang)
 			if (isSWALL() && !gFullMap && !show2dwall[wallnum(&wal)])
 				continue;
 
-			int ox = wal.x - cposx;
+			int ox = wal.pos.X - cposx;
 			int oy = wal.y - cposy;
 			int x1 = DMulScale(ox, xvect, -oy, yvect, 16) + (width << 11);
 			int y1 = DMulScale(oy, xvect, ox, yvect, 16) + (height << 11);
 
 			int k = wal.point2;
 			auto wal2 = &wall[k];
-			ox = wal2->x - cposx;
+			ox = wal2->pos.X - cposx;
 			oy = wal2->y - cposy;
 			int x2 = DMulScale(ox, xvect, -oy, yvect, 16) + (width << 11);
 			int y2 = DMulScale(oy, xvect, ox, yvect, 16) + (height << 11);

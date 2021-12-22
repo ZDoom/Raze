@@ -3555,7 +3555,7 @@ void useSeqSpawnerGen(DBloodActor* sourceactor, int objType, sectortype* pSector
                 if (pXSource->data4 > 0)
                 {
                     int cx, cy, cz;
-                    cx = (pWall->x + pWall->point2Wall()->x) >> 1;
+                    cx = (pWall->pos.X + pWall->point2Wall()->pos.X) >> 1;
                     cy = (pWall->y + pWall->point2Wall()->y) >> 1;
                     auto pMySector = pWall->sectorp();
                     int32_t ceilZ, floorZ;

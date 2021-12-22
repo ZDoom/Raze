@@ -524,9 +524,9 @@ bool HWMirrorPortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *clippe
 
 	di->mClipPortal = this;
 
-	int x = line->x;
+	int x = line->pos.X;
 	int y = line->y;
-	int dx = line->point2Wall()->x - x;
+	int dx = line->point2Wall()->pos.X - x;
 	int dy = line->point2Wall()->y - y;
 
 	// this can overflow so use 64 bit math.
@@ -564,8 +564,8 @@ bool HWMirrorPortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *clippe
 
 	ClearClipper(di, clipper);
 
-	auto startan = bvectangbam(line->x - newx, line->y - newy);
-	auto endan = bvectangbam(line->point2Wall()->x - newx, line->point2Wall()->y - newy);
+	auto startan = bvectangbam(line->pos.X - newx, line->y - newy);
+	auto endan = bvectangbam(line->point2Wall()->pos.X - newx, line->point2Wall()->y - newy);
 	clipper->RestrictVisibleRange(endan, startan);  // we check the line from the backside so angles are reversed.
 	return true;
 }
@@ -634,8 +634,8 @@ bool HWLineToLinePortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *cl
 	
 	ClearClipper(di, clipper);
 
-	auto startan = bvectangbam(origin->x - origx, origin->y - origy);
-	auto endan = bvectangbam(origin->point2Wall()->x - origx, origin->point2Wall()->y - origy);
+	auto startan = bvectangbam(origin->pos.X - origx, origin->y - origy);
+	auto endan = bvectangbam(origin->point2Wall()->pos.X - origx, origin->point2Wall()->y - origy);
 	clipper->RestrictVisibleRange(startan, endan);
 	return true;
 }
@@ -686,8 +686,8 @@ bool HWLineToSpritePortal::Setup(HWDrawInfo* di, FRenderState& rstate, Clipper* 
 	
 	ClearClipper(di, clipper);
 
-	auto startan = bvectangbam(origin->x - origx, origin->y - origy);
-	auto endan = bvectangbam(origin->point2Wall()->x - origx, origin->point2Wall()->y - origy);
+	auto startan = bvectangbam(origin->pos.X - origx, origin->y - origy);
+	auto endan = bvectangbam(origin->point2Wall()->pos.X - origx, origin->point2Wall()->y - origy);
 	clipper->RestrictVisibleRange(startan, endan);
 	return true;
 }

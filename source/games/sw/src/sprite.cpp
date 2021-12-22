@@ -1513,7 +1513,7 @@ void PreMapCombineFloors(void)
 
             for (auto& wal : wallsofsector(dasect))
             {
-                wal.move(wal.x + dx, wal.y + dy);
+                wal.move(wal.pos.X + dx, wal.y + dy);
 
                 if (wal.twoSided())
                     search.Add(wal.nextSector());
@@ -2195,7 +2195,7 @@ void SpriteSetup(void)
                     wallcount = 0;
                     for(auto& wal : wallsofsector(sp->sector()))
                     {
-                        u->rotator->origX[wallcount] = wal.x;
+                        u->rotator->origX[wallcount] = wal.pos.X;
                         u->rotator->origY[wallcount] = wal.y;
                         wallcount++;
                     }

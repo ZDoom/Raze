@@ -113,8 +113,8 @@ int clipinsidebox(vec2_t *vect, int wallnum, int walldist)
     auto const wal1 = (uwallptr_t)&wall[wallnum];
     auto const wal2 = (uwallptr_t)wal1->point2Wall();
 
-    vec2_t const v1 = { wal1->x + walldist - vect->X, wal1->y + walldist - vect->Y };
-    vec2_t       v2 = { wal2->x + walldist - vect->X, wal2->y + walldist - vect->Y };
+    vec2_t const v1 = { wal1->pos.X + walldist - vect->X, wal1->y + walldist - vect->Y };
+    vec2_t       v2 = { wal2->pos.X + walldist - vect->X, wal2->y + walldist - vect->Y };
 
     if (((v1.X < 0) && (v2.X < 0)) || ((v1.Y < 0) && (v2.Y < 0)) || ((v1.X >= r) && (v2.X >= r)) || ((v1.Y >= r) && (v2.Y >= r)))
         return 0;
@@ -507,7 +507,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
         {
             auto const wal2 = (uwallptr_t)wal->point2Wall();
 
-            if ((wal->x < clipMin.X && wal2->x < clipMin.X) || (wal->x > clipMax.X && wal2->x > clipMax.X) ||
+            if ((wal->pos.X < clipMin.X && wal2->pos.X < clipMin.X) || (wal->pos.X > clipMax.X && wal2->pos.X > clipMax.X) ||
                 (wal->y < clipMin.Y && wal2->y < clipMin.Y) || (wal->y > clipMax.Y && wal2->y > clipMax.Y))
                 continue;
 
@@ -968,9 +968,9 @@ int pushmove_(vec3_t *const vect, int *const sectnum,
                         else
                         {
                             //Find closest point on wall (dax, day) to (vect->x, vect->y)
-                            int32_t dax = wal->point2Wall()->x-wal->x;
+                            int32_t dax = wal->point2Wall()->pos.X-wal->pos.X;
                             int32_t day = wal->point2Wall()->y-wal->y;
-                            int32_t daz = dax*((vect->X)-wal->x) + day*((vect->Y)-wal->y);
+                            int32_t daz = dax*((vect->X)-wal->pos.X) + day*((vect->Y)-wal->y);
                             int32_t t;
                             if (daz <= 0)
                                 t = 0;
@@ -979,7 +979,7 @@ int pushmove_(vec3_t *const vect, int *const sectnum,
                                 daz2 = dax*dax+day*day;
                                 if (daz >= daz2) t = (1<<30); else t = DivScale(daz, daz2, 30);
                             }
-                            dax = wal->x + MulScale(dax, t, 30);
+                            dax = wal->pos.X + MulScale(dax, t, 30);
                             day = wal->y + MulScale(day, t, 30);
 
                             closest = { dax, day };
@@ -990,7 +990,7 @@ int pushmove_(vec3_t *const vect, int *const sectnum,
 
                     if (j != 0)
                     {
-                        j = getangle(wal->point2Wall()->x-wal->x, wal->point2Wall()->y-wal->y);
+                        j = getangle(wal->point2Wall()->pos.X-wal->pos.X, wal->point2Wall()->y-wal->y);
                         int32_t dx = -bsin(j, -11);
                         int32_t dy = bcos(j, -11);
                         int bad2 = 16;
@@ -1282,7 +1282,7 @@ static int32_t hitscan_trysector(const vec3_t *sv, sectortype* sec, HitInfoBase 
     {
         auto const wal  = (uwallptr_t)sec->firstWall();
         auto const wal2 = (uwallptr_t)wal->point2Wall();
-        int32_t j, dax=wal2->x-wal->x, day=wal2->y-wal->y;
+        int32_t j, dax=wal2->pos.X-wal->pos.X, day=wal2->y-wal->y;
 
         i = ksqrt(compat_maybe_truncate_to_int32(uhypsq(dax,day))); if (i == 0) return 1; //continue;
         i = DivScale(heinum,i, 15);
@@ -1291,7 +1291,7 @@ static int32_t hitscan_trysector(const vec3_t *sv, sectortype* sec, HitInfoBase 
         j = (vz<<8)-DMulScale(dax,vy,-day,vx, 15);
         if (j != 0)
         {
-            i = ((z - sv->Z)<<8)+DMulScale(dax,sv->Y-wal->y,-day,sv->X-wal->x, 15);
+            i = ((z - sv->Z)<<8)+DMulScale(dax,sv->Y-wal->y,-day,sv->X-wal->pos.X, 15);
             if (((i^j) >= 0) && ((abs(i)>>1) < abs(j)))
             {
                 i = DivScale(i,j, 30);
@@ -1366,7 +1366,7 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
             auto const  nextsect = wal->nextSector();
             if (curspr && !wal->twoSided()) continue;
 
-            x1 = wal->x; y1 = wal->y; x2 = wal2->x; y2 = wal2->y;
+            x1 = wal->pos.X; y1 = wal->y; x2 = wal2->pos.X; y2 = wal2->y;
 
             if (compat_maybe_truncate_to_int32((coord_t)(x1-sv->X)*(y2-sv->Y))
                 < compat_maybe_truncate_to_int32((coord_t)(x2-sv->X)*(y1-sv->Y))) continue;

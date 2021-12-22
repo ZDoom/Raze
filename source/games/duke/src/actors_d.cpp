@@ -270,13 +270,13 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 			if (((dasectp->ceilingz - actor->spr.z) >> 8) < r)
 			{
 				auto wal = dasectp->firstWall();
-				int d = abs(wal->x - actor->spr.x) + abs(wal->y - actor->spr.y);
+				int d = abs(wal->pos.X - actor->spr.x) + abs(wal->y - actor->spr.y);
 				if (d < r)
 					fi.checkhitceiling(dasectp);
 				else
 				{
 					auto thirdpoint = wal->point2Wall()->point2Wall();
-					d = abs(thirdpoint->x - actor->spr.x) + abs(thirdpoint->y - actor->spr.y);
+					d = abs(thirdpoint->pos.X - actor->spr.x) + abs(thirdpoint->y - actor->spr.y);
 					if (d < r)
 						fi.checkhitceiling(dasectp);
 				}
@@ -284,18 +284,18 @@ void hitradius_d(DDukeActor* actor, int  r, int  hp1, int  hp2, int  hp3, int  h
 
 			for (auto& wal : wallsofsector(dasectp))
 			{
-				if ((abs(wal.x - actor->spr.x) + abs(wal.y - actor->spr.y)) < r)
+				if ((abs(wal.pos.X - actor->spr.x) + abs(wal.y - actor->spr.y)) < r)
 				{
 					if (wal.twoSided())
 					{
 						search.Add(wal.nextSector());
 					}
-					int x1 = (((wal.x + wal.point2Wall()->x) >> 1) + actor->spr.x) >> 1;
+					int x1 = (((wal.pos.X + wal.point2Wall()->pos.X) >> 1) + actor->spr.x) >> 1;
 					int y1 = (((wal.y + wal.point2Wall()->y) >> 1) + actor->spr.y) >> 1;
 					sectortype* sect = wal.sectorp();
 					updatesector(x1, y1, &sect);
 					if (sect && cansee(x1, y1, actor->spr.z, sect, actor->spr.x, actor->spr.y, actor->spr.z, actor->spr.sector()))
-						fi.checkhitwall(actor, &wal, wal.x, wal.y, actor->spr.z, actor->spr.picnum);
+						fi.checkhitwall(actor, &wal, wal.pos.X, wal.y, actor->spr.z, actor->spr.picnum);
 				}
 			}
 		}
@@ -3656,7 +3656,7 @@ void moveeffectors_d(void)   //STATNUM 3
 		auto sc = act->sector();
 		if (sc->wallnum != 4) continue;
 		auto wal = sc->firstWall() + 2;
-		alignflorslope(act->spr.sector(), wal->x, wal->y, wal->nextSector()->floorz);
+		alignflorslope(act->spr.sector(), wal->pos.X, wal->y, wal->nextSector()->floorz);
 	}
 }
 

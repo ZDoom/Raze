@@ -1902,7 +1902,7 @@ void AlignSlopes(void)
             {
                 auto pNextSector = pWall->nextSector();
 
-                int x = (pWall->x+pWall2->x)/2;
+                int x = (pWall->pos.X+pWall2->pos.X)/2;
                 int y = (pWall->y+pWall2->y)/2;
                 viewInterpolateSector(&sect);
                 alignflorslope(&sect, x, y, getflorzofslopeptr(pNextSector, x, y));
@@ -1966,7 +1966,7 @@ void trInit(TArray<DBloodActor*>& actors)
     gBusy.Clear();
     for(auto& wal : wall)
     {
-        wal.baseWall.X = wal.x;
+        wal.baseWall.X = wal.pos.X;
         wal.baseWall.Y = wal.y;
     }
     for(auto actor : actors)
@@ -2019,7 +2019,7 @@ void trInit(TArray<DBloodActor*>& actors)
                 TranslateSector(pSector, 0, -65536, pSprite1->x, pSprite1->y, pSprite1->x, pSprite1->y, pSprite1->ang, pSprite2->x, pSprite2->y, pSprite2->ang, pSector->type == kSectorSlide);
                 for(auto& wal : wallsofsector(pSector))
                 {
-                    wal.baseWall.X = wal.x;
+                    wal.baseWall.X = wal.pos.X;
                     wal.baseWall.Y = wal.y;
                 }
                 BloodSectIterator it(pSector);
@@ -2038,7 +2038,7 @@ void trInit(TArray<DBloodActor*>& actors)
                 TranslateSector(pSector, 0, -65536, pSprite1->x, pSprite1->y, pSprite1->x, pSprite1->y, 0, pSprite1->x, pSprite1->y, pSprite1->ang, pSector->type == kSectorRotate);
                 for (auto& wal : wallsofsector(pSector))
                 {
-                    wal.baseWall.X = wal.x;
+                    wal.baseWall.X = wal.pos.X;
                     wal.baseWall.Y = wal.y;
                 }
                 BloodSectIterator it(pSector);

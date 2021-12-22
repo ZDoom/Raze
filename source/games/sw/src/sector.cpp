@@ -128,7 +128,7 @@ void WallSetupDontMove(void)
             {
                 for(auto& wal : wall)
                 {
-                    if (wal.x < spl->x && wal.x > spu->x && wal.y < spl->y && wal.y > spu->y)
+                    if (wal.pos.X < spl->x && wal.pos.X > spu->x && wal.y < spl->y && wal.y > spu->y)
                     {
                         SET(wal.extra, WALLFX_DONT_MOVE);
                     }
@@ -306,7 +306,7 @@ void WallSetup(void)
                 if (!sw->type)
                     sw->orig_xy = wall_num->y - (sw->range >> 2);
                 else
-                    sw->orig_xy = wall_num->x - (sw->range >> 2);
+                    sw->orig_xy = wall_num->pos.X - (sw->range >> 2);
 
                 sw->sintable_ndx = cnt * (2048 / num_points);
             }
@@ -597,7 +597,7 @@ void SectorMidPoint(sectortype* sectp, int *xmid, int *ymid, int *zmid)
 
     for(auto& wal : wallsofsector(sectp))
     {
-        xsum += wal.x;
+        xsum += wal.pos.X;
         ysum += wal.y;
     }
 
@@ -2477,7 +2477,7 @@ void DoSineWaveFloor(void)
                     wal = sect->firstWall() + 2;
 
                     //Pass (Sector, x, y, z)
-                    alignflorslope(sect,wal->x,wal->y, wal->nextSector()->floorz);
+                    alignflorslope(sect,wal->pos.X,wal->y, wal->nextSector()->floorz);
                 }
             }
         }
@@ -2502,7 +2502,7 @@ void DoSineWaveWall(void)
             if (!sw->type)
             {
                 New = sw->orig_xy + MulScale(sw->range, bsin(sw->sintable_ndx), 14);
-                dragpoint(wal, wal->x, New);
+                dragpoint(wal, wal->pos.X, New);
             }
             else
             {

@@ -313,7 +313,7 @@ struct walltype
 {
 	// todo: get rid of the single variables!
 	union {
-		struct { int32_t x, y; };
+		struct { int32_t BLAHBLAHX, y; };
 		vec2_t pos;
 	};
 	
@@ -363,7 +363,7 @@ struct walltype
 	walltype* point2Wall() const;
 	vec2_t delta() const { return point2Wall()->pos - pos; }
 	vec2_t center() const { return(point2Wall()->pos + pos) / 2; }
-	int deltax() const { return point2Wall()->x - x; }
+	int deltax() const { return point2Wall()->pos.X - pos.X; }
 	int deltay() const { return point2Wall()->y - y; }
 	bool twoSided() const { return nextsector >= 0; }
 	int Length();

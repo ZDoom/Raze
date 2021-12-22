@@ -964,8 +964,8 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 	FVector2 v1(WallStartX(wal), WallStartY(wal));
 	FVector2 v2(WallEndX(wal), WallEndY(wal));
 
-	PlanesAtPoint(frontsector, wal->x, wal->y, &fch1, &ffh1);
-	PlanesAtPoint(frontsector, p2wall->x, p2wall->y, &fch2, &ffh2);
+	PlanesAtPoint(frontsector, wal->pos.X, wal->y, &fch1, &ffh1);
+	PlanesAtPoint(frontsector, p2wall->pos.X, p2wall->y, &fch2, &ffh2);
 
 
 #ifdef _DEBUG
@@ -1050,8 +1050,8 @@ void HWWall::Process(HWDrawInfo* di, walltype* wal, sectortype* frontsector, sec
 		float bfh2;
 		float bch1;
 		float bch2;
-		PlanesAtPoint(backsector, wal->x, wal->y, &bch1, &bfh1);
-		PlanesAtPoint(backsector, p2wall->x, p2wall->y, &bch2, &bfh2);
+		PlanesAtPoint(backsector, wal->pos.X, wal->y, &bch1, &bfh1);
+		PlanesAtPoint(backsector, p2wall->pos.X, p2wall->y, &bch2, &bfh2);
 
 		SkyTop(di, wal, frontsector, backsector, v1, v2, fch1, fch2);
 		SkyBottom(di, wal, frontsector, backsector, v1, v2, ffh1, ffh2);

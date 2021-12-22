@@ -164,7 +164,7 @@ void renderMirror(int cposx, int cposy, int cposz, binangle cang, fixedhoriz cho
 		int dst = 0x7fffffff, i = 0;
 		for (int k = 0; k < mirrorcnt; k++)
 		{
-			int j = abs(mirrorwall[k]->x - cposx) + abs(mirrorwall[k]->y - cposy);
+			int j = abs(mirrorwall[k]->pos.X - cposx) + abs(mirrorwall[k]->y - cposy);
 			if (j < dst) dst = j, i = k;
 		}
 

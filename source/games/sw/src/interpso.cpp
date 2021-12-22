@@ -97,7 +97,7 @@ static int &getvalue(so_interp::interp_data& element, bool write)
     {
     case soi_wallx:
         if (write) wall[index].moved();
-        return wall[index].x;
+        return wall[index].pos.X;
     case soi_wally:
         if (write) wall[index].moved();
         return wall[index].y;

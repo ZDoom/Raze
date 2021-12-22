@@ -369,7 +369,7 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 		lotag = wwal->lotag;
 		if (lotag == 0) return 0;
 		hitag = wwal->hitag;
-		sx = wwal->x;
+		sx = wwal->pos.X;
 		sy = wwal->y;
 		picnum = wwal->picnum;
 		switchpal = wwal->pal;
@@ -946,7 +946,7 @@ static void lotsofpopcorn(DDukeActor *actor, walltype* wal, int n)
 
 	j = n + 1;
 
-	int x1 = wal->x;
+	int x1 = wal->pos.X;
 	int y1 = wal->y;
 
 	auto delta = wal->delta();
@@ -2817,7 +2817,7 @@ void dofurniture(walltype* wlwal, sectortype* sectp, int snum)
 		var_cx = 4;
 	for(auto& wal : wallsofsector(nextsect))
 	{
-		x = wal.x;
+		x = wal.pos.X;
 		y = wal.y;
 		if (x > max_x)
 			max_x = x;
@@ -2850,7 +2850,7 @@ void dofurniture(walltype* wlwal, sectortype* sectp, int snum)
 			S_PlayActorSound(389, ps[snum].GetActor());
 		for(auto& wal : wallsofsector(nextsect))
 		{
-			x = wal.x;
+			x = wal.pos.X;
 			y = wal.y;
 			switch (wlwal->lotag)
 			{
@@ -2859,7 +2859,7 @@ void dofurniture(walltype* wlwal, sectortype* sectp, int snum)
 				dragpoint(&wal, x, y);
 				break;
 			case 41:
-				x = wal.x - var_cx;
+				x = wal.pos.X - var_cx;
 				dragpoint(&wal, x, y);
 				break;
 			case 40:
@@ -2867,7 +2867,7 @@ void dofurniture(walltype* wlwal, sectortype* sectp, int snum)
 				dragpoint(&wal, x, y);
 				break;
 			case 43:
-				x = wal.x + var_cx;
+				x = wal.pos.X + var_cx;
 				dragpoint(&wal, x, y);
 				break;
 			}
@@ -2877,7 +2877,7 @@ void dofurniture(walltype* wlwal, sectortype* sectp, int snum)
 	{
 		for(auto& wal : wallsofsector(nextsect))
 		{
-			x = wal.x;
+			x = wal.pos.X;
 			y = wal.y;
 			switch (wlwal->lotag)
 			{
@@ -2886,7 +2886,7 @@ void dofurniture(walltype* wlwal, sectortype* sectp, int snum)
 				dragpoint(&wal, x, y);
 				break;
 			case 41:
-				x = wal.x + (var_cx - 2);
+				x = wal.pos.X + (var_cx - 2);
 				dragpoint(&wal, x, y);
 				break;
 			case 40:
@@ -2894,7 +2894,7 @@ void dofurniture(walltype* wlwal, sectortype* sectp, int snum)
 				dragpoint(&wal, x, y);
 				break;
 			case 43:
-				x = wal.x - (var_cx - 2);
+				x = wal.pos.X - (var_cx - 2);
 				dragpoint(&wal, x, y);
 				break;
 			}

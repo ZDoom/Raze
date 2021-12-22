@@ -788,7 +788,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 
 			for (auto& wal : wallsofsector(sectp))
 			{
-				d = FindDistance2D(actor->spr.x - wal.x, actor->spr.y - wal.y);
+				d = FindDistance2D(actor->spr.x - wal.pos.X, actor->spr.y - wal.y);
 				if (d < q)
 				{
 					q = d;
@@ -802,7 +802,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 
 			for (auto& wal : wallsofsector(sectp))
 			{
-				d = FindDistance2D(actor->spr.x - wal.x, actor->spr.y - wal.y);
+				d = FindDistance2D(actor->spr.x - wal.pos.X, actor->spr.y - wal.y);
 				if (d < q && &wal != actor->temp_walls[0])
 				{
 					q = d;
@@ -962,12 +962,12 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 			t[1] = tempwallptr;
 			for (auto& wal : wallsofsector(sectp))
 			{
-				msx[tempwallptr] = wal.x - actor->spr.x;
+				msx[tempwallptr] = wal.pos.X - actor->spr.x;
 				msy[tempwallptr] = wal.y - actor->spr.y;
 				tempwallptr++;
 				if (tempwallptr > 2047)
 				{
-					I_Error("Too many moving sectors at (%d,%d).\n", wal.x, wal.y);
+					I_Error("Too many moving sectors at (%d,%d).\n", wal.pos.X, wal.y);
 				}
 			}
 			if (actor->spr.lotag == SE_30_TWO_WAY_TRAIN || actor->spr.lotag == SE_6_SUBWAY || actor->spr.lotag == SE_14_SUBWAY_CAR || actor->spr.lotag == SE_5_BOSS)
@@ -1087,7 +1087,7 @@ void lotsofglass(DDukeActor *actor, walltype* wal, int n)
 		return;
 	}
 
-	int x1 = wal->x;
+	int x1 = wal->pos.X;
 	int y1 = wal->y;
 	auto delta = wal->delta() / (n + 1);
 
@@ -1142,7 +1142,7 @@ void ceilingglass(DDukeActor* actor, sectortype* sectp, int n)
 
 	for (auto& wal : wallsofsector(sectp))
 	{
-		int x1 = wal.x;
+		int x1 = wal.pos.X;
 		int y1 = wal.y;
 
 		auto delta = wal.delta() / (n + 1);
@@ -1181,7 +1181,7 @@ void lotsofcolourglass(DDukeActor* actor, walltype* wal, int n)
 		return;
 	}
 	
-	int x1 = wal->x;
+	int x1 = wal->pos.X;
 	int y1 = wal->y;
 
 	auto delta = wal->delta() / (n + 1);

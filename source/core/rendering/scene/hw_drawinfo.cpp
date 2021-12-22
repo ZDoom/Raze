@@ -414,7 +414,7 @@ void HWDrawInfo::CreateScene(bool portal)
 			for (auto w = 0; w < sect->wallnum; w++)
 			{
 				auto wal = sect->firstWall() + w;
-				wal->x += eff.geox[i];
+				wal->pos.X += eff.geox[i];
 				wal->y += eff.geoy[i];
 			}
 			sect->dirty = EDirty::AllDirty;
@@ -433,7 +433,7 @@ void HWDrawInfo::CreateScene(bool portal)
 			for (auto w = 0; w < sect->wallnum; w++)
 			{
 				auto wal = sect->firstWall() + w;
-				wal->x -= eff.geox[i];
+				wal->pos.X -= eff.geox[i];
 				wal->y -= eff.geoy[i];
 			}
 		}
@@ -446,7 +446,7 @@ void HWDrawInfo::CreateScene(bool portal)
 			for (auto w = 0; w < sect->wallnum; w++)
 			{
 				auto wal = sect->firstWall() + w;
-				wal->x += eff.geox2[i];
+				wal->pos.X += eff.geox2[i];
 				wal->y += eff.geoy2[i];
 			}
 			sect->dirty = EDirty::AllDirty;
@@ -464,7 +464,7 @@ void HWDrawInfo::CreateScene(bool portal)
 			for (auto w = 0; w < sect->wallnum; w++)
 			{
 				auto wal = sect->firstWall() + w;
-				wal->x -= eff.geox2[i];
+				wal->pos.X -= eff.geox2[i];
 				wal->y -= eff.geoy2[i];
 			}
 		}

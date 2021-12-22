@@ -284,7 +284,7 @@ void dojaildoor(void)
 			{
 				for (auto& wal : wallsofsector(sectp))
 				{
-					int x = wal.x;
+					int x = wal.pos.X;
 					int y = wal.y;
 					switch (jaildoordir[i])
 					{
@@ -336,23 +336,23 @@ void dojaildoor(void)
 					switch (jaildoordir[i])
 					{
 						default: // make case of bad parameters well defined.
-							x = wal.x;
+							x = wal.pos.X;
 							y = wal.y;
 							break;
 						case 10:
-							x = wal.x;
+							x = wal.pos.X;
 							y = wal.y + speed;
 							break;
 						case 20:
-							x = wal.x - speed;
+							x = wal.pos.X - speed;
 							y = wal.y;
 							break;
 						case 30:
-							x = wal.x;
+							x = wal.pos.X;
 							y = wal.y - speed;
 							break;
 						case 40:
-							x = wal.x + speed;
+							x = wal.pos.X + speed;
 							y = wal.y;
 							break;
 					}
@@ -418,23 +418,23 @@ void moveminecart(void)
 					switch (minecartdir[i])
 					{
 						default: // make case of bad parameters well defined.
-							x = wal.x;
+							x = wal.pos.X;
 							y = wal.y;
 							break;
 						case 10:
-							x = wal.x;
+							x = wal.pos.X;
 							y = wal.y + speed;
 							break;
 						case 20:
-							x = wal.x - speed;
+							x = wal.pos.X - speed;
 							y = wal.y;
 							break;
 						case 30:
-							x = wal.x;
+							x = wal.pos.X;
 							y = wal.y - speed;
 							break;
 						case 40:
-							x = wal.x + speed;
+							x = wal.pos.X + speed;
 							y = wal.y;
 							break;
 					}
@@ -472,23 +472,23 @@ void moveminecart(void)
 					switch (minecartdir[i])
 					{
 						default: // make case of bad parameters well defined.
-							x = wal.x;
+							x = wal.pos.X;
 							y = wal.y;
 							break;
 						case 10:
-							x = wal.x;
+							x = wal.pos.X;
 							y = wal.y + speed;
 							break;
 						case 20:
-							x = wal.x - speed;
+							x = wal.pos.X - speed;
 							y = wal.y;
 							break;
 						case 30:
-							x = wal.x;
+							x = wal.pos.X;
 							y = wal.y - speed;
 							break;
 						case 40:
-							x = wal.x + speed;
+							x = wal.pos.X + speed;
 							y = wal.y;
 							break;
 					}
@@ -501,7 +501,7 @@ void moveminecart(void)
 		min_x = min_y = 0x20000;
 		for (auto& wal : wallsofsector(csect))
 		{
-			x = wal.x;
+			x = wal.pos.X;
 			y = wal.y;
 			if (x > max_x)
 				max_x = x;

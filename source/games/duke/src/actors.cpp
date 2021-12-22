@@ -4205,8 +4205,8 @@ void handle_se20(DDukeActor* actor)
 		}
 
 		auto& wal = actor->temp_walls;
-		dragpoint(wal[0], wal[0]->x + x, wal[0]->y + l);
-		dragpoint(wal[1], wal[1]->x + x, wal[1]->y + l);
+		dragpoint(wal[0], wal[0]->pos.X + x, wal[0]->y + l);
+		dragpoint(wal[1], wal[1]->pos.X + x, wal[1]->y + l);
 
 		for (int p = connecthead; p >= 0; p = connectpoint2[p])
 			if (ps[p].cursector == actor->spr.sector() && ps[p].on_ground)

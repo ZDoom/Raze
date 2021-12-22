@@ -673,7 +673,7 @@ void CheckAmbience(sectortype* sect)
         walltype* pWall = pSector2->firstWall();
         if (!soundEngine->IsSourcePlayingSomething(SOURCE_Ambient, &amb, 0))
         {
-            vec3_t v = { pWall->x, pWall->y, pSector2->floorz };
+            vec3_t v = { pWall->pos.X, pWall->y, pSector2->floorz };
             amb = GetSoundPos(&v);
             soundEngine->StartSound(SOURCE_Ambient, &amb, nullptr, CHAN_BODY, CHANF_TRANSIENT, sect->Sound + 1, 1.f, ATTN_NORM);
             return;
@@ -688,7 +688,7 @@ void CheckAmbience(sectortype* sect)
                     }
                     else
                     {
-                        vec3_t v = { pWall->x, pWall->y, pSector2->floorz };
+                        vec3_t v = { pWall->pos.X, pWall->y, pSector2->floorz };
                         amb = GetSoundPos(&v);
                     }
                     return 1;

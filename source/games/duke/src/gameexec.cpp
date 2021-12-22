@@ -964,7 +964,7 @@ void DoWall(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, i
 	switch (lLabelID)
 	{
 	case WALL_X:
-		if (!bSet) SetGameVarID(lVar2, wallp->x, sActor, sPlayer);
+		if (!bSet) SetGameVarID(lVar2, wallp->pos.X, sActor, sPlayer);
 		break;
 	case WALL_Y:
 		if (bSet) SetGameVarID(lVar2, wallp->y, sActor, sPlayer);

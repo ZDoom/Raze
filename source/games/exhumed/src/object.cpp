@@ -412,12 +412,12 @@ DExhumedActor* FindWallSprites(sectortype* pSector)
 
 	for (auto& wal : wallsofsector(pSector))
     {
-        if (wal.x < var_24) {
-            var_24 = wal.x;
+        if (wal.pos.X < var_24) {
+            var_24 = wal.pos.X;
         }
 
-        if (esi < wal.x) {
-            esi = wal.x;
+        if (esi < wal.pos.X) {
+            esi = wal.pos.X;
         }
 
         if (ecx > wal.y) {
@@ -992,22 +992,22 @@ int BuildSlide(int nChannel, walltype* pStartWall, walltype* pWall1, walltype* p
     SlideData[nSlide].pWall2 = pWall2;
     SlideData[nSlide].pWall3 = pWall3;
 
-    SlideData[nSlide].x1 = pStartWall->x;
+    SlideData[nSlide].x1 = pStartWall->pos.X;
     SlideData[nSlide].y1 = pStartWall->y;
 
-    SlideData[nSlide].x2 = pWall2->x;
+    SlideData[nSlide].x2 = pWall2->pos.X;
     SlideData[nSlide].y2 = pWall2->y;
 
-    SlideData[nSlide].x3 = pWall1->x;
+    SlideData[nSlide].x3 = pWall1->pos.X;
     SlideData[nSlide].y3 = pWall1->y;
 
-    SlideData[nSlide].x4 = pWall3->x;
+    SlideData[nSlide].x4 = pWall3->pos.X;
     SlideData[nSlide].y4 = pWall3->y;
 
-    SlideData[nSlide].x5 = p2ndLastWall->x;
+    SlideData[nSlide].x5 = p2ndLastWall->pos.X;
     SlideData[nSlide].y5 = p2ndLastWall->y;
 
-    SlideData[nSlide].x6 = pWall4->x;
+    SlideData[nSlide].x6 = pWall4->pos.X;
     SlideData[nSlide].y6 = pWall4->y;
 
     StartInterpolation(pStartWall, Interp_Wall_X);
@@ -1028,7 +1028,7 @@ int BuildSlide(int nChannel, walltype* pStartWall, walltype* pWall1, walltype* p
 
     SlideData[nSlide].pActor = pActor;
     pSprite->cstat = CSTAT_SPRITE_INVISIBLE;
-    pSprite->x = pStartWall->x;
+    pSprite->x = pStartWall->pos.X;
     pSprite->y = pStartWall->y;
     pSprite->z = pSector->floorz;
     pSprite->backuppos();
@@ -1081,7 +1081,7 @@ void AISlide::Tick(RunListEvent* ev)
     if (cx == 1)
     {
         auto pWall = SlideData[nSlide].pWall1;
-        int x = pWall->x;
+        int x = pWall->pos.X;
         int y = pWall->y;
 
         int nSeekA = LongSeek(&x, SlideData[nSlide].x5, 20, 20);
@@ -1106,13 +1106,13 @@ void AISlide::Tick(RunListEvent* ev)
         pWall = SlideData[nSlide].pStartWall;
 
         y = pWall->y + var_24;
-        x = pWall->x + var_20;
+        x = pWall->pos.X + var_20;
 
         dragpoint(SlideData[nSlide].pStartWall, x, y);
 
         pWall = SlideData[nSlide].pWall3;
 
-        x = pWall->x;
+        x = pWall->pos.X;
         y = pWall->y;
 
         int nSeekC = LongSeek(&x, SlideData[nSlide].x6, 20, 20);
@@ -1131,7 +1131,7 @@ void AISlide::Tick(RunListEvent* ev)
 
         pWall = SlideData[nSlide].pWall2;
 
-        x = pWall->x + var_20;
+        x = pWall->pos.X + var_20;
         y = pWall->y + var_24;
 
         dragpoint(SlideData[nSlide].pWall2, x, y);
@@ -1139,7 +1139,7 @@ void AISlide::Tick(RunListEvent* ev)
     else if (cx == 0) // right branch
     {
         auto pWall = SlideData[nSlide].pStartWall;
-        int x = pWall->x;
+        int x = pWall->pos.X;
         int y = pWall->y;
 
         int nSeekA = LongSeek(&x, SlideData[nSlide].x1, 20, 20);
@@ -1159,13 +1159,13 @@ void AISlide::Tick(RunListEvent* ev)
         pWall = SlideData[nSlide].pWall1;
 
         y = pWall->y + var_28;
-        x = pWall->x + var_1C;
+        x = pWall->pos.X + var_1C;
 
         dragpoint(SlideData[nSlide].pWall1, x, y);
 
         pWall = SlideData[nSlide].pWall2;
 
-        x = pWall->x;
+        x = pWall->pos.X;
         y = pWall->y;
 
         int nSeekC = LongSeek(&x, SlideData[nSlide].x2, 20, 20);
@@ -1185,7 +1185,7 @@ void AISlide::Tick(RunListEvent* ev)
         pWall = SlideData[nSlide].pWall3;
 
         y = pWall->y + var_28;
-        x = pWall->x + var_1C;
+        x = pWall->pos.X + var_1C;
 
         dragpoint(SlideData[nSlide].pWall3, x, y);
     }
@@ -1578,7 +1578,7 @@ DExhumedActor* BuildEnergyBlock(sectortype* pSector)
 	
 	for(auto& wal : wallsofsector(pSector))
     {
-        x += wal.x;
+        x += wal.pos.X;
         y += wal.y;
 
         wal.picnum = kClockSymbol16;
@@ -2544,7 +2544,7 @@ void PostProcess()
 
                     if (&sect != &sectj && sectj.Speed && !(sect.Flag & kSectLava))
                     {
-						int xVal = abs(sect.firstWall()->x - sectj.firstWall()->x);
+						int xVal = abs(sect.firstWall()->pos.X - sectj.firstWall()->pos.X);
 						int yVal = abs(sect.firstWall()->y - sectj.firstWall()->y);
 
                         if (xVal < 15000 && yVal < 15000 && (xVal + yVal < var_20))
