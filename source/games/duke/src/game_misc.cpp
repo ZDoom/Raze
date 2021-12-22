@@ -271,14 +271,14 @@ void drawoverlays(double smoothratio)
 				else
 				{
 					cposx = interpolatedvalue(pp->opos.X, pp->pos.X, smoothratio);
-					cposy = interpolatedvalue(pp->oposy, pp->pos.Y, smoothratio);
+					cposy = interpolatedvalue(pp->opos.Y, pp->pos.Y, smoothratio);
 					cang = (!SyncInput() ? pp->angle.ang : interpolatedangle(pp->angle.oang, pp->angle.ang, smoothratio)).asbuild();
 				}
 			}
 			else
 			{
 				cposx = pp->opos.X;
-				cposy = pp->oposy;
+				cposy = pp->opos.Y;
 				cang = pp->angle.oang.asbuild();
 			}
 			DrawOverheadMap(cposx, cposy, cang, smoothratio);

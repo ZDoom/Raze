@@ -644,7 +644,7 @@ static void shootrpg(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 	{
 		int x;
 		int j = findplayer(actor, &x);
-		sa = getangle(ps[j].opos.X - sx, ps[j].oposy - sy);
+		sa = getangle(ps[j].opos.X - sx, ps[j].opos.Y - sy);
 		if (actor->spr.picnum == BOSS3)
 			sz -= (32 << 8);
 		else if (actor->spr.picnum == BOSS2)

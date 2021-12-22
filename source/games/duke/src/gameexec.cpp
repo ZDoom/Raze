@@ -383,8 +383,8 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_OPOSY:
-		if (bSet) ps[iPlayer].oposy = lValue;
-		else SetGameVarID(lVar2, ps[iPlayer].oposy, sActor, sPlayer);
+		if (bSet) ps[iPlayer].opos.Y = lValue;
+		else SetGameVarID(lVar2, ps[iPlayer].opos.Y, sActor, sPlayer);
 		break;
 
 	case PLAYER_OPOSZ:
@@ -2067,7 +2067,7 @@ int ParseState::parse(void)
 		{
 			ps[g_p].newOwner = nullptr;
 			ps[g_p].pos.X = ps[g_p].opos.X;
-			ps[g_p].pos.Y = ps[g_p].oposy;
+			ps[g_p].pos.Y = ps[g_p].opos.Y;
 			ps[g_p].pos.Z = ps[g_p].oposz;
 			ps[g_p].angle.restore();
 			updatesector(ps[g_p].pos.X,ps[g_p].pos.Y,&ps[g_p].cursector);
@@ -2246,7 +2246,7 @@ int ParseState::parse(void)
 			// I am not convinced this is even remotely smart to be executed from here..
 			pickrandomspot(g_p);
 			g_ac->spr.pos.X = ps[g_p].bobposx = ps[g_p].opos.X = ps[g_p].pos.X;
-			g_ac->spr.pos.Y = ps[g_p].bobposy = ps[g_p].oposy = ps[g_p].pos.Y;
+			g_ac->spr.pos.Y = ps[g_p].bobposy = ps[g_p].opos.Y = ps[g_p].pos.Y;
 			g_ac->spr.pos.Z = ps[g_p].oposz = ps[g_p].pos.Z;
 			g_ac->spr.backuppos();
 			updatesector(ps[g_p].pos.X, ps[g_p].pos.Y, &ps[g_p].cursector);

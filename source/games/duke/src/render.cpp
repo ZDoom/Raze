@@ -328,7 +328,7 @@ void displayrooms(int snum, double smoothratio)
 #endif
 		{
 			cposx = interpolatedvalue(p->opos.X, p->pos.X, smoothratio);
-			cposy = interpolatedvalue(p->oposy, p->pos.Y, smoothratio);
+			cposy = interpolatedvalue(p->opos.Y, p->pos.Y, smoothratio);
 			cposz = interpolatedvalue(p->oposz, p->pos.Z, smoothratio);;
 			if (SyncInput())
 			{

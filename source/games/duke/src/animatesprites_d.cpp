@@ -166,7 +166,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 		if (h->spr.statnum != STAT_ACTOR && h->spr.picnum == APLAYER && ps[h->spr.yvel].newOwner == nullptr && h->GetOwner())
 		{
 			t->pos.X -= MulScale(MaxSmoothRatio - smoothratio, ps[h->spr.yvel].pos.X - ps[h->spr.yvel].opos.X, 16);
-			t->pos.Y -= MulScale(MaxSmoothRatio - smoothratio, ps[h->spr.yvel].pos.Y - ps[h->spr.yvel].oposy, 16);
+			t->pos.Y -= MulScale(MaxSmoothRatio - smoothratio, ps[h->spr.yvel].pos.Y - ps[h->spr.yvel].opos.Y, 16);
 			t->pos.Z = interpolatedvalue(ps[h->spr.yvel].oposz, ps[h->spr.yvel].pos.Z, smoothratio);
 			t->pos.Z += PHEIGHT_DUKE;
 		}

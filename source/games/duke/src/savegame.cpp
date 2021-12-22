@@ -278,7 +278,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 
 		w.invdisptime = 0;
 		w.opos.X = w.pos.X;
-		w.oposy = w.pos.Y;
+		w.opos.Y = w.pos.Y;
 		w.oposz = w.pos.Z;
 		w.opyoff = w.pyoff;
 		w.oweapon_sway = w.weapon_sway;

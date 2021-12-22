@@ -2413,7 +2413,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 				{
 					ps[p].newOwner = nullptr;
 					ps[p].pos.X = ps[p].opos.X;
-					ps[p].pos.Y = ps[p].oposy;
+					ps[p].pos.Y = ps[p].opos.Y;
 					ps[p].pos.Z = ps[p].oposz;
 
 					updatesector(ps[p].pos.X, ps[p].pos.Y, &ps[p].cursector);
@@ -2569,7 +2569,7 @@ void checksectors_r(int snum)
 		}
 
 		if (p->newOwner != nullptr)
-			neartag({ p->opos.X, p->oposy, p->oposz }, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280L, 1);
+			neartag({ p->opos.X, p->opos.Y, p->oposz }, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280L, 1);
 		else
 		{
 			neartag(p->pos, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280, 1);

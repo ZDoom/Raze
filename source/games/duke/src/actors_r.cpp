@@ -523,7 +523,7 @@ void movefta_r(void)
 					if (badguy(act))
 					{
 						px = ps[p].opos.X + 64 - (krand() & 127);
-						py = ps[p].oposy + 64 - (krand() & 127);
+						py = ps[p].opos.Y + 64 - (krand() & 127);
 						updatesector(px, py, &psect);
 						if (psect == nullptr)
 						{
@@ -552,7 +552,7 @@ void movefta_r(void)
 					{
 						int r1 = krand();
 						int r2 = krand();
-						j = cansee(act->spr.pos.X, act->spr.pos.Y, act->spr.pos.Z - ((r2 & 31) << 8), act->spr.sector(), ps[p].opos.X, ps[p].oposy, ps[p].oposz - ((r1 & 31) << 8), ps[p].cursector);
+						j = cansee(act->spr.pos.X, act->spr.pos.Y, act->spr.pos.Z - ((r2 & 31) << 8), act->spr.sector(), ps[p].opos.X, ps[p].opos.Y, ps[p].oposz - ((r1 & 31) << 8), ps[p].cursector);
 					}
 
 
@@ -1605,7 +1605,7 @@ void movetransports_r(void)
 							}
 
 							ps[p].bobposx = ps[p].opos.X = ps[p].pos.X = Owner->spr.pos.X;
-							ps[p].bobposy = ps[p].oposy = ps[p].pos.Y = Owner->spr.pos.Y;
+							ps[p].bobposy = ps[p].opos.Y = ps[p].pos.Y = Owner->spr.pos.Y;
 							ps[p].oposz = ps[p].pos.Z = Owner->spr.pos.Z - (gs.playerheight - (4 << 8));
 
 							ChangeActorSect(act2, Owner->sector());
@@ -1624,7 +1624,7 @@ void movetransports_r(void)
 							(ps[p].jetpack_on && PlayerInput(p, SB_CROUCH)))
 						{
 							ps[p].opos.X = ps[p].pos.X += Owner->spr.pos.X - act->spr.pos.X;
-							ps[p].oposy = ps[p].pos.Y += Owner->spr.pos.Y - act->spr.pos.Y;
+							ps[p].opos.Y = ps[p].pos.Y += Owner->spr.pos.Y - act->spr.pos.Y;
 
 							if (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP) || ps[p].jetpack_on < 11))
 								ps[p].pos.Z = Owner->spr.pos.Z - 6144;
@@ -1690,7 +1690,7 @@ void movetransports_r(void)
 					if (k == 1)
 					{
 						ps[p].opos.X = ps[p].pos.X += Owner->spr.pos.X - act->spr.pos.X;
-						ps[p].oposy = ps[p].pos.Y += Owner->spr.pos.Y - act->spr.pos.Y;
+						ps[p].opos.Y = ps[p].pos.Y += Owner->spr.pos.Y - act->spr.pos.Y;
 
 						if (Owner->GetOwner() != Owner)
 							ps[p].transporter_hold = -2;
@@ -1704,7 +1704,7 @@ void movetransports_r(void)
 					else if (isRRRA() && k == 2)
 					{
 						ps[p].opos.X = ps[p].pos.X += Owner->spr.pos.X - act->spr.pos.X;
-						ps[p].oposy = ps[p].pos.Y += Owner->spr.pos.Y - act->spr.pos.Y;
+						ps[p].opos.Y = ps[p].pos.Y += Owner->spr.pos.Y - act->spr.pos.Y;
 
 						if (Owner->GetOwner() != Owner)
 							ps[p].transporter_hold = -2;
@@ -2450,7 +2450,7 @@ void rr_specialstats()
 					{
 						ps[p].angle.ang = buildang(act2->spr.ang);
 						ps[p].bobposx = ps[p].opos.X = ps[p].pos.X = act2->spr.pos.X;
-						ps[p].bobposy = ps[p].oposy = ps[p].pos.Y = act2->spr.pos.Y;
+						ps[p].bobposy = ps[p].opos.Y = ps[p].pos.Y = act2->spr.pos.Y;
 						ps[p].oposz = ps[p].pos.Z = act2->spr.pos.Z - (36 << 8);
 						auto pact = ps[p].GetActor();
 						ChangeActorSect(pact, act2->sector());
@@ -3657,7 +3657,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 	if (a & face_player)
 	{
 		if (ps[pnum].newOwner != nullptr)
-			goalang = getangle(ps[pnum].opos.X - actor->spr.pos.X, ps[pnum].oposy - actor->spr.pos.Y);
+			goalang = getangle(ps[pnum].opos.X - actor->spr.pos.X, ps[pnum].opos.Y - actor->spr.pos.Y);
 		else goalang = getangle(ps[pnum].pos.X - actor->spr.pos.X, ps[pnum].pos.Y - actor->spr.pos.Y);
 		angdif = getincangle(actor->spr.ang, goalang) >> 2;
 		if (angdif > -8 && angdif < 0) angdif = 0;
@@ -3670,7 +3670,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 	if (a & face_player_slow)
 	{
 		if (ps[pnum].newOwner != nullptr)
-			goalang = getangle(ps[pnum].opos.X - actor->spr.pos.X, ps[pnum].oposy - actor->spr.pos.Y);
+			goalang = getangle(ps[pnum].opos.X - actor->spr.pos.X, ps[pnum].opos.Y - actor->spr.pos.Y);
 		else goalang = getangle(ps[pnum].pos.X - actor->spr.pos.X, ps[pnum].pos.Y - actor->spr.pos.Y);
 		angdif = Sgn(getincangle(actor->spr.ang, goalang)) << 5;
 		if (angdif > -32 && angdif < 0)
@@ -3686,7 +3686,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 		if (a & antifaceplayerslow)
 		{
 			if (ps[pnum].newOwner != nullptr)
-				goalang = (getangle(ps[pnum].opos.X - actor->spr.pos.X, ps[pnum].oposy - actor->spr.pos.Y) + 1024) & 2047;
+				goalang = (getangle(ps[pnum].opos.X - actor->spr.pos.X, ps[pnum].opos.Y - actor->spr.pos.Y) + 1024) & 2047;
 			else goalang = (getangle(ps[pnum].pos.X - actor->spr.pos.X, ps[pnum].pos.Y - actor->spr.pos.Y) + 1024) & 2047;
 			angdif = Sgn(getincangle(actor->spr.ang, goalang)) << 5;
 			if (angdif > -32 && angdif < 0)
