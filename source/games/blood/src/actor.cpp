@@ -5552,27 +5552,26 @@ static void actCheckProximity()
 
 		if (actor->hasX())
 		{
-			XSPRITE* pXSprite = &actor->x();
 			switch (actor->spr.type)
 			{
 			case kThingBloodBits:
 			case kThingBloodChunks:
 			case kThingZombieHead:
-				if (pXSprite->locked && PlayClock >= pXSprite->targetX) pXSprite->locked = 0;
+				if (actor->xspr.locked && PlayClock >= actor->xspr.targetX) actor->xspr.locked = 0;
 				break;
 			}
 
-			if (pXSprite->burnTime > 0)
+			if (actor->xspr.burnTime > 0)
 			{
-				pXSprite->burnTime = ClipLow(pXSprite->burnTime - 4, 0);
+				actor->xspr.burnTime = ClipLow(actor->xspr.burnTime - 4, 0);
 				actDamageSprite(actor->GetBurnSource(), actor, kDamageBurn, 8);
 			}
 
-			if (pXSprite->Proximity)
+			if (actor->xspr.Proximity)
 			{
 #ifdef NOONE_EXTENSIONS
 				// don't process locked or 1-shot things for proximity
-				if (gModernMap && (pXSprite->locked || pXSprite->isTriggered))
+				if (gModernMap && (actor->xspr.locked || actor->xspr.isTriggered))
 					continue;
 #endif
 
@@ -5589,7 +5588,7 @@ static void actCheckProximity()
 						int proxyDist = 96;
 #ifdef NOONE_EXTENSIONS
 						// allow dudeLockout for proximity flag
-						if (gModernMap && actor->spr.type != kThingDroppedLifeLeech && pXSprite->DudeLockout && !dudeactor->IsPlayerActor())
+						if (gModernMap && actor->spr.type != kThingDroppedLifeLeech && actor->xspr.DudeLockout && !dudeactor->IsPlayerActor())
 							continue;
 
 						if (actor->spr.type == kModernThingEnemyLifeLeech) proxyDist = 512;
@@ -5656,7 +5655,6 @@ static void actCheckThings()
 		if (actor->spr.flags & 32) continue;
 		if (!actor->hasX()) continue;
 
-		auto pXSprite = &actor->x();
 		auto pSector = actor->spr.sector();
 
 		XSECTOR* pXSector = pSector->hasX()? &pSector->xs() : nullptr;
@@ -5698,7 +5696,7 @@ static void actCheckThings()
 				Collision hit = MoveThing(actor);
 				if (hit.type)
 				{
-					if (pXSprite->Impact) trTriggerSprite(actor, kCmdOff);
+					if (actor->xspr.Impact) trTriggerSprite(actor, kCmdOff);
 
 					switch (actor->spr.type)
 					{
@@ -5713,7 +5711,7 @@ static void actCheckThings()
 						{
 							actor->spr.xrepeat = 32;
 							actor->spr.yrepeat = 32;
-							actDamageSprite(actor->GetOwner(), hit.actor(), kDamageFall, pXSprite->data1);
+							actDamageSprite(actor->GetOwner(), hit.actor(), kDamageFall, actor->xspr.data1);
 						}
 						break;
 #endif
@@ -5783,7 +5781,6 @@ static void actCheckExplosion()
 			continue;
 
 		if (!actor->hasX()) continue;
-		XSPRITE* pXSprite = &actor->x();
 
 		auto Owner = actor->GetOwner();
 		int nType = actor->spr.type;
@@ -5798,8 +5795,8 @@ static void actCheckExplosion()
 #ifdef NOONE_EXTENSIONS
 		// Allow to override explosion radius by data4 field of any sprite which have statnum 2 set in editor
 		// or of Hidden Exploder.
-		if (gModernMap && pXSprite->data4 > 0)
-			radius = pXSprite->data4;
+		if (gModernMap && actor->xspr.data4 > 0)
+			radius = actor->xspr.data4;
 #endif
 
 		// GetClosestSpriteSectors() has issues checking some sectors due to optimizations
@@ -5821,7 +5818,7 @@ static void actCheckExplosion()
 
 			if (CheckSector(sectorMap, dudeactor))
 			{
-				if (pXSprite->data1 && CheckProximity(dudeactor, x, y, z, pSector, radius))
+				if (actor->xspr.data1 && CheckProximity(dudeactor, x, y, z, pSector, radius))
 				{
 					if (pExplodeInfo->dmg && actor->explosionhackflag)
 					{
@@ -5846,7 +5843,7 @@ static void actCheckExplosion()
 
 			if (CheckSector(sectorMap, thingactor))
 			{
-				if (pXSprite->data1 && CheckProximity(thingactor, x, y, z, pSector, radius) && thingactor->hasX())
+				if (actor->xspr.data1 && CheckProximity(thingactor, x, y, z, pSector, radius) && thingactor->hasX())
 				{
 					if (!thingactor->xspr.locked)
 					{
@@ -5870,12 +5867,12 @@ static void actCheckExplosion()
 			int dy = (y - pos.Y) >> 4;
 			int dz = (z - pos.Z) >> 8;
 			int nDist = dx * dx + dy * dy + dz * dz + 0x40000;
-			int t = DivScale(pXSprite->data2, nDist, 16);
+			int t = DivScale(actor->xspr.data2, nDist, 16);
 			gPlayer[p].flickerEffect += t;
 		}
 
 #ifdef NOONE_EXTENSIONS
-		if (pXSprite->data1 != 0)
+		if (actor->xspr.data1 != 0)
 		{
 			// add impulse for sprites from physics list
 			if (gPhysSpritesCount > 0 && pExplodeInfo->dmgType != 0)
@@ -5912,17 +5909,17 @@ static void actCheckExplosion()
 		if (!gModernMap || !(actor->spr.flags & kModernTypeFlag1))
 		{
 			// if data4 > 0, do not remove explosion. This can be useful when designer wants put explosion generator in map manually via sprite statnum 2.
-			pXSprite->data1 = ClipLow(pXSprite->data1 - 4, 0);
-			pXSprite->data2 = ClipLow(pXSprite->data2 - 4, 0);
-			pXSprite->data3 = ClipLow(pXSprite->data3 - 4, 0);
+			actor->xspr.data1 = ClipLow(actor->xspr.data1 - 4, 0);
+			actor->xspr.data2 = ClipLow(actor->xspr.data2 - 4, 0);
+			actor->xspr.data3 = ClipLow(actor->xspr.data3 - 4, 0);
 		}
 #else
-		pXSprite->data1 = ClipLow(pXSprite->data1 - 4, 0);
-		pXSprite->data2 = ClipLow(pXSprite->data2 - 4, 0);
-		pXSprite->data3 = ClipLow(pXSprite->data3 - 4, 0);
+		actor->xspr.data1 = ClipLow(actor->xspr.data1 - 4, 0);
+		actor->xspr.data2 = ClipLow(actor->xspr.data2 - 4, 0);
+		actor->xspr.data3 = ClipLow(actor->xspr.data3 - 4, 0);
 #endif
 
-		if (pXSprite->data1 == 0 && pXSprite->data2 == 0 && pXSprite->data3 == 0 && seqGetStatus(actor) < 0)
+		if (actor->xspr.data1 == 0 && actor->xspr.data2 == 0 && actor->xspr.data3 == 0 && seqGetStatus(actor) < 0)
 			actPostSprite(actor, kStatFree);
 	}
 }
@@ -5941,19 +5938,18 @@ static void actCheckTraps()
 		if ((actor->spr.flags & 32) || !actor->hasX())
 			continue;
 
-		XSPRITE* pXSprite = &actor->x();
 		switch (actor->spr.type) {
 		case kTrapSawCircular:
-			pXSprite->data2 = ClipLow(pXSprite->data2 - 4, 0);
+			actor->xspr.data2 = ClipLow(actor->xspr.data2 - 4, 0);
 			break;
 
 		case kTrapFlame:
-			if (pXSprite->state && seqGetStatus(actor) < 0)
+			if (actor->xspr.state && seqGetStatus(actor) < 0)
 			{
 				int x = actor->spr.pos.X;
 				int y = actor->spr.pos.Y;
 				int z = actor->spr.pos.Z;
-				int t = (pXSprite->data1 << 23) / 120;
+				int t = (actor->xspr.data1 << 23) / 120;
 				int dx = MulScale(t, Cos(actor->spr.ang), 30);
 				int dy = MulScale(t, Sin(actor->spr.ang), 30);
 				for (int i = 0; i < 2; i++)
@@ -5970,7 +5966,7 @@ static void actCheckTraps()
 				}
 				dy = bsin(actor->spr.ang);
 				dx = bcos(actor->spr.ang);
-				gVectorData[kVectorTchernobogBurn].maxDist = pXSprite->data1 << 9;
+				gVectorData[kVectorTchernobogBurn].maxDist = actor->xspr.data1 << 9;
 				actFireVector(actor, 0, 0, dx, dy, Random2(0x8888), kVectorTchernobogBurn);
 			}
 			break;
