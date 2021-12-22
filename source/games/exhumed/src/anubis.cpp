@@ -64,7 +64,7 @@ void BuildAnubis(DExhumedActor* ap, int x, int y, int z, sectortype* pSector, in
 
     sp->pos.X = x;
     sp->pos.Y = y;
-    sp->z = z;
+    sp->pos.Z = z;
     sp->cstat = CSTAT_SPRITE_BLOCK_ALL;
     sp->xoffset = 0;
     sp->shade = -12;
@@ -221,8 +221,8 @@ void AIAnubis::Tick(RunListEvent* ev)
 
                 if (pTarget != nullptr) // NOTE: nTarget can be -1. this check wasn't in original code. TODO: demo compatiblity?
                 {
-                    if (cansee(sp->pos.X, sp->pos.Y, sp->z - GetActorHeight(ap), sp->sector(),
-                        pTarget->spr.pos.X, pTarget->spr.pos.Y, pTarget->spr.z - GetActorHeight(pTarget), pTarget->spr.sector()))
+                    if (cansee(sp->pos.X, sp->pos.Y, sp->pos.Z - GetActorHeight(ap), sp->sector(),
+                        pTarget->spr.pos.X, pTarget->spr.pos.Y, pTarget->spr.pos.Z - GetActorHeight(pTarget), pTarget->spr.sector()))
                     {
                         sp->xvel = 0;
                         sp->yvel = 0;
@@ -407,7 +407,7 @@ void AIAnubis::Damage(RunListEvent* ev)
 
                     pDrumSprite->pos.X = sp->pos.X;
                     pDrumSprite->pos.Y = sp->pos.Y;
-                    pDrumSprite->z = pDrumSprite->sector()->floorz;
+                    pDrumSprite->pos.Z = pDrumSprite->sector()->floorz;
                     pDrumSprite->xrepeat = 40;
                     pDrumSprite->yrepeat = 40;
                     pDrumSprite->shade = -64;
@@ -431,7 +431,7 @@ void AIAnubis::Damage(RunListEvent* ev)
             sp->xvel = 0;
             sp->yvel = 0;
             sp->zvel = 0;
-            sp->z = sp->sector()->floorz;
+            sp->pos.Z = sp->sector()->floorz;
             sp->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 
             ap->nHealth = 0;

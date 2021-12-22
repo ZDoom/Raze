@@ -286,12 +286,12 @@ inline int SPRITEp_SIZE_BOS(const tspritetype* sp)
 
 // actual Z for TOS and BOS - handles both WYSIWYG and old style
 #define SPRITEp_TOS(sp) (TEST((sp)->cstat, CSTAT_SPRITE_YCENTER) ? \
-                         ((sp)->z - SPRITEp_SIZE_TOS(sp)) :         \
-                         ((sp)->z - SPRITEp_SIZE_Z(sp)))
+                         ((sp)->pos.Z - SPRITEp_SIZE_TOS(sp)) :         \
+                         ((sp)->pos.Z - SPRITEp_SIZE_Z(sp)))
 
 #define SPRITEp_BOS(sp) (TEST((sp)->cstat, CSTAT_SPRITE_YCENTER) ? \
-                         ((sp)->z + SPRITEp_SIZE_BOS(sp)) :         \
-                         (sp)->z)
+                         ((sp)->pos.Z + SPRITEp_SIZE_BOS(sp)) :         \
+                         (sp)->pos.Z)
 
 // mid and upper/lower sprite calculations
 #define SPRITEp_MID(sp) (DIV2(SPRITEp_TOS(sp) + SPRITEp_BOS(sp)))
@@ -2191,7 +2191,7 @@ struct ANIMstruct
 			return SectorObject[animindex].zmid;
 		case ANIM_Spritez:
             if (animactor == nullptr) return scratch;
-			return animactor->spr.z;
+			return animactor->spr.pos.Z;
 		case ANIM_Userz:
             if (animactor == nullptr) return scratch;
             return animactor->u()->sz;

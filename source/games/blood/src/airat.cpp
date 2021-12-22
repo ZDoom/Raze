@@ -50,7 +50,7 @@ void ratBiteSeqCallback(int, DBloodActor* actor)
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	spritetype* pTarget = &actor->GetTarget()->s();
 	if (IsPlayerSprite(pTarget))
-		actFireVector(actor, 0, 0, dx, dy, pTarget->z - pSprite->z, kVectorRatBite);
+		actFireVector(actor, 0, 0, dx, dy, pTarget->pos.Z - pSprite->pos.Z, kVectorRatBite);
 }
 
 static void ratThinkSearch(DBloodActor* actor)
@@ -106,7 +106,7 @@ static void ratThinkChase(DBloodActor* actor)
 	{
 		int nDeltaAngle = ((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024;
 		int height = (pDudeInfo->eyeHeight * pSprite->yrepeat) << 2;
-		if (cansee(pTarget->pos.X, pTarget->pos.Y, pTarget->z, pTarget->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->z - height, pSprite->sector()))
+		if (cansee(pTarget->pos.X, pTarget->pos.Y, pTarget->pos.Z, pTarget->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z - height, pSprite->sector()))
 		{
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{

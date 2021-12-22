@@ -137,10 +137,10 @@ static int32_t spriteGetZOfSlope(const spritetype* spr, int32_t dax, int32_t day
 {
     int16_t const heinum = spriteGetSlope(spr);
     if (heinum == 0)
-        return spr->z;
+        return spr->pos.Z;
 
     int const j = DMulScale(bsin(spr->ang + 1024), day - spr->pos.Y, -bsin(spr->ang + 512), dax - spr->pos.X, 4);
-    return spr->z + MulScale(heinum, j, 18);
+    return spr->pos.Z + MulScale(heinum, j, 18);
 }
 
 
@@ -607,7 +607,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
             case CSTAT_SPRITE_ALIGNMENT_FACING:
                 if (p1.X >= clipMin.X && p1.X <= clipMax.X && p1.Y >= clipMin.Y && p1.Y <= clipMax.Y)
                 {
-                    int32_t height, daz = spr->z+spriteheightofsptr(spr, &height, 1);
+                    int32_t height, daz = spr->pos.Z+spriteheightofsptr(spr, &height, 1);
 
                     if (pos->Z > daz-height-flordist && pos->Z < daz+ceildist)
                     {
@@ -623,7 +623,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 
             case CSTAT_SPRITE_ALIGNMENT_WALL:
             {
-                int32_t height, daz = spr->z+spriteheightofsptr(spr, &height, 1);
+                int32_t height, daz = spr->pos.Z+spriteheightofsptr(spr, &height, 1);
 
                 if (pos->Z > daz-height-flordist && pos->Z < daz+ceildist)
                 {
@@ -668,7 +668,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
                 else
                 {
                     heinum = 0;
-                    sz = spr->z;
+                    sz = spr->pos.Z;
                 }
 
                 if (pos->Z > sz - flordist && pos->Z < sz + ceildist)
@@ -734,7 +734,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
                 int32_t zz[3] = { pos->Z, pos->Z + flordist, pos->Z - ceildist };
                 for (int k = 0; k < 3; k++)
                 {
-                    int32_t jj = DivScale(spr->z - zz[k], heinum, 18);
+                    int32_t jj = DivScale(spr->pos.Z - zz[k], heinum, 18);
                     int32_t jj2 = MulScale(jj, ratio, 12);
                     if (jj2 > (centery << 8) || jj2 < ((centery - rspany) << 8))
                         continue;
@@ -1150,7 +1150,7 @@ void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBas
                         int32_t k = walldist+(spr->clipdist<<2)+1;
                         if ((abs(v1.X-pos.X) <= k) && (abs(v1.Y-pos.Y) <= k))
                         {
-                            daz = spr->z + spriteheightofsptr(spr, &k, 1);
+                            daz = spr->pos.Z + spriteheightofsptr(spr, &k, 1);
                             daz2 = daz - k;
                             clipyou = 1;
                         }
@@ -1165,7 +1165,7 @@ void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBas
                         if (clipinsideboxline(pos.X,pos.Y,v1.X,v1.Y,v2.X,v2.Y,walldist+1) != 0)
                         {
                             int32_t k;
-                            daz = spr->z + spriteheightofsptr(spr, &k, 1);
+                            daz = spr->pos.Z + spriteheightofsptr(spr, &k, 1);
                             daz2 = daz-k;
                             clipyou = 1;
                         }
@@ -1175,7 +1175,7 @@ void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBas
                     case CSTAT_SPRITE_ALIGNMENT_FLOOR:
                     case CSTAT_SPRITE_ALIGNMENT_SLOPE:
                     {
-                        if ((cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FLOOR) daz = spr->z; 
+                        if ((cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FLOOR) daz = spr->pos.Z; 
                         else daz = spriteGetZOfSlope(spr, pos.X, pos.Y);
 
                         if ((cstat & CSTAT_SPRITE_ONE_SIDE) != 0 && (pos.Z > daz) == ((cstat & CSTAT_SPRITE_YFLIP)==0))
@@ -1414,7 +1414,7 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
                 if ((cstat&dasprclipmask) == 0)
                     continue;
 
-            x1 = spr->pos.X; y1 = spr->pos.Y; z1 = spr->z;
+            x1 = spr->pos.X; y1 = spr->pos.Y; z1 = spr->pos.Z;
             switch (cstat&CSTAT_SPRITE_ALIGNMENT_MASK)
             {
             case 0:
@@ -1446,7 +1446,7 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
                 if (abs(intx-sv->X)+abs(inty-sv->Y) > abs((hitinfo.hitpos.X)-sv->X)+abs((hitinfo.hitpos.Y)-sv->Y))
                     continue;
 
-                daz = spr->z + spriteheightofsptr(&actor->s(), &k, 1);
+                daz = spr->pos.Z + spriteheightofsptr(&actor->s(), &k, 1);
                 if (intz > daz-k && intz < daz)
                 {
                     if (picanm[tilenum].sf&PICANM_TEXHITSCAN_BIT)
@@ -1507,7 +1507,7 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
                 if (j == 0) continue;
                 if ((cstat & 64) != 0)
                     if ((j < 0) == ((cstat & 8) == 0)) continue;
-                int32_t i = ((spr->z - sv->Z) << 8) + DMulScale(dax, sv->Y - spr->pos.Y, -day, sv->X - spr->pos.X, 15);
+                int32_t i = ((spr->pos.Z - sv->Z) << 8) + DMulScale(dax, sv->Y - spr->pos.Y, -day, sv->X - spr->pos.X, 15);
                 if ((i ^ j) < 0 || (abs(i) >> 1) >= abs(j)) continue;
 
                 i = DivScale(i, j, 30);

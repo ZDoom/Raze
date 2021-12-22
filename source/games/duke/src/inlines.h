@@ -101,7 +101,7 @@ inline int dist(DDukeActor* s1, DDukeActor* s2)
 	int vx, vy, vz;
 	vx = s1->spr.pos.X - s2->spr.pos.X;
 	vy = s1->spr.pos.Y - s2->spr.pos.Y;
-	vz = s1->spr.z - s2->spr.z;
+	vz = s1->spr.pos.Z - s2->spr.pos.Z;
 	return(FindDistance3D(vx, vy, vz));
 }
 

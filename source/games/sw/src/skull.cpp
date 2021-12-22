@@ -241,16 +241,16 @@ int SetupSkull(DSWActor* actor)
 
     if (SPRITEp_BOS(sp) > u->loz - Z(16))
     {
-        sp->z = u->loz + Z(tileTopOffset(sp->picnum));
+        sp->pos.Z = u->loz + Z(tileTopOffset(sp->picnum));
 
-        u->loz = sp->z;
+        u->loz = sp->pos.Z;
         // leave 8 pixels above the ground
-        sp->z += SPRITEp_SIZE_TOS(sp) - Z(3);;
+        sp->pos.Z += SPRITEp_SIZE_TOS(sp) - Z(3);;
     }
     else
     {
         u->Counter = RANDOM_P2(2048);
-        u->sz = sp->z;
+        u->sz = sp->pos.Z;
     }
 
 
@@ -387,9 +387,9 @@ int DoSkullJump(DSWActor* actor)
                 return 0;
             }
 
-            if ((sp->z > u->loz - Z(36)))
+            if ((sp->pos.Z > u->loz - Z(36)))
             {
-                sp->z = u->loz - Z(36);
+                sp->pos.Z = u->loz - Z(36);
                 UpdateSinglePlayKills(actor);
                 DoSkullBeginDeath(actor);
                 return 0;
@@ -424,7 +424,7 @@ int DoSkullBob(DSWActor* actor)
     const int SKULL_BOB_AMT = (Z(16));
 
     u->Counter = (u->Counter + (ACTORMOVETICS << 3) + (ACTORMOVETICS << 1)) & 2047;
-    sp->z = u->sz + MulScale(SKULL_BOB_AMT, bsin(u->Counter), 14) +
+    sp->pos.Z = u->sz + MulScale(SKULL_BOB_AMT, bsin(u->Counter), 14) +
             MulScale(DIV2(SKULL_BOB_AMT), bsin(u->Counter), 14);
 
     return 0;
@@ -458,7 +458,7 @@ int DoSkullWait(DSWActor* actor)
     }
 
     // below the floor type
-    if (sp->z > u->loz)
+    if (sp->pos.Z > u->loz)
     {
         // look for closest player every once in a while
         if (dist < 3500)
@@ -645,16 +645,16 @@ int SetupBetty(DSWActor* actor)
 
     if (SPRITEp_BOS(sp) > u->loz - Z(16))
     {
-        sp->z = u->loz + Z(tileTopOffset(sp->picnum));
+        sp->pos.Z = u->loz + Z(tileTopOffset(sp->picnum));
 
-        u->loz = sp->z;
+        u->loz = sp->pos.Z;
         // leave 8 pixels above the ground
-        sp->z += SPRITEp_SIZE_TOS(sp) - Z(3);;
+        sp->pos.Z += SPRITEp_SIZE_TOS(sp) - Z(3);;
     }
     else
     {
         u->Counter = RANDOM_P2(2048);
-        u->sz = sp->z;
+        u->sz = sp->pos.Z;
     }
 
 
@@ -784,9 +784,9 @@ int DoBettyJump(DSWActor* actor)
                 return 0;
             }
 
-            if ((sp->z > u->loz - Z(36)))
+            if ((sp->pos.Z > u->loz - Z(36)))
             {
-                sp->z = u->loz - Z(36);
+                sp->pos.Z = u->loz - Z(36);
                 UpdateSinglePlayKills(actor);
                 DoBettyBeginDeath(actor);
                 return 0;
@@ -820,7 +820,7 @@ int DoBettyBob(DSWActor* actor)
     const int  BETTY_BOB_AMT = (Z(16));
 
     u->Counter = (u->Counter + (ACTORMOVETICS << 3) + (ACTORMOVETICS << 1)) & 2047;
-    sp->z = u->sz + MulScale(BETTY_BOB_AMT, bsin(u->Counter), 14) +
+    sp->pos.Z = u->sz + MulScale(BETTY_BOB_AMT, bsin(u->Counter), 14) +
             MulScale(DIV2(BETTY_BOB_AMT), bsin(u->Counter), 14);
 
     return 0;
@@ -853,7 +853,7 @@ int DoBettyWait(DSWActor* actor)
     }
 
     // below the floor type
-    if (sp->z > u->loz)
+    if (sp->pos.Z > u->loz)
     {
         // look for closest player every once in a while
         if (dist < 3500)

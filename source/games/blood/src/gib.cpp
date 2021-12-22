@@ -269,7 +269,7 @@ void GibFX(DBloodActor* actor, GIBFX *pGFX, CGibPosition *pPos, CGibVelocity *pV
     auto pSector = pSprite->sector();
     if (adult_lockout && gGameOptions.nGameType == 0 && pGFX->fxId == FX_13)
         return;
-    CGibPosition gPos(pSprite->pos.X, pSprite->pos.Y, pSprite->z);
+    CGibPosition gPos(pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z);
     if (pPos)
         gPos = *pPos;
     int32_t ceilZ, floorZ;

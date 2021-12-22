@@ -185,7 +185,7 @@ void QuakeViewChange(PLAYERp pp, int *z_diff, int *x_diff, int *y_diff, short *a
 	{
 		auto sp = &actor->s();
 
-        dist = FindDistance3D(pp->posx - sp->pos.X, pp->posy - sp->pos.Y, pp->posz - sp->z);
+        dist = FindDistance3D(pp->posx - sp->pos.X, pp->posy - sp->pos.Y, pp->posz - sp->pos.Z);
 
         // shake whole level
         if (QUAKE_TestDontTaper(sp))
@@ -242,7 +242,7 @@ void SpawnQuake(sectortype* sect, int x, int y, int z,
 
     sp->pos.X = x;
     sp->pos.Y = y;
-    sp->z = z;
+    sp->pos.Z = z;
     sp->cstat = 0;
     sp->extra = 0;
 
@@ -266,7 +266,7 @@ int SetExpQuake(DSWActor* actor)
 {
     SPRITEp sp = &actor->s();
 
-    SpawnQuake(sp->sector(), sp->pos.X, sp->pos.Y, sp->z,  40, 4, 20000); // !JIM! was 8, 40000
+    SpawnQuake(sp->sector(), sp->pos.X, sp->pos.Y, sp->pos.Z,  40, 4, 20000); // !JIM! was 8, 40000
     return 0;
 }
 
@@ -274,7 +274,7 @@ int SetGunQuake(DSWActor* actor)
 {
     SPRITEp sp = &actor->s();
 
-    SpawnQuake(sp->sector(), sp->pos.X, sp->pos.Y, sp->z,  40, 8, 40000);
+    SpawnQuake(sp->sector(), sp->pos.X, sp->pos.Y, sp->pos.Z,  40, 8, 40000);
 
     return 0;
 }
@@ -290,7 +290,7 @@ int SetNuclearQuake(DSWActor* actor)
 {
     SPRITEp sp = &actor->s();
 
-    SpawnQuake(sp->sector(), sp->pos.X, sp->pos.Y, sp->z, 400, 8, 64000);
+    SpawnQuake(sp->sector(), sp->pos.X, sp->pos.Y, sp->pos.Z, 400, 8, 64000);
     return 0;
 }
 
@@ -298,7 +298,7 @@ int SetSumoQuake(DSWActor* actor)
 {
     SPRITEp sp = &actor->s();
 
-    SpawnQuake(sp->sector(), sp->pos.X, sp->pos.Y, sp->z,  120, 4, 20000);
+    SpawnQuake(sp->sector(), sp->pos.X, sp->pos.Y, sp->pos.Z,  120, 4, 20000);
     return 0;
 }
 
@@ -306,7 +306,7 @@ int SetSumoFartQuake(DSWActor* actor)
 {
     SPRITEp sp = &actor->s();
 
-    SpawnQuake(sp->sector(), sp->pos.X, sp->pos.Y, sp->z,  60, 4, 4000);
+    SpawnQuake(sp->sector(), sp->pos.X, sp->pos.Y, sp->pos.Z,  60, 4, 4000);
     return 0;
 }
 

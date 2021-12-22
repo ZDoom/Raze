@@ -61,7 +61,7 @@ DDukeActor* EGS(sectortype* whatsectp, int s_x, int s_y, int s_z, int s_pn, int8
 
 	act->spr.pos.X = s_x;
 	act->spr.pos.Y = s_y;
-	act->spr.z = s_z;
+	act->spr.pos.Z = s_z;
 	act->spr.cstat = 0;
 	act->spr.picnum = s_pn;
 	act->spr.shade = s_s;
@@ -219,7 +219,7 @@ DDukeActor* spawn(DDukeActor* actj, int pn)
 {
 	if (actj)
 	{
-		auto spawned = EGS(actj->spr.sector(), actj->spr.pos.X, actj->spr.pos.Y, actj->spr.z, pn, 0, 0, 0, 0, 0, 0, actj, 0);
+		auto spawned = EGS(actj->spr.sector(), actj->spr.pos.X, actj->spr.pos.Y, actj->spr.pos.Z, pn, 0, 0, 0, 0, 0, 0, actj, 0);
 		if (spawned)
 		{
 			spawned->picnum = actj->spr.picnum;
@@ -304,7 +304,7 @@ void spawntransporter(DDukeActor *actj, DDukeActor* act, bool beam)
 	{
 		act->spr.xrepeat = 31;
 		act->spr.yrepeat = 1;
-		act->spr.z = actj->spr.sector()->floorz - (isRR() ? PHEIGHT_RR : PHEIGHT_DUKE);
+		act->spr.pos.Z = actj->spr.sector()->floorz - (isRR() ? PHEIGHT_RR : PHEIGHT_DUKE);
 	}
 	else
 	{
@@ -318,7 +318,7 @@ void spawntransporter(DDukeActor *actj, DDukeActor* act, bool beam)
 			act->spr.xrepeat = 48;
 			act->spr.yrepeat = 64;
 			if (actj->spr.statnum == 10 || badguy(actj))
-				act->spr.z -= (32 << 8);
+				act->spr.pos.Z -= (32 << 8);
 		}
 	}
 
@@ -410,7 +410,7 @@ void initfootprint(DDukeActor* actj, DDukeActor* act)
 		act->spr.ang = actj->spr.ang;
 	}
 
-	act->spr.z = sect->floorz;
+	act->spr.pos.Z = sect->floorz;
 	if (sect->lotag != 1 && sect->lotag != 2)
 		act->spr.xrepeat = act->spr.yrepeat = 32;
 
@@ -437,13 +437,13 @@ void initshell(DDukeActor* actj, DDukeActor* act, bool isshell)
 			a = ps[snum].angle.ang.asbuild() - (krand() & 63) + 8;  //Fine tune
 
 			t[0] = krand() & 1;
-			act->spr.z = (3 << 8) + ps[snum].pyoff + ps[snum].pos.Z - (ps[snum].horizon.sum().asq16() >> 12) + (!isshell ? (3 << 8) : 0);
+			act->spr.pos.Z = (3 << 8) + ps[snum].pyoff + ps[snum].pos.Z - (ps[snum].horizon.sum().asq16() >> 12) + (!isshell ? (3 << 8) : 0);
 			act->spr.zvel = -(krand() & 255);
 		}
 		else
 		{
 			a = act->spr.ang;
-			act->spr.z = actj->spr.z - gs.playerheight + (3 << 8);
+			act->spr.pos.Z = actj->spr.pos.Z - gs.playerheight + (3 << 8);
 		}
 
 		act->spr.pos.X = actj->spr.pos.X + bcos(a, -7);
@@ -482,13 +482,13 @@ void initcrane(DDukeActor* actj, DDukeActor* act, int CRANEPOLE)
 	act->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_ONE_SIDE;
 
 	act->spr.picnum += 2;
-	act->spr.z = sect->ceilingz + (48 << 8);
+	act->spr.pos.Z = sect->ceilingz + (48 << 8);
 	t[4] = cranes.Reserve(1);
 
 	auto& apt = cranes[t[4]];
 	apt.x = act->spr.pos.X;
 	apt.y = act->spr.pos.Y;
-	apt.z = act->spr.z;
+	apt.z = act->spr.pos.Z;
 	apt.poleactor = nullptr;
 
 	DukeStatIterator it(STAT_DEFAULT);
@@ -508,7 +508,7 @@ void initcrane(DDukeActor* actj, DDukeActor* act, int CRANEPOLE)
 
 			act->spr.pos.X = act->spr.pos.X;
 			act->spr.pos.Y = act->spr.pos.Y;
-			act->spr.z = act->spr.z;
+			act->spr.pos.Z = act->spr.pos.Z;
 			act->spr.shade = act->spr.shade;
 
 			SetActor(act, act->spr.pos);
@@ -536,17 +536,17 @@ void initwaterdrip(DDukeActor* actj, DDukeActor* actor)
 		if (actj->spr.pal != 1)
 		{
 			actor->spr.pal = 2;
-			actor->spr.z -= (18 << 8);
+			actor->spr.pos.Z -= (18 << 8);
 		}
-		else actor->spr.z -= (13 << 8);
+		else actor->spr.pos.Z -= (13 << 8);
 		actor->spr.ang = getangle(ps[connecthead].pos.X - actor->spr.pos.X, ps[connecthead].pos.Y - actor->spr.pos.Y);
 		actor->spr.xvel = 48 - (krand() & 31);
 		ssp(actor, CLIPMASK0);
 	}
 	else if (!actj)
 	{
-		actor->spr.z += (4 << 8);
-		t[0] = actor->spr.z;
+		actor->spr.pos.Z += (4 << 8);
+		t[0] = actor->spr.pos.Z;
 		if (!isRR()) t[1] = krand() & 127;
 	}
 	actor->spr.xrepeat = 24;
@@ -638,7 +638,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 			}
 			else actor->SetOwner(actor);
 
-			t[4] = sectp->floorz == actor->spr.z;
+			t[4] = sectp->floorz == actor->spr.pos.Z;
 			actor->spr.cstat = 0;
 			ChangeActorStat(actor, STAT_TRANSPORT);
 			return;
@@ -652,13 +652,13 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 			{
 				t[1] = sectp->ceilingz;
 				if (actor->spr.pal)
-					sectp->ceilingz = actor->spr.z;
+					sectp->ceilingz = actor->spr.pos.Z;
 			}
 			else
 			{
 				t[1] = sectp->floorz;
 				if (actor->spr.pal)
-					sectp->floorz = actor->spr.z;
+					sectp->floorz = actor->spr.pos.Z;
 			}
 
 			actor->spr.hitag <<= 2;
@@ -676,11 +676,11 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 			else
 				t[4] = sectp->ceilingz;
 
-			sectp->ceilingz = actor->spr.z;
+			sectp->ceilingz = actor->spr.pos.Z;
 			StartInterpolation(sectp, Interp_Sect_Ceilingz);
 			break;
 		case SE_35:
-			sectp->ceilingz = actor->spr.z;
+			sectp->ceilingz = actor->spr.pos.Z;
 			break;
 		case SE_27_DEMO_CAM:
 			if (ud.recstat == 1)
@@ -704,18 +704,18 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 			t[0] = sectp->ceilingz;
 			t[1] = sectp->floorz;
 
-			bool ceiling = (abs(t[0] - actor->spr.z) < abs(t[1] - actor->spr.z));
+			bool ceiling = (abs(t[0] - actor->spr.pos.Z) < abs(t[1] - actor->spr.pos.Z));
 			actor->spriteextra = ceiling;
 
 			if (actor->spr.ang == 512)
 			{
 				if (ceiling)
-					sectp->ceilingz = actor->spr.z;
+					sectp->ceilingz = actor->spr.pos.Z;
 				else
-					sectp->floorz = actor->spr.z;
+					sectp->floorz = actor->spr.pos.Z;
 			}
 			else
-				sectp->ceilingz = sectp->floorz = actor->spr.z;
+				sectp->ceilingz = sectp->floorz = actor->spr.pos.Z;
 
 			if (sectp->ceilingstat & CSTAT_SECTOR_SKY)
 			{
@@ -840,7 +840,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 		case SE_31_FLOOR_RISE_FALL:
 			t[1] = sectp->floorz;
 			//	t[2] = actor->spr.hitag;
-			if (actor->spr.ang != 1536) sectp->floorz = actor->spr.z;
+			if (actor->spr.ang != 1536) sectp->floorz = actor->spr.pos.Z;
 
 			for (auto& wal : wallsofsector(sectp))
 				if (wal.hitag == 0) wal.hitag = 9999;
@@ -851,7 +851,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 		case SE_32_CEILING_RISE_FALL:
 			t[1] = sectp->ceilingz;
 			t[2] = actor->spr.hitag;
-			if (actor->spr.ang != 1536) sectp->ceilingz = actor->spr.z;
+			if (actor->spr.ang != 1536) sectp->ceilingz = actor->spr.pos.Z;
 
 			for (auto& wal : wallsofsector(sectp))
 				if (wal.hitag == 0) wal.hitag = 9999;
@@ -874,7 +874,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 
 		case SE_9_DOWN_OPEN_DOOR_LIGHTS:
 			if (sectp->lotag &&
-				labs(sectp->ceilingz - actor->spr.z) > 1024)
+				labs(sectp->ceilingz - actor->spr.pos.Z) > 1024)
 				sectp->lotag |= 32768; //If its open
 			[[fallthrough]];
 		case SE_8_UP_OPEN_DOOR_LIGHTS:
@@ -1082,7 +1082,7 @@ void lotsofglass(DDukeActor *actor, walltype* wal, int n)
 		for (j = n - 1; j >= 0; j--)
 		{
 			a = actor->spr.ang - 256 + (krand() & 511) + 1024;
-			EGS(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.z, TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), 1024 - (krand() & 1023), actor, 5);
+			EGS(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), 1024 - (krand() & 1023), actor, 5);
 		}
 		return;
 	}
@@ -1105,7 +1105,7 @@ void lotsofglass(DDukeActor *actor, walltype* wal, int n)
 		{
 			z = sect->floorz - (krand() & (abs(sect->ceilingz - sect->floorz)));
 			if (z < -(32 << 8) || z >(32 << 8))
-				z = actor->spr.z - (32 << 8) + (krand() & ((64 << 8) - 1));
+				z = actor->spr.pos.Z - (32 << 8) + (krand() & ((64 << 8) - 1));
 			a = actor->spr.ang - 1024;
 			EGS(actor->spr.sector(), x1, y1, z, TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), -(krand() & 1023), actor, 5);
 		}
@@ -1123,7 +1123,7 @@ void spriteglass(DDukeActor* actor, int n)
 	for (int j = n; j > 0; j--)
 	{
 		int a = krand() & 2047;
-		int z = actor->spr.z - ((krand() & 16) << 8);
+		int z = actor->spr.pos.Z - ((krand() & 16) << 8);
 		auto k = EGS(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, z, TILE_GLASSPIECES + (j % 3), krand() & 15, 36, 36, a, 32 + (krand() & 63), -512 - (krand() & 2047), actor, 5);
 		if (k) k->spr.pal = actor->spr.pal;
 	}
@@ -1175,7 +1175,7 @@ void lotsofcolourglass(DDukeActor* actor, walltype* wal, int n)
 		for (j = n - 1; j >= 0; j--)
 		{
 			a = krand() & 2047;
-			auto k = EGS(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.z - (krand() & (63 << 8)), TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), 1024 - (krand() & 2047), actor, 5);
+			auto k = EGS(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - (krand() & (63 << 8)), TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), 1024 - (krand() & 2047), actor, 5);
 			if (k) k->spr.pal = krand() & 15;
 		}
 		return;
@@ -1194,7 +1194,7 @@ void lotsofcolourglass(DDukeActor* actor, walltype* wal, int n)
 		updatesector(x1, y1, &sect);
 		z = sect->floorz - (krand() & (abs(sect->ceilingz - sect->floorz)));
 		if (z < -(32 << 8) || z >(32 << 8))
-			z = actor->spr.z - (32 << 8) + (krand() & ((64 << 8) - 1));
+			z = actor->spr.pos.Z - (32 << 8) + (krand() & ((64 << 8) - 1));
 		a = actor->spr.ang - 1024;
 		auto k = EGS(actor->spr.sector(), x1, y1, z, TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), -(krand() & 2047), actor, 5);
 		if (k) k->spr.pal = krand() & 7;

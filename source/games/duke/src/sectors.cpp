@@ -360,7 +360,7 @@ void doanimations(void)
 				if (act->spr.statnum != STAT_EFFECTOR)
 				{
 					act->spr.backupz();
-					act->spr.z += v;
+					act->spr.pos.Z += v;
 					act->floorz = dasectp->floorz + v;
 				}
 			}
@@ -607,7 +607,7 @@ static void handle_st15(sectortype* sptr, DDukeActor* actor)
 	}
 	else
 	{
-		if (sptr->floorz > a2->spr.z)
+		if (sptr->floorz > a2->spr.pos.Z)
 			activatewarpelevators(a2, -1);
 		else
 			activatewarpelevators(a2, 1);
@@ -720,7 +720,7 @@ REDODOOR:
 		{
 			if (a2->spr.statnum == 3 && a2->spr.lotag == 9)
 			{
-				j = a2->spr.z;
+				j = a2->spr.pos.Z;
 				break;
 			}
 		}

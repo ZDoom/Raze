@@ -213,7 +213,7 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 		while (auto act = it.Next())
 		{
 			ChangeActorSect(act, geosectorwarp[gs]);
-			SetActor(act, { act->spr.pos.X -= geox[gs], act->spr.pos.Y -= geoy[gs], act->spr.z });
+			SetActor(act, { act->spr.pos.X -= geox[gs], act->spr.pos.Y -= geoy[gs], act->spr.pos.Z });
 		}
 		if (geosector[gs] == sectp)
 		{
@@ -233,7 +233,7 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 		while (auto act = it.Next())
 		{
 			ChangeActorSect(act, geosector[gs]);
-			SetActor(act, { act->spr.pos.X += geox[gs], act->spr.pos.Y += geoy[gs], act->spr.z });
+			SetActor(act, { act->spr.pos.X += geox[gs], act->spr.pos.Y += geoy[gs], act->spr.pos.Z });
 		}
 	}
 	fi.animatesprites(pm_tsprite, pm_spritesortcnt, cposx, cposy, cang.asbuild(), smoothratio);
@@ -245,7 +245,7 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 		while (auto act = it.Next())
 		{
 			ChangeActorSect(act, geosectorwarp2[gs]);
-			SetActor(act, { act->spr.pos.X -= geox2[gs], act->spr.pos.Y -= geoy2[gs], act->spr.z });
+			SetActor(act, { act->spr.pos.X -= geox2[gs], act->spr.pos.Y -= geoy2[gs], act->spr.pos.Z });
 		}
 		if (geosector[gs] == sectp)
 		{
@@ -265,7 +265,7 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 		while (auto act = it.Next())
 		{
 			ChangeActorSect(act, geosector[gs]);
-			SetActor(act, { act->spr.pos.X += geox2[gs], act->spr.pos.Y += geoy2[gs], act->spr.z });
+			SetActor(act, { act->spr.pos.X += geox2[gs], act->spr.pos.Y += geoy2[gs], act->spr.pos.Z });
 		}
 	}
 	fi.animatesprites(pm_tsprite, pm_spritesortcnt, cposx, cposy, cang.asbuild(), smoothratio);

@@ -116,14 +116,14 @@ static void eelThinkTarget(DBloodActor* actor)
 				continue;
 			int x = pPlayer->pSprite->pos.X;
 			int y = pPlayer->pSprite->pos.Y;
-			int z = pPlayer->pSprite->z;
+			int z = pPlayer->pSprite->pos.Z;
 			auto pSector = pPlayer->pSprite->sector();
 			int dx = x - pSprite->pos.X;
 			int dy = y - pSprite->pos.Y;
 			int nDist = approxDist(dx, dy);
 			if (nDist > pDudeInfo->seeDist && nDist > pDudeInfo->hearDist)
 				continue;
-			if (!cansee(x, y, z, pSector, pSprite->pos.X, pSprite->pos.Y, pSprite->z - ((pDudeInfo->eyeHeight * pSprite->yrepeat) << 2), pSprite->sector()))
+			if (!cansee(x, y, z, pSector, pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z - ((pDudeInfo->eyeHeight * pSprite->yrepeat) << 2), pSprite->sector()))
 				continue;
 			int nDeltaAngle = ((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024;
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
@@ -196,7 +196,7 @@ static void eelThinkPonder(DBloodActor* actor)
 		int height2 = (getDudeInfo(pTarget->type)->eyeHeight * pTarget->yrepeat) << 2;
 		int top, bottom;
 		GetActorExtents(actor, &top, &bottom);
-		if (cansee(pTarget->pos.X, pTarget->pos.Y, pTarget->z, pTarget->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->z - height, pSprite->sector()))
+		if (cansee(pTarget->pos.X, pTarget->pos.Y, pTarget->pos.Z, pTarget->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z - height, pSprite->sector()))
 		{
 			aiSetTarget(actor, actor->GetTarget());
 			if (height2 - height < -0x2000 && nDist < 0x1800 && nDist > 0xc00 && abs(nDeltaAngle) < 85)
@@ -308,7 +308,7 @@ static void eelThinkChase(DBloodActor* actor)
 		GetActorExtents(actor, &top, &bottom);
 		int top2, bottom2;
 		GetSpriteExtents(pTarget, &top2, &bottom2);
-		if (cansee(pTarget->pos.X, pTarget->pos.Y, pTarget->z, pTarget->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->z - height, pSprite->sector()))
+		if (cansee(pTarget->pos.X, pTarget->pos.Y, pTarget->pos.Z, pTarget->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z - height, pSprite->sector()))
 		{
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{
@@ -427,7 +427,7 @@ void eelMoveToCeil(DBloodActor* actor)
 	auto pSprite = &actor->s();
 	int x = pSprite->pos.X;
 	int y = pSprite->pos.Y;
-	int z = pSprite->z;
+	int z = pSprite->pos.Z;
 	if (z - pXSprite->targetZ < 0x1000)
 	{
 		DUDEEXTRA_STATS* pDudeExtraE = &actor->dudeExtra.stats;

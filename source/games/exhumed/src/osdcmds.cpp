@@ -40,7 +40,7 @@ void GameInterface::WarpToCoords(int x, int y, int z, int ang, int horz)
 
     pSprite->ox = pSprite->pos.X = x;
     pSprite->oy = pSprite->pos.Y = y;
-    pSprite->oz = pSprite->z = z;
+    pSprite->oz = pSprite->pos.Z = z;
 
     if (ang != INT_MIN)
     {

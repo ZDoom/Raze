@@ -509,7 +509,7 @@ void CoolgCommon(DSWActor* actor)
     u->floor_dist = Z(16);
     u->ceiling_dist = Z(20);
 
-    u->sz = sp->z;
+    u->sz = sp->pos.Z;
 
     sp->xrepeat = 42;
     sp->yrepeat = 42;
@@ -552,7 +552,7 @@ int NewCoolg(DSWActor* actor)
     SPRITEp np;
     ANIMATOR DoActorDecide;
 
-    auto actorNew = SpawnActor(STAT_ENEMY, COOLG_RUN_R0, &s_CoolgBirth[0], sp->sector(), sp->pos.X, sp->pos.Y, sp->z, sp->ang, 50);
+    auto actorNew = SpawnActor(STAT_ENEMY, COOLG_RUN_R0, &s_CoolgBirth[0], sp->sector(), sp->pos.X, sp->pos.Y, sp->pos.Z, sp->ang, 50);
 
     nu = actorNew->u();
     np = &actorNew->s();
@@ -681,13 +681,13 @@ int DoCoolgMatchPlayerZ(DSWActor* actor)
     u->sz = max(u->sz, hiz + u->ceiling_dist);
 
     u->Counter = (u->Counter + (ACTORMOVETICS<<3)) & 2047;
-    sp->z = u->sz + MulScale(COOLG_BOB_AMT, bsin(u->Counter), 14);
+    sp->pos.Z = u->sz + MulScale(COOLG_BOB_AMT, bsin(u->Counter), 14);
 
     bound = u->hiz + u->ceiling_dist + COOLG_BOB_AMT;
-    if (sp->z < bound)
+    if (sp->pos.Z < bound)
     {
         // bumped something
-        sp->z = u->sz = bound + COOLG_BOB_AMT;
+        sp->pos.Z = u->sz = bound + COOLG_BOB_AMT;
     }
 
     return 0;
@@ -801,7 +801,7 @@ int DoCoolgDeath(DSWActor* actor)
     DoFindGroundPoint(actor);
 
     // on the ground
-    if (sp->z >= u->loz)
+    if (sp->pos.Z >= u->loz)
     {
         RESET(u->Flags, SPR_FALLING|SPR_SLIDING);
         RESET(sp->cstat, CSTAT_SPRITE_YFLIP); // If upside down, reset it

@@ -59,7 +59,7 @@ DSWActor* insertActor(sectortype* sect, int statnum)
     auto pActor = static_cast<DSWActor*>(::InsertActor(RUNTIME_CLASS(DSWActor), sect, statnum));
     auto pSprite = &pActor->s();
 
-    pSprite->pos.X = pSprite->pos.Y = pSprite->z = 0;
+    pSprite->pos.X = pSprite->pos.Y = pSprite->pos.Z = 0;
     pSprite->cstat = 0;
     pSprite->picnum = 0;
     pSprite->shade = 0;
@@ -977,7 +977,7 @@ void CollectPortals()
             {
                 int tx = actor->spr.pos.X;
                 int ty = actor->spr.pos.Y;
-                int tz = actor->spr.z;
+                int tz = actor->spr.pos.Z;
                 auto tsect = &sector[sec];
 
                 int match = FindViewSectorInScene(tsect, VIEW_LEVEL1);
@@ -1007,7 +1007,7 @@ void CollectPortals()
             {
                 int tx = actor->spr.pos.X;
                 int ty = actor->spr.pos.Y;
-                int tz = actor->spr.z;
+                int tz = actor->spr.pos.Z;
                 auto tsect = &sector[sec];
 
                 int match = FindViewSectorInScene(tsect, VIEW_LEVEL2);

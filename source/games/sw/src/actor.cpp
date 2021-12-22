@@ -314,7 +314,7 @@ void DoDebrisCurrent(DSWActor* actor)
         move_sprite(actor, nx, ny, 0, u->ceiling_dist, u->floor_dist, 0, ACTORMOVETICS);
     }
 
-    sp->z = u->loz;
+    sp->pos.Z = u->loz;
 }
 
 int DoActorSectorDamage(DSWActor* actor)
@@ -447,12 +447,12 @@ int DoActorDebris(DSWActor* actor)
         {
             u->WaitTics = (u->WaitTics + (ACTORMOVETICS << 3)) & 1023;
             //sp->z = Z(2) + u->loz + ((Z(4) * (int) bsin(u->WaitTics)) >> 14);
-            sp->z = u->loz - MulScale(Z(2), bsin(u->WaitTics), 14);
+            sp->pos.Z = u->loz - MulScale(Z(2), bsin(u->WaitTics), 14);
         }
     }
     else
     {
-        sp->z = u->loz;
+        sp->pos.Z = u->loz;
     }
 
     return 0;
@@ -476,7 +476,7 @@ int DoFireFly(DSWActor* actor)
 
     u->WaitTics = (u->WaitTics + (ACTORMOVETICS << 1)) & 2047;
 
-    sp->z = u->sz + MulScale(Z(32), bsin(u->WaitTics), 14);
+    sp->pos.Z = u->sz + MulScale(Z(32), bsin(u->WaitTics), 14);
     return 0;
 }
 
@@ -499,7 +499,7 @@ int DoGenerateSewerDebris(DSWActor* actor)
     {
         u->Tics = u->WaitTics;
 
-        auto spawned = SpawnActor(STAT_DEAD_ACTOR, 0, Debris[RANDOM_P2(4<<8)>>8], sp->sector(), sp->pos.X, sp->pos.Y, sp->z, sp->ang, 200);
+        auto spawned = SpawnActor(STAT_DEAD_ACTOR, 0, Debris[RANDOM_P2(4<<8)>>8], sp->sector(), sp->pos.X, sp->pos.Y, sp->pos.Z, sp->ang, 200);
 
         SetOwner(actor, spawned);
     }
@@ -539,7 +539,7 @@ void KeepActorOnFloor(DSWActor* actor)
                 // was swimming but have now stopped
                 RESET(u->Flags, SPR_SWIMMING);
                 RESET(sp->cstat, CSTAT_SPRITE_YCENTER);
-                u->oz = sp->z = u->loz;
+                u->oz = sp->pos.Z = u->loz;
                 sp->backupz();
                 return;
             }
@@ -550,7 +550,7 @@ void KeepActorOnFloor(DSWActor* actor)
             }
 
             // are swimming
-            u->oz = sp->z = u->loz - Z(depth);
+            u->oz = sp->pos.Z = u->loz - Z(depth);
             sp->backupz();
         }
         else
@@ -559,7 +559,7 @@ void KeepActorOnFloor(DSWActor* actor)
             if (u->Rot == u->ActorActionSet->Run || u->Rot == u->ActorActionSet->Swim)
             {
                 NewStateGroup(actor, u->ActorActionSet->Swim);
-                u->oz = sp->z = u->loz - Z(depth);
+                u->oz = sp->pos.Z = u->loz - Z(depth);
                 sp->backupz();
                 SET(u->Flags, SPR_SWIMMING);
                 SET(sp->cstat, CSTAT_SPRITE_YCENTER);
@@ -568,7 +568,7 @@ void KeepActorOnFloor(DSWActor* actor)
             {
                 RESET(u->Flags, SPR_SWIMMING);
                 RESET(sp->cstat, CSTAT_SPRITE_YCENTER);
-                u->oz = sp->z = u->loz;
+                u->oz = sp->pos.Z = u->loz;
                 sp->backupz();
             }
         }
@@ -583,17 +583,17 @@ void KeepActorOnFloor(DSWActor* actor)
 #if 1
     if (TEST(u->Flags, SPR_MOVED))
     {
-        u->oz = sp->z = u->loz;
+        u->oz = sp->pos.Z = u->loz;
         sp->backupz();
     }
     else
     {
         int ceilz, florz;
         Collision ctrash, ftrash;
-        FAFgetzrangepoint(sp->pos.X, sp->pos.Y, sp->z, sp->sector(),
+        FAFgetzrangepoint(sp->pos.X, sp->pos.Y, sp->pos.Z, sp->sector(),
                           &ceilz, &ctrash, &florz, &ftrash);
 
-        u->oz = sp->z = florz;
+        u->oz = sp->pos.Z = florz;
         sp->backupz();
     }
 #endif
@@ -694,13 +694,13 @@ int DoActorJump(DSWActor* actor)
     }
 
     // adjust height by jump speed
-    sp->z += u->jump_speed * ACTORMOVETICS;
+    sp->pos.Z += u->jump_speed * ACTORMOVETICS;
 
     // if player gets to close the ceiling while jumping
-    if (sp->z < u->hiz + Z(PIC_SIZY(sp)))
+    if (sp->pos.Z < u->hiz + Z(PIC_SIZY(sp)))
     {
         // put player at the ceiling
-        sp->z = u->hiz + Z(PIC_SIZY(sp));
+        sp->pos.Z = u->hiz + Z(PIC_SIZY(sp));
 
         // reverse your speed to falling
         u->jump_speed = -u->jump_speed;
@@ -752,10 +752,10 @@ int DoActorFall(DSWActor* actor)
     u->jump_speed += u->jump_grav * ACTORMOVETICS;
 
     // adjust player height by jump speed
-    sp->z += u->jump_speed * ACTORMOVETICS;
+    sp->pos.Z += u->jump_speed * ACTORMOVETICS;
 
     // Stick like glue when you hit the ground
-    if (sp->z > u->loz)
+    if (sp->pos.Z > u->loz)
     {
         DoActorStopFall(actor);
     }
@@ -768,7 +768,7 @@ int DoActorStopFall(DSWActor* actor)
     USER* u = actor->u();
     SPRITEp sp = &actor->s();
 
-    sp->z = u->loz;
+    sp->pos.Z = u->loz;
 
     RESET(u->Flags, SPR_FALLING | SPR_JUMPING);
     RESET(sp->cstat, CSTAT_SPRITE_YFLIP);
@@ -874,13 +874,13 @@ int DoJump(DSWActor* actor)
     }
 
     // adjust height by jump speed
-    sp->z += u->jump_speed * ACTORMOVETICS;
+    sp->pos.Z += u->jump_speed * ACTORMOVETICS;
 
     // if player gets to close the ceiling while jumping
-    if (sp->z < u->hiz + Z(PIC_SIZY(sp)))
+    if (sp->pos.Z < u->hiz + Z(PIC_SIZY(sp)))
     {
         // put player at the ceiling
-        sp->z = u->hiz + Z(PIC_SIZY(sp));
+        sp->pos.Z = u->hiz + Z(PIC_SIZY(sp));
 
         // reverse your speed to falling
         u->jump_speed = -u->jump_speed;
@@ -916,12 +916,12 @@ int DoFall(DSWActor* actor)
     u->jump_speed += u->jump_grav * ACTORMOVETICS;
 
     // adjust player height by jump speed
-    sp->z += u->jump_speed * ACTORMOVETICS;
+    sp->pos.Z += u->jump_speed * ACTORMOVETICS;
 
     // Stick like glue when you hit the ground
-    if (sp->z > u->loz - u->floor_dist)
+    if (sp->pos.Z > u->loz - u->floor_dist)
     {
-        sp->z = u->loz - u->floor_dist;
+        sp->pos.Z = u->loz - u->floor_dist;
         RESET(u->Flags, SPR_FALLING);
     }
 

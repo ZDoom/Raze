@@ -161,11 +161,11 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		{
 			if (actj->spr.sector()->lotag == 2)
 			{
-				act->spr.z = getceilzofslopeptr(act->spr.sector(), act->spr.pos.X, act->spr.pos.Y) + (16 << 8);
+				act->spr.pos.Z = getceilzofslopeptr(act->spr.sector(), act->spr.pos.X, act->spr.pos.Y) + (16 << 8);
 				act->spr.cstat |= CSTAT_SPRITE_YFLIP;
 			}
 			else if (actj->spr.sector()->lotag == 1)
-				act->spr.z = getflorzofslopeptr(act->spr.sector(), act->spr.pos.X, act->spr.pos.Y);
+				act->spr.pos.Z = getflorzofslopeptr(act->spr.sector(), act->spr.pos.X, act->spr.pos.Y);
 		}
 
 		if (sectp->floorpicnum == FLOORSLIME ||
@@ -206,7 +206,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case TONGUE:
 		if (actj)
 			act->spr.ang = actj->spr.ang;
-		act->spr.z -= PHEIGHT_DUKE;
+		act->spr.pos.Z -= PHEIGHT_DUKE;
 		act->spr.zvel = 256 - (krand() & 511);
 		act->spr.xvel = 64 - (krand() & 127);
 		ChangeActorStat(act, 4);
@@ -266,7 +266,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 
 	case BLOOD:
 		act->spr.xrepeat = act->spr.yrepeat = 16;
-		act->spr.z -= (26 << 8);
+		act->spr.pos.Z -= (26 << 8);
 		if (actj && actj->spr.pal == 6)
 			act->spr.pal = 6;
 		ChangeActorStat(act, STAT_MISC);
@@ -299,9 +299,9 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (act->spr.picnum == LAVAPOOL)  // Twentieth Anniversary World Tour
 		{
 			int fz = getflorzofslopeptr(act->spr.sector(), act->spr.pos.X, act->spr.pos.Y);
-			if (fz != act->spr.z)
-				act->spr.z = fz;
-			act->spr.z -= 200;
+			if (fz != act->spr.pos.Z)
+				act->spr.pos.Z = fz;
+			act->spr.pos.Z -= 200;
 		}
 		[[fallthrough]];
 
@@ -318,7 +318,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		act->spr.cstat |= CSTAT_SPRITE_ALIGNMENT_WALL;
 		act->spr.xrepeat = 7 + (krand() & 7);
 		act->spr.yrepeat = 7 + (krand() & 7);
-		act->spr.z -= (16 << 8);
+		act->spr.pos.Z -= (16 << 8);
 		if (actj && actj->spr.pal == 6)
 			act->spr.pal = 6;
 		insertspriteq(act);
@@ -531,7 +531,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (act->spr.picnum == RESPAWNMARKERRED)
 		{
 			act->spr.xrepeat = act->spr.yrepeat = 24;
-			if (actj) act->spr.z = actj->floorz; // -(1<<4);
+			if (actj) act->spr.pos.Z = actj->floorz; // -(1<<4);
 		}
 		else
 		{
@@ -643,15 +643,15 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (actj)
 		{
 			int x = getflorzofslopeptr(act->spr.sector(), act->spr.pos.X, act->spr.pos.Y);
-			if (act->spr.z > x - (12 << 8))
-				act->spr.z = x - (12 << 8);
+			if (act->spr.pos.Z > x - (12 << 8))
+				act->spr.pos.Z = x - (12 << 8);
 		}
 
 		if (act->spr.picnum == ONFIRE)
 		{
 			act->spr.pos.X += krand() % 256 - 128;
 			act->spr.pos.Y += krand() % 256 - 128;
-			act->spr.z -= krand() % 10240;
+			act->spr.pos.Z -= krand() % 10240;
 			act->spr.cstat |= CSTAT_SPRITE_YCENTER;
 		}
 
@@ -685,7 +685,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	}
 	case WATERBUBBLE:
 		if (actj && actj->spr.picnum == APLAYER)
-			act->spr.z -= (16 << 8);
+			act->spr.pos.Z -= (16 << 8);
 		if (act->spr.picnum == WATERBUBBLE)
 		{
 			if (actj)
@@ -726,7 +726,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 	case TOUCHPLATE:
 		t[2] = sectp->floorz;
 		if (sectp->lotag != 1 && sectp->lotag != 2)
-			sectp->floorz = act->spr.z;
+			sectp->floorz = act->spr.pos.Z;
 		if (!isWorldTour())
 		{
 			if (act->spr.pal && ud.multimode > 1)
@@ -1006,7 +1006,7 @@ DDukeActor* spawninit_d(DDukeActor* actj, DDukeActor* act, TArray<DDukeActor*>* 
 		if (actj)
 		{
 			act->spr.lotag = 0;
-			act->spr.z -= (32 << 8);
+			act->spr.pos.Z -= (32 << 8);
 			act->spr.zvel = -1024;
 			ssp(act, CLIPMASK0);
 			if (krand() & 4) act->spr.cstat |= CSTAT_SPRITE_XFLIP;

@@ -565,7 +565,7 @@ void PlayFX2(int nSound, DExhumedActor* pActor, int sectf, EChanFlags chanflags,
         hiprio = (sprflags & 0x4000) != 0;
         soundx = pActor->spr.pos.X;
         soundy = pActor->spr.pos.Y;
-        soundz = pActor->spr.z;
+        soundz = pActor->spr.pos.Z;
     }
 
     int nVolume = 255;
@@ -730,7 +730,7 @@ void UpdateCreepySounds()
                 if (totalmoves & 2)
                     vax = -vax;
 
-                vec3_t sp = { pSprite->pos.X + vdx, pSprite->pos.Y + vax, pSprite->z };
+                vec3_t sp = { pSprite->pos.X + vdx, pSprite->pos.Y + vax, pSprite->pos.Z };
                 creepy = GetSoundPos(&sp);
 
                 if ((vsi & 0x1ff) >= kMaxSounds || !soundEngine->isValidSoundId((vsi & 0x1ff) + 1))

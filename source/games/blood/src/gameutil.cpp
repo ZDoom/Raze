@@ -112,14 +112,14 @@ bool CheckProximity(DBloodActor *actor, int nX, int nY, int nZ, sectortype* pSec
     int oY = abs(nY-pSprite->pos.Y)>>4;
     if (oY >= nDist) return 0;
 
-    int oZ = abs(nZ-pSprite->z)>>8;
+    int oZ = abs(nZ-pSprite->pos.Z)>>8;
     if (oZ >= nDist) return 0;
 
     if (approxDist(oX, oY) >= nDist) return 0;
 
     int bottom, top;
     GetActorExtents(actor, &top, &bottom);
-    if (cansee(pSprite->pos.X, pSprite->pos.Y, pSprite->z, pSprite->sector(), nX, nY, nZ, pSector))
+    if (cansee(pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z, pSprite->sector(), nX, nY, nZ, pSector))
         return 1;
     if (cansee(pSprite->pos.X, pSprite->pos.Y, bottom, pSprite->sector(), nX, nY, nZ, pSector))
         return 1;
@@ -387,7 +387,7 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
     gHitInfo.clearObj();
     int x1 = pSprite->pos.X+MulScale(nOffset, Cos(pSprite->ang+512), 30);
     int y1 = pSprite->pos.Y+MulScale(nOffset, Sin(pSprite->ang+512), 30);
-    int z1 = pSprite->z+nZOffset;
+    int z1 = pSprite->pos.Z+nZOffset;
     auto bakCstat = pSprite->cstat;
     pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_HITSCAN;
     if (nRange)
@@ -419,7 +419,7 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
             if (tileWidth(nPicnum) == 0 || tileHeight(nPicnum) == 0)
                 return 3;
             int height = (tileHeight(nPicnum)*pOther->yrepeat)<<2;
-            int otherZ = pOther->z;
+            int otherZ = pOther->pos.Z;
             if (pOther->cstat & CSTAT_SPRITE_YCENTER)
                 otherZ += height / 2;
             int nOffset = tileTopOffset(nPicnum);
@@ -529,7 +529,7 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
                 gHitInfo.clearObj();
                 x1 = gHitInfo.hitpos.X + link->spr.pos.X - actor->spr.pos.X;
                 y1 = gHitInfo.hitpos.Y + link->spr.pos.Y - actor->spr.pos.Y;
-                z1 = gHitInfo.hitpos.Z + link->spr.z - actor->spr.z;
+                z1 = gHitInfo.hitpos.Z + link->spr.pos.Z - actor->spr.pos.Z;
                 pos = { x1, y1, z1 };
                 hitscan(pos, link->spr.sector(), { dx, dy, dz << 4 }, gHitInfo, CLIPMASK1);
 
@@ -543,7 +543,7 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
                 gHitInfo.clearObj();
                 x1 = gHitInfo.hitpos.X + link->spr.pos.X - actor->spr.pos.X;
                 y1 = gHitInfo.hitpos.Y + link->spr.pos.Y - actor->spr.pos.Y;
-                z1 = gHitInfo.hitpos.Z + link->spr.z - actor->spr.z;
+                z1 = gHitInfo.hitpos.Z + link->spr.pos.Z - actor->spr.pos.Z;
                 pos = { x1, y1, z1 };
                 hitscan(pos, link->spr.sector(), { dx, dy, dz << 4 }, gHitInfo, CLIPMASK1);
                 continue;
@@ -580,7 +580,7 @@ void GetZRange(DBloodActor *actor, int *ceilZ, Collision *ceilColl, int *floorZ,
             auto link = actor->GetOwner();
             vec3_t lpos = pSprite->pos + link->spr.pos - actor->spr.pos;
             getzrange(lpos, link->spr.sector(), &nTemp1, scratch, (int32_t*)floorZ, *floorColl, nDist, nMask);
-            *floorZ -= link->spr.z - actor->spr.z;
+            *floorZ -= link->spr.pos.Z - actor->spr.pos.Z;
         }
     }
     if (ceilColl->type == kHitSector)
@@ -594,7 +594,7 @@ void GetZRange(DBloodActor *actor, int *ceilZ, Collision *ceilColl, int *floorZ,
             auto link = actor->GetOwner();
             vec3_t lpos = pSprite->pos + link->spr.pos - actor->spr.pos;
             getzrange(lpos, link->spr.sector(), (int32_t*)ceilZ, *ceilColl, &nTemp1, scratch, nDist, nMask);
-            *ceilZ -= link->spr.z - actor->spr.z;
+            *ceilZ -= link->spr.pos.Z - actor->spr.pos.Z;
         }
     }
     pSprite->cstat = bakCstat;
@@ -622,7 +622,7 @@ void GetZRangeAtXYZ(int x, int y, int z, sectortype* pSector, int *ceilZ, Collis
             auto link = actor->GetOwner();
             vec3_t newpos = lpos + link->spr.pos - actor->spr.pos;
             getzrange(newpos, link->spr.sector(), &nTemp1, scratch, (int32_t*)floorZ, *floorColl, nDist, nMask);
-            *floorZ -= link->spr.z - actor->spr.z;
+            *floorZ -= link->spr.pos.Z - actor->spr.pos.Z;
         }
     }
     if (ceilColl->type == kHitSector)
@@ -636,7 +636,7 @@ void GetZRangeAtXYZ(int x, int y, int z, sectortype* pSector, int *ceilZ, Collis
             auto link = actor->GetOwner();
             vec3_t newpos = lpos + link->spr.pos - actor->spr.pos;
             getzrange(newpos, link->spr.sector(), (int32_t*)ceilZ, *ceilColl, &nTemp1, scratch, nDist, nMask);
-            *ceilZ -= link->spr.z - actor->spr.z;
+            *ceilZ -= link->spr.pos.Z - actor->spr.pos.Z;
         }
     }
 }

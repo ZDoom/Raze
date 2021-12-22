@@ -583,7 +583,7 @@ void resetpspritevars(int g)
 
 		po[numplayersprites].ox = act->spr.pos.X;
 		po[numplayersprites].oy = act->spr.pos.Y;
-		po[numplayersprites].oz = act->spr.z;
+		po[numplayersprites].oz = act->spr.pos.Z;
 		po[numplayersprites].oa = act->spr.ang;
 		po[numplayersprites].os = act->spr.sector();
 
@@ -627,7 +627,7 @@ void resetpspritevars(int g)
 
 			ps[j].bobposx = ps[j].oposx = ps[j].pos.X = act->spr.pos.X;
 			ps[j].bobposy = ps[j].oposy = ps[j].pos.Y = act->spr.pos.Y;
-			ps[j].oposz = ps[j].pos.Z = act->spr.z;
+			ps[j].oposz = ps[j].pos.Z = act->spr.pos.Z;
 			act->spr.backuppos();
 			ps[j].angle.oang = ps[j].angle.ang = buildang(act->spr.ang);
 

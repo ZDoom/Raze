@@ -210,7 +210,7 @@ short ActorFindTrack(DSWActor* actor, int8_t player_dir, int track_type, int* tr
             {
                 // make sure track start is on approximate z level - skip if
                 // not
-                if (labs(sp->z - tp->z) > zdiff)
+                if (labs(sp->pos.Z - tp->z) > zdiff)
                 {
                     continue;
                 }
@@ -257,7 +257,7 @@ short ActorFindTrack(DSWActor* actor, int8_t player_dir, int track_type, int* tr
         updatesector(near_tp->x, near_tp->y, &track_sect);
 
         // if can see the point, return the track number
-        if (track_sect && FAFcansee(sp->pos.X, sp->pos.Y, sp->z - Z(16), sp->sector(), near_tp->x, near_tp->y, track_sect->floorz - Z(32), track_sect))
+        if (track_sect && FAFcansee(sp->pos.X, sp->pos.Y, sp->pos.Z - Z(16), sp->sector(), near_tp->x, near_tp->y, track_sect->floorz - Z(32), track_sect))
         {
             return short(near_track - &Track[0]);
         }
@@ -299,7 +299,7 @@ void TrackAddPoint(TRACKp t, TRACK_POINTp tp, DSWActor* actor)
 
     tpoint->x = sp->pos.X;
     tpoint->y = sp->pos.Y;
-    tpoint->z = sp->z;
+    tpoint->z = sp->pos.Z;
     tpoint->ang = sp->ang;
     tpoint->tag_low = sp->lotag;
     tpoint->tag_high = sp->hitag;
@@ -321,7 +321,7 @@ DSWActor* TrackClonePoint(DSWActor* actor)
     np->extra = 0;
     np->pos.X = sp->pos.X;
     np->pos.Y = sp->pos.Y;
-    np->z = sp->z;
+    np->pos.Z = sp->pos.Z;
     np->ang = sp->ang;
     np->lotag = sp->lotag;
     np->hitag = sp->hitag;
@@ -754,7 +754,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
         auto BoundSprite = &BoundActor->s();
         sop->xmid = BoundSprite->pos.X;
         sop->ymid = BoundSprite->pos.Y;
-        sop->zmid = BoundSprite->z;
+        sop->zmid = BoundSprite->pos.Z;
         KillActor(BoundActor);
     }
 
@@ -926,7 +926,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
 
                 u->sx = sop->xmid - sp->pos.X;
                 u->sy = sop->ymid - sp->pos.Y;
-                u->sz = sop->mid_sector->floorz - sp->z;
+                u->sz = sop->mid_sector->floorz - sp->pos.Z;
 
                 SET(u->Flags, SPR_SO_ATTACHED);
 
@@ -957,7 +957,7 @@ void SectorObjectSetupBounds(SECTOR_OBJECTp sop)
                         if (sop->sectp[j] == sp->sector())
                         {
                             SET(u->Flags, SPR_ON_SO_SECTOR);
-                            u->sz = sp->sector()->floorz - sp->z;
+                            u->sz = sp->sector()->floorz - sp->pos.Z;
                             break;
                         }
                     }
@@ -983,8 +983,8 @@ cont:
             sp = &sop->so_actors[i]->s();
 			u = sop->so_actors[i]->u();
 
-            if (sp->z > zmid)
-                zmid = sp->z;
+            if (sp->pos.Z > zmid)
+                zmid = sp->pos.Z;
         }
 
         ASSERT(zmid != -9999999);
@@ -996,7 +996,7 @@ cont:
 			sp = &sop->so_actors[i]->s();
 			u = sop->so_actors[i]->u();
 
-            u->sz = sop->zmid - sp->z;
+            u->sz = sop->zmid - sp->pos.Z;
         }
 
     }
@@ -1265,7 +1265,7 @@ void SetupSectorObject(sectortype* sectp, short tag)
 
                     if (TEST_BOOL4(sp))
                     {
-                        sop->crush_z = sp->z;
+                        sop->crush_z = sp->pos.Z;
                         SET(sop->flags, SOBJ_RECT_CLIP);
                     }
 
@@ -1775,7 +1775,7 @@ PlayerPart:
         if (TEST(sop->flags, SOBJ_SPRITE_OBJ))
         {
             // Sprite Objects follow zmid
-            sp->z = sop->zmid - u->sz;
+            sp->pos.Z = sop->zmid - u->sz;
         }
         else
         {
@@ -1783,12 +1783,12 @@ PlayerPart:
             if (TEST(u->Flags, SPR_ON_SO_SECTOR))
             {
                 // move with sector its on
-                sp->z = sp->sector()->floorz - u->sz;
+                sp->pos.Z = sp->sector()->floorz - u->sz;
             }
             else
             {
                 // move with the mid sector
-                sp->z = sop->mid_sector->floorz - u->sz;
+                sp->pos.Z = sop->mid_sector->floorz - u->sz;
             }
         }
 
@@ -1861,7 +1861,7 @@ PlayerPart:
                 //pp->posz -= PLAYER_HEIGHT + Z(12);
                 DoPlayerZrange(pp);
                 pp->posz = pp->loz - PLAYER_CRAWL_HEIGHT;
-                pp->Actor()->spr.z = pp->loz;
+                pp->Actor()->spr.pos.Z = pp->loz;
             }
             else
             {
@@ -1872,7 +1872,7 @@ PlayerPart:
                 if (!TEST(pp->Flags, PF_JUMPING | PF_FALLING | PF_FLYING))
                 {
                     pp->posz = pp->loz - PLAYER_HEIGHT;
-                    pp->Actor()->spr.z = pp->loz;
+                    pp->Actor()->spr.pos.Z = pp->loz;
                 }
             }
         }
@@ -2870,7 +2870,7 @@ void DoAutoTurretObject(SECTOR_OBJECTp sop)
 
 			if (shootp->statnum == STAT_SO_SHOOT_POINT)
             {
-                if (!FAFcansee(shootp->pos.X, shootp->pos.Y, shootp->z-Z(4), shootp->sector(),
+                if (!FAFcansee(shootp->pos.X, shootp->pos.Y, shootp->pos.Z-Z(4), shootp->sector(),
                                u->targetActor->spr.pos.X, u->targetActor->spr.pos.Y, ActorUpper(u->targetActor), u->targetActor->spr.sector()))
                 {
                     return;
@@ -3130,7 +3130,7 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
             {
                 RESET(sp->cstat, CSTAT_SPRITE_BLOCK);
 
-                FAFhitscan(sp->pos.X, sp->pos.Y, sp->z - Z(24), sp->sector(),      // Start position
+                FAFhitscan(sp->pos.X, sp->pos.Y, sp->pos.Z - Z(24), sp->sector(),      // Start position
                            bcos(sp->ang),    // X vector of 3D ang
                            bsin(sp->ang),    // Y vector of 3D ang
                            0,                // Z vector of 3D ang
@@ -3149,7 +3149,7 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
                 if (!hit.hitWall->twoSided())
                     return false;
 
-                zdiff = labs(sp->z - hit.hitWall->nextSector()->floorz) >> 8;
+                zdiff = labs(sp->pos.Z - hit.hitWall->nextSector()->floorz) >> 8;
 
                 u->jump_speed = PickJumpSpeed(actor, zdiff);
             }
@@ -3228,8 +3228,8 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
 
         sp->ang = tpoint->ang;
 
-        z[0] = sp->z - SPRITEp_SIZE_Z(sp) + Z(5);
-        z[1] = sp->z - DIV2(SPRITEp_SIZE_Z(sp));
+        z[0] = sp->pos.Z - SPRITEp_SIZE_Z(sp) + Z(5);
+        z[1] = sp->pos.Z - DIV2(SPRITEp_SIZE_Z(sp));
 
         for (i = 0; i < (int)SIZ(z); i++)
         {
@@ -3409,7 +3409,7 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
         if (TEST(u->Flags, SPR_ZDIFF_MODE))
         {
             RESET(u->Flags, SPR_ZDIFF_MODE);
-            sp->z = sp->sector()->floorz;
+            sp->pos.Z = sp->sector()->floorz;
             sp->zvel = 0;
         }
         else
@@ -3484,8 +3484,8 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
             bos_z = SPRITEp_BOS(sp);
             if (bos_z > u->loz)
             {
-                u->sy = (bos_z - sp->z);
-                sp->z -= u->sy;
+                u->sy = (bos_z - sp->pos.Z);
+                sp->pos.Z -= u->sy;
             }
 
             //
@@ -3605,7 +3605,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
 
             // (velocity * difference between the target and the object) /
             // distance
-            sp->zvel = -((sp->xvel * (sp->z - dz)) / dist);
+            sp->zvel = -((sp->xvel * (sp->pos.Z - dz)) / dist);
         }
     }
     else
@@ -3648,7 +3648,7 @@ int ActorFollowTrack(DSWActor* actor, short locktics)
 
                 ActorLeaveTrack(actor);
                 RESET(sp->cstat, CSTAT_SPRITE_YCENTER);
-                sp->z += u->sy;
+                sp->pos.Z += u->sy;
 
                 DoActorSetSpeed(actor, SLOW_SPEED);
                 u->ActorActionFunc = NinjaJumpActionFunc;

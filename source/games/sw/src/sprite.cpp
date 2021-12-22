@@ -916,7 +916,7 @@ DSWActor* SpawnActor(int stat, int id, STATEp state, sectortype* sect, int x, in
     sp->pal = 0;
     sp->pos.X = x;
     sp->pos.Y = y;
-    sp->z = z;
+    sp->pos.Z = z;
     sp->cstat = 0;
 
     u = SpawnUser(spawnedActor, id, state);
@@ -1007,7 +1007,7 @@ bool ActorTestSpawn(DSWActor* actor)
             default: c = "?"; break;
             }
             Printf("WARNING: skill-masked %s at %d,%d,%d not being killed because it "
-                        "activates something\n", c, sp->pos.X, sp->pos.Y, sp->z);
+                        "activates something\n", c, sp->pos.X, sp->pos.Y, sp->pos.Z);
             return true;
         }
         //always spawn girls in addons
@@ -1576,7 +1576,7 @@ void SpriteSetupPost(void)
                 continue;
 
             getzsofslopeptr(ds->sector(), ds->pos.X, ds->pos.Y, &cz, &fz);
-            if (labs(ds->z - fz) > Z(4))
+            if (labs(ds->pos.Z - fz) > Z(4))
                 continue;
 
             u = SpawnUser(jActor, 0, nullptr);
@@ -1628,7 +1628,7 @@ void SpriteSetup(void)
 
         // not used yetv
         getzsofslopeptr(sp->sector(), sp->pos.X, sp->pos.Y, &cz, &fz);
-        if (sp->z > DIV2(cz + fz))
+        if (sp->pos.Z > DIV2(cz + fz))
         {
             // closer to a floor
             SET(sp->cstat, CSTAT_SPRITE_CLOSE_FLOOR);
@@ -1922,7 +1922,7 @@ void SpriteSetup(void)
 
                 case SECT_WALL_PAN_SPEED:
                 {
-                    vec3_t hit_pos = { sp->pos.X, sp->pos.Y, sp->z - Z(8) };
+                    vec3_t hit_pos = { sp->pos.X, sp->pos.Y, sp->pos.Z - Z(8) };
                     HitInfo hit{};
 
                     hitscan(hit_pos, sp->sector(),    // Start position
@@ -1951,7 +1951,7 @@ void SpriteSetup(void)
 
                 case WALL_DONT_STICK:
                 {
-                    vec3_t hit_pos = { sp->pos.X, sp->pos.Y, sp->z - Z(8) };
+                    vec3_t hit_pos = { sp->pos.X, sp->pos.Y, sp->pos.Z - Z(8) };
                     HitInfo hit{};
 
                     hitscan(hit_pos, sp->sector(),    // Start position
@@ -2113,11 +2113,11 @@ void SpriteSetup(void)
                     {
                         // start off
                         u->sz = sectp->floorz;
-                        u->z_tgt = sp->z;
+                        u->z_tgt = sp->pos.Z;
                         if (start_on)
                         {
                             int amt;
-                            amt = sp->z - sectp->floorz;
+                            amt = sp->pos.Z - sectp->floorz;
 
                             // start in the on position
                             //sectp->floorz = sp->z;
@@ -2134,11 +2134,11 @@ void SpriteSetup(void)
                     {
                         // start off
                         u->sz = sectp->ceilingz;
-                        u->z_tgt = sp->z;
+                        u->z_tgt = sp->pos.Z;
                         if (start_on)
                         {
                             int amt;
-                            amt = sp->z - sectp->ceilingz;
+                            amt = sp->pos.Z - sectp->ceilingz;
 
                             // starting in the on position
                             //sectp->ceilingz = sp->z;
@@ -2315,7 +2315,7 @@ void SpriteSetup(void)
                         break;
                     }
 
-                    getzrangepoint(sp->pos.X, sp->pos.Y, sp->z, sp->sector(), &ceilingz, &trash, &floorz, &trash);
+                    getzrangepoint(sp->pos.X, sp->pos.Y, sp->pos.Z, sp->sector(), &ceilingz, &trash, &floorz, &trash);
 
                     if (floor_vator)
                     {
@@ -2323,11 +2323,11 @@ void SpriteSetup(void)
 
                         // start off
                         u->sz = u->zclip;
-                        u->z_tgt = sp->z;
+                        u->z_tgt = sp->pos.Z;
                         if (start_on)
                         {
                             // start in the on position
-                            u->zclip = sp->z;
+                            u->zclip = sp->pos.Z;
                             u->z_tgt = u->sz;
                             SpikeAlign(actor);
                         }
@@ -2341,11 +2341,11 @@ void SpriteSetup(void)
 
                         // start off
                         u->sz = u->zclip;
-                        u->z_tgt = sp->z;
+                        u->z_tgt = sp->pos.Z;
                         if (start_on)
                         {
                             // starting in the on position
-                            u->zclip = sp->z;
+                            u->zclip = sp->pos.Z;
                             u->z_tgt = u->sz;
                             SpikeAlign(actor);
                         }
@@ -2501,7 +2501,7 @@ void SpriteSetup(void)
                     if (SP_TAG9(sp) == 0)
                         SP_TAG9(sp) = 10;
 
-                    sp->z += Z(30);
+                    sp->pos.Z += Z(30);
 
                     break;
                 }
@@ -2565,7 +2565,7 @@ void SpriteSetup(void)
                     np->extra = 0;
                     np->pos.X = sp->pos.X;
                     np->pos.Y = sp->pos.Y;
-                    np->z = sp->z;
+                    np->pos.Z = sp->pos.Z;
                     np->ang = NORM_ANGLE(sp->ang + 1024);
                     np->picnum = sp->picnum;
 
@@ -3610,7 +3610,7 @@ int ActorCoughItem(DSWActor* actor)
         np->extra = 0;
         np->pos.X = sp->pos.X;
         np->pos.Y = sp->pos.Y;
-        np->z = SPRITEp_MID(sp);
+        np->pos.Z = SPRITEp_MID(sp);
         np->ang = 0;
         np->extra = 0;
 
@@ -3652,7 +3652,7 @@ int ActorCoughItem(DSWActor* actor)
         np->extra = 0;
         np->pos.X = sp->pos.X;
         np->pos.Y = sp->pos.Y;
-        np->z = SPRITEp_MID(sp);
+        np->pos.Z = SPRITEp_MID(sp);
         np->ang = 0;
         np->extra = 0;
 
@@ -3681,7 +3681,7 @@ int ActorCoughItem(DSWActor* actor)
         np->extra = 0;
         np->pos.X = sp->pos.X;
         np->pos.Y = sp->pos.Y;
-        np->z = SPRITEp_MID(sp);
+        np->pos.Z = SPRITEp_MID(sp);
         np->ang = 0;
         np->extra = 0;
 
@@ -3713,7 +3713,7 @@ int ActorCoughItem(DSWActor* actor)
             np->extra = 0;
             np->pos.X = sp->pos.X;
             np->pos.Y = sp->pos.Y;
-            np->z = SPRITEp_MID(sp);
+            np->pos.Z = SPRITEp_MID(sp);
             np->ang = 0;
             np->extra = 0;
 
@@ -3776,7 +3776,7 @@ int ActorCoughItem(DSWActor* actor)
         np->extra = 0;
         np->pos.X = sp->pos.X;
         np->pos.Y = sp->pos.Y;
-        np->z = SPRITEp_MID(sp);
+        np->pos.Z = SPRITEp_MID(sp);
         np->ang = 0;
         np->extra = 0;
 
@@ -3835,7 +3835,7 @@ int ActorCoughItem(DSWActor* actor)
         np->extra = 0;
         np->pos.X = sp->pos.X;
         np->pos.Y = sp->pos.Y;
-        np->z = SPRITEp_LOWER(sp)+Z(10);
+        np->pos.Z = SPRITEp_LOWER(sp)+Z(10);
         np->ang = sp->ang;
 
         // vel
@@ -3920,7 +3920,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_REPAIR_KIT))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_REPAIR_KIT, s_RepairKit, sip->sector(), sip->pos.X, sip->pos.Y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_REPAIR_KIT, s_RepairKit, sip->sector(), sip->pos.X, sip->pos.Y, sip->pos.Z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -3931,7 +3931,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_STAR))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_STAR, s_IconStar, sip->sector(), sip->pos.X, sip->pos.Y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_STAR, s_IconStar, sip->sector(), sip->pos.X, sip->pos.Y, sip->pos.Z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -3942,7 +3942,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_LG_MINE))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_LG_MINE, s_IconLgMine, sip->sector(), sip->pos.X, sip->pos.Y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_LG_MINE, s_IconLgMine, sip->sector(), sip->pos.X, sip->pos.Y, sip->pos.Z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -3953,7 +3953,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_MICRO_GUN))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_MICRO_GUN, s_IconMicroGun, sip->sector(), sip->pos.X, sip->pos.Y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_MICRO_GUN, s_IconMicroGun, sip->sector(), sip->pos.X, sip->pos.Y, sip->pos.Z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -3964,7 +3964,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_MICRO_BATTERY))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_MICRO_BATTERY, s_IconMicroBattery, sip->sector(), sip->pos.X, sip->pos.Y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_MICRO_BATTERY, s_IconMicroBattery, sip->sector(), sip->pos.X, sip->pos.Y, sip->pos.Z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -3975,7 +3975,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_GRENADE_LAUNCHER))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_GRENADE_LAUNCHER, s_IconGrenadeLauncher, sip->sector(), sip->pos.X, sip->pos.Y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_GRENADE_LAUNCHER, s_IconGrenadeLauncher, sip->sector(), sip->pos.X, sip->pos.Y, sip->pos.Z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -3986,7 +3986,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_LG_GRENADE))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_LG_GRENADE, s_IconLgGrenade, sip->sector(), sip->pos.X, sip->pos.Y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_LG_GRENADE, s_IconLgGrenade, sip->sector(), sip->pos.X, sip->pos.Y, sip->pos.Z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -3997,7 +3997,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_RAIL_GUN))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_RAIL_GUN, s_IconRailGun, sip->sector(), sip->pos.X, sip->pos.Y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_RAIL_GUN, s_IconRailGun, sip->sector(), sip->pos.X, sip->pos.Y, sip->pos.Z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4008,7 +4008,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_RAIL_AMMO))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_RAIL_AMMO, s_IconRailAmmo, sip->sector(), sip->pos.X, sip->pos.Y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_RAIL_AMMO, s_IconRailAmmo, sip->sector(), sip->pos.X, sip->pos.Y, sip->pos.Z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4019,7 +4019,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_ROCKET))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_ROCKET, s_IconRocket, sip->sector(), sip->pos.X, sip->pos.Y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_ROCKET, s_IconRocket, sip->sector(), sip->pos.X, sip->pos.Y, sip->pos.Z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4030,7 +4030,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_SHOTGUN))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_SHOTGUN, s_IconShotgun, sip->sector(), sip->pos.X, sip->pos.Y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_SHOTGUN, s_IconShotgun, sip->sector(), sip->pos.X, sip->pos.Y, sip->pos.Z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4041,7 +4041,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_LG_SHOTSHELL))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_LG_SHOTSHELL, s_IconLgShotshell, sip->sector(), sip->pos.X, sip->pos.Y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_LG_SHOTSHELL, s_IconLgShotshell, sip->sector(), sip->pos.X, sip->pos.Y, sip->pos.Z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4052,7 +4052,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_GUARD_HEAD))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_GUARD_HEAD, s_IconGuardHead, sip->sector(), sip->pos.X, sip->pos.Y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_GUARD_HEAD, s_IconGuardHead, sip->sector(), sip->pos.X, sip->pos.Y, sip->pos.Z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4063,7 +4063,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_FIREBALL_LG_AMMO))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_FIREBALL_LG_AMMO, s_IconFireballLgAmmo, sip->sector(), sip->pos.X, sip->pos.Y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_FIREBALL_LG_AMMO, s_IconFireballLgAmmo, sip->sector(), sip->pos.X, sip->pos.Y, sip->pos.Z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4074,7 +4074,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_HEART))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_HEART, s_IconHeart, sip->sector(), sip->pos.X, sip->pos.Y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_HEART, s_IconHeart, sip->sector(), sip->pos.X, sip->pos.Y, sip->pos.Z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4085,7 +4085,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_HEART_LG_AMMO))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_HEART_LG_AMMO, s_IconHeartLgAmmo, sip->sector(), sip->pos.X, sip->pos.Y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_HEART_LG_AMMO, s_IconHeartLgAmmo, sip->sector(), sip->pos.X, sip->pos.Y, sip->pos.Z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4098,7 +4098,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_ARMOR))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_ARMOR, s_IconArmor, sip->sector(), sip->pos.X, sip->pos.Y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_ARMOR, s_IconArmor, sip->sector(), sip->pos.X, sip->pos.Y, sip->pos.Z, sip->ang, 0);
             sp = &spawnedActor->s();
             u = spawnedActor->u();
             SET(u->Flags2, SPR2_NEVER_RESPAWN);
@@ -4117,7 +4117,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_MEDKIT))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_MEDKIT, s_IconMedkit, sip->sector(), sip->pos.X, sip->pos.Y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_MEDKIT, s_IconMedkit, sip->sector(), sip->pos.X, sip->pos.Y, sip->pos.Z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4128,7 +4128,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_SM_MEDKIT))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_SM_MEDKIT, s_IconSmMedkit, sip->sector(), sip->pos.X, sip->pos.Y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_SM_MEDKIT, s_IconSmMedkit, sip->sector(), sip->pos.X, sip->pos.Y, sip->pos.Z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4139,7 +4139,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_CHEMBOMB))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_CHEMBOMB, s_IconChemBomb, sip->sector(), sip->pos.X, sip->pos.Y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_CHEMBOMB, s_IconChemBomb, sip->sector(), sip->pos.X, sip->pos.Y, sip->pos.Z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4150,7 +4150,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_FLASHBOMB))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_FLASHBOMB, s_IconFlashBomb, sip->sector(), sip->pos.X, sip->pos.Y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_FLASHBOMB, s_IconFlashBomb, sip->sector(), sip->pos.X, sip->pos.Y, sip->pos.Z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4161,7 +4161,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_NUKE))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_NUKE, s_IconNuke, sip->sector(), sip->pos.X, sip->pos.Y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_NUKE, s_IconNuke, sip->sector(), sip->pos.X, sip->pos.Y, sip->pos.Z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4172,7 +4172,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_CALTROPS))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_CALTROPS, s_IconCaltrops, sip->sector(), sip->pos.X, sip->pos.Y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_CALTROPS, s_IconCaltrops, sip->sector(), sip->pos.X, sip->pos.Y, sip->pos.Z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4183,7 +4183,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_BOOSTER))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_BOOSTER, s_IconBooster, sip->sector(), sip->pos.X, sip->pos.Y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_BOOSTER, s_IconBooster, sip->sector(), sip->pos.X, sip->pos.Y, sip->pos.Z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4194,7 +4194,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_HEAT_CARD))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_HEAT_CARD, s_IconHeatCard, sip->sector(), sip->pos.X, sip->pos.Y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_HEAT_CARD, s_IconHeatCard, sip->sector(), sip->pos.X, sip->pos.Y, sip->pos.Z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4205,7 +4205,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_CLOAK))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_CLOAK, s_IconCloak, sip->sector(), sip->pos.X, sip->pos.Y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_CLOAK, s_IconCloak, sip->sector(), sip->pos.X, sip->pos.Y, sip->pos.Z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4216,7 +4216,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_NIGHT_VISION))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_NIGHT_VISION, s_IconNightVision, sip->sector(), sip->pos.X, sip->pos.Y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_NIGHT_VISION, s_IconNightVision, sip->sector(), sip->pos.X, sip->pos.Y, sip->pos.Z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4228,7 +4228,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_LG_UZI_AMMO))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_LG_UZI_AMMO, s_IconLgUziAmmo, sip->sector(), sip->pos.X, sip->pos.Y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_LG_UZI_AMMO, s_IconLgUziAmmo, sip->sector(), sip->pos.X, sip->pos.Y, sip->pos.Z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4239,7 +4239,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_GUARD_HEAD))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_GUARD_HEAD, s_IconGuardHead, sip->sector(), sip->pos.X, sip->pos.Y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_GUARD_HEAD, s_IconGuardHead, sip->sector(), sip->pos.X, sip->pos.Y, sip->pos.Z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4250,7 +4250,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_HEART))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_HEART, s_IconHeart, sip->sector(), sip->pos.X, sip->pos.Y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_HEART, s_IconHeart, sip->sector(), sip->pos.X, sip->pos.Y, sip->pos.Z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4262,7 +4262,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_UZIFLOOR))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_UZIFLOOR, s_IconUziFloor, sip->sector(), sip->pos.X, sip->pos.Y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_UZIFLOOR, s_IconUziFloor, sip->sector(), sip->pos.X, sip->pos.Y, sip->pos.Z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4276,7 +4276,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, ICON_UZI))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, ICON_UZI, s_IconUzi, sip->sector(), sip->pos.X, sip->pos.Y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, ICON_UZI, s_IconUzi, sip->sector(), sip->pos.X, sip->pos.Y, sip->pos.Z, sip->ang, 0);
             SET(spawnedActor->u()->Flags2, SPR2_NEVER_RESPAWN);
             IconDefault(spawnedActor);
 
@@ -4323,7 +4323,7 @@ int SpawnItemsMatch(short match)
             if (!ItemSpotClear(itActor, STAT_ITEM, s_Key[num]->Pic))
                 break;
 
-            spawnedActor = SpawnActor(STAT_ITEM, s_Key[num]->Pic, s_Key[num], sip->sector(), sip->pos.X, sip->pos.Y, sip->z, sip->ang, 0);
+            spawnedActor = SpawnActor(STAT_ITEM, s_Key[num]->Pic, s_Key[num], sip->sector(), sip->pos.X, sip->pos.Y, sip->pos.Z, sip->ang, 0);
             u = spawnedActor->u();
             sp = &spawnedActor->s();
 
@@ -4483,7 +4483,7 @@ void getzrangepoint(int x, int y, int z, sectortype* sect,
         if ((cstat & CSTAT_SPRITE_ALIGNMENT_MASK | CSTAT_SPRITE_BLOCK) != (CSTAT_SPRITE_ALIGNMENT_FLOOR|CSTAT_SPRITE_BLOCK))
             continue;                   // Only check blocking floor sprites
 
-        daz = spr->z;
+        daz = spr->pos.Z;
 
         // Only check if sprite's 2-sided or your on the 1-sided side
         if (((cstat & CSTAT_SPRITE_ONE_SIDE) != 0) && ((z > daz) == ((cstat & CSTAT_SPRITE_YFLIP) == 0)))
@@ -4724,7 +4724,7 @@ bool DropAhead(DSWActor* actor, int  min_height)
     updatesector(dax, day, &newsector);
 
     // look straight down for a drop
-    if (ActorDrop(actor, dax, day, sp->z, newsector, min_height))
+    if (ActorDrop(actor, dax, day, sp->pos.Z, newsector, min_height))
         return true;
 
     return false;
@@ -4757,13 +4757,13 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
     {
         // For COOLG & HORNETS
         // set to actual z before you move
-        sp->z = u->sz;
+        sp->pos.Z = u->sz;
     }
 
     // save off x,y values
     x = sp->pos.X;
     y = sp->pos.Y;
-    z = sp->z;
+    z = sp->pos.Z;
     loz = u->loz;
     hiz = u->hiz;
     lowActor = u->lowActor;
@@ -4780,12 +4780,12 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
     // try and determine whether you moved > lo_step in the z direction
     if (!TEST(u->Flags, SPR_NO_SCAREDZ | SPR_JUMPING | SPR_CLIMBING | SPR_FALLING | SPR_DEAD | SPR_SWIMMING))
     {
-        if (labs(sp->z - globloz) > u->lo_step)
+        if (labs(sp->pos.Z - globloz) > u->lo_step)
         {
             // cancel move
             sp->pos.X = x;
             sp->pos.Y = y;
-            sp->z = z;
+            sp->pos.Z = z;
             //sp->z = u->loz;             // place on ground in case you are in the air
             u->loz = loz;
             u->hiz = hiz;
@@ -4798,12 +4798,12 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
             return false;
         }
 
-        if (ActorDrop(actor, sp->pos.X, sp->pos.Y, sp->z, sp->sector(), u->lo_step))
+        if (ActorDrop(actor, sp->pos.X, sp->pos.Y, sp->pos.Z, sp->sector(), u->lo_step))
         {
             // cancel move
             sp->pos.X = x;
             sp->pos.Y = y;
-            sp->z = z;
+            sp->pos.Z = z;
             //sp->z = u->loz;             // place on ground in case you are in the air
             u->loz = loz;
             u->hiz = hiz;
@@ -4837,7 +4837,7 @@ int move_actor(DSWActor* actor, int xchange, int ychange, int zchange)
 
 int DoStayOnFloor(DSWActor* actor)
 {
-    actor->spr.z = actor->spr.sector()->floorz;
+    actor->spr.pos.Z = actor->spr.sector()->floorz;
     return 0;
 }
 
@@ -4958,7 +4958,7 @@ int KillGet(DSWActor* actor)
             break;
 
         auto actorNew = SpawnActor(STAT_ITEM, Red_COIN, s_RedCoin, sp->sector(),
-                          sp->pos.X, sp->pos.Y, sp->z, 0, 0);
+                          sp->pos.X, sp->pos.Y, sp->pos.Z, 0, 0);
 
         np = &actorNew->s();
         nu = actorNew->u();
@@ -5010,7 +5010,7 @@ int KillGetAmmo(DSWActor* actor)
             break;
 
         auto actorNew = SpawnActor(STAT_ITEM, Red_COIN, s_RedCoin, sp->sector(),
-                          sp->pos.X, sp->pos.Y, sp->z, 0, 0);
+                          sp->pos.X, sp->pos.Y, sp->pos.Z, 0, 0);
 
         np = &actorNew->s();
         nu = actorNew->u();
@@ -5070,7 +5070,7 @@ int KillGetWeapon(DSWActor* actor)
             break;
 
         auto actorNew = SpawnActor(STAT_ITEM, Red_COIN, s_RedCoin, sp->sector(),
-                          sp->pos.X, sp->pos.Y, sp->z, 0, 0);
+                          sp->pos.X, sp->pos.Y, sp->pos.Z, 0, 0);
 
         np = &actorNew->s();
         nu = actorNew->u();
@@ -5089,7 +5089,7 @@ int DoSpawnItemTeleporterEffect(SPRITEp sp)
     SPRITEp ep;
 
     auto effect = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, sp->sector(),
-                         sp->pos.X, sp->pos.Y, sp->z - Z(12),
+                         sp->pos.X, sp->pos.Y, sp->pos.Z - Z(12),
                          sp->ang, 0);
 
     ep = &effect->s();
@@ -5227,7 +5227,7 @@ int DoGet(DSWActor* actor)
 
         auto cstat_bak = sp->cstat;
         SET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-        can_see = FAFcansee(sp->pos.X, sp->pos.Y, sp->z, sp->sector(),
+        can_see = FAFcansee(sp->pos.X, sp->pos.Y, sp->pos.Z, sp->sector(),
                             pp->posx, pp->posy, pp->posz, pp->cursector);
         sp->cstat = cstat_bak;
 
@@ -6017,10 +6017,10 @@ KeyMain:
             DSWActor* actorNew;
             if (sp->hitag == TAG_NORESPAWN_FLAG)
                 actorNew = SpawnActor(STAT_ITEM, ICON_FLAG, s_CarryFlagNoDet, sp->sector(),
-                                  sp->pos.X, sp->pos.Y, sp->z, 0, 0);
+                                  sp->pos.X, sp->pos.Y, sp->pos.Z, 0, 0);
             else
                 actorNew = SpawnActor(STAT_ITEM, ICON_FLAG, s_CarryFlag, sp->sector(),
-                                  sp->pos.X, sp->pos.Y, sp->z, 0, 0);
+                                  sp->pos.X, sp->pos.Y, sp->pos.Z, 0, 0);
 
             np = &actorNew->s();
             nu = actorNew->u();
@@ -6490,7 +6490,7 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
     // Takes info from global variables
     DoActorGlobZ(actor);
 
-    clippos.Z = spr->z + ((zchange * numtics) >> 3);
+    clippos.Z = spr->pos.Z + ((zchange * numtics) >> 3);
 
     // test for hitting ceiling or floor
     if ((clippos.Z - zh <= globhiz) || (clippos.Z - zh > globloz))
@@ -6499,7 +6499,7 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
         {
             if (TEST(u->Flags, SPR_CLIMBING))
             {
-                spr->z = clippos.Z;
+                spr->pos.Z = clippos.Z;
                 return retval;
             }
 
@@ -6508,7 +6508,7 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
     }
     else
     {
-        spr->z = clippos.Z;
+        spr->pos.Z = clippos.Z;
     }
 
     // extra processing for Stacks and warping
@@ -6518,7 +6518,7 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
     if (TEST(spr->sector()->extra, SECTFX_WARP_SECTOR))
     {
         DSWActor* sp_warp;
-        if ((sp_warp = WarpPlane(&spr->pos.X, &spr->pos.Y, &spr->z, &dasect)))
+        if ((sp_warp = WarpPlane(&spr->pos.X, &spr->pos.Y, &spr->pos.Z, &dasect)))
         {
             ActorWarpUpdatePos(actor, dasect);
             ActorWarpType(actor, sp_warp);
@@ -6526,7 +6526,7 @@ Collision move_sprite(DSWActor* actor, int xchange, int ychange, int zchange, in
 
         if (spr->sector() != lastsect)
         {
-            if ((sp_warp = Warp(&spr->pos.X, &spr->pos.Y, &spr->z, &dasect)))
+            if ((sp_warp = Warp(&spr->pos.X, &spr->pos.Y, &spr->pos.Z, &dasect)))
             {
                 ActorWarpUpdatePos(actor, dasect);
                 ActorWarpType(actor, sp_warp);
@@ -6619,7 +6619,7 @@ int MissileZrange(DSWActor* actor)
     auto tempshort = sp->cstat;
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK);
 
-    FAFgetzrangepoint(sp->pos.X, sp->pos.Y, sp->z - 1, sp->sector(),
+    FAFgetzrangepoint(sp->pos.X, sp->pos.Y, sp->pos.Z - 1, sp->sector(),
                       &globhiz, &globhihit, &globloz, &globlohit);
 
     sp->cstat = tempshort;
@@ -6676,7 +6676,7 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
     auto tempshort = sp->cstat;
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK);
 
-    FAFgetzrangepoint(sp->pos.X, sp->pos.Y, sp->z - 1, sp->sector(),
+    FAFgetzrangepoint(sp->pos.X, sp->pos.Y, sp->pos.Z - 1, sp->sector(),
                       &globhiz, &globhihit, &globloz, &globlohit);
 
     sp->cstat = tempshort;
@@ -6687,7 +6687,7 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
     // missiles don't need the water to be down
     MissileWaterAdjust(actor);
 
-    clippos.Z = sp->z + ((zchange * numtics) >> 3);
+    clippos.Z = sp->pos.Z + ((zchange * numtics) >> 3);
 
     // NOTE: this does not tell you when you hit a floor sprite
     // this case is currently treated like it hit a sector
@@ -6696,19 +6696,19 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
     if (clippos.Z - zh <= u->hiz + ceildist)
     {
         // normal code
-        sp->z = u->hiz + zh + ceildist;
+        sp->pos.Z = u->hiz + zh + ceildist;
         if (retval.type == kHitNone)
             retval.setSector(dasect);
     }
     else if (clippos.Z - zh > u->loz - flordist)
     {
-        sp->z = u->loz + zh - flordist;
+        sp->pos.Z = u->loz + zh - flordist;
         if (retval.type == kHitNone)
             retval.setSector(dasect);
     }
     else
     {
-        sp->z = clippos.Z;
+        sp->pos.Z = clippos.Z;
     }
 
     if (FAF_ConnectArea(sp->sector()))
@@ -6718,7 +6718,7 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
     {
         DSWActor* sp_warp;
 
-        if ((sp_warp = WarpPlane(&sp->pos.X, &sp->pos.Y, &sp->z, &dasect)))
+        if ((sp_warp = WarpPlane(&sp->pos.X, &sp->pos.Y, &sp->pos.Z, &dasect)))
         {
             MissileWarpUpdatePos(actor, dasect);
             MissileWarpType(actor, sp_warp);
@@ -6726,7 +6726,7 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
 
         if (sp->sector() != lastsect)
         {
-            if ((sp_warp = Warp(&sp->pos.X, &sp->pos.Y, &sp->z, &dasect)))
+            if ((sp_warp = Warp(&sp->pos.X, &sp->pos.Y, &sp->pos.Z, &dasect)))
             {
                 MissileWarpUpdatePos(actor, dasect);
                 MissileWarpType(actor, sp_warp);
@@ -6736,7 +6736,7 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
 
     if (retval.type != kHitNone && TEST(sp->sector()->ceilingstat, CSTAT_SECTOR_SKY))
     {
-        if (sp->z < sp->sector()->ceilingz)
+        if (sp->pos.Z < sp->sector()->ceilingz)
         {
             retval.setVoid();
         }
@@ -6744,7 +6744,7 @@ Collision move_missile(DSWActor* actor, int xchange, int ychange, int zchange, i
 
     if (retval.type != kHitNone && TEST(sp->sector()->floorstat, CSTAT_SECTOR_SKY))
     {
-        if (sp->z > sp->sector()->floorz)
+        if (sp->pos.Z > sp->sector()->floorz)
         {
             retval.setVoid();
         }
@@ -6770,21 +6770,21 @@ Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int cei
     auto lastsect = dasect;
 
     vec3_t opos = sp->pos;
-    daz = sp->z;
+    daz = sp->pos.Z;
 
     // climbing a wall
     if (u->z_tgt)
     {
-        if (labs(u->z_tgt - sp->z) > Z(40))
+        if (labs(u->z_tgt - sp->pos.Z) > Z(40))
         {
-            if (u->z_tgt > sp->z)
+            if (u->z_tgt > sp->pos.Z)
             {
-                sp->z += Z(30);
+                sp->pos.Z += Z(30);
                 return retval;
             }
             else
             {
-                sp->z -= Z(30);
+                sp->pos.Z -= Z(30);
                 return retval;
             }
         }
@@ -6830,7 +6830,7 @@ Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int cei
         int new_loz,new_hiz;
         getzsofslopeptr(dasect, sp->pos.X, sp->pos.Y, &new_hiz, &new_loz);
 
-        sp->z = new_loz;
+        sp->pos.Z = new_loz;
         ChangeActorSect(actor, dasect);
     }
 
@@ -6838,7 +6838,7 @@ Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int cei
 
     u->hi_sectp = u->lo_sectp = sp->sector();
     u->highActor = nullptr; u->lowActor = nullptr;
-    sp->z = u->loz - Z(8);
+    sp->pos.Z = u->loz - Z(8);
 
     if (labs(u->hiz - u->loz) < Z(12))
     {
@@ -6851,7 +6851,7 @@ Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int cei
     {
         DSWActor* sp_warp;
 
-        if ((sp_warp = WarpPlane(&sp->pos.X, &sp->pos.Y, &sp->z, &dasect)))
+        if ((sp_warp = WarpPlane(&sp->pos.X, &sp->pos.Y, &sp->pos.Z, &dasect)))
         {
             MissileWarpUpdatePos(actor, dasect);
             MissileWarpType(actor, sp_warp);
@@ -6859,7 +6859,7 @@ Collision move_ground_missile(DSWActor* actor, int xchange, int ychange, int cei
 
         if (sp->sector() != lastsect)
         {
-            if ((sp_warp = Warp(&sp->pos.X, &sp->pos.Y, &sp->z, &dasect)))
+            if ((sp_warp = Warp(&sp->pos.X, &sp->pos.Y, &sp->pos.Z, &dasect)))
             {
                 MissileWarpUpdatePos(actor, dasect);
                 MissileWarpType(actor, sp_warp);

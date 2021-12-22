@@ -70,7 +70,7 @@ DExhumedActor* BuildAnim(DExhumedActor* pActor, int val, int val2, int x, int y,
 
     pSprite->pos.X = x;
     pSprite->pos.Y = y;
-    pSprite->z = z;
+    pSprite->pos.Z = z;
     pSprite->cstat = 0;
 
     if (nFlag & 4)
@@ -144,7 +144,7 @@ void AIAnim::Tick(RunListEvent* ev)
             auto pSpriteB = &pIgniter->s(); 
             pSprite->pos.X = pSpriteB->pos.X;
             pSprite->pos.Y = pSpriteB->pos.Y;
-            pSprite->z = pSpriteB->z;
+            pSprite->pos.Z = pSpriteB->pos.Z;
 
             if (pSpriteB->sector() != pSprite->sector())
             {
@@ -246,12 +246,12 @@ void BuildExplosion(DExhumedActor* pActor)
     {
         edx = 75;
     }
-    else if (pSprite->z == pSprite->sector()->floorz)
+    else if (pSprite->pos.Z == pSprite->sector()->floorz)
     {
         edx = 34;
     }
 
-    BuildAnim(nullptr, edx, 0, pSprite->pos.X, pSprite->pos.Y, pSprite->z, pSprite->sector(), pSprite->xrepeat, 4);
+    BuildAnim(nullptr, edx, 0, pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z, pSprite->sector(), pSprite->xrepeat, 4);
 }
 
 void BuildSplash(DExhumedActor* actor, sectortype* pSector)

@@ -575,7 +575,7 @@ int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
         tspriteptr_t tsp = &mytsprite[(*myspritesortcnt)++];
         tsp->pos.X = pTSprite->pos.X;
         tsp->pos.Y = pTSprite->pos.Y;
-        tsp->z = pTSprite->z;
+        tsp->pos.Z = pTSprite->pos.Z;
         tsp->shade = shade;
         tsp->pal = pTSprite->pal;
         tsp->xrepeat = pTSprite->xrepeat;
@@ -619,13 +619,13 @@ int seq_PlotSequence(int nSprite, int16_t edx, int16_t nFrame, int16_t ecx)
         {
             pTSprite->picnum = nShadowPic;
 
-            int edx = ((tileWidth(nPict) << 5) / nShadowWidth) - ((nFloorZ - pTSprite->z) >> 10);
+            int edx = ((tileWidth(nPict) << 5) / nShadowWidth) - ((nFloorZ - pTSprite->pos.Z) >> 10);
             if (edx < 1) {
                 edx = 1;
             }
 
             pTSprite->cstat = CSTAT_SPRITE_ALIGNMENT_FLOOR | CSTAT_SPRITE_TRANSLUCENT;
-            pTSprite->z = nFloorZ;
+            pTSprite->pos.Z = nFloorZ;
             pTSprite->yrepeat = (uint8_t)edx;
             pTSprite->xrepeat = (uint8_t)edx;
             pTSprite->statnum = -3;

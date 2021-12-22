@@ -137,7 +137,7 @@ bool CanMove(DBloodActor* actor, DBloodActor* target, int nAngle, int nRange)
 	GetActorExtents(actor, &top, &bottom);
 	int x = pSprite->pos.X;
 	int y = pSprite->pos.Y;
-	int z = pSprite->z;
+	int z = pSprite->pos.Z;
 	HitScan(actor, z, bcos(nAngle), bsin(nAngle), 0, CLIPMASK0, nRange);
 	int nDist = approxDist(x - gHitInfo.hitpos.X, y - gHitInfo.hitpos.Y);
 	if (nDist - (pSprite->clipdist << 2) < nRange)
@@ -954,7 +954,7 @@ void aiSetTarget(DBloodActor* actor, DBloodActor* target)
 			DUDEINFO* pDudeInfo = getDudeInfo(pTarget->type);
 			pXSprite->targetX = pTarget->pos.X;
 			pXSprite->targetY = pTarget->pos.Y;
-			pXSprite->targetZ = pTarget->z - ((pDudeInfo->eyeHeight * pTarget->yrepeat) << 2);
+			pXSprite->targetZ = pTarget->pos.Z - ((pDudeInfo->eyeHeight * pTarget->yrepeat) << 2);
 		}
 	}
 }
@@ -1535,14 +1535,14 @@ void aiThinkTarget(DBloodActor* actor)
 				continue;
 			int x = pPlayer->pSprite->pos.X;
 			int y = pPlayer->pSprite->pos.Y;
-			int z = pPlayer->pSprite->z;
+			int z = pPlayer->pSprite->pos.Z;
 			auto pSector = pPlayer->pSprite->sector();
 			int dx = x - pSprite->pos.X;
 			int dy = y - pSprite->pos.Y;
 			int nDist = approxDist(dx, dy);
 			if (nDist > pDudeInfo->seeDist && nDist > pDudeInfo->hearDist)
 				continue;
-			if (!cansee(x, y, z, pSector, pSprite->pos.X, pSprite->pos.Y, pSprite->z - ((pDudeInfo->eyeHeight * pSprite->yrepeat) << 2), pSprite->sector()))
+			if (!cansee(x, y, z, pSector, pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z - ((pDudeInfo->eyeHeight * pSprite->yrepeat) << 2), pSprite->sector()))
 				continue;
 
 			int nDeltaAngle = ((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024;
@@ -1583,14 +1583,14 @@ void aiLookForTarget(DBloodActor* actor)
 				continue;
 			int x = pPlayer->pSprite->pos.X;
 			int y = pPlayer->pSprite->pos.Y;
-			int z = pPlayer->pSprite->z;
+			int z = pPlayer->pSprite->pos.Z;
 			auto pSector = pPlayer->pSprite->sector();
 			int dx = x - pSprite->pos.X;
 			int dy = y - pSprite->pos.Y;
 			int nDist = approxDist(dx, dy);
 			if (nDist > pDudeInfo->seeDist && nDist > pDudeInfo->hearDist)
 				continue;
-			if (!cansee(x, y, z, pSector, pSprite->pos.X, pSprite->pos.Y, pSprite->z - ((pDudeInfo->eyeHeight * pSprite->yrepeat) << 2), pSprite->sector()))
+			if (!cansee(x, y, z, pSector, pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z - ((pDudeInfo->eyeHeight * pSprite->yrepeat) << 2), pSprite->sector()))
 				continue;
 			int nDeltaAngle = ((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024;
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)

@@ -63,7 +63,7 @@ void ThrowGrenade(int nPlayer, int, int, int ecx, int push1)
 
     pGrenadeSprite->pos.X = pPlayerSprite->pos.X;
     pGrenadeSprite->pos.Y = pPlayerSprite->pos.Y;
-    pGrenadeSprite->z = pPlayerSprite->z;
+    pGrenadeSprite->pos.Z = pPlayerSprite->pos.Z;
 
     if (nAngle < 0) {
         nAngle = pPlayerSprite->ang;
@@ -109,7 +109,7 @@ void BuildGrenade(int nPlayer)
 
     pSprite->pos.X = pPlayerSprite->pos.X;
     pSprite->pos.Y = pPlayerSprite->pos.Y;
-    pSprite->z = pPlayerSprite->z - 3840;
+    pSprite->pos.Z = pPlayerSprite->pos.Z - 3840;
     pSprite->shade = -64;
     pSprite->xrepeat = 20;
     pSprite->yrepeat = 20;
@@ -160,7 +160,7 @@ void ExplodeGrenade(DExhumedActor* pActor)
     }
     else
     {
-        if (pGrenadeSprite->z < pGrenadeSect->floorz)
+        if (pGrenadeSprite->pos.Z < pGrenadeSect->floorz)
         {
             var_20 = 200;
             var_28 = 36;
@@ -182,7 +182,7 @@ void ExplodeGrenade(DExhumedActor* pActor)
 		auto pPlayerSprite = &pPlayerActor->s();
         int nAngle = pPlayerSprite->ang;
 
-        pGrenadeSprite->z = pPlayerSprite->z;
+        pGrenadeSprite->pos.Z = pPlayerSprite->pos.Z;
         pGrenadeSprite->pos.X = bcos(nAngle, -5) + pPlayerSprite->pos.X;
         pGrenadeSprite->pos.Y = bsin(nAngle, -5) + pPlayerSprite->pos.Y;
 
@@ -201,8 +201,8 @@ void ExplodeGrenade(DExhumedActor* pActor)
 
     runlist_RadialDamageEnemy(pActor, nDamage, BulletInfo[kWeaponGrenade].nRadius);
 
-    BuildAnim(nullptr, var_28, 0, pGrenadeSprite->pos.X, pGrenadeSprite->pos.Y, pGrenadeSprite->z, pGrenadeSprite->sector(), var_20, 4);
-    AddFlash(pGrenadeSprite->sector(), pGrenadeSprite->pos.X, pGrenadeSprite->pos.Y, pGrenadeSprite->z, 128);
+    BuildAnim(nullptr, var_28, 0, pGrenadeSprite->pos.X, pGrenadeSprite->pos.Y, pGrenadeSprite->pos.Z, pGrenadeSprite->sector(), var_20, 4);
+    AddFlash(pGrenadeSprite->sector(), pGrenadeSprite->pos.X, pGrenadeSprite->pos.Y, pGrenadeSprite->pos.Z, 128);
 
     DestroyGrenade(pActor);
 }

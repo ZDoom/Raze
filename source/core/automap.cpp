@@ -608,7 +608,7 @@ void renderDrawMapView(int cposx, int cposy, int czoom, int cang)
 		{
 			auto A = *(spritetype**)a;
 			auto B = *(spritetype**)b;
-			if (A->z != B->z) return B->z - A->z;
+			if (A->pos.Z != B->pos.Z) return B->pos.Z - A->pos.Z;
 			return A->time - B->time; // ensures stable sort.
 		});
 

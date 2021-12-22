@@ -60,7 +60,7 @@ void BuildScorp(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector,
 
 	pSprite->pos.X = x;
     pSprite->pos.Y = y;
-    pSprite->z = z;
+    pSprite->pos.Z = z;
     pSprite->cstat = CSTAT_SPRITE_BLOCK_ALL;
     pSprite->clipdist = 70;
     pSprite->shade = -12;
@@ -379,7 +379,7 @@ void AIScorp::Tick(RunListEvent* ev)
             return;
         }
 
-        auto pSpiderActor = BuildSpider(nullptr, pSprite->pos.X, pSprite->pos.Y, pSprite->z, pSprite->sector(), pSprite->ang);
+        auto pSpiderActor = BuildSpider(nullptr, pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z, pSprite->sector(), pSprite->ang);
         if (pSpiderActor)
         {
 			auto pSpiderSprite = &pSpiderActor->s();
@@ -440,8 +440,8 @@ void AIScorp::Effect(RunListEvent* ev, DExhumedActor* pTarget, int mode)
         {
             pActor->nCount = 45;
 
-            if (cansee(pSprite->pos.X, pSprite->pos.Y, pSprite->z - GetActorHeight(pActor), pSprite->sector(),
-                pTarget->spr.pos.X, pTarget->spr.pos.Y, pTarget->spr.z - GetActorHeight(pTarget), pTarget->spr.sector()))
+            if (cansee(pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z - GetActorHeight(pActor), pSprite->sector(),
+                pTarget->spr.pos.X, pTarget->spr.pos.Y, pTarget->spr.pos.Z - GetActorHeight(pTarget), pTarget->spr.sector()))
             {
                 pSprite->xvel = 0;
                 pSprite->yvel = 0;

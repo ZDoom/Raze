@@ -59,7 +59,7 @@ void BuildSet(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, i
 
     pSprite->pos.X = x;
     pSprite->pos.Y = y;
-    pSprite->z = z;
+    pSprite->pos.Z = z;
     pSprite->cstat = CSTAT_SPRITE_BLOCK_ALL;
     pSprite->shade = -12;
     pSprite->clipdist = 110;
@@ -120,7 +120,7 @@ void BuildSoul(DExhumedActor* pSet)
     pSprite->pos.X = pSetSprite->pos.X;
     pSprite->pos.Y = pSetSprite->pos.Y;
 
-    pSprite->z = (RandomSize(8) << 8) + 8192 + pSprite->sector()->ceilingz - GetActorHeight(pActor);
+    pSprite->pos.Z = (RandomSize(8) << 8) + 8192 + pSprite->sector()->ceilingz - GetActorHeight(pActor);
 
     //pSprite->hitag = nSet;
 	pActor->pTarget = pSet;
@@ -165,7 +165,7 @@ void AISoul::Tick(RunListEvent* ev)
         pSprite->xrepeat = 1;
         pSprite->pos.X = pSetSprite->pos.X;
         pSprite->pos.Y = pSetSprite->pos.Y;
-        pSprite->z = pSetSprite->z - (GetActorHeight(pSet) >> 1);
+        pSprite->pos.Z = pSetSprite->pos.Z - (GetActorHeight(pSet) >> 1);
         ChangeActorSect(pActor, pSetSprite->sector());
         return;
     }
@@ -423,9 +423,9 @@ void AISet::Tick(RunListEvent* ev)
 
                 if (pSector)
                 {
-                    if ((pSprite->z - pSector->floorz) < 55000)
+                    if ((pSprite->pos.Z - pSector->floorz) < 55000)
                     {
-                        if (pSprite->z > pSector->ceilingz)
+                        if (pSprite->pos.Z > pSector->ceilingz)
                         {
                             pActor->nIndex = 1;
                             pActor->nAction = 7;
@@ -589,9 +589,9 @@ void AISet::Tick(RunListEvent* ev)
     {
         if (nFlag & 0x80)
         {
-            pSprite->z -= GetActorHeight(pActor);
+            pSprite->pos.Z -= GetActorHeight(pActor);
             BuildCreatureChunk(pActor, seq_GetSeqPicnum(kSeqSet, 76, 0));
-            pSprite->z += GetActorHeight(pActor);
+            pSprite->pos.Z += GetActorHeight(pActor);
         }
 
         if (bVal)

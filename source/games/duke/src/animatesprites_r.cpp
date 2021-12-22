@@ -148,8 +148,8 @@ void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 		{
 			t->pos.X -= MulScale(MaxSmoothRatio - smoothratio, ps[h->spr.yvel].pos.X - ps[h->spr.yvel].oposx, 16);
 			t->pos.Y -= MulScale(MaxSmoothRatio - smoothratio, ps[h->spr.yvel].pos.Y - ps[h->spr.yvel].oposy, 16);
-			t->z = interpolatedvalue(ps[h->spr.yvel].oposz, ps[h->spr.yvel].pos.Z, smoothratio);
-			t->z += PHEIGHT_RR;
+			t->pos.Z = interpolatedvalue(ps[h->spr.yvel].oposz, ps[h->spr.yvel].pos.Z, smoothratio);
+			t->pos.Z += PHEIGHT_RR;
 			h->spr.xrepeat = 24;
 			h->spr.yrepeat = 17;
 		}
@@ -182,7 +182,7 @@ void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 			h->spr.xrepeat = 24;
 			h->spr.yrepeat = 17;
 			if (h->spr.extra > 0)
-				t->z += (6 << 8);
+				t->pos.Z += (6 << 8);
 			break;
 		case BLOODPOOL:
 		case FOOTPRINTS:
@@ -230,7 +230,7 @@ void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 			break;
 
 		case ATOMICHEALTH:
-			t->z -= (4 << 8);
+			t->pos.Z -= (4 << 8);
 			break;
 		case CRYSTALAMMO:
 			t->shade = bsin(PlayClock << 4, -10);
@@ -350,7 +350,7 @@ void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 
 			p = h->spr.yvel;
 
-			if (t->pal == 1) t->z -= (18 << 8);
+			if (t->pal == 1) t->pos.Z -= (18 << 8);
 
 			if (ps[p].over_shoulder_on > 0 && ps[p].newOwner == nullptr)
 			{
@@ -398,8 +398,8 @@ void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 				}
 
 				if (h->GetOwner())
-					newtspr->z = ps[p].pos.Z - (12 << 8);
-				else newtspr->z = h->spr.z - (51 << 8);
+					newtspr->pos.Z = ps[p].pos.Z - (12 << 8);
+				else newtspr->pos.Z = h->spr.pos.Z - (51 << 8);
 				if (ps[p].curr_weapon == HANDBOMB_WEAPON)
 				{
 					newtspr->xrepeat = 10;
@@ -436,7 +436,7 @@ void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 				}
 
 				if (t->sector()->lotag == 2) k += 1795 - 1405;
-				else if ((h->floorz - h->spr.z) > (64 << 8)) k += 60;
+				else if ((h->floorz - h->spr.pos.Z) > (64 << 8)) k += 60;
 
 				t->picnum += k;
 				t->pal = ps[p].palookup;
@@ -446,7 +446,7 @@ void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 
 			if (ps[p].on_crane == nullptr && (h->spr.sector()->lotag & 0x7ff) != 1)
 			{
-				l = h->spr.z - ps[p].GetActor()->floorz + (3 << 8);
+				l = h->spr.pos.Z - ps[p].GetActor()->floorz + (3 << 8);
 				if (l > 1024 && h->spr.yrepeat > 32 && h->spr.extra > 0)
 					h->spr.yoffset = (int8_t)(l / (h->spr.yrepeat << 2));
 				else h->spr.yoffset = 0;
@@ -475,8 +475,8 @@ void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 
 			if (!h->GetOwner()) continue;
 
-			if (t->z > h->floorz && t->xrepeat < 32)
-				t->z = h->floorz;
+			if (t->pos.Z > h->floorz && t->xrepeat < 32)
+				t->pos.Z = h->floorz;
 
 			if (ps[p].OnMotorcycle && p == screenpeek)
 			{
@@ -737,7 +737,7 @@ void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 						else
 							daz = h->floorz;
 
-						if ((h->spr.z - daz) < (8 << 8))
+						if ((h->spr.pos.Z - daz) < (8 << 8))
 							if (ps[screenpeek].pos.Z < daz)
 							{
 								auto shadowspr = &tsprite[spritesortcnt++];
@@ -750,7 +750,7 @@ void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 								shadowspr->shade = 127;
 								shadowspr->cstat |= CSTAT_SPRITE_TRANSLUCENT;
 
-								shadowspr->z = daz;
+								shadowspr->pos.Z = daz;
 								shadowspr->pal = 4;
 
 								if (hw_models && md_tilehasmodel(t->picnum, t->pal) >= 0)
@@ -814,7 +814,7 @@ void animatesprites_r(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 		case FIRE:
 		case BURNING:
 			if (OwnerAc && OwnerAc->spr.picnum != TREE1 && OwnerAc->spr.picnum != TREE2)
-				t->z = t->sector()->floorz;
+				t->pos.Z = t->sector()->floorz;
 			t->shade = -127;
 			break;
 		case WALLLIGHT3:

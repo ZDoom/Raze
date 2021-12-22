@@ -397,7 +397,7 @@ void HWFlat::ProcessFlatSprite(HWDrawInfo* di, tspritetype* sprite, sectortype* 
 {
 	int tilenum = sprite->picnum;
 	texture = tileGetTexture(tilenum);
-	z = sprite->z * (1 / -256.f);
+	z = sprite->pos.Z * (1 / -256.f);
 	if (z == di->Viewpoint.Pos.Z) return; // looking right at the edge.
 	dynlightindex = -1;
 

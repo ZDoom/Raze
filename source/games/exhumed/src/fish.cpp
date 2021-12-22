@@ -52,7 +52,7 @@ void BuildFishLimb(DExhumedActor* pActor, int anim)
 
     pSprite2->pos.X = pSprite->pos.X;
     pSprite2->pos.Y = pSprite->pos.Y;
-    pSprite2->z = pSprite->z;
+    pSprite2->pos.Z = pSprite->pos.Z;
     pSprite2->cstat = 0;
     pSprite2->shade = -12;
     pSprite2->pal = 0;
@@ -101,17 +101,17 @@ void AIFishLimb::Tick(RunListEvent* ev)
     {
         pActor->nFrame = 0;
         if (RandomBit()) {
-            BuildBlood(pSprite->pos.X, pSprite->pos.Y, pSprite->z, pSprite->sector());
+            BuildBlood(pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z, pSprite->sector());
         }
     }
 
     int FloorZ = pSprite->sector()->floorz;
 
-    if (FloorZ <= pSprite->z)
+    if (FloorZ <= pSprite->pos.Z)
     {
-        pSprite->z += 256;
+        pSprite->pos.Z += 256;
 
-        if ((pSprite->z - FloorZ) > 25600)
+        if ((pSprite->pos.Z - FloorZ) > 25600)
         {
             pSprite->zvel = 0;
             runlist_DoSubRunRec(pSprite->owner);
@@ -119,7 +119,7 @@ void AIFishLimb::Tick(RunListEvent* ev)
             runlist_SubRunRec(pSprite->hitag);
             DeleteActor(pActor);
         }
-        else if ((pSprite->z - FloorZ) > 0)
+        else if ((pSprite->pos.Z - FloorZ) > 0)
         {
             pSprite->zvel = 1024;
         }
@@ -159,14 +159,14 @@ void BuildFish(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, 
         pSprite = &pActor->s();
         x = pSprite->pos.X;
         y = pSprite->pos.Y;
-        z = pSprite->z;
+        z = pSprite->pos.Z;
         nAngle = pSprite->ang;
         ChangeActorStat(pActor, 103);
     }
 
     pSprite->pos.X = x;
     pSprite->pos.Y = y;
-    pSprite->z = z;
+    pSprite->pos.Z = z;
     pSprite->cstat = CSTAT_SPRITE_BLOCK_ALL;
     pSprite->shade = -12;
     pSprite->clipdist = 80;
@@ -293,7 +293,7 @@ void AIFish::Damage(RunListEvent* ev)
                 BuildFishLimb(pActor, i);
             }
 
-            PlayFXAtXYZ(StaticSound[kSound40], pSprite->pos.X, pSprite->pos.Y, pSprite->z);
+            PlayFXAtXYZ(StaticSound[kSound40], pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z);
             DestroyFish(pActor);
         }
         else
@@ -361,7 +361,7 @@ void AIFish::Tick(RunListEvent* ev)
                 pActor->nAction = 2;
                 pActor->nFrame = 0;
 
-                int nAngle = GetMyAngle(pTargetActor->spr.pos.X - pSprite->pos.X, pTargetActor->spr.z - pSprite->z);
+                int nAngle = GetMyAngle(pTargetActor->spr.pos.X - pSprite->pos.X, pTargetActor->spr.pos.Z - pSprite->pos.Z);
                 pSprite->zvel = bsin(nAngle, -5);
 
                 pActor->nCount = RandomSize(6) + 90;
@@ -392,7 +392,7 @@ void AIFish::Tick(RunListEvent* ev)
             PlotCourseToSprite(pActor, pTargetActor);
             int nHeight = GetActorHeight(pActor) >> 1;
 
-            int z = abs(pTargetActor->spr.z - pSprite->z);
+            int z = abs(pTargetActor->spr.pos.Z - pSprite->pos.Z);
 
             if (z <= nHeight)
             {
@@ -405,7 +405,7 @@ void AIFish::Tick(RunListEvent* ev)
                 pSprite->yvel = 0;
             }
 
-            pSprite->zvel = (pTargetActor->spr.z - pSprite->z) >> 3;
+            pSprite->zvel = (pTargetActor->spr.pos.Z - pSprite->pos.Z) >> 3;
         }
         break;
     }
@@ -436,7 +436,7 @@ void AIFish::Tick(RunListEvent* ev)
 
     int x = pSprite->pos.X;
     int y = pSprite->pos.Y;
-    int z = pSprite->z;
+    int z = pSprite->pos.Z;
     auto pSector =pSprite->sector();
 
     // loc_2EF54
@@ -447,7 +447,7 @@ void AIFish::Tick(RunListEvent* ev)
         ChangeActorSect(pActor, pSector);
         pSprite->pos.X = x;
         pSprite->pos.Y = y;
-        pSprite->z = z;
+        pSprite->pos.Z = z;
 
         IdleFish(pActor, 0);
         return;

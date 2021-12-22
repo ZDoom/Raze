@@ -85,7 +85,7 @@ extern const char *gWeaponText[];
 
 template<typename T> void GetSpriteExtents(T const * const pSprite, int *top, int *bottom)
 {
-    *top = *bottom = pSprite->z;
+    *top = *bottom = pSprite->pos.Z;
     if ((pSprite->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_FLOOR)
     {
         int height = tileHeight(pSprite->picnum);

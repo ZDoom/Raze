@@ -248,7 +248,7 @@ int CanHitPlayer(DSWActor* actor)
     // if actor can still see the player
     int zhs, zhh;
 
-    zhs = sp->z - DIV2(SPRITEp_SIZE_Z(sp));
+    zhs = sp->pos.Z - DIV2(SPRITEp_SIZE_Z(sp));
 
 
     auto hp = &u->targetActor->s();
@@ -261,7 +261,7 @@ int CanHitPlayer(DSWActor* actor)
     yvect = bsin(ang);
 
     // get zvect
-    zhh = hp->z - DIV2(SPRITEp_SIZE_Z(hp));
+    zhh = hp->pos.Z - DIV2(SPRITEp_SIZE_Z(hp));
     if (hp->pos.X - sp->pos.X != 0)
         zvect = xvect * ((zhh - zhs)/(hp->pos.X - sp->pos.X));
     else if (hp->pos.Y - sp->pos.Y != 0)
@@ -464,8 +464,8 @@ int DoActorOperate(DSWActor* actor)
     if ((u->WaitTics -= ACTORMOVETICS) > 0)
         return false;
 
-    z[0] = sp->z - SPRITEp_SIZE_Z(sp) + Z(5);
-    z[1] = sp->z - DIV2(SPRITEp_SIZE_Z(sp));
+    z[0] = sp->pos.Z - SPRITEp_SIZE_Z(sp) + Z(5);
+    z[1] = sp->pos.Z - DIV2(SPRITEp_SIZE_Z(sp));
 
     for (i = 0; i < SIZ(z); i++)
     {
@@ -1010,7 +1010,7 @@ int FindTrackToPlayer(DSWActor* actor)
         BIT(TT_SCAN)
     };
 
-    zdiff = ActorUpper(u->targetActor) - (sp->z - SPRITEp_SIZE_Z(sp) + Z(8));
+    zdiff = ActorUpper(u->targetActor) - (sp->pos.Z - SPRITEp_SIZE_Z(sp) + Z(8));
 
     if (labs(zdiff) <= Z(20))
     {
@@ -1468,7 +1468,7 @@ Collision move_scan(DSWActor* actor, int ang, int dist, int *stopx, int *stopy, 
     // save off position info
     x = sp->pos.X;
     y = sp->pos.Y;
-    z = sp->z;
+    z = sp->pos.Z;
     sang = sp->ang;
     loz = u->loz;
     hiz = u->hiz;
@@ -1491,12 +1491,12 @@ Collision move_scan(DSWActor* actor, int ang, int dist, int *stopx, int *stopy, 
     // remember where it stopped
     *stopx = sp->pos.X;
     *stopy = sp->pos.Y;
-    *stopz = sp->z;
+    *stopz = sp->pos.Z;
 
     // reset position information
     sp->pos.X = x;
     sp->pos.Y = y;
-    sp->z = z;
+    sp->pos.Z = z;
     sp->ang = sang;
     u->loz = loz;
     u->hiz = hiz;

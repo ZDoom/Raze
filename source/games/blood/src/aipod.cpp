@@ -70,7 +70,7 @@ void podAttack(int, DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
 	int x = pTarget->pos.X - pSprite->pos.X;
 	int y = pTarget->pos.Y - pSprite->pos.Y;
-	int dz = pTarget->z - pSprite->z;
+	int dz = pTarget->pos.Z - pSprite->pos.Z;
 	x += Random2(1000);
 	y += Random2(1000);
 	int nDist = approxDist(x, y);
@@ -125,7 +125,7 @@ void sub_70284(int, DBloodActor* actor)
 		nDist = 75;
 		break;
 	}
-	actRadiusDamage(actor, pSprite->pos.X, pSprite->pos.Y, pSprite->z, pSprite->sector(), nDist, 1, 5 * (1 + gGameOptions.nDifficulty), dmgType, 2, nBurn);
+	actRadiusDamage(actor, pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z, pSprite->sector(), nDist, 1, 5 * (1 + gGameOptions.nDifficulty), dmgType, 2, nBurn);
 }
 
 static void aiPodSearch(DBloodActor* actor)
@@ -212,7 +212,7 @@ static void aiPodChase(DBloodActor* actor)
 	{
 		int nDeltaAngle = ((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024;
 		int height = (pDudeInfo->eyeHeight * pSprite->yrepeat) << 2;
-		if (cansee(pTarget->pos.X, pTarget->pos.Y, pTarget->z, pTarget->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->z - height, pSprite->sector()))
+		if (cansee(pTarget->pos.X, pTarget->pos.Y, pTarget->pos.Z, pTarget->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z - height, pSprite->sector()))
 		{
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{

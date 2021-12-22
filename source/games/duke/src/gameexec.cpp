@@ -1187,8 +1187,8 @@ void DoActor(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor, 
 		else SetGameVarID(lVar2, act->spr.pos.Y, sActor, sPlayer);
 		break;
 	case ACTOR_Z:
-		if (bSet) act->spr.z = lValue;
-		else SetGameVarID(lVar2, act->spr.z, sActor, sPlayer);
+		if (bSet) act->spr.pos.Z = lValue;
+		else SetGameVarID(lVar2, act->spr.pos.Z, sActor, sPlayer);
 		break;
 	case ACTOR_CSTAT:
 		if (bSet) act->spr.cstat = ESpriteFlags::FromInt(lValue);
@@ -1478,7 +1478,7 @@ static bool ifcansee(DDukeActor* actor, int pnum)
 	if (ps[pnum].holoduke_on != nullptr && !isRR())
 	{
 		tosee = ps[pnum].holoduke_on;
-		j = cansee(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.z - (krand() & ((32 << 8) - 1)), actor->spr.sector(), tosee->spr.pos.X, tosee->spr.pos.Y, tosee->spr.z, tosee->sector());
+		j = cansee(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - (krand() & ((32 << 8) - 1)), actor->spr.sector(), tosee->spr.pos.X, tosee->spr.pos.Y, tosee->spr.pos.Z, tosee->sector());
 
 		if (j == 0)
 		{
@@ -1490,7 +1490,7 @@ static bool ifcansee(DDukeActor* actor, int pnum)
 	else tosee = ps[pnum].GetActor();	// holoduke not on. look for player
 
 	// can they see player, (or player's holoduke)
-	j = cansee(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.z - (krand() & ((47 << 8))), actor->spr.sector(), tosee->spr.pos.X, tosee->spr.pos.Y, tosee->spr.z - ((isRR()? 28 : 24) << 8), tosee->sector());
+	j = cansee(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - (krand() & ((47 << 8))), actor->spr.sector(), tosee->spr.pos.X, tosee->spr.pos.Y, tosee->spr.pos.Z - ((isRR()? 28 : 24) << 8), tosee->sector());
 
 	if (j == 0)
 	{
@@ -1541,12 +1541,12 @@ int ParseState::parse(void)
 		parseifelse(ifcanshoottarget(g_ac, g_p, g_x));
 		break;
 	case concmd_ifcanseetarget:
-		j = cansee(g_ac->spr.pos.X, g_ac->spr.pos.Y, g_ac->spr.z - ((krand() & 41) << 8), g_ac->spr.sector(), ps[g_p].pos.X, ps[g_p].pos.Y, ps[g_p].pos.Z/*-((krand()&41)<<8)*/, ps[g_p].GetActor()->sector());
+		j = cansee(g_ac->spr.pos.X, g_ac->spr.pos.Y, g_ac->spr.pos.Z - ((krand() & 41) << 8), g_ac->spr.sector(), ps[g_p].pos.X, ps[g_p].pos.Y, ps[g_p].pos.Z/*-((krand()&41)<<8)*/, ps[g_p].GetActor()->sector());
 		parseifelse(j);
 		if (j) g_ac->timetosleep = SLEEPTIME;
 		break;
 	case concmd_ifnocover:
-		j = cansee(g_ac->spr.pos.X, g_ac->spr.pos.Y, g_ac->spr.z, g_ac->spr.sector(), ps[g_p].pos.X, ps[g_p].pos.Y, ps[g_p].pos.Z, ps[g_p].GetActor()->sector());
+		j = cansee(g_ac->spr.pos.X, g_ac->spr.pos.Y, g_ac->spr.pos.Z, g_ac->spr.sector(), ps[g_p].pos.X, ps[g_p].pos.Y, ps[g_p].pos.Z, ps[g_p].GetActor()->sector());
 		parseifelse(j);
 		if (j) g_ac->timetosleep = SLEEPTIME;
 		break;
@@ -2001,7 +2001,7 @@ int ParseState::parse(void)
 	case concmd_larrybird:
 		insptr++;
 		ps[g_p].pos.Z = ps[g_p].GetActor()->sector()->ceilingz;
-		ps[g_p].GetActor()->spr.z = ps[g_p].pos.Z;
+		ps[g_p].GetActor()->spr.pos.Z = ps[g_p].pos.Z;
 		break;
 	case concmd_destroyit:
 		insptr++;
@@ -2190,7 +2190,7 @@ int ParseState::parse(void)
 				else s = (krand()%3);
 
 				auto l = EGS(g_ac->spr.sector(),
-					g_ac->spr.pos.X + (krand() & 255) - 128, g_ac->spr.pos.Y + (krand() & 255) - 128, g_ac->spr.z - (8 << 8) - (krand() & 8191),
+					g_ac->spr.pos.X + (krand() & 255) - 128, g_ac->spr.pos.Y + (krand() & 255) - 128, g_ac->spr.pos.Z - (8 << 8) - (krand() & 8191),
 					dnum + s, g_ac->spr.shade, 32 + (krand() & 15), 32 + (krand() & 15),
 					krand() & 2047, (krand() & 127) + 32, -(krand() & 2047), g_ac, 5);
 				if (l)
@@ -2247,7 +2247,7 @@ int ParseState::parse(void)
 			pickrandomspot(g_p);
 			g_ac->spr.pos.X = ps[g_p].bobposx = ps[g_p].oposx = ps[g_p].pos.X;
 			g_ac->spr.pos.Y = ps[g_p].bobposy = ps[g_p].oposy = ps[g_p].pos.Y;
-			g_ac->spr.z = ps[g_p].oposz = ps[g_p].pos.Z;
+			g_ac->spr.pos.Z = ps[g_p].oposz = ps[g_p].pos.Z;
 			g_ac->spr.backuppos();
 			updatesector(ps[g_p].pos.X, ps[g_p].pos.Y, &ps[g_p].cursector);
 			SetActor(ps[g_p].GetActor(), { ps[g_p].pos.X, ps[g_p].pos.Y, ps[g_p].pos.Z + gs.playerheight });
@@ -2299,10 +2299,10 @@ int ParseState::parse(void)
 		parseifelse(ud.coop || numplayers > 2);
 		break;
 	case concmd_ifonmud:
-		parseifelse(abs(g_ac->spr.z - g_ac->spr.sector()->floorz) < (32 << 8) && g_ac->spr.sector()->floorpicnum == 3073); // eew, hard coded tile numbers.. :?
+		parseifelse(abs(g_ac->spr.pos.Z - g_ac->spr.sector()->floorz) < (32 << 8) && g_ac->spr.sector()->floorpicnum == 3073); // eew, hard coded tile numbers.. :?
 		break;
 	case concmd_ifonwater:
-		parseifelse( abs(g_ac->spr.z-g_ac->spr.sector()->floorz) < (32<<8) && g_ac->spr.sector()->lotag == ST_1_ABOVE_WATER);
+		parseifelse( abs(g_ac->spr.pos.Z-g_ac->spr.sector()->floorz) < (32<<8) && g_ac->spr.sector()->lotag == ST_1_ABOVE_WATER);
 		break;
 	case concmd_ifmotofast:
 		parseifelse(ps[g_p].MotoSpeed > 60);
@@ -2424,7 +2424,7 @@ int ParseState::parse(void)
 					j = 1;
 			else if( (l& prunning) && s >= 8 && PlayerInput(g_p, SB_RUN) )
 					j = 1;
-			else if( (l& phigher) && ps[g_p].pos.Z < (g_ac->spr.z-(48<<8)) )
+			else if( (l& phigher) && ps[g_p].pos.Z < (g_ac->spr.pos.Z-(48<<8)) )
 					j = 1;
 			else if( (l& pwalkingback) && s <= -8 && !(PlayerInput(g_p, SB_RUN)) )
 					j = 1;
@@ -2506,7 +2506,7 @@ int ParseState::parse(void)
 		if( g_ac->spr.sector()->lotag == 0 )
 		{
 			HitInfo hit{};
-			neartag({ g_ac->spr.pos.X, g_ac->spr.pos.Y, g_ac->spr.z - (32 << 8) }, g_ac->spr.sector(), g_ac->spr.ang, hit, 768, 1);
+			neartag({ g_ac->spr.pos.X, g_ac->spr.pos.Y, g_ac->spr.pos.Z - (32 << 8) }, g_ac->spr.sector(), g_ac->spr.ang, hit, 768, 1);
 			auto sectp = hit.hitSector;
 			if (sectp)
 			{
@@ -2558,11 +2558,11 @@ int ParseState::parse(void)
 		break;
 	case concmd_iffloordistl:
 		insptr++;
-		parseifelse( (g_ac->floorz - g_ac->spr.z) <= ((*insptr)<<8));
+		parseifelse( (g_ac->floorz - g_ac->spr.pos.Z) <= ((*insptr)<<8));
 		break;
 	case concmd_ifceilingdistl:
 		insptr++;
-		parseifelse( ( g_ac->spr.z - g_ac->ceilingz ) <= ((*insptr)<<8));
+		parseifelse( ( g_ac->spr.pos.Z - g_ac->ceilingz ) <= ((*insptr)<<8));
 		break;
 	case concmd_palfrom:
 		insptr++;
@@ -2813,7 +2813,7 @@ int ParseState::parse(void)
 	case concmd_pstomp:
 		insptr++;
 		if( ps[g_p].knee_incs == 0 && ps[g_p].GetActor()->spr.xrepeat >= (isRR()? 9: 40) )
-			if( cansee(g_ac->spr.pos.X,g_ac->spr.pos.Y,g_ac->spr.z-(4<<8),g_ac->spr.sector(),ps[g_p].pos.X,ps[g_p].pos.Y,ps[g_p].pos.Z+(16<<8),ps[g_p].GetActor()->spr.sector()) )
+			if( cansee(g_ac->spr.pos.X,g_ac->spr.pos.Y,g_ac->spr.pos.Z-(4<<8),g_ac->spr.sector(),ps[g_p].pos.X,ps[g_p].pos.Y,ps[g_p].pos.Z+(16<<8),ps[g_p].GetActor()->spr.sector()) )
 		{
 			ps[g_p].knee_incs = 1;
 			if(ps[g_p].weapon_pos == 0)

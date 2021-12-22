@@ -57,7 +57,7 @@ void houndBiteSeqCallback(int, DBloodActor* actor)
 	spritetype* pTarget = &actor->GetTarget()->s();
 #ifdef NOONE_EXTENSIONS
 	if (IsPlayerSprite(pTarget) || gModernMap) // allow to hit non-player targets
-		actFireVector(actor, 0, 0, dx, dy, pTarget->z - pSprite->z, kVectorHoundBite);
+		actFireVector(actor, 0, 0, dx, dy, pTarget->pos.Z - pSprite->pos.Z, kVectorHoundBite);
 #else
 	if (IsPlayerSprite(pTarget))
 		actFireVector(actor, 0, 0, dx, dy, pTarget->z - pSprite->z, kVectorHoundBite);
@@ -132,7 +132,7 @@ static void houndThinkChase(DBloodActor* actor)
 	{
 		int nDeltaAngle = ((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024;
 		int height = (pDudeInfo->eyeHeight * pSprite->yrepeat) << 2;
-		if (cansee(pTarget->pos.X, pTarget->pos.Y, pTarget->z, pTarget->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->z - height, pSprite->sector()))
+		if (cansee(pTarget->pos.X, pTarget->pos.Y, pTarget->pos.Z, pTarget->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z - height, pSprite->sector()))
 		{
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{

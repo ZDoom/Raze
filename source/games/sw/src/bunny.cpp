@@ -1160,7 +1160,7 @@ void BunnyHatch(DSWActor* actor)
         np->clear();
         np->pos.X = sp->pos.X;
         np->pos.Y = sp->pos.Y;
-        np->z = sp->z;
+        np->pos.Z = sp->pos.Z;
         np->xrepeat = 30;  // Baby size
         np->yrepeat = 24;
         np->ang = rip_ang[i];
@@ -1223,7 +1223,7 @@ DSWActor* BunnyHatch2(DSWActor* actor)
     np->clear();
     np->pos.X = wp->pos.X;
     np->pos.Y = wp->pos.Y;
-    np->z = wp->z;
+    np->pos.Z = wp->pos.Z;
     np->xrepeat = 30;  // Baby size
     np->yrepeat = 24;
     np->ang = RANDOM_P2(2048);

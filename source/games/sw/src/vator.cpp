@@ -59,15 +59,15 @@ void ReverseVator(DSWActor* actor)
     // moving toward to OFF pos
     if (u->z_tgt == u->oz)
     {
-        if (sp->z == u->oz)
+        if (sp->pos.Z == u->oz)
             u->z_tgt = u->sz;
         else if (u->sz == u->oz)
-            u->z_tgt = sp->z;
+            u->z_tgt = sp->pos.Z;
     }
     else if (u->z_tgt == u->sz)
     {
-        if (sp->z == u->oz)
-            u->z_tgt = sp->z;
+        if (sp->pos.Z == u->oz)
+            u->z_tgt = sp->pos.Z;
         else if (u->sz == u->oz)
             u->z_tgt = u->sz;
     }
@@ -115,7 +115,7 @@ void SetVatorActive(DSWActor* actor)
     u->Tics = 0;
 
     // moving to the ON position
-    if (u->z_tgt == sp->z)
+    if (u->z_tgt == sp->pos.Z)
         VatorSwitch(SP_TAG2(sp), ON);
     else
     // moving to the OFF position
@@ -348,7 +348,7 @@ void MoveSpritesWithSector(sectortype* sect, int z_amt, bool type)
             }
         }
 
-        sp->z += z_amt;
+        sp->pos.Z += z_amt;
     }
 }
 
@@ -423,7 +423,7 @@ int DoVator(DSWActor* actor)
     if (*lptr == u->z_tgt)
     {
         // in the ON position
-        if (u->z_tgt == sp->z)
+        if (u->z_tgt == sp->pos.Z)
         {
             // change target
             u->z_tgt = u->sz;
@@ -444,7 +444,7 @@ int DoVator(DSWActor* actor)
             // change target
             u->jump_speed = u->vel_tgt;
             u->vel_rate = short(abs(u->vel_rate));
-            u->z_tgt = sp->z;
+            u->z_tgt = sp->pos.Z;
 
             RESET_BOOL8(sp);
             SetVatorInactive(actor);
@@ -585,7 +585,7 @@ int DoVatorAuto(DSWActor* actor)
     if (*lptr == u->z_tgt)
     {
         // in the UP position
-        if (u->z_tgt == sp->z)
+        if (u->z_tgt == sp->pos.Z)
         {
             // change target
             u->z_tgt = u->sz;
@@ -602,7 +602,7 @@ int DoVatorAuto(DSWActor* actor)
             // change target
             u->jump_speed = u->vel_tgt;
             u->vel_rate = short(abs(u->vel_rate));
-            u->z_tgt = sp->z;
+            u->z_tgt = sp->pos.Z;
             u->Tics = u->WaitTics;
 
             if (SP_TAG6(sp) && TEST_BOOL5(sp))

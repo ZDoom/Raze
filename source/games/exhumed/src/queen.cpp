@@ -250,7 +250,7 @@ void DestroyEgg(int nEgg)
 
     if (QueenEgg[nEgg].nAction != 4)
     {
-        BuildAnim(nullptr, 34, 0, pSprite->pos.X, pSprite->pos.Y, pSprite->z, pSprite->sector(), pSprite->xrepeat, 4);
+        BuildAnim(nullptr, 34, 0, pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z, pSprite->sector(), pSprite->xrepeat, 4);
     }
     else
     {
@@ -307,7 +307,7 @@ Collision QueenAngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int val
 
         int nMyAngle = GetMyAngle(pSprite2->pos.X - pSprite->pos.X, pSprite2->pos.Y - pSprite->pos.Y);
 
-        int edx = ((pSprite2->z - nTileY) - pSprite->z) >> 8;
+        int edx = ((pSprite2->pos.Z - nTileY) - pSprite->pos.Z) >> 8;
 
         uint32_t xDiff = abs(pSprite2->pos.X - pSprite->pos.X);
         uint32_t yDiff = abs(pSprite2->pos.Y - pSprite->pos.Y);
@@ -423,7 +423,7 @@ void BuildTail()
         pTailSprite->pal = pTailSprite->sector()->ceilingpal;
         pTailSprite->xoffset = 0;
         pTailSprite->yoffset = 0;
-        pTailSprite->z = z;
+        pTailSprite->pos.Z = z;
         pTailSprite->extra = -1;
     }
 
@@ -462,7 +462,7 @@ void BuildQueenEgg(int nQueen, int nVal)
 
     pSprite2->pos.X = x;
     pSprite2->pos.Y = y;
-    pSprite2->z = nFloorZ;
+    pSprite2->pos.Z = nFloorZ;
     pSprite2->pal = 0;
     pSprite2->clipdist = 50;
     pSprite2->xoffset = 0;
@@ -662,8 +662,8 @@ void AIQueenEgg::Tick(RunListEvent* ev)
         pEgg->nCounter--;
         if (pEgg->nCounter <= 0)
         {
-            auto pWaspSprite = BuildWasp(nullptr, pSprite->pos.X, pSprite->pos.Y, pSprite->z, pSprite->sector(), pSprite->ang, true);
-            pSprite->z = pWaspSprite->spr.z;
+            auto pWaspSprite = BuildWasp(nullptr, pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z, pSprite->sector(), pSprite->ang, true);
+            pSprite->pos.Z = pWaspSprite->spr.pos.Z;
 
             DestroyEgg(nEgg);
         }
@@ -727,7 +727,7 @@ void BuildQueenHead(int nQueen)
 
     pSprite2->pos.X = x;
     pSprite2->pos.Y = y;
-    pSprite2->z = z;
+    pSprite2->pos.Z = z;
     pSprite2->clipdist = 70;
     pSprite2->xrepeat = 80;
     pSprite2->yrepeat = 80;
@@ -880,14 +880,14 @@ void AIQueenHead::Tick(RunListEvent* ev)
         [[fallthrough]];
 
     case 1:
-        if ((pTarget->spr.z - 51200) > pSprite->z)
+        if ((pTarget->spr.pos.Z - 51200) > pSprite->pos.Z)
         {
             QueenHead.nAction = 4;
             QueenHead.nFrame = 0;
         }
         else
         {
-            pSprite->z -= 2048;
+            pSprite->pos.Z -= 2048;
             goto __MOVEQS;
         }
         break;
@@ -938,7 +938,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
     __MOVEQS:
         MoveQX[nQHead] = pSprite->pos.X;
         MoveQY[nQHead] = pSprite->pos.Y;
-        MoveQZ[nQHead] = pSprite->z;
+        MoveQZ[nQHead] = pSprite->pos.Z;
         assert(pSprite->sector());
         MoveQS[nQHead] = pSprite->sector();
         MoveQA[nQHead] = pSprite->ang;
@@ -966,7 +966,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
 
                 pTSprite->pos.X = MoveQX[nHd];
                 pTSprite->pos.Y = MoveQY[nHd];
-                pTSprite->z = MoveQZ[nHd];
+                pTSprite->pos.Z = MoveQZ[nHd];
                 pTSprite->ang = MoveQA[nHd];
             }
         }
@@ -991,7 +991,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
                 {
                     int x = pSprite->pos.X;
                     int y = pSprite->pos.Y;
-                    int z = pSprite->z;
+                    int z = pSprite->pos.Z;
                     auto pSector =pSprite->sector();
                     int nAngle = RandomSize(11) & kAngleMask;
 
@@ -1015,7 +1015,7 @@ void AIQueenHead::Tick(RunListEvent* ev)
 
                     pSprite->pos.X = x;
                     pSprite->pos.Y = y;
-                    pSprite->z = z;
+                    pSprite->pos.Z = z;
 
                     if (QueenHead.nIndex2 < 10) {
                         for (int i = (10 - QueenHead.nIndex2) * 2; i > 0; i--)
@@ -1149,7 +1149,7 @@ void BuildQueen(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector,
 
     pSprite->pos.X = x;
     pSprite->pos.Y = y;
-    pSprite->z = z;
+    pSprite->pos.Z = z;
     pSprite->cstat = CSTAT_SPRITE_BLOCK_ALL;
     pSprite->pal = 0;
     pSprite->shade = -12;
@@ -1435,7 +1435,7 @@ void AIQueen::Tick(RunListEvent* ev)
                         StaticSound[kSound40],
                         pSprite->pos.X,
                         pSprite->pos.Y,
-                        pSprite->z);
+                        pSprite->pos.Z);
 
                     BuildQueenHead(nQueen);
 
@@ -1501,7 +1501,7 @@ void AIQueen::Damage(RunListEvent* ev)
                 QueenList[nQueen].nHealth = 4000;
                 QueenList[nQueen].nAction = 7;
 
-                BuildAnim(nullptr, 36, 0, pSprite->pos.X, pSprite->pos.Y, pSprite->z - 7680, pSprite->sector(), pSprite->xrepeat, 4);
+                BuildAnim(nullptr, 36, 0, pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z - 7680, pSprite->sector(), pSprite->xrepeat, 4);
                 break;
             case 2:
                 QueenList[nQueen].nHealth = 4000;

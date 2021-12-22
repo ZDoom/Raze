@@ -194,7 +194,7 @@ int hitasprite(DDukeActor* actor, DDukeActor** hitsp)
 	else if (actor->spr.picnum == TILE_APLAYER) zoff = (39 << 8);
 	else zoff = 0;
 
-	hitscan({ actor->spr.pos.X, actor->spr.pos.Y, actor->spr.z - zoff }, actor->spr.sector(), { bcos(actor->spr.ang), bsin(actor->spr.ang), 0 }, hit, CLIPMASK1);
+	hitscan({ actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - zoff }, actor->spr.sector(), { bcos(actor->spr.ang), bsin(actor->spr.ang), 0 }, hit, CLIPMASK1);
 	if (hitsp) *hitsp = hit.actor();
 
 	if (hit.hitWall != nullptr && (hit.hitWall->cstat & CSTAT_WALL_MASKED) && badguy(actor))
@@ -327,10 +327,10 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 							if (sdist > 512 && sdist < smax)
 							{
 								if (actor->spr.picnum == TILE_APLAYER)
-									a = (abs(Scale(act->spr.z - actor->spr.z, 10, sdist) - ps[actor->spr.yvel].horizon.sum().asbuild()) < 100);
+									a = (abs(Scale(act->spr.pos.Z - actor->spr.pos.Z, 10, sdist) - ps[actor->spr.yvel].horizon.sum().asbuild()) < 100);
 								else a = 1;
 
-								cans = cansee(act->spr.pos.X, act->spr.pos.Y, act->spr.z - (32 << 8) + gs.actorinfo[act->spr.picnum].aimoffset, act->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.z - (32 << 8), actor->spr.sector());
+								cans = cansee(act->spr.pos.X, act->spr.pos.Y, act->spr.pos.Z - (32 << 8) + gs.actorinfo[act->spr.picnum].aimoffset, act->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - (32 << 8), actor->spr.sector());
 
 								if (a && cans)
 								{
@@ -542,7 +542,7 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 		{
 			SetPlayerPal(p, PalEntry(63, 63, 0, 0));
 			p->pos.Z -= (16 << 8);
-			actor->spr.z -= (16 << 8);
+			actor->spr.pos.Z -= (16 << 8);
 		}
 #if 0
 		if (ud.recstat == 1 && ud.multimode < 2)
@@ -594,7 +594,7 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 		}
 		else
 		{
-			actor->spr.z -= 512;
+			actor->spr.pos.Z -= 512;
 			actor->spr.zvel = -348;
 		}
 
@@ -1030,7 +1030,7 @@ void shootbloodsplat(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 					spawned->spr.ang = getangle(-delta.X, -delta.Y) + 512; // note the '-' sign here!
 					spawned->spr.pos.X = hit.hitpos.X;
 					spawned->spr.pos.Y = hit.hitpos.Y;
-					spawned->spr.z = hit.hitpos.Z;
+					spawned->spr.pos.Z = hit.hitpos.Z;
 					spawned->spr.cstat |= randomXFlip();
 					ssp(spawned, CLIPMASK0);
 					SetActor(spawned, spawned->spr.pos);

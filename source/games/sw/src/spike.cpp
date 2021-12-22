@@ -54,15 +54,15 @@ void ReverseSpike(DSWActor* actor)
     // moving toward to OFF pos
     if (u->z_tgt == u->oz)
     {
-        if (sp->z == u->oz)
+        if (sp->pos.Z == u->oz)
             u->z_tgt = u->sz;
         else if (u->sz == u->oz)
-            u->z_tgt = sp->z;
+            u->z_tgt = sp->pos.Z;
     }
     else if (u->z_tgt == u->sz)
     {
-        if (sp->z == u->oz)
-            u->z_tgt = sp->z;
+        if (sp->pos.Z == u->oz)
+            u->z_tgt = sp->pos.Z;
         else if (u->sz == u->oz)
             u->z_tgt = u->sz;
     }
@@ -110,7 +110,7 @@ void SetSpikeActive(DSWActor* actor)
     u->Tics = 0;
 
     // moving to the ON position
-    if (u->z_tgt == sp->z)
+    if (u->z_tgt == sp->pos.Z)
         VatorSwitch(SP_TAG2(sp), ON);
     else
     // moving to the OFF position
@@ -294,7 +294,7 @@ void MoveSpritesWithSpike(sectortype* sect)
             continue;
 
         getzsofslopeptr(sect, sp->pos.X, sp->pos.Y, &cz, &fz);
-        sp->z = fz;
+        sp->pos.Z = fz;
     }
 }
 
@@ -319,7 +319,7 @@ int DoSpike(DSWActor* actor)
     if (*lptr == u->z_tgt)
     {
         // in the ON position
-        if (u->z_tgt == sp->z)
+        if (u->z_tgt == sp->pos.Z)
         {
             // change target
             u->z_tgt = u->sz;
@@ -339,7 +339,7 @@ int DoSpike(DSWActor* actor)
             // change target
             u->jump_speed = u->vel_tgt;
             u->vel_rate = (short)abs(u->vel_rate);
-            u->z_tgt = sp->z;
+            u->z_tgt = sp->pos.Z;
 
             SetSpikeInactive(actor);
 
@@ -431,7 +431,7 @@ int DoSpikeAuto(DSWActor* actor)
     if (*lptr == u->z_tgt)
     {
         // in the UP position
-        if (u->z_tgt == sp->z)
+        if (u->z_tgt == sp->pos.Z)
         {
             // change target
             u->z_tgt = u->sz;
@@ -448,7 +448,7 @@ int DoSpikeAuto(DSWActor* actor)
             // change target
             u->jump_speed = u->vel_tgt;
             u->vel_rate = (short)abs(u->vel_rate);
-            u->z_tgt = sp->z;
+            u->z_tgt = sp->pos.Z;
             u->Tics = u->WaitTics;
 
             if (SP_TAG6(sp) && TEST_BOOL5(sp))

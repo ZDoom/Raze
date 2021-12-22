@@ -2577,8 +2577,8 @@ static inline int32_t polymost_findwall(tspritetype const * const tspr, vec2_t c
 
     for(auto& wal : wallsofsector(sect))
     {
-        if ((!wal.twoSided() || ((wal.nextSector()->ceilingz > (tspr->z - ((tsiz->Y * tspr->yrepeat) << 2))) ||
-             wal.nextSector()->floorz < tspr->z)) && !polymost_getclosestpointonwall((const vec2_t *) tspr, wallnum(&wal), &n))
+        if ((!wal.twoSided() || ((wal.nextSector()->ceilingz > (tspr->pos.Z - ((tsiz->Y * tspr->yrepeat) << 2))) ||
+             wal.nextSector()->floorz < tspr->pos.Z)) && !polymost_getclosestpointonwall((const vec2_t *) tspr, wallnum(&wal), &n))
         {
             int const dst = abs(tspr->pos.X - n.X) + abs(tspr->pos.Y - n.Y);
 
@@ -2639,10 +2639,10 @@ static inline float tspriteGetZOfSlopeFloat(tspriteptr_t const tspr, float dax, 
 {
     int16_t const heinum = tspriteGetSlope(tspr);
     if (heinum == 0)
-        return float(tspr->z);
+        return float(tspr->pos.Z);
 
     float const f = bsin(tspr->ang + 1024) * (day - tspr->pos.Y) - bsin(tspr->ang + 512) * (dax - tspr->pos.X);
-    return float(tspr->z) + heinum * f * (1.f / 4194304.f);
+    return float(tspr->pos.Z) + heinum * f * (1.f / 4194304.f);
 }
 
 
@@ -3381,7 +3381,7 @@ static inline int comparetsprites(int const k, int const l)
 
     if (tspriteptr[k]->pos.X == tspriteptr[l]->pos.X &&
         tspriteptr[k]->pos.Y == tspriteptr[l]->pos.Y &&
-        tspriteptr[k]->z == tspriteptr[l]->z &&
+        tspriteptr[k]->pos.Z == tspriteptr[l]->pos.Z &&
         (tspriteptr[k]->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == (tspriteptr[l]->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) &&
         tspriteptr[k]->ownerActor != tspriteptr[l]->ownerActor)
         return tspriteptr[k]->ownerActor->GetIndex() - tspriteptr[l]->ownerActor->GetIndex();
@@ -3428,7 +3428,7 @@ static void sortsprites(int const start, int const end)
             {
                 auto const s = tspriteptr[k];
 
-                spritesxyz[k].Z = s->z;
+                spritesxyz[k].Z = s->pos.Z;
                 if ((s->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != CSTAT_SPRITE_ALIGNMENT_FLOOR)
                 {
                     int32_t yoff = tileTopOffset(s->picnum) + s->yoffset;
@@ -3826,7 +3826,7 @@ int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr, bool rotate)
     f = (float)tspr->yrepeat * k0;
     m0.Z *= f; a0.Z *= f;
 
-    k0 = (float)(tspr->z + tspr->ownerActor->sx().position_offset.Z);
+    k0 = (float)(tspr->pos.Z + tspr->ownerActor->sx().position_offset.Z);
     f = ((globalorientation & 8) && (tspr->ownerActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != 0) ? -4.f : 4.f;
     k0 -= (tspr->yoffset * tspr->yrepeat) * f * m->bscale;
     zoff = m->siz.Z * .5f;

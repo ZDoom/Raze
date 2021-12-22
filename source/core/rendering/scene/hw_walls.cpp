@@ -114,11 +114,11 @@ static int IsOnWall(tspritetype* tspr, int height)
 	vec2_t n;
 	walltype* closest = nullptr;
 
-	int topz = (tspr->z - ((height * tspr->yrepeat) << 2));
+	int topz = (tspr->pos.Z - ((height * tspr->yrepeat) << 2));
 	for(auto& wal : wallsofsector(sect))
 	{
 		if ((wal.nextsector == -1 || ((wal.nextSector()->ceilingz > topz) ||
-			wal.nextSector()->floorz < tspr->z)) && !GetClosestPointOnWall(tspr, &wal, &n))
+			wal.nextSector()->floorz < tspr->pos.Z)) && !GetClosestPointOnWall(tspr, &wal, &n))
 		{
 			int const dst = abs(tspr->pos.X - n.X) + abs(tspr->pos.Y - n.Y);
 

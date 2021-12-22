@@ -86,7 +86,7 @@ void BuildRat(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, i
         pSprite = &pActor->s();
         x = pSprite->pos.X;
         y = pSprite->pos.Y;
-        z = pSprite->z;
+        z = pSprite->pos.Z;
         nAngle = pSprite->ang;
 
         ChangeActorStat(pActor, 108);
@@ -132,7 +132,7 @@ DExhumedActor* FindFood(DExhumedActor* pActor)
     auto pSector = pSprite->sector();
     int x = pSprite->pos.X;
     int y = pSprite->pos.Y;
-    int z = pSprite->z;
+    int z = pSprite->pos.Z;
 
     int z2 = (z + pSector->ceilingz) / 2;
 
@@ -142,7 +142,7 @@ DExhumedActor* FindFood(DExhumedActor* pActor)
 		if (pActor2 != nullptr)
 		{
 			auto pSprite2 = &pActor2->s();
-            if (cansee(x, y, z2, pSector, pSprite2->pos.X, pSprite2->pos.Y, pSprite2->z, pSprite2->sector())) {
+            if (cansee(x, y, z2, pSector, pSprite2->pos.X, pSprite2->pos.Y, pSprite2->pos.Z, pSprite2->sector())) {
                 return pActor2;
             }
         }
@@ -158,7 +158,7 @@ DExhumedActor* FindFood(DExhumedActor* pActor)
 		auto pSprite2 = &pActor2->s();
         if (nPlayerPic == pSprite2->picnum)
         {
-            if (cansee(x, y, z, pSector, pSprite2->pos.X, pSprite2->pos.Y, pSprite2->z, pSprite2->sector())) {
+            if (cansee(x, y, z, pSector, pSprite2->pos.X, pSprite2->pos.Y, pSprite2->pos.Z, pSprite2->sector())) {
                 return pActor2;
             }
         }

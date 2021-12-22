@@ -591,15 +591,15 @@ void playerSetGodMode(PLAYER *pPlayer, bool bGodMode)
 void playerResetInertia(PLAYER *pPlayer)
 {
     POSTURE *pPosture = &pPlayer->pPosture[pPlayer->lifeMode][pPlayer->posture];
-    pPlayer->zView = pPlayer->pSprite->z-pPosture->eyeAboveZ;
-    pPlayer->zWeapon = pPlayer->pSprite->z-pPosture->weaponAboveZ;
+    pPlayer->zView = pPlayer->pSprite->pos.Z-pPosture->eyeAboveZ;
+    pPlayer->zWeapon = pPlayer->pSprite->pos.Z-pPosture->weaponAboveZ;
     viewBackupView(pPlayer->nPlayer);
 }
 
 void playerCorrectInertia(PLAYER* pPlayer, vec3_t const *oldpos)
 {
-    pPlayer->zView += pPlayer->pSprite->z-oldpos->Z;
-    pPlayer->zWeapon += pPlayer->pSprite->z-oldpos->Z;
+    pPlayer->zView += pPlayer->pSprite->pos.Z-oldpos->Z;
+    pPlayer->zWeapon += pPlayer->pSprite->pos.Z-oldpos->Z;
     viewCorrectViewOffsets(pPlayer->nPlayer, oldpos);
 }
 
@@ -674,7 +674,7 @@ void playerStart(int nPlayer, int bNewLevel)
     actor->spr.cstat2 |= CSTAT2_SPRITE_MAPPED;
     int top, bottom;
     GetSpriteExtents(pSprite, &top, &bottom);
-    pSprite->z -= bottom - pSprite->z;
+    pSprite->pos.Z -= bottom - pSprite->pos.Z;
     pSprite->pal = 11+(pPlayer->teamId&3);
     pSprite->ang = pStartZone->ang;
     pPlayer->angle.ang = buildang(pSprite->ang);
@@ -1091,7 +1091,7 @@ bool PickupItem(PLAYER *pPlayer, DBloodActor* itemactor)
             return 1;
     }
     
-    sfxPlay3DSound(pSprite->pos.X, pSprite->pos.Y, pSprite->z, pickupSnd, pSprite->sector());
+    sfxPlay3DSound(pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z, pickupSnd, pSprite->sector());
     return 1;
 }
 
@@ -1204,7 +1204,7 @@ void CheckPickUp(PLAYER *pPlayer)
     spritetype *pSprite = pPlayer->pSprite;
     int x = pSprite->pos.X;
     int y = pSprite->pos.Y;
-    int z = pSprite->z;
+    int z = pSprite->pos.Z;
     auto pSector = pSprite->sector();
     BloodStatIterator it(kStatItem);
     while (auto itemactor = it.Next())
@@ -1221,16 +1221,16 @@ void CheckPickUp(PLAYER *pPlayer)
         int top, bottom;
         GetSpriteExtents(pSprite, &top, &bottom);
         int vb = 0;
-        if (pItem->z < top)
-            vb = (top-pItem->z)>>8;
-        else if (pItem->z > bottom)
-            vb = (pItem->z-bottom)>>8;
+        if (pItem->pos.Z < top)
+            vb = (top-pItem->pos.Z)>>8;
+        else if (pItem->pos.Z > bottom)
+            vb = (pItem->pos.Z-bottom)>>8;
         if (vb > 32)
             continue;
         if (approxDist(dx,dy) > 48)
             continue;
         GetSpriteExtents(pItem, &top, &bottom);
-        if (cansee(x, y, z, pSector, pItem->pos.X, pItem->pos.Y, pItem->z, pItem->sector())
+        if (cansee(x, y, z, pSector, pItem->pos.X, pItem->pos.Y, pItem->pos.Z, pItem->sector())
          || cansee(x, y, z, pSector, pItem->pos.X, pItem->pos.Y, top, pItem->sector())
          || cansee(x, y, z, pSector, pItem->pos.X, pItem->pos.Y, bottom, pItem->sector()))
             PickUp(pPlayer, itemactor);
@@ -1668,8 +1668,8 @@ void playerProcess(PLAYER *pPlayer)
     powerupProcess(pPlayer);
     int top, bottom;
     GetSpriteExtents(pSprite, &top, &bottom);
-    int dzb = (bottom-pSprite->z)/4;
-    int dzt = (pSprite->z-top)/4;
+    int dzb = (bottom-pSprite->pos.Z)/4;
+    int dzt = (pSprite->pos.Z-top)/4;
     int dw = pSprite->clipdist<<2;
     if (!gNoClip)
     {
@@ -1690,14 +1690,14 @@ void playerProcess(PLAYER *pPlayer)
     ProcessInput(pPlayer);
     int nSpeed = approxDist(actor->xvel, actor->yvel);
     pPlayer->zViewVel = interpolatedvalue(pPlayer->zViewVel, actor->zvel, 0x7000);
-    int dz = pPlayer->pSprite->z-pPosture->eyeAboveZ-pPlayer->zView;
+    int dz = pPlayer->pSprite->pos.Z-pPosture->eyeAboveZ-pPlayer->zView;
     if (dz > 0)
         pPlayer->zViewVel += MulScale(dz<<8, 0xa000, 16);
     else
         pPlayer->zViewVel += MulScale(dz<<8, 0x1800, 16);
     pPlayer->zView += pPlayer->zViewVel>>8;
     pPlayer->zWeaponVel = interpolatedvalue(pPlayer->zWeaponVel, actor->zvel, 0x5000);
-    dz = pPlayer->pSprite->z-pPosture->weaponAboveZ-pPlayer->zWeapon;
+    dz = pPlayer->pSprite->pos.Z-pPosture->weaponAboveZ-pPlayer->zWeapon;
     if (dz > 0)
         pPlayer->zWeaponVel += MulScale(dz<<8, 0x8000, 16);
     else
@@ -1786,13 +1786,13 @@ void playerProcess(PLAYER *pPlayer)
 
 DBloodActor* playerFireMissile(PLAYER *pPlayer, int a2, int a3, int a4, int a5, int a6)
 {
-    return actFireMissile(pPlayer->actor, a2, pPlayer->zWeapon-pPlayer->pSprite->z, a3, a4, a5, a6);
+    return actFireMissile(pPlayer->actor, a2, pPlayer->zWeapon-pPlayer->pSprite->pos.Z, a3, a4, a5, a6);
 }
 
 DBloodActor* playerFireThing(PLAYER *pPlayer, int a2, int a3, int thingType, int a5)
 {
     assert(thingType >= kThingBase && thingType < kThingMax);
-    return actFireThing(pPlayer->actor, a2, pPlayer->zWeapon-pPlayer->pSprite->z, pPlayer->slope+a3, thingType, a5);
+    return actFireThing(pPlayer->actor, a2, pPlayer->zWeapon-pPlayer->pSprite->pos.Z, pPlayer->slope+a3, thingType, a5);
 }
 
 void playerFrag(PLAYER *pKiller, PLAYER *pVictim)
@@ -2107,7 +2107,7 @@ void voodooTarget(PLAYER *pPlayer)
 {
     DBloodActor* actor = pPlayer->actor;
     int v4 = pPlayer->aim.dz;
-    int dz = pPlayer->zWeapon-pPlayer->pSprite->z;
+    int dz = pPlayer->zWeapon-pPlayer->pSprite->pos.Z;
     if (UseAmmo(pPlayer, 9, 0) < 8)
     {
         pPlayer->voodooTargets = 0;

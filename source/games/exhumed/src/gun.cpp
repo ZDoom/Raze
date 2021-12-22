@@ -617,7 +617,7 @@ loc_flag:
                 pPlayerSprite->sector(),
                 pPlayerSprite->pos.X,
                 pPlayerSprite->pos.Y,
-                pPlayerSprite->z,
+                pPlayerSprite->pos.Z,
                 0);
         }
 
@@ -651,7 +651,7 @@ loc_flag:
             int nAngle = pPlayerSprite->ang;
             int theX = pPlayerSprite->pos.X;
             int theY = pPlayerSprite->pos.Y;
-            int theZ = pPlayerSprite->z;
+            int theZ = pPlayerSprite->pos.Z;
 
             int ebp = bcos(nAngle) * (pPlayerSprite->clipdist << 3);
             int ebx = bsin(nAngle) * (pPlayerSprite->clipdist << 3);

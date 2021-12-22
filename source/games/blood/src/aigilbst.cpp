@@ -64,7 +64,7 @@ void GillBiteSeqCallback(int, DBloodActor* actor)
 	spritetype* pTarget = &actor->GetTarget()->s();
 	int dx = bcos(pSprite->ang);
 	int dy = bsin(pSprite->ang);
-	int dz = pSprite->z - pTarget->z;
+	int dz = pSprite->pos.Z - pTarget->pos.Z;
 	dx += Random3(2000);
 	dy += Random3(2000);
 	actFireVector(actor, 0, 0, dx, dy, dz, kVectorGillBite);
@@ -147,15 +147,15 @@ static void gillThinkChase(DBloodActor* actor)
 	{
 		int nDeltaAngle = ((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024;
 		int height = (pDudeInfo->eyeHeight * pSprite->yrepeat) << 2;
-		if (cansee(pTarget->pos.X, pTarget->pos.Y, pTarget->z, pTarget->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->z - height, pSprite->sector()))
+		if (cansee(pTarget->pos.X, pTarget->pos.Y, pTarget->pos.Z, pTarget->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z - height, pSprite->sector()))
 		{
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{
 				aiSetTarget(actor, actor->GetTarget());
-				actor->dudeSlope = nDist == 0 ? 0 : DivScale(pTarget->z - pSprite->z, nDist, 10);
+				actor->dudeSlope = nDist == 0 ? 0 : DivScale(pTarget->pos.Z - pSprite->pos.Z, nDist, 10);
 				if (nDist < 921 && abs(nDeltaAngle) < 28)
 				{
-					int hit = HitScan(actor, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
+					int hit = HitScan(actor, pSprite->pos.Z, dx, dy, 0, CLIPMASK1, 0);
 					switch (hit)
 					{
 					case -1:
@@ -247,10 +247,10 @@ static void gillThinkSwimChase(DBloodActor* actor)
 	if (nDist <= pDudeInfo->seeDist)
 	{
 		int nDeltaAngle = ((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024;
-		int height = pDudeInfo->eyeHeight + pSprite->z;
+		int height = pDudeInfo->eyeHeight + pSprite->pos.Z;
 		int top, bottom;
 		GetActorExtents(actor, &top, &bottom);
-		if (cansee(pTarget->pos.X, pTarget->pos.Y, pTarget->z, pTarget->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->z - height, pSprite->sector()))
+		if (cansee(pTarget->pos.X, pTarget->pos.Y, pTarget->pos.Z, pTarget->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z - height, pSprite->sector()))
 		{
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{
@@ -314,8 +314,8 @@ static void sub_6CD74(DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	spritetype* pTarget = &actor->GetTarget()->s();
-	int z = pSprite->z + getDudeInfo(pSprite->type)->eyeHeight;
-	int z2 = pTarget->z + getDudeInfo(pTarget->type)->eyeHeight;
+	int z = pSprite->pos.Z + getDudeInfo(pSprite->type)->eyeHeight;
+	int z2 = pTarget->pos.Z + getDudeInfo(pTarget->type)->eyeHeight;
 	int nAng = ((pXSprite->goalAng + 1024 - pSprite->ang) & 2047) - 1024;
 	int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
 	pSprite->ang = (pSprite->ang + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;
@@ -351,8 +351,8 @@ static void sub_6D03C(DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	spritetype* pTarget = &actor->GetTarget()->s();
-	int z = pSprite->z + getDudeInfo(pSprite->type)->eyeHeight;
-	int z2 = pTarget->z + getDudeInfo(pTarget->type)->eyeHeight;
+	int z = pSprite->pos.Z + getDudeInfo(pSprite->type)->eyeHeight;
+	int z2 = pTarget->pos.Z + getDudeInfo(pTarget->type)->eyeHeight;
 	int nAng = ((pXSprite->goalAng + 1024 - pSprite->ang) & 2047) - 1024;
 	int nTurnRange = (pDudeInfo->angSpeed << 2) >> 4;
 	pSprite->ang = (pSprite->ang + ClipRange(nAng, -nTurnRange, nTurnRange)) & 2047;

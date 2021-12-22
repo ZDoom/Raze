@@ -50,7 +50,7 @@ DExhumedActor* BuildWasp(DExhumedActor* pActor, int x, int y, int z, sectortype*
 
         pSprite->pos.X = x;
         pSprite->pos.Y = y;
-        pSprite->z = z;
+        pSprite->pos.Z = z;
     }
     else
     {
@@ -340,9 +340,9 @@ void AIWasp::Tick(RunListEvent* ev)
     {
         auto pSector =pSprite->sector();
 
-        pSprite->z += pSprite->zvel;
+        pSprite->pos.Z += pSprite->zvel;
 
-        if (pSprite->z >= pSector->floorz)
+        if (pSprite->pos.Z >= pSector->floorz)
         {
             if (pSector->pBelow != nullptr)
             {

@@ -2550,7 +2550,7 @@ static void ConcussSprite(DBloodActor* source, DBloodActor* actor, int x, int y,
 	auto pSprite = &actor->s();
 	int dx = pSprite->pos.X - x;
 	int dy = pSprite->pos.Y - y;
-	int dz = (pSprite->z - z) >> 4;
+	int dz = (pSprite->pos.Z - z) >> 4;
 	int dist2 = 0x40000 + dx * dx + dy * dy + dz * dz;
 	assert(dist2 > 0);
 	damage = scale(0x40000, damage, dist2);
@@ -2667,7 +2667,7 @@ void actRadiusDamage(DBloodActor* source, int x, int y, int z, sectortype* pSect
 
 					int dx = abs(x - pSprite2->pos.X);
 					int dy = abs(y - pSprite2->pos.Y);
-					int dz = abs(z - pSprite2->z) >> 4;
+					int dz = abs(z - pSprite2->pos.Z) >> 4;
 					int dist = ksqrt(dx * dx + dy * dy + dz * dz);
 					if (dist > nDist) continue;
 
@@ -2727,7 +2727,7 @@ static void actNapalmMove(DBloodActor* actor)
 	if (Chance(0x8000)) pSprite->cstat |= CSTAT_SPRITE_XFLIP;
 
 	sfxPlay3DSound(actor, 303, 24 + (pSprite->flags & 3), 1);
-	actRadiusDamage(pOwner, pSprite->pos.X, pSprite->pos.Y, pSprite->z, pSprite->sector(), 128, 0, 60, kDamageExplode, 15, 120);
+	actRadiusDamage(pOwner, pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z, pSprite->sector(), 128, 0, 60, kDamageExplode, 15, 120);
 
 	if (pXSprite->data4 > 1)
 	{
@@ -2895,8 +2895,8 @@ DBloodActor* actDropObject(DBloodActor* actor, int nType)
 	{
 		int top, bottom;
 		GetActorExtents(act2, &top, &bottom);
-		if (bottom >= act2->spr.z)
-			act2->spr.z -= bottom - act2->spr.z;
+		if (bottom >= act2->spr.pos.Z)
+			act2->spr.pos.Z -= bottom - act2->spr.pos.Z;
 	}
 
 	return act2;
@@ -2917,7 +2917,7 @@ bool actHealDude(DBloodActor* actor, int add, int threshold)
 	if (pXDude->health < (unsigned)threshold)
 	{
 		spritetype* pSprite = &actor->s();
-		if (actor->IsPlayerActor()) sfxPlay3DSound(pSprite->pos.X, pSprite->pos.Y, pSprite->z, 780, pSprite->sector());
+		if (actor->IsPlayerActor()) sfxPlay3DSound(pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z, 780, pSprite->sector());
 		pXDude->health = min<uint32_t>(pXDude->health + add, threshold);
 		return true;
 	}
@@ -2992,7 +2992,7 @@ static bool actKillModernDude(DBloodActor* actor, DAMAGE_TYPE damageType)
 		else
 		{
 			seqKill(actor);
-			DBloodActor* pEffectA = gFX.fxSpawnActor((FX_ID)52, pSprite->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->z, pSprite->ang);
+			DBloodActor* pEffectA = gFX.fxSpawnActor((FX_ID)52, pSprite->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z, pSprite->ang);
 			if (pEffectA != nullptr)
 			{
 				auto pEffect = &pEffectA->s();
@@ -3773,7 +3773,7 @@ static int actDamageThing(DBloodActor* source, DBloodActor* actor, int damage, D
 			{
 			case -1:
 				GibSprite(actor, GIBTYPE_14, nullptr, nullptr);
-				sfxPlay3DSound(pSprite->pos.X, pSprite->pos.Y, pSprite->z, 312, pSprite->sector());
+				sfxPlay3DSound(pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z, 312, pSprite->sector());
 				actPostSprite(actor, kStatFree);
 				break;
 
@@ -3932,7 +3932,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 		case 4:
 			if (pWallHit)
 			{
-				auto pFX = gFX.fxSpawnActor(FX_52, pMissile->sector(), pMissile->pos.X, pMissile->pos.Y, pMissile->z, 0);
+				auto pFX = gFX.fxSpawnActor(FX_52, pMissile->sector(), pMissile->pos.X, pMissile->pos.Y, pMissile->pos.Z, 0);
 				if (pFX) pFX->spr.ang = (GetWallAngle(pWallHit) + 512) & 2047;
 			}
 			break;
@@ -3953,7 +3953,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 
 	case kMissileArcGargoyle:
 		sfxKill3DSound(missileActor, -1, -1);
-		sfxPlay3DSound(pMissile->pos.X, pMissile->pos.Y, pMissile->z, 306, pMissile->sector());
+		sfxPlay3DSound(pMissile->pos.X, pMissile->pos.Y, pMissile->pos.Z, 306, pMissile->sector());
 		GibSprite(missileActor, GIBTYPE_6, NULL, NULL);
 
 		if (hitCode == 3 && pSpriteHit && (pThingInfo || pDudeInfo))
@@ -3967,7 +3967,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 	case kMissileLifeLeechAltNormal:
 	case kMissileLifeLeechAltSmall:
 		sfxKill3DSound(missileActor, -1, -1);
-		sfxPlay3DSound(pMissile->pos.X, pMissile->pos.Y, pMissile->z, 306, pMissile->sector());
+		sfxPlay3DSound(pMissile->pos.X, pMissile->pos.Y, pMissile->pos.Z, 306, pMissile->sector());
 
 		if (hitCode == 3 && pSpriteHit && (pThingInfo || pDudeInfo))
 		{
@@ -4006,7 +4006,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 					evPostActor(actorHit, 0, kCallbackFXFlameLick);
 
 				actBurnSprite(missileOwner, actorHit, 480);
-				actRadiusDamage(missileOwner, pMissile->pos.X, pMissile->pos.Y, pMissile->z, pMissile->sector(), 16, 20, 10, kDamageBullet, 6, 480);
+				actRadiusDamage(missileOwner, pMissile->pos.X, pMissile->pos.Y, pMissile->pos.Z, pMissile->sector(), 16, 20, 10, kDamageBullet, 6, 480);
 
 				// by NoOne: allow additional bullet damage for Flare Gun
 				if (gGameOptions.weaponsV10x && !VanillaMode())
@@ -4025,7 +4025,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 			{
 				pMissile->picnum = 2123;
 				missileActor->SetTarget(actorHit);
-				pXMissile->targetZ = pMissile->z - pSpriteHit->z;
+				pXMissile->targetZ = pMissile->pos.Z - pSpriteHit->pos.Z;
 				pXMissile->goalAng = getangle(pMissile->pos.X - pSpriteHit->pos.X, pMissile->pos.Y - pSpriteHit->pos.Y) - pSpriteHit->ang;
 				pXMissile->state = 1;
 				actPostSprite(missileActor, kStatFlare);
@@ -4081,7 +4081,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 
 	case kMissileEctoSkull:
 		sfxKill3DSound(missileActor, -1, -1);
-		sfxPlay3DSound(pMissile->pos.X, pMissile->pos.Y, pMissile->z, 522, pMissile->sector());
+		sfxPlay3DSound(pMissile->pos.X, pMissile->pos.Y, pMissile->pos.Z, 522, pMissile->sector());
 		actPostSprite(missileActor, kStatDebris);
 		seqSpawn(20, missileActor, -1);
 		if (hitCode == 3 && actorHit && actorHit->hasX())
@@ -4114,7 +4114,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 
 	case kMissileTeslaRegular:
 		sfxKill3DSound(missileActor, -1, -1);
-		sfxPlay3DSound(pMissile->pos.X, pMissile->pos.Y, pMissile->z, 518, pMissile->sector());
+		sfxPlay3DSound(pMissile->pos.X, pMissile->pos.Y, pMissile->pos.Z, 518, pMissile->sector());
 		GibSprite(missileActor, (hitCode == 2) ? GIBTYPE_23 : GIBTYPE_22, NULL, NULL);
 		evKillActor(missileActor);
 		seqKill(missileActor);
@@ -4357,7 +4357,7 @@ static void checkHit(DBloodActor* actor)
 				break;
 
 			case kThingZombieHead:
-				sfxPlay3DSound(pSprite->pos.X, pSprite->pos.Y, pSprite->z, 357, pSprite->sector());
+				sfxPlay3DSound(pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z, 357, pSprite->sector());
 				actKickObject(actor, actor2);
 				actDamageSprite(nullptr, actor2, kDamageFall, 80);
 				break;
@@ -4439,7 +4439,7 @@ static void checkFloorHit(DBloodActor* actor)
 					pPlayer->kickPower = PlayClock + 60;
 				}
 				actKickObject(actor, actor2);
-				sfxPlay3DSound(pSprite->pos.X, pSprite->pos.Y, pSprite->z, 357, pSprite->sector());
+				sfxPlay3DSound(pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z, 357, pSprite->sector());
 				sfxPlay3DSound(actor, 374, 0, 0);
 				break;
 			case kThingZombieHead:
@@ -4449,7 +4449,7 @@ static void checkFloorHit(DBloodActor* actor)
 					pPlayer->kickPower = PlayClock + 60;
 				}
 				actKickObject(actor, actor2);
-				sfxPlay3DSound(pSprite->pos.X, pSprite->pos.Y, pSprite->z, 357, pSprite->sector());
+				sfxPlay3DSound(pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z, 357, pSprite->sector());
 				actDamageSprite(nullptr, actor2, kDamageFall, 80);
 				break;
 			case kTrapSawCircular:
@@ -4616,7 +4616,7 @@ static Collision MoveThing(DBloodActor* actor)
 		pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 		if ((actor->GetOwner()) && !cl_bloodvanillaexplosions && !VanillaMode())
 			enginecompatibility_mode = ENGINECOMPATIBILITY_NONE; // improved clipmove accuracy
-		ClipMove(pSprite->pos, &pSector, actor->xvel >> 12, actor->yvel >> 12, pSprite->clipdist << 2, (pSprite->z - top) / 4, (bottom - pSprite->z) / 4, CLIPMASK0, lhit);
+		ClipMove(pSprite->pos, &pSector, actor->xvel >> 12, actor->yvel >> 12, pSprite->clipdist << 2, (pSprite->pos.Z - top) / 4, (bottom - pSprite->pos.Z) / 4, CLIPMASK0, lhit);
 		actor->hit.hit = lhit;
 		enginecompatibility_mode = bakCompat; // restore
 		pSprite->cstat = bakCstat;
@@ -4647,10 +4647,10 @@ static Collision MoveThing(DBloodActor* actor)
 	else
 	{
 		assert(pSector);
-		FindSector(pSprite->pos.X, pSprite->pos.Y, pSprite->z, &pSector);
+		FindSector(pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z, &pSector);
 	}
 
-	pSprite->z += actor->zvel >> 8;
+	pSprite->pos.Z += actor->zvel >> 8;
 
 	int ceilZ, floorZ;
 	Collision ceilColl, floorColl;
@@ -4659,11 +4659,11 @@ static Collision MoveThing(DBloodActor* actor)
 
 	if ((pSprite->flags & 2) && bottom < floorZ)
 	{
-		pSprite->z += 455;
+		pSprite->pos.Z += 455;
 		actor->zvel += 58254;
 		if (pSprite->type == kThingZombieHead)
 		{
-			auto* fxActor = gFX.fxSpawnActor(FX_27, pSprite->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->z, 0);
+			auto* fxActor = gFX.fxSpawnActor(FX_27, pSprite->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z, 0);
 			if (fxActor)
 			{
 				int v34 = (PlayClock * 3) & 2047;
@@ -4688,7 +4688,7 @@ static Collision MoveThing(DBloodActor* actor)
 	{
 		actTouchFloor(actor, pSprite->sector());
 		actor->hit.florhit = floorColl;
-		pSprite->z += floorZ - bottom;
+		pSprite->pos.Z += floorZ - bottom;
 
 		int v20 = actor->zvel - pSprite->sector()->velFloor;
 		if (v20 > 0)
@@ -4743,7 +4743,7 @@ static Collision MoveThing(DBloodActor* actor)
 	if (top <= ceilZ)
 	{
 		actor->hit.ceilhit = ceilColl;
-		pSprite->z += ClipLow(ceilZ - top, 0);
+		pSprite->pos.Z += ClipLow(ceilZ - top, 0);
 		if (actor->zvel < 0)
 		{
 			actor->xvel = MulScale(actor->xvel, 0xc000, 16);
@@ -4819,8 +4819,8 @@ void MoveDude(DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
 	int top, bottom;
 	GetActorExtents(actor, &top, &bottom);
-	int bz = (bottom - pSprite->z) / 4;
-	int tz = (pSprite->z - top) / 4;
+	int bz = (bottom - pSprite->pos.Z) / 4;
+	int tz = (pSprite->pos.Z - top) / 4;
 	int wd = pSprite->clipdist << 2;
 	auto pSector = pSprite->sector();
 	int nAiStateType = (pXSprite->aiState) ? pXSprite->aiState->stateType : -1;
@@ -4919,7 +4919,7 @@ void MoveDude(DBloodActor* actor)
 	else
 	{
 		assert(pSector);
-		FindSector(pSprite->pos.X, pSprite->pos.Y, pSprite->z, &pSector);
+		FindSector(pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z, &pSector);
 	}
 
 	XSECTOR* pXSector = pSector->hasX() ? &pSector->xs() : nullptr;
@@ -4955,7 +4955,7 @@ void MoveDude(DBloodActor* actor)
 	if (pUpperLink && (pUpperLink->spr.type == kMarkerUpWater || pUpperLink->spr.type == kMarkerUpGoo)) bDepth = 1;
 	if (pLowerLink && (pLowerLink->spr.type == kMarkerLowWater || pLowerLink->spr.type == kMarkerLowGoo)) bDepth = 1;
 	if (pPlayer) wd += 16;
-	if (actor->zvel) pSprite->z += actor->zvel >> 8;
+	if (actor->zvel) pSprite->pos.Z += actor->zvel >> 8;
 
 	int ceilZ, floorZ;
 	Collision ceilColl, floorColl;
@@ -4991,7 +4991,7 @@ void MoveDude(DBloodActor* actor)
 		}
 		if (vc)
 		{
-			pSprite->z += ((vc * 4) / 2) >> 8;
+			pSprite->pos.Z += ((vc * 4) / 2) >> 8;
 			actor->zvel += vc;
 		}
 	}
@@ -5173,7 +5173,7 @@ void MoveDude(DBloodActor* actor)
 		int floorZ2 = floorZ;
 		auto floorColl2 = floorColl;
 		GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, pSprite->clipdist << 2, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
-		if (bottom <= floorZ && pSprite->z - floorZ2 < bz)
+		if (bottom <= floorZ && pSprite->pos.Z - floorZ2 < bz)
 		{
 			floorZ = floorZ2;
 			floorColl = floorColl2;
@@ -5182,7 +5182,7 @@ void MoveDude(DBloodActor* actor)
 	if (floorZ <= bottom)
 	{
 		actor->hit.florhit = floorColl;
-		pSprite->z += floorZ - bottom;
+		pSprite->pos.Z += floorZ - bottom;
 		int v30 = actor->zvel - pSprite->sector()->velFloor;
 		if (v30 > 0)
 		{
@@ -5222,7 +5222,7 @@ void MoveDude(DBloodActor* actor)
 					auto pFXs = &pFX->s();
 					for (int i = 0; i < 7; i++)
 					{
-						auto pFX2 = gFX.fxSpawnActor(FX_14, pFXs->sector(), pFXs->pos.X, pFXs->pos.Y, pFXs->z, 0);
+						auto pFX2 = gFX.fxSpawnActor(FX_14, pFXs->sector(), pFXs->pos.X, pFXs->pos.Y, pFXs->pos.Z, 0);
 						if (pFX2)
 						{
 							pFX2->xvel = Random2(0x6aaaa);
@@ -5249,7 +5249,7 @@ void MoveDude(DBloodActor* actor)
 	if (top <= ceilZ)
 	{
 		actor->hit.ceilhit = ceilColl;
-		pSprite->z += ClipLow(ceilZ - top, 0);
+		pSprite->pos.Z += ClipLow(ceilZ - top, 0);
 
 		if (actor->zvel <= 0 && (pSprite->flags & 4))
 			actor->zvel = MulScale(-actor->zvel, 0x2000, 16);
@@ -5323,10 +5323,10 @@ int MoveMissile(DBloodActor* actor)
 			RotatePoint(&vx, &vy, (nTargetAngle + 1536) & 2047, 0, 0);
 			actor->xvel = vx;
 			actor->yvel = vy;
-			int dz = pTarget->z - pSprite->z;
+			int dz = pTarget->pos.Z - pSprite->pos.Z;
 
 			int deltaz = dz / 10;
-			if (pTarget->z < pSprite->z) deltaz = -deltaz;
+			if (pTarget->pos.Z < pSprite->pos.Z) deltaz = -deltaz;
 			actor->zvel += deltaz;
 		}
 	}
@@ -5424,7 +5424,7 @@ int MoveMissile(DBloodActor* actor)
 			cliptype = 1;
 		}
 		pSprite->pos = pos;
-		pSprite->z += vz;
+		pSprite->pos.Z += vz;
 		updatesector(pos.X, pos.Y, &pSector);
 		if (pSector != nullptr && pSector != pSprite->sector())
 		{
@@ -5435,7 +5435,7 @@ int MoveMissile(DBloodActor* actor)
 		gHitInfo.hitSector = pSprite->sector();
 		gHitInfo.hitpos.X = pSprite->pos.X;
 		gHitInfo.hitpos.Y = pSprite->pos.Y;
-		gHitInfo.hitpos.Z = pSprite->z;
+		gHitInfo.hitpos.Z = pSprite->pos.Z;
 		break;
 	}
 	if (pOwner) pOwner->cstat = bakCstat;
@@ -5519,7 +5519,7 @@ void actExplodeSprite(DBloodActor* actor)
 
 	case kThingTNTBarrel:
 	{
-		auto spawned = actSpawnSprite(pSprite->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->z, 0, 1);
+		auto spawned = actSpawnSprite(pSprite->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z, 0, 1);
 		spawned->SetOwner(actor->GetOwner());
 		if (actCheckRespawn(actor))
 		{
@@ -5621,7 +5621,7 @@ void actActivateGibObject(DBloodActor* actor)
 	if (gib1 > 0) GibSprite(actor, (GIBTYPE)(gib1 - 1), nullptr, nullptr);
 	if (gib2 > 0) GibSprite(actor, (GIBTYPE)(gib2 - 1), nullptr, nullptr);
 	if (gib3 > 0 && pXSprite->burnTime > 0) GibSprite(actor, (GIBTYPE)(gib3 - 1), nullptr, nullptr);
-	if (sound > 0) sfxPlay3DSound(pSprite->pos.X, pSprite->pos.Y, pSprite->z, sound, pSprite->sector());
+	if (sound > 0) sfxPlay3DSound(pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z, sound, pSprite->sector());
 	if (dropmsg > 0) actDropObject(actor, dropmsg);
 
 	if (!(pSprite->cstat & CSTAT_SPRITE_INVISIBLE) && !(pSprite->flags & kHitagRespawn))
@@ -5703,7 +5703,7 @@ static void actCheckProximity()
 							proxyDist = 512;
 						}
 
-						if (CheckProximity(dudeactor, pSprite->pos.X, pSprite->pos.Y, pSprite->z, pSprite->sector(), proxyDist))
+						if (CheckProximity(dudeactor, pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z, pSprite->sector(), proxyDist))
 						{
 							switch (pSprite->type)
 							{
@@ -5825,7 +5825,7 @@ static void actCheckThings()
 					case kThingPodGreenBall:
 						if (hit.type == kHitSector)
 						{
-							actRadiusDamage(actor->GetOwner(), pSprite->pos.X, pSprite->pos.Y, pSprite->z, pSprite->sector(), 200, 1, 20, kDamageExplode, 6, 0);
+							actRadiusDamage(actor->GetOwner(), pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z, pSprite->sector(), 200, 1, 20, kDamageExplode, 6, 0);
 							evPostActor(actor, 0, kCallbackFXPodBloodSplat);
 						}
 						else if (hit.type == kHitSprite)
@@ -5893,7 +5893,7 @@ static void actCheckExplosion()
 		const EXPLOSION* pExplodeInfo = &explodeInfo[nType];
 		int x = pSprite->pos.X;
 		int y = pSprite->pos.Y;
-		int z = pSprite->z;
+		int z = pSprite->pos.Z;
 		auto pSector = pSprite->sector();
 		int radius = pExplodeInfo->radius;
 
@@ -5977,7 +5977,7 @@ static void actCheckExplosion()
 			spritetype* pSprite2 = gPlayer[p].pSprite;
 			int dx = (x - pSprite2->pos.X) >> 4;
 			int dy = (y - pSprite2->pos.Y) >> 4;
-			int dz = (z - pSprite2->z) >> 8;
+			int dz = (z - pSprite2->pos.Z) >> 8;
 			int nDist = dx * dx + dy * dy + dz * dz + 0x40000;
 			int t = DivScale(pXSprite->data2, nDist, 16);
 			gPlayer[p].flickerEffect += t;
@@ -6064,7 +6064,7 @@ static void actCheckTraps()
 			{
 				int x = pSprite->pos.X;
 				int y = pSprite->pos.Y;
-				int z = pSprite->z;
+				int z = pSprite->pos.Z;
 				int t = (pXSprite->data1 << 23) / 120;
 				int dx = MulScale(t, Cos(pSprite->ang), 30);
 				int dy = MulScale(t, Sin(pSprite->ang), 30);
@@ -6158,7 +6158,7 @@ static void actCheckDudes()
 
 					if ((unsigned int)pXSprite2->health > 0 && actor2->IsPlayerActor())
 					{
-						if (CheckProximity(actor2, pSprite->pos.X, pSprite->pos.Y, pSprite->z, pSprite->sector(), 128))
+						if (CheckProximity(actor2, pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z, pSprite->sector(), 128))
 							trTriggerSprite(actor, kCmdSpriteProximity);
 					}
 				}
@@ -6276,7 +6276,7 @@ void actCheckFlares()
 		{
 			int x = pTarget->pos.X + mulscale30r(Cos(pXSprite->goalAng + pTarget->ang), pTarget->clipdist * 2);
 			int y = pTarget->pos.Y + mulscale30r(Sin(pXSprite->goalAng + pTarget->ang), pTarget->clipdist * 2);
-			int z = pTarget->z + pXSprite->targetZ;
+			int z = pTarget->pos.Z + pXSprite->targetZ;
 			vec3_t pos = { x, y, z };
 			SetActor(actor, &pos);
 			actor->xvel = target->xvel;
@@ -6352,7 +6352,7 @@ DBloodActor* actSpawnSprite(DBloodActor* source, int nStat)
 	spritetype* pSprite = &actor->s();
 	pSprite->pos.X = pSource->pos.X;
 	pSprite->pos.Y = pSource->pos.Y;
-	pSprite->z = pSource->z;
+	pSprite->pos.Z = pSource->pos.Z;
 	actor->xvel = source->xvel;
 	actor->yvel = source->yvel;
 	actor->zvel = source->zvel;
@@ -6381,7 +6381,7 @@ DBloodActor* actSpawnDude(DBloodActor* source, int nType, int a3, int a4)
 	int angle = pSource->ang;
 	int nDude = nType - kDudeBase;
 	int x, y, z;
-	z = a4 + pSource->z;
+	z = a4 + pSource->pos.Z;
 	if (a3 < 0)
 	{
 		x = pSource->pos.X;
@@ -6545,7 +6545,7 @@ DBloodActor* actFireThing(DBloodActor* actor, int a2, int a3, int a4, int thingT
 	assert(thingType >= kThingBase && thingType < kThingMax);
 	int x = pSprite->pos.X + MulScale(a2, Cos(pSprite->ang + 512), 30);
 	int y = pSprite->pos.Y + MulScale(a2, Sin(pSprite->ang + 512), 30);
-	int z = pSprite->z + a3;
+	int z = pSprite->pos.Z + a3;
 	x += MulScale(pSprite->clipdist, Cos(pSprite->ang), 28);
 	y += MulScale(pSprite->clipdist, Sin(pSprite->ang), 28);
 	if (HitScan(actor, z, x - pSprite->pos.X, y - pSprite->pos.Y, 0, CLIPMASK0, pSprite->clipdist) != -1)
@@ -6660,7 +6660,7 @@ DBloodActor* actFireMissile(DBloodActor* actor, int a2, int a3, int a4, int a5, 
 	const MissileType* pMissileInfo = &missileInfo[nType - kMissileBase];
 	int x = pSprite->pos.X + MulScale(a2, Cos(pSprite->ang + 512), 30);
 	int y = pSprite->pos.Y + MulScale(a2, Sin(pSprite->ang + 512), 30);
-	int z = pSprite->z + a3;
+	int z = pSprite->pos.Z + a3;
 	int clipdist = pMissileInfo->clipDist + pSprite->clipdist;
 	x += MulScale(clipdist, Cos(pSprite->ang), 28);
 	y += MulScale(clipdist, Sin(pSprite->ang), 28);
@@ -6854,7 +6854,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 				gHitInfo.hitActor = shooter;
 				gHitInfo.hitpos.X = pShooter->pos.X;
 				gHitInfo.hitpos.Y = pShooter->pos.Y;
-				gHitInfo.hitpos.Z = pShooter->z;
+				gHitInfo.hitpos.Z = pShooter->pos.Z;
 			}
 		}
 	}
@@ -7093,7 +7093,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 void FireballSeqCallback(int, DBloodActor* actor)
 {
 	auto pSprite = &actor->s();
-	auto pFX = gFX.fxSpawnActor(FX_11, pSprite->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->z, 0);
+	auto pFX = gFX.fxSpawnActor(FX_11, pSprite->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z, 0);
 	if (pFX)
 	{
 		pFX->xvel = actor->xvel;
@@ -7105,7 +7105,7 @@ void FireballSeqCallback(int, DBloodActor* actor)
 void NapalmSeqCallback(int, DBloodActor* actor)
 {
 	auto pSprite = &actor->s();
-	auto pFX = gFX.fxSpawnActor(FX_12, pSprite->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->z, 0);
+	auto pFX = gFX.fxSpawnActor(FX_12, pSprite->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z, 0);
 	if (pFX)
 	{
 		pFX->xvel = actor->xvel;
@@ -7117,7 +7117,7 @@ void NapalmSeqCallback(int, DBloodActor* actor)
 void Fx32Callback(int, DBloodActor* actor)
 {
 	auto pSprite = &actor->s();
-	auto pFX = gFX.fxSpawnActor(FX_32, pSprite->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->z, 0);
+	auto pFX = gFX.fxSpawnActor(FX_32, pSprite->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z, 0);
 	if (pFX)
 	{
 		pFX->xvel = actor->xvel;
@@ -7129,7 +7129,7 @@ void Fx32Callback(int, DBloodActor* actor)
 void Fx33Callback(int, DBloodActor* actor)
 {
 	auto pSprite = &actor->s();
-	auto pFX = gFX.fxSpawnActor(FX_33, pSprite->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->z, 0);
+	auto pFX = gFX.fxSpawnActor(FX_33, pSprite->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z, 0);
 	if (pFX)
 	{
 		pFX->xvel = actor->xvel;
@@ -7249,7 +7249,7 @@ void MakeSplash(DBloodActor* actor)
 {
 	auto pSprite = &actor->s();
 	pSprite->flags &= ~2;
-	pSprite->z -= 4 << 8;
+	pSprite->pos.Z -= 4 << 8;
 	int nSurface = tileGetSurfType(actor->hit.florhit);
 	switch (pSprite->type)
 	{

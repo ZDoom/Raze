@@ -89,7 +89,7 @@ DSWActor* WarpPlane(int32_t* x, int32_t* y, int32_t* z, sectortype** sect)
 
     if (sp_ceiling)
     {
-        if (*z <= sp_ceiling->spr.z)
+        if (*z <= sp_ceiling->spr.pos.Z)
         {
             return WarpToArea(sp_ceiling, x, y, z, sect);
         }
@@ -97,7 +97,7 @@ DSWActor* WarpPlane(int32_t* x, int32_t* y, int32_t* z, sectortype** sect)
 
     if (sp_floor)
     {
-        if (*z >= sp_floor->spr.z)
+        if (*z >= sp_floor->spr.pos.Z)
         {
             return WarpToArea(sp_floor, x, y, z, sect);
         }
@@ -119,7 +119,7 @@ DSWActor* WarpToArea(DSWActor* sp_from, int32_t* x, int32_t* y, int32_t* z, sect
 
     xoff = *x - sp->pos.X;
     yoff = *y - sp->pos.Y;
-    zoff = *z - sp->z;
+    zoff = *z - sp->pos.Z;
     match = sp->lotag;
 
 #if 0
@@ -183,7 +183,7 @@ DSWActor* WarpToArea(DSWActor* sp_from, int32_t* x, int32_t* y, int32_t* z, sect
                 // determine new x,y,z position
                 *x = spi->pos.X + xoff;
                 *y = spi->pos.Y + yoff;
-                *z = spi->z + zoff;
+                *z = spi->pos.Z + zoff;
 
                 // make sure you warp outside of warp plane
                 *z += z_adj;

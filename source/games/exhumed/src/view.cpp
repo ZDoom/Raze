@@ -120,7 +120,7 @@ static void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int x, int 
         {
             pTSprite->cstat |= CSTAT_SPRITE_YCENTER;
             int nTileY = (tileHeight(pTSprite->picnum) * pTSprite->yrepeat) * 2;
-            pTSprite->z -= nTileY;
+            pTSprite->pos.Z -= nTileY;
         }
 
         if (pSprite->statnum > 0)
@@ -172,7 +172,7 @@ static void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int x, int 
 
         nCreepyTimer = kCreepyCount;
 
-        if (!cansee(x, y, z, pSector, pTarget->pos.X, pTarget->pos.Y, pTarget->z - GetActorHeight(bestTarget), pTarget->sector()))
+        if (!cansee(x, y, z, pSector, pTarget->pos.X, pTarget->pos.Y, pTarget->pos.Z - GetActorHeight(bestTarget), pTarget->sector()))
         {
             bestTarget = nullptr;
         }
@@ -222,7 +222,7 @@ void DrawView(double smoothRatio, bool sceneonly)
 
         playerX = pSprite->pos.X;
         playerY = pSprite->pos.Y;
-        playerZ = pSprite->z;
+        playerZ = pSprite->pos.Z;
         pSector = pSprite->sector();
         nAngle = buildang(pSprite->ang);
         rotscrnang = buildang(0);

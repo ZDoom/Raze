@@ -73,10 +73,10 @@ void SpidBiteSeqCallback(int, DBloodActor* actor)
 	spritetype* pTarget = &target->s();
 	if (IsPlayerSprite(pTarget))
 	{
-        int hit = HitScan(actor, pSprite->z, dx, dy, 0, CLIPMASK1, 0);
+        int hit = HitScan(actor, pSprite->pos.Z, dx, dy, 0, CLIPMASK1, 0);
 		if (hit == 3 && gHitInfo.actor()->IsPlayerActor())
 		{
-			dz += pTarget->z - pSprite->z;
+			dz += pTarget->pos.Z - pSprite->pos.Z;
 			PLAYER* pPlayer = &gPlayer[pTarget->type - kDudePlayer1];
 			switch (pSprite->type)
 			{
@@ -120,7 +120,7 @@ void SpidJumpSeqCallback(int, DBloodActor* actor)
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	spritetype* pTarget = &actor->GetTarget()->s();
 	if (IsPlayerSprite(pTarget)) {
-		dz += pTarget->z - pSprite->z;
+		dz += pTarget->pos.Z - pSprite->pos.Z;
 		switch (pSprite->type) {
 		case kDudeSpiderBrown:
 		case kDudeSpiderRed:
@@ -220,7 +220,7 @@ static void spidThinkChase(DBloodActor* actor)
 		int nDeltaAngle = ((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024;
 		int height = (pDudeInfo->eyeHeight * pSprite->yrepeat) << 2;
 
-		if (cansee(pTarget->pos.X, pTarget->pos.Y, pTarget->z, pTarget->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->z - height, pSprite->sector())) {
+		if (cansee(pTarget->pos.X, pTarget->pos.Y, pTarget->pos.Z, pTarget->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z - height, pSprite->sector())) {
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery) {
 				aiSetTarget(actor, actor->GetTarget());
 

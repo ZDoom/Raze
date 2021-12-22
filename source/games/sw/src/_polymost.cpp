@@ -259,11 +259,11 @@ void JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz,  fixed_t tpq16ang, fixed
                     else
                         dy = sp->pos.Y + tdy;
 
-                    tdz = abs(tz - sp->z);
-                    if (tz >= sp->z)
-                        dz = sp->z + tdz;
+                    tdz = abs(tz - sp->pos.Z);
+                    if (tz >= sp->pos.Z)
+                        dz = sp->pos.Z + tdz;
                     else
-                        dz = sp->z - tdz;
+                        dz = sp->pos.Z - tdz;
 
 
                     // Is it a TV cam or a teleporter that shows destination?

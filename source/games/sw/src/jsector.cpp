@@ -572,11 +572,11 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz, double smoothratio)
                 else
                     dy = sp->pos.Y + tdy;
 
-                tdz = abs(tz - sp->z);
-                if (tz >= sp->z)
-                    dz = sp->z + tdz;
+                tdz = abs(tz - sp->pos.Z);
+                if (tz >= sp->pos.Z)
+                    dz = sp->pos.Z + tdz;
                 else
-                    dz = sp->z - tdz;
+                    dz = sp->pos.Z - tdz;
 
 
                 // Is it a TV cam or a teleporter that shows destination?
@@ -659,7 +659,7 @@ void JS_DrawCameras(PLAYERp pp, int tx, int ty, int tz, double smoothratio)
                             }
                             else
                             {
-                                drawroomstotile(sp->pos.X, sp->pos.Y, sp->z, buildang(SP_TAG5(sp)), camhoriz, sp->sector(), mirror[cnt].campic, smoothratio);
+                                drawroomstotile(sp->pos.X, sp->pos.Y, sp->pos.Z, buildang(SP_TAG5(sp)), camhoriz, sp->sector(), mirror[cnt].campic, smoothratio);
                             }
                         }
                     }

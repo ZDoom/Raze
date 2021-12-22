@@ -58,7 +58,7 @@ void ambProcess(void)
             {
                 int dx = pSprite->pos.X-gMe->pSprite->pos.X;
                 int dy = pSprite->pos.Y-gMe->pSprite->pos.Y;
-                int dz = pSprite->z-gMe->pSprite->z;
+                int dz = pSprite->pos.Z-gMe->pSprite->pos.Z;
                 dx >>= 4;
                 dy >>= 4;
                 dz >>= 8;

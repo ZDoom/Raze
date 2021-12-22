@@ -448,7 +448,7 @@ FSerializer &Serialize(FSerializer &arc, const char *key, spritetype &c, spritet
 	{
 		arc("x", c.pos.X, def->pos.X)
 			("y", c.pos.Y, def->pos.Y)
-			("z", c.z, def->z)
+			("z", c.pos.Z, def->pos.Z)
 			("cstat", c.cstat, def->cstat)
 			("picnum", c.picnum, def->picnum)
 			("shade", c.shade, def->shade)

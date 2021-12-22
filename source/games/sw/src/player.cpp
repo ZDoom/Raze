@@ -1172,7 +1172,7 @@ DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets
 
             // Only look at closest ones
             //if ((dist = Distance(sp->x, sp->y, ep->x, ep->y)) > PICK_DIST)
-            if ((dist = FindDistance3D(sp->pos.X - ep->pos.X, sp->pos.Y - ep->pos.Y, sp->z - ep->z)) > PICK_DIST)
+            if ((dist = FindDistance3D(sp->pos.X - ep->pos.X, sp->pos.Y - ep->pos.Y, sp->pos.Z - ep->pos.Z)) > PICK_DIST)
                 continue;
 
             if (skip_targets != 2) // Used for spriteinfo mode
@@ -1691,7 +1691,7 @@ void DoPlayerSpriteBob(PLAYERp pp, short player_height, short bob_amt, short bob
 
     pp->bob_amt = MulScale(bob_amt, bsin(pp->bob_ndx), 14);
 
-    sp->z = (pp->posz + player_height) + pp->bob_amt;
+    sp->pos.Z = (pp->posz + player_height) + pp->bob_amt;
 }
 
 void UpdatePlayerUnderSprite(PLAYERp pp)
@@ -1744,7 +1744,7 @@ void UpdatePlayerUnderSprite(PLAYERp pp)
 
     sp->pos.X = over_sp->pos.X;
     sp->pos.Y = over_sp->pos.Y;
-    sp->z = over_sp->z;
+    sp->pos.Z = over_sp->pos.Z;
     ChangeActorSect(pp->PlayerUnderActor, over_sp->sector());
 
     SpriteWarpToUnderwater(pp->PlayerUnderActor);
@@ -1754,7 +1754,7 @@ void UpdatePlayerUnderSprite(PLAYERp pp)
     zdiff = SPRITEp_BOS(over_sp) - water_level_z;
 
     // add diff to ceiling
-    sp->z = sp->sector()->ceilingz + zdiff;
+    sp->pos.Z = sp->sector()->ceilingz + zdiff;
 
     u->State = over_u->State;
     u->Rot = over_u->Rot;
@@ -1785,12 +1785,12 @@ void UpdatePlayerSprite(PLAYERp pp)
 
     if (pp->sop_control)
     {
-        sp->z = pp->cursector->floorz;
+        sp->pos.Z = pp->cursector->floorz;
         ChangeActorSect(pp->Actor(), pp->cursector);
     }
     else if (pp->DoPlayerAction == DoPlayerCrawl)
     {
-        sp->z = pp->posz + PLAYER_CRAWL_HEIGHT;
+        sp->pos.Z = pp->posz + PLAYER_CRAWL_HEIGHT;
         ChangeActorSect(pp->Actor(), pp->cursector);
     }
 #if 0
@@ -1802,7 +1802,7 @@ void UpdatePlayerSprite(PLAYERp pp)
 #endif
     else if (pp->DoPlayerAction == DoPlayerWade)
     {
-        sp->z = pp->posz + PLAYER_HEIGHT;
+        sp->pos.Z = pp->posz + PLAYER_HEIGHT;
         ChangeActorSect(pp->Actor(), pp->cursector);
 
         if (pp->WadeDepth > Z(29))
@@ -1813,12 +1813,12 @@ void UpdatePlayerSprite(PLAYERp pp)
     else if (pp->DoPlayerAction == DoPlayerDive)
     {
         // bobbing and sprite position taken care of in DoPlayerDive
-        sp->z = pp->posz + Z(10);
+        sp->pos.Z = pp->posz + Z(10);
         ChangeActorSect(pp->Actor(), pp->cursector);
     }
     else if (pp->DoPlayerAction == DoPlayerClimb)
     {
-        sp->z = pp->posz + Z(17);
+        sp->pos.Z = pp->posz + Z(17);
 
         // move it forward a bit to look like its on the ladder
         //sp->x += MOVEx(256+64, sp->ang);
@@ -1837,17 +1837,17 @@ void UpdatePlayerSprite(PLAYERp pp)
     }
     else if (pp->DoPlayerAction == DoPlayerJump || pp->DoPlayerAction == DoPlayerFall || pp->DoPlayerAction == DoPlayerForceJump)
     {
-        sp->z = pp->posz + PLAYER_HEIGHT;
+        sp->pos.Z = pp->posz + PLAYER_HEIGHT;
         ChangeActorSect(pp->Actor(), pp->cursector);
     }
     else if (pp->DoPlayerAction == DoPlayerTeleportPause)
     {
-        sp->z = pp->posz + PLAYER_HEIGHT;
+        sp->pos.Z = pp->posz + PLAYER_HEIGHT;
         ChangeActorSect(pp->Actor(), pp->cursector);
     }
     else
     {
-        sp->z = pp->loz;
+        sp->pos.Z = pp->loz;
         ChangeActorSect(pp->Actor(), pp->cursector);
     }
 
@@ -1900,7 +1900,7 @@ void DoPlayerZrange(PLAYERp pp)
         if (fsp->statnum == STAT_ENEMY && floorColl.actor()->u()->ID == ZOMBIE_RUN_R0)
         {
             pp->lo_sectp = fsp->sector();
-            pp->loz = fsp->z;
+            pp->loz = fsp->pos.Z;
             pp->lowActor = nullptr;
         }
     }
@@ -2439,7 +2439,7 @@ void DriveCrush(PLAYERp pp, int *x, int *y)
             if (sp->statnum > STAT_DONT_DRAW)
                 continue;
 
-            if (sp->z < sop->crush_z)
+            if (sp->pos.Z < sop->crush_z)
                 continue;
 
             SpriteQueueDelete(actor);
@@ -2456,7 +2456,7 @@ void DriveCrush(PLAYERp pp, int *x, int *y)
         if (testpointinquad(sp->pos.X, sp->pos.Y, x, y))
         {
             //if (sp->z < pp->posz)
-            if (sp->z < sop->crush_z)
+            if (sp->pos.Z < sop->crush_z)
                 continue;
 
             int32_t const vel = FindDistance2D(pp->xvect>>8, pp->yvect>>8);
@@ -2484,7 +2484,7 @@ void DriveCrush(PLAYERp pp, int *x, int *y)
 
         if (testpointinquad(sp->pos.X, sp->pos.Y, x, y))
         {
-            if (sp->z < sop->crush_z)
+            if (sp->pos.Z < sop->crush_z)
                 continue;
 
             SpriteQueueDelete(actor);
@@ -2512,7 +2512,7 @@ void DriveCrush(PLAYERp pp, int *x, int *y)
             int damage;
 
             //if (sp->z < pp->posz)
-            if (sp->z < sop->crush_z)
+            if (sp->pos.Z < sop->crush_z)
                 continue;
 
             damage = -(u->Health + 100);
@@ -2533,7 +2533,7 @@ void DriveCrush(PLAYERp pp, int *x, int *y)
             u = actor->u();
 
             // give some extra buffer
-            if (sp->z < sop->crush_z + Z(40))
+            if (sp->pos.Z < sop->crush_z + Z(40))
                 continue;
 
             if (TEST(sp->extra, SPRX_PLAYER_OR_ENEMY))
@@ -3355,7 +3355,7 @@ void DoPlayerClimb(PLAYERp pp)
     }
 
     // setsprite to players location
-    sp->z = pp->posz + PLAYER_HEIGHT;
+    sp->pos.Z = pp->posz + PLAYER_HEIGHT;
     ChangeActorSect(pp->Actor(), pp->cursector);
 
     if (!SyncInput())
@@ -5836,7 +5836,7 @@ void DoPlayerDeathCheckKeys(PLAYERp pp)
         RESET(sp->cstat, CSTAT_SPRITE_YCENTER);
         sp->pos.X = pp->posx;
         sp->pos.Y = pp->posy;
-        sp->z = pp->posz+PLAYER_HEIGHT;
+        sp->pos.Z = pp->posz+PLAYER_HEIGHT;
         sp->ang = pp->angle.ang.asbuild();
 
         DoSpawnTeleporterEffect(ppActor);
@@ -6090,7 +6090,7 @@ void DoPlayerDeathDrown(PLAYERp pp)
         {
             pp->posz += Z(2);
             if (MoveSkip2 == 0)
-                sp->z += Z(4);
+                sp->pos.Z += Z(4);
 
             // Stick like glue when you hit the ground
             if (pp->posz > pp->loz - PLAYER_DEATH_HEIGHT)
@@ -6185,7 +6185,7 @@ void DoPlayerDeathCrumble(PLAYERp pp)
     }
 
     DoPlayerDeathCheckKeys(pp);
-    sp->z = pp->posz+PLAYER_DEAD_HEAD_FLOORZ_OFFSET;
+    sp->pos.Z = pp->posz+PLAYER_DEAD_HEAD_FLOORZ_OFFSET;
     DoPlayerHeadDebris(pp);
 }
 
@@ -6239,7 +6239,7 @@ void DoPlayerDeathExplode(PLAYERp pp)
     }
 
     DoPlayerDeathCheckKeys(pp);
-    sp->z = pp->posz+PLAYER_DEAD_HEAD_FLOORZ_OFFSET;
+    sp->pos.Z = pp->posz+PLAYER_DEAD_HEAD_FLOORZ_OFFSET;
     DoPlayerHeadDebris(pp);
 }
 
@@ -6900,7 +6900,7 @@ int SearchSpawnPosition(PLAYERp pp)
 
             if (opp != pp)  // don't test for yourself
             {
-                if (FindDistance3D(sp->pos.X - opp->posx, sp->pos.Y - opp->posy, sp->z - opp->posz) < 1000)
+                if (FindDistance3D(sp->pos.X - opp->posx, sp->pos.Y - opp->posy, sp->pos.Z - opp->posz) < 1000)
                 {
                     blocked = true;
                     break;
@@ -6984,7 +6984,7 @@ void PlayerSpawnPosition(PLAYERp pp)
 
     pp->posx = pp->oposx = sp->pos.X;
     pp->posy = pp->oposy = sp->pos.Y;
-    pp->posz = pp->oposz = sp->z;
+    pp->posz = pp->oposz = sp->pos.Z;
     pp->angle.ang = pp->angle.oang = buildang(sp->ang);
     pp->setcursector(sp->sector());
 

@@ -61,7 +61,7 @@ void BuildLion(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, 
 
     pSprite->pos.X = x;
     pSprite->pos.Y = y;
-    pSprite->z = z;
+    pSprite->pos.Z = z;
     pSprite->cstat = CSTAT_SPRITE_BLOCK_ALL;
     pSprite->clipdist = 60;
     pSprite->shade = -12;
@@ -391,7 +391,7 @@ void AILion::Tick(RunListEvent* ev)
 
             int x = pSprite->pos.X;
             int y = pSprite->pos.Y;
-            int z = pSprite->z - (GetActorHeight(pActor) >> 1);
+            int z = pSprite->pos.Z - (GetActorHeight(pActor) >> 1);
 
             int nCheckDist = 0x7FFFFFFF;
 

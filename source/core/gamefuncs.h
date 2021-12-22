@@ -274,10 +274,10 @@ inline int tspriteGetSlope(const tspritetype* spr)
 inline int32_t tspriteGetZOfSlope(const tspritetype* tspr, int dax, int day)
 {
 	int heinum = tspriteGetSlope(tspr);
-	if (heinum == 0) return tspr->z;
+	if (heinum == 0) return tspr->pos.Z;
 
 	int const j = DMulScale(bsin(tspr->ang + 1024), day - tspr->pos.Y, -bsin(tspr->ang + 512), dax - tspr->pos.X, 4);
-	return tspr->z + MulScale(heinum, j, 18);
+	return tspr->pos.Z + MulScale(heinum, j, 18);
 }
 
 

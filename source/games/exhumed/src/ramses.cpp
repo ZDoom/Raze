@@ -426,7 +426,7 @@ void DoSpiritHead()
             if (nCount < (15 * nPixels) / 16) {
                 SoundBigEntrance();
                 AddGlow(pSpiritSpr->sector(), 20);
-                AddFlash(pSpiritSpr->sector(), pSpiritSpr->pos.X, pSpiritSpr->pos.Y, pSpiritSpr->z, 128);
+                AddFlash(pSpiritSpr->sector(), pSpiritSpr->pos.X, pSpiritSpr->pos.Y, pSpiritSpr->pos.Z, 128);
                 nHeadStage = 3;
                 TintPalette(255, 255, 255);
                 CopyHeadToWorkTile(kTileRamsesNormal);

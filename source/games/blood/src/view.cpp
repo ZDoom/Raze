@@ -84,7 +84,7 @@ void viewCorrectViewOffsets(int nPlayer, vec3_t const *oldpos)
     VIEW *pView = &gPrevView[nPlayer];
     pView->x += pPlayer->pSprite->pos.X-oldpos->X;
     pView->y += pPlayer->pSprite->pos.Y-oldpos->Y;
-    pView->viewz += pPlayer->pSprite->z-oldpos->Z;
+    pView->viewz += pPlayer->pSprite->pos.Z-oldpos->Z;
 }
 
 void viewDrawText(FFont* pFont, const char *pString, int x, int y, int nShade, int nPalette, int position, bool shadow)
@@ -749,7 +749,7 @@ FString GameInterface::GetCoordString()
     FString out;
 
     out.Format("pos= %d, %d, %d - angle = %2.3f",
-        gMe->pSprite->pos.X, gMe->pSprite->pos.Y, gMe->pSprite->z, gMe->pSprite->ang * BAngToDegree);
+        gMe->pSprite->pos.X, gMe->pSprite->pos.Y, gMe->pSprite->pos.Z, gMe->pSprite->ang * BAngToDegree);
 
     return out;
 }

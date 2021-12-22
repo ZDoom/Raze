@@ -199,7 +199,7 @@ void operaterespawns_d(int low)
 			auto star = spawn(act, TRANSPORTERSTAR);
 			if (star)
 			{
-				star->spr.z -= (32 << 8);
+				star->spr.pos.Z -= (32 << 8);
 
 				act->spr.extra = 66 - 12;   // Just a way to killit
 			}
@@ -1110,7 +1110,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		case HEAVYHBOMB:
 			for (k = 0; k < 64; k++)
 			{
-				auto j = EGS(targ->spr.sector(), targ->spr.pos.X, targ->spr.pos.Y, targ->spr.z - (krand() % (48 << 8)), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (targ->spr.zvel >> 2), targ, 5);
+				auto j = EGS(targ->spr.sector(), targ->spr.pos.X, targ->spr.pos.Y, targ->spr.pos.Z - (krand() % (48 << 8)), SCRAP3 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (targ->spr.zvel >> 2), targ, 5);
 				j->spr.pal = 8;
 			}
 
@@ -1125,7 +1125,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 	case HANGLIGHT:
 	case GENERICPOLE2:
 		for (k = 0; k < 6; k++)
-			EGS(targ->spr.sector(), targ->spr.pos.X, targ->spr.pos.Y, targ->spr.z - (8 << 8), SCRAP1 + (krand() & 15), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (targ->spr.zvel >> 2), targ, 5);
+			EGS(targ->spr.sector(), targ->spr.pos.X, targ->spr.pos.Y, targ->spr.pos.Z - (8 << 8), SCRAP1 + (krand() & 15), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (targ->spr.zvel >> 2), targ, 5);
 		S_PlayActorSound(GLASS_HEAVYBREAK, targ);
 		deletesprite(targ);
 		break;
@@ -1244,7 +1244,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		if (targ->spr.cstat & CSTAT_SPRITE_BLOCK)
 		{
 			S_PlayActorSound(GLASS_BREAKING, targ);
-			targ->spr.z += 16 << 8;
+			targ->spr.pos.Z += 16 << 8;
 			targ->spr.cstat = 0;
 			lotsofglass(targ, nullptr, 5);
 		}
@@ -1311,7 +1311,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 		}
 		{
 			auto j = spawn(targ, STEAM);
-			if (j) j->spr.z = targ->spr.sector()->floorz - (32 << 8);
+			if (j) j->spr.pos.Z = targ->spr.sector()->floorz - (32 << 8);
 		}
 		break;
 
@@ -1397,7 +1397,7 @@ void checkhitsprite_d(DDukeActor* targ, DDukeActor* proj)
 							{
 								if (proj->spr.pal == 6)
 									spawned->spr.pal = 6;
-								spawned->spr.z += (4 << 8);
+								spawned->spr.pos.Z += (4 << 8);
 								spawned->spr.xvel = 16;
 								spawned->spr.xrepeat = spawned->spr.yrepeat = 24;
 								spawned->spr.ang += 32 - (krand() & 63);

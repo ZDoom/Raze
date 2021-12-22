@@ -518,7 +518,7 @@ void moveminecart(void)
 		while (auto a2 = it.Next())
 		{
 			if (badguy(a2))
-				SetActor(a2, { cx, cy, a2->spr.z });
+				SetActor(a2, { cx, cy, a2->spr.pos.Z });
 		}
 	}
 }

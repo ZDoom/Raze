@@ -851,13 +851,13 @@ void SectorExp(DSWActor* actor, sectortype* sectp, short orig_ang, int zh)
     sp->ang = orig_ang;
     sp->pos.X = x;
     sp->pos.Y = y;
-    sp->z = z;
+    sp->pos.Z = z;
 
     // randomize the explosions
     sp->ang += RANDOM_P2(256) - 128;
     sp->pos.X += RANDOM_P2(1024) - 512;
     sp->pos.Y += RANDOM_P2(1024) - 512;
-    sp->z = zh;
+    sp->pos.Z = zh;
 
     // setup vars needed by SectorExp
     ChangeActorSect(actor, sectp);
@@ -1192,7 +1192,7 @@ void WeaponExplodeSectorInRange(DSWActor* wActor)
         sp = &actor->s();
 
         // test to see if explosion is close to crack sprite
-        dist = FindDistance3D(wp->pos.X - sp->pos.X, wp->pos.Y - sp->pos.Y, wp->z - sp->z);
+        dist = FindDistance3D(wp->pos.X - sp->pos.X, wp->pos.Y - sp->pos.Y, wp->pos.Z - sp->pos.Z);
 
         if (sp->clipdist == 0)
             continue;
@@ -1202,7 +1202,7 @@ void WeaponExplodeSectorInRange(DSWActor* wActor)
         if ((unsigned int)dist > (wu->Radius/2) + radius)
             continue;
 
-        if (!FAFcansee(wp->pos.X,wp->pos.Y,wp->z,wp->sector(),sp->pos.X,sp->pos.Y,sp->z,sp->sector()))
+        if (!FAFcansee(wp->pos.X,wp->pos.Y,wp->pos.Z,wp->sector(),sp->pos.X,sp->pos.Y,sp->pos.Z,sp->sector()))
             continue;
 
 
@@ -1451,7 +1451,7 @@ int OperateSprite(DSWActor* actor, short player_is_operating)
     {
         pp = GlobPlayerP;
 
-        if (!FAFcansee(pp->posx, pp->posy, pp->posz, pp->cursector, sp->pos.X, sp->pos.Y, sp->z - DIV2(SPRITEp_SIZE_Z(sp)), sp->sector()))
+        if (!FAFcansee(pp->posx, pp->posy, pp->posz, pp->cursector, sp->pos.X, sp->pos.Y, sp->pos.Z - DIV2(SPRITEp_SIZE_Z(sp)), sp->sector()))
             return false;
     }
 
@@ -2221,7 +2221,7 @@ int DoPlayerGrabStar(PLAYERp pp)
         {
             sp = &StarQueue[i]->s();
 
-            if (FindDistance3D(sp->pos.X - pp->posx, sp->pos.Y - pp->posy, sp->z - pp->posz + Z(12)) < 500)
+            if (FindDistance3D(sp->pos.X - pp->posx, sp->pos.Y - pp->posy, sp->pos.Z - pp->posz + Z(12)) < 500)
             {
                 break;
             }
@@ -2301,8 +2301,8 @@ void PlayerOperateEnv(PLAYERp pp)
                 short nt_ndx;
                 auto psp = &pp->Actor()->s();
 
-                z[0] = psp->z - SPRITEp_SIZE_Z(psp) - Z(10);
-                z[1] = psp->z;
+                z[0] = psp->pos.Z - SPRITEp_SIZE_Z(psp) - Z(10);
+                z[1] = psp->pos.Z;
                 z[2] = DIV2(z[0] + z[1]);
 
                 for (i = 0; i < SIZ(z); i++)

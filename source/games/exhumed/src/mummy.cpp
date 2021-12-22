@@ -50,7 +50,7 @@ void BuildMummy(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector,
         pSprite = &pActor->s();
         x = pSprite->pos.X;
         y = pSprite->pos.Y;
-        z = pSprite->z;
+        z = pSprite->pos.Z;
         nAngle = pSprite->ang;
 
         ChangeActorStat(pActor, 102);
@@ -58,7 +58,7 @@ void BuildMummy(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector,
 
     pSprite->pos.X = x;
     pSprite->pos.Y = y;
-    pSprite->z = z;
+    pSprite->pos.Z = z;
     pSprite->cstat = CSTAT_SPRITE_BLOCK_ALL;
     pSprite->shade = -12;
     pSprite->clipdist = 32;
@@ -111,8 +111,8 @@ void CheckMummyRevive(DExhumedActor* pActor)
 
             if (x <= 20 && y <= 20)
             {
-                if (cansee(pSprite->pos.X, pSprite->pos.Y, pSprite->z - 8192, pSprite->sector(),
-                          pSprite2->pos.X, pSprite2->pos.Y, pSprite2->z - 8192, pSprite2->sector()))
+                if (cansee(pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z - 8192, pSprite->sector(),
+                          pSprite2->pos.X, pSprite2->pos.Y, pSprite2->pos.Z - 8192, pSprite2->sector()))
                 {
                     pSprite2->cstat = 0;
                     pOther->nAction = 6;
@@ -216,8 +216,8 @@ void AIMummy::Tick(RunListEvent* ev)
             {
                 if (RandomBit() && pTarget)
                 {
-                    if (cansee(pSprite->pos.X, pSprite->pos.Y, pSprite->z - GetActorHeight(pActor), pSprite->sector(),
-                        pTarget->spr.pos.X, pTarget->spr.pos.Y, pTarget->spr.z - GetActorHeight(pTarget), pTarget->spr.sector()))
+                    if (cansee(pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z - GetActorHeight(pActor), pSprite->sector(),
+                        pTarget->spr.pos.X, pTarget->spr.pos.Y, pTarget->spr.pos.Z - GetActorHeight(pTarget), pTarget->spr.sector()))
                     {
                         pActor->nAction = 3;
                         pActor->nFrame = 0;
@@ -459,7 +459,7 @@ void AIMummy::Damage(RunListEvent* ev)
         pSprite->xvel = 0;
         pSprite->yvel = 0;
         pSprite->zvel = 0;
-        pSprite->z = pSprite->sector()->floorz;
+        pSprite->pos.Z = pSprite->sector()->floorz;
     }
     else
     {

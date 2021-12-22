@@ -221,7 +221,7 @@ int DoShadowFindGroundPoint(tspriteptr_t sp)
 
     save_cstat = sp->cstat;
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-    FAFgetzrangepoint(sp->pos.X, sp->pos.Y, sp->z, sp->sector(), &hiz, &ceilhit, &loz, &florhit);
+    FAFgetzrangepoint(sp->pos.X, sp->pos.Y, sp->pos.Z, sp->sector(), &hiz, &ceilhit, &loz, &florhit);
     sp->cstat = save_cstat;
 
     switch (florhit.type)
@@ -308,7 +308,7 @@ void DoShadows(tspritetype* tsprite, int& spritesortcnt, tspriteptr_t tsp, int v
     }
 
     // need to find the ground here
-    tSpr->z = loz;
+    tSpr->pos.Z = loz;
 
     // if below or close to sprites z don't bother to draw it
     if ((viewz - loz) > -Z(8))
@@ -422,7 +422,7 @@ void DoMotionBlur(tspritetype* tsprite, int& spritesortcnt, tspritetype const * 
         dx += nx;
         dy += ny;
 
-        tSpr->z += dz;
+        tSpr->pos.Z += dz;
         dz += nz;
 
         tSpr->xrepeat = uint8_t(xrepeat);
@@ -483,11 +483,11 @@ void WarpCopySprite(tspritetype* tsprite, int& spritesortcnt)
 
                     xoff = sp1->pos.X - newTSpr->pos.X;
                     yoff = sp1->pos.Y - newTSpr->pos.Y;
-                    zoff = sp1->z - newTSpr->z;
+                    zoff = sp1->pos.Z - newTSpr->pos.Z;
 
                     newTSpr->pos.X = sp2->pos.X - xoff;
                     newTSpr->pos.Y = sp2->pos.Y - yoff;
-                    newTSpr->z = sp2->z - zoff;
+                    newTSpr->pos.Z = sp2->pos.Z - zoff;
                     newTSpr->setsector(sp2->sector());
                 }
 
@@ -506,11 +506,11 @@ void WarpCopySprite(tspritetype* tsprite, int& spritesortcnt)
 
                     xoff = sp2->pos.X - newTSpr->pos.X;
                     yoff = sp2->pos.Y - newTSpr->pos.Y;
-                    zoff = sp2->z - newTSpr->z;
+                    zoff = sp2->pos.Z - newTSpr->pos.Z;
 
                     newTSpr->pos.X = sp1->pos.X - xoff;
                     newTSpr->pos.Y = sp1->pos.Y - yoff;
-                    newTSpr->z = sp1->z - zoff;
+                    newTSpr->pos.Z = sp1->pos.Z - zoff;
                     newTSpr->setsector(sp1->sector());
                 }
             }
@@ -522,7 +522,7 @@ void DoStarView(tspriteptr_t tsp, USERp tu, int viewz)
 {
     extern STATE s_Star[], s_StarDown[];
     extern STATE s_StarStuck[], s_StarDownStuck[];
-    int zdiff = viewz - tsp->z;
+    int zdiff = viewz - tsp->pos.Z;
 
     if (labs(zdiff) > Z(24))
     {
@@ -551,7 +551,7 @@ DSWActor* CopySprite(sprt const* tsp, sectortype* newsector)
 
     sp->pos.X = tsp->pos.X;
     sp->pos.Y = tsp->pos.Y;
-    sp->z = tsp->z;
+    sp->pos.Z = tsp->pos.Z;
     sp->cstat = tsp->cstat;
     sp->picnum = tsp->picnum;
     sp->pal = tsp->pal;
@@ -679,8 +679,8 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
             {
                 auto sp = &tActor->s();
                 int32_t const floorz = getflorzofslopeptr(sp->sector(), sp->pos.X, sp->pos.Y);
-                if (sp->z > floorz)
-                    tsp->z = floorz;
+                if (sp->pos.Z > floorz)
+                    tsp->pos.Z = floorz;
             }
 
             if (r_shadows && TEST(tu->Flags, SPR_SHADOW))
@@ -809,7 +809,7 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
                         tsp->pos.Y = pp->siy;
                     }
 
-                    tsp->z = tsp->z + pp->siz;
+                    tsp->pos.Z = tsp->pos.Z + pp->siz;
                     tsp->ang = pp->siang;
                     //continue;
                 }
@@ -826,7 +826,7 @@ void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int viewx, int vie
                 int sr = 65536 - int(smoothratio);
                 tsp->pos.X -= MulScale(pp->posx - pp->oposx, sr, 16);
                 tsp->pos.Y -= MulScale(pp->posy - pp->oposy, sr, 16);
-                tsp->z -= MulScale(pp->posz - pp->oposz, sr, 16);
+                tsp->pos.Z -= MulScale(pp->posz - pp->oposz, sr, 16);
                 tsp->ang -= MulScale(pp->angle.ang.asbuild() - pp->angle.oang.asbuild(), sr, 16);
             }
         }
@@ -1114,7 +1114,7 @@ void PrintSpriteInfo(PLAYERp pp)
         {
             Printf("POSX:%d, ", sp->pos.X);
             Printf("POSY:%d, ", sp->pos.Y);
-            Printf("POSZ:%d,", sp->z);
+            Printf("POSZ:%d,", sp->pos.Z);
             Printf("ANG:%d\n", sp->ang);
         }
     }
@@ -1152,8 +1152,8 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, sectortype** tsect, binan
             ang_test = getincangle(ang.asbuild(), sp->ang) < sp->lotag;
 
             FAFcansee_test =
-                (FAFcansee(sp->pos.X, sp->pos.Y, sp->z, sp->sector(), *tx, *ty, *tz, pp->cursector) ||
-                 FAFcansee(sp->pos.X, sp->pos.Y, sp->z, sp->sector(), *tx, *ty, *tz + SPRITEp_SIZE_Z(&pp->Actor()->s()), pp->cursector));
+                (FAFcansee(sp->pos.X, sp->pos.Y, sp->pos.Z, sp->sector(), *tx, *ty, *tz, pp->cursector) ||
+                 FAFcansee(sp->pos.X, sp->pos.Y, sp->pos.Z, sp->sector(), *tx, *ty, *tz + SPRITEp_SIZE_Z(&pp->Actor()->s()), pp->cursector));
 
             player_in_camera = ang_test && FAFcansee_test;
 
@@ -1186,7 +1186,7 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, sectortype** tsect, binan
                     xvect = ang.bcos(-3);
                     yvect = ang.bsin(-3);
 
-                    zdiff = sp->z - *tz;
+                    zdiff = sp->pos.Z - *tz;
                     if (labs(sp->pos.X - *tx) > 1000)
                         zvect = Scale(xvect, zdiff, sp->pos.X - *tx);
                     else if (labs(sp->pos.Y - *ty) > 1000)
@@ -1207,7 +1207,7 @@ void CameraView(PLAYERp pp, int *tx, int *ty, int *tz, sectortype** tsect, binan
                     *tang = ang;
                     *tx = sp->pos.X;
                     *ty = sp->pos.Y;
-                    *tz = sp->z;
+                    *tz = sp->pos.Z;
                     *tsect = sp->sector();
 
                     found_camera = true;

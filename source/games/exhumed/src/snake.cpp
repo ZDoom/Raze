@@ -119,9 +119,9 @@ void ExplodeSnakeSprite(DExhumedActor* pActor, int nPlayer)
 
     pActor->pTarget = nOwner;
 
-    BuildAnim(nullptr, 23, 0, pSprite->pos.X, pSprite->pos.Y, pSprite->z, pSprite->sector(), 40, 4);
+    BuildAnim(nullptr, 23, 0, pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z, pSprite->sector(), 40, 4);
 
-    AddFlash(pSprite->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->z, 128);
+    AddFlash(pSprite->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z, 128);
 
     StopActorSound(pActor);
 }
@@ -138,7 +138,7 @@ void BuildSnake(int nPlayer, int zVal)
 
     int x = pPlayerSprite->pos.X;
     int y = pPlayerSprite->pos.Y;
-    int z = (pPlayerSprite->z + zVal) - 2560;
+    int z = (pPlayerSprite->pos.Z + zVal) - 2560;
     int nAngle = pPlayerSprite->ang;
 
     HitInfo hit{};
@@ -164,7 +164,7 @@ void BuildSnake(int nPlayer, int zVal)
 		auto pSprite = &pActor->s();
         pSprite->pos.X = hit.hitpos.X;
         pSprite->pos.Y = hit.hitpos.Y;
-        pSprite->z = hit.hitpos.Z;
+        pSprite->pos.Z = hit.hitpos.Z;
 
         ExplodeSnakeSprite(pActor, nPlayer);
         DeleteActor(pActor);
@@ -202,7 +202,7 @@ void BuildSnake(int nPlayer, int zVal)
             {
                 pSprite->pos.X = pPlayerSprite->pos.X;
                 pSprite->pos.Y = pPlayerSprite->pos.Y;
-                pSprite->z = pPlayerSprite->z + zVal;
+                pSprite->pos.Z = pPlayerSprite->pos.Z + zVal;
                 pSprite->xrepeat = 32;
                 pSprite->yrepeat = 32;
                 pViewSect = pSprite->sector();
@@ -212,7 +212,7 @@ void BuildSnake(int nPlayer, int zVal)
             {
                 pSprite->pos.X = sprt->spr.pos.X;
                 pSprite->pos.Y = sprt->spr.pos.Y;
-                pSprite->z = sprt->spr.z;
+                pSprite->pos.Z = sprt->spr.pos.Z;
                 pSprite->xrepeat = 40 - 3 * i;
                 pSprite->yrepeat = 40 - 3 * i;
             }
@@ -351,11 +351,11 @@ void AISnake::Tick(RunListEvent* ev)
             goto SEARCH_ENEMY;
         }
 
-        zVal = pSprite->z;
+        zVal = pSprite->pos.Z;
 
         nMov = AngleChase(pActor, pEnemySprite, 1200, SnakeList[nSnake].nAngle, 32);
 
-        zVal = pSprite->z - zVal;
+        zVal = pSprite->pos.Z - zVal;
     }
 
     if (nMov.type || nMov.exbits)
@@ -383,7 +383,7 @@ void AISnake::Tick(RunListEvent* ev)
 
         int x = pSprite->pos.X;
         int y = pSprite->pos.Y;
-        int z = pSprite->z;
+        int z = pSprite->pos.Z;
 
         for (int i = 7; i > 0; i--)
         {
@@ -394,7 +394,7 @@ void AISnake::Tick(RunListEvent* ev)
             pSprite2->ang = nAngle;
             pSprite2->pos.X = x;
             pSprite2->pos.Y = y;
-            pSprite2->z = z;
+            pSprite2->pos.Z = z;
 
             ChangeActorSect(pActor2, pSector);
 

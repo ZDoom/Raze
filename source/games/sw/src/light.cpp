@@ -46,7 +46,7 @@ BEGIN_SW_NS
 /* #define LIGHT_Shade(sp)         ((sp)->shade)                        */
 /* #define LIGHT_FloorShade(sp)    ((sp)->xoffset)                      */
 /* #define LIGHT_CeilingShade(sp)  ((sp)->yoffset)                      */
-/* #define LIGHT_Tics(sp)          ((sp)->z)                            */
+/* #define LIGHT_Tics(sp)          ((sp)->pos.Z)                            */
 /*                                                                      */
 /* #define LIGHT_DiffuseNum(sp) (SP_TAG3((sp)))                         */
 /* #define LIGHT_DiffuseMult(sp) (SP_TAG4((sp)))                        */

@@ -174,7 +174,7 @@ bool CanSeeWallMove(SPRITEp wp, short match)
         {
             found = true;
 
-            if (cansee(wp->pos.X, wp->pos.Y, wp->z, wp->sector(), sp->pos.X, sp->pos.Y, sp->z, sp->sector()))
+            if (cansee(wp->pos.X, wp->pos.Y, wp->pos.Z, wp->sector(), sp->pos.X, sp->pos.Y, sp->pos.Z, sp->sector()))
             {
                 return true;
             }

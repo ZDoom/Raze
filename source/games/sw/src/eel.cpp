@@ -367,7 +367,7 @@ void EelCommon(DSWActor* actor)
     u->floor_dist = Z(16);
     u->ceiling_dist = Z(20);
 
-    u->sz = sp->z;
+    u->sz = sp->pos.Z;
 
     sp->xrepeat = 35;
     sp->yrepeat = 27;
@@ -512,13 +512,13 @@ int DoEelMatchPlayerZ(DSWActor* actor)
     u->sz = max(u->sz, hiz + u->ceiling_dist);
 
     u->Counter = (u->Counter + (ACTORMOVETICS << 3) + (ACTORMOVETICS << 1)) & 2047;
-    sp->z = u->sz + MulScale(EEL_BOB_AMT, bsin(u->Counter), 14);
+    sp->pos.Z = u->sz + MulScale(EEL_BOB_AMT, bsin(u->Counter), 14);
 
     bound = u->hiz + u->ceiling_dist + EEL_BOB_AMT;
-    if (sp->z < bound)
+    if (sp->pos.Z < bound)
     {
         // bumped something
-        sp->z = u->sz = bound + EEL_BOB_AMT;
+        sp->pos.Z = u->sz = bound + EEL_BOB_AMT;
     }
 
     return 0;
@@ -551,7 +551,7 @@ int DoEelDeath(DSWActor* actor)
     DoFindGroundPoint(actor);
 
     // on the ground
-    if (sp->z >= u->loz)
+    if (sp->pos.Z >= u->loz)
     {
         RESET(u->Flags, SPR_FALLING|SPR_SLIDING);
         if (RandomRange(1000) > 500)

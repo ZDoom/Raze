@@ -203,9 +203,9 @@ void CFX::fxProcess(void)
         actAirDrag(actor, pFXData->drag);
         pSprite->pos.X += actor->xvel>>12;
         pSprite->pos.Y += actor->yvel>>12;
-        pSprite->z += actor->zvel>>8;
+        pSprite->pos.Z += actor->zvel>>8;
         // Weird...
-        if (actor->xvel || (actor->yvel && pSprite->z >= pSprite->sector()->floorz))
+        if (actor->xvel || (actor->yvel && pSprite->pos.Z >= pSprite->sector()->floorz))
         {
             updatesector(pSprite->pos.X, pSprite->pos.Y, &pSector);
             if (pSector == nullptr)
@@ -213,7 +213,7 @@ void CFX::fxProcess(void)
                 remove(actor);
                 continue;
             }
-            if (getflorzofslopeptr(pSprite->sector(), pSprite->pos.X, pSprite->pos.Y) <= pSprite->z)
+            if (getflorzofslopeptr(pSprite->sector(), pSprite->pos.X, pSprite->pos.Y) <= pSprite->pos.Z)
             {
                 if (pFXData->funcID < 0 || pFXData->funcID >= kCallbackMax)
                 {
@@ -233,12 +233,12 @@ void CFX::fxProcess(void)
         {
             int32_t floorZ, ceilZ;
             getzsofslopeptr(pSector, pSprite->pos.X, pSprite->pos.Y, &ceilZ, &floorZ);
-            if (ceilZ > pSprite->z && !(pSector->ceilingstat & CSTAT_SECTOR_SKY))
+            if (ceilZ > pSprite->pos.Z && !(pSector->ceilingstat & CSTAT_SECTOR_SKY))
             {
                 remove(actor);
                 continue;
             }
-            if (floorZ < pSprite->z)
+            if (floorZ < pSprite->pos.Z)
             {
                 if (pFXData->funcID < 0 || pFXData->funcID >= kCallbackMax)
                 {
@@ -259,11 +259,11 @@ void fxSpawnBlood(DBloodActor *actor, int )
     if (!pSprite->insector())
         return;
     auto pSector = pSprite->sector();
-    if (!FindSector(pSprite->pos.X, pSprite->pos.Y, pSprite->z, &pSector))
+    if (!FindSector(pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z, &pSector))
         return;
     if (adult_lockout && gGameOptions.nGameType <= 0)
         return;
-    auto bloodactor = gFX.fxSpawnActor(FX_27, pSprite->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->z, 0);
+    auto bloodactor = gFX.fxSpawnActor(FX_27, pSprite->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z, 0);
     if (bloodactor)
     {
         bloodactor->spr.ang = 1024;
@@ -280,15 +280,15 @@ void fxSpawnPodStuff(DBloodActor* actor, int )
     if (!pSprite->insector())
         return;
     auto pSector = pSprite->sector();
-    if (!FindSector(pSprite->pos.X, pSprite->pos.Y, pSprite->z, &pSector))
+    if (!FindSector(pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z, &pSector))
         return;
     if (adult_lockout && gGameOptions.nGameType <= 0)
         return;
     DBloodActor *spawnactor;
     if (pSprite->type == kDudePodGreen)
-        spawnactor = gFX.fxSpawnActor(FX_53, pSprite->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->z, 0);
+        spawnactor = gFX.fxSpawnActor(FX_53, pSprite->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z, 0);
     else
-        spawnactor = gFX.fxSpawnActor(FX_54, pSprite->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->z, 0);
+        spawnactor = gFX.fxSpawnActor(FX_54, pSprite->sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z, 0);
     if (spawnactor)
     {
         spawnactor->spr.ang = 1024;

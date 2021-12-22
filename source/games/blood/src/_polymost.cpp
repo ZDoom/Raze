@@ -38,7 +38,7 @@ void collectTSpritesForPortal(int x, int y, int i, int interpolation)
                 pTSprite->setsector(nSector2);
                 pTSprite->pos.X = pSprite->pos.X + dx;
                 pTSprite->pos.Y = pSprite->pos.Y + dy;
-                pTSprite->z = pSprite->z + dz;
+                pTSprite->pos.Z = pSprite->pos.Z + dz;
                 pTSprite->ang = pSprite->ang;
                 pTSprite->picnum = pSprite->picnum;
                 pTSprite->shade = pSprite->shade;
@@ -53,7 +53,7 @@ void collectTSpritesForPortal(int x, int y, int i, int interpolation)
                 pTSprite->flags = pSprite->hitag | 0x200;
                 pTSprite->pos.X = dx + interpolatedvalue(pSprite->ox, pSprite->pos.X, interpolation);
                 pTSprite->pos.Y = dy + interpolatedvalue(pSprite->oy, pSprite->pos.Y, interpolation);
-                pTSprite->z = dz + interpolatedvalue(pSprite->oz, pSprite->z, interpolation);
+                pTSprite->pos.Z = dz + interpolatedvalue(pSprite->oz, pSprite->pos.Z, interpolation);
                 pTSprite->ang = pSprite->interpolatedang(interpolation);
 
                 int nAnim = 0;

@@ -479,7 +479,7 @@ int SetupLava(DSWActor* actor)
     sp->clipdist = (512) >> 2;
     SET(u->Flags, SPR_XFLIP_TOGGLE|SPR_ELECTRO_TOLERANT);
 
-    u->loz = sp->z;
+    u->loz = sp->pos.Z;
 
     return 0;
 }

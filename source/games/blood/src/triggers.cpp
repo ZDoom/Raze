@@ -221,10 +221,10 @@ void LifeLeechOperate(DBloodActor* actor, EVENT event)
                     GetSpriteExtents(pSprite, &top, &bottom);
                     int nType = pTarget->type-kDudeBase;
                     DUDEINFO *pDudeInfo = getDudeInfo(nType+kDudeBase);
-                    int z1 = (top-pSprite->z)-256;
+                    int z1 = (top-pSprite->pos.Z)-256;
                     int x = pTarget->pos.X;
                     int y = pTarget->pos.Y;
-                    int z = pTarget->z;
+                    int z = pTarget->pos.Z;
                     int nDist = approxDist(x - pSprite->pos.X, y - pSprite->pos.Y);
                     if (nDist != 0 && cansee(pSprite->pos.X, pSprite->pos.Y, top, pSprite->sector(), x, y, z, pTarget->sector()))
                     {
@@ -235,7 +235,7 @@ void LifeLeechOperate(DBloodActor* actor, EVENT event)
                         pSprite->ang = getangle(x-pSprite->pos.X, y-pSprite->pos.Y);
                         int dx = bcos(pSprite->ang);
                         int dy = bsin(pSprite->ang);
-                        int tz = pTarget->z - (pTarget->yrepeat * pDudeInfo->aimHeight) * 4;
+                        int tz = pTarget->pos.Z - (pTarget->yrepeat * pDudeInfo->aimHeight) * 4;
                         int dz = DivScale(tz - top - 256, nDist, 10);
                         int nMissileType = kMissileLifeLeechAltNormal + (pXSprite->data3 ? 1 : 0);
                         int t2;
@@ -477,7 +477,7 @@ void OperateSprite(DBloodActor* actor, EVENT event)
             spritetype *pPlayerSprite = gPlayer[p].pSprite;
             int dx = (pSprite->pos.X - pPlayerSprite->pos.X)>>4;
             int dy = (pSprite->pos.Y - pPlayerSprite->pos.Y)>>4;
-            int dz = (pSprite->z - pPlayerSprite->z)>>8;
+            int dz = (pSprite->pos.Z - pPlayerSprite->pos.Z)>>8;
             int nDist = dx*dx+dy*dy+dz*dz+0x40000;
             gPlayer[p].quakeEffect = DivScale(pXSprite->data1, nDist, 16);
         }
@@ -932,14 +932,14 @@ void ZTranslateSector(sectortype* pSector, XSECTOR *pXSector, int a3, int a4)
             if (pSprite->cstat & CSTAT_SPRITE_MOVE_FORWARD)
             {
                 viewBackupSpriteLoc(actor);
-                pSprite->z += pSector->floorz-oldZ;
+                pSprite->pos.Z += pSector->floorz-oldZ;
             }
             else if (pSprite->flags&2)
                 pSprite->flags |= 4;
             else if (oldZ <= bottom && !(pSprite->cstat & CSTAT_SPRITE_ALIGNMENT_MASK))
             {
                 viewBackupSpriteLoc(actor);
-                pSprite->z += pSector->floorz-oldZ;
+                pSprite->pos.Z += pSector->floorz-oldZ;
             }
         }
     }
@@ -959,7 +959,7 @@ void ZTranslateSector(sectortype* pSector, XSECTOR *pXSector, int a3, int a4)
             if (pSprite->cstat & CSTAT_SPRITE_MOVE_REVERSE)
             {
                 viewBackupSpriteLoc(actor);
-                pSprite->z += pSector->ceilingz-oldZ;
+                pSprite->pos.Z += pSector->ceilingz-oldZ;
             }
         }
     }
@@ -978,9 +978,9 @@ DBloodActor* GetHighestSprite(sectortype* pSector, int nStatus, int *z)
         {
             int top, bottom;
             GetSpriteExtents(pSprite, &top, &bottom);
-            if (top-pSprite->z > *z)
+            if (top-pSprite->pos.Z > *z)
             {
-                *z = top-pSprite->z;
+                *z = top-pSprite->pos.Z;
                 found = actor;
             }
         }
@@ -1071,7 +1071,7 @@ int VSpriteBusy(sectortype* pSector, unsigned int a2)
             if (pSprite->cstat & CSTAT_SPRITE_MOVE_FORWARD)
             {
                 viewBackupSpriteLoc(actor);
-                pSprite->z = actor->basePoint.Z+MulScale(dz1, GetWaveValue(a2, nWave), 16);
+                pSprite->pos.Z = actor->basePoint.Z+MulScale(dz1, GetWaveValue(a2, nWave), 16);
             }
         }
     }
@@ -1085,7 +1085,7 @@ int VSpriteBusy(sectortype* pSector, unsigned int a2)
             if (pSprite->cstat & CSTAT_SPRITE_MOVE_REVERSE)
             {
                 viewBackupSpriteLoc(actor);
-                pSprite->z = actor->basePoint.Z + MulScale(dz2, GetWaveValue(a2, nWave), 16);
+                pSprite->pos.Z = actor->basePoint.Z + MulScale(dz2, GetWaveValue(a2, nWave), 16);
             }
         }
     }
@@ -1413,7 +1413,7 @@ void OperateTeleport(sectortype* pSector)
                 }
                 pSprite->pos.X = pDest->pos.X;
                 pSprite->pos.Y = pDest->pos.Y;
-                pSprite->z += pDest->sector()->floorz - pSector->floorz;
+                pSprite->pos.Z += pDest->sector()->floorz - pSector->floorz;
                 pSprite->ang = pDest->ang;
                 ChangeActorSect(actor, pDest->sector());
                 sfxPlay3DSound(destactor, 201, -1, 0);
@@ -1469,8 +1469,8 @@ void OperatePath(sectortype* pSector, EVENT event)
     }
         
     pXSector->marker1 = actor;
-    pXSector->offFloorZ = pSprite2->z;
-    pXSector->onFloorZ = pSprite->z;
+    pXSector->offFloorZ = pSprite2->pos.Z;
+    pXSector->onFloorZ = pSprite->pos.Z;
     switch (event.cmd) {
         case kCmdOn:
             pXSector->state = 0;
@@ -1840,7 +1840,7 @@ void ProcessMotion(void)
                 if (pSprite->cstat & CSTAT_SPRITE_MOVE_MASK)
                 {
                     viewBackupSpriteLoc(actor);
-                    pSprite->z += vdi;
+                    pSprite->pos.Z += vdi;
                 }
             }
             if (pXSector->bobFloor)
@@ -1862,7 +1862,7 @@ void ProcessMotion(void)
                         if (bottom >= floorZ && (pSprite->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == 0)
                         {
                             viewBackupSpriteLoc(actor);
-                            pSprite->z += vdi;
+                            pSprite->pos.Z += vdi;
                         }
                     }
                 }
@@ -1882,7 +1882,7 @@ void ProcessMotion(void)
                     if (top <= ceilZ && (pSprite->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == 0)
                     {
                         viewBackupSpriteLoc(actor);
-                        pSprite->z += vdi;
+                        pSprite->pos.Z += vdi;
                     }
                 }
             }
