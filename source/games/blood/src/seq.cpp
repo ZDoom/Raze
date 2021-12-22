@@ -241,7 +241,6 @@ void UpdateMasked(walltype* pWall, SEQFRAME* pFrame)
 
 void UpdateSprite(DBloodActor* actor, SEQFRAME* pFrame)
 {
-	spritetype* pSprite = &actor->s();
 	assert(actor->hasX());
 	if (actor->spr.flags & 2)
 	{
@@ -349,7 +348,6 @@ void SEQINST::Update()
 
 
 		// by NoOne: add surfaceSound trigger feature
-		spritetype* pSprite = &actor->s();
 		if (!VanillaMode() && pSequence->frames[frameIndex].surfaceSound && actor->zvel == 0 && actor->xvel != 0) {
 
 			if (actor->spr.sector()->upperLink) break; // don't play surface sound for stacked sectors

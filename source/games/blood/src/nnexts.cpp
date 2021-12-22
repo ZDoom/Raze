@@ -343,7 +343,6 @@ static DBloodActor* nnExtSpawnDude(DBloodActor* sourceActor, DBloodActor* origin
 
 bool nnExtIsImmune(DBloodActor* actor, int dmgType, int minScale) 
 {
-    auto pSprite = &actor->s();
     if (dmgType >= kDmgFall && dmgType < kDmgMax && actor->hasX() && actor->xspr.locked != 1) 
     {
         if (actor->spr.type >= kThingBase && actor->spr.type < kThingMax)
@@ -369,7 +368,6 @@ bool nnExtIsImmune(DBloodActor* actor, int dmgType, int minScale)
 
 bool nnExtEraseModernStuff(DBloodActor* actor) 
 {
-    auto pSprite = &actor->s();
     auto pXSprite = &actor->x();
 
     bool erased = false;
@@ -525,7 +523,6 @@ void nnExtInitModernStuff(TArray<DBloodActor*>& actors)
     {
         if (!actor->exists() || !actor->hasX()) continue;
         XSPRITE* pXSprite = &actor->x();
-        spritetype* pSprite = &actor->s();
         
         switch (actor->spr.type) {
             case kModernRandomTX:
@@ -1422,7 +1419,6 @@ void sfxPlayVectorSound(DBloodActor* actor, int vectorId)
 
 int getSpriteMassBySize(DBloodActor* actor)
 {
-    auto pSprite = &actor->s();
     int mass = 0; int seqId = -1; int clipDist = actor->spr.clipdist;
     if (!actor->hasX())
     {
@@ -1586,7 +1582,6 @@ void debrisConcuss(DBloodActor* owneractor, int listIndex, int x, int y, int z, 
     DBloodActor* actor = gPhysSpritesList[listIndex];
     if (actor != nullptr && actor->hasX())
     {
-        spritetype* pSprite = &actor->s();
         int dx = actor->spr.pos.X - x; int dy = actor->spr.pos.Y - y; int dz = (actor->spr.pos.Z - z) >> 4;
         dmg = scale(0x40000, dmg, 0x40000 + dx * dx + dy * dy + dz * dz);
         bool thing = (actor->spr.type >= kThingBase && actor->spr.type < kThingMax);
@@ -1621,10 +1616,8 @@ void debrisConcuss(DBloodActor* owneractor, int listIndex, int x, int y, int z, 
 
 void debrisBubble(DBloodActor* actor)
 {
-    spritetype* pSprite = &actor->s();
- 
     int top, bottom;
-    GetSpriteExtents(pSprite, &top, &bottom);
+    GetActorExtents(actor, &top, &bottom);
     for (unsigned int i = 0; i < 1 + Random(5); i++) {
         
         int nDist = (actor->spr.xrepeat * (tileWidth(actor->spr.picnum) >> 1)) >> 2;
@@ -1655,7 +1648,6 @@ void debrisMove(int listIndex)
 {
     DBloodActor* actor = gPhysSpritesList[listIndex];
     XSPRITE* pXSprite = &actor->x();
-    spritetype* pSprite = &actor->s();   
     auto pSector = actor->spr.sector();
 
     if (!actor->hasX() || !pSector)
@@ -1734,7 +1726,7 @@ void debrisMove(int listIndex)
     int ceilZ, floorZ;
     Collision ceilColl, floorColl;
     GetZRange(actor, &ceilZ, &ceilColl, &floorZ, &floorColl, clipDist, CLIPMASK0, PARALLAXCLIP_CEILING | PARALLAXCLIP_FLOOR);
-    GetSpriteExtents(pSprite, &top, &bottom);
+    GetActorExtents(actor, &top, &bottom);
 
     if ((pXSprite->physAttr & kPhysDebrisSwim) && uwater) 
     {
@@ -2988,7 +2980,6 @@ void usePropertiesChanger(DBloodActor* sourceactor, int objType, sectortype* pSe
 
 void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor) 
 {
-    auto pSprite = &actor->s();
     auto pSource = &sourceactor->s();
     auto pXSource = &sourceactor->x();
 
@@ -3119,7 +3110,6 @@ void useTeleportTarget(DBloodActor* sourceactor, DBloodActor* actor)
 void useEffectGen(DBloodActor* sourceactor, DBloodActor* actor)
 {
     if (!actor) actor = sourceactor;
-    auto pSprite = &actor->s();
     auto pSource = &sourceactor->s();
     auto pXSource = &sourceactor->x();
 
@@ -3388,7 +3378,6 @@ void damageSprites(DBloodActor* sourceactor, DBloodActor* actor)
     
 
     int health = 0;
-    auto pSprite = &actor->s();
     auto pXSprite = &actor->x();
     auto pXSource = &sourceactor->x();
 
@@ -4865,7 +4854,6 @@ void modernTypeTrigger(int destObjType, sectortype* destSect, walltype* destWall
 
 DBloodActor* aiFightGetTargetInRange(DBloodActor* actor, int minDist, int maxDist, int data, int teamMode) 
 {
-    auto pSprite = &actor->s();
     XSPRITE* pXSprite = &actor->x();
 
     DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
@@ -5125,8 +5113,6 @@ bool aiFightGetDudesForBattle(DBloodActor* actor)
 
 void aiFightAlarmDudesInSight(DBloodActor* actor, int max) 
 {
-    auto pSprite = &actor->s();
-
     DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 
     BloodStatIterator it(kStatDude);
@@ -5424,7 +5410,6 @@ void useDudeSpawn(DBloodActor* pSource, DBloodActor* pActor)
 
 bool modernTypeOperateSprite(DBloodActor* actor, EVENT& event) 
 {
-    auto pSprite = &actor->s();
     auto pXSprite = &actor->x();
 
     if (event.cmd >= kCmdLock && event.cmd <= kCmdToggleLock) 
@@ -6286,7 +6271,6 @@ void useUniMissileGen(DBloodActor* sourceactor, DBloodActor* actor)
     if (actor == nullptr) actor = sourceactor;
     XSPRITE* pXSource = &sourceactor->x();
     spritetype* pSource = &sourceactor->s();
-    spritetype* pSprite = &actor->s();
 
     int dx = 0, dy = 0, dz = 0;
 
@@ -6463,7 +6447,6 @@ void useIncDecGen(DBloodActor* sourceactor, int objType, sectortype* destSect, w
 
 void sprite2sectorSlope(DBloodActor* actor, sectortype* pSector, char rel, bool forcez) 
 {
-    auto pSprite = &actor->s();
     int slope = 0, z = 0;
     switch (rel) {
         default:
@@ -6478,7 +6461,7 @@ void sprite2sectorSlope(DBloodActor* actor, sectortype* pSector, char rel, bool 
             break;
     }
 
-    spriteSetSlope(pSprite, slope);
+    spriteSetSlope(&actor->spr, slope);
     if (forcez) actor->spr.pos.Z = z;
 }
 
@@ -6720,8 +6703,6 @@ void useSectorLightChanger(DBloodActor* sourceactor, sectortype* pSector)
 
 void useTargetChanger(DBloodActor* sourceactor, DBloodActor* actor)
 {
-    spritetype* pSprite = &actor->s();
-    
     if (!actor->IsDudeActor() || actor->spr.statnum != kStatDude) 
     {
         switch (actor->spr.type) // can be dead dude turned in gib
@@ -7126,7 +7107,6 @@ void playerQavSceneDraw(PLAYER* pPlayer, int a2, double a3, double a4, int a5)
 
     QAVSCENE* pQavScene = &gPlayerCtrl[pPlayer->nPlayer].qavScene;
     auto actor = pQavScene->initiator;
-    spritetype* pSprite = &actor->s();
 
     if (pQavScene->qavResrc != NULL) 
     {
@@ -7482,7 +7462,6 @@ bool setDataValueOfObject(int objType, sectortype* sect, walltype* wal, DBloodAc
 
 bool nnExtCanMove(DBloodActor* actor, DBloodActor* target, int nAngle, int nRange) 
 {
-    auto pSprite = &actor->s();
     int x = actor->spr.pos.X, y = actor->spr.pos.Y, z = actor->spr.pos.Z;
     auto pSector = actor->spr.sector();
     HitScan(actor, z, Cos(nAngle) >> 16, Sin(nAngle) >> 16, 0, CLIPMASK0, nRange);
@@ -7514,7 +7493,6 @@ bool nnExtCanMove(DBloodActor* actor, DBloodActor* target, int nAngle, int nRang
 
 void nnExtAiSetDirection(DBloodActor* actor, int a3) 
 {
-    spritetype* pSprite = &actor->s();
     XSPRITE* pXSprite = &actor->x();
     assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
     
@@ -7561,7 +7539,6 @@ void nnExtAiSetDirection(DBloodActor* actor, int a3)
 
 void aiPatrolState(DBloodActor* actor, int state) 
 {
-    spritetype* pSprite = &actor->s();
     assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax && actor->hasX());
     assert(actor->GetTarget());
     
@@ -7681,7 +7658,6 @@ DBloodActor* aiPatrolMarkerBusy(DBloodActor* except, DBloodActor* marker)
 
 bool aiPatrolMarkerReached(DBloodActor* actor) 
 {
-    spritetype* pSprite = &actor->s();
     assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 
     const DUDEINFO_EXTRA* pExtra = &gDudeInfoExtra[actor->spr.type - kDudeBase];
@@ -7772,7 +7748,6 @@ bool markerIsNode(DBloodActor* mark, bool back)
 
 void aiPatrolSetMarker(DBloodActor* actor)
 {
-    auto pSprite = &actor->s();
     auto pXSprite = &actor->x();
     auto targetactor = actor->GetTarget();
 
@@ -7883,7 +7858,6 @@ void aiPatrolSetMarker(DBloodActor* actor)
 
 void aiPatrolStop(DBloodActor* actor, DBloodActor* targetactor, bool alarm)
 {
-    auto pSprite = &actor->s();
     if (actor->hasX()) 
     {
         XSPRITE* pXSprite = &actor->x();
@@ -7957,7 +7931,6 @@ void aiPatrolRandGoalAng(DBloodActor* actor)
 void aiPatrolTurn(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
-    auto pSprite = &actor->s();
 
     int nTurnRange = (getDudeInfo(actor->spr.type)->angSpeed << 1) >> 4;
     int nAng = ((pXSprite->goalAng + 1024 - actor->spr.ang) & 2047) - 1024;
@@ -7974,7 +7947,6 @@ void aiPatrolTurn(DBloodActor* actor)
 void aiPatrolMove(DBloodActor* actor) 
 {
     auto pXSprite = &actor->x();
-    auto pSprite = &actor->s();
     auto targetactor = actor->GetTarget();
 
     if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax) || !targetactor)
@@ -8053,7 +8025,6 @@ void aiPatrolAlarmLite(DBloodActor* actor, DBloodActor* targetactor)
     if (!actor->hasX() || !actor->IsDudeActor())
         return;
 
-    spritetype* pSprite = &actor->s();
     XSPRITE* pXSprite = &actor->x();
     spritetype* pTarget = &targetactor->s();
 
@@ -8104,7 +8075,6 @@ void aiPatrolAlarmFull(DBloodActor* actor, DBloodActor* targetactor, bool chain)
     if (!actor->hasX() || !actor->IsDudeActor())
         return;
 
-    spritetype* pSprite = &actor->s();
     XSPRITE* pXSprite = &actor->x();
     spritetype* pTarget = &targetactor->s();
 
@@ -8189,7 +8159,6 @@ bool spritesTouching(DBloodActor *actor1, DBloodActor* actor2)
 
 bool aiCanCrouch(DBloodActor* actor)
 {
-    auto pSprite = &actor->s();
     if (actor->spr.type >= kDudeBase && actor->spr.type < kDudeVanillaMax)
         return (gDudeInfoExtra[actor->spr.type - kDudeBase].idlcseqofs >= 0 && gDudeInfoExtra[actor->spr.type - kDudeBase].mvecseqofs >= 0);
     else if (actor->spr.type == kDudeModernCustom || actor->spr.type == kDudeModernCustomBurning)
@@ -8229,7 +8198,6 @@ bool readyForCrit(DBloodActor* hunter, DBloodActor* victim)
 
 DBloodActor* aiPatrolSearchTargets(DBloodActor* actor) 
 {
-    spritetype* pSprite = &actor->s();
     XSPRITE* pXSprite = &actor->x();
 
     enum { kMaxPatrolFoundSounds = 256 }; // should be the maximum amount of sound channels the engine can play at the same time.
@@ -8620,7 +8588,6 @@ bool aiPatrolGetPathDir(DBloodActor* actor, DBloodActor* marker)
 void aiPatrolThink(DBloodActor* actor)
 {
     auto pXSprite = &actor->x();
-    auto pSprite = &actor->s();
 
     assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 
@@ -9030,7 +8997,6 @@ void levelEndLevelCustom(int nLevel)
 void callbackUniMissileBurst(DBloodActor* actor, sectortype*) // 22
 {
     if (!actor) return;
-    spritetype* pSprite = &actor->s();
     if (actor->spr.statnum != kStatProjectile) return;
     int nAngle = getangle(actor->xvel, actor->yvel);
     int nRadius = 0x55555;
@@ -9102,11 +9068,10 @@ void callbackGenDudeUpdate(DBloodActor* actor, sectortype*) // 24
 
 void clampSprite(DBloodActor* actor, int which) 
 {
-    auto pSprite = &actor->s();
     int zTop, zBot;
     if (actor->spr.insector())
     {
-        GetSpriteExtents(pSprite, &zTop, &zBot);
+        GetActorExtents(actor, &zTop, &zBot);
         if (which & 0x01)
             actor->spr.pos.Z += ClipHigh(getflorzofslopeptr(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y) - zBot, 0);
         if (which & 0x02)

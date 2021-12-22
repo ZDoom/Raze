@@ -66,7 +66,6 @@ void warpInit(TArray<DBloodActor*>& actors)
     for(auto actor : actors)
     {
         if (!actor->exists()) continue;
-        spritetype* pSprite = &actor->s();
             if (actor->hasX()) {
                 XSPRITE *pXSprite = &actor->x();
                 switch (actor->spr.type) {
@@ -166,7 +165,6 @@ void warpInit(TArray<DBloodActor*>& actors)
         auto actor = barrier_cast<DBloodActor*>(sect.upperLink);
         if (actor && actor->hasX())
         {
-            spritetype *pSprite = &actor->s();
             XSPRITE *pXSprite = &actor->x();
             int nLink = pXSprite->data1;
             for(auto& sect: sector)
@@ -190,7 +188,6 @@ void warpInit(TArray<DBloodActor*>& actors)
 
 int CheckLink(DBloodActor *actor)
 {
-    auto pSprite = &actor->s();
     auto pSector = actor->spr.sector();
     auto aUpper = barrier_cast<DBloodActor*>(pSector->upperLink);
     auto aLower = barrier_cast<DBloodActor*>(pSector->lowerLink);

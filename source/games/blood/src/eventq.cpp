@@ -420,7 +420,6 @@ void evSend(EventObject& eob, int rxId, COMMAND_ID command)
 		BloodStatIterator it(kStatThing);
 		while (auto actor = it.Next())
 		{
-			spritetype* pSprite = &actor->s();
 			if (actor->spr.flags & 32)
 				continue;
 			if (actor->hasX())
@@ -438,7 +437,6 @@ void evSend(EventObject& eob, int rxId, COMMAND_ID command)
 		BloodStatIterator it(kStatItem);
 		while (auto actor = it.Next())
 		{
-			spritetype* pSprite = &actor->s();
 			if (actor->spr.flags & 32)
 				continue;
 			if (actor->hasX())

@@ -265,7 +265,6 @@ int ChanceToCount(int a1, int a2)
 
 void GibFX(DBloodActor* actor, GIBFX *pGFX, CGibPosition *pPos, CGibVelocity *pVel)
 {
-    spritetype* pSprite = &actor->s();
     auto pSector = actor->spr.sector();
     if (adult_lockout && gGameOptions.nGameType == 0 && pGFX->fxId == FX_13)
         return;
@@ -333,7 +332,6 @@ void GibFX(DBloodActor* actor, GIBFX *pGFX, CGibPosition *pPos, CGibVelocity *pV
 
 void GibThing(DBloodActor* actor, GIBTHING *pGThing, CGibPosition *pPos, CGibVelocity *pVel)
 {
-    spritetype* pSprite = &actor->s();
     if (adult_lockout && gGameOptions.nGameType <= 0)
         switch (pGThing->type) {
             case kThingBloodBits:

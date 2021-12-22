@@ -104,8 +104,7 @@ bool FindSector(int nX, int nY, sectortype** pSector)
 
 bool CheckProximity(DBloodActor *actor, int nX, int nY, int nZ, sectortype* pSector, int nDist)
 {
-    assert(actor != NULL);
-    auto pSprite = &actor->s();
+    assert(actor != nullptr);
     int oX = abs(nX-actor->spr.pos.X)>>4;
     if (oX >= nDist) return 0;
 
@@ -337,8 +336,7 @@ bool IntersectRay(int wx, int wy, int wdx, int wdy, int x1, int y1, int z1, int 
 
 int HitScan(DBloodActor *actor, int z, int dx, int dy, int dz, unsigned int nMask, int nRange)
 {
-    assert(actor != NULL);
-    auto pSprite = &actor->s();
+    assert(actor != nullptr);
     assert(dx != 0 || dy != 0);
     gHitInfo.clearObj();
     int x = actor->spr.pos.X;
@@ -379,11 +377,9 @@ int HitScan(DBloodActor *actor, int z, int dx, int dy, int dz, unsigned int nMas
 
 int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, int dz, int nRange, int ac)
 {
-    assert(actor != NULL);
-    auto pSprite = &actor->s();
+    assert(actor != nullptr);
 
     int nNum = 256;
-    assert(pSprite != NULL);
     gHitInfo.clearObj();
     int x1 = actor->spr.pos.X+MulScale(nOffset, Cos(actor->spr.ang+512), 30);
     int y1 = actor->spr.pos.Y+MulScale(nOffset, Sin(actor->spr.ang+512), 30);
@@ -556,8 +552,7 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
 
 void GetZRange(DBloodActor *actor, int *ceilZ, Collision *ceilColl, int *floorZ, Collision *floorColl, int nDist, unsigned int nMask, unsigned int nClipParallax)
 {
-    assert(actor != NULL);
-    auto pSprite = &actor->s();
+    assert(actor != nullptr);
     Collision scratch;
 
     auto bakCstat = actor->spr.cstat;

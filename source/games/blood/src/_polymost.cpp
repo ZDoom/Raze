@@ -13,11 +13,10 @@ void collectTSpritesForPortal(int x, int y, int i, int interpolation)
     BloodSectIterator it(nSector);
     while (auto actor = it.Next())
     {
-        spritetype* pSprite = &actor->s();
-        if (pSprite == gView->pSprite)
+        if (actor == gView->actor)
             continue;
         int top, bottom;
-        GetSpriteExtents(pSprite, &top, &bottom);
+        GetActorExtents(actor, &top, &bottom);
         int zCeil, zFloor;
         getzsofslopeptr(&sector[nSector], actor->spr.pos.X, actor->spr.pos.Y, &zCeil, &zFloor);
         if (actor->spr.statnum == kStatDude && (top < zCeil || bottom > zFloor))

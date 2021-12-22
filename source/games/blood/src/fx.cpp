@@ -118,7 +118,6 @@ void CFX::destroy(DBloodActor* actor)
 void CFX::remove(DBloodActor* actor)
 {
     if (!actor) return;
-    spritetype *pSprite = &actor->s();
     if (actor->hasX()) seqKill(actor);
     if (actor->spr.statnum != kStatFree)
         actPostSprite(actor, kStatFree);
@@ -162,7 +161,7 @@ DBloodActor* CFX::fxSpawnActor(FX_ID nFx, sectortype* pSector, int x, int y, int
         destroy(iactor);
     }
     auto actor = actSpawnSprite(pSector, x, y, z, 1, 0);
-    spritetype* pSprite = &actor->s();
+
     actor->spr.type = nFx;
     actor->spr.picnum = pFX->picnum;
     actor->spr.cstat |= pFX->cstat;
@@ -194,7 +193,6 @@ void CFX::fxProcess(void)
     BloodStatIterator it(kStatFX);
     while (auto actor = it.Next())
     {
-        spritetype *pSprite = &actor->s();
         viewBackupSpriteLoc(actor);
         auto pSector = actor->spr.sector();
         assert(pSector);
@@ -255,7 +253,6 @@ void CFX::fxProcess(void)
 
 void fxSpawnBlood(DBloodActor *actor, int )
 {
-    spritetype* pSprite = &actor->s();
     if (!actor->spr.insector())
         return;
     auto pSector = actor->spr.sector();
@@ -276,7 +273,6 @@ void fxSpawnBlood(DBloodActor *actor, int )
 
 void fxSpawnPodStuff(DBloodActor* actor, int )
 {
-    auto pSprite = &actor->s();
     if (!actor->spr.insector())
         return;
     auto pSector = actor->spr.sector();
@@ -301,7 +297,6 @@ void fxSpawnPodStuff(DBloodActor* actor, int )
 
 void fxSpawnEjectingBrass(DBloodActor* actor, int z, int a3, int a4)
 {
-    auto pSprite = &actor->s();
     int x = actor->spr.pos.X + MulScale(actor->spr.clipdist - 4, Cos(actor->spr.ang), 28);
     int y = actor->spr.pos.Y + MulScale(actor->spr.clipdist - 4, Sin(actor->spr.ang), 28);
     x += MulScale(a3, Cos(actor->spr.ang + 512), 30);
@@ -321,7 +316,6 @@ void fxSpawnEjectingBrass(DBloodActor* actor, int z, int a3, int a4)
 
 void fxSpawnEjectingShell(DBloodActor* actor, int z, int a3, int a4)
 {
-    auto pSprite = &actor->s();
     int x = actor->spr.pos.X + MulScale(actor->spr.clipdist - 4, Cos(actor->spr.ang), 28);
     int y = actor->spr.pos.Y + MulScale(actor->spr.clipdist - 4, Sin(actor->spr.ang), 28);
     x += MulScale(a3, Cos(actor->spr.ang + 512), 30);
