@@ -1607,7 +1607,7 @@ int runlist_CheckRadialDamage(DExhumedActor* pActor)
         return 0;
     }
 
-    int x = (pSprite->x - pRadialSpr->x) >> 8;
+    int x = (pSprite->pos.X - pRadialSpr->pos.X) >> 8;
     int y = (pSprite->y - pRadialSpr->y) >> 8;
     int z = (pSprite->z - pRadialSpr->z) >> 12;
 
@@ -1644,11 +1644,11 @@ int runlist_CheckRadialDamage(DExhumedActor* pActor)
         pSprite->cstat = CSTAT_SPRITE_BLOCK_ALL;
 
         if (((kStatExplodeTarget - pSprite->statnum) <= 1) ||
-            cansee(pRadialSpr->x,
+            cansee(pRadialSpr->pos.X,
                 pRadialSpr->y,
                 pRadialSpr->z - 512,
                 pRadialSpr->sector(),
-                pSprite->x,
+                pSprite->pos.X,
                 pSprite->y,
                 pSprite->z - 8192,
                 pSprite->sector()))

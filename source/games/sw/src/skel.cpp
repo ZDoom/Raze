@@ -550,18 +550,18 @@ int DoSkelTeleport(DSWActor* actor)
     SPRITEp sp = &actor->s();
     int x,y;
 
-    x = sp->x;
+    x = sp->pos.X;
     y = sp->y;
 
     while (true)
     {
-        sp->x = x;
+        sp->pos.X = x;
         sp->y = y;
 
         if (RANDOM_P2(1024) < 512)
-            sp->x += 512 + RANDOM_P2(1024);
+            sp->pos.X += 512 + RANDOM_P2(1024);
         else
-            sp->x -= 512 + RANDOM_P2(1024);
+            sp->pos.X -= 512 + RANDOM_P2(1024);
 
         if (RANDOM_P2(1024) < 512)
             sp->y += 512 + RANDOM_P2(1024);

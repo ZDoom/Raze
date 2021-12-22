@@ -62,7 +62,7 @@ void sub_71BD4(int, DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
 	int height = pSprite->yrepeat * pDudeInfo->eyeHeight;
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
-	int x = pSprite->x;
+	int x = pSprite->pos.X;
 	int y = pSprite->y;
 	int z = height;
 	TARGETTRACK tt = { 0x10000, 0x10000, 0x100, 0x55, 0x100000 };
@@ -77,7 +77,7 @@ void sub_71BD4(int, DBloodActor* actor)
 		spritetype* pSprite2 = &actor2->s();
 		if (pSprite == pSprite2 || !(pSprite2->flags & 8))
 			continue;
-		int x2 = pSprite2->x;
+		int x2 = pSprite2->pos.X;
 		int y2 = pSprite2->y;
 		int z2 = pSprite2->z;
 		int nDist = approxDist(x2 - x, y2 - y);
@@ -135,7 +135,7 @@ void sub_720AC(int, DBloodActor* actor)
 	int ax, ay, az;
 	ax = bcos(pSprite->ang);
 	ay = bsin(pSprite->ang);
-	int x = pSprite->x;
+	int x = pSprite->pos.X;
 	int y = pSprite->y;
 	int z = height;
 	TARGETTRACK tt = { 0x10000, 0x10000, 0x100, 0x55, 0x100000 };
@@ -151,7 +151,7 @@ void sub_720AC(int, DBloodActor* actor)
 		spritetype* pSprite2 = &actor2->s();
 		if (pSprite == pSprite2 || !(pSprite2->flags & 8))
 			continue;
-		int x2 = pSprite2->x;
+		int x2 = pSprite2->pos.X;
 		int y2 = pSprite2->y;
 		int z2 = pSprite2->z;
 		int nDist = approxDist(x2 - x, y2 - y);
@@ -234,16 +234,16 @@ static void sub_725A4(DBloodActor* actor)
 			PLAYER* pPlayer = &gPlayer[p];
 			if (pPlayer->pXSprite->health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
 				continue;
-			int x = pPlayer->pSprite->x;
+			int x = pPlayer->pSprite->pos.X;
 			int y = pPlayer->pSprite->y;
 			int z = pPlayer->pSprite->z;
 			auto pSector = pPlayer->pSprite->sector();
-			int dx = x - pSprite->x;
+			int dx = x - pSprite->pos.X;
 			int dy = y - pSprite->y;
 			int nDist = approxDist(dx, dy);
 			if (nDist > pDudeInfo->seeDist && nDist > pDudeInfo->hearDist)
 				continue;
-			if (!cansee(x, y, z, pSector, pSprite->x, pSprite->y, pSprite->z - ((pDudeInfo->eyeHeight * pSprite->yrepeat) << 2), pSprite->sector()))
+			if (!cansee(x, y, z, pSector, pSprite->pos.X, pSprite->y, pSprite->z - ((pDudeInfo->eyeHeight * pSprite->yrepeat) << 2), pSprite->sector()))
 				continue;
 			int nDeltaAngle = ((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024;
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
@@ -275,7 +275,7 @@ static void sub_72850(DBloodActor* actor)
 		return;
 	}
 	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
-	int dx = pXSprite->targetX - pSprite->x;
+	int dx = pXSprite->targetX - pSprite->pos.X;
 	int dy = pXSprite->targetY - pSprite->y;
 	int nAngle = getangle(dx, dy);
 	int nDist = approxDist(dx, dy);
@@ -302,7 +302,7 @@ static void sub_72934(DBloodActor* actor)
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	spritetype* pTarget = &actor->GetTarget()->s();
 	XSPRITE* pXTarget = &actor->GetTarget()->x();
-	int dx = pTarget->x - pSprite->x;
+	int dx = pTarget->pos.X - pSprite->pos.X;
 	int dy = pTarget->y - pSprite->y;
 	aiChooseDirection(actor, getangle(dx, dy));
 	if (pXTarget->health == 0)
@@ -320,7 +320,7 @@ static void sub_72934(DBloodActor* actor)
 	{
 		int nDeltaAngle = ((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024;
 		int height = (pDudeInfo->eyeHeight * pSprite->yrepeat) << 2;
-		if (cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sector(), pSprite->x, pSprite->y, pSprite->z - height, pSprite->sector()))
+		if (cansee(pTarget->pos.X, pTarget->y, pTarget->z, pTarget->sector(), pSprite->pos.X, pSprite->y, pSprite->z - height, pSprite->sector()))
 		{
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{

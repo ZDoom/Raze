@@ -346,7 +346,7 @@ void UpdateAimVector(PLAYER * pPlayer)
     spritetype *pSprite;
     assert(pPlayer != NULL);
     spritetype *pPSprite = pPlayer->pSprite;
-    int x = pPSprite->x;
+    int x = pPSprite->pos.X;
     int y = pPSprite->y;
     int z = pPlayer->zWeapon;
     Aim aim;
@@ -372,7 +372,7 @@ void UpdateAimVector(PLAYER * pPlayer)
                 continue;
             if (!(pSprite->flags&8))
                 continue;
-            int x2 = pSprite->x;
+            int x2 = pSprite->pos.X;
             int y2 = pSprite->y;
             int z2 = pSprite->z;
             int nDist = approxDist(x2-x, y2-y);
@@ -427,7 +427,7 @@ void UpdateAimVector(PLAYER * pPlayer)
                     continue;
                 if (!(pSprite->flags&8))
                     continue;
-                int x2 = pSprite->x;
+                int x2 = pSprite->pos.X;
                 int y2 = pSprite->y;
                 int z2 = pSprite->z;
                 int dx = x2-x;
@@ -447,7 +447,7 @@ void UpdateAimVector(PLAYER * pPlayer)
                 int angle = getangle(dx,dy);
                 if (abs(((angle-pPSprite->ang+1024)&2047)-1024) > pWeaponTrack->thingAngle)
                     continue;
-                if (pPlayer->aimTargetsCount < 16 && cansee(x,y,z,pPSprite->sector(),pSprite->x,pSprite->y,pSprite->z,pSprite->sector()))
+                if (pPlayer->aimTargetsCount < 16 && cansee(x,y,z,pPSprite->sector(),pSprite->pos.X,pSprite->y,pSprite->z,pSprite->sector()))
                     pPlayer->aimTargets[pPlayer->aimTargetsCount++] = actor;
                 // Inlined?
                 int dz2 = (lz-z2)>>8;
@@ -456,7 +456,7 @@ void UpdateAimVector(PLAYER * pPlayer)
                 int nDist2 = ksqrt(dx2*dx2+dy2*dy2+dz2*dz2);
                 if (nDist2 >= nClosest)
                     continue;
-                if (cansee(x, y, z, pPSprite->sector(), pSprite->x, pSprite->y, pSprite->z, pSprite->sector()))
+                if (cansee(x, y, z, pPSprite->sector(), pSprite->pos.X, pSprite->y, pSprite->z, pSprite->sector()))
                 {
                     nClosest = nDist2;
                     aim.dx = bcos(angle);
@@ -1521,7 +1521,7 @@ void AltFireVoodoo(int nTrigger, PLAYER *pPlayer)
                     spritetype* pTarget = &targetactor->s();
                     if (!gGameOptions.bFriendlyFire && IsTargetTeammate(pPlayer, pTarget))
                         continue;
-                    int nDist = approxDist(pTarget->x - pPlayer->pSprite->x, pTarget->y - pPlayer->pSprite->y);
+                    int nDist = approxDist(pTarget->pos.X - pPlayer->pSprite->pos.X, pTarget->y - pPlayer->pSprite->y);
                     if (nDist > 0 && nDist < 51200)
                     {
                         int vc = pPlayer->ammoCount[9] >> 3;
@@ -1560,7 +1560,7 @@ void AltFireVoodoo(int nTrigger, PLAYER *pPlayer)
                     continue;
                 if (v4 > 0)
                     v4--;
-                int nDist = approxDist(pTarget->x - pPlayer->pSprite->x, pTarget->y - pPlayer->pSprite->y);
+                int nDist = approxDist(pTarget->pos.X - pPlayer->pSprite->pos.X, pTarget->y - pPlayer->pSprite->y);
                 if (nDist > 0 && nDist < 51200)
                 {
                     int vc = pPlayer->ammoCount[9] >> 3;
@@ -2661,7 +2661,7 @@ void WeaponProcess(PLAYER *pPlayer) {
 void teslaHit(DBloodActor *missileactor, int a2)
 {
     auto pMissile = &missileactor->s();
-    int x = pMissile->x;
+    int x = pMissile->pos.X;
     int y = pMissile->y;
     int z = pMissile->z;
     int nDist = 300;
@@ -2684,7 +2684,7 @@ void teslaHit(DBloodActor *missileactor, int a2)
                 continue;
             if (CheckSector(sectorMap, pHitSprite) && CheckProximity(hitactor, x, y, z, pSector, nDist))
             {
-                int dx = pMissile->x-pHitSprite->x;
+                int dx = pMissile->pos.X - pHitSprite->pos.X;
                 int dy = pMissile->y-pHitSprite->y;
                 int nDamage = ClipLow((nDist-(ksqrt(dx*dx+dy*dy)>>4)+20)>>1, 10);
                 if (hitactor == owneractor)
@@ -2704,7 +2704,7 @@ void teslaHit(DBloodActor *missileactor, int a2)
             XSPRITE *pXSprite = &hitactor->x();
             if (!pXSprite->locked)
             {
-                int dx = pMissile->x-pHitSprite->x;
+                int dx = pMissile->pos.X - pHitSprite->pos.X;
                 int dy = pMissile->y-pHitSprite->y;
                 int nDamage = ClipLow(nDist-(ksqrt(dx*dx+dy*dy)>>4)+20, 20);
                 actDamageSprite(owneractor, hitactor, kDamageTesla, nDamage << 4);

@@ -104,7 +104,7 @@ int DoWallMove(DSWActor* actor)
 
     for(auto& wal : wall)
     {
-        if (wal.pos.X == sp->x && wal.pos.Y == sp->y)
+        if (wal.pos.X == sp->pos.X && wal.pos.Y == sp->y)
         {
             found = true;
 
@@ -119,7 +119,7 @@ int DoWallMove(DSWActor* actor)
             }
             else
             {
-                wal.move(sp->x + nx, sp->y + ny);
+                wal.move(sp->pos.X + nx, sp->y + ny);
             }
 
             if (shade1)
@@ -151,7 +151,7 @@ int DoWallMove(DSWActor* actor)
         }
         else
         {
-            sp->x += nx;
+            sp->pos.X += nx;
             sp->y += ny;
         }
     }
@@ -174,7 +174,7 @@ bool CanSeeWallMove(SPRITEp wp, short match)
         {
             found = true;
 
-            if (cansee(wp->x, wp->y, wp->z, wp->sector(), sp->x, sp->y, sp->z, sp->sector()))
+            if (cansee(wp->pos.X, wp->y, wp->z, wp->sector(), sp->pos.X, sp->y, sp->z, sp->sector()))
             {
                 return true;
             }

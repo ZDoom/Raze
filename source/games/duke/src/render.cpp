@@ -115,8 +115,8 @@ void GameInterface::UpdateCameras(double smoothratio)
 				if (!testnewrenderer)
 				{
 					// Note: no ROR or camera here - Polymost has no means to detect these things before rendering the scene itself.
-					renderDrawRoomsQ16(camera->x, camera->y, camera->z, ang.asq16(), IntToFixed(camera->shade), camera->sector(), false); // why 'shade'...?
-					fi.animatesprites(pm_tsprite, pm_spritesortcnt, camera->x, camera->y, ang.asbuild(), (int)smoothratio);
+					renderDrawRoomsQ16(camera->pos.X, camera->y, camera->z, ang.asq16(), IntToFixed(camera->shade), camera->sector(), false); // why 'shade'...?
+					fi.animatesprites(pm_tsprite, pm_spritesortcnt, camera->pos.X, camera->y, ang.asbuild(), (int)smoothratio);
 					renderDrawMasks();
 				}
 				else
@@ -290,7 +290,7 @@ void displayrooms(int snum, double smoothratio)
 		cang = buildang(interpolatedangle(ud.cameraactor->tempang, s->ang, smoothratio));
 
 		auto bh = buildhoriz(s->yvel);
-		renderView(s, s->sector(), s->x, s->y, s->z - (4 << 8), cang, bh, buildang(0), (int)smoothratio);
+		renderView(s, s->sector(), s->pos.X, s->y, s->z - (4 << 8), cang, bh, buildang(0), (int)smoothratio);
 	}
 	else
 	{

@@ -44,7 +44,7 @@ DExhumedActor* BuildLavaLimb(DExhumedActor* pActor, int move, int ebx)
     auto pLimbActor = insertActor(pSprite->sector(), 118);
 	auto pLimbSprite = &pLimbActor->s();
 
-    pLimbSprite->x = pSprite->x;
+    pLimbSprite->pos.X = pSprite->pos.X;
     pLimbSprite->y = pSprite->y;
     pLimbSprite->z = pSprite->z - RandomLong() % ebx;
     pLimbSprite->cstat = 0;
@@ -116,13 +116,13 @@ void BuildLava(DExhumedActor* pActor, int x, int y, int, sectortype* pSector, in
         pSprite = &pActor->s();
         pSector = pSprite->sector();
         nAngle = pSprite->ang;
-        x = pSprite->x;
+        x = pSprite->pos.X;
         y = pSprite->y;
 
         ChangeActorStat(pActor, 118);
     }
 
-    pSprite->x = x;
+    pSprite->pos.X = x;
     pSprite->y = y;
     pSprite->z = pSector->floorz;
     pSprite->cstat = CSTAT_SPRITE_INVISIBLE;
@@ -292,7 +292,7 @@ void AILavaDude::Tick(RunListEvent* ev)
             }
         }
 
-        int x = pSprite->x;
+        int x = pSprite->pos.X;
         int y = pSprite->y;
         int z = pSprite->z;
         auto pSector =pSprite->sector();
@@ -302,7 +302,7 @@ void AILavaDude::Tick(RunListEvent* ev)
         if (pSector != pSprite->sector())
         {
             ChangeActorSect(pActor, pSector);
-            pSprite->x = x;
+            pSprite->pos.X = x;
             pSprite->y = y;
             pSprite->z = z;
 
@@ -327,7 +327,7 @@ void AILavaDude::Tick(RunListEvent* ev)
         {
             if (coll.actor() == pTarget)
             {
-                int nAng = getangle(pTarget->spr.x - pSprite->x, pTarget->spr.y - pSprite->y);
+                int nAng = getangle(pTarget->spr.pos.X - pSprite->pos.X, pTarget->spr.y - pSprite->y);
                 if (AngleDiff(pSprite->ang, nAng) < 64)
                 {
                     pActor->nAction = 2;

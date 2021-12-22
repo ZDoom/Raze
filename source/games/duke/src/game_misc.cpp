@@ -408,7 +408,7 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int cposx, int cposy, int 
 			col = PalEntry(0, 170, 170);
 			if (act->spr.cstat & CSTAT_SPRITE_BLOCK) col = PalEntry(170, 0, 170);
 
-			sprx = act->spr.x;
+			sprx = act->spr.pos.X;
 			spry = act->spr.y;
 
 			if ((act->spr.cstat & CSTAT_SPRITE_BLOCK_ALL) != 0) switch (act->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK)

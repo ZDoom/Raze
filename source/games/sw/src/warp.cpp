@@ -117,7 +117,7 @@ DSWActor* WarpToArea(DSWActor* sp_from, int32_t* x, int32_t* y, int32_t* z, sect
     short match_rand[16];
     int z_adj = 0;
 
-    xoff = *x - sp->x;
+    xoff = *x - sp->pos.X;
     yoff = *y - sp->y;
     zoff = *z - sp->z;
     match = sp->lotag;
@@ -181,7 +181,7 @@ DSWActor* WarpToArea(DSWActor* sp_from, int32_t* x, int32_t* y, int32_t* z, sect
                     return nullptr;
 
                 // determine new x,y,z position
-                *x = spi->x + xoff;
+                *x = spi->pos.X + xoff;
                 *y = spi->y + yoff;
                 *z = spi->z + zoff;
 

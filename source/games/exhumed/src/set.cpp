@@ -51,13 +51,13 @@ void BuildSet(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, i
     {
         ChangeActorStat(pActor, 120);
 		pSprite = &pActor->s();
-        x = pSprite->x;
+        x = pSprite->pos.X;
         y = pSprite->y;
         z = pSprite->sector()->floorz;
         nAngle = pSprite->ang;
     }
 
-    pSprite->x = x;
+    pSprite->pos.X = x;
     pSprite->y = y;
     pSprite->z = z;
     pSprite->cstat = CSTAT_SPRITE_BLOCK_ALL;
@@ -117,7 +117,7 @@ void BuildSoul(DExhumedActor* pSet)
     pSprite->xvel = 0;
     pSprite->yvel = 0;
     pSprite->zvel = (-256) - RandomSize(10);
-    pSprite->x = pSetSprite->x;
+    pSprite->pos.X = pSetSprite->pos.X;
     pSprite->y = pSetSprite->y;
 
     pSprite->z = (RandomSize(8) << 8) + 8192 + pSprite->sector()->ceilingz - GetActorHeight(pActor);
@@ -163,7 +163,7 @@ void AISoul::Tick(RunListEvent* ev)
         pSprite->cstat = 0;
         pSprite->yrepeat = 1;
         pSprite->xrepeat = 1;
-        pSprite->x = pSetSprite->x;
+        pSprite->pos.X = pSetSprite->pos.X;
         pSprite->y = pSetSprite->y;
         pSprite->z = pSetSprite->z - (GetActorHeight(pSet) >> 1);
         ChangeActorSect(pActor, pSetSprite->sector());
@@ -446,7 +446,7 @@ void AISet::Tick(RunListEvent* ev)
             {
                 if (pTarget == nMov.actor())
                 {
-                    int nAng = getangle(pTarget->spr.x - pSprite->x, pTarget->spr.y - pSprite->y);
+                    int nAng = getangle(pTarget->spr.pos.X - pSprite->pos.X, pTarget->spr.y - pSprite->y);
                     if (AngleDiff(pSprite->ang, nAng) < 64)
                     {
                         pActor->nAction = 4;

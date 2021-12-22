@@ -68,7 +68,7 @@ DExhumedActor* BuildAnim(DExhumedActor* pActor, int val, int val2, int x, int y,
     }
 	auto pSprite = &pActor->s();
 
-    pSprite->x = x;
+    pSprite->pos.X = x;
     pSprite->y = y;
     pSprite->z = z;
     pSprite->cstat = 0;
@@ -142,7 +142,7 @@ void AIAnim::Tick(RunListEvent* ev)
         if (pIgniter)
         {
             auto pSpriteB = &pIgniter->s(); 
-            pSprite->x = pSpriteB->x;
+            pSprite->pos.X = pSpriteB->pos.X;
             pSprite->y = pSpriteB->y;
             pSprite->z = pSpriteB->z;
 
@@ -251,7 +251,7 @@ void BuildExplosion(DExhumedActor* pActor)
         edx = 34;
     }
 
-    BuildAnim(nullptr, edx, 0, pSprite->x, pSprite->y, pSprite->z, pSprite->sector(), pSprite->xrepeat, 4);
+    BuildAnim(nullptr, edx, 0, pSprite->pos.X, pSprite->y, pSprite->z, pSprite->sector(), pSprite->xrepeat, 4);
 }
 
 void BuildSplash(DExhumedActor* actor, sectortype* pSector)
@@ -285,7 +285,7 @@ void BuildSplash(DExhumedActor* actor, sectortype* pSector)
         nFlag = 0;
     }
 
-    auto pActor = BuildAnim(nullptr, edx, 0, pSprite->x, pSprite->y, pSector->floorz, pSector, nRepeat, nFlag);
+    auto pActor = BuildAnim(nullptr, edx, 0, pSprite->pos.X, pSprite->y, pSector->floorz, pSector, nRepeat, nFlag);
 
     if (!bIsLava)
     {

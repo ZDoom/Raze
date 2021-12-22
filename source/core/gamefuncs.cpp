@@ -323,7 +323,7 @@ void TGetFlatSpritePosition(const spritetypebase* spr, vec2_t pos, vec2_t* out, 
 		{
 			for (int i = 0; i < 4; i++)
 			{
-				int spos = DMulScale(-sinang, out[i].Y - spr->y, -cosang, out[i].X - spr->x, 4);
+				int spos = DMulScale(-sinang, out[i].Y - spr->y, -cosang, out[i].X - spr->pos.X, 4);
 				outz[i] = MulScale(heinum, spos, 18);
 			}
 		}

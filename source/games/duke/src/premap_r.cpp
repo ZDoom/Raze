@@ -533,7 +533,7 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 
 		if (ac->spr.lotag == -1 && (ac->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
 		{
-			ps[0].exitx = ac->spr.x;
+			ps[0].exitx = ac->spr.pos.X;
 			ps[0].exity = ac->spr.y;
 		}
 		else switch (ac->spr.picnum)
@@ -612,14 +612,14 @@ void prelevel_r(int g, TArray<DDukeActor*>& actors)
 						if (actor2->spr.hitag == 1)
 						{
 							geosectorwarp[geocnt] = actor2->spr.sector();
-							geox[geocnt] = actor->spr.x - actor2->spr.x;
+							geox[geocnt] = actor->spr.pos.X - actor2->spr.pos.X;
 							geoy[geocnt] = actor->spr.y - actor2->spr.y;
 							//geoz[geocnt] = actor->spr.z - actor2->spr.z;
 						}
 						if (actor2->spr.hitag == 2)
 						{
 							geosectorwarp2[geocnt] = actor2->spr.sector();
-							geox2[geocnt] = actor->spr.x - actor2->spr.x;
+							geox2[geocnt] = actor->spr.pos.X - actor2->spr.pos.X;
 							geoy2[geocnt] = actor->spr.y - actor2->spr.y;
 							//geoz2[geocnt] = actor->spr.z - actor2->spr.z;
 						}

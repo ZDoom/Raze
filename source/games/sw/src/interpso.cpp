@@ -113,7 +113,7 @@ static int &getvalue(so_interp::interp_data& element, bool write)
         return SectorObject[index].zmid;
     case soi_sprx:
 		if (element.actorofang)
-			return element.actorofang->spr.x;
+			return element.actorofang->spr.pos.X;
         break;
     case soi_spry:
 		if (element.actorofang)

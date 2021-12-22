@@ -521,7 +521,7 @@ void dbLoadMap(const char* pPath, int* pX, int* pY, int* pZ, short* pAngle, sect
         }
         auto pSprite = &sprites.sprites[i];
         pSprite->clear();
-        pSprite->x = LittleLong(load.x);
+        pSprite->pos.X = LittleLong(load.x);
         pSprite->y = LittleLong(load.y);
         pSprite->z = LittleLong(load.z);
         pSprite->cstat = ESpriteFlags::FromInt(LittleShort(load.cstat));

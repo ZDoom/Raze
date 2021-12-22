@@ -446,7 +446,7 @@ FSerializer &Serialize(FSerializer &arc, const char *key, spritetype &c, spritet
 	def = &zsp; // always delta against 0
 	if (arc.BeginObject(key))
 	{
-		arc("x", c.x, def->x)
+		arc("x", c.pos.X, def->pos.X)
 			("y", c.y, def->y)
 			("z", c.z, def->z)
 			("cstat", c.cstat, def->cstat)

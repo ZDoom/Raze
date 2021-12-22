@@ -139,7 +139,7 @@ static int32_t spriteGetZOfSlope(const spritetype* spr, int32_t dax, int32_t day
     if (heinum == 0)
         return spr->z;
 
-    int const j = DMulScale(bsin(spr->ang + 1024), day - spr->y, -bsin(spr->ang + 512), dax - spr->x, 4);
+    int const j = DMulScale(bsin(spr->ang + 1024), day - spr->y, -bsin(spr->ang + 512), dax - spr->pos.X, 4);
     return spr->z + MulScale(heinum, j, 18);
 }
 
@@ -738,7 +738,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
                     int32_t jj2 = MulScale(jj, ratio, 12);
                     if (jj2 > (centery << 8) || jj2 < ((centery - rspany) << 8))
                         continue;
-                    int32_t x1 = spr->x + MulScale(sinang, centerx, 16) + MulScale(jj, cosang, 24);
+                    int32_t x1 = spr->pos.X + MulScale(sinang, centerx, 16) + MulScale(jj, cosang, 24);
                     int32_t y1 = spr->y - MulScale(cosang, centerx, 16) + MulScale(jj, sinang, 24);
                     int32_t x2 = x1 - MulScale(sinang, rspanx, 16);
                     int32_t y2 = y1 + MulScale(cosang, rspanx, 16);
@@ -1414,7 +1414,7 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
                 if ((cstat&dasprclipmask) == 0)
                     continue;
 
-            x1 = spr->x; y1 = spr->y; z1 = spr->z;
+            x1 = spr->pos.X; y1 = spr->y; z1 = spr->z;
             switch (cstat&CSTAT_SPRITE_ALIGNMENT_MASK)
             {
             case 0:
@@ -1507,7 +1507,7 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
                 if (j == 0) continue;
                 if ((cstat & 64) != 0)
                     if ((j < 0) == ((cstat & 8) == 0)) continue;
-                int32_t i = ((spr->z - sv->Z) << 8) + DMulScale(dax, sv->Y - spr->y, -day, sv->X - spr->x, 15);
+                int32_t i = ((spr->z - sv->Z) << 8) + DMulScale(dax, sv->Y - spr->y, -day, sv->X - spr->pos.X, 15);
                 if ((i ^ j) < 0 || (abs(i) >> 1) >= abs(j)) continue;
 
                 i = DivScale(i, j, 30);

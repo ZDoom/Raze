@@ -264,16 +264,16 @@ void SpikeAlign(DSWActor* actor)
     if ((int8_t)SP_TAG7(sp) < 0)
     {
         if (TEST(sp->cstat, CSTAT_SPRITE_YFLIP))
-            alignceilslope(sp->sector(), sp->x, sp->y, u->zclip);
+            alignceilslope(sp->sector(), sp->pos.X, sp->y, u->zclip);
         else
-            alignflorslope(sp->sector(), sp->x, sp->y, u->zclip);
+            alignflorslope(sp->sector(), sp->pos.X, sp->y, u->zclip);
     }
     else
     {
         if (TEST(sp->cstat, CSTAT_SPRITE_YFLIP))
-            SOBJ_AlignCeilingToPoint(&SectorObject[SP_TAG7(sp)], sp->x, sp->y, u->zclip);
+            SOBJ_AlignCeilingToPoint(&SectorObject[SP_TAG7(sp)], sp->pos.X, sp->y, u->zclip);
         else
-            SOBJ_AlignFloorToPoint(&SectorObject[SP_TAG7(sp)], sp->x, sp->y, u->zclip);
+            SOBJ_AlignFloorToPoint(&SectorObject[SP_TAG7(sp)], sp->pos.X, sp->y, u->zclip);
     }
 }
 
@@ -293,7 +293,7 @@ void MoveSpritesWithSpike(sectortype* sect)
         if (TEST(sp->extra, SPRX_STAY_PUT_VATOR))
             continue;
 
-        getzsofslopeptr(sect, sp->x, sp->y, &cz, &fz);
+        getzsofslopeptr(sect, sp->pos.X, sp->y, &cz, &fz);
         sp->z = fz;
     }
 }

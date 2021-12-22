@@ -106,7 +106,7 @@ bool CheckProximity(DBloodActor *actor, int nX, int nY, int nZ, sectortype* pSec
 {
     assert(actor != NULL);
     auto pSprite = &actor->s();
-    int oX = abs(nX-pSprite->x)>>4;
+    int oX = abs(nX-pSprite->pos.X)>>4;
     if (oX >= nDist) return 0;
 
     int oY = abs(nY-pSprite->y)>>4;
@@ -119,11 +119,11 @@ bool CheckProximity(DBloodActor *actor, int nX, int nY, int nZ, sectortype* pSec
 
     int bottom, top;
     GetActorExtents(actor, &top, &bottom);
-    if (cansee(pSprite->x, pSprite->y, pSprite->z, pSprite->sector(), nX, nY, nZ, pSector))
+    if (cansee(pSprite->pos.X, pSprite->y, pSprite->z, pSprite->sector(), nX, nY, nZ, pSector))
         return 1;
-    if (cansee(pSprite->x, pSprite->y, bottom, pSprite->sector(), nX, nY, nZ, pSector))
+    if (cansee(pSprite->pos.X, pSprite->y, bottom, pSprite->sector(), nX, nY, nZ, pSector))
         return 1;
-    if (cansee(pSprite->x, pSprite->y, top, pSprite->sector(), nX, nY, nZ, pSector))
+    if (cansee(pSprite->pos.X, pSprite->y, top, pSprite->sector(), nX, nY, nZ, pSector))
         return 1;
     return 0;
 }
@@ -341,7 +341,7 @@ int HitScan(DBloodActor *actor, int z, int dx, int dy, int dz, unsigned int nMas
     auto pSprite = &actor->s();
     assert(dx != 0 || dy != 0);
     gHitInfo.clearObj();
-    int x = pSprite->x;
+    int x = pSprite->pos.X;
     int y = pSprite->y;
     auto bakCstat = pSprite->cstat;
     pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_HITSCAN;
@@ -385,7 +385,7 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
     int nNum = 256;
     assert(pSprite != NULL);
     gHitInfo.clearObj();
-    int x1 = pSprite->x+MulScale(nOffset, Cos(pSprite->ang+512), 30);
+    int x1 = pSprite->pos.X+MulScale(nOffset, Cos(pSprite->ang+512), 30);
     int y1 = pSprite->y+MulScale(nOffset, Sin(pSprite->ang+512), 30);
     int z1 = pSprite->z+nZOffset;
     auto bakCstat = pSprite->cstat;
@@ -406,7 +406,7 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
     pSprite->cstat = bakCstat;
     while (nNum--)
     {
-        if (nRange && approxDist(gHitInfo.hitpos.X - pSprite->x, gHitInfo.hitpos.Y - pSprite->y) > nRange)
+        if (nRange && approxDist(gHitInfo.hitpos.X - pSprite->pos.X, gHitInfo.hitpos.Y - pSprite->y) > nRange)
             return -1;
         if (gHitInfo.actor() != nullptr)
         {
@@ -433,7 +433,7 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
             {
                 int width = (tileWidth(nPicnum)*pOther->xrepeat)>>2;
                 width = (width*3)/4;
-                int check1 = ((y1 - pOther->y)*dx - (x1 - pOther->x)*dy) / ksqrt(dx*dx+dy*dy);
+                int check1 = ((y1 - pOther->y)*dx - (x1 - pOther->pos.X)*dy) / ksqrt(dx*dx+dy*dy);
                 assert(width > 0);
                 int width2 = scale(check1, tileWidth(nPicnum), width);
                 int nOffset = tileLeftOffset(nPicnum);
@@ -527,7 +527,7 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
                 if (!actor) return 2;
                 auto link = actor->GetOwner();
                 gHitInfo.clearObj();
-                x1 = gHitInfo.hitpos.X + link->spr.x - actor->spr.x;
+                x1 = gHitInfo.hitpos.X + link->spr.pos.X - actor->spr.pos.X;
                 y1 = gHitInfo.hitpos.Y + link->spr.y - actor->spr.y;
                 z1 = gHitInfo.hitpos.Z + link->spr.z - actor->spr.z;
                 pos = { x1, y1, z1 };
@@ -541,7 +541,7 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
                 if (!actor) return 1;
                 auto link = actor->GetOwner();
                 gHitInfo.clearObj();
-                x1 = gHitInfo.hitpos.X + link->spr.x - actor->spr.x;
+                x1 = gHitInfo.hitpos.X + link->spr.pos.X - actor->spr.pos.X;
                 y1 = gHitInfo.hitpos.Y + link->spr.y - actor->spr.y;
                 z1 = gHitInfo.hitpos.Z + link->spr.z - actor->spr.z;
                 pos = { x1, y1, z1 };

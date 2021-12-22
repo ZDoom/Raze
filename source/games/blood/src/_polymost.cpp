@@ -19,7 +19,7 @@ void collectTSpritesForPortal(int x, int y, int i, int interpolation)
         int top, bottom;
         GetSpriteExtents(pSprite, &top, &bottom);
         int zCeil, zFloor;
-        getzsofslopeptr(&sector[nSector], pSprite->x, pSprite->y, &zCeil, &zFloor);
+        getzsofslopeptr(&sector[nSector], pSprite->pos.X, pSprite->y, &zCeil, &zFloor);
         if (pSprite->statnum == kStatDude && (top < zCeil || bottom > zFloor))
         {
             int j = i;
@@ -36,7 +36,7 @@ void collectTSpritesForPortal(int x, int y, int i, int interpolation)
                 *pTSprite = {};
                 pTSprite->type = pSprite->type;
                 pTSprite->setsector(nSector2);
-                pTSprite->x = pSprite->x + dx;
+                pTSprite->pos.X = pSprite->pos.X + dx;
                 pTSprite->y = pSprite->y + dy;
                 pTSprite->z = pSprite->z + dz;
                 pTSprite->ang = pSprite->ang;
@@ -51,7 +51,7 @@ void collectTSpritesForPortal(int x, int y, int i, int interpolation)
                 pTSprite->statnum = kStatDecoration;
                 pTSprite->ownerActor = actor;
                 pTSprite->flags = pSprite->hitag | 0x200;
-                pTSprite->x = dx + interpolatedvalue(pSprite->ox, pSprite->x, interpolation);
+                pTSprite->pos.X = dx + interpolatedvalue(pSprite->ox, pSprite->pos.X, interpolation);
                 pTSprite->y = dy + interpolatedvalue(pSprite->oy, pSprite->y, interpolation);
                 pTSprite->z = dz + interpolatedvalue(pSprite->oz, pSprite->z, interpolation);
                 pTSprite->ang = pSprite->interpolatedang(interpolation);
@@ -61,7 +61,7 @@ void collectTSpritesForPortal(int x, int y, int i, int interpolation)
                 {
                 case 1:
                 {
-                    int dX = x - pTSprite->x;
+                    int dX = x - pTSprite->pos.X;
                     int dY = y - pTSprite->y;
                     RotateVector(&dX, &dY, 128 - pTSprite->ang);
                     nAnim = GetOctant(dX, dY);
@@ -78,7 +78,7 @@ void collectTSpritesForPortal(int x, int y, int i, int interpolation)
                 }
                 case 2:
                 {
-                    int dX = x - pTSprite->x;
+                    int dX = x - pTSprite->pos.X;
                     int dY = y - pTSprite->y;
                     RotateVector(&dX, &dY, 128 - pTSprite->ang);
                     nAnim = GetOctant(dX, dY);

@@ -59,7 +59,7 @@ DDukeActor* EGS(sectortype* whatsectp, int s_x, int s_y, int s_z, int s_pn, int8
 	SetupGameVarsForActor(act);
 
 
-	act->spr.x = s_x;
+	act->spr.pos.X = s_x;
 	act->spr.y = s_y;
 	act->spr.z = s_z;
 	act->spr.cstat = 0;
@@ -219,7 +219,7 @@ DDukeActor* spawn(DDukeActor* actj, int pn)
 {
 	if (actj)
 	{
-		auto spawned = EGS(actj->spr.sector(), actj->spr.x, actj->spr.y, actj->spr.z, pn, 0, 0, 0, 0, 0, 0, actj, 0);
+		auto spawned = EGS(actj->spr.sector(), actj->spr.pos.X, actj->spr.y, actj->spr.z, pn, 0, 0, 0, 0, 0, 0, actj, 0);
 		if (spawned)
 		{
 			spawned->picnum = actj->spr.picnum;
@@ -342,16 +342,16 @@ int spawnbloodpoolpart1(DDukeActor* act)
 {
 	auto s1 = act->spr.sector();
 
-	updatesector(act->spr.x + 108, act->spr.y + 108, &s1);
+	updatesector(act->spr.pos.X + 108, act->spr.y + 108, &s1);
 	if (s1 && s1->floorz == act->spr.sector()->floorz)
 	{
-		updatesector(act->spr.x - 108, act->spr.y - 108, &s1);
+		updatesector(act->spr.pos.X - 108, act->spr.y - 108, &s1);
 		if (s1 && s1->floorz == act->spr.sector()->floorz)
 		{
-			updatesector(act->spr.x + 108, act->spr.y - 108, &s1);
+			updatesector(act->spr.pos.X + 108, act->spr.y - 108, &s1);
 			if (s1 && s1->floorz == act->spr.sector()->floorz)
 			{
-				updatesector(act->spr.x - 108, act->spr.y + 108, &s1);
+				updatesector(act->spr.pos.X - 108, act->spr.y + 108, &s1);
 				if (s1 && s1->floorz != act->spr.sector()->floorz)
 				{
 					act->spr.xrepeat = act->spr.yrepeat = 0; ChangeActorStat(act, STAT_MISC); return true;
@@ -384,16 +384,16 @@ void initfootprint(DDukeActor* actj, DDukeActor* act)
 	{
 		auto s1 = act->spr.sector();
 
-		updatesector(act->spr.x + 84, act->spr.y + 84, &s1);
+		updatesector(act->spr.pos.X + 84, act->spr.y + 84, &s1);
 		if (s1 && s1->floorz == act->spr.sector()->floorz)
 		{
-			updatesector(act->spr.x - 84, act->spr.y - 84, &s1);
+			updatesector(act->spr.pos.X - 84, act->spr.y - 84, &s1);
 			if (s1 && s1->floorz == act->spr.sector()->floorz)
 			{
-				updatesector(act->spr.x + 84, act->spr.y - 84, &s1);
+				updatesector(act->spr.pos.X + 84, act->spr.y - 84, &s1);
 				if (s1 && s1->floorz == act->spr.sector()->floorz)
 				{
-					updatesector(act->spr.x - 84, act->spr.y + 84, &s1);
+					updatesector(act->spr.pos.X - 84, act->spr.y + 84, &s1);
 					if (s1 && s1->floorz != act->spr.sector()->floorz)
 					{
 						act->spr.xrepeat = act->spr.yrepeat = 0; ChangeActorStat(act, STAT_MISC); return;
@@ -446,7 +446,7 @@ void initshell(DDukeActor* actj, DDukeActor* act, bool isshell)
 			act->spr.z = actj->spr.z - gs.playerheight + (3 << 8);
 		}
 
-		act->spr.x = actj->spr.x + bcos(a, -7);
+		act->spr.pos.X = actj->spr.pos.X + bcos(a, -7);
 		act->spr.y = actj->spr.y + bsin(a, -7);
 
 		act->spr.shade = -8;
@@ -486,7 +486,7 @@ void initcrane(DDukeActor* actj, DDukeActor* act, int CRANEPOLE)
 	t[4] = cranes.Reserve(1);
 
 	auto& apt = cranes[t[4]];
-	apt.x = act->spr.x;
+	apt.x = act->spr.pos.X;
 	apt.y = act->spr.y;
 	apt.z = act->spr.z;
 	apt.poleactor = nullptr;
@@ -503,10 +503,10 @@ void initcrane(DDukeActor* actj, DDukeActor* act, int CRANEPOLE)
 			act->spr.xrepeat = 48;
 			act->spr.yrepeat = 128;
 
-			apt.polex = act->spr.x;
+			apt.polex = act->spr.pos.X;
 			apt.poley = act->spr.y;
 
-			act->spr.x = act->spr.x;
+			act->spr.pos.X = act->spr.pos.X;
 			act->spr.y = act->spr.y;
 			act->spr.z = act->spr.z;
 			act->spr.shade = act->spr.shade;
@@ -539,7 +539,7 @@ void initwaterdrip(DDukeActor* actj, DDukeActor* actor)
 			actor->spr.z -= (18 << 8);
 		}
 		else actor->spr.z -= (13 << 8);
-		actor->spr.ang = getangle(ps[connecthead].pos.X - actor->spr.x, ps[connecthead].pos.Y - actor->spr.y);
+		actor->spr.ang = getangle(ps[connecthead].pos.X - actor->spr.pos.X, ps[connecthead].pos.Y - actor->spr.y);
 		actor->spr.xvel = 48 - (krand() & 31);
 		ssp(actor, CLIPMASK0);
 	}
@@ -788,7 +788,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 
 			for (auto& wal : wallsofsector(sectp))
 			{
-				d = FindDistance2D(actor->spr.x - wal.pos.X, actor->spr.y - wal.pos.Y);
+				d = FindDistance2D(actor->spr.pos.X - wal.pos.X, actor->spr.y - wal.pos.Y);
 				if (d < q)
 				{
 					q = d;
@@ -802,7 +802,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 
 			for (auto& wal : wallsofsector(sectp))
 			{
-				d = FindDistance2D(actor->spr.x - wal.pos.X, actor->spr.y - wal.pos.Y);
+				d = FindDistance2D(actor->spr.pos.X - wal.pos.X, actor->spr.y - wal.pos.Y);
 				if (d < q && &wal != actor->temp_walls[0])
 				{
 					q = d;
@@ -940,7 +940,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 						{
 							if (actor->spr.ang == 512)
 							{
-								actor->spr.x = act2->spr.x;
+								actor->spr.pos.X = act2->spr.pos.X;
 								actor->spr.y = act2->spr.y;
 							}
 							found = true;
@@ -954,7 +954,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 					actor->spr.cstat2 = CSTAT2_SPRITE_NOFIND;
 					actor->spr.cstat = CSTAT_SPRITE_INVISIBLE;
 					ChangeActorStat(actor, STAT_REMOVED);
-					Printf("Found lonely Sector Effector (lotag 0) at (%d,%d)\n", actor->spr.x, actor->spr.y);
+					Printf("Found lonely Sector Effector (lotag 0) at (%d,%d)\n", actor->spr.pos.X, actor->spr.y);
 					return;
 				}
 			}
@@ -962,7 +962,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 			t[1] = tempwallptr;
 			for (auto& wal : wallsofsector(sectp))
 			{
-				msx[tempwallptr] = wal.pos.X - actor->spr.x;
+				msx[tempwallptr] = wal.pos.X - actor->spr.pos.X;
 				msy[tempwallptr] = wal.pos.Y - actor->spr.y;
 				tempwallptr++;
 				if (tempwallptr > 2047)
@@ -993,7 +993,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 
 				if (s == nullptr)
 				{
-					I_Error("Subway found no zero'd sectors with locators\nat (%d,%d).\n", actor->spr.x, actor->spr.y);
+					I_Error("Subway found no zero'd sectors with locators\nat (%d,%d).\n", actor->spr.pos.X, actor->spr.y);
 				}
 
 				actor->SetOwner(nullptr);
@@ -1008,7 +1008,7 @@ void spawneffector(DDukeActor* actor, TArray<DDukeActor*>* actors)
 
 			else if (actor->spr.lotag == SE_26)
 			{
-				t[3] = actor->spr.x;
+				t[3] = actor->spr.pos.X;
 				t[4] = actor->spr.y;
 				if (actor->spr.shade == sectp->floorshade) //UP
 					actor->spr.zvel = -256;
@@ -1082,7 +1082,7 @@ void lotsofglass(DDukeActor *actor, walltype* wal, int n)
 		for (j = n - 1; j >= 0; j--)
 		{
 			a = actor->spr.ang - 256 + (krand() & 511) + 1024;
-			EGS(actor->spr.sector(), actor->spr.x, actor->spr.y, actor->spr.z, TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), 1024 - (krand() & 1023), actor, 5);
+			EGS(actor->spr.sector(), actor->spr.pos.X, actor->spr.y, actor->spr.z, TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), 1024 - (krand() & 1023), actor, 5);
 		}
 		return;
 	}
@@ -1124,7 +1124,7 @@ void spriteglass(DDukeActor* actor, int n)
 	{
 		int a = krand() & 2047;
 		int z = actor->spr.z - ((krand() & 16) << 8);
-		auto k = EGS(actor->spr.sector(), actor->spr.x, actor->spr.y, z, TILE_GLASSPIECES + (j % 3), krand() & 15, 36, 36, a, 32 + (krand() & 63), -512 - (krand() & 2047), actor, 5);
+		auto k = EGS(actor->spr.sector(), actor->spr.pos.X, actor->spr.y, z, TILE_GLASSPIECES + (j % 3), krand() & 15, 36, 36, a, 32 + (krand() & 63), -512 - (krand() & 2047), actor, 5);
 		if (k) k->spr.pal = actor->spr.pal;
 	}
 }
@@ -1175,7 +1175,7 @@ void lotsofcolourglass(DDukeActor* actor, walltype* wal, int n)
 		for (j = n - 1; j >= 0; j--)
 		{
 			a = krand() & 2047;
-			auto k = EGS(actor->spr.sector(), actor->spr.x, actor->spr.y, actor->spr.z - (krand() & (63 << 8)), TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), 1024 - (krand() & 2047), actor, 5);
+			auto k = EGS(actor->spr.sector(), actor->spr.pos.X, actor->spr.y, actor->spr.z - (krand() & (63 << 8)), TILE_GLASSPIECES + (j % 3), -32, 36, 36, a, 32 + (krand() & 63), 1024 - (krand() & 2047), actor, 5);
 			if (k) k->spr.pal = krand() & 15;
 		}
 		return;

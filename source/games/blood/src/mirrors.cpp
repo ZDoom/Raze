@@ -125,7 +125,7 @@ void InitMirrors(void)
             if (sectj->ceilingpicnum != 504)
                 I_Error("Lower link sector %d doesn't have mirror picnum\n", j);
             mirror[mirrorcnt].type = 2;
-            mirror[mirrorcnt].dx = link2->spr.x - link->spr.x;
+            mirror[mirrorcnt].dx = link2->spr.pos.X - link->spr.pos.X;
             mirror[mirrorcnt].dy = link2->spr.y - link->spr.y;
             mirror[mirrorcnt].dz = link2->spr.z - link->spr.z;
             mirror[mirrorcnt].wallnum = i;
@@ -135,7 +135,7 @@ void InitMirrors(void)
             secti->portalnum = portalAdd(PORTAL_SECTOR_FLOOR, j, mirror[mirrorcnt].dx, mirror[mirrorcnt].dy, mirror[mirrorcnt].dz);
             mirrorcnt++;
             mirror[mirrorcnt].type = 1;
-            mirror[mirrorcnt].dx = link->spr.x - link2->spr.x;
+            mirror[mirrorcnt].dx = link->spr.pos.X - link2->spr.pos.X;
             mirror[mirrorcnt].dy = link->spr.y - link2->spr.y;
             mirror[mirrorcnt].dz = link->spr.z - link2->spr.z;
             mirror[mirrorcnt].wallnum = j;

@@ -66,7 +66,7 @@ static void ratThinkGoto(DBloodActor* actor)
 	auto pSprite = &actor->s();
 	assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
 	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
-	int dx = pXSprite->targetX - pSprite->x;
+	int dx = pXSprite->targetX - pSprite->pos.X;
 	int dy = pXSprite->targetY - pSprite->y;
 	int nAngle = getangle(dx, dy);
 	int nDist = approxDist(dx, dy);
@@ -88,7 +88,7 @@ static void ratThinkChase(DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
 	spritetype* pTarget = &actor->GetTarget()->s();
 	XSPRITE* pXTarget = &actor->GetTarget()->x();
-	int dx = pTarget->x - pSprite->x;
+	int dx = pTarget->pos.X - pSprite->pos.X;
 	int dy = pTarget->y - pSprite->y;
 	aiChooseDirection(actor, getangle(dx, dy));
 	if (pXTarget->health == 0)
@@ -106,7 +106,7 @@ static void ratThinkChase(DBloodActor* actor)
 	{
 		int nDeltaAngle = ((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024;
 		int height = (pDudeInfo->eyeHeight * pSprite->yrepeat) << 2;
-		if (cansee(pTarget->x, pTarget->y, pTarget->z, pTarget->sector(), pSprite->x, pSprite->y, pSprite->z - height, pSprite->sector()))
+		if (cansee(pTarget->pos.X, pTarget->y, pTarget->z, pTarget->sector(), pSprite->pos.X, pSprite->y, pSprite->z - height, pSprite->sector()))
 		{
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{

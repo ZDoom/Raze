@@ -552,7 +552,7 @@ int NewCoolg(DSWActor* actor)
     SPRITEp np;
     ANIMATOR DoActorDecide;
 
-    auto actorNew = SpawnActor(STAT_ENEMY, COOLG_RUN_R0, &s_CoolgBirth[0], sp->sector(), sp->x, sp->y, sp->z, sp->ang, 50);
+    auto actorNew = SpawnActor(STAT_ENEMY, COOLG_RUN_R0, &s_CoolgBirth[0], sp->sector(), sp->pos.X, sp->y, sp->z, sp->ang, 50);
 
     nu = actorNew->u();
     np = &actorNew->s();

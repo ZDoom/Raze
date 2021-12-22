@@ -53,13 +53,13 @@ void BuildLion(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, 
     {
         ChangeActorStat(pActor, 104);
         pSprite = &pActor->s();
-        x = pSprite->x;
+        x = pSprite->pos.X;
         y = pSprite->y;
         z = pSprite->sector()->floorz;
         nAngle = pSprite->ang;
     }
 
-    pSprite->x = x;
+    pSprite->pos.X = x;
     pSprite->y = y;
     pSprite->z = z;
     pSprite->cstat = CSTAT_SPRITE_BLOCK_ALL;
@@ -318,7 +318,7 @@ void AILion::Tick(RunListEvent* ev)
                 }
                 else
                 {
-                    int nAng = getangle(pTarget->spr.x - pSprite->x, pTarget->spr.y - pSprite->y);
+                    int nAng = getangle(pTarget->spr.pos.X - pSprite->pos.X, pTarget->spr.y - pSprite->y);
 
                     if (AngleDiff(pSprite->ang, nAng) < 64)
                     {
@@ -389,7 +389,7 @@ void AILion::Tick(RunListEvent* ev)
             pSprite->zvel = -4000;
             pActor->nCount = 0;
 
-            int x = pSprite->x;
+            int x = pSprite->pos.X;
             int y = pSprite->y;
             int z = pSprite->z - (GetActorHeight(pActor) >> 1);
 
@@ -451,7 +451,7 @@ void AILion::Tick(RunListEvent* ev)
         {
             if (nMov.actor() == pTarget)
             {
-                int nAng = getangle(pTarget->spr.x - pSprite->x, pTarget->spr.y - pSprite->y);
+                int nAng = getangle(pTarget->spr.pos.X - pSprite->pos.X, pTarget->spr.y - pSprite->y);
                 if (AngleDiff(pSprite->ang, nAng) < 64)
                 {
                     pActor->nAction = 3;

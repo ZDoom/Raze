@@ -128,7 +128,7 @@ void WallSetupDontMove(void)
             {
                 for(auto& wal : wall)
                 {
-                    if (wal.pos.X < spl->x && wal.pos.X > spu->x && wal.pos.Y < spl->y && wal.pos.Y > spu->y)
+                    if (wal.pos.X < spl->pos.X && wal.pos.X > spu->pos.X && wal.pos.Y < spl->y && wal.pos.Y > spu->y)
                     {
                         SET(wal.extra, WALLFX_DONT_MOVE);
                     }
@@ -849,19 +849,19 @@ void SectorExp(DSWActor* actor, sectortype* sectp, short orig_ang, int zh)
     RESET(sp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL|CSTAT_SPRITE_ALIGNMENT_FLOOR);
     SectorMidPoint(sectp, &x, &y, &z);
     sp->ang = orig_ang;
-    sp->x = x;
+    sp->pos.X = x;
     sp->y = y;
     sp->z = z;
 
     // randomize the explosions
     sp->ang += RANDOM_P2(256) - 128;
-    sp->x += RANDOM_P2(1024) - 512;
+    sp->pos.X += RANDOM_P2(1024) - 512;
     sp->y += RANDOM_P2(1024) - 512;
     sp->z = zh;
 
     // setup vars needed by SectorExp
     ChangeActorSect(actor, sectp);
-    getzsofslopeptr(sp->sector(), sp->x, sp->y, &u->hiz, &u->loz);
+    getzsofslopeptr(sp->sector(), sp->pos.X, sp->y, &u->hiz, &u->loz);
 
     // spawn explosion
     auto explosion = SpawnSectorExp(actor);
@@ -1192,7 +1192,7 @@ void WeaponExplodeSectorInRange(DSWActor* wActor)
         sp = &actor->s();
 
         // test to see if explosion is close to crack sprite
-        dist = FindDistance3D(wp->x - sp->x, wp->y - sp->y, wp->z - sp->z);
+        dist = FindDistance3D(wp->pos.X - sp->pos.X, wp->y - sp->y, wp->z - sp->z);
 
         if (sp->clipdist == 0)
             continue;
@@ -1202,7 +1202,7 @@ void WeaponExplodeSectorInRange(DSWActor* wActor)
         if ((unsigned int)dist > (wu->Radius/2) + radius)
             continue;
 
-        if (!FAFcansee(wp->x,wp->y,wp->z,wp->sector(),sp->x,sp->y,sp->z,sp->sector()))
+        if (!FAFcansee(wp->pos.X,wp->y,wp->z,wp->sector(),sp->pos.X,sp->y,sp->z,sp->sector()))
             continue;
 
 
@@ -1262,7 +1262,7 @@ void DoDeleteSpriteMatch(short match)
             if (sp->lotag == match)
             {
                 found = actor;
-                del_x = sp->x;
+                del_x = sp->pos.X;
                 del_y = sp->y;
                 break;
             }
@@ -1277,7 +1277,7 @@ void DoDeleteSpriteMatch(short match)
             while (auto actor = it.Next())
             {
                 auto sp = &actor->s();
-                if (del_x == sp->x && del_y == sp->y)
+                if (del_x == sp->pos.X && del_y == sp->y)
                 {
                     // special case lighting delete of Fade On/off after fades
                     if (StatList[stat] == STAT_LIGHTING)
@@ -1451,7 +1451,7 @@ int OperateSprite(DSWActor* actor, short player_is_operating)
     {
         pp = GlobPlayerP;
 
-        if (!FAFcansee(pp->posx, pp->posy, pp->posz, pp->cursector, sp->x, sp->y, sp->z - DIV2(SPRITEp_SIZE_Z(sp)), sp->sector()))
+        if (!FAFcansee(pp->posx, pp->posy, pp->posz, pp->cursector, sp->pos.X, sp->y, sp->z - DIV2(SPRITEp_SIZE_Z(sp)), sp->sector()))
             return false;
     }
 
@@ -1923,7 +1923,7 @@ void OperateTripTrigger(PLAYERp pp)
 
             if (TEST(u->Flags, SPR_WAIT_FOR_TRIGGER))
             {
-                if (Distance(sp->x, sp->y, pp->posx, pp->posy) < dist)
+                if (Distance(sp->pos.X, sp->y, pp->posx, pp->posy) < dist)
                 {
                     u->targetActor = pp->Actor();
                     RESET(u->Flags, SPR_WAIT_FOR_TRIGGER);
@@ -2221,7 +2221,7 @@ int DoPlayerGrabStar(PLAYERp pp)
         {
             sp = &StarQueue[i]->s();
 
-            if (FindDistance3D(sp->x - pp->posx, sp->y - pp->posy, sp->z - pp->posz + Z(12)) < 500)
+            if (FindDistance3D(sp->pos.X - pp->posx, sp->y - pp->posy, sp->z - pp->posz + Z(12)) < 500)
             {
                 break;
             }

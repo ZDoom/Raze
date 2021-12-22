@@ -48,7 +48,7 @@ void BuildRex(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, i
     else
     {
         pSprite = &pActor->s();
-        x = pSprite->x;
+        x = pSprite->pos.X;
         y = pSprite->y;
         z = pSprite->sector()->floorz;
         nAngle = pSprite->ang;
@@ -56,7 +56,7 @@ void BuildRex(DExhumedActor* pActor, int x, int y, int z, sectortype* pSector, i
         ChangeActorStat(pActor, 119);
     }
 
-    pSprite->x = x;
+    pSprite->pos.X = x;
     pSprite->y = y;
     pSprite->z = z;
     pSprite->cstat = CSTAT_SPRITE_BLOCK_ALL;

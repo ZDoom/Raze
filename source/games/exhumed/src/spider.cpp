@@ -49,13 +49,13 @@ DExhumedActor* BuildSpider(DExhumedActor* spp, int x, int y, int z, sectortype* 
         ChangeActorStat(spp, 99);
         sp = &spp->s();
 
-        x = sp->x;
+        x = sp->pos.X;
         y = sp->y;
         z = sp->sector()->floorz;
         nAngle = sp->ang;
     }
 
-    sp->x = x;
+    sp->pos.X = x;
     sp->y = y;
     sp->z = z;
     sp->cstat = CSTAT_SPRITE_BLOCK_ALL;
@@ -316,7 +316,7 @@ void AISpider::Tick(RunListEvent* ev)
         {
             if (nMov.actor() == pTarget)
             {
-                int nAng = getangle(pTarget->spr.x - sp->x, pTarget->spr.y - sp->y);
+                int nAng = getangle(pTarget->spr.pos.X - sp->pos.X, pTarget->spr.y - sp->y);
                 if (AngleDiff(sp->ang, nAng) < 64)
                 {
                     spp->nAction = 2;

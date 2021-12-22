@@ -1172,7 +1172,7 @@ DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets
 
             // Only look at closest ones
             //if ((dist = Distance(sp->x, sp->y, ep->x, ep->y)) > PICK_DIST)
-            if ((dist = FindDistance3D(sp->x - ep->x, sp->y - ep->y, sp->z - ep->z)) > PICK_DIST)
+            if ((dist = FindDistance3D(sp->pos.X - ep->pos.X, sp->y - ep->y, sp->z - ep->z)) > PICK_DIST)
                 continue;
 
             if (skip_targets != 2) // Used for spriteinfo mode
@@ -1183,7 +1183,7 @@ DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets
             }
 
             // Get the angle to the player
-            angle2 = NORM_ANGLE(getangle(ep->x - sp->x, ep->y - sp->y));
+            angle2 = NORM_ANGLE(getangle(ep->pos.X - sp->pos.X, ep->y - sp->y));
 
             // Get the angle difference
             // delta_ang = labs(pp->angle.ang.asbuild() - angle2);
@@ -1204,9 +1204,9 @@ DSWActor* DoPickTarget(DSWActor* actor, uint32_t max_delta_ang, int skip_targets
             ezhl = SPRITEp_BOS(ep) - (SPRITEp_SIZE_Z(ep) >> 2);
 
             // If you can't see 'em you can't shoot 'em
-            if (!FAFcansee(sp->x, sp->y, zh, sp->sector(), ep->x, ep->y, ezh, ep->sector()) &&
-                !FAFcansee(sp->x, sp->y, zh, sp->sector(), ep->x, ep->y, ezhm, ep->sector()) &&
-                !FAFcansee(sp->x, sp->y, zh, sp->sector(), ep->x, ep->y, ezhl, ep->sector())
+            if (!FAFcansee(sp->pos.X, sp->y, zh, sp->sector(), ep->pos.X, ep->y, ezh, ep->sector()) &&
+                !FAFcansee(sp->pos.X, sp->y, zh, sp->sector(), ep->pos.X, ep->y, ezhm, ep->sector()) &&
+                !FAFcansee(sp->pos.X, sp->y, zh, sp->sector(), ep->pos.X, ep->y, ezhl, ep->sector())
                 )
                 continue;
 
@@ -1311,7 +1311,7 @@ void DoSpawnTeleporterEffect(DSWActor* actor)
     nx = MOVEx(512, sp->ang);
     ny = MOVEy(512, sp->ang);
 
-    nx += sp->x;
+    nx += sp->pos.X;
     ny += sp->y;
 
     auto effectActor = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, sp->sector(),
@@ -1337,7 +1337,7 @@ void DoSpawnTeleporterEffectPlace(DSWActor* actor)
     SPRITEp ep;
 
     auto effectActor = SpawnActor(STAT_MISSILE, 0, s_TeleportEffect, sp->sector(),
-                         sp->x, sp->y, SPRITEp_TOS(sp) + Z(16),
+                         sp->pos.X, sp->y, SPRITEp_TOS(sp) + Z(16),
                          sp->ang, 0);
 
     ep = &effectActor->s();
@@ -1742,7 +1742,7 @@ void UpdatePlayerUnderSprite(PLAYERp pp)
     sp = &pp->PlayerUnderActor->s();
     u = pp->PlayerUnderActor->u();
 
-    sp->x = over_sp->x;
+    sp->pos.X = over_sp->pos.X;
     sp->y = over_sp->y;
     sp->z = over_sp->z;
     ChangeActorSect(pp->PlayerUnderActor, over_sp->sector());
@@ -1771,7 +1771,7 @@ void UpdatePlayerSprite(PLAYERp pp)
 
     // Update sprite representation of player
 
-    sp->x = pp->posx;
+    sp->pos.X = pp->posx;
     sp->y = pp->posy;
 
     // there are multiple death functions
@@ -2416,7 +2416,7 @@ void DriveCrush(PLAYERp pp, int *x, int *y)
         sp = &actor->s();
         u = actor->u();
 
-        if (testpointinquad(sp->x, sp->y, x, y))
+        if (testpointinquad(sp->pos.X, sp->y, x, y))
         {
             if (TEST(sp->extra, SPRX_BREAKABLE) && HitBreakSprite(actor, 0))
                 continue;
@@ -2453,7 +2453,7 @@ void DriveCrush(PLAYERp pp, int *x, int *y)
     {
         sp = &actor->s();
 
-        if (testpointinquad(sp->x, sp->y, x, y))
+        if (testpointinquad(sp->pos.X, sp->y, x, y))
         {
             //if (sp->z < pp->posz)
             if (sp->z < sop->crush_z)
@@ -2482,7 +2482,7 @@ void DriveCrush(PLAYERp pp, int *x, int *y)
     {
         sp = &actor->s();
 
-        if (testpointinquad(sp->x, sp->y, x, y))
+        if (testpointinquad(sp->pos.X, sp->y, x, y))
         {
             if (sp->z < sop->crush_z)
                 continue;
@@ -2507,7 +2507,7 @@ void DriveCrush(PLAYERp pp, int *x, int *y)
         if (u->PlayerP == pp)
             continue;
 
-        if (testpointinquad(sp->x, sp->y, x, y))
+        if (testpointinquad(sp->pos.X, sp->y, x, y))
         {
             int damage;
 
@@ -3252,15 +3252,15 @@ void DoPlayerClimb(PLAYERp pp)
             }
 
             // sprite
-            if (sp->x != u->sx)
+            if (sp->pos.X != u->sx)
             {
-                if (sp->x < u->sx)
-                    sp->x += ADJ_AMT;
-                else if (sp->x > u->sx)
-                    sp->x -= ADJ_AMT;
+                if (sp->pos.X < u->sx)
+                    sp->pos.X += ADJ_AMT;
+                else if (sp->pos.X > u->sx)
+                    sp->pos.X -= ADJ_AMT;
 
-                if (labs(sp->x - u->sx) <= ADJ_AMT)
-                    sp->x = u->sx;
+                if (labs(sp->pos.X - u->sx) <= ADJ_AMT)
+                    sp->pos.X = u->sx;
             }
 
             if (sp->y != u->sy)
@@ -3405,7 +3405,7 @@ void DoPlayerClimb(PLAYERp pp)
             // set players "view" distance from the ladder - needs to be farther than
             // the sprite
 
-            pp->lx = lsp->x + nx * 5;
+            pp->lx = lsp->pos.X + nx * 5;
             pp->ly = lsp->y + ny * 5;
 
             pp->angle.settarget(lsp->ang + 1024);
@@ -3702,7 +3702,7 @@ DSWActor* FindNearSprite(DSWActor* actor, short stat)
     {
         auto fp = &actor->s();
 
-        dist = Distance(sp->x, sp->y, fp->x, fp->y);
+        dist = Distance(sp->pos.X, sp->y, fp->pos.X, fp->y);
 
         if (dist < near_dist)
         {
@@ -3792,7 +3792,7 @@ bool PlayerOnLadder(PLAYERp pp)
     // set players "view" distance from the ladder - needs to be farther than
     // the sprite
 
-    pp->lx = lsp->x + nx * 5;
+    pp->lx = lsp->pos.X + nx * 5;
     pp->ly = lsp->y + ny * 5;
 
     pp->angle.settarget(lsp->ang + 1024);
@@ -4100,11 +4100,11 @@ void DoPlayerWarpToUnderwater(PLAYERp pp)
     PRODUCTION_ASSERT(Found == true);
 
     // get the offset from the sprite
-    u->sx = over_sp->x - pp->posx;
+    u->sx = over_sp->pos.X - pp->posx;
     u->sy = over_sp->y - pp->posy;
 
     // update to the new x y position
-    pp->posx = under_sp->x - u->sx;
+    pp->posx = under_sp->pos.X - u->sx;
     pp->posy = under_sp->y - u->sy;
 
     auto over  = over_sp->sector();
@@ -4174,11 +4174,11 @@ void DoPlayerWarpToSurface(PLAYERp pp)
     PRODUCTION_ASSERT(Found == true);
 
     // get the offset from the under sprite
-    u->sx = under_sp->x - pp->posx;
+    u->sx = under_sp->pos.X - pp->posx;
     u->sy = under_sp->y - pp->posy;
 
     // update to the new x y position
-    pp->posx = over_sp->x - u->sx;
+    pp->posx = over_sp->pos.X - u->sx;
     pp->posy = over_sp->y - u->sy;
 
     auto over = over_sp->sector();
@@ -5166,7 +5166,7 @@ void PlayerRemoteReset(PLAYERp pp, sectortype* sect)
     pp->lastcursector = pp->cursector;
 
     auto rsp = &pp->remoteActor->s();
-    pp->posx = rsp->x;
+    pp->posx = rsp->pos.X;
     pp->posy = rsp->y;
     pp->posz = sect->floorz - PLAYER_HEIGHT;
 
@@ -5797,9 +5797,9 @@ void DoPlayerDeathFollowKiller(PLAYERp pp)
     {
         SPRITEp kp = &pp->KillerActor->s();
 
-        if (FAFcansee(kp->x, kp->y, SPRITEp_TOS(kp), kp->sector(), pp->posx, pp->posy, pp->posz, pp->cursector))
+        if (FAFcansee(kp->pos.X, kp->y, SPRITEp_TOS(kp), kp->sector(), pp->posx, pp->posy, pp->posz, pp->cursector))
         {
-            pp->angle.addadjustment(getincanglebam(pp->angle.ang, bvectangbam(kp->x - pp->posx, kp->y - pp->posy)) >> 4);
+            pp->angle.addadjustment(getincanglebam(pp->angle.ang, bvectangbam(kp->pos.X - pp->posx, kp->y - pp->posy)) >> 4);
         }
     }
 }
@@ -5834,7 +5834,7 @@ void DoPlayerDeathCheckKeys(PLAYERp pp)
         sp->picnum = u->State->Pic;
         sp->xrepeat = sp->yrepeat = PLAYER_NINJA_XREPEAT;
         RESET(sp->cstat, CSTAT_SPRITE_YCENTER);
-        sp->x = pp->posx;
+        sp->pos.X = pp->posx;
         sp->y = pp->posy;
         sp->z = pp->posz+PLAYER_HEIGHT;
         sp->ang = pp->angle.ang.asbuild();
@@ -5924,13 +5924,13 @@ SPRITEp DoPlayerDeathCheckKick(PLAYERp pp)
             if (!TEST(hp->extra, SPRX_PLAYER_OR_ENEMY))
                 continue;
 
-            DISTANCE(hp->x, hp->y, sp->x, sp->y, dist, a, b, c);
+            DISTANCE(hp->pos.X, hp->y, sp->pos.X, sp->y, dist, a, b, c);
 
             if (unsigned(dist) < hu->Radius + 100)
             {
                 pp->KillerActor = itActor;
 
-                u->slide_ang = getangle(sp->x - hp->x, sp->y - hp->y);
+                u->slide_ang = getangle(sp->pos.X - hp->pos.X, sp->y - hp->y);
                 u->slide_ang = NORM_ANGLE(u->slide_ang + (RANDOM_P2(128<<5)>>5) - 64);
 
                 u->slide_vel = hp->xvel<<1;
@@ -6010,7 +6010,7 @@ void DoPlayerDeathMoveHead(PLAYERp pp)
         }
     }
 
-    pp->posx = sp->x;
+    pp->posx = sp->pos.X;
     pp->posy = sp->y;
     pp->setcursector(sp->sector());
 
@@ -6021,7 +6021,7 @@ void DoPlayerDeathMoveHead(PLAYERp pp)
     {
         pp->cursector = pp->lv_sector;
         ChangeActorSect(pp->Actor(), pp->lv_sector);
-        pp->posx = sp->x = pp->lv_x;
+        pp->posx = sp->pos.X = pp->lv_x;
         pp->posy = sp->y = pp->lv_y;
     }
     else
@@ -6900,7 +6900,7 @@ int SearchSpawnPosition(PLAYERp pp)
 
             if (opp != pp)  // don't test for yourself
             {
-                if (FindDistance3D(sp->x - opp->posx, sp->y - opp->posy, sp->z - opp->posz) < 1000)
+                if (FindDistance3D(sp->pos.X - opp->posx, sp->y - opp->posy, sp->z - opp->posz) < 1000)
                 {
                     blocked = true;
                     break;
@@ -6982,7 +6982,7 @@ void PlayerSpawnPosition(PLAYERp pp)
     sp = &spawn_sprite->s();
 
 
-    pp->posx = pp->oposx = sp->x;
+    pp->posx = pp->oposx = sp->pos.X;
     pp->posy = pp->oposy = sp->y;
     pp->posz = pp->oposz = sp->z;
     pp->angle.ang = pp->angle.oang = buildang(sp->ang);

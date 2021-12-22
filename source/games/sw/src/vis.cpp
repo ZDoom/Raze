@@ -103,14 +103,14 @@ void VisViewChange(PLAYERp pp, int *vis)
         auto own = GetOwner(actor);
         if (own != nullptr)
         {
-            x = own->spr.x;
+            x = own->spr.pos.X;
             y = own->spr.y;
             z = own->spr.z;
             sectp = own->spr.sector();
         }
         else
         {
-            x = sp->x;
+            x = sp->pos.X;
             y = sp->y;
             z = sp->z;
             sectp = sp->sector();
@@ -159,7 +159,7 @@ void SpawnVis(DSWActor* parentActor, sectortype* sect, int x, int y, int z, int 
         ASSERT(parentActor->hasU());
         SET(pu->Flags2, SPR2_CHILDREN);
 
-        sp->x = psp->x;
+        sp->pos.X = psp->pos.X;
         sp->y = psp->y;
         sp->z = psp->z;
 
@@ -173,7 +173,7 @@ void SpawnVis(DSWActor* parentActor, sectortype* sect, int x, int y, int z, int 
         auto actorNew = insertActor(sect, STAT_VIS_ON);
         sp = &actorNew->s();
 
-        sp->x = x;
+        sp->pos.X = x;
         sp->y = y;
         sp->z = z - Z(20);
     }

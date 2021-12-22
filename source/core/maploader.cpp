@@ -259,23 +259,23 @@ void validateSprite(spritetype& spr, int sectnum, int index)
 	bool bugged = false;
 	if ((unsigned)spr.statnum >= MAXSTATUS)
 	{
-		Printf("Sprite #%d (%d,%d) has invalid statnum %d.\n", index, spr.x, spr.y, spr.statnum);
+		Printf("Sprite #%d (%d,%d) has invalid statnum %d.\n", index, spr.pos.X, spr.y, spr.statnum);
 		bugged = true;
 	}
 	else if ((unsigned)spr.picnum >= MAXTILES)
 	{
-		Printf("Sprite #%d (%d,%d) has invalid picnum %d.\n", index, spr.x, spr.y, spr.picnum);
+		Printf("Sprite #%d (%d,%d) has invalid picnum %d.\n", index, spr.pos.X, spr.y, spr.picnum);
 		bugged = true;
 	}
 	else if (!validSectorIndex(sectnum))
 	{
 		sectnum = -1;
-		updatesector(spr.x, spr.y, &sectnum);
+		updatesector(spr.pos.X, spr.y, &sectnum);
 		bugged = sectnum < 0;
 
-		if (!DPrintf(DMSG_WARNING, "Sprite #%d (%d,%d) with invalid sector %d was corrected to sector %d\n", index, spr.x, spr.y, sectnum, sectnum))
+		if (!DPrintf(DMSG_WARNING, "Sprite #%d (%d,%d) with invalid sector %d was corrected to sector %d\n", index, spr.pos.X, spr.y, sectnum, sectnum))
 		{
-			if (bugged) Printf("Sprite #%d (%d,%d) with invalid sector %d\n", index, spr.x, spr.y, sectnum);
+			if (bugged) Printf("Sprite #%d (%d,%d) with invalid sector %d\n", index, spr.pos.X, spr.y, sectnum);
 		}
 	}
 	if (bugged)

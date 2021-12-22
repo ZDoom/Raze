@@ -56,7 +56,7 @@ void ambProcess(void)
             XSPRITE *pXSprite = &actor->x();
             if (pXSprite->state)
             {
-                int dx = pSprite->x-gMe->pSprite->x;
+                int dx = pSprite->pos.X-gMe->pSprite->pos.X;
                 int dy = pSprite->y-gMe->pSprite->y;
                 int dz = pSprite->z-gMe->pSprite->z;
                 dx >>= 4;

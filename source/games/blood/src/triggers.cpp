@@ -222,17 +222,17 @@ void LifeLeechOperate(DBloodActor* actor, EVENT event)
                     int nType = pTarget->type-kDudeBase;
                     DUDEINFO *pDudeInfo = getDudeInfo(nType+kDudeBase);
                     int z1 = (top-pSprite->z)-256;
-                    int x = pTarget->x;
+                    int x = pTarget->pos.X;
                     int y = pTarget->y;
                     int z = pTarget->z;
-                    int nDist = approxDist(x - pSprite->x, y - pSprite->y);
-                    if (nDist != 0 && cansee(pSprite->x, pSprite->y, top, pSprite->sector(), x, y, z, pTarget->sector()))
+                    int nDist = approxDist(x - pSprite->pos.X, y - pSprite->y);
+                    if (nDist != 0 && cansee(pSprite->pos.X, pSprite->y, top, pSprite->sector(), x, y, z, pTarget->sector()))
                     {
                         int t = DivScale(nDist, 0x1aaaaa, 12);
                         x += (target->xvel*t)>>12;
                         y += (target->yvel*t)>>12;
                         int angBak = pSprite->ang;
-                        pSprite->ang = getangle(x-pSprite->x, y-pSprite->y);
+                        pSprite->ang = getangle(x-pSprite->pos.X, y-pSprite->y);
                         int dx = bcos(pSprite->ang);
                         int dy = bsin(pSprite->ang);
                         int tz = pTarget->z - (pTarget->yrepeat * pDudeInfo->aimHeight) * 4;
@@ -475,7 +475,7 @@ void OperateSprite(DBloodActor* actor, EVENT event)
         SetSpriteState(actor, 1);
         for (int p = connecthead; p >= 0; p = connectpoint2[p]) {
             spritetype *pPlayerSprite = gPlayer[p].pSprite;
-            int dx = (pSprite->x - pPlayerSprite->x)>>4;
+            int dx = (pSprite->pos.X - pPlayerSprite->pos.X)>>4;
             int dy = (pSprite->y - pPlayerSprite->y)>>4;
             int dz = (pSprite->z - pPlayerSprite->z)>>8;
             int nDist = dx*dx+dy*dy+dz*dz+0x40000;
@@ -881,7 +881,7 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
                 RotatePoint((int*)&x, (int*)&y, vbp, a4, a5);
             viewBackupSpriteLoc(actor);
             pSprite->ang = (pSprite->ang+v14)&2047;
-            pSprite->x = x+vc-a4;
+            pSprite->pos.X = x+vc-a4;
             pSprite->y = y+v8-a5;
         }
         else if (pSprite->cstat & CSTAT_SPRITE_MOVE_REVERSE)
@@ -890,21 +890,21 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
                 RotatePoint((int*)& x, (int*)& y, -vbp, a4, a4);
             viewBackupSpriteLoc(actor);
             pSprite->ang = (pSprite->ang-v14)&2047;
-            pSprite->x = x-(vc-a4);
+            pSprite->pos.X = x-(vc-a4);
             pSprite->y = y-(v8-a5);
         }
         else if (pXSector->Drag)
         {
             int top, bottom;
             GetSpriteExtents(pSprite, &top, &bottom);
-            int floorZ = getflorzofslopeptr(pSector, pSprite->x, pSprite->y);
+            int floorZ = getflorzofslopeptr(pSector, pSprite->pos.X, pSprite->y);
             if (!(pSprite->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) && floorZ <= bottom)
             {
                 if (v14)
-                    RotatePoint((int*)&pSprite->x, (int*)&pSprite->y, v14, v20, v24);
+                    RotatePoint((int*)&pSprite->pos.X, (int*)&pSprite->y, v14, v20, v24);
                 viewBackupSpriteLoc(actor);
                 pSprite->ang = (pSprite->ang+v14)&2047;
-                pSprite->x += v28;
+                pSprite->pos.X += v28;
                 pSprite->y += v2c;
             }
         }
@@ -1208,7 +1208,7 @@ int HDoorBusy(sectortype* pSector, unsigned int a2)
     if (!pXSector->marker0 || !pXSector->marker1) return 0;
     spritetype *pSprite1 = &pXSector->marker0->s();
     spritetype *pSprite2 = &pXSector->marker1->s();
-    TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), pSprite1->x, pSprite1->y, pSprite1->x, pSprite1->y, pSprite1->ang, pSprite2->x, pSprite2->y, pSprite2->ang, pSector->type == kSectorSlide);
+    TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), pSprite1->pos.X, pSprite1->y, pSprite1->pos.X, pSprite1->y, pSprite1->ang, pSprite2->pos.X, pSprite2->y, pSprite2->ang, pSector->type == kSectorSlide);
     ZTranslateSector(pSector, pXSector, a2, nWave);
     pXSector->busy = a2;
     if (pXSector->command == kCmdLink && pXSector->txID)
@@ -1233,7 +1233,7 @@ int RDoorBusy(sectortype* pSector, unsigned int a2)
         nWave = pXSector->busyWaveB;
     if (!pXSector->marker0) return 0;
     spritetype* pSprite = &pXSector->marker0->s();
-    TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), pSprite->x, pSprite->y, pSprite->x, pSprite->y, 0, pSprite->x, pSprite->y, pSprite->ang, pSector->type == kSectorRotate);
+    TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), pSprite->pos.X, pSprite->y, pSprite->pos.X, pSprite->y, 0, pSprite->pos.X, pSprite->y, pSprite->ang, pSector->type == kSectorRotate);
     ZTranslateSector(pSector, pXSector, a2, nWave);
     pXSector->busy = a2;
     if (pXSector->command == kCmdLink && pXSector->txID)
@@ -1258,13 +1258,13 @@ int StepRotateBusy(sectortype* pSector, unsigned int a2)
     {
         vbp = pXSector->data+pSprite->ang;
         int nWave = pXSector->busyWaveA;
-        TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), pSprite->x, pSprite->y, pSprite->x, pSprite->y, pXSector->data, pSprite->x, pSprite->y, vbp, 1);
+        TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), pSprite->pos.X, pSprite->y, pSprite->pos.X, pSprite->y, pXSector->data, pSprite->pos.X, pSprite->y, vbp, 1);
     }
     else
     {
         vbp = pXSector->data-pSprite->ang;
         int nWave = pXSector->busyWaveB;
-        TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), pSprite->x, pSprite->y, pSprite->x, pSprite->y, vbp, pSprite->x, pSprite->y, pXSector->data, 1);
+        TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), pSprite->pos.X, pSprite->y, pSprite->pos.X, pSprite->y, vbp, pSprite->pos.X, pSprite->y, pXSector->data, 1);
     }
     pXSector->busy = a2;
     if (pXSector->command == kCmdLink && pXSector->txID)
@@ -1308,7 +1308,7 @@ int PathBusy(sectortype* pSector, unsigned int a2)
     XSPRITE *pXSprite2 = &pXSector->marker1->x();
 
     int nWave = pXSprite1->wave;
-    TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), pSprite->x, pSprite->y, pSprite1->x, pSprite1->y, pSprite1->ang, pSprite2->x, pSprite2->y, pSprite2->ang, 1);
+    TranslateSector(pSector, GetWaveValue(pXSector->busy, nWave), GetWaveValue(a2, nWave), pSprite->pos.X, pSprite->y, pSprite1->pos.X, pSprite1->y, pSprite1->ang, pSprite2->pos.X, pSprite2->y, pSprite2->ang, 1);
     ZTranslateSector(pSector, pXSector, a2, nWave);
     pXSector->busy = a2;
     if ((a2&0xffff) == 0)
@@ -1411,7 +1411,7 @@ void OperateTeleport(sectortype* pSector)
                 {
                     TeleFrag(pXSector->actordata, pDest->sector());
                 }
-                pSprite->x = pDest->x;
+                pSprite->pos.X = pDest->pos.X;
                 pSprite->y = pDest->y;
                 pSprite->z += pDest->sector()->floorz - pSector->floorz;
                 pSprite->ang = pDest->ang;
@@ -2016,7 +2016,7 @@ void trInit(TArray<DBloodActor*>& actors)
             {
                 spritetype* pSprite1 = &pXSector->marker0->s();
                 spritetype* pSprite2 = &pXSector->marker1->s();
-                TranslateSector(pSector, 0, -65536, pSprite1->x, pSprite1->y, pSprite1->x, pSprite1->y, pSprite1->ang, pSprite2->x, pSprite2->y, pSprite2->ang, pSector->type == kSectorSlide);
+                TranslateSector(pSector, 0, -65536, pSprite1->pos.X, pSprite1->y, pSprite1->pos.X, pSprite1->y, pSprite1->ang, pSprite2->pos.X, pSprite2->y, pSprite2->ang, pSector->type == kSectorSlide);
                 for(auto& wal : wallsofsector(pSector))
                 {
                     wal.baseWall.X = wal.pos.X;
@@ -2027,7 +2027,7 @@ void trInit(TArray<DBloodActor*>& actors)
                 {
                     actor->basePoint = actor->spr.pos;
                 }
-                TranslateSector(pSector, 0, pXSector->busy, pSprite1->x, pSprite1->y, pSprite1->x, pSprite1->y, pSprite1->ang, pSprite2->x, pSprite2->y, pSprite2->ang, pSector->type == kSectorSlide);
+                TranslateSector(pSector, 0, pXSector->busy, pSprite1->pos.X, pSprite1->y, pSprite1->pos.X, pSprite1->y, pSprite1->ang, pSprite2->pos.X, pSprite2->y, pSprite2->ang, pSector->type == kSectorSlide);
                 ZTranslateSector(pSector, pXSector, pXSector->busy, 1);
                 break;
             }
@@ -2035,7 +2035,7 @@ void trInit(TArray<DBloodActor*>& actors)
             case kSectorRotate:
             {
                 spritetype* pSprite1 = &pXSector->marker0->s();
-                TranslateSector(pSector, 0, -65536, pSprite1->x, pSprite1->y, pSprite1->x, pSprite1->y, 0, pSprite1->x, pSprite1->y, pSprite1->ang, pSector->type == kSectorRotate);
+                TranslateSector(pSector, 0, -65536, pSprite1->pos.X, pSprite1->y, pSprite1->pos.X, pSprite1->y, 0, pSprite1->pos.X, pSprite1->y, pSprite1->ang, pSector->type == kSectorRotate);
                 for (auto& wal : wallsofsector(pSector))
                 {
                     wal.baseWall.X = wal.pos.X;
@@ -2046,7 +2046,7 @@ void trInit(TArray<DBloodActor*>& actors)
                 {
                     actor->basePoint = actor->spr.pos;
                 }
-                TranslateSector(pSector, 0, pXSector->busy, pSprite1->x, pSprite1->y, pSprite1->x, pSprite1->y, 0, pSprite1->x, pSprite1->y, pSprite1->ang, pSector->type == kSectorRotate);
+                TranslateSector(pSector, 0, pXSector->busy, pSprite1->pos.X, pSprite1->y, pSprite1->pos.X, pSprite1->y, 0, pSprite1->pos.X, pSprite1->y, pSprite1->ang, pSector->type == kSectorRotate);
                 ZTranslateSector(pSector, pXSector, pXSector->busy, 1);
                 break;
             }
@@ -2162,7 +2162,7 @@ void ActivateGenerator(DBloodActor* actor)
         case kGenDripBlood: {
             int top, bottom;
             GetActorExtents(actor, &top, &bottom);
-            actSpawnThing(pSprite->sector(), pSprite->x, pSprite->y, bottom, (pSprite->type == kGenDripWater) ? kThingDripWater : kThingDripBlood);
+            actSpawnThing(pSprite->sector(), pSprite->pos.X, pSprite->y, bottom, (pSprite->type == kGenDripWater) ? kThingDripWater : kThingDripBlood);
             break;
         }
         case kGenSound:
@@ -2187,7 +2187,7 @@ void ActivateGenerator(DBloodActor* actor)
         case kGenBubbleMulti: {
             int top, bottom;
             GetActorExtents(actor, &top, &bottom);
-            gFX.fxSpawnActor((pSprite->type == kGenBubble) ? FX_23 : FX_26, pSprite->sector(), pSprite->x, pSprite->y, top, 0);
+            gFX.fxSpawnActor((pSprite->type == kGenBubble) ? FX_23 : FX_26, pSprite->sector(), pSprite->pos.X, pSprite->y, top, 0);
             break;
         }
     }

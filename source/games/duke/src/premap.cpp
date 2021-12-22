@@ -581,7 +581,7 @@ void resetpspritevars(int g)
 			firsty = ps[0].pos.Y;
 		}
 
-		po[numplayersprites].ox = act->spr.x;
+		po[numplayersprites].ox = act->spr.pos.X;
 		po[numplayersprites].oy = act->spr.y;
 		po[numplayersprites].oz = act->spr.z;
 		po[numplayersprites].oa = act->spr.ang;
@@ -625,13 +625,13 @@ void resetpspritevars(int g)
 			ps[j].frag_ps = j;
 			act->SetOwner(act);
 
-			ps[j].bobposx = ps[j].oposx = ps[j].pos.X = act->spr.x;
+			ps[j].bobposx = ps[j].oposx = ps[j].pos.X = act->spr.pos.X;
 			ps[j].bobposy = ps[j].oposy = ps[j].pos.Y = act->spr.y;
 			ps[j].oposz = ps[j].pos.Z = act->spr.z;
 			act->spr.backuppos();
 			ps[j].angle.oang = ps[j].angle.ang = buildang(act->spr.ang);
 
-			updatesector(act->spr.x, act->spr.y, &ps[j].cursector);
+			updatesector(act->spr.pos.X, act->spr.y, &ps[j].cursector);
 
 			j = connectpoint2[j];
 
@@ -845,8 +845,8 @@ static void SpawnPortals()
 							sectortype* s1 = act->spr.sector(), *s2 = act2->spr.sector();
 							s1->portalflags = PORTAL_SECTOR_FLOOR;
 							s1->portalflags = PORTAL_SECTOR_CEILING;
-							s2->portalnum = portalAdd(PORTAL_SECTOR_FLOOR, sectnum(s2), act2->spr.x - act->spr.x, act2->spr.y - act->spr.y, act->spr.hitag);
-							s2->portalnum = portalAdd(PORTAL_SECTOR_CEILING, sectnum(s1), act->spr.x - act2->spr.x, act->spr.y - act2->spr.y, act->spr.hitag);
+							s2->portalnum = portalAdd(PORTAL_SECTOR_FLOOR, sectnum(s2), act2->spr.pos.X - act->spr.pos.X, act2->spr.y - act->spr.y, act->spr.hitag);
+							s2->portalnum = portalAdd(PORTAL_SECTOR_CEILING, sectnum(s1), act->spr.pos.X - act2->spr.pos.X, act->spr.y - act2->spr.y, act->spr.hitag);
 							processedTags.Push(act->spr.hitag);
 						}
 						else

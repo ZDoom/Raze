@@ -670,7 +670,7 @@ bool HWLineToSpritePortal::Setup(HWDrawInfo* di, FRenderState& rstate, Clipper* 
 	di->mClipPortal = this;
 
 	auto srccenter = (WallStart(origin) + WallEnd(origin)) / 2;
-	DVector2 destcenter ={ camera->x / 16.f, camera->y / -16.f };
+	DVector2 destcenter ={ camera->pos.X / 16.f, camera->y / -16.f };
 	DVector2 npos = vp.Pos - srccenter + destcenter;
 
 	int origx = vp.Pos.X * 16;

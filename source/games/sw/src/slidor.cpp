@@ -406,12 +406,12 @@ int DoSlidorInstantClose(DSWActor* actor)
         switch (wal->lotag)
         {
         case TAG_WALL_SLIDOR_LEFT:
-            diff = wal->pos.X - sp->x;
+            diff = wal->pos.X - sp->pos.X;
             DoSlidorMoveWalls(actor, diff);
             break;
 
         case TAG_WALL_SLIDOR_RIGHT:
-            diff = wal->pos.X - sp->x;
+            diff = wal->pos.X - sp->pos.X;
             DoSlidorMoveWalls(actor, -diff);
             break;
 

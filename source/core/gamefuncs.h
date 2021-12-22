@@ -201,7 +201,7 @@ inline DVector2 WallDelta(const walltype* wallnum)
 
 inline double SpriteX(spritetype* spr)
 {
-    return spr->x * (1 / 16.);
+    return spr->pos.X * (1 / 16.);
 }
 
 inline double SpriteY(spritetype* spr)
@@ -276,7 +276,7 @@ inline int32_t tspriteGetZOfSlope(const tspritetype* tspr, int dax, int day)
 	int heinum = tspriteGetSlope(tspr);
 	if (heinum == 0) return tspr->z;
 
-	int const j = DMulScale(bsin(tspr->ang + 1024), day - tspr->y, -bsin(tspr->ang + 512), dax - tspr->x, 4);
+	int const j = DMulScale(bsin(tspr->ang + 1024), day - tspr->y, -bsin(tspr->ang + 512), dax - tspr->pos.X, 4);
 	return tspr->z + MulScale(heinum, j, 18);
 }
 

@@ -472,7 +472,7 @@ Collision movespritez(DExhumedActor* pActor, int z, int height, int, int clipdis
 
     if (pSprite->statnum == 100)
     {
-        nRet.exbits |= BelowNear(pActor, pSprite->x, pSprite->y, clipdist + (clipdist / 2));
+        nRet.exbits |= BelowNear(pActor, pSprite->pos.X, pSprite->y, clipdist + (clipdist / 2));
     }
 
     return nRet;
@@ -494,7 +494,7 @@ Collision movesprite(DExhumedActor* pActor, int dx, int dy, int dz, int ceildist
     spritetype *pSprite = &pActor->s();
     bTouchFloor = false;
 
-    int x = pSprite->x;
+    int x = pSprite->pos.X;
     int y = pSprite->y;
     int z = pSprite->z;
 
@@ -556,7 +556,7 @@ Collision movesprite(DExhumedActor* pActor, int dx, int dy, int dz, int ceildist
 
         if ((pSector->floorz - z) < (dz + flordist))
         {
-            pSprite->x = x;
+            pSprite->pos.X = x;
             pSprite->y = y;
         }
         else
@@ -628,7 +628,7 @@ Collision MoveCreature(DExhumedActor* pActor)
 Collision MoveCreatureWithCaution(DExhumedActor* pActor)
 {
     auto pSprite = &pActor->s();
-    int x = pSprite->x;
+    int x = pSprite->pos.X;
     int y = pSprite->y;
     int z = pSprite->z;
     auto pSectorPre = pSprite->sector();
@@ -646,7 +646,7 @@ Collision MoveCreatureWithCaution(DExhumedActor* pActor)
 
         if (zDiff > 15360 || (pSector->Flag & kSectUnderwater) || (pSector->pBelow != nullptr && pSector->pBelow->Flag) || pSector->Damage)
         {
-            pSprite->x = x;
+            pSprite->pos.X = x;
             pSprite->y = y;
             pSprite->z = z;
 
@@ -672,7 +672,7 @@ int GetAngleToSprite(DExhumedActor* a1, DExhumedActor* a2)
     auto pSprite1 = &a1->s();
     auto pSprite2 = &a2->s();
 
-    return GetMyAngle(pSprite2->x - pSprite1->x, pSprite2->y - pSprite1->y);
+    return GetMyAngle(pSprite2->pos.X - pSprite1->pos.X, pSprite2->y - pSprite1->y);
 }
 
 int PlotCourseToSprite(DExhumedActor* pActor1, DExhumedActor* pActor2)
@@ -682,7 +682,7 @@ int PlotCourseToSprite(DExhumedActor* pActor1, DExhumedActor* pActor2)
 
     auto pSprite1 = &pActor1->s();
     auto pSprite2 = &pActor2->s();
-    int x = pSprite2->x - pSprite1->x;
+    int x = pSprite2->pos.X - pSprite1->pos.X;
     int y = pSprite2->y - pSprite1->y;
 
     pSprite1->ang = GetMyAngle(x, y);
@@ -709,7 +709,7 @@ DExhumedActor* FindPlayer(DExhumedActor* pActor, int nDistance, bool dontengage)
     if (nDistance < 0)
         nDistance = 100;
 
-    int x = pSprite->x;
+    int x = pSprite->pos.X;
     int y = pSprite->y;
     auto pSector =pSprite->sector();
 
@@ -730,13 +730,13 @@ DExhumedActor* FindPlayer(DExhumedActor* pActor, int nDistance, bool dontengage)
 
         if ((pPlayerSprite->cstat & CSTAT_SPRITE_BLOCK_ALL) && (!(pPlayerSprite->cstat & CSTAT_SPRITE_INVISIBLE)))
         {
-            int v9 = abs(pPlayerSprite->x - x);
+            int v9 = abs(pPlayerSprite->pos.X - x);
 
             if (v9 < nDistance)
             {
                 int v10 = abs(pPlayerSprite->y - y);
 
-                if (v10 < nDistance && cansee(pPlayerSprite->x, pPlayerSprite->y, pPlayerSprite->z - 7680, pPlayerSprite->sector(), x, y, z, pSector))
+                if (v10 < nDistance && cansee(pPlayerSprite->pos.X, pPlayerSprite->y, pPlayerSprite->z - 7680, pPlayerSprite->sector(), x, y, z, pSector))
                 {
                     break;
                 }
@@ -780,7 +780,7 @@ int GetUpAngle(DExhumedActor* pActor1, int nVal, DExhumedActor* pActor2, int ecx
 {
 	auto pSprite1 = &pActor1->s();
 	auto pSprite2 = &pActor2->s();
-    int x = pSprite2->x - pSprite1->x;
+    int x = pSprite2->pos.X - pSprite1->pos.X;
     int y = pSprite2->y - pSprite1->y;
 
     int ebx = (pSprite2->z + ecx) - (pSprite1->z + nVal);
@@ -837,7 +837,7 @@ void CreatePushBlock(sectortype* pSector)
 
     sBlockInfo[nBlock].pActor = pActor;
 
-    pSprite->x = xAvg;
+    pSprite->pos.X = xAvg;
     pSprite->y = yAvg;
     pSprite->z = pSector->floorz - 256;
     pSprite->cstat = CSTAT_SPRITE_INVISIBLE;
@@ -999,7 +999,7 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
             auto sp = &pActor->s();
             if (sp->statnum < 99)
             {
-                sp->x += xvect;
+                sp->pos.X += xvect;
                 sp->y += yvect;
             }
             else
@@ -1008,7 +1008,7 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
 
                 if ((nSectFlag & kSectUnderwater) || pos.Z != nZVal || sp->cstat & CSTAT_SPRITE_INVISIBLE)
                 {
-                    pos.X = sp->x;
+                    pos.X = sp->pos.X;
                     pos.Y = sp->y;
                     pSectorB = pSector;
 
@@ -1102,7 +1102,7 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
     */
     auto pActor = PlayerList[nLocalPlayer].Actor();
     auto pSprite = &pActor->s();
-    initx = pSprite->x;
+    initx = pSprite->pos.X;
     inity = pSprite->y;
     initz = pSprite->z;
     inita = pSprite->ang;
@@ -1112,7 +1112,7 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
 void SetQuake(DExhumedActor* pActor, int nVal)
 {
     auto pSprite = &pActor->s();
-    int x = pSprite->x;
+    int x = pSprite->pos.X;
     int y = pSprite->y;
 
     nVal *= 256;
@@ -1122,7 +1122,7 @@ void SetQuake(DExhumedActor* pActor, int nVal)
         auto pPlayerActor = PlayerList[i].Actor();
 
 
-        uint32_t xDiff = abs((int32_t)((pPlayerActor->spr.x - x) >> 8));
+        uint32_t xDiff = abs((int32_t)((pPlayerActor->spr.pos.X - x) >> 8));
         uint32_t yDiff = abs((int32_t)((pPlayerActor->spr.y - y) >> 8));
 
         uint32_t sqrtNum = xDiff * xDiff + yDiff * yDiff;
@@ -1185,9 +1185,9 @@ Collision AngleChase(DExhumedActor* pActor, DExhumedActor* pActor2, int ebx, int
 
         int nHeight = tileHeight(pSprite2->picnum) * pSprite2->yrepeat * 2;
 
-        int nMyAngle = GetMyAngle(pSprite2->x - pSprite->x, pSprite2->y - pSprite->y);
+        int nMyAngle = GetMyAngle(pSprite2->pos.X - pSprite->pos.X, pSprite2->y - pSprite->y);
 
-        uint32_t xDiff = abs(pSprite2->x - pSprite->x);
+        uint32_t xDiff = abs(pSprite2->pos.X - pSprite->pos.X);
         uint32_t yDiff = abs(pSprite2->y - pSprite->y);
 
         uint32_t sqrtNum = xDiff * xDiff + yDiff * yDiff;
@@ -1397,7 +1397,7 @@ DExhumedActor* BuildCreatureChunk(DExhumedActor* pSrc, int nPic, bool bSpecial)
 	auto pSprite = &actor->s();
     auto pSrcSpr = &pSrc->s();
 
-    pSprite->x = pSrcSpr->x;
+    pSprite->pos.X = pSrcSpr->pos.X;
     pSprite->y = pSrcSpr->y;
     pSprite->z = pSrcSpr->z;
 

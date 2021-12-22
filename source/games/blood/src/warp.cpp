@@ -73,7 +73,7 @@ void warpInit(TArray<DBloodActor*>& actors)
                     case kMarkerSPStart:
                         if (gGameOptions.nGameType < 2 && pXSprite->data1 >= 0 && pXSprite->data1 < kMaxPlayers) {
                             ZONE *pZone = &gStartZone[pXSprite->data1];
-                            pZone->x = pSprite->x;
+                            pZone->x = pSprite->pos.X;
                             pZone->y = pSprite->y;
                             pZone->z = pSprite->z;
                             pZone->sector = pSprite->sector();
@@ -86,7 +86,7 @@ void warpInit(TArray<DBloodActor*>& actors)
                             if (gGameOptions.nGameType >= 2) {
                                 // default if BB or teams without data2 specified
                                 ZONE* pZone = &gStartZone[pXSprite->data1];
-                                pZone->x = pSprite->x;
+                                pZone->x = pSprite->pos.X;
                                 pZone->y = pSprite->y;
                                 pZone->z = pSprite->z;
                                 pZone->sector = pSprite->sector();
@@ -97,7 +97,7 @@ void warpInit(TArray<DBloodActor*>& actors)
                                     if (gModernMap && gGameOptions.nGameType == 3) {
                                         if (pXSprite->data2 == 1) {
                                             pZone = &gStartZoneTeam1[team1];
-                                            pZone->x = pSprite->x;
+                                            pZone->x = pSprite->pos.X;
                                             pZone->y = pSprite->y;
                                             pZone->z = pSprite->z;
                                             pZone->sector = pSprite->sector();
@@ -106,7 +106,7 @@ void warpInit(TArray<DBloodActor*>& actors)
 
                                         } else if (pXSprite->data2 == 2) {
                                             pZone = &gStartZoneTeam2[team2];
-                                            pZone->x = pSprite->x;
+                                            pZone->x = pSprite->pos.X;
                                             pZone->y = pSprite->y;
                                             pZone->z = pSprite->z;
                                             pZone->sector = pSprite->sector();
@@ -136,7 +136,7 @@ void warpInit(TArray<DBloodActor*>& actors)
                         pSprite->sector()->upperLink = actor;
                         pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
                         pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
-                        pSprite->z = getflorzofslopeptr(pSprite->sector(), pSprite->x, pSprite->y);
+                        pSprite->z = getflorzofslopeptr(pSprite->sector(), pSprite->pos.X, pSprite->y);
                         break;
                     case kMarkerLowWater:
                     case kMarkerLowStack:
@@ -144,7 +144,7 @@ void warpInit(TArray<DBloodActor*>& actors)
                         pSprite->sector()->lowerLink = actor;
                         pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
                         pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
-                        pSprite->z = getceilzofslopeptr(pSprite->sector(), pSprite->x, pSprite->y);
+                        pSprite->z = getceilzofslopeptr(pSprite->sector(), pSprite->pos.X, pSprite->y);
                         break;
                 }
             }
@@ -201,7 +201,7 @@ int CheckLink(DBloodActor *actor)
         if (pUpper->type == kMarkerUpLink)
             z = pUpper->z;
         else
-            z = getflorzofslopeptr(pSprite->sector(), pSprite->x, pSprite->y);
+            z = getflorzofslopeptr(pSprite->sector(), pSprite->pos.X, pSprite->y);
         if (z <= pSprite->z)
         {
             aLower = aUpper->GetOwner();
@@ -209,13 +209,13 @@ int CheckLink(DBloodActor *actor)
             spritetype *pLower = &aLower->s();
             assert(pLower->insector());
             ChangeActorSect(actor, pLower->sector());
-            pSprite->x += pLower->x-pUpper->x;
+            pSprite->pos.X += pLower->pos.X - pUpper->pos.X;
             pSprite->y += pLower->y-pUpper->y;
             int z2;
             if (pLower->type == kMarkerLowLink)
                 z2 = pLower->z;
             else
-                z2 = getceilzofslopeptr(pSprite->sector(), pSprite->x, pSprite->y);
+                z2 = getceilzofslopeptr(pSprite->sector(), pSprite->pos.X, pSprite->y);
             pSprite->z += z2-z;
             actor->interpolated = false;
             return pUpper->type;
@@ -228,7 +228,7 @@ int CheckLink(DBloodActor *actor)
         if (pLower->type == kMarkerLowLink)
             z = pLower->z;
         else
-            z = getceilzofslopeptr(pSprite->sector(), pSprite->x, pSprite->y);
+            z = getceilzofslopeptr(pSprite->sector(), pSprite->pos.X, pSprite->y);
         if (z >= pSprite->z)
         {
             aUpper = aLower->GetOwner();
@@ -236,13 +236,13 @@ int CheckLink(DBloodActor *actor)
             spritetype *pUpper = &aUpper->s();
             assert(pUpper->insector());
             ChangeActorSect(actor, pUpper->sector());
-            pSprite->x += pUpper->x-pLower->x;
+            pSprite->pos.X += pUpper->pos.X - pLower->pos.X;
             pSprite->y += pUpper->y-pLower->y;
             int z2;
             if (pUpper->type == kMarkerUpLink)
                 z2 = pUpper->z;
             else
-                z2 = getflorzofslopeptr(pSprite->sector(), pSprite->x, pSprite->y);
+                z2 = getflorzofslopeptr(pSprite->sector(), pSprite->pos.X, pSprite->y);
             pSprite->z += z2-z;
             actor->interpolated = false;
             return pLower->type;
@@ -270,7 +270,7 @@ int CheckLink(int *x, int *y, int *z, sectortype** pSector)
             spritetype *pLower = &lower->s();
             assert(pLower->insector());
             *pSector = pLower->sector();
-            *x += pLower->x-pUpper->x;
+            *x += pLower->pos.X - pUpper->pos.X;
             *y += pLower->y-pUpper->y;
             int z2;
             if (pUpper->type == kMarkerLowLink)
@@ -296,7 +296,7 @@ int CheckLink(int *x, int *y, int *z, sectortype** pSector)
             spritetype *pUpper = &upper->s();
 			assert(pUpper);
             *pSector = pUpper->sector();
-            *x += pUpper->x-pLower->x;
+            *x += pUpper->pos.X - pLower->pos.X;
             *y += pUpper->y-pLower->y;
             int z2;
             if (pLower->type == kMarkerUpLink)

@@ -444,7 +444,7 @@ DExhumedActor* FindWallSprites(sectortype* pSector)
         {
             if ((spr->cstat & (CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_ONE_SIDE)) == (CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_ONE_SIDE))
             {
-                int var_28 = spr->x;
+                int var_28 = spr->pos.X;
                 int ebx = spr->y;
 
                 if ((var_28 >= var_24) && (esi >= var_28) && (ebx >= ecx) && (ebx <= edi))
@@ -461,7 +461,7 @@ DExhumedActor* FindWallSprites(sectortype* pSector)
         pAct = insertActor(pSector, 401);
         auto pSprite = &pAct->s();
 
-        pSprite->x = (var_24 + esi) / 2;
+        pSprite->pos.X = (var_24 + esi) / 2;
         pSprite->y = (ecx + edi) / 2;
         pSprite->z = pSector->floorz;
         pSprite->cstat = CSTAT_SPRITE_INVISIBLE;
@@ -613,7 +613,7 @@ int CheckSectorSprites(sectortype* pSector, int nVal)
                 if (pSprite->statnum == 100 && PlayerList[GetPlayerFromActor(pActor)].nHealth <= 0)
                 {
                     PlayFXAtXYZ(StaticSound[kSoundJonFDie],
-                        pSprite->x,
+                        pSprite->pos.X,
                         pSprite->y,
                         pSprite->z,
                         CHANF_NONE, 0x4000);
@@ -843,7 +843,7 @@ void AIElev::Tick(RunListEvent* ev)
                 }
 
                 auto sp = &pElevSpr->s();
-                PlayFXAtXYZ(StaticSound[kSound26], sp->x, sp->y, sp->z);
+                PlayFXAtXYZ(StaticSound[kSound26], sp->pos.X, sp->y, sp->z);
             }
 
             if (var_18 & 0x4)
@@ -1028,7 +1028,7 @@ int BuildSlide(int nChannel, walltype* pStartWall, walltype* pWall1, walltype* p
 
     SlideData[nSlide].pActor = pActor;
     pSprite->cstat = CSTAT_SPRITE_INVISIBLE;
-    pSprite->x = pStartWall->pos.X;
+    pSprite->pos.X = pStartWall->pos.X;
     pSprite->y = pStartWall->pos.Y;
     pSprite->z = pSector->floorz;
     pSprite->backuppos();
@@ -1370,7 +1370,7 @@ DExhumedActor* BuildSpark(DExhumedActor* pActor, int nVal)
 
     auto spr = &pSpark->s();
 
-    spr->x = pSprite->x;
+    spr->pos.X = pSprite->pos.X;
     spr->y = pSprite->y;
     spr->cstat = 0;
     spr->shade = -127;
@@ -1592,7 +1592,7 @@ DExhumedActor* BuildEnergyBlock(sectortype* pSector)
     auto pActor = insertActor(pSector, 406);
     auto spr = &pActor->s();
 
-	spr->x = xAvg;
+	spr->pos.X = xAvg;
     spr->y = yAvg;
 
     pSector->extra = (int16_t)EnergyBlocks.Push(pActor);
@@ -1763,7 +1763,7 @@ void AIEnergyBlock::Damage(RunListEvent* ev)
         auto pSprite2 = &pActor2->s();
 
         pSprite2->ang = ev->nParam;
-        pSprite2->x = lasthitx;
+        pSprite2->pos.X = lasthitx;
         pSprite2->y = lasthity;
         pSprite2->z = lasthitz;
 
@@ -1853,7 +1853,7 @@ DExhumedActor* BuildObject(DExhumedActor* pActor, int nOjectType, int nHitag)
         pActor->nIndex2 = -1;
 
         pSprite2->cstat = CSTAT_SPRITE_INVISIBLE;
-        pSprite2->x = spr->x;
+        pSprite2->pos.X = spr->pos.X;
         pSprite2->y = spr->y;
         pSprite2->z = spr->z;
     }
@@ -1961,8 +1961,8 @@ void AIObject::Tick(RunListEvent* ev)
             var_18 = 34;
         }
 
-        AddFlash(pSprite->sector(), pSprite->x, pSprite->y, pSprite->z, 128);
-        BuildAnim(nullptr, var_18, 0, pSprite->x, pSprite->y, pSprite->sector()->floorz, pSprite->sector(), 240, 4);
+        AddFlash(pSprite->sector(), pSprite->pos.X, pSprite->y, pSprite->z, 128);
+        BuildAnim(nullptr, var_18, 0, pSprite->pos.X, pSprite->y, pSprite->sector()->floorz, pSprite->sector(), 240, 4);
 
         //				int edi = nSprite | 0x4000;
 
@@ -1995,7 +1995,7 @@ void AIObject::Tick(RunListEvent* ev)
             pActor->nHealth = 120;
 
             auto pTargSpr = &pActor->pTarget->s();
-            pSprite->x = pTargSpr->x;
+            pSprite->pos.X = pTargSpr->pos.X;
             pSprite->y = pTargSpr->y;
             pSprite->z = pTargSpr->z;
 
@@ -2253,7 +2253,7 @@ void ProcessTrailSprite(DExhumedActor* pActor, int nLotag, int nHitag)
     auto pSprite = &pActor->s();
     auto nPoint = sTrailPoint.Reserve(1);
 
-    sTrailPoint[nPoint].x = pSprite->x;
+    sTrailPoint[nPoint].x = pSprite->pos.X;
     sTrailPoint[nPoint].y = pSprite->y;
 
     int nTrail = FindTrail(nHitag);

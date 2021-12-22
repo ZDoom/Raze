@@ -85,11 +85,11 @@ void SE40_Draw(int tag, spritetype *spr, int x, int y, int z, binangle a, fixedh
 		}
 	}
 
-	offx = x - floor1->x;
+	offx = x - floor1->pos.X;
 	offy = y - floor1->y;
 
-	renderDrawRoomsQ16(floor2->x + offx, floor2->y + offy, z, a.asq16(), h.asq16(), floor2->sector(), false);
-	fi.animatesprites(pm_tsprite, pm_spritesortcnt, offx + floor2->x, offy + floor2->y, a.asbuild(), smoothratio);
+	renderDrawRoomsQ16(floor2->pos.X + offx, floor2->y + offy, z, a.asq16(), h.asq16(), floor2->sector(), false);
+	fi.animatesprites(pm_tsprite, pm_spritesortcnt, offx + floor2->pos.X, offy + floor2->y, a.asbuild(), smoothratio);
 	renderDrawMasks();
 
 	it.Reset(STAT_RAROR);
@@ -213,7 +213,7 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 		while (auto act = it.Next())
 		{
 			ChangeActorSect(act, geosectorwarp[gs]);
-			SetActor(act, { act->spr.x -= geox[gs], act->spr.y -= geoy[gs], act->spr.z });
+			SetActor(act, { act->spr.pos.X -= geox[gs], act->spr.y -= geoy[gs], act->spr.z });
 		}
 		if (geosector[gs] == sectp)
 		{
@@ -233,7 +233,7 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 		while (auto act = it.Next())
 		{
 			ChangeActorSect(act, geosector[gs]);
-			SetActor(act, { act->spr.x += geox[gs], act->spr.y += geoy[gs], act->spr.z });
+			SetActor(act, { act->spr.pos.X += geox[gs], act->spr.y += geoy[gs], act->spr.z });
 		}
 	}
 	fi.animatesprites(pm_tsprite, pm_spritesortcnt, cposx, cposy, cang.asbuild(), smoothratio);
@@ -245,7 +245,7 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 		while (auto act = it.Next())
 		{
 			ChangeActorSect(act, geosectorwarp2[gs]);
-			SetActor(act, { act->spr.x -= geox2[gs], act->spr.y -= geoy2[gs], act->spr.z });
+			SetActor(act, { act->spr.pos.X -= geox2[gs], act->spr.y -= geoy2[gs], act->spr.z });
 		}
 		if (geosector[gs] == sectp)
 		{
@@ -265,7 +265,7 @@ static void geometryEffect(int cposx, int cposy, int cposz, binangle cang, fixed
 		while (auto act = it.Next())
 		{
 			ChangeActorSect(act, geosector[gs]);
-			SetActor(act, { act->spr.x += geox2[gs], act->spr.y += geoy2[gs], act->spr.z });
+			SetActor(act, { act->spr.pos.X += geox2[gs], act->spr.y += geoy2[gs], act->spr.z });
 		}
 	}
 	fi.animatesprites(pm_tsprite, pm_spritesortcnt, cposx, cposy, cang.asbuild(), smoothratio);

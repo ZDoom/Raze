@@ -175,7 +175,7 @@ int hits(DDukeActor* actor)
 	else zoff = 0;
 
 	hitscan(actor->spr.pos, actor->spr.sector(), { bcos(actor->spr.ang), bsin(actor->spr.ang), 0 }, hit, CLIPMASK1);
-	return (FindDistance2D(hit.hitpos.X - actor->spr.x, hit.hitpos.Y - actor->spr.y));
+	return (FindDistance2D(hit.hitpos.X - actor->spr.pos.X, hit.hitpos.Y - actor->spr.y));
 }
 
 //---------------------------------------------------------------------------
@@ -194,13 +194,13 @@ int hitasprite(DDukeActor* actor, DDukeActor** hitsp)
 	else if (actor->spr.picnum == TILE_APLAYER) zoff = (39 << 8);
 	else zoff = 0;
 
-	hitscan({ actor->spr.x, actor->spr.y, actor->spr.z - zoff }, actor->spr.sector(), { bcos(actor->spr.ang), bsin(actor->spr.ang), 0 }, hit, CLIPMASK1);
+	hitscan({ actor->spr.pos.X, actor->spr.y, actor->spr.z - zoff }, actor->spr.sector(), { bcos(actor->spr.ang), bsin(actor->spr.ang), 0 }, hit, CLIPMASK1);
 	if (hitsp) *hitsp = hit.actor();
 
 	if (hit.hitWall != nullptr && (hit.hitWall->cstat & CSTAT_WALL_MASKED) && badguy(actor))
 		return((1 << 30));
 
-	return (FindDistance2D(hit.hitpos.X - actor->spr.x, hit.hitpos.Y - actor->spr.y));
+	return (FindDistance2D(hit.hitpos.X - actor->spr.pos.X, hit.hitpos.Y - actor->spr.y));
 }
 
 //---------------------------------------------------------------------------
@@ -317,7 +317,7 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 						if (gotfreezer && act->spr.pal == 1) continue;
 					}
 
-					xv = (act->spr.x - actor->spr.x);
+					xv = (act->spr.pos.X - actor->spr.pos.X);
 					yv = (act->spr.y - actor->spr.y);
 
 					if ((dy1 * xv) <= (dx1 * yv))
@@ -330,7 +330,7 @@ DDukeActor* aim(DDukeActor* actor, int aang)
 									a = (abs(Scale(act->spr.z - actor->spr.z, 10, sdist) - ps[actor->spr.yvel].horizon.sum().asbuild()) < 100);
 								else a = 1;
 
-								cans = cansee(act->spr.x, act->spr.y, act->spr.z - (32 << 8) + gs.actorinfo[act->spr.picnum].aimoffset, act->spr.sector(), actor->spr.x, actor->spr.y, actor->spr.z - (32 << 8), actor->spr.sector());
+								cans = cansee(act->spr.pos.X, act->spr.y, act->spr.z - (32 << 8) + gs.actorinfo[act->spr.picnum].aimoffset, act->spr.sector(), actor->spr.pos.X, actor->spr.y, actor->spr.z - (32 << 8), actor->spr.sector());
 
 								if (a && cans)
 								{
@@ -488,7 +488,7 @@ void footprints(int snum)
 			while (auto act = it.Next())
 			{
 				if (act->spr.picnum == TILE_FOOTPRINTS || act->spr.picnum == TILE_FOOTPRINTS2 || act->spr.picnum == TILE_FOOTPRINTS3 || act->spr.picnum == TILE_FOOTPRINTS4)
-					if (abs(act->spr.x - p->pos.X) < 384)
+					if (abs(act->spr.pos.X - p->pos.X) < 384)
 						if (abs(act->spr.y - p->pos.Y) < 384)
 						{
 							j = 1;
@@ -1028,7 +1028,7 @@ void shootbloodsplat(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 					spawned->spr.xvel = -12;
 					auto delta = hit.hitWall->delta();
 					spawned->spr.ang = getangle(-delta.X, -delta.Y) + 512; // note the '-' sign here!
-					spawned->spr.x = hit.hitpos.X;
+					spawned->spr.pos.X = hit.hitpos.X;
 					spawned->spr.y = hit.hitpos.Y;
 					spawned->spr.z = hit.hitpos.Z;
 					spawned->spr.cstat |= randomXFlip();

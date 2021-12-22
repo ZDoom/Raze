@@ -681,14 +681,14 @@ int NullZilla(DSWActor* actor)
 #if 0
     if (u->State == s_ZillaDie)
     {
-        getzsofslopeptr(sp->sector(), sp->x, sp->y, &u->hiz, &u->loz);
+        getzsofslopeptr(sp->sector(), sp->pos.X, sp->y, &u->hiz, &u->loz);
         u->lo_sectp = sp->sector();
         u->hi_sectp = sp->sector();
         sp->z = u->loz;
     }
 #endif
 
-    getzsofslopeptr(sp->sector(), sp->x, sp->y, &u->hiz, &u->loz);
+    getzsofslopeptr(sp->sector(), sp->pos.X, sp->y, &u->hiz, &u->loz);
     u->lo_sectp = sp->sector();
     u->hi_sectp = sp->sector();
     u->lowActor = nullptr;
@@ -762,7 +762,7 @@ int DoZillaDeathMelt(DSWActor* actor)
     }
 
     //KeepActorOnFloor(actor);
-    getzsofslopeptr(sp->sector(), sp->x, sp->y, &u->hiz, &u->loz);
+    getzsofslopeptr(sp->sector(), sp->pos.X, sp->y, &u->hiz, &u->loz);
     u->lo_sectp = sp->sector();
     u->hi_sectp = sp->sector();
     u->lowActor = nullptr;

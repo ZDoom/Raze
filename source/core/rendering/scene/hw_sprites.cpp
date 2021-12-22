@@ -331,7 +331,7 @@ void HWSprite::Process(HWDrawInfo* di, tspritetype* spr, sectortype* sector, int
 
 	SetSpriteTranslucency(spr, alpha, RenderStyle);
 
-	x = spr->x * (1 / 16.f);
+	x = spr->pos.X * (1 / 16.f);
 	z = spr->z * (1 / -256.f);
 	y = spr->y * (1 / -16.f);
 	auto vp = di->Viewpoint;
@@ -394,7 +394,7 @@ void HWSprite::Process(HWDrawInfo* di, tspritetype* spr, sectortype* sector, int
 		float viewvecX = vp.ViewVector.X;
 		float viewvecY = vp.ViewVector.Y;
 
-		x = spr->x * (1 / 16.f);
+		x = spr->pos.X * (1 / 16.f);
 		y = spr->y * (1 / -16.f);
 		z = spr->z * (1 / -256.f);
 
@@ -508,7 +508,7 @@ bool HWSprite::ProcessVoxel(HWDrawInfo* di, voxmodel_t* vox, tspritetype* spr, s
 	float zscale = ((spr->cstat & CSTAT_SPRITE_YFLIP) && (spr->ownerActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != 0) ? -4.f : 4.f;
 	zpos -= (spr->yoffset * spr->yrepeat) * zscale * voxel->bscale;
 
-	x = (spr->x + sprext->position_offset.X) * (1 / 16.f);
+	x = (spr->pos.X + sprext->position_offset.X) * (1 / 16.f);
 	z = zpos * (1 / -256.f);
 	y = (spr->y + sprext->position_offset.Y) * (1 / -16.f);
 

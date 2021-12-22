@@ -359,7 +359,7 @@ bool checkhitswitch_r(int snum, walltype* wwal, DDukeActor* act)
 		lotag = act->spr.lotag;
 		if (lotag == 0) return 0;
 		hitag = act->spr.hitag;
-		sx = act->spr.x;
+		sx = act->spr.pos.X;
 		sy = act->spr.y;
 		picnum = act->spr.picnum;
 		switchpal = act->spr.pal;
@@ -939,7 +939,7 @@ static void lotsofpopcorn(DDukeActor *actor, walltype* wal, int n)
 		for (j = n - 1; j >= 0; j--)
 		{
 			a = actor->spr.ang - 256 + (krand() & 511) + 1024;
-			EGS(actor->spr.sector(), actor->spr.x, actor->spr.y, actor->spr.z, POPCORN, -32, 36, 36, a, 32 + (krand() & 63), 1024 - (krand() & 1023), actor, 5);
+			EGS(actor->spr.sector(), actor->spr.pos.X, actor->spr.y, actor->spr.z, POPCORN, -32, 36, 36, a, 32 + (krand() & 63), 1024 - (krand() & 1023), actor, 5);
 		}
 		return;
 	}
@@ -2072,7 +2072,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		lotsofglass(targ, nullptr, 10);
 		targ->spr.picnum++;
 		for (k = 0; k < 6; k++)
-			EGS(targ->spr.sector(), targ->spr.x, targ->spr.y, targ->spr.z - (8 << 8), SCRAP6 + (krand() & 15), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (targ->spr.zvel >> 2), targ, 5);
+			EGS(targ->spr.sector(), targ->spr.pos.X, targ->spr.y, targ->spr.z - (8 << 8), SCRAP6 + (krand() & 15), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (targ->spr.zvel >> 2), targ, 5);
 		break;
 	case BOWLINGBALL:
 		proj->spr.xvel = (targ->spr.xvel >> 1) + (targ->spr.xvel >> 2);
@@ -2090,7 +2090,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		{
 			proj->spr.xvel = (targ->spr.xvel >> 1) + (targ->spr.xvel >> 2);
 			proj->spr.ang -= (targ->spr.ang << 1) + 1024;
-			targ->spr.ang = getangle(targ->spr.x - proj->spr.x, targ->spr.y - proj->spr.y) - 512;
+			targ->spr.ang = getangle(targ->spr.pos.X - proj->spr.pos.X, targ->spr.y - proj->spr.y) - 512;
 			if (S_CheckSoundPlaying(POOLBALLHIT) < 2)
 				S_PlayActorSound(POOLBALLHIT, targ);
 		}
@@ -2164,7 +2164,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		case UWHIP:
 			for (k = 0; k < 64; k++)
 			{
-				auto j = EGS(targ->spr.sector(), targ->spr.x, targ->spr.y, targ->spr.z - (krand() % (48 << 8)), SCRAP6 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (targ->spr.zvel >> 2), targ, 5);
+				auto j = EGS(targ->spr.sector(), targ->spr.pos.X, targ->spr.y, targ->spr.z - (krand() % (48 << 8)), SCRAP6 + (krand() & 3), -8, 48, 48, krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (targ->spr.zvel >> 2), targ, 5);
 				j->spr.pal = 8;
 			}
 
@@ -2197,7 +2197,7 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 		if (gs.actorinfo[SHOTSPARK1].scriptaddress && proj->spr.extra != ScriptCode[gs.actorinfo[SHOTSPARK1].scriptaddress])
 		{
 			for (j = 0; j < 15; j++)
-				EGS(targ->spr.sector(), targ->spr.x, targ->spr.y, targ->spr.sector()->floorz - (12 << 8) - (j << 9), SCRAP1 + (krand() & 15), -8, 64, 64,
+				EGS(targ->spr.sector(), targ->spr.pos.X, targ->spr.y, targ->spr.sector()->floorz - (12 << 8) - (j << 9), SCRAP1 + (krand() & 15), -8, 64, 64,
 					krand() & 2047, (krand() & 127) + 64, -(krand() & 511) - 256, targ, 5);
 			spawn(targ, EXPLOSION2);
 			deletesprite(targ);

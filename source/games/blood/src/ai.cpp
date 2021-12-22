@@ -135,7 +135,7 @@ bool CanMove(DBloodActor* actor, DBloodActor* target, int nAngle, int nRange)
 	auto pSprite = &actor->s();
 	int top, bottom;
 	GetActorExtents(actor, &top, &bottom);
-	int x = pSprite->x;
+	int x = pSprite->pos.X;
 	int y = pSprite->y;
 	int z = pSprite->z;
 	HitScan(actor, z, bcos(nAngle), bsin(nAngle), 0, CLIPMASK0, nRange);
@@ -379,7 +379,7 @@ void aiActivateDude(DBloodActor* actor)
 	assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
 	if (!pXSprite->state)
 	{
-		aiChooseDirection(actor, getangle(pXSprite->targetX - pSprite->x, pXSprite->targetY - pSprite->y));
+		aiChooseDirection(actor, getangle(pXSprite->targetX - pSprite->pos.X, pXSprite->targetY - pSprite->y));
 		pXSprite->state = 1;
 	}
 	switch (pSprite->type)
@@ -952,7 +952,7 @@ void aiSetTarget(DBloodActor* actor, DBloodActor* target)
 		{
 			actor->SetTarget(target);
 			DUDEINFO* pDudeInfo = getDudeInfo(pTarget->type);
-			pXSprite->targetX = pTarget->x;
+			pXSprite->targetX = pTarget->pos.X;
 			pXSprite->targetY = pTarget->y;
 			pXSprite->targetZ = pTarget->z - ((pDudeInfo->eyeHeight * pTarget->yrepeat) << 2);
 		}
@@ -1533,16 +1533,16 @@ void aiThinkTarget(DBloodActor* actor)
 			PLAYER* pPlayer = &gPlayer[p];
             if (actor->GetOwner() == pPlayer->actor || pPlayer->pXSprite->health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
 				continue;
-			int x = pPlayer->pSprite->x;
+			int x = pPlayer->pSprite->pos.X;
 			int y = pPlayer->pSprite->y;
 			int z = pPlayer->pSprite->z;
 			auto pSector = pPlayer->pSprite->sector();
-			int dx = x - pSprite->x;
+			int dx = x - pSprite->pos.X;
 			int dy = y - pSprite->y;
 			int nDist = approxDist(dx, dy);
 			if (nDist > pDudeInfo->seeDist && nDist > pDudeInfo->hearDist)
 				continue;
-			if (!cansee(x, y, z, pSector, pSprite->x, pSprite->y, pSprite->z - ((pDudeInfo->eyeHeight * pSprite->yrepeat) << 2), pSprite->sector()))
+			if (!cansee(x, y, z, pSector, pSprite->pos.X, pSprite->y, pSprite->z - ((pDudeInfo->eyeHeight * pSprite->yrepeat) << 2), pSprite->sector()))
 				continue;
 
 			int nDeltaAngle = ((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024;
@@ -1581,16 +1581,16 @@ void aiLookForTarget(DBloodActor* actor)
 			PLAYER* pPlayer = &gPlayer[p];
             if (actor->GetOwner() == pPlayer->actor || pPlayer->pXSprite->health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
 				continue;
-			int x = pPlayer->pSprite->x;
+			int x = pPlayer->pSprite->pos.X;
 			int y = pPlayer->pSprite->y;
 			int z = pPlayer->pSprite->z;
 			auto pSector = pPlayer->pSprite->sector();
-			int dx = x - pSprite->x;
+			int dx = x - pSprite->pos.X;
 			int dy = y - pSprite->y;
 			int nDist = approxDist(dx, dy);
 			if (nDist > pDudeInfo->seeDist && nDist > pDudeInfo->hearDist)
 				continue;
-			if (!cansee(x, y, z, pSector, pSprite->x, pSprite->y, pSprite->z - ((pDudeInfo->eyeHeight * pSprite->yrepeat) << 2), pSprite->sector()))
+			if (!cansee(x, y, z, pSector, pSprite->pos.X, pSprite->y, pSprite->z - ((pDudeInfo->eyeHeight * pSprite->yrepeat) << 2), pSprite->sector()))
 				continue;
 			int nDeltaAngle = ((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024;
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
@@ -1609,13 +1609,13 @@ void aiLookForTarget(DBloodActor* actor)
 		if (pXSprite->state)
 		{
 			const bool newSectCheckMethod = !cl_bloodvanillaenemies && !VanillaMode(); // use new sector checking logic
-			GetClosestSpriteSectors(pSprite->sector(), pSprite->x, pSprite->y, 400, nullptr, newSectCheckMethod);
+			GetClosestSpriteSectors(pSprite->sector(), pSprite->pos.X, pSprite->y, 400, nullptr, newSectCheckMethod);
 
 			BloodStatIterator it(kStatDude);
 			while (DBloodActor* actor2 = it.Next())
 			{
 				spritetype* pSprite2 = &actor2->s();
-				int dx = pSprite2->x - pSprite->x;
+				int dx = pSprite2->pos.X - pSprite->pos.X;
 				int dy = pSprite2->y - pSprite->y;
 				int nDist = approxDist(dx, dy);
 				if (pSprite2->type == kDudeInnocent)

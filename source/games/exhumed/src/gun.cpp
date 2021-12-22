@@ -615,7 +615,7 @@ loc_flag:
             BuildFlash(nPlayer, 512);
             AddFlash(
                 pPlayerSprite->sector(),
-                pPlayerSprite->x,
+                pPlayerSprite->pos.X,
                 pPlayerSprite->y,
                 pPlayerSprite->z,
                 0);
@@ -649,7 +649,7 @@ loc_flag:
 
             int nAmmoType = WeaponInfo[nWeapon].nAmmoType;
             int nAngle = pPlayerSprite->ang;
-            int theX = pPlayerSprite->x;
+            int theX = pPlayerSprite->pos.X;
             int theY = pPlayerSprite->y;
             int theZ = pPlayerSprite->z;
 
@@ -811,7 +811,7 @@ loc_flag:
                         // only autoaim if target is in front of the player.
                         auto pTargetSprite = &t->s();
 						assert(pTargetSprite->sector());
-                        int angletotarget = bvectangbam(pTargetSprite->x - pPlayerSprite->x, pTargetSprite->y - pPlayerSprite->y).asbuild();
+                        int angletotarget = bvectangbam(pTargetSprite->pos.X - pPlayerSprite->pos.X, pTargetSprite->y - pPlayerSprite->y).asbuild();
                         int anglediff = (pPlayerSprite->ang - angletotarget) & 2047;
                         if (anglediff < 512 || anglediff > 1536)
                         {

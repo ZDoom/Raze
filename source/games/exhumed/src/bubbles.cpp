@@ -100,7 +100,7 @@ void AIBubble::Tick(RunListEvent* ev)
         auto pSectAbove = pSector->pAbove;
 
         if (pSprite->hitag > -1 && pSectAbove != nullptr) {
-            BuildAnim(nullptr, 70, 0, pSprite->x, pSprite->y, pSectAbove->floorz, pSectAbove, 64, 0);
+            BuildAnim(nullptr, 70, 0, pSprite->pos.X, pSprite->y, pSectAbove->floorz, pSectAbove, 64, 0);
         }
 
         DestroyBubble(pActor);

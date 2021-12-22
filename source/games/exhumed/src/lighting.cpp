@@ -381,7 +381,7 @@ void AddFlash(sectortype* pSector, int x, int y, int z, int val)
 
                     if (!var_18)
                     {
-                        int xDiff = x - pSprite->x;
+                        int xDiff = x - pSprite->pos.X;
                         if (xDiff < 0) {
                             xDiff = -xDiff;
                         }

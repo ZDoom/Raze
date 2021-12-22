@@ -52,7 +52,7 @@ int wakeup(DDukeActor* actor, int snum)
 
 	radius = p->noise_radius;
 
-	if (p->noise_x - radius < actor->spr.x && p->noise_x + radius > actor->spr.x
+	if (p->noise_x - radius < actor->spr.pos.X && p->noise_x + radius > actor->spr.pos.X
 		&& p->noise_y - radius < actor->spr.y && p->noise_y + radius > actor->spr.y)
 		return 1;
 	return 0;

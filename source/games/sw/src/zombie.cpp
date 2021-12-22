@@ -827,13 +827,13 @@ void SpawnZombie2(DSWActor* actor)
     if (FAF_ConnectArea(sp->sector()))
     {
         auto newsect = sp->sector();
-        updatesectorz(sp->x, sp->y, sp->z + Z(10), &newsect);
+        updatesectorz(sp->pos.X, sp->y, sp->z + Z(10), &newsect);
         if (SectorIsUnderwaterArea(newsect))
             return;
     }
 
 
-    auto actorNew = SpawnActor(STAT_ENEMY, ZOMBIE_RUN_R0, s_ZombieRun[0], sp->sector(), sp->x, sp->y, sp->z, sp->ang, 0);
+    auto actorNew = SpawnActor(STAT_ENEMY, ZOMBIE_RUN_R0, s_ZombieRun[0], sp->sector(), sp->pos.X, sp->y, sp->z, sp->ang, 0);
     np = &actorNew->s();
     nu = actorNew->u();
     nu->Counter3 = 0;

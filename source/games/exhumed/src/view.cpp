@@ -131,7 +131,7 @@ static void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int x, int 
 
             if ((pSprite->statnum < 150) && (pSprite->cstat & CSTAT_SPRITE_BLOCK_ALL) && (pActor != pPlayerActor))
             {
-                int xval = pSprite->x - x;
+                int xval = pSprite->pos.X - x;
                 int yval = pSprite->y - y;
 
                 int vcos = bcos(nAngle);
@@ -172,7 +172,7 @@ static void analyzesprites(tspritetype* tsprite, int& spritesortcnt, int x, int 
 
         nCreepyTimer = kCreepyCount;
 
-        if (!cansee(x, y, z, pSector, pTarget->x, pTarget->y, pTarget->z - GetActorHeight(bestTarget), pTarget->sector()))
+        if (!cansee(x, y, z, pSector, pTarget->pos.X, pTarget->y, pTarget->z - GetActorHeight(bestTarget), pTarget->sector()))
         {
             bestTarget = nullptr;
         }
@@ -220,7 +220,7 @@ void DrawView(double smoothRatio, bool sceneonly)
         DExhumedActor* pActor = SnakeList[nSnakeCam].pSprites[0];
 		auto pSprite = &pActor->s();
 
-        playerX = pSprite->x;
+        playerX = pSprite->pos.X;
         playerY = pSprite->y;
         playerZ = pSprite->z;
         pSector = pSprite->sector();

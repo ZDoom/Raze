@@ -289,7 +289,7 @@ void prelevel_d(int g, TArray<DDukeActor*>& actors)
 
 		if (ac->spr.lotag == -1 && (ac->spr.cstat & CSTAT_SPRITE_ALIGNMENT_WALL))
 		{
-			ps[0].exitx = ac->spr.x;
+			ps[0].exitx = ac->spr.pos.X;
 			ps[0].exity = ac->spr.y;
 		}
 		else switch (ac->spr.picnum)
