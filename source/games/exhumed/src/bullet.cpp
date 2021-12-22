@@ -462,7 +462,7 @@ MOVEEND:
             else
                 dz = -pBullet->nPitch * 512;
             hitscan(startPos, pSprite->sector(), { bcos(pSprite->ang), bsin(pSprite->ang), dz }, hit, CLIPMASK1);
-            x2 = hit.hitpos.x;
+            x2 = hit.hitpos.X;
             y2 = hit.hitpos.y;
             z2 = hit.hitpos.z;
             hitactor = hit.actor();

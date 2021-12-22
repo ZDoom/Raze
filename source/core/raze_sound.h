@@ -10,7 +10,7 @@ inline FVector3 GetSoundPos(const vec3_t *pos)
     const float xmul = 1 / 16.f;
     const float ymul = -1 / 16.f;
     const float zmul = -1 / 256.f;
-    return { pos->x* xmul, pos->z* zmul, pos->y* ymul };
+    return { pos->X* xmul, pos->z* zmul, pos->y* ymul };
 }
 
 

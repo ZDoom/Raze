@@ -278,7 +278,7 @@ static int32_t LoadMapHack(const char *filename, SpawnSpriteDef& sprites)
         else if (sc.Compare("mdxoff") || sc.Compare("mdpivxoff") || sc.Compare("mdpivotxoff"))
         {
             if (sc.CheckNumber() && validateSprite())
-                sprites.sprext[currentsprite].pivot_offset.x = sc.Number;
+                sprites.sprext[currentsprite].pivot_offset.X = sc.Number;
         }
         else if (sc.Compare("mdyoff") || sc.Compare("mdpivyoff") || sc.Compare("mdpivotyoff"))
         {
@@ -293,17 +293,17 @@ static int32_t LoadMapHack(const char *filename, SpawnSpriteDef& sprites)
         else if (sc.Compare("mdposxoff") || sc.Compare("mdpositionxoff"))
         {
             if (sc.CheckNumber() && validateSprite())
-                sprites.sprext[currentsprite].position_offset.x = sc.Number;
+                sprites.sprext[currentsprite].position_offset.X = sc.Number;
         }
         else if (sc.Compare("mdposyoff") || sc.Compare("mdpositionyoff"))
         {
             if (sc.CheckNumber() && validateSprite())
-                sprites.sprext[currentsprite].position_offset.x = sc.Number;
+                sprites.sprext[currentsprite].position_offset.X = sc.Number;
         }
         else if (sc.Compare("mdposzoff") || sc.Compare("mdpositionzoff"))
         {
             if (sc.CheckNumber() && validateSprite())
-                sprites.sprext[currentsprite].position_offset.x = sc.Number;
+                sprites.sprext[currentsprite].position_offset.X = sc.Number;
         }
         else if (sc.Compare("away1"))
         {

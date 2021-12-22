@@ -142,7 +142,7 @@ uint8_t LoadLevel(MapRecord* map)
     int initsect;
     SpawnSpriteDef spawned;
     loadMap(currentLevel->fileName, 0, &startPos, &inita, &initsect, spawned);
-    initx = startPos.x;
+    initx = startPos.X;
     inity = startPos.y;
     initz = startPos.z;
     initsectp = &sector[initsect];

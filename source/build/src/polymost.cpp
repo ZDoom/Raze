@@ -2733,12 +2733,12 @@ void polymost_drawsprite(int32_t snum)
 
     if (actor->sx().flags & SPREXT_AWAY1)
     {
-        pos.x += bcos(tspr->ang, -13);
+        pos.X += bcos(tspr->ang, -13);
         pos.y += bsin(tspr->ang, -13);
     }
     else if (actor->sx().flags & SPREXT_AWAY2)
     {
-        pos.x -= bcos(tspr->ang, -13);
+        pos.X -= bcos(tspr->ang, -13);
         pos.y -= bsin(tspr->ang, -13);
     }
 
@@ -2878,7 +2878,7 @@ void polymost_drawsprite(int32_t snum)
 
             FVector2 const vf = { extent.X * f, extent.Y * f };
 
-            FVector2 vec0 = { (float)(pos.x - globalposx) - vf.X,
+            FVector2 vec0 = { (float)(pos.X - globalposx) - vf.X,
                              (float)(pos.y - globalposy) - vf.Y };
 
             int32_t walldist = 1;
@@ -2889,9 +2889,9 @@ void polymost_drawsprite(int32_t snum)
             {
                 vec2_t v = { /*Blrintf(vf.x)*/(int)vf.X, /*Blrintf(vf.y)*/(int)vf.Y };
 
-                if (walldist <= 2 || ((pos.x - v.X) + (pos.x + v.X)) == (wall[w].x + POINT2(w).x) ||
+                if (walldist <= 2 || ((pos.X - v.X) + (pos.X + v.X)) == (wall[w].x + POINT2(w).x) ||
                     ((pos.y - v.Y) + (pos.y + v.Y)) == (wall[w].y + POINT2(w).y) ||
-                    polymost_lintersect(pos.x - v.X, pos.y - v.Y, pos.x + v.X, pos.y + v.Y, wall[w].x, wall[w].y,
+                    polymost_lintersect(pos.X - v.X, pos.y - v.Y, pos.X + v.X, pos.y + v.Y, wall[w].x, wall[w].y,
                                         POINT2(w).x, POINT2(w).y))
                 {
                     int32_t const ang = getangle(wall[w].x - POINT2(w).x, wall[w].y - POINT2(w).y);
@@ -3406,7 +3406,7 @@ static void sortsprites(int const start, int const end)
             {
                 if (spritesxyz[l].y <= spritesxyz[l + gap].y) break;
                 std::swap(tspriteptr[l], tspriteptr[l + gap]);
-                std::swap(spritesxyz[l].x, spritesxyz[l + gap].x);
+                std::swap(spritesxyz[l].X, spritesxyz[l + gap].X);
                 std::swap(spritesxyz[l].y, spritesxyz[l + gap].y);
             }
 
@@ -3512,7 +3512,7 @@ void renderDrawMasks(void)
             if (MulScale(labs(xp + yp), xdimen, 24) >= yp)
                 goto killsprite;
 
-            spritesxyz[i].x = Scale(xp + yp, xdimen << 7, yp);
+            spritesxyz[i].X = Scale(xp + yp, xdimen << 7, yp);
         }
         else if ((tspriteptr[i]->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) == 0)
         {
@@ -3526,7 +3526,7 @@ void renderDrawMasks(void)
                     if (i != numSprites)
                     {
                         tspriteptr[i] = tspriteptr[numSprites];
-                        spritesxyz[i].x = spritesxyz[numSprites].x;
+                        spritesxyz[i].X = spritesxyz[numSprites].X;
                         spritesxyz[i].y = spritesxyz[numSprites].y;
                     }
                 }
@@ -3537,10 +3537,10 @@ void renderDrawMasks(void)
                     if (i != numSprites)
                     {
                         tspriteptr[i] = tspriteptr[pm_spritesortcnt];
-                        spritesxyz[i].x = spritesxyz[pm_spritesortcnt].x;
+                        spritesxyz[i].X = spritesxyz[pm_spritesortcnt].X;
                         spritesxyz[i].y = spritesxyz[pm_spritesortcnt].y;
                         tspriteptr[pm_spritesortcnt] = tspriteptr[numSprites];
-                        spritesxyz[pm_spritesortcnt].x = spritesxyz[numSprites].x;
+                        spritesxyz[pm_spritesortcnt].X = spritesxyz[numSprites].X;
                         spritesxyz[pm_spritesortcnt].y = spritesxyz[numSprites].y;
                     }
                 }
@@ -3844,7 +3844,7 @@ int32_t polymost_voxdraw(voxmodel_t* m, tspriteptr_t const tspr, bool rotate)
 
     int const shadowHack = !!(tspr->clipdist & TSPR_FLAGS_MDHACK);
 
-    m0.Y *= f; a0.Y = (((float)(tspr->x + tspr->ownerActor->sx().position_offset.x - globalposx)) * (1.f / 1024.f) + a0.Y) * f;
+    m0.Y *= f; a0.Y = (((float)(tspr->x + tspr->ownerActor->sx().position_offset.X - globalposx)) * (1.f / 1024.f) + a0.Y) * f;
     m0.X *= -f; a0.X = (((float)(tspr->y + tspr->ownerActor->sx().position_offset.y - globalposy)) * -(1.f / 1024.f) + a0.X) * -f;
     m0.Z *= g; a0.Z = (((float)(k0 - globalposz - shadowHack)) * -(1.f / 16384.f) + a0.Z) * g;
 

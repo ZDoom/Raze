@@ -508,7 +508,7 @@ bool HWSprite::ProcessVoxel(HWDrawInfo* di, voxmodel_t* vox, tspritetype* spr, s
 	float zscale = ((spr->cstat & CSTAT_SPRITE_YFLIP) && (spr->ownerActor->spr.cstat & CSTAT_SPRITE_ALIGNMENT_MASK) != 0) ? -4.f : 4.f;
 	zpos -= (spr->yoffset * spr->yrepeat) * zscale * voxel->bscale;
 
-	x = (spr->x + sprext->position_offset.x) * (1 / 16.f);
+	x = (spr->x + sprext->position_offset.X) * (1 / 16.f);
 	z = zpos * (1 / -256.f);
 	y = (spr->y + sprext->position_offset.y) * (1 / -16.f);
 

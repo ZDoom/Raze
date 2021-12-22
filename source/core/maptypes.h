@@ -469,7 +469,7 @@ struct spritetypebase
 
 	void backupx()
 	{
-		opos.x = pos.x;
+		opos.X = pos.X;
 	}
 
 	void backupy()

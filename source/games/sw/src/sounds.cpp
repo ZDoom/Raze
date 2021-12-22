@@ -377,12 +377,12 @@ static void UpdateAmbients()
     for (auto& amb : ambients)
     {
         auto sp = amb->sp;
-        auto sdist = SoundDist(sp->pos.x, sp->pos.y, sp->pos.z, voc[amb->vocIndex].voc_distance);
+        auto sdist = SoundDist(sp->pos.X, sp->pos.y, sp->pos.z, voc[amb->vocIndex].voc_distance);
 
         if (sdist < 255 && amb->vocIndex == DIGI_WHIPME)
         {
             PLAYERp pp = Player + screenpeek;
-            if (!FAFcansee(sp->pos.x, sp->pos.y, sp->pos.z, sp->sector(), pp->posx, pp->posy, pp->posz, pp->cursector))
+            if (!FAFcansee(sp->pos.X, sp->pos.y, sp->pos.z, sp->sector(), pp->posx, pp->posy, pp->posz, pp->cursector))
             {
                 sdist = 255;
             }
@@ -560,7 +560,7 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
             // Can the ambient sound see the player?  If not, tone it down some.
             if ((chanflags & CHANF_LOOP))
             {
-                if (!FAFcansee(vpos->x, vpos->y, vpos->z, sp->sector(), pp->posx, pp->posy, pp->posz, pp->cursector))
+                if (!FAFcansee(vpos->X, vpos->y, vpos->z, sp->sector(), pp->posx, pp->posy, pp->posz, pp->cursector))
                 {
                     auto distvec = npos - campos;
                     npos = campos + distvec * 1.75f;  // Play more quietly
@@ -573,7 +573,7 @@ void SWSoundEngine::CalcPosVel(int type, const void* source, const float pt[3], 
         {
             // For unpanned sounds the volume must be set directly and the position taken from the listener.
             *pos = campos;
-            auto sdist = SoundDist(vpos->x, vpos->y, vpos->z, voc[chanSound].voc_distance);
+            auto sdist = SoundDist(vpos->X, vpos->y, vpos->z, voc[chanSound].voc_distance);
             if (chan) SetVolume(chan, (255 - sdist) * (1 / 255.f));
         }
 

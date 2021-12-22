@@ -1422,7 +1422,7 @@ void checkplayerhurt_r(struct player_struct* p, const Collision &coll)
 	case BIGFORCE:
 		p->hurt_delay = 26;
 		fi.checkhitwall(p->GetActor(), wal,
-			p->pos.x + p->angle.ang.bcos(-9),
+			p->pos.X + p->angle.ang.bcos(-9),
 			p->pos.y + p->angle.ang.bsin(-9),
 			p->pos.z, -1);
 		break;
@@ -2412,11 +2412,11 @@ void checkhitsprite_r(DDukeActor* targ, DDukeActor* proj)
 				if (ps[p].newOwner != nullptr)
 				{
 					ps[p].newOwner = nullptr;
-					ps[p].pos.x = ps[p].oposx;
+					ps[p].pos.X = ps[p].oposx;
 					ps[p].pos.y = ps[p].oposy;
 					ps[p].pos.z = ps[p].oposz;
 
-					updatesector(ps[p].pos.x, ps[p].pos.y, &ps[p].cursector);
+					updatesector(ps[p].pos.X, ps[p].pos.y, &ps[p].cursector);
 
 					DukeStatIterator it(STAT_EFFECTOR);
 					while (auto act = it.Next())
@@ -2574,12 +2574,12 @@ void checksectors_r(int snum)
 		{
 			neartag(p->pos, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280, 1);
 			if (near.actor() == nullptr && near.hitWall == nullptr && near.hitSector == nullptr)
-				neartag({ p->pos.x, p->pos.y, p->pos.z + (8 << 8) }, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280, 1);
+				neartag({ p->pos.X, p->pos.y, p->pos.z + (8 << 8) }, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280, 1);
 			if (near.actor() == nullptr && near.hitWall == nullptr && near.hitSector == nullptr)
-				neartag({ p->pos.x, p->pos.y, p->pos.z + (16 << 8) }, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280, 1);
+				neartag({ p->pos.X, p->pos.y, p->pos.z + (16 << 8) }, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280, 1);
 			if (near.actor() == nullptr && near.hitWall == nullptr && near.hitSector == nullptr)
 			{
-				neartag({ p->pos.x, p->pos.y, p->pos.z + (16 << 8) }, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280, 3);
+				neartag({ p->pos.X, p->pos.y, p->pos.z + (16 << 8) }, p->GetActor()->sector(), p->angle.oang.asbuild(), near, 1280, 3);
 				if (near.actor() != nullptr)
 				{
 					switch (near.actor()->spr.picnum)

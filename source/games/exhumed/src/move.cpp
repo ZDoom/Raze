@@ -901,7 +901,7 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
 
     vec3_t pos;
 
-    pos.x = sBlockInfo[nBlock].x;
+    pos.X = sBlockInfo[nBlock].x;
     int x_b = sBlockInfo[nBlock].x;
 
     pos.y = sBlockInfo[nBlock].y;
@@ -932,7 +932,7 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
     clipmove(pos, &pSectorB, nXVect, nYVect, pBlockInfo->field_8, 0, 0, CLIPMASK1, scratch);
 
     int yvect = pos.y - y_b;
-    int xvect = pos.x - x_b;
+    int xvect = pos.X - x_b;
 
     if (pSectorB != pNextSector && pSectorB != pSector)
     {
@@ -948,7 +948,7 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
             Collision scratch;
             clipmove(pos, &pSectorB, nXVect, nYVect, pBlockInfo->field_8, 0, 0, CLIPMASK1, scratch);
 
-            int ebx = pos.x;
+            int ebx = pos.X;
             int ecx = x_b;
             int edx = pos.y;
             int eax = xvect;
@@ -1008,7 +1008,7 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
 
                 if ((nSectFlag & kSectUnderwater) || pos.z != nZVal || sp->cstat & CSTAT_SPRITE_INVISIBLE)
                 {
-                    pos.x = sp->x;
+                    pos.X = sp->x;
                     pos.y = sp->y;
                     pSectorB = pSector;
 

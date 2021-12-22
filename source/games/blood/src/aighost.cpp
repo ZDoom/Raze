@@ -195,7 +195,7 @@ static void ghostThinkTarget(DBloodActor* actor)
 	{
 		pXSprite->goalAng += 256;
         POINT3D* pTarget = &actor->basePoint;
-		aiSetTarget(actor, pTarget->x, pTarget->y, pTarget->z);
+		aiSetTarget(actor, pTarget->X, pTarget->y, pTarget->z);
 		aiNewState(actor, &ghostTurn);
 		return;
 	}

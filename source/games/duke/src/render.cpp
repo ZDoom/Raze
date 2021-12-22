@@ -327,7 +327,7 @@ void displayrooms(int snum, double smoothratio)
 		else
 #endif
 		{
-			cposx = interpolatedvalue(p->oposx, p->pos.x, smoothratio);
+			cposx = interpolatedvalue(p->oposx, p->pos.X, smoothratio);
 			cposy = interpolatedvalue(p->oposy, p->pos.y, smoothratio);
 			cposz = interpolatedvalue(p->oposz, p->pos.z, smoothratio);;
 			if (SyncInput())
@@ -350,7 +350,7 @@ void displayrooms(int snum, double smoothratio)
 			auto spr = &p->newOwner->spr;
 			cang = buildang(spr->interpolatedang(smoothratio));
 			choriz = buildhoriz(spr->shade);
-			cposx = spr->pos.x;
+			cposx = spr->pos.X;
 			cposy = spr->pos.y;
 			cposz = spr->pos.z;
 			sect = spr->sector();

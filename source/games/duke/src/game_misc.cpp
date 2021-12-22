@@ -60,7 +60,7 @@ FString GameInterface::GetCoordString()
 	FString out;
 
 	out.Format("pos= %d, %d, %d - angle = %2.3f - sector = %d, lotag = %d, hitag = %d",
-		ps[snum].pos.x, ps[snum].pos.y, ps[snum].pos.z, ps[snum].angle.ang.asdeg(), sectnum(ps[snum].cursector),
+		ps[snum].pos.X, ps[snum].pos.y, ps[snum].pos.z, ps[snum].angle.ang.asdeg(), sectnum(ps[snum].cursector),
 		ps[snum].cursector->lotag, ps[snum].cursector->hitag);
 
 	return out;
@@ -270,7 +270,7 @@ void drawoverlays(double smoothratio)
 				}
 				else
 				{
-					cposx = interpolatedvalue(pp->oposx, pp->pos.x, smoothratio);
+					cposx = interpolatedvalue(pp->oposx, pp->pos.X, smoothratio);
 					cposy = interpolatedvalue(pp->oposy, pp->pos.y, smoothratio);
 					cang = (!SyncInput() ? pp->angle.ang : interpolatedangle(pp->angle.oang, pp->angle.ang, smoothratio)).asbuild();
 				}

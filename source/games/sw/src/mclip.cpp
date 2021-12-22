@@ -72,15 +72,15 @@ Collision MultiClipMove(PLAYERp pp, int z, int floor_dist)
             min_dist = 0;
             min_ndx = i;
             // ox is where it should be
-            opos[i].x = pos[i].x = pp->posx + MulScale(sop->clipbox_vdist[i], bcos(ang), 14);
+            opos[i].X = pos[i].X = pp->posx + MulScale(sop->clipbox_vdist[i], bcos(ang), 14);
             opos[i].y = pos[i].y = pp->posy + MulScale(sop->clipbox_vdist[i], bsin(ang), 14);
 
             // spos.x is where it hit
-            pos[i].x = spos.x;
+            pos[i].X = spos.X;
             pos[i].y = spos.y;
 
             // see the dist moved
-            dist = ksqrt(SQ(pos[i].x - opos[i].x) + SQ(pos[i].y - opos[i].y));
+            dist = ksqrt(SQ(pos[i].X - opos[i].X) + SQ(pos[i].y - opos[i].y));
 
             // save it off
             if (dist < min_dist)
@@ -100,7 +100,7 @@ Collision MultiClipMove(PLAYERp pp, int z, int floor_dist)
             clipmove(pos[i], &pp->cursector, pp->xvect, pp->yvect, (int)sop->clipbox_dist[i], Z(4), floor_dist, CLIPMASK_PLAYER, coll);
 
             // save the dist moved
-            dist = ksqrt(SQ(pos[i].x - opos[i].x) + SQ(pos[i].y - opos[i].y));
+            dist = ksqrt(SQ(pos[i].X - opos[i].X) + SQ(pos[i].y - opos[i].y));
 
             if (dist < min_dist)
             {
@@ -112,7 +112,7 @@ Collision MultiClipMove(PLAYERp pp, int z, int floor_dist)
     }
 
     // put posx and y off from offset
-    pp->posx += pos[min_ndx].x - opos[min_ndx].x;
+    pp->posx += pos[min_ndx].X - opos[min_ndx].X;
     pp->posy += pos[min_ndx].y - opos[min_ndx].y;
 
     return min_ret;

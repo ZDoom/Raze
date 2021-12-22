@@ -107,7 +107,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 {
 	if (arc.BeginObject(keyname))
 	{
-		arc("posx", w.pos.x)
+		arc("posx", w.pos.X)
 			("posy", w.pos.y)
 			("posz", w.pos.z)
 			("angle", w.angle)
@@ -277,7 +277,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 			.EndObject();
 
 		w.invdisptime = 0;
-		w.oposx = w.pos.x;
+		w.oposx = w.pos.X;
 		w.oposy = w.pos.y;
 		w.oposz = w.pos.z;
 		w.opyoff = w.pyoff;

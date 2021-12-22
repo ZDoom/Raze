@@ -316,12 +316,12 @@ void HWDrawInfo::DispatchSprites()
 
 		if (actor->sx().flags & SPREXT_AWAY1)
 		{
-			tspr->pos.x += bcos(tspr->ang, -13);
+			tspr->pos.X += bcos(tspr->ang, -13);
 			tspr->pos.y += bsin(tspr->ang, -13);
 		}
 		else if (actor->sx().flags & SPREXT_AWAY2)
 		{
-			tspr->pos.x -= bcos(tspr->ang, -13);
+			tspr->pos.X -= bcos(tspr->ang, -13);
 			tspr->pos.y -= bsin(tspr->ang, -13);
 		}
 

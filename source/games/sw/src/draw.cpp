@@ -997,7 +997,7 @@ void CircleCamera(int *nx, int *ny, int *nz, sectortype** vsect, binangle *nang,
 
     sp->cstat = bakcstat;              // Restore cstat
 
-    hx = hit.hitpos.x - (*nx);
+    hx = hit.hitpos.X - (*nx);
     hy = hit.hitpos.y - (*ny);
 
     // If something is in the way, make pp->circle_camera_dist lower if necessary

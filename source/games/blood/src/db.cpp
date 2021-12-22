@@ -735,6 +735,6 @@ void qloadboard(const char* filename, char flags, vec3_t* dapos, int16_t* daang)
 {
     Blood::BloodSpawnSpriteDef sprites;
     sectortype* sp;
-    Blood::dbLoadMap(filename, &dapos->x, &dapos->y, &dapos->z, daang, &sp, nullptr, sprites);
+    Blood::dbLoadMap(filename, &dapos->X, &dapos->y, &dapos->z, daang, &sp, nullptr, sprites);
 }
     

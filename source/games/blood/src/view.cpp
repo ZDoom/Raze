@@ -82,7 +82,7 @@ void viewCorrectViewOffsets(int nPlayer, vec3_t const *oldpos)
 {
     PLAYER *pPlayer = &gPlayer[nPlayer];
     VIEW *pView = &gPrevView[nPlayer];
-    pView->x += pPlayer->pSprite->x-oldpos->x;
+    pView->x += pPlayer->pSprite->x-oldpos->X;
     pView->y += pPlayer->pSprite->y-oldpos->y;
     pView->viewz += pPlayer->pSprite->z-oldpos->z;
 }

@@ -536,10 +536,10 @@ void neartag(const vec3_t& sv, sectortype* sect, int ange, HitInfoBase& result, 
 {
     const int32_t vx = MulScale(bcos(ange), neartagrange, 14);
     const int32_t vy = MulScale(bsin(ange), neartagrange, 14);
-    vec3_t hitv = { sv.x+vx, sv.y+vy, 0 };
+    vec3_t hitv = { sv.X+vx, sv.y+vy, 0 };
 
     result.clearObj();
-    result.hitpos.x = 0;
+    result.hitpos.X = 0;
 
     if (!sect || (tagsearch & 3) == 0)
         return;
@@ -567,16 +567,16 @@ void neartag(const vec3_t& sv, sectortype* sect, int ange, HitInfoBase& result, 
             if ((tagsearch & 2) && wal->hitag) good |= 2;
 
             if ((good == 0) && (!wal->twoSided())) continue;
-            if ((coord_t)(x1 - sv.x) * (y2 - sv.y) < (coord_t)(x2 - sv.x) * (y1 - sv.y)) continue;
+            if ((coord_t)(x1 - sv.X) * (y2 - sv.y) < (coord_t)(x2 - sv.X) * (y1 - sv.y)) continue;
 
-            if (lintersect(sv.x, sv.y, sv.z, hitv.x, hitv.y, hitv.z, x1, y1, x2, y2, &intx, &inty, &intz) == 1)
+            if (lintersect(sv.X, sv.y, sv.z, hitv.X, hitv.y, hitv.z, x1, y1, x2, y2, &intx, &inty, &intz) == 1)
             {
                 if (good != 0)
                 {
                     if (good & 1) result.hitSector = nextsect;
                     if (good & 2) result.hitWall = wal;
-                    result.hitpos.x = DMulScale(intx - sv.x, bcos(ange), inty - sv.y, bsin(ange), 14);
-                    hitv.x = intx; hitv.y = inty; hitv.z = intz;
+                    result.hitpos.X = DMulScale(intx - sv.X, bcos(ange), inty - sv.y, bsin(ange), 14);
+                    hitv.X = intx; hitv.y = inty; hitv.z = intz;
                 }
 
                 if (wal->twoSided())
@@ -602,7 +602,7 @@ void neartag(const vec3_t& sv, sectortype* sect, int ange, HitInfoBase& result, 
                 if (try_facespr_intersect(spr, sv, vx, vy, 0, &hitv, 1))
                 {
                     result.hitActor = actor;
-                    result.hitpos.x = DMulScale(hitv.x-sv.x, bcos(ange), hitv.y-sv.y, bsin(ange), 14);
+                    result.hitpos.X = DMulScale(hitv.X-sv.X, bcos(ange), hitv.y-sv.y, bsin(ange), 14);
                 }
             }
         }

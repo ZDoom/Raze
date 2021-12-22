@@ -218,7 +218,7 @@ void StartLevel(MapRecord* level, bool newgame)
 #endif
 	//drawLoadingScreen();
 	BloodSpawnSpriteDef sprites;
-	dbLoadMap(currentLevel->fileName, (int*)&startpos.x, (int*)&startpos.y, (int*)&startpos.z, &startang, &startsector, nullptr, sprites);
+	dbLoadMap(currentLevel->fileName, (int*)&startpos.X, (int*)&startpos.y, (int*)&startpos.z, &startang, &startsector, nullptr, sprites);
 	SECRET_SetMapName(currentLevel->DisplayName(), currentLevel->name);
 	STAT_NewLevel(currentLevel->fileName);
 	wsrand(dbReadMapCRC(currentLevel->LabelName()));
@@ -259,9 +259,9 @@ void StartLevel(MapRecord* level, bool newgame)
 		Printf(PRINT_NONOTIFY, "> Modern types erased: %d.\n", modernTypesErased);
 #endif
 
-	startpos.z = getflorzofslopeptr(startsector, startpos.x, startpos.y);
+	startpos.z = getflorzofslopeptr(startsector, startpos.X, startpos.y);
 	for (int i = 0; i < kMaxPlayers; i++) {
-		gStartZone[i].x = startpos.x;
+		gStartZone[i].x = startpos.X;
 		gStartZone[i].y = startpos.y;
 		gStartZone[i].z = startpos.z;
 		gStartZone[i].sector = startsector;
@@ -270,13 +270,13 @@ void StartLevel(MapRecord* level, bool newgame)
 #ifdef NOONE_EXTENSIONS
 		// Create spawn zones for players in teams mode.
 		if (gModernMap && i <= kMaxPlayers / 2) {
-			gStartZoneTeam1[i].x = startpos.x;
+			gStartZoneTeam1[i].x = startpos.X;
 			gStartZoneTeam1[i].y = startpos.y;
 			gStartZoneTeam1[i].z = startpos.z;
 			gStartZoneTeam1[i].sector = startsector;
 			gStartZoneTeam1[i].ang = startang;
 
-			gStartZoneTeam2[i].x = startpos.x;
+			gStartZoneTeam2[i].x = startpos.X;
 			gStartZoneTeam2[i].y = startpos.y;
 			gStartZoneTeam2[i].z = startpos.z;
 			gStartZoneTeam2[i].sector = startsector;

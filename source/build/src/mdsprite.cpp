@@ -1089,7 +1089,7 @@ void md3_vox_calcmat_common(tspriteptr_t tspr, const FVector3 *a0, float f, floa
     float k0, k1, k2, k3, k4, k5, k6, k7;
 
     auto& sext = tspr->ownerActor->sx();
-    k0 = ((float)(tspr->x+sext.position_offset.x-globalposx))*f*(1.f/1024.f);
+    k0 = ((float)(tspr->x+sext.position_offset.X-globalposx))*f*(1.f/1024.f);
     k1 = ((float)(tspr->y+sext.position_offset.y-globalposy))*f*(1.f/1024.f);
     k4 = -bsinf(tspr->ang+sext.angoff, -14);
     k5 = bcosf(tspr->ang+sext.angoff, -14);
@@ -1218,7 +1218,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
     // calculations below again, but are needed for the base offsets.
     f = (65536.f*512.f)/(fxdimen*fviewingrange);
     g = 32.f/(fxdimen*gxyaspect);
-    m0.Y *= f; m1.Y *= f; a0.Y = (((float)(tspr->x+sext->position_offset.x-globalposx))*  (1.f/1024.f) + a0.Y)*f;
+    m0.Y *= f; m1.Y *= f; a0.Y = (((float)(tspr->x+sext->position_offset.X-globalposx))*  (1.f/1024.f) + a0.Y)*f;
     m0.X *=-f; m1.X *=-f; a0.X = ((k1     -fglobalposy) * -(1.f/1024.f) + a0.X)*-f;
     m0.Z *= g; m1.Z *= g; a0.Z = ((k0     -fglobalposz) * -(1.f/16384.f) + a0.Z)*g;
 
@@ -1280,8 +1280,8 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
         float f = 1.f/((fxdimen * fviewingrange) * (256.f/(65536.f*128.f)) * (m0.X+m1.X));
         memset(&a0, 0, sizeof(a0));
 
-        if (sext->pivot_offset.x)
-            a0.X = (float) sext->pivot_offset.x * f;
+        if (sext->pivot_offset.X)
+            a0.X = (float) sext->pivot_offset.X * f;
 
         if (sext->pivot_offset.y)  // Compare with SCREEN_FACTORS above
             a0.Y = (float) sext->pivot_offset.y * f;

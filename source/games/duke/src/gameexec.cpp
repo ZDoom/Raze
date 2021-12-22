@@ -326,7 +326,7 @@ void DoPlayer(bool bSet, int lVar1, int lLabelID, int lVar2, DDukeActor* sActor,
 		break;
 
 	case PLAYER_POSX: // oh, my... :( Writing to these has been disabled until I know how to do it without the engine shitting all over itself.
-		if (!bSet) SetGameVarID(lVar2, ps[iPlayer].pos.x, sActor, sPlayer);
+		if (!bSet) SetGameVarID(lVar2, ps[iPlayer].pos.X, sActor, sPlayer);
 		break;
 
 	case PLAYER_POSY:
@@ -1541,12 +1541,12 @@ int ParseState::parse(void)
 		parseifelse(ifcanshoottarget(g_ac, g_p, g_x));
 		break;
 	case concmd_ifcanseetarget:
-		j = cansee(g_ac->spr.x, g_ac->spr.y, g_ac->spr.z - ((krand() & 41) << 8), g_ac->spr.sector(), ps[g_p].pos.x, ps[g_p].pos.y, ps[g_p].pos.z/*-((krand()&41)<<8)*/, ps[g_p].GetActor()->sector());
+		j = cansee(g_ac->spr.x, g_ac->spr.y, g_ac->spr.z - ((krand() & 41) << 8), g_ac->spr.sector(), ps[g_p].pos.X, ps[g_p].pos.y, ps[g_p].pos.z/*-((krand()&41)<<8)*/, ps[g_p].GetActor()->sector());
 		parseifelse(j);
 		if (j) g_ac->timetosleep = SLEEPTIME;
 		break;
 	case concmd_ifnocover:
-		j = cansee(g_ac->spr.x, g_ac->spr.y, g_ac->spr.z, g_ac->spr.sector(), ps[g_p].pos.x, ps[g_p].pos.y, ps[g_p].pos.z, ps[g_p].GetActor()->sector());
+		j = cansee(g_ac->spr.x, g_ac->spr.y, g_ac->spr.z, g_ac->spr.sector(), ps[g_p].pos.X, ps[g_p].pos.y, ps[g_p].pos.z, ps[g_p].GetActor()->sector());
 		parseifelse(j);
 		if (j) g_ac->timetosleep = SLEEPTIME;
 		break;
@@ -2066,11 +2066,11 @@ int ParseState::parse(void)
 		if(!isRR() && ps[g_p].newOwner != nullptr)
 		{
 			ps[g_p].newOwner = nullptr;
-			ps[g_p].pos.x = ps[g_p].oposx;
+			ps[g_p].pos.X = ps[g_p].oposx;
 			ps[g_p].pos.y = ps[g_p].oposy;
 			ps[g_p].pos.z = ps[g_p].oposz;
 			ps[g_p].angle.restore();
-			updatesector(ps[g_p].pos.x,ps[g_p].pos.y,&ps[g_p].cursector);
+			updatesector(ps[g_p].pos.X,ps[g_p].pos.y,&ps[g_p].cursector);
 
 			DukeStatIterator it(STAT_ACTOR);
 			while (auto j = it.Next())
@@ -2245,12 +2245,12 @@ int ParseState::parse(void)
 		{
 			// I am not convinced this is even remotely smart to be executed from here..
 			pickrandomspot(g_p);
-			g_ac->spr.x = ps[g_p].bobposx = ps[g_p].oposx = ps[g_p].pos.x;
+			g_ac->spr.x = ps[g_p].bobposx = ps[g_p].oposx = ps[g_p].pos.X;
 			g_ac->spr.y = ps[g_p].bobposy = ps[g_p].oposy = ps[g_p].pos.y;
 			g_ac->spr.z = ps[g_p].oposz = ps[g_p].pos.z;
 			g_ac->spr.backuppos();
-			updatesector(ps[g_p].pos.x, ps[g_p].pos.y, &ps[g_p].cursector);
-			SetActor(ps[g_p].GetActor(), { ps[g_p].pos.x, ps[g_p].pos.y, ps[g_p].pos.z + gs.playerheight });
+			updatesector(ps[g_p].pos.X, ps[g_p].pos.y, &ps[g_p].cursector);
+			SetActor(ps[g_p].GetActor(), { ps[g_p].pos.X, ps[g_p].pos.y, ps[g_p].pos.z + gs.playerheight });
 			g_ac->spr.cstat = CSTAT_SPRITE_BLOCK_ALL;
 
 			g_ac->spr.shade = -12;
@@ -2447,9 +2447,9 @@ int ParseState::parse(void)
 			else if( (l& pfacing) )
 			{
 				if (g_ac->spr.picnum == TILE_APLAYER && ud.multimode > 1)
-					j = getincangle(ps[otherp].angle.ang.asbuild(), getangle(ps[g_p].pos.x - ps[otherp].pos.x, ps[g_p].pos.y - ps[otherp].pos.y));
+					j = getincangle(ps[otherp].angle.ang.asbuild(), getangle(ps[g_p].pos.X - ps[otherp].pos.X, ps[g_p].pos.y - ps[otherp].pos.y));
 				else
-					j = getincangle(ps[g_p].angle.ang.asbuild(), getangle(g_ac->spr.x - ps[g_p].pos.x, g_ac->spr.y - ps[g_p].pos.y));
+					j = getincangle(ps[g_p].angle.ang.asbuild(), getangle(g_ac->spr.x - ps[g_p].pos.X, g_ac->spr.y - ps[g_p].pos.y));
 
 				if( j > -128 && j < 128 )
 					j = 1;
@@ -2813,7 +2813,7 @@ int ParseState::parse(void)
 	case concmd_pstomp:
 		insptr++;
 		if( ps[g_p].knee_incs == 0 && ps[g_p].GetActor()->spr.xrepeat >= (isRR()? 9: 40) )
-			if( cansee(g_ac->spr.x,g_ac->spr.y,g_ac->spr.z-(4<<8),g_ac->spr.sector(),ps[g_p].pos.x,ps[g_p].pos.y,ps[g_p].pos.z+(16<<8),ps[g_p].GetActor()->spr.sector()) )
+			if( cansee(g_ac->spr.x,g_ac->spr.y,g_ac->spr.z-(4<<8),g_ac->spr.sector(),ps[g_p].pos.X,ps[g_p].pos.y,ps[g_p].pos.z+(16<<8),ps[g_p].GetActor()->spr.sector()) )
 		{
 			ps[g_p].knee_incs = 1;
 			if(ps[g_p].weapon_pos == 0)

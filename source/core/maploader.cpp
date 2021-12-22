@@ -289,7 +289,7 @@ void validateSprite(spritetype& spr, int sectnum, int index)
 
 static void ReadSpriteV7(FileReader& fr, spritetype& spr, int& secno)
 {
-	spr.pos.x = fr.ReadInt32();
+	spr.pos.X = fr.ReadInt32();
 	spr.pos.y = fr.ReadInt32();
 	spr.pos.z = fr.ReadInt32();
 	spr.cstat = ESpriteFlags::FromInt(fr.ReadUInt16());
@@ -317,7 +317,7 @@ static void ReadSpriteV7(FileReader& fr, spritetype& spr, int& secno)
 
 static void ReadSpriteV6(FileReader& fr, spritetype& spr, int& secno)
 {
-	spr.pos.x = fr.ReadInt32();
+	spr.pos.X = fr.ReadInt32();
 	spr.pos.y = fr.ReadInt32();
 	spr.pos.z = fr.ReadInt32();
 	spr.cstat = ESpriteFlags::FromInt(fr.ReadUInt16());
@@ -345,7 +345,7 @@ static void ReadSpriteV6(FileReader& fr, spritetype& spr, int& secno)
 
 static void ReadSpriteV5(FileReader& fr, spritetype& spr, int& secno)
 {
-	spr.pos.x = fr.ReadInt32();
+	spr.pos.X = fr.ReadInt32();
 	spr.pos.y = fr.ReadInt32();
 	spr.pos.z = fr.ReadInt32();
 	spr.cstat = ESpriteFlags::FromInt(fr.ReadUInt16());
@@ -426,7 +426,7 @@ void loadMap(const char* filename, int flags, vec3_t* pos, int16_t* ang, int* cu
 		I_Error("%s: Invalid map format, expected 5-9, got %d", filename, mapversion);
 	}
 
-	pos->x = fr.ReadInt32();
+	pos->X = fr.ReadInt32();
 	pos->y = fr.ReadInt32();
 	pos->z = fr.ReadInt32();
 	*ang = fr.ReadInt16() & 2047;
@@ -493,7 +493,7 @@ void loadMap(const char* filename, int flags, vec3_t* pos, int16_t* ang, int* cu
 
 	//Must be last.
 	fixSectors();
-	updatesector(pos->x, pos->y, cursectnum);
+	updatesector(pos->X, pos->y, cursectnum);
 	guniqhudid = 0;
 	fr.Seek(0, FileReader::SeekSet);
 	auto buffer = fr.Read();

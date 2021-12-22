@@ -46,7 +46,7 @@ inline FSerializer& Serialize(FSerializer& arc, const char* keyname, THitInfo<T>
 		arc("sect", w.hitSector)
 			("sprite", w.hitActor)
 			("wall", w.hitWall)
-			("x", w.hitpos.x)
+			("x", w.hitpos.X)
 			("y", w.hitpos.y)
 			("z", w.hitpos.z)
 			.EndObject();

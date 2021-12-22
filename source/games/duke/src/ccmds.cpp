@@ -115,7 +115,7 @@ void GameInterface::WarpToCoords(int x, int y, int z, int ang, int horz)
 {
 	player_struct* p = &ps[myconnectindex];
 
-	p->oposx = p->pos.x = x;
+	p->oposx = p->pos.X = x;
 	p->oposy = p->pos.y = y;
 	p->oposz = p->pos.z = z;
 

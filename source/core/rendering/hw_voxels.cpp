@@ -77,7 +77,7 @@ static voxmodel_t* voxload(int lumpnum)
 		vm->piv.X = float(pivot.X);
 		vm->piv.Y = float(pivot.Y);
 		vm->piv.Z = float(pivot.Z);
-		vm->siz.x = voxel->Mips[0].SizeX;
+		vm->siz.X = voxel->Mips[0].SizeX;
 		vm->siz.y = voxel->Mips[0].SizeY;
 		vm->siz.z = voxel->Mips[0].SizeZ;
 		vm->is8bit = true;

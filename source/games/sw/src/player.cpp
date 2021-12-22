@@ -1280,7 +1280,7 @@ void DoPlayerTeleportPause(PLAYERp pp)
 void DoPlayerTeleportToSprite(PLAYERp pp, vec3_t* sp, int ang)
 {
     pp->angle.ang = pp->angle.oang = buildang(ang);
-    pp->posx = pp->oposx = pp->oldposx = sp->x;
+    pp->posx = pp->oposx = pp->oldposx = sp->X;
     pp->posy = pp->oposy = pp->oldposy = sp->y;
 
     //getzsofslopeptr(sp->sector(), pp->posx, pp->posy, &cz, &fz);
@@ -2677,7 +2677,7 @@ void DoPlayerMoveVehicle(PLAYERp pp)
                     { MOVEx(256, pp->angle.ang.asbuild()), MOVEy(256, pp->angle.ang.asbuild()), 0 },
                     hit, CLIPMASK_PLAYER);
 
-                if (FindDistance2D(hit.hitpos.x - hit_pos.x, hit.hitpos.y - hit_pos.y) < 800)
+                if (FindDistance2D(hit.hitpos.X - hit_pos.X, hit.hitpos.y - hit_pos.y) < 800)
                 {
                     if (hit.hitWall)
                         u->coll.setWall(wallnum(hit.hitWall));
@@ -3437,7 +3437,7 @@ int DoPlayerWadeSuperJump(PLAYERp pp)
 
             if (hit.hitSector != nullptr && labs(hit.hitSector->floorz - pp->posz) < Z(50))
             {
-                if (Distance(pp->posx, pp->posy, hit.hitpos.x, hit.hitpos.y) < ((((int)pp->Actor()->spr.clipdist)<<2) + 256))
+                if (Distance(pp->posx, pp->posy, hit.hitpos.X, hit.hitpos.y) < ((((int)pp->Actor()->spr.clipdist)<<2) + 256))
                     return true;
             }
         }
@@ -3745,7 +3745,7 @@ bool PlayerOnLadder(PLAYERp pp)
     {
         neartag(pp->pos, pp->cursector, NORM_ANGLE(pp->angle.ang.asbuild() + angles[i]), near, 600, NTAG_SEARCH_LO_HI);
 
-        if (near.hitWall == nullptr || near.hitpos.x < 100 || near.hitWall->lotag != TAG_WALL_CLIMB)
+        if (near.hitWall == nullptr || near.hitpos.X < 100 || near.hitWall->lotag != TAG_WALL_CLIMB)
             return false;
 
         FAFhitscan(pp->posx, pp->posy, pp->posz, pp->cursector,
@@ -3754,7 +3754,7 @@ bool PlayerOnLadder(PLAYERp pp)
                    0,
                    hit, CLIPMASK_MISSILE);
 
-        dist = DIST(pp->posx, pp->posy, hit.hitpos.x, hit.hitpos.y);
+        dist = DIST(pp->posx, pp->posy, hit.hitpos.X, hit.hitpos.y);
 
         if (hit.actor() != nullptr)
         {

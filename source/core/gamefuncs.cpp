@@ -51,7 +51,7 @@ bool calcChaseCamPos(int* px, int* py, int* pz, spritetype* pspr, sectortype** p
 	hitscan({ *px, *py, *pz }, *psect, { nx, ny, nz }, hitinfo, CLIPMASK1);
 	pspr->cstat = bakcstat;
 
-	int hx = hitinfo.hitpos.x - *px;
+	int hx = hitinfo.hitpos.X - *px;
 	int hy = hitinfo.hitpos.y - *py;
 
 	if (*psect == nullptr)
@@ -408,7 +408,7 @@ FSerializer& Serialize(FSerializer& arc, const char* key, vec3_t& c, vec3_t* def
 	if (arc.isWriting() && def && !memcmp(&c, def, sizeof(c))) return arc;
 	if (arc.BeginObject(key))
 	{
-		arc("x", c.x, def ? &def->x : nullptr)
+		arc("x", c.X, def ? &def->X : nullptr)
 			("y", c.y, def ? &def->y : nullptr)
 			("z", c.z, def ? &def->z : nullptr)
 			.EndObject();

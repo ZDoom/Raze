@@ -145,7 +145,7 @@ void BuildSnake(int nPlayer, int zVal)
     hitscan({ x, y, z }, pPlayerSprite->sector(), { bcos(nAngle), bsin(nAngle), 0 }, hit, CLIPMASK1);
 
     uint32_t yDiff = abs(hit.hitpos.y - y);
-    uint32_t xDiff = abs(hit.hitpos.x - x);
+    uint32_t xDiff = abs(hit.hitpos.X - x);
 
     uint32_t sqrtNum = xDiff * xDiff + yDiff * yDiff;
 
@@ -159,10 +159,10 @@ void BuildSnake(int nPlayer, int zVal)
 
     if (nSqrt < bsin(512, -4))
     {
-        BackUpBullet(&hit.hitpos.x, &hit.hitpos.y, nAngle);
+        BackUpBullet(&hit.hitpos.X, &hit.hitpos.y, nAngle);
         auto pActor = insertActor(hit.hitSector, 202);
 		auto pSprite = &pActor->s();
-        pSprite->x = hit.hitpos.x;
+        pSprite->x = hit.hitpos.X;
         pSprite->y = hit.hitpos.y;
         pSprite->z = hit.hitpos.z;
 

@@ -2819,7 +2819,7 @@ void DoTornadoObject(SECTOR_OBJECTp sop)
 
     auto cursect = sop->op_main_sector; // for sop->vel
     floor_dist = (abs(cursect->ceilingz - cursect->floorz)) >> 2;
-    pos.x = sop->xmid;
+    pos.X = sop->xmid;
     pos.y = sop->ymid;
     pos.z = floor_dist;
 
@@ -2833,7 +2833,7 @@ void DoTornadoObject(SECTOR_OBJECTp sop)
     }
 
     TornadoSpin(sop);
-    RefreshPoints(sop, pos.x - sop->xmid, pos.y - sop->ymid, true);
+    RefreshPoints(sop, pos.X - sop->xmid, pos.y - sop->ymid, true);
 }
 
 void DoAutoTurretObject(SECTOR_OBJECTp sop)
@@ -3235,7 +3235,7 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
         {
             neartag({ sp->x, sp->y, z[i] }, sp->sector(), sp->ang, near, 1024, NTAG_SEARCH_LO_HI);
 
-            if (near.actor() != nullptr && near.hitpos.x < 1024)
+            if (near.actor() != nullptr && near.hitpos.X < 1024)
             {
                 if (OperateSprite(near.actor(), false))
                 {
@@ -3249,7 +3249,7 @@ bool ActorTrackDecide(TRACK_POINTp tpoint, DSWActor* actor)
             }
         }
 
-        if (near.hitSector != nullptr && near.hitpos.x < 1024)
+        if (near.hitSector != nullptr && near.hitpos.X < 1024)
         {
             if (OperateSector(near.hitSector, false))
             {

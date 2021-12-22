@@ -175,7 +175,7 @@ int hits(DDukeActor* actor)
 	else zoff = 0;
 
 	hitscan(actor->spr.pos, actor->spr.sector(), { bcos(actor->spr.ang), bsin(actor->spr.ang), 0 }, hit, CLIPMASK1);
-	return (FindDistance2D(hit.hitpos.x - actor->spr.x, hit.hitpos.y - actor->spr.y));
+	return (FindDistance2D(hit.hitpos.X - actor->spr.x, hit.hitpos.y - actor->spr.y));
 }
 
 //---------------------------------------------------------------------------
@@ -200,7 +200,7 @@ int hitasprite(DDukeActor* actor, DDukeActor** hitsp)
 	if (hit.hitWall != nullptr && (hit.hitWall->cstat & CSTAT_WALL_MASKED) && badguy(actor))
 		return((1 << 30));
 
-	return (FindDistance2D(hit.hitpos.x - actor->spr.x, hit.hitpos.y - actor->spr.y));
+	return (FindDistance2D(hit.hitpos.X - actor->spr.x, hit.hitpos.y - actor->spr.y));
 }
 
 //---------------------------------------------------------------------------
@@ -216,7 +216,7 @@ int hitawall(struct player_struct* p, walltype** hitw)
 	hitscan(p->pos, p->cursector, { p->angle.ang.bcos(), p->angle.ang.bsin(), 0 }, hit, CLIPMASK0);
 	if (hitw) *hitw = hit.hitWall;
 
-	return (FindDistance2D(hit.hitpos.x - p->pos.x, hit.hitpos.y - p->pos.y));
+	return (FindDistance2D(hit.hitpos.X - p->pos.X, hit.hitpos.y - p->pos.y));
 }
 
 
@@ -488,7 +488,7 @@ void footprints(int snum)
 			while (auto act = it.Next())
 			{
 				if (act->spr.picnum == TILE_FOOTPRINTS || act->spr.picnum == TILE_FOOTPRINTS2 || act->spr.picnum == TILE_FOOTPRINTS3 || act->spr.picnum == TILE_FOOTPRINTS4)
-					if (abs(act->spr.x - p->pos.x) < 384)
+					if (abs(act->spr.x - p->pos.X) < 384)
 						if (abs(act->spr.y - p->pos.y) < 384)
 						{
 							j = 1;
@@ -606,7 +606,7 @@ void playerisdead(int snum, int psectlotag, int fz, int cz)
 
 	p->horizon.horizoff = p->horizon.horiz = q16horiz(0);
 
-	updatesector(p->pos.x, p->pos.y, &p->cursector);
+	updatesector(p->pos.X, p->pos.y, &p->cursector);
 
 	pushmove(&p->pos, &p->cursector, 128L, (4 << 8), (20 << 8), CLIPMASK0);
 
@@ -745,17 +745,17 @@ void player_struct::backuppos(bool noclipping)
 {
 	if (!noclipping)
 	{
-		oposx = pos.x;
+		oposx = pos.X;
 		oposy = pos.y;
 	}
 	else
 	{
-		pos.x = oposx;
+		pos.X = oposx;
 		pos.y = oposy;
 	}
 
 	oposz = pos.z;
-	bobposx = pos.x;
+	bobposx = pos.X;
 	bobposy = pos.y;
 	opyoff = pyoff;
 }
@@ -996,7 +996,7 @@ void shootbloodsplat(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 	hitscan({ sx, sy, sz }, sectp, { bcos(sa), bsin(sa), zvel << 6 }, hit, CLIPMASK1);
 
 	// oh my...
-	if (FindDistance2D(sx - hit.hitpos.x, sy - hit.hitpos.y) < 1024 &&
+	if (FindDistance2D(sx - hit.hitpos.X, sy - hit.hitpos.y) < 1024 &&
 		(hit.hitWall != nullptr && hit.hitWall->overpicnum != BIGFORCE) &&
 		((hit.hitWall->twoSided() && hit.hitSector != nullptr &&
 			hit.hitWall->nextSector()->lotag == 0 &&
@@ -1028,7 +1028,7 @@ void shootbloodsplat(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 					spawned->spr.xvel = -12;
 					auto delta = hit.hitWall->delta();
 					spawned->spr.ang = getangle(-delta.X, -delta.Y) + 512; // note the '-' sign here!
-					spawned->spr.x = hit.hitpos.x;
+					spawned->spr.x = hit.hitpos.X;
 					spawned->spr.y = hit.hitpos.y;
 					spawned->spr.z = hit.hitpos.z;
 					spawned->spr.cstat |= randomXFlip();

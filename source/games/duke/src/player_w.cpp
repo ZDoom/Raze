@@ -342,7 +342,7 @@ void operateweapon_ww(int snum, ESyncBits actions)
 			}
 
 			auto j = EGS(p->cursector,
-				p->pos.x + p->angle.ang.bcos(-6),
+				p->pos.X + p->angle.ang.bcos(-6),
 				p->pos.y + p->angle.ang.bsin(-6),
 				p->pos.z, HEAVYHBOMB, -16, 9, 9,
 				p->angle.ang.asbuild(), (k + (p->hbomb_hold_delay << 5)), i, p->GetActor(), 1);
