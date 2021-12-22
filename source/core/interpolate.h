@@ -14,6 +14,7 @@ enum EInterpolationType
 	Interp_Wall_Y,
 	
 	Interp_Pan_First,
+	// order of the following 4 flags must match the corresponding sector flags.
 	Interp_Sect_FloorPanX = Interp_Pan_First,
 	Interp_Sect_FloorPanY,
 	Interp_Sect_CeilingPanX,

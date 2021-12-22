@@ -73,12 +73,8 @@ struct Flow
         sectortype* pSector;
     };
     int type;
-    int xdelta;
-    int ydelta;
-    int angcos;
-    int angsin;
-    int xacc;
-    int yacc;
+    float angcos;
+    float angsin;
 };
 
 
@@ -156,12 +152,8 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, Flow& w, Flow* def
     if (arc.BeginObject(keyname))
     {
         arc("type", w.type)
-            ("xdelta", w.xdelta)
-            ("ydelta", w.ydelta)
             ("angcos", w.angcos)
-            ("angsin", w.angsin)
-            ("xacc", w.xacc)
-            ("yacc", w.yacc);
+            ("angsin", w.angsin);
         if (w.type < 2) arc("index", w.pSector);
         else arc("index", w.pWall);
         arc.EndObject();
@@ -664,17 +656,13 @@ void AddFlow(sectortype* pSector, int nSpeed, int b, int nAngle)
 
     int nPic = pSector->floorpicnum;
 
-    sFlowInfo[nFlow].xacc = (tileWidth(nPic) << 14) - 1;
-    sFlowInfo[nFlow].yacc = (tileHeight(nPic) << 14) - 1;
-    sFlowInfo[nFlow].angcos  = -bcos(nAngle) * nSpeed;
-    sFlowInfo[nFlow].angsin = bsin(nAngle) * nSpeed;
+    sFlowInfo[nFlow].angcos  = float(-cos(nAngle * BAngRadian) * nSpeed);
+    sFlowInfo[nFlow].angsin = float(sin(nAngle * BAngRadian) * nSpeed);
     sFlowInfo[nFlow].pSector = pSector;
 
     StartInterpolation(pSector, b ? Interp_Sect_CeilingPanX : Interp_Sect_FloorPanX);
     StartInterpolation(pSector, b ? Interp_Sect_CeilingPanY : Interp_Sect_FloorPanY);
 
-    sFlowInfo[nFlow].ydelta = 0;
-    sFlowInfo[nFlow].xdelta = 0;
     sFlowInfo[nFlow].type = b;
 }
 
@@ -688,26 +676,15 @@ void AddFlow(walltype* pWall, int nSpeed, int b, int nAngle)
     nFlowCount++;
 
 
-    StartInterpolation(pWall, Interp_Wall_PanX);
+    // only moves up or down
     StartInterpolation(pWall, Interp_Wall_PanY);
-
-    if (b == 2) {
-        nAngle = 512;
-    }
-    else {
-        nAngle = 1536;
-    }
 
     int nPic = pWall->picnum;
 
-    sFlowInfo[nFlow].xacc = (tileWidth(nPic) * pWall->xrepeat) << 8;
-    sFlowInfo[nFlow].yacc = (tileHeight(nPic) * pWall->yrepeat) << 8;
-    sFlowInfo[nFlow].angcos = -bcos(nAngle) * nSpeed;
-    sFlowInfo[nFlow].angsin = bsin(nAngle) * nSpeed;
+    sFlowInfo[nFlow].angcos = 0;
+    sFlowInfo[nFlow].angsin = b == 2 ? 1 : -1;
     sFlowInfo[nFlow].pWall = pWall;
 
-    sFlowInfo[nFlow].ydelta = 0;
-    sFlowInfo[nFlow].xdelta = 0;
     sFlowInfo[nFlow].type = b;
 }
 
@@ -715,71 +692,35 @@ void DoFlows()
 {
     for (int i = 0; i < nFlowCount; i++)
     {
-        sFlowInfo[i].xdelta += sFlowInfo[i].angcos;
-        sFlowInfo[i].ydelta += sFlowInfo[i].angsin;
-
         switch (sFlowInfo[i].type)
         {
             case 0:
             {
-                sFlowInfo[i].xdelta &= sFlowInfo[i].xacc;
-                sFlowInfo[i].ydelta &= sFlowInfo[i].yacc;
-
                 auto pSector =sFlowInfo[i].pSector;
-                pSector->setfloorxpan(sFlowInfo[i].xdelta / 16384.f);
-                pSector->setfloorypan(sFlowInfo[i].ydelta / 16384.f);
+                pSector->addfloorxpan(sFlowInfo[i].angcos);
+                pSector->addfloorypan(sFlowInfo[i].angsin);
                 break;
             }
 
             case 1:
             {
                 auto pSector = sFlowInfo[i].pSector;
-
-                pSector->setceilingxpan(sFlowInfo[i].xdelta / 16384.f);
-                pSector->setceilingypan(sFlowInfo[i].ydelta / 16384.f);
-
-                sFlowInfo[i].xdelta &= sFlowInfo[i].xacc;
-                sFlowInfo[i].ydelta &= sFlowInfo[i].yacc;
+                pSector->addceilingxpan(sFlowInfo[i].angcos);
+                pSector->addceilingypan(sFlowInfo[i].angsin);
                 break;
             }
 
             case 2:
             {
                 auto pWall = sFlowInfo[i].pWall;
-
-                pWall->setxpan(sFlowInfo[i].xdelta / 16384.f);
-                pWall->setypan(sFlowInfo[i].ydelta / 16384.f);
-
-                if (sFlowInfo[i].xdelta < 0)
-                {
-                    sFlowInfo[i].xdelta += sFlowInfo[i].xacc;
-                }
-
-                if (sFlowInfo[i].ydelta < 0)
-                {
-                    sFlowInfo[i].ydelta += sFlowInfo[i].yacc;
-                }
-
+                pWall->addypan(sFlowInfo[i].angsin);
                 break;
             }
 
             case 3:
             {
                 auto pWall = sFlowInfo[i].pWall;
-
-                pWall->setxpan(sFlowInfo[i].xdelta / 16384.f);
-                pWall->setypan(sFlowInfo[i].ydelta / 16384.f);
-
-                if (sFlowInfo[i].xdelta >= sFlowInfo[i].xacc)
-                {
-                    sFlowInfo[i].xdelta -= sFlowInfo[i].xacc;
-                }
-
-                if (sFlowInfo[i].ydelta >= sFlowInfo[i].yacc)
-                {
-                    sFlowInfo[i].ydelta -= sFlowInfo[i].yacc;
-                }
-
+                pWall->addypan(sFlowInfo[i].angsin);
                 break;
             }
         }
