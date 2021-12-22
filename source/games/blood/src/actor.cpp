@@ -3838,28 +3838,27 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 	walltype* pWallHit = nullptr;
 
 	actHitcodeToData(hitCode, &gHitInfo, &actorHit, &pWallHit);
-	spritetype* pSpriteHit = actorHit ? &actorHit->s() : nullptr;
 	XSPRITE* pXSpriteHit = actorHit && actorHit->hasX() ? &actorHit->x() : nullptr;
 
 	const THINGINFO* pThingInfo = nullptr;
 	DUDEINFO* pDudeInfo = nullptr;
 
-	if (hitCode == 3 && pSpriteHit)
+	if (hitCode == 3 && actorHit)
 	{
-		switch (pSpriteHit->statnum)
+		switch (actorHit->spr.statnum)
 		{
 		case kStatThing:
-			pThingInfo = &thingInfo[pSpriteHit->type - kThingBase];
+			pThingInfo = &thingInfo[actorHit->spr.type - kThingBase];
 			break;
 		case kStatDude:
-			pDudeInfo = getDudeInfo(pSpriteHit->type);
+			pDudeInfo = getDudeInfo(actorHit->spr.type);
 			break;
 		}
 	}
 	switch (missileActor->spr.type)
 	{
 	case kMissileLifeLeechRegular:
-		if (hitCode == 3 && pSpriteHit && (pThingInfo || pDudeInfo))
+		if (hitCode == 3 && actorHit && (pThingInfo || pDudeInfo))
 		{
 			DAMAGE_TYPE rand1 = (DAMAGE_TYPE)Random(7);
 			int rand2 = (7 + Random(7)) << 4;
@@ -3908,7 +3907,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 
 	case kMissilePukeGreen:
 		seqKill(missileActor);
-		if (hitCode == 3 && pSpriteHit && (pThingInfo || pDudeInfo))
+		if (hitCode == 3 && actorHit && (pThingInfo || pDudeInfo))
 		{
 			int nDamage = (15 + Random(7)) << 4;
 			actDamageSprite(missileOwner, actorHit, kDamageBullet, nDamage);
@@ -3921,7 +3920,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 		sfxPlay3DSound(missileActor->spr.pos.X, missileActor->spr.pos.Y, missileActor->spr.pos.Z, 306, missileActor->spr.sector());
 		GibSprite(missileActor, GIBTYPE_6, NULL, NULL);
 
-		if (hitCode == 3 && pSpriteHit && (pThingInfo || pDudeInfo))
+		if (hitCode == 3 && actorHit && (pThingInfo || pDudeInfo))
 		{
 			int nDamage = (25 + Random(20)) << 4;
 			actDamageSprite(missileOwner, actorHit, kDamageSpirit, nDamage);
@@ -3934,7 +3933,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 		sfxKill3DSound(missileActor, -1, -1);
 		sfxPlay3DSound(missileActor->spr.pos.X, missileActor->spr.pos.Y, missileActor->spr.pos.Z, 306, missileActor->spr.sector());
 
-		if (hitCode == 3 && pSpriteHit && (pThingInfo || pDudeInfo))
+		if (hitCode == 3 && actorHit && (pThingInfo || pDudeInfo))
 		{
 			int nDmgMul = (missileActor->spr.type == kMissileLifeLeechAltSmall) ? 6 : 3;
 			int nDamage = (nDmgMul + Random(nDmgMul)) << 4;
@@ -3945,7 +3944,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 
 	case kMissileFireball:
 	case kMissileFireballNapalm:
-		if (hitCode == 3 && pSpriteHit && (pThingInfo || pDudeInfo))
+		if (hitCode == 3 && actorHit && (pThingInfo || pDudeInfo))
 		{
 			if (pThingInfo && actorHit->spr.type == kThingTNTBarrel && actorHit->xspr.burnTime == 0)
 				evPostActor(actorHit, 0, kCallbackFXFlameLick);
@@ -3963,11 +3962,11 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 
 	case kMissileFlareRegular:
 		sfxKill3DSound(missileActor, -1, -1);
-		if ((hitCode == 3 && pSpriteHit) && (pThingInfo || pDudeInfo))
+		if ((hitCode == 3 && actorHit) && (pThingInfo || pDudeInfo))
 		{
 			if ((pThingInfo && pThingInfo->dmgControl[kDamageBurn] != 0) || (pDudeInfo && pDudeInfo->damageVal[kDamageBurn] != 0))
 			{
-				if (pThingInfo && pSpriteHit->type == kThingTNTBarrel && actorHit->x().burnTime == 0)
+				if (pThingInfo && actorHit->spr.type == kThingTNTBarrel && actorHit->xspr.burnTime == 0)
 					evPostActor(actorHit, 0, kCallbackFXFlameLick);
 
 				actBurnSprite(missileOwner, actorHit, 480);
@@ -3986,12 +3985,12 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 				actDamageSprite(missileOwner, actorHit, kDamageBullet, nDamage);
 			}
 
-			if (surfType[pSpriteHit->picnum] == kSurfFlesh)
+			if (surfType[actorHit->spr.picnum] == kSurfFlesh)
 			{
 				missileActor->spr.picnum = 2123;
 				missileActor->SetTarget(actorHit);
-				pXMissile->targetZ = missileActor->spr.pos.Z - pSpriteHit->pos.Z;
-				pXMissile->goalAng = getangle(missileActor->spr.pos.X - pSpriteHit->pos.X, missileActor->spr.pos.Y - pSpriteHit->pos.Y) - pSpriteHit->ang;
+				pXMissile->targetZ = missileActor->spr.pos.Z - actorHit->spr.pos.Z;
+				pXMissile->goalAng = getangle(missileActor->spr.pos.X - actorHit->spr.pos.X, missileActor->spr.pos.Y - actorHit->spr.pos.Y) - actorHit->spr.ang;
 				pXMissile->state = 1;
 				actPostSprite(missileActor, kStatFlare);
 				missileActor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
@@ -4006,7 +4005,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 	case kMissileFlameHound:
 		if (hitCode == 3 && actorHit && actorHit->hasX())
 		{
-			if ((pSpriteHit->statnum == kStatThing || pSpriteHit->statnum == kStatDude) && pXSpriteHit->burnTime == 0)
+			if ((actorHit->spr.statnum == kStatThing || actorHit->spr.statnum == kStatDude) && pXSpriteHit->burnTime == 0)
 				evPostActor(actorHit, 0, kCallbackFXFlameLick);
 
 			actBurnSprite(missileOwner, actorHit, (4 + gGameOptions.nDifficulty) << 2);
@@ -4018,7 +4017,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 		actExplodeSprite(missileActor);
 		if (hitCode == 3 && actorHit && actorHit->hasX())
 		{
-			if ((pSpriteHit->statnum == kStatThing || pSpriteHit->statnum == kStatDude) && pXSpriteHit->burnTime == 0)
+			if ((actorHit->spr.statnum == kStatThing || actorHit->spr.statnum == kStatDude) && pXSpriteHit->burnTime == 0)
 				evPostActor(actorHit, 0, kCallbackFXFlameLick);
 
 			actBurnSprite(missileOwner, actorHit, (4 + gGameOptions.nDifficulty) << 2);
@@ -4033,7 +4032,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 		actExplodeSprite(missileActor);
 		if (hitCode == 3 && actorHit && actorHit->hasX())
 		{
-			if ((pSpriteHit->statnum == kStatThing || pSpriteHit->statnum == kStatDude) && pXSpriteHit->burnTime == 0)
+			if ((actorHit->spr.statnum == kStatThing || actorHit->spr.statnum == kStatDude) && pXSpriteHit->burnTime == 0)
 				evPostActor(actorHit, 0, kCallbackFXFlameLick);
 
 			actBurnSprite(missileOwner, actorHit, 32);
@@ -4051,7 +4050,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 		seqSpawn(20, missileActor, -1);
 		if (hitCode == 3 && actorHit && actorHit->hasX())
 		{
-			if (pSpriteHit->statnum == kStatDude)
+			if (actorHit->spr.statnum == kStatDude)
 			{
 				int nDamage = (25 + Random(10)) << 4;
 				actDamageSprite(missileOwner, actorHit, kDamageSpirit, nDamage);
@@ -4066,7 +4065,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 		seqSpawn(20, missileActor, -1);
 		if (hitCode == 3 && actorHit && actorHit->hasX())
 		{
-			if (pSpriteHit->statnum == kStatDude)
+			if (actorHit->spr.statnum == kStatDude)
 			{
 				int nDamage = (10 + Random(10)) << 4;
 				actDamageSprite(missileOwner, actorHit, kDamageSpirit, nDamage);
@@ -5823,7 +5822,6 @@ static void actCheckExplosion()
 		XSPRITE* pXSprite = &actor->x();
 
 		auto Owner = actor->GetOwner();
-		auto pOwner = Owner ? &Owner->s() : nullptr;
 		int nType = actor->spr.type;
 		assert(nType >= 0 && nType < kExplodeMax);
 		const EXPLOSION* pExplodeInfo = &explodeInfo[nType];
