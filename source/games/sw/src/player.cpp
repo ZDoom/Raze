@@ -1281,7 +1281,7 @@ void DoPlayerTeleportToSprite(PLAYERp pp, vec3_t* sp, int ang)
 {
     pp->angle.ang = pp->angle.oang = buildang(ang);
     pp->posx = pp->oposx = pp->oldposx = sp->X;
-    pp->posy = pp->oposy = pp->oldposy = sp->y;
+    pp->posy = pp->oposy = pp->oldposy = sp->Y;
 
     //getzsofslopeptr(sp->sector(), pp->posx, pp->posy, &cz, &fz);
     //pp->posz = pp->oposz = fz - PLAYER_HEIGHT;
@@ -2677,7 +2677,7 @@ void DoPlayerMoveVehicle(PLAYERp pp)
                     { MOVEx(256, pp->angle.ang.asbuild()), MOVEy(256, pp->angle.ang.asbuild()), 0 },
                     hit, CLIPMASK_PLAYER);
 
-                if (FindDistance2D(hit.hitpos.X - hit_pos.X, hit.hitpos.y - hit_pos.y) < 800)
+                if (FindDistance2D(hit.hitpos.X - hit_pos.X, hit.hitpos.Y - hit_pos.Y) < 800)
                 {
                     if (hit.hitWall)
                         u->coll.setWall(wallnum(hit.hitWall));
@@ -3437,7 +3437,7 @@ int DoPlayerWadeSuperJump(PLAYERp pp)
 
             if (hit.hitSector != nullptr && labs(hit.hitSector->floorz - pp->posz) < Z(50))
             {
-                if (Distance(pp->posx, pp->posy, hit.hitpos.X, hit.hitpos.y) < ((((int)pp->Actor()->spr.clipdist)<<2) + 256))
+                if (Distance(pp->posx, pp->posy, hit.hitpos.X, hit.hitpos.Y) < ((((int)pp->Actor()->spr.clipdist)<<2) + 256))
                     return true;
             }
         }
@@ -3754,7 +3754,7 @@ bool PlayerOnLadder(PLAYERp pp)
                    0,
                    hit, CLIPMASK_MISSILE);
 
-        dist = DIST(pp->posx, pp->posy, hit.hitpos.X, hit.hitpos.y);
+        dist = DIST(pp->posx, pp->posy, hit.hitpos.X, hit.hitpos.Y);
 
         if (hit.actor() != nullptr)
         {

@@ -1090,7 +1090,7 @@ void md3_vox_calcmat_common(tspriteptr_t tspr, const FVector3 *a0, float f, floa
 
     auto& sext = tspr->ownerActor->sx();
     k0 = ((float)(tspr->x+sext.position_offset.X-globalposx))*f*(1.f/1024.f);
-    k1 = ((float)(tspr->y+sext.position_offset.y-globalposy))*f*(1.f/1024.f);
+    k1 = ((float)(tspr->y+sext.position_offset.Y-globalposy))*f*(1.f/1024.f);
     k4 = -bsinf(tspr->ang+sext.angoff, -14);
     k5 = bcosf(tspr->ang+sext.angoff, -14);
     k2 = k0*(1-k4)+k1*k5;
@@ -1205,7 +1205,7 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
     m0.Z *= f; m1.Z *= f; a0.Z *= f;
 
     // floor aligned
-    k1 = (float)tspr->y+sext->position_offset.y;
+    k1 = (float)tspr->y+sext->position_offset.Y;
     if ((globalorientation & CSTAT_SPRITE_ALIGNMENT_MASK) == CSTAT_SPRITE_ALIGNMENT_FLOOR)
     {
         m0.Z = -m0.Z; m1.Z = -m1.Z; a0.Z = -a0.Z;
@@ -1283,8 +1283,8 @@ static int32_t polymost_md3draw(md3model_t *m, tspriteptr_t tspr)
         if (sext->pivot_offset.X)
             a0.X = (float) sext->pivot_offset.X * f;
 
-        if (sext->pivot_offset.y)  // Compare with SCREEN_FACTORS above
-            a0.Y = (float) sext->pivot_offset.y * f;
+        if (sext->pivot_offset.Y)  // Compare with SCREEN_FACTORS above
+            a0.Y = (float) sext->pivot_offset.Y * f;
 
         if ((sext->pivot_offset.z) && !(tspr->clipdist & TSPR_FLAGS_MDHACK))  // Compare with SCREEN_FACTORS above
             a0.Z = (float)sext->pivot_offset.z / (gxyaspect * fxdimen * (65536.f/128.f) * (m0.Z+m1.Z));

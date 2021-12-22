@@ -414,7 +414,7 @@ int movesprite_ex_r(DDukeActor* actor, int xchange, int ychange, int zchange, un
 			clipmove(pos, &dasectp, ((xchange * TICSPERFRAME) << 11), ((ychange * TICSPERFRAME) << 11), 128, (4 << 8), (4 << 8), cliptype, result);
 	}
 	actor->spr.x = pos.X;
-	actor->spr.y = pos.y;
+	actor->spr.y = pos.Y;
 
 	if (dasectp)
 		if ((dasectp != actor->spr.sector()))
@@ -1605,7 +1605,7 @@ void movetransports_r(void)
 							}
 
 							ps[p].bobposx = ps[p].oposx = ps[p].pos.X = Owner->spr.x;
-							ps[p].bobposy = ps[p].oposy = ps[p].pos.y = Owner->spr.y;
+							ps[p].bobposy = ps[p].oposy = ps[p].pos.Y = Owner->spr.y;
 							ps[p].oposz = ps[p].pos.z = Owner->spr.z - (gs.playerheight - (4 << 8));
 
 							ChangeActorSect(act2, Owner->sector());
@@ -1624,7 +1624,7 @@ void movetransports_r(void)
 							(ps[p].jetpack_on && PlayerInput(p, SB_CROUCH)))
 						{
 							ps[p].oposx = ps[p].pos.X += Owner->spr.x - act->spr.x;
-							ps[p].oposy = ps[p].pos.y += Owner->spr.y - act->spr.y;
+							ps[p].oposy = ps[p].pos.Y += Owner->spr.y - act->spr.y;
 
 							if (ps[p].jetpack_on && (PlayerInput(p, SB_JUMP) || ps[p].jetpack_on < 11))
 								ps[p].pos.z = Owner->spr.z - 6144;
@@ -1690,7 +1690,7 @@ void movetransports_r(void)
 					if (k == 1)
 					{
 						ps[p].oposx = ps[p].pos.X += Owner->spr.x - act->spr.x;
-						ps[p].oposy = ps[p].pos.y += Owner->spr.y - act->spr.y;
+						ps[p].oposy = ps[p].pos.Y += Owner->spr.y - act->spr.y;
 
 						if (Owner->GetOwner() != Owner)
 							ps[p].transporter_hold = -2;
@@ -1704,7 +1704,7 @@ void movetransports_r(void)
 					else if (isRRRA() && k == 2)
 					{
 						ps[p].oposx = ps[p].pos.X += Owner->spr.x - act->spr.x;
-						ps[p].oposy = ps[p].pos.y += Owner->spr.y - act->spr.y;
+						ps[p].oposy = ps[p].pos.Y += Owner->spr.y - act->spr.y;
 
 						if (Owner->GetOwner() != Owner)
 							ps[p].transporter_hold = -2;
@@ -2450,7 +2450,7 @@ void rr_specialstats()
 					{
 						ps[p].angle.ang = buildang(act2->spr.ang);
 						ps[p].bobposx = ps[p].oposx = ps[p].pos.X = act2->spr.x;
-						ps[p].bobposy = ps[p].oposy = ps[p].pos.y = act2->spr.y;
+						ps[p].bobposy = ps[p].oposy = ps[p].pos.Y = act2->spr.y;
 						ps[p].oposz = ps[p].pos.z = act2->spr.z - (36 << 8);
 						auto pact = ps[p].GetActor();
 						ChangeActorSect(pact, act2->sector());
@@ -2655,7 +2655,7 @@ DETONATEB:
 		}
 	}
 	else if (actor->spr.picnum == HEAVYHBOMB && x < 788 && t[0] > 7 && actor->spr.xvel == 0)
-		if (cansee(actor->spr.x, actor->spr.y, actor->spr.z - (8 << 8), actor->spr.sector(), ps[p].pos.X, ps[p].pos.y, ps[p].pos.z, ps[p].cursector))
+		if (cansee(actor->spr.x, actor->spr.y, actor->spr.z - (8 << 8), actor->spr.sector(), ps[p].pos.X, ps[p].pos.Y, ps[p].pos.z, ps[p].cursector))
 			if (ps[p].ammo_amount[DYNAMITE_WEAPON] < gs.max_ammo_amount[DYNAMITE_WEAPON])
 				if (actor->spr.pal == 0)
 				{
@@ -3658,7 +3658,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 	{
 		if (ps[pnum].newOwner != nullptr)
 			goalang = getangle(ps[pnum].oposx - actor->spr.x, ps[pnum].oposy - actor->spr.y);
-		else goalang = getangle(ps[pnum].pos.X - actor->spr.x, ps[pnum].pos.y - actor->spr.y);
+		else goalang = getangle(ps[pnum].pos.X - actor->spr.x, ps[pnum].pos.Y - actor->spr.y);
 		angdif = getincangle(actor->spr.ang, goalang) >> 2;
 		if (angdif > -8 && angdif < 0) angdif = 0;
 		actor->spr.ang += angdif;
@@ -3671,7 +3671,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 	{
 		if (ps[pnum].newOwner != nullptr)
 			goalang = getangle(ps[pnum].oposx - actor->spr.x, ps[pnum].oposy - actor->spr.y);
-		else goalang = getangle(ps[pnum].pos.X - actor->spr.x, ps[pnum].pos.y - actor->spr.y);
+		else goalang = getangle(ps[pnum].pos.X - actor->spr.x, ps[pnum].pos.Y - actor->spr.y);
 		angdif = Sgn(getincangle(actor->spr.ang, goalang)) << 5;
 		if (angdif > -32 && angdif < 0)
 		{
@@ -3687,7 +3687,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 		{
 			if (ps[pnum].newOwner != nullptr)
 				goalang = (getangle(ps[pnum].oposx - actor->spr.x, ps[pnum].oposy - actor->spr.y) + 1024) & 2047;
-			else goalang = (getangle(ps[pnum].pos.X - actor->spr.x, ps[pnum].pos.y - actor->spr.y) + 1024) & 2047;
+			else goalang = (getangle(ps[pnum].pos.X - actor->spr.x, ps[pnum].pos.Y - actor->spr.y) + 1024) & 2047;
 			angdif = Sgn(getincangle(actor->spr.ang, goalang)) << 5;
 			if (angdif > -32 && angdif < 0)
 			{
@@ -3754,7 +3754,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 		int newx, newy;
 
 		newx = ps[pnum].pos.X + (ps[pnum].posxv / 768);
-		newy = ps[pnum].pos.y + (ps[pnum].posyv / 768);
+		newy = ps[pnum].pos.Y + (ps[pnum].posyv / 768);
 		goalang = getangle(newx - actor->spr.x, newy - actor->spr.y);
 		angdif = getincangle(actor->spr.ang, goalang) >> 2;
 		if (angdif > -8 && angdif < 0) angdif = 0;
@@ -3859,7 +3859,7 @@ void move_r(DDukeActor *actor, int pnum, int xvel)
 			{
 
 				daxvel = -(1024 - xvel);
-				angdif = getangle(ps[pnum].pos.X - actor->spr.x, ps[pnum].pos.y - actor->spr.y);
+				angdif = getangle(ps[pnum].pos.X - actor->spr.x, ps[pnum].pos.Y - actor->spr.y);
 
 				if (xvel < 512)
 				{

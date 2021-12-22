@@ -61,7 +61,7 @@ void pickrandomspot(int snum)
 	else i = snum;
 
 	p->bobposx = p->oposx = p->pos.X = po[i].ox;
-	p->bobposy = p->oposy = p->pos.y = po[i].oy;
+	p->bobposy = p->oposy = p->pos.Y = po[i].oy;
 	p->oposz = p->pos.z = po[i].oz;
 	p->angle.oang = p->angle.ang = buildang(po[i].oa);
 	p->setCursector(po[i].os);
@@ -507,7 +507,7 @@ void resetpspritevars(int g)
 	int aimmode[MAXPLAYERS];
 	STATUSBARTYPE tsbar[MAXPLAYERS];
 
-	EGS(ps[0].cursector, ps[0].pos.X, ps[0].pos.y, ps[0].pos.z,
+	EGS(ps[0].cursector, ps[0].pos.X, ps[0].pos.Y, ps[0].pos.z,
 		TILE_APLAYER, 0, 0, 0, ps[0].angle.ang.asbuild(), 0, 0, nullptr, 10);
 
 	if (ud.recstat != 2) for (i = 0; i < MAXPLAYERS; i++)
@@ -578,7 +578,7 @@ void resetpspritevars(int g)
 		if (numplayersprites == 0)
 		{
 			firstx = ps[0].pos.X;
-			firsty = ps[0].pos.y;
+			firsty = ps[0].pos.Y;
 		}
 
 		po[numplayersprites].ox = act->spr.x;
@@ -626,7 +626,7 @@ void resetpspritevars(int g)
 			act->SetOwner(act);
 
 			ps[j].bobposx = ps[j].oposx = ps[j].pos.X = act->spr.x;
-			ps[j].bobposy = ps[j].oposy = ps[j].pos.y = act->spr.y;
+			ps[j].bobposy = ps[j].oposy = ps[j].pos.Y = act->spr.y;
 			ps[j].oposz = ps[j].pos.z = act->spr.z;
 			act->spr.backuppos();
 			ps[j].angle.oang = ps[j].angle.ang = buildang(act->spr.ang);

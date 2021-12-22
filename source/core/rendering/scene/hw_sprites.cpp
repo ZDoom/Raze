@@ -510,7 +510,7 @@ bool HWSprite::ProcessVoxel(HWDrawInfo* di, voxmodel_t* vox, tspritetype* spr, s
 
 	x = (spr->x + sprext->position_offset.X) * (1 / 16.f);
 	z = zpos * (1 / -256.f);
-	y = (spr->y + sprext->position_offset.y) * (1 / -16.f);
+	y = (spr->y + sprext->position_offset.Y) * (1 / -16.f);
 
 	float zoff = voxel->siz.z * .5f;
 	if (!(spr->cstat & CSTAT_SPRITE_YCENTER))

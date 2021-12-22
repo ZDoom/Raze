@@ -182,7 +182,7 @@ FRenderViewpoint SetupViewpoint(spritetype* cam, const vec3_t& position, int sec
 	r_viewpoint.CameraSprite = cam;
 	r_viewpoint.SectNums = nullptr;
 	r_viewpoint.SectCount = sectnum;
-	r_viewpoint.Pos = { position.X / 16.f, position.y / -16.f, position.z / -256.f };
+	r_viewpoint.Pos = { position.X / 16.f, position.Y / -16.f, position.z / -256.f };
 	r_viewpoint.HWAngles.Yaw = -90.f + angle.asdeg();
 	r_viewpoint.HWAngles.Pitch = -horizon.aspitch();
 	r_viewpoint.HWAngles.Roll = -rollang.asdeg();
@@ -313,7 +313,7 @@ void render_drawrooms(spritetype* playersprite, const vec3_t& position, int sect
 
 	if (gl_fogmode == 1) gl_fogmode = 2;	// still needed?
 
-	updatesector(position.X, position.y, &sectnum);
+	updatesector(position.X, position.Y, &sectnum);
 	if (sectnum < 0) return;
 
 	iter_dlightf = iter_dlight = draw_dlight = draw_dlightf = 0;
@@ -366,7 +366,7 @@ void render_drawrooms(spritetype* playersprite, const vec3_t& position, int sect
 
 void render_camtex(spritetype* playersprite, const vec3_t& position, sectortype* sect, binangle angle, fixedhoriz horizon, binangle rollang, FGameTexture* camtex, IntRect& rect, double smoothratio)
 {
-	updatesector(position.X, position.y, &sect);
+	updatesector(position.X, position.Y, &sect);
 	if (!sect) return;
 
 	screen->RenderState()->SetVertexBuffer(screen->mVertexData);

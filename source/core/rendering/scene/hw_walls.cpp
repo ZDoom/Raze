@@ -73,7 +73,7 @@ static int GetClosestPointOnWall(tspritetype* spr, walltype* wal, vec2_t* const 
 	else if (d.Y == 0)
 	{
 		// line is horizontal.
-		if (abs(pos.y - w.Y) <= 1 && (spr->ang & 0x3ff) == 0x200)
+		if (abs(pos.Y - w.Y) <= 1 && (spr->ang & 0x3ff) == 0x200)
 		{
 			*n = pos.vec2;
 			return 0;
@@ -82,7 +82,7 @@ static int GetClosestPointOnWall(tspritetype* spr, walltype* wal, vec2_t* const 
 	}
 
 
-	int64_t i = d.X * ((int64_t)pos.X - w.X) + d.Y * ((int64_t)pos.y - w.Y);
+	int64_t i = d.X * ((int64_t)pos.X - w.X) + d.Y * ((int64_t)pos.Y - w.Y);
 
 
 	if (i < 0)

@@ -166,7 +166,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 		if (h->spr.statnum != STAT_ACTOR && h->spr.picnum == APLAYER && ps[h->spr.yvel].newOwner == nullptr && h->GetOwner())
 		{
 			t->x -= MulScale(MaxSmoothRatio - smoothratio, ps[h->spr.yvel].pos.X - ps[h->spr.yvel].oposx, 16);
-			t->y -= MulScale(MaxSmoothRatio - smoothratio, ps[h->spr.yvel].pos.y - ps[h->spr.yvel].oposy, 16);
+			t->y -= MulScale(MaxSmoothRatio - smoothratio, ps[h->spr.yvel].pos.Y - ps[h->spr.yvel].oposy, 16);
 			t->z = interpolatedvalue(ps[h->spr.yvel].oposz, ps[h->spr.yvel].pos.z, smoothratio);
 			t->z += PHEIGHT_DUKE;
 		}
@@ -208,7 +208,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 				int sqa =
 					getangle(
 						OwnerAc->spr.x - ps[screenpeek].pos.X,
-						OwnerAc->spr.y - ps[screenpeek].pos.y);
+						OwnerAc->spr.y - ps[screenpeek].pos.Y);
 				int sqb =
 					getangle(
 						OwnerAc->spr.x - t->x,
@@ -609,7 +609,7 @@ void animatesprites_d(tspritetype* tsprite, int& spritesortcnt, int x, int y, in
 							else
 							{
 								// Alter the shadow's position so that it appears behind the sprite itself.
-								int look = getangle(shadowspr->x - ps[screenpeek].pos.X, shadowspr->y - ps[screenpeek].pos.y);
+								int look = getangle(shadowspr->x - ps[screenpeek].pos.X, shadowspr->y - ps[screenpeek].pos.Y);
 								shadowspr->x += bcos(look, -9);
 								shadowspr->y += bsin(look, -9);
 							}

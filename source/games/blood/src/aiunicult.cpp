@@ -776,7 +776,7 @@ static void unicultThinkChase(DBloodActor* actor)
                     if (hit >= 0) 
                     {
                         targetDist = dist - (pTarget->clipdist << 2);
-                        objDist = approxDist(gHitInfo.hitpos.X - pSprite->x, gHitInfo.hitpos.y - pSprite->y);
+                        objDist = approxDist(gHitInfo.hitpos.X - pSprite->x, gHitInfo.hitpos.Y - pSprite->y);
                     }
 
                     if (actor != gHitInfo.actor() && targetDist > objDist) 
@@ -894,7 +894,7 @@ static void unicultThinkChase(DBloodActor* actor)
                                 bool immune = nnExtIsImmune(hitactor, gVectorData[curWeapon].dmgType);
                                 if (!(pXHSprite != NULL && (!immune || (immune && pHSprite->statnum == kStatThing && pXHSprite->Vector)) && !pXHSprite->locked)) 
                                 {
-                                    if ((approxDist(gHitInfo.hitpos.X - pSprite->x, gHitInfo.hitpos.y - pSprite->y) <= 1500 && !blck)
+                                    if ((approxDist(gHitInfo.hitpos.X - pSprite->x, gHitInfo.hitpos.Y - pSprite->y) <= 1500 && !blck)
                                         || (dist <= (int)(pExtra->fireDist / ClipLow(Random(4), 1)))) 
                                     {
                                         //viewSetSystemMessage("GO CHASE");
@@ -969,8 +969,8 @@ static void unicultThinkChase(DBloodActor* actor)
                                 case kMissileFireballTchernobog: 
                                 {
                                     // allow attack if dude is far from object, but target is close to it
-                                    int dudeDist = approxDist(gHitInfo.hitpos.X - pSprite->x, gHitInfo.hitpos.y - pSprite->y);
-                                    int targetDist = approxDist(gHitInfo.hitpos.X - pTarget->x, gHitInfo.hitpos.y - pTarget->y);
+                                    int dudeDist = approxDist(gHitInfo.hitpos.X - pSprite->x, gHitInfo.hitpos.Y - pSprite->y);
+                                    int targetDist = approxDist(gHitInfo.hitpos.X - pTarget->x, gHitInfo.hitpos.Y - pTarget->y);
                                     if (dudeDist < mdist) 
                                     {
                                         //viewSetSystemMessage("DUDE CLOSE TO OBJ: %d, MDIST: %d", dudeDist, mdist);

@@ -143,7 +143,7 @@ uint8_t LoadLevel(MapRecord* map)
     SpawnSpriteDef spawned;
     loadMap(currentLevel->fileName, 0, &startPos, &inita, &initsect, spawned);
     initx = startPos.X;
-    inity = startPos.y;
+    inity = startPos.Y;
     initz = startPos.z;
     initsectp = &sector[initsect];
     auto actors = spawnactors(spawned);

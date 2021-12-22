@@ -2547,7 +2547,7 @@ sectdone:
                 sectortype* mouthSect;
                 WheresMyMouth(nPlayer, &pos, &mouthSect);
 
-                BuildAnim(nullptr, 71, 0, pos.X, pos.y, pPlayerSprite->z + 3840, mouthSect, 75, 128);
+                BuildAnim(nullptr, 71, 0, pos.X, pos.Y, pPlayerSprite->z + 3840, mouthSect, 75, 128);
             }
             break;
         case 17:

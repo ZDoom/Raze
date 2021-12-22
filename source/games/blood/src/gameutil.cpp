@@ -367,7 +367,7 @@ int HitScan(DBloodActor *actor, int z, int dx, int dy, int dz, unsigned int nMas
         if (!pWall->twoSided())
             return 0;
         int nZCeil, nZFloor;
-        getzsofslopeptr(pWall->nextSector(), gHitInfo.hitpos.X, gHitInfo.hitpos.y, &nZCeil, &nZFloor);
+        getzsofslopeptr(pWall->nextSector(), gHitInfo.hitpos.X, gHitInfo.hitpos.Y, &nZCeil, &nZFloor);
         if (gHitInfo.hitpos.z <= nZCeil || gHitInfo.hitpos.z >= nZFloor)
             return 0;
         return 4;
@@ -406,7 +406,7 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
     pSprite->cstat = bakCstat;
     while (nNum--)
     {
-        if (nRange && approxDist(gHitInfo.hitpos.X - pSprite->x, gHitInfo.hitpos.y - pSprite->y) > nRange)
+        if (nRange && approxDist(gHitInfo.hitpos.X - pSprite->x, gHitInfo.hitpos.Y - pSprite->y) > nRange)
             return -1;
         if (gHitInfo.actor() != nullptr)
         {
@@ -461,7 +461,7 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
             sectortype *pSector = gHitInfo.hitSector;
             sectortype *pSectorNext = pWall->nextSector();
             int nZCeil, nZFloor;
-            getzsofslopeptr(pWall->nextSector(), gHitInfo.hitpos.X, gHitInfo.hitpos.y, &nZCeil, &nZFloor);
+            getzsofslopeptr(pWall->nextSector(), gHitInfo.hitpos.X, gHitInfo.hitpos.Y, &nZCeil, &nZFloor);
             if (gHitInfo.hitpos.z <= nZCeil)
                 return 0;
             if (gHitInfo.hitpos.z >= nZFloor)
@@ -492,9 +492,9 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
             int nLength = approxDist(pWall->x - pWall->point2Wall()->x, pWall->y - pWall->point2Wall()->y);
             int nHOffset;
             if (pWall->cstat & CSTAT_WALL_XFLIP)
-                nHOffset = approxDist(gHitInfo.hitpos.X - pWall->point2Wall()->x, gHitInfo.hitpos.y - pWall->point2Wall()->y);
+                nHOffset = approxDist(gHitInfo.hitpos.X - pWall->point2Wall()->x, gHitInfo.hitpos.Y - pWall->point2Wall()->y);
             else
-                nHOffset = approxDist(gHitInfo.hitpos.X - pWall->x, gHitInfo.hitpos.y - pWall->y);
+                nHOffset = approxDist(gHitInfo.hitpos.X - pWall->x, gHitInfo.hitpos.Y - pWall->y);
 
             nHOffset = pWall->xpan() + ((nHOffset*pWall->xrepeat) << 3) / nLength;
             nHOffset %= nSizX;
@@ -528,7 +528,7 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
                 auto link = actor->GetOwner();
                 gHitInfo.clearObj();
                 x1 = gHitInfo.hitpos.X + link->spr.x - actor->spr.x;
-                y1 = gHitInfo.hitpos.y + link->spr.y - actor->spr.y;
+                y1 = gHitInfo.hitpos.Y + link->spr.y - actor->spr.y;
                 z1 = gHitInfo.hitpos.z + link->spr.z - actor->spr.z;
                 pos = { x1, y1, z1 };
                 hitscan(pos, link->spr.sector(), { dx, dy, dz << 4 }, gHitInfo, CLIPMASK1);
@@ -542,7 +542,7 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
                 auto link = actor->GetOwner();
                 gHitInfo.clearObj();
                 x1 = gHitInfo.hitpos.X + link->spr.x - actor->spr.x;
-                y1 = gHitInfo.hitpos.y + link->spr.y - actor->spr.y;
+                y1 = gHitInfo.hitpos.Y + link->spr.y - actor->spr.y;
                 z1 = gHitInfo.hitpos.z + link->spr.z - actor->spr.z;
                 pos = { x1, y1, z1 };
                 hitscan(pos, link->spr.sector(), { dx, dy, dz << 4 }, gHitInfo, CLIPMASK1);

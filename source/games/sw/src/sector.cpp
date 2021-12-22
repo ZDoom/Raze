@@ -2063,7 +2063,7 @@ bool NearThings(PLAYERp pp)
         if (hit.hitSector == nullptr)
             return false;
 
-        if (Distance(hit.hitpos.X, hit.hitpos.y, pp->posx, pp->posy) > 1500)
+        if (Distance(hit.hitpos.X, hit.hitpos.Y, pp->posx, pp->posy) > 1500)
             return false;
 
         // hit a sprite?

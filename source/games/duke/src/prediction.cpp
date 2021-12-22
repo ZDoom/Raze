@@ -51,7 +51,7 @@ short myangbak[MOVEFIFOSIZ];
 void resetmys()
 {
 	myx = omyx = ps[myconnectindex].pos.X;
-	myy = omyy = ps[myconnectindex].pos.y;
+	myy = omyy = ps[myconnectindex].pos.Y;
 	myz = omyz = ps[myconnectindex].pos.z;
 	myxvel = myyvel = myzvel = 0;
 	myang = ps[myconnectindex].angle.ang;

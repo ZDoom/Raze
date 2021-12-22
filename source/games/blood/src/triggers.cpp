@@ -874,7 +874,7 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
         }
 
         x = actor->basePoint.X;
-        y = actor->basePoint.y;
+        y = actor->basePoint.Y;
         if (pSprite->cstat & CSTAT_SPRITE_MOVE_FORWARD)
         {
             if (vbp)

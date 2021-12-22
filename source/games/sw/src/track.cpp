@@ -2820,7 +2820,7 @@ void DoTornadoObject(SECTOR_OBJECTp sop)
     auto cursect = sop->op_main_sector; // for sop->vel
     floor_dist = (abs(cursect->ceilingz - cursect->floorz)) >> 2;
     pos.X = sop->xmid;
-    pos.y = sop->ymid;
+    pos.Y = sop->ymid;
     pos.z = floor_dist;
 
     PlaceSectorObject(sop, MAXSO, MAXSO);
@@ -2833,7 +2833,7 @@ void DoTornadoObject(SECTOR_OBJECTp sop)
     }
 
     TornadoSpin(sop);
-    RefreshPoints(sop, pos.X - sop->xmid, pos.y - sop->ymid, true);
+    RefreshPoints(sop, pos.X - sop->xmid, pos.Y - sop->ymid, true);
 }
 
 void DoAutoTurretObject(SECTOR_OBJECTp sop)

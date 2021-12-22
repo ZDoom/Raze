@@ -255,7 +255,7 @@ static void cerberusThinkTarget(DBloodActor* actor)
 	{
 		pXSprite->goalAng += 256;
         POINT3D* pTarget = &actor->basePoint;
-		aiSetTarget(actor, pTarget->X, pTarget->y, pTarget->z);
+		aiSetTarget(actor, pTarget->X, pTarget->Y, pTarget->z);
 		if (pSprite->type == kDudeCerberusTwoHead)
 			aiNewState(actor, &cerberus139890);
 		else

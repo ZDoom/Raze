@@ -904,7 +904,7 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
     pos.X = sBlockInfo[nBlock].x;
     int x_b = sBlockInfo[nBlock].x;
 
-    pos.y = sBlockInfo[nBlock].y;
+    pos.Y = sBlockInfo[nBlock].y;
     int y_b = sBlockInfo[nBlock].y;
 
 
@@ -931,7 +931,7 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
     Collision scratch;
     clipmove(pos, &pSectorB, nXVect, nYVect, pBlockInfo->field_8, 0, 0, CLIPMASK1, scratch);
 
-    int yvect = pos.y - y_b;
+    int yvect = pos.Y - y_b;
     int xvect = pos.X - x_b;
 
     if (pSectorB != pNextSector && pSectorB != pSector)
@@ -950,7 +950,7 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
 
             int ebx = pos.X;
             int ecx = x_b;
-            int edx = pos.y;
+            int edx = pos.Y;
             int eax = xvect;
             int esi = y_b;
 
@@ -1009,7 +1009,7 @@ void MoveSector(sectortype* pSector, int nAngle, int *nXVel, int *nYVel)
                 if ((nSectFlag & kSectUnderwater) || pos.z != nZVal || sp->cstat & CSTAT_SPRITE_INVISIBLE)
                 {
                     pos.X = sp->x;
-                    pos.y = sp->y;
+                    pos.Y = sp->y;
                     pSectorB = pSector;
 
                     Collision scratch;

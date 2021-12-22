@@ -36,7 +36,7 @@ int madenoise(int snum)
 	p = &ps[snum];
 	p->donoise = 1;
 	p->noise_x = p->pos.X;
-	p->noise_y = p->pos.y;
+	p->noise_y = p->pos.Y;
 	return 1;
 }
 

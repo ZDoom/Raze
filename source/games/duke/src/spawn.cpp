@@ -539,7 +539,7 @@ void initwaterdrip(DDukeActor* actj, DDukeActor* actor)
 			actor->spr.z -= (18 << 8);
 		}
 		else actor->spr.z -= (13 << 8);
-		actor->spr.ang = getangle(ps[connecthead].pos.X - actor->spr.x, ps[connecthead].pos.y - actor->spr.y);
+		actor->spr.ang = getangle(ps[connecthead].pos.X - actor->spr.x, ps[connecthead].pos.Y - actor->spr.y);
 		actor->spr.xvel = 48 - (krand() & 31);
 		ssp(actor, CLIPMASK0);
 	}

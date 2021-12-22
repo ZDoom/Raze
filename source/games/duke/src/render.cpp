@@ -328,7 +328,7 @@ void displayrooms(int snum, double smoothratio)
 #endif
 		{
 			cposx = interpolatedvalue(p->oposx, p->pos.X, smoothratio);
-			cposy = interpolatedvalue(p->oposy, p->pos.y, smoothratio);
+			cposy = interpolatedvalue(p->oposy, p->pos.Y, smoothratio);
 			cposz = interpolatedvalue(p->oposz, p->pos.z, smoothratio);;
 			if (SyncInput())
 			{
@@ -351,7 +351,7 @@ void displayrooms(int snum, double smoothratio)
 			cang = buildang(spr->interpolatedang(smoothratio));
 			choriz = buildhoriz(spr->shade);
 			cposx = spr->pos.X;
-			cposy = spr->pos.y;
+			cposy = spr->pos.Y;
 			cposz = spr->pos.z;
 			sect = spr->sector();
 			rotscrnang = buildang(0);
