@@ -254,7 +254,7 @@ void UpdateSprite(DBloodActor* actor, SEQFRAME* pFrame)
 		pSprite->pal = pFrame->palette;
 	pSprite->shade = pFrame->shade;
 
-	int scale = actor->x().scale; // SEQ size scaling
+	int scale = actor->xspr.scale; // SEQ size scaling
 	if (pFrame->xrepeat) {
 		if (scale) pSprite->xrepeat = ClipRange(MulScale(pFrame->xrepeat, scale, 8), 0, 255);
 		else pSprite->xrepeat = pFrame->xrepeat;

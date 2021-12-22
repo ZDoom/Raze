@@ -1073,8 +1073,8 @@ bool PickupItem(PLAYER *pPlayer, DBloodActor* itemactor)
             int addPower = gPowerUpInfo[nType].bonusTime;
             #ifdef NOONE_EXTENSIONS
             // allow custom amount for item
-            if (gModernMap && itemactor->hasX() && itemactor->x().data1 > 0)
-                addPower = itemactor->x().data1;
+            if (gModernMap && itemactor->hasX() && itemactor->xspr.data1 > 0)
+                addPower = itemactor->xspr.data1;
             #endif
         
             if (!actHealDude(pPlayer->actor, addPower, gPowerUpInfo[nType].maxTime)) return 0;
@@ -1103,8 +1103,8 @@ bool PickupAmmo(PLAYER* pPlayer, DBloodActor* ammoactor)
 
     if (pPlayer->ammoCount[nAmmoType] >= gAmmoInfo[nAmmoType].max) return 0;
     #ifdef NOONE_EXTENSIONS
-    else if (gModernMap && ammoactor->hasX() && ammoactor->x().data1 > 0) // allow custom amount for item
-        pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType] + ammoactor->x().data1, gAmmoInfo[nAmmoType].max);
+    else if (gModernMap && ammoactor->hasX() && ammoactor->xspr.data1 > 0) // allow custom amount for item
+        pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType] + ammoactor->xspr.data1, gAmmoInfo[nAmmoType].max);
     #endif
     else
         pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType]+pAmmoItemData->count, gAmmoInfo[nAmmoType].max);
@@ -1127,8 +1127,8 @@ bool PickupWeapon(PLAYER *pPlayer, DBloodActor* weaponactor)
         if (nAmmoType == -1) return 0;
         // allow to set custom ammo count for weapon pickups
         #ifdef NOONE_EXTENSIONS
-        else if (gModernMap && weaponactor->hasX() && weaponactor->x().data1 > 0)
-            pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType] + weaponactor->x().data1, gAmmoInfo[nAmmoType].max);
+        else if (gModernMap && weaponactor->hasX() && weaponactor->xspr.data1 > 0)
+            pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType] + weaponactor->xspr.data1, gAmmoInfo[nAmmoType].max);
         #endif
         else
             pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType] + pWeaponItemData->count, gAmmoInfo[nAmmoType].max);
@@ -1144,8 +1144,8 @@ bool PickupWeapon(PLAYER *pPlayer, DBloodActor* weaponactor)
     
     if (!actGetRespawnTime(weaponactor) || nAmmoType == -1 || pPlayer->ammoCount[nAmmoType] >= gAmmoInfo[nAmmoType].max) return 0;    
     #ifdef NOONE_EXTENSIONS
-        else if (gModernMap && weaponactor->hasX() && weaponactor->x().data1 > 0)
-            pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType] + weaponactor->x().data1, gAmmoInfo[nAmmoType].max);
+        else if (gModernMap && weaponactor->hasX() && weaponactor->xspr.data1 > 0)
+            pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType] + weaponactor->xspr.data1, gAmmoInfo[nAmmoType].max);
     #endif
     else
         pPlayer->ammoCount[nAmmoType] = ClipHigh(pPlayer->ammoCount[nAmmoType]+pWeaponItemData->count, gAmmoInfo[nAmmoType].max);
@@ -1185,7 +1185,7 @@ void PickUp(PLAYER *pPlayer, DBloodActor* actor)
     if (!pickedUp) return;
     else if (actor->hasX())
     {
-        if (actor->x().Pickup)
+        if (actor->xspr.Pickup)
             trTriggerSprite(actor, kCmdSpritePickup);
     }
         

@@ -72,7 +72,7 @@ static int GetBucketChannel(EventObject* pBucket)
 	if (pBucket->isActor())
 	{
 		auto pActor = pBucket->actor();
-		return pActor? pActor->x().rxID : 0;
+		return pActor? pActor->xspr.rxID : 0;
 	}
 
 	Printf(PRINT_HIGH, "Unexpected rxBucket %s", pBucket->description().GetChars());
@@ -302,7 +302,7 @@ void evInit(TArray<DBloodActor*>& actors)
 
 	for (auto actor : actors)
 	{
-		if (actor->exists() && actor->hasX() && actor->x().rxID > 0)
+		if (actor->exists() && actor->hasX() && actor->xspr.rxID > 0)
 		{
 			assert(nCount < kChannelMax);
 			rxBucket[nCount] = EventObject(actor);
@@ -336,7 +336,7 @@ static bool evGetSourceState(EventObject& eob)
 	{
 		auto actor = eob.actor();
 		if (actor && actor->hasX())
-			return actor->x().state != 0;
+			return actor->xspr.state != 0;
 	}
 
 	// shouldn't reach this point
@@ -495,7 +495,7 @@ void evSend(EventObject& eob, int rxId, COMMAND_ID command)
 
 				if (actor && actor->hasX() && !(actor->spr.flags & 32))
 				{
-					if (actor->x().rxID > 0)
+					if (actor->xspr.rxID > 0)
 						trMessageSprite(actor, event);
 				}
 			}

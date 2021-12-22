@@ -44,7 +44,7 @@ void GameInterface::LevelCompleted(MapRecord *map, int skill)
 		if (gPlayer[i].actor)
 		{
 			memcpy(&gPlayerTemp[i], &gPlayer[i], sizeof(PLAYER));
-			gHealthTemp[i] = gPlayer[i].actor->x().health;
+			gHealthTemp[i] = gPlayer[i].actor->xspr.health;
 		}
 	}
 

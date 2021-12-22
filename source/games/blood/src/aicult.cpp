@@ -143,7 +143,7 @@ void cultThrowSeqCallback(int, DBloodActor* actor)
 		v4 = 0;
 	auto* pMissile = actFireThing(actor, 0, 0, dz / 128 - 14500, nMissile, (nDist2 << 23) / 120);
 	if (v4)
-		pMissile->x().Impact = 1;
+		pMissile->xspr.Impact = 1;
 	else
 		evPostActor(pMissile, 120 * (1 + Random(2)), kCmdOn);
 }
@@ -174,7 +174,7 @@ void sub_68230(int, DBloodActor* actor)
 	int nDist = approxDist(dx, dy);
 	int nDist2 = nDist / 540;
 	auto pMissile = actFireThing(actor, 0, 0, dz / 128 - 14500, nMissile, (nDist2 << 17) / 120);
-	pMissile->x().Impact = 1;
+	pMissile->xspr.Impact = 1;
 }
 
 static bool TargetNearExplosion(spritetype* pSprite)

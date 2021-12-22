@@ -175,7 +175,7 @@ unsigned int GetSourceBusy(EVENT& a1)
     else if (a1.isActor())
     {
         auto pActor = a1.getActor();
-        return pActor && pActor->hasX() ? pActor->x().busy : false;
+        return pActor && pActor->hasX() ? pActor->xspr.busy : false;
     }
     return 0;
 }
@@ -1653,7 +1653,7 @@ void LinkSprite(DBloodActor* actor, EVENT event)
             {
                 auto actor2 = event.getActor();
 
-                pXSprite->data1 = actor2 && actor2->hasX()? actor2->x().data1 : 0;
+                pXSprite->data1 = actor2 && actor2->hasX()? actor2->xspr.data1 : 0;
                 if (pXSprite->data1 == pXSprite->data2)
                     SetSpriteState(actor, 1);
                 else

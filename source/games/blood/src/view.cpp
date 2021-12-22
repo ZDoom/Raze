@@ -623,7 +623,7 @@ void viewDrawScreen(bool sceneonly)
         {
             if (actor->hasX() && gotsector[actor->spr.sectno()])
             {
-                brightness += actor->x().data3 * 32;
+                brightness += actor->xspr.data3 * 32;
             }
         }
         it.Reset(kStatProjectile);

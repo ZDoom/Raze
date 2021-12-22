@@ -590,7 +590,7 @@ void LeechStateTimer(DBloodActor* actor, sectortype*) // 20
             #ifdef NOONE_EXTENSIONS
             case kModernThingEnemyLifeLeech:
             #endif
-                actor->x().stateTimer = 0;
+                actor->xspr.stateTimer = 0;
                 break;
         }
     }

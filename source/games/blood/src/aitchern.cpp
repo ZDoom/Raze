@@ -49,7 +49,7 @@ void sub_71A90(int, DBloodActor* actor)
 {
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
-	if (target->x().burnTime == 0)
+	if (target->xspr.burnTime == 0)
 		evPostActor(target, 0, kCallbackFXFlameLick);
 	actBurnSprite(actor->GetOwner(), target, 40);
 	if (Chance(0x6000))

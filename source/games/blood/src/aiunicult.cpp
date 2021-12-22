@@ -2192,13 +2192,13 @@ void updateTargetOfSlaves(DBloodActor* actor)
     GENDUDEEXTRA* pExtra = &actor->genDudeExtra; 
     auto slave = pExtra->slave;
     auto actTarget = actor->GetTarget();
-    if (!actTarget || !actTarget->IsDudeActor() || !actTarget->hasX() || actTarget->x().health <= 0) actTarget = nullptr;
+    if (!actTarget || !actTarget->IsDudeActor() || !actTarget->hasX() || actTarget->xspr.health <= 0) actTarget = nullptr;
 
     for (int i = 0; i <= gGameOptions.nDifficulty; i++) 
     {
         if (slave[i] != nullptr) 
         {
-            if (!slave[i]->IsDudeActor() || !slave[i]->hasX() || slave[i]->x().health <= 0) 
+            if (!slave[i]->IsDudeActor() || !slave[i]->hasX() || slave[i]->xspr.health <= 0) 
             {
                 slave[i]->SetOwner(nullptr);
                 slave[i] = nullptr;
@@ -2320,7 +2320,7 @@ bool canWalk(DBloodActor* actor)
 
 int genDudeSeqStartId(DBloodActor* actor) 
 {
-    if (genDudePrepare(actor, kGenDudePropertyStates)) return actor->x().data2;
+    if (genDudePrepare(actor, kGenDudePropertyStates)) return actor->xspr.data2;
     else return kGenDudeDefaultSeq;
 }
 
@@ -2539,7 +2539,7 @@ bool genDudePrepare(DBloodActor* actor, int propId)
             while (auto actor2 = it.Next())
             {
                 if (actor2->GetOwner() != actor) continue;
-                else if (!actor2->IsDudeActor() || !actor2->hasX() || actor2->x().health <= 0) {
+                else if (!actor2->IsDudeActor() || !actor2->hasX() || actor2->xspr.health <= 0) {
                     actor2->SetOwner(nullptr);
                     continue;
                 }

@@ -2434,8 +2434,8 @@ static void actInitDudes()
 		BloodStatIterator it(kStatDude);
 		while (auto act = it.Next())
 		{
-			if (act->hasX() && act->x().key > 0) // Drop Key
-				actDropObject(act, kItemKeyBase + (act->x().key - 1));
+			if (act->hasX() && act->xspr.key > 0) // Drop Key
+				actDropObject(act, kItemKeyBase + (act->xspr.key - 1));
 			DeleteSprite(act);
 		}
 	}
@@ -2747,7 +2747,7 @@ static void actNapalmMove(DBloodActor* actor)
 			auto spawned = actFireThing(actor, 0, 0, -0x93d0, kThingNapalmBall, t1);
 			spawned->SetOwner(actor->GetOwner());
 			seqSpawn(61, spawned, nNapalmClient);
-			spawned->x().data4 = spawnparam[i];
+			spawned->xspr.data4 = spawnparam[i];
 		}
 	}
 }
@@ -2844,7 +2844,7 @@ static DBloodActor* actDropKey(DBloodActor* actor, int nType)
 		if (act2 && gGameOptions.nGameType == 1)
 		{
 			act2->addX();
-			act2->x().respawn = 3;
+			act2->xspr.respawn = 3;
 			act2->hit.florhit.setNone();
 			act2->hit.ceilhit.setNone();
 		}
@@ -3283,8 +3283,8 @@ static void zombieAxeNormalDeath(DBloodActor* actor, int nSeq)
 		seqSpawn(dudeInfo[nType].seqStartID + 7, actor, nDudeToGibClient1);
 		evPostActor(actor, 0, kCallbackFXZombieSpurt);
 		sfxPlay3DSound(actor, 362, -1, 0);
-		actor->x().data1 = 35;
-		actor->x().data2 = 5;
+		actor->xspr.data1 = 35;
+		actor->xspr.data2 = 5;
 
 		spawnGibs(actor, GIBTYPE_27, -0x111111);
 	}
@@ -3359,7 +3359,7 @@ static void modernCustomDudeBurningDeath(DBloodActor* actor, int nSeq)
 	if (Chance(0x4000)) spawnGibs(actor, GIBTYPE_27, -0xccccc);
 
 	GENDUDEEXTRA* pExtra = &actor->genDudeExtra;
-	int seqofs = actor->x().data2;
+	int seqofs = actor->xspr.data2;
 	if (pExtra->availDeaths[kDmgBurn] == 3) seqSpawn((15 + Random(2)) + seqofs, actor, dudeToGib);
 	else if (pExtra->availDeaths[kDmgBurn] == 2) seqSpawn(16 + seqofs, actor, dudeToGib);
 	else if (pExtra->availDeaths[kDmgBurn] == 1) seqSpawn(15 + seqofs, actor, dudeToGib);
@@ -3906,7 +3906,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 			// by NoOne: make Life Leech heal user, just like it was in 1.0x versions
 			if (gGameOptions.weaponsV10x && !VanillaMode() && pDudeInfo != nullptr)
 			{
-				if (missileOwner->IsDudeActor() && missileOwner->hasX() && missileOwner->x().health != 0)
+				if (missileOwner->IsDudeActor() && missileOwner->hasX() && missileOwner->xspr.health != 0)
 					actHealDude(missileOwner, nDamage >> 2, getDudeInfo(missileOwner->spr.type)->startHealth);
 			}
 		}
@@ -3982,7 +3982,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 	case kMissileFireballNapalm:
 		if (hitCode == 3 && pSpriteHit && (pThingInfo || pDudeInfo))
 		{
-			if (pThingInfo && pSpriteHit->type == kThingTNTBarrel && actorHit->x().burnTime == 0)
+			if (pThingInfo && actorHit->spr.type == kThingTNTBarrel && actorHit->xspr.burnTime == 0)
 				evPostActor(actorHit, 0, kCallbackFXFlameLick);
 
 			int nDamage = (50 + Random(50)) << 4;
@@ -4106,7 +4106,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 				int nDamage = (10 + Random(10)) << 4;
 				actDamageSprite(missileOwner, actorHit, kDamageSpirit, nDamage);
 				int nType = missileOwner->spr.type - kDudeBase;
-				if (missileOwner->x().health > 0)
+				if (missileOwner->xspr.health > 0)
 					actHealDude(missileOwner, 10, getDudeInfo(nType + kDudeBase)->startHealth);
 			}
 		}
@@ -5077,7 +5077,7 @@ void MoveDude(DBloodActor* actor)
 				{
 					pPlayer->nWaterPal = 0;
 					auto pUpper = barrier_cast<DBloodActor*>(pSector->upperLink);
-					if (pUpper && pUpper->hasX()) pPlayer->nWaterPal = pUpper->x().data2;
+					if (pUpper && pUpper->hasX()) pPlayer->nWaterPal = pUpper->xspr.data2;
 				}
 #endif
 
@@ -6929,7 +6929,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 			if (vectorType == kVectorTine && !actor->IsPlayerActor()) shift = 3;
 
 			actDamageSprite(shooter, actor, pVectorData->dmgType, pVectorData->dmg << shift);
-			if (actor->hasX() && actor->x().Vector) trTriggerSprite(actor, kCmdSpriteImpact);
+			if (actor->hasX() && actor->xspr.Vector) trTriggerSprite(actor, kCmdSpriteImpact);
 
 			if (pSprite->statnum == kStatThing)
 			{
@@ -6943,7 +6943,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 				}
 				if (pVectorData->burnTime)
 				{
-					if (!actor->x().burnTime) evPostActor(actor, 0, kCallbackFXFlameLick);
+					if (!actor->xspr.burnTime) evPostActor(actor, 0, kCallbackFXFlameLick);
 					actBurnSprite(shooter->GetOwner(), actor, pVectorData->burnTime);
 				}
 			}
@@ -6973,7 +6973,7 @@ void actFireVector(DBloodActor* shooter, int a2, int a3, int a4, int a5, int a6,
 				}
 				if (pVectorData->burnTime)
 				{
-					if (!actor->x().burnTime) evPostActor(actor, 0, kCallbackFXFlameLick);
+					if (!actor->xspr.burnTime) evPostActor(actor, 0, kCallbackFXFlameLick);
 					actBurnSprite(shooter->GetOwner(), actor, pVectorData->burnTime);
 				}
 				if (Chance(pVectorData->fxChance))

@@ -1088,7 +1088,7 @@ void ThrowCan(int, PLAYER *pPlayer)
     {
         sfxPlay3DSound(spawned, 441, 0, 0);
         evPostActor(spawned, pPlayer->fuseTime, kCmdOn);
-        spawned->x().Impact = 1;
+        spawned->xspr.Impact = 1;
         UseAmmo(pPlayer, 6, gAmmoItemData[0].count);
         pPlayer->throwPower = 0;
     }
@@ -1128,7 +1128,7 @@ void ThrowBundle(int, PLAYER *pPlayer)
     if (spawned)
     {
         if (pPlayer->fuseTime < 0)
-            spawned->x().Impact = 1;
+            spawned->xspr.Impact = 1;
         else
             evPostActor(spawned, pPlayer->fuseTime, kCmdOn);
         UseAmmo(pPlayer, 5, 1);
@@ -1191,7 +1191,7 @@ void ThrowRemote(int, PLAYER *pPlayer)
     auto spawned = playerFireThing(pPlayer, 0, -9460, kThingArmedRemoteBomb, nSpeed);
     if (spawned)
     {
-        spawned->x().rxID = 90 + (pPlayer->pSprite->type - kDudePlayer1);
+        spawned->xspr.rxID = 90 + (pPlayer->pSprite->type - kDudePlayer1);
         UseAmmo(pPlayer, 11, 1);
         pPlayer->throwPower = 0;
     }
@@ -1202,7 +1202,7 @@ void DropRemote(int, PLAYER *pPlayer)
     auto spawned = playerFireThing(pPlayer, 0, 0, kThingArmedRemoteBomb, 0);
     if (spawned)
     {
-        spawned->x().rxID = 90 + (pPlayer->pSprite->type - kDudePlayer1);
+        spawned->xspr.rxID = 90 + (pPlayer->pSprite->type - kDudePlayer1);
         UseAmmo(pPlayer, 11, 1);
     }
 }
@@ -1591,7 +1591,7 @@ void DropVoodoo(int , PLAYER *pPlayer)
     auto spawned = playerFireThing(pPlayer, 0, -4730, kThingVoodooHead, 0xccccc);
     if (spawned)
     {
-        spawned->x().data1 = pPlayer->ammoCount[9];
+        spawned->xspr.data1 = pPlayer->ammoCount[9];
         evPostActor(spawned, 90, kCallbackDropVoodoo);
         UseAmmo(pPlayer, 6, gAmmoItemData[0].count);
         UseAmmo(pPlayer, 9, pPlayer->ammoCount[9]);

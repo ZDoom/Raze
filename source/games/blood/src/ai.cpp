@@ -110,7 +110,7 @@ void aiNewState(DBloodActor* actor, AISTATE* pAIState)
 static bool isImmune(DBloodActor* actor, int dmgType, int minScale)
 {
 
-	if (dmgType >= kDmgFall && dmgType < kDmgMax && actor->hasX() && actor->x().locked != 1)
+	if (dmgType >= kDmgFall && dmgType < kDmgMax && actor->hasX() && actor->xspr.locked != 1)
 	{
 		int type = actor->spr.type;
 		if (type >= kThingBase && type < kThingMax)
