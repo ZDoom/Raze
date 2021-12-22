@@ -5990,9 +5990,8 @@ static void actCheckDudes()
 
 		if (actor->hasX())
 		{
-			XSPRITE* pXSprite = &actor->x();
 			const bool fixBurnGlitch = !cl_bloodvanillaenemies && IsBurningDude(actor) && !VanillaMode(); // if enemies are burning, always apply burning damage per tick
-			if ((pXSprite->burnTime > 0) || fixBurnGlitch)
+			if ((actor->xspr.burnTime > 0) || fixBurnGlitch)
 			{
 				switch (actor->spr.type)
 				{
@@ -6004,7 +6003,7 @@ static void actCheckDudes()
 					break;
 
 				default:
-					pXSprite->burnTime = ClipLow(pXSprite->burnTime - 4, 0);
+					actor->xspr.burnTime = ClipLow(actor->xspr.burnTime - 4, 0);
 					actDamageSprite(actor->GetBurnSource(), actor, kDamageBurn, 8);
 					break;
 				}
@@ -6012,7 +6011,7 @@ static void actCheckDudes()
 
 #ifdef NOONE_EXTENSIONS
 			// handle incarnations of custom dude
-			if (actor->spr.type == kDudeModernCustom && pXSprite->txID > 0 && pXSprite->sysData1 == kGenDudeTransformStatus)
+			if (actor->spr.type == kDudeModernCustom && actor->xspr.txID > 0 && actor->xspr.sysData1 == kGenDudeTransformStatus)
 			{
 				actor->xvel = actor->yvel = 0;
 				if (seqGetStatus(actor) < 0) genDudeTransform(actor);
@@ -6020,15 +6019,15 @@ static void actCheckDudes()
 #endif
 			if (actor->spr.type == kDudeCerberusTwoHead)
 			{
-				if (pXSprite->health <= 0 && seqGetStatus(actor) < 0)
+				if (actor->xspr.health <= 0 && seqGetStatus(actor) < 0)
 				{
-					pXSprite->health = dudeInfo[28].startHealth << 4;
+					actor->xspr.health = dudeInfo[28].startHealth << 4;
 					actor->spr.type = kDudeCerberusOneHead;
 					if (actor->GetTarget() != nullptr) aiSetTarget(actor, actor->GetTarget());
 					aiActivateDude(actor);
 				}
 			}
-			if (pXSprite->Proximity && !pXSprite->isTriggered)
+			if (actor->xspr.Proximity && !actor->xspr.isTriggered)
 			{
 				BloodStatIterator it1(kStatDude);
 				while (auto actor2 = it1.Next())
@@ -6074,7 +6073,7 @@ static void actCheckDudes()
 				}
 				else if (gGameOptions.nGameType == 0)
 				{
-					if (pPlayer->pXSprite->health > 0 && pPlayer->restTime >= 1200 && Chance(0x200))
+					if (pPlayer->actor->xspr.health > 0 && pPlayer->restTime >= 1200 && Chance(0x200))
 					{
 						pPlayer->restTime = -1;
 						sfxPlay3DSound(actor, 3100 + Random(11), 0, 2);
@@ -6137,7 +6136,6 @@ void actCheckFlares()
 	{
 		if ((actor->spr.flags & 32) || !actor->hasX()) continue;
 
-		XSPRITE* pXSprite = &actor->x();
 		auto target = actor->GetTarget();
 		if (!target) continue;
 
@@ -6149,9 +6147,9 @@ void actCheckFlares()
 		}
 		if (target->hasX() && target->xspr.health > 0)
 		{
-			int x = target->spr.pos.X + mulscale30r(Cos(pXSprite->goalAng + target->spr.ang), target->spr.clipdist * 2);
-			int y = target->spr.pos.Y + mulscale30r(Sin(pXSprite->goalAng + target->spr.ang), target->spr.clipdist * 2);
-			int z = target->spr.pos.Z + pXSprite->targetZ;
+			int x = target->spr.pos.X + mulscale30r(Cos(actor->xspr.goalAng + target->spr.ang), target->spr.clipdist * 2);
+			int y = target->spr.pos.Y + mulscale30r(Sin(actor->xspr.goalAng + target->spr.ang), target->spr.clipdist * 2);
+			int z = target->spr.pos.Z + actor->xspr.targetZ;
 			vec3_t pos = { x, y, z };
 			SetActor(actor, &pos);
 			actor->xvel = target->xvel;
