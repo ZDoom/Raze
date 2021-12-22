@@ -478,6 +478,7 @@ static void unicultThinkChase(DBloodActor* actor)
         genDudeUpdate(actor);
     }
 
+    // we need to be very careful here not to screw up the condition for this check!
 	XSPRITE* pXTarget = !targetactor || !targetactor->IsDudeActor() || !targetactor->hasX() ? nullptr : &targetactor->x();
 
     if (pXTarget == nullptr)  // target lost

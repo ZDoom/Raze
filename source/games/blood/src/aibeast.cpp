@@ -214,7 +214,7 @@ static void beastThinkChase(DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
-	XSPRITE* pXTarget = &actor->GetTarget()->x();
+	
 	int dx = target->spr.pos.X - actor->spr.pos.X;
 	int dy = target->spr.pos.Y - actor->spr.pos.Y;
 	aiChooseDirection(actor, getangle(dx, dy));
@@ -222,7 +222,7 @@ static void beastThinkChase(DBloodActor* actor)
 	auto pSector = actor->spr.sector();
 	auto pXSector = pSector->hasX() ? &pSector->xs() : nullptr;
 
-	if (pXTarget->health == 0)
+	if (target->xspr.health == 0)
 	{
 		if (pXSector && pXSector->Underwater)
 			aiNewState(actor, &beastSwimSearch);
@@ -253,7 +253,7 @@ static void beastThinkChase(DBloodActor* actor)
 					&& target->IsPlayerActor() && Chance(0x8000))
 				{
 					int hit = HitScan(actor, actor->spr.pos.Z, dx, dy, 0, CLIPMASK1, 0);
-					if (pXTarget->health > (unsigned)gPlayerTemplate[0].startHealth / 2)
+					if (target->xspr.health > (unsigned)gPlayerTemplate[0].startHealth / 2)
 					{
 						switch (hit)
 						{
@@ -355,11 +355,11 @@ static void beastThinkSwimChase(DBloodActor* actor)
 	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
-	XSPRITE* pXTarget = &actor->GetTarget()->x();
+	
 	int dx = target->spr.pos.X - actor->spr.pos.X;
 	int dy = target->spr.pos.Y - actor->spr.pos.Y;
 	aiChooseDirection(actor, getangle(dx, dy));
-	if (pXTarget->health == 0)
+	if (target->xspr.health == 0)
 	{
 		aiNewState(actor, &beastSwimSearch);
 		return;
