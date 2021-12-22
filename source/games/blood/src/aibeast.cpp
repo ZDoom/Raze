@@ -79,9 +79,9 @@ void SlashSeqCallback(int, DBloodActor* actor)
 	sfxPlay3DSound(actor, 9012 + Random(2), -1, 0);
 }
 
-void StompSeqCallback(int, DBloodActor* actor1)
+void StompSeqCallback(int, DBloodActor* actor)
 {
-	spritetype* pSprite = &actor1->s();
+	spritetype* pSprite = &actor->s();
 	int dx = bcos(pSprite->ang);
 	int dy = bsin(pSprite->ang);
 	int x = pSprite->pos.X;
@@ -93,7 +93,7 @@ void StompSeqCallback(int, DBloodActor* actor1)
 	int v10 = 25 + 30 * gGameOptions.nDifficulty;
 	const bool newSectCheckMethod = !cl_bloodvanillaenemies && !VanillaMode(); // use new sector checking logic
 	auto sectorMap = GetClosestSpriteSectors(pSector, x, y, vc, nullptr, newSectCheckMethod);
-	int hit = HitScan(actor1, pSprite->pos.Z, dx, dy, 0, CLIPMASK1, 0);
+	int hit = HitScan(actor, pSprite->pos.Z, dx, dy, 0, CLIPMASK1, 0);
 	DBloodActor* actor2 = nullptr;
 	actHitcodeToData(hit, &gHitInfo, &actor2);
 
@@ -101,7 +101,7 @@ void StompSeqCallback(int, DBloodActor* actor1)
 	BloodStatIterator it1(kStatDude);
 	while (auto actor2 = it1.Next())
 	{
-		if (actor1 != actor2)
+		if (actor != actor2)
 		{
 			spritetype* pSprite2 = &actor2->s();
             if (actor2->hasX())
@@ -113,7 +113,7 @@ void StompSeqCallback(int, DBloodActor* actor1)
                 if (CheckSector(sectorMap, actor2) && CheckProximity(actor2, x, y, z, pSector, vc))
 				{
 					int top, bottom;
-					GetActorExtents(actor1, &top, &bottom);
+					GetActorExtents(actor, &top, &bottom);
 					if (abs(bottom - pSector->floorz) == 0)
 					{
 						int dx = abs(pSprite->pos.X - pSprite2->pos.X);
@@ -128,7 +128,7 @@ void StompSeqCallback(int, DBloodActor* actor1)
 								nDamage = v1c + ((vc - nDist2) * v10) / vc;
 							if (IsPlayerSprite(pSprite2))
 								gPlayer[pSprite2->type - kDudePlayer1].quakeEffect += nDamage * 4;
-							actDamageSprite(actor1, actor2, kDamageFall, nDamage << 4);
+							actDamageSprite(actor, actor2, kDamageFall, nDamage << 4);
 						}
 					}
 				}
@@ -158,11 +158,11 @@ void StompSeqCallback(int, DBloodActor* actor1)
 					nDamage = v1c + ((vc - nDist2) * v10) / vc;
 				if (IsPlayerSprite(pSprite2))
 					gPlayer[pSprite2->type - kDudePlayer1].quakeEffect += nDamage * 4;
-				actDamageSprite(actor1, actor2, kDamageFall, nDamage << 4);
+				actDamageSprite(actor, actor2, kDamageFall, nDamage << 4);
 			}
 		}
 	}
-	sfxPlay3DSound(actor1, 9015 + Random(2), -1, 0);
+	sfxPlay3DSound(actor, 9015 + Random(2), -1, 0);
 }
 
 static void MorphToBeast(DBloodActor* actor)

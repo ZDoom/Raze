@@ -43,14 +43,14 @@ AISTATE spidBite = { kAiStateChase, 6, nSpidBiteClient, 60, NULL, NULL, NULL, &s
 AISTATE spidJump = { kAiStateChase, 8, nSpidJumpClient, 60, NULL, aiMoveForward, NULL, &spidChase };
 AISTATE spidBirth = { kAiStateOther, 0, nSpidBirthClient, 60, NULL, NULL, NULL, &spidIdle };
 
-static void spidBlindEffect(DBloodActor* dudeactor, int nBlind, int max)
+static void spidBlindEffect(DBloodActor* actor, int nBlind, int max)
 {
-	spritetype* pDude = &dudeactor->s();
-	if (IsPlayerSprite(pDude))
+	spritetype* pSprite = &actor->s();
+	if (actor->IsPlayerActor())
 	{
 		nBlind <<= 4;
 		max <<= 4;
-		PLAYER* pPlayer = &gPlayer[pDude->type - kDudePlayer1];
+		PLAYER* pPlayer = &gPlayer[pSprite->type - kDudePlayer1];
 		if (pPlayer->blindEffect < max)
 		{
 			pPlayer->blindEffect = ClipHigh(pPlayer->blindEffect + nBlind, max);
@@ -70,7 +70,6 @@ void SpidBiteSeqCallback(int, DBloodActor* actor)
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 
 	auto const target = actor->GetTarget();
-	spritetype* pTarget = &target->s();
 	if (target->IsPlayerActor())
 	{
         int hit = HitScan(actor, pSprite->pos.Z, dx, dy, 0, CLIPMASK1, 0);

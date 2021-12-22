@@ -121,12 +121,11 @@ void BlastSSeqCallback(int, DBloodActor* actor)
 	BloodStatIterator it(kStatDude);
 	while (auto actor2 = it.Next())
 	{
-		spritetype* pSprite2 = &actor2->s();
-		if (pSprite == pSprite2 || !(pSprite2->flags & 8))
+		if (actor == actor2 || !(actor2->spr.flags & 8))
 			continue;
-		int x2 = pSprite2->pos.X;
-		int y2 = pSprite2->pos.Y;
-		int z2 = pSprite2->pos.Z;
+		int x2 = actor2->spr.pos.X;
+		int y2 = actor2->spr.pos.Y;
+		int z2 = actor2->spr.pos.Z;
 		int nDist = approxDist(x2 - x, y2 - y);
 		if (nDist == 0 || nDist > 0x2800)
 			continue;
@@ -155,8 +154,8 @@ void BlastSSeqCallback(int, DBloodActor* actor)
 			int nDeltaAngle = ((nAngle - pSprite->ang + 1024) & 2047) - 1024;
 			if (abs(nDeltaAngle) <= tt.at8)
 			{
-				int tz = pSprite2->pos.Z - pSprite->pos.Z;
-				if (cansee(x, y, z, pSprite->sector(), x2, y2, z2, pSprite2->sector()))
+				int tz = actor2->spr.pos.Z - pSprite->pos.Z;
+				if (cansee(x, y, z, pSprite->sector(), x2, y2, z2, actor2->spr.sector()))
 				{
 					nClosest = nDist2;
 					aim.dx = bcos(nAngle);
