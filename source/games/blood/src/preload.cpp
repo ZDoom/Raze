@@ -125,15 +125,15 @@ void viewPrecacheTiles()
 
 
 
-void PrecacheDude(spritetype *pSprite)
+void PrecacheDude(DBloodActor *actor)
 {
-    int palette = pSprite->pal;
-    DUDEINFO *pDudeInfo = getDudeInfo(pSprite->type);
+    int palette = actor->spr.pal;
+    DUDEINFO *pDudeInfo = getDudeInfo(actor->spr.type);
     seqPrecacheId(pDudeInfo->seqStartID  , palette);
     seqPrecacheId(pDudeInfo->seqStartID+5, palette);
     seqPrecacheId(pDudeInfo->seqStartID+1, palette);
     seqPrecacheId(pDudeInfo->seqStartID+2, palette);
-    switch (pSprite->type)
+    switch (actor->spr.type)
     {
     case kDudeCultistTommy:
     case kDudeCultistShotgun:
@@ -211,10 +211,10 @@ void PrecacheDude(spritetype *pSprite)
     }
 }
 
-void PrecacheThing(spritetype *pSprite) 
+void PrecacheThing(DBloodActor* actor) 
 {
-    int palette = pSprite->pal;
-    switch (pSprite->type) {
+    int palette = actor->spr.pal;
+    switch (actor->spr.type) {
         case kThingGlassWindow: // worthless...
         case kThingFluorescent:
             seqPrecacheId(12, palette);
@@ -238,7 +238,7 @@ void PrecacheThing(spritetype *pSprite)
         //case kThingObjectExplode: weird that only gib object is precached and this one is not
             break;
     }
-    tilePrecacheTile(pSprite->picnum, -1, palette);
+    tilePrecacheTile(actor->spr.picnum, -1, palette);
 }
 
 void PreloadCache()
@@ -262,17 +262,16 @@ void PreloadCache()
     BloodSpriteIterator it;
     while (auto actor = it.Next())
     {
-        spritetype *pSprite = &actor->s();
-        switch (pSprite->statnum)
+        switch (actor->spr.statnum)
         {
         case kStatDude:
-            PrecacheDude(pSprite);
+            PrecacheDude(actor);
             break;
         case kStatThing:
-            PrecacheThing(pSprite);
+            PrecacheThing(actor);
             break;
         default:
-            tilePrecacheTile(pSprite->picnum, -1, pSprite->pal);
+            tilePrecacheTile(actor->spr.picnum, -1, actor->spr.pal);
             break;
         }
     }
