@@ -63,7 +63,7 @@ void walltype::calcLength()
 	lengthflags &= ~1;
 	point2Wall()->lengthflags &= ~2;
 	auto d = delta();
-	length = (int)sqrt(d.x * d.x + d.y * d.y);
+	length = (int)sqrt(d.X * d.X + d.y * d.y);
 }
 
 // needed for skipping over to get the map size first.
@@ -178,7 +178,7 @@ static void ReadSectorV5(FileReader& fr, sectortype& sect)
 
 static void ReadWallV7(FileReader& fr, walltype& wall)
 {
-	wall.pos.x = fr.ReadInt32();
+	wall.pos.X = fr.ReadInt32();
 	wall.pos.y = fr.ReadInt32();
 	wall.point2 = fr.ReadInt16();
 	wall.nextwall = fr.ReadInt16();
@@ -199,7 +199,7 @@ static void ReadWallV7(FileReader& fr, walltype& wall)
 
 static void ReadWallV6(FileReader& fr, walltype& wall)
 {
-	wall.pos.x = fr.ReadInt32();
+	wall.pos.X = fr.ReadInt32();
 	wall.pos.y = fr.ReadInt32();
 	wall.point2 = fr.ReadInt16();
 	wall.nextsector = fr.ReadInt16();
@@ -220,7 +220,7 @@ static void ReadWallV6(FileReader& fr, walltype& wall)
 
 static void ReadWallV5(FileReader& fr, walltype& wall)
 {
-	wall.pos.x = fr.ReadInt32();
+	wall.pos.X = fr.ReadInt32();
 	wall.pos.y = fr.ReadInt32();
 	wall.point2 = fr.ReadInt16();
 	wall.picnum = fr.ReadInt16();

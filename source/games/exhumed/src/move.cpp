@@ -1259,7 +1259,7 @@ int GetWallNormal(walltype* pWall)
 {
 	auto delta = pWall->delta();
 
-    int nAngle = GetMyAngle(delta.x, delta.y);
+    int nAngle = GetMyAngle(delta.X, delta.y);
     return (nAngle + 512) & kAngleMask;
 }
 

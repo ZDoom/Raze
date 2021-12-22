@@ -151,7 +151,7 @@ void resetplayerstats(int snum)
 	p->posxv             = 0;                           //!!
 	p->posyv             = 0;
 	p->poszv             = 0;
-	p->fric.x            = 0;
+	p->fric.X            = 0;
 	p->fric.y            = 0;
 	p->somethingonplayer =nullptr;
 	p->angle.spin        = 0;

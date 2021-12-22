@@ -56,9 +56,9 @@ static void getclosestpointonwall_internal(vec2_t const p, int32_t const dawall,
 {
     vec2_t const w  = wall[dawall].pos;
     vec2_t const w2 = wall[dawall].point2Wall()->pos;
-    vec2_t const d  = { w2.x - w.x, w2.y - w.y };
+    vec2_t const d  = { w2.X - w.X, w2.y - w.y };
 
-    int64_t i = d.x * ((int64_t)p.x - w.x) + d.y * ((int64_t)p.y - w.y);
+    int64_t i = d.X * ((int64_t)p.X - w.X) + d.y * ((int64_t)p.y - w.y);
 
     if (i <= 0)
     {
@@ -66,7 +66,7 @@ static void getclosestpointonwall_internal(vec2_t const p, int32_t const dawall,
         return;
     }
 
-    int64_t const j = (int64_t)d.x * d.x + (int64_t)d.y * d.y;
+    int64_t const j = (int64_t)d.X * d.X + (int64_t)d.y * d.y;
 
     if (i >= j)
     {
@@ -76,7 +76,7 @@ static void getclosestpointonwall_internal(vec2_t const p, int32_t const dawall,
 
     i = ((i << 15) / j) << 15;
 
-    *closest = { (int32_t)(w.x + ((d.x * i) >> 30)), (int32_t)(w.y + ((d.y * i) >> 30)) };
+    *closest = { (int32_t)(w.X + ((d.X * i) >> 30)), (int32_t)(w.y + ((d.y * i) >> 30)) };
 }
 
 int32_t xdimen = -1, xdimenscale, xdimscale;
@@ -187,8 +187,8 @@ int32_t lintersect(const int32_t originX, const int32_t originY, const int32_t o
     const vec2_t originDiff = { lineStartX-originX,
                                 lineStartY-originY };
 
-    const int32_t rayCrossLineVec = ray.x*lineVec.y - ray.y*lineVec.x;
-    const int32_t originDiffCrossRay = originDiff.x*ray.y - originDiff.y*ray.x;
+    const int32_t rayCrossLineVec = ray.X*lineVec.y - ray.y*lineVec.X;
+    const int32_t originDiffCrossRay = originDiff.X*ray.y - originDiff.y*ray.X;
 
     if (rayCrossLineVec == 0)
     {
@@ -199,9 +199,9 @@ int32_t lintersect(const int32_t originX, const int32_t originY, const int32_t o
         }
 
         // line segments are collinear
-        const int32_t rayLengthSquared = ray.x*ray.x + ray.y*ray.y;
-        const int32_t rayDotOriginDiff = ray.x*originDiff.x + ray.y*originDiff.y;
-        const int32_t rayDotLineEndDiff = rayDotOriginDiff + ray.x*lineVec.x + ray.y*lineVec.y;
+        const int32_t rayLengthSquared = ray.X*ray.X + ray.y*ray.y;
+        const int32_t rayDotOriginDiff = ray.X*originDiff.X + ray.y*originDiff.y;
+        const int32_t rayDotLineEndDiff = rayDotOriginDiff + ray.X*lineVec.X + ray.y*lineVec.y;
         int64_t t = min(rayDotOriginDiff, rayDotLineEndDiff);
         if (rayDotOriginDiff < 0)
         {
@@ -219,14 +219,14 @@ int32_t lintersect(const int32_t originX, const int32_t originY, const int32_t o
         }
         t = (t << 24) / rayLengthSquared;
 
-        *intersectionX = originX + MulScale(ray.x, t, 24);
+        *intersectionX = originX + MulScale(ray.X, t, 24);
         *intersectionY = originY + MulScale(ray.y, t, 24);
         *intersectionZ = originZ + MulScale(destZ-originZ, t, 24);
 
         return 1;
     }
 
-    const int32_t originDiffCrossLineVec = originDiff.x*lineVec.y - originDiff.y*lineVec.x;
+    const int32_t originDiffCrossLineVec = originDiff.X*lineVec.y - originDiff.y*lineVec.X;
     static const int32_t signBit = 1u<<31u;
     // Any point on either line can be expressed as p+t*r and q+u*s
     // The two line segments intersect when we can find a t & u such that p+t*r = q+u*s
@@ -248,7 +248,7 @@ int32_t lintersect(const int32_t originX, const int32_t originY, const int32_t o
     int64_t t = (int64_t(originDiffCrossLineVec) << 24) / rayCrossLineVec;
     // For sake of completeness/readability, alternative to the above approach for an early out & avoidance of an extra division:
 
-    *intersectionX = originX + MulScale(ray.x, t, 24);
+    *intersectionX = originX + MulScale(ray.X, t, 24);
     *intersectionY = originY + MulScale(ray.y, t, 24);
     *intersectionZ = originZ + MulScale(destZ-originZ, t, 24);
 
@@ -378,7 +378,7 @@ int32_t inside(int32_t x, int32_t y, const sectortype* sect)
             //   y1 != y2 AND y_m <= y < y_M,
             // where y_m := min(y1, y2) and y_M := max(y1, y2).
             if ((v1.y^v2.y) < 0)
-                cnt ^= (((v1.x^v2.x) >= 0) ? v1.x : (v1.x*v2.y-v2.x*v1.y)^v2.y);
+                cnt ^= (((v1.X^v2.X) >= 0) ? v1.X : (v1.X*v2.y-v2.X*v1.y)^v2.y);
         }
         return cnt>>31;
     }
@@ -683,19 +683,19 @@ int32_t getwalldist(vec2_t const in, int const wallnum)
 {
     vec2_t closest;
     getclosestpointonwall_internal(in, wallnum, &closest);
-    return abs(closest.x - in.x) + abs(closest.y - in.y);
+    return abs(closest.X - in.X) + abs(closest.y - in.y);
 }
 
 int32_t getwalldist(vec2_t const in, int const wallnum, vec2_t * const out)
 {
     getclosestpointonwall_internal(in, wallnum, out);
-    return abs(out->x - in.x) + abs(out->y - in.y);
+    return abs(out->X - in.X) + abs(out->y - in.y);
 }
 
 
 int32_t getsectordist(vec2_t const in, int const sectnum, vec2_t * const out /*= nullptr*/)
 {
-    if (inside_p(in.x, in.y, sectnum))
+    if (inside_p(in.X, in.y, sectnum))
     {
         if (out)
             *out = in;
@@ -810,10 +810,10 @@ void rotatepoint(vec2_t const pivot, vec2_t p, int16_t const daang, vec2_t * con
 {
     int const dacos = bcos(daang);
     int const dasin = bsin(daang);
-    p.x -= pivot.x;
+    p.X -= pivot.X;
     p.y -= pivot.y;
-    p2->x = DMulScale(p.x, dacos, -p.y, dasin, 14) + pivot.x;
-    p2->y = DMulScale(p.y, dacos, p.x, dasin, 14) + pivot.y;
+    p2->X = DMulScale(p.X, dacos, -p.y, dasin, 14) + pivot.X;
+    p2->y = DMulScale(p.y, dacos, p.X, dasin, 14) + pivot.y;
 }
 
 //
@@ -821,9 +821,9 @@ void rotatepoint(vec2_t const pivot, vec2_t p, int16_t const daang, vec2_t * con
 //
 void videoSetViewableArea(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
 {
-    windowxy1.x = x1;
+    windowxy1.X = x1;
     windowxy1.y = y1;
-    windowxy2.x = x2;
+    windowxy2.X = x2;
     windowxy2.y = y2;
 
     xdimen = (x2-x1)+1;
@@ -884,8 +884,8 @@ void renderRestoreTarget()
 
     xdim = bakxsiz;
     ydim = bakysiz;
-    videoSetViewableArea(bakwindowxy1.x,bakwindowxy1.y,
-            bakwindowxy2.x,bakwindowxy2.y);
+    videoSetViewableArea(bakwindowxy1.X,bakwindowxy1.y,
+            bakwindowxy2.X,bakwindowxy2.y);
 
 }
 

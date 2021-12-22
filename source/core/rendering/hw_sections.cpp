@@ -89,7 +89,7 @@ static int sgn(int v)
 static int dist(const vec2_t& a, const vec2_t& b)
 {
 	// We only need to know if it's 1 or higher, so this is enough.
-	return abs(a.x - b.x) + abs(a.y - b.y);
+	return abs(a.X - b.X) + abs(a.y - b.y);
 }
 
 
@@ -122,8 +122,8 @@ void StripLoop(TArray<vec2_t>& points)
 			}
 			if (p > 0) p--; // backtrack one point more to ensure we can check the newly formed connection as well.
 		}
-		else if ((points[prev].x == points[p].x && points[next].x == points[p].x && sgn(points[next].y - points[p].y) == sgn(points[prev].y - points[p].y)) ||
-			(points[prev].y == points[p].y && points[next].y == points[p].y && sgn(points[next].x - points[p].x) == sgn(points[prev].x - points[p].x)) ||
+		else if ((points[prev].X == points[p].X && points[next].X == points[p].X && sgn(points[next].y - points[p].y) == sgn(points[prev].y - points[p].y)) ||
+			(points[prev].y == points[p].y && points[next].y == points[p].y && sgn(points[next].X - points[p].X) == sgn(points[prev].X - points[p].X)) ||
 			dist(points[prev], points[next]) <= 1) // if the two points are extremely close together, we may also ignore the intermediate point.
 		{
 			// both connections exit the point into the same direction. Here it is sufficient to just delete it so that the neighboring ones connect directly.
@@ -145,16 +145,16 @@ void StripLoop(TArray<vec2_t>& points)
 int GetWindingOrder(TArray<vec2_t>& poly, cmp comp1 = cmpLess, cmp comp2 = cmpGreater)
 {
 	int n = poly.Size();
-	int minx = poly[0].x;
+	int minx = poly[0].X;
 	int miny = poly[0].y;
 	int m = 0;
 
 	for (int i = 0; i < n; i++) 
 	{
-		if ((comp1(poly[i].y, miny)) || ((poly[i].y == miny) && (comp2(poly[i].x, minx))))
+		if ((comp1(poly[i].y, miny)) || ((poly[i].y == miny) && (comp2(poly[i].X, minx))))
 		{
 			m = i;
-			minx = poly[m].x;
+			minx = poly[m].X;
 			miny = poly[m].y;
 		}
 	}
@@ -164,9 +164,9 @@ int GetWindingOrder(TArray<vec2_t>& poly, cmp comp1 = cmpLess, cmp comp2 = cmpGr
 	int m1 = (m + n - 1) % n;
 	int m2 = (m + 1) % n;
 
-	a[0] = poly[m1].x;
-	b[0] = poly[m].x;
-	c[0] = poly[m2].x;
+	a[0] = poly[m1].X;
+	b[0] = poly[m].X;
+	c[0] = poly[m2].X;
 
 	a[1] = poly[m1].y;
 	b[1] = poly[m].y;
@@ -311,9 +311,9 @@ static int insideLoop(int vertex, TArray<int>& loop)
 			if ((pt1.y >pt.y) != (pt2.y > pt.y)) // skip if both are on the same side.
 			{
 				// use 64 bit values to avoid overflows in the multiplications below.
-				int64_t deltatx = int64_t(pt.x) - pt1.x;
+				int64_t deltatx = int64_t(pt.X) - pt1.X;
 				int64_t deltaty = int64_t(pt.y) - pt1.y;
-				int64_t deltax = int64_t(pt2.x) - pt1.x;
+				int64_t deltax = int64_t(pt2.X) - pt1.X;
 				int64_t deltay = int64_t(pt2.y) - pt1.y;
 				//if (x < deltax * (deltaty) / deltay + pt1.x)
 				// reformatted to avoid the division - for nagative deltay the sign needs to be flipped to give the correct result.

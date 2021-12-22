@@ -238,8 +238,8 @@ static IntRect System_GetSceneRect()
 {
 	int viewbottom = windowxy2.y + 1;
 	int viewheight = viewbottom - windowxy1.y;
-	int viewright = windowxy2.x + 1;
-	int viewwidth = viewright - windowxy1.x;
+	int viewright = windowxy2.X + 1;
+	int viewwidth = viewright - windowxy1.X;
 
 	int renderheight;
 	
@@ -247,7 +247,7 @@ static IntRect System_GetSceneRect()
 	else renderheight = (viewwidth * screen->GetHeight() / screen->GetWidth()) & ~7;
 
 	IntRect mSceneViewport;
-	mSceneViewport.left = windowxy1.x;
+	mSceneViewport.left = windowxy1.X;
 	mSceneViewport.top = screen->GetHeight() - (renderheight + windowxy1.y - ((renderheight - viewheight) / 2));
 	mSceneViewport.width = viewwidth;
 	mSceneViewport.height = renderheight;
@@ -1411,7 +1411,7 @@ void DrawCrosshair(int deftile, int health, double xdelta, double ydelta, double
 				double crosshair_scale = crosshairscale * scale;
 				DrawTexture(twod, tile, 160 + xdelta, 100 + ydelta, DTA_Color, color,
 					DTA_FullscreenScale, FSMode_Fit320x200, DTA_ScaleX, crosshair_scale, DTA_ScaleY, crosshair_scale, DTA_CenterOffsetRel, true,
-					DTA_ViewportX, windowxy1.x, DTA_ViewportY, windowxy1.y, DTA_ViewportWidth, windowxy2.x - windowxy1.x + 1, DTA_ViewportHeight, windowxy2.y - windowxy1.y + 1, TAG_DONE);
+					DTA_ViewportX, windowxy1.X, DTA_ViewportY, windowxy1.y, DTA_ViewportWidth, windowxy2.X - windowxy1.X + 1, DTA_ViewportHeight, windowxy2.y - windowxy1.y + 1, TAG_DONE);
 
 				return;
 			}
@@ -1419,7 +1419,7 @@ void DrawCrosshair(int deftile, int health, double xdelta, double ydelta, double
 		// 0 means 'game provided crosshair' - use type 2 as fallback.
 		ST_LoadCrosshair(crosshair == 0 ? 2 : *crosshair, false);
 
-		double xpos = (windowxy1.x + windowxy2.x) / 2 + xdelta * (windowxy2.y - windowxy1.y) / 240.;
+		double xpos = (windowxy1.X + windowxy2.X) / 2 + xdelta * (windowxy2.y - windowxy1.y) / 240.;
 		double ypos = (windowxy1.y + windowxy2.y) / 2;
 		ST_DrawCrosshair(health, xpos, ypos, 1);
 	}
@@ -1524,9 +1524,9 @@ bool validFilter(const char* str)
 DEFINE_ACTION_FUNCTION(_Screen, GetViewWindow)
 {
 	PARAM_PROLOGUE;
-	if (numret > 0) ret[0].SetInt(windowxy1.x);
+	if (numret > 0) ret[0].SetInt(windowxy1.X);
 	if (numret > 1) ret[1].SetInt(windowxy1.y);
-	if (numret > 2) ret[2].SetInt(windowxy2.x - windowxy1.x + 1);
+	if (numret > 2) ret[2].SetInt(windowxy2.X - windowxy1.X + 1);
 	if (numret > 3) ret[3].SetInt(windowxy2.y - windowxy1.y + 1);
 	return min(numret, 4);
 }

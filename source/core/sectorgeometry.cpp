@@ -230,7 +230,7 @@ static int OutlineToFloat(Outline& outl, FOutline& polygon)
 		count += outl[i].Size();
 		for (unsigned j = 0; j < outl[i].Size(); j++)
 		{
-			float X = RenderX(outl[i][j].x);
+			float X = RenderX(outl[i][j].X);
 			float Y = RenderY(outl[i][j].y);
 			if (fabs(X) > 32768.f || fabs(Y) > 32768.f)
 			{

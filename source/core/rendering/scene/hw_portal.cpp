@@ -536,9 +536,9 @@ bool HWMirrorPortal::Setup(HWDrawInfo *di, FRenderState &rstate, Clipper *clippe
 
 	vec2_t view = { int(vp.Pos.X * 16), int(vp.Pos.Y * -16) };
 
-	int64_t i = ((int64_t(view.x) - x) * dx + (int64_t(view.y) - y) * dy) << 1;
+	int64_t i = ((int64_t(view.X) - x) * dx + (int64_t(view.y) - y) * dy) << 1;
 
-	int newx = int((x << 1) + Scale(dx, i, j) - view.x);
+	int newx = int((x << 1) + Scale(dx, i, j) - view.X);
 	int newy = int((y << 1) + Scale(dy, i, j) - view.y);
 
 	auto myan = bvectangbam(dx, dy);

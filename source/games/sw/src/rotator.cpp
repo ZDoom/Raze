@@ -373,7 +373,7 @@ int DoRotator(DSWActor* actor)
         vec2_t const orig = { r->origX[ndx], r->origY[ndx] };
         rotatepoint(pivot->pos.vec2, orig, r->pos, &nxy);
 
-        dragpoint(&wal, nxy.x, nxy.y);
+        dragpoint(&wal, nxy.X, nxy.y);
         ndx++;
     }
 

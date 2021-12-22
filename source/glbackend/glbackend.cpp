@@ -343,7 +343,7 @@ void PM_WriteSavePic(FileWriter* file, int width, int height)
 
 	xdim = oldx;
 	ydim = oldy;
-	videoSetViewableArea(oldwindowxy1.x, oldwindowxy1.y, oldwindowxy2.x, oldwindowxy2.y);
+	videoSetViewableArea(oldwindowxy1.X, oldwindowxy1.y, oldwindowxy2.X, oldwindowxy2.y);
 
 	// The 2D drawers can contain some garbage from the dirty render setup. Get rid of that first.
 	twod->Clear();

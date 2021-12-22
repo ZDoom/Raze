@@ -384,7 +384,7 @@ int32_t g_frameRate;
 static void DrawMap(spritetype* pSprite)
 {
     int tm = 0;
-    if (windowxy1.x > 0)
+    if (windowxy1.X > 0)
     {
         setViewport(Hud_Stbar);
         tm = 1;
@@ -785,8 +785,8 @@ bool GameInterface::DrawAutomapPlayer(int mx, int my, int x, int y, int z, int a
             double x = xdim / 2. + x1 / double(1 << 12);
             double y = ydim / 2. + y1 / double(1 << 12);
             // This very likely needs fixing later
-            DrawTexture(twod, tileGetTexture(nTile, true), xx, yy, DTA_ClipLeft, windowxy1.x, DTA_ClipTop, windowxy1.y, DTA_ScaleX, z/1536., DTA_ScaleY, z/1536., DTA_CenterOffset, true,
-                DTA_ClipRight, windowxy2.x + 1, DTA_ClipBottom, windowxy2.y + 1, DTA_Alpha, (pSprite->cstat & CSTAT_SPRITE_TRANSLUCENT ? 0.5 : 1.), TAG_DONE);
+            DrawTexture(twod, tileGetTexture(nTile, true), xx, yy, DTA_ClipLeft, windowxy1.X, DTA_ClipTop, windowxy1.y, DTA_ScaleX, z/1536., DTA_ScaleY, z/1536., DTA_CenterOffset, true,
+                DTA_ClipRight, windowxy2.X + 1, DTA_ClipBottom, windowxy2.y + 1, DTA_Alpha, (pSprite->cstat & CSTAT_SPRITE_TRANSLUCENT ? 0.5 : 1.), TAG_DONE);
         }
     }
     return true;

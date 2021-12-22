@@ -1027,7 +1027,7 @@ void shootbloodsplat(DDukeActor* actor, int p, int sx, int sy, int sz, int sa, i
 				{
 					spawned->spr.xvel = -12;
 					auto delta = hit.hitWall->delta();
-					spawned->spr.ang = getangle(-delta.x, -delta.y) + 512; // note the '-' sign here!
+					spawned->spr.ang = getangle(-delta.X, -delta.y) + 512; // note the '-' sign here!
 					spawned->spr.x = hit.hitpos.x;
 					spawned->spr.y = hit.hitpos.y;
 					spawned->spr.z = hit.hitpos.z;

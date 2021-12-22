@@ -164,7 +164,7 @@ int testquadinsect(int *point_num, vec2_t const * q, sectortype* sect)
 
     for (i=0; i < 4; i++)
     {
-        if (!inside(q[i].x, q[i].y, sect))
+        if (!inside(q[i].X, q[i].y, sect))
         {
             *point_num = i;
 
@@ -175,8 +175,8 @@ int testquadinsect(int *point_num, vec2_t const * q, sectortype* sect)
     for (i=0; i<4; i++)
     {
         next_i = (i+1) & 3;
-        if (!cansee(q[i].x, q[i].y,0x3fffffff, sect,
-                    q[next_i].x, q[next_i].y,0x3fffffff, sect))
+        if (!cansee(q[i].X, q[i].y,0x3fffffff, sect,
+                    q[next_i].X, q[next_i].y,0x3fffffff, sect))
         {
             return false;
         }
@@ -195,7 +195,7 @@ int RectClipMove(PLAYERp pp, int *qx, int *qy)
 
     for (i = 0; i < 4; i++)
     {
-        xy[i].x = qx[i] + (pp->xvect>>14);
+        xy[i].X = qx[i] + (pp->xvect>>14);
         xy[i].y = qy[i] + (pp->yvect>>14);
     }
 
@@ -214,7 +214,7 @@ int RectClipMove(PLAYERp pp, int *qx, int *qy)
     {
         for (i = 0; i < 4; i++)
         {
-            xy[i].x = qx[i] - (pp->yvect>>15);
+            xy[i].X = qx[i] - (pp->yvect>>15);
             xy[i].y = qy[i] + (pp->xvect>>15);
         }
         if (testquadinsect(&point_num, xy, pp->cursector))
@@ -230,7 +230,7 @@ int RectClipMove(PLAYERp pp, int *qx, int *qy)
     {
         for (i = 0; i < 4; i++)
         {
-            xy[i].x = qx[i] + (pp->yvect>>15);
+            xy[i].X = qx[i] + (pp->yvect>>15);
             xy[i].y = qy[i] - (pp->xvect>>15);
         }
         if (testquadinsect(&point_num, xy, pp->cursector))
@@ -289,7 +289,7 @@ short RectClipTurn(PLAYERp pp, short new_ang, int *qx, int *qy, int *ox, int *oy
         // move to new pos
         for (i = 0; i < 4; i++)
         {
-            qx[i] = xy[i].x;
+            qx[i] = xy[i].X;
             qy[i] = xy[i].y;
         }
         return true;

@@ -285,7 +285,7 @@ bool CheckProximityWall(walltype* pWall, int x, int y, int nDist)
 int GetWallAngle(walltype* pWall)
 {
     auto delta = pWall->delta();
-    return getangle(delta.x, delta.y);
+    return getangle(delta.X, delta.y);
 }
 
 void GetWallNormal(walltype* pWall, int *pX, int *pY)
@@ -293,7 +293,7 @@ void GetWallNormal(walltype* pWall, int *pX, int *pY)
 
     auto delta = pWall->delta();
     int dX = -delta.y >> 4;
-    int dY = delta.x >> 4;
+    int dY = delta.X >> 4;
 
     int nLength = ksqrt(dX*dX+dY*dY);
     if (nLength <= 0)
@@ -347,16 +347,16 @@ int HitScan(DBloodActor *actor, int z, int dx, int dy, int dz, unsigned int nMas
     pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_HITSCAN;
     if (nRange)
     {
-        hitscangoal.x = x + MulScale(nRange << 4, Cos(pSprite->ang), 30);
+        hitscangoal.X = x + MulScale(nRange << 4, Cos(pSprite->ang), 30);
         hitscangoal.y = y + MulScale(nRange << 4, Sin(pSprite->ang), 30);
     }
     else
     {
-        hitscangoal.x = hitscangoal.y = 0x1ffffff;
+        hitscangoal.X = hitscangoal.y = 0x1ffffff;
     }
     hitscan({ x, y, z }, pSprite->sector(), { dx, dy, dz << 4 }, gHitInfo, nMask);
 
-    hitscangoal.x = hitscangoal.y = 0x1ffffff;
+    hitscangoal.X = hitscangoal.y = 0x1ffffff;
     pSprite->cstat = bakCstat;
     if (gHitInfo.actor() != nullptr)
         return 3;
@@ -392,17 +392,17 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
     pSprite->cstat &= ~CSTAT_SPRITE_BLOCK_HITSCAN;
     if (nRange)
     {
-        hitscangoal.x = x1+MulScale(nRange<<4, Cos(pSprite->ang), 30);
+        hitscangoal.X = x1+MulScale(nRange<<4, Cos(pSprite->ang), 30);
         hitscangoal.y = y1+MulScale(nRange<<4, Sin(pSprite->ang), 30);
     }
     else
     {
-        hitscangoal.x = hitscangoal.y = 0x1fffffff;
+        hitscangoal.X = hitscangoal.y = 0x1fffffff;
     }
     vec3_t pos = { x1, y1, z1 };
     hitscan(pos, pSprite->sector(), { dx, dy, dz << 4 }, gHitInfo, CLIPMASK1);
 
-    hitscangoal.x = hitscangoal.y = 0x1ffffff;
+    hitscangoal.X = hitscangoal.y = 0x1ffffff;
     pSprite->cstat = bakCstat;
     while (nNum--)
     {

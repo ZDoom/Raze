@@ -114,7 +114,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, player_struct& w, 
 			("horizon", w.horizon)
 			.Array("gotweapon", w.gotweapon, MAX_WEAPONS)
 			("pals", w.pals)
-			("fricx", w.fric.x)
+			("fricx", w.fric.X)
 			("fricy", w.fric.y)
 			("exitx", w.exitx)
 			("exity", w.exity)

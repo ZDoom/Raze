@@ -227,7 +227,7 @@ int getslopeval(sectortype* sect, int x, int y, int z, int basez)
 {
 	auto wal = sect->firstWall();
 	auto delta = wal->delta();
-	int i = (y - wal->y) * delta.x - (x - wal->x) * delta.y;
+	int i = (y - wal->y) * delta.X - (x - wal->x) * delta.y;
 	return i == 0? 0 : Scale((z - basez) << 8, wal->Length(), i);
 }
 
@@ -261,9 +261,9 @@ void GetWallSpritePosition(const tspritetype* spr, vec2_t pos, vec2_t* out, bool
 	if (spr->cstat & CSTAT_SPRITE_XFLIP) xoff = -xoff;
 	int origin = (width >> 1) + xoff;
 
-	out[0].x = pos.x - MulScale(x, origin, 16);
+	out[0].X = pos.X - MulScale(x, origin, 16);
 	out[0].y = pos.y - MulScale(y, origin, 16);
-	out[1].x = out[0].x + MulScale(x, width, 16);
+	out[1].X = out[0].X + MulScale(x, width, 16);
 	out[1].y = out[0].y + MulScale(y, width, 16);
 }
 
@@ -307,10 +307,10 @@ void TGetFlatSpritePosition(const spritetypebase* spr, vec2_t pos, vec2_t* out, 
 	int cosangslope = DivScale(cosang, ratio, 12);
 	int sinangslope = DivScale(sinang, ratio, 12);
 
-	out[0].x = pos.x + DMulScale(sinang, sprcenterx, cosangslope, sprcentery, 16);
+	out[0].X = pos.X + DMulScale(sinang, sprcenterx, cosangslope, sprcentery, 16);
 	out[0].y = pos.y + DMulScale(sinangslope, sprcentery, -cosang, sprcenterx, 16);
 
-	out[1].x = out[0].x - MulScale(sinang, width, 16);
+	out[1].X = out[0].X - MulScale(sinang, width, 16);
 	out[1].y = out[0].y + MulScale(cosang, width, 16);
 
 	vec2_t sub = { MulScale(cosangslope, height, 16), MulScale(sinangslope, height, 16) };
@@ -323,7 +323,7 @@ void TGetFlatSpritePosition(const spritetypebase* spr, vec2_t pos, vec2_t* out, 
 		{
 			for (int i = 0; i < 4; i++)
 			{
-				int spos = DMulScale(-sinang, out[i].y - spr->y, -cosang, out[i].x - spr->x, 4);
+				int spos = DMulScale(-sinang, out[i].y - spr->y, -cosang, out[i].X - spr->x, 4);
 				outz[i] = MulScale(heinum, spos, 18);
 			}
 		}
@@ -396,7 +396,7 @@ FSerializer& Serialize(FSerializer& arc, const char* key, vec2_t& c, vec2_t* def
 	if (arc.isWriting() && def && !memcmp(&c, def, sizeof(c))) return arc;
 	if (arc.BeginObject(key))
 	{
-		arc("x", c.x, def ? &def->x : nullptr)
+		arc("x", c.X, def ? &def->X : nullptr)
 			("y", c.y, def ? &def->y : nullptr)
 			.EndObject();
 	}
