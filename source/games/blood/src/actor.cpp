@@ -2706,7 +2706,6 @@ void actRadiusDamage(DBloodActor* source, int x, int y, int z, sectortype* pSect
 
 static void actNapalmMove(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
 	auto pOwner = actor->GetOwner();
 
 	actPostSprite(actor, kStatDecoration);
@@ -2716,12 +2715,12 @@ static void actNapalmMove(DBloodActor* actor)
 	sfxPlay3DSound(actor, 303, 24 + (actor->spr.flags & 3), 1);
 	actRadiusDamage(pOwner, actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.sector(), 128, 0, 60, kDamageExplode, 15, 120);
 
-	if (pXSprite->data4 > 1)
+	if (actor->xspr.data4 > 1)
 	{
 		GibSprite(actor, GIBTYPE_5, nullptr, nullptr);
 		int spawnparam[2];
-		spawnparam[0] = pXSprite->data4 >> 1;
-		spawnparam[1] = pXSprite->data4 - spawnparam[0];
+		spawnparam[0] = actor->xspr.data4 >> 1;
+		spawnparam[1] = actor->xspr.data4 - spawnparam[0];
 		int ang = actor->spr.ang;
 		actor->xvel = 0;
 		actor->yvel = 0;
@@ -2889,13 +2888,12 @@ DBloodActor* actDropObject(DBloodActor* actor, int nType)
 bool actHealDude(DBloodActor* actor, int add, int threshold)
 {
 	if (!actor) return false;
-	auto pXSprite = &actor->x();
 	add <<= 4;
 	threshold <<= 4;
-	if (pXSprite->health < (unsigned)threshold)
+	if (actor->xspr.health < (unsigned)threshold)
 	{
 		if (actor->IsPlayerActor()) sfxPlay3DSound(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, 780, actor->spr.sector());
-		pXSprite->health = min<uint32_t>(pXSprite->health + add, threshold);
+		actor->xspr.health = min<uint32_t>(actor->xspr.health + add, threshold);
 		return true;
 	}
 	return false;
@@ -2910,14 +2908,13 @@ bool actHealDude(DBloodActor* actor, int add, int threshold)
 #ifdef NOONE_EXTENSIONS
 static bool actKillModernDude(DBloodActor* actor, DAMAGE_TYPE damageType)
 {
-	auto pXSprite = &actor->x();
 	GENDUDEEXTRA* pExtra = &actor->genDudeExtra;
 	removeDudeStuff(actor);
-	if (pXSprite->txID <= 0 || getNextIncarnation(actor) == nullptr)
+	if (actor->xspr.txID <= 0 || getNextIncarnation(actor) == nullptr)
 	{
 		if (pExtra->weaponType == kGenDudeWeaponKamikaze && Chance(0x4000) && damageType != kDamageSpirit && damageType != kDamageDrown)
 		{
-			doExplosion(actor, pXSprite->data1 - kTrapExploder);
+			doExplosion(actor, actor->xspr.data1 - kTrapExploder);
 			if (Chance(0x9000)) damageType = kDamageExplode;
 		}
 
@@ -2928,12 +2925,12 @@ static bool actKillModernDude(DBloodActor* actor, DAMAGE_TYPE damageType)
 				if (pExtra->canBurn)
 				{
 					actor->spr.type = kDudeModernCustomBurning;
-					if (pXSprite->data2 == kGenDudeDefaultSeq) // don't inherit palette for burning if using default animation
+					if (actor->xspr.data2 == kGenDudeDefaultSeq) // don't inherit palette for burning if using default animation
 						actor->spr.pal = 0;
 
 					aiGenDudeNewState(actor, &genDudeBurnGoto);
 					actHealDude(actor, dudeInfo[55].startHealth, dudeInfo[55].startHealth);
-					if (pXSprite->burnTime <= 0) pXSprite->burnTime = 1200;
+					if (actor->xspr.burnTime <= 0) actor->xspr.burnTime = 1200;
 					actor->dudeExtra.time = PlayClock + 360;
 					return true;
 				}
@@ -2941,7 +2938,7 @@ static bool actKillModernDude(DBloodActor* actor, DAMAGE_TYPE damageType)
 			}
 			else
 			{
-				pXSprite->burnTime = 0;
+				actor->xspr.burnTime = 0;
 				actor->SetBurnSource(nullptr);
 				damageType = kDamageFall;
 			}
@@ -2949,21 +2946,21 @@ static bool actKillModernDude(DBloodActor* actor, DAMAGE_TYPE damageType)
 	}
 	else
 	{
-		pXSprite->locked = 1; // lock while transforming
+		actor->xspr.locked = 1; // lock while transforming
 
 		aiSetGenIdleState(actor); // set idle state
 
-		if (pXSprite->key > 0) // drop keys
-			actDropObject(actor, kItemKeyBase + pXSprite->key - 1);
+		if (actor->xspr.key > 0) // drop keys
+			actDropObject(actor, kItemKeyBase + actor->xspr.key - 1);
 
-		if (pXSprite->dropMsg > 0) // drop items
-			actDropObject(actor, pXSprite->dropMsg);
+		if (actor->xspr.dropMsg > 0) // drop items
+			actDropObject(actor, actor->xspr.dropMsg);
 
 		actor->spr.flags &= ~kPhysMove;
 		actor->xvel = actor->yvel = 0;
 
 		playGenDudeSound(actor, kGenDudeSndTransforming);
-		int seqId = pXSprite->data2 + kGenDudeSeqTransform;
+		int seqId = actor->xspr.data2 + kGenDudeSeqTransform;
 		if (getSequence(seqId)) seqSpawn(seqId, actor, -1);
 		else
 		{
@@ -2992,7 +2989,7 @@ static bool actKillModernDude(DBloodActor* actor, DAMAGE_TYPE damageType)
 			}
 		}
 
-		pXSprite->sysData1 = kGenDudeTransformStatus; // in transform
+		actor->xspr.sysData1 = kGenDudeTransformStatus; // in transform
 		return true;
 	}
 	return false;
@@ -3007,7 +3004,6 @@ static bool actKillModernDude(DBloodActor* actor, DAMAGE_TYPE damageType)
 
 static bool actKillDudeStage1(DBloodActor* actor, DAMAGE_TYPE damageType)
 {
-	auto pXSprite = &actor->x();
 	switch (actor->spr.type)
 	{
 #ifdef NOONE_EXTENSIONS
@@ -3023,7 +3019,7 @@ static bool actKillDudeStage1(DBloodActor* actor, DAMAGE_TYPE damageType)
 	case kDudeCultistShotgun:
 	case kDudeCultistTesla:
 	case kDudeCultistTNT:
-		if (damageType == kDamageBurn && pXSprite->medium == kMediumNormal)
+		if (damageType == kDamageBurn && actor->xspr.medium == kMediumNormal)
 		{
 			actor->spr.type = kDudeBurningCultist;
 			aiNewState(actor, &cultistBurnGoto);
@@ -3033,7 +3029,7 @@ static bool actKillDudeStage1(DBloodActor* actor, DAMAGE_TYPE damageType)
 		break;
 
 	case kDudeBeast:
-		if (damageType == kDamageBurn && pXSprite->medium == kMediumNormal)
+		if (damageType == kDamageBurn && actor->xspr.medium == kMediumNormal)
 		{
 			actor->spr.type = kDudeBurningBeast;
 			aiNewState(actor, &beastBurnGoto);
@@ -3043,7 +3039,7 @@ static bool actKillDudeStage1(DBloodActor* actor, DAMAGE_TYPE damageType)
 		break;
 
 	case kDudeInnocent:
-		if (damageType == kDamageBurn && pXSprite->medium == kMediumNormal)
+		if (damageType == kDamageBurn && actor->xspr.medium == kMediumNormal)
 		{
 			actor->spr.type = kDudeBurningInnocent;
 			aiNewState(actor, &innocentBurnGoto);
@@ -3055,7 +3051,7 @@ static bool actKillDudeStage1(DBloodActor* actor, DAMAGE_TYPE damageType)
 	case kDudeTinyCaleb:
 		if (cl_bloodvanillaenemies || VanillaMode())
 			break;
-		if (damageType == kDamageBurn && pXSprite->medium == kMediumNormal)
+		if (damageType == kDamageBurn && actor->xspr.medium == kMediumNormal)
 		{
 			actor->spr.type = kDudeBurningTinyCaleb;
 			aiNewState(actor, &tinycalebBurnGoto);
@@ -3110,10 +3106,8 @@ static void checkAddFrag(DBloodActor* killerActor, DBloodActor* actor)
 
 static void checkDropObjects(DBloodActor* actor)
 {
-	auto pXSprite = &actor->x();
-
-	if (pXSprite->key > 0) actDropObject(actor, kItemKeyBase + pXSprite->key - 1);
-	if (pXSprite->dropMsg > 0) actDropObject(actor, pXSprite->dropMsg);
+	if (actor->xspr.key > 0) actDropObject(actor, kItemKeyBase + actor->xspr.key - 1);
+	if (actor->xspr.dropMsg > 0) actDropObject(actor, actor->xspr.dropMsg);
 
 	switch (actor->spr.type)
 	{
@@ -3294,23 +3288,21 @@ static void burningCultistDeath(DBloodActor* actor, int nSeq)
 
 static void modernCustomDudeDeath(DBloodActor* actor, int nSeq, int damageType)
 {
-	auto pXSprite = &actor->x();
-
 	playGenDudeSound(actor, kGenDudeSndDeathNormal);
 	int dudeToGib = (actCheckRespawn(actor)) ? -1 : ((nSeq == 3) ? nDudeToGibClient2 : nDudeToGibClient1);
 	if (nSeq == 3)
 	{
 		GENDUDEEXTRA* pExtra = &actor->genDudeExtra;
-		if (pExtra->availDeaths[kDmgBurn] == 3) seqSpawn((15 + Random(2)) + pXSprite->data2, actor, dudeToGib);
-		else if (pExtra->availDeaths[kDmgBurn] == 2) seqSpawn(16 + pXSprite->data2, actor, dudeToGib);
-		else if (pExtra->availDeaths[kDmgBurn] == 1) seqSpawn(15 + pXSprite->data2, actor, dudeToGib);
-		else if (getSequence(pXSprite->data2 + nSeq))seqSpawn(nSeq + pXSprite->data2, actor, dudeToGib);
-		else seqSpawn(1 + pXSprite->data2, actor, dudeToGib);
+		if (pExtra->availDeaths[kDmgBurn] == 3) seqSpawn((15 + Random(2)) + actor->xspr.data2, actor, dudeToGib);
+		else if (pExtra->availDeaths[kDmgBurn] == 2) seqSpawn(16 + actor->xspr.data2, actor, dudeToGib);
+		else if (pExtra->availDeaths[kDmgBurn] == 1) seqSpawn(15 + actor->xspr.data2, actor, dudeToGib);
+		else if (getSequence(actor->xspr.data2 + nSeq))seqSpawn(nSeq + actor->xspr.data2, actor, dudeToGib);
+		else seqSpawn(1 + actor->xspr.data2, actor, dudeToGib);
 
 	}
 	else
 	{
-		seqSpawn(nSeq + pXSprite->data2, actor, dudeToGib);
+		seqSpawn(nSeq + actor->xspr.data2, actor, dudeToGib);
 	}
 }
 
@@ -3620,8 +3612,6 @@ void actKillDude(DBloodActor* killerActor, DBloodActor* actor, DAMAGE_TYPE damag
 
 static int actDamageDude(DBloodActor* source, DBloodActor* actor, int damage, DAMAGE_TYPE damageType)
 {
-	XSPRITE* pXSprite = &actor->x();
-
 	if (!actor->IsDudeActor())
 	{
 		Printf(PRINT_HIGH, "Bad Dude Failed: initial=%d type=%d %s\n", (int)actor->spr.inittype, (int)actor->spr.type, (int)(actor->spr.flags & kHitagRespawn) ? "RESPAWN" : "NORMAL");
@@ -3641,15 +3631,15 @@ static int actDamageDude(DBloodActor* source, DBloodActor* actor, int damage, DA
 
 	if (!actor->IsPlayerActor())
 	{
-		if (pXSprite->health <= 0) return 0;
+		if (actor->xspr.health <= 0) return 0;
 		damage = aiDamageSprite(source, actor, damageType, damage);
-		if (pXSprite->health <= 0)
+		if (actor->xspr.health <= 0)
 			actKillDude(source, actor, ((damageType == kDamageExplode && damage < 160) ? kDamageFall : damageType), damage);
 	}
 	else
 	{
 		PLAYER* pPlayer = &gPlayer[actor->spr.type - kDudePlayer1];
-		if (pXSprite->health > 0 || playerSeqPlaying(pPlayer, 16))
+		if (actor->xspr.health > 0 || playerSeqPlaying(pPlayer, 16))
 			damage = playerDamageSprite(source, pPlayer, damageType, damage);
 
 	}
@@ -3664,8 +3654,6 @@ static int actDamageDude(DBloodActor* source, DBloodActor* actor, int damage, DA
 
 static int actDamageThing(DBloodActor* source, DBloodActor* actor, int damage, DAMAGE_TYPE damageType, PLAYER* pSourcePlayer)
 {
-	XSPRITE* pXSprite = &actor->x();
-
 	assert(actor->spr.type >= kThingBase && actor->spr.type < kThingMax);
 	int nType = actor->spr.type - kThingBase;
 	int nDamageFactor = thingInfo[nType].dmgControl[damageType];
@@ -3673,8 +3661,8 @@ static int actDamageThing(DBloodActor* source, DBloodActor* actor, int damage, D
 	if (!nDamageFactor) return 0;
 	else if (nDamageFactor != 256) damage = MulScale(damage, nDamageFactor, 8);
 
-	pXSprite->health = ClipLow(pXSprite->health - damage, 0);
-	if (pXSprite->health <= 0)
+	actor->xspr.health = ClipLow(actor->xspr.health - damage, 0);
+	if (actor->xspr.health <= 0)
 	{
 		auto Owner = actor->GetOwner();
 		switch (actor->spr.type)
@@ -3684,8 +3672,8 @@ static int actDamageThing(DBloodActor* source, DBloodActor* actor, int damage, D
 		case kModernThingEnemyLifeLeech:
 #endif
 			GibSprite(actor, GIBTYPE_14, nullptr, nullptr);
-			pXSprite->data1 = pXSprite->data2 = pXSprite->data3 = pXSprite->DudeLockout = 0;
-			pXSprite->stateTimer = pXSprite->data4 = pXSprite->isTriggered = 0;
+			actor->xspr.data1 = actor->xspr.data2 = actor->xspr.data3 = actor->xspr.DudeLockout = 0;
+			actor->xspr.stateTimer = actor->xspr.data4 = actor->xspr.isTriggered = 0;
 
 #ifdef NOONE_EXTENSIONS
 			if (Owner && Owner->spr.type == kDudeModernCustom)
@@ -3733,7 +3721,7 @@ static int actDamageThing(DBloodActor* source, DBloodActor* actor, int damage, D
 			break;
 
 		case kThingFlammableTree:
-			switch (pXSprite->data1)
+			switch (actor->xspr.data1)
 			{
 			case -1:
 				GibSprite(actor, GIBTYPE_14, nullptr, nullptr);
@@ -3768,8 +3756,7 @@ int actDamageSprite(DBloodActor* source, DBloodActor* actor, DAMAGE_TYPE damageT
 	if (actor->spr.flags & 32 || !actor->hasX())
 		return 0;
 
-	XSPRITE* pXSprite = &actor->x();
-	if ((pXSprite->health == 0 && actor->spr.statnum != kStatDude) || pXSprite->locked)
+	if ((actor->xspr.health == 0 && actor->spr.statnum != kStatDude) || actor->xspr.locked)
 		return 0;
 
 	if (source == nullptr) source = actor;
