@@ -147,7 +147,7 @@ TArray<DBloodActor*> SpawnActors(BloodSpawnSpriteDef& sprites)
 		if (sprites.sprites[i].extra > 0)
 		{
 			actor->addX();
-			actor->x() = sprites.xspr[i];
+			actor->xspr = sprites.xspr[i];
 		}
 	}
 	return spawns;

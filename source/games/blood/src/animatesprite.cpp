@@ -131,9 +131,8 @@ static tspritetype *viewAddEffect(tspritetype* tsprite, int& spritesortcnt, int 
     switch (nViewEffect)
     {
     case kViewEffectSpotProgress: {
-        XSPRITE* pXSprite = &owneractor->x();
-        int perc = (100 * pXSprite->data3) / kMaxPatrolSpotValue;
-        int width = (94 * pXSprite->data3) / kMaxPatrolSpotValue;
+        int perc = (100 * owneractor->xspr.data3) / kMaxPatrolSpotValue;
+        int width = (94 * owneractor->xspr.data3) / kMaxPatrolSpotValue;
 
         int top, bottom;
         GetSpriteExtents(pTSprite, &top, &bottom);
@@ -520,15 +519,10 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
     {
         tspritetype *pTSprite = &tsprite[nTSprite];
         auto owneractor = static_cast<DBloodActor*>(pTSprite->ownerActor);
-        XSPRITE *pTXSprite = NULL;
         if (owneractor->spr.detail > gDetail)
         {
             pTSprite->xrepeat = 0;
             continue;
-        }
-        if (owneractor->hasX())
-        {
-            pTXSprite = &owneractor->x();
         }
         int nTile = pTSprite->picnum;
         if (nTile < 0 || nTile >= kMaxTiles)
@@ -553,14 +547,14 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
         int nAnim = 0;
         switch (picanm[nTile].extra & 7) {
             case 0:
-                if (pTXSprite == nullptr) break;
+                if (!owneractor->hasX()) break;
                 switch (pTSprite->type) {
                     case kSwitchToggle:
                     case kSwitchOneWay:
-                        if (pTXSprite->state) nAnim = 1;
+                        if (owneractor->xspr.state) nAnim = 1;
                         break;
                     case kSwitchCombo:
-                        nAnim = pTXSprite->data1;
+                        nAnim = owneractor->xspr.data1;
                         break;
                 }
                 break;
@@ -601,7 +595,7 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
             }
             case 3:
             {
-                if (pTXSprite)
+                if (owneractor->hasX())
                 {
                     if (owneractor->hit.florhit.type == kHitNone)
                         nAnim = 1;
@@ -694,13 +688,12 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
         }
         nShade += tileShade[pTSprite->picnum];
         pTSprite->shade = ClipRange(nShade, -128, 127);
-        if ((pTSprite->flags&kHitagRespawn) && pTSprite->ownerActor->spr.owner == 3)    // Where does this 3 come from? Nothing sets it.
+        if ((pTSprite->flags&kHitagRespawn) && pTSprite->ownerActor->spr.owner == 3 && owneractor->hasX())    // Where does this 3 come from? Nothing sets it.
         {
-            assert(pTXSprite != NULL);
             pTSprite->xrepeat = 48;
             pTSprite->yrepeat = 48;
             pTSprite->shade = -128;
-            pTSprite->picnum = 2272 + 2*pTXSprite->respawnPending;
+            pTSprite->picnum = 2272 + 2* owneractor->xspr.respawnPending;
             pTSprite->cstat &= ~(CSTAT_SPRITE_TRANSLUCENT | CSTAT_SPRITE_TRANS_FLIP);
             if (((IsItemSprite(pTSprite) || IsAmmoSprite(pTSprite)) && gGameOptions.nItemSettings == 2)
                 || (IsWeaponSprite(pTSprite) && gGameOptions.nWeaponSettings == 3))
@@ -713,7 +706,7 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
             }
         }
         if (spritesortcnt >= MAXSPRITESONSCREEN) continue;
-        if (pTXSprite && pTXSprite->burnTime > 0)
+        if (owneractor->hasX() && owneractor->xspr.burnTime > 0)
         {
             pTSprite->shade = ClipRange(pTSprite->shade-16-QRandom(8), -128, 127);
         }
@@ -733,7 +726,7 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
         case kStatDecoration: {
             switch (pTSprite->type) {
                 case kDecorationCandle:
-                    if (!pTXSprite || pTXSprite->state == 1) {
+                    if (!owneractor->hasX() || owneractor->xspr.state == 1) {
                         pTSprite->shade = -128;
                         viewAddEffect(tsprite, spritesortcnt, nTSprite, kViewEffectPhase);
                     } else {
@@ -741,7 +734,7 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
                     }
                     break;
                 case kDecorationTorch:
-                    if (!pTXSprite || pTXSprite->state == 1) {
+                    if (!owneractor->hasX() || owneractor->xspr.state == 1) {
                         pTSprite->picnum++;
                         viewAddEffect(tsprite, spritesortcnt, nTSprite, kViewEffectTorchHigh);
                     } else {
@@ -757,13 +750,13 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
         case kStatItem: {
             switch (pTSprite->type) {
                 case kItemFlagABase:
-                    if (pTXSprite && pTXSprite->state > 0 && gGameOptions.nGameType == 3) {
+                    if (owneractor->hasX() && owneractor->xspr.state > 0 && gGameOptions.nGameType == 3) {
                         auto pNTSprite = viewAddEffect(tsprite, spritesortcnt, nTSprite, kViewEffectBigFlag);
                         if (pNTSprite) pNTSprite->pal = 10;
                     }
                     break;
                 case kItemFlagBBase:
-                    if (pTXSprite && pTXSprite->state > 0 && gGameOptions.nGameType == 3) {
+                    if (owneractor->hasX() && owneractor->xspr.state > 0 && gGameOptions.nGameType == 3) {
                         auto pNTSprite = viewAddEffect(tsprite, spritesortcnt, nTSprite, kViewEffectBigFlag);
                         if (pNTSprite) pNTSprite->pal = 7;
                     }
@@ -826,7 +819,7 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
         }
         case kStatDude:
         {
-            if (pTSprite->type == kDudeHand && pTXSprite->aiState == &hand13A3B4)
+            if (pTSprite->type == kDudeHand && owneractor->hasX() && owneractor->xspr.aiState == &hand13A3B4)
             {
                 auto target = owneractor->GetTarget();
                 if (target && target->IsPlayerActor())
@@ -896,22 +889,22 @@ void viewProcessSprites(tspritetype* tsprite, int& spritesortcnt, int32_t cX, in
                 }
             }
 
-            if (gModernMap) { // add target spot indicator for patrol dudes
-                if (pTXSprite->dudeFlag4 && aiInPatrolState(pTXSprite->aiState) && pTXSprite->data3 > 0 && pTXSprite->data3 <= kMaxPatrolSpotValue)
+            if (gModernMap && owneractor->hasX()) { // add target spot indicator for patrol dudes
+                if (owneractor->xspr.dudeFlag4 && aiInPatrolState(owneractor->xspr.aiState) && owneractor->xspr.data3 > 0 && owneractor->xspr.data3 <= kMaxPatrolSpotValue)
                     viewAddEffect(tsprite, spritesortcnt, nTSprite, kViewEffectSpotProgress);
             }
             break;
         }
         case kStatTraps: {
             if (pTSprite->type == kTrapSawCircular) {
-                if (pTXSprite->state) {
-                    if (pTXSprite->data1) {
+                if (owneractor->xspr.state) {
+                    if (owneractor->xspr.data1) {
                         pTSprite->picnum = 772;
-                        if (pTXSprite->data2)
+                        if (owneractor->xspr.data2)
                             viewAddEffect(tsprite, spritesortcnt, nTSprite, kViewEffectSpear);
                     }
                 } 
-                else if (pTXSprite->data1) pTSprite->picnum = 773;
+                else if (owneractor->xspr.data1) pTSprite->picnum = 773;
                 else pTSprite->picnum = 656;
                 
             }
