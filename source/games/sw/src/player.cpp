@@ -1286,7 +1286,7 @@ void DoPlayerTeleportToSprite(PLAYERp pp, vec3_t* sp, int ang)
     //getzsofslopeptr(sp->sector(), pp->posx, pp->posy, &cz, &fz);
     //pp->posz = pp->oposz = fz - PLAYER_HEIGHT;
 
-    pp->pos.Z = pp->oposz = sp->Z - PLAYER_HEIGHT;
+    pp->pos.Z = pp->opos.Z = sp->Z - PLAYER_HEIGHT;
 
     updatesector(pp->pos.X, pp->pos.Y, &pp->cursector);
     SET(pp->Flags2, PF2_TELEPORTED);
@@ -2138,7 +2138,7 @@ void DoPlayerMove(PLAYERp pp)
 
     if (interpolate_ride)
     {
-        pp->oposz = pp->pos.Z;
+        pp->opos.Z = pp->pos.Z;
         pp->angle.backup();
     }
 
@@ -3605,7 +3605,7 @@ void PlayerWarpUpdatePos(PLAYERp pp)
 
     pp->opos.X = pp->pos.X;
     pp->opos.Y = pp->pos.Y;
-    pp->oposz = pp->pos.Z;
+    pp->opos.Z = pp->pos.Z;
     DoPlayerZrange(pp);
     UpdatePlayerSprite(pp);
 }
@@ -4121,7 +4121,7 @@ void DoPlayerWarpToUnderwater(PLAYERp pp)
 
     pp->opos.X = pp->pos.X;
     pp->opos.Y = pp->pos.Y;
-    pp->oposz = pp->pos.Z;
+    pp->opos.Z = pp->pos.Z;
 
     DoPlayerZrange(pp);
     return;
@@ -4199,7 +4199,7 @@ void DoPlayerWarpToSurface(PLAYERp pp)
 
     pp->opos.X = pp->pos.X;
     pp->opos.Y = pp->pos.Y;
-    pp->oposz = pp->pos.Z;
+    pp->opos.Z = pp->pos.Z;
 
     return;
 }
@@ -6487,7 +6487,7 @@ void MoveSkipSavePos(void)
 
         pp->opos.X = pp->pos.X;
         pp->opos.Y = pp->pos.Y;
-        pp->oposz = pp->pos.Z;
+        pp->opos.Z = pp->pos.Z;
         pp->obob_z = pp->bob_z;
         pp->angle.backup();
         pp->horizon.backup();
@@ -6827,7 +6827,7 @@ void InitAllPlayers(void)
     {
         pp->pos.X = pp->opos.X = pfirst->pos.X;
         pp->pos.Y = pp->opos.Y = pfirst->pos.Y;
-        pp->pos.Z = pp->oposz = pfirst->pos.Z;
+        pp->pos.Z = pp->opos.Z = pfirst->pos.Z;
         pp->angle.ang = pp->angle.oang = pfirst->angle.ang;
         pp->horizon.horiz = pp->horizon.ohoriz = pfirst->horizon.horiz;
         pp->cursector = pfirst->cursector;
@@ -6984,7 +6984,7 @@ void PlayerSpawnPosition(PLAYERp pp)
 
     pp->pos.X = pp->opos.X = sp->pos.X;
     pp->pos.Y = pp->opos.Y = sp->pos.Y;
-    pp->pos.Z = pp->oposz = sp->pos.Z;
+    pp->pos.Z = pp->opos.Z = sp->pos.Z;
     pp->angle.ang = pp->angle.oang = buildang(sp->ang);
     pp->setcursector(sp->sector());
 
@@ -6992,7 +6992,7 @@ void PlayerSpawnPosition(PLAYERp pp)
     // if too close to the floor - stand up
     if (pp->pos.Z > fz - PLAYER_HEIGHT)
     {
-        pp->pos.Z = pp->oposz = fz - PLAYER_HEIGHT;
+        pp->pos.Z = pp->opos.Z = fz - PLAYER_HEIGHT;
     }
 }
 

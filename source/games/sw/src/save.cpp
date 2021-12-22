@@ -582,7 +582,7 @@ FSerializer& Serialize(FSerializer& arc, const char* keyname, PLAYERstruct& w, P
 	{
 		w.opos.X = w.pos.X;
 		w.opos.Y = w.pos.X;
-		w.oposz = w.pos.X;
+		w.opos.Z = w.pos.X;
 		w.oz_speed = w.z_speed;
 		w.oxvect = w.xvect;
 		w.oyvect = w.yvect;

@@ -150,9 +150,7 @@ struct SWPlayer native
         vec3_t pos;
     };
 	*/
-    
-    // interpolation
-    //int oposz;
+
 
     // holds last valid move position
     //int16 lv_sectnum;

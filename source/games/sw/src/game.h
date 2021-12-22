@@ -676,9 +676,6 @@ struct PLAYERstruct
         return actor;
     }
 
-    // interpolation
-    int oposz;
-
     // holds last valid move position
     int lv_x,lv_y,lv_z;
 
