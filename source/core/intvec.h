@@ -44,27 +44,5 @@ struct vec3_t
 
 };
 
-
-
-
-#if 0
-struct FVector2
-{
-    float x, y;
-};
-
-struct vec3_16_t
-{
-    union 
-	{
-        struct 
-		{ 
-			int16_t x, y, z; 
-		};
-        vec2_16_t vec2;
-    };
-};
-#endif
-
 FSerializer& Serialize(FSerializer& arc, const char* key, vec2_t& c, vec2_t* def);
 FSerializer& Serialize(FSerializer& arc, const char* key, vec3_t& c, vec3_t* def);
