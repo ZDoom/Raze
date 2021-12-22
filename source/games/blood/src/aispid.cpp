@@ -50,7 +50,7 @@ static void spidBlindEffect(DBloodActor* actor, int nBlind, int max)
 	{
 		nBlind <<= 4;
 		max <<= 4;
-		PLAYER* pPlayer = &gPlayer[pSprite->type - kDudePlayer1];
+		PLAYER* pPlayer = &gPlayer[actor->spr.type - kDudePlayer1];
 		if (pPlayer->blindEffect < max)
 		{
 			pPlayer->blindEffect = ClipHigh(pPlayer->blindEffect + nBlind, max);
@@ -61,23 +61,23 @@ static void spidBlindEffect(DBloodActor* actor, int nBlind, int max)
 void SpidBiteSeqCallback(int, DBloodActor* actor)
 {
 	spritetype* pSprite = &actor->s();
-	int dx = bcos(pSprite->ang);
-	int dy = bsin(pSprite->ang);
+	int dx = bcos(actor->spr.ang);
+	int dy = bsin(actor->spr.ang);
 	dx += Random2(2000);
 	dy += Random2(2000);
 	int dz = Random2(2000);
-	assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 
 	auto const target = actor->GetTarget();
 	if (target->IsPlayerActor())
 	{
-        int hit = HitScan(actor, pSprite->pos.Z, dx, dy, 0, CLIPMASK1, 0);
+        int hit = HitScan(actor, actor->spr.pos.Z, dx, dy, 0, CLIPMASK1, 0);
 		if (hit == 3 && gHitInfo.actor()->IsPlayerActor())
 		{
-			dz += target->spr.pos.Z - pSprite->pos.Z;
+			dz += target->spr.pos.Z - actor->spr.pos.Z;
 			PLAYER* pPlayer = &gPlayer[target->spr.type - kDudePlayer1];
-			switch (pSprite->type)
+			switch (actor->spr.type)
 			{
 			case kDudeSpiderBrown:
 				actFireVector(actor, 0, 0, dx, dy, dz, kVectorSpiderBite);
@@ -110,17 +110,17 @@ void SpidBiteSeqCallback(int, DBloodActor* actor)
 void SpidJumpSeqCallback(int, DBloodActor* actor)
 {
 	spritetype* pSprite = &actor->s();
-	int dx = bcos(pSprite->ang);
-	int dy = bsin(pSprite->ang);
+	int dx = bcos(actor->spr.ang);
+	int dy = bsin(actor->spr.ang);
 	dx += Random2(200);
 	dy += Random2(200);
 	int dz = Random2(200);
-	assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
+	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
 	if (target->IsPlayerActor()) {
-		dz += target->spr.pos.Z - pSprite->pos.Z;
-		switch (pSprite->type) {
+		dz += target->spr.pos.Z - actor->spr.pos.Z;
+		switch (actor->spr.type) {
 		case kDudeSpiderBrown:
 		case kDudeSpiderRed:
 		case kDudeSpiderBlack:
@@ -136,25 +136,25 @@ void SpidBirthSeqCallback(int, DBloodActor* actor)
 {
 	XSPRITE* pXSprite = &actor->x();
 	spritetype* pSprite = &actor->s();
-	assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
-	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
+	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
+	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
 	DUDEEXTRA_STATS* pDudeExtraE = &actor->dudeExtra.stats;
-	int dx = pXSprite->targetX - pSprite->pos.X;
-	int dy = pXSprite->targetY - pSprite->pos.Y;
+	int dx = pXSprite->targetX - actor->spr.pos.X;
+	int dy = pXSprite->targetY - actor->spr.pos.Y;
 	int nAngle = getangle(dx, dy);
 	int nDist = approxDist(dx, dy);
 
 	DBloodActor* spawned = nullptr;
 	if (target->IsPlayerActor() && pDudeExtraE->birthCounter < 10)
 	{
-		if (nDist < 0x1a00 && nDist > 0x1400 && abs(pSprite->ang - nAngle) < pDudeInfo->periphery)
-			spawned = actSpawnDude(actor, kDudeSpiderRed, pSprite->clipdist, 0);
-		else if (nDist < 0x1400 && nDist > 0xc00 && abs(pSprite->ang - nAngle) < pDudeInfo->periphery)
-			spawned = actSpawnDude(actor, kDudeSpiderBrown, pSprite->clipdist, 0);
-		else if (nDist < 0xc00 && abs(pSprite->ang - nAngle) < pDudeInfo->periphery)
-			spawned = actSpawnDude(actor, kDudeSpiderBrown, pSprite->clipdist, 0);
+		if (nDist < 0x1a00 && nDist > 0x1400 && abs(actor->spr.ang - nAngle) < pDudeInfo->periphery)
+			spawned = actSpawnDude(actor, kDudeSpiderRed, actor->spr.clipdist, 0);
+		else if (nDist < 0x1400 && nDist > 0xc00 && abs(actor->spr.ang - nAngle) < pDudeInfo->periphery)
+			spawned = actSpawnDude(actor, kDudeSpiderBrown, actor->spr.clipdist, 0);
+		else if (nDist < 0xc00 && abs(actor->spr.ang - nAngle) < pDudeInfo->periphery)
+			spawned = actSpawnDude(actor, kDudeSpiderBrown, actor->spr.clipdist, 0);
 
 		if (spawned)
 		{
@@ -177,14 +177,14 @@ static void spidThinkGoto(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
 	auto pSprite = &actor->s();
-	assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
-	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
-	int dx = pXSprite->targetX - pSprite->pos.X;
-	int dy = pXSprite->targetY - pSprite->pos.Y;
+	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
+	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+	int dx = pXSprite->targetX - actor->spr.pos.X;
+	int dy = pXSprite->targetY - actor->spr.pos.Y;
 	int nAngle = getangle(dx, dy);
 	int nDist = approxDist(dx, dy);
 	aiChooseDirection(actor, nAngle);
-	if (nDist < 512 && abs(pSprite->ang - nAngle) < pDudeInfo->periphery)
+	if (nDist < 512 && abs(actor->spr.ang - nAngle) < pDudeInfo->periphery)
 		aiNewState(actor, &spidSearch);
 	aiThinkTarget(actor);
 }
@@ -197,12 +197,12 @@ static void spidThinkChase(DBloodActor* actor)
 		aiNewState(actor, &spidGoto);
 		return;
 	}
-	assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
-	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
+	assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
+	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	auto target = actor->GetTarget();
 	XSPRITE* pXTarget = &actor->GetTarget()->x();
-	int dx = target->spr.pos.X - pSprite->pos.X;
-	int dy = target->spr.pos.Y - pSprite->pos.Y;
+	int dx = target->spr.pos.X - actor->spr.pos.X;
+	int dy = target->spr.pos.Y - actor->spr.pos.Y;
 	aiChooseDirection(actor, getangle(dx, dy));
 	if (pXTarget->health == 0)
 	{
@@ -216,14 +216,14 @@ static void spidThinkChase(DBloodActor* actor)
 	}
 	int nDist = approxDist(dx, dy);
 	if (nDist <= pDudeInfo->seeDist) {
-		int nDeltaAngle = ((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024;
-		int height = (pDudeInfo->eyeHeight * pSprite->yrepeat) << 2;
+		int nDeltaAngle = ((getangle(dx, dy) + 1024 - actor->spr.ang) & 2047) - 1024;
+		int height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) << 2;
 
-		if (cansee(target->spr.pos.X, target->spr.pos.Y, target->spr.pos.Z, target->spr.sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z - height, pSprite->sector())) {
+		if (cansee(target->spr.pos.X, target->spr.pos.Y, target->spr.pos.Z, target->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - height, actor->spr.sector())) {
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery) {
 				aiSetTarget(actor, actor->GetTarget());
 
-				switch (pSprite->type) {
+				switch (actor->spr.type) {
 				case kDudeSpiderRed:
 					if (nDist < 0x399 && abs(nDeltaAngle) < 85)
 						aiNewState(actor, &spidBite);

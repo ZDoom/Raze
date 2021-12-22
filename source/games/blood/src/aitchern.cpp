@@ -59,16 +59,16 @@ void sub_71A90(int, DBloodActor* actor)
 void sub_71BD4(int, DBloodActor* actor)
 {
 	spritetype* pSprite = &actor->s();
-	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
-	int height = pSprite->yrepeat * pDudeInfo->eyeHeight;
+	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+	int height = actor->spr.yrepeat * pDudeInfo->eyeHeight;
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
-	int x = pSprite->pos.X;
-	int y = pSprite->pos.Y;
+	int x = actor->spr.pos.X;
+	int y = actor->spr.pos.Y;
 	int z = height;
 	TARGETTRACK tt = { 0x10000, 0x10000, 0x100, 0x55, 0x100000 };
 	Aim aim;
-	aim.dx = bcos(pSprite->ang);
-	aim.dy = bsin(pSprite->ang);
+	aim.dx = bcos(actor->spr.ang);
+	aim.dy = bsin(actor->spr.ang);
 	aim.dz = actor->dudeSlope;
 	int nClosest = 0x7fffffff;
 	BloodStatIterator it(kStatDude);
@@ -89,8 +89,8 @@ void sub_71BD4(int, DBloodActor* actor)
 			y2 += (actor->yvel * t) >> 12;
 			z2 += (actor->zvel * t) >> 8;
 		}
-		int tx = x + MulScale(Cos(pSprite->ang), nDist, 30);
-		int ty = y + MulScale(Sin(pSprite->ang), nDist, 30);
+		int tx = x + MulScale(Cos(actor->spr.ang), nDist, 30);
+		int ty = y + MulScale(Sin(actor->spr.ang), nDist, 30);
 		int tz = z + MulScale(actor->dudeSlope, nDist, 10);
 		int tsr = MulScale(9460, nDist, 10);
 		int top, bottom;
@@ -104,11 +104,11 @@ void sub_71BD4(int, DBloodActor* actor)
 		if (nDist2 < nClosest)
 		{
 			int nAngle = getangle(x2 - x, y2 - y);
-			int nDeltaAngle = ((nAngle - pSprite->ang + 1024) & 2047) - 1024;
+			int nDeltaAngle = ((nAngle - actor->spr.ang + 1024) & 2047) - 1024;
 			if (abs(nDeltaAngle) <= tt.at8)
 			{
-				int tz = actor2->spr.pos.Z - pSprite->pos.Z;
-				if (cansee(x, y, z, pSprite->sector(), x2, y2, z2, actor2->spr.sector()))
+				int tz = actor2->spr.pos.Z - actor->spr.pos.Z;
+				if (cansee(x, y, z, actor->spr.sector(), x2, y2, z2, actor2->spr.sector()))
 				{
 					nClosest = nDist2;
 					aim.dx = bcos(nAngle);
@@ -129,13 +129,13 @@ void sub_720AC(int, DBloodActor* actor)
 	spritetype* pSprite = &actor->s();
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 
-	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
-	int height = pSprite->yrepeat * pDudeInfo->eyeHeight;
+	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+	int height = actor->spr.yrepeat * pDudeInfo->eyeHeight;
 	int ax, ay, az;
-	ax = bcos(pSprite->ang);
-	ay = bsin(pSprite->ang);
-	int x = pSprite->pos.X;
-	int y = pSprite->pos.Y;
+	ax = bcos(actor->spr.ang);
+	ay = bsin(actor->spr.ang);
+	int x = actor->spr.pos.X;
+	int y = actor->spr.pos.Y;
 	int z = height;
 	TARGETTRACK tt = { 0x10000, 0x10000, 0x100, 0x55, 0x100000 };
 	Aim aim;
@@ -162,8 +162,8 @@ void sub_720AC(int, DBloodActor* actor)
 			y2 += (actor->yvel * t) >> 12;
 			z2 += (actor->zvel * t) >> 8;
 		}
-		int tx = x + MulScale(Cos(pSprite->ang), nDist, 30);
-		int ty = y + MulScale(Sin(pSprite->ang), nDist, 30);
+		int tx = x + MulScale(Cos(actor->spr.ang), nDist, 30);
+		int ty = y + MulScale(Sin(actor->spr.ang), nDist, 30);
 		int tz = z + MulScale(actor->dudeSlope, nDist, 10);
 		int tsr = MulScale(9460, nDist, 10);
 		int top, bottom;
@@ -177,11 +177,11 @@ void sub_720AC(int, DBloodActor* actor)
 		if (nDist2 < nClosest)
 		{
 			int nAngle = getangle(x2 - x, y2 - y);
-			int nDeltaAngle = ((nAngle - pSprite->ang + 1024) & 2047) - 1024;
+			int nDeltaAngle = ((nAngle - actor->spr.ang + 1024) & 2047) - 1024;
 			if (abs(nDeltaAngle) <= tt.at8)
 			{
-				int tz = actor2->spr.pos.Z - pSprite->pos.Z;
-				if (cansee(x, y, z, pSprite->sector(), x2, y2, z2, actor2->spr.sector()))
+				int tz = actor2->spr.pos.Z - actor->spr.pos.Z;
+				if (cansee(x, y, z, actor->spr.sector(), x2, y2, z2, actor2->spr.sector()))
 				{
 					nClosest = nDist2;
 					aim.dx = bcos(nAngle);
@@ -208,12 +208,12 @@ static void sub_725A4(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
 	auto pSprite = &actor->s();
-	///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
-	if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
-		Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
+	///assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
+	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)) {
+		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
 		return;
 	}
-	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
+	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	DUDEEXTRA_STATS* pDudeExtraE = &actor->dudeExtra.stats;
 	if (pDudeExtraE->active && pDudeExtraE->thinkTime < 10)
 		pDudeExtraE->thinkTime++;
@@ -232,18 +232,18 @@ static void sub_725A4(DBloodActor* actor)
 			PLAYER* pPlayer = &gPlayer[p];
 			if (pPlayer->pXSprite->health == 0 || powerupCheck(pPlayer, kPwUpShadowCloak) > 0)
 				continue;
-			int x = pPlayer->pSprite->pos.X;
-			int y = pPlayer->pSprite->pos.Y;
-			int z = pPlayer->pSprite->pos.Z;
-			auto pSector = pPlayer->pSprite->sector();
-			int dx = x - pSprite->pos.X;
-			int dy = y - pSprite->pos.Y;
+			int x = pPlayer->actor->spr.pos.X;
+			int y = pPlayer->actor->spr.pos.Y;
+			int z = pPlayer->actor->spr.pos.Z;
+			auto pSector = pPlayer->actor->spr.sector();
+			int dx = x - actor->spr.pos.X;
+			int dy = y - actor->spr.pos.Y;
 			int nDist = approxDist(dx, dy);
 			if (nDist > pDudeInfo->seeDist && nDist > pDudeInfo->hearDist)
 				continue;
-			if (!cansee(x, y, z, pSector, pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z - ((pDudeInfo->eyeHeight * pSprite->yrepeat) << 2), pSprite->sector()))
+			if (!cansee(x, y, z, pSector, actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - ((pDudeInfo->eyeHeight * actor->spr.yrepeat) << 2), actor->spr.sector()))
 				continue;
-			int nDeltaAngle = ((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024;
+			int nDeltaAngle = ((getangle(dx, dy) + 1024 - actor->spr.ang) & 2047) - 1024;
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{
 				pDudeExtraE->thinkTime = 0;
@@ -267,18 +267,18 @@ static void sub_72850(DBloodActor* actor)
 {
 	auto pXSprite = &actor->x();
 	auto pSprite = &actor->s();
-	///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
-	if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
-		Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
+	///assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
+	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)) {
+		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
 		return;
 	}
-	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
-	int dx = pXSprite->targetX - pSprite->pos.X;
-	int dy = pXSprite->targetY - pSprite->pos.Y;
+	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
+	int dx = pXSprite->targetX - actor->spr.pos.X;
+	int dy = pXSprite->targetY - actor->spr.pos.Y;
 	int nAngle = getangle(dx, dy);
 	int nDist = approxDist(dx, dy);
 	aiChooseDirection(actor, nAngle);
-	if (nDist < 512 && abs(pSprite->ang - nAngle) < pDudeInfo->periphery)
+	if (nDist < 512 && abs(actor->spr.ang - nAngle) < pDudeInfo->periphery)
 		aiNewState(actor, &tchernobogSearch);
 	aiThinkTarget(actor);
 }
@@ -291,17 +291,17 @@ static void sub_72934(DBloodActor* actor)
 		aiNewState(actor, &tcherno13A9B8);
 		return;
 	}
-	///assert(pSprite->type >= kDudeBase && pSprite->type < kDudeMax);
-	if (!(pSprite->type >= kDudeBase && pSprite->type < kDudeMax)) {
-		Printf(PRINT_HIGH, "pSprite->type >= kDudeBase && pSprite->type < kDudeMax");
+	///assert(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax);
+	if (!(actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax)) {
+		Printf(PRINT_HIGH, "actor->spr.type >= kDudeBase && actor->spr.type < kDudeMax");
 		return;
 	}
-	DUDEINFO* pDudeInfo = getDudeInfo(pSprite->type);
+	DUDEINFO* pDudeInfo = getDudeInfo(actor->spr.type);
 	if (!actor->ValidateTarget(__FUNCTION__)) return;
 	auto target = actor->GetTarget();
 	XSPRITE* pXTarget = &actor->GetTarget()->x();
-	int dx = target->spr.pos.X - pSprite->pos.X;
-	int dy = target->spr.pos.Y - pSprite->pos.Y;
+	int dx = target->spr.pos.X - actor->spr.pos.X;
+	int dy = target->spr.pos.Y - actor->spr.pos.Y;
 	aiChooseDirection(actor, getangle(dx, dy));
 	if (pXTarget->health == 0)
 	{
@@ -316,9 +316,9 @@ static void sub_72934(DBloodActor* actor)
 	int nDist = approxDist(dx, dy);
 	if (nDist <= pDudeInfo->seeDist)
 	{
-		int nDeltaAngle = ((getangle(dx, dy) + 1024 - pSprite->ang) & 2047) - 1024;
-		int height = (pDudeInfo->eyeHeight * pSprite->yrepeat) << 2;
-		if (cansee(target->spr.pos.X, target->spr.pos.Y, target->spr.pos.Z, target->spr.sector(), pSprite->pos.X, pSprite->pos.Y, pSprite->pos.Z - height, pSprite->sector()))
+		int nDeltaAngle = ((getangle(dx, dy) + 1024 - actor->spr.ang) & 2047) - 1024;
+		int height = (pDudeInfo->eyeHeight * actor->spr.yrepeat) << 2;
+		if (cansee(target->spr.pos.X, target->spr.pos.Y, target->spr.pos.Z, target->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z - height, actor->spr.sector()))
 		{
 			if (nDist < pDudeInfo->seeDist && abs(nDeltaAngle) <= pDudeInfo->periphery)
 			{
