@@ -2356,9 +2356,8 @@ static void actInitTraps()
 			act->spr.cstat &= ~CSTAT_SPRITE_BLOCK;
 			act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 			if (!act->hasX()) continue;
-			auto x = &act->x();
-			x->waitTime = ClipLow(x->waitTime, 1);
-			x->state = 0;
+			act->xspr.waitTime = ClipLow(act->xspr.waitTime, 1);
+			act->xspr.state = 0;
 		}
 	}
 }
@@ -2375,10 +2374,9 @@ static void actInitThings()
 	while (auto act = it.Next())
 	{
 		if (!act->hasX()) continue;
-		XSPRITE* pXSprite = &act->x();
 
 		int nType = act->spr.type - kThingBase;
-		pXSprite->health = thingInfo[nType].startHealth << 4;
+		act->xspr.health = thingInfo[nType].startHealth << 4;
 #ifdef NOONE_EXTENSIONS
 		// allow level designer to set custom clipdist.
 		// this is especially useful for various Gib and Explode objects which have clipdist 1 for some reason predefined,
@@ -2398,7 +2396,7 @@ static void actInitThings()
 #ifdef NOONE_EXTENSIONS
 		case kModernThingTNTProx:
 #endif
-			pXSprite->state = 0;
+			act->xspr.state = 0;
 			break;
 		case kThingBloodChunks:
 		{
@@ -2412,7 +2410,7 @@ static void actInitThings()
 			break;
 		}
 		default:
-			pXSprite->state = 1;
+			act->xspr.state = 1;
 			break;
 		}
 	}
@@ -2459,7 +2457,6 @@ static void actInitDudes()
 		while (auto act = it.Next())
 		{
 			if (!act->hasX()) continue;
-			XSPRITE* pXSprite = &act->x();
 
 			int nType = act->spr.type - kDudeBase;
 			int seqStartId = dudeInfo[nType].seqStartID;
@@ -2472,8 +2469,8 @@ static void actInitDudes()
 				case kDudeModernCustomBurning:
 					act->spr.cstat |= CSTAT_SPRITE_BLOOD_BIT1 | CSTAT_SPRITE_BLOCK_ALL;
 					seqStartId = genDudeSeqStartId(act); //  Custom Dude stores its SEQ in data2
-					pXSprite->sysData1 = pXSprite->data3; // move sndStartId to sysData1, because data3 used by the game;
-					pXSprite->data3 = 0;
+					act->xspr.sysData1 = act->xspr.data3; // move sndStartId to sysData1, because data3 used by the game;
+					act->xspr.data3 = 0;
 					break;
 
 				case kDudePodMother:  // FakeDude type (no seq, custom flags, clipdist and cstat)
@@ -2493,10 +2490,10 @@ static void actInitDudes()
 
 #ifdef NOONE_EXTENSIONS
 				// add a way to set custom hp for every enemy - should work only if map just started and not loaded.
-				if (!gModernMap || pXSprite->sysData2 <= 0) pXSprite->health = dudeInfo[nType].startHealth << 4;
-				else pXSprite->health = ClipRange(pXSprite->sysData2 << 4, 1, 65535);
+				if (!gModernMap || act->xspr.sysData2 <= 0) act->xspr.health = dudeInfo[nType].startHealth << 4;
+				else act->xspr.health = ClipRange(act->xspr.sysData2 << 4, 1, 65535);
 #else
-				pXSprite->health = dudeInfo[nType].startHealth << 4;
+				act->xspr.health = dudeInfo[nType].startHealth << 4;
 #endif
 
 			}
@@ -2684,8 +2681,7 @@ void actRadiusDamage(DBloodActor* source, int x, int y, int z, sectortype* pSect
 			if (!CheckSector(sectorMap, act2)) continue;
 			if (!CheckProximity(act2, x, y, z, pSector, nDist)) continue;
 
-			XSPRITE* pXSprite2 = &act2->x();
-			if (pXSprite2->locked) continue;
+			if (act2->xspr.locked) continue;
 
 			int dx = abs(x - act2->spr.pos.X);
 			int dy = abs(y - act2->spr.pos.Y);
@@ -2893,13 +2889,13 @@ DBloodActor* actDropObject(DBloodActor* actor, int nType)
 bool actHealDude(DBloodActor* actor, int add, int threshold)
 {
 	if (!actor) return false;
-	auto pXDude = &actor->x();
+	auto pXSprite = &actor->x();
 	add <<= 4;
 	threshold <<= 4;
-	if (pXDude->health < (unsigned)threshold)
+	if (pXSprite->health < (unsigned)threshold)
 	{
 		if (actor->IsPlayerActor()) sfxPlay3DSound(actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, 780, actor->spr.sector());
-		pXDude->health = min<uint32_t>(pXDude->health + add, threshold);
+		pXSprite->health = min<uint32_t>(pXSprite->health + add, threshold);
 		return true;
 	}
 	return false;
@@ -3831,14 +3827,12 @@ void actHitcodeToData(int a1, HitInfo* pHitInfo, DBloodActor** pActor, walltype*
 
 static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 {
-	XSPRITE* pXMissile = &missileActor->x();
 	auto missileOwner = missileActor->GetOwner();
 
 	DBloodActor* actorHit = nullptr;
 	walltype* pWallHit = nullptr;
 
 	actHitcodeToData(hitCode, &gHitInfo, &actorHit, &pWallHit);
-	XSPRITE* pXSpriteHit = actorHit && actorHit->hasX() ? &actorHit->x() : nullptr;
 
 	const THINGINFO* pThingInfo = nullptr;
 	DUDEINFO* pDudeInfo = nullptr;
@@ -3989,9 +3983,9 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 			{
 				missileActor->spr.picnum = 2123;
 				missileActor->SetTarget(actorHit);
-				pXMissile->targetZ = missileActor->spr.pos.Z - actorHit->spr.pos.Z;
-				pXMissile->goalAng = getangle(missileActor->spr.pos.X - actorHit->spr.pos.X, missileActor->spr.pos.Y - actorHit->spr.pos.Y) - actorHit->spr.ang;
-				pXMissile->state = 1;
+				missileActor->xspr.targetZ = missileActor->spr.pos.Z - actorHit->spr.pos.Z;
+				missileActor->xspr.goalAng = getangle(missileActor->spr.pos.X - actorHit->spr.pos.X, missileActor->spr.pos.Y - actorHit->spr.pos.Y) - actorHit->spr.ang;
+				missileActor->xspr.state = 1;
 				actPostSprite(missileActor, kStatFlare);
 				missileActor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
 				break;
@@ -4005,7 +3999,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 	case kMissileFlameHound:
 		if (hitCode == 3 && actorHit && actorHit->hasX())
 		{
-			if ((actorHit->spr.statnum == kStatThing || actorHit->spr.statnum == kStatDude) && pXSpriteHit->burnTime == 0)
+			if ((actorHit->spr.statnum == kStatThing || actorHit->spr.statnum == kStatDude) && actorHit->xspr.burnTime == 0)
 				evPostActor(actorHit, 0, kCallbackFXFlameLick);
 
 			actBurnSprite(missileOwner, actorHit, (4 + gGameOptions.nDifficulty) << 2);
@@ -4017,7 +4011,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 		actExplodeSprite(missileActor);
 		if (hitCode == 3 && actorHit && actorHit->hasX())
 		{
-			if ((actorHit->spr.statnum == kStatThing || actorHit->spr.statnum == kStatDude) && pXSpriteHit->burnTime == 0)
+			if ((actorHit->spr.statnum == kStatThing || actorHit->spr.statnum == kStatDude) && actorHit->xspr.burnTime == 0)
 				evPostActor(actorHit, 0, kCallbackFXFlameLick);
 
 			actBurnSprite(missileOwner, actorHit, (4 + gGameOptions.nDifficulty) << 2);
@@ -4032,7 +4026,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 		actExplodeSprite(missileActor);
 		if (hitCode == 3 && actorHit && actorHit->hasX())
 		{
-			if ((actorHit->spr.statnum == kStatThing || actorHit->spr.statnum == kStatDude) && pXSpriteHit->burnTime == 0)
+			if ((actorHit->spr.statnum == kStatThing || actorHit->spr.statnum == kStatDude) && actorHit->xspr.burnTime == 0)
 				evPostActor(actorHit, 0, kCallbackFXFlameLick);
 
 			actBurnSprite(missileOwner, actorHit, 32);
@@ -4102,7 +4096,7 @@ static void actImpactMissile(DBloodActor* missileActor, int hitCode)
 	}
 
 #ifdef NOONE_EXTENSIONS
-	if (gModernMap && pXSpriteHit && pXSpriteHit->state != pXSpriteHit->restState && pXSpriteHit->Impact)
+	if (gModernMap && actorHit->hasX() && actorHit->xspr.state != actorHit->xspr.restState && actorHit->xspr.Impact)
 		trTriggerSprite(actorHit, kCmdSpriteImpact);
 #endif
 	missileActor->spr.cstat &= ~CSTAT_SPRITE_BLOCK_ALL;
@@ -4166,8 +4160,6 @@ static void actTouchFloor(DBloodActor* actor, sectortype* pSector)
 
 static void checkCeilHit(DBloodActor* actor)
 {
-	auto pXSprite = actor->hasX() ? &actor->x() : nullptr;
-
 	auto& coll = actor->hit.ceilhit;
 	switch (coll.type)
 	{
@@ -4177,7 +4169,6 @@ static void checkCeilHit(DBloodActor* actor)
 		auto actor2 = coll.actor();
 		if (actor2 && actor2->hasX())
 		{
-			XSPRITE* pXSprite2 = &actor2->x();
 			if ((actor2->spr.statnum == kStatThing || actor2->spr.statnum == kStatDude) && (actor->xvel != 0 || actor->yvel != 0 || actor->zvel != 0))
 			{
 				if (actor2->spr.statnum == kStatThing)
@@ -4225,7 +4216,7 @@ static void checkCeilHit(DBloodActor* actor)
 						switch (actor2->spr.type)
 						{
 						case kDudeTchernobog:
-							actDamageSprite(actor2, actor, kDamageExplode, pXSprite->health << 2);
+							actDamageSprite(actor2, actor, kDamageExplode, actor->xspr.health << 2);
 							break;
 #ifdef NOONE_EXTENSIONS
 						case kDudeModernCustom:
@@ -4237,7 +4228,7 @@ static void checkCeilHit(DBloodActor* actor)
 							if (!actor->IsPlayerActor())
 							{
 								actDamageSprite(actor2, actor, kDamageFall, dmg);
-								if (pXSprite && !actor->isActive()) aiActivateDude(actor);
+								if (actor->hasX() && !actor->isActive()) aiActivateDude(actor);
 							}
 							else if (powerupCheck(&gPlayer[actor->spr.type - kDudePlayer1], kPwUpJumpBoots) > 0) actDamageSprite(actor2, actor, kDamageExplode, dmg);
 							else actDamageSprite(actor2, actor, kDamageFall, dmg);
@@ -4250,12 +4241,12 @@ static void checkCeilHit(DBloodActor* actor)
 				}
 			}
 
-			if (actor2->spr.type == kTrapSawCircular)
+			if (actor2->spr.type == kTrapSawCircular && actor2->hasX())
 			{
-				if (!pXSprite2->state) actDamageSprite(actor, actor, kDamageBullet, 1);
+				if (!actor2->xspr.state) actDamageSprite(actor, actor, kDamageBullet, 1);
 				else {
-					pXSprite2->data1 = 1;
-					pXSprite2->data2 = ClipHigh(pXSprite2->data2 + 8, 600);
+					actor2->xspr.data1 = 1;
+					actor2->xspr.data2 = ClipHigh(actor2->xspr.data2 + 8, 600);
 					actDamageSprite(actor, actor, kDamageBullet, 16);
 				}
 			}
@@ -4356,7 +4347,6 @@ static void checkFloorHit(DBloodActor* actor)
 		if (coll.actor()->hasX())
 		{
 			auto actor2 = coll.actor();
-			XSPRITE* pXSprite2 = &actor2->x();
 
 #ifdef NOONE_EXTENSIONS
 			// add size shroom abilities
@@ -4410,11 +4400,11 @@ static void checkFloorHit(DBloodActor* actor)
 				actDamageSprite(nullptr, actor2, kDamageFall, 80);
 				break;
 			case kTrapSawCircular:
-				if (!pXSprite2->state) actDamageSprite(actor, actor, kDamageBullet, 1);
+				if (!actor2->xspr.state) actDamageSprite(actor, actor, kDamageBullet, 1);
 				else
 				{
-					pXSprite2->data1 = 1;
-					pXSprite2->data2 = ClipHigh(pXSprite2->data2 + 8, 600);
+					actor2->xspr.data1 = 1;
+					actor2->xspr.data2 = ClipHigh(actor2->xspr.data2 + 8, 600);
 					actDamageSprite(actor, actor, kDamageBullet, 16);
 				}
 				break;
@@ -4492,8 +4482,7 @@ static void ProcessTouchObjects(DBloodActor* actor)
 
 		if (actor2 && actor2->hasX())
 		{
-			XSPRITE* pXHSprite = &actor2->x();
-			if (pXHSprite->Touch && !pXHSprite->isTriggered && (!pXHSprite->DudeLockout || actor->IsPlayerActor()))
+			if (actor2->xspr.Touch && !actor2->xspr.isTriggered && (!actor2->xspr.DudeLockout || actor->IsPlayerActor()))
 				trTriggerSprite(actor2, kCmdSpriteTouch);
 		}
 
@@ -4817,26 +4806,24 @@ void MoveDude(DBloodActor* actor)
 		case kHitSprite:
 		{
 			auto hitActor = coll.actor();
-			XSPRITE* pHitXSprite = coll.actor()->hasX() ? &coll.actor()->x() : nullptr;;
-
-			auto Owner = coll.actor()->GetOwner();
+			auto Owner = hitActor->GetOwner();
 
 			if (hitActor->spr.statnum == kStatProjectile && !(hitActor->spr.flags & 32) && actor != Owner)
 			{
 				auto hitInfo = gHitInfo;
 				gHitInfo.hitActor = actor;
-				actImpactMissile(coll.actor(), 3);
+				actImpactMissile(hitActor, 3);
 				gHitInfo = hitInfo;
 			}
 #ifdef NOONE_EXTENSIONS
-			if (!gModernMap && pHitXSprite && pHitXSprite->Touch && !pHitXSprite->state && !pHitXSprite->isTriggered)
+			if (!gModernMap && hitActor->hasX() && hitActor->xspr.Touch && !hitActor->xspr.state && !hitActor->xspr.isTriggered)
 				trTriggerSprite(coll.actor(), kCmdSpriteTouch);
 #else
-			if (pHitXSprite && pHitXSprite->Touch && !pHitXSprite->state && !pHitXSprite->isTriggered)
+			if (hitActor->hasX() && hitActor->xspr.Touch && !hitActor->xspr.state && !hitActor->xspr.isTriggered)
 				trTriggerSprite(coll.actor, kCmdSpriteTouch);
 #endif
 
-			if (pDudeInfo->lockOut && pHitXSprite && pHitXSprite->Push && !pHitXSprite->key && !pHitXSprite->DudeLockout && !pHitXSprite->state && !pHitXSprite->busy && !pPlayer)
+			if (pDudeInfo->lockOut && hitActor->hasX() && hitActor->xspr.Push && !hitActor->xspr.key && !hitActor->xspr.DudeLockout && !hitActor->xspr.state && !hitActor->xspr.busy && !pPlayer)
 				trTriggerSprite(coll.actor(), kCmdSpritePush);
 
 			break;
@@ -5262,7 +5249,7 @@ int MoveMissile(DBloodActor* actor)
 		auto target = actor->GetTarget();
 		XSPRITE* pXTarget = target->hasX() ? &target->x() : nullptr;
 
-		if (target->spr.statnum == kStatDude && pXTarget && pXTarget->health > 0)
+		if (target->spr.statnum == kStatDude && target->hasX() && pXTarget->health > 0)
 		{
 			int nTargetAngle = getangle(-(target->spr.pos.Y - actor->spr.pos.Y), target->spr.pos.X - actor->spr.pos.X);
 			int vx = missileInfo[actor->spr.type - kMissileBase].velocity;
@@ -5619,8 +5606,7 @@ static void actCheckProximity()
 
 					if (dudeactor->spr.flags & 32 || !dudeactor->hasX()) continue;
 
-					XSPRITE* pXSprite2 = &dudeactor->x();
-					if ((unsigned int)pXSprite2->health > 0)
+					if ((unsigned int)dudeactor->xspr.health > 0)
 					{
 						int proxyDist = 96;
 #ifdef NOONE_EXTENSIONS
@@ -5866,11 +5852,9 @@ static void actCheckExplosion()
 					}
 					if (pExplodeInfo->dmgType) ConcussSprite(actor, dudeactor, x, y, z, pExplodeInfo->dmgType);
 
-					if (pExplodeInfo->burnTime)
+					if (pExplodeInfo->burnTime && dudeactor->hasX())
 					{
-						assert(dudeactor->hasX());
-						XSPRITE* pXDude = &dudeactor->x();
-						if (!pXDude->burnTime) evPostActor(dudeactor, 0, kCallbackFXFlameLick);
+						if (!dudeactor->xspr.burnTime) evPostActor(dudeactor, 0, kCallbackFXFlameLick);
 						actBurnSprite(Owner, dudeactor, pExplodeInfo->burnTime << 2);
 					}
 				}
@@ -5886,14 +5870,13 @@ static void actCheckExplosion()
 			{
 				if (pXSprite->data1 && CheckProximity(thingactor, x, y, z, pSector, radius) && thingactor->hasX())
 				{
-					XSPRITE* pXThing = &thingactor->x();
-					if (!pXThing->locked)
+					if (!thingactor->xspr.locked)
 					{
 						if (pExplodeInfo->dmgType) ConcussSprite(Owner, thingactor, x, y, z, pExplodeInfo->dmgType);
 
 						if (pExplodeInfo->burnTime)
 						{
-							if (thingactor->spr.type == kThingTNTBarrel && !pXThing->burnTime)
+							if (thingactor->spr.type == kThingTNTBarrel && !thingactor->xspr.burnTime)
 								evPostActor(thingactor, 0, kCallbackFXFlameLick);
 							actBurnSprite(Owner, thingactor, pExplodeInfo->burnTime << 2);
 						}
@@ -6078,9 +6061,7 @@ static void actCheckDudes()
 				{
 					if (actor2->spr.flags & 32) continue;
 
-					XSPRITE* pXSprite2 = &actor2->x();
-
-					if ((unsigned int)pXSprite2->health > 0 && actor2->IsPlayerActor())
+					if (actor2->IsPlayerActor() && (unsigned int)actor2->xspr.health > 0)
 					{
 						if (CheckProximity(actor2, actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, actor->spr.sector(), 128))
 							trTriggerSprite(actor, kCmdSpriteProximity);
@@ -6187,13 +6168,12 @@ void actCheckFlares()
 		if (!target) continue;
 
 		viewBackupSpriteLoc(actor);
-		auto pXTarget = target->hasX() ? &target->x() : nullptr;
 		if (target->spr.statnum == kMaxStatus)
 		{
 			GibSprite(actor, GIBTYPE_17, NULL, NULL);
 			actPostSprite(actor, kStatFree);
 		}
-		if (pXTarget && pXTarget->health > 0)
+		if (target->hasX() && target->xspr.health > 0)
 		{
 			int x = target->spr.pos.X + mulscale30r(Cos(pXSprite->goalAng + target->spr.ang), target->spr.clipdist * 2);
 			int y = target->spr.pos.Y + mulscale30r(Sin(pXSprite->goalAng + target->spr.ang), target->spr.clipdist * 2);
@@ -6290,10 +6270,8 @@ DBloodActor* actSpawnSprite(DBloodActor* source, int nStat)
 
 DBloodActor* actSpawnDude(DBloodActor* source, int nType, int a3, int a4)
 {
-	XSPRITE* pXSource = &source->x();
 	auto spawned = actSpawnSprite(source, kStatDude);
 	if (!spawned) return nullptr;
-	XSPRITE* pXSprite2 = &spawned->x();
 	int angle = source->spr.ang;
 	int nDude = nType - kDudeBase;
 	int x, y, z;
@@ -6314,8 +6292,8 @@ DBloodActor* actSpawnDude(DBloodActor* source, int nType, int a3, int a4)
     SetActor(spawned, &pos);
 	spawned->spr.cstat |= CSTAT_SPRITE_BLOCK_ALL | CSTAT_SPRITE_BLOOD_BIT1;
 	spawned->spr.clipdist = getDudeInfo(nDude + kDudeBase)->clipdist;
-	pXSprite2->health = getDudeInfo(nDude + kDudeBase)->startHealth << 4;
-	pXSprite2->respawn = 1;
+	spawned->xspr.health = getDudeInfo(nDude + kDudeBase)->startHealth << 4;
+	spawned->xspr.respawn = 1;
 	if (getSequence(getDudeInfo(nDude + kDudeBase)->seqStartID))
 		seqSpawn(getDudeInfo(nDude + kDudeBase)->seqStartID, spawned, -1);
 
@@ -6332,20 +6310,20 @@ DBloodActor* actSpawnDude(DBloodActor* source, int nType, int a3, int a4)
 			if (spawned->spr.pal <= 0) spawned->spr.pal = source->spr.pal;
 
 			// inherit spawn sprite trigger settings, so designer can count monsters.
-			pXSprite2->txID = pXSource->txID;
-			pXSprite2->command = pXSource->command;
-			pXSprite2->triggerOn = pXSource->triggerOn;
-			pXSprite2->triggerOff = pXSource->triggerOff;
+			spawned->xspr.txID = source->xspr.txID;
+			spawned->xspr.command = source->xspr.command;
+			spawned->xspr.triggerOn = source->xspr.triggerOn;
+			spawned->xspr.triggerOff = source->xspr.triggerOff;
 
 			// inherit drop items
-			pXSprite2->dropMsg = pXSource->dropMsg;
+			spawned->xspr.dropMsg = source->xspr.dropMsg;
 
 			// inherit dude flags
-			pXSprite2->dudeDeaf = pXSource->dudeDeaf;
-			pXSprite2->dudeGuard = pXSource->dudeGuard;
-			pXSprite2->dudeAmbush = pXSource->dudeAmbush;
-			pXSprite2->dudeFlag4 = pXSource->dudeFlag4;
-			pXSprite2->unused1 = pXSource->unused1;
+			spawned->xspr.dudeDeaf = source->xspr.dudeDeaf;
+			spawned->xspr.dudeGuard = source->xspr.dudeGuard;
+			spawned->xspr.dudeAmbush = source->xspr.dudeAmbush;
+			spawned->xspr.dudeFlag4 = source->xspr.dudeFlag4;
+			spawned->xspr.unused1 = source->xspr.unused1;
 			break;
 		}
 	}
