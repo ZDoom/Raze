@@ -412,7 +412,7 @@ static void shootweapon(DDukeActor* actor, int p, int sx, int sy, int sz, int sa
 							{
 								l->spr.xvel = -1;
 								auto delta = hit.hitWall->delta();
-								l->spr.ang = getangle(-delta.X, -delta.y) + 512;
+								l->spr.ang = getangle(-delta.X, -delta.Y) + 512;
 								ssp(l, CLIPMASK0);
 							}
 						}

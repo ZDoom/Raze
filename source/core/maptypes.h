@@ -686,7 +686,7 @@ inline void walltype::moved()
 inline void walltype::move(int newx, int newy)
 {
 	pos.X = newx;
-	pos.y = newy;
+	pos.Y = newy;
 	lengthflags = 3;
 	sectorp()->dirty = EDirty::AllDirty;
 }

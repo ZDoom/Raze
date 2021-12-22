@@ -1710,11 +1710,11 @@ void MovePoints(SECTOR_OBJECTp sop, short delta_ang, int nx, int ny)
 
             if (wal.extra && TEST(wal.extra, WALLFX_LOOP_OUTER))
             {
-                dragpoint(&wal, rxy.X, rxy.y);
+                dragpoint(&wal, rxy.X, rxy.Y);
             }
             else
             {
-                wal.move(rxy.X, rxy.y);
+                wal.move(rxy.X, rxy.Y);
             }
         }
 

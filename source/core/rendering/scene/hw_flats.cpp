@@ -141,7 +141,7 @@ void HWFlat::MakeVertices(HWDrawInfo* di)
 				float maxofs = -FLT_MAX, minofs = FLT_MAX;
 				for (int i = 0; i < 4; i++)
 				{
-					float vz = getceilzofslopeptr(Sprite->sectp, pos[i].X, pos[i].y) * (1 / -256.f);
+					float vz = getceilzofslopeptr(Sprite->sectp, pos[i].X, pos[i].Y) * (1 / -256.f);
 					float sz = z + ofsz[i] * (1 / -256.f);
 					int diff = vz - sz;
 					if (diff > maxofs) maxofs = diff;
@@ -154,7 +154,7 @@ void HWFlat::MakeVertices(HWDrawInfo* di)
 				float maxofs = -FLT_MAX, minofs = FLT_MAX;
 				for (int i = 0; i < 4; i++)
 				{
-					float vz = getflorzofslopeptr(Sprite->sectp, pos[i].X, pos[i].y) * (1 / -256.f);
+					float vz = getflorzofslopeptr(Sprite->sectp, pos[i].X, pos[i].Y) * (1 / -256.f);
 					float sz = z + ofsz[i] * (1 / -256.f);
 					int diff = vz - sz;
 					if (diff > maxofs) maxofs = diff;
@@ -167,7 +167,7 @@ void HWFlat::MakeVertices(HWDrawInfo* di)
 		{
 			const static unsigned indices[] = { 0, 1, 2, 0, 2, 3 };
 			int j = indices[i];
-			vp->SetVertex(pos[j].X * (1 / 16.f), z + ofsz[j] * (1 / -256.f), pos[j].y * (1 / -16.f));
+			vp->SetVertex(pos[j].X * (1 / 16.f), z + ofsz[j] * (1 / -256.f), pos[j].Y * (1 / -16.f));
 			if (!canvas) vp->SetTexCoord(j == 1 || j == 2 ? 1.f - x : x, j == 2 || j == 3 ? 1.f - y : y);
 			else vp->SetTexCoord(j == 1 || j == 2 ? 1.f - x : x, j == 2 || j == 3 ? y : 1.f - y);
 			vp++;

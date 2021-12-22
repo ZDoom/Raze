@@ -812,7 +812,7 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
         for (auto& wal : wallsofsector(pSector))
         {
             x = wal.baseWall.X;
-            y = wal.baseWall.y;
+            y = wal.baseWall.Y;
             if (vbp)
                 RotatePoint((int*)&x, (int*)&y, vbp, a4, a5);
             DragPoint(&wal, x+vc-a4, y+v8-a5);
@@ -824,7 +824,7 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
         {
             auto p2Wall = wal.point2Wall();
             x = wal.baseWall.X;
-            y = wal.baseWall.y;
+            y = wal.baseWall.Y;
             if (wal.cstat & CSTAT_WALL_MOVE_FORWARD)
             {
                 if (vbp)
@@ -833,7 +833,7 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
                 if ((p2Wall->cstat & CSTAT_WALL_MOVE_MASK) == 0)
                 {
                     x = p2Wall->baseWall.X;
-                    y = p2Wall->baseWall.y;
+                    y = p2Wall->baseWall.Y;
                     if (vbp)
                         RotatePoint((int*)&x, (int*)&y, vbp, a4, a5);
                     DragPoint(p2Wall, x+vc-a4, y+v8-a5);
@@ -848,7 +848,7 @@ void TranslateSector(sectortype* pSector, int a2, int a3, int a4, int a5, int a6
                 if ((p2Wall->cstat & CSTAT_WALL_MOVE_MASK) == 0)
                 {
                     x = p2Wall->baseWall.X;
-                    y = p2Wall->baseWall.y;
+                    y = p2Wall->baseWall.Y;
                     if (vbp)
                         RotatePoint((int*)&x, (int*)&y, -vbp, a4, a5);
                     DragPoint(p2Wall, x-(vc-a4), y-(v8-a5));
@@ -1967,7 +1967,7 @@ void trInit(TArray<DBloodActor*>& actors)
     for(auto& wal : wall)
     {
         wal.baseWall.X = wal.x;
-        wal.baseWall.y = wal.y;
+        wal.baseWall.Y = wal.y;
     }
     for(auto actor : actors)
     {
@@ -2020,7 +2020,7 @@ void trInit(TArray<DBloodActor*>& actors)
                 for(auto& wal : wallsofsector(pSector))
                 {
                     wal.baseWall.X = wal.x;
-                    wal.baseWall.y = wal.y;
+                    wal.baseWall.Y = wal.y;
                 }
                 BloodSectIterator it(pSector);
                 while (auto actor = it.Next())
@@ -2039,7 +2039,7 @@ void trInit(TArray<DBloodActor*>& actors)
                 for (auto& wal : wallsofsector(pSector))
                 {
                     wal.baseWall.X = wal.x;
-                    wal.baseWall.y = wal.y;
+                    wal.baseWall.Y = wal.y;
                 }
                 BloodSectIterator it(pSector);
                 while (auto actor = it.Next())

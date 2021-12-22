@@ -291,7 +291,7 @@ void ms(DDukeActor* const actor)
 		vec2_t t;
 		rotatepoint({ 0, 0 }, { msx[j], msy[j] }, k & 2047, &t);
 
-		dragpoint(&wal, actor->spr.x + t.X, actor->spr.y + t.y);
+		dragpoint(&wal, actor->spr.x + t.X, actor->spr.y + t.Y);
 		j++;
 	}
 }
@@ -2715,7 +2715,7 @@ void handle_se00(DDukeActor* actor, int LASERLINE)
 				rotatepoint(Owner->spr.pos.vec2, ps[p].pos.vec2, (q * l), &res);
 
 				ps[p].bobposx += res.X - ps[p].pos.x;
-				ps[p].bobposy += res.y - ps[p].pos.y;
+				ps[p].bobposy += res.Y - ps[p].pos.y;
 
 				ps[p].pos.vec2 = res;
 
@@ -4327,7 +4327,7 @@ void handle_se26(DDukeActor* actor)
 		if (ps[p].GetActor()->sector() == actor->spr.sector() && ps[p].on_ground)
 		{
 			ps[p].fric.X += l << 5;
-			ps[p].fric.y += x << 5;
+			ps[p].fric.Y += x << 5;
 			ps[p].pos.z += actor->spr.zvel;
 		}
 
@@ -4467,7 +4467,7 @@ void handle_se24(DDukeActor *actor, const int16_t *list1, const int16_t *list2, 
 			if (abs(ps[p].pos.z - ps[p].truefz) < gs.playerheight + (9 << 8))
 			{
 				ps[p].fric.X += x << 3;
-				ps[p].fric.y += l << 3;
+				ps[p].fric.Y += l << 3;
 			}
 		}
 	}

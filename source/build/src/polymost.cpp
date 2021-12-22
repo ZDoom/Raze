@@ -249,8 +249,8 @@ static void resizeglcheck(void)
 
     ratio = 1.f/ratio;
 
-	GLInterface.SetViewport(windowxy1.X-(fovcorrect/2), ydim-(windowxy2.y+1),
-                ourxdimen+fovcorrect, windowxy2.y-windowxy1.y+1);
+	GLInterface.SetViewport(windowxy1.X-(fovcorrect/2), ydim-(windowxy2.Y+1),
+                ourxdimen+fovcorrect, windowxy2.Y-windowxy1.Y+1);
 
     float m[4][4]{};
 
@@ -406,7 +406,7 @@ static void polymost_drawpoly(FVector2 const * const dpxy, int32_t const n, int3
 	bool success = GLInterface.SetTexture(globalskytex? globalskytex : tileGetTexture(globalpicnum), !hw_int_useindexedcolortextures && globalskytex ? 0 : palid, sampleroverride);
 	if (!success)
 	{
-		tsiz.X = tsiz.y = 1;
+		tsiz.X = tsiz.Y = 1;
 		GLInterface.SetColorMask(false); //Hack to update Z-buffer for invalid mirror textures
 	}
 
@@ -454,7 +454,7 @@ static void polymost_drawpoly(FVector2 const * const dpxy, int32_t const n, int3
 
     GLInterface.SetColor(pc[0], pc[1], pc[2], pc[3]);
 
-    FVector2 const scale = { 1.f / tsiz2.X, 1.f / tsiz2.y };
+    FVector2 const scale = { 1.f / tsiz2.X, 1.f / tsiz2.Y };
 	auto data = screen->mVertexData->AllocVertices(npoints);
 	auto vt = data.first;
     for (intptr_t i = 0; i < npoints; ++i, vt++)
@@ -1005,7 +1005,7 @@ static void polymost_internal_nonparallaxed(FVector2 n0, FVector2 n1, float ryp0
 
         float r;
 
-        int length = ksqrt(uhypsq(xy.X, xy.y));
+        int length = ksqrt(uhypsq(xy.X, xy.Y));
         if (globalorientation & 2)
         {
             r = 1.f / length;
@@ -1016,7 +1016,7 @@ static void polymost_internal_nonparallaxed(FVector2 n0, FVector2 n1, float ryp0
             r = i * (1.f/1048576.f);
         }
 
-        FVector2 const fxy = { xy.X*r, xy.y*r };
+        FVector2 const fxy = { xy.X*r, xy.Y*r };
 
         ft[0] = ((float)(globalposx - sec->firstWall()->x)) * fxy.X + ((float)(globalposy - sec->firstWall()->y)) * fxy.Y;
         ft[1] = ((float)(globalposy - sec->firstWall()->y)) * fxy.X - ((float)(globalposx - sec->firstWall()->x)) * fxy.Y;
@@ -1219,10 +1219,10 @@ static inline int32_t testvisiblemost(float const x0, float const x1)
 static inline int polymost_getclosestpointonwall(vec2_t const * const pos, int32_t dawall, vec2_t * const n)
 {
     vec2_t const w = { wall[dawall].x, wall[dawall].y };
-    vec2_t const d = { POINT2(dawall).x - w.X, POINT2(dawall).y - w.y };
-    int64_t i = d.X * ((int64_t)pos->X - w.X) + d.y * ((int64_t)pos->y - w.y);
+    vec2_t const d = { POINT2(dawall).x - w.X, POINT2(dawall).y - w.Y };
+    int64_t i = d.X * ((int64_t)pos->X - w.X) + d.Y * ((int64_t)pos->Y - w.Y);
 
-    if (d.X == 0 && d.y == 0)
+    if (d.X == 0 && d.Y == 0)
     {
         // In Blood's E1M1 this gets triggered for wall 522.
         return 1;
@@ -1231,7 +1231,7 @@ static inline int polymost_getclosestpointonwall(vec2_t const * const pos, int32
     if (i < 0)
         return 1;
 
-    int64_t const j = (int64_t)d.X * d.X + (int64_t)d.y * d.y;
+    int64_t const j = (int64_t)d.X * d.X + (int64_t)d.Y * d.Y;
 
     if (i > j)
         return 1;
@@ -1239,7 +1239,7 @@ static inline int polymost_getclosestpointonwall(vec2_t const * const pos, int32
     i = ((i << 15) / j) << 15;
 
     n->X = w.X + ((d.X * i) >> 30);
-    n->y = w.y + ((d.y * i) >> 30);
+    n->Y = w.Y + ((d.Y * i) >> 30);
 
     return 0;
 }
@@ -1756,7 +1756,7 @@ static void polymost_drawalls(int32_t const bunch)
                 if (maskingOneWay)
                 {
                     vec2_t n, pos = { globalposx, globalposy };
-                    if (!polymost_getclosestpointonwall(&pos, wallnum, &n) && abs(pos.X - n.X) + abs(pos.y - n.y) <= 128)
+                    if (!polymost_getclosestpointonwall(&pos, wallnum, &n) && abs(pos.X - n.X) + abs(pos.Y - n.Y) <= 128)
                         break;
                 }
 
@@ -1809,27 +1809,27 @@ int32_t wallfront(int32_t l1, int32_t l2)
     vec2_t const l1p2vect = wall[thewall[l1]].point2Wall()->pos;
     vec2_t const l2vect = wall[thewall[l2]].pos;
     vec2_t const l2p2vect = wall[thewall[l2]].point2Wall()->pos;
-    vec2_t d = { l1p2vect.X - l1vect.X, l1p2vect.y - l1vect.y };
-    int32_t t1 = DMulScale(l2vect.X - l1vect.X, d.y, -d.X, l2vect.y - l1vect.y, 2); //p1(l2) vs. l1
-    int32_t t2 = DMulScale(l2p2vect.X - l1vect.X, d.y, -d.X, l2p2vect.y - l1vect.y, 2); //p2(l2) vs. l1
+    vec2_t d = { l1p2vect.X - l1vect.X, l1p2vect.Y - l1vect.Y };
+    int32_t t1 = DMulScale(l2vect.X - l1vect.X, d.Y, -d.X, l2vect.Y - l1vect.Y, 2); //p1(l2) vs. l1
+    int32_t t2 = DMulScale(l2p2vect.X - l1vect.X, d.Y, -d.X, l2p2vect.Y - l1vect.Y, 2); //p2(l2) vs. l1
 
     if (t1 == 0) { if (t2 == 0) return -1; t1 = t2; }
     if (t2 == 0) t2 = t1;
 
     if ((t1 ^ t2) >= 0) //pos vs. l1
-        return (DMulScale(globalposx - l1vect.X, d.y, -d.X, globalposy - l1vect.y, 2) ^ t1) >= 0;
+        return (DMulScale(globalposx - l1vect.X, d.Y, -d.X, globalposy - l1vect.Y, 2) ^ t1) >= 0;
 
     d.X = l2p2vect.X - l2vect.X;
-    d.y = l2p2vect.y - l2vect.y;
+    d.Y = l2p2vect.Y - l2vect.Y;
 
-    t1 = DMulScale(l1vect.X - l2vect.X, d.y, -d.X, l1vect.y - l2vect.y, 2); //p1(l1) vs. l2
-    t2 = DMulScale(l1p2vect.X - l2vect.X, d.y, -d.X, l1p2vect.y - l2vect.y, 2); //p2(l1) vs. l2
+    t1 = DMulScale(l1vect.X - l2vect.X, d.Y, -d.X, l1vect.Y - l2vect.Y, 2); //p1(l1) vs. l2
+    t2 = DMulScale(l1p2vect.X - l2vect.X, d.Y, -d.X, l1p2vect.Y - l2vect.Y, 2); //p2(l1) vs. l2
 
     if (t1 == 0) { if (t2 == 0) return -1; t1 = t2; }
     if (t2 == 0) t2 = t1;
 
     if ((t1 ^ t2) >= 0) //pos vs. l2
-        return (DMulScale(globalposx - l2vect.X, d.y, -d.X, globalposy - l2vect.y, 2) ^ t1) < 0;
+        return (DMulScale(globalposx - l2vect.X, d.Y, -d.X, globalposy - l2vect.Y, 2) ^ t1) < 0;
 
     return -2;
 }
@@ -1884,12 +1884,12 @@ void polymost_scansector(int32_t sectnum)
 
             if ((spr->cstat & CSTAT_SPRITE_ALIGNMENT_MASK) ||
                 (hw_models && tile2model[spr->picnum].modelid>=0) ||
-                ((s.X * gcosang) + (s.y * gsinang) > 0))
+                ((s.X * gcosang) + (s.Y * gsinang) > 0))
             {
                 if ((spr->cstat&(CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_MASK))!=(CSTAT_SPRITE_ONE_SIDE | CSTAT_SPRITE_ALIGNMENT_WALL) ||
                     (r_voxels && tiletovox[spr->picnum] >= 0 && voxmodels[tiletovox[spr->picnum]]) ||
                     (r_voxels && gi->Voxelize(spr->picnum) > -1) ||
-                    DMulScale(bcos(spr->ang), -s.X, bsin(spr->ang), -s.y, 6) > 0)
+                    DMulScale(bcos(spr->ang), -s.X, bsin(spr->ang), -s.Y, 6) > 0)
                     if (!renderAddTsprite(pm_tsprite, pm_spritesortcnt, act))
                         break;
             }
@@ -2111,7 +2111,7 @@ void polymost_drawrooms()
     //if (glprojectionhacks == 2)
     {
         // calculates the extend of the zenith glitch
-        float verticalfovtan = (fviewingrange * (windowxy2.y-windowxy1.y) * 5.f) / ((float)yxaspect * (windowxy2.X-windowxy1.X) * 4.f);
+        float verticalfovtan = (fviewingrange * (windowxy2.Y-windowxy1.Y) * 5.f) / ((float)yxaspect * (windowxy2.X-windowxy1.X) * 4.f);
         float verticalfov = atanf(verticalfovtan) * (2.f / pi::pi());
         static constexpr float const maxhorizangle = 0.6361136f; // horiz of 199 in degrees
         float zenglitch = verticalfov + maxhorizangle - 0.95f; // less than 1 because the zenith glitch extends a bit
@@ -2170,8 +2170,8 @@ void polymost_drawrooms()
     //Generate viewport trapezoid (for handling screen up/down)
     FVector3 p[4] = {  { 0-1,                                        0-1+ghorizcorrect,                                  0 },
                       { (float)(windowxy2.X + 1 - windowxy1.X + 2), 0-1+ghorizcorrect,                                  0 },
-                      { (float)(windowxy2.X + 1 - windowxy1.X + 2), (float)(windowxy2.y + 1 - windowxy1.y + 2)+ghorizcorrect, 0 },
-                      { 0-1,                                        (float)(windowxy2.y + 1 - windowxy1.y + 2)+ghorizcorrect, 0 } };
+                      { (float)(windowxy2.X + 1 - windowxy1.X + 2), (float)(windowxy2.Y + 1 - windowxy1.Y + 2)+ghorizcorrect, 0 },
+                      { 0-1,                                        (float)(windowxy2.Y + 1 - windowxy1.Y + 2)+ghorizcorrect, 0 } };
 
     for (auto & v : p)
     {
@@ -2499,7 +2499,7 @@ void polymost_prepareMirror(int32_t dax, int32_t day, int32_t daz, fixed_t daang
     //if (glprojectionhacks == 2)
     {
         // calculates the extent of the zenith glitch
-        float verticalfovtan = (fviewingrange * (windowxy2.y-windowxy1.y) * 5.f) / ((float)yxaspect * (windowxy2.X-windowxy1.X) * 4.f);
+        float verticalfovtan = (fviewingrange * (windowxy2.Y-windowxy1.Y) * 5.f) / ((float)yxaspect * (windowxy2.X-windowxy1.X) * 4.f);
         float verticalfov = atanf(verticalfovtan) * (2.f / pi::pi());
         static constexpr float const maxhorizangle = 0.6361136f; // horiz of 199 in degrees
         float zenglitch = verticalfov + maxhorizangle - 0.95f; // less than 1 because the zenith glitch extends a bit
@@ -2577,10 +2577,10 @@ static inline int32_t polymost_findwall(tspritetype const * const tspr, vec2_t c
 
     for(auto& wal : wallsofsector(sect))
     {
-        if ((!wal.twoSided() || ((wal.nextSector()->ceilingz > (tspr->z - ((tsiz->y * tspr->yrepeat) << 2))) ||
+        if ((!wal.twoSided() || ((wal.nextSector()->ceilingz > (tspr->z - ((tsiz->Y * tspr->yrepeat) << 2))) ||
              wal.nextSector()->floorz < tspr->z)) && !polymost_getclosestpointonwall((const vec2_t *) tspr, wallnum(&wal), &n))
         {
-            int const dst = abs(tspr->x - n.X) + abs(tspr->y - n.y);
+            int const dst = abs(tspr->x - n.X) + abs(tspr->y - n.Y);
 
             if (dst <= dist)
             {
@@ -2682,7 +2682,7 @@ void polymost_drawsprite(int32_t snum)
         if (!(tspr->cstat2 & CSTAT2_SPRITE_SLOPE))
         {
             off.X += tspr->xoffset;
-            off.y += tspr->yoffset;
+            off.Y += tspr->yoffset;
         }
 
     }
@@ -2749,10 +2749,10 @@ void polymost_drawsprite(int32_t snum)
     else 
         tsiz = { tileWidth(globalpicnum), tileHeight(globalpicnum) };
 
-    if (tsiz.X <= 0 || tsiz.y <= 0)
+    if (tsiz.X <= 0 || tsiz.Y <= 0)
         return;
 
-    FVector2 const ftsiz = { (float) tsiz.X, (float) tsiz.y };
+    FVector2 const ftsiz = { (float) tsiz.X, (float) tsiz.Y };
 
     switch ((globalorientation >> 4) & 3)
     {
@@ -2788,11 +2788,11 @@ void polymost_drawsprite(int32_t snum)
 
             if (tsiz.X & 1)
                 s0.X += ff.X * 0.5f;
-            if (globalorientation & 128 && tsiz.y & 1)
+            if (globalorientation & 128 && tsiz.Y & 1)
                 s0.Y += ff.Y * 0.5f;
 
             s0.X -= ff.X * (float) off.X;
-            s0.Y -= ff.Y * (float) off.y;
+            s0.Y -= ff.Y * (float) off.Y;
 
             ff.X *= ftsiz.X;
             ff.Y *= ftsiz.Y;
@@ -2852,7 +2852,7 @@ void polymost_drawsprite(int32_t snum)
                     pxy[2].Y = pxy[3].Y = s0.Y;
             }
 
-            vec2_16_t tempsiz = { (int16_t)tsiz.X, (int16_t)tsiz.y };
+            vec2_16_t tempsiz = { (int16_t)tsiz.X, (int16_t)tsiz.Y };
             pow2xsplit = 0;
             if (globalshade > 63) globalshade = 63; // debug
             polymost_drawpoly(pxy, 4, method, tempsiz);
@@ -2869,7 +2869,7 @@ void polymost_drawsprite(int32_t snum)
                 off.X = -off.X;
 
             if (globalorientation & 8)
-                off.y = -off.y;
+                off.Y = -off.Y;
 
             FVector2 const extent = { float(tspr->xrepeat * bsinf(tspr->ang, -16)),
                                      float(tspr->xrepeat * -bcosf(tspr->ang, -16)) };
@@ -2890,8 +2890,8 @@ void polymost_drawsprite(int32_t snum)
                 vec2_t v = { /*Blrintf(vf.x)*/(int)vf.X, /*Blrintf(vf.y)*/(int)vf.Y };
 
                 if (walldist <= 2 || ((pos.x - v.X) + (pos.x + v.X)) == (wall[w].x + POINT2(w).x) ||
-                    ((pos.y - v.y) + (pos.y + v.y)) == (wall[w].y + POINT2(w).y) ||
-                    polymost_lintersect(pos.x - v.X, pos.y - v.y, pos.x + v.X, pos.y + v.y, wall[w].x, wall[w].y,
+                    ((pos.y - v.Y) + (pos.y + v.Y)) == (wall[w].y + POINT2(w).y) ||
+                    polymost_lintersect(pos.x - v.X, pos.y - v.Y, pos.x + v.X, pos.y + v.Y, wall[w].x, wall[w].y,
                                         POINT2(w).x, POINT2(w).y))
                 {
                     int32_t const ang = getangle(wall[w].x - POINT2(w).x, wall[w].y - POINT2(w).y);
@@ -2940,13 +2940,13 @@ void polymost_drawsprite(int32_t snum)
             const float ryp1 = f * gyxscale;
             float sx1 = ghalfx * p1.X * f + ghalfx;
 
-            pos.z -= ((off.y * tspr->yrepeat) << 2);
+            pos.z -= ((off.Y * tspr->yrepeat) << 2);
 
             if (globalorientation & 128)
             {
-                pos.z += ((tsiz.y * tspr->yrepeat) << 1);
+                pos.z += ((tsiz.Y * tspr->yrepeat) << 1);
 
-                if (tsiz.y & 1)
+                if (tsiz.Y & 1)
                     pos.z += (tspr->yrepeat << 1);  // Odd yspans
             }
 
@@ -2992,7 +2992,7 @@ void polymost_drawsprite(int32_t snum)
             // Clip sprites to ceilings/floors when no parallaxing
             if (!(tspr->sector()->ceilingstat & CSTAT_SECTOR_SKY))
             {
-                if (tspr->sector()->ceilingz > pos.z - (float)((tspr->yrepeat * tsiz.y) << 2))
+                if (tspr->sector()->ceilingz > pos.z - (float)((tspr->yrepeat * tsiz.Y) << 2))
                 {
                     sc0 = (float)(tspr->sector()->ceilingz - globalposz) * ryp0 + ghoriz;
                     sc1 = (float)(tspr->sector()->ceilingz - globalposz) * ryp1 + ghoriz;
@@ -3019,7 +3019,7 @@ void polymost_drawsprite(int32_t snum)
 
             FVector2 const pxy[4] = { { sx0, sc0 }, { sx1, sc1 }, { sx1, sf1 }, { sx0, sf0 } };
 
-			vec2_16_t tempsiz = { (int16_t)tsiz.X, (int16_t)tsiz.y };
+			vec2_16_t tempsiz = { (int16_t)tsiz.X, (int16_t)tsiz.Y };
 			pow2xsplit = 0;
             polymost_drawpoly(pxy, 4, method, tempsiz);
 
@@ -3043,12 +3043,12 @@ void polymost_drawsprite(int32_t snum)
                 if ((globalorientation & 4) > 0)
                     off.X = -off.X;
                 if ((globalorientation & 8) > 0)
-                    off.y = -off.y;
+                    off.Y = -off.Y;
 
                 FVector2 const p0 = { (float)(((tsiz.X + 1) >> 1) - off.X) * tspr->xrepeat,
-                                     (float)(((tsiz.y + 1) >> 1) - off.y) * tspr->yrepeat * ratio },
+                                     (float)(((tsiz.Y + 1) >> 1) - off.Y) * tspr->yrepeat * ratio },
                               p1 = { (float)((tsiz.X >> 1) + off.X) * tspr->xrepeat,
-                                     (float)((tsiz.y >> 1) + off.y) * tspr->yrepeat * ratio };
+                                     (float)((tsiz.Y >> 1) + off.Y) * tspr->yrepeat * ratio };
 
                 float const c = bcosf(tspr->ang, -16);
                 float const s = bsinf(tspr->ang, -16);
@@ -3225,7 +3225,7 @@ void polymost_drawsprite(int32_t snum)
                     xtex.v *= rr; ytex.v *= rr; otex.v *= rr;
                 }
 
-				vec2_16_t tempsiz = { (int16_t)tsiz.X, (int16_t)tsiz.y };
+				vec2_16_t tempsiz = { (int16_t)tsiz.X, (int16_t)tsiz.Y };
 				pow2xsplit = 0;
 
                 polymost_drawpoly(pxy2, npoints, method, tempsiz);
@@ -3703,7 +3703,7 @@ void renderDrawMasks(void)
                         for (jj = 0; jj < numpts; jj++)
                         {
                             spr.X = (float)pp[jj].X;
-                            spr.Y = (float)pp[jj].y;
+                            spr.Y = (float)pp[jj].Y;
 
                             if (!sameside(&maskeq, &spr, &pos))  // behind the maskwall,
                                 if ((sameside(&p1eq, &middle, &spr) &&  // inside the 'cone',

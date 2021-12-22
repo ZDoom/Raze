@@ -86,21 +86,21 @@ static inline void get_floorspr_points(spritetype const * const spr, int32_t px,
         adjofs.X = -adjofs.X;
 
     if (spr->cstat & CSTAT_SPRITE_YFLIP)
-        adjofs.y = -adjofs.y;
+        adjofs.Y = -adjofs.Y;
 
-    vec2_t const center = { ((span.X >> 1) + adjofs.X) * repeat.X, ((span.y >> 1) + adjofs.y) * repeat.y };
-    vec2_t const rspan  = { span.X * repeat.X, span.y * repeat.y };
-    vec2_t const ofs    = { -DivScale(MulScale(cosang, rspan.y, 16), ratio, 12), -DivScale(MulScale(sinang, rspan.y, 16), ratio, 12) };
+    vec2_t const center = { ((span.X >> 1) + adjofs.X) * repeat.X, ((span.Y >> 1) + adjofs.Y) * repeat.Y };
+    vec2_t const rspan  = { span.X * repeat.X, span.Y * repeat.Y };
+    vec2_t const ofs    = { -DivScale(MulScale(cosang, rspan.Y, 16), ratio, 12), -DivScale(MulScale(sinang, rspan.Y, 16), ratio, 12) };
     vec2_t const cossinslope = { DivScale(cosang, ratio, 12), DivScale(sinang, ratio, 12) };
 
-    *x1 += DMulScale(sinang, center.X, cossinslope.X, center.y, 16) - px;
-    *y1 += DMulScale(cossinslope.y, center.y, -cosang, center.X, 16) - py;
+    *x1 += DMulScale(sinang, center.X, cossinslope.X, center.Y, 16) - px;
+    *y1 += DMulScale(cossinslope.Y, center.Y, -cosang, center.X, 16) - py;
 
     *x2 = *x1 - MulScale(sinang, rspan.X, 16);
     *y2 = *y1 + MulScale(cosang, rspan.X, 16);
 
     *x3 = *x2 + ofs.X, *x4 = *x1 + ofs.X;
-    *y3 = *y2 + ofs.y, *y4 = *y1 + ofs.y;
+    *y3 = *y2 + ofs.Y, *y4 = *y1 + ofs.Y;
 }
 
 //
@@ -113,24 +113,24 @@ int clipinsidebox(vec2_t *vect, int wallnum, int walldist)
     auto const wal1 = (uwallptr_t)&wall[wallnum];
     auto const wal2 = (uwallptr_t)wal1->point2Wall();
 
-    vec2_t const v1 = { wal1->x + walldist - vect->X, wal1->y + walldist - vect->y };
-    vec2_t       v2 = { wal2->x + walldist - vect->X, wal2->y + walldist - vect->y };
+    vec2_t const v1 = { wal1->x + walldist - vect->X, wal1->y + walldist - vect->Y };
+    vec2_t       v2 = { wal2->x + walldist - vect->X, wal2->y + walldist - vect->Y };
 
-    if (((v1.X < 0) && (v2.X < 0)) || ((v1.y < 0) && (v2.y < 0)) || ((v1.X >= r) && (v2.X >= r)) || ((v1.y >= r) && (v2.y >= r)))
+    if (((v1.X < 0) && (v2.X < 0)) || ((v1.Y < 0) && (v2.Y < 0)) || ((v1.X >= r) && (v2.X >= r)) || ((v1.Y >= r) && (v2.Y >= r)))
         return 0;
 
-    v2.X -= v1.X; v2.y -= v1.y;
+    v2.X -= v1.X; v2.Y -= v1.Y;
 
-    if (v2.X * (walldist - v1.y) >= v2.y * (walldist - v1.X))  // Front
+    if (v2.X * (walldist - v1.Y) >= v2.Y * (walldist - v1.X))  // Front
     {
-        v2.X *= ((v2.X > 0) ? (0 - v1.y) : (r - v1.y));
-        v2.y *= ((v2.y > 0) ? (r - v1.X) : (0 - v1.X));
-        return v2.X < v2.y;
+        v2.X *= ((v2.X > 0) ? (0 - v1.Y) : (r - v1.Y));
+        v2.Y *= ((v2.Y > 0) ? (r - v1.X) : (0 - v1.X));
+        return v2.X < v2.Y;
     }
 
-    v2.X *= ((v2.X > 0) ? (r - v1.y) : (0 - v1.y));
-    v2.y *= ((v2.y > 0) ? (0 - v1.X) : (r - v1.X));
-    return (v2.X >= v2.y) << 1;
+    v2.X *= ((v2.X > 0) ? (r - v1.Y) : (0 - v1.Y));
+    v2.Y *= ((v2.Y > 0) ? (0 - v1.X) : (r - v1.X));
+    return (v2.X >= v2.Y) << 1;
 }
 
 static int32_t spriteGetZOfSlope(const spritetype* spr, int32_t dax, int32_t day)
@@ -237,13 +237,13 @@ static int cliptestsector(int const dasect, int const nextsect, int32_t const fl
         break;
     default:
     {
-        int32_t daz = getflorzofslopeptr(&sector[dasect], pos.X, pos.y);
-        int32_t daz2 = getflorzofslopeptr(sec2, pos.X, pos.y);
+        int32_t daz = getflorzofslopeptr(&sector[dasect], pos.X, pos.Y);
+        int32_t daz2 = getflorzofslopeptr(sec2, pos.X, pos.Y);
 
         if (daz2 < daz-(1<<8) && (sec2->floorstat & CSTAT_SECTOR_SKY) == 0)
             if (posz >= daz2-(flordist-1)) return 1;
-        daz = getceilzofslopeptr(&sector[dasect], pos.X, pos.y);
-        daz2 = getceilzofslopeptr(sec2, pos.X, pos.y);
+        daz = getceilzofslopeptr(&sector[dasect], pos.X, pos.Y);
+        daz2 = getceilzofslopeptr(sec2, pos.X, pos.Y);
         if (daz2 > daz+(1<<8) && (sec2->ceilingstat & CSTAT_SECTOR_SKY) == 0)
             if (posz <= daz2+(ceildist-1)) return 1;
 
@@ -255,7 +255,7 @@ static int cliptestsector(int const dasect, int const nextsect, int32_t const fl
     int32_t dacz2 = sec2->ceilingz;
 
     if ((sec2->floorstat|sec2->ceilingstat) & CSTAT_SECTOR_SLOPE)
-        getcorrectzsofslope(nextsect, pos.X, pos.y, &dacz2, &daz2);
+        getcorrectzsofslope(nextsect, pos.X, pos.Y, &dacz2, &daz2);
 
     if (daz2 <= dacz2)
         return 1;
@@ -266,7 +266,7 @@ static int cliptestsector(int const dasect, int const nextsect, int32_t const fl
     int32_t dacz = sec->ceilingz;
 
     if ((sec->floorstat|sec->ceilingstat) & CSTAT_SECTOR_SLOPE)
-        getcorrectzsofslope(dasect, pos.X, pos.y, &dacz, &daz);
+        getcorrectzsofslope(dasect, pos.X, pos.Y, &dacz, &daz);
 
     int32_t const sec2height = abs(daz2-dacz2);
 
@@ -293,19 +293,19 @@ static inline int32_t cliptrace(vec2_t const pos, vec2_t * const goal)
     {
         vec2_t const p1   = { clipit[z].x1, clipit[z].y1 };
         vec2_t const p2   = { clipit[z].x2, clipit[z].y2 };
-        vec2_t const area = { p2.X-p1.X, p2.y-p1.y };
+        vec2_t const area = { p2.X-p1.X, p2.Y-p1.Y };
 
-        int32_t topu = area.X*(pos.y-p1.y) - (pos.X-p1.X)*area.y;
+        int32_t topu = area.X*(pos.Y-p1.Y) - (pos.X-p1.X)*area.Y;
 
-        if (topu <= 0 || area.X*(goal->y-p1.y) > (goal->X-p1.X)*area.y)
+        if (topu <= 0 || area.X*(goal->Y-p1.Y) > (goal->X-p1.X)*area.Y)
             continue;
 
-        vec2_t const diff = { goal->X-pos.X, goal->y-pos.y };
+        vec2_t const diff = { goal->X-pos.X, goal->Y-pos.Y };
 
-        if (diff.X*(p1.y-pos.y) > (p1.X-pos.X)*diff.y || diff.X*(p2.y-pos.y) <= (p2.X-pos.X)*diff.y)
+        if (diff.X*(p1.Y-pos.Y) > (p1.X-pos.X)*diff.Y || diff.X*(p2.Y-pos.Y) <= (p2.X-pos.X)*diff.Y)
             continue;
 
-        int32_t const bot = diff.X*area.y - area.X*diff.y;
+        int32_t const bot = diff.X*area.Y - area.X*diff.Y;
         int cnt = 256;
 
         if (!bot)
@@ -321,11 +321,11 @@ static inline int32_t cliptrace(vec2_t const pos, vec2_t * const goal)
                 return z;
             }
 
-            n = { pos.X+Scale(diff.X, topu, bot), pos.y+Scale(diff.y, topu, bot) };
+            n = { pos.X+Scale(diff.X, topu, bot), pos.Y+Scale(diff.Y, topu, bot) };
             topu--;
-        } while (area.X*(n.y-p1.y) <= (n.X-p1.X)*area.y);
+        } while (area.X*(n.Y-p1.Y) <= (n.X-p1.X)*area.Y);
 
-        if (abs(pos.X-n.X)+abs(pos.y-n.y) < abs(pos.X-goal->X)+abs(pos.y-goal->y))
+        if (abs(pos.X-n.X)+abs(pos.Y-n.Y) < abs(pos.X-goal->X)+abs(pos.Y-goal->Y))
         {
             *goal = n;
             hitwall = z;
@@ -364,24 +364,24 @@ static int get_floorspr_clipyou(vec2_t const v1, vec2_t const v2, vec2_t const v
 {
     int clipyou = 0;
 
-    if ((v1.y^v2.y) < 0)
+    if ((v1.Y^v2.Y) < 0)
     {
-        if ((v1.X^v2.X) < 0) clipyou ^= (v1.X*v2.y < v2.X*v1.y)^(v1.y<v2.y);
+        if ((v1.X^v2.X) < 0) clipyou ^= (v1.X*v2.Y < v2.X*v1.Y)^(v1.Y<v2.Y);
         else if (v1.X >= 0) clipyou ^= 1;
     }
-    if ((v2.y^v3.y) < 0)
+    if ((v2.Y^v3.Y) < 0)
     {
-        if ((v2.X^v3.X) < 0) clipyou ^= (v2.X*v3.y < v3.X*v2.y)^(v2.y<v3.y);
+        if ((v2.X^v3.X) < 0) clipyou ^= (v2.X*v3.Y < v3.X*v2.Y)^(v2.Y<v3.Y);
         else if (v2.X >= 0) clipyou ^= 1;
     }
-    if ((v3.y^v4.y) < 0)
+    if ((v3.Y^v4.Y) < 0)
     {
-        if ((v3.X^v4.X) < 0) clipyou ^= (v3.X*v4.y < v4.X*v3.y)^(v3.y<v4.y);
+        if ((v3.X^v4.X) < 0) clipyou ^= (v3.X*v4.Y < v4.X*v3.Y)^(v3.Y<v4.Y);
         else if (v3.X >= 0) clipyou ^= 1;
     }
-    if ((v4.y^v1.y) < 0)
+    if ((v4.Y^v1.Y) < 0)
     {
-        if ((v4.X^v1.X) < 0) clipyou ^= (v4.X*v1.y < v1.X*v4.y)^(v4.y<v1.y);
+        if ((v4.X^v1.X) < 0) clipyou ^= (v4.X*v1.Y < v1.X*v4.Y)^(v4.Y<v1.Y);
         else if (v4.X >= 0) clipyou ^= 1;
     }
 
@@ -398,14 +398,14 @@ static void clipupdatesector(vec2_t const pos, int * const sectnum, int walldist
     }
 #endif
 
-    if (inside_p(pos.X, pos.y, *sectnum))
+    if (inside_p(pos.X, pos.Y, *sectnum))
         return;
 
     int16_t nsecs = min<int16_t>(getsectordist(pos, *sectnum), INT16_MAX);
 
     if (nsecs > (walldist + 8))
     {
-        Printf("%s(): initial position (%d, %d) not within initial sector %d; shortest distance %d.\n", __func__, pos.X, pos.y, *sectnum, nsecs);
+        Printf("%s(): initial position (%d, %d) not within initial sector %d; shortest distance %d.\n", __func__, pos.X, pos.Y, *sectnum, nsecs);
         walldist = 0x7fff;
     }
 
@@ -414,7 +414,7 @@ static void clipupdatesector(vec2_t const pos, int * const sectnum, int walldist
 
         for (unsigned listsectnum; (listsectnum = search.GetNext()) != BFSSearch::EOL;)
         {
-            if (inside_p(pos.X, pos.y, listsectnum))
+            if (inside_p(pos.X, pos.Y, listsectnum))
             {
                 *sectnum = listsectnum;
                 return;
@@ -433,7 +433,7 @@ static void clipupdatesector(vec2_t const pos, int * const sectnum, int walldist
 
         for (unsigned listsectnum; (listsectnum = search.GetNext()) != BFSSearch::EOL;)
         {
-            if (inside_p(pos.X, pos.y, listsectnum))
+            if (inside_p(pos.X, pos.Y, listsectnum))
             {
                 *sectnum = listsectnum;
                 return;
@@ -468,13 +468,13 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 
     vec2_t const move = { xvect, yvect };
     vec2_t       goal = { pos->x + (xvect >> 14), pos->y + (yvect >> 14) };
-    vec2_t const cent = { (pos->x + goal.X) >> 1, (pos->y + goal.y) >> 1 };
+    vec2_t const cent = { (pos->x + goal.X) >> 1, (pos->y + goal.Y) >> 1 };
 
     //Extra walldist for sprites on sector lines
-    vec2_t const  diff    = { goal.X - (pos->x), goal.y - (pos->y) };
-    int32_t const rad     = ksqrt(compat_maybe_truncate_to_int32(uhypsq(diff.X, diff.y))) + MAXCLIPDIST + walldist + 8;
-    vec2_t const  clipMin = { cent.X - rad, cent.y - rad };
-    vec2_t const  clipMax = { cent.X + rad, cent.y + rad };
+    vec2_t const  diff    = { goal.X - (pos->x), goal.Y - (pos->y) };
+    int32_t const rad     = ksqrt(compat_maybe_truncate_to_int32(uhypsq(diff.X, diff.Y))) + MAXCLIPDIST + walldist + 8;
+    vec2_t const  clipMin = { cent.X - rad, cent.Y - rad };
+    vec2_t const  clipMax = { cent.X + rad, cent.Y + rad };
 
     int clipsectcnt   = 0;
     int clipspritecnt = 0;
@@ -508,20 +508,20 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
             auto const wal2 = (uwallptr_t)wal->point2Wall();
 
             if ((wal->x < clipMin.X && wal2->x < clipMin.X) || (wal->x > clipMax.X && wal2->x > clipMax.X) ||
-                (wal->y < clipMin.y && wal2->y < clipMin.y) || (wal->y > clipMax.y && wal2->y > clipMax.y))
+                (wal->y < clipMin.Y && wal2->y < clipMin.Y) || (wal->y > clipMax.Y && wal2->y > clipMax.Y))
                 continue;
 
             vec2_t p1 = wal->pos;
             vec2_t p2 = wal2->pos;
-            vec2_t d  = { p2.X-p1.X, p2.y-p1.y };
+            vec2_t d  = { p2.X-p1.X, p2.Y-p1.Y };
 
-            if (d.X * (pos->y-p1.y) < (pos->x-p1.X) * d.y)
+            if (d.X * (pos->y-p1.Y) < (pos->x-p1.X) * d.Y)
                 continue;  //If wall's not facing you
 
-            vec2_t const r = { (d.y > 0) ? clipMax.X : clipMin.X, (d.X > 0) ? clipMin.y : clipMax.y };
-            vec2_t       v = { d.X * (r.y - p1.y), d.y * (r.X - p1.X) };
+            vec2_t const r = { (d.Y > 0) ? clipMax.X : clipMin.X, (d.X > 0) ? clipMin.Y : clipMax.Y };
+            vec2_t       v = { d.X * (r.Y - p1.Y), d.Y * (r.X - p1.X) };
 
-            if (v.X >= v.y)
+            if (v.X >= v.Y)
                 continue;
 
             int clipyou = 0;
@@ -532,7 +532,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
                 }
                 else
                 {
-                    clipmove_tweak_pos(pos, diff.X, diff.y, p1.X, p1.y, p2.X, p2.y, &v.X, &v.y);
+                    clipmove_tweak_pos(pos, diff.X, diff.Y, p1.X, p1.Y, p2.X, p2.Y, &v.X, &v.Y);
                     clipyou = cliptestsector(dasect, wal->nextsector, flordist, ceildist, v, pos->z);
                 }
 
@@ -556,19 +556,19 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 
                 //Add 2 boxes at endpoints
                 int32_t bsz = walldist; if (diff.X < 0) bsz = -bsz;
-                addclipline(p1.X-bsz, p1.y-bsz, p1.X-bsz, p1.y+bsz, objtype, false);
-                addclipline(p2.X-bsz, p2.y-bsz, p2.X-bsz, p2.y+bsz, objtype, false);
-                bsz = walldist; if (diff.y < 0) bsz = -bsz;
-                addclipline(p1.X+bsz, p1.y-bsz, p1.X-bsz, p1.y-bsz, objtype, false);
-                addclipline(p2.X+bsz, p2.y-bsz, p2.X-bsz, p2.y-bsz, objtype, false);
+                addclipline(p1.X-bsz, p1.Y-bsz, p1.X-bsz, p1.Y+bsz, objtype, false);
+                addclipline(p2.X-bsz, p2.Y-bsz, p2.X-bsz, p2.Y+bsz, objtype, false);
+                bsz = walldist; if (diff.Y < 0) bsz = -bsz;
+                addclipline(p1.X+bsz, p1.Y-bsz, p1.X-bsz, p1.Y-bsz, objtype, false);
+                addclipline(p2.X+bsz, p2.Y-bsz, p2.X-bsz, p2.Y-bsz, objtype, false);
 
-                v.X = walldist; if (d.y > 0) v.X = -v.X;
-                v.y = walldist; if (d.X < 0) v.y = -v.y;
+                v.X = walldist; if (d.Y > 0) v.X = -v.X;
+                v.Y = walldist; if (d.X < 0) v.Y = -v.Y;
 
-                if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE && d.X * (pos->y-p1.y-v.y) < (pos->x-p1.X-v.X) * d.y)
-                    v.X >>= 1, v.y >>= 1;
+                if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE && d.X * (pos->y-p1.Y-v.Y) < (pos->x-p1.X-v.X) * d.Y)
+                    v.X >>= 1, v.Y >>= 1;
 
-                addclipline(p1.X+v.X, p1.y+v.y, p2.X+v.X, p2.y+v.y, objtype, false);
+                addclipline(p1.X+v.X, p1.Y+v.Y, p2.X+v.X, p2.Y+v.Y, objtype, false);
             }
             else if (wal->nextsector>=0)
             {
@@ -605,7 +605,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
             switch (cstat & (CSTAT_SPRITE_ALIGNMENT_MASK))
             {
             case CSTAT_SPRITE_ALIGNMENT_FACING:
-                if (p1.X >= clipMin.X && p1.X <= clipMax.X && p1.y >= clipMin.y && p1.y <= clipMax.y)
+                if (p1.X >= clipMin.X && p1.X <= clipMax.X && p1.Y >= clipMin.Y && p1.Y <= clipMax.Y)
                 {
                     int32_t height, daz = spr->z+spriteheightofsptr(spr, &height, 1);
 
@@ -613,10 +613,10 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
                     {
                         int32_t bsz = (spr->clipdist << 2)+walldist;
                         if (diff.X < 0) bsz = -bsz;
-                        addclipline(p1.X-bsz, p1.y-bsz, p1.X-bsz, p1.y+bsz, obj, false);
+                        addclipline(p1.X-bsz, p1.Y-bsz, p1.X-bsz, p1.Y+bsz, obj, false);
                         bsz = (spr->clipdist << 2)+walldist;
-                        if (diff.y < 0) bsz = -bsz;
-                        addclipline(p1.X+bsz, p1.y-bsz, p1.X-bsz, p1.y-bsz, obj, false);
+                        if (diff.Y < 0) bsz = -bsz;
+                        addclipline(p1.X+bsz, p1.Y-bsz, p1.X-bsz, p1.Y-bsz, obj, false);
                     }
                 }
                 break;
@@ -629,27 +629,27 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
                 {
                     vec2_t p2;
 
-                    get_wallspr_points(spr, &p1.X, &p2.X, &p1.y, &p2.y);
+                    get_wallspr_points(spr, &p1.X, &p2.X, &p1.Y, &p2.Y);
 
-                    if (clipinsideboxline(cent.X, cent.y, p1.X, p1.y, p2.X, p2.y, rad) != 0)
+                    if (clipinsideboxline(cent.X, cent.Y, p1.X, p1.Y, p2.X, p2.Y, rad) != 0)
                     {
                         vec2_t v = { MulScale(bcos(spr->ang + 256), walldist, 14),
                                      MulScale(bsin(spr->ang + 256), walldist, 14) };
 
-                        if ((p1.X-pos->x) * (p2.y-pos->y) >= (p2.X-pos->x) * (p1.y-pos->y))  // Front
-                            addclipline(p1.X+v.X, p1.y+v.y, p2.X+v.y, p2.y-v.X, obj, false);
+                        if ((p1.X-pos->x) * (p2.Y-pos->y) >= (p2.X-pos->x) * (p1.Y-pos->y))  // Front
+                            addclipline(p1.X+v.X, p1.Y+v.Y, p2.X+v.Y, p2.Y-v.X, obj, false);
                         else
                         {
                             if ((cstat & CSTAT_SPRITE_ONE_SIDE) != 0)
                                 continue;
-                            addclipline(p2.X-v.X, p2.y-v.y, p1.X-v.y, p1.y+v.X, obj, false);
+                            addclipline(p2.X-v.X, p2.Y-v.Y, p1.X-v.Y, p1.Y+v.X, obj, false);
                         }
 
                         //Side blocker
-                        if ((p2.X-p1.X) * (pos->x-p1.X)+(p2.y-p1.y) * (pos->y-p1.y) < 0)
-                            addclipline(p1.X-v.y, p1.y+v.X, p1.X+v.X, p1.y+v.y, obj, true);
-                        else if ((p1.X-p2.X) * (pos->x-p2.X)+(p1.y-p2.y) * (pos->y-p2.y) < 0)
-                            addclipline(p2.X+v.y, p2.y-v.X, p2.X-v.X, p2.y-v.y, obj, true);
+                        if ((p2.X-p1.X) * (pos->x-p1.X)+(p2.Y-p1.Y) * (pos->y-p1.Y) < 0)
+                            addclipline(p1.X-v.Y, p1.Y+v.X, p1.X+v.X, p1.Y+v.Y, obj, true);
+                        else if ((p1.X-p2.X) * (pos->x-p2.X)+(p1.Y-p2.Y) * (pos->y-p2.Y) < 0)
+                            addclipline(p2.X+v.Y, p2.Y-v.X, p2.X-v.X, p2.Y-v.Y, obj, true);
                     }
                 }
                 break;
@@ -678,7 +678,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
                             continue;
 
                     rxi[0] = p1.X;
-                    ryi[0] = p1.y;
+                    ryi[0] = p1.Y;
 
                     get_floorspr_points(spr, 0, 0, &rxi[0], &rxi[1], &rxi[2], &rxi[3],
                         &ryi[0], &ryi[1], &ryi[2], &ryi[3], heinum);
@@ -688,24 +688,24 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 
                     if ((rxi[0]-pos->x) * (ryi[1]-pos->y) < (rxi[1]-pos->x) * (ryi[0]-pos->y))
                     {
-                        if (clipinsideboxline(cent.X, cent.y, rxi[1], ryi[1], rxi[0], ryi[0], rad) != 0)
-                            addclipline(rxi[1]-v.y, ryi[1]+v.X, rxi[0]+v.X, ryi[0]+v.y, obj, false);
+                        if (clipinsideboxline(cent.X, cent.Y, rxi[1], ryi[1], rxi[0], ryi[0], rad) != 0)
+                            addclipline(rxi[1]-v.Y, ryi[1]+v.X, rxi[0]+v.X, ryi[0]+v.Y, obj, false);
                     }
                     else if ((rxi[2]-pos->x) * (ryi[3]-pos->y) < (rxi[3]-pos->x) * (ryi[2]-pos->y))
                     {
-                        if (clipinsideboxline(cent.X, cent.y, rxi[3], ryi[3], rxi[2], ryi[2], rad) != 0)
-                            addclipline(rxi[3]+v.y, ryi[3]-v.X, rxi[2]-v.X, ryi[2]-v.y, obj, false);
+                        if (clipinsideboxline(cent.X, cent.Y, rxi[3], ryi[3], rxi[2], ryi[2], rad) != 0)
+                            addclipline(rxi[3]+v.Y, ryi[3]-v.X, rxi[2]-v.X, ryi[2]-v.Y, obj, false);
                     }
 
                     if ((rxi[1]-pos->x) * (ryi[2]-pos->y) < (rxi[2]-pos->x) * (ryi[1]-pos->y))
                     {
-                        if (clipinsideboxline(cent.X, cent.y, rxi[2], ryi[2], rxi[1], ryi[1], rad) != 0)
-                            addclipline(rxi[2]-v.X, ryi[2]-v.y, rxi[1]-v.y, ryi[1]+v.X, obj, false);
+                        if (clipinsideboxline(cent.X, cent.Y, rxi[2], ryi[2], rxi[1], ryi[1], rad) != 0)
+                            addclipline(rxi[2]-v.X, ryi[2]-v.Y, rxi[1]-v.Y, ryi[1]+v.X, obj, false);
                     }
                     else if ((rxi[3]-pos->x) * (ryi[0]-pos->y) < (rxi[0]-pos->x) * (ryi[3]-pos->y))
                     {
-                        if (clipinsideboxline(cent.X, cent.y, rxi[0], ryi[0], rxi[3], ryi[3], rad) != 0)
-                            addclipline(rxi[0]+v.X, ryi[0]+v.y, rxi[3]+v.y, ryi[3]-v.X, obj, false);
+                        if (clipinsideboxline(cent.X, cent.Y, rxi[0], ryi[0], rxi[3], ryi[3], rad) != 0)
+                            addclipline(rxi[0]+v.X, ryi[0]+v.Y, rxi[3]+v.Y, ryi[3]-v.X, obj, false);
                     }
                 }
 
@@ -724,12 +724,12 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
                     adjofs.X = -adjofs.X;
 
                 if (spr->cstat & CSTAT_SPRITE_YFLIP)
-                    adjofs.y = -adjofs.y;
+                    adjofs.Y = -adjofs.Y;
 
                 int32_t const centerx = ((span.X >> 1) + adjofs.X) * repeat.X;
-                int32_t const centery = ((span.y >> 1) + adjofs.y) * repeat.y;
+                int32_t const centery = ((span.Y >> 1) + adjofs.Y) * repeat.Y;
                 int32_t const rspanx = span.X * repeat.X;
-                int32_t const rspany = span.y * repeat.y;
+                int32_t const rspany = span.Y * repeat.Y;
                 int32_t const ratio = ksqrt(heinum * heinum + 4096 * 4096);
                 int32_t zz[3] = { pos->z, pos->z + flordist, pos->z - ceildist };
                 for (int k = 0; k < 3; k++)
@@ -746,17 +746,17 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
                     vec2_t const v = { MulScale(bcos(spr->ang - 256), walldist, 14),
                                        MulScale(bsin(spr->ang - 256), walldist, 14) };
 
-                    if (clipinsideboxline(cent.X, cent.y, x1, y1, x2, y2, rad) != 0)
+                    if (clipinsideboxline(cent.X, cent.Y, x1, y1, x2, y2, rad) != 0)
                     {
                         if ((x1 - pos->x) * (y2 - pos->y) >= (x2 - pos->x) * (y1 - pos->y))
                         {
-                            addclipline(x1 + v.X, y1 + v.y, x2 + v.y, y2 - v.X, obj, false);
+                            addclipline(x1 + v.X, y1 + v.Y, x2 + v.Y, y2 - v.X, obj, false);
                         }
                         else
                         {
 		                    if ((cstat & CSTAT_SPRITE_ONE_SIDE) != 0)
                                 continue;
-                            addclipline(x2 - v.X, y2 - v.y, x1 - v.y, y1 + v.X, obj, false);
+                            addclipline(x2 - v.X, y2 - v.Y, x1 - v.Y, y1 + v.X, obj, false);
                         }
                     }
                 }
@@ -795,24 +795,24 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
             vec2_t const  clipr  = { clipit[hitwall].x2 - clipit[hitwall].x1, clipit[hitwall].y2 - clipit[hitwall].y1 };
             // clamp to the max value we can utilize without reworking the scaling below
             // this works around the overflow issue that affects dukedc2.map
-            int32_t const templl = (int32_t)clamp<int64_t>(compat_maybe_truncate_to_int32((int64_t)clipr.X * clipr.X + (int64_t)clipr.y * clipr.y), INT32_MIN, INT32_MAX);
+            int32_t const templl = (int32_t)clamp<int64_t>(compat_maybe_truncate_to_int32((int64_t)clipr.X * clipr.X + (int64_t)clipr.Y * clipr.Y), INT32_MIN, INT32_MAX);
 
             if (templl > 0)
             {
                 // I don't know if this one actually overflows or not, but I highly doubt it hurts to check
                 int32_t const templl2
-                = (int32_t)clamp<int64_t>(compat_maybe_truncate_to_int32((int64_t)(goal.X - vec.X) * clipr.X + (int64_t)(goal.y - vec.y) * clipr.y), INT32_MIN, INT32_MAX);
+                = (int32_t)clamp<int64_t>(compat_maybe_truncate_to_int32((int64_t)(goal.X - vec.X) * clipr.X + (int64_t)(goal.Y - vec.Y) * clipr.Y), INT32_MIN, INT32_MAX);
                 int32_t const i = (enginecompatibility_mode == ENGINECOMPATIBILITY_19950829 || (abs(templl2)>>11) < templl) ?
                     (int)DivScaleL(templl2, templl, 20) : 0;
 
-                goal = { MulScale(clipr.X, i, 20)+vec.X, MulScale(clipr.y, i, 20)+vec.y };
+                goal = { MulScale(clipr.X, i, 20)+vec.X, MulScale(clipr.Y, i, 20)+vec.Y };
             }
 
             int32_t tempint;
             if (enginecompatibility_mode == ENGINECOMPATIBILITY_19950829)
-                tempint = clipr.X*(move.X>>6)+clipr.y*(move.y>>6);
+                tempint = clipr.X*(move.X>>6)+clipr.Y*(move.Y>>6);
             else
-                tempint = DMulScale(clipr.X, move.X, clipr.y, move.y, 6);
+                tempint = DMulScale(clipr.X, move.X, clipr.Y, move.Y, 6);
 
             for (int i=cnt+1, j; i<=clipmoveboxtracenum; ++i)
             {
@@ -820,9 +820,9 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 
                 int32_t tempint2;
                 if (enginecompatibility_mode == ENGINECOMPATIBILITY_19950829)
-                    tempint2 = (clipit[j].x2-clipit[j].x1)*(move.X>>6)+(clipit[j].y2-clipit[j].y1)*(move.y>>6);
+                    tempint2 = (clipit[j].x2-clipit[j].x1)*(move.X>>6)+(clipit[j].y2-clipit[j].y1)*(move.Y>>6);
                 else
-                    tempint2 = DMulScale(clipit[j].x2-clipit[j].x1, move.X, clipit[j].y2-clipit[j].y1, move.y, 6);
+                    tempint2 = DMulScale(clipit[j].x2-clipit[j].x1, move.X, clipit[j].y2-clipit[j].y1, move.Y, 6);
 
                 if ((tempint ^ tempint2) < 0)
                 {
@@ -832,9 +832,9 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
                 }
             }
 
-            keepaway(&goal.X, &goal.y, hitwall);
+            keepaway(&goal.X, &goal.Y, hitwall);
             xvect = (goal.X-vec.X)<<14;
-            yvect = (goal.y-vec.y)<<14;
+            yvect = (goal.Y-vec.Y)<<14;
 
             if (cnt == clipmoveboxtracenum)
                 clipReturn = clipobjectval[hitwall];
@@ -847,7 +847,7 @@ CollisionBase clipmove_(vec3_t * const pos, int * const sectnum, int32_t xvect, 
 		}
 
         pos->x = vec.X;
-        pos->y = vec.y;
+        pos->y = vec.Y;
         cnt--;
     } while ((xvect|yvect) != 0 && hitwall >= 0 && cnt > 0);
 
@@ -1046,7 +1046,7 @@ void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBas
     if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE)
         getsectordist(closest, sectnum, &closest);
     else
-        getzsofslopeptr(sect,closest.X,closest.y,ceilz,florz);
+        getzsofslopeptr(sect,closest.X,closest.Y,ceilz,florz);
     ceilhit.setSector(sect);
     florhit.setSector(sect);
 
@@ -1071,16 +1071,16 @@ void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBas
                 vec2_t const v2 = wal.point2Wall()->pos;
 
                 if ((v1.X < xmin && (v2.X < xmin)) || (v1.X > xmax && v2.X > xmax) ||
-                    (v1.y < ymin && (v2.y < ymin)) || (v1.y > ymax && v2.y > ymax))
+                    (v1.Y < ymin && (v2.Y < ymin)) || (v1.Y > ymax && v2.Y > ymax))
                     continue;
 
-                vec2_t const d = { v2.X-v1.X, v2.y-v1.y };
-                if (d.X*(pos.y-v1.y) < (pos.x-v1.X)*d.y) continue; //back
+                vec2_t const d = { v2.X-v1.X, v2.Y-v1.Y };
+                if (d.X*(pos.y-v1.Y) < (pos.x-v1.X)*d.Y) continue; //back
 
-                vec2_t da = { (d.X > 0) ? d.X*(ymin-v1.y) : d.X*(ymax-v1.y),
-                              (d.y > 0) ? d.y*(xmax-v1.X) : d.y*(xmin-v1.X) };
+                vec2_t da = { (d.X > 0) ? d.X*(ymin-v1.Y) : d.X*(ymax-v1.Y),
+                              (d.Y > 0) ? d.Y*(xmax-v1.X) : d.Y*(xmin-v1.X) };
 
-                if (da.X >= da.y)
+                if (da.X >= da.Y)
                     continue;
 
                 if (wal.cstat & EWallFlags::FromInt(dawalclipmask)) continue;  // XXX?
@@ -1094,13 +1094,13 @@ void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBas
 
                 if (((v1.X < xmin + MAXCLIPDIST) && (v2.X < xmin + MAXCLIPDIST)) ||
                     ((v1.X > xmax - MAXCLIPDIST) && (v2.X > xmax - MAXCLIPDIST)) ||
-                    ((v1.y < ymin + MAXCLIPDIST) && (v2.y < ymin + MAXCLIPDIST)) ||
-                    ((v1.y > ymax - MAXCLIPDIST) && (v2.y > ymax - MAXCLIPDIST)))
+                    ((v1.Y < ymin + MAXCLIPDIST) && (v2.Y < ymin + MAXCLIPDIST)) ||
+                    ((v1.Y > ymax - MAXCLIPDIST) && (v2.Y > ymax - MAXCLIPDIST)))
                     continue;
 
                 if (d.X > 0) da.X += d.X*MAXCLIPDIST; else da.X -= d.X*MAXCLIPDIST;
-                if (d.y > 0) da.y -= d.y*MAXCLIPDIST; else da.y += d.y*MAXCLIPDIST;
-                if (da.X >= da.y)
+                if (d.Y > 0) da.Y -= d.Y*MAXCLIPDIST; else da.Y += d.Y*MAXCLIPDIST;
+                if (da.X >= da.Y)
                     continue;
                 //It actually got here, through all the continue's!!!
                 int32_t daz = 0, daz2 = 0;
@@ -1108,7 +1108,7 @@ void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBas
                 if (enginecompatibility_mode == ENGINECOMPATIBILITY_NONE)
                     getsectordist(closest, nextsectno, &closest);
                 else
-                    getzsofslopeptr(nextsect, closest.X,closest.y, &daz,&daz2);
+                    getzsofslopeptr(nextsect, closest.X,closest.Y, &daz,&daz2);
 
                 {
                     if (daz > *ceilz)
@@ -1148,7 +1148,7 @@ void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBas
                     case CSTAT_SPRITE_ALIGNMENT_FACING:
                     {
                         int32_t k = walldist+(spr->clipdist<<2)+1;
-                        if ((abs(v1.X-pos.x) <= k) && (abs(v1.y-pos.y) <= k))
+                        if ((abs(v1.X-pos.x) <= k) && (abs(v1.Y-pos.y) <= k))
                         {
                             daz = spr->z + spriteheightofsptr(spr, &k, 1);
                             daz2 = daz - k;
@@ -1160,9 +1160,9 @@ void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBas
                     case CSTAT_SPRITE_ALIGNMENT_WALL:
                     {
                         vec2_t v2;
-                        get_wallspr_points(spr, &v1.X, &v2.X, &v1.y, &v2.y);
+                        get_wallspr_points(spr, &v1.X, &v2.X, &v1.Y, &v2.Y);
 
-                        if (clipinsideboxline(pos.x,pos.y,v1.X,v1.y,v2.X,v2.y,walldist+1) != 0)
+                        if (clipinsideboxline(pos.x,pos.y,v1.X,v1.Y,v2.X,v2.Y,walldist+1) != 0)
                         {
                             int32_t k;
                             daz = spr->z + spriteheightofsptr(spr, &k, 1);
@@ -1183,13 +1183,13 @@ void getzrange(const vec3_t& pos, sectortype* sect, int32_t* ceilz, CollisionBas
 
                         vec2_t v2, v3, v4;
                         get_floorspr_points((uspriteptr_t) spr, pos.x, pos.y, &v1.X, &v2.X, &v3.X, &v4.X,
-                                            &v1.y, &v2.y, &v3.y, &v4.y, spriteGetSlope(spr));
+                                            &v1.Y, &v2.Y, &v3.Y, &v4.Y, spriteGetSlope(spr));
 
                         vec2_t const da = { MulScale(bcos(spr->ang - 256), walldist + 4, 14),
                                             MulScale(bsin(spr->ang - 256), walldist + 4, 14) };
 
-                        v1.X += da.X; v2.X -= da.y; v3.X -= da.X; v4.X += da.y;
-                        v1.y += da.y; v2.y += da.X; v3.y -= da.y; v4.y -= da.X;
+                        v1.X += da.X; v2.X -= da.Y; v3.X -= da.X; v4.X += da.Y;
+                        v1.Y += da.Y; v2.Y += da.X; v3.Y -= da.Y; v4.Y -= da.X;
 
                         clipyou = get_floorspr_clipyou(v1, v2, v3, v4);
                         break;
@@ -1241,7 +1241,7 @@ int32_t try_facespr_intersect(uspriteptr_t const spr, vec3_t const in,
 
     int32_t const topu = vx * (sprpos.y - in.y) - vy * (sprpos.x - in.x);
     vec2_t  const off  = { Scale(vx, topu, bot), Scale(vy, topu, bot) };
-    int32_t const dist = off.X * off.X + off.y * off.y;
+    int32_t const dist = off.X * off.X + off.Y * off.Y;
 
     siz = tileWidth(spr->picnum) * spr->xrepeat;
 

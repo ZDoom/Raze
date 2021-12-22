@@ -516,7 +516,7 @@ static void shootweapon(DDukeActor *actor, int p, int sx, int sy, int sz, int sa
 							{
 								hole->spr.xvel = -1;
 								auto delta = hit.hitWall->delta();
-								hole->spr.ang = getangle(-delta.X, -delta.y) + 512;
+								hole->spr.ang = getangle(-delta.X, -delta.Y) + 512;
 								ssp(hole, CLIPMASK0);
 							}
 						}
@@ -896,7 +896,7 @@ static void shootlaser(DDukeActor* actor, int p, int sx, int sy, int sz, int sa)
 			ssp(bomb, CLIPMASK0);
 			bomb->spr.cstat = CSTAT_SPRITE_ALIGNMENT_WALL;
 			auto delta = hit.hitWall->delta();
-			bomb->temp_data[5] = bomb->spr.ang = getangle(-delta.X, -delta.y) - 512;
+			bomb->temp_data[5] = bomb->spr.ang = getangle(-delta.X, -delta.Y) - 512;
 			
 			if (p >= 0)
 				ps[p].ammo_amount[TRIPBOMB_WEAPON]--;

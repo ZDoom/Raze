@@ -54,7 +54,7 @@ static int GetClosestPointOnWall(tspritetype* spr, walltype* wal, vec2_t* const 
 	auto pos = spr->pos;
 
 	// avoid the math below for orthogonal walls. Here we allow only sprites that exactly match the line's coordinate and orientation
-	if (d.X == 0 && d.y == 0)
+	if (d.X == 0 && d.Y == 0)
 	{
 		// line has no length.
 		// In Blood's E1M1 this gets triggered for wall 522.
@@ -70,10 +70,10 @@ static int GetClosestPointOnWall(tspritetype* spr, walltype* wal, vec2_t* const 
 		}
 		return 1;
 	}
-	else if (d.y == 0)
+	else if (d.Y == 0)
 	{
 		// line is horizontal.
-		if (abs(pos.y - w.y) <= 1 && (spr->ang & 0x3ff) == 0x200)
+		if (abs(pos.y - w.Y) <= 1 && (spr->ang & 0x3ff) == 0x200)
 		{
 			*n = pos.vec2;
 			return 0;
@@ -82,13 +82,13 @@ static int GetClosestPointOnWall(tspritetype* spr, walltype* wal, vec2_t* const 
 	}
 
 
-	int64_t i = d.X * ((int64_t)pos.x - w.X) + d.y * ((int64_t)pos.y - w.y);
+	int64_t i = d.X * ((int64_t)pos.x - w.X) + d.Y * ((int64_t)pos.y - w.Y);
 
 
 	if (i < 0)
 		return 1;
 
-	int64_t j = (int64_t)d.X * d.X + (int64_t)d.y * d.y;
+	int64_t j = (int64_t)d.X * d.X + (int64_t)d.Y * d.Y;
 
 	if (i > j)
 		return 1;
@@ -96,7 +96,7 @@ static int GetClosestPointOnWall(tspritetype* spr, walltype* wal, vec2_t* const 
 	i = ((i << 15) / j) << 15;
 
 	n->X = w.X + ((d.X * i) >> 30);
-	n->y = w.y + ((d.y * i) >> 30);
+	n->Y = w.Y + ((d.Y * i) >> 30);
 
 	return 0;
 }
@@ -120,7 +120,7 @@ static int IsOnWall(tspritetype* tspr, int height)
 		if ((wal.nextsector == -1 || ((wal.nextSector()->ceilingz > topz) ||
 			wal.nextSector()->floorz < tspr->z)) && !GetClosestPointOnWall(tspr, &wal, &n))
 		{
-			int const dst = abs(tspr->x - n.X) + abs(tspr->y - n.y);
+			int const dst = abs(tspr->x - n.X) + abs(tspr->y - n.Y);
 
 			if (dst <= dist)
 			{
@@ -1137,9 +1137,9 @@ void HWWall::ProcessWallSprite(HWDrawInfo* di, tspritetype* spr, sectortype* sec
 
 	GetWallSpritePosition(spr, spr->pos.vec2, pos, true);
 	glseg.x1 = pos[0].X * (1 / 16.f);
-	glseg.y1 = pos[0].y * (1 / -16.f);
+	glseg.y1 = pos[0].Y * (1 / -16.f);
 	glseg.x2 = pos[1].X * (1 / 16.f);
-	glseg.y2 = pos[1].y * (1 / -16.f);
+	glseg.y2 = pos[1].Y * (1 / -16.f);
 
 	if (spr->cstat & CSTAT_SPRITE_ONE_SIDE)
 	{

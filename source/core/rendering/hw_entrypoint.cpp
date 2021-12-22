@@ -249,7 +249,7 @@ void WriteSavePic(FileWriter* file, int width, int height)
 	writingsavepic = false;
 	xdim = oldx;
 	ydim = oldy;
-	videoSetViewableArea(oldwindowxy1.X, oldwindowxy1.y, oldwindowxy2.X, oldwindowxy2.y);
+	videoSetViewableArea(oldwindowxy1.X, oldwindowxy1.Y, oldwindowxy2.X, oldwindowxy2.Y);
 }
 
 void RenderToSavePic(FRenderViewpoint& vp, FileWriter* file, int width, int height)

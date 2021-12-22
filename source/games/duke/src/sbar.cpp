@@ -53,28 +53,28 @@ void DrawBorder()
 	auto tex = tileGetTexture(TILE_SCREENBORDER);
 	if (tex != nullptr && tex->isValid())
 	{
-		if (windowxy1.y > 0)
+		if (windowxy1.Y > 0)
 		{
-			twod->AddFlatFill(0, 0, twod->GetWidth(), windowxy1.y, tex, false, 1);
+			twod->AddFlatFill(0, 0, twod->GetWidth(), windowxy1.Y, tex, false, 1);
 		}
-		if (windowxy2.y + 1 < twod->GetHeight())
+		if (windowxy2.Y + 1 < twod->GetHeight())
 		{
-			twod->AddFlatFill(0, windowxy2.y + 1, twod->GetWidth(), twod->GetHeight(), tex, false, 1);
+			twod->AddFlatFill(0, windowxy2.Y + 1, twod->GetWidth(), twod->GetHeight(), tex, false, 1);
 		}
 		if (windowxy1.X > 0)
 		{
-			twod->AddFlatFill(0, windowxy1.y, windowxy1.X, windowxy2.y + 1, tex, false, 1);
+			twod->AddFlatFill(0, windowxy1.Y, windowxy1.X, windowxy2.Y + 1, tex, false, 1);
 		}
 		if (windowxy2.X + 1 < twod->GetWidth())
 		{
-			twod->AddFlatFill(windowxy2.X + 1, windowxy1.y, twod->GetWidth(), windowxy2.y + 1, tex, false, 1);
+			twod->AddFlatFill(windowxy2.X + 1, windowxy1.Y, twod->GetWidth(), windowxy2.Y + 1, tex, false, 1);
 		}
 		auto vb = tileGetTexture(TILE_VIEWBORDER);
 		auto ve = tileGetTexture(TILE_VIEWBORDER + 1);
 		int x1 = windowxy1.X - 4;
-		int y1 = windowxy1.y - 4;
+		int y1 = windowxy1.Y - 4;
 		int x2 = windowxy2.X + 5;
-		int y2 = windowxy2.y + 5;
+		int y2 = windowxy2.Y + 5;
 		twod->AddFlatFill(x1, y1, x2, y1 + 4, vb, 5);
 		twod->AddFlatFill(x1, y2 - 4, x2, y2, vb, 6);
 		twod->AddFlatFill(x1, y1, x1 + 4, y2, vb, 1);

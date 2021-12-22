@@ -269,7 +269,7 @@ void AddFlash(sectortype* pSector, int x, int y, int z, int val)
 
             ebx = x2;
 
-            int y2 = y - average.y;
+            int y2 = y - average.Y;
             if (y2 < 0) {
                 y2 = -y2;
             }

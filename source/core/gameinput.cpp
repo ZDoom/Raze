@@ -454,7 +454,7 @@ void PlayerHorizon::calcviewpitch(vec2_t const pos, binangle const ang, bool con
 			// Get a point, 512 (64 for Blood) units ahead of player's position
 			int const shift = -(isBlood() ? BLOODSINSHIFT : DEFSINSHIFT);
 			int const x = pos.X + ang.bcos(shift);
-			int const y = pos.y + ang.bsin(shift);
+			int const y = pos.Y + ang.bsin(shift);
 			auto tempsect = cursectnum;
 			updatesector(x, y, &tempsect);
 
@@ -462,7 +462,7 @@ void PlayerHorizon::calcviewpitch(vec2_t const pos, binangle const ang, bool con
 			{
 				// Get the floorz as if the new (x,y) point was still in
 				// your sector
-				int const j = getflorzofslopeptr(cursectnum, pos.X, pos.y);
+				int const j = getflorzofslopeptr(cursectnum, pos.X, pos.Y);
 				int const k = getflorzofslopeptr(tempsect, x, y);
 
 				// If extended point is in same sector as you or the slopes

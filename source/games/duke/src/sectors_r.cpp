@@ -952,15 +952,15 @@ static void lotsofpopcorn(DDukeActor *actor, walltype* wal, int n)
 	auto delta = wal->delta();
 
 	x1 -= Sgn(delta.X);
-	y1 += Sgn(delta.y);
+	y1 += Sgn(delta.Y);
 
 	delta.X /= j;
-	delta.y /= j;
+	delta.Y /= j;
 
 	for (j = n; j > 0; j--)
 	{
 		x1 += delta.X;
-		y1 += delta.y;
+		y1 += delta.Y;
 
 		updatesector(x1, y1, &sect);
 		if (sect)

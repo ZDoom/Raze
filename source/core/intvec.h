@@ -9,19 +9,19 @@ struct vec2_16_t
 
 struct vec2_t
 {
-    int32_t X, y;
+    int32_t X, Y;
 
     vec2_t() = default;
     vec2_t(const vec2_t&) = default;
-    vec2_t(int x, int y_) : X(x), y(y_) {}
-    vec2_t operator+(const vec2_t& other) const { return { X + other.X, y + other.y }; }
-    vec2_t operator-(const vec2_t& other) const { return { X - other.X, y - other.y }; }
-    vec2_t& operator+=(const vec2_t& other) { X += other.X; y += other.y; return *this; };
-    vec2_t& operator-=(const vec2_t& other) { X -= other.X; y -= other.y; return *this; };
-	vec2_t& operator/= (int other) { X /= other; y /= other; return *this; }
-    bool operator == (const vec2_t& other) const { return X == other.X && y == other.y; };
+    vec2_t(int x, int y) : X(x), Y(y) {}
+    vec2_t operator+(const vec2_t& other) const { return { X + other.X, Y + other.Y }; }
+    vec2_t operator-(const vec2_t& other) const { return { X - other.X, Y - other.Y }; }
+    vec2_t& operator+=(const vec2_t& other) { X += other.X; Y += other.Y; return *this; };
+    vec2_t& operator-=(const vec2_t& other) { X -= other.X; Y -= other.Y; return *this; };
+	vec2_t& operator/= (int other) { X /= other; Y /= other; return *this; }
+    bool operator == (const vec2_t& other) const { return X == other.X && Y == other.Y; };
 };
-inline vec2_t operator/ (const vec2_t& vec, int other) { return { vec.X / other, vec.y / other }; }
+inline vec2_t operator/ (const vec2_t& vec, int other) { return { vec.X / other, vec.Y / other }; }
 
 struct vec3_t
 {

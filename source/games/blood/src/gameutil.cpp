@@ -285,14 +285,14 @@ bool CheckProximityWall(walltype* pWall, int x, int y, int nDist)
 int GetWallAngle(walltype* pWall)
 {
     auto delta = pWall->delta();
-    return getangle(delta.X, delta.y);
+    return getangle(delta.X, delta.Y);
 }
 
 void GetWallNormal(walltype* pWall, int *pX, int *pY)
 {
 
     auto delta = pWall->delta();
-    int dX = -delta.y >> 4;
+    int dX = -delta.Y >> 4;
     int dY = delta.X >> 4;
 
     int nLength = ksqrt(dX*dX+dY*dY);
@@ -348,15 +348,15 @@ int HitScan(DBloodActor *actor, int z, int dx, int dy, int dz, unsigned int nMas
     if (nRange)
     {
         hitscangoal.X = x + MulScale(nRange << 4, Cos(pSprite->ang), 30);
-        hitscangoal.y = y + MulScale(nRange << 4, Sin(pSprite->ang), 30);
+        hitscangoal.Y = y + MulScale(nRange << 4, Sin(pSprite->ang), 30);
     }
     else
     {
-        hitscangoal.X = hitscangoal.y = 0x1ffffff;
+        hitscangoal.X = hitscangoal.Y = 0x1ffffff;
     }
     hitscan({ x, y, z }, pSprite->sector(), { dx, dy, dz << 4 }, gHitInfo, nMask);
 
-    hitscangoal.X = hitscangoal.y = 0x1ffffff;
+    hitscangoal.X = hitscangoal.Y = 0x1ffffff;
     pSprite->cstat = bakCstat;
     if (gHitInfo.actor() != nullptr)
         return 3;
@@ -393,16 +393,16 @@ int VectorScan(DBloodActor *actor, int nOffset, int nZOffset, int dx, int dy, in
     if (nRange)
     {
         hitscangoal.X = x1+MulScale(nRange<<4, Cos(pSprite->ang), 30);
-        hitscangoal.y = y1+MulScale(nRange<<4, Sin(pSprite->ang), 30);
+        hitscangoal.Y = y1+MulScale(nRange<<4, Sin(pSprite->ang), 30);
     }
     else
     {
-        hitscangoal.X = hitscangoal.y = 0x1fffffff;
+        hitscangoal.X = hitscangoal.Y = 0x1fffffff;
     }
     vec3_t pos = { x1, y1, z1 };
     hitscan(pos, pSprite->sector(), { dx, dy, dz << 4 }, gHitInfo, CLIPMASK1);
 
-    hitscangoal.X = hitscangoal.y = 0x1ffffff;
+    hitscangoal.X = hitscangoal.Y = 0x1ffffff;
     pSprite->cstat = bakCstat;
     while (nNum--)
     {

@@ -308,7 +308,7 @@ inline int32_t ksqrt(uint64_t num)
 int32_t   getangle(int32_t xvect, int32_t yvect);
 inline int32_t   getangle(const vec2_t& vec)
 {
-    return getangle(vec.X, vec.y);
+    return getangle(vec.X, vec.Y);
 }
 
 inline constexpr uint32_t uhypsq(int32_t const dx, int32_t const dy)
@@ -334,7 +334,7 @@ inline void getcorrectzsofslope(int sectnum, int32_t dax, int32_t day, int32_t *
 {
     vec2_t closest = { dax, day };
     getsectordist(closest, sectnum, &closest);
-    getzsofslopeptr((usectorptr_t)&sector[sectnum], closest.X, closest.y, ceilz, florz);
+    getzsofslopeptr((usectorptr_t)&sector[sectnum], closest.X, closest.Y, ceilz, florz);
 }
 
 void   alignceilslope(sectortype* dasect, int32_t x, int32_t y, int32_t z);

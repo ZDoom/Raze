@@ -179,7 +179,7 @@ inline void clearfriction()
 {
 	for (int i = 0; i != -1; i = connectpoint2[i])
 	{
-		ps[i].fric.X = ps[i].fric.y = 0;
+		ps[i].fric.X = ps[i].fric.Y = 0;
 	}
 }
 

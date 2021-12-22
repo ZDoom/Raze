@@ -231,7 +231,7 @@ static int OutlineToFloat(Outline& outl, FOutline& polygon)
 		for (unsigned j = 0; j < outl[i].Size(); j++)
 		{
 			float X = RenderX(outl[i][j].X);
-			float Y = RenderY(outl[i][j].y);
+			float Y = RenderY(outl[i][j].Y);
 			if (fabs(X) > 32768.f || fabs(Y) > 32768.f)
 			{
 				// If we get here there's some fuckery going around with the coordinates. Let's better abort and wait for things to realign.
