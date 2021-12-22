@@ -1446,7 +1446,7 @@ int hitscan(const vec3_t& start, const sectortype* startsect, const vec3_t& dire
                 if (abs(intx-sv->X)+abs(inty-sv->Y) > abs((hitinfo.hitpos.X)-sv->X)+abs((hitinfo.hitpos.Y)-sv->Y))
                     continue;
 
-                daz = spr->pos.Z + spriteheightofsptr(&actor->s(), &k, 1);
+                daz = spr->pos.Z + spriteheightofsptr(&actor->spr, &k, 1);
                 if (intz > daz-k && intz < daz)
                 {
                     if (picanm[tilenum].sf&PICANM_TEXHITSCAN_BIT)

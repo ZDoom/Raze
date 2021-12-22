@@ -358,7 +358,7 @@ inline tspriteptr_t renderAddTsprite(tspritetype* tsprite, int& spritesortcnt, D
 {
 	if (spritesortcnt >= MAXSPRITESONSCREEN) return nullptr;
 	auto tspr = &tsprite[spritesortcnt++];
-	tspr->copyfrom(&actor->s());
+	tspr->copyfrom(&actor->spr);
 	tspr->clipdist = 0;
 	tspr->ownerActor = actor;
 	return tspr;

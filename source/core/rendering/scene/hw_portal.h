@@ -299,7 +299,7 @@ struct HWLineToSpritePortal : public HWLinePortal
 {
 	walltype clipline = {};
 	walltype* origin;
-	spritetype* camera;
+	DCoreActor* camera;
 protected:
 	bool Setup(HWDrawInfo* di, FRenderState& rstate, Clipper* clipper) override;
 	virtual void* GetSource() const override { return origin; }
@@ -309,7 +309,7 @@ protected:
 
 public:
 
-	HWLineToSpritePortal(FPortalSceneState* state, walltype* from, spritetype* to)
+	HWLineToSpritePortal(FPortalSceneState* state, walltype* from, DCoreActor* to)
 		: HWLinePortal(state, &clipline), origin(from), camera(to)
 	{
 	}

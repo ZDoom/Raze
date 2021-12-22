@@ -591,7 +591,7 @@ void HWWall::PutPortal(HWDrawInfo *di, int ptype, int plane)
 	case PORTALTYPE_LINETOSPRITE:
 		// These are also unique.
 		assert(seg->portalnum >= 0 && seg->portalnum < 8);
-		portal = new HWLineToSpritePortal(&portalState, seg, &wall_to_sprite_actors[seg->portalnum]->s());
+		portal = new HWLineToSpritePortal(&portalState, seg, wall_to_sprite_actors[seg->portalnum]);
 		di->Portals.Push(portal);
 		portal->AddLine(this);
 		break;
