@@ -2351,11 +2351,10 @@ static void actInitTraps()
 	BloodStatIterator it(kStatTraps);
 	while (auto act = it.Next())
 	{
-		spritetype* pSprite = &act->s();
-		if (pSprite->type == kTrapExploder)
+		if (act->spr.type == kTrapExploder)
 		{
-			pSprite->cstat &= ~CSTAT_SPRITE_BLOCK;
-			pSprite->cstat |= CSTAT_SPRITE_INVISIBLE;
+			act->spr.cstat &= ~CSTAT_SPRITE_BLOCK;
+			act->spr.cstat |= CSTAT_SPRITE_INVISIBLE;
 			if (!act->hasX()) continue;
 			auto x = &act->x();
 			x->waitTime = ClipLow(x->waitTime, 1);
@@ -2376,10 +2375,9 @@ static void actInitThings()
 	while (auto act = it.Next())
 	{
 		if (!act->hasX()) continue;
-		spritetype* pSprite = &act->s();
 		XSPRITE* pXSprite = &act->x();
 
-		int nType = pSprite->type - kThingBase;
+		int nType = act->spr.type - kThingBase;
 		pXSprite->health = thingInfo[nType].startHealth << 4;
 #ifdef NOONE_EXTENSIONS
 		// allow level designer to set custom clipdist.
@@ -2387,13 +2385,13 @@ static void actInitThings()
 		// but what if it have voxel model...?
 		if (!gModernMap)
 #endif
-			pSprite->clipdist = thingInfo[nType].clipdist;
+			act->spr.clipdist = thingInfo[nType].clipdist;
 
-		pSprite->flags = thingInfo[nType].flags;
-		if (pSprite->flags & kPhysGravity) pSprite->flags |= kPhysFalling;
+		act->spr.flags = thingInfo[nType].flags;
+		if (act->spr.flags & kPhysGravity) act->spr.flags |= kPhysFalling;
 		act->xvel = act->yvel = act->zvel = 0;
 
-		switch (pSprite->type)
+		switch (act->spr.type)
 		{
 		case kThingArmedProxBomb:
 		case kTrapMachinegun:
@@ -2446,8 +2444,7 @@ static void actInitDudes()
 		BloodStatIterator it(kStatDude);
 		while (auto act = it.Next())
 		{
-			spritetype* pSprite = &act->s();
-			if (pSprite->type < kDudeBase || pSprite->type >= kDudeMax)
+			if (act->spr.type < kDudeBase || act->spr.type >= kDudeMax)
 				I_Error("Non-enemy sprite (%d) in the enemy sprite list.\n", act->GetIndex());
 		}
 
@@ -2462,19 +2459,18 @@ static void actInitDudes()
 		while (auto act = it.Next())
 		{
 			if (!act->hasX()) continue;
-			spritetype* pSprite = &act->s();
 			XSPRITE* pXSprite = &act->x();
 
-			int nType = pSprite->type - kDudeBase;
+			int nType = act->spr.type - kDudeBase;
 			int seqStartId = dudeInfo[nType].seqStartID;
 			if (!act->IsPlayerActor())
 			{
 #ifdef NOONE_EXTENSIONS
-				switch (pSprite->type)
+				switch (act->spr.type)
 				{
 				case kDudeModernCustom:
 				case kDudeModernCustomBurning:
-					pSprite->cstat |= CSTAT_SPRITE_BLOOD_BIT1 | CSTAT_SPRITE_BLOCK_ALL;
+					act->spr.cstat |= CSTAT_SPRITE_BLOOD_BIT1 | CSTAT_SPRITE_BLOCK_ALL;
 					seqStartId = genDudeSeqStartId(act); //  Custom Dude stores its SEQ in data2
 					pXSprite->sysData1 = pXSprite->data3; // move sndStartId to sysData1, because data3 used by the game;
 					pXSprite->data3 = 0;
@@ -2484,13 +2480,13 @@ static void actInitDudes()
 					if (gModernMap) break;
 					[[fallthrough]];
 				default:
-					pSprite->clipdist = dudeInfo[nType].clipdist;
-					pSprite->cstat |= CSTAT_SPRITE_BLOOD_BIT1 | CSTAT_SPRITE_BLOCK_ALL;
+					act->spr.clipdist = dudeInfo[nType].clipdist;
+					act->spr.cstat |= CSTAT_SPRITE_BLOOD_BIT1 | CSTAT_SPRITE_BLOCK_ALL;
 					break;
 				}
 #else
-				pSprite->clipdist = dudeInfo[nType].clipdist;
-				pSprite->cstat |= CSTAT_SPRITE_BLOOD_BIT1 | CSTAT_SPRITE_BLOCK_ALL;
+				act->spr.clipdist = dudeInfo[nType].clipdist;
+				act->spr.cstat |= CSTAT_SPRITE_BLOOD_BIT1 | CSTAT_SPRITE_BLOCK_ALL;
 #endif
 
 				act->xvel = act->yvel = act->zvel = 0;
@@ -2658,16 +2654,15 @@ void actRadiusDamage(DBloodActor* source, int x, int y, int z, sectortype* pSect
 		{
 			if (act2 != source || (flags & 1))
 			{
-				auto pSprite2 = &act2->s();
 				if (act2->hasX())
 				{
-					if (pSprite2->flags & 0x20) continue;
+					if (act2->spr.flags & 0x20) continue;
 					if (!CheckSector(sectorMap, pSprite2)) continue;
 					if (!CheckProximity(act2, x, y, z, pSector, nDist)) continue;
 
-					int dx = abs(x - pSprite2->pos.X);
-					int dy = abs(y - pSprite2->pos.Y);
-					int dz = abs(z - pSprite2->pos.Z) >> 4;
+					int dx = abs(x - act2->spr.pos.X);
+					int dy = abs(y - act2->spr.pos.Y);
+					int dz = abs(z - act2->spr.pos.Z) >> 4;
 					int dist = ksqrt(dx * dx + dy * dy + dz * dz);
 					if (dist > nDist) continue;
 
@@ -2686,17 +2681,15 @@ void actRadiusDamage(DBloodActor* source, int x, int y, int z, sectortype* pSect
 		BloodStatIterator it(kStatDude);
 		while (auto act2 = it.Next())
 		{
-			auto pSprite2 = &act2->s();
-
-			if (pSprite2->flags & 0x20) continue;
+			if (act2->spr.flags & 0x20) continue;
 			if (!CheckSector(sectorMap, pSprite2)) continue;
 			if (!CheckProximity(act2, x, y, z, pSector, nDist)) continue;
 
 			XSPRITE* pXSprite2 = &act2->x();
 			if (pXSprite2->locked) continue;
 
-			int dx = abs(x - pSprite2->pos.X);
-			int dy = abs(y - pSprite2->pos.Y);
+			int dx = abs(x - act2->spr.pos.X);
+			int dy = abs(y - act2->spr.pos.Y);
 			int dist = ksqrt(dx * dx + dy * dy);
 			if (dist > nDist) continue;
 
@@ -2779,12 +2772,11 @@ static DBloodActor* actDropAmmo(DBloodActor* actor, int nType)
 	{
 		auto act2 = actSpawnFloor(actor);
 		const AMMOITEMDATA* pAmmo = &gAmmoItemData[nType - kItemAmmoBase];
-		auto pSprite2 = &act2->s();
-		pSprite2->type = nType;
-		pSprite2->picnum = pAmmo->picnum;
-		pSprite2->shade = pAmmo->shade;
-		pSprite2->xrepeat = pAmmo->xrepeat;
-		pSprite2->yrepeat = pAmmo->yrepeat;
+		act2->spr.type = nType;
+		act2->spr.picnum = pAmmo->picnum;
+		act2->spr.shade = pAmmo->shade;
+		act2->spr.xrepeat = pAmmo->xrepeat;
+		act2->spr.yrepeat = pAmmo->yrepeat;
 		return act2;
 	}
 	return nullptr;
@@ -2798,12 +2790,11 @@ static DBloodActor* actDropWeapon(DBloodActor* actor, int nType)
 	{
 		auto act2 = actSpawnFloor(actor);
 		const WEAPONITEMDATA* pWeapon = &gWeaponItemData[nType - kItemWeaponBase];
-		auto pSprite2 = &act2->s();
-		pSprite2->type = nType;
-		pSprite2->picnum = pWeapon->picnum;
-		pSprite2->shade = pWeapon->shade;
-		pSprite2->xrepeat = pWeapon->xrepeat;
-		pSprite2->yrepeat = pWeapon->yrepeat;
+		act2->spr.type = nType;
+		act2->spr.picnum = pWeapon->picnum;
+		act2->spr.shade = pWeapon->shade;
+		act2->spr.xrepeat = pWeapon->xrepeat;
+		act2->spr.yrepeat = pWeapon->yrepeat;
 		return act2;
 	}
 	return nullptr;
@@ -2817,12 +2808,11 @@ static DBloodActor* actDropItem(DBloodActor* actor, int nType)
 	{
 		auto act2 = actSpawnFloor(actor);
 		const ITEMDATA* pItem = &gItemData[nType - kItemBase];
-		auto pSprite2 = &act2->s();
-		pSprite2->type = nType;
-		pSprite2->picnum = pItem->picnum;
-		pSprite2->shade = pItem->shade;
-		pSprite2->xrepeat = pItem->xrepeat;
-		pSprite2->yrepeat = pItem->yrepeat;
+		act2->spr.type = nType;
+		act2->spr.picnum = pItem->picnum;
+		act2->spr.shade = pItem->shade;
+		act2->spr.xrepeat = pItem->xrepeat;
+		act2->spr.yrepeat = pItem->yrepeat;
 		return act2;
 	}
 	return nullptr;
@@ -4214,31 +4204,30 @@ static void checkCeilHit(DBloodActor* actor)
 		auto actor2 = coll.actor();
 		if (actor2 && actor2->hasX())
 		{
-			spritetype* pSprite2 = &actor2->s();
 			XSPRITE* pXSprite2 = &actor2->x();
-			if ((pSprite2->statnum == kStatThing || pSprite2->statnum == kStatDude) && (actor->xvel != 0 || actor->yvel != 0 || actor->zvel != 0))
+			if ((actor2->spr.statnum == kStatThing || actor2->spr.statnum == kStatDude) && (actor->xvel != 0 || actor->yvel != 0 || actor->zvel != 0))
 			{
-				if (pSprite2->statnum == kStatThing)
+				if (actor2->spr.statnum == kStatThing)
 				{
-					int nType = pSprite2->type - kThingBase;
+					int nType = actor2->spr.type - kThingBase;
 					const THINGINFO* pThingInfo = &thingInfo[nType];
-					if (pThingInfo->flags & 1) pSprite2->flags |= 1;
-					if (pThingInfo->flags & 2) pSprite2->flags |= 4;
+					if (pThingInfo->flags & 1) actor2->spr.flags |= 1;
+					if (pThingInfo->flags & 2) actor2->spr.flags |= 4;
 					// Inlined ?
-					actor2->xvel += MulScale(4, pSprite2->pos.X - pSprite->pos.X, 2);
-					actor2->yvel += MulScale(4, pSprite2->pos.Y - pSprite->pos.Y, 2);
+					actor2->xvel += MulScale(4, actor2->spr.pos.X - pSprite->pos.X, 2);
+					actor2->yvel += MulScale(4, actor2->spr.pos.Y - pSprite->pos.Y, 2);
 				}
 				else
 				{
-					pSprite2->flags |= 5;
-					actor2->xvel += MulScale(4, pSprite2->pos.X - pSprite->pos.X, 2);
-					actor2->yvel += MulScale(4, pSprite2->pos.Y - pSprite->pos.Y, 2);
+					actor2->spr.flags |= 5;
+					actor2->xvel += MulScale(4, actor2->spr.pos.X - pSprite->pos.X, 2);
+					actor2->yvel += MulScale(4, actor2->spr.pos.Y - pSprite->pos.Y, 2);
 
 #ifdef NOONE_EXTENSIONS
 					// add size shroom abilities
 					if ((actor->IsPlayerActor() && isShrinked(actor)) || (actor2->IsPlayerActor() && isGrown(actor2))) {
 
-						int mass1 = getDudeInfo(pSprite2->type)->mass;
+						int mass1 = getDudeInfo(actor2->spr.type)->mass;
 						int mass2 = getDudeInfo(pSprite->type)->mass;
 						switch (pSprite->type)
 						{
@@ -4249,7 +4238,7 @@ static void checkCeilHit(DBloodActor* actor)
 						}
 						if (mass1 > mass2)
 						{
-							int dmg = abs((mass1 - mass2) * (pSprite2->clipdist - pSprite->clipdist));
+							int dmg = abs((mass1 - mass2) * (actor2->spr.clipdist - pSprite->clipdist));
 							if (actor2->IsDudeActor())
 							{
 								if (dmg > 0) actDamageSprite(actor2, actor, (Chance(0x2000)) ? kDamageFall : (Chance(0x4000)) ? kDamageExplode : kDamageBullet, dmg);
@@ -4260,7 +4249,7 @@ static void checkCeilHit(DBloodActor* actor)
 #endif
 					if (!actor->IsPlayerActor() || gPlayer[pSprite->type - kDudePlayer1].godMode == 0)
 					{
-						switch (pSprite2->type)
+						switch (actor2->spr.type)
 						{
 						case kDudeTchernobog:
 							actDamageSprite(actor2, actor, kDamageExplode, pXSprite->health << 2);
@@ -4288,7 +4277,7 @@ static void checkCeilHit(DBloodActor* actor)
 				}
 			}
 
-			if (pSprite2->type == kTrapSawCircular)
+			if (actor2->spr.type == kTrapSawCircular)
 			{
 				if (!pXSprite2->state) actDamageSprite(actor, actor, kDamageBullet, 1);
 				else {
@@ -4322,7 +4311,6 @@ static void checkHit(DBloodActor* actor)
 		if (coll.actor()->hasX())
 		{
 			auto actor2 = coll.actor();
-			spritetype* pSprite2 = &actor2->s();
 
 #ifdef NOONE_EXTENSIONS
 			// add size shroom abilities
@@ -4331,8 +4319,8 @@ static void checkHit(DBloodActor* actor)
 				if (actor->xvel != 0 && actor2->IsDudeActor())
 				{
 					int mass1 = getDudeInfo(pSprite->type)->mass;
-					int mass2 = getDudeInfo(pSprite2->type)->mass;
-					switch (pSprite2->type)
+					int mass2 = getDudeInfo(actor2->spr.type)->mass;
+					switch (actor2->spr.type)
 					{
 					case kDudeModernCustom:
 					case kDudeModernCustomBurning:
@@ -4350,7 +4338,7 @@ static void checkHit(DBloodActor* actor)
 			}
 #endif
 
-			switch (pSprite2->type)
+			switch (actor2->spr.type)
 			{
 			case kThingKickablePail:
 				actKickObject(actor, actor2);
@@ -4398,7 +4386,6 @@ static void checkFloorHit(DBloodActor* actor)
 		if (coll.actor()->hasX())
 		{
 			auto actor2 = coll.actor();
-			spritetype* pSprite2 = &actor2->s();
 			XSPRITE* pXSprite2 = &actor2->x();
 
 #ifdef NOONE_EXTENSIONS
@@ -4407,8 +4394,8 @@ static void checkFloorHit(DBloodActor* actor)
 			{
 
 				int mass1 = getDudeInfo(pSprite->type)->mass;
-				int mass2 = getDudeInfo(pSprite2->type)->mass;
-				switch (pSprite2->type)
+				int mass2 = getDudeInfo(actor2->spr.type)->mass;
+				switch (actor2->spr.type)
 				{
 				case kDudeModernCustom:
 				case kDudeModernCustomBurning:
@@ -4418,7 +4405,7 @@ static void checkFloorHit(DBloodActor* actor)
 
 				if (mass1 > mass2 && actor2->IsDudeActor())
 				{
-					if ((IsPlayerSprite(pSprite2) && Chance(0x500)) || !IsPlayerSprite(pSprite2))
+					if ((actor2->IsPlayerActor() && Chance(0x500)) || !actor2->IsPlayerActor())
 						actKickObject(actor, actor2);
 
 					int dmg = (mass1 - mass2) + pSprite->clipdist;
@@ -4430,7 +4417,7 @@ static void checkFloorHit(DBloodActor* actor)
 			PLAYER* pPlayer = nullptr;
 			if (actor->IsPlayerActor()) pPlayer = &gPlayer[pSprite->type - kDudePlayer1];
 
-			switch (pSprite2->type)
+			switch (actor2->spr.type)
 			{
 			case kThingKickablePail:
 				if (pPlayer)
@@ -5673,9 +5660,8 @@ static void actCheckProximity()
 				while (auto dudeactor = it1.Next())
 				{
 					auto nextdude = it1.Peek();
-					spritetype* pSprite2 = &dudeactor->s();
 
-					if (pSprite2->flags & 32 || !dudeactor->hasX()) continue;
+					if (dudeactor->spr.flags & 32 || !dudeactor->hasX()) continue;
 
 					XSPRITE* pXSprite2 = &dudeactor->x();
 					if ((unsigned int)pXSprite2->health > 0)
@@ -5695,9 +5681,9 @@ static void actCheckProximity()
 
 							spritetype* pOwner = &Owner->s();
 							PLAYER* pPlayer = &gPlayer[pOwner->type - kDudePlayer1];
-							PLAYER* pPlayer2 = dudeactor->IsPlayerActor() ? &gPlayer[pSprite2->type - kDudePlayer1] : nullptr;
+							PLAYER* pPlayer2 = dudeactor->IsPlayerActor() ? &gPlayer[dudeactor->spr.type - kDudePlayer1] : nullptr;
 
-							if (dudeactor == Owner || pSprite2->type == kDudeZombieAxeBuried || pSprite2->type == kDudeRat || pSprite2->type == kDudeBat) continue;
+							if (dudeactor == Owner || dudeactor->spr.type == kDudeZombieAxeBuried || dudeactor->spr.type == kDudeRat || dudeactor->spr.type == kDudeBat) continue;
 							if (gGameOptions.nGameType == 3 && pPlayer2 && pPlayer->teamId == pPlayer2->teamId) continue;
 							if (gGameOptions.nGameType == 1 && pPlayer2) continue;
 							proxyDist = 512;
@@ -5709,7 +5695,7 @@ static void actCheckProximity()
 							{
 							case kThingDroppedLifeLeech:
 								if (!Chance(0x4000) && nextdude) continue;
-								if (pSprite2->cstat & CSTAT_SPRITE_BLOCK) actor->SetTarget(dudeactor);
+								if (dudeactor->spr.cstat & CSTAT_SPRITE_BLOCK) actor->SetTarget(dudeactor);
 								else continue;
 								break;
 
