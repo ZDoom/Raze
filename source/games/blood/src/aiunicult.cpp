@@ -335,7 +335,6 @@ static void ThrowThing(DBloodActor* actor, bool impact)
     DBloodActor* spawned = nullptr;
     if ((spawned = actFireThing(actor, 0, 0, (dz / 128) - zThrow, curWeapon, DivScale(dist / 540, 120, 23))) == nullptr) return;
             
-    auto const pXSpawned = &spawned->x();
     if (pThinkInfo->picnum < 0 && spawned->spr.type != kModernThingThrowableRock) spawned->spr.picnum = 0;
             
     spawned->SetOwner(actor);
@@ -343,7 +342,7 @@ static void ThrowThing(DBloodActor* actor, bool impact)
     switch (curWeapon) {
         case kThingNapalmBall:
             spawned->spr.xrepeat = spawned->spr.yrepeat = 24;
-            pXSpawned->data4 = 3 + gGameOptions.nDifficulty;
+            spawned->xspr.data4 = 3 + gGameOptions.nDifficulty;
             impact = true;
             break;
         case kModernThingThrowableRock:
@@ -355,10 +354,10 @@ static void ThrowThing(DBloodActor* actor, bool impact)
             if (Chance(0x5000)) spawned->spr.cstat |= CSTAT_SPRITE_XFLIP;
             if (Chance(0x5000)) spawned->spr.cstat |= CSTAT_SPRITE_YFLIP;
 
-            if (spawned->spr.xrepeat > 60) pXSpawned->data1 = 43;
-            else if (spawned->spr.xrepeat > 40) pXSpawned->data1 = 33;
-            else if (spawned->spr.xrepeat > 30) pXSpawned->data1 = 23;
-            else pXSpawned->data1 = 12;
+            if (spawned->spr.xrepeat > 60) spawned->xspr.data1 = 43;
+            else if (spawned->spr.xrepeat > 40) spawned->xspr.data1 = 33;
+            else if (spawned->spr.xrepeat > 30) spawned->xspr.data1 = 23;
+            else spawned->xspr.data1 = 12;
             return;
         case kThingTNTBarrel:
         case kThingArmedProxBomb:
@@ -366,31 +365,31 @@ static void ThrowThing(DBloodActor* actor, bool impact)
             impact = false;
             break;
         case kModernThingTNTProx:
-            pXSpawned->state = 0;
-            pXSpawned->Proximity = true;
+            spawned->xspr.state = 0;
+            spawned->xspr.Proximity = true;
             return;
         case kModernThingEnemyLifeLeech:
-            if (actLeech != nullptr) pXSpawned->health = pXLeech->health;
-            else pXSpawned->health = ((pThinkInfo->startHealth << 4) * gGameOptions.nDifficulty) >> 1;
+            if (actLeech != nullptr) spawned->xspr.health = pXLeech->health;
+            else spawned->xspr.health = ((pThinkInfo->startHealth << 4) * gGameOptions.nDifficulty) >> 1;
 
             sfxPlay3DSound(actor, 490, -1, 0);
 
-            pXSpawned->data3 = 512 / (gGameOptions.nDifficulty + 1);
+            spawned->xspr.data3 = 512 / (gGameOptions.nDifficulty + 1);
             spawned->spr.cstat &= ~CSTAT_SPRITE_BLOCK;
             spawned->spr.pal = 6;
             spawned->spr.clipdist = 0;
             spawned->SetTarget(actor->GetTarget());
-            pXSpawned->Proximity = true;
-            pXSpawned->stateTimer = 1;
+            spawned->xspr.Proximity = true;
+            spawned->xspr.stateTimer = 1;
                 
             actor->genDudeExtra.pLifeLeech = spawned;
             evPostActor(spawned, 80, kCallbackLeechStateTimer);
             return;
     }
 
-    if (impact == true && dist <= 7680) pXSpawned->Impact = true;
+    if (impact == true && dist <= 7680) spawned->xspr.Impact = true;
     else {
-        pXSpawned->Impact = false;
+        spawned->xspr.Impact = false;
         evPostActor(spawned, 120 * Random(2) + 120, kCmdOn);
     }
 }
@@ -472,8 +471,7 @@ static void unicultThinkChase(DBloodActor* actor)
         return;
     } 
 
-    XSPRITE* pXTarget = &target->x();
-    if (pXTarget->health <= 0) // target is dead
+    if (target->xspr.health <= 0) // target is dead
     {
         PLAYER* pPlayer = NULL;
         if ((!target->IsPlayerActor()) || ((pPlayer = getPlayerById(target->spr.type)) != NULL && pPlayer->fragger == actor)) 
@@ -712,7 +710,7 @@ static void unicultThinkChase(DBloodActor* actor)
                         return;
                     case kMissileFlameSpray:
                     case kMissileFlameHound:
-                        //viewSetSystemMessage("%d", pXTarget->burnTime);
+                        //viewSetSystemMessage("%d", target->xspr.burnTime);
                         if (spriteIsUnderwater(actor, false)) 
                         {
                             if (dist > meleeVector->maxDist) aiGenDudeNewState(actor, &genDudeChaseW);
@@ -720,7 +718,7 @@ static void unicultThinkChase(DBloodActor* actor)
                             else aiGenDudeNewState(actor, &genDudeDodgeShortW);
                             return;
                         }
-                        else if (dist <= 4000 && pXTarget->burnTime >= 2000 && target->GetBurnSource() == actor)
+                        else if (dist <= 4000 && target->xspr.burnTime >= 2000 && target->GetBurnSource() == actor)
                         {
                             if (dist > meleeVector->maxDist) aiGenDudeNewState(actor, &genDudeChaseL);
                             else aiGenDudeNewState(actor, &genDudePunch);
@@ -1855,7 +1853,6 @@ void dudeLeechOperate(DBloodActor* actor, const EVENT& event)
 bool doExplosion(DBloodActor* actor, int nType)
 {
     auto actExplosion = actSpawnSprite(actor->spr.sector(), actor->spr.pos.X, actor->spr.pos.Y, actor->spr.pos.Z, kStatExplosion, true);
-    auto const pXExplosion = &actExplosion->x();
     if (!actExplosion->hasX())
         return false;
 
@@ -1868,9 +1865,9 @@ bool doExplosion(DBloodActor* actor, int nType)
 
     actExplosion->spr.yrepeat = actExplosion->spr.xrepeat = pExpl->repeat;
 
-    pXExplosion->data1 = pExpl->ticks;
-    pXExplosion->data2 = pExpl->quakeEffect;
-    pXExplosion->data3 = pExpl->flashEffect;
+    actExplosion->xspr.data1 = pExpl->ticks;
+    actExplosion->xspr.data2 = pExpl->quakeEffect;
+    actExplosion->xspr.data3 = pExpl->flashEffect;
 
     if (nType == 0) { nSeq = 3; nSnd = 303; }
     else if (nType == 2) { nSeq = 4; nSnd = 305; }
@@ -1894,11 +1891,7 @@ bool doExplosion(DBloodActor* actor, int nType)
 
 DBloodActor* genDudeSpawn(DBloodActor* source, DBloodActor* actor, int nDist) 
 {
-    auto pXSource = &source->x();
-
     auto spawned = actSpawnSprite(actor, kStatDude);
-    XSPRITE* pXDude = &spawned->x();
-
     int x, y, z = actor->spr.pos.Z, nAngle = actor->spr.ang, nType = kDudeModernCustom;
 
     if (nDist > 0) 
@@ -1922,24 +1915,24 @@ DBloodActor* genDudeSpawn(DBloodActor* source, DBloodActor* actor, int nDist)
     spawned->spr.clipdist = dudeInfo[nType - kDudeBase].clipdist;
 
     // inherit weapon, seq and sound settings.
-    pXDude->data1 = pXSource->data1;
-    pXDude->data2 = pXSource->data2;
-    pXDude->sysData1 = pXSource->data3; // move sndStartId from data3 to sysData1
-    pXDude->data3 = 0;
+    spawned->xspr.data1 = source->xspr.data1;
+    spawned->xspr.data2 = source->xspr.data2;
+    spawned->xspr.sysData1 = source->xspr.data3; // move sndStartId from data3 to sysData1
+    spawned->xspr.data3 = 0;
 
     // spawn seq
     seqSpawn(genDudeSeqStartId(spawned), spawned, -1);
 
     // inherit movement speed.
-    pXDude->busyTime = pXSource->busyTime;
+    spawned->xspr.busyTime = source->xspr.busyTime;
 
     // inherit clipdist?
     if (source->spr.clipdist > 0)
         spawned->spr.clipdist = source->spr.clipdist;
 
     // inherit custom hp settings
-    if (pXSource->data4 <= 0) pXDude->health = dudeInfo[nType - kDudeBase].startHealth << 4;
-    else pXDude->health = ClipRange(pXSource->data4 << 4, 1, 65535);
+    if (source->xspr.data4 <= 0) spawned->xspr.health = dudeInfo[nType - kDudeBase].startHealth << 4;
+    else spawned->xspr.health = ClipRange(source->xspr.data4 << 4, 1, 65535);
 
 
     if (source->spr.flags & kModernTypeFlag1) 
@@ -1950,23 +1943,23 @@ DBloodActor* genDudeSpawn(DBloodActor* source, DBloodActor* actor, int nDist)
                 if (spawned->spr.pal <= 0) spawned->spr.pal = source->spr.pal;
 
                 // inherit spawn sprite trigger settings, so designer can count monsters.
-                pXDude->txID = pXSource->txID;
-                pXDude->command = pXSource->command;
-                pXDude->triggerOn = pXSource->triggerOn;
-                pXDude->triggerOff = pXSource->triggerOff;
+                spawned->xspr.txID = source->xspr.txID;
+                spawned->xspr.command = source->xspr.command;
+                spawned->xspr.triggerOn = source->xspr.triggerOn;
+                spawned->xspr.triggerOff = source->xspr.triggerOff;
 
                 // inherit drop items
-                pXDude->dropMsg = pXSource->dropMsg;
+                spawned->xspr.dropMsg = source->xspr.dropMsg;
 
                 // inherit required key so it can be dropped
-                pXDude->key = pXSource->key;
+                spawned->xspr.key = source->xspr.key;
 
                 // inherit dude flags
-                pXDude->dudeDeaf = pXSource->dudeDeaf;
-                pXDude->dudeGuard = pXSource->dudeGuard;
-                pXDude->dudeAmbush = pXSource->dudeAmbush;
-                pXDude->dudeFlag4 = pXSource->dudeFlag4;
-                pXDude->unused1 = pXSource->unused1;
+                spawned->xspr.dudeDeaf = source->xspr.dudeDeaf;
+                spawned->xspr.dudeGuard = source->xspr.dudeGuard;
+                spawned->xspr.dudeAmbush = source->xspr.dudeAmbush;
+                spawned->xspr.dudeFlag4 = source->xspr.dudeFlag4;
+                spawned->xspr.unused1 = source->xspr.unused1;
                 break;
         }
     }
@@ -2003,16 +1996,15 @@ void genDudeTransform(DBloodActor* actor)
         return;
     }
     
-    auto pXIncarnation = &actIncarnation->x();
     pXSprite->key = pXSprite->dropMsg = pXSprite->locked = 0;
 
     // save incarnation's going on and off options
-    bool triggerOn = pXIncarnation->triggerOn;
-    bool triggerOff = pXIncarnation->triggerOff;
+    bool triggerOn = actIncarnation->xspr.triggerOn;
+    bool triggerOff = actIncarnation->xspr.triggerOff;
 
     // then remove it from incarnation so it will not send the commands
-    pXIncarnation->triggerOn = false;
-    pXIncarnation->triggerOff = false;
+    actIncarnation->xspr.triggerOn = false;
+    actIncarnation->xspr.triggerOff = false;
 
     // trigger dude death before transform
     trTriggerSprite(actor, kCmdOff);
@@ -2025,40 +2017,40 @@ void genDudeTransform(DBloodActor* actor)
     actor->spr.xrepeat = actIncarnation->spr.xrepeat;
     actor->spr.yrepeat = actIncarnation->spr.yrepeat;
 
-    pXSprite->txID = pXIncarnation->txID;
-    pXSprite->command = pXIncarnation->command;
+    pXSprite->txID = actIncarnation->xspr.txID;
+    pXSprite->command = actIncarnation->xspr.command;
     pXSprite->triggerOn = triggerOn;
     pXSprite->triggerOff = triggerOff;
-    pXSprite->busyTime = pXIncarnation->busyTime;
-    pXSprite->waitTime = pXIncarnation->waitTime;
+    pXSprite->busyTime = actIncarnation->xspr.busyTime;
+    pXSprite->waitTime = actIncarnation->xspr.waitTime;
 
     // inherit respawn properties
-    pXSprite->respawn = pXIncarnation->respawn;
-    pXSprite->respawnPending = pXIncarnation->respawnPending;
+    pXSprite->respawn = actIncarnation->xspr.respawn;
+    pXSprite->respawnPending = actIncarnation->xspr.respawnPending;
 
     pXSprite->burnTime = 0;
     actor->SetBurnSource(nullptr);
 
-    pXSprite->data1 = pXIncarnation->data1;
-    pXSprite->data2 = pXIncarnation->data2;
+    pXSprite->data1 = actIncarnation->xspr.data1;
+    pXSprite->data2 = actIncarnation->xspr.data2;
 
-    pXSprite->sysData1 = pXIncarnation->data3;  // soundBase id
-    pXSprite->sysData2 = pXIncarnation->data4;  // start hp
+    pXSprite->sysData1 = actIncarnation->xspr.data3;  // soundBase id
+    pXSprite->sysData2 = actIncarnation->xspr.data4;  // start hp
 
-    pXSprite->dudeGuard = pXIncarnation->dudeGuard;
-    pXSprite->dudeDeaf = pXIncarnation->dudeDeaf;
-    pXSprite->dudeAmbush = pXIncarnation->dudeAmbush;
-    pXSprite->dudeFlag4 = pXIncarnation->dudeFlag4;
-    pXSprite->unused1 = pXIncarnation->unused1;
+    pXSprite->dudeGuard = actIncarnation->xspr.dudeGuard;
+    pXSprite->dudeDeaf = actIncarnation->xspr.dudeDeaf;
+    pXSprite->dudeAmbush = actIncarnation->xspr.dudeAmbush;
+    pXSprite->dudeFlag4 = actIncarnation->xspr.dudeFlag4;
+    pXSprite->unused1 = actIncarnation->xspr.unused1;
 
-    pXSprite->dropMsg = pXIncarnation->dropMsg;
-    pXSprite->key = pXIncarnation->key;
+    pXSprite->dropMsg = actIncarnation->xspr.dropMsg;
+    pXSprite->key = actIncarnation->xspr.key;
 
-    pXSprite->locked = pXIncarnation->locked;
-    pXSprite->Decoupled = pXIncarnation->Decoupled;
+    pXSprite->locked = actIncarnation->xspr.locked;
+    pXSprite->Decoupled = actIncarnation->xspr.Decoupled;
 
     // clear drop items of the incarnation
-    pXIncarnation->key = pXIncarnation->dropMsg = 0;
+    actIncarnation->xspr.key = actIncarnation->xspr.dropMsg = 0;
 
     // set hp
     if (pXSprite->sysData2 <= 0) pXSprite->health = dudeInfo[actor->spr.type - kDudeBase].startHealth << 4;
@@ -2092,17 +2084,17 @@ void genDudeTransform(DBloodActor* actor)
 
             break;
     }
-    pXIncarnation->triggerOn = triggerOn;
-    pXIncarnation->triggerOff = triggerOff;
+    actIncarnation->xspr.triggerOn = triggerOn;
+    actIncarnation->xspr.triggerOff = triggerOff;
 
     /*// remove the incarnation in case if non-locked
-    if (pXIncarnation->locked == 0) {
-        pXIncarnation->txID = actIncarnation->spr.type = 0;
+    if (actIncarnation->xspr.locked == 0) {
+        actIncarnation->xspr.txID = actIncarnation->spr.type = 0;
         actPostSprite(pIncarnation, kStatFree);
         // or restore triggerOn and off options
     } else {
-        pXIncarnation->triggerOn = triggerOn;
-        pXIncarnation->triggerOff = triggerOff;
+        actIncarnation->xspr.triggerOn = triggerOn;
+        actIncarnation->xspr.triggerOff = triggerOff;
     }*/
 }
 
