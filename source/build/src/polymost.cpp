@@ -362,7 +362,7 @@ static void polymost_drawpoly(FVector2 const * const dpxy, int32_t const n, int3
 
     //Load texture (globalpicnum)
     gotpic.Set(globalpicnum);
-	vec2_t tsiz = { tilesize.X, tilesize.y };
+	vec2_t tsiz = { tilesize.X, tilesize.Y };
 
     assert(n <= MAX_DRAWPOLY_VERTS);
 
@@ -414,7 +414,7 @@ static void polymost_drawpoly(FVector2 const * const dpxy, int32_t const n, int3
 
     if ((method & DAMETH_WALL) != 0)
     {
-        int32_t size = tilesize.y;
+        int32_t size = tilesize.Y;
         int32_t size2;
         for (size2 = 1; size2 < size; size2 += size2) {}
         if (size == size2)
@@ -1193,7 +1193,7 @@ static void calc_ypanning(int32_t refposz, float ryp0, float ryp1,
     float const t1 = ((float)(refposz-globalposz))*ryp1 + ghoriz;
     float t = (float(xtex.d*x0 + otex.d) * (float)yrepeat) / ((x1-x0) * ryp0 * 2048.f);
     int i = 1<< heightBits(globalpicnum);
-    if (i < tilesize.y) i <<= 1;
+    if (i < tilesize.Y) i <<= 1;
 
 
     float const fy = (float)(ypan * i) * (1.f / 256.f);
@@ -1299,8 +1299,8 @@ static void polymost_flatskyrender(FVector2 const* const dpxy, int32_t const n, 
     float vv[2];
     float t = (float)((1<<(widthBits(globalpicnum)))<<dapskybits);
     vv[1] = dd*((float)xdimscale*fviewingrange) * (1.f/(daptileyscale*65536.f));
-    vv[0] = dd*((float)((tilesize.y>>1)+dapyoffs)) - vv[1]*ghoriz;
-    int ti = (1<<(heightBits(globalpicnum))); if (ti != tilesize.y) ti += ti;
+    vv[0] = dd*((float)((tilesize.Y>>1)+dapyoffs)) - vv[1]*ghoriz;
+    int ti = (1<<(heightBits(globalpicnum))); if (ti != tilesize.Y) ti += ti;
     FVector3 o;
 
     xtex.d = xtex.v = 0;
