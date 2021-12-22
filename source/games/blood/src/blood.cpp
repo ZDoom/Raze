@@ -232,15 +232,11 @@ void StartLevel(MapRecord* level, bool newgame)
 	int modernTypesErased = 0;
 	for (auto actor : actorlist)
 	{
-
-		spritetype* pSprite = &actor->s();
 		if (actor->exists() && actor->hasX()) 
 		{
-
-			XSPRITE* pXSprite = &actor->x();
-			if ((pXSprite->lSkill & (1 << gGameOptions.nDifficulty)) || (pXSprite->lS && gGameOptions.nGameType == 0)
-				|| (pXSprite->lB && gGameOptions.nGameType == 2) || (pXSprite->lT && gGameOptions.nGameType == 3)
-				|| (pXSprite->lC && gGameOptions.nGameType == 1)) {
+			if ((actor->xspr.lSkill & (1 << gGameOptions.nDifficulty)) || (actor->xspr.lS && gGameOptions.nGameType == 0)
+				|| (actor->xspr.lB && gGameOptions.nGameType == 2) || (actor->xspr.lT && gGameOptions.nGameType == 3)
+				|| (actor->xspr.lC && gGameOptions.nGameType == 1)) {
 
 				DeleteSprite(actor);
 				continue;

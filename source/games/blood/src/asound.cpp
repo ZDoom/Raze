@@ -48,23 +48,21 @@ void ambProcess(void)
     BloodStatIterator it(kStatAmbience);
     while (DBloodActor* actor = it.Next())
     {
-        spritetype *pSprite = &actor->s();
-        if (pSprite->owner < 0 || pSprite->owner >= kMaxAmbChannel)
+        if (actor->spr.owner < 0 || actor->spr.owner >= kMaxAmbChannel)
             continue;
         if (actor->hasX())
         {
-            XSPRITE *pXSprite = &actor->x();
-            if (pXSprite->state)
+            if (actor->xspr.state)
             {
-                int dx = pSprite->pos.X-gMe->pSprite->pos.X;
-                int dy = pSprite->pos.Y-gMe->pSprite->pos.Y;
-                int dz = pSprite->pos.Z-gMe->pSprite->pos.Z;
+                int dx = actor->spr.pos.X-gMe->actor->spr.pos.X;
+                int dy = actor->spr.pos.Y-gMe->actor->spr.pos.Y;
+                int dz = actor->spr.pos.Z-gMe->actor->spr.pos.Z;
                 dx >>= 4;
                 dy >>= 4;
                 dz >>= 8;
                 int nDist = ksqrt(dx*dx+dy*dy+dz*dz);
-                int vs = MulScale(pXSprite->data4, pXSprite->busy, 16);
-                ambChannels[pSprite->owner].distance += ClipRange(scale(nDist, pXSprite->data1, pXSprite->data2, vs, 0), 0, vs);
+                int vs = MulScale(actor->xspr.data4, actor->xspr.busy, 16);
+                ambChannels[actor->spr.owner].distance += ClipRange(scale(nDist, actor->xspr.data1, actor->xspr.data2, vs, 0), 0, vs);
             }
         }
     }
@@ -110,24 +108,22 @@ void ambInit(void)
     BloodStatIterator it(kStatAmbience);
     while (DBloodActor* actor = it.Next())
     {
-        spritetype* pSprite = &actor->s();
         if (!actor->hasX()) continue;
         
-        XSPRITE* pXSprite = &actor->x();
-        if (pXSprite->data1 >= pXSprite->data2) continue;
+        if (actor->xspr.data1 >= actor->xspr.data2) continue;
         
         int i; AMB_CHANNEL *pChannel = ambChannels;
         for (i = 0; i < nAmbChannels; i++, pChannel++)
-            if (pXSprite->data3 == pChannel->check) break;
+            if (actor->xspr.data3 == pChannel->check) break;
         
         if (i == nAmbChannels) {
             
             if (i >= kMaxAmbChannel) {
-                pSprite->owner = -1;
+                actor->spr.owner = -1;
                 continue;
             }
                     
-            int nSFX = pXSprite->data3;
+            int nSFX = actor->xspr.data3;
             auto snd = soundEngine->FindSoundByResID(nSFX);
             if (!snd) {
                 //I_Error("Missing sound #%d used in ambient sound generator %d\n", nSFX);
@@ -143,7 +139,7 @@ void ambInit(void)
 
         }
 
-        pSprite->owner = i;
+        actor->spr.owner = i;
     }
 }
 

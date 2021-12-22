@@ -41,10 +41,9 @@ BEGIN_BLD_NS
 DBloodActor* InsertSprite(sectortype* pSector, int nStat)
 {
     auto act = static_cast<DBloodActor*>(::InsertActor(RUNTIME_CLASS(DBloodActor), pSector, nStat));
-    auto pSprite = &act->s();
-    pSprite->cstat = CSTAT_SPRITE_YCENTER;
-    pSprite->clipdist = 32;
-    pSprite->xrepeat = pSprite->yrepeat = 64;
+    act->spr.cstat = CSTAT_SPRITE_YCENTER;
+    act->spr.clipdist = 32;
+    act->spr.xrepeat = act->spr.yrepeat = 64;
     return act;
 }
 

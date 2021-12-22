@@ -76,12 +76,11 @@ void FlareBurst(DBloodActor* actor, sectortype*) // 2
     for (int i = 0; i < 8; i++)
     {
         auto spawnedactor = actSpawnSprite(actor, 5);
-        spritetype *pSpawn = &spawnedactor->s();
-        pSpawn->picnum = 2424;
-        pSpawn->shade = -128;
-        pSpawn->xrepeat = pSpawn->yrepeat = 32;
-        pSpawn->type = kMissileFlareAlt;
-        pSpawn->clipdist = 2;
+        spawnedactor->spr.picnum = 2424;
+        spawnedactor->spr.shade = -128;
+        spawnedactor->spr.xrepeat = spawnedactor->spr.yrepeat = 32;
+        spawnedactor->spr.type = kMissileFlareAlt;
+        spawnedactor->spr.clipdist = 2;
         spawnedactor->SetOwner(actor);
         int nAngle2 = (i<<11)/8;
         int dx = 0;
@@ -600,13 +599,12 @@ void sub_76A08(DBloodActor *actor, DBloodActor *actor2, PLAYER *pPlayer) // ???
 {
     int top, bottom;
     auto pSprite = &actor->s();
-    auto pSprite2 = &actor2->s();
     GetSpriteExtents(pSprite, &top, &bottom);
-    pSprite->pos.X = pSprite2->pos.X;
-    pSprite->pos.Y = pSprite2->pos.Y;
-    pSprite->pos.Z = pSprite2->sector()->floorz-(bottom-pSprite->pos.Z);
-    pSprite->ang = pSprite2->ang;
-    ChangeActorSect(actor, pSprite2->sector());
+    pSprite->pos.X = actor2->spr.pos.X;
+    pSprite->pos.Y = actor2->spr.pos.Y;
+    pSprite->pos.Z = actor2->spr.sector()->floorz-(bottom-pSprite->pos.Z);
+    pSprite->ang = actor2->spr.ang;
+    ChangeActorSect(actor, actor2->spr.sector());
     sfxPlay3DSound(actor2, 201, -1, 0);
     actor->xvel = actor->yvel = actor->zvel = 0;
     viewBackupSpriteLoc(actor);
@@ -654,13 +652,12 @@ void DropVoodooCb(DBloodActor* actor, sectortype*) // unused
             auto nextactor = it.Peek();
             if (Owner == actor2)
                 continue;
-            spritetype *pSprite2 = &actor2->s();
             if (actor2->hasX())
             {
                 XSPRITE *pXSprite2 = &actor2->x();
                 PLAYER *pPlayer2;
                 if (actor2->IsPlayerActor())
-                    pPlayer2 = &gPlayer[pSprite2->type-kDudePlayer1];
+                    pPlayer2 = &gPlayer[actor2->spr.type-kDudePlayer1];
                 else
                     pPlayer2 = nullptr;
 
@@ -687,7 +684,7 @@ void DropVoodooCb(DBloodActor* actor, sectortype*) // unused
                     else
                     {
                         int vd = 0x2666;
-                        switch (pSprite2->type)
+                        switch (actor2->spr.type)
                         {
                         case kDudeBoneEel:
                         case kDudeBat:
